@@ -27,9 +27,10 @@ private:
   wstring panel_title;
   vector<InfoPanelLine> info_lines;
   bool real_archive_file;
+  bool need_close_panel;
 
 public:
-  Plugin(bool real_file=true): archive(new Archive()), real_archive_file(real_file) {}
+  Plugin(bool real_file=true): archive(new Archive()), real_archive_file(real_file), need_close_panel(false) {}
 
   static Plugin* open(const Archives& archives, bool real_file=true) {
     if (archives.size() == 0)
@@ -229,7 +230,7 @@ public:
       if (options.delete_archive) {
         archive->close();
         archive->delete_archive();
-        Far::close_panel(this, archive->arc_dir());
+        need_close_panel = true;
       }
       else if (options.move_files == triTrue) {
         archive->delete_files(extracted_indices);
@@ -263,7 +264,10 @@ public:
     PluginPanelItems pp_items(panel_items, items_number);
     extract_dir = *dest_path;
     extract(pp_items, extract_dir, move != 0, op_mode);
-    if (extract_dir != *dest_path) {
+    if (need_close_panel) {
+      Far::close_panel(this, archive->arc_dir());
+    }
+    else if (extract_dir != *dest_path) {
       *dest_path = extract_dir.c_str();
     }
   }

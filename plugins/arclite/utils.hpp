@@ -30,6 +30,7 @@ wstring unquote(const wstring& str);
 wstring search_and_replace(const wstring& str, const wstring& search_str, const wstring& replace_str);
 
 wstring long_path(const wstring& path);
+wstring long_path_norm(const wstring& path);
 
 wstring add_trailing_slash(const wstring& path);
 wstring del_trailing_slash(const wstring& path);

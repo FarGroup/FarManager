@@ -14,6 +14,15 @@ wstring long_path(const wstring& path) {
   }
 }
 
+wstring long_path_norm(const wstring& path) {
+  auto nt_path = long_path(path);
+  auto p = nt_path.find(L'/');
+  while (p != wstring::npos) {
+    nt_path[p] = L'\\'; p = nt_path.find(L'/', p+1);
+  }
+  return nt_path;
+}
+	
 wstring add_trailing_slash(const wstring& path) {
   if ((path.size() == 0) || (path[path.size() - 1] == L'\\')) {
     return path;
