@@ -59,6 +59,7 @@
 * Alexey Samlyukov
 * Anton Tagunov
 * Alexandr Zamaraev
+* Max Shirshin
 * Alexander Mitin
 * Stanislav Vinokurov
 * Hannes Eder

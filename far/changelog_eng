@@ -23472,3 +23472,1849 @@ drkns 09.08.2009 17:21:34 +0200 - build 1080
 
 1. If a single object was selected on panel and cursor was on "..", then PanelInfo.SelectedItemsNumber contained 0.
 
+
+--------------------------------------------------------------------------------
+Entries 464-1079 are not translated yet.
+--------------------------------------------------------------------------------
+
+
+svs 27.03.2008 18:03:22 +0300 - build 463
+
+1. Macro: added new macro area "Consts" to store named constants.
+   Constants should reside in the "KeyMacros\Consts" registry branch.
+Syntax is similar to "Vars", e.g.
+   Code:
+   KeyMacros\Consts
+     "StringName":REG_SZ
+     "IntName":REG_DWORD
+   Constants may have any name that begins with a letter...
+   Such constants as "ShiftIns" cannot be created (although
+"ShiftIns1" is syntactically a correct name)
+
+   Here is a working example using FIB_PASSWORD constant.
+
+   [HKEY_CURRENT_USER\Software\Far\KeyMacros\Consts]
+   "FIB_PASSWORD"=dword:00000002
+   [HKEY_CURRENT_USER\Software\Far\KeyMacros\Editor\CtrlP]
+   "Sequence"="%s=prompt(\"Password\",\"Input password:
+\",FIB_PASSWORD); $Text %s"
+   "DisableOutput"=dword:00000001
+
+   FAR reads constants upon startup and stores them in glbConstTable.
+   Constants can be checked for existence with checkMacroConst()
+
+2. Changes in varLook. Previously, it always added a variable, even
+when ins = 0 was passed. Its error parameter is also removed; instead,
+function returns a pointer or NULL. Because of this, some changes were
+made to the macro execution.
+
+drkns 26.03.2008 10:19:23 +0200 - build 462
+
+1. Mantis#0000510: FarDialogEvent.Result type should be PLONG_PTR, not
+LONG_PTR.
+   Result remains LONG_PTR, but now contains the actual value, not a
+pointer to it.
+   I hope it wasn't used in any of the plugins...:)
+
+t-rex 25.03.2008 23:41:53 +0200 - build 461
+
+1. Editor::GoToLine optimization, it was badly needed
+
+t-rex 25.03.2008 21:25:42 +0200 - build 460
+
+1. Mantis#499: Invalid file handle used in ShellCopy::ShellCopyFile().
+
+2. Mantis#395: Crash in UnicodeString::Format().
+
+3. Wild mix of spaces and tabs in panel.cpp.
+
+4. From Denis Kosy Mantis#505: Strings weren't cut in some VMenu.
+
+5. syntax.cpp: didn't build in VC8 (at least).
+
+svs 25.03.2008 21:51:35 +0300 - build 459
+
+1. Macro: added Editor.RealPos - current position in the editor
+regardless of the tabulation size
+
+2. Macro: function S=prompt("Title"[,"Prompt"[,flags[, "Src"[,
+"History"]]]])
+   Mantis#0000512: N = prompt(Title, Text, Flags)
+   See description in the Encyclopedia
+
+svs 25.03.2008 18:34:01 +0300 - build 458
+
+1. Corrections in panel.SetPath and optional parameters
+
+svs 25.03.2008 16:54:07 +0300 - build 457
+
+1. XXX::SetCurDir - function returns BOOL depending on the result
+
+2. Macro: Added function -
+N=panel.SetPath(panelType,pathName[,fileName])
+   Sets pathName directory on the panel, optionally accepts file
+object name (for cursor, like in panel.SetPos)
+
+3. Macro engine updated to match the 1.7x functionality:
+   a) added missing functions and operators
+       N=Menu.Select(S[,N])
+       N=mod(a,b) == a %  b
+       S=replace(sS,sF,sR[,Count])
+
+   б) operation precedence set:
+
+       Unary (R->L):          !  ~  -
+       Binary arithmetical: * /
+       Binary arithmetical: + -
+       Shift:                   << >>
+       Comparison:               < <= > >=
+       Comparison:               == !=
+       Bitwise:                 &
+       Bitwise:                 ^
+       Bitwise:                 |
+       Logical:              &&
+       Logical:              ||
+
+
+4. Some macro functions accept optional parameters
+     S=itoa(N[,radix]) - if radix is not provided, 10 assumed
+     N=Menu.Select(S[,N]) - N assumed to be 0
+     N=panel.SetPath(panelType,pathName[,fileName]) - empty string
+here
+     S=replace(Str,Find,Replace[,Cnt]) - Cnt=0 => infinite
+     S=substr(S,N1[,N2]) - to the end of a string
+     + msgbox - last parameter (flags) may be skipped, 0 assumed
+
+   For this purpose, oParam parameter is added to the __TMacroFunction
+structure.
+   In the interface, parameters can be skipped, they are filled in by
+PushInt(0) in the code
+
+drkns 25.03.2008 07:15:18 +0200 - build 456
+
+1. Mantis#0000004: DI_EDIT in Message for fields containing file
+names.
+   Message now works smarter: if a string is too long to fit, it is
+being but into DI_EDIT, otherwise the old behavior is retained.
+   This allowed for removal of TruncPathStr when Message is called.
+
+2. Mantis#0000080: Moving of a symbolic link to another disk.
+
+zg 25.03.2008 02:15:01 +0200 - build 455
+
+1. With TabSize=1, ShiftTab at the beginning of the string resulted in
+a negative value for the current column.
+
+t-rex 22.03.2008 21:33:34 +0200 - build 454
+
+1. DM_LISTINSERT didn't return a value as described in the
+Encyclopedia
+
+2. Some fixes to prevent potential bugs.
+
+svs 20.03.2008 18:22:21 +0300 - build 453
+
+1. Added Disable color for the previous build, and menu items in color
+settings were renamed
+   Now the FAR's palette size = 0x7F bytes
+
+2. In History/Combobox, arrows were displayed using the menu color;
+added VMENU_COMBOBOX flag
+
+
+svs 17.03.2008 20:23:22 +0300 - build 452
+
+1. Mantis#0000498 - Screen scrolling arrows colors for Menu/Listbox/
+Combobox
+   The following colors added for arrows:
+     COL_DIALOGLISTARROWS,
+     COL_DIALOGLISTARROWSSELECTED,
+     COL_DIALOGCOMBOARROWS,
+     COL_DIALOGCOMBOARROWSSELECTED,
+     COL_WARNDIALOGLISTARROWS,
+     COL_WARNDIALOGLISTARROWSSELECTED,
+     COL_WARNDIALOGCOMBOARROWS,
+     COL_WARNDIALOGCOMBOARROWSSELECTED,
+     COL_MENUARROWS,
+     COL_MENUARROWSSELECTED,
+
+2. Final fixes for '>' - removed redundant code that counted length of
+a new string, and added some optimizations.
+
+3. Macros depended on a keyboard layout
+
+drkns 17.03.2008 07:36:28 +0200 - build 451
+
+1. Correction for drawing '>' when scrolling VMenu.
+
+t-rex 16.03.2008 23:39:26 +0200 - build 450
+
+From Denis Kosy:
+
+1. Mantis#497: Strings with file masks are being cut at position
+60/78.
+   Because scrolling mode is now always enabled (ex-CtrlN), string
+doesn't need to be cut anymore
+
+t-rex 15.03.2008 19:49:48 +0200 - build 449
+
+From Alexey Samlyukov:
+
+1. math error when drawing '>' (for long strings in menu items).
+
+t-rex 15.03.2008 17:47:09 +0200 - build 448
+
+1. Mantis#87: Copying and hard links.
+
+svs 15.03.2008 17:48:39 +0300 - build  447
+
+1. Ctrl-N removed for lists (http://forum.farmanager.com/viewtopic.php?
+f=3&t=3130)
+
+drkns 15.03.2008 15:53:04 +0200 - build 446
+
+1. Mantis#0000222: Incorrect processing of data streams tied to
+directories.
+   Streams themselves didn't cause any problems, but processing paths
+like "\\?\c:\" и "\\?\Volume{GUID}\" did.
+   A couple of fixes in the code where such paths were used.
+
+t-rex 15.03.2008 13:41:32 +0200 - build 445
+
+1. Mantis#467: Cannot switch to a plugin panel; incorrect panel
+elements.
+   Fixed, but cannot understand anything :)
+
+t-rex 14.03.2008 19:16:30 +0200 - build 666-666/3
+
+1. Mantis#458: From the folder history, plugin having 1-letter prefix
+is run
+
+t-rex 14.03.2008 17:23:28 +0200 - build 443
+
+1. Mantis#463: Current process folder is not updated from the user
+menu, and it doesn't correspond to the active panel.
+   First, user menu switched folders on its own account, although that
+was not needed; second, a redundant AI was restoring the path. I
+simply removed everything like that.
+
+2. From Denis Kosy: Mantis#493: Execute broken.
+
+3. From Alexey Samlyukov: "" -> L"" в hilight.cpp.
+
+svs 14.03.2008 00:18:12 +0300 - build 442
+
+1. Bug in UserMenu.
+   а) UserMenu is empty.
+      - F2
+      - AltF4
+      - paste from clipboard in the editor, or add manually
+      - F2
+      - Esc
+      Menu is still empty
+   б) UserMenu is not empty.
+      - F2
+      - AltF4
+      - input "incorrect Unicode" in the editor
+   Solution.
+   When UserMenu is opened, in the built-in editor we set Unicode as
+the current code page, without any autodetection.
+
+2. If a TTF font is set for the console, symbols that point to a
+submenu in UserMenu are displayed as empty squares.
+   usermenu.cpp::SubMenuSymbol[1] ==> Unicode symbol 0x25BA.
+
+drkns 13.03.2008 19:18:08 +0200 - build 441
+
+1. Mantis#0000462: !=\ changed behavior
+2. Mantis#0000469: Incorrect message "Filename length exceeds system
+limitations"
+
+3. Buffer overflow in ConvertNameToReal()
+
+4. Macro: in [panel.]fattr|fexist, * and ? weren't substituted.
+
+5. In UserMenu, MainMenu and in the Search window, arrow keys on the
+main and numpad keyboard behaved differently.
+
+t-rex 13.03.2008 15:00:43 +0200 - build 440
+
+From Denis Kosy:
+
+1. Mantis#492: FindFile results window is losing data.
+
+svs 13.03.2008 14:20:19 +0300 - build 439
+
+1. From Denis Kosy: Mantis#0000491: macro panel.fexist doesn't work.
+
+t-rex 12.03.2008 23:55:03 +0200 - build 438
+
+1. From Alexey Samlyukov: wrapper: Unlike in 1.7.x, FarInputBoxA was
+setting DestText even if a dialog was canceled.
+
+2. Copying (and similar operations) didn't work with plugins that have
+OPIF_REALNAMES set (e.g. TmpPanel).
+
+t-rex 12.03.2008 15:24:39 +0200 - build 437
+
+From Andrey Kuznetsov:
+
+1. Mantis#459: Cannot chdir to a directory when its name consists of a
+single letter.
+   Win2K-SP4/specific bug.
+
+svs 12.03.2008 14:24:00 +0300 - build 436
+
+1. When pressing Reset in the filters dialog, '&' symbol appears in
+the 'size' and 'date' comboboxes.
+   Added Edit::SetHiString(), similar to HiText2Str.
+
+t-rex 12.03.2008 11:28:17 +0200 - build 435
+
+1. Mantis#489: Crash in ConvertPanelItemA()
+   pItemsNumber sent to a plugin in GetFindData wasn't reset; also,
+some plugins (network) return TRUE without setting anything (empty
+folder).
+
+svs 12.03.2008 11:42:45 +0300 - build 434
+
+1. After 431, navigation through coloring in the FileFilterConfig
+dialog was broken
+
+2. When a filter/coloring/sorting dialog is invoked, and ColorConfig's
+second parameter is true,
+   then the dialog title is changed and the corresponding help topic
+is substituted, describing coloring, not the filtering.
+
+t-rex 12.03.2008 00:36:38 +0200 - build 433
+
+1. Extending UnicodeString:
+   bool Pos(size_t &nPos, wchar_t Ch, size_t nStartPos=0)
+   bool Pos(size_t &nPos, const wchar_t *lpwszFind, size_t
+nStartPos=0)
+   bool RPos(size_t &nPos, wchar_t Ch, size_t nStartPos=0)
+   bool Contains(wchar_t Ch, size_t nStartPos=0)
+   bool Contains(const wchar_t *lpwszFind, size_t nStartPos=0)
+
+2. Set "const" for another couple of methods in UnicodeString.
+
+3. Introduced new Pos in one place; other minor changes.
+
+t-rex 11.03.2008 22:51:56 +0200 - build 432
+
+1. Small optimization of HiText2Str().
+
+svs 11.03.2008 21:01:02 +0300 - build 431
+
+1. Macro: calling key is inherited from the main macro when eval() is
+called
+   To support this, KeyMacro::PostNewMacro() got a new parameter -
+calling key.
+   e.g. ('y' is the key),
+     y=eval("< $AKey >")
+   now prints "<y>" (was '<>')
+
+2. Macro: V=akey(N) - returns either name or code of the key that
+initiated the macro
+
+3. Macro: Bug: if a macro sequence has only 1 "key" that differs from
+those being typed on a keyboard (e.g. $AKey), such a macro won't do
+anything (or, more precisely, can do virtually anything
+unpredictable). This is a regression from previous efforts aimed at
+reducing memory usage
+   (it was implemented the way that when there's only one key, the
+memory is not allocated, and Buffer is computed not as a reference
+to an array of DWORDs, but as a DWORD value).
+
+4. Dialog: bug: when hotkeys are used in comboboxes, '&' symbol
+appears in the edit string as well.
+
+5. Filters: at the end of filefilterparams.cpp::MenuString() trailing
+spaces are truncated
+
+6. API: added flags: FMENU_TRUNCPATH, FMENU_TRUNCSTR,
+FMENU_TRUNCSTREND.
+   These provide information on how to truncate the menu item when
+drawing it on the screen. The original menu item text is not changed.
+
+7. In any object based on VMenu, the following hotkeys exist:
+     Ctr-N - enable/disable visual truncating of items in lists
+     Alt-Home/Alt-End - scroll list items horizontally, to the start/
+end
+     Alt-Left/Alt-Right - scroll list items horizontally by 1 symbol
+     Alt-Shift-Left/Alt-Shift-Right - scroll a current list item
+horizontally by 1 symbol left/right
+
+    TODO: NO FINAL DECISION ON Ctrl-N YET!!!
+
+8. Mantis#0000264: Fixes in the edit color group dialog
+    1. tab-order changed
+    2. added hot keys for Size and Data/Time comboboxes.
+
+9. Added functions
+     wchar_t* WINAPI TruncStrFromEnd(wchar_t *Str,int MaxLength)
+      (similar to TruncStr and TruncPathStr)
+   and
+     string& HiText2Str(string& strDest, const wchar_t *Str)
+      (similar to HiText(), but outputs to a string)
+
+10. Looks like LIF_USETEXTPTR should be abandoned earlier and not
+inherited from 1.7x branch
+
+t-rex 11.03.2008 11:17:36 +0200 - build 430
+
+1. Mantis#488: Crash in GetRegKey()
+   incorrect call from PrepareTable().
+
+2. Mantis#468: When QuickView is closed for folders, VE_CLOSE is
+called (without VE_READ)
+   This means two bugs:
+   1. qview should not even create a viewer instance when viewing a
+folder
+   2. destructor sends VE_CLOSE however no file was opened
+
+t-rex 10.03.2008 22:39:06 +0200 - build 429
+
+1. Mantis#487: Memory under FAR_FIND_DATA is removed twice
+   Turned out to be even worse: FAR freed the plugin's memory and
+provided its own memory instead
+
+t-rex 10.03.2008 21:47:59 +0200 - build 428
+
+1. From Alexey Samlyukov: Mantis#486: Bug in
+Dialog::ProcessLastHistory - value from history wasn't substituted.
+
+2. In connection with 1st, one more bug is found in UnicodeString that
+possibly allowed reading of unavailable memory when
+   str = (const wchar_t *)str;
+   str += str;
+
+3. Some tab-formatting.
+
+4. "readme" updated a bit.
+
+t-rex 09.03.2008 23:11:42 +0200 - build 427
+
+from Alexander Mitin
+
+1. Mantis#484: Memory corruption in GetPathRootOne().
+
+t-rex 09.03.2008 14:35:11 +0200 - build 426
+
+1. All plugins were loaded even when this was not at all necessary.
+For example, Colorer was loaded when viewer, dialogs, or archives were
+opened :)
+
+2. Plugin's cache was read from the first entry only, which could
+prevent plugins from loading until they are called from the plugin
+menu, or not load at all (especially with bugfix #1 above).
+
+drkns 09.03.2008 12:28:26 +0200 - build 425
+
+1. Miracles and wonders: wcsncat(dst,src,sizeof(dst)-1)
+   JFYI: 3rd parameter in wcsncat means "how many we add", not "how
+many we can fit".
+   In all similar places, wcsncat was changed to xwcsncat, where the
+3rd parameter is "(the size of the recipient) - 1"
+
+2. When closing a combobox previously opened by Alt-Hotkey, it
+received DN_EDITCHANGE with parameters of the previously focused
+element.
+
+3. Mouse events didn't come to an open combobox.
+
+4. Small bug in the macro definition dialog
+
+t-rex 09.03.2008 12:23:43 +0200
+
+1. Hotkey conflicts in the filter dialog (eng).
+
+t-rex 09.03.2008 11:38:53 +0200 - build 424
+
+From Dmitry Ovdienko:
+
+1. Mantis#483: Undefined behavior in Search window.
+
+t-rex 08.03.2008 19:21:05 +0200 - build 423
+
+From Alexey Samlyukov:
+
+1. Mantis#439: Cancel after Ctrl+G should not update the panels.
+
+t-rex 08.03.2008 15:51:50 +0200 - build 422
+
+From George Yohng:
+1. Mantis#475: Panel header was displayed in CAPS even when the
+directory doesn't use caps.
+
+warp 02.03.2008 17:50:00 +0300 - build 421
+
+1. Fixed displaying of plugins in the Disks menu... just for fun :-)
+
+t-rex 25.02.2008 01:28:29 +0200 - build 420
+
+From Stanislav Vinokurov:
+
+1. Mantis#436: PrepareExecuteModule() bug(s)
+
+zg 20.02.2008 19:27:59 +0200 - build 419
+
+1. hotplug devices list. visual glitches when removing several devices
+simultaneously
+
+drkns 12.02.2008 22:41:34 +0200 - build 418
+
+1. Mantis#0000464: When pressing F10 F1 in panels, "Requested help
+topic not found:" appeared
+
+2. ExitFAR wasn't called for plugins when exiting
+
+3. Small fix when drawing an opened combobox
+
+4. Minor fixes in the wrapper.
+
+svs 30.01.2008 01:38:39 +0300 - build 417
+
+1. In headers.hpp, "#include <crtdbg.h>" was commented out. If anybody
+needs that, put "#if" depending on your compiler. At least on my
+machine, MSVC compiles without this.
+
+2. Mantis#0000460: Add support of FILE_ATTRIBUTE_VIRTUAL
+   The patch is temporary accepted.
+   Why temporary? Because filter's dialog doesn't fit into 25 lines.
+Redesign is necessary, but it is another separate task.
+
+3. Bookmarks in editor moved to macros:
+     N=BM.Add()
+     N=BM.Clear()
+     N=BM.Next()
+     N=BM.Prev()
+     N=BM.Stat()
+   Note that...
+   а) math in "BM.Stat()" needs redesign (something like
+StatStackBookmark())
+   б) "BM.XXX" can be something other than "editor" :-)
+
+4. In F10 F1... panels, "Requested help topic not found:" is
+displayed. Who did that? :-)
+
+Zuz 25.01.2008 23:11:21 +0500 - build 416
+
+1. Mantis#000337, Mantis#0000176 refix
+2. Double refresh of panel after CTRL-Z.
+
+ts 23.01.2008 15:32:27 +0200 - build 415
+
+1. Added a-la browser navigation in editor: Ctrl-<Gray Enter> saved
+the position, Ctrl-<Gray -> and Ctrl-<Gray +> jump to a next or
+previous position, respectively.
+2. Commands to control the navigation bookmarks added to editor's API:
+ECTL_ADDSTACKBOOKMARK,
+   ECTL_PREVSTACKBOOKMARK, ECTL_NEXTSTACKBOOKMARK,
+ECTL_CLEARSTACKBOOKMARKS. They are, in the same order: adding a new
+nav position, jump to a previous position, jump to a next position,
+and cleanup of the bookmarks.
+
+drkns 18.01.2008 23:48:39 +0200 - build 414
+
+1. Wrapper:
+   - Changed the way to store and convert into each other the
+structure arrays FarDialogItem and oldfar::FarDialogItem. Now
+DM_GETDLGITEM and other messages that pass FarDialogItem are
+(hopefully) processed without errors and leaks.
+
+   - Added SetFileApisToOEM(); to EXECUTE_FUNCTION/EXECUTE_FUNCTION_EX
+macros (pluginA.cpp)
+
+   - added a "compatibility mode" - a possibility to set the FAR
+version being returned in
+     ACTL_GETFARVERSION - it turned out that some plugins don't
+understand that 1.80 > 1.70 :-)
+     It is taken from \software\far18\wrapper\version, REG_DWORD,
+format is the same as in MAKEFARVERSION.
+     Only decrement is supported, from the actual version to 1.70.1.
+
+2. Interface language was switched back to English sometimes.
+
+3. Correction in plugin.hpp.
+
+drkns 15.01.2008 19:50:26 +0200 - build 413
+
+1. Wrapper:
+   - corrections in DM_LISTGETCURPOS and DM_GETSELECTION;
+   - MB_USEGLYPHCHARS wasn't needed in some places;
+   - other small fixes
+
+2. In DialogItemEx, not all fields were initialized (in 1.7x this was
+done by memset),
+   which could have caused crashes under certain circumstances.
+
+3. A redundant increment of line counter in editor when a new string
+is pasted.
+
+4. gcc warnings.
+
+svs 15.01.2008 14:44:11 +0300 - build 412
+
+1. Mantis#0000425: Add support of FILE_ATTRIBUTE_OFFLINE attribute
+
+2. Added FILE_ATTRIBUTE_VIRTUAL
+   For presentation purposes only. If needed, should be implemented
+similarly to FILE_ATTRIBUTE_OFFLINE...
+   ..something like ID_FF_VIRTUAL etc...
+   ...if anyone can explain how that can be SEEN!
+
+3. Small additions to syslog.cpp
+   + IO_REPARSE_TAG_* in headers.hpp
+
+4. Hotkeys didn't work with Russian input language (but they do work
+with Alt).
+   See Dialog::IsKeyHighlighted()
+
+drkns 14.01.2008 19:43:11 +0200 - build 411
+
+1. Wrapper:
+   - from Tim Sobolev: DI_USERCONTROL is processed correctly;
+   - several open dialogs are processed more correctly;
+   - DM_LISTDELETE didn't work;
+   - when converting from OEM to Unicode, MB_USEGLYPHCHARS flag is
+used.
+   - other small fixes
+
+Zuz 12.01.2008 01:52:26 +0500 - build 410
+1. More liberal requirements for access rights (Mantis#0000453).
+
+2. In FindFiles::LookForString, libc API for file operations changed
+to WIN32 API.
+
+drkns 11.01.2008 11:12:03 +0200 - build 409
+
+1. Wrapper:
+   - added ConvertNameToRealA.
+   - corrections in ConvertKeyBarTitlesA, FarMenuFnA and
+FCTL_GET[ANOTHER]PANEL[SHORT]INFO.
+   - DN_* -> oldfar:DN_.
+2. QuickView didn't work on a plugin panel.
+
+svs 11.01.2008 11:48:41 +0300 - build 408
+
+1. Mantis#0000456: ConvertNameToReal function doesn't work for
+symlinks
+   correction
+
+svs 09.01.2008 20:53:11 +0300 - build 407
+
+1. Mantis#0000447: Buffer overrun in Edit:ProcessKey()
+   "patch for a patch"
+
+svs 09.01.2008 19:54:42 +0300 - build 406
+
+1. Mantis#0000456: ConvertNameToReal function doesn't work for
+symlinks
+     ConvertNameToReal function doesn't work for symlinks, i.e.
+returns garbage instead of a full path that follows symlinks (if
+necessary)
+
+     What has been done:
+     1. In function ConvertNameToReal, processing of symlinks fixed;
+     2. Function ConvertNameToReal didn't expect nested symlinks and
+returned the result after extracting the path of a trailing symlink
+(AFAIK, the error comes from 1.7x branch, so the fix could be
+backported there as well).
+
+   Added type conversion to int (GetBuffer has int as a parameter)
+
+2. Mantis#0000455: Fix in GetWindowText
+
+ts 07.01.2008 12:25:13 +0200 - build 405
+
+1. Full information from old plugins is passed to OpenPluginInfo, the
+corresponding functions were added to the wrapper.
+2. Function ArrayAnsiToUnicode added to the wrapper, to convert an
+array of strings to Unicode; the end of the array being marked with a
+flag element; no need to provide the array size when deleting the
+array with FreeArrayUnicode. It is recommended to use this function
+wherever appropriate.
+3. Fixed a debug build which was broken in 402
+
+ts 07.01.2008 21:02:07 +0200 - build 404
+
+1. Added functions OldKeyToKey and KeyToOldKey to wrap.cpp to convert
+internal FAR keycodes from old to new format and vice versa.
+2. Added keycode correction to KeyNameToKeyA and FarKeyToNameA
+3. (Probably) imporved ECTL_PROCESSINPUT, ECTL_PROCESSKEY,
+ECTL_READINPUT.
+4. Temporary workaround for FarCharTableA.
+
+t-rex 07.01.2008 08:31:08 +0200
+
+1. Spacing unification in the wrapper, without a build.
+
+ts 07.01.2008 06:45:38 +0200 - build 403
+
+1. Fixed passing of flags in wrapper for FarStandardFunctions:
+   a. FarRecursiveSearchA
+   b. ProcessNameA
+2. Function AnsiToUnicodeBin added to wrapper to convert a fixed
+length buffer to Unicode (see UnicodeToAnsiBin).
+3. In UnicodeToAnsiBin, an extra byte is allocated for a resulting
+string to be compatible with old plugins that always expect a string
+to end with \0 (e.g. in EditorGetString.StringText).
+4. Logic of editor API access was changed in wrapper
+   (function FarEditorControlA); the following changes were made:
+   a. ECTL_SAVEFILE, ECTL_SETKEYBAR, ECTL_SETTITLE - completely.
+   b. ECTL_PROCESSINPUT, ECTL_PROCESSKEY, ECTL_READINPUT - temporary,
+work in progress.
+   d. ECTL_SETPARAM - completely except for a workaround for
+ESPT_CHARTABLE because FAR cannot process it.
+                      For ESPT_GETWORDDIV command in FAR itself, it is
+time to use Reserved2 to pass the length of an accepting buffer.
+   e. ECTL_SETSTRING - this comment: "The string being placed must be
+in editor's encoding" was unclear, now we expect the string as ОЕМ (as
+a result of ECTL_GETSTRING).
+
+   All editor's API calls are now working except ECTL_EDITORTOOEM and
+ECTL_OEMTOEDITOR
+
+   Do not forget to set correct flags in wrapper, they often have
+different values in the Unicode branch!
+
+drkns 06.01.2008 14:57:04 +0200 - build 402
+
+1. New pseudokeys MsWheelLeft and MsWheelRight - horizontal scroll
+(for Vista and above).
+   MsHWheelDelta* parameters added to TechInfo#33.
+
+svs 05.01.2008 19:19:19 +0300 - build 401
+
+1. Similar to Mantis#0000414 "fixing" file handles in search and
+viewer
+2. Mantis#0000453: When searching files by contents, write permission
+is requested (bug from 1.65...)
+
+3. Small fix in registry.cpp::MkKeyName - RegMon doesn't like e.g.
+"HKCU\\Console"
+
+
+ts 05.01.2008 11:39:30 +0200 - build 400
+
+1. Changes in wrapper messages handling for listbox and combobox.
+
+t-rex 04.01.2008 18:07:50 +0200 - build 399
+
+1. From Hannes Eder (and some changes from me): remove redundant
+definition of GetFileDateAndTime from setattr.cpp.
+
+2. Mantis#445: Makefiles have no -mno-cygwin switch.
+
+drkns 31.12.2007 20:03:57 +0200 - build 398
+
+1. GetPathRoot() worked incorrectly for a relative path inside a
+symlink
+
+2. When calling plugin menu from within dialogs, the corresponding
+macro scope was not set.
+
+3. "Append all" button added to the "Overwrite file" confirmation
+dialog.
+
+4. Mantis#0000023: ConsoleAlias. Works in the command line, as well as
+in user's menu.
+   Standard special symbol $* is supported. This can be controlled by
+doskey.
+
+5. Decimal symbol and digit grouping symbol are now taken from
+regional settings (ported from 1.7)
+
+6. TechInfo #78:
+   [HKEY_CURRENT_USER\Software\Far\Interface]
+   "FormatNumberSeparators":REG_DWORD
+   "Interface/FormatNumberSeparators"  (type DWORD) allows to define
+digit grouping symbol and decimal symbol.
+   High word is the code of a digit grouping symbol
+   Low word is the code of a decimal symbol
+   Default is 0 (use regional settings from OS).
+
+7. Added ACTL_REDRAWALL command to redraw all FAR frames
+
+svs 28.12.2007 13:39:19 +0300 - build 397
+
+1. Mantis#0000452: Bug, doubling code and improvements in hotplug.cpp
+
+svs 23.12.2007 16:14:14 +0300 - build 396
+
+from Alexey Samlyukov:
+
+1. memcpy()/wmemcpy() + more Unicode-related fixes + removed legacy
+code (#if defined(FAR_ANSI))
+
+svs 23.12.2007 15:54:37 +0300 - build 395
+
+1. Mantis#0000447: Buffer overrun in Edit:ProcessKey()
+
+2. Mantis#0000446: Wrong function to free memory in
+TreeList::SaveState()
+
+3. Mantis#0000449: Handle leak in History::ReadHistory()
+
+4. Mantis#0000444: Bugs and memory leaks in class History
+
+5. Mantis#0000441: Cannot delete file "Descript.ion"
+   Here we had an incorrect definition of virtual function
+GetDizName() in panel.hpp.
+   Because of this, SrcPanel->GetDizName(strDizName); in ShellDelete()
+didn't return anything.
+
+yjh 15.12.2007 00:54:56 +0300 - build 394
+
+1. Completion of exclusionary filters for directories in search (Alt-
+F7).
+   Now they work the same way as for copying, i.e. when filtering is
+enabled and exclusionary filter (-) is used, and a directory matches
+this filter, that directory is skipped along with its content and
+subdirectories. Of course this is true only when D+ is disabled :)
+
+
+svs 15.12.2007 00:35:38 +0300 - build 393
+
+1. Macros with non-Latin characters in names were saved incorrectly.
+   This resulted in the following changes:
+   а) correction in KeyNameToKey and KeyToText;
+   б) in KeyMacro::ReadMacros, another version of GetRegKey() is used
+now.
+
+drkns 14.12.2007 21:59:01 +0200 - build 392
+
+1. Plugin's menu can be invoked by F11 from dialogs
+   To get into that menu, plugin must set PF_DIALOG flag in
+PluginInfo.Flags.
+   The plugin begin called gets the following parameters in
+OpenPlugin():
+   - OpenFrom: OPEN_DIALOG
+   - Item: reference to a structure OpenDlgPluginData:
+     struct OpenDlgPluginData
+     {
+      int ItemNumber; //number of menu item of those registered by the
+plugin
+      HANDLE hDlg;    // handle of the dialog that invoked the plugin
+     };
+
+2. Plugin can export ProcessDialogEvent to process events that come
+into the dialog:
+   int ProcessDialogEvent(int Event, void* Param)
+   Event:
+    DE_DLGPROCINIT - event goes into the handler
+    DE_DEFDLGPROCINIT - event goes into the standard handler
+    DE_DLGPROCEND - event has been processed already
+
+   Param is the reference to a structure FarDialogEvent:
+   struct FarDialogEvent
+   {
+    HANDLE hDlg;
+    int Msg;
+    int Param1;
+    LONG_PTR Param2;
+    LONG_PTR Result;
+   };
+
+   return:
+   - TRUE when we processed the event ourselves, and no need to
+process it further
+     FarDialogEvent.Result - reference to a variable being used
+returned by the event handler
+   - FALSE - continue event handling
+
+svs 14.12.2007 13:45:16 +0300 - build 391
+
+from Alexander Mitin
+
+1. Mantis#0000432: Assertion while creating a submenu in User Menu
+
+2. Mantis#0000431: Crash when deleting the File Highlighting entry
+
+3. Mantis#0000430: Crash in "System parameters"
+
+
+svs 13.12.2007 20:31:34 +0300 - build 390
+
+1. Mantis#0000433: Updated operator new in new.cpp
+
+2. Mantis#408: Memory leak in struct MacroState.
+    ohh... problems with Work.locVarTable :-(
+    "Work.locVarTable" itself must be deleted in the destructor only
+    In other cases, only the table contents must be erased.
+
+3. API: MCMD_GETSTATE for ACTL_KEYMACRO returns
+    one of the values (enumeration FARMACROSTATE):
+      enum FARMACROSTATE {
+        MACROSTATE_NOMACRO          =0,  // not in the macro mode
+        MACROSTATE_EXECUTING        =1,  // executing without passing
+keys to the plugin
+        MACROSTATE_EXECUTING_COMMON =2,  // executing with passing
+keys to the plugin
+        MACROSTATE_RECORDING        =3,  // recording without passing
+keys to the plugin
+        MACROSTATE_RECORDING_COMMON =4,  // recording with passing
+keys to the plugin
+      };
+
+4. Trying to fix
+   Mantis#0000432: Assertion while creating a submenu in User Menu
+   Mantis#0000430: Crash in "System parameters"
+
+svs 10.12.2007 21:22:18 +0300 - build 389
+
+1. Mantis#0000428: Again, DI_COMBOBOX
+   Type check was missing
+
+2. Mantis#0000429: Directory cache is not purged and is not saved
+
+3. Macro: BOF, EOF, EMPTY and SELECTED weren't processed in a command
+prompt
+
+4. Mantis#0000415: some unclear changes in DI_COMBOBOX
+   (was broken in 306)
+
+5. API: OPEN_FILEPANEL is now public
+
+t-rex 08.12.2007 23:40:46 +0200 - build 388
+
+From Stanislav Vinokurov:
+
+1. Mantis#411: Batch files are executed in the external window.
+
+t-rex 08.12.2007 17:55:02 +0200 - build 387
+
+1. Mantis#416: Crash while deleting folders
+   This turned out to be a deeper problem, related to bugs in
+UnicodeString,
+   when the buffer size grew while performing operations that didn't
+require its growth, and with multiple operations on the same string
+the buffer size increased to enormous values.
+
+2. Mantis#408: Memory leak in struct MacroState.
+
+3. Heap corruption while deleting non-existent macros.
+
+4. Incorrect saving of REG_MULTI_SZ macros.
+
+5. From Hannes Eder: StrLength in clipboard.cpp.
+
+6. Potential heap corruption caused by (not)using sizeof(wchar_t) in a
+couple of places
+
+7. From Alexey Samlyukov: wmem* instead of mem* in strmix.cpp.
+
+t-rex 07.12.2007 16:36:54 +0200 - build 386
+
+1. Mantis#421: Memory leak caused by using memset() to initialize
+values of structures.
+
+svs 06.12.2007 18:45:06 +0300 - build 385
+
+1. 2 new events for a panel plugin: FE_GOTFOCUS and FE_KILLFOCUS
+   Param parameter for ProcessEvent is NULL.
+   According to this, redesigned the order of events to be sent:
+Gotfocus goes first, the rest follows.
+   To support this, SendOnFocus parameter was added to SetPluginMode()
+
+2. In dialogs, immediately after DN_INITDIALOG, DN_GOTFOCUS fires for
+the element having Focus=1
+
+3. 2 new events for the editor plugin: EE_GOTFOCUS and EE_KILLFOCUS
+   Param parameter for ProcessEditorEvent is EditorID.
+   To support this, a virtual function OnChangeFocus added to
+FileEditor.
+
+
+svs 06.12.2007 13:31:33 +0300 - build 384
+
+1. Mantis#0000417: Memory leak in Viewer::ProcessKey()
+
+2. Mantis#0000418: Wrong memory copy function used in
+TArray<Object>::Pack()
+
+3. Mantis#0000419: Wrong memory copy function used in
+ScreenBuf::Scroll(int Num)
+
+4. Mantis#0000420: INVALID_HANDLE_VALUE used in FindClose() in
+ScanTree::GetNextName()
+
+
+svs 05.12.2007 17:29:24 +0300 - build 383
+
+1. Mantis#0000414: Handle leak in FileEditor::LoadFile()
+
+2. Mantis#0000412: Wrong delete type in Language::Init()
+
+3. Mantis#0000413: Wrong delete type in FileEditor::SaveFile()
+
+
+t-rex 04.12.2007 23:41:54 +0200 - build 382
+
+1. Various bugs mostly related to incorrect usage of sizeof along with
+wchar_t.
+
+drkns 04.12.2007 19:55:33 +0200 - build 381
+
+1. Minor bug in 379.
+
+svs 04.12.2007 20:25:07 +0300 - build 380
+
+1. Mantis#0000410: Memory leak in class History
+
+drkns 04.12.2007 18:51:36 +0200 - build 379
+
+1. Mantis#0000409: User Menu (F2) doesn't handle process INS key when
+Opt.UseNumPad == 1
+   The same fixed for history of input strings, links to folders,
+filters and associations.
+
+svs 04.12.2007 09:26:51 +0300 - build 378
+
+1. Mantis#0000354: Goto dialog in editor
+   Done, but not as requested.
+   Added DIF_NOAUTOCOMPLETE flag, but because the code in dialog.cpp
+is commented out, only the place in the code is marked...
+
+2. Mantis#0000331: ...
+   combobox-related correction:
+   - correction of Top
+   - dynamical change of opened drop-down list (Hide+Show)
+
+
+t-rex 04.12.2007 08:18:31 +0200 - build 377
+
+1. Mantis#406: Memory corruption and crash in Editor::AddUndoData().
+
+2. Mantis#407: Memory leak in CommandLine class.
+
+t-rex 03.12.2007 23:19:20 +0200 - build 376
+
+1. Mantis#367: Plugins won't load if FAR is started from a folder
+which is a junction (or any of its parent folders is a junction)
+
+2. Mantis#401: Handle leak in ProcessGlobalFileTypes().
+
+3. Mantis#402: Handle leak in History::SaveHistory().
+
+4. Mantis#403: Not initialized variable used in
+MessageRemoveConnection().
+
+5. Mantis#404: Handle leak in CopyKeyTree().
+
+6. Mantis#400: Function xf_wcsdup() should replace wcsdup().
+
+drkns 03.12.2007 20:20:28 +0200 - build 375
+
+1. Mantis#0000364: Maximize button doesn't work as expected
+   Trying another way :-)
+   Now works as expected (the button itself, double-click on the
+title, Maximize/Restore in the system menu etc.)
+   Also, the console window's state is taken into account on startup
+(start /max, settings in lnk etc.)
+
+drkns 03.12.2007 07:54:40 +0200 - build 374
+
+1. Mantis#0000399: Memory leak in add_sid_cache()
+
+2. DM_SETDLGITEM didn't work
+
+t-rex 03.12.2007 00:01:04 +0200 - build 373
+
+1. Reported by Sten, Mantis#398: Patches to fix crashes after adding
+file to archive by pressing Shift+F1/Enter.
+
+2. One of the memory leaks fixed in 372 was not a memory leak at
+all :), it was a perfectly correct code.
+
+t-rex 02.12.2007 23:06:15 +0200 - build 372
+
+1. From Hannes Eder: removed unused variables and corrected a
+condition in macro processing.
+
+2. Fixed two memory leaks found along the way.
+
+t-rex 02.12.2007 20:05:17 +0200 - build 371
+
+1. From Stanislav Vinokurov: Mantis#397: Incorrect processing of
+oldfar::DM_GETTEXTPTR in FarSendDlgMessageA()
+
+2. The same for oldfar::DM_GETTEXT.
+
+t-rex 02.12.2007 13:59:53 +0200 - build 370
+
+1. From Mantis#396, incorrect check during realloc in
+TreeList::ReadTreeFile.
+
+t-rex 02.12.2007 00:15:59 +0200 - build 369
+
+1. Mantis#394: A full path must be passed in the Name argument of
+OpenFilePlugin(), not a file name.
+
+t-rex 01.12.2007 19:47:22 +0200 - build 368
+
+1. Memory leak in DeletePluginItemList.
+
+2. Mantis#314: Description field in PluginPanelItem contains garbage
+when calling GetFilesW.
+   Mantis#393 is a duplicate.
+
+3. Mantis#380: Memory leak in ConvertWildcards().
+
+t-rex 01.12.2007 15:54:34 +0200 - build 367
+
+from Stanislav Vinokurov (Sten):
+
+1. Mantis#391: Wrapper: Implementation of FarRecursiveSearchA.
+
+2. Mantis#392: Wrapper: DI_EDIT and DI_FIXEDIT were processed
+incorrectly in AnsiDialogItemToUnicode().
+
+t-rex 30.11.2007 16:28:14 +0200 - build 366
+
+from Alexey Samlyukov:
+
+1. Mantis#388: fixes for dialog initialization in  File/Folder
+descriptions.
+
+t-rex 30.11.2007 16:12:41 +0200 - build 365
+
+from Alexandr Zamaraev:
+
+1. Mantis#387: copy.cpp, counting cycle instead of function call
+
+t-rex 30.11.2007 16:02:33 +0200 - build 364
+
+from Alexey Samlyukov:
+
+1. Mantis#389: remove ConvertOldSettings().
+
+t-rex 30.11.2007 15:30:14 +0200 - build 363
+
+1. UnicodeString: removed RShift, full of bugs and not necessary
+
+2. UnicodeString: Fixed LShift, string length wasn't set after
+changing
+
+3. Reported by Sten: cycle was incorrect in
+PluginManager::OpenFilePlugin.
+
+drkns 27.11.2007 21:20:14 +0200 - build 362
+
+1. Update of DialogAPI: FarListItem.Text is now const wchar_t*.
+   Plugins with DI_LISTBOX/DI_COMBOBOX need to be changed.
+
+2. DM_LISTGETITEM wasn't working correctly
+
+svs 27.11.2007 09:46:25 +0300 - build 361
+
+1. TechInfo#48 is set to 1 by default, ignoring TechInfo#48 for
+Numpad5
+
+2. Mantis#0000360: Assigned key wasn't displayed correctly
+   Still some questions remain...
+   а) Code in InitKeysArray need tweaking for TechInfo#21 == 0
+   б) tested under locales 409 and 419; needs more testing on other
+locales
+   с) while Russian input locale is active, the
+      '.' and '/' keys output the same code ==> '.', e.g.
+      press <.> ==> LocalKeyToKey(0x44E) ==> 0x2E
+      press </> ==> LocalKeyToKey(0x02E) ==> 0x2E
+      In FAR 1.7, the same problem exists.
+      This, however, doesn't affect stability.
+
+3. Corrections in SysLogDump()
+
+svs 26.11.2007 12:49:47 +0300 - build 360
+
+From Alexander Mitin (alexmitin):
+1. Mantis#0000379: Memory corruption in QuickView::DisplayObject()
+
+In: keyboard.cpp, local.cpp, macro.cpp marked some controversial code
+related to Mantis#360
+
+t-rex 25.11.2007 21:15:46 +0200
+
+No build.
+
+1. Unnecessary "wchar_t *m_lpwszBuffer" in UnicodeString.hpp.
+
+2. Updates in HACKING-*.
+
+t-rex 25.11.2007 20:39:14 +0200 - build 359
+
+from Alexey Samlyukov:
+
+1. Mantis#376: Fix in the Viewer settings dialog.
+
+drkns 24.11.2007 18:24:58 +0200 - build 358
+
+1. Macros with $If, $Else etc. weren't processed
+
+2. Macro function Date() did't work.
+
+
+t-rex 24.11.2007 18:03:42 +0200 - build 357
+
+1. Mantis#375: Network plugin wasn't called after doing ChangeUp in a
+network resource. Thanks to Redart.
+
+t-rex 24.11.2007 17:30:03 +0200 - build 356
+
+1. Search in editor is back.
+
+2. Cursor could disappear while searching in editor
+
+drkns 22.11.2007 19:33:01 +0200 - build 355
+
+1. Mantis#0000365: Crash when entering any symbol into the "Optional
+marking character" dialog (file coloring)
+2. Mantis#0000366: In file coloring dialog, optional marking symbols
+are displayed incorrectly sometimes.
+
+svs 19.11.2007 11:57:58 +0300 - build 354
+
+1. Mantis#0000358: For "points" element of PluginPanelItem.UserData is
+always 0
+
+t-rex 18.11.2007 23:23:43 +0200 - build 353
+
+1. DN_EDITCHANGE and DN_DRAWDLGITEM are passed to FarDialogItem (?)
+
+2. Using correct xf_(free|malloc|realloc) in all the code
+
+drkns 18.11.2007 12:11:21 +0200 - build 352
+
+1. For the user's menu, macro scope was set to Menu instead of
+UserMenu.
+
+
+t-rex 18.11.2007 02:19:42 +0200 - build 351
+
+1. Mantis#357 By Oleg Bekhter's advice: memory "hit" when deleting a
+block in the editor.
+
+t-rex 18.11.2007 01:33:22 +0200 - build 350
+
+1. Mess-up of new and malloc while working with Clipboard.
+   Also, some mem leaks removed
+
+2. Using correct xf_(free|malloc|realloc) in the wrapper
+
+t-rex 16.11.2007 22:52:36 +0200 - build 349
+
+1. Another update of DialogAPI, it looks like this is more convenient
+to work with now.
+   (no allocator, no output data).
+   Plugins that use DialogAPI need corrections!
+-----------------------------------------
+   Description of the new API:
+   Now we have 3 functions: (Dialog and DialogEx don't exist any more)
+   а. HANDLE DialogInit(the same parameters as for DialogEx), returns
+a dialog descriptor or INVALID_HANDLE_VALUE on error.
+   б. int DialogRun(HANDLE hDlg), runs a dialog, returns the same data
+DialogEx used to return.
+   с. void DialogFree(HANDLE hDlg), frees all dialog-related memory.
+
+   FarDialogItem doesn't have DataIn and DataOut but only const
+wchar_t *PtrData.
+   This PtrData is the initial text for an element.
+
+   The main difference from an old DialogAPI is that the array of
+structures FarDialogItem
+   is for input only, no changes are written back on dialog close
+
+   How to work with the new API:
+   DialogInit()
+   DialogRun()
+   *** various calls of SendDlgMessage()                ***
+   *** to get necessary output data from a dialog. ***
+   DialogFree()
+
+   Some additional DM_* added and one has been changed.
+   а. DM_GETDLGITEM - changed, Param2 must be 0, pointer to an element
+is returned by the function itself (NULL on error).
+                      FAR himself allocates memory for the element,
+you cannot change the element,
+                      and it must be freed with DM_FREEDLGITEM when
+not needed anymore.
+   б. DM_FREEDLGITEM - frees an element received by DM_GETDLGITEM.
+                       Param1=0, Param2 = pointer obtained from
+DM_GETDLGITEM.
+   с. DM_GETCONSTTEXTPTR - returns (const wchar_t *) pointer to an
+internal FAR buffer which is associated with the element's string. In
+no case should you change or store the pointer itself, because it is
+changed whenn the element's string is changed.
+                           This was added to provide a more convenient
+way to work after closing the dialog (DialogRun) before DialogFree,
+but of course this can be used in a handler as well, but with
+caution :). Param1 = element's ID, Param2 = 0.
+-----------------------------------------
+
+yjh 16.11.2007 07:20:48 +0300 - build 348
+
+1. While performing a Move operation with filtering enabled, the
+copied directory wasn't completely removed
+
+2. While performing a Move operation with filtering enabled, empty
+directories weren't copied even if they matched a filter
+
+
+yjh 16.11.2007 00:17:38 +0300 - build 347
+
+1. In exception filters, the option that disallowed filtering of
+directories wasn't respected.
+
+drkns 15.11.2007 20:04:49 +0200 - build 346
+
+1. One more "owners-related" fix
+
+
+yjh 15.11.2007 04:10:08 +0300 - build 345
+
+1. Completing the "exception" filters for copying the folders.
+   If filtering is enabled for copying, all "allowing" filters work as
+they previously did. For "disallowing" filters, if we meet a folder
+that matches the filter, we skip it along with all its contents.
+
+2. Removed a couple of BUGBUG in copying with filters enabled. Now it
+works :-)
+
+
+drkns 14.11.2007 22:22:05 +0200 - build 344
+
+1. Small bug in 343.
+
+drkns 14.11.2007 21:22:05 +0200 - build 343
+
+1. The %pathext% mask wasn't processed in file coloring
+
+2. In the "display owners" mode, caching didn't work and memory wasn't
+freed.
+
+3. You can append the 'L' flag to a "file owner" column; this will
+display a domain.
+
+4. It is possible to input Unicode symbols with Alt-NumX :)
+
+
+yjh 14.11.2007 22:04:42 +0300 - build 342
+
+1. In FarMkTempEx, the WithPath parameter was ignored, which is
+unacceptable in some cases.
+
+2. In FarMkTempEx, a potential infinite loop removed. On error, an
+empty string is returned.
+
+3. In WipeDirectory, the renaming is implement by actually renaming
+(in-place), not moving the items. This uses less resources, eliminates
+the "restoration error" (when deletion wasn't possible, and Skip was
+chosen, partially removed folders remained, some of them in wrong
+places :), minimizes the probability of problems when a directory is
+full (when generating a name for a temporary file).
+   Besides all this, old implementation was badly broken anyway in
+case of Opt.TempPath being located on another drive - MoveFile doesn't
+allow moving directories between volumes.
+
+drkns 13.11.2007 22:45:17 +0200 - build 341
+
+1. Crash in "File owners" panel mode.
+
+2. Quick search with non-latin characters didn't work in panels
+
+3. Unicode-related fixes in the printer selection menu
+
+yjh 13.11.2007 09:44:34 +0300
+
+1. Now it is possible to compile a vc7 hook (don't try that at
+home :-). It is recommended that you define -DLINK_WITH_ULINK and use
+ulink. Otherwise, you'll get less protection and a warning.
+
+
+yjh 13.11.2007 07:06:56 +0300 - build 340
+
+1. FarNameToKey for plugins
+
+
+yjh 13.11.2007 03:04:15 +0300 - build 339
+
+1. Hook that allows 32bit Far to work with FS in Win64
+   correctly (disabling WOW64-fs redirection). By default, it is
+disabled; it is enabled only
+   when loading DLL or running tasks (for 32bit processes).
+   To compile Far without this code, define DISABLE_WOW64_HOOK (for
+make).
+   It can be correctly linked with ms-link from vc8, or with ulink ver
+>= 1.05 build 3.9 (build >= 3.11 recommended, otherwise unnecessary
+warning appears).
+
+
+t-rex 12.11.2007 22:58:42 +0200 - build 338
+
+1. A couple of fixes (API, opening help in Far).
+
+drkns 12.11.2007 21:59:08 +0200 - build 337
+
+1. Small fixes in the wrapper
+
+2. When manually recording a macro with Ctrl. only the last pressed
+key was remembered.
+
+3. Cycling the focus from the first element in a dialog to the last
+one resulted in freezing
+
+4. In the Disks menu, it was impossible to display label and file
+system at the same time.
+
+svs 12.11.2007 19:09:32 +0300 - build 336
+
+1. Mantis#0000352: Undo being called by CTRL+Z doesn't work if an
+existing file is opened for editing
+   Going on...
+   ...too little data was saved :-(
+
+svs 12.11.2007 14:51:46 +0300 - build 335
+
+1. FAR crashes in the following cases:
+
+   a) Running FAR without macros in the registry
+   b) Running FAR with macros in the registry but as Far.exe /m
+   c) Running FAR with macros, deleting them while the FAR session is
+active, and calling UpdateMacros.dll plugin later
+
+   when does the crash happen:
+
+   Ctrl. Ctrl. Any_Allowed_Key Enter
+   Crash.
+
+2. If we have 2 macros:
+   [HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\F10]
+   "Sequence"="F5"
+   [HKEY_CURRENT_USER\Software\Far\KeyMacros\Common\F10]
+   "Sequence"="F4"
+
+   start FAR
+   while on the panel, press Ctrl. Ctrl. F10
+   choose "YES"
+
+   again, press Ctrl. Ctrl. F10
+   choose "YES"
+
+   press F10 and see the macro still in place; if you press Ctrl.
+Ctrl. F10 again, we get the same result
+
+   i.e. a common macro is not removed in this case
+
+yjh 11.11.2007 22:33:53 +0300 - build 334
+
+1. corrections in plugin.hpp to work with .c (not .cpp) files
+
+t-rex 10.11.2007 23:26:42 +0200 - build 333
+
+1. Changes in the wrapper regarding new DialogAPI
+
+2. ViewerInfoW -> ViewerInfo.
+
+yjh 10.11.2007 20:39:24 +0300 - build 332
+
+1. Fixed memory leak in GETDLGITEM
+
+2. Added DM_GETREALLOC (for the wrapper and DialogManager)
+
+3. WARNING: when getting Item with a dynamic buffer
+             (IsEdit(Type) && MaxLen==0)
+             the allocated buffer (DataOut) must be freed by a plugin
+itself
+
+
+t-rex 10.11.2007 19:11:17 +0200 - build 331
+
+1. Little mess-up with CutToSlash in 326.
+
+yjh 10.11.2007 18:41:37 +0300 - build 330
+
+1. Changes in DialogAPI (aimed at providing a better way to work with
+memory for editable strings).
+   !!!WARNING!!! (already "ready" plugins need corrections)
+***
+   Short description of a new API:
+    There are 3 fields in FarDialogItem
+      const wchar_t* DataIn;
+      wchar_t* DataOut;
+      size_t MaxLen;
+    DataIn - defines all input string data (was in DataPtr)
+    DataOut - for fields with editable string (see IsEdit() in
+pluging.hpp)
+              a pointer to returned data is stored here
+              for all other field types, NULL is always returned (see
+below)
+    MaxLen has two meanings:
+       if(MaxLen != 0), then it is the maximum size (including
+trailing 0) of a buffer (preallocated by a plugin). Pointer to this
+buffer should be passed in DataOut.
+       Additionally, it is a maximum length of the input string
+(currently not implemented)
+
+       If MaxLen==0, then we assume that all edited strings have
+unlimited size. In this case, DataOut
+       contains a pointer to dynamically allocated memory (see below)
+which must be freed by a plugin itself.
+
+    In functions FSF.Dialog and FSF.DialogEx, an additional parameter
+added: pointer to a ReAlloc function.
+    which FAR uses to allocate "unlimited" strings (and freeing memory
+- see below).
+    If no IsEdit fields exist in the dialog, NULL can be passed.
+
+    When processing Dialog/DialoEx, additional check is made for
+    DataOut - if MaxLen!=0, then
+       IsBadWritePtr(DataOut,MaxLen*sizeof(wchar_t))
+    else if MaxLen==0, then ReAlloc cannot be NULL.
+        IsBadReadDataIn must be a valid read ptr
+
+    If parameter (for any Item) is invalid, -1 is returned without
+processing a dialog
+
+    If after processing a dialog, ReAlloc returns NULL while returning
+strings,
+    all memory it allocated previously will be freed (using
+ReAlloc(ptr, 0);)
+    and -1 will be returned.
+
+   When Dialog/DialogEx exits normally, plugin must free previously
+allocated memory (all OutPtr's)
+   (if memory was dynamically allocated :)
+
+***
+
+2. Removed function FSF.FreeDialogAnsStr - it is not needed anymore
+
+3. Some signed integers removed where they were used inappropriately.
+Maybe we should just freeze all changes and fix this completely...
+
+4. A couple of errors in the previous patches revealed while trying to
+find the remaining error in using CutToSlash :)
+
+t-rex 09.11.2007 21:34:19 +0200 - build 329
+
+1. Fixed a minor problem in x64 API. I hope this is the last one.
+
+t-rex 09.11.2007 18:12:56 +0200 - build 328
+
+1. In UnicodeString::GetBuffer nLength is renamed to nSize.
+
+from Alex Alabuzhev:
+
+2. API 1.7:
+   a) Control: all done except:
+      - in FCTL_GET[ANOTHER]PANELINFO, PanelItems and SelectedItems
+fields are not filled;
+      - FCTL_SET[ANOTHER]SELECTION is not implemented, as it depends
+on the previous item
+   b) MkLink
+   c) GetNumberOfLinks
+   d) DM_KEY now works correctly
+   e) break was missed after VCTL_GETINFO in ViewerControl
+
+svs 09.11.2007 15:54:24 +0300 - build 327
+
+1. Mantis#0000352: Undo being called by CTRL+Z does not work when
+opening an existing file for editing
+   The problem is that in 1.7x, Editor::FreeAllocatedData was called
+only from destructor of Editor class.
+   In 1.8x, the same function is called from FileEditor::LoadFile, and
+UndoData array gets deleted.
+   As a result, added a temporary workaround: new parameter for
+Editor::FreeAllocatedData that enables or disables deleting of
+UndoData array.
+   We need a better implementation here (also to provide Redo); maybe
+we need a doubly connected list instead of an array, or something like
+this...
+
+t-rex 09.11.2007 13:18:53 +0200 - build 326
+
+1. Numerous fixes and improvements in the usage of string.GetBuffer().
+
+2. Some unification of space delimiters in sources (tabs vs spaces)
+
+svs 09.11.2007 11:57:41 +0300 - build 325
+
+1. TVar moved to a separate module tvar.?pp + compiler moved from
+macro.cpp to syntax.cpp
+
+2. KeyNameToKey now retruns -1 for a macro language.
+
+3. GetMacroParseError is now a function of Macro class.
+
+4. After 2280.6, $MMode was broken.
+   Now $MMode is compiled correctly.
+   If for "$MMode 1" we previously had:
+     0: MCODE_OP_MACROMODE
+     1: '1'
+   now we have this:
+     0: MCODE_OP_PUSHINT
+     1: HIDWORD(1)
+     2: LODWORD(1)
+     3: MCODE_OP_MACROMODE
+
+5. Mantis#0000351: ACTL_POSTKEYSEQUENCE: pause while running and extra
+redrawing.
+
+
+t-rex 07.11.2007 17:47:14 +0200 - build 324
+
+1. A couple of minor BUGBUG's and some unification of space delimiters
+(tabs vs spaces)
+
+zg 05.11.2007 12:04:08 +0200 - build 323
+
+1. Troubles with...
+ >       having 2 macros
+>      а) in the shell area, Ctrl-CapsLock=CtrlShiftTab flock(1,2)
+>      б) in the editor area, Ctrl-CapsLock=CtrlShiftTab flock(1,2)
+>
+>      0. in shell, we open a file in the editor, and switched back to
+> shell
+>      1. pressed Ctrl-CapsLock, the macro exists and runs
+>      2. macro finishes working, and added Up-Down into a queue for
+> VK_CAPITAL (the above mentioned flock(1,2))
+>      3. the macro has finished working, but:
+>      3.1 Ctrl is in the "pressed" state
+>      3.2 Up-Down for CapsLock is coming
+>      4. FAR sees CtrlCapsLock in the queue, check that we're in the
+> editor, but we have the same macro there, and it runs
+>      5. goto 2
+>
+>      The only solution is a power off switch.
+
+   Hangup fixed. However, when *Lock is physically pressed, we cannot
+change its state from within the program; therefore, macros need some
+corrections::
+   CtrlCapsLock="CtrlShiftTab %a=flock(1,-1)&1;
+$while((flock(1,-1)&1)==%a) sleep(50) flock(1,2) $end"
+
+yjh 05.11.2007 05:01:40 +0300 - build 322
+
+1. To workaround some API inconsistencies, added FSF.FreeDialogAnsStr
+   (freeing of kernel-allocated memory for response in DI_EDIT).
+   See MacroView for usage example.
+
+t-rex 04.11.2007 22:41:29 +0200 - build 321
+
+1. A couple of small BUGBUG's fixed (command line and loader)
+
+yjh 04.11.2007 22:21:28 +0300 - build 320
+
+1. In FarKeyToName, Size parameter and the returning value are in
+symbols, not in bytes.
+
+yjh 04.11.2007 21:33:24 +0300 - build 319
+
+1. Added better implementation of FarKeyToName. API changes are:
+   typedef size_t  (WINAPI *FARSTDKEYTOKEYNAME)(int Key,wchar_t
+*KeyText,size_t Size);
+   Returns total size (with trailing null) copied into KeyText.
+
+   If Size == 0, returns the necessary size.
+
+t-rex 01.11.2007 23:37:35 +0200 - build 318
+
+from chupakabra:
+
+1. While drawing a border of the Information panel for a plugin (Ctrl
++L), BoxSymbols[] is not used.
+
+t-rex 01.11.2007 22:42:35 +0200 - build 317
+
+from Alex Alabuzhev:
+
+1. API 1.7:
+   - ViewerControl
+   - several more messages in Dialog API
+   - Text: recursion when Str = NULL
+
+svs 01.11.2007 16:57:56 +0300 - build 316
+
+1. Mantis#0000344: Keys to disable macros/autorunning macros upon
+startup
+   [+] Added command line parameters:
+       /m - FAR won't load macros from registry on startup
+       /ma - FAR won't execute autorunning macros upon startup
+
+2. Crash if "*.*, ,*.*" is provided as a mask in the file search
+dialog
+
+3. In FarEng.hlf.m4, we have some Cyrillic symbols.
+   Someone please fix this in a forthcoming patch :-)
+
+t-rex 30.10.2007 20:55:12 +0200 - build 315
+
+from Alex Alabuzhev (plus some corrections from me :):
+All this needs heavy testing.
+
+1. API 1.7:
+   - DialogEx now works, more or less.
+   - AdvControl.
+   - in FARKEYSEQUENCEFLAGS, KSFLAGS_REG_MULTI_SZ was missed
+
+svs 29.10.2007 09:52:31 +0300 - build 314
+
+from _anton_ (?)
+
+1. in plugin.hpp, the second parameter of MakeDirectoryW function is
+char*, not
+   wchar_t*.
+
+t-rex 28.10.2007 21:10:05 +0200
+
+1. Small fix in the EXCEPTION section of the license: clarified the
+use of headers by plugins. Anyway, use of headers is allowed in the
+source of headers themselves, so LICENSE just summarizes this.
+
+t-rex 28.10.2007 20:04:06 +0200 - build 313
+
+from Alexandr Zamaraev:
+
+1. Improved GCC build.
+
+t-rex 28.10.2007 17:59:38 +0200 - build 312
+
+1. By Yurij's advice, there is no more limitation on string length in
+the viewer/editor history; additonally, this removed some crashes :-)
+
+t-rex 28.10.2007 17:31:13 +0200 - build 311
+
+from Alexandr Zamaraev (Tonal):
+
+1. Builds with 4.2.1
+
+t-rex 28.10.2007 16:37:51 +0200 - build 310
+
+from Alex Alabuzhev:
+
+1. API 1.7:
+   a) Dialog (done), DialogEx (without handler) (wrap.cpp)
+   b) Menu: user's choice mark (FarMenuItem.Checked>1) didn't encode
+to Unicode in the wrapper (wrap.cpp), some deeper problems detected -
+type inference to char (vmenu.cpp)
+
+svs 28.10.2007 17:00:58 +0300 - build
+
+1. Added SYSLOG-RU file, describing logging in FAR
+
+svs 28.10.2007 01:54:39 +0300 - build 309
+
+1. Macro: crash when recording a keyboard sequence
+
+2. KEY_MACRO_BASE moved back to "keys", because of certain problems.
+
+svs 28.10.2007 01:15:53 +0300 - build 308
+
+from DrKnS (Alex Alabuzhev):
+
+1. garbage in console when a plugin's dialog is output
+
+2. When certain dialogs were closed, FAR crashed because of non-
+initialized variables
+
+3. fixed border at the bottom of the panel (flshow.cpp).
+
+4. Editor: debug version crashed when exiting the editor after saving
+
+5. Editor: path of the saved file was cut incorrectly
+
+6. Editor: UpdateFileList() is not called on exit without saving, if a
+new file was opened
+
+t-rex 27.10.2007 22:08:48 +0200 - build 307
+
+1. After 301, a regression appeared: FEDITLINE_CLEARFLAG wasn't reset
+for Edit.
+
+t-rex 27.10.2007 20:05:33 +0200 - build 306
+
+1. Optimizied on-screen output of strings in the editor. Great
+improvement on very long lines.
+
+2. SHITHAPPENS removed, not used anymore
+
+t-rex 27.10.2007 17:05:41 +0200 - build 305
+
+from chupakabra:
+
+1. Infinite cycle in FarMkTempEx().
+
+2. DeleteFileWithFolder() removes only file but leaves folder intact
+
+svs 27.10.2007 15:37:28 +0300 - build 304
+
+1. Added MCODE_OP_NOP
+
+2. Better handling of crashes while deleting or playing a macro
+
+t-rex 27.10.2007 14:18:57 +0200 - build 303
+
+1. Fixes in Debug and GCC builds, removed a couple of warnings.
+
+svs 27.10.2007 13:15:23 +0300 - build 302
+
+1. Fix in KeyMacro::MkTextSequence.
+
+svs 26.10.2007 19:09:24 +0300 - build 301
+
+Off we go....
+
+1. MCODE_OP_EXPR and MCODE_OP_DOIT removed
+
+2. KEY_MACRO_BASE ... KEY_MACRO_ENDBASE are not "keys" anymore!
+   Only KEY_OP_* are still considered "keys"
+
+3. Added _MOUSE_EVENT_RECORD_Dump() into logging
+
+4. Changed SetFLockState
+   GetKeyboardState suxx, work in debug version only (@#$%!)
+   using our GetKeyState() instead
+
+5. Macro op-codes now begin with 0
+
+6. In macro parser:
+   between MCODE_OP_KEYS and MCODE_OP_ENDKEYS, "real keys" exist!
+   At the present moment, parseMacroString() wraps each
+   "real key", but this will be changed later...
+   At the end, we'll have a separate DLL which returns only pure byte
+code back to FAR.
+
+7. New parameter in PostNewMacro()
+   At the present, we suppose that plugins do not correctly process
+macros with "pure" key codes. But this function is not used
+exclusively for plugins, so we have to distinguish between different
+usage contexts.
+
+9. Problems with...
+     having 2 macros
+     а) in the shell area, Ctrl-CapsLock=CtrlShiftTab flock(1,2)
+     б) in the editor area, Ctrl-CapsLock=CtrlShiftTab flock(1,2)
+
+     0. in shell, we open a file in the editor, and switched back to
+shell
+     1. pressed Ctrl-CapsLock, the macro exists and runs
+     2. macro finishes working, and added Up-Down into a queue for
+VK_CAPITAL (the above mentioned flock(1,2))
+     3. the macro has finished working, but:
+     3.1 Ctrl is in the "pressed" state
+     3.2 Up-Down for CapsLock is coming
+     4. FAR sees CtrlCapsLock in the queue, check that we're in the
+editor, but we have the same macro there, and it runs
+     5. goto 2
+
+     The only solution is a power off switch.
+
+
+t-rex 26.10.2007 14:34:01 +0200 build 300
+
+1. Are you ready? :)
+
+--------------------------------------------------------------------------------
+Entries 145-300 are not translated yet.
+--------------------------------------------------------------------------------
