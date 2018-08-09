@@ -86,7 +86,7 @@ void SQLiteDb::SQLiteStmt::stmt_deleter::operator()(sqlite::sqlite3_stmt* object
 
 SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::Reset()
 {
-	m_Param = 1;
+	m_Param = 0;
 	sqlite::sqlite3_clear_bindings(m_Stmt.get());
 	sqlite::sqlite3_reset(m_Stmt.get());
 	return *this;
@@ -104,31 +104,31 @@ bool SQLiteDb::SQLiteStmt::Execute() const
 
 SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(std::nullptr_t)
 {
-	sqlite::sqlite3_bind_null(m_Stmt.get(), m_Param++);
+	sqlite::sqlite3_bind_null(m_Stmt.get(), ++m_Param);
 	return *this;
 }
 
 SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(int Value)
 {
-	sqlite::sqlite3_bind_int(m_Stmt.get(), m_Param++, Value);
+	sqlite::sqlite3_bind_int(m_Stmt.get(), ++m_Param, Value);
 	return *this;
 }
 
 SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(long long Value)
 {
-	sqlite::sqlite3_bind_int64(m_Stmt.get(), m_Param++, Value);
+	sqlite::sqlite3_bind_int64(m_Stmt.get(), ++m_Param, Value);
 	return *this;
 }
 
 SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const string_view Value, const bool bStatic)
 {
-	sqlite::sqlite3_bind_text16(m_Stmt.get(), m_Param++, Value.data(), static_cast<int>(Value.size() * sizeof(wchar_t)), bStatic? sqlite::static_destructor : sqlite::transient_destructor);
+	sqlite::sqlite3_bind_text16(m_Stmt.get(), ++m_Param, Value.data(), static_cast<int>(Value.size() * sizeof(wchar_t)), bStatic? sqlite::static_destructor : sqlite::transient_destructor);
 	return *this;
 }
 
 SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const bytes_view& Value, bool bStatic)
 {
-	sqlite::sqlite3_bind_blob(m_Stmt.get(), m_Param++, Value.data(), static_cast<int>(Value.size()), bStatic? sqlite::static_destructor : sqlite::transient_destructor);
+	sqlite::sqlite3_bind_blob(m_Stmt.get(), ++m_Param, Value.data(), static_cast<int>(Value.size()), bStatic? sqlite::static_destructor : sqlite::transient_destructor);
 	return *this;
 }
 
@@ -356,7 +356,7 @@ SQLiteDb::SQLiteStmt SQLiteDb::create_stmt(std::string_view const Stmt) const
 	// that is the number of bytes in the input string *including* the nul-terminator.
 
 	// We use data() instead of operator[] here to bypass any bounds checks in debug mode
-	const auto IsNullTerminated = Stmt.data()[Stmt.size()] == L'\0';
+	const auto IsNullTerminated = !Stmt.data()[Stmt.size()];
 
 	const auto Result = sqlite::sqlite3_prepare_v3(m_Db.get(), Stmt.data(), static_cast<int>(Stmt.size() + (IsNullTerminated? 1 : 0)), SQLITE_PREPARE_PERSISTENT, &pStmt, nullptr);
 	if (Result != SQLITE_OK)

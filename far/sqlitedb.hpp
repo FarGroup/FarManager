@@ -79,7 +79,7 @@ protected:
 		NONCOPYABLE(SQLiteStmt);
 		MOVABLE(SQLiteStmt);
 
-		explicit SQLiteStmt(sqlite::sqlite3_stmt* Stmt): m_Stmt(Stmt), m_Param(1) {}
+		explicit SQLiteStmt(sqlite::sqlite3_stmt* Stmt): m_Stmt(Stmt) {}
 
 		template<class T>
 		struct transient_t
@@ -126,7 +126,7 @@ protected:
 
 		struct stmt_deleter { void operator()(sqlite::sqlite3_stmt*) const; };
 		std::unique_ptr<sqlite::sqlite3_stmt, stmt_deleter> m_Stmt;
-		int m_Param;
+		int m_Param{};
 	};
 
 	struct statement_reset

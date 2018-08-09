@@ -47,30 +47,6 @@ WARNING_DISABLE_GCC("-Wcast-function-type")
 
 WARNING_DISABLE_CLANG("-Weverything")
 
-#ifdef _MSC_VER
-#include <windows.h>
-
-// SQlite 3.12 suddenly started using rand_s function, which depends on RtlGenRandom (SystemFunction036), which is not available in Win2k.
-// It would be better to hook only SystemFunction036 via our vc_crt_fix* facilities, but ucrt devs load it via GetProcAddress and call abort() if it's not available,
-// which is, of course, a truly splendid design decision, my hat's off to them.
-// So, no other choice but to craft the whole thing manually:
-static int rand_s(unsigned int* randomValue)
-{
-	typedef BOOLEAN (WINAPI *SystemFunction036)(PVOID Buffer, ULONG Size);
-	static SystemFunction036 RtlGenRandomPtr = (void*)-1;
-	if (RtlGenRandomPtr == (void*)-1)
-	{
-		RtlGenRandomPtr = (SystemFunction036)GetProcAddress(GetModuleHandle(L"advapi32"), "SystemFunction036");
-	}
-
-	if (RtlGenRandomPtr)
-		return RtlGenRandomPtr(randomValue, sizeof(*randomValue));
-
-	*randomValue = rand();
-	return 0;
-}
-#endif
-
 #define SQLITE_WIN32_NO_ANSI
 
 #include "thirdparty/sqlite/sqlite3.c"
