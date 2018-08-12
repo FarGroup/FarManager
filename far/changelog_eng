@@ -3,6 +3,20 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 09.08.2018 21:06:04 +0100 - build 5255
+
+1. SQLite does not use rand_s() since 3.21 so Win2k support which has been introduced in 4710 now can be removed.
+
+2. A couple of issues.
+
+drkns 05.08.2018 14:05:25 +0100 - build 5254
+
+1. Continuation of 5252.
+
+drkns 03.08.2018 12:13:31 +0100 - build 5253
+
+1. Continuation of 5249.
+
 drkns 05.08.2018 14:05:25 +0100 - build 5254
 
 1. Continuation of 5252.
