@@ -149,6 +149,7 @@ public:
 	static int ProcessKey(const plugin_panel* hPlugin,const INPUT_RECORD *Rec,bool Pred);
 	static int ProcessEvent(const plugin_panel* hPlugin,int Event,void *Param);
 	static int Compare(const plugin_panel* hPlugin,const PluginPanelItem *Item1,const PluginPanelItem *Item2,unsigned int Mode);
+	static bool GetPluginInfo(Plugin *pPlugin, PluginInfo* Info);
 	int ProcessEditorInput(const INPUT_RECORD *Rec) const;
 	int ProcessEditorEvent(int Event, void *Param, const Editor* EditorInstance) const;
 	int ProcessSubscribedEditorEvent(int Event, void *Param, const Editor* EditorInstance, const std::unordered_set<UUID>& PluginIds) const;

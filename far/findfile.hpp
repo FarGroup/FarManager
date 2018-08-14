@@ -119,11 +119,6 @@ public:
 	std::unique_ptr<InterThreadData> itd;
 	os::synced_queue<AddMenuData> m_Messages;
 
-	// BUGBUG
-	void Lock() { PluginCS.lock(); }
-	void Unlock() { PluginCS.unlock(); }
-	auto ScopedLock() { return make_raii_wrapper(this, &FindFiles::Lock, &FindFiles::Unlock); }
-
 private:
 	string &PrepareDriveNameStr(string &strSearchFromRoot) const;
 	void AdvancedDialog();
@@ -165,8 +160,6 @@ private:
 	int m_FileCount{};
 	int m_DirCount{};
 	int m_LastFoundNumber{};
-
-	os::critical_section PluginCS;
 
 	time_check m_TimeCheck;
 	// BUGBUG

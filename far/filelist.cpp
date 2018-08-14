@@ -856,7 +856,7 @@ bool FileList::GetPluginInfo(PluginInfo *PInfo) const
 	if (GetMode() == panel_mode::PLUGIN_PANEL && PluginPanel && PluginPanel->plugin())
 	{
 		PInfo->StructSize=sizeof(PluginInfo);
-		return PluginPanel->plugin()->GetPluginInfo(PInfo) != 0;
+		return Global->CtrlObject->Plugins->GetPluginInfo(PluginPanel->plugin(), PInfo);
 	}
 	return false;
 }
@@ -896,7 +896,7 @@ long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 			PluginInfo *PInfo=(PluginInfo *)vParam;
 			const auto PluginPanel = GetPluginHandle();
 			if (GetMode() == panel_mode::PLUGIN_PANEL && PluginPanel && PluginPanel->plugin())
-				return PluginPanel->plugin()->GetPluginInfo(PInfo)?1:0;
+				return Global->CtrlObject->Plugins->GetPluginInfo(PluginPanel->plugin(), PInfo)?1:0;
 			return 0;
 		}
 
@@ -5176,7 +5176,7 @@ string FileList::GetPluginPrefix() const
 		if (!(m_CachedOpenPanelInfo.Flags & OPIF_REALNAMES))
 		{
 			PluginInfo PInfo = {sizeof(PInfo)};
-			if (GetPluginHandle()->plugin()->GetPluginInfo(&PInfo) && PInfo.CommandPrefix && *PInfo.CommandPrefix)
+			if (Global->CtrlObject->Plugins->GetPluginInfo(GetPluginHandle()->plugin(), &PInfo) && PInfo.CommandPrefix && *PInfo.CommandPrefix)
 			{
 				string_view Prefix = PInfo.CommandPrefix;
 				return Prefix.substr(0, Prefix.find(L':')) + L":"sv;
