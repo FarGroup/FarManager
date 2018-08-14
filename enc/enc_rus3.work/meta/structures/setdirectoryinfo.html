@@ -25,7 +25,11 @@ struct SetDirectoryInfo
   size_t StructSize;
   HANDLE hPanel;
   const wchar_t *Dir;
-  intptr_t UserData;
+  struct
+  {
+    void *Data;
+    FARPANELITEMFREECALLBACK FreeData;
+  } UserData;
   OPERATION_MODES OpMode;
 };
 </pre>
@@ -41,7 +45,7 @@ struct SetDirectoryInfo
     ƒл€ корректного восстановлени€ каталога после использовани€ <code>"»скать по всему диску"</code> в ƒиалоге поиска файлов, плагин должен воспринимать полное им€ каталога,
     которое возвращаетс€ в функции <a href="../exported_functions/getopenpanelinfow.html">GetOpenPanelInfoW</a>. Ёто не об€зательно дл€ выставленного режима "<code>»скать, начина€ с текущей папки</code>" в диалоге поиска файлов .</div>
   <div class=dfn>UserData</div>
-    <div class=dfndescr>Ёто поле аналогично значению <a href="pluginpanelitem.html">PluginPanelItem.UserData.Data</a> и может быть использовано плагином дл€ хранени€ целого значени€ или указател€ на структуру данных.
+    <div class=dfndescr>Ёто поле аналогично значению <a href="pluginpanelitem.html">PluginPanelItem.UserData</a> и может быть использовано плагином дл€ хранени€ целого значени€ или указател€ на структуру данных.
     ѕлагин должен освободить пам€ть, зан€тую такими дополнительными структурами.</div>
   <div class=dfn>OpMode</div>
     <div class=dfndescr> омбинаци€ флагов <a href="../defs/operation_mode.html">OPERATION_MODES</a>.
