@@ -1,4 +1,8 @@
-﻿shmuel 22.07.2018 18:23:27 +0200 - build 655
+﻿shmuel 14.08.2018 12:16:25 +0200 - build 656
+
+1. LuaFAR: export.SetDirectory() получает 5-й параметр (UserData).
+
+shmuel 22.07.2018 18:23:27 +0200 - build 655
 
 1. LuaFAR: в таблице, возвращаемой panel.GetPanelInfo(), добавлено поле PluginObject.
 

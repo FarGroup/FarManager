@@ -1169,7 +1169,7 @@ intptr_t LF_PutFiles(lua_State* L, const struct PutFilesInfo *Info)
 	return 0;
 }
 
-intptr_t LF_SetDirectory(lua_State* L, const struct SetDirectoryInfo *Info) //TODO: Info->UserData
+intptr_t LF_SetDirectory(lua_State* L, const struct SetDirectoryInfo *Info)
 {
 	if(GetExportFunction(L, "SetDirectory"))      //+1: Func
 	{
@@ -1177,7 +1177,16 @@ intptr_t LF_SetDirectory(lua_State* L, const struct SetDirectoryInfo *Info) //TO
 		PushPluginPair(L, Info->hPanel);     //+3: Func,Pair
 		push_utf8_string(L, Info->Dir, -1);  //+4: Func,Pair,Dir
 		bit64_push(L, Info->OpMode);         //+5: Func,Pair,Dir,OpMode
-		ret = pcall_msg(L, 4, 1);            //+1: Res
+		if (Info->UserData.Data != NULL)
+		{
+			FarPanelItemUserData* ud = (FarPanelItemUserData*)Info->UserData.Data;
+			lua_rawgeti(ud->L, LUA_REGISTRYINDEX, ud->ref);
+		}
+		else
+		{
+			lua_pushnil(L);
+		}
+		ret = pcall_msg(L, 5, 1);            //+1: Res
 
 		if(ret == 0)
 		{

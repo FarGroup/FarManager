@@ -2077,15 +2077,16 @@ id=116
 lv=2
 dt=Text
 nm=export.SetDirectory
-mtime=3602341267
+mtime=3743410389
 <article>
-#_result = export.SetDirectory (object, handle, Dir, OpMode)
+#_result = export.SetDirectory (object, handle, Dir, OpMode, UserData)
 #_
 #_**Parameters:**
-#_  object: plugin object
-#_  handle: panel handle
-#_  Dir:    string
-#_  OpMode: flags
+#_  object:    plugin object
+#_  handle:    panel handle
+#_  Dir:       string
+#_  OpMode:    flags
+#_  UserData:  any Lua value
 #_
 #_**Returns:**
 #_  result: boolean
@@ -5699,7 +5700,7 @@ id=7
 lv=2
 dt=Text
 nm=panel.GetPanelInfo
-mtime=3741443552
+mtime=3741446297
 <article>
 #_tPanelInfo = panel.GetPanelInfo (handle, whatpanel)
 #_
@@ -5723,7 +5724,7 @@ mtime=3741443552
 #_      Flags:               flags
 #_      PluginObject:        non-false Lua value
 #_
-#_**Note**
+#_**Note:**
 #_  The *PluginObject* field is LuaFAR-specific. It is only present if OwnerGuid==PluginGuid,
 #_  i.e. when *panel.GetPanelInfo* was called from the same plugin that created the panel.
 #_  The intended use of this field is when a panel plugin processes macro calls for operations
