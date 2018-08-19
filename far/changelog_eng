@@ -3,6 +3,21 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 19.08.2018 14:58:35 +0100 - build 5258
+
+1. Corrections in processing of ".." in plugin panels.
+   - OPIF_ADDDOTS always adds "..".
+   - if OPIF_ADDDOTS is not set then the parent directory is the first ".." in the list regardless of FILE_ATTRIBUTE_DIRECTORY presence.
+   - Distinguish between a virtual ".." and a real folder if possible.
+
+drkns 19.08.2018 08:53:24 +0100 - build 5257
+
+1. VS 2017 15.8.1.
+
+zg 15.08.2018 00:00:47 +0300 - build 5256
+
+1. protect all plugin calls with a global critical section.
+
 drkns 09.08.2018 21:06:04 +0100 - build 5255
 
 1. SQLite does not use rand_s() since 3.21 so Win2k support which has been introduced in 4710 now can be removed.
