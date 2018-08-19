@@ -173,7 +173,7 @@ protected:
 	const string& GetPath() const { return m_Path; }
 	const string& GetName() const { return m_Name; }
 
-	auto AutoStatement(size_t Index) const { return auto_statement(&m_Statements[Index]); }
+	auto_statement AutoStatement(size_t Index) const { return auto_statement(&m_Statements[Index]); }
 
 	template<typename... args>
 	auto ExecuteStatement(size_t Index, args&&... Args) const
