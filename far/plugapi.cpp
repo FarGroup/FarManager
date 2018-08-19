@@ -1576,8 +1576,11 @@ intptr_t WINAPI apiGetPluginDirList(const GUID* PluginId, HANDLE hPlugin, const 
 		if (Global->WindowManager->ManagerIsDown())
 			return FALSE;
 
+		if (IsParentDirectory(Dir))
+			return false;
+
 		auto Items = std::make_unique<std::vector<PluginPanelItem>>();
-		const auto Result = GetPluginDirList(GuidToPlugin(PluginId), hPlugin, Dir, *Items);
+		const auto Result = GetPluginDirList(GuidToPlugin(PluginId), hPlugin, Dir, nullptr, *Items);
 		std::tie(*pPanelItem, *pItemsNumber) = magic::CastVectorToRawData(std::move(Items));
 		return Result;
 	}

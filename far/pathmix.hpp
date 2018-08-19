@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "platform.fwd.hpp"
 
+class FileListItem;
 struct PluginPanelItem;
 
 namespace path
@@ -178,8 +179,10 @@ size_t FindSlash(string_view Str);
 size_t FindLastSlash(string_view Str);
 
 bool IsParentDirectory(string_view Str);
+bool IsParentDirectory(const FileListItem& Data);
 bool IsParentDirectory(const os::fs::find_data& Data);
 bool IsParentDirectory(const PluginPanelItem& Data);
+
 bool IsCurrentDirectory(string_view Str);
 
 string ExtractPathRoot(string_view Path);

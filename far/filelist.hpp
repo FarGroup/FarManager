@@ -58,7 +58,7 @@ public:
 	MOVABLE(FileListItem);
 
 	FileListItem();
-	FileListItem(const PluginPanelItem& pi);
+	explicit FileListItem(const PluginPanelItem& pi);
 
 	bool IsNumberOfLinksRead() const;
 	DWORD NumberOfLinks(const FileList* Owner) const;
@@ -250,8 +250,8 @@ private:
 	long SelectFiles(int Mode, const wchar_t *Mask = nullptr);
 	void ProcessEnter(bool EnableExec, bool SeparateWindow, bool EnableAssoc, bool RunAs, OPENFILEPLUGINTYPE Type);
 	// ChangeDir возвращает false, eсли не смогла выставить заданный путь
-	bool ChangeDir(string_view NewDir,bool ResolvePath, bool IsUpdated, const UserDataItem* DataItem, OPENFILEPLUGINTYPE Type);
-	bool ChangeDir(string_view NewDir);
+	bool ChangeDir(string_view NewDir, bool IsParent, bool ResolvePath, bool IsUpdated, const UserDataItem* DataItem, OPENFILEPLUGINTYPE Type);
+	bool ChangeDir(string_view NewDir, bool IsParent);
 	void CountDirSize(bool IsRealNames);
 	void ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, int DrawMessage);
 	void UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible);

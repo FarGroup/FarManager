@@ -755,6 +755,10 @@ typedef unsigned long long PLUGINPANELITEMFLAGS;
 static const PLUGINPANELITEMFLAGS
 	PPIF_SELECTED               = 0x0000000040000000ULL,
 	PPIF_PROCESSDESCR           = 0x0000000080000000ULL,
+
+#ifdef FAR_USE_INTERNALS
+	PPIF_RESERVED               = 0x8000000000000000ULL,
+#endif // END FAR_USE_INTERNALS
 	PPIF_NONE                   = 0;
 
 struct FarPanelItemFreeInfo

@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "regex_helpers.hpp"
 #include "string_utils.hpp"
 #include "cvtname.hpp"
+#include "filelist.hpp"
 #include "plugin.hpp"
 
 #include "platform.fs.hpp"
@@ -200,6 +201,11 @@ bool IsParentDirectory(string_view const Str)
 	return starts_with(Str, L".."sv) && (Str.size() == 2 || (Str.size() == 3 && IsSlash(Str[2])));
 }
 
+bool IsParentDirectory(const FileListItem& Data)
+{
+	return Data.UserFlags & PPIF_RESERVED && IsParentDirectory(static_cast<const os::fs::find_data&>(Data));
+}
+
 bool IsParentDirectory(const os::fs::find_data& Data)
 {
 	return
@@ -211,9 +217,10 @@ bool IsParentDirectory(const os::fs::find_data& Data)
 bool IsParentDirectory(const PluginPanelItem& Data)
 {
 	return
-		Data.FileAttributes & FILE_ATTRIBUTE_DIRECTORY &&
+		// Plugins are unreliable and sometimes don't set this attribute
+		// Data.FileAttributes & FILE_ATTRIBUTE_DIRECTORY &&
 		IsParentDirectory(NullToEmpty(Data.FileName)) &&
-		(!Data.AlternateFileName || !*Data.AlternateFileName || equal(Data.AlternateFileName, NullToEmpty(Data.FileName)));
+		(!Data.AlternateFileName || !*Data.AlternateFileName || equal(NullToEmpty(Data.AlternateFileName), NullToEmpty(Data.FileName)));
 }
 
 bool IsCurrentDirectory(string_view Str)

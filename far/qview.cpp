@@ -412,7 +412,7 @@ void QuickView::Update(int Mode)
 	Redraw();
 }
 
-void QuickView::ShowFile(string_view const FileName, bool const TempFile, const plugin_panel* const hDirPlugin)
+void QuickView::ShowFile(string_view const FileName, const UserDataItem* const UserData, bool const TempFile, const plugin_panel* const hDirPlugin)
 {
 	CloseFile();
 
@@ -432,6 +432,9 @@ void QuickView::ShowFile(string_view const FileName, bool const TempFile, const 
 	const auto FileFullName = hDirPlugin? string(FileName) : ConvertNameToFull(FileName);
 	const auto SameFile = strCurFileName == FileFullName;
 	strCurFileName = FileFullName;
+	CurUserData = {};
+	if (UserData)
+		CurUserData = *UserData;
 
 	size_t pos = strCurFileName.rfind(L'.');
 	if (pos != string::npos)
@@ -455,7 +458,7 @@ void QuickView::ShowFile(string_view const FileName, bool const TempFile, const 
 		}
 		else if (hDirPlugin)
 		{
-			const auto Result = GetPluginDirInfo(hDirPlugin, strCurFileName, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize);
+			const auto Result = GetPluginDirInfo(hDirPlugin, strCurFileName, UserData, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize);
 			m_DirectoryScanStatus = Result? scan_status::plugin_ok : scan_status::plugin_fail;
 			uncomplete_dirscan = !Result;
 		}
@@ -562,7 +565,7 @@ bool QuickView::UpdateIfChanged(bool Idle)
 	if (IsVisible() && !strCurFileName.empty() && m_DirectoryScanStatus == scan_status::real_fail)
 	{
 		const auto strViewName = strCurFileName;
-		ShowFile(strViewName, m_TemporaryFile, nullptr);
+		ShowFile(strViewName, &CurUserData, m_TemporaryFile, nullptr);
 		return true;
 	}
 

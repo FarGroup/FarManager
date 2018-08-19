@@ -1636,7 +1636,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 				if (!m_CachedOpenPanelInfo.CurDir || !*m_CachedOpenPanelInfo.CurDir)
 				{
 					const auto OldParent = Parent();
-					ChangeDir(L".."sv);
+					ChangeDir(L".."sv, true);
 					NeedChangeDir = false;
 					//"this" мог быть удалён в ChangeDir
 					const auto ActivePanel = OldParent->ActivePanel();
@@ -1647,7 +1647,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			}
 
 			if (NeedChangeDir)
-				ChangeDir(L"\\"sv);
+				ChangeDir(L"\\"sv, false);
 
 			Parent()->ActivePanel()->Show();
 			return true;
@@ -2508,7 +2508,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 				//"this" может быть удалён в ChangeDir
 				const auto CheckFullScreen = IsFullScreen();
 				const auto OldParent = Parent();
-				ChangeDir(L".."sv);
+				ChangeDir(L".."sv, true);
 				const auto NewActivePanel = OldParent->ActivePanel();
 				NewActivePanel->SetViewMode(NewActivePanel->GetViewMode());
 
@@ -2635,7 +2635,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			// Don't use CurItem directly: ChangeDir calls PopPlugin, which clears m_ListData
 			const auto DirCopy = CurItem.FileName;
 			const auto DataItemCopy = CurItem.UserData;
-			ChangeDir(DirCopy, false, true, &DataItemCopy, Type);
+			ChangeDir(DirCopy, IsParentDirectory(CurItem), false, true, &DataItemCopy, Type);
 
 			//"this" может быть удалён в ChangeDir
 			const auto ActivePanel = OldParent->ActivePanel();
@@ -2786,20 +2786,19 @@ bool FileList::SetCurDir(const string& NewDir,bool ClosePanel,bool IsUpdated)
 
 	if (!NewDir.empty())
 	{
-		return ChangeDir(NewDir, true, IsUpdated, &UsedData, OFP_NORMAL);
+		return ChangeDir(NewDir, NewDir == L".."sv, true, IsUpdated, &UsedData, OFP_NORMAL);
 	}
 
 	return false;
 }
 
-bool FileList::ChangeDir(string_view const NewDir,bool ResolvePath,bool IsUpdated, const UserDataItem* DataItem, OPENFILEPLUGINTYPE ofp_type)
+bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePath,bool IsUpdated, const UserDataItem* DataItem, OPENFILEPLUGINTYPE ofp_type)
 {
 	if (m_PanelMode != panel_mode::PLUGIN_PANEL && !IsAbsolutePath(NewDir) && !equal_icase(os::fs::GetCurrentDirectory(), m_CurDir))
 		FarChDir(m_CurDir);
 
 	string strFindDir;
 	string strSetDir(NewDir);
-	bool dot2Present = strSetDir == L".."sv;
 
 	bool RootPath = false;
 	bool NetPath = false;
@@ -2807,7 +2806,7 @@ bool FileList::ChangeDir(string_view const NewDir,bool ResolvePath,bool IsUpdate
 
 	if (m_PanelMode != panel_mode::PLUGIN_PANEL)
 	{
-		if (dot2Present)
+		if (IsParent)
 		{
 			strSetDir = m_CurDir;
 			const auto Type = ParsePath(m_CurDir, nullptr, &RootPath);
@@ -2834,7 +2833,7 @@ bool FileList::ChangeDir(string_view const NewDir,bool ResolvePath,bool IsUpdate
 			AddEndSlash(strSetDir);
 	}
 
-	if (!dot2Present && !IsRelativeRoot(strSetDir))
+	if (!IsParent && !IsRelativeRoot(strSetDir))
 		UpperFolderTopFile=m_CurTopFile;
 
 	if (m_SelFileCount>0)
@@ -2860,7 +2859,10 @@ bool FileList::ChangeDir(string_view const NewDir,bool ResolvePath,bool IsUpdate
 		bool GoToPanelFile = false;
 		bool PluginClosed=false;
 
-		if (dot2Present && (strInfoCurDir.empty() || IsRelativeRoot(strInfoCurDir)))
+		if (IsParent && (strInfoCurDir.empty()
+			// BUGBUG this breaks exiting from a real "\" directory but needed for https://forum.farmanager.com/viewtopic.php?p=86267#p86267
+			 || IsRelativeRoot(strInfoCurDir)
+			))
 		{
 			if (ProcessPluginEvent(FE_CLOSE,nullptr))
 				return true;
@@ -2884,6 +2886,7 @@ bool FileList::ChangeDir(string_view const NewDir,bool ResolvePath,bool IsUpdate
 		{
 			strFindDir = strInfoCurDir;
 			auto opmode = static_cast<int>(ofp_type == OFP_ALTERNATIVE ? OPM_PGDN : OPM_NONE);
+
 			SetDirectorySuccess = Global->CtrlObject->Plugins->SetDirectory(GetPluginHandle(), strSetDir, opmode, DataItem) != FALSE;
 		}
 
@@ -2896,7 +2899,7 @@ bool FileList::ChangeDir(string_view const NewDir,bool ResolvePath,bool IsUpdate
 		else
 			Update(UPDATE_KEEP_SELECTION);
 
-		PopPrevData(strFindDir,PluginClosed,!GoToPanelFile,dot2Present,SetDirectorySuccess);
+		PopPrevData(strFindDir, PluginClosed, !GoToPanelFile, IsParent, SetDirectorySuccess);
 
 		return SetDirectorySuccess;
 	}
@@ -2905,7 +2908,7 @@ bool FileList::ChangeDir(string_view const NewDir,bool ResolvePath,bool IsUpdate
 		if (!equal_icase(ConvertNameToFull(strSetDir), m_CurDir))
 			Global->CtrlObject->FolderHistory->AddToHistory(m_CurDir);
 
-		if (dot2Present)
+		if (IsParent)
 		{
 			if (RootPath)
 			{
@@ -2961,7 +2964,7 @@ bool FileList::ChangeDir(string_view const NewDir,bool ResolvePath,bool IsUpdate
 			Message(MSG_WARNING, error_state::fetch(),
 				msg(lng::MError),
 				{
-					dot2Present ? L".."s : strSetDir
+					IsParent? L".."s : strSetDir
 				},
 				{ lng::MOk });
 			UpdateFlags = UPDATE_KEEP_SELECTION;
@@ -2976,7 +2979,7 @@ bool FileList::ChangeDir(string_view const NewDir,bool ResolvePath,bool IsUpdate
 
 	Update(UpdateFlags);
 
-	if (dot2Present)
+	if (IsParent)
 	{
 		GoToFile(strFindDir);
 		m_CurTopFile=UpperFolderTopFile;
@@ -3006,9 +3009,9 @@ bool FileList::ChangeDir(string_view const NewDir,bool ResolvePath,bool IsUpdate
 	return SetDirectorySuccess;
 }
 
-bool FileList::ChangeDir(string_view const NewDir)
+bool FileList::ChangeDir(string_view const NewDir, bool IsParent)
 {
-	return ChangeDir(NewDir, false, true, nullptr, OFP_NORMAL);
+	return ChangeDir(NewDir, IsParent, false, true, nullptr, OFP_NORMAL);
 }
 
 bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
@@ -4117,9 +4120,9 @@ void FileList::UpdateViewPanel()
 			Global->CtrlObject->Plugins->UseFarCommand(GetPluginHandle(), PLUGIN_FARGETFILE))
 		{
 			if (IsParentDirectory(Current))
-				ViewPanel->ShowFile(m_CurDir, false, nullptr);
+				ViewPanel->ShowFile(m_CurDir, nullptr, false, nullptr);
 			else
-				ViewPanel->ShowFile(Current.FileName, false, nullptr);
+				ViewPanel->ShowFile(Current.FileName, &Current.UserData, false, nullptr);
 		}
 		else if (!(Current.Attributes & FILE_ATTRIBUTE_DIRECTORY))
 		{
@@ -4131,17 +4134,17 @@ void FileList::UpdateViewPanel()
 
 			if (!Global->CtrlObject->Plugins->GetFile(GetPluginHandle(), &PanelItem.Item, strTempDir, strFileName, OPM_SILENT | OPM_VIEW | OPM_QUICKVIEW))
 			{
-				ViewPanel->ShowFile({}, false, nullptr);
+				ViewPanel->ShowFile({}, nullptr, false, nullptr);
 				os::fs::remove_directory(strTempDir);
 				return;
 			}
 
-			ViewPanel->ShowFile(strFileName, true, nullptr);
+			ViewPanel->ShowFile(strFileName, nullptr, true, nullptr);
 		}
 		else if (!IsParentDirectory(Current))
-			ViewPanel->ShowFile(Current.FileName, false, GetPluginHandle());
+			ViewPanel->ShowFile(Current.FileName, &Current.UserData, false, GetPluginHandle());
 		else
-			ViewPanel->ShowFile({}, false, nullptr);
+			ViewPanel->ShowFile({}, nullptr, false, nullptr);
 
 		RefreshTitle();
 	}
@@ -4900,7 +4903,7 @@ void FileList::CountDirSize(bool IsRealNames)
 			{
 				if (i.Attributes & FILE_ATTRIBUTE_DIRECTORY)
 				{
-					if (GetPluginDirInfo(GetPluginHandle(), i.FileName, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize))
+					if (!IsParentDirectory(i) && GetPluginDirInfo(GetPluginHandle(), i.FileName, &i.UserData, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize))
 					{
 						DoubleDotDir->FileSize += Data.FileSize;
 						DoubleDotDir->AllocationSize += Data.AllocationSize;
@@ -4932,7 +4935,7 @@ void FileList::CountDirSize(bool IsRealNames)
 		if (i.Selected && (i.Attributes & FILE_ATTRIBUTE_DIRECTORY))
 		{
 			SelDirCount++;
-			if ((!IsRealNames && GetPluginDirInfo(GetPluginHandle(), i.FileName, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize)) ||
+			if ((!IsRealNames && !IsParentDirectory(i) && GetPluginDirInfo(GetPluginHandle(), i.FileName, &i.UserData, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize)) ||
 			     (IsRealNames && GetDirInfo(i.FileName, Data, m_Filter.get(), DirInfoCallback, GETDIRINFO_SCANSYMLINKDEF) == 1))
 			{
 				SelFileSize -= i.FileSize;
@@ -4951,7 +4954,7 @@ void FileList::CountDirSize(bool IsRealNames)
 	{
 		assert(m_CurFile < static_cast<int>(m_ListData.size()));
 		auto& CurFile = m_ListData[m_CurFile];
-		if ((!IsRealNames && GetPluginDirInfo(GetPluginHandle(), CurFile.FileName, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize)) ||
+		if ((!IsRealNames && !IsParentDirectory(CurFile) && GetPluginDirInfo(GetPluginHandle(), CurFile.FileName, &CurFile.UserData, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize)) ||
 		     (IsRealNames && GetDirInfo(IsParentDirectory(CurFile)? L"."s : CurFile.FileName, Data, m_Filter.get(), DirInfoCallback, GETDIRINFO_SCANSYMLINKDEF) == 1))
 		{
 			CurFile.FileSize = Data.FileSize;
@@ -6689,31 +6692,32 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 		{
 			const auto OldSize = m_ListData.size();
 			auto Position = OldSize - 1;
-			m_ListData.resize(m_ListData.size() + PanelCount);
+			m_ListData.reserve(m_ListData.size() + PanelCount);
 
-			auto PluginPtr = PanelData;
-			for (auto& i: make_range(m_ListData.begin() + OldSize, m_ListData.end()))
+			OpenPanelInfo AnotherPanelInfo{};
+			Global->CtrlObject->Plugins->GetOpenPanelInfo(hAnotherPlugin, &AnotherPanelInfo);
+
+			auto ParentPointSeen = AnotherPanelInfo.Flags & OPIF_ADDDOTS? true : false;
+
+			for (const auto& i: make_range(PanelData, PanelCount))
 			{
-				i = *PluginPtr;
-				i.Position = Position;
-				TotalFileSize += PluginPtr->FileSize;
-				i.PrevSelected = i.Selected = false;
-				i.ShowFolderSize = 0;
-				i.SortGroup=Global->CtrlObject->HiFiles->GetGroup(&i, this);
+				FileListItem Item{ i };
+				Item.Position = Position++;
+				Item.PrevSelected = Item.Selected = false;
+				Item.ShowFolderSize = 0;
+				Item.SortGroup = Global->CtrlObject->HiFiles->GetGroup(&Item, this);
 
-				if (!IsParentDirectory(*PluginPtr))
+				m_ListData.emplace_back(std::move(Item));
+
+				if (!ParentPointSeen && IsParentDirectory(i))
 				{
-					if (i.Attributes & FILE_ATTRIBUTE_DIRECTORY)
-					{
-						++m_TotalDirCount;
-					}
-					else
-					{
-						++m_TotalFileCount;
-					}
+					ParentPointSeen = true;
 				}
-				++PluginPtr;
-				++Position;
+				else
+				{
+					i.FileAttributes & FILE_ATTRIBUTE_DIRECTORY? ++m_TotalDirCount : ++m_TotalFileCount;
+				}
+				TotalFileSize += i.FileSize;
 			}
 
 			Global->CtrlObject->Plugins->FreeVirtualFindData(hAnotherPlugin,PanelData,PanelCount);
@@ -6977,7 +6981,34 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 	bool UseFilter=m_Filter->IsEnabledOnPanel();
 
 	m_ListData.reserve(PluginFileCount + ((m_CachedOpenPanelInfo.Flags & OPIF_ADDDOTS)? 1 : 0));
-	FileListItem* TwoDotsPtr = nullptr;
+
+	struct
+	{
+		FileListItem* Item{};
+		bool TryToFind{ true };
+	}
+	ParentPoint;
+
+	if (m_CachedOpenPanelInfo.Flags & OPIF_ADDDOTS)
+	{
+		FileListItem NewItem;
+		FillParentPoint(NewItem, m_ListData.size() + 1);
+
+		if (m_CachedOpenPanelInfo.HostFile && *m_CachedOpenPanelInfo.HostFile)
+		{
+			os::fs::find_data FindData;
+
+			if (os::fs::get_find_data(m_CachedOpenPanelInfo.HostFile, FindData))
+			{
+				NewItem.LastWriteTime = FindData.LastWriteTime;
+				NewItem.CreationTime = FindData.CreationTime;
+				NewItem.LastAccessTime = FindData.LastAccessTime;
+				NewItem.ChangeTime = FindData.ChangeTime;
+			}
+		}
+		m_ListData.emplace_back(std::move(NewItem));
+		ParentPoint.TryToFind = false;
+	}
 
 	for (size_t i = 0; i < PluginFileCount; i++)
 	{
@@ -6996,61 +7027,19 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 
 		NewItem.SortGroup = (m_CachedOpenPanelInfo.Flags & OPIF_DISABLESORTGROUPS)? DEFAULT_SORT_GROUP : Global->CtrlObject->HiFiles->GetGroup(&NewItem, this);
 
-		const auto IsTwoDots = (!TwoDotsPtr || !(TwoDotsPtr->Attributes & FILE_ATTRIBUTE_DIRECTORY)) && IsParentDirectory(NewItem);
-		const auto IsDir = (NewItem.Attributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
-		const auto Size = NewItem.FileSize;
-
 		m_ListData.emplace_back(std::move(NewItem));
 
-		if (IsTwoDots)
+		if (ParentPoint.TryToFind && !ParentPoint.Item && IsParentDirectory(PanelData[i]))
 		{
-			// We keep the address of the first encountered ".." element for special treatment.
-			// However, if we found a file and after that we found a directory - it's better to pick a directory.
-			if (!TwoDotsPtr || (IsDir && !(TwoDotsPtr->Attributes & FILE_ATTRIBUTE_DIRECTORY)))
-			{
-				// We reserve capacity so no reallocation will happen and pointer will stay valid.
-				TwoDotsPtr = &m_ListData.back();
-			}
-		}
-
-		IsDir? ++m_TotalDirCount : ++m_TotalFileCount;
-		TotalFileSize += Size;
-	}
-
-	if (!TwoDotsPtr)
-	{
-		if (m_CachedOpenPanelInfo.Flags & OPIF_ADDDOTS)
-		{
-			FileListItem NewItem;
-			FillParentPoint(NewItem, m_ListData.size() + 1);
-
-			if (m_CachedOpenPanelInfo.HostFile && *m_CachedOpenPanelInfo.HostFile)
-			{
-				os::fs::find_data FindData;
-
-				if (os::fs::get_find_data(m_CachedOpenPanelInfo.HostFile, FindData))
-				{
-					NewItem.LastWriteTime = FindData.LastWriteTime;
-					NewItem.CreationTime = FindData.CreationTime;
-					NewItem.LastAccessTime = FindData.LastAccessTime;
-					NewItem.ChangeTime = FindData.ChangeTime;
-				}
-			}
-			m_ListData.emplace_back(std::move(NewItem));
-		}
-	}
-	else
-	{
-		if (TwoDotsPtr->Attributes & FILE_ATTRIBUTE_DIRECTORY)
-		{
-			--m_TotalDirCount;
+			// We reserve capacity so no reallocation will happen and pointer will stay valid.
+			ParentPoint.Item = &m_ListData.back();
+			FillParentPoint(*ParentPoint.Item, i);
 		}
 		else
 		{
-			--m_TotalFileCount;
-			TwoDotsPtr->Attributes |= FILE_ATTRIBUTE_DIRECTORY;
+			PanelData[i].FileAttributes & FILE_ATTRIBUTE_DIRECTORY? ++m_TotalDirCount : ++m_TotalFileCount;
+			TotalFileSize += PanelData[i].FileSize;
 		}
-		TotalFileSize -= TwoDotsPtr->FileSize;
 	}
 
 	if (m_CurFile >= static_cast<int>(m_ListData.size()))
@@ -7210,6 +7199,7 @@ void FileList::FillParentPoint(FileListItem& Item, size_t CurFilePos)
 	Item.FileName = L".."s;
 	Item.SetAlternateFileName(Item.FileName);
 	Item.Position = CurFilePos;
+	Item.UserFlags = PPIF_RESERVED;
 }
 
 // flshow.cpp

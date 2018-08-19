@@ -491,7 +491,7 @@ static intptr_t GetUserDataFromPluginItem(const wchar_t *Name, const PluginPanel
 }
 #endif
 
-void FindFiles::SetPluginDirectory(string_view const DirName, const plugin_panel* const hPlugin, bool const UpdatePanel, UserDataItem* const UserData)
+void FindFiles::SetPluginDirectory(string_view const DirName, const plugin_panel* const hPlugin, bool const UpdatePanel, const UserDataItem* const UserData) const
 {
 	if (!DirName.empty())
 	{
@@ -867,7 +867,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const os::fs::find_data& FindData, const string& DestPath, string &strResultName, UserDataItem *UserData)
+bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const os::fs::find_data& FindData, const string& DestPath, string &strResultName, const UserDataItem* const UserData)
 {
 	_ALGO(CleverSysLog clv(L"FindFiles::GetPluginFile()"));
 	OpenPanelInfo Info;
@@ -900,7 +900,7 @@ bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const os::fs::find_data& Fin
 	}
 
 	Global->CtrlObject->Plugins->SetDirectory(ArcItem->hPlugin, L"\\"s, OPM_SILENT);
-	SetPluginDirectory(strSaveDir,ArcItem->hPlugin);
+	SetPluginDirectory(strSaveDir, ArcItem->hPlugin, false, nullptr);
 	return nResult;
 }
 
@@ -1212,7 +1212,7 @@ bool background_searcher::LookForString(const string& Name)
 	return false;
 }
 
-bool background_searcher::IsFileIncluded(PluginPanelItem* FileItem, const string& FullName, DWORD FileAttr, const string &strDisplayName)
+bool background_searcher::IsFileIncluded(PluginPanelItem* FileItem, string_view const FullName, DWORD FileAttr, const string &strDisplayName)
 {
 	if (!m_Owner->GetFileMask()->Compare(PointToName(FullName)))
 		return false;
@@ -1236,7 +1236,7 @@ bool background_searcher::IsFileIncluded(PluginPanelItem* FileItem, const string
 
 	if (!hPlugin)
 	{
-		strSearchFileName = FullName;
+		assign(strSearchFileName, FullName);
 	}
 	else
 	{
@@ -2131,7 +2131,7 @@ void background_searcher::DoScanTree(const string& strRoot)
 			if (!Global->CtrlObject->Cp()->ActivePanel()->GetSelName(&strSelName,FileAttr))
 				break;
 
-			if (!(FileAttr & FILE_ATTRIBUTE_DIRECTORY) || IsCurrentDirectory(strSelName) || IsParentDirectory(strSelName))
+			if (!(FileAttr & FILE_ATTRIBUTE_DIRECTORY) || IsParentDirectory(strSelName))
 				continue;
 
 			strCurRoot = path::join(strRoot, strSelName);
@@ -2235,12 +2235,11 @@ void background_searcher::ScanPluginTree(plugin_panel* hPlugin, unsigned long lo
 			PauseEvent.wait();
 
 			PluginPanelItem *CurPanelItem=PanelData+I;
-			string strCurName=NullToEmpty(CurPanelItem->FileName);
-			if (strCurName.empty() || IsCurrentDirectory(strCurName) || IsParentDirectory(strCurName))
+			string_view CurName = NullToEmpty(CurPanelItem->FileName);
+			if (CurName.empty() || IsParentDirectory(*CurPanelItem))
 				continue;
 
-			string strFullName = strPluginSearchPath;
-			strFullName += strCurName;
+			const auto strFullName = concat(strPluginSearchPath, CurName);
 
 			if (!UseFilter || m_Owner->GetFilter()->FileInFilter(*CurPanelItem))
 			{
@@ -2249,7 +2248,7 @@ void background_searcher::ScanPluginTree(plugin_panel* hPlugin, unsigned long lo
 					m_Owner->itd->SetFindMessage(strFullName);
 				}
 
-				if (IsFileIncluded(CurPanelItem,strCurName,CurPanelItem->FileAttributes,strFullName))
+				if (IsFileIncluded(CurPanelItem, CurName, CurPanelItem->FileAttributes, strFullName))
 					AddMenuRecord(strFullName, *CurPanelItem);
 
 				if (SearchInArchives && hPlugin && (Flags & OPIF_REALNAMES))
@@ -2260,43 +2259,53 @@ void background_searcher::ScanPluginTree(plugin_panel* hPlugin, unsigned long lo
 
 	if (SearchMode!=FINDAREA_CURRENT_ONLY)
 	{
+		OpenPanelInfo PanelInfo{};
+		Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin, &PanelInfo);
+
+		auto ParentPointSeen = PanelInfo.Flags & OPIF_ADDDOTS? true : false;
+
 		for (size_t I = 0; I<ItemCount && !Stopped(); I++)
 		{
-			PluginPanelItem *CurPanelItem=PanelData+I;
+			const auto& CurPanelItem = PanelData[I];
 
-			if ((CurPanelItem->FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-			 && !IsCurrentDirectory(CurPanelItem->FileName) && !IsParentDirectory(*CurPanelItem)
-			 && (!UseFilter || m_Owner->GetFilter()->FileInFilter(*CurPanelItem))
-			 && (SearchMode!=FINDAREA_SELECTED || RecurseLevel!=1 || Global->CtrlObject->Cp()->ActivePanel()->IsSelected(CurPanelItem->FileName))
-			)
+			if (!(CurPanelItem.FileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+				continue;
+
+			if (!ParentPointSeen && IsParentDirectory(CurPanelItem))
 			{
-				bool SetDirectoryResult;
-				{
-					SetDirectoryResult=Global->CtrlObject->Plugins->SetDirectory(hPlugin, CurPanelItem->FileName, OPM_FIND, &CurPanelItem->UserData)!=FALSE;
-				}
-				if (SetDirectoryResult && CurPanelItem->FileName[0])
-				{
-					strPluginSearchPath += CurPanelItem->FileName;
-					strPluginSearchPath += L'\\';
-					ScanPluginTree(hPlugin, Flags, RecurseLevel);
+				ParentPointSeen = true;
+				continue;
+			}
 
-					size_t pos = strPluginSearchPath.rfind(L'\\');
-					if (pos != string::npos)
-						strPluginSearchPath.resize(pos);
+			if (UseFilter && !m_Owner->GetFilter()->FileInFilter(CurPanelItem))
+				continue;
 
-					if ((pos = strPluginSearchPath.rfind(L'\\')) != string::npos)
-						strPluginSearchPath.resize(pos+1);
-					else
-						strPluginSearchPath.clear();
+			if ((SearchMode == FINDAREA_SELECTED && RecurseLevel == 1 && !Global->CtrlObject->Cp()->ActivePanel()->IsSelected(CurPanelItem.FileName)))
+				continue;
 
-					SetDirectoryResult = Global->CtrlObject->Plugins->SetDirectory(hPlugin, L".."s, OPM_FIND) != FALSE;
+			if (!Global->CtrlObject->Plugins->SetDirectory(hPlugin, CurPanelItem.FileName, OPM_FIND, &CurPanelItem.UserData))
+				continue;
 
-					if (!SetDirectoryResult)
-					{
-						// BUGBUG, better way to stop searcher?
-						Stop();
-					}
-				}
+			if (!*CurPanelItem.FileName)
+				continue;
+
+			strPluginSearchPath += CurPanelItem.FileName;
+			strPluginSearchPath += L'\\';
+			ScanPluginTree(hPlugin, Flags, RecurseLevel);
+
+			size_t pos = strPluginSearchPath.rfind(L'\\');
+			if (pos != string::npos)
+				strPluginSearchPath.resize(pos);
+
+			if ((pos = strPluginSearchPath.rfind(L'\\')) != string::npos)
+				strPluginSearchPath.resize(pos+1);
+			else
+				strPluginSearchPath.clear();
+
+			if (!Global->CtrlObject->Plugins->SetDirectory(hPlugin, L".."s, OPM_FIND))
+			{
+				// BUGBUG, better way to stop searcher?
+				Stop();
 			}
 		}
 	}
@@ -2655,7 +2664,7 @@ bool FindFiles::FindFilesProcess()
 								SearchMode == FINDAREA_INPATH)
 								Global->CtrlObject->Plugins->SetDirectory(FindExitItem->Arc->hPlugin, L"\\"s, OPM_NONE);
 						}
-						SetPluginDirectory(strFileName, FindExitItem->Arc->hPlugin, true); // ??? ,FindItem.Data ???
+						SetPluginDirectory(strFileName, FindExitItem->Arc->hPlugin, true, &FindExitItem->UserData);
 					}
 				}
 				else

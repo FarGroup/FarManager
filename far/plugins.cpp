@@ -69,7 +69,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 
 #include "platform.env.hpp"
-#include "platform.fs.hpp"
 #include "platform.memory.hpp"
 
 #include "common/enum_tokens.hpp"

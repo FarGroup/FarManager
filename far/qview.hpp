@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "panel.hpp"
 #include "dirinfo.hpp"
+#include "plugin.hpp"
 
 class Viewer;
 
@@ -48,7 +49,7 @@ public:
 	QuickView(private_tag, window_ptr Owner);
 	~QuickView() override;
 
-	void ShowFile(string_view FileName, bool TempFile, const plugin_panel* hDirPlugin);
+	void ShowFile(string_view FileName, const UserDataItem* UserData, bool TempFile, const plugin_panel* hDirPlugin);
 
 private:
 	bool ProcessKey(const Manager::Key& Key) override;
@@ -71,6 +72,7 @@ private:
 
 	unique_ptr_with_ondestroy<Viewer> QView;
 	string strCurFileName;
+	UserDataItem CurUserData;
 	string strCurFileType;
 	DirInfoData Data;
 	bool OldWrapMode;

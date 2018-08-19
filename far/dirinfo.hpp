@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class FileFilter;
 struct PluginPanelItem;
+struct UserDataItem;
 
 enum GETDIRINFOFLAGS
 {
@@ -70,9 +71,9 @@ void DirInfoMsg(string_view Title, string_view Name, unsigned long long Items, u
 
 class plugin_panel;
 
-bool GetPluginDirInfo(const plugin_panel* hPlugin,const string& DirName, unsigned long& DirCount, unsigned long& FileCount,unsigned long long& FileSize, unsigned long long& CompressedFileSize);
+bool GetPluginDirInfo(const plugin_panel* hPlugin,const string& DirName, const UserDataItem* UserData, unsigned long& DirCount, unsigned long& FileCount,unsigned long long& FileSize, unsigned long long& CompressedFileSize);
 
-bool GetPluginDirList(class Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, std::vector<PluginPanelItem>& Items);
+bool GetPluginDirList(class Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, const UserDataItem* UserData, std::vector<PluginPanelItem>& Items);
 void FreePluginDirList(HANDLE hPlugin, std::vector<PluginPanelItem>& Items);
 
 #endif // DIRINFO_HPP_DA86BD11_D517_4EC9_8324_44EDF0CC7C9A

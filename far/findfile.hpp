@@ -127,8 +127,8 @@ private:
 	void OpenFile(string strSearchFileName, int key, const FindListItem* FindItem, Dialog* Dlg) const;
 	bool FindFilesProcess();
 	void ProcessMessage(const AddMenuData& Data);
-	void SetPluginDirectory(string_view DirName, const plugin_panel* hPlugin, bool UpdatePanel = false, UserDataItem *UserData = nullptr);
-	bool GetPluginFile(struct ArcListItem* ArcItem, const os::fs::find_data& FindData, const string& DestPath, string &strResultName, UserDataItem *UserData);
+	void SetPluginDirectory(string_view DirName, const plugin_panel* hPlugin, bool UpdatePanel, const UserDataItem *UserData) const;
+	bool GetPluginFile(struct ArcListItem* ArcItem, const os::fs::find_data& FindData, const string& DestPath, string &strResultName, const UserDataItem* UserData);
 
 	static intptr_t AdvancedDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 
@@ -206,7 +206,7 @@ private:
 	int FindStringBMH(const wchar_t* searchBuffer, size_t searchBufferCount) const;
 	int FindStringBMH(const char* searchBuffer, size_t searchBufferCount) const;
 	bool LookForString(const string& Name);
-	bool IsFileIncluded(PluginPanelItem* FileItem, const string& FullName, DWORD FileAttr, const string &strDisplayName);
+	bool IsFileIncluded(PluginPanelItem* FileItem, string_view FullName, DWORD FileAttr, const string &strDisplayName);
 	void DoPrepareFileList();
 	void DoPreparePluginList(bool Internal);
 	void ArchiveSearch(const string& ArcName);

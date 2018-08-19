@@ -1911,7 +1911,7 @@ void TreeList::UpdateViewPanel()
 		const auto AnotherPanel = std::dynamic_pointer_cast<QuickView>(GetRootPanel());
 		if (AnotherPanel && SetCurPath())
 		{
-			AnotherPanel->ShowFile(GetCurDir(), false, nullptr);
+			AnotherPanel->ShowFile(GetCurDir(), nullptr, false, nullptr);
 		}
 	}
 }

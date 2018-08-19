@@ -383,32 +383,34 @@ static void ScanPluginDir(plugin_panel* hDirListPlugin, OPERATION_MODES OpMode,s
 
 	PluginDirList.reserve(PluginDirList.size() + ItemCount);
 
-	for (size_t i=0; i<ItemCount && !StopSearch; i++)
+	for (const auto& i: make_range(PanelData, ItemCount))
 	{
-		PluginPanelItem *CurPanelItem=PanelData+i;
+		if (StopSearch)
+			break;
 
-		if (!(CurPanelItem->FileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-			PushPluginDirItem(PluginDirList, CurPanelItem, strPluginSearchPath);
+		if (!(i.FileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+			PushPluginDirItem(PluginDirList, &i, strPluginSearchPath);
 	}
 
-	for (size_t i=0; i<ItemCount && !StopSearch; i++)
+	for (const auto& i : make_range(PanelData, ItemCount))
 	{
-		const auto& CurPanelItem = PanelData[i];
+		if (StopSearch)
+			break;
 
-		if ((CurPanelItem.FileAttributes & FILE_ATTRIBUTE_DIRECTORY) && !IsCurrentDirectory(CurPanelItem.FileName) && !IsParentDirectory(CurPanelItem))
+		if ((i.FileAttributes & FILE_ATTRIBUTE_DIRECTORY) && !IsParentDirectory(i))
 		{
 			/* $ 30.11.2001 DJ
 					используем общую функцию для копирования FindData (не забываем
 					обработать PPIF_USERDATA)
 			*/
-			PushPluginDirItem(PluginDirList, &CurPanelItem, strPluginSearchPath);
-			string strFileName = CurPanelItem.FileName;
+			PushPluginDirItem(PluginDirList, &i, strPluginSearchPath);
+			const auto FileNameCopy = i.FileName;
 
-			if (Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin, strFileName, OPM_FIND | OpMode, &CurPanelItem.UserData))
+			if (Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin, FileNameCopy, OPM_FIND | OpMode, &i.UserData))
 			{
-				append(strPluginSearchPath, CurPanelItem.FileName, L'\x1');
+				append(strPluginSearchPath, i.FileName, L'\x1');
 				ScanPluginDir(hDirListPlugin, OpMode, strPluginSearchPath, PluginDirList, StopSearch);
-				size_t pos = strPluginSearchPath.rfind(L'\x1');
+				auto pos = strPluginSearchPath.rfind(L'\x1');
 				if (pos != string::npos)
 					strPluginSearchPath.resize(pos);
 
@@ -429,12 +431,9 @@ static void ScanPluginDir(plugin_panel* hDirListPlugin, OPERATION_MODES OpMode,s
 	Global->CtrlObject->Plugins->FreeFindData(hDirListPlugin,PanelData,ItemCount,true);
 }
 
-bool GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, std::vector<PluginPanelItem>& Items)
+bool GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, const UserDataItem* const UserData, std::vector<PluginPanelItem>& Items)
 {
 	Items.clear();
-
-	if (IsCurrentDirectory(Dir) || IsParentDirectory(Dir))
-		return false;
 
 	std::unique_ptr<plugin_panel> DirListPlugin;
 	plugin_panel* hDirListPlugin;
@@ -479,9 +478,7 @@ bool GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, s
 			Global->CtrlObject->Plugins->GetOpenPanelInfo(hDirListPlugin,&Info);
 			string strPrevDir = NullToEmpty(Info.CurDir);
 
-			UserDataItem UserData = {};  // How to find the value of a variable?
-
-			if (Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,Dir,OPM_SILENT|OpMode,&UserData))
+			if (Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin, Dir, OPM_SILENT | OpMode, UserData))
 			{
 				auto strPluginSearchPath = concat(Dir, L'\x1');
 				ScanPluginDir(hDirListPlugin, OpMode,strPluginSearchPath, Items, StopSearch);
@@ -520,9 +517,8 @@ void FreePluginDirList(HANDLE hPlugin, std::vector<PluginPanelItem>& Items)
 	Items.clear();
 }
 
-bool GetPluginDirInfo(const plugin_panel* ph,const string& DirName,unsigned long& DirCount,
-                     unsigned long& FileCount,unsigned long long& FileSize,
-                     unsigned long long& CompressedFileSize)
+bool GetPluginDirInfo(const plugin_panel* ph, const string& DirName, const UserDataItem* const UserData,
+	unsigned long& DirCount, unsigned long& FileCount, unsigned long long& FileSize, unsigned long long& CompressedFileSize)
 {
 	DirCount=FileCount=0;
 	FileSize=CompressedFileSize=0;
@@ -530,7 +526,8 @@ bool GetPluginDirInfo(const plugin_panel* ph,const string& DirName,unsigned long
 	std::vector<PluginPanelItem> PanelItems;
 	// Must be cleared unconditionally: GetPluginDirList can fill it partially and return false
 	SCOPE_EXIT{ FreePluginDirList(ph->panel(), PanelItems); };
-	if (!GetPluginDirList(ph->plugin(), ph->panel(), DirName, PanelItems)) //intptr_t - BUGBUG
+
+	if (!GetPluginDirList(ph->plugin(), ph->panel(), DirName, UserData, PanelItems)) //intptr_t - BUGBUG
 		return false;
 
 	std::for_each(ALL_CONST_RANGE(PanelItems), [&](const PluginPanelItem& i)
