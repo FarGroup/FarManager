@@ -1534,7 +1534,7 @@ $ #Menus: options menu#
 
    #Editor settings#       External and internal ~editor settings~@EditorSettings@.
 
-   #Code pages#            Shows ~Code pages menu~@CodePagesMenu@
+   #Code pages#            Shows ~Code pages~@CodePagesMenu@ menu.
 
 
    #Colors#                Allows to select colors for different
@@ -1681,7 +1681,7 @@ options are disabled and their values doesn't affect the search process.
 to be used for the search. If the item #All standard code pages# is selected
 in the dropdown list, Far will use all standard code pages (ANSI, OEM, UTF-8,
 UTF-16, UTF-16 BE), as well as #Favorite# code pages (the list of #favorite#
-code pages can be specified in the ~Code pages menu~@CodepagesMenu@
+code pages can be specified in the ~Code pages~@CodepagesMenu@ menu
 in the options, editor, or viewer). To search using a custom set of code pages,
 select required code pages in the dropdown list with the #Ins# or #Space# keys,
 then choose #Selected code pages# menu item.
@@ -3263,10 +3263,9 @@ code page was saved (depends on the #Save file position# option of the
 ~Editor settings~@EditorSettings@ dialog), the saved code page is used.
 Otherwise, if the file has the Byte Order Mark, the corresponding
 Unicode code page -- UTF-8, UTF-16 (Little endian), or UTF-16 (Big
-endian) -- is used. Otherwise, the code page
-is ~automatically~@CodePageAuto@ detected.
+endian) -- is used. Otherwise, the code page is ~autodetected~@CodePageAuto@.
 
-    #Automatic# - An attempt is made to ~automatically~@CodePageAuto@ detect
+    #Automatic# - An attempt is made to ~autodetect~@CodePageAuto@
     #detection#   code page based on the file contents.
 
     #Specific#  - The selected code page is used.
@@ -3364,7 +3363,7 @@ the contents of the file on the disk.
 the external program will be lost.
 
 @CodePagesMenu
-$ #Code page selection menu#
+$ #Code pages menu#
     This menu allows to select code page in the editor and viewer.
 
     The menu is divided into several sections:
@@ -3402,8 +3401,7 @@ with the #*# symbol.
 @EditCodePageNameDlg
 $ #Rename code page#
     This dialog allows to rename the #Favorites# and #Other# code pages.
-Far will display new code page names in the ~Code pages~@CodePagesMenu@
-menu.
+Far will display new code page names in the ~Code pages~@CodePagesMenu@ menu.
 
     The #Reset# button sets the code page name to the default system
 name. Another way to reset the name is to leave it empty and press #OK#.
@@ -3693,7 +3691,7 @@ $ #Settings dialog: viewer#
   #Maximum line width#      Maximum number of columns for text mode viewer.
                           Min=100, Max=100000, Default=10000.
 
-  #Auto detect#             ~Auto detect~@CodePageAuto@ the code page of
+  #Autodetect#              ~Autodetect~@CodePageAuto@ the code page of
   #code page#               the file being viewed.
 
   #Default code page#       Select the default code page.
@@ -3771,7 +3769,7 @@ $ #Settings dialog: editor#
 
   #Cursor at the end#       Place the cursor at the end of the found block.
 
-  #Auto detect#             ~Auto detect~@CodePageAuto@ the code page of
+  #Autodetect#              ~Autodetect~@CodePageAuto@ the code page of
   #code page#               the file being edited.
 
   #Edit files opened#       Allows to edit files that are opened
@@ -3804,12 +3802,12 @@ will affect only the current session.
 
 
 @CodePageAuto
-$ #Auto detect code pages#
+$ #Autodetect code pages#
     Far will try to choose the correct code page for viewing/editing a file.
 Note that correct detection is not guaranteed, especially for small or
 non-typical text files.
 
-    See also ~Code pages menu~@CodePagesMenu@ and ~far:config Codepages.NoAutoDetectCP~@Codepages.NoAutoDetectCP@
+    See also ~Code pages~@CodePagesMenu@ menu and ~far:config Codepages.NoAutoDetectCP~@Codepages.NoAutoDetectCP@
 
 
 @FileAttrDlg
@@ -5372,25 +5370,29 @@ If current value of an option is other than the default, the option is marked wi
 
 @Codepages.NoAutoDetectCP
 $ #far:config Codepages.NoAutoDetectCP#
-    Это строка, при помощи которой можно задать кодовые страницы, которые будут исключены
-из автоопределения кодовой страницы UCD (Universal Codepage Detector). Иногда (особенно на
-небольших файлах) UCD назойливо выбирает неподходящие кодовые страницы.
+    This string parameter defines the code pages which will be excluded
+from Universal Codepage Detector (UCD) autodetect. Sometimes, especially
+on small files, UCD annoyingly choses wrong code pages.
 
-    Умолчательное значение это пустая строка #""#, в этом случае все кодовые страницы которые
-может выдать UCD (около двух десятков - гораздо меньше чем может быть установлено на компьютере)
-разрешены.
+    The default value is empty string #""#. In this case all code pages
+detectable by UCD (about 20, much less than there is usually available
+in the system) are enabled.
 
-    Если параметр равен строке #"-1"#, то в зависимости от того включён или нет показ
-только избранных кодовых страниц (#Ctrl+H# в ~меню кодовых страниц~@CodePagesMenu@),
-будут разрешены только стандартные (ANSI, OEM, Unicode) и избранные, либо все.
+    If this parameter is set to string #"-1"# and the #Other# section
+of ~Code pages~@CodePagesMenu@ menu is hidden (#Ctrl+H# key
+combination), only #System# (ANSI, OEM), #Unicode#, and #Favorites# code
+pages will be enabled for UCD. If the #Other# section is visible, all
+code pages are enabled.
 
-    В противном случае параметр должен быть списком запрещённых номеров кодовых страниц.
-Например "1250,1252,1253,1255,855,10005,28592,28595,28597,28598,38598".
+    Otherwise, this parameter should contain comma separated list
+of code page numbers disabled for UCD. For example,
+#"1250,1252,1253,1255,855,10005,28592,28595,28597,28598,38598"#.
 
-    Юникодные кодовые страницы (1200, 1201, 65001) проверяются отдельно от UCD, поэтому не могут быть
-отключены, даже если они есть в списке исключения.
+    Since Unicode code pages (1200, 1201, 65001) are detected outside
+of UCD, they cannot be disabled even if they appear on the exclusions
+list.
 
-    Изменение этого параметра возможно через ~far:config~@FarConfig@
+    This parameter can be changed via ~far:config~@FarConfig@ only.
 
 @Help.ActivateURL
 $ #far:config Help.ActivateURL#
