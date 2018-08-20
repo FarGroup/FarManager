@@ -86,7 +86,7 @@ enum enThreadType { enThreadHideOutput, enThreadShowOutput };
 struct TThreadData
 {
 	enThreadType type;
-	bool processDone;
+	HANDLE process;
 	TShowOutputStreamData stream[enStreamMAX];
 	wchar_t title[80], cmd[1024];
 };

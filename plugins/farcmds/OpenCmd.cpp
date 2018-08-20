@@ -262,9 +262,8 @@ DWORD WINAPI ThreadWhatUpdateScreen(LPVOID par)
 		{
 			for (; ;)
 			{
-				if (td->processDone)
+				if (WAIT_TIMEOUT != WaitForSingleObject(td->process, THREADSLEEP))
 					break;
-				Sleep(THREADSLEEP);
 
 				for (int i = 0 ; i < enStreamMAX ; i++)
 				{
@@ -281,13 +280,11 @@ DWORD WINAPI ThreadWhatUpdateScreen(LPVOID par)
 			{
 				for (int j = 0 ; j < THREADREDRAW ; j++)
 				{
-					if (td->processDone)
+					if (WAIT_TIMEOUT != WaitForSingleObject(td->process, THREADSLEEP))
 						break;
-
-					Sleep(THREADSLEEP);
 				}
 
-				if (td->processDone)
+				if (WAIT_TIMEOUT != WaitForSingleObject(td->process, 0))
 					break;
 
 				wchar_t buff[80];
@@ -1535,7 +1532,6 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 											if (td)
 											{
 												td->type = enThreadShowOutput;
-												td->processDone = false;
 
 												for (int i = 0 ; i < enStreamMAX ; i++)
 												{
@@ -1577,20 +1573,12 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 
 										if (Created)
 										{
-											// нитка параллельного вывода
-											HANDLE hThread;
-											DWORD dummy;
-
 											if (td)
 											{
-												hThread = CreateThread(NULL, 0xf000, ThreadWhatUpdateScreen, td, 0, &dummy);
-												WaitForSingleObject(pi.hProcess, INFINITE);
+												td->process = pi.hProcess;
+												ThreadWhatUpdateScreen(td);
 												closeHandle(FileHandleOut);
 												closeHandle(FileHandleErr);
-												td->processDone = true;
-
-												if (hThread)
-													WaitForSingleObject(hThread, INFINITE);
 
 												// "дочищаем" остатки вывода, которые не успели вывестись в ThreadWhatUpdateScreen()
 												for (int i = 0 ; i < enStreamMAX ; i++)
@@ -1620,21 +1608,18 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 													td->stream[enStreamOut].hWrite = FileHandleOut;
 													td->stream[enStreamErr].hWrite = FileHandleErr;
 
-													td->processDone = false;
-													hThread = CreateThread(NULL, 0xf000, ThreadWhatUpdateScreen, td, 0, &dummy);
+													td->process = pi.hProcess;
+													ThreadWhatUpdateScreen(td);
 												}
-
-												WaitForSingleObject(pi.hProcess, INFINITE);
+												else
+												{
+													WaitForSingleObject(pi.hProcess, INFINITE);
+												}
 												closeHandle(FileHandleOut);
 												closeHandle(FileHandleErr);
 
 												if (td)
 												{
-													td->processDone = true;
-
-													if (hThread)
-														WaitForSingleObject(hThread, INFINITE);
-
 													delete td;
 													td=nullptr;
 												}
@@ -1642,7 +1627,6 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 
 											closeHandle(pi.hThread);
 											closeHandle(pi.hProcess);
-											closeHandle(hThread);
 											allOK=TRUE;
 										}
 										else
