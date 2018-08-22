@@ -184,7 +184,7 @@ local function EV_Handler (macros, filename, ...)
   local indexes,priorities = {},{}
   for i,m in ipairs(macros) do
     indexes[i],priorities[i] = i, -1
-    if not (m.filemask and filename) or CheckFileName(m.filemask, filename) then
+    if (not m.filemask) or (filename and CheckFileName(m.filemask, filename)) then
       if m.condition then
         local pr = m.condition(...)
         if pr then

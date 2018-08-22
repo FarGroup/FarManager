@@ -1,4 +1,8 @@
-﻿shmuel 22.08.2018 08:05:40 +0200 - build 657
+﻿shmuel 22.08.2018 08:57:15 +0200 - build 658
+
+1. M#3637: Сопоставление по маске при ошибке получения имени в обработчиках событий
+
+shmuel 22.08.2018 08:05:40 +0200 - build 657
 
 1. LuaFAR: file:rawhandle() throws an error in non-GCC compilations.
            This is to prevent a crash caused by incompatible runtime libraries.
