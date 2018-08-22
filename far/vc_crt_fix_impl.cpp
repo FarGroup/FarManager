@@ -376,6 +376,38 @@ extern "C" USHORT WINAPI QueryDepthSListWrapper(PSLIST_HEADER ListHead)
 	return Function(ListHead);
 }
 
+// GetNumaHighestNodeNumber (VC2017)
+extern "C" BOOL WINAPI GetNumaHighestNodeNumberWrapper(PULONG HighestNodeNumber)
+{
+	struct implementation
+	{
+		static BOOL WINAPI GetNumaHighestNodeNumber(PULONG HighestNodeNumber)
+		{
+			*HighestNodeNumber = 0;
+			return TRUE;
+		}
+	};
+
+	CREATE_FUNCTION_POINTER(kernel32, GetNumaHighestNodeNumber);
+	return Function(HighestNodeNumber);
+}
+
+// GetLogicalProcessorInformation (VC2017)
+extern "C" BOOL WINAPI GetLogicalProcessorInformationWrapper(PSYSTEM_LOGICAL_PROCESSOR_INFORMATION Buffer, PDWORD ReturnLength)
+{
+	struct implementation
+	{
+		static BOOL WINAPI GetLogicalProcessorInformation(PSYSTEM_LOGICAL_PROCESSOR_INFORMATION Buffer, PDWORD ReturnLength)
+		{
+			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+			return FALSE;
+		}
+	};
+
+	CREATE_FUNCTION_POINTER(kernel32, GetLogicalProcessorInformation);
+	return Function(Buffer, ReturnLength);
+}
+
 // disable VS2015 telemetry
 extern "C"
 {

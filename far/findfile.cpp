@@ -1231,7 +1231,7 @@ bool background_searcher::IsFileIncluded(PluginPanelItem* FileItem, string_view 
 	SCOPE_EXIT
 	{
 		if (RemoveTemp)
-		DeleteFileWithFolder(strSearchFileName);
+			DeleteFileWithFolder(strSearchFileName);
 	};
 
 	if (!hPlugin)
