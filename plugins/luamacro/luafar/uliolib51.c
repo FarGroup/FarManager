@@ -614,8 +614,12 @@ static int f_flush(lua_State *L)
 
 static int f_rawhandle(lua_State *L)
 {
+#ifdef __GNUC__
 	lua_pushlightuserdata(L, tofile(L));
 	return 1;
+#else
+	return luaL_error(L, "rawhandle is only available in GCC compilations.");
+#endif
 }
 
 

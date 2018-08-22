@@ -1,4 +1,9 @@
-﻿shmuel 14.08.2018 12:16:25 +0200 - build 656
+﻿shmuel 22.08.2018 08:05:40 +0200 - build 657
+
+1. LuaFAR: file:rawhandle() throws an error in non-GCC compilations.
+           This is to prevent a crash caused by incompatible runtime libraries.
+
+shmuel 14.08.2018 12:16:25 +0200 - build 656
 
 1. LuaFAR: export.SetDirectory() получает 5-й параметр (UserData).
 

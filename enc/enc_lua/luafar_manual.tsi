@@ -11009,7 +11009,7 @@ lv=1
 dt=Text
 nm=file:rawhandle
 ctime=3721974412
-mtime=3721982984
+mtime=3744087293
 <article>
 #_rh = file:rawhandle()
 #_
@@ -11019,9 +11019,13 @@ mtime=3721982984
 #_**Returns:**
 #_  rh:      light userdata
 #_
-#_**Description**
+#_**Description:**
 #_  This is an additional method of a file handle returned by *io.open* function.
 #_  It returns the value of FILE`*` that is suitable for using with LuaJIT FFI.
+#_
+#_**Note:**
+#_  file:rawhandle() throws an error in non-GCC compilations.
+#_  This is to prevent a crash caused by incompatible runtime libraries.
 #_
 #_@@@
 #_
