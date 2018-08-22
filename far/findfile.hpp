@@ -119,6 +119,11 @@ public:
 	std::unique_ptr<InterThreadData> itd;
 	os::synced_queue<AddMenuData> m_Messages;
 
+	// BUGBUG
+	void Lock() { PluginCS.lock(); }
+	void Unlock() { PluginCS.unlock(); }
+	auto ScopedLock() { return make_raii_wrapper(this, &FindFiles::Lock, &FindFiles::Unlock); }
+
 private:
 	string &PrepareDriveNameStr(string &strSearchFromRoot) const;
 	void AdvancedDialog();
@@ -127,7 +132,7 @@ private:
 	void OpenFile(string strSearchFileName, int key, const FindListItem* FindItem, Dialog* Dlg) const;
 	bool FindFilesProcess();
 	void ProcessMessage(const AddMenuData& Data);
-	void SetPluginDirectory(string_view DirName, const plugin_panel* hPlugin, bool UpdatePanel, const UserDataItem *UserData) const;
+	void SetPluginDirectory(string_view DirName, const plugin_panel* hPlugin, bool UpdatePanel, const UserDataItem *UserData);
 	bool GetPluginFile(struct ArcListItem* ArcItem, const os::fs::find_data& FindData, const string& DestPath, string &strResultName, const UserDataItem* UserData);
 
 	static intptr_t AdvancedDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
@@ -160,6 +165,8 @@ private:
 	int m_FileCount{};
 	int m_DirCount{};
 	int m_LastFoundNumber{};
+
+	os::critical_section PluginCS;
 
 	time_check m_TimeCheck;
 	// BUGBUG

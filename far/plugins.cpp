@@ -74,8 +74,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/enum_tokens.hpp"
 #include "common/scope_exit.hpp"
 
-static os::critical_section PluginCS;
-
 static void ReadUserBackgound(SaveScreen *SaveScr)
 {
 	if (Global->KeepUserScreen)
@@ -481,7 +479,6 @@ void PluginManager::LoadPluginsFromCache()
 
 std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, OPERATION_MODES OpMode, OPENFILEPLUGINTYPE Type, bool* StopProcessingPtr)
 {
-	SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 	bool StopProcessing_Unused;
 	auto& StopProcessing = StopProcessingPtr? *StopProcessingPtr : StopProcessing_Unused;
 
@@ -704,7 +701,6 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 
 std::unique_ptr<plugin_panel> PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, size_t ItemsNumber)
 {
-	SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 
 	class plugin_panel_holder: public plugin_panel
@@ -783,7 +779,6 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFindListPlugin(const PluginPane
 
 void PluginManager::ClosePanel(std::unique_ptr<plugin_panel>&& hPlugin)
 {
-	SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	ClosePanelInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
@@ -793,7 +788,6 @@ void PluginManager::ClosePanel(std::unique_ptr<plugin_panel>&& hPlugin)
 
 int PluginManager::ProcessEditorInput(const INPUT_RECORD *Rec) const
 {
-	SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 	ProcessEditorInputInfo Info={sizeof(Info)};
 	Info.Rec=*Rec;
 
@@ -803,7 +797,6 @@ int PluginManager::ProcessEditorInput(const INPUT_RECORD *Rec) const
 
 int PluginManager::ProcessEditorEvent(int Event, void *Param, const Editor* EditorInstance) const
 {
-	SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 	int nResult = 0;
 	if (const auto Container = EditorInstance->GetOwner())
 	{
@@ -832,7 +825,6 @@ int PluginManager::ProcessEditorEvent(int Event, void *Param, const Editor* Edit
 
 int PluginManager::ProcessSubscribedEditorEvent(int Event, void *Param, const Editor* EditorInstance, const std::unordered_set<UUID>& PluginIds) const
 {
-	SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 	int nResult = 0;
 	if (const auto Container = EditorInstance->GetOwner())
 	{
@@ -857,7 +849,6 @@ int PluginManager::ProcessSubscribedEditorEvent(int Event, void *Param, const Ed
 
 int PluginManager::ProcessViewerEvent(int Event, void *Param, const Viewer* ViewerInstance) const
 {
-	SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 	int nResult = 0;
 	if (const auto Container = ViewerInstance->GetOwner())
 	{
@@ -878,7 +869,6 @@ int PluginManager::ProcessViewerEvent(int Event, void *Param, const Viewer* View
 
 int PluginManager::ProcessDialogEvent(int Event, FarDialogEvent *Param) const
 {
-	SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 	ProcessDialogEventInfo Info = {sizeof(Info)};
 	Info.Event = Event;
 	Info.Param = Param;
@@ -888,7 +878,6 @@ int PluginManager::ProcessDialogEvent(int Event, FarDialogEvent *Param) const
 
 int PluginManager::ProcessConsoleInput(ProcessConsoleInputInfo *Info) const
 {
-	SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 	int nResult = 0;
 
 	for (const auto& i: SortedPlugins)
@@ -914,7 +903,6 @@ int PluginManager::ProcessConsoleInput(ProcessConsoleInputInfo *Info) const
 
 int PluginManager::GetFindData(const plugin_panel* hPlugin, PluginPanelItem **pPanelData, size_t *pItemsNumber, int OpMode)
 {
-	SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	GetFindDataInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
@@ -928,7 +916,6 @@ int PluginManager::GetFindData(const plugin_panel* hPlugin, PluginPanelItem **pP
 
 void PluginManager::FreeFindData(const plugin_panel* hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, bool FreeUserData)
 {
-	SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 	if (FreeUserData)
 	{
 		std::for_each(PanelItem, PanelItem + ItemsNumber, [&hPlugin](const PluginPanelItem& i)
@@ -947,7 +934,6 @@ void PluginManager::FreeFindData(const plugin_panel* hPlugin, PluginPanelItem *P
 
 int PluginManager::GetVirtualFindData(const plugin_panel* hPlugin, PluginPanelItem **pPanelData, size_t *pItemsNumber, const string& Path)
 {
-	SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	*pItemsNumber=0;
 
@@ -963,7 +949,6 @@ int PluginManager::GetVirtualFindData(const plugin_panel* hPlugin, PluginPanelIt
 
 void PluginManager::FreeVirtualFindData(const plugin_panel* hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber)
 {
-	SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 	FreeFindDataInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
 	Info.PanelItem = PanelItem;
@@ -974,7 +959,6 @@ void PluginManager::FreeVirtualFindData(const plugin_panel* hPlugin, PluginPanel
 
 int PluginManager::SetDirectory(const plugin_panel* hPlugin, const string& Dir, int OpMode, const UserDataItem *UserData)
 {
-	SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	SetDirectoryInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
@@ -990,7 +974,6 @@ int PluginManager::SetDirectory(const plugin_panel* hPlugin, const string& Dir, 
 
 bool PluginManager::GetFile(const plugin_panel* hPlugin, PluginPanelItem *PanelItem, const string& DestPath, string &strResultName, int OpMode)
 {
-	SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	std::unique_ptr<SaveScreen> SaveScr;
 	bool Found = false;
@@ -1038,7 +1021,6 @@ bool PluginManager::GetFile(const plugin_panel* hPlugin, PluginPanelItem *PanelI
 
 int PluginManager::DeleteFiles(const plugin_panel* hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, int OpMode)
 {
-	SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	SaveScreen SaveScr;
 	Global->KeepUserScreen=FALSE;
@@ -1059,7 +1041,6 @@ int PluginManager::DeleteFiles(const plugin_panel* hPlugin, PluginPanelItem *Pan
 
 int PluginManager::MakeDirectory(const plugin_panel* hPlugin, const wchar_t **Name, int OpMode)
 {
-	SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	SaveScreen SaveScr;
 	Global->KeepUserScreen=FALSE;
@@ -1081,7 +1062,6 @@ int PluginManager::MakeDirectory(const plugin_panel* hPlugin, const wchar_t **Na
 
 int PluginManager::ProcessHostFile(const plugin_panel* hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, int OpMode)
 {
-	SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	SaveScreen SaveScr;
 	Global->KeepUserScreen=FALSE;
@@ -1102,7 +1082,6 @@ int PluginManager::ProcessHostFile(const plugin_panel* hPlugin, PluginPanelItem 
 
 int PluginManager::GetFiles(const plugin_panel* hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, bool Move, const wchar_t **DestPath, int OpMode)
 {
-	SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 
 	GetFilesInfo Info = {sizeof(Info)};
@@ -1121,7 +1100,6 @@ int PluginManager::GetFiles(const plugin_panel* hPlugin, PluginPanelItem *PanelI
 
 int PluginManager::PutFiles(const plugin_panel* hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, bool Move, int OpMode)
 {
-	SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	SaveScreen SaveScr;
 	Global->KeepUserScreen=FALSE;
@@ -1145,7 +1123,6 @@ int PluginManager::PutFiles(const plugin_panel* hPlugin, PluginPanelItem *PanelI
 
 void PluginManager::GetOpenPanelInfo(const plugin_panel* hPlugin, OpenPanelInfo *Info)
 {
-	SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 	if (!Info)
 		return;
 
@@ -1162,7 +1139,6 @@ void PluginManager::GetOpenPanelInfo(const plugin_panel* hPlugin, OpenPanelInfo 
 
 int PluginManager::ProcessKey(const plugin_panel* hPlugin,const INPUT_RECORD *Rec, bool Pred)
 {
-	SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 	ProcessPanelInputInfo Info={sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
 	Info.Rec=*Rec;
@@ -1177,7 +1153,6 @@ int PluginManager::ProcessKey(const plugin_panel* hPlugin,const INPUT_RECORD *Re
 
 int PluginManager::ProcessEvent(const plugin_panel* hPlugin, int Event, void *Param)
 {
-	SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 	ProcessPanelEventInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
 	Info.Event = Event;
@@ -1189,7 +1164,6 @@ int PluginManager::ProcessEvent(const plugin_panel* hPlugin, int Event, void *Pa
 
 int PluginManager::Compare(const plugin_panel* hPlugin, const PluginPanelItem *Item1, const PluginPanelItem *Item2, unsigned int Mode)
 {
-	SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 	CompareInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
 	Info.Item1 = Item1;
@@ -1201,7 +1175,6 @@ int PluginManager::Compare(const plugin_panel* hPlugin, const PluginPanelItem *I
 
 void PluginManager::ConfigureCurrent(Plugin *pPlugin, const GUID& Guid)
 {
-	SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 	ConfigureInfo Info = {sizeof(Info)};
 	Info.Guid = &Guid;
 
@@ -1884,7 +1857,6 @@ bool PluginManager::GetDiskMenuItem(Plugin *pPlugin, size_t PluginItem, bool &It
 
 int PluginManager::UseFarCommand(const plugin_panel* const hPlugin, int const CommandType)
 {
-	SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 	OpenPanelInfo Info;
 	GetOpenPanelInfo(hPlugin,&Info);
 
@@ -2315,7 +2287,6 @@ Plugin *PluginManager::FindPlugin(const GUID& SysID) const
 
 std::unique_ptr<plugin_panel> PluginManager::Open(Plugin *pPlugin,int OpenFrom,const GUID& Guid,intptr_t Item) const
 {
-	SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 	OpenInfo Info = {sizeof(Info)};
 	Info.OpenFrom = static_cast<OPENFROM>(OpenFrom);
 	Info.Guid = &Guid;
@@ -2401,7 +2372,6 @@ void PluginManager::UndoRemove(Plugin* plugin)
 
 bool PluginManager::GetPluginInfo(Plugin *pPlugin, PluginInfo* Info)
 {
-	SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 	return pPlugin->GetPluginInfo(Info);
 }
 
