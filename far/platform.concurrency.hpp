@@ -38,16 +38,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "platform.hpp"
 
-namespace os
+namespace os::concurrency
 {
 	namespace detail
 	{
 		string make_name(string_view Namespace, const string& HashPart, string_view TextPart);
 	}
 
-// TODO: remove inline
-inline namespace concurrency
-{
 	template<class T>
 	string make_name(const string& HashPart, string_view const TextPart)
 	{
@@ -134,6 +131,44 @@ inline namespace concurrency
 
 		bool lock() const;
 		bool unlock() const;
+	};
+
+	namespace detail
+	{
+		class i_shared_mutex
+		{
+		public:
+			virtual ~i_shared_mutex() = default;
+
+			virtual void lock() = 0;
+			virtual bool try_lock() = 0;
+			virtual void unlock() = 0;
+			virtual void lock_shared() = 0;
+			virtual bool try_lock_shared() = 0;
+			virtual void unlock_shared() = 0;
+		};
+	}
+
+	// Q: WTF is this, it's in the standard!
+	// A: MSVC std version is incompatible with Win2k
+	class shared_mutex
+	{
+	public:
+		shared_mutex();
+
+		shared_mutex(const shared_mutex&) = delete;
+		shared_mutex& operator=(const shared_mutex&) = delete;
+
+		void lock() { m_Impl->lock(); }
+		[[nodiscard]] bool try_lock() { return m_Impl->try_lock(); }
+		void unlock() { m_Impl->unlock(); }
+
+		void lock_shared() { m_Impl->lock_shared(); }
+		[[nodiscard]] bool try_lock_shared() { return m_Impl->try_lock_shared(); }
+		void unlock_shared() { m_Impl->unlock_shared(); }
+
+	private:
+		std::unique_ptr<detail::i_shared_mutex> m_Impl;
 	};
 
 	class event: public handle
@@ -250,6 +285,18 @@ inline namespace concurrency
 		std::vector<HANDLE> m_Objects;
 	};
 }
+
+namespace os
+{
+	using concurrency::make_name;
+	using concurrency::critical_section;
+	using concurrency::critical_section_lock;
+	using concurrency::thread;
+	using concurrency::mutex;
+	using concurrency::shared_mutex;
+	using concurrency::event;
+	using concurrency::synced_queue;
+	using concurrency::multi_waiter;
 }
 
 #endif // PLATFORM_CONCURRENCY_HPP_ED4F0813_C518_409B_8576_F2E7CF4166CC

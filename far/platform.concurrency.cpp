@@ -32,11 +32,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "platform.concurrency.hpp"
 
+#include "imports.hpp"
 #include "pathmix.hpp"
 
 #include "format.hpp"
 
-namespace os
+namespace os::concurrency
 {
 	string detail::make_name(string_view const Namespace, const string& HashPart, string_view const TextPart)
 	{
@@ -44,10 +45,6 @@ namespace os
 		ReplaceBackslashToSlash(Str);
 		return Str;
 	}
-
-// TODO: remove inline
-inline namespace concurrency
-{
 
 	critical_section::critical_section()
 	{
@@ -131,6 +128,55 @@ inline namespace concurrency
 	}
 
 
+	namespace detail
+	{
+		class shared_mutex_legacy final: public i_shared_mutex
+		{
+		public:
+			NONCOPYABLE(shared_mutex_legacy);
+
+			shared_mutex_legacy() { imports.RtlInitializeResource(&m_Lock); m_Lock.Flags |= RTL_RESOURCE_FLAG_LONG_TERM; }
+			~shared_mutex_legacy() { imports.RtlDeleteResource(&m_Lock); }
+
+			void lock() override { imports.RtlAcquireResourceExclusive(&m_Lock, TRUE); }
+			bool try_lock() override { return imports.RtlAcquireResourceExclusive(&m_Lock, FALSE) != FALSE; }
+			void unlock() override { imports.RtlReleaseResource(&m_Lock); }
+			void lock_shared() override { imports.RtlAcquireResourceShared(&m_Lock, TRUE); }
+			bool try_lock_shared() override { return imports.RtlAcquireResourceShared(&m_Lock, FALSE) != FALSE; }
+			void unlock_shared() override { imports.RtlReleaseResource(&m_Lock); }
+
+		private:
+			RTL_RESOURCE m_Lock{};
+		};
+
+		class shared_mutex_srw final: public i_shared_mutex
+		{
+		public:
+			NONCOPYABLE(shared_mutex_srw);
+
+			shared_mutex_srw() = default;
+
+			void lock() override { imports.AcquireSRWLockExclusive(&m_Lock); }
+			bool try_lock() override { return imports.TryAcquireSRWLockExclusive(&m_Lock) != FALSE; }
+			void unlock() override { imports.ReleaseSRWLockExclusive(&m_Lock); }
+			void lock_shared() override { imports.AcquireSRWLockShared(&m_Lock); }
+			bool try_lock_shared() override { return imports.TryAcquireSRWLockShared(&m_Lock) != FALSE; }
+			void unlock_shared() override { imports.ReleaseSRWLockShared(&m_Lock); }
+
+		private:
+			SRWLOCK m_Lock = SRWLOCK_INIT;
+		};
+	}
+
+	shared_mutex::shared_mutex()
+	{
+		if (imports.TryAcquireSRWLockExclusive) // Windows 7 and above
+			m_Impl = std::make_unique<detail::shared_mutex_srw>();
+		else
+			m_Impl = std::make_unique<detail::shared_mutex_legacy>();
+	}
+
+
 	event::event(type const Type, state const InitialState, string_view const Name):
 		handle(CreateEvent(nullptr, Type == type::manual, InitialState == state::signaled, EmptyToNull(null_terminated(Name).c_str())))
 	{
@@ -201,5 +247,4 @@ inline namespace concurrency
 	{
 		m_Objects.clear();
 	}
-}
 }

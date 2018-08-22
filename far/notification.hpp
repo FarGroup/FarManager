@@ -112,7 +112,9 @@ private:
 	message_manager();
 	~message_manager();
 
-	os::critical_section m_QueueCS;
+	// Note: non-std - std is incompatible with Win2k
+	using mutex_type = os::concurrency::shared_mutex;
+	mutex_type m_RWLock;
 	message_queue m_Messages;
 	handlers_map m_Handlers;
 	std::unique_ptr<wm_listener> m_Window;

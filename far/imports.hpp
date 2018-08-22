@@ -98,6 +98,11 @@ public: const unique_function_pointer<decltype(&imports::stub_##NAME), name_##NA
 	DECLARE_IMPORT_FUNCTION(ntdll, NTSTATUS, NTAPI, NtClose, HANDLE Handle);
 	DECLARE_IMPORT_FUNCTION(ntdll, NTSTATUS, NTAPI, RtlGetLastNtStatus);
 	DECLARE_IMPORT_FUNCTION(ntdll, NTSTATUS, NTAPI, RtlNtStatusToDosError, NTSTATUS Status);
+	DECLARE_IMPORT_FUNCTION(ntdll, BOOLEAN,  NTAPI, RtlAcquireResourceExclusive, PRTL_RESOURCE Res, BOOLEAN WaitForAccess);
+	DECLARE_IMPORT_FUNCTION(ntdll, BOOLEAN,  NTAPI, RtlAcquireResourceShared, PRTL_RESOURCE Res, BOOLEAN WaitForAccess);
+	DECLARE_IMPORT_FUNCTION(ntdll, void,     NTAPI, RtlInitializeResource, PRTL_RESOURCE Res);
+	DECLARE_IMPORT_FUNCTION(ntdll, void,     NTAPI, RtlReleaseResource, PRTL_RESOURCE Res);
+	DECLARE_IMPORT_FUNCTION(ntdll, void,     NTAPI, RtlDeleteResource, PRTL_RESOURCE Res);
 
 	DECLARE_IMPORT_FUNCTION(kernel32, BOOL, WINAPI, GetConsoleKeyboardLayoutNameW, LPWSTR Buffer);
 	DECLARE_IMPORT_FUNCTION(kernel32, BOOLEAN, WINAPI, CreateSymbolicLinkW, LPCWSTR SymlinkFileName, LPCWSTR TargetFileName, DWORD Flags);
@@ -118,6 +123,13 @@ public: const unique_function_pointer<decltype(&imports::stub_##NAME), name_##NA
 	DECLARE_IMPORT_FUNCTION(kernel32, BOOL, WINAPI, TzSpecificLocalTimeToSystemTime, const TIME_ZONE_INFORMATION* TimeZoneInformation, const SYSTEMTIME* LocalTime, LPSYSTEMTIME UniversalTime);
 	DECLARE_IMPORT_FUNCTION(kernel32, PVOID, WINAPI, AddVectoredExceptionHandler, ULONG First, PVECTORED_EXCEPTION_HANDLER Handler);
 	DECLARE_IMPORT_FUNCTION(kernel32, ULONG, WINAPI, RemoveVectoredExceptionHandler, PVOID Handler);
+	DECLARE_IMPORT_FUNCTION(kernel32, void,    WINAPI, InitializeSRWLock, PSRWLOCK SRWLock);
+	DECLARE_IMPORT_FUNCTION(kernel32, void,    WINAPI, AcquireSRWLockExclusive, PSRWLOCK SRWLock);
+	DECLARE_IMPORT_FUNCTION(kernel32, void,    WINAPI, AcquireSRWLockShared, PSRWLOCK SRWLock);
+	DECLARE_IMPORT_FUNCTION(kernel32, void,    WINAPI, ReleaseSRWLockExclusive, PSRWLOCK SRWLock);
+	DECLARE_IMPORT_FUNCTION(kernel32, void,    WINAPI, ReleaseSRWLockShared, PSRWLOCK SRWLock);
+	DECLARE_IMPORT_FUNCTION(kernel32, BOOLEAN, WINAPI, TryAcquireSRWLockExclusive, PSRWLOCK SRWLock);
+	DECLARE_IMPORT_FUNCTION(kernel32, BOOLEAN, WINAPI, TryAcquireSRWLockShared, PSRWLOCK SRWLock);
 
 	DECLARE_IMPORT_FUNCTION(shell32, HRESULT, STDAPICALLTYPE, SHCreateAssociationRegistration, REFIID riid, void** ppv);
 

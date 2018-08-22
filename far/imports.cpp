@@ -90,6 +90,33 @@ NTSTATUS NTAPI imports::stub_RtlNtStatusToDosError(NTSTATUS Status)
 	return STATUS_NOT_IMPLEMENTED;
 }
 
+BOOLEAN NTAPI imports::stub_RtlAcquireResourceExclusive(PRTL_RESOURCE Res, BOOLEAN WaitForAccess)
+{
+	// TODO: log
+	return FALSE;
+}
+
+BOOLEAN NTAPI imports::stub_RtlAcquireResourceShared(PRTL_RESOURCE Res, BOOLEAN WaitForAccess)
+{
+	// TODO: log
+	return FALSE;
+}
+
+void NTAPI imports::stub_RtlInitializeResource(PRTL_RESOURCE Res)
+{
+	// TODO: log
+}
+
+void NTAPI imports::stub_RtlReleaseResource(PRTL_RESOURCE Res)
+{
+	// TODO: log
+}
+
+void NTAPI imports::stub_RtlDeleteResource(PRTL_RESOURCE Res)
+{
+	// TODO: log
+}
+
 // kernel32
 BOOL WINAPI imports::stub_GetConsoleKeyboardLayoutNameW(LPWSTR Buffer)
 {
@@ -222,6 +249,50 @@ ULONG WINAPI imports::stub_RemoveVectoredExceptionHandler(PVOID Handler)
 	// TODO: log
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	return 0;
+}
+
+void WINAPI imports::stub_InitializeSRWLock(PSRWLOCK SRWLock)
+{
+	// TODO: log
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+}
+
+void WINAPI imports::stub_AcquireSRWLockExclusive(PSRWLOCK SRWLock)
+{
+	// TODO: log
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+}
+
+void WINAPI imports::stub_AcquireSRWLockShared(PSRWLOCK SRWLock)
+{
+	// TODO: log
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+}
+
+void WINAPI imports::stub_ReleaseSRWLockExclusive(PSRWLOCK SRWLock)
+{
+	// TODO: log
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+}
+
+void WINAPI imports::stub_ReleaseSRWLockShared(PSRWLOCK SRWLock)
+{
+	// TODO: log
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+}
+
+BOOLEAN WINAPI imports::stub_TryAcquireSRWLockExclusive(PSRWLOCK SRWLock)
+{
+	// TODO: log
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return FALSE;
+}
+
+BOOLEAN WINAPI imports::stub_TryAcquireSRWLockShared(PSRWLOCK SRWLock)
+{
+	// TODO: log
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return FALSE;
 }
 
 // shell32

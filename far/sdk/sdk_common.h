@@ -155,6 +155,22 @@ typedef struct _SCSI_PASS_THROUGH_WITH_BUFFERS
 }
 SCSI_PASS_THROUGH_WITH_BUFFERS, *PSCSI_PASS_THROUGH_WITH_BUFFERS;
 
+#define RTL_RESOURCE_FLAG_LONG_TERM ((ULONG)0x00000001)
+
+typedef struct _RTL_RESOURCE
+{
+	RTL_CRITICAL_SECTION Lock;
+	HANDLE SharedSemaphore;
+	ULONG SharedWaiters;
+	HANDLE ExclusiveSemaphore;
+	ULONG ExclusiveWaiters;
+	LONG NumberActive;
+	HANDLE OwningThread;
+	ULONG Flags;
+	PVOID DebugInfo;
+}
+RTL_RESOURCE, *PRTL_RESOURCE;
+
 #if _WIN32_WINNT >= 0x0603
 #include <VersionHelpers.h>
 #else

@@ -51,10 +51,12 @@ class bytes_view;
 
 namespace os
 {
-	inline namespace concurrency
+	namespace concurrency
 	{
 		class thread;
 	}
+
+	using concurrency::thread;
 }
 
 class representable: noncopyable
