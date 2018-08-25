@@ -82,6 +82,8 @@ function MT.test_areas()
   assert(Area.UserMenu             ==false)
   assert(Area.ShellAutoCompletion  ==false)
   assert(Area.DialogAutoCompletion ==false)
+  assert(Area.Grabber              ==false)
+  assert(Area.Desktop              ==false)
 end
 
 local function test_mf_akey()
