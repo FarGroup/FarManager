@@ -42,7 +42,7 @@ end
 
 local SomeAreaNames = {
   "other", "viewer", "editor", "dialog", "menu", "help", "dialogautocompletion",
-  "desktop", "common" -- "common" должен идти последним
+  "grabber", "desktop", "common" -- "common" должен идти последним
 }
 
 local function GetTrueAreaName(Mode) return TrueAreaNames[Mode] end
