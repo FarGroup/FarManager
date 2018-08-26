@@ -3,6 +3,18 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 22.08.2018 23:59:59 +0100 - build 5261
+
+1. Rollback of rollback of (4858), revert to 4853 and shared_mutex. It may improve search in archives. Or not.
+
+zg 22.08.2018 17:50:28 +0300 - build 5260
+
+1. rollback of 5256.
+
+drkns 22.08.2018 02:28:40 +0100 - build 5259
+
+1. CRT VS 2017 15.8 turned out to be full of yet another junk, vc_crt_fix* are updated for support of old OS.
+
 MZK 19.08.2018 16:14:41 -0700
 
 1. Translated help page @Codepages.NoAutoDetectCP into English.
