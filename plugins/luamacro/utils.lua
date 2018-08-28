@@ -222,7 +222,7 @@ local SubscribeChangeEvent = editor.SubscribeChangeEvent
 
 function editor.SubscribeChangeEvent (EditorID, Subscribe)
   if not EditorID or EditorID==F.CURRENT_EDITOR then
-    local info = editor.GetInfo(nil)
+    local info = editor.GetInfo(EditorID)
     if not info then return false end
     EditorID = info.EditorID
   end
@@ -246,11 +246,11 @@ function export.ProcessEditorEvent (EditorID, Event, Param)
   if     Event==F.EE_READ  then Subscriptions[EditorID]=0
   elseif Event==F.EE_CLOSE then Subscriptions[EditorID]=nil
   end
-  return EV_Handler(Events.editorevent, editor.GetFileName(nil), EditorID, Event, Param)
+  return EV_Handler(Events.editorevent, editor.GetFileName(EditorID), EditorID, Event, Param)
 end
 
 local function export_ProcessViewerEvent (ViewerID, Event, Param)
-  return EV_Handler(Events.viewerevent, viewer.GetFileName(nil), ViewerID, Event, Param)
+  return EV_Handler(Events.viewerevent, viewer.GetFileName(ViewerID), ViewerID, Event, Param)
 end
 
 local function export_ExitFAR (unload)
