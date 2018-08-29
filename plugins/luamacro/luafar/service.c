@@ -1593,6 +1593,7 @@ static int far_Menu(lua_State *L)
 	lua_settop(L, 3);     // cut unneeded parameters; make stack predictable
 	luaL_checktype(L, 1, LUA_TTABLE);
 	luaL_checktype(L, 2, LUA_TTABLE);
+	ItemsNumber = lua_objlen(L, 2);
 
 	if(!lua_isnil(L,3) && !lua_istable(L,3) && lua_type(L,3)!=LUA_TSTRING)
 		return luaL_argerror(L, 3, "must be table, string or nil");
@@ -1620,7 +1621,7 @@ static int far_Menu(lua_State *L)
 	if(lua_isstring(L,-1))    HelpTopic = StoreTempString(L, 4, &store);
 
 	lua_getfield(L, 1, "SelectIndex");  //+3
-	if ((SelectIndex = lua_tointeger(L,-1)) > lua_objlen(L, 2))
+	if ((SelectIndex = lua_tointeger(L,-1)) > ItemsNumber)
 		SelectIndex = 0;
 
 	lua_getfield(L, 1, "Id");           //+4
@@ -1629,7 +1630,6 @@ static int far_Menu(lua_State *L)
 
 	lua_pop(L, 4);
 	// Items
-	ItemsNumber = lua_objlen(L, 2);
 	Items = (struct FarMenuItem*)lua_newuserdata(L, ItemsNumber*sizeof(struct FarMenuItem));
 	memset(Items, 0, ItemsNumber*sizeof(struct FarMenuItem));
 	pItem = Items;

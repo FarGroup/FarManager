@@ -1,4 +1,8 @@
-﻿shmuel 29.08.2018 19:47:30 +0200 - build 662
+﻿shmuel 29.08.2018 23:47:28 +0200 - build 663
+
+1. Suppress a warning in build 662.
+
+shmuel 29.08.2018 19:47:30 +0200 - build 662
 
 1. LuaFAR: M#3644: far.Menu: приоритет SelectIndex перед selected
 
