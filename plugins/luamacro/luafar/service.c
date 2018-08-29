@@ -1620,9 +1620,10 @@ static int far_Menu(lua_State *L)
 	if(lua_isstring(L,-1))    HelpTopic = StoreTempString(L, 4, &store);
 
 	lua_getfield(L, 1, "SelectIndex");  //+3
-	SelectIndex = lua_tointeger(L,-1);
-	lua_getfield(L, 1, "Id");           //+4
+	if ((SelectIndex = lua_tointeger(L,-1)) > lua_objlen(L, 2))
+		SelectIndex = 0;
 
+	lua_getfield(L, 1, "Id");           //+4
 	if(lua_type(L,-1)==LUA_TSTRING && lua_objlen(L,-1)==sizeof(GUID))
 		MenuGuid = (const GUID*)lua_tostring(L, -1);
 
@@ -1673,7 +1674,7 @@ static int far_Menu(lua_State *L)
 
 		if(GetBoolFromTable(L, "hidden"))    pItem->Flags |= MIF_HIDDEN;
 
-		if(GetBoolFromTable(L, "selected"))  pItem->Flags |= MIF_SELECTED;
+		if(SelectIndex==0 && GetBoolFromTable(L, "selected")) pItem->Flags |= MIF_SELECTED;
 
 		//-------------------------------------------------------------------------
 		lua_getfield(L, -1, "AccelKey");
@@ -1697,7 +1698,7 @@ static int far_Menu(lua_State *L)
 		lua_pop(L, 1);
 	}
 
-	if(SelectIndex > 0 && SelectIndex <= ItemsNumber)
+	if(SelectIndex > 0)
 		Items[SelectIndex-1].Flags |= MIF_SELECTED;
 
 	// Break Keys

@@ -2606,7 +2606,7 @@ id=64
 lv=2
 dt=Text
 nm=far.Menu
-mtime=3688221499
+mtime=3744734289
 <article>
 #_Item, Position = far.Menu (Properties, Items [, BreakKeys])
 #_
@@ -2653,7 +2653,8 @@ mtime=3688221499
 #_            nil     The menu was cancelled by the user.
 #_
 #_**NOTE 1**
-#_  Properties.SelectIndex=N is equivalent to Items[N].selected=true.
+#_  Properties.SelectIndex=N is equivalent to Items[N].selected=true
+#_  but it has a higher priority.
 #_
 #_**NOTE 2**
 #_  Example of constructing a BreakKey string:
