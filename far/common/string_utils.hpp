@@ -504,7 +504,7 @@ bool contains(const std::basic_string_view<traits...> Str, const find_type& What
 	return Str.find(What) != Str.npos;
 }
 
-#if defined _MSC_VER && _MSC_VER < 1910
+#if VS_OLDER_THAN(1910)
 template<typename char_type>
 [[nodiscard]]
 bool contains(const std::basic_string<char_type>& Str, const std::basic_string_view<char_type> What)

@@ -1229,8 +1229,7 @@ public:
 	NONCOPYABLE(custom_plugin_factory);
 	custom_plugin_factory(PluginManager* Owner, const string& Filename):
 		plugin_factory(Owner),
-		m_Module(Filename),
-		m_Imports(m_Module),
+		m_Imports(Filename),
 		m_Success(false)
 	{
 		GlobalInfo Info = { sizeof(Info) };
@@ -1336,27 +1335,26 @@ public:
 	}
 
 private:
-	os::rtdl::module m_Module;
 	struct ModuleImports
 	{
-		os::rtdl::function_pointer<BOOL(WINAPI*)(GlobalInfo* info)> pInitialize;
-		os::rtdl::function_pointer<BOOL(WINAPI*)(const wchar_t* filename)> pIsPlugin;
-		os::rtdl::function_pointer<HANDLE(WINAPI*)(const wchar_t* filename)> pCreateInstance;
-		os::rtdl::function_pointer<void*(WINAPI*)(HANDLE Instance, const wchar_t* functionname)> pGetFunctionAddress;
-		os::rtdl::function_pointer<BOOL (WINAPI*)(ErrorInfo* info)> pGetError;
-		os::rtdl::function_pointer<BOOL(WINAPI*)(HANDLE Instance)> pDestroyInstance;
-		os::rtdl::function_pointer<void (WINAPI*)(const ExitInfo* info)> pFree;
+	private:
+		os::rtdl::module m_Module;
 
-		explicit ModuleImports(const os::rtdl::module& Module):
-			#define INIT_IMPORT(name) p ## name(Module, #name)
-			INIT_IMPORT(Initialize),
-			INIT_IMPORT(IsPlugin),
-			INIT_IMPORT(CreateInstance),
-			INIT_IMPORT(GetFunctionAddress),
-			INIT_IMPORT(GetError),
-			INIT_IMPORT(DestroyInstance),
-			INIT_IMPORT(Free),
-			#undef INIT_IMPORT
+	public:
+#define DECLARE_IMPORT_FUNCTION(name, ...) os::rtdl::function_pointer<__VA_ARGS__> p ## name{ m_Module, #name }
+
+		DECLARE_IMPORT_FUNCTION(Initialize,            BOOL(WINAPI*)(GlobalInfo* info));
+		DECLARE_IMPORT_FUNCTION(IsPlugin,              BOOL(WINAPI*)(const wchar_t* filename));
+		DECLARE_IMPORT_FUNCTION(CreateInstance,        HANDLE(WINAPI*)(const wchar_t* filename));
+		DECLARE_IMPORT_FUNCTION(GetFunctionAddress,    void*(WINAPI*)(HANDLE Instance, const wchar_t* functionname));
+		DECLARE_IMPORT_FUNCTION(GetError,              BOOL(WINAPI*)(ErrorInfo* info));
+		DECLARE_IMPORT_FUNCTION(DestroyInstance,       BOOL(WINAPI*)(HANDLE Instance));
+		DECLARE_IMPORT_FUNCTION(Free,                  void (WINAPI*)(const ExitInfo* info));
+
+#undef DECLARE_IMPORT_FUNCTION
+
+		explicit ModuleImports(const string& Filename):
+			m_Module(Filename),
 			m_IsValid(pInitialize && pIsPlugin && pCreateInstance && pGetFunctionAddress && pGetError && pDestroyInstance && pFree)
 		{
 		}

@@ -16904,7 +16904,7 @@ upd:"MFT overhead:"
 upd:"MFT overhead:"
 upd:"MFT overhead:"
 "Gasto adicional MFT:"
-upd:"MFT overhead:"
+"MFT režijná veľkosť:"
 "Perdita Spazio MFT:"
 "Зайнято MFT:"
 

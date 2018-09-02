@@ -60,7 +60,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #error Unknown compiler
 #endif
 
-// #define VS_2015 1900
 #define VS_OLDER_THAN(version) (defined _MSC_VER && _MSC_VER < version)
 
 

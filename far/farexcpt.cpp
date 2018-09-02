@@ -549,7 +549,7 @@ void SetFloatingPointExceptions(bool Enable)
 
 void RestoreGPFaultUI()
 {
-	SetErrorMode(Global? Global->ErrorMode & ~SEM_NOGPFAULTERRORBOX : 0);
+	os::unset_error_mode(SEM_NOGPFAULTERRORBOX);
 }
 
 static std::string extract_nested_messages(const std::exception& Exception)
@@ -914,3 +914,5 @@ int SehFilter(int const Code, const EXCEPTION_POINTERS* Info, string_view const 
 	RestoreGPFaultUI();
 	return EXCEPTION_CONTINUE_SEARCH;
 }
+
+#undef EXCEPTION_MICROSOFT_CPLUSPLUS

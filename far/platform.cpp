@@ -59,6 +59,18 @@ namespace os
 	}
 
 
+	void set_error_mode(unsigned Mask)
+	{
+		// TODO: Use GetErrorMode
+		SetErrorMode(SetErrorMode(Mask) | Mask);
+	}
+
+	void unset_error_mode(unsigned Mask)
+	{
+		// TODO: Use GetErrorMode
+		SetErrorMode(SetErrorMode(0) & ~Mask);
+	}
+
 NTSTATUS GetLastNtStatus()
 {
 	return imports.RtlGetLastNtStatus? imports.RtlGetLastNtStatus() : STATUS_SUCCESS;

@@ -1134,6 +1134,7 @@ public:
 		SQLiteDb(&PluginsCacheConfigDb::Initialise, L"plugincache" PLATFORM_SUFFIX L".db"sv, true, true)
 	{
 	}
+#undef PLATFORM_SUFFIX
 
 	bool DiscardCache() override
 	{

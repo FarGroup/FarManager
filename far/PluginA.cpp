@@ -5787,4 +5787,6 @@ std::unique_ptr<Plugin> oem_plugin_factory::CreatePlugin(const string& filename)
 	return IsPlugin(filename)? std::make_unique<PluginA>(this, filename) : nullptr;
 }
 
+#undef OLDFAR_TO_FAR_MAP
+
 #endif // NO_WRAPPER

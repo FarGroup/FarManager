@@ -814,9 +814,9 @@ bool ElevationRequired(ELEVATION_MODE Mode, bool UseNtStatus)
 class elevated:noncopyable
 {
 public:
-	int Run(const wchar_t* guid, DWORD PID, bool UsePrivileges)
+	int Run(string_view const Uuid, DWORD PID, bool UsePrivileges)
 	{
-		SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
+		os::set_error_mode(SEM_FAILCRITICALERRORS | SEM_NOOPENFILEERRORBOX);
 
 		std::vector<const wchar_t*> Privileges{ SE_TAKE_OWNERSHIP_NAME, SE_DEBUG_NAME, SE_CREATE_SYMBOLIC_LINK_NAME };
 		if (UsePrivileges)
@@ -827,7 +827,7 @@ public:
 
 		SCOPED_ACTION(privilege)(Privileges);
 
-		const auto PipeName = concat(L"\\\\.\\pipe\\"sv, guid);
+		const auto PipeName = concat(L"\\\\.\\pipe\\"sv, Uuid);
 		WaitNamedPipe(PipeName.c_str(), NMPWAIT_WAIT_FOREVER);
 		m_Pipe.reset(os::fs::low::create_file(PipeName.c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, 0, nullptr));
 		if (!m_Pipe)
@@ -1159,9 +1159,9 @@ private:
 	}
 };
 
-int ElevationMain(const wchar_t* guid, DWORD PID, bool UsePrivileges)
+int ElevationMain(string_view const Uuid, DWORD PID, bool UsePrivileges)
 {
-	return elevated().Run(guid, PID, UsePrivileges);
+	return elevated().Run(Uuid, PID, UsePrivileges);
 }
 
 bool IsElevationArgument(const wchar_t* Argument)

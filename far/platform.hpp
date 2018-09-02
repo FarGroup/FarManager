@@ -148,6 +148,9 @@ namespace os
 	using handle = detail::handle_t<detail::handle_closer>;
 	using printer_handle = detail::handle_t<detail::printer_handle_closer>;
 
+	void set_error_mode(unsigned Mask);
+	void unset_error_mode(unsigned Mask);
+
 	NTSTATUS GetLastNtStatus();
 
 	string GetErrorString(bool Nt, DWORD Code);

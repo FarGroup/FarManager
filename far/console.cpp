@@ -76,36 +76,26 @@ namespace console_detail
 	class external_console
 	{
 	public:
-		external_console() :
-			Module(L"extendedconsole.dll"sv),
-			Imports(Module)
-		{
-		}
-
-		os::rtdl::module Module;
+		NONCOPYABLE(external_console);
+		external_console() = default;
 
 		struct ModuleImports
 		{
-			os::rtdl::function_pointer<BOOL(WINAPI*)(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT* ReadRegion)> pReadOutput;
-			os::rtdl::function_pointer<BOOL(WINAPI*)(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT* WriteRegion)> pWriteOutput;
-			os::rtdl::function_pointer<BOOL(WINAPI*)()> pCommit;
-			os::rtdl::function_pointer<BOOL(WINAPI*)(FarColor* Attributes) > pGetTextAttributes;
-			os::rtdl::function_pointer<BOOL(WINAPI*)(const FarColor* Attributes)> pSetTextAttributes;
-			os::rtdl::function_pointer<BOOL(WINAPI*)(const FarColor* Color, int Mode)> pClearExtraRegions;
-			os::rtdl::function_pointer<BOOL(WINAPI*)(FarColor* Color, BOOL Centered, BOOL AddTransparent)> pGetColorDialog;
+		private:
+			os::rtdl::module m_Module{ L"extendedconsole.dll"sv };
 
-			explicit ModuleImports(const os::rtdl::module& Module) :
-#define INIT_IMPORT(name) p ## name(Module, #name)
-				INIT_IMPORT(ReadOutput),
-				INIT_IMPORT(WriteOutput),
-				INIT_IMPORT(Commit),
-				INIT_IMPORT(GetTextAttributes),
-				INIT_IMPORT(SetTextAttributes),
-				INIT_IMPORT(ClearExtraRegions),
-				INIT_IMPORT(GetColorDialog)
-#undef INIT_IMPORT
-			{
-			}
+		public:
+#define DECLARE_IMPORT_FUNCTION(name, ...) os::rtdl::function_pointer<__VA_ARGS__> p ## name{ m_Module, #name }
+
+			DECLARE_IMPORT_FUNCTION(ReadOutput,           BOOL(WINAPI*)(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT* ReadRegion));
+			DECLARE_IMPORT_FUNCTION(WriteOutput,          BOOL(WINAPI*)(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT* WriteRegion));
+			DECLARE_IMPORT_FUNCTION(Commit,               BOOL(WINAPI*)());
+			DECLARE_IMPORT_FUNCTION(GetTextAttributes,    BOOL(WINAPI*)(FarColor* Attributes));
+			DECLARE_IMPORT_FUNCTION(SetTextAttributes,    BOOL(WINAPI*)(const FarColor* Attributes));
+			DECLARE_IMPORT_FUNCTION(ClearExtraRegions,    BOOL(WINAPI*)(const FarColor* Color, int Mode));
+			DECLARE_IMPORT_FUNCTION(GetColorDialog,       BOOL(WINAPI*)(FarColor* Color, BOOL Centered, BOOL AddTransparent));
+
+#undef DECLARE_IMPORT_FUNCTION
 		}
 		Imports;
 	};

@@ -431,7 +431,8 @@ static void UpdateErrorMode()
 	{
 		Global->ErrorMode |= SEM_NOALIGNMENTFAULTEXCEPT;
 	}
-	SetErrorMode(Global->ErrorMode);
+
+	os::set_error_mode(Global->ErrorMode);
 }
 
 static void SetDriveMenuHotkeys()
@@ -475,7 +476,7 @@ static int mainImpl(range<const wchar_t* const*> const Args)
 
 	auto NoElevationDuringBoot = std::make_unique<elevation::suppress>();
 
-	SetErrorMode(Global->ErrorMode);
+	os::set_error_mode(Global->ErrorMode);
 
 	TestPathParser();
 
