@@ -3,6 +3,18 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 02.09.2018 22:14:00 +0100 - build 5263
+
+1. "Owner" field in attributes dialog has been moved to the bottom.
+
+2. Refactoring.
+
+3. Update Slovak translation.
+
+zg 01.09.2018 18:59:52 +0300 - build 5262
+
+1. check for correctness of coordinates in DialogInit.
+
 drkns 22.08.2018 23:59:59 +0100 - build 5261
 
 1. Rollback of rollback of (4858), revert to 4853 and shared_mutex. It may improve search in archives. Or not.
