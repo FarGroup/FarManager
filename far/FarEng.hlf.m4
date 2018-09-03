@@ -3437,23 +3437,24 @@ removal. If the disk, for which the removal function is used, is a flash-card
 inserted into a card-reader that supports several flash-cards then the
 card-reader itself will be stopped.
 
-    #Ctrl+1# - #Ctrl+9# switch the display of different information:
+    #Ctrl+1# - #Ctrl+9# toggle displaying of various information:
 
-    Ctrl+1 - disk type;
-    Ctrl+2 - network name/path associated with a SUBST disk/path to virtual disk container;
-    Ctrl+3 - disk label;
-    Ctrl+4 - file system;
-    Ctrl+5 - total and free disk size
-             (this option has two display modes, press twice to see);
-    Ctrl+6 - display of removable disk parameters;
-    Ctrl+7 - display of plugin items;
-    Ctrl+8 - display of CD parameters;
-    Ctrl+9 - display of network parameters.
+    #Ctrl+1# - ^<wrap>disk type;
+    #Ctrl+2# - ^<wrap>network name / path associated with a SUBST disk
+/ path to virtual disk container;
+    #Ctrl+3# - ^<wrap>disk label;
+    #Ctrl+4# - ^<wrap>file system;
+    #Ctrl+5# - ^<wrap>disk size and free space (this option has two
+display modes, press twice to see);
+    #Ctrl+6# - ^<wrap>removable disk parameters;
+    #Ctrl+7# - ^<wrap>plugins;
+    #Ctrl+8# - ^<wrap>CD parameters;
+    #Ctrl+9# - ^<wrap>network parameters.
 
     #Change drive# menu settings are saved in the Far configuration.
 
-    #F9# shows a dialog for ~configuring the display~@ChangeDriveMode@ of that
-information.
+    #F9# shows the ~dialog~@ChangeDriveMode@ to control displaying
+of this information.
 
     If the option "~Use Ctrl+PgUp to change drive~@InterfSettings@" is enabled,
 pressing #Ctrl+PgUp# works the same as pressing #Esc# - cancels drive selection
@@ -3494,59 +3495,56 @@ Far 3 (these are, in particular, Unicode characters in filenames and in editor).
 
 @ChangeDriveMode
 $ #Change Drive Menu Options#
-    Диалог позволяют управлять показом информации в ~Change drive menu~@DriveDlg@.
+    The dialog allows to control the information shown in the
+~Change drive~@DriveDlg@ menu.
 
-    #Показывать тип диска#
-    Показать тип диска: "жёсткий", "сетевой" и т.п. 
-    Комбинация клавиш в меню: Ctrl+1
+    #Show disk type#
+    Show disk type: “fixed”, “network”, etc.
+    Key combination in #Change drive# menu: #Ctrl+1#.
 
-    #Показывать метку диска#
-    Показать метку диска (если есть).
-    Комбинация клавиш в меню: Ctrl+3
+    #Show disk label#
+    Show disk label (if available).
+    Key combination in #Change drive# menu: #Ctrl+3#.
 
-    #Показывать тип файловой системы#
-    Показать тип диска: "NTFS", "FAT" и т.п.
-    Комбинация клавиш в меню: Ctrl+4
+    #Show file system type#
+    Show file system type: “NTFS”, “FAT”, etc.
+    Key combination in #Change drive# menu: #Ctrl+4#.
 
-    #Показывать размер#
-    Показать общее и свободное место на диске.
-    Комбинация клавиш в меню: Ctrl+5
+    #Show size#
+    Show disk size and free space.
+    Key combination in #Change drive# menu: #Ctrl+5#.
 
-    #Показывать размер в виде десятичной дроби#
-    Показать общее и свободное место на диске в виде десятичной дроби.
-    Комбинация клавиш в меню: Ctrl+5 (повторное нажатие).
+    #Show size as a decimal fraction#
+    Show disk size and free space as a decimal fraction.
+    Key combination in #Change drive# menu: #Ctrl+5# (press twice).
 
-    #Показывать сетевое имя/путь SUBST/имя VHD#
-    Показать сетевое имя/путь, ассоциированный с SUBST-диском/имя файла, содержащего виртуальный диск.
-    Комбинация клавиш в меню: Ctrl+2
+    #Show network name / SUBST path / VHD name#
+    Show network name / path associated with a SUBST disk / path
+to virtual disk container.
+    Key combination in #Change drive# menu: #Ctrl+2#.
 
-    #Показывать плагины#
-    Показать имена плагинов.
-    Комбинация клавиш в меню: Ctrl+7
+    #Show plugins#
+    Show plugins.
+    Key combination in #Change drive# menu: #Ctrl+7#.
 
-    #Сортировать плагины по горячей клавише#
-    Эта опция уточняет как сортировать показываемые плагины. Плагины в списке сортируются по имени, 
-если опция выключена.
+    #Sort plugins by hotkey#
+    If this option is turned #off#, plugin list is sorted by name;
+otherwise by hotkey.
 
-    #Показывать параметры сменных дисков#
-    Показать параметры сменных дисков.
-    Комбинация клавиш в меню: Ctrl+6
+    #Show removable drive parameters#
+    Show removable drive parameters.
+    Key combination in #Change drive# menu: #Ctrl+6#.
 
-    #Показывать параметры компакт-дисков#
-    Если опция включена, то Far будет пытаться определить тип CD-привода. 
-Различаются следующие приводы: CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM, DVD-RW и DVD-RAM. 
-    Комбинация клавиш в меню: Ctrl+8
+    #Show CD drive parameters#
+    If this option is turned on, Far will attempt to detect CD drive
+type: CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM, DVD-RW, DVD-RAM, HD DVD-ROM,
+HD DVD-RW, Blue-ray Disk-ROM, Blue-ray Disk-RW.
+    Key combination in #Change drive# menu: #Ctrl+8#.
 
-    #Показывать параметры сетевых дисков#
-    Показать общее и свободное место на сетевых дисках. Зависит от опции "#Показывать размер#".
-    Комбинация клавиш в меню: Ctrl+9
-
-
-    See also:
-
-    The list of ~macro keys~@KeyMacroDisksList@, available in the disk menu.
-    Common ~menu~@MenuCmd@ keyboard commands.
-
+    #Show network drive parameters#
+    Show network drive size and free space. Display format depends
+on the #Show size# option.
+    Key combination in #Change drive# menu: #Ctrl+9#.
 
 @DisconnectDrive
 $ #Disconnect network drive#
