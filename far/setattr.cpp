@@ -31,8 +31,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
+#include "setattr.hpp"
 
 #include "flink.hpp"
 #include "dialog.hpp"
@@ -43,13 +42,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "constitle.hpp"
 #include "TPreRedrawFunc.hpp"
-#include "TaskBar.hpp"
+#include "taskbar.hpp"
 #include "keyboard.hpp"
 #include "message.hpp"
 #include "config.hpp"
 #include "datetime.hpp"
 #include "fileattr.hpp"
-#include "setattr.hpp"
 #include "pathmix.hpp"
 #include "strmix.hpp"
 #include "network.hpp"
@@ -62,6 +60,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "locale.hpp"
 #include "string_utils.hpp"
+#include "global.hpp"
+
+#include "platform.fs.hpp"
+
+#include "common/zip_view.hpp"
+
+#include "format.hpp"
 
 enum SETATTRDLG
 {
@@ -73,9 +78,6 @@ enum SETATTRDLG
 	SA_EDIT_SYMLINK,
 	SA_COMBO_SYMLINK,
 	SA_SEPARATOR1,
-	SA_TEXT_OWNER,
-	SA_EDIT_OWNER,
-	SA_SEPARATOR2,
 	SA_ATTR_FIRST,
 	SA_CHECKBOX_RO=SA_ATTR_FIRST,
 	SA_CHECKBOX_ARCHIVE,
@@ -92,7 +94,7 @@ enum SETATTRDLG
 	SA_CHECKBOX_INTEGRITY_STREAM,
 	SA_CHECKBOX_NO_SCRUB_DATA,
 	SA_ATTR_LAST = SA_CHECKBOX_NO_SCRUB_DATA,
-	SA_SEPARATOR3,
+	SA_SEPARATOR2,
 	SA_TEXT_TITLEDATE,
 	SA_TEXT_TITLETIME,
 	SA_TEXT_LASTWRITE,
@@ -110,6 +112,9 @@ enum SETATTRDLG
 	SA_BUTTON_ORIGINAL,
 	SA_BUTTON_CURRENT,
 	SA_BUTTON_BLANK,
+	SA_SEPARATOR3,
+	SA_TEXT_OWNER,
+	SA_EDIT_OWNER,
 	SA_SEPARATOR4,
 	SA_CHECKBOX_SUBFOLDERS,
 	SA_SEPARATOR5,
@@ -150,7 +155,7 @@ enum
 	DM_SETATTR = DM_USER+1,
 };
 
-intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
+static intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	const auto DlgParam = reinterpret_cast<SetAttrDlgParam*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 
@@ -383,7 +388,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 		//BUGBUG: DefDlgProc вызывается дважды, второй раз Param1 может быть другим.
 		case DN_CONTROLINPUT:
 		{
-			const INPUT_RECORD* record=(const INPUT_RECORD *)Param2;
+			const auto record = static_cast<const INPUT_RECORD*>(Param2);
 			if (record->EventType==MOUSE_EVENT)
 			{
 				//_SVS(SysLog(L"Msg=DN_MOUSECLICK Param1=%d Param2=%d",Param1,Param2));
@@ -416,7 +421,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 					lng m = (Param1 == SA_COMBO_HARDLINK? lng::MSetAttrHardLinks : lng::MSetAttrDfsTargets);
 					FarListInfo li={sizeof(FarListInfo)};
 					Dlg->SendMessage(DM_LISTINFO,Param1,&li);
-					Dlg->SendMessage(DM_SETTEXTPTR,Param1, UNSAFE_CSTR(concat(msg(m), L" ("_sv, str(li.ItemsNumber), L')')));
+					Dlg->SendMessage(DM_SETTEXTPTR,Param1, UNSAFE_CSTR(concat(msg(m), L" ("sv, str(li.ItemsNumber), L')')));
 				}
 				break;
 			default:
@@ -430,7 +435,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 			{
 				if(Param1 == SA_EDIT_WDATE || Param1 == SA_EDIT_CDATE || Param1 == SA_EDIT_ADATE || Param1 == SA_EDIT_XDATE)
 				{
-					if(locale::GetDateFormat() == 2)
+					if(locale.date_format() == 2)
 					{
 						if (reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, Param1, nullptr))[0] == L' ')
 						{
@@ -521,7 +526,7 @@ struct AttrPreRedrawItem : public PreRedrawItem
 	string Name;
 };
 
-void ShellSetFileAttributesMsg(const string& Name)
+static void ShellSetFileAttributesMsg(const string& Name)
 {
 	static int Width=54;
 	int WidthTemp;
@@ -554,7 +559,7 @@ void ShellSetFileAttributesMsg(const string& Name)
 	}
 }
 
-static bool ReadFileTime(int Type, const string& Name, os::chrono::time_point& FileTime, const string& OSrcDate, const string& OSrcTime)
+static bool ReadFileTime(int Type, const string& Name, os::chrono::time_point& FileTime, const string& OSrcDate, const date_ranges& DateRanges, const string& OSrcTime, const time_ranges& TimeRanges)
 {
 	os::fs::find_data ffd;
 	if (!os::fs::get_find_data(Name, ffd))
@@ -573,31 +578,31 @@ static bool ReadFileTime(int Type, const string& Name, os::chrono::time_point& F
 	if (!Utc2Local(OriginalFileTime, ost))
 		return false;
 
-	WORD DateN[3]{};
-	ParseDateComponents(OSrcDate, make_range(DateN), locale::GetDateSeparator());
-	WORD TimeN[4]{};
-	ParseDateComponents(OSrcTime, make_range(TimeN), locale::GetTimeSeparator());
+	WORD DateN[3];
+	ParseDateComponents(OSrcDate, make_span(DateRanges), make_span(DateN));
+	WORD TimeN[4];
+	ParseDateComponents(OSrcTime, make_span(TimeRanges), make_span(TimeN));
 
 	SYSTEMTIME st{};
 
 	enum indicies { i_day, i_month, i_year };
 	std::array<indicies, 3> Indicies;
 
-	switch (locale::GetDateFormat())
+	switch (locale.date_format())
 	{
 	case 0:  Indicies = { i_month, i_day, i_year }; break;
 	case 1:  Indicies = { i_day, i_month, i_year }; break;
 	default: Indicies = { i_year, i_month, i_day }; break;
 	}
 
-	st.wDay   = DateN[Indicies[0]] != static_cast<WORD>(-1)? DateN[Indicies[0]] : ost.wDay;
-	st.wMonth = DateN[Indicies[1]] != static_cast<WORD>(-1)? DateN[Indicies[1]] : ost.wMonth;
-	st.wYear  = DateN[Indicies[2]] != static_cast<WORD>(-1)? DateN[Indicies[2]] : ost.wYear;
+	st.wDay   = DateN[Indicies[0]] != date_none? DateN[Indicies[0]] : ost.wDay;
+	st.wMonth = DateN[Indicies[1]] != date_none? DateN[Indicies[1]] : ost.wMonth;
+	st.wYear  = DateN[Indicies[2]] != date_none? DateN[Indicies[2]] : ost.wYear;
 
-	st.wHour         = TimeN[0] != static_cast<WORD>(-1)? TimeN[0] : ost.wHour;
-	st.wMinute       = TimeN[1] != static_cast<WORD>(-1)? TimeN[1] : ost.wMinute;
-	st.wSecond       = TimeN[2] != static_cast<WORD>(-1)? TimeN[2] : ost.wSecond;
-	st.wMilliseconds = TimeN[3] != static_cast<WORD>(-1)? TimeN[3] : ost.wMilliseconds;
+	st.wHour         = TimeN[0] != date_none? TimeN[0] : ost.wHour;
+	st.wMinute       = TimeN[1] != date_none? TimeN[1] : ost.wMinute;
+	st.wSecond       = TimeN[2] != date_none? TimeN[2] : ost.wSecond;
+	st.wMilliseconds = TimeN[3] != date_none? TimeN[3] : ost.wMilliseconds;
 
 	if (st.wYear < 100)
 	{
@@ -629,63 +634,71 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 	short DlgX=74,DlgY=25;
 	FarDialogItem AttrDlgData[]=
 	{
-		{DI_DOUBLEBOX,3,1,DlgX-4,DlgY-2,0,nullptr,nullptr,0,msg(lng::MSetAttrTitle).data()},
-		{DI_TEXT,-1,2,0,2,0,nullptr,nullptr,0,msg(lng::MSetAttrFor).data()},
+		{DI_DOUBLEBOX,3,1,DlgX-4,DlgY-2,0,nullptr,nullptr,0,msg(lng::MSetAttrTitle).c_str()},
+		{DI_TEXT,-1,2,0,2,0,nullptr,nullptr,0,msg(lng::MSetAttrFor).c_str()},
 		{DI_TEXT,-1,3,0,3,0,nullptr,nullptr,DIF_SHOWAMPERSAND,L""},
 		{DI_COMBOBOX,5,3,DlgX-6,3,0,nullptr,nullptr,DIF_SHOWAMPERSAND|DIF_DROPDOWNLIST|DIF_LISTWRAPMODE|DIF_HIDDEN,L""},
 		{DI_TEXT,5,3,17,3,0,nullptr,nullptr,DIF_HIDDEN,L""},
 		{DI_EDIT,18,3,DlgX-6,3,0,nullptr,nullptr,DIF_HIDDEN|DIF_EDITPATH,L""},
 		{DI_COMBOBOX,18,3,DlgX-6,3,0,nullptr,nullptr,DIF_SHOWAMPERSAND|DIF_DROPDOWNLIST|DIF_LISTWRAPMODE|DIF_HIDDEN,L""},
+
 		{DI_TEXT,-1,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_TEXT,5,5,17,5,0,nullptr,nullptr,0,msg(lng::MSetAttrOwner).data()},
-		{DI_EDIT,18,5,DlgX-6,5,0,nullptr,nullptr,0,L""},
-		{DI_TEXT,-1,6,0,6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 
-		{DI_CHECKBOX,5, 7,0,7,0,nullptr,nullptr,DIF_FOCUS|DIF_3STATE,msg(lng::MSetAttrRO).data()},
-		{DI_CHECKBOX,5, 8,0,8,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrArchive).data()},
-		{DI_CHECKBOX,5, 9,0,9,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrHidden).data()},
-		{DI_CHECKBOX,5,10,0,10,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrSystem).data()},
-		{DI_CHECKBOX,5,11,0,11,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrCompressed).data()},
-		{DI_CHECKBOX,5,12,0,12,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrEncrypted).data()},
-		{DI_CHECKBOX,5,13,0,13,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrNotIndexed).data()},
+		{DI_CHECKBOX,5,5,0,5,0,nullptr,nullptr,DIF_FOCUS|DIF_3STATE,msg(lng::MSetAttrRO).c_str()},
+		{DI_CHECKBOX,5,6,0,6,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrArchive).c_str()},
+		{DI_CHECKBOX,5,7,0,7,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrHidden).c_str()},
+		{DI_CHECKBOX,5,8,0,8,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrSystem).c_str()},
+		{DI_CHECKBOX,5,9,0,9,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrCompressed).c_str()},
+		{DI_CHECKBOX,5,10,0,10,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrEncrypted).c_str()},
+		{DI_CHECKBOX,5,11,0,11,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrNotIndexed).c_str()},
 
-		{DI_CHECKBOX,DlgX/2,7,0,7,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrSparse).data()},
-		{DI_CHECKBOX,DlgX/2,8,0,8,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrTemp).data()},
-		{DI_CHECKBOX,DlgX/2,9,0,9,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrOffline).data()},
-		{DI_CHECKBOX,DlgX/2,10,0,10,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrReparsePoint).data()},
-		{DI_CHECKBOX,DlgX/2,11,0,11,0,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MSetAttrVirtual).data()},
-		{DI_CHECKBOX,DlgX/2,12,0,12,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrIntegrityStream).data()},
-		{DI_CHECKBOX,DlgX/2,13,0,13,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrNoScrubData).data()},
+		{DI_CHECKBOX,DlgX/2,5,0,5,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrSparse).c_str()},
+		{DI_CHECKBOX,DlgX/2,6,0,6,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrTemp).c_str()},
+		{DI_CHECKBOX,DlgX/2,7,0,7,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrOffline).c_str()},
+		{DI_CHECKBOX,DlgX/2,8,0,8,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrReparsePoint).c_str()},
+		{DI_CHECKBOX,DlgX/2,9,0,9,0,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MSetAttrVirtual).c_str()},
+		{DI_CHECKBOX,DlgX/2,10,0,10,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrIntegrityStream).c_str()},
+		{DI_CHECKBOX,DlgX/2,11,0,11,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrNoScrubData).c_str()},
 
-		{DI_TEXT,-1,14,0,14,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_TEXT,DlgX-29,15,0,15,0,nullptr,nullptr,0,L""},
-		{DI_TEXT,DlgX-17,15,0,15,0,nullptr,nullptr,0,L""},
-		{DI_TEXT,    5,16,0,16,0,nullptr,nullptr,0,msg(lng::MSetAttrModification).data()},
+		{DI_TEXT,-1,12,0,12,0,nullptr,nullptr,DIF_SEPARATOR,L""},
+
+		{DI_TEXT,DlgX-29,13,0,13,0,nullptr,nullptr,0,L""},
+		{DI_TEXT,DlgX-17,13,0,13,0,nullptr,nullptr,0,L""},
+		{DI_TEXT,    5,14,0,14,0,nullptr,nullptr,0,msg(lng::MSetAttrModification).c_str()},
+		{DI_FIXEDIT,DlgX-29,14,DlgX-19,14,0,nullptr,nullptr,DIF_MASKEDIT,L""},
+		{DI_FIXEDIT,DlgX-17,14,DlgX-6,14,0,nullptr,nullptr,DIF_MASKEDIT,L""},
+		{DI_TEXT,    5,15,0,15,0,nullptr,nullptr,0,msg(lng::MSetAttrCreation).c_str()},
+		{DI_FIXEDIT,DlgX-29,15,DlgX-19,15,0,nullptr,nullptr,DIF_MASKEDIT,L""},
+		{DI_FIXEDIT,DlgX-17,15,DlgX-6,15,0,nullptr,nullptr,DIF_MASKEDIT,L""},
+		{DI_TEXT,    5,16,0,16,0,nullptr,nullptr,0,msg(lng::MSetAttrLastAccess).c_str()},
 		{DI_FIXEDIT,DlgX-29,16,DlgX-19,16,0,nullptr,nullptr,DIF_MASKEDIT,L""},
 		{DI_FIXEDIT,DlgX-17,16,DlgX-6,16,0,nullptr,nullptr,DIF_MASKEDIT,L""},
-		{DI_TEXT,    5,17,0,17,0,nullptr,nullptr,0,msg(lng::MSetAttrCreation).data()},
+		{DI_TEXT,    5,17,0,17,0,nullptr,nullptr,0,msg(lng::MSetAttrChange).c_str()},
 		{DI_FIXEDIT,DlgX-29,17,DlgX-19,17,0,nullptr,nullptr,DIF_MASKEDIT,L""},
 		{DI_FIXEDIT,DlgX-17,17,DlgX-6,17,0,nullptr,nullptr,DIF_MASKEDIT,L""},
-		{DI_TEXT,    5,18,0,18,0,nullptr,nullptr,0,msg(lng::MSetAttrLastAccess).data()},
-		{DI_FIXEDIT,DlgX-29,18,DlgX-19,18,0,nullptr,nullptr,DIF_MASKEDIT,L""},
-		{DI_FIXEDIT,DlgX-17,18,DlgX-6,18,0,nullptr,nullptr,DIF_MASKEDIT,L""},
-		{DI_TEXT,    5,19,0,19,0,nullptr,nullptr,0,msg(lng::MSetAttrChange).data()},
-		{DI_FIXEDIT,DlgX-29,19,DlgX-19,19,0,nullptr,nullptr,DIF_MASKEDIT,L""},
-		{DI_FIXEDIT,DlgX-17,19,DlgX-6,19,0,nullptr,nullptr,DIF_MASKEDIT,L""},
 
-		{DI_BUTTON,0,20,0,20,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,msg(lng::MSetAttrOriginal).data()},
-		{DI_BUTTON,0,20,0,20,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,msg(lng::MSetAttrCurrent).data()},
-		{DI_BUTTON,0,20,0,20,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,msg(lng::MSetAttrBlank).data()},
+		{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,msg(lng::MSetAttrOriginal).c_str()},
+		{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,msg(lng::MSetAttrCurrent).c_str()},
+		{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,msg(lng::MSetAttrBlank).c_str()},
+
+		{DI_TEXT,-1,19,0,19,0,nullptr,nullptr,DIF_SEPARATOR,L""},
+
+		{DI_TEXT,5,20,17,20,0,nullptr,nullptr,0,msg(lng::MSetAttrOwner).c_str()},
+		{DI_EDIT,18,20,DlgX - 6,20,0,nullptr,nullptr,0,L""},
+
 		{DI_TEXT,-1,21,0,21,0,nullptr,nullptr,DIF_SEPARATOR|DIF_HIDDEN,L""},
-		{DI_CHECKBOX,5,22,0,22,0,nullptr,nullptr,DIF_DISABLE|DIF_HIDDEN,msg(lng::MSetAttrSubfolders).data()},
+
+		{DI_CHECKBOX,5,22,0,22,0,nullptr,nullptr,DIF_DISABLE|DIF_HIDDEN,msg(lng::MSetAttrSubfolders).c_str()},
+
 		{DI_TEXT,-1,DlgY-4,0,DlgY-4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MSetAttrSet).data()},
-		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_DISABLE,msg(lng::MSetAttrSystemDialog).data()},
-		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel).data()},
+
+		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MSetAttrSet).c_str()},
+		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_DISABLE,msg(lng::MSetAttrSystemDialog).c_str()},
+		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel).c_str()},
 	};
 	auto AttrDlg = MakeDialogItemsEx(AttrDlgData);
 	SetAttrDlgParam DlgParam={};
-	size_t SelCount=SrcPanel?SrcPanel->GetSelCount():1;
+	const size_t SelCount = SrcPanel? SrcPanel->GetSelCount() : 1;
 
 	if (!SelCount)
 	{
@@ -743,53 +756,64 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 	}
 
 	{
-		DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
-		string strSelName;
-		os::fs::find_data FindData;
+		DWORD SingleSelFileAttr;
+		string SingleSelFileName;
+		os::fs::find_data SingleSelFindData;
 		if(SrcPanel)
 		{
-			SrcPanel->GetSelName(nullptr,FileAttr);
-			SrcPanel->GetSelName(&strSelName,FileAttr,nullptr,&FindData);
+			os::fs::find_data Data;
+			if (!SrcPanel->get_first_selected(Data))
+				return false;
+
+			SingleSelFileName = Data.FileName;
+			SingleSelFileAttr = Data.Attributes;
 		}
 		else
 		{
-			strSelName=*Object;
-			os::fs::get_find_data(strSelName, FindData);
-			FileAttr=FindData.dwFileAttributes;
+			SingleSelFileName = *Object;
+			os::fs::get_find_data(SingleSelFileName, SingleSelFindData);
+			SingleSelFileAttr = SingleSelFindData.Attributes;
 		}
 
-		if (!SelCount || (SelCount==1 && TestParentFolderName(strSelName)))
+		if (SelCount==1 && IsParentDirectory(SingleSelFindData))
 			return false;
 
-		wchar_t DateSeparator = locale::GetDateSeparator();
-		wchar_t TimeSeparator = locale::GetTimeSeparator();
-		wchar_t DecimalSeparator = locale::GetDecimalSeparator();
+		wchar_t DateSeparator = locale.date_separator();
+		wchar_t TimeSeparator = locale.time_separator();
+		wchar_t DecimalSeparator = locale.decimal_separator();
 
 		string DateMask, DateFormat;
+		date_ranges DateRanges;
 
-		switch (locale::GetDateFormat())
+		switch (locale.date_format())
 		{
 			case 0:
 				DateMask = format(L"99{0}99{0}9999N", DateSeparator);
-				DateFormat = format(lng::MSetAttrDateTitle1, DateSeparator);
+				DateFormat = format(msg(lng::MSetAttrDateTitle1), DateSeparator);
+				DateRanges = {{ { 0, 2 }, { 3, 2 }, { 6, 5 } }};
 				break;
 
 			case 1:
 				DateMask = format(L"99{0}99{0}9999N", DateSeparator);
-				DateFormat = format(lng::MSetAttrDateTitle2, DateSeparator);
+				DateFormat = format(msg(lng::MSetAttrDateTitle2), DateSeparator);
+				DateRanges = {{ { 0, 2 }, { 3, 2 }, { 6, 5 } }};
 				break;
 
 			default:
 				DateMask = format(L"N9999{0}99{0}99", DateSeparator);
-				DateFormat = format(lng::MSetAttrDateTitle3, DateSeparator);
+				DateFormat = format(msg(lng::MSetAttrDateTitle3), DateSeparator);
+				DateRanges = {{ { 0, 5 }, { 6, 2 }, { 9, 2 } }};
 				break;
 		}
 
+		const auto TimeMask = format(L"99{0}99{0}99{1}999", TimeSeparator, DecimalSeparator);
+		const time_ranges TimeRanges{{ {0, 2}, {3, 2}, {6, 2}, {9, 3} }};
+
 		AttrDlg[SA_TEXT_TITLEDATE].strData = DateFormat;
-		AttrDlg[SA_TEXT_TITLETIME].strData = format(lng::MSetAttrTimeTitle, TimeSeparator, DecimalSeparator);
+		AttrDlg[SA_TEXT_TITLETIME].strData = format(msg(lng::MSetAttrTimeTitle), TimeSeparator, DecimalSeparator);
 
 		AttrDlg[SA_EDIT_WDATE].strMask = AttrDlg[SA_EDIT_CDATE].strMask = AttrDlg[SA_EDIT_ADATE].strMask = AttrDlg[SA_EDIT_XDATE].strMask = DateMask;
-		AttrDlg[SA_EDIT_WTIME].strMask = AttrDlg[SA_EDIT_CTIME].strMask = AttrDlg[SA_EDIT_ATIME].strMask = AttrDlg[SA_EDIT_XTIME].strMask = format(L"99{0}99{0}99{1}999", TimeSeparator, DecimalSeparator);
+		AttrDlg[SA_EDIT_WTIME].strMask = AttrDlg[SA_EDIT_CTIME].strMask = AttrDlg[SA_EDIT_ATIME].strMask = AttrDlg[SA_EDIT_XTIME].strMask = TimeMask;
 
 		bool FolderPresent=false,LinkPresent=false;
 		string strLinkName;
@@ -813,13 +837,13 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 		if (SelCount==1)
 		{
-			if (FileAttr&FILE_ATTRIBUTE_DIRECTORY)
+			if (SingleSelFileAttr & FILE_ATTRIBUTE_DIRECTORY)
 			{
 				if (!DlgParam.Plugin)
 				{
-					DWORD AddFileAttr=os::fs::get_file_attributes(strSelName);
+					DWORD AddFileAttr = os::fs::get_file_attributes(SingleSelFileName);
 					if (AddFileAttr != INVALID_FILE_ATTRIBUTES)
-						FileAttr|=AddFileAttr;
+						SingleSelFileAttr |= AddFileAttr;
 				}
 
 				//_SVS(SysLog(L"SelName=%s  FileAttr=0x%08X",SelName,FileAttr));
@@ -836,19 +860,19 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 				if (Global->Opt->SetAttrFolderRules)
 				{
-					if (DlgParam.Plugin || os::fs::get_find_data(strSelName, FindData))
+					if (DlgParam.Plugin || os::fs::get_find_data(SingleSelFileName, SingleSelFindData))
 					{
-						ConvertDate(FindData.LastWriteTime, AttrDlg[SA_EDIT_WDATE].strData,AttrDlg[SA_EDIT_WTIME].strData,12,FALSE,FALSE,2);
-						ConvertDate(FindData.CreationTime,  AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData,12,FALSE,FALSE,2);
-						ConvertDate(FindData.LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData,12,FALSE,FALSE,2);
-						ConvertDate(FindData.ChangeTime,    AttrDlg[SA_EDIT_XDATE].strData,AttrDlg[SA_EDIT_XTIME].strData,12,FALSE,FALSE,2);
+						ConvertDate(SingleSelFindData.LastWriteTime, AttrDlg[SA_EDIT_WDATE].strData,AttrDlg[SA_EDIT_WTIME].strData,12,FALSE,FALSE,2);
+						ConvertDate(SingleSelFindData.CreationTime,  AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData,12,FALSE,FALSE,2);
+						ConvertDate(SingleSelFindData.LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData,12,FALSE,FALSE,2);
+						ConvertDate(SingleSelFindData.ChangeTime,    AttrDlg[SA_EDIT_XDATE].strData,AttrDlg[SA_EDIT_XTIME].strData,12,FALSE,FALSE,2);
 					}
 
-					if (FileAttr!=INVALID_FILE_ATTRIBUTES)
+					if (SingleSelFileAttr != INVALID_FILE_ATTRIBUTES)
 					{
 						std::for_each(CONST_RANGE(AttributePair, i)
 						{
-							AttrDlg[i.first].Selected = (FileAttr & i.second)? BSTATE_CHECKED : BSTATE_UNCHECKED;
+							AttrDlg[i.first].Selected = (SingleSelFileAttr & i.second)? BSTATE_CHECKED : BSTATE_UNCHECKED;
 						});
 					}
 
@@ -871,13 +895,13 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			bool IsMountPoint;
 			{
 				bool IsRoot = false;
-				const auto PathType = ParsePath(strSelName, nullptr, &IsRoot);
+				const auto PathType = ParsePath(SingleSelFileName, nullptr, &IsRoot);
 				IsMountPoint = IsRoot && ((PathType == root_type::drive_letter || PathType == root_type::unc_drive_letter));
 			}
 
-			if ((FileAttr != INVALID_FILE_ATTRIBUTES && FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) || IsMountPoint)
+			if ((SingleSelFileAttr != INVALID_FILE_ATTRIBUTES && SingleSelFileAttr & FILE_ATTRIBUTE_REPARSE_POINT) || IsMountPoint)
 			{
-				DWORD ReparseTag = FindData.dwReserved0;
+				DWORD ReparseTag = SingleSelFindData.ReparseTag;
 				DWORD ReparseTagAlternative = 0;
 				bool KnownReparsePoint = false;
 				if (!DlgParam.Plugin)
@@ -887,11 +911,11 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 						// BUGBUG, cheating
 						KnownReparsePoint = true;
 						ReparseTag = IO_REPARSE_TAG_MOUNT_POINT;
-						os::fs::GetVolumeNameForVolumeMountPoint(strSelName, strLinkName);
+						os::fs::GetVolumeNameForVolumeMountPoint(SingleSelFileName, strLinkName);
 					}
 					else
 					{
-						KnownReparsePoint = GetReparsePointInfo(strSelName, strLinkName, &ReparseTagAlternative);
+						KnownReparsePoint = GetReparsePointInfo(SingleSelFileName, strLinkName, &ReparseTagAlternative);
 						if (ReparseTagAlternative && !ReparseTag)
 						{
 							ReparseTag = ReparseTagAlternative;
@@ -906,9 +930,9 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 							}
 							else if (ReparseTag == IO_REPARSE_TAG_DFS)
 							{
-								string path(SrcPanel->GetCurDir() + L'\\' + strSelName);
+								const auto path = path::join(SrcPanel->GetCurDir(), SingleSelFileName);
 								os::netapi::ptr<DFS_INFO_3> DfsInfo;
-								if (Imports().NetDfsGetInfo(UNSAFE_CSTR(path), nullptr, nullptr, 3, reinterpret_cast<LPBYTE*>(&ptr_setter(DfsInfo))) == NERR_Success)
+								if (imports.NetDfsGetInfo(UNSAFE_CSTR(path), nullptr, nullptr, 3, reinterpret_cast<LPBYTE*>(&ptr_setter(DfsInfo))) == NERR_Success)
 								{
 									KnownReparsePoint = true;
 
@@ -922,8 +946,8 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 										auto& Item = std::get<1>(i);
 										const auto& Storage = std::get<2>(i);
 
-										Link = string(L"\\\\") + Storage.ServerName + L'\\' + Storage.ShareName;
-										Item.Text = Link.data();
+										Link = concat(L"\\\\"sv, Storage.ServerName, L'\\', Storage.ShareName);
+										Item.Text = Link.c_str();
 										Item.Flags =
 											((Storage.State & DFS_STORAGE_STATE_ACTIVE)? (LIF_CHECKED | LIF_SELECTED) : LIF_NONE) |
 											((Storage.State & DFS_STORAGE_STATE_OFFLINE)? LIF_GRAYED : LIF_NONE);
@@ -935,7 +959,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 									AttrDlg[SA_EDIT_SYMLINK].Flags |= DIF_HIDDEN;
 									AttrDlg[SA_COMBO_SYMLINK].Flags &= ~DIF_HIDDEN;
 									AttrDlg[SA_COMBO_SYMLINK].ListItems = &NameList;
-									AttrDlg[SA_COMBO_SYMLINK].strData = concat(msg(lng::MSetAttrDfsTargets), L" ("_sv, str(NameList.ItemsNumber), L')');
+									AttrDlg[SA_COMBO_SYMLINK].strData = concat(msg(lng::MSetAttrDfsTargets), L" ("sv, str(NameList.ItemsNumber), L')');
 								}
 							}
 						}
@@ -984,7 +1008,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					AttrDlg[SA_CHECKBOX_REPARSEPOINT].Flags |= DIF_DISABLE;
 
 				DlgParam.FileSystemFlags=0;
-				if (os::fs::GetVolumeInformation(GetPathRoot(strSelName), nullptr, nullptr, nullptr, &DlgParam.FileSystemFlags, nullptr))
+				if (os::fs::GetVolumeInformation(GetPathRoot(SingleSelFileName), nullptr, nullptr, nullptr, &DlgParam.FileSystemFlags, nullptr))
 				{
 					if (!(DlgParam.FileSystemFlags&FILE_FILE_COMPRESSION))
 					{
@@ -1004,18 +1028,18 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			}
 
 			// обработка случая "несколько хардлинков"
-			if (0 == (FileAttr&FILE_ATTRIBUTE_DIRECTORY))
+			if (!(SingleSelFileAttr & FILE_ATTRIBUTE_DIRECTORY))
 			{
-				if ((NameList.ItemsNumber = GetNumberOfLinks(strSelName)) > 1)
+				if ((NameList.ItemsNumber = GetNumberOfLinks(SingleSelFileName)) > 1)
 				{
 					AttrDlg[SA_TEXT_NAME].Flags|=DIF_HIDDEN;
 					AttrDlg[SA_COMBO_HARDLINK].Flags&=~DIF_HIDDEN;
 
-					auto strRoot = GetPathRoot(strSelName);
+					auto strRoot = GetPathRoot(SingleSelFileName);
 					DeleteEndSlash(strRoot);
 
 					Links.reserve(NameList.ItemsNumber);
-					for (const auto& i: os::fs::enum_names(strSelName))
+					for (const auto& i: os::fs::enum_names(SingleSelFileName))
 					{
 						Links.emplace_back(strRoot + i);
 					}
@@ -1023,7 +1047,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					if (!Links.empty())
 					{
 						ListItems.reserve(Links.size());
-						std::transform(ALL_CONST_RANGE(Links), std::back_inserter(ListItems), [&](const auto& i) { return FarListItem{ 0, i.data() }; });
+						std::transform(ALL_CONST_RANGE(Links), std::back_inserter(ListItems), [&](const string& i) { return FarListItem{ 0, i.c_str() }; });
 
 						NameList.Items = ListItems.data();
 						AttrDlg[SA_COMBO_HARDLINK].ListItems = &NameList;
@@ -1033,20 +1057,20 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 						AttrDlg[SA_COMBO_HARDLINK].Flags|=DIF_DISABLE;
 					}
 
-					AttrDlg[SA_COMBO_HARDLINK].strData = concat(msg(lng::MSetAttrHardLinks), L" ("_sv, str(NameList.ItemsNumber), L')');
+					AttrDlg[SA_COMBO_HARDLINK].strData = concat(msg(lng::MSetAttrHardLinks), L" ("sv, str(NameList.ItemsNumber), L')');
 				}
 			}
 
-			string strSelNameQ(strSelName);
+			string strSelNameQ(SingleSelFileName);
 			QuoteOuterSpace(strSelNameQ);
 			AttrDlg[SA_TEXT_NAME].strData = strSelNameQ;
 			TruncStr(AttrDlg[SA_TEXT_NAME].strData,DlgX-10);
 
-			if (FileAttr!=INVALID_FILE_ATTRIBUTES)
+			if (SingleSelFileAttr != INVALID_FILE_ATTRIBUTES)
 			{
 				std::for_each(CONST_RANGE(AttributePair, i)
 				{
-					AttrDlg[i.first].Selected = (FileAttr & i.second)? BSTATE_CHECKED : BSTATE_UNCHECKED;
+					AttrDlg[i.first].Selected = (SingleSelFileAttr & i.second)? BSTATE_CHECKED : BSTATE_UNCHECKED;
 				});
 			}
 
@@ -1058,13 +1082,13 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			}
 			Dates[] =
 			{
-				{SA_EDIT_WDATE, SA_EDIT_WTIME, &FindData.LastWriteTime},
-				{SA_EDIT_CDATE, SA_EDIT_CTIME, &FindData.CreationTime},
-				{SA_EDIT_ADATE, SA_EDIT_ATIME, &FindData.LastAccessTime},
-				{SA_EDIT_XDATE, SA_EDIT_XTIME, &FindData.ChangeTime},
+				{SA_EDIT_WDATE, SA_EDIT_WTIME, &SingleSelFindData.LastWriteTime},
+				{SA_EDIT_CDATE, SA_EDIT_CTIME, &SingleSelFindData.CreationTime},
+				{SA_EDIT_ADATE, SA_EDIT_ATIME, &SingleSelFindData.LastAccessTime},
+				{SA_EDIT_XDATE, SA_EDIT_XTIME, &SingleSelFindData.ChangeTime},
 			};
 
-			if (DlgParam.Plugin || (!DlgParam.Plugin && os::fs::get_find_data(strSelName, FindData)))
+			if (DlgParam.Plugin || os::fs::get_find_data(SingleSelFileName, SingleSelFindData))
 			{
 				std::for_each(CONST_RANGE(Dates, i)
 				{
@@ -1077,7 +1101,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			{
 				strComputerName = ExtractComputerName(SrcPanel->GetCurDir());
 			}
-			GetFileOwner(strComputerName,strSelName,AttrDlg[SA_EDIT_OWNER].strData);
+			GetFileOwner(strComputerName, SingleSelFileName, AttrDlg[SA_EDIT_OWNER].strData);
 		}
 		else
 		{
@@ -1104,10 +1128,6 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 			// проверка - есть ли среди выделенных - каталоги?
 			// так же проверка на атрибуты
-			if(SrcPanel)
-			{
-				SrcPanel->GetSelName(nullptr,FileAttr);
-			}
 			FolderPresent=false;
 
 			if(SrcPanel)
@@ -1115,34 +1135,34 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				const auto strComputerName = ExtractComputerName(SrcPanel->GetCurDir());
 
 				bool CheckOwner=true;
-				while (SrcPanel->GetSelName(&strSelName,FileAttr,nullptr,&FindData))
+				for (const auto& i : SrcPanel->enum_selected())
 				{
-					if (!FolderPresent&&(FileAttr&FILE_ATTRIBUTE_DIRECTORY))
+					if (!FolderPresent && (i.Attributes & FILE_ATTRIBUTE_DIRECTORY))
 					{
 						FolderPresent=true;
 						AttrDlg[SA_SEPARATOR4].Flags&=~DIF_HIDDEN;
 						AttrDlg[SA_CHECKBOX_SUBFOLDERS].Flags&=~(DIF_DISABLE|DIF_HIDDEN);
 						AttrDlg[SA_DOUBLEBOX].Y2+=2;
-						for(int i=SA_SEPARATOR5;i<=SA_BUTTON_CANCEL;i++)
+						for (int index = SA_SEPARATOR5; index <= SA_BUTTON_CANCEL; index++)
 						{
-							AttrDlg[i].Y1+=2;
-							AttrDlg[i].Y2+=2;
+							AttrDlg[index].Y1+=2;
+							AttrDlg[index].Y2+=2;
 						}
 						DlgY+=2;
 					}
 
-					std::for_each(CONST_RANGE(AttributePair, i)
+					std::for_each(CONST_RANGE(AttributePair, p)
 					{
-						if (FileAttr & i.second)
+						if (i.Attributes & p.second)
 						{
-							++AttrDlg[i.first].Selected;
+							++AttrDlg[p.first].Selected;
 						}
 					});
 
 					if(CheckOwner)
 					{
 						string strCurOwner;
-						GetFileOwner(strComputerName,strSelName,strCurOwner);
+						GetFileOwner(strComputerName, i.FileName, strCurOwner);
 						if(AttrDlg[SA_EDIT_OWNER].strData.empty())
 						{
 							AttrDlg[SA_EDIT_OWNER].strData=strCurOwner;
@@ -1158,7 +1178,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			else
 			{
 				// BUGBUG, copy-paste
-				if (!FolderPresent&&(FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
+				if (SingleSelFindData.Attributes & FILE_ATTRIBUTE_DIRECTORY)
 				{
 					FolderPresent=true;
 					AttrDlg[SA_SEPARATOR4].Flags&=~DIF_HIDDEN;
@@ -1173,7 +1193,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				}
 				std::for_each(CONST_RANGE(AttributePair, i)
 				{
-					if (FindData.dwFileAttributes & i.second)
+					if (SingleSelFindData.Attributes & i.second)
 					{
 						++AttrDlg[i.first].Selected;
 					}
@@ -1181,8 +1201,9 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			}
 			if(SrcPanel)
 			{
-				SrcPanel->GetSelName(nullptr,FileAttr);
-				SrcPanel->GetSelName(&strSelName,FileAttr,nullptr,&FindData);
+				SrcPanel->get_first_selected(SingleSelFindData);
+				SingleSelFileName = SingleSelFindData.FileName;
+				SingleSelFileAttr = SingleSelFindData.Attributes;
 			}
 
 			// выставим "неопределенку" или то, что нужно
@@ -1230,12 +1251,12 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			AttrDlg[SA_EDIT_OWNER].strData.clear();
 		}
 
-		DlgParam.DialogMode=((SelCount==1&&!(FileAttr&FILE_ATTRIBUTE_DIRECTORY))?MODE_FILE:(SelCount==1?MODE_FOLDER:MODE_MULTIPLE));
-		DlgParam.strSelName=strSelName;
+		DlgParam.DialogMode = ((SelCount == 1 && !(SingleSelFileAttr&FILE_ATTRIBUTE_DIRECTORY))?MODE_FILE:(SelCount == 1?MODE_FOLDER:MODE_MULTIPLE));
+		DlgParam.strSelName = SingleSelFileName;
 		DlgParam.OSubfoldersState=static_cast<FARCHECKEDSTATE>(AttrDlg[SA_CHECKBOX_SUBFOLDERS].Selected);
 
 		const auto Dlg = Dialog::create(AttrDlg, SetAttrDlgProc, &DlgParam);
-		Dlg->SetHelp(L"FileAttrDlg");                 //  ^ - это одиночный диалог!
+		Dlg->SetHelp(L"FileAttrDlg"sv);                 //  ^ - это одиночный диалог!
 		Dlg->SetId(FileAttrDlgId);
 
 		if (LinkPresent)
@@ -1253,7 +1274,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				//reparse point editor
 				if (!equal_icase(AttrDlg[SA_EDIT_SYMLINK].strData, strLinkName))
 				{
-					if(!ModifyReparsePoint(strSelName, unquote(AttrDlg[SA_EDIT_SYMLINK].strData)))
+					if(!ModifyReparsePoint(SingleSelFileName, unquote(AttrDlg[SA_EDIT_SYMLINK].strData)))
 					{
 						const auto ErrorState = error_state::fetch();
 
@@ -1261,7 +1282,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 							msg(lng::MError),
 							{
 								msg(lng::MCopyCannotCreateLink),
-								strSelName
+								SingleSelFileName
 							},
 							{ lng::MHOk });
 					}
@@ -1271,16 +1292,16 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 				std::for_each(CONST_RANGE(Times, i)
 				{
-					AttrDlg[i].strData[8] = locale::GetTimeSeparator();
+					AttrDlg[i].strData[8] = locale.time_separator();
 				});
 
 				SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<AttrPreRedrawItem>());
-				ShellSetFileAttributesMsg(SelCount==1? strSelName : string{});
+				ShellSetFileAttributesMsg(SelCount==1? SingleSelFileName : string{});
 				int SkipMode=-1;
 
-				if (SelCount==1 && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+				if (SelCount==1 && !(SingleSelFileAttr & FILE_ATTRIBUTE_DIRECTORY))
 				{
-					DWORD NewAttr=FileAttr&FILE_ATTRIBUTE_DIRECTORY;
+					DWORD NewAttr = SingleSelFileAttr & FILE_ATTRIBUTE_DIRECTORY;
 
 					std::for_each(CONST_RANGE(AttributePair, i)
 					{
@@ -1292,7 +1313,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 					if(!AttrDlg[SA_EDIT_OWNER].strData.empty() && !equal_icase(strInitOwner, AttrDlg[SA_EDIT_OWNER].strData))
 					{
-						int Result=ESetFileOwner(strSelName,AttrDlg[SA_EDIT_OWNER].strData,SkipMode);
+						int Result = ESetFileOwner(SingleSelFileName, AttrDlg[SA_EDIT_OWNER].strData, SkipMode);
 						if(Result==SETATTR_RET_SKIPALL)
 						{
 							SkipMode=SETATTR_RET_SKIP;
@@ -1304,76 +1325,83 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					}
 
 					os::chrono::time_point LastWriteTime, CreationTime, LastAccessTime, ChangeTime;
-					int SetWriteTime = ReadFileTime(0,strSelName,LastWriteTime,AttrDlg[SA_EDIT_WDATE].strData,AttrDlg[SA_EDIT_WTIME].strData);
-					int SetCreationTime = ReadFileTime(1,strSelName,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
-					int SetLastAccessTime = ReadFileTime(2,strSelName,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);
-					int SetChangeTime = ReadFileTime(3,strSelName,ChangeTime,AttrDlg[SA_EDIT_XDATE].strData,AttrDlg[SA_EDIT_XTIME].strData);
+					const auto SetWriteTime = ReadFileTime(0, SingleSelFileName, LastWriteTime, AttrDlg[SA_EDIT_WDATE].strData, DateRanges, AttrDlg[SA_EDIT_WTIME].strData, TimeRanges);
+					const auto SetCreationTime = ReadFileTime(1, SingleSelFileName, CreationTime, AttrDlg[SA_EDIT_CDATE].strData, DateRanges, AttrDlg[SA_EDIT_CTIME].strData, TimeRanges);
+					const auto SetLastAccessTime = ReadFileTime(2, SingleSelFileName, LastAccessTime, AttrDlg[SA_EDIT_ADATE].strData, DateRanges, AttrDlg[SA_EDIT_ATIME].strData, TimeRanges);
+					const auto SetChangeTime = ReadFileTime(3, SingleSelFileName, ChangeTime, AttrDlg[SA_EDIT_XDATE].strData, DateRanges, AttrDlg[SA_EDIT_XTIME].strData, TimeRanges);
 					//_SVS(SysLog(L"\n\tSetWriteTime=%d\n\tSetCreationTime=%d\n\tSetLastAccessTime=%d",SetWriteTime,SetCreationTime,SetLastAccessTime));
 
 					if (SetWriteTime || SetCreationTime || SetLastAccessTime || SetChangeTime)
 					{
-						if(ESetFileTime(strSelName,SetWriteTime?&LastWriteTime:nullptr,SetCreationTime?&CreationTime:nullptr,SetLastAccessTime?&LastAccessTime:nullptr,SetChangeTime?&ChangeTime:nullptr,FileAttr,SkipMode)==SETATTR_RET_SKIPALL)
+						if (ESetFileTime(
+							SingleSelFileName,
+							SetWriteTime? &LastWriteTime : nullptr,
+							SetCreationTime? &CreationTime : nullptr,
+							SetLastAccessTime? &LastAccessTime : nullptr,
+							SetChangeTime? &ChangeTime : nullptr,
+							SingleSelFileAttr,
+							SkipMode) == SETATTR_RET_SKIPALL)
 						{
 							SkipMode=SETATTR_RET_SKIP;
 						}
 					}
 
-					if ((NewAttr&FILE_ATTRIBUTE_COMPRESSED) && !(FileAttr&FILE_ATTRIBUTE_COMPRESSED))
+					if ((NewAttr&FILE_ATTRIBUTE_COMPRESSED) && !(SingleSelFileAttr & FILE_ATTRIBUTE_COMPRESSED))
 					{
-						if (ESetFileCompression(strSelName,1,FileAttr,SkipMode)==SETATTR_RET_SKIPALL)
+						if (ESetFileCompression(SingleSelFileName, 1, SingleSelFileAttr, SkipMode) == SETATTR_RET_SKIPALL)
 						{
 							SkipMode=SETATTR_RET_SKIP;
 						}
 					}
-					else if (!(NewAttr&FILE_ATTRIBUTE_COMPRESSED) && (FileAttr&FILE_ATTRIBUTE_COMPRESSED))
+					else if (!(NewAttr&FILE_ATTRIBUTE_COMPRESSED) && (SingleSelFileAttr & FILE_ATTRIBUTE_COMPRESSED))
 					{
-						if(ESetFileCompression(strSelName,0,FileAttr,SkipMode)==SETATTR_RET_SKIPALL)
-						{
-							SkipMode=SETATTR_RET_SKIP;
-						}
-					}
-
-					if ((NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && !(FileAttr&FILE_ATTRIBUTE_ENCRYPTED))
-					{
-						if (ESetFileEncryption(strSelName, true, FileAttr, SkipMode) == SETATTR_RET_SKIPALL)
-						{
-							SkipMode=SETATTR_RET_SKIP;
-						}
-					}
-					else if (!(NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && (FileAttr&FILE_ATTRIBUTE_ENCRYPTED))
-					{
-						if (ESetFileEncryption(strSelName, false, FileAttr, SkipMode) == SETATTR_RET_SKIPALL)
+						if (ESetFileCompression(SingleSelFileName, 0, SingleSelFileAttr, SkipMode) == SETATTR_RET_SKIPALL)
 						{
 							SkipMode=SETATTR_RET_SKIP;
 						}
 					}
 
-					if ((NewAttr&FILE_ATTRIBUTE_SPARSE_FILE) && !(FileAttr&FILE_ATTRIBUTE_SPARSE_FILE))
+					if ((NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && !(SingleSelFileAttr & FILE_ATTRIBUTE_ENCRYPTED))
 					{
-						if (ESetFileSparse(strSelName,true,FileAttr,SkipMode)==SETATTR_RET_SKIPALL)
+						if (ESetFileEncryption(SingleSelFileName, true, SingleSelFileAttr, SkipMode) == SETATTR_RET_SKIPALL)
 						{
 							SkipMode=SETATTR_RET_SKIP;
 						}
 					}
-					else if (!(NewAttr&FILE_ATTRIBUTE_SPARSE_FILE) && (FileAttr&FILE_ATTRIBUTE_SPARSE_FILE))
+					else if (!(NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && (SingleSelFileAttr & FILE_ATTRIBUTE_ENCRYPTED))
 					{
-						if (ESetFileSparse(strSelName,false,FileAttr,SkipMode)==SETATTR_RET_SKIPALL)
-						{
-							SkipMode=SETATTR_RET_SKIP;
-						}
-					}
-
-					if ((FileAttr&~(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_COMPRESSED|FILE_ATTRIBUTE_SPARSE_FILE))!=(NewAttr&~(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_COMPRESSED|FILE_ATTRIBUTE_SPARSE_FILE)))
-					{
-						if (ESetFileAttributes(strSelName,NewAttr&~(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_COMPRESSED|FILE_ATTRIBUTE_SPARSE_FILE),SkipMode)==SETATTR_RET_SKIPALL)
+						if (ESetFileEncryption(SingleSelFileName, false, SingleSelFileAttr, SkipMode) == SETATTR_RET_SKIPALL)
 						{
 							SkipMode=SETATTR_RET_SKIP;
 						}
 					}
 
-					if (!(NewAttr&FILE_ATTRIBUTE_REPARSE_POINT) && (FileAttr&FILE_ATTRIBUTE_REPARSE_POINT))
+					if ((NewAttr&FILE_ATTRIBUTE_SPARSE_FILE) && !(SingleSelFileAttr & FILE_ATTRIBUTE_SPARSE_FILE))
 					{
-						if (EDeleteReparsePoint(strSelName, FileAttr, SkipMode)==SETATTR_RET_SKIPALL)
+						if (ESetFileSparse(SingleSelFileName, true, SingleSelFileAttr, SkipMode) == SETATTR_RET_SKIPALL)
+						{
+							SkipMode=SETATTR_RET_SKIP;
+						}
+					}
+					else if (!(NewAttr&FILE_ATTRIBUTE_SPARSE_FILE) && (SingleSelFileAttr & FILE_ATTRIBUTE_SPARSE_FILE))
+					{
+						if (ESetFileSparse(SingleSelFileName, false, SingleSelFileAttr, SkipMode) == SETATTR_RET_SKIPALL)
+						{
+							SkipMode=SETATTR_RET_SKIP;
+						}
+					}
+
+					if ((SingleSelFileAttr & ~(FILE_ATTRIBUTE_ENCRYPTED | FILE_ATTRIBUTE_COMPRESSED | FILE_ATTRIBUTE_SPARSE_FILE)) != (NewAttr&~(FILE_ATTRIBUTE_ENCRYPTED | FILE_ATTRIBUTE_COMPRESSED | FILE_ATTRIBUTE_SPARSE_FILE)))
+					{
+						if (ESetFileAttributes(SingleSelFileName,NewAttr&~(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_COMPRESSED|FILE_ATTRIBUTE_SPARSE_FILE),SkipMode)==SETATTR_RET_SKIPALL)
+						{
+							SkipMode=SETATTR_RET_SKIP;
+						}
+					}
+
+					if (!(NewAttr&FILE_ATTRIBUTE_REPARSE_POINT) && (SingleSelFileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
+					{
+						if (EDeleteReparsePoint(SingleSelFileName, SingleSelFileAttr, SkipMode)==SETATTR_RET_SKIPALL)
 						{
 							SkipMode=SETATTR_RET_SKIP;
 						}
@@ -1414,15 +1442,15 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 					if(SrcPanel)
 					{
-						SrcPanel->GetSelName(nullptr,FileAttr);
+						SrcPanel->GetSelName(nullptr, SingleSelFileAttr);
 					}
-					SCOPED_ACTION(IndeterminateTaskBar);
+					SCOPED_ACTION(IndeterminateTaskbar);
 					SCOPED_ACTION(wakeful);
 					bool Cancel=false;
 
-					time_check TimeCheck(time_check::mode::immediate, GetRedrawTimeout());
+					const time_check TimeCheck(time_check::mode::immediate, GetRedrawTimeout());
 					bool SingleFileDone=false;
-					while ((SrcPanel?SrcPanel->GetSelName(&strSelName,FileAttr,nullptr,&FindData):!SingleFileDone) && !Cancel)
+					while ((SrcPanel?SrcPanel->GetSelName(&SingleSelFileName, SingleSelFileAttr, nullptr, &SingleSelFindData):!SingleFileDone) && !Cancel)
 					{
 						if(!SrcPanel)
 						{
@@ -1433,7 +1461,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 						if (TimeCheck)
 						{
-							ShellSetFileAttributesMsg(strSelName);
+							ShellSetFileAttributesMsg(SingleSelFileName);
 
 							if (CheckForEsc())
 								break;
@@ -1441,7 +1469,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 						if(!AttrDlg[SA_EDIT_OWNER].strData.empty() && !equal_icase(strInitOwner, AttrDlg[SA_EDIT_OWNER].strData))
 						{
-							int Result=ESetFileOwner(strSelName,AttrDlg[SA_EDIT_OWNER].strData,SkipMode);
+							int Result=ESetFileOwner(SingleSelFileName,AttrDlg[SA_EDIT_OWNER].strData,SkipMode);
 							if(Result==SETATTR_RET_SKIPALL)
 							{
 								SkipMode=SETATTR_RET_SKIP;
@@ -1453,11 +1481,19 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 						}
 
 						os::chrono::time_point LastWriteTime, CreationTime, LastAccessTime, ChangeTime;
-						bool SetWriteTime = ReadFileTime(0,strSelName,LastWriteTime,AttrDlg[SA_EDIT_WDATE].strData,AttrDlg[SA_EDIT_WTIME].strData);
-						bool SetCreationTime = ReadFileTime(1,strSelName,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
-						bool SetLastAccessTime = ReadFileTime(2,strSelName,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);
-						bool SetChangeTime = ReadFileTime(3,strSelName,ChangeTime,AttrDlg[SA_EDIT_XDATE].strData,AttrDlg[SA_EDIT_XTIME].strData);
-						int RetCode=ESetFileTime(strSelName,SetWriteTime?&LastWriteTime:nullptr,SetCreationTime?&CreationTime:nullptr,SetLastAccessTime?&LastAccessTime:nullptr,SetChangeTime?&ChangeTime:nullptr,FileAttr,SkipMode);
+						auto SetWriteTime = ReadFileTime(0, SingleSelFileName, LastWriteTime, AttrDlg[SA_EDIT_WDATE].strData, DateRanges, AttrDlg[SA_EDIT_WTIME].strData, TimeRanges);
+						auto SetCreationTime = ReadFileTime(1, SingleSelFileName, CreationTime, AttrDlg[SA_EDIT_CDATE].strData, DateRanges, AttrDlg[SA_EDIT_CTIME].strData, TimeRanges);
+						auto SetLastAccessTime = ReadFileTime(2, SingleSelFileName, LastAccessTime, AttrDlg[SA_EDIT_ADATE].strData, DateRanges, AttrDlg[SA_EDIT_ATIME].strData, TimeRanges);
+						auto SetChangeTime = ReadFileTime(3, SingleSelFileName, ChangeTime, AttrDlg[SA_EDIT_XDATE].strData, DateRanges, AttrDlg[SA_EDIT_XTIME].strData, TimeRanges);
+
+						auto RetCode = ESetFileTime(
+							SingleSelFileName,
+							SetWriteTime? &LastWriteTime : nullptr,
+							SetCreationTime? &CreationTime : nullptr,
+							SetLastAccessTime? &LastAccessTime : nullptr,
+							SetChangeTime? &ChangeTime : nullptr,
+							SingleSelFileAttr,
+							SkipMode);
 
 						if (RetCode == SETATTR_RET_ERROR)
 							break;
@@ -1469,13 +1505,13 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 							continue;
 						}
 
-						if(FileAttr!=INVALID_FILE_ATTRIBUTES)
+						if(SingleSelFileAttr != INVALID_FILE_ATTRIBUTES)
 						{
-							if (((FileAttr|SetAttr)&~ClearAttr) != FileAttr)
+							if (((SingleSelFileAttr | SetAttr) & ~ClearAttr) != SingleSelFileAttr)
 							{
 								if (AttrDlg[SA_CHECKBOX_COMPRESSED].Selected != BSTATE_3STATE)
 								{
-									RetCode=ESetFileCompression(strSelName,AttrDlg[SA_CHECKBOX_COMPRESSED].Selected,FileAttr,SkipMode);
+									RetCode = ESetFileCompression(SingleSelFileName, AttrDlg[SA_CHECKBOX_COMPRESSED].Selected, SingleSelFileAttr, SkipMode);
 
 									if (RetCode == SETATTR_RET_ERROR)
 										break;
@@ -1492,7 +1528,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 								{
 									if (AttrDlg[SA_CHECKBOX_COMPRESSED].Selected != BSTATE_CHECKED)
 									{
-										RetCode=ESetFileEncryption(strSelName, AttrDlg[SA_CHECKBOX_ENCRYPTED].Selected != 0, FileAttr, SkipMode);
+										RetCode=ESetFileEncryption(SingleSelFileName, AttrDlg[SA_CHECKBOX_ENCRYPTED].Selected != 0, SingleSelFileAttr, SkipMode);
 
 										if (RetCode == SETATTR_RET_ERROR)
 											break;
@@ -1508,7 +1544,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 								if (AttrDlg[SA_CHECKBOX_SPARSE].Selected!=BSTATE_3STATE)
 								{
-									RetCode=ESetFileSparse(strSelName,AttrDlg[SA_CHECKBOX_SPARSE].Selected==BSTATE_CHECKED,FileAttr,SkipMode);
+									RetCode = ESetFileSparse(SingleSelFileName, AttrDlg[SA_CHECKBOX_SPARSE].Selected == BSTATE_CHECKED, SingleSelFileAttr, SkipMode);
 
 									if (RetCode == SETATTR_RET_ERROR)
 									{
@@ -1527,7 +1563,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 								if (AttrDlg[SA_CHECKBOX_REPARSEPOINT].Selected == BSTATE_UNCHECKED)
 								{
-									RetCode=EDeleteReparsePoint(strSelName, FileAttr, SkipMode);
+									RetCode=EDeleteReparsePoint(SingleSelFileName, SingleSelFileAttr, SkipMode);
 
 									if (RetCode == SETATTR_RET_ERROR)
 									{
@@ -1544,7 +1580,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 									}
 								}
 
-								RetCode=ESetFileAttributes(strSelName,((FileAttr|SetAttr)&(~ClearAttr)),SkipMode);
+								RetCode = ESetFileAttributes(SingleSelFileName, ((SingleSelFileAttr | SetAttr)&(~ClearAttr)), SkipMode);
 
 								if (RetCode == SETATTR_RET_ERROR)
 									break;
@@ -1557,14 +1593,14 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 								}
 							}
 
-							if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) && AttrDlg[SA_CHECKBOX_SUBFOLDERS].Selected)
+							if ((SingleSelFileAttr & FILE_ATTRIBUTE_DIRECTORY) && AttrDlg[SA_CHECKBOX_SUBFOLDERS].Selected)
 							{
 								ScanTree ScTree(false);
-								ScTree.SetFindPath(strSelName,L"*");
-								time_check TreeTimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+								ScTree.SetFindPath(SingleSelFileName, L"*"sv);
+								const time_check TreeTimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 								string strFullName;
 
-								while (ScTree.GetNextName(FindData,strFullName))
+								while (ScTree.GetNextName(SingleSelFindData, strFullName))
 								{
 									if (TreeTimeCheck)
 									{
@@ -1590,14 +1626,21 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 										}
 									}
 
-									SetWriteTime = ReadFileTime(0,strFullName,LastWriteTime,AttrDlg[SA_EDIT_WDATE].strData,AttrDlg[SA_EDIT_WTIME].strData);
-									SetCreationTime = ReadFileTime(1,strFullName,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
-									SetLastAccessTime = ReadFileTime(2,strFullName,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);
-									SetChangeTime = ReadFileTime(3,strFullName,ChangeTime,AttrDlg[SA_EDIT_XDATE].strData,AttrDlg[SA_EDIT_XTIME].strData);
+									SetWriteTime = ReadFileTime(0, strFullName, LastWriteTime, AttrDlg[SA_EDIT_WDATE].strData, DateRanges, AttrDlg[SA_EDIT_WTIME].strData, TimeRanges);
+									SetCreationTime = ReadFileTime(1, strFullName, CreationTime, AttrDlg[SA_EDIT_CDATE].strData, DateRanges, AttrDlg[SA_EDIT_CTIME].strData, TimeRanges);
+									SetLastAccessTime = ReadFileTime(2, strFullName, LastAccessTime, AttrDlg[SA_EDIT_ADATE].strData, DateRanges, AttrDlg[SA_EDIT_ATIME].strData, TimeRanges);
+									SetChangeTime = ReadFileTime(3, strFullName, ChangeTime, AttrDlg[SA_EDIT_XDATE].strData, DateRanges, AttrDlg[SA_EDIT_XTIME].strData, TimeRanges);
 
 									if (SetWriteTime || SetCreationTime || SetLastAccessTime || SetChangeTime)
 									{
-										RetCode=ESetFileTime(strFullName,SetWriteTime?&LastWriteTime:nullptr,SetCreationTime?&CreationTime:nullptr,SetLastAccessTime?&LastAccessTime:nullptr,SetChangeTime?&ChangeTime:nullptr,FindData.dwFileAttributes,SkipMode);
+										RetCode = ESetFileTime(
+											strFullName,
+											SetWriteTime? &LastWriteTime : nullptr,
+											SetCreationTime? &CreationTime : nullptr,
+											SetLastAccessTime? &LastAccessTime : nullptr,
+											SetChangeTime? &ChangeTime : nullptr,
+											SingleSelFindData.Attributes,
+											SkipMode);
 
 										if (RetCode == SETATTR_RET_ERROR)
 										{
@@ -1613,12 +1656,11 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 										}
 									}
 
-									if (((FindData.dwFileAttributes|SetAttr)&(~ClearAttr)) !=
-													FindData.dwFileAttributes)
+									if (((SingleSelFindData.Attributes | SetAttr)&(~ClearAttr)) != SingleSelFindData.Attributes)
 									{
 										if (AttrDlg[SA_CHECKBOX_COMPRESSED].Selected!=BSTATE_3STATE)
 										{
-											RetCode=ESetFileCompression(strFullName,AttrDlg[SA_CHECKBOX_COMPRESSED].Selected,FindData.dwFileAttributes,SkipMode);
+											RetCode = ESetFileCompression(strFullName, AttrDlg[SA_CHECKBOX_COMPRESSED].Selected, SingleSelFindData.Attributes, SkipMode);
 
 											if (RetCode == SETATTR_RET_ERROR)
 											{
@@ -1638,7 +1680,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 										{
 											if (AttrDlg[SA_CHECKBOX_COMPRESSED].Selected != 1)
 											{
-												RetCode=ESetFileEncryption(strFullName, AttrDlg[SA_CHECKBOX_ENCRYPTED].Selected!=0, FindData.dwFileAttributes, SkipMode);
+												RetCode=ESetFileEncryption(strFullName, AttrDlg[SA_CHECKBOX_ENCRYPTED].Selected!=0, SingleSelFindData.Attributes, SkipMode);
 
 												if (RetCode == SETATTR_RET_ERROR)
 												{
@@ -1657,7 +1699,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 										if (AttrDlg[SA_CHECKBOX_SPARSE].Selected!=BSTATE_3STATE)
 										{
-											RetCode=ESetFileSparse(strFullName,AttrDlg[SA_CHECKBOX_SPARSE].Selected==BSTATE_CHECKED,FindData.dwFileAttributes,SkipMode);
+											RetCode = ESetFileSparse(strFullName, AttrDlg[SA_CHECKBOX_SPARSE].Selected == BSTATE_CHECKED, SingleSelFindData.Attributes, SkipMode);
 
 											if (RetCode == SETATTR_RET_ERROR)
 											{
@@ -1677,7 +1719,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 										if (AttrDlg[SA_CHECKBOX_REPARSEPOINT].Selected == BSTATE_UNCHECKED)
 										{
-											RetCode=EDeleteReparsePoint(strFullName, FindData.dwFileAttributes, SkipMode);
+											RetCode = EDeleteReparsePoint(strFullName, SingleSelFindData.Attributes, SkipMode);
 
 											if (RetCode == SETATTR_RET_ERROR)
 											{
@@ -1694,7 +1736,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 											}
 										}
 
-										RetCode=ESetFileAttributes(strFullName,(FindData.dwFileAttributes|SetAttr)&(~ClearAttr),SkipMode);
+										RetCode = ESetFileAttributes(strFullName, (SingleSelFindData.Attributes | SetAttr)&(~ClearAttr), SkipMode);
 
 										if (RetCode == SETATTR_RET_ERROR)
 										{
@@ -1721,19 +1763,19 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				SHELLEXECUTEINFOW seInfo={sizeof(seInfo)};
 				seInfo.nShow = SW_SHOW;
 				seInfo.fMask = SEE_MASK_INVOKEIDLIST;
-				NTPath strFullName(strSelName);
-				if(FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
+				NTPath strFullName(SingleSelFileName);
+				if(SingleSelFindData.Attributes&FILE_ATTRIBUTE_DIRECTORY)
 				{
 					AddEndSlash(strFullName);
 				}
-				seInfo.lpFile = strFullName.data();
+				seInfo.lpFile = strFullName.c_str();
 				if (!IsWindowsVistaOrGreater() && ParsePath(seInfo.lpFile) == root_type::unc_drive_letter)
 				{	// "\\?\c:\..." fails on old windows
 					seInfo.lpFile += 4;
 				}
 				seInfo.lpVerb = L"properties";
 				const auto strCurDir = os::fs::GetCurrentDirectory();
-				seInfo.lpDirectory=strCurDir.data();
+				seInfo.lpDirectory=strCurDir.c_str();
 				ShellExecuteExW(&seInfo);
 			}
 			break;
@@ -1749,6 +1791,6 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		SrcPanel->ClearSelection();
 		Global->CtrlObject->Cp()->GetAnotherPanel(SrcPanel)->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
 	}
-	Global->CtrlObject->Cp()->Redraw();
+	Global->WindowManager->RefreshWindow(Global->CtrlObject->Panels());
 	return true;
 }

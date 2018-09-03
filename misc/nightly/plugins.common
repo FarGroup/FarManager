@@ -1,5 +1,11 @@
 #!/bin/bash
 
+function u2d_list {
+  for file in $1; do
+    echo $file | egrep -q "\.(reg|txt|diz|ini|temp|lua|farconfig|lng|hlf)$" && unix2dos $2/$file
+  done
+}
+
 function bplugin2 {
 PLUGIN=$1
 BIT=$2
@@ -31,6 +37,7 @@ if [ "$PLUGIN" == "FExcept" ]; then
   cp -f changelog ../../outfinalnew${BIT}/FExcept/
   cd $FINAL || return 1
   cp -f $FILES ../../../outfinalnew${BIT}/FExcept/ || return 1
+  u2d_list "$FILES" ../../../outfinalnew${BIT}/FExcept/
   cd ..
 elif [ $ADD -eq 1 ]; then
   mkdir -p ../../outfinalnew${BIT}/Plugins/$PLUGIN
@@ -40,10 +47,12 @@ elif [ $ADD -eq 1 ]; then
 
   cd $FINAL || return 1
   cp -f $FILES ../../../outfinalnew${BIT}/Plugins/$PLUGIN/ || return 1
+  u2d_list "$FILES" ../../../outfinalnew${BIT}/Plugins/$PLUGIN/
   cd ..
 
   cd $FINAL/$7 || return 1
   cp -f $5 ../../../../outfinalnew${BIT}/Plugins/${PLUGIN}/$7/ || return 1
+  u2d_list "$5" ../../../../outfinalnew${BIT}/Plugins/${PLUGIN}/$7/
   cd ../..
 else
   mkdir -p ../../outfinalnew${BIT}/Plugins/$PLUGIN
@@ -52,6 +61,7 @@ else
 
   cd $FINAL || return 1
   cp -f $FILES ../../../outfinalnew${BIT}/Plugins/$PLUGIN/ || return 1
+  u2d_list "$FILES" ../../../outfinalnew${BIT}/Plugins/$PLUGIN/
   cd ..
 fi
 }
@@ -61,6 +71,8 @@ PLUGIN=$1
 PLDIR=$2
 
 pushd $PLUGIN || return 1
+
+unix2dos changelog
 
 ( \
 	bplugin2 "$PLDIR" 32 1 "$3" && \

@@ -31,11 +31,9 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
+#include "hilight.hpp"
 
 #include "farcolor.hpp"
-#include "hilight.hpp"
 #include "keys.hpp"
 #include "vmenu.hpp"
 #include "vmenu2.hpp"
@@ -55,6 +53,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgGuid.hpp"
 #include "elevation.hpp"
 #include "filefilter.hpp"
+#include "global.hpp"
+
+#include "common/bytes_view.hpp"
+#include "common/zip_view.hpp"
+
+#include "format.hpp"
 
 static const struct
 {
@@ -70,29 +74,31 @@ static const struct
 	MarkCharSelectedCursorColor,
 	MarkChar,
 	ContinueProcessing,
-	HighlightEdit,HighlightList;
+	HighlightEdit,
+	HighlightList;
 }
-HLS =
+HLS
 {
-	L"NormalColor"_sv,
-	L"SelectedColor"_sv,
-	L"CursorColor"_sv,
-	L"SelectedCursorColor"_sv,
-	L"MarkCharNormalColor"_sv,
-	L"MarkCharSelectedColor"_sv,
-	L"MarkCharCursorColor"_sv,
-	L"MarkCharSelectedCursorColor"_sv,
-	L"MarkChar"_sv,
-	L"ContinueProcessing"_sv,
-	L"HighlightEdit"_sv,L"HighlightList"_sv
+	L"NormalColor"sv,
+	L"SelectedColor"sv,
+	L"CursorColor"sv,
+	L"SelectedCursorColor"sv,
+	L"MarkCharNormalColor"sv,
+	L"MarkCharSelectedColor"sv,
+	L"MarkCharCursorColor"sv,
+	L"MarkCharSelectedCursorColor"sv,
+	L"MarkChar"sv,
+	L"ContinueProcessing"sv,
+	L"HighlightEdit"sv,
+	L"HighlightList"sv
 };
 
-static const wchar_t fmtFirstGroup[]=L"Group";
-static const wchar_t fmtUpperGroup[]=L"UpperGroup";
-static const wchar_t fmtLowerGroup[]=L"LowerGroup";
-static const wchar_t fmtLastGroup[]=L"LastGroup";
-static const wchar_t SortGroupsKeyName[]=L"SortGroups";
-static const wchar_t HighlightKeyName[]=L"Highlight";
+static const auto fmtFirstGroup = L"Group"sv;
+static const auto fmtUpperGroup = L"UpperGroup"sv;
+static const auto fmtLowerGroup = L"LowerGroup"sv;
+static const auto fmtLastGroup = L"LastGroup"sv;
+static const auto SortGroupsKeyName = L"SortGroups"sv;
+static const auto HighlightKeyName = L"Highlight"sv;
 
 static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 {
@@ -109,58 +115,41 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 	if (!root)
 		return;
 
-	static const wchar_t* const Masks[]=
+	const auto MakeFarColor = [](int ConsoleColour)
 	{
-		/* 0 */ L"*.*",
-		/* 1 */ L"<arc>",
-		/* 2 */ L"<temp>",
-		/* $ 25.09.2001  IS
-			Эта маска для каталогов: обрабатывать все каталоги, кроме тех, что
-			являются родительскими (их имена - две точки).
-		*/
-		/* 3 */ L"*.*|..", // маска для каталогов
-		/* 4 */ L"..",     // такие каталоги окрашивать как простые файлы
-		/* 5 */ L"<exec>",
+		auto Colour = colors::ConsoleColorToFarColor(ConsoleColour);
+		colors::make_transparent(Colour.BackgroundColor);
+		return Colour;
 	};
 
-	static struct
+	static const struct
 	{
-		const wchar_t *Mask;
-		bool IgnoreMask;
-		BYTE InitNC;
-		BYTE InitCC;
+		string_view Mask;
 		DWORD IncludeAttr;
 		FarColor NormalColor;
 		FarColor CursorColor;
 	}
-	StdHighlightData[]=
+	DefaultHighlighting[]
 	{
-		/* 0 */{Masks[0], false, B_BLUE|F_CYAN, B_CYAN|F_DARKGRAY, FILE_ATTRIBUTE_HIDDEN },
-		/* 1 */{Masks[0], false, B_BLUE|F_CYAN, B_CYAN|F_DARKGRAY, FILE_ATTRIBUTE_SYSTEM },
-		/* 2 */{Masks[3], false, B_BLUE|F_WHITE, B_CYAN|F_WHITE, FILE_ATTRIBUTE_DIRECTORY },
-		/* 3 */{Masks[4], false, 0, 0, FILE_ATTRIBUTE_DIRECTORY },
-		/* 4 */{Masks[5], false, B_BLUE|F_LIGHTGREEN, B_CYAN|F_LIGHTGREEN, 0},
-		/* 5 */{Masks[1], false, B_BLUE|F_LIGHTMAGENTA, B_CYAN|F_LIGHTMAGENTA, 0 },
-		/* 6 */{Masks[2], false, B_BLUE|F_BROWN, B_CYAN|F_BROWN, 0 },
-		// это настройка для каталогов на тех панелях, которые должны раскрашиваться
-		// без учета масок (например, список хостов в "far navigator")
-		/* 7 */{Masks[0], true, B_BLUE|F_WHITE, B_CYAN|F_WHITE, FILE_ATTRIBUTE_DIRECTORY },
+		{ L"*"sv,      FILE_ATTRIBUTE_HIDDEN,    MakeFarColor(B_BLUE | F_CYAN),         MakeFarColor(B_CYAN | F_DARKGRAY) },
+		{ L"*"sv,      FILE_ATTRIBUTE_SYSTEM,    MakeFarColor(B_BLUE | F_CYAN),         MakeFarColor(B_CYAN | F_DARKGRAY) },
+		{ L"*|.."sv,   FILE_ATTRIBUTE_DIRECTORY, MakeFarColor(B_BLUE | F_WHITE),        MakeFarColor(B_CYAN | F_WHITE) },
+		{ L".."sv,     FILE_ATTRIBUTE_DIRECTORY, MakeFarColor(B_BLACK | F_BLACK),       MakeFarColor(B_BLACK | F_BLACK) },
+		{ L"<exec>"sv, 0,                        MakeFarColor(B_BLUE | F_LIGHTGREEN),   MakeFarColor(B_CYAN | F_LIGHTGREEN) },
+		{ L"<arc>"sv,  0,                        MakeFarColor(B_BLUE | F_LIGHTMAGENTA), MakeFarColor(B_CYAN | F_LIGHTMAGENTA) },
+		{ L"<temp>"sv, 0,                        MakeFarColor(B_BLUE | F_BROWN),        MakeFarColor(B_CYAN | F_BROWN) },
+		{ {},           FILE_ATTRIBUTE_DIRECTORY, MakeFarColor(B_BLUE | F_WHITE),        MakeFarColor(B_CYAN | F_WHITE) },
 	};
 
 	size_t Index = 0;
-	for (auto& i: StdHighlightData)
+	for (auto& i: DefaultHighlighting)
 	{
-		i.NormalColor = colors::ConsoleColorToFarColor(i.InitNC);
-		MAKE_TRANSPARENT(i.NormalColor.BackgroundColor);
-		i.CursorColor = colors::ConsoleColorToFarColor(i.InitCC);
-		MAKE_TRANSPARENT(i.CursorColor.BackgroundColor);
-
-		const auto Key = cfg->CreateKey(root, L"Group"_sv + str(Index++));
+		const auto Key = cfg->CreateKey(root, L"Group"sv + str(Index++));
 		if (!Key)
 			break;
 
 		FileFilterParams Params;
-		Params.SetMask(!i.IgnoreMask, i.Mask);
+		Params.SetMask(!i.Mask.empty(), i.Mask);
 		Params.SetAttr(i.IncludeAttr != 0, i.IncludeAttr, 0);
 		FileFilter::SaveFilter(cfg, Key.get(), Params);
 
@@ -187,16 +176,15 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 
 highlight::configuration::configuration()
 {
-	Changed = false;
 	const auto cfg = ConfigProvider().CreateHighlightConfig();
 	SetHighlighting(false, cfg.get());
 	InitHighlightFiles(cfg.get());
 	UpdateCurrentTime();
 }
 
-static void LoadFilter(const HierarchicalConfig* cfg, const HierarchicalConfig::key& key, FileFilterParams& HData, int SortGroup, bool bSortGroup)
+static void LoadFilter(const HierarchicalConfig* cfg, const HierarchicalConfig::key& key, FileFilterParams& HData, int SortGroup, bool bSortGroup, bool& OldFormat)
 {
-	FileFilter::LoadFilter(cfg, key.get(), HData);
+	FileFilter::LoadFilter(cfg, key.get(), HData, OldFormat);
 
 	HData.SetSortGroup(SortGroup);
 
@@ -228,16 +216,16 @@ void highlight::configuration::InitHighlightFiles(const HierarchicalConfig* cfg)
 	const struct
 	{
 		int Delta;
-		const wchar_t* KeyName;
-		const wchar_t* GroupName;
+		string_view KeyName;
+		string_view GroupName;
 		int* Count;
 	}
-	GroupItems[] =
+	GroupItems[]
 	{
-		{DEFAULT_SORT_GROUP, HighlightKeyName, fmtFirstGroup, &FirstCount},
-		{0, SortGroupsKeyName, fmtUpperGroup, &UpperCount},
-		{DEFAULT_SORT_GROUP+1, SortGroupsKeyName, fmtLowerGroup, &LowerCount},
-		{DEFAULT_SORT_GROUP, HighlightKeyName, fmtLastGroup, &LastCount},
+		{ DEFAULT_SORT_GROUP,     HighlightKeyName,  fmtFirstGroup, &FirstCount },
+		{ 0,                      SortGroupsKeyName, fmtUpperGroup, &UpperCount },
+		{ DEFAULT_SORT_GROUP + 1, SortGroupsKeyName, fmtLowerGroup, &LowerCount },
+		{ DEFAULT_SORT_GROUP,     HighlightKeyName,  fmtLastGroup,  &LastCount },
 	};
 
 	HiData.clear();
@@ -256,7 +244,7 @@ void highlight::configuration::InitHighlightFiles(const HierarchicalConfig* cfg)
 				break;
 
 			FileFilterParams NewItem;
-			LoadFilter(cfg, key, NewItem, Item.Delta + (Item.Delta == DEFAULT_SORT_GROUP? 0 : i), Item.Delta != DEFAULT_SORT_GROUP);
+			LoadFilter(cfg, key, NewItem, Item.Delta + (Item.Delta == DEFAULT_SORT_GROUP? 0 : i), Item.Delta != DEFAULT_SORT_GROUP, m_Changed);
 			HiData.emplace_back(std::move(NewItem));
 			++*Item.Count;
 		}
@@ -276,24 +264,24 @@ static void ApplyDefaultStartingColors(highlight::element& Colors)
 {
 	std::for_each(RANGE(Colors.Color, i)
 	{
-		MAKE_OPAQUE(i.FileColor.ForegroundColor);
-		MAKE_TRANSPARENT(i.FileColor.BackgroundColor);
-		MAKE_OPAQUE(i.MarkColor.ForegroundColor);
-		MAKE_TRANSPARENT(i.MarkColor.BackgroundColor);
+		colors::make_opaque(i.FileColor.ForegroundColor);
+		colors::make_transparent(i.FileColor.BackgroundColor);
+		colors::make_opaque(i.MarkColor.ForegroundColor);
+		colors::make_transparent(i.MarkColor.BackgroundColor);
 	});
 
 	Colors.Mark.Transparent = true;
 	Colors.Mark.Char = 0;
 }
 
-static void ApplyBlackOnBlackColor(highlight::element::colors_array::value_type& Color, DWORD PaletteColor)
+static void ApplyBlackOnBlackColor(highlight::element::colors_array::value_type& Colors, DWORD PaletteColor)
 {
 	const auto& InheritColor = [](FarColor& Color, const FarColor& Base)
 	{
-		if (!COLORVALUE(Color.ForegroundColor) && !COLORVALUE(Color.BackgroundColor))
+		if (!colors::color_value(Color.ForegroundColor) && !colors::color_value(Color.BackgroundColor))
 		{
-			Color.BackgroundColor=ALPHAVALUE(Color.BackgroundColor)|COLORVALUE(Base.BackgroundColor);
-			Color.ForegroundColor=ALPHAVALUE(Color.ForegroundColor)|COLORVALUE(Base.ForegroundColor);
+			Color.BackgroundColor = colors::alpha_value(Color.BackgroundColor) | colors::color_value(Base.BackgroundColor);
+			Color.ForegroundColor = colors::alpha_value(Color.ForegroundColor) | colors::color_value(Base.ForegroundColor);
 			Color.Flags &= FCF_EXTENDEDFLAGS;
 			Color.Flags |= Base.Flags;
 			Color.Reserved = Base.Reserved;
@@ -302,9 +290,9 @@ static void ApplyBlackOnBlackColor(highlight::element::colors_array::value_type&
 
 	//Применим black on black.
 	//Для файлов возьмем цвета панели не изменяя прозрачность.
-	InheritColor(Color.FileColor, Global->Opt->Palette[PaletteColor]);
+	InheritColor(Colors.FileColor, Global->Opt->Palette[PaletteColor]);
 	//Для пометки возьмем цвета файла включая прозрачность.
-	InheritColor(Color.MarkColor, Color.FileColor);
+	InheritColor(Colors.MarkColor, Colors.FileColor);
 }
 
 static void ApplyBlackOnBlackColors(highlight::element::colors_array& Colors)
@@ -320,34 +308,13 @@ static void ApplyColors(highlight::element& DestColors, const highlight::element
 	auto SrcColors = Src;
 	ApplyBlackOnBlackColors(SrcColors.Color);
 
-	const auto& ApplyColor = [](FarColor& Dst, const FarColor& Src)
-	{
-		//Если текущие цвета в Src (fore и/или back) не прозрачные
-		//то унаследуем их в Dest.
-
-		const auto& ApplyColorPart = [&](COLORREF FarColor::*ColorAccessor, const FARCOLORFLAGS Flag)
-		{
-			const auto SrcPart = std::invoke(ColorAccessor, Src);
-			if(IS_OPAQUE(SrcPart))
-			{
-				std::invoke(ColorAccessor, Dst) = SrcPart;
-				(Src.Flags & Flag)? (Dst.Flags |= Flag) : (Dst.Flags &= ~Flag);
-			}
-		};
-
-		ApplyColorPart(&FarColor::BackgroundColor, FCF_BG_4BIT);
-		ApplyColorPart(&FarColor::ForegroundColor, FCF_FG_4BIT);
-
-		Dst.Flags |= Src.Flags&FCF_EXTENDEDFLAGS;
-	};
-
 	for (const auto& i: zip(SrcColors.Color, DestColors.Color))
 	{
 		const auto& SrcItem = std::get<0>(i);
 		auto& DstItem = std::get<1>(i);
 
-		ApplyColor(DstItem.FileColor, SrcItem.FileColor);
-		ApplyColor(DstItem.MarkColor, SrcItem.MarkColor);
+		DstItem.FileColor = colors::merge(DstItem.FileColor, SrcItem.FileColor);
+		DstItem.MarkColor = colors::merge(DstItem.MarkColor, SrcItem.MarkColor);
 	}
 
 	//Унаследуем пометку из Src если она не прозрачная
@@ -372,10 +339,9 @@ void highlight::configuration::ApplyFinalColor(highlight::element::colors_array:
 	const auto& ApplyColorPart = [&](FarColor& i, COLORREF FarColor::*ColorAccessor, const FARCOLORFLAGS Flag)
 	{
 		auto& ColorPart = std::invoke(ColorAccessor, i);
-		if(IS_TRANSPARENT(ColorPart))
+		if(colors::is_transparent(ColorPart))
 		{
-			ColorPart = std::invoke(ColorAccessor, PanelColor);
-			MAKE_TRANSPARENT(ColorPart);
+			ColorPart = colors::transparent(std::invoke(ColorAccessor, PanelColor));
 			(PanelColor.Flags & Flag)? (i.Flags |= Flag) : (i.Flags &= ~Flag);
 		}
 	};
@@ -400,23 +366,23 @@ const highlight::element* highlight::configuration::GetHiColor(const FileListIte
 {
 	SCOPED_ACTION(elevation::suppress);
 
-	highlight::element item = {};
+	element item = {};
 
 	ApplyDefaultStartingColors(item);
 
-	std::any_of(CONST_RANGE(HiData, i)
+	for (const auto& i: HiData)
 	{
-		if (!(UseAttrHighlighting && i.IsMaskUsed()))
-		{
-			if (i.FileInFilter(&Item, Owner, CurrentTime))
-			{
-				ApplyColors(item, i.GetColors());
-				if (!i.GetContinueProcessing())
-					return true;
-			}
-		}
-		return false;
-	});
+		if (UseAttrHighlighting && i.IsMaskUsed())
+			continue;
+
+		if (!i.FileInFilter(&Item, Owner, CurrentTime))
+			continue;
+
+		ApplyColors(item, i.GetColors());
+
+		if (!i.GetContinueProcessing())
+			break;
+	}
 
 	// Called from FileList::GetShowColor dynamically instead
 	//for (const auto& i: zip(Item.Color, PalColor)) std::apply(ApplyFinalColor, i);
@@ -443,14 +409,14 @@ void highlight::configuration::FillMenu(VMenu2 *HiMenu,int MenuPos)
 	{
 		int from;
 		int to;
-		const wchar_t* next_title;
+		string_view next_title;
 	}
-	Data[] =
+	Data[]
 	{
-		{ 0, FirstCount, msg(lng::MHighlightUpperSortGroup).data() },
-		{ FirstCount, FirstCount+UpperCount, msg(lng::MHighlightLowerSortGroup).data() },
-		{ FirstCount + UpperCount, FirstCount + UpperCount + LowerCount, msg(lng::MHighlightLastGroup).data() },
-		{ FirstCount + UpperCount + LowerCount, FirstCount + UpperCount + LowerCount + LastCount, nullptr}
+		{ 0,                                    FirstCount,                                       msg(lng::MHighlightUpperSortGroup) },
+		{ FirstCount,                           FirstCount + UpperCount,                          msg(lng::MHighlightLowerSortGroup) },
+		{ FirstCount + UpperCount,              FirstCount + UpperCount + LowerCount,             msg(lng::MHighlightLastGroup) },
+		{ FirstCount + UpperCount + LowerCount, FirstCount + UpperCount + LowerCount + LastCount, {} }
 	};
 
 	std::for_each(CONST_RANGE(Data, i)
@@ -462,7 +428,7 @@ void highlight::configuration::FillMenu(VMenu2 *HiMenu,int MenuPos)
 
 		HiMenu->AddItem(MenuItemEx());
 
-		if (i.next_title)
+		if (!i.next_title.empty())
 		{
 			MenuItemEx HiMenuItem(i.next_title);
 			HiMenuItem.Flags|=LIF_SEPARATOR;
@@ -490,10 +456,18 @@ void highlight::configuration::ProcessGroups()
 
 size_t highlight::configuration::element_hash::operator()(const element& item) const
 {
-	return make_hash(item.Mark.Char) ^ make_hash(item.Mark.Transparent) ^ std::accumulate(ALL_CONST_RANGE(item.Color), size_t(0), [](auto Value, const auto& i)
+	size_t Seed = 0;
+
+	hash_combine(Seed, item.Mark.Char);
+	hash_combine(Seed, item.Mark.Transparent);
+
+	for (const auto& i: item.Color)
 	{
-		return Value ^ make_hash(i.FileColor) ^ make_hash(i.MarkColor);
-	});
+		hash_combine(Seed, i.FileColor);
+		hash_combine(Seed, i.MarkColor);
+	}
+
+	return Seed;
 }
 
 int highlight::configuration::MenuPosToRealPos(int MenuPos, int*& Count, bool Insert)
@@ -543,7 +517,7 @@ void highlight::configuration::UpdateHighlighting(bool RefreshMasks)
 
 void highlight::configuration::HiEdit(int MenuPos)
 {
-	const auto HiMenu = VMenu2::create(msg(lng::MHighlightTitle), nullptr, 0, ScrY - 4);
+	const auto HiMenu = VMenu2::create(msg(lng::MHighlightTitle), {}, ScrY - 4);
 	HiMenu->SetHelp(HLS.HighlightList);
 	HiMenu->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
 	HiMenu->SetPosition(-1,-1,0,0);
@@ -740,7 +714,7 @@ void highlight::configuration::HiEdit(int MenuPos)
 			if (NeedUpdate)
 			{
 				Global->ScrBuf->Lock(); // отменяем всякую прорисовку
-				Changed = true;
+				m_Changed = true;
 				UpdateHighlighting();
 				FillMenu(HiMenu.get(), MenuPos = SelectPos);
 
@@ -761,7 +735,7 @@ void highlight::configuration::HiEdit(int MenuPos)
 	}
 }
 
-static void SaveFilter(HierarchicalConfig *cfg, const HierarchicalConfig::key& key, FileFilterParams *CurHiData, bool bSortGroup)
+static void SaveFilter(HierarchicalConfig* const cfg, const HierarchicalConfig::key& key, const FileFilterParams* const CurHiData, bool const bSortGroup)
 {
 	FileFilter::SaveFilter(cfg, key.get(), *CurHiData);
 
@@ -780,10 +754,10 @@ static void SaveFilter(HierarchicalConfig *cfg, const HierarchicalConfig::key& k
 
 void highlight::configuration::Save(bool always)
 {
-	if (!always && !Changed)
+	if (!always && !m_Changed)
 		return;
 
-	Changed = false;
+	m_Changed = false;
 
 	const auto cfg = ConfigProvider().CreateHighlightConfig();
 	auto root = cfg->FindByName(cfg->root_key(), HighlightKeyName);
@@ -799,17 +773,17 @@ void highlight::configuration::Save(bool always)
 	const struct
 	{
 		bool IsSort;
-		const wchar_t* KeyName;
-		const wchar_t* GroupName;
+		string_view KeyName;
+		string_view GroupName;
 		int from;
 		int to;
 	}
-	Data[] =
+	Data[]
 	{
-		{false, HighlightKeyName, fmtFirstGroup, 0, FirstCount},
-		{true, SortGroupsKeyName, fmtUpperGroup, FirstCount, FirstCount+UpperCount},
-		{true, SortGroupsKeyName, fmtLowerGroup, FirstCount + UpperCount, FirstCount + UpperCount + LowerCount},
-		{false, HighlightKeyName, fmtLastGroup, FirstCount + UpperCount + LowerCount, FirstCount + UpperCount + LowerCount + LastCount},
+		{ false, HighlightKeyName,  fmtFirstGroup, 0,                                    FirstCount },
+		{ true,  SortGroupsKeyName, fmtUpperGroup, FirstCount,                           FirstCount + UpperCount },
+		{ true,  SortGroupsKeyName, fmtLowerGroup, FirstCount + UpperCount,              FirstCount + UpperCount + LowerCount },
+		{ false, HighlightKeyName,  fmtLastGroup,  FirstCount + UpperCount + LowerCount, FirstCount + UpperCount + LowerCount + LastCount },
 	};
 
 	for(const auto& i: Data)

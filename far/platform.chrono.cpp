@@ -29,10 +29,9 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "platform.chrono.hpp"
+
+#include "platform.hpp"
 
 namespace os::chrono
 {
@@ -89,5 +88,16 @@ namespace os::chrono
 		}();
 
 		return nt_clock::now() - ProcessCreationTime;
+	}
+
+	string format_time()
+	{
+		string Value;
+		os::detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Value, [&](range<wchar_t*> Buffer)
+		{
+			const auto ReturnedSize = ::GetTimeFormat(LOCALE_USER_DEFAULT, TIME_NOSECONDS, nullptr, nullptr, Buffer.data(), static_cast<int>(Buffer.size()));
+			return ReturnedSize? ReturnedSize - 1 : 0;
+		});
+		return Value;
 	}
 }

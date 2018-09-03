@@ -29,90 +29,185 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "locale.hpp"
+
 #include "config.hpp"
+#include "global.hpp"
 
-int locale::GetDateFormat()
+NIFTY_DEFINE(detail::locale, locale);
+
+namespace detail
 {
-	int Result;
-
-	// TODO: log
-	if (!GetLocaleInfo(GetThreadLocale(), LOCALE_IDATE | LOCALE_RETURN_NUMBER, reinterpret_cast<wchar_t*>(&Result), sizeof(Result) / sizeof(wchar_t)))
-		return 0;
-
-	return Result;
-}
-
-wchar_t locale::GetDateSeparator()
-{
-	wchar_t Info[100];
-	if (!GetLocaleInfo(GetThreadLocale(), LOCALE_SDATE, Info, static_cast<int>(std::size(Info))))
+	int locale::date_format() const
 	{
-		// TODO: log
-		return L'/';
-	}
-	return *Info;
-}
-
-wchar_t locale::GetTimeSeparator()
-{
-	wchar_t Info[100];
-	if (!GetLocaleInfo(GetThreadLocale(), LOCALE_STIME, Info, static_cast<int>(std::size(Info))))
-	{
-		// TODO: log
-		return L':';
-	}
-	return *Info;
-}
-
-wchar_t locale::GetDecimalSeparator()
-{
-	wchar_t Separator[4];
-	if (!GetLocaleInfo(GetThreadLocale(), LOCALE_SDECIMAL, Separator, static_cast<int>(std::size(Separator))))
-	{
-		// TODO: log
-		*Separator = L'.';
+		refresh();
+		return m_DateFormat;
 	}
 
-	if (Global && Global->Opt && Global->Opt->FormatNumberSeparators.size() > 1)
-		*Separator = Global->Opt->FormatNumberSeparators[1];
-
-	return *Separator;
-}
-
-wchar_t locale::GetThousandSeparator()
-{
-	wchar_t Separator[4];
-	if (!GetLocaleInfo(GetThreadLocale(), LOCALE_STHOUSAND, Separator, static_cast<int>(std::size(Separator))))
+	int locale::digits_grouping() const
 	{
-		// TODO: log
-		*Separator = L',';
+		refresh();
+		return m_DigitsGrouping;
 	}
 
-	if (Global && Global->Opt && !Global->Opt->FormatNumberSeparators.empty())
-		*Separator = Global->Opt->FormatNumberSeparators[0];
-
-	return *Separator;
-}
-
-string locale::GetValue(LCID lcid, LCTYPE id)
-{
-	return os::GetLocaleValue(lcid, id);
-}
-
-string locale::GetTimeFormat()
-{
-	wchar_t TimeBuffer[MAX_PATH];
-	const size_t Size = ::GetTimeFormat(GetThreadLocale(), TIME_NOSECONDS, nullptr, nullptr, TimeBuffer, static_cast<int>(std::size(TimeBuffer)));
-
-	if (!Size)
+	wchar_t locale::date_separator() const
 	{
-		// TODO: log
-		return {};
+		refresh();
+		return m_DateSeparator;
 	}
 
-	return { TimeBuffer, Size - 1 };
+	wchar_t locale::time_separator() const
+	{
+		refresh();
+		return m_TimeSeparator;
+	}
+
+	wchar_t locale::decimal_separator() const
+	{
+		refresh();
+		return m_DecimalSeparator;
+	}
+
+	wchar_t locale::thousand_separator() const
+	{
+		refresh();
+		return m_ThousandSeparator;
+	}
+
+	const locale_names& locale::LocalNames() const
+	{
+		refresh();
+		return m_LocalNames;
+	}
+
+	const locale_names& locale::EnglishNames() const
+	{
+		refresh();
+		return m_EnglishNames;
+	}
+
+	const locale_names& locale::Names(bool const Local) const
+	{
+		refresh();
+		return Local? m_LocalNames : m_EnglishNames;
+	}
+
+	void locale::invalidate()
+	{
+		m_Valid = false;
+	}
+
+	void locale::refresh() const
+	{
+		if (m_Valid)
+			return;
+
+		{
+			if (!os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_IDATE, m_DateFormat))
+				m_DateFormat = 0;
+		}
+
+		{
+			string Grouping;
+			if (os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_SGROUPING, Grouping))
+			{
+				m_DigitsGrouping = 0;
+				for (const auto i: Grouping)
+				{
+					if (InRange(L'1', i, L'9'))
+						m_DigitsGrouping = m_DigitsGrouping * 10 + i - L'0';
+				}
+
+				if (!ends_with(Grouping, L";0"sv))
+					m_DigitsGrouping *= 10;
+			}
+			else
+			{
+				m_DigitsGrouping = 3;
+			}
+		}
+
+		{
+			string Value;
+			if (os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_SSHORTDATE, Value))
+			{
+				size_t pos = 0;
+				if (starts_with(Value, L"ddd"sv)) // starts with week day
+				{
+					pos = Value[3] == L'd'? 4 : 3;
+					// skip separators
+					while (Value[pos] != L'd' && Value[pos] != L'M' && Value[pos] != L'y')
+						++pos;
+				}
+
+				// find separator
+				while (Value[pos] == L'd' || Value[pos] == L'M' || Value[pos] == L'y')
+					++pos;
+
+				if (Value[pos])
+					m_DateSeparator = Value[pos];
+			}
+			else
+			{
+				m_DateSeparator = os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_SDATE, Value) && !Value.empty()? Value.front() : L'/';
+			}
+		}
+
+		{
+			string Value;
+			m_TimeSeparator = os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_STIME, Value) && !Value.empty()? Value.front() : L':';
+		}
+
+		{
+			if (Global && Global->Opt && Global->Opt->FormatNumberSeparators.size() > 1)
+			{
+				m_DecimalSeparator = Global->Opt->FormatNumberSeparators[1];
+			}
+			else
+			{
+				string Value;
+				m_DecimalSeparator = os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, Value) && !Value.empty()? Value.front() : L'.';
+			}
+		}
+
+		{
+			if (Global && Global->Opt && !Global->Opt->FormatNumberSeparators.empty())
+			{
+				m_ThousandSeparator = Global->Opt->FormatNumberSeparators[0];
+			}
+			else
+			{
+				string Value;
+				m_ThousandSeparator = os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_STHOUSAND, Value) && !Value.empty()? Value.front() : L',';
+			}
+		}
+
+		{
+			const auto& InitNames = [](int Language, locale_names& Names)
+			{
+				// LOCALE_S[ABBREV]DAYNAME<1-7> indexes start from Monday, remap to Sunday to make them compatible with tm::tm_wday
+				static const LCTYPE DayIndexes[] = { LOCALE_SDAYNAME7, LOCALE_SDAYNAME1, LOCALE_SDAYNAME2, LOCALE_SDAYNAME3, LOCALE_SDAYNAME4, LOCALE_SDAYNAME5, LOCALE_SDAYNAME6 };
+				static const LCTYPE ShortDayIndexes[] = { LOCALE_SABBREVDAYNAME7, LOCALE_SABBREVDAYNAME1, LOCALE_SABBREVDAYNAME2, LOCALE_SABBREVDAYNAME3, LOCALE_SABBREVDAYNAME4, LOCALE_SABBREVDAYNAME5, LOCALE_SABBREVDAYNAME6 };
+
+				const LCID CurLCID = MAKELCID(MAKELANGID(Language, SUBLANG_DEFAULT), SORT_DEFAULT);
+
+				for_each_cnt(RANGE(Names.Months, i, size_t index)
+				{
+					os::get_locale_value(CurLCID, LCTYPE(LOCALE_SMONTHNAME1 + index), i.Full);
+					os::get_locale_value(CurLCID, LCTYPE(LOCALE_SABBREVMONTHNAME1 + index), i.Short);
+				});
+
+				for_each_cnt(RANGE(Names.Weekdays, i, size_t index)
+				{
+					os::get_locale_value(CurLCID, DayIndexes[index], i.Full);
+					os::get_locale_value(CurLCID, ShortDayIndexes[index], i.Short);
+				});
+			};
+
+			InitNames(LANG_NEUTRAL, m_LocalNames);
+			InitNames(LANG_ENGLISH, m_EnglishNames);
+		}
+
+		m_Valid = true;
+	}
 }

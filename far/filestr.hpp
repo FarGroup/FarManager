@@ -5,7 +5,6 @@
 /*
 filestr.hpp
 
-Класс GetFileString
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -36,39 +35,51 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "encoding.hpp"
+#include "eol.hpp"
 
-class GetFileString: noncopyable
+#include "platform.fwd.hpp"
+
+#include "common/enumerator.hpp"
+
+struct file_line
 {
-public:
-	GetFileString(const os::fs::file& SrcFile, uintptr_t CodePage);
-	bool PeekString(LPWSTR* DestStr, size_t& Length);
-	bool GetString(LPWSTR* DestStr, size_t& Length);
-	bool GetString(string& str);
-	bool IsConversionValid() const { return !SomeDataLost; }
-
-private:
-	template<class T>
-	bool GetTString(std::vector<T>& From, std::vector<T>& To, bool bBigEndian = false);
-
-	const os::fs::file& SrcFile;
-	uintptr_t m_CodePage;
-	size_t ReadPos, ReadSize;
-
-	bool Peek;
-	size_t LastLength;
-	wchar_t* LastString;
-	bool LastResult;
-
-	std::vector<char> m_ReadBuf;
-	std::vector<wchar_t> m_wReadBuf;
-	std::vector<wchar_t> m_wStr;
-
-	raw_eol m_Eol;
-
-	bool SomeDataLost;
-	bool bCrCr;
+	string_view Str;
+	eol::type Eol;
 };
 
-bool GetFileFormat(const os::fs::file& file, uintptr_t& nCodePage, bool* pSignatureFound = nullptr, bool bUseHeuristics = true, bool* pPureAscii = nullptr);
+// TODO: rename
+class enum_file_lines : public enumerator<enum_file_lines, file_line>
+{
+	IMPLEMENTS_ENUMERATOR(enum_file_lines);
+
+public:
+	enum_file_lines(const os::fs::file& SrcFile, uintptr_t CodePage);
+	bool conversion_error() const { return m_ConversionError; }
+
+private:
+	bool get(bool Reset, file_line& Value) const;
+
+	bool GetString(string_view& Str, eol::type& Eol) const;
+
+	template<typename T>
+	bool GetTString(std::vector<T>& From, std::vector<T>& To, eol::type& Eol, bool bBigEndian = false) const;
+
+	const os::fs::file& SrcFile;
+	size_t BeginPos;
+	uintptr_t m_CodePage;
+	raw_eol m_Eol;
+
+	mutable std::vector<char> m_ReadBuf;
+	mutable std::vector<wchar_t> m_wReadBuf;
+	mutable std::vector<wchar_t> m_wStr;
+	mutable size_t ReadPos{};
+	mutable size_t ReadSize{};
+	mutable bool m_ConversionError{};
+	mutable bool m_CrSeen{};
+	mutable bool m_CrCr{};
+};
+
+// If the file contains a BOM this function will advance the file pointer by the BOM size (either 2 or 3)
+uintptr_t GetFileCodepage(const os::fs::file& File, uintptr_t DefautCodepage, bool* SignatureFound = nullptr, bool UseHeuristics = true);
 
 #endif // FILESTR_HPP_1B6BCA12_AFF9_4C80_A59C_B4B92B21F83F

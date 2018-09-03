@@ -43,6 +43,8 @@ extern int far_FarMacroCallToLua(lua_State *L);
 extern void PackMacroValues(lua_State* L, size_t Count, const struct FarMacroValue* Values);
 extern void PushFarMacroValue(lua_State* L, const struct FarMacroValue* val);
 extern int GetExportFunction(lua_State* L, const char* FuncName);
+extern BOOL RunDefaultScript(lua_State* L, int ForFirstTime);
+extern void PushPluginObject(lua_State* L, HANDLE hPlugin);
 
 const char FarFileFilterType[] = "FarFileFilter";
 const char FarTimerType[]      = "FarTimer";
@@ -1591,6 +1593,7 @@ static int far_Menu(lua_State *L)
 	lua_settop(L, 3);     // cut unneeded parameters; make stack predictable
 	luaL_checktype(L, 1, LUA_TTABLE);
 	luaL_checktype(L, 2, LUA_TTABLE);
+	ItemsNumber = lua_objlen(L, 2);
 
 	if(!lua_isnil(L,3) && !lua_istable(L,3) && lua_type(L,3)!=LUA_TSTRING)
 		return luaL_argerror(L, 3, "must be table, string or nil");
@@ -1618,15 +1621,15 @@ static int far_Menu(lua_State *L)
 	if(lua_isstring(L,-1))    HelpTopic = StoreTempString(L, 4, &store);
 
 	lua_getfield(L, 1, "SelectIndex");  //+3
-	SelectIndex = lua_tointeger(L,-1);
-	lua_getfield(L, 1, "Id");           //+4
+	if ((SelectIndex = lua_tointeger(L,-1)) > ItemsNumber)
+		SelectIndex = 0;
 
+	lua_getfield(L, 1, "Id");           //+4
 	if(lua_type(L,-1)==LUA_TSTRING && lua_objlen(L,-1)==sizeof(GUID))
 		MenuGuid = (const GUID*)lua_tostring(L, -1);
 
 	lua_pop(L, 4);
 	// Items
-	ItemsNumber = lua_objlen(L, 2);
 	Items = (struct FarMenuItem*)lua_newuserdata(L, ItemsNumber*sizeof(struct FarMenuItem));
 	memset(Items, 0, ItemsNumber*sizeof(struct FarMenuItem));
 	pItem = Items;
@@ -1671,7 +1674,7 @@ static int far_Menu(lua_State *L)
 
 		if(GetBoolFromTable(L, "hidden"))    pItem->Flags |= MIF_HIDDEN;
 
-		if(GetBoolFromTable(L, "selected"))  pItem->Flags |= MIF_SELECTED;
+		if(SelectIndex==0 && GetBoolFromTable(L, "selected")) pItem->Flags |= MIF_SELECTED;
 
 		//-------------------------------------------------------------------------
 		lua_getfield(L, -1, "AccelKey");
@@ -1695,7 +1698,7 @@ static int far_Menu(lua_State *L)
 		lua_pop(L, 1);
 	}
 
-	if(SelectIndex > 0 && SelectIndex <= ItemsNumber)
+	if(SelectIndex > 0)
 		Items[SelectIndex-1].Flags |= MIF_SELECTED;
 
 	// Break Keys
@@ -2075,12 +2078,12 @@ static int panel_ClosePanel(lua_State *L)
 
 static int panel_GetPanelInfo(lua_State *L)
 {
-	PSInfo *Info = GetPluginData(L)->Info;
+	TPluginData *pd = GetPluginData(L);
 	HANDLE handle = OptHandle2(L);
 	struct PanelInfo pi;
 	pi.StructSize = sizeof(pi);
 
-	if(!Info->PanelControl(handle, FCTL_GETPANELINFO, 0, &pi))
+	if(!pd->Info->PanelControl(handle, FCTL_GETPANELINFO, 0, &pi))
 		return lua_pushnil(L), 1;
 
 	lua_createtable(L, 0, 13);
@@ -2088,6 +2091,12 @@ static int panel_GetPanelInfo(lua_State *L)
 	PutLStrToTable(L, "OwnerGuid", &pi.OwnerGuid, sizeof(GUID));
 	PushPluginHandle(L, pi.PluginHandle);
 	lua_setfield(L, -2, "PluginHandle");
+	//-------------------------------------------------------------------------
+	if (0 == memcmp(&pi.OwnerGuid, pd->PluginId, sizeof(GUID)))
+	{
+		PushPluginObject(L, pi.PluginHandle);
+		lua_setfield(L, -2, "PluginObject");
+	}
 	//-------------------------------------------------------------------------
 	PutIntToTable(L, "PanelType", pi.PanelType);
 	//-------------------------------------------------------------------------
@@ -2229,16 +2238,6 @@ static int SetPanelIntegerProperty(lua_State *L, int command)
 	int param1 = CAST(int, check_env_flag(L,3));
 	lua_pushboolean(L, Info->PanelControl(handle, command, param1, 0) != 0);
 	return 1;
-}
-
-static int panel_SetCaseSensitiveSort(lua_State *L)
-{
-	return SetPanelBooleanProperty(L, FCTL_SETCASESENSITIVESORT);
-}
-
-static int panel_SetNumericSort(lua_State *L)
-{
-	return SetPanelBooleanProperty(L, FCTL_SETNUMERICSORT);
 }
 
 static int panel_SetSortOrder(lua_State *L)
@@ -2485,24 +2484,26 @@ static int panel_ClearSelection(lua_State *L)
 	return ChangePanelSelection(L, FALSE);
 }
 
-// CtrlSetUserScreen (handle)
+// CtrlSetUserScreen (handle, scrolltype)
 //   handle:       FALSE=INVALID_HANDLE_VALUE, TRUE=lua_State*
 static int panel_SetUserScreen(lua_State *L)
 {
 	PSInfo *Info = GetPluginData(L)->Info;
 	HANDLE handle = OptHandle(L);
-	int ret = Info->PanelControl(handle, FCTL_SETUSERSCREEN, 0, 0) != 0;
+	intptr_t scrolltype = luaL_optinteger(L,2,0);
+	int ret = Info->PanelControl(handle, FCTL_SETUSERSCREEN, scrolltype, 0) != 0;
 	lua_pushboolean(L, ret);
 	return 1;
 }
 
-// CtrlGetUserScreen (handle)
+// CtrlGetUserScreen (handle, scrolltype)
 //   handle:       FALSE=INVALID_HANDLE_VALUE, TRUE=lua_State*
 static int panel_GetUserScreen(lua_State *L)
 {
 	PSInfo *Info = GetPluginData(L)->Info;
 	HANDLE handle = OptHandle(L);
-	int ret = Info->PanelControl(handle, FCTL_GETUSERSCREEN, 0, 0) != 0;
+	intptr_t scrolltype = luaL_optinteger(L,2,0);
+	int ret = Info->PanelControl(handle, FCTL_GETUSERSCREEN, scrolltype, 0) != 0;
 	lua_pushboolean(L, ret);
 	return 1;
 }
@@ -3222,10 +3223,15 @@ static int far_SendDlgMessage(lua_State *L)
 		{
 			struct FarListDelete fld;
 			fld.StructSize = sizeof(fld);
-			luaL_checktype(L, 4, LUA_TTABLE);
-			fld.StartIndex = GetOptIntFromTable(L, "StartIndex", 1) - 1;
-			fld.Count = GetOptIntFromTable(L, "Count", 1);
-			lua_pushinteger(L, Info->SendDlgMessage(hDlg, Msg, Param1, &fld));
+			if (lua_isnoneornil(L, 4))
+				lua_pushinteger(L, Info->SendDlgMessage(hDlg, Msg, Param1, NULL));
+			else
+			{
+				luaL_checktype(L, 4, LUA_TTABLE);
+				fld.StartIndex = GetOptIntFromTable(L, "StartIndex", 1) - 1;
+				fld.Count = GetOptIntFromTable(L, "Count", 1);
+				lua_pushinteger(L, Info->SendDlgMessage(hDlg, Msg, Param1, &fld));
+			}
 			return 1;
 		}
 		case DM_LISTFINDSTRING:
@@ -5846,6 +5852,12 @@ static int far_ColorDialog(lua_State *L)
 	return 1;
 }
 
+static int far_RunDefaultScript(lua_State *L)
+{
+	lua_pushboolean(L, RunDefaultScript(L, 0));
+	return 1;
+}
+
 const luaL_Reg timer_methods[] =
 {
 	{"__gc",                timer_gc},
@@ -5972,12 +5984,10 @@ const luaL_Reg panel_funcs[] =
 	{"IsActivePanel",       panel_IsActivePanel},
 	{"RedrawPanel",         panel_RedrawPanel},
 	{"SetActivePanel",      panel_SetActivePanel},
-	{"SetCaseSensitiveSort", panel_SetCaseSensitiveSort},
 	{"SetCmdLine",          panel_SetCmdLine},
 	{"SetCmdLinePos",       panel_SetCmdLinePos},
 	{"SetCmdLineSelection", panel_SetCmdLineSelection},
 	{"SetDirectoriesFirst", panel_SetDirectoriesFirst},
-	{"SetNumericSort",      panel_SetNumericSort},
 	{"SetPanelDirectory",   panel_SetPanelDirectory},
 	{"SetSelection",        panel_SetSelection},
 	{"SetSortMode",         panel_SetSortMode},
@@ -6063,6 +6073,7 @@ const luaL_Reg far_funcs[] =
 	{"GetFileOwner",        far_GetFileOwner},
 	{"GetNumberOfLinks",    far_GetNumberOfLinks},
 	{"MakeMenuItems",       far_MakeMenuItems},
+	{"RunDefaultScript",    far_RunDefaultScript},
 	{"Show",                far_Show},
 	{"Timer",               far_Timer},
 

@@ -32,6 +32,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "type_traits.hpp"
+
 // for_each with embedded counter
 template<class I, class F>
 F for_each_cnt(I First, I Last, F Func)
@@ -167,25 +169,22 @@ void erase_if(std::unordered_multimap<traits...>& Container, predicate Predicate
 
 namespace detail
 {
-	template<typename T, typename = std::void_t<>>
-	struct has_emplace_hint: std::false_type {};
-
 	template<typename T>
-	struct has_emplace_hint<T, std::void_t<decltype(std::declval<T&>().emplace_hint(std::declval<T&>().end(), *std::declval<T&>().begin()))>>: std::true_type {};
+	using try_emplace_hint = decltype(std::declval<T&>().emplace_hint(std::declval<T&>().end(), *std::declval<T&>().begin()));
 
-	template<typename T>
-	using has_emplace_hint_t = typename has_emplace_hint<T>::type;
+	template<class T>
+	constexpr bool has_emplace_hint_v = is_valid<T, try_emplace_hint>::value;
 }
 
 // Unified container emplace
 template<typename container, typename... args>
-std::enable_if_t<detail::has_emplace_hint_t<container>::value> emplace(container& Container, args&&... Args)
+std::enable_if_t<detail::has_emplace_hint_v<container>> emplace(container& Container, args&&... Args)
 {
 	Container.emplace_hint(Container.end(), FWD(Args)...);
 }
 
 template<typename container, typename... args>
-std::enable_if_t<!detail::has_emplace_hint_t<container>::value> emplace(container& Container, args&&... Args)
+std::enable_if_t<!detail::has_emplace_hint_v<container>> emplace(container& Container, args&&... Args)
 {
 	Container.emplace(Container.end(), FWD(Args)...);
 }
@@ -193,35 +192,27 @@ std::enable_if_t<!detail::has_emplace_hint_t<container>::value> emplace(containe
 
 // uniform "contains"
 
-// strings:
-template<typename find_type, typename... traits>
-bool contains(const std::basic_string<traits...>& Str, const find_type& What)
-{
-	return Str.find(What) != Str.npos;
-}
-
 namespace detail
 {
-	template<typename T, typename = std::void_t<>>
-	struct has_find: std::false_type {};
-
 	template<typename T>
-	struct has_find<T, std::void_t<decltype(std::declval<T&>().find(std::declval<typename T::key_type&>()))>>: std::true_type {};
+	using try_find = decltype(std::declval<T&>().find(std::declval<typename T::key_type&>()));
 
-	template<typename T>
-	using has_find_t = typename has_find<T>::type;
+	template<class T>
+	constexpr bool has_find_v = is_valid<T, try_find>::value;
 }
 
 // associative containers
-template<typename container, typename element>
-std::enable_if_t<detail::has_find_t<container>::value, bool> contains(const container& Container, const element& Element)
+template<typename container, typename element, REQUIRES(is_range_v<container> && detail::has_find_v<container>)>
+[[nodiscard]]
+bool contains(const container& Container, const element& Element)
 {
 	return Container.find(Element) != Container.cend();
 }
 
 // everything else
-template<typename container, typename element>
-std::enable_if_t<!detail::has_find_t<container>::value, bool> contains(const container& Container, const element& Element)
+template<typename container, typename element, REQUIRES(is_range_v<container> && !detail::has_find_v<container>)>
+[[nodiscard]]
+bool contains(const container& Container, const element& Element)
 {
 	const auto End = std::cend(Container);
 	return std::find(std::cbegin(Container), End, Element) != End;

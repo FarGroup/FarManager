@@ -36,11 +36,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 class FileFilter;
+struct PluginPanelItem;
+struct UserDataItem;
 
 enum GETDIRINFOFLAGS
 {
 	GETDIRINFO_ENHBREAK           =0x00000001,
-	GETDIRINFO_NOREDRAW           =0x00000002,
 	GETDIRINFO_SCANSYMLINK        =0x00000004,
 	GETDIRINFO_SCANSYMLINKDEF     =0x00000008,
 	GETDIRINFO_USEFILTER          =0x00000010,
@@ -64,13 +65,15 @@ enum getdirinfo_message_delay
 	getdirinfo_default_delay = 500, // ms
 };
 
-int GetDirInfo(const string& Title, const string& DirName, DirInfoData& Data, getdirinfo_message_delay MessageDelay, FileFilter *Filter, DWORD Flags = GETDIRINFO_SCANSYMLINKDEF);
+using dirinfo_callback = std::function<void(string_view Name, unsigned long long Items, unsigned long long Size)>;
+int GetDirInfo(const string& DirName, DirInfoData& Data, FileFilter *Filter, const dirinfo_callback& Callback, DWORD Flags = GETDIRINFO_SCANSYMLINKDEF);
+void DirInfoMsg(string_view Title, string_view Name, unsigned long long Items, unsigned long long Size);
 
 class plugin_panel;
 
-bool GetPluginDirInfo(const plugin_panel* hPlugin,const string& DirName, unsigned long& DirCount, unsigned long& FileCount,unsigned long long& FileSize, unsigned long long& CompressedFileSize);
+bool GetPluginDirInfo(const plugin_panel* hPlugin,const string& DirName, const UserDataItem* UserData, unsigned long& DirCount, unsigned long& FileCount,unsigned long long& FileSize, unsigned long long& CompressedFileSize);
 
-bool GetPluginDirList(class Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, std::vector<PluginPanelItem>& Items);
+bool GetPluginDirList(class Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, const UserDataItem* UserData, std::vector<PluginPanelItem>& Items);
 void FreePluginDirList(HANDLE hPlugin, std::vector<PluginPanelItem>& Items);
 
 #endif // DIRINFO_HPP_DA86BD11_D517_4EC9_8324_44EDF0CC7C9A

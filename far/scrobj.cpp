@@ -31,12 +31,11 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "scrobj.hpp"
+
 #include "savescr.hpp"
 #include "interf.hpp"
+#include "global.hpp"
 
 SimpleScreenObject::SimpleScreenObject(window_ptr Owner):
 	m_Owner(Owner),
@@ -46,10 +45,6 @@ SimpleScreenObject::SimpleScreenObject(window_ptr Owner):
 	m_Y2()
 {
 	//assert(m_Owner!=nullptr);
-}
-
-SimpleScreenObject::~SimpleScreenObject()
-{
 }
 
 void SimpleScreenObject::SetPosition(int X1,int Y1,int X2,int Y2)
@@ -97,7 +92,7 @@ void SimpleScreenObject::Redraw()
 		Show();
 }
 
-void SimpleScreenObject::Refresh(void)
+void SimpleScreenObject::Refresh()
 {
 	if (const auto owner = GetOwner())
 	{
@@ -105,7 +100,8 @@ void SimpleScreenObject::Refresh(void)
 	}
 }
 
-ScreenObject::ScreenObject(window_ptr Owner): SimpleScreenObject(Owner)
+ScreenObject::ScreenObject(window_ptr Owner):
+	SimpleScreenObject(std::move(Owner))
 {
 }
 
@@ -157,7 +153,7 @@ void ScreenObject::SetPosition(int X1, int Y1, int X2, int Y2)
 }
 
 
-ScreenObjectWithShadow::ScreenObjectWithShadow(window_ptr Owner): ScreenObject(Owner)
+ScreenObjectWithShadow::ScreenObjectWithShadow(window_ptr Owner): ScreenObject(std::move(Owner))
 {
 }
 

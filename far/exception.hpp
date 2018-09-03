@@ -32,6 +32,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "platform.hpp"
+
 struct error_state
 {
 	static error_state fetch();
@@ -44,34 +46,41 @@ private:
 	bool m_Engaged = false;
 };
 
+struct error_state_ex: public error_state
+{
+	error_state_ex() = default;
+
+	error_state_ex(const error_state& State, string_view const Message = {}):
+		error_state(State),
+		What(Message)
+	{
+	}
+
+	string What;
+};
+
 namespace detail
 {
 	class exception_impl
 	{
 	public:
-		exception_impl(const string& Message, const char* Function, const char* File, int Line):
-			m_Message(Message),
-			m_FullMessage(format(L"{0} (at {1}, {2}:{3})", Message, Function, File, Line)),
-			m_ErrorState(error_state::fetch())
-		{
-		}
+		exception_impl(string_view Message, const char* Function, const char* File, int Line);
 
-		const auto& get_message() const noexcept { return m_Message; }
+		const auto& get_message() const noexcept { return m_ErrorState.What; }
 		const auto& get_full_message() const noexcept { return m_FullMessage; }
 		const auto& get_error_state() const noexcept { return m_ErrorState; }
 
 	private:
-		string m_Message;
 		string m_FullMessage;
-		error_state m_ErrorState;
+		error_state_ex m_ErrorState;
 	};
 }
 
 class far_exception: public detail::exception_impl, public std::runtime_error
 {
 public:
-	far_exception(const string& Message, const char* Function, const char* File, int Line);
-	far_exception(const string& Message, std::vector<string>&& Stack, const char* Function, const char* File, int Line);
+	far_exception(string_view Message, const char* Function, const char* File, int Line);
+	far_exception(string_view Message, std::vector<string>&& Stack, const char* Function, const char* File, int Line);
 	const std::vector<string>& get_stack() const;
 
 private:
@@ -89,10 +98,10 @@ public:
 	explicit exception_context(DWORD Code = 0, const EXCEPTION_POINTERS* Pointers = nullptr, bool ResumeThread = false);
 	~exception_context();
 
-	auto GetCode() const { return m_Code; }
-	auto GetPointers() const { return const_cast<EXCEPTION_POINTERS*>(&m_Pointers); }
-	auto GetThreadHandle() const { return m_ThreadHandle.native_handle(); }
-	auto GetThreadId() const { return m_ThreadId; }
+	auto code() const { return m_Code; }
+	auto pointers() const { return const_cast<EXCEPTION_POINTERS*>(&m_Pointers); }
+	auto thread_handle() const { return m_ThreadHandle.native_handle(); }
+	auto thread_id() const { return m_ThreadId; }
 
 private:
 	DWORD m_Code;
@@ -113,7 +122,7 @@ public:
 	{
 	}
 
-	const auto& GetContext() const { return *m_Context; }
+	const auto& context() const { return *m_Context; }
 
 private:
 	std::shared_ptr<exception_context> m_Context;

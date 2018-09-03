@@ -31,10 +31,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "ctrlobj.hpp"
+
 #include "manager.hpp"
 #include "cmdline.hpp"
 #include "hilight.hpp"
@@ -50,8 +48,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "poscache.hpp"
 #include "plugins.hpp"
-#include "desktop.hpp"
 #include "scrbuf.hpp"
+#include "global.hpp"
 
 ControlObject::ControlObject()
 {
@@ -63,9 +61,7 @@ ControlObject::ControlObject()
 	GotoXY(0, ScrY - 2);
 	MoveCursor(0, ScrY - 1);
 
-	Desktop = desktop::create();
-	Global->WindowManager->InsertWindow(Desktop);
-	Desktop->TakeSnapshot();
+	Global->WindowManager->InitDesktop();
 
 	HiFiles = std::make_unique<highlight::configuration>();
 	Plugins = std::make_unique<PluginManager>();
@@ -144,15 +140,13 @@ void ControlObject::ShowCopyright(DWORD Flags)
 {
 	if (Flags&1)
 	{
-		string strOut = concat(Global->Version(), EOL_STR, Global->Copyright(), EOL_STR);
-		Console().Write(strOut);
-		Console().Commit();
+		std::wcout << Global->Version() << L'\n' << Global->Copyright() << std::endl;
 	}
 	else
 	{
 		COORD Size, CursorPosition;
-		Console().GetSize(Size);
-		Console().GetCursorPosition(CursorPosition);
+		console.GetSize(Size);
+		console.GetCursorPosition(CursorPosition);
 		int FreeSpace=Size.Y-CursorPosition.Y-1;
 
 		if (FreeSpace<5)

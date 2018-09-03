@@ -95,6 +95,7 @@ struct OpenOptions {
   bool detect;
   ArcTypes arc_types;
   wstring password;
+  int *open_password_len;
   OpenOptions();
 };
 
@@ -106,6 +107,7 @@ struct ExtractOptions {
   wstring password;
   TriState separate_dir;
   bool delete_archive;
+  bool disable_delete_archive;
   TriState open_dir;
   ExtractOptions();
 };

@@ -41,6 +41,8 @@ InterlockedPushEntrySListWrapper proto stdcall :dword, :dword
 InterlockedPushListSListExWrapper proto stdcall :dword, :dword, :dword, :dword
 RtlFirstEntrySListWrapper proto stdcall :dword
 QueryDepthSListWrapper proto stdcall :dword
+GetNumaHighestNodeNumberWrapper proto stdcall :dword
+GetLogicalProcessorInformationWrapper proto stdcall :dword, :dword
 
 .const
 align 4
@@ -54,6 +56,8 @@ __imp__InterlockedPushEntrySList@8 dd InterlockedPushEntrySListWrapper
 __imp__InterlockedPushListSListEx@16 dd InterlockedPushListSListExWrapper
 __imp__RtlFirstEntrySList@4 dd RtlFirstEntrySListWrapper
 __imp__QueryDepthSList@4 dd QueryDepthSListWrapper
+__imp__GetNumaHighestNodeNumber@4 dd GetNumaHighestNodeNumberWrapper
+__imp__GetLogicalProcessorInformation@8 dd GetLogicalProcessorInformationWrapper
 
 public \
 __imp__EncodePointer@4,
@@ -65,5 +69,7 @@ __imp__InterlockedPopEntrySList@4,
 __imp__InterlockedPushEntrySList@8,
 __imp__InterlockedPushListSListEx@16,
 __imp__RtlFirstEntrySList@4,
-__imp__QueryDepthSList@4
+__imp__QueryDepthSList@4,
+__imp__GetNumaHighestNodeNumber@4,
+__imp__GetLogicalProcessorInformation@8
 end

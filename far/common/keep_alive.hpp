@@ -1,13 +1,12 @@
-﻿#ifndef BLOB_BUILDER_HPP_9C0C6EE1_CAEE_4523_BDEE_53AEE67C167C
-#define BLOB_BUILDER_HPP_9C0C6EE1_CAEE_4523_BDEE_53AEE67C167C
+﻿#ifndef KEEP_ALIVE_HPP_9C3E665F_56D5_4A21_9950_F1F8F6BFC7A3
+#define KEEP_ALIVE_HPP_9C3E665F_56D5_4A21_9950_F1F8F6BFC7A3
 #pragma once
 
 /*
-blob_builder.hpp
-
+keep_alive.hpp
 */
 /*
-Copyright © 2017 Far Group
+Copyright © 2018 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -33,52 +32,39 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class blob_builder
+namespace detail
 {
-public:
-	NONCOPYABLE(blob_builder);
-
-	explicit blob_builder(uintptr_t CodePage):
-		m_CodePage(CodePage),
-		m_Signature(IsUnicodeOrUtfCodePage(m_CodePage))
+	template<typename type>
+	class keep_alive_t
 	{
-		if (m_Signature)
-		{
-			m_Data.insert(0, 1, SIGN_UNICODE);
-		}
-	}
+	public:
+		explicit keep_alive_t(type const& Value):
+			m_Value(Value)
+		{}
 
-	auto& append(const string& Data)
-	{
-		m_Buffer.clear();
-		m_Data += Data;
-		return *this;
-	}
+		explicit keep_alive_t(std::remove_reference_t<type>&& Value):
+			m_Value(FWD(Value))
+		{}
 
-	bytes_view get() const
-	{
-		if (m_Data.empty() || (m_Signature && m_Data.size() == 1))
-		{
-			return { nullptr, 0 };
-		}
+		operator const type&() const { return m_Value; }
+		auto operator&() const { return &m_Value; }
+		auto& get() const { return m_Value; }
 
-		if (m_CodePage == CP_UNICODE)
-		{
-			return bytes_view(m_Data.data(), m_Data.size() * sizeof(wchar_t));
-		}
+	private:
+		type m_Value;
+	};
+}
 
-		if (m_Buffer.empty())
-		{
-			m_Buffer = encoding::get_bytes(m_CodePage, m_Data);
-		}
-		return bytes_view(m_Buffer.data(), m_Buffer.size());
-	}
+template<typename type>
+auto keep_alive(type& Value)
+{
+	return detail::keep_alive_t<type&>(Value);
+}
 
-private:
-	mutable std::string m_Buffer;
-	string m_Data;
-	uintptr_t m_CodePage;
-	bool m_Signature;
-};
+template<typename type>
+auto keep_alive(type&& Value)
+{
+	return detail::keep_alive_t<type>(FWD(Value));
+}
 
-#endif // BLOB_BUILDER_HPP_9C0C6EE1_CAEE_4523_BDEE_53AEE67C167C
+#endif // KEEP_ALIVE_HPP_9C3E665F_56D5_4A21_9950_F1F8F6BFC7A3

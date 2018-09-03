@@ -31,15 +31,14 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
+#include "refreshwindowmanager.hpp"
 
 #include "lockscrn.hpp"
 #include "window.hpp"
 #include "manager.hpp"
 #include "savescr.hpp"
-#include "refreshwindowmanager.hpp"
 #include "interf.hpp"
+#include "global.hpp"
 
 UndoGlobalSaveScrPtr::UndoGlobalSaveScrPtr(SaveScreen *SaveScr)
 {

@@ -31,11 +31,11 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "tinyxml.hpp"
+
 #include "components.hpp"
+
+#include "format.hpp"
 
 namespace tinyxml_impl
 {
@@ -47,6 +47,9 @@ WARNING_DISABLE_MSC(4296) // https://msdn.microsoft.com/en-us/library/wz2y40yt.a
 WARNING_DISABLE_GCC("-Wpragmas")
 WARNING_DISABLE_GCC("-Wsuggest-override")
 WARNING_DISABLE_GCC("-Wzero-as-null-pointer-constant")
+WARNING_DISABLE_GCC("-Wdouble-promotion")
+
+WARNING_DISABLE_CLANG("-Weverything")
 
 #ifdef MEMCHECK
 #pragma push_macro("new")
@@ -67,5 +70,3 @@ SCOPED_ACTION(components::component)([]
 });
 
 }
-
-namespace tinyxml = tinyxml_impl::tinyxml2;

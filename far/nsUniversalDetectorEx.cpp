@@ -31,10 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
+#include "nsUniversalDetectorEx.hpp"
 
 #include "components.hpp"
+#include "plugin.hpp"
 
 namespace ucd
 {
@@ -44,7 +44,10 @@ WARNING_DISABLE_GCC("-Wcast-qual")
 WARNING_DISABLE_GCC("-Wzero-as-null-pointer-constant")
 WARNING_DISABLE_GCC("-Wnon-virtual-dtor")
 WARNING_DISABLE_GCC("-Wsuggest-override")
+WARNING_DISABLE_GCC("-Wdouble-promotion")
+WARNING_DISABLE_GCC("-Wuseless-cast")
 
+WARNING_DISABLE_CLANG("-Weverything")
 
 #include "thirdparty/ucd/nscore.h"
 #include "thirdparty/ucd/nsError.h"
@@ -92,7 +95,7 @@ static const auto& CpMap()
 	{
 		{ "UTF16-LE", CP_UNICODE },
 		{ "UTF16-BE", CP_REVERSEBOM },
-		{ "UTF-8", CP_UTF8 },
+		//{ "UTF-8", CP_UTF8 }, // unreliable
 		{ "windows-1250", 1250 },
 		{ "windows-1251", 1251 },
 		{ "windows-1252", 1252 },
@@ -135,10 +138,17 @@ class nsUniversalDetectorEx : public ucd::nsUniversalDetector
 {
 public:
 	nsUniversalDetectorEx(): nsUniversalDetector(NS_FILTER_NON_CJK), m_codepage(-1) {}
-	int getCodePage() const { return m_codepage; }
+	bool GetCodePage(uintptr_t& Codepage) const
+	{
+		if (m_codepage == -1)
+			return false;
+
+		Codepage = m_codepage;
+		return true;
+	}
 
 private:
-	virtual void Report(const char* aCharset) override
+	void Report(const char* aCharset) override
 	{
 		const auto i = CpMap().find(aCharset);
 		m_codepage = i != CpMap().end()? i->second : -1;
@@ -147,10 +157,10 @@ private:
 	int m_codepage;
 };
 
-uintptr_t GetCpUsingUniversalDetector(const void* data, size_t size)
+bool GetCpUsingUniversalDetector(const void* data, size_t size, uintptr_t& Codepage)
 {
 	nsUniversalDetectorEx ns;
 	ns.HandleData(static_cast<const char*>(data), static_cast<uint32_t>(size));
 	ns.DataEnd();
-	return ns.getCodePage();
+	return ns.GetCodePage(Codepage);
 }

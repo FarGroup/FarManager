@@ -98,7 +98,7 @@ COMMONLIB =
 endif
 
 C_FLAGS  := -m$(DIRBIT) -Wall -funsigned-char $(C_DEBUG) -fstrict-aliasing -fno-exceptions
-CXXFLAGS := $(C_FLAGS) -std=gnu++0x -fno-rtti -I $(COMMON) -I $(COMINC) $(CXXWIDE) $(USERCPP)
+CXXFLAGS := $(C_FLAGS) -std=c++1z -fno-rtti -I $(COMMON) -I $(COMINC) $(CXXWIDE) $(USERCPP)
 CCFLAGS  := $(C_FLAGS) -I $(COMMON) -I $(COMINC) $(CCWIDE) $(USERCPP)
 LNKFLAGS := -m$(DIRBIT) $(L_DEBUG) $(NOSTART) $(NODEFLIBS) -static-libgcc -static $(USERLIBSFIRST) $(COMMONLIB) -luser32 -lkernel32 -ladvapi32 -lshell32 -lole32 $(USERLIBS)
 RCFLAGS  := -I $(COMINC) $(RCWIDE) $(USERRC)

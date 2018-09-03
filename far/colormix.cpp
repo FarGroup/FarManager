@@ -30,12 +30,11 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "colormix.hpp"
+
 #include "config.hpp"
 #include "string_utils.hpp"
+#include "global.hpp"
 
 enum
 {
@@ -48,6 +47,85 @@ enum
 
 namespace colors
 {
+	COLORREF index_value(COLORREF const Colour)
+	{
+		return Colour & INDEXMASK;
+	}
+
+	COLORREF color_value(COLORREF const Colour)
+	{
+		return Colour & COLORMASK;
+	}
+
+	COLORREF alpha_value(COLORREF const Colour)
+	{
+		return Colour & ALPHAMASK;
+	}
+
+	bool is_opaque(COLORREF const Colour)
+	{
+		return alpha_value(Colour) == ALPHAMASK;
+	}
+
+	bool is_transparent(COLORREF const Colour)
+	{
+		return !alpha_value(Colour);
+	}
+
+	COLORREF opaque(COLORREF const Colour)
+	{
+		return Colour | ALPHAMASK;
+	}
+
+	COLORREF transparent(COLORREF const Colour)
+	{
+		return Colour & COLORMASK;
+	}
+
+	void make_opaque(COLORREF& Colour)
+	{
+		Colour = opaque(Colour);
+	}
+
+	void make_transparent(COLORREF& Colour)
+	{
+		Colour = transparent(Colour);
+	}
+
+	size_t color_hash::operator()(const FarColor& Value) const
+	{
+		size_t Seed = 0;
+
+		hash_combine(Seed, Value.Flags);
+		hash_combine(Seed, Value.BackgroundColor);
+		hash_combine(Seed, Value.ForegroundColor);
+		hash_combine(Seed, Value.Reserved);
+
+		return Seed;
+	}
+
+	FarColor merge(const FarColor& Bottom, const FarColor& Top)
+	{
+		FarColor Result = Bottom;
+
+		const auto& ApplyColorPart = [&](COLORREF FarColor::*ColorAccessor, const FARCOLORFLAGS Flag)
+		{
+			const auto TopPart = std::invoke(ColorAccessor, Top);
+			if (is_opaque(TopPart))
+			{
+				std::invoke(ColorAccessor, Result) = TopPart;
+				(Top.Flags & Flag)? (Result.Flags |= Flag) : (Result.Flags &= ~Flag);
+			}
+		};
+
+		ApplyColorPart(&FarColor::BackgroundColor, FCF_BG_4BIT);
+		ApplyColorPart(&FarColor::ForegroundColor, FCF_FG_4BIT);
+
+		Result.Flags |= Top.Flags & FCF_EXTENDEDFLAGS;
+
+		return Result;
+	}
+
 WORD FarColorToConsoleColor(const FarColor& Color)
 {
 	static COLORREF LastTrueColors[2] = {};
@@ -141,7 +219,7 @@ WORD FarColorToConsoleColor(const FarColor& Color)
 		*i.IndexColor = ToMask(R, RedMask) | ToMask(G, GreenMask) | ToMask(B, BlueMask) | ToMask(IntenseCount, IntensityMask);
 	}
 
-	if (COLORVALUE(data[0].Color) != COLORVALUE(data[1].Color) && IndexColors[0] == IndexColors[1])
+	if (color_value(data[0].Color) != color_value(data[1].Color) && IndexColors[0] == IndexColors[1])
 	{
 		// oops, unreadable
 		IndexColors[0] & IntensityMask? IndexColors[0] &= ~IntensityMask : IndexColors[1] |= IntensityMask;
@@ -157,10 +235,8 @@ FarColor ConsoleColorToFarColor(WORD Color)
 	FarColor NewColor;
 	static_assert(FCF_RAWATTR_MASK == ConsoleExtraMask);
 	NewColor.Flags = FCF_FG_4BIT | FCF_BG_4BIT | (Color & ConsoleExtraMask);
-	NewColor.ForegroundColor=(Color>>ConsoleFgShift)&ConsoleMask;
-	NewColor.BackgroundColor=(Color>>ConsoleBgShift)&ConsoleMask;
-	MAKE_OPAQUE(NewColor.ForegroundColor);
-	MAKE_OPAQUE(NewColor.BackgroundColor);
+	NewColor.ForegroundColor = opaque((Color >> ConsoleFgShift) & ConsoleMask);
+	NewColor.BackgroundColor = opaque((Color >> ConsoleBgShift) & ConsoleMask);
 	NewColor.Reserved=nullptr;
 	return NewColor;
 }
@@ -223,18 +299,19 @@ static const wchar_t* ExtractColor(const wchar_t* Color, COLORREF& Target, FARCO
 	return Color;
 }
 
-string_view ExtractColorInNewFormat(string_view Str, FarColor& Color, bool& Stop)
+string_view::const_iterator ExtractColorInNewFormat(string_view::const_iterator const Begin, string_view::const_iterator const End, FarColor& Color, bool& Stop)
 {
 	Stop = false;
-	if (Str[0] != L'(')
-		return Str;
 
-	const auto FgColorBegin = Str.cbegin() + 1;
-	const auto ColorEnd = std::find(FgColorBegin, Str.cend(), L')');
-	if (ColorEnd == Str.cend())
+	if (*Begin != L'(')
+		return Begin;
+
+	const auto FgColorBegin = Begin + 1;
+	const auto ColorEnd = std::find(FgColorBegin, End, L')');
+	if (ColorEnd == End)
 	{
 		Stop = true;
-		return Str;
+		return Begin;
 	}
 
 	const auto FgColorEnd = std::find(FgColorBegin, ColorEnd, L':');
@@ -246,10 +323,10 @@ string_view ExtractColorInNewFormat(string_view Str, FarColor& Color, bool& Stop
 		(BgColorBegin == BgColorEnd || ExtractColor(&*BgColorBegin, NewColor.BackgroundColor, NewColor.Flags, FCF_BG_4BIT)))
 	{
 		Color = NewColor;
-		return Str.substr(ColorEnd + 1 - Str.cbegin());
+		return ColorEnd + 1;
 	}
 
-	return Str;
+	return Begin;
 }
 
 }

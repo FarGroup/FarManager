@@ -35,7 +35,7 @@ cd ..
 
 rm -fR enc
 
-svn co file://`pwd`/syncrepo/trunk/enc enc || exit 1
+cp -R far.git/enc ./ || exit 1
 
 mkdir -p outfinalnew32/Encyclopedia
 mkdir -p outfinalnew64/Encyclopedia
@@ -61,3 +61,10 @@ pushd enc/build/lua || exit 1
 ) || exit 1
 
 popd
+
+#update api.farmanager.com
+pushd enc/tools || exit 1
+python ./tool.make_inet.py || exit 1
+popd 
+rm -Rf /var/www/api/* || exit 1
+cp -Rf enc/build/inet/* /var/www/api/ || exit 1

@@ -31,10 +31,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "panelmix.hpp"
+
 #include "strmix.hpp"
 #include "filepanels.hpp"
 #include "config.hpp"
@@ -49,35 +47,40 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "lang.hpp"
 #include "fileattr.hpp"
-#include "colormix.hpp"
 #include "string_utils.hpp"
 #include "cvtname.hpp"
+#include "global.hpp"
+
+#include "common/enum_tokens.hpp"
+#include "common/function_traits.hpp"
+
+#include "format.hpp"
 
 static const struct column_info
 {
 	PANEL_COLUMN_TYPE Type;
 	int DefaultWidth;
-	const wchar_t* Symbol;
+	const string_view String;
 }
 ColumnInfo[] =
 {
-	{ NAME_COLUMN, 0, L"N" },
-	{ SIZE_COLUMN, 6, L"S" },
-	{ PACKED_COLUMN, 6, L"P" },
-	{ DATE_COLUMN, 8, L"D" },
-	{ TIME_COLUMN, 5, L"T" },
-	{ WDATE_COLUMN, 14, L"DM" },
-	{ CDATE_COLUMN, 14, L"DC" },
-	{ ADATE_COLUMN, 14, L"DA" },
-	{ CHDATE_COLUMN, 14, L"DE" },
-	{ ATTR_COLUMN, 6, L"A" },
-	{ DIZ_COLUMN, 0, L"Z" },
-	{ OWNER_COLUMN, 0, L"O" },
-	{ NUMLINK_COLUMN, 3, L"LN" },
-	{ NUMSTREAMS_COLUMN, 3, L"F" },
-	{ STREAMSSIZE_COLUMN, 6, L"G" },
-	{ EXTENSION_COLUMN, 0, L"X", },
-	{ CUSTOM_COLUMN0, 0, L"C0" },
+	{ NAME_COLUMN, 0, L"N"sv },
+	{ SIZE_COLUMN, 6, L"S"sv },
+	{ PACKED_COLUMN, 6, L"P"sv },
+	{ DATE_COLUMN, 8, L"D"sv },
+	{ TIME_COLUMN, 5, L"T"sv },
+	{ WDATE_COLUMN, 14, L"DM"sv },
+	{ CDATE_COLUMN, 14, L"DC"sv },
+	{ ADATE_COLUMN, 14, L"DA"sv },
+	{ CHDATE_COLUMN, 14, L"DE"sv },
+	{ ATTR_COLUMN, 6, L"A"sv },
+	{ DIZ_COLUMN, 0, L"Z"sv },
+	{ OWNER_COLUMN, 0, L"O"sv },
+	{ NUMLINK_COLUMN, 3, L"LN"sv },
+	{ NUMSTREAMS_COLUMN, 3, L"F"sv },
+	{ STREAMSSIZE_COLUMN, 6, L"G"sv },
+	{ EXTENSION_COLUMN, 0, L"X"sv, },
+	{ CUSTOM_COLUMN0, 0, L"C0"sv },
 };
 
 static_assert(std::size(ColumnInfo) == COLUMN_TYPES_COUNT);
@@ -160,142 +163,146 @@ bool CheckUpdateAnotherPanel(panel_ptr SrcPanel, const string& SelName)
 	return false;
 }
 
-bool MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2, bool ShortNameAsIs)
+bool MakePath(const panel_ptr& SrcPanel, bool FilePath, bool RealName, bool ShortNameAsIs, string& strPathName)
 {
-	auto RetCode = false;
-	auto NeedRealName = false;
-	strPathName.clear();
+	if (FilePath)
+	{
+		string strShortFileName;
+		if (!SrcPanel->GetCurName(strPathName, strShortFileName))
+			return false;
+
+		if (ShortNameAsIs && SrcPanel->GetShowShortNamesMode()) // учтем короткость имен :-)
+			strPathName = strShortFileName;
+	}
+	else
+	{
+		if (!(SrcPanel->GetType() == panel_type::FILE_PANEL || SrcPanel->GetType() == panel_type::TREE_PANEL))
+			return false;
+
+		strPathName = SrcPanel->GetCurDir();
+
+		if (SrcPanel->GetMode() != panel_mode::PLUGIN_PANEL)
+		{
+			if (RealName)
+				strPathName = SrcPanel->CreateFullPathName(strPathName, true, true, ShortNameAsIs);
+
+			if (SrcPanel->GetShowShortNamesMode() && ShortNameAsIs)
+				strPathName = ConvertNameToShort(strPathName);
+		}
+		else
+		{
+			if (const auto SrcFileList = std::dynamic_pointer_cast<FileList>(SrcPanel))
+			{
+				OpenPanelInfo Info;
+				Global->CtrlObject->Plugins->GetOpenPanelInfo(SrcFileList->GetPluginHandle(), &Info);
+				strPathName = SrcFileList->GetPluginPrefix();
+				if (Info.HostFile && *Info.HostFile)
+				{
+					append(strPathName, Info.HostFile, L'/');
+				}
+				strPathName += NullToEmpty(Info.CurDir);
+			}
+		}
+
+		AddEndSlash(strPathName);
+	}
+
+	return true;
+}
+
+bool MakePathForUI(DWORD Key, string &strPathName)
+{
+	auto RealName = false;
 
 	switch (Key)
 	{
-		case KEY_CTRLALTBRACKET:       // Вставить сетевое (UNC) путь из левой панели
-		case KEY_RCTRLRALTBRACKET:
-		case KEY_CTRLRALTBRACKET:
-		case KEY_RCTRLALTBRACKET:
-		case KEY_CTRLALTBACKBRACKET:   // Вставить сетевое (UNC) путь из правой панели
-		case KEY_RCTRLRALTBACKBRACKET:
-		case KEY_CTRLRALTBACKBRACKET:
-		case KEY_RCTRLALTBACKBRACKET:
-		case KEY_ALTSHIFTBRACKET:      // Вставить сетевое (UNC) путь из активной панели
-		case KEY_RALTSHIFTBRACKET:
-		case KEY_ALTSHIFTBACKBRACKET:  // Вставить сетевое (UNC) путь из пассивной панели
-		case KEY_RALTSHIFTBACKBRACKET:
-			NeedRealName = true;
-			// fallthrough
-		case KEY_CTRLBRACKET:          // Вставить путь из левой панели
-		case KEY_RCTRLBRACKET:
-		case KEY_CTRLBACKBRACKET:      // Вставить путь из правой панели
-		case KEY_RCTRLBACKBRACKET:
-		case KEY_CTRLSHIFTBRACKET:     // Вставить путь из активной панели
-		case KEY_RCTRLSHIFTBRACKET:
-		case KEY_CTRLSHIFTBACKBRACKET: // Вставить путь из пассивной панели
-		case KEY_RCTRLSHIFTBACKBRACKET:
-		case KEY_CTRLSHIFTNUMENTER:    // Текущий файл с пасс.панели
-		case KEY_RCTRLSHIFTNUMENTER:
-		case KEY_SHIFTNUMENTER:        // Текущий файл с актив.панели
-		case KEY_CTRLSHIFTENTER:       // Текущий файл с пасс.панели
-		case KEY_RCTRLSHIFTENTER:
-		case KEY_SHIFTENTER:           // Текущий файл с актив.панели
+	case KEY_CTRLALTBRACKET:       // Вставить сетевое (UNC) путь из левой панели
+	case KEY_RCTRLRALTBRACKET:
+	case KEY_CTRLRALTBRACKET:
+	case KEY_RCTRLALTBRACKET:
+	case KEY_CTRLALTBACKBRACKET:   // Вставить сетевое (UNC) путь из правой панели
+	case KEY_RCTRLRALTBACKBRACKET:
+	case KEY_CTRLRALTBACKBRACKET:
+	case KEY_RCTRLALTBACKBRACKET:
+	case KEY_ALTSHIFTBRACKET:      // Вставить сетевое (UNC) путь из активной панели
+	case KEY_RALTSHIFTBRACKET:
+	case KEY_ALTSHIFTBACKBRACKET:  // Вставить сетевое (UNC) путь из пассивной панели
+	case KEY_RALTSHIFTBACKBRACKET:
+		RealName = true;
+		[[fallthrough]];
+	case KEY_CTRLBRACKET:          // Вставить путь из левой панели
+	case KEY_RCTRLBRACKET:
+	case KEY_CTRLBACKBRACKET:      // Вставить путь из правой панели
+	case KEY_RCTRLBACKBRACKET:
+	case KEY_CTRLSHIFTBRACKET:     // Вставить путь из активной панели
+	case KEY_RCTRLSHIFTBRACKET:
+	case KEY_CTRLSHIFTBACKBRACKET: // Вставить путь из пассивной панели
+	case KEY_RCTRLSHIFTBACKBRACKET:
+	case KEY_CTRLSHIFTNUMENTER:    // Текущий файл с пасс.панели
+	case KEY_RCTRLSHIFTNUMENTER:
+	case KEY_SHIFTNUMENTER:        // Текущий файл с актив.панели
+	case KEY_CTRLSHIFTENTER:       // Текущий файл с пасс.панели
+	case KEY_RCTRLSHIFTENTER:
+	case KEY_SHIFTENTER:           // Текущий файл с актив.панели
 		{
 			panel_ptr SrcPanel;
-			FilePanels *Cp=Global->CtrlObject->Cp();
+			const auto Cp = Global->CtrlObject->Cp();
 
 			switch (Key)
 			{
-				case KEY_CTRLALTBRACKET:
-				case KEY_RCTRLRALTBRACKET:
-				case KEY_CTRLRALTBRACKET:
-				case KEY_RCTRLALTBRACKET:
-				case KEY_CTRLBRACKET:
-				case KEY_RCTRLBRACKET:
-					SrcPanel=Cp->LeftPanel();
-					break;
-				case KEY_CTRLALTBACKBRACKET:
-				case KEY_RCTRLRALTBACKBRACKET:
-				case KEY_CTRLRALTBACKBRACKET:
-				case KEY_RCTRLALTBACKBRACKET:
-				case KEY_CTRLBACKBRACKET:
-				case KEY_RCTRLBACKBRACKET:
-					SrcPanel=Cp->RightPanel();
-					break;
-				case KEY_SHIFTNUMENTER:
-				case KEY_SHIFTENTER:
-				case KEY_ALTSHIFTBRACKET:
-				case KEY_RALTSHIFTBRACKET:
-				case KEY_CTRLSHIFTBRACKET:
-				case KEY_RCTRLSHIFTBRACKET:
-					SrcPanel=Cp->ActivePanel();
-					break;
-				case KEY_CTRLSHIFTNUMENTER:
-				case KEY_RCTRLSHIFTNUMENTER:
-				case KEY_CTRLSHIFTENTER:
-				case KEY_RCTRLSHIFTENTER:
-				case KEY_ALTSHIFTBACKBRACKET:
-				case KEY_RALTSHIFTBACKBRACKET:
-				case KEY_CTRLSHIFTBACKBRACKET:
-				case KEY_RCTRLSHIFTBACKBRACKET:
-					SrcPanel=Cp->PassivePanel();
-					break;
+			case KEY_CTRLALTBRACKET:
+			case KEY_RCTRLRALTBRACKET:
+			case KEY_CTRLRALTBRACKET:
+			case KEY_RCTRLALTBRACKET:
+			case KEY_CTRLBRACKET:
+			case KEY_RCTRLBRACKET:
+				SrcPanel = Cp->LeftPanel();
+				break;
+
+			case KEY_CTRLALTBACKBRACKET:
+			case KEY_RCTRLRALTBACKBRACKET:
+			case KEY_CTRLRALTBACKBRACKET:
+			case KEY_RCTRLALTBACKBRACKET:
+			case KEY_CTRLBACKBRACKET:
+			case KEY_RCTRLBACKBRACKET:
+				SrcPanel = Cp->RightPanel();
+				break;
+
+			case KEY_SHIFTNUMENTER:
+			case KEY_SHIFTENTER:
+			case KEY_ALTSHIFTBRACKET:
+			case KEY_RALTSHIFTBRACKET:
+			case KEY_CTRLSHIFTBRACKET:
+			case KEY_RCTRLSHIFTBRACKET:
+				SrcPanel = Cp->ActivePanel();
+				break;
+
+			case KEY_CTRLSHIFTNUMENTER:
+			case KEY_RCTRLSHIFTNUMENTER:
+			case KEY_CTRLSHIFTENTER:
+			case KEY_RCTRLSHIFTENTER:
+			case KEY_ALTSHIFTBACKBRACKET:
+			case KEY_RALTSHIFTBACKBRACKET:
+			case KEY_CTRLSHIFTBACKBRACKET:
+			case KEY_RCTRLSHIFTBACKBRACKET:
+				SrcPanel = Cp->PassivePanel();
+				break;
 			}
 
-			if (SrcPanel)
-			{
-				if (Key == KEY_SHIFTENTER || Key == KEY_CTRLSHIFTENTER || Key == KEY_RCTRLSHIFTENTER || Key == KEY_SHIFTNUMENTER || Key == KEY_CTRLSHIFTNUMENTER || Key == KEY_RCTRLSHIFTNUMENTER)
-				{
-					string strShortFileName;
-					SrcPanel->GetCurName(strPathName,strShortFileName);
+			const auto FilePath = Key == KEY_SHIFTENTER || Key == KEY_CTRLSHIFTENTER || Key == KEY_RCTRLSHIFTENTER || Key == KEY_SHIFTNUMENTER || Key == KEY_CTRLSHIFTNUMENTER || Key == KEY_RCTRLSHIFTNUMENTER;
+			if (!SrcPanel || !MakePath(SrcPanel, FilePath, RealName, true, strPathName))
+				return false;
 
-					if (SrcPanel->GetShowShortNamesMode()) // учтем короткость имен :-)
-						strPathName = strShortFileName;
-				}
-				else
-				{
-					if (!(SrcPanel->GetType() == panel_type::FILE_PANEL || SrcPanel->GetType() == panel_type::TREE_PANEL))
-						return false;
+			if (Global->Opt->QuotedName & QUOTEDNAME_INSERT)
+				QuoteSpace(strPathName);
 
-					strPathName = SrcPanel->GetCurDir();
-
-					if (SrcPanel->GetMode() != panel_mode::PLUGIN_PANEL)
-					{
-						if (NeedRealName)
-							SrcPanel->CreateFullPathName(strPathName, strPathName, FILE_ATTRIBUTE_DIRECTORY, strPathName, true, ShortNameAsIs);
-
-						if (SrcPanel->GetShowShortNamesMode() && ShortNameAsIs)
-							strPathName = ConvertNameToShort(strPathName);
-					}
-					else
-					{
-						if (const auto SrcFileList = std::dynamic_pointer_cast<FileList>(SrcPanel))
-						{
-							OpenPanelInfo Info;
-							Global->CtrlObject->Plugins->GetOpenPanelInfo(SrcFileList->GetPluginHandle(), &Info);
-							strPathName = SrcFileList->GetPluginPrefix();
-							if (Info.HostFile && *Info.HostFile)
-							{
-								append(strPathName, Info.HostFile, L'/');
-							}
-							strPathName += NullToEmpty(Info.CurDir);
-						}
-					}
-
-					AddEndSlash(strPathName);
-				}
-
-				if (Global->Opt->QuotedName&QUOTEDNAME_INSERT)
-					QuoteSpace(strPathName);
-
-				if (Param2)
-					strPathName += Param2;
-
-				RetCode = true;
-			}
+			return true;
 		}
-		break;
+
+	default:
+		return false;
 	}
-
-	return RetCode;
 }
-
 
 std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const string& ColumnWidths)
 {
@@ -303,27 +310,19 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 
 	FN_RETURN_TYPE(DeserialiseViewSettings) Columns;
 
-	const wchar_t *TextPtr=ColumnTitles.data();
-
-	for (;;)
+	for (const auto& Type: enum_tokens(ColumnTitles, L","sv))
 	{
-		string strArgName;
-		TextPtr = GetCommaWord(TextPtr, strArgName);
-
-		if (!TextPtr)
-			break;
-
-		if (strArgName.empty())
+		if (Type.empty())
 			continue;
 
-		column NewColumn;
+		column NewColumn{};
 
-		const auto strArgOrig = upper(strArgName);
+		const auto TypeOrig = upper(string(Type));
 
-		if (strArgName.front() == L'N')
+		if (Type.front() == L'N')
 		{
 			NewColumn.type = NAME_COLUMN;
-			for (const auto& i: make_range(strArgName.cbegin() + 1, strArgName.cend()))
+			for (const auto& i: Type.substr(1))
 			{
 				switch (i)
 				{
@@ -348,15 +347,20 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 				}
 			}
 		}
-		else if (strArgName.front() == L'S' || strArgName.front() == L'P' || strArgName.front() == L'G')
+		else if (Type.front() == L'S' || Type.front() == L'P' || Type.front() == L'G')
 		{
-			NewColumn.type = (strArgName.front() == L'S') ? SIZE_COLUMN : (strArgName.front() == L'P') ? PACKED_COLUMN : STREAMSSIZE_COLUMN;
-			for (const auto& i: make_range(strArgName.cbegin() + 1, strArgName.cend()))
+			NewColumn.type = Type.front() == L'S'?
+				SIZE_COLUMN :
+				Type.front() == L'P'?
+					PACKED_COLUMN :
+					STREAMSSIZE_COLUMN;
+
+			for (const auto& i: Type.substr(1))
 			{
 				switch (i)
 				{
 				case L'C':
-					NewColumn.type |= COLUMN_COMMAS;
+					NewColumn.type |= COLUMN_GROUPDIGITS;
 					break;
 				case L'E':
 					NewColumn.type |= COLUMN_ECONOMIC;
@@ -371,12 +375,12 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 			}
 		}
 		else if (
-			starts_with(strArgName, L"DM"_sv) ||
-			starts_with(strArgName, L"DC"_sv) ||
-			starts_with(strArgName, L"DA"_sv) ||
-			starts_with(strArgName, L"DE"_sv))
+			starts_with(Type, L"DM"sv) ||
+			starts_with(Type, L"DC"sv) ||
+			starts_with(Type, L"DA"sv) ||
+			starts_with(Type, L"DE"sv))
 		{
-			switch (strArgName[1])
+			switch (Type[1])
 			{
 			case L'M':
 				NewColumn.type = WDATE_COLUMN;
@@ -392,7 +396,7 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 				break;
 			}
 
-			for (const auto& i: make_range(strArgName.cbegin() + 2, strArgName.cend()))
+			for (const auto& i: Type.substr(2))
 			{
 				switch (i)
 				{
@@ -405,35 +409,39 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 				}
 			}
 		}
-		else if (strArgName.front() == L'O')
+		else if (Type.front() == L'O')
 		{
 			NewColumn.type = OWNER_COLUMN;
 
-			if (strArgName.size() > 1 && strArgName[1] == L'L')
+			if (Type.size() > 1 && Type[1] == L'L')
 				NewColumn.type |= COLUMN_FULLOWNER;
 		}
-		else if (strArgName.front() == L'X')
+		else if (Type.front() == L'X')
 		{
 			NewColumn.type = EXTENSION_COLUMN;
 
-			if (strArgName.size() > 1 && strArgName[1] == L'R')
+			if (Type.size() > 1 && Type[1] == L'R')
 				NewColumn.type |= COLUMN_RIGHTALIGN;
 		}
-		else if (strArgOrig.size() > 2 && strArgOrig.front() == L'<' && strArgOrig.back() == L'>')
+		else if (Type.size() > 2 && Type.front() == L'<' && Type.back() == L'>')
 		{
-			NewColumn.title = strArgOrig.substr(1, strArgOrig.size() - 2);
+			NewColumn.title = string(Type.substr(1, Type.size() - 2));
 			NewColumn.type = CUSTOM_COLUMN0;
 		}
 		else
 		{
-			const auto ItemIterator = std::find_if(CONST_RANGE(ColumnInfo, i) { return strArgName == i.Symbol; });
+			const auto ItemIterator = std::find_if(CONST_RANGE(ColumnInfo, i) { return Type == i.String; });
 			if (ItemIterator != std::cend(ColumnInfo))
 				NewColumn.type = ItemIterator->Type;
-			else if (strArgOrig.size() >= 2 && strArgOrig.size() <= 3 && strArgOrig.front() == L'C')
+			else if (Type.size() >= 2 && Type.size() <= 3 && Type.front() == L'C')
 			{
-				unsigned int num;
-				if (1 == swscanf(strArgOrig.data()+1, L"%u", &num))
-					NewColumn.type = CUSTOM_COLUMN0 + num;
+				int Index;
+				if (from_string(TypeOrig.substr(1), Index))
+					NewColumn.type = CUSTOM_COLUMN0 + Index;
+				else
+				{
+					// TODO: diagnostics
+				}
 			}
 			else
 			{
@@ -446,27 +454,21 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 		Columns.emplace_back(NewColumn);
 	}
 
-	TextPtr=ColumnWidths.data();
+	const auto EnumWidths = enum_tokens(ColumnWidths, L","sv);
+	auto EnumWidthsRange = make_range(EnumWidths);
 
 	for (auto& i: Columns)
 	{
-		string strArgName;
-
-		if (TextPtr)
-			TextPtr = GetCommaWord(TextPtr, strArgName);
+		auto Width = EnumWidthsRange.empty()? L""sv : *EnumWidthsRange.pop_front();
 
 		// "column types" is a determinant here (see the loop header) so we can't break or continue here -
 		// if "column sizes" ends earlier or if user entered two commas we just use default size.
-		if (!TextPtr || strArgName.empty())
+		if (Width.empty())
 		{
-			strArgName = L"0"s;
+			Width = L"0"sv;
 		}
 
-		try
-		{
-			i.width = std::stoi(strArgName);
-		}
-		catch (const std::exception&)
+		if (!from_string(string(Width), i.width))
 		{
 			// TODO: diagnostics
 			i.width = 0;
@@ -474,9 +476,9 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 
 		i.width_type = col_width::fixed;
 
-		if (strArgName.size()>1)
+		if (Width.size()>1)
 		{
-			switch (strArgName.back())
+			switch (Width.back())
 			{
 				case L'%':
 					i.width_type = col_width::percent;
@@ -509,7 +511,7 @@ std::pair<string, string> SerialiseViewSettings(const std::vector<column>& Colum
 		case COLUMN_MARK:            return L'M';
 		case COLUMN_NAMEONLY:        return L'O';
 		case COLUMN_RIGHTALIGN:      return L'R';
-		case COLUMN_COMMAS:          return L'C';
+		case COLUMN_GROUPDIGITS:     return L'C';
 		case COLUMN_THOUSAND:        return L'T';
 		case COLUMN_BRIEF:           return L'B';
 		case COLUMN_MONTH:           return L'M';
@@ -519,7 +521,7 @@ std::pair<string, string> SerialiseViewSettings(const std::vector<column>& Colum
 		case COLUMN_NOEXTENSION:     return L'N';
 		case COLUMN_RIGHTALIGNFORCE: return L'F';
 		case COLUMN_MARK_DYNAMIC:    return L'D';
-		default:                     throw MAKE_FAR_EXCEPTION(L"Unexpected mode");
+		default:                     throw MAKE_FAR_EXCEPTION(L"Unexpected mode"sv);
 		}
 	};
 
@@ -530,7 +532,7 @@ std::pair<string, string> SerialiseViewSettings(const std::vector<column>& Colum
 
 		if (ColumnType <= CUSTOM_COLUMN0)
 		{
-			strType = ColumnInfo[ColumnType].Symbol;
+			strType = string(ColumnInfo[ColumnType].String);
 		}
 		else
 		{
@@ -557,7 +559,7 @@ std::pair<string, string> SerialiseViewSettings(const std::vector<column>& Colum
 		case SIZE_COLUMN:
 		case PACKED_COLUMN:
 		case STREAMSSIZE_COLUMN:
-			AddFlag(COLUMN_COMMAS);
+			AddFlag(COLUMN_GROUPDIGITS);
 			AddFlag(COLUMN_ECONOMIC);
 			AddFlag(COLUMN_FLOATSIZE);
 			AddFlag(COLUMN_THOUSAND);
@@ -708,11 +710,19 @@ string FormatStr_Size(long long Size, const string& strName,
 
 	if (!Streams && !Packed && !have_size && !ShowFolderSize)
 	{
-		auto TypeName = msg(lng::MListFolder);
-
-		if (TestParentFolderName(strName))
+		static const lng FolderLabels[] =
 		{
-			TypeName = msg(lng::MListUp);
+			lng::MListUp,
+			lng::MListFolder,
+		};
+
+		const auto LabelSize = msg(*std::max_element(ALL_CONST_RANGE(FolderLabels), [](lng a, lng b) { return msg(a).size() < msg(b).size(); })).size();
+
+		string TypeName;
+
+		if (IsParentDirectory(strName))
+		{
+			TypeName = fit_to_center(msg(lng::MListUp), LabelSize);
 		}
 		else
 		{
@@ -724,13 +734,10 @@ string FormatStr_Size(long long Size, const string& strName,
 				case IO_REPARSE_TAG_MOUNT_POINT:
 					{
 						lng ID_Msg = lng::MListJunction;
-						if (Global->Opt->PanelDetailedJunction)
+						if (Global->Opt->PanelDetailedJunction && CurDir)
 						{
-							string strLinkName=CurDir?CurDir:L"";
-							AddEndSlash(strLinkName);
-							append(strLinkName, PointToName(strName));
-
-							if (GetReparsePointInfo(strLinkName, strLinkName))
+							string strLinkName;
+							if (GetReparsePointInfo(path::join(CurDir, PointToName(strName)), strLinkName))
 							{
 								NormalizeSymlinkName(strLinkName);
 								bool Root;
@@ -796,9 +803,13 @@ string FormatStr_Size(long long Size, const string& strName,
 					}
 				}
 			}
+			else if (dir)
+			{
+				TypeName = fit_to_center(msg(lng::MListFolder), LabelSize);
+			}
 		}
 
-		if (static_cast<int>(TypeName.size()) <= Width-2 && msg(lng::MListBrackets)[0] && msg(lng::MListBrackets)[1])
+		if (static_cast<int>(TypeName.size()) <= Width-2 && msg(lng::MListBrackets).size() > 1)
 		{
 			TypeName = concat(msg(lng::MListBrackets)[0], TypeName, msg(lng::MListBrackets)[1]);
 		}

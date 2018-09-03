@@ -31,10 +31,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "dialog.hpp"
+
 #include "keyboard.hpp"
 #include "macroopcode.hpp"
 #include "keys.hpp"
@@ -50,7 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "constitle.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "syslog.hpp"
-#include "TaskBar.hpp"
+#include "taskbar.hpp"
 #include "interf.hpp"
 #include "strmix.hpp"
 #include "history.hpp"
@@ -63,6 +61,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "config.hpp"
 #include "edit.hpp"
+#include "global.hpp"
+
+#include "platform.env.hpp"
+#include "platform.memory.hpp"
+
+#include "common/singleton.hpp"
+#include "common/zip_view.hpp"
 
 // Флаги для функции ConvertItem
 enum CVTITEMFLAGS
@@ -113,23 +118,23 @@ static bool IsEmulatedEditorLine(const DialogItemEx& Item)
 	return Item.Type == DI_EDIT && Item.Flags & DIF_EDITOR;
 }
 
-bool IsKeyHighlighted(const string& str,int Key,int Translate,int AmpPos)
+bool IsKeyHighlighted(string_view Str, int Key, int Translate, int AmpPos)
 {
-	auto Str = str.data();
 	if (AmpPos == -1)
 	{
-		Str = wcschr(Str, L'&');
-		if (!Str)
+		const auto Pos = Str.find(L'&');
+		if (Pos == Str.npos)
 			return false;
 
+		Str = Str.substr(Pos);
 		AmpPos=1;
 	}
 	else
 	{
-		if (AmpPos >= StrLength(Str))
+		if (static_cast<size_t>(AmpPos) > Str.size())
 			return false;
 
-		Str=Str+AmpPos;
+		Str = Str.substr(AmpPos);
 		AmpPos=0;
 
 		if (Str[AmpPos] == L'&')
@@ -152,7 +157,7 @@ bool IsKeyHighlighted(const string& str,int Key,int Translate,int AmpPos)
 			if (std::iswdigit(AltKey))
 				return AltKey==UpperStrKey;
 
-			if ((unsigned int)AltKey > L' ' && AltKey <= 0xFFFF)
+			if ((unsigned int)AltKey > L' ')
 				//         (AltKey=='-'  || AltKey=='/' || AltKey==','  || AltKey=='.' ||
 				//          AltKey=='\\' || AltKey=='=' || AltKey=='['  || AltKey==']' ||
 				//          AltKey==':'  || AltKey=='"' || AltKey=='~'))
@@ -176,7 +181,7 @@ static void ConvertItemSmall(const DialogItemEx& From, FarDialogItem& To)
 	To.UserData = From.UserData;
 }
 
-size_t ItemStringAndSize(const DialogItemEx *Data,string& ItemString)
+static size_t ItemStringAndSize(const DialogItemEx *Data,string& ItemString)
 {
 	//TODO: тут видимо надо сделать поумнее
 	ItemString=Data->strData;
@@ -211,7 +216,7 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 			size+=ListBoxSize*sizeof(FarListItem);
 			for(size_t ii=0;ii != ListBoxSize; ++ii)
 			{
-				size += (ListBox->at(ii).strName.size() + 1) * sizeof(wchar_t);
+				size += (ListBox->at(ii).Name.size() + 1) * sizeof(wchar_t);
 			}
 		}
 	}
@@ -229,38 +234,40 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 			ConvertItemSmall(*ItemEx, *Item->Item);
 			if (ListBox)
 			{
-				FarList* list=(FarList*)((char*)(Item->Item)+offsetList);
-				FarListItem* listItems=(FarListItem*)((char*)(Item->Item)+offsetListItems);
-				wchar_t* text=(wchar_t*)(listItems+ListBoxSize);
+				const auto list = static_cast<FarList*>(static_cast<void*>(reinterpret_cast<char*>(Item->Item) + offsetList));
+				const auto listItems = static_cast<FarListItem*>(static_cast<void*>(reinterpret_cast<char*>(Item->Item) + offsetListItems));
+				wchar_t* text = static_cast<wchar_t*>(static_cast<void*>(listItems + ListBoxSize));
 				for(size_t ii = 0; ii != ListBoxSize; ++ii)
 				{
 					auto& item = ListBox->at(ii);
 					listItems[ii].Flags=item.Flags;
 					listItems[ii].Text=text;
-					std::copy_n(item.strName.data(), item.strName.size() + 1, text);
-					text+=item.strName.size()+1;
-					listItems[ii].Reserved[0]=listItems[ii].Reserved[1]=0;
+					text = std::copy(ALL_CONST_RANGE(item.Name), text);
+					*text++ = L'\0';
+					listItems[ii].UserData = item.SimpleUserData;
+					listItems[ii].Reserved = 0;
 				}
 				list->StructSize=sizeof(*list);
 				list->ItemsNumber=ListBoxSize;
 				list->Items=listItems;
 				Item->Item->ListItems=list;
 			}
-			wchar_t* p=(wchar_t*)((char*)(Item->Item)+offsetStrings);
+			auto p = static_cast<wchar_t*>(static_cast<void*>(reinterpret_cast<char*>(Item->Item) + offsetStrings));
 			Item->Item->Data = p;
-			std::copy_n(str.data(), sz + 1, p);
-			p+=sz+1;
+			p = std::copy_n(str.data(), sz, p);
+			*p++ = L'\0';
 			Item->Item->History = p;
-			std::copy_n(ItemEx->strHistory.data(), ItemEx->strHistory.size() + 1, p);
-			p+=ItemEx->strHistory.size()+1;
+			p = std::copy(ALL_CONST_RANGE(ItemEx->strHistory), p);
+			*p++ = L'\0';
 			Item->Item->Mask = p;
-			std::copy_n(ItemEx->strMask.data(), ItemEx->strMask.size() + 1, p);
+			p = std::copy(ALL_CONST_RANGE(ItemEx->strMask), p);
+			*p++ = L'\0';
 		}
 	}
 	return size;
 }
 
-void ItemsToItemsEx(const range<const FarDialogItem*>& Items, const range<DialogItemEx*>& ItemsEx, bool Short)
+void ItemsToItemsEx(range<const FarDialogItem*> const Items, range<DialogItemEx*> const ItemsEx, bool const Short)
 {
 	for (const auto& i: zip(Items, ItemsEx))
 	{
@@ -292,7 +299,7 @@ void ItemsToItemsEx(const range<const FarDialogItem*>& Items, const range<Dialog
 	}
 }
 
-intptr_t DefProcFunction(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
+static intptr_t DefProcFunction(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
 	return Dlg->DefProc(Msg, Param1, Param2);
 }
@@ -319,8 +326,8 @@ DialogItemEx::~DialogItemEx() = default;
 DialogItemEx::DialogItemEx(const DialogItemEx&) = default;
 DialogItemEx& DialogItemEx::operator=(const DialogItemEx&) = default;
 
-DialogItemEx::DialogItemEx(DialogItemEx&&) = default;
-DialogItemEx& DialogItemEx::operator=(DialogItemEx&&) = default;
+DialogItemEx::DialogItemEx(DialogItemEx&&) noexcept = default;
+DialogItemEx& DialogItemEx::operator=(DialogItemEx&&) noexcept = default;
 
 
 bool DialogItemEx::AddAutomation(DialogItemEx* DlgItem,
@@ -341,7 +348,7 @@ bool DialogItemEx::AddAutomation(DialogItemEx* DlgItem,
 }
 
 
-void Dialog::Construct(const range<DialogItemEx*>& SrcItems)
+void Dialog::Construct(range<DialogItemEx*> const SrcItems)
 {
 	_DIALOG(CleverSysLog CL(L"Dialog::Construct() 1"));
 	SavedItems = SrcItems.data();
@@ -365,14 +372,14 @@ void Dialog::Construct(const range<DialogItemEx*>& SrcItems)
 	Init();
 }
 
-void Dialog::Construct(const range<const FarDialogItem*>& SrcItems)
+void Dialog::Construct(const range<const FarDialogItem*> SrcItems)
 {
 	_DIALOG(CleverSysLog CL(L"Dialog::Construct() 2"));
 	SavedItems = nullptr;
 
 	Items.resize(SrcItems.size());
 	//BUGBUG add error check
-	ItemsToItemsEx(SrcItems, make_range(Items.data(), Items.size()));
+	ItemsToItemsEx(SrcItems, make_span(Items));
 	Init();
 }
 
@@ -605,14 +612,19 @@ void Dialog::ProcessCenterGroup()
 	}
 }
 
-void Dialog::SetListItemData(size_t ListId, size_t ItemId, const any& Data)
+intptr_t Dialog::GetListItemSimpleUserData(size_t ListId, size_t ItemId) const
 {
-	Items[ListId].ListPtr->SetUserData(Data, static_cast<int>(ItemId));
+	return Items[ListId].ListPtr->GetSimpleUserData(static_cast<int>(ItemId));
 }
 
-any* Dialog::GetListItemData(size_t ListId, size_t ItemId)
+void Dialog::SetListItemComplexUserData(size_t ListId, size_t ItemId, const std::any& Data)
 {
-	return Items[ListId].ListPtr->GetUserData(static_cast<int>(ItemId));
+	Items[ListId].ListPtr->SetComplexUserData(Data, static_cast<int>(ItemId));
+}
+
+std::any* Dialog::GetListItemComplexUserData(size_t ListId, size_t ItemId)
+{
+	return Items[ListId].ListPtr->GetComplexUserData(static_cast<int>(ItemId));
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -662,18 +674,25 @@ size_t Dialog::InitDialogObjects(size_t ID)
 
 		if (Type==DI_BUTTON && ItemFlags&DIF_SETSHIELD)
 		{
-			Items[I].strData=L"\x2580\x2584 "+Items[I].strData;
+			static const auto Shield = L"\x2580\x2584 "sv;
+			Items[I].strData.insert(0, Shield.data(), Shield.size());
 		}
 
 		// для кнопок не имеющих стиля "Показывает заголовок кнопки без скобок"
 		//  добавим энти самые скобки
 		if (Type==DI_BUTTON && !(ItemFlags & DIF_NOBRACKETS))
 		{
-			LPCWSTR Brackets[]={L"[ ", L" ]", L"{ ",L" }"};
-			int Start=((Items[I].Flags&DIF_DEFAULTBUTTON)?2:0);
-			if (!Items[I].strData.empty() && Items[I].strData.front() != *Brackets[Start])
+			static const string_view Brackets[] =
 			{
-				Items[I].strData=Brackets[Start]+Items[I].strData+Brackets[Start+1];
+				L"[ "sv, L" ]"sv,
+				L"{ "sv, L" }"sv,
+			};
+
+			const auto Start = Items[I].Flags&DIF_DEFAULTBUTTON? 2 : 0;
+			if (!Items[I].strData.empty() && Items[I].strData.front() != Brackets[Start].front())
+			{
+				Items[I].strData.insert(0, Brackets[Start].data(), Brackets[Start].size());
+				Items[I].strData.append(Brackets[Start + 1].data(), Brackets[Start + 1].size());
 			}
 		}
 		// предварительный поиск фокуса
@@ -735,7 +754,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 		{
 			if (!DialogMode.Check(DMODE_OBJECTS_CREATED))
 			{
-				Items[I].ListPtr = VMenu::create({}, nullptr, 0, Items[I].Y2 - Items[I].Y1 + 1, VMENU_ALWAYSSCROLLBAR | VMENU_LISTBOX, std::static_pointer_cast<Dialog>(shared_from_this()));
+				Items[I].ListPtr = VMenu::create({}, {}, Items[I].Y2 - Items[I].Y1 + 1, VMENU_ALWAYSSCROLLBAR | VMENU_LISTBOX, std::static_pointer_cast<Dialog>(shared_from_this()));
 			}
 
 				auto& ListPtr = Items[I].ListPtr;
@@ -783,7 +802,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 
 				if (Type == DI_COMBOBOX)
 				{
-					Items[I].ListPtr = VMenu::create({}, nullptr, 0, Global->Opt->Dialogs.CBoxMaxHeight, VMENU_ALWAYSSCROLLBAR, std::static_pointer_cast<Dialog>(shared_from_this()));
+					Items[I].ListPtr = VMenu::create({}, {}, Global->Opt->Dialogs.CBoxMaxHeight, VMENU_ALWAYSSCROLLBAR, std::static_pointer_cast<Dialog>(shared_from_this()));
 					Items[I].ListPtr->SetVDialogItemID(I);
 				}
 			}
@@ -862,7 +881,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 				//  Маска не должна быть пустой (строка из пробелов не учитывается)!
 				if ((ItemFlags & DIF_MASKEDIT) && !Items[I].strMask.empty())
 				{
-					RemoveExternalSpaces(Items[I].strMask);
+					inplace::trim(Items[I].strMask);
 					if(!Items[I].strMask.empty())
 					{
 						DialogEdit->SetInputMask(Items[I].strMask);
@@ -975,8 +994,6 @@ string Dialog::GetTitle() const
 {
 	const DialogItemEx *CurItemList=nullptr;
 
-	string Title;
-
 	FOR_CONST_RANGE(Items, i)
 	{
 		// по первому попавшемуся "тексту" установим заголовок консоли!
@@ -984,20 +1001,14 @@ string Dialog::GetTitle() const
 		        i->Type==DI_DOUBLEBOX ||
 		        i->Type==DI_SINGLEBOX))
 		{
-			Title = i->strData.data();
-			RemoveExternalSpaces(Title);
-			return Title;
+			return trim(i->strData);
 		}
-		else if (i->Type==DI_LISTBOX && i == Items.begin())
+
+		if (i->Type==DI_LISTBOX && i == Items.begin())
 			CurItemList = &*i;
 	}
 
-	if (CurItemList)
-	{
-		Title = CurItemList->ListPtr->GetTitle();
-	}
-
-	return Title;
+	return CurItemList? CurItemList->ListPtr->GetTitle() : L""s;
 }
 
 void Dialog::ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex)
@@ -1218,13 +1229,12 @@ void Dialog::DeleteDialogObjects()
 			case DI_COMBOBOX:
 			case DI_MEMOEDIT:
 				delete static_cast<DlgEdit*>(i.ObjPtr);
-				// fallthrough
-
+				[[fallthrough]];
 			case DI_LISTBOX:
 				if ((i.Type == DI_COMBOBOX || i.Type == DI_LISTBOX))
 					 i.ListPtr.reset();
-
 				break;
+
 			case DI_USERCONTROL:
 				delete i.UCData;
 				break;
@@ -1511,7 +1521,7 @@ intptr_t Dialog::CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITE
 					// Select
 					Color[1] = colors::PaletteColorToFarColor(DisabledItem? COL_DIALOGEDITDISABLED : COL_DIALOGEDITSELECTED);
 					// Unchanged
-					Color[2] = colors::PaletteColorToFarColor(DisabledItem? COL_DIALOGEDITDISABLED : COL_DIALOGEDITUNCHANGED), //???;
+					Color[2] = colors::PaletteColorToFarColor(DisabledItem ? COL_DIALOGEDITDISABLED : COL_DIALOGEDITUNCHANGED);
 					// History
 					Color[3] = colors::PaletteColorToFarColor(DisabledItem? COL_DIALOGDISABLED : COL_DIALOGTEXT);
 				}
@@ -1546,7 +1556,7 @@ void Dialog::ShowDialog(size_t ID)
 
 	string strStr;
 	int X,Y;
-	size_t I,DrawItemCount;
+	size_t DrawItemCount;
 	FarColor ItemColor[4] = {};
 	bool DrawFullDialog = false;
 
@@ -1608,7 +1618,7 @@ void Dialog::ShowDialog(size_t ID)
 		bool CursorVisible=false;
 		DWORD CursorSize=0;
 
-		if (ID != (size_t)-1 && m_FocusPos != ID)
+		if (m_FocusPos != ID)
 		{
 			if (Items[m_FocusPos].Type == DI_USERCONTROL && Items[m_FocusPos].UCData->CursorPos.X != -1 && Items[m_FocusPos].UCData->CursorPos.Y != -1)
 			{
@@ -1620,7 +1630,7 @@ void Dialog::ShowDialog(size_t ID)
 		SetCursorType(CursorVisible,CursorSize);
 	}
 
-	for (I=ID; I < DrawItemCount; I++)
+	for (size_t I = ID; I < DrawItemCount; I++)
 	{
 		if (Items[I].Flags&DIF_HIDDEN)
 			continue;
@@ -1782,8 +1792,15 @@ void Dialog::ShowDialog(size_t ID)
 						GotoXY(m_X1+((Items[I].Flags&DIF_SEPARATORUSER)?XS:(!DialogMode.Check(DMODE_SMALLDIALOG)?3:0)),m_Y1+Y); //????
 						ShowUserSeparator((Items[I].Flags&DIF_SEPARATORUSER)?CX2-CX1+1:RealWidth-(!DialogMode.Check(DMODE_SMALLDIALOG)?6:0/* -1 */),
 						                  (Items[I].Flags&DIF_SEPARATORUSER)?12:(Items[I].Flags&DIF_SEPARATOR2?3:1),
-					    	              Items[I].strMask.data()
-					        	         );
+					                       Items[I].strMask.c_str()
+					                     );
+						if (!strStr.empty())
+						{
+							if (!starts_with(strStr, L" "sv))
+								strStr.insert(0, 1, L' ');
+							if (!ends_with(strStr, L" "sv))
+								strStr.push_back(L' ');
+						}
 					}
 
 					GotoXY(m_X1+X,m_Y1+Y);
@@ -1798,14 +1815,11 @@ void Dialog::ShowDialog(size_t ID)
 				{
 					SetScreen(m_X1+CX1,m_Y1+CY1,m_X1+CX2,m_Y1+CY2,L' ',ItemColor[0]);
 
-					string strWrap;
-					FarFormatText(strStr,CW,strWrap,L"\n",0);
 					DWORD CountLine=0;
 
-					for (size_t pos = 0; pos < strWrap.size(); )
+					for (const auto& i: wrapped_text(strStr, CW))
 					{
-						size_t end = std::min(strWrap.find(L'\n', pos), strWrap.size());
-						string strResult = strWrap.substr(pos, end-pos);
+						auto strResult = string(i);
 
 						if (Items[I].Flags & DIF_CENTERTEXT)
 							inplace::fit_to_center(strResult, CW);
@@ -1828,8 +1842,6 @@ void Dialog::ShowDialog(size_t ID)
 
 						if (++CountLine >= (DWORD)CH)
 							break;
-
-						pos = end + 1;
 					}
 				}
 
@@ -1841,7 +1853,7 @@ void Dialog::ShowDialog(size_t ID)
 				strStr = Items[I].strData;
 				LenText=LenStrItem(I,strStr);
 
-				if (!(Items[I].Flags & (DIF_SEPARATORUSER | DIF_SEPARATOR | DIF_SEPARATOR2)) && (Items[I].Flags & DIF_CENTERTEXT) && CY1 != -1 && CY1 != -1)
+				if (!(Items[I].Flags & (DIF_SEPARATORUSER | DIF_SEPARATOR | DIF_SEPARATOR2)) && (Items[I].Flags & DIF_CENTERTEXT) && CY1 != -1 && CY2 > CY1)
 				{
 					inplace::fit_to_center(strStr, CY2 - CY1 + 1);
 					LenText = static_cast<int>(strStr.size());
@@ -1894,7 +1906,7 @@ void Dialog::ShowDialog(size_t ID)
 					GotoXY(m_X1+X,m_Y1+ ((Items[I].Flags&DIF_SEPARATORUSER)?YS:(!DialogMode.Check(DMODE_SMALLDIALOG)?1:0)));  //????
 					ShowUserSeparator((Items[I].Flags&DIF_SEPARATORUSER)?CY2-CY1+1:RealHeight-(!DialogMode.Check(DMODE_SMALLDIALOG)?2:0),
 					                  (Items[I].Flags&DIF_SEPARATORUSER)?13:(Items[I].Flags&DIF_SEPARATOR2?7:5),
-					                  Items[I].strMask.data()
+					                  Items[I].strMask.c_str()
 					                 );
 				}
 
@@ -1920,7 +1932,7 @@ void Dialog::ShowDialog(size_t ID)
 					const wchar_t Check[] = { L'[',(Items[I].Selected ? (((Items[I].Flags&DIF_3STATE) && Items[I].Selected == 2) ? msg(lng::MCheckBox2State).front() : L'x') : L' '),L']',L'\0' };
 					strStr=Check;
 
-					if (Items[I].strData.size())
+					if (!Items[I].strData.empty())
 						strStr += L' ';
 				}
 				else
@@ -1937,7 +1949,7 @@ void Dialog::ShowDialog(size_t ID)
 						Dot[2]=L')';
 						strStr=Dot;
 
-						if (Items[I].strData.size())
+						if (!Items[I].strData.empty())
 							strStr += L' ';
 					}
 				}
@@ -2008,7 +2020,6 @@ void Dialog::ShowDialog(size_t ID)
 				else
 				{
 					EditPtr->FastShow();
-					EditPtr->SetLeftPos(0);
 				}
 
 				//   Отключение мигающего курсора при перемещении диалога
@@ -2020,7 +2031,7 @@ void Dialog::ShowDialog(size_t ID)
 					int EditX1,EditY1,EditX2,EditY2;
 					EditPtr->GetPosition(EditX1,EditY1,EditX2,EditY2);
 					//Text((CurItem->Type == DI_COMBOBOX?"\x1F":"\x19"));
-					Text(EditX2+1,EditY1,ItemColor[3],L"\x2193");
+					Text(EditX2 + 1, EditY1, ItemColor[3], L"\x2193"sv);
 				}
 
 				if (Items[I].Type == DI_COMBOBOX && GetDropDownOpened() && Items[I].ListPtr->IsVisible()) // need redraw VMenu?
@@ -2146,7 +2157,7 @@ bool Dialog::ProcessMoveDialog(DWORD Key)
 			case KEY_RCTRLHOME: case KEY_RCTRLNUMPAD7:
 			case KEY_HOME:      case KEY_NUMPAD7:
 				rr=(Key == KEY_CTRLLEFT || Key == KEY_RCTRLLEFT || Key == KEY_CTRLNUMPAD4 || Key == KEY_RCTRLNUMPAD4)?10:m_X1;
-				// fallthrough
+				[[fallthrough]];
 			case KEY_LEFT:      case KEY_NUMPAD4:
 				Hide();
 
@@ -2159,15 +2170,15 @@ bool Dialog::ProcessMoveDialog(DWORD Key)
 					}
 
 				Show();
-
 				break;
+
 			case KEY_CTRLRIGHT:  case KEY_CTRLNUMPAD6:
 			case KEY_RCTRLRIGHT: case KEY_RCTRLNUMPAD6:
 			case KEY_CTRLEND:    case KEY_CTRLNUMPAD1:
 			case KEY_RCTRLEND:   case KEY_RCTRLNUMPAD1:
 			case KEY_END:       case KEY_NUMPAD1:
 				rr=(Key == KEY_CTRLRIGHT || Key == KEY_RCTRLRIGHT || Key == KEY_CTRLNUMPAD6 || Key == KEY_RCTRLNUMPAD6)?10:std::max(0,ScrX-m_X2);
-				// fallthrough
+				[[fallthrough]];
 			case KEY_RIGHT:     case KEY_NUMPAD6:
 				Hide();
 
@@ -2180,15 +2191,15 @@ bool Dialog::ProcessMoveDialog(DWORD Key)
 					}
 
 				Show();
-
 				break;
+
 			case KEY_PGUP:      case KEY_NUMPAD9:
 			case KEY_CTRLPGUP:  case KEY_CTRLNUMPAD9:
 			case KEY_RCTRLPGUP: case KEY_RCTRLNUMPAD9:
 			case KEY_CTRLUP:    case KEY_CTRLNUMPAD8:
 			case KEY_RCTRLUP:   case KEY_RCTRLNUMPAD8:
 				rr=(Key == KEY_CTRLUP || Key == KEY_RCTRLUP || Key == KEY_CTRLNUMPAD8 || Key == KEY_RCTRLNUMPAD8)?5:m_Y1;
-				// fallthrough
+				[[fallthrough]];
 			case KEY_UP:        case KEY_NUMPAD8:
 				Hide();
 
@@ -2201,15 +2212,15 @@ bool Dialog::ProcessMoveDialog(DWORD Key)
 					}
 
 				Show();
-
 				break;
+
 			case KEY_CTRLDOWN:  case KEY_CTRLNUMPAD2:
 			case KEY_RCTRLDOWN: case KEY_RCTRLNUMPAD2:
 			case KEY_CTRLPGDN:  case KEY_CTRLNUMPAD3:
 			case KEY_RCTRLPGDN: case KEY_RCTRLNUMPAD3:
 			case KEY_PGDN:      case KEY_NUMPAD3:
 				rr=(Key == KEY_CTRLDOWN || Key == KEY_RCTRLDOWN || Key == KEY_CTRLNUMPAD2 || Key == KEY_RCTRLNUMPAD2)? 5:std::max(0,ScrY-m_Y2);
-				// fallthrough
+				[[fallthrough]];
 			case KEY_DOWN:      case KEY_NUMPAD2:
 				Hide();
 
@@ -2222,18 +2233,17 @@ bool Dialog::ProcessMoveDialog(DWORD Key)
 					}
 
 				Show();
-
 				break;
+
 			case KEY_NUMENTER:
 			case KEY_ENTER:
 			case KEY_CTRLF5:
 			case KEY_RCTRLF5:
 				DialogMode.Clear(DMODE_KEYDRAGGED); // закончим движение!
-
 				DlgProc(DN_DRAGGED, 1, nullptr);
 				Show();
-
 				break;
+
 			case KEY_ESC:
 				Hide();
 				AdjustEditPos(m_Drag.OldX1-m_X1,m_Drag.OldY1-m_Y1);
@@ -2245,7 +2255,6 @@ bool Dialog::ProcessMoveDialog(DWORD Key)
 
 				DlgProc(DN_DRAGGED,1,ToPtr(TRUE));
 				Show();
-
 				break;
 		}
 
@@ -2261,9 +2270,8 @@ bool Dialog::ProcessMoveDialog(DWORD Key)
 			m_Drag.OldX1=m_X1; m_Drag.OldX2=m_X2; m_Drag.OldY1=m_Y1; m_Drag.OldY2=m_Y2;
 			//# GetText(0,0,3,0,LV);
 			Show();
+			return true;
 		}
-
-		return true;
 	}
 
 	return false;
@@ -2283,7 +2291,7 @@ long long Dialog::VMProcess(int OpCode,void *vParam,long long iParam)
 		case MCODE_F_MENU_FILTER:
 		case MCODE_F_MENU_FILTERSTR:
 		{
-			const wchar_t *str = (const wchar_t *)vParam;
+			const auto str = static_cast<const wchar_t*>(vParam);
 
 			if (GetDropDownOpened() || Items[m_FocusPos].Type == DI_LISTBOX)
 			{
@@ -2359,7 +2367,7 @@ long long Dialog::VMProcess(int OpCode,void *vParam,long long iParam)
 		}
 		case MCODE_V_DLGINFOOWNER:        // Dlg->Info.Owner
 		{
-			const auto OwnerId = PluginOwner? PluginOwner->GetGUID() : FarGuid;
+			const auto OwnerId = PluginOwner? PluginOwner->Id() : FarGuid;
 			static string strOwnerId;
 			strOwnerId = GuidToStr(OwnerId);
 			return reinterpret_cast<intptr_t>(UNSAFE_CSTR(strOwnerId));
@@ -2377,8 +2385,7 @@ long long Dialog::VMProcess(int OpCode,void *vParam,long long iParam)
 						Ret=Items[m_FocusPos].ListPtr->VMProcess(OpCode,vParam,iParam);
 						break;
 					}
-					// fallthrough
-
+					[[fallthrough]];
 				case DI_EDIT:
 				case DI_PSWEDIT:
 				case DI_FIXEDIT:
@@ -2578,7 +2585,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 
 			// Перед выводом диалога посылаем сообщение в обработчик
 			//   и если вернули что надо, то выводим подсказку
-			if (Help::MkTopic(PluginOwner, NullToEmpty((const wchar_t*)DlgProc(DN_HELP,m_FocusPos, const_cast<wchar_t*>(EmptyToNull(HelpTopic.data())))), strStr))
+			if (Help::MkTopic(PluginOwner, NullToEmpty((const wchar_t*)DlgProc(DN_HELP,m_FocusPos, const_cast<wchar_t*>(EmptyToNull(HelpTopic.c_str())))), strStr))
 			{
 				Help::create(strStr);
 			}
@@ -2635,7 +2642,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 				return true; // делать больше не чего
 			}
 		}
-		// fallthrough
+		[[fallthrough]];
 		case KEY_NUMENTER:
 		case KEY_ENTER:
 		{
@@ -2802,7 +2809,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 				}
 			}
 		}
-		// fallthrough
+		[[fallthrough]];
 		case KEY_UP:    case KEY_NUMPAD8:
 		case KEY_DOWN:  case KEY_NUMPAD2:
 
@@ -2839,7 +2846,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 				return true;
 			}
 
-			// fallthrough
+			[[fallthrough]];
 			// ???
 			// ЭТО перед default последний!!!
 		case KEY_PGDN:   case KEY_NUMPAD3:
@@ -2848,8 +2855,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 				return true;
 
 			if (IsEmulatedEditorLine(Items[m_FocusPos]))
-				// для DIF_EDITOR будет обработано ниже
-				// fall through
+				// для DIF_EDITOR будет обработано ниже [[fallthrough]]
 				;
 			else
 			{
@@ -2865,8 +2871,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 				}
 				return true;
 			}
-			// fallthrough
-
+			[[fallthrough]];
 		default:
 		{
 			//if(Items[FocusPos].Type == DI_USERCONTROL) // для user-типа вываливаем
@@ -2975,15 +2980,15 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 						{
 							if (m_FocusPos<Items.size() + 1 && IsEmulatedEditorLine(Items[m_FocusPos + 1]))
 							{
-								int CurPos=edt->GetCurPos();
-								int Length=edt->GetLength();
+								const int CurPos=edt->GetCurPos();
+								const int Length=edt->GetLength();
 								intptr_t SelStart, SelEnd;
 								edt->GetSelection(SelStart, SelEnd);
 								strStr = edt->GetString();
 
 								if (SelStart > -1)
 								{
-									string strEnd=strStr.substr(SelEnd);
+									const auto strEnd = strStr.substr(SelEnd);
 									strStr.resize(SelStart);
 									strStr+=strEnd;
 									edt->SetString(strStr);
@@ -3038,8 +3043,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 					return true;
 				}
 
-				if (!(Items[m_FocusPos].Flags & DIF_READONLY) ||
-				        ((Items[m_FocusPos].Flags & DIF_READONLY) && IsNavKey(LocalKey())))
+				if (!(Items[m_FocusPos].Flags & DIF_READONLY) || IsNavKey(LocalKey()))
 				{
 					if(LocalKey() == KEY_CTRLSPACE || LocalKey() == KEY_RCTRLSPACE)
 					{
@@ -3116,7 +3120,6 @@ void Dialog::ProcessKey(int Key, size_t ItemPos)
 */
 bool Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
-	int MsX,MsY;
 	FARDIALOGITEMTYPES Type;
 	SMALL_RECT Rect;
 	INPUT_RECORD mouse = {};
@@ -3142,8 +3145,8 @@ bool Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		return true;
 	}
 
-	MsX=MouseRecord.dwMousePosition.X;
-	MsY=MouseRecord.dwMousePosition.Y;
+	const auto MsX = MouseRecord.dwMousePosition.X;
+	const auto MsY = MouseRecord.dwMousePosition.Y;
 
 	//for (I=0;I<ItemCount;I++)
 	for (size_t I=Items.size()-1; I!=(size_t)-1; I--)
@@ -3275,8 +3278,7 @@ bool Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				if (Items[I].Type == DI_SINGLEBOX || Items[I].Type == DI_DOUBLEBOX)
 				{
 					// если на рамке, то...
-					if (((MsX == Rect.Left || MsX == Rect.Right) && MsY >= Rect.Top && MsY <= Rect.Bottom) || // vert
-					        ((MsY == Rect.Top  || MsY == Rect.Bottom) && MsX >= Rect.Left && MsX <= Rect.Right))    // hor
+					if (MsX == Rect.Left || MsX == Rect.Right || MsY == Rect.Top  || MsY == Rect.Bottom)
 					{
 						if (DlgProc(DN_CONTROLINPUT,I,&mouse))
 							return true;
@@ -3873,7 +3875,6 @@ int Dialog::SelectFromComboBox(
 {
 		_DIALOG(CleverSysLog CL(L"Dialog::SelectFromComboBox()"));
 		const auto ComboBox = CurItem->ListPtr;
-		int Dest, OriginalPos;
 		int EditX1,EditY1,EditX2,EditY2;
 		EditLine->GetPosition(EditX1,EditY1,EditX2,EditY2);
 
@@ -3904,17 +3905,16 @@ int Dialog::SelectFromComboBox(
 
 		ComboBox->SetSelectPos(ComboBox->FindItem(0,strStr,LIFIND_EXACTMATCH),1);
 
-		OriginalPos = ComboBox->GetSelectPos();
+		const auto OriginalPos = ComboBox->GetSelectPos();
 		CurItem->IFlags.Set(DLGIIF_COMBOBOXNOREDRAWEDIT);
 		ComboBox->Process();
 
 		CurItem->IFlags.Clear(DLGIIF_COMBOBOXNOREDRAWEDIT);
 		ComboBox->ClearDone();
 
-		if (GetDropDownOpened()) // Закрылся не программным путём?
-			Dest=ComboBox->SimpleModal::GetExitCode();
-		else
-			Dest=-1;
+		const auto Dest = GetDropDownOpened()? // Закрылся не программным путём?
+			ComboBox->GetExitCode():
+			-1;
 
 		if (Dest == -1)
 			ComboBox->SetSelectPos(OriginalPos,0); //????
@@ -3932,11 +3932,11 @@ int Dialog::SelectFromComboBox(
 
 		if (CurItem->Flags & (DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND))
 		{
-			strStr = HiText2Str(ItemPtr.strName);
+			strStr = HiText2Str(ItemPtr.Name);
 			EditLine->SetString(strStr);
 		}
 		else
-			EditLine->SetString(ItemPtr.strName);
+			EditLine->SetString(ItemPtr.Name);
 
 		EditLine->SetLeftPos(0);
 		Redraw();
@@ -3964,7 +3964,7 @@ bool Dialog::SelectFromEditHistory(const DialogItemEx *CurItem,
 	{
 		DlgHist->ResetPosition();
 		// создание пустого вертикального меню
-		const auto HistoryMenu = VMenu2::create({}, nullptr, 0, Global->Opt->Dialogs.CBoxMaxHeight, VMENU_ALWAYSSCROLLBAR | VMENU_COMBOBOX);
+		const auto HistoryMenu = VMenu2::create({}, {}, Global->Opt->Dialogs.CBoxMaxHeight, VMENU_ALWAYSSCROLLBAR | VMENU_COMBOBOX);
 		HistoryMenu->SetDialogMode(DMODE_NODRAWSHADOW);
 		HistoryMenu->SetModeMoving(false);
 		HistoryMenu->SetMenuFlags(VMENU_SHOWAMPERSAND);
@@ -4204,10 +4204,10 @@ void Dialog::Process()
 	PrevMouseRecord = {};
 	ClearDone();
 	InitDialog();
-	std::unique_ptr<TaskBarError> TBE;
+	std::unique_ptr<TaskbarError> TBE;
 	if (DialogMode.Check(DMODE_WARNINGSTYLE))
 	{
-		TBE = std::make_unique<TaskBarError>();
+		TBE = std::make_unique<TaskbarError>();
 	}
 
 	if (m_ExitCode == -1)
@@ -4273,9 +4273,9 @@ intptr_t Dialog::CloseDialog()
    установка help topic'а и прочие радости, временно перетащенные сюда
    из SimpleModal
 */
-void Dialog::SetHelp(const string_view& Topic)
+void Dialog::SetHelp(const string_view Topic)
 {
-	HelpTopic = make_string(Topic);
+	assign(HelpTopic, Topic);
 }
 
 void Dialog::ShowHelp() const
@@ -4355,7 +4355,6 @@ intptr_t Dialog::DlgProc(intptr_t Msg,intptr_t Param1,void* Param2)
 	_DIALOG(SysLog(L"hDlg=%p, Msg=%s, Param1=%d (0x%08X), Param2=%d (0x%08X)",this,_DLGMSG_ToName(Msg),Param1,Param1,Param2,Param2));
 
 
-	intptr_t Result;
 	FarDialogEvent de={sizeof(FarDialogEvent),this,Msg,Param1,Param2,0};
 
 	if(!CheckDialogMode(DMODE_NOPLUGINS))
@@ -4364,7 +4363,7 @@ intptr_t Dialog::DlgProc(intptr_t Msg,intptr_t Param1,void* Param2)
 			return de.Result;
 	}
 
-	Result = m_handler(this,Msg,Param1,Param2);
+	const auto Result = m_handler(this,Msg,Param1,Param2);
 
 	if(!CheckDialogMode(DMODE_NOPLUGINS))
 	{
@@ -4424,10 +4423,10 @@ intptr_t Dialog::DefProc(intptr_t Msg, intptr_t Param1, void* Param2)
 				   2) когда диалог перемещается из угла
 				   сделал вывод красных палочек по углам */
 				FarColor Color = colors::ConsoleColorToFarColor(0xCE);
-				Text(m_X1, m_Y1, Color, L"\\");
-				Text(m_X1, m_Y2, Color, L"/");
-				Text(m_X2, m_Y1, Color, L"/");
-				Text(m_X2, m_Y2, Color, L"\\");
+				Text(m_X1, m_Y1, Color, L"\\"sv);
+				Text(m_X1, m_Y2, Color, L"/"sv);
+				Text(m_X2, m_Y1, Color, L"/"sv);
+				Text(m_X2, m_Y2, Color, L"\\"sv);
 			}
 
 			return TRUE;
@@ -4515,12 +4514,11 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			// изменим вызов RESIZE.
 			Param1=-1;
 			/*****************************************************************/
-			// fallthrough
+			[[fallthrough]];
 		case DM_MOVEDIALOG:
 		{
-			int W1,H1;
-			W1=m_X2-m_X1+1;
-			H1=m_Y2-m_Y1+1;
+			auto W1 = m_X2 - m_X1 + 1;
+			auto H1 = m_Y2 - m_Y1 + 1;
 			m_Drag.OldX1=m_X1;
 			m_Drag.OldY1=m_Y1;
 			m_Drag.OldX2=m_X2;
@@ -4542,9 +4540,8 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			}
 			else // Resize, Param2=width/height
 			{
-				int OldW1,OldH1;
-				OldW1=W1;
-				OldH1=H1;
+				const auto OldW1 = W1;
+				const auto OldH1 = H1;
 				W1=((COORD*)Param2)->X;
 				H1=((COORD*)Param2)->Y;
 				RealWidth = W1;
@@ -4639,7 +4636,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		{
 			int Prev=m_DisableRedraw;
 
-			if (Param1 == TRUE)
+			if (Param1 == TRUE && m_DisableRedraw < 0)
 				m_DisableRedraw++;
 			else if (Param1 == FALSE)
 				m_DisableRedraw--;
@@ -4662,7 +4659,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				if (!IsVisible())
 				{
 					DialogMode.Set(DMODE_VISIBLE);
-					Show();
+					redraw(false);
 				}
 			}
 			else
@@ -4690,7 +4687,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		/*****************************************************************/
 		case DM_KEY:
 		{
-			const INPUT_RECORD *KeyArray=(const INPUT_RECORD *)Param2;
+			const auto KeyArray = static_cast<const INPUT_RECORD*>(Param2);
 			DialogMode.Set(DMODE_KEY);
 
 			for (unsigned int I=0; I < (size_t)Param1; ++I)
@@ -4784,7 +4781,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 					if (CheckStructSize(di))
 					{
 						di->Id = m_Id;
-						di->Owner = PluginOwner? PluginOwner->GetGUID() : FarGuid;
+						di->Owner = PluginOwner? PluginOwner->Id() : FarGuid;
 						return true;
 					}
 				}
@@ -4800,8 +4797,6 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			auto Len = strTitleDialog.size();
 			if (CheckStructSize(did)) // если здесь nullptr, то это еще один способ получить размер
 			{
-				const auto Ptr = strTitleDialog.data();
-				//Len=StrLength(Ptr);
 				if (!did->PtrLength)
 					did->PtrLength = Len;
 				else if (Len > did->PtrLength)
@@ -4809,7 +4804,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 				if (did->PtrData)
 				{
-					std::copy_n(Ptr, Len, did->PtrData);
+					std::copy_n(strTitleDialog.data(), Len, did->PtrData);
 					did->PtrData[Len] = L'\0';
 				}
 			}
@@ -4838,10 +4833,10 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 	const auto CurItem=&Items[Param1];
 	const auto Type = CurItem->Type;
-	const auto* Ptr= CurItem->strData.data();
+	const auto* Ptr= CurItem->strData.c_str();
 
 	if (IsEdit(Type) && CurItem->ObjPtr)
-		Ptr = static_cast<DlgEdit*>(CurItem->ObjPtr)->GetString().data();
+		Ptr = static_cast<DlgEdit*>(CurItem->ObjPtr)->GetString().c_str();
 
 	switch (Msg)
 	{
@@ -4949,14 +4944,13 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 							{
 								const auto& ListMenuItem = ListBox->at(ListItems->ItemIndex);
 								//ListItems->ItemIndex=1;
-								FarListItem *Item=&ListItems->Item;
-								*Item = {};
-								Item->Flags=ListMenuItem.Flags;
-								Item->Text=ListMenuItem.strName.data();
-								/*
-								if(ListMenuItem->UserDataSize <= sizeof(DWORD)) //???
-								   Item->UserData=ListMenuItem->UserData;
-								*/
+								auto& Item = ListItems->Item;
+								Item = {};
+								Item.Flags=ListMenuItem.Flags;
+								Item.Text=ListMenuItem.Name.c_str();
+								Item.UserData = ListMenuItem.SimpleUserData;
+								Item.Reserved = 0;
+
 								return TRUE;
 							}
 
@@ -4966,7 +4960,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						{
 							if (reinterpret_cast<size_t>(Param2) < ListBox->size())
 							{
-								const auto Data = ListBox->GetUserDataPtr<std::vector<char>>(static_cast<int>(reinterpret_cast<intptr_t>(Param2)));
+								const auto Data = ListBox->GetComplexUserDataPtr<std::vector<char>>(static_cast<int>(reinterpret_cast<intptr_t>(Param2)));
 								return Data? reinterpret_cast<intptr_t>(Data->data()) : 0;
 							}
 							return 0;
@@ -4975,7 +4969,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						{
 							if (reinterpret_cast<size_t>(Param2) < ListBox->size())
 							{
-								const auto Data = ListBox->GetUserDataPtr<std::vector<char>>(static_cast<int>(reinterpret_cast<intptr_t>(Param2)));
+								const auto Data = ListBox->GetComplexUserDataPtr<std::vector<char>>(static_cast<int>(reinterpret_cast<intptr_t>(Param2)));
 								return Data? Data->size() : 0;
 							}
 
@@ -4990,7 +4984,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 								const auto Data = static_cast<const char*>(ListItems->Data);
 								const auto Size = ListItems->DataSize? ListItems->DataSize : (wcslen(static_cast<const wchar_t*>(ListItems->Data)) + 1) * sizeof(wchar_t);
 								std::vector<char> DataCopy(Data, Data + Size);
-								ListBox->SetUserData(DataCopy, ListItems->Index);
+								ListBox->SetComplexUserData(DataCopy, ListItems->Index);
 
 								return Ret = 1;
 							}
@@ -5035,12 +5029,12 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 							if (CheckStructSize(ListTitle)&&(!strTitle.empty()||!strBottomTitle.empty()))
 							{
 								if (ListTitle->Title&&ListTitle->TitleSize)
-									xwcsncpy(const_cast<wchar_t*>(ListTitle->Title), strTitle.data(), ListTitle->TitleSize);
+									xwcsncpy(const_cast<wchar_t*>(ListTitle->Title), strTitle.c_str(), ListTitle->TitleSize);
 								else
 									ListTitle->TitleSize=strTitle.size()+1;
 
 								if (ListTitle->Bottom&&ListTitle->BottomSize)
-									xwcsncpy(const_cast<wchar_t*>(ListTitle->Bottom), strBottomTitle.data(), ListTitle->BottomSize);
+									xwcsncpy(const_cast<wchar_t*>(ListTitle->Bottom), strBottomTitle.c_str(), ListTitle->BottomSize);
 								else
 									ListTitle->BottomSize=strBottomTitle.size()+1;
 								return TRUE;
@@ -5100,9 +5094,9 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 							const auto& ListMenuItem = ListBox->at(ListBox->GetSelectPos());
 							const auto Edit = static_cast<DlgEdit*>(CurItem->ObjPtr);
 							if (CurItem->Flags & (DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND))
-								Edit->SetHiString(ListMenuItem.strName);
+								Edit->SetHiString(ListMenuItem.Name);
 							else
-								Edit->SetString(ListMenuItem.strName);
+								Edit->SetString(ListMenuItem.Name);
 							Edit->RemoveSelection();
 						}
 					}
@@ -5583,11 +5577,11 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						break;
 					case DI_LISTBOX:
 					{
-						if (!CurItem->ListPtr->empty())
+						if (CurItem->ListPtr->GetShowItemCount())
 						{
 							const auto& ListMenuItem = CurItem->ListPtr->current();
-							Ptr = ListMenuItem.strName.data();
-							Len = ListMenuItem.strName.size();
+							Ptr = ListMenuItem.Name.data();
+							Len = ListMenuItem.Name.size();
 						}
 						InitItemData();
 						break;
@@ -5604,14 +5598,14 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			{
 				case DI_BUTTON:
 					Len = CurItem->strData.size();
-
 					if (!(CurItem->Flags & DIF_NOBRACKETS))
 						Len-=4;
-
 					break;
+
 				case DI_USERCONTROL:
 					//Len=CurItem->Ptr.PtrLength; BUGBUG
 					break;
+
 				case DI_TEXT:
 				case DI_VTEXT:
 				case DI_SINGLEBOX:
@@ -5620,29 +5614,26 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				case DI_RADIOBUTTON:
 					Len = CurItem->strData.size();
 					break;
+
 				case DI_COMBOBOX:
 				case DI_EDIT:
 				case DI_PSWEDIT:
 				case DI_FIXEDIT:
 				case DI_MEMOEDIT:
-
 					if (CurItem->ObjPtr)
 					{
 						Len = static_cast<DlgEdit*>(CurItem->ObjPtr)->GetLength();
 						break;
 					}
-					// fallthrough
-
+					[[fallthrough]];
 				case DI_LISTBOX:
-				{
 					Len=0;
-					if (!CurItem->ListPtr->empty())
+					if (CurItem->ListPtr->GetShowItemCount())
 					{
-						Len = CurItem->ListPtr->current().strName.size();
+						Len = CurItem->ListPtr->current().Name.size();
 					}
-
 					break;
-				}
+
 				default:
 					Len=0;
 					break;
@@ -5681,7 +5672,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 					case DI_PSWEDIT:
 					case DI_FIXEDIT:
 					case DI_LISTBOX: // меняет только текущий элемент
-						CurItem->strData = string(did->PtrData, did->PtrLength);
+						CurItem->strData.assign(did->PtrData, did->PtrLength);
 						Len = CurItem->strData.size();
 						break;
 					default:
@@ -5748,7 +5739,8 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 							LUpdate.Index=ListBox->GetSelectPos();
 							auto& ListMenuItem = ListBox->at(LUpdate.Index);
 							LUpdate.Item.Flags = ListMenuItem.Flags;
-							LUpdate.Item.Text = CurItem->strData.data();
+							LUpdate.Item.Text = CurItem->strData.c_str();
+							LUpdate.Item.UserData = ListMenuItem.SimpleUserData;
 							SendMessage(DM_LISTUPDATE, Param1, &LUpdate);
 
 							break;
@@ -5820,7 +5812,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			if (Type != Item->Type) // пока нефига менять тип
 				return FALSE;
 
-			ItemsToItemsEx(make_range(Item, 1), make_range(CurItem, 1), Msg != DM_SETDLGITEM);
+			ItemsToItemsEx({ Item, 1 }, { CurItem, 1 }, Msg != DM_SETDLGITEM);
 
 			CurItem->Type=Type;
 
@@ -5885,7 +5877,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			/* $ 09.12.2001 DJ
 			   у DI_PSWEDIT не бывает хистори!
 			*/
-			else if (Param2 && (Type==DI_COMBOBOX || ((Type==DI_EDIT || Type==DI_FIXEDIT)
+			if ((Type==DI_COMBOBOX || ((Type==DI_EDIT || Type==DI_FIXEDIT)
 			                    && (CurItem->Flags&DIF_HISTORY)))) /* DJ $ */
 			{
 				// Открываем заданный в Param1 комбобокс или историю
@@ -6142,7 +6134,7 @@ bool Dialog::IsValid(Dialog* Handle)
 	return contains(dialogs_set::instance().Set, Handle);
 }
 
-void Dialog::SetDeleting(void)
+void Dialog::SetDeleting()
 {
 }
 

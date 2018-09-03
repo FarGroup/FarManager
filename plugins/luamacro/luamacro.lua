@@ -348,7 +348,7 @@ local function ShowCmdLineHelp()
   end
 end
 
-local function ProcessCommandLine (strCmdLine)
+local function Open_CommandLine (strCmdLine)
   local prefix, text = strCmdLine:match("^%s*([^:%s]+):%s*(.-)%s*$")
   if not prefix then return end -- this can occur with Plugin.Command()
   prefix = prefix:lower()
@@ -389,57 +389,110 @@ local function ProcessCommandLine (strCmdLine)
     end
   else
     local item = utils.GetPrefixes()[prefix]
-    if item then item.action(prefix, text) end
+    if item then return item.action(prefix, text) end
   end
 end
 
-function export.Open (OpenFrom, arg1, ...)
-  if OpenFrom == F.OPEN_LUAMACRO then
-    local calltype = arg1
-    if     calltype==F.MCT_KEYMACRO       then return keymacro.Dispatch(...)
-    elseif calltype==F.MCT_MACROPARSE     then return MacroParse(...)
-    elseif calltype==F.MCT_DELMACRO       then return utils.DelMacro(...)
-    elseif calltype==F.MCT_ENUMMACROS     then return utils.EnumMacros(...)
-    elseif calltype==F.MCT_GETMACRO       then return utils.GetMacroWrapper(...)
-    elseif calltype==F.MCT_LOADMACROS     then
-      local InitedRAM,Paths = ...
-      keymacro.InitInternalVars(InitedRAM)
-      return utils.LoadMacros(false,Paths)
-    elseif calltype==F.MCT_RECORDEDMACRO  then return utils.ProcessRecordedMacro(...)
-    elseif calltype==F.MCT_RUNSTARTMACRO  then return utils.RunStartMacro()
-    elseif calltype==F.MCT_WRITEMACROS    then return utils.WriteMacros()
-    elseif calltype==F.MCT_EXECSTRING     then return ExecString(...)
-    elseif calltype==F.MCT_ADDMACRO       then return utils.AddMacroFromFAR(...)
-    elseif calltype==F.MCT_PANELSORT      then
-      if panelsort then
-        TablePanelSort = { panelsort.SortPanelItems(...) }
-        if TablePanelSort[1] then return TablePanelSort end
-      end
-    elseif calltype==F.MCT_GETCUSTOMSORTMODES then
-      if panelsort then
-        TablePanelSort = panelsort.GetSortModes()
-        return TablePanelSort
-      end
-    elseif calltype==F.MCT_CANPANELSORT then
-      return panelsort and panelsort.CanDoPanelSort(...)
+local function PanelModuleExist(mod)
+  for _,module in ipairs(utils.GetPanelModules()) do
+    if mod == module then return true; end
+  end
+end
+
+local function Open_LuaMacro (calltype, ...)
+  if     calltype==F.MCT_KEYMACRO       then return keymacro.Dispatch(...)
+  elseif calltype==F.MCT_MACROPARSE     then return MacroParse(...)
+  elseif calltype==F.MCT_DELMACRO       then return utils.DelMacro(...)
+  elseif calltype==F.MCT_ENUMMACROS     then return utils.EnumMacros(...)
+  elseif calltype==F.MCT_GETMACRO       then return utils.GetMacroWrapper(...)
+  elseif calltype==F.MCT_LOADMACROS     then
+    local InitedRAM,Paths = ...
+    keymacro.InitInternalVars(InitedRAM)
+    return utils.LoadMacros(false,Paths)
+  elseif calltype==F.MCT_RECORDEDMACRO  then return utils.ProcessRecordedMacro(...)
+  elseif calltype==F.MCT_RUNSTARTMACRO  then return utils.RunStartMacro()
+  elseif calltype==F.MCT_WRITEMACROS    then return utils.WriteMacros()
+  elseif calltype==F.MCT_EXECSTRING     then return ExecString(...)
+  elseif calltype==F.MCT_ADDMACRO       then return utils.AddMacroFromFAR(...)
+  elseif calltype==F.MCT_PANELSORT      then
+    if panelsort then
+      TablePanelSort = { panelsort.SortPanelItems(...) }
+      if TablePanelSort[1] then return TablePanelSort end
     end
+  elseif calltype==F.MCT_GETCUSTOMSORTMODES then
+    if panelsort then
+      TablePanelSort = panelsort.GetSortModes()
+      return TablePanelSort
+    end
+  elseif calltype==F.MCT_CANPANELSORT then
+    return panelsort and panelsort.CanDoPanelSort(...)
+  end
+end
+
+local CanCreatePanel = {
+  [F.OPEN_LEFTDISKMENU]  = true;
+  [F.OPEN_RIGHTDISKMENU] = true;
+  [F.OPEN_FINDLIST]      = true;
+  [F.OPEN_SHORTCUT]      = true;
+--[F.OPEN_FILEPANEL]     = true; -- does it needed?
+  [F.OPEN_PLUGINSMENU]   = true;
+}
+
+function export.Open (OpenFrom, guid, ...)
+  if OpenFrom == F.OPEN_LUAMACRO then
+    return Open_LuaMacro(guid, ...)
 
   elseif OpenFrom == F.OPEN_COMMANDLINE then
-    local guid, cmdline =  arg1, ...
-    return ProcessCommandLine(cmdline)
+    local mod, obj = Open_CommandLine(...)
+    return mod and obj and PanelModuleExist(mod) and { module=mod; object=obj }
 
-  elseif OpenFrom == F.OPEN_FROMMACRO then
-    local guid, args =  arg1, ...
-    if args[1]=="argtest" then -- argtest: return received arguments
-      return unpack(args,2,args.n)
-    elseif args[1]=="macropost" then -- test Mantis # 2222
+  elseif OpenFrom == F.OPEN_ANALYSE then
+    local info = ...
+    local mod = info.Handle.module
+    if type(mod.Open) == "function" then
+      info.Handle = info.Handle.object
+      local obj = mod.Open(OpenFrom, guid, info)
+      return obj and { module=mod; object=obj }
+    end
+
+  elseif OpenFrom == F.OPEN_FINDLIST then
+    for _,mod in ipairs(utils.GetPanelModules()) do
+      if type(mod.Open) == "function" then
+        local obj = mod.Open(OpenFrom, guid, ...)
+        return obj and { module=mod; object=obj }
+      end
+    end
+
+  elseif OpenFrom == F.OPEN_SHORTCUT then
+    local info = ...
+    if info.ShortcutData then
+      local mod_guid, data = info.ShortcutData:match(
+        "^(%x%x%x%x%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%x%x%x%x%x%x%x%x)/(.*)")
+      if mod_guid then
+        local mod = utils.GetPanelModules()[win.Uuid(mod_guid)]
+        if mod and type(mod.Open) == "function" then
+          info.ShortcutData = data
+          local obj = mod.Open(OpenFrom, guid, info)
+          return obj and { module=mod; object=obj }
+        end
+      end
+    end
+
+  elseif OpenFrom == F.OPEN_FROMMACRO then -- TODO: add panel modules support
+    local argtable =  ...
+    if argtable[1]=="argtest" then -- argtest: return received arguments
+      return unpack(argtable, 2, argtable.n)
+    elseif argtable[1]=="macropost" then -- test Mantis # 2222
       return far.MacroPost([[far.Message"macropost"]])
     end
 
   else
     local items = utils.GetMenuItems()
-    if items[arg1] then
-      items[arg1].action(OpenFrom, ...)
+    if items[guid] then
+      local mod, obj = items[guid].action(OpenFrom, ...)
+      if CanCreatePanel[OpenFrom] and mod and obj and PanelModuleExist(mod) then
+        return { module=mod; object=obj }
+      end
     else
       macrobrowser()
     end
@@ -447,6 +500,7 @@ function export.Open (OpenFrom, arg1, ...)
   end
 end
 
+-- TODO: when called from a module's panel, call that module's Configure()
 function export.Configure (guid)
   local items = utils.GetMenuItems()
   if items[guid] then items[guid].action() end
@@ -504,6 +558,7 @@ local function Init()
   Shared.keymacro = keymacro
   mf.mmode, _G.mmode = keymacro.mmode, keymacro.mmode
   mf.akey, _G.akey = keymacro.akey, keymacro.akey
+  mf.AddExitHandler = keymacro.AddExitHandler
 
   macrobrowser = RunPluginFile("mbrowser.lua", Shared)
 
@@ -538,6 +593,53 @@ local function Init()
     _G.IsLuaStateRecreated = nil
     utils.LoadMacros()
   end
+end
+
+function export.Analyse(Data)
+  for _,module in ipairs(utils.GetPanelModules()) do
+    if type(module.Analyse) == "function" then
+      local datacopy = {}; for k,v in pairs(Data) do datacopy[k]=v; end -- prevent modifying 'Data'
+      local obj = module.Analyse(datacopy)
+      if obj then
+        return { module=module; object=obj }
+      end
+    end
+  end
+end
+
+function export.GetOpenPanelInfo (wrapped_obj, handle, ...)
+  local mod, obj = wrapped_obj.module, wrapped_obj.object
+  if type(mod.GetOpenPanelInfo) == "function" then
+    local op_info = mod.GetOpenPanelInfo(obj, handle, ...)
+    if type(op_info) == "table" and
+       type(mod.Info) == "table" and
+       type(mod.Info.Guid) == "string"
+    then
+      if type(op_info.ShortcutData) == "string" then
+        op_info.ShortcutData = win.Uuid(mod.Info.Guid) .. "/" .. op_info.ShortcutData
+      end
+      return op_info
+    end
+  end
+end
+
+function export.MakeDirectory (wrapped_obj, ...)
+  local func = wrapped_obj.module.MakeDirectory
+  if type(func) == "function" then return func(wrapped_obj.object, ...)
+  else return 1, "" -- suppress Far error message
+  end
+end
+
+for _,name in ipairs {"ClosePanel","Compare","DeleteFiles","GetFiles","GetFindData",
+      "ProcessHostFile","ProcessPanelEvent","ProcessPanelInput","PutFiles","SetDirectory",
+      "SetFindList"} do
+  export[name] =
+    function(wrapped_obj, ...)
+      local func = wrapped_obj.module[name]
+      if type(func) == "function" then
+        return func(wrapped_obj.object, ...)
+      end
+    end
 end
 
 local ok, msg = pcall(Init) -- pcall is used to handle RunPluginFile() failure in one place only

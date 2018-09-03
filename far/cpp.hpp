@@ -77,81 +77,7 @@ using std::wmemchr;
 
 #endif
 
-#if !defined _MSC_VER && !defined __cpp_lib_nonmember_container_access
-namespace std
-{
-	template <class C>
-	constexpr auto size(const C& c)
-	{
-		return c.size();
-	}
-
-	template <class T, size_t N>
-	constexpr auto size(const T (&array)[N]) noexcept
-	{
-		return N;
-	}
-
-
-	template <class C>
-	constexpr auto empty(const C& c)
-	{
-		return c.empty();
-	}
-
-	template <class T, size_t N>
-	constexpr auto empty(const T (&array)[N])
-	{
-		return false;
-	}
-
-	template <class E>
-	constexpr auto empty(initializer_list<E> il) noexcept
-	{
-		return !il.size();
-	}
-
-
-	template <class C>
-	constexpr auto data(C& c)
-	{
-		return c.data();
-	}
-
-	template <class C>
-	constexpr auto data(const C& c)
-	{
-		return c.data();
-	}
-
-	template <class T, size_t N>
-	constexpr T* data(T (&array)[N]) noexcept
-	{
-		return array;
-	}
-
-	template <class E>
-	constexpr const E* data(initializer_list<E> il) noexcept
-	{
-		return il.begin();
-	}
-
-	template<typename...> using void_t = void;
-}
-#endif
-
-#if !defined _MSC_VER && !defined __cpp_lib_invoke
-namespace std
-{
-	template<typename... args>
-	decltype(auto) invoke(args&&... Args)
-	{
-		return __invoke(FWD(Args)...);
-	}
-}
-#endif
-
-#if (!defined _MSC_VER && !defined __cpp_lib_apply) || (defined _MSC_VER && _MSC_VER < 1910)
+#if VS_OLDER_THAN(1910)
 namespace std
 {
 	namespace detail
@@ -166,49 +92,76 @@ namespace std
 	template <class F, class Tuple>
 	constexpr decltype(auto) apply(F&& f, Tuple&& t)
 	{
-		return detail::apply_impl(FWD(f), FWD(t), std::make_index_sequence<std::tuple_size<std::decay_t<Tuple>>::value>{});
+		return detail::apply_impl(FWD(f), FWD(t), std::make_index_sequence<std::tuple_size_v<std::decay_t<Tuple>>>{});
 	}
 }
 #endif
 
-#if !defined _MSC_VER && !defined __cpp_lib_uncaught_exceptions
-namespace __cxxabiv1
-{
-	extern "C" struct __cxa_eh_globals* __cxa_get_globals() noexcept;
-}
 
-namespace std
-{
-	inline int uncaught_exceptions() noexcept
-	{
-		return *reinterpret_cast<const unsigned int*>(static_cast<const char*>(static_cast<const void*>(__cxxabiv1::__cxa_get_globals())) + sizeof(void*));
-	}
-}
-#endif
-
-#if !defined _MSC_VER && !defined __cpp_lib_clamp
-namespace std
-{
-	template<typename type, typename compare>
-	constexpr const type& clamp(const type& Value, const type& Low, const type& High, compare Compare)
-	{
-		assert(!Compare(High, Low));
-		return Compare(Value, Low)? Low : Compare(High, Value)? High : Value;
-	}
-
-	template<typename type>
-	constexpr const type& clamp(const type& Value, const type& Low, const type& High)
-	{
-		return clamp(Value, Low, High, std::less<>());
-	}
-}
-#endif
-
-#if (!defined _MSC_VER && __cpp_static_assert < 201411) || (defined _MSC_VER && _MSC_VER < 1910)
+#if COMPILER == C_CL && _MSC_VER < 1910
 #define DETAIL_STATIC_ASSERT_2(expression, message) static_assert(expression, message)
 #define DETAIL_STATIC_ASSERT_1(expression) DETAIL_STATIC_ASSERT_2(expression, #expression)
 #define DETAIL_STATIC_ASSERT_GET_MACRO(_1, _2, NAME, ...) NAME
 #define static_assert(...) EXPAND(DETAIL_STATIC_ASSERT_GET_MACRO(__VA_ARGS__, DETAIL_STATIC_ASSERT_2, DETAIL_STATIC_ASSERT_1)(__VA_ARGS__))
+#endif
+
+
+#if VS_OLDER_THAN(1911)
+namespace std
+{
+	namespace detail
+	{
+		template <typename void_type, typename, typename...>
+		struct invoke_result {};
+
+		template <typename callable, typename... args>
+		struct invoke_result<decltype(void(std::invoke(std::declval<callable>(), std::declval<args>()...))), callable, args...>
+		{
+			using type = decltype(std::invoke(std::declval<callable>(), std::declval<args>()...));
+		};
+	}
+
+	template <typename callable, typename... args>
+	struct invoke_result: detail::invoke_result<void, callable, args...> {};
+
+	template <typename callable, typename... args>
+	using invoke_result_t = typename invoke_result<callable, args...>::type;
+}
+#endif
+
+
+#if VS_OLDER_THAN(1910)
+#include "common/any.hpp"
+
+namespace std
+{
+	using ::any_impl::any;
+	using ::any_impl::any_cast;
+	using ::any_impl::bad_any_cast;
+}
+#else
+#include <any>
+#endif
+
+#if VS_OLDER_THAN(1910)
+#include "common/string_view.hpp"
+
+namespace std
+{
+	using ::string_view_impl::basic_string_view;
+	using ::string_view_impl::string_view;
+	using ::string_view_impl::wstring_view;
+
+	inline namespace literals
+	{
+		inline namespace string_view_literals
+		{
+			using namespace ::string_view_impl::string_view_literals;
+		}
+	}
+}
+#else
+#include <string_view>
 #endif
 
 #endif // CPP_HPP_95E41B70_5DB2_4E5B_A468_95343C6438AD

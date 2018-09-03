@@ -33,10 +33,12 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "platform.hpp"
+
 class new_handler
 {
 public:
-	NONCOPYABLE(new_handler)
+	NONCOPYABLE(new_handler);
 
 	new_handler();
 	~new_handler();

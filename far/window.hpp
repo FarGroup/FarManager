@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "scrobj.hpp"
+#include "plugin.hpp"
 
 class KeyBar;
 
@@ -58,7 +59,8 @@ enum window_type
 class window: public ScreenObjectWithShadow, public std::enable_shared_from_this<window>
 {
 public:
-	virtual ~window() override;
+	~window() override;
+	void Refresh() override;
 
 	virtual bool GetCanLoseFocus(bool DynamicMode = false) const { return m_CanLoseFocus; }
 	virtual void SetExitCode(int Code) { m_ExitCode=Code; }
@@ -73,23 +75,22 @@ public:
 	virtual bool CanFastHide() const;
 	virtual string GetTitle() const = 0;
 	virtual bool ProcessEvents() {return true;}
-
-	virtual void Refresh(void) override;
+	virtual bool IsTitleBarVisible() const { return false; }
+	virtual bool IsKeyBarVisible() const { return false; }
+	virtual void SetDeleting();
 
 	void SetCanLoseFocus(bool Value) { m_CanLoseFocus = Value; }
 	int GetExitCode() const { return m_ExitCode; }
 	void UpdateKeyBar() const;
-	bool IsTitleBarVisible() const {return m_TitleBarVisible;}
 	bool IsTopWindow() const;
 	bool HasSaveScreen() const;
 	void SetFlags( DWORD flags ) { m_Flags.Set(flags); }
-	virtual void SetDeleting(void);
-	bool IsDeleting(void) const;
-	void Pin(void);
-	void UnPin(void);
-	bool IsPinned(void) const;
+	bool IsDeleting() const;
+	void Pin();
+	void UnPin();
+	bool IsPinned() const;
 	void SetMacroMode(FARMACROAREA Area);
-	int ID(void) const {return m_ID;}
+	int ID() const {return m_ID;}
 
 	auto GetPinner() { return make_raii_wrapper(this, &window::Pin, &window::UnPin); }
 
@@ -99,8 +100,6 @@ protected:
 	int m_ID;
 	bool m_CanLoseFocus{};
 	int m_ExitCode{ -1 };
-	bool m_KeyBarVisible{};
-	bool m_TitleBarVisible{};
 	std::unique_ptr<KeyBar> m_windowKeyBar;
 
 private:

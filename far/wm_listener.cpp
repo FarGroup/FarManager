@@ -30,14 +30,14 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "wm_listener.hpp"
+
 #include "config.hpp"
 #include "imports.hpp"
 #include "notification.hpp"
-#include "string_utils.hpp"
+#include "global.hpp"
+
+#include "common/scope_exit.hpp"
 
 static std::exception_ptr* WndProcExceptionPtr;
 static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
@@ -61,14 +61,14 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 				{
 				case DBT_DEVICEARRIVAL:
 					Arrival=true;
-					// fallthrough
+					[[fallthrough]];
 				case DBT_DEVICEREMOVECOMPLETE:
 					{
 						const auto BroadcastHeader = reinterpret_cast<const DEV_BROADCAST_HDR*>(lParam);
 						if (BroadcastHeader->dbch_devicetype == DBT_DEVTYP_VOLUME)
 						{
 							const auto BroadcastVolume = reinterpret_cast<const DEV_BROADCAST_VOLUME*>(BroadcastHeader);
-							MessageManager().notify(update_devices, update_devices_message{ Arrival, BroadcastVolume->dbcv_unitmask });
+							message_manager::instance().notify(update_devices, update_devices_message{ Arrival, BroadcastVolume->dbcv_unitmask });
 						}
 					}
 					break;
@@ -79,16 +79,16 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 		case WM_SETTINGCHANGE:
 			if (lParam)
 			{
-				if (equal(reinterpret_cast<const wchar_t*>(lParam), L"Environment"_sv))
+				if (equal(reinterpret_cast<const wchar_t*>(lParam), L"Environment"sv))
 				{
 					if (Global->Opt->UpdateEnvironment)
 					{
-						MessageManager().notify(update_environment);
+						message_manager::instance().notify(update_environment);
 					}
 				}
-				else if (equal(reinterpret_cast<const wchar_t*>(lParam), L"intl"_sv))
+				else if (equal(reinterpret_cast<const wchar_t*>(lParam), L"intl"sv))
 				{
-					MessageManager().notify(update_intl);
+					message_manager::instance().notify(update_intl);
 				}
 			}
 			break;
@@ -97,10 +97,10 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 			switch (wParam)
 			{
 			case PBT_APMPOWERSTATUSCHANGE: // change status
-
 			case PBT_POWERSETTINGCHANGE:   // change percent
-				MessageManager().notify(update_power);
+				message_manager::instance().notify(update_power);
 				break;
+
 			// TODO:
 			// PBT_APMSUSPEND & PBT_APMRESUMEAUTOMATIC handlers
 
@@ -160,8 +160,8 @@ void wm_listener::WindowThreadRoutine(const os::event* ReadyEvent)
 		return;
 
 	// for PBT_POWERSETTINGCHANGE
-	const auto hpn = Imports().RegisterPowerSettingNotification(m_Hwnd,&GUID_BATTERY_PERCENTAGE_REMAINING,DEVICE_NOTIFY_WINDOW_HANDLE);
-	SCOPE_EXIT{ if (hpn) Imports().UnregisterPowerSettingNotification(hpn); };
+	const auto hpn = imports.RegisterPowerSettingNotification(m_Hwnd,&GUID_BATTERY_PERCENTAGE_REMAINING,DEVICE_NOTIFY_WINDOW_HANDLE);
+	SCOPE_EXIT{ if (hpn) imports.UnregisterPowerSettingNotification(hpn); };
 
 	MSG Msg;
 	WndProcExceptionPtr = &m_ExceptionPtr;

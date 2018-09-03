@@ -37,6 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "modal.hpp"
 
+#include "platform.fwd.hpp"
+
 class HelpRecord;
 
 class Help:public Modal
@@ -44,45 +46,46 @@ class Help:public Modal
 	struct private_tag {};
 
 public:
-	static help_ptr create(const string& Topic, const wchar_t *Mask = nullptr, unsigned long long Flags=0);
+	static help_ptr create(string_view Topic, const wchar_t *Mask = nullptr, unsigned long long Flags=0);
 	explicit Help(private_tag);
-	virtual ~Help() override;
 
-	virtual bool  ProcessKey(const Manager::Key& Key) override;
-	virtual bool  ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual void InitKeyBar() override;
-	virtual void SetScreenPosition() override;
-	virtual void ResizeConsole() override;
-	virtual bool CanFastHide() const override; // Введена для нужд CtrlAltShift
-	virtual int GetTypeAndName(string &strType, string &strName) override;
-	virtual int GetType() const override { return windowtype_help; }
-	virtual long long VMProcess(int OpCode, void* vParam, long long iParam) override;
+	bool  ProcessKey(const Manager::Key& Key) override;
+	bool  ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	void InitKeyBar() override;
+	void SetScreenPosition() override;
+	void ResizeConsole() override;
+	bool CanFastHide() const override;
+	int GetTypeAndName(string &strType, string &strName) override;
+	int GetType() const override { return windowtype_help; }
+	long long VMProcess(int OpCode, void* vParam, long long iParam) override;
+	bool IsKeyBarVisible() const override { return true; }
 
 	bool GetError() const {return ErrorHelp;}
 	static bool MkTopic(const class Plugin* pPlugin, const string& HelpTopic, string &strTopic);
-	static string MakeLink(const string& path, const string& topic);
+	static string MakeLink(string_view path, string_view topic);
 
 	struct StackHelpData;
 
 private:
-	virtual void DisplayObject() override;
-	virtual string GetTitle() const override { return {}; }
-	void init(const string& Topic, const wchar_t *Mask, unsigned long long Flags);
+	void DisplayObject() override;
+	string GetTitle() const override { return {}; }
+
+	void init(string_view Topic, const wchar_t *Mask, unsigned long long Flags);
 	bool ReadHelp(const string& Mask);
-	void AddLine(const string& Line);
-	void AddTitle(const string& Title);
+	void AddLine(string_view Line);
+	void AddTitle(string_view Title);
 	static void HighlightsCorrection(string &strStr);
 	void FastShow();
 	void DrawWindowFrame() const;
 	void OutString(string_view Str);
-	int  StringLen(const string_view& Str);
+	int  StringLen(string_view Str);
 	void CorrectPosition() const;
 	bool IsReferencePresent();
 	bool GetTopic(int realX, int realY, string& strTopic);
 	void MoveToReference(int Forward,int CurScreen);
 	void ReadDocumentsHelp(int TypeIndex);
 	void Search(const os::fs::file& HelpFile,uintptr_t nCodePage);
-	bool JumpTopic(const string& JumpTopic);
+	bool JumpTopic(string_view JumpTopic);
 	bool JumpTopic();
 	int CanvasHeight() const { return ObjHeight() - 1 - 1;  }
 	int HeaderHeight() const { return FixCount? FixCount + 1 : 0; }

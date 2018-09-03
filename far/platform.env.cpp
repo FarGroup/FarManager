@@ -29,12 +29,11 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "platform.env.hpp"
 
 #include "lasterror.hpp"
+
+#include "platform.hpp"
 
 namespace os::env
 {
@@ -80,19 +79,19 @@ namespace os::env
 
 	//-------------------------------------------------------------------------
 
-	bool get(const string_view& Name, string& Value)
+	bool get(const string_view Name, string& Value)
 	{
 		GuardLastError ErrorGuard;
 		null_terminated C_Name(Name);
 
-		// GetEnvironmentVariable might return 0 not only in case of failure, but also when variable is empty.
+		// GetEnvironmentVariable might return 0 not only in case of failure, but also when the variable is empty.
 		// To recognise this, we set LastError to ERROR_SUCCESS manually and check it after the call,
 		// which doesn't change it upon success.
 		SetLastError(ERROR_SUCCESS);
 
-		if (detail::ApiDynamicStringReceiver(Value, [&](wchar_t* Buffer, size_t Size)
+		if (detail::ApiDynamicStringReceiver(Value, [&](range<wchar_t*> Buffer)
 		{
-			return ::GetEnvironmentVariable(C_Name.data(), Buffer, static_cast<DWORD>(Size));
+			return ::GetEnvironmentVariable(C_Name.c_str(), Buffer.data(), static_cast<DWORD>(Buffer.size()));
 		}))
 		{
 			return true;
@@ -109,43 +108,63 @@ namespace os::env
 		return false;
 	}
 
-	string get(const string_view& Name)
+	string get(const string_view Name)
 	{
 		string Result;
 		get(Name, Result);
 		return Result;
 	}
 
-	bool set(const string_view& Name, const string_view& Value)
+	bool set(const string_view Name, const string_view Value)
 	{
-		return ::SetEnvironmentVariable(null_terminated(Name).data(), null_terminated(Value).data()) != FALSE;
+		return ::SetEnvironmentVariable(null_terminated(Name).c_str(), null_terminated(Value).c_str()) != FALSE;
 	}
 
-	bool del(const string_view& Name)
+	bool del(const string_view Name)
 	{
-		return ::SetEnvironmentVariable(null_terminated(Name).data(), nullptr) != FALSE;
+		return ::SetEnvironmentVariable(null_terminated(Name).c_str(), nullptr) != FALSE;
 	}
 
-	string expand(const string_view& Str)
+	string expand(const string_view Str)
 	{
 		null_terminated C_Str(Str);
 
+		bool Failure = false;
+
 		string Result;
-		if (!detail::ApiDynamicStringReceiver(Result, [&](wchar_t* Buffer, size_t Size)
+		if (!detail::ApiDynamicStringReceiver(Result, [&](range<wchar_t*> Buffer)
 		{
-			const auto ReturnedSize = ::ExpandEnvironmentStrings(C_Str.data(), Buffer, static_cast<DWORD>(Size));
-			// This pesky function includes a terminating null character even upon success, breaking the usual pattern
-			return ReturnedSize <= Size? ReturnedSize - 1 : ReturnedSize;
+			// ExpandEnvironmentStrings return value always includes the terminating null character.
+			// ApiDynamicStringReceiver expects a string length upon success (e.g. without the \0),
+			// but we cannot simply subtract 1 from the returned value - the function can also return 1
+			// when the result exists, but empty, so if we do that, it will be treated as error.
+			const auto ReturnedSize = ::ExpandEnvironmentStrings(C_Str.c_str(), Buffer.data(), static_cast<DWORD>(Buffer.size()));
+			switch (ReturnedSize)
+			{
+			case 0:
+				// Failure
+				Failure = true;
+				return 0ul;
+
+			case 1:
+				// Empty result
+				return 0ul;
+
+			default:
+				// Non-empty result
+				return ReturnedSize > Buffer.size()? ReturnedSize : ReturnedSize - 1;
+			}
 		}))
 		{
-			Result = make_string(Str);
+			if (Failure)
+				assign(Result, Str);
 		}
 		return Result;
 	}
 
 	string get_pathext()
 	{
-		const auto PathExt = get(L"PATHEXT");
+		const auto PathExt = get(L"PATHEXT"sv);
 		return !PathExt.empty()? PathExt : L".COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC"s;
 	}
 }

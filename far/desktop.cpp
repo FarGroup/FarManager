@@ -30,10 +30,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "desktop.hpp"
+
 #include "global.hpp"
 #include "manager.hpp"
 #include "savescr.hpp"
@@ -71,7 +69,7 @@ bool desktop::ProcessKey(const Manager::Key& Key)
 	{
 	case KEY_F1:
 		{
-			Help::create(L"Contents");
+			Help::create(L"Contents"sv);
 		}
 		break;
 

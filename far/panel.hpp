@@ -37,10 +37,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "scrobj.hpp"
 #include "panelfwd.hpp"
-//BUGBUG
-#include "plugins.hpp"
 
+#include "platform.fwd.hpp"
+
+#include "common/enumerator.hpp"
+
+class plugin_panel;
 class DizList;
+struct PluginPanelItem;
+struct OpenPanelInfo;
 
 struct column
 {
@@ -70,7 +75,7 @@ struct PanelViewSettings
 	std::vector<column> PanelColumns;
 	std::vector<column> StatusColumns;
 	string Name;
-	unsigned long long Flags;
+	unsigned Flags;
 };
 
 enum panel_view_settings_flags
@@ -139,7 +144,13 @@ class FilePanels;
 class Panel: public ScreenObject, public std::enable_shared_from_this<Panel>
 {
 public:
-	virtual ~Panel() override;
+	~Panel() override;
+
+	void Show() override;
+	void Hide() override;
+	void DisplayObject() override {}
+	void ShowConsoleTitle() override;
+	long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
 
 	// TODO: make empty methods pure virtual, move empty implementations to dummy_panel class
 	virtual void CloseFile() {}
@@ -170,7 +181,6 @@ public:
 	virtual plugin_panel* GetPluginHandle() const {return nullptr;}
 	virtual void RefreshTitle();
 	virtual string GetTitle() const;
-	virtual long long VMProcess(int OpCode, void* vParam=nullptr, long long iParam=0) override;
 	virtual bool SendKeyToPlugin(DWORD Key,bool Pred=false) {return false;}
 	virtual bool SetCurDir(const string& NewDir,bool ClosePanel,bool IsUpdated=true);
 	virtual void ChangeDirToCurrent();
@@ -178,17 +188,13 @@ public:
 	virtual size_t GetSelCount() const { return 0; }
 	virtual size_t GetRealSelCount() const {return 0;}
 	virtual bool GetSelName(string *strName, DWORD &FileAttr, string *ShortName = nullptr, os::fs::find_data *fd = nullptr) { return false; }
-	virtual void UngetSelName() {}
 	virtual void ClearLastGetSelection() {}
-	virtual unsigned long long GetLastSelectedSize() const { return -1; }
 	virtual bool GetCurName(string &strName, string &strShortName) const;
 	virtual bool GetCurBaseName(string &strName, string &strShortName) const;
 	virtual bool GetFileName(string &strName, int Pos, DWORD &FileAttr) const { return false; }
 	virtual int GetCurrentPos() const {return 0;}
-
 	virtual bool IsFocused() const;
 	virtual void OnFocusChange(bool Get);
-
 	virtual void Update(int Mode) = 0;
 	virtual bool UpdateIfChanged(bool Idle) {return false;}
 	virtual void UpdateIfRequired() {}
@@ -197,8 +203,8 @@ public:
 	virtual bool FindPartName(const string& Name,int Next,int Direct=1) {return false;}
 	virtual bool GetPlainString(string& Dest, int ListPos) const { return false; }
 	virtual bool GoToFile(long idxItem) {return true;}
-	virtual bool GoToFile(const string_view& Name, bool OnlyPartName = false) {return true;}
-	virtual long FindFile(const string_view& Name, bool OnlyPartName = false) {return -1;}
+	virtual bool GoToFile(string_view Name, bool OnlyPartName = false) {return true;}
+	virtual long FindFile(string_view Name, bool OnlyPartName = false) {return -1;}
 	virtual bool IsSelected(const string& Name) {return false;}
 	virtual bool IsSelected(size_t indItem) {return false;}
 	virtual long FindFirst(const string& Name) {return -1;}
@@ -209,24 +215,17 @@ public:
 	virtual int GetPrevViewMode() const {return m_PrevViewMode;}
 	virtual panel_sort GetPrevSortMode() const { return m_SortMode; }
 	virtual bool GetPrevSortOrder() const { return m_ReverseSortOrder; }
-	virtual bool GetPrevNumericSort() const { return m_NumericSort; }
-	virtual void ChangeNumericSort(bool Mode) { SetNumericSort(Mode); }
-	virtual bool GetPrevCaseSensitiveSort() const { return m_CaseSensitiveSort; }
-	virtual void ChangeCaseSensitiveSort(bool Mode) {SetCaseSensitiveSort(Mode);}
 	virtual bool GetPrevDirectoriesFirst() const { return m_DirectoriesFirst; }
 	virtual void ChangeDirectoriesFirst(bool Mode) { SetDirectoriesFirst(Mode); }
+	virtual void OnSortingChange() {}
 	virtual void SetSortMode(panel_sort Mode, bool KeepOrder = false) { m_SortMode = Mode; }
 	virtual void SetCustomSortMode(int SortMode, sort_order Order = SO_AUTO, bool InvertByDefault = false) {}
 	virtual void ChangeSortOrder(bool Reverse) {SetSortOrder(Reverse);}
 	virtual void IfGoHome(wchar_t Drive) {}
 	virtual void UpdateKeyBar() = 0;
 	virtual size_t GetFileCount() const { return 0; }
-	virtual void Hide() override;
-	virtual void Show() override;
-	virtual void DisplayObject() override {}
-	virtual Viewer* GetViewer(void) {return nullptr;}
-	virtual Viewer* GetById(int ID) {(void)ID; return nullptr;}
-	virtual void ShowConsoleTitle() override;
+	virtual Viewer* GetViewer() {return nullptr;}
+	virtual Viewer* GetById(int ID) { return nullptr;}
 
 	static void exclude_sets(string& mask);
 
@@ -236,10 +235,6 @@ public:
 	int GetViewMode() const { return m_ViewMode; }
 	void SetPrevViewMode(int PrevViewMode) {m_PrevViewMode=PrevViewMode;}
 	panel_sort GetSortMode() const { return m_SortMode; }
-	bool GetNumericSort() const { return m_NumericSort; }
-	void SetNumericSort(bool Mode) { m_NumericSort = Mode; }
-	bool GetCaseSensitiveSort() const { return m_CaseSensitiveSort; }
-	void SetCaseSensitiveSort(bool Mode) {m_CaseSensitiveSort = Mode;}
 	bool GetDirectoriesFirst() const { return m_DirectoriesFirst; }
 	void SetDirectoriesFirst(bool Mode) { m_DirectoriesFirst = Mode != 0; }
 	bool GetSortOrder() const { return m_ReverseSortOrder; }
@@ -257,17 +252,40 @@ public:
 	bool IsMouseInClientArea(const MOUSE_EVENT_RECORD *MouseEvent) const;
 	panel_type GetType() const {return m_Type;}
 	void SetUpdateMode(int Mode) {m_EnableUpdate=Mode;}
-	bool MakeListFile(string &strListFileName,bool ShortNames,const string& Modifers);
+	bool MakeListFile(string& ListFileName, bool ShortNames, string_view Modifers);
 	bool SetCurPath();
 	bool NeedUpdatePanel(const Panel *AnotherPanel) const;
 	bool IsFullScreen() const { return (m_ViewSettings.Flags & PVS_FULLSCREEN) != 0; }
 	void SetFullScreen() { m_ViewSettings.Flags |= PVS_FULLSCREEN; }
-	bool CreateFullPathName(const string& Name, const string& ShortName, DWORD FileAttr, string& strDest, bool UNC, bool ShortNameAsIs = true) const;
+	string CreateFullPathName(string_view Name, bool Directory, bool UNC, bool ShortNameAsIs = true) const;
 	FilePanels* Parent() const;
 
 	static void EndDrag();
 
 	int ProcessingPluginCommand = 0;
+
+	auto enum_selected()
+	{
+		using value_type = os::fs::find_data;
+		return make_inline_enumerator<value_type>([this](const bool Reset, value_type& Value)
+		{
+			DWORD Attributes;
+
+			if (Reset)
+				GetSelName(nullptr, Attributes);
+
+			string Name;
+			return GetSelName(&Name, Attributes, nullptr, &Value);
+		});
+	}
+
+	bool get_first_selected(os::fs::find_data& Value)
+	{
+		DWORD Attributes;
+		GetSelName(nullptr, Attributes);
+		string Name;
+		return GetSelName(&Name, Attributes, nullptr, &Value);
+	}
 
 protected:
 	explicit Panel(window_ptr Owner);
@@ -289,6 +307,7 @@ private:
 		GUID PluginGuid;
 	};
 	bool GetShortcutInfo(ShortcutInfo& Info) const;
+	bool SetPluginDirectory(const string& strDirectory, bool Silent);
 
 	static void DragMessage(int X,int Y,int Move);
 
@@ -306,12 +325,8 @@ protected:
 	int m_CurTopFile = 0;
 	int m_CurFile = 0;
 	bool m_ShowShortNames = false;
-	bool m_NumericSort = false;
-	bool m_CaseSensitiveSort = false;
 	bool m_DirectoriesFirst = true;
 	int m_ModalMode = 0;
-	int m_PluginCommand = -1;
-	string m_PluginParam;
 	string m_Title;
 
 private:
@@ -321,11 +336,14 @@ private:
 class dummy_panel : public Panel
 {
 public:
-	explicit dummy_panel(window_ptr Owner): Panel(Owner){}
+	explicit dummy_panel(window_ptr Owner):
+		Panel(std::move(Owner))
+	{
+	}
 
 private:
-	virtual void Update(int Mode) override {};
-	virtual void UpdateKeyBar() override {}
+	void Update(int Mode) override {};
+	void UpdateKeyBar() override {}
 };
 
 #endif // PANEL_HPP_FFA15B35_5546_4AA9_84B2_B60D8AA904C7

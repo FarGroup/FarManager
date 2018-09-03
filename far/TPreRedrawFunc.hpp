@@ -40,7 +40,7 @@ struct PreRedrawItem: noncopyable
 {
 	using handler_type = std::function<void()>;
 
-	explicit PreRedrawItem(const handler_type& PreRedrawFunc) : m_PreRedrawFunc(PreRedrawFunc) {}
+	explicit PreRedrawItem(handler_type PreRedrawFunc) : m_PreRedrawFunc(std::move(PreRedrawFunc)) {}
 	virtual ~PreRedrawItem() = default;
 
 	handler_type m_PreRedrawFunc;

@@ -31,10 +31,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "editor.hpp"
+
 #include "edit.hpp"
 #include "keyboard.hpp"
 #include "macroopcode.hpp"
@@ -45,7 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "syslog.hpp"
-#include "TaskBar.hpp"
+#include "taskbar.hpp"
 #include "interf.hpp"
 #include "message.hpp"
 #include "clipboard.hpp"
@@ -53,7 +51,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "stddlg.hpp"
 #include "strmix.hpp"
-#include "FarDlgBuilder.hpp"
 #include "wakeful.hpp"
 #include "colormix.hpp"
 #include "vmenu.hpp"
@@ -64,8 +61,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "RegExp.hpp"
 #include "plugins.hpp"
 #include "lang.hpp"
-#include "regex_helpers.hpp"
 #include "string_utils.hpp"
+#include "global.hpp"
+
+#include "common/bytes_view.hpp"
+#include "common/scope_exit.hpp"
+
+#include "format.hpp"
 
 static bool ReplaceMode, ReplaceAll;
 
@@ -101,19 +103,18 @@ private:
 	bool needCheckUnmark;
 };
 
-const wchar_t* Editor::GetDefaultEOL()
+eol::type Editor::GetDefaultEOL()
 {
-	return Global->Opt->EdOpt.NewFileUnixEOL ? UNIX_EOL_fmt : WIN_EOL_fmt;
+	return Global->Opt->EdOpt.NewFileUnixEOL? eol::type::unix : eol::type::win;
 }
 
 Editor::Editor(window_ptr Owner, bool DialogUsed):
-	SimpleScreenObject(Owner),
+	SimpleScreenObject(std::move(Owner)),
 	EdOpt(Global->Opt->EdOpt),
 	LastSearchCase(Global->GlobalSearchCase),
 	LastSearchWholeWords(Global->GlobalSearchWholeWords),
 	LastSearchReverse(Global->GlobalSearchReverse),
 	LastSearchRegexp(Global->Opt->EdOpt.SearchRegexp),
-	LastSearchPreserveStyle(false),
 	EditorID(::EditorID++),
 	Color(colors::PaletteColorToFarColor(COL_EDITORTEXT)),
 	SelColor(colors::PaletteColorToFarColor(COL_EDITORSELECTEDTEXT))
@@ -126,7 +127,7 @@ Editor::Editor(window_ptr Owner, bool DialogUsed):
 
 	if (Global->GetSearchHex())
 	{
-		const auto Blob = HexStringToBlob(Global->GetSearchString().data(), 0);
+		const auto Blob = HexStringToBlob(Global->GetSearchString(), 0);
 		strLastSearchStr.assign(ALL_CONST_RANGE(Blob));
 	}
 	else
@@ -136,7 +137,7 @@ Editor::Editor(window_ptr Owner, bool DialogUsed):
 	UnmarkMacroBlock();
 
 	GlobalEOL = GetDefaultEOL();
-	PushString(nullptr, 0);
+	PushString({});
 }
 
 
@@ -159,7 +160,6 @@ void Editor::FreeAllocatedData()
 	UndoSkipLevel=0;
 	ClearSessionBookmarks();
 	m_it_AnyBlockStart = m_it_LastGetLine = m_it_CurLine = m_it_TopScreen = EndIterator();
-	m_LinesCount = 0;
 }
 
 void Editor::SwapState(Editor& swap_state)
@@ -172,7 +172,6 @@ void Editor::SwapState(Editor& swap_state)
 	swap(m_it_LastGetLine, swap_state.m_it_LastGetLine);
 	swap(m_it_TopScreen, swap_state.m_it_TopScreen);
 	swap(m_it_CurLine, swap_state.m_it_CurLine);
-	swap(m_LinesCount, swap_state.m_LinesCount);
 
 	UndoData.swap(swap_state.UndoData);
 	swap(UndoPos, swap_state.UndoPos);
@@ -181,7 +180,7 @@ void Editor::SwapState(Editor& swap_state)
 	SessionBookmarks.swap(swap_state.SessionBookmarks);
 	m_SavePos.swap(swap_state.m_SavePos);
 	swap(NewSessionPos, swap_state.NewSessionPos);
-	GlobalEOL.swap(swap_state.GlobalEOL);
+	swap(GlobalEOL, swap_state.GlobalEOL);
 }
 
 void Editor::KeepInitParameters() const
@@ -216,9 +215,7 @@ void Editor::ShowEditor()
 	Color = colors::PaletteColorToFarColor(COL_EDITORTEXT);
 	SelColor = colors::PaletteColorToFarColor(COL_EDITORSELECTEDTEXT);
 
-	int LeftPos,CurPos,Y;
-
-	XX2=m_X2 - (EdOpt.ShowScrollBar && ScrollBarRequired(ObjHeight(), m_LinesCount) ? 1 : 0);
+	XX2=m_X2 - (EdOpt.ShowScrollBar && ScrollBarRequired(ObjHeight(), Lines.size())? 1 : 0);
 	/* 17.04.2002 skv
 	  Что б курсор не бегал при Alt-F9 в конце длинного файла.
 	  Если на экране есть свободное место, и есть текст сверху,
@@ -247,7 +244,7 @@ void Editor::ShowEditor()
 		++m_it_TopScreen;
 	}
 
-	CurPos = m_it_CurLine->GetTabCurPos();
+	auto CurPos = m_it_CurLine->GetTabCurPos();
 
 	if (!EdOpt.CursorBeyondEOL)
 	{
@@ -286,9 +283,9 @@ void Editor::ShowEditor()
 
 	DrawScrollbar();
 
-	LeftPos=m_it_CurLine->GetLeftPos();
+	auto LeftPos = m_it_CurLine->GetLeftPos();
 	Edit::ShowInfo info={LeftPos,CurPos};
-	Y = m_Y1;
+	auto Y = m_Y1;
 	for (auto CurPtr=m_it_TopScreen; Y<=m_Y2; Y++)
 	{
 		if (CurPtr != Lines.end())
@@ -470,7 +467,7 @@ long long Editor::VMProcess(int OpCode, void* vParam, long long iParam)
 	{
 		case MCODE_C_EMPTY:
 			// Editor always has at least one line
-			return Lines.empty() || (m_LinesCount == 1 && Lines.front().m_Str.empty());
+			return Lines.empty() || (Lines.size() == 1 && Lines.front().m_Str.empty());
 		case MCODE_C_EOF:
 			return IsLastLine(m_it_CurLine) && CurPos >= m_it_CurLine->GetLength();
 		case MCODE_C_BOF:
@@ -485,7 +482,7 @@ long long Editor::VMProcess(int OpCode, void* vParam, long long iParam)
 			return m_it_CurLine.Number() + 1;
 		case MCODE_V_ITEMCOUNT:
 		case MCODE_V_EDITORLINES:
-			return m_LinesCount;
+			return Lines.size();
 			// работа со стековыми закладками
 		case MCODE_F_BM_ADD:
 			AddSessionBookmark();
@@ -726,27 +723,26 @@ long long Editor::VMProcess(int OpCode, void* vParam, long long iParam)
 				}
 				case MCODE_F_EDITOR_INSSTR:  // N=Editor.InsStr([S[,Line]])
 				{
-					const auto NewEditPtr = InsertString(static_cast<const wchar_t*>(vParam), StrLength(static_cast<const wchar_t*>(vParam)), std::next(EditPtr));
+					const auto NewEditPtr = InsertString(NullToEmpty(static_cast<const wchar_t*>(vParam)), std::next(EditPtr));
 					NewEditPtr->SetEOL(EditPtr->GetEOL());
-					AddUndoData(UNDO_INSSTR, NewEditPtr->GetString(), EditPtr->GetEOL(), DestLine,0);
+					AddUndoData(UNDO_INSSTR, NewEditPtr->GetString(), EditPtr->GetEOL(), DestLine + 1, 0);
 					Change(ECTYPE_ADDED,DestLine+1);
 					TextChanged(true);
 					return 1;
 				}
 				case MCODE_F_EDITOR_SETSTR:  // N=Editor.SetStr([S[,Line]])
 				{
-					string strEOL=EditPtr->GetEOL();
-					AddUndoData(UNDO_EDIT, EditPtr->GetString(), strEOL.data(), DestLine, EditPtr->GetCurPos());
-					const auto Str = static_cast<const wchar_t*>(vParam);
-					EditPtr->SetString(Str, wcslen(Str));
-					EditPtr->SetEOL(strEOL);
+					const auto EOL = EditPtr->GetEOL();
+					AddUndoData(UNDO_EDIT, EditPtr->GetString(), EOL, DestLine, EditPtr->GetCurPos());
+					EditPtr->SetString(static_cast<const wchar_t*>(vParam));
+					EditPtr->SetEOL(EOL);
 					Change(ECTYPE_CHANGED,DestLine);
 					TextChanged(true);
 					return 1;
 				}
 			}
 		}
-		// fallthrough
+		[[fallthrough]];
 		case MCODE_V_EDITORSELVALUE: // Editor.SelValue
 		{
 			*reinterpret_cast<string*>(vParam) = IsVerticalSelection()? VBlock2Text() : Block2Text();
@@ -865,7 +861,12 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 	// работа с закладками
 	if (LocalKey()>=KEY_CTRL0 && LocalKey()<=KEY_CTRL9)
-		return GotoBookmark(LocalKey()-KEY_CTRL0);
+	{
+		auto KeyProcessed = GotoBookmark(LocalKey() - KEY_CTRL0);
+		if (KeyProcessed)
+			Refresh = true;
+		return KeyProcessed;
+	}
 
 	if (LocalKey()>=KEY_CTRLSHIFT0 && LocalKey()<=KEY_CTRLSHIFT9)
 		LocalKey=LocalKey()-KEY_CTRLSHIFT0+KEY_RCTRL0;
@@ -1172,7 +1173,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 					if (!LocalCurPos)
 						break;
 
-					if (IsSpace(Str[LocalCurPos-1]) || IsWordDiv(EdOpt.strWordDiv,Str[LocalCurPos-1]))
+					if (std::iswblank(Str[LocalCurPos-1]) || IsWordDiv(EdOpt.strWordDiv,Str[LocalCurPos-1]))
 					{
 						if (SkipSpace)
 						{
@@ -1207,7 +1208,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 					if (LocalCurPos >= Str.size())
 						break;
 
-					if (IsSpace(Str[LocalCurPos]) || IsWordDiv(EdOpt.strWordDiv, Str[LocalCurPos]))
+					if (std::iswblank(Str[LocalCurPos]) || IsWordDiv(EdOpt.strWordDiv, Str[LocalCurPos]))
 					{
 						if (SkipSpace)
 						{
@@ -1281,14 +1282,8 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			else //расширяем выделение
 			{
 				m_it_CurLine->Select(SelStart,-1);
-				SelStart=0;
-				SelEnd=CurPos;
-
-				if (SelStart!=-1)
-					SelStart = NextLine->TabPosToReal(SelStart);
-
-				if (SelEnd!=-1)
-					SelEnd = NextLine->TabPosToReal(SelEnd);
+				SelStart = NextLine->TabPosToReal(0);
+				SelEnd = NextLine->TabPosToReal(CurPos);
 			}
 
 			if (!EdOpt.CursorBeyondEOL && SelEnd > NextLine->GetLength())
@@ -1343,7 +1338,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 				if (SelStart != -1)
 					SelStart = PrevLine->RealPosToTab(SelStart);
 
-				if (SelStart != -1)
+				if (SelEnd != -1)
 					SelEnd = PrevLine->RealPosToTab(SelEnd);
 
 				if (SelStart==-1)
@@ -1489,8 +1484,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 		case KEY_SHIFTNUMDEL:
 		case KEY_SHIFTDECIMAL:
 			Copy(FALSE);
-			// fallthrough
-
+			[[fallthrough]];
 		case KEY_CTRLD:
 		case KEY_RCTRLD:
 		{
@@ -1502,6 +1496,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			Refresh = true;
 			return true;
 		}
+
 		case KEY_CTRLV:
 		case KEY_RCTRLV:
 		case KEY_SHIFTINS: case KEY_SHIFTNUMPAD0:
@@ -1526,6 +1521,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			Refresh = true;
 			return true;
 		}
+
 		case KEY_LEFT: case KEY_NUMPAD4:
 		{
 			m_Flags.Set(FEDITOR_NEWUNDO);
@@ -1543,12 +1539,12 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 			return true;
 		}
+
 		case KEY_INS: case KEY_NUMPAD0:
-		{
-			m_Flags.Swap(FEDITOR_OVERTYPE);
+			m_Flags.Invert(FEDITOR_OVERTYPE);
 			Refresh = true;
 			return true;
-		}
+
 		case KEY_NUMDEL:
 		case KEY_DEL:
 		{
@@ -1576,7 +1572,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 						const auto NextLine = std::next(m_it_CurLine);
 						if (NextLine == Lines.end())
 						{
-							m_it_CurLine->SetEOL(L"");
+							m_it_CurLine->SetEOL(eol::type::none);
 						}
 						else
 						{
@@ -1584,7 +1580,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 							int Length=m_it_CurLine->GetLength();
 							m_it_CurLine->GetSelection(CurSelStart, CurSelEnd);
 							NextLine->GetSelection(NextSelStart, NextSelEnd);
-							const wchar_t *NextEOL = NextLine->GetEOL();
+							const auto NextEOL = NextLine->GetEOL();
 							const auto& Str = NextLine->GetString();
 							m_it_CurLine->InsertString(Str);
 							m_it_CurLine->SetEOL(NextLine->GetEOL());
@@ -1628,6 +1624,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 			return true;
 		}
+
 		case KEY_BS:
 		{
 			if (!m_Flags.Check(FEDITOR_LOCKMODE))
@@ -1672,6 +1669,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 			return true;
 		}
+
 		case KEY_CTRLBS:
 		case KEY_RCTRLBS:
 		{
@@ -1695,6 +1693,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 			return true;
 		}
+
 		case KEY_UP: case KEY_NUMPAD8:
 		case KEY_DOWN: case KEY_NUMPAD2:
 		{
@@ -1721,6 +1720,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			}
 			return true;
 		}
+
 		case KEY_MSWHEEL_UP:
 		case(KEY_MSWHEEL_UP | KEY_ALT):
 		case(KEY_MSWHEEL_UP | KEY_RALT):
@@ -1729,6 +1729,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			repeat(Roll, [&] { ProcessKeyInternal(Manager::Key(KEY_CTRLUP), Refresh); });
 			return true;
 		}
+
 		case KEY_MSWHEEL_DOWN:
 		case(KEY_MSWHEEL_DOWN | KEY_ALT):
 		case(KEY_MSWHEEL_DOWN | KEY_RALT):
@@ -1737,6 +1738,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			repeat(Roll, [&] { ProcessKeyInternal(Manager::Key(KEY_CTRLDOWN), Refresh); });
 			return true;
 		}
+
 		case KEY_MSWHEEL_LEFT:
 		case(KEY_MSWHEEL_LEFT | KEY_ALT):
 		case(KEY_MSWHEEL_LEFT | KEY_RALT):
@@ -1745,6 +1747,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			repeat(Roll, [&] { ProcessKeyInternal(Manager::Key(KEY_LEFT), Refresh); });
 			return true;
 		}
+
 		case KEY_MSWHEEL_RIGHT:
 		case(KEY_MSWHEEL_RIGHT | KEY_ALT):
 		case(KEY_MSWHEEL_RIGHT | KEY_RALT):
@@ -1753,6 +1756,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			repeat(Roll, [&] { ProcessKeyInternal(Manager::Key(KEY_RIGHT), Refresh); });
 			return true;
 		}
+
 		case KEY_CTRLUP:  case KEY_CTRLNUMPAD8:
 		case KEY_RCTRLUP: case KEY_RCTRLNUMPAD8:
 		{
@@ -1761,6 +1765,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			Refresh = true;
 			return true;
 		}
+
 		case KEY_CTRLDOWN:  case KEY_CTRLNUMPAD2:
 		case KEY_RCTRLDOWN: case KEY_RCTRLNUMPAD2:
 		{
@@ -1769,6 +1774,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			Refresh = true;
 			return true;
 		}
+
 		case KEY_PGUP:     case KEY_NUMPAD9:
 		{
 			m_Flags.Set(FEDITOR_NEWUNDO);
@@ -1779,6 +1785,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			Refresh = true;
 			return true;
 		}
+
 		case KEY_PGDN:    case KEY_NUMPAD3:
 		{
 			m_Flags.Set(FEDITOR_NEWUNDO);
@@ -1789,6 +1796,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			Refresh = true;
 			return true;
 		}
+
 		case KEY_CTRLHOME:  case KEY_CTRLNUMPAD7:
 		case KEY_RCTRLHOME: case KEY_RCTRLNUMPAD7:
 		case KEY_CTRLPGUP:  case KEY_CTRLNUMPAD9:
@@ -1811,6 +1819,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			}
 			return true;
 		}
+
 		case KEY_CTRLEND:   case KEY_CTRLNUMPAD1:
 		case KEY_RCTRLEND:  case KEY_RCTRLNUMPAD1:
 		case KEY_CTRLPGDN:  case KEY_CTRLNUMPAD3:
@@ -1842,6 +1851,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			}
 			return true;
 		}
+
 		case KEY_NUMENTER:
 		case KEY_ENTER:
 		{
@@ -1854,6 +1864,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 			return true;
 		}
+
 		case KEY_CTRLN:
 		case KEY_RCTRLN:
 		{
@@ -1868,6 +1879,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			Refresh = true;
 			return true;
 		}
+
 		case KEY_CTRLE:
 		case KEY_RCTRLE:
 		{
@@ -1886,15 +1898,17 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			}
 			return true;
 		}
+
 		case KEY_CTRLL:
 		case KEY_RCTRLL:
 		{
-			m_Flags.Swap(FEDITOR_LOCKMODE);
+			m_Flags.Invert(FEDITOR_LOCKMODE);
 
 			if (HostFileEditor) HostFileEditor->ShowStatus();
 
 			return true;
 		}
+
 		case KEY_CTRLY:
 		case KEY_RCTRLY:
 		{
@@ -1902,6 +1916,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			Refresh = true;
 			return true;
 		}
+
 		case KEY_F7:
 		{
 			bool ReplaceMode0=ReplaceMode;
@@ -1916,6 +1931,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 			return true;
 		}
+
 		case KEY_CTRLF7:
 		case KEY_RCTRLF7:
 		{
@@ -1935,6 +1951,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 			return true;
 		}
+
 		case KEY_SHIFTF7:
 		{
 			/* $ 20.09.2000 SVS
@@ -1949,6 +1966,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			Search(true);
 			return true;
 		}
+
 		case KEY_ALTF7:
 		case KEY_RALTF7:
 		{
@@ -1973,6 +1991,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			*/
 			return true;
 		}
+
 		case KEY_CTRLSHIFTZ:
 		case KEY_RCTRLSHIFTZ:
 		case KEY_ALTBS:
@@ -1988,43 +2007,39 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 			return true;
 		}
+
 		case KEY_ALTF8:
 		case KEY_RALTF8:
 		{
-			{
-				GoToPosition();
+			GoToPosition();
 
-				// <GOTO_UNMARK:1>
-				if (!EdOpt.PersistentBlocks)
-					UnmarkBlock();
+			// <GOTO_UNMARK:1>
+			if (!EdOpt.PersistentBlocks)
+				UnmarkBlock();
 
-				// </GOTO_UNMARK>
-				Refresh = true;
-			}
+			// </GOTO_UNMARK>
+			Refresh = true;
 			return true;
 		}
+
 		case KEY_ALTU:
 		case KEY_RALTU:
-		{
 			if (!m_Flags.Check(FEDITOR_LOCKMODE))
 			{
 				BlockLeft();
 				Refresh = true;
 			}
-
 			return true;
-		}
+
 		case KEY_ALTI:
 		case KEY_RALTI:
-		{
 			if (!m_Flags.Check(FEDITOR_LOCKMODE))
 			{
 				BlockRight();
 				Refresh = true;
 			}
-
 			return true;
-		}
+
 		case KEY_ALTSHIFTLEFT:  case KEY_ALTSHIFTNUMPAD4:
 		case KEY_RALTSHIFTLEFT: case KEY_RALTSHIFTNUMPAD4:
 		case KEY_ALTLEFT:
@@ -2063,6 +2078,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			//_D(SysLog(L"~~~~~~~~~~~~~~~~ KEY_ALTLEFT END, VBlockY=%i:%i, VBlockX=%i:%i",VBlockY,VBlockSizeY,VBlockX,VBlockSizeX));
 			return true;
 		}
+
 		case KEY_ALTSHIFTRIGHT:  case KEY_ALTSHIFTNUMPAD6:
 		case KEY_RALTSHIFTRIGHT: case KEY_RALTSHIFTNUMPAD6:
 		case KEY_ALTRIGHT:
@@ -2080,7 +2096,6 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			//_D(SysLog(L"---------------- KEY_ALTRIGHT, getLineCurPos=%i",GetLineCurPos()));
 			Pasting++;
 			{
-				int Delta;
 				/* $ 18.07.2000 tran
 				     встань в начало текста, нажми alt-right, alt-pagedown,
 				     выделится блок шириной в 1 колонку, нажми еще alt-right
@@ -2090,7 +2105,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 				           NextVisPos=m_it_CurLine->RealPosToTab(CurPos+1);
 				//_D(SysLog(L"CurPos=%i, VisPos=%i, NextVisPos=%i",
 				//    CurPos,VisPos, NextVisPos); //,CurLine->GetTabCurPos()));
-				Delta=NextVisPos-VisPos;
+				const auto Delta=NextVisPos-VisPos;
 				//_D(SysLog(L"Delta=%i",Delta));
 
 				if (m_it_CurLine->GetTabCurPos()>=VBlockX+VBlockSizeX)
@@ -2117,6 +2132,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			//_D(SysLog(L"~~~~~~~~~~~~~~~~ KEY_ALTRIGHT END, VBlockY=%i:%i, VBlockX=%i:%i",VBlockY,VBlockSizeY,VBlockX,VBlockSizeX));
 			return true;
 		}
+
 		/* $ 29.06.2000 IG
 		  + CtrlAltLeft, CtrlAltRight для вертикальный блоков
 		*/
@@ -2139,7 +2155,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 					if (!LocalCurPos)
 						break;
 
-					if (IsSpace(Str[LocalCurPos - 1]) || IsWordDiv(EdOpt.strWordDiv, Str[LocalCurPos - 1]))
+					if (std::iswblank(Str[LocalCurPos - 1]) || IsWordDiv(EdOpt.strWordDiv, Str[LocalCurPos - 1]))
 					{
 						if (SkipSpace)
 						{
@@ -2159,6 +2175,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			}
 			return true;
 		}
+
 		case KEY_CTRLALTRIGHT:   case KEY_CTRLALTNUMPAD6:
 		{
 			{
@@ -2172,7 +2189,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 					if (LocalCurPos >= Str.size())
 						break;
 
-					if (IsSpace(Str[LocalCurPos]) || IsWordDiv(EdOpt.strWordDiv, Str[LocalCurPos]))
+					if (std::iswblank(Str[LocalCurPos]) || IsWordDiv(EdOpt.strWordDiv, Str[LocalCurPos]))
 					{
 						if (SkipSpace)
 						{
@@ -2191,6 +2208,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			}
 			return true;
 		}
+
 		case KEY_ALTSHIFTUP:    case KEY_ALTSHIFTNUMPAD8:
 		case KEY_RALTSHIFTUP:   case KEY_RALTSHIFTNUMPAD8:
 		case KEY_ALTUP:
@@ -2221,6 +2239,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			Refresh = true;
 			return true;
 		}
+
 		case KEY_ALTSHIFTDOWN:  case KEY_ALTSHIFTNUMPAD2:
 		case KEY_RALTSHIFTDOWN: case KEY_RALTSHIFTNUMPAD2:
 		case KEY_ALTDOWN:
@@ -2252,6 +2271,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			//_D(SysLog(L"~~~~ Key_AltDOWN: VBlockY=%i:%i, VBlockX=%i:%i",VBlockY,VBlockSizeY,VBlockX,VBlockSizeX));
 			return true;
 		}
+
 		case KEY_ALTSHIFTHOME:  case KEY_ALTSHIFTNUMPAD7:
 		case KEY_RALTSHIFTHOME: case KEY_RALTSHIFTNUMPAD7:
 		case KEY_ALTHOME:
@@ -2264,6 +2284,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			Refresh = true;
 			return true;
 		}
+
 		case KEY_ALTSHIFTEND:  case KEY_ALTSHIFTNUMPAD1:
 		case KEY_RALTSHIFTEND: case KEY_RALTSHIFTNUMPAD1:
 		case KEY_ALTEND:
@@ -2281,6 +2302,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			Refresh = true;
 			return true;
 		}
+
 		case KEY_ALTSHIFTPGUP:  case KEY_ALTSHIFTNUMPAD9:
 		case KEY_RALTSHIFTPGUP: case KEY_RALTSHIFTNUMPAD9:
 		case KEY_ALTPGUP:
@@ -2293,6 +2315,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			Refresh = true;
 			return true;
 		}
+
 		case KEY_ALTSHIFTPGDN:  case KEY_ALTSHIFTNUMPAD3:
 		case KEY_RALTSHIFTPGDN: case KEY_RALTSHIFTNUMPAD3:
 		case KEY_ALTPGDN:
@@ -2305,6 +2328,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			Refresh = true;
 			return true;
 		}
+
 		case KEY_CTRLALTPGUP:   case KEY_CTRLALTNUMPAD9:
 		case KEY_CTRLALTHOME:   case KEY_CTRLALTNUMPAD7:
 		{
@@ -2319,6 +2343,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			Refresh = true;
 			return true;
 		}
+
 		case KEY_CTRLALTPGDN:   case KEY_CTRLALTNUMPAD3:
 		case KEY_CTRLALTEND:    case KEY_CTRLALTNUMPAD1:
 		{
@@ -2334,6 +2359,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			Refresh = true;
 			return true;
 		}
+
 		case KEY_CTRLALTBRACKET:       // Вставить сетевое (UNC) путь из левой панели
 		case KEY_CTRLALTBACKBRACKET:   // Вставить сетевое (UNC) путь из правой панели
 		case KEY_ALTSHIFTBRACKET:      // Вставить сетевое (UNC) путь из активной панели
@@ -2375,6 +2401,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 			return true;
 		}
+
 		case KEY_CTRLQ:
 		case KEY_RCTRLQ:
 		{
@@ -2403,6 +2430,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 			return true;
 		}
+
 		case KEY_OP_SELWORD:
 		{
 			int OldCurPos=CurPos;
@@ -2430,6 +2458,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			Refresh = true;
 			return true;
 		}
+
 		case KEY_OP_PLAINTEXT:
 		{
 			if (!m_Flags.Check(FEDITOR_LOCKMODE))
@@ -2456,6 +2485,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 			return true;
 		}
+
 		default:
 		{
 			{
@@ -2532,7 +2562,6 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 				const auto& Str = m_it_CurLine->GetString();
 				string CmpStr;
-
 				if (!SkipCheckUndo)
 				{
 					CmpStr = Str;
@@ -2560,7 +2589,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 						m_it_CurLine->SetCurPos(0);
 						const auto PrevStr = PrevLine->GetString();
 
-						for (size_t I = 0; I != PrevStr.size() && IsSpace(PrevStr[I]); ++I)
+						for (size_t I = 0; I != PrevStr.size() && std::iswblank(PrevStr[I]); ++I)
 						{
 							int NewTabPos=m_it_CurLine->GetTabCurPos();
 
@@ -2723,7 +2752,7 @@ bool Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		}
 	}
 
-	if (EdOpt.ShowScrollBar && ScrollBarRequired(ObjHeight(), m_LinesCount) && MouseEvent->dwMousePosition.X==m_X2 && !(MouseEvent->dwEventFlags & MOUSE_MOVED))
+	if (EdOpt.ShowScrollBar && ScrollBarRequired(ObjHeight(), Lines.size()) && MouseEvent->dwMousePosition.X==m_X2 && !(MouseEvent->dwEventFlags & MOUSE_MOVED))
 	{
 		if (MouseEvent->dwMousePosition.Y==m_Y1)
 		{
@@ -2742,7 +2771,7 @@ bool Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		else
 		{
 			while (IsMouseButtonPressed())
-				GoToLineAndShow((m_LinesCount-1)*(IntKeyState.MouseY-m_Y1)/(m_Y2-m_Y1));
+				GoToLineAndShow((Lines.size() - 1) * (IntKeyState.MouseY - m_Y1) / (m_Y2 - m_Y1));
 		}
 
 		return true;
@@ -2930,7 +2959,7 @@ Editor::numbered_iterator Editor::DeleteString(numbered_iterator DelPtr, bool De
 
 	if (IsLastLine(DelPtr))
 	{
-		std::prev(DelPtr)->SetEOL(L"");
+		std::prev(DelPtr)->SetEOL(eol::type::none);
 	}
 
 	AddUndoData(UNDO_DELSTR, DelPtr->GetString(), DelPtr->GetEOL(), DelPtr.Number(), 0);
@@ -2965,7 +2994,6 @@ Editor::numbered_iterator Editor::DeleteString(numbered_iterator DelPtr, bool De
 	m_AutoDeletedColors.erase(&*DelPtr);
 
 	const auto Result = numbered_iterator(Lines.erase(DelPtr), DelPtr.Number());
-	--m_LinesCount;
 
 	Change(ECTYPE_DELETED, DelPtr.Number());
 
@@ -2985,11 +3013,11 @@ void Editor::InsertString()
 	  AFTER all modifications are made.
 	*/
 //  TextChanged(true);
-	iterator SrcIndent = Lines.end();
+	auto SrcIndent = Lines.end();
 	intptr_t SelStart,SelEnd;
 	int NewLineEmpty=TRUE;
 	const auto NextLine = std::next(m_it_CurLine);
-	const auto NewString = InsertString(nullptr, 0, NextLine);
+	const auto NewString = InsertString({}, NextLine);
 
 	if (NewString == Lines.end())
 		return;
@@ -3025,7 +3053,7 @@ void Editor::InsertString()
 		{
 			const auto& Str = PrevLine->GetString();
 
-			const auto It = std::find_if_not(ALL_CONST_RANGE(Str), IsSpace);
+			const auto It = std::find_if_not(ALL_CONST_RANGE(Str), std::iswblank);
 			if (It != Str.cend())
 			{
 				PrevLine->SetCurPos(static_cast<int>(It - Str.cbegin()));
@@ -3043,20 +3071,20 @@ void Editor::InsertString()
 
 	int SpaceOnly=TRUE;
 
-	auto EndSeq = m_it_CurLine->GetEOL();
+	auto LineEol = m_it_CurLine->GetEOL();
 
 	if (CurPos < static_cast<size_t>(m_it_CurLine->GetLength()))
 	{
 		const auto& CurLineStr = m_it_CurLine->GetString();
 
-		if (IndentPos > 0 && !std::all_of(CurLineStr.cbegin(), CurLineStr.cbegin() + CurPos, IsSpace))
+		if (IndentPos > 0 && !std::all_of(CurLineStr.cbegin(), CurLineStr.cbegin() + CurPos, std::iswblank))
 		{
 			SpaceOnly = FALSE;
 		}
 
-		NewString->SetString(CurLineStr.data() + CurPos, CurLineStr.size() - CurPos);
+		NewString->SetString(string_view(CurLineStr).substr(CurPos));
 
-		if (!std::all_of(CurLineStr.cbegin() + CurPos, CurLineStr.cend(), IsSpace))
+		if (!std::all_of(CurLineStr.cbegin() + CurPos, CurLineStr.cend(), std::iswblank))
 		{
 			NewLineEmpty = FALSE;
 		}
@@ -3070,7 +3098,7 @@ void Editor::InsertString()
 
 		if (EdOpt.AutoIndent && NewLineEmpty)
 		{
-			RemoveTrailingSpaces(NewCurLineStr);
+			inplace::trim_right(NewCurLineStr);
 		}
 
 		m_it_CurLine->SetString(NewCurLineStr);
@@ -3089,14 +3117,14 @@ void Editor::InsertString()
 		AddUndoData(UNDO_INSSTR, {}, m_it_CurLine->GetEOL(), m_it_CurLine.Number() + 1, 0);
 	}
 
-	if (*EndSeq)
+	if (LineEol != eol::type::none)
 	{
-		m_it_CurLine->SetEOL(EndSeq);
+		m_it_CurLine->SetEOL(LineEol);
 	}
 	else
 	{
-		m_it_CurLine->SetEOL(GlobalEOL.empty() ? GetDefaultEOL() : GlobalEOL.data());
-		NewString->SetEOL(EndSeq);
+		m_it_CurLine->SetEOL(GlobalEOL != eol::type::none? GlobalEOL : GetDefaultEOL());
+		NewString->SetEOL(LineEol);
 	}
 
 	Change(ECTYPE_CHANGED, m_it_CurLine.Number() + 1);
@@ -3121,7 +3149,7 @@ void Editor::InsertString()
 		}
 	}
 
-	NewString->SetEOL(EndSeq);
+	NewString->SetEOL(LineEol);
 	m_it_CurLine->SetCurPos(0);
 
 	Down();
@@ -3136,7 +3164,7 @@ void Editor::InsertString()
 			int Decrement=0;
 			const auto& Str = m_it_CurLine->GetString();
 			const auto MaxI = std::min(static_cast<size_t>(IndentPos), Str.size());
-			for (size_t I = 0; I != MaxI && IsSpace(Str[I]); ++I)
+			for (size_t I = 0; I != MaxI && std::iswblank(Str[I]); ++I)
 			{
 				if (Str[I]==L' ')
 					Decrement++;
@@ -3163,7 +3191,7 @@ void Editor::InsertString()
 					const auto& PrevStr = SrcIndent->GetString();
 					for (size_t I = 0; m_it_CurLine->GetTabCurPos() < IndentPos; ++I)
 					{
-						if (I < PrevStr.size() && IsSpace(PrevStr[I]))
+						if (I < PrevStr.size() && std::iswblank(PrevStr[I]))
 						{
 							m_it_CurLine->ProcessKey(Manager::Key(PrevStr[I]));
 						}
@@ -3196,7 +3224,7 @@ void Editor::InsertString()
 
 		if (SpaceOnly)
 		{
-			const auto SpaceIterator = std::find_if_not(ALL_CONST_RANGE(Str), IsSpace);
+			const auto SpaceIterator = std::find_if_not(ALL_CONST_RANGE(Str), std::iswblank);
 			const auto NewPos = std::min<size_t>(SpaceIterator - Str.cbegin(), OrgIndentPos);
 			if (NewPos > CurPos)
 				m_it_CurLine->SetCurPos(static_cast<int>(NewPos));
@@ -3360,17 +3388,33 @@ bool Editor::Search(bool Next)
 			return string{};
 		};
 
-		const wchar_t *TextHistoryName=L"SearchText",*ReplaceHistoryName=L"ReplaceText";
-		int DlgResult = GetSearchReplaceString(ReplaceMode, nullptr, nullptr, strSearchStr, strReplaceStr,
-					TextHistoryName, ReplaceHistoryName, &Case, &WholeWords, &ReverseSearch, &Regexp, &PreserveStyle, L"EditorSearch", false,
-					ReplaceMode? &EditorReplaceId : &EditorSearchId, Picker);
-		if (!DlgResult)
+		switch (GetSearchReplaceString(
+			ReplaceMode,
+			{},
+			{},
+			strSearchStr,
+			strReplaceStr,
+			{},
+			{},
+			&Case,
+			&WholeWords,
+			&ReverseSearch,
+			&Regexp,
+			&PreserveStyle,
+			L"EditorSearch",
+			false,
+			ReplaceMode? &EditorReplaceId : &EditorSearchId,
+			Picker))
 		{
+		case 0:
 			return false;
-		}
-		else if(DlgResult == 2)
-		{
+
+		case 2:
 			FindAllReferences = true;
+			break;
+
+		default:
+			break;
 		}
 	}
 
@@ -3392,7 +3436,7 @@ bool Editor::Search(bool Next)
 
 	string QuotedStr;
 
-	const auto FindAllList = VMenu2::create({}, nullptr, 0);
+	const auto FindAllList = VMenu2::create({}, {});
 	UINT AllRefLines = 0;
 	{
 		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<EditorPreRedrawItem>());
@@ -3437,7 +3481,7 @@ bool Editor::Search(bool Next)
 			QuotedStr = strSlash;
 
 			// Q: что важнее: опция диалога или опция RegExp`а?
-			if (!re.Compile(strSlash.data(), OP_PERLSTYLE | OP_OPTIMIZE | (Case? 0 : OP_IGNORECASE)))
+			if (!re.Compile(strSlash.c_str(), OP_PERLSTYLE | OP_OPTIMIZE | (Case? 0 : OP_IGNORECASE)))
 			{
 				ReCompileErrorMessage(re, strSlash);
 				return false; //BUGBUG
@@ -3452,9 +3496,9 @@ bool Editor::Search(bool Next)
 		const auto strSearchStrUpper = Case? strSearchStr : upper(strSearchStr);
 		const auto strSearchStrLower = Case? strSearchStr : lower(strSearchStr);
 
-		time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+		const time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 		int StartLine = m_it_CurLine.Number();
-		SCOPED_ACTION(IndeterminateTaskBar);
+		SCOPED_ACTION(IndeterminateTaskbar);
 		SCOPED_ACTION(wakeful);
 		int LastCheckedLine = -1;
 
@@ -3472,13 +3516,13 @@ bool Editor::Search(bool Next)
 				}
 
 				SetCursorType(false, -1);
-				const auto Total = FindAllReferences? m_LinesCount : ReverseSearch? StartLine : m_LinesCount - StartLine;
+				const auto Total = FindAllReferences? Lines.size() : ReverseSearch? StartLine : Lines.size() - StartLine;
 				const auto Current = abs(CurPtr.Number() - StartLine);
 				EditorShowMsg(msg(lng::MEditSearchTitle), msg(lng::MEditSearchingFor), QuotedStr, Total > 0? Current * 100 / Total : 100);
-				Taskbar().SetProgressValue(Current,Total);
+				taskbar::instance().SetProgressValue(Current,Total);
 			}
 
-			string strReplaceStrCurrent(ReplaceMode ? strReplaceStr : L"");
+			auto strReplaceStrCurrent = ReplaceMode? strReplaceStr : L""s;
 
 			int SearchLength;
 			if (CurPtr->Search(strSearchStr, strSearchStrUpper, strSearchStrLower, re, m.data(), &hm, strReplaceStrCurrent, CurPos, Case, WholeWords, ReverseSearch, Regexp, PreserveStyle, &SearchLength))
@@ -3497,7 +3541,7 @@ bool Editor::Search(bool Next)
 					const auto Location = format(L"{0}:{1}", CurPtr.Number() + 1, CurPos + 1);
 					MenuItemEx Item(format(L"{0:{1}}{2}{3}", Location, service_len, BoxSymbols[BS_V1], CurPtr->GetString()));
 					Item.Annotations.emplace_back(CurPos + service_len + 1, NextPos - CurPos);
-					Item.UserData = FindCoord{ CurPtr.Number(), CurPos, SearchLength };
+					Item.ComplexUserData = FindCoord{ CurPtr.Number(), CurPos, SearchLength };
 					FindAllList->AddItem(Item);
 					CurPos = NextPos;
 					if (CurPtr.Number() != LastCheckedLine)
@@ -3566,7 +3610,7 @@ bool Editor::Search(bool Next)
 							newcol.Priority=EDITOR_COLOR_SELECTION_PRIORITY;
 							CurPtr->AddColor(newcol);
 
-							if (!SearchLength && !strReplaceStrCurrent.length())
+							if (!SearchLength && strReplaceStrCurrent.empty())
 								ZeroLength = true;
 
 							MsgCode = Message(0,
@@ -3601,6 +3645,7 @@ bool Editor::Search(bool Next)
 						if (!MsgCode || MsgCode==1)
 						{
 							Pasting++;
+							AddUndoData(UNDO_BEGIN);
 
 							// If Replace string doesn't contain control symbols (tab and return),
 							// processed with fast method, otherwise use improved old one.
@@ -3641,6 +3686,7 @@ bool Editor::Search(bool Next)
 										ProcessKeyInternal(Manager::Key(Ch), RefreshMe);
 										m_Flags.Set(FEDITOR_OVERTYPE);
 										m_it_CurLine->SetOvertypeMode(true);
+										CurPtr = m_it_CurLine;
 									}
 									else if (Ch!=KEY_BS)
 										ProcessKeyInternal(Manager::Key(Ch), RefreshMe);
@@ -3686,7 +3732,7 @@ bool Editor::Search(bool Next)
 								{
 									CurPtr->GetSelection(Selection.first, Selection.second);
 								}
-								const auto NewStr = concat(make_string_view(Str, 0, CurPos), strReplaceStrCurrent, make_string_view(Str, CurPos + SearchLength), CurPtr->GetEOL());
+								const auto NewStr = concat(string_view(Str).substr(0, CurPos), strReplaceStrCurrent, string_view(Str).substr(CurPos + SearchLength), eol::str(CurPtr->GetEOL()));
 								AddUndoData(UNDO_EDIT, CurPtr->GetString(), CurPtr->GetEOL(), CurPtr.Number(), CurPos);
 								CurPtr->SetString(NewStr);
 								CurPtr->SetCurPos(CurPos + static_cast<int>(strReplaceStrCurrent.size()));
@@ -3710,6 +3756,7 @@ bool Editor::Search(bool Next)
 								TextChanged(true);
 							}
 
+							AddUndoData(UNDO_END);
 							Pasting--;
 						}
 					}
@@ -3753,16 +3800,18 @@ bool Editor::Search(bool Next)
 
 	if(FindAllReferences && Match)
 	{
+		const auto MenuY1 = ScrY - 20;
+		const auto MenuY2 = MenuY1 + std::min(static_cast<int>(FindAllList->size()), 10) + 2;
 		FindAllList->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
-		FindAllList->SetPosition(-1, -1, 0, 0);
-		FindAllList->SetTitle(format(lng::MEditSearchStatistics, FindAllList->size(), AllRefLines));
+		FindAllList->SetPosition(-1, MenuY1, 0, MenuY2);
+		FindAllList->SetTitle(format(msg(lng::MEditSearchStatistics), FindAllList->size(), AllRefLines));
 		FindAllList->SetBottomTitle(msg(lng::MEditFindAllMenuFooter));
-		FindAllList->SetHelp(L"FindAllMenu");
+		FindAllList->SetHelp(L"FindAllMenu"sv);
 		FindAllList->SetId(EditorFindAllListId);
 
-		bool MenuZoomed=true;
+		bool MenuZoomed = false;
 
-		int ExitCode=FindAllList->Run([&](const Manager::Key& RawKey)
+		const auto ExitCode = FindAllList->Run([&](const Manager::Key& RawKey)
 		{
 			const auto Key=RawKey();
 			int SelectedPos=FindAllList->GetSelectPos();
@@ -3773,10 +3822,17 @@ bool Editor::Search(bool Next)
 				case KEY_ADD:
 					AddSessionBookmark();
 					break;
+
 				case KEY_CTRLENTER:
 				case KEY_RCTRLENTER:
+				// TODO: Need to handle mouse events with ProcessMouse(). This implementation is accpetable,
+				// but a click on the border jumps to the currently selected item without changing the item.
+				// Normally, mouse click on the border frame does nothing. Mouse click on the border
+				// ouside of the frame starts dragging the dialog.
+				case KEY_CTRL|KEY_MSLCLICK:
+				case KEY_RCTRL|KEY_MSLCLICK:
 					{
-						const auto& coord = *FindAllList->GetUserDataPtr<FindCoord>(SelectedPos);
+						const auto& coord = *FindAllList->GetComplexUserDataPtr<FindCoord>(SelectedPos);
 						GoToLine(coord.Line);
 						m_it_CurLine->SetCurPos(coord.Pos);
 						if (EdOpt.SearchSelFound)
@@ -3792,16 +3848,19 @@ bool Editor::Search(bool Next)
 						{
 							m_it_CurLine->SetCurPos(coord.Pos + coord.SearchLen);
 						}
-						Show();
+						Refresh();
 					}
 					break;
 
 				case KEY_CTRLUP: case KEY_RCTRLUP:
 				case KEY_CTRLDOWN: case KEY_RCTRLDOWN:
-					ProcessKeyInternal(Manager::Key(Key), RefreshMe);
-					if (RefreshMe)
 					{
-						Refresh();
+						bool RefreshMeLocal = false;
+						KeyProcessed = ProcessKeyInternal(Manager::Key(Key), RefreshMeLocal);
+						if (RefreshMeLocal)
+						{
+							Refresh();
+						}
 					}
 					break;
 
@@ -3813,15 +3872,20 @@ bool Editor::Search(bool Next)
 					}
 					else
 					{
-						FindAllList->SetPosition(-1, ScrY-20, 0, ScrY-10);
+						FindAllList->SetPosition(-1, MenuY1, 0, MenuY2);
 					}
-					Show();
 					break;
+
 				default:
 					if ((Key>=KEY_CTRL0 && Key<=KEY_CTRL9) || (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9) ||
 					   (Key>=KEY_CTRLSHIFT0 && Key<=KEY_CTRLSHIFT9) || (Key>=KEY_RCTRLSHIFT0 && Key<=KEY_RCTRLSHIFT9))
 					{
-						ProcessKeyInternal(Manager::Key(Key), RefreshMe);
+						bool RefreshMeLocal = false;
+						KeyProcessed = ProcessKeyInternal(Manager::Key(Key), RefreshMeLocal);
+						if (RefreshMeLocal)
+						{
+							Refresh();
+						}
 					}
 					else
 					{
@@ -3834,7 +3898,7 @@ bool Editor::Search(bool Next)
 
 		if(ExitCode >= 0)
 		{
-			const auto& coord = *FindAllList->GetUserDataPtr<FindCoord>(ExitCode);
+			const auto& coord = *FindAllList->GetComplexUserDataPtr<FindCoord>(ExitCode);
 			GoToLine(coord.Line);
 			m_it_CurLine->SetCurPos(coord.Pos);
 			if (EdOpt.SearchSelFound)
@@ -3914,7 +3978,7 @@ void Editor::Paste(const string& Data)
 		int StartPos=m_it_CurLine->GetCurPos();
 		bool oldAutoIndent=EdOpt.AutoIndent;
 
-		const wchar_t* keep_eol = nullptr;
+		auto keep_eol = eol::type::none;
 		if (EdOpt.KeepEOL)
 		{
 			auto line = m_it_CurLine;
@@ -3922,8 +3986,6 @@ void Editor::Paste(const string& Data)
 				--line;
 
 			keep_eol = line->GetEOL();
-			if (!*keep_eol)
-				keep_eol = nullptr;
 		}
 
 		bool RefreshMe = false;
@@ -3937,29 +3999,26 @@ void Editor::Paste(const string& Data)
 				const auto PrevLine = m_it_CurLine;
 				ProcessKeyInternal(Manager::Key(KEY_ENTER), RefreshMe);
 
-				int eol_len = 1;   // LF or CR
+				auto Eol = eol::type::unix;
 				if (Data[i] == L'\r' && i + 1 != size)
 				{
+					Eol = eol::type::mac;
 					if (Data[i + 1] == L'\n')
-					{
-						eol_len = 2; // CRLF
-					}
+						Eol = eol::type::win;
 					else if (Data[i + 1] == L'\r' && i + 2 != size && Data[i + 2] == L'\n')
-					{
-						eol_len = 3; // CRCRLF
-					}
+						Eol = eol::type::bad_win;
 				}
 
-				if (keep_eol)
+				if (keep_eol != eol::type::none)
 				{
 					PrevLine->SetEOL(keep_eol);
 				}
 				else
 				{
-					PrevLine->SetEOL(string(Data, i, eol_len));
+					PrevLine->SetEOL(Eol);
 				}
 
-				i += eol_len;
+				i += eol::str(Eol).size();
 			}
 			else
 			{
@@ -3978,7 +4037,7 @@ void Editor::Paste(const string& Data)
 					const auto& Str = m_it_CurLine->GetString();
 					const auto CurPos = m_it_CurLine->GetCurPos();
 					AddUndoData(UNDO_EDIT, Str, m_it_CurLine->GetEOL(), m_it_CurLine.Number(), static_cast<int>(CurPos)); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
-					m_it_CurLine->InsertString(Data.data() + i, Pos - i);
+					m_it_CurLine->InsertString(string_view(Data).substr(i, Pos - i));
 					Change(ECTYPE_CHANGED, m_it_CurLine.Number());
 				}
 
@@ -4041,9 +4100,9 @@ string Editor::Block2Text()
 {
 	size_t TotalChars = 0;
 
-	iterator SelEnd = Lines.end();
+	auto SelEnd = Lines.end();
 
-	for (iterator i = m_it_AnyBlockStart.base(), end = Lines.end(); i != end; ++i)
+	for (auto i = m_it_AnyBlockStart.base(), end = Lines.end(); i != end; ++i)
 	{
 		if (!i->IsSelection())
 		{
@@ -4057,7 +4116,7 @@ string Editor::Block2Text()
 		if (EndSel == -1)
 		{
 			TotalChars += i->GetLength() - StartSel;
-			TotalChars += wcslen(NullToEmpty(i->GetEOL()));
+			TotalChars += eol::str(i->GetEOL()).size();
 		}
 		else
 			TotalChars += EndSel - StartSel;
@@ -4074,7 +4133,7 @@ string Editor::Block2Text()
 		i.GetSelection(StartSel, EndSel);
 		if (EndSel == -1)
 		{
-			CopyData += i.GetEOL();
+			append(CopyData, eol::str(i.GetEOL()));
 		}
 	}
 
@@ -4136,11 +4195,11 @@ void Editor::DeleteBlock()
 		{
 			Length=StartSel;
 			CurPtr->SetCurPos(static_cast<int>(Length));
-			CurPtr->InsertString(L"",0);
+			CurPtr->InsertString({});
 		}
 
 		auto TmpStr = CurPtr->GetString();
-		const auto EndSeq = CurPtr->GetEOL();
+		const auto Eol = CurPtr->GetEOL();
 
 		int DeleteNext=FALSE;
 
@@ -4200,8 +4259,8 @@ void Editor::DeleteBlock()
 			DeleteString(NextLine, false);
 		}
 
-		TmpStr+=EndSeq;
 		CurPtr->SetString(TmpStr);
+		CurPtr->SetEOL(Eol);
 
 		CurPtr->SetCurPos(CurPos);
 		if (StartSel || EndSel)
@@ -4315,9 +4374,9 @@ void Editor::UnmarkMacroBlock()
 	MBlockStartX=-1;
 }
 
-void Editor::GoToLine(int Line)
+void Editor::GoToLine(size_t Line)
 {
-	if (Line != m_it_CurLine.Number())
+	if (Line != m_it_CurLine.uNumber())
 	{
 		bool bReverse = false;
 		int LastNumLine = m_it_CurLine.Number();
@@ -4325,9 +4384,9 @@ void Editor::GoToLine(int Line)
 		int CurPos=m_it_CurLine->GetTabCurPos();
 		int LeftPos=m_it_CurLine->GetLeftPos();
 
-		if (Line < m_it_CurLine.Number())
+		if (Line < m_it_CurLine.uNumber())
 		{
-			if (Line > m_it_CurLine.Number() / 2)
+			if (Line > m_it_CurLine.uNumber() / 2)
 			{
 				bReverse = true;
 			}
@@ -4338,7 +4397,7 @@ void Editor::GoToLine(int Line)
 		}
 		else
 		{
-			if (Line > (m_it_CurLine.Number() + (m_LinesCount - m_it_CurLine.Number()) / 2))
+			if (Line > (m_it_CurLine.Number() + (Lines.size() - m_it_CurLine.Number()) / 2))
 			{
 				bReverse = true;
 				m_it_CurLine = LastLine();
@@ -4347,14 +4406,14 @@ void Editor::GoToLine(int Line)
 
 		if (bReverse)
 		{
-			while (m_it_CurLine.Number() > Line && m_it_CurLine != Lines.begin())
+			while (m_it_CurLine.uNumber() > Line && m_it_CurLine != Lines.begin())
 			{
 				--m_it_CurLine;
 			}
 		}
 		else
 		{
-			while (m_it_CurLine.Number() < Line && !IsLastLine(m_it_CurLine))
+			while (m_it_CurLine.uNumber() < Line && !IsLastLine(m_it_CurLine))
 			{
 				++m_it_CurLine;
 			}
@@ -4376,7 +4435,7 @@ void Editor::GoToLine(int Line)
 	return;
 }
 
-void Editor::GoToLineAndShow(int Line)
+void Editor::GoToLineAndShow(size_t Line)
 {
 	GoToLine(Line);
 	Show();
@@ -4384,110 +4443,39 @@ void Editor::GoToLineAndShow(int Line)
 
 void Editor::GoToPosition()
 {
-	DialogBuilder Builder(lng::MEditGoToLine, L"EditorGotoPos");
-	string strData;
-	Builder.AddEditField(strData,28,L"LineNumber",DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY|DIF_NOAUTOCOMPLETE);
-	Builder.AddOKCancel();
-	Builder.ShowDialog();
-	if(!strData.empty())
+	goto_coord Row{};
+	goto_coord Col{};
+
+	if (!GoToRowCol(Row, Col, m_GotoHex, L"EditorGotoPos"sv))
+		return;
+
+	if (Row.exist)
 	{
-		int LeftPos=m_it_CurLine->GetLeftPos();
-		int NewLine=0, NewCol=0;
-		try
-		{
-			GetRowCol(strData, NewLine, NewCol);
-			GoToLine(NewLine);
-			m_it_CurLine->SetLeftPos(LeftPos);
-			m_it_CurLine->SetCurPos(NewCol);
-		}
-		catch (const std::exception&)
-		{
-			// TODO: log
-			// maybe we need to display message in case of incorrect input
-		}
-		Show();
+		if (!Row.percent && !Row.relative)
+			--Row.value;
+
+		auto NewRow = Row.percent? FromPercent(Row.value, Lines.size()) : Row.value;
+
+		if (Row.relative)
+			NewRow = m_it_CurLine.Number() + NewRow * Row.relative;
+
+		GoToLine(NewRow);
 	}
-}
 
-void Editor::GetRowCol(const string& argv, int& row, int& col)
-{
-	static const std::wregex re(
-		RE_BEGIN
-		RE_ANY_WHITESPACE
-		RE_C_GROUP(
-			RE_C_GROUP(
-				RE_C_GROUP(RE_ANY_OF(L"0-9") RE_ONE_OR_MORE_GREEDY) L"%"
-			)
-			RE_OR
-			RE_C_GROUP(
-				RE_C_GROUP(
-					RE_ANY_OF(L"+-") RE_ZERO_OR_ONE_GREEDY
-				)
-				RE_ANY_OF(L"0-9") RE_ONE_OR_MORE_GREEDY
-			)
-		) RE_ZERO_OR_ONE_GREEDY
-		RE_C_GROUP(
-			RE_ANY_WHITESPACE
-			RE_ANY_OF(L".,;:" RE_SPACE)
-			RE_ANY_WHITESPACE
-			RE_C_GROUP
-			(
-				RE_C_GROUP(RE_ANY_OF(L"+-") RE_ZERO_OR_ONE_GREEDY)
-				RE_ANY_OF(L"0-9") RE_ONE_OR_MORE_GREEDY
-			)
-		) RE_ZERO_OR_ONE_GREEDY
-		RE_ANY_WHITESPACE
-		RE_END, std::regex::optimize);
-
-	std::wsmatch SMatch;
-
-	const auto& get_match = [&SMatch](size_t index)
+	if (Col.exist)
 	{
-		return string(SMatch[index].first, SMatch[index].second);
-	};
+		if (!Col.percent && !Col.relative)
+			--Col.value;
 
-	const auto& is_match_empty = [&SMatch](size_t index)
-	{
-		return !SMatch[index].length();
-	};
+		auto NewCol = Col.percent? FromPercent(Col.value, m_it_CurLine->m_Str.size()) : Col.value;
 
-	if (std::regex_match(argv, SMatch, re))
-	{
-		enum
-		{
-			b_row=1,
-			b_row_percent,
-			b_row_percent_value,
-			b_row_absolute,
-			b_row_absolute_sign,
-			b_col,
-			b_col_absolute,
-			b_col_sign
-		};
-		row = m_it_CurLine.Number();
-		if (SMatch[b_row].matched)
-		{
-			if (SMatch[b_row_percent].matched)
-			{
-				row = std::stoi(get_match(b_row_percent_value));
-				row = m_LinesCount * row / 100;
-			}
-			else if (SMatch[b_row_absolute].matched)
-			{
-				const auto y = std::stoi(get_match(b_row_absolute));
-				row = is_match_empty(b_row_absolute_sign)?y-1:row+y;
-			}
-		}
-		row = std::min(row, m_LinesCount - 1);
-		const auto CurPtr=GetStringByNumber(row);
-		col=CurPtr->TabPosToReal(m_it_CurLine->GetTabCurPos());
-		if (SMatch[b_col].matched)
-		{
-			const auto x = std::stoi(get_match(b_col_absolute));
-			col = is_match_empty(b_col_sign)?x-1:col+x;
-		}
+		if (Col.relative)
+			NewCol = m_it_CurLine->GetCurPos() + NewCol * Col.relative;
+
+		m_it_CurLine->SetCurPos(static_cast<int>(NewCol));
 	}
-	else throw MAKE_FAR_EXCEPTION(L"Invalid syntax");
+
+	Show();
 }
 
 struct Editor::EditorUndoData
@@ -4498,8 +4486,8 @@ struct Editor::EditorUndoData
 	int m_Type;
 	int m_StrPos;
 	int m_StrNum;
-	wchar_t m_EOL[10];
-	std::vector<wchar_t> m_Str;
+	eol::type m_EOL;
+	string m_Str;
 	bookmark_list m_BM; //treat as uni-directional linked list
 
 private:
@@ -4508,11 +4496,11 @@ private:
 public:
 	static size_t GetUndoDataSize() { return UndoDataSize; }
 
-	EditorUndoData(int Type, const string& Str, const wchar_t *Eol, int StrNum, int StrPos):
+	EditorUndoData(int Type, const string& Str, eol::type Eol, int StrNum, int StrPos):
 		m_Type(),
 		m_StrPos(),
 		m_StrNum(),
-		m_EOL()
+		m_EOL(eol::type::none)
 	{
 		SetData(Type, Str, Eol, StrNum, StrPos);
 	}
@@ -4522,20 +4510,21 @@ public:
 		UndoDataSize -= m_Str.size();
 	}
 
-	void SetData(int Type, const string& Str, const wchar_t *Eol, int StrNum, int StrPos)
+	void SetData(int Type, const string& Str, eol::type Eol, int StrNum, int StrPos)
 	{
 		m_Type = Type;
 		m_StrPos = StrPos;
 		m_StrNum = StrNum;
 		UndoDataSize -= m_Str.size();
 		UndoDataSize += Str.size();
-		xwcsncpy(m_EOL, NullToEmpty(Eol), std::size(m_EOL) - 1);
-		m_Str.assign(ALL_CONST_RANGE(Str));
+		m_EOL = Eol;
+		m_Str = Str;
 		m_BM.clear();
 	}
 
 	static size_t HashBM(bookmark_list::iterator BM)
 	{
+		// BUGBUG this is some dark magic
 		auto x = reinterpret_cast<size_t>(&*BM);
 		x ^= (BM->Line << 16) ^ (BM->Cursor);
 		return x;
@@ -4544,7 +4533,7 @@ public:
 
 size_t Editor::EditorUndoData::UndoDataSize = 0;
 
-void Editor::AddUndoData(int Type, const string& Str, const wchar_t *Eol, int StrNum, int StrPos)
+void Editor::AddUndoData(int Type, const string& Str, eol::type Eol, int StrNum, int StrPos)
 {
 	if (m_Flags.Check(FEDITOR_DISABLEUNDO))
 		return;
@@ -4725,7 +4714,7 @@ void Editor::Undo(int redo)
 
 				MoveSavedSessionBookmarksBack(ud->m_BM);
 
-				m_it_CurLine->SetString(ud->m_Str.data(), ud->m_Str.size());
+				m_it_CurLine->SetString(ud->m_Str);
 				m_it_CurLine->SetEOL(ud->m_EOL); // необходимо дополнительно выставлять, т.к. SetString вызывает Edit::SetString и... дальше по тексту
 				Change(ECTYPE_CHANGED, m_it_CurLine.Number());
 
@@ -4734,7 +4723,7 @@ void Editor::Undo(int redo)
 			{
 				EditorUndoData tmp(UNDO_EDIT, m_it_CurLine->GetString(), m_it_CurLine->GetEOL(), ud->m_StrNum, ud->m_StrPos);
 
-				m_it_CurLine->SetString(ud->m_Str.data(), ud->m_Str.size());
+				m_it_CurLine->SetString(ud->m_Str);
 				m_it_CurLine->SetEOL(ud->m_EOL); // необходимо дополнительно выставлять, т.к. SetString вызывает Edit::SetString и... дальше по тексту
 				Change(ECTYPE_CHANGED, m_it_CurLine.Number());
 
@@ -4829,7 +4818,7 @@ long long Editor::GetCurPos(bool file_pos, bool add_bom) const
 	const auto TotalSize = std::accumulate(Lines.cbegin(), m_it_TopScreen.cbase(), bom, [&](auto Value, const auto& line)
 	{
 		const auto& Str = line.GetString();
-		return Value + (Multiplier != Unknown? Str.size() : encoding::get_bytes_count(m_codepage, Str)) + wcslen(line.GetEOL());
+		return Value + (Multiplier != Unknown? Str.size() : encoding::get_bytes_count(m_codepage, Str)) + eol::str(line.GetEOL()).size();
 	});
 
 	return Multiplier != Unknown? TotalSize * Multiplier : TotalSize;
@@ -4872,12 +4861,12 @@ void Editor::BlockLeft()
 		if (StartSel==-1)
 			break;
 
-		string TmpStr;
 		const auto& CurStr = CurPtr->GetString();
-		const auto EndSeq = CurPtr->GetEOL();
+		const auto Eol = CurPtr->GetEOL();
 
 		if (!CurStr.empty())
 		{
+			string TmpStr;
 			if (CurStr.front() == L' ')
 			{
 				TmpStr = CurStr.substr(1);
@@ -4885,15 +4874,15 @@ void Editor::BlockLeft()
 			else if (CurStr.front() == L'\t')
 			{
 				TmpStr.assign(EdOpt.TabSize - 1, L' ');
-				TmpStr += CurStr.substr(1);
+				TmpStr.append(CurStr, 1, string::npos); // gcc 7.3 bug, npos required
 			}
 
-			if ((EndSel == -1 || EndSel > StartSel) && IsSpace(CurStr.front()))
+			if ((EndSel == -1 || EndSel > StartSel) && std::iswblank(CurStr.front()))
 			{
-				TmpStr += EndSeq;
 				AddUndoData(UNDO_EDIT, CurStr, CurPtr->GetEOL(), CurPtr.Number(), 0); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
-				int CurPos = CurPtr->GetCurPos();
+				const auto CurPos = CurPtr->GetCurPos();
 				CurPtr->SetString(TmpStr);
+				CurPtr->SetEOL(Eol);
 				CurPtr->SetCurPos(CurPos > 0? CurPos - 1 : CurPos);
 
 				if (!MoveLine)
@@ -4952,15 +4941,14 @@ void Editor::BlockRight()
 		if (Length && (EndSel == -1 || EndSel > StartSel))
 		{
 			const auto& CurStr = CurPtr->GetString();
-			const auto EndSeq = CurPtr->GetEOL();
-			string TmpStr(1, L' ');
-			TmpStr += CurStr;
-			TmpStr += EndSeq;
+			const auto Eol = CurPtr->GetEOL();
+			const auto TmpStr = concat(L' ', CurStr);
 
 			AddUndoData(UNDO_EDIT, CurStr, CurPtr->GetEOL(), CurPtr.Number(), 0); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
 			int CurPos=CurPtr->GetCurPos();
 
 			CurPtr->SetString(TmpStr);
+			CurPtr->SetEOL(Eol);
 
 			CurPtr->SetCurPos(CurPos+1);
 
@@ -5027,7 +5015,7 @@ void Editor::DeleteVBlock()
 			TmpStr.append(CurStr.cbegin() + TBlockX + TBlockSizeX, CurStr.cend());
 		}
 
-		TmpStr += CurPtr->GetEOL();
+		append(TmpStr, eol::str(CurPtr->GetEOL()));
 		size_t CurPos = CurPtr->GetCurPos();
 		CurPtr->SetString(TmpStr);
 
@@ -5099,7 +5087,7 @@ string Editor::VBlock2Text()
 			CopyData.append(TBlockSizeX, L' ');
 		}
 
-		CopyData += GetDefaultEOL();
+		append(CopyData, eol::str(GetDefaultEOL()));
 	}
 
 	return CopyData;
@@ -5248,10 +5236,9 @@ void Editor::VBlockShift(int Left)
 			std::rotate(BlockBegin - 1, BlockBegin, BlockBegin + TBlockSizeX);
 		}
 
-		while (!TmpStr.empty() && TmpStr.back() == L' ')
-			TmpStr.pop_back();
+		inplace::trim_right(TmpStr);
 
-		TmpStr += CurPtr->GetEOL();
+		append(TmpStr, eol::str(CurPtr->GetEOL()));
 		CurPtr->SetString(TmpStr);
 		Change(ECTYPE_CHANGED, CurPtr.Number());
 	}
@@ -5285,7 +5272,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 				const auto& Str = CurPtr->GetString();
 				GetString->StringText = Str.data();
-				GetString->StringEOL = CurPtr->GetEOL();
+				GetString->StringEOL = eol::str(CurPtr->GetEOL()).data();
 				GetString->StringLength = Str.size();
 				GetString->SelStart=-1;
 				GetString->SelEnd=0;
@@ -5309,7 +5296,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				_ECTLLOG(SysLog(L"EditorGetString{"));
 				_ECTLLOG(SysLog(L"  StringNumber    =%d",GetString->StringNumber));
 				_ECTLLOG(SysLog(L"  StringText      ='%s'",GetString->StringText));
-				_ECTLLOG(SysLog(L"  StringEOL       ='%s'",GetString->StringEOL?_SysLog_LinearDump((LPBYTE)GetString->StringEOL,StrLength(GetString->StringEOL)):L"(null)"));
+				_ECTLLOG(SysLog(L"  StringEOL       ='%s'",GetString->StringEOL?_SysLog_LinearDump((LPBYTE)GetString->StringEOL, static_cast<int>(wcslen(GetString->StringEOL))):L"(null)"));
 				_ECTLLOG(SysLog(L"  StringLength    =%d",GetString->StringLength));
 				_ECTLLOG(SysLog(L"  SelStart        =%d",GetString->SelStart));
 				_ECTLLOG(SysLog(L"  SelEnd          =%d",GetString->SelEnd));
@@ -5390,7 +5377,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			_ECTLLOG(SysLog(L"EditorSetString{"));
 			_ECTLLOG(SysLog(L"  StringNumber    =%d",SetString->StringNumber));
 			_ECTLLOG(SysLog(L"  StringText      ='%s'",SetString->StringText));
-			_ECTLLOG(SysLog(L"  StringEOL       ='%s'",SetString->StringEOL?_SysLog_LinearDump((LPBYTE)SetString->StringEOL,StrLength(SetString->StringEOL)):L"(null)"));
+			_ECTLLOG(SysLog(L"  StringEOL       ='%s'",SetString->StringEOL?_SysLog_LinearDump((LPBYTE)SetString->StringEOL, static_cast<int>(wcslen(SetString->StringEOL))):L"(null)"));
 			_ECTLLOG(SysLog(L"  StringLength    =%d",SetString->StringLength));
 			_ECTLLOG(SysLog(L"}"));
 
@@ -5401,27 +5388,14 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			}
 			else
 			{
-				/* $ 06.08.2002 IS
-				   Проверяем корректность StringLength и вернем FALSE, если оно меньше
-				   нуля.
-				*/
-				int Length=SetString->StringLength;
-
-				if (Length < 0)
-				{
-					_ECTLLOG(SysLog(L"SetString->StringLength < 0"));
-					return FALSE;
-				}
-
 				const auto CurPtr = GetStringByNumber(SetString->StringNumber);
-
 				if (CurPtr == Lines.end())
 				{
 					_ECTLLOG(SysLog(L"GetStringByNumber(%d) return nullptr",SetString->StringNumber));
 					return FALSE;
 				}
 
-				const wchar_t *EOL = SetString->StringEOL? SetString->StringEOL : GlobalEOL.data();
+				const auto Eol = SetString->StringEOL? eol::parse(SetString->StringEOL) : GlobalEOL;
 
 				m_Flags.Set(FEDITOR_CURPOSCHANGEDBYPLUGIN);
 				int DestLine=SetString->StringNumber;
@@ -5429,14 +5403,15 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				if (DestLine==-1)
 					DestLine = m_it_CurLine.Number();
 
-				string NewStr(SetString->StringText, Length);
-				NewStr += EOL;
-
 				AddUndoData(UNDO_EDIT, CurPtr->GetString(), CurPtr->GetEOL(), DestLine, CurPtr->GetCurPos());
 				int CurPos=CurPtr->GetCurPos();
 				intptr_t SelStart, SelEnd;
 				CurPtr->GetSelection(SelStart, SelEnd);
-				CurPtr->SetString(NewStr);
+				CurPtr->SetString({ SetString->StringText, static_cast<size_t>(SetString->StringLength) });
+				if (CurPtr->GetEOL() == eol::type::none)
+				{
+					CurPtr->SetEOL(Eol);
+				}
 				CurPtr->SetCurPos(CurPos);
 				CurPtr->Select(SelStart, SelEnd);
 				Change(ECTYPE_CHANGED,DestLine);
@@ -5481,7 +5456,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				Info->EditorID = EditorID;
 				Info->WindowSizeX=ObjWidth();
 				Info->WindowSizeY = ObjHeight();
-				Info->TotalLines=m_LinesCount;
+				Info->TotalLines = Lines.size();
 				Info->CurLine = m_it_CurLine.Number();
 				Info->CurPos=m_it_CurLine->GetCurPos();
 				Info->CurTabPos=m_it_CurLine->GetTabCurPos();
@@ -5524,13 +5499,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 						Info->Options|=EOPT_SHOWLINEBREAK;
 				}
 
-				if (Global->Opt->EdOpt.ShowTitleBar)
-					Info->Options|=EOPT_SHOWTITLEBAR;
-
-				if (Global->Opt->EdOpt.ShowKeyBar)
-					Info->Options|=EOPT_SHOWKEYBAR;
-
-				if (EdOpt.ShowScrollBar && ScrollBarRequired(ObjHeight(), m_LinesCount))
+				if (EdOpt.ShowScrollBar && ScrollBarRequired(ObjHeight(), Lines.size()))
 					Info->Options |= EOPT_SHOWSCROLLBAR;
 
 				Info->TabSize=EdOpt.TabSize;
@@ -5876,13 +5845,13 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 						_ECTLLOG(SysLog(L"  wszParam    =(%p)",espar->wszParam));
 
 						if (espar->wszParam && espar->Size)
-							xwcsncpy(espar->wszParam,EdOpt.strWordDiv.data(),espar->Size);
+							xwcsncpy(espar->wszParam,EdOpt.strWordDiv.c_str(), espar->Size);
 
 						rc=(int)EdOpt.strWordDiv.Get().size()+1;
 						break;
 					case ESPT_SETWORDDIV:
 						_ECTLLOG(SysLog(L"  wszParam    =[%s]",espar->wszParam));
-						SetWordDiv((!espar->wszParam || !*espar->wszParam)?Global->Opt->EdOpt.strWordDiv.data():espar->wszParam);
+						SetWordDiv((!espar->wszParam || !*espar->wszParam)? Global->Opt->EdOpt.strWordDiv.c_str() : espar->wszParam);
 						break;
 					case ESPT_TABSIZE:
 						_ECTLLOG(SysLog(L"  iParam      =%d",espar->iParam));
@@ -5907,14 +5876,15 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 					case ESPT_CODEPAGE:
 					{
 						uintptr_t cp = espar->iParam;
-						if (HostFileEditor) {
-							rc = HostFileEditor->SetCodePage(cp, false, true);
-							rc = rc >= 0 ? TRUE : FALSE;
+						if (HostFileEditor)
+						{
+							rc = HostFileEditor->SetCodePageEx(cp);
 						}
-						else {
-							rc = cp != CP_DEFAULT && codepages::IsCodePageSupported(cp) && SetCodePage(cp) ? TRUE : FALSE;
+						else
+						{
+							rc = cp != CP_DEFAULT && codepages::IsCodePageSupported(cp) && SetCodePage(cp);
 						}
-						if (rc > 0)
+						if (rc)
 							Show();
 					}break;
 					/* $ 29.10.2001 IS изменение настройки "Сохранять позицию файла" */
@@ -6358,7 +6328,7 @@ Editor::numbered_iterator Editor::GetStringByNumber(int DestLine)
 		return m_it_LastGetLine = m_it_CurLine;
 	}
 
-	if (DestLine >= m_LinesCount)
+	if (static_cast<size_t>(DestLine) >= Lines.size())
 	{
 		return EndIterator();
 	}
@@ -6368,7 +6338,7 @@ Editor::numbered_iterator Editor::GetStringByNumber(int DestLine)
 		return m_it_LastGetLine = FirstLine();
 	}
 
-	if (DestLine == m_LinesCount - 1)
+	if (static_cast<size_t>(DestLine) == Lines.size() - 1)
 	{
 		return m_it_LastGetLine = LastLine();
 	}
@@ -6384,7 +6354,7 @@ Editor::numbered_iterator Editor::GetStringByNumber(int DestLine)
 		CurPtr = m_it_LastGetLine;
 	}
 
-	bool Forward = (DestLine>CurPtr.Number() && DestLine < CurPtr.Number() + (m_LinesCount - CurPtr.Number()) / 2) || (DestLine < CurPtr.Number() / 2);
+	bool Forward = (static_cast<size_t>(DestLine) > CurPtr.uNumber() && static_cast<size_t>(DestLine) < CurPtr.uNumber() + (Lines.size() - CurPtr.uNumber()) / 2) || (static_cast<size_t>(DestLine) < CurPtr.uNumber() / 2);
 
 	if (DestLine>CurPtr.Number())
 	{
@@ -6526,9 +6496,7 @@ void Editor::Xlat()
 {
 	const auto& XLatStr = [&](Edit::edit_string& Str, int StartPos, int EndPos)
 	{
-		std::vector<wchar_t> Buffer(ALL_CONST_RANGE(Str));
-		::Xlat(Buffer.data(), StartPos, EndPos, Global->Opt->XLat.Flags);
-		Str.assign(Buffer.data(), Buffer.size());
+		::Xlat(Str.data(), StartPos, EndPos, Global->Opt->XLat.Flags);
 	};
 
 	bool DoXlat = false;
@@ -6572,7 +6540,7 @@ void Editor::Xlat()
 					break;
 
 				if (EndSel == -1)
-					EndSel=CurPtr->GetLength();//StrLength(CurPtr->Str);
+					EndSel=CurPtr->GetLength(); //wcslen(CurPtr->Str);
 
 				AddUndoData(UNDO_EDIT, CurPtr->GetString(), CurPtr->GetEOL(), CurPtr.Number(), m_it_CurLine->GetCurPos());
 				XLatStr(CurPtr->m_Str, StartSel, EndSel);
@@ -6585,7 +6553,7 @@ void Editor::Xlat()
 		else
 		{
 			auto& Str = m_it_CurLine->m_Str;
-			int start=m_it_CurLine->GetCurPos(), StrSize=m_it_CurLine->GetLength();//StrLength(Str);
+			int start=m_it_CurLine->GetCurPos(), StrSize=m_it_CurLine->GetLength(); //wcslen(Str);
 			// $ 10.12.2000 IS
 			//   Обрабатываем только то слово, на котором стоит курсор, или то слово,
 			//   что находится левее позиции курсора на 1 символ
@@ -6752,15 +6720,11 @@ void Editor::SetSavePosMode(int SavePos, int SaveShortPos)
 		EdOpt.SaveShortPos = (0 != SaveShortPos);
 }
 
-void Editor::EditorShowMsg(const string& Title,const string& Msg, const string& Name,int Percent)
+void Editor::EditorShowMsg(const string& Title, const string& Msg, const string& Name, size_t Percent)
 {
-	string strProgress;
 	const auto strMsg = concat(Msg, L' ', Name);
-	if (Percent!=-1)
-	{
-		const size_t Length = std::max(std::min(ScrX - 1 - 10, static_cast<int>(strMsg.size())), 40);
-		strProgress = make_progressbar(Length, Percent, true, true);
-	}
+	const size_t Length = std::max(std::min(ScrX - 1 - 10, static_cast<int>(strMsg.size())), 40);
+	auto strProgress = make_progressbar(Length, Percent, true, true);
 
 	{
 		std::vector<string> MsgItems{ strMsg };
@@ -6801,17 +6765,15 @@ void Editor::PR_EditorShowMsg()
 }
 
 Editor::EditorPreRedrawItem::EditorPreRedrawItem():
-	PreRedrawItem(PR_EditorShowMsg),
-	Percent()
+	PreRedrawItem(PR_EditorShowMsg)
 {
 }
 
-Editor::numbered_iterator Editor::InsertString(const wchar_t* Str, int nLength, const numbered_iterator& Where)
+Editor::numbered_iterator Editor::InsertString(const string_view Str, const numbered_iterator& Where)
 {
 	bool Empty = Lines.empty();
 
 	const auto NewLine = numbered_iterator(Lines.emplace(Where, GetOwner()), Where.Number());
-	m_LinesCount++;
 
 	const auto& UpdateIterator = [&Where](numbered_iterator& What)
 	{
@@ -6823,8 +6785,8 @@ Editor::numbered_iterator Editor::InsertString(const wchar_t* Str, int nLength, 
 
 	NewLine->SetPersistentBlocks(EdOpt.PersistentBlocks);
 
-	if (Str)
-		NewLine->SetString(Str, nLength);
+	if (!Str.empty())
+		NewLine->SetString(Str);
 
 	NewLine->SetCurPos(0);
 	NewLine->SetEditorMode(true);
@@ -6871,19 +6833,16 @@ void Editor::SetCacheParams(EditorPosCache &pc, bool count_bom)
 
 		while (!IsLastLine(CurPtr))
 		{
-			const auto& SaveStr = CurPtr->GetString();
-			const auto EndSeq = CurPtr->GetEOL();
-
 			if (m_codepage == CP_UTF8)
 			{
-				TotalSize += encoding::utf8::get_bytes_count(SaveStr);
+				TotalSize += encoding::utf8::get_bytes_count(CurPtr->GetString());
 			}
 			else
 			{
-				TotalSize += SaveStr.size();
+				TotalSize += CurPtr->GetString().size();
 			}
 
-			TotalSize += wcslen(EndSeq);
+			TotalSize += eol::str(CurPtr->GetEOL()).size();
 
 			if (static_cast<int>(TotalSize) > StartChar)
 				break;
@@ -6945,7 +6904,7 @@ void Editor::GetCacheParams(EditorPosCache &pc) const
 	pc.bm=m_SavePos;
 }
 
-DWORD Editor::EditSetCodePage(const iterator& edit, uintptr_t codepage, bool check_only)
+DWORD Editor::SetLineCodePage(const iterator& edit, uintptr_t codepage, bool check_only)
 {
 	DWORD Ret = SETCP_NOERROR;
 	if (codepage == m_codepage)
@@ -6971,7 +6930,7 @@ DWORD Editor::EditSetCodePage(const iterator& edit, uintptr_t codepage, bool che
 		if (codepage == CP_UTF8 || codepage == CP_UTF7)
 		{
 			Utf::errors errs;
-			Utf::get_chars(codepage, decoded.data(), length, nullptr, 0, &errs);
+			Utf::get_chars(codepage, { decoded.data(), length }, nullptr, 0, &errs);
 			if (errs.Conversion.Error)
 				Ret |= SETCP_MB2WCERROR;
 		}
@@ -6986,7 +6945,7 @@ DWORD Editor::EditSetCodePage(const iterator& edit, uintptr_t codepage, bool che
 		if (check_only)
 			return Ret;
 
-		edit->m_Str.assign(encoding::get_chars(codepage, decoded.data(), length));
+		edit->m_Str.assign(encoding::get_chars(codepage, { decoded.data(), length }));
 	}
 
 	if (!check_only)
@@ -7006,7 +6965,7 @@ bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 
 	FOR_RANGE(Lines, i)
 	{
-		DWORD Result = EditSetCodePage(i, codepage, true);
+		DWORD Result = SetLineCodePage(i, codepage, true);
 		if ( Result )
 		{
 			Y = line;
@@ -7025,7 +6984,7 @@ bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 				wchar_offsets.emplace_back(total_len);
 				char *s = decoded.data() + total_len;
 
-				const size_t len = encoding::get_bytes(m_codepage, i->m_Str.data() + j, 1, s, 3, p_def);
+				const size_t len = encoding::get_bytes(m_codepage, { &i->m_Str[j], 1 }, s, 3, p_def);
 				if (!len || def)
 				{
 					X = j;
@@ -7038,7 +6997,7 @@ bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 			if (codepage == CP_UTF8 || codepage == CP_UTF7)
 			{
 				Utf::errors errs;
-				Utf::get_chars(codepage, decoded.data(), total_len, nullptr, 0, &errs);
+				Utf::get_chars(codepage, { decoded.data(), total_len }, nullptr, 0, &errs);
 				if (errs.Conversion.Error)
 				{
 					Error.first = true;
@@ -7098,7 +7057,7 @@ bool Editor::SetCodePage(uintptr_t codepage, bool *BOM, bool ShowMe)
 
 	FOR_RANGE(Lines, i)
 	{
-		Result |= EditSetCodePage(i, codepage, false);
+		Result |= SetLineCodePage(i, codepage, false);
 	}
 
 	if (BOM)
@@ -7169,7 +7128,7 @@ void Editor::DrawScrollbar()
 	if (EdOpt.ShowScrollBar)
 	{
 		SetColor(COL_EDITORSCROLLBAR);
-		XX2 = m_X2 - (ScrollBarEx(m_X2, m_Y1, ObjHeight(), m_it_CurLine.Number() - CalcDistance(m_it_TopScreen, m_it_CurLine), m_LinesCount) ? 1 : 0);
+		XX2 = m_X2 - (ScrollBarEx(m_X2, m_Y1, ObjHeight(), m_it_CurLine.Number() - CalcDistance(m_it_TopScreen, m_it_CurLine), Lines.size()) ? 1 : 0);
 	}
 }
 
@@ -7192,12 +7151,12 @@ void Editor::TurnOffMarkingBlock()
 
 Editor::numbered_iterator Editor::EndIterator()
 {
-	return numbered_iterator(Lines.end(), m_LinesCount);
+	return numbered_iterator(Lines.end(), Lines.size());
 }
 
 Editor::numbered_const_iterator Editor::EndIterator() const
 {
-	return numbered_const_iterator(Lines.end(), m_LinesCount);
+	return numbered_const_iterator(Lines.end(), Lines.size());
 }
 
 Editor::numbered_iterator Editor::FirstLine()

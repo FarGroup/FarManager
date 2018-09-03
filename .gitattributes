@@ -1,0 +1,34 @@
+# Handle line endings automatically for files detected as text
+# and leave all files detected as binary untouched.
+* text=auto
+
+#
+# The above will handle all files NOT found below
+#
+# These files are text and should be normalized (Convert crlf => lf)
+*.bat           text    eol=crlf
+*.cmd           text    eol=crlf
+*.cs            text    diff=csharp
+*.sh            text    eol=lf
+[Cc]hangelog    text
+changelog_eng   text
+
+# Custom for Visual Studio
+*.sln           text    merge=union  eol=crlf
+*.csproj                merge=union  eol=crlf
+*.vcproj                merge=union  eol=crlf
+*.vcxproj               merge=union  eol=crlf
+*.vcxproj.filters       merge=union  eol=crlf
+
+# These files are binary and should be left untouched
+# (binary is a macro for -text -diff)
+*.bmp           binary
+*.dll           binary
+*.exe           binary
+*.gif           binary
+*.ico           binary
+*.jpg           binary
+*.lib           binary
+*.obj           binary
+*.png           binary
+*.sfx           binary

@@ -65,7 +65,6 @@ void update_panel(HANDLE h_panel, bool keep_selection);
 void set_view_mode(HANDLE h_panel, unsigned view_mode);
 void set_sort_mode(HANDLE h_panel, unsigned sort_mode);
 void set_reverse_sort(HANDLE h_panel, bool reverse_sort);
-void set_numeric_sort(HANDLE h_panel, bool numeric_sort);
 void set_directories_first(HANDLE h_panel, bool first);
 
 bool get_panel_info(HANDLE h_panel, PanelInfo& panel_info);
@@ -122,6 +121,7 @@ private:
   size_t x;
   size_t y;
   const wchar_t* help;
+  FARDIALOGFLAGS flags;
   vector<wstring> values;
   vector<DialogItem> items;
   HANDLE h_dlg;
@@ -158,7 +158,7 @@ protected:
   }
   intptr_t send_message(intptr_t msg, intptr_t param1, void* param2 = nullptr);
 public:
-  Dialog(const wstring& title, const GUID* guid, unsigned width = 60, const wchar_t* help = nullptr);
+  Dialog(const wstring& title, const GUID* guid, unsigned width = 60, const wchar_t* help = nullptr, FARDIALOGFLAGS flags = 0);
   // create different controls
   void new_line();
   void reset_line();

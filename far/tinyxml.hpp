@@ -42,6 +42,8 @@ WARNING_PUSH()
 WARNING_DISABLE_GCC("-Wzero-as-null-pointer-constant")
 WARNING_DISABLE_GCC("-Wsuggest-override")
 
+WARNING_DISABLE_CLANG("-Weverything")
+
 #ifdef MEMCHECK
 #pragma push_macro("new")
 #undef new

@@ -29,12 +29,12 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "platform.security.hpp"
+
 #include "lasterror.hpp"
-#include "synchro.hpp"
+
+#include "platform.concurrency.hpp"
+#include "platform.reg.hpp"
 
 namespace
 {
@@ -59,7 +59,7 @@ namespace
 
 		if (Result.second)
 		{
-			MapValue.second = LookupPrivilegeValue(nullptr, MapKey.data(), &MapValue.first) != FALSE;
+			MapValue.second = LookupPrivilegeValue(nullptr, MapKey.c_str(), &MapValue.first) != FALSE;
 		}
 
 		Value = MapValue.first;
@@ -74,6 +74,11 @@ namespace
 
 namespace os::security
 {
+	void detail::sid_deleter::operator()(PSID Sid) const noexcept
+	{
+		FreeSid(Sid);
+	}
+
 	sid_ptr make_sid(PSID_IDENTIFIER_AUTHORITY IdentifierAuthority, BYTE SubAuthorityCount, DWORD SubAuthority0, DWORD SubAuthority1, DWORD SubAuthority2, DWORD SubAuthority3, DWORD SubAuthority4, DWORD SubAuthority5, DWORD SubAuthority6, DWORD SubAuthority7)
 	{
 		PSID Sid;
@@ -96,7 +101,7 @@ namespace os::security
 		return Result;
 	}
 
-	privilege::privilege(const range<const wchar_t* const*>& Names)
+	privilege::privilege(range<const wchar_t* const*> const Names)
 	{
 		if (Names.empty())
 			return;
@@ -141,7 +146,7 @@ namespace os::security
 		// TODO: log if failed
 	}
 
-	bool privilege::check(const range<const wchar_t* const*>& Names)
+	bool privilege::check(range<const wchar_t* const*> const Names)
 	{
 		const auto Token = OpenCurrentProcessToken(TOKEN_QUERY);
 		if (!Token)
@@ -169,5 +174,23 @@ namespace os::security
 		}
 
 		return true;
+	}
+
+	fs::drives_set allowed_drives_mask()
+	{
+		// It's good enough to read it once.
+		static const auto AllowedDrivesMask = []
+		{
+			for (const auto& i: { &os::reg::key::local_machine, &os::reg::key::current_user })
+			{
+				unsigned NoDrives;
+				if (i->get(L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer"sv, L"NoDrives"sv, NoDrives))
+					return ~NoDrives;
+			}
+
+			return ~0u;
+		}();
+
+		return AllowedDrivesMask;
 	}
 }

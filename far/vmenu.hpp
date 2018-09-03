@@ -43,6 +43,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "bitflags.hpp"
 #include "farcolor.hpp"
 
+#include "common/range.hpp"
+
 // Цветовые атрибуты - индексы в массиве цветов
 enum vmenu_colors
 {
@@ -94,32 +96,25 @@ enum VMENU_FLAGS
 class Dialog;
 class SaveScreen;
 
-
-struct MenuItemEx
+struct menu_item
 {
-	NONCOPYABLE(MenuItemEx);
-	MOVABLE(MenuItemEx);
+	string Name;
+	LISTITEMFLAGS Flags{};
+	DWORD AccelKey{};
 
-	explicit MenuItemEx(const string& Text = {}):
-		strName(Text),
-		Flags(),
-		ShowPos(),
-		AccelKey(),
-		AmpPos(),
-		Len(),
-		Idx2()
+	menu_item() = default;
+
+	explicit menu_item(string_view const Text):
+		Name(string(Text))
 	{
 	}
 
-	string strName;
-	unsigned long long  Flags;                  // Флаги пункта
-	any UserData;
-	int   ShowPos;
-	DWORD  AccelKey;
-	short AmpPos;                  // Позиция автоназначенной подсветки
-	short Len[2];                  // размеры 2-х частей
-	short Idx2;                    // начало 2-й части
-	std::list<std::pair<int, int>> Annotations;
+	menu_item(string_view const Text, LISTITEMFLAGS const Flags, DWORD const AccelKey = 0):
+		Name(string(Text)),
+		Flags(Flags),
+		AccelKey(AccelKey)
+	{
+	}
 
 	unsigned long long SetCheck(int Value)
 	{
@@ -138,34 +133,28 @@ struct MenuItemEx
 		return Flags;
 	}
 
-	unsigned long long SetSelect(int Value) { if (Value) Flags|=LIF_SELECTED; else Flags&=~LIF_SELECTED; return Flags;}
-	unsigned long long SetDisable(int Value) { if (Value) Flags|=LIF_DISABLE; else Flags&=~LIF_DISABLE; return Flags;}
+	LISTITEMFLAGS SetSelect(bool Value) { if (Value) Flags|=LIF_SELECTED; else Flags&=~LIF_SELECTED; return Flags;}
+	LISTITEMFLAGS SetDisable(bool Value) { if (Value) Flags|=LIF_DISABLE; else Flags&=~LIF_DISABLE; return Flags;}
+	LISTITEMFLAGS SetGrayed(bool Value) { if (Value) Flags|=LIF_GRAYED; else Flags&=~LIF_GRAYED; return Flags;}
+
 };
 
-
-struct MenuDataEx
+struct MenuItemEx: menu_item
 {
-	const wchar_t *Name;
+	NONCOPYABLE(MenuItemEx);
+	MOVABLE(MenuItemEx);
 
-	LISTITEMFLAGS Flags;
-	DWORD AccelKey;
+	MenuItemEx() = default;
+	using menu_item::menu_item;
 
-	DWORD SetCheck(int Value)
-	{
-		if (Value)
-		{
-			Flags &= ~0xFFFF;
-			Flags|=((Value&0xFFFF)|LIF_CHECKED);
-		}
-		else
-			Flags&=~(0xFFFF|LIF_CHECKED);
+	std::any ComplexUserData;
+	intptr_t SimpleUserData{};
 
-		return Flags;
-	}
-
-	DWORD SetSelect(int Value) { if (Value) Flags|=LIF_SELECTED; else Flags&=~LIF_SELECTED; return Flags;}
-	DWORD SetDisable(int Value) { if (Value) Flags|=LIF_DISABLE; else Flags&=~LIF_DISABLE; return Flags;}
-	DWORD SetGrayed(int Value) { if (Value) Flags|=LIF_GRAYED; else Flags&=~LIF_GRAYED; return Flags;}
+	int ShowPos{};
+	short AmpPos{};                  // Позиция автоназначенной подсветки
+	short Len[2]{};                  // размеры 2-х частей
+	short Idx2{};                    // начало 2-й части
+	std::list<std::pair<int, int>> Annotations;
 };
 
 struct SortItemParam
@@ -180,23 +169,23 @@ class VMenu: public SimpleModal
 {
 	struct private_tag {};
 public:
-	static vmenu_ptr create(const string& Title, const MenuDataEx *Data, int ItemCount, int MaxHeight = 0, DWORD Flags = 0, dialog_ptr ParentDialog = nullptr);
+	static vmenu_ptr create(string Title, range<const menu_item*> Data, int MaxHeight = 0, DWORD Flags = 0, dialog_ptr ParentDialog = nullptr);
 
-	VMenu(private_tag, const string& Title, int MaxHeight, dialog_ptr ParentDialog);
-	virtual ~VMenu() override;
+	VMenu(private_tag, string Title, int MaxHeight, dialog_ptr ParentDialog);
+	~VMenu() override;
 
-	virtual void Show() override;
-	virtual void Hide() override;
-	virtual string GetTitle() const override;
-	virtual FARMACROAREA GetMacroArea() const override;
-	virtual int GetTypeAndName(string &strType, string &strName) override;
-	virtual int GetType() const override { return CheckFlags(VMENU_COMBOBOX) ? windowtype_combobox : windowtype_menu; }
-	virtual bool ProcessKey(const Manager::Key& Key) override;
-	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
-	virtual void ResizeConsole() override;
-	virtual void SetDeleting(void) override;
-	virtual void ShowConsoleTitle() override;
+	void Show() override;
+	void Hide() override;
+	string GetTitle() const override;
+	FARMACROAREA GetMacroArea() const override;
+	int GetTypeAndName(string &strType, string &strName) override;
+	int GetType() const override { return CheckFlags(VMENU_COMBOBOX) ? windowtype_combobox : windowtype_menu; }
+	bool ProcessKey(const Manager::Key& Key) override;
+	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
+	void ResizeConsole() override;
+	void SetDeleting() override;
+	void ShowConsoleTitle() override;
 
 	void FastShow() { ShowMenu(); }
 	void ResetCursor();
@@ -230,7 +219,7 @@ public:
 	void FilterUpdateHeight(bool bShrink = false);
 	void SetFilterEnabled(bool bEnabled) { bFilterEnabled = bEnabled; }
 	void SetFilterLocked(bool bLocked) { bFilterEnabled = bLocked; }
-	bool AddToFilter(const wchar_t *str);
+	bool AddToFilter(string_view Str);
 	void SetFilterString(const wchar_t *str);
 	// SelectPos == -1 & non-empty Items - everything is filtered
 	size_t size() const { return SelectPos == -1? 0 : Items.size(); }
@@ -238,13 +227,17 @@ public:
 	int GetShowItemCount() const { return static_cast<int>(Items.size() - ItemHiddenCount); }
 	int GetVisualPos(int Pos);
 	int VisualPosToReal(int VPos);
-	any* GetUserData(int Position = -1);
+
+	intptr_t GetSimpleUserData(int Position = -1) const;
+
+	std::any* GetComplexUserData(int Position = -1);
 	template<class T>
-	T* GetUserDataPtr(int Position = -1)
+	T* GetComplexUserDataPtr(int Position = -1)
 	{
-		return any_cast<T>(GetUserData(Position));
+		return std::any_cast<T>(GetComplexUserData(Position));
 	}
-	void SetUserData(const any& Data, int Position = -1);
+	void SetComplexUserData(const std::any& Data, int Position = -1);
+
 	int GetSelectPos() const { return SelectPos; }
 	int GetLastSelectPosResult() const { return SelectPosResult; }
 	int GetSelectPos(FarListPos *ListPos) const;
@@ -281,12 +274,12 @@ public:
 	}
 
 	static FarListItem *MenuItem2FarList(const MenuItemEx *ListItem, FarListItem *Item);
-	static std::vector<string> AddHotkeys(const range<MenuDataEx*>& MenuItems);
+	static std::vector<string> AddHotkeys(range<menu_item*> MenuItems);
 
 private:
-	void init(const MenuDataEx *Data, int ItemsCount, DWORD Flags);
+	void init(range<const menu_item*> Data, DWORD Flags);
 
-	virtual void DisplayObject() override;
+	void DisplayObject() override;
 
 	void ShowMenu(bool IsParent = false);
 	void DrawTitles() const;

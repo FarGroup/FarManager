@@ -29,9 +29,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="elevation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="cache.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -110,7 +107,16 @@
     <ClCompile Include="eject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="elevation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="encoding.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="eol.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="exception.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="execute.cpp">
@@ -278,6 +284,9 @@
     <ClCompile Include="platform.chrono.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="platform.concurrency.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="platform.env.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -356,6 +365,9 @@
     <ClCompile Include="stddlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="string_sort.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="string_utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -365,7 +377,7 @@
     <ClCompile Include="syslog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TaskBar.cpp">
+    <ClCompile Include="taskbar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="treelist.cpp">
@@ -444,9 +456,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="copy_progress.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="exception.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="new_handler.cpp">
@@ -548,6 +557,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="encoding.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="eol.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="exception.hpp">
@@ -733,10 +745,16 @@
     <ClInclude Include="platform.chrono.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="platform.concurrency.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="platform.env.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="platform.fs.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="platform.fwd.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="platform.memory.hpp">
@@ -826,19 +844,19 @@
     <ClInclude Include="stddlg.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="string_sort.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="string_utils.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="strmix.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="synchro.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="syslog.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TaskBar.hpp">
+    <ClInclude Include="taskbar.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TPreRedrawFunc.hpp">
@@ -958,9 +976,6 @@
     <ClInclude Include="common\null_iterator.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
-    <ClInclude Include="common\conditional.hpp">
-      <Filter>Header Files\common</Filter>
-    </ClInclude>
     <ClInclude Include="regex_helpers.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -997,14 +1012,14 @@
     <ClInclude Include="common\movable.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
+    <ClInclude Include="common\multifunction.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
     <ClInclude Include="common\string_utils.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
     <ClInclude Include="common\string_view.hpp">
       <Filter>Header Files\common</Filter>
-    </ClInclude>
-    <ClInclude Include="blob_builder.hpp">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dizviewer.hpp">
       <Filter>Header Files</Filter>
@@ -1031,6 +1046,18 @@
       <Filter>Header Files\common</Filter>
     </ClInclude>
     <ClInclude Include="common\bytes_view.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\enum_tokens.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\nifty_counter.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\io.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\keep_alive.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
   </ItemGroup>

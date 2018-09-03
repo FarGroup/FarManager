@@ -1,4 +1,5 @@
-﻿/*
+﻿// validator: no-self-include
+/*
 vc_crt_fix_ulink.cpp
 
 Workaround for Visual C++ CRT incompatibility with old Windows versions (ulink version)
@@ -42,17 +43,56 @@ static LPVOID WINAPI no_recode_pointer(LPVOID p)
 }
 
 //----------------------------------------------------------------------------
+static void WINAPI sim_InitializeSListHead(PSLIST_HEADER ListHead)
+{
+    ((LPDWORD)ListHead)[1] = ((LPDWORD)ListHead)[0] = 0;
+}
+
+//----------------------------------------------------------------------------
+static BOOL WINAPI sim_GetModuleHandleExW(DWORD flg, LPCWSTR name, HMODULE* pm)
+{
+    // GET_MODULE_HANDLE_EX_FLAG_PIN not implemented (and unneeded)
+    HMODULE   hm;
+    wchar_t   buf[MAX_PATH];
+
+    *pm = NULL; // prepare to any return's
+    if(flg & GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS) {
+      MEMORY_BASIC_INFORMATION  mbi;
+      if(!VirtualQuery(name, &mbi, sizeof(mbi))) return FALSE;
+      hm = (HMODULE)mbi.AllocationBase;
+      if(flg & GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT) goto done;
+      if(!GetModuleFileNameW(hm, buf, ARRAYSIZE(buf))) return FALSE;
+      name = buf;
+    } else if(flg & GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT) {
+      hm = GetModuleHandleW(name);
+      goto done;
+    }
+    hm = LoadLibraryW(name);
+done:
+    return (*pm = hm) != NULL;
+}
+
+//----------------------------------------------------------------------------
 static FARPROC WINAPI delayFailureHook(/*dliNotification*/unsigned dliNotify,
                                        PDelayLoadInfo pdli)
 {
     if(   dliNotify == /*dliFailGetProcAddress*/dliFailGetProc
        && pdli && pdli->cb == sizeof(*pdli)
        && pdli->hmodCur == GetModuleHandleA("kernel32")
-       && pdli->dlp.fImportByName && pdli->dlp.szProcName
-       && (   !lstrcmpA(pdli->dlp.szProcName, "EncodePointer")
-           || !lstrcmpA(pdli->dlp.szProcName, "DecodePointer")))
+       && pdli->dlp.fImportByName && pdli->dlp.szProcName)
     {
-      return (FARPROC)no_recode_pointer;
+#if _MSC_FULL_VER >= 191326128  // VS2017.6
+#pragma warning(disable: 4191)  // unsafe conversion from...to
+#endif
+      if(   !lstrcmpA(pdli->dlp.szProcName, "EncodePointer")
+         || !lstrcmpA(pdli->dlp.szProcName, "DecodePointer"))
+      {
+        return (FARPROC)no_recode_pointer;
+      }
+      if(!lstrcmpA(pdli->dlp.szProcName, "InitializeSListHead"))
+        return (FARPROC)sim_InitializeSListHead;
+      if(!lstrcmpA(pdli->dlp.szProcName, "GetModuleHandleExW"))
+        return (FARPROC)sim_GetModuleHandleExW;
     }
     return nullptr;
 }

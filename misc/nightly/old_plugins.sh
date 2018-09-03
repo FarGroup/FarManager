@@ -13,6 +13,8 @@ PLDIR=FTP
 
 pushd $PLUGIN || return 1
 
+unix2dos changelog
+
 FILES="FarFtp.dll FtpEng.hlf FtpRus.hlf FtpEng.lng FtpRus.lng FarFtp.map TechInfo.reg TechInfo_rus.reg FtpCmds.txt FtpCmds_rus.txt Notes.txt Notes_rus.txt"
 ADDFILES="ftpDirList.fll ftpProgress.fll ftpDirList.map ftpProgress.map Progress_FarCopy.reg Progress_JM.reg Progress_Wesha.reg Progress_ZeMA.reg"
 ADDBUILDDIRS="{lib,obj/DirList,obj/LibObj,obj/Notify,obj/Progress}"
@@ -31,6 +33,8 @@ PLUGIN=multiarc
 PLDIR=MultiArc
 
 pushd $PLUGIN || return 1
+
+unix2dos changelog
 
 FILES="MultiArc.dll arceng.hlf arcrus.hlf arceng.lng arcrus.lng arcspa.lng MultiArc.map"
 ADDFILES="Ace.fmt Arc.fmt Arj.fmt Cab.fmt Custom.fmt Ha.fmt Lzh.fmt Rar.fmt TarGz.fmt Zip.fmt custom.ini Ace.map Arc.map Arj.map Cab.map Custom.map Ha.map Lzh.map Rar.map TarGz.map Zip.map"

@@ -36,6 +36,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "windowsfwd.hpp"
 
+#include "common/range.hpp"
+#include "common/singleton.hpp"
+
 // Тип выбранной таблицы символов
 enum CPSelectType
 {
@@ -53,32 +56,37 @@ struct FarDialogBuilderListItem2;
 class VMenu2;
 enum CodePagesCallbackCallSource: int;
 
-class codepages: noncopyable
+class codepages: public singleton<codepages>
 {
+	IMPLEMENTS_SINGLETON(codepages);
+
 public:
+	NONCOPYABLE(codepages);
 	~codepages();
 
-	static bool IsCodePageSupported(uintptr_t CodePage, size_t MaxCharSize = size_t(-1));
 	bool SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool ViewOnly, bool bShowAutoDetect);
 	UINT FillCodePagesList(Dialog* Dlg, UINT controlId, uintptr_t codePage, bool allowAuto, bool allowAll, bool allowDefault, bool allowChecked, bool bViewOnly);
 	void FillCodePagesList(std::vector<FarDialogBuilderListItem2> &List, bool allowAuto, bool allowAll, bool allowDefault, bool allowChecked, bool bViewOnly);
-	string& FormatCodePageName(uintptr_t CodePage, string& CodePageName) const;
 
+	static bool IsCodePageSupported(uintptr_t CodePage, size_t MaxCharSize = size_t(-1));
+	static void FormatCodePageName(uintptr_t CodePage, string& CodePageName);
 	static long long GetFavorite(uintptr_t cp);
 	static void SetFavorite(uintptr_t cp, long long value);
 	static void DeleteFavorite(uintptr_t cp);
 	static auto GetFavoritesEnumerator()
 	{
-		return ConfigProvider().GeneralCfg()->ValuesEnumerator<long long>(FavoriteCodePagesKey());
+		return select(ConfigProvider().GeneralCfg()->ValuesEnumerator<long long>(FavoriteCodePagesKey()), [](const auto& i)
+		{
+			return std::make_pair(std::stoul(i.first), i.second);
+		});
 	}
 
 private:
-	friend codepages& Codepages();
 	friend class system_codepages_enumerator;
 
 	codepages();
 
-	string& FormatCodePageName(uintptr_t CodePage, string& CodePageName, bool &IsCodePageNameCustom) const;
+	static void FormatCodePageName(uintptr_t CodePage, string& CodePageName, bool &IsCodePageNameCustom);
 	size_t GetMenuItemCodePage(size_t Position = -1) const;
 	size_t GetListItemCodePage(size_t Position) const;
 	bool IsPositionStandard(UINT position) const;
@@ -96,7 +104,7 @@ private:
 	intptr_t EditDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	void EditCodePageName();
 
-	static const string& FavoriteCodePagesKey();
+	static string_view FavoriteCodePagesKey();
 
 	Dialog* dialog;
 	UINT control;
@@ -107,8 +115,6 @@ private:
 	bool selectedCodePages;
 	CodePagesCallbackCallSource CallbackCallSource;
 };
-
-codepages& Codepages();
 
 class F8CP
 {

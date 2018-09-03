@@ -48,7 +48,7 @@ lv=1
 dt=Text
 nm=Загрузка макрофайлов
 ctime=3618591871
-mtime=3618593361
+mtime=3735335890
 <article>
 #_<markdown>
 #_
@@ -64,10 +64,12 @@ mtime=3618593361
 #_
 #_* Один макрофайл может содержать произвольное количество макросов и обработчиков событий.
 #_
-#_* При исполнении макрофайла ему передаётся один параметр - полный путь к данному макрофайлу.
-#_   Если в начале макрофайла определить переменную, например,<br>
-#_   `local MacroFileName = ...`<br>
-#_   то эта переменная будет доступна всем макросам и обработчикам событий в данном файле.
+#_* При исполнении макрофайла ему передаётся 2 параметра:
+#_  (1) полный путь к данному макрофайлу и
+#_  (2) счётчик количества исполнений.
+#_  Если в начале макрофайла определить 2 переменные, например:<br>
+#_  `local MacroFileName, ExeCounter = ...`<br>
+#_   то эти переменные будут доступны всем макросам и обработчикам событий в данном файле.
 #_
 #_* Если макрофайлы грузятся из последовательности деревьев `root1;root2;...`,
 #_  то это значит, что:
@@ -227,7 +229,7 @@ lv=2
 dt=Text
 nm=Обработчики событий
 ctime=3580139337
-mtime=3678018855
+mtime=3734986558
 <article>
 #_<markdown>
 #_
@@ -256,7 +258,7 @@ mtime=3678018855
 #_При наличии нескольких обработчиков одного и того же события (т.е. обработчиков с одинаковым полем `group`), эти обработчики будут вызваны по очереди: обработчик с более высоким приоритетом вызывается раньше. Приоритет определяется динамически с учётом функции `condition`, если таковая имеется, как и для макросов.
 #_
 #_Событие `"ExitFAR"` вызывается в следующих случаях: (a) выход из Far Manager,
-#_(b) выгрузка плагина LuaMacro, \(c) выгрузка либо перезагрузка макросов.
+#_(b) выгрузка плагина LuaMacro, \(c) выгрузка либо перезагрузка макросов. Обработчик события получает один аргумент булевого типа: `false` для случаев (a) и (b); `true` для случая \(c).
 #_
 #_[1]: 75.html
 #_
@@ -342,10 +344,150 @@ mtime=3636460943
 </article>
 </node>
 <node>
+id=98
+lv=2
+dt=Text
+nm=Добавление панельных модулей
+ctime=3730113290
+mtime=3732088491
+<article>
+#_<markdown>
+#_
+#_"Панельный модуль" - это набор Lua-функций, помещённых в таблицу, который загружается функцией `PanelModule`.
+#_
+#_- Имена функций модуля и их параметры совпадают с функциями таблицы `export` (см. мануал LuaFAR).
+#_- Список экспортируемых функций модуля, поддерживаемых плагином:<br>
+#_`Analyse`, `ClosePanel`, `Compare`, `DeleteFiles`, `GetFiles`, `GetFindData`, `GetOpenPanelInfo`, `MakeDirectory`, `Open`, `ProcessHostFile`, `ProcessPanelEvent`, `ProcessPanelInput`, `PutFiles`, `SetDirectory`, `SetFindList`.
+#_- Каждый панельный модуль должен содержать таблицу `Info` с обязательным полем `Guid`. Прочие поля - опциональны.
+#_
+#_```
+#_-- Создадим панельный модуль
+#_local mod  = {}
+#_mod.Info = {
+#_  Guid        = win.Uuid("FBBC5FBF-AE9F-46EC-999C-C744F7D898B6"); -- обязательное поле
+#_  Version     = "";
+#_  Title       = "";
+#_  Description = "";
+#_  Author      = "";
+#_}
+#_
+#_-- Добавим только те "экспортируемые" функции, которые нужны для работы этого модуля
+#_mod.Analyse     = function(...) ...... end
+#_mod.Open        = function(...) ...... end
+#_mod.GetFindData = function(...) ...... end
+#_......
+#_
+#_-- Загрузим модуль
+#_PanelModule(mod)
+#_```
+#_
+#_**Примечания:**
+#_
+#_1. Для создания панели из командной строки или меню плагинов, должны использоваться существующие функции [`CommandLine`](96.html) и [`MenuItem`](90.html). Их функция `action()` должна вернуть 2 величины: (1) таблицу панельного модуля и (2) объект панели (любое не ложное значение Lua).
+#_1. Функция `mod.Open` вызывается плагином только со следующими значениями параметра `OpenFrom`:<br> `OPEN_ANALYSE`, `OPEN_FINDLIST` и `OPEN_SHORTCUT`.
+#_
+#_См. также: [Пример применения](99.html)
+#_
+</article>
+</node>
+<node>
+id=99
+lv=3
+dt=Text
+nm=Пример применения
+ctime=3730118337
+mtime=3732100030
+<article>
+#_<markdown>
+#_```
+#_if ({ far.AdvControl("ACTL_GETFARMANAGERVERSION", true) })[4] < 5171 then return end
+#_
+#_local F = far.Flags
+#_local Title ="Demo panel in LuaMacro"
+#_local mod = {}
+#_
+#_mod.Info = {
+#_  Guid = win.Uuid("715E5E90-DEB9-470A-84CE-7CF8D92A7B05")
+#_}
+#_
+#_local function FileToObject(FileName)
+#_  FileName = far.ConvertPath(FileName, "CPM_FULL")
+#_  local fp = io.open(FileName)
+#_  if fp then
+#_    local obj = { HostFile=FileName; List={} }
+#_    for line in fp:lines() do
+#_      table.insert(obj.List, {FileName=line})
+#_    end
+#_    fp:close()
+#_    return obj
+#_  end
+#_end
+#_
+#_function mod.Analyse(Data)
+#_  return Data.FileName and Data.FileName:sub(-5):lower() == ".abcd"
+#_end
+#_
+#_function mod.Open(OpenFrom, Guid, Item)
+#_  if OpenFrom == F.OPEN_ANALYSE then
+#_    return FileToObject(Item.FileName)
+#_  elseif OpenFrom == F.OPEN_SHORTCUT then
+#_    return FileToObject(Item.HostFile)
+#_  elseif OpenFrom == F.OPEN_FINDLIST then
+#_    -- If we uncomment the line "return {}", then this module will be
+#_    -- used instead of TmpPanel for displaying search results.
+#_    ---- return {}
+#_  end
+#_end
+#_
+#_function mod.GetFindData(object, handle, OpMode)
+#_  return object.List
+#_end
+#_
+#_function mod.GetOpenPanelInfo(object, handle)
+#_  return {
+#_    HostFile = object.HostFile;
+#_    PanelTitle = Title;
+#_    StartSortMode = F.SM_UNSORTED;
+#_    StartSortOrder = 0;
+#_    ShortcutData = "";
+#_    Flags = bit64.bor(F.OPIF_SHORTCUT, F.OPIF_ADDDOTS);
+#_  }
+#_end
+#_
+#_function mod.SetFindList (object, handle, Items)
+#_  object.List = Items
+#_  return true
+#_end
+#_
+#_MenuItem {
+#_  description = Title;
+#_  menu   = "Plugins";
+#_  area   = "Shell";
+#_  guid   = "5E1ECBD6-F6E1-4A02-AC90-DB49DB6E350C";
+#_  text   = Title;
+#_  action = function(OpenFrom, Item)
+#_    return mod, FileToObject(APanel.Current)
+#_  end;
+#_}
+#_
+#_CommandLine {
+#_  description = Title;
+#_  prefixes = "abcd";
+#_  action = function(prefix,text)
+#_    if text then return mod, FileToObject(text); end
+#_  end;
+#_}
+#_
+#_PanelModule(mod)
+#_```
+#_
+</article>
+</node>
+<node>
 id=77
 lv=2
 dt=Text
-nm=Модули
+nm=Внешние модули
 ctime=3580139041
 mtime=3710685784
 <article>
@@ -381,7 +523,7 @@ mtime=3617996565
 id=92
 lv=2
 dt=Text
-nm=Работа с командной строки
+nm=Работа из командной строки
 ctime=3617996372
 mtime=3637689226
 <article>
@@ -494,7 +636,7 @@ lv=2
 dt=Text
 nm=Изменения API в сравнении с макроязыком
 ctime=3553185939
-mtime=3717182422
+mtime=3720944750
 <article>
 #_<markdown>
 #_
@@ -508,8 +650,7 @@ mtime=3717182422
 #_1. Функция `prompt` может возвращать либо стринг, либо `false` (но никогда не число `0`).
 #_1. Многие функции помещены в таблицу [`mf`] [mf] (сокращение от *macrofunctions*),
 #_   например: `mf.abs`, `mf.fsplit` и т.д.
-#_1. Функция `mf.beep` возвращает булевое значение, а не число.
-#_1. Функция `mf.fexist` возвращает булевое значение, а не число.
+#_1. Функции `Far.Window_Scroll`, `mf.beep`, `mf.fexist` и `Panel.SetPath` возвращают булевое значение, а не число.
 #_1. Функции [`mload`] [mload] и [`msave`] [msave] изменились, см. их описание.
 #_1. Свойства, зависящие от контекста исполнения, находятся в таблице [`Object`][Object],
 #_   например: `Object.CurPos`, `Object.Empty`.
@@ -521,7 +662,7 @@ mtime=3717182422
 #_1. `Dialog.AutoCompletion -> Area.DialogAutoCompletion`
 #_1. `Shell.AutoCompletion  -> Area.ShellAutoCompletion`
 #_1. `CallPlugin` -> [`Plugin.Call`][Call]. Этот вызов - всегда асинхронный. Для синхронного вызова следует использовать [`Plugin.SyncCall`][SyncCall].
-#_1. Функции `Plugin.Menu`, `Plugin.Config` и `Plugin.Command` возвращают булевое значение.
+#_1. Функции `Plugin.Exist`, `Plugin.Menu`, `Plugin.Config` и `Plugin.Command` возвращают булевое значение.
 #_1. `mmode(3,x)` больше не влияет на синхронность/асинхронность вызовов плагинов из макроса; ничего не делает; возвращает `0`.
 #_1. `Dlg.Info.Id -> Dlg.Id`
 #_1. `Dlg.Info.Owner -> Dlg.Owner`
@@ -566,6 +707,7 @@ mtime=3717182422
 #_{dlg.info.id}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/dialog.html#Dlg.Info.Id
 #_{far.cfg.err}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Far.Cfg.Err
 #_{far.cfg.get}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#far.cfg.get
+#_{far.window_scroll}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Window.Scroll
 #_{fullscreen}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Fullscreen
 #_{gethotkey}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#gethotkey
 #_{history.disable}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#history.disable
@@ -578,13 +720,17 @@ mtime=3717182422
 #_{macro.keyword}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#macro.keyword
 #_{macro.var}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#macro.var
 #_{menu.info.id}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Menu.Info.Id
+#_{mf.beep}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#beep
+#_{mf.fexist}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#fexist
 #_{mmode}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#mmode
 #_{msbutton}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsButton
 #_{msctrlstate}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsCtrlState
 #_{mseventflags}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsEventFlags
 #_{msx}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsX
 #_{msy}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsY
+#_{panel.setpath}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#panel.setpath
 #_{plugin.call}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#plugin.call
+#_{plugin.exist}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#plugin.exist
 #_{prompt}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#prompt
 #_{rcounter}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#RCounter
 #_{window.scroll}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Window.Scroll
@@ -715,7 +861,7 @@ lv=2
 dt=Text
 nm=mf
 ctime=3553243522
-mtime=3659609053
+mtime=3732331605
 <article>
 #_**Свойства:** нет.
 #_
@@ -723,30 +869,31 @@ mtime=3659609053
 #_
 #_  abs                len
 #_  `acall`              max
-#_  akey               `mdelete`
-#_  asc                min
-#_  atoi               `mload`
-#_  beep               mmode
-#_  chr                mod
-#_  clip               `msave`
-#_  date               msgbox
-#_  env                `postmacro`
-#_  `eval`               print
-#_  `exit`               prompt
-#_  fattr              replace
-#_  fexist             rindex
-#_  float              size2str
-#_  flock              sleep
-#_  fmatch             string
-#_  fsplit             strpad
-#_  `GetMacroCopy`       strwrap
-#_  iif                substr
-#_  index              testfolder
-#_  int                trim
-#_  itoa               ucase
-#_  key                `usermenu`
-#_  `Keys`               waitkey
-#_  lcase              xlat
+#_  `AddExitHandler`     `mdelete`
+#_  akey               min
+#_  asc                `mload`
+#_  atoi               mmode
+#_  beep               mod
+#_  chr                `msave`
+#_  clip               msgbox
+#_  date               `postmacro`
+#_  env                print
+#_  `eval`               prompt
+#_  `exit`               replace
+#_  fattr              rindex
+#_  fexist             size2str
+#_  float              sleep
+#_  flock              string
+#_  fmatch             strpad
+#_  fsplit             strwrap
+#_  `GetMacroCopy`       substr
+#_  iif                testfolder
+#_  index              trim
+#_  int                ucase
+#_  itoa               `usermenu`
+#_  key                waitkey
+#_  `Keys`               xlat
+#_  lcase
 #_
 #_@@@
 #_[acall]: 91.html
@@ -759,6 +906,7 @@ mtime=3659609053
 #_[msave]: 12.html
 #_[postmacro]: 85.html
 #_[usermenu]: 69.html
+#_[AddExitHandler]: 100.html
 #_
 #_
 #_{abs}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#abs
@@ -845,6 +993,43 @@ mtime=3717267179
 #_[Ограничения в использовании некоторых функций]: 62.html
 #_[Plugin.Call]: 65.html
 #_[LuaMacro]: 7.html
+#_
+</article>
+</node>
+<node>
+id=100
+lv=3
+dt=Text
+nm=AddExitHandler
+ctime=3732329181
+mtime=3732330927
+<article>
+#_mf.AddExitHandler (handler)
+#_
+#_**Параметры:**
+#_  handler:  function
+#_
+#_**Возвращает:**
+#_  ничего
+#_
+#_**Описание:**
+#_  1. Данная функция добавляет обработчик, который будет вызван по окончанию
+#_     исполнения макроса.
+#_  2. Обработчик будет вызван как при нормальном завершении макроса, так и
+#_     в случае, если макрос был завершён по ошибке.
+#_  3. Если в процессе исполнения макроса было добавлено несколько обработчиков,
+#_     то они будут вызваны в порядке, обратном порядку их добавления.
+#_
+#_**Пример применения:**
+#_  local fp = assert(io.open("some file.txt"))
+#_  mf.AddExitHandler(function() fp:close() end)
+#_  -- *use fp; return from multiple places; do not care about closing fp*
+#_
+#_**См. также:**
+#_`Ограничения в использовании некоторых функций`
+#_
+#_@@@
+#_[Ограничения в использовании некоторых функций]: 62.html
 #_
 </article>
 </node>
@@ -2101,13 +2286,14 @@ lv=2
 dt=Text
 nm=Ограничения в использовании некоторых функций
 ctime=3557323094
-mtime=3664364154
+mtime=3732330043
 <article>
 #_<markdown>
 #_Следующие функции имеют особенности реализации, которые накладывают определённые ограничения на их использование в макросах:
 #_
 #_* [`exit`][exit]
 #_* [`mf.acall`][acall]
+#_* [`mf.AddExitHandler`][AddExitHandler]
 #_* [`mf.usermenu`][usermenu] (в "асинхронном" режиме вызова)
 #_* [`Keys`][keys]
 #_* [`Plugin.Call`][plugincall]
@@ -2139,6 +2325,7 @@ mtime=3664364154
 #_[plugincall]: 65.html
 #_[exit]: 61.html
 #_[keys]: 4.html
+#_[AddExitHandler]: 100.html
 #_
 #_@@@
 #_{plugin.command}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#plugin.command

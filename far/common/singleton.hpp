@@ -33,17 +33,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 template<typename type>
-class singleton
+class singleton: noncopyable
 {
 public:
 	static type& instance()
 	{
+		static_assert((std::is_base_of_v<singleton, type>));
+
 		static type Instance;
 		return Instance;
 	}
-
-protected:
-	using singleton_type = singleton<type>;
 };
 
 #define IMPLEMENTS_SINGLETON(...) friend class singleton<__VA_ARGS__>

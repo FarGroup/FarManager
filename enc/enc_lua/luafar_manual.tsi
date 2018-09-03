@@ -1885,7 +1885,7 @@ id=104
 lv=2
 dt=Text
 nm=export.GetOpenPanelInfo
-mtime=3602579547
+mtime=3730308165
 <article>
 #_OPInfo = export.GetOpenPanelInfo (object, handle)
 #_
@@ -1894,7 +1894,7 @@ mtime=3602579547
 #_  handle: panel handle
 #_
 #_**Returns:**
-#_  OPInfo: table, or string "reuse" (if no changes occured)
+#_  OPInfo: table
 #_    fields of OPInfo:
 #_      Flags:            flags
 #_      HostFile:         string
@@ -2077,15 +2077,16 @@ id=116
 lv=2
 dt=Text
 nm=export.SetDirectory
-mtime=3602341267
+mtime=3743410389
 <article>
-#_result = export.SetDirectory (object, handle, Dir, OpMode)
+#_result = export.SetDirectory (object, handle, Dir, OpMode, UserData)
 #_
 #_**Parameters:**
-#_  object: plugin object
-#_  handle: panel handle
-#_  Dir:    string
-#_  OpMode: flags
+#_  object:    plugin object
+#_  handle:    panel handle
+#_  Dir:       string
+#_  OpMode:    flags
+#_  UserData:  any Lua value
 #_
 #_**Returns:**
 #_  result: boolean
@@ -2605,7 +2606,7 @@ id=64
 lv=2
 dt=Text
 nm=far.Menu
-mtime=3688221499
+mtime=3744734289
 <article>
 #_Item, Position = far.Menu (Properties, Items [, BreakKeys])
 #_
@@ -2652,7 +2653,8 @@ mtime=3688221499
 #_            nil     The menu was cancelled by the user.
 #_
 #_**NOTE 1**
-#_  Properties.SelectIndex=N is equivalent to Items[N].selected=true.
+#_  Properties.SelectIndex=N is equivalent to Items[N].selected=true
+#_  but it has a higher priority.
 #_
 #_**NOTE 2**
 #_  Example of constructing a BreakKey string:
@@ -3059,7 +3061,7 @@ id=65
 lv=2
 dt=Text
 nm=far.Message
-mtime=3602539082
+mtime=3734089847
 <article>
 #_result = far.Message (Msg, [Title], [Buttons], [Flags], [HelpTopic], [Id])
 #_
@@ -3092,10 +3094,15 @@ mtime=3602539082
 #_**Returns:**
 #_  *result:* integer (1-based)
 #_
-#_**Note:**
+#_**Note 1:**
 #_  Before calling FAR function *Message*, the function:
 #_    a) wraps long lines (unless the flag 'n' is present), and
 #_    b) limits the maximal number of lines and buttons.
+#_
+#_**Note 2:**
+#_  As in the original `Message` function, every line in **Msg** parameter
+#_  that starts with \1 is treated as a single delimiter line;
+#_  a line starting with \2 as a double delimiter line.
 #_
 #_**Far API used:**
 #_  `Message`
@@ -3115,7 +3122,7 @@ id=71
 lv=2
 dt=Text
 nm=far.SendDlgMessage
-mtime=3712149782
+mtime=3735644846
 <article>
 #_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
 #_    or
@@ -3205,7 +3212,7 @@ mtime=3712149782
 #_          { Text="added line 2", Flags="LIF_CHECKED" } })
 #_
 #_DM_LISTDELETE:
-#_    Param2:  table
+#_    Param2:  table, or nil
 #_    Result:  integer
 #_    *Example:*
 #_      res = far.SendDlgMessage(hDlg, "DM_LISTDELETE", id,
@@ -5694,7 +5701,7 @@ id=7
 lv=2
 dt=Text
 nm=panel.GetPanelInfo
-mtime=3615035351
+mtime=3741446297
 <article>
 #_tPanelInfo = panel.GetPanelInfo (handle, whatpanel)
 #_
@@ -5716,6 +5723,13 @@ mtime=3615035351
 #_      ViewMode:            integer
 #_      SortMode:            integer
 #_      Flags:               flags
+#_      PluginObject:        non-false Lua value
+#_
+#_**Note:**
+#_  The *PluginObject* field is LuaFAR-specific. It is only present if OwnerGuid==PluginGuid,
+#_  i.e. when *panel.GetPanelInfo* was called from the same plugin that created the panel.
+#_  The intended use of this field is when a panel plugin processes macro calls for operations
+#_  on an already opened panel.
 #_
 #_**Far API used:**
 #_  PanelControl, FCTL_GETPANELINFO, PanelInfo
@@ -5814,12 +5828,13 @@ id=228
 lv=2
 dt=Text
 nm=panel.GetUserScreen
-mtime=3582913573
+mtime=3726225741
 <article>
-#_result = panel.GetUserScreen ([handle])
+#_result = panel.GetUserScreen ([handle], [scrolltype])
 #_
 #_**Parameters:**
-#_  handle: panel handle
+#_  handle:     panel handle
+#_  scrolltype: integer (defaults to 0)
 #_
 #_**Returns:**
 #_  result: boolean
@@ -5946,33 +5961,6 @@ mtime=3573119438
 </article>
 </node>
 <node>
-id=395
-lv=2
-dt=Text
-nm=panel.SetCaseSensitiveSort
-ctime=3501391498
-mtime=3571803026
-<article>
-#_result = panel.SetCaseSensitiveSort (handle, whatpanel [, set])
-#_
-#_**Parameters:**
-#_  handle:    panel handle, or nil
-#_  whatpanel: 1=active panel; 0=passive panel;
-#_  set:       boolean, defaults to false
-#_
-#_**Returns:**
-#_  result: boolean
-#_
-#_**Far API used:**
-#_  PanelControl, FCTL_SETCASESENSITIVESORT
-#_
-#_@@@
-#_{fctl_setcasesensitivesort}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_SETCASESENSITIVESORT
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
-#_
-</article>
-</node>
-<node>
 id=11
 lv=2
 dt=Text
@@ -6073,32 +6061,6 @@ mtime=3584893925
 #_
 #_@@@
 #_{fctl_setdirectoriesfirst}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_SETDIRECTORIESFIRST
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
-#_
-</article>
-</node>
-<node>
-id=146
-lv=2
-dt=Text
-nm=panel.SetNumericSort
-mtime=3571803044
-<article>
-#_result = panel.SetNumericSort (handle, whatpanel [, set])
-#_
-#_**Parameters:**
-#_  handle:    panel handle, or nil
-#_  whatpanel: 1=active panel; 0=passive panel;
-#_  set:       boolean, defaults to false
-#_
-#_**Returns:**
-#_  result: boolean
-#_
-#_**Far API used:**
-#_  PanelControl, FCTL_SETNUMERICSORT
-#_
-#_@@@
-#_{fctl_setnumericsort}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_SETNUMERICSORT
 #_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
 #_
 </article>
@@ -6222,12 +6184,13 @@ id=15
 lv=2
 dt=Text
 nm=panel.SetUserScreen
-mtime=3582913564
+mtime=3726225783
 <article>
-#_result = panel.SetUserScreen ([handle])
+#_result = panel.SetUserScreen ([handle], [scrolltype])
 #_
 #_**Parameters:**
-#_  handle: panel handle
+#_  handle:     panel handle
+#_  scrolltype: integer (defaults to 0)
 #_
 #_**Returns:**
 #_  result: boolean
@@ -7658,7 +7621,7 @@ lv=2
 dt=Text
 nm=far.FarClock
 ctime=3632083312
-mtime=3632117357
+mtime=3735474225
 <article>
 #_result = far.FarClock ()
 #_
@@ -7670,6 +7633,9 @@ mtime=3632117357
 #_
 #_**Far API used:**
 #_  FarClock
+#_
+#_@@@
+#_{farclock}: http://api.farmanager.com/ru/fsf/farclock.html
 #_
 </article>
 </node>
@@ -8698,6 +8664,41 @@ mtime=3602448401
 </article>
 </node>
 <node>
+id=527
+lv=2
+dt=Text
+nm=far.RunDefaultScript
+ctime=3737550505
+mtime=3737570204
+<article>
+#_Result = far.RunDefaultScript ()
+#_
+#_**Parameters:**
+#_  none
+#_
+#_**Returns:**
+#_  Result: boolean (true = success)
+#_
+#_**Description:**
+#_  Runs the default script of the plugin.
+#_  This usually means that all plugin's code is **immediately** reloaded.
+#_  This is different from setting *far.ReloadDefaultScript = true* which causes
+#_  a deferred reload (that occurs when `export.Open` is called the next time).
+#_
+#_**See also:**
+#_  `LF_RunDefaultScript`
+#_  `far.ReloadDefaultScript`
+#_  `RecreateLuaState`
+#_
+#_@@@
+#_[LF_RunDefaultScript]: 130.html
+#_[far.ReloadDefaultScript]: 173.html
+#_[export.Open]: 109.html
+#_[RecreateLuaState]: 495.html
+#_
+</article>
+</node>
+<node>
 id=282
 lv=2
 dt=Text
@@ -9376,10 +9377,10 @@ mtime=3560971933
 <node>
 id=458
 lv=0
-dt=RTF
+dt=Text
 nm=Additional libraries
 ctime=3532768921
-mtime=3532768921
+mtime=3721977211
 <article>
 </article>
 </node>
@@ -10482,6 +10483,37 @@ nm=win.ExtractKey
 </article>
 </node>
 <node>
+id=526
+lv=3
+dt=Text
+nm=win.ExtractKeyEx
+ctime=3735030822
+mtime=3735031137
+<article>
+#_result = win.ExtractKeyEx ()
+#_
+#_**Parameters:**
+#_  none
+#_
+#_**Returns:**
+#_  result: table `tInputRecord`, or nil
+#_
+#_**Description:**
+#_  If a key was pressed or released, the input record is returned.
+#_  Otherwise, a nil is returned.
+#_
+#_**Windows API used:**
+#_  GetStdHandle, PeekConsoleInput, ReadConsoleInput
+#_
+#_@@@
+#_[tInputRecord]: 187.html
+#_
+#_{peekconsoleinput}: http://api.farmanager.com/ru/winapi/peekconsoleinput.html
+#_{readconsoleinput}: http://api.farmanager.com/ru/winapi/readconsoleinput.html
+#_
+</article>
+</node>
+<node>
 id=359
 lv=3
 dt=Text
@@ -10959,6 +10991,44 @@ mtime=3579944916
 #_
 #_**Note:**
 #_  This is added function, not present in the original **Selene Unicode** library.
+#_
+</article>
+</node>
+<node>
+id=524
+lv=0
+dt=Text
+nm=Extensions
+ctime=3721974296
+mtime=3721979604
+<article>
+</article>
+</node>
+<node>
+id=525
+lv=1
+dt=Text
+nm=file:rawhandle
+ctime=3721974412
+mtime=3744087293
+<article>
+#_rh = file:rawhandle()
+#_
+#_**Parameters:**
+#_  none
+#_
+#_**Returns:**
+#_  rh:      light userdata
+#_
+#_**Description:**
+#_  This is an additional method of a file handle returned by *io.open* function.
+#_  It returns the value of FILE`*` that is suitable for using with LuaJIT FFI.
+#_
+#_**Note:**
+#_  file:rawhandle() throws an error in non-GCC compilations.
+#_  This is to prevent a crash caused by incompatible runtime libraries.
+#_
+#_@@@
 #_
 </article>
 </node>
@@ -11464,7 +11534,7 @@ id=173
 lv=2
 dt=Text
 nm=LF_Open
-mtime=3601970230
+mtime=3737613834
 <article>
 #_<markdown>
 #_    HANDLE LF_Open (lua_State* L, const struct OpenInfo *Info)
@@ -11477,7 +11547,7 @@ mtime=3601970230
 #_      Value, according to FAR Plugins API.
 #_
 #_#### Description:
-#_If `far.ReloadDefaultScript` is true, then the function runs the default script (see [`LF_RunDefaultScript`](130.html)). Then, if Lua function [`export.Open`](109.html) exists, it is called. Else, `INVALID_HANDLE_VALUE` is returned to FAR.
+#_If `far.ReloadDefaultScript` is true, then the function runs the default script (see [`LF_RunDefaultScript`](130.html)). Then, if Lua function [`export.Open`](109.html) exists, it is called. Else, `NULL` is returned to FAR.
 #_
 #_@@@
 #_{openinfo}: http://api.farmanager.com/ru/structures/openinfo.html
@@ -12012,7 +12082,7 @@ id=130
 lv=2
 dt=Text
 nm=LF_RunDefaultScript
-mtime=3601970286
+mtime=3737570768
 <article>
 #_<markdown>
 #_    BOOL LF_RunDefaultScript(lua_State* L)
@@ -12035,6 +12105,9 @@ mtime=3601970286
 #_
 #_This mechanism allows the default script to be either embedded into the application or external.
 #_
+#_#### See also:
+#_
+#_[`far.RunDefaultScript`](527.html)
 #_
 </article>
 </node>

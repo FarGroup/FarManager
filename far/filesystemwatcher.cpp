@@ -30,20 +30,16 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "filesystemwatcher.hpp"
+
 #include "flink.hpp"
 #include "elevation.hpp"
-#include "datetime.hpp"
 #include "farexcpt.hpp"
 #include "pathmix.hpp"
-#include "string_utils.hpp"
+
+#include "platform.fs.hpp"
 
 FileSystemWatcher::FileSystemWatcher():
-	m_PreviousLastWriteTime(),
-	m_CurrentLastWriteTime(),
 	m_WatchSubtree(false),
 	m_Cancelled(os::event::type::manual, os::event::state::nonsignaled)
 {
@@ -93,7 +89,7 @@ void FileSystemWatcher::Watch(bool got_focus, bool check_time)
 			{
 				string strFileSystem;
 				if (os::fs::GetVolumeInformation(strRoot, nullptr, nullptr, nullptr, nullptr, &strFileSystem))
-					m_IsFatFilesystem.first = starts_with(strFileSystem, L"FAT"_sv);
+					m_IsFatFilesystem.first = starts_with(strFileSystem, L"FAT"sv);
 			}
 
 			m_IsFatFilesystem.second = true;

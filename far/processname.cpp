@@ -31,10 +31,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "processname.hpp"
+
 #include "pathmix.hpp"
 #include "string_utils.hpp"
 
@@ -47,7 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // каталог dir1, а в нем файл file1. Нужно сгенерировать имя по маске для dir1.
 // Параметры могут быть следующими: Src="dir1", SelectedFolderNameLength=0
 // или Src="dir1\\file1", а SelectedFolderNameLength=4 (длина "dir1")
-bool ConvertWildcards(const string& SrcName, string &strDest, int SelectedFolderNameLength)
+bool ConvertWildcards(const string& SrcName, string &strDest, int const SelectedFolderNameLength)
 {
 	size_t DestNamePos = strDest.size() - PointToName(strDest).size();
 
@@ -57,21 +55,19 @@ bool ConvertWildcards(const string& SrcName, string &strDest, int SelectedFolder
 	}
 
 	const string strWildName = strDest.substr(DestNamePos);
-	const string strPartAfterFolderName = SelectedFolderNameLength? SrcName.substr(SelectedFolderNameLength) : string{};
 
-	const string strSrc = SelectedFolderNameLength? SrcName.substr(0, SelectedFolderNameLength) : SrcName;
-	const wchar_t *Src = strSrc.data();
+	const auto strSrc = SelectedFolderNameLength? SrcName.substr(0, SelectedFolderNameLength) : SrcName;
+	const auto Src = strSrc.c_str();
 	auto SrcNamePtr = PointToName(strSrc);
 
 	strDest.resize(strDest.size() + SrcName.size());
 
-	size_t BeforeNameLength = DestNamePos? 0 : strSrc.size() - SrcNamePtr.size();
+	const auto BeforeNameLength = DestNamePos? 0 : strSrc.size() - SrcNamePtr.size();
 
 	const auto SrcNameRDot = std::find(ALL_CONST_REVERSE_RANGE(SrcNamePtr), L'.');
 	const auto SrcNameDot = SrcNameRDot == SrcNamePtr.crend()? SrcNamePtr.cend() : (SrcNameRDot + 1).base();
 
-	const wchar_t *CurWildPtr = strWildName.data();
-
+	auto CurWildPtr = strWildName.c_str();
 	while (*CurWildPtr)
 	{
 		switch (*CurWildPtr)
@@ -91,7 +87,7 @@ bool ConvertWildcards(const string& SrcName, string &strDest, int SelectedFolder
 			CurWildPtr++;
 			while (!SrcNamePtr.empty())
 			{
-				if (*CurWildPtr==L'.' && SrcNameDot && !wcschr(CurWildPtr+1,L'.'))
+				if (*CurWildPtr == L'.' && SrcNameDot != SrcNamePtr.cend() && !contains(CurWildPtr + 1, L'.'))
 				{
 					if (SrcNamePtr.cbegin() == SrcNameDot)
 						break;
@@ -136,13 +132,16 @@ bool ConvertWildcards(const string& SrcName, string &strDest, int SelectedFolder
 	strDest.insert(0, Src, BeforeNameLength);
 
 	if (SelectedFolderNameLength)
-		strDest += strPartAfterFolderName; //BUGBUG???, was src in 1.7x
+	{
+		strDest += SrcName.substr(SelectedFolderNameLength); //BUGBUG???, was src in 1.7x
+	}
 
 	return true;
 }
 
-bool CmpName(string_view pattern, string_view str, bool skippath, bool CmpNameSearchMode)
+bool CmpName(string_view pattern, string_view str, const bool skippath, const bool CmpNameSearchMode)
 {
+	// BUGBUG rewrite
 	if (pattern.empty() || str.empty())
 		return false;
 
@@ -178,7 +177,7 @@ bool CmpName(string_view pattern, string_view str, bool skippath, bool CmpNameSe
 				if (pattern.size() == 2 && pattern[1]==L'*')
 					return true;
 
-				if (std::none_of(ALL_CONST_RANGE(pattern), [](wchar_t Char) { return wcschr(L"*?[", Char) != nullptr; }))
+				if (std::none_of(ALL_CONST_RANGE(pattern), [](wchar_t Char) { return contains(L"*?["sv, Char); }))
 				{
 					const auto RDotIt = std::find(ALL_CONST_REVERSE_RANGE(str), L'.');
 					const auto DotIt = RDotIt == str.crend()? str.cend() : (RDotIt + 1).base();
@@ -250,10 +249,11 @@ bool CmpName(string_view pattern, string_view str, bool skippath, bool CmpNameSe
 					if (match)
 						continue;
 
-					if (rangec == L'-' && *(pattern.cbegin() - 2) != L'[' && pattern[0] != L']')
+					// BUGBUG data() - 2 is legal but awful
+					if (rangec == L'-' && *(pattern.data() - 2) != L'[' && pattern[0] != L']')
 					{
 						match = (stringc <= upper(pattern[0]) &&
-									upper(*(pattern.cbegin() - 2)) <= stringc);
+									upper(*(pattern.data() - 2)) <= stringc);
 						pattern.remove_prefix(1);
 					}
 					else

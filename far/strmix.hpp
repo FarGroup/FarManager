@@ -38,37 +38,49 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panelctype.hpp"
 #include "string_utils.hpp"
 
+#include "common/enum_tokens.hpp"
+
+class bytes;
+class bytes_view;
 class RegExp;
 struct RegExpMatch;
 struct MatchHash;
 
 wchar_t* QuoteSpace(wchar_t *Str);
 wchar_t* InsertQuote(wchar_t *Str);
-wchar_t* RemoveLeadingSpaces(wchar_t *Str);
-wchar_t * RemoveTrailingSpaces(wchar_t *Str);
-wchar_t* RemoveExternalSpaces(wchar_t *Str);
 wchar_t* QuoteSpaceOnly(wchar_t *Str);
 
 string &QuoteSpace(string &strStr);
 
 string InsertRegexpQuote(string strStr);
-void UnquoteExternal(string &strStr);
-string& RemoveLeadingSpaces(string &strStr);
-string& RemoveTrailingSpaces(string &strStr);
-string& RemoveExternalSpaces(string &strStr);
 string& RemoveUnprintableCharacters(string &strStr);
 string& QuoteSpaceOnly(string &strStr);
 string& QuoteOuterSpace(string &strStr);
 inline string QuoteOuterSpace(string&& strStr) { QuoteOuterSpace(strStr); return strStr; }
 
-size_t ReplaceStrings(string &strStr, const string_view& FindStr, const string_view& ReplStr, bool IgnoreCase = false, size_t Count = string::npos);
+size_t ReplaceStrings(string &strStr, string_view FindStr, string_view ReplStr, bool IgnoreCase = false, size_t Count = string::npos);
 
-const wchar_t *GetCommaWord(const wchar_t *Src,string &strWord,wchar_t Separator=L',');
+class wrapped_text : public enumerator<wrapped_text, string_view>
+{
+	IMPLEMENTS_ENUMERATOR(wrapped_text);
 
-string& FarFormatText(const string& SrcText, size_t Width, string &strDestText, const wchar_t* Break, DWORD Flags);
+public:
+	explicit wrapped_text(string_view Str, size_t Width, string_view Break = L"\n"sv, bool BreakWords = true);
+	explicit wrapped_text(string&& Str, size_t Width, string_view Break = L"\n"sv, bool BreakWords = true);
+
+private:
+	bool get(bool Reset, string_view& Value) const;
+
+	string m_StrBuffer;
+	string_view m_Str;
+	string_view mutable m_Tail;
+	string_view mutable m_Break;
+	size_t m_Width;
+	bool m_BreakWords;
+};
 
 void PrepareUnitStr();
-string FileSizeToStr(unsigned long long Size, int Width = -1, unsigned long long ViewFlags = COLUMN_COMMAS);
+string FileSizeToStr(unsigned long long Size, int Width = -1, unsigned long long ViewFlags = COLUMN_GROUPDIGITS);
 bool CheckFileSizeStringFormat(const string& FileSizeStr);
 unsigned long long ConvertFileSizeString(const string& FileSizeStr);
 string GroupDigits(unsigned long long Value);
@@ -87,36 +99,28 @@ string& TruncStrFromEnd(string &strStr, int MaxLength);
 string& TruncStrFromCenter(string &strStr, int MaxLength);
 string& TruncPathStr(string &strStr, int MaxLength);
 
-bool IsCaseMixed(const string_view& strStr);
+bool IsCaseMixed(string_view strStr);
 
-string ReplaceBrackets(const wchar_t *SearchStr, const string& ReplaceStr, const RegExpMatch* Match, size_t Count, const MatchHash* HMatch);
+bool SearchString(
+	string_view Haystack,
+	string_view Needle,
+	string_view NeedleUpper,
+	string_view NeedleLower,
+	const RegExp& re,
+	RegExpMatch* pm,
+	MatchHash* hm,
+	string& ReplaceStr,
+	int& CurPos,
+	bool Case,
+	bool WholeWords,
+	bool Reverse,
+	bool Regexp,
+	bool PreserveStyle,
+	int* SearchLength,
+	string_view WordDiv = {}
+);
 
-bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const string& UpperStr, const string& LowerStr, RegExp& re, RegExpMatch* pm, MatchHash* hm, string& ReplaceStr, int& CurPos, int Case, int WholeWords, int Reverse, int Regexp, int PreserveStyle, int* SearchLength, const wchar_t* WordDiv = nullptr);
-
-inline wchar_t* UNSAFE_CSTR(const string& s) {return const_cast<wchar_t*>(s.data());}
-
-enum STL_FLAGS
-{
-	STLF_PACKASTERISKS   = bit(0), // вместо "*.*" в список помещать просто "*", вместо "***" в список помещать просто "*"
-	STLF_PROCESSBRACKETS = bit(1), // учитывать квадратные скобки при анализе строки инициализации
-	STLF_ALLOWEMPTY      = bit(2), // allow empty items
-	STLF_UNIQUE          = bit(3), // убирать дублирующиеся элементы
-	STLF_SORT            = bit(4), // отсортировать (с учетом регистра)
-	STLF_NOTRIM          = bit(5), // не удалять пробелы
-	STLF_NOUNQUOTE       = bit(6), // не раскавычивать
-	STLF_NOQUOTING       = bit(7), // do not give special meaning for quotes
-};
-
-void split(const string& InitString, DWORD Flags, const wchar_t* Separators, const std::function<void(string&&)>& inserter);
-
-// TODO: replace with enum_tokens. ACHTUNG: there are many side effects due to way too flexible flags above, be extremely careful
-template <typename container>
-auto split(const string& InitString, DWORD Flags = 0, const wchar_t* Separators = L";,")
-{
-	container Container;
-	split(InitString, Flags, Separators, [&](string&& Str) { emplace(Container, std::move(Str)); });
-	return Container;
-}
+inline wchar_t* UNSAFE_CSTR(const string& s) {return const_cast<wchar_t*>(s.c_str());}
 
 template<class container>
 auto FlagsToString(unsigned long long Flags, const container& From, wchar_t Separator = L' ')
@@ -139,7 +143,7 @@ auto FlagsToString(unsigned long long Flags, const container& From, wchar_t Sepa
 }
 
 template<class container>
-auto StringToFlags(const string& strFlags, const container& From, const wchar_t* Separators = L"|;, ")
+auto StringToFlags(const string& strFlags, const container& From, const string_view Separators = L"|;, "sv)
 {
 	decltype(std::begin(From)->first) Flags {};
 
@@ -161,16 +165,16 @@ int HexToInt(char h);
 
 std::string BlobToHexString(const void* Blob, size_t Size, char Separator = ',');
 std::string BlobToHexString(const bytes_view& Blob, char Separator = ',');
-bytes HexStringToBlob(const char* Hex, char Separator = ',');
+bytes HexStringToBlob(std::string_view Hex, char Separator = ',');
 
 string BlobToHexWString(const void* Blob, size_t Size, wchar_t Separator = L',');
 string BlobToHexWString(const bytes_view& Blob, char Separator = ',');
-bytes HexStringToBlob(const wchar_t* Hex, wchar_t Separator = L',');
+bytes HexStringToBlob(string_view Hex, wchar_t Separator = L',');
 
 template<class S, class T>
 auto to_hex_string_t(T Value)
 {
-	static_assert(std::is_integral<T>::value);
+	static_assert(std::is_integral_v<T>);
 	S Result(sizeof(T) * 2, '0');
 	for (int i = sizeof(T) * 2 - 1; i >= 0; --i, Value >>= 4)
 		Result[i] = IntToHex(Value & 0xF);
@@ -186,24 +190,9 @@ auto to_hex_wstring(T Value) { return to_hex_string_t<string>(Value); }
 string ExtractHexString(const string& HexString);
 string ConvertHexString(const string& From, uintptr_t Codepage, bool FromHex);
 
-struct string_i_less
-{
-	bool operator()(const string& a, const string& b) const
-	{
-		return StrCmpI(a, b) < 0;
-	}
-};
-
 char* xstrncpy(char* dest, const char* src, size_t DestSize);
 wchar_t* xwcsncpy(wchar_t* dest, const wchar_t* src, size_t DestSize);
 
-std::pair<string, string> split_name_value(const wchar_t* Line);
-
-template<typename T>
-std::pair<string, string> split_name_value(const T& Line)
-{
-	const auto SeparatorPos = std::find(ALL_CONST_RANGE(Line), L'=');
-	return { { Line.begin(), SeparatorPos }, { SeparatorPos + 1, Line.end() } };
-}
+std::pair<string_view, string_view> split_name_value(string_view Str);
 
 #endif // STRMIX_HPP_66F8DC2A_61A6_4C06_9B54_E0513A9735FA

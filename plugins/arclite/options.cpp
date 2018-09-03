@@ -4,7 +4,138 @@
 #include "common.hpp"
 #include "archive.hpp"
 #include "options.hpp"
+#include "SimpleXML.hpp"
 
+using namespace SimpleXML;
+using Rt = SimpleXML::cbRet;
+using Sv = SimpleXML::str_view;
+
+static const auto codecs_v = "Codecs.7z"_v;
+static const auto default_v = "Options"_v;
+
+static const auto max_check_size_v = "max_check_size"_v;
+static const auto correct_name_mode_v = "correct_name_mode"_v;
+static const auto qs_by_default_v = "qs_by_default"_v;
+
+static const auto range_v = "range"_v;
+static const auto std_v = "std"_v;
+static const auto bcj_v = "bcj"_v;
+static const auto adv_v = "adv"_v;
+static const auto true_v = "true"_v;
+
+static wstring utf8_to_wstring(const Sv view) {
+  auto nw = MultiByteToWideChar(CP_UTF8, 0, view.data(), static_cast<int>(view.size()), nullptr, 0);
+  if (nw <= 0)
+    return wstring();
+  wstring ret;
+  ret.resize(static_cast<size_t>(nw));
+  MultiByteToWideChar(CP_UTF8, 0, view.data(), static_cast<int>(view.size()), &ret.front(), nw);
+  return ret;
+}
+
+static void parse_uints(const Sv& view, unsigned* p1, unsigned* p2=nullptr, unsigned* p3=nullptr, unsigned* p4=nullptr, unsigned* p5=nullptr) {
+  unsigned *pointers[] = { p1, p2, p3, p4, p5 };
+  const char *ps = view.begin(), *pe = view.end();
+  for (auto pu : pointers) {
+    if (!pu)
+      break;
+    while (ps < pe && *ps <= ' ') ++ps;
+    if (ps < pe && *ps >= '0' && *ps <= '9') {
+      char *pn = const_cast<char *>(ps);
+      *pu = strtoul(ps, &pn, 0);
+      ps = pn;
+    }
+    while (ps < pe && *ps <= ' ') ++ps;
+    if (ps >= pe || (*ps != ',' && *ps != ';'))
+      break;
+    ++ps;
+  }
+}
+
+class xml_parser : public SimpleXML::IParseCallback
+{
+private:
+  Options& options;
+  mutable ExternalCodec codec;
+
+public:
+  ~xml_parser() {}
+  xml_parser(Options& opt) : options(opt) {}
+  
+  Rt OnTag(int top, const Sv *path, const Sv& /*attrs*/) const override {
+    if (top == 2 && path[1] == codecs_v) {
+      codec.reset(); codec.name = utf8_to_wstring(path[2]);
+    }
+    return Rt::Continue;
+  }
+  Rt OnBody(int top, const Sv *path, const Sv& /*body*/) const override {
+    if (top == 2 && path[1] == codecs_v && !codec.name.empty()) {
+      int i = static_cast<int>(options.codecs.size());
+      while (--i >= 0) {
+        if (codec.name == options.codecs[i].name)
+          break;
+      }
+      if (i < 0)
+        options.codecs.push_back(codec);
+      else
+        options.codecs[i] = codec;
+    }
+    return Rt::Continue;
+  }
+  Rt OnAttr(int top, const Sv *path, const Sv& name, const Sv& value) const override {
+    if (top == 2 && path[1] == codecs_v) {
+      if (name == range_v)
+        parse_uints(value, &codec.minL, &codec.maxL, &codec.mod0L);
+      else if (name == std_v)
+        parse_uints(value, &codec.L1, &codec.L3, &codec.L5, &codec.L7, &codec.L9);
+      else if (name == bcj_v)
+        codec.bcj_only = value == true_v;
+      else if (name == adv_v)
+        codec.adv = utf8_to_wstring(value);
+    }
+    else if (top == 1 && path[1] == default_v) {
+      if (name == max_check_size_v) {
+        parse_uints(value, &options.max_check_size);
+        options.loaded_from_xml.max_check_size = true;
+      } else if (name == qs_by_default_v) {
+        options.qs_by_default = value == true_v;
+        options.loaded_from_xml.qs_by_default = true;
+      } else if (name == correct_name_mode_v) {
+        parse_uints(value, &options.correct_name_mode);
+        options.loaded_from_xml.correct_name_mode = true;
+      }
+    }
+    return Rt::Continue;
+  }
+  
+  bool parse(const wstring& xml_name) {
+    File file;
+    if (!file.open_nt(xml_name, FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE, OPEN_EXISTING, 0))
+      return false;
+    unsigned __int64 fsize = 0;
+    if (!file.size_nt(fsize) || fsize <= 0 || fsize > 100ull * 1024 * 1024)
+      return false;
+    size_t nr = static_cast<size_t>(fsize);
+    char *buffer = new char[nr];
+    bool ok = file.read_nt(buffer, nr, nr) && nr == static_cast<size_t>(fsize);
+    file.close();
+    if (ok)
+      ok = SimpleXML::parse(buffer, nr, this) == SimpleXML::parseRet::Ok;
+    delete[] buffer;
+    return ok;
+  }
+};
+
+static bool load_arclite_xml(Options& options) {
+  xml_parser xml(options);
+  auto plugin_path = add_trailing_slash(Far::get_plugin_module_path());
+  auto r1 = xml.parse(plugin_path + L"arclite.xml");
+  xml.parse(plugin_path + L"arclite.xml.custom");
+  auto profile_path = expand_env_vars(L"%FARPROFILE%");
+  if (!profile_path.empty())
+    xml.parse(add_trailing_slash(profile_path) + L"arclite.xml.custom");
+  return r1;
+}
 
 class OptionsKey: public Far::Settings {
 public:
@@ -113,7 +244,8 @@ Options::Options():
   saveCP(false),
   oemCP(0),
   ansiCP(0),
-  correct_name_mode(0x12)
+  correct_name_mode(0x12),
+  qs_by_default(false)
 {}
 
 void load_sfx_options(OptionsKey& key, SfxOptions& sfx_options) {
@@ -168,11 +300,13 @@ void Options::load() {
   OptionsKey key;
   key.create();
   Options def_options;
+  load_arclite_xml(*this);
 #define GET_VALUE(name, type) name = key.get_##type(L#name, def_options.name)
+#define GET_VALUE_XML(name, type) name = loaded_from_xml.name ? def_options.name : GET_VALUE(name, type)
   GET_VALUE(handle_create, bool);
   GET_VALUE(handle_commands, bool);
   GET_VALUE(plugin_prefix, str);
-  GET_VALUE(max_check_size, int);
+  GET_VALUE_XML(max_check_size, int);
   GET_VALUE(extract_ignore_errors, bool);
   GET_VALUE(extract_overwrite, int);
   GET_VALUE(extract_separate_dir, int);
@@ -212,8 +346,10 @@ void Options::load() {
   GET_VALUE(saveCP, bool);
   GET_VALUE(oemCP, int);
   GET_VALUE(ansiCP, int);
-  GET_VALUE(correct_name_mode, int);
+  GET_VALUE_XML(correct_name_mode, int);
+  GET_VALUE_XML(qs_by_default, bool);
 #undef GET_VALUE
+#undef GET_VALUE_XML
 };
 
 void Options::save() const {
@@ -221,10 +357,11 @@ void Options::save() const {
   key.create();
   Options def_options;
 #define SET_VALUE(name, type) key.set_##type(L#name, name, def_options.name)
+#define SET_VALUE_XML(name, type) if (!loaded_from_xml.name) SET_VALUE(name, type)
   SET_VALUE(handle_create, bool);
   SET_VALUE(handle_commands, bool);
   SET_VALUE(plugin_prefix, str);
-  SET_VALUE(max_check_size, int);
+  SET_VALUE_XML(max_check_size, int);
   SET_VALUE(extract_ignore_errors, bool);
   SET_VALUE(extract_overwrite, int);
   SET_VALUE(extract_separate_dir, int);
@@ -266,8 +403,10 @@ void Options::save() const {
     SET_VALUE(oemCP, int);
     SET_VALUE(ansiCP, int);
   }
-  SET_VALUE(correct_name_mode, int);
+  SET_VALUE_XML(correct_name_mode, int);
+  SET_VALUE_XML(qs_by_default, bool);
 #undef SET_VALUE
+#undef SET_VALUE_XML
 }
 
 

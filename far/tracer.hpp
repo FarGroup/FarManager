@@ -32,7 +32,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "synchro.hpp"
+#include "platform.concurrency.hpp"
 
 class tracer: noncopyable
 {
@@ -40,20 +40,33 @@ public:
 	tracer();
 	~tracer();
 
-	static tracer* GetInstance();
-
 	void store(const void* CppObject, const EXCEPTION_POINTERS* ExceptionInfo);
 
 	static std::vector<string> get(const void* CppObject);
 	static std::vector<string> get(const exception_context& Context);
-	static string get_one(const void* Address);
+	static void get_one(const void* Ptr, string& Address, string& Name, string& Source);
 
-	static const exception_context* get_exception_context(const void* CppObject);
+	static std::unique_ptr<exception_context> get_exception_context(const void* CppObject);
+
+	static auto with_symbols()
+	{
+		return make_raii_wrapper(get_instance(),
+			[](tracer* const Tracer)
+			{
+				if (Tracer)
+					Tracer->SymInitialise();
+			},
+			[](tracer* const Tracer)
+			{
+				if (Tracer)
+					Tracer->SymCleanup();
+			});
+	}
 
 private:
-	friend class with_symbols;
+	static tracer* get_instance();
 
-	const exception_context* get_context(const void* CppObject) const;
+	std::unique_ptr<exception_context> get_context(const void* CppObject);
 
 	bool SymInitialise();
 	void SymCleanup();
@@ -73,7 +86,7 @@ private:
 		void* m_Handler;
 	}
 	m_Handler;
-	bool m_SymInitialised{};
+	std::atomic_int32_t m_SymInitialised{};
 };
 
 #endif // TRACER_HPP_AD7B9307_ECFD_46FC_B001_E48C9B89DE64

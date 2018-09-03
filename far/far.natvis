@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
 
-  <Type Name="basic_string_view&lt;*&gt;">
+  <Type Name="string_view_impl::basic_string_view&lt;*&gt;">
       <DisplayString>{m_Begin,[m_End - m_Begin]}</DisplayString>
       <StringView>m_Begin,[m_End - m_Begin]</StringView>
       <Expand>
@@ -24,7 +24,7 @@
       </Expand>
   </Type>
 
-  <Type Name="detail::any_impl&lt;*&gt;">
+  <Type Name="any_impl::detail::any_impl&lt;*&gt;">
       <DisplayString>{m_Data}</DisplayString>
       <StringView>m_Data</StringView>
       <Expand>
@@ -32,9 +32,9 @@
       </Expand>
   </Type>
 
-  <Type Name="any">
-      <DisplayString Condition="m_Data._Mypair._Myval2 != 0">{m_Data._Mypair._Myval2,na}</DisplayString>
+  <Type Name="any_impl::any">
       <DisplayString Condition="m_Data._Mypair._Myval2 == 0">empty</DisplayString>
+      <DisplayString>{m_Data._Mypair._Myval2,na}</DisplayString>
       <StringView>m_Data._Mypair._Myval2</StringView>
       <Expand>
           <ExpandedItem Condition="m_Data._Mypair._Myval2 != 0">m_Data._Mypair._Myval2,na</ExpandedItem>
@@ -62,6 +62,27 @@
   <Type Name="movable&lt;*&gt;">
     <DisplayString>{m_Value}</DisplayString>
     <StringView>m_Value</StringView>
+  </Type>
+
+  <Type Name="os::detail::handle_t&lt;*&gt;">
+      <DisplayString Condition="_Mypair._Myval2 == 0">empty</DisplayString>
+      <DisplayString>{_Mypair._Myval2}</DisplayString>
+  </Type>
+
+  <Type Name="error_state">
+      <DisplayString>{{Win32Error={Win32Error,h} NtError={NtError,h}}}</DisplayString>
+      <Expand>
+          <Item Name="Win32Error" ExcludeView="simple">Win32Error,hr</Item>
+          <Item Name="NtError" ExcludeView="simple">NtError,hr</Item>
+      </Expand>
+  </Type>
+
+  <Type Name="error_state_ex">
+      <DisplayString>{{{(*(error_state*)this)} What={What}}}</DisplayString>
+      <Expand>
+          <ExpandedItem>(*(error_state*)this)</ExpandedItem>
+          <Item Name="What" ExcludeView="simple">What</Item>
+      </Expand>
   </Type>
 
 </AutoVisualizer>

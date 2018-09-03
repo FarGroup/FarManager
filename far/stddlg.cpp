@@ -31,22 +31,30 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "stddlg.hpp"
+
 #include "dialog.hpp"
 #include "strmix.hpp"
 #include "imports.hpp"
 #include "message.hpp"
 #include "lang.hpp"
 #include "DlgGuid.hpp"
-#include "datetime.hpp"
 #include "interf.hpp"
 #include "dlgedit.hpp"
 #include "cvtname.hpp"
 #include "exception.hpp"
 #include "RegExp.hpp"
+#include "FarDlgBuilder.hpp"
+#include "config.hpp"
+#include "plist.hpp"
+#include "notification.hpp"
+
+#include "platform.fs.hpp"
+
+#include "common/function_traits.hpp"
+#include "common/scope_exit.hpp"
+
+#include "format.hpp"
 
 int GetSearchReplaceString(
 	bool IsReplaceMode,
@@ -75,10 +83,10 @@ int GetSearchReplaceString(
 		ReplaceHistoryName = L"ReplaceText";
 
 	if (!Title)
-		Title = msg(IsReplaceMode? lng::MEditReplaceTitle : lng::MEditSearchTitle).data();
+		Title = msg(IsReplaceMode? lng::MEditReplaceTitle : lng::MEditSearchTitle).c_str();
 
 	if (!SubTitle)
-		SubTitle = msg(lng::MEditSearchFor).data();
+		SubTitle = msg(lng::MEditSearchFor).c_str();
 
 
 	bool Case=pCase?*pCase:false;
@@ -88,8 +96,8 @@ int GetSearchReplaceString(
 	bool PreserveStyle=pPreserveStyle?*pPreserveStyle:false;
 
 	const auto DlgWidth = 76;
-	const auto WordLabel = msg(lng::MEditSearchPickWord).data();
-	const auto SelectionLabel = msg(lng::MEditSearchPickSelection).data();
+	const auto WordLabel = msg(lng::MEditSearchPickWord).c_str();
+	const auto SelectionLabel = msg(lng::MEditSearchPickSelection).c_str();
 	const auto WordButtonSize = HiStrlen(WordLabel) + 4;
 	const auto SelectionButtonSize = HiStrlen(SelectionLabel) + 4;
 	const auto SelectionButtonX2 = static_cast<intptr_t>(DlgWidth - 4 - 1);
@@ -126,19 +134,19 @@ int GetSearchReplaceString(
 		{ DI_BUTTON, WordButtonX1, 2, WordButtonX2, 2, 0, nullptr, nullptr, DIF_BTNNOCLOSE, WordLabel },
 		{ DI_BUTTON, SelectionButtonX1, 2, SelectionButtonX2, 2, 0, nullptr, nullptr, DIF_BTNNOCLOSE, SelectionLabel },
 		{ DI_TEXT, 5, 2, 0, 2, 0, nullptr, nullptr, 0, SubTitle },
-		{ DI_EDIT, 5, 3, 70, 3, 0, TextHistoryName, nullptr, DIF_FOCUS | DIF_USELASTHISTORY | (*TextHistoryName? DIF_HISTORY : 0), SearchStr.data() },
-		{ DI_TEXT, 5, 4, 0, 4, 0, nullptr, nullptr, 0, msg(lng::MEditReplaceWith).data() },
-		{ DI_EDIT, 5, 5, 70, 5, 0, ReplaceHistoryName, nullptr, DIF_USELASTHISTORY | (*ReplaceHistoryName? DIF_HISTORY : 0), ReplaceStr.data() },
+		{ DI_EDIT, 5, 3, 70, 3, 0, TextHistoryName, nullptr, DIF_FOCUS | DIF_USELASTHISTORY | (*TextHistoryName? DIF_HISTORY : 0), SearchStr.c_str() },
+		{ DI_TEXT, 5, 4, 0, 4, 0, nullptr, nullptr, 0, msg(lng::MEditReplaceWith).c_str() },
+		{ DI_EDIT, 5, 5, 70, 5, 0, ReplaceHistoryName, nullptr, DIF_USELASTHISTORY | (*ReplaceHistoryName? DIF_HISTORY : 0), ReplaceStr.c_str() },
 		{ DI_TEXT, -1, 6 - YCorrection, 0, 6 - YCorrection, 0, nullptr, nullptr, DIF_SEPARATOR, L"" },
-		{ DI_CHECKBOX, 5, 7 - YCorrection, 0, 7 - YCorrection, Case, nullptr, nullptr, 0, msg(lng::MEditSearchCase).data() },
-		{ DI_CHECKBOX, 5, 8 - YCorrection, 0, 8 - YCorrection, WholeWords, nullptr, nullptr, 0, msg(lng::MEditSearchWholeWords).data() },
-		{ DI_CHECKBOX, 5, 9 - YCorrection, 0, 9 - YCorrection, Reverse, nullptr, nullptr, 0, msg(lng::MEditSearchReverse).data() },
-		{ DI_CHECKBOX, 40, 7 - YCorrection, 0, 7 - YCorrection, Regexp, nullptr, nullptr, 0, msg(lng::MEditSearchRegexp).data() },
-		{ DI_CHECKBOX, 40, 8 - YCorrection, 0, 8 - YCorrection, PreserveStyle, nullptr, nullptr, 0, msg(lng::MEditSearchPreserveStyle).data() },
+		{ DI_CHECKBOX, 5, 7 - YCorrection, 0, 7 - YCorrection, Case, nullptr, nullptr, 0, msg(lng::MEditSearchCase).c_str() },
+		{ DI_CHECKBOX, 5, 8 - YCorrection, 0, 8 - YCorrection, WholeWords, nullptr, nullptr, 0, msg(lng::MEditSearchWholeWords).c_str() },
+		{ DI_CHECKBOX, 5, 9 - YCorrection, 0, 9 - YCorrection, Reverse, nullptr, nullptr, 0, msg(lng::MEditSearchReverse).c_str() },
+		{ DI_CHECKBOX, 40, 7 - YCorrection, 0, 7 - YCorrection, Regexp, nullptr, nullptr, 0, msg(lng::MEditSearchRegexp).c_str() },
+		{ DI_CHECKBOX, 40, 8 - YCorrection, 0, 8 - YCorrection, PreserveStyle, nullptr, nullptr, 0, msg(lng::MEditSearchPreserveStyle).c_str() },
 		{ DI_TEXT, -1, 10 - YCorrection, 0, 10 - YCorrection, 0, nullptr, nullptr, DIF_SEPARATOR, L"" },
-		{ DI_BUTTON, 0, 11 - YCorrection, 0, 11 - YCorrection, 0, nullptr, nullptr, DIF_DEFAULTBUTTON | DIF_CENTERGROUP, msg(IsReplaceMode? lng::MEditReplaceReplace : lng::MEditSearchSearch).data() },
-		{ DI_BUTTON, 0, 11 - YCorrection, 0, 11 - YCorrection, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MEditSearchAll).data() },
-		{ DI_BUTTON, 0, 11 - YCorrection, 0, 11 - YCorrection, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MEditSearchCancel).data() },
+		{ DI_BUTTON, 0, 11 - YCorrection, 0, 11 - YCorrection, 0, nullptr, nullptr, DIF_DEFAULTBUTTON | DIF_CENTERGROUP, msg(IsReplaceMode? lng::MEditReplaceReplace : lng::MEditSearchSearch).c_str() },
+		{ DI_BUTTON, 0, 11 - YCorrection, 0, 11 - YCorrection, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MEditSearchAll).c_str() },
+		{ DI_BUTTON, 0, 11 - YCorrection, 0, 11 - YCorrection, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MEditSearchCancel).c_str() },
 	};
 	auto ReplaceDlg = MakeDialogItemsEx(ReplaceDlgData);
 
@@ -221,23 +229,23 @@ int GetSearchReplaceString(
 }
 
 bool GetString(
-	const wchar_t *Title,
-	const wchar_t *Prompt,
-	const wchar_t *HistoryName,
-	const wchar_t *SrcText,
-	string &strDestText,
-	const wchar_t *HelpTopic,
-	DWORD Flags,
-	int *CheckBoxValue,
-	const wchar_t *CheckBoxText,
-	Plugin* PluginNumber,
-	const GUID* Id
+	const string_view Title,
+	const string_view Prompt,
+	const string_view HistoryName,
+	const string_view SrcText,
+	string& strDestText,
+	const string_view HelpTopic,
+	const DWORD Flags,
+	int* const CheckBoxValue,
+	const string_view CheckBoxText,
+	Plugin* const PluginNumber,
+	const GUID* const Id
 )
 {
 	int Substract=5; // дополнительная величина :-)
 	int ExitCode;
-	bool addCheckBox=Flags&FIB_CHECKBOX && CheckBoxValue && CheckBoxText;
-	int offset=addCheckBox?2:0;
+	const auto addCheckBox = Flags&FIB_CHECKBOX && CheckBoxValue && !CheckBoxText.empty();
+	const auto offset = addCheckBox? 2 : 0;
 	FarDialogItem StrDlgData[]=
 	{
 		{DI_DOUBLEBOX, 3, 1, 72, 4, 0, nullptr, nullptr, 0,                                L""},
@@ -256,7 +264,7 @@ bool GetString(
 		Substract-=2;
 		StrDlg[0].Y2+=2;
 		StrDlg[4].Selected = *CheckBoxValue != 0;
-		StrDlg[4].strData = CheckBoxText;
+		StrDlg[4].strData = string(CheckBoxText);
 	}
 
 	if (Flags&FIB_BUTTONS)
@@ -287,36 +295,36 @@ bool GetString(
 		StrDlg[2].Flags|=DIF_EDITPATHEXEC;
 	}
 
-	if (HistoryName)
+	if (!HistoryName.empty())
 	{
-		StrDlg[2].strHistory=HistoryName;
+		StrDlg[2].strHistory = string(HistoryName);
 		StrDlg[2].Flags|=DIF_HISTORY|(Flags&FIB_NOUSELASTHISTORY?0:DIF_USELASTHISTORY);
 	}
 
 	if (Flags&FIB_PASSWORD)
 		StrDlg[2].Type=DI_PSWEDIT;
 
-	if (Title)
-		StrDlg[0].strData = Title;
+	if (!Title.empty())
+		StrDlg[0].strData = string(Title);
 
-	if (Prompt)
+	if (!Prompt.empty())
 	{
-		StrDlg[1].strData = Prompt;
+		StrDlg[1].strData = string(Prompt);
 		TruncStrFromEnd(StrDlg[1].strData, 66);
 
 		if (Flags&FIB_NOAMPERSAND)
 			StrDlg[1].Flags&=~DIF_SHOWAMPERSAND;
 	}
 
-	if (SrcText)
-		StrDlg[2].strData = SrcText;
+	if (!SrcText.empty())
+		StrDlg[2].strData = string(SrcText);
 
 	{
 		const auto Dlg = Dialog::create(make_range(StrDlg.data(), StrDlg.size() - Substract));
 		Dlg->SetPosition(-1,-1,76,offset+((Flags&FIB_BUTTONS)?8:6));
 		if(Id) Dlg->SetId(*Id);
 
-		if (HelpTopic)
+		if (!HelpTopic.empty())
 			Dlg->SetHelp(HelpTopic);
 
 		Dlg->SetPluginOwner(PluginNumber);
@@ -372,14 +380,14 @@ bool GetNameAndPassword(const string& Title, string &strUserName, string &strPas
 	*/
 	FarDialogItem PassDlgData[]=
 	{
-		{DI_DOUBLEBOX,  3, 1,72, 8,0,nullptr,nullptr,0,NullToEmpty(Title.data())},
-		{DI_TEXT,       5, 2, 0, 2,0,nullptr,nullptr,0,msg(lng::MNetUserName).data()},
-		{DI_EDIT,       5, 3,70, 3,0,L"NetworkUser",nullptr,DIF_FOCUS|DIF_USELASTHISTORY|DIF_HISTORY,(Flags&GNP_USELAST)?strLastName.data():strUserName.data()},
-		{DI_TEXT,       5, 4, 0, 4,0,nullptr,nullptr,0,msg(lng::MNetUserPassword).data()},
-		{DI_PSWEDIT,    5, 5,70, 5,0,nullptr,nullptr,0,(Flags&GNP_USELAST)?strLastPassword.data():strPassword.data()},
+		{DI_DOUBLEBOX,  3, 1,72, 8,0,nullptr,nullptr,0,NullToEmpty(Title.c_str())},
+		{DI_TEXT,       5, 2, 0, 2,0,nullptr,nullptr,0,msg(lng::MNetUserName).c_str()},
+		{DI_EDIT,       5, 3,70, 3,0,L"NetworkUser",nullptr,DIF_FOCUS|DIF_USELASTHISTORY|DIF_HISTORY,(Flags & GNP_USELAST)? strLastName.c_str() : strUserName.c_str()},
+		{DI_TEXT,       5, 4, 0, 4,0,nullptr,nullptr,0,msg(lng::MNetUserPassword).c_str()},
+		{DI_PSWEDIT,    5, 5,70, 5,0,nullptr,nullptr,0,(Flags & GNP_USELAST)? strLastPassword.c_str() : strPassword.c_str()},
 		{DI_TEXT,      -1, 6, 0, 6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,     0, 7, 0, 7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk).data()},
-		{DI_BUTTON,     0, 7, 0, 7,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel).data()},
+		{DI_BUTTON,     0, 7, 0, 7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk).c_str()},
+		{DI_BUTTON,     0, 7, 0, 7,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel).c_str()},
 	};
 	auto PassDlg = MakeDialogItemsEx(PassDlgData);
 
@@ -408,50 +416,106 @@ bool GetNameAndPassword(const string& Title, string &strUserName, string &strPas
 
 static os::com::ptr<IFileIsInUse> CreateIFileIsInUse(const string& File)
 {
-	os::com::ptr<IRunningObjectTable> rot;
-	if (FAILED(GetRunningObjectTable(0, &ptr_setter(rot))))
+	os::com::ptr<IRunningObjectTable> RunningObjectTable;
+	if (FAILED(GetRunningObjectTable(0, &ptr_setter(RunningObjectTable))))
 		return nullptr;
 
-	os::com::ptr<IMoniker> mkFile;
-	if (FAILED(CreateFileMoniker(File.data(), &ptr_setter(mkFile))))
+	os::com::ptr<IMoniker> FileMoniker;
+	if (FAILED(CreateFileMoniker(File.c_str(), &ptr_setter(FileMoniker))))
 		return nullptr;
 
-	os::com::ptr<IEnumMoniker> enumMk;
-	if (FAILED(rot->EnumRunning(&ptr_setter(enumMk))))
+	os::com::ptr<IEnumMoniker> EnumMoniker;
+	if (FAILED(RunningObjectTable->EnumRunning(&ptr_setter(EnumMoniker))))
 		return nullptr;
 
 	for(;;)
 	{
-		os::com::ptr<IMoniker> mk;
-		ULONG celt;
-		if (enumMk->Next(1, &ptr_setter(mk), &celt) != S_OK)
+		os::com::ptr<IMoniker> Moniker;
+		if (EnumMoniker->Next(1, &ptr_setter(Moniker), nullptr) == S_FALSE)
 			return nullptr;
 
-		DWORD dwType;
-		if (FAILED(mk->IsSystemMoniker(&dwType)) || dwType != MKSYS_FILEMONIKER)
+		DWORD Type;
+		if (FAILED(Moniker->IsSystemMoniker(&Type)) || Type != MKSYS_FILEMONIKER)
 			continue;
 
-		os::com::ptr<IMoniker> mkPrefix;
-		if (FAILED(mkFile->CommonPrefixWith(mk.get(), &ptr_setter(mkPrefix))))
+		os::com::ptr<IMoniker> PrefixMoniker;
+		if (FAILED(FileMoniker->CommonPrefixWith(Moniker.get(), &ptr_setter(PrefixMoniker))))
 			continue;
 
-		if (mkFile->IsEqual(mkPrefix.get()) != S_OK)
+		if (FileMoniker->IsEqual(PrefixMoniker.get()) == S_FALSE)
 			continue;
 
-		os::com::ptr<IUnknown> unk;
-		if (rot->GetObject(mk.get(), &ptr_setter(unk)) != S_OK)
+		os::com::ptr<IUnknown> Unknown;
+		if (RunningObjectTable->GetObject(Moniker.get(), &ptr_setter(Unknown)) == S_FALSE)
 			continue;
 
-		FN_RETURN_TYPE(CreateIFileIsInUse) fiu;
-		if (SUCCEEDED(unk->QueryInterface(IID_IFileIsInUse, IID_PPV_ARGS_Helper(&ptr_setter(fiu)))))
-			return fiu;
+		FN_RETURN_TYPE(CreateIFileIsInUse) FileIsInUse;
+		if (SUCCEEDED(Unknown->QueryInterface(IID_IFileIsInUse, IID_PPV_ARGS_Helper(&ptr_setter(FileIsInUse)))))
+			return FileIsInUse;
 	}
 }
 
-operation OperationFailed(const error_state& ErrorState, const string& Object, lng Title, const string& Description, bool AllowSkip)
+static size_t enumerate_rm_processes(const string& Filename, DWORD& Reasons, const std::function<bool(string&&)>& Handler)
+{
+	DWORD Session;
+	WCHAR SessionKey[CCH_RM_SESSION_KEY + 1] = {};
+	if (imports.RmStartSession(&Session, 0, SessionKey) != ERROR_SUCCESS)
+		return 0;
+
+	SCOPE_EXIT{ imports.RmEndSession(Session); };
+	auto FilenamePtr = Filename.c_str();
+	if (imports.RmRegisterResources(Session, 1, &FilenamePtr, 0, nullptr, 0, nullptr) != ERROR_SUCCESS)
+		return 0;
+
+	DWORD RmGetListResult;
+	UINT ProceccInfoSizeNeeded;
+	UINT ProcessInfoSize = 1;
+	std::vector<RM_PROCESS_INFO> ProcessInfos(ProcessInfoSize);
+	while ((RmGetListResult = imports.RmGetList(Session, &ProceccInfoSizeNeeded, &ProcessInfoSize, ProcessInfos.data(), &Reasons)) == ERROR_MORE_DATA)
+	{
+		ProcessInfoSize = ProceccInfoSizeNeeded;
+		ProcessInfos.resize(ProcessInfoSize);
+	}
+
+	if (RmGetListResult != ERROR_SUCCESS)
+		return 0;
+
+	for (const auto& Info : ProcessInfos)
+	{
+		auto Str = *Info.strAppName? Info.strAppName : L"Unknown"s;
+
+		if (*Info.strServiceShortName)
+			append(Str, L" ["sv, Info.strServiceShortName, L']');
+
+		append(Str, L" (PID: "sv, str(Info.Process.dwProcessId));
+
+		if (const auto Process = os::handle(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, Info.Process.dwProcessId)))
+		{
+			os::chrono::time_point CreationTime;
+			if (os::chrono::get_process_creation_time(Process.native_handle(), CreationTime) &&
+				os::chrono::nt_clock::from_filetime(Info.Process.ProcessStartTime) == CreationTime)
+			{
+				string Name;
+				if (os::fs::GetModuleFileName(Process.native_handle(), nullptr, Name))
+				{
+					append(Str, L", "sv, Name);
+				}
+			}
+		}
+
+		Str += L')';
+
+		if (!Handler(std::move(Str)))
+			break;
+	}
+
+	return ProcessInfos.size();
+}
+
+operation OperationFailed(const error_state_ex& ErrorState, const string& Object, lng Title, const string& Description, bool AllowSkip)
 {
 	std::vector<string> Msg;
-	os::com::ptr<IFileIsInUse> fiu;
+	os::com::ptr<IFileIsInUse> FileIsInUse;
 	lng Reason = lng::MObjectLockedReasonOpened;
 	bool SwitchBtn = false, CloseBtn = false;
 	const auto Error = ErrorState.Win32Error;
@@ -461,12 +525,14 @@ operation OperationFailed(const error_state& ErrorState, const string& Object, l
 		Error == ERROR_DRIVE_LOCKED)
 	{
 		const auto FullName = ConvertNameToFull(Object);
-		fiu = CreateIFileIsInUse(FullName);
-		if (fiu)
+		FileIsInUse = CreateIFileIsInUse(FullName);
+		if (FileIsInUse)
 		{
-			auto UsageType = FUT_GENERIC;
-			fiu->GetUsage(&UsageType);
-			switch(UsageType)
+			FILE_USAGE_TYPE UsageType;
+			if (FAILED(FileIsInUse->GetUsage(&UsageType)))
+				UsageType = FUT_GENERIC;
+
+			switch (UsageType)
 			{
 			case FUT_PLAYING:
 				Reason = lng::MObjectLockedReasonPlayed;
@@ -478,66 +544,57 @@ operation OperationFailed(const error_state& ErrorState, const string& Object, l
 				Reason = lng::MObjectLockedReasonOpened;
 				break;
 			}
-			DWORD Capabilities = 0;
-			fiu->GetCapabilities(&Capabilities);
-			
-			SwitchBtn = (Capabilities & OF_CAP_CANSWITCHTO) != 0;
-			CloseBtn = (Capabilities & OF_CAP_CANCLOSE) != 0;
 
-			wchar_t* AppName = nullptr;
-			if(SUCCEEDED(fiu->GetAppName(&AppName)))
+			DWORD Capabilities;
+			if (SUCCEEDED(FileIsInUse->GetCapabilities(&Capabilities)))
+			{
+				SwitchBtn = (Capabilities & OF_CAP_CANSWITCHTO) != 0;
+				CloseBtn = (Capabilities & OF_CAP_CANCLOSE) != 0;
+			}
+
+			wchar_t* AppName;
+			if(SUCCEEDED(FileIsInUse->GetAppName(&AppName)))
 			{
 				Msg.emplace_back(AppName);
 			}
 		}
 		else
 		{
-			DWORD dwSession;
-			WCHAR szSessionKey[CCH_RM_SESSION_KEY+1] = {};
-			if (Imports().RmStartSession(&dwSession, 0, szSessionKey) == ERROR_SUCCESS)
+			const size_t MaxRmProcesses = 5;
+			DWORD Reasons = RmRebootReasonNone;
+			const auto ProcessCount = enumerate_rm_processes(FullName, Reasons, [&](string&& Str)
 			{
-				SCOPE_EXIT{ Imports().RmEndSession(dwSession); };
-				auto pszFile = FullName.data();
-				if (Imports().RmRegisterResources(dwSession, 1, &pszFile, 0, nullptr, 0, nullptr) == ERROR_SUCCESS)
-				{
-					DWORD dwReason;
-					DWORD RmGetListResult;
-					UINT nProcInfoNeeded;
-					UINT nProcInfo = 1;
-					std::vector<RM_PROCESS_INFO> rgpi(nProcInfo);
-					while((RmGetListResult=Imports().RmGetList(dwSession, &nProcInfoNeeded, &nProcInfo, rgpi.data(), &dwReason)) == ERROR_MORE_DATA)
-					{
-						nProcInfo = nProcInfoNeeded;
-						rgpi.resize(nProcInfo);
-					}
-					if(RmGetListResult ==ERROR_SUCCESS)
-					{
-						for (const auto& i: rgpi)
-						{
-							string tmp = *i.strAppName? i.strAppName : L"Unknown";
+				Msg.emplace_back(std::move(Str));
+				return Msg.size() != MaxRmProcesses;
+			});
 
-							if (*i.strServiceShortName)
-							{
-								append(tmp, L" ["_sv, i.strServiceShortName, L']');
-							}
-							append(tmp, L" (PID: "_sv, str(i.Process.dwProcessId));
-							if (const auto Process = os::handle(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, i.Process.dwProcessId)))
-							{
-								os::chrono::time_point CreationTime;
-								if (os::chrono::get_process_creation_time(Process.native_handle(), CreationTime) &&
-									os::chrono::nt_clock::from_filetime(i.Process.ProcessStartTime) == CreationTime)
-								{
-									string Name;
-									if (os::fs::GetModuleFileName(Process.native_handle(), nullptr, Name))
-									{
-										append(tmp, L", "_sv, Name);
-									}
-								}
-							}
-							tmp += L')';
-							Msg.emplace_back(tmp);
-						}
+			if (ProcessCount > MaxRmProcesses)
+			{
+				Msg.emplace_back(format(msg(lng::MObjectLockedAndMore), ProcessCount - MaxRmProcesses));
+			}
+
+			static const std::pair<DWORD, lng> Mappings[] =
+			{
+				// We don't handle RmRebootReasonPermissionDenied here as we don't try to close anything.
+				{RmRebootReasonSessionMismatch, lng::MObjectLockedReasonSessionMismatch },
+				{RmRebootReasonCriticalProcess, lng::MObjectLockedReasonCriticalProcess },
+				{RmRebootReasonCriticalService, lng::MObjectLockedReasonCriticalService },
+				{RmRebootReasonDetectedSelf,    lng::MObjectLockedReasonDetectedSelf },
+			};
+
+			bool SeparatorAdded = false;
+
+			for (const auto& i: Mappings)
+			{
+				if (Reasons & i.first)
+				{
+					if (!SeparatorAdded)
+					{
+						Msg.emplace_back(L"\1"sv);
+						SeparatorAdded = true;
 					}
+
+					Msg.emplace_back(msg(i.second));
 				}
 			}
 		}
@@ -546,7 +603,7 @@ operation OperationFailed(const error_state& ErrorState, const string& Object, l
 	std::vector<string> Msgs{Description, QuoteOuterSpace(string(Object))};
 	if(!Msg.empty())
 	{
-		Msgs.emplace_back(format(lng::MObjectLockedReason, msg(Reason)));
+		Msgs.emplace_back(format(msg(lng::MObjectLockedReason), msg(Reason)));
 		Msgs.insert(Msgs.end(), ALL_CONST_RANGE(Msg));
 	}
 
@@ -564,6 +621,14 @@ operation OperationFailed(const error_state& ErrorState, const string& Object, l
 	}
 	Buttons.emplace_back(lng::MDeleteCancel);
 
+	listener Listener([](const std::any& Payload)
+	{
+		// Switch asynchroniously after the message is reopened,
+		// otherwise Far will lose the focus too early
+		// and reopened message will cause window flashing.
+		SwitchToWindow(std::any_cast<HWND>(Payload));
+	});
+
 	int Result;
 	for(;;)
 	{
@@ -576,12 +641,10 @@ operation OperationFailed(const error_state& ErrorState, const string& Object, l
 		{
 			if(Result == Message::first_button)
 			{
-				HWND Wnd = nullptr;
-				if (fiu && SUCCEEDED(fiu->GetSwitchToHWND(&Wnd)))
+				HWND Window = nullptr;
+				if (FileIsInUse && SUCCEEDED(FileIsInUse->GetSwitchToHWND(&Window)))
 				{
-					SetForegroundWindow(Wnd);
-					if (IsIconic(Wnd))
-						ShowWindow(Wnd, SW_RESTORE);
+					message_manager::instance().notify(Listener.GetEventName(), Window);
 				}
 				continue;
 			}
@@ -594,9 +657,9 @@ operation OperationFailed(const error_state& ErrorState, const string& Object, l
 		if(CloseBtn && Result == Message::first_button)
 		{
 			// close & retry
-			if (fiu)
+			if (FileIsInUse)
 			{
-				fiu->CloseFile();
+				FileIsInUse->CloseFile();
 			}
 		}
 		break;
@@ -614,35 +677,35 @@ static string GetReErrorString(int code)
 	switch (code)
 	{
 	case errNone:
-		return L"No errors";
+		return L"No errors"s;
 	case errNotCompiled:
-		return L"RegExp wasn't even tried to compile";
+		return L"RegExp wasn't even tried to compile"s;
 	case errSyntax:
-		return L"Expression contains a syntax error";
+		return L"Expression contains a syntax error"s;
 	case errBrackets:
-		return L"Unbalanced brackets";
+		return L"Unbalanced brackets"s;
 	case errMaxDepth:
-		return L"Max recursive brackets level reached";
+		return L"Max recursive brackets level reached"s;
 	case errOptions:
-		return L"Invalid options combination";
+		return L"Invalid options combination"s;
 	case errInvalidBackRef:
-		return L"Reference to nonexistent bracket";
+		return L"Reference to nonexistent bracket"s;
 	case errInvalidEscape:
-		return L"Invalid escape char";
+		return L"Invalid escape char"s;
 	case errInvalidRange:
-		return L"Invalid range value";
+		return L"Invalid range value"s;
 	case errInvalidQuantifiersCombination:
-		return L"Quantifier applied to invalid object. f.e. lookahead assertion";
+		return L"Quantifier applied to invalid object. f.e. lookahead assertion"s;
 	case errNotEnoughMatches:
-		return L"Size of match array isn't large enough";
+		return L"Size of match array isn't large enough"s;
 	case errNoStorageForNB:
-		return L"Attempt to match RegExp with Named Brackets but no storage class provided";
+		return L"Attempt to match RegExp with Named Brackets but no storage class provided"s;
 	case errReferenceToUndefinedNamedBracket:
-		return L"Reference to undefined named bracket";
+		return L"Reference to undefined named bracket"s;
 	case errVariableLengthLookBehind:
-		return L"Only fixed length look behind assertions are supported";
+		return L"Only fixed length look behind assertions are supported"s;
 	default:
-		return L"Unknown error";
+		return L"Unknown error"s;
 	}
 };
 
@@ -668,5 +731,121 @@ void ReMatchErrorMessage(const RegExp& re)
 				GetReErrorString(re.LastError())
 			},
 			{ lng::MOk });
+	}
+}
+
+static void GetRowCol(const string& Str, bool Hex, goto_coord& Row, goto_coord& Col)
+{
+	const auto& Parse = [Hex](string Part, goto_coord& Dest)
+	{
+		Part.resize(std::remove(ALL_RANGE(Part), L' ') - Part.begin());
+
+		if (Part.empty())
+			return;
+
+		// юзер хочет относительности
+		switch (Part.front())
+		{
+		case L'-':
+			Part.erase(0, 1);
+			Dest.relative = -1;
+			break;
+
+		case L'+':
+			Part.erase(0, 1);
+			Dest.relative = +1;
+			break;
+
+		default:
+			break;
+		}
+
+		if (Part.empty())
+			return;
+
+		// он хочет процентов
+		if (Part.back() == L'%')
+		{
+			Part.pop_back();
+			Dest.percent = true;
+		}
+
+		if (Part.empty())
+			return;
+
+		auto Radix = 0;
+
+		// он умный - hex код ввел!
+		if (starts_with(Part, L"0x"sv))
+		{
+			Part.erase(0, 2);
+			Radix = 16;
+		}
+		else if (starts_with(Part, L"$"sv))
+		{
+			Part.erase(0, 1);
+			Radix = 16;
+		}
+		else if (ends_with(Part, L"h"sv))
+		{
+			Part.pop_back();
+			Radix = 16;
+		}
+		else if (ends_with(Part, L"m"sv))
+		{
+			Part.pop_back();
+			Radix = 10;
+		}
+
+		if (Part.empty())
+			return;
+
+		if (!Radix)
+			Radix = Hex? 16 : 10;
+
+		Dest.value = std::stoull(Part, nullptr, Radix);
+		Dest.exist = true;
+	};
+
+	const auto SeparatorPos = Str.find_first_of(L".,;:");
+
+	if (SeparatorPos == Str.npos)
+	{
+		Parse(Str, Row);
+	}
+	else
+	{
+		Parse(Str.substr(0, SeparatorPos), Row);
+		Parse(Str.substr(SeparatorPos + 1), Col);
+	}
+}
+
+bool GoToRowCol(goto_coord& Row, goto_coord& Col, bool& Hex, string_view const HelpTopic)
+{
+	BoolOption HexOption;
+	HexOption.Set(Hex);
+
+	DialogBuilder Builder(lng::MGoTo, HelpTopic);
+	string strData;
+	Builder.AddEditField(strData, 28, L"LineNumber"sv, DIF_FOCUS | DIF_HISTORY | DIF_USELASTHISTORY | DIF_NOAUTOCOMPLETE);
+	Builder.AddSeparator();
+	Builder.AddCheckbox(lng::MGoToHex, HexOption);
+	Builder.AddOKCancel();
+
+	if (!Builder.ShowDialog())
+		return false;
+
+	Hex = HexOption;
+
+	try
+	{
+		GetRowCol(strData, Hex, Row, Col);
+		return true;
+	}
+	catch (const std::exception&)
+	{
+		// TODO: log
+		// maybe we need to display a message in case of an incorrect input
+		return false;
 	}
 }

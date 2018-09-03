@@ -38,7 +38,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plclass.hpp"
 #include "mix.hpp"
 #include "notification.hpp"
-#include "panelfwd.hpp"
+
+#include "platform.fwd.hpp"
+
+#include "common/function_traits.hpp"
+#include "common/movable.hpp"
 
 class SaveScreen;
 class FileEditor;
@@ -90,12 +94,12 @@ public:
 	plugin_panel(Plugin* PluginInstance, HANDLE Panel);
 	~plugin_panel();
 
-	auto plugin() const
+	Plugin* plugin() const
 	{
 		return m_Plugin;
 	}
 
-	auto panel() const
+	HANDLE panel() const
 	{
 		return m_Panel;
 	}
@@ -108,15 +112,18 @@ public:
 	void delayed_delete(const string& Name);
 
 private:
-	Plugin* m_Plugin;
+	movable<Plugin*> m_Plugin;
 	FN_RETURN_TYPE(Plugin::keep_activity) m_PluginActivity;
-	HANDLE m_Panel{};
+	movable<HANDLE> m_Panel{};
 	std::list<delayed_deleter> m_DelayedDeleters;
 };
 
 class PluginManager: noncopyable
 {
-	struct plugin_less { bool operator ()(const Plugin* a, const Plugin *b) const; };
+	struct plugin_less
+	{
+		bool operator()(const Plugin* a, const Plugin *b) const;
+	};
 
 public:
 	PluginManager();
@@ -133,7 +140,7 @@ public:
 	static int GetVirtualFindData(const plugin_panel* hPlugin,PluginPanelItem **pPanelItem,size_t *pItemsNumber,const string& Path);
 	static void FreeVirtualFindData(const plugin_panel* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber);
 	static int SetDirectory(const plugin_panel* hPlugin, const string& Dir, int OpMode, const UserDataItem* UserData = nullptr);
-	static int GetFile(const plugin_panel* hPlugin,PluginPanelItem *PanelItem,const string& DestPath,string &strResultName,int OpMode);
+	static bool GetFile(const plugin_panel* hPlugin,PluginPanelItem *PanelItem,const string& DestPath,string &strResultName,int OpMode);
 	static int GetFiles(const plugin_panel* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool Move,const wchar_t **DestPath,int OpMode);
 	static int PutFiles(const plugin_panel* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool Move,int OpMode);
 	static int DeleteFiles(const plugin_panel* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,int OpMode);
@@ -142,9 +149,10 @@ public:
 	static int ProcessKey(const plugin_panel* hPlugin,const INPUT_RECORD *Rec,bool Pred);
 	static int ProcessEvent(const plugin_panel* hPlugin,int Event,void *Param);
 	static int Compare(const plugin_panel* hPlugin,const PluginPanelItem *Item1,const PluginPanelItem *Item2,unsigned int Mode);
+	static bool GetPluginInfo(Plugin *pPlugin, PluginInfo* Info);
 	int ProcessEditorInput(const INPUT_RECORD *Rec) const;
 	int ProcessEditorEvent(int Event, void *Param, const Editor* EditorInstance) const;
-	int ProcessSubscribedEditorEvent(int Event, void *Param, const Editor* EditorInstance, const std::unordered_set<GUID, uuid_hash>& PluginIds) const;
+	int ProcessSubscribedEditorEvent(int Event, void *Param, const Editor* EditorInstance, const std::unordered_set<UUID>& PluginIds) const;
 	int ProcessViewerEvent(int Event, void *Param, const Viewer* ViewerInstance) const;
 	int ProcessDialogEvent(int Event,FarDialogEvent *Param) const;
 	int ProcessConsoleInput(ProcessConsoleInputInfo *Info) const;
@@ -194,17 +202,18 @@ public:
 	int CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName=nullptr);
 	bool GetDiskMenuItem(Plugin *pPlugin, size_t PluginItem, bool &ItemPresent, wchar_t& PluginHotkey, string &strPluginText, GUID &Guid) const;
 	void ReloadLanguage() const;
-	int ProcessCommandLine(const string& Command, panel_ptr Target = nullptr);
+	bool ProcessCommandLine(const string& Command);
 	size_t GetPluginInformation(Plugin *pPlugin, FarGetPluginInformation *pInfo, size_t BufferSize);
 	// $ .09.2000 SVS - Функция CallPlugin - найти плагин по ID и запустить OpenFrom = OPEN_*
 	bool CallPlugin(const GUID& SysID,int OpenFrom, void *Data, void **Ret=nullptr);
 	bool CallPluginItem(const GUID& Guid, CallPluginInfo *Data);
 	void RefreshPluginsList();
+	const auto& Factories() const { return PluginFactories; }
 
 	static void ConfigureCurrent(Plugin *pPlugin, const GUID& Guid);
-	static int UseFarCommand(plugin_panel* hPlugin, int CommandType);
+	static int UseFarCommand(const plugin_panel* hPlugin, int CommandType);
 	static const GUID& GetGUID(const plugin_panel* hPlugin);
-	static bool SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, hotkey_type HotKeyType, const string& DlgPluginTitle);
+	static bool SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, hotkey_type HotKeyType, string_view DlgPluginTitle);
 	static void ShowPluginInfo(Plugin *pPlugin, const GUID& Guid);
 
 private:
@@ -221,10 +230,10 @@ private:
 	void LoadPluginsFromCache();
 
 	std::vector<std::unique_ptr<plugin_factory>> PluginFactories;
-	std::unordered_map<GUID, std::unique_ptr<Plugin>, uuid_hash> m_Plugins;
+	std::unordered_map<UUID, std::unique_ptr<Plugin>> m_Plugins;
 	plugins_set SortedPlugins;
 	std::list<Plugin*> UnloadedPlugins;
-	listener_ex m_PluginSynchro;
+	listener m_PluginSynchro;
 
 #ifndef NO_WRAPPER
 	size_t OemPluginsCount;

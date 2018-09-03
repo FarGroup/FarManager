@@ -167,18 +167,6 @@ Info.PanelControl(PANEL_PASSIVE,FCTL_SETPANELDIRECTORY,0,&dirInfo);
 Info.PanelControl(PANEL_PASSIVE,FCTL_SETACTIVEPANEL,0,0);</pre>
     </td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETNUMERICSORT">FCTL_SETNUMERICSORT</a></td>
-    <td class="cont" width="60%">«адаЄт <a href="../other/dict.html#numericsort">числовой пор€док</a> сортировки дл€ панели.<br>
-    <code>Param1</code> целое число, задающее числовую сортировку:<br>
-    <code>0</code> - отключить числовую сортировку или <code>1</code> - включить числовую сортировку.<br>
-    <code>Param2</code> не используетс€.</td></tr>
-
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETCASESENSITIVESORT">FCTL_SETCASESENSITIVESORT</a></td>
-    <td class="cont" width="60%">«адаЄт сортировку с учЄтом регистра дл€ панели.<br>
-    <code>Param1</code> целое число, задающее сортировку с учЄтом регистра:<br>
-    <code>0</code> - отключить сортировку с учЄтом регистра или <code>1</code> - включить сортировку с учЄтом регистра.<br>
-    <code>Param2</code> не используетс€.</td></tr>
-
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETPANELDIRECTORY">FCTL_SETPANELDIRECTORY</a></td>
     <td class="cont" width="60%">”становить текущий каталог в панели.<br>
     <code>Param1</code> не используетс€.<br>
@@ -289,11 +277,13 @@ Info.Control(PANEL_ACTIVE,FCTL_REDRAWPANEL,0,NULL);
     <tr class="cont"><th class="cont" width="100%" colspan="2"><b>ѕрочие</b></th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETUSERSCREEN">FCTL_SETUSERSCREEN</a></td>
     <td class="cont" width="60%">”становить обработанную плагином копию ѕользовательского экрана под панели Far Manager.<br>
-    <code>Param1</code> должен быть <code>0</code>, <code>Param2</code> должен быть <code>NULL</code>.</td></tr>
+    <code>Param1</code>: <code>0</code> - дополнительно добавить перевод строки (при повторном вызове), <code>1</code> - не добавл€ть.<br>
+    <code>Param2</code> должен быть <code>NULL</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETUSERSCREEN">FCTL_GETUSERSCREEN</a></td>
     <td class="cont" width="60%">ѕредоставить дл€ нужд плагина копию ѕользовательского экрана Far Manager (он показываетс€, когда панели убpаны).<br>
-    <code>Param1</code> должен быть <code>0</code>, <code>Param2</code> должен быть <code>NULL</code>.</td></tr>
+    <code>Param1</code>: <code>0</code> - дополнительно добавить перевод строки, <code>1</code> - не добавл€ть.<br>
+    <code>Param2</code> должен быть <code>NULL</code>.</td></tr>
 
     </table>
     </div>

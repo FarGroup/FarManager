@@ -35,6 +35,12 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "exception.hpp"
+
+#include "platform.fs.hpp"
+
+#include "common/singleton.hpp"
+
 enum class lng;
 
 class i_language_data
@@ -61,11 +67,16 @@ public:
 
 	virtual ~language() = default;
 
+	class exception: public far_exception
+	{
+		using far_exception::far_exception;
+	};
+
 protected:
 	explicit language(std::unique_ptr<i_language_data>& Data): m_Data(Data) {}
 
 	// Throws on failure, strong exception safety guarantee
-	void load(const string& Path, int CountNeed = -1);
+	void load(const string& Path, const string& Language, int CountNeed = -1);
 
 private:
 	std::unique_ptr<i_language_data>& m_Data;
@@ -74,8 +85,8 @@ private:
 class plugin_language final: public language
 {
 public:
-	explicit plugin_language(const string& Path);
-	const wchar_t* GetMsg(intptr_t Id) const;
+	explicit plugin_language(const string& Path, const string& Language);
+	const wchar_t* Msg(intptr_t Id) const;
 
 private:
 	std::unique_ptr<i_language_data> m_Data;
@@ -88,7 +99,7 @@ class far_language final: private language, public singleton<far_language>
 public:
 	using language::load;
 	bool is_loaded() const;
-	const string& GetMsg(lng Id) const;
+	const string& Msg(lng Id) const;
 
 private:
 	far_language();
@@ -97,9 +108,9 @@ private:
 };
 
 
-std::tuple<os::fs::file, string, uintptr_t> OpenLangFile(const string& Path, const string& Mask, const string& Language);
-bool GetLangParam(const os::fs::file& LangFile, const string& ParamName, string& strParam1, string *strParam2, UINT nCodePage);
-bool SelectInterfaceLanguage();
-bool SelectHelpLanguage();
+std::tuple<os::fs::file, string, uintptr_t> OpenLangFile(string_view Path, string_view Mask, string_view Language);
+bool GetLangParam(const os::fs::file& LangFile, string_view ParamName, string& strParam1, string* strParam2, uintptr_t CodePage);
+bool SelectInterfaceLanguage(string& Dest);
+bool SelectHelpLanguage(string& Dest);
 
 #endif // LANGUAGE_HPP_36726BFA_4EBB_4CFF_A8F0_42434C4F4865

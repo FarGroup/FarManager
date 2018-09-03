@@ -36,7 +36,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-
+struct FAR_CHAR_INFO;
+struct OpenPanelInfo;
 void SysLog(int l);
 void SysLog(const wchar_t *fmt,...);
 void SysLog(int l,const wchar_t *fmt,...); ///
@@ -45,45 +46,45 @@ void ShowHeap();
 void CheckHeap(int NumLine);
 
 string __FARKEY_ToName(int Key);
-#define _FARKEY_ToName(K) __FARKEY_ToName(K).data()
+#define _FARKEY_ToName(K) __FARKEY_ToName(K).c_str()
 string __MCODE_ToName(DWORD OpCode);
-#define _MCODE_ToName(K) __MCODE_ToName(K).data()
+#define _MCODE_ToName(K) __MCODE_ToName(K).c_str()
 string __VK_KEY_ToName(int VkKey);
-#define _VK_KEY_ToName(K) __VK_KEY_ToName(K).data()
+#define _VK_KEY_ToName(K) __VK_KEY_ToName(K).c_str()
 string __ECTL_ToName(int Command);
-#define _ECTL_ToName(K) __ECTL_ToName(K).data()
+#define _ECTL_ToName(K) __ECTL_ToName(K).c_str()
 string __EE_ToName(int Command);
-#define _EE_ToName(K) __EE_ToName(K).data()
+#define _EE_ToName(K) __EE_ToName(K).c_str()
 string __EEREDRAW_ToName(int Command);
-#define _EEREDRAW_ToName(K) __EEREDRAW_ToName(K).data()
+#define _EEREDRAW_ToName(K) __EEREDRAW_ToName(K).c_str()
 string __ESPT_ToName(int Command);
-#define _ESPT_ToName(K) __ESPT_ToName(K).data()
+#define _ESPT_ToName(K) __ESPT_ToName(K).c_str()
 string __VE_ToName(int Command);
-#define _VE_ToName(K) __VE_ToName(K).data()
+#define _VE_ToName(K) __VE_ToName(K).c_str()
 string __FCTL_ToName(int Command);
-#define _FCTL_ToName(K) __FCTL_ToName(K).data()
+#define _FCTL_ToName(K) __FCTL_ToName(K).c_str()
 string __MCTL_ToName(int Command);
-#define _MCTL_ToName(K) __MCTL_ToName(K).data()
+#define _MCTL_ToName(K) __MCTL_ToName(K).c_str()
 string __DLGMSG_ToName(DWORD Msg);
-#define _DLGMSG_ToName(K) __DLGMSG_ToName(K).data()
+#define _DLGMSG_ToName(K) __DLGMSG_ToName(K).c_str()
 string __DLGDIF_ToName(DWORD Msg);
-#define _DLGDIF_ToName(K) __DLGDIF_ToName(K).data()
+#define _DLGDIF_ToName(K) __DLGDIF_ToName(K).c_str()
 
 string __ACTL_ToName(int Command);
-#define _ACTL_ToName(K) __ACTL_ToName(K).data()
+#define _ACTL_ToName(K) __ACTL_ToName(K).c_str()
 string __VCTL_ToName(int Command);
-#define _VCTL_ToName(K) __VCTL_ToName(K).data()
+#define _VCTL_ToName(K) __VCTL_ToName(K).c_str()
 string __INPUT_RECORD_Dump(const INPUT_RECORD *Rec);
-#define _INPUT_RECORD_Dump(K) __INPUT_RECORD_Dump(K).data()
+#define _INPUT_RECORD_Dump(K) __INPUT_RECORD_Dump(K).c_str()
 string __MOUSE_EVENT_RECORD_Dump(const MOUSE_EVENT_RECORD *Rec);
-#define _MOUSE_EVENT_RECORD_Dump(K) __MOUSE_EVENT_RECORD_Dump(K).data()
+#define _MOUSE_EVENT_RECORD_Dump(K) __MOUSE_EVENT_RECORD_Dump(K).c_str()
 string __SysLog_LinearDump(LPBYTE Buf,int SizeBuf);
-#define _SysLog_LinearDump(B,S) __SysLog_LinearDump((B),(S)).data()
+#define _SysLog_LinearDump(B,S) __SysLog_LinearDump((B),(S)).c_str()
 
 void GetOpenPanelInfo_Dump(const wchar_t *Title,const OpenPanelInfo *Info,FILE *fp);
 void INPUT_RECORD_DumpBuffer(FILE *fp=nullptr);
 void PanelViewSettings_Dump(const wchar_t *Title,const struct PanelViewSettings &ViewSettings,FILE *fp=nullptr);
-void PluginsStackItem_Dump(const wchar_t *Title,const struct PluginsStackItem *StackItems,int ItemNumber,FILE *fp=nullptr);
+//void PluginsStackItem_Dump(const wchar_t *Title,const struct PluginsStackItem *StackItems,int ItemNumber,FILE *fp=nullptr);
 void SaveScreenDumpBuffer(const wchar_t *Title,const FAR_CHAR_INFO *Buffer,int X1,int Y1,int X2,int Y2,FILE *fp=nullptr);
 class Manager;
 void ManagerClass_Dump(const wchar_t *Title,FILE *fp=nullptr);
@@ -94,16 +95,12 @@ void GetVolumeInformation_Dump(const wchar_t *Title,LPCWSTR lpRootPathName,LPCWS
 void WIN32_FIND_DATA_Dump(const wchar_t *Title,const WIN32_FIND_DATA &fd,FILE *fp=nullptr);
 
 #if defined(SYSLOG_FARSYSLOG)
-#ifdef __cplusplus
 extern "C"
 {
-#endif
-	void WINAPIV FarSysLog(const wchar_t *ModuleName,int Level,char *fmt,...);
+	void WINAPIV FarSysLog(const wchar_t *ModuleName, int Level, const wchar_t *fmt, ...);
 	void WINAPI FarSysLogDump(const wchar_t *ModuleName,DWORD StartAddress,LPBYTE Buf,int SizeBuf);
-	void WINAPI FarSysLog_INPUT_RECORD_Dump(const wchar_t *ModuleName,INPUT_RECORD *rec);
-#ifdef __cplusplus
+	void WINAPI FarSysLog_INPUT_RECORD_Dump(const wchar_t *ModuleName, const INPUT_RECORD *rec);
 };
-#endif
 #endif
 
 #if defined(_DEBUG) && defined(SYSLOG)

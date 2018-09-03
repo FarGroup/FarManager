@@ -42,10 +42,7 @@ public:
 
 	~GuardLastError();
 
-	void dismiss()
-	{
-		m_Active = false;
-	}
+	void dismiss();
 
 private:
 	DWORD m_LastError;

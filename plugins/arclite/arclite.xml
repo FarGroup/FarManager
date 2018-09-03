@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<arclite>
+  <Codecs.7z>
+    <LZHAM    range=" 1, 9"    std=" 1, 3, 5, 7, 9" />
+    <ZSTD     range=" 1,22"    std=" 1, 3, 7,12,17" bcj="true" />
+    <LZ4      range=" 1,12"    std=" 1, 3, 6, 9,12" bcj="true" />
+    <LZ5      range=" 1,15"    std=" 1, 3, 7,11,15" bcj="true" />
+    <BROTLI   range=" 1,11"    std=" 1, 3, 6, 9,11" bcj="true" />
+    <LIZARD   range="11,49,10" std="21,23,25,27,29" bcj="true" />
+    <WavPack2 range=" 1, 9"    std=" 1, 3, 5, 7, 9" adv="yx=0 1=lzma:d20 b0s1:1" />
+  </Codecs.7z>
+  <!--Options max_check_size="0x100000" correct_name_mode="0x12" qs_by_default="false" /-->
+  <!-- Use "arclite.xml.custom" to override Options parameters -->
+</arclite>

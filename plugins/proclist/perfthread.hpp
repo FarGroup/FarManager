@@ -15,7 +15,7 @@ template <class T> class Array
 	public:
 		Array() { data = 0; size = 0; }
 		Array(DWORD cbData) { data = new T[size=cbData]; memset(data,0,cbData*sizeof(T)); }
-		~Array() { delete data; }
+		~Array() { delete [] data; }
 		void reserve(DWORD cNew)
 		{
 			if (cNew<=size) return;

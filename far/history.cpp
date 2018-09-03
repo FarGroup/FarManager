@@ -31,10 +31,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "history.hpp"
+
 #include "lang.hpp"
 #include "keys.hpp"
 #include "message.hpp"
@@ -53,10 +51,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "vmenu.hpp"
 #include "vmenu2.hpp"
+#include "global.hpp"
 
-History::History(history_type TypeHistory, const string& HistoryName, const BoolOption& EnableSave):
+#include "platform.fs.hpp"
+
+#include "common/function_traits.hpp"
+
+History::History(history_type TypeHistory, string HistoryName, const BoolOption& EnableSave):
 	m_TypeHistory(TypeHistory),
-	m_HistoryName(HistoryName),
+	m_HistoryName(std::move(HistoryName)),
 	m_EnableSave(EnableSave),
 	m_EnableAdd(true),
 	m_KeepSelectedPos(false),
@@ -65,18 +68,14 @@ History::History(history_type TypeHistory, const string& HistoryName, const Bool
 {
 }
 
-History::~History()
-{
-}
-
 void History::CompactHistory()
 {
 	const auto& HistoryConfig = ConfigProvider().HistoryCfg();
 	SCOPED_ACTION(auto)(HistoryConfig->ScopedTransaction());
 
-	HistoryConfig->DeleteOldUnlocked(HISTORYTYPE_CMD, L"", Global->Opt->HistoryLifetime, Global->Opt->HistoryCount);
-	HistoryConfig->DeleteOldUnlocked(HISTORYTYPE_FOLDER, L"", Global->Opt->FoldersHistoryLifetime, Global->Opt->FoldersHistoryCount);
-	HistoryConfig->DeleteOldUnlocked(HISTORYTYPE_VIEW, L"", Global->Opt->ViewHistoryLifetime, Global->Opt->ViewHistoryCount);
+	HistoryConfig->DeleteOldUnlocked(HISTORYTYPE_CMD, {}, Global->Opt->HistoryLifetime, Global->Opt->HistoryCount);
+	HistoryConfig->DeleteOldUnlocked(HISTORYTYPE_FOLDER, {}, Global->Opt->FoldersHistoryLifetime, Global->Opt->FoldersHistoryCount);
+	HistoryConfig->DeleteOldUnlocked(HISTORYTYPE_VIEW, {}, Global->Opt->ViewHistoryLifetime, Global->Opt->ViewHistoryCount);
 
 	for(const auto& i: HistoryConfig->LargeHistoriesEnumerator(HISTORYTYPE_DIALOG, Global->Opt->DialogsHistoryCount))
 	{
@@ -88,7 +87,7 @@ void History::CompactHistory()
    SaveForbid - принудительно запретить запись добавляемой строки.
                 Используется на панели плагина
 */
-void History::AddToHistory(const string& Str, history_record_type Type, const GUID* Guid, const wchar_t *File, const wchar_t *Data, bool SaveForbid)
+void History::AddToHistory(const string& Str, history_record_type const Type, const GUID* const Guid, string_view const File, string_view const Data, bool const SaveForbid)
 {
 	if (!m_EnableAdd || SaveForbid)
 		return;
@@ -100,8 +99,7 @@ void History::AddToHistory(const string& Str, history_record_type Type, const GU
 		return;
 
 	bool Lock = false;
-	string strName(Str),strGuid,strFile(NullToEmpty(File)),strData(NullToEmpty(Data));
-	if(Guid) strGuid=GuidToStr(*Guid);
+	const auto strGuid = Guid? GuidToStr(*Guid) : L""s;
 
 	unsigned long long DeleteId = 0;
 
@@ -109,18 +107,16 @@ void History::AddToHistory(const string& Str, history_record_type Type, const GU
 
 	if (m_RemoveDups) // удалять дубликаты?
 	{
-		using CompareFunction = int(*)(const string_view&, const string_view&);
-		CompareFunction CaseSensitive = StrCmp, CaseInsensitive = StrCmpI;
-		const auto CmpFunction = m_RemoveDups == 2? CaseInsensitive : CaseSensitive;
+		const auto are_equal = m_RemoveDups == 2? equal_icase : equal;
 
 		for (const auto& i: HistoryCfgRef()->Enumerator(m_TypeHistory, m_HistoryName))
 		{
 			if (EqualType(Type, i.Type))
 			{
-				if (!CmpFunction(strName, i.Name) &&
-					!CmpFunction(strGuid, i.Guid) &&
-					!CmpFunction(strFile, i.File) &&
-					(ignore_data || !CmpFunction(strData, i.Data)))
+				if (are_equal(Str, i.Name) &&
+					are_equal(strGuid, i.Guid) &&
+					are_equal(File, i.File) &&
+					(ignore_data || are_equal(Data, i.Data)))
 				{
 					Lock = Lock || i.Lock;
 					DeleteId = i.Id;
@@ -130,7 +126,7 @@ void History::AddToHistory(const string& Str, history_record_type Type, const GU
 		}
 	}
 
-	HistoryCfgRef()->DeleteAndAddAsync(DeleteId, m_TypeHistory, m_HistoryName, strName, Type, Lock, strGuid, strFile, strData);  //Async - should never be used in a transaction
+	HistoryCfgRef()->DeleteAndAddAsync(DeleteId, m_TypeHistory, m_HistoryName, Str, Type, Lock, strGuid, File, Data);  //Async - should never be used in a transaction
 
 	ResetPosition();
 }
@@ -141,21 +137,19 @@ bool History::ReadLastItem(const string& HistoryName, string &strStr) const
 	return HistoryCfgRef()->GetNewest(HISTORYTYPE_DIALOG, HistoryName, strStr);
 }
 
-history_return_type History::Select(const string& Title, const wchar_t *HelpTopic, string &strStr, history_record_type &Type, GUID* Guid, string *File, string *Data)
+history_return_type History::Select(const string& Title, string_view const HelpTopic, string &strStr, history_record_type &Type, GUID* Guid, string *File, string *Data)
 {
 	int Height=ScrY-8;
-	const auto HistoryMenu = VMenu2::create(Title, nullptr, 0, Height);
+	const auto HistoryMenu = VMenu2::create(Title, {}, Height);
 	HistoryMenu->SetMenuFlags(VMENU_WRAPMODE);
-
-	if (HelpTopic)
-		HistoryMenu->SetHelp(HelpTopic);
+	HistoryMenu->SetHelp(HelpTopic);
 
 	HistoryMenu->SetPosition(-1,-1,0,0);
 
 	if (m_TypeHistory == HISTORYTYPE_CMD || m_TypeHistory == HISTORYTYPE_FOLDER || m_TypeHistory == HISTORYTYPE_VIEW)
 		HistoryMenu->SetId(m_TypeHistory == HISTORYTYPE_CMD?HistoryCmdId:(m_TypeHistory == HISTORYTYPE_FOLDER?HistoryFolderId:HistoryEditViewId));
 
-	const auto ret = ProcessMenu(strStr, Guid, File, Data, Title.data(), *HistoryMenu, Height, Type, nullptr);
+	const auto ret = ProcessMenu(strStr, Guid, File, Data, Title.c_str(), *HistoryMenu, Height, Type, nullptr);
 	Global->ScrBuf->Flush();
 	return ret;
 }
@@ -166,7 +160,7 @@ history_return_type History::Select(VMenu2 &HistoryMenu, int Height, Dialog *Dlg
 	return ProcessMenu(strStr,nullptr ,nullptr ,nullptr , nullptr, HistoryMenu, Height, Type, Dlg);
 }
 
-history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *pstrData, const wchar_t *Title, VMenu2 &HistoryMenu, int Height, history_record_type &Type, Dialog *Dlg)
+history_return_type History::ProcessMenu(string& strStr, GUID* const Guid, string* const pstrFile, string* const pstrData, const wchar_t* const Title, VMenu2& HistoryMenu, int const Height, history_record_type& Type, const Dialog* const Dlg)
 {
 	unsigned long long SelectedRecord = 0;
 	string strSelectedRecordName,strSelectedRecordGuid,strSelectedRecordFile,strSelectedRecordData;
@@ -188,9 +182,9 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 			bool bSelected=false;
 			int LastDay=0, LastMonth = 0, LastYear = 0;
 
-			const auto& GetTitle = [](auto Type)
+			const auto& GetTitle = [](auto RecordType)
 			{
-				switch (Type)
+				switch (RecordType)
 				{
 				case HR_VIEWER:
 					return msg(lng::MHistoryView);
@@ -218,7 +212,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 					if(StrToGuid(i.Guid, HGuid) && HGuid != FarGuid)
 					{
 						const auto pPlugin = Global->CtrlObject->Plugins->FindPlugin(HGuid);
-						strRecord = (pPlugin ? pPlugin->GetTitle() : L'{' + i.Guid + L'}') + L':';
+						strRecord = (pPlugin ? pPlugin->Title() : L'{' + i.Guid + L'}') + L':';
 						if(!i.File.empty())
 							strRecord += i.File + L':';
 					}
@@ -234,17 +228,17 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 					MenuItemEx Separator;
 					Separator.Flags = LIF_SEPARATOR;
 					string strTime;
-					ConvertDate(i.Time, Separator.strName, strTime, 5, FALSE, FALSE, TRUE);
+					ConvertDate(i.Time, Separator.Name, strTime, 5, FALSE, FALSE, TRUE);
 					HistoryMenu.AddItem(Separator);
 				}
 				strRecord += i.Name;
 
 				if (m_TypeHistory != HISTORYTYPE_DIALOG)
-					ReplaceStrings(strRecord, L"&", L"&&");
+					ReplaceStrings(strRecord, L"&"sv, L"&&"sv);
 
 				MenuItemEx MenuItem(strRecord);
 				MenuItem.SetCheck(i.Lock? 1 : 0);
-				MenuItem.UserData = i.Id;
+				MenuItem.ComplexUserData = i.Id;
 
 				if (!SetUpMenuPos && m_CurrentItem == i.Id)
 				{
@@ -294,7 +288,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 			}
 
 			HistoryMenu.GetSelectPos(&Pos);
-			const auto CurrentRecordPtr = HistoryMenu.GetUserDataPtr<unsigned long long>(Pos.SelectPos);
+			const auto CurrentRecordPtr = HistoryMenu.GetComplexUserDataPtr<unsigned long long>(Pos.SelectPos);
 			const auto CurrentRecord = CurrentRecordPtr? *CurrentRecordPtr : 0;
 			int KeyProcessed = 1;
 
@@ -435,13 +429,13 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 				case KEY_NUMDEL:
 				case KEY_DEL:
 				{
-					if (!HistoryMenu.empty() && (!Global->Opt->Confirm.HistoryClear || (Global->Opt->Confirm.HistoryClear &&
+					if (!HistoryMenu.empty() && (!Global->Opt->Confirm.HistoryClear ||
 						Message(MSG_WARNING,
 							msg((m_TypeHistory==HISTORYTYPE_CMD || m_TypeHistory==HISTORYTYPE_DIALOG? lng::MHistoryTitle: (m_TypeHistory==HISTORYTYPE_FOLDER? lng::MFolderHistoryTitle : lng::MViewHistoryTitle))),
 							{
 								msg(lng::MHistoryClear)
 							},
-							{ lng::MClear, lng::MCancel }) == Message::first_button)))
+							{ lng::MClear, lng::MCancel }) == Message::first_button))
 					{
 						HistoryCfgRef()->DeleteAllUnlocked(m_TypeHistory,m_HistoryName);
 
@@ -466,7 +460,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 
 		if (MenuExitCode >= 0)
 		{
-			SelectedRecord = *HistoryMenu.GetUserDataPtr<unsigned long long>(MenuExitCode);
+			SelectedRecord = *HistoryMenu.GetComplexUserDataPtr<unsigned long long>(MenuExitCode);
 
 			if (!SelectedRecord)
 				return HRT_CANCEL;
@@ -593,7 +587,7 @@ bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 			continue;
 		}
 
-		if (starts_with_icase(strName, make_string_view(strStr, 0, Length)) && strStr != strName)
+		if (starts_with_icase(strName, string_view(strStr).substr(0, Length)) && strStr != strName)
 		{
 			if (bAppend)
 				strStr.append(strName, Length, string::npos);

@@ -30,10 +30,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "network.hpp"
+
 #include "lang.hpp"
 #include "message.hpp"
 #include "stddlg.hpp"
@@ -44,11 +42,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "exception.hpp"
 
+#include "platform.fs.hpp"
+#include "platform.reg.hpp"
+
+#include "common/scope_exit.hpp"
+
 static string GetStoredUserName(wchar_t Drive)
 {
 	//Тут может быть надо заюзать WNetGetUser
 	string UserName;
-	os::reg::key::current_user.get(concat(L"Network\\"_sv, Drive), L"UserName", UserName);
+	os::reg::key::current_user.get(concat(L"Network\\"sv, Drive), L"UserName"sv, UserName);
 	return UserName;
 }
 
@@ -109,7 +112,7 @@ bool ConnectToNetworkResource(const string& NewDir)
 	netResource.lpLocalName = IsDrive? UNSAFE_CSTR(LocalName) : nullptr;
 	netResource.lpRemoteName = UNSAFE_CSTR(RemoteName);
 	netResource.lpProvider = nullptr;
-	DWORD res = WNetAddConnection2(&netResource, nullptr, EmptyToNull(strUserName.data()), 0);
+	DWORD res = WNetAddConnection2(&netResource, nullptr, EmptyToNull(strUserName.c_str()), 0);
 
 	if (res == ERROR_SESSION_CREDENTIAL_CONFLICT)
 		res = WNetAddConnection2(&netResource, nullptr, nullptr, 0);
@@ -121,16 +124,14 @@ bool ConnectToNetworkResource(const string& NewDir)
 			if (!GetNameAndPassword(RemoteName, strUserName, strPassword, nullptr, GNP_USELAST))
 				break;
 
-			res = WNetAddConnection2(&netResource, strPassword.data(), EmptyToNull(strUserName.data()), 0);
+			res = WNetAddConnection2(&netResource, strPassword.c_str(), EmptyToNull(strUserName.data()), 0);
 
 			if (res == NO_ERROR)
 				break;
 
-			const auto ErrorState = error_state::fetch();
-
 			if (res != ERROR_ACCESS_DENIED && res != ERROR_INVALID_PASSWORD && res != ERROR_LOGON_FAILURE)
 			{
-				Message(MSG_WARNING, ErrorState,
+				Message(MSG_WARNING, error_state::fetch(),
 					msg(lng::MError),
 					{
 						NewDir
@@ -143,7 +144,7 @@ bool ConnectToNetworkResource(const string& NewDir)
 	return res == NO_ERROR;
 }
 
-string ExtractComputerName(const string& CurDir, string* strTail)
+string ExtractComputerName(const string_view CurDir, string* const strTail)
 {
 	string Result;
 
@@ -155,7 +156,7 @@ string ExtractComputerName(const string& CurDir, string* strTail)
 	const auto CurDirPathType = ParsePath(CurDir);
 	if (CurDirPathType == root_type::remote || CurDirPathType == root_type::unc_remote)
 	{
-		strNetDir = CurDir;
+		assign(strNetDir, CurDir);
 	}
 	else
 	{

@@ -30,23 +30,27 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "configdb.hpp"
+
 #include "sqlitedb.hpp"
 #include "strmix.hpp"
 #include "encoding.hpp"
 #include "pathmix.hpp"
 #include "config.hpp"
-#include "datetime.hpp"
-#include "tinyxml.hpp"
 #include "farversion.hpp"
-#include "console.hpp"
 #include "lang.hpp"
 #include "message.hpp"
-#include "synchro.hpp"
 #include "regex_helpers.hpp"
+#include "global.hpp"
+
+#include "platform.concurrency.hpp"
+#include "platform.fs.hpp"
+
+#include "common/bytes_view.hpp"
+#include "common/scope_exit.hpp"
+
+#include "format.hpp"
+#include "tinyxml.hpp"
 
 class representation_source
 {
@@ -56,7 +60,7 @@ public:
 	{
 		const auto RootName = "farconfig";
 
-		const auto XmlFile = file_ptr(_wfopen(NTPath(File).data(), L"rb"));
+		const auto XmlFile = file_ptr(_wfopen(NTPath(File).c_str(), L"rb"));
 		if (!XmlFile)
 			return;
 
@@ -71,7 +75,10 @@ public:
 
 	void SetRoot(tinyxml::XMLHandle Root) { m_Root = Root; }
 
-	void PrintError() const { m_Document.PrintError(); }
+	string GetError() const
+	{
+		return encoding::utf8::get_chars(m_Document.ErrorStr());
+	}
 
 private:
 	tinyxml::XMLDocument m_Document;
@@ -106,7 +113,7 @@ public:
 
 	bool Save(const string& File)
 	{
-		const file_ptr XmlFile(_wfopen(NTPath(File).data(), L"w"));
+		const file_ptr XmlFile(_wfopen(NTPath(File).c_str(), L"w"));
 		return XmlFile && m_Document.SaveFile(XmlFile.get()) == tinyxml::XML_SUCCESS;
 	}
 
@@ -115,7 +122,8 @@ private:
 	tinyxml::XMLElement* m_Root;
 };
 
-namespace {
+namespace
+{
 
 class xml_enum: noncopyable, public enumerator<xml_enum, const tinyxml::XMLElement*>
 {
@@ -134,12 +142,12 @@ public:
 	}
 
 private:
-	bool get(size_t index, value_type& value) const
+	bool get(bool Reset, value_type& value) const
 	{
-		value = index? value->NextSiblingElement(m_name) :
+		value = !Reset? value->NextSiblingElement(m_name) :
 		        m_base? m_base->FirstChildElement(m_name) : nullptr;
 
-		return value? true : false;
+		return value != nullptr;
 	}
 
 	const char* m_name;
@@ -149,7 +157,7 @@ private:
 class iGeneralConfigDb: public GeneralConfig, public SQLiteDb
 {
 protected:
-	iGeneralConfigDb(const string& DbName, bool Local):
+	iGeneralConfigDb(string_view const DbName, bool Local):
 		SQLiteDb(&iGeneralConfigDb::Initialise, DbName, Local)
 	{
 	}
@@ -163,11 +171,10 @@ private:
 
 		static const stmt_init<statement_id> Statements[] =
 		{
-			{ stmtUpdateValue, L"UPDATE general_config SET value=?3 WHERE key=?1 AND name=?2;" },
-			{ stmtInsertValue, L"INSERT INTO general_config VALUES (?1,?2,?3);" },
-			{ stmtGetValue, L"SELECT value FROM general_config WHERE key=?1 AND name=?2;" },
-			{ stmtDelValue, L"DELETE FROM general_config WHERE key=?1 AND name=?2;" },
-			{ stmtEnumValues, L"SELECT name, value FROM general_config WHERE key=?1;" },
+			{ stmtSetValue,              "REPLACE INTO general_config VALUES (?1,?2,?3);"sv },
+			{ stmtGetValue,              "SELECT value FROM general_config WHERE key=?1 AND name=?2;"sv },
+			{ stmtDelValue,              "DELETE FROM general_config WHERE key=?1 AND name=?2;"sv },
+			{ stmtEnumValues,            "SELECT name, value FROM general_config WHERE key=?1;"sv },
 		};
 
 		return
@@ -176,22 +183,22 @@ private:
 		;
 	}
 
-	virtual bool SetValue(const string_view& Key, const string_view& Name, const string_view& Value) override
+	bool SetValue(const string_view Key, const string_view Name, const string_view Value) override
 	{
 		return SetValueT(Key, Name, Value);
 	}
 
-	virtual bool SetValue(const string_view& Key, const string_view& Name, unsigned long long Value) override
+	bool SetValue(const string_view Key, const string_view Name, const unsigned long long Value) override
 	{
 		return SetValueT(Key, Name, Value);
 	}
 
-	virtual bool SetValue(const string_view& Key, const string_view& Name, const bytes_view& Value) override
+	bool SetValue(const string_view Key, const string_view Name, const bytes_view& Value) override
 	{
 		return SetValueT(Key, Name, Value);
 	}
 
-	virtual bool GetValue(const string_view& Key, const string_view& Name, bool& Value, bool Default) const override
+	bool GetValue(const string_view Key, const string_view Name, bool& Value, const bool Default) const override
 	{
 		long long Data = Default;
 		const auto Result = GetValue(Key, Name, Data, Data);
@@ -199,59 +206,59 @@ private:
 		return Result;
 	}
 
-	virtual bool GetValue(const string_view& Key, const string_view& Name, long long& Value, long long Default) const override
+	bool GetValue(const string_view Key, const string_view Name, long long& Value, const long long Default) const override
 	{
 		return GetValueT<column_type::integer>(Key, Name, Value, Default, &SQLiteStmt::GetColInt64);
 	}
 
-	virtual bool GetValue(const string_view& Key, const string_view& Name, string& Value, const wchar_t* Default) const override
+	bool GetValue(const string_view Key, const string_view Name, string& Value, const wchar_t* const Default) const override
 	{
 		return GetValueT<column_type::string>(Key, Name, Value, Default, &SQLiteStmt::GetColText);
 	}
 
-	virtual bool GetValue(const string_view& Key, const string_view& Name, string& Value, const string& Default) const override
+	bool GetValue(const string_view Key, const string_view Name, string& Value, const string& Default) const override
 	{
 		return GetValueT<column_type::string>(Key, Name, Value, Default, &SQLiteStmt::GetColText);
 	}
 
-	virtual bool DeleteValue(const string_view& Key, const string_view& Name) override
+	bool DeleteValue(const string_view Key, const string_view Name) override
 	{
 		return ExecuteStatement(stmtDelValue, Key, Name);
 	}
 
-	virtual bool EnumValues(const string_view& Key, DWORD Index, string &Name, string &Value) const override
+	bool EnumValues(const string_view Key, const bool Reset, string &Name, string &Value) const override
 	{
-		return EnumValuesT(Key, Index, Name, Value, &SQLiteStmt::GetColText);
+		return EnumValuesT(Key, Reset, Name, Value, &SQLiteStmt::GetColText);
 	}
 
-	virtual bool EnumValues(const string_view& Key, DWORD Index, string &Name, long long& Value) const override
+	bool EnumValues(const string_view Key, const bool Reset, string &Name, long long& Value) const override
 	{
-		return EnumValuesT(Key, Index, Name, Value, &SQLiteStmt::GetColInt64);
+		return EnumValuesT(Key, Reset, Name, Value, &SQLiteStmt::GetColInt64);
 	}
 
-	virtual void Export(representation_destination& Representation) const override
+	void Export(representation_destination& Representation) const override
 	{
 		auto& root = CreateChild(Representation.GetRoot(), GetKeyName());
 
-		auto stmtEnumAllValues = create_stmt(L"SELECT key, name, value FROM general_config ORDER BY key, name;");
+		auto stmtEnumAllValues = create_stmt("SELECT key, name, value FROM general_config ORDER BY key, name;"sv);
 
 		while (stmtEnumAllValues.Step())
 		{
 			auto& e = CreateChild(root, "setting");
 
-			e.SetAttribute("key", stmtEnumAllValues.GetColTextUTF8(0));
-			e.SetAttribute("name", stmtEnumAllValues.GetColTextUTF8(1));
+			e.SetAttribute("key", stmtEnumAllValues.GetColTextUTF8(0).c_str());
+			e.SetAttribute("name", stmtEnumAllValues.GetColTextUTF8(1).c_str());
 
-			switch (static_cast<column_type>(stmtEnumAllValues.GetColType(2)))
+			switch (stmtEnumAllValues.GetColType(2))
 			{
 			case column_type::integer:
 				e.SetAttribute("type", "qword");
-				e.SetAttribute("value", to_hex_string(stmtEnumAllValues.GetColInt64(2)).data());
+				e.SetAttribute("value", to_hex_string(stmtEnumAllValues.GetColInt64(2)).c_str());
 				break;
 
 			case column_type::string:
 				e.SetAttribute("type", "text");
-				e.SetAttribute("value", stmtEnumAllValues.GetColTextUTF8(2));
+				e.SetAttribute("value", stmtEnumAllValues.GetColTextUTF8(2).c_str());
 				break;
 
 			case column_type::blob:
@@ -259,13 +266,13 @@ private:
 				{
 					e.SetAttribute("type", "hex");
 					const auto Blob = stmtEnumAllValues.GetColBlob(2);
-					e.SetAttribute("value", BlobToHexString(Blob.data(), Blob.size()).data());
+					e.SetAttribute("value", BlobToHexString(Blob.data(), Blob.size()).c_str());
 				}
 			}
 		}
 	}
 
-	virtual void Import(const representation_source& Representation) override
+	void Import(const representation_source& Representation) override
 	{
 		SCOPED_ACTION(auto)(ScopedTransaction());
 		for(const auto& e: xml_enum(Representation.GetRoot().FirstChildElement(GetKeyName()), "setting"))
@@ -304,7 +311,7 @@ private:
 	virtual const char* GetKeyName() const = 0;
 
 	template<column_type TypeId, class getter_t, class T, class DT>
-	bool GetValueT(const string_view& Key, const string_view& Name, T& Value, const DT& Default, getter_t Getter) const
+	bool GetValueT(const string_view Key, const string_view Name, T& Value, const DT& Default, const getter_t Getter) const
 	{
 		const auto Stmt = AutoStatement(stmtGetValue);
 		if (!Stmt->Bind(Key, Name).Step() || Stmt->GetColType(0) != TypeId)
@@ -318,19 +325,17 @@ private:
 	}
 
 	template<class T>
-	bool SetValueT(const string_view& Key, const string_view& Name, const T Value)
+	bool SetValueT(const string_view Key, const string_view Name, const T Value)
 	{
-		bool b = ExecuteStatement(stmtUpdateValue, Key, Name, Value);
-		if (!b || !Changes())
-			b = ExecuteStatement(stmtInsertValue, Key, Name, Value);
-		return b;
+		return ExecuteStatement(stmtSetValue, Key, Name, Value);
 	}
 
 	template<class T, class getter_t>
-	bool EnumValuesT(const string_view& Key, DWORD Index, string& Name, T& Value, getter_t Getter) const
+	bool EnumValuesT(const string_view Key, bool Reset, string& Name, T& Value, const getter_t Getter) const
 	{
 		auto Stmt = AutoStatement(stmtEnumValues);
-		if (Index == 0)
+
+		if (Reset)
 			Stmt->Reset().Bind(transient(Key));
 
 		if (!Stmt->Step())
@@ -344,8 +349,7 @@ private:
 
 	enum statement_id
 	{
-		stmtUpdateValue,
-		stmtInsertValue,
+		stmtSetValue,
 		stmtGetValue,
 		stmtDelValue,
 		stmtEnumValues,
@@ -357,25 +361,25 @@ private:
 class GeneralConfigDb: public iGeneralConfigDb
 {
 public:
-	GeneralConfigDb():iGeneralConfigDb(L"generalconfig.db", false) {}
+	GeneralConfigDb():iGeneralConfigDb(L"generalconfig.db"sv, false) {}
 
 private:
-	virtual const char* GetKeyName() const override {return "generalconfig";}
+	const char* GetKeyName() const override {return "generalconfig";}
 };
 
 class LocalGeneralConfigDb: public iGeneralConfigDb
 {
 public:
-	LocalGeneralConfigDb():iGeneralConfigDb(L"localconfig.db", true) {}
+	LocalGeneralConfigDb():iGeneralConfigDb(L"localconfig.db"sv, true) {}
 
 private:
-	virtual const char* GetKeyName() const override {return "localconfig";}
+	const char* GetKeyName() const override {return "localconfig";}
 };
 
 class async_delete_impl: virtual public async_delete
 {
 public:
-	virtual ~async_delete_impl()
+	~async_delete_impl() override
 	{
 		m_AsyncDone.set();
 	}
@@ -391,7 +395,7 @@ public:
 	}
 
 protected:
-	explicit async_delete_impl(const wchar_t* Name):
+	explicit async_delete_impl(string_view const Name):
 		// If a thread with same event name is running, we will open that event here
 		m_AsyncDone(os::event::type::manual, os::event::state::signaled, Name)
 	{
@@ -406,14 +410,14 @@ private:
 class HierarchicalConfigDb: public async_delete_impl, public HierarchicalConfig, public SQLiteDb
 {
 public:
-	explicit HierarchicalConfigDb(const string& DbName, bool Local):
-		async_delete_impl(os::make_name<os::event>(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, DbName).data()),
+	explicit HierarchicalConfigDb(string_view const DbName, bool Local):
+		async_delete_impl(os::make_name<os::event>(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, DbName)),
 		SQLiteDb(&HierarchicalConfigDb::Initialise, DbName, Local)
 	{
-		BeginTransaction();
+		HierarchicalConfigDb::BeginTransaction();
 	}
 
-	virtual ~HierarchicalConfigDb() override
+	~HierarchicalConfigDb() override
 	{
 		HierarchicalConfigDb::EndTransaction();
 	}
@@ -430,15 +434,15 @@ protected:
 
 		static const stmt_init<statement_id> Statements[] =
 		{
-			{ stmtCreateKey, L"INSERT INTO table_keys VALUES (NULL,?1,?2,?3);" },
-			{ stmtFindKey, L"SELECT id FROM table_keys WHERE parent_id=?1 AND name=?2 AND id<>0;" },
-			{ stmtSetKeyDescription, L"UPDATE table_keys SET description=?1 WHERE id=?2 AND id<>0 AND description<>?1;" },
-			{ stmtSetValue, L"INSERT OR REPLACE INTO table_values VALUES (?1,?2,?3);" },
-			{ stmtGetValue, L"SELECT value FROM table_values WHERE key_id=?1 AND name=?2;" },
-			{ stmtEnumKeys, L"SELECT name FROM table_keys WHERE parent_id=?1 AND id<>0;" },
-			{ stmtEnumValues, L"SELECT name, value FROM table_values WHERE key_id=?1;" },
-			{ stmtDelValue, L"DELETE FROM table_values WHERE key_id=?1 AND name=?2;" },
-			{ stmtDeleteTree, L"DELETE FROM table_keys WHERE id=?1 AND id<>0;" },
+			{ stmtCreateKey,             "INSERT INTO table_keys VALUES (NULL,?1,?2,?3);"sv },
+			{ stmtFindKey,               "SELECT id FROM table_keys WHERE parent_id=?1 AND name=?2 AND id<>0;"sv },
+			{ stmtSetKeyDescription,     "UPDATE table_keys SET description=?1 WHERE id=?2 AND id<>0 AND description<>?1;"sv },
+			{ stmtSetValue,              "REPLACE INTO table_values VALUES (?1,?2,?3);"sv },
+			{ stmtGetValue,              "SELECT value FROM table_values WHERE key_id=?1 AND name=?2;"sv },
+			{ stmtEnumKeys,              "SELECT name FROM table_keys WHERE parent_id=?1 AND id<>0;"sv },
+			{ stmtEnumValues,            "SELECT name, value FROM table_values WHERE key_id=?1;"sv },
+			{ stmtDelValue,              "DELETE FROM table_values WHERE key_id=?1 AND name=?2;"sv },
+			{ stmtDeleteTree,            "DELETE FROM table_keys WHERE id=?1 AND id<>0;"sv },
 		};
 
 		return
@@ -448,14 +452,14 @@ protected:
 		;
 	}
 
-	virtual bool Flush() override
+	bool Flush() override
 	{
 		const bool b = EndTransaction();
 		BeginTransaction();
 		return b;
 	}
 
-	virtual key CreateKey(const key& Root, const string_view& Name, const string* Description) override
+	key CreateKey(const key& Root, const string_view Name, const string* const Description) override
 	{
 		if (ExecuteStatement(stmtCreateKey, Root.get(), Name, Description))
 			return key(LastInsertRowID());
@@ -466,7 +470,7 @@ protected:
 		return Key;
 	}
 
-	virtual key FindByName(const key& Root, const string_view& Name) const override
+	key FindByName(const key& Root, const string_view Name) const override
 	{
 		const auto Stmt = AutoStatement(stmtFindKey);
 		if (!Stmt->Bind(Root.get(), Name).Step())
@@ -475,56 +479,57 @@ protected:
 		return key(Stmt->GetColInt64(0));
 	}
 
-	virtual bool SetKeyDescription(const key& Root, const string_view& Description) override
+	bool SetKeyDescription(const key& Root, const string_view Description) override
 	{
 		return ExecuteStatement(stmtSetKeyDescription, Description, Root.get());
 	}
 
-	virtual bool SetValue(const key& Root, const string_view& Name, const string_view& Value) override
+	bool SetValue(const key& Root, const string_view Name, const string_view Value) override
 	{
 		return SetValueT(Root, Name, Value);
 	}
 
-	virtual bool SetValue(const key& Root, const string_view& Name, unsigned long long Value) override
+	bool SetValue(const key& Root, const string_view Name, const unsigned long long Value) override
 	{
 		return SetValueT(Root, Name, Value);
 	}
 
-	virtual bool SetValue(const key& Root, const string_view& Name, const bytes_view& Value) override
+	bool SetValue(const key& Root, const string_view Name, const bytes_view& Value) override
 	{
 		return SetValueT(Root, Name, Value);
 	}
 
-	virtual bool GetValue(const key& Root, const string_view& Name, unsigned long long& Value) const override
+	bool GetValue(const key& Root, const string_view Name, unsigned long long& Value) const override
 	{
 		return GetValueT(Root, Name, Value, &SQLiteStmt::GetColInt64);
 	}
 
-	virtual bool GetValue(const key& Root, const string_view& Name, string& Value) const override
+	bool GetValue(const key& Root, const string_view Name, string& Value) const override
 	{
 		return GetValueT(Root, Name, Value, &SQLiteStmt::GetColText);
 	}
 
-	virtual bool GetValue(const key& Root, const string_view& Name, bytes& Value) const override
+	bool GetValue(const key& Root, const string_view Name, bytes& Value) const override
 	{
 		return GetValueT(Root, Name, Value, &SQLiteStmt::GetColBlob);
 	}
 
-	virtual bool DeleteKeyTree(const key& Key) override
+	bool DeleteKeyTree(const key& Key) override
 	{
 		//All subtree is automatically deleted because of foreign key constraints
 		return ExecuteStatement(stmtDeleteTree, Key.get());
 	}
 
-	virtual bool DeleteValue(const key& Root, const string_view& Name) override
+	bool DeleteValue(const key& Root, const string_view Name) override
 	{
 		return ExecuteStatement(stmtDelValue, Root.get(), Name);
 	}
 
-	virtual bool EnumKeys(const key& Root, DWORD Index, string& Name) const override
+	bool EnumKeys(const key& Root, const bool Reset, string& Name) const override
 	{
 		auto Stmt = AutoStatement(stmtEnumKeys);
-		if (Index == 0)
+	
+		if (Reset)
 			Stmt->Reset().Bind(Root.get());
 
 		if (!Stmt->Step())
@@ -535,10 +540,11 @@ protected:
 		return true;
 	}
 
-	virtual bool EnumValues(const key& Root, DWORD Index, string& Name, int& Type) const override
+	bool EnumValues(const key& Root, const bool Reset, string& Name, int& Type) const override
 	{
 		auto Stmt = AutoStatement(stmtEnumValues);
-		if (Index == 0)
+
+		if (Reset)
 			Stmt->Reset().Bind(Root.get());
 
 		if (!Stmt->Step())
@@ -550,23 +556,23 @@ protected:
 		return true;
 	}
 
-	virtual void SerializeBlob(const char* Name, const bytes_view& Blob, tinyxml::XMLElement& e) const
+	virtual void SerializeBlob(std::string_view /*Name*/, const bytes_view& Blob, tinyxml::XMLElement& e) const
 	{
 		e.SetAttribute("type", "hex");
-		e.SetAttribute("value", BlobToHexString(Blob).data());
+		e.SetAttribute("value", BlobToHexString(Blob).c_str());
 	}
 
-	virtual void Export(representation_destination& Representation) const override
+	void Export(representation_destination& Representation) const override
 	{
 		Export(Representation, root_key(), CreateChild(Representation.GetRoot(), "hierarchicalconfig"));
 	}
 
-	virtual bytes DeserializeBlob(const char* Name, const char* Type, const char* Value, const tinyxml::XMLElement& e) const
+	virtual bytes DeserializeBlob(const char* Type, const char* Value, const tinyxml::XMLElement& e) const
 	{
 		return HexStringToBlob(Value);
 	}
 
-	virtual void Import(const representation_source& Representation) override
+	void Import(const representation_source& Representation) override
 	{
 		SCOPED_ACTION(auto)(ScopedTransaction());
 		for (const auto& e: xml_enum(Representation.GetRoot().FirstChildElement("hierarchicalconfig"), "key"))
@@ -585,18 +591,18 @@ protected:
 				auto& e = CreateChild(XmlKey, "value");
 
 				const auto name = Stmt->GetColTextUTF8(0);
-				e.SetAttribute("name", name);
+				e.SetAttribute("name", name.c_str());
 
-				switch (static_cast<column_type>(Stmt->GetColType(1)))
+				switch (Stmt->GetColType(1))
 				{
 				case column_type::integer:
 					e.SetAttribute("type", "qword");
-					e.SetAttribute("value", to_hex_string(Stmt->GetColInt64(1)).data());
+					e.SetAttribute("value", to_hex_string(Stmt->GetColInt64(1)).c_str());
 					break;
 
 				case column_type::string:
 					e.SetAttribute("type", "text");
-					e.SetAttribute("value", Stmt->GetColTextUTF8(1));
+					e.SetAttribute("value", Stmt->GetColTextUTF8(1).c_str());
 					break;
 
 				case column_type::blob:
@@ -607,15 +613,16 @@ protected:
 			}
 		}
 
-		auto stmtEnumSubKeys = create_stmt(L"SELECT id, name, description FROM table_keys WHERE parent_id=?1 AND id<>0;");
+		auto stmtEnumSubKeys = create_stmt("SELECT id, name, description FROM table_keys WHERE parent_id=?1 AND id<>0;"sv);
 		stmtEnumSubKeys.Bind(Key.get());
 		while (stmtEnumSubKeys.Step())
 		{
 			auto& e = CreateChild(XmlKey, "key");
 
-			e.SetAttribute("name", stmtEnumSubKeys.GetColTextUTF8(1));
-			if (const auto description = stmtEnumSubKeys.GetColTextUTF8(2))
-				e.SetAttribute("description", description);
+			e.SetAttribute("name", stmtEnumSubKeys.GetColTextUTF8(1).c_str());
+			const auto description = stmtEnumSubKeys.GetColTextUTF8(2);
+			if (!description.empty())
+				e.SetAttribute("description", description.c_str());
 
 			Export(Representation, key(stmtEnumSubKeys.GetColInt64(0)), e);
 		}
@@ -663,7 +670,7 @@ protected:
 			else
 			{
 				// custom types, value is optional
-				SetValue(Key, Name, DeserializeBlob(name, type, value, *e));
+				SetValue(Key, Name, DeserializeBlob(type, value, *e));
 			}
 		}
 
@@ -674,7 +681,7 @@ protected:
 	}
 
 	template<class T, class getter_t>
-	bool GetValueT(const key& Root, const string_view& Name, T& Value, getter_t Getter) const
+	bool GetValueT(const key& Root, const string_view Name, T& Value, const getter_t Getter) const
 	{
 		const auto Stmt = AutoStatement(stmtGetValue);
 		if (!Stmt->Bind(Root.get(), Name).Step())
@@ -694,7 +701,7 @@ protected:
 	}
 
 	template<class T>
-	bool SetValueT(const key& Root, const string_view& Name, const T& Value)
+	bool SetValueT(const key& Root, const string_view Name, const T& Value)
 	{
 		return ExecuteStatement(stmtSetValue, Root.get(), Name, Value);
 	}
@@ -717,11 +724,11 @@ protected:
 
 static const std::pair<FARCOLORFLAGS, string_view> ColorFlagNames[] =
 {
-	{FCF_FG_4BIT,      L"fg4bit"_sv    },
-	{FCF_BG_4BIT,      L"bg4bit"_sv    },
-	{FCF_FG_BOLD,      L"bold"_sv      },
-	{FCF_FG_ITALIC,    L"italic"_sv    },
-	{FCF_FG_UNDERLINE, L"underline"_sv },
+	{FCF_FG_4BIT,      L"fg4bit"sv    },
+	{FCF_BG_4BIT,      L"bg4bit"sv    },
+	{FCF_FG_BOLD,      L"bold"sv      },
+	{FCF_FG_ITALIC,    L"italic"sv    },
+	{FCF_FG_UNDERLINE, L"underline"sv },
 };
 
 class HighlightHierarchicalConfigDb: public HierarchicalConfigDb
@@ -730,23 +737,23 @@ public:
 	using HierarchicalConfigDb::HierarchicalConfigDb;
 
 private:
-	virtual void SerializeBlob(const char* Name, const bytes_view& Blob, tinyxml::XMLElement& e) const override
+	void SerializeBlob(std::string_view const Name, const bytes_view& Blob, tinyxml::XMLElement& e) const override
 	{
-		static const char* ColorKeys[] =
+		static const std::string_view ColorKeys[] =
 		{
-			"NormalColor", "SelectedColor",
-			"CursorColor", "SelectedCursorColor",
-			"MarkCharNormalColor", "MarkCharSelectedColor",
-			"MarkCharCursorColor", "MarkCharSelectedCursorColor",
+			"NormalColor"sv, "SelectedColor"sv,
+			"CursorColor"sv, "SelectedCursorColor"sv,
+			"MarkCharNormalColor"sv, "MarkCharSelectedColor"sv,
+			"MarkCharCursorColor"sv, "MarkCharSelectedCursorColor"sv,
 		};
 
-		if (std::any_of(CONST_RANGE(ColorKeys, i) { return !strcmp(Name, i); }))
+		if (std::find(ALL_CONST_RANGE(ColorKeys), Name) != std::cend(ColorKeys))
 		{
 			const auto Color = deserialise<FarColor>(Blob);
 			e.SetAttribute("type", "color");
-			e.SetAttribute("background", to_hex_string(Color.BackgroundColor).data());
-			e.SetAttribute("foreground", to_hex_string(Color.ForegroundColor).data());
-			e.SetAttribute("flags", encoding::utf8::get_bytes(FlagsToString(Color.Flags, ColorFlagNames)).data());
+			e.SetAttribute("background", to_hex_string(Color.BackgroundColor).c_str());
+			e.SetAttribute("foreground", to_hex_string(Color.ForegroundColor).c_str());
+			e.SetAttribute("flags", encoding::utf8::get_bytes(FlagsToString(Color.Flags, ColorFlagNames)).c_str());
 		}
 		else
 		{
@@ -754,7 +761,7 @@ private:
 		}
 	}
 
-	virtual bytes DeserializeBlob(const char* Name, const char* Type, const char* Value, const tinyxml::XMLElement& e) const override
+	bytes DeserializeBlob(const char* Type, const char* Value, const tinyxml::XMLElement& e) const override
 	{
 		if(!strcmp(Type, "color"))
 		{
@@ -770,7 +777,7 @@ private:
 			return bytes::copy(Color);
 		}
 
-		return HierarchicalConfigDb::DeserializeBlob(Name, Type, Value, e);
+		return HierarchicalConfigDb::DeserializeBlob(Type, Value, e);
 	}
 };
 
@@ -778,7 +785,7 @@ class ColorsConfigDb: public ColorsConfig, public SQLiteDb
 {
 public:
 	ColorsConfigDb():
-		SQLiteDb(&ColorsConfigDb::Initialise, L"colors.db")
+		SQLiteDb(&ColorsConfigDb::Initialise, L"colors.db"sv)
 	{
 	}
 
@@ -791,10 +798,9 @@ private:
 
 		static const stmt_init<statement_id> Statements[] =
 		{
-			{ stmtUpdateValue, L"UPDATE colors SET value=?2 WHERE name=?1;" },
-			{ stmtInsertValue, L"INSERT INTO colors VALUES (?1,?2);" },
-			{ stmtGetValue, L"SELECT value FROM colors WHERE name=?1;" },
-			{ stmtDelValue, L"DELETE FROM colors WHERE name=?1;" },
+			{ stmtSetValue,              "REPLACE INTO colors VALUES (?1,?2);"sv },
+			{ stmtGetValue,              "SELECT value FROM colors WHERE name=?1;"sv },
+			{ stmtDelValue,              "DELETE FROM colors WHERE name=?1;"sv },
 		};
 
 		return
@@ -803,16 +809,12 @@ private:
 		;
 	}
 
-	virtual bool SetValue(const string_view& Name, const FarColor& Value) override
+	bool SetValue(const string_view Name, const FarColor& Value) override
 	{
-		const auto Blob = bytes_view(Value);
-		bool b = ExecuteStatement(stmtUpdateValue, Name, Blob);
-		if (!b || !Changes())
-			b = ExecuteStatement(stmtInsertValue, Name, Blob);
-		return b;
+		return ExecuteStatement(stmtSetValue, Name, bytes_view(Value));
 	}
 
-	virtual bool GetValue(const string_view& Name, FarColor& Value) const override
+	bool GetValue(const string_view Name, FarColor& Value) const override
 	{
 		const auto Stmt = AutoStatement(stmtGetValue);
 		if (!Stmt->Bind(Name).Step())
@@ -822,25 +824,25 @@ private:
 		return true;
 	}
 
-	virtual void Export(representation_destination& Representation) const override
+	void Export(representation_destination& Representation) const override
 	{
 		auto& root = CreateChild(Representation.GetRoot(), "colors");
 
-		auto stmtEnumAllValues = create_stmt(L"SELECT name, value FROM colors ORDER BY name;");
+		auto stmtEnumAllValues = create_stmt("SELECT name, value FROM colors ORDER BY name;"sv);
 
 		while (stmtEnumAllValues.Step())
 		{
 			auto& e = CreateChild(root, "object");
 
-			e.SetAttribute("name", stmtEnumAllValues.GetColTextUTF8(0));
+			e.SetAttribute("name", stmtEnumAllValues.GetColTextUTF8(0).c_str());
 			const auto Color = deserialise<FarColor>(stmtEnumAllValues.GetColBlob(1));
-			e.SetAttribute("background", to_hex_string(Color.BackgroundColor).data());
-			e.SetAttribute("foreground", to_hex_string(Color.ForegroundColor).data());
-			e.SetAttribute("flags", encoding::utf8::get_bytes(FlagsToString(Color.Flags, ColorFlagNames)).data());
+			e.SetAttribute("background", to_hex_string(Color.BackgroundColor).c_str());
+			e.SetAttribute("foreground", to_hex_string(Color.ForegroundColor).c_str());
+			e.SetAttribute("flags", encoding::utf8::get_bytes(FlagsToString(Color.Flags, ColorFlagNames)).c_str());
 		}
 	}
 
-	virtual void Import(const representation_source& Representation) override
+	void Import(const representation_source& Representation) override
 	{
 		SCOPED_ACTION(auto)(ScopedTransaction());
 		for (const auto& e: xml_enum(Representation.GetRoot().FirstChildElement("colors"), "object"))
@@ -872,8 +874,7 @@ private:
 
 	enum statement_id
 	{
-		stmtUpdateValue,
-		stmtInsertValue,
+		stmtSetValue,
 		stmtGetValue,
 		stmtDelValue,
 
@@ -885,7 +886,7 @@ class AssociationsConfigDb: public AssociationsConfig, public SQLiteDb
 {
 public:
 	AssociationsConfigDb():
-		SQLiteDb(&AssociationsConfigDb::Initialise, L"associations.db")
+		SQLiteDb(&AssociationsConfigDb::Initialise, L"associations.db"sv)
 	{
 	}
 
@@ -899,19 +900,19 @@ private:
 
 		static const stmt_init<statement_id> Statements[] =
 		{
-			{ stmtReorder, L"UPDATE filetypes SET weight=weight+1 WHERE weight>(CASE ?1 WHEN 0 THEN 0 ELSE (SELECT weight FROM filetypes WHERE id=?1) END);" },
-			{ stmtAddType, L"INSERT INTO filetypes VALUES (NULL,(CASE ?1 WHEN 0 THEN 1 ELSE (SELECT weight FROM filetypes WHERE id=?1)+1 END),?2,?3);" },
-			{ stmtGetMask, L"SELECT mask FROM filetypes WHERE id=?1;" },
-			{ stmtGetDescription, L"SELECT description FROM filetypes WHERE id=?1;" },
-			{ stmtUpdateType, L"UPDATE filetypes SET mask=?1, description=?2 WHERE id=?3;" },
-			{ stmtSetCommand, L"INSERT OR REPLACE INTO commands VALUES (?1,?2,?3,?4);" },
-			{ stmtGetCommand, L"SELECT command, enabled FROM commands WHERE ft_id=?1 AND type=?2;" },
-			{ stmtEnumTypes, L"SELECT id, description FROM filetypes ORDER BY weight;" },
-			{ stmtEnumMasks, L"SELECT id, mask FROM filetypes ORDER BY weight;" },
-			{ stmtEnumMasksForType, L"SELECT id, mask FROM filetypes, commands WHERE id=ft_id AND type=?1 AND enabled<>0 ORDER BY weight;" },
-			{ stmtDelType, L"DELETE FROM filetypes WHERE id=?1;" },
-			{ stmtGetWeight, L"SELECT weight FROM filetypes WHERE id=?1;" },
-			{ stmtSetWeight, L"UPDATE filetypes SET weight=?1 WHERE id=?2;" },
+			{ stmtReorder,               "UPDATE filetypes SET weight=weight+1 WHERE weight>(CASE ?1 WHEN 0 THEN 0 ELSE (SELECT weight FROM filetypes WHERE id=?1) END);"sv },
+			{ stmtAddType,               "INSERT INTO filetypes VALUES (NULL,(CASE ?1 WHEN 0 THEN 1 ELSE (SELECT weight FROM filetypes WHERE id=?1)+1 END),?2,?3);"sv },
+			{ stmtGetMask,               "SELECT mask FROM filetypes WHERE id=?1;"sv },
+			{ stmtGetDescription,        "SELECT description FROM filetypes WHERE id=?1;"sv },
+			{ stmtUpdateType,            "UPDATE filetypes SET mask=?1, description=?2 WHERE id=?3;"sv },
+			{ stmtSetCommand,            "REPLACE INTO commands VALUES (?1,?2,?3,?4);"sv },
+			{ stmtGetCommand,            "SELECT command, enabled FROM commands WHERE ft_id=?1 AND type=?2;"sv },
+			{ stmtEnumTypes,             "SELECT id, description FROM filetypes ORDER BY weight;"sv },
+			{ stmtEnumMasks,             "SELECT id, mask FROM filetypes ORDER BY weight;"sv },
+			{ stmtEnumMasksForType,      "SELECT id, mask FROM filetypes, commands WHERE id=ft_id AND type=?1 AND enabled<>0 ORDER BY weight;"sv },
+			{ stmtDelType,               "DELETE FROM filetypes WHERE id=?1;"sv },
+			{ stmtGetWeight,             "SELECT weight FROM filetypes WHERE id=?1;"sv },
+			{ stmtSetWeight,             "UPDATE filetypes SET weight=?1 WHERE id=?2;"sv },
 		};
 
 		return
@@ -921,10 +922,11 @@ private:
 		;
 	}
 
-	virtual bool EnumMasks(DWORD Index, unsigned long long *id, string &strMask) override
+	bool EnumMasks(const bool Reset, unsigned long long* const id, string& strMask) override
 	{
 		auto Stmt = AutoStatement(stmtEnumMasks);
-		if (Index == 0)
+
+		if (Reset)
 			Stmt->Reset();
 
 		if (!Stmt->Step())
@@ -936,10 +938,11 @@ private:
 		return true;
 	}
 
-	virtual bool EnumMasksForType(int Type, DWORD Index, unsigned long long *id, string &strMask) override
+	bool EnumMasksForType(const bool Reset, const int Type, unsigned long long* const id, string& strMask) override
 	{
 		auto Stmt = AutoStatement(stmtEnumMasksForType);
-		if (Index == 0)
+
+		if (Reset)
 			Stmt->Reset().Bind(Type);
 
 		if (!Stmt->Step())
@@ -951,7 +954,7 @@ private:
 		return true;
 	}
 
-	virtual bool GetMask(unsigned long long id, string &strMask) override
+	bool GetMask(unsigned long long id, string &strMask) override
 	{
 		const auto Stmt = AutoStatement(stmtGetMask);
 		if (!Stmt->Bind(id).Step())
@@ -961,7 +964,7 @@ private:
 		return true;
 	}
 
-	virtual bool GetDescription(unsigned long long id, string &strDescription) override
+	bool GetDescription(unsigned long long id, string &strDescription) override
 	{
 		const auto Stmt = AutoStatement(stmtGetDescription);
 		if (!Stmt->Bind(id).Step())
@@ -971,7 +974,7 @@ private:
 		return true;
 	}
 
-	virtual bool GetCommand(unsigned long long id, int Type, string &strCommand, bool *Enabled = nullptr) override
+	bool GetCommand(unsigned long long id, int Type, string &strCommand, bool *Enabled) override
 	{
 		const auto Stmt = AutoStatement(stmtGetCommand);
 		if (!Stmt->Bind(id, Type).Step())
@@ -983,12 +986,12 @@ private:
 		return true;
 	}
 
-	virtual bool SetCommand(unsigned long long id, int Type, const string_view& Command, bool Enabled) override
+	bool SetCommand(const unsigned long long id, const int Type, const string_view Command, const bool Enabled) override
 	{
 		return ExecuteStatement(stmtSetCommand, id, Type, Enabled, Command);
 	}
 
-	virtual bool SwapPositions(unsigned long long id1, unsigned long long id2) override
+	bool SwapPositions(unsigned long long id1, unsigned long long id2) override
 	{
 		const auto Stmt = AutoStatement(stmtGetWeight);
 		if (!Stmt->Bind(id1).Step())
@@ -1004,34 +1007,34 @@ private:
 		return ExecuteStatement(stmtSetWeight, weight1, id2) && ExecuteStatement(stmtSetWeight, weight2, id1);
 	}
 
-	virtual unsigned long long AddType(unsigned long long after_id, const string_view& Mask, const string_view& Description) override
+	unsigned long long AddType(const unsigned long long after_id, const string_view Mask, const string_view Description) override
 	{
 		return ExecuteStatement(stmtReorder, after_id) && ExecuteStatement(stmtAddType, after_id, Mask, Description)? LastInsertRowID() : 0;
 	}
 
-	virtual bool UpdateType(unsigned long long id, const string_view& Mask, const string_view& Description) override
+	bool UpdateType(const unsigned long long id, const string_view Mask, const string_view Description) override
 	{
 		return ExecuteStatement(stmtUpdateType, Mask, Description, id);
 	}
 
-	virtual bool DelType(unsigned long long id) override
+	bool DelType(unsigned long long id) override
 	{
 		return ExecuteStatement(stmtDelType, id);
 	}
 
-	virtual void Export(representation_destination& Representation) const override
+	void Export(representation_destination& Representation) const override
 	{
 		auto& root = CreateChild(Representation.GetRoot(), "associations");
 
-		auto stmtEnumAllTypes = create_stmt(L"SELECT id, mask, description FROM filetypes ORDER BY weight;");
-		auto stmtEnumCommandsPerFiletype = create_stmt(L"SELECT type, enabled, command FROM commands WHERE ft_id=?1 ORDER BY type;");
+		auto stmtEnumAllTypes = create_stmt("SELECT id, mask, description FROM filetypes ORDER BY weight;"sv);
+		auto stmtEnumCommandsPerFiletype = create_stmt("SELECT type, enabled, command FROM commands WHERE ft_id=?1 ORDER BY type;"sv);
 
 		while (stmtEnumAllTypes.Step())
 		{
 			auto& e = CreateChild(root, "filetype");
 
-			e.SetAttribute("mask", stmtEnumAllTypes.GetColTextUTF8(1));
-			e.SetAttribute("description", stmtEnumAllTypes.GetColTextUTF8(2));
+			e.SetAttribute("mask", stmtEnumAllTypes.GetColTextUTF8(1).c_str());
+			e.SetAttribute("description", stmtEnumAllTypes.GetColTextUTF8(2).c_str());
 
 			stmtEnumCommandsPerFiletype.Bind(stmtEnumAllTypes.GetColInt64(0));
 			while (stmtEnumCommandsPerFiletype.Step())
@@ -1040,13 +1043,13 @@ private:
 
 				se.SetAttribute("type", stmtEnumCommandsPerFiletype.GetColInt(0));
 				se.SetAttribute("enabled", stmtEnumCommandsPerFiletype.GetColInt(1));
-				se.SetAttribute("command", stmtEnumCommandsPerFiletype.GetColTextUTF8(2));
+				se.SetAttribute("command", stmtEnumCommandsPerFiletype.GetColTextUTF8(2).c_str());
 			}
 			stmtEnumCommandsPerFiletype.Reset();
 		}
 	}
 
-	virtual void Import(const representation_source& Representation) override
+	void Import(const representation_source& Representation) override
 	{
 		auto base = Representation.GetRoot().FirstChildElement("associations");
 		if (!base.ToElement())
@@ -1128,11 +1131,12 @@ class PluginsCacheConfigDb: public PluginsCacheConfig, public SQLiteDb
 {
 public:
 	PluginsCacheConfigDb():
-		SQLiteDb(&PluginsCacheConfigDb::Initialise, L"plugincache" PLATFORM_SUFFIX L".db", true, true)
+		SQLiteDb(&PluginsCacheConfigDb::Initialise, L"plugincache" PLATFORM_SUFFIX L".db"sv, true, true)
 	{
 	}
+#undef PLATFORM_SUFFIX
 
-	virtual bool DiscardCache() override
+	bool DiscardCache() override
 	{
 		SCOPED_ACTION(auto)(ScopedTransaction());
 		return Exec("DELETE FROM cachename;");
@@ -1159,35 +1163,35 @@ private:
 
 		static const stmt_init<statement_id> Statements[] =
 		{
-			{ stmtCreateCache, L"INSERT INTO cachename VALUES (NULL,?1);," },
-			{ stmtFindCacheName, L"SELECT id FROM cachename WHERE name=?1;" },
-			{ stmtDelCache, L"DELETE FROM cachename WHERE name=?1;" },
-			{ stmtCountCacheNames, L"SELECT count(name) FROM cachename;" },
-			{ stmtGetPreloadState, L"SELECT enabled FROM preload WHERE cid=?1;" },
-			{ stmtGetSignature, L"SELECT signature FROM signatures WHERE cid=?1;" },
-			{ stmtGetExportState, L"SELECT enabled FROM exports WHERE cid=?1 and export=?2;" },
-			{ stmtGetGuid, L"SELECT guid FROM guids WHERE cid=?1;" },
-			{ stmtGetTitle, L"SELECT title FROM titles WHERE cid=?1;" },
-			{ stmtGetAuthor, L"SELECT author FROM authors WHERE cid=?1;" },
-			{ stmtGetPrefix, L"SELECT prefix FROM prefixes WHERE cid=?1;" },
-			{ stmtGetDescription, L"SELECT description FROM descriptions WHERE cid=?1;" },
-			{ stmtGetFlags, L"SELECT bitmask FROM flags WHERE cid=?1;" },
-			{ stmtGetMinFarVersion, L"SELECT version FROM minfarversions WHERE cid=?1;" },
-			{ stmtGetVersion, L"SELECT version FROM pluginversions WHERE cid=?1;" },
-			{ stmtSetPreloadState, L"INSERT OR REPLACE INTO preload VALUES (?1,?2);" },
-			{ stmtSetSignature, L"INSERT OR REPLACE INTO signatures VALUES (?1,?2);" },
-			{ stmtSetExportState, L"INSERT OR REPLACE INTO exports VALUES (?1,?2,?3);" },
-			{ stmtSetGuid, L"INSERT OR REPLACE INTO guids VALUES (?1,?2);" },
-			{ stmtSetTitle, L"INSERT OR REPLACE INTO titles VALUES (?1,?2);" },
-			{ stmtSetAuthor, L"INSERT OR REPLACE INTO authors VALUES (?1,?2);" },
-			{ stmtSetPrefix, L"INSERT OR REPLACE INTO prefixes VALUES (?1,?2);" },
-			{ stmtSetDescription, L"INSERT OR REPLACE INTO descriptions VALUES (?1,?2);" },
-			{ stmtSetFlags, L"INSERT OR REPLACE INTO flags VALUES (?1,?2);," },
-			{ stmtSetMinFarVersion, L"INSERT OR REPLACE INTO minfarversions VALUES (?1,?2);" },
-			{ stmtSetVersion, L"INSERT OR REPLACE INTO pluginversions VALUES (?1,?2);" },
-			{ stmtEnumCache, L"SELECT name FROM cachename ORDER BY name;" },
-			{ stmtGetMenuItem, L"SELECT name, guid FROM menuitems WHERE cid=?1 AND type=?2 AND number=?3;" },
-			{ stmtSetMenuItem, L"INSERT OR REPLACE INTO menuitems VALUES (?1,?2,?3,?4,?5);" },
+			{ stmtCreateCache,           "INSERT INTO cachename VALUES (NULL,?1);,"sv },
+			{ stmtFindCacheName,         "SELECT id FROM cachename WHERE name=?1;"sv },
+			{ stmtDelCache,              "DELETE FROM cachename WHERE name=?1;"sv },
+			{ stmtCountCacheNames,       "SELECT count(name) FROM cachename;"sv },
+			{ stmtGetPreloadState,       "SELECT enabled FROM preload WHERE cid=?1;"sv },
+			{ stmtGetSignature,          "SELECT signature FROM signatures WHERE cid=?1;"sv },
+			{ stmtGetExportState,        "SELECT enabled FROM exports WHERE cid=?1 and export=?2;"sv },
+			{ stmtGetGuid,               "SELECT guid FROM guids WHERE cid=?1;"sv },
+			{ stmtGetTitle,              "SELECT title FROM titles WHERE cid=?1;"sv },
+			{ stmtGetAuthor,             "SELECT author FROM authors WHERE cid=?1;"sv },
+			{ stmtGetPrefix,             "SELECT prefix FROM prefixes WHERE cid=?1;"sv },
+			{ stmtGetDescription,        "SELECT description FROM descriptions WHERE cid=?1;"sv },
+			{ stmtGetFlags,              "SELECT bitmask FROM flags WHERE cid=?1;"sv },
+			{ stmtGetMinFarVersion,      "SELECT version FROM minfarversions WHERE cid=?1;"sv },
+			{ stmtGetVersion,            "SELECT version FROM pluginversions WHERE cid=?1;"sv },
+			{ stmtSetPreloadState,       "REPLACE INTO preload VALUES (?1,?2);"sv },
+			{ stmtSetSignature,          "REPLACE INTO signatures VALUES (?1,?2);"sv },
+			{ stmtSetExportState,        "REPLACE INTO exports VALUES (?1,?2,?3);"sv },
+			{ stmtSetGuid,               "REPLACE INTO guids VALUES (?1,?2);"sv },
+			{ stmtSetTitle,              "REPLACE INTO titles VALUES (?1,?2);"sv },
+			{ stmtSetAuthor,             "REPLACE INTO authors VALUES (?1,?2);"sv },
+			{ stmtSetPrefix,             "REPLACE INTO prefixes VALUES (?1,?2);"sv },
+			{ stmtSetDescription,        "REPLACE INTO descriptions VALUES (?1,?2);"sv },
+			{ stmtSetFlags,              "REPLACE INTO flags VALUES (?1,?2);,"sv },
+			{ stmtSetMinFarVersion,      "REPLACE INTO minfarversions VALUES (?1,?2);"sv },
+			{ stmtSetVersion,            "REPLACE INTO pluginversions VALUES (?1,?2);"sv },
+			{ stmtEnumCache,             "SELECT name FROM cachename ORDER BY name;"sv },
+			{ stmtGetMenuItem,           "SELECT name, guid FROM menuitems WHERE cid=?1 AND type=?2 AND number=?3;"sv },
+			{ stmtSetMenuItem,           "REPLACE INTO menuitems VALUES (?1,?2,?3,?4,?5);"sv },
 		};
 
 		return
@@ -1198,15 +1202,15 @@ private:
 		;
 	}
 
-	virtual void Import(const representation_source&) override {}
-	virtual void Export(representation_destination&) const override {}
+	void Import(const representation_source&) override {}
+	void Export(representation_destination&) const override {}
 
-	virtual unsigned long long CreateCache(const string_view& CacheName) override
+	unsigned long long CreateCache(const string_view CacheName) override
 	{
 		return ExecuteStatement(stmtCreateCache, CacheName)? LastInsertRowID() : 0;
 	}
 
-	virtual unsigned long long GetCacheID(const string_view& CacheName) const override
+	unsigned long long GetCacheID(const string_view CacheName) const override
 	{
 		const auto Stmt = AutoStatement(stmtFindCacheName);
 		return Stmt->Bind(CacheName).Step()?
@@ -1214,24 +1218,24 @@ private:
 		       0;
 	}
 
-	virtual bool DeleteCache(const string_view& CacheName) override
+	bool DeleteCache(const string_view CacheName) override
 	{
 		//All related entries are automatically deleted because of foreign key constraints
 		return ExecuteStatement(stmtDelCache, CacheName);
 	}
 
-	virtual bool IsPreload(unsigned long long id) const override
+	bool IsPreload(unsigned long long id) const override
 	{
 		const auto Stmt = AutoStatement(stmtGetPreloadState);
 		return Stmt->Bind(id).Step() && Stmt->GetColInt(0) != 0;
 	}
 
-	virtual string GetSignature(unsigned long long id) const override
+	string GetSignature(unsigned long long id) const override
 	{
 		return GetTextFromID(stmtGetSignature, id);
 	}
 
-	virtual bool GetExportState(unsigned long long id, const string_view& ExportName) const override
+	bool GetExportState(const unsigned long long id, const string_view ExportName) const override
 	{
 		if (ExportName.empty())
 			return false;
@@ -1240,133 +1244,133 @@ private:
 		return Stmt->Bind(id, ExportName).Step() && Stmt->GetColInt(0);
 	}
 
-	virtual string GetGuid(unsigned long long id) const override
+	string GetGuid(unsigned long long id) const override
 	{
 		return GetTextFromID(stmtGetGuid, id);
 	}
 
-	virtual string GetTitle(unsigned long long id) const override
+	string GetTitle(unsigned long long id) const override
 	{
 		return GetTextFromID(stmtGetTitle, id);
 	}
 
-	virtual string GetAuthor(unsigned long long id) const override
+	string GetAuthor(unsigned long long id) const override
 	{
 		return GetTextFromID(stmtGetAuthor, id);
 	}
 
-	virtual string GetDescription(unsigned long long id) const override
+	string GetDescription(unsigned long long id) const override
 	{
 		return GetTextFromID(stmtGetDescription, id);
 	}
 
-	virtual bool GetMinFarVersion(unsigned long long id, VersionInfo *Version) const override
+	bool GetMinFarVersion(unsigned long long id, VersionInfo *Version) const override
 	{
 		return GetVersionImpl(stmtGetMinFarVersion, id, Version);
 	}
 
-	virtual bool GetVersion(unsigned long long id, VersionInfo *Version) const override
+	bool GetVersion(unsigned long long id, VersionInfo *Version) const override
 	{
 		return GetVersionImpl(stmtGetVersion, id, Version);
 	}
 
-	virtual bool GetDiskMenuItem(unsigned long long id, size_t index, string &Text, GUID& Guid) const override
+	bool GetDiskMenuItem(unsigned long long id, size_t index, string &Text, GUID& Guid) const override
 	{
 		return GetMenuItem(id, DRIVE_MENU, index, Text, Guid);
 	}
 
-	virtual bool GetPluginsMenuItem(unsigned long long id, size_t index, string &Text, GUID& Guid) const override
+	bool GetPluginsMenuItem(unsigned long long id, size_t index, string &Text, GUID& Guid) const override
 	{
 		return GetMenuItem(id, PLUGINS_MENU, index, Text, Guid);
 	}
 
-	virtual bool GetPluginsConfigMenuItem(unsigned long long id, size_t index, string &Text, GUID& Guid) const override
+	bool GetPluginsConfigMenuItem(unsigned long long id, size_t index, string &Text, GUID& Guid) const override
 	{
 		return GetMenuItem(id, CONFIG_MENU, index, Text, Guid);
 	}
 
-	virtual string GetCommandPrefix(unsigned long long id) const override
+	string GetCommandPrefix(unsigned long long id) const override
 	{
 		return GetTextFromID(stmtGetPrefix, id);
 	}
 
-	virtual unsigned long long GetFlags(unsigned long long id) const override
+	unsigned long long GetFlags(unsigned long long id) const override
 	{
 		const auto Stmt = AutoStatement(stmtGetFlags);
 		return Stmt->Bind(id).Step()? Stmt->GetColInt64(0) : 0;
 	}
 
-	virtual bool SetPreload(unsigned long long id, bool Preload) override
+	bool SetPreload(unsigned long long id, bool Preload) override
 	{
 		return ExecuteStatement(stmtSetPreloadState, id, Preload);
 	}
 
-	virtual bool SetSignature(unsigned long long id, const string_view& Signature) override
+	bool SetSignature(const unsigned long long id, const string_view Signature) override
 	{
 		return ExecuteStatement(stmtSetSignature, id, Signature);
 	}
 
-	virtual bool SetDiskMenuItem(unsigned long long id, size_t index, const string_view& Text, const GUID& Guid) override
+	bool SetDiskMenuItem(const unsigned long long id, const size_t index, const string_view Text, const GUID& Guid) override
 	{
 		return SetMenuItem(id, DRIVE_MENU, index, Text, Guid);
 	}
 
-	virtual bool SetPluginsMenuItem(unsigned long long id, size_t index, const string_view& Text, const GUID& Guid) override
+	bool SetPluginsMenuItem(const unsigned long long id, const size_t index, const string_view Text, const GUID& Guid) override
 	{
 		return SetMenuItem(id, PLUGINS_MENU, index, Text, Guid);
 	}
 
-	virtual bool SetPluginsConfigMenuItem(unsigned long long id, size_t index, const string_view& Text, const GUID& Guid) override
+	bool SetPluginsConfigMenuItem(const unsigned long long id, const size_t index, const string_view Text, const GUID& Guid) override
 	{
 		return SetMenuItem(id, CONFIG_MENU, index, Text, Guid);
 	}
 
-	virtual bool SetCommandPrefix(unsigned long long id, const string_view& Prefix) override
+	bool SetCommandPrefix(const unsigned long long id, const string_view Prefix) override
 	{
 		return ExecuteStatement(stmtSetPrefix, id, Prefix);
 	}
 
-	virtual bool SetFlags(unsigned long long id, unsigned long long Flags) override
+	bool SetFlags(unsigned long long id, unsigned long long Flags) override
 	{
 		return ExecuteStatement(stmtSetFlags, id, Flags);
 	}
 
-	virtual bool SetExportState(unsigned long long id, const string_view& ExportName, bool Exists) override
+	bool SetExportState(const unsigned long long id, const string_view ExportName, const bool Exists) override
 	{
 		return !ExportName.empty() && ExecuteStatement(stmtSetExportState, id, ExportName, Exists);
 	}
 
-	virtual bool SetMinFarVersion(unsigned long long id, const VersionInfo *Version) override
+	bool SetMinFarVersion(unsigned long long id, const VersionInfo *Version) override
 	{
 		return ExecuteStatement(stmtSetMinFarVersion, id, bytes_view(*Version));
 	}
 
-	virtual bool SetVersion(unsigned long long id, const VersionInfo *Version) override
+	bool SetVersion(unsigned long long id, const VersionInfo *Version) override
 	{
 		return ExecuteStatement(stmtSetVersion, id, bytes_view(*Version));
 	}
 
-	virtual bool SetGuid(unsigned long long id, const string_view& Guid) override
+	bool SetGuid(const unsigned long long id, const string_view Guid) override
 	{
 		return ExecuteStatement(stmtSetGuid, id, Guid);
 	}
 
-	virtual bool SetTitle(unsigned long long id, const string_view& Title) override
+	bool SetTitle(const unsigned long long id, const string_view Title) override
 	{
 		return ExecuteStatement(stmtSetTitle, id, Title);
 	}
 
-	virtual bool SetAuthor(unsigned long long id, const string_view& Author) override
+	bool SetAuthor(const unsigned long long id, const string_view Author) override
 	{
 		return ExecuteStatement(stmtSetAuthor, id, Author);
 	}
 
-	virtual bool SetDescription(unsigned long long id, const string_view& Description) override
+	bool SetDescription(const unsigned long long id, const string_view Description) override
 	{
 		return ExecuteStatement(stmtSetDescription, id, Description);
 	}
 
-	virtual bool EnumPlugins(DWORD index, string &CacheName) const override
+	bool EnumPlugins(DWORD index, string &CacheName) const override
 	{
 		auto Stmt = AutoStatement(stmtEnumCache);
 		if (index == 0)
@@ -1380,7 +1384,7 @@ private:
 		return true;
 	}
 
-	virtual bool IsCacheEmpty() const override
+	bool IsCacheEmpty() const override
 	{
 		const auto Stmt = AutoStatement(stmtCountCacheNames);
 		return Stmt->Step() && Stmt->GetColInt(0) == 0;
@@ -1403,7 +1407,7 @@ private:
 		return StrToGuid(Stmt->GetColText(1), Guid);
 	}
 
-	bool SetMenuItem(unsigned long long id, MenuItemTypeEnum type, size_t index, const string_view& Text, const GUID& Guid) const
+	bool SetMenuItem(const unsigned long long id, const MenuItemTypeEnum type, const size_t index, const string_view Text, const GUID& Guid) const
 	{
 		return ExecuteStatement(stmtSetMenuItem, id, type, index, GuidToStr(Guid), Text);
 	}
@@ -1464,7 +1468,7 @@ class PluginsHotkeysConfigDb: public PluginsHotkeysConfig, public SQLiteDb
 {
 public:
 	PluginsHotkeysConfigDb():
-		SQLiteDb(&PluginsHotkeysConfigDb::Initialise, L"pluginhotkeys.db")
+		SQLiteDb(&PluginsHotkeysConfigDb::Initialise, L"pluginhotkeys.db"sv)
 	{
 	}
 
@@ -1477,10 +1481,10 @@ private:
 
 		static const stmt_init<statement_id> Statements[] =
 		{
-			{ stmtGetHotkey, L"SELECT hotkey FROM pluginhotkeys WHERE pluginkey=?1 AND menuguid=?2 AND type=?3;" },
-			{ stmtSetHotkey, L"INSERT OR REPLACE INTO pluginhotkeys VALUES (?1,?2,?3,?4);" },
-			{ stmtDelHotkey, L"DELETE FROM pluginhotkeys WHERE pluginkey=?1 AND menuguid=?2 AND type=?3;" },
-			{ stmtCheckForHotkeys, L"SELECT count(hotkey) FROM pluginhotkeys WHERE type=?1;" },
+			{ stmtGetHotkey,             "SELECT hotkey FROM pluginhotkeys WHERE pluginkey=?1 AND menuguid=?2 AND type=?3;"sv },
+			{ stmtSetHotkey,             "REPLACE INTO pluginhotkeys VALUES (?1,?2,?3,?4);"sv },
+			{ stmtDelHotkey,             "DELETE FROM pluginhotkeys WHERE pluginkey=?1 AND menuguid=?2 AND type=?3;"sv },
+			{ stmtCheckForHotkeys,       "SELECT count(hotkey) FROM pluginhotkeys WHERE type=?1;"sv },
 		};
 
 		return
@@ -1489,13 +1493,13 @@ private:
 		;
 	}
 
-	virtual bool HotkeysPresent(hotkey_type HotKeyType) override
+	bool HotkeysPresent(hotkey_type HotKeyType) override
 	{
 		const auto Stmt = AutoStatement(stmtCheckForHotkeys);
 		return Stmt->Bind(as_underlying_type(HotKeyType)).Step() && Stmt->GetColInt(0);
 	}
 
-	virtual string GetHotkey(const string_view& PluginKey, const GUID& MenuGuid, hotkey_type HotKeyType) override
+	string GetHotkey(const string_view PluginKey, const GUID& MenuGuid, const hotkey_type HotKeyType) override
 	{
 		const auto Stmt = AutoStatement(stmtGetHotkey);
 		if (!Stmt->Bind(PluginKey, GuidToStr(MenuGuid), as_underlying_type(HotKeyType)).Step())
@@ -1504,31 +1508,30 @@ private:
 		return Stmt->GetColText(0);
 	}
 
-	virtual bool SetHotkey(const string_view& PluginKey, const GUID& MenuGuid, hotkey_type HotKeyType, const string_view& HotKey) override
+	bool SetHotkey(const string_view PluginKey, const GUID& MenuGuid, const hotkey_type HotKeyType, const string_view HotKey) override
 	{
 		return ExecuteStatement(stmtSetHotkey, PluginKey, GuidToStr(MenuGuid), as_underlying_type(HotKeyType), HotKey);
 	}
 
-	virtual bool DelHotkey(const string_view& PluginKey, const GUID& MenuGuid, hotkey_type HotKeyType) override
+	bool DelHotkey(const string_view PluginKey, const GUID& MenuGuid, const hotkey_type HotKeyType) override
 	{
 		return ExecuteStatement(stmtDelHotkey, PluginKey, GuidToStr(MenuGuid), as_underlying_type(HotKeyType));
 	}
 
-	virtual void Export(representation_destination& Representation) const override
+	void Export(representation_destination& Representation) const override
 	{
 		auto& root = CreateChild(Representation.GetRoot(), "pluginhotkeys");
 
-		auto stmtEnumAllPluginKeys = create_stmt(L"SELECT pluginkey FROM pluginhotkeys GROUP BY pluginkey;");
-		auto stmtEnumAllHotkeysPerKey = create_stmt(L"SELECT menuguid, type, hotkey FROM pluginhotkeys WHERE pluginkey=$1;");
+		auto stmtEnumAllPluginKeys = create_stmt("SELECT pluginkey FROM pluginhotkeys GROUP BY pluginkey;"sv);
+		auto stmtEnumAllHotkeysPerKey = create_stmt("SELECT menuguid, type, hotkey FROM pluginhotkeys WHERE pluginkey=$1;"sv);
 
 		while (stmtEnumAllPluginKeys.Step())
 		{
 			auto& p = CreateChild(root, "plugin");
 
-			string Key = stmtEnumAllPluginKeys.GetColText(0);
-			p.SetAttribute("key", stmtEnumAllPluginKeys.GetColTextUTF8(0));
+			p.SetAttribute("key", stmtEnumAllPluginKeys.GetColTextUTF8(0).c_str());
 
-			stmtEnumAllHotkeysPerKey.Bind(Key);
+			stmtEnumAllHotkeysPerKey.Bind(stmtEnumAllPluginKeys.GetColText(0));
 			while (stmtEnumAllHotkeysPerKey.Step())
 			{
 				const char *type = nullptr;
@@ -1547,15 +1550,14 @@ private:
 
 				auto& e = CreateChild(p, "hotkey");
 				e.SetAttribute("menu", type);
-				e.SetAttribute("guid", stmtEnumAllHotkeysPerKey.GetColTextUTF8(0));
-				const auto hotkey = stmtEnumAllHotkeysPerKey.GetColTextUTF8(2);
-				e.SetAttribute("hotkey", NullToEmpty(hotkey));
+				e.SetAttribute("guid", stmtEnumAllHotkeysPerKey.GetColTextUTF8(0).c_str());
+				e.SetAttribute("hotkey", stmtEnumAllHotkeysPerKey.GetColTextUTF8(2).c_str());
 			}
 			stmtEnumAllHotkeysPerKey.Reset();
 		}
 	}
 
-	virtual void Import(const representation_source& Representation) override
+	void Import(const representation_source& Representation) override
 	{
 		SCOPED_ACTION(auto)(ScopedTransaction());
 		for (const auto& e: xml_enum(Representation.GetRoot().FirstChildElement("pluginhotkeys"), "plugin"))
@@ -1605,13 +1607,13 @@ private:
 class HistoryConfigCustom: public HistoryConfig, public SQLiteDb
 {
 public:
-	HistoryConfigCustom(const string& DbName, bool Local):
+	HistoryConfigCustom(string_view const DbName, bool Local):
 		SQLiteDb(&HistoryConfigCustom::Initialise, DbName, Local, true)
 	{
 		StartThread();
 	}
 
-	virtual ~HistoryConfigCustom() override
+	~HistoryConfigCustom() override
 	{
 		WaitAllAsync();
 		StopEvent.set();
@@ -1647,12 +1649,12 @@ private:
 	{
 		StopEvent = os::event(os::event::type::automatic, os::event::state::nonsignaled);
 		string EventName;
-		if (GetPath() != L":memory:")
+		if (GetPath() != L":memory:"sv)
 		{
 			EventName = os::make_name<os::event>(GetPath(), GetName());
 		}
-		AsyncDeleteAddDone = os::event(os::event::type::manual, os::event::state::signaled, (EventName + L"_Delete").data());
-		AsyncCommitDone = os::event(os::event::type::manual, os::event::state::signaled, (EventName + L"_Commit").data());
+		AsyncDeleteAddDone = os::event(os::event::type::manual, os::event::state::signaled, EventName + L"_Delete"sv);
+		AsyncCommitDone = os::event(os::event::type::manual, os::event::state::signaled, EventName + L"_Commit"sv);
 		AllWaiter.add(AsyncDeleteAddDone);
 		AllWaiter.add(AsyncCommitDone);
 		AsyncWork = os::event(os::event::type::automatic, os::event::state::nonsignaled);
@@ -1714,7 +1716,7 @@ private:
 		return ExecuteStatement(stmtDel, id);
 	}
 
-	unsigned long long GetPrevImpl(unsigned int TypeHistory, const string_view& HistoryName, unsigned long long id, string& Name, const std::function<unsigned long long()>& Fallback) const
+	unsigned long long GetPrevImpl(const unsigned int TypeHistory, const string_view HistoryName, const unsigned long long id, string& Name, const std::function<unsigned long long()>& Fallback) const
 	{
 		WaitAllAsync();
 		Name.clear();
@@ -1737,9 +1739,9 @@ private:
 		return GetPrevStmt->GetColInt64(0);
 	}
 
-	virtual bool BeginTransaction() override { WaitAllAsync(); return SQLiteDb::BeginTransaction(); }
+	bool BeginTransaction() override { WaitAllAsync(); return SQLiteDb::BeginTransaction(); }
 
-	virtual bool EndTransaction() override
+	bool EndTransaction() override
 	{
 		WorkQueue.emplace(nullptr);
 		WaitAllAsync();
@@ -1748,7 +1750,7 @@ private:
 		return true;
 	}
 
-	virtual bool RollbackTransaction() override { WaitAllAsync(); return SQLiteDb::RollbackTransaction(); }
+	bool RollbackTransaction() override { WaitAllAsync(); return SQLiteDb::RollbackTransaction(); }
 
 	static bool Initialise(const db_initialiser& Db)
 	{
@@ -1770,32 +1772,32 @@ private:
 
 		static const stmt_init<statement_id> Statements[] =
 		{
-			{ stmtEnum, L"SELECT id, name, type, lock, time, guid, file, data FROM history WHERE kind=?1 AND key=?2 ORDER BY time;" },
-			{ stmtEnumDesc, L"SELECT id, name, type, lock, time, guid, file, data FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC;" },
-			{ stmtDel, L"DELETE FROM history WHERE id=?1;" },
-			{ stmtDeleteOldUnlocked, L"DELETE FROM history WHERE kind=?1 AND key=?2 AND lock=0 AND time<?3 AND id NOT IN (SELECT id FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC LIMIT ?4);" },
-			{ stmtEnumLargeHistories, L"SELECT key FROM (SELECT key, num FROM (SELECT key, count(id) as num FROM history WHERE kind=?1 GROUP BY key)) WHERE num > ?2;" },
-			{ stmtAdd, L"INSERT INTO history VALUES (NULL,?1,?2,?3,?4,?5,?6,?7,?8,?9);" },
-			{ stmtGetName, L"SELECT name FROM history WHERE id=?1;" },
-			{ stmtGetNameAndType, L"SELECT name, type, guid, file, data FROM history WHERE id=?1;" },
-			{ stmtGetNewestName, L"SELECT name FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC LIMIT 1;" },
-			{ stmtCount, L"SELECT count(id) FROM history WHERE kind=?1 AND key=?2;" },
-			{ stmtDelUnlocked, L"DELETE FROM history WHERE kind=?1 AND key=?2 AND lock=0;" },
-			{ stmtGetLock, L"SELECT lock FROM history WHERE id=?1;" },
-			{ stmtSetLock, L"UPDATE history SET lock=?1 WHERE id=?2" },
-			{ stmtGetNext, L"SELECT a.id, a.name FROM history AS a, history AS b WHERE b.id=?1 AND a.kind=?2 AND a.key=?3 AND a.time>b.time ORDER BY a.time LIMIT 1;" },
-			{ stmtGetPrev, L"SELECT a.id, a.name FROM history AS a, history AS b WHERE b.id=?1 AND a.kind=?2 AND a.key=?3 AND a.time<b.time ORDER BY a.time DESC LIMIT 1;" },
-			{ stmtGetNewest, L"SELECT id, name FROM history WHERE kind=?1 AND key=?2 ORDER BY time DESC LIMIT 1;" },
-			{ stmtSetEditorPos, L"INSERT OR REPLACE INTO editorposition_history VALUES (NULL,?1,?2,?3,?4,?5,?6,?7);" },
-			{ stmtSetEditorBookmark, L"INSERT OR REPLACE INTO editorbookmarks_history VALUES (?1,?2,?3,?4,?5,?6);" },
-			{ stmtGetEditorPos, L"SELECT id, line, linepos, screenline, leftpos, codepage FROM editorposition_history WHERE name=?1 COLLATE NOCASE;" },
-			{ stmtGetEditorBookmark, L"SELECT line, linepos, screenline, leftpos FROM editorbookmarks_history WHERE pid=?1 AND num=?2;" },
-			{ stmtSetViewerPos, L"INSERT OR REPLACE INTO viewerposition_history VALUES (NULL,?1,?2,?3,?4,?5,?6);" },
-			{ stmtSetViewerBookmark, L"INSERT OR REPLACE INTO viewerbookmarks_history VALUES (?1,?2,?3,?4);" },
-			{ stmtGetViewerPos, L"SELECT id, filepos, leftpos, hex, codepage FROM viewerposition_history WHERE name=?1 COLLATE NOCASE;" },
-			{ stmtGetViewerBookmark, L"SELECT filepos, leftpos FROM viewerbookmarks_history WHERE pid=?1 AND num=?2;" },
-			{ stmtDeleteOldEditor, L"DELETE FROM editorposition_history WHERE time<?1 AND id NOT IN (SELECT id FROM editorposition_history ORDER BY time DESC LIMIT ?2);" },
-			{ stmtDeleteOldViewer, L"DELETE FROM viewerposition_history WHERE time<?1 AND id NOT IN (SELECT id FROM viewerposition_history ORDER BY time DESC LIMIT ?2);" },
+			{ stmtEnum,                  "SELECT id, name, type, lock, time, guid, file, data FROM history WHERE kind=?1 AND key=?2 ORDER BY time;"sv },
+			{ stmtEnumDesc,              "SELECT id, name, type, lock, time, guid, file, data FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC;"sv },
+			{ stmtDel,                   "DELETE FROM history WHERE id=?1;"sv },
+			{ stmtDeleteOldUnlocked,     "DELETE FROM history WHERE kind=?1 AND key=?2 AND lock=0 AND time<?3 AND id NOT IN (SELECT id FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC LIMIT ?4);"sv },
+			{ stmtEnumLargeHistories,    "SELECT key FROM (SELECT key, num FROM (SELECT key, count(id) as num FROM history WHERE kind=?1 GROUP BY key)) WHERE num > ?2;"sv },
+			{ stmtAdd,                   "INSERT INTO history VALUES (NULL,?1,?2,?3,?4,?5,?6,?7,?8,?9);"sv },
+			{ stmtGetName,               "SELECT name FROM history WHERE id=?1;"sv },
+			{ stmtGetNameAndType,        "SELECT name, type, guid, file, data FROM history WHERE id=?1;"sv },
+			{ stmtGetNewestName,         "SELECT name FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC LIMIT 1;"sv },
+			{ stmtCount,                 "SELECT count(id) FROM history WHERE kind=?1 AND key=?2;"sv },
+			{ stmtDelUnlocked,           "DELETE FROM history WHERE kind=?1 AND key=?2 AND lock=0;"sv },
+			{ stmtGetLock,               "SELECT lock FROM history WHERE id=?1;"sv },
+			{ stmtSetLock,               "UPDATE history SET lock=?1 WHERE id=?2"sv },
+			{ stmtGetNext,               "SELECT a.id, a.name FROM history AS a, history AS b WHERE b.id=?1 AND a.kind=?2 AND a.key=?3 AND a.time>b.time ORDER BY a.time LIMIT 1;"sv },
+			{ stmtGetPrev,               "SELECT a.id, a.name FROM history AS a, history AS b WHERE b.id=?1 AND a.kind=?2 AND a.key=?3 AND a.time<b.time ORDER BY a.time DESC LIMIT 1;"sv },
+			{ stmtGetNewest,             "SELECT id, name FROM history WHERE kind=?1 AND key=?2 ORDER BY time DESC LIMIT 1;"sv },
+			{ stmtSetEditorPos,          "REPLACE INTO editorposition_history VALUES (NULL,?1,?2,?3,?4,?5,?6,?7);"sv },
+			{ stmtSetEditorBookmark,     "REPLACE INTO editorbookmarks_history VALUES (?1,?2,?3,?4,?5,?6);"sv },
+			{ stmtGetEditorPos,          "SELECT id, line, linepos, screenline, leftpos, codepage FROM editorposition_history WHERE name=?1 COLLATE NOCASE;"sv },
+			{ stmtGetEditorBookmark,     "SELECT line, linepos, screenline, leftpos FROM editorbookmarks_history WHERE pid=?1 AND num=?2;"sv },
+			{ stmtSetViewerPos,          "REPLACE INTO viewerposition_history VALUES (NULL,?1,?2,?3,?4,?5,?6);"sv },
+			{ stmtSetViewerBookmark,     "REPLACE INTO viewerbookmarks_history VALUES (?1,?2,?3,?4);"sv },
+			{ stmtGetViewerPos,          "SELECT id, filepos, leftpos, hex, codepage FROM viewerposition_history WHERE name=?1 COLLATE NOCASE;"sv },
+			{ stmtGetViewerBookmark,     "SELECT filepos, leftpos FROM viewerbookmarks_history WHERE pid=?1 AND num=?2;"sv },
+			{ stmtDeleteOldEditor,       "DELETE FROM editorposition_history WHERE time<?1 AND id NOT IN (SELECT id FROM editorposition_history ORDER BY time DESC LIMIT ?2);"sv },
+			{ stmtDeleteOldViewer,       "DELETE FROM viewerposition_history WHERE time<?1 AND id NOT IN (SELECT id FROM viewerposition_history ORDER BY time DESC LIMIT ?2);"sv },
 		};
 
 		return
@@ -1806,18 +1808,18 @@ private:
 		;
 	}
 
-	virtual bool Delete(unsigned long long id) override
+	bool Delete(unsigned long long id) override
 	{
 		WaitAllAsync();
 		return DeleteInternal(id);
 	}
 
-	virtual bool Enum(DWORD index, unsigned int TypeHistory, const string_view& HistoryName, unsigned long long& id, string& Name, history_record_type& Type, bool& Lock, os::chrono::time_point& Time, string& strGuid, string& strFile, string& strData, bool Reverse = false) override
+	bool Enum(const bool Reset, const unsigned int TypeHistory, const string_view HistoryName, unsigned long long& id, string& Name, history_record_type& Type, bool& Lock, os::chrono::time_point& Time, string& strGuid, string& strFile, string& strData, const bool Reverse) override
 	{
 		WaitAllAsync();
 		auto Stmt = AutoStatement(Reverse? stmtEnumDesc : stmtEnum);
 
-		if (index == 0)
+		if (Reset)
 			Stmt->Reset().Bind(TypeHistory, transient(HistoryName));
 
 		if (!Stmt->Step())
@@ -1835,18 +1837,18 @@ private:
 		return true;
 	}
 
-	virtual bool DeleteAndAddAsync(unsigned long long DeleteId, unsigned int TypeHistory, const string_view& HistoryName, const string_view& Name, int Type, bool Lock, string &strGuid, string &strFile, string &strData) override
+	bool DeleteAndAddAsync(unsigned long long const DeleteId, unsigned int const TypeHistory, string_view const HistoryName, string_view const Name, int const Type, bool const Lock, string_view const Guid, string_view const File, string_view const Data) override
 	{
 		auto item = std::make_unique<AsyncWorkItem>();
 		item->DeleteId=DeleteId;
 		item->TypeHistory=TypeHistory;
-		item->HistoryName = make_string(HistoryName);
-		item->strName = make_string(Name);
+		item->HistoryName = string(HistoryName);
+		item->strName = string(Name);
 		item->Type=Type;
 		item->Lock=Lock;
-		item->strGuid=strGuid;
-		item->strFile=strFile;
-		item->strData=strData;
+		item->strGuid = string(Guid);
+		item->strFile = string(File);
+		item->strData = string(Data);
 
 		WorkQueue.emplace(std::move(item));
 
@@ -1856,7 +1858,7 @@ private:
 		return true;
 	}
 
-	virtual bool DeleteOldUnlocked(unsigned int TypeHistory, const string_view& HistoryName, int DaysToKeep, int MinimumEntries) override
+	bool DeleteOldUnlocked(const unsigned int TypeHistory, const string_view HistoryName, const int DaysToKeep, const int MinimumEntries) override
 	{
 		WaitAllAsync();
 
@@ -1864,11 +1866,12 @@ private:
 		return ExecuteStatement(stmtDeleteOldUnlocked, TypeHistory, HistoryName, older, MinimumEntries);
 	}
 
-	virtual bool EnumLargeHistories(DWORD index, unsigned int TypeHistory, int MinimumEntries, string& strHistoryName) override
+	bool EnumLargeHistories(const bool Reset, const unsigned int TypeHistory, const int MinimumEntries, string& strHistoryName) override
 	{
 		WaitAllAsync();
 		auto Stmt = AutoStatement(stmtEnumLargeHistories);
-		if (index == 0)
+
+		if (Reset)
 			Stmt->Reset().Bind(TypeHistory, MinimumEntries);
 
 		if (!Stmt->Step())
@@ -1879,7 +1882,7 @@ private:
 		return true;
 	}
 
-	virtual bool GetNewest(unsigned int TypeHistory, const string_view& HistoryName, string& Name) override
+	bool GetNewest(const unsigned int TypeHistory, const string_view HistoryName, string& Name) override
 	{
 		WaitAllAsync();
 		const auto Stmt = AutoStatement(stmtGetNewestName);
@@ -1890,7 +1893,7 @@ private:
 		return true;
 	}
 
-	virtual bool Get(unsigned long long id, string& Name) override
+	bool Get(unsigned long long id, string& Name) override
 	{
 		WaitAllAsync();
 		const auto Stmt = AutoStatement(stmtGetName);
@@ -1901,7 +1904,7 @@ private:
 		return true;
 	}
 
-	virtual bool Get(unsigned long long id, string& Name, history_record_type& Type, string &strGuid, string &strFile, string &strData) override
+	bool Get(unsigned long long id, string& Name, history_record_type& Type, string &strGuid, string &strFile, string &strData) override
 	{
 		WaitAllAsync();
 		const auto Stmt = AutoStatement(stmtGetNameAndType);
@@ -1916,33 +1919,33 @@ private:
 		return true;
 	}
 
-	virtual DWORD Count(unsigned int TypeHistory, const string_view& HistoryName) override
+	DWORD Count(const unsigned int TypeHistory, const string_view HistoryName) override
 	{
 		WaitAllAsync();
 		const auto Stmt = AutoStatement(stmtCount);
 		return Stmt->Bind(TypeHistory, HistoryName).Step()? static_cast<DWORD>(Stmt-> GetColInt(0)) : 0;
 	}
 
-	virtual bool FlipLock(unsigned long long id) override
+	bool FlipLock(unsigned long long id) override
 	{
 		WaitAllAsync();
 		return ExecuteStatement(stmtSetLock, !IsLocked(id), id);
 	}
 
-	virtual bool IsLocked(unsigned long long id) override
+	bool IsLocked(unsigned long long id) override
 	{
 		WaitAllAsync();
 		const auto Stmt = AutoStatement(stmtGetLock);
 		return Stmt->Bind(id).Step() && Stmt->GetColInt(0) != 0;
 	}
 
-	virtual bool DeleteAllUnlocked(unsigned int TypeHistory, const string_view& HistoryName) override
+	bool DeleteAllUnlocked(const unsigned int TypeHistory, const string_view HistoryName) override
 	{
 		WaitAllAsync();
 		return ExecuteStatement(stmtDelUnlocked, TypeHistory, HistoryName);
 	}
 
-	virtual unsigned long long GetNext(unsigned int TypeHistory, const string_view& HistoryName, unsigned long long id, string& Name) override
+	unsigned long long GetNext(const unsigned int TypeHistory, const string_view HistoryName, const unsigned long long id, string& Name) override
 	{
 		WaitAllAsync();
 		Name.clear();
@@ -1958,23 +1961,23 @@ private:
 		return Stmt->GetColInt64(0);
 	}
 
-	virtual unsigned long long GetPrev(unsigned int TypeHistory, const string_view& HistoryName, unsigned long long id, string& Name) override
+	unsigned long long GetPrev(const unsigned int TypeHistory, const string_view HistoryName, const unsigned long long id, string& Name) override
 	{
 		return GetPrevImpl(TypeHistory, HistoryName, id, Name, [&]() { return Get(id, Name)? id : 0; });
 	}
 
-	virtual unsigned long long CyclicGetPrev(unsigned int TypeHistory, const string_view& HistoryName, unsigned long long id, string& Name) override
+	unsigned long long CyclicGetPrev(const unsigned int TypeHistory, const string_view HistoryName, const unsigned long long id, string& Name) override
 	{
 		return GetPrevImpl(TypeHistory, HistoryName, id, Name, [&]() { return 0; });
 	}
 
-	virtual unsigned long long SetEditorPos(const string_view& Name, int Line, int LinePos, int ScreenLine, int LeftPos, uintptr_t CodePage) override
+	unsigned long long SetEditorPos(const string_view Name, const int Line, const int LinePos, const int ScreenLine, const int LeftPos, const uintptr_t CodePage) override
 	{
 		WaitCommitAsync();
 		return ExecuteStatement(stmtSetEditorPos, Name, os::chrono::nt_clock::now().time_since_epoch().count(), Line, LinePos, ScreenLine, LeftPos, CodePage)? LastInsertRowID() : 0;
 	}
 
-	virtual unsigned long long GetEditorPos(const string_view& Name, int *Line, int *LinePos, int *ScreenLine, int *LeftPos, uintptr_t *CodePage) override
+	unsigned long long GetEditorPos(const string_view Name, int* const Line, int* const LinePos, int* const ScreenLine, int* const LeftPos, uintptr_t* const CodePage) override
 	{
 		WaitCommitAsync();
 		const auto Stmt = AutoStatement(stmtGetEditorPos);
@@ -1989,13 +1992,13 @@ private:
 		return Stmt->GetColInt64(0);
 	}
 
-	virtual bool SetEditorBookmark(unsigned long long id, size_t i, int Line, int LinePos, int ScreenLine, int LeftPos) override
+	bool SetEditorBookmark(unsigned long long id, size_t i, int Line, int LinePos, int ScreenLine, int LeftPos) override
 	{
 		WaitCommitAsync();
 		return ExecuteStatement(stmtSetEditorBookmark, id, i, Line, LinePos, ScreenLine, LeftPos);
 	}
 
-	virtual bool GetEditorBookmark(unsigned long long id, size_t i, int *Line, int *LinePos, int *ScreenLine, int *LeftPos) override
+	bool GetEditorBookmark(unsigned long long id, size_t i, int *Line, int *LinePos, int *ScreenLine, int *LeftPos) override
 	{
 		WaitCommitAsync();
 		const auto Stmt = AutoStatement(stmtGetEditorBookmark);
@@ -2009,13 +2012,13 @@ private:
 		return true;
 	}
 
-	virtual unsigned long long SetViewerPos(const string_view& Name, long long FilePos, long long LeftPos, int Hex_Wrap, uintptr_t CodePage) override
+	unsigned long long SetViewerPos(const string_view Name, const long long FilePos, const long long LeftPos, const int Hex_Wrap, uintptr_t const CodePage) override
 	{
 		WaitCommitAsync();
 		return ExecuteStatement(stmtSetViewerPos, Name, os::chrono::nt_clock::now().time_since_epoch().count(), FilePos, LeftPos, Hex_Wrap, CodePage)? LastInsertRowID() : 0;
 	}
 
-	virtual unsigned long long GetViewerPos(const string_view& Name, long long *FilePos, long long *LeftPos, int *Hex, uintptr_t *CodePage) override
+	unsigned long long GetViewerPos(const string_view Name, long long* const FilePos, long long* const LeftPos, int* const Hex, uintptr_t* const CodePage) override
 	{
 		WaitCommitAsync();
 		const auto Stmt = AutoStatement(stmtGetViewerPos);
@@ -2030,13 +2033,13 @@ private:
 		return Stmt->GetColInt64(0);
 	}
 
-	virtual bool SetViewerBookmark(unsigned long long id, size_t i, long long FilePos, long long LeftPos) override
+	bool SetViewerBookmark(unsigned long long id, size_t i, long long FilePos, long long LeftPos) override
 	{
 		WaitCommitAsync();
 		return ExecuteStatement(stmtSetViewerBookmark, id, i, FilePos, LeftPos);
 	}
 
-	virtual bool GetViewerBookmark(unsigned long long id, size_t i, long long *FilePos, long long *LeftPos) override
+	bool GetViewerBookmark(unsigned long long id, size_t i, long long *FilePos, long long *LeftPos) override
 	{
 		WaitCommitAsync();
 		const auto Stmt = AutoStatement(stmtGetViewerBookmark);
@@ -2048,7 +2051,7 @@ private:
 		return true;
 	}
 
-	virtual void DeleteOldPositions(int DaysToKeep, int MinimumEntries) override
+	void DeleteOldPositions(int DaysToKeep, int MinimumEntries) override
 	{
 		WaitCommitAsync();
 		const auto older = (os::chrono::nt_clock::now() - chrono::days(DaysToKeep)).time_since_epoch().count();
@@ -2093,28 +2096,28 @@ class HistoryConfigDb: public HistoryConfigCustom
 {
 public:
 	HistoryConfigDb():
-		HistoryConfigCustom(L"history.db", true)
+		HistoryConfigCustom(L"history.db"sv, true)
 	{
 	}
 
 private:
 	// TODO: log
 	// TODO: implementation
-	virtual void Import(const representation_source&) override {}
-	virtual void Export(representation_destination&) const override {}
+	void Import(const representation_source&) override {}
+	void Export(representation_destination&) const override {}
 };
 
 class HistoryConfigMemory: public HistoryConfigCustom
 {
 public:
 	HistoryConfigMemory():
-		HistoryConfigCustom(L":memory:", true)
+		HistoryConfigCustom(L":memory:"sv, true)
 	{
 	}
 
 private:
-	virtual void Import(const representation_source&) override {}
-	virtual void Export(representation_destination&) const override {}
+	void Import(const representation_source&) override {}
+	void Export(representation_destination&) const override {}
 };
 
 static const std::wregex& uuid_regex()
@@ -2125,7 +2128,7 @@ static const std::wregex& uuid_regex()
 
 }
 
-void config_provider::CheckDatabase(SQLiteDb *pDb)
+void config_provider::CheckDatabase(const SQLiteDb* const pDb)
 {
 	string pname;
 	const auto Status = pDb->GetInitStatus(pname, m_Mode != mode::m_default);
@@ -2134,8 +2137,7 @@ void config_provider::CheckDatabase(SQLiteDb *pDb)
 
 	if (m_Mode != mode::m_default)
 	{
-		Console().Write(format(L"Problem with {0}:\n  {1}\n", pname, SQLiteDb::GetErrorMessage(Status)));
-		Console().Commit();
+		std::wcerr << format(L"Problem with {0}:\n  {1}", pname, SQLiteDb::GetErrorMessage(Status)) << std::endl;
 	}
 	else
 	{
@@ -2199,7 +2201,7 @@ std::unique_ptr<T> config_provider::CreateDatabase()
 }
 
 template<class T>
-HierarchicalConfigUniquePtr config_provider::CreateHierarchicalConfig(dbcheck DbId, const string& DbName, const char* ImportNodeName, bool IsLocal, bool IsPlugin)
+HierarchicalConfigUniquePtr config_provider::CreateHierarchicalConfig(dbcheck DbId, string_view const DbName, const char* ImportNodeName, bool IsLocal, bool IsPlugin)
 {
 	auto Database = std::make_unique<T>(DbName, IsLocal);
 	if (!m_CheckedDb.Check(DbId))
@@ -2219,29 +2221,29 @@ enum dbcheck: int
 	CHECK_PANELMODES = bit(3),
 };
 
-HierarchicalConfigUniquePtr config_provider::CreatePluginsConfig(const string_view& guid, bool Local)
+HierarchicalConfigUniquePtr config_provider::CreatePluginsConfig(const string_view guid, const bool Local)
 {
-	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_NONE, concat(L"PluginsData\\"_sv, guid, L".db"_sv), encoding::utf8::get_bytes(guid).data(), Local, true);
+	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_NONE, path::join(L"PluginsData"sv, guid) + L".db"sv, encoding::utf8::get_bytes(guid).c_str(), Local, true);
 }
 
 HierarchicalConfigUniquePtr config_provider::CreateFiltersConfig()
 {
-	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_FILTERS, L"filters.db","filters");
+	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_FILTERS, L"filters.db"sv, "filters");
 }
 
 HierarchicalConfigUniquePtr config_provider::CreateHighlightConfig()
 {
-	return CreateHierarchicalConfig<HighlightHierarchicalConfigDb>(CHECK_HIGHLIGHT, L"highlight.db","highlight");
+	return CreateHierarchicalConfig<HighlightHierarchicalConfigDb>(CHECK_HIGHLIGHT, L"highlight.db"sv, "highlight");
 }
 
 HierarchicalConfigUniquePtr config_provider::CreateShortcutsConfig()
 {
-	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_SHORTCUTS, L"shortcuts.db","shortcuts", true);
+	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_SHORTCUTS, L"shortcuts.db"sv, "shortcuts", true);
 }
 
 HierarchicalConfigUniquePtr config_provider::CreatePanelModesConfig()
 {
-	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_PANELMODES, L"panelmodes.db","panelmodes");
+	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_PANELMODES, L"panelmodes.db"sv, "panelmodes");
 }
 
 config_provider::config_provider(mode Mode):
@@ -2269,7 +2271,7 @@ bool config_provider::Export(const string& File)
 {
 	representation_destination Representation;
 	auto& root = Representation.GetRoot();
-	root.SetAttribute("version", format("{0}.{1}.{2}", FAR_VERSION.Major, FAR_VERSION.Minor, FAR_VERSION.Build).data());
+	root.SetAttribute("version", format("{0}.{1}.{2}", FAR_VERSION.Major, FAR_VERSION.Minor, FAR_VERSION.Build).c_str());
 
 	GeneralCfg()->Export(Representation);
 	LocalGeneralCfg()->Export(Representation);
@@ -2288,16 +2290,16 @@ bool config_provider::Export(const string& File)
 	{
 		//TODO: export local plugin settings
 		auto& e = CreateChild(root, "pluginsconfig");
-		for(auto& i: os::fs::enum_files(Global->Opt->ProfilePath + L"\\PluginsData\\*.db"))
+		for(auto& i: os::fs::enum_files(path::join(Global->Opt->ProfilePath, L"PluginsData"sv, L"*.db"sv)))
 		{
-			i.strFileName.resize(i.strFileName.size()-3);
-			inplace::upper(i.strFileName);
-			if (std::regex_search(i.strFileName, uuid_regex()))
+			i.FileName.resize(i.FileName.size()-3);
+			inplace::upper(i.FileName);
+			if (std::regex_search(i.FileName, uuid_regex()))
 			{
 				auto& PluginRoot = CreateChild(e, "plugin");
-				PluginRoot.SetAttribute("guid", encoding::utf8::get_bytes(i.strFileName).data());
+				PluginRoot.SetAttribute("guid", encoding::utf8::get_bytes(i.FileName).c_str());
 				Representation.SetRoot(PluginRoot);
-				CreatePluginsConfig(i.strFileName)->Export(Representation);
+				CreatePluginsConfig(i.FileName)->Export(Representation);
 			}
 		}
 	}
@@ -2307,7 +2309,7 @@ bool config_provider::Export(const string& File)
 
 bool config_provider::ServiceMode(const string& Filename)
 {
-	return m_Mode == mode::m_import? Import(Filename) : m_Mode == mode::m_export? Export(Filename) : throw MAKE_FAR_EXCEPTION(L"Unexpected service mode");
+	return m_Mode == mode::m_import? Import(Filename) : m_Mode == mode::m_export? Export(Filename) : throw MAKE_FAR_EXCEPTION(L"Unexpected service mode"sv);
 }
 
 bool config_provider::Import(const string& Filename)
@@ -2318,7 +2320,7 @@ bool config_provider::Import(const string& Filename)
 
 	if (!root.ToNode())
 	{
-		Representation.PrintError();
+		std::wcerr << format(L"Error importing {0}:\n {1}", Filename, Representation.GetError()) << std::endl;
 		return false;
 	}
 

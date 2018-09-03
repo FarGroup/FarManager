@@ -30,10 +30,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "vmenu2.hpp"
+
 #include "vmenu.hpp"
 #include "keyboard.hpp"
 #include "keys.hpp"
@@ -43,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "syslog.hpp"
 #include "strmix.hpp"
+#include "global.hpp"
 
 void VMenu2::Pack()
 {
@@ -129,8 +128,7 @@ intptr_t VMenu2::VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void*
 	case DN_INPUT:
 		if (static_cast<INPUT_RECORD*>(Param2)->EventType==KEY_EVENT)
 			break;
-		// fallthrough
-
+		[[fallthrough]];
 	case DN_CONTROLINPUT:
 		if(!cancel)
 		{
@@ -183,7 +181,7 @@ int VMenu2::Call(int Msg, void *param)
 	if(!mfn)
 		return 0;
 
-	SendMessage(DM_ENABLEREDRAW, 0, nullptr);
+	++InsideCall;
 	int r=mfn(Msg, param);
 
 	bool Visible;
@@ -192,14 +190,17 @@ int VMenu2::Call(int Msg, void *param)
 	GetCursorType(Visible, Size);
 	GetCursorPos(X, Y);
 
-	if(SendMessage(DM_ENABLEREDRAW, -1, nullptr)<0)
-		SendMessage(DM_ENABLEREDRAW, 1, nullptr);
+	--InsideCall;
 
 	if(NeedResize)
 		Resize();
 
+
 	SetCursorType(Visible, Size);
 	MoveCursor(X, Y);
+
+	if(InsideCall==0 && ListBox().UpdateRequired())
+		SendMessage(DM_REDRAW, 0, nullptr);
 
 	if(closing)
 	{
@@ -215,7 +216,7 @@ int VMenu2::Call(int Msg, void *param)
 
 void VMenu2::Resize(bool force)
 {
-	if(!force && (!ProcessEvents() || SendMessage(DM_ENABLEREDRAW, -1, nullptr)<0))
+	if(!force && (!ProcessEvents() || InsideCall>0))
 	{
 		NeedResize=true;
 		return;
@@ -354,13 +355,14 @@ VMenu2::VMenu2(private_tag, int MaxHeight):
 	m_Y2(0),
 	ShortBox(false),
 	DefRec(),
+	InsideCall(0),
 	NeedResize(false),
 	closing(false),
 	ForceClosing(false)
 {
 }
 
-vmenu2_ptr VMenu2::create(const string& Title, const MenuDataEx *Data, size_t ItemCount, int MaxHeight, DWORD Flags)
+vmenu2_ptr VMenu2::create(const string& Title, range<const menu_item*> Data, int MaxHeight, DWORD Flags)
 {
 	auto VMenu2Ptr = std::make_shared<VMenu2>(private_tag(), MaxHeight);
 
@@ -372,14 +374,15 @@ vmenu2_ptr VMenu2::create(const string& Title, const MenuDataEx *Data, size_t It
 	VMenu2Ptr->SetTitle(Title);
 	VMenu2Ptr->SendMessage(DM_SETINPUTNOTIFY, 1, nullptr);
 
-	std::vector<FarListItem> fli(ItemCount);
-	std::transform(Data, Data + ItemCount, fli.begin(), [](const auto& i) { return FarListItem{i.Flags, i.Name}; });
+	std::vector<FarListItem> fli;
+	fli.reserve(Data.size());
+	std::transform(ALL_CONST_RANGE(Data), std::back_inserter(fli), [](const auto& i) { return FarListItem{ i.Flags, i.Name.c_str() }; });
 
-	FarList fl={sizeof(FarList), ItemCount, fli.data()};
+	FarList fl = { sizeof(FarList), fli.size(), fli.data() };
 
 	VMenu2Ptr->SendMessage(DM_LISTSET, 0, &fl);
 
-	for(size_t i=0; i<ItemCount; ++i)
+	for(size_t i=0; i != Data.size(); ++i)
 		VMenu2Ptr->at(i).AccelKey = Data[i].AccelKey;
 
 	// BUGBUG
@@ -393,8 +396,8 @@ void VMenu2::SetTitle(const string& Title)
 {
 	FarListTitles titles={sizeof(FarListTitles)};
 	string t=GetMenuTitle(true);
-	titles.Bottom=t.data();
-	titles.Title=Title.data();
+	titles.Bottom=t.c_str();
+	titles.Title=Title.c_str();
 	SendMessage(DM_LISTSETTITLES, 0, &titles);
 }
 
@@ -402,8 +405,8 @@ void VMenu2::SetBottomTitle(const string& Title)
 {
 	FarListTitles titles={sizeof(FarListTitles)};
 	string t=GetMenuTitle();
-	titles.Bottom=Title.data();
-	titles.Title=t.data();
+	titles.Bottom=Title.c_str();
+	titles.Title=t.c_str();
 	SendMessage(DM_LISTSETTITLES, 0, &titles);
 }
 
@@ -458,12 +461,11 @@ int VMenu2::AddItem(const MenuItemEx& NewItem, int PosAdd)
 		PosAdd=n;
 
 
-	FarListItem fi={NewItem.Flags, NewItem.strName.data()};
-	FarListInsert fli={sizeof(FarListInsert), PosAdd, fi};
+	FarListInsert fli{ sizeof(FarListInsert), PosAdd, { NewItem.Flags, NewItem.Name.c_str(), NewItem.SimpleUserData } };
 	if(SendMessage(DM_LISTINSERT, 0, &fli)<0)
 		return -1;
 
-	ListBox().SetUserData(NewItem.UserData, PosAdd);
+	ListBox().SetComplexUserData(NewItem.ComplexUserData, PosAdd);
 
 	auto& Item = at(PosAdd);
 	Item.AccelKey=NewItem.AccelKey;
@@ -487,7 +489,7 @@ int VMenu2::AddItem(const string& NewStrItem)
 
 int VMenu2::FindItem(int StartIndex, const string& Pattern, unsigned long long Flags)
 {
-	FarListFind flf={sizeof(FarListFind), StartIndex, Pattern.data(), Flags};
+	FarListFind flf{sizeof(FarListFind), StartIndex, Pattern.c_str(), Flags};
 	return SendMessage(DM_LISTFINDSTRING, 0, &flf);
 }
 
@@ -608,9 +610,19 @@ void VMenu2::Close(int ExitCode, bool Force)
 	ForceClosing = Force;
 }
 
-any* VMenu2::GetUserData(int Position) const
+intptr_t VMenu2::GetSimpleUserData(int Position) const
 {
-	return ListBox().GetUserData(Position);
+	return ListBox().GetSimpleUserData(Position);
+}
+
+const std::any* VMenu2::GetComplexUserData(int Position) const
+{
+	return ListBox().GetComplexUserData(Position);
+}
+
+std::any* VMenu2::GetComplexUserData(int Position)
+{
+	return ListBox().GetComplexUserData(Position);
 }
 
 void VMenu2::Key(int key)

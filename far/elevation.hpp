@@ -34,7 +34,11 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "synchro.hpp"
+#include "platform.concurrency.hpp"
+
+#include "common/singleton.hpp"
+
+class bytes_view;
 
 enum class lng : int;
 
@@ -47,7 +51,7 @@ enum ELEVATION_MODE
 
 enum ELEVATION_COMMAND: int;
 
-class elevation: noncopyable, public singleton<elevation>
+class elevation: public singleton<elevation>
 {
 	IMPLEMENTS_SINGLETON(elevation);
 
@@ -74,11 +78,13 @@ public:
 	bool detach_virtual_disk(const string& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType);
 	bool get_disk_free_space(const string& Object, unsigned long long* FreeBytesAvailableToCaller, unsigned long long* TotalNumberOfBytes, unsigned long long* TotalNumberOfFreeBytes);
 
-	class suppress: noncopyable
+	class suppress
 	{
 	public:
-		suppress(): m_owner(Global? &instance() : nullptr) { if (m_owner) ++m_owner->m_Suppressions; }
-		~suppress() { if (m_owner) --m_owner->m_Suppressions; }
+		NONCOPYABLE(suppress);
+
+		suppress();
+		~suppress();
 
 	private:
 		elevation* m_owner;
@@ -132,7 +138,7 @@ private:
 };
 
 bool ElevationRequired(ELEVATION_MODE Mode, bool UseNtStatus = true);
-int ElevationMain(const wchar_t* guid, DWORD PID, bool UsePrivileges);
+int ElevationMain(string_view Uuid, DWORD PID, bool UsePrivileges);
 bool IsElevationArgument(const wchar_t* Argument);
 
 #endif // ELEVATION_HPP_19857862_0EE5_4709_B3E9_C7E50239C2E0

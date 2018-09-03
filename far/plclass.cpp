@@ -29,10 +29,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "plclass.hpp"
+
 #include "plugins.hpp"
 #include "pathmix.hpp"
 #include "config.hpp"
@@ -47,7 +45,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "language.hpp"
 #include "configdb.hpp"
-#include "datetime.hpp"
+#include "global.hpp"
+
+#include "platform.env.hpp"
+#include "platform.fs.hpp"
+
+#include "common/enum_tokens.hpp"
+#include "common/scope_exit.hpp"
+#include "common/zip_view.hpp"
+
+#include "format.hpp"
 
 std::exception_ptr& GlobalExceptionPtr()
 {
@@ -141,12 +148,12 @@ plugin_factory::plugin_factory(PluginManager* owner):
 		WA(""), // GetMinFarVersion not used
 	};
 	static_assert(std::size(ExportsNames) == ExportsCount);
-	m_ExportsNames = make_range(ExportsNames);
+	m_ExportsNames = ExportsNames;
 }
 
 bool native_plugin_factory::IsPlugin(const string& filename) const
 {
-	if (!CmpName(L"*.dll"_sv, filename, false))
+	if (!CmpName(L"*.dll"sv, filename, false))
 		return false;
 
 	const auto ModuleFile = os::fs::create_file(filename, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
@@ -157,18 +164,17 @@ bool native_plugin_factory::IsPlugin(const string& filename) const
 	if (!ModuleMapping)
 		return false;
 
-	const auto Data = MapViewOfFile(ModuleMapping.native_handle(), FILE_MAP_READ, 0, 0, 0);
+	const auto Data = os::fs::file_view(MapViewOfFile(ModuleMapping.native_handle(), FILE_MAP_READ, 0, 0, 0));
 	if (!Data)
 		return false;
 
-	SCOPE_EXIT{ UnmapViewOfFile(Data); };
-	return IsPlugin2(Data);
+	return IsPlugin2(Data.get());
 }
 
 plugin_factory::plugin_module_ptr native_plugin_factory::Create(const string& filename)
 {
 	auto Module = std::make_unique<native_plugin_module>(filename);
-	if (!Module->m_Module)
+	if (!*Module)
 	{
 		const auto ErrorState = error_state::fetch();
 
@@ -181,7 +187,7 @@ plugin_factory::plugin_module_ptr native_plugin_factory::Create(const string& fi
 				filename
 			},
 			{ lng::MOk },
-			L"ErrLoadPlugin");
+			L"ErrLoadPlugin"sv);
 
 	}
 	return Module;
@@ -193,12 +199,12 @@ bool native_plugin_factory::Destroy(plugin_factory::plugin_module_ptr& instance)
 	return true;
 }
 
-plugin_factory::function_address native_plugin_factory::GetFunction(const plugin_factory::plugin_module_ptr& Instance, const plugin_factory::export_name& Name)
+plugin_factory::function_address native_plugin_factory::Function(const plugin_factory::plugin_module_ptr& Instance, const plugin_factory::export_name& Name)
 {
-	return !Name.AName.empty()? static_cast<native_plugin_module*>(Instance.get())->m_Module.GetProcAddress(null_terminated_t<char>(Name.AName).data()) : nullptr;
+	return !Name.AName.empty()? static_cast<native_plugin_module*>(Instance.get())->GetProcAddress(null_terminated_t<char>(Name.AName).c_str()) : nullptr;
 }
 
-bool native_plugin_factory::FindExport(const basic_string_view<char>& ExportName) const
+bool native_plugin_factory::FindExport(const std::string_view ExportName) const
 {
 	// only module with GetGlobalInfoW can be native plugin
 	return ExportName == m_ExportsNames[iGetGlobalInfo].AName;
@@ -322,6 +328,7 @@ FarStandardFunctions NativeFSF =
 	pluginapi::apiGetCurrentDirectory,
 	pluginapi::apiFormatFileSize,
 	pluginapi::apiFarClock,
+	pluginapi::apiCompareStrings,
 };
 
 PluginStartupInfo NativeInfo =
@@ -398,20 +405,20 @@ void CreatePluginStartupInfo(PluginStartupInfo *PSI, FarStandardFunctions *FSF)
 	PSI->FSF = FSF;
 }
 
-void CreatePluginStartupInfo(const Plugin* pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF)
+static void CreatePluginStartupInfo(const Plugin* pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF)
 {
 	CreatePluginStartupInfo(PSI, FSF);
 
-	PSI->ModuleName = pPlugin->GetModuleName().data();
-	if (pPlugin->GetGUID() == Global->Opt->KnownIDs.Arclite.Id)
+	PSI->ModuleName = pPlugin->ModuleName().c_str();
+	if (pPlugin->Id() == Global->Opt->KnownIDs.Arclite.Id)
 	{
 		PSI->Private = &ArcliteInfo;
 	}
-	else if (pPlugin->GetGUID() == Global->Opt->KnownIDs.Netbox.Id)
+	else if (pPlugin->Id() == Global->Opt->KnownIDs.Netbox.Id)
 	{
 		PSI->Private = &NetBoxInfo;
 	}
-	else if (pPlugin->GetGUID() == Global->Opt->KnownIDs.Luamacro.Id)
+	else if (pPlugin->Id() == Global->Opt->KnownIDs.Luamacro.Id)
 	{
 		PSI->Private = &MacroInfo;
 	}
@@ -429,8 +436,8 @@ static void ShowMessageAboutIllegalPluginVersion(const string& plg, const Versio
 		{
 			msg(lng::MPlgBadVers),
 			plg,
-			format(lng::MPlgRequired, str(required)),
-			format(lng::MPlgRequired2, str(FAR_VERSION))
+			format(msg(lng::MPlgRequired), str(required)),
+			format(msg(lng::MPlgRequired2), str(FAR_VERSION))
 		},
 		{ lng::MOk }
 	);
@@ -438,7 +445,7 @@ static void ShowMessageAboutIllegalPluginVersion(const string& plg, const Versio
 
 static auto MakeSignature(const os::fs::find_data& Data)
 {
-	return concat(to_hex_wstring(Data.nFileSize), to_hex_wstring(os::chrono::nt_clock::to_filetime(Data.CreationTime).dwLowDateTime), to_hex_wstring(os::chrono::nt_clock::to_filetime(Data.LastWriteTime).dwLowDateTime));
+	return concat(to_hex_wstring(Data.FileSize), to_hex_wstring(os::chrono::nt_clock::to_filetime(Data.CreationTime).dwLowDateTime), to_hex_wstring(os::chrono::nt_clock::to_filetime(Data.LastWriteTime).dwLowDateTime));
 }
 
 bool Plugin::SaveToCache()
@@ -481,9 +488,9 @@ bool Plugin::SaveToCache()
 	PlCache->SetCommandPrefix(id, NullToEmpty(Info.CommandPrefix));
 	PlCache->SetFlags(id, Info.Flags);
 
-	PlCache->SetMinFarVersion(id, &MinFarVersion);
+	PlCache->SetMinFarVersion(id, &m_MinFarVersion);
 	PlCache->SetGuid(id, m_strGuid);
-	PlCache->SetVersion(id, &PluginVersion);
+	PlCache->SetVersion(id, &m_PluginVersion);
 	PlCache->SetTitle(id, strTitle);
 	PlCache->SetDescription(id, strDescription);
 	PlCache->SetAuthor(id, strAuthor);
@@ -500,13 +507,12 @@ void Plugin::InitExports()
 {
 	std::transform(ALL_CONST_RANGE(m_Factory->ExportsNames()), Exports.begin(), [&](const auto& i)
 	{
-		const auto Address = m_Factory->GetFunction(m_Instance, i);
+		const auto Address = m_Factory->Function(m_Instance, i);
 		return std::make_pair(Address, Address != nullptr);
 	});
 }
 
 Plugin::Plugin(plugin_factory* Factory, const string& ModuleName):
-	Exports(),
 	m_Factory(Factory),
 	Activity(0),
 	bPendingRemove(false),
@@ -517,6 +523,8 @@ Plugin::Plugin(plugin_factory* Factory, const string& ModuleName):
 	SetGuid(FarGuid);
 }
 
+Plugin::~Plugin() = default;
+
 void Plugin::SetGuid(const GUID& Guid)
 {
 	m_Guid = Guid;
@@ -525,11 +533,11 @@ void Plugin::SetGuid(const GUID& Guid)
 
 static string VersionToString(const VersionInfo& PluginVersion)
 {
-	static const wchar_t* Stage[] = { L" Release", L" Alpha", L" Beta", L" RC"};
+	static const string_view Stage[] = { L" Release"sv, L" Alpha"sv, L" Beta"sv, L" RC"sv };
 	auto strVersion = format(L"{0}.{1}.{2} (build {3})", PluginVersion.Major, PluginVersion.Minor, PluginVersion.Revision, PluginVersion.Build);
 	if(PluginVersion.Stage != VS_RELEASE && static_cast<size_t>(PluginVersion.Stage) < std::size(Stage))
 	{
-		strVersion += Stage[PluginVersion.Stage];
+		append(strVersion, Stage[PluginVersion.Stage]);
 	}
 	return strVersion;
 }
@@ -575,7 +583,7 @@ bool Plugin::LoadData()
 	if(bPendingRemove)
 	{
 		bPendingRemove = false;
-		m_Factory->GetOwner()->UndoRemove(this);
+		m_Factory->Owner()->UndoRemove(this);
 	}
 	InitExports();
 
@@ -587,9 +595,9 @@ bool Plugin::LoadData()
 		Info.Description && *Info.Description &&
  		Info.Author && *Info.Author)
 	{
-		MinFarVersion = Info.MinFarVersion;
-		PluginVersion = Info.Version;
-		VersionString = VersionToString(PluginVersion);
+		m_MinFarVersion = Info.MinFarVersion;
+		m_PluginVersion = Info.Version;
+		m_VersionString = VersionToString(m_PluginVersion);
 		strTitle = Info.Title;
 		strDescription = Info.Description;
 		strAuthor = Info.Author;
@@ -600,7 +608,7 @@ bool Plugin::LoadData()
 		{
 			if (m_Guid != FarGuid && m_Guid != Info.Guid)
 			{
-				ok = m_Factory->GetOwner()->UpdateId(this, Info.Guid);
+				ok = m_Factory->Owner()->UpdateId(this, Info.Guid);
 			}
 			else
 			{
@@ -682,16 +690,17 @@ bool Plugin::LoadFromCache(const os::fs::find_data &FindData)
 				return false;
 		}
 
-		if (!PlCache->GetMinFarVersion(id, &MinFarVersion))
+		if (!PlCache->GetMinFarVersion(id, &m_MinFarVersion))
 		{
-			MinFarVersion = FAR_VERSION;
+			m_MinFarVersion = FAR_VERSION;
 		}
 
-		if (!PlCache->GetVersion(id, &PluginVersion))
+		if (!PlCache->GetVersion(id, &m_PluginVersion))
 		{
-			PluginVersion = {};
+			m_PluginVersion = {};
 		}
-		VersionString = VersionToString(PluginVersion);
+
+		m_VersionString = VersionToString(m_PluginVersion);
 
 		m_strGuid = PlCache->GetGuid(id);
 		SetGuid(StrToGuid(m_strGuid,m_Guid)?m_Guid:FarGuid);
@@ -704,7 +713,7 @@ bool Plugin::LoadFromCache(const os::fs::find_data &FindData)
 			return std::make_pair(nullptr, PlCache->GetExportState(id, i.UName));
 		});
 
-		WorkFlags.Set(PIWF_CACHED); //too much "cached" flags
+		WorkFlags.Set(PIWF_CACHED); //too many "cached" flags
 		return true;
 	}
 	return false;
@@ -815,23 +824,23 @@ bool Plugin::GetGlobalInfo(GlobalInfo* Info)
 
 bool Plugin::CheckMinFarVersion()
 {
-	if (!CheckVersion(&FAR_VERSION, &MinFarVersion))
+	if (!CheckVersion(&FAR_VERSION, &m_MinFarVersion))
 	{
-		ShowMessageAboutIllegalPluginVersion(m_strModuleName,MinFarVersion);
+		ShowMessageAboutIllegalPluginVersion(m_strModuleName, m_MinFarVersion);
 		return false;
 	}
 
 	return true;
 }
 
-bool Plugin::InitLang(const string& Path)
+bool Plugin::InitLang(const string& Path, const string& Language)
 {
 	if (PluginLang)
 		return true;
 
 	try
 	{
-		PluginLang = std::make_unique<plugin_language>(Path);
+		PluginLang = std::make_unique<plugin_language>(Path, Language);
 		return true;
 	}
 	catch (const std::exception&)
@@ -845,9 +854,9 @@ void Plugin::CloseLang()
 	PluginLang.reset();
 }
 
-const wchar_t* Plugin::GetMsg(intptr_t Id) const
+const wchar_t* Plugin::Msg(intptr_t Id) const
 {
-	return static_cast<const plugin_language&>(*PluginLang).GetMsg(Id);
+	return static_cast<const plugin_language&>(*PluginLang).Msg(Id);
 }
 
 void* Plugin::OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int OpMode)
@@ -1199,7 +1208,7 @@ void Plugin::ExitFAR(ExitInfo *Info)
 
 void Plugin::HandleFailure(EXPORTS_ENUM id)
 {
-	m_Factory->GetOwner()->UnloadPlugin(this, id);
+	m_Factory->Owner()->UnloadPlugin(this, id);
 	Global->ProcessException = false;
 }
 
@@ -1208,7 +1217,7 @@ class custom_plugin_module: public i_plugin_module
 public:
 	NONCOPYABLE(custom_plugin_module);
 	explicit custom_plugin_module(void* Opaque) : m_Opaque(Opaque) {}
-	virtual void* get_opaque() const override { return m_Opaque; }
+	void* opaque() const override { return m_Opaque; }
 
 private:
 	void* m_Opaque;
@@ -1220,8 +1229,7 @@ public:
 	NONCOPYABLE(custom_plugin_factory);
 	custom_plugin_factory(PluginManager* Owner, const string& Filename):
 		plugin_factory(Owner),
-		m_Module(Filename),
-		m_Imports(m_Module),
+		m_Imports(Filename),
 		m_Success(false)
 	{
 		GlobalInfo Info = { sizeof(Info) };
@@ -1234,59 +1242,65 @@ public:
 			Info.Author && *Info.Author)
 		{
 			m_Success = CheckVersion(&FAR_VERSION, &Info.MinFarVersion) != FALSE;
+			if (m_Success)
+			{
+				m_VersionString = VersionToString(Info.Version);
+				m_Title = Info.Title;
+				m_Id = Info.Guid;
+			}
 			// TODO: store info, show message if version is bad
 		}
-		custom_plugin_factory::ProcessError(L"Initialize"_sv);
+		custom_plugin_factory::ProcessError(L"Initialize"sv);
 	}
 
-	~custom_plugin_factory()
+	~custom_plugin_factory() override
 	{
 		if (!m_Success)
 			return;
 
 		ExitInfo Info = { sizeof(Info) };
 		m_Imports.pFree(&Info);
-		custom_plugin_factory::ProcessError(L"Free"_sv);
+		custom_plugin_factory::ProcessError(L"Free"sv);
 	}
 
 	bool Success() const { return m_Success; }
 
-	virtual bool IsPlugin(const string& Filename) const override
+	bool IsPlugin(const string& Filename) const override
 	{
-		const auto Result = m_Imports.pIsPlugin(Filename.data()) != FALSE;
-		ProcessError(L"IsPlugin"_sv);
+		const auto Result = m_Imports.pIsPlugin(Filename.c_str()) != FALSE;
+		ProcessError(L"IsPlugin"sv);
 		return Result;
 	}
 
-	virtual plugin_module_ptr Create(const string& Filename) override
+	plugin_module_ptr Create(const string& Filename) override
 	{
-		auto Module = std::make_unique<custom_plugin_module>(m_Imports.pCreateInstance(Filename.data()));
-		if (!Module->get_opaque())
+		auto Module = std::make_unique<custom_plugin_module>(m_Imports.pCreateInstance(Filename.c_str()));
+		if (!Module->opaque())
 		{
 			Module.reset();
 		}
-		ProcessError(L"Create"_sv);
+		ProcessError(L"Create"sv);
 		return Module;
 	}
 
-	virtual bool Destroy(plugin_module_ptr& Module) override
+	bool Destroy(plugin_module_ptr& Module) override
 	{
-		const auto Result = m_Imports.pDestroyInstance(static_cast<custom_plugin_module*>(Module.get())->get_opaque()) != FALSE;
+		const auto Result = m_Imports.pDestroyInstance(static_cast<custom_plugin_module*>(Module.get())->opaque()) != FALSE;
 		Module.reset();
-		ProcessError(L"Destroy"_sv);
+		ProcessError(L"Destroy"sv);
 		return Result;
 	}
 
-	virtual function_address GetFunction(const plugin_module_ptr& Instance, const export_name& Name) override
+	function_address Function(const plugin_module_ptr& Instance, const export_name& Name) override
 	{
 		if (Name.UName.empty())
 			return nullptr;
-		const auto Result = m_Imports.pGetFunctionAddress(static_cast<custom_plugin_module*>(Instance.get())->get_opaque(), null_terminated(Name.UName).data());
-		ProcessError(L"GetFunction"_sv);
+		const auto Result = m_Imports.pGetFunctionAddress(static_cast<custom_plugin_module*>(Instance.get())->opaque(), null_terminated(Name.UName).c_str());
+		ProcessError(L"GetFunction"sv);
 		return Result;
 	}
 
-	virtual void ProcessError(const string_view& Function) const override
+	void ProcessError(const string_view Function) const override
 	{
 		if (!m_Imports.pGetError)
 			return;
@@ -1296,37 +1310,51 @@ public:
 			return;
 
 		std::vector<string> MessageLines;
-		const string Summary = concat(Info.Summary, L" ("_sv, Function, L')'), Description = Info.Description;
-		const auto Enumerator = enum_tokens(Description, L"\n");
-		std::transform(ALL_CONST_RANGE(Enumerator), std::back_inserter(MessageLines), [](const string_view& View) { return make_string(View); });
+		const string Summary = concat(Info.Summary, L" ("sv, Function, L')');
+		const auto Enumerator = enum_tokens(Info.Description, L"\n"sv);
+		std::transform(ALL_CONST_RANGE(Enumerator), std::back_inserter(MessageLines), [](const string_view View) { return string(View); });
 		Message(MSG_WARNING | MSG_LEFTALIGN,
 			Summary,
 			MessageLines,
 			{ lng::MOk });
 	}
 
+	bool IsExternal() const override
+	{
+		return true;
+	}
+
+	string Title() const override
+	{
+		return m_Title;
+	}
+
+	string VersionString() const override
+	{
+		return m_VersionString;
+	}
+
 private:
-	os::rtdl::module m_Module;
 	struct ModuleImports
 	{
-		os::rtdl::function_pointer<BOOL(WINAPI*)(GlobalInfo* info)> pInitialize;
-		os::rtdl::function_pointer<BOOL(WINAPI*)(const wchar_t* filename)> pIsPlugin;
-		os::rtdl::function_pointer<HANDLE(WINAPI*)(const wchar_t* filename)> pCreateInstance;
-		os::rtdl::function_pointer<void*(WINAPI*)(HANDLE Instance, const wchar_t* functionname)> pGetFunctionAddress;
-		os::rtdl::function_pointer<BOOL (WINAPI*)(ErrorInfo* info)> pGetError;
-		os::rtdl::function_pointer<BOOL(WINAPI*)(HANDLE Instance)> pDestroyInstance;
-		os::rtdl::function_pointer<void (WINAPI*)(const ExitInfo* info)> pFree;
+	private:
+		os::rtdl::module m_Module;
 
-		explicit ModuleImports(const os::rtdl::module& Module):
-			#define INIT_IMPORT(name) p ## name(Module, #name)
-			INIT_IMPORT(Initialize),
-			INIT_IMPORT(IsPlugin),
-			INIT_IMPORT(CreateInstance),
-			INIT_IMPORT(GetFunctionAddress),
-			INIT_IMPORT(GetError),
-			INIT_IMPORT(DestroyInstance),
-			INIT_IMPORT(Free),
-			#undef INIT_IMPORT
+	public:
+#define DECLARE_IMPORT_FUNCTION(name, ...) os::rtdl::function_pointer<__VA_ARGS__> p ## name{ m_Module, #name }
+
+		DECLARE_IMPORT_FUNCTION(Initialize,            BOOL(WINAPI*)(GlobalInfo* info));
+		DECLARE_IMPORT_FUNCTION(IsPlugin,              BOOL(WINAPI*)(const wchar_t* filename));
+		DECLARE_IMPORT_FUNCTION(CreateInstance,        HANDLE(WINAPI*)(const wchar_t* filename));
+		DECLARE_IMPORT_FUNCTION(GetFunctionAddress,    void*(WINAPI*)(HANDLE Instance, const wchar_t* functionname));
+		DECLARE_IMPORT_FUNCTION(GetError,              BOOL(WINAPI*)(ErrorInfo* info));
+		DECLARE_IMPORT_FUNCTION(DestroyInstance,       BOOL(WINAPI*)(HANDLE Instance));
+		DECLARE_IMPORT_FUNCTION(Free,                  void (WINAPI*)(const ExitInfo* info));
+
+#undef DECLARE_IMPORT_FUNCTION
+
+		explicit ModuleImports(const string& Filename):
+			m_Module(Filename),
 			m_IsValid(pInitialize && pIsPlugin && pCreateInstance && pGetFunctionAddress && pGetError && pDestroyInstance && pFree)
 		{
 		}
@@ -1337,6 +1365,8 @@ private:
 		bool m_IsValid;
 	}
 	m_Imports;
+	string m_Title;
+	string m_VersionString;
 	bool m_Success;
 };
 

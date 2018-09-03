@@ -38,6 +38,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farcolor.hpp"
 #include "matrix.hpp"
 
+#include "common/singleton.hpp"
+
+struct FAR_CHAR_INFO;
+struct FarColor;
 enum class lng : int;
 extern WCHAR Oem2Unicode[];
 extern WCHAR BoxSymbols[];
@@ -144,24 +148,23 @@ void GetRealCursorPos(SHORT& X,SHORT& Y);
 void ScrollScreen(int Count);
 
 void Text(int X, int Y, const FarColor& Color, const wchar_t* Str, size_t Size);
-inline void Text(int X, int Y, const FarColor& Color, const wchar_t* Str) { return Text(X, Y, Color, Str, wcslen(Str)); }
-inline void Text(int X, int Y, const FarColor& Color, const string& Str) { return Text(X, Y, Color, Str.data(), Str.size()); }
+inline void Text(int X, int Y, const FarColor& Color, string_view const Str) { return Text(X, Y, Color, Str.data(), Str.size()); }
 
 void Text(const wchar_t* Str, size_t Size);
-inline void Text(const string_view& Str) { return Text(Str.raw_data(), Str.size()); }
+inline void Text(const string_view Str) { return Text(Str.data(), Str.size()); }
 inline void Text(wchar_t c) { return Text(&c, 1); }
 
 void Text(lng MsgId);
 
 void VText(const wchar_t* Str, size_t Size);
-inline void VText(const string_view& Str) { return VText(Str.raw_data(), Str.size()); }
+inline void VText(const string_view Str) { return VText(Str.data(), Str.size()); }
 
 void HiText(const string& Str,const FarColor& HiColor,int isVertText=0);
 void PutText(int X1,int Y1,int X2,int Y2,const FAR_CHAR_INFO* Src);
 void GetText(int X1, int Y1, int X2, int Y2, matrix<FAR_CHAR_INFO>& Dest);
 
 void BoxText(const wchar_t* Str, size_t Size, bool IsVert = false);
-inline void BoxText(const string_view& Str, bool IsVert = false) { return BoxText(Str.raw_data(), Str.size(), IsVert); }
+inline void BoxText(const string_view Str, const bool IsVert = false) { return BoxText(Str.data(), Str.size(), IsVert); }
 inline void BoxText(wchar_t Chr) { return BoxText(&Chr, 1, false); }
 
 void SetScreen(int X1,int Y1,int X2,int Y2,wchar_t Ch,const FarColor& Color);
@@ -182,16 +185,13 @@ void DrawLine(int Length,int Type, const wchar_t *UserSep=nullptr);
 inline void ShowSeparator(int Length, int Type) { return DrawLine(Length,Type); }
 inline void ShowUserSeparator(int Length, int Type, const wchar_t* UserSep) { return DrawLine(Length,Type,UserSep); }
 string MakeSeparator(int Length, int Type=1, const wchar_t* UserSep=nullptr);
-string make_progressbar(size_t Size, int Percent, bool ShowPercent, bool PropagateToTasbkar);
+string make_progressbar(size_t Size, size_t Percent, bool ShowPercent, bool PropagateToTasbkar);
 
 void InitRecodeOutTable();
 
 void fix_coordinates(int& X1, int& Y1, int& X2, int& Y2);
 
-inline void SetVidChar(FAR_CHAR_INFO& CI,wchar_t Chr)
-{
-	CI.Char = (Chr<L'\x20'||Chr==L'\x7f')?Oem2Unicode[Chr]:Chr;
-}
+void SetVidChar(FAR_CHAR_INFO& CI, wchar_t Chr);
 
 size_t HiStrlen(const string& Str);
 int HiFindRealPos(const string& Str, int Pos, bool ShowAmp);
@@ -207,26 +207,29 @@ COORD GetNonMaximisedBufferSize();
 
 void AdjustConsoleScreenBufferSize(bool TransitionFromFullScreen);
 
-class consoleicons:noncopyable
+class consoleicons: public singleton<consoleicons>
 {
+	IMPLEMENTS_SINGLETON(consoleicons);
+
 public:
 	void setFarIcons();
 	void restorePreviousIcons();
 
 private:
-	friend consoleicons& ConsoleIcons();
+	consoleicons() = default;
 
-	consoleicons();
+	struct icon
+	{
+		bool IsBig;
+		HICON Icon;
+		HICON PreviousIcon;
+		bool Changed;
+	};
 
-	HICON LargeIcon;
-	HICON SmallIcon;
-	HICON PreviousLargeIcon;
-	HICON PreviousSmallIcon;
-	bool Loaded;
-	bool LargeChanged;
-	bool SmallChanged;
+	icon m_Large{true};
+	icon m_Small{false};
+
+	bool m_Loaded{};
 };
-
-consoleicons& ConsoleIcons();
 
 #endif // INTERF_HPP_A91E1A99_C78E_41EC_B0F8_5C35A6C99116

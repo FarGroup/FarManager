@@ -37,6 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "modal.hpp"
 
+#include "common/monitored.hpp"
+
 class Grabber: public SimpleModal
 {
 	struct private_tag {};
@@ -44,19 +46,18 @@ class Grabber: public SimpleModal
 public:
 	static grabber_ptr create();
 	explicit Grabber(private_tag);
-	virtual ~Grabber() override;
 
-	virtual int GetType() const override { return windowtype_grabber; }
-	virtual int GetTypeAndName(string &, string &) override { return windowtype_grabber; }
-	virtual void ResizeConsole(void) override;
+	int GetType() const override { return windowtype_grabber; }
+	int GetTypeAndName(string &, string &) override { return windowtype_grabber; }
+	void ResizeConsole() override;
 
 private:
 	struct grabber_tag {};
 
-	virtual void DisplayObject() override;
-	virtual bool ProcessKey(const Manager::Key& Key) override;
-	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual string GetTitle() const override { return {}; }
+	void DisplayObject() override;
+	bool ProcessKey(const Manager::Key& Key) override;
+	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	string GetTitle() const override { return {}; }
 
 	void init();
 	std::tuple<COORD&, COORD&> GetSelection();
@@ -69,7 +70,7 @@ private:
 		COORD End;
 		COORD Current;
 	}
-	PrevArea, GArea;
+	GArea;
 	bool ResetArea;
 	bool m_VerticalBlock;
 	static monitored<bool> m_StreamSelection;

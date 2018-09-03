@@ -35,12 +35,37 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-bool SubstFileName(const wchar_t *DlgTitle,
-                  string &strStr, const string& Name, const string& ShortName,
-                  string *strListName=nullptr,
-                  string *strAnotherListName = nullptr,
-                  string *strShortListName=nullptr,
-                  string *strAnotherShortListName=nullptr,
-                  int IgnoreInput=FALSE,const wchar_t *CmdLineDir=nullptr);
+struct list_names
+{
+	bool any() const;
+
+	struct names: noncopyable
+	{
+		~names();
+
+		string Name;
+		string ShortName;
+	}
+	This, Another;
+};
+
+class subst_context
+{
+public:
+	subst_context(string_view NameStr, string_view ShortNameStr);
+
+	string_view Name;
+	string_view ShortName;
+	string_view Path;
+};
+
+bool SubstFileName(
+	string &Str,
+	const subst_context& Context,
+	list_names* ListNames = nullptr,
+	bool* PreserveLongName = nullptr,
+	bool IgnoreInput = false,
+	string_view DlgTitle = {}
+);
 
 #endif // FNPARCE_HPP_4E73DE55_DA35_4962_86C4_EC0DBDE2E229

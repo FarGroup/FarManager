@@ -31,10 +31,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "savescr.hpp"
+
 #include "farcolor.hpp"
 #include "syslog.hpp"
 #include "interf.hpp"
@@ -172,11 +170,11 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 	if (SyncWithConsole)
 	{
 		std::pair<SMALL_RECT, bool> WindowRect;
-		WindowRect.second = Console().GetWindowRect(WindowRect.first);
+		WindowRect.second = console.GetWindowRect(WindowRect.first);
 		const auto IsExtraTop = WindowRect.second && !(WindowRect.first.Top == 0 && WindowRect.first.Bottom == ScrY);
 		const auto IsExtraRight = WindowRect.second && !(WindowRect.first.Left == 0 && WindowRect.first.Right == ScrX);
 
-		Console().ResetPosition();
+		console.ResetPosition();
 		if (DesiredHeight != OriginalHeight)
 		{
 			matrix<FAR_CHAR_INFO> Tmp(abs(OriginalHeight - DesiredHeight), std::max(DesiredWidth, OriginalWidth));
@@ -185,7 +183,7 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 				if (IsExtraTop)
 				{
 					SMALL_RECT ReadRegion = { 0, 0, static_cast<SHORT>(DesiredWidth - 1), static_cast<SHORT>(DesiredHeight - OriginalHeight - 1) };
-					if (Console().ReadOutput(Tmp, ReadRegion))
+					if (console.ReadOutput(Tmp, ReadRegion))
 					{
 						for (size_t i = 0; i != Tmp.height(); ++i)
 						{
@@ -201,8 +199,8 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 				{
 					std::copy_n(ScreenBuf[i].data(), Tmp.width(), Tmp[i].data());
 				}
-				Console().WriteOutput(Tmp, WriteRegion);
-				Console().Commit();
+				console.WriteOutput(Tmp, WriteRegion);
+				console.Commit();
 			}
 		}
 
@@ -214,7 +212,7 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 				if (IsExtraRight)
 				{
 					SMALL_RECT ReadRegion = { static_cast<SHORT>(OriginalWidth), 0, static_cast<SHORT>(DesiredWidth - 1), static_cast<SHORT>(DesiredHeight - 1) };
-					Console().ReadOutput(Tmp, ReadRegion);
+					console.ReadOutput(Tmp, ReadRegion);
 					for (size_t i = 0; i != NewBuf.height(); ++i)
 					{
 						std::copy_n(Tmp[i].data(), Tmp.width(), &NewBuf[i][OriginalWidth]);
@@ -231,8 +229,8 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 					else
 						CleanupBuffer(Tmp[i].data(), Tmp.width());
 				}
-				Console().WriteOutput(Tmp, WriteRegion);
-				Console().Commit();
+				console.WriteOutput(Tmp, WriteRegion);
+				console.Commit();
 			}
 		}
 	}

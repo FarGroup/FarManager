@@ -30,6 +30,7 @@ wstring unquote(const wstring& str);
 wstring search_and_replace(const wstring& str, const wstring& search_str, const wstring& replace_str);
 
 wstring long_path(const wstring& path);
+wstring long_path_norm(const wstring& path);
 
 wstring add_trailing_slash(const wstring& path);
 wstring del_trailing_slash(const wstring& path);
@@ -42,7 +43,7 @@ bool is_root_path(const wstring& path);
 bool is_unc_path(const wstring& path);
 bool is_absolute_path(const wstring& path);
 wstring remove_path_root(const wstring& path);
-wstring correct_filename(const wstring& name, int mode);
+wstring correct_filename(const wstring& name, int mode, bool alt_stream);
 
 template<class T>
 inline const T* null_to_empty(const T* Str) { static const T empty = T(); return Str? Str : &empty; }

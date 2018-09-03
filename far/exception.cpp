@@ -28,19 +28,19 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "exception.hpp"
+
 #include "imports.hpp"
 #include "encoding.hpp"
 #include "tracer.hpp"
+
+#include "format.hpp"
 
 error_state error_state::fetch()
 {
 	error_state State;
 	State.Win32Error = GetLastError();
-	State.NtError = Imports().RtlGetLastNtStatus();
+	State.NtError = imports.RtlGetLastNtStatus();
 	State.m_Engaged = true;
 	return State;
 }
@@ -50,14 +50,25 @@ bool error_state::engaged() const
 	return m_Engaged;
 }
 
+detail::exception_impl::exception_impl(string_view const Message, const char* const Function, const char* const File, int const Line):
+	m_FullMessage(
+		format(
+			L"{0} (at {1}, {2}:{3})",
+			Message,
+			encoding::ansi::get_chars(Function),
+			encoding::ansi::get_chars(File),
+			Line)),
+	m_ErrorState(error_state::fetch(), Message)
+{
+}
 
-far_exception::far_exception(const string& Message, const char* Function, const char* File, int Line):
+far_exception::far_exception(string_view const Message, const char* const Function, const char* const File, int const Line):
 	exception_impl(Message, Function, File, Line),
 	std::runtime_error(encoding::utf8::get_bytes(get_full_message()))
 {
 }
 
-far_exception::far_exception(const string& Message, std::vector<string>&& Stack, const char* Function, const char* File, int Line):
+far_exception::far_exception(string_view const Message, std::vector<string>&& Stack, const char* const Function, const char* const File, int const Line):
 	exception_impl(Message, Function, File, Line),
 	std::runtime_error(encoding::utf8::get_bytes(get_full_message())),
 	m_Stack(std::move(Stack))
@@ -110,7 +121,7 @@ std::exception_ptr CurrentException(const std::exception& e)
 {
 	try
 	{
-		std::throw_with_nested(MAKE_FAR_EXCEPTION(L"->", tracer::get(&e)));
+		std::throw_with_nested(MAKE_FAR_EXCEPTION(L"->"sv, tracer::get(&e)));
 	}
 	catch (...)
 	{

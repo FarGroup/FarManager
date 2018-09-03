@@ -36,12 +36,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "palette.hpp"
+#include "plugin.hpp"
 
+#include "common/multifunction.hpp"
+#include "common/monitored.hpp"
+
+struct FarSettingsItem;
 class GeneralConfig;
 class RegExp;
 struct PanelViewSettings;
-struct hash_icase;
-struct equal_to_icase;
+struct hash_icase_t;
+struct equal_icase_t;
 struct column;
 struct FARConfigItem;
 
@@ -112,20 +117,23 @@ public:
 	virtual string toString() const = 0;
 	virtual bool TryParse(const string& value) = 0;
 	virtual string ExInfo() const = 0;
-	virtual const wchar_t* GetType() const = 0;
-	virtual bool IsDefault(const any& Default) const = 0;
-	virtual void SetDefault(const any& Default) = 0;
+	virtual string_view GetType() const = 0;
+	virtual bool IsDefault(const std::any& Default) const = 0;
+	virtual void SetDefault(const std::any& Default) = 0;
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) = 0;
 	virtual void Export(FarSettingsItem& To) const = 0;
 
 	bool Changed() const { return m_Value.touched(); }
 
 protected:
+	Option(const Option&) = default;
+	Option& operator=(const Option&) = default;
+
 	template<class T>
 	explicit Option(const T& Value): m_Value(Value) {}
 
 	template<class T>
-	const T& GetT() const { return any_cast<T>(m_Value); }
+	const T& GetT() const { return std::any_cast<const T&>(m_Value); }
 
 	template<class T>
 	void SetT(const T& NewValue) { if (GetT<T>() != NewValue) m_Value = NewValue; }
@@ -133,13 +141,37 @@ protected:
 private:
 	friend class Options;
 
-	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const = 0;
-	virtual bool ReceiveValue(const GeneralConfig* Storage, const string& KeyName, const string& ValueName, const any& Default) = 0;
+	virtual bool StoreValue(GeneralConfig* Storage, string_view KeyName, string_view ValueName, bool always) const = 0;
+	virtual bool ReceiveValue(const GeneralConfig* Storage, string_view KeyName, string_view ValueName, const std::any& Default) = 0;
 
 	void MakeUnchanged() { m_Value.forget(); }
 
-	monitored<any> m_Value;
+	monitored<std::any> m_Value;
 };
+
+namespace option
+{
+	class validator_tag{};
+	class notifier_tag{};
+
+	template<typename callable>
+	auto validator(callable&& Callable)
+	{
+		return overload(
+			[Callable =FWD(Callable)](validator_tag, const auto& Value){ return Callable(Value); },
+			[](notifier_tag, const auto&){}
+		);
+	}
+
+	template<typename callable>
+	auto notifier(callable&& Callable)
+	{
+		return overload(
+			[](validator_tag, const auto& Value){ return Value; },
+			[Callable = FWD(Callable)](notifier_tag, const auto& Value){ Callable(Value); }
+		);
+	}
+}
 
 namespace detail
 {
@@ -148,15 +180,19 @@ namespace detail
 	{
 	public:
 		using underlying_type = base_type;
-		using validator_type = std::function<base_type(const base_type&)>;
 		using impl_type = OptionImpl<base_type, derived>;
+
+		using callback_type = multifunction<
+			base_type(option::validator_tag, const base_type&),
+			void(option::notifier_tag, const base_type&)
+		>;
 
 		auto& operator=(const base_type& Value) { Set(Value); return static_cast<derived&>(*this); }
 
-		void SetValidator(const validator_type& Validator) { m_Validator = Validator; }
+		void SetCallback(const callback_type& Callback) { m_Callback = Callback; }
 
 		const auto& Get() const { return GetT<base_type>(); }
-		void Set(const base_type& Value) { SetT(Validate(Value)); }
+		void Set(const base_type& Value) { SetT(Validate(Value)); Notify(); }
 		bool TrySet(const base_type& Value)
 		{
 			if (Validate(Value) != Value)
@@ -164,29 +200,41 @@ namespace detail
 				return false;
 			}
 			SetT(Value);
+			Notify();
 			return true;
 		}
 
-		virtual string ExInfo() const override { return {}; }
+		string ExInfo() const override { return {}; }
 
-		virtual bool IsDefault(const any& Default) const override { return Get() == any_cast<base_type>(Default); }
-		virtual void SetDefault(const any& Default) override { Set(any_cast<base_type>(Default)); }
+		bool IsDefault(const std::any& Default) const override { return Get() == std::any_cast<base_type>(Default); }
+		void SetDefault(const std::any& Default) override { Set(std::any_cast<base_type>(Default)); }
 
-		virtual bool ReceiveValue(const GeneralConfig* Storage, const string& KeyName, const string& ValueName, const any& Default) override;
-		virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const override;
+		bool ReceiveValue(const GeneralConfig* Storage, string_view KeyName, string_view ValueName, const std::any& Default) override;
+		bool StoreValue(GeneralConfig* Storage, string_view KeyName, string_view ValueName, bool always) const override;
 
 		//operator const base_type&() const { return Get(); }
 
 	protected:
 		OptionImpl(): Option(base_type())
 		{
-			static_assert((std::is_base_of<OptionImpl, derived>::value));
+			static_assert((std::is_base_of_v<OptionImpl, derived>));
 		}
 
 	private:
-		base_type Validate(const base_type& Value) const { return m_Validator? m_Validator(Value) : Value; }
+		base_type Validate(const base_type& Value) const
+		{
+			return m_Callback?
+				m_Callback(option::validator_tag{}, Value) :
+				Value;
+		}
 
-		validator_type m_Validator;
+		void Notify() const
+		{
+			if (m_Callback)
+				m_Callback(option::notifier_tag{}, Get());
+		}
+
+		callback_type m_Callback;
 	};
 }
 
@@ -196,11 +244,11 @@ public:
 	using impl_type::OptionImpl;
 	using impl_type::operator=;
 
-	virtual string toString() const override { return Get() ? L"true"s : L"false"s; }
-	virtual bool TryParse(const string& value) override;
-	virtual const wchar_t* GetType() const override { return L"boolean"; }
-	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
-	virtual void Export(FarSettingsItem& To) const override;
+	string toString() const override { return Get() ? L"true"s : L"false"s; }
+	bool TryParse(const string& value) override;
+	string_view GetType() const override { return L"boolean"sv; }
+	bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
+	void Export(FarSettingsItem& To) const override;
 
 	operator bool() const { return Get(); }
 };
@@ -211,11 +259,11 @@ public:
 	using impl_type::OptionImpl;
 	using impl_type::operator=;
 
-	virtual string toString() const override { const auto v = Get(); return v == BSTATE_CHECKED? L"true"s : v == BSTATE_UNCHECKED? L"false"s : L"other"s; }
-	virtual bool TryParse(const string& value) override;
-	virtual const wchar_t* GetType() const override { return L"3-state"; }
-	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
-	virtual void Export(FarSettingsItem& To) const override;
+	string toString() const override { const auto v = Get(); return v == BSTATE_CHECKED? L"true"s : v == BSTATE_UNCHECKED? L"false"s : L"other"s; }
+	bool TryParse(const string& value) override;
+	string_view GetType() const override { return L"3-state"sv; }
+	bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
+	void Export(FarSettingsItem& To) const override;
 
 	operator FARCHECKEDSTATE() const { return static_cast<FARCHECKEDSTATE>(Get()); }
 };
@@ -226,12 +274,12 @@ public:
 	using impl_type::OptionImpl;
 	using impl_type::operator=;
 
-	virtual string toString() const override { return str(Get()); }
-	virtual bool TryParse(const string& value) override;
-	virtual string ExInfo() const override;
-	virtual const wchar_t* GetType() const override { return L"integer"; }
-	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
-	virtual void Export(FarSettingsItem& To) const override;
+	string toString() const override;
+	bool TryParse(const string& value) override;
+	string ExInfo() const override;
+	string_view GetType() const override { return L"integer"sv; }
+	bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
+	void Export(FarSettingsItem& To) const override;
 
 	IntOption& operator|=(long long Value){Set(Get()|Value); return *this;}
 	IntOption& operator&=(long long Value){Set(Get()&Value); return *this;}
@@ -249,15 +297,15 @@ public:
 	using impl_type::OptionImpl;
 	using impl_type::operator=;
 
-	virtual string toString() const override { return Get(); }
-	virtual bool TryParse(const string& value) override { Set(value); return true; }
-	virtual const wchar_t* GetType() const override { return L"string"; }
-	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
-	virtual void Export(FarSettingsItem& To) const override;
+	string toString() const override { return Get(); }
+	bool TryParse(const string& value) override { Set(value); return true; }
+	string_view GetType() const override { return L"string"sv; }
+	bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
+	void Export(FarSettingsItem& To) const override;
 
 	StringOption& operator+=(const string& Value) {Set(Get()+Value); return *this;}
 	wchar_t operator[] (size_t index) const { return Get()[index]; }
-	const wchar_t* data() const { return Get().data(); }
+	const wchar_t* c_str() const { return Get().c_str(); }
 	void clear() { Set({}); }
 	bool empty() const { return Get().empty(); }
 	size_t size() const { return Get().size(); }
@@ -281,14 +329,29 @@ public:
 	Options();
 	~Options();
 	void ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEvent);
-	void Load(std::unordered_map<string, string, hash_icase, equal_to_icase>&& Overrides);
+	using overrides = std::unordered_map<string, string, hash_icase_t, equal_icase_t>;
+	void Load(overrides&& Overrides);
 	void Save(bool Manual);
-	const Option* GetConfigValue(const wchar_t *Key, const wchar_t *Name) const;
-	const Option* GetConfigValue(size_t Root, const wchar_t* Name) const;
+	const Option* GetConfigValue(string_view Key, string_view Name) const;
+	const Option* GetConfigValue(size_t Root, string_view Name) const;
 	bool AdvancedConfig(config_type Mode = config_type::roaming);
 	void LocalViewerConfig(ViewerOptions &ViOptRef) {return ViewerConfig(ViOptRef, true);}
 	void LocalEditorConfig(EditorOptions &EdOptRef) {return EditorConfig(EdOptRef, true);}
 	static void SetSearchColumns(const string& Columns, const string& Widths);
+
+	struct SortingOptions
+	{
+		enum class collation
+		{
+			ordinal    = 0,
+			invariant  = 1,
+			linguistic = 2,
+		};
+
+		IntOption Collation;
+		BoolOption DigitsAsNumbers;
+		BoolOption CaseSensitive;
+	};
 
 	struct PanelOptions
 	{
@@ -299,8 +362,6 @@ public:
 		BoolOption ReverseSortOrder;
 		BoolOption SortGroups;
 		BoolOption ShowShortNames;
-		BoolOption NumericSort;
-		BoolOption CaseSensitiveSort;
 		BoolOption SelectedFirst;
 		BoolOption DirectoriesFirst;
 		StringOption Folder;
@@ -592,7 +653,7 @@ public:
 		{
 			GUID Id;
 			StringOption StrId;
-			const wchar_t* Default;
+			string_view Default;
 		};
 
 		GuidOption Network;
@@ -621,6 +682,8 @@ public:
 		BoolOption   UseHomeDir; // cd ~
 		StringOption strHomeDir; // cd ~
 	};
+
+	SortingOptions Sort;
 
 	palette Palette;
 	BoolOption Clock;
@@ -797,7 +860,6 @@ public:
 	Bool3Option PgUpChangeDisk;
 	BoolOption ShowDotsInRoot;
 	BoolOption ShowCheckingFile;
-	BoolOption CloseCDGate;       // автомонтирование CD
 	BoolOption UpdateEnvironment;
 
 	ExecuteOptions Exec;
@@ -831,7 +893,7 @@ public:
 	// заменена на умолчательную ANSI или OEM, в зависимости от настроек.
 	// пример: L"1250,1252,1253,1255,855,10005,28592,28595,28597,28598,38598,65001"
 	// Если строка пустая никакой фильтрации кодовых страниц в UCD детекте не будет.
-	// Если "-1", то в зависимости CPMenuMode (Ctrl-H в меню кодовых страниц фильтрация UCD либо будет
+	// Если "-1", то в зависимости от CPMenuMode (Ctrl-H в меню кодовых страниц) фильтрация UCD либо будет
 	// отключена, либо будут разрешенны только избранные и системные (OEM ANSI) кодовые страницы.
 
 	StringOption strTitleAddons;
@@ -894,7 +956,6 @@ private:
 
 	std::vector<farconfig> m_Configs;
 	std::vector<string>* m_ConfigStrings;
-	config_type m_CurrentConfigType;
 	std::vector<PanelViewSettings> m_ViewSettings;
 	bool m_ViewSettingsChanged;
 };

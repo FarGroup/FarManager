@@ -30,10 +30,9 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "cache.hpp"
+
+#include "platform.fs.hpp"
 
 CachedRead::CachedRead(os::fs::file& File, size_t BufferSize):
 	m_File(File),
@@ -186,43 +185,4 @@ bool CachedRead::FillBuffer()
 	}
 
 	return Result;
-}
-
-CachedWrite::CachedWrite(os::fs::file& File):
-	m_File(File),
-	m_Buffer(0x10000)
-{
-}
-
-CachedWrite::~CachedWrite()
-{
-	Flush();
-}
-
-bool CachedWrite::Write(const void* Data, size_t DataSize)
-{
-	if (DataSize > m_Buffer.size() - m_UsedSize)
-	{
-		if (!Flush())
-			return false;
-	}
-
-	if (DataSize > m_Buffer.size() - m_UsedSize)
-		return m_File.Write(Data, DataSize);
-
-	memcpy(&m_Buffer[m_UsedSize], Data, DataSize);
-	m_UsedSize += DataSize;
-	return true;
-}
-
-bool CachedWrite::Flush()
-{
-	if (!m_UsedSize)
-		return true;
-
-	if (!m_File.Write(m_Buffer.data(), m_UsedSize))
-		return false;
-
-	m_UsedSize = 0;
-	return true;
 }

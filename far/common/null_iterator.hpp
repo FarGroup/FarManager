@@ -32,12 +32,18 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "rel_ops.hpp"
+
 template <class T>
-class null_iterator_t:
-	public std::iterator<std::forward_iterator_tag, T>,
-	public rel_ops<null_iterator_t<T>>
+class null_iterator_t: public rel_ops<null_iterator_t<T>>
 {
 public:
+	using iterator_category = std::forward_iterator_tag;
+	using value_type = T;
+	using difference_type = std::ptrdiff_t;
+	using pointer = T*;
+	using reference = T&;
+
 	explicit null_iterator_t(T* Data): m_Data(Data) {}
 	auto& operator++() { ++m_Data; return *this; }
 	auto operator++(int) { return null_iterator_t(m_Data++); }
@@ -53,6 +59,7 @@ private:
 };
 
 template <class T>
+[[nodiscard]]
 auto null_iterator(T* Data) { return null_iterator_t<T>(Data); }
 
 #endif // NULL_ITERATOR_HPP_18FC84FA_D7EE_47C4_9979_72EC06E57C37

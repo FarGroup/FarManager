@@ -31,10 +31,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "dirmix.hpp"
+
 #include "cvtname.hpp"
 #include "message.hpp"
 #include "lang.hpp"
@@ -47,13 +45,32 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "network.hpp"
 #include "string_utils.hpp"
 
-bool FarChDir(const string& NewDir, bool ChangeDir)
+#include "platform.env.hpp"
+#include "platform.fs.hpp"
+
+#include "format.hpp"
+
+static auto make_curdir_name(wchar_t Drive)
+{
+	return format(L"={0}:", upper(Drive));
+}
+
+static auto env_get_current_dir(wchar_t Drive)
+{
+	return os::env::get(make_curdir_name(Drive));
+}
+
+static auto env_set_current_dir(wchar_t Drive, const string_view Value)
+{
+	return os::env::set(make_curdir_name(Drive), Value);
+}
+
+bool FarChDir(string_view const NewDir, bool ChangeDir)
 {
 	if (NewDir.empty())
 		return false;
 
 	bool rc = false;
-	string Drive(L"=A:");
 	string strCurDir;
 
 	bool IsNetworkDrive = false;
@@ -61,11 +78,10 @@ bool FarChDir(const string& NewDir, bool ChangeDir)
 	// если указана только буква диска, то путь возьмем из переменной
 	if (NewDir.size() == 2 && NewDir[1]==L':')
 	{
-		Drive[1] = upper(NewDir[0]);
-		strCurDir = os::env::get(Drive);
+		strCurDir = env_get_current_dir(NewDir[0]);
 		if (strCurDir.empty())
 		{
-			strCurDir = NewDir;
+			assign(strCurDir, NewDir);
 			AddEndSlash(strCurDir);
 			ReplaceSlashToBackslash(strCurDir);
 		}
@@ -77,7 +93,7 @@ bool FarChDir(const string& NewDir, bool ChangeDir)
 
 		if (!rc && GetLastError() == ERROR_PATH_NOT_FOUND)
 		{
-			IsNetworkDrive = os::fs::is_standard_drive_letter(Drive[1]) && GetSavedNetworkDrives()[os::fs::get_drive_number(Drive[1])];
+			IsNetworkDrive = os::fs::is_standard_drive_letter(NewDir[0]) && GetSavedNetworkDrives()[os::fs::get_drive_number(NewDir[0])];
 		}
 	}
 	else
@@ -105,8 +121,7 @@ bool FarChDir(const string& NewDir, bool ChangeDir)
 
 		if (strCurDir.size() > 1 && strCurDir[1]==L':')
 		{
-			Drive[1] = upper(strCurDir[0]);
-			os::env::set(Drive, strCurDir);
+			env_set_current_dir(strCurDir[0], strCurDir);
 		}
 	}
 
@@ -127,13 +142,8 @@ int TestFolder(const string& Path)
 	if (Path.empty())
 		return TSTFLD_ERROR;
 
-	string strFindPath = Path;
-	// сообразим маску для поиска.
-	AddEndSlash(strFindPath);
-	strFindPath += L'*';
-
 	// первая проверка - че-нить считать можем?
-	const auto Find = os::fs::enum_files(strFindPath);
+	const auto Find = os::fs::enum_files(path::join(Path, L'*'));
 	if (Find.begin() != Find.end())
 	{
 		return TSTFLD_NOTEMPTY;
@@ -149,11 +159,11 @@ int TestFolder(const string& Path)
 
 	// собственно... не факт, что диск не читаем, т.к. на чистом диске в корне нету даже "."
 	// поэтому посмотрим на Root
-	strFindPath = GetPathRoot(Path);
-	if (strFindPath == Path)
+	const auto Root = GetPathRoot(Path);
+	if (Root == Path)
 	{
 		// проверка атрибутов гарантировано скажет - это бага BugZ#743 или пустой корень диска.
-		if (os::fs::exists(strFindPath))
+		if (os::fs::exists(Root))
 		{
 			if (LastError == ERROR_ACCESS_DENIED)
 				return TSTFLD_NOTACCESS;
@@ -162,16 +172,14 @@ int TestFolder(const string& Path)
 		}
 	}
 
-	strFindPath = Path;
-
-	if (!os::fs::exists(strFindPath))
+	if (!os::fs::exists(Path))
 	{
 		return TSTFLD_NOTFOUND;
 	}
 
 	{
 		SCOPED_ACTION(elevation::suppress);
-		if (os::fs::is_file(strFindPath))
+		if (os::fs::is_file(Path))
 			return TSTFLD_ERROR;
 	}
 	return TSTFLD_NOTACCESS;
@@ -183,56 +191,55 @@ int TestFolder(const string& Path)
    предпринята попытка найти ближайший путь. Результат попытки
    возвращается в переданном TestPath.
 */
-bool CheckShortcutFolder(string& pTestPath, bool TryClosest, bool Silent)
+bool CheckShortcutFolder(string& TestPath, bool TryClosest, bool Silent)
 {
-	bool Result = os::fs::exists(pTestPath);
+	if (os::fs::exists(TestPath))
+		return true;
 
-	if (!Result)
+	SetLastError(ERROR_PATH_NOT_FOUND);
+	const auto ErrorState = error_state::fetch();
+
+	auto Target = TestPath;
+	TruncPathStr(Target, ScrX - 16);
+
+	if (!TryClosest)
 	{
-		SetLastError(ERROR_PATH_NOT_FOUND);
-		const auto ErrorState = error_state::fetch();
-
-		string strTarget = pTestPath;
-		TruncPathStr(strTarget, ScrX-16);
-
-		if (!TryClosest)
+		if (!Silent)
 		{
-			if (!Silent)
-				Message(MSG_WARNING, ErrorState,
-					msg(lng::MError),
-					{
-						strTarget
-					},
-					{ lng::MOk });
-		}
-		else // попытка найти!
-		{
-			if (Silent || Message(MSG_WARNING, ErrorState,
+			Message(MSG_WARNING, ErrorState,
 				msg(lng::MError),
 				{
-					strTarget,
-					msg(lng::MNeedNearPath)
+					Target
 				},
-				{ lng::MHYes, lng::MHNo }) == Message::first_button)
-			{
-				string strTestPathTemp = pTestPath;
-				for (;;)
-				{
-					if (!CutToParent(strTestPathTemp))
-						break;
+				{ lng::MOk });
+		}
+		return false;
+	}
 
-					if (os::fs::exists(strTestPathTemp))
-					{
-						pTestPath = strTestPathTemp;
-						Result = true;
-						break;
-					}
-				}
+	// попытка найти!
+	if (Silent || Message(MSG_WARNING, ErrorState,
+		msg(lng::MError),
+		{
+			Target,
+			msg(lng::MNeedNearPath)
+		},
+		{ lng::MHYes, lng::MHNo }) == Message::first_button)
+	{
+		auto TestPathTemp = TestPath;
+		for (;;)
+		{
+			if (!CutToParent(TestPathTemp))
+				break;
+
+			if (os::fs::exists(TestPathTemp))
+			{
+				TestPath = TestPathTemp;
+				return true;
 			}
 		}
 	}
 
-	return Result;
+	return false;
 }
 
 void CreatePath(const string &InputPath, bool Simple)
@@ -246,7 +253,7 @@ void CreatePath(const string &InputPath, bool Simple)
 	{
 		if (i == Path.size() || IsSlash(Path[i]))
 		{
-			Part = Path.substr(0, i);
+			Part.assign(Path, 0, i);
 			if (!os::fs::exists(Part))
 			{
 				if(os::fs::create_directory(Part) && !Simple)

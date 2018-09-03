@@ -31,10 +31,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "qview.hpp"
+
 #include "macroopcode.hpp"
 #include "flink.hpp"
 #include "farcolor.hpp"
@@ -54,6 +52,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "string_utils.hpp"
 #include "cvtname.hpp"
+#include "datetime.hpp"
+#include "global.hpp"
+
+#include "platform.fs.hpp"
+#include "platform.reg.hpp"
+
+#include "format.hpp"
 
 static bool LastMode = false;
 static bool LastWrapMode = false;
@@ -65,8 +70,7 @@ qview_panel_ptr QuickView::create(window_ptr Owner)
 }
 
 QuickView::QuickView(private_tag, window_ptr Owner):
-	Panel(Owner),
-	Directory(0),
+	Panel(std::move(Owner)),
 	Data(),
 	OldWrapMode(false),
 	OldWrapType(false),
@@ -121,7 +125,7 @@ void QuickView::DisplayObject()
 	DrawSeparator(m_Y2-2);
 	SetColor(COL_PANELTEXT);
 	GotoXY(m_X1+1,m_Y2-1);
-	Text(fit_to_left(make_string(PointToName(strCurFileName)), m_X2 - m_X1 - 1));
+	Text(fit_to_left(string(PointToName(strCurFileName)), m_X2 - m_X1 - 1));
 
 	if (!strCurFileType.empty())
 	{
@@ -132,15 +136,15 @@ void QuickView::DisplayObject()
 		Text(strTypeText);
 	}
 
-	if (Directory)
+	if (m_DirectoryScanStatus != scan_status::none)
 	{
 		SetColor(COL_PANELTEXT);
 		GotoXY(m_X1+2,m_Y1+2);
 		auto DisplayName = strCurFileName;
-		TruncPathStr(DisplayName, std::max(0, m_X2 - m_X1 - 1 - StrLength(msg(lng::MQuickViewFolder).data()) - 5));
+		TruncPathStr(DisplayName, std::max(0, m_X2 - m_X1 - 1 - static_cast<int>(msg(lng::MQuickViewFolder).size() - 5)));
 		PrintText(format(LR"({0} "{1}")", msg(lng::MQuickViewFolder), DisplayName));
 
-		DWORD currAttr=os::fs::get_file_attributes(strCurFileName); // обламывается, если нет доступа
+		const auto currAttr = os::fs::get_file_attributes(strCurFileName); // обламывается, если нет доступа
 		if (currAttr != INVALID_FILE_ATTRIBUTES && (currAttr&FILE_ATTRIBUTE_REPARSE_POINT))
 		{
 			string Target;
@@ -237,73 +241,71 @@ void QuickView::DisplayObject()
 			}
 			else
 			{
-				auto str = FileSizeToStr(Size, 10, COLUMN_FLOATSIZE | COLUMN_SHOWUNIT);
-				RemoveExternalSpaces(str);
-				if (str.back() != bytes_suffix[0])
-					str += bytes_suffix;
-				return str;
+				const auto str = trim(FileSizeToStr(Size, 10, COLUMN_FLOATSIZE | COLUMN_SHOWUNIT));
+				return str.back() == bytes_suffix[0]? str : str + bytes_suffix;
 			}
 		};
 
-		if (Directory==1 || Directory==4)
+		if (m_DirectoryScanStatus == scan_status::real_ok || m_DirectoryScanStatus == scan_status::plugin_ok)
 		{
-			const auto iColor = uncomplete_dirscan? COL_PANELHIGHLIGHTTEXT : COL_PANELINFOTEXT;
-			const wchar_t *prefix = uncomplete_dirscan ? L"~" : L"";
-			GotoXY(m_X1+2,m_Y1+4);
-			PrintText(msg(lng::MQuickViewContains));
-			GotoXY(m_X1+2,m_Y1+6);
-			PrintText(msg(lng::MQuickViewFolders));
-			SetColor(iColor);
-			PrintText(prefix + str(Data.DirCount));
-			SetColor(COL_PANELTEXT);
-			GotoXY(m_X1+2,m_Y1+7);
-			PrintText(msg(lng::MQuickViewFiles));
-			SetColor(iColor);
-			PrintText(prefix + str(Data.FileCount));
-			SetColor(COL_PANELTEXT);
-			GotoXY(m_X1+2,m_Y1+8);
-			PrintText(msg(lng::MQuickViewBytes));
-			SetColor(iColor);
-			PrintText(prefix + size2str(Data.FileSize));
-			SetColor(COL_PANELTEXT);
-			GotoXY(m_X1+2,m_Y1+9);
-			PrintText(msg(lng::MQuickViewAllocated));
-			SetColor(iColor);
-			const auto Format = L"{0}{1} ({2}%)";
-			PrintText(format(Format, prefix, size2str(Data.AllocationSize), ToPercent(Data.AllocationSize, Data.FileSize)));
-
-			if (Directory!=4)
+			static const lng TableLabels[] =
 			{
-				SetColor(COL_PANELTEXT);
-				GotoXY(m_X1+2,m_Y1+11);
-				PrintText(msg(lng::MQuickViewCluster));
-				SetColor(iColor);
-				PrintText(prefix + GroupDigits(Data.ClusterSize));
+				lng::MQuickViewFolders,
+				lng::MQuickViewFiles,
+				lng::MQuickViewBytes,
+				lng::MQuickViewAllocated,
+				lng::MQuickViewCluster,
+				lng::MQuickViewSlack,
+			};
 
-				SetColor(COL_PANELTEXT);
-				GotoXY(m_X1+2,m_Y1+12);
-				PrintText(msg(lng::MQuickViewSlack));
-				SetColor(iColor);
-				PrintText(format(Format, prefix, size2str(Data.FilesSlack), ToPercent(Data.FilesSlack, Data.AllocationSize)));
+			const auto ColumnSize = msg(*std::max_element(ALL_CONST_RANGE(TableLabels), [](lng a, lng b) { return msg(a).size() < msg(b).size(); })).size() + 1;
 
+			const auto iColor = uncomplete_dirscan? COL_PANELHIGHLIGHTTEXT : COL_PANELINFOTEXT;
+			const auto prefix = uncomplete_dirscan? L"~"sv : L""sv;
+
+			const auto& PrintRow = [&](int Y, lng Id, string_view const Value)
+			{
+				GotoXY(m_X1 + 2, m_Y1 + Y);
 				SetColor(COL_PANELTEXT);
-				GotoXY(m_X1+2,m_Y1+13);
-				PrintText(msg(lng::MQuickViewMFTOverhead));
+				PrintText(pad_right(msg(Id), ColumnSize));
+
 				SetColor(iColor);
-				PrintText(format(Format, prefix, size2str(Data.MFTOverhead), ToPercent(Data.MFTOverhead, Data.AllocationSize)));
+				PrintText(prefix);
+				PrintText(Value);
+			};
+
+			PrintRow(4, lng::MQuickViewFolders, str(Data.DirCount));
+			PrintRow(5, lng::MQuickViewFiles, str(Data.FileCount));
+			PrintRow(6, lng::MQuickViewBytes, size2str(Data.FileSize));
+
+			const auto Format = L"{0} ({1}%)";
+			PrintRow(7, lng::MQuickViewAllocated, format(Format, size2str(Data.AllocationSize), ToPercent(Data.AllocationSize, Data.FileSize)));
+
+			if (m_DirectoryScanStatus == scan_status::real_ok)
+			{
+				PrintRow(9, lng::MQuickViewCluster, GroupDigits(Data.ClusterSize));
+				PrintRow(10, lng::MQuickViewSlack, format(Format, size2str(Data.FilesSlack), ToPercent(Data.FilesSlack, Data.AllocationSize)));
+				PrintRow(11, lng::MQuickViewMFTOverhead, format(Format, size2str(Data.MFTOverhead), ToPercent(Data.MFTOverhead, Data.AllocationSize)));
 			}
 		}
 	}
 	else if (QView)
+	{
 		QView->Show();
+	}
 
 	m_Flags.Clear(FSCROBJ_ISREDRAWING);
+}
+
+Viewer* QuickView::GetViewer()
+{
+	return QView.get();
 }
 
 
 long long QuickView::VMProcess(int OpCode, void* vParam, long long iParam)
 {
-	if (!Directory && QView)
+	if (m_DirectoryScanStatus == scan_status::none && QView)
 		return QView->VMProcess(OpCode,vParam,iParam);
 
 	switch (OpCode)
@@ -329,7 +331,7 @@ bool QuickView::ProcessKey(const Manager::Key& Key)
 
 	if (LocalKey == KEY_F1)
 	{
-		Help::create(L"QViewPanel");
+		Help::create(L"QViewPanel"sv);
 		return true;
 	}
 
@@ -353,7 +355,7 @@ bool QuickView::ProcessKey(const Manager::Key& Key)
 		return true;
 	}
 
-	if (QView && !Directory && LocalKey>=256)
+	if (QView && m_DirectoryScanStatus == scan_status::none && LocalKey>=256)
 	{
 		const auto ret = QView->ProcessKey(Manager::Key(LocalKey));
 
@@ -393,7 +395,7 @@ bool QuickView::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	Parent()->SetActivePanel(this);
 
-	if (QView && !Directory)
+	if (QView && m_DirectoryScanStatus == scan_status::none)
 		return QView->ProcessMouse(MouseEvent);
 
 	return false;
@@ -410,7 +412,7 @@ void QuickView::Update(int Mode)
 	Redraw();
 }
 
-void QuickView::ShowFile(const string& FileName, bool TempFile, plugin_panel* hDirPlugin)
+void QuickView::ShowFile(string_view const FileName, const UserDataItem* const UserData, bool const TempFile, const plugin_panel* const hDirPlugin)
 {
 	CloseFile();
 
@@ -427,18 +429,21 @@ void QuickView::ShowFile(const string& FileName, bool TempFile, plugin_panel* hD
 
 	m_CurDir = Parent()->GetAnotherPanel(this)->GetCurDir();
 
-	auto FileFullName = hDirPlugin? FileName : ConvertNameToFull(FileName);
-	bool SameFile = strCurFileName == FileFullName;
+	const auto FileFullName = hDirPlugin? string(FileName) : ConvertNameToFull(FileName);
+	const auto SameFile = strCurFileName == FileFullName;
 	strCurFileName = FileFullName;
+	CurUserData = {};
+	if (UserData)
+		CurUserData = *UserData;
 
 	size_t pos = strCurFileName.rfind(L'.');
 	if (pos != string::npos)
 	{
 		string strValue;
 
-		if (GetShellType(make_string_view(strCurFileName, pos), strValue))
+		if (GetShellType(string_view(strCurFileName).substr(pos), strValue))
 		{
-			os::reg::key::classes_root.get(strValue, L"", strCurFileType);
+			os::reg::key::classes_root.get(strValue, {}, strCurFileType);
 		}
 	}
 
@@ -449,20 +454,32 @@ void QuickView::ShowFile(const string& FileName, bool TempFile, plugin_panel* hD
 
 		if (SameFile && !hDirPlugin)
 		{
-			Directory=1;
+			m_DirectoryScanStatus = scan_status::real_ok;
 		}
 		else if (hDirPlugin)
 		{
-			int ExitCode=GetPluginDirInfo(hDirPlugin,strCurFileName,Data.DirCount,
-			                              Data.FileCount,Data.FileSize,Data.AllocationSize);
-			Directory = (ExitCode ? 4 : 3);
-			uncomplete_dirscan = (ExitCode == 0);
+			const auto Result = GetPluginDirInfo(hDirPlugin, strCurFileName, UserData, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize);
+			m_DirectoryScanStatus = Result? scan_status::plugin_ok : scan_status::plugin_fail;
+			uncomplete_dirscan = !Result;
 		}
 		else
 		{
-			int ExitCode=GetDirInfo(msg(lng::MQuickViewTitle), strCurFileName, Data, getdirinfo_default_delay, nullptr, GETDIRINFO_ENHBREAK|GETDIRINFO_SCANSYMLINKDEF|GETDIRINFO_NOREDRAW);
-			Directory = (ExitCode == -1 ? 2 : 1); // ExitCode: 1=done; 0=Esc,CtrlBreak; -1=Other
+			time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+
+			const auto& DirInfoCallback = [&](string_view const Name, unsigned long long const Items, unsigned long long const Size) mutable
+			{
+				if (TimeCheck)
+					DirInfoMsg(msg(lng::MQuickViewTitle), Name, Items, Size);
+			};
+
+			const auto ExitCode = GetDirInfo(strCurFileName, Data, nullptr, DirInfoCallback, GETDIRINFO_ENHBREAK | GETDIRINFO_SCANSYMLINKDEF);
+			m_DirectoryScanStatus = ExitCode == -1? scan_status::real_fail : scan_status::real_ok; // ExitCode: 1=done; 0=Esc,CtrlBreak; -1=Other
 			uncomplete_dirscan = ExitCode != 1;
+
+			if (const auto Window = m_Owner.lock())
+			{
+				Window->Redraw();
+			}
 		}
 	}
 	else
@@ -507,7 +524,7 @@ void QuickView::CloseFile()
 
 	strCurFileType.clear();
 	QViewDelTempName();
-	Directory=0;
+	m_DirectoryScanStatus = scan_status::none;
 }
 
 
@@ -534,7 +551,7 @@ void QuickView::QViewDelTempName()
 }
 
 
-void QuickView::PrintText(const string& Str) const
+void QuickView::PrintText(string_view const Str) const
 {
 	if (WhereY()>m_Y2-3 || WhereX()>m_X2-2)
 		return;
@@ -545,10 +562,10 @@ void QuickView::PrintText(const string& Str) const
 
 bool QuickView::UpdateIfChanged(bool Idle)
 {
-	if (IsVisible() && !strCurFileName.empty() && Directory==2)
+	if (IsVisible() && !strCurFileName.empty() && m_DirectoryScanStatus == scan_status::real_fail)
 	{
-		string strViewName = strCurFileName;
-		ShowFile(strViewName, m_TemporaryFile, nullptr);
+		const auto strViewName = strCurFileName;
+		ShowFile(strViewName, &CurUserData, m_TemporaryFile, nullptr);
 		return true;
 	}
 
@@ -560,7 +577,7 @@ void QuickView::RefreshTitle()
 	m_Title = L'{';
 	if (!strCurFileName.empty())
 	{
-		append(m_Title, strCurFileName, L" - "_sv);
+		append(m_Title, strCurFileName, L" - "sv);
 	}
 	append(m_Title, msg(lng::MQuickViewTitle), L'}');
 }
@@ -585,7 +602,7 @@ void QuickView::DynamicUpdateKeyBar() const
 {
 	auto& Keybar = Parent()->GetKeybar();
 
-	if (Directory || !QView)
+	if (m_DirectoryScanStatus != scan_status::none || !QView)
 	{
 		Keybar[KBL_MAIN][F2] = msg(lng::MF2);
 		Keybar[KBL_MAIN][F4].clear();

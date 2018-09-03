@@ -36,8 +36,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "dialog.hpp"
 
+#include "common/range.hpp"
+
+struct menu_item;
 struct MenuItemEx;
-struct MenuDataEx;
 struct SortItemParam;
 
 class VMenu2 : public Dialog
@@ -45,14 +47,14 @@ class VMenu2 : public Dialog
 	struct private_tag {};
 
 public:
-	static vmenu2_ptr create(const string& Title, const MenuDataEx *Data, size_t ItemCount, int MaxHeight=0, DWORD Flags=0);
+	static vmenu2_ptr create(const string& Title, range<const menu_item*> Data, int MaxHeight=0, DWORD Flags=0);
 
 	VMenu2(private_tag, int MaxHeight);
 
-	virtual int GetTypeAndName(string &strType, string &strName) override;
-	virtual int GetType() const override { return windowtype_menu; }
-	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual void SetPosition(int X1, int Y1, int X2, int Y2) override;
+	int GetTypeAndName(string &strType, string &strName) override;
+	int GetType() const override { return windowtype_menu; }
+	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	void SetPosition(int X1, int Y1, int X2, int Y2) override;
 
 	void Resize(bool force=false);
 	void SetTitle(const string& Title);
@@ -83,12 +85,23 @@ public:
 	intptr_t GetExitCode();
 	void Close(int ExitCode=-2, bool Force = false);
 
-	any* GetUserData(int Position = -1) const;
+	intptr_t GetSimpleUserData(int Position = -1) const;
+
+	const std::any* GetComplexUserData(int Position = -1) const;
+	std::any* GetComplexUserData(int Position = -1);
+
 	template<class T>
-	T* GetUserDataPtr(intptr_t Position = -1) const
+	const T* GetComplexUserDataPtr(intptr_t Position = -1) const
 	{
-		return any_cast<T>(GetUserData(Position));
+		return std::any_cast<T>(GetComplexUserData(Position));
 	}
+
+	template<class T>
+	T* GetComplexUserDataPtr(intptr_t Position = -1)
+	{
+		return std::any_cast<T>(GetComplexUserData(Position));
+	}
+
 	void Key(int key);
 	int GetSelectPos(FarListPos* ListPos);
 	int SetSelectPos(const FarListPos* ListPos, int Direct = 0);
@@ -116,6 +129,7 @@ private:
 	int m_Y2;
 	bool ShortBox;
 	INPUT_RECORD DefRec;
+	int InsideCall;
 	bool NeedResize;
 	bool closing;
 	bool ForceClosing;

@@ -42,6 +42,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "bitflags.hpp"
 #include "modal.hpp"
 
+#include "common/range.hpp"
+
 class History;
 
 // Флаги текущего режима диалога
@@ -98,8 +100,8 @@ struct DialogItemEx: public FarDialogItem
 	~DialogItemEx();
 	DialogItemEx(const DialogItemEx&);
 	DialogItemEx& operator=(const DialogItemEx&);
-	DialogItemEx(DialogItemEx&&);
-	DialogItemEx& operator=(DialogItemEx&&);
+	DialogItemEx(DialogItemEx&&) noexcept;
+	DialogItemEx& operator=(DialogItemEx&&) noexcept;
 
 	void Indent(int Delta)
 	{
@@ -113,14 +115,14 @@ struct DialogItemEx: public FarDialogItem
 		FARDIALOGITEMFLAGS Checked3Set, FARDIALOGITEMFLAGS Checked3Skip);
 };
 
-bool IsKeyHighlighted(const string& Str, int Key, int Translate, int AmpPos = -1);
-void ItemsToItemsEx(const range<const FarDialogItem*>& Items, const range<DialogItemEx*>& ItemsEx, bool Short = false);
+bool IsKeyHighlighted(string_view Str, int Key, int Translate, int AmpPos = -1);
+void ItemsToItemsEx(range<const FarDialogItem*> Items, range<DialogItemEx*> ItemsEx, bool Short = false);
 
 template<size_t N>
 auto MakeDialogItemsEx(const FarDialogItem (&InitData)[N])
 {
 	std::vector<DialogItemEx> Items(N);
-	ItemsToItemsEx(make_range(InitData), make_range(Items.data(), Items.size()));
+	ItemsToItemsEx(make_span(InitData), make_span(Items));
 	return Items;
 }
 
@@ -155,26 +157,29 @@ public:
 		DataDialog(InitParam),
 		m_handler(Handler)
 	{
-		Construct(make_range(Src.data(), Src.size()));
+		Construct(make_span(Src));
 	}
 
-	virtual ~Dialog() override;
+	~Dialog() override;
 
-	virtual bool ProcessKey(const Manager::Key& Key) override;
-	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual long long VMProcess(int OpCode, void *vParam=nullptr, long long iParam = 0) override;
-	virtual void Show() override;
-	virtual void Hide() override;
-	virtual void SetExitCode(int Code) override;
-	virtual void OnChangeFocus(bool focus) override;
-	virtual int GetTypeAndName(string &strType, string &strName) override;
-	virtual int GetType() const override { return windowtype_dialog; }
-	virtual bool CanFastHide() const override;
-	virtual void ResizeConsole() override;
-	virtual void SetPosition(int X1,int Y1,int X2,int Y2) override;
-	virtual void FastShow() {ShowDialog();}
-	virtual void SetDeleting(void) override;
-	virtual void ShowConsoleTitle() override;
+	bool ProcessKey(const Manager::Key& Key) override;
+	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	long long VMProcess(int OpCode, void *vParam=nullptr, long long iParam = 0) override;
+	void Show() override;
+	void Hide() override;
+	void SetExitCode(int Code) override;
+	void OnChangeFocus(bool focus) override;
+	int GetTypeAndName(string &strType, string &strName) override;
+	int GetType() const override { return windowtype_dialog; }
+	bool CanFastHide() const override;
+	void ResizeConsole() override;
+	void SetPosition(int X1,int Y1,int X2,int Y2) override;
+	void FastShow() {ShowDialog();}
+	void SetDeleting() override;
+	void ShowConsoleTitle() override;
+	bool ProcessEvents() override;
+
+	static bool IsValid(Dialog* Handle);
 
 	bool InitOK() const {return bInitOK;}
 	void GetDialogObjectsData();
@@ -192,7 +197,7 @@ public:
 	void Process();
 	void SetPluginOwner(Plugin* NewPluginAddress) {PluginOwner = ((NewPluginAddress == INVALID_HANDLE_VALUE)? nullptr : NewPluginAddress);}
 	Plugin* GetPluginOwner() const {return PluginOwner;}
-	void SetHelp(const string_view& Topic);
+	void SetHelp(string_view Topic);
 	void ShowHelp() const;
 	int Done() const { return DialogMode.Check(DMODE_ENDLOOP); }
 	void ClearDone();
@@ -205,22 +210,22 @@ public:
 
 	intptr_t DlgProc(intptr_t Msg,intptr_t Param1,void* Param2);
 	bool IsInited() const;
-	virtual bool ProcessEvents() override;
 	void SetId(const GUID& Id);
 	const GUID& GetId() const {return m_Id;}
 	intptr_t SendMessage(intptr_t Msg,intptr_t Param1,void* Param2);
 	intptr_t DefProc(intptr_t Msg,intptr_t Param1,void* Param2);
-	static bool IsValid(Dialog* Handle);
 	int GetDropDownOpened() const { return DropDownOpened; }
 	bool IsRedrawEnabled() const { return m_DisableRedraw == 0; }
 
-	void SetListItemData(size_t ListId, size_t ItemId, const any& Data);
-	any* GetListItemData(size_t ListId, size_t ItemId);
+	intptr_t GetListItemSimpleUserData(size_t ListId, size_t ItemId) const;
+
+	void SetListItemComplexUserData(size_t ListId, size_t ItemId, const std::any& Data);
+	std::any* GetListItemComplexUserData(size_t ListId, size_t ItemId);
 
 	template<class T>
-	T* GetListItemDataPtr(size_t ListId, size_t ItemId)
+	const T* GetListItemComplexUserDataPtr(size_t ListId, size_t ItemId)
 	{
-		return any_cast<T>(GetListItemData(ListId, ItemId));
+		return std::any_cast<T>(GetListItemComplexUserData(ListId, ItemId));
 	}
 
 protected:
@@ -230,13 +235,14 @@ private:
 	friend class History;
 	friend class DlgEdit;
 
-	virtual void DisplayObject() override;
-	virtual string GetTitle() const override;
+	void DisplayObject() override;
+	string GetTitle() const override;
+
 	void AddToList();
 	void RemoveFromList();
 
-	void Construct(const range<DialogItemEx*>& SrcItems);
-	void Construct(const range<const FarDialogItem*>& SrcItems);
+	void Construct(range<DialogItemEx*> SrcItems);
+	void Construct(range<const FarDialogItem*> SrcItems);
 	void Init();
 	void DeleteDialogObjects();
 	int LenStrItem(size_t ID, const string& Str) const;

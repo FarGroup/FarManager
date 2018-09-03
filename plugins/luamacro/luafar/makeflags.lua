@@ -7,7 +7,7 @@ end
 local function add_defines (src, trg_keys, trg_vals)
   local cast1 = "%(HANDLE%)" -- suppress compiler warnings
   local cast2 = "%(void%*%)" -- suppress compiler warnings
-  for k,v in src:gmatch("#define%s+([A-Z][A-Z0-9_]*)%s([^\n]+)") do
+  for k,v in src:gmatch("#define%s+([A-Z][A-Z0-9_]*)[ \t]+([^\n]+)") do
     if k ~= "FARMANAGERVERSION" then
       table.insert(trg_keys, k)
       if   v:find(cast1) or v:find(cast2) then v = "(INT_PTR)" .. k

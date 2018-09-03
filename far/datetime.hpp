@@ -35,16 +35,22 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "platform.chrono.hpp"
+
+#include "common/range.hpp"
+
 inline auto get_local_time() { SYSTEMTIME Time; GetLocalTime(&Time); return Time; }
 inline auto get_utc_time() { SYSTEMTIME Time; GetSystemTime(&Time); return Time; }
 
 DWORD ConvertYearToFull(DWORD ShortYear);
 
-void OnIntlSettingsChange();
+enum { date_none = std::numeric_limits<WORD>::max() };
+using date_ranges = std::array<std::pair<size_t, size_t>, 3>;
+using time_ranges = std::array<std::pair<size_t, size_t>, 4>;
 
-void ParseDateComponents(const string& Src, const range<WORD*>& Dst, wchar_t Separator, WORD Default = -1);
-os::chrono::time_point ParseDate(const string& Date, const string& Time, int DateFormat, wchar_t DateSeparator, wchar_t TimeSeparator);
-os::chrono::duration ParseDuration(const string& Date, const string& Time, int DateFormat, wchar_t DateSeparator, wchar_t TimeSeparator);
+void ParseDateComponents(string_view Src, range<const std::pair<size_t, size_t>*> Ranges, range<WORD*> Dst, WORD Default = date_none);
+os::chrono::time_point ParseDate(const string& Date, const string& Time, int DateFormat, const date_ranges& DateRanges, const time_ranges& TimeRanges);
+os::chrono::duration ParseDuration(const string& Date, const string& Time, int DateFormat, const time_ranges& TimeRanges);
 void ConvertDate(os::chrono::time_point Point, string& strDateText, string& StrTimeText, int TimeLength, int Brief = FALSE, int TextMonth = FALSE, int FullYear = 0);
 void ConvertDuration(os::chrono::duration Duration, string& strDaysText, string& strTimeText);
 
@@ -54,7 +60,7 @@ string MkStrFTime(const wchar_t* Format = nullptr);
 bool Utc2Local(os::chrono::time_point UtcTime, SYSTEMTIME& LocalTime);
 bool Local2Utc(const SYSTEMTIME& LocalTime, os::chrono::time_point& UtcTime);
 
-class time_check: noncopyable, public conditional<time_check>
+class time_check: noncopyable
 {
 	using clock_type = std::chrono::steady_clock;
 
@@ -71,15 +77,15 @@ public:
 		m_Begin = Value;
 	}
 
-	bool operator!() const noexcept
+	explicit operator bool() const noexcept
 	{
 		const auto Current = clock_type::now();
 		if (m_Interval != 0s && Current - m_Begin > m_Interval)
 		{
 			reset(Current);
-			return false;
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 private:

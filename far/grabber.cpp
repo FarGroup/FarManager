@@ -31,10 +31,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "grabber.hpp"
+
 #include "keyboard.hpp"
 #include "keys.hpp"
 #include "savescr.hpp"
@@ -44,13 +42,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "clipboard.hpp"
 #include "config.hpp"
 #include "help.hpp"
-#include "strmix.hpp"
 #include "string_utils.hpp"
+#include "global.hpp"
+#include "colormix.hpp"
+//#include "scrbuf.hpp"
 
 monitored<bool> Grabber::m_StreamSelection;
 
 Grabber::Grabber(private_tag):
-	PrevArea(),
 	GArea(),
 	ResetArea(true),
 	m_VerticalBlock(false)
@@ -82,17 +81,9 @@ void Grabber::init()
 	}
 
 	GArea.Begin.X = -1;
-	SetCursorType(true, 60);
-	PrevArea=GArea;
-	Show();
 	Process();
 	SaveScr.reset();
 	Global->WindowManager->RefreshWindow();
-}
-
-
-Grabber::~Grabber()
-{
 }
 
 static wchar_t GetChar(const FAR_CHAR_INFO& Cell)
@@ -215,14 +206,14 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 		}
 		else
 		{
-			RemoveTrailingSpaces(Line);
+			inplace::trim_right(Line);
 		}
 
 		CopyBuf += Line;
 
 		if (AddEol)
 		{
-			CopyBuf += L"\r\n";
+			CopyBuf += L"\r\n"s;
 		}
 	}
 
@@ -237,7 +228,7 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 			{
 				if (!OldData.empty() && OldData.back() != L'\n')
 				{
-					OldData += L"\r\n";
+					OldData += L"\r\n"s;
 				}
 				CopyBuf.insert(0, OldData);
 			}
@@ -255,88 +246,87 @@ void Grabber::DisplayObject()
 {
 	MoveCursor(GArea.Current.X, GArea.Current.Y);
 
-	if (PrevArea.Begin.X != GArea.Begin.X || PrevArea.End.X != GArea.End.X ||
-	    PrevArea.Begin.Y != GArea.Begin.Y || PrevArea.End.Y != GArea.End.Y ||
-	    m_StreamSelection.touched())
+	const auto X1 = std::min(GArea.Begin.X,GArea.End.X);
+	const auto X2 = std::max(GArea.Begin.X,GArea.End.X);
+	const auto Y1 = std::min(GArea.Begin.Y,GArea.End.Y);
+	const auto Y2 = std::max(GArea.Begin.Y,GArea.End.Y);
+
+	m_StreamSelection.forget();
+
+	if (GArea.Begin.X != -1)
 	{
-		const auto X1 = std::min(GArea.Begin.X,GArea.End.X);
-		const auto X2 = std::max(GArea.Begin.X,GArea.End.X);
-		const auto Y1 = std::min(GArea.Begin.Y,GArea.End.Y);
-		const auto Y2 = std::max(GArea.Begin.Y,GArea.End.Y);
+		auto FromX = X1;
+		auto ToX = X2;
+		const auto FromY = Y1;
+		const auto ToY = Y2;
 
-		if (X1 > std::min(PrevArea.Begin.X, PrevArea.End.X) || X2 < std::max(PrevArea.Begin.X, PrevArea.End.X) ||
-		    Y1 > std::min(PrevArea.Begin.Y, PrevArea.End.Y) || Y2 < std::max(PrevArea.Begin.Y, PrevArea.End.Y) ||
-		    m_StreamSelection.touched())
-			SaveScr->RestoreArea(FALSE);
-
-		m_StreamSelection.forget();
-
-		if (GArea.Begin.X != -1)
+		if (m_StreamSelection)
 		{
-			auto FromX = X1;
-			auto ToX = X2;
-			const auto FromY = Y1;
-			const auto ToY = Y2;
+			FromX = 0;
+			ToX = ScrX;
+		}
 
-			if (m_StreamSelection)
+		matrix<FAR_CHAR_INFO> CharBuf(ToY - FromY + 1, ToX - FromX + 1);
+		GetText(FromX, FromY, ToX, ToY, CharBuf);
+
+		for (int Y = FromY; Y <= ToY; Y++)
+		{
+			for (int X = FromX; X <= ToX; X++)
 			{
-				FromX = 0;
-				ToX = ScrX;
-			}
+				const auto& CurColor = SaveScr->ScreenBuf[Y][X].Attributes;
+				auto& Destination = CharBuf[Y - Y1][X - FromX].Attributes;
+				Destination = CurColor;
 
-			matrix<FAR_CHAR_INFO> CharBuf(ToY - FromY + 1, ToX - FromX + 1);
-			GetText(FromX, FromY, ToX, ToY, CharBuf);
-
-			for (int Y = FromY; Y <= ToY; Y++)
-			{
-				for (int X = FromX; X <= ToX; X++)
+				if (m_StreamSelection)
 				{
-					const auto& CurColor = SaveScr->ScreenBuf[Y][X].Attributes;
-					auto& Destination = CharBuf[Y - Y1][X - FromX].Attributes;
-					Destination = CurColor;
+					bool ToUp = GArea.Begin.Y < GArea.End.Y;
+					bool ToDown = !ToUp;
+					bool FirstLine = Y == FromY;
+					bool LastLine = Y == ToY;
 
-					if (m_StreamSelection)
+					if (ToDown)
 					{
-						bool ToUp = GArea.Begin.Y < GArea.End.Y;
-						bool ToDown = !ToUp;
-						bool FirstLine = Y == FromY;
-						bool LastLine = Y == ToY;
-
-						if (ToDown)
+						if (FirstLine && LastLine)
 						{
-							if (FirstLine && LastLine)
+							if (X < X1 || X > X2)
 							{
-								if (X < X1 || X > X2)
-								{
-									continue;
-								}
+								continue;
 							}
-							else if ((FirstLine && X < GArea.End.X) || (LastLine && X > GArea.Begin.X))
-								continue;
 						}
-						else
-						{
-							if ((FirstLine && X < GArea.Begin.X) || (LastLine && X > GArea.End.X))
-								continue;
-						}
+						else if ((FirstLine && X < GArea.End.X) || (LastLine && X > GArea.Begin.X))
+							continue;
 					}
-
-					Destination.BackgroundColor = (CurColor.Flags & FCF_BG_4BIT? ~INDEXVALUE(CurColor.BackgroundColor) : ~COLORVALUE(CurColor.BackgroundColor)) | ALPHAVALUE(CurColor.BackgroundColor);
-					Destination.ForegroundColor = (CurColor.Flags & FCF_FG_4BIT? ~INDEXVALUE(CurColor.ForegroundColor) : ~COLORVALUE(CurColor.ForegroundColor)) | ALPHAVALUE(CurColor.ForegroundColor);
+					else
+					{
+						if ((FirstLine && X < GArea.Begin.X) || (LastLine && X > GArea.End.X))
+							continue;
+					}
 				}
+
+				Destination.BackgroundColor = colors::alpha_value(CurColor.BackgroundColor) | (
+					CurColor.Flags & FCF_BG_4BIT?
+						~colors::index_value(CurColor.BackgroundColor) :
+						~colors::color_value(CurColor.BackgroundColor)
+					);
+
+				Destination.ForegroundColor = colors::alpha_value(CurColor.ForegroundColor) | (
+					CurColor.Flags & FCF_FG_4BIT?
+						~colors::index_value(CurColor.ForegroundColor) :
+						~colors::color_value(CurColor.ForegroundColor)
+					);
 			}
-
-			PutText(FromX, FromY, ToX, ToY, CharBuf.data());
 		}
 
-		if (GArea.Begin.X == -2)
-		{
-			SaveScr->RestoreArea(FALSE);
-			GArea.Begin.X = GArea.End.X;
-		}
-
-		PrevArea=GArea;
+		PutText(FromX, FromY, ToX, ToY, CharBuf.data());
 	}
+
+	if (GArea.Begin.X == -2)
+	{
+		SaveScr->RestoreArea(FALSE);
+		GArea.Begin.X = GArea.End.X;
+	}
+
+	SetCursorType(true, 60);
 }
 
 
@@ -354,8 +344,6 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 	      0,0 консоли.
 	  Не было учтено режима выполнения макроса.
 	*/
-	SetCursorType(true, 60);
-
 	if (Global->CtrlObject->Macro.IsExecuting())
 	{
 		if ((LocalKey&KEY_SHIFT) && LocalKey!=KEY_NONE && ResetArea)
@@ -422,7 +410,7 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 	switch (LocalKey)
 	{
 		case KEY_F1:
-			Help::create(L"MiscCmd");
+			Help::create(L"MiscCmd"sv);
 			break;
 
 		case KEY_CTRLU:
@@ -533,7 +521,7 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 		case KEY_RCTRLSHIFTDOWN: case KEY_RCTRLSHIFTNUMPAD2:
 			if ((GArea.Current.Y += 5) > ScrY)
 				GArea.Current.Y = ScrY;
-			if (LocalKey == KEY_CTRLSHIFTDOWN || LocalKey == KEY_RCTRLSHIFTDOWN || LocalKey == KEY_CTRLSHIFTNUMPAD8 || LocalKey == KEY_RCTRLSHIFTNUMPAD8)
+			if (LocalKey == KEY_CTRLSHIFTDOWN || LocalKey == KEY_RCTRLSHIFTDOWN || LocalKey == KEY_CTRLSHIFTNUMPAD2 || LocalKey == KEY_RCTRLSHIFTNUMPAD2)
 				GArea.Begin.Y = GArea.Current.Y;
 			break;
 
@@ -693,10 +681,9 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 			GArea.End.Y = ScrY - abs(GArea.Begin.Y - GArea.End.Y);
 			GArea.Begin.Y = GArea.Current.Y = ScrY;
 			break;
-
 	}
 
-	Show();
+	Global->WindowManager->RefreshWindow();
 	return true;
 }
 
@@ -731,8 +718,7 @@ bool Grabber::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		GArea.Begin = GArea.Current;
 	}
 
-	//VerticalBlock=MouseEvent->dwControlKeyState&(LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED);
-	Show();
+	Global->WindowManager->RefreshWindow();
 	return true;
 }
 
@@ -740,10 +726,9 @@ void Grabber::Reset()
 {
 	GArea.Begin = GArea.End = GArea.Current;
 	ResetArea = false;
-	//Show();
 }
 
-void Grabber::ResizeConsole(void)
+void Grabber::ResizeConsole()
 {
 	Close(0);
 }

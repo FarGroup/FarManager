@@ -33,11 +33,14 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "common/enumerator.hpp"
+#include "common/type_traits.hpp"
+
 namespace os::reg
 {
 	class value;
 
-	class key: public conditional<key>
+	class key
 	{
 	public:
 		key() = default;
@@ -46,7 +49,7 @@ namespace os::reg
 		static const key current_user;
 		static const key local_machine;
 
-		static key open(const key& Key, const string_view& SubKey, DWORD SamDesired);
+		static key open(const key& Key, string_view SubKey, DWORD SamDesired);
 
 		void close();
 		HKEY native_handle() const;
@@ -54,17 +57,14 @@ namespace os::reg
 		bool enum_keys(size_t Index, string& Name) const;
 		bool enum_values(size_t Index, value& Value) const;
 
-		bool get(const string_view& Name) const;
-		bool get(const string_view& Name, string& Value) const;
-		bool get(const string_view& Name, unsigned int& Value) const;
-		bool get(const string_view& Name, unsigned long long& Value) const;
+		bool get(string_view Name) const;
+		bool get(string_view Name, string& Value) const;
+		bool get(string_view Name, unsigned int& Value) const;
+		bool get(string_view Name, unsigned long long& Value) const;
 
-		template<class T>
-		bool get(const string_view& SubKey, const string_view& Name, T& Value, REGSAM Sam = 0) const
+		template<class T, REQUIRES(is_one_of_v<T, string, unsigned int, unsigned long long>)>
+		bool get(string_view SubKey, string_view Name, T& Value, REGSAM Sam = 0) const
 		{
-			using is_supported_type = is_one_of_t<T, string, unsigned int, unsigned long long>;
-			static_assert(is_supported_type::value);
-
 			const auto NewKey = open(*this, SubKey, KEY_QUERY_VALUE | Sam);
 			if (!NewKey)
 				return false;
@@ -72,7 +72,7 @@ namespace os::reg
 			return NewKey.get(Name, Value);
 		}
 
-		bool operator!() const;
+		explicit operator bool() const;
 
 	private:
 		explicit key(HKEY Key);
@@ -108,13 +108,14 @@ namespace os::reg
 
 	public:
 		explicit enum_key(const key& Key);
-		enum_key(const key& Key, const string_view& SubKey, REGSAM Sam = 0);
+		enum_key(const key& Key, string_view SubKey, REGSAM Sam = 0);
 
 	private:
-		bool get(size_t Index, value_type& Value) const;
+		bool get(bool Reset, value_type& Value) const;
 
 		key m_Key;
 		const key& m_KeyRef;
+		mutable size_t m_Index{};
 	};
 
 	class enum_value: noncopyable, public enumerator<enum_value, value>
@@ -123,13 +124,14 @@ namespace os::reg
 
 	public:
 		explicit enum_value(const key& Key);
-		enum_value(const key& Key, const string_view& SubKey, REGSAM Sam = 0);
+		enum_value(const key& Key, string_view SubKey, REGSAM Sam = 0);
 
 	private:
-		bool get(size_t Index, value_type& Value) const;
+		bool get(bool Reset, value_type& Value) const;
 
 		key m_Key;
 		const key& m_KeyRef;
+		mutable size_t m_Index{};
 	};
 }
 

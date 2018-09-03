@@ -117,7 +117,7 @@ void ProgressMonitor::handle_esc() {
 void ProgressMonitor::clean() {
   if (h_scr) {
     Far::restore_screen(h_scr);
-    SetConsoleTitleW(con_title.data());
+    SetConsoleTitleW(con_title.c_str());
     Far::set_progress_state(TBPF_NOPROGRESS);
     h_scr = nullptr;
   }
@@ -155,7 +155,7 @@ const wchar_t** get_suffixes(int start) {
 
   if (Far::get_msg(msg_ids[0]) != msg_texts[0]) {
     for (int i = 0; i < 1 + 5 + 5; ++i)
-      suffixes[i] = (msg_texts[i] = msg_ids[i] ? Far::get_msg(msg_ids[i]) : wstring()).data();
+      suffixes[i] = (msg_texts[i] = msg_ids[i] ? Far::get_msg(msg_ids[i]) : wstring()).c_str();
   }
 
   return suffixes + start;
@@ -250,7 +250,7 @@ private:
 
 public:
   OverwriteDialog(const wstring& file_path, const OverwriteFileInfo& src_file_info, const OverwriteFileInfo& dst_file_info, OverwriteDialogKind kind, OverwriteOptions& options):
-    Far::Dialog(Far::get_msg(MSG_OVERWRITE_DLG_TITLE), &c_overwrite_dialog_guid, c_client_xs),
+    Far::Dialog(Far::get_msg(MSG_OVERWRITE_DLG_TITLE), &c_overwrite_dialog_guid, c_client_xs, nullptr, FDLG_WARNING),
     file_path(file_path),
     src_file_info(src_file_info),
     dst_file_info(dst_file_info),
@@ -427,7 +427,7 @@ public:
 
     move_files_ctrl_id = check_box3(Far::get_msg(MSG_EXTRACT_DLG_MOVE_FILES), options.move_files, options.move_files == triUndef ? DIF_DISABLE : 0);
     new_line();
-    delete_archive_ctrl_id = check_box(Far::get_msg(MSG_EXTRACT_DLG_DELETE_ARCHIVE), options.delete_archive);
+    delete_archive_ctrl_id = check_box(Far::get_msg(MSG_EXTRACT_DLG_DELETE_ARCHIVE), options.delete_archive, options.disable_delete_archive ? DIF_DISABLE : 0);
     new_line();
     separate_dir_ctrl_id = check_box3(Far::get_msg(MSG_EXTRACT_DLG_SEPARATE_DIR), options.separate_dir);
     new_line();
@@ -1192,12 +1192,6 @@ private:
         g_options.update_sfx_options = options.sfx_options;
         g_options.update_enable_volumes = options.enable_volumes;
         g_options.update_volume_size = options.volume_size;
-        g_options.update_level = options.level;
-        g_options.update_levels = options.levels;
-        g_options.update_method = options.method;
-        g_options.update_solid = options.solid;
-        g_options.update_advanced = options.advanced;
-        g_options.update_encrypt = options.encrypt;
         g_options.update_encrypt_header = options.encrypt_header;
         g_options.update_password = options.password;
         g_options.update_append_ext = options.append_ext;
@@ -1206,8 +1200,16 @@ private:
       else {
         g_options.update_overwrite = options.overwrite;
       }
+      g_options.update_level = options.level;
+      g_options.update_levels = options.levels;
+      g_options.update_method = options.method;
+      g_options.update_solid = options.solid;
+      g_options.update_advanced = options.advanced;
+      g_options.update_encrypt = options.encrypt;
+
       g_options.update_show_password = options.show_password;
       g_options.update_ignore_errors = options.ignore_errors;
+
       g_options.save();
       Far::info_dlg(c_update_params_saved_dialog_guid, Far::get_msg(MSG_UPDATE_DLG_TITLE), Far::get_msg(MSG_UPDATE_DLG_PARAMS_SAVED));
       set_focus(ok_ctrl_id);
@@ -1321,7 +1323,7 @@ public:
         if (a_format.lib_index != b_format.lib_index)
           return a_format.lib_index < b_format.lib_index;
         else
-          return _wcsicmp(a_format.name.data(), b_format.name.data()) < 0;
+          return _wcsicmp(a_format.name.c_str(), b_format.name.c_str()) < 0;
       });
       vector<wstring> other_format_names;
       unsigned other_format_index = 0;

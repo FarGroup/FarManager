@@ -33,6 +33,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "common/rel_ops.hpp"
+
 template<class T>
 class matrix
 {
@@ -89,10 +91,9 @@ public:
 		m_rows = rows;
 		m_cols = cols;
 
-		// don't call vector.resize() here:
-		// - it never shrinks
-		// - we don't care about old content
-		resize_nomove(m_buffer, m_rows * m_cols);
+		// Force memory release
+		clear_and_shrink(m_buffer);
+		m_buffer.resize(m_rows * m_cols);
 	}
 
 	// assert for <= is ok, &matirx[size] can be used as an 'end' iterator

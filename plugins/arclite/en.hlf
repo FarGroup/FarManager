@@ -5,7 +5,7 @@
 $ #Arclite#
 	Archive management based on 7z.dll from ~7-Zip~@http://7-zip.org@ project.
 
-	~Plugin duscussion~@http://forum.farmanager.com/viewtopic.php?t=5637@
+	~Plugin duscussion~@https://forum.farmanager.com/viewtopic.php?t=5637@
 
 	~Extract archive~@Extract@
 	~Create and update archive~@Update@
@@ -201,6 +201,18 @@ $ #Prefix command line format#
 	-da = delete archive after successful extraction
 	<archive> ... = list of archives
 	<path> = target path
+
+	#Extract archive item(s)#
+	arc:e [-ie[:(y|n)]] [-o[:(o|s|r|a)]] [-mf[:(y|n)]] [-p:<password>] [-out:<path>] <archive> <item> ...
+	-ie -o -mf -p <path> = same as for arc:x command
+	<archive> = source archive
+	<item> ... = listpath of extracted archive elements
+
+	#Delete archive item(s)#
+	arc:d [-ie[:(y|n)]] [-p:<password>] [-out:<path>] <archive> <item> ...
+	-ie -p = same as for arc:e command
+	<archive> = modified archive name
+	<item> ... = listpath of deleted archive elements
 
 	#Test archive#
 	arc:t <archive> ...

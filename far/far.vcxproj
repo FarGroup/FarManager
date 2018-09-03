@@ -23,7 +23,7 @@
     <ProjectGuid>{62F794C9-5F4C-40F6-B358-5DC1A9D6D2CB}</ProjectGuid>
     <RootNamespace>far</RootNamespace>
     <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
-    <WindowsTargetPlatformVersion Condition="'$(VisualStudioVersion)' == '15.0'">10.0.14393.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(VisualStudioVersion)' == '15.0'">10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
@@ -41,17 +41,13 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros">
-    <FarBit Condition="'$(Platform)'=='Win32'">32</FarBit>
-    <FarBit Condition="'$(Platform)'=='x64'">64</FarBit>
-    <NewOptions Condition="'$(VisualStudioVersion)' == '14.0'"></NewOptions>
+    <NewOptions Condition="'$(VisualStudioVersion)' == '14.0'">
+    </NewOptions>
     <NewOptions Condition="'$(VisualStudioVersion)' == '15.0'">/permissive-</NewOptions>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.21006.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Release.32.vc\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Release.64.vc\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Debug.32.vc\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Debug.64.vc\</OutDir>
+    <OutDir>$(Configuration).$(PlatformArchitecture).vc\</OutDir>
     <IntDir>$(OutDir)obj\</IntDir>
     <LinkIncremental Condition="'$(Configuration)'=='Release'">false</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)'=='Debug'">true</LinkIncremental>
@@ -71,8 +67,8 @@ if not exist Include mkdir Include
 if not exist bootstrap mkdir bootstrap</Command>
     </PreBuildEvent>
     <ClCompile>
-      <AdditionalOptions>/J /Zc:strictStrings,throwingNew,referenceBinding /std:c++latest $(NewOptions) %(AdditionalOptions)</AdditionalOptions>
-      <PreprocessorDefinitions>_HAS_AUTO_PTR_ETC=0;_CRT_SECURE_NO_WARNINGS;FAR_ALPHA_VERSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>/J /Zc:rvalueCast,inline,strictStrings,throwingNew,referenceBinding /std:c++latest $(NewOptions) %(AdditionalOptions)</AdditionalOptions>
+      <PreprocessorDefinitions>_ENABLE_EXTENDED_ALIGNED_STORAGE;_HAS_AUTO_PTR_ETC=0;_CRT_SECURE_NO_WARNINGS;FAR_ALPHA_VERSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Sync</ExceptionHandling>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>headers.hpp</PrecompiledHeaderFile>
@@ -85,7 +81,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <Cpp0xSupport>true</Cpp0xSupport>
       <DisableSpecificDiagnostics>869,3280</DisableSpecificDiagnostics>
-      <ForcedIncludeFiles>disabled_warnings.hpp</ForcedIncludeFiles>
+      <ForcedIncludeFiles>disabled_warnings.hpp;headers.hpp;memcheck.hpp</ForcedIncludeFiles>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
     </ClCompile>
@@ -200,7 +196,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="dirinfo.cpp" />
     <ClCompile Include="dirmix.cpp" />
     <ClCompile Include="dizlist.cpp" />
-    <ClCompile Include="exception.cpp" />
     <ClCompile Include="FarDlgBuilder.cpp" />
     <ClCompile Include="filemasks.cpp" />
     <ClCompile Include="dlgedit.cpp" />
@@ -210,6 +205,8 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="editor.cpp" />
     <ClCompile Include="eject.cpp" />
     <ClCompile Include="encoding.cpp" />
+    <ClCompile Include="eol.cpp" />
+    <ClCompile Include="exception.cpp" />
     <ClCompile Include="execute.cpp" />
     <ClCompile Include="farexcpt.cpp" />
     <ClCompile Include="farversion.cpp" />
@@ -245,12 +242,14 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="hmenu.cpp" />
     <ClCompile Include="hook_wow64.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles>disabled_warnings.hpp</ForcedIncludeFiles>
       <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="hotplug.cpp" />
     <ClCompile Include="imports.cpp" />
     <ClCompile Include="initguid.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles>disabled_warnings.hpp</ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="infolist.cpp" />
     <ClCompile Include="interf.cpp" />
@@ -278,6 +277,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="pathmix.cpp" />
     <ClCompile Include="platform.cpp" />
     <ClCompile Include="platform.chrono.cpp" />
+    <ClCompile Include="platform.concurrency.cpp" />
     <ClCompile Include="platform.env.cpp" />
     <ClCompile Include="platform.fs.cpp" />
     <ClCompile Include="platform.memory.cpp" />
@@ -305,16 +305,19 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="setcolor.cpp" />
     <ClCompile Include="sqlite.c">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles>disabled_warnings.hpp</ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="sqlite_unicode.c">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles>disabled_warnings.hpp</ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="sqlitedb.cpp" />
     <ClCompile Include="stddlg.cpp" />
+    <ClCompile Include="string_sort.cpp" />
     <ClCompile Include="string_utils.cpp" />
     <ClCompile Include="strmix.cpp" />
     <ClCompile Include="syslog.cpp" />
-    <ClCompile Include="TaskBar.cpp" />
+    <ClCompile Include="taskbar.cpp" />
     <ClCompile Include="tinyxml.cpp" />
     <ClCompile Include="tracer.cpp" />
     <ClCompile Include="treelist.cpp" />
@@ -322,6 +325,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="usermenu.cpp" />
     <ClCompile Include="vc_crt_fix_impl.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles>disabled_warnings.hpp</ForcedIncludeFiles>
       <AdditionalOptions>/Zc:threadSafeInit- $(NewOptions) %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ClCompile Include="viewer.cpp" />
@@ -332,22 +336,25 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="xlat.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="blob_builder.hpp" />
     <ClInclude Include="common\algorithm.hpp" />
     <ClInclude Include="common\bytes_view.hpp" />
     <ClInclude Include="common\chrono.hpp" />
     <ClInclude Include="common\compiler.hpp" />
     <ClInclude Include="common\enum_substrings.hpp" />
+    <ClInclude Include="common\enum_tokens.hpp" />
+    <ClInclude Include="common\io.hpp" />
     <ClInclude Include="common\movable.hpp" />
+    <ClInclude Include="common\multifunction.hpp" />
+    <ClInclude Include="common\nifty_counter.hpp" />
     <ClInclude Include="common\null_iterator.hpp" />
     <ClInclude Include="common\enumerator.hpp" />
-    <ClInclude Include="common\conditional.hpp" />
     <ClInclude Include="common\function_traits.hpp" />
     <ClInclude Include="common\placement.hpp" />
     <ClInclude Include="common\range.hpp" />
     <ClInclude Include="common\monitored.hpp" />
     <ClInclude Include="common\noncopyable.hpp" />
     <ClInclude Include="common\preprocessor.hpp" />
+    <ClInclude Include="common\keep_alive.hpp" />
     <ClInclude Include="common\rel_ops.hpp" />
     <ClInclude Include="common\scope_exit.hpp" />
     <ClInclude Include="common\singleton.hpp" />
@@ -399,6 +406,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="editor.hpp" />
     <ClInclude Include="eject.hpp" />
     <ClInclude Include="encoding.hpp" />
+    <ClInclude Include="eol.hpp" />
     <ClInclude Include="exception.hpp" />
     <ClInclude Include="execute.hpp" />
     <ClInclude Include="exitcode.hpp" />
@@ -469,8 +477,10 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="pipe.hpp" />
     <ClInclude Include="platform.hpp" />
     <ClInclude Include="platform.chrono.hpp" />
+    <ClInclude Include="platform.concurrency.hpp" />
     <ClInclude Include="platform.env.hpp" />
     <ClInclude Include="platform.fs.hpp" />
+    <ClInclude Include="platform.fwd.hpp" />
     <ClInclude Include="platform.memory.hpp" />
     <ClInclude Include="platform.reg.hpp" />
     <ClInclude Include="platform.security.hpp" />
@@ -501,11 +511,11 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="sqlite_unicode.hpp" />
     <ClInclude Include="sqlitedb.hpp" />
     <ClInclude Include="stddlg.hpp" />
+    <ClInclude Include="string_sort.hpp" />
     <ClInclude Include="string_utils.hpp" />
     <ClInclude Include="strmix.hpp" />
-    <ClInclude Include="synchro.hpp" />
     <ClInclude Include="syslog.hpp" />
-    <ClInclude Include="TaskBar.hpp" />
+    <ClInclude Include="taskbar.hpp" />
     <ClInclude Include="tinyxml.hpp" />
     <ClInclude Include="TPreRedrawFunc.hpp" />
     <ClInclude Include="tracer.hpp" />
@@ -528,19 +538,19 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
   <ItemGroup>
     <CustomBuild Include="DlgBuilder.hpp">
       <Message>Transforming %(Identity) to redistributable form...</Message>
-      <Command>tools\m4 -P -DFARBIT=$(FarBit) -DINPUT=%(Identity) headers.m4 &gt; Include\DlgBuilder.hpp</Command>
+      <Command>tools\m4 -P -DFARBIT=$(PlatformArchitecture) -DINPUT=%(Identity) headers.m4 &gt; Include\DlgBuilder.hpp</Command>
       <AdditionalInputs>headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs>Include\%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="farcolor.hpp">
       <Message>Transforming %(Identity) to redistributable form...</Message>
-      <Command>tools\m4 -P -DFARBIT=$(FarBit) -DINPUT=%(Identity) headers.m4 &gt; Include\farcolor.hpp</Command>
+      <Command>tools\m4 -P -DFARBIT=$(PlatformArchitecture) -DINPUT=%(Identity) headers.m4 &gt; Include\farcolor.hpp</Command>
       <AdditionalInputs>headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs>Include\%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="plugin.hpp">
       <Message>Transforming %(Identity) to redistributable form...</Message>
-      <Command>tools\m4 -P -DFARBIT=$(FarBit) -DINPUT=%(Identity) headers.m4 &gt; Include\plugin.hpp</Command>
+      <Command>tools\m4 -P -DFARBIT=$(PlatformArchitecture) -DINPUT=%(Identity) headers.m4 &gt; Include\plugin.hpp</Command>
       <AdditionalInputs>headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs>Include\%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
@@ -553,63 +563,63 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <CustomBuild Include="copyright.inc.m4">
       <FileType>Document</FileType>
       <Message>Compiling %(Identity)...</Message>
-      <Command>tools\m4 -P -DFARBIT=$(FarBit) %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command>tools\m4 -P -DFARBIT=$(PlatformArchitecture) %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs>bootstrap\%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="Far.exe.manifest.m4">
       <FileType>Document</FileType>
       <Message>Compiling %(Identity)...</Message>
-      <Command>tools\m4 -P -DFARBIT=$(FarBit) %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command>tools\m4 -P -DFARBIT=$(PlatformArchitecture) %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs>bootstrap\%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="far.rc.inc.m4">
       <FileType>Document</FileType>
       <Message>Compiling %(Identity)...</Message>
-      <Command>tools\m4 -P -DFARBIT=$(FarBit) %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command>tools\m4 -P -DFARBIT=$(PlatformArchitecture) %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs>bootstrap\%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="farlang.templ.m4">
       <FileType>Document</FileType>
       <Message>Compiling %(Identity)...</Message>
-      <Command>tools\m4 -P -DFARBIT=$(FarBit) %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command>tools\m4 -P -DFARBIT=$(PlatformArchitecture) %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs>bootstrap\%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="farversion.inc.m4">
       <FileType>Document</FileType>
       <Message>Compiling %(Identity)...</Message>
-      <Command>tools\m4 -P -DFARBIT=$(FarBit) %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command>tools\m4 -P -DFARBIT=$(PlatformArchitecture) %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs>bootstrap\%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="File_id.diz.m4">
       <FileType>Document</FileType>
       <Message>Compiling %(Identity)...</Message>
-      <Command>tools\m4 -P -DFARBIT=$(FarBit) %(Identity) &gt; $(OutDir)%(FileName)</Command>
+      <Command>tools\m4 -P -DFARBIT=$(PlatformArchitecture) %(Identity) &gt; $(OutDir)%(FileName)</Command>
       <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs>$(OutDir)%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="FarEng.hlf.m4">
       <FileType>Document</FileType>
       <Message>Compiling %(Identity)...</Message>
-      <Command>tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=$(FarBit) &gt; $(OutDir)%(FileName)</Command>
+      <Command>tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=$(PlatformArchitecture) &gt; $(OutDir)%(FileName)</Command>
       <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs>$(OutDir)%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="FarRus.hlf.m4">
       <FileType>Document</FileType>
       <Message>Compiling %(Identity)...</Message>
-      <Command>tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=$(FarBit) &gt; $(OutDir)%(FileName)</Command>
+      <Command>tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=$(PlatformArchitecture) &gt; $(OutDir)%(FileName)</Command>
       <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs>$(OutDir)%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="FarHun.hlf.m4">
       <FileType>Document</FileType>
       <Message>Compiling %(Identity)...</Message>
-      <Command>tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=$(FarBit) &gt; $(OutDir)%(FileName)</Command>
+      <Command>tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=$(PlatformArchitecture) &gt; $(OutDir)%(FileName)</Command>
       <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs>$(OutDir)%(FileName);%(Outputs)</Outputs>
     </CustomBuild>

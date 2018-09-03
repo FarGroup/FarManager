@@ -32,12 +32,18 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// TODO: use std::wstring_view
+#include "range.hpp"
+
+namespace string_view_impl
+{
 
 template<typename T>
-class basic_string_view: public range<const T*>
+class basic_string_view : public range<const T*>
 {
 public:
+	using const_iterator = const T*;
+	using iterator = const_iterator;
+
 	constexpr basic_string_view() = default;
 	constexpr basic_string_view(const basic_string_view&) = default;
 
@@ -47,19 +53,26 @@ public:
 	}
 
 	constexpr basic_string_view(const T* Str) :
-		basic_string_view(Str, length(Str))
+		basic_string_view(Str, std::char_traits<T>::length(Str))
 	{
 	}
 
-	constexpr basic_string_view(const std::basic_string<T>& Str):
+	constexpr basic_string_view(const std::basic_string<T>& Str) :
 		basic_string_view(Str.data(), Str.size())
 	{
 	}
 
-	constexpr basic_string_view substr(size_t Pos = 0, size_t Count = std::basic_string<T>::npos) const
+	explicit operator std::basic_string<T>() const
+	{
+		return { ALL_CONST_RANGE(*this) };
+	}
+
+	static constexpr size_t npos = size_t(-1);
+
+	constexpr basic_string_view substr(size_t Pos = 0, size_t Count = npos) const
 	{
 		assert(Pos <= this->size());
-		return { this->raw_data() + Pos, std::min(Count, this->size() - Pos) };
+		return { this->data() + Pos, std::min(Count, this->size() - Pos) };
 	}
 
 	constexpr const auto& front() const
@@ -86,91 +99,188 @@ public:
 		*this = substr(0, this->size() - Size);
 	}
 
-	/*
-	ISO/IEC N4659 24.4.2.4 771
-	"Note: Unlike basic_string::data() and string literals, data() may return a pointer to a buffer that
-	is not null-terminated. Therefore it is typically a mistake to pass data() to a function that takes just a
-	const charT* and expects a null-terminated string."
-
-	- Another splendid design decision from the committee.
-	If it's "typically a mistake", why didn't you give some other, "less-similar-to-basic_string::data()" name?
-
-	For now, our implementation intentionally does not provide data() member function -
-	we heavily rely on the platform API which requires C strings in about 99% of the cases and it's too easy to make a mistake
-	and "rescue the Princess, her dog, her entire wardrobe & everything she has ever eaten...".
-	Hopefully we will thin out C strings numbers enough by the time we switch to a C++17-conformant compiler.
-	*/
-	constexpr auto data() const = delete;
-	constexpr auto raw_data() const
+/*
+	// C++20
+	constexpr bool starts_with(const basic_string_view<T> Str) const noexcept
 	{
-		return range<const T*>::data();
+		return this->size() >= Str.size() && this->substr(0, Str.size()) == Str;
 	}
 
-private:
-	static auto length(const char* Str) { return strlen(Str); }
-	static auto length(const wchar_t* Str) { return wcslen(Str); }
+	constexpr bool starts_with(wchar_t const Char) const noexcept
+	{
+		return !this->empty() && this->front() == Char;
+	}
+
+	constexpr bool ends_with(const basic_string_view<T> Str) const noexcept
+	{
+		return this->size() >= Str.size() && this->substr(this->size() - Str.size()) == Str;
+	}
+
+	constexpr bool ends_with(wchar_t const Char) const noexcept
+	{
+		return !this->empty() && this->back() == Char;
+	}
+*/
+
+	/*constexpr*/ size_t find(const basic_string_view<T> Str, const size_t Pos = 0) const noexcept
+	{
+		if (Pos >= this->size())
+			return npos;
+
+		const auto Result = std::search(this->cbegin() + Pos, this->cend(), ALL_CONST_RANGE(Str));
+		return Result == this->cend()? npos : Result - this->begin();
+	}
+
+	/*constexpr*/ size_t find(T Char, size_t Pos = 0) const noexcept
+	{
+		return find({&Char, 1}, Pos);
+	}
+
+	/*constexpr*/ size_t find_first_of(const basic_string_view<T> Str, const size_t Pos = 0) const noexcept
+	{
+		if (Str.empty() || Pos >= this->size())
+			return npos;
+
+		for (auto Iterator = this->begin() + Pos; Iterator != this->end(); ++Iterator)
+		{
+			if (Str.find(*Iterator) != npos)
+				return Iterator - this->begin();
+		}
+
+		return npos;
+	}
+
+	/*constexpr*/ size_t find_first_of(T Char, const size_t Pos = 0) const noexcept
+	{
+		return find_first_of({ &Char, 1 }, Pos);
+	}
+
+	/*constexpr*/ size_t find_first_not_of(const basic_string_view<T> Str, const size_t Pos = 0) const noexcept
+	{
+		if (Str.empty() || Pos >= this->size())
+			return npos;
+
+		for (auto Iterator = this->begin() + Pos; Iterator != this->end(); ++Iterator)
+		{
+			if (Str.find(*Iterator) == npos)
+				return Iterator - this->begin();
+		}
+
+		return npos;
+	}
+
+	/*constexpr*/ size_t find_first_not_of(T Char, const size_t Pos = 0) const noexcept
+	{
+		return find_first_not_of({ &Char, 1 }, Pos);
+	}
+
+	/*constexpr*/ size_t rfind(T Char, const size_t Pos = npos) const noexcept
+	{
+		return find_last_of(Char, Pos);
+	}
+
+	/*constexpr*/ size_t find_last_of(const basic_string_view<T> Str, size_t Pos = npos) const noexcept
+	{
+		if (Str.empty())
+			return npos;
+
+		for (auto Iterator = this->begin() + (Pos < this->size()? Pos : this->size() - 1); ; --Iterator)
+		{
+			if (Str.find(*Iterator) != npos)
+				return Iterator - this->begin();
+
+			if (Iterator == this->begin())
+				break;
+		}
+
+		return npos;
+	}
+
+	/*constexpr*/ size_t find_last_of(T Char, const size_t Pos = npos) const noexcept
+	{
+		return find_last_of({ &Char, 1 }, Pos);
+	}
+
+	/*constexpr*/ size_t find_last_not_of(const basic_string_view<T> Str, size_t Pos = npos) const noexcept
+	{
+		if (Str.empty())
+			return npos;
+
+		for (auto Iterator = this->begin() + (Pos < this->size()? Pos : this->size() - 1); ; --Iterator)
+		{
+			if (Str.find(*Iterator) == npos)
+				return Iterator - this->begin();
+
+			if (Iterator == this->begin())
+				break;
+		}
+
+		return npos;
+	}
+
+	/*constexpr*/ size_t find_last_not_of(T Char, const size_t Pos = npos) const noexcept
+	{
+		return find_last_not_of({ &Char, 1 }, Pos);
+	}
 };
 
-constexpr auto operator "" _sv(const char* Data, size_t Size) noexcept { return basic_string_view<char>(Data, Size); }
-constexpr auto operator "" _sv(const wchar_t* Data, size_t Size) noexcept { return basic_string_view<wchar_t>(Data, Size); }
-
-template<typename T>
-auto operator+(const std::basic_string<T>& Lhs, const basic_string_view<T>& Rhs)
+namespace string_view_literals
 {
-	std::basic_string<T> Result;
-	Result.reserve(Lhs.size() + Rhs.size());
-	return Result.append(Lhs).append(Rhs.raw_data(), Rhs.size());
+WARNING_PUSH()
+WARNING_DISABLE_MSC(4455) // no page                                                'operator ""sv': literal suffix identifiers that do not start with an underscore are reserved
+WARNING_DISABLE_CLANG("-Wuser-defined-literals")
+
+constexpr auto operator ""sv(const char* Data, size_t Size) noexcept { return basic_string_view<char>(Data, Size); }
+constexpr auto operator ""sv(const wchar_t* Data, size_t Size) noexcept { return basic_string_view<wchar_t>(Data, Size); }
+
+WARNING_POP()
 }
 
 template<typename T>
-auto operator+(const basic_string_view<T>& Lhs, const std::basic_string<T>& Rhs)
-{
-	std::basic_string<T> Result;
-	Result.reserve(Lhs.size() + Rhs.size());
-	return Result.append(Lhs.raw_data(), Lhs.size()).append(Rhs);
-}
-
-template<typename T>
-auto operator+(const basic_string_view<T>& Lhs, const basic_string_view<T>& Rhs)
-{
-	std::basic_string<T> Result;
-	Result.reserve(Lhs.size() + Rhs.size());
-	return Result.append(Lhs.raw_data(), Lhs.size()).append(Rhs.raw_data(), Rhs.size());
-}
-
-template<typename T>
-bool operator==(const basic_string_view<T>& Lhs, const basic_string_view<T>& Rhs)
+bool operator==(const basic_string_view<T> Lhs, const basic_string_view<T> Rhs)
 {
 	return std::equal(ALL_CONST_RANGE(Lhs), ALL_CONST_RANGE(Rhs));
 }
 
 template<typename T>
-bool operator==(const basic_string_view<T>& Lhs, const std::basic_string<T>& Rhs)
+bool operator==(const basic_string_view<T> Lhs, const std::basic_string<T>& Rhs)
 {
-	return Lhs == Rhs;
+	return Lhs == basic_string_view<T>(Rhs);
 }
 
 template<typename T>
-bool operator==(const std::basic_string<T>& Lhs, const basic_string_view<T>& Rhs)
+bool operator==(const std::basic_string<T>& Lhs, const basic_string_view<T> Rhs)
 {
-	return Rhs == Lhs;
+	return basic_string_view<T>(Lhs) == Rhs;
 }
 
 template<typename T>
-std::basic_string<T> make_string(const basic_string_view<T>& View)
+bool operator!=(const basic_string_view<T> Lhs, const basic_string_view<T> Rhs)
 {
-	return { View.raw_data(), View.size() };
+	return !(Lhs == Rhs);
 }
 
 template<typename T>
-void make_string_view(const T&& Str, size_t = 0, size_t = 0) = delete;
-
-template<typename T>
-auto make_string_view(const T& Str, size_t Offset = 0, size_t Size = std::numeric_limits<size_t>::max())
+bool operator!=(const basic_string_view<T> Lhs, const std::basic_string<T>& Rhs)
 {
-	return basic_string_view<std::decay_t<decltype(*std::cbegin(Str))>>(Str.data() + Offset, std::min(Size, Str.size() - Offset));
+	return !(Lhs == Rhs);
 }
 
-using string_view = basic_string_view<wchar_t>;
+template<typename T>
+bool operator!=(const std::basic_string<T>& Lhs, const basic_string_view<T> Rhs)
+{
+	return !(Lhs == Rhs);
+}
+
+template<typename T>
+std::basic_ostream<T>& operator<<(std::basic_ostream<T>& Stream, const basic_string_view<T> Str)
+{
+	return Stream.write(Str.data(), Str.size());
+}
+
+using string_view = basic_string_view<char>;
+using wstring_view = basic_string_view<wchar_t>;
+
+} // string_view_impl
 
 #endif // STRING_VIEW_HPP_102EA19D_CDD6_433E_ACD2_6D6E4022C273

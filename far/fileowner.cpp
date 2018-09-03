@@ -31,14 +31,14 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "fileowner.hpp"
-#include "platform.security.hpp"
+
 #include "pathmix.hpp"
 #include "elevation.hpp"
-#include "mix.hpp"
+
+#include "platform.memory.hpp"
+#include "platform.fs.hpp"
+#include "platform.security.hpp"
 
 // эта часть - перспективная фигня, которая значительно ускоряет получение овнеров
 
@@ -46,11 +46,11 @@ static bool SidToName(PSID Sid, string& Name, const string& Computer)
 {
 	DWORD AccountLength = 0, DomainLength = 0;
 	SID_NAME_USE snu;
-	LookupAccountSid(Computer.data(), Sid, nullptr, &AccountLength, nullptr, &DomainLength, &snu);
+	LookupAccountSid(Computer.c_str(), Sid, nullptr, &AccountLength, nullptr, &DomainLength, &snu);
 	if (AccountLength && DomainLength)
 	{
 		wchar_t_ptr_n<MAX_PATH> AccountName(AccountLength), DomainName(DomainLength);
-		if (!LookupAccountSid(Computer.data(), Sid, AccountName.get(), &AccountLength, DomainName.get(), &DomainLength, &snu))
+		if (!LookupAccountSid(Computer.c_str(), Sid, AccountName.get(), &AccountLength, DomainName.get(), &DomainLength, &snu))
 			return false;
 
 		Name.clear();
@@ -92,7 +92,9 @@ static bool SidToNameCached(PSID Sid, string& Name, const string& Computer)
 
 		size_t get_hash() const
 		{
-			return CRC32(0, m_Data.get(), GetLengthSid(m_Data.get()));
+			const auto Begin = reinterpret_cast<const char*>(m_Data.get());
+			const auto End = Begin + GetLengthSid(m_Data.get());
+			return hash_range(Begin, End);
 		}
 
 	private:
@@ -142,12 +144,12 @@ bool GetFileOwner(const string& Computer,const string& Name, string &strOwner)
 static auto get_sid(const string& Name)
 {
 	os::memory::local::ptr<void> Sid;
-	if (ConvertStringSidToSid(Name.data(), &ptr_setter(Sid)))
+	if (ConvertStringSidToSid(Name.c_str(), &ptr_setter(Sid)))
 		return Sid;
 
 	SID_NAME_USE Use;
 	DWORD SidSize = 0, ReferencedDomainNameSize = 0;
-	LookupAccountName(nullptr, Name.data(), nullptr, &SidSize, nullptr, &ReferencedDomainNameSize, &Use);
+	LookupAccountName(nullptr, Name.c_str(), nullptr, &SidSize, nullptr, &ReferencedDomainNameSize, &Use);
 	if (!SidSize)
 		return Sid;
 
@@ -156,7 +158,7 @@ static auto get_sid(const string& Name)
 		return Sid;
 
 	wchar_t_ptr_n<MAX_PATH> Buffer(ReferencedDomainNameSize);
-	LookupAccountName(nullptr, Name.data(), Sid.get(), &SidSize, Buffer.get(), &ReferencedDomainNameSize, &Use);
+	LookupAccountName(nullptr, Name.c_str(), Sid.get(), &SidSize, Buffer.get(), &ReferencedDomainNameSize, &Use);
 
 	return Sid;
 }
@@ -169,7 +171,7 @@ bool SetOwnerInternal(const string& Object, const string& Owner)
 
 	SCOPED_ACTION(os::security::privilege){ SE_TAKE_OWNERSHIP_NAME, SE_RESTORE_NAME };
 
-	const auto Result = SetNamedSecurityInfo(const_cast<LPWSTR>(Object.data()), SE_FILE_OBJECT, OWNER_SECURITY_INFORMATION, Sid.get(), nullptr, nullptr, nullptr);
+	const auto Result = SetNamedSecurityInfo(const_cast<LPWSTR>(Object.c_str()), SE_FILE_OBJECT, OWNER_SECURITY_INFORMATION, Sid.get(), nullptr, nullptr, nullptr);
 	if(Result != ERROR_SUCCESS)
 	{
 		SetLastError(Result);
@@ -180,13 +182,13 @@ bool SetOwnerInternal(const string& Object, const string& Owner)
 
 bool SetFileOwner(const string& Object, const string& Owner)
 {
-	NTPath strNtObject(Object);
+	const NTPath NtObject(Object);
 
-	if (SetOwnerInternal(strNtObject, Owner))
+	if (SetOwnerInternal(NtObject, Owner))
 		return true;
 
 	if(ElevationRequired(ELEVATION_MODIFY_REQUEST))
-		return elevation::instance().fSetOwner(strNtObject, Owner);
+		return elevation::instance().fSetOwner(NtObject, Owner);
 
 	return false;
 }

@@ -13,6 +13,7 @@ ExtractOptions::ExtractOptions():
   move_files(triUndef),
   separate_dir(triFalse),
   delete_archive(false),
+  disable_delete_archive(false),
   open_dir(triFalse) {
 }
 
@@ -177,7 +178,17 @@ private:
     if (current_rec.overwrite == oaOverwrite || current_rec.overwrite == oaAppend)
       File::set_attr_nt(file_path, FILE_ATTRIBUTE_NORMAL);
     RETRY_OR_IGNORE_BEGIN
-    file.open(file_path, FILE_WRITE_DATA | FILE_WRITE_ATTRIBUTES, FILE_SHARE_READ, current_rec.overwrite == oaAppend ? OPEN_EXISTING : CREATE_ALWAYS, FILE_ATTRIBUTE_TEMPORARY);
+    const DWORD access = FILE_WRITE_DATA | FILE_WRITE_ATTRIBUTES;
+    const DWORD shares = FILE_SHARE_READ;
+    const DWORD attrib = FILE_ATTRIBUTE_TEMPORARY;
+    if (current_rec.overwrite == oaAppend) {
+      file.open(file_path, access, shares, OPEN_EXISTING, attrib);
+    } else {
+      if (!file.open_nt(file_path, access, shares, CREATE_ALWAYS, attrib)) {
+        File::delete_file_nt(file_path); // sometimes can help
+        file.open(file_path, access, shares, CREATE_ALWAYS, attrib);
+      }
+    }
     RETRY_OR_IGNORE_END(*ignore_errors, *error_log, *progress)
     if (error_ignored) error_state = true;
     progress->update_cache_file(current_rec.file_path);
@@ -226,8 +237,8 @@ private:
       if (!error_state) {
         RETRY_OR_IGNORE_BEGIN
         file.set_end(); // ensure end of file is set correctly
-        File::set_attr(current_rec.file_path, archive->get_attr(current_rec.file_id));
-        file.set_time(archive->get_ctime(current_rec.file_id), archive->get_atime(current_rec.file_id), archive->get_mtime(current_rec.file_id));
+        File::set_attr_nt(current_rec.file_path, archive->get_attr(current_rec.file_id));
+        file.set_time_nt(archive->get_ctime(current_rec.file_id), archive->get_atime(current_rec.file_id), archive->get_mtime(current_rec.file_id));
         IGNORE_END(*ignore_errors, *error_log, *progress)
         if (error_ignored) error_state = true;
       }
@@ -406,11 +417,11 @@ public:
       return S_OK;
 
     const auto cmode = static_cast<int>(g_options.correct_name_mode);
-    file_path = correct_filename(file_info.name, cmode);
+    file_path = correct_filename(file_info.name, cmode, file_info.is_altstream);
     UInt32 parent_index = file_info.parent;
     while (parent_index != src_dir_index && parent_index != c_root_index) {
       const ArcFileInfo& file_info = archive->file_list[parent_index];
-      file_path.insert(0, 1, L'\\').insert(0, correct_filename(file_info.name, cmode & ~(0x10 | 0x40)));
+      file_path.insert(0, 1, L'\\').insert(0, correct_filename(file_info.name, cmode & ~(0x10 | 0x40), false));
       parent_index = file_info.parent;
     }
     file_path.insert(0, add_trailing_slash(dst_dir));
@@ -476,23 +487,46 @@ public:
     CriticalSectionLock lock(GetSync());
     COM_ERROR_HANDLER_BEGIN
     RETRY_OR_IGNORE_BEGIN
-    if (resultEOperationResult == NArchive::NExtract::NOperationResult::kOK)
-      return S_OK;
     bool encrypted = !archive->password.empty();
     Error error;
-    error.code = E_MESSAGE;
-    if (resultEOperationResult == NArchive::NExtract::NOperationResult::kUnsupportedMethod)
+    switch (resultEOperationResult) {
+    case NArchive::NExtract::NOperationResult::kOK:
+    case NArchive::NExtract::NOperationResult::kDataAfterEnd:
+      return S_OK;
+    case NArchive::NExtract::NOperationResult::kUnsupportedMethod:
       error.messages.push_back(Far::get_msg(MSG_ERROR_EXTRACT_UNSUPPORTED_METHOD));
-    else if (resultEOperationResult == NArchive::NExtract::NOperationResult::kDataError) {
+      break;
+    case NArchive::NExtract::NOperationResult::kDataError:
       archive->password.clear();
       error.messages.push_back(Far::get_msg(encrypted ? MSG_ERROR_EXTRACT_DATA_ERROR_ENCRYPTED : MSG_ERROR_EXTRACT_DATA_ERROR));
-    }
-    else if (resultEOperationResult == NArchive::NExtract::NOperationResult::kCRCError) {
+      break;
+    case NArchive::NExtract::NOperationResult::kCRCError:
       archive->password.clear();
       error.messages.push_back(Far::get_msg(encrypted ? MSG_ERROR_EXTRACT_CRC_ERROR_ENCRYPTED : MSG_ERROR_EXTRACT_CRC_ERROR));
-    }
-    else
+      break;
+    case NArchive::NExtract::NOperationResult::kUnavailable:
+      error.messages.push_back(Far::get_msg(MSG_ERROR_EXTRACT_UNAVAILABLE_DATA));
+      break;
+    case NArchive::NExtract::NOperationResult::kUnexpectedEnd:
+      error.messages.push_back(Far::get_msg(MSG_ERROR_EXTRACT_UNEXPECTED_END_DATA));
+      break;
+    //case NArchive::NExtract::NOperationResult::kDataAfterEnd:
+    //  error.messages.push_back(Far::get_msg(MSG_ERROR_EXTRACT_DATA_AFTER_END));
+    //  break;
+    case NArchive::NExtract::NOperationResult::kIsNotArc:
+      error.messages.push_back(Far::get_msg(MSG_ERROR_EXTRACT_IS_NOT_ARCHIVE));
+      break;
+    case NArchive::NExtract::NOperationResult::kHeadersError:
+      error.messages.push_back(Far::get_msg(MSG_ERROR_EXTRACT_HEADERS_ERROR));
+      break;
+    case NArchive::NExtract::NOperationResult::kWrongPassword:
+      error.messages.push_back(Far::get_msg(MSG_ERROR_EXTRACT_WRONG_PASSWORD));
+      break;
+    default:
       error.messages.push_back(Far::get_msg(MSG_ERROR_EXTRACT_UNKNOWN));
+      break;
+    }
+    error.code = E_MESSAGE;
     error.messages.push_back(file_path);
     error.messages.push_back(archive->arc_path);
     throw error;
@@ -547,7 +581,7 @@ private:
     for_each(index_range.first, index_range.second, [&] (UInt32 file_index) {
       const ArcFileInfo& file_info = archive.file_list[file_index];
       if (file_info.is_dir) {
-        wstring dir_path = add_trailing_slash(parent_dir) + correct_filename(file_info.name, cmode);
+        wstring dir_path = add_trailing_slash(parent_dir) + correct_filename(file_info.name, cmode, file_info.is_altstream);
         update_progress(dir_path);
 
         RETRY_OR_IGNORE_BEGIN
@@ -600,7 +634,7 @@ private:
     const auto cmode = static_cast<int>(g_options.correct_name_mode);
     for_each (index_range.first, index_range.second, [&] (UInt32 file_index) {
       const ArcFileInfo& file_info = archive.file_list[file_index];
-      wstring file_path = add_trailing_slash(parent_dir) + correct_filename(file_info.name, cmode);
+      wstring file_path = add_trailing_slash(parent_dir) + correct_filename(file_info.name, cmode, file_info.is_altstream);
       update_progress(file_path);
       if (file_info.is_dir) {
         FileIndexRange dir_list = archive.get_dir_list(file_index);
@@ -614,8 +648,8 @@ private:
         {
           File::set_attr(file_path, FILE_ATTRIBUTE_NORMAL);
           File file(file_path, FILE_WRITE_ATTRIBUTES, FILE_SHARE_READ, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS);
-          File::set_attr(file_path, archive.get_attr(file_index));
-          file.set_time(archive.get_ctime(file_index), archive.get_atime(file_index), archive.get_mtime(file_index));
+          File::set_attr_nt(file_path, archive.get_attr(file_index));
+          file.set_time_nt(archive.get_ctime(file_index), archive.get_atime(file_index), archive.get_mtime(file_index));
         }
         RETRY_OR_IGNORE_END(ignore_errors, error_log, *this)
       }

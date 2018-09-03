@@ -11,12 +11,11 @@ Make web suitable Encyclopedia
 
 execfile("config.inc.py")
 
-from os import makedirs, walk
-from os.path import isdir, join, commonprefix,  normpath
+from os import makedirs, walk, listdir
+from os.path import isdir, join, commonprefix, normpath, exists
 from string import Template
 import shutil
 import logging
-import subprocess
 import re
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s %(levelname)-6s %(message)s")
@@ -26,7 +25,17 @@ logging.addLevelName("WARN", 30)
 log = logging.info
 warn = logging.warn
 
-
+def copytree(src, dst, symlinks=False, ignore=None):
+  if not exists(dst):
+    makedirs(dst)
+  for item in listdir(src):
+    s = join(src, item)
+    d = join(dst, item)
+    if isdir(s):
+      shutil.copytree(s, d, symlinks, ignore)
+    else:
+      shutil.copy2(s, d)
+#end of copytree
 
 def make_inet_lang(lang):
   """@param lang : either 'rus*' or 'eng*'"""
@@ -38,11 +47,9 @@ def make_inet_lang(lang):
   inet_meta_dir = join(DEST_INET, lang_code, "meta")
   makedirs(inet_meta_dir)
 
-  log("exporting from svn")
-  command = "svn export -q --force %s/enc_%s/images %s/images" % (ROOT_DIR, lang, DEST_INET)
-  subprocess.call(command, shell=True)
-  command = "svn export -q --force %s/enc_%s/meta %s/%s/meta" % (ROOT_DIR, lang, DEST_INET, lang_code)
-  subprocess.call(command, shell=True)
+  log("copying files")
+  copytree("%s/enc_%s/images" % (ROOT_DIR, lang), "%s/images" % (DEST_INET))
+  copytree("%s/enc_%s/meta" % (ROOT_DIR, lang), "%s/%s/meta" % (DEST_INET, lang_code))
 
   # build empty directory tree
   inet_html_dir = join(DEST_INET, lang_code)

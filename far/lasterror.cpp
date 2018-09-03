@@ -30,15 +30,13 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "lasterror.hpp"
+
 #include "imports.hpp"
 
 GuardLastError::GuardLastError():
 	m_LastError(GetLastError()),
-	m_LastStatus(Imports().RtlGetLastNtStatus()),
+	m_LastStatus(imports.RtlGetLastNtStatus()),
 	m_Active(true)
 {
 }
@@ -49,5 +47,10 @@ GuardLastError::~GuardLastError()
 		return;
 
 	SetLastError(m_LastError);
-	Imports().RtlNtStatusToDosError(m_LastStatus);
+	imports.RtlNtStatusToDosError(m_LastStatus);
+}
+
+void GuardLastError::dismiss()
+{
+	m_Active = false;
 }

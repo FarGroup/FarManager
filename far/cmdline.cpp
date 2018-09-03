@@ -31,11 +31,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "cmdline.hpp"
-#include "platform.security.hpp"
+
 #include "execute.hpp"
 #include "macroopcode.hpp"
 #include "keys.hpp"
@@ -70,7 +67,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "desktop.hpp"
 #include "keybar.hpp"
 #include "string_utils.hpp"
+#include "global.hpp"
 
+#include "platform.env.hpp"
+#include "platform.fs.hpp"
+#include "platform.security.hpp"
+
+#include "common/enum_substrings.hpp"
+#include "common/function_traits.hpp"
+#include "common/scope_exit.hpp"
+
+#include "format.hpp"
 
 enum
 {
@@ -119,18 +126,56 @@ size_t CommandLine::DrawPrompt()
 {
 	const auto PromptList = GetPrompt();
 	const size_t MaxLength = PromptSize*ObjWidth() / 100;
+
+	std::vector<size_t> Sizes;
+	Sizes.reserve(PromptList.size());
+
+	size_t PromptLength = 0;
+	size_t FixedLength = 0;
+	size_t CollapsibleCount = 0;
+	for (const auto& i: PromptList)
+	{
+		Sizes.emplace_back(i.Text.size());
+		PromptLength += i.Text.size();
+		if (i.Collapsible)
+			++CollapsibleCount;
+		else
+			FixedLength += i.Text.size();
+	}
+
+	size_t CollapsibleItemLength = 0;
+	bool TryCollapse = false;
+	if (PromptLength > MaxLength)
+	{
+		if (CollapsibleCount)
+		{
+			if (FixedLength < MaxLength)
+				CollapsibleItemLength = (MaxLength - FixedLength) / CollapsibleCount;
+			TryCollapse = true;
+		}
+	}
+
 	size_t CurLength = 0;
 	GotoXY(m_X1, m_Y1);
 
-	std::for_each(CONST_RANGE(PromptList, i)
+	for (const auto& i: PromptList)
 	{
-		SetColor(i.second);
-		string str(i.first);
+		auto str = i.Text;
+
+		if (TryCollapse && i.Collapsible)
+		{
+			TruncPathStr(str, static_cast<int>(CollapsibleItemLength));
+		}
+
 		if (CurLength + str.size() > MaxLength)
 			TruncPathStr(str, std::max(0, static_cast<int>(MaxLength - CurLength)));
+		SetColor(i.Colour);
 		Text(str);
 		CurLength += str.size();
-	});
+
+		if (CurLength >= MaxLength)
+			break;
+	}
 	return CurLength;
 }
 
@@ -138,10 +183,10 @@ void CommandLine::DisplayObject()
 {
 	_OT(SysLog(L"[%p] CommandLine::DisplayObject()",this));
 
-	size_t CurLength = DrawPrompt();
+	const auto CurLength = DrawPrompt();
 
 	CmdStr.SetObjectColor(COL_COMMANDLINE,COL_COMMANDLINESELECTED);
-	CmdStr.SetPosition(m_X1+(int)CurLength,m_Y1,m_X2,m_Y2);
+	CmdStr.SetPosition(m_X1 + static_cast<int>(CurLength), m_Y1, m_X2, m_Y2);
 	CmdStr.Show();
 
 	GotoXY(m_X2+1,m_Y1);
@@ -197,13 +242,13 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 			strLastCmdStr = CmdStr.GetString();
 
 		auto strStr = strLastCmdStr;
-		int CurCmdPartLength=(int)strStr.size();
+		const auto CurCmdPartLength = strStr.size();
 		Global->CtrlObject->CmdHistory->GetSimilar(strStr,LastCmdPartLength);
 
 		if (LastCmdPartLength==-1)
 		{
 			strLastCmdStr = CmdStr.GetString();
-			LastCmdPartLength=CurCmdPartLength;
+			LastCmdPartLength = static_cast<int>(CurCmdPartLength);
 		}
 
 		{
@@ -282,7 +327,7 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 		{
 			history_record_type Type;
 			string strStr;
-			const auto SelectType = Global->CtrlObject->CmdHistory->Select(msg(lng::MHistoryTitle), L"History", strStr, Type);
+			const auto SelectType = Global->CtrlObject->CmdHistory->Select(msg(lng::MHistoryTitle), L"History"sv, strStr, Type);
 			if (SelectType == HRT_ENTER || SelectType == HRT_SHIFTETNER || SelectType == HRT_CTRLENTER || SelectType == HRT_CTRLALTENTER)
 			{
 				std::unique_ptr<SetAutocomplete> disable;
@@ -348,7 +393,7 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 			history_record_type Type;
 			GUID Guid;
 			string strFile, strData, strStr;
-			const auto SelectType = Global->CtrlObject->FolderHistory->Select(msg(lng::MFolderHistoryTitle), L"HistoryFolders", strStr, Type, &Guid, &strFile, &strData);
+			const auto SelectType = Global->CtrlObject->FolderHistory->Select(msg(lng::MFolderHistoryTitle), L"HistoryFolders"sv, strStr, Type, &Guid, &strFile, &strData);
 
 			switch(SelectType)
 			{
@@ -420,7 +465,7 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 				ActivePanel->SetCurPath();
 
 				if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTCMDLINE))
-					Global->CtrlObject->CmdHistory->AddToHistory(strStr, HR_DEFAULT, nullptr, nullptr, m_CurDir.data());
+					Global->CtrlObject->CmdHistory->AddToHistory(strStr, HR_DEFAULT, nullptr, {}, m_CurDir);
 				TryExecute = !ActivePanel->ProcessPluginEvent(FE_COMMAND, UNSAFE_CSTR(strStr));
 			}
 
@@ -454,7 +499,7 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 
 			// иначе неправильно работает ctrl-end
 			strLastCmdStr = CmdStr.GetString();
-			LastCmdPartLength=(int)strLastCmdStr.size();
+			LastCmdPartLength = static_cast<int>(strLastCmdStr.size());
 
 			return true;
 		}
@@ -472,7 +517,7 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 		case KEY_ALTSHIFTHOME:   case KEY_ALTSHIFTNUMPAD7:
 		case KEY_RALTSHIFTHOME:  case KEY_RALTSHIFTNUMPAD7:
 			LocalKey&=~(KEY_ALT|KEY_RALT);
-			// fallthrough
+			[[fallthrough]];
 		default:
 
 			//   Сбрасываем выделение на некоторых клавишах
@@ -513,7 +558,7 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 			}
 
 			if (!CmdStr.ProcessKey(LocalKey))
-				return Global->CtrlObject->Desktop->ProcessKey(Key);
+				return Global->WindowManager->Desktop()->ProcessKey(Key);
 
 			LastCmdPartLength=-1;
 
@@ -524,7 +569,7 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 
 void CommandLine::SetCurDir(const string& CurDir)
 {
-	if (!equal_icase(m_CurDir, CurDir) || !TestCurrentDirectory(CurDir))
+	if (!equal_icase(m_CurDir, CurDir) || !equal_icase(os::fs::GetCurrentDirectory(), CurDir))
 	{
 		m_CurDir = CurDir;
 
@@ -561,7 +606,7 @@ bool CommandLine::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	return CmdStr.ProcessMouse(MouseEvent);
 }
 
-std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
+std::list<CommandLine::segment> CommandLine::GetPrompt()
 {
 	FN_RETURN_TYPE(CommandLine::GetPrompt) Result;
 	int NewPromptSize = DEFAULT_CMDLINE_WIDTH;
@@ -570,16 +615,15 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 
 	if (Global->Opt->CmdLine.UsePromptFormat)
 	{
-		const auto& Format = Global->Opt->CmdLine.strPromptFormat.Get();
+		const string_view Format = Global->Opt->CmdLine.strPromptFormat.Get();
 		auto Tail = Format.cbegin();
 		auto Color = PrefixColor;
 		FOR_CONST_RANGE(Format, Iterator)
 		{
 			bool Stop;
 			auto NewColor = PrefixColor;
-			const string_view CurrentView(&*Iterator, Format.cend() - Iterator);
-			const auto NextView = colors::ExtractColorInNewFormat(CurrentView, NewColor, Stop);
-			if (NextView.cbegin() == CurrentView.cbegin())
+			const auto NextIterator = colors::ExtractColorInNewFormat(Iterator, Format.cend(), NewColor, Stop);
+			if (NextIterator == Iterator)
 			{
 				if (Stop)
 					break;
@@ -588,19 +632,18 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 
 			if (Iterator != Format.cbegin())
 			{
-				Result.emplace_back(string(Tail, Iterator), Color);
+				Result.emplace_back(segment{ string(Tail, Iterator), Color });
 			}
-			Iterator += NextView.cbegin() - CurrentView.cbegin();
+			Iterator = NextIterator;
 			Tail = Iterator;
 			Color = NewColor;
 		}
-		Result.emplace_back(string(Tail, Format.cend()), Color);
+		Result.emplace_back(segment{ string(Tail, Format.cend()), Color });
 
-		std::for_each(RANGE(Result, i)
+		for (auto Iterator = Result.begin(); Iterator != Result.end(); ++Iterator)
 		{
-			auto& strDestStr = i.first;
-			const auto strExpandedDestStr = os::env::expand(strDestStr);
-			strDestStr.clear();
+			const auto strExpandedDestStr = os::env::expand(Iterator->Text);
+			Iterator->Text.clear();
 			static const std::pair<wchar_t, wchar_t> ChrFmt[] =
 			{
 				{L'A', L'&'},   // $A - & (Ampersand)
@@ -616,6 +659,8 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 
 			FOR_CONST_RANGE(strExpandedDestStr, it)
 			{
+				auto& strDestStr = Iterator->Text;
+
 				if (*it == L'$' && it + 1 != strExpandedDestStr.cend())
 				{
 					const auto Chr = upper(*++it);
@@ -631,6 +676,25 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 					}
 					else
 					{
+						const auto& AddCollapsible = [&](string&& Str)
+						{
+							if (strDestStr.empty())
+							{
+								strDestStr = std::move(Str);
+								Iterator->Collapsible = true;
+							}
+							else
+							{
+								Iterator = Result.insert(std::next(Iterator), segment{ std::move(Str), Iterator->Colour, true });
+							}
+
+							// No need to introduce a new segment if we're at the very end
+							if (std::next(Iterator) != Result.end() && std::next(it) != strExpandedDestStr.cend())
+							{
+								Iterator = Result.insert(std::next(Iterator), segment{ {}, Iterator->Colour, false });
+							}
+						};
+
 						switch (Chr)
 						{
 								/* эти не реaлизованы
@@ -643,8 +707,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 								string strTemp;
 								if (DriveLocalToRemoteName(DRIVE_UNKNOWN, m_CurDir[0], strTemp))
 								{
-									strDestStr += strTemp;
-									//strDestStr += L' '; // ???
+									AddCollapsible(std::move(strTemp));
 								}
 								break;
 							}
@@ -656,7 +719,22 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 							case L'H': // $H - Backspace (erases previous character)
 							{
 								if (!strDestStr.empty())
+								{
 									strDestStr.pop_back();
+								}
+								else
+								{
+									auto Prev = Iterator;
+									while (Prev != Result.begin())
+									{
+										--Prev;
+										if (!Prev->Text.empty())
+										{
+											Prev->Text.pop_back();
+											break;
+										}
+									}
+								}
 
 								break;
 							}
@@ -664,15 +742,13 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 							{
 								if (it + 1 != strExpandedDestStr.cend())
 								{
-									wchar_t lb = *(++it);
+									const auto lb = *++it;
 									if (it + 1 != strExpandedDestStr.cend())
 									{
-										wchar_t rb = *(++it);
+										const auto rb = *++it;
 										if (os::security::is_admin())
 										{
-											strDestStr += lb;
-											strDestStr += msg(lng::MConfigCmdlinePromptFormatAdmin);
-											strDestStr += rb;
+											append(strDestStr, lb, msg(lng::MConfigCmdlinePromptFormatAdmin), rb);
 										}
 									}
 								}
@@ -700,30 +776,25 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 								const auto pos = FindLastSlash(m_CurDir);
 								if (pos != string::npos)
 								{
-									strDestStr += m_CurDir.substr(pos + 1);
+									AddCollapsible(m_CurDir.substr(pos + 1));
 								}
 								break;
 							}
 							case L'P': // $P - Current drive and path
 							{
-								strDestStr += m_CurDir;
+								AddCollapsible(string{ m_CurDir });
 								break;
 							}
-							case L'#': //$#nn - max promt width in %
+							case L'#': //$#nn - max prompt width in %
 							{
 								if (it + 1 != strExpandedDestStr.end())
 								{
-									try
-									{
-										size_t pos = 0;
-										NewPromptSize = std::stoi(string(it+1, strExpandedDestStr.cend()), &pos);
+									size_t pos;
+									if (from_string(string(it + 1, strExpandedDestStr.cend()), NewPromptSize, &pos))
 										it += pos;
-									}
-									catch (const std::exception&)
-									{
+									// else
 										// bad format, NewPromptSize unchanged
 										// TODO: diagnostics
-									}
 								}
 							}
 						}
@@ -739,13 +810,16 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 					strDestStr += *it;
 				}
 			}
-		});
-
+		}
 	}
 	else
 	{
 		// default prompt = "$p$g"
-		Result.emplace_back(m_CurDir + L'>', PrefixColor);
+		Result =
+		{
+			{ m_CurDir, PrefixColor, true },
+			{ L">"s, PrefixColor, false },
+		};
 	}
 	SetPromptSize(NewPromptSize);
 	return Result;
@@ -756,7 +830,7 @@ void CommandLine::ShowViewEditHistory()
 {
 	string strStr;
 	history_record_type Type;
-	const auto SelectType = Global->CtrlObject->ViewHistory->Select(msg(lng::MViewHistoryTitle), L"HistoryViews", strStr, Type);
+	const auto SelectType = Global->CtrlObject->ViewHistory->Select(msg(lng::MViewHistoryTitle), L"HistoryViews"sv, strStr, Type);
 
 	switch(SelectType)
 	{
@@ -820,47 +894,59 @@ void CommandLine::SetPromptSize(int NewSize)
 
 static bool ProcessFarCommands(const string& Command, const std::function<void(bool)>& ConsoleActivatior)
 {
-	if (equal_icase(Command, L"far:config"_sv))
+	if (equal_icase(Command, L"far:config"sv))
 	{
 		ConsoleActivatior(false);
 		Global->Opt->AdvancedConfig();
 		return true;
 	}
 
-	if (equal_icase(Command, L"far:about"_sv))
+	if (equal_icase(Command, L"far:about"sv))
 	{
-		string strOut = concat(L'\n', Global->Version(), L'\n', Global->Copyright(), L'\n');
+		auto strOut = concat(
+			L'\n', Global->Version(), L'\n', Global->Copyright(), L'\n',
+			L"\nCompiler:\n"sv, format(L"{0}, version {1}.{2}.{3}", COMPILER_NAME, COMPILER_VERSION_MAJOR, COMPILER_VERSION_MINOR, COMPILER_VERSION_PATCH), L'\n'
+		);
 
 		const auto& ComponentsInfo = components::GetComponentsInfo();
 		if (!ComponentsInfo.empty())
 		{
-			append(strOut, L"\nLibraries:\n"_sv);
+			append(strOut, L"\nLibraries:\n"sv);
 
 			for (const auto& i: ComponentsInfo)
 			{
 				strOut += i.first;
 				if (!i.second.empty())
 				{
-					append(strOut, L", version "_sv, i.second);
+					append(strOut, L", version "sv, i.second);
 				}
 				strOut += L'\n';
 			}
 		}
 
-		// TODO: enum model adapters
+		const auto& Factories = Global->CtrlObject->Plugins->Factories();
+		if (std::any_of(ALL_CONST_RANGE(Factories), [](const auto& i) { return i->IsExternal(); }))
+		{
+			append(strOut, L"\nPlugin adapters:\n"sv);
+			for (const auto& i: Factories)
+			{
+				if (i->IsExternal())
+					append(strOut, i->Title(), L", version "sv, i->VersionString(), L'\n');
+			}
+		}
 
 		if (Global->CtrlObject->Plugins->size())
 		{
-			strOut += L"\nPlugins:\n";
+			append(strOut, L"\nPlugins:\n"sv);
 
 			for (const auto& i: *Global->CtrlObject->Plugins)
 			{
-				append(strOut, i->GetTitle(), L", version "_sv, i->GetVersionString(), L'\n');
+				append(strOut, i->Title(), L", version "sv, i->VersionString(), L'\n');
 			}
 		}
 
 		ConsoleActivatior(true);
-		Console().Write(strOut);
+		std::wcout << strOut << std::flush;
 
 		return true;
 	}
@@ -873,11 +959,11 @@ void CommandLine::ExecString(execute_info& Info)
 	bool Silent = false;
 	bool IsUpdateNeeded = false;
 
-	const auto ExecutionContext = Global->CtrlObject->Desktop->ConsoleSession().GetContext();
+	const auto ExecutionContext = Global->WindowManager->Desktop()->ConsoleSession().GetContext();
 
 	SCOPE_EXIT
 	{
-		ExecutionContext->DoEpilogue();
+		ExecutionContext->DoEpilogue(Info.Echo && !Info.Command.empty());
 
 		if (!IsUpdateNeeded)
 			return;
@@ -902,7 +988,11 @@ void CommandLine::ExecString(execute_info& Info)
 	const auto& Activator = [&](bool DoConsolise)
 	{
 		ExecutionContext->Activate();
-		ExecutionContext->DrawCommand(Info.DisplayCommand.empty()? Info.Command : Info.DisplayCommand);
+
+		if (Info.Echo)
+			ExecutionContext->DrawCommand(Info.DisplayCommand.empty()? Info.Command : Info.DisplayCommand);
+
+		ExecutionContext->DoPrologue();
 
 		if (DoConsolise)
 			ExecutionContext->Consolise();
@@ -921,10 +1011,12 @@ void CommandLine::ExecString(execute_info& Info)
 
 	if (Info.ExecMode != execute_info::exec_mode::direct && Info.SourceMode != execute_info::source_mode::known)
 	{
-		if (!Info.Command.empty() && Info.Command[0] == L'@')
+		if (Info.Command[0] == L'@')
 		{
+			Info.Echo = false;
+			if (Info.DisplayCommand.empty())
+				Info.DisplayCommand = Info.Command;
 			Info.Command.erase(0, 1);
-			Silent=true;
 		}
 
 		ExpandOSAliases(Info.Command);
@@ -952,18 +1044,18 @@ void CommandLine::ExecString(execute_info& Info)
 	IsUpdateNeeded = true;
 }
 
-bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<void(bool)>& ConsoleActivatior)
+bool CommandLine::ProcessOSCommands(string_view const CmdLine, const std::function<void(bool)>& ConsoleActivatior)
 {
 	auto SetPanel = Global->CtrlObject->Cp()->ActivePanel();
 
 	if (SetPanel->GetType() != panel_type::FILE_PANEL && Global->CtrlObject->Cp()->PassivePanel()->GetType() == panel_type::FILE_PANEL)
 		SetPanel=Global->CtrlObject->Cp()->PassivePanel();
 
-	const auto& IsCommand = [&CmdLine](const string& cmd, bool bslash)
+	const auto& IsCommand = [&CmdLine](const string_view cmd, const bool bslash)
 	{
 		const auto n = cmd.size();
 		return starts_with_icase(CmdLine, cmd)
-			&& (n == CmdLine.size() || nullptr != wcschr(L"/ \t", CmdLine[n]) || (bslash && CmdLine[n] == L'\\'));
+			&& (n == CmdLine.size() || contains(L"/ \t"sv, CmdLine[n]) || (bslash && CmdLine[n] == L'\\'));
 	};
 
 	const auto& FindKey = [&CmdLine](wchar_t Key)
@@ -995,33 +1087,33 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 	if (FindHelpKey())
 		return false;
 
+	const auto CommandSet = L"SET"sv;
 	// SET [variable=[value]]
-	if (IsCommand(L"SET", false))
+	if (IsCommand(CommandSet, false))
 	{
 		if (FindKey(L'A') || FindKey(L'P'))
 			return false; //todo: /p - dialog, /a - calculation; then set variable ...
 
 		size_t pos;
-		auto strCmdLine = CmdLine.substr(3);
-		RemoveLeadingSpaces(strCmdLine);
+		const auto SetParams = trim_left(CmdLine.substr(CommandSet.size()));
 
 		// "set" (display all) or "set var" (display all that begin with "var")
-		if (strCmdLine.empty() || ((pos = strCmdLine.find(L'=')) == string::npos) || !pos)
+		if (SetParams.empty() || ((pos = SetParams.find(L'=')) == string::npos) || !pos)
 		{
 			//forward "set [prefix]| command" and "set [prefix]> file" to COMSPEC
 			static const wchar_t CharsToFind[] = L"|>";
-			if (std::find_first_of(ALL_CONST_RANGE(strCmdLine), ALL_CONST_RANGE(CharsToFind)) != strCmdLine.cend())
+			if (std::find_first_of(ALL_CONST_RANGE(SetParams), ALL_CONST_RANGE(CharsToFind)) != SetParams.cend())
 				return false;
 
 			string strOut;
-			inplace::unquote(strCmdLine);
+			const auto UnquotedSetParams = unquote(string(SetParams));
 
 			{
 				const os::env::provider::strings EnvStrings;
 				const auto EnvStringsPtr = EnvStrings.data();
 				for (const auto& i: enum_substrings(EnvStringsPtr))
 				{
-					if (starts_with_icase(i, strCmdLine))
+					if (starts_with_icase(i, UnquotedSetParams))
 					{
 						append(strOut, i, L'\n');
 					}
@@ -1031,7 +1123,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 			if (!strOut.empty())
 			{
 				ConsoleActivatior(true);
-				Console().Write(strOut);
+				std::wcout << strOut << std::flush;
 			}
 
 			return true;
@@ -1039,30 +1131,28 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 
 		ConsoleActivatior(false);
 
-		const auto Value = strCmdLine.substr(pos + 1);
-		strCmdLine.resize(pos);
-		inplace::unquote(strCmdLine);
+		const auto VariableValue = SetParams.substr(pos + 1);
+		const auto VariableName = unquote(string(SetParams.substr(0, pos)));
 
-		if (Value.empty()) //set var=
+		if (VariableValue.empty()) //set var=
 		{
-			os::env::del(strCmdLine);
+			os::env::del(VariableName);
 		}
 		else
 		{
-			os::env::set(strCmdLine, os::env::expand(Value));
+			os::env::set(VariableName, os::env::expand(VariableValue));
 		}
 
 		return true;
 	}
 
-	if (IsCommand(L"CLS", false))
+	const auto CommandCls = L"CLS"sv;
+	if (IsCommand(CommandCls, false))
 	{
-		auto strCmdLine = CmdLine.substr(3);
-		RemoveLeadingSpaces(strCmdLine);
-		if (!strCmdLine.empty())
+		if (!trim_left(CmdLine.substr(CommandCls.size())).empty())
 		{
 			// Theoretically, in cmd "cls" and "cls blablabla" are the same things.
-			// But, if user passed some parameters to cls it's quite probably
+			// But, if the user passed some parameters to cls it's quite probably
 			// some chained command rather than parameters, e. g. "cls & dir".
 			// We have more complex logic in execute::PartCmdLine, but using it here isn't worth the effort.
 			return false;
@@ -1074,19 +1164,17 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 	}
 
 	// PUSHD путь | ..
-	if (IsCommand(L"PUSHD", false))
+	const auto CommandPushd = L"PUSHD"sv;
+	if (IsCommand(CommandPushd, false))
 	{
 		ConsoleActivatior(false);
 
-		auto strCmdLine = CmdLine.substr(5);
-		RemoveExternalSpaces(strCmdLine);
-
 		const auto PushDir = m_CurDir;
 
-		if (IntChDir(strCmdLine, true))
+		if (IntChDir(trim(CmdLine.substr(CommandPushd.size())), true))
 		{
 			ppstack.push(PushDir);
-			os::env::set(L"FARDIRSTACK", PushDir);
+			os::env::set(L"FARDIRSTACK"sv, PushDir);
 		}
 		else
 		{
@@ -1098,7 +1186,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 
 	// POPD
 	// TODO: добавить необязательный параметр - число, сколько уровней пропустить, после чего прыгнуть.
-	if (IsCommand(L"POPD", false))
+	if (IsCommand(L"POPD"sv, false))
 	{
 		ConsoleActivatior(false);
 
@@ -1109,11 +1197,11 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 			ppstack.pop();
 			if (!ppstack.empty())
 			{
-				os::env::set(L"FARDIRSTACK", ppstack.top());
+				os::env::set(L"FARDIRSTACK"sv, ppstack.top());
 			}
 			else
 			{
-				os::env::del(L"FARDIRSTACK");
+				os::env::del(L"FARDIRSTACK"sv);
 			}
 		}
 
@@ -1121,12 +1209,12 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 	}
 
 	// CLRD
-	if (IsCommand(L"CLRD", false))
+	if (IsCommand(L"CLRD"sv, false))
 	{
 		ConsoleActivatior(false);
 
 		clear_and_shrink(ppstack);
-		os::env::del(L"FARDIRSTACK");
+		os::env::del(L"FARDIRSTACK"sv);
 		return true;
 	}
 
@@ -1136,61 +1224,57 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 			nnn   Specifies a code page number (Dec or Hex).
 		Type CHCP without a parameter to display the active code page number.
 	*/
-	if (IsCommand(L"CHCP", false))
+	const auto CommandChcp = L"CHCP"sv;
+	if (IsCommand(CommandChcp, false))
 	{
-		auto strCmdLine = CmdLine.substr(4);
-		RemoveExternalSpaces(strCmdLine);
+		const auto ChcpParams = trim(CmdLine.substr(CommandChcp.size()));
 		uintptr_t cp;
-		try
-		{
-			cp = std::stoul(strCmdLine);
-		}
-		catch (const std::exception&)
-		{
+		if (!from_string(string(ChcpParams), cp))
 			return false;
-		}
 
-		if (!Console().SetInputCodepage(cp) || !Console().SetOutputCodepage(cp))
+		if (!console.SetInputCodepage(cp) || !console.SetOutputCodepage(cp))
 			return false;
 
 		ConsoleActivatior(false);
 
-		Text(strCmdLine);
+		Text(ChcpParams);
 		ScrollScreen(1);
 		return true;
 	}
 
-	if (IsCommand(L"CD", true) || IsCommand(L"CHDIR", true))
+	const auto CommandCd = L"CD"sv;
+	const auto CommandChdir = L"CHDIR"sv;
+	const auto IsCommandCd = IsCommand(CommandCd, true);
+	if (IsCommandCd || IsCommand(CommandChdir, true))
 	{
-		const int Length = IsCommand(L"CD", true)? 2 : 5;
-
-		auto strCmdLine = CmdLine.substr(Length);
-		RemoveExternalSpaces(strCmdLine);
+		auto CdParams = trim(CmdLine.substr(IsCommandCd? CommandCd.size() : CommandChdir.size()));
 
 		//проигнорируем /D
 		//мы и так всегда меняем диск а некоторые в алайсах или по привычке набирают этот ключ
-		if (starts_with_icase(strCmdLine, L"/D"_sv) && IsSpaceOrEos(strCmdLine[2]))
+		const auto ParamD = L"/D"sv;
+		if (starts_with_icase(CdParams, ParamD) && (CdParams.size() == ParamD.size() || std::iswblank(CdParams[2])))
 		{
-			strCmdLine.erase(0, 2);
-			RemoveLeadingSpaces(strCmdLine);
+			CdParams.remove_prefix(ParamD.size());
+			inplace::trim_left(CdParams);
 		}
 
-		if (strCmdLine.empty())
+		if (CdParams.empty())
 			return false;
 
 		ConsoleActivatior(false);
 
-		IntChDir(strCmdLine, Length == 5);
+		IntChDir(CdParams, !IsCommandCd);
 		return true;
 	}
 
-	if (IsCommand(L"TITLE", false))
+	const auto CommandTitle = L"TITLE"sv;
+	if (IsCommand(CommandTitle, false))
 	{
 		ConsoleActivatior(false);
 
-		auto Title = CmdLine.data() + 5; // wcslen(L"title")
+		const auto Title = CmdLine.substr(CommandTitle.size());
 
-		ConsoleTitle::SetUserTitle(*Title? Title + 1 : Title);
+		ConsoleTitle::SetUserTitle(Title.empty()? Title : Title.substr(1));
 
 		if (!(Global->CtrlObject->Cp()->LeftPanel()->IsVisible() || Global->CtrlObject->Cp()->RightPanel()->IsVisible()))
 		{
@@ -1199,7 +1283,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 		return true;
 	}
 
-	if (IsCommand(L"EXIT",false))
+	if (IsCommand(L"EXIT"sv, false))
 	{
 		ConsoleActivatior(false);
 		Global->WindowManager->ExitMainLoop(FALSE);
@@ -1209,7 +1293,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 	return false;
 }
 
-bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
+bool CommandLine::IntChDir(string_view const CmdLine, bool const ClosePanel, bool const Silent)
 {
 	auto SetPanel = Global->CtrlObject->Cp()->ActivePanel();
 
@@ -1226,8 +1310,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 
 			if (strExpandedDir.size() > 1)
 			{
-				AddEndSlash(strTemp);
-				strTemp += strExpandedDir.data()+2;
+				path::append(strTemp, string_view(strExpandedDir).substr(2));
 			}
 
 			DeleteEndSlash(strTemp);
@@ -1252,7 +1335,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 			{
 				strExpandedDir.clear();
 			}
-			strExpandedDir += wfd.strFileName;
+			strExpandedDir += wfd.FileName;
 		}
 	}
 
@@ -1269,7 +1352,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 
 	if (SetPanel->GetType() == panel_type::FILE_PANEL && SetPanel->GetMode() == panel_mode::PLUGIN_PANEL)
 	{
-		SetPanel->SetCurDir(strExpandedDir,ClosePanel!=0);
+		SetPanel->SetCurDir(strExpandedDir, ClosePanel);
 		return true;
 	}
 
@@ -1282,7 +1365,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 	}
 	else
 	{
-		if (!Selent)
+		if (!Silent)
 		{
 			const auto ErrorState = error_state::fetch();
 

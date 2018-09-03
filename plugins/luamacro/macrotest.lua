@@ -82,6 +82,8 @@ function MT.test_areas()
   assert(Area.UserMenu             ==false)
   assert(Area.ShellAutoCompletion  ==false)
   assert(Area.DialogAutoCompletion ==false)
+  assert(Area.Grabber              ==false)
+  assert(Area.Desktop              ==false)
 end
 
 local function test_mf_akey()
@@ -294,7 +296,7 @@ end
 
 local function test_mf_fsplit()
   local path="C:\\Program Files\\Far\\Far.exe"
-  assert(mf.fsplit(path,0x01)=="C:\\")
+  assert(mf.fsplit(path,0x01)=="C:")
   assert(mf.fsplit(path,0x02)=="\\Program Files\\Far\\")
   assert(mf.fsplit(path,0x04)=="Far")
   assert(mf.fsplit(path,0x08)==".exe")
@@ -884,9 +886,7 @@ local function test_Far_GetConfig()
     "Panel.Layout.SortMode", "boolean",
     "Panel.Layout.StatusLine", "boolean",
     "Panel.Layout.TotalInfo", "boolean",
-    "Panel.Left.CaseSensitiveSort", "boolean",
     "Panel.Left.DirectoriesFirst", "boolean",
-    "Panel.Left.NumericSort", "boolean",
     "Panel.Left.SelectedFirst", "boolean",
     "Panel.Left.ShortNames", "boolean",
     "Panel.Left.SortGroups", "boolean",
@@ -895,9 +895,7 @@ local function test_Far_GetConfig()
     "Panel.Left.Type", "integer",
     "Panel.Left.ViewMode", "integer",
     "Panel.Left.Visible", "boolean",
-    "Panel.Right.CaseSensitiveSort", "boolean",
     "Panel.Right.DirectoriesFirst", "boolean",
-    "Panel.Right.NumericSort", "boolean",
     "Panel.Right.SelectedFirst", "boolean",
     "Panel.Right.ShortNames", "boolean",
     "Panel.Right.SortGroups", "boolean",

@@ -43,6 +43,7 @@ struct execute_info
 	enum class wait_mode { no_wait, wait_idle, wait_finish };
 	enum class exec_mode { detect, direct, external };
 	enum class source_mode { unknown, known };
+	enum class echo { disabled, enabled, ignored };
 
 	string Command;
 	string DisplayCommand;
@@ -51,17 +52,19 @@ struct execute_info
 	exec_mode ExecMode{ exec_mode::detect };
 	source_mode SourceMode{ source_mode::unknown };
 	bool RunAs{};
+	bool Echo{ true };
+	bool UseAssociations{ true };
 };
 
 class CommandLine:public SimpleScreenObject
 {
 public:
 	explicit CommandLine(window_ptr Owner);
-	virtual ~CommandLine() override;
+	~CommandLine() override;
 
-	virtual bool ProcessKey(const Manager::Key& Key) override;
-	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam=0) override;
+	bool ProcessKey(const Manager::Key& Key) override;
+	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam=0) override;
 
 	const string& GetCurDir() const { return m_CurDir; }
 	void SetCurDir(const string& CurDir);
@@ -85,11 +88,17 @@ public:
 	void DrawFakeCommand(const string& FakeCommand);
 
 private:
-	virtual void DisplayObject() override;
+	void DisplayObject() override;
 	size_t DrawPrompt();
-	bool ProcessOSCommands(const string& CmdLine, const std::function<void(bool)>& ConsoleActivatior);
-	std::list<std::pair<string, FarColor>> GetPrompt();
-	static bool IntChDir(const string& CmdLine,int ClosePanel,bool Selent=false);
+	bool ProcessOSCommands(string_view CmdLine, const std::function<void(bool)>& ConsoleActivatior);
+	struct segment
+	{
+		string Text;
+		FarColor Colour;
+		bool Collapsible;
+	};
+	std::list<segment> GetPrompt();
+	static bool IntChDir(string_view CmdLine, bool ClosePanel, bool Silent = false);
 
 	friend class SetAutocomplete;
 

@@ -30,14 +30,15 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
+#include "format.hpp"
 
 #include "components.hpp"
 
 WARNING_PUSH(3)
 
 WARNING_DISABLE_GCC("-Wformat-nonliteral")
+
+WARNING_DISABLE_CLANG("-Weverything")
 
 #include "thirdparty/fmt/format.cc"
 

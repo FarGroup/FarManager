@@ -31,14 +31,16 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "cddrv.hpp"
+
 #include "drivemix.hpp"
 #include "flink.hpp"
 #include "pathmix.hpp"
 #include "string_utils.hpp"
+
+#include "platform.fs.hpp"
+
+#include "common/null_iterator.hpp"
 
 enum CDROM_DeviceCapabilities
 {
@@ -77,7 +79,7 @@ enum CDROM_DeviceCapabilities
 	CAPABILITIES_GENERIC_DVDROM  = CAPABILITIES_READ_DVDROM | CAPABILITIES_READ_DVDR | CAPABILITIES_READ_DVDRW | CAPABILITIES_READ_DVDRAM,
 	CAPABILITIES_GENERIC_DVDRW   = CAPABILITIES_WRITE_DVDR | CAPABILITIES_WRITE_DVDRW,
 	CAPABILITIES_GENERIC_DVDRAM  = CAPABILITIES_WRITE_DVDRAM,
-	
+
 	CAPABILITIES_GENERIC_BDROM   = CAPABILITIES_READ_BDROM,
 	CAPABILITIES_GENERIC_BDRW    = CAPABILITIES_WRITE_BDROM,
 
@@ -91,15 +93,15 @@ static CDROM_DeviceCapabilities getCapsUsingProductId(const char* prodID)
 	const auto Iterator = null_iterator(prodID);
 	std::copy_if(Iterator, Iterator.end(), std::back_inserter(productID), is_alpha);
 
-	static const std::pair<const char*, int> Capabilities[] =
+	static const std::pair<std::string_view, int> Capabilities[] =
 	{
-		{"CD", CAPABILITIES_GENERIC_CDROM},
-		{"CDRW", CAPABILITIES_GENERIC_CDROM|CAPABILITIES_GENERIC_CDRW},
-		{"DVD", CAPABILITIES_GENERIC_CDROM|CAPABILITIES_GENERIC_DVDROM},
-		{"DVDRW", CAPABILITIES_GENERIC_CDROM|CAPABILITIES_GENERIC_DVDROM|CAPABILITIES_GENERIC_DVDRW},
-		{"DVDRAM", CAPABILITIES_GENERIC_CDROM|CAPABILITIES_GENERIC_DVDROM|CAPABILITIES_GENERIC_DVDRW|CAPABILITIES_GENERIC_DVDRAM},
-		{"BDROM", CAPABILITIES_GENERIC_CDROM|CAPABILITIES_GENERIC_DVDROM|CAPABILITIES_GENERIC_DVDRAM},
-		{"HDDVD", CAPABILITIES_GENERIC_CDROM|CAPABILITIES_GENERIC_DVDROM|CAPABILITIES_GENERIC_HDDVD},
+		{"CD"sv, CAPABILITIES_GENERIC_CDROM},
+		{"CDRW"sv, CAPABILITIES_GENERIC_CDROM|CAPABILITIES_GENERIC_CDRW},
+		{"DVD"sv, CAPABILITIES_GENERIC_CDROM|CAPABILITIES_GENERIC_DVDROM},
+		{"DVDRW"sv, CAPABILITIES_GENERIC_CDROM|CAPABILITIES_GENERIC_DVDROM|CAPABILITIES_GENERIC_DVDRW},
+		{"DVDRAM"sv, CAPABILITIES_GENERIC_CDROM|CAPABILITIES_GENERIC_DVDROM|CAPABILITIES_GENERIC_DVDRW|CAPABILITIES_GENERIC_DVDRAM},
+		{"BDROM"sv, CAPABILITIES_GENERIC_CDROM|CAPABILITIES_GENERIC_DVDROM|CAPABILITIES_GENERIC_DVDRAM},
+		{"HDDVD"sv, CAPABILITIES_GENERIC_CDROM|CAPABILITIES_GENERIC_DVDROM|CAPABILITIES_GENERIC_HDDVD},
 	};
 
 	return std::accumulate(ALL_CONST_RANGE(Capabilities), CAPABILITIES_NONE, [&productID](auto Value, const auto& i)
@@ -141,14 +143,7 @@ static CDROM_DeviceCapabilities getCapsUsingMagic(const os::fs::file& Device)
 
 	DWORD returned = 0;
 
-	if ( Device.IoControl(
-			IOCTL_SCSI_PASS_THROUGH,
-			&sptwb,
-			sizeof(SCSI_PASS_THROUGH_WITH_BUFFERS),
-			&sptwb,
-			sizeof(SCSI_PASS_THROUGH_WITH_BUFFERS),
-			&returned
-			) && (sptwb.Spt.ScsiStatus == 0) )
+	if (Device.IoControl(IOCTL_SCSI_PASS_THROUGH, &sptwb, sizeof(sptwb), &sptwb, sizeof(sptwb), &returned) && !sptwb.Spt.ScsiStatus)
 	{
 		// Notes:
 		// 1. The header of 6-byte MODE commands is 4 bytes long.
@@ -196,14 +191,7 @@ static CDROM_DeviceCapabilities getCapsUsingMagic(const os::fs::file& Device)
 
 	returned = 0;
 
-	if ( Device.IoControl(
-			IOCTL_SCSI_PASS_THROUGH,
-			&sptwb,
-			sizeof(SCSI_PASS_THROUGH_WITH_BUFFERS),
-			&sptwb,
-			sizeof(SCSI_PASS_THROUGH_WITH_BUFFERS),
-			&returned
-			) && (sptwb.Spt.ScsiStatus == 0) )
+	if (Device.IoControl(IOCTL_SCSI_PASS_THROUGH, &sptwb, sizeof(sptwb), &sptwb, sizeof(sptwb), &returned) && !sptwb.Spt.ScsiStatus)
 	{
 		const auto* ptr = sptwb.DataBuf;
 		const auto* ptr_end = &sptwb.DataBuf[sDataLength];
@@ -327,14 +315,14 @@ static CDROM_DeviceCapabilities getCapsUsingDeviceProps(const os::fs::file& Devi
 	STORAGE_DESCRIPTOR_HEADER hdr{};
 	STORAGE_PROPERTY_QUERY query{ StorageDeviceProperty, PropertyStandardQuery };
 	DWORD returnedLength;
-	if (!Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &query, sizeof(STORAGE_PROPERTY_QUERY), &hdr, sizeof(hdr), &returnedLength) || !hdr.Size)
+	if (!Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &query, sizeof(query), &hdr, sizeof(hdr), &returnedLength) || !hdr.Size)
 		return CAPABILITIES_NONE;
 
 	std::vector<char> Buffer(hdr.Size);
-	if (!Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &query, sizeof(STORAGE_PROPERTY_QUERY), Buffer.data(), static_cast<DWORD>(Buffer.size()), &returnedLength))
+	if (!Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &query, sizeof(query), Buffer.data(), static_cast<DWORD>(Buffer.size()), &returnedLength))
 		return CAPABILITIES_NONE;
 
-	const auto devDesc = reinterpret_cast<const PSTORAGE_DEVICE_DESCRIPTOR>(Buffer.data());
+	const auto devDesc = reinterpret_cast<const STORAGE_DEVICE_DESCRIPTOR*>(Buffer.data());
 
 	if (!devDesc->ProductIdOffset || !Buffer[devDesc->ProductIdOffset])
 		return CAPABILITIES_NONE;
@@ -385,12 +373,12 @@ bool DriveCanBeVirtual(UINT DriveType)
 	return (DriveType == DRIVE_FIXED && IsWindows7OrGreater()) || (IsDriveTypeCDROM(DriveType) && IsWindows8OrGreater());
 }
 
-UINT FAR_GetDriveType(const string& RootDir, DWORD Detect)
+UINT FAR_GetDriveType(const string_view RootDir, const DWORD Detect)
 {
-	auto strRootDir = RootDir.empty()? GetPathRoot(os::fs::GetCurrentDirectory()) : RootDir;
+	auto strRootDir = RootDir.empty()? GetPathRoot(os::fs::GetCurrentDirectory()) : string(RootDir);
 	AddEndSlash(strRootDir);
 
-	UINT DrvType = GetDriveType(strRootDir.data());
+	UINT DrvType = GetDriveType(strRootDir.c_str());
 
 	// анализ CD-привода
 	if ((Detect&1) && DrvType == DRIVE_CDROM)
@@ -398,14 +386,14 @@ UINT FAR_GetDriveType(const string& RootDir, DWORD Detect)
 		string VolumePath = strRootDir;
 		DeleteEndSlash(VolumePath);
 
-		if (starts_with(VolumePath, L"\\\\?\\"_sv))
+		if (starts_with(VolumePath, L"\\\\?\\"sv))
 		{
 			VolumePath[2] = L'.';
 		}
 		else
 		{
-			constexpr auto UncDevicePrefix = L"\\\\.\\"_sv;
-			VolumePath.insert(0, UncDevicePrefix.raw_data(), UncDevicePrefix.size());
+			constexpr auto UncDevicePrefix = L"\\\\.\\"sv;
+			VolumePath.insert(0, UncDevicePrefix.data(), UncDevicePrefix.size());
 		}
 
 		if(const auto Device = os::fs::file(VolumePath, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
@@ -421,7 +409,7 @@ UINT FAR_GetDriveType(const string& RootDir, DWORD Detect)
 	{
 		// media have to be inserted!
 		//
-		string drive = HasPathPrefix(strRootDir) ? strRootDir : L"\\\\?\\"_sv + strRootDir;
+		string drive = HasPathPrefix(strRootDir) ? strRootDir : L"\\\\?\\"sv + strRootDir;
 		DeleteEndSlash(drive);
 
 		DrvType = DRIVE_USBDRIVE; // default type if detection failed

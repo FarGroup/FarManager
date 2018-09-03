@@ -36,6 +36,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "transactional.hpp"
 
+class bytes_view;
+
 namespace sqlite
 {
 	struct sqlite3;
@@ -46,7 +48,7 @@ class SQLiteDb: noncopyable, virtual transactional
 {
 public:
 	int GetInitStatus(string& name, bool full_name) const;
-	static const wchar_t* GetErrorMessage(int InitStatus);
+	static string_view GetErrorMessage(int InitStatus);
 
 	bool IsNew() const { return db_exists <= 0; }
 	static int library_load();
@@ -65,7 +67,11 @@ protected:
 
 	using initialiser = bool(const db_initialiser& Db);
 
-	SQLiteDb(initialiser Initialiser, const string& DbName, bool Local = false, bool WAL = false);
+	SQLiteDb(initialiser Initialiser, string_view DbName, bool Local = false, bool WAL = false);
+
+	bool BeginTransaction() override;
+	bool EndTransaction() override;
+	bool RollbackTransaction() override;
 
 	class SQLiteStmt
 	{
@@ -73,7 +79,7 @@ protected:
 		NONCOPYABLE(SQLiteStmt);
 		MOVABLE(SQLiteStmt);
 
-		explicit SQLiteStmt(sqlite::sqlite3_stmt* Stmt): m_Stmt(Stmt), m_Param(1) {}
+		explicit SQLiteStmt(sqlite::sqlite3_stmt* Stmt): m_Stmt(Stmt) {}
 
 		template<class T>
 		struct transient_t
@@ -84,7 +90,7 @@ protected:
 
 		SQLiteStmt& Reset();
 		bool Step() const;
-		bool FinalStep() const;
+		bool Execute() const;
 
 		template<typename arg, typename... args>
 		auto& Bind(arg&& Arg, args&&... Args)
@@ -92,8 +98,8 @@ protected:
 			return BindImpl(FWD(Arg)), Bind(FWD(Args)...);
 		}
 
-		const wchar_t *GetColText(int Col) const;
-		const char *GetColTextUTF8(int Col) const;
+		string GetColText(int Col) const;
+		std::string GetColTextUTF8(int Col) const;
 		int GetColInt(int Col) const;
 		unsigned long long GetColInt64(int Col) const;
 		bytes_view GetColBlob(int Col) const;
@@ -111,7 +117,7 @@ protected:
 		SQLiteStmt& BindImpl(std::nullptr_t);
 		SQLiteStmt& BindImpl(int Value);
 		SQLiteStmt& BindImpl(long long Value);
-		SQLiteStmt& BindImpl(const string_view& Value, bool bStatic = true);
+		SQLiteStmt& BindImpl(string_view Value, bool bStatic = true);
 		SQLiteStmt& BindImpl(const bytes_view& Value, bool bStatic = true);
 		SQLiteStmt& BindImpl(unsigned int Value) { return BindImpl(static_cast<int>(Value)); }
 		SQLiteStmt& BindImpl(unsigned long long Value) { return BindImpl(static_cast<long long>(Value)); }
@@ -120,7 +126,7 @@ protected:
 
 		struct stmt_deleter { void operator()(sqlite::sqlite3_stmt*) const; };
 		std::unique_ptr<sqlite::sqlite3_stmt, stmt_deleter> m_Stmt;
-		int m_Param;
+		int m_Param{};
 	};
 
 	struct statement_reset
@@ -131,12 +137,12 @@ protected:
 	using auto_statement = std::unique_ptr<SQLiteStmt, statement_reset>;
 
 	template<typename T>
-	using stmt_init = std::pair<T, const wchar_t*>;
+	using stmt_init = std::pair<T, std::string_view>;
 
 	template<class T>
 	static auto transient(const T& Value) { return SQLiteStmt::transient_t<T>(Value); }
 
-	SQLiteStmt create_stmt(const wchar_t *Stmt) const;
+	SQLiteStmt create_stmt(std::string_view Stmt) const;
 
 	template<typename T, size_t N>
 	bool PrepareStatements(const stmt_init<T> (&Init)[N])
@@ -149,8 +155,7 @@ protected:
 		std::transform(ALL_CONST_RANGE(Init), std::back_inserter(m_Statements), [this](const auto& i)
 		{
 			assert(static_cast<size_t>(i.first) == m_Statements.size());
-			// gcc bug, this-> required
-			return this->create_stmt(i.second);
+			return create_stmt(i.second);
 		});
 		return true;
 	}
@@ -158,26 +163,22 @@ protected:
 	bool Exec(const char *Command) const;
 	bool SetWALJournalingMode() const;
 	bool EnableForeignKeysConstraints() const;
-	bool Changes() const;
 	unsigned long long LastInsertRowID() const;
-
-	virtual bool BeginTransaction() override;
-	virtual bool EndTransaction() override;
-	virtual bool RollbackTransaction() override;
 
 	// TODO: use in log
 	int GetLastErrorCode() const;
 	string GetLastErrorString() const;
+	string GetErrorString(int Code) const;
 
 	const string& GetPath() const { return m_Path; }
 	const string& GetName() const { return m_Name; }
 
-	auto AutoStatement(size_t Index) const { return auto_statement(&m_Statements[Index]); }
+	auto_statement AutoStatement(size_t Index) const { return auto_statement(&m_Statements[Index]); }
 
 	template<typename... args>
 	auto ExecuteStatement(size_t Index, args&&... Args) const
 	{
-		return AutoStatement(Index)->Bind(FWD(Args)...).FinalStep();
+		return AutoStatement(Index)->Bind(FWD(Args)...).Execute();
 	}
 
 	class db_initialiser
@@ -207,8 +208,8 @@ protected:
 	};
 
 private:
-	void Initialize(initialiser Initialiser, const string& DbName, bool Local, bool WAL);
-	bool Open(const string& DbName, bool Local, bool WAL);
+	void Initialize(initialiser Initialiser, string_view DbName, bool Local, bool WAL);
+	bool Open(string_view DbName, bool Local, bool WAL);
 	void Close();
 
 	struct db_closer { void operator()(sqlite::sqlite3*) const; };

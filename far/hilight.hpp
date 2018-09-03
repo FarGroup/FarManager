@@ -35,6 +35,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "plugin.hpp"
+
+#include "platform.chrono.hpp"
+
 class FileFilterParams;
 class FileList;
 class FileListItem;
@@ -123,7 +127,7 @@ namespace highlight
 
 		int FirstCount, UpperCount, LowerCount, LastCount;
 		os::chrono::time_point CurrentTime;
-		bool Changed;
+		bool m_Changed{};
 	};
 }
 

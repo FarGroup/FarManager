@@ -32,12 +32,21 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<class T>
-void resize_nomove(T& container, size_t size)
+template<typename container>
+void reserve_exp_noshrink(container& Container, size_t Capacity)
 {
-	T Tmp(size);
-	using std::swap;
-	swap(container, Tmp);
+	// Unlike vector, string is allowed to shrink (another splendid design decision from the committee):
+	// "Calling reserve() with a res_arg argument less than capacity() is in effect a non-binding shrink request." (21.4.4 basic_string capacity)
+	// gcc decided to go mental and made that a _binding_ shrink request.
+	const auto CurrentCapacity = Container.capacity();
+	if (Capacity <= CurrentCapacity)
+		return;
+
+	// For vector reserve typically allocates exactly the requested amount instead of exponential growth.
+	// This can be really bad if called in a loop.
+	Capacity = std::max(static_cast<size_t>(CurrentCapacity * 1.5), Capacity);
+
+	Container.reserve(Capacity);
 }
 
 
@@ -60,60 +69,110 @@ void node_swap(T& Container, const typename T::const_iterator& a, const typename
 
 
 template<class T>
+[[nodiscard]]
 auto make_hash(const T& value)
 {
 	return std::hash<T>{}(value);
 }
 
+template<class type>
+void hash_combine(size_t& Seed, const type& Value)
+{
+	const auto MagicValue =
+#ifdef _WIN64
+		// (sqrt(5) - 1) * 2^63
+		11400714819323198485ull
+#else
+		// (sqrt(5) - 1) * 2^31
+		2654435769ul
+#endif
+	;
+
+	Seed ^= make_hash(Value) + MagicValue + (Seed << 6) + (Seed >> 2);
+}
+
+template<typename iterator>
+[[nodiscard]]
+size_t hash_range(iterator First, iterator Last)
+{
+	size_t Seed = 0;
+
+	for (; First != Last; ++First)
+	{
+		hash_combine(Seed, *First);
+	}
+
+	return Seed;
+}
+
+template<typename iterator>
+void hash_range(size_t& Seed, iterator First, iterator Last)
+{
+	for (; First != Last; ++First)
+	{
+		hash_combine(Seed, *First);
+	}
+}
 
 template<typename T>
+[[nodiscard]]
 constexpr auto as_unsigned(T Value)
 {
 	return static_cast<std::make_unsigned_t<T>>(Value);
 }
 
 template<typename T>
+[[nodiscard]]
 constexpr auto as_underlying_type(T Value)
 {
 	return static_cast<std::underlying_type_t<T>>(Value);
 }
 
-
+[[nodiscard]]
 constexpr auto bit(size_t Number)
 {
-	return 1 << Number;
+	return 1ull << Number;
+}
+
+template<typename value_type, typename bits_type>
+constexpr void bit_set(value_type& Value, bits_type Bits)
+{
+	Value |= Bits;
+}
+
+template<typename value_type, typename bits_type>
+constexpr void bit_clear(value_type& Value, bits_type Bits)
+{
+	Value &= ~static_cast<value_type>(Bits);
+}
+
+template<typename value_type, typename bits_type>
+constexpr void bit_change(value_type& Value, bits_type Bits, bool Set)
+{
+	Set? bit_set(Value, Bits) : bit_clear(Value, Bits);
 }
 
 
+[[nodiscard]]
 constexpr size_t aligned_size(size_t Size, size_t Alignment = MEMORY_ALLOCATION_ALIGNMENT)
 {
 	return (Size + (Alignment - 1)) & ~(Alignment - 1);
 }
 
-namespace detail
-{
-	template<class T, int Alignment>
-	struct aligned_sizeof_t
-	{
-		enum
-		{
-			value = aligned_size(sizeof(T), Alignment)
-		};
-	};
-}
-
 template<typename T, int Alignment = MEMORY_ALLOCATION_ALIGNMENT>
+[[nodiscard]]
 constexpr auto aligned_sizeof()
 {
-	return detail::aligned_sizeof_t<T, Alignment>::value;
+	return aligned_size(sizeof(T), Alignment);
 }
 
 namespace enum_helpers
 {
 	template<class O, class R = void, class T>
+	[[nodiscard]]
 	constexpr auto operation(T a, T b)
 	{
-		return static_cast<std::conditional_t<std::is_same<R, void>::value, T, R>>(O()(as_underlying_type(a), as_underlying_type(b)));
+		return static_cast<std::conditional_t<std::is_same_v<R, void>, T, R>>(O()(as_underlying_type(a), as_underlying_type(b)));
 	}
 }
 
@@ -146,6 +205,7 @@ namespace detail
 }
 
 template<typename... args>
+[[nodiscard]]
 auto overload(args&&... Args)
 {
 	return detail::overload_t<args...>(FWD(Args)...);

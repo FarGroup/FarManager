@@ -1,14 +1,10 @@
-﻿#ifndef TASKBAR_HPP_2522B9DF_D677_4AA9_8777_B5A1F588D4C1
-#define TASKBAR_HPP_2522B9DF_D677_4AA9_8777_B5A1F588D4C1
-#pragma once
+﻿/*
+eol.cpp
 
-/*
-TaskBar.hpp
-
-Windows 7 taskbar support
+Line endings
 */
 /*
-Copyright © 2009 Far Group
+Copyright © 2017 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -34,63 +30,33 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class taskbar: noncopyable
+#include "eol.hpp"
+
+static const auto
+	none_s = L""sv,
+	win_s = L"\r\n"sv,       // DOS/Windows
+	unix_s = L"\n"sv,        // Unix
+	mac_s = L"\r"sv,         // Mac
+	bad_win_s = L"\r\r\n"sv; // result of <CR><LF> text mode conversion
+
+string_view eol::str(type const Value)
 {
-public:
-	TBPFLAG GetProgressState() const;
-	void SetProgressState(TBPFLAG tbpFlags);
-	void SetProgressValue(unsigned long long Completed, unsigned long long Total);
-	static void Flash();
-
-private:
-	friend taskbar& Taskbar();
-
-	taskbar();
-
-	TBPFLAG State;
-
-	os::com::ptr<ITaskbarList3> mTaskbarList;
-};
-
-taskbar& Taskbar();
-
-class IndeterminateTaskBar: noncopyable
-{
-public:
-	explicit IndeterminateTaskBar(bool EndFlash = true);
-	~IndeterminateTaskBar();
-
-private:
-	bool EndFlash;
-};
-
-template<TBPFLAG T>
-class TaskBarState: noncopyable
-{
-public:
-	TaskBarState():PrevState(Taskbar().GetProgressState())
+	switch (Value)
 	{
-		if (PrevState!=TBPF_ERROR && PrevState!=TBPF_PAUSED)
-		{
-			if (PrevState==TBPF_INDETERMINATE||PrevState==TBPF_NOPROGRESS)
-			{
-				Taskbar().SetProgressValue(1,1);
-			}
-			Taskbar().SetProgressState(T);
-			Taskbar().Flash();
-		}
+	case type::win:     return win_s;
+	case type::unix:    return unix_s;
+	case type::mac:     return mac_s;
+	case type::bad_win: return bad_win_s;
+	default:            return none_s;
 	}
+}
 
-	~TaskBarState()
-	{
-		Taskbar().SetProgressState(PrevState);
-	}
-
-private:
-	TBPFLAG PrevState;
-};
-
-using TaskBarPause = TaskBarState<TBPF_PAUSED>;
-using TaskBarError = TaskBarState<TBPF_ERROR>;
-
-#endif // TASKBAR_HPP_2522B9DF_D677_4AA9_8777_B5A1F588D4C1
+eol::type eol::parse(string_view const Value)
+{
+	return
+		Value == win_s?     type::win :
+		Value == unix_s?    type::unix :
+		Value == mac_s?     type::mac :
+		Value == bad_win_s? type::bad_win :
+		                    type::none;
+}

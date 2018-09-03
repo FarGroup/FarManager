@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "panel.hpp"
 #include "dirinfo.hpp"
+#include "plugin.hpp"
 
 class Viewer;
 
@@ -46,37 +47,48 @@ class QuickView:public Panel
 public:
 	static qview_panel_ptr create(window_ptr Owner);
 	QuickView(private_tag, window_ptr Owner);
-	virtual ~QuickView() override;
-	void ShowFile(const string& FileName, bool TempFile, plugin_panel* hDirPlugin);
+	~QuickView() override;
+
+	void ShowFile(string_view FileName, const UserDataItem* UserData, bool TempFile, const plugin_panel* hDirPlugin);
 
 private:
-	virtual bool ProcessKey(const Manager::Key& Key) override;
-	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
-	virtual void Update(int Mode) override;
-	virtual void CloseFile() override;
-	virtual void QViewDelTempName() override;
-	virtual bool UpdateIfChanged(bool Idle) override;
-	virtual void RefreshTitle() override;
-	virtual string GetTitle() const override;
-	virtual void UpdateKeyBar() override;
-	virtual bool GetCurName(string &strName, string &strShortName) const override;
-	virtual void DisplayObject() override;
-	virtual Viewer* GetViewer(void) override {return QView.get();}
-	virtual Viewer* GetById(int ID) override;
+	bool ProcessKey(const Manager::Key& Key) override;
+	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
+	void Update(int Mode) override;
+	void CloseFile() override;
+	void QViewDelTempName() override;
+	bool UpdateIfChanged(bool Idle) override;
+	void RefreshTitle() override;
+	string GetTitle() const override;
+	void UpdateKeyBar() override;
+	bool GetCurName(string &strName, string &strShortName) const override;
+	void DisplayObject() override;
+	Viewer* GetViewer() override;
+	Viewer* GetById(int ID) override;
 
-	void PrintText(const string& Str) const;
+	void PrintText(string_view Str) const;
 	void DynamicUpdateKeyBar() const;
 
 	unique_ptr_with_ondestroy<Viewer> QView;
 	string strCurFileName;
+	UserDataItem CurUserData;
 	string strCurFileType;
-	int Directory;
 	DirInfoData Data;
 	bool OldWrapMode;
 	bool OldWrapType;
 	bool m_TemporaryFile;
 	bool uncomplete_dirscan;
+
+	enum class scan_status
+	{
+		none = 0,
+		real_ok = 1,
+		real_fail = 2,
+		plugin_fail = 3,
+		plugin_ok = 4,
+	}
+	m_DirectoryScanStatus{ scan_status::none };
 };
 
 #endif // QVIEW_HPP_944492CA_F3F6_49F8_854A_2C5D30567B9E

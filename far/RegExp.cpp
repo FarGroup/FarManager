@@ -32,17 +32,15 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "RegExp.hpp"
+
+#include "string_utils.hpp"
+#include "plugin.hpp"
 
 WARNING_DISABLE_GCC("-Wpragmas")
 WARNING_DISABLE_GCC("-Wimplicit-fallthrough")
 
 #ifdef RE_DEBUG
-#include "console.hpp"
-#include "strmix.hpp"
 
 #ifdef dpf
 #undef dpf
@@ -110,14 +108,14 @@ static const wchar_t* ops[]=
 #endif
 
 
-#define ISDIGIT(c) iswdigit(c)
-#define ISSPACE(c) iswspace(c)
-#define ISWORD(c)  (IsCharAlphaNumeric(c) || c=='_')
-#define ISLOWER(c) IsCharLower(c)
-#define ISUPPER(c) IsCharUpper(c)
-#define ISALPHA(c) IsCharAlpha(c)
-#define TOUPPER(c) ((wchar_t)(intptr_t)CharUpper((LPTSTR)(intptr_t)c))
-#define TOLOWER(c) ((wchar_t)(intptr_t)CharLower((LPTSTR)(intptr_t)c))
+#define ISDIGIT(c) std::iswdigit(c)
+#define ISSPACE(c) std::iswspace(c)
+#define ISWORD(c)  (is_alphanumeric(c) || c == '_')
+#define ISLOWER(c) is_lower(c)
+#define ISUPPER(c) is_upper(c)
+#define ISALPHA(c) is_alpha(c)
+#define TOUPPER(c) upper(c)
+#define TOLOWER(c) lower(c)
 
 //! Max brackets depth
 enum
@@ -224,13 +222,13 @@ struct RegExp::UniSet
 			else set.ClearBit(idx);
 			return *this;
 		}
-		bool operator!()const
+		explicit operator bool() const
 		{
-			return !set.GetBit(idx);
+			return set.GetBit(idx) != 0;
 		}
 	};
 
-	bool operator[](wchar_t idx)const
+	bool operator[](wchar_t idx) const
 	{
 		return GetBit(idx);
 	}
@@ -302,7 +300,8 @@ struct RegExp::UniSet
 
 enum REOp
 {
-	opLineStart=0x1,        // ^
+	opNone,
+	opLineStart,            // ^
 	opLineEnd,              // $
 	opDataStart,            // \A and ^ in single line mode
 	opDataEnd,              // \Z and $ in signle line mode
@@ -385,7 +384,7 @@ enum REOp
 
 struct REOpCode_data
 {
-	int op;
+	movable<int> op;
 #ifdef RE_DEBUG
 	int    srcpos;
 #endif
@@ -450,9 +449,12 @@ struct REOpCode_data
 
 struct RegExp::REOpCode: public REOpCode_data
 {
-	REOpCode()
+	NONCOPYABLE(REOpCode);
+	MOVABLE(REOpCode);
+
+	REOpCode():
+		REOpCode_data{}
 	{
-		*static_cast<REOpCode_data*>(this) = {};
 	}
 
 	~REOpCode()
@@ -469,7 +471,6 @@ struct RegExp::REOpCode: public REOpCode_data
 };
 
 RegExp::RegExp():
-	code(),
 	slashChar('/'),
 	backslashChar('\\'),
 	firstptr(std::make_unique<UniSet>()),
@@ -489,20 +490,18 @@ RegExp::RegExp():
 {
 }
 
-RegExp::~RegExp()
-{
-}
+RegExp::~RegExp() = default;
 
 int RegExp::CalcLength(const wchar_t* src,int srclength)
 {
 	int length=3;//global brackets
 	int brackets[MAXDEPTH];
 	int count=0;
-	int i,save;
+	int save;
 	bracketscount=1;
 	int inquote=0;
 
-	for (i=0; i<srclength; i++,length++)
+	for (int i=0; i<srclength; i++,length++)
 	{
 		if (inquote && src[i]!=backslashChar && src[i+1] != L'E')
 		{
@@ -1654,8 +1653,8 @@ int RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int src
 
 				if (src[i+1]=='?')
 				{
-					op->op++;
-					i++;
+					++op->op;
+					++i;
 				}
 
 				continue;
@@ -2061,7 +2060,6 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 				{
 					if (hmatch)
 					{
-						RegExpMatch* m2;
 						if (!hmatch->Matches.count(op->nbracket.name))
 						{
 							RegExpMatch sm;
@@ -2069,7 +2067,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 							sm.end = -1;
 							hmatch->Matches[op->nbracket.name] = sm;
 						}
-						m2 = &hmatch->Matches[op->nbracket.name];
+						const auto m2 = &hmatch->Matches[op->nbracket.name];
 
 						//if (inrangebracket) Mantis#1388
 						{
@@ -2489,7 +2487,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 						}
 						else
 						{
-							MinSkip(st, [](const wchar_t* str) { return *str != L'\r' && *str != L'\n'; });
+							MinSkip(st, [](const wchar_t* Str) { return *Str != L'\r' && *Str != L'\n'; });
 
 							if (st.max==-1)break;
 						}
@@ -2525,7 +2523,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 						}
 						else
 						{
-							MinSkip(st, [](const wchar_t* str) { return true; });
+							MinSkip(st, [](const wchar_t*) { return true; });
 
 							if (st.max==-1)break;
 						}
@@ -2564,7 +2562,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 						}
 						else
 						{
-							MinSkip(st, [op](const wchar_t* str) { return TOLOWER(*str) == op->range.symbol; });
+							MinSkip(st, [op](const wchar_t* Str) { return TOLOWER(*Str) == op->range.symbol; });
 
 							if (st.max==-1)break;
 						}
@@ -2586,7 +2584,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 						}
 						else
 						{
-							MinSkip(st, [op](const wchar_t* str) { return *str == op->range.symbol; });
+							MinSkip(st, [op](const wchar_t* Str) { return *Str == op->range.symbol; });
 
 							if (st.max==-1)break;
 						}
@@ -2625,7 +2623,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 						}
 						else
 						{
-							MinSkip(st, [op](const wchar_t* str) { return TOLOWER(*str) != op->range.symbol; });
+							MinSkip(st, [op](const wchar_t* Str) { return TOLOWER(*Str) != op->range.symbol; });
 
 							if (st.max==-1)break;
 						}
@@ -2647,7 +2645,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 						}
 						else
 						{
-							MinSkip(st, [op](const wchar_t* str) { return *str != op->range.symbol; });
+							MinSkip(st, [op](const wchar_t* Str) { return *Str != op->range.symbol; });
 
 							if (st.max==-1)break;
 						}
@@ -2684,7 +2682,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 					}
 					else
 					{
-						MinSkip(st, [op](const wchar_t* str) { return op->range.symbolclass->GetBit(*str); });
+						MinSkip(st, [op](const wchar_t* Str) { return op->range.symbolclass->GetBit(*Str); });
 
 						if (st.max==-1)break;
 					}
@@ -2720,7 +2718,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 					}
 					else
 					{
-						MinSkip(st, [op](const wchar_t* str) { return isType(*str, op->range.type); });
+						MinSkip(st, [op](const wchar_t* Str) { return isType(*Str, op->range.type); });
 
 						if (st.max==-1)break;
 					}
@@ -2756,7 +2754,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 					}
 					else
 					{
-						MinSkip(st, [op](const wchar_t* str) { return !isType(*str, op->range.type); });
+						MinSkip(st, [op](const wchar_t* Str) { return !isType(*Str, op->range.type); });
 
 						if (st.max==-1)break;
 					}
@@ -3997,7 +3995,7 @@ void RegExp::TrimTail(const wchar_t* const start, const wchar_t*& strend) const
 }
 
 #ifdef _DEBUG
-void Test()
+static void Test()
 {
 	RegExp re;
 	auto Result = re.Compile(L"/a*?ca/");

@@ -7,7 +7,8 @@ import traceback
 def check(filename):
 	#print(filename)
 	with open(filename, encoding="utf-8") as f:
-		content = f.read().splitlines()
+		RawContent = f.read()
+		content = RawContent.splitlines()
 		basename = os.path.basename(filename)
 		name, extension = os.path.splitext(basename)
 		UuidRe = re.compile('_[0-9A-F]{8}_[0-9A-F]{4}_[0-9A-F]{4}_[0-9A-F]{4}_[0-9A-F]{12}\Z', re.I)
@@ -19,19 +20,26 @@ def check(filename):
 
 		CheckBom = True
 		CheckIncludeGuards = True
+		CheckSelfInclude = True
 
 		if content[0].startswith("// validator: "):
 			if "no-bom" in content[0]:
 				CheckBom = False
 			if "no-include-guards" in content[0]:
 				CheckIncludeGuards = False
+			if "no-self-include" in content[0]:
+				CheckSelfInclude = False
 			content = content[1:]
 
-		def Raise():
-			raise Exception(name + extension, LineNumber, content[LineNumber])
+		def Raise(Message, Line=-1):
+			RealLine = LineNumber if Line==-1 else Line
+			raise Exception(RealLine + 1, Message, content[RealLine])
 
 		if CheckBom and not IsBom:
-			Raise()
+			Raise("No BOM")
+
+		if RawContent[-1][-1] not in ['\r', '\n']:
+			Raise("No final EOL", len(content) - 1)
 
 		if extension in [".hpp", ".h"] and CheckIncludeGuards:
 			LockGuardName = basename.upper().replace(".", "_")
@@ -43,23 +51,23 @@ def check(filename):
 				return Line.startswith(Template) and UuidRe.match(Line[len(Template):])
 
 			if not (CheckLine(content[0], LockGuardTemplate1) and CheckLine(content[1], LockGuardTemplate2) and CheckLine(content[-1], LockGuardTemplate3)):
-				Raise()
+				Raise("No include guard")
 			LineNumber = 2
 
 			if content[LineNumber] != "#pragma once":
-				Raise()
+				Raise("No #pragma once")
 			LineNumber += 1
 
 			if content[LineNumber] != "":
-				Raise()
+				Raise("No empty line")
 			LineNumber += 1
 
 		if content[LineNumber] != "/*":
-			Raise()
+			Raise("No comment")
 		LineNumber += 1
 
 		if content[LineNumber] != basename:
-			Raise()
+			Raise("Name mismatch")
 		LineNumber += 1;
 
 		while content[LineNumber] != "*/":
@@ -67,18 +75,18 @@ def check(filename):
 		LineNumber += 1
 
 		if content[LineNumber] != "/*":
-			Raise()
+			Raise("No comment")
 		LineNumber += 1
 
 		if not content[LineNumber].startswith("Copyright"):
-			Raise()
+			Raise("No copyright")
 		LineNumber += 1
 
 		if content[LineNumber].startswith("Copyright"):
 			LineNumber += 1
 
 		if content[LineNumber] != "All rights reserved.":
-			Raise()
+			Raise("No copyright")
 		LineNumber += 1
 
 		License = [
@@ -113,7 +121,7 @@ def check(filename):
 		LicI = 0
 		while LicI < len(License):
 			if content[LineNumber] != License[LicI]:
-				Raise()
+				Raise("License mismatch")
 			LicI +=1
 			LineNumber += 1
 
@@ -122,16 +130,28 @@ def check(filename):
 			LicI = 0
 			while LicI < len(LicenseException):
 				if content[LineNumber] != LicenseException[LicI]:
-					Raise()
+					Raise("License mismatch")
 				LicI +=1
 				LineNumber += 1
 		if content[LineNumber] != "*/":
-			Raise()
+			Raise("No comment")
 		LineNumber += 1
 
 		if content[LineNumber] != "":
-			Raise()
+			Raise("No empty line")
 		LineNumber += 1
+
+		if CheckSelfInclude and extension in [".cpp"]:
+			include = "#include "
+			if content[LineNumber].startswith(include):
+				incName, incExt = os.path.splitext(content[LineNumber][len(include):].strip('"'))
+				if name != incName or extension != incExt.replace('h', 'c'):
+					Raise("#Corresponding header must be included first")
+				LineNumber += 1
+
+				if LineNumber < len(content) and content[LineNumber] != "":
+					Raise("No empty line")
+				LineNumber += 1
 
 
 def get_list(dir):
@@ -145,5 +165,9 @@ if __name__ == "__main__":
 		if ext in extensions:
 			try:
 				check(file)
-			except:
+			except Exception as e:
+				print(file)
 				traceback.print_exc()
+				#print(e)
+				print()
+

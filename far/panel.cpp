@@ -31,10 +31,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "panel.hpp"
+
 #include "keyboard.hpp"
 #include "flink.hpp"
 #include "keys.hpp"
@@ -64,13 +62,20 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "cvtname.hpp"
 #include "pathmix.hpp"
+#include "global.hpp"
+#include "message.hpp"
+
+#include "platform.env.hpp"
+#include "platform.fs.hpp"
+
+#include "format.hpp"
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;
-static SaveScreen *DragSaveScr=nullptr;
+static std::unique_ptr<SaveScreen> DragSaveScr;
 
 Panel::Panel(window_ptr Owner):
-	ScreenObject(Owner)
+	ScreenObject(std::move(Owner))
 {
 	_OT(SysLog(L"[%p] Panel::Panel()", this));
 	SrcDragPanel=nullptr;
@@ -126,38 +131,38 @@ public:
 
 	Search(private_tag, Panel* Owner, const Manager::Key& FirstKey);
 
-	void Process(void);
-	virtual bool ProcessKey(const Manager::Key& Key) override;
-	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual int GetType() const override { return windowtype_search; }
-	virtual int GetTypeAndName(string &, string &) override { return windowtype_search; }
-	virtual void ResizeConsole(void) override;
-	const Manager::Key& KeyToProcess(void) const { return m_KeyToProcess; }
+	bool ProcessKey(const Manager::Key& Key) override;
+	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	int GetType() const override { return windowtype_search; }
+	int GetTypeAndName(string &, string &) override { return windowtype_search; }
+	void ResizeConsole() override;
+
+	void Process();
+	const Manager::Key& KeyToProcess() const { return m_KeyToProcess; }
 
 private:
-	void InitPositionAndSize(void);
-	void init(void);
+	void DisplayObject() override;
+	string GetTitle() const override { return {}; }
+
+	void InitPositionAndSize();
+	void init();
+	void ProcessName(const string& Src) const;
+	void ShowBorder() const;
+	void Close();
 
 	Panel* m_Owner;
 	Manager::Key m_FirstKey;
 	std::unique_ptr<EditControl> m_FindEdit;
 	Manager::Key m_KeyToProcess;
-	virtual void DisplayObject(void) override;
-	virtual string GetTitle() const override { return {}; }
-	void ProcessName(const string& Src) const;
-	void ShowBorder(void) const;
-	void Close(void);
 };
 
 Search::Search(private_tag, Panel* Owner, const Manager::Key& FirstKey):
 	m_Owner(Owner),
-	m_FirstKey(FirstKey),
-	m_FindEdit(),
-	m_KeyToProcess()
+	m_FirstKey(FirstKey)
 {
 }
 
-void Search::InitPositionAndSize(void)
+void Search::InitPositionAndSize()
 {
 	int X1, Y1, X2, Y2;
 	m_Owner->GetPosition(X1, Y1, X2, Y2);
@@ -174,7 +179,7 @@ search_ptr Search::create(Panel* Owner, const Manager::Key& FirstKey)
 	return SearchPtr;
 }
 
-void Search::init(void)
+void Search::init()
 {
 	SetMacroMode(MACROAREA_SEARCH);
 	SetRestoreScreenMode(true);
@@ -186,7 +191,7 @@ void Search::init(void)
 	InitPositionAndSize();
 }
 
-void Search::Process(void)
+void Search::Process()
 {
 	Global->WindowManager->ExecuteWindow(shared_from_this());
 	Global->WindowManager->CallbackWindow([this](){ ProcessKey(m_FirstKey); });
@@ -260,7 +265,7 @@ bool Search::ProcessKey(const Manager::Key& Key)
 		{
 			Hide();
 			{
-				Help::create(L"FastFind");
+				Help::create(L"FastFind"sv);
 			}
 			Show();
 			break;
@@ -281,8 +286,7 @@ bool Search::ProcessKey(const Manager::Key& Key)
 		default:
 
 			if ((LocalKey()<32 || LocalKey()>=65536) && LocalKey()!=KEY_BS && LocalKey()!=KEY_CTRLY && LocalKey()!=KEY_RCTRLY &&
-			        LocalKey()!=KEY_CTRLBS && LocalKey()!=KEY_RCTRLBS && LocalKey()!=KEY_ALT && LocalKey()!=KEY_SHIFT &&
-			        LocalKey()!=KEY_CTRL && LocalKey()!=KEY_RALT && LocalKey()!=KEY_RCTRL &&
+			        LocalKey()!=KEY_CTRLBS && LocalKey()!=KEY_RCTRLBS && !IsModifKey(LocalKey()) &&
 			        !(LocalKey()==KEY_CTRLINS||LocalKey()==KEY_CTRLNUMPAD0) && // KEY_RCTRLINS/NUMPAD0 passed to panels
 			        !(LocalKey()==KEY_SHIFTINS||LocalKey()==KEY_SHIFTNUMPAD0) &&
 			        !((LocalKey() == KEY_KILLFOCUS || LocalKey() == KEY_GOTFOCUS) && IsWindowsVistaOrGreater()) // Mantis #2903
@@ -310,7 +314,7 @@ bool Search::ProcessKey(const Manager::Key& Key)
 				   проблемы с быстрым поиском.
 				   Подробнее в 00573.ChangeDirCrash.txt
 				*/
-				if (!strName.empty() && strName.front() == L'"')
+				if (starts_with(strName, L'"'))
 				{
 					strName.erase(0, 1);
 					m_FindEdit->SetString(strName);
@@ -349,7 +353,7 @@ bool Search::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	return true;
 }
 
-void Search::ShowBorder(void) const
+void Search::ShowBorder() const
 {
 	SetColor(COL_DIALOGTEXT);
 	GotoXY(m_X1+1,m_Y1+1);
@@ -359,10 +363,12 @@ void Search::ShowBorder(void) const
 	Box(m_X1,m_Y1,m_X1+21,m_Y1+2,colors::PaletteColorToFarColor(COL_DIALOGBOX),DOUBLE_BOX);
 	GotoXY(m_X1+7,m_Y1);
 	SetColor(COL_DIALOGBOXTITLE);
+	Text(L' ');
 	Text(lng::MSearchFileTitle);
+	Text(L' ');
 }
 
-void Search::DisplayObject(void)
+void Search::DisplayObject()
 {
 	ShowBorder();
 	m_FindEdit->Show();
@@ -382,12 +388,12 @@ void Search::ProcessName(const string& Src) const
 	}
 }
 
-void Search::ResizeConsole(void)
+void Search::ResizeConsole()
 {
 	InitPositionAndSize();
 }
 
-void Search::Close(void)
+void Search::Close()
 {
 	Hide();
 	Global->WindowManager->DeleteWindow(shared_from_this());
@@ -425,7 +431,7 @@ bool Panel::IsFocused() const
 void Panel::OnFocusChange(bool Get)
 {
 	ProcessPluginEvent(Get? FE_GOTFOCUS : FE_KILLFOCUS, nullptr);
-	Redraw();
+	if (Get) Redraw();
 }
 
 bool Panel::IsMouseInClientArea(const MOUSE_EVENT_RECORD* MouseEvent) const
@@ -478,19 +484,21 @@ bool Panel::ProcessMouseDrag(const MOUSE_EVENT_RECORD *MouseEvent)
 			}
 			else
 			{
-				delete DragSaveScr;
-				DragSaveScr=nullptr;
+				DragSaveScr.reset();
 			}
 		}
 	}
 
 	if (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED && !MouseEvent->dwEventFlags && m_X2 - m_X1<ScrX)
 	{
-		DWORD FileAttr;
 		MoveToMouse(MouseEvent);
-		GetSelName(nullptr,FileAttr);
+		os::fs::find_data Data;
+		if (!get_first_selected(Data))
+			return false;
 
-		if (GetSelName(&strDragName,FileAttr) && !TestParentFolderName(strDragName))
+		strDragName = Data.FileName;
+
+		if (!IsParentDirectory(Data))
 		{
 			SrcDragPanel=this;
 			DragX=MouseEvent->dwMousePosition.X;
@@ -511,41 +519,40 @@ bool Panel::IsDragging()
 
 void Panel::EndDrag()
 {
-	delete DragSaveScr;
-	DragSaveScr=nullptr;
+	DragSaveScr.reset();
 	DragX=DragY=-1;
 }
 
 
 void Panel::DragMessage(int X,int Y,int Move)
 {
-
-	string strSelName;
-	int MsgX,Length;
-
 	const auto SelCount = SrcDragPanel->GetSelCount();
 
 	if (!SelCount)
-	{
 		return;
-	}
-	else if (SelCount == 1)
+
+	string strSelName;
+
+	if (SelCount == 1)
 	{
-		DWORD FileAttr;
-		SrcDragPanel->GetSelName(nullptr,FileAttr);
-		SrcDragPanel->GetSelName(&strSelName,FileAttr);
-		auto strCvtName = make_string(PointToName(strSelName));
-		QuoteSpace(strCvtName);
-		strSelName = strCvtName;
+		os::fs::find_data Data;
+		if (!SrcDragPanel->get_first_selected(Data))
+			return;
+
+		assign(strSelName, PointToName(Data.FileName));
+		QuoteSpace(strSelName);
 	}
 	else
 	{
-		strSelName = format(lng::MDragFiles, SelCount);
+		strSelName = format(msg(lng::MDragFiles), SelCount);
 	}
 
-	auto strDragMsg = format(Move? lng::MDragMove : lng::MDragCopy, strSelName);
+	auto strDragMsg = format(msg(Move? lng::MDragMove : lng::MDragCopy), strSelName);
 
-	if ((Length=(int)strDragMsg.size())+X>ScrX)
+	auto Length = static_cast<int>(strDragMsg.size());
+	int MsgX = X;
+
+	if (Length + X > ScrX)
 	{
 		MsgX=ScrX-Length;
 
@@ -556,12 +563,11 @@ void Panel::DragMessage(int X,int Y,int Move)
 			Length=(int)strDragMsg.size();
 		}
 	}
-	else
-		MsgX=X;
 
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
-	delete DragSaveScr;
-	DragSaveScr=new SaveScreen(MsgX,Y,MsgX+Length-1,Y);
+	// Important - the old one must be deleted before creating a new one, not after
+	DragSaveScr.reset();
+	DragSaveScr = std::make_unique<SaveScreen>(MsgX, Y, MsgX + Length - 1, Y);
 	GotoXY(MsgX,Y);
 	SetColor(COL_PANELDRAGTEXT);
 	Text(strDragMsg);
@@ -583,7 +589,7 @@ bool Panel::SetCurDir(const string& CurDir,bool ClosePanel,bool /*IsUpdated*/)
 
 void Panel::InitCurDir(const string& CurDir)
 {
-	if (!equal_icase(m_CurDir, CurDir) || !TestCurrentDirectory(CurDir))
+	if (!equal_icase(m_CurDir, CurDir) || !equal_icase(os::fs::GetCurrentDirectory(), CurDir))
 	{
 		m_CurDir = CurDir;
 
@@ -685,6 +691,87 @@ bool Panel::SetCurPath()
 	return true;
 }
 
+bool Panel::MakeListFile(string& ListFileName, bool ShortNames, string_view const Modifers)
+{
+	uintptr_t CodePage = CP_OEMCP;
+
+	if (!Modifers.empty())
+	{
+		if (contains(Modifers, L'A')) // ANSI
+		{
+			CodePage = CP_ACP;
+		}
+		else if (contains(Modifers, L'U')) // UTF8
+		{
+			CodePage = CP_UTF8;
+		}
+		else if (contains(Modifers, L'W')) // UTF16LE
+		{
+			CodePage = CP_UNICODE;
+		}
+	}
+
+	const auto& transform = [&](string& strFileName)
+	{
+		if (!Modifers.empty())
+		{
+			if (contains(Modifers, L'F') && PointToName(strFileName).size() == strFileName.size()) // 'F' - использовать полный путь; //BUGBUG ?
+			{
+				strFileName = path::join(ShortNames ? ConvertNameToShort(m_CurDir) : m_CurDir, strFileName); //BUGBUG ?
+			}
+
+			if (contains(Modifers, L'Q')) // 'Q' - заключать имена с пробелами в кавычки;
+				QuoteSpaceOnly(strFileName);
+
+			if (contains(Modifers, L'S')) // 'S' - использовать '/' вместо '\' в путях файлов;
+			{
+				ReplaceBackslashToSlash(strFileName);
+			}
+		}
+	};
+
+	try
+	{
+		ListFileName = MakeTemp();
+		if (const auto ListFile = os::fs::file(ListFileName, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, CREATE_ALWAYS))
+		{
+			os::fs::filebuf StreamBuffer(ListFile, std::ios::out);
+			std::ostream Stream(&StreamBuffer);
+			Stream.exceptions(Stream.badbit | Stream.failbit);
+			encoding::writer Writer(Stream, CodePage);
+
+			for (const auto& i: enum_selected())
+			{
+				auto Name = ShortNames? i.AlternateFileName() : i.FileName;
+
+				transform(Name);
+
+				Writer.write(Name);
+				Writer.write(L"\r\n"sv);
+			}
+
+			Stream.flush();
+		}
+		else
+		{
+			throw MAKE_FAR_EXCEPTION(msg(lng::MCannotCreateListTemp));
+		}
+
+		return true;
+	}
+	catch (const far_exception& e)
+	{
+		os::fs::delete_file(ListFileName);
+		Message(MSG_WARNING, e.get_error_state(),
+			msg(lng::MError),
+			{
+				msg(lng::MCannotCreateListFile),
+				e.get_message()
+			},
+			{ lng::MOk });
+		return false;
+	}
+}
 
 void Panel::Hide()
 {
@@ -806,9 +893,7 @@ string Panel::GetTitle() const
 
 	OpenPanelInfo Info;
 	GetOpenPanelInfo(&Info);
-	string strTitle = NullToEmpty(Info.PanelTitle);
-	RemoveExternalSpaces(strTitle);
-	return strTitle;
+	return string(trim(string_view(NullToEmpty(Info.PanelTitle))));
 }
 
 int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
@@ -836,20 +921,6 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			break;
 		}
 
-		case FCTL_SETNUMERICSORT:
-		{
-			ChangeNumericSort(Param1 != 0);
-			Result=TRUE;
-			break;
-		}
-
-		case FCTL_SETCASESENSITIVESORT:
-		{
-			ChangeCaseSensitiveSort(Param1 != 0);
-			Result=TRUE;
-			break;
-		}
-
 		case FCTL_SETSORTORDER:
 		{
 			ChangeSortOrder(Param1 != 0);
@@ -865,8 +936,14 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 		}
 
 		case FCTL_CLOSEPANEL:
-			m_PluginCommand=Command;
-			m_PluginParam = NullToEmpty((const wchar_t *)Param2);
+			if (m_PanelMode == panel_mode::PLUGIN_PANEL)
+			{
+				string folder=NullToEmpty((const wchar_t *)Param2);
+				SetCurDir(folder,true);
+				if (folder.empty())
+					Update(UPDATE_KEEP_SELECTION);
+				Redraw();
+			}
 			Result=TRUE;
 			break;
 
@@ -915,8 +992,6 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			Info->Flags |= GetSortGroups()? PFLAGS_USESORTGROUPS : 0;
 			Info->Flags |= GetSelectedFirstMode()? PFLAGS_SELECTEDFIRST : 0;
 			Info->Flags |= GetDirectoriesFirst()? PFLAGS_DIRECTORIESFIRST : 0;
-			Info->Flags |= GetNumericSort()? PFLAGS_NUMERICSORT : 0;
-			Info->Flags |= GetCaseSensitiveSort()? PFLAGS_CASESENSITIVESORT : 0;
 			Info->Flags |= (GetMode() == panel_mode::PLUGIN_PANEL)? PFLAGS_PLUGIN : 0;
 			Info->Flags |= IsVisible()? PFLAGS_VISIBLE : 0;
 			Info->Flags |= IsFocused()? PFLAGS_FOCUS : 0;
@@ -928,7 +1003,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 
 				if (Info->Flags&PFLAGS_PLUGIN)
 				{
-					Info->OwnerGuid = DestFilePanel->GetPluginHandle()->plugin()->GetGUID();
+					Info->OwnerGuid = DestFilePanel->GetPluginHandle()->plugin()->Id();
 					Info->PluginHandle = DestFilePanel->GetPluginHandle()->panel();
 					static int Reenter=0;
 					if (!Reenter)
@@ -976,7 +1051,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			}
 
 			if (Param1&&Param2)
-				xwcsncpy((wchar_t*)Param2,strTemp.data(),Param1);
+				xwcsncpy((wchar_t*)Param2, strTemp.c_str(), Param1);
 
 			Result=(int)strTemp.size()+1;
 			break;
@@ -1014,7 +1089,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			}
 
 			if (Param1&&Param2)
-				xwcsncpy((wchar_t*)Param2,strTemp.data(),Param1);
+				xwcsncpy((wchar_t*)Param2, strTemp.c_str(), Param1);
 
 			Result=(int)strTemp.size()+1;
 			break;
@@ -1027,24 +1102,24 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 				Reenter++;
 				ShortcutInfo Info;
 				GetShortcutInfo(Info);
-				Result = aligned_sizeof<FarPanelDirectory>();
-				size_t folderOffset=Result;
+				Result = static_cast<int>(aligned_sizeof<FarPanelDirectory>());
+				const auto folderOffset = Result;
 				Result+=static_cast<int>(sizeof(wchar_t)*(Info.ShortcutFolder.size()+1));
-				size_t pluginFileOffset=Result;
+				const auto pluginFileOffset = Result;
 				Result+=static_cast<int>(sizeof(wchar_t)*(Info.PluginFile.size()+1));
-				size_t pluginDataOffset=Result;
+				const auto pluginDataOffset = Result;
 				Result+=static_cast<int>(sizeof(wchar_t)*(Info.PluginData.size()+1));
-				FarPanelDirectory* dirInfo=(FarPanelDirectory*)Param2;
+				const auto dirInfo = static_cast<FarPanelDirectory*>(Param2);
 				if(Param1>=Result && CheckStructSize(dirInfo))
 				{
 					dirInfo->StructSize=sizeof(FarPanelDirectory);
 					dirInfo->PluginId=Info.PluginGuid;
-					dirInfo->Name=(wchar_t*)((char*)Param2+folderOffset);
-					dirInfo->Param=(wchar_t*)((char*)Param2+pluginDataOffset);
-					dirInfo->File=(wchar_t*)((char*)Param2+pluginFileOffset);
-					std::copy_n(Info.ShortcutFolder.data(), Info.ShortcutFolder.size() + 1, const_cast<wchar_t*>(dirInfo->Name));
-					std::copy_n(Info.PluginData.data(), Info.PluginData.size() + 1, const_cast<wchar_t*>(dirInfo->Param));
-					std::copy_n(Info.PluginFile.data(), Info.PluginFile.size() + 1, const_cast<wchar_t*>(dirInfo->File));
+					dirInfo->Name = static_cast<wchar_t*>(static_cast<void*>(static_cast<char*>(Param2) + folderOffset));
+					dirInfo->Param = static_cast<wchar_t*>(static_cast<void*>(static_cast<char*>(Param2) + pluginDataOffset));
+					dirInfo->File = static_cast<wchar_t*>(static_cast<void*>(static_cast<char*>(Param2) + pluginFileOffset));
+					*std::copy(ALL_CONST_RANGE(Info.ShortcutFolder), const_cast<wchar_t*>(dirInfo->Name)) = L'\0';
+					*std::copy(ALL_CONST_RANGE(Info.PluginData), const_cast<wchar_t*>(dirInfo->Param)) = L'\0';
+					*std::copy(ALL_CONST_RANGE(Info.PluginFile), const_cast<wchar_t*>(dirInfo->File)) = L'\0';
 				}
 				Reenter--;
 			}
@@ -1062,14 +1137,14 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 				if (Command==FCTL_GETCOLUMNTYPES)
 				{
 					if (Param1&&Param2)
-						xwcsncpy((wchar_t*)Param2,strColumnTypes.data(),Param1);
+						xwcsncpy((wchar_t*)Param2,strColumnTypes.c_str(),Param1);
 
 					Result=(int)strColumnTypes.size()+1;
 				}
 				else
 				{
 					if (Param1&&Param2)
-						xwcsncpy((wchar_t*)Param2,strColumnWidths.data(),Param1);
+						xwcsncpy((wchar_t*)Param2,strColumnWidths.c_str(),Param1);
 
 					Result=(int)strColumnWidths.size()+1;
 				}
@@ -1176,12 +1251,9 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			{
 				Result = ExecShortcutFolder(NullToEmpty(dirInfo->Name), dirInfo->PluginId, NullToEmpty(dirInfo->File), NullToEmpty(dirInfo->Param), false, false, true);
 				// restore current directory to active panel path
-				if (Result)
+				if (!IsFocused())
 				{
-					if (!IsFocused())
-					{
-						Parent()->ActivePanel()->SetCurPath();
-					}
+					Parent()->ActivePanel()->SetCurPath();
 				}
 			}
 			break;
@@ -1205,27 +1277,19 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 
 bool Panel::GetCurName(string &strName, string &strShortName) const
 {
-	strName.clear();
-	strShortName.clear();
 	return false;
 }
 
 
 bool Panel::GetCurBaseName(string &strName, string &strShortName) const
 {
-	strName.clear();
-	strShortName.clear();
 	return false;
 }
 
 bool Panel::NeedUpdatePanel(const Panel *AnotherPanel) const
 {
 	/* Обновить, если обновление разрешено и пути совпадают */
-	if ((!Global->Opt->AutoUpdateLimit || static_cast<unsigned>(GetFileCount()) <= static_cast<unsigned>(Global->Opt->AutoUpdateLimit)) &&
-		equal_icase(AnotherPanel->m_CurDir, m_CurDir))
-		return true;
-
-	return false;
+	return (!Global->Opt->AutoUpdateLimit || static_cast<unsigned>(GetFileCount()) <= static_cast<unsigned>(Global->Opt->AutoUpdateLimit)) && equal_icase(AnotherPanel->m_CurDir, m_CurDir);
 }
 
 bool Panel::GetShortcutInfo(ShortcutInfo& ShortcutInfo) const
@@ -1234,7 +1298,7 @@ bool Panel::GetShortcutInfo(ShortcutInfo& ShortcutInfo) const
 	if (m_PanelMode == panel_mode::PLUGIN_PANEL)
 	{
 		const auto ph = GetPluginHandle();
-		ShortcutInfo.PluginGuid = ph->plugin()->GetGUID();
+		ShortcutInfo.PluginGuid = ph->plugin()->Id();
 		OpenPanelInfo Info;
 		Global->CtrlObject->Plugins->GetOpenPanelInfo(ph, &Info);
 		ShortcutInfo.PluginFile = NullToEmpty(Info.HostFile);
@@ -1301,6 +1365,20 @@ int Panel::ProcessShortcutFolder(int Key,bool ProcTreePanel)
 }
 */
 
+bool Panel::SetPluginDirectory(const string& strDirectory, bool Silent)
+{
+    bool Result = false;
+	if (!strDirectory.empty())
+	{
+		UserDataItem UserData = {}; //????
+		Result = Global->CtrlObject->Plugins->SetDirectory(GetPluginHandle(), strDirectory, Silent?OPM_SILENT:0, &UserData) != 0;
+	}
+
+	Update(0);
+	Show();
+	return Result;
+}
+
 bool Panel::ExecShortcutFolder(int Pos)
 {
 	Shortcuts::data Data;
@@ -1332,55 +1410,55 @@ bool Panel::ExecShortcutFolder(string strShortcutFolder, const GUID& PluginGuid,
 
 	if (PluginGuid != FarGuid)
 	{
-		if (ProcessPluginEvent(FE_CLOSE, nullptr))
+		bool Result = false;
+		ShortcutInfo Info;
+		GetShortcutInfo(Info);
+		if (Info.PluginGuid == PluginGuid && Info.PluginFile == strPluginFile && Info.PluginData == strPluginData)
 		{
-			return true;
+			Result = SetPluginDirectory(strShortcutFolder, Silent);
 		}
-
-		if (const auto pPlugin = Global->CtrlObject->Plugins->FindPlugin(PluginGuid))
+		else
 		{
-			if (pPlugin->has(iOpen))
+			if (ProcessPluginEvent(FE_CLOSE, nullptr))
 			{
-				if (!strPluginFile.empty())
+				return false;
+			}
+
+			if (const auto pPlugin = Global->CtrlObject->Plugins->FindPlugin(PluginGuid))
+			{
+				if (pPlugin->has(iOpen))
 				{
-					auto strRealDir = strPluginFile;
-					if (CutToSlash(strRealDir))
+					if (!strPluginFile.empty())
 					{
-						SrcPanel->SetCurDir(strRealDir,true);
-						SrcPanel->GoToFile(PointToName(strPluginFile));
+						auto strRealDir = strPluginFile;
+						if (CutToSlash(strRealDir))
+						{
+							SrcPanel->SetCurDir(strRealDir,true);
+							SrcPanel->GoToFile(PointToName(strPluginFile));
 
-						SrcPanel->ClearAllItem();
-					}
-				}
-
-				const auto IsActive = SrcPanel->IsFocused();
-				OpenShortcutInfo info=
-				{
-					sizeof(OpenShortcutInfo),
-					strPluginFile.empty()?nullptr:strPluginFile.data(),
-					strPluginData.empty()?nullptr:strPluginData.data(),
-					IsActive? FOSF_ACTIVE : FOSF_NONE
-				};
-
-				if (auto hNewPlugin = Global->CtrlObject->Plugins->Open(pPlugin, OPEN_SHORTCUT, FarGuid, reinterpret_cast<intptr_t>(&info)))
-				{
-					const auto NewPanel = Parent()->ChangePanel(SrcPanel, panel_type::FILE_PANEL, TRUE, TRUE);
-					const auto NewPluginCopy = hNewPlugin.get();
-					NewPanel->SetPluginMode(std::move(hNewPlugin), L"", IsActive || !Parent()->GetAnotherPanel(NewPanel)->IsVisible());
-
-					if (!strShortcutFolder.empty())
-					{
-						UserDataItem UserData = {}; //????
-						Global->CtrlObject->Plugins->SetDirectory(NewPluginCopy, strShortcutFolder, 0, &UserData);
+							SrcPanel->ClearAllItem();
+						}
 					}
 
-					NewPanel->Update(0);
-					NewPanel->Show();
+					const auto IsActive = SrcPanel->IsFocused();
+					OpenShortcutInfo info=
+					{
+						sizeof(OpenShortcutInfo),
+						strPluginFile.empty()? nullptr : strPluginFile.c_str(),
+						strPluginData.empty()? nullptr : strPluginData.c_str(),
+						IsActive? FOSF_ACTIVE : FOSF_NONE
+					};
+
+					if (auto hNewPlugin = Global->CtrlObject->Plugins->Open(pPlugin, OPEN_SHORTCUT, FarGuid, reinterpret_cast<intptr_t>(&info)))
+					{
+						const auto NewPanel = Parent()->ChangePanel(SrcPanel, panel_type::FILE_PANEL, TRUE, TRUE);
+						NewPanel->SetPluginMode(std::move(hNewPlugin), {}, IsActive || !Parent()->GetAnotherPanel(NewPanel)->IsVisible());
+						Result = NewPanel->SetPluginDirectory(strShortcutFolder, Silent);
+					}
 				}
 			}
 		}
-
-		return true;
+		return Result;
 	}
 
 	strShortcutFolder = os::env::expand(strShortcutFolder);
@@ -1389,13 +1467,6 @@ bool Panel::ExecShortcutFolder(string strShortcutFolder, const GUID& PluginGuid,
 	{
 		return false;
 	}
-
-    /*
-	if (SrcPanel->GetType()!=FILE_PANEL)
-	{
-		SrcPanel = Parent()->ChangePanel(SrcPanel,FILE_PANEL,TRUE,TRUE);
-	}
-    */
 
 	SrcPanel->SetCurDir(strShortcutFolder,true);
 
@@ -1406,41 +1477,17 @@ bool Panel::ExecShortcutFolder(string strShortcutFolder, const GUID& PluginGuid,
 	return true;
 }
 
-bool Panel::CreateFullPathName(const string& Name, const string& ShortName, DWORD FileAttr, string& strDest, bool UNC, bool ShortNameAsIs) const
+string Panel::CreateFullPathName(string_view const Name, bool const Directory, bool const UNC, bool const ShortNameAsIs) const
 {
-	string strFileName = strDest;
-	if (FindSlash(Name) == string::npos && FindSlash(ShortName) == string::npos)
-	{
-		strFileName = ConvertNameToFull(strFileName);
-	}
-
-	/* BUGBUG весь этот if какая то чушь
-	else if (ShowShortNames)
-	{
-	  string strTemp = Name;
-
-	  if (NameLastSlash)
-	    strTemp.SetLength(1+NameLastSlash-Name);
-
-	  const wchar_t *NamePtr = wcsrchr(strFileName, L'\\');
-
-	  if(NamePtr )
-	    NamePtr++;
-	  else
-	    NamePtr=strFileName;
-
-	  strTemp += NameLastSlash?NameLastSlash+1:Name; //??? NamePtr??? BUGBUG
-	  strFileName = strTemp;
-	}
-	*/
+	auto FullName = FindSlash(Name) == string::npos? ConvertNameToFull(Name) : string(Name);
 
 	if (m_ShowShortNames && ShortNameAsIs)
-		strFileName = ConvertNameToShort(strFileName);
+		FullName = ConvertNameToShort(FullName);
 
 	/* $ 29.01.2001 VVM
 	  + По CTRL+ALT+F в командную строку сбрасывается UNC-имя текущего файла. */
 	if (UNC)
-		strFileName = ConvertNameToUNC(strFileName);
+		FullName = ConvertNameToUNC(FullName);
 
 	// $ 20.10.2000 SVS Сделаем фичу Ctrl-F опциональной!
 	if (Global->Opt->PanelCtrlFRule)
@@ -1449,47 +1496,46 @@ bool Panel::CreateFullPathName(const string& Name, const string& ShortName, DWOR
 		  по Ctrl-f имя должно отвечать условиям на панели */
 		if (m_ViewSettings.Flags&PVS_FOLDERUPPERCASE)
 		{
-			if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
+			if (Directory)
 			{
-				inplace::upper(strFileName);
+				inplace::upper(FullName);
 			}
 			else
 			{
-				inplace::upper(strFileName, 0, FindLastSlash(strFileName));
+				inplace::upper(FullName, 0, FindLastSlash(FullName));
 			}
 		}
 
-		if ((m_ViewSettings.Flags&PVS_FILEUPPERTOLOWERCASE) && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+		if ((m_ViewSettings.Flags&PVS_FILEUPPERTOLOWERCASE) && !Directory)
 		{
-			const auto pos = FindLastSlash(strFileName);
-			if (pos != string::npos && !IsCaseMixed(strFileName.data() + pos))
+			const auto pos = FindLastSlash(FullName);
+			if (pos != string::npos && !IsCaseMixed(string_view(FullName).substr(pos)))
 			{
-				inplace::lower(strFileName, pos);
+				inplace::lower(FullName, pos);
 			}
 		}
 
-		if ((m_ViewSettings.Flags&PVS_FILELOWERCASE) && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+		if ((m_ViewSettings.Flags&PVS_FILELOWERCASE) && !Directory)
 		{
-			const auto pos = FindLastSlash(strFileName);
+			const auto pos = FindLastSlash(FullName);
 			if (pos != string::npos)
 			{
-				inplace::lower(strFileName, pos);
+				inplace::lower(FullName, pos);
 			}
 		}
 	}
 
-	strDest = strFileName;
-	return !strDest.empty();
+	return FullName;
 }
 
 void Panel::exclude_sets(string& mask)
 {
-	ReplaceStrings(mask, L"[", L"<[%>", true);
-	ReplaceStrings(mask, L"]", L"[]]", true);
-	ReplaceStrings(mask, L"<[%>", L"[[]", true);
+	ReplaceStrings(mask, L"["sv, L"<[%>"sv, true);
+	ReplaceStrings(mask, L"]"sv, L"[]]"sv, true);
+	ReplaceStrings(mask, L"<[%>"sv, L"[[]"sv, true);
 }
 
-FilePanels* Panel::Parent(void)const
+FilePanels* Panel::Parent() const
 {
 	return dynamic_cast<FilePanels*>(GetOwner().get());
 }

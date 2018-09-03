@@ -48,11 +48,11 @@ public:
 	filemasks();
 	~filemasks();
 
-	filemasks(filemasks&&);
-	filemasks& operator=(filemasks&&);
+	filemasks(filemasks&&) noexcept;
+	filemasks& operator=(filemasks&&) noexcept;
 
 	bool Set(const string& Masks, DWORD Flags = 0);
-	bool Compare(const string_view& Name) const;
+	bool Compare(string_view Name) const;
 	bool empty() const;
 
 	static void ErrorMessage();
@@ -62,7 +62,7 @@ private:
 
 	void clear();
 
-	std::list<masks> Include, Exclude;
+	std::vector<masks> Include, Exclude;
 };
 
 #endif // FILEMASKS_HPP_80DC5089_9F1B_484C_BC52_39A6AA1C7299

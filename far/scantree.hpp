@@ -39,6 +39,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "bitflags.hpp"
 
+#include "platform.fwd.hpp"
+
 enum
 {
 	// эту фигню может ставить плагин (младшие 8 бит)
@@ -64,7 +66,7 @@ public:
 	~ScanTree();
 
 	// 3-й параметр - флаги из старшего слова
-	void SetFindPath(const string& Path,const string& Mask, const DWORD NewScanFlags = FSCANTREE_FILESFIRST);
+	void SetFindPath(const string& Path, string_view Mask, DWORD NewScanFlags = FSCANTREE_FILESFIRST);
 	bool GetNextName(os::fs::find_data& fdata, string &strFullName);
 	void SkipDir();
 	int IsDirSearchDone() const {return Flags.Check(FSCANTREE_SECONDDIRNAME);}

@@ -34,6 +34,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "platform.fwd.hpp"
+
 class CachedRead: noncopyable
 {
 public:
@@ -52,21 +54,6 @@ private:
 	unsigned long long m_LastPtr{};
 	int m_Alignment;
 	std::vector<char> m_Buffer; // = 2*k*Alignment (k >= 2)
-};
-
-
-class CachedWrite: noncopyable
-{
-public:
-	explicit CachedWrite(os::fs::file& file);
-	~CachedWrite();
-	bool Write(const void* Data, size_t DataSize);
-	bool Flush();
-
-private:
-	os::fs::file& m_File;
-	std::vector<char> m_Buffer;
-	size_t m_UsedSize{};
 };
 
 #endif // CACHE_HPP_2D98721D_C727_4F3B_86A2_BEDD0B1D6D8A

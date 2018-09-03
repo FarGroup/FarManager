@@ -37,6 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 bool IsDriveTypeCDROM(UINT DriveType);
 bool DriveCanBeVirtual(UINT DriveType);
-UINT FAR_GetDriveType(const string& RootDir, DWORD Detect=0);
+UINT FAR_GetDriveType(string_view RootDir, DWORD Detect=0);
 
 #endif // CDDRV_HPP_58900C1C_4DCC_4B5F_B2E1_2B118547DC70

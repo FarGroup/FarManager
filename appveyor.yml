@@ -1,0 +1,51 @@
+version: 3.0.{branch}.{build}
+
+branches:
+  only:
+    - master
+
+skip_tags: true
+skip_non_tags: false
+
+max_jobs: 8
+
+image: Visual Studio 2017
+
+init:
+
+clone_folder: c:\projects\FarManager
+
+shallow_clone: true
+clone_depth: 1
+
+install:
+  - cd far
+  - for /f "tokens=1,2,4 delims=," %%i in ('tools\m4 -P farversion.inc.m4') do appveyor UpdateBuild -Version %%i.%%j.%%k.%APPVEYOR_BUILD_NUMBER%
+
+platform:
+  - Win32
+  - x64
+
+configuration:
+  - Debug
+  - Release
+
+build:
+  parallel: true
+  project: far/far.sln
+  verbosity: minimal
+
+test: off
+
+after_build:
+- cmd: >-
+    set PlatformArchitecture=%platform:~-2%
+
+    cd %configuration%.%PlatformArchitecture%.vc
+
+    del %APPVEYOR_BUILD_FOLDER%\far*.7z
+
+    7z a %APPVEYOR_BUILD_FOLDER%\far.%APPVEYOR_BUILD_VERSION%.7z *.exe *.dll *.lng *.hlf *.diz *.ini *.pdb ..\changelog*
+
+artifacts:
+- path: far.$(APPVEYOR_BUILD_VERSION).7z

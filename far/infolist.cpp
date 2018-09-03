@@ -31,11 +31,9 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
+#include "infolist.hpp"
 
 #include "imports.hpp"
-#include "infolist.hpp"
 #include "macroopcode.hpp"
 #include "flink.hpp"
 #include "farcolor.hpp"
@@ -63,6 +61,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "cvtname.hpp"
 #include "vmenu.hpp"
+#include "global.hpp"
+
+#include "platform.fs.hpp"
+
+#include "common/enum_tokens.hpp"
+
+#include "format.hpp"
 
 static bool LastMode = false;
 static bool LastDizWrapMode = false;
@@ -93,7 +98,7 @@ info_panel_ptr InfoList::create(window_ptr Owner)
 }
 
 InfoList::InfoList(private_tag, window_ptr Owner):
-	Panel(Owner),
+	Panel(std::move(Owner)),
 	OldWrapMode(),
 	OldWrapType(),
 	SectionState(ILSS_SIZE),
@@ -154,7 +159,7 @@ void InfoList::DrawTitle(string &strTitle,int Id,int &CurY)
 	GotoXY(m_X1+(m_X2-m_X1+1-(int)strTitle.size())/2,CurY);
 	PrintText(strTitle);
 	GotoXY(m_X1+1,CurY);
-	PrintText(SectionState[Id].Show?L"[-]":L"[+]");
+	PrintText(SectionState[Id].Show? L"[-]"sv : L"[+]"sv);
 	SectionState[Id].Y=CurY;
 	CurY++;
 }
@@ -217,7 +222,7 @@ void InfoList::DisplayObject()
 		PrintInfo(strUserName);
 
 		os::netapi::ptr<USER_INFO_1> UserInfo;
-		if (NetUserGetInfo(nullptr, strUserName.data(), 1, reinterpret_cast<LPBYTE*>(&ptr_setter(UserInfo))) == NERR_Success)
+		if (NetUserGetInfo(nullptr, strUserName.c_str(), 1, reinterpret_cast<LPBYTE*>(&ptr_setter(UserInfo))) == NERR_Success)
 		{
 			if(UserInfo->usri1_comment && *UserInfo->usri1_comment)
 			{
@@ -325,7 +330,7 @@ void InfoList::DisplayObject()
 				DriveType=DRIVE_VIRTUAL;
 			}
 
-			SectionTitle = concat(L' ', msg(DiskTypeId), L' ', msg(lng::MInfoDisk), L' ', strDriveRoot, L" ("_sv, strFileSystemName, L") "_sv);
+			SectionTitle = concat(L' ', msg(DiskTypeId), L' ', msg(lng::MInfoDisk), L' ', strDriveRoot, L" ("sv, strFileSystemName, L") "sv);
 
 			switch(DriveType)
 			{
@@ -336,8 +341,7 @@ void InfoList::DisplayObject()
 						os::WNetGetConnection(DeviceName, strAssocPath);
 					}
 					// TODO: check result
-					// fall through
-
+					[[fallthrough]];
 				case DRIVE_SUBSTITUTE:
 				case DRIVE_VIRTUAL:
 				{
@@ -417,7 +421,7 @@ void InfoList::DisplayObject()
 			PrintInfo(str(ms.dwMemoryLoad) + L'%');
 
 			ULONGLONG TotalMemoryInKilobytes=0;
-			if(Imports().GetPhysicallyInstalledSystemMemory(&TotalMemoryInKilobytes))
+			if(imports.GetPhysicallyInstalledSystemMemory(&TotalMemoryInKilobytes))
 			{
 				GotoXY(m_X1+2,CurY++);
 				PrintText(lng::MInfoMemoryInstalled);
@@ -507,7 +511,7 @@ void InfoList::DisplayObject()
 			}
 			PrintInfo(strOutStr);
 
-			auto GetBatteryTime = [](size_t SecondsCount)
+			const auto& GetBatteryTime = [](size_t SecondsCount)
 			{
 				if (SecondsCount == BATTERY_LIFE_UNKNOWN)
 					return string(msg(lng::MInfoPowerStatusUnknown));
@@ -515,7 +519,7 @@ void InfoList::DisplayObject()
 				string Days, Time;
 				const std::chrono::seconds Seconds(SecondsCount);
 				ConvertDuration(Seconds, Days, Time);
-				if (Days != L"0")
+				if (Days != L"0"sv)
 				{
 					const auto Hours = str(std::chrono::duration_cast<std::chrono::hours>(Seconds).count());
 					Time = Hours + Time.substr(2);
@@ -589,13 +593,13 @@ long long InfoList::VMProcess(int OpCode, void* vParam, long long iParam)
 
 void InfoList::SelectShowMode()
 {
-	MenuDataEx ShowModeMenuItem[]=
+	menu_item ShowModeMenuItem[]
 	{
-		msg(lng::MMenuInfoShowModeDisk).data(),LIF_SELECTED, 0,
-		msg(lng::MMenuInfoShowModeMemory).data(),0, 0,
-		msg(lng::MMenuInfoShowModeDirDiz).data(),0, 0,
-		msg(lng::MMenuInfoShowModePluginDiz).data(),0, 0,
-		msg(lng::MMenuInfoShowModePower).data(), 0, 0,
+		{ msg(lng::MMenuInfoShowModeDisk), LIF_SELECTED },
+		{ msg(lng::MMenuInfoShowModeMemory), 0 },
+		{ msg(lng::MMenuInfoShowModeDirDiz), 0 },
+		{ msg(lng::MMenuInfoShowModePluginDiz), 0 },
+		{ msg(lng::MMenuInfoShowModePower), 0 },
 	};
 
 	for_each_cnt(CONST_RANGE(SectionState, i, size_t index)
@@ -618,12 +622,12 @@ void InfoList::SelectShowMode()
 		//DEFINE_GUID(InfoListSelectShowModeId,0xbfc64a26, 0xf433, 0x4cf3, 0xa1, 0xde, 0x83, 0x61, 0xcf, 0x76, 0x2f, 0x68);
 		// ?????
 
-		const auto ShowModeMenu = VMenu2::create(msg(lng::MMenuInfoShowModeTitle), ShowModeMenuItem, std::size(ShowModeMenuItem), 0);
-		ShowModeMenu->SetHelp(L"InfoPanelShowMode");
+		const auto ShowModeMenu = VMenu2::create(msg(lng::MMenuInfoShowModeTitle), std::as_const(ShowModeMenuItem), 0);
+		ShowModeMenu->SetHelp(L"InfoPanelShowMode"sv);
 		ShowModeMenu->SetPosition(m_X1+4,-1,0,0);
 		ShowModeMenu->SetMenuFlags(VMENU_WRAPMODE);
 
-		ShowCode=ShowModeMenu->Run([&](const Manager::Key& RawKey)
+		ShowCode = ShowModeMenu->Run([&](const Manager::Key& RawKey)
 		{
 			const auto Key=RawKey();
 			int KeyProcessed = 1;
@@ -657,28 +661,25 @@ void InfoList::SelectShowMode()
 			return;
 	}
 
-	if (ShowCode != -1)
+	switch (ShowMode)
 	{
-		switch (ShowMode)
-		{
-			case 0:
-				SectionState[ShowCode].Show=false;
-				break;
-			case 1:
-				SectionState[ShowCode].Show=true;
-				break;
-			default:
-				SectionState[ShowCode].Show=!SectionState[ShowCode].Show;
-				break;
-		}
-		Global->Opt->InfoPanel.strShowStatusInfo.clear();
-		std::for_each(RANGE(SectionState, i)
-		{
-			Global->Opt->InfoPanel.strShowStatusInfo += i.Show? L"1" : L"0";
-		});
-
-		Redraw();
+	case 0:
+		SectionState[ShowCode].Show=false;
+		break;
+	case 1:
+		SectionState[ShowCode].Show=true;
+		break;
+	default:
+		SectionState[ShowCode].Show=!SectionState[ShowCode].Show;
+		break;
 	}
+	Global->Opt->InfoPanel.strShowStatusInfo.clear();
+	std::for_each(RANGE(SectionState, i)
+	{
+		Global->Opt->InfoPanel.strShowStatusInfo += i.Show? L"1"s : L"0"s;
+	});
+
+	Redraw();
 }
 
 bool InfoList::ProcessKey(const Manager::Key& Key)
@@ -697,7 +698,7 @@ bool InfoList::ProcessKey(const Manager::Key& Key)
 	{
 		case KEY_F1:
 		{
-			Help::create(L"InfoPanel");
+			Help::create(L"InfoPanel"sv);
 			return true;
 		}
 		case KEY_CTRLF12:
@@ -731,16 +732,13 @@ bool InfoList::ProcessKey(const Manager::Key& Key)
 			{
 				FileEditor::create(strDizFileName,CP_DEFAULT,FFILEEDIT_ENABLEF6);
 			}
-			else if (!Global->Opt->InfoPanel.strFolderInfoFiles.empty())
+			else
 			{
-				string strArgName;
-				const wchar_t *p = Global->Opt->InfoPanel.strFolderInfoFiles.data();
-
-				while ((p = GetCommaWord(p,strArgName)) != nullptr)
+				for (const auto& i: enum_tokens_with_quotes(Global->Opt->InfoPanel.strFolderInfoFiles.Get(), L",;"sv))
 				{
-					if (strArgName.find_first_of(L"*?") == string::npos)
+					if (i.find_first_of(L"*?"sv) == string::npos)
 					{
-						FileEditor::create(strArgName, CP_DEFAULT, FFILEEDIT_CANNEWFILE | FFILEEDIT_ENABLEF6);
+						FileEditor::create(i, CP_DEFAULT, FFILEEDIT_CANNEWFILE | FFILEEDIT_ENABLEF6);
 						break;
 					}
 				}
@@ -882,7 +880,7 @@ bool InfoList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 }
 
 
-void InfoList::PrintText(const string& Str) const
+void InfoList::PrintText(string_view const Str) const
 {
 	if (WhereY()<=m_Y2-1)
 	{
@@ -902,7 +900,6 @@ void InfoList::PrintInfo(const string& str) const
 	if (WhereY()>m_Y2-1)
 		return;
 
-	FarColor SaveColor=GetColor();
 	int MaxLength=m_X2-WhereX()-2;
 
 	if (MaxLength<0)
@@ -916,6 +913,7 @@ void InfoList::PrintInfo(const string& str) const
 	if (NewX>m_X1 && NewX>WhereX())
 	{
 		GotoXY(NewX,WhereY());
+		const auto SaveColor = GetColor();
 		SetColor(COL_PANELINFOTEXT);
 		Text(strStr + L' ');
 		SetColor(SaveColor);
@@ -933,28 +931,29 @@ bool InfoList::ShowDirDescription(int YPos)
 {
 	const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 
-	string strDizDir(AnotherPanel->GetCurDir());
+	string strFullDizName(AnotherPanel->GetCurDir());
+	
+	if (!strFullDizName.empty())
+		AddEndSlash(strFullDizName);
 
-	if (!strDizDir.empty())
-		AddEndSlash(strDizDir);
+	const auto DirSize = strFullDizName.size();
 
-	string strArgName;
-	const wchar_t *NamePtr = Global->Opt->InfoPanel.strFolderInfoFiles.data();
-
-	while ((NamePtr=GetCommaWord(NamePtr,strArgName)) != nullptr)
+	for (const auto& i: enum_tokens_with_quotes(Global->Opt->InfoPanel.strFolderInfoFiles.Get(), L",;"sv))
 	{
-		auto strFullDizName = strDizDir + strArgName;
-		os::fs::find_data FindData;
+		strFullDizName.resize(DirSize);
+		append(strFullDizName, i);
 
+		os::fs::find_data FindData;
 		if (!os::fs::get_find_data(strFullDizName, FindData))
 			continue;
 
 		CutToSlash(strFullDizName, false);
-		strFullDizName += FindData.strFileName;
+		strFullDizName += FindData.FileName;
 
-		if (OpenDizFile(strFullDizName,YPos))
+		if (OpenDizFile(strFullDizName, YPos))
 			return true;
 	}
+
 	return false;
 }
 
@@ -1104,7 +1103,7 @@ void InfoList::DynamicUpdateKeyBar() const
 	Keybar.SetCustomLabels(KBA_INFO);
 }
 
-Viewer* InfoList::GetViewer(void)
+Viewer* InfoList::GetViewer()
 {
 	return DizView.get();
 }

@@ -31,16 +31,13 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
+#include "global.hpp"
 
-#include "imports.hpp"
 #include "scrbuf.hpp"
 #include "config.hpp"
 #include "configdb.hpp"
 #include "ctrlobj.hpp"
 #include "manager.hpp"
-#include "locale.hpp"
 
 global::global():
 	OnlyEditorViewerUsed(),
@@ -69,7 +66,7 @@ global::global():
 	AllowCancelExit = true;
 	DisablePluginsOutput = false;
 	ProcessException = false;
-	HelpFileMask=L"*.hlf";
+	HelpFileMask = L"*.hlf"sv;
 #if defined(SYSLOG)
 	StartSysLog = false;
 #endif
@@ -122,7 +119,7 @@ size_t global::far_clock::size() const
 
 void global::far_clock::update()
 {
-	m_CurrentTime = locale::GetTimeFormat();
+	m_CurrentTime = os::chrono::format_time();
 }
 
 

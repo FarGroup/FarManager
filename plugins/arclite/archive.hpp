@@ -21,13 +21,6 @@ extern const wchar_t* c_method_lzma;   // standard 7z methods
 extern const wchar_t* c_method_lzma2;  //
 extern const wchar_t* c_method_ppmd;   // 
 
-extern const wchar_t* c_method_lzham;  // known external 7z codecs
-extern const wchar_t* c_method_zstd;   //
-extern const wchar_t* c_method_lz4;    //
-extern const wchar_t* c_method_lz5;    //
-extern const wchar_t* c_method_brotli; //
-extern const wchar_t* c_method_lizard; //
-
 extern const unsigned __int64 c_min_volume_size;
 
 extern const wchar_t* c_sfx_ext; 
@@ -49,6 +42,7 @@ struct ArcLib {
   Func_CreateDecoder CreateDecoder;
   Func_CreateEncoder CreateEncoder;
   Func_GetIsArc GetIsArc;
+  ComObject<IHashers> ComHashers;
 
   HRESULT get_prop(UInt32 index, PROPID prop_id, PROPVARIANT* prop) const;
   HRESULT get_bool_prop(UInt32 index, PROPID prop_id, bool& value) const;
@@ -107,6 +101,13 @@ struct CDllCodecInfo {
 };
 typedef vector<CDllCodecInfo> ArcCodecs;
 
+struct CDllHasherInfo
+{
+  unsigned LibIndex;
+  UInt32 HasherIndex;
+};
+typedef vector<CDllHasherInfo> ArcHashers;
+
 class ArcFormats: public map<ArcType, ArcFormat> {
 public:
   ArcTypes get_arc_types() const;
@@ -135,11 +136,11 @@ private:
   size_t n_format_libs;
   ArcCodecs arc_codecs;
   size_t n_7z_codecs;
-  MyCompressCodecsInfo *compressinfo;
+  ArcHashers arc_hashers;
   ArcFormats arc_formats;
   SfxModules sfx_modules;
   static ArcAPI* arc_api;
-  ArcAPI() { n_base_format_libs = n_format_libs = n_7z_codecs = 0; compressinfo = nullptr; }
+  ArcAPI() { n_base_format_libs = n_format_libs = n_7z_codecs = 0; }
   ~ArcAPI();
   void load_libs(const wstring& path);
   void load_codecs(const wstring& path);
@@ -159,7 +160,10 @@ public:
   static size_t Count7zCodecs() {
     return get()->n_7z_codecs;
   }
-  
+  static const ArcHashers& hashers() {
+    return get()->arc_hashers;
+  }
+
   static const SfxModules& sfx() {
     return get()->sfx_modules;
   }
@@ -176,6 +180,7 @@ struct ArcFileInfo {
   UInt32 parent;
   wstring name;
   bool is_dir;
+  bool is_altstream;
   bool operator<(const ArcFileInfo& file_info) const;
 };
 typedef vector<ArcFileInfo> FileList;
@@ -240,7 +245,7 @@ public:
 
   HRESULT copy_prologue(IOutStream *out_stream);
 
- // archive contents
+  // archive contents
 public:
   UInt32 num_indices;
   FileList file_list;
@@ -260,6 +265,7 @@ public:
   FILETIME get_atime(UInt32 index) const;
   unsigned get_crc(UInt32 index) const;
   bool get_anti(UInt32 index) const;
+  bool get_isaltstream(UInt32 index) const;
 
   // extract
 private:
@@ -281,6 +287,7 @@ public:
   bool solid;
   bool encrypted;
   wstring password;
+  int open_password;
   bool update_props_defined;
   bool has_crc;
   void load_update_props();
@@ -305,6 +312,6 @@ public:
 public:
   Archive()
    : base_stream(nullptr), num_indices(0)
-   , solid(false), encrypted(false), update_props_defined(false), has_crc(false)
+   , level(0), solid(false), encrypted(false), open_password(0), update_props_defined(false), has_crc(false)
   {}
 };

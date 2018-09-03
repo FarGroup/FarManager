@@ -136,6 +136,7 @@ LINK_OBJS = \
 	"$(INTDIR)\eject.obj" \
 	"$(INTDIR)\elevation.obj" \
 	"$(INTDIR)\encoding.obj" \
+	"$(INTDIR)\eol.obj" \
 	"$(INTDIR)\exception.obj" \
 	"$(INTDIR)\execute.obj" \
 	"$(INTDIR)\FarDlgBuilder.obj" \
@@ -197,6 +198,7 @@ LINK_OBJS = \
 	"$(INTDIR)\pipe.obj" \
 	"$(INTDIR)\platform.obj" \
 	"$(INTDIR)\platform.chrono.obj" \
+	"$(INTDIR)\platform.concurrency.obj" \
 	"$(INTDIR)\platform.env.obj" \
 	"$(INTDIR)\platform.fs.obj" \
 	"$(INTDIR)\platform.memory.obj" \
@@ -226,11 +228,12 @@ LINK_OBJS = \
 	"$(INTDIR)\shortcuts.obj" \
 	"$(INTDIR)\sqlitedb.obj" \
 	"$(INTDIR)\stddlg.obj" \
+	"$(INTDIR)\string_sort.obj" \
 	"$(INTDIR)\string_utils.obj" \
 	"$(INTDIR)\strmix.obj" \
 	"$(INTDIR)\syslog.obj" \
 	"$(INTDIR)\tinyxml.obj" \
-	"$(INTDIR)\TaskBar.obj" \
+	"$(INTDIR)\taskbar.obj" \
 	"$(INTDIR)\tracer.obj" \
 	"$(INTDIR)\treelist.obj" \
 	"$(INTDIR)\tvar.obj" \
@@ -241,13 +244,13 @@ LINK_OBJS = \
 	"$(INTDIR)\window.obj" \
 	"$(INTDIR)\wm_listener.obj" \
 	"$(INTDIR)\xlat.obj" \
-	"$(INTDIR)\vc_crt_fix_impl.obj" \
 !if defined(X86)
 !if !defined(DISABLE_WOW64_HOOK)
 	"$(INTDIR)\hook_wow64.obj" \
 !endif
 !ifndef LINK_ULINK
 	"$(INTDIR)\vc_crt_fix.obj" \
+	"$(INTDIR)\vc_crt_fix_impl.obj" \
 !else
 	"$(INTDIR)\vc_crt_fix_ulink.obj"
 !endif
@@ -269,6 +272,7 @@ DEFINES=\
 !ifdef ARM
 	/D "_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE"\
 !endif
+	/D "_ENABLE_EXTENDED_ALIGNED_STORAGE"\
 	/D "_HAS_AUTO_PTR_ETC=0"\
 	/D "_CRT_SECURE_NO_WARNINGS"
 
@@ -433,7 +437,7 @@ $(INTDIR)\vc_crt_fix_ulink.obj: vc_crt_fix_ulink.cpp
 
 .cpp{$(INTDIR)}.obj::
 	$(CPP) @<<
-	$(CPPFLAGS) /Yuheaders.hpp /Fp"$(PCH_FILE)" $<
+	$(CPPFLAGS) /Yuheaders.hpp /Fp"$(PCH_FILE)" /FI headers.hpp /FI memcheck.hpp $<
 <<
 
 #Do not use $(AS) here - nmake incorrectly substitutes ml64 when compiling in amd64_x86 environment

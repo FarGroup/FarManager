@@ -7,6 +7,7 @@
 #include "comutils.hpp"
 #include "ui.hpp"
 #include "archive.hpp"
+#include "options.hpp"
 
 wstring uint_to_hex_str(unsigned __int64 val, unsigned num_digits = 0) {
   wchar_t str[16];
@@ -163,20 +164,20 @@ wstring format_attrib_prop(const PropVariant& prop)
   for (unsigned i = 0; i < kNumWinAtrribFlags; i++) {
     unsigned flag = (1U << i);
     if ((val & flag) != 0) {
-		  auto c = g_WinAttribChars[i];
-		  if (c != L'.') {
-			  val &= ~flag;
-			  // if (i != 7) // we can disable N (NORMAL) printing
-			  attr[na++] = c;
-		  }
-	  }
+      auto c = g_WinAttribChars[i];
+      if (c != L'.') {
+        val &= ~flag;
+        // if (i != 7) // we can disable N (NORMAL) printing
+        { attr[na++] = c; }
+      }
+    }
   }
   auto res = wstring(attr, na);
 
   if (val != 0) {
     if (na)
       res += L' ';
-	  res += uint_to_hex_str(val, 8);
+    res += uint_to_hex_str(val, 8);
   }
 
   if (isPosix) {
@@ -297,9 +298,9 @@ static PropInfo c_prop_info[] =
 const PropInfo* find_prop_info(PROPID prop_id) {
   static_assert(_countof(c_prop_info) == kpid_NUM_DEFINED-kpidPath, "Missed items in c_prop_info");
   if (prop_id < kpidPath || prop_id >= kpid_NUM_DEFINED)
-	  return nullptr;
+    return nullptr;
   else
-	  return c_prop_info + (prop_id - kpidPath);
+    return c_prop_info + (prop_id - kpidPath);
 }
 
 AttrList Archive::get_attr_list(UInt32 item_index) {
@@ -476,10 +477,7 @@ void Archive::load_update_props() {
   if (in_arc->GetArchiveProperty(kpidMethod, prop.ref()) == S_OK && prop.is_str()) {
     list<wstring> m_list = split(prop.get_str(), L' ');
 
-    static const wchar_t *known_methods[] = {
-      c_method_lzma, c_method_lzma2, c_method_ppmd,
-      c_method_lzham, c_method_zstd, c_method_lz4, c_method_lz5, c_method_brotli, c_method_lizard
-    };
+    static const wchar_t *known_methods[] = { c_method_lzma, c_method_lzma2, c_method_ppmd };
 
     for (list<wstring>::const_iterator m_str = m_list.begin(); m_str != m_list.end(); m_str++) {
       if (_wcsicmp(m_str->c_str(), c_method_copy) == 0) {
@@ -490,6 +488,10 @@ void Archive::load_update_props() {
       for (const auto known : known_methods) {
         if (_wcsicmp(m_str->c_str(), known) == 0)
         { method = known; break; }
+      }
+      for (const auto known : g_options.codecs) {
+        if (_wcsicmp(m_str->c_str(), known.name.c_str()) == 0)
+        { method = known.name; break; }
       }
       if (!method.empty())
         break;

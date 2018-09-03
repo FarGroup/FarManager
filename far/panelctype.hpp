@@ -65,7 +65,7 @@ enum FILEPANEL_COLUMN_MODES: unsigned long long
 	COLUMN_MARK                   = 0x8000000000000000LL,
 	COLUMN_NAMEONLY               = 0x4000000000000000LL,
 	COLUMN_RIGHTALIGN             = 0x2000000000000000LL,
-	COLUMN_COMMAS                 = 0x0800000000000000LL, // Вставлять разделитель между тысячами
+	COLUMN_GROUPDIGITS            = 0x0800000000000000LL, // Вставлять разделитель между тысячами
 	COLUMN_THOUSAND               = 0x0400000000000000LL, // Вместо делителя 1024 использовать делитель 1000
 	COLUMN_BRIEF                  = 0x0200000000000000LL,
 	COLUMN_MONTH                  = 0x0100000000000000LL,

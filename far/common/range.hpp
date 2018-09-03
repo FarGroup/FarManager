@@ -32,6 +32,9 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "rel_ops.hpp"
+#include "type_traits.hpp"
+
 template<class iterator_type>
 class range
 {
@@ -49,8 +52,25 @@ public:
 		m_End(End)
 	{}
 
-	constexpr range(iterator Begin, size_t Count):
+	constexpr range(pointer Begin, size_t Count):
 		range(Begin, Begin + Count)
+	{
+	}
+
+	template<typename compatible_iterator, REQUIRES((std::is_convertible_v<compatible_iterator, iterator_type>))>
+	constexpr range(const range<compatible_iterator>& Rhs):
+		range(ALL_RANGE(Rhs))
+	{
+	}
+
+	template<typename container, REQUIRES(is_range_v<container>)>
+	constexpr range(container& Container):
+		range(ALL_RANGE(Container))
+	{
+	}
+
+	constexpr range(const std::initializer_list<value_type>& List):
+		range(ALL_RANGE(List))
 	{
 	}
 
@@ -89,41 +109,84 @@ public:
 	constexpr auto data() const { return &*m_Begin; }
 	constexpr size_t size() const { return m_End - m_Begin; }
 
+	/*constexpr*/ auto pop_front()
+	{
+		assert(!empty());
+		return m_Begin++;
+	}
+
+	/*constexpr*/ auto pop_back()
+	{
+		assert(!empty());
+		return m_End--;
+	}
+
+	void swap(range& Rhs) noexcept
+	{
+		using std::swap;
+		swap(*this, Rhs);
+	}
+
 private:
-	enum { is_const = std::is_const<std::remove_reference_t<reference>>::value };
+	enum { is_const = std::is_const_v<std::remove_reference_t<reference>> };
 
 	iterator m_Begin {};
 	iterator m_End {};
 };
 
 template<class iterator_type>
+[[nodiscard]]
 constexpr auto make_range(iterator_type i_begin, iterator_type i_end)
 {
 	return range<iterator_type>(i_begin, i_end);
 }
 
 template<class iterator_type>
+[[nodiscard]]
 constexpr auto make_range(iterator_type i_begin, size_t Size)
 {
 	return range<iterator_type>(i_begin, i_begin + Size);
 }
 
 template<class container>
+[[nodiscard]]
 constexpr auto make_range(container& Container)
 {
 	return make_range(ALL_RANGE(Container));
 }
 
+template<class container>
+[[nodiscard]]
+constexpr auto make_span(container& Container)
+{
+	return make_range(std::data(Container), std::size(Container));
+}
+
+template<class container>
+[[nodiscard]]
+constexpr auto make_range(const container& Container)
+{
+	return make_range(ALL_CONST_RANGE(Container));
+}
+
+template<class container>
+[[nodiscard]]
+constexpr auto make_span(const container& Container)
+{
+	return make_range(std::data(Container), std::size(Container));
+}
+
 template<class T>
-class i_iterator: public std::iterator<std::random_access_iterator_tag, T>, public rel_ops<i_iterator<T>>
+class i_iterator: public rel_ops<i_iterator<T>>
 {
 public:
+	using iterator_category = std::random_access_iterator_tag;
 	using value_type = T;
+	using difference_type = std::ptrdiff_t;
+	using pointer = T*;
+	using reference = T&;
 
 	explicit i_iterator(const T& value): m_value(value) {}
-	i_iterator(const i_iterator& rhs): m_value(rhs.m_value) {}
-
-	auto& operator=(const i_iterator& rhs) { m_value = rhs.m_value; return *this; }
 
 	auto operator->() const { return &m_value; }
 	auto& operator*() const { return m_value; }
@@ -146,6 +209,7 @@ private:
 };
 
 template<class T>
+[[nodiscard]]
 auto make_irange(T i_begin, T i_end)
 {
 	using iterator = i_iterator<T>;
@@ -153,10 +217,99 @@ auto make_irange(T i_begin, T i_end)
 }
 
 template<class T>
+[[nodiscard]]
 auto make_irange(T i_end)
 {
 	using iterator = i_iterator<T>;
 	return range<iterator>(iterator(0), iterator(i_end));
+}
+
+namespace detail
+{
+	template<typename T, typename accessor>
+	class select_iterator : public rel_ops<select_iterator<T, accessor>>
+	{
+	public:
+		using iterator_category = typename std::iterator_traits<T>::iterator_category;
+		using difference_type = std::ptrdiff_t;
+		using reference = std::invoke_result_t<accessor, typename std::iterator_traits<T>::value_type>;
+		using value_type = std::remove_reference_t<reference>;
+		using pointer = value_type*;
+
+		explicit select_iterator(const T& Value, const accessor& Accessor):
+			m_Value(Value),
+			m_Accessor(Accessor)
+		{
+		}
+
+		decltype(auto) operator*() { return std::invoke(m_Accessor, *m_Value); }
+		decltype(auto) operator*() const { return &std::invoke(m_Accessor, *m_Value); }
+		auto operator->() { return &**this; }
+		auto operator->() const { return &**this; }
+
+		auto& operator++() { ++m_Value; return *this; }
+		auto& operator--() { --m_Value; return *this; }
+
+		auto& operator+=(size_t n) { m_Value += n; return *this; }
+		auto& operator-=(size_t n) { m_Value -= n; return *this; }
+
+		auto operator+(size_t n) const { return select_iterator(m_Value + n); }
+		auto operator-(size_t n) const { return select_iterator(m_Value - n); }
+
+		auto operator-(const select_iterator& rhs) const { return m_Value - rhs.m_Value; }
+		auto operator==(const select_iterator& rhs) const { return m_Value == rhs.m_Value; }
+		auto operator<(const select_iterator& rhs) const { return m_Value < rhs.m_Value; }
+
+	private:
+		T m_Value;
+		accessor m_Accessor;
+	};
+
+	template<typename T, typename accessor>
+	auto make_select_iterator(T Iterator, const accessor& Accessor)
+	{
+		return select_iterator<T, accessor>(Iterator, Accessor);
+	}
+
+	template<typename container, typename container_ref, typename accessor, typename accessor_ref, typename T>
+	class selector
+	{
+	public:
+		selector(container_ref Container, accessor_ref Accessor):
+			m_Container(FWD(Container)),
+			m_Accessor(FWD(Accessor))
+		{
+		}
+
+		auto begin()        { return make_select_iterator(std::begin(this->m_Container), this->m_Accessor); }
+		auto end()          { return make_select_iterator(std::end(this->m_Container), this->m_Accessor); }
+		auto begin()  const { return make_select_iterator(std::begin(this->m_Container), this->m_Accessor); }
+		auto end()    const { return make_select_iterator(std::end(this->m_Container), this->m_Accessor); }
+		auto cbegin() const { return make_select_iterator(std::begin(this->m_Container), this->m_Accessor); }
+		auto cend()   const { return make_select_iterator(std::end(this->m_Container), this->m_Accessor); }
+
+	private:
+		container m_Container;
+		accessor m_Accessor;
+	};
+
+	template<typename arg_type>
+	using stored_type = std::conditional_t<
+		std::is_rvalue_reference_v<arg_type>,
+		std::remove_reference_t<arg_type>,
+		std::add_lvalue_reference_t<std::remove_reference_t<arg_type>>
+	>;
+}
+
+template<typename container, typename accessor>
+[[nodiscard]]
+auto select(container&& Container, accessor&& Accessor)
+{
+	return detail::selector<
+		detail::stored_type<decltype(Container)>, decltype(Container),
+		detail::stored_type<decltype(Accessor)>, decltype(Accessor),
+		decltype(std::begin(Container))
+	>(FWD(Container), FWD(Accessor));
 }
 
 #endif // RANGE_HPP_3B87674F_96D1_487D_B83E_43E43EFBA4D3

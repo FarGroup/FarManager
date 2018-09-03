@@ -31,17 +31,20 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "constitle.hpp"
-#include "platform.security.hpp"
+
 #include "lang.hpp"
 #include "config.hpp"
-#include "synchro.hpp"
 #include "farversion.hpp"
 #include "scrbuf.hpp"
 #include "strmix.hpp"
+#include "global.hpp"
+
+#include "platform.concurrency.hpp"
+#include "platform.env.hpp"
+#include "platform.security.hpp"
+
+#include "format.hpp"
 
 static const string& GetFarTitleAddons()
 {
@@ -55,29 +58,28 @@ static const string& GetFarTitleAddons()
 	*/
 	static string strTitleAddons;
 
-	strTitleAddons.assign(L" - Far ",7);
-	strTitleAddons += Global->Opt->strTitleAddons.Get();
+	strTitleAddons = concat(L" - Far "sv, os::env::expand(Global->Opt->strTitleAddons));
 
 	static const string strVer = concat(str(FAR_VERSION.Major), L'.', str(FAR_VERSION.Minor));
 	static const string strBuild = str(FAR_VERSION.Build);
 	static const string strPID = str(GetCurrentProcessId());
 
-	ReplaceStrings(strTitleAddons, L"%PID", strPID, true);
-	ReplaceStrings(strTitleAddons, L"%Ver", strVer, true);
-	ReplaceStrings(strTitleAddons, L"%Build", strBuild, true);
-	ReplaceStrings(strTitleAddons,L"%Platform",
+	ReplaceStrings(strTitleAddons, L"%PID"sv, strPID, true);
+	ReplaceStrings(strTitleAddons, L"%Ver"sv, strVer, true);
+	ReplaceStrings(strTitleAddons, L"%Build"sv, strBuild, true);
+	ReplaceStrings(strTitleAddons,L"%Platform"sv,
 #ifdef _WIN64
 #ifdef _M_IA64
-	L"IA64",
+	L"IA64"sv,
 #else
-	L"x64",
+	L"x64"sv,
 #endif
 #else
-	L"x86",
+	L"x86"sv,
 #endif
 	true);
-	ReplaceStrings(strTitleAddons, L"%Admin", os::security::is_admin() ? msg(lng::MFarTitleAddonsAdmin) : L"", true);
-	RemoveTrailingSpaces(strTitleAddons);
+	ReplaceStrings(strTitleAddons, L"%Admin"sv, os::security::is_admin() ? msg(lng::MFarTitleAddonsAdmin) : L""sv, true);
+	inplace::trim_right(strTitleAddons);
 
 	return strTitleAddons;
 }
@@ -94,18 +96,18 @@ static string& FarTitle()
 	return strFarTitle;
 }
 
-void ConsoleTitle::SetUserTitle(const string& Title)
+void ConsoleTitle::SetUserTitle(string_view const Title)
 {
-	UserTitle() = Title;
+	assign(UserTitle(), Title);
 }
 
-os::critical_section TitleCS;
+static os::critical_section TitleCS;
 
-void ConsoleTitle::SetFarTitle(const string& Title, bool Flush)
+void ConsoleTitle::SetFarTitle(string_view const Title, bool Flush)
 {
 	SCOPED_ACTION(os::critical_section_lock)(TitleCS);
 
-	FarTitle() = Title;
+	assign(FarTitle(), Title);
 	Global->ScrBuf->SetTitle(UserTitle().empty()? FarTitle() + GetFarTitleAddons() : UserTitle());
 	if (Flush)
 	{

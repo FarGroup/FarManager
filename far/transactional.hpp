@@ -36,6 +36,7 @@ class transactional
 {
 public:
 	virtual ~transactional() = default;
+
 	virtual bool BeginTransaction() = 0;
 	virtual bool EndTransaction() = 0;
 	virtual bool RollbackTransaction() = 0;

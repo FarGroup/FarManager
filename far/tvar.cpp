@@ -32,16 +32,16 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "tvar.hpp"
+
+#include "string_sort.hpp"
+
+#include "format.hpp"
+
 //---------------------------------------------------------------
 // If this code works, it was written by Alexander Nazarenko.
 // If not, I don't know who wrote it.
 //---------------------------------------------------------------
-
-#include "headers.hpp"
-#pragma hdrstop
-
-#include "tvar.hpp"
-#include "string_utils.hpp"
 
 enum TypeString
 {
@@ -56,7 +56,7 @@ static TypeString checkTypeString(const string& TestStr)
 
 	if (!TestStr.empty())
 	{
-		const wchar_t *ptrTestStr=TestStr.data();
+		auto ptrTestStr = TestStr.c_str();
 		wchar_t ch, ch2;
 		bool isNum     = true;
 //		bool isDec     = false;
@@ -110,7 +110,7 @@ static TypeString checkTypeString(const string& TestStr)
 				case L'-':
 				case L'+':
 
-					if (ptrTestStr == TestStr.data() + 1)
+					if (ptrTestStr == TestStr.c_str() + 1)
 						isSign=true;
 					else if (isSign)
 					{
@@ -291,10 +291,10 @@ TVar::TVar(double v) :
 {
 }
 
-TVar::TVar(const string& v) :
+TVar::TVar(string_view const v):
 	inum(),
 	dnum(),
-	str(v),
+	str(ALL_CONST_RANGE(v)),
 	vType(vtString)
 {
 }
@@ -367,11 +367,7 @@ long long TVar::asInteger() const
 	}
 	else if (isString())
 	{
-		try
-		{
-			ret = std::stoll(str);
-		}
-		catch (const std::exception&)
+		if (!from_string(str, ret))
 		{
 			// TODO: log
 		}
@@ -397,11 +393,7 @@ double TVar::asDouble() const
 	}
 	else if (isString())
 	{
-		try
-		{
-			ret = std::stod(str);
-		}
-		catch (const std::exception&)
+		if (!from_string(str, ret))
 		{
 			// TODO: log
 		}
@@ -461,7 +453,7 @@ static bool _cmp_Lt(TVarType vt,const void *a, const void *b)
 		case vtUnknown:
 		case vtInteger: r = *(const long long*)a < *(const long long*)b; break;
 		case vtDouble:  r = *(const double*)a < *(const double*)b; break;
-		case vtString:  r = StrCmp((const wchar_t*)a, (const wchar_t*)b) < 0; break;
+		case vtString:  r = string_sort::less((const wchar_t*)a, (const wchar_t*)b); break;
 	}
 
 	return r;
@@ -476,7 +468,7 @@ static bool _cmp_Gt(TVarType vt, const void *a, const void *b)
 		case vtUnknown:
 		case vtInteger: r = *(const long long*)a > *(const long long*)b; break;
 		case vtDouble:  r = *(const double*)a > *(const double*)b; break;
-		case vtString:  r = StrCmp((const wchar_t*)a, (const wchar_t*)b) > 0; break;
+		case vtString:  r = string_sort::less((const wchar_t*)b, (const wchar_t*)a); break;
 	}
 
 	return r;
@@ -502,7 +494,7 @@ bool CompAB(const TVar& a, const TVar& b, TVarFuncCmp fcmp)
 				{
 					switch (checkTypeString(b.asString()))
 					{
-						case tsStr:   r = fcmp(vtString,a.asString().data(),b.str.data()); break;
+						case tsStr:   r = fcmp(vtString,a.asString().c_str(),b.str.data()); break;
 						case tsInt:   bi=b.asInteger(); r = fcmp(vtInteger,&a.inum,&bi);  break;
 						case tsFloat: bd=b.asDouble(); r = fcmp(vtDouble,&a.inum,&bd);   break;
 					}
@@ -523,7 +515,7 @@ bool CompAB(const TVar& a, const TVar& b, TVarFuncCmp fcmp)
 				{
 					switch (checkTypeString(b.str))
 					{
-						case tsStr:   r = fcmp(vtString,a.asString().data(),b.str.data()); break;
+						case tsStr:   r = fcmp(vtString,a.asString().c_str(),b.str.data()); break;
 						case tsInt:
 						case tsFloat: bd=b.asDouble(); r = fcmp(vtDouble,&a.inum,&bd);   break;
 					}
@@ -535,7 +527,7 @@ bool CompAB(const TVar& a, const TVar& b, TVarFuncCmp fcmp)
 			break;
 		case vtString:
 		{
-			r = fcmp(vtString,a.asString().data(),b.asString().data());
+			r = fcmp(vtString,a.asString().c_str(),b.asString().data());
 			break;
 		}
 	}

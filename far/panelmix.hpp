@@ -37,12 +37,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "panelfwd.hpp"
 
+#include "platform.chrono.hpp"
+
 struct column;
 
 void ShellUpdatePanels(panel_ptr SrcPanel, bool NeedSetUpADir = false);
 bool CheckUpdateAnotherPanel(panel_ptr SrcPanel,const string& SelName);
 
-bool MakePath1(DWORD Key,string &strPathName, const wchar_t *Param2, bool ShortNameAsIs = true);
+bool MakePath(const panel_ptr& SrcPanel, bool FilePath, bool RealName, bool ShortNameAsIs, string& strPathName);
+bool MakePathForUI(DWORD Key, string &strPathName);
 
 string FormatStr_Attribute(DWORD FileAttributes, size_t Width);
 string FormatStr_DateTime(os::chrono::time_point FileTime, int ColumnType, unsigned long long Flags, int Width);

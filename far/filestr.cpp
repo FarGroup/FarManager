@@ -31,90 +31,27 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "filestr.hpp"
+
 #include "nsUniversalDetectorEx.hpp"
 #include "config.hpp"
 #include "codepage_selection.hpp"
-#include "strmix.hpp"
+#include "global.hpp"
+
+#include "platform.fs.hpp"
+
+#include "common/enum_tokens.hpp"
+
+#include "format.hpp"
 
 static const size_t DELTA = 1024;
-static const size_t ReadBufCount = 0x2000;
+static const size_t ReadBufCount = 65536;
 
-enum EolType
-{
-	FEOL_NONE,
-	// \r\n
-	FEOL_WINDOWS,
-	// \n
-	FEOL_UNIX,
-	// \r
-	FEOL_MAC,
-	// \r\r (это не реальное завершение строки, а состояние парсера)
-	FEOL_MAC2,
-	// \r\r\n (появление таких концов строк вызвано багом Notepad-а)
-	FEOL_NOTEPAD
-};
-
-bool IsTextUTF8(const char* Buffer, size_t Length, bool& PureAscii)
-{
-	bool Ascii=true;
-	size_t Octets=0;
-	size_t LastOctetsPos = 0;
-	const size_t MaxCharSize = 4;
-
-	for (size_t i=0; i<Length; i++)
-	{
-		BYTE c=Buffer[i];
-
-		if (c&0x80)
-			Ascii=false;
-
-		if (Octets)
-		{
-			if ((c&0xC0)!=0x80)
-				return false;
-
-			Octets--;
-		}
-		else
-		{
-			LastOctetsPos = i;
-
-			if (c&0x80)
-			{
-				while (c&0x80)
-				{
-					c <<= 1;
-					Octets++;
-				}
-
-				Octets--;
-
-				if (!Octets)
-					return false;
-			}
-		}
-	}
-
-	PureAscii = Ascii;
-	return (!Octets || Length - LastOctetsPos < MaxCharSize) && !Ascii;
-}
-
-GetFileString::GetFileString(const os::fs::file& SrcFile, uintptr_t CodePage) :
+enum_file_lines::enum_file_lines(const os::fs::file& SrcFile, uintptr_t CodePage) :
 	SrcFile(SrcFile),
+	BeginPos(SrcFile.GetPointer()),
 	m_CodePage(CodePage),
-	ReadPos(0),
-	ReadSize(0),
-	Peek(false),
-	LastLength(0),
-	LastString(nullptr),
-	LastResult(false),
-	m_Eol(m_CodePage),
-	SomeDataLost(false),
-	bCrCr(false)
+	m_Eol(m_CodePage)
 {
 	if (m_CodePage == CP_UNICODE || m_CodePage == CP_REVERSEBOM)
 		m_wReadBuf.resize(ReadBufCount);
@@ -124,107 +61,83 @@ GetFileString::GetFileString(const os::fs::file& SrcFile, uintptr_t CodePage) :
 	m_wStr.reserve(DELTA);
 }
 
-bool GetFileString::PeekString(LPWSTR* DestStr, size_t& Length)
+bool enum_file_lines::get(bool Reset, file_line& Value) const
 {
-	if(!Peek)
+	if (Reset)
 	{
-		LastResult = GetString(DestStr, Length);
-		Peek = true;
-		LastString = *DestStr;
-		LastLength = Length;
+		SrcFile.SetPointer(BeginPos, nullptr, FILE_BEGIN);
 	}
-	else
-	{
-		*DestStr = LastString;
-		Length = LastLength;
-	}
-	return LastResult;
+
+	return GetString(Value.Str, Value.Eol);
 }
 
-bool GetFileString::GetString(string& str)
+bool enum_file_lines::GetString(string_view& Str, eol::type& Eol) const
 {
-	wchar_t* s;
-	size_t len;
-	if (GetString(&s, len))
-	{
-		str.assign(s, len);
-		return true;
-	}
-	return false;
-}
-
-bool GetFileString::GetString(LPWSTR* DestStr, size_t& Length)
-{
-	if(Peek)
-	{
-		Peek = false;
-		*DestStr = LastString;
-		Length = LastLength;
-		return LastResult;
-	}
-
 	switch (m_CodePage)
 	{
 	case CP_UNICODE:
 	case CP_REVERSEBOM:
-		if (GetTString(m_wReadBuf, m_wStr, m_CodePage == CP_REVERSEBOM))
-		{
-			*DestStr = m_wStr.data();
-			Length = m_wStr.size() - 1;
-			return true;
-		}
-		return false;
+		if (!GetTString(m_wReadBuf, m_wStr, Eol, m_CodePage == CP_REVERSEBOM))
+			return false;
+
+		Str = { m_wStr.data(), m_wStr.size() };
+		return true;
 
 	case CP_UTF8:
 	case CP_UTF7:
 		{
 			std::vector<char> CharStr;
 			CharStr.reserve(DELTA);
-			bool ExitCode = GetTString(m_ReadBuf, CharStr);
+			if (!GetTString(m_ReadBuf, CharStr, Eol))
+				return false;
 
-			if (ExitCode)
+			if (!CharStr.empty())
 			{
-				Utf::errors errs;
-				const auto len = Utf::get_chars(m_CodePage, CharStr.data(), CharStr.size() - 1, m_wStr.data(), m_wStr.size(), &errs);
+				Utf::errors Errors;
+				m_wStr.resize(m_wStr.capacity());
 
-				SomeDataLost = SomeDataLost || errs.Conversion.Error;
-				if (len > m_wStr.size())
+				for (auto Overflow = true; Overflow;)
 				{
-					resize_nomove(m_wStr, len + 1);
-					Utf::get_chars(m_CodePage, CharStr.data(), CharStr.size() - 1, m_wStr.data(), len, nullptr);
+					const auto Size = Utf::get_chars(m_CodePage, { CharStr.data(), CharStr.size() }, m_wStr.data(), m_wStr.size(), &Errors);
+					Overflow = Size > m_wStr.size();
+					m_wStr.resize(Size);
 				}
 
-				m_wStr.resize(len+1);
-				m_wStr[len] = L'\0';
-				*DestStr = m_wStr.data();
-				Length = m_wStr.size() - 1;
+				m_ConversionError = m_ConversionError || Errors.Conversion.Error;
 			}
-			return ExitCode;
+			else
+			{
+				m_wStr.clear();
+			}
+
+			Str = { m_wStr.data(), m_wStr.size() };
+			return true;
 		}
 
 	default:
 		{
 			std::vector<char> CharStr;
 			CharStr.reserve(DELTA);
-			bool ExitCode = GetTString(m_ReadBuf, CharStr);
+			if (!GetTString(m_ReadBuf, CharStr, Eol))
+				return false;
 
-			if (ExitCode)
+			if (!CharStr.empty())
 			{
 				DWORD Result = ERROR_SUCCESS;
-				size_t nResultLength = 0;
 				bool bGet = false;
 				m_wStr.resize(CharStr.size());
 
-				if (!SomeDataLost)
+				size_t nResultLength = 0;
+				if (!m_ConversionError)
 				{
-					nResultLength = MultiByteToWideChar(m_CodePage, SomeDataLost ? 0 : MB_ERR_INVALID_CHARS, CharStr.data(), static_cast<int>(CharStr.size()), m_wStr.data(), static_cast<int>(m_wStr.size()));
+					nResultLength = MultiByteToWideChar(m_CodePage, MB_ERR_INVALID_CHARS, CharStr.data(), static_cast<int>(CharStr.size()), m_wStr.data(), static_cast<int>(m_wStr.size()));
 
 					if (!nResultLength)
 					{
 						Result = GetLastError();
 						if (Result == ERROR_NO_UNICODE_TRANSLATION || (Result == ERROR_INVALID_FLAGS && IsNoFlagsCodepage(m_CodePage)))
 						{
-							SomeDataLost = true;
+							m_ConversionError = true;
 							bGet = true;
 						}
 					}
@@ -233,258 +146,286 @@ bool GetFileString::GetString(LPWSTR* DestStr, size_t& Length)
 				{
 					bGet = true;
 				}
+
 				if (bGet)
 				{
-					nResultLength = encoding::get_chars(m_CodePage, CharStr.data(), CharStr.size(), m_wStr);
+					nResultLength = encoding::get_chars(m_CodePage, { CharStr.data(), CharStr.size() }, m_wStr);
 					if (nResultLength > m_wStr.size())
 					{
 						Result = ERROR_INSUFFICIENT_BUFFER;
 					}
 				}
+
 				if (Result == ERROR_INSUFFICIENT_BUFFER)
 				{
-					nResultLength = encoding::get_chars_count(m_CodePage, CharStr.data(), CharStr.size());
+					nResultLength = encoding::get_chars_count(m_CodePage, { CharStr.data(), CharStr.size() });
 					m_wStr.resize(nResultLength);
-					encoding::get_chars(m_CodePage, CharStr.data(), CharStr.size(), m_wStr);
+					encoding::get_chars(m_CodePage, { CharStr.data(), CharStr.size() }, m_wStr);
 				}
 
-				m_wStr.resize(nResultLength);
+				if (!nResultLength)
+					return false;
 
-				*DestStr = m_wStr.data();
-				Length = m_wStr.size() - 1;
-				ExitCode = !m_wStr.empty();
+				m_wStr.resize(nResultLength);
+			}
+			else
+			{
+				m_wStr.clear();
 			}
 
-			return ExitCode;
+			Str = { m_wStr.data(), m_wStr.size() };
+			return true;
 		}
 	}
 }
 
-template<class T>
-bool GetFileString::GetTString(std::vector<T>& From, std::vector<T>& To, bool bBigEndian)
+template<typename T>
+bool enum_file_lines::GetTString(std::vector<T>& From, std::vector<T>& To, eol::type& Eol, bool bBigEndian) const
 {
-	bool ExitCode = true;
-	T* ReadBufPtr = ReadPos < ReadSize ? From.data() + ReadPos / sizeof(T) : nullptr;
-
 	To.clear();
 
 	// Обработка ситуации, когда у нас пришёл двойной \r\r, а потом не было \n.
 	// В этом случаем считаем \r\r двумя MAC окончаниями строк.
-	if (bCrCr)
+	if (m_CrCr)
 	{
-		To.emplace_back(m_Eol.cr<T>());
-		bCrCr = false;
+		m_CrCr = false;
+		Eol = eol::type::mac;
+		return true;
 	}
-	else
+
+	auto CurrentEol = eol::type::none;
+	for (const auto* ReadBufPtr = ReadPos < ReadSize? From.data() + ReadPos / sizeof(T) : nullptr; ; ++ReadBufPtr, ReadPos += sizeof(T))
 	{
-		EolType Eol = FEOL_NONE;
-		for (;;)
+		if (ReadPos >= ReadSize)
 		{
-			if (ReadPos >= ReadSize)
+			if (!(SrcFile.Read(From.data(), ReadBufCount * sizeof(T), ReadSize) && ReadSize))
 			{
-				if (!(SrcFile.Read(From.data(), ReadBufCount*sizeof(T), ReadSize) && ReadSize))
-				{
-					if (To.empty())
-					{
-						ExitCode = false;
-					}
-					break;
-				}
+				Eol = CurrentEol;
+				return !To.empty() || CurrentEol != eol::type::none;
+			}
 
-				if (bBigEndian && sizeof(T) != 1)
-				{
-					swap_bytes(From.data(), From.data(), ReadSize);
-				}
+			if (bBigEndian && sizeof(T) != 1)
+			{
+				swap_bytes(From.data(), From.data(), ReadSize);
+			}
 
-				ReadPos = 0;
-				ReadBufPtr = From.data();
-			}
-			if (Eol == FEOL_NONE)
+			ReadPos = 0;
+			ReadBufPtr = From.data();
+		}
+
+		if (CurrentEol == eol::type::none)
+		{
+			// UNIX
+			if (*ReadBufPtr == m_Eol.lf<T>())
 			{
-				// UNIX
-				if (*ReadBufPtr == m_Eol.lf<T>())
-				{
-					Eol = FEOL_UNIX;
-				}
-				// MAC / Windows? / Notepad?
-				else if (*ReadBufPtr == m_Eol.cr<T>())
-				{
-					Eol = FEOL_MAC;
-				}
+				CurrentEol = eol::type::unix;
+				continue;
 			}
-			else if (Eol == FEOL_MAC)
+			// MAC / Windows? / Notepad?
+			else if (*ReadBufPtr == m_Eol.cr<T>())
 			{
-				// Windows
-				if (*ReadBufPtr == m_Eol.lf<T>())
-				{
-					Eol = FEOL_WINDOWS;
-				}
-				// Notepad?
-				else if (*ReadBufPtr == m_Eol.cr<T>())
-				{
-					Eol = FEOL_MAC2;
-				}
-				else
-				{
-					break;
-				}
+				CurrentEol = eol::type::mac;
+				continue;
 			}
-			else if (Eol == FEOL_WINDOWS || Eol == FEOL_UNIX)
+		}
+		else if (CurrentEol == eol::type::mac)
+		{
+			if (m_CrSeen)
 			{
-				break;
-			}
-			else if (Eol == FEOL_MAC2)
-			{
+				m_CrSeen = false;
+
 				// Notepad
 				if (*ReadBufPtr == m_Eol.lf<T>())
 				{
-					Eol = FEOL_NOTEPAD;
+					CurrentEol = eol::type::bad_win;
+					continue;
 				}
 				else
 				{
 					// Пришёл \r\r, а \n не пришёл, поэтому считаем \r\r двумя MAC окончаниями строк
-					To.pop_back();
-					bCrCr = true;
+					m_CrCr = true;
 					break;
 				}
 			}
 			else
 			{
-				break;
+				// Windows
+				if (*ReadBufPtr == m_Eol.lf<T>())
+				{
+					CurrentEol = eol::type::win;
+					continue;
+				}
+				// Notepad or two MACs?
+				else if (*ReadBufPtr == m_Eol.cr<T>())
+				{
+					m_CrSeen = true;
+					continue;
+				}
+				else
+				{
+					break;
+				}
 			}
-
-			ReadPos += sizeof(T);
-
-			To.emplace_back(*ReadBufPtr);
-			++ReadBufPtr;
-		}
-	}
-	To.emplace_back(0);
-	return ExitCode;
-}
-
-bool GetFileFormat(const os::fs::file& file, uintptr_t& nCodePage, bool* pSignatureFound, bool bUseHeuristics, bool* pPureAscii)
-{
-	DWORD dwTemp = 0;
-	bool bSignatureFound = false;
-	bool bDetect = false;
-	bool bPureAscii = false;
-
-	size_t Readed = 0;
-	if (file.Read(&dwTemp, sizeof(dwTemp), Readed) && Readed > 1 ) // minimum signature size is 2 bytes
-	{
-		if (LOWORD(dwTemp) == SIGN_UNICODE)
-		{
-			nCodePage = CP_UNICODE;
-			file.SetPointer(2, nullptr, FILE_BEGIN);
-			bSignatureFound = true;
-		}
-		else if (LOWORD(dwTemp) == SIGN_REVERSEBOM)
-		{
-			nCodePage = CP_REVERSEBOM;
-			file.SetPointer(2, nullptr, FILE_BEGIN);
-			bSignatureFound = true;
-		}
-		else if ((dwTemp & 0x00FFFFFF) == SIGN_UTF8)
-		{
-			nCodePage = CP_UTF8;
-			file.SetPointer(3, nullptr, FILE_BEGIN);
-			bSignatureFound = true;
 		}
 		else
 		{
-			file.SetPointer(0, nullptr, FILE_BEGIN);
+			break;
 		}
+
+		To.emplace_back(*ReadBufPtr);
+		CurrentEol = eol::type::none;
 	}
 
-	if (bSignatureFound)
-	{
-		bDetect = true;
-	}
-	else if (bUseHeuristics)
-	{
-		file.SetPointer(0, nullptr, FILE_BEGIN);
-		size_t Size = 0x8000; // BUGBUG. TODO: configurable
-		char_ptr Buffer(Size);
-		size_t ReadSize = 0;
-		bool ReadResult = file.Read(Buffer.get(), Size, ReadSize);
-		file.SetPointer(0, nullptr, FILE_BEGIN);
+	Eol = CurrentEol;
+	return true;
+}
 
-		bPureAscii = ReadResult && !ReadSize; // empty file == pure ascii
+// If the file contains a BOM this function will advance the file pointer by the BOM size (either 2 or 3)
+static bool GetUnicodeCpUsingBOM(const os::fs::file& File, uintptr_t& Codepage)
+{
+	char Buffer[3]{};
+	size_t BytesRead = 0;
+	if (!File.Read(Buffer, std::size(Buffer), BytesRead))
+		return false;
 
-		if (ReadResult && ReadSize)
+	std::string_view Signature(Buffer, std::size(Buffer));
+
+	if (BytesRead >= 2)
+	{
+		if (Signature.substr(0, 2) == encoding::get_signature_bytes(CP_UNICODE))
 		{
-			// BUGBUG MSDN documents IS_TEXT_UNICODE_BUFFER_TOO_SMALL but there is no such thing
-			if (ReadSize > 1)
-			{
-				int test = IS_TEXT_UNICODE_UNICODE_MASK | IS_TEXT_UNICODE_REVERSE_MASK | IS_TEXT_UNICODE_NOT_UNICODE_MASK | IS_TEXT_UNICODE_NOT_ASCII_MASK;
+			Codepage = CP_UNICODE;
+			File.SetPointer(2, nullptr, FILE_BEGIN);
+			return true;
+		}
 
-				IsTextUnicode(Buffer.get(), static_cast<int>(ReadSize), &test); // return value is ignored, it's ok.
-
-				if (!(test & IS_TEXT_UNICODE_NOT_UNICODE_MASK) && (test & IS_TEXT_UNICODE_NOT_ASCII_MASK))
-				{
-					if (test & IS_TEXT_UNICODE_UNICODE_MASK)
-					{
-						nCodePage = CP_UNICODE;
-						bDetect = true;
-					}
-					else if (test & IS_TEXT_UNICODE_REVERSE_MASK)
-					{
-						nCodePage = CP_REVERSEBOM;
-						bDetect = true;
-					}
-				}
-
-				if (!bDetect && IsTextUTF8(Buffer.get(), ReadSize, bPureAscii))
-				{
-					nCodePage = CP_UTF8;
-					bDetect = true;
-				}
-			}
-
-			if (!bDetect && !bPureAscii)
-			{
-				int cp = GetCpUsingUniversalDetector(Buffer.get(), ReadSize);
-				// This whole block shouldn't be here
-				if ( cp >= 0 )
-				{
-					if (Global->Opt->strNoAutoDetectCP.Get() == L"-1")
-					{
-						if ( Global->Opt->CPMenuMode )
-						{
-							if ( static_cast<UINT>(cp) != GetACP() && static_cast<UINT>(cp) != GetOEMCP() )
-							{
-								long long selectType = Codepages().GetFavorite(cp);
-								if (0 == (selectType & CPST_FAVORITE))
-									cp = -1;
-							}
-						}
-					}
-					else
-					{
-						const auto BannedCpList = split<std::vector<string>>(Global->Opt->strNoAutoDetectCP, STLF_UNIQUE);
-
-						if (contains(BannedCpList, str(cp)))
-						{
-							cp = -1;
-						}
-					}
-				}
-
-				if (cp != -1)
-				{
-					nCodePage = cp;
-					bDetect = true;
-				}
-			}
+		if (Signature.substr(0, 2) == encoding::get_signature_bytes(CP_REVERSEBOM))
+		{
+			Codepage = CP_REVERSEBOM;
+			File.SetPointer(2, nullptr, FILE_BEGIN);
+			return true;
 		}
 	}
 
-	if (pSignatureFound)
-		*pSignatureFound = bSignatureFound;
+	if (BytesRead >= 3 && Signature == encoding::get_signature_bytes(CP_UTF8))
+	{
+		Codepage = CP_UTF8;
+		File.SetPointer(3, nullptr, FILE_BEGIN);
+		return true;
+	}
 
-	if (pPureAscii)
-		*pPureAscii = bPureAscii;
+	File.SetPointer(0, nullptr, FILE_BEGIN);
+	return false;
+}
 
-	return bDetect;
+static bool GetUnicodeCpUsingWindows(const void* Data, size_t Size, uintptr_t& Codepage)
+{
+	// MSDN documents IS_TEXT_UNICODE_BUFFER_TOO_SMALL but there is no such thing
+	if (Size < 2)
+		return false;
+
+	int Test = IS_TEXT_UNICODE_UNICODE_MASK | IS_TEXT_UNICODE_REVERSE_MASK | IS_TEXT_UNICODE_NOT_UNICODE_MASK | IS_TEXT_UNICODE_NOT_ASCII_MASK;
+
+	// return value is ignored - only some tests might pass
+	IsTextUnicode(Data, static_cast<int>(Size), &Test);
+
+	if ((Test & IS_TEXT_UNICODE_NOT_UNICODE_MASK) || !(Test & IS_TEXT_UNICODE_NOT_ASCII_MASK))
+		return false;
+
+	if (Test & IS_TEXT_UNICODE_UNICODE_MASK)
+	{
+		Codepage = CP_UNICODE;
+		return true;
+	}
+
+	if (Test & IS_TEXT_UNICODE_REVERSE_MASK)
+	{
+		Codepage = CP_REVERSEBOM;
+		return true;
+	}
+
+	return false;
+}
+
+static bool GetCpUsingUniversalDetectorWithExceptions(const void* Data, size_t Size, uintptr_t& Codepage)
+{
+	if (!GetCpUsingUniversalDetector(Data, Size, Codepage))
+		return false;
+
+	// This whole block shouldn't be here
+	if (Global->Opt->strNoAutoDetectCP.Get() == L"-1"sv)
+	{
+		if (Global->Opt->CPMenuMode && static_cast<UINT>(Codepage) != encoding::codepage::ansi() && static_cast<UINT>(Codepage) != encoding::codepage::oem())
+		{
+			const auto CodepageType = codepages::GetFavorite(Codepage);
+			if (!(CodepageType & CPST_FAVORITE))
+				return false;
+		}
+	}
+	else
+	{
+		if (contains(enum_tokens(Global->Opt->strNoAutoDetectCP.Get(), L",;"sv), str(Codepage)))
+			return false;
+	}
+
+	return true;
+}
+
+// If the file contains a BOM this function will advance the file pointer by the BOM size (either 2 or 3)
+static bool GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage, uintptr_t& Codepage, bool& SignatureFound, bool UseHeuristics)
+{
+	if (GetUnicodeCpUsingBOM(File, Codepage))
+	{
+		SignatureFound = true;
+		return true;
+	}
+
+	if (!UseHeuristics)
+		return false;
+
+	// TODO: configurable
+	const size_t Size = 32768;
+	char_ptr Buffer(Size);
+	size_t ReadSize = 0;
+
+	const auto ReadResult = File.Read(Buffer.get(), Size, ReadSize);
+	File.SetPointer(0, nullptr, FILE_BEGIN);
+
+	if (!ReadResult || !ReadSize)
+		return false;
+
+	if (GetUnicodeCpUsingWindows(Buffer.get(), ReadSize, Codepage))
+		return true;
+
+	unsigned long long FileSize = 0;
+	const auto WholeFileRead = File.GetSize(FileSize) && ReadSize == FileSize;
+	bool PureAscii = false;
+
+	if (encoding::is_valid_utf8({ Buffer.get(), ReadSize }, !WholeFileRead, PureAscii))
+	{
+		if (!PureAscii)
+			Codepage = CP_UTF8;
+		else if (DefaultCodepage == CP_UTF8 || DefaultCodepage == encoding::codepage::ansi() || DefaultCodepage == encoding::codepage::oem())
+			Codepage = DefaultCodepage;
+		else
+			Codepage = encoding::codepage::ansi();
+
+		return true;
+	}
+
+	return GetCpUsingUniversalDetectorWithExceptions(Buffer.get(), ReadSize, Codepage);
+}
+
+uintptr_t GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage, bool* SignatureFound, bool UseHeuristics)
+{
+	bool SignatureFoundValue = false;
+	uintptr_t Codepage;
+
+	if (!GetFileCodepage(File, DefaultCodepage, Codepage, SignatureFoundValue, UseHeuristics))
+		Codepage = DefaultCodepage;
+
+	if (SignatureFound)
+		*SignatureFound = SignatureFoundValue;
+
+	return Codepage;
 }

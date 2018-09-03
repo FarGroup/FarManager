@@ -32,9 +32,12 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "TaskBar.hpp"
+#include "taskbar.hpp"
 #include "wakeful.hpp"
 #include "datetime.hpp"
+#include "plugin.hpp"
+
+enum class lng;
 
 class copy_progress: noncopyable
 {
@@ -46,26 +49,26 @@ public:
 
 	// These functions shall not draw anything directly,
 	// only update internal variables and call Flush().
-	void SetScanName(const string& Name);
 	void SetNames(const string& Src, const string& Dst);
 	void SetProgressValue(unsigned long long CompletedSize, unsigned long long TotalSize);
 	void UpdateCurrentBytesInfo(unsigned long long NewValue);
 	void UpdateAllBytesInfo(unsigned long long FileSize);
 
+	// BUGBUG
+	static string FormatCounter(lng CounterId, lng AnotherId, unsigned long long CurrentValue, unsigned long long TotalValue, bool ShowTotal, size_t MaxWidth);
+	static size_t CanvasWidth();
+
 private:
 	bool CheckEsc();
 	void Flush();
-	void FlushScan();
 	void CreateBackground();
-	void CreateScanBackground();
 	void SetCurrentProgress(unsigned long long CompletedSize, unsigned long long TotalSize);
 	void SetTotalProgress(unsigned long long CompletedSize, unsigned long long TotalSize);
 	void UpdateTime(unsigned long long SizeDone, unsigned long long SizeToGo);
 	unsigned long long GetBytesDone() const { return m_Bytes.Copied + m_Bytes.Skipped; }
-	static size_t GetCanvasWidth();
 
 	std::chrono::steady_clock::time_point m_CopyStartTime;
-	IndeterminateTaskBar m_TB;
+	IndeterminateTaskbar m_TB;
 	wakeful m_Wakeful;
 	SMALL_RECT m_Rect;
 

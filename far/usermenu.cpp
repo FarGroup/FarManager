@@ -31,8 +31,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
+#include "usermenu.hpp"
 
 #include "keys.hpp"
 #include "filepanels.hpp"
@@ -46,7 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "manager.hpp"
 #include "message.hpp"
-#include "usermenu.hpp"
 #include "fnparce.hpp"
 #include "pathmix.hpp"
 #include "strmix.hpp"
@@ -54,10 +52,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filestr.hpp"
 #include "interf.hpp"
 #include "lang.hpp"
-#include "blob_builder.hpp"
 #include "string_utils.hpp"
 #include "exception.hpp"
 #include "DlgGuid.hpp"
+#include "global.hpp"
+
+#include "platform.env.hpp"
+#include "platform.fs.hpp"
+
+#include "common/range.hpp"
 
 enum
 {
@@ -98,7 +101,7 @@ static int PrepareHotKey(string &strHotKey)
 
 	if (strHotKey.size() > 1 && upper(strHotKey.front()) == L'F')
 	{
-		FuncNum = static_cast<int>(std::wcstoul(strHotKey.data() + 1, nullptr, 10));
+		FuncNum = static_cast<int>(std::wcstoul(strHotKey.c_str() + 1, nullptr, 10));
 
 		if (FuncNum < 1 || FuncNum > 24)
 		{
@@ -109,14 +112,14 @@ static int PrepareHotKey(string &strHotKey)
 	else
 	{
 		// при наличии "&" продублируем
-		if (strHotKey == L"&")
+		if (strHotKey == L"&"sv)
 			strHotKey.assign(2, L'&');
 	}
 
 	return FuncNum;
 }
 
-static const wchar_t LocalMenuFileName[] = L"FarMenu.ini";
+static const auto LocalMenuFileName = L"FarMenu.ini"sv;
 
 struct UserMenu::UserMenuItem
 {
@@ -130,7 +133,7 @@ struct UserMenu::UserMenuItem
 static string SerializeMenu(const UserMenu::menu_container& Menu)
 {
 	string Result;
-	const auto Eol = L"\r\n"s;
+	const auto Eol = eol::str(eol::type::win);
 	for (const auto& i: Menu)
 	{
 		auto HotkeyStr = pad_right(i.strHotKey + L':', 5);
@@ -142,30 +145,33 @@ static string SerializeMenu(const UserMenu::menu_container& Menu)
 		}
 		else
 		{
+			const string Padding(HotkeyStr.size(), L' ');
 			for (const auto& str: i.Commands)
 			{
-				append(Result, string(HotkeyStr.size(), L' '), str, Eol);
+				append(Result, Padding, str, Eol);
 			}
 		}
 	}
 	return Result;
 }
 
-static void ParseMenu(UserMenu::menu_container& Menu, GetFileString& GetStr, bool OldFormat)
+static void ParseMenu(UserMenu::menu_container& Menu, range<enum_file_lines::iterator> FileStrings, bool OldFormat)
 {
 	UserMenu::menu_container::value_type *MenuItem = nullptr;
 
 	string MenuStr;
-	while (GetStr.GetString(MenuStr))
+	for (auto i = FileStrings.begin(); i != FileStrings.end(); ++i)
 	{
-		RemoveTrailingSpaces(MenuStr);
+		assign(MenuStr, i->Str);
+		inplace::trim_right(MenuStr);
 
 		if (MenuStr.empty())
 			continue;
 
 		if (MenuStr.front() == L'{' && MenuItem)
 		{
-			ParseMenu(MenuItem->Menu, GetStr, OldFormat);
+			ParseMenu(MenuItem->Menu, { i, FileStrings.end() }, OldFormat);
+			MenuItem->Submenu = true;
 			MenuItem = nullptr;
 			continue;
 		}
@@ -174,7 +180,7 @@ static void ParseMenu(UserMenu::menu_container& Menu, GetFileString& GetStr, boo
 		if (MenuStr.front() == L'}' && MenuStr[1] != L':')
 			break;
 
-		if (!IsSpace(MenuStr.front()))
+		if (!std::iswblank(MenuStr.front()))
 		{
 			size_t ChPos = MenuStr.find(L':');
 
@@ -187,26 +193,23 @@ static void ParseMenu(UserMenu::menu_container& Menu, GetFileString& GetStr, boo
 				++ChPos;
 			}
 
-			Menu.resize(Menu.size() + 1);
-			MenuItem = &Menu.back();
+			UserMenu::menu_container::value_type NewItem{};
 
-			MenuItem->strHotKey = MenuStr.substr(0, ChPos);
-			MenuItem->strLabel = MenuStr.substr(ChPos + 1);
-			RemoveLeadingSpaces(MenuItem->strLabel);
-
-			wchar_t* Tmp;
-			size_t TmpLength;
-			MenuItem->Submenu = (GetStr.PeekString(&Tmp, TmpLength) && *Tmp == L'{');
+			NewItem.strHotKey = MenuStr.substr(0, ChPos);
+			NewItem.strLabel = trim_left(MenuStr.substr(ChPos + 1));
 
 			// Support for old 1.x separator format
-			if (OldFormat && MenuItem->strHotKey == L"-" && MenuItem->strLabel.empty())
+			if (OldFormat && NewItem.strHotKey == L"-"sv && NewItem.strLabel.empty())
 			{
-				MenuItem->strHotKey += L'-';
+				NewItem.strHotKey += L'-';
 			}
+
+			Menu.emplace_back(std::move(NewItem));
+			MenuItem = &Menu.back();
 		}
 		else if (MenuItem)
 		{
-			RemoveLeadingSpaces(MenuStr);
+			inplace::trim_left(MenuStr);
 			MenuItem->Commands.emplace_back(MenuStr);
 		}
 	}
@@ -214,16 +217,9 @@ static void ParseMenu(UserMenu::menu_container& Menu, GetFileString& GetStr, boo
 
 static void DeserializeMenu(UserMenu::menu_container& Menu, const os::fs::file& File, uintptr_t& Codepage)
 {
-	bool OldFormat = false;
-
-	if (!GetFileFormat(File, Codepage))
-	{
-		Codepage = GetOEMCP();
-		OldFormat = true;
-	}
-
-	GetFileString GetStr(File, Codepage);
-	ParseMenu(Menu, GetStr, OldFormat);
+	Codepage = GetFileCodepage(File, encoding::codepage::oem());
+	enum_file_lines EnumFileLines(File, Codepage);
+	ParseMenu(Menu, EnumFileLines, Codepage == encoding::codepage::oem());
 
 	if (!IsUnicodeOrUtfCodePage(Codepage))
 	{
@@ -265,7 +261,7 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 			if (Message(MSG_WARNING,
 				msg(lng::MUserMenuTitle),
 				{
-					LocalMenuFileName,
+					string(LocalMenuFileName),
 					msg(lng::MEditRO),
 					msg(lng::MEditOvr)
 				},
@@ -278,25 +274,25 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 			os::fs::set_file_attributes(MenuFileName,FILE_ATTRIBUTE_NORMAL);
 	}
 
-	blob_builder BlobBuilder(m_MenuCP);
-	BlobBuilder.append(SerializeMenu(m_Menu));
+	const auto SerialisedMenu = SerializeMenu(m_Menu);
 
 	try
 	{
-		const auto Blob = BlobBuilder.get();
-		if (!Blob.empty())
+		if (!SerialisedMenu.empty())
 		{
 			// Don't use CreationDisposition=CREATE_ALWAYS here - it kills alternate streams
 			if (const auto MenuFile = os::fs::file(MenuFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, FileAttr == INVALID_FILE_ATTRIBUTES? CREATE_NEW : TRUNCATE_EXISTING))
 			{
-				if (!MenuFile.Write(Blob.data(), Blob.size()))
-				{
-					throw MAKE_FAR_EXCEPTION(L"Write error");
-				}
+				os::fs::filebuf StreamBuffer(MenuFile, std::ios::out);
+				std::ostream Stream(&StreamBuffer);
+				Stream.exceptions(Stream.badbit | Stream.failbit);
+				encoding::writer Writer(Stream, m_MenuCP);
+				Writer.write(SerialisedMenu);
+				Stream.flush();
 			}
 			else
 			{
-				throw MAKE_FAR_EXCEPTION(L"Can't open file");
+				throw MAKE_FAR_EXCEPTION(L"Can't open file"sv);
 			}
 
 			if (FileAttr != INVALID_FILE_ATTRIBUTES)
@@ -310,7 +306,7 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 			// если файл FarMenu.ini пуст, то удалим его
 			if (!os::fs::delete_file(MenuFileName))
 			{
-				throw MAKE_FAR_EXCEPTION(L"Can't delete file");
+				throw MAKE_FAR_EXCEPTION(L"Can't delete file"sv);
 			}
 		}
 	}
@@ -359,19 +355,11 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 
 	while ((ExitCode != EC_CLOSE_LEVEL) && (ExitCode != EC_CLOSE_MENU) && (ExitCode != EC_COMMAND_SELECTED))
 	{
-		string strMenuFileFullPath;
-		if (MenuFileName.empty())
-		{
-			strMenuFileFullPath = strMenuFilePath;
-			AddEndSlash(strMenuFileFullPath);
-			strMenuFileFullPath += LocalMenuFileName;
-		}
-		else
-		{
-			strMenuFileFullPath = MenuFileName;
-		}
-
 		m_Menu.clear();
+
+		const auto strMenuFileFullPath = !MenuFileName.empty()?
+			MenuFileName :
+			path::join(strMenuFilePath, LocalMenuFileName);
 
 		// Пытаемся открыть файл на локальном диске
 		if (os::fs::is_file(strMenuFileFullPath))
@@ -416,7 +404,7 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 
 		case menu_mode::global:
 		case menu_mode::user:
-			MenuTitle = concat(msg(lng::MMainMenuTitle), L" ("_sv, msg(m_MenuMode == menu_mode::global? lng::MMainMenuGlobal : lng::MMainMenuUser), L')');
+			MenuTitle = concat(msg(lng::MMainMenuTitle), L" ("sv, msg(m_MenuMode == menu_mode::global? lng::MMainMenuGlobal : lng::MMainMenuUser), L')');
 			break;
 		}
 
@@ -496,10 +484,10 @@ static void FillUserMenu(VMenu2& FarUserMenu, UserMenu::menu_container& Menu, in
 		int FuncNum=0;
 
 		// сепаратором является случай, когда хоткей == "--"
-		if (MenuItem->strHotKey == L"--")
+		if (MenuItem->strHotKey == L"--"sv)
 		{
 			FarUserMenuItem.Flags|=LIF_SEPARATOR;
-			FarUserMenuItem.strName=MenuItem->strLabel;
+			FarUserMenuItem.Name = MenuItem->strLabel;
 
 			if (NumLines==MenuPos)
 			{
@@ -509,14 +497,14 @@ static void FillUserMenu(VMenu2& FarUserMenu, UserMenu::menu_container& Menu, in
 		else
 		{
 			string strLabel = MenuItem->strLabel;
-			SubstFileName(nullptr,strLabel,Name,ShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
+			SubstFileName(strLabel, subst_context(Name, ShortName), nullptr, nullptr, true);
 			strLabel = os::env::expand(strLabel);
 			string strHotKey = MenuItem->strHotKey;
 			FuncNum = PrepareHotKey(strHotKey);
 			bool have_hotkey = !strHotKey.empty();
 			int Offset = have_hotkey && strHotKey.front() == L'&'? 5 : 4;
 			strHotKey.resize(Offset, L' ');
-			FarUserMenuItem.strName = concat(have_hotkey && !FuncNum? L"&"_sv : L""_sv, strHotKey, strLabel);
+			FarUserMenuItem.Name = concat(have_hotkey && !FuncNum? L"&"sv : L""sv, strHotKey, strLabel);
 
 			if (MenuItem->Submenu)
 			{
@@ -526,7 +514,7 @@ static void FillUserMenu(VMenu2& FarUserMenu, UserMenu::menu_container& Menu, in
 			FarUserMenuItem.SetSelect(NumLines==MenuPos);
 		}
 
-		FarUserMenuItem.UserData = MenuItem;
+		FarUserMenuItem.ComplexUserData = MenuItem;
 		int ItemPos=FarUserMenu.AddItem(FarUserMenuItem);
 
 		if (FuncNum>0)
@@ -541,13 +529,17 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 {
 	for (;;)
 	{
-		string strName,strShortName;
-		Global->CtrlObject->Cp()->ActivePanel()->GetCurName(strName,strShortName);
+		string Names[2];
+		Global->CtrlObject->Cp()->ActivePanel()->GetCurName(Names[0], Names[1]);
+		const auto& strName = Names[0];
+		const auto& strShortName = Names[1];
+		const subst_context Context(strName, strShortName);
+
 		/* $ 24.07.2000 VVM + При показе главного меню в заголовок добавляет тип - FAR/Registry */
 
-		const auto UserMenu = VMenu2::create(Title, nullptr, 0, ScrY - 4);
+		const auto UserMenu = VMenu2::create(Title, {}, ScrY - 4);
 		UserMenu->SetMenuFlags(VMENU_WRAPMODE);
-		UserMenu->SetHelp(L"UserMenu");
+		UserMenu->SetHelp(L"UserMenu"sv);
 		UserMenu->SetPosition(-1,-1,0,0);
 		UserMenu->SetBottomTitle(msg(lng::MMainMenuBottomTitle));
 		UserMenu->SetMacroMode(MACROAREA_USERMENU);
@@ -565,7 +557,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 			// CurrentMenuItem can be nullptr if:
 			// - menu is empty
 			// - menu is not empty, but insidiously consists only of separators
-			const auto CurrentMenuItem = UserMenu->GetUserDataPtr<ITERATOR(Menu)>(MenuPos);
+			const auto CurrentMenuItem = UserMenu->GetComplexUserDataPtr<ITERATOR(Menu)>(MenuPos);
 			if (Key==KEY_SHIFTF1)
 			{
 				UserMenu->Key(KEY_F1);
@@ -681,8 +673,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 						return 1; // Закрыть меню
 					}
 				}
-				// fallthrough
-
+				[[fallthrough]];
 				/* $ 28.06.2000 tran
 				выход из пользовательского меню по ShiftF10 из любого уровня
 				вложенности просто задаем ExitCode -1, и возвращаем FALSE -
@@ -705,8 +696,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 						UserMenu->Close(-1);
 						return 1;
 					}
-					// fallthrough
-
+					[[fallthrough]];
 				default:
 					KeyProcessed = 0;
 					break;
@@ -721,21 +711,16 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 			return EC_CLOSE_LEVEL; //  вверх на один уровень
 
 		// This time CurrentMenuItem shall never be nullptr - for all weird cases ExitCode must be -1
- 		const auto CurrentMenuItem = UserMenu->GetUserDataPtr<ITERATOR(Menu)>(UserMenu->GetSelectPos());
+ 		const auto CurrentMenuItem = UserMenu->GetComplexUserDataPtr<ITERATOR(Menu)>(UserMenu->GetSelectPos());
+
+		auto CurrentLabel = (*CurrentMenuItem)->strLabel;
+		SubstFileName(CurrentLabel, Context, nullptr, nullptr, true);
+		CurrentLabel = os::env::expand(CurrentLabel);
 
 		if ((*CurrentMenuItem)->Submenu)
 		{
-			/* $ 20.08.2001 VVM + При вложенных меню показывает заголовки предыдущих */
-			string strSubMenuLabel = (*CurrentMenuItem)->strLabel;
-			SubstFileName(nullptr,strSubMenuLabel,strName,strShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
-			strSubMenuLabel = os::env::expand(strSubMenuLabel);
-
-			size_t pos = strSubMenuLabel.find(L'&');
-			if (pos != string::npos)
-				strSubMenuLabel.erase(pos, 1);
-
 			/* $ 14.07.2000 VVM ! Если закрыли подменю, то остаться. Иначе передать управление выше */
-			MenuPos = ProcessSingleMenu((*CurrentMenuItem)->Menu, 0, MenuRoot, MenuFileName, Title + L" \xbb " + strSubMenuLabel);
+			MenuPos = ProcessSingleMenu((*CurrentMenuItem)->Menu, 0, MenuRoot, MenuFileName, concat(Title, L" \xbb "sv, CurrentLabel));
 
 			if (MenuPos!=EC_CLOSE_LEVEL)
 				return MenuPos;
@@ -746,7 +731,6 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 
 		/* $ 01.05.2001 IS Отключим до лучших времен */
 		//int LeftVisible,RightVisible,PanelsHidden=0;
-		const auto strCmdLineDir = Global->CtrlObject->CmdLine()->GetCurDir();
 		Global->CtrlObject->CmdLine()->LockUpdatePanel(true);
 
 		// Цикл исполнения команд меню (CommandX)
@@ -754,10 +738,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		{
 			string strCommand = str;
 
-			string strListName, strAnotherListName;
-			string strShortListName, strAnotherShortListName;
-
-			if (!((starts_with_icase(strCommand, L"REM"_sv) && (strCommand.size() == 3 || IsSpace(strCommand[3]))) || starts_with_icase(strCommand, L"::"_sv)))
+			if (!((starts_with_icase(strCommand, L"REM"sv) && (strCommand.size() == 3 || std::iswblank(strCommand[3]))) || starts_with_icase(strCommand, L"::"sv)))
 			{
 				/*
 				  Осталось корректно обработать ситуацию, например:
@@ -784,33 +765,22 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 						PanelsHidden=TRUE;
 					}
 					*/
-					//;
-					string strTempStr = (*CurrentMenuItem)->strLabel;
-					ReplaceStrings(strTempStr, L"&", L"");
 
-					const auto PreserveLFN = SubstFileName(strTempStr.data(), strCommand, strName, strShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName, FALSE, strCmdLineDir.data());
-					const auto ListFileUsed = !strListName.empty() || !strAnotherListName.empty() || !strShortListName.empty() || !strAnotherShortListName.empty();
-
-					if (!strCommand.empty())
+					list_names ListNames;
+					bool PreserveLFN = false;
+					ReplaceStrings(CurrentLabel, L"&"sv, L"&&"sv);
+					if (SubstFileName(strCommand, Context, &ListNames, &PreserveLFN, false, CurrentLabel) && !strCommand.empty())
 					{
 						SCOPED_ACTION(PreserveLongName)(strShortName, PreserveLFN);
 
 						execute_info Info;
 						Info.Command = strCommand;
-						Info.WaitMode = ListFileUsed? execute_info::wait_mode::wait_idle : execute_info::wait_mode::no_wait;
+						Info.WaitMode = ListNames.any()? execute_info::wait_mode::wait_idle : execute_info::wait_mode::no_wait;
 
 						Global->CtrlObject->CmdLine()->ExecString(Info);
 					}
 				}
 			} // strCommand != "REM"
-
-			const string* Names[] = { &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName };
-
-			for (auto& i: Names)
-			{
-				if (!i->empty())
-					os::fs::delete_file(*i);
-			}
 		});
 
 		Global->CtrlObject->CmdLine()->LockUpdatePanel(false);
@@ -885,7 +855,7 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 				const auto Label = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EM_LABEL_EDIT, nullptr));
 				int FocusPos=-1;
 
-				if(StrCmp(HotKey,L"--"))
+				if (!equal(HotKey, L"--"sv))
 				{
 					if (!*Label)
 					{
@@ -910,7 +880,7 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 					Message(MSG_WARNING,
 						msg(lng::MUserMenuTitle),
 						{
-							msg((*Label ? lng::MUserMenuInvalidInputHotKey : lng::MUserMenuInvalidInputLabel))
+							msg(*Label? lng::MUserMenuInvalidInputHotKey : lng::MUserMenuInvalidInputLabel)
 						},
 						{ lng::MOk });
 					Dlg->SendMessage(DM_SETFOCUS, FocusPos, nullptr);
@@ -963,12 +933,12 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 				msg(lng::MAskInsertMenuOrCommand)
 			},
 			{ lng::MMenuInsertCommand, lng::MMenuInsertMenu },
-			nullptr, &AskInsertMenuOrCommandId))
+			{}, &AskInsertMenuOrCommandId))
 		{
 			case -1:
 			case -2:
 				Continue = false;
-				// fallthrough
+				[[fallthrough]];
 			case Message::second_button:
 				SubMenu = true;
 		}
@@ -984,14 +954,14 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 		FARDIALOGITEMFLAGS State=SubMenu?DIF_HIDDEN|DIF_DISABLE:DIF_NONE;
 		FarDialogItem EditDlgData[]=
 		{
-			{DI_DOUBLEBOX,3,1,DLG_X-4,DLG_Y-2,0,nullptr,nullptr,0,msg(SubMenu? lng::MEditSubmenuTitle : lng::MEditMenuTitle).data()},
-			{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(lng::MEditMenuHotKey).data()},
+			{DI_DOUBLEBOX,3,1,DLG_X-4,DLG_Y-2,0,nullptr,nullptr,0,msg(SubMenu? lng::MEditSubmenuTitle : lng::MEditMenuTitle).c_str()},
+			{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(lng::MEditMenuHotKey).c_str()},
 			{DI_FIXEDIT,5,3,7,3,0,nullptr,nullptr,DIF_FOCUS,L""},
-			{DI_TEXT,5,4,0,4,0,nullptr,nullptr,0,msg(lng::MEditMenuLabel).data()},
+			{DI_TEXT,5,4,0,4,0,nullptr,nullptr,0,msg(lng::MEditMenuLabel).c_str()},
 			{DI_EDIT,5,5,DLG_X-6,5,0,nullptr,nullptr,0,L""},
 
 			{DI_TEXT,-1,6,0,6,0,nullptr,nullptr,DIF_SEPARATOR|State,L""},
-			{DI_TEXT,5,7,0,7,0,nullptr,nullptr,State,msg(lng::MEditMenuCommands).data()},
+			{DI_TEXT,5,7,0,7,0,nullptr,nullptr,State,msg(lng::MEditMenuCommands).c_str()},
 #ifdef PROJECT_DI_MEMOEDIT
 			{DI_MEMOEDIT,5, 8,DLG_X-6,17,0,nullptr,nullptr,DIF_EDITPATH,L""},
 #else
@@ -1008,8 +978,8 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 #endif
 
 			{DI_TEXT,-1,DLG_Y-4,0,DLG_Y-4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-			{DI_BUTTON,0,DLG_Y-3,0,DLG_Y-3,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk).data()},
-			{DI_BUTTON,0,DLG_Y-3,0,DLG_Y-3,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel).data()},
+			{DI_BUTTON,0,DLG_Y-3,0,DLG_Y-3,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk).c_str()},
+			{DI_BUTTON,0,DLG_Y-3,0,DLG_Y-3,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel).c_str()},
 		};
 		auto EditDlg = MakeDialogItemsEx(EditDlgData);
 #ifndef PROJECT_DI_MEMOEDIT
@@ -1046,7 +1016,7 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 		}
 
 		const auto Dlg = Dialog::create(EditDlg, &UserMenu::EditMenuDlgProc, this);
-		Dlg->SetHelp(L"UserMenu");
+		Dlg->SetHelp(L"UserMenu"sv);
 		Dlg->SetId(EditUserMenuId);
 		Dlg->SetPosition(-1,-1,DLG_X,DLG_Y);
 		Dlg->Process();

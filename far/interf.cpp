@@ -31,11 +31,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "interf.hpp"
-#include "platform.security.hpp"
+
 #include "keyboard.hpp"
 #include "keys.hpp"
 #include "farcolor.hpp"
@@ -48,106 +45,97 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "colormix.hpp"
 #include "imports.hpp"
-#include "synchro.hpp"
 #include "res.hpp"
 #include "plugins.hpp"
 #include "lang.hpp"
-#include "TaskBar.hpp"
+#include "taskbar.hpp"
+#include "global.hpp"
 
-consoleicons& ConsoleIcons()
-{
-	static consoleicons icons;
-	return icons;
-}
+#include "platform.concurrency.hpp"
+#include "platform.security.hpp"
 
-consoleicons::consoleicons():
-	LargeIcon(),
-	SmallIcon(),
-	PreviousLargeIcon(),
-	PreviousSmallIcon(),
-	Loaded(),
-	LargeChanged(),
-	SmallChanged()
-{
-}
+#include "format.hpp"
 
-enum icon_mode
+static HICON load_icon(int IconId, bool Big)
 {
-	icon_big,
-	icon_small
+	return static_cast<HICON>(LoadImage(GetModuleHandle(nullptr), MAKEINTRESOURCE(IconId), IMAGE_ICON, GetSystemMetrics(Big? SM_CXICON : SM_CXSMICON), GetSystemMetrics(Big? SM_CYICON : SM_CYSMICON), LR_SHARED));
 };
 
-static HICON set_icon(HWND Wnd, icon_mode Mode, HICON Icon)
+static HICON set_icon(HWND Wnd, bool Big, HICON Icon)
 {
-	return reinterpret_cast<HICON>(SendMessage(Wnd, WM_SETICON, Mode == icon_big? ICON_BIG : ICON_SMALL, reinterpret_cast<LPARAM>(Icon)));
+	return reinterpret_cast<HICON>(SendMessage(Wnd, WM_SETICON, Big? ICON_BIG : ICON_SMALL, reinterpret_cast<LPARAM>(Icon)));
 }
 
 void consoleicons::setFarIcons()
 {
-	if(Global->Opt->SetIcon)
-	{
-		if(!Loaded)
-		{
-			const int IconId = (Global->Opt->SetAdminIcon && os::security::is_admin())? FAR_ICON_A : FAR_ICON;
-			const auto& load_icon = [IconId](icon_mode Mode) { return static_cast<HICON>(LoadImage(GetModuleHandle(nullptr), MAKEINTRESOURCE(IconId), IMAGE_ICON, GetSystemMetrics(Mode == icon_big? SM_CXICON : SM_CXSMICON), GetSystemMetrics(Mode == icon_big? SM_CYICON : SM_CYSMICON), LR_SHARED)); };
-			LargeIcon = load_icon(icon_big);
-			SmallIcon = load_icon(icon_small);
-			Loaded = true;
-		}
+	if (!Global->Opt->SetIcon)
+		return;
 
-		if (const auto hWnd = Console().GetWindow())
-		{
-			if(LargeIcon)
-			{
-				PreviousLargeIcon = set_icon(hWnd, icon_big, LargeIcon);
-				LargeChanged = true;
-			}
-			if(SmallIcon)
-			{
-				PreviousSmallIcon = set_icon(hWnd, icon_small, SmallIcon);
-				SmallChanged = true;
-			}
-		}
+	const auto hWnd = console.GetWindow();
+	if (!hWnd)
+		return;
+
+	if (!m_Loaded)
+	{
+		const int IconId = (Global->Opt->SetAdminIcon && os::security::is_admin())? FAR_ICON_A : FAR_ICON;
+
+		m_Large.Icon = load_icon(IconId, m_Large.IsBig);
+		m_Small.Icon = load_icon(IconId, m_Small.IsBig);
+		m_Loaded = true;
 	}
+
+	const auto& Set = [hWnd](icon& Icon)
+	{
+		if (Icon.Icon)
+		{
+			Icon.PreviousIcon = set_icon(hWnd, Icon.IsBig, Icon.Icon);
+			Icon.Changed = true;
+		}
+	};
+
+	Set(m_Large);
+	Set(m_Small);
 }
 
 void consoleicons::restorePreviousIcons()
 {
-	if(Global->Opt->SetIcon)
+	if (!Global->Opt->SetIcon)
+		return;
+
+	const auto hWnd = console.GetWindow();
+	if (!hWnd)
+		return;
+
+	const auto& Restore = [hWnd](icon& Icon)
 	{
-		if (const auto hWnd = Console().GetWindow())
-		{
-			if(LargeChanged)
-			{
-				set_icon(hWnd, icon_big, PreviousLargeIcon);
-				LargeChanged = false;
-			}
-			if(SmallChanged)
-			{
-				set_icon(hWnd, icon_small, PreviousSmallIcon);
-				SmallChanged = false;
-			}
-		}
-	}
+		if (!Icon.Changed)
+			return;
+
+		set_icon(hWnd, Icon.IsBig, Icon.PreviousIcon);
+		Icon.Changed = false;
+	};
+
+	Restore(m_Large);
+	Restore(m_Small);
 }
 
 static int CurX,CurY;
 static FarColor CurColor;
 
-CONSOLE_CURSOR_INFO InitialCursorInfo;
+static CONSOLE_CURSOR_INFO InitialCursorInfo;
 
 static SMALL_RECT windowholder_rect;
 
 WCHAR Oem2Unicode[256];
-WCHAR BoxSymbols[64];
+WCHAR BoxSymbols[BS_COUNT];
 
 COORD InitSize={};
 COORD CurSize={};
 SHORT ScrX=0,ScrY=0;
 SHORT PrevScrX=-1,PrevScrY=-1;
 DWORD InitialConsoleMode=0;
-SMALL_RECT InitWindowRect;
-COORD InitialSize;
+static SMALL_RECT InitWindowRect;
+static COORD InitialSize;
 
 static os::event& CancelIoInProgress()
 {
@@ -155,15 +143,15 @@ static os::event& CancelIoInProgress()
 	return s_CancelIoInProgress;
 }
 
-unsigned int CancelSynchronousIoWrapper(void* Thread)
+static unsigned int CancelSynchronousIoWrapper(void* Thread)
 {
 	// TODO: SEH guard, try/catch, exception_ptr
-	unsigned int Result = Imports().CancelSynchronousIo(Thread);
+	unsigned int Result = imports.CancelSynchronousIo(Thread);
 	CancelIoInProgress().reset();
 	return Result;
 }
 
-BOOL WINAPI CtrlHandler(DWORD CtrlType)
+static BOOL WINAPI CtrlHandler(DWORD CtrlType)
 {
 	switch(CtrlType)
 	{
@@ -214,7 +202,7 @@ static bool ConsoleScrollHook(const Manager::Key& key)
 		case KEY_RCTRLALTNUMPAD8:
 		case KEY_CTRLRALTNUMPAD8:
 		case KEY_RCTRLRALTNUMPAD8:
-			Console().ScrollWindow(-1);
+			console.ScrollWindow(-1);
 			return true;
 
 		case KEY_CTRLALTDOWN:
@@ -225,7 +213,7 @@ static bool ConsoleScrollHook(const Manager::Key& key)
 		case KEY_RCTRLALTNUMPAD2:
 		case KEY_CTRLRALTNUMPAD2:
 		case KEY_RCTRLRALTNUMPAD2:
-			Console().ScrollWindow(1);
+			console.ScrollWindow(1);
 			return true;
 
 		case KEY_CTRLALTPGUP:
@@ -236,7 +224,7 @@ static bool ConsoleScrollHook(const Manager::Key& key)
 		case KEY_RCTRLALTNUMPAD9:
 		case KEY_CTRLRALTNUMPAD9:
 		case KEY_RCTRLRALTNUMPAD9:
-			Console().ScrollWindow(-ScrY);
+			console.ScrollWindow(-ScrY);
 			return true;
 			
 		case KEY_CTRLALTHOME:
@@ -247,7 +235,7 @@ static bool ConsoleScrollHook(const Manager::Key& key)
 		case KEY_RCTRLALTNUMPAD7:
 		case KEY_CTRLRALTNUMPAD7:
 		case KEY_RCTRLRALTNUMPAD7:
-			Console().ScrollWindowToBegin();
+			console.ScrollWindowToBegin();
 			return true;
 
 		case KEY_CTRLALTPGDN:
@@ -258,7 +246,7 @@ static bool ConsoleScrollHook(const Manager::Key& key)
 		case KEY_RCTRLALTNUMPAD3:
 		case KEY_CTRLRALTNUMPAD3:
 		case KEY_RCTRLRALTNUMPAD3:
-			Console().ScrollWindow(ScrY);
+			console.ScrollWindow(ScrY);
 			return true;
 
 		case KEY_CTRLALTEND:
@@ -269,14 +257,14 @@ static bool ConsoleScrollHook(const Manager::Key& key)
 		case KEY_RCTRLALTNUMPAD1:
 		case KEY_CTRLRALTNUMPAD1:
 		case KEY_RCTRLRALTNUMPAD1:
-			Console().ScrollWindowToEnd();
+			console.ScrollWindowToEnd();
 			return true;
 		}
 	}
 	return false;
 }
 
-void RegisterConsoleScrollHook()
+static void RegisterConsoleScrollHook()
 {
 	static bool registered = false;
 	if (!registered)
@@ -297,12 +285,12 @@ void InitConsole(int FirstInit)
 		CancelIoInProgress() = os::event(os::event::type::manual, os::event::state::nonsignaled);
 
 		DWORD Mode;
-		if(!Console().GetMode(Console().GetInputHandle(), Mode))
+		if(!console.GetMode(console.GetInputHandle(), Mode))
 		{
 			static const auto ConIn = os::OpenConsoleInputBuffer();
 			SetStdHandle(STD_INPUT_HANDLE, ConIn.native_handle());
 		}
-		if(!Console().GetMode(Console().GetOutputHandle(), Mode))
+		if(!console.GetMode(console.GetOutputHandle(), Mode))
 		{
 			static const auto ConOut = os::OpenConsoleActiveScreenBuffer();
 			SetStdHandle(STD_OUTPUT_HANDLE, ConOut.native_handle());
@@ -310,23 +298,23 @@ void InitConsole(int FirstInit)
 		}
 	}
 
-	Console().SetControlHandler(CtrlHandler, true);
-	Console().GetMode(Console().GetInputHandle(),InitialConsoleMode);
-	Global->strInitTitle = Console().GetPhysicalTitle();
-	Console().GetWindowRect(InitWindowRect);
-	Console().GetSize(InitialSize);
-	Console().GetCursorInfo(InitialCursorInfo);
+	console.SetControlHandler(CtrlHandler, true);
+	console.GetMode(console.GetInputHandle(),InitialConsoleMode);
+	Global->strInitTitle = console.GetPhysicalTitle();
+	console.GetWindowRect(InitWindowRect);
+	console.GetSize(InitialSize);
+	console.GetCursorInfo(InitialCursorInfo);
 	SetFarConsoleMode();
 
 	if (FirstInit)
 	{
 		SMALL_RECT WindowRect;
-		Console().GetWindowRect(WindowRect);
-		Console().GetSize(InitSize);
+		console.GetWindowRect(WindowRect);
+		console.GetSize(InitSize);
 
 		if(Global->Opt->WindowMode)
 		{
-			Console().ResetPosition();
+			console.ResetPosition();
 			AdjustConsoleScreenBufferSize(false);
 		}
 		else
@@ -336,18 +324,18 @@ void InitConsole(int FirstInit)
 				COORD newSize;
 				newSize.X = WindowRect.Right - WindowRect.Left + 1;
 				newSize.Y = WindowRect.Bottom - WindowRect.Top + 1;
-				Console().SetSize(newSize);
-				Console().GetSize(InitSize);
+				console.SetSize(newSize);
+				console.GetSize(InitSize);
 			}
 		}
-		if (IsZoomed(Console().GetWindow()))
+		if (IsZoomed(console.GetWindow()))
 		{
 			ChangeVideoMode(true);
 		}
 		else
 		{
 			COORD CurrentSize;
-			if (Console().GetSize(CurrentSize))
+			if (console.GetSize(CurrentSize))
 			{
 				SaveNonMaximisedBufferSize(CurrentSize);
 			}
@@ -357,21 +345,21 @@ void InitConsole(int FirstInit)
 	UpdateScreenSize();
 	Global->ScrBuf->FillBuf();
 
-	ConsoleIcons().setFarIcons();
+	consoleicons::instance().setFarIcons();
 }
 
 void CloseConsole()
 {
 	Global->ScrBuf->Flush();
 	MoveRealCursor(0, ScrY);
-	Console().SetCursorInfo(InitialCursorInfo);
-	ChangeConsoleMode(Console().GetInputHandle(), InitialConsoleMode);
+	console.SetCursorInfo(InitialCursorInfo);
+	ChangeConsoleMode(console.GetInputHandle(), InitialConsoleMode);
 
-	Console().SetTitle(Global->strInitTitle);
-	Console().SetSize(InitialSize);
+	console.SetTitle(Global->strInitTitle);
+	console.SetSize(InitialSize);
 
 	COORD CursorPos = {};
-	Console().GetCursorPosition(CursorPos);
+	console.GetCursorPosition(CursorPos);
 	SHORT Height = InitWindowRect.Bottom-InitWindowRect.Top, Width = InitWindowRect.Right-InitWindowRect.Left;
 	if (CursorPos.Y > InitWindowRect.Bottom || CursorPos.Y < InitWindowRect.Top)
 		InitWindowRect.Top = std::max(0, CursorPos.Y-Height);
@@ -381,18 +369,18 @@ void CloseConsole()
 	InitWindowRect.Right = InitWindowRect.Left + Width;
 
 	SMALL_RECT CurrentRect{};
-	Console().GetWindowRect(CurrentRect);
+	console.GetWindowRect(CurrentRect);
 	if (CurrentRect.Left != InitWindowRect.Left ||
 		CurrentRect.Top != InitWindowRect.Top ||
 		CurrentRect.Right != InitWindowRect.Right ||
 		CurrentRect.Bottom != InitWindowRect.Bottom)
 	{
-		Console().SetWindowRect(InitWindowRect);
-		Console().SetSize(InitialSize);
+		console.SetWindowRect(InitWindowRect);
+		console.SetSize(InitialSize);
 	}
 
 	ClearKeyQueue();
-	ConsoleIcons().restorePreviousIcons();
+	consoleicons::instance().restorePreviousIcons();
 	CancelIoInProgress().close();
 }
 
@@ -423,44 +411,56 @@ void SetFarConsoleMode(bool SetsActiveBuffer)
 		Mode &= ~ENABLE_MOUSE_INPUT;
 	}
 
-	ChangeConsoleMode(Console().GetInputHandle(), Mode);
+	// Feature: if window rect is in unusual position (shifted up or right) - enable mouse selection
+	{
+		CONSOLE_SCREEN_BUFFER_INFO csbi;
+		if (Global->Opt->WindowMode
+			&& GetConsoleScreenBufferInfo(console.GetOutputHandle(), &csbi)
+			&& (csbi.srWindow.Bottom != csbi.dwSize.Y - 1 || csbi.srWindow.Left))
+		{
+			Mode &= ~ENABLE_MOUSE_INPUT;
+			Mode |= ENABLE_EXTENDED_FLAGS | ENABLE_QUICK_EDIT_MODE;
+		}
+	}
+
+	ChangeConsoleMode(console.GetInputHandle(), Mode);
 
 	if (SetsActiveBuffer)
-		Console().SetActiveScreenBuffer(Console().GetOutputHandle());
+		console.SetActiveScreenBuffer(console.GetOutputHandle());
 
 	//востановим дефолтный режим вывода, а то есть такие проги что сбрасывают
-	ChangeConsoleMode(Console().GetOutputHandle(), ENABLE_PROCESSED_OUTPUT|ENABLE_WRAP_AT_EOL_OUTPUT);
-	ChangeConsoleMode(Console().GetErrorHandle(), ENABLE_PROCESSED_OUTPUT|ENABLE_WRAP_AT_EOL_OUTPUT);
+	ChangeConsoleMode(console.GetOutputHandle(), ENABLE_PROCESSED_OUTPUT|ENABLE_WRAP_AT_EOL_OUTPUT);
+	ChangeConsoleMode(console.GetErrorHandle(), ENABLE_PROCESSED_OUTPUT|ENABLE_WRAP_AT_EOL_OUTPUT);
 }
 
 void ChangeConsoleMode(HANDLE ConsoleHandle, DWORD Mode)
 {
 	DWORD CurrentConsoleMode;
-	Console().GetMode(ConsoleHandle, CurrentConsoleMode);
+	console.GetMode(ConsoleHandle, CurrentConsoleMode);
 
 	if (CurrentConsoleMode != Mode)
-		Console().SetMode(ConsoleHandle, Mode);
+		console.SetMode(ConsoleHandle, Mode);
 }
 
 void SaveConsoleWindowRect()
 {
-	Console().GetWindowRect(windowholder_rect);
+	console.GetWindowRect(windowholder_rect);
 }
 
 void RestoreConsoleWindowRect()
 {
 	SMALL_RECT WindowRect;
-	Console().GetWindowRect(WindowRect);
+	console.GetWindowRect(WindowRect);
 	if(WindowRect.Right-WindowRect.Left<windowholder_rect.Right-windowholder_rect.Left ||
 		WindowRect.Bottom-WindowRect.Top<windowholder_rect.Bottom-windowholder_rect.Top)
 	{
-		Console().SetWindowRect(windowholder_rect);
+		console.SetWindowRect(windowholder_rect);
 	}
 }
 
 void FlushInputBuffer()
 {
-	Console().FlushInputBuffer();
+	console.FlushInputBuffer();
 	IntKeyState.MouseButtonState=0;
 	IntKeyState.MouseEventFlags=0;
 }
@@ -470,10 +470,10 @@ void SetVideoMode()
 	if (!IsConsoleFullscreen() && Global->Opt->AltF9) // hardware full-screen check
 	{
 		DWORD dmode = 0;
-		if (IsWindows10OrGreater() && Console().GetDisplayMode(dmode) && (dmode & CONSOLE_FULLSCREEN) != 0)
+		if (IsWindows10OrGreater() && console.GetDisplayMode(dmode) && (dmode & CONSOLE_FULLSCREEN) != 0)
 			return; // ignore Alt-F9 in Win10 full-screen mode
 
-		ChangeVideoMode(!IsZoomed(Console().GetWindow()));
+		ChangeVideoMode(!IsZoomed(console.GetWindow()));
 	}
 	else
 	{
@@ -487,19 +487,19 @@ void ChangeVideoMode(bool Maximize)
 
 	if (Maximize)
 	{
-		SendMessage(Console().GetWindow(),WM_SYSCOMMAND,SC_MAXIMIZE,0);
-		coordScreen = Console().GetLargestWindowSize();
+		SendMessage(console.GetWindow(),WM_SYSCOMMAND,SC_MAXIMIZE,0);
+		coordScreen = console.GetLargestWindowSize();
 		coordScreen.X+=Global->Opt->ScrSize.DeltaX;
 		coordScreen.Y+=Global->Opt->ScrSize.DeltaY;
 	}
 	else
 	{
-		SendMessage(Console().GetWindow(),WM_SYSCOMMAND,SC_RESTORE,0);
+		SendMessage(console.GetWindow(),WM_SYSCOMMAND,SC_RESTORE,0);
 		auto LastSize = GetNonMaximisedBufferSize();
 		if (!LastSize.X && !LastSize.Y)
 		{
 			// Not initialised yet - could happen if initial window state was maximiseds
-			Console().GetSize(LastSize);
+			console.GetSize(LastSize);
 		}
 		coordScreen = LastSize;
 	}
@@ -512,7 +512,7 @@ void ChangeVideoMode(int NumLines,int NumColumns)
 	short xSize = NumColumns, ySize = NumLines;
 
 	COORD Size;
-	Console().GetSize(Size);
+	console.GetSize(Size);
 
 	SMALL_RECT srWindowRect;
 	srWindowRect.Right = xSize-1;
@@ -526,28 +526,28 @@ void ChangeVideoMode(int NumLines,int NumColumns)
 		if (Size.X < xSize-1)
 		{
 			srWindowRect.Right = Size.X - 1;
-			Console().SetWindowRect(srWindowRect);
+			console.SetWindowRect(srWindowRect);
 			srWindowRect.Right = xSize-1;
 		}
 
 		if (Size.Y < ySize-1)
 		{
 			srWindowRect.Bottom=Size.Y - 1;
-			Console().SetWindowRect(srWindowRect);
+			console.SetWindowRect(srWindowRect);
 			srWindowRect.Bottom = ySize-1;
 		}
 
-		Console().SetSize(coordScreen);
+		console.SetSize(coordScreen);
 	}
 
-	if (!Console().SetWindowRect(srWindowRect))
+	if (!console.SetWindowRect(srWindowRect))
 	{
-		Console().SetSize(coordScreen);
-		Console().SetWindowRect(srWindowRect);
+		console.SetSize(coordScreen);
+		console.SetWindowRect(srWindowRect);
 	}
 	else
 	{
-		Console().SetSize(coordScreen);
+		console.SetSize(coordScreen);
 	}
 
 	UpdateScreenSize();
@@ -557,7 +557,7 @@ void ChangeVideoMode(int NumLines,int NumColumns)
 bool IsConsoleSizeChanged()
 {
 	COORD ConSize;
-	Console().GetSize(ConSize);
+	console.GetSize(ConSize);
 	// GetSize returns virtual size, so this covers WindowMode=true too
 	return ConSize.Y != ScrY + 1 || ConSize.X != ScrX + 1;
 }
@@ -567,20 +567,20 @@ void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx, int Sy)
 	COORD Size={};
 	if (Sx==-1 || Sy==-1)
 	{
-		Console().GetSize(Size);
+		console.GetSize(Size);
 	}
 	INPUT_RECORD Rec;
 	Rec.EventType=WINDOW_BUFFER_SIZE_EVENT;
 	Rec.Event.WindowBufferSizeEvent.dwSize.X=Sx==-1?Size.X:Sx;
 	Rec.Event.WindowBufferSizeEvent.dwSize.Y=Sy==-1?Size.Y:Sy;
 	size_t Writes;
-	Console().WriteInput(&Rec,1,Writes);
+	console.WriteInput(&Rec,1,Writes);
 }
 
 void UpdateScreenSize()
 {
 	COORD NewSize;
-	if (!Console().GetSize(NewSize))
+	if (!console.GetSize(NewSize))
 		return;
 
 	//чтоб решить баг винды приводящий к появлению скролов и т.п. после потери фокуса
@@ -685,14 +685,14 @@ void GetCursorType(bool& Visible, DWORD& Size)
 void MoveRealCursor(int X,int Y)
 {
 	COORD C={static_cast<SHORT>(X),static_cast<SHORT>(Y)};
-	Console().SetCursorPosition(C);
+	console.SetCursorPosition(C);
 }
 
 
 void GetRealCursorPos(SHORT& X,SHORT& Y)
 {
 	COORD CursorPosition;
-	Console().GetCursorPosition(CursorPosition);
+	console.GetCursorPosition(CursorPosition);
 	X=CursorPosition.X;
 	Y=CursorPosition.Y;
 }
@@ -734,8 +734,8 @@ void InitRecodeOutTable()
 		Buffer[BS_H2] = L'=';
 	};
 
-	// перед [пере]инициализацией восстановим буфер (либо из реестра, либо...)
-	xwcsncpy(BoxSymbols, Global->Opt->strBoxSymbols.data(), std::size(BoxSymbols) - 1);
+	// перед [пере]инициализацией восстановим буфер
+	std::copy_n(Global->Opt->strBoxSymbols.Get().begin(), std::min(std::size(BoxSymbols), Global->Opt->strBoxSymbols.size()), BoxSymbols);
 
 	if (Global->Opt->NoGraphics)
 	{
@@ -818,14 +818,14 @@ static void HiTextBase(const string& Str, const std::function<void(const string&
 				HilightHandler(Str[AmpBegin + 1]);
 
 				string RightPart = Str.substr(AmpBegin + 1);
-				ReplaceStrings(RightPart, L"&&", L"&");
+				ReplaceStrings(RightPart, L"&&"sv, L"&"sv);
 				TextHandler(RightPart.substr(1));
 			}
 		}
 		else
 		{
 			string StrCopy(Str);
-			ReplaceStrings(StrCopy, L"&&", L"&");
+			ReplaceStrings(StrCopy, L"&&"sv, L"&"sv);
 			TextHandler(StrCopy);
 		}
 	}
@@ -837,7 +837,7 @@ static void HiTextBase(const string& Str, const std::function<void(const string&
 
 void HiText(const string& Str,const FarColor& HiColor,int isVertText)
 {
-	using text_func = void (*)(const string_view&);
+	using text_func = void (*)(string_view);
 	const text_func fText = Text, fVText = VText; //BUGBUG
 	const auto TextFunc  = isVertText ? fVText : fText;
 
@@ -913,7 +913,7 @@ void SetColor(const FarColor& Color)
 
 void SetRealColor(const FarColor& Color)
 {
-	Console().SetTextAttributes(Color);
+	console.SetTextAttributes(Color);
 }
 
 void ClearScreen(const FarColor& Color)
@@ -921,10 +921,10 @@ void ClearScreen(const FarColor& Color)
 	Global->ScrBuf->FillRect(0,0,ScrX,ScrY,L' ',Color);
 	if(Global->Opt->WindowMode)
 	{
-		Console().ClearExtraRegions(Color, CR_BOTH);
+		console.ClearExtraRegions(Color, CR_BOTH);
 	}
 	Global->ScrBuf->Flush();
-	Console().SetTextAttributes(Color);
+	console.SetTextAttributes(Color);
 }
 
 const FarColor& GetColor()
@@ -1135,7 +1135,7 @@ string MakeSeparator(int Length, int Type, const wchar_t* UserSep)
 	return Result;
 }
 
-string make_progressbar(size_t Size, int Percent, bool ShowPercent, bool PropagateToTasbkar)
+string make_progressbar(size_t Size, size_t Percent, bool ShowPercent, bool PropagateToTasbkar)
 {
 	string StrPercent;
 	if (ShowPercent)
@@ -1144,7 +1144,7 @@ string make_progressbar(size_t Size, int Percent, bool ShowPercent, bool Propaga
 		Size = Size > StrPercent.size()? Size - StrPercent.size(): 0;
 	}
 	string Str(Size, BoxSymbols[BS_X_B0]);
-	const auto Pos = std::min(Percent, 100) * Size / 100;
+	const auto Pos = std::min(Percent, size_t(100)) * Size / 100;
 	std::fill_n(Str.begin(), Pos, BoxSymbols[BS_X_DB]);
 	if (ShowPercent)
 	{
@@ -1152,7 +1152,7 @@ string make_progressbar(size_t Size, int Percent, bool ShowPercent, bool Propaga
 	}
 	if (PropagateToTasbkar)
 	{
-		Taskbar().SetProgressValue(Percent, 100);
+		taskbar::instance().SetProgressValue(Percent, 100);
 	}
 	return Str;
 }
@@ -1223,7 +1223,7 @@ int HiFindRealPos(const string& str, int Pos, bool ShowAmp)
 
 	int VisPos = 0;
 
-	const wchar_t* Str = str.data();
+	auto Str = str.c_str();
 
 	while (VisPos < Pos && *Str)
 	{
@@ -1305,12 +1305,12 @@ int HiFindNextVisualPos(const string& Str, int Pos, int Direct)
 
 bool IsConsoleFullscreen()
 {
-	static const auto Supported = Console().IsFullscreenSupported();
+	static const auto Supported = console.IsFullscreenSupported();
 	if (!Supported)
 		return false;
 
 	DWORD ModeFlags=0;
-	return Console().GetDisplayMode(ModeFlags) && ModeFlags & CONSOLE_FULLSCREEN_HARDWARE;
+	return console.GetDisplayMode(ModeFlags) && ModeFlags & CONSOLE_FULLSCREEN_HARDWARE;
 }
 
 void fix_coordinates(int& X1, int& Y1, int& X2, int& Y2)
@@ -1321,13 +1321,18 @@ void fix_coordinates(int& X1, int& Y1, int& X2, int& Y2)
 	Y2 = std::clamp(Y2, 0, static_cast<int>(ScrY));
 }
 
+void SetVidChar(FAR_CHAR_INFO& CI, wchar_t Chr)
+{
+	CI.Char = (Chr < L'\x20' || Chr == L'\x7f')? Oem2Unicode[Chr] : Chr;
+}
+
 void AdjustConsoleScreenBufferSize(bool TransitionFromFullScreen)
 {
 	if (!Global->Opt->WindowMode)
 		return;
 
 	COORD Size;
-	if (!Console().GetSize(Size))
+	if (!console.GetSize(Size))
 		return;
 
 	if (!Global->Opt->WindowModeStickyX || !Global->Opt->WindowModeStickyY)
@@ -1335,7 +1340,7 @@ void AdjustConsoleScreenBufferSize(bool TransitionFromFullScreen)
 		// TODO: Do not use console functions directly
 		// Add a way to bypass console buffer abstraction layer
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
-		if (GetConsoleScreenBufferInfo(Console().GetOutputHandle(), &csbi))
+		if (GetConsoleScreenBufferInfo(console.GetOutputHandle(), &csbi))
 		{
 			if (!Global->Opt->WindowModeStickyX)
 			{
@@ -1357,7 +1362,7 @@ void AdjustConsoleScreenBufferSize(bool TransitionFromFullScreen)
 		// Windows gets better and better every day.
 
 		CONSOLE_FONT_INFO FontInfo;
-		if (GetCurrentConsoleFont(Console().GetOutputHandle(), FALSE, &FontInfo))
+		if (GetCurrentConsoleFont(console.GetOutputHandle(), FALSE, &FontInfo))
 		{
 			const auto FixX = Round(static_cast<SHORT>(GetSystemMetrics(SM_CXVSCROLL)), FontInfo.dwFontSize.X);
 			const auto FixY = Round(static_cast<SHORT>(GetSystemMetrics(SM_CYHSCROLL)), FontInfo.dwFontSize.Y);
@@ -1366,16 +1371,16 @@ void AdjustConsoleScreenBufferSize(bool TransitionFromFullScreen)
 			Size.Y += FixY;
 
 			SMALL_RECT WindowRect;
-			if (Console().GetWindowRect(WindowRect))
+			if (console.GetWindowRect(WindowRect))
 			{
 				WindowRect.Right += FixX;
 				WindowRect.Bottom += FixY;
-				Console().SetWindowRect(WindowRect);
+				console.SetWindowRect(WindowRect);
 			}
 		}
 	}
 
-	SetConsoleScreenBufferSize(Console().GetOutputHandle(), Size);
+	SetConsoleScreenBufferSize(console.GetOutputHandle(), Size);
 }
 
 static COORD& NonMaximisedBufferSize()

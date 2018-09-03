@@ -31,10 +31,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "plist.hpp"
+
 #include "keys.hpp"
 #include "help.hpp"
 #include "vmenu.hpp"
@@ -43,8 +41,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "interf.hpp"
 #include "imports.hpp"
-#include "strmix.hpp"
+#include "string_sort.hpp"
 #include "exception.hpp"
+
+#include "platform.fs.hpp"
+
+#include "common/scope_exit.hpp"
+
+#include "format.hpp"
 
 struct menu_data
 {
@@ -60,42 +64,83 @@ struct ProcInfo
 	std::exception_ptr ExceptionPtr;
 };
 
-static BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM Param)
+// https://blogs.msdn.microsoft.com/oldnewthing/20071008-00/?p=24863/
+static bool is_alttab_window(HWND const Window)
 {
-	const auto pi = reinterpret_cast<ProcInfo*>(Param);
+	if (!IsWindowVisible(Window))
+		return false;
+
+	auto Try = GetAncestor(Window, GA_ROOTOWNER);
+	HWND Walk = nullptr;
+	while (Try != Walk)
+	{
+		Walk = Try;
+		Try = GetLastActivePopup(Walk);
+		if (IsWindowVisible(Try))
+			break;
+	}
+	if (Walk != Window)
+		return false;
+
+	// the following removes some task tray programs and "Program Manager"
+	TITLEBARINFO Info{sizeof(Info)};
+	if (GetTitleBarInfo(Window, &Info) && Info.rgstate[0] & STATE_SYSTEM_INVISIBLE)
+		return false;
+
+	// Tool windows should not be displayed either, these do not appear in the task bar
+	if (GetWindowLongPtr(Window, GWL_EXSTYLE) & WS_EX_TOOLWINDOW)
+		return false;
+
+	if (IsWindows8OrGreater())
+	{
+		int Cloaked = 0;
+		if (SUCCEEDED(imports.DwmGetWindowAttribute(Window, DWMWA_CLOAKED, &Cloaked, sizeof(Cloaked))) && Cloaked)
+			return false;
+	}
+
+	return true;
+}
+
+static BOOL CALLBACK EnumWindowsProc(HWND Window, LPARAM Param)
+{
+	const auto Info = reinterpret_cast<ProcInfo*>(Param);
 
 	try
 	{
-		if (IsWindowVisible(hwnd) || (IsIconic(hwnd) && !(GetWindowLongPtr(hwnd, GWL_STYLE) & WS_DISABLED)))
-		{
-			DWORD ProcID;
-			GetWindowThreadProcessId(hwnd, &ProcID);
-			string WindowTitle, MenuItem;
-			if (os::GetWindowText(hwnd, WindowTitle) && !WindowTitle.empty())
-			{
-				if (pi->ShowImage)
-				{
-					if (const auto Process = os::handle(OpenProcess(Imports().QueryFullProcessImageNameW? PROCESS_QUERY_LIMITED_INFORMATION : PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, ProcID)))
-					{
-						os::fs::GetModuleFileName(Process.native_handle(), nullptr, MenuItem);
-					}
-				}
-				else
-				{
-					MenuItem = WindowTitle;
-				}
+		if (!is_alttab_window(Window))
+			return true;
 
-				MenuItemEx NewItem(format(L"{0:9} {1} {2}", ProcID, BoxSymbols[BS_V1], MenuItem));
-				NewItem.UserData = menu_data{ WindowTitle, ProcID, hwnd };
-				pi->procList->AddItem(NewItem);
-			}
+		string WindowTitle;
+		os::GetWindowText(Window, WindowTitle);
+
+		DWORD ProcID;
+		GetWindowThreadProcessId(Window, &ProcID);
+
+		string MenuItem;
+
+		if (Info->ShowImage)
+		{
+			if (const auto Process = os::handle(OpenProcess(imports.QueryFullProcessImageNameW? PROCESS_QUERY_LIMITED_INFORMATION : PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, ProcID)))
+				os::fs::GetModuleFileName(Process.native_handle(), nullptr, MenuItem);
+			
+			if (MenuItem.empty())
+				MenuItem = L"???"s;
+		}
+		else
+		{
+			MenuItem = WindowTitle;
 		}
 
-		return TRUE;
-	}
-	CATCH_AND_SAVE_EXCEPTION_TO(pi->ExceptionPtr)
+		MenuItemEx NewItem(format(L"{0:9} {1} {2}", ProcID, BoxSymbols[BS_V1], MenuItem));
+		// for sorting
+		NewItem.ComplexUserData = menu_data{ WindowTitle, ProcID, Window };
+		Info->procList->AddItem(NewItem);
 
-	return FALSE;
+		return true;
+	}
+	CATCH_AND_SAVE_EXCEPTION_TO(Info->ExceptionPtr)
+
+	return false;
 }
 
 void ShowProcessList()
@@ -104,8 +149,9 @@ void ShowProcessList()
 	if (Active)
 		return;
 	Active = true;
+	SCOPE_EXIT{ Active = false; };
 
-	const auto ProcList = VMenu2::create(msg(lng::MProcessListTitle), nullptr, 0, ScrY - 4);
+	const auto ProcList = VMenu2::create(msg(lng::MProcessListTitle), {}, ScrY - 4);
 	ProcList->SetMenuFlags(VMENU_WRAPMODE);
 	ProcList->SetPosition(-1,-1,0,0);
 	bool ShowImage = false;
@@ -114,119 +160,114 @@ void ShowProcessList()
 	{
 		ProcList->clear();
 
-		ProcInfo pi = { ProcList.get(), ShowImage };
-		if (!EnumWindows(EnumWindowsProc, reinterpret_cast<LPARAM>(&pi)))
+		ProcInfo Info{ ProcList.get(), ShowImage };
+		if (!EnumWindows(EnumWindowsProc, reinterpret_cast<LPARAM>(&Info)))
 		{
-			RethrowIfNeeded(pi.ExceptionPtr);
+			RethrowIfNeeded(Info.ExceptionPtr);
 			return false;
 		}
 
 		ProcList->SortItems([](const MenuItemEx& a, const MenuItemEx& b, SortItemParam& p)
 		{
-			return StrCmp(any_cast<menu_data>(a.UserData).Title, any_cast<menu_data>(b.UserData).Title) < 0;
+			return string_sort::less(std::any_cast<const menu_data&>(a.ComplexUserData).Title, std::any_cast<const menu_data&>(b.ComplexUserData).Title);
 		});
 
 		return true;
 	};
 
-	if (FillProcList())
+	if (!FillProcList())
+		return;
+
+	ProcList->AssignHighlights(FALSE);
+	ProcList->SetBottomTitle(msg(lng::MProcessListBottom));
+
+	ProcList->Run([&](const Manager::Key& RawKey)
 	{
-		ProcList->AssignHighlights(FALSE);
-		ProcList->SetBottomTitle(msg(lng::MProcessListBottom));
-
-		ProcList->Run([&](const Manager::Key& RawKey)
+		const auto Key=RawKey();
+		int KeyProcessed = 1;
+		switch (Key)
 		{
-			const auto Key=RawKey();
-			int KeyProcessed = 1;
-			switch (Key)
+			case KEY_F1:
 			{
-				case KEY_F1:
-				{
-					Help::create(L"TaskList");
-					break;
-				}
+				Help::create(L"TaskList"sv);
+				break;
+			}
 
-				case KEY_NUMDEL:
-				case KEY_DEL:
+			case KEY_NUMDEL:
+			case KEY_DEL:
+			{
+				if (const auto MenuData = ProcList->GetComplexUserDataPtr<menu_data>())
 				{
-					if (const auto MenuData = ProcList->GetUserDataPtr<menu_data>())
-					{
-						if (Message(MSG_WARNING,
-							msg(lng::MKillProcessTitle),
-							{
-								msg(lng::MAskKillProcess),
-								MenuData->Title,
-								msg(lng::MKillProcessWarning)
-							},
-							{ lng::MKillProcessKill, lng::MCancel }) == Message::first_button)
+					if (Message(MSG_WARNING,
+						msg(lng::MKillProcessTitle),
 						{
-							const auto Process = os::handle(OpenProcess(PROCESS_TERMINATE, FALSE, MenuData->Pid));
-							if (!Process || !TerminateProcess(Process.native_handle(), 0xFFFFFFFF))
-							{
-								const auto ErrorState = error_state::fetch();
+							msg(lng::MAskKillProcess),
+							MenuData->Title,
+							msg(lng::MKillProcessWarning)
+						},
+						{ lng::MKillProcessKill, lng::MCancel }) == Message::first_button)
+					{
+						const auto Process = os::handle(OpenProcess(PROCESS_TERMINATE, FALSE, MenuData->Pid));
+						if (!Process || !TerminateProcess(Process.native_handle(), 0xFFFFFFFF))
+						{
+							const auto ErrorState = error_state::fetch();
 
-								Message(MSG_WARNING, ErrorState,
-									msg(lng::MKillProcessTitle),
-									{
-										msg(lng::MCannotKillProcess)
-									},
-									{ lng::MOk });
-							}
+							Message(MSG_WARNING, ErrorState,
+								msg(lng::MKillProcessTitle),
+								{
+									msg(lng::MCannotKillProcess)
+								},
+								{ lng::MOk });
 						}
 					}
 				}
-				// fallthrough
-				case KEY_CTRLR:
-				case KEY_RCTRLR:
-				{
-					if (!FillProcList())
-						ProcList->Close(-1);
-					break;
-				}
-				case KEY_F2:
-				{
-					// TODO: change titles, don't enumerate again
-					ShowImage = !ShowImage;
-					int SelectPos=ProcList->GetSelectPos();
-					if (!FillProcList())
-					{
-						ProcList->Close(-1);
-					}
-					else
-					{
-						ProcList->SetSelectPos(SelectPos);
-					}
-					break;
-				}
-
-
-				default:
-					KeyProcessed = 0;
 			}
-			return KeyProcessed;
-		});
-
-		if (ProcList->GetExitCode()>=0)
-		{
-			if (const auto MenuData = ProcList->GetUserDataPtr<menu_data>())
+			[[fallthrough]];
+			case KEY_CTRLR:
+			case KEY_RCTRLR:
 			{
-				DWORD dwMs;
-				// Remember the current value.
-				auto bSPI = SystemParametersInfo(SPI_GETFOREGROUNDLOCKTIMEOUT, 0, &dwMs, 0) != FALSE;
-
-				if (bSPI) // Reset foreground lock timeout
-					bSPI = SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, nullptr, 0) != FALSE;
-
-				SetForegroundWindow(MenuData->Hwnd);
-
-				if (bSPI) // Restore old value
-					SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, ToPtr(dwMs), 0);
-
-				WINDOWPLACEMENT wp = { sizeof(wp) };
-				if (!GetWindowPlacement(MenuData->Hwnd, &wp) || wp.showCmd != SW_SHOWMAXIMIZED)
-					ShowWindowAsync(MenuData->Hwnd, SW_RESTORE);
+				if (!FillProcList())
+					ProcList->Close(-1);
+				break;
 			}
+
+			case KEY_F2:
+			{
+				// TODO: change titles, don't enumerate again
+				ShowImage = !ShowImage;
+				const auto SelectPos = ProcList->GetSelectPos();
+				if (!FillProcList())
+				{
+					ProcList->Close(-1);
+				}
+				else
+				{
+					ProcList->SetSelectPos(SelectPos);
+				}
+				break;
+			}
+
+
+			default:
+				KeyProcessed = 0;
 		}
-	}
-	Active = false;
+		return KeyProcessed;
+	});
+
+	if (ProcList->GetExitCode() < 0)
+		return;
+
+	const auto MenuData = ProcList->GetComplexUserDataPtr<menu_data>();
+	if (!MenuData)
+		return;
+
+	SwitchToWindow(MenuData->Hwnd);
+}
+
+void SwitchToWindow(HWND Window)
+{
+	SetForegroundWindow(Window);
+
+	if (IsIconic(Window))
+		ShowWindowAsync(Window, SW_RESTORE);
 }

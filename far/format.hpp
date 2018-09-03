@@ -36,14 +36,50 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 WARNING_PUSH(3)
 
-#include "thirdparty/fmt/format.h"
-#include "thirdparty/fmt/string.h"
+WARNING_DISABLE_MSC(4396) // https://msdn.microsoft.com/en-us/library/bb384968.aspx 'name': the inline specifier cannot be used when a friend declaration refers to a specialization of a function template
+WARNING_DISABLE_MSC(4702) // https://msdn.microsoft.com/en-us/library/c26da40e.aspx unreachable code
+
+WARNING_DISABLE_GCC("-Wctor-dtor-privacy")
+
+WARNING_DISABLE_CLANG("-Weverything")
+
+#pragma push_macro("static_assert")
+#undef static_assert
+
+#include "thirdparty/fmt/fmt/format.h"
+#include "thirdparty/fmt/fmt/ostream.h"
+
+#pragma pop_macro("static_assert")
 
 WARNING_POP()
+
+namespace detail
+{
+	char get_incompatible_char(wchar_t);
+	char get_incompatible_char(const wchar_t*);
+	char get_incompatible_char(const string&);
+	wchar_t get_incompatible_char(char);
+	wchar_t get_incompatible_char(const char*);
+	wchar_t get_incompatible_char(const std::string&);
+
+	template<typename char_type>
+	void check_char_compatibility(char_type) {}
+
+	template<typename char_type, typename arg, typename... args>
+	void check_char_compatibility(char_type, const arg&, const args&... Args)
+	{
+		static_assert((!std::is_convertible_v<arg, const char_type*>));
+		static_assert((!std::is_convertible_v<arg, std::basic_string<char_type>>));
+		static_assert((!std::is_convertible_v<arg, std::basic_string_view<char_type>>));
+
+		check_char_compatibility(char_type{}, Args...);
+	}
+}
 
 template<typename F, typename... args>
 auto format(F&& Format, args&&... Args)
 {
+	detail::check_char_compatibility(decltype(detail::get_incompatible_char(Format)){}, Args...);
 	return fmt::format(FWD(Format), FWD(Args)...);
 }
 
@@ -69,5 +105,7 @@ string str(const char*) = delete;
 string str(const wchar_t*) = delete;
 string str(std::string) = delete;
 string str(string) = delete;
+string str(std::string_view) = delete;
+string str(string_view) = delete;
 
 #endif // FORMAT_HPP_27C3F464_170B_432E_9D44_3884DDBB95AC

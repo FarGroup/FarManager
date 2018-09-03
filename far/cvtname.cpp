@@ -31,10 +31,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "cvtname.hpp"
+
 #include "flink.hpp"
 #include "pathmix.hpp"
 #include "network.hpp"
@@ -43,6 +41,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "elevation.hpp"
 #include "string_utils.hpp"
 #include "drivemix.hpp"
+
+#include "platform.env.hpp"
+#include "platform.fs.hpp"
+
+#include "common/enum_substrings.hpp"
 
 static void MixToFullPath(string& strPath)
 {
@@ -109,10 +112,10 @@ static void MixToFullPath(string& strPath)
 	}
 }
 
-static void MixToFullPath(const string& stPath, string& Dest, const string& stCurrentDir)
+static void MixToFullPath(const string_view stPath, string& Dest, const string_view stCurrentDir)
 {
 		string strDest;
-		const string* pstCurrentDir = nullptr;
+		string_view pstCurrentDir;
 		bool blIgnore = false;
 		size_t PathDirOffset = 0;
 		const auto PathType = ParsePath(stPath, &PathDirOffset);
@@ -133,13 +136,13 @@ static void MixToFullPath(const string& stPath, string& Dest, const string& stCu
 						size_t CurDirDirOffset = 0;
 						if (ParsePath(stCurrentDir, &CurDirDirOffset) != root_type::unknown)
 						{
-							strDest = string(stCurrentDir.data(), CurDirDirOffset);
+							assign(strDest, stCurrentDir.substr(0, CurDirDirOffset));
 						}
 					}
 				}
 				else //"abc" or whatever
 				{
-					pstCurrentDir = &stCurrentDir;
+					pstCurrentDir = stCurrentDir;
 				}
 			}
 			break;
@@ -151,22 +154,22 @@ static void MixToFullPath(const string& stPath, string& Dest, const string& stCu
 				}
 				else
 				{
-					const auto DriveVar = L'=' + os::fs::get_drive(stPath[0]);
-					const auto strValue(os::env::get(DriveVar));
+					const auto Drive = os::fs::get_drive(stPath[0]);
+					const auto Value = os::env::get(L'=' + Drive);
 
-					if (!strValue.empty())
+					if (!Value.empty())
 					{
-						strDest=strValue;
+						strDest = Value;
 					}
 					else
 					{
 						if (upper(stPath[0])==upper(stCurrentDir[0]))
 						{
-							strDest=stCurrentDir;
+							assign(strDest, stCurrentDir);
 						}
 						else
 						{
-							strDest=DriveVar.substr(1);
+							strDest = Drive;
 						}
 					}
 					AddEndSlash(strDest);
@@ -189,13 +192,13 @@ static void MixToFullPath(const string& stPath, string& Dest, const string& stCu
 			break;
 		}
 
-		if (pstCurrentDir)
+		if (!pstCurrentDir.empty())
 		{
-			strDest += *pstCurrentDir;
+			append(strDest, pstCurrentDir);
 			AddEndSlash(strDest);
 		}
 
-		strDest.append(stPath, PathOffset, string::npos);
+		append(strDest, stPath.substr(PathOffset));
 
 		if (!blIgnore && !HasPathPrefix(strDest))
 			MixToFullPath(strDest);
@@ -203,7 +206,7 @@ static void MixToFullPath(const string& stPath, string& Dest, const string& stCu
 		Dest = std::move(strDest);
 }
 
-string ConvertNameToFull(const string& Object)
+string ConvertNameToFull(string_view const Object)
 {
 	string strDest;
 	MixToFullPath(Object, strDest, os::fs::GetCurrentDirectory());
@@ -212,27 +215,25 @@ string ConvertNameToFull(const string& Object)
 
 // try to replace volume GUID (if present) with drive letter
 // used by ConvertNameToReal() only
-static string TryConvertVolumeGuidToDrivePath(const string& Path, const string_view& AbsPath = {})
+static string TryConvertVolumeGuidToDrivePath(string_view const Path, const string_view AbsPath = {})
 {
-	string Result = Path;
+	string Result(Path);
 	size_t DirectoryOffset;
 	if (ParsePath(Path, &DirectoryOffset) == root_type::volume)
 	{
-		if (Imports().GetVolumePathNamesForVolumeNameW)
+		if (imports.GetVolumePathNamesForVolumeNameW)
 		{
 			string VolumePathNames;
 			if (os::fs::GetVolumePathNamesForVolumeName(ExtractPathRoot(Path), VolumePathNames))
 			{
-				for(const auto& i: enum_substrings(VolumePathNames.data()))
+				for(const auto& i: enum_substrings(VolumePathNames.c_str()))
 				{
-					const auto VolumePathName = make_string(i);
+					if (!AbsPath.empty() && starts_with_icase(AbsPath, i))
+						return string(i);
 
-					if (!AbsPath.empty() && starts_with_icase(AbsPath, VolumePathName))
-						return VolumePathName;
-
-					if (IsRootPath(VolumePathName))
+					if (IsRootPath(i))
 					{
-						Result.replace(0, DirectoryOffset, VolumePathName);
+						Result.replace(0, DirectoryOffset, i.data(), i.size());
 						break;
 					}
 				}
@@ -251,7 +252,7 @@ static string TryConvertVolumeGuidToDrivePath(const string& Path, const string_v
 			const os::fs::enum_drives Enumerator(os::fs::get_logical_drives());
 			const auto ItemIterator = std::find_if(ALL_CONST_RANGE(Enumerator), [&](const auto& i)
 			{
-				return os::fs::GetVolumeNameForVolumeMountPoint(os::fs::get_root_directory(i), strVolumeGuid) && starts_with(Path, { strVolumeGuid.data(), DirectoryOffset });
+				return os::fs::GetVolumeNameForVolumeMountPoint(os::fs::get_root_directory(i), strVolumeGuid) && starts_with(Path, string_view(strVolumeGuid).substr(0, DirectoryOffset));
 			});
 			if (ItemIterator != Enumerator.cend())
 			{
@@ -266,7 +267,7 @@ static string TryConvertVolumeGuidToDrivePath(const string& Path, const string_v
 	return Result;
 }
 
-size_t GetMountPointLen(const string& abs_path, const string& drive_root)
+size_t GetMountPointLen(string_view const abs_path, string_view const drive_root)
 {
 	if (starts_with_icase(abs_path, drive_root))
 		return drive_root.size();
@@ -281,10 +282,9 @@ size_t GetMountPointLen(const string& abs_path, const string& drive_root)
 	case root_type::volume:
 		break;
 	case root_type::drive_letter:
-		if (os::fs::GetVolumeNameForVolumeMountPoint(drive_root, vol_guid))
+		if (os::fs::GetVolumeNameForVolumeMountPoint(null_terminated(drive_root).c_str(), vol_guid))
 			break;
-		// else fall down to default:
-		// fallthrough
+		[[fallthrough]];
 	default:
 		return 0;
 	}
@@ -297,7 +297,7 @@ size_t GetMountPointLen(const string& abs_path, const string& drive_root)
   Преобразует Src в полный РЕАЛЬНЫЙ путь с учетом reparse point.
   Note that Src can be partially non-existent.
 */
-string ConvertNameToReal(const string& Object)
+string ConvertNameToReal(string_view const Object)
 {
 	SCOPED_ACTION(elevation::suppress);
 
@@ -333,10 +333,7 @@ string ConvertNameToReal(const string& Object)
 			DeleteEndSlash(Path);
 
 			if (FullPath.size() > Path.size() + 1)
-			{
-				AddEndSlash(FinalFilePath);
-				FinalFilePath.append(FullPath, Path.size() + 1, string::npos);
-			}
+				path::append(FinalFilePath, string_view(FullPath).substr(Path.size() + 1));
 
 			FinalFilePath = TryConvertVolumeGuidToDrivePath(FinalFilePath);
 			strDest = FinalFilePath;
@@ -345,12 +342,12 @@ string ConvertNameToReal(const string& Object)
 	return strDest;
 }
 
-string ConvertNameToShort(const string& Object)
+string ConvertNameToShort(string_view const  Object)
 {
 	string strDest;
-	if(!os::fs::GetShortPathName(Object, strDest))
+	if(!os::fs::GetShortPathName(null_terminated(Object).c_str(), strDest))
 	{
-		strDest = Object;
+		assign(strDest, Object);
 
 		if (!HasPathPrefix(Object))
 		{
@@ -359,7 +356,7 @@ string ConvertNameToShort(const string& Object)
 				switch (ParsePath(strDest))
 				{
 				case root_type::unc_drive_letter:
-					strDest = strDest.substr(4); // \\?\X:\path -> X:\path
+					strDest.erase(0, 4); // \\?\X:\path -> X:\path
 					break;
 
 				case root_type::unc_remote:
@@ -376,12 +373,12 @@ string ConvertNameToShort(const string& Object)
 	return strDest;
 }
 
-string ConvertNameToLong(const string& Object)
+string ConvertNameToLong(string_view const Object)
 {
 	string strDest;
-	if (!os::fs::GetLongPathName(Object, strDest))
+	if (!os::fs::GetLongPathName(null_terminated(Object).c_str(), strDest))
 	{
-		strDest = Object;
+		assign(strDest, Object);
 
 		if (!HasPathPrefix(Object))
 		{
@@ -390,7 +387,7 @@ string ConvertNameToLong(const string& Object)
 				switch (ParsePath(strDest))
 				{
 				case root_type::unc_drive_letter:
-					strDest = strDest.substr(4); // \\?\X:\path -> X:\path
+					strDest.erase(0, 4); // \\?\X:\path -> X:\path
 					break;
 
 				case root_type::unc_remote:
@@ -407,7 +404,7 @@ string ConvertNameToLong(const string& Object)
 	return strDest;
 }
 
-string ConvertNameToUNC(const string& Object)
+string ConvertNameToUNC(string_view const Object)
 {
 	auto strFileName = ConvertNameToFull(Object);
 	// Посмотрим на тип файловой системы
@@ -418,11 +415,9 @@ string ConvertNameToUNC(const string& Object)
 	block_ptr<UNIVERSAL_NAME_INFO> uni(uniSize);
 
 	// применяем WNetGetUniversalName для чего угодно, только не для Novell`а
-	if (!equal_icase(strFileSystemName, L"NWFS"_sv))
+	if (!equal_icase(strFileSystemName, L"NWFS"sv))
 	{
-		DWORD dwRet=WNetGetUniversalName(strFileName.data(),UNIVERSAL_NAME_INFO_LEVEL,uni.get(),&uniSize);
-
-		switch (dwRet)
+		switch (WNetGetUniversalName(strFileName.c_str(), UNIVERSAL_NAME_INFO_LEVEL, uni.get(), &uniSize))
 		{
 			case NO_ERROR:
 				strFileName = uni->lpUniversalName;
@@ -430,7 +425,7 @@ string ConvertNameToUNC(const string& Object)
 
 			case ERROR_MORE_DATA:
 				uni.reset(uniSize);
-				if (WNetGetUniversalName(strFileName.data(),UNIVERSAL_NAME_INFO_LEVEL,uni.get(),&uniSize)==NO_ERROR)
+				if (WNetGetUniversalName(strFileName.c_str(),UNIVERSAL_NAME_INFO_LEVEL,uni.get(),&uniSize)==NO_ERROR)
 					strFileName = uni->lpUniversalName;
 				break;
 		}
@@ -445,10 +440,7 @@ string ConvertNameToUNC(const string& Object)
 		{
 			const auto SlashPos = FindSlash(strFileName);
 			if (SlashPos != string::npos)
-			{
-				AddEndSlash(strTemp);
-				strTemp += strFileName.substr(SlashPos + 1);
-			}
+				path::append(strTemp, string_view(strFileName).substr(SlashPos + 1));
 
 			strFileName = strTemp;
 		}
@@ -470,7 +462,7 @@ void PrepareDiskPath(string &strPath, bool CheckFullPath)
 		{
 			ReplaceSlashToBackslash(strPath);
 			bool DoubleSlash = strPath[1]==L'\\';
-			while(ReplaceStrings(strPath,L"\\\\",L"\\"))
+			while(ReplaceStrings(strPath, L"\\\\"sv, L"\\"sv))
 				;
 			if(DoubleSlash)
 			{
@@ -495,19 +487,19 @@ void PrepareDiskPath(string &strPath, bool CheckFullPath)
 					string TmpStr;
 					TmpStr.reserve(strPath.size());
 					size_t LastPos = StartPos;
-					bool EndsWithSlash = IsSlash(strPath.back());
+					const auto EndsWithSlash = IsSlash(strPath.back());
 
 					for (size_t i = StartPos; i <= strPath.size(); ++i)
 					{
 						if ((i < strPath.size() && IsSlash(strPath[i])) || (i == strPath.size() && !EndsWithSlash))
 						{
-							TmpStr = strPath.substr(0, i);
+							TmpStr.assign(strPath, 0, i);
 							os::fs::find_data fd;
 
 							if (os::fs::get_find_data(TmpStr, fd))
 							{
-								strPath.replace(LastPos, i - LastPos, fd.strFileName);
-								i += fd.strFileName.size() - (i - LastPos);
+								strPath.replace(LastPos, i - LastPos, fd.FileName);
+								i += fd.FileName.size() - (i - LastPos);
 							}
 
 							if (i != strPath.size())

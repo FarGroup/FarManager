@@ -1,4 +1,5 @@
-﻿/*
+﻿// validator: no-self-include
+/*
 main.cpp
 
 Функция main.
@@ -31,10 +32,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
-#include "platform.security.hpp"
 #include "keys.hpp"
 #include "chgprior.hpp"
 #include "farcolor.hpp"
@@ -63,67 +60,74 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "treelist.hpp"
 #include "plugins.hpp"
 #include "notification.hpp"
-#include "datetime.hpp"
 #include "tracer.hpp"
 #include "constitle.hpp"
 #include "string_utils.hpp"
 #include "cvtname.hpp"
 #include "drivemix.hpp"
 #include "new_handler.hpp"
+#include "global.hpp"
+#include "locale.hpp"
+
+#include "platform.env.hpp"
+#include "platform.memory.hpp"
+#include "platform.security.hpp"
+
+#include "common/range.hpp"
+#include "common/scope_exit.hpp"
 
 global *Global = nullptr;
 
 static void show_help()
 {
 	static const auto HelpMsg =
-		L"Usage: far [switches] [apath [ppath]]" EOL_STR EOL_STR
-		L"where" EOL_STR
-		L"  apath - path to a folder (or a file or an archive or command with prefix)" EOL_STR
-		L"          for the active panel" EOL_STR
-		L"  ppath - path to a folder (or a file or an archive or command with prefix)" EOL_STR
-		L"          for the passive panel" EOL_STR
-		L"The following switches may be used in the command line:" EOL_STR
-		L" -?   This help." EOL_STR
-		L" -a   Disable display of characters with codes 0 - 31 and 255." EOL_STR
-		L" -ag  Disable display of pseudographics characters." EOL_STR
-		L" -clearcache [profilepath [localprofilepath]]" EOL_STR
-		L"      Clear plugins cache." EOL_STR
-		L" -co  Forces FAR to load plugins from the cache only." EOL_STR
+		L"Usage: far [switches] [apath [ppath]]\n\n"
+		L"where\n"
+		L"  apath - path to a folder (or a file or an archive or command with prefix)\n"
+		L"          for the active panel\n"
+		L"  ppath - path to a folder (or a file or an archive or command with prefix)\n"
+		L"          for the passive panel\n"
+		L"The following switches may be used in the command line:\n"
+		L" -?   This help.\n"
+		L" -a   Disable display of characters with codes 0 - 31 and 255.\n"
+		L" -ag  Disable display of pseudographics characters.\n"
+		L" -clearcache [profilepath [localprofilepath]]\n"
+		L"      Clear plugins cache.\n"
+		L" -co  Forces FAR to load plugins from the cache only.\n"
 #ifdef DIRECT_RT
-		L" -do  Direct output." EOL_STR
+		L" -do  Direct output.\n"
 #endif
-		L" -e[<line>[:<pos>]] <filename>" EOL_STR
-		L"      Edit the specified file." EOL_STR
-		L" -export <out.farconfig> [profilepath [localprofilepath]]" EOL_STR
-		L"      Export settings." EOL_STR
-		L" -import <in.farconfig> [profilepath [localprofilepath]]" EOL_STR
-		L"      Import settings." EOL_STR
-		L" -m   Do not load macros." EOL_STR
-		L" -ma  Do not execute auto run macros." EOL_STR
-		L" -p[<path>]" EOL_STR
-		L"      Search for \"common\" plugins in the directory, specified by <path>." EOL_STR
-		L" -ro[-] Read-Only or Normal config mode." EOL_STR
-		L" -s <profilepath> [<localprofilepath>]" EOL_STR
-		L"      Custom location for Far configuration files - overrides Far.exe.ini." EOL_STR
-		L" -set:<parameter>=<value>" EOL_STR
-		L"      Override the configuration parameter, see far:config for details." EOL_STR
-		L" -t <path>" EOL_STR
-		L"      Location of Far template configuration file - overrides Far.exe.ini." EOL_STR
-		L" -title[:<valuestring>]" EOL_STR
-		L"      If <valuestring> is given, use it as the window title;" EOL_STR
-		L"      otherwise, inherit the console window's title." EOL_STR
+		L" -e[<line>[:<pos>]] <filename>\n"
+		L"      Edit the specified file.\n"
+		L" -export <out.farconfig> [profilepath [localprofilepath]]\n"
+		L"      Export settings.\n"
+		L" -import <in.farconfig> [profilepath [localprofilepath]]\n"
+		L"      Import settings.\n"
+		L" -m   Do not load macros.\n"
+		L" -ma  Do not execute auto run macros.\n"
+		L" -p[<path>]\n"
+		L"      Search for \"common\" plugins in the directory, specified by <path>.\n"
+		L" -ro[-] Read-Only or Normal config mode.\n"
+		L" -s <profilepath> [<localprofilepath>]\n"
+		L"      Custom location for Far configuration files - overrides Far.exe.ini.\n"
+		L" -set:<parameter>=<value>\n"
+		L"      Override the configuration parameter, see far:config for details.\n"
+		L" -t <path>\n"
+		L"      Location of Far template configuration file - overrides Far.exe.ini.\n"
+		L" -title[:<valuestring>]\n"
+		L"      If <valuestring> is given, use it as the window title;\n"
+		L"      otherwise, inherit the console window's title.\n"
 #ifndef NO_WRAPPER
-		L" -u <username>" EOL_STR
-		L"      Allows to have separate registry settings for different users." EOL_STR
-		L"      Affects only 1.x Far Manager plugins." EOL_STR
+		L" -u <username>\n"
+		L"      Allows to have separate registry settings for different users.\n"
+		L"      Affects only 1.x Far Manager plugins.\n"
 #endif // NO_WRAPPER
-		L" -v <filename>" EOL_STR
-		L"      View the specified file. If <filename> is -, data is read from the stdin." EOL_STR
-		L" -w[-] Stretch to console window instead of console buffer or vise versa." EOL_STR
-		""_sv;
+		L" -v <filename>\n"
+		L"      View the specified file. If <filename> is -, data is read from the stdin.\n"
+		L" -w[-] Stretch to console window instead of console buffer or vise versa.\n"
+		""sv;
 
-	Console().Write(HelpMsg);
-	Console().Commit();
+	std::wcout << HelpMsg << std::flush;
 }
 
 static int MainProcess(
@@ -137,7 +141,7 @@ static int MainProcess(
 {
 		SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 		FarColor InitAttributes={};
-		Console().GetTextAttributes(InitAttributes);
+		console.GetTextAttributes(InitAttributes);
 		SetRealColor(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
 
 		string ename(EditName),vname(ViewName), apanel(DestName1),ppanel(DestName2);
@@ -293,7 +297,7 @@ static int MainProcess(
 
 		// очистим за собой!
 		SetScreen(0,0,ScrX,ScrY,L' ',colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
-		Console().SetTextAttributes(InitAttributes);
+		console.SetTextAttributes(InitAttributes);
 		Global->ScrBuf->ResetLockCount();
 		Global->ScrBuf->Flush();
 
@@ -304,7 +308,7 @@ static void InitTemplateProfile(string &strTemplatePath)
 {
 	if (strTemplatePath.empty())
 	{
-		strTemplatePath = GetFarIniString(L"General", L"TemplateProfile", L"%FARHOME%\\Default.farconfig");
+		strTemplatePath = GetFarIniString(L"General"s, L"TemplateProfile"s, path::join(L"%FARHOME%"sv, L"Default.farconfig"sv));
 	}
 
 	if (!strTemplatePath.empty())
@@ -313,7 +317,7 @@ static void InitTemplateProfile(string &strTemplatePath)
 		DeleteEndSlash(strTemplatePath);
 
 		if (os::fs::is_directory(strTemplatePath))
-			strTemplatePath += L"\\Default.farconfig";
+			path::append(strTemplatePath, L"Default.farconfig"sv);
 
 		Global->Opt->TemplateProfilePath = strTemplatePath;
 	}
@@ -321,6 +325,9 @@ static void InitTemplateProfile(string &strTemplatePath)
 
 static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 {
+	if (Global->Opt->ReadOnlyConfig < 0) // do not override 'far /ro', 'far /ro-'
+		Global->Opt->ReadOnlyConfig = GetFarIniInt(L"General"s, L"ReadOnlyConfig"s, 0);
+
 	if (!strProfilePath.empty())
 	{
 		strProfilePath = ConvertNameToFull(unquote(os::env::expand(strProfilePath)));
@@ -332,41 +339,28 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 
 	if (strProfilePath.empty())
 	{
-		int UseSystemProfiles = GetFarIniInt(L"General", L"UseSystemProfiles", 1);
+		const auto UseSystemProfiles = GetFarIniInt(L"General"s, L"UseSystemProfiles"s, 1);
 		if (UseSystemProfiles)
 		{
+			const auto& GetShellProfilePath = [](int Idl)
+			{
+				wchar_t Buffer[MAX_PATH];
+				SHGetFolderPath(nullptr, Idl | (Global->Opt->ReadOnlyConfig? 0 : CSIDL_FLAG_CREATE), nullptr, SHGFP_TYPE_CURRENT, Buffer);
+				return path::join(Buffer, L"Far Manager"sv, L"Profile"sv);
+			};
+
 			// roaming data default path: %APPDATA%\Far Manager\Profile
-			wchar_t Buffer[MAX_PATH];
-			SHGetFolderPath(nullptr, CSIDL_APPDATA|CSIDL_FLAG_CREATE, nullptr, SHGFP_TYPE_CURRENT, Buffer);
-			Global->Opt->ProfilePath = Buffer;
-			AddEndSlash(Global->Opt->ProfilePath);
-			Global->Opt->ProfilePath += L"Far Manager";
+			Global->Opt->ProfilePath = GetShellProfilePath(CSIDL_APPDATA);
 
-			if (UseSystemProfiles == 2)
-			{
-				Global->Opt->LocalProfilePath = Global->Opt->ProfilePath;
-			}
-			else
-			{
+			Global->Opt->LocalProfilePath = UseSystemProfiles == 2?
+				Global->Opt->ProfilePath :
 				// local data default path: %LOCALAPPDATA%\Far Manager\Profile
-				SHGetFolderPath(nullptr, CSIDL_LOCAL_APPDATA|CSIDL_FLAG_CREATE, nullptr, SHGFP_TYPE_CURRENT, Buffer);
-				Global->Opt->LocalProfilePath = Buffer;
-				AddEndSlash(Global->Opt->LocalProfilePath);
-				Global->Opt->LocalProfilePath += L"Far Manager";
-			}
-
-			string* Paths[]={&Global->Opt->ProfilePath, &Global->Opt->LocalProfilePath};
-			std::for_each(RANGE(Paths, i)
-			{
-				AddEndSlash(*i);
-				*i += L"Profile";
-				CreatePath(*i, true);
-			});
+				GetShellProfilePath(CSIDL_LOCAL_APPDATA);
 		}
 		else
 		{
-			const auto strUserProfileDir = GetFarIniString(L"General", L"UserProfileDir", L"%FARHOME%\\Profile");
-			const auto strUserLocalProfileDir = GetFarIniString(L"General", L"UserLocalProfileDir", strUserProfileDir);
+			const auto strUserProfileDir = GetFarIniString(L"General"s, L"UserProfileDir"s, path::join(L"%FARHOME%"sv, L"Profile"sv));
+			const auto strUserLocalProfileDir = GetFarIniString(L"General"s, L"UserLocalProfileDir"s, strUserProfileDir);
 			Global->Opt->ProfilePath = ConvertNameToFull(unquote(os::env::expand(strUserProfileDir)));
 			Global->Opt->LocalProfilePath = ConvertNameToFull(unquote(os::env::expand(strUserLocalProfileDir)));
 		}
@@ -374,30 +368,26 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 	else
 	{
 		Global->Opt->ProfilePath = strProfilePath;
-		Global->Opt->LocalProfilePath = strLocalProfilePath.empty() ? strProfilePath : strLocalProfilePath;
+		Global->Opt->LocalProfilePath = !strLocalProfilePath.empty()? strLocalProfilePath : strProfilePath;
 	}
 
-	Global->Opt->LoadPlug.strPersonalPluginsPath = Global->Opt->ProfilePath + L"\\Plugins";
+	Global->Opt->LoadPlug.strPersonalPluginsPath = path::join(Global->Opt->ProfilePath, L"Plugins"sv);
 
-	os::env::set(L"FARPROFILE", Global->Opt->ProfilePath);
-	os::env::set(L"FARLOCALPROFILE", Global->Opt->LocalProfilePath);
-
-	if (Global->Opt->ReadOnlyConfig < 0) // do not override 'far /ro', 'far /ro-'
-		Global->Opt->ReadOnlyConfig = GetFarIniInt(L"General", L"ReadOnlyConfig", 0);
+	os::env::set(L"FARPROFILE"sv, Global->Opt->ProfilePath);
+	os::env::set(L"FARLOCALPROFILE"sv, Global->Opt->LocalProfilePath);
 
 	if (!Global->Opt->ReadOnlyConfig)
 	{
-		CreatePath(Global->Opt->ProfilePath + L"\\PluginsData", true);
-		if (Global->Opt->ProfilePath != Global->Opt->LocalProfilePath)
-		{
-			CreatePath(Global->Opt->LocalProfilePath + L"\\PluginsData", true);
-		}
+		CreatePath(path::join(Global->Opt->ProfilePath, L"PluginsData"sv), true);
+
+		if (Global->Opt->LocalProfilePath != Global->Opt->ProfilePath)
+			CreatePath(path::join(Global->Opt->LocalProfilePath, L"PluginsData"sv), true);
 	}
 }
 
-static bool ProcessServiceModes(const range<wchar_t**>& Args, int& ServiceResult)
+static bool ProcessServiceModes(range<const wchar_t* const*> const Args, int& ServiceResult)
 {
-	const auto& isArg = [](const wchar_t* Arg, const wchar_t* Name)
+	const auto& isArg = [](const wchar_t* Arg, string_view const Name)
 	{
 		return (*Arg == L'/' || *Arg == L'-') && equal_icase(Arg + 1, Name);
 	};
@@ -408,9 +398,9 @@ static bool ProcessServiceModes(const range<wchar_t**>& Args, int& ServiceResult
 		return true;
 	}
 
-	if (InRange(2u, Args.size(), 5u) && (isArg(Args[0], L"export") || isArg(Args[0], L"import")))
+	if (InRange(2u, Args.size(), 5u) && (isArg(Args[0], L"export"sv) || isArg(Args[0], L"import"sv)))
 	{
-		bool Export = isArg(Args[0], L"export");
+		const auto Export = isArg(Args[0], L"export"sv);
 		string strProfilePath(Args.size() > 2 ? Args[2] : L""), strLocalProfilePath(Args.size() > 3 ? Args[3] : L""), strTemplatePath(Args.size() > 4 ? Args[4] : L"");
 		InitTemplateProfile(strTemplatePath);
 		InitProfile(strProfilePath, strLocalProfilePath);
@@ -419,7 +409,7 @@ static bool ProcessServiceModes(const range<wchar_t**>& Args, int& ServiceResult
 		return true;
 	}
 
-	if (InRange(1u, Args.size(), 3u) && isArg(Args[0], L"clearcache"))
+	if (InRange(1u, Args.size(), 3u) && isArg(Args[0], L"clearcache"sv))
 	{
 		string strProfilePath(Args.size() > 1 ? Args[1] : L"");
 		string strLocalProfilePath(Args.size() > 2 ? Args[2] : L"");
@@ -436,33 +426,34 @@ static void UpdateErrorMode()
 {
 	Global->ErrorMode |= SEM_NOGPFAULTERRORBOX;
 	long long IgnoreDataAlignmentFaults = 0;
-	ConfigProvider().GeneralCfg()->GetValue(L"System.Exception", L"IgnoreDataAlignmentFaults", IgnoreDataAlignmentFaults, IgnoreDataAlignmentFaults);
+	ConfigProvider().GeneralCfg()->GetValue(L"System.Exception"sv, L"IgnoreDataAlignmentFaults"sv, IgnoreDataAlignmentFaults, IgnoreDataAlignmentFaults);
 	if (IgnoreDataAlignmentFaults)
 	{
 		Global->ErrorMode |= SEM_NOALIGNMENTFAULTEXCEPT;
 	}
-	SetErrorMode(Global->ErrorMode);
+
+	os::set_error_mode(Global->ErrorMode);
 }
 
 static void SetDriveMenuHotkeys()
 {
 	long long InitDriveMenuHotkeys = 1;
-	ConfigProvider().GeneralCfg()->GetValue(L"Interface", L"InitDriveMenuHotkeys", InitDriveMenuHotkeys, InitDriveMenuHotkeys);
+	ConfigProvider().GeneralCfg()->GetValue(L"Interface"sv, L"InitDriveMenuHotkeys"sv, InitDriveMenuHotkeys, InitDriveMenuHotkeys);
 
 	if (InitDriveMenuHotkeys)
 	{
 		static const struct
 		{
-			const wchar_t* PluginId;
+			string_view PluginId;
 			GUID MenuId;
-			const wchar_t* Hotkey;
+			string_view Hotkey;
 		}
 		DriveMenuHotkeys[] =
 		{
-			{ L"1E26A927-5135-48C6-88B2-845FB8945484", { 0x61026851, 0x2643, 0x4C67, { 0xBF, 0x80, 0xD3, 0xC7, 0x7A, 0x3A, 0xE8, 0x30 } }, L"0" }, // ProcList
-			{ L"B77C964B-E31E-4D4C-8FE5-D6B0C6853E7C", { 0xF98C70B3, 0xA1AE, 0x4896, { 0x93, 0x88, 0xC5, 0xC8, 0xE0, 0x50, 0x13, 0xB7 } }, L"1" }, // TmpPanel
-			{ L"42E4AEB1-A230-44F4-B33C-F195BB654931", { 0xC9FB4F53, 0x54B5, 0x48FF, { 0x9B, 0xA2, 0xE8, 0xEB, 0x27, 0xF0, 0x12, 0xA2 } }, L"2" }, // NetBox
-			{ L"773B5051-7C5F-4920-A201-68051C4176A4", { 0x24B6DD41, 0xDF12, 0x470A, { 0xA4, 0x7C, 0x86, 0x75, 0xED, 0x8D, 0x2E, 0xD4 } }, L"3" }, // Network
+			{ L"1E26A927-5135-48C6-88B2-845FB8945484"sv, { 0x61026851, 0x2643, 0x4C67, { 0xBF, 0x80, 0xD3, 0xC7, 0x7A, 0x3A, 0xE8, 0x30 } }, L"0"sv }, // ProcList
+			{ L"B77C964B-E31E-4D4C-8FE5-D6B0C6853E7C"sv, { 0xF98C70B3, 0xA1AE, 0x4896, { 0x93, 0x88, 0xC5, 0xC8, 0xE0, 0x50, 0x13, 0xB7 } }, L"1"sv }, // TmpPanel
+			{ L"42E4AEB1-A230-44F4-B33C-F195BB654931"sv, { 0xC9FB4F53, 0x54B5, 0x48FF, { 0x9B, 0xA2, 0xE8, 0xEB, 0x27, 0xF0, 0x12, 0xA2 } }, L"2"sv }, // NetBox
+			{ L"773B5051-7C5F-4920-A201-68051C4176A4"sv, { 0x24B6DD41, 0xDF12, 0x470A, { 0xA4, 0x7C, 0x86, 0x75, 0xED, 0x8D, 0x2E, 0xD4 } }, L"3"sv }, // Network
 		};
 
 		std::for_each(CONST_RANGE(DriveMenuHotkeys, i)
@@ -470,18 +461,13 @@ static void SetDriveMenuHotkeys()
 			ConfigProvider().PlHotkeyCfg()->SetHotkey(i.PluginId, i.MenuId, hotkey_type::drive_menu, i.Hotkey);
 		});
 
-		ConfigProvider().GeneralCfg()->SetValue(L"Interface", L"InitDriveMenuHotkeys", 0ull);
+		ConfigProvider().GeneralCfg()->SetValue(L"Interface"sv, L"InitDriveMenuHotkeys"sv, 0ull);
 	}
 }
 
-static int mainImpl(const range<wchar_t**>& Args)
+static int mainImpl(range<const wchar_t* const*> const Args)
 {
 	setlocale(LC_ALL, "");
-
-#ifdef _MSC_VER
-	_setmode(_fileno(stdout), _O_U16TEXT);
-	_setmode(_fileno(stderr), _O_U16TEXT);
-#endif
 
 	// Must be static - dependent static objects exist
 	static SCOPED_ACTION(os::com::initialize);
@@ -490,7 +476,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 
 	auto NoElevationDuringBoot = std::make_unique<elevation::suppress>();
 
-	SetErrorMode(Global->ErrorMode);
+	os::set_error_mode(Global->ErrorMode);
 
 	TestPathParser();
 
@@ -498,10 +484,10 @@ static int mainImpl(const range<wchar_t**>& Args)
 
 	os::EnableLowFragmentationHeap();
 
-	if(!Console().IsFullscreenSupported())
+	if(!console.IsFullscreenSupported())
 	{
 		const BYTE ReserveAltEnter = 0x8;
-		Imports().SetConsoleKeyShortcuts(TRUE, ReserveAltEnter, nullptr, 0);
+		imports.SetConsoleKeyShortcuts(TRUE, ReserveAltEnter, nullptr, 0);
 	}
 
 	os::fs::InitCurrentDirectory();
@@ -512,16 +498,16 @@ static int mainImpl(const range<wchar_t**>& Args)
 		PrepareDiskPath(Global->g_strFarModuleName);
 	}
 
-	Global->g_strFarINI = Global->g_strFarModuleName+L".ini";
+	Global->g_strFarINI = concat(Global->g_strFarModuleName, L".ini"sv);
 	Global->g_strFarPath = Global->g_strFarModuleName;
 	CutToSlash(Global->g_strFarPath,true);
-	os::env::set(L"FARHOME", Global->g_strFarPath);
+	os::env::set(L"FARHOME"sv, Global->g_strFarPath);
 	AddEndSlash(Global->g_strFarPath);
 
 	if (os::security::is_admin())
-		os::env::set(L"FARADMINMODE", L"1");
+		os::env::set(L"FARADMINMODE"sv, L"1"sv);
 	else
-		os::env::del(L"FARADMINMODE");
+		os::env::del(L"FARADMINMODE"sv);
 
 	{
 		int ServiceResult;
@@ -530,8 +516,8 @@ static int mainImpl(const range<wchar_t**>& Args)
 	}
 
 	SCOPED_ACTION(listener)(update_environment, &ReloadEnvironment);
-	SCOPED_ACTION(listener)(update_intl, &OnIntlSettingsChange);
-	SCOPED_ACTION(listener_ex)(update_devices, &UpdateSavedDrives);
+	SCOPED_ACTION(listener)(update_intl, [] { locale.invalidate(); });
+	SCOPED_ACTION(listener)(update_devices, &UpdateSavedDrives);
 
 	_OT(SysLog(L"[[[[[[[[New Session of FAR]]]]]]]]]"));
 
@@ -546,7 +532,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 	// TODO: std::optional
 	std::pair<string, bool> CustomTitle;
 
-	std::unordered_map<string, string, hash_icase, equal_to_icase> Overrides;
+	Options::overrides Overrides;
 	FOR_RANGE(Args, Iter)
 	{
 		const auto& Arg = *Iter;
@@ -617,7 +603,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 
 				case L'S':
 					{
-						constexpr auto SetParam = L"set:"_sv;
+						constexpr auto SetParam = L"set:"sv;
 						if (starts_with_icase(Arg + 1, SetParam))
 						{
 							if (const auto EqualPtr = wcschr(Arg + 1, L'='))
@@ -640,7 +626,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 
 				case L'T':
 					{
-						const auto Title = L"title"_sv;
+						const auto Title = L"title"sv;
 						if (starts_with_icase(Arg + 1, Title))
 						{
 							CustomTitle.second = true;
@@ -774,9 +760,9 @@ static int mainImpl(const range<wchar_t**>& Args)
 		CloseConsole();
 	};
 
-	far_language::instance().load(Global->g_strFarPath, static_cast<int>(lng::MNewFileName + 1));
+	far_language::instance().load(Global->g_strFarPath, Global->Opt->strLanguage, static_cast<int>(lng::MNewFileName + 1));
 
-	os::env::set(L"FARLANG", Global->Opt->strLanguage);
+	os::env::set(L"FARLANG"sv, Global->Opt->strLanguage);
 
 	if (!Global->Opt->LoadPlug.strCustomPluginsPath.empty())
 		Global->Opt->LoadPlug.strCustomPluginsPath = ConvertNameToFull(unquote(os::env::expand(Global->Opt->LoadPlug.strCustomPluginsPath)));
@@ -795,21 +781,26 @@ static int mainImpl(const range<wchar_t**>& Args)
 	}
 	catch (const std::exception& e)
 	{
-		if (ProcessStdException(e, L"mainImpl"_sv))
-		{
+		if (ProcessStdException(e, L"mainImpl"sv))
 			std::terminate();
-		}
-		else
-		{
-			throw;
-		}
+		throw;
 	}
+#if COMPILER == C_GCC
+	catch (...)
+	{
+		if (ProcessUnknownException(L"mainImpl"sv))
+			std::terminate();
+		throw;
+	}
+#else
 	// Absence of catch (...) block here is deliberate:
 	// Unknown C++ exceptions will be caught by FarUnhandledExceptionFilter
 	// and processed as SEH exceptions in more advanced way
+#endif
+
 }
 
-static int wmain_seh(int Argc, wchar_t *Argv[])
+static int wmain_seh(int Argc, const wchar_t* const Argv[])
 {
 #if defined(SYSLOG)
 	atexit(PrintSysLogStat);
@@ -821,24 +812,38 @@ static int wmain_seh(int Argc, wchar_t *Argv[])
 
 	try
 	{
-		return mainImpl(make_range(Argv + 1, Argv + Argc));
+		return mainImpl({ Argv + 1, Argv + Argc });
+	}
+	catch(const language::exception& e)
+	{
+		// *.lng read failure. It is pretty clear what is wrong, no need to show the stack etc.
+		std::wcerr << e.what() << std::endl;
+		return 1;
 	}
 	catch (const std::exception& e)
 	{
-		if (ProcessStdException(e, L"wmain"_sv))
-		{
+		if (ProcessStdException(e, L"wmain"sv))
 			std::terminate();
-		}
-		else
-		{
-			unhandled_exception_filter::dismiss();
-			RestoreGPFaultUI();
-			throw;
-		}
+
+		unhandled_exception_filter::dismiss();
+		RestoreGPFaultUI();
+		throw;
 	}
+#if COMPILER == C_GCC
+	catch (...)
+	{
+		if (ProcessUnknownException(L"mainImpl"sv))
+			std::terminate();
+
+		unhandled_exception_filter::dismiss();
+		RestoreGPFaultUI();
+		throw;
+	}
+#else
 	// Absence of catch (...) block here is deliberate:
 	// Unknown C++ exceptions will be caught by FarUnhandledExceptionFilter
 	// and processed as SEH exceptions in more advanced way
+#endif
 }
 
 int main()
@@ -848,12 +853,12 @@ int main()
 	{
 		// wmain is a non-standard extension and not available in gcc.
 		int Argc;
-		const os::memory::local::ptr<wchar_t*> Argv(CommandLineToArgvW(GetCommandLine(), &Argc));
+		const os::memory::local::ptr<const wchar_t* const> Argv(CommandLineToArgvW(GetCommandLine(), &Argc));
 		return wmain_seh(Argc, Argv.get());
 	},
 	[]() -> int
 	{
 		std::terminate();
 	},
-	L"main");
+	L"main"sv);
 }

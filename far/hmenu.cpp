@@ -31,10 +31,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "hmenu.hpp"
+
 #include "farcolor.hpp"
 #include "keys.hpp"
 #include "dialog.hpp"
@@ -50,6 +48,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "manager.hpp"
 #include "string_utils.hpp"
+#include "global.hpp"
+
+#include "common/scope_exit.hpp"
 
 HMenu::HMenu(private_tag, HMenuData *Item,size_t ItemCount):
 	Item(Item, Item + ItemCount),
@@ -87,7 +88,6 @@ void HMenu::DisplayObject()
 
 void HMenu::ShowMenu()
 {
-	string strTmpStr;
 	GotoXY(m_X1+2,m_Y1);
 
 	for (auto& i: Item)
@@ -96,10 +96,7 @@ void HMenu::ShowMenu()
 
 		SetColor(i.Selected? COL_HMENUSELECTEDTEXT : COL_HMENUTEXT);
 
-		strTmpStr=L"  ";
-		strTmpStr+=i.Name;
-		strTmpStr+=L"  ";
-		HiText(strTmpStr, colors::PaletteColorToFarColor(i.Selected? COL_HMENUSELECTEDHIGHLIGHT : COL_HMENUHIGHLIGHT));
+		HiText(concat(L"  "sv, i.Name, L"  "sv), colors::PaletteColorToFarColor(i.Selected? COL_HMENUSELECTEDHIGHLIGHT : COL_HMENUHIGHLIGHT));
 	}
 }
 
@@ -146,7 +143,7 @@ long long HMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 			{
 				if (OpCode == MCODE_F_MENU_GETVALUE)
 				{
-					*static_cast<string *>(vParam)=Item[static_cast<size_t>(iParam)].Name;
+					*static_cast<string*>(vParam) = string(Item[static_cast<size_t>(iParam)].Name);
 					return 1;
 				}
 				else
@@ -175,7 +172,7 @@ long long HMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 		}
 		case MCODE_V_MENU_VALUE: // Menu.Value
 		{
-			*static_cast<string *>(vParam)=Item[SelectPos].Name;
+			*static_cast<string*>(vParam) = string(Item[SelectPos].Name);
 			return 1;
 		}
 	}
@@ -189,7 +186,7 @@ bool HMenu::ProcessPositioningKey(unsigned LocalKey)
 	switch (LocalKey)
 	{
 	case KEY_TAB:
-		Item[SelectPos].Selected = 0;
+		Item[SelectPos].Selected = false;
 		/* Кусок для "некрайних" меню - прыжок к меню пассивной панели */
 		if (SelectPos && SelectPos != Item.size() - 1)
 		{
@@ -206,7 +203,7 @@ bool HMenu::ProcessPositioningKey(unsigned LocalKey)
 				SelectPos = 0;
 		}
 
-		Item[SelectPos].Selected = 1;
+		Item[SelectPos].Selected = true;
 		break;
 
 	case KEY_HOME:
@@ -219,8 +216,8 @@ bool HMenu::ProcessPositioningKey(unsigned LocalKey)
 	case KEY_RCTRLNUMPAD7:
 	case KEY_CTRLNUMPAD9:
 	case KEY_RCTRLNUMPAD9:
-		Item[SelectPos].Selected = 0;
-		Item[0].Selected = 1;
+		Item[SelectPos].Selected = false;
+		Item[0].Selected = true;
 		SelectPos = 0;
 		break;
 
@@ -234,31 +231,31 @@ bool HMenu::ProcessPositioningKey(unsigned LocalKey)
 	case KEY_RCTRLNUMPAD1:
 	case KEY_CTRLNUMPAD3:
 	case KEY_RCTRLNUMPAD3:
-		Item[SelectPos].Selected = 0;
-		Item[Item.size() - 1].Selected = 1;
+		Item[SelectPos].Selected = false;
+		Item[Item.size() - 1].Selected = true;
 		SelectPos = Item.size() - 1;
 		break;
 
 	case KEY_LEFT:
 	case KEY_NUMPAD4:
 	case KEY_MSWHEEL_LEFT:
-		Item[SelectPos].Selected = 0;
+		Item[SelectPos].Selected = false;
 		if (!SelectPos)
 			SelectPos = Item.size() - 1;
 		else
 			--SelectPos;
-		Item[SelectPos].Selected = 1;
+		Item[SelectPos].Selected = true;
 		break;
 
 	case KEY_RIGHT:
 	case KEY_NUMPAD6:
 	case KEY_MSWHEEL_RIGHT:
-		Item[SelectPos].Selected = 0;
+		Item[SelectPos].Selected = false;
 		if (SelectPos == Item.size() - 1)
 			SelectPos = 0;
 		else
 			++SelectPos;
-		Item[SelectPos].Selected = 1;
+		Item[SelectPos].Selected = true;
 		break;
 
 	default:
@@ -323,8 +320,8 @@ bool HMenu::ProcessKey(const Manager::Key& Key)
 				return false;
 		}
 
-		Item[SelectPos].Selected=0;
-		Iterator->Selected=1;
+		Item[SelectPos].Selected = false;
+		Iterator->Selected = true;
 		SelectPos = Iterator - Item.begin();
 		ShowMenu();
 		ProcessCurrentSubMenu();
@@ -344,12 +341,10 @@ bool HMenu::TestMouse(const MOUSE_EVENT_RECORD *MouseEvent) const
 
 bool HMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
-	int MsX,MsY;
-
 	UpdateSelectPos();
 
-	MsX=MouseEvent->dwMousePosition.X;
-	MsY=MouseEvent->dwMousePosition.Y;
+	const auto MsX = MouseEvent->dwMousePosition.X;
+	const auto MsY = MouseEvent->dwMousePosition.Y;
 
 	if (MsY==m_Y1 && MsX>=m_X1 && MsX<=m_X2)
 	{
@@ -359,8 +354,8 @@ bool HMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		if (m_SubmenuOpened && SelectPos == NewPos)
 			return false;
 
-		Item[SelectPos].Selected = 0;
-		SubmenuIterator->Selected = 1;
+		Item[SelectPos].Selected = false;
+		SubmenuIterator->Selected = true;
 		SelectPos = NewPos;
 		ShowMenu();
 		ProcessCurrentSubMenu();
@@ -384,7 +379,7 @@ bool HMenu::ProcessCurrentSubMenu()
 	{
 		UpdateSelectPos();
 
-		if (!Item[SelectPos].SubMenu)
+		if (Item[SelectPos].SubMenu.empty())
 			return false;
 
 		bool SendKey = false, SendMouse = false;
@@ -395,7 +390,7 @@ bool HMenu::ProcessCurrentSubMenu()
 			m_SubmenuOpened = true;
 			SCOPE_EXIT{ m_SubmenuOpened = false; };
 
-			const auto SubMenu = VMenu2::create(L"", Item[SelectPos].SubMenu, Item[SelectPos].SubMenuSize);
+			const auto SubMenu = VMenu2::create({}, Item[SelectPos].SubMenu);
 			SubMenu->SetBoxType(SHORT_DOUBLE_BOX);
 			SubMenu->SetMenuFlags(VMENU_WRAPMODE);
 			SubMenu->SetHelp(Item[SelectPos].SubMenuHelp);
@@ -472,19 +467,14 @@ void HMenu::ResizeConsole()
 
 wchar_t HMenu::GetHighlights(const HMenuData& MenuItem) const
 {
-	wchar_t Ch=0;
+	const auto Pos = MenuItem.Name.find(L'&');
+	if (Pos == MenuItem.Name.npos)
+		return 0;
 
-	const wchar_t *Name = MenuItem.Name;
+	if (Pos + 1 == MenuItem.Name.size())
+		return 0;
 
-	if (Name && *Name)
-	{
-		const wchar_t *ChPtr=wcschr(Name,L'&');
-
-		if (ChPtr)
-			Ch=ChPtr[1];
-	}
-
-	return Ch;
+	return MenuItem.Name[Pos + 1];
 }
 
 size_t HMenu::CheckHighlights(WORD CheckSymbol, int StartPos) const

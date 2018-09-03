@@ -14,6 +14,15 @@ wstring long_path(const wstring& path) {
   }
 }
 
+wstring long_path_norm(const wstring& path) {
+  auto nt_path = long_path(path);
+  auto p = nt_path.find(L'/');
+  while (p != wstring::npos) {
+    nt_path[p] = L'\\'; p = nt_path.find(L'/', p+1);
+  }
+  return nt_path;
+}
+	
 wstring add_trailing_slash(const wstring& path) {
   if ((path.size() == 0) || (path[path.size() - 1] == L'\\')) {
     return path;
@@ -311,7 +320,7 @@ static bool is_reserved_name(const wstring& name)
 
 //-----------------------------------------------------------------------------
 
-wstring correct_filename(const wstring& orig_name, int mode)
+wstring correct_filename(const wstring& orig_name, int mode, bool alt_stream)
 {
   bool correct_empty = (mode & 0x10) != 0;
   bool remove_final_dotsp = (mode & 0x20) != 0;
@@ -329,7 +338,7 @@ wstring correct_filename(const wstring& orig_name, int mode)
         break;
       case L'>':  name[i] = m > 1 ? quotes2[1] : simple_replace_char;
         break;
-      case L':':  name[i] = m > 1 ? colons[m-2] : simple_replace_char;
+      case L':':  name[i] = alt_stream ? c : (m > 1 ? colons[m-2] : simple_replace_char);
         break;
       case L'*':  name[i] = m > 1 ? asterisks[m-2] : simple_replace_char;
         break;
@@ -343,7 +352,7 @@ wstring correct_filename(const wstring& orig_name, int mode)
         break;
       case L'\\': name[i] = m > 1 ? Not_Sign : simple_replace_char;
         break;
-      default: if (c < L' ' && c > L'\0') name[i] = m > 1 ? control_chars[c - L'\x01'] : simple_replace_char;
+      default: if (c < L' ' && c > L'\0') name[i] = m > 1 ? control_chars[c-L'\x01'] : simple_replace_char;
         break;
       }
       ++i;

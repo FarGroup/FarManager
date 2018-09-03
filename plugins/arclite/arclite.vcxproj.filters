@@ -60,6 +60,9 @@
     <ClCompile Include="sfx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SimpleXML.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="strutils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -113,6 +116,9 @@
     <ClInclude Include="options.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SimpleXML.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="sysutils.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -128,12 +134,18 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="changelog">
+      <Filter>arclite.xml</Filter>
+    </None>
+    <None Include="changelog">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="en.hlf">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="en.msg">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="es.msg">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="makefile_vc">
@@ -151,7 +163,6 @@
     <None Include="ru.msg">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="es.msg" />
     <None Include="..\common\vc_crt_fix.asm">
       <Filter>Source Files</Filter>
     </None>

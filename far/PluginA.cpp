@@ -29,9 +29,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-
-#pragma hdrstop
+#include "PluginA.hpp"
 
 #ifndef NO_WRAPPER
 
@@ -42,7 +40,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "panel.hpp"
 #include "plclass.hpp"
-#include "PluginA.hpp"
 #include "keyboard.hpp"
 #include "interf.hpp"
 #include "pathmix.hpp"
@@ -58,6 +55,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cvtname.hpp"
 #include "message.hpp"
 #include "lang.hpp"
+#include "global.hpp"
+
+#include "platform.env.hpp"
+#include "platform.memory.hpp"
+
+#include "common/null_iterator.hpp"
+#include "common/range.hpp"
+#include "common/scope_exit.hpp"
+#include "common/zip_view.hpp"
+
+#include "format.hpp"
 
 #define OLDFAR_TO_FAR_MAP(x) { oldfar::x, x }
 
@@ -98,16 +106,16 @@ class file_version: noncopyable
 public:
 	bool Read(const string& Filename)
 	{
-		const auto Size = GetFileVersionInfoSize(Filename.data(), nullptr);
+		const auto Size = GetFileVersionInfoSize(Filename.c_str(), nullptr);
 		if (!Size)
 			return false;
 
 		m_Buffer.reset(Size);
 
-		if (!GetFileVersionInfo(Filename.data(), 0, Size, m_Buffer.get()))
+		if (!GetFileVersionInfo(Filename.c_str(), 0, Size, m_Buffer.get()))
 			return false;
 
-		const auto Translation = GetValue<DWORD>(L"\\VarFileInfo\\Translation"_sv);
+		const auto Translation = GetValue<DWORD>(L"\\VarFileInfo\\Translation"sv);
 		if (!Translation)
 			return false;
 
@@ -115,23 +123,23 @@ public:
 		return true;
 	}
 
-	auto GetStringValue(const string& Value) const
+	auto GetStringValue(string_view const Value) const
 	{
 		return GetValue<wchar_t>(m_BlockPath + Value);
 	}
 
 	auto GetFixedInfo() const
 	{
-		return GetValue<VS_FIXEDFILEINFO>(L"\\"_sv);
+		return GetValue<VS_FIXEDFILEINFO>(L"\\"sv);
 	}
 
 private:
 	template<class T>
-	const T* GetValue(const string_view& SubBlock) const
+	const T* GetValue(const string_view SubBlock) const
 	{
 		UINT Length;
 		T* Result;
-		return VerQueryValue(m_Buffer.get(), null_terminated(SubBlock).data(), reinterpret_cast<void**>(&Result), &Length) && Length? Result : nullptr;
+		return VerQueryValue(m_Buffer.get(), null_terminated(SubBlock).c_str(), reinterpret_cast<void**>(&Result), &Length) && Length? Result : nullptr;
 	}
 
 	string m_BlockPath;
@@ -199,13 +207,13 @@ public:
 			WA("GetMinFarVersion"),
 		};
 		static_assert(std::size(ExportsNames) == ExportsCount);
-		m_ExportsNames = make_range(ExportsNames);
+		m_ExportsNames = ExportsNames;
 	}
 
-	virtual plugin_module_ptr Create(const string& filename) override
+	plugin_module_ptr Create(const string& filename) override
 	{
 		auto Module = std::make_unique<oem_plugin_module>(filename);
-		if (!Module->m_Module)
+		if (!*Module)
 		{
 			const auto ErrorState = error_state::fetch();
 
@@ -216,26 +224,26 @@ public:
 					filename
 				},
 				{ lng::MOk },
-				L"ErrLoadPlugin");
+				L"ErrLoadPlugin"sv);
 
 			Module.reset();
 		}
 		return Module;
 	}
 
-	virtual std::unique_ptr<Plugin> CreatePlugin(const string& filename) override;
+	std::unique_ptr<Plugin> CreatePlugin(const string& filename) override;
 
 	const std::string& getUserName()
 	{
 		if (m_userName.empty())
 		{
-			m_userName = "Software\\Far Manager" + (Global->strRegUser.empty()? "" : "\\Users\\" + encoding::oem::get_bytes(Global->strRegUser)) + "\\Plugins";
+			m_userName = "Software\\Far Manager"s + (Global->strRegUser.empty()? ""s : "\\Users\\"s + encoding::oem::get_bytes(Global->strRegUser)) + "\\Plugins"s;
 		}
 		return m_userName;
 	}
 
 private:
-	virtual bool FindExport(const basic_string_view<char>& ExportName) const override
+	bool FindExport(const std::string_view ExportName) const override
 	{
 		// module with ANY known export can be OEM plugin
 		return std::find_if(ALL_RANGE(m_ExportsNames), [&](const export_name& i)
@@ -359,7 +367,7 @@ static void AnsiToUnicodeBin(const char* AnsiString, wchar_t* UnicodeString, siz
 	{
 		// BUGBUG, error checking
 		*UnicodeString = 0;
-		encoding::get_chars(CodePage, AnsiString, Length, UnicodeString, Length);
+		encoding::get_chars(CodePage, { AnsiString, Length }, UnicodeString, Length);
 	}
 }
 
@@ -390,7 +398,7 @@ static char *UnicodeToAnsiBin(const wchar_t* UnicodeString, size_t nLength, uint
 	if (nLength)
 	{
 		// BUGBUG, error checking
-		encoding::get_bytes(CodePage, UnicodeString, nLength, Result.get(), nLength);
+		encoding::get_bytes(CodePage, { UnicodeString, nLength }, Result.get(), nLength);
 	}
 
 	return Result.release();
@@ -454,7 +462,7 @@ static DWORD OldKeyToKey(DWORD dOldKey)
 		{
 			const auto OemChar = static_cast<char>(CleanKey);
 			wchar_t WideChar = 0;
-			if (encoding::oem::get_chars(&OemChar, 1, &WideChar, 1))
+			if (encoding::oem::get_chars({ &OemChar, 1 }, &WideChar, 1))
 				dOldKey = (dOldKey^CleanKey) | WideChar;
 		}
 	}
@@ -480,7 +488,7 @@ static DWORD KeyToOldKey(DWORD dKey)
 		{
 			const auto WideChar = static_cast<wchar_t>(CleanKey);
 			char OemChar = 0;
-			if (encoding::oem::get_bytes(&WideChar, 1, &OemChar, 1))
+			if (encoding::oem::get_bytes({ &WideChar, 1 }, &OemChar, 1))
 				dKey = (dKey^CleanKey) | OemChar;
 		}
 	}
@@ -527,63 +535,58 @@ static InfoPanelLine* ConvertInfoPanelLinesA(const oldfar::InfoPanelLine *iplA, 
 	return Result.release();
 }
 
-static void FreeUnicodeInfoPanelLines(const InfoPanelLine *iplW, size_t InfoLinesNumber)
+static void FreeUnicodeInfoPanelLines(range<const InfoPanelLine*> Lines)
 {
-	std::for_each(iplW, iplW + InfoLinesNumber, [](const InfoPanelLine& Item)
+	for (const auto& i: Lines)
 	{
-		delete[] Item.Text;
-		delete[] Item.Data;
-	});
-
-	delete[] iplW;
-}
-
-static PanelMode* ConvertPanelModesA(const oldfar::PanelMode *pnmA, size_t iCount)
-{
-	if (!pnmA || !iCount)
-		return nullptr;
-
-	auto Result = std::make_unique<PanelMode[]>(iCount);
-	const auto SrcRange = make_range(pnmA, iCount);
-	auto DstRange = make_range(Result.get(), iCount);
-	for (const auto& i: zip(SrcRange, DstRange))
-	{
-		const auto& Src = std::get<0>(i);
-		auto& Dest = std::get<1>(i);
-
-		size_t iColumnCount = 0;
-		if (Src.ColumnTypes)
-		{
-			// BUGBUG why not just count commas?
-			iColumnCount = split<std::vector<string>>(encoding::oem::get_chars(Src.ColumnTypes), 0, L",").size();
-		}
-
-		Dest.ColumnTypes = AnsiToUnicode(Src.ColumnTypes);
-		Dest.ColumnWidths = AnsiToUnicode(Src.ColumnWidths);
-		Dest.ColumnTitles = AnsiArrayToUnicodeMagic(Src.ColumnTitles, iColumnCount);
-		Dest.StatusColumnTypes = AnsiToUnicode(Src.StatusColumnTypes);
-		Dest.StatusColumnWidths = AnsiToUnicode(Src.StatusColumnWidths);
-		Dest.Flags = 0;
-		if (Src.FullScreen) Dest.Flags |= PMFLAGS_FULLSCREEN;
-		if (Src.DetailedStatus) Dest.Flags |= PMFLAGS_DETAILEDSTATUS;
-		if (Src.AlignExtensions) Dest.Flags |= PMFLAGS_ALIGNEXTENSIONS;
-		if (Src.CaseConversion) Dest.Flags |= PMFLAGS_CASECONVERSION;
+		delete[] i.Text;
+		delete[] i.Data;
 	}
 
-	return Result.release();
+	delete[] Lines.data();
 }
 
-static void FreeUnicodePanelModes(const PanelMode *pnmW, size_t iCount)
+static void ConvertPanelModeToUnicode(const oldfar::PanelMode& Mode, PanelMode& UnicodeMode)
 {
-	std::for_each(pnmW, pnmW + iCount, [](const PanelMode& Item)
+	size_t iColumnCount = 0;
+	if (Mode.ColumnTypes)
 	{
-		delete[] Item.ColumnTypes;
-		delete[] Item.ColumnWidths;
-		FreeUnicodeArrayMagic(Item.ColumnTitles);
-		delete[] Item.StatusColumnTypes;
-		delete[] Item.StatusColumnWidths;
-	});
-	delete[] pnmW;
+		const auto Iterator = null_iterator(Mode.ColumnTypes);
+		iColumnCount = std::count(Iterator, Iterator.end(), ',') + 1;
+	}
+
+	UnicodeMode.ColumnTypes = AnsiToUnicode(Mode.ColumnTypes);
+	UnicodeMode.ColumnWidths = AnsiToUnicode(Mode.ColumnWidths);
+	UnicodeMode.ColumnTitles = AnsiArrayToUnicodeMagic(Mode.ColumnTitles, iColumnCount);
+	UnicodeMode.StatusColumnTypes = AnsiToUnicode(Mode.StatusColumnTypes);
+	UnicodeMode.StatusColumnWidths = AnsiToUnicode(Mode.StatusColumnWidths);
+
+	UnicodeMode.Flags =
+		(Mode.FullScreen? PMFLAGS_FULLSCREEN : 0) |
+		(Mode.DetailedStatus? PMFLAGS_DETAILEDSTATUS : 0) |
+		(Mode.AlignExtensions? PMFLAGS_ALIGNEXTENSIONS : 0) |
+		(Mode.CaseConversion? PMFLAGS_CASECONVERSION : 0);
+}
+
+static void ConvertPanelModesToUnicode(range<const oldfar::PanelMode*> Modes, range<PanelMode*> UnicodeModes)
+{
+	for (const auto& i: zip(Modes, UnicodeModes))
+	{
+		std::apply(ConvertPanelModeToUnicode, i);
+	}
+}
+
+static void FreeUnicodePanelModes(range<const PanelMode*> Modes)
+{
+	for (const auto& i : Modes)
+	{
+		delete[] i.ColumnTypes;
+		delete[] i.ColumnWidths;
+		FreeUnicodeArrayMagic(i.ColumnTitles);
+		delete[] i.StatusColumnTypes;
+		delete[] i.StatusColumnWidths;
+	}
+	delete[] Modes.data();
 }
 
 static void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles *kbtA, KeyBarTitles *kbtW, bool FullStruct = true)
@@ -676,7 +679,7 @@ static void WINAPI FreeUserData(void* UserData, const FarPanelItemFreeInfo*)
 	delete[] static_cast<char*>(UserData);
 }
 
-static PluginPanelItem* ConvertAnsiPanelItemsToUnicode(const range<oldfar::PluginPanelItem*>& PanelItemA)
+static PluginPanelItem* ConvertAnsiPanelItemsToUnicode(range<oldfar::PluginPanelItem*> const PanelItemA)
 {
 	auto Result = std::make_unique<PluginPanelItem[]>(PanelItemA.size());
 	auto DstRange = make_range(Result.get(), PanelItemA.size());
@@ -792,10 +795,8 @@ static void FreeUnicodePanelItem(PluginPanelItem *PanelItem, size_t ItemsNumber)
 {
 	std::for_each(PanelItem, PanelItem + ItemsNumber, [](const PluginPanelItem& i)
 	{
-		delete[] i.Description;
-		delete[] i.Owner;
-		DeleteRawArray(i.CustomColumnData, i.CustomColumnNumber);
-		FreePluginPanelItem(i);
+		FreePluginPanelItemNames(i);
+		FreePluginPanelItemDescriptionOwnerAndColumns(i);
 	});
 
 	delete[] PanelItem;
@@ -808,7 +809,7 @@ static void FreePanelItemA(const oldfar::PluginPanelItem *PanelItem, size_t Item
 		delete[] Item.Description;
 		delete[] Item.Owner;
 
-		DeleteRawArray(Item.CustomColumnData, Item.CustomColumnNumber);
+		DeleteRawArray(make_range(Item.CustomColumnData, Item.CustomColumnNumber));
 
 		if (Item.Flags & oldfar::PPIF_USERDATA)
 		{
@@ -830,14 +831,17 @@ static char *InsertQuoteA(char *Str)
 
 	if (Str[l - 1] != '"')
 	{
-		Str[l++] = '\"';
+		Str[l++] = '"';
 		Str[l] = 0;
 	}
 
 	return Str;
 }
 
-static auto GetPluginGuid(intptr_t n) { return &reinterpret_cast<Plugin*>(n)->GetGUID(); }
+static auto GetPluginGuid(intptr_t n)
+{
+	return &reinterpret_cast<Plugin*>(n)->Id();
+}
 
 struct DialogData
 {
@@ -1247,11 +1251,14 @@ static void UnicodeDialogItemToAnsiSafe(const FarDialogItem &di, oldfar::FarDial
 	diA.X2 = di.X2;
 	diA.Y2 = di.Y2;
 	diA.Focus = (di.Flags&DIF_FOCUS) != 0;
-	diA.Flags = 0;
 
 	if (diA.Flags&oldfar::DIF_SETCOLOR)
 	{
-		diA.Flags |= oldfar::DIF_SETCOLOR | (diA.Flags&oldfar::DIF_COLORMASK);
+		diA.Flags = oldfar::DIF_SETCOLOR | (diA.Flags & oldfar::DIF_COLORMASK);
+	}
+	else
+	{
+		diA.Flags = 0;
 	}
 
 	if (di.Flags)
@@ -1301,10 +1308,11 @@ static oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem &di, HANDLE 
 	}
 	else if ((diA->Type == oldfar::DI_EDIT || diA->Type == oldfar::DI_COMBOBOX) && diA->Flags&oldfar::DIF_VAREDIT)
 	{
-		const auto Length = StrLength(di.Data);
-		diA->Ptr.PtrLength = Length;
+		const auto Length = wcslen(di.Data);
+		diA->Ptr.PtrLength = static_cast<int>(Length);
 		auto Data = std::make_unique<char[]>(Length + 1);
-		encoding::oem::get_bytes(di.Data, Length, Data.get(), Length + 1);
+		encoding::oem::get_bytes({ di.Data, Length }, Data.get(), Length);
+		Data[Length] = L'\0';
 		diA->Ptr.PtrData = Data.release();
 	}
 	else
@@ -1370,7 +1378,6 @@ static void ConvertUnicodePanelInfoToAnsi(const PanelInfo* PIW, oldfar::PanelInf
 		OLDFAR_TO_FAR_MAP(PFLAGS_USESORTGROUPS),
 		OLDFAR_TO_FAR_MAP(PFLAGS_SELECTEDFIRST),
 		OLDFAR_TO_FAR_MAP(PFLAGS_REALNAMES),
-		OLDFAR_TO_FAR_MAP(PFLAGS_NUMERICSORT),
 		OLDFAR_TO_FAR_MAP(PFLAGS_PANELLEFT),
 	};
 
@@ -1421,7 +1428,7 @@ static uintptr_t GetEditorCodePageA()
 	CPINFO cpi;
 
 	if (!GetCPInfo(static_cast<UINT>(CodePage), &cpi) || cpi.MaxCharSize > 1)
-		CodePage = GetACP();
+		CodePage = encoding::codepage::ansi();
 
 	return CodePage;
 }
@@ -1430,29 +1437,29 @@ static int GetEditorCodePageFavA()
 {
 	const auto CodePage = GetEditorCodePageA();
 
-	if (GetOEMCP() == CodePage)
+	if (encoding::codepage::oem() == CodePage)
 		return 0;
 
-	if (GetACP() == CodePage)
+	if (encoding::codepage::ansi() == CodePage)
 		return 1;
 
 	auto result = -(static_cast<int>(CodePage) + 2);
 	DWORD FavIndex = 2;
-	const auto strCP = str(CodePage);
-	const auto CpEnum = Codepages().GetFavoritesEnumerator();
-	std::any_of(CONST_RANGE(CpEnum, i)
+
+	for (const auto& i: codepages::GetFavoritesEnumerator())
 	{
-		if (i.second & CPST_FAVORITE)
+		if (!(i.second & CPST_FAVORITE))
+			continue;
+
+		if (i.first == CodePage)
 		{
-			if (i.first == strCP)
-			{
-				result = FavIndex;
-				return true;
-			}
-			FavIndex++;
+			result = FavIndex;
+			break;
 		}
-		return false;
-	});
+
+		FavIndex++;
+	}
+
 	return result;
 }
 
@@ -1460,8 +1467,7 @@ static void MultiByteRecode(UINT nCPin, UINT nCPout, char *Buffer, size_t Buffer
 {
 	if (Buffer && BufferSize)
 	{
-		const auto TempTable(encoding::get_chars(nCPin, Buffer, BufferSize));
-		encoding::get_bytes(nCPout, TempTable.data(), BufferSize, Buffer, BufferSize);
+		encoding::get_bytes(nCPout, encoding::get_chars(nCPin, { Buffer, BufferSize }), Buffer, BufferSize);
 	}
 };
 
@@ -1477,26 +1483,31 @@ static uintptr_t ConvertCharTableToCodePage(int Command)
 	{
 		switch (Command)
 		{
-		case 0 /* OEM */: 	nCP = GetOEMCP();	break;
-		case 1 /* ANSI */:	nCP = GetACP(); 	break;
+		case 0:
+			nCP = encoding::codepage::oem();
+			break;
+
+		case 1:
+			nCP = encoding::codepage::ansi();
+			break;
+
 		default:
-		{
-			int FavIndex = 2;
-			const auto CpEnum = Codepages().GetFavoritesEnumerator();
-			std::any_of(CONST_RANGE(CpEnum, i)
 			{
-				if (i.second & CPST_FAVORITE)
+				int FavIndex = 2;
+				for (const auto& i: codepages::GetFavoritesEnumerator())
 				{
+					if (!(i.second & CPST_FAVORITE))
+						continue;
+
 					if (FavIndex == Command)
 					{
-						nCP = std::stoi(i.first);
-						return true;
+						nCP = i.first;
+						break;
 					}
+
 					FavIndex++;
 				}
-				return false;
-			});
-		}
+			}
 		}
 	}
 
@@ -1586,7 +1597,7 @@ static void WINAPI LocalUpperBuf(char *Buf, int Length) noexcept
 {
 	try
 	{
-		std::for_each(Buf, Buf + Length, [](char& i){ i = LowerToUpper[i]; });
+		std::for_each(Buf, Buf + Length, [](char& i){ i = LowerToUpper[static_cast<size_t>(i)]; });
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 }
@@ -1601,7 +1612,7 @@ static void WINAPI LocalLowerBuf(char *Buf, int Length) noexcept
 {
 	try
 	{
-		std::for_each(Buf, Buf + Length, [](char& i){ i = UpperToLower[i]; });
+		std::for_each(Buf, Buf + Length, [](char& i){ i = UpperToLower[static_cast<size_t>(i)]; });
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 }
@@ -1611,7 +1622,7 @@ static void WINAPI LocalStrupr(char *s1) noexcept
 	try
 	{
 		const auto Iterator = null_iterator(s1);
-		std::for_each(Iterator, Iterator.end(), [](char& i){ i = LowerToUpper[i]; });
+		std::for_each(Iterator, Iterator.end(), [](char& i){ i = LowerToUpper[static_cast<size_t>(i)]; });
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 }
@@ -1621,7 +1632,7 @@ static void WINAPI LocalStrlwr(char *s1) noexcept
 	try
 	{
 		const auto Iterator = null_iterator(s1);
-		std::for_each(Iterator, Iterator.end(), [](char& i){ i = UpperToLower[i]; });
+		std::for_each(Iterator, Iterator.end(), [](char& i){ i = UpperToLower[static_cast<size_t>(i)]; });
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 }
@@ -1650,13 +1661,11 @@ static char* WINAPI RemoveTrailingSpacesA(char *Str) noexcept
 {
 	try
 	{
-		if (*Str == '\0')
+		if (!Str || !*Str)
 			return Str;
 
-		char *ChPtr;
 		size_t I;
-
-		for (ChPtr = Str + (I = strlen(Str)) - 1; I > 0; I--, ChPtr--)
+		for (auto ChPtr = Str + (I = strlen(Str)) - 1; I > 0; I--, ChPtr--)
 		{
 			if (IsSpaceA(*ChPtr) || IsEolA(*ChPtr))
 				*ChPtr = 0;
@@ -1685,7 +1694,7 @@ static char *WINAPI FarItoa64A(long long value, char *string, int radix) noexcep
 static int WINAPI FarAtoiA(const char *s) noexcept
 {
 	// noexcept
-	return std::atoi(s);
+	return std::strtol(s, nullptr, 10);
 }
 
 static long long WINAPI FarAtoi64A(const char *s) noexcept
@@ -1722,7 +1731,7 @@ static void WINAPI UnquoteA(char *Str) noexcept
 
 	while (*Str)
 	{
-		if (*Str != '\"')
+		if (*Str != '"')
 			*Dst++ = *Str;
 
 		Str++;
@@ -1735,10 +1744,10 @@ static char* WINAPI RemoveLeadingSpacesA(char *Str) noexcept
 {
 	try
 	{
-		auto ChPtr = Str;
+		if (!Str || !*Str)
+			return Str;
 
-		if (!ChPtr)
-			return nullptr;
+		auto ChPtr = Str;
 
 		for (; IsSpaceA(*ChPtr); ChPtr++)
 			;
@@ -1821,7 +1830,7 @@ static char* WINAPI QuoteSpaceOnlyA(char *Str) noexcept
 {
 	try
 	{
-		if (strchr(Str, ' '))
+		if (contains(Str, ' '))
 			InsertQuoteA(Str);
 		return Str;
 	}
@@ -1840,10 +1849,9 @@ static BOOL WINAPI AddEndSlashA(char *Path) noexcept
 		изменение уже существующего конечного слеша на такой, который
 		встречается чаще.
 		*/
-		char *end;
 		int Slash = 0, BackSlash = 0;
 
-		end = Path;
+		auto end = Path;
 
 		while (*end)
 		{
@@ -1883,9 +1891,9 @@ static void WINAPI GetPathRootA(const char *Path, char *Root) noexcept
 	try
 	{
 		wchar_t Buffer[MAX_PATH];
-		const auto Size = NativeFSF.GetPathRoot(encoding::oem::get_chars(Path).data(), Buffer, std::size(Buffer));
+		const auto Size = NativeFSF.GetPathRoot(encoding::oem::get_chars(Path).c_str(), Buffer, std::size(Buffer));
 		if (Size)
-			encoding::oem::get_bytes(Buffer, Size - 1, Root, std::size(Buffer));
+			encoding::oem::get_bytes({ Buffer, Size - 1 }, Root, std::size(Buffer));
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 }
@@ -1894,7 +1902,7 @@ static int WINAPI CopyToClipboardA(const char *Data) noexcept
 {
 	try
 	{
-		return NativeFSF.CopyToClipboard(FCT_STREAM, Data? encoding::oem::get_chars(Data).data() : nullptr);
+		return NativeFSF.CopyToClipboard(FCT_STREAM, Data? encoding::oem::get_chars(Data).c_str() : nullptr);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return FALSE;
@@ -1908,7 +1916,7 @@ static char* WINAPI PasteFromClipboardA() noexcept
 		{
 			std::vector<wchar_t> p(Size);
 			NativeFSF.PasteFromClipboard(FCT_STREAM, p.data(), p.size());
-			return UnicodeToAnsi(p.data());
+			return UnicodeToAnsiBin(p.data(), p.size());
 		}
 		return nullptr;
 	}
@@ -1952,10 +1960,10 @@ static int WINAPI ProcessNameA(const char *Param1, char *Param2, DWORD Flags) no
 			newFlags |= PN_GENERATENAME | (Flags & 0xFF);
 		}
 
-		int ret = static_cast<int>(NativeFSF.ProcessName(strP1.data(), p.get(), size, newFlags));
+		int ret = static_cast<int>(NativeFSF.ProcessName(strP1.c_str(), p.get(), size, newFlags));
 
 		if (ret && (newFlags & PN_GENERATENAME))
-			encoding::oem::get_bytes(p.get(), ret - 1, Param2, size);
+			encoding::oem::get_bytes({ p.get(), static_cast<size_t>(ret - 1) }, Param2, size);
 
 		return ret;
 	}
@@ -2004,9 +2012,9 @@ static char* WINAPI FarMkTempA(char *Dest, const char *Prefix) noexcept
 	try
 	{
 		wchar_t D[oldfar::NM]{};
-		const auto Size = NativeFSF.MkTemp(D, std::size(D), encoding::oem::get_chars(Prefix).data());
+		const auto Size = NativeFSF.MkTemp(D, std::size(D), encoding::oem::get_chars(Prefix).c_str());
 		if (Size)
-			encoding::oem::get_bytes(D, Size - 1, Dest, std::size(D));
+			encoding::oem::get_bytes({ D, Size - 1 }, Dest, std::size(D));
 		return Dest;
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
@@ -2035,7 +2043,7 @@ static int WINAPI FarMkLinkA(const char *Src, const char *Dest, DWORD OldFlags) 
 		if (OldFlags&oldfar::FLINK_DONOTUPDATEPANEL)
 			Flags |= MLF_DONOTUPDATEPANEL;
 
-		return NativeFSF.MkLink(encoding::oem::get_chars(Src).data(), encoding::oem::get_chars(Dest).data(), Type, Flags);
+		return NativeFSF.MkLink(encoding::oem::get_chars(Src).c_str(), encoding::oem::get_chars(Dest).data(), Type, Flags);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return FALSE;
@@ -2045,7 +2053,7 @@ static int WINAPI GetNumberOfLinksA(const char *Name) noexcept
 {
 	try
 	{
-		return static_cast<int>(NativeFSF.GetNumberOfLinks(encoding::oem::get_chars(Name).data()));
+		return static_cast<int>(NativeFSF.GetNumberOfLinks(encoding::oem::get_chars(Name).c_str()));
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return 0;
@@ -2073,18 +2081,18 @@ static int WINAPI FarGetReparsePointInfoA(const char *Src, char *Dest, int DestS
 	{
 		const auto strSrc = encoding::oem::get_chars(Src);
 		wchar_t Buffer[MAX_PATH];
-		auto Result = NativeFSF.GetReparsePointInfo(strSrc.data(), Buffer, std::size(Buffer));
+		auto Result = NativeFSF.GetReparsePointInfo(strSrc.c_str(), Buffer, std::size(Buffer));
 		if (Result && DestSize && Dest)
 		{
 			if (Result > MAX_PATH)
 			{
 				std::vector<wchar_t> Tmp(DestSize);
-				Result = NativeFSF.GetReparsePointInfo(strSrc.data(), Tmp.data(), Tmp.size());
-				encoding::oem::get_bytes(Tmp.data(), Result - 1, Dest, DestSize);
+				Result = NativeFSF.GetReparsePointInfo(strSrc.c_str(), Tmp.data(), Tmp.size());
+				encoding::oem::get_bytes({ Tmp.data(), Result - 1 }, Dest, DestSize);
 			}
 			else
 			{
-				encoding::oem::get_bytes(Buffer, Result - 1, Dest, DestSize);
+				encoding::oem::get_bytes({ Buffer, Result - 1 }, Dest, DestSize);
 			}
 		}
 		return static_cast<int>(Result);
@@ -2133,7 +2141,7 @@ static void WINAPI FarRecursiveSearchA(const char *InitDir, const char *Mask, ol
 		auto NewFlags = FRS_NONE;
 		FirstFlagsToSecond(Flags, NewFlags, FlagsMap);
 
-		NativeFSF.FarRecursiveSearch(encoding::oem::get_chars(InitDir).data(), encoding::oem::get_chars(Mask).data(), FarRecursiveSearchA_Callback, NewFlags, static_cast<void *>(&CallbackParam));
+		NativeFSF.FarRecursiveSearch(encoding::oem::get_chars(InitDir).c_str(), encoding::oem::get_chars(Mask).data(), FarRecursiveSearchA_Callback, NewFlags, static_cast<void *>(&CallbackParam));
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 }
@@ -2155,7 +2163,7 @@ static int WINAPI FarViewerA(const char *FileName, const char *Title, int X1, in
 {
 	try
 	{
-		return NativeInfo.Viewer(encoding::oem::get_chars(FileName).data(), encoding::oem::get_chars(Title).data(), X1, Y1, X2, Y2, Flags, CP_DEFAULT);
+		return NativeInfo.Viewer(encoding::oem::get_chars(FileName).c_str(), encoding::oem::get_chars(Title).c_str(), X1, Y1, X2, Y2, Flags, CP_DEFAULT);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return FALSE;
@@ -2165,7 +2173,7 @@ static int WINAPI FarEditorA(const char *FileName, const char *Title, int X1, in
 {
 	try
 	{
-		return NativeInfo.Editor(encoding::oem::get_chars(FileName).data(), encoding::oem::get_chars(Title).data(), X1, Y1, X2, Y2, Flags, StartLine, StartChar, CP_DEFAULT);
+		return NativeInfo.Editor(encoding::oem::get_chars(FileName).c_str(), encoding::oem::get_chars(Title).c_str(), X1, Y1, X2, Y2, Flags, StartLine, StartChar, CP_DEFAULT);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return EEC_OPEN_ERROR;
@@ -2182,7 +2190,7 @@ static void WINAPI FarTextA(int X, int Y, int ConColor, const char *Str) noexcep
 	try
 	{
 		const auto Color = colors::ConsoleColorToFarColor(ConColor);
-		return NativeInfo.Text(X, Y, &Color, Str? encoding::oem::get_chars(Str).data() : nullptr);
+		return NativeInfo.Text(X, Y, &Color, Str? encoding::oem::get_chars(Str).c_str() : nullptr);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 }
@@ -2191,7 +2199,7 @@ static BOOL WINAPI FarShowHelpA(const char *ModuleName, const char *HelpTopic, D
 {
 	try
 	{
-		return NativeInfo.ShowHelp(encoding::oem::get_chars(ModuleName).data(), (HelpTopic ? encoding::oem::get_chars(HelpTopic).data() : nullptr), Flags);
+		return NativeInfo.ShowHelp(encoding::oem::get_chars(ModuleName).c_str(), (HelpTopic ? encoding::oem::get_chars(HelpTopic).c_str() : nullptr), Flags);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return FALSE;
@@ -2217,12 +2225,12 @@ static int WINAPI FarInputBoxA(const char *Title, const char *Prompt, const char
 		wchar_t_ptr_n<256> Buffer(DestLength);
 
 		int ret = NativeInfo.InputBox(&FarGuid, &FarGuid,
-			Title? encoding::oem::get_chars(Title).data() : nullptr,
-			Prompt? encoding::oem::get_chars(Prompt).data() : nullptr,
-			HistoryName? encoding::oem::get_chars(HistoryName).data() : nullptr,
-			SrcText? encoding::oem::get_chars(SrcText).data() : nullptr,
+			Title? encoding::oem::get_chars(Title).c_str() : nullptr,
+			Prompt? encoding::oem::get_chars(Prompt).c_str() : nullptr,
+			HistoryName? encoding::oem::get_chars(HistoryName).c_str() : nullptr,
+			SrcText? encoding::oem::get_chars(SrcText).c_str() : nullptr,
 			Buffer.get(), Buffer.size(),
-			HelpTopic? encoding::oem::get_chars(HelpTopic).data() : nullptr,
+			HelpTopic? encoding::oem::get_chars(HelpTopic).c_str() : nullptr,
 			NewFlags);
 
 		if (ret && DestText)
@@ -2288,8 +2296,8 @@ static int WINAPI FarMessageFnA(intptr_t PluginNumber, DWORD Flags, const char *
 		}
 
 		return NativeInfo.Message(GetPluginGuid(PluginNumber), &FarGuid, NewFlags,
-			HelpTopic ? encoding::oem::get_chars(HelpTopic).data() : nullptr,
-			AnsiItems.empty() ? reinterpret_cast<const wchar_t* const *>(AllInOneAnsiItem.get()) : reinterpret_cast<const wchar_t* const *>(AnsiItems.data()),
+			HelpTopic? encoding::oem::get_chars(HelpTopic).c_str() : nullptr,
+			AnsiItems.empty()? reinterpret_cast<const wchar_t* const *>(AllInOneAnsiItem.get()) : reinterpret_cast<const wchar_t* const *>(AnsiItems.data()),
 			ItemsNumber, ButtonsNumber);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
@@ -2302,10 +2310,10 @@ static const char * WINAPI FarGetMsgFnA(intptr_t PluginHandle, int MsgId) noexce
 	{
 		//BUGBUG, надо проверять, что PluginHandle - плагин
 		const auto pPlugin = reinterpret_cast<Plugin*>(PluginHandle);
-		string strPath = pPlugin->GetModuleName();
+		string strPath = pPlugin->ModuleName();
 		CutToSlash(strPath);
 
-		if (pPlugin->InitLang(strPath))
+		if (pPlugin->InitLang(strPath, Global->Opt->strLanguage))
 			return GetPluginMsg(pPlugin, MsgId);
 
 		return "";
@@ -2400,8 +2408,9 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber, int X, int Y, int MaxHeight,
 		if (BreakKeys)
 		{
 			int BreakKeysCount = 0;
-			while (BreakKeys[BreakKeysCount++])
-				;
+			while (BreakKeys[BreakKeysCount])
+				++BreakKeysCount;
+
 			if (BreakKeysCount)
 			{
 				NewBreakKeys.resize(BreakKeysCount);
@@ -2422,9 +2431,9 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber, int X, int Y, int MaxHeight,
 		intptr_t NewBreakCode;
 
 		int ret = NativeInfo.Menu(GetPluginGuid(PluginNumber), &FarGuid, X, Y, MaxHeight, NewFlags,
-			Title? encoding::oem::get_chars(Title).data() : nullptr,
-			Bottom? encoding::oem::get_chars(Bottom).data() : nullptr,
-			HelpTopic? encoding::oem::get_chars(HelpTopic).data() : nullptr,
+			Title? encoding::oem::get_chars(Title).c_str() : nullptr,
+			Bottom? encoding::oem::get_chars(Bottom).c_str() : nullptr,
+			HelpTopic? encoding::oem::get_chars(HelpTopic).c_str() : nullptr,
 			BreakKeys? NewBreakKeys.data() : nullptr,
 			&NewBreakCode, mi.data(), ItemsNumber);
 
@@ -2681,7 +2690,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 				FarDialogItemData did = {sizeof(FarDialogItemData), static_cast<size_t>(didA->PtrLength), text.data()};
 				intptr_t ret = NativeInfo.SendDlgMessage(hDlg, DM_GETTEXT, Param1, &did);
 				didA->PtrLength = static_cast<int>(did.PtrLength);
-				encoding::oem::get_bytes(text.data(), did.PtrLength, didA->PtrData, didA->PtrLength + 1);
+				encoding::oem::get_bytes({ text.data(), did.PtrLength }, didA->PtrData, didA->PtrLength + 1);
 				return ret;
 			}
 			case oldfar::DM_GETTEXTLENGTH: Msg = DM_GETTEXT; break;
@@ -2747,14 +2756,14 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 			case oldfar::DM_SETCURSORPOS:     Msg = DM_SETCURSORPOS; break;
 			case oldfar::DM_GETTEXTPTR:
 			{
-				intptr_t length = NativeInfo.SendDlgMessage(hDlg, DM_GETTEXT, Param1, nullptr);
+				size_t length = NativeInfo.SendDlgMessage(hDlg, DM_GETTEXT, Param1, nullptr);
 
 				if (!Param2) return length;
 
 				std::vector<wchar_t> text(length + 1);
 				FarDialogItemData item = {sizeof(FarDialogItemData), static_cast<size_t>(length), text.data()};
 				length = NativeInfo.SendDlgMessage(hDlg, DM_GETTEXT, Param1, &item);
-				encoding::oem::get_bytes(text.data(), length, static_cast<char*>(Param2), length+1);
+				encoding::oem::get_bytes({ text.data(), length }, static_cast<char*>(Param2), length + 1);
 				return length;
 			}
 			case oldfar::DM_SETTEXTPTR:
@@ -3206,7 +3215,7 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber, int X1, int Y1, int X2, in
 			DlgFlags|=FDLG_NONMODAL;
 
 		int ret = -1;
-		HANDLE hDlg = NativeInfo.DialogInit(GetPluginGuid(PluginNumber), &FarGuid, X1, Y1, X2, Y2, (HelpTopic? encoding::oem::get_chars(HelpTopic).data() : nullptr), di.data(), di.size(), 0, DlgFlags, DlgProcA, Param);
+		HANDLE hDlg = NativeInfo.DialogInit(GetPluginGuid(PluginNumber), &FarGuid, X1, Y1, X2, Y2, (HelpTopic? encoding::oem::get_chars(HelpTopic).c_str() : nullptr), di.data(), di.size(), 0, DlgFlags, DlgProcA, Param);
 		DialogData NewDialogData;
 		NewDialogData.DlgProc=DlgProc;
 		NewDialogData.hDlg=hDlg;
@@ -3423,7 +3432,7 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 
 		case oldfar::FCTL_SETANOTHERSELECTION:
 			hPlugin=PANEL_PASSIVE;
-			// fallthrough
+			[[fallthrough]];
 		case oldfar::FCTL_SETSELECTION:
 			{
 				if (!Param)
@@ -3443,7 +3452,7 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 
 		case oldfar::FCTL_REDRAWANOTHERPANEL:
 			hPlugin = PANEL_PASSIVE;
-			// fallthrough
+			[[fallthrough]];
 		case oldfar::FCTL_REDRAWPANEL:
 			{
 				if (!Param)
@@ -3454,29 +3463,22 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 				return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_REDRAWPANEL,0,&pri));
 			}
 
-		case oldfar::FCTL_SETANOTHERNUMERICSORT:
-			hPlugin = PANEL_PASSIVE;
-			// fallthrough
-		case oldfar::FCTL_SETNUMERICSORT:
-			return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETNUMERICSORT, (Param && *static_cast<int*>(Param))? 1 : 0, nullptr));
-
 		case oldfar::FCTL_SETANOTHERPANELDIR:
 				hPlugin = PANEL_PASSIVE;
-				// fallthrough
+				[[fallthrough]];
 		case oldfar::FCTL_SETPANELDIR:
 			{
 				if (!Param)
 					return FALSE;
 
-				string Dir(encoding::oem::get_chars(static_cast<const char*>(Param)));
-				FarPanelDirectory dirInfo={sizeof(FarPanelDirectory),Dir.data(),nullptr,FarGuid,nullptr};
-				int ret = static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETPANELDIRECTORY,0,&dirInfo));
-				return ret;
+				const auto Dir = encoding::oem::get_chars(static_cast<const char*>(Param));
+				FarPanelDirectory dirInfo = { sizeof(FarPanelDirectory), Dir.c_str(), nullptr, FarGuid, nullptr };
+				return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETPANELDIRECTORY, 0, &dirInfo));
 			}
 
 			case oldfar::FCTL_SETANOTHERSORTMODE:
 				hPlugin = PANEL_PASSIVE;
-				// fallthrough
+				[[fallthrough]];
 			case oldfar::FCTL_SETSORTMODE:
 
 				if (!Param)
@@ -3486,19 +3488,19 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 
 			case oldfar::FCTL_SETANOTHERSORTORDER:
 				hPlugin = PANEL_PASSIVE;
-				// fallthrough
+				[[fallthrough]];
 			case oldfar::FCTL_SETSORTORDER:
 				return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETSORTORDER, Param && *static_cast<int*>(Param), nullptr));
 
 			case oldfar::FCTL_SETANOTHERVIEWMODE:
 				hPlugin = PANEL_PASSIVE;
-				// fallthrough
+				[[fallthrough]];
 			case oldfar::FCTL_SETVIEWMODE:
 				return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETVIEWMODE, Param? *static_cast<int *>(Param) : 0, nullptr));
 
 			case oldfar::FCTL_UPDATEANOTHERPANEL:
 				hPlugin = PANEL_PASSIVE;
-				// fallthrough
+				[[fallthrough]];
 			case oldfar::FCTL_UPDATEPANEL:
 				return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_UPDATEPANEL, Param? 1 : 0, nullptr));
 
@@ -3636,10 +3638,10 @@ static int WINAPI FarGetDirListA(const char *Dir, oldfar::PluginPanelItem **pPan
 	{
 		return GetDirListGeneric(*pPanelItem, *pItemsNumber, [Dir](PluginPanelItem*& Items, size_t& Size, size_t& PathOffset)
 		{
-			string strDir = encoding::oem::get_chars(Dir);
+			auto strDir = encoding::oem::get_chars(Dir);
 			DeleteEndSlash(strDir);
 			PathOffset = ExtractFilePath(strDir).size() + 1;
-			return NativeInfo.GetDirList(strDir.data(), &Items, &Size);
+			return NativeInfo.GetDirList(strDir.c_str(), &Items, &Size);
 		});
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
@@ -3653,7 +3655,7 @@ static int WINAPI FarGetPluginDirListA(intptr_t PluginNumber, HANDLE hPlugin, co
 		return GetDirListGeneric(*pPanelItem, *pItemsNumber, [&](PluginPanelItem*& Items, size_t& Size, size_t& PathOffset)
 		{
 			PathOffset = 0;
-			return NativeInfo.GetPluginDirList(GetPluginGuid(PluginNumber), hPlugin, encoding::oem::get_chars(Dir).data(), &Items, &Size);
+			return NativeInfo.GetPluginDirList(GetPluginGuid(PluginNumber), hPlugin, encoding::oem::get_chars(Dir).c_str(), &Items, &Size);
 		});
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
@@ -3702,10 +3704,10 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 					FarSettingsItem item={sizeof(FarSettingsItem),FSSF_EDITOR,L"WordDiv",FST_UNKNOWN,{}};
 					if(NativeInfo.SettingsControl(Settings,SCTL_GET,0,&item)&&FST_STRING==item.Type)
 					{
-						const auto Length = StrLength(item.String);
+						const auto Length = wcslen(item.String);
 						Result = Length + 1;
 						if (Param)
-							encoding::oem::get_bytes(item.String, Length, static_cast<char*>(Param), oldfar::NM);
+							encoding::oem::get_bytes({ item.String, Length }, static_cast<char*>(Param), oldfar::NM);
 					}
 					NativeInfo.SettingsControl(Settings, SCTL_FREE, 0, nullptr);
 				}
@@ -3733,12 +3735,12 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 
 			case oldfar::ACTL_GETARRAYCOLOR:
 				{
-					size_t PaletteSize = NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETARRAYCOLOR, 0, nullptr);
+					const auto PaletteSize = NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETARRAYCOLOR, 0, nullptr);
 					if(Param)
 					{
 						std::vector<FarColor> Color(PaletteSize);
 						NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETARRAYCOLOR, 0, Color.data());
-						const auto OldColors = static_cast<const LPBYTE>(Param);
+						const auto OldColors = static_cast<LPBYTE>(Param);
 						std::transform(ALL_CONST_RANGE(Color), OldColors, colors::FarColorToConsoleColor);
 					}
 					return PaletteSize;
@@ -3815,7 +3817,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 								kmA->MacroResult.ErrMsg1 = "";
 								kmA->MacroResult.ErrMsg2 = "";
 								kmA->MacroResult.ErrMsg3 = "";
-								// fall-through
+								[[fallthrough]];
 							case MSSC_POST:
 								delete[] mtW.SequenceText;
 								break;
@@ -3843,7 +3845,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 				if (ksA->Flags&oldfar::KSFLAGS_NOSENDKEYSTOPLUGINS)
 					Flags|=KMFLAGS_NOSENDKEYSTOPLUGINS;
 
-				string strSequence=L"Keys(\"";
+				auto strSequence = L"Keys(\""s;
 				string strKeyText;
 				for (const auto& Key: make_range(ksA->Sequence, ksA->Count))
 				{
@@ -3852,11 +3854,9 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 						append(strSequence, L' ', strKeyText);
 					}
 				}
-				append(strSequence, L"\")");
+				append(strSequence, L"\")"sv);
 
-				intptr_t ret = Global->CtrlObject->Macro.PostNewMacro(strSequence.data(), Flags);
-
-				return ret;
+				return Global->CtrlObject->Macro.PostNewMacro(strSequence.c_str(), Flags);
 			}
 			case oldfar::ACTL_GETSHORTWINDOWINFO:
 			case oldfar::ACTL_GETWINDOWINFO:
@@ -3925,54 +3925,53 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 				return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_COMMIT, 0, nullptr);
 			case oldfar::ACTL_GETFARHWND:
 				return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETFARHWND, 0, nullptr);
+
 			case oldfar::ACTL_GETSYSTEMSETTINGS:
 			{
-				intptr_t ret = oldfar::FSS_CLEARROATTRIBUTE;
-
-				if (GetSetting(FSSF_SYSTEM,L"DeleteToRecycleBin")) ret|=oldfar::FSS_DELETETORECYCLEBIN;
-				if (GetSetting(FSSF_SYSTEM,L"CopyOpened")) ret|=oldfar::FSS_COPYFILESOPENEDFORWRITING;
-				if (GetSetting(FSSF_SYSTEM,L"ScanJunction")) ret|=oldfar::FSS_SCANSYMLINK;
-
-				return ret;
+				return oldfar::FSS_CLEARROATTRIBUTE |
+					(GetSetting(FSSF_SYSTEM, L"DeleteToRecycleBin")? oldfar::FSS_DELETETORECYCLEBIN : 0) |
+					(GetSetting(FSSF_SYSTEM, L"CopyOpened")? oldfar::FSS_COPYFILESOPENEDFORWRITING : 0) |
+					(GetSetting(FSSF_SYSTEM, L"ScanJunction")? oldfar::FSS_SCANSYMLINK : 0);
 			}
+
 			case oldfar::ACTL_GETPANELSETTINGS:
 			{
-				intptr_t ret = 0;
-
-				if (GetSetting(FSSF_PANEL,L"ShowHidden")) ret|=oldfar::FPS_SHOWHIDDENANDSYSTEMFILES;
-				if (GetSetting(FSSF_PANELLAYOUT,L"ColumnTitles")) ret|=oldfar::FPS_SHOWCOLUMNTITLES;
-				if (GetSetting(FSSF_PANELLAYOUT,L"StatusLine")) ret|=oldfar::FPS_SHOWSTATUSLINE;
-				if (GetSetting(FSSF_PANELLAYOUT,L"SortMode")) ret|=oldfar::FPS_SHOWSORTMODELETTER;
-
-				return ret;
+				return
+					(GetSetting(FSSF_PANEL, L"ShowHidden")? oldfar::FPS_SHOWHIDDENANDSYSTEMFILES : 0) |
+					(GetSetting(FSSF_PANELLAYOUT, L"ColumnTitles")? oldfar::FPS_SHOWCOLUMNTITLES : 0) |
+					(GetSetting(FSSF_PANELLAYOUT, L"StatusLine")? oldfar::FPS_SHOWSTATUSLINE : 0) |
+					(GetSetting(FSSF_PANELLAYOUT, L"SortMode")? oldfar::FPS_SHOWSORTMODELETTER : 0);
 			}
+
 			case oldfar::ACTL_GETINTERFACESETTINGS:
 			{
-				intptr_t ret = 0;
-				if (GetSetting(FSSF_SCREEN,L"KeyBar")) ret|=oldfar::FIS_SHOWKEYBAR;
-				if (GetSetting(FSSF_INTERFACE,L"ShowMenuBar")) ret|=oldfar::FIS_ALWAYSSHOWMENUBAR;
-				return ret;
+				return
+					(GetSetting(FSSF_SCREEN, L"KeyBar")? oldfar::FIS_SHOWKEYBAR : 0) |
+					(GetSetting(FSSF_INTERFACE, L"ShowMenuBar")? oldfar::FIS_ALWAYSSHOWMENUBAR : 0);
 			}
+
 			case oldfar::ACTL_GETCONFIRMATIONS:
 			{
-				intptr_t ret = 0;
-
-				if (GetSetting(FSSF_CONFIRMATIONS,L"Copy")) ret|=oldfar::FCS_COPYOVERWRITE;
-				if (GetSetting(FSSF_CONFIRMATIONS,L"Move")) ret|=oldfar::FCS_MOVEOVERWRITE;
-				if (GetSetting(FSSF_CONFIRMATIONS,L"Drag")) ret|=oldfar::FCS_DRAGANDDROP;
-				if (GetSetting(FSSF_CONFIRMATIONS,L"Delete")) ret|=oldfar::FCS_DELETE;
-				if (GetSetting(FSSF_CONFIRMATIONS,L"DeleteFolder")) ret|=oldfar::FCS_DELETENONEMPTYFOLDERS;
-				if (GetSetting(FSSF_CONFIRMATIONS,L"Esc")) ret|=oldfar::FCS_INTERRUPTOPERATION;
-				if (GetSetting(FSSF_CONFIRMATIONS,L"RemoveConnection")) ret|=oldfar::FCS_DISCONNECTNETWORKDRIVE;
-				if (GetSetting(FSSF_CONFIRMATIONS,L"HistoryClear")) ret|=oldfar::FCS_CLEARHISTORYLIST;
-				if (GetSetting(FSSF_CONFIRMATIONS,L"Exit")) ret|=oldfar::FCS_EXIT;
-
-				return ret;
+				return
+					(GetSetting(FSSF_CONFIRMATIONS, L"Copy")? oldfar::FCS_COPYOVERWRITE : 0) |
+					(GetSetting(FSSF_CONFIRMATIONS, L"Move")? oldfar::FCS_MOVEOVERWRITE : 0) |
+					(GetSetting(FSSF_CONFIRMATIONS, L"Drag")? oldfar::FCS_DRAGANDDROP : 0) |
+					(GetSetting(FSSF_CONFIRMATIONS, L"Delete")? oldfar::FCS_DELETE : 0) |
+					(GetSetting(FSSF_CONFIRMATIONS, L"DeleteFolder")? oldfar::FCS_DELETENONEMPTYFOLDERS : 0) |
+					(GetSetting(FSSF_CONFIRMATIONS, L"Esc")? oldfar::FCS_INTERRUPTOPERATION : 0) |
+					(GetSetting(FSSF_CONFIRMATIONS, L"RemoveConnection")? oldfar::FCS_DISCONNECTNETWORKDRIVE : 0) |
+					(GetSetting(FSSF_CONFIRMATIONS, L"HistoryClear")? oldfar::FCS_CLEARHISTORYLIST : 0) |
+					(GetSetting(FSSF_CONFIRMATIONS, L"Exit")? oldfar::FCS_EXIT : 0);
 			}
+
 			case oldfar::ACTL_GETDESCSETTINGS:
 			{
-				intptr_t ret = 0;
-				return ret;
+				const auto& DizSettings = Global->Opt->Diz;
+				return
+					(DizSettings.SetHidden? oldfar::FDS_SETHIDDEN : 0) |
+					(DizSettings.UpdateMode == DIZ_UPDATE_ALWAYS? oldfar::FDS_UPDATEALWAYS : 0) |
+					(DizSettings.UpdateMode == DIZ_UPDATE_IF_DISPLAYED? oldfar::FDS_UPDATEIFDISPLAYED : 0) |
+					(DizSettings.ROUpdate? oldfar::FDS_UPDATEREADONLY : 0);
 			}
 			case oldfar::ACTL_SETARRAYCOLOR:
 			{
@@ -4156,12 +4155,12 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 					if (*oldsf->FileName)
 					{
 						FileName = encoding::oem::get_chars(oldsf->FileName);
-						newsf.FileName = FileName.data();
+						newsf.FileName = FileName.c_str();
 					}
 					if (oldsf->FileEOL)
 					{
 						EOL = encoding::oem::get_chars(oldsf->FileEOL);
-						newsf.FileEOL = EOL.data();
+						newsf.FileEOL = EOL.c_str();
 					}
 					newsf.CodePage = CP_DEFAULT;
 				}
@@ -4179,8 +4178,9 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 						case KEY_EVENT:
 						{
 							wchar_t res;
-							if (encoding::oem::get_chars(&pIR->Event.KeyEvent.uChar.AsciiChar, 1, &res, 1))
+							if (encoding::oem::get_chars({ &pIR->Event.KeyEvent.uChar.AsciiChar, 1 }, &res, 1))
 								pIR->Event.KeyEvent.uChar.UnicodeChar=res;
+							break;
 						}
 						default:
 							break;
@@ -4208,7 +4208,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 						case KEY_EVENT:
 						{
 							char res;
-							if (encoding::oem::get_bytes(&pIR->Event.KeyEvent.uChar.UnicodeChar, 1, &res, 1))
+							if (encoding::oem::get_bytes({ &pIR->Event.KeyEvent.uChar.UnicodeChar, 1 }, &res, 1))
 								pIR->Event.KeyEvent.uChar.UnicodeChar=res;
 						}
 					}
@@ -4271,10 +4271,10 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 							switch (oldsp->iParam)
 							{
 								case 1:
-									newsp.iParam=GetOEMCP();
+									newsp.iParam = encoding::codepage::oem();
 									break;
 								case 2:
-									newsp.iParam=GetACP();
+									newsp.iParam = encoding::codepage::ansi();
 									break;
 								default:
 									newsp.iParam=oldsp->iParam;
@@ -4350,8 +4350,8 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 					const auto oldss = static_cast<const oldfar::EditorSetString*>(Param);
 					newss.StringNumber=oldss->StringNumber;
 					const auto CodePage = GetEditorCodePageA();
-					newss.StringText=(oldss->StringText)?AnsiToUnicodeBin(oldss->StringText, oldss->StringLength,CodePage):nullptr;
-					newss.StringEOL=(oldss->StringEOL && *oldss->StringEOL)?AnsiToUnicodeBin(oldss->StringEOL,strlen(oldss->StringEOL),CodePage):nullptr;
+					newss.StringText = oldss->StringText? AnsiToUnicodeBin(oldss->StringText, oldss->StringLength, CodePage) : nullptr;
+					newss.StringEOL = oldss->StringEOL? AnsiToUnicodeBin(oldss->StringEOL, strlen(oldss->StringEOL), CodePage) : nullptr;
 					newss.StringLength=oldss->StringLength;
 				}
 
@@ -4503,7 +4503,7 @@ static int WINAPI FarViewerControlA(int Command, void* Param) noexcept
 				viA->TabSize = viW.TabSize;
 				viA->CurMode.UseDecodeTable = 0;
 				viA->CurMode.TableNum       = 0;
-				viA->CurMode.AnsiMode       = viW.CurMode.CodePage == GetACP();
+				viA->CurMode.AnsiMode       = viW.CurMode.CodePage == encoding::codepage::ansi();
 				viA->CurMode.Unicode        = IsUnicodeCodePage(viW.CurMode.CodePage);
 				viA->CurMode.Wrap           = (viW.CurMode.Flags&VMF_WRAP)?1:0;
 				viA->CurMode.WordWrap       = (viW.CurMode.Flags&VMF_WORDWRAP)?1:0;
@@ -4633,17 +4633,17 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize) noexc
 				return -1;
 
 			string CodepageName(cpiex.CodePageName);
-			Codepages().FormatCodePageName(nCP, CodepageName);
+			codepages::FormatCodePageName(nCP, CodepageName);
 			string sTableName = pad_right(str(nCP), 5);
 			append(sTableName, BoxSymbols[BS_V1], L' ', CodepageName);
 			encoding::oem::get_bytes(sTableName, TableSet->TableName);
 			std::unique_ptr<wchar_t[]> us(AnsiToUnicodeBin(reinterpret_cast<char*>(TableSet->DecodeTable), std::size(TableSet->DecodeTable), nCP));
 
 			inplace::lower(us.get(), std::size(TableSet->DecodeTable));
-			encoding::get_bytes(nCP, us.get(), std::size(TableSet->DecodeTable), reinterpret_cast<char*>(TableSet->LowerTable), std::size(TableSet->DecodeTable));
+			encoding::get_bytes(nCP, { us.get(), std::size(TableSet->DecodeTable) }, reinterpret_cast<char*>(TableSet->LowerTable), std::size(TableSet->DecodeTable));
 
 			inplace::upper(us.get(), std::size(TableSet->DecodeTable));
-			encoding::get_bytes(nCP, us.get(), std::size(TableSet->DecodeTable), reinterpret_cast<char*>(TableSet->UpperTable), std::size(TableSet->DecodeTable));
+			encoding::get_bytes(nCP, { us.get(), std::size(TableSet->DecodeTable) }, reinterpret_cast<char*>(TableSet->UpperTable), std::size(TableSet->DecodeTable));
 
 			MultiByteRecode(static_cast<UINT>(nCP), CP_OEMCP, reinterpret_cast<char *>(TableSet->DecodeTable), std::size(TableSet->DecodeTable));
 			MultiByteRecode(CP_OEMCP, static_cast<UINT>(nCP), reinterpret_cast<char *>(TableSet->EncodeTable), std::size(TableSet->EncodeTable));
@@ -4655,7 +4655,7 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize) noexc
 	return -1;
 }
 
-char* WINAPI XlatA(
+static char* WINAPI XlatA(
 	char *Line,                    // исходная строка
 	int StartPos,                  // начало переконвертирования
 	int EndPos,                    // конец переконвертирования
@@ -4675,11 +4675,9 @@ char* WINAPI XlatA(
 		auto NewFlags = XLAT_NONE;
 		FirstFlagsToSecond(Flags, NewFlags, PluginFlagsMap);
 
-		const auto strLine = encoding::oem::get_chars(Line);
-		// XLat expects null-terminated string
-		std::vector<wchar_t> Buffer(strLine.data(), strLine.data() + strLine.size() + 1);
-		NativeFSF.XLat(Buffer.data(), StartPos, EndPos, NewFlags);
-		encoding::oem::get_bytes(Buffer.data(), strLine.size(), Line, strLine.size());
+		auto WideLine = encoding::oem::get_chars(Line);
+		NativeFSF.XLat(WideLine.data(), StartPos, EndPos, NewFlags);
+		encoding::oem::get_bytes(WideLine, Line, WideLine.size());
 		return Line;
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
@@ -4691,12 +4689,12 @@ static int WINAPI GetFileOwnerA(const char *Computer, const char *Name, char *Ow
 	try
 	{
 		wchar_t wOwner[MAX_PATH];
-		int Ret = static_cast<int>(NativeFSF.GetFileOwner(encoding::oem::get_chars(Computer).data(), encoding::oem::get_chars(Name).data(), wOwner, std::size(wOwner)));
+		const auto Ret = NativeFSF.GetFileOwner(encoding::oem::get_chars(Computer).c_str(), encoding::oem::get_chars(Name).c_str(), wOwner, std::size(wOwner));
 		if (Ret)
 		{
-			encoding::oem::get_bytes(wOwner, Ret - 1, Owner, oldfar::NM);
+			encoding::oem::get_bytes({ wOwner, Ret - 1 }, Owner, oldfar::NM);
 		}
-		return Ret;
+		return static_cast<int>(Ret);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return FALSE;
@@ -4781,7 +4779,7 @@ public:
 		RegisterSendKeyToPluginHook();
 	}
 
-	~PluginA()
+	~PluginA() override
 	{
 		FreePluginInfo();
 		FreeOpenPanelInfo();
@@ -4793,39 +4791,40 @@ public:
 	}
 
 private:
-	virtual bool GetGlobalInfo(GlobalInfo *Info) override
+	bool GetGlobalInfo(GlobalInfo *Info) override
 	{
 		Info->StructSize = sizeof(GlobalInfo);
 		Info->Description = L"Far 1.x plugin";
-		Info->Author = L"unknown";
+		Info->Author = L"Unknown";
 
-		const string& module = GetModuleName();
-		Info->Title = PointToName(module).cbegin();
+		const string& module = ModuleName();
+		// Null-terminated, data() is ok
+		Info->Title = PointToName(module).data();
 
 		bool GuidFound = false;
 		GUID PluginGuid = {};
 
 		auto& FileVersion = static_cast<oem_plugin_module*>(m_Instance.get())->m_FileVersion;
 
-		if (FileVersion.Read(GetModuleName()))
+		if (FileVersion.Read(ModuleName()))
 		{
 			const wchar_t* Value;
-			if (((Value = FileVersion.GetStringValue(L"InternalName")) != nullptr || (Value = FileVersion.GetStringValue(L"OriginalName")) != nullptr) && *Value)
+			if (((Value = FileVersion.GetStringValue(L"InternalName"sv)) != nullptr || (Value = FileVersion.GetStringValue(L"OriginalName"sv)) != nullptr) && *Value)
 			{
 				Info->Title = Value;
 			}
 
-			if (((Value = FileVersion.GetStringValue(L"CompanyName")) != nullptr || (Value = FileVersion.GetStringValue(L"LegalCopyright")) != nullptr) && *Value)
+			if (((Value = FileVersion.GetStringValue(L"CompanyName"sv)) != nullptr || (Value = FileVersion.GetStringValue(L"LegalCopyright"sv)) != nullptr) && *Value)
 			{
 				Info->Author = Value;
 			}
 
-			if ((Value = FileVersion.GetStringValue(L"FileDescription")) != nullptr && *Value)
+			if ((Value = FileVersion.GetStringValue(L"FileDescription"sv)) != nullptr && *Value)
 			{
 				Info->Description = Value;
 			}
 
-			if (const auto Uuid = FileVersion.GetStringValue(L"PluginGUID"))
+			if (const auto Uuid = FileVersion.GetStringValue(L"PluginGUID"sv))
 			{
 				GuidFound = StrToGuid(Uuid, PluginGuid);
 			}
@@ -4839,7 +4838,7 @@ private:
 			}
 		}
 
-		if (equal_icase(Info->Title, L"FarFtp") || equal_icase(Info->Title, L"MultiArc"))
+		if (equal_icase(Info->Title, L"FarFtp"sv) || equal_icase(Info->Title, L"MultiArc"sv))
 			opif_shortcut = true;
 
 		if (GuidFound)
@@ -4848,7 +4847,7 @@ private:
 		}
 		else
 		{
-			int nb = std::min(StrLength(Info->Title), 8);
+			int nb = std::min(static_cast<int>(wcslen(Info->Title)), 8);
 			while (nb > 0) {
 				--nb;
 				reinterpret_cast<char *>(&Info->Guid)[8 + nb] = static_cast<char>(Info->Title[nb]);
@@ -4858,7 +4857,7 @@ private:
 		return true;
 	}
 
-	virtual bool SetStartupInfo(PluginStartupInfo*) override
+	bool SetStartupInfo(PluginStartupInfo*) override
 	{
 		AnsiExecuteStruct<iSetStartupInfo> es;
 		if (has(es) && !Global->ProcessException)
@@ -4956,13 +4955,13 @@ private:
 			// скорректируем адреса и плагино-зависимые поля
 			InfoCopy.ModuleNumber = reinterpret_cast<intptr_t>(this);
 			InfoCopy.FSF = &FsfCopy;
-			encoding::oem::get_bytes(GetModuleName().data(), InfoCopy.ModuleName);
-			InfoCopy.RootKey = static_cast<oem_plugin_factory*>(m_Factory)->getUserName().data();
+			encoding::oem::get_bytes(ModuleName().c_str(), InfoCopy.ModuleName);
+			InfoCopy.RootKey = static_cast<oem_plugin_factory*>(m_Factory)->getUserName().c_str();
 
 			if (Global->strRegUser.empty())
-				os::env::del(L"FARUSER");
+				os::env::del(L"FARUSER"sv);
 			else
-				os::env::set(L"FARUSER", Global->strRegUser);
+				os::env::set(L"FARUSER"sv, Global->strRegUser);
 
 			ExecuteFunction(es, &InfoCopy);
 
@@ -4974,7 +4973,7 @@ private:
 		return true;
 	}
 
-	virtual HANDLE Open(OpenInfo* Info) override
+	HANDLE Open(OpenInfo* Info) override
 	{
 		SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 
@@ -4989,7 +4988,7 @@ private:
 
 			int OpenFromA = oldfar::OPEN_PLUGINSMENU;
 
-			oldfar::OpenDlgPluginData DlgData;
+			oldfar::OpenDlgPluginData DlgData{};
 
 			switch (Info->OpenFrom)
 			{
@@ -5066,7 +5065,7 @@ private:
 		return TranslateResult(es);
 	}
 
-	virtual void ClosePanel(ClosePanelInfo* Info) override
+	void ClosePanel(ClosePanelInfo* Info) override
 	{
 		AnsiExecuteStruct<iClosePanel> es;
 		if (has(es) && !Global->ProcessException)
@@ -5076,7 +5075,7 @@ private:
 		FreeOpenPanelInfo();
 	}
 
-	virtual bool GetPluginInfo(PluginInfo *pi) override
+	bool GetPluginInfo(PluginInfo *pi) override
 	{
 		*pi = {};
 
@@ -5096,7 +5095,7 @@ private:
 		return false;
 	}
 
-	virtual void GetOpenPanelInfo(OpenPanelInfo *Info) override
+	void GetOpenPanelInfo(OpenPanelInfo *Info) override
 	{
 		Info->StructSize = sizeof(OpenPanelInfo);
 
@@ -5109,7 +5108,7 @@ private:
 		}
 	}
 
-	virtual int GetFindData(GetFindDataInfo* Info) override
+	int GetFindData(GetFindDataInfo* Info) override
 	{
 		AnsiExecuteStruct<iGetFindData> es;
 		if (has(es) && !Global->ProcessException)
@@ -5125,13 +5124,13 @@ private:
 			Info->ItemsNumber = ItemsNumber;
 			if (es && ItemsNumber)
 			{
-				Info->PanelItem = ConvertAnsiPanelItemsToUnicode(make_range(pFDPanelItemA, ItemsNumber));
+				Info->PanelItem = ConvertAnsiPanelItemsToUnicode({ pFDPanelItemA, static_cast<size_t>(ItemsNumber) });
 			}
 		}
 		return es;
 	}
 
-	virtual void FreeFindData(FreeFindDataInfo* Info) override
+	void FreeFindData(FreeFindDataInfo* Info) override
 	{
 		FreeUnicodePanelItem(Info->PanelItem, Info->ItemsNumber);
 
@@ -5143,7 +5142,7 @@ private:
 		}
 	}
 
-	virtual int GetVirtualFindData(GetVirtualFindDataInfo* Info) override
+	int GetVirtualFindData(GetVirtualFindDataInfo* Info) override
 	{
 		AnsiExecuteStruct<iGetVirtualFindData> es;
 		if (has(es) && !Global->ProcessException)
@@ -5151,21 +5150,21 @@ private:
 			pVFDPanelItemA = nullptr;
 			const auto Length = wcslen(Info->Path);
 			char_ptr_n<MAX_PATH> PathA(Length + 1);
-			encoding::oem::get_bytes(Info->Path, Length, PathA.get(), Length + 1);
+			encoding::oem::get_bytes({ Info->Path, Length }, PathA.get(), Length + 1);
 			int ItemsNumber = 0;
 			ExecuteFunction(es, Info->hPanel, &pVFDPanelItemA, &ItemsNumber, PathA.get());
 			Info->ItemsNumber = ItemsNumber;
 
 			if (es && ItemsNumber)
 			{
-				Info->PanelItem = ConvertAnsiPanelItemsToUnicode(make_range(pVFDPanelItemA, ItemsNumber));
+				Info->PanelItem = ConvertAnsiPanelItemsToUnicode({ pVFDPanelItemA, static_cast<size_t>(ItemsNumber) });
 			}
 		}
 
 		return es;
 	}
 
-	virtual void FreeVirtualFindData(FreeFindDataInfo* Info) override
+	void FreeVirtualFindData(FreeFindDataInfo* Info) override
 	{
 		FreeUnicodePanelItem(Info->PanelItem, Info->ItemsNumber);
 
@@ -5177,7 +5176,7 @@ private:
 		}
 	}
 
-	virtual int SetDirectory(SetDirectoryInfo* Info) override
+	int SetDirectory(SetDirectoryInfo* Info) override
 	{
 		AnsiExecuteStruct<iSetDirectory> es;
 		if (has(es) && !Global->ProcessException)
@@ -5190,7 +5189,7 @@ private:
 		return es;
 	}
 
-	virtual int GetFiles(GetFilesInfo* Info) override
+	int GetFiles(GetFilesInfo* Info) override
 	{
 		AnsiExecuteStruct<iGetFiles> es(-1);
 		if (has(es) && !Global->ProcessException)
@@ -5209,7 +5208,7 @@ private:
 		return es;
 	}
 
-	virtual int PutFiles(PutFilesInfo* Info) override
+	int PutFiles(PutFilesInfo* Info) override
 	{
 		AnsiExecuteStruct<iPutFiles> es(-1);
 		if (has(es) && !Global->ProcessException)
@@ -5223,7 +5222,7 @@ private:
 		return es;
 	}
 
-	virtual int DeleteFiles(DeleteFilesInfo* Info) override
+	int DeleteFiles(DeleteFilesInfo* Info) override
 	{
 		AnsiExecuteStruct<iDeleteFiles> es;
 		if (has(es) && !Global->ProcessException)
@@ -5237,7 +5236,7 @@ private:
 		return es;
 	}
 
-	virtual int MakeDirectory(MakeDirectoryInfo* Info) override
+	int MakeDirectory(MakeDirectoryInfo* Info) override
 	{
 		AnsiExecuteStruct<iMakeDirectory> es(-1);
 		if (has(es) && !Global->ProcessException)
@@ -5254,7 +5253,7 @@ private:
 		return es;
 	}
 
-	virtual int ProcessHostFile(ProcessHostFileInfo* Info) override
+	int ProcessHostFile(ProcessHostFileInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessHostFile> es;
 		if (has(es) && !Global->ProcessException)
@@ -5268,7 +5267,7 @@ private:
 		return es;
 	}
 
-	virtual int SetFindList(SetFindListInfo* Info) override
+	int SetFindList(SetFindListInfo* Info) override
 	{
 		AnsiExecuteStruct<iSetFindList> es;
 		if (has(es) && !Global->ProcessException)
@@ -5280,7 +5279,7 @@ private:
 		return es;
 	}
 
-	virtual int Configure(ConfigureInfo* Info) override
+	int Configure(ConfigureInfo* Info) override
 	{
 		AnsiExecuteStruct<iConfigure> es;
 		if (Load() && has(es) && !Global->ProcessException)
@@ -5290,7 +5289,7 @@ private:
 		return es;
 	}
 
-	virtual void ExitFAR(ExitInfo*) override
+	void ExitFAR(ExitInfo*) override
 	{
 		AnsiExecuteStruct<iExitFAR> es;
 		if (has(es) && !Global->ProcessException)
@@ -5300,7 +5299,7 @@ private:
 		}
 	}
 
-	virtual int ProcessPanelInput(ProcessPanelInputInfo* Info) override
+	int ProcessPanelInput(ProcessPanelInputInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessPanelInput> es;
 		if (has(es) && !Global->ProcessException)
@@ -5323,7 +5322,7 @@ private:
 		return es;
 	}
 
-	virtual int ProcessPanelEvent(ProcessPanelEventInfo* Info) override
+	int ProcessPanelEvent(ProcessPanelEventInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessPanelEvent> es;
 		if (has(es) && !Global->ProcessException)
@@ -5342,7 +5341,7 @@ private:
 		return es;
 	}
 
-	virtual int ProcessEditorEvent(ProcessEditorEventInfo* Info) override
+	int ProcessEditorEvent(ProcessEditorEventInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessEditorEvent> es;
 		if (Load() && has(es) && !Global->ProcessException)
@@ -5353,7 +5352,7 @@ private:
 			case EE_GOTFOCUS:
 			case EE_KILLFOCUS:
 				Info->Param = &Info->EditorID;
-				// fallthrough
+				[[fallthrough]];
 		case EE_READ:
 			case EE_SAVE:
 			case EE_REDRAW:
@@ -5364,7 +5363,7 @@ private:
 		return es;
 	}
 
-	virtual int Compare(CompareInfo* Info) override
+	int Compare(CompareInfo* Info) override
 	{
 		AnsiExecuteStruct<iCompare> es(-2);
 		if (has(es) && !Global->ProcessException)
@@ -5378,7 +5377,7 @@ private:
 		return es;
 	}
 
-	virtual int ProcessEditorInput(ProcessEditorInputInfo* Info) override
+	int ProcessEditorInput(ProcessEditorInputInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessEditorInput> es;
 		if (Load() && has(es) && !Global->ProcessException)
@@ -5396,7 +5395,7 @@ private:
 		return es;
 	}
 
-	virtual int ProcessViewerEvent(ProcessViewerEventInfo* Info) override
+	int ProcessViewerEvent(ProcessViewerEventInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessViewerEvent> es;
 		if (Load() && has(es) && !Global->ProcessException)
@@ -5407,7 +5406,7 @@ private:
 			case VE_GOTFOCUS:
 			case VE_KILLFOCUS:
 				Info->Param = &Info->ViewerID;
-				// fallthrough
+				[[fallthrough]];
 			case VE_READ:
 				ExecuteFunction(es, Info->Event, Info->Param);
 				break;
@@ -5416,7 +5415,7 @@ private:
 		return es;
 	}
 
-	virtual int ProcessDialogEvent(ProcessDialogEventInfo* Info) override
+	int ProcessDialogEvent(ProcessDialogEventInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessDialogEvent> es;
 		if (Load() && has(es) && !Global->ProcessException)
@@ -5426,40 +5425,40 @@ private:
 		return es;
 	}
 
-	virtual int ProcessSynchroEvent(ProcessSynchroEventInfo*) override
+	int ProcessSynchroEvent(ProcessSynchroEventInfo*) override
 	{
 		return 0;
 	}
-	
-	virtual int ProcessConsoleInput(ProcessConsoleInputInfo*) override
+
+	int ProcessConsoleInput(ProcessConsoleInputInfo*) override
 	{
 		return 0;
 	}
-	
-	virtual void* Analyse(AnalyseInfo*) override
+
+	void* Analyse(AnalyseInfo*) override
 	{
 		return nullptr;
 	}
-	
-	virtual void CloseAnalyse(CloseAnalyseInfo*) override
+
+	void CloseAnalyse(CloseAnalyseInfo*) override
 	{
 	}
 
-	virtual int GetContentFields(GetContentFieldsInfo*) override
+	int GetContentFields(GetContentFieldsInfo*) override
 	{
 		return 0;
 	}
-	
-	virtual int GetContentData(GetContentDataInfo*) override
+
+	int GetContentData(GetContentDataInfo*) override
 	{
 		return 0;
 	}
-	
-	virtual void FreeContentData(GetContentDataInfo*) override
+
+	void FreeContentData(GetContentDataInfo*) override
 	{
 	}
 
-	virtual void* OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int) override
+	void* OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int) override
 	{
 		AnsiExecuteStruct<iOpenFilePlugin> es;
 		if (Load() && has(es) && !Global->ProcessException)
@@ -5470,7 +5469,7 @@ private:
 		return TranslateResult(es);
 	}
 
-	virtual bool CheckMinFarVersion() override
+	bool CheckMinFarVersion() override
 	{
 		AnsiExecuteStruct<iGetMinFarVersion> es;
 		if (has(es) && !Global->ProcessException)
@@ -5484,24 +5483,24 @@ private:
 		return true;
 	}
 
-	virtual bool IsOemPlugin() const override
+	bool IsOemPlugin() const override
 	{
 		return true;
 	}
-	
-	virtual const string& GetHotkeyName() const override
+
+	const string& GetHotkeyName() const override
 	{
-		return GetCacheName();
+		return CacheName();
 	}
 
-	virtual bool InitLang(const string& Path) override
+	bool InitLang(const string& Path, const string& Language) override
 	{
 		bool Result = true;
 		if (!PluginLang)
 		{
 			try
 			{
-				PluginLang = std::make_unique<ansi_plugin_language>(Path);
+				PluginLang = std::make_unique<ansi_plugin_language>(Path, Language);
 			}
 			catch (const std::exception&)
 			{
@@ -5511,14 +5510,14 @@ private:
 		return Result;
 	}
 
-	virtual void Prologue() override
+	void Prologue() override
 	{
 		Plugin::Prologue();
 		SetFileApisToOEM();
 		++OEMApiCnt;
 	}
 
-	virtual void Epilogue() override
+	void Epilogue() override
 	{
 		--OEMApiCnt;
 		if (!OEMApiCnt)
@@ -5566,8 +5565,8 @@ private:
 		{
 			if (Size)
 			{
-				const auto p = new wchar_t*[Size];
-				const auto guid = new GUID[Size]();
+				auto p = std::make_unique<const wchar_t*[]>(Size);
+				auto guid = std::make_unique<GUID[]>(Size);
 
 				for (size_t i = 0; i != Size; ++i)
 				{
@@ -5575,8 +5574,8 @@ private:
 					guid[i].Data1 = static_cast<decltype(guid[i].Data1)>(i);
 				}
 
-				Item.Guids = guid;
-				Item.Strings = p;
+				Item.Guids = guid.release();
+				Item.Strings = p.release();
 				Item.Count = Size;
 			}
 
@@ -5601,9 +5600,9 @@ private:
 		delete[] OPI.HostFile;
 		delete[] OPI.Format;
 		delete[] OPI.PanelTitle;
-		FreeUnicodeInfoPanelLines(OPI.InfoLines, OPI.InfoLinesNumber);
-		DeleteRawArray(OPI.DescrFiles, OPI.DescrFilesNumber);
-		FreeUnicodePanelModes(OPI.PanelModesArray, OPI.PanelModesNumber);
+		FreeUnicodeInfoPanelLines({ OPI.InfoLines, OPI.InfoLinesNumber });
+		DeleteRawArray(make_range(OPI.DescrFiles, OPI.DescrFilesNumber));
+		FreeUnicodePanelModes({ OPI.PanelModesArray, OPI.PanelModesNumber });
 		FreeUnicodeKeyBarTitles(const_cast<KeyBarTitles*>(OPI.KeyBar));
 		delete OPI.KeyBar;
 		delete[] OPI.ShortcutData;
@@ -5664,7 +5663,12 @@ private:
 
 		if (Src.PanelModesArray && Src.PanelModesNumber)
 		{
-			OPI.PanelModesArray = ConvertPanelModesA(Src.PanelModesArray, Src.PanelModesNumber);
+			auto UnicodeModes = std::make_unique<PanelMode[]>(Src.PanelModesNumber);
+			ConvertPanelModesToUnicode(
+				{ Src.PanelModesArray, static_cast<size_t>(Src.PanelModesNumber) },
+				{ UnicodeModes.get(), static_cast<size_t>(Src.PanelModesNumber) }
+			);
+			OPI.PanelModesArray = UnicodeModes.release();
 			OPI.PanelModesNumber = Src.PanelModesNumber;
 			OPI.StartPanelMode = Src.StartPanelMode;
 
@@ -5727,12 +5731,11 @@ private:
 	{
 	public:
 		std::unique_ptr<i_language_data> create() override { return std::make_unique<ansi_language_data>(); }
-		~ansi_language_data() override = default;
 
 		void reserve(size_t Size) override { return m_Messages.reserve(Size); }
 		void add(string&& Str) override { m_Messages.emplace_back(encoding::oem::get_bytes(Str)); }
 		void set_at(size_t Index, string&& Str) override { m_Messages[Index] = encoding::oem::get_bytes(Str); }
-		const string& at(size_t Index) const override { throw MAKE_FAR_EXCEPTION(L"Not supported"); }
+		const string& at(size_t Index) const override { throw MAKE_FAR_EXCEPTION(L"Not supported"sv); }
 		size_t size() const override { return m_Messages.size(); }
 
 		const std::string& ansi_at(size_t Index) const { return m_Messages[Index]; }
@@ -5744,15 +5747,16 @@ private:
 	class ansi_plugin_language final: public language
 	{
 	public:
-		explicit ansi_plugin_language(const string& Path):
+		explicit ansi_plugin_language(const string& Path, const string& Language):
 			language(m_Data),
 			m_Data(std::make_unique<ansi_language_data>())
 		{
-			load(Path);
+			load(Path, Language);
 		}
+
 		const char* GetMsgA(int Id) const
 		{
-			return m_Data->validate(Id)? static_cast<const ansi_language_data&>(*m_Data).ansi_at(Id).data() : "";
+			return m_Data->validate(Id)? static_cast<const ansi_language_data&>(*m_Data).ansi_at(Id).c_str() : "";
 		}
 
 	private:
@@ -5782,5 +5786,7 @@ std::unique_ptr<Plugin> oem_plugin_factory::CreatePlugin(const string& filename)
 {
 	return IsPlugin(filename)? std::make_unique<PluginA>(this, filename) : nullptr;
 }
+
+#undef OLDFAR_TO_FAR_MAP
 
 #endif // NO_WRAPPER

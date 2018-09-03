@@ -200,6 +200,7 @@ local function generateFPT (NodeIterator, ProjectName, fp_template)
 
   local ProjectHeaderReady
   local nodeLevel = -1
+  local ProjectFiles = {}
   for node, nodenumber in NodeIterator do
     local filename = ("%d.html"):format(node.id)
     local fCurrent = assert(io.open(filename, "wt"))
@@ -218,8 +219,9 @@ local function generateFPT (NodeIterator, ProjectName, fp_template)
       ProjectHeaderReady = true
     end
 
-    -- include file name into the project file
-    fProj:write(filename, "\n")
+    -- include file name into the project file;
+    -- do not write directly - put in a table for sorting (work around a conjectural compiler bug)
+    table.insert(ProjectFiles, filename)
 
     -- get node level
     -- put node info into the TOC and the FileIndex
@@ -252,6 +254,8 @@ local function generateFPT (NodeIterator, ProjectName, fp_template)
     nodeLevel = newLevel
   end
 
+  table.sort(ProjectFiles)
+  for _,nm in ipairs(ProjectFiles) do fProj:write(nm, "\n") end
   fProj:close()
 
   for i = nodeLevel, 0, -1 do

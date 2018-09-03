@@ -40,26 +40,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/compiler.hpp"
 #include "common/preprocessor.hpp"
 #include "common/utility.hpp"
-#include "common/movable.hpp"
 #include "common/noncopyable.hpp"
-#include "common/rel_ops.hpp"
-#include "common/conditional.hpp"
-#include "common/scope_exit.hpp"
-#include "common/type_traits.hpp"
-#include "common/function_traits.hpp"
 #include "common/smart_ptr.hpp"
-#include "common/any.hpp"
-#include "common/null_iterator.hpp"
-#include "common/enumerator.hpp"
-#include "common/range.hpp"
 #include "common/algorithm.hpp"
-#include "common/monitored.hpp"
-#include "common/string_view.hpp"
-#include "common/enum_substrings.hpp"
 #include "common/string_utils.hpp"
-#include "common/zip_view.hpp"
-#include "common/bytes_view.hpp"
-#include "common/singleton.hpp"
 #include "common/chrono.hpp"
 
 // TODO: clean up & split
@@ -100,10 +84,10 @@ inline void* ToPtr(intptr_t Value)
 	return reinterpret_cast<void*>(Value);
 }
 
-template<class T, class Y>
-bool InRange(const T& from, const Y& what, const T& to)
+template<typename min_type, typename value_type, typename max_type>
+constexpr bool InRange(min_type const Min, value_type const Value, max_type const Max)
 {
-	return from <= what && what <= to;
+	return Min <= Value && Value <= Max;
 }
 
 #ifdef _DEBUG
@@ -125,7 +109,6 @@ namespace \
 #define SIGN_UNICODE    0xFEFF
 #define SIGN_REVERSEBOM 0xFFFE
 #define SIGN_UTF8       0xBFBBEF
-#define EOL_STR L"\r\n"
 
 template<typename T>
 class base: public T
@@ -134,5 +117,30 @@ protected:
 	using T::T;
 	using base_type = base;
 };
+
+namespace detail
+{
+	inline void from_string(const string& Str, int& Value, size_t* Pos, int Base) { Value = std::stoi(Str, Pos, Base); }
+	inline void from_string(const string& Str, unsigned int& Value, size_t* Pos, int Base) { Value = std::stoul(Str, Pos, Base); }
+	inline void from_string(const string& Str, long& Value, size_t* Pos, int Base) { Value = std::stol(Str, Pos, Base); }
+	inline void from_string(const string& Str, unsigned long& Value, size_t* Pos, int Base) { Value = std::stoul(Str, Pos, Base); }
+	inline void from_string(const string& Str, long long& Value, size_t* Pos, int Base) { Value = std::stoll(Str, Pos, Base); }
+	inline void from_string(const string& Str, unsigned long long& Value, size_t* Pos, int Base) { Value = std::stoull(Str, Pos, Base); }
+	inline void from_string(const string& Str, double & Value, size_t* Pos, int) { Value = std::stod(Str, Pos); }
+}
+
+template<typename T>
+bool from_string(const string& Str, T& Value, size_t* Pos = nullptr, int Base = 10)
+{
+	try
+	{
+		detail::from_string(Str, Value, Pos, Base);
+		return true;
+	}
+	catch (const std::exception&)
+	{
+		return false;
+	}
+}
 
 #endif // COMMON_HPP_1BD5AB87_3379_4AFE_9F63_DB850DCF72B4

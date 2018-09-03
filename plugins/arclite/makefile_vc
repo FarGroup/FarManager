@@ -54,7 +54,7 @@ OBJS = $(OUTDIR)\archive.obj $(OUTDIR)\plugin.obj $(OUTDIR)\ui.obj $(OUTDIR)\ext
   $(OUTDIR)\update.obj $(OUTDIR)\delete.obj $(OUTDIR)\options.obj $(OUTDIR)\msearch.obj $(OUTDIR)\attr.obj \
   $(OUTDIR)\test.obj $(OUTDIR)\common.obj $(OUTDIR)\sfx.obj $(OUTDIR)\cmdline.obj $(OUTDIR)\rsrc.obj \
   $(OUTDIR)\farutils.obj $(OUTDIR)\pathutils.obj $(OUTDIR)\strutils.obj $(OUTDIR)\sysutils.obj \
-  $(OUTDIR)\Patch7zCP.obj
+  $(OUTDIR)\Patch7zCP.obj $(OUTDIR)\SimpleXML.obj
 !if "$(BITS)" == "32"
 OBJS = $(OBJS) $(OUTDIR)\vc_crt_fix.obj $(OUTDIR)\vc_crt_fix_impl.obj
 !endif
@@ -78,7 +78,7 @@ _7Z = 7z\dll\final.$(DIRBIT)W.vc\7z.dll
 !endif
 
 SFX = $(OUTDIR)\7z.sfx $(OUTDIR)\7zCon.sfx $(OUTDIR)\7zS2.sfx $(OUTDIR)\7zS2con.sfx $(OUTDIR)\7zSD.sfx
-FILES = $(OUTDIR)\$(MODULE).dll $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng $(OUTDIR)\$(MODULE)_eng.hlf $(OUTDIR)\$(MODULE)_rus.hlf $(OUTDIR)\7z.dll $(SFX)
+FILES = $(OUTDIR)\$(MODULE).dll $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng $(OUTDIR)\$(MODULE)_eng.hlf $(OUTDIR)\$(MODULE)_rus.hlf $(OUTDIR)\7z.dll $(SFX) $(OUTDIR)\arclite.xml
 
 !ifdef INSTALL
 target = install_project
@@ -141,6 +141,9 @@ $(OUTDIR)\plugin.h: project.ini $(OUTDIR)\far.ini plugin_h.h
   $(TOOL) preproc project.ini $(OUTDIR)\far.ini plugin_h.h $@
 
 COPY = copy /y $** $@
+
+$(OUTDIR)\arclite.xml: arclite.xml
+  $(COPY)
 
 $(OUTDIR)\7z.dll: $(_7Z)
   $(COPY)

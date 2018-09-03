@@ -8,6 +8,8 @@ enum CommandType {
   cmdUpdate,
   cmdExtract,
   cmdTest,
+  cmdExtractItems,
+  cmdDeleteItems
 };
 
 struct CommandArgs {
@@ -16,6 +18,7 @@ struct CommandArgs {
 };
 
 CommandArgs parse_command(const wstring& cmd_text);
+CommandArgs parse_plugin_call(const OpenMacroInfo *omi);
 
 list<wstring> parse_listfile(const wstring& str);
 
@@ -44,6 +47,14 @@ struct ExtractCommand {
 };
 
 ExtractCommand parse_extract_command(const CommandArgs& args);
+
+struct ExtractItemsCommand {
+	ExtractOptions options;
+	wstring       archname;
+	vector<wstring>  items;
+};
+
+ExtractItemsCommand parse_extractitems_command(const CommandArgs& args);
 
 struct TestCommand {
   vector<wstring> arc_list;

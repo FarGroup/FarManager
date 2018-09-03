@@ -32,14 +32,15 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "scantree.hpp"
+
 #include "syslog.hpp"
 #include "config.hpp"
 #include "pathmix.hpp"
 #include "cvtname.hpp"
+#include "global.hpp"
+
+#include "platform.fs.hpp"
 
 struct ScanTree::scantree_item
 {
@@ -56,23 +57,6 @@ public:
 	std::unordered_set<string> ActiveDirectories;
 };
 
-static bool LinkToRealPath(const string& Src, string& Real)
-{
-	auto Test = ConvertNameToReal(Src);
-	if (!Test.empty())
-	{
-		Test = NTPath(Test);
-		if (Src != Test)
-		{
-			Real = Test;
-			return true;
-		}
-	}
-
-	Real = Src;
-	return false;
-}
-
 ScanTree::ScanTree(bool RetUpDir, bool Recurse, int ScanJunction)
 {
 	Flags.Change(FSCANTREE_RETUPDIR,RetUpDir);
@@ -82,13 +66,13 @@ ScanTree::ScanTree(bool RetUpDir, bool Recurse, int ScanJunction)
 
 ScanTree::~ScanTree() = default;
 
-void ScanTree::SetFindPath(const string& Path,const string& Mask, const DWORD NewScanFlags)
+void ScanTree::SetFindPath(const string& Path, string_view const Mask, const DWORD NewScanFlags)
 {
 	ScanItems.clear();
 
 	Flags.Clear(FSCANTREE_FILESFIRST);
 
-	strFindMask = Mask;
+	assign(strFindMask, Mask);
 
 	strFindPathOriginal = Path;
 	AddEndSlash(strFindPathOriginal);
@@ -99,8 +83,7 @@ void ScanTree::SetFindPath(const string& Path,const string& Mask, const DWORD Ne
 	Item.RealPath = strFindPath;
 	Item.ActiveDirectories.emplace(strFindPath);
 
-	AddEndSlash(strFindPath);
-	strFindPath += strFindMask;
+	path::append(strFindPath, strFindMask);
 
 	Flags.Set((Flags.Flags()&0x0000FFFF)|(NewScanFlags&0xFFFF0000));
 
@@ -145,12 +128,12 @@ bool ScanTree::GetNextName(os::fs::find_data& fdata,string &strFullName)
 			{
 				if (LastItem.Flags.Check(FSCANTREE_SECONDPASS))
 				{
-					if (!Done && !(fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+					if (!Done && !(fdata.Attributes & FILE_ATTRIBUTE_DIRECTORY))
 						continue;
 				}
 				else
 				{
-					if (!Done && (fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+					if (!Done && (fdata.Attributes & FILE_ATTRIBUTE_DIRECTORY))
 						continue;
 
 					if (Done)
@@ -188,7 +171,7 @@ bool ScanTree::GetNextName(os::fs::find_data& fdata,string &strFullName)
 
 			CutToSlash(strFindPath);
 			strFindPath += strFindMask;
-			_SVS(SysLog(L"1. FullName='%s'",strFullName.data()));
+			_SVS(SysLog(L"1. FullName='%s'",strFullName.c_str()));
 
 			if (Flags.Check(FSCANTREE_RETUPDIR))
 			{
@@ -201,23 +184,22 @@ bool ScanTree::GetNextName(os::fs::find_data& fdata,string &strFullName)
 	}
 	else
 	{
-		auto is_link = (fdata.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) != 0;
-		if ((fdata.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) && Flags.Check(FSCANTREE_RECUR) && (!is_link || Flags.Check(FSCANTREE_SCANSYMLINK)))
+		const auto is_link = os::fs::is_directory_symbolic_link(fdata);
+		if ((fdata.Attributes&FILE_ATTRIBUTE_DIRECTORY) && Flags.Check(FSCANTREE_RECUR) && (!is_link || Flags.Check(FSCANTREE_SCANSYMLINK)))
 		{
-			string RealPath(ScanItems.back().RealPath);
-			AddEndSlash(RealPath);
-			RealPath += fdata.strFileName;
+			auto RealPath = path::join(ScanItems.back().RealPath, fdata.FileName);
 
-			bool real_path = !is_link || LinkToRealPath(RealPath, RealPath);
+			if (is_link)
+				RealPath = NTPath(ConvertNameToReal(RealPath));
 
 			//recursive symlinks guard
-			if (real_path && !ScanItems.back().ActiveDirectories.count(RealPath))
+			if (!ScanItems.back().ActiveDirectories.count(RealPath))
 			{
 				CutToSlash(strFindPath);
-				append(strFindPath, fdata.strFileName, L'\\', strFindMask);
+				append(strFindPath, fdata.FileName, L'\\', strFindMask);
 
 				CutToSlash(strFindPathOriginal);
-				strFindPathOriginal += fdata.strFileName;
+				strFindPathOriginal += fdata.FileName;
 
 				strFullName = strFindPathOriginal;
 				AddEndSlash(strFindPathOriginal);
@@ -244,7 +226,7 @@ bool ScanTree::GetNextName(os::fs::find_data& fdata,string &strFullName)
 
 	strFullName = strFindPathOriginal;
 	CutToSlash(strFullName);
-	strFullName += fdata.strFileName;
+	strFullName += fdata.FileName;
 
 	return true;
 }
@@ -259,7 +241,7 @@ void ScanTree::SkipDir()
 		if (!Flags.Check(FSCANTREE_SCANSYMLINK) &&
 			Current.Find &&
 			Current.Iterator != Current.Find->end() &&
-			(Current.Iterator->dwFileAttributes & (FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_REPARSE_POINT)) == (FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_REPARSE_POINT)
+			os::fs::is_directory_symbolic_link(*Current.Iterator)
 			)
 		{
 			// The current item is a directory link but we don't treat it as a directory so it's nothing to skip

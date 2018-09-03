@@ -35,6 +35,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "common/range.hpp"
+
 namespace os
 {
 	enum
@@ -58,18 +60,18 @@ namespace os
 		template<typename buffer_type, typename receiver, typename condition, typename assigner>
 		bool ApiDynamicReceiver(buffer_type&& Buffer, const receiver& Receiver, const condition& Condition, const assigner& Assigner)
 		{
-			auto Size = Receiver(Buffer.get(), Buffer.size());
+			size_t Size = Receiver({ Buffer.get(), Buffer.size() });
 
 			while (Condition(Size, Buffer.size()))
 			{
 				Buffer.reset(Size? Size : Buffer.size() * 2);
-				Size = Receiver(Buffer.get(), Buffer.size());
+				Size = Receiver({ Buffer.get(), Buffer.size() });
 			}
 
 			if (!Size)
 				return false;
 
-			Assigner(Buffer.get(), Size);
+			Assigner({ Buffer.get(), Size });
 			return true;
 		}
 
@@ -88,9 +90,9 @@ namespace os
 					// It's Callable's responsibility to handle and fix that.
 					return ReturnedSize >= AllocatedSize;
 				},
-				[&](const wchar_t* Buffer, size_t Size)
+				[&](range<const wchar_t*> Buffer)
 				{
-					Destination.assign(Buffer, Size);
+					Destination.assign(ALL_CONST_RANGE(Buffer));
 				});
 		}
 
@@ -104,9 +106,9 @@ namespace os
 				{
 					return !ReturnedSize && GetLastError() == ExpectedErrorCode;
 				},
-				[&](const wchar_t* Buffer, size_t Size)
+				[&](range<const wchar_t*> Buffer)
 				{
-					Destination.assign(Buffer, Size);
+					Destination.assign(ALL_CONST_RANGE(Buffer));
 				});
 		}
 
@@ -122,7 +124,7 @@ namespace os
 			constexpr handle_t(std::nullptr_t) {}
 			explicit handle_t(HANDLE Handle): base_type(normalise(Handle)) {}
 			void reset(HANDLE Handle = nullptr) { base_type::reset(normalise(Handle)); }
-			auto native_handle() const { return base_type::get(); }
+			HANDLE native_handle() const { return base_type::get(); }
 			void close() { reset(); }
 			bool wait(std::chrono::milliseconds Timeout) const { return WaitForSingleObject(native_handle(), Timeout.count()) == WAIT_OBJECT_0; }
 			bool wait() const { return WaitForSingleObject(native_handle(), INFINITE) == WAIT_OBJECT_0; }
@@ -141,23 +143,19 @@ namespace os
 		{
 			void operator()(HANDLE Handle) const;
 		};
-
-		struct sid_deleter
-		{
-			void operator()(PSID Sid) const noexcept
-			{
-				FreeSid(Sid);
-			}
-		};
 	}
 
 	using handle = detail::handle_t<detail::handle_closer>;
-
 	using printer_handle = detail::handle_t<detail::printer_handle_closer>;
+
+	void set_error_mode(unsigned Mask);
+	void unset_error_mode(unsigned Mask);
 
 	NTSTATUS GetLastNtStatus();
 
-	bool WNetGetConnection(const string& LocalName, string &RemoteName);
+	string GetErrorString(bool Nt, DWORD Code);
+
+	bool WNetGetConnection(string_view LocalName, string &RemoteName);
 
 	void EnableLowFragmentationHeap();
 
@@ -176,8 +174,8 @@ namespace os
 	bool GetUserName(string& Name);
 	bool GetUserNameEx(EXTENDED_NAME_FORMAT NameFormat, string& Name);
 
-
-	string GetLocaleValue(LCID lcid, LCTYPE id);
+	bool get_locale_value(LCID LcId, LCTYPE Id, string& Value);
+	bool get_locale_value(LCID LcId, LCTYPE Id, int& Value);
 
 	handle OpenCurrentThread();
 
@@ -188,20 +186,20 @@ namespace os
 	// Run-Time Dynamic Linking
 	namespace rtdl
 	{
-		class module: public conditional<module>
+		class module
 		{
 		public:
 			NONCOPYABLE(module);
 			MOVABLE(module);
 
-			explicit module(string name, bool AlternativeLoad = false):
-				m_name(std::move(name)),
+			explicit module(string_view const Name, bool AlternativeLoad = false):
+				m_name(ALL_CONST_RANGE(Name)),
 				m_tried(),
 				m_AlternativeLoad(AlternativeLoad)
 			{}
 
 			void* GetProcAddress(const char* name) const { return reinterpret_cast<void*>(::GetProcAddress(get_module(), name)); }
-			bool operator!() const noexcept { return !get_module(); }
+			explicit operator bool() const noexcept { return get_module() != nullptr; }
 
 		private:
 			HMODULE get_module() const;
@@ -220,14 +218,29 @@ namespace os
 		{
 		public:
 			function_pointer(const module& Module, const char* Name):
-				m_module(Module),
-				m_pointer(reinterpret_cast<T>(m_module.GetProcAddress(Name)))
+				m_Module(&Module),
+				m_Name(Name)
 			{}
-			operator T() const { return m_pointer; }
+
+			operator T() const { return get_pointer(); }
+			explicit operator bool() const noexcept { return get_pointer() != nullptr; }
 
 		private:
-			const module& m_module;
-			mutable T m_pointer;
+			T get_pointer() const
+			{
+				if (!m_Tried)
+				{
+					m_Pointer = reinterpret_cast<T>(m_Module->GetProcAddress(m_Name));
+					m_Tried = true;
+				}
+
+				return m_Pointer;
+			}
+
+			const module* m_Module;
+			const char* m_Name;
+			mutable T m_Pointer{};
+			mutable bool m_Tried{};
 		};
 	}
 
@@ -254,11 +267,11 @@ namespace os
 		class initialize: noncopyable
 		{
 		public:
-			initialize(): m_hr(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED)) {}
-			~initialize() { if (SUCCEEDED(m_hr)) CoUninitialize(); }
+			initialize();
+			~initialize();
 
 		private:
-			const HRESULT m_hr;
+			const bool m_Initialised;
 		};
 
 		namespace detail
@@ -271,16 +284,23 @@ namespace os
 					Object->Release();
 				}
 			};
+
+			struct memory_releaser
+			{
+				void operator()(const void* Object) const;
+			};
 		}
 
 		template<typename T>
 		using ptr = std::unique_ptr<T, detail::releaser<T>>;
+
+		template<typename T>
+		using memory = std::unique_ptr<std::remove_pointer_t<T>, detail::memory_releaser>;
 	}
 }
 
 UUID CreateUuid();
 string GuidToStr(const GUID& Guid);
-bool StrToGuid(const wchar_t* Value,GUID& Guid);
-inline bool StrToGuid(const string& Value, GUID& Guid) { return StrToGuid(Value.data(), Guid); }
+bool StrToGuid(string_view Value, GUID& Guid);
 
 #endif // PLATFORM_HPP_632CB91D_08A9_4793_8FC7_2E38C30CE234

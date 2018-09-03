@@ -31,8 +31,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
+#include "print.hpp"
 
 #include "panel.hpp"
 #include "vmenu.hpp"
@@ -41,24 +40,23 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "savescr.hpp"
 #include "ctrlobj.hpp"
 #include "TPreRedrawFunc.hpp"
-#include "syslog.hpp"
 #include "interf.hpp"
 #include "message.hpp"
-#include "print.hpp"
 #include "delete.hpp"
-#include "pathmix.hpp"
 #include "mix.hpp"
 #include "lang.hpp"
 #include "plugins.hpp"
-#include "colormix.hpp"
 #include "strmix.hpp"
+#include "global.hpp"
 
-#define PRINTER_INFO_LEVEL 4
-#define DETAIL_PRINTER_INFO_N_IMPL(level) PRINTER_INFO_##level##W
-#define PRINTER_INFO_N(level) DETAIL_PRINTER_INFO_N_IMPL(level)
-#define PRINTER_INFO PRINTER_INFO_N(PRINTER_INFO_LEVEL)
+#include "platform.fs.hpp"
 
-static void AddToPrintersMenu(VMenu2 *PrinterList, const PRINTER_INFO *pi, int PrinterNumber)
+#include "common/io.hpp"
+#include "common/range.hpp"
+
+#include "format.hpp"
+
+static void AddToPrintersMenu(VMenu2 *PrinterList, range<const PRINTER_INFO_4W*> Printers)
 {
 	// Получаем принтер по умолчанию
 	string strDefaultPrinter;
@@ -68,7 +66,7 @@ static void AddToPrintersMenu(VMenu2 *PrinterList, const PRINTER_INFO *pi, int P
 	bool bDefaultPrinterFound = false;
 
 	// Заполняем список принтеров
-	for (const auto& printer: make_range(pi, PrinterNumber))
+	for (const auto& printer: Printers)
 	{
 		MenuItemEx Item(printer.pPrinterName);
 
@@ -78,7 +76,7 @@ static void AddToPrintersMenu(VMenu2 *PrinterList, const PRINTER_INFO *pi, int P
 			Item.SetCheck(TRUE);
 			Item.SetSelect(TRUE);
 		}
-		Item.UserData = Item.strName;
+		Item.ComplexUserData = Item.Name;
 		PrinterList->AddItem(Item);
 	}
 
@@ -88,112 +86,72 @@ static void AddToPrintersMenu(VMenu2 *PrinterList, const PRINTER_INFO *pi, int P
 
 void PrintFiles(FileList* SrcPanel)
 {
-	_ALGO(CleverSysLog clv(L"Alt-F5 (PrintFiles)"));
-	string strPrinterName;
-	DWORD Needed = 0, Returned;
-	size_t DirsCount=0;
-	size_t SelCount=SrcPanel->GetSelCount();
-
-	if (!SelCount)
+	try
 	{
-		_ALGO(SysLog(L"Error: !SelCount"));
-		return;
-	}
-
-	// проверка каталогов
-	{
-		_ALGO(SysLog(L"Check for FILE_ATTRIBUTE_DIRECTORY"));
-		DWORD FileAttr;
-		string strSelName;
-		SrcPanel->GetSelName(nullptr, FileAttr);
-		while (SrcPanel->GetSelName(&strSelName, FileAttr))
-		{
-			if (TestParentFolderName(strSelName) || (FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-				DirsCount++;
-		}
-	}
-
-	if (DirsCount==SelCount)
-		return;
-
-	EnumPrinters(PRINTER_ENUM_LOCAL | PRINTER_ENUM_CONNECTIONS, nullptr, PRINTER_INFO_LEVEL, nullptr, 0, &Needed, &Returned);
-
-	if (!Needed)
-		return;
-
-	block_ptr<PRINTER_INFO> pi(Needed);
-
-	if (!EnumPrinters(PRINTER_ENUM_LOCAL | PRINTER_ENUM_CONNECTIONS, nullptr, PRINTER_INFO_LEVEL, reinterpret_cast<BYTE*>(pi.get()), Needed, &Needed, &Returned))
-	{
-		const auto ErrorState = error_state::fetch();
-
-		Message(MSG_WARNING, ErrorState,
-			msg(lng::MPrintTitle),
-			{
-				msg(lng::MCannotEnumeratePrinters)
-			},
-			{ lng::MOk });
-		return;
-	}
-
-	{
-		_ALGO(CleverSysLog clv2(L"Show Menu"));
-		string strTitle;
-		if (SelCount==1)
-		{
-			DWORD FileAttr;
-			string strSelName;
-			SrcPanel->GetSelName(nullptr,FileAttr);
-			SrcPanel->GetSelName(&strSelName, FileAttr);
-			strSelName = inplace::quote_unconditional(TruncStr(strSelName, 50));
-			strTitle = format(lng::MPrintTo, strSelName);
-		}
-		else
-		{
-			_ALGO(SysLog(L"Correct: SelCount-=DirsCount"));
-			SelCount-=DirsCount;
-			strTitle = format(lng::MPrintFilesTo, SelCount);
-		}
-
-		const auto PrinterList = VMenu2::create(strTitle, nullptr, 0, ScrY - 4);
-		PrinterList->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
-		PrinterList->SetPosition(-1,-1,0,0);
-		AddToPrintersMenu(PrinterList.get(), pi.get(), Returned);
-
-		if (PrinterList->Run()<0)
-		{
-			_ALGO(SysLog(L"ESC"));
+		const auto SelCount = SrcPanel->GetSelCount();
+		if (!SelCount)
 			return;
+
+		const auto Enumerator = SrcPanel->enum_selected();
+		const auto DirsCount = std::accumulate(ALL_CONST_RANGE(Enumerator), size_t{}, [](size_t Count, const os::fs::find_data& i)
+		{
+			return Count + (i.Attributes & FILE_ATTRIBUTE_DIRECTORY? 1 : 0);
+		});
+
+		if (DirsCount == SelCount)
+			return;
+
+		DWORD Needed = 0, Returned;
+		EnumPrinters(PRINTER_ENUM_LOCAL | PRINTER_ENUM_CONNECTIONS, nullptr, 4, nullptr, 0, &Needed, &Returned);
+
+		if (!Needed)
+			return;
+
+		block_ptr<PRINTER_INFO_4W> pi(Needed);
+
+		if (!EnumPrinters(PRINTER_ENUM_LOCAL | PRINTER_ENUM_CONNECTIONS, nullptr, 4, reinterpret_cast<BYTE*>(pi.get()), Needed, &Needed, &Returned))
+			throw MAKE_FAR_EXCEPTION(msg(lng::MCannotEnumeratePrinters));
+
+		string strPrinterName;
+
+		{
+			string strTitle;
+			if (SelCount == 1)
+			{
+				os::fs::find_data Data;
+				if (!SrcPanel->get_first_selected(Data))
+					return;
+
+				auto Name = Data.FileName;
+				strTitle = format(msg(lng::MPrintTo), inplace::quote_unconditional(TruncStr(Name, 50)));
+			}
+			else
+			{
+				strTitle = format(msg(lng::MPrintFilesTo), SelCount - DirsCount);
+			}
+
+			const auto PrinterList = VMenu2::create(strTitle, {}, ScrY - 4);
+			PrinterList->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
+			PrinterList->SetPosition(-1, -1, 0, 0);
+			AddToPrintersMenu(PrinterList.get(), { pi.get(), Returned });
+
+			if (PrinterList->Run() < 0)
+				return;
+
+		if (const auto NamePtr = PrinterList->GetComplexUserDataPtr<string>())
+				strPrinterName = *NamePtr;
 		}
 
-		if (const auto NamePtr = PrinterList->GetUserDataPtr<string>())
-			strPrinterName = *NamePtr;
-	}
+		os::printer_handle Printer;
 
-	os::printer_handle Printer;
+		if (!OpenPrinter(UNSAFE_CSTR(strPrinterName), &ptr_setter(Printer), nullptr))
+			throw MAKE_FAR_EXCEPTION(msg(lng::MCannotOpenPrinter));
 
-	if (!OpenPrinter(UNSAFE_CSTR(strPrinterName), &ptr_setter(Printer), nullptr))
-	{
-		const auto ErrorState = error_state::fetch();
-
-		Message(MSG_WARNING, ErrorState,
-			msg(lng::MPrintTitle),
-			{
-				msg(lng::MCannotOpenPrinter),
-				strPrinterName
-			},
-			{ lng::MOk });
-		_ALGO(SysLog(L"Error: Cannot Open Printer"));
-		return;
-	}
-
-	{
-		_ALGO(CleverSysLog clv3(L"Print selected Files"));
 		SCOPED_ACTION(SaveScreen);
 
 		const auto& PR_PrintMsg = []
 		{
-			Message(0, 
+			Message(0,
 				msg(lng::MPrintTitle),
 				{
 					msg(lng::MPreparingForPrinting)
@@ -205,86 +163,93 @@ void PrintFiles(FileList* SrcPanel)
 		SetCursorType(false, 0);
 		PR_PrintMsg();
 		const auto hPlugin = SrcPanel->GetPluginHandle();
-		int PluginMode = SrcPanel->GetMode() == panel_mode::PLUGIN_PANEL &&
-		               !Global->CtrlObject->Plugins->UseFarCommand(hPlugin,PLUGIN_FARGETFILE);
+		const auto PluginMode = SrcPanel->GetMode() == panel_mode::PLUGIN_PANEL && !Global->CtrlObject->Plugins->UseFarCommand(hPlugin, PLUGIN_FARGETFILE);
 
-		DWORD FileAttr;
-		string strSelName;
-		SrcPanel->GetSelName(nullptr,FileAttr);
-		while (SrcPanel->GetSelName(&strSelName,FileAttr))
+		for (const auto& i : SrcPanel->enum_selected())
 		{
-			if (TestParentFolderName(strSelName) || (FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+			if (i.Attributes & FILE_ATTRIBUTE_DIRECTORY)
 				continue;
 
-			int Success=FALSE;
+			delayed_deleter Deleter;
+
 			string FileName;
-			string strTempDir, strTempName;
 
 			if (PluginMode)
 			{
-				if (FarMkTempEx(strTempDir))
-				{
-					os::fs::create_directory(strTempDir);
-					if (const auto ListItem = SrcPanel->GetLastSelectedItem())
-					{
-						PluginPanelItemHolder PanelItem;
-						SrcPanel->FileListToPluginItem(*ListItem, PanelItem);
+				const auto strTempDir = MakeTemp();
+				if (!os::fs::create_directory(strTempDir))
+					throw MAKE_FAR_EXCEPTION(L"create_directory error"sv);
 
-						if (Global->CtrlObject->Plugins->GetFile(hPlugin, &PanelItem.Item, strTempDir, strTempName, OPM_SILENT))
-							FileName = strTempName;
-						else
-							os::fs::remove_directory(strTempDir);
-					}
+				const auto ListItem = SrcPanel->GetLastSelectedItem();
+				if (!ListItem)
+					throw MAKE_FAR_EXCEPTION(L"GetLastSelectedItem error"sv);
+
+				PluginPanelItemHolder PanelItem;
+				SrcPanel->FileListToPluginItem(*ListItem, PanelItem);
+
+				if (!Global->CtrlObject->Plugins->GetFile(hPlugin, &PanelItem.Item, strTempDir, FileName, OPM_SILENT))
+				{
+					os::fs::remove_directory(strTempDir);
+					throw MAKE_FAR_EXCEPTION(L"GetFile error"sv);
 				}
+
+				Deleter.set(FileName);
 			}
 			else
-				FileName = strSelName;
-
-			error_state ErrorState;
-
-			if(const auto SrcFile = os::fs::file(FileName, GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
 			{
-				DOC_INFO_1 di1 = {UNSAFE_CSTR(FileName)};
+				FileName = i.FileName;
+			}
 
-				if (StartDocPrinter(Printer.native_handle(), 1, reinterpret_cast<BYTE*>(&di1)))
+			try
+			{
+				const auto SrcFile = os::fs::file(FileName, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING);
+				if (!SrcFile)
+					throw MAKE_FAR_EXCEPTION(L"Cannot open file"sv);
+
+				os::fs::filebuf StreamBuffer(SrcFile, std::ios::in);
+				std::istream Stream(&StreamBuffer);
+				Stream.exceptions(Stream.badbit | Stream.failbit);
+
+				DOC_INFO_1 di1{ UNSAFE_CSTR(FileName) };
+
+				if (!StartDocPrinter(Printer.native_handle(), 1, reinterpret_cast<BYTE*>(&di1)))
+					throw MAKE_FAR_EXCEPTION(L"StartDocPrinter error"sv);
+
+				SCOPE_EXIT{ EndDocPrinter(Printer.native_handle()); };
+
+				for (;;)
 				{
 					char Buffer[8192];
-					size_t Read;
+					const auto Read = io::read(Stream, Buffer);
+					if (!Read)
+						break;
+
 					DWORD Written;
-					Success=TRUE;
-
-					while (SrcFile.Read(Buffer, sizeof(Buffer), Read) && Read > 0)
-					{
-						if (!WritePrinter(Printer.native_handle(), Buffer, static_cast<DWORD>(Read), &Written))
-						{
-							ErrorState = error_state::fetch();
-							Success = FALSE;
-							break;
-						}
-					}
-					EndDocPrinter(Printer.native_handle());
+					if (!WritePrinter(Printer.native_handle(), Buffer, static_cast<DWORD>(Read), &Written))
+						throw MAKE_FAR_EXCEPTION(L"WritePrinter error"sv);
 				}
-			}
 
-			if (!strTempName.empty())
-			{
-				DeleteFileWithFolder(strTempName);
-			}
-
-			if (Success)
 				SrcPanel->ClearLastGetSelection();
-			else
+			}
+			catch (const far_exception& e)
 			{
-				if (Message(MSG_WARNING, ErrorState,
+				if (Message(MSG_WARNING, e.get_error_state(),
 					msg(lng::MPrintTitle),
 					{
 						msg(lng::MCannotPrint),
-						strSelName
+						i.FileName
 					},
 					{ lng::MSkip, lng::MCancel }) != Message::first_button)
 					break;
 			}
 		}
+	}
+	catch (const far_exception& e)
+	{
+		Message(MSG_WARNING, e.get_error_state(),
+			msg(lng::MPrintTitle),
+			{},
+			{ lng::MOk });
 	}
 
 	SrcPanel->Redraw();

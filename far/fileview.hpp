@@ -51,22 +51,23 @@ public:
 		const wchar_t *Title, int X1, int Y1, int X2, int Y2, uintptr_t aCodePage = CP_DEFAULT);
 
 	FileViewer(private_tag, int DisableEdit, const wchar_t *Title);
-	virtual ~FileViewer() override;
+	~FileViewer() override;
 
-	virtual void InitKeyBar() override;
-	virtual bool ProcessKey(const Manager::Key& Key) override;
-	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual long long VMProcess(int OpCode,void *vParam=nullptr,long long iParam=0) override;
-	virtual void ShowConsoleTitle() override;
-	virtual void OnDestroy() override;
-	virtual void OnChangeFocus(bool focus) override;
-	virtual int GetTypeAndName(string &strType, string &strName) override;
-	virtual int GetType() const override { return windowtype_viewer; }
-	/* $ Введена для нужд CtrlAltShift OT */
-	virtual bool CanFastHide() const override;
-	virtual string GetTitle() const override;
-	virtual Viewer* GetViewer(void) override;
-	virtual Viewer* GetById(int ID) override;
+	void InitKeyBar() override;
+	bool ProcessKey(const Manager::Key& Key) override;
+	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	long long VMProcess(int OpCode,void *vParam=nullptr,long long iParam=0) override;
+	void ShowConsoleTitle() override;
+	void OnDestroy() override;
+	void OnChangeFocus(bool focus) override;
+	int GetTypeAndName(string &strType, string &strName) override;
+	int GetType() const override { return windowtype_viewer; }
+	bool CanFastHide() const override;
+	string GetTitle() const override;
+	bool IsKeyBarVisible() const override;
+	bool IsTitleBarVisible() const override;
+	Viewer* GetViewer() override;
+	Viewer* GetById(int ID) override;
 
 	/* $ 14.06.2002 IS
 	   Параметр DeleteFolder - удалить не только файл, но и каталог, его
@@ -86,13 +87,12 @@ public:
 	long long GetViewFilePos() const;
 	void ShowStatus() const;
 	int GetId() const { return m_View->ViewerID; }
-	void OnReload(void);
-	void ReadEvent(void);
-
+	void OnReload();
+	void ReadEvent();
 
 private:
-	virtual void Show() override;
-	virtual void DisplayObject() override;
+	void Show() override;
+	void DisplayObject() override;
 
 	void Init(const string& Name, bool EnableSwitch, int DisableHistory, long long ViewStartPos, const wchar_t *PluginData, NamesList *ViewNamesList, bool ToSaveAs, uintptr_t aCodePage, window_ptr Update = nullptr);
 

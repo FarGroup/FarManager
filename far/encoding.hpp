@@ -37,89 +37,45 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace encoding
 {
-#define NOT_PTR(T) typename T, REQUIRES(!std::is_pointer<T>::value)
-
-	//-------------------------------------------------------------------------
-	size_t get_bytes(uintptr_t Codepage, const wchar_t* Data, size_t Size, char* Buffer, size_t BufferSize, bool* UsedDefaultChar = nullptr);
-
-	inline auto get_bytes(uintptr_t Codepage, const string_view& Data, char* Buffer, size_t BufferSize, bool* UsedDefaultChar = nullptr)
+	namespace codepage
 	{
-		return get_bytes(Codepage, Data.raw_data(), Data.size(), Buffer, BufferSize, UsedDefaultChar);
+		uintptr_t ansi();
+		uintptr_t oem();
+	}
+
+	size_t get_bytes(uintptr_t Codepage, string_view Str, char* Buffer, size_t BufferSize, bool* UsedDefaultChar = nullptr);
+
+	template<typename T>
+	auto get_bytes(uintptr_t const Codepage, string_view const Str, T& Buffer, bool* const UsedDefaultChar = nullptr)
+	{
+		return get_bytes(Codepage, Str, std::data(Buffer), std::size(Buffer), UsedDefaultChar);
+	}
+
+	std::string get_bytes(uintptr_t Codepage, string_view Str, bool* UsedDefaultChar = nullptr);
+
+	inline auto get_bytes_count(uintptr_t const Codepage, string_view const Str)
+	{
+		return get_bytes(Codepage, Str, nullptr, 0);
 	}
 
 	//-------------------------------------------------------------------------
-	template<NOT_PTR(T)>
-	auto get_bytes(uintptr_t Codepage, const wchar_t* Data, size_t Size, T& Buffer, bool* UsedDefaultChar = nullptr)
+
+	size_t get_chars(uintptr_t Codepage, std::string_view Str, wchar_t* Buffer, size_t BufferSize);
+
+	template<typename T>
+	auto get_chars(uintptr_t const Codepage, std::string_view const Str, T& Buffer)
 	{
-		return get_bytes(Codepage, Data, Size, std::data(Buffer), std::size(Buffer), UsedDefaultChar);
+		return get_chars(Codepage, Str, std::data(Buffer), std::size(Buffer));
 	}
 
-	template<NOT_PTR(T)>
-	auto get_bytes(uintptr_t Codepage, const string_view& Data, T& Buffer, bool* UsedDefaultChar = nullptr)
-	{
-		return get_bytes(Codepage, Data.raw_data(), Data.size(), std::data(Buffer), std::size(Buffer), UsedDefaultChar);
-	}
+	string get_chars(uintptr_t Codepage, std::string_view Str);
 
-	//-------------------------------------------------------------------------
-	std::string get_bytes(uintptr_t Codepage, const wchar_t* Data, size_t Size, bool* UsedDefaultChar = nullptr);
-
-	inline auto get_bytes(uintptr_t Codepage, const string_view& Data, bool* UsedDefaultChar = nullptr)
+	inline auto get_chars_count(uintptr_t const Codepage, std::string_view const Str)
 	{
-		return get_bytes(Codepage, Data.raw_data(), Data.size(), UsedDefaultChar);
+		return get_chars(Codepage, Str, nullptr, 0);
 	}
 
 	//-------------------------------------------------------------------------
-	inline auto get_bytes_count(uintptr_t Codepage, const wchar_t* Data, size_t Size)
-	{
-		return get_bytes(Codepage, Data, Size, nullptr, 0);
-	}
-
-	inline auto get_bytes_count(uintptr_t Codepage, const string_view& Data)
-	{
-		return get_bytes_count(Codepage, Data.raw_data(), Data.size());
-	}
-
-	//-------------------------------------------------------------------------
-	size_t get_chars(uintptr_t Codepage, const char* Data, size_t Size, wchar_t* Buffer, size_t BufferSize);
-
-	inline auto get_chars(uintptr_t Codepage, const basic_string_view<char>& Data, wchar_t* Buffer, size_t BufferSize)
-	{
-		return get_chars(Codepage, Data.raw_data(), Data.size(), Buffer, BufferSize);
-	}
-
-	//-------------------------------------------------------------------------
-	template<NOT_PTR(Y)>
-	auto get_chars(uintptr_t Codepage, const basic_string_view<char>& Data, Y& Buffer)
-	{
-		return get_chars(Codepage, Data.raw_data(), Data.size(), std::data(Buffer), std::size(Buffer));
-	}
-
-	template<NOT_PTR(T)>
-	auto get_chars(uintptr_t Codepage, const char* Data, size_t Size, T& Buffer)
-	{
-		return get_chars(Codepage, Data, Size, std::data(Buffer), std::size(Buffer));
-	}
-
-	//-------------------------------------------------------------------------
-	string get_chars(uintptr_t Codepage, const char* Data, size_t Size);
-
-	inline auto get_chars(uintptr_t Codepage, const basic_string_view<char>& Data)
-	{
-		return get_chars(Codepage, Data.raw_data(), Data.size());
-	}
-
-	//-------------------------------------------------------------------------
-	inline auto get_chars_count(uintptr_t Codepage, const char* Data, size_t Size)
-	{
-		return get_chars(Codepage, Data, Size, nullptr, 0);
-	}
-
-	inline auto get_chars_count(uintptr_t Codepage, const basic_string_view<char>& Data)
-	{
-		return get_chars_count(Codepage, Data.raw_data(), Data.size());
-	}
-
-#undef NOT_PTR
 
 	namespace detail
 	{
@@ -128,34 +84,49 @@ namespace encoding
 		{
 		public:
 			template<class... args>
-			static auto get_bytes_count(args&&... Args) { return encoding::get_bytes_count(Codepage, FWD(Args)...); }
+			static auto get_bytes_count(string_view Str, args&&... Args) { return encoding::get_bytes_count(Codepage, Str, FWD(Args)...); }
 
 			template<class... args>
-			static auto get_bytes(args&&... Args) { return encoding::get_bytes(Codepage, FWD(Args)...); }
+			static auto get_bytes(string_view Str, args&&... Args) { return encoding::get_bytes(Codepage, Str, FWD(Args)...); }
 
 			template<class... args>
-			static auto get_chars_count(args&&... Args) { return encoding::get_chars_count(Codepage, FWD(Args)...); }
+			static auto get_chars_count(std::string_view Str, args&&... Args) { return encoding::get_chars_count(Codepage, Str, FWD(Args)...); }
 
 			template<class... args>
-			static auto get_chars(args&&... Args) { return encoding::get_chars(Codepage, FWD(Args)...); }
+			static auto get_chars(std::string_view Str, args&&... Args) { return encoding::get_chars(Codepage, Str, FWD(Args)...); }
 		};
 	}
 
 	using utf8 = detail::codepage<CP_UTF8>;
 	using ansi = detail::codepage<CP_ACP>;
 	using oem = detail::codepage<CP_OEMCP>;
+
+	std::string_view get_signature_bytes(uintptr_t Cp);
+
+	class writer
+	{
+	public:
+		NONCOPYABLE(writer);
+		writer(std::ostream& Stream, uintptr_t Codepage, bool AddSignature = true);
+		void write(string_view Str);
+
+	private:
+		std::vector<char> m_Buffer;
+		std::ostream* m_Stream;
+		uintptr_t m_Codepage;
+		bool m_AddSignature;
+	};
+
+	bool is_valid_utf8(std::string_view Str, bool PartialContent, bool& PureAscii);
 }
 
 void swap_bytes(const void* Src, void* Dst, size_t SizeInBytes);
 
-inline bool IsVirtualCodePage(uintptr_t cp) { return cp == CP_DEFAULT || cp == CP_REDETECT || cp == CP_SET; }
-inline bool IsUnicodeCodePage(uintptr_t cp) { return cp == CP_UNICODE || cp == CP_REVERSEBOM; }
-inline bool IsStandardCodePage(uintptr_t cp) { return IsUnicodeCodePage(cp) || cp == CP_UTF8 || cp == GetOEMCP() || cp == GetACP(); }
-inline bool IsUnicodeOrUtfCodePage(uintptr_t cp) { return IsUnicodeCodePage(cp) || cp==CP_UTF8 || cp==CP_UTF7; }
-
-// See https://msdn.microsoft.com/en-us/library/windows/desktop/dd319072.aspx
-inline bool IsNoFlagsCodepage(uintptr_t cp) { return (cp >= 50220 && cp <= 50222) || cp == 50225 || cp == 50227 || cp == 50229 || (cp >= 57002 && cp <= 57011) || cp == CP_UTF7 || cp == CP_SYMBOL; }
-
+bool IsVirtualCodePage(uintptr_t cp);
+bool IsUnicodeCodePage(uintptr_t cp);
+bool IsStandardCodePage(uintptr_t cp);
+bool IsUnicodeOrUtfCodePage(uintptr_t cp);
+bool IsNoFlagsCodepage(uintptr_t cp);
 
 //#############################################################################
 
@@ -195,19 +166,19 @@ namespace Utf
 		Conversion;
 	};
 
-	size_t get_chars(uintptr_t Codepage, const char* Str, size_t StrSize, wchar_t* Buffer, size_t BufferSize, errors* Errors);
+	size_t get_chars(uintptr_t Codepage, std::string_view Str, wchar_t* Buffer, size_t BufferSize, errors* Errors);
 }
 
 namespace Utf8
 {
-	// returns the number of decoded chars, 1 or 2. Moves the DataIterator forward as required.
-	size_t get_char(const char*& DataIterator, const char* const DataEnd, wchar_t& First, wchar_t& Second);
+	// returns the number of decoded chars, 1 or 2. Moves the StrIterator forward as required.
+	size_t get_char(std::string_view::const_iterator& StrIterator, std::string_view::const_iterator StrEnd, wchar_t& First, wchar_t& Second);
 	// returns the number of decoded chars, up to the BufferSize. Stops on buffer overflow. Tail contains the number of unprocessed bytes.
-	size_t get_chars(const char* Str, size_t StrSize, wchar_t* Buffer, size_t BufferSize, int& Tail);
+	size_t get_chars(std::string_view Str, wchar_t* Buffer, size_t BufferSize, int& Tail);
 	// returns the required buffer size. Fills Buffer up to the BufferSize.
-	size_t get_chars(const char* Str, size_t StrSize, wchar_t* Buffer, size_t BufferSize, Utf::errors* Errors);
+	size_t get_chars(std::string_view Str, wchar_t* Buffer, size_t BufferSize, Utf::errors* Errors);
 	// returns the required buffer size. Fills Buffer up to the BufferSize.
-	size_t get_bytes(const wchar_t* Str, size_t StrSize, char* Buffer, size_t BufferSize);
+	size_t get_bytes(string_view Str, char* Buffer, size_t BufferSize);
 }
 
 //#############################################################################
@@ -227,7 +198,7 @@ private:
 	static char to(uintptr_t Codepage, wchar_t WideChar)
 	{
 		char Char = WideChar;
-		encoding::get_bytes(Codepage, &WideChar, 1, &Char, 1);
+		encoding::get_bytes(Codepage, { &WideChar, 1 }, &Char, 1);
 		return Char;
 	}
 

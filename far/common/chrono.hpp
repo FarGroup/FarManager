@@ -37,22 +37,35 @@ class split_duration: public std::tuple<tuple_types...>
 {
 public:
 	template<typename duration_type>
-	split_duration(duration_type Duration)
+	explicit split_duration(duration_type Duration)
 	{
 		split<0, duration_type, tuple_types...>(Duration);
 	}
 
+	template<typename type>
+	type& get()
+	{
+		// This idiotic cast to std::tuple is for clang
+		return std::get<type>(static_cast<std::tuple<tuple_types...>&>(*this));
+	}
+
+	template<typename type>
+	const type& get() const
+	{
+		// This idiotic cast to std::tuple is for clang
+		return std::get<type>(static_cast<const std::tuple<tuple_types...>&>(*this));
+	}
+
 private:
 	template<size_t Index, typename duration_type>
-	void split(duration_type) const
-	{
-	}
+	void split(duration_type) const {}
 
 	template<size_t Index, typename duration_type, typename arg, typename... args>
 	void split(duration_type Duration)
 	{
 		const auto Value = std::chrono::duration_cast<arg>(Duration);
-		std::get<Index>(*this) = Value;
+		// This idiotic cast to std::tuple is for clang
+		std::get<Index>(static_cast<std::tuple<tuple_types...>&>(*this)) = Value;
 		split<Index + 1, duration_type, args...>(Duration - Value);
 	}
 };

@@ -41,7 +41,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "namelist.hpp"
 #include "codepage_selection.hpp"
 
-struct error_state;
+#include "platform.fs.hpp"
+
+struct error_state_ex;
 
 // коды возврата Editor::SaveFile()
 enum
@@ -76,17 +78,17 @@ class FileEditor: public window,public EditorContainer
 	struct private_tag {};
 
 public:
-	static fileeditor_ptr create(const string&  Name, uintptr_t codepage, DWORD InitFlags, int StartLine = -1, int StartChar = -1, const string* PluginData = nullptr, EDITOR_FLAGS OpenModeExstFile = EF_OPENMODE_QUERY);
-	static fileeditor_ptr create(const string&  Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* Title, int X1, int Y1, int X2, int Y2, int DeleteOnClose = 0, const window_ptr& Update = nullptr, EDITOR_FLAGS OpenModeExstFile = EF_OPENMODE_QUERY);
+	static fileeditor_ptr create(string_view Name, uintptr_t codepage, DWORD InitFlags, int StartLine = -1, int StartChar = -1, const string* PluginData = nullptr, EDITOR_FLAGS OpenModeExstFile = EF_OPENMODE_QUERY);
+	static fileeditor_ptr create(string_view Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* Title, int X1, int Y1, int X2, int Y2, int DeleteOnClose = 0, const window_ptr& Update = nullptr, EDITOR_FLAGS OpenModeExstFile = EF_OPENMODE_QUERY);
 
 	explicit FileEditor(private_tag) {}
-	virtual ~FileEditor() override;
+	~FileEditor() override;
 
-	virtual bool IsFileModified() const override { return m_editor->IsFileModified(); }
-	virtual int GetTypeAndName(string &strType, string &strName) override;
-	virtual long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
-	virtual void Show() override;
-	virtual Editor* GetEditor(void) override;
+	bool IsFileModified() const override { return m_editor->IsFileModified(); }
+	int GetTypeAndName(string &strType, string &strName) override;
+	long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
+	void Show() override;
+	Editor* GetEditor() override;
 
 	void ShowStatus() const;
 	void SetLockEditor(bool LockMode) const;
@@ -98,7 +100,7 @@ public:
 	void SetSaveToSaveAs(bool ToSaveAs) { m_Flags.Change(FFILEEDIT_SAVETOSAVEAS, ToSaveAs); InitKeyBar(); }
 	intptr_t EditorControl(int Command, intptr_t Param1, void *Param2);
 	bool SetCodePage(uintptr_t codepage);  //BUGBUG
-	int  SetCodePage(uintptr_t cp, bool redetect_default, bool ascii2def);
+	bool SetCodePageEx(uintptr_t cp);
 	bool IsFileChanged() const { return m_editor->IsFileChanged(); }
 	void GetEditorOptions(Options::EditorOptions& EdOpt) const;
 	void SetEditorOptions(const Options::EditorOptions& EdOpt) const;
@@ -108,18 +110,20 @@ public:
 	void AutoDeleteColors() const { m_editor->AutoDeleteColors(); }
 
 private:
-	virtual void DisplayObject() override;
-	virtual void InitKeyBar() override;
-	virtual bool ProcessKey(const Manager::Key& Key) override;
-	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual void ShowConsoleTitle() override;
-	virtual void OnChangeFocus(bool focus) override;
-	virtual void SetScreenPosition() override;
-	virtual int GetType() const override { return windowtype_editor; }
-	virtual void OnDestroy() override;
-	virtual bool GetCanLoseFocus(bool DynamicMode = false) const override;
-	virtual bool CanFastHide() const override; // для нужд CtrlAltShift
-	virtual string GetTitle() const override;
+	void DisplayObject() override;
+	void InitKeyBar() override;
+	bool ProcessKey(const Manager::Key& Key) override;
+	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	void ShowConsoleTitle() override;
+	void OnChangeFocus(bool focus) override;
+	void SetScreenPosition() override;
+	int GetType() const override { return windowtype_editor; }
+	void OnDestroy() override;
+	bool GetCanLoseFocus(bool DynamicMode = false) const override;
+	bool CanFastHide() const override; // для нужд CtrlAltShift
+	string GetTitle() const override;
+	bool IsKeyBarVisible() const override;
+	bool IsTitleBarVisible() const override;
 
 	/* Ret:
 		0 - не удалять ничего
@@ -129,21 +133,21 @@ private:
 	void SetDeleteOnClose(int NewMode);
 	bool ReProcessKey(const Manager::Key& Key, bool CalledFromControl = true);
 	bool AskOverwrite(const string& FileName);
-	void Init(const string& Name, uintptr_t codepage, const string* Title, int StartLine, int StartChar, const string* PluginData, int DeleteOnClose, const window_ptr& Update, EDITOR_FLAGS OpenModeExstFile);
-	bool LoadFile(const string& Name, int &UserBreak, error_state& ErrorState);
+	void Init(string_view Name, uintptr_t codepage, const string* Title, int StartLine, int StartChar, const string* PluginData, int DeleteOnClose, const window_ptr& Update, EDITOR_FLAGS OpenModeExstFile);
+	bool LoadFile(const string& Name, int &UserBreak, error_state_ex& ErrorState);
 	bool ReloadFile(uintptr_t codepage);
 	//TextFormat, Codepage и AddSignature используются ТОЛЬКО, если bSaveAs = true!
-	int SaveFile(const string& Name, int Ask, bool bSaveAs, error_state& ErrorState, int TextFormat = 0, uintptr_t Codepage = CP_UNICODE, bool AddSignature = false);
+	int SaveFile(const string& Name, int Ask, bool bSaveAs, error_state_ex& ErrorState, eol::type Eol = eol::type::none, uintptr_t Codepage = CP_UNICODE, bool AddSignature = false);
 	void SetTitle(const string* Title);
-	bool SetFileName(const string& NewFileName);
+	bool SetFileName(string_view NewFileName);
 	int ProcessEditorInput(const INPUT_RECORD& Rec);
 	DWORD EditorGetFileAttributes(const string& Name);
 	void SetPluginData(const string* PluginData);
-	const wchar_t *GetPluginData() const { return strPluginData.data(); }
+	const string& GetPluginData() const { return strPluginData; }
 	bool LoadFromCache(EditorPosCache &pc) const;
 	void SaveToCache() const;
-	void ReadEvent(void);
-	int  ProcessQuitKey(int FirstSave, bool NeedQuestion = true, bool DeleteWindow = true);
+	void ReadEvent();
+	bool ProcessQuitKey(int FirstSave, bool NeedQuestion = true, bool DeleteWindow = true);
 	bool UpdateFileList() const;
 
 	static uintptr_t GetDefaultCodePage();
@@ -172,6 +176,5 @@ private:
 };
 
 bool dlgOpenEditor(string &strFileName, uintptr_t &codepage);
-bool dlgBadEditorCodepage(uintptr_t &codepage);
 
 #endif // FILEEDIT_HPP_4BC43BC9_43BB_4F5B_ADAE_E2C370D65E69

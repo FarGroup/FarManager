@@ -165,6 +165,7 @@
 <?define Guid.arclite_rus.hlf = "59F6FAC7-144A-4E2C-A627-C6F5B93F56A6" ?>
 <?define Guid.arclite_rus.lng = "E0BF8062-4EBB-4711-9451-FC4D2D1F30FD" ?>
 <?define Guid.arclite_spa.lng = "DBABBFE1-00E7-4E00-A1CF-6868A7CBF589" ?>
+<?define Guid.arclite.xml = "D2C17923-DEDE-4803-94F9-9AA91AAB950E" ?>
 <?define Guid.changelog_18 = "446DC157-BD73-4D1C-B4BC-1C9BA63DCB6C" ?>
 <?define Guid.AutoWrap.dll = "984C5B72-FC1B-47FC-BFFC-CFE9D0E79E9F" ?>
 <?define Guid.AutoWrap.map = "84A65255-F0FC-417C-A2D2-947C2A7C096B" ?>

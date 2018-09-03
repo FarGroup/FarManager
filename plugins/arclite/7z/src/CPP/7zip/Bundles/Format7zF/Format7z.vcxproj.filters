@@ -123,6 +123,9 @@
     <Image Include="..\..\Archive\Icons\iso.ico">
       <Filter>Spec\Icons</Filter>
     </Image>
+    <Image Include="..\..\Archive\Icons\lz.ico">
+      <Filter>Spec\Icons</Filter>
+    </Image>
     <Image Include="..\..\Archive\Icons\lzh.ico">
       <Filter>Spec\Icons</Filter>
     </Image>
@@ -278,9 +281,6 @@
     <ClCompile Include="..\..\Compress\ImplodeDecoder.cpp">
       <Filter>Compress\Zip Compress</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Compress\ImplodeHuffmanDecoder.cpp">
-      <Filter>Compress\Zip Compress</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Compress\PpmdZip.cpp">
       <Filter>Compress\Zip Compress</Filter>
     </ClCompile>
@@ -355,6 +355,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Compress\QuantumDecoder.cpp">
       <Filter>Compress\Cab Compress</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Compress\LzfseDecoder.cpp">
+      <Filter>Compress</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Compress\LzhDecoder.cpp">
       <Filter>Compress</Filter>
@@ -918,6 +921,21 @@
       <Filter>Windows</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\common\vc_crt_fix_impl.cpp" />
+    <ClCompile Include="..\..\..\Common\XzCrc64Init.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Compress\XzDecoder.cpp">
+      <Filter>Compress</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Compress\XzEncoder.cpp">
+      <Filter>Compress</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\C\Lzma2DecMt.c">
+      <Filter>C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\C\MtDec.c">
+      <Filter>C</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc">
@@ -1048,9 +1066,6 @@
     <ClInclude Include="..\..\Compress\ImplodeDecoder.h">
       <Filter>Compress\Zip Compress</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Compress\ImplodeHuffmanDecoder.h">
-      <Filter>Compress\Zip Compress</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Compress\PpmdZip.h">
       <Filter>Compress\Zip Compress</Filter>
     </ClInclude>
@@ -1103,6 +1118,9 @@
       <Filter>Compress\Cab Compress</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Compress\HuffmanDecoder.h">
+      <Filter>Compress</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Compress\LzfseDecoder.h">
       <Filter>Compress</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Compress\LzhDecoder.h">
@@ -1564,6 +1582,24 @@
     <ClInclude Include="..\..\..\Windows\TimeUtils.h">
       <Filter>Windows</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Common\MyBuffer2.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Compress\XzDecoder.h">
+      <Filter>Compress</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Compress\XzEncoder.h">
+      <Filter>Compress</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\C\7zBuf.h">
+      <Filter>C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\C\Lzma2DecMt.h">
+      <Filter>C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\C\MtDec.h">
+      <Filter>C</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\Archive\Archive2.def">
@@ -1581,6 +1617,9 @@
       <Filter>Asm</Filter>
     </MASM>
     <MASM Include="..\..\..\..\..\common\vc_crt_fix.asm">
+      <Filter>Asm</Filter>
+    </MASM>
+    <MASM Include="..\..\..\..\Asm\x86\LzmaDecOpt.asm">
       <Filter>Asm</Filter>
     </MASM>
   </ItemGroup>

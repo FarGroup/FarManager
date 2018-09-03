@@ -50,25 +50,25 @@ public:
 	static filepanels_ptr create(bool CreateRealPanels, int DirCount);
 
 	explicit FilePanels(private_tag);
-	virtual ~FilePanels() override;
 
-	virtual bool ProcessKey(const Manager::Key& Key) override;
-	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
-	virtual void SetScreenPosition() override;
-	virtual int GetTypeAndName(string &strType, string &strName) override;
-	virtual int GetType() const override { return windowtype_panels; }
-	virtual void RedrawKeyBar() override;
-	virtual void ShowConsoleTitle() override;
-	virtual void ResizeConsole() override;
-	virtual bool CanFastHide() const override;
-	virtual FARMACROAREA GetMacroArea() const override;
-	virtual void Show() override;
-	virtual void DisplayObject() override;
-	virtual string GetTitle() const override { return {}; }
+	bool ProcessKey(const Manager::Key& Key) override;
+	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
+	void SetScreenPosition() override;
+	int GetTypeAndName(string &strType, string &strName) override;
+	int GetType() const override { return windowtype_panels; }
+	void RedrawKeyBar() override;
+	void ShowConsoleTitle() override;
+	void ResizeConsole() override;
+	bool CanFastHide() const override;
+	FARMACROAREA GetMacroArea() const override;
+	void Show() override;
+	void DisplayObject() override;
+	string GetTitle() const override { return {}; }
 
-	virtual Viewer* GetViewer(void) override;
-	virtual Viewer* GetById(int ID) override;
+	bool IsKeyBarVisible() const override;
+	Viewer* GetViewer() override;
+	Viewer* GetById(int ID) override;
 
 	panel_ptr LeftPanel() const { return m_Panels[panel_left].m_Panel; }
 	panel_ptr RightPanel() const { return m_Panels[panel_right].m_Panel; }
@@ -87,7 +87,7 @@ public:
 	panel_ptr GetAnotherPanel(const Panel* Current) const;
 	panel_ptr ChangePanelToFilled(panel_ptr Current, panel_type NewType);
 	panel_ptr ChangePanel(panel_ptr Current, panel_type NewType, int CreateNew, int Force);
-	void GoToFile(const string_view& FileName);
+	void GoToFile(string_view FileName);
 	bool ChangePanelViewMode(panel_ptr Current, int Mode, bool RefreshWindow);
 	void SetActivePanel(panel_ptr p) { return SetActivePanel(p.get()); }
 	void SetActivePanel(Panel* p);
@@ -98,7 +98,8 @@ public:
 private:
 
 	void Init(int DirCount);
-	void SetActivePanelInternal(panel_ptr p);
+	void SetPassivePanelInternal(panel_ptr ToBePassive);
+	void SetActivePanelInternal(panel_ptr ToBeActive);
 
 	panel_ptr CreatePanel(panel_type Type);
 	void SetPanelPositions(bool LeftFullScreen, bool RightFullScreen) const;

@@ -5,7 +5,7 @@ bool substr_match(const wstring& str, wstring::size_type pos, wstring::const_poi
   if ((pos > str.length()) || (pos + mstr_len > str.length())) {
     return false;
   }
-  return wmemcmp(str.data() + pos, mstr, mstr_len) == 0;
+  return wmemcmp(str.c_str() + pos, mstr, mstr_len) == 0;
 }
 
 wstring word_wrap(const wstring& str, wstring::size_type wrap_bound) {

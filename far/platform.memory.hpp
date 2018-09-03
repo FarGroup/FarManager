@@ -72,7 +72,7 @@ namespace os::memory
 		template<class T>
 		ptr copy(const T& Object)
 		{
-			static_assert(std::is_pod<T>::value);
+			static_assert(std::is_pod_v<T>);
 
 			auto Memory = alloc(GMEM_MOVEABLE, sizeof(Object));
 			if (!Memory)
@@ -95,7 +95,7 @@ namespace os::memory
 		{
 			struct deleter
 			{
-				void operator()(HLOCAL MemoryBlock) const;
+				void operator()(const void* MemoryBlock) const;
 			};
 		};
 

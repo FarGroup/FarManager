@@ -32,18 +32,17 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "dlgedit.hpp"
+
 #include "dialog.hpp"
 #include "history.hpp"
 #include "editcontrol.hpp"
 #include "config.hpp"
 #include "syslog.hpp"
+#include "global.hpp"
 
 DlgEdit::DlgEdit(window_ptr Owner,size_t Index,DLGEDITTYPE Type):
-	SimpleScreenObject(Owner),
+	SimpleScreenObject(std::move(Owner)),
 	LastPartLength(-1),
 	m_Index(Index),
 	Type(Type),
@@ -741,7 +740,7 @@ bool DlgEdit::HistoryGetSimilar(string &strStr, int LastCmdPartLength, bool bApp
 	return iHistory?iHistory->GetSimilar(strStr, LastCmdPartLength, bAppend):false;
 }
 
-Dialog* DlgEdit::GetDialog(void)const
+Dialog* DlgEdit::GetDialog() const
 {
 	return dynamic_cast<Dialog*>(GetOwner().get());
 }

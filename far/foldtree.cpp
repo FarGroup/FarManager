@@ -31,10 +31,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "foldtree.hpp"
+
 #include "keyboard.hpp"
 #include "keys.hpp"
 #include "treelist.hpp"
@@ -47,6 +45,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "keybar.hpp"
 #include "string_utils.hpp"
+#include "global.hpp"
+
+#include "platform.fs.hpp"
 
 FolderTree::FolderTree(private_tag, int iModalMode, int IsStandalone, bool IsFullScreen):
 	Tree(nullptr),
@@ -71,8 +72,6 @@ void FolderTree::init(string &strResultFolder)
 	SetRestoreScreenMode(true);
 	if (ModalMode != MODALTREE_FREE)
 		strResultFolder.clear();
-	m_KeyBarVisible = true;  // Заставим обновляться кейбар
-	//TopScreen=new SaveScreen;
 	SetCoords();
 
 	Tree = TreeList::create(nullptr, ModalMode);
@@ -183,7 +182,7 @@ bool FolderTree::ProcessKey(const Manager::Key& Key)
 	{
 		case KEY_F1:
 		{
-			Help::create(L"FindFolder");
+			Help::create(L"FindFolder"sv);
 		}
 		break;
 		case KEY_ESC:

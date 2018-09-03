@@ -456,10 +456,7 @@ HANDLE LUAPLUG AnalyseW(const struct AnalyseInfo *Info)
 {
 	EXP_HANDLE(Info, LF_Analyse)
 }
-#endif
-//---------------------------------------------------------------------------
 
-#ifdef EXPORT_CLOSEANALYSE
 void LUAPLUG CloseAnalyseW(const struct CloseAnalyseInfo *Info)
 {
 	EXP_VOID(Info, LF_CloseAnalyse)

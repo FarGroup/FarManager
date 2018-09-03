@@ -31,16 +31,14 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "message.hpp"
+
 #include "ctrlobj.hpp"
 #include "farcolor.hpp"
 #include "dialog.hpp"
 #include "scrbuf.hpp"
 #include "keys.hpp"
-#include "TaskBar.hpp"
+#include "taskbar.hpp"
 #include "interf.hpp"
 #include "colormix.hpp"
 #include "config.hpp"
@@ -49,33 +47,31 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "clipboard.hpp"
 #include "lang.hpp"
 #include "strmix.hpp"
+#include "global.hpp"
 
-static string FormatErrorString(bool Nt, DWORD Code)
+#include "format.hpp"
+
+static string GetWin32ErrorString(const error_state_ex& ErrorState)
 {
-	os::memory::local::ptr<wchar_t> Buffer;
-	size_t size = FormatMessage((Nt?FORMAT_MESSAGE_FROM_HMODULE:FORMAT_MESSAGE_FROM_SYSTEM)|FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_IGNORE_INSERTS, (Nt?GetModuleHandle(L"ntdll.dll"):nullptr), Code, 0, reinterpret_cast<LPWSTR>(&ptr_setter(Buffer)), 0, nullptr);
-	string Result(Buffer.get(), size);
-	RemoveUnprintableCharacters(Result);
-	return Result;
+	return os::GetErrorString(false, ErrorState.Win32Error);
 }
 
-static string GetWin32ErrorString(DWORD LastWin32Error)
+static string GetNtErrorString(const error_state_ex& ErrorState)
 {
-	return FormatErrorString(false, LastWin32Error);
+	return os::GetErrorString(true, ErrorState.NtError);
 }
 
-static string GetNtErrorString(NTSTATUS LastNtStatus)
+string GetErrorString(const error_state_ex& ErrorState)
 {
-	return FormatErrorString(true, LastNtStatus);
-}
+	auto Str = ErrorState.What;
+	if (!Str.empty())
+		append(Str, L": "sv);
 
-string GetErrorString(const error_state& ErrorState)
-{
-#ifdef USE_NT_MESSAGES
-	return GetNtErrorString(ErrorState.NtError);
-#else
-	return GetWin32ErrorString(ErrorState.Win32Error);
-#endif
+	const auto UseNtMessages = false;
+
+	Str += (UseNtMessages? GetNtErrorString : GetWin32ErrorString)(ErrorState);
+
+	return Str;
 }
 
 intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
@@ -121,9 +117,9 @@ intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 				case KEY_F3:
 					if(IsErrorType)
 					{
-						DialogBuilder Builder(lng::MError, nullptr);
-						Builder.AddConstEditField(format(L"LastError: 0x{0:0>8X} - {1}", as_unsigned(m_ErrorState.Win32Error), GetWin32ErrorString(m_ErrorState.Win32Error)), 65);
-						Builder.AddConstEditField(format(L"NTSTATUS: 0x{0:0>8X} - {1}", as_unsigned(m_ErrorState.NtError), GetNtErrorString(m_ErrorState.NtError)), 65);
+						DialogBuilder Builder(lng::MError);
+						Builder.AddConstEditField(format(L"LastError: 0x{0:0>8X} - {1}", as_unsigned(m_ErrorState.Win32Error), GetWin32ErrorString(m_ErrorState)), 65);
+						Builder.AddConstEditField(format(L"NTSTATUS: 0x{0:0>8X} - {1}", as_unsigned(m_ErrorState.NtError), GetNtErrorString(m_ErrorState)), 65);
 						Builder.AddOK();
 						Builder.ShowDialog();
 					}
@@ -170,7 +166,7 @@ intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-Message::Message(DWORD Flags, const string& Title, std::vector<string> Strings, const std::vector<lng>& Buttons, const wchar_t* HelpTopic, const GUID* Id):
+Message::Message(DWORD const Flags, string_view const Title, std::vector<string> Strings, const std::vector<lng>& Buttons, string_view const HelpTopic, const GUID* const Id):
 	m_ExitCode(0)
 {
 	std::vector<string> StrButtons;
@@ -179,7 +175,7 @@ Message::Message(DWORD Flags, const string& Title, std::vector<string> Strings, 
 	Init(Flags, Title, std::move(Strings), std::move(StrButtons), nullptr, {}, HelpTopic, nullptr, Id);
 }
 
-Message::Message(DWORD Flags, const error_state& ErrorState, const string& Title, std::vector<string> Strings, const std::vector<lng>& Buttons, const wchar_t* HelpTopic, const GUID* Id, const std::vector<string>& Inserts):
+Message::Message(DWORD const Flags, const error_state_ex& ErrorState, string_view  const Title, std::vector<string> Strings, const std::vector<lng>& Buttons, string_view const HelpTopic, const GUID* const Id, const std::vector<string>& Inserts):
 	m_ExitCode(0)
 {
 	std::vector<string> StrButtons;
@@ -188,22 +184,22 @@ Message::Message(DWORD Flags, const error_state& ErrorState, const string& Title
 	Init(Flags, Title, std::move(Strings), std::move(StrButtons), &ErrorState, Inserts, HelpTopic, nullptr, Id);
 }
 
-Message::Message(DWORD Flags, const error_state* ErrorState, const string& Title, std::vector<string> Strings, std::vector<string> Buttons, const wchar_t* HelpTopic, const GUID* Id, Plugin* PluginNumber):
+Message::Message(DWORD const Flags, const error_state_ex* const ErrorState, string_view const Title, std::vector<string> Strings, std::vector<string> Buttons, string_view const HelpTopic, const GUID* const Id, Plugin* const PluginNumber):
 	m_ExitCode(0)
 {
 	Init(Flags, Title, std::move(Strings), std::move(Buttons), ErrorState, {}, HelpTopic, PluginNumber, Id);
 }
 
 void Message::Init(
-	DWORD Flags,
-	const string& Title,
+	DWORD const Flags,
+	string_view const Title,
 	std::vector<string>&& Strings,
 	std::vector<string>&& Buttons,
-	const error_state* ErrorState,
+	const error_state_ex* const ErrorState,
 	const std::vector<string>& Inserts,
-	const wchar_t* HelpTopic,
-	Plugin* PluginNumber,
-	const GUID* Id
+	string_view const HelpTopic,
+	Plugin* const PluginNumber,
+	const GUID* const Id
 	)
 {
 	IsWarningStyle = (Flags&MSG_WARNING) != 0;
@@ -233,12 +229,12 @@ void Message::Init(
 	if (!Title.empty())
 	{
 		MaxLength = std::max(MaxLength, Title.size() + 2); // 2 for surrounding spaces
-		append(strClipText, Title, L"\r\n\r\n"_sv);
+		append(strClipText, Title, L"\r\n\r\n"sv);
 	}
 
 	size_t BtnLength = std::accumulate(Buttons.cbegin(), Buttons.cend(), size_t(0), [](size_t Result, const auto& i)
 	{
-		return Result + HiStrlen(i.data()) + 2 + 2 + 1; // "[ ", " ]", " "
+		return Result + HiStrlen(i.c_str()) + 2 + 2 + 1; // "[ ", " ]", " "
 	});
 
 	if (BtnLength)
@@ -254,13 +250,13 @@ void Message::Init(
 
 	for (const auto& i : Strings)
 	{
-		append(strClipText, i, L"\r\n"_sv);
+		append(strClipText, i, L"\r\n"sv);
 	}
-	append(strClipText, L"\r\n"_sv);
+	append(strClipText, L"\r\n"sv);
 
 	if (!strErrStr.empty())
 	{
-		append(strClipText, strErrStr, L"\r\n\r\n"_sv);
+		append(strClipText, strErrStr, L"\r\n\r\n"sv);
 
 		// вычисление "красивого" размера
 		auto LenErrStr = strErrStr.size();
@@ -282,24 +278,18 @@ void Message::Init(
 
 		MaxLength = std::max(MaxLength, LenErrStr);
 
-		// а теперь проврапим
-		FarFormatText(strErrStr, LenErrStr, strErrStr, L"\n", 0); //?? MaxLength ??
-		for (const auto& i : enum_tokens(strErrStr, L"\n"))
+		if (!Strings.empty())
+			Strings.emplace_back(L"\1"s);
+
+		for (const auto& i : wrapped_text(strErrStr, LenErrStr))
 		{
 			Strings.emplace_back(ALL_CONST_RANGE(i));
 		}
 	}
 
-	if (!Buttons.empty())
-	{
-		for (const auto& i: Buttons)
-		{
-			append(strClipText, i, L' ');
-		}
-		strClipText.pop_back();
-	}
+	join(strClipText, Buttons, L" "sv);
 
-	int X1, Y1, X2, Y2;
+	int X1;
 
 	int MessageWidth = static_cast<int>(MaxLength + 6 + 2 + 2); // 6 for frame, 2 for border, 2 for inner margin
 	if (MessageWidth < ScrX)
@@ -311,7 +301,7 @@ void Message::Init(
 		X1 = 0;
 	}
 
-	X2 = X1 + MessageWidth - 1;
+	int X2 = X1 + MessageWidth - 1;
 
 	MessageX1 = X1;
 	MessageX2 = X2; 
@@ -321,6 +311,8 @@ void Message::Init(
 	{
 		MessageHeight += 2; // 1 for separator, 1 for buttons line
 	}
+
+	int Y1;
 
 	if (MessageHeight < ScrY)
 	{
@@ -334,7 +326,7 @@ void Message::Init(
 		Y1 = 0;
 	}
 
-	Y2 = Y1 + MessageHeight - 1;
+	int Y2 = Y1 + MessageHeight - 1;
 
 	MessageY1 = Y1;
 	MessageY2 = Y2;
@@ -346,8 +338,6 @@ void Message::Init(
 		std::vector<DialogItemEx> MsgDlg;
 		MsgDlg.reserve(Strings.size() + Buttons.size() + 1 + 1); // 1 for border, 1 for separator
 
-		int RetCode;
-
 		{
 			DialogItemEx Item;
 			Item.Type = DI_DOUBLEBOX;
@@ -355,7 +345,7 @@ void Message::Init(
 			Item.Y1 = 1;
 			Item.X2 = X2 - X1 - 3;
 			Item.Y2 = Y2 - Y1 - 1;
-			Item.strData = Title;
+			assign(Item.strData, Title);
 			MsgDlg.emplace_back(std::move(Item));
 		}
 
@@ -444,7 +434,7 @@ void Message::Init(
 		Dlg->SetPosition(X1,Y1,X2,Y2);
 		if(Id) Dlg->SetId(*Id);
 
-		if (HelpTopic)
+		if (!HelpTopic.empty())
 			Dlg->SetHelp(HelpTopic);
 
 		Dlg->SetPluginOwner(PluginNumber); // Запомним номер плагина
@@ -463,7 +453,7 @@ void Message::Init(
 			Dlg->SendMessage(DM_KILLSAVESCREEN, 0, nullptr);
 
 		Dlg->Process();
-		RetCode=Dlg->GetExitCode();
+		const auto RetCode = Dlg->GetExitCode();
 
 		m_ExitCode = RetCode < 0?
 			RetCode:
@@ -486,10 +476,7 @@ void Message::Init(
 
 	if (!Title.empty())
 	{
-		string strTempTitle = Title;
-
-		if (strTempTitle.size() > MaxLength)
-			strTempTitle.resize(MaxLength);
+		const auto strTempTitle = cut_right(Title, MaxLength);
 
 		GotoXY(X1+(X2-X1-1-(int)strTempTitle.size())/2,Y1+1);
 		Text(concat(L' ', strTempTitle, L' '));
@@ -576,16 +563,13 @@ bool AbortMessage()
 		return true;
 	}
 
-	SCOPED_ACTION(TaskBarPause);
-	int Res = Message(MSG_WARNING | MSG_KILLSAVESCREEN,
+	SCOPED_ACTION(TaskbarPause);
+	const auto Result = Message(MSG_WARNING | MSG_KILLSAVESCREEN,
 		msg(lng::MKeyESCWasPressed),
 		{
-			msg(Global->Opt->Confirm.EscTwiceToInterrupt? lng::MDoYouWantToStopWork2 : lng::MDoYouWantToStopWork)
+			msg(Global->Opt->Confirm.EscTwiceToInterrupt? lng::MDoYouWantToContinue : lng::MDoYouWantToCancel)
 		},
 		{ lng::MYes, lng::MNo });
 
-	if (Res == -1) // Set "ESC" equal to "NO" button
-		Res = 1;
-
-	return (Global->Opt->Confirm.EscTwiceToInterrupt && Res) || (!Global->Opt->Confirm.EscTwiceToInterrupt && !Res);
+	return Global->Opt->Confirm.EscTwiceToInterrupt.Get() == (Result != Message::first_button);
 }

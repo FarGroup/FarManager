@@ -40,20 +40,27 @@ template<typename T, T Default = T{}>
 class movable
 {
 public:
+	movable() = default;
 	movable(T Value): m_Value(Value){}
 	auto& operator=(T Value) { m_Value = Value; return *this; }
+	auto& operator+=(T Value) { m_Value += Value; return *this; }
+	auto& operator-=(T Value) { m_Value -= Value; return *this; }
+	auto& operator++() { ++m_Value; return *this; }
+	auto& operator--() { --m_Value; return *this; }
 
 	movable(const movable& rhs) { *this = rhs; }
 	auto& operator=(const movable& rhs) { m_Value = rhs.m_Value; return *this; }
 
 	movable(movable&& rhs) noexcept { *this = std::move(rhs); }
-	auto& operator=(movable&& rhs) noexcept { m_Value = rhs.m_Value; rhs.m_Value = Default; return *this; }
+	auto& operator=(movable&& rhs) noexcept { m_Value = std::exchange(rhs.m_Value, Default); return *this; }
 
-	auto& operator*() const { return m_Value; }
-	auto& operator*() { return m_Value; }
+	bool operator==(T Value) const { return m_Value == Value; }
+	bool operator<(T Value) const { return m_Value < Value; }
+
+	operator T() const { return m_Value; }
 
 private:
-	T m_Value;
+	T m_Value{Default};
 };
 
 namespace detail

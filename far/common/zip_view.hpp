@@ -32,6 +32,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "rel_ops.hpp"
+
 namespace detail
 {
 	struct increment { template<typename T> auto operator()(T& Object) const { return ++Object; } };
@@ -88,23 +90,21 @@ namespace detail
 	template<typename arg, typename... args>
 	void check(arg&&, args&&... Args)
 	{
-		static_assert(std::is_lvalue_reference<arg>::value);
+		static_assert(std::is_lvalue_reference_v<arg>);
 		check(FWD(Args)...);
 	}
 }
 
 template<typename... args>
-class zip_iterator:
-	public std::iterator<
-		typename detail::traits<args...>::iterator_category,
-		typename detail::traits<args...>::value_type,
-		typename detail::traits<args...>::difference_type,
-		typename detail::traits<args...>::pointer,
-		typename detail::traits<args...>::reference
-	>,
-	public rel_ops<zip_iterator<args...>>
+class zip_iterator: public rel_ops<zip_iterator<args...>>
 {
 public:
+	using iterator_category = typename detail::traits<args...>::iterator_category;
+	using value_type = typename detail::traits<args...>::value_type;
+	using difference_type = typename detail::traits<args...>::difference_type;
+	using pointer = typename detail::traits<args...>::pointer;
+	using reference = typename detail::traits<args...>::reference;
+
 	zip_iterator() = default;
 	explicit zip_iterator(const args&... Args): m_Tuple(Args...) {}
 	auto& operator++() { detail::traits<args...>::unary_for_each(detail::increment{}, m_Tuple); return *this; }
@@ -116,7 +116,7 @@ public:
 	auto operator-(const zip_iterator& rhs) const { return std::get<0>(m_Tuple) - std::get<0>(rhs.m_Tuple); }
 
 private:
-	typename zip_iterator::pointer m_Tuple;
+	pointer m_Tuple;
 };
 
 template<typename... args>
@@ -143,6 +143,7 @@ private:
 };
 
 template<typename... args>
+[[nodiscard]]
 auto zip(args&&... Args)
 {
 	return zip_view<args...>(FWD(Args)...);

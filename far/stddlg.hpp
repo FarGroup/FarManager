@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 enum class lng : int;
 class RegExp;
-struct error_state;
+struct error_state_ex;
 
 /*
   Функция GetSearchReplaceString выводит диалог поиска или замены, принимает
@@ -121,17 +121,17 @@ int GetSearchReplaceString(
 );
 
 bool GetString(
-    const wchar_t *Title,
-    const wchar_t *SubTitle,
-    const wchar_t *HistoryName,
-    const wchar_t *SrcText,
-    string &strDestText,
-    const wchar_t *HelpTopic = nullptr,
-    DWORD Flags = 0,
-    int *CheckBoxValue = nullptr,
-    const wchar_t *CheckBoxText = nullptr,
-    class Plugin* PluginNumber = nullptr,
-    const GUID* Id = nullptr
+	string_view Title,
+	string_view SubTitle,
+	string_view HistoryName,
+	string_view SrcText,
+	string &strDestText,
+	string_view HelpTopic = {},
+	DWORD Flags = 0,
+	int* CheckBoxValue = {},
+	string_view CheckBoxText = {},
+	class Plugin* PluginNumber = {},
+	const GUID* Id = {}
 );
 
 // для диалога GetNameAndPassword()
@@ -150,9 +150,19 @@ enum class operation
 	cancel,
 };
 
-operation OperationFailed(const error_state& ErrorState, const string& Object, lng Title, const string& Description, bool AllowSkip = true);
+operation OperationFailed(const error_state_ex& ErrorState, const string& Object, lng Title, const string& Description, bool AllowSkip = true);
 
 void ReCompileErrorMessage(const RegExp& re, const string& str);
 void ReMatchErrorMessage(const RegExp& re);
+
+struct goto_coord
+{
+	long long value;
+	bool exist;
+	bool percent;
+	int relative;
+};
+
+bool GoToRowCol(goto_coord& Row, goto_coord& Col, bool& Hex, string_view HelpTopic);
 
 #endif // STDDLG_HPP_D7E3481D_D478_4F57_8C20_7E0A21FAE788

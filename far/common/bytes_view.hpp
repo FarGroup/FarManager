@@ -32,6 +32,9 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "movable.hpp"
+#include "range.hpp"
+
 class bytes_view: public range<const char*>
 {
 public:
@@ -44,7 +47,7 @@ public:
 	explicit bytes_view(const T& Object):
 		bytes_view(&Object, sizeof(Object))
 	{
-		static_assert(std::is_trivially_copyable<T>::value);
+		static_assert(std::is_trivially_copyable_v<T>);
 	}
 };
 
@@ -56,6 +59,7 @@ public:
 
 	bytes() = default;
 
+	[[nodiscard]]
 	static bytes copy(const bytes_view& Object)
 	{
 		bytes Bytes;
@@ -64,15 +68,17 @@ public:
 	}
 
 	template<typename T>
+	[[nodiscard]]
 	static bytes copy(const T& Object)
 	{
 		return copy(bytes_view(Object));
 	}
 
 	template<typename T>
+	[[nodiscard]]
 	static bytes reference(T& Object)
 	{
-		static_assert(std::is_trivially_copyable<T>::value);
+		static_assert(std::is_trivially_copyable_v<T>);
 
 		bytes Bytes;
 		static_cast<range<char*>&>(Bytes) =
@@ -85,7 +91,7 @@ public:
 
 	~bytes()
 	{
-		if (*m_Allocated)
+		if (m_Allocated)
 			delete[] static_cast<const char*>(data());
 	}
 
@@ -94,14 +100,14 @@ public:
 		if (data())
 		{
 			if (size() != rhs.size())
-				throw std::runtime_error("Incorrect blob size");
+				throw std::runtime_error("Incorrect blob size: "s + std::to_string(rhs.size()) + ", expected "s + std::to_string(size()));
 		}
 		else
 		{
 			static_cast<range<char*>&>(*this) = make_range(new char[rhs.size()], rhs.size());
-			*m_Allocated = true;
+			m_Allocated = true;
 		}
-		memcpy(data(), rhs.data(), size());
+		std::copy(ALL_CONST_RANGE(rhs), begin());
 		return *this;
 	}
 
@@ -115,14 +121,11 @@ private:
 };
 
 template<typename T>
+[[nodiscard]]
 T deserialise(const bytes_view& Bytes)
 {
-	static_assert(std::is_trivially_copyable<T>::value);
-	if (Bytes.size() != sizeof(T))
-		throw std::runtime_error("Incorrect blob size: " + std::to_string(Bytes.size()) + ", expected " + std::to_string(sizeof(T)));
-
 	T Value;
-	std::memcpy(&Value, Bytes.data(), sizeof(T));
+	bytes::reference(Value) = Bytes;
 	return Value;
 }
 

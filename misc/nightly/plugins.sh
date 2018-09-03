@@ -13,6 +13,8 @@ PLDIR=FExcept
 
 pushd $PLUGIN || return 1
 
+unix2dos changelog
+
 mkdir -p execdump/final.32.vc/obj/LibObj
 #mkdir -p execdump/final.64.vc/obj/LibObj
 
@@ -64,7 +66,7 @@ bplugin "hlfviewer" "HlfViewer" "HlfViewer.dll HlfViewerEng.hlf HlfViewerRus.hlf
 bplugin "network" "Network" "Network.dll NetEng.hlf NetRus.hlf NetEng.lng NetRus.lng NetSky.lng NetSpa.lng Network.map" && \
 bplugin "proclist" "ProcList" "Proclist.dll ProcEng.hlf ProcRus.hlf ProcEng.lng ProcRus.lng Proclist.map" && \
 bplugin "tmppanel" "TmpPanel" "TmpPanel.dll TmpEng.hlf TmpRus.hlf TmpEng.lng TmpRus.lng TmpSky.lng TmpSpa.lng TmpPanel.map shortcuts.eng.lua shortcuts.rus.lua disks.eng.temp disks.rus.temp shortcuts.eng.temp shortcuts.rus.temp TmpPanel.ListUTF8.farconfig" && \
-bplugin "arclite" "ArcLite" "7z.dll 7z.sfx 7zCon.sfx 7zS2.sfx 7zS2con.sfx 7zSD.sfx arclite.dll arclite.map arclite_eng.hlf arclite_eng.lng arclite_rus.hlf arclite_rus.lng arclite_spa.lng" && \
+bplugin "arclite" "ArcLite" "7z.dll 7z.sfx 7zCon.sfx 7zS2.sfx 7zS2con.sfx 7zSD.sfx arclite.dll arclite.map arclite_eng.hlf arclite_eng.lng arclite_rus.hlf arclite_rus.lng arclite_spa.lng arclite.xml" && \
 bplugin "luamacro" "LuaMacro" "LuaMacro.dll _globalinfo.lua api.lua luamacro.lua macrotest.lua utils.lua mbrowser.lua lang.lua panelsort.lua winapi.lua farapi.lua moonscript.lua keymacro.lua lm_eng.lng lm_rus.lng lm_sky.lng lm_spa.lng LuaMacro.map luamacro.example.ini" \
 ) || exit 1
 

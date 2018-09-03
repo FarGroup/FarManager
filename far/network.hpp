@@ -34,11 +34,13 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "platform.fs.hpp"
+
 os::fs::drives_set GetSavedNetworkDrives();
 
 bool ConnectToNetworkResource(const string& NewDir);
 
-string ExtractComputerName(const string& CurDir, string* strTail = nullptr);
+string ExtractComputerName(string_view CurDir, string* strTail = nullptr);
 
 // Получить из имени диска RemoteName
 bool DriveLocalToRemoteName(int DriveType,wchar_t Letter,string &strDest);

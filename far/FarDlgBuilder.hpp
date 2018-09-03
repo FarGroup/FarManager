@@ -37,6 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgBuilder.hpp"
 #include "dialog.hpp"
 
+#include "common/range.hpp"
+
 enum class lng: int;
 struct DialogItemEx;
 class BoolOption;
@@ -78,7 +80,7 @@ struct ListControlBinding: public DialogItemBinding<T>
 	{
 	}
 
-	virtual ~ListControlBinding() override
+	~ListControlBinding() override
 	{
 		if (List)
 		{
@@ -87,12 +89,12 @@ struct ListControlBinding: public DialogItemBinding<T>
 		delete List;
 	}
 
-	virtual void SaveValue(T *Item, int RadioGroupIndex) override
+	void SaveValue(T *Item, int RadioGroupIndex) override
 	{
 		if (List)
 		{
 			FarListItem &ListItem = List->Items[Item->ListPos];
-			Value = ListItem.Reserved[0];
+			Value = ListItem.UserData;
 		}
 		if (Text)
 		{
@@ -114,18 +116,18 @@ struct ListControlBinding: public DialogItemBinding<T>
 class DialogBuilder: noncopyable, public base<DialogBuilderBase<DialogItemEx>>
 {
 public:
-	explicit DialogBuilder(lng TitleMessageId, const wchar_t *HelpTopic = nullptr, Dialog::dialog_handler handler = nullptr);
+	explicit DialogBuilder(lng TitleMessageId, string_view HelpTopic = {}, Dialog::dialog_handler handler = nullptr);
 	DialogBuilder();
-	~DialogBuilder();
+	~DialogBuilder() override;
 
 	// Добавляет поле типа DI_FIXEDIT для редактирования указанного числового значения.
-	virtual DialogItemEx *AddIntEditField(int *Value, int Width) override;
+	DialogItemEx *AddIntEditField(int *Value, int Width) override;
 	virtual DialogItemEx *AddIntEditField(IntOption& Value, int Width);
 	virtual DialogItemEx *AddHexEditField(IntOption& Value, int Width);
 
 	// Добавляет поле типа DI_EDIT для редактирования указанного строкового значения.
-	DialogItemEx *AddEditField(string& Value, int Width, const wchar_t *HistoryID = nullptr, FARDIALOGITEMFLAGS Flags = 0);
-	DialogItemEx *AddEditField(StringOption& Value, int Width, const wchar_t *HistoryID = nullptr, FARDIALOGITEMFLAGS Flags = 0);
+	DialogItemEx *AddEditField(string& Value, int Width, string_view HistoryID = {}, FARDIALOGITEMFLAGS Flags = 0);
+	DialogItemEx *AddEditField(StringOption& Value, int Width, string_view HistoryID = {}, FARDIALOGITEMFLAGS Flags = 0);
 
 	// Добавляет поле типа DI_FIXEDIT для редактирования указанного строкового значения.
 	DialogItemEx *AddFixEditField(string& Value, int Width, const wchar_t *Mask = nullptr);
@@ -191,7 +193,7 @@ public:
 
 	void AddOKCancel();
 	void AddOKCancel(lng OKMessageId, lng CancelMessageId);
-	void AddButtons(const range<const lng*>& Buttons, size_t OkIndex, size_t CancelIndex);
+	void AddButtons(range<const lng*> Buttons, size_t OkIndex, size_t CancelIndex);
 	void AddOK();
 
 	void SetDialogMode(DWORD Flags);
@@ -202,12 +204,11 @@ public:
 	const GUID& GetId() const {return m_Id;}
 
 protected:
-	const wchar_t* GetLangString(lng MessageID);
-	virtual void InitDialogItem(DialogItemEx *Item, const wchar_t* Text) override;
-	virtual int TextWidth(const DialogItemEx &Item) override;
-	virtual intptr_t DoShowDialog() override;
-	virtual DialogItemBinding<DialogItemEx> *CreateCheckBoxBinding(BOOL* Value, int Mask) override;
-	virtual DialogItemBinding<DialogItemEx> *CreateRadioButtonBinding(int *Value) override;
+	void InitDialogItem(DialogItemEx *Item, const wchar_t* Text) override;
+	int TextWidth(const DialogItemEx &Item) override;
+	intptr_t DoShowDialog() override;
+	DialogItemBinding<DialogItemEx> *CreateCheckBoxBinding(BOOL* Value, int Mask) override;
+	DialogItemBinding<DialogItemEx> *CreateRadioButtonBinding(int *Value) override;
 
 	DialogItemBinding<DialogItemEx> *CreateCheckBoxBinding(IntOption &Value, int Mask);
 	DialogItemBinding<DialogItemEx> *CreateCheckBoxBinding(Bool3Option& Value);
@@ -219,14 +220,16 @@ protected:
 	DialogItemEx *AddListControl(FARDIALOGITEMTYPES Type, int& Value, string *Text, int Width, int Height, const std::vector<FarDialogBuilderListItem2> &Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
 	DialogItemEx *AddListControl(FARDIALOGITEMTYPES Type, IntOption& Value, string *Text, int Width, int Height, const std::vector<FarDialogBuilderListItem2> &Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
 
-private:
-	static void LinkFlagsByID(DialogItemEx *Parent, DialogItemEx* Target, FARDIALOGITEMFLAGS Flags);
-	virtual const wchar_t* GetLangString(int MessageID) override;
+	const wchar_t* GetLangString(lng MessageID);
 
-	const wchar_t *m_HelpTopic;
-	DWORD m_Mode;
-	GUID m_Id;
-	bool m_IdExist;
+private:
+	const wchar_t* GetLangString(int MessageID) override;
+	static void LinkFlagsByID(DialogItemEx *Parent, DialogItemEx* Target, FARDIALOGITEMFLAGS Flags);
+
+	string m_HelpTopic;
+	DWORD m_Mode{};
+	GUID m_Id{ GUID_NULL };
+	bool m_IdExist{};
 	Dialog::dialog_handler m_handler;
 };
 

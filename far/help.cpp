@@ -31,10 +31,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "help.hpp"
+
 #include "keyboard.hpp"
 #include "keys.hpp"
 #include "farcolor.hpp"
@@ -44,7 +42,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "message.hpp"
 #include "config.hpp"
-#include "execute.hpp"
 #include "pathmix.hpp"
 #include "strmix.hpp"
 #include "exitcode.hpp"
@@ -57,13 +54,20 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "language.hpp"
 #include "keybar.hpp"
-#include "string_utils.hpp"
+#include "string_sort.hpp"
 #include "cvtname.hpp"
+#include "cmdline.hpp"
+#include "global.hpp"
 
-static const wchar_t* FoundContents = L"__FoundContents__";
-static const wchar_t* PluginContents = L"__PluginContents__";
-static const wchar_t* HelpOnHelpTopic = L":Help";
-static const wchar_t* HelpContents = L"Contents";
+#include "platform.fs.hpp"
+
+#include "format.hpp"
+
+static const auto
+	FoundContents = L"__FoundContents__"sv,
+	PluginContents = L"__PluginContents__"sv,
+	HelpOnHelpTopic = L":Help"sv,
+	HelpContents = L"Contents"sv;
 
 static const wchar_t HelpBeginLink = L'<';
 static const wchar_t HelpEndLink = L'>';
@@ -87,7 +91,7 @@ public:
 
 	string HelpStr;
 
-	explicit HelpRecord(const string& HStr): HelpStr(HStr) {}
+	explicit HelpRecord(string HStr): HelpStr(std::move(HStr)) {}
 
 	bool operator ==(const HelpRecord& rhs) const
 	{
@@ -96,11 +100,11 @@ public:
 
 	bool operator <(const HelpRecord& rhs) const
 	{
-		return StrCmpI(HelpStr, rhs.HelpStr) < 0;
+		return string_sort::less(HelpStr, rhs.HelpStr);
 	}
 };
 
-static int RunURL(const string& Protocol, const string& URLPath);
+static bool OpenURL(const string& URLPath);
 
 static const wchar_t HelpFormatLink[] = L"<{0}\\>{1}";
 static const wchar_t HelpFormatLinkModule[] = L"<{0}>{1}";
@@ -128,14 +132,14 @@ struct Help::StackHelpData
 	int   CurX, CurY;             // координаты (???)
 };
 
-string Help::MakeLink(const string& path, const string& topic)
+string Help::MakeLink(string_view const path, string_view const topic)
 {
-	return concat(L'<', path, L"\\>"_sv, topic);
+	return concat(L'<', path, L"\\>"sv, topic);
 }
 
-bool GetOptionsParam(const os::fs::file& LangFile, const wchar_t *KeyName, string &strValue, UINT nCodePage)
+static bool GetOptionsParam(const os::fs::file& LangFile, string_view const KeyName, string& Value, UINT CodePage)
 {
-	return GetLangParam(LangFile, (L"Options "s + KeyName).data(), strValue, nullptr, nCodePage);
+	return GetLangParam(LangFile, L"Options "sv + KeyName, Value, nullptr, CodePage);
 }
 
 Help::Help(private_tag):
@@ -148,7 +152,7 @@ Help::Help(private_tag):
 	MsX(-1),
 	MsY(-1),
 	CurColor(colors::PaletteColorToFarColor(COL_HELPTEXT)),
-	CtrlTabSize(0),
+	CtrlTabSize(Global->Opt->HelpTabSize),
 	LastStartPos(0),
 	StartPos(0),
 	MouseDown(false),
@@ -161,24 +165,23 @@ Help::Help(private_tag):
 {
 }
 
-help_ptr Help::create(const string& Topic, const wchar_t *Mask, unsigned long long Flags)
+help_ptr Help::create(string_view const Topic, const wchar_t *Mask, unsigned long long Flags)
 {
 	auto HelpPtr = std::make_shared<Help>(private_tag());
 	HelpPtr->init(Topic, Mask, Flags);
 	return HelpPtr;
 }
 
-void Help::init(const string& Topic, const wchar_t *Mask, unsigned long long Flags)
+void Help::init(string_view const Topic, const wchar_t *Mask, unsigned long long Flags)
 {
 	m_windowKeyBar = std::make_unique<KeyBar>(shared_from_this());
 
 	m_CanLoseFocus = false;
-	m_KeyBarVisible = true;
 	SetRestoreScreenMode(true);
 
 	StackData->Flags=Flags;
 	StackData->strHelpMask = NullToEmpty(Mask); // сохраним маску файла
-	StackData->strHelpTopic = Topic;
+	assign(StackData->strHelpTopic, Topic);
 
 	if (Global->Opt->FullScreenHelp)
 		SetPosition(0,0,ScrX,ScrY);
@@ -187,9 +190,9 @@ void Help::init(const string& Topic, const wchar_t *Mask, unsigned long long Fla
 
 	if (!ReadHelp(StackData->strHelpMask) && (Flags&FHELP_USECONTENTS))
 	{
-		StackData->strHelpTopic = Topic;
+		assign(StackData->strHelpTopic, Topic);
 
-		if (StackData->strHelpTopic.front() == HelpBeginLink)
+		if (starts_with(StackData->strHelpTopic, HelpBeginLink))
 		{
 			size_t pos = StackData->strHelpTopic.rfind(HelpEndLink);
 
@@ -234,15 +237,11 @@ void Help::init(const string& Topic, const wchar_t *Mask, unsigned long long Fla
 	}
 }
 
-Help::~Help()
-{
-}
-
 bool Help::ReadHelp(const string& Mask)
 {
 	string strPath;
 
-	if (StackData->strHelpTopic.front() == HelpBeginLink)
+	if (starts_with(StackData->strHelpTopic, HelpBeginLink))
 	{
 		strPath = StackData->strHelpTopic.substr(1);
 		const auto pos = strPath.find(HelpEndLink);
@@ -250,7 +249,7 @@ bool Help::ReadHelp(const string& Mask)
 		if (pos == string::npos)
 			return false;
 
-		StackData->strHelpTopic = strPath.substr(pos + 1);
+		StackData->strHelpTopic.assign(strPath, pos + 1, string::npos); // gcc 7.3 bug, npos required
 		strPath.resize(pos);
 		DeleteEndSlash(strPath);
 		AddEndSlash(strPath);
@@ -298,20 +297,32 @@ bool Help::ReadHelp(const string& Mask)
 
 	string strReadStr;
 
-	if (GetOptionsParam(HelpFile, L"TabSize", strReadStr, HelpFileCodePage))
+	if (GetOptionsParam(HelpFile, L"TabSize"sv, strReadStr, HelpFileCodePage))
 	{
-		CtrlTabSize = std::stoi(strReadStr);
+		int UserTabSize;
+		if (from_string(strReadStr, UserTabSize))
+		{
+			if (InRange(0, UserTabSize, 16))
+			{
+				CtrlTabSize = UserTabSize;
+			}
+			else
+			{
+				// TODO: log tabsize out of range
+			}
+		}
+		else
+		{
+			// TODO: log error reading tabsize
+		}
 	}
 
-	if (CtrlTabSize < 0 || CtrlTabSize > 16)
-		CtrlTabSize=Global->Opt->HelpTabSize;
-
-	if (GetOptionsParam(HelpFile, L"CtrlColorChar", strReadStr, HelpFileCodePage))
+	if (GetOptionsParam(HelpFile, L"CtrlColorChar"sv, strReadStr, HelpFileCodePage))
 		strCtrlColorChar = strReadStr;
 	else
 		strCtrlColorChar.clear();
 
-	if (GetOptionsParam(HelpFile, L"CtrlStartPosChar", strReadStr, HelpFileCodePage))
+	if (GetOptionsParam(HelpFile, L"CtrlStartPosChar"sv, strReadStr, HelpFileCodePage))
 		strCtrlStartPosChar = strReadStr;
 	else
 		strCtrlStartPosChar.clear();
@@ -319,7 +330,7 @@ bool Help::ReadHelp(const string& Mask)
 	/* $ 29.11.2001 DJ
 	   запомним, чего там написано в PluginContents
 	*/
-	if (!GetLangParam(HelpFile, L"PluginContents", strCurPluginContents, nullptr, HelpFileCodePage))
+	if (!GetLangParam(HelpFile, L"PluginContents"sv, strCurPluginContents, nullptr, HelpFileCodePage))
 		strCurPluginContents.clear();
 
 	string strTabSpace(CtrlTabSize, L' ');
@@ -349,7 +360,8 @@ bool Help::ReadHelp(const string& Mask)
 	int MI=0;
 	string strMacroArea;
 
-	GetFileString GetStr(HelpFile, HelpFileCodePage);
+	enum_file_lines EnumFileLines(HelpFile, HelpFileCodePage);
+	auto FileIterator = EnumFileLines.begin();
 	const size_t StartSizeKeyName = 20;
 	size_t SizeKeyName = StartSizeKeyName;
 	string strSplitLine;
@@ -362,8 +374,11 @@ bool Help::ReadHelp(const string& Mask)
 
 		if (!MacroProcess && !RepeatLastLine && !BreakProcess)
 		{
-			if (GetStr.GetString(strReadStr))
+			if (FileIterator != EnumFileLines.end())
 			{
+				assign(strReadStr, FileIterator->Str);
+				++FileIterator;
+
 				if (InHeader)
 				{
 					// Everything up to the first topic is header, we don't care about it here
@@ -402,53 +417,32 @@ bool Help::ReadHelp(const string& Mask)
 				continue;
 			}
 
-			if (!strKeyName.empty() && strKeyName[0] == L'~')
-			{
-				MI++;
-				continue;
-			}
+			++MI;
 
-			strReadStr.clear();
-			if (strKeyName.size() > SizeKeyName)
+			const auto& escape = [](string_view const Str)
 			{
-				FarFormatText(strKeyName, SizeKeyName, strKeyName, L"\n", 0);
+				string Result(Str);
+				ReplaceStrings(Result, L"~"sv, L"~~"sv);
+				ReplaceStrings(Result, L"#"sv, L"##"sv);
+				ReplaceStrings(Result, L"@"sv, L"@@"sv);
+				return Result;
+			};
 
-				size_t nl;
-				while ((nl = strKeyName.find(L'\n')) != string::npos)
+			size_t LastKeySize = 0;
+
+			strReadStr = join(select(enum_tokens(strKeyName, L" "sv),
+				[&](const auto& i)
 				{
-					string keys = strKeyName.substr(0, nl);
-					strKeyName.erase(0, nl+1);
-
-					ReplaceStrings(keys, L"~", L"~~");
-					ReplaceStrings(keys, L"#", L"##");
-					ReplaceStrings(keys, L"@", L"@@");
-
-					append(strReadStr, L" #"_sv, keys, L"#\n"_sv);
-				}
-
-				if (strKeyName.size() > SizeKeyName)
-					strKeyName.resize(SizeKeyName); // cut key names
-			}
-
-			ReplaceStrings(strKeyName, L"~", L"~~");
-			ReplaceStrings(strKeyName, L"#", L"##");
-			ReplaceStrings(strKeyName, L"@", L"@@");
-
-			if (contains(strKeyName, L'~')) // коррекция размера
-				SizeKeyName++;
-
-			append(strReadStr, L" #"_sv, fit_to_left(strKeyName, SizeKeyName), L"# "_sv);
+					LastKeySize = i.size();
+					return concat(L" #"sv, escape(i), L'#');
+				}),
+				L"\n"sv);
 
 			if (!strDescription.empty())
 			{
-				ReplaceStrings(strDescription, L"#", L"##");
-				ReplaceStrings(strDescription, L"~", L"~~");
-				ReplaceStrings(strDescription, L"@", L"@@");
-				strReadStr += strCtrlStartPosChar;
-				strReadStr += strDescription;
+				strReadStr.append(std::max(LastKeySize, SizeKeyName) - LastKeySize, L' ');
+				append(strReadStr, strCtrlStartPosChar, escape(strDescription));
 			}
-
-			MI++;
 		}
 
 		RepeatLastLine = false;
@@ -460,11 +454,11 @@ bool Help::ReadHelp(const string& Mask)
 				strReadStr[PosTab] = L' ';
 
 				if (CtrlTabSize > 1) // заменим табулятор по всем правилам
-					strReadStr.insert(PosTab, strTabSpace.data(), CtrlTabSize - (PosTab % CtrlTabSize));
+					strReadStr.insert(PosTab, strTabSpace.c_str(), CtrlTabSize - (PosTab % CtrlTabSize));
 			}
 		}
 
-		RemoveTrailingSpaces(strReadStr);
+		inplace::trim_right(strReadStr);
 
 		if (!strCtrlStartPosChar.empty())
 		{
@@ -474,7 +468,7 @@ bool Help::ReadHelp(const string& Mask)
 				size_t p1 = strReadStr.rfind(L'\n') + 1;
 				if (p1 > pos)
 					p1 = 0;
-				LastStartPos = StringLen(strReadStr.substr(p1, pos-p1));
+				LastStartPos = StringLen(string_view(strReadStr).substr(p1, pos-p1));
 				strReadStr.erase(pos, strCtrlStartPosChar.size());
 			}
 		}
@@ -488,14 +482,14 @@ bool Help::ReadHelp(const string& Mask)
 		{
 			if (m_TopicFound)
 			{
-				if (strReadStr == L"@+")
+				if (strReadStr == L"@+"sv)
 				{
 					Formatting = true;
 					PrevSymbol=0;
 					continue;
 				}
 
-				if (strReadStr == L"@-")
+				if (strReadStr == L"@-"sv)
 				{
 					Formatting = false;
 					PrevSymbol=0;
@@ -523,7 +517,7 @@ bool Help::ReadHelp(const string& Mask)
 
 				break;
 			}
-			else if (equal_icase(make_string_view(strReadStr, 1), StackData->strHelpTopic))
+			else if (equal_icase(string_view(strReadStr).substr(1), StackData->strHelpTopic))
 			{
 				m_TopicFound = true;
 				NearTopicFound=1;
@@ -532,9 +526,9 @@ bool Help::ReadHelp(const string& Mask)
 			{
 				size_t n1 = StackData->strHelpTopic.size();
 				size_t n2 = strReadStr.size();
-				if (1 + n1 + 1 < n2 && starts_with_icase(strReadStr.data() + 1, StackData->strHelpTopic) && strReadStr[1 + n1] == L'=')
+				if (1 + n1 + 1 < n2 && starts_with_icase(string_view(strReadStr).substr(1), StackData->strHelpTopic) && strReadStr[1 + n1] == L'=')
 				{
-					StackData->strHelpTopic = strReadStr.substr(1 + n1 + 1);
+					StackData->strHelpTopic.assign(strReadStr, 1 + n1 + 1, string::npos); // gcc 7.3 bug, npos required
 					continue;
 				}
 			}
@@ -547,20 +541,23 @@ m1:
 
 			if (m_TopicFound)
 			{
-				if (starts_with_icase(strReadStr, L"<!Macro:"_sv) && Global->CtrlObject)
+				if (starts_with_icase(strReadStr, L"<!Macro:"sv) && Global->CtrlObject)
 				{
 					const auto PosTab = strReadStr.find(L'>');
 					if (PosTab != string::npos && strReadStr[PosTab - 1] != L'!')
 						continue;
 
-					strMacroArea=strReadStr.substr(8,PosTab-1-8); //???
+					strMacroArea.assign(strReadStr, 8, PosTab - 1 - 8); //???
 					MacroProcess=true;
 					MI=0;
 					SizeKeyName = StartSizeKeyName;
 					string strDescription,strKeyName;
 					while (Global->CtrlObject->Macro.GetMacroKeyInfo(strMacroArea,MI,strKeyName,strDescription))
 					{
-						SizeKeyName = std::min(std::max(SizeKeyName, strKeyName.size()), static_cast<size_t>(MaxLength) / 2);
+						for (const auto& i: enum_tokens(strKeyName, L" "sv))
+						{
+							SizeKeyName = std::min(std::max(SizeKeyName, i.size()), static_cast<size_t>(MaxLength) / 2);
+						}
 						MI++;
 					}
 					MI=0;
@@ -582,7 +579,7 @@ m1:
 
 				if ((!strReadStr.empty() && strReadStr[0]==L'$') && NearTopicFound && (PrevSymbol == L'$' || PrevSymbol == L'@'))
 				{
-					AddLine(strReadStr.data()+1);
+					AddLine(string_view(strReadStr).substr(1));
 					FixCount++;
 				}
 				else
@@ -617,14 +614,14 @@ m1:
 								continue;
 							}
 						}
-						else if (strReadStr.empty() && strSplitLine.empty())
+						else
 						{
-							AddLine(L"");
+							AddLine({});
 							continue;
 						}
 					}
 
-					if (!strReadStr.empty() && IsSpace(strReadStr[0]) && Formatting)
+					if (!strReadStr.empty() && std::iswblank(strReadStr[0]) && Formatting)
 					{
 						if (StringLen(strSplitLine)<RealMaxLength)
 						{
@@ -636,7 +633,7 @@ m1:
 
 							for (size_t nl = strReadStr.find(L'\n'); nl != string::npos; )
 							{
-								AddLine(strReadStr.substr(0, nl));
+								AddLine(string_view(strReadStr).substr(0, nl));
 								strReadStr.erase(0, nl+1);
 								nl = strReadStr.find(L'\n');
 							}
@@ -685,13 +682,13 @@ m1:
 
 					for (int I=(int)strSplitLine.size()-1; I > 0; I--)
 					{
-						if (I > 0 && strSplitLine[I]==L'~' && strSplitLine[I - 1] == L'~')
+						if (strSplitLine[I]==L'~' && strSplitLine[I - 1] == L'~')
 						 {
 							I--;
 							continue;
 						}
 
-						if (I > 0 && strSplitLine[I] == L'~' && strSplitLine[I - 1] != L'~')
+						if (strSplitLine[I] == L'~' && strSplitLine[I - 1] != L'~')
 						{
 							do
 							{
@@ -704,7 +701,7 @@ m1:
 
 						if (strSplitLine[I] == L' ')
 						{
-							string FirstPart = strSplitLine.substr(0, I);
+							const auto FirstPart = string_view(strSplitLine).substr(0, I);
 							if (StringLen(FirstPart) < RealMaxLength)
 							{
 								AddLine(FirstPart);
@@ -741,7 +738,7 @@ m1:
 		PrevSymbol = strReadStr.empty() ? L'\0' : strReadStr[0];
 	}
 
-	AddLine(L"");
+	AddLine({});
 	ErrorHelp = false;
 
 	if (IsNewTopic)
@@ -753,15 +750,15 @@ m1:
 	return m_TopicFound;
 }
 
-void Help::AddLine(const string& Line)
+void Help::AddLine(const string_view Line)
 {
 	const auto Width = StartPos && !Line.empty() && Line[0] == L' '? StartPos - 1 : StartPos;
 	HelpList.emplace_back(string(Width, L' ') + Line);
 }
 
-void Help::AddTitle(const string& Title)
+void Help::AddTitle(const string_view Title)
 {
-	AddLine(concat(L"^ #"_sv, Title, L'#'));
+	AddLine(concat(L"^ #"sv, Title, L'#'));
 }
 
 void Help::HighlightsCorrection(string &strStr)
@@ -859,7 +856,7 @@ void Help::FastShow()
 		{
 			string_view OutStr = HelpList[StrPos].HelpStr;
 
-			if (!OutStr.empty() && OutStr.front() == L'^')
+			if (starts_with(OutStr, L'^'))
 			{
 				OutStr.remove_prefix(1);
 				GotoXY(m_X1 + 1 + std::max(0, (CanvasWidth() - StringLen(OutStr)) / 2), m_Y1 + i + 1);
@@ -882,21 +879,13 @@ void Help::DrawWindowFrame() const
 	SetScreen(m_X1,m_Y1,m_X2,m_Y2,L' ',colors::PaletteColorToFarColor(COL_HELPTEXT));
 	Box(m_X1,m_Y1,m_X2,m_Y2,colors::PaletteColorToFarColor(COL_HELPBOX),DOUBLE_BOX);
 	SetColor(COL_HELPBOXTITLE);
-	string strHelpTitleBuf;
-	strHelpTitleBuf = msg(lng::MHelpTitle);
-	strHelpTitleBuf += L" - ";
-
-	if (!strCurPluginContents.empty())
-		strHelpTitleBuf += strCurPluginContents;
-	else
-		strHelpTitleBuf += L"FAR";
-
+	auto strHelpTitleBuf = concat(msg(lng::MHelpTitle), L" - "sv, strCurPluginContents.empty()? L"Far"s : strCurPluginContents);
 	TruncStrFromEnd(strHelpTitleBuf, CanvasWidth() - 2);
 	GotoXY(m_X1 + (ObjWidth() - (int)strHelpTitleBuf.size() - 2) / 2, m_Y1);
 	Text(concat(L' ', strHelpTitleBuf, L' '));
 }
 
-static string_view SkipLink(string_view Str, string *Name)
+static string_view SkipLink(string_view Str, string* const Name)
 {
 	for (;;)
 	{
@@ -945,17 +934,17 @@ static bool GetHelpColor(string_view& Str, wchar_t cColor, FarColor& color)
 	}
 
 	bool Stop;
-	const auto Next = colors::ExtractColorInNewFormat(Str.substr(1), color, Stop);
-	if (Next.cbegin() != Str.cbegin() + 1)
+	const auto Next = colors::ExtractColorInNewFormat(Str.cbegin() + 1, Str.cend(), color, Stop);
+	if (Next != Str.cbegin() + 1)
 	{
-		Str = Next;
+		Str = make_string_view(Next, Str.cend());
 		return true;
 	}
 
 	return false;
 }
 
-static bool FastParseLine(string_view Str, int *pLen, int x0, int realX, string *pTopic, wchar_t cColor)
+static bool FastParseLine(string_view Str, int* const pLen, const int x0, const int realX, string* const pTopic, const wchar_t cColor)
 {
 	int x = x0, start_topic = -1;
 	bool found = false;
@@ -987,10 +976,10 @@ static bool FastParseLine(string_view Str, int *pLen, int x0, int realX, string 
 
 			FarColor Color;
 			bool Stop;
-			const auto Next = colors::ExtractColorInNewFormat(Str, Color, Stop);
-			if (Next.cbegin() != Str.cbegin())
+			const auto Next = colors::ExtractColorInNewFormat(Str.cbegin(), Str.cend(), Color, Stop);
+			if (Next != Str.cbegin())
 			{
-				Str = Next;
+				Str = make_string_view(Next, Str.cend());
 				continue;
 			}
 		}
@@ -1043,7 +1032,7 @@ bool Help::GetTopic(int realX, int realY, string& strTopic)
 	if (y < 0 || y >= static_cast<int>(HelpList.size()))
 		return false;
 
-	const wchar_t *Str = HelpList[y].HelpStr.data();
+	auto Str = HelpList[y].HelpStr.c_str();
 
 	if (!*Str)
 		return false;
@@ -1058,7 +1047,7 @@ bool Help::GetTopic(int realX, int realY, string& strTopic)
 	return FastParseLine(Str, nullptr, x, realX, &strTopic, strCtrlColorChar.empty()? 0 : strCtrlColorChar[0]);
 }
 
-int Help::StringLen(const string_view& Str)
+int Help::StringLen(const string_view Str)
 {
 	int len = 0;
 	FastParseLine(Str, &len, 0, -1, nullptr, strCtrlColorChar.empty()? 0 : strCtrlColorChar[0]);
@@ -1068,7 +1057,7 @@ int Help::StringLen(const string_view& Str)
 void Help::OutString(string_view Str)
 {
 	wchar_t OutStr[512]; //BUGBUG
-	auto StartTopic = Str.cbegin();
+	auto StartTopic = Str.data();
 	int OutPos=0,Highlight=0,Topic=0;
 	wchar_t cColor = strCtrlColorChar.empty()? 0 : strCtrlColorChar[0];
 
@@ -1094,7 +1083,7 @@ void Help::OutString(string_view Str)
 			{
 				int RealCurX = m_X1 + StackData->CurX + 1;
 				int RealCurY = m_Y1 + StackData->CurY + HeaderHeight() + 1;
-				bool found = WhereY() == RealCurY && RealCurX >= WhereX() && RealCurX < WhereX() + (Str.cbegin() - StartTopic) - 1;
+				bool found = WhereY() == RealCurY && RealCurX >= WhereX() && RealCurX < WhereX() + (Str.data() - StartTopic) - 1;
 
 				SetColor(found ? COL_HELPSELECTEDTOPIC : COL_HELPTOPIC);
 				if (Str.size() > 1 && Str[1]==L'@')
@@ -1110,7 +1099,7 @@ void Help::OutString(string_view Str)
 
 			/* $ 24.09.2001 VVM
 			  ! Обрежем длинные строки при показе. Такое будет только при длинных ссылках... */
-			if (StrLength(OutStr) + WhereX() > m_X2)
+			if (static_cast<int>(wcslen(OutStr)) + WhereX() > m_X2)
 				OutStr[m_X2 - WhereX()] = 0;
 
 			Text(OutStr);
@@ -1126,7 +1115,7 @@ void Help::OutString(string_view Str)
 		if (Str[0] == L'~')
 		{
 			if (!Topic)
-				StartTopic = Str.cbegin();
+				StartTopic = Str.data();
 			Topic = !Topic;
 			Str.remove_prefix(1);
 		}
@@ -1405,12 +1394,12 @@ bool Help::ProcessKey(const Manager::Key& Key)
 				//int RetCode = GetString(msg(lng::MHelpSearchTitle),msg(lng::MHelpSearchingFor),L"HelpSearch",strLastSearchStr,strLastSearchStr0);
 				int RetCode = GetSearchReplaceString(
 					false,
-					msg(lng::MHelpSearchTitle).data(),
-					msg(lng::MHelpSearchingFor).data(),
+					msg(lng::MHelpSearchTitle).c_str(),
+					msg(lng::MHelpSearchingFor).c_str(),
 					strLastSearchStr0,
 					strTempStr,
 					L"HelpSearch",
-					L"",
+					{},
 					&Case,
 					&WholeWords,
 					nullptr,
@@ -1494,17 +1483,14 @@ bool Help::ProcessKey(const Manager::Key& Key)
 	return false;
 }
 
-bool Help::JumpTopic(const string& Topic)
+bool Help::JumpTopic(string_view const Topic)
 {
-	StackData->strSelTopic = Topic;
+	assign(StackData->strSelTopic, Topic);
 	return JumpTopic();
 }
 
 bool Help::JumpTopic()
 {
-	string strNewTopic;
-	size_t pos = 0;
-
 	/* $ 14.07.2002 IS
 	     При переходе по ссылкам используем всегда только абсолютные пути,
 	     если это возможно.
@@ -1512,45 +1498,34 @@ bool Help::JumpTopic()
 
 	// Если ссылка на другой файл, путь относительный и есть то, от чего можно
 	// вычислить абсолютный путь, то сделаем это
-	if (StackData->strSelTopic.front()==HelpBeginLink
-	        && (pos = StackData->strSelTopic.find(HelpEndLink,2)) != string::npos
-	        && !IsAbsolutePath(StackData->strSelTopic.data()+1)
-	        && !StackData->strHelpPath.empty())
+	if (starts_with(StackData->strSelTopic, HelpBeginLink) && !StackData->strHelpPath.empty())
 	{
-		strNewTopic = StackData->strSelTopic.substr(1, pos);
-		string strFullPath = StackData->strHelpPath;
-		// уберем _все_ конечные слеши и добавим один
-		DeleteEndSlash(strFullPath);
-		strFullPath.append(1, L'\\').append(strNewTopic, IsSlash(strNewTopic.front())? 1 : 0, string::npos);
-		const auto EndSlash = IsSlash(strFullPath.back());
-		DeleteEndSlash(strFullPath);
-		strNewTopic = ConvertNameToFull(strFullPath);
-		strFullPath = format(EndSlash?HelpFormatLink:HelpFormatLinkModule, strNewTopic, wcschr(StackData->strSelTopic.data() + 2, HelpEndLink) + 1);
-		StackData->strSelTopic = strFullPath;
+		const auto pos = StackData->strSelTopic.find(HelpEndLink, 2);
+		if (pos != string::npos)
+		{
+			const auto Path = string_view(StackData->strSelTopic).substr(1, pos - 1);
+			const auto EndSlash = IsSlash(Path.back());
+			const auto FullPath = path::join(StackData->strHelpPath, Path);
+			auto Topic = string_view(StackData->strSelTopic).substr(StackData->strSelTopic.find(HelpEndLink, 2) + 1);
+			StackData->strSelTopic = format(EndSlash? HelpFormatLink : HelpFormatLinkModule, ConvertNameToFull(FullPath), Topic);
+		}
 	}
 
 	//_SVS(SysLog(L"JumpTopic() = SelTopic=%s",StackData->SelTopic));
 	// URL активатор - это ведь так просто :-)))
+	// наверное подразумевается URL
 	{
-		strNewTopic = StackData->strSelTopic;
-		pos = strNewTopic.find(L':');
-
-		if (pos != string::npos && strNewTopic.front() != L':') // наверное подразумевается URL
-		{
-			string Protocol(strNewTopic, 0, pos);
-
-			if (RunURL(Protocol, StackData->strSelTopic))
-			{
-				return false;
-			}
-		}
+		const auto ColonPos = StackData->strSelTopic.find(L':');
+		if (ColonPos != 0 && ColonPos != string::npos && OpenURL(StackData->strSelTopic))
+			return false;
 	}
 	// а вот теперь попробуем...
 
 	//_SVS(SysLog(L"JumpTopic() = SelTopic=%s, StackData->HelpPath=%s",StackData->SelTopic,StackData->HelpPath));
+	string strNewTopic;
 	if (!StackData->strHelpPath.empty() && StackData->strSelTopic.front() !=HelpBeginLink && StackData->strSelTopic != HelpOnHelpTopic)
 	{
-		if (StackData->strSelTopic.front()==L':')
+		if (starts_with(StackData->strSelTopic, L':'))
 		{
 			strNewTopic = StackData->strSelTopic.substr(1);
 			StackData->Flags&=~FHELP_CUSTOMFILE;
@@ -1585,7 +1560,7 @@ bool Help::JumpTopic()
 					strNewTopic.erase(EndPos, Pos2 - EndPos);
 
 					size_t Pos3 = StackData->strHelpMask.rfind(L'.');
-					if (Pos3 != string::npos && !equal_icase(make_string_view(StackData->strHelpMask, Pos3), L".hlf"_sv))
+					if (Pos3 != string::npos && !equal_icase(string_view(StackData->strHelpMask).substr(Pos3), L".hlf"sv))
 						StackData->strHelpMask.clear();
 
 					break;
@@ -1606,7 +1581,7 @@ bool Help::JumpTopic()
 	        (!equal_icase(StackData->strSelTopic, PluginContents) || !equal_icase(StackData->strSelTopic, FoundContents))
 	   )
 	{
-		if (!(StackData->Flags&FHELP_CUSTOMFILE) && wcsrchr(strNewTopic.data(),HelpEndLink))
+		if (!(StackData->Flags&FHELP_CUSTOMFILE) && contains(strNewTopic, HelpEndLink))
 		{
 			StackData->strHelpMask.clear();
 		}
@@ -1625,12 +1600,13 @@ bool Help::JumpTopic()
 	{
 		StackData->strHelpTopic = strNewTopic;
 
-		if (StackData->strHelpTopic.front() == HelpBeginLink)
+		if (starts_with(StackData->strHelpTopic, HelpBeginLink))
 		{
-			if ((pos = StackData->strHelpTopic.rfind(HelpEndLink)) != string::npos)
+			const auto pos = StackData->strHelpTopic.rfind(HelpEndLink);
+			if (pos != string::npos)
 			{
 				StackData->strHelpTopic.resize(pos+1);
-				StackData->strHelpTopic += HelpContents;
+				append(StackData->strHelpTopic, HelpContents);
 			}
 		}
 
@@ -1833,7 +1809,7 @@ bool Help::IsReferencePresent()
 		return false;
 	}
 
-	return contains(HelpList[StrPos].HelpStr, L"~@");
+	return contains(HelpList[StrPos].HelpStr, L"~@"sv);
 }
 
 void Help::MoveToReference(int Forward,int CurScreen)
@@ -1918,8 +1894,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 	AddTitle(strTitleLine);
 
 	bool TopicFound=false;
-	GetFileString GetStr(HelpFile, nCodePage);
-	string strCurTopic, strEntryName, strReadStr;
+	string strCurTopic, strEntryName;
 
 	std::vector<RegExpMatch> m;
 	MatchHash hm;
@@ -1930,7 +1905,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 		const auto strSlash = InsertRegexpQuote(strLastSearchStr);
 
 		// Q: что важнее: опция диалога или опция RegExp`а?
-		if (!re.Compile(strSlash.data(), OP_PERLSTYLE | OP_OPTIMIZE | (LastSearchCase? 0 : OP_IGNORECASE)))
+		if (!re.Compile(strSlash.c_str(), OP_PERLSTYLE | OP_OPTIMIZE | (LastSearchCase? 0 : OP_IGNORECASE)))
 		{
 			ReCompileErrorMessage(re, strSlash);
 			return; //BUGBUG
@@ -1947,33 +1922,26 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 		inplace::lower(strSearchStrLower);
 	}
 
-	for (;;)
+	for (const auto& i: enum_file_lines(HelpFile, nCodePage))
 	{
-		if (!GetStr.GetString(strReadStr))
-		{
-			break;
-		}
+		auto Str = trim_right(i.Str);
 
-		RemoveTrailingSpaces(strReadStr);
-
-		if ((!strReadStr.empty() && strReadStr[0] == L'@') &&
-		    !(strReadStr.size() > 1 && (strReadStr[1] == L'+' || strReadStr[1] == L'-')) &&
-		    !contains(strReadStr, L'='))// && !TopicFound)
+		if ((!Str.empty() && Str[0] == L'@') &&
+		    !(Str.size() > 1 && (Str[1] == L'+' || Str[1] == L'-')) &&
+		    !contains(Str, L'='))// && !TopicFound)
 		{
 			strEntryName.clear();
 			strCurTopic.clear();
-			RemoveExternalSpaces(strReadStr);
-			if (!equal_icase(make_string_view(strReadStr, 1), HelpContents))
+			Str = trim(Str);
+			if (!equal_icase(Str.substr(1), HelpContents))
 			{
-				strCurTopic=strReadStr;
+				assign(strCurTopic, Str);
 				TopicFound=true;
 			}
 		}
-		else if (TopicFound && strReadStr.size() > 1 && strReadStr[0] == L'$' && !strCurTopic.empty())
+		else if (TopicFound && Str.size() > 1 && Str[0] == L'$' && !strCurTopic.empty())
 		{
-			strEntryName=strReadStr.substr(1);
-			RemoveExternalSpaces(strEntryName);
-			strEntryName.erase(std::remove(ALL_RANGE(strEntryName), L'#'), strEntryName.end());
+			std::remove_copy(Str.begin() + 1, Str.end(), std::back_inserter(strEntryName), L'#');
 		}
 
 		if (TopicFound && !strEntryName.empty())
@@ -1982,11 +1950,26 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 			string ReplaceStr;
 			int CurPos=0;
 			int SearchLength;
-			bool Result = SearchString(strReadStr.data(), (int)strReadStr.size(), strLastSearchStr, strSearchStrUpper, strSearchStrLower, re, m.data(), &hm, ReplaceStr, CurPos, LastSearchCase, LastSearchWholeWords, false, false, LastSearchRegexp, &SearchLength);
 
-			if (Result)
+			if (SearchString(
+				Str,
+				strLastSearchStr,
+				strSearchStrUpper,
+				strSearchStrLower,
+				re,
+				m.data(),
+				&hm,
+				ReplaceStr,
+				CurPos,
+				LastSearchCase,
+				LastSearchWholeWords,
+				false,
+				LastSearchRegexp,
+				false,
+				&SearchLength
+			))
 			{
-				AddLine(concat(L"   ~"_sv, strEntryName, L'~', strCurTopic, L'@'));
+				AddLine(concat(L"   ~"sv, strEntryName, L'~', strCurTopic, L'@'));
 				strCurTopic.clear();
 				strEntryName.clear();
 				TopicFound=false;
@@ -1994,7 +1977,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 		}
 	}
 
-	AddLine(L"");
+	AddLine({});
 	MoveToReference(1,1);
 }
 
@@ -2008,16 +1991,17 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 	m_TopicFound = true;
 	StackData->CurX=StackData->CurY=0;
 	strCtrlColorChar.clear();
-	const wchar_t *PtrTitle = nullptr, *ContentsName = nullptr;
+	const wchar_t *PtrTitle = nullptr;
+	string_view ContentsName;
 
 	switch (TypeIndex)
 	{
 		case HIDX_PLUGINS:
-			PtrTitle = msg(lng::MPluginsHelpTitle).data();
-			ContentsName=L"PluginContents";
+			PtrTitle = msg(lng::MPluginsHelpTitle).c_str();
+			ContentsName = L"PluginContents"sv;
 			break;
 		default:
-			throw MAKE_FAR_EXCEPTION(L"Unsupported index");
+			throw MAKE_FAR_EXCEPTION(L"Unsupported index"sv);
 	}
 
 	AddTitle(PtrTitle);
@@ -2031,7 +2015,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 		{
 			std::for_each(CONST_RANGE(*Global->CtrlObject->Plugins, i)
 			{
-				auto strPath = i->GetModuleName();
+				auto strPath = i->ModuleName();
 				CutToSlash(strPath);
 				const auto HelpFileData = OpenLangFile(strPath, Global->HelpFileMask, Global->Opt->strHelpLanguage);
 				const auto& HelpFile = std::get<0>(HelpFileData);
@@ -2042,12 +2026,12 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 
 					if (GetLangParam(HelpFile, ContentsName, strEntryName, &strSecondParam, HelpFileCodePage))
 					{
-						string strHelpLine = L"   ~" + strEntryName;
+						string strHelpLine = concat(L"   ~"sv, strEntryName);
 						if (!strSecondParam.empty())
 						{
 							append(strHelpLine, L',', strSecondParam);
 						}
-						append(strHelpLine, L"~@"_sv, MakeLink(strPath, HelpContents), L'@');
+						append(strHelpLine, L"~@"sv, MakeLink(strPath, HelpContents), L'@');
 
 						AddLine(strHelpLine);
 					}
@@ -2057,13 +2041,13 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 			break;
 		}
 		default:
-			throw MAKE_FAR_EXCEPTION(L"Unsupported index");
+			throw MAKE_FAR_EXCEPTION(L"Unsupported index"sv);
 	}
 
 	// сортируем по алфавиту
 	std::sort(HelpList.begin()+1, HelpList.end());
 	// $ 26.06.2000 IS - Устранение глюка с хелпом по f1, shift+f2, end (решение предложил IG)
-	AddLine(L"");
+	AddLine({});
 }
 
 // Формирование топика с учетом разных факторов
@@ -2075,20 +2059,20 @@ bool Help::MkTopic(const Plugin* pPlugin, const string& HelpTopic, string &strTo
 	{
 		if (HelpTopic.front() == L':')
 		{
-			strTopic = HelpTopic.substr(1);
+			strTopic.erase(0, 1);
 		}
 		else
 		{
 			if (pPlugin && HelpTopic.front() != HelpBeginLink)
 			{
-				strTopic = format(HelpFormatLinkModule, pPlugin->GetModuleName(), HelpTopic);
+				strTopic = format(HelpFormatLinkModule, pPlugin->ModuleName(), HelpTopic);
 			}
 			else
 			{
 				strTopic = HelpTopic;
 			}
 
-			if (strTopic.front()==HelpBeginLink)
+			if (starts_with(strTopic, HelpBeginLink))
 			{
 				size_t EndPos = strTopic.find(HelpEndLink);
 
@@ -2156,110 +2140,40 @@ void Help::InitKeyBar()
 	m_windowKeyBar->SetCustomLabels(KBA_HELP);
 }
 
-/* $ 25.08.2000 SVS
-   Запуск URL-ссылок... ;-)
-   Это ведь так просто... ась?
-   Вернет:
-     0 - это не URL ссылка (не похожа)
-     1 - CreateProcess вернул FALSE
-     2 - Все Ок
-
-   Параметры (например):
-     Protocol="mailto"
-     URLPath ="mailto:vskirdin@mail.ru?Subject=Reversi"
-*/
-static int RunURL(const string& Protocol, const string& URLPath)
+static bool OpenURL(const string& URLPath)
 {
-	int EditCode=0;
+	if (!Global->Opt->HelpURLRules)
+		return false;
 
-	if (!URLPath.empty() && (Global->Opt->HelpURLRules&0xFF))
+	string FilteredURLPath(URLPath);
+	// удалим два идущих подряд ~~
+	ReplaceStrings(FilteredURLPath, L"~~"sv, L"~"sv);
+	// удалим два идущих подряд ##
+	ReplaceStrings(FilteredURLPath, L"##"sv, L"#"sv);
+
+	if (FilteredURLPath.empty())
+		return false;
+
+	if (Global->Opt->HelpURLRules > 1)
 	{
-		string strType;
-
-		if (GetShellType(Protocol,strType,AT_URLPROTOCOL))
-		{
-			string strAction;
-			bool Success;
-			if (strType.find(L"%1") != string::npos)
+		if (Message(MSG_WARNING,
+			msg(lng::MHelpTitle),
 			{
-				strAction = strType;
-				Success = true;
-			}
-			else
-			{
-				strType += L"\\shell\\open\\command";
-				Success = os::reg::key::classes_root.get(strType, L"", strAction);
-			}
-
-			if (Success)
-			{
-				strAction = os::env::expand(strAction);
-
-				string FilteredURLPath(URLPath);
-				// удалим два идущих подряд ~~
-				ReplaceStrings(FilteredURLPath, L"~~", L"~");
-				// удалим два идущих подряд ##
-				ReplaceStrings(FilteredURLPath, L"##", L"#");
-
-				int Disposition=0;
-
-				if (Global->Opt->HelpURLRules == 2 || Global->Opt->HelpURLRules == 2+256)
-				{
-					Disposition=Message(MSG_WARNING,
-						msg(lng::MHelpTitle),
-						{
-							msg(lng::MHelpActivatorURL),
-							strAction,
-							msg(lng::MHelpActivatorFormat),
-							FilteredURLPath,
-							L"\x01"s,
-							msg(lng::MHelpActivatorQ)
-						},
-						{ lng::MYes, lng::MNo });
-				}
-
-				EditCode=2; // Все Ok!
-
-				if (!Disposition)
-				{
-					/*
-					СЮДЫ НУЖНО ВПИНДЮЛИТЬ МЕНЮХУ С ВОЗМОЖНОСТЬЮ ВЫБОРА
-					ТОГО ИЛИ ИНОГО АКТИВАТОРА - ИХ МОЖЕТ БЫТЬ НЕСКОЛЬКО!!!!!
-					*/
-					const auto strCurDir = os::fs::GetCurrentDirectory();
-
-					if (Global->Opt->HelpURLRules < 256) // SHELLEXECUTEEX_METHOD
-					{
-						strAction=FilteredURLPath;
-						EditCode = ShellExecute(nullptr, nullptr, RemoveExternalSpaces(strAction).data(), nullptr, strCurDir.data(), SW_SHOWNORMAL) ? 1 : 2;
-					}
-					else
-					{
-						STARTUPINFO si={sizeof(si)};
-						PROCESS_INFORMATION pi={};
-
-						if (ReplaceStrings(strAction, L"%1", FilteredURLPath, false, 1) == 0) //if %1 not found
-						{
-							strAction += L' ';
-							strAction += FilteredURLPath;
-						}
-
-						if (!CreateProcess(nullptr, UNSAFE_CSTR(strAction),nullptr,nullptr,TRUE,0,nullptr,strCurDir.data(),&si,&pi))
-						{
-							EditCode=1;
-						}
-						else
-						{
-							CloseHandle(pi.hThread);
-							CloseHandle(pi.hProcess);
-						}
-					}
-				}
-			}
-		}
+				msg(lng::MHelpActivatorURL),
+				msg(lng::MHelpActivatorFormat),
+				FilteredURLPath,
+				L"\x01"s,
+				msg(lng::MHelpActivatorQ)
+			},
+			{ lng::MYes, lng::MNo }) != Message::first_button)
+			return false;
 	}
 
-	return EditCode;
+	execute_info Info;
+	Info.Command = FilteredURLPath;
+	Info.SourceMode = execute_info::source_mode::known; // skip plugin prefixes processing
+	Global->CtrlObject->CmdLine()->ExecString(Info);
+	return true;
 }
 
 void Help::ResizeConsole()

@@ -31,10 +31,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "setcolor.hpp"
+
 #include "farcolor.hpp"
 #include "vmenu.hpp"
 #include "vmenu2.hpp"
@@ -49,12 +47,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "lang.hpp"
 #include "manager.hpp"
+#include "global.hpp"
 
-void GetColor(PaletteColors PaletteIndex)
+#include "common/range.hpp"
+
+static void GetColor(PaletteColors PaletteIndex)
 {
 	auto NewColor = Global->Opt->Palette[PaletteIndex];
 
-	if (!Console().GetColorDialog(NewColor))
+	if (!console.GetColorDialog(NewColor))
 		return;
 
 	Global->Opt->Palette.Set(PaletteIndex, &NewColor, 1);
@@ -97,7 +98,7 @@ struct color_item
 
 static void SetItemColors(const color_item* Items, size_t Size, COORD Position = {})
 {
-	const auto ItemsMenu = VMenu2::create(msg(lng::MSetColorItemsTitle), nullptr, 0);
+	const auto ItemsMenu = VMenu2::create(msg(lng::MSetColorItemsTitle), {});
 
 	for (const auto& i : make_range(Items, Size))
 	{
@@ -112,7 +113,6 @@ static void SetItemColors(const color_item* Items, size_t Size, COORD Position =
 		if (Msg != DN_CLOSE || ItemsCode < 0)
 			return 0;
 
-		ItemsMenu->SendMessage(DM_ENABLEREDRAW, 1, nullptr);
 		if (Items[ItemsCode].SubColor)
 		{
 			SetItemColors(Items[ItemsCode].SubColor, Items[ItemsCode].SubColorCount, Position);
@@ -360,7 +360,7 @@ void SetColors()
 			{ lng::MSetColorHelp,        make_range(HelpItems) },
 		};
 
-		const auto GroupsMenu = VMenu2::create(msg(lng::MSetColorGroupsTitle), nullptr, 0);
+		const auto GroupsMenu = VMenu2::create(msg(lng::MSetColorGroupsTitle), {});
 
 		for (const auto& i: Groups)
 		{
@@ -373,9 +373,9 @@ void SetColors()
 			GroupsMenu->AddItem(tmp);
 		}
 
-		const int DefaultId = static_cast<int>(GroupsMenu->size());
+		const auto DefaultId = static_cast<int>(GroupsMenu->size());
 		GroupsMenu->AddItem(msg(lng::MSetDefaultColors));
-		const int BlackWhiteId = static_cast<int>(GroupsMenu->size());
+		const auto BlackWhiteId = static_cast<int>(GroupsMenu->size());
 		GroupsMenu->AddItem(msg(lng::MSetBW));
 
 		GroupsMenu->SetPosition(2,1,0,0);
@@ -385,7 +385,6 @@ void SetColors()
 			const auto ItemsCode = reinterpret_cast<intptr_t>(param);
 			if (Msg != DN_CLOSE || ItemsCode < 0 || static_cast<size_t>(ItemsCode) >= std::size(Groups))
 				return 0;
-			GroupsMenu->SendMessage(DM_ENABLEREDRAW, 1, nullptr);
 			SetItemColors(Groups[ItemsCode].Subitems.data(), Groups[ItemsCode].Subitems.size());
 			return 1;
 		});
@@ -410,7 +409,7 @@ constexpr auto distinct(T value)
 	return (~value & 0xff) >> 4 | value;
 }
 
-int ColorIndex[] =
+static int ColorIndex[] =
 {
 	distinct(B_BLACK),
 	distinct(B_RED),
@@ -492,8 +491,8 @@ bool GetColorDialogInternal(FarColor& Color,bool bCentered,bool bAddTransparent)
 {
 	FarDialogItem ColorDlgData[]=
 	{
-		{DI_DOUBLEBOX,   3, 1,35,13, 0,nullptr,nullptr,0,msg(lng::MSetColorTitle).data()},
-		{DI_SINGLEBOX,   5, 2,18, 7, 0,nullptr,nullptr,0,msg(lng::MSetColorForeground).data()},
+		{DI_DOUBLEBOX,   3, 1,35,13, 0,nullptr,nullptr,0,msg(lng::MSetColorTitle).c_str()},
+		{DI_SINGLEBOX,   5, 2,18, 7, 0,nullptr,nullptr,0,msg(lng::MSetColorForeground).c_str()},
 		{DI_RADIOBUTTON, 6, 3, 0, 3, 0,nullptr,nullptr,DIF_GROUP|DIF_MOVESELECT,L""},
 		{DI_RADIOBUTTON, 6, 4, 0, 4, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
 		{DI_RADIOBUTTON, 6, 5, 0, 5, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
@@ -510,7 +509,7 @@ bool GetColorDialogInternal(FarColor& Color,bool bCentered,bool bAddTransparent)
 		{DI_RADIOBUTTON,15, 4, 0, 4, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
 		{DI_RADIOBUTTON,15, 5, 0, 5, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
 		{DI_RADIOBUTTON,15, 6, 0, 6, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
-		{DI_SINGLEBOX,  20, 2,33, 7, 0,nullptr,nullptr,0,msg(lng::MSetColorBackground).data()},
+		{DI_SINGLEBOX,  20, 2,33, 7, 0,nullptr,nullptr,0,msg(lng::MSetColorBackground).c_str()},
 		{DI_RADIOBUTTON,21, 3, 0, 3, 0,nullptr,nullptr,DIF_GROUP|DIF_MOVESELECT,L""},
 		{DI_RADIOBUTTON,21, 4, 0, 4, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
 		{DI_RADIOBUTTON,21, 5, 0, 5, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
@@ -528,15 +527,15 @@ bool GetColorDialogInternal(FarColor& Color,bool bCentered,bool bAddTransparent)
 		{DI_RADIOBUTTON,30, 5, 0, 5, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
 		{DI_RADIOBUTTON,30, 6, 0, 6, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
 
-		{DI_CHECKBOX,    5, 10,0, 10,0,nullptr,nullptr,0,msg(lng::MSetColorForeTransparent).data()},
-		{DI_CHECKBOX,   22, 10,0, 10,0,nullptr,nullptr,0,msg(lng::MSetColorBackTransparent).data()},
+		{DI_CHECKBOX,    5, 10,0, 10,0,nullptr,nullptr,0,msg(lng::MSetColorForeTransparent).c_str()},
+		{DI_CHECKBOX,   22, 10,0, 10,0,nullptr,nullptr,0,msg(lng::MSetColorBackTransparent).c_str()},
 
-		{DI_TEXT,        5, 8, 33,8, 0,nullptr,nullptr,0,msg(lng::MSetColorSample).data()},
-		{DI_TEXT,        5, 9, 33,9, 0,nullptr,nullptr,0,msg(lng::MSetColorSample).data()},
-		{DI_TEXT,        5,10, 33,10,0,nullptr,nullptr,0,msg(lng::MSetColorSample).data()},
+		{DI_TEXT,        5, 8, 33,8, 0,nullptr,nullptr,0,msg(lng::MSetColorSample).c_str()},
+		{DI_TEXT,        5, 9, 33,9, 0,nullptr,nullptr,0,msg(lng::MSetColorSample).c_str()},
+		{DI_TEXT,        5,10, 33,10,0,nullptr,nullptr,0,msg(lng::MSetColorSample).c_str()},
 		{DI_TEXT,       -1,11, 0, 11,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,      0,12, 0, 12,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MSetColorSet).data()},
-		{DI_BUTTON,      0,12, 0, 12,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MSetColorCancel).data()},
+		{DI_BUTTON,      0,12, 0, 12,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MSetColorSet).c_str()},
+		{DI_BUTTON,      0,12, 0, 12,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MSetColorCancel).c_str()},
 
 	};
 	auto ColorDlg = MakeDialogItemsEx(ColorDlgData);
@@ -599,8 +598,8 @@ bool GetColorDialogInternal(FarColor& Color,bool bCentered,bool bAddTransparent)
 			ColorDlg[i].X2+=4;
 		}
 
-		ColorDlg[35].Selected=IS_TRANSPARENT(Color.ForegroundColor);
-		ColorDlg[36].Selected=IS_TRANSPARENT(Color.BackgroundColor);
+		ColorDlg[35].Selected = colors::is_transparent(Color.ForegroundColor);
+		ColorDlg[36].Selected = colors::is_transparent(Color.BackgroundColor);
 	}
 	else
 	{
@@ -623,8 +622,8 @@ bool GetColorDialogInternal(FarColor& Color,bool bCentered,bool bAddTransparent)
 	if (ExitCode==41)
 	{
 		Color=CurColor;
-		ColorDlg[35].Selected? MAKE_TRANSPARENT(Color.ForegroundColor) : MAKE_OPAQUE(Color.ForegroundColor);
-		ColorDlg[36].Selected? MAKE_TRANSPARENT(Color.BackgroundColor) : MAKE_OPAQUE(Color.BackgroundColor);
+		ColorDlg[35].Selected? colors::make_transparent(Color.ForegroundColor) : colors::make_opaque(Color.ForegroundColor);
+		ColorDlg[36].Selected? colors::make_transparent(Color.BackgroundColor) : colors::make_opaque(Color.BackgroundColor);
 		return true;
 	}
 

@@ -43,6 +43,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define SYMLINK_FLAG_RELATIVE 1
 #endif
 
+#ifndef SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE
+#define SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE 2
+#endif
+
 #ifndef IO_REPARSE_TAG_DEDUP
 #define IO_REPARSE_TAG_DEDUP 0x80000013L
 #endif
@@ -151,6 +155,22 @@ typedef struct _SCSI_PASS_THROUGH_WITH_BUFFERS
 }
 SCSI_PASS_THROUGH_WITH_BUFFERS, *PSCSI_PASS_THROUGH_WITH_BUFFERS;
 
+#define RTL_RESOURCE_FLAG_LONG_TERM ((ULONG)0x00000001)
+
+typedef struct _RTL_RESOURCE
+{
+	RTL_CRITICAL_SECTION Lock;
+	HANDLE SharedSemaphore;
+	ULONG SharedWaiters;
+	HANDLE ExclusiveSemaphore;
+	ULONG ExclusiveWaiters;
+	LONG NumberActive;
+	HANDLE OwningThread;
+	ULONG Flags;
+	PVOID DebugInfo;
+}
+RTL_RESOURCE, *PRTL_RESOURCE;
+
 #if _WIN32_WINNT >= 0x0603
 #include <VersionHelpers.h>
 #else
@@ -253,7 +273,16 @@ IsWindowsServer()
 }
 #endif
 
-#if !defined _WIN32_WINNT_WIN10 || defined __GNUC__ // mingw defines the constant, but not the helper below. Awesome.
+#define GCC_72_OR_OLDER 0
+
+#ifdef __GNUC__
+#if _GCC_VER < GCC_VER_(7,3,0)
+#undef GCC_72_OR_OLDER
+#define GCC_72_OR_OLDER 1
+#endif
+#endif
+
+#if !defined _WIN32_WINNT_WIN10 || GCC_72_OR_OLDER // mingw defines the constant, but not the helper below. Awesome.
 
 #ifndef _WIN32_WINNT_WIN10
 #define _WIN32_WINNT_WIN10 0xA00

@@ -31,12 +31,13 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "clipboard.hpp"
+
 #include "console.hpp"
 #include "encoding.hpp"
+
+#include "common/enum_substrings.hpp"
+#include "common/singleton.hpp"
 
 clipboard_mode default_clipboard_mode::m_Mode = clipboard_mode::system;
 
@@ -64,31 +65,31 @@ enum class clipboard::clipboard_format
 };
 
 //-----------------------------------------------------------------------------
-class system_clipboard: public clipboard, public singleton<system_clipboard>, noncopyable
+class system_clipboard: public clipboard, public singleton<system_clipboard>
 {
 	IMPLEMENTS_SINGLETON(system_clipboard);
 
 public:
-	virtual ~system_clipboard() override
+	~system_clipboard() override
 	{
 		system_clipboard::Close();
 	}
 
-	virtual bool Open() override
+	bool Open() override
 	{
 		assert(!m_Opened);
 
 		if (m_Opened)
 			return false;
 
-		if (!OpenClipboard(Console().GetWindow()))
+		if (!OpenClipboard(console.GetWindow()))
 			return false;
 
 		m_Opened = true;
 		return true;
 	}
 
-	virtual bool Close() override
+	bool Close() override
 	{
 		// Closing already closed buffer is OK
 		if (!m_Opened)
@@ -101,7 +102,7 @@ public:
 		return true;
 	}
 
-	virtual bool Clear() override
+	bool Clear() override
 	{
 		assert(m_Opened);
 
@@ -111,14 +112,14 @@ public:
 private:
 	system_clipboard() = default;
 
-	virtual HANDLE GetData(unsigned uFormat) const override
+	HANDLE GetData(unsigned uFormat) const override
 	{
 		assert(m_Opened);
 
 		return GetClipboardData(uFormat);
 	}
 
-	virtual bool SetData(unsigned uFormat, os::memory::global::ptr&& hMem) override
+	bool SetData(unsigned uFormat, os::memory::global::ptr&& hMem) override
 	{
 		assert(m_Opened);
 
@@ -127,7 +128,7 @@ private:
 
 		hMem.release();
 
-		auto Locale = os::memory::global::copy<LCID>(GetThreadLocale());
+		auto Locale = os::memory::global::copy(GetUserDefaultLCID());
 		if (!Locale)
 			return false;
 
@@ -138,7 +139,7 @@ private:
 		return true;
 	}
 
-	virtual unsigned RegisterFormat(clipboard_format Format) const override
+	unsigned RegisterFormat(clipboard_format Format) const override
 	{
 		static std::pair<const wchar_t*, unsigned> FormatNames[] =
 		{
@@ -160,14 +161,14 @@ private:
 		return FormatData.second;
 	}
 
-	virtual bool IsFormatAvailable(unsigned Format) const override
+	bool IsFormatAvailable(unsigned Format) const override
 	{
 		return IsClipboardFormatAvailable(Format) != FALSE;
 	}
 };
 
 //-----------------------------------------------------------------------------
-class internal_clipboard: public clipboard, public singleton<internal_clipboard>, noncopyable
+class internal_clipboard: public clipboard, public singleton<internal_clipboard>
 {
 	IMPLEMENTS_SINGLETON(internal_clipboard);
 
@@ -177,12 +178,12 @@ public:
 		return std::unique_ptr<clipboard>(new internal_clipboard);
 	}
 
-	virtual ~internal_clipboard() override
+	~internal_clipboard() override
 	{
 		internal_clipboard::Close();
 	}
 
-	virtual bool Open() override
+	bool Open() override
 	{
 		assert(!m_Opened);
 
@@ -193,14 +194,14 @@ public:
 		return true;
 	}
 
-	virtual bool Close() override
+	bool Close() override
 	{
 		// Closing already closed buffer is OK
 		m_Opened = false;
 		return true;
 	}
 
-	virtual bool Clear() override
+	bool Clear() override
 	{
 		assert(m_Opened);
 
@@ -214,7 +215,7 @@ public:
 private:
 	internal_clipboard() = default;
 
-	virtual HANDLE GetData(unsigned uFormat) const override
+	HANDLE GetData(unsigned uFormat) const override
 	{
 		assert(m_Opened);
 
@@ -225,7 +226,7 @@ private:
 		return ItemIterator != m_InternalData.cend()? ItemIterator->second.get() : nullptr;
 	}
 
-	virtual bool SetData(unsigned uFormat, os::memory::global::ptr&& hMem) override
+	bool SetData(unsigned uFormat, os::memory::global::ptr&& hMem) override
 	{
 		assert(m_Opened);
 
@@ -236,13 +237,13 @@ private:
 		return true;
 	}
 
-	virtual unsigned RegisterFormat(clipboard_format Format) const override
+	unsigned RegisterFormat(clipboard_format Format) const override
 	{
 		enum { FarClipboardMagic = 0xFC };
 		return static_cast<unsigned>(Format) + FarClipboardMagic;
 	}
 
-	virtual bool IsFormatAvailable(unsigned Format) const override
+	bool IsFormatAvailable(unsigned Format) const override
 	{
 		return Format && m_InternalData.count(Format);
 	}
@@ -277,12 +278,12 @@ clipboard& clipboard::GetInstance(clipboard_mode Mode)
 	return internal_clipboard::instance();
 }
 
-bool clipboard::SetText(const string_view& Str)
+bool clipboard::SetText(const string_view Str)
 {
 	if (!Clear())
 		return false;
 
-	auto hData = os::memory::global::copy(Str.raw_data(), Str.size());
+	auto hData = os::memory::global::copy(Str.data(), Str.size());
 	if (!hData)
 		return false;
 
@@ -296,7 +297,7 @@ bool clipboard::SetText(const string_view& Str)
 	return true;
 }
 
-bool clipboard::SetVText(const string_view& Str)
+bool clipboard::SetVText(const string_view Str)
 {
 	if (!SetText(Str))
 		return false;
@@ -320,16 +321,16 @@ bool clipboard::SetVText(const string_view& Str)
 	return true;
 }
 
-bool clipboard::SetHDROP(const string_view& NamesData, bool bMoved)
+bool clipboard::SetHDROP(const string_view NamesData, const bool bMoved)
 {
 	if (NamesData.empty())
 		return false;
 
-	auto hMemory = os::memory::global::alloc(GMEM_MOVEABLE, sizeof(DROPFILES) + (NamesData.size() + 1) * sizeof(wchar_t));
-	if (!hMemory)
+	auto Memory = os::memory::global::alloc(GMEM_MOVEABLE, sizeof(DROPFILES) + (NamesData.size() + 1) * sizeof(wchar_t));
+	if (!Memory)
 		return false;
 
-	const auto Drop = os::memory::global::lock<LPDROPFILES>(hMemory);
+	const auto Drop = os::memory::global::lock<LPDROPFILES>(Memory);
 	if (!Drop)
 		return false;
 
@@ -340,7 +341,7 @@ bool clipboard::SetHDROP(const string_view& NamesData, bool bMoved)
 	Drop->fWide = TRUE;
 	*std::copy(ALL_CONST_RANGE(NamesData), reinterpret_cast<wchar_t*>(Drop.get() + 1)) = 0;
 
-	if (!Clear() || !SetData(CF_HDROP, std::move(hMemory)))
+	if (!Clear() || !SetData(CF_HDROP, std::move(Memory)))
 		return false;
 
 	if (!bMoved)
@@ -355,7 +356,7 @@ bool clipboard::SetHDROP(const string_view& NamesData, bool bMoved)
 
 bool clipboard::GetText(string& Data) const
 {
-	auto hClipData = GetData(CF_UNICODETEXT);
+	const auto hClipData = GetData(CF_UNICODETEXT);
 	if (!hClipData)
 		return GetHDROPAsText(Data);
 
@@ -365,12 +366,12 @@ bool clipboard::GetText(string& Data) const
 
 	const auto& GetBinaryTextLength = [this]
 	{
-		auto hClipDataLen = GetData(RegisterFormat(clipboard_format::notepad_plusplus_binary_text_length));
+		const auto hClipDataLen = GetData(RegisterFormat(clipboard_format::notepad_plusplus_binary_text_length));
 		if (!hClipDataLen)
 			return string::npos;
 
 		const auto ClipLength = os::memory::global::lock<const uint32_t*>(hClipDataLen);
-		return ClipLength? static_cast<size_t>(*ClipLength.get()) : string::npos;
+		return ClipLength? static_cast<size_t>(*ClipLength) : string::npos;
 	};
 
 	const auto DataSize = GetBinaryTextLength();
@@ -395,14 +396,14 @@ bool clipboard::GetHDROPAsText(string& data) const
 		const auto Start = reinterpret_cast<const wchar_t*>(StartA);
 		for (const auto& i: enum_substrings(Start))
 		{
-			append(data, i, L"\r\n"_sv);
+			append(data, i, L"\r\n"sv);
 		}
 	}
 	else
 	{
 		for (const auto& i: enum_substrings(StartA))
 		{
-			append(data, encoding::ansi::get_chars(i), L"\r\n"_sv);
+			append(data, encoding::ansi::get_chars(i), L"\r\n"sv);
 		}
 	}
 
@@ -441,13 +442,13 @@ bool clipboard::GetVText(string& data) const
 }
 
 //-----------------------------------------------------------------------------
-bool SetClipboardText(const string_view& Str)
+bool SetClipboardText(const string_view Str)
 {
 	clipboard_accessor Clip;
 	return Clip->Open() && Clip->SetText(Str);
 }
 
-bool SetClipboardVText(const string_view& Str)
+bool SetClipboardVText(const string_view Str)
 {
 	clipboard_accessor Clip;
 	return Clip->Open() && Clip->SetVText(Str);

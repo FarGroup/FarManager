@@ -32,6 +32,11 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "preprocessor.hpp"
+
+namespace any_impl
+{
+
 namespace detail
 {
 	class any_base
@@ -42,16 +47,18 @@ namespace detail
 	};
 
 	template<class T>
-	class any_impl: noncopyable, public any_base
+	class any_impl: public any_base
 	{
 	public:
+		NONCOPYABLE(any_impl);
+
 		template<class Y>
 		explicit any_impl(Y&& Data):
 			m_Data(FWD(Data))
 		{
 		}
 
-		virtual std::unique_ptr<any_base> clone() const override { return std::make_unique<any_impl>(m_Data); }
+		std::unique_ptr<any_base> clone() const override { return std::make_unique<any_impl>(m_Data); }
 
 		const T& get() const noexcept { return m_Data; }
 		T& get() noexcept { return m_Data; }
@@ -59,7 +66,7 @@ namespace detail
 	private:
 		T m_Data;
 	};
-};
+}
 
 
 class any
@@ -99,18 +106,14 @@ public:
 
 	bool has_value() const noexcept { return m_Data != nullptr; }
 
-	template<class T>
-	friend T* any_cast(any* Any) noexcept
+	template<typename any_type>
+	friend auto detail_get_impl(any_type* Any)
 	{
-		if (!Any)
-			return nullptr;
-
-		const auto Impl = dynamic_cast<detail::any_impl<T>*>(Any->m_Data.get());
-		return Impl? &Impl->get() : nullptr;
+		return Any->m_Data.get();
 	}
 
 private:
-	template<class T, REQUIRES(!std::is_same<std::decay_t<T>, any>::value)>
+	template<class T, REQUIRES(!std::is_same_v<std::decay_t<T>, any>)>
 	static std::unique_ptr<detail::any_base> construct(T&& rhs)
 	{
 		return std::make_unique<detail::any_impl<std::decay_t<T>>>(FWD(rhs));
@@ -124,25 +127,47 @@ private:
 	std::unique_ptr<detail::any_base> m_Data;
 };
 
+class bad_any_cast: public std::bad_cast
+{
+	using bad_cast::bad_cast;
+};
+
+template<class T>
+T* any_cast(any* Any) noexcept
+{
+	if (!Any)
+		return nullptr;
+
+	const auto Impl = dynamic_cast<detail::any_impl<T>*>(detail_get_impl(Any));
+	return Impl? &Impl->get() : nullptr;
+}
+
 template<class T>
 const T* any_cast(const any* Any) noexcept
 {
-	return any_cast<T>(const_cast<any*>(Any));
+	if (!Any)
+		return nullptr;
+
+	const auto Impl = dynamic_cast<const detail::any_impl<T>*>(detail_get_impl(Any));
+	return Impl? &Impl->get() : nullptr;
 }
 
 template<class T>
-T& any_cast(any& Any)
+T any_cast(any& Any)
 {
-	if (const auto Result = any_cast<T>(&Any))
-		return *Result;
+	const auto Ptr = any_cast<std::remove_cv_t<std::remove_reference_t<T>>>(&Any);
+	if (!Ptr)
+		throw bad_any_cast{};
 
-	throw std::runtime_error("bad any_cast");
+	return static_cast<T>(*Ptr);
 }
 
 template<class T>
-const T& any_cast(const any& Any)
+T any_cast(const any& Any)
 {
 	return any_cast<T>(const_cast<any&>(Any));
 }
+
+} // any_impl
 
 #endif // ANY_HPP_A07ADDF9_9BA4_4CE8_AE6E_14C3B7A61D35

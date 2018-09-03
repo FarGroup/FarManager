@@ -53,6 +53,7 @@ SRCS = \
 	eject.cpp \
 	elevation.cpp \
 	encoding.cpp \
+	eol.cpp \
 	exception.cpp \
 	execute.cpp \
 	FarDlgBuilder.cpp \
@@ -113,6 +114,7 @@ SRCS = \
 	pipe.cpp \
 	platform.cpp \
 	platform.chrono.cpp \
+	platform.concurrency.cpp \
 	platform.env.cpp \
 	platform.fs.cpp \
 	platform.memory.cpp \
@@ -142,11 +144,12 @@ SRCS = \
 	shortcuts.cpp \
 	sqlitedb.cpp \
 	stddlg.cpp \
+	string_sort.cpp \
 	string_utils.cpp \
 	strmix.cpp \
 	syslog.cpp \
 	tinyxml.cpp \
-	TaskBar.cpp \
+	taskbar.cpp \
 	tracer.cpp \
 	treelist.cpp \
 	tvar.cpp \
@@ -231,7 +234,7 @@ $(OBJDIR)initguid.o: initguid.cpp
 
 $(OBJDIR)%.o: %.cpp
 	@echo $<
-	$(CXX) $(CCFLAGS) -c -include $(OBJDIR)headers -o $@ $<
+	$(CXX) $(CCFLAGS) -c -include $(OBJDIR)headers -include headers.hpp -include memcheck.hpp -o $@ $<
 
 $(OBJDIR)headers.gch: headers.cpp headers.hpp
 	@echo Making precompiled headers

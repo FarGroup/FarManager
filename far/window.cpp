@@ -31,14 +31,13 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "window.hpp"
+
 #include "keybar.hpp"
 #include "manager.hpp"
 #include "syslog.hpp"
 #include "savescr.hpp"
+#include "global.hpp"
 
 static int windowID=0;
 
@@ -56,7 +55,7 @@ window::~window()
 
 void window::UpdateKeyBar() const
 {
-	if (m_windowKeyBar && m_KeyBarVisible)
+	if (m_windowKeyBar && IsKeyBarVisible())
 		m_windowKeyBar->RedrawIfChanged();
 }
 
@@ -87,28 +86,28 @@ bool window::HasSaveScreen() const
 	return SaveScr || ShadowSaveScr;
 }
 
-void window::SetDeleting(void)
+void window::SetDeleting()
 {
 	m_Deleting=true;
 }
 
-bool window::IsDeleting(void) const
+bool window::IsDeleting() const
 {
 	return m_Deleting;
 }
 
-void window::Pin(void)
+void window::Pin()
 {
 	++m_BlockCounter;
 }
 
-void window::UnPin(void)
+void window::UnPin()
 {
 	assert(m_BlockCounter>0);
 	--m_BlockCounter;
 }
 
-bool window::IsPinned(void) const
+bool window::IsPinned() const
 {
 	return m_BlockCounter>0;
 }

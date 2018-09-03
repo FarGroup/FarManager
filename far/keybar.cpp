@@ -31,10 +31,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "keybar.hpp"
+
 #include "farcolor.hpp"
 #include "keyboard.hpp"
 #include "keys.hpp"
@@ -45,6 +43,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "configdb.hpp"
 #include "strmix.hpp"
+#include "global.hpp"
+#include "plugin.hpp"
+
+#include "common/enum_tokens.hpp"
+#include "common/range.hpp"
+
+#include "format.hpp"
 
 enum
 {
@@ -52,7 +57,7 @@ enum
 };
 
 KeyBar::KeyBar(window_ptr Owner):
-	SimpleScreenObject(Owner),
+	SimpleScreenObject(std::move(Owner)),
 	Items(KBL_GROUP_COUNT),
 	CustomArea(),
 	AltState(),
@@ -91,8 +96,6 @@ void KeyBar::DisplayObject()
 		Text(str(i + 1));
 		SetColor(COL_KEYBARTEXT);
 
-		string Label;
-
 		static const std::pair<bool(FarKeyboardState::*)() const, keybar_group> Mapping[] =
 		{
 			{ &FarKeyboardState::NonePressed, KBL_MAIN },
@@ -109,25 +112,30 @@ void KeyBar::DisplayObject()
 
 		const auto State = std::find_if(ALL_CONST_RANGE(Mapping), [&](const auto& Item) { return std::invoke(Item.first, IntKeyState); });
 		// State should always be valid so check is excessive, but style is style
-		Label = Items[(State != std::cend(Mapping)? State : std::cbegin(Mapping))->second][i].first;
+		auto Label = Items[(State != std::cend(Mapping)? State : std::cbegin(Mapping))->second][i].first;
 
-		if (contains(Label, L'|'))
 		{
-			auto LabelList = split<std::list<string>>(Label, STLF_NOTRIM | STLF_NOUNQUOTE, L"|");
-			if(!LabelList.empty())
+			string_view Beginning, Ending;
+			auto FirstEntry = true;
+			for (const auto& Part: enum_tokens_with_quotes(Label, L"|"sv))
 			{
-				string strLabelTest, strLabel2;
-				Label = LabelList.front();
-				LabelList.pop_front();
-				std::for_each(CONST_RANGE(LabelList, Label2)
+				if (FirstEntry)
 				{
-					strLabelTest = Label + Label2;
-					if (strLabelTest.size() <= static_cast<size_t>(LabelWidth))
-						if (Label2.size() > strLabel2.size())
-							strLabel2 = Label2;
-				});
+					Beginning = Part;
+					FirstEntry = false;
+					continue;
+				}
 
-				Label+=strLabel2;
+				if (Beginning.size() + Part.size() > static_cast<size_t>(LabelWidth))
+					break;
+
+				if (Part.size() > Ending.size())
+					Ending = Part;
+			}
+
+			if (!Beginning.empty())
+			{
+				Label = concat(Beginning, Ending);
 			}
 		}
 
@@ -170,7 +178,7 @@ void KeyBar::SetLabels(lng StartIndex)
 		std::for_each(RANGE(Group, i)
 		{
 			if (no_tree && (StartIndex == lng::MAltF10 || StartIndex == lng::MInfoAltF10 || StartIndex == lng::MQViewAltF10))
-				i.first = L"";
+				i.first.clear();
 			else
 				i.first = msg(StartIndex);
 			StartIndex++;
@@ -208,16 +216,16 @@ static int FnGroup(DWORD ControlState)
 
 void KeyBar::SetCustomLabels(KEYBARAREA Area)
 {
-	static const wchar_t* const Names[] =
+	static const string_view Names[]
 	{
-		L"Shell",
-		L"Info",
-		L"Tree",
-		L"QView",
-		L"FindFolder",
-		L"Editor",
-		L"Viewer",
-		L"Help",
+		L"Shell"sv,
+		L"Info"sv,
+		L"Tree"sv,
+		L"QView"sv,
+		L"FindFolder"sv,
+		L"Editor"sv,
+		L"Viewer"sv,
+		L"Help"sv,
 	};
 
 	static_assert(std::size(Names) == KBA_COUNT);
@@ -228,8 +236,7 @@ void KeyBar::SetCustomLabels(KEYBARAREA Area)
 		CustomArea = Area;
 		ClearKeyTitles(true);
 
-		const auto KeyName = concat(L"KeyBarLabels."_sv, strLanguage, L'.', Names[Area]);
-		for (auto& i: ConfigProvider().GeneralCfg()->ValuesEnumerator<string>(KeyName))
+		for (auto& i: ConfigProvider().GeneralCfg()->ValuesEnumerator<string>(concat(L"KeyBarLabels."sv, strLanguage, L'.', Names[Area])))
 		{
 			DWORD Key = KeyNameToKey(i.first);
 			DWORD fnum = (Key & ~KEY_CTRLMASK) - KEY_F1;

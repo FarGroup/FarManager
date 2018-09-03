@@ -31,14 +31,12 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
+#include "filefilterparams.hpp"
 
 #include "farcolor.hpp"
 #include "filemasks.hpp"
 #include "dialog.hpp"
 #include "filelist.hpp"
-#include "filefilterparams.hpp"
 #include "colormix.hpp"
 #include "message.hpp"
 #include "interf.hpp"
@@ -50,6 +48,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "locale.hpp"
 #include "fileattr.hpp"
 #include "DlgGuid.hpp"
+
+#include "platform.fs.hpp"
+
+#include "common/zip_view.hpp"
+
+#include "format.hpp"
 
 filter_dates::filter_dates(os::chrono::duration After, os::chrono::duration Before):
 	m_After(After),
@@ -65,9 +69,9 @@ filter_dates::filter_dates(os::chrono::time_point After, os::chrono::time_point 
 {
 }
 
-bool filter_dates::operator!() const
+filter_dates::operator bool() const
 {
-	return m_After == m_After.zero() && m_Before == m_Before.zero();
+	return m_After != m_After.zero() || m_Before != m_Before.zero();
 }
 
 
@@ -80,12 +84,12 @@ FileFilterParams::FileFilterParams():
 	FHighlight(),
 	FFlags()
 {
-	SetMask(true, L"*");
+	SetMask(true, L"*"sv);
 
 	std::for_each(RANGE(FHighlight.Colors.Color, i)
 	{
-		MAKE_OPAQUE(i.FileColor.ForegroundColor);
-		MAKE_OPAQUE(i.MarkColor.ForegroundColor);
+		colors::make_opaque(i.FileColor.ForegroundColor);
+		colors::make_opaque(i.MarkColor.ForegroundColor);
 	});
 
 	FHighlight.SortGroup=DEFAULT_SORT_GROUP;
@@ -107,45 +111,45 @@ FileFilterParams FileFilterParams::Clone() const
 	return Result;
 }
 
-void FileFilterParams::SetTitle(const string& Title)
+void FileFilterParams::SetTitle(string_view const Title)
 {
-	m_strTitle = Title;
+	assign(m_strTitle, Title);
 }
 
-void FileFilterParams::SetMask(bool Used, const string& Mask)
+void FileFilterParams::SetMask(bool const Used, string_view const Mask)
 {
 	FMask.Used = Used;
-	FMask.strMask = Mask;
+	assign(FMask.strMask, Mask);
 	if (Used)
 	{
 		FMask.FilterMask.Set(FMask.strMask, FMF_SILENT);
 	}
 }
 
-void FileFilterParams::SetDate(bool Used, enumFDateType DateType, const filter_dates& Dates)
+void FileFilterParams::SetDate(bool const Used, enumFDateType const DateType, const filter_dates& Dates)
 {
 	FDate.Used=Used;
 	FDate.DateType = DateType < FDATE_COUNT? DateType : FDATE_MODIFIED;
 	FDate.Dates = Dates;
 }
 
-void FileFilterParams::SetSize(bool Used, const string& SizeAbove, const string& SizeBelow)
+void FileFilterParams::SetSize(bool const Used, string_view const SizeAbove, string_view const SizeBelow)
 {
 	FSize.Used=Used;
-	FSize.SizeAbove = SizeAbove;
-	FSize.SizeBelow = SizeBelow;
+	assign(FSize.SizeAbove, SizeAbove);
+	assign(FSize.SizeBelow, SizeBelow);
 	FSize.SizeAboveReal=ConvertFileSizeString(FSize.SizeAbove);
 	FSize.SizeBelowReal=ConvertFileSizeString(FSize.SizeBelow);
 }
 
-void FileFilterParams::SetHardLinks(bool Used, DWORD HardLinksAbove, DWORD HardLinksBelow)
+void FileFilterParams::SetHardLinks(bool const Used, DWORD const HardLinksAbove, DWORD const HardLinksBelow)
 {
 	FHardLinks.Used=Used;
 	FHardLinks.CountAbove=HardLinksAbove;
 	FHardLinks.CountBelow=HardLinksBelow;
 }
 
-void FileFilterParams::SetAttr(bool Used, DWORD AttrSet, DWORD AttrClear)
+void FileFilterParams::SetAttr(bool const Used, DWORD const AttrSet, DWORD const AttrClear)
 {
 	FAttr.Used=Used;
 	FAttr.AttrSet=AttrSet;
@@ -219,13 +223,13 @@ struct filter_file_object
 bool FileFilterParams::FileInFilter(const FileListItem* fli, const FileList* Owner, os::chrono::time_point CurrentTime) const
 {
 	filter_file_object Object;
-	Object.Attributes = fli->FileAttr;
+	Object.Attributes = fli->Attributes;
 	Object.Size = fli->FileSize;
 	Object.CreationTime = fli->CreationTime;
-	Object.ModificationTime = fli->WriteTime;
-	Object.AccessTime = fli->AccessTime;
+	Object.ModificationTime = fli->LastWriteTime;
+	Object.AccessTime = fli->LastAccessTime;
 	Object.ChangeTime = fli->ChangeTime;
-	Object.Name = fli->strName;
+	Object.Name = fli->FileName;
 
 	return FileInFilter(Object, CurrentTime, [&](filter_file_object& Item)
 	{
@@ -236,13 +240,13 @@ bool FileFilterParams::FileInFilter(const FileListItem* fli, const FileList* Own
 bool FileFilterParams::FileInFilter(const os::fs::find_data& fde, os::chrono::time_point CurrentTime,const string* FullName) const
 {
 	filter_file_object Object;
-	Object.Attributes = fde.dwFileAttributes;
-	Object.Size = fde.nFileSize;
+	Object.Attributes = fde.Attributes;
+	Object.Size = fde.FileSize;
 	Object.CreationTime = fde.CreationTime;
 	Object.ModificationTime = fde.LastWriteTime;
 	Object.AccessTime = fde.LastAccessTime;
 	Object.ChangeTime = fde.ChangeTime;
-	Object.Name = fde.strFileName;
+	Object.Name = fde.FileName;
 
 	return FileInFilter(Object, CurrentTime, [&](filter_file_object& Item)
 	{
@@ -381,13 +385,13 @@ bool FileFilterParams::FileInFilter(filter_file_object& Object, os::chrono::time
 }
 
 //Централизованная функция для создания строк меню различных фильтров.
-string MenuString(const FileFilterParams *FF, bool bHighlightType, wchar_t Hotkey, bool bPanelType, const wchar_t *FMask, const wchar_t *Title)
+string MenuString(const FileFilterParams* const FF, bool const bHighlightType, wchar_t const Hotkey, bool const bPanelType, string_view const FMask, string_view const Title)
 {
 	string strDest;
 
 	const wchar_t DownArrow = L'\x2193';
-	const wchar_t* Name;
-	const wchar_t* Mask = L"";
+	string_view Name;
+	auto Mask = L""sv;
 	wchar_t MarkChar[]=L"' '";
 	DWORD IncludeAttr, ExcludeAttr;
 	bool UseSize, UseHardLinks, UseDate, RelativeDate;
@@ -407,10 +411,10 @@ string MenuString(const FileFilterParams *FF, bool bHighlightType, wchar_t Hotke
 		if (!MarkChar[1])
 			*MarkChar=0;
 
-		Name=FF->GetTitle().data();
+		Name=FF->GetTitle();
 		
 		if (FF->IsMaskUsed())
-			Mask = FF->GetMask().data();
+			Mask = FF->GetMask();
 
 		if (!FF->GetAttr(&IncludeAttr,&ExcludeAttr))
 			IncludeAttr=ExcludeAttr=0;
@@ -480,7 +484,7 @@ string MenuString(const FileFilterParams *FF, bool bHighlightType, wchar_t Hotke
 
 		if (!Hotkey && !bPanelType)
 		{
-			strDest = format(L"{1:{2}.{2}} {0} {3} {4} {0} {5}", BoxSymbols[BS_V1], Name, 21 + (wcschr(Name, L'&')? 1 : 0), Attr, SizeDate, Mask);
+			strDest = format(L"{1:{2}.{2}} {0} {3} {4} {0} {5}", BoxSymbols[BS_V1], Name, 21 + (contains(Name, L'&')? 1 : 0), Attr, SizeDate, Mask);
 		}
 		else
 		{
@@ -491,7 +495,7 @@ string MenuString(const FileFilterParams *FF, bool bHighlightType, wchar_t Hotke
 		}
 	}
 
-	RemoveTrailingSpaces(strDest);
+	inplace::trim_right(strDest);
 	return strDest;
 }
 
@@ -578,9 +582,8 @@ enum enumFileFilterConfig
 	ID_FF_MAKETRANSPARENT,
 };
 
-void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const highlight::element &Colors)
+static void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const highlight::element &Colors)
 {
-	FarColor Color;
 	const PaletteColors PalColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR};
 	int VBufRow = 0;
 
@@ -589,9 +592,9 @@ void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const highli
 		auto& CurColor= std::get<0>(i);
 		const auto pal = std::get<1>(i);
 
-		Color = CurColor.FileColor;
+		auto Color = CurColor.FileColor;
 
-		if (!COLORVALUE(Color.BackgroundColor) && !COLORVALUE(Color.ForegroundColor))
+		if (!colors::color_value(Color.BackgroundColor) && !colors::color_value(Color.ForegroundColor))
 		{
 			FARCOLORFLAGS ExFlags = Color.Flags&FCF_EXTENDEDFLAGS;
 			Color=colors::PaletteColorToFarColor(pal);
@@ -612,7 +615,7 @@ void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const highli
 			// inherit only color mode, not style
 			VBufColorExample[15*VBufRow+1].Attributes.Flags = Color.Flags&FCF_4BITMASK;
 			VBufColorExample[15*VBufRow+1].Char = Colors.Mark.Char;
-			if (COLORVALUE(CurColor.MarkColor.ForegroundColor) || COLORVALUE(CurColor.MarkColor.BackgroundColor))
+			if (colors::color_value(CurColor.MarkColor.ForegroundColor) || colors::color_value(CurColor.MarkColor.BackgroundColor))
 			{
 				VBufColorExample[15 * VBufRow + 1].Attributes = CurColor.MarkColor;
 			}
@@ -628,7 +631,7 @@ void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const highli
 	}
 }
 
-void FilterDlgRelativeDateItemsUpdate(Dialog* Dlg, bool bClear)
+static void FilterDlgRelativeDateItemsUpdate(Dialog* Dlg, bool bClear)
 {
 	Dlg->SendMessage(DM_ENABLEREDRAW, FALSE, nullptr);
 
@@ -662,7 +665,7 @@ void FilterDlgRelativeDateItemsUpdate(Dialog* Dlg, bool bClear)
 	Dlg->SendMessage(DM_ENABLEREDRAW, TRUE, nullptr);
 }
 
-intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
+static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	switch (Msg)
 	{
@@ -735,12 +738,12 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 				const auto Colors = reinterpret_cast<highlight::element*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 
 				std::for_each(RANGE(Colors->Color, i)
-			              {
-				              MAKE_TRANSPARENT(i.FileColor.ForegroundColor);
-				              MAKE_TRANSPARENT(i.FileColor.BackgroundColor);
-				              MAKE_TRANSPARENT(i.MarkColor.ForegroundColor);
-				              MAKE_TRANSPARENT(i.MarkColor.BackgroundColor);
-			              });
+				{
+					colors::make_transparent(i.FileColor.ForegroundColor);
+					colors::make_transparent(i.FileColor.BackgroundColor);
+					colors::make_transparent(i.MarkColor.ForegroundColor);
+					colors::make_transparent(i.MarkColor.BackgroundColor);
+				});
 
 				Dlg->SendMessage(DM_SETCHECK,ID_HER_MARKTRANSPARENT,ToPtr(BSTATE_CHECKED));
 				break;
@@ -751,7 +754,7 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 				break;
 			}
 		}
-		// fallthrough
+		[[fallthrough]];
 	case DN_CONTROLINPUT:
 
 		if ((Msg==DN_BTNCLICK && Param1 >= ID_HER_NORMALFILE && Param1 <= ID_HER_SELECTEDCURSORMARKING)
@@ -768,7 +771,7 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 			}
 
 			//Color[0=file, 1=mark][0=normal,1=selected,2=undercursor,3=selectedundercursor]
-			Console().GetColorDialog(((Param1-ID_HER_NORMALFILE)&1)? EditData->Color[(Param1-ID_HER_NORMALFILE)/2].MarkColor : EditData->Color[(Param1-ID_HER_NORMALFILE)/2].FileColor, true, true);
+			console.GetColorDialog(((Param1-ID_HER_NORMALFILE)&1)? EditData->Color[(Param1-ID_HER_NORMALFILE)/2].MarkColor : EditData->Color[(Param1-ID_HER_NORMALFILE)/2].FileColor, true, true);
 
 			size_t Size = Dlg->SendMessage(DM_GETDLGITEM, ID_HER_COLOREXAMPLE, nullptr);
 			block_ptr<FarDialogItem> Buffer(Size);
@@ -818,13 +821,13 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 			}
 			if (!Ok)
 			{
-				intptr_t ColorConfig = Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr);
+				const auto ColorConfig = Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr);
 				Message(MSG_WARNING,
-				        msg(ColorConfig ? lng::MFileHilightTitle : lng::MFileFilterTitle),
-				        {
-					        msg(lng::MBadFileSizeFormat)
-				        },
-				        { lng::MOk });
+					msg(ColorConfig? lng::MFileHilightTitle : lng::MFileFilterTitle),
+					{
+						msg(lng::MBadFileSizeFormat)
+					},
+					{ lng::MOk });
 				return FALSE;
 			}
 		}
@@ -848,115 +851,133 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	// Маски для диалога настройки
 	// Маска для ввода дней для относительной даты
 	const wchar_t DaysMask[] = L"9999";
-	string strDateMask, strTimeMask;
+	string strDateMask;
 	// Определение параметров даты и времени в системе.
-	wchar_t DateSeparator = locale::GetDateSeparator();
-	wchar_t TimeSeparator = locale::GetTimeSeparator();
-	wchar_t DecimalSeparator = locale::GetDecimalSeparator();
-	int DateFormat = locale::GetDateFormat();
+	wchar_t DateSeparator = locale.date_separator();
+	wchar_t TimeSeparator = locale.time_separator();
+	wchar_t DecimalSeparator = locale.decimal_separator();
+	const auto DateFormat = locale.date_format();
+	date_ranges DateRanges;
 
 	switch (DateFormat)
 	{
 	case 0:
-		// Маска даты для форматов DD.MM.YYYYY и MM.DD.YYYYY
-		strDateMask = string(L"99") + DateSeparator + L"99" + DateSeparator + L"9999N";
-		break;
 	case 1:
 		// Маска даты для форматов DD.MM.YYYYY и MM.DD.YYYYY
-		strDateMask = string(L"99") + DateSeparator + L"99" + DateSeparator + L"9999N";
+		strDateMask = format(L"99{0}99{0}9999N", DateSeparator);
+		DateRanges = {{ { 0, 2 }, { 3, 2 }, { 6, 5 } }};
 		break;
+
 	default:
 		// Маска даты для формата YYYYY.MM.DD
-		strDateMask = string(L"N9999") + DateSeparator + L"99" + DateSeparator + L"99";
+		strDateMask = format(L"N9999{0}99{0}99", DateSeparator);
+		DateRanges = {{ { 0, 5 }, { 6, 2 }, { 9, 2 } }};
 		break;
 	}
 
 	// Маска времени
-	strTimeMask = string(L"99") + TimeSeparator + L"99" + TimeSeparator + L"99" + DecimalSeparator + L"999";
+	const auto strTimeMask = format(L"99{0}99{0}99{1}999", TimeSeparator, DecimalSeparator);
+	const time_ranges TimeRanges{{ {0, 2}, {3, 2}, {6, 2}, {9, 3} }};
 	const wchar_t VerticalLine[] = {BoxSymbols[BS_T_H1V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_B_H1V1],0};
+
+	std::pair<lng, string> NameLabels[] =
+	{
+		{lng::MHighlightFileName1, {}},
+		{lng::MHighlightFileName2, {}},
+		{lng::MHighlightFileName3, {}},
+		{lng::MHighlightFileName4, {}},
+	};
+
+	const auto ColumnSize = msg(std::max_element(ALL_CONST_RANGE(NameLabels), [](const auto& a, const auto& b) { return msg(a.first).size() < msg(b.first).size(); })->first).size() + 1;
+
+	for (auto& i: NameLabels)
+	{
+		i.second = pad_right(msg(i.first), ColumnSize);
+	}
+
 	FarDialogItem FilterDlgData[]=
 	{
-		{DI_DOUBLEBOX,3,1,76,23,0,nullptr,nullptr,DIF_SHOWAMPERSAND,msg(lng::MFileFilterTitle).data()},
+		{DI_DOUBLEBOX,3,1,76,23,0,nullptr,nullptr,DIF_SHOWAMPERSAND,msg(lng::MFileFilterTitle).c_str()},
 
-		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,DIF_FOCUS,msg(lng::MFileFilterName).data()},
+		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,DIF_FOCUS,msg(lng::MFileFilterName).c_str()},
 		{DI_EDIT,5,2,74,2,0,FilterNameHistoryName,nullptr,DIF_HISTORY,L""},
 
 		{DI_TEXT,-1,3,0,3,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 
-		{DI_CHECKBOX,5,4,0,4,0,nullptr,nullptr,DIF_AUTOMATION,msg(lng::MFileFilterMatchMask).data()},
+		{DI_CHECKBOX,5,4,0,4,0,nullptr,nullptr,DIF_AUTOMATION,msg(lng::MFileFilterMatchMask).c_str()},
 		{DI_EDIT,5,4,74,4,0,FilterMasksHistoryName,nullptr,DIF_HISTORY,L""},
 
 		{DI_TEXT,-1,5,0,5,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 
-		{DI_CHECKBOX,5,6,0,6,0,nullptr,nullptr,DIF_AUTOMATION,msg(lng::MFileFilterSize).data()},
-		{DI_TEXT,7,7,8,7,0,nullptr,nullptr,0,msg(lng::MFileFilterSizeFromSign).data()},
+		{DI_CHECKBOX,5,6,0,6,0,nullptr,nullptr,DIF_AUTOMATION,msg(lng::MFileFilterSize).c_str()},
+		{DI_TEXT,7,7,8,7,0,nullptr,nullptr,0,msg(lng::MFileFilterSizeFromSign).c_str()},
 		{DI_EDIT,10,7,20,7,0,nullptr,nullptr,0,L""},
-		{DI_TEXT,7,8,8,8,0,nullptr,nullptr,0,msg(lng::MFileFilterSizeToSign).data()},
+		{DI_TEXT,7,8,8,8,0,nullptr,nullptr,0,msg(lng::MFileFilterSizeToSign).c_str()},
 		{DI_EDIT,10,8,20,8,0,nullptr,nullptr,0,L""},
 
-		{DI_CHECKBOX,24,6,0,6,0,nullptr,nullptr,DIF_AUTOMATION,msg(lng::MFileFilterDate).data()},
+		{DI_CHECKBOX,24,6,0,6,0,nullptr,nullptr,DIF_AUTOMATION,msg(lng::MFileFilterDate).c_str()},
 		{DI_COMBOBOX,26,7,41,7,0,nullptr,nullptr,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,L""},
-		{DI_CHECKBOX,26,8,0,8,0,nullptr,nullptr,0,msg(lng::MFileFilterDateRelative).data()},
-		{DI_TEXT,48,7,50,7,0,nullptr,nullptr,0,msg(lng::MFileFilterDateBeforeSign).data()},
-		{DI_FIXEDIT,51,7,61,7,0,nullptr,strDateMask.data(),DIF_MASKEDIT,L""},
+		{DI_CHECKBOX,26,8,0,8,0,nullptr,nullptr,0,msg(lng::MFileFilterDateRelative).c_str()},
+		{DI_TEXT,48,7,50,7,0,nullptr,nullptr,0,msg(lng::MFileFilterDateBeforeSign).c_str()},
+		{DI_FIXEDIT,51,7,61,7,0,nullptr,strDateMask.c_str(),DIF_MASKEDIT,L""},
 		{DI_FIXEDIT,51,7,61,7,0,nullptr,DaysMask,DIF_MASKEDIT,L""},
-		{DI_FIXEDIT,63,7,74,7,0,nullptr,strTimeMask.data(),DIF_MASKEDIT,L""},
-		{DI_TEXT,48,8,50,8,0,nullptr,nullptr,0,msg(lng::MFileFilterDateAfterSign).data()},
-		{DI_FIXEDIT,51,8,61,8,0,nullptr,strDateMask.data(),DIF_MASKEDIT,L""},
+		{DI_FIXEDIT,63,7,74,7,0,nullptr,strTimeMask.c_str(),DIF_MASKEDIT,L""},
+		{DI_TEXT,48,8,50,8,0,nullptr,nullptr,0,msg(lng::MFileFilterDateAfterSign).c_str()},
+		{DI_FIXEDIT,51,8,61,8,0,nullptr,strDateMask.c_str(),DIF_MASKEDIT,L""},
 		{DI_FIXEDIT,51,8,61,8,0,nullptr,DaysMask,DIF_MASKEDIT,L""},
-		{DI_FIXEDIT,63,8,74,8,0,nullptr,strTimeMask.data(),DIF_MASKEDIT,L""},
-		{DI_BUTTON,0,6,0,6,0,nullptr,nullptr,DIF_BTNNOCLOSE,msg(lng::MFileFilterCurrent).data()},
-		{DI_BUTTON,0,6,74,6,0,nullptr,nullptr,DIF_BTNNOCLOSE,msg(lng::MFileFilterBlank).data()},
+		{DI_FIXEDIT,63,8,74,8,0,nullptr,strTimeMask.c_str(),DIF_MASKEDIT,L""},
+		{DI_BUTTON,0,6,0,6,0,nullptr,nullptr,DIF_BTNNOCLOSE,msg(lng::MFileFilterCurrent).c_str()},
+		{DI_BUTTON,0,6,74,6,0,nullptr,nullptr,DIF_BTNNOCLOSE,msg(lng::MFileFilterBlank).c_str()},
 
 		{DI_TEXT,-1,9,0,9,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 		{DI_VTEXT,22,5,22,9,0,nullptr,nullptr,DIF_BOXCOLOR,VerticalLine},
 
-		{DI_CHECKBOX, 5,10,0,10,0,nullptr,nullptr,DIF_AUTOMATION,msg(lng::MFileFilterAttr).data()},
-		{DI_CHECKBOX, 7,11,0,11,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrR).data()},
-		{DI_CHECKBOX, 7,12,0,12,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrA).data()},
-		{DI_CHECKBOX, 7,13,0,13,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrH).data()},
-		{DI_CHECKBOX, 7,14,0,14,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrS).data()},
-		{DI_CHECKBOX, 7,15,0,15,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrC).data()},
-		{DI_CHECKBOX, 7,16,0,16,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrE).data()},
-		{DI_CHECKBOX, 7,17,0,17,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrNI).data()},
-		{DI_CHECKBOX, 7,18,0,18,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrD).data()},
+		{DI_CHECKBOX, 5,10,0,10,0,nullptr,nullptr,DIF_AUTOMATION,msg(lng::MFileFilterAttr).c_str()},
+		{DI_CHECKBOX, 7,11,0,11,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrR).c_str()},
+		{DI_CHECKBOX, 7,12,0,12,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrA).c_str()},
+		{DI_CHECKBOX, 7,13,0,13,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrH).c_str()},
+		{DI_CHECKBOX, 7,14,0,14,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrS).c_str()},
+		{DI_CHECKBOX, 7,15,0,15,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrC).c_str()},
+		{DI_CHECKBOX, 7,16,0,16,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrE).c_str()},
+		{DI_CHECKBOX, 7,17,0,17,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrNI).c_str()},
+		{DI_CHECKBOX, 7,18,0,18,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrD).c_str()},
 
-		{DI_CHECKBOX,42,11,0,11,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrSparse).data()},
-		{DI_CHECKBOX,42,12,0,12,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrT).data()},
-		{DI_CHECKBOX,42,13,0,13,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrOffline).data()},
-		{DI_CHECKBOX,42,14,0,14,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrReparse).data()},
-		{DI_CHECKBOX,42,15,0,15,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrVirtual).data()},
-		{DI_CHECKBOX,42,16,0,16,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrIntegrityStream).data()},
-		{DI_CHECKBOX,42,17,0,17,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrNoScrubData).data()},
+		{DI_CHECKBOX,42,11,0,11,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrSparse).c_str()},
+		{DI_CHECKBOX,42,12,0,12,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrT).c_str()},
+		{DI_CHECKBOX,42,13,0,13,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrOffline).c_str()},
+		{DI_CHECKBOX,42,14,0,14,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrReparse).c_str()},
+		{DI_CHECKBOX,42,15,0,15,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrVirtual).c_str()},
+		{DI_CHECKBOX,42,16,0,16,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrIntegrityStream).c_str()},
+		{DI_CHECKBOX,42,17,0,17,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrNoScrubData).c_str()},
 
-		{DI_TEXT,-1,17,0,17,0,nullptr,nullptr,DIF_SEPARATOR,msg(lng::MHighlightColors).data()},
-		{DI_TEXT,7,18,0,18,0,nullptr,nullptr,0,msg(lng::MHighlightMarkChar).data()},
+		{DI_TEXT,-1,17,0,17,0,nullptr,nullptr,DIF_SEPARATOR,msg(lng::MHighlightColors).c_str()},
+		{DI_TEXT,7,18,0,18,0,nullptr,nullptr,0,msg(lng::MHighlightMarkChar).c_str()},
 		{DI_FIXEDIT,5,18,5,18,0,nullptr,nullptr,0,L""},
-		{DI_CHECKBOX,0,18,0,18,0,nullptr,nullptr,0,msg(lng::MHighlightTransparentMarkChar).data()},
+		{DI_CHECKBOX,0,18,0,18,0,nullptr,nullptr,0,msg(lng::MHighlightTransparentMarkChar).c_str()},
 
-		{DI_BUTTON,5,19,0,19,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,msg(lng::MHighlightFileName1).data()},
-		{DI_BUTTON,0,19,0,19,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,msg(lng::MHighlightMarking1).data()},
-		{DI_BUTTON,5,20,0,20,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,msg(lng::MHighlightFileName2).data()},
-		{DI_BUTTON,0,20,0,20,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,msg(lng::MHighlightMarking2).data()},
-		{DI_BUTTON,5,21,0,21,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,msg(lng::MHighlightFileName3).data()},
-		{DI_BUTTON,0,21,0,21,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,msg(lng::MHighlightMarking3).data()},
-		{DI_BUTTON,5,22,0,22,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,msg(lng::MHighlightFileName4).data()},
-		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,msg(lng::MHighlightMarking4).data()},
+		{DI_BUTTON,5,19,0,19,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,NameLabels[0].second.c_str()},
+		{DI_BUTTON,0,19,0,19,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,msg(lng::MHighlightMarking1).c_str()},
+		{DI_BUTTON,5,20,0,20,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,NameLabels[1].second.c_str()},
+		{DI_BUTTON,0,20,0,20,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,msg(lng::MHighlightMarking2).c_str()},
+		{DI_BUTTON,5,21,0,21,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,NameLabels[2].second.c_str()},
+		{DI_BUTTON,0,21,0,21,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,msg(lng::MHighlightMarking3).c_str()},
+		{DI_BUTTON,5,22,0,22,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,NameLabels[3].second.c_str()},
+		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,msg(lng::MHighlightMarking4).c_str()},
 
 		{DI_USERCONTROL,73-15-1,19,73-2,22,0,nullptr,nullptr,DIF_NOFOCUS,L""},
-		{DI_CHECKBOX,5,23,0,23,0,nullptr,nullptr,0,msg(lng::MHighlightContinueProcessing).data()},
+		{DI_CHECKBOX,5,23,0,23,0,nullptr,nullptr,0,msg(lng::MHighlightContinueProcessing).c_str()},
 
 		{DI_TEXT,-1,19,0,19,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 
-		{DI_CHECKBOX,5,20,0,20,0,nullptr,nullptr,0,msg(lng::MFileHardLinksCount).data()},//добавляем новый чекбокс в панель
+		{DI_CHECKBOX,5,20,0,20,0,nullptr,nullptr,0,msg(lng::MFileHardLinksCount).c_str()},//добавляем новый чекбокс в панель
 		{DI_TEXT,-1,21,0,21,0,nullptr,nullptr,DIF_SEPARATOR,L""},// и разделитель
 
-		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk).data()},
-		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,msg(lng::MFileFilterReset).data()},
-		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MFileFilterCancel).data()},
-		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,msg(lng::MFileFilterMakeTransparent).data()},
+		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk).c_str()},
+		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,msg(lng::MFileFilterReset).c_str()},
+		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MFileFilterCancel).c_str()},
+		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,msg(lng::MFileFilterMakeTransparent).c_str()},
 	};
-	FilterDlgData[0].Data = msg(ColorConfig? lng::MFileHilightTitle : lng::MFileFilterTitle).data();
+	FilterDlgData[0].Data = msg(ColorConfig? lng::MFileHilightTitle : lng::MFileFilterTitle).c_str();
 	auto FilterDlg = MakeDialogItemsEx(FilterDlgData);
 
 	if (ColorConfig)
@@ -1032,7 +1053,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	DateList.ItemsNumber=FDATE_COUNT;
 
 	for (int i=0; i < FDATE_COUNT; ++i)
-		TableItemDate[i].Text = msg(lng::MFileFilterWrited+i).data();
+		TableItemDate[i].Text = msg(lng::MFileFilterWrited+i).c_str();
 
 	DWORD DateType;
 	filter_dates Dates;
@@ -1104,7 +1125,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	}
 
 	const auto Dlg = Dialog::create(FilterDlg, FileFilterConfigDlgProc, ColorConfig ? &Colors : nullptr);
-	Dlg->SetHelp(ColorConfig?L"HighlightEdit":L"Filter");
+	Dlg->SetHelp(ColorConfig? L"HighlightEdit"sv : L"Filter"sv);
 	Dlg->SetPosition(-1,-1,FilterDlg[ID_FF_TITLE].X2+4,FilterDlg[ID_FF_TITLE].Y2+2);
 	Dlg->SetId(ColorConfig?HighlightConfigId:FiltersConfigId);
 	Dlg->SetAutomation(ID_FF_MATCHMASK,ID_FF_MASKEDIT,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
@@ -1161,13 +1182,13 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 			const auto NewDates = IsRelative?
 				filter_dates
 				(
-					ParseDuration(FilterDlg[ID_FF_DAYSAFTEREDIT].strData, FilterDlg[ID_FF_TIMEAFTEREDIT].strData, DateFormat, DateSeparator, TimeSeparator),
-					ParseDuration(FilterDlg[ID_FF_DAYSBEFOREEDIT].strData, FilterDlg[ID_FF_TIMEBEFOREEDIT].strData, DateFormat, DateSeparator, TimeSeparator)
+					ParseDuration(FilterDlg[ID_FF_DAYSAFTEREDIT].strData, FilterDlg[ID_FF_TIMEAFTEREDIT].strData, DateFormat, TimeRanges),
+					ParseDuration(FilterDlg[ID_FF_DAYSBEFOREEDIT].strData, FilterDlg[ID_FF_TIMEBEFOREEDIT].strData, DateFormat, TimeRanges)
 				) :
 				filter_dates
 				(
-					ParseDate(FilterDlg[ID_FF_DATEAFTEREDIT].strData, FilterDlg[ID_FF_TIMEAFTEREDIT].strData, DateFormat, DateSeparator, TimeSeparator),
-					ParseDate(FilterDlg[ID_FF_DATEBEFOREEDIT].strData, FilterDlg[ID_FF_TIMEBEFOREEDIT].strData, DateFormat, DateSeparator, TimeSeparator)
+					ParseDate(FilterDlg[ID_FF_DATEAFTEREDIT].strData, FilterDlg[ID_FF_TIMEAFTEREDIT].strData, DateFormat, DateRanges, TimeRanges),
+					ParseDate(FilterDlg[ID_FF_DATEBEFOREEDIT].strData, FilterDlg[ID_FF_TIMEBEFOREEDIT].strData, DateFormat, DateRanges, TimeRanges)
 				);
 
 			FF->SetDate(FilterDlg[ID_FF_MATCHDATE].Selected != 0, static_cast<enumFDateType>(FilterDlg[ID_FF_DATETYPE].ListPos), NewDates);

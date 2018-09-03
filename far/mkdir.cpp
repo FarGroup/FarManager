@@ -31,10 +31,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "mkdir.hpp"
+
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "treelist.hpp"
@@ -49,6 +47,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "stddlg.hpp"
 #include "lang.hpp"
 #include "cvtname.hpp"
+#include "global.hpp"
+
+#include "platform.fs.hpp"
+
+#include "common/enum_tokens.hpp"
 
 enum
 {
@@ -66,7 +69,7 @@ enum
 	MKDIR_CANCEL,
 };
 
-intptr_t MkDirDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
+static intptr_t MkDirDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	switch (Msg)
 	{
@@ -92,31 +95,31 @@ void ShellMakeDir(Panel *SrcPanel)
 	FarListItem LinkTypeItems[3]={};
 	ComboList.ItemsNumber=std::size(LinkTypeItems);
 	ComboList.Items=LinkTypeItems;
-	ComboList.Items[0].Text=msg(lng::MMakeFolderLinkNone).data();
-	ComboList.Items[1].Text=msg(lng::MMakeFolderLinkJunction).data();
-	ComboList.Items[2].Text=msg(lng::MMakeFolderLinkSymlink).data();
+	ComboList.Items[0].Text=msg(lng::MMakeFolderLinkNone).c_str();
+	ComboList.Items[1].Text=msg(lng::MMakeFolderLinkJunction).c_str();
+	ComboList.Items[2].Text=msg(lng::MMakeFolderLinkSymlink).c_str();
 	ComboList.Items[0].Flags|=LIF_SELECTED;
 
 	FarDialogItem MkDirDlgData[]=
 	{
-		{DI_DOUBLEBOX,3,1,72,10,0,nullptr,nullptr,0,msg(lng::MMakeFolderTitle).data()},
-		{DI_TEXT,     5,2, 0,2,0,nullptr,nullptr,0,msg(lng::MCreateFolder).data()},
+		{DI_DOUBLEBOX,3,1,72,10,0,nullptr,nullptr,0,msg(lng::MMakeFolderTitle).c_str()},
+		{DI_TEXT,     5,2, 0,2,0,nullptr,nullptr,0,msg(lng::MCreateFolder).c_str()},
 		{DI_EDIT,     5,3,70,3,0,L"NewFolder",nullptr,DIF_FOCUS|DIF_EDITEXPAND|DIF_HISTORY|DIF_USELASTHISTORY|DIF_EDITPATH,L""},
 		{DI_TEXT,    -1,4, 0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_TEXT,     5,5, 0,5,0,nullptr,nullptr,0,msg(lng::MMakeFolderLinkType).data()},
+		{DI_TEXT,     5,5, 0,5,0,nullptr,nullptr,0,msg(lng::MMakeFolderLinkType).c_str()},
 		{DI_COMBOBOX,20,5,70,5,0,nullptr,nullptr,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND|DIF_LISTWRAPMODE,L""},
-		{DI_TEXT,     5,6, 0,6,0,nullptr,nullptr,0,msg(lng::MMakeFolderLinkTarget).data()},
+		{DI_TEXT,     5,6, 0,6,0,nullptr,nullptr,0,msg(lng::MMakeFolderLinkTarget).c_str()},
 		{DI_EDIT,    20,6,70,6,0,L"NewFolderLinkTarget",nullptr,DIF_DISABLE|DIF_EDITEXPAND|DIF_HISTORY|DIF_USELASTHISTORY|DIF_EDITPATH,L""},
-		{DI_CHECKBOX, 5,7, 0,7,Global->Opt->MultiMakeDir,nullptr,nullptr,0,msg(lng::MMultiMakeDir).data()},
+		{DI_CHECKBOX, 5,7, 0,7,Global->Opt->MultiMakeDir,nullptr,nullptr,0,msg(lng::MMultiMakeDir).c_str()},
 		{DI_TEXT,    -1,8, 0,8,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,   0,9, 0,9,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk).data()},
-		{DI_BUTTON,   0,9, 0,9,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel).data()},
+		{DI_BUTTON,   0,9, 0,9,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk).c_str()},
+		{DI_BUTTON,   0,9, 0,9,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel).c_str()},
 	};
 	auto MkDirDlg = MakeDialogItemsEx(MkDirDlgData);
 	MkDirDlg[MKDIR_COMBOBOX_LINKTYPE].ListItems=&ComboList;
 	const auto Dlg = Dialog::create(MkDirDlg, MkDirDlgProc);
 	Dlg->SetPosition(-1,-1,76,12);
-	Dlg->SetHelp(L"MakeFolder");
+	Dlg->SetHelp(L"MakeFolder"sv);
 	Dlg->SetId(MakeFolderId);
 	Dlg->Process();
 
@@ -141,39 +144,30 @@ void ShellMakeDir(Panel *SrcPanel)
 			inplace::quote_normalise(strDirName);
 		}
 
-		const auto DirList = split<std::vector<string>>(strDirName, STLF_UNIQUE);
-		if (DirList.empty())
-		{
-			Message(MSG_WARNING,
-				msg(lng::MWarning),
-				{
-					msg(lng::MIncorrectDirList)
-				},
-				{ lng::MOk });
-			return;
-		}
-
 		string strOriginalDirName;
 		bool SkipAll = false;
-		for (const auto& i: DirList)
+		auto EmptyList = true;
+		for (const auto& i: enum_tokens_with_quotes_t<with_trim>(std::move(strDirName), L",;"sv))
 		{
+			if (i.empty())
+				continue;
+
+			EmptyList = false;
 			// TODO: almost the same code in dirmix::CreatePath()
 
-			strOriginalDirName = i;
+			assign(strOriginalDirName, i);
 			strDirName = ConvertNameToFull(i);
 			DeleteEndSlash(strDirName);
 			bool bSuccess = false;
 
 			size_t DirOffset = 0;
 			ParsePath(strDirName, &DirOffset);
-			string Part;
-			Part.reserve(strDirName.size());
 
 			for (size_t j = DirOffset; j <= strDirName.size(); ++j)
 			{
 				if (j == strDirName.size() || IsSlash(strDirName[j]))
 				{
-					Part = strDirName.substr(0, j);
+					const auto Part = string_view(strDirName).substr(0, j);
 					if (!os::fs::exists(Part) || j == strDirName.size()) // skip all intermediate dirs, but not last.
 					{
 						while((bSuccess = os::fs::create_directory(Part)) == false && !SkipAll)
@@ -237,6 +231,17 @@ void ShellMakeDir(Panel *SrcPanel)
 					}
 				}
 			}
+		}
+
+		if (EmptyList)
+		{
+			Message(MSG_WARNING,
+				msg(lng::MWarning),
+				{
+					msg(lng::MIncorrectDirList)
+				},
+				{ lng::MOk });
+			return;
 		}
 
 		SrcPanel->Update(UPDATE_KEEP_SELECTION);

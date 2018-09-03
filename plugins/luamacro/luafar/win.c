@@ -9,6 +9,7 @@ extern void pushFileTime(lua_State *L, const FILETIME *ft);
 extern void NewVirtualKeyTable(lua_State* L, BOOL twoways);
 extern BOOL dir_exist(const wchar_t* path);
 extern UINT64 OptFlags(lua_State* L, int pos, UINT64 dflt);
+extern void PushInputRecord(lua_State *L, const INPUT_RECORD* ir);
 
 // os.getenv does not always work correctly, hence the following.
 static int win_GetEnv(lua_State *L)
@@ -327,20 +328,17 @@ static int win_EnumRegValue(lua_State *L)
 }
 
 // Based on "CheckForEsc" function, by Ivan Sintyurin (spinoza@mail.ru)
-static WORD ExtractKey()
+static WORD ExtractKey(INPUT_RECORD* rec)
 {
-	INPUT_RECORD rec;
 	DWORD ReadCount;
 	HANDLE hConInp=GetStdHandle(STD_INPUT_HANDLE);
 
-	while(PeekConsoleInput(hConInp,&rec,1,&ReadCount), ReadCount)
+	if (PeekConsoleInput(hConInp,rec,1,&ReadCount), ReadCount)
 	{
-		ReadConsoleInput(hConInp,&rec,1,&ReadCount);
-
-		if(rec.EventType==KEY_EVENT && rec.Event.KeyEvent.bKeyDown)
-			return rec.Event.KeyEvent.wVirtualKeyCode;
+		ReadConsoleInput(hConInp,rec,1,&ReadCount);
+		if(rec->EventType==KEY_EVENT)
+		  return 1;
 	}
-
 	return 0;
 }
 
@@ -348,13 +346,29 @@ static WORD ExtractKey()
 // -- general purpose function; not FAR dependent
 static int win_ExtractKey(lua_State *L)
 {
-	WORD vKey = ExtractKey() & 0xff;
+	INPUT_RECORD rec;
+  if (ExtractKey(&rec) && rec.Event.KeyEvent.bKeyDown)
+	{
+		WORD vKey = rec.Event.KeyEvent.wVirtualKeyCode & 0xff;
+		if(vKey && VirtualKeyStrings[vKey])
+		{
+			lua_pushstring(L, VirtualKeyStrings[vKey]);
+			return 1;
+		}
+	}
+	lua_pushnil(L);
+	return 1;
+}
 
-	if(vKey && VirtualKeyStrings[vKey])
-		lua_pushstring(L, VirtualKeyStrings[vKey]);
-	else
-		lua_pushnil(L);
-
+static int win_ExtractKeyEx(lua_State *L)
+{
+	INPUT_RECORD rec;
+  if (ExtractKey(&rec))
+	{
+		PushInputRecord(L, &rec);
+		return 1;
+	}
+	lua_pushnil(L);
 	return 1;
 }
 
@@ -724,6 +738,7 @@ const luaL_Reg win_funcs[] =
 	{"EnumRegKey",          win_EnumRegKey},
 	{"EnumRegValue",        win_EnumRegValue},
 	{"ExtractKey",          win_ExtractKey},
+	{"ExtractKeyEx",        win_ExtractKeyEx},
 	{"FileTimeToLocalFileTime", win_FileTimeToLocalFileTime},
 	{"FileTimeToSystemTime",win_FileTimeToSystemTime},
 	{"GetConsoleScreenBufferInfo", win_GetConsoleScreenBufferInfo},

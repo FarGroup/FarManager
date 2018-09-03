@@ -31,17 +31,16 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
+#include "scrsaver.hpp"
 
 #include "farcolor.hpp"
 #include "chgprior.hpp"
 #include "savescr.hpp"
 #include "interf.hpp"
 #include "keyboard.hpp"
-#include "scrsaver.hpp"
 #include "console.hpp"
 #include "colormix.hpp"
+#include "global.hpp"
 
 enum {STAR_NONE,STAR_NORMAL,STAR_PLANET};
 
@@ -158,7 +157,7 @@ int ScreenSaver()
 
 	Global->ScreenSaverActive = true;
 	CONSOLE_CURSOR_INFO CursorInfo;
-	Console().GetCursorInfo(CursorInfo);
+	console.GetCursorInfo(CursorInfo);
 	{
 		SCOPED_ACTION(SaveScreen);
 		SetCursorType(false, 10);

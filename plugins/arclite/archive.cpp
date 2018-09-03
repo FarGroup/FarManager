@@ -13,13 +13,6 @@ const wchar_t* c_method_lzma   = L"LZMA";
 const wchar_t* c_method_lzma2  = L"LZMA2";
 const wchar_t* c_method_ppmd   = L"PPMD";
 
-const wchar_t* c_method_lzham  = L"LZHAM";
-const wchar_t* c_method_zstd   = L"ZSTD";
-const wchar_t* c_method_lz4    = L"LZ4";
-const wchar_t* c_method_lz5    = L"LZ5";
-const wchar_t* c_method_brotli = L"BROTLI";
-const wchar_t* c_method_lizard = L"LIZARD";
-
 #define DEFINE_ARC_ID(name, value) \
   const unsigned char c_guid_##name[] = "\x69\x0F\x17\x23\xC1\x40\x8A\x27\x10\x00\x00\x01\x10" value "\x00\x00"; \
   const ArcType c_##name(c_guid_##name, c_guid_##name + 16);
@@ -166,19 +159,104 @@ wstring ArcChain::to_string() const {
   return result;
 }
 
-class MyCompressCodecsInfo : public ICompressCodecsInfo, private ComBase {
+static bool GetCoderInfo(Func_GetMethodProperty getMethodProperty, UInt32 index, CDllCodecInfo& info) {
+  info.DecoderIsAssigned = info.EncoderIsAssigned = false;
+  std::fill((char *)&info.Decoder, sizeof(info.Decoder) + (char *)&info.Decoder, 0);
+  info.Encoder = info.Decoder;
+  PropVariant prop1, prop2, prop3, prop4;
+  if (S_OK != getMethodProperty(index, NMethodPropID::kDecoder, prop1.ref()))
+    return false;
+  if (prop1.vt != VT_EMPTY) {
+    if (prop1.vt != VT_BSTR || (size_t)SysStringByteLen(prop1.bstrVal) < sizeof(CLSID))
+      return false;
+    info.Decoder = *(const GUID *)prop1.bstrVal;
+    info.DecoderIsAssigned = true;
+  }
+  if (S_OK != getMethodProperty(index, NMethodPropID::kEncoder, prop2.ref()))
+    return false;
+  if (prop2.vt != VT_EMPTY) {
+    if (prop2.vt != VT_BSTR || (size_t)SysStringByteLen(prop2.bstrVal) < sizeof(CLSID))
+      return false;
+    info.Encoder = *(const GUID *)prop2.bstrVal;
+    info.EncoderIsAssigned = true;
+  }
+  if (S_OK != getMethodProperty(index, NMethodPropID::kName, prop3.ref()) || !prop3.is_str())
+    return false;
+  info.Name = prop3.get_str();
+  if (S_OK != getMethodProperty(index, NMethodPropID::kID, prop4.ref()) || !prop4.is_uint())
+    return false;
+  info.CodecId = static_cast<UInt32>(prop4.get_uint());
+  return info.DecoderIsAssigned || info.EncoderIsAssigned;
+}
+
+class MyCompressCodecsInfo : public ICompressCodecsInfo, public IHashers, private ComBase {
 private:
   const ArcLibs& libs_;
-  const vector<CDllCodecInfo> &codecs_;
+  ArcCodecs codecs_;
+  ArcHashers hashers_;
 public:
-  MyCompressCodecsInfo(const ArcLibs& libs, const vector<CDllCodecInfo> &codecs)
-   : libs_(libs), codecs_(codecs) {}
+  MyCompressCodecsInfo(const ArcLibs& libs, const ArcCodecs& codecs, const ArcHashers& hashers, size_t skip_lib_index)
+   : libs_(libs)
+  {
+    for (size_t ilib = 0; ilib < 1; ++ilib) { // 7z.dll only
+      if (ilib == skip_lib_index)
+        continue;
+      const auto& arc_lib = libs[ilib];
+      if ((arc_lib.CreateObject || arc_lib.CreateDecoder || arc_lib.CreateEncoder) && arc_lib.GetMethodProperty) {
+        UInt32 numMethods = 1;
+        bool ok = true;
+        if (arc_lib.GetNumberOfMethods)
+          ok = S_OK == arc_lib.GetNumberOfMethods(&numMethods);
+        for (UInt32 i = 0; ok && i < numMethods; ++i) {
+          CDllCodecInfo info;
+          info.LibIndex = static_cast<UInt32>(ilib);
+          info.CodecIndex = i;
+          if (GetCoderInfo(arc_lib.GetMethodProperty, i, info))
+            codecs_.push_back(info);
+        }
+      }
+      if (arc_lib.ComHashers) {
+        UInt32 numHashers = arc_lib.ComHashers->GetNumHashers();
+        for (UInt32 i = 0; i < numHashers; ++i) {
+          CDllHasherInfo info;
+          info.LibIndex = static_cast<UInt32>(ilib);
+          info.HasherIndex = i;
+          hashers_.push_back(info);
+        }
+      }
+    }
+    for (const auto& codec : codecs) {
+      if (codec.LibIndex != skip_lib_index)
+        codecs_.push_back(codec);
+    }
+    for (const auto& hasher : hashers) {
+      if (hasher.LibIndex != skip_lib_index)
+        hashers_.push_back(hasher);
+    }
+  }
 
   ~MyCompressCodecsInfo() {}
 
   UNKNOWN_IMPL_BEGIN
   UNKNOWN_IMPL_ITF(ICompressCodecsInfo)
+  UNKNOWN_IMPL_ITF(IHashers)
   UNKNOWN_IMPL_END
+
+  STDMETHODIMP_(UInt32) GetNumHashers() {
+    return static_cast<UInt32>(hashers_.size());
+  }
+
+  STDMETHODIMP GetHasherProp(UInt32 index, PROPID propID, PROPVARIANT *value) {
+    const CDllHasherInfo &hi = hashers_[index];
+    const auto &lib = libs_[hi.LibIndex];
+    return lib.ComHashers->GetHasherProp(hi.HasherIndex, propID, value);
+  }
+
+  STDMETHODIMP CreateHasher(UInt32 index, IHasher **hasher) {
+    const CDllHasherInfo &hi = hashers_[index];
+    const auto &lib = libs_[hi.LibIndex];
+    return lib.ComHashers->CreateHasher(hi.HasherIndex, hasher);
+  }
 
   STDMETHODIMP GetNumMethods(UInt32 *numMethods) {
     *numMethods = static_cast<UInt32>(codecs_.size());
@@ -225,11 +303,16 @@ public:
 ArcAPI* ArcAPI::arc_api = nullptr;
 
 ArcAPI::~ArcAPI() {
-  //delete compressinfo;
-  for_each(arc_libs.begin(), arc_libs.end(), [&] (const ArcLib& arc_lib) {
-    if (arc_lib.h_module)
-      FreeLibrary(arc_lib.h_module);
-  });
+  for (auto& arc_lib : arc_libs) {
+    if (arc_lib.h_module && arc_lib.SetCodecs)
+      arc_lib.SetCodecs(nullptr); // calls ~MyCompressInfo()
+  }
+  for (auto& arc_lib = arc_libs.rbegin(); arc_lib != arc_libs.rend(); ++arc_lib) {
+    if (arc_lib->h_module) {
+      arc_lib->ComHashers = nullptr;
+      FreeLibrary(arc_lib->h_module);
+    }
+  }
 }
 
 ArcAPI* ArcAPI::get() {
@@ -239,36 +322,6 @@ ArcAPI* ArcAPI::get() {
     Patch7zCP::SetCP(static_cast<UINT>(g_options.oemCP), static_cast<UINT>(g_options.ansiCP));
   }
   return arc_api;
-}
-
-static bool GetCoderInfo(Func_GetMethodProperty getMethodProperty, UInt32 index, CDllCodecInfo& info) {
-  info.DecoderIsAssigned = info.EncoderIsAssigned = false;
-  std::fill((char *)&info.Decoder, sizeof(info.Decoder) + (char *)&info.Decoder, 0);
-  info.Encoder = info.Decoder;
-  PropVariant prop1, prop2, prop3, prop4;
-  if (S_OK != getMethodProperty(index, NMethodPropID::kDecoder, prop1.ref()))
-    return false;
-  if (prop1.vt != VT_EMPTY) {
-    if (prop1.vt != VT_BSTR || (size_t)SysStringByteLen(prop1.bstrVal) < sizeof(CLSID))
-      return false;
-    info.Decoder = *(const GUID *)prop1.bstrVal;
-    info.DecoderIsAssigned = true;
-  }
-  if (S_OK != getMethodProperty(index, NMethodPropID::kEncoder, prop2.ref()))
-    return false;
-  if (prop2.vt != VT_EMPTY) {
-    if (prop2.vt != VT_BSTR || (size_t)SysStringByteLen(prop2.bstrVal) < sizeof(CLSID))
-      return false;
-    info.Encoder = *(const GUID *)prop2.bstrVal;
-    info.EncoderIsAssigned = true;
-  }
-  if (S_OK != getMethodProperty(index, NMethodPropID::kName, prop3.ref()) || !prop3.is_str())
-    return false;
-  info.Name = prop3.get_str();
-  if (S_OK != getMethodProperty(index, NMethodPropID::kID, prop4.ref()) || !prop4.is_uint())
-    return false;
-  info.CodecId = static_cast<UInt32>(prop4.get_uint());
-  return info.DecoderIsAssigned || info.EncoderIsAssigned;
 }
 
 void ArcAPI::load_libs(const wstring& path) {
@@ -282,6 +335,8 @@ void ArcAPI::load_libs(const wstring& path) {
     if (arc_lib.h_module == nullptr)
       continue;
     arc_lib.CreateObject = reinterpret_cast<Func_CreateObject>(GetProcAddress(arc_lib.h_module, "CreateObject"));
+    arc_lib.CreateDecoder = reinterpret_cast<Func_CreateDecoder>(GetProcAddress(arc_lib.h_module, "CreateDecoder"));
+    arc_lib.CreateEncoder = reinterpret_cast<Func_CreateEncoder>(GetProcAddress(arc_lib.h_module, "CreateEncoder"));
     arc_lib.GetNumberOfMethods = reinterpret_cast<Func_GetNumberOfMethods>(GetProcAddress(arc_lib.h_module, "GetNumberOfMethods"));
     arc_lib.GetMethodProperty = reinterpret_cast<Func_GetMethodProperty>(GetProcAddress(arc_lib.h_module, "GetMethodProperty"));
     arc_lib.GetNumberOfFormats = reinterpret_cast<Func_GetNumberOfFormats>(GetProcAddress(arc_lib.h_module, "GetNumberOfFormats"));
@@ -289,10 +344,14 @@ void ArcAPI::load_libs(const wstring& path) {
     arc_lib.GetHandlerProperty2 = reinterpret_cast<Func_GetHandlerProperty2>(GetProcAddress(arc_lib.h_module, "GetHandlerProperty2"));
     arc_lib.GetIsArc = reinterpret_cast<Func_GetIsArc>(GetProcAddress(arc_lib.h_module, "GetIsArc"));
     arc_lib.SetCodecs = reinterpret_cast<Func_SetCodecs>(GetProcAddress(arc_lib.h_module, "SetCodecs"));
-    arc_lib.CreateDecoder = nullptr;
-    arc_lib.CreateEncoder = nullptr;
     if (arc_lib.CreateObject && ((arc_lib.GetNumberOfFormats && arc_lib.GetHandlerProperty2) || arc_lib.GetHandlerProperty)) {
       arc_lib.version = get_module_version(arc_lib.module_path);
+      Func_GetHashers getHashers = reinterpret_cast<Func_GetHashers>(GetProcAddress(arc_lib.h_module, "GetHashers"));
+      if (getHashers) {
+        IHashers *hashers = nullptr;
+        if (S_OK == getHashers(&hashers) && hashers)
+          arc_lib.ComHashers = hashers;
+      }
       arc_libs.push_back(arc_lib);
     }
     else
@@ -303,6 +362,44 @@ void ArcAPI::load_libs(const wstring& path) {
 void ArcAPI::load_codecs(const wstring& path) {
   if (n_base_format_libs <= 0)
     return;
+
+  auto& add_codecs = [this](ArcLib &arc_lib, size_t lib_index) {
+    if ((arc_lib.CreateObject || arc_lib.CreateDecoder || arc_lib.CreateEncoder) && arc_lib.GetMethodProperty) {
+      UInt32 numMethods = 1;
+      bool ok = true;
+      if (arc_lib.GetNumberOfMethods)
+        ok = S_OK == arc_lib.GetNumberOfMethods(&numMethods);
+      for (UInt32 i = 0; ok && i < numMethods; ++i) {
+        CDllCodecInfo info;
+        info.LibIndex = static_cast<UInt32>(lib_index);
+        info.CodecIndex = i;
+        if (!GetCoderInfo(arc_lib.GetMethodProperty, i, info))
+          return;
+        for (const auto& codec : arc_codecs)
+          if (codec.Name == info.Name)
+            return;
+        arc_codecs.push_back(info);
+      }
+    }
+  };
+
+  auto& add_hashers = [this](ArcLib &arc_lib, size_t lib_index) {
+    if (arc_lib.ComHashers) {
+      UInt32 numHashers = arc_lib.ComHashers->GetNumHashers();
+      for (UInt32 i = 0; i < numHashers; i++) {
+        CDllHasherInfo info;
+        info.LibIndex = static_cast<UInt32>(lib_index);
+        info.HasherIndex = i;
+        arc_hashers.push_back(info);
+      }
+    }
+  };
+
+  for (size_t ii = 1; ii < n_format_libs; ++ii) { // all but 7z.dll
+    auto& arc_lib = arc_libs[ii];
+	 add_codecs(arc_lib, ii);
+    add_hashers(arc_lib, ii);
+  }
 
   FileEnum codecs_enum(path);
   wstring dir = extract_file_path(path);
@@ -325,20 +422,17 @@ void ArcAPI::load_codecs(const wstring& path) {
     arc_lib.SetCodecs = nullptr;
     arc_lib.version = 0;
     auto n_start_codecs = arc_codecs.size();
-    if ((arc_lib.CreateObject || arc_lib.CreateDecoder || arc_lib.CreateEncoder) && arc_lib.GetMethodProperty) {
-      UInt32 numMethods = 1;
-      bool ok = true;
-      if (arc_lib.GetNumberOfMethods)
-        ok = S_OK == arc_lib.GetNumberOfMethods(&numMethods);
-      for (UInt32 i = 0; ok && i < numMethods; ++i) {
-        CDllCodecInfo info;
-        info.LibIndex = static_cast<UInt32>(arc_libs.size());
-        info.CodecIndex = i;
-        if (GetCoderInfo(arc_lib.GetMethodProperty, i, info))
-          arc_codecs.push_back(info);
+    auto n_start_hashers = arc_hashers.size();
+	 add_codecs(arc_lib, arc_libs.size());
+    Func_GetHashers getHashers = reinterpret_cast<Func_GetHashers>(GetProcAddress(arc_lib.h_module, "GetHashers"));
+    if (getHashers) {
+      IHashers *hashers = nullptr;
+      if (S_OK == getHashers(&hashers) && hashers) {
+        arc_lib.ComHashers = hashers;
+		  add_hashers(arc_lib, arc_libs.size());
       }
     }
-    if (n_start_codecs < arc_codecs.size())
+    if (n_start_codecs < arc_codecs.size() || n_start_hashers < arc_hashers.size())
       arc_libs.push_back(arc_lib);
     else
       FreeLibrary(arc_lib.h_module);
@@ -346,20 +440,27 @@ void ArcAPI::load_codecs(const wstring& path) {
 
   n_7z_codecs = 0;
   if (arc_codecs.size() > 0) {
-    std::sort(arc_codecs.begin(), arc_codecs.end(), [&](const auto&a, const auto& b) {
+    sort(arc_codecs.begin(), arc_codecs.end(), [&](const auto&a, const auto& b) {
       bool a_is_zip = (a.CodecId & 0xffffff00U) == 0x040100;
       bool b_is_zip = (b.CodecId & 0xffffff00U) == 0x040100;
       if (a_is_zip != b_is_zip)
         return b_is_zip;
       else
-        return _wcsicmp(a.Name.data(), b.Name.data()) < 0;
+        return _wcsicmp(a.Name.c_str(), b.Name.c_str()) < 0;
     });
     for (const auto& c : arc_codecs) { if ((c.CodecId & 0xffffff00U) != 0x040100) ++n_7z_codecs; }
-
-    compressinfo = new MyCompressCodecsInfo(arc_libs, arc_codecs);
-    for (size_t i = 0; i < n_base_format_libs; ++i) {
-      if (arc_libs[i].SetCodecs)
+  }
+  for (size_t i = 0; i < n_format_libs; ++i) {
+    if (arc_libs[i].SetCodecs) {
+      auto compressinfo = new MyCompressCodecsInfo(arc_libs, arc_codecs, arc_hashers, i);
+      UInt32 nm = 0, nh = compressinfo->GetNumHashers();
+      compressinfo->GetNumMethods(&nm);
+      if (nm > 0 || nh > 0) {
         arc_libs[i].SetCodecs(compressinfo);
+      }
+      else {
+        delete compressinfo;
+      }
     }
   }
 }
@@ -554,17 +655,6 @@ void ArcAPI::load() {
         arc_formats[format.ClassID] = format;
     }
   }
-  // unload unused libraries
-  set<unsigned> used_libs;
-  for_each(arc_formats.begin(), arc_formats.end(), [&] (const pair<ArcType, ArcFormat>& arc_format) {
-    used_libs.insert(arc_format.second.lib_index);
-  });
-  for (unsigned i = 0; i < n_format_libs; i++) {
-    if (used_libs.count(i) == 0) {
-      FreeLibrary(arc_libs[i].h_module);
-      arc_libs[i].h_module = nullptr;
-    }
-  }
 }
 
 void ArcAPI::create_in_archive(const ArcType& arc_type, IInArchive** in_arc) {
@@ -651,6 +741,7 @@ void Archive::make_index() {
   for (UInt32 i = 0; i < num_indices; i++) {
     // is directory?
     file_info.is_dir = in_arc->GetProperty(i, kpidIsDir, prop.ref()) == S_OK && prop.is_bool() && prop.get_bool();
+	 file_info.is_altstream = get_isaltstream(i);
 
     // file name
     if (in_arc->GetProperty(i, kpidPath, prop.ref()) == S_OK && prop.is_str())
@@ -723,6 +814,7 @@ void Archive::make_index() {
       file_info.parent = dir_info.parent;
       file_info.name = dir_info.name;
       file_info.is_dir = true;
+		file_info.is_altstream = false;
       dir_index++;
       file_list.push_back(file_info);
     }
@@ -730,7 +822,7 @@ void Archive::make_index() {
 
   // fix parent references
   for_each(file_list.begin(), file_list.end(), [&] (ArcFileInfo& file_info) {
-    if (file_info.parent != c_root_index)
+    if (file_info.parent != c_root_index && file_info.parent != c_dup_index)
       file_info.parent = dir_index_map[file_info.parent];
   });
 
@@ -906,6 +998,16 @@ bool Archive::get_anti(UInt32 index) const {
   if (index >= num_indices)
     return false;
   else if (in_arc->GetProperty(index, kpidIsAnti, prop.ref()) == S_OK && prop.is_bool())
+    return prop.get_bool();
+  else
+    return false;
+}
+
+bool Archive::get_isaltstream(UInt32 index) const {
+  PropVariant prop;
+  if (index >= num_indices)
+    return false;
+  else if (in_arc->GetProperty(index, kpidIsAltStream, prop.ref()) == S_OK && prop.is_bool())
     return prop.get_bool();
   else
     return false;

@@ -34,6 +34,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "platform.hpp"
+
 namespace pipe
 {
 	// reads size first, then data
@@ -42,8 +44,8 @@ namespace pipe
 	template<typename T>
 	bool Read(const os::handle& Pipe, T& Data)
 	{
-		static_assert(!std::is_pointer<T>::value);
-		static_assert(std::is_trivially_copyable<T>::value);
+		static_assert(!std::is_pointer_v<T>);
+		static_assert(std::is_trivially_copyable_v<T>);
 
 		return Read(Pipe, &Data, sizeof(Data));
 	}
@@ -56,8 +58,8 @@ namespace pipe
 	template<typename T>
 	bool Write(const os::handle& Pipe, const T& Data)
 	{
-		static_assert(!std::is_pointer<T>::value);
-		static_assert(std::is_trivially_copyable<T>::value);
+		static_assert(!std::is_pointer_v<T>);
+		static_assert(std::is_trivially_copyable_v<T>);
 
 		return Write(Pipe, &Data, sizeof(Data));
 	}

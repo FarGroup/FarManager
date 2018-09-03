@@ -24,7 +24,8 @@ struct FarListItem
 {
   LISTITEMFLAGS Flags;
   const wchar_t *Text;
-  intptr_t Reserved[2];
+  intptr_t UserData;
+  intptr_t Reserved;
 };
 </pre>
 
@@ -54,6 +55,8 @@ struct FarListItem
     </div>
   <div class=dfn>Text</div>
     <div class=dfndescr>Текст элемента списка.</div>
+  <div class=dfn>UserData</div>
+    <div class=dfndescr>Пользовательские данные. Для хранения в элементе списка более чем <code>sizeof(intptr_t)</code> байт используйте <a href="farlistitemdata.html">FarListItemData</a>.</div>
   <div class=dfn>Reserved</div>
     <div class=dfndescr>Зарезервировано, должно быть равно <code>0</code>.</div>
 </div>

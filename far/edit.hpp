@@ -37,7 +37,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "scrobj.hpp"
 #include "bitflags.hpp"
+#include "eol.hpp"
+#include "plugin.hpp"
 
+struct FarColor;
 class RegExp;
 struct RegExpMatch;
 struct MatchHash;
@@ -117,13 +120,15 @@ public:
 	using delete_color_condition = std::function<bool(const ColorItem&)>;
 
 	explicit Edit(window_ptr Owner);
-	virtual ~Edit() override = default;
+
+	bool ProcessKey(const Manager::Key& Key) override;
+	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	long long VMProcess(int OpCode, void *vParam = nullptr, long long iParam = 0) override;
+	virtual void Changed(bool DelBlock = false) {}
+	// Получение максимального значения строки для потребностей Dialod API
+	virtual int GetMaxLength() const {return -1;}
 
 	void FastShow(const ShowInfo* Info=nullptr);
-	virtual bool ProcessKey(const Manager::Key& Key) override;
-	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual long long VMProcess(int OpCode, void *vParam = nullptr, long long iParam = 0) override;
-	virtual void Changed(bool DelBlock=false){};
 	void SetDelRemovesBlocks(bool Mode) {m_Flags.Change(FEDITLINE_DELREMOVESBLOCKS,Mode);}
 	int GetDelRemovesBlocks() const {return m_Flags.Check(FEDITLINE_DELREMOVESBLOCKS); }
 	void SetPersistentBlocks(bool Mode) {m_Flags.Change(FEDITLINE_PERSISTENTBLOCKS,Mode);}
@@ -134,25 +139,35 @@ public:
 
 	void SetHiString(const string& Str);
 
-	void SetEOL(const wchar_t *EOL);
-	void SetEOL(const string& EOL) { return SetEOL(EOL.data()); }
+	void SetEOL(eol::type Eol);
+	eol::type GetEOL() const;
 
-	const wchar_t *GetEOL() const;
 	string GetSelString() const;
 	int GetLength() const;
 
-	void SetString(const string& Str) { SetString(Str.data(), Str.size()); }
-	void SetString(const wchar_t *Str, size_t Length);
+	void SetString(string_view Str);
+	void InsertString(string_view Str);
+	void AppendString(string_view Str);
 
-	void InsertString(const string& Str) { InsertString(Str.data(), Str.size()); }
-	void InsertString(const wchar_t *Str, size_t Length);
+	void ClearString() { SetString({}); }
 
-	void AppendString(const string& Str) { AppendString(Str.data(), Str.size()); }
-	void AppendString(const wchar_t *Str, size_t Length);
+	int Search(
+		string_view Str,
+		string_view UpperStr,
+		string_view LowerStr,
+		const RegExp& re,
+		RegExpMatch* pm,
+		MatchHash* hm,
+		string& ReplaceStr,
+		int& Position,
+		bool Case,
+		bool WholeWords,
+		bool Reverse,
+		bool Regexp,
+		bool PreserveStyle,
+		int *SearchLength
+	) const;
 
-	void ClearString() { SetString(L"", 0); }
-
-	int Search(const string& Str, const string& UpperStr, const string& LowerStr, RegExp& re, RegExpMatch* pm, MatchHash* hm, string& ReplaceStr, int& Position, int Case, int WholeWords, int Reverse, int Regexp, int PreserveStyle, int *SearchLength);
 	void SetCurPos(int NewPos) {m_CurPos=NewPos; SetPrevCurPos(NewPos);}
 	void AdjustMarkBlock();
 	void AdjustPersistentMark();
@@ -162,8 +177,6 @@ public:
 	int GetLeftPos() const {return LeftPos;}
 	void SetLeftPos(int NewPos) {LeftPos=NewPos;}
 	void SetPasswordMode(bool Mode) {m_Flags.Change(FEDITLINE_PASSWORDMODE,Mode);}
-	// Получение максимального значения строки для потребностей Dialod API
-	virtual int GetMaxLength() const {return -1;}
 	void SetOvertypeMode(bool Mode) {m_Flags.Change(FEDITLINE_OVERTYPE, Mode);}
 	bool GetOvertypeMode() const {return m_Flags.Check(FEDITLINE_OVERTYPE);}
 	int RealPosToTab(int Pos) const;
@@ -199,10 +212,10 @@ protected:
 	static int CheckCharMask(wchar_t Chr);
 
 private:
+	void DisplayObject() override;
+
 	virtual void SuppressCallback() {}
 	virtual void RevertCallback() {}
-
-	virtual void DisplayObject() override;
 	virtual const FarColor& GetNormalColor() const;
 	virtual const FarColor& GetSelectedColor() const;
 	virtual const FarColor& GetUnchangedColor() const;
@@ -230,7 +243,7 @@ private:
 	int RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos) const;
 	void FixLeftPos(int TabCurPos=-1);
 	void SetRightCoord(int Value) {SetPosition(m_X1, m_Y2, Value, m_Y2);}
-	Editor* GetEditor(void)const;
+	Editor* GetEditor() const;
 
 protected:
 	// BUGBUG: the whole purpose of this class is to avoid zillions of casts in existing code by returning size() as int
@@ -255,7 +268,7 @@ private:
 	int m_SelStart;
 	int m_SelEnd;
 	int LeftPos;
-	unsigned char EndType;
+	eol::type m_Eol;
 };
 
 #endif // EDIT_HPP_5A787FA0_4FFF_4A61_811F_F8BAEDEF241B

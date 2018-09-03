@@ -102,16 +102,15 @@ goto :EOF
 
 :set_vcver
   set "vcver="
-  for %%v in (10 11 12 14 15) do for %%a in (%*) do if /i "vc%%v" == "%%a" set "vcver=%%v"
+  for %%v in (10 12 14 15) do for %%a in (%*) do if /i "vc%%v" == "%%a" set "vcver=%%v"
 goto :EOF
 
 :set_vc
 :set_vcvars
-  if "" == "%vcver%" if not "" == "%VS150COMNTOOLS%" if exist "%VS150COMNTOOLS%\..\..\VC\Auxiliary\Build\vcvarsall.bat" set "vcver=15"
   if "" == "%vcver%" if not "" == "%VS140COMNTOOLS%" if exist "%VS140COMNTOOLS%\..\..\vc\vcvarsall.bat" set "vcver=14"
+  if "" == "%vcver%" if not "" == "%VS150COMNTOOLS%" if exist "%VS150COMNTOOLS%\..\..\VC\Auxiliary\Build\vcvarsall.bat" set "vcver=15"
   if "" == "%vcver%" if not "" == "%VS120COMNTOOLS%" if exist "%VS120COMNTOOLS%\..\..\vc\vcvarsall.bat" set "vcver=12"
   if "" == "%vcver%" if not "" == "%VS100COMNTOOLS%" if exist "%VS100COMNTOOLS%\..\..\vc\vcvarsall.bat" set "vcver=10"
-  if "" == "%vcver%" if not "" == "%VS110COMNTOOLS%" if exist "%VS110COMNTOOLS%\..\..\vc\vcvarsall.bat" set "vcver=11"
   if "" == "%vcver%" set "vcver=14"
   set "VisualStudioVersion=%vcver%.0"
   if "" == "%~1" goto :EOF
@@ -119,9 +118,10 @@ goto :EOF
   if "%vcmod:~0,2%" == "32" set "vcmod=x86"
   if "%vcmod:~0,2%" == "64" set "vcmod=x86_amd64"
   if "%vcver%" == "10" call "%VS100COMNTOOLS%\..\..\vc\vcvarsall.bat" %vcmod%
-  if "%vcver%" == "11" call "%VS110COMNTOOLS%\..\..\vc\vcvarsall.bat" %vcmod%
   if "%vcver%" == "12" call "%VS120COMNTOOLS%\..\..\vc\vcvarsall.bat" %vcmod%
   if "%vcver%" == "14" call "%VS140COMNTOOLS%\..\..\vc\vcvarsall.bat" %vcmod%
+  if "%vcver%" == "15" pushd .
   if "%vcver%" == "15" call "%VS150COMNTOOLS%\..\..\VC\Auxiliary\Build\vcvarsall.bat" %vcmod%
+  if "%vcver%" == "15" popd
   set "vcmod="
 goto :EOF

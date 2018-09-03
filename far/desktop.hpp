@@ -45,18 +45,18 @@ public:
 	static desktop_ptr create();
 	explicit desktop(private_tag);
 
-	virtual int GetType() const override { return windowtype_desktop; }
-	virtual int GetTypeAndName(string& Type, string& Name) override { Type = GetTitle();  return GetType(); }
-	virtual void ResizeConsole() override;
-	virtual bool ProcessKey(const Manager::Key& Key) override;
+	int GetType() const override { return windowtype_desktop; }
+	int GetTypeAndName(string& Type, string& Name) override { Type = GetTitle();  return GetType(); }
+	void ResizeConsole() override;
+	bool ProcessKey(const Manager::Key& Key) override;
 
 	void TakeSnapshot();
 
 	console_session& ConsoleSession() { return m_ConsoleSession; }
 
 private:
-	virtual string GetTitle() const override { return L"Desktop"s; } // TODO: localization
-	virtual void DisplayObject() override;
+	string GetTitle() const override { return L"Desktop"s; } // TODO: localization
+	void DisplayObject() override;
 
 	std::unique_ptr<SaveScreen> m_Background;
 	console_session m_ConsoleSession;

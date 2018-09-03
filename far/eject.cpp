@@ -31,14 +31,17 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "eject.hpp"
+
 #include "lang.hpp"
 #include "cddrv.hpp"
 #include "stddlg.hpp"
 #include "exception.hpp"
+#include "plugin.hpp"
+
+#include "platform.fs.hpp"
+
+#include "format.hpp"
 
 #if 0
 static bool DismountVolume(HANDLE hVolume)
@@ -56,10 +59,10 @@ bool EjectVolume(wchar_t Letter, unsigned long long Flags)
 	auto fAutoEject = false;
 	auto fRemoveSafely = false;
 
-	string RootName=L"\\\\.\\ :\\";
+	auto RootName = L"\\\\.\\ :\\"s;
 	RootName[4] = Letter;
 	// OpenVolume
-	const auto DriveType = FAR_GetDriveType(RootName.data()+4);
+	const auto DriveType = FAR_GetDriveType(string_view(RootName).substr(4));
 	RootName.pop_back();
 
 	bool ReadOnly;
@@ -158,7 +161,7 @@ bool EjectVolume(wchar_t Letter, unsigned long long Flags)
 				{
 					const auto ErrorState = error_state::fetch();
 
-					if(OperationFailed(ErrorState, RootName, lng::MError, format(lng::MChangeCouldNotEjectMedia, Letter), false) != operation::retry)
+					if(OperationFailed(ErrorState, RootName, lng::MError, format(msg(lng::MChangeCouldNotEjectMedia), Letter), false) != operation::retry)
 						Retry = false;
 				}
 				else

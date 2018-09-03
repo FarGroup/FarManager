@@ -19,12 +19,11 @@ Make projects files for building Far Manager Encyclopedia in .CHM format
 
 execfile("config.inc.py")
 
-from os import makedirs, walk
-from os.path import isdir, join
+from os import makedirs, walk, listdir
+from os.path import isdir, join, exists
 from string import Template
 import shutil
 import logging
-import subprocess
 import re
 import operator
 
@@ -35,7 +34,17 @@ logging.addLevelName("WARN", 30)
 log = logging.info
 warn = logging.warn
 
-
+def copytree(src, dst, symlinks=False, ignore=None):
+  if not exists(dst):
+    makedirs(dst)
+  for item in listdir(src):
+    s = join(src, item)
+    d = join(dst, item)
+    if isdir(s):
+      shutil.copytree(s, d, symlinks, ignore)
+    else:
+      shutil.copy2(s, d)
+#end of copytree
 
 def make_chm_lang(lang):
   """@param lang : either 'rus*' or 'eng*'"""
@@ -44,9 +53,8 @@ def make_chm_lang(lang):
   log("------------------------------------")
   log("preparing %s " % lang_code)
 
-  log("exporting from svn")
-  command = "svn export -q --force %s/enc_%s %s/%s" % (ROOT_DIR, lang, DEST_CHM, lang_code)
-  subprocess.call(command, shell=True)
+  log("copying files")
+  copytree("%s/enc_%s" % (ROOT_DIR, lang), "%s/%s" % (DEST_CHM, lang_code))
 
   chm_lang_dir = join(DEST_CHM, lang_code)
   makedirs(join(chm_lang_dir, "html"))
@@ -279,8 +287,6 @@ def make_chm_lang(lang):
 </BODY></HTML>
 """)
 # end def make_chm_lang(lang):
-
-
 
 log("preparing CHM build")
 log("-- cleaning build dir")

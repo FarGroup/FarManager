@@ -29,14 +29,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "platform.fs.hpp"
 
 #include "ctrlobj.hpp"
 #include "cvtname.hpp"
-#include "datetime.hpp"
 #include "drivemix.hpp"
 #include "elevation.hpp"
 #include "flink.hpp"
@@ -45,6 +41,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "string_utils.hpp"
 #include "strmix.hpp"
+#include "global.hpp"
+
+#include "platform.hpp"
+
+#include "common/scope_exit.hpp"
 
 namespace
 {
@@ -96,6 +97,26 @@ namespace os::fs
 		{
 			FindCloseChangeNotification(Handle);
 		}
+
+		void file_unmapper::operator()(const void* Data) const
+		{
+			UnmapViewOfFile(Data);
+		}
+	}
+
+	const string& find_data::AlternateFileName() const
+	{
+		return HasAlternateFileName()? AlternateFileNameData : FileName;
+	}
+
+	void find_data::SetAlternateFileName(string_view Name)
+	{
+		assign(AlternateFileNameData, Name);
+	}
+
+	bool find_data::HasAlternateFileName() const
+	{
+		return !AlternateFileNameData.empty();
 	}
 
 	bool is_standard_drive_letter(wchar_t Letter)
@@ -125,9 +146,9 @@ namespace os::fs
 	{
 	}
 
-	bool enum_drives::get(size_t Index, wchar_t& Value) const
+	bool enum_drives::get(bool Reset, wchar_t& Value) const
 	{
-		if (!Index)
+		if (Reset)
 			m_CurrentIndex = 0;
 
 		while (m_CurrentIndex != m_Drives.size() && !m_Drives[m_CurrentIndex])
@@ -143,7 +164,7 @@ namespace os::fs
 
 	//-------------------------------------------------------------------------
 
-	static string enum_files_prepare(const string_view& Object)
+	static string enum_files_prepare(const string_view Object)
 	{
 		auto PreparedObject = NTPath(Object);
 		auto Root = false;
@@ -159,27 +180,51 @@ namespace os::fs
 		return PreparedObject;
 	}
 
-	enum_files::enum_files(const string_view& Object, bool ScanSymlink):
+	enum_files::enum_files(const string_view Object, const bool ScanSymlink):
 		m_Object(enum_files_prepare(Object)),
 		m_ScanSymlink(ScanSymlink)
 	{
 	}
 
+	// MSDN verse 2.4.17:
+	// "When working with this field, use FileNameLength to determine the length of the file name
+	// rather than assuming the presence of a trailing null delimiter."
+
+	// Some buggy implementations (e. g. ms sharepoint, rdesktop) set the length incorrectly
+	// (e. g. including the terminating \0 or as ((number of bytes in the source string) * 2) when source is in UTF-8),
+	// so instead of, say, "name" (4) they return "name\0\0\0\0" (8).
+	// Generally speaking, it's their own problems and we shall use it as is, as per the verse above.
+	// However, most of applications use FindFirstFile API, which copies this string
+	// to a fixed-size buffer, WIN32_FIND_DATA.cFileName, leaving the burden of finding its length
+	// to the application itself, which, by coincidence, does it correctly, effectively masking the initial error.
+	// So people come to us and claim that Far isn't working properly while other programs are fine.
+	static auto trim_trailing_zeros(string_view const Str)
+	{
+		const auto Pos = Str.find_last_not_of(L'\0');
+		return Pos != string::npos? Str.substr(0, Pos + 1) : string_view{};
+	}
+
+	// Some other buggy implementations just set the first char of AlternateFileName to '\0' to make it "empty", leaving rubbish in others. Double facepalm.
+	static auto empty_if_zero(string_view const Str)
+	{
+		return starts_with(Str, L'\0')? string_view{} : Str;
+	}
+
 	static void DirectoryInfoToFindData(const FILE_ID_BOTH_DIR_INFORMATION& DirectoryInfo, find_data& FindData, bool IsExtended)
 	{
-		FindData.dwFileAttributes = DirectoryInfo.FileAttributes;
+		FindData.Attributes = DirectoryInfo.FileAttributes;
 		FindData.CreationTime = os::chrono::time_point(os::chrono::duration(DirectoryInfo.CreationTime.QuadPart));
 		FindData.LastAccessTime = os::chrono::time_point(os::chrono::duration(DirectoryInfo.LastAccessTime.QuadPart));
 		FindData.LastWriteTime = os::chrono::time_point(os::chrono::duration(DirectoryInfo.LastWriteTime.QuadPart));
 		FindData.ChangeTime = os::chrono::time_point(os::chrono::duration(DirectoryInfo.ChangeTime.QuadPart));
-		FindData.nFileSize = DirectoryInfo.EndOfFile.QuadPart;
-		FindData.nAllocationSize = DirectoryInfo.AllocationSize.QuadPart;
-		FindData.dwReserved0 = FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT? DirectoryInfo.EaSize : 0;
+		FindData.FileSize = DirectoryInfo.EndOfFile.QuadPart;
+		FindData.AllocationSize = DirectoryInfo.AllocationSize.QuadPart;
+		FindData.ReparseTag = FindData.Attributes&FILE_ATTRIBUTE_REPARSE_POINT? DirectoryInfo.EaSize : 0;
 
 		const auto& CopyNames = [&FindData](const auto& DirInfo)
 		{
-			FindData.strFileName.assign(DirInfo.FileName, DirInfo.FileNameLength / sizeof(wchar_t));
-			FindData.strAlternateFileName.assign(DirInfo.ShortName, DirInfo.ShortNameLength / sizeof(wchar_t));
+			assign(FindData.FileName, trim_trailing_zeros({ DirInfo.FileName, DirInfo.FileNameLength / sizeof(wchar_t) }));
+			FindData.SetAlternateFileName(trim_trailing_zeros(empty_if_zero({ DirInfo.ShortName, DirInfo.ShortNameLength / sizeof(wchar_t) })));
 		};
 
 		if (IsExtended)
@@ -192,32 +237,6 @@ namespace os::fs
 			FindData.FileId = 0;
 			CopyNames(reinterpret_cast<const FILE_BOTH_DIR_INFORMATION&>(DirectoryInfo));
 		}
-
-		const auto& RemoveTrailingZeros = [](string& Where)
-		{
-			const auto Pos = Where.find_last_not_of(L'\0');
-			Pos != string::npos? Where.resize(Pos + 1) : Where.clear();
-		};
-
-		// MSDN verse 2.4.17:
-		// "When working with this field, use FileNameLength to determine the length of the file name
-		// rather than assuming the presence of a trailing null delimiter."
-
-		// Some buggy implementations (e. g. ms sharepoint, rdesktop) set the length incorrectly
-		// (e. g. including the terminating \0 or as ((number of bytes in the source string) * 2) when source is in UTF-8),
-		// so instead of, say, "name" (4) they return "name\0\0\0\0" (8).
-		// Generally speaking, it's their own problems and we shall use it as is, as per the verse above.
-		// However, most of the applications use FindFirstFile API, which copies this string
-		// to the fixed-size buffer WIN32_FIND_DATA.cFileName, leaving the burden of finding its length
-		// to the application itself, which, by coincidence, does it correctly, effectively masking the initial error.
-		// So people come to us and claim that Far isn't working properly while other programs are fine.
-
-		RemoveTrailingZeros(FindData.strFileName);
-		RemoveTrailingZeros(FindData.strAlternateFileName);
-
-		// Some other buggy implementations just set the first char of AlternateFileName to '\0' to make it "empty", leaving rubbish in others. Double facepalm.
-		if (!FindData.strAlternateFileName.empty() && FindData.strAlternateFileName.front() == L'\0')
-			FindData.strAlternateFileName.clear();
 	}
 
 	static find_file_handle FindFirstFileInternal(const string& Name, find_data& FindData)
@@ -246,16 +265,16 @@ namespace os::fs
 		}
 
 		// for network paths buffer size must be <= 64k
-		Handle->BufferBase.reset(0x10000);
+		Handle->BufferBase.reset(65536);
 
 		const auto NamePart = PointToName(Name);
 		Handle->Extended = true;
 
-		bool QueryResult = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.get(), Handle->BufferBase.size(), FileIdBothDirectoryInformation, false, null_terminated(NamePart).data(), true);
+		bool QueryResult = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.get(), Handle->BufferBase.size(), FileIdBothDirectoryInformation, false, null_terminated(NamePart).c_str(), true);
 		if (QueryResult) // try next read immediately to avoid M#2128 bug
 		{
 			block_ptr<BYTE> Buffer2(Handle->BufferBase.size());
-			if (Handle->Object.NtQueryDirectoryFile(Buffer2.get(), Buffer2.size(), FileIdBothDirectoryInformation, false, null_terminated(NamePart).data(), false))
+			if (Handle->Object.NtQueryDirectoryFile(Buffer2.get(), Buffer2.size(), FileIdBothDirectoryInformation, false, null_terminated(NamePart).c_str(), false))
 			{
 				Handle->Buffer2 = std::move(Buffer2);
 			}
@@ -276,7 +295,7 @@ namespace os::fs
 			Handle->Object.Close();
 			if (OpenDirectory())
 			{
-				QueryResult = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.get(), Handle->BufferBase.size(), FileBothDirectoryInformation, false, null_terminated(NamePart).data(), true);
+				QueryResult = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.get(), Handle->BufferBase.size(), FileBothDirectoryInformation, false, null_terminated(NamePart).c_str(), true);
 			}
 		}
 
@@ -335,9 +354,9 @@ namespace os::fs
 		return Result;
 	}
 
-	bool enum_files::get(size_t index, find_data& Value) const
+	bool enum_files::get(bool Reset, find_data& Value) const
 	{
-		if (!index)
+		if (Reset)
 		{
 			// temporarily disable elevation to try the requested name first
 			{
@@ -352,10 +371,7 @@ namespace os::fs
 					auto strReal = m_Object;
 					// only links in the path should be processed, not the object name itself
 					CutToSlash(strReal);
-					strReal = ConvertNameToReal(strReal);
-					AddEndSlash(strReal);
-					append(strReal, PointToName(m_Object));
-					strReal = NTPath(strReal);
+					strReal = NTPath(path::join(ConvertNameToReal(strReal), PointToName(m_Object)));
 					m_Handle = FindFirstFileInternal(strReal, Value);
 				}
 
@@ -375,13 +391,12 @@ namespace os::fs
 		}
 
 		// skip ".." & "."
-		if (Value.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY &&
-			Value.strFileName[0] == L'.' && ((Value.strFileName.size() == 2 && Value.strFileName[1] == L'.') || Value.strFileName.size() == 1) &&
+		if (Value.Attributes & FILE_ATTRIBUTE_DIRECTORY &&
+			Value.FileName[0] == L'.' && ((Value.FileName.size() == 2 && Value.FileName[1] == L'.') || Value.FileName.size() == 1) &&
 			// These "virtual" folders either don't have an SFN at all or it's the same as LFN:
-			(Value.strAlternateFileName.empty() || Value.strAlternateFileName == Value.strFileName))
+			(!Value.HasAlternateFileName() || Value.AlternateFileName() == Value.FileName))
 		{
-			// index is not important here, anything but 0 is fine
-			return get(1, Value);
+			return get(false, Value);
 		}
 
 		return true;
@@ -389,14 +404,14 @@ namespace os::fs
 
 	//-------------------------------------------------------------------------
 
-	find_handle FindFirstFileName(const string_view& FileName, DWORD Flags, string& LinkName)
+	static find_handle FindFirstFileName(const string_view FileName, const DWORD Flags, string& LinkName)
 	{
 		NTPath NtFileName(FileName);
 		find_handle Handle;
-		os::detail::ApiDynamicStringReceiver(LinkName, [&](wchar_t* Buffer, size_t Size)
+		os::detail::ApiDynamicStringReceiver(LinkName, [&](range<wchar_t*> Buffer)
 		{
-			auto BufferSize = static_cast<DWORD>(Size);
-			Handle.reset(Imports().FindFirstFileNameW(NtFileName.data(), Flags, &BufferSize, Buffer));
+			auto BufferSize = static_cast<DWORD>(Buffer.size());
+			Handle.reset(imports.FindFirstFileNameW(NtFileName.c_str(), Flags, &BufferSize, Buffer.data()));
 			if (Handle)
 				// FindFirstFileNameW always includes terminating \0 in the returned size
 				return BufferSize - 1;
@@ -405,26 +420,26 @@ namespace os::fs
 		return Handle;
 	}
 
-	bool FindNextFileName(const find_handle& hFindStream, string& LinkName)
+	static bool FindNextFileName(const find_handle& hFindStream, string& LinkName)
 	{
-		return os::detail::ApiDynamicStringReceiver(LinkName, [&](wchar_t* Buffer, size_t Size)
+		return os::detail::ApiDynamicStringReceiver(LinkName, [&](range<wchar_t*> Buffer)
 		{
-			auto BufferSize = static_cast<DWORD>(Size);
-			if (Imports().FindNextFileNameW(hFindStream.native_handle(), &BufferSize, Buffer))
+			auto BufferSize = static_cast<DWORD>(Buffer.size());
+			if (imports.FindNextFileNameW(hFindStream.native_handle(), &BufferSize, Buffer.data()))
 				// FindNextFileNameW always includes terminating \0 in the returned size
 				return BufferSize - 1;
 			return GetLastError() == ERROR_MORE_DATA? BufferSize : 0;
 		});
 	}
 
-	enum_names::enum_names(const string_view& Object):
-		m_Object(make_string(Object))
+	enum_names::enum_names(const string_view Object):
+		m_Object(Object)
 	{
 	}
 
-	bool enum_names::get(size_t Index, string& Value) const
+	bool enum_names::get(bool Reset, string& Value) const
 	{
-		if (!Index)
+		if (Reset)
 		{
 			m_Handle = FindFirstFileName(m_Object, 0, Value);
 			return m_Handle != nullptr;
@@ -446,11 +461,11 @@ namespace os::fs
 		return true;
 	}
 
-	find_file_handle FindFirstStream(const string_view& FileName, STREAM_INFO_LEVELS InfoLevel, void* FindStreamData, DWORD Flags)
+	static find_file_handle FindFirstStream(const string_view FileName, const STREAM_INFO_LEVELS InfoLevel, void* const FindStreamData, const DWORD Flags)
 	{
-		if (Imports().FindFirstStreamW && Imports().FindNextStreamW)
+		if (imports.FindFirstStreamW && imports.FindNextStreamW)
 		{
-			os_find_file_handle_impl Handle(Imports().FindFirstStreamW(NTPath(FileName).data(), InfoLevel, FindStreamData, Flags));
+			os_find_file_handle_impl Handle(imports.FindFirstStreamW(NTPath(FileName).c_str(), InfoLevel, FindStreamData, Flags));
 			return find_file_handle(Handle? std::make_unique<os_find_file_handle_impl>(Handle.release()).release() : nullptr);
 		}
 
@@ -464,7 +479,7 @@ namespace os::fs
 
 		// for network paths buffer size must be <= 64k
 		// we double it in a first loop, so starting value is 32k
-		size_t BufferSize = 0x8000;
+		size_t BufferSize = 32768;
 		NTSTATUS Result = STATUS_SEVERITY_ERROR;
 		do
 		{
@@ -490,11 +505,11 @@ namespace os::fs
 		return find_file_handle(Handle.release());
 	}
 
-	bool FindNextStream(const find_file_handle& hFindStream, void* FindStreamData)
+	static bool FindNextStream(const find_file_handle& hFindStream, void* FindStreamData)
 	{
-		if (Imports().FindFirstStreamW && Imports().FindNextStreamW)
+		if (imports.FindFirstStreamW && imports.FindNextStreamW)
 		{
-			return Imports().FindNextStreamW(static_cast<os_find_file_handle_impl*>(hFindStream.native_handle())->native_handle(), FindStreamData) != FALSE;
+			return imports.FindNextStreamW(static_cast<os_find_file_handle_impl*>(hFindStream.native_handle())->native_handle(), FindStreamData) != FALSE;
 		}
 
 		const auto Handle = static_cast<far_find_file_handle_impl*>(hFindStream.native_handle());
@@ -509,14 +524,14 @@ namespace os::fs
 		return FileStreamInformationToFindStreamData(*StreamInfo, *StreamData);
 	}
 
-	enum_streams::enum_streams(const string_view& Object):
-		m_Object(make_string(Object))
+	enum_streams::enum_streams(const string_view Object):
+		m_Object(Object)
 	{
 	}
 
-	bool enum_streams::get(size_t Index, WIN32_FIND_STREAM_DATA& Value) const
+	bool enum_streams::get(bool Reset, WIN32_FIND_STREAM_DATA& Value) const
 	{
-		if (!Index)
+		if (Reset)
 		{
 			m_Handle = FindFirstStream(m_Object, FindStreamInfoStandard, &Value, 0);
 			return m_Handle != nullptr;
@@ -529,11 +544,11 @@ namespace os::fs
 
 	enum_volumes::enum_volumes() = default;
 
-	bool enum_volumes::get(size_t Index, string& Value) const
+	bool enum_volumes::get(bool Reset, string& Value) const
 	{
 		wchar_t VolumeName[50];
 
-		if (!Index)
+		if (Reset)
 		{
 			m_Handle.reset(FindFirstVolume(VolumeName, static_cast<DWORD>(std::size(VolumeName))));
 			if (!m_Handle)
@@ -555,12 +570,12 @@ namespace os::fs
 
 	//-------------------------------------------------------------------------
 
-	bool file::operator!() const noexcept
+	file::operator bool() const noexcept
 	{
-		return !m_Handle;
+		return m_Handle.operator bool();
 	}
 
-	bool file::Open(const string_view& Object, DWORD DesiredAccess, DWORD ShareMode, SECURITY_ATTRIBUTES* SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, const file* TemplateFile, bool ForceElevation)
+	bool file::Open(const string_view Object, const DWORD DesiredAccess, const DWORD ShareMode, SECURITY_ATTRIBUTES* SecurityAttributes, const DWORD CreationDistribution, const DWORD FlagsAndAttributes, const file* TemplateFile, const bool ForceElevation)
 	{
 		assert(!m_Handle);
 
@@ -578,7 +593,7 @@ namespace os::fs
 			return false;
 		}
 
-		m_Name = make_string(Object);
+		assign(m_Name, Object);
 		m_ShareMode = ShareMode;
 		return true;
 	}
@@ -712,8 +727,8 @@ namespace os::fs
 			fbi.ChangeTime.QuadPart = ChangeTime->time_since_epoch().count();
 
 		IO_STATUS_BLOCK IoStatusBlock;
-		const auto Status = Imports().NtSetInformationFile(m_Handle.native_handle(), &IoStatusBlock, &fbi, sizeof fbi, FileBasicInformation);
-		::SetLastError(Imports().RtlNtStatusToDosError(Status));
+		const auto Status = imports.NtSetInformationFile(m_Handle.native_handle(), &IoStatusBlock, &fbi, sizeof fbi, FileBasicInformation);
+		::SetLastError(imports.RtlNtStatusToDosError(Status));
 
 		return Status == STATUS_SUCCESS;
 	}
@@ -750,7 +765,7 @@ namespace os::fs
 
 	bool file::GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed) const
 	{
-		DWORD Result = Imports().GetStorageDependencyInformation(m_Handle.native_handle(), Flags, StorageDependencyInfoSize, StorageDependencyInfo, SizeUsed);
+		DWORD Result = imports.GetStorageDependencyInformation(m_Handle.native_handle(), Flags, StorageDependencyInfoSize, StorageDependencyInfo, SizeUsed);
 		SetLastError(Result);
 		return Result == ERROR_SUCCESS;
 	}
@@ -770,8 +785,8 @@ namespace os::fs
 		const auto di = reinterpret_cast<FILE_ID_BOTH_DIR_INFORMATION*>(FileInformation);
 		di->NextEntryOffset = 0xffffffffUL;
 
-		NTSTATUS Result = Imports().NtQueryDirectoryFile(m_Handle.native_handle(), nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, static_cast<ULONG>(Length), FileInformationClass, ReturnSingleEntry, pNameString, RestartScan);
-		SetLastError(Imports().RtlNtStatusToDosError(Result));
+		NTSTATUS Result = imports.NtQueryDirectoryFile(m_Handle.native_handle(), nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, static_cast<ULONG>(Length), FileInformationClass, ReturnSingleEntry, pNameString, RestartScan);
+		SetLastError(imports.RtlNtStatusToDosError(Result));
 		if (Status)
 		{
 			*Status = Result;
@@ -783,8 +798,8 @@ namespace os::fs
 	bool file::NtQueryInformationFile(void* FileInformation, size_t Length, FILE_INFORMATION_CLASS FileInformationClass, NTSTATUS* Status) const
 	{
 		IO_STATUS_BLOCK IoStatusBlock;
-		NTSTATUS Result = Imports().NtQueryInformationFile(m_Handle.native_handle(), &IoStatusBlock, FileInformation, static_cast<ULONG>(Length), FileInformationClass);
-		SetLastError(Imports().RtlNtStatusToDosError(Result));
+		NTSTATUS Result = imports.NtQueryInformationFile(m_Handle.native_handle(), &IoStatusBlock, FileInformation, static_cast<ULONG>(Length), FileInformationClass);
+		SetLastError(imports.RtlNtStatusToDosError(Result));
 		if (Status)
 		{
 			*Status = Result;
@@ -799,7 +814,7 @@ namespace os::fs
 
 		const auto& QueryObject = [&]
 		{
-			return Imports().NtQueryObject(hFile, ObjectNameInformation, oni.get(), static_cast<unsigned long>(oni.size()), &ReturnLength);
+			return imports.NtQueryObject(hFile, ObjectNameInformation, oni.get(), static_cast<unsigned long>(oni.size()), &ReturnLength);
 		};
 
 		auto Result = QueryObject();
@@ -833,10 +848,10 @@ namespace os::fs
 		InitializeObjectAttributes(&ObjAttrs, &ObjName, 0, nullptr, nullptr);
 
 		HANDLE hSymLink;
-		if (Imports().NtOpenSymbolicLinkObject(&hSymLink, GENERIC_READ, &ObjAttrs) != STATUS_SUCCESS)
+		if (imports.NtOpenSymbolicLinkObject(&hSymLink, GENERIC_READ, &ObjAttrs) != STATUS_SUCCESS)
 			return 0;
 
-		SCOPE_EXIT{ Imports().NtClose(hSymLink); };
+		SCOPE_EXIT{ imports.NtClose(hSymLink); };
 
 		ULONG BufSize = 32767;
 		wchar_t_ptr Buffer(BufSize);
@@ -844,7 +859,7 @@ namespace os::fs
 		LinkTarget.MaximumLength = static_cast<USHORT>(BufSize * sizeof(wchar_t));
 		LinkTarget.Buffer = Buffer.get();
 
-		if (Imports().NtQuerySymbolicLinkObject(hSymLink, &LinkTarget, nullptr) != STATUS_SUCCESS)
+		if (imports.NtQuerySymbolicLinkObject(hSymLink, &LinkTarget, nullptr) != STATUS_SUCCESS)
 			return 0;
 
 		TargetPath.assign(LinkTarget.Buffer, LinkTarget.Length / sizeof(wchar_t));
@@ -866,12 +881,12 @@ namespace os::fs
 			if (!starts_with(NtPath, OldRoot))
 				return false;
 
-			FinalFilePath = NtPath.replace(0, OldRoot.size(), NewRoot.raw_data(), NewRoot.size());
+			FinalFilePath = NtPath.replace(0, OldRoot.size(), NewRoot.data(), NewRoot.size());
 			return true;
 		};
 
 		// simple way to handle network paths
-		if (ReplaceRoot(L"\\Device\\LanmanRedirector"_sv, L"\\"_sv) || ReplaceRoot(L"\\Device\\Mup"_sv, L"\\"_sv))
+		if (ReplaceRoot(L"\\Device\\LanmanRedirector"sv, L"\\"sv) || ReplaceRoot(L"\\Device\\Mup"sv, L"\\"sv))
 			return true;
 
 		// try to convert NT path (\Device\HarddiskVolume1) to drive letter
@@ -880,7 +895,7 @@ namespace os::fs
 			const auto Device = fs::get_drive(i);
 			if (const auto Len = MatchNtPathRoot(NtPath, Device))
 			{
-				FinalFilePath = starts_with(NtPath, L"\\Device\\WinDfs"_sv)? NtPath.replace(0, Len, 1, L'\\') : NtPath.replace(0, Len, Device);
+				FinalFilePath = starts_with(NtPath, L"\\Device\\WinDfs"sv)? NtPath.replace(0, Len, 1, L'\\') : NtPath.replace(0, Len, Device);
 				return true;
 			}
 		}
@@ -908,7 +923,7 @@ namespace os::fs
 			return seh_invoke_no_ui(
 			[&]
 			{
-				return Imports().GetFinalPathNameByHandle(File, Buffer, Size, Flags);
+				return imports.GetFinalPathNameByHandle(File, Buffer, Size, Flags);
 			},
 			[]
 			{
@@ -919,13 +934,13 @@ namespace os::fs
 
 		const auto& GetFinalPathNameByHandleImpl = [&]
 		{
-			return os::detail::ApiDynamicStringReceiver(FinalFilePath, [&](wchar_t* Buffer, size_t Size)
+			return os::detail::ApiDynamicStringReceiver(FinalFilePath, [&](range<wchar_t*> Buffer)
 			{
-				return GetFinalPathNameByHandleGuarded(m_Handle.native_handle(), Buffer, static_cast<DWORD>(Size), VOLUME_NAME_GUID);
+				return GetFinalPathNameByHandleGuarded(m_Handle.native_handle(), Buffer.data(), static_cast<DWORD>(Buffer.size()), VOLUME_NAME_GUID);
 			});
 		};
 
-		return (Imports().GetFinalPathNameByHandleW && GetFinalPathNameByHandleImpl()) || internalNtQueryGetFinalPathNameByHandle(m_Handle.native_handle(), FinalFilePath);
+		return (imports.GetFinalPathNameByHandleW && GetFinalPathNameByHandleImpl()) || internalNtQueryGetFinalPathNameByHandle(m_Handle.native_handle(), FinalFilePath);
 	}
 
 	void file::Close()
@@ -1069,13 +1084,166 @@ namespace os::fs
 	}
 
 	//-------------------------------------------------------------------------
+	filebuf::filebuf(const file& File, std::ios::openmode Mode, size_t BufferSize):
+		m_File(File),
+		m_Mode(Mode),
+		m_Buffer(BufferSize)
+	{
+		if (!(m_Mode & std::ios::in) == !(m_Mode & std::ios::out))
+			throw MAKE_FAR_EXCEPTION(L"Unsupported mode"sv);
+
+		reset_get_area();
+		reset_put_area();
+	}
+
+	filebuf::int_type filebuf::underflow()
+	{
+		if (!m_File)
+			throw MAKE_FAR_EXCEPTION(L"File not opened"sv);
+
+		if (!(m_Mode && std::ios::in))
+			throw MAKE_FAR_EXCEPTION(L"Buffer not opened for reading"sv);
+
+		size_t Read;
+		if (!m_File.Read(m_Buffer.data(), m_Buffer.size() * sizeof(char), Read))
+			throw MAKE_FAR_EXCEPTION(L"Read error"sv);
+
+		if (!Read)
+			return traits_type::eof();
+
+		setg(m_Buffer.data(), m_Buffer.data(), m_Buffer.data() + Read / sizeof(char));
+		return m_Buffer[0];
+	}
+
+	filebuf::int_type filebuf::overflow(int_type Ch)
+	{
+		if (!m_File)
+			throw MAKE_FAR_EXCEPTION(L"File not opened"sv);
+
+		if (!(m_Mode && std::ios::out))
+			throw MAKE_FAR_EXCEPTION(L"Buffer not opened for writing"sv);
+
+		if (pptr() != pbase())
+		{
+			if (!m_File.Write(pbase(), static_cast<size_t>(pptr() - pbase()) * sizeof(char)))
+				throw MAKE_FAR_EXCEPTION(L"Write error"sv);
+		}
+
+		reset_put_area();
+
+		if (!traits_type::eq_int_type(Ch, traits_type::eof()))
+			sputc(Ch);
+
+		return 0;
+	}
+
+	int filebuf::sync()
+	{
+		if (m_Mode & std::ios::in)
+			reset_get_area();
+
+		if (m_Mode & std::ios::out)
+			overflow(traits_type::eof());
+
+		return 0;
+	}
+
+	bool filebuf::adjust_pos_in_cache(std::streamoff Offset)
+	{
+		if (m_Mode & std::ios::in)
+		{
+			if (gptr() + Offset >= eback() && gptr() + Offset < egptr())
+			{
+				gbump(Offset);
+				return true;
+			}
+		}
+		else if (m_Mode & std::ios::out)
+		{
+			if (pptr() + Offset >= pbase() && pptr() + Offset < epptr())
+			{
+				pbump(Offset);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	filebuf::pos_type filebuf::seekoff(off_type Offset, std::ios::seekdir Way, std::ios::openmode Which)
+	{
+		if (!m_File)
+			throw MAKE_FAR_EXCEPTION(L"File not opened"sv);
+
+		switch (Way)
+		{
+		case std::ios::beg:
+			sync();
+			return set_pointer(Offset, FILE_BEGIN);
+
+		case std::ios::end:
+			sync();
+			return set_pointer(Offset, FILE_END);
+
+		case std::ios::cur:
+			{
+				int CacheShift = 0;
+
+				if (m_Mode & std::ios::in)
+					CacheShift = -(egptr() - gptr());
+				else if (m_Mode & std::ios::out)
+					CacheShift = pptr() - pbase();
+
+				if (adjust_pos_in_cache(Offset))
+					return m_File.GetPointer() + CacheShift + Offset;
+			}
+
+			sync();
+			return set_pointer(Offset, FILE_CURRENT);
+
+		default:
+			throw MAKE_FAR_EXCEPTION(L"Unknown seekdir"sv);
+		}
+	}
+
+	filebuf::pos_type filebuf::seekpos(pos_type Pos, std::ios::openmode Which)
+	{
+		return seekoff(Pos, std::ios::beg, Which);
+	}
+
+	filebuf::int_type filebuf::pbackfail(int_type Ch)
+	{
+		throw MAKE_FAR_EXCEPTION(L"Not implemented"sv);
+	}
+
+	void filebuf::reset_get_area()
+	{
+		// buffer is not available for reading
+		setg(m_Buffer.data(), m_Buffer.data() + m_Buffer.size(), m_Buffer.data() + m_Buffer.size());
+	}
+
+	void filebuf::reset_put_area()
+	{
+		// buffer is available for writing
+		setp(m_Buffer.data(), m_Buffer.data() + m_Buffer.size());
+	}
+
+	unsigned long long filebuf::set_pointer(unsigned long long Value, int Way)
+	{
+		unsigned long long Result;
+		if (!m_File.SetPointer(Value, &Result, Way))
+			throw MAKE_FAR_EXCEPTION(L"SetFilePointer error"sv);
+
+		return Result;
+	}
+
+	//-------------------------------------------------------------------------
 
 	file_status::file_status():
 		m_Data(INVALID_FILE_ATTRIBUTES)
 	{
 	}
 
-	file_status::file_status(const string_view& Object):
+	file_status::file_status(const string_view Object):
 		m_Data(fs::get_file_attributes(Object))
 	{
 	}
@@ -1092,7 +1260,7 @@ namespace os::fs
 		return Status.check(~0);
 	}
 
-	bool exists(const string_view& Object)
+	bool exists(const string_view Object)
 	{
 		return exists(file_status(Object));
 	}
@@ -1102,7 +1270,7 @@ namespace os::fs
 		return exists(Status) && !is_directory(Status);
 	}
 
-	bool is_file(const string_view& Object)
+	bool is_file(const string_view Object)
 	{
 		return is_file(file_status(Object));
 	}
@@ -1112,27 +1280,35 @@ namespace os::fs
 		return Status.check(FILE_ATTRIBUTE_DIRECTORY);
 	}
 
-	bool is_directory(const string_view& Object)
+	bool is_directory(const string_view Object)
 	{
 		return is_directory(file_status(Object));
 	}
 
 	bool is_not_empty_directory(const string& Object)
 	{
-		auto Pattern = Object;
-		AddEndSlash(Pattern);
-		Pattern += L"*";
-		const auto Find = enum_files(Pattern);
+		const auto Find = enum_files(path::join(Object, L'*'));
 		return Find.begin() != Find.end();
 	}
 
 	//-------------------------------------------------------------------------
 
-	process_current_directory_guard::process_current_directory_guard(bool Active, const std::function<string()>& Provider):
-		m_Active(Active && GetProcessRealCurrentDirectory(m_Directory))
+	current_directory_guard::current_directory_guard(const string& Directory):
+		m_Directory(GetCurrentDirectory()),
+		m_Active(SetCurrentDirectory(Directory))
 	{
-		if (m_Active && Provider)
-			SetProcessRealCurrentDirectory(Provider());
+	}
+
+	current_directory_guard::~current_directory_guard()
+	{
+		// No need to validate, we can trust ourselves
+		if (m_Active)
+			SetCurrentDirectory(m_Directory, false);
+	}
+
+	process_current_directory_guard::process_current_directory_guard(const string& Directory):
+		m_Active(GetProcessRealCurrentDirectory(m_Directory) && SetProcessRealCurrentDirectory(Directory))
+	{
 	}
 
 	process_current_directory_guard::~process_current_directory_guard()
@@ -1193,14 +1369,14 @@ namespace os::fs
 		bool detach_virtual_disk(const wchar_t* Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType)
 		{
 			handle Handle;
-			DWORD Result = Imports().OpenVirtualDisk(&VirtualStorageType, Object, VIRTUAL_DISK_ACCESS_DETACH, OPEN_VIRTUAL_DISK_FLAG_NONE, nullptr, &ptr_setter(Handle));
+			DWORD Result = imports.OpenVirtualDisk(&VirtualStorageType, Object, VIRTUAL_DISK_ACCESS_DETACH, OPEN_VIRTUAL_DISK_FLAG_NONE, nullptr, &ptr_setter(Handle));
 			if (Result != ERROR_SUCCESS)
 			{
 				SetLastError(Result);
 				return false;
 			}
 
-			Result = Imports().DetachVirtualDisk(Handle.native_handle(), DETACH_VIRTUAL_DISK_FLAG_NONE, 0);
+			Result = imports.DetachVirtualDisk(Handle.native_handle(), DETACH_VIRTUAL_DISK_FLAG_NONE, 0);
 			if (Result != ERROR_SUCCESS)
 			{
 				SetLastError(Result);
@@ -1240,15 +1416,15 @@ namespace os::fs
 
 	bool GetProcessRealCurrentDirectory(string& Directory)
 	{
-		return os::detail::ApiDynamicStringReceiver(Directory, [](wchar_t* Buffer, size_t Size)
+		return os::detail::ApiDynamicStringReceiver(Directory, [](range<wchar_t*> Buffer)
 		{
-			return ::GetCurrentDirectory(static_cast<DWORD>(Size), Buffer);
+			return ::GetCurrentDirectory(static_cast<DWORD>(Buffer.size()), Buffer.data());
 		});
 	}
 
 	bool SetProcessRealCurrentDirectory(const string& Directory)
 	{
-		return ::SetCurrentDirectory(Directory.data()) != FALSE;
+		return ::SetCurrentDirectory(Directory.c_str()) != FALSE;
 	}
 
 	void InitCurrentDirectory()
@@ -1294,13 +1470,10 @@ namespace os::fs
 
 		if (Validate)
 		{
-			string TestDir = PathName;
-			AddEndSlash(TestDir);
-			TestDir += L'*';
 			find_data fd;
-			if (!get_find_data(TestDir, fd))
+			if (!get_find_data(path::join(PathName, L'*'), fd))
 			{
-				DWORD LastError = ::GetLastError();
+				const auto LastError = ::GetLastError();
 				if (!(LastError == ERROR_FILE_NOT_FOUND || LastError == ERROR_NO_MORE_FILES))
 					return false;
 			}
@@ -1318,18 +1491,18 @@ namespace os::fs
 		return true;
 	}
 
-	bool create_directory(const string_view& PathName, SECURITY_ATTRIBUTES* SecurityAttributes)
+	bool create_directory(const string_view PathName, SECURITY_ATTRIBUTES* SecurityAttributes)
 	{
-		return create_directory(L""_sv, PathName, SecurityAttributes);
+		return create_directory(L""sv, PathName, SecurityAttributes);
 	}
 
-	bool create_directory(const string_view& TemplateDirectory, const string_view& NewDirectory, SECURITY_ATTRIBUTES* SecurityAttributes)
+	bool create_directory(const string_view TemplateDirectory, const string_view NewDirectory, SECURITY_ATTRIBUTES* SecurityAttributes)
 	{
 		NTPath NtNewDirectory(NewDirectory);
 
 		const auto& Create = [&](const string& Template)
 		{
-			if (low::create_directory(Template.data(), NtNewDirectory.data(), SecurityAttributes))
+			if (low::create_directory(Template.c_str(), NtNewDirectory.c_str(), SecurityAttributes))
 				return true;
 
 			if (ElevationRequired(ELEVATION_MODIFY_REQUEST))
@@ -1346,10 +1519,10 @@ namespace os::fs
 			Create({});
 	}
 
-	bool remove_directory(const string_view& DirName)
+	bool remove_directory(const string_view DirName)
 	{
 		NTPath strNtName(DirName);
-		if (low::remove_directory(strNtName.data()))
+		if (low::remove_directory(strNtName.c_str()))
 			return true;
 
 		const auto IsElevationRequired = ElevationRequired(ELEVATION_MODIFY_REQUEST);
@@ -1367,7 +1540,7 @@ namespace os::fs
 		return false;
 	}
 
-	handle create_file(const string_view& Object, DWORD DesiredAccess, DWORD ShareMode, SECURITY_ATTRIBUTES* SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile, bool ForceElevation)
+	handle create_file(const string_view Object, const DWORD DesiredAccess, const DWORD ShareMode, SECURITY_ATTRIBUTES* SecurityAttributes, const DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile, const bool ForceElevation)
 	{
 		NTPath strObject(Object);
 		FlagsAndAttributes |= FILE_FLAG_BACKUP_SEMANTICS;
@@ -1384,7 +1557,7 @@ namespace os::fs
 		if (ForceElevation)
 			return create_elevated();
 
-		if (auto Handle = handle(low::create_file(strObject.data(), DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile)))
+		if (auto Handle = handle(low::create_file(strObject.c_str(), DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile)))
 			return Handle;
 
 		const auto LastError = GetLastError();
@@ -1398,21 +1571,21 @@ namespace os::fs
 		if (LastError == ERROR_FILE_NOT_FOUND || LastError == ERROR_PATH_NOT_FOUND)
 		{
 			FlagsAndAttributes &= ~FILE_FLAG_POSIX_SEMANTICS;
-			if (auto Handle = handle(low::create_file(strObject.data(), DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile)))
+			if (auto Handle = handle(low::create_file(strObject.c_str(), DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile)))
 				return Handle;
 		}
 
-		if (ElevationRequired(DesiredAccess & (GENERIC_ALL | GENERIC_WRITE | WRITE_OWNER | WRITE_DAC | DELETE | FILE_WRITE_DATA | FILE_ADD_FILE | FILE_APPEND_DATA | FILE_ADD_SUBDIRECTORY | FILE_CREATE_PIPE_INSTANCE | FILE_WRITE_EA | FILE_DELETE_CHILD | FILE_WRITE_ATTRIBUTES)? ELEVATION_MODIFY_REQUEST : ELEVATION_READ_REQUEST) || ForceElevation)
+		if (ElevationRequired(DesiredAccess & (GENERIC_ALL | GENERIC_WRITE | WRITE_OWNER | WRITE_DAC | DELETE | FILE_WRITE_DATA | FILE_ADD_FILE | FILE_APPEND_DATA | FILE_ADD_SUBDIRECTORY | FILE_CREATE_PIPE_INSTANCE | FILE_WRITE_EA | FILE_DELETE_CHILD | FILE_WRITE_ATTRIBUTES)? ELEVATION_MODIFY_REQUEST : ELEVATION_READ_REQUEST))
 			return create_elevated();
 
 		return nullptr;
 	}
 
-	bool delete_file(const string_view& FileName)
+	bool delete_file(const string_view FileName)
 	{
 		NTPath strNtName(FileName);
 
-		if (low::delete_file(strNtName.data()))
+		if (low::delete_file(strNtName.c_str()))
 			return true;
 
 		const auto IsElevationRequired = ElevationRequired(ELEVATION_MODIFY_REQUEST);
@@ -1430,7 +1603,7 @@ namespace os::fs
 		return false;
 	}
 
-	bool copy_file(const string_view& ExistingFileName, const string_view& NewFileName, LPPROGRESS_ROUTINE ProgressRoutine, void* Data, BOOL* Cancel, DWORD CopyFlags)
+	bool copy_file(const string_view ExistingFileName, const string_view NewFileName, const LPPROGRESS_ROUTINE ProgressRoutine, void* const Data, BOOL* const Cancel, const DWORD CopyFlags)
 	{
 		NTPath strFrom(ExistingFileName), strTo(NewFileName);
 		if (IsSlash(strTo.back()))
@@ -1438,7 +1611,7 @@ namespace os::fs
 			append(strTo, PointToName(strFrom));
 		}
 
-		if (low::copy_file(strFrom.data(), strTo.data(), ProgressRoutine, Data, Cancel, CopyFlags))
+		if (low::copy_file(strFrom.c_str(), strTo.c_str(), ProgressRoutine, Data, Cancel, CopyFlags))
 			return true;
 
 		if (STATUS_STOPPED_ON_SYMLINK == GetLastNtStatus() && ERROR_STOPPED_ON_SYMLINK != GetLastError())
@@ -1459,7 +1632,7 @@ namespace os::fs
 		return false;
 	}
 
-	bool move_file(const string_view& ExistingFileName, const string_view& NewFileName, DWORD dwFlags)
+	bool move_file(const string_view ExistingFileName, const string_view NewFileName, const DWORD dwFlags)
 	{
 		NTPath strFrom(ExistingFileName), strTo(NewFileName);
 		if (IsSlash(strTo.back()))
@@ -1467,7 +1640,7 @@ namespace os::fs
 			append(strTo, PointToName(strFrom));
 		}
 
-		if (low::move_file(strFrom.data(), strTo.data(), dwFlags))
+		if (low::move_file(strFrom.c_str(), strTo.c_str(), dwFlags))
 			return true;
 
 		if (STATUS_STOPPED_ON_SYMLINK == GetLastNtStatus() && ERROR_STOPPED_ON_SYMLINK != GetLastError())
@@ -1491,11 +1664,11 @@ namespace os::fs
 		return false;
 	}
 
-	DWORD get_file_attributes(const string_view& FileName)
+	DWORD get_file_attributes(const string_view FileName)
 	{
 		NTPath NtName(FileName);
 
-		const auto Result = low::get_file_attributes(NtName.data());
+		const auto Result = low::get_file_attributes(NtName.c_str());
 		if (Result != INVALID_FILE_ATTRIBUTES)
 			return Result;
 
@@ -1505,11 +1678,11 @@ namespace os::fs
 		return INVALID_FILE_ATTRIBUTES;
 	}
 
-	bool set_file_attributes(const string_view& FileName, DWORD Attributes)
+	bool set_file_attributes(const string_view FileName, const DWORD Attributes)
 	{
 		NTPath NtName(FileName);
 
-		if (low::set_file_attributes(NtName.data(), Attributes))
+		if (low::set_file_attributes(NtName.c_str(), Attributes))
 			return true;
 
 		if (ElevationRequired(ELEVATION_MODIFY_REQUEST))
@@ -1520,17 +1693,17 @@ namespace os::fs
 
 	bool GetLongPathName(const string& ShortPath, string& LongPath)
 	{
-		return os::detail::ApiDynamicStringReceiver(LongPath, [&](wchar_t* Buffer, size_t Size)
+		return os::detail::ApiDynamicStringReceiver(LongPath, [&](range<wchar_t*> Buffer)
 		{
-			return ::GetLongPathName(ShortPath.data(), Buffer, static_cast<DWORD>(Size));
+			return ::GetLongPathName(ShortPath.c_str(), Buffer.data(), static_cast<DWORD>(Buffer.size()));
 		});
 	}
 
 	bool GetShortPathName(const string& LongPath, string& ShortPath)
 	{
-		return os::detail::ApiDynamicStringReceiver(ShortPath, [&](wchar_t* Buffer, size_t Size)
+		return os::detail::ApiDynamicStringReceiver(ShortPath, [&](range<wchar_t*> Buffer)
 		{
-			return ::GetShortPathName(LongPath.data(), Buffer, static_cast<DWORD>(Size));
+			return ::GetShortPathName(LongPath.c_str(), Buffer.data(), static_cast<DWORD>(Buffer.size()));
 		});
 	}
 
@@ -1546,7 +1719,7 @@ namespace os::fs
 			FileSystemNameBuffer[0] = L'\0';
 		}
 
-		if (!::GetVolumeInformation(RootPathName.data(), VolumeNameBuffer, static_cast<DWORD>(std::size(VolumeNameBuffer)), VolumeSerialNumber,
+		if (!::GetVolumeInformation(RootPathName.c_str(), VolumeNameBuffer, static_cast<DWORD>(std::size(VolumeNameBuffer)), VolumeSerialNumber,
 			MaximumComponentLength, FileSystemFlags, FileSystemNameBuffer, static_cast<DWORD>(std::size(FileSystemNameBuffer))))
 			return false;
 
@@ -1564,7 +1737,7 @@ namespace os::fs
 		WCHAR VolumeNameBuffer[50];
 		NTPath strVolumeMountPoint(VolumeMountPoint);
 		AddEndSlash(strVolumeMountPoint);
-		if (!::GetVolumeNameForVolumeMountPoint(strVolumeMountPoint.data(), VolumeNameBuffer, static_cast<DWORD>(std::size(VolumeNameBuffer))))
+		if (!::GetVolumeNameForVolumeMountPoint(strVolumeMountPoint.c_str(), VolumeNameBuffer, static_cast<DWORD>(std::size(VolumeNameBuffer))))
 			return false;
 
 		VolumeName = VolumeNameBuffer;
@@ -1573,10 +1746,10 @@ namespace os::fs
 
 	bool GetVolumePathNamesForVolumeName(const string& VolumeName, string& VolumePathNames)
 	{
-		return os::detail::ApiDynamicStringReceiver(VolumePathNames, [&](wchar_t* Buffer, size_t Size)
+		return os::detail::ApiDynamicStringReceiver(VolumePathNames, [&](range<wchar_t*> Buffer)
 		{
 			DWORD ReturnLength = 0;
-			return Imports().GetVolumePathNamesForVolumeNameW(VolumeName.data(), Buffer, static_cast<DWORD>(Size), &ReturnLength) || !ReturnLength?
+			return (imports.GetVolumePathNamesForVolumeNameW(VolumeName.c_str(), Buffer.data(), static_cast<DWORD>(Buffer.size()), &ReturnLength) || !ReturnLength)?
 				ReturnLength :
 				ReturnLength + 1;
 		});
@@ -1584,39 +1757,39 @@ namespace os::fs
 
 	bool QueryDosDevice(const string& DeviceName, string &Path)
 	{
-		const auto DeviceNamePtr = EmptyToNull(DeviceName.data());
-		return os::detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Path, [&](wchar_t* Buffer, size_t Size)
+		const auto DeviceNamePtr = EmptyToNull(DeviceName.c_str());
+		return os::detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Path, [&](range<wchar_t*> Buffer)
 		{
-			const auto ReturnedSize = ::QueryDosDevice(DeviceNamePtr, Buffer, static_cast<DWORD>(Size));
+			const auto ReturnedSize = ::QueryDosDevice(DeviceNamePtr, Buffer.data(), static_cast<DWORD>(Buffer.size()));
 			// Upon success it includes two trailing '\0', we don't need them
 			return ReturnedSize? ReturnedSize - 2 : 0;
 		});
 	}
 
-	bool SearchPath(const wchar_t* Path, const string& FileName, const wchar_t* Extension, string& strDest)
+	bool SearchPath(const wchar_t* Path, string_view const FileName, const wchar_t* Extension, string& strDest)
 	{
-		return os::detail::ApiDynamicStringReceiver(strDest, [&](wchar_t* Buffer, size_t Size)
+		return os::detail::ApiDynamicStringReceiver(strDest, [&](range<wchar_t*> Buffer)
 		{
-			return ::SearchPath(Path, FileName.data(), Extension, static_cast<DWORD>(Size), Buffer, nullptr);
+			return ::SearchPath(Path, null_terminated(FileName).c_str(), Extension, static_cast<DWORD>(Buffer.size()), Buffer.data(), nullptr);
 		});
 	}
 
 	bool GetTempPath(string& strBuffer)
 	{
-		return os::detail::ApiDynamicStringReceiver(strBuffer, [&](wchar_t* Buffer, size_t Size)
+		return os::detail::ApiDynamicStringReceiver(strBuffer, [&](range<wchar_t*> Buffer)
 		{
-			return ::GetTempPath(static_cast<DWORD>(Size), Buffer);
+			return ::GetTempPath(static_cast<DWORD>(Buffer.size()), Buffer.data());
 		});
 	}
 
 	bool GetModuleFileName(HANDLE hProcess, HMODULE hModule, string &strFileName)
 	{
-		return os::detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, strFileName, [&](wchar_t* Buffer, size_t Size)
+		return os::detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, strFileName, [&](range<wchar_t*> Buffer)
 		{
 			if (!hProcess)
 			{
-				auto ReturnedSize = ::GetModuleFileName(hModule, Buffer, static_cast<DWORD>(Size));
-				if (ReturnedSize == Size)
+				auto ReturnedSize = ::GetModuleFileName(hModule, Buffer.data(), static_cast<DWORD>(Buffer.size()));
+				if (ReturnedSize == Buffer.size())
 				{
 					// os <= XP doesn't set this
 					SetLastError(ERROR_INSUFFICIENT_BUFFER);
@@ -1625,59 +1798,59 @@ namespace os::fs
 				return ReturnedSize;
 			}
 
-			if (Imports().QueryFullProcessImageNameW && !hModule)
+			if (imports.QueryFullProcessImageNameW && !hModule)
 			{
-				auto sz = static_cast<DWORD>(Size);
-				return Imports().QueryFullProcessImageNameW(hProcess, 0, Buffer, &sz)? sz : 0;
+				auto dwSize = static_cast<DWORD>(Buffer.size());
+				return imports.QueryFullProcessImageNameW(hProcess, 0, Buffer.data(), &dwSize)? dwSize : 0;
 			}
 			else
 			{
-				return ::GetModuleFileNameEx(hProcess, hModule, Buffer, static_cast<DWORD>(Size));
+				return ::GetModuleFileNameEx(hProcess, hModule, Buffer.data(), static_cast<DWORD>(Buffer.size()));
 			}
 		});
 	}
 
-	security_descriptor get_file_security(const string_view& Object, SECURITY_INFORMATION RequestedInformation)
+	security_descriptor get_file_security(const string_view Object, const SECURITY_INFORMATION RequestedInformation)
 	{
 		security_descriptor Result(default_buffer_size);
 		NTPath NtObject(Object);
-		os::detail::ApiDynamicReceiver(Result, [&](SECURITY_DESCRIPTOR* Buffer, size_t Size)
+		os::detail::ApiDynamicReceiver(Result, [&](range<SECURITY_DESCRIPTOR*> Buffer)
 		{
 			DWORD LengthNeeded = 0;
-			if (!::GetFileSecurity(NtObject.data(), RequestedInformation, Buffer, static_cast<DWORD>(Size), &LengthNeeded))
+			if (!::GetFileSecurity(NtObject.c_str(), RequestedInformation, Buffer.data(), static_cast<DWORD>(Buffer.size()), &LengthNeeded))
 				return static_cast<size_t>(LengthNeeded);
-			return Size;
+			return Buffer.size();
 		},
 		[](size_t ReturnedSize, size_t AllocatedSize)
 		{
 			return ReturnedSize > AllocatedSize;
 		},
-		[](...)
+		[](range<const SECURITY_DESCRIPTOR*>)
 		{});
 
 		return Result;
 	}
 
-	bool set_file_security(const string_view& Object, SECURITY_INFORMATION RequestedInformation, const security_descriptor& SecurityDescriptor)
+	bool set_file_security(const string_view Object, const SECURITY_INFORMATION RequestedInformation, const security_descriptor& SecurityDescriptor)
 	{
-		return ::SetFileSecurity(NTPath(Object).data(), RequestedInformation, SecurityDescriptor.get()) != FALSE;
+		return ::SetFileSecurity(NTPath(Object).c_str(), RequestedInformation, SecurityDescriptor.get()) != FALSE;
 	}
 
-	bool get_disk_size(const string_view& Path, unsigned long long* TotalSize, unsigned long long* TotalFree, unsigned long long* UserFree)
+	bool get_disk_size(const string_view Path, unsigned long long* const TotalSize, unsigned long long* const TotalFree, unsigned long long* const UserFree)
 	{
 		NTPath strPath(Path);
 		AddEndSlash(strPath);
 
-		if (low::get_disk_free_space(strPath.data(), UserFree, TotalSize, TotalFree))
+		if (low::get_disk_free_space(strPath.c_str(), UserFree, TotalSize, TotalFree))
 			return true;
 
 		if (ElevationRequired(ELEVATION_READ_REQUEST))
-			return elevation::instance().get_disk_free_space(strPath.data(), UserFree, TotalSize, TotalFree);
+			return elevation::instance().get_disk_free_space(strPath.c_str(), UserFree, TotalSize, TotalFree);
 
 		return false;
 	}
 
-	bool GetFileTimeSimple(const string& FileName, os::chrono::time_point* CreationTime, os::chrono::time_point* LastAccessTime, os::chrono::time_point* LastWriteTime, os::chrono::time_point* ChangeTime)
+	bool GetFileTimeSimple(const string_view FileName, chrono::time_point* const CreationTime, chrono::time_point* const LastAccessTime, chrono::time_point* const LastWriteTime, chrono::time_point* const ChangeTime)
 	{
 		file File;
 		return File.Open(FileName, FILE_READ_ATTRIBUTES, FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING) && File.GetTime(CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
@@ -1694,46 +1867,37 @@ namespace os::fs
 		}
 
 		FindData = {};
-		FindData.dwFileAttributes = INVALID_FILE_ATTRIBUTES;
+		FindData.Attributes = INVALID_FILE_ATTRIBUTES;
 
 		size_t DirOffset = 0;
 		ParsePath(FileName, &DirOffset);
 		if (FileName.find_first_of(L"*?", DirOffset) != string::npos)
 			return false;
 
-		if ((FindData.dwFileAttributes = get_file_attributes(FileName)) == INVALID_FILE_ATTRIBUTES)
+		if ((FindData.Attributes = get_file_attributes(FileName)) == INVALID_FILE_ATTRIBUTES)
 			return false;
 
 		// Ага, значит файл таки есть. Заполним структуру ручками.
 		if (const auto File = file(FileName, FILE_READ_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
 		{
 			File.GetTime(&FindData.CreationTime, &FindData.LastAccessTime, &FindData.LastWriteTime, &FindData.ChangeTime);
-			File.GetSize(FindData.nFileSize);
+			File.GetSize(FindData.FileSize);
 		}
 
-		if (FindData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
+		if (FindData.Attributes & FILE_ATTRIBUTE_REPARSE_POINT)
 		{
 			string strTmp;
-			GetReparsePointInfo(FileName, strTmp, &FindData.dwReserved0); //MSDN
+			GetReparsePointInfo(FileName, strTmp, &FindData.ReparseTag);
 		}
 
-		FindData.strFileName = make_string(PointToName(FileName));
-		FindData.strAlternateFileName = ConvertNameToShort(FileName);
+		assign(FindData.FileName, PointToName(FileName));
+		FindData.SetAlternateFileName(ConvertNameToShort(FileName));
 		return true;
 	}
 
 	find_notification_handle FindFirstChangeNotification(const string& PathName, bool WatchSubtree, DWORD NotifyFilter)
 	{
-		return find_notification_handle(::FindFirstChangeNotification(NTPath(PathName).data(), WatchSubtree, NotifyFilter));
-	}
-
-	int GetFileTypeByName(const string& Name)
-	{
-		if (const auto File = create_file(Name, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
-		{
-			return ::GetFileType(File.native_handle());
-		}
-		return FILE_TYPE_UNKNOWN;
+		return find_notification_handle(::FindFirstChangeNotification(NTPath(PathName).c_str(), WatchSubtree, NotifyFilter));
 	}
 
 	bool IsDiskInDrive(const string& Root)
@@ -1749,9 +1913,9 @@ namespace os::fs
 
 	bool create_hard_link(const string& FileName, const string& ExistingFileName, SECURITY_ATTRIBUTES* SecurityAttributes)
 	{
-		const auto& Create = [](const string& Object, const string& Target, SECURITY_ATTRIBUTES* SecurityAttributes)
+		const auto& Create = [SecurityAttributes](const string& Object, const string& Target)
 		{
-			if (low::create_hard_link(Object.data(), Target.data(), SecurityAttributes))
+			if (low::create_hard_link(Object.c_str(), Target.c_str(), SecurityAttributes))
 				return true;
 
 			if (ElevationRequired(ELEVATION_MODIFY_REQUEST))
@@ -1760,12 +1924,12 @@ namespace os::fs
 			return false;
 		};
 
-		if (Create(NTPath(FileName), NTPath(ExistingFileName), SecurityAttributes))
+		if (Create(NTPath(FileName), NTPath(ExistingFileName)))
 			return true;
 
 		// win2k bug: \\?\ fails
 		if (!IsWindowsXPOrGreater())
-			return Create(FileName, ExistingFileName, SecurityAttributes);
+			return Create(FileName, ExistingFileName);
 
 		return false;
 	}
@@ -1783,11 +1947,11 @@ namespace os::fs
 		return false;
 	}
 
-	bool set_file_encryption(const string_view& FileName, bool Encrypt)
+	bool set_file_encryption(const string_view FileName, const bool Encrypt)
 	{
 		NTPath NtName(FileName);
 
-		if (low::set_file_encryption(NtName.data(), Encrypt))
+		if (low::set_file_encryption(NtName.c_str(), Encrypt))
 			return true;
 
 		if (ElevationRequired(ELEVATION_MODIFY_REQUEST, false)) // Encryption implemented in adv32, NtStatus is not affected
@@ -1796,11 +1960,11 @@ namespace os::fs
 		return false;
 	}
 
-	bool detach_virtual_disk(const string_view& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType)
+	bool detach_virtual_disk(const string_view Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType)
 	{
 		NTPath NtObject(Object);
 
-		if (low::detach_virtual_disk(NtObject.data(), VirtualStorageType))
+		if (low::detach_virtual_disk(NtObject.c_str(), VirtualStorageType))
 			return true;
 
 		if (ElevationRequired(ELEVATION_MODIFY_REQUEST))
@@ -1809,10 +1973,36 @@ namespace os::fs
 		return false;
 	}
 
+	bool is_directory_symbolic_link(const find_data& Data)
+	{
+		const auto Attributes = FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_REPARSE_POINT;
+		return (Data.Attributes & Attributes) == Attributes && (Data.ReparseTag == IO_REPARSE_TAG_MOUNT_POINT || Data.ReparseTag == IO_REPARSE_TAG_SYMLINK);
+	}
+
 	bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD dwFlags)
 	{
-		return Imports().CreateSymbolicLinkW?
-			(Imports().CreateSymbolicLink(Object.data(), Target.data(), dwFlags) != FALSE) :
-			CreateReparsePoint(Target, Object, dwFlags&SYMBOLIC_LINK_FLAG_DIRECTORY?RP_SYMLINKDIR:RP_SYMLINKFILE);
+		if (!imports.CreateSymbolicLinkW)
+			return CreateReparsePoint(Target, Object, dwFlags&SYMBOLIC_LINK_FLAG_DIRECTORY ? RP_SYMLINKDIR : RP_SYMLINKFILE);
+
+		static const DWORD unpriv_flag = []
+		{
+			DWORD const Win10_1703_build = 15063;
+			OSVERSIONINFOEXW osvi = {sizeof(osvi), HIBYTE(_WIN32_WINNT_WIN10), LOBYTE(_WIN32_WINNT_WIN10), Win10_1703_build};
+
+			DWORDLONG const dwlConditionMask = VerSetConditionMask(
+				VerSetConditionMask(
+					VerSetConditionMask(
+						0, VER_MAJORVERSION, VER_GREATER_EQUAL),
+					VER_MINORVERSION, VER_GREATER_EQUAL),
+				VER_BUILDNUMBER, VER_GREATER_EQUAL
+			);
+
+			if (VerifyVersionInfoW(&osvi, VER_MAJORVERSION | VER_MINORVERSION | VER_BUILDNUMBER, dwlConditionMask))
+				return SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE;
+
+			return 0;
+		}();
+
+		return imports.CreateSymbolicLinkW(Object.c_str(), Target.c_str(), dwFlags | unpriv_flag) != FALSE;
 	}
 }

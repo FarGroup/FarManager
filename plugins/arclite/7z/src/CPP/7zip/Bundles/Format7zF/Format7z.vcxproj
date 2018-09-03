@@ -26,9 +26,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '10.0'">v100</PlatformToolset>
-    <PlatformToolset Condition="'$(VisualStudioVersion)' == '11.0'">v110</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -305,6 +305,7 @@
     <Image Include="..\..\Archive\Icons\gz.ico" />
     <Image Include="..\..\Archive\Icons\hfs.ico" />
     <Image Include="..\..\Archive\Icons\iso.ico" />
+    <Image Include="..\..\Archive\Icons\lz.ico" />
     <Image Include="..\..\Archive\Icons\lzh.ico" />
     <Image Include="..\..\Archive\Icons\lzma.ico" />
     <Image Include="..\..\Archive\Icons\ntfs.ico" />
@@ -446,6 +447,13 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\C\Lzma2DecMt.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\C\Lzma2Enc.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeader>
@@ -454,11 +462,8 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\..\..\..\C\LzmaDec.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </PrecompiledHeader>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
+      <PreprocessorDefinitions Condition="'$(Platform)'=='x64'">_LZMA_DEC_OPT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ClCompile Include="..\..\..\..\C\LzmaEnc.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -468,6 +473,12 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\..\..\..\C\MtCoder.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\C\MtDec.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -604,6 +615,7 @@
     <ClCompile Include="..\..\..\Common\StringToInt.cpp" />
     <ClCompile Include="..\..\..\Common\UTFConvert.cpp" />
     <ClCompile Include="..\..\..\Common\Wildcard.cpp" />
+    <ClCompile Include="..\..\..\Common\XzCrc64Init.cpp" />
     <ClCompile Include="..\..\..\Common\XzCrc64Reg.cpp" />
     <ClCompile Include="..\..\..\Windows\FileDir.cpp" />
     <ClCompile Include="..\..\..\Windows\FileFind.cpp" />
@@ -766,7 +778,7 @@
     <ClCompile Include="..\..\Compress\DeflateRegister.cpp" />
     <ClCompile Include="..\..\Compress\DeltaFilter.cpp" />
     <ClCompile Include="..\..\Compress\ImplodeDecoder.cpp" />
-    <ClCompile Include="..\..\Compress\ImplodeHuffmanDecoder.cpp" />
+    <ClCompile Include="..\..\Compress\LzfseDecoder.cpp" />
     <ClCompile Include="..\..\Compress\LzhDecoder.cpp" />
     <ClCompile Include="..\..\Compress\Lzma2Decoder.cpp" />
     <ClCompile Include="..\..\Compress\Lzma2Encoder.cpp" />
@@ -818,6 +830,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\..\Compress\XzDecoder.cpp" />
+    <ClCompile Include="..\..\Compress\XzEncoder.cpp" />
     <ClCompile Include="..\..\Compress\ZDecoder.cpp" />
     <ClCompile Include="..\..\Compress\ZlibDecoder.cpp" />
     <ClCompile Include="..\..\Compress\ZlibEncoder.cpp" />
@@ -870,6 +884,7 @@
     <ResourceCompile Include="resource.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\C\7zBuf.h" />
     <ClInclude Include="..\..\..\..\C\7zCrc.h" />
     <ClInclude Include="..\..\..\..\C\7zTypes.h" />
     <ClInclude Include="..\..\..\..\C\Aes.h" />
@@ -886,10 +901,12 @@
     <ClInclude Include="..\..\..\..\C\LzFindMt.h" />
     <ClInclude Include="..\..\..\..\C\LzHash.h" />
     <ClInclude Include="..\..\..\..\C\Lzma2Dec.h" />
+    <ClInclude Include="..\..\..\..\C\Lzma2DecMt.h" />
     <ClInclude Include="..\..\..\..\C\Lzma2Enc.h" />
     <ClInclude Include="..\..\..\..\C\LzmaDec.h" />
     <ClInclude Include="..\..\..\..\C\LzmaEnc.h" />
     <ClInclude Include="..\..\..\..\C\MtCoder.h" />
+    <ClInclude Include="..\..\..\..\C\MtDec.h" />
     <ClInclude Include="..\..\..\..\C\Ppmd.h" />
     <ClInclude Include="..\..\..\..\C\Ppmd7.h" />
     <ClInclude Include="..\..\..\..\C\Ppmd8.h" />
@@ -909,6 +926,7 @@
     <ClInclude Include="..\..\..\Common\DynLimBuf.h" />
     <ClInclude Include="..\..\..\Common\IntToString.h" />
     <ClInclude Include="..\..\..\Common\MyBuffer.h" />
+    <ClInclude Include="..\..\..\Common\MyBuffer2.h" />
     <ClInclude Include="..\..\..\Common\MyCom.h" />
     <ClInclude Include="..\..\..\Common\MyException.h" />
     <ClInclude Include="..\..\..\Common\MyInitGuid.h" />
@@ -1038,7 +1056,7 @@
     <ClInclude Include="..\..\Compress\DeflateEncoder.h" />
     <ClInclude Include="..\..\Compress\HuffmanDecoder.h" />
     <ClInclude Include="..\..\Compress\ImplodeDecoder.h" />
-    <ClInclude Include="..\..\Compress\ImplodeHuffmanDecoder.h" />
+    <ClInclude Include="..\..\Compress\LzfseDecoder.h" />
     <ClInclude Include="..\..\Compress\LzhDecoder.h" />
     <ClInclude Include="..\..\Compress\Lzma2Decoder.h" />
     <ClInclude Include="..\..\Compress\Lzma2Encoder.h" />
@@ -1060,6 +1078,8 @@
     <ClInclude Include="..\..\Compress\Rar5Decoder.h" />
     <ClInclude Include="..\..\Compress\ShrinkDecoder.h" />
     <ClInclude Include="..\..\Compress\XpressDecoder.h" />
+    <ClInclude Include="..\..\Compress\XzDecoder.h" />
+    <ClInclude Include="..\..\Compress\XzEncoder.h" />
     <ClInclude Include="..\..\Compress\ZDecoder.h" />
     <ClInclude Include="..\..\Compress\ZlibDecoder.h" />
     <ClInclude Include="..\..\Compress\ZlibEncoder.h" />
@@ -1087,20 +1107,18 @@
   <ItemGroup>
     <MASM Include="..\..\..\..\..\common\vc_crt_fix.asm" />
     <MASM Include="..\..\..\..\Asm\x86\7zAsm.asm">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild>true</ExcludedFromBuild>
     </MASM>
     <MASM Include="..\..\..\..\Asm\x86\7zCrcOpt.asm">
-      <NoLogo Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</NoLogo>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">x64</PreprocessorDefinitions>
-      <NoLogo Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</NoLogo>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">x64</PreprocessorDefinitions>
+      <NoLogo Condition="'$(Platform)'=='x64'">false</NoLogo>
+      <PreprocessorDefinitions Condition="'$(Platform)'=='x64'">x64</PreprocessorDefinitions>
     </MASM>
     <MASM Include="..\..\..\..\Asm\x86\AesOpt.asm">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">x64</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">x64</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Platform)'=='x64'">x64</PreprocessorDefinitions>
+    </MASM>
+    <MASM Include="..\..\..\..\Asm\x86\LzmaDecOpt.asm">
+      <PreprocessorDefinitions Condition="'$(Platform)'=='x64'">x64</PreprocessorDefinitions>
+      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
     </MASM>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -38,6 +38,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filemasks.hpp"
 #include "hilight.hpp"
 
+#include "platform.chrono.hpp"
+#include "platform.fwd.hpp"
+
 enum
 {
 	DEFAULT_SORT_GROUP = 10000,
@@ -75,13 +78,13 @@ enum enumFDateType
 	FDATE_COUNT, // всегда последний !!!
 };
 
-class filter_dates: public conditional<filter_dates>
+class filter_dates
 {
 public:
 	explicit filter_dates(os::chrono::duration After = {}, os::chrono::duration Before = {});
 	explicit filter_dates(os::chrono::time_point After, os::chrono::time_point Before);
 
-	bool operator!() const;
+	explicit operator bool() const;
 
 	template<typename callable>
 	decltype(auto) visit(const callable& Callable) const
@@ -107,11 +110,11 @@ public:
 
 	FileFilterParams Clone() const;
 
-	void SetTitle(const string& Title);
-	void SetMask(bool Used, const string& Mask);
+	void SetTitle(string_view Title);
+	void SetMask(bool Used, string_view Mask);
 	void SetDate(bool Used, enumFDateType DateType, const filter_dates& Dates);
-	void SetSize(bool Used, const string& SizeAbove, const string& SizeBelow);
-	void SetHardLinks(bool Used,DWORD HardLinksAbove, DWORD HardLinksBelow);
+	void SetSize(bool Used, string_view SizeAbove, string_view SizeBelow);
+	void SetHardLinks(bool Used, DWORD HardLinksAbove, DWORD HardLinksBelow);
 	void SetAttr(bool Used, DWORD AttrSet, DWORD AttrClear);
 	void SetColors(const highlight::element& Colors);
 	void SetSortGroup(int SortGroup) { FHighlight.SortGroup = SortGroup; }
@@ -200,6 +203,6 @@ private:
 bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig=false);
 
 //Централизованная функция для создания строк меню различных фильтров.
-string MenuString(const FileFilterParams* FF, bool bHighlightType=false, wchar_t Hotkey = 0, bool bPanelType=false, const wchar_t *FMask=nullptr, const wchar_t *Title=nullptr);
+string MenuString(const FileFilterParams* FF, bool bHighlightType = false, wchar_t Hotkey = 0, bool bPanelType = false, string_view FMask = {}, string_view Title = {});
 
 #endif // FILEFILTERPARAMS_HPP_E3E125BE_F0C2_4DAC_9582_FE7EDD2DA264

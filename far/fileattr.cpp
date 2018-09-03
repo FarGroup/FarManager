@@ -31,15 +31,17 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "fileattr.hpp"
+
 #include "flink.hpp"
 #include "lang.hpp"
 #include "message.hpp"
 #include "fileowner.hpp"
 #include "exception.hpp"
+
+#include "platform.fs.hpp"
+
+#include "common/scope_exit.hpp"
 
 struct response
 {
@@ -52,7 +54,7 @@ struct response
 	};
 };
 
-static int ShowErrorMessage(const error_state& ErrorState, lng Id, const string& Name)
+static int ShowErrorMessage(const error_state_ex& ErrorState, lng Id, const string& Name)
 {
 	return Message(MSG_WARNING, ErrorState,
 		msg(lng::MError),
@@ -204,7 +206,7 @@ int ESetFileTime(const string& Name, const os::chrono::time_point* LastWriteTime
 
 			if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) && LastError==ERROR_NOT_SUPPORTED)   // FIX: Mantis#223
 			{
-				if (GetDriveType(GetPathRoot(Name).data()) == DRIVE_REMOTE)
+				if (GetDriveType(GetPathRoot(Name).c_str()) == DRIVE_REMOTE)
 					break;
 			}
 		}
@@ -357,5 +359,9 @@ void enum_attributes(const std::function<bool(DWORD, wchar_t)>& Pred)
 		{FILE_ATTRIBUTE_NO_SCRUB_DATA, L'N'},
 	};
 
-	std::all_of(CONST_RANGE(AttrMap, i) { return Pred(i.first, i.second); });
+	for (const auto& i: AttrMap)
+	{
+		if (!Pred(i.first, i.second))
+			break;
+	}
 }

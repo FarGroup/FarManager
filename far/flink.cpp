@@ -31,11 +31,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "flink.hpp"
-#include "platform.security.hpp"
+
 #include "imports.hpp"
 #include "config.hpp"
 #include "pathmix.hpp"
@@ -46,12 +43,19 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "treelist.hpp"
 #include "elevation.hpp"
 #include "cvtname.hpp"
-#include "string_utils.hpp"
+#include "global.hpp"
+
+#include "platform.fs.hpp"
+#include "platform.security.hpp"
+
+#include "common/scope_exit.hpp"
+
+#include "format.hpp"
 
 bool CreateVolumeMountPoint(const string& TargetVolume, const string& Object)
 {
 	string VolumeName;
-	return os::fs::GetVolumeNameForVolumeMountPoint(TargetVolume, VolumeName) && SetVolumeMountPoint(Object.data(), VolumeName.data());
+	return os::fs::GetVolumeNameForVolumeMountPoint(TargetVolume, VolumeName) && SetVolumeMountPoint(Object.c_str(), VolumeName.c_str());
 }
 
 static bool FillREPARSE_DATA_BUFFER(REPARSE_DATA_BUFFER* rdb, const string& PrintName, const string& SubstituteName)
@@ -181,7 +185,7 @@ bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointT
 					{
 						Type = os::fs::is_directory(Target)? RP_SYMLINKDIR : RP_SYMLINKFILE;
 					}
-					if (Imports().CreateSymbolicLinkW && !os::fs::exists(ObjectStatus))
+					if (imports.CreateSymbolicLinkW && !os::fs::exists(ObjectStatus))
 					{
 						Result=os::fs::CreateSymbolicLink(Object,Target,Type==RP_SYMLINKDIR?SYMBOLIC_LINK_FLAG_DIRECTORY:0);
 					}
@@ -378,7 +382,7 @@ bool DelSubstDrive(const string& DeviceName)
 {
 	string strTargetPath;
 	return os::fs::QueryDosDevice(DeviceName, strTargetPath) &&
-		DefineDosDevice(DDD_RAW_TARGET_PATH | DDD_REMOVE_DEFINITION | DDD_EXACT_MATCH_ON_REMOVE, DeviceName.data(), strTargetPath.data()) != FALSE;
+		DefineDosDevice(DDD_RAW_TARGET_PATH | DDD_REMOVE_DEFINITION | DDD_EXACT_MATCH_ON_REMOVE, DeviceName.c_str(), strTargetPath.c_str()) != FALSE;
 }
 
 bool GetSubstName(int DriveType,const string& DeviceName, string &strTargetPath)
@@ -400,14 +404,14 @@ bool GetSubstName(int DriveType,const string& DeviceName, string &strTargetPath)
 			string Name;
 			if (os::fs::QueryDosDevice(DeviceName, Name))
 			{
-				if (starts_with(Name, L"\\??\\UNC\\"_sv))
+				if (starts_with(Name, L"\\??\\UNC\\"sv))
 				{
-					strTargetPath = L"\\\\" + Name.substr(8);
+					strTargetPath = concat(L"\\\\"sv, string_view(Name).substr(8));
 					Ret = true;
 				}
-				else if (starts_with(Name, L"\\??\\"_sv))
+				else if (starts_with(Name, L"\\??\\"sv))
 				{
-					strTargetPath=Name.substr(4);
+					assign(strTargetPath, string_view(Name).substr(4));
 					Ret=true;
 				}
 			}
@@ -456,7 +460,7 @@ bool GetVHDInfo(const string& DeviceName, string &strVolumePath, VIRTUAL_STORAGE
 	return true;
 }
 
-string GetPathRoot(const string& Path)
+string GetPathRoot(string_view const Path)
 {
 	return ExtractPathRoot(ConvertNameToReal(Path));
 }
@@ -519,7 +523,7 @@ bool DuplicateReparsePoint(const string& Src,const string& Dst)
 
 void NormalizeSymlinkName(string &strLinkName)
 {
-	if (!starts_with(strLinkName, L"\\??\\"_sv))
+	if (!starts_with(strLinkName, L"\\??\\"sv))
 		return;
 
 	strLinkName[1] = L'\\';
@@ -534,14 +538,13 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 {
 	if (!Target.empty() && !LinkName.empty())
 	{
-		string strFullTarget, strFullLink, strSelOnlyName;
+		string strFullTarget;
 		// выделим имя
-		strSelOnlyName = Target;
+		auto strSelOnlyName = Target;
 		DeleteEndSlash(strSelOnlyName);
 		const auto SlashPos = FindLastSlash(strSelOnlyName);
-		const auto SelName = SlashPos != string::npos? strSelOnlyName.substr(SlashPos + 1) : strSelOnlyName;
 
-		bool symlink = LinkType==RP_SYMLINK || LinkType==RP_SYMLINKFILE || LinkType==RP_SYMLINKDIR;
+		const auto symlink = LinkType==RP_SYMLINK || LinkType==RP_SYMLINKFILE || LinkType==RP_SYMLINKDIR;
 
 		if (Target[1] == L':' && (!Target[2] || (IsSlash(Target[2]) && !Target[3]))) // C: или C:/
 		{
@@ -560,15 +563,18 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 		else
 			strFullTarget = ConvertNameToFull(Target);
 
-		strFullLink = ConvertNameToFull(LinkName);
+		auto strFullLink = ConvertNameToFull(LinkName);
 
 		if (IsSlash(strFullLink.back()))
 		{
-			if (LinkType!=RP_VOLMOUNT)
-				strFullLink += SelName;
+			if (LinkType != RP_VOLMOUNT)
+			{
+				const auto SelName = SlashPos != string::npos? string_view(strSelOnlyName).substr(SlashPos + 1) : string_view(strSelOnlyName);
+				append(strFullLink, SelName);
+			}
 			else
 			{
-				append(strFullLink, L"Disk_"_sv, Target.front());
+				append(strFullLink, L"Disk_"sv, Target.front());
 			}
 		}
 
@@ -677,8 +683,8 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 					Message(MSG_WARNING, ErrorState,
 						msg(lng::MError),
 						{
-							format(lng::MCopyMountVolFailed, Target),
-							format(lng::MCopyMountVolFailed2, strFullLink)
+							format(msg(lng::MCopyMountVolFailed), Target),
+							format(msg(lng::MCopyMountVolFailed2), strFullLink)
 						},
 						{ lng::MOk });
 				}

@@ -35,6 +35,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+struct FarKey;
+
 enum
 {
 	MOUSE_ANY_BUTTON_PRESSED =
@@ -112,6 +114,7 @@ int SetFLockState(UINT vkKey, int State);
 bool WriteInput(int Key);
 int IsNavKey(DWORD Key);
 int IsShiftKey(DWORD Key);
+bool IsModifKey(DWORD Key);
 bool CheckForEsc();
 bool CheckForEscSilent();
 bool ConfirmAbortOp();

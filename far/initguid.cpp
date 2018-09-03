@@ -1,4 +1,5 @@
-﻿/*
+﻿// validator: no-self-include
+/*
 initguid.cpp
 
 Init GUID's

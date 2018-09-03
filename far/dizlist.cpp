@@ -31,10 +31,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "dizlist.hpp"
+
 #include "lang.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "interf.hpp"
@@ -45,10 +43,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "filestr.hpp"
 #include "encoding.hpp"
-#include "blob_builder.hpp"
-#include "string_utils.hpp"
 #include "exception.hpp"
 #include "datetime.hpp"
+#include "global.hpp"
+
+#include "platform.fs.hpp"
+
+#include "common/enum_tokens.hpp"
+
+#include "format.hpp"
 
 DizList::DizList():
 	m_CodePage(CP_DEFAULT),
@@ -56,29 +59,20 @@ DizList::DizList():
 {
 }
 
-size_t DizList::hasher::operator()(const string& Key) const
-{
-	return make_hash(lower(Key));
-}
-
-bool DizList::key_equal::operator()(const string& a, const string& b) const
-{
-	return equal_icase(a, b);
-}
-
 void DizList::Reset()
 {
 	m_DizData.clear();
 	m_RemovedEntries.clear();
 	m_OrderForWrite.clear();
+	m_DizFileName.clear();
 	m_Modified = false;
 	m_CodePage = CP_DEFAULT;
 }
 
 static void PR_ReadingMsg()
 {
-	Message(0, 
-		L"",
+	Message(0,
+		{},
 		{
 			msg(lng::MReadingDiz)
 		},
@@ -95,104 +89,86 @@ void DizList::Read(const string& Path, const string* DizName)
 	};
 
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<DizPreRedrawItem>());
-	const wchar_t *NamePtr=Global->Opt->Diz.strListNames.data();
 
-	for (;;)
+	const auto& ReadDizFile = [this](const string_view Name)
 	{
-		if (DizName)
+		const os::fs::file DizFile(Name, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
+		if (!DizFile)
+			return false;
+
+		const time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+
+		const auto CodePage = GetFileCodepage(DizFile, Global->Opt->Diz.AnsiByDefault? encoding::codepage::ansi() : encoding::codepage::oem(), nullptr, false);
+
+		auto LastAdded = m_DizData.end();
+		string DizText;
+		for (const auto& i: enum_file_lines(DizFile, CodePage))
 		{
-			m_DizFileName = *DizName;
-		}
-		else
-		{
-			m_DizFileName = Path;
+			assign(DizText, i.Str);
 
-			if (!PathCanHoldRegularFile(m_DizFileName))
-				break;
-
-			string strArgName;
-			NamePtr = GetCommaWord(NamePtr, strArgName);
-
-			if (!NamePtr)
-				break;
-
-			AddEndSlash(m_DizFileName);
-			m_DizFileName += strArgName;
-		}
-
-		if (const auto DizFile = os::fs::file(m_DizFileName,GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
-		{
-			time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
-			uintptr_t CodePage=CP_DEFAULT;
-			bool bSigFound=false;
-
-			if (!GetFileFormat(DizFile,CodePage,&bSigFound,false) || !bSigFound)
-				CodePage = Global->Opt->Diz.AnsiByDefault ? CP_ACP : CP_OEMCP;
-
-			GetFileString GetStr(DizFile, CodePage);
-
-			auto LastAdded = m_DizData.end();
-			string DizText;
-			while (GetStr.GetString(DizText))
+			if (TimeCheck)
 			{
-				if (TimeCheck)
-				{
-					SetCursorType(false, 0);
-					PR_ReadingMsg();
+				SetCursorType(false, 0);
+				PR_ReadingMsg();
 
-					if (CheckForEsc())
-						break;
-				}
-
-				RemoveTrailingSpaces(DizText);
-
-				if (!DizText.empty())
-				{
-					if(!IsSpace(DizText.front()))
-					{
-						auto NameBegin = DizText.cbegin();
-						auto NameEnd = DizText.cend();
-						auto DescBegin = NameEnd;
-
-						if (DizText.front() == L'"')
-						{
-							++NameBegin;
-							NameEnd = std::find(NameBegin, DizText.cend(), L'"');
-							if (NameEnd != DizText.cend())
-							{
-								DescBegin = NameEnd + 1;
-							}
-						}
-						else
-						{
-							DescBegin = NameEnd = std::find(NameBegin, DizText.cend(), L' ');
-						}
-
-						// Insert unconditionally
-						LastAdded = Insert(string(NameBegin, NameEnd));
-						LastAdded->second.emplace_back(DescBegin, DizText.cend());
-					}
-					else
-					{
-						if (LastAdded != m_DizData.end())
-						{
-							LastAdded->second.emplace_back(DizText);
-						}
-					}
-				}
+				if (CheckForEsc())
+					break;
 			}
 
-			m_CodePage=CodePage;
-			m_Modified = false;
-			return;
+			inplace::trim_right(DizText);
+
+			if (DizText.empty())
+				continue;
+
+			if(!std::iswblank(DizText.front()))
+			{
+				auto NameBegin = DizText.cbegin();
+				auto NameEnd = DizText.cend();
+				auto DescBegin = NameEnd;
+
+				if (DizText.front() == L'"')
+				{
+					++NameBegin;
+					NameEnd = std::find(NameBegin, DizText.cend(), L'"');
+					if (NameEnd != DizText.cend())
+					{
+						DescBegin = NameEnd + 1;
+					}
+				}
+				else
+				{
+					DescBegin = NameEnd = std::find(NameBegin, DizText.cend(), L' ');
+				}
+
+				// Insert unconditionally
+				LastAdded = Insert(string(NameBegin, NameEnd));
+				LastAdded->second.emplace_back(DescBegin, DizText.cend());
+			}
+			else if (LastAdded != m_DizData.end())
+			{
+				LastAdded->second.emplace_back(DizText);
+			}
 		}
 
-		if (DizName)
-			break;
-	}
+		m_CodePage = CodePage;
+		m_Modified = false;
+		assign(m_DizFileName, Name);
 
-	m_Modified = false;
-	m_DizFileName.clear();
+		return true;
+	};
+
+	if (DizName)
+	{
+		ReadDizFile(*DizName);
+	}
+	else if (PathCanHoldRegularFile(Path))
+	{
+		for (const auto& i: enum_tokens_with_quotes(Global->Opt->Diz.strListNames.Get(), L",;"sv))
+		{
+			if (ReadDizFile(path::join(Path, i)))
+				break;
+		}
+	}
 }
 
 const wchar_t* DizList::Get(const string& Name, const string& ShortName, const long long FileSize) const
@@ -227,13 +203,13 @@ const wchar_t* DizList::Get(const string& Name, const string& ShortName, const l
 			}
 		}
 
-		if (SkipSize && IsSpace(*DescrIterator))
+		if (SkipSize && std::iswblank(*DescrIterator))
 		{
 			Begin = DescrIterator;
 		}
 	}
 
-	Begin = std::find_if_not(Begin, Description.cend(), IsSpace);
+	Begin = std::find_if_not(Begin, Description.cend(), std::iswblank);
 	if (Begin == Description.cend())
 	{
 		return nullptr;
@@ -315,11 +291,13 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		if (m_DizData.empty() || Path.empty())
 			return false;
 
-		m_DizFileName = Path;
-		AddEndSlash(m_DizFileName);
-		string strArgName;
-		GetCommaWord(Global->Opt->Diz.strListNames.data(),strArgName);
-		m_DizFileName += strArgName;
+		const auto Enum = enum_tokens_with_quotes(Global->Opt->Diz.strListNames.Get(), L",;"sv);
+		const auto Begin = Enum.begin();
+		if (Begin != Enum.end())
+			m_DizFileName = path::join(Path, *Begin);
+
+		if (m_DizFileName.empty())
+			return false;
 	}
 
 	DWORD FileAttr=os::fs::get_file_attributes(m_DizFileName);
@@ -354,35 +332,35 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		}
 	}
 
-	blob_builder BlobBuilder(Global->Opt->Diz.SaveInUTF? CP_UTF8 : Global->Opt->Diz.AnsiByDefault? CP_ACP : CP_OEMCP);
-
-	for (const auto& i_ptr: m_OrderForWrite)
-	{
-		const auto& i = *i_ptr;
-		auto FileName = i.first;
-		QuoteSpaceOnly(FileName);
-		BlobBuilder.append(FileName);
-		for (const auto& Description : i.second)
-		{
-			BlobBuilder.append(Description).append(L"\r\n"s);
-		}
-	}
-
 	try
 	{
-		const auto Blob = BlobBuilder.get();
-		if (!Blob.empty())
+		if (!m_OrderForWrite.empty())
 		{
 			if(const auto DizFile = os::fs::file(m_DizFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, FileAttr == INVALID_FILE_ATTRIBUTES? CREATE_NEW : TRUNCATE_EXISTING))
 			{
-				if (!DizFile.Write(Blob.data(), Blob.size()))
+				os::fs::filebuf StreamBuffer(DizFile, std::ios::out);
+				std::ostream Stream(&StreamBuffer);
+				Stream.exceptions(Stream.badbit | Stream.failbit);
+				encoding::writer Writer(Stream, Global->Opt->Diz.SaveInUTF? CP_UTF8 : Global->Opt->Diz.AnsiByDefault? CP_ACP : CP_OEMCP);
+
+				for (const auto& i_ptr : m_OrderForWrite)
 				{
-					throw MAKE_FAR_EXCEPTION(L"Write error");
+					const auto& i = *i_ptr;
+					auto FileName = i.first;
+					QuoteSpaceOnly(FileName);
+					Writer.write(FileName);
+					for (const auto& Description : i.second)
+					{
+						Writer.write(Description);
+						Writer.write(L"\r\n"sv);
+					}
 				}
+
+				Stream.flush();
 			}
 			else
 			{
-				throw MAKE_FAR_EXCEPTION(L"Can't open file");
+				throw MAKE_FAR_EXCEPTION(L"Can't open file"sv);
 			}
 
 			if (FileAttr == INVALID_FILE_ATTRIBUTES)
@@ -396,7 +374,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		{
 			if (!os::fs::delete_file(m_DizFileName))
 			{
-				throw MAKE_FAR_EXCEPTION(L"Can't delete file");
+				throw MAKE_FAR_EXCEPTION(L"Can't delete file"sv);
 			}
 		}
 	}

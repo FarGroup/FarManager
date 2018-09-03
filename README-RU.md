@@ -1,5 +1,5 @@
 ### Far Manager
-http://www.farmanager.com
+https://www.farmanager.com
 
 ### Far Manager — что это?
 Far Manager — консольный файловый менеджер для операционных систем семейства Windows. Программа предоставляет удобный интерфейс пользователя для работы с файловыми системами (реальными и эмулированными) и файлами:
@@ -11,25 +11,25 @@ Far Manager — консольный файловый менеджер для о
 Far Manager имеет многоязычный, легко настраиваемый интерфейс. Простую навигацию по файловой системе обеспечивают цветовое выделение и группы сортировки файлов.
 
 ### Под ваши задачи
-Функциональность Far Manager существенно расширяется за счет внешних подключаемых DLL-модулей — плагинов (этому способствует набор специальных интерфейсов — [Plugins API](http://api.farmanager.com/)). Например, работа с архивами, FTP-клиент, временная панель и просмотр сети реализованы с помощью плагинов, включенных в стандартную поставку Far Manager.
+Функциональность Far Manager существенно расширяется за счет внешних подключаемых DLL-модулей — плагинов (этому способствует набор специальных интерфейсов — [Plugins API](https://api.farmanager.com/)). Например, работа с архивами, FTP-клиент, временная панель и просмотр сети реализованы с помощью плагинов, включенных в стандартную поставку Far Manager.
 
-### Форум поддержки  
-http://forum.farmanager.com/
+### Форум поддержки
+https://forum.farmanager.com/
 
-### Баг трекер  
-http://bugs.farmanager.com/
+### Баг трекер
+https://bugs.farmanager.com/
 
-### Рассылка для разработчиков (русскоязычная)  
-http://groups.google.com/group/fardev  
-fardev@googlegroups.com
+### Рассылка для разработчиков (русскоязычная)
+https://groups.google.com/group/fardev  
+<fardev@googlegroups.com>
 
-### Рассылка для разработчиков (англоязычная)  
-http://groups.google.com/group/fardeven  
-fardeven@googlegroups.com
+### Рассылка для разработчиков (англоязычная)
+https://groups.google.com/group/fardeven  
+<fardeven@googlegroups.com>
 
-### Рассылка коммитов  
-http://groups.google.com/group/farcommits  
-farcommits@googlegroups.com
+### Рассылка коммитов
+https://groups.google.com/group/farcommits  
+<farcommits@googlegroups.com>
 
-### Взять исходный код  
+### Исходный код
 https://github.com/FarGroup/FarManager

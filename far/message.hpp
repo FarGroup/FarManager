@@ -37,6 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "exception.hpp"
 
+enum class lng;
+
 enum
 {
 	MSG_WARNING        =0x00000001,
@@ -55,31 +57,31 @@ class Message: noncopyable
 public:
 	Message(
 		DWORD Flags,
-		const string& Title,
+		string_view Title,
 		std::vector<string> Strings,
 		const std::vector<lng>& Buttons,
-		const wchar_t* HelpTopic = nullptr,
+		string_view HelpTopic = {},
 		const GUID* Id = nullptr
 	);
 
 	Message(
 		DWORD Flags,
-		const error_state& ErrorState,
-		const string& Title,
+		const error_state_ex& ErrorState,
+		string_view Title,
 		std::vector<string> Strings,
 		const std::vector<lng>& Buttons,
-		const wchar_t* HelpTopic = nullptr,
+		string_view HelpTopic = {},
 		const GUID* Id = nullptr,
 		const std::vector<string>& Inserts = {}
 	);
 
 	Message(
 		DWORD Flags,
-		const error_state* ErrorState,
-		const string& Title,
+		const error_state_ex* ErrorState,
+		string_view Title,
 		std::vector<string> Strings,
 		std::vector<string> Buttons,
-		const wchar_t* HelpTopic,
+		string_view HelpTopic,
 		const GUID* Id,
 		Plugin* PluginNumber
 	);
@@ -100,12 +102,12 @@ public:
 private:
 	void Init(
 		DWORD Flags,
-		const string& Title,
+		string_view Title,
 		std::vector<string>&& Strings,
 		std::vector<string>&& Buttons,
-		const error_state* ErrorState,
+		const error_state_ex* ErrorState,
 		const std::vector<string>& Inserts,
-		const wchar_t* HelpTopic,
+		string_view HelpTopic,
 		Plugin* PluginNumber,
 		const GUID* Id
 	);
@@ -116,7 +118,7 @@ private:
 	int FirstButtonIndex,LastButtonIndex;
 	bool IsWarningStyle;
 	bool IsErrorType;
-	error_state m_ErrorState;
+	error_state_ex m_ErrorState;
 };
 
 /* $ 12.03.2002 VVM
@@ -128,6 +130,6 @@ private:
 */
 bool AbortMessage();
 
-string GetErrorString(const error_state& ErrorState);
+string GetErrorString(const error_state_ex& ErrorState);
 
 #endif // MESSAGE_HPP_640AC104_875B_41AE_8EF5_8A99913A6896

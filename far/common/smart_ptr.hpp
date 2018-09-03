@@ -32,8 +32,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "movable.hpp"
+
 template<typename T, size_t StaticSize>
-class array_ptr: public conditional<array_ptr<T, StaticSize>>
+class array_ptr
 {
 public:
 	NONCOPYABLE(array_ptr);
@@ -78,9 +80,9 @@ public:
 		return m_Size;
 	}
 
-	bool operator!() const noexcept
+	explicit operator bool() const noexcept
 	{
-		return !m_IsStatic && !m_DynamicBuffer;
+		return m_IsStatic || m_DynamicBuffer;
 	}
 
 	T* get() const noexcept
@@ -132,14 +134,14 @@ public:
 };
 
 template <typename T>
-class unique_ptr_with_ondestroy: public conditional<unique_ptr_with_ondestroy<T>>
+class unique_ptr_with_ondestroy
 {
 public:
 	~unique_ptr_with_ondestroy() { OnDestroy(); }
 	decltype(auto) get() const noexcept { return ptr.get(); }
 	decltype(auto) operator->() const noexcept { return ptr.operator->(); }
 	decltype(auto) operator*() const { return *ptr; }
-	bool operator!() const noexcept { return !ptr; }
+	explicit operator bool() const noexcept { return ptr.operator bool(); }
 	decltype(auto) operator=(std::unique_ptr<T>&& value) noexcept { OnDestroy(); ptr = std::move(value); return *this; }
 
 private:
@@ -165,8 +167,8 @@ template<typename T>
 class ptr_setter_t
 {
 public:
-	NONCOPYABLE(ptr_setter_t)
-	MOVABLE(ptr_setter_t)
+	NONCOPYABLE(ptr_setter_t);
+	MOVABLE(ptr_setter_t);
 	explicit ptr_setter_t(T& Ptr): m_Ptr(&Ptr) {}
 	~ptr_setter_t() { if (m_Ptr) m_Ptr->reset(m_RawPtr); }
 	auto operator&() { return &m_RawPtr; }
@@ -177,15 +179,17 @@ private:
 };
 
 template<typename T>
+[[nodiscard]]
 auto ptr_setter(T& Ptr) { return ptr_setter_t<T>(Ptr); }
 
 template<typename owner, typename acquire, typename release>
+[[nodiscard]]
 auto make_raii_wrapper(owner* Owner, const acquire& Acquire, const release& Release)
 {
 	std::invoke(Acquire, Owner);
-	auto&& Releaser = [Release](owner* Owner)
+	auto&& Releaser = [Release](owner* OwnerPtr)
 	{
-		std::invoke(Release, Owner);
+		std::invoke(Release, OwnerPtr);
 	};
 	return std::unique_ptr<owner, std::remove_reference_t<decltype(Releaser)>>(Owner, std::move(Releaser));
 }

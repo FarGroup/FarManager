@@ -31,11 +31,9 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
+#include "strmix.hpp"
 
 #include "RegExp.hpp"
-#include "strmix.hpp"
 #include "lang.hpp"
 #include "config.hpp"
 #include "pathmix.hpp"
@@ -45,28 +43,37 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "encoding.hpp"
 #include "regex_helpers.hpp"
 #include "string_utils.hpp"
-#include "bitflags.hpp"
 #include "exception.hpp"
+#include "global.hpp"
+
+#include "common/bytes_view.hpp"
+
+#include "format.hpp"
 
 string GroupDigits(unsigned long long Value)
 {
 	NUMBERFMT Fmt{};
 
-	wchar_t DecimalSeparator[] { locale::GetDecimalSeparator(), L'\0' };
-	wchar_t ThousandSeparator[] { locale::GetThousandSeparator(), L'\0' };
-
-	// TODO pick regional settings
+	// Not needed - can't be decimal
 	Fmt.NumDigits = 0;
+	// Don't care - can't be decimal
 	Fmt.LeadingZero = 1;
-	Fmt.Grouping = 3;
+
+	Fmt.Grouping = locale.digits_grouping();
+
+	wchar_t DecimalSeparator[]{ locale.decimal_separator(), L'\0' };
 	Fmt.lpDecimalSep = DecimalSeparator;
+
+	wchar_t ThousandSeparator[]{ locale.thousand_separator(), L'\0' };
 	Fmt.lpThousandSep = ThousandSeparator;
+
+	// Don't care - can't be negative
 	Fmt.NegativeOrder = 1;
 
 	string strSrc = str(Value);
-	const size_t Size = GetNumberFormat(GetThreadLocale(), 0, strSrc.data(), &Fmt, nullptr, 0);
+	const size_t Size = GetNumberFormat(LOCALE_USER_DEFAULT, 0, strSrc.c_str(), &Fmt, nullptr, 0);
 	wchar_t_ptr_n<MAX_PATH> Dest(Size);
-	GetNumberFormat(GetThreadLocale(), 0, strSrc.data(), &Fmt, Dest.get(), static_cast<int>(Size));
+	GetNumberFormat(LOCALE_USER_DEFAULT, 0, strSrc.c_str(), &Fmt, Dest.get(), static_cast<int>(Size));
 	return { Dest.get(), Size - 1 };
 }
 
@@ -92,7 +99,7 @@ wchar_t* InsertQuote(wchar_t *Str)
 
 wchar_t* QuoteSpace(wchar_t *Str)
 {
-	if (wcspbrk(Str, Global->Opt->strQuotedSymbols.data()))
+	if (Global->Opt->strQuotedSymbols.Get().find_first_of(Str) != string::npos)
 	{
 		InsertQuote(Str);
 
@@ -121,7 +128,7 @@ string InsertRegexpQuote(string strStr)
 
 string &QuoteSpace(string &strStr)
 {
-	if (strStr.find_first_of(Global->Opt->strQuotedSymbols) != string::npos)
+	if (strStr.find_first_of(Global->Opt->strQuotedSymbols.Get()) != string::npos)
 	{
 		inplace::quote(strStr);
 		
@@ -136,7 +143,7 @@ string &QuoteSpace(string &strStr)
 
 wchar_t* QuoteSpaceOnly(wchar_t *Str)
 {
-	if (wcschr(Str,L' '))
+	if (contains(Str, L' '))
 		InsertQuote(Str);
 
 	return Str;
@@ -182,7 +189,7 @@ wchar_t* TruncStrFromEnd(wchar_t *Str, int MaxLength)
 
 	if (Str)
 	{
-		int Length = StrLength(Str);
+		int Length = static_cast<int>(wcslen(Str));
 
 		if (Length > MaxLength)
 		{
@@ -202,7 +209,7 @@ wchar_t* TruncStr(wchar_t *Str, int MaxLength)
 
 	if (Str)
 	{
-		int Length = StrLength(Str);
+		int Length = static_cast<int>(wcslen(Str));
 
 		if (Length > MaxLength)
 		{
@@ -237,7 +244,7 @@ wchar_t* TruncStrFromCenter(wchar_t *Str, int MaxLength)
 	if (!Str)
 		return nullptr;
 
-	const auto Length = StrLength(Str);
+	const auto Length = static_cast<int>(wcslen(Str));
 	if (Length <= MaxLength)
 		return Str;
 
@@ -286,9 +293,9 @@ wchar_t* TruncPathStr(wchar_t *Str, int MaxLength)
 
 	if (Str)
 	{
-		int nLength = StrLength(Str);
+		int nLength = static_cast<int>(wcslen(Str));
 
-		if (nLength > MaxLength && nLength >= 2)
+		if (nLength > MaxLength)
 		{
 			int start = StartOffset(Str);
 
@@ -306,9 +313,10 @@ string& TruncPathStr(string &strStr, int MaxLength)
 {
 	assert(MaxLength >= 0);
 	MaxLength = std::max(0, MaxLength);
+
 	int nLength = static_cast<int>(strStr.size());
 
-	if (nLength > MaxLength && nLength >= 2)
+	if (nLength > MaxLength)
 	{
 		int start = StartOffset(strStr);
 
@@ -320,49 +328,6 @@ string& TruncPathStr(string &strStr, int MaxLength)
 	return strStr;
 }
 
-
-wchar_t* RemoveLeadingSpaces(wchar_t *Str)
-{
-	const auto Iterator = null_iterator(Str);
-	const auto NewBegin = std::find_if_not(Iterator, Iterator.end(), IsSpaceOrEol);
-	if (NewBegin != Iterator)
-	{
-		*std::copy(NewBegin, Iterator.end(), Str) = L'\0';
-	}
-	return Str;
-}
-
-string& RemoveLeadingSpaces(string &strStr)
-{
-	strStr.erase(strStr.begin(), std::find_if_not(ALL_RANGE(strStr), IsSpaceOrEol));
-	return strStr;
-}
-
-// удалить конечные пробелы
-wchar_t* RemoveTrailingSpaces(wchar_t *Str)
-{
-	const auto REnd = std::make_reverse_iterator(Str);
-	Str[REnd - std::find_if_not(REnd - wcslen(Str), REnd, IsSpaceOrEol)] = 0;
-	return Str;
-}
-
-string& RemoveTrailingSpaces(string &strStr)
-{
-	strStr.resize(strStr.rend() - std::find_if_not(ALL_REVERSE_RANGE(strStr), IsSpaceOrEol));
-	return strStr;
-}
-
-wchar_t* RemoveExternalSpaces(wchar_t *Str)
-{
-	return RemoveTrailingSpaces(RemoveLeadingSpaces(Str));
-}
-
-string& RemoveExternalSpaces(string &strStr)
-{
-	return RemoveTrailingSpaces(RemoveLeadingSpaces(strStr));
-}
-
-
 /* $ 02.02.2001 IS
    Заменяет пробелами непечатные символы в строке. В настоящий момент
    обрабатываются только cr и lf.
@@ -370,43 +335,10 @@ string& RemoveExternalSpaces(string &strStr)
 string& RemoveUnprintableCharacters(string &strStr)
 {
 	std::replace_if(ALL_RANGE(strStr), IsEol, L' ');
-	return RemoveExternalSpaces(strStr);
+	return inplace::trim(strStr);
 }
 
-const wchar_t *GetCommaWord(const wchar_t *Src, string &strWord,wchar_t Separator)
-{
-	if (!*Src)
-		return nullptr;
-
-	const wchar_t *StartPtr = Src;
-	size_t WordLen;
-	bool SkipBrackets=false;
-
-	for (WordLen=0; *Src; Src++,WordLen++)
-	{
-		if (*Src==L'[' && wcschr(Src+1,L']'))
-			SkipBrackets=true;
-
-		if (*Src==L']')
-			SkipBrackets=false;
-
-		if (*Src==Separator && !SkipBrackets)
-		{
-			Src++;
-
-			while (IsSpace(*Src))
-				Src++;
-
-			strWord.assign(StartPtr,WordLen);
-			return Src;
-		}
-	}
-
-	strWord.assign(StartPtr,WordLen);
-	return Src;
-}
-
-bool IsCaseMixed(const string_view& strSrc)
+bool IsCaseMixed(const string_view strSrc)
 {
 	const auto AlphaBegin = std::find_if(ALL_CONST_RANGE(strSrc), is_alpha);
 	if (AlphaBegin == strSrc.cend())
@@ -415,29 +347,6 @@ bool IsCaseMixed(const string_view& strSrc)
 	const auto Case = is_lower(*AlphaBegin);
 	return std::any_of(AlphaBegin, strSrc.cend(), [Case](wchar_t c){ return is_alpha(c) && is_lower(c) != Case; });
 }
-
-void UnquoteExternal(string &strStr)
-{
-	auto len = strStr.size();
-	if (len > 0 && strStr.front() == L'\"')
-	{
-		if (len < 2) // '"'
-		{
-			strStr.clear();
-		}
-		else if (strStr.back() == L'\"') // '"D:\Path Name"'
-		{
-			strStr.pop_back();
-			strStr.erase(0, 1);
-		}
-		else if (len >= 3 && IsSlash(strStr[len-1]) && strStr[len-2] == L'\"') // '"D:\Path Name"\'
-		{
-			strStr.erase(len-2, 1);
-			strStr.erase(0, 1);
-		}
-	}
-}
-
 
 /* FileSizeToStr()
    Форматирование размера файла в удобочитаемый вид.
@@ -472,7 +381,7 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 
 	const size_t Width = std::abs(WidthWithSign);
 	const bool LeftAlign = WidthWithSign < 0;
-	const bool UseCommas = (ViewFlags & COLUMN_COMMAS) != 0;
+	const bool UseGroupDigits = (ViewFlags & COLUMN_GROUPDIGITS) != 0;
 	const bool UseFloatSize = (ViewFlags & COLUMN_FLOATSIZE) != 0;
 	const bool UseCompact = (ViewFlags & COLUMN_ECONOMIC) != 0;
 	const bool UseUnit = (ViewFlags & COLUMN_USE_UNIT) != 0;
@@ -503,7 +412,7 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 		if (!UnitIndex && !ShowUnit)
 			return FitToWidth(std::move(StrSize));
 
-		return FitToWidth(concat(StrSize, UseCompact? L""_sv : L" "_sv, UnitStr(UnitIndex, UseBinaryUnit).front()));
+		return FitToWidth(concat(StrSize, UseCompact? L""sv : L" "sv, UnitStr(UnitIndex, UseBinaryUnit).front()));
 	};
 
 	if (UseFloatSize)
@@ -531,14 +440,14 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 			{
 				const auto AjustedParts = [&]
 				{
-					const auto Multiplier = std::pow(10, NumDigits);
+					const auto Multiplier = static_cast<unsigned long long>(std::pow(10, NumDigits));
 					const auto Value = Parts[1] * Multiplier;
 					const auto UseRound = true;
 					const auto Fractional = static_cast<unsigned long long>(UseRound? std::round(Value) : Value);
 					return Fractional == Multiplier? std::make_pair(Integral + 1, 0ull) : std::make_pair(Integral, Fractional);
 				}();
 
-				Str = concat(str(AjustedParts.first), locale::GetDecimalSeparator(), pad_left(str(AjustedParts.second), NumDigits, L'0'));
+				Str = concat(str(AjustedParts.first), locale.decimal_separator(), pad_left(str(AjustedParts.second), NumDigits, L'0'));
 			}
 			else
 			{
@@ -549,9 +458,9 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 		return FormatSize(std::move(Str), UnitIndex);
 	}
 
-	const auto& ToStr = [UseCommas](auto Size)
+	const auto& ToStr = [UseGroupDigits](auto Size)
 	{
-		return UseCommas? GroupDigits(Size) : str(Size);
+		return UseGroupDigits? GroupDigits(Size) : str(Size);
 	};
 
 	size_t UnitIndex = 0;
@@ -579,9 +488,9 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 // Заменить в строке Str Count вхождений подстроки FindStr на подстроку ReplStr
 // Если Count == npos - заменять "до полной победы"
 // Return - количество замен
-size_t ReplaceStrings(string &strStr, const string_view& FindStr, const string_view& ReplStr, bool IgnoreCase, size_t Count)
+size_t ReplaceStrings(string& strStr, const string_view FindStr, const string_view ReplStr, const bool IgnoreCase, size_t Count)
 {
-	if (FindStr.empty() || !Count)
+	if (strStr.empty() || FindStr.empty() || !Count)
 		return 0;
 
 	const auto AreEqual = IgnoreCase? equal_icase : equal;
@@ -589,10 +498,10 @@ size_t ReplaceStrings(string &strStr, const string_view& FindStr, const string_v
 	size_t replaced = 0;
 	for (size_t I = 0, L = strStr.size(); I + FindStr.size() <= L; ++I)
 	{
-		if (!AreEqual(make_string_view(strStr, I, FindStr.size()), FindStr))
+		if (!AreEqual(string_view(strStr).substr(I, FindStr.size()), FindStr))
 			continue;
 
-		strStr.replace(I, FindStr.size(), ReplStr.raw_data(), ReplStr.size());
+		strStr.replace(I, FindStr.size(), ReplStr.data(), ReplStr.size());
 
 		L += ReplStr.size();
 		L -= FindStr.size();
@@ -609,35 +518,24 @@ size_t ReplaceStrings(string &strStr, const string_view& FindStr, const string_v
 }
 
 /*
-From PHP 4.x.x
-Форматирует исходный текст по заданной ширине, используя
-разделительную строку. Возвращает строку SrcText свёрнутую
-в колонке, заданной параметром Width. Строка рубится при
-помощи строки Break.
-
-Разбивает на строки с выравниваением влево.
-
-Если параметр Flahs & FFTM_BREAKLONGWORD, то строка всегда
-сворачивается по заданной ширине. Так если у вас есть слово,
-которое больше заданной ширины, то оно будет разрезано на части.
-
 Example 1.
-FarFormatText("Пример строки, которая будет разбита на несколько строк по ширине в 20 символов.", 20 ,Dest, "\n", 0);
-Этот пример вернет:
----
+Str: "Пример строки, которая будет разбита на несколько строк по ширине в 20 символов."
+Width: 20
+
+Result:
 Пример строки,
 которая будет
 разбита на
 несколько строк по
 ширине в 20
 символов.
----
 
 Example 2.
-FarFormatText( "Эта строка содержит оооооооооооооччччччччеееень длиное слово", 9, Dest, nullptr, FFTM_BREAKLONGWORD);
-Этот пример вернет:
+Str: "Эта строка содержит оооооооооооооччччччччеееень длиное слово"
+Width: 9
+BreakWords: true
 
----
+Result:
 Эта
 строка
 содержит
@@ -646,194 +544,64 @@ FarFormatText( "Эта строка содержит ооооооооооооо�
 чччеееень
 длиное
 слово
----
-
 */
 
-enum FFTMODE
+wrapped_text::wrapped_text(string_view Str, size_t Width, string_view Break, bool BreakWords):
+	m_Str(Str),
+	m_Tail(m_Str),
+	m_Break(Break),
+	m_Width(Width),
+	m_BreakWords(BreakWords)
 {
-	FFTM_BREAKLONGWORD = bit(0),
-};
+}
 
-string& FarFormatText(const string& SrcText,      // источник
-                            size_t Width,         // заданная ширина
-                            string &strDestText,  // приёмник
-                            const wchar_t* Break, // разделитель, если = nullptr, принимается "\n"
-                            DWORD Flags)          // один из FFTM_*
+wrapped_text::wrapped_text(string&& Str, size_t Width, string_view Break, bool BreakWords):
+	m_StrBuffer(std::move(Str)),
+	m_Str(m_StrBuffer),
+	m_Tail(m_Str),
+	m_Break(Break),
+	m_Width(Width),
+	m_BreakWords(BreakWords)
 {
-	const auto breakchar = Break? Break : L"\n";
+}
 
-	if (SrcText.empty())
+bool wrapped_text::get(bool Reset, string_view& Value) const
+{
+	if (Reset)
+		m_Tail = m_Str;
+
+	if (m_Tail.empty())
+		return false;
+
+	const auto& advance = [&](size_t TokenEnd, size_t NextTokenBegin)
 	{
-		strDestText.clear();
-		return strDestText;
-	}
+		Value = m_Tail.substr(0, TokenEnd);
+		m_Tail.remove_prefix(NextTokenBegin);
+		return true;
+	};
 
-	const auto strSrc = SrcText; //copy string in case of SrcText == strDestText
+	if (m_Tail.size() <= m_Width)
+		return advance(m_Tail.size(), m_Tail.size());
 
-	if (strSrc.find_first_of(breakchar) == string::npos && strSrc.size() <= static_cast<size_t>(Width))
-	{
-		strDestText = strSrc;
-		return strDestText;
-	}
+	// Prescan line to see if it is greater than Width
+	auto TokenEnd = m_Break.empty()? m_Tail.npos : m_Tail.substr(0, m_Width + m_Break.size()).find(m_Break);
+	if (TokenEnd != m_Tail.npos && TokenEnd <= m_Width)
+		return advance(TokenEnd, TokenEnd + m_Break.size());
 
-	long l=0, pgr=0;
-	string newtext;
-	const wchar_t *text= strSrc.data();
-	long linelength = static_cast<long>(Width);
-	size_t breakcharlen = wcslen(breakchar);
-	int docut = Flags&FFTM_BREAKLONGWORD?1:0;
-	/* Special case for a single-character break as it needs no
-	   additional storage space */
+	// Needs breaking; work backwards to find previous word
+	TokenEnd = m_Tail.rfind(L' ', m_Width);
+	if (TokenEnd != m_Tail.npos)
+		return advance(TokenEnd, TokenEnd + 1);
 
-	if (breakcharlen == 1 && !docut)
-	{
-		newtext = text;
-		size_t i = 0;
+	// Couldn't break is backwards, try looking forwards
+	if (m_BreakWords)
+		return advance(m_Width, m_Width);
 
-		while (i < newtext.size())
-		{
-			/* prescan line to see if it is greater than linelength */
-			l = 0;
+	TokenEnd = m_Tail.find(L' ', m_Width);
+	if (TokenEnd != m_Tail.npos)
+		return advance(TokenEnd, TokenEnd + 1);
 
-			while (i+l < newtext.size() && newtext[i+l] != breakchar[0])
-			{
-				if (newtext[i+l] == L'\0')
-				{
-					l--;
-					break;
-				}
-
-				l++;
-			}
-
-			if (l >= linelength)
-			{
-				pgr = l;
-				l = linelength;
-
-				/* needs breaking; work backwards to find previous word */
-				while (l >= 0)
-				{
-					if (newtext[i+l] == L' ')
-					{
-						newtext[i+l] = breakchar[0];
-						break;
-					}
-
-					l--;
-				}
-
-				if (l == -1)
-				{
-					/* couldn't break is backwards, try looking forwards */
-					l = linelength;
-
-					while (l <= pgr)
-					{
-						if (newtext[i+l] == L' ')
-						{
-							newtext[i+l] = breakchar[0];
-							break;
-						}
-
-						l++;
-					}
-				}
-			}
-
-			i += l+1;
-		}
-	}
-	else
-	{
-		int last = 0;
-		long i = 0;
-
-		while (text[i] != L'\0')
-		{
-			/* prescan line to see if it is greater than linelength */
-			l = 0;
-
-			while (text[i+l] != L'\0')
-			{
-				if (text[i+l] == breakchar[0])
-				{
-					if (breakcharlen == 1 || starts_with(text + i + l, { breakchar, breakcharlen }))
-						break;
-				}
-
-				l++;
-			}
-
-			if (l >= linelength)
-			{
-				pgr = l;
-				l = linelength;
-
-				/* needs breaking; work backwards to find previous word */
-				while (l >= 0)
-				{
-					if (text[i+l] == L' ')
-					{
-						newtext.append(text+last, i+l-last);
-						newtext += breakchar;
-						last = i + l + 1;
-						break;
-					}
-
-					l--;
-				}
-
-				if (l == -1)
-				{
-					/* couldn't break it backwards, try looking forwards */
-					l = linelength - 1;
-
-					while (l <= pgr)
-					{
-						if (!docut)
-						{
-							if (text[i+l] == L' ')
-							{
-								newtext.append(text+last, i+l-last);
-								newtext += breakchar;
-								last = i + l + 1;
-								break;
-							}
-						}
-
-						if (docut == 1)
-						{
-							if (text[i+l] == L' ' || l > i-last)
-							{
-								newtext.append(text+last, i+l-last+1);
-								newtext += breakchar;
-								last = i + l + 1;
-								break;
-							}
-						}
-
-						l++;
-					}
-				}
-
-				i += l+1;
-			}
-			else
-			{
-				i += (l ? l : 1);
-			}
-		}
-
-		if (i+l > last)
-		{
-			newtext += text+last;
-		}
-	}
-
-	strDestText = newtext;
-	return strDestText;
+	return advance(m_Tail.size(), m_Tail.size());
 }
 
 bool FindWordInString(const string& Str, size_t CurPos, size_t& Begin, size_t& End, const string& WordDiv0)
@@ -871,18 +639,18 @@ bool FindWordInString(const string& Str, size_t CurPos, size_t& Begin, size_t& E
 		// Go deeper and find one-character words even if they are in WordDiv, e.g. {}()<>,.= etc. (except whitespace)
 		if (Begin == Str.size())
 		{
-			if (!IsSpaceOrEol(Str[Begin - 1]))
+			if (!std::iswspace(Str[Begin - 1]))
 				--Begin;
 		}
 		else
 		{
-			if (!IsSpaceOrEol(Str[Begin]))
+			if (!std::iswspace(Str[Begin]))
 			{
 				++End;
 			}
 			else
 			{
-				if (Begin && !IsSpaceOrEol(Str[Begin - 1]))
+				if (Begin && !std::iswspace(Str[Begin - 1]))
 					--Begin;
 			}
 		}
@@ -918,205 +686,263 @@ unsigned long long ConvertFileSizeString(const string& FileSizeStr)
 	}
 }
 
-string ReplaceBrackets(const wchar_t *SearchStr, const string& ReplaceStr, const RegExpMatch* Match, size_t Count, const MatchHash* HMatch)
+namespace
 {
-	string result;
-	for (size_t i = 0, length = ReplaceStr.size(); i < length; ++i)
+	string ReplaceBrackets(
+		const string_view SearchStr,
+		const string& ReplaceStr,
+		const RegExpMatch* Match,
+		size_t Count,
+		const MatchHash* HMatch,
+		int& CurPos,
+		int* SearchLength)
 	{
-		const auto CurrentChar = ReplaceStr[i];
-		bool common = true;
-
-		if (CurrentChar == L'$')
+		string result;
+		for (size_t i = 0, length = ReplaceStr.size(); i < length; ++i)
 		{
-			const auto TokenStart = i + 1;
+			const auto CurrentChar = ReplaceStr[i];
+			bool common = true;
 
-			if (TokenStart < length)
+			if (CurrentChar == L'$')
 			{
-				intptr_t start = 0, end = 0;
-				size_t ShiftLength = 0;
-				auto TokenEnd = TokenStart;
-				bool Success = false;
+				const auto TokenStart = i + 1;
 
-				while (TokenEnd != length && std::iswdigit(ReplaceStr[TokenEnd]))
+				if (TokenStart < length)
 				{
-					++TokenEnd;
-				}
+					intptr_t start = 0, end = 0;
+					size_t ShiftLength = 0;
+					auto TokenEnd = TokenStart;
+					bool Success = false;
 
-				if (TokenEnd != TokenStart)
-				{
-					size_t index = 0;
-					while (TokenEnd != TokenStart && (index = std::stoul(ReplaceStr.substr(TokenStart, TokenEnd - TokenStart))) >= Count)
+					while (TokenEnd != length && std::iswdigit(ReplaceStr[TokenEnd]))
 					{
-						--TokenEnd;
+						++TokenEnd;
 					}
 
 					if (TokenEnd != TokenStart)
 					{
-						Success = true;
-						start = Match[index].start;
-						end = Match[index].end;
-						ShiftLength = TokenEnd - TokenStart;
-					}
-				}
-				else
-				{
-					static const std::wregex re(RE_BEGIN RE_ESCAPE(L"{") RE_C_GROUP(RE_ANY_OF(L"\\w\\s") RE_ZERO_OR_MORE_LAZY) RE_ESCAPE(L"}"), std::regex::optimize);
-					std::wcmatch CMatch;
-					if (std::regex_search(ReplaceStr.data() + TokenStart, CMatch, re))
-					{
-						ShiftLength = CMatch[0].length();
-						if (HMatch)
+						size_t index = 0;
+						while (TokenEnd != TokenStart && (index = std::stoul(ReplaceStr.substr(TokenStart, TokenEnd - TokenStart))) >= Count)
 						{
-							const auto Iterator = HMatch->Matches.find(string(CMatch[1].first, CMatch[1].second));
-							if (Iterator != HMatch->Matches.cend())
+							--TokenEnd;
+						}
+
+						if (TokenEnd != TokenStart)
+						{
+							Success = true;
+							start = Match[index].start;
+							end = Match[index].end;
+							ShiftLength = TokenEnd - TokenStart;
+						}
+					}
+					else
+					{
+						static const std::wregex re(RE_BEGIN RE_ESCAPE(L"{") RE_C_GROUP(RE_ANY_OF(L"\\w\\s") RE_ZERO_OR_MORE_LAZY) RE_ESCAPE(L"}"), std::regex::optimize);
+						std::wcmatch CMatch;
+						if (std::regex_search(ReplaceStr.c_str() + TokenStart, CMatch, re))
+						{
+							ShiftLength = CMatch[0].length();
+							if (HMatch)
 							{
-								Success = true;
-								start = Iterator->second.start;
-								end = Iterator->second.end;
+								const auto Iterator = HMatch->Matches.find(string(CMatch[1].first, CMatch[1].second));
+								if (Iterator != HMatch->Matches.cend())
+								{
+									Success = true;
+									start = Iterator->second.start;
+									end = Iterator->second.end;
+								}
 							}
 						}
 					}
-				}
 
-				if (ShiftLength)
-				{
-					i += ShiftLength;
-					common = false;
-
-					if (Success)
+					if (ShiftLength)
 					{
-						result += string(SearchStr + start, end - start);
+						i += ShiftLength;
+						common = false;
+
+						if (Success)
+						{
+							result.append(SearchStr.data() + start, end - start);
+						}
 					}
 				}
 			}
+
+			if (common)
+			{
+				result += CurrentChar;
+			}
 		}
 
-		if (common)
-		{
-			result += CurrentChar;
-		}
+		*SearchLength = Match->end - Match->start;
+		CurPos = Match->start;
+		return result;
 	}
 
-	return result;
+	bool SearchStringRegex(
+		string_view const Source,
+		const RegExp& re,
+		RegExpMatch* const pm,
+		MatchHash* const hm,
+		intptr_t Position,
+		int const Reverse,
+		string& ReplaceStr,
+		int& CurPos,
+		int* SearchLength)
+	{
+		intptr_t n = re.GetBracketsCount();
+
+		if (!Reverse)
+		{
+			if (re.SearchEx(Source.data(), Source.data() + Position, Source.data() + Source.size(), pm, n, hm))
+			{
+				ReplaceStr = ReplaceBrackets(Source, ReplaceStr, pm, n, hm, CurPos, SearchLength);
+				return true;
+			}
+
+			ReMatchErrorMessage(re);
+			return false;
+		}
+
+		bool found = false;
+		intptr_t half = 0;
+		intptr_t pos = 0;
+
+		for (;;)
+		{
+			if (!re.SearchEx(Source.data(), Source.data() + pos, Source.data() + Source.size(), pm + half, n, hm))
+			{
+				ReMatchErrorMessage(re);
+				break;
+			}
+			pos = pm[half].start;
+			if (pos > Position)
+				break;
+
+			found = true;
+			++pos;
+			half = n - half;
+		}
+
+		if (found)
+		{
+			half = n - half;
+			ReplaceStr = ReplaceBrackets(Source, ReplaceStr, pm + half, n, hm, CurPos, SearchLength);
+		}
+
+		return found;
+	}
 }
 
-bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const string &UpperStr, const string &LowerStr, RegExp &re, RegExpMatch *pm, MatchHash* hm, string& ReplaceStr, int& CurPos, int Case, int WholeWords, int Reverse, int Regexp, int PreserveStyle, int *SearchLength, const wchar_t* WordDiv)
+static bool CanContainWholeWord(string_view const Haystack, size_t const Offset, size_t const NeedleSize, string_view const WordDiv)
 {
-	int Position = CurPos;
+	const auto& BlankOrWordDiv = [&WordDiv](wchar_t Ch)
+	{
+		return std::iswblank(Ch) || WordDiv.find(Ch) != WordDiv.npos;
+	};
+
+	if (Offset && !BlankOrWordDiv(Haystack[Offset - 1]))
+		return false;
+
+	if (Offset + NeedleSize < Haystack.size() && !BlankOrWordDiv(Haystack[Offset + NeedleSize]))
+		return false;
+
+	return true;
+}
+
+bool SearchString(
+	string_view const Haystack,
+	string_view const Needle,
+	string_view const NeedleUpper,
+	string_view const NeedleLower,
+	const RegExp& re,
+	RegExpMatch* const pm,
+	MatchHash* const hm,
+	string& ReplaceStr,
+	int& CurPos,
+	bool const Case,
+	bool const WholeWords,
+	bool const Reverse,
+	bool const Regexp,
+	bool const PreserveStyle,
+	int* const SearchLength,
+	string_view WordDiv)
+{
 	*SearchLength = 0;
 
-	if (!WordDiv)
-		WordDiv=Global->Opt->strWordDiv.data();
+	if (WordDiv.empty())
+		WordDiv = Global->Opt->strWordDiv;
 
-	if (!Regexp && PreserveStyle && PreserveStyleReplaceString(Source, StrSize, Str, ReplaceStr, CurPos, Case, WholeWords, WordDiv, Reverse, *SearchLength))
+	if (!Regexp && PreserveStyle && PreserveStyleReplaceString(Haystack, Needle, ReplaceStr, CurPos, Case, WholeWords, WordDiv, Reverse, *SearchLength))
 		return true;
+
+	if (Needle.empty())
+		return true;
+
+	auto Position = CurPos;
+	const auto HaystackSize = static_cast<int>(Haystack.size());
 
 	if (Reverse)
 	{
-		Position--;
+		// MZK 2018-04-01 BUGBUG: regex reverse search: "^$" does not match empty string
+		Position = std::min(Position - 1, HaystackSize - 1);
 
-		if (Position>=StrSize)
-			Position=StrSize-1;
-
-		if (Position<0)
+		if (Position < 0)
 			return false;
 	}
 
-	if ((Position<StrSize || (!Position && !StrSize)) && !Str.empty())
+	if (Regexp)
 	{
-		if (Regexp)
+		// Empty Haystack is ok for regex search, e.g. ^$
+		if ((Position || HaystackSize) && Position >= HaystackSize)
+			return false;
+
+		return SearchStringRegex(Haystack, re, pm, hm, Position, Reverse, ReplaceStr, CurPos, SearchLength);
+	}
+
+	if (Position >= HaystackSize)
+		return false;
+
+	const auto NeedleSize = *SearchLength = static_cast<int>(Needle.size());
+
+	for (int HaystackIndex = Position; HaystackIndex != -1 && HaystackIndex != HaystackSize; Reverse? --HaystackIndex : ++HaystackIndex)
+	{
+		if (WholeWords && !CanContainWholeWord(Haystack, HaystackIndex, NeedleSize, WordDiv))
+			continue;
+
+		for (size_t NeedleIndex = 0; ; ++NeedleIndex)
 		{
-			intptr_t n = re.GetBracketsCount();
-			bool found = false;
-			int half = 0;
-			if (!Reverse)
+			if (NeedleIndex == Needle.size())
 			{
-				if (re.SearchEx(Source, Source + Position, Source + StrSize, pm, n, hm))
+				CurPos = HaystackIndex;
+
+				// В случае PreserveStyle: если не получилось сделать замену c помощью PreserveStyleReplaceString,
+				// то хотя бы сохранить регистр первой буквы.
+				if (PreserveStyle && !ReplaceStr.empty() && is_alpha(ReplaceStr.front()) && is_alpha(Haystack[HaystackIndex]))
 				{
-					found = true;
+					if (is_upper(Haystack[HaystackIndex]))
+						ReplaceStr.front() = ::upper(ReplaceStr.front());
+					else if (is_lower(Haystack[HaystackIndex]))
+						ReplaceStr.front() = ::lower(ReplaceStr.front());
 				}
-				else
-				{
-					ReMatchErrorMessage(re);
-				}
+
+				return true;
+			}
+
+			if (HaystackIndex + NeedleIndex == Haystack.size())
+				break;
+
+			const auto Ch = Haystack[HaystackIndex + NeedleIndex];
+
+			if (Case)
+			{
+				if (Ch != Needle[NeedleIndex])
+					break;
 			}
 			else
 			{
-				int pos = 0;
-				for (;;)
-				{
-					if (!re.SearchEx(Source, Source + pos, Source + StrSize, pm + half, n, hm))
-					{
-						ReMatchErrorMessage(re);
-						break;
-					}
-					pos = static_cast<int>(pm[half].start);
-					if (pos > Position)
-						break;
-
-					found = true;
-					++pos;
-					half = n - half;
-				}
-				half = n - half;
-			}
-			if (found)
-			{
-				*SearchLength = pm[half].end - pm[half].start;
-				CurPos = pm[half].start;
-				ReplaceStr = ReplaceBrackets(Source, ReplaceStr, pm + half, n, hm);
-			}
-
-			return found;
-		}
-
-		if (Position==StrSize)
-			return false;
-
-		int Length = *SearchLength = (int)Str.size();
-
-		for (int I=Position; (Reverse && I>=0) || (!Reverse && I<StrSize); Reverse ? I--:I++)
-		{
-			for (int J=0;; J++)
-			{
-				if (!Str[J])
-				{
-					CurPos=I;
-
-					// В случае PreserveStyle: если не получилось сделать замену c помощью PreserveStyleReplaceString,
-					// то хотя бы сохранить регистр первой буквы.
-					if (PreserveStyle && !ReplaceStr.empty() && is_alpha(ReplaceStr.front()) && is_alpha(Source[I]))
-					{
-						if (is_upper(Source[I]))
-							ReplaceStr.front() = ::upper(ReplaceStr.front());
-						if (is_lower(Source[I]))
-							ReplaceStr.front() = ::lower(ReplaceStr.front());
-					}
-
-					return true;
-				}
-
-				if (WholeWords)
-				{
-					const auto locResultLeft = I <= 0 || IsSpace(Source[I - 1]) || wcschr(WordDiv, Source[I - 1]);
-					const auto locResultRight = I + Length >= StrSize || IsSpace(Source[I + Length]) || wcschr(WordDiv, Source[I + Length]);
-
-					if (!locResultLeft || !locResultRight)
-						break;
-				}
-
-				wchar_t Ch=Source[I+J];
-
-				if (Case)
-				{
-					if (Ch!=Str[J])
-						break;
-				}
-				else
-				{
-					if (Ch!=UpperStr[J] && Ch!=LowerStr[J])
-						break;
-				}
+				if (Ch != NeedleUpper[NeedleIndex] && Ch != NeedleLower[NeedleIndex])
+					break;
 			}
 		}
 	}
@@ -1124,154 +950,10 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 	return false;
 }
 
-	class UserDefinedList
-	{
-	public:
-		using value_type = std::pair<string, size_t>;
-
-		UserDefinedList(const string& List, DWORD InitFlags, const wchar_t* InitSeparators)
-		{
-			BitFlags Flags(InitFlags);
-			string strSeparators(InitSeparators);
-			static const wchar_t Brackets[] = L"[]";
-
-			if (!List.empty() &&
-				!contains(strSeparators, L'\"') &&
-				(!Flags.Check(STLF_PROCESSBRACKETS) || std::find_first_of(ALL_CONST_RANGE(strSeparators), ALL_CONST_RANGE(Brackets)) == strSeparators.cend()))
-			{
-				value_type item;
-				item.second = ItemsList.size();
-
-				auto Iterator = List.cbegin();
-				string Token;
-				while (GetToken(List, Iterator, strSeparators, Flags, Token))
-				{
-					if (Flags.Check(STLF_PACKASTERISKS) && Token.size() == 3 && Token == L"*.*")
-					{
-						item.first = L'*';
-						ItemsList.emplace_back(item);
-					}
-					else
-					{
-						if (Token.empty() && !Flags.Check(STLF_ALLOWEMPTY))
-						{
-							continue;
-						}
-
-						item.first = Token;
-
-						if (Flags.Check(STLF_PACKASTERISKS))
-						{
-							size_t i = 0;
-							bool lastAsterisk = false;
-
-							while (i < Token.size())
-							{
-								if (item.first[i] == L'*')
-								{
-									if (!lastAsterisk)
-										lastAsterisk = true;
-									else
-									{
-										item.first.erase(i, 1);
-										--i;
-									}
-								}
-								else
-									lastAsterisk = false;
-
-								++i;
-							}
-						}
-						ItemsList.emplace_back(item);
-					}
-
-					++item.second;
-				}
-				if (Flags.Check(STLF_UNIQUE | STLF_SORT))
-				{
-					ItemsList.sort([](const value_type& a, const value_type& b)
-					{
-						return a.second < b.second;
-					});
-
-					if (Flags.Check(STLF_UNIQUE))
-					{
-						ItemsList.unique([](value_type& a, value_type& b)
-						{
-							if (a.second > b.second)
-								a.second = b.second;
-							return equal_icase(a.first, b.first);
-						});
-					}
-				}
-			}
-		}
-
-		static bool GetToken(const string& List, string::const_iterator& Iterator, const string& strSeparators, const BitFlags& Flags, string& Token)
-		{
-			if (Iterator == List.cend())
-				return false;
-
-			if (contains(strSeparators, *Iterator))
-			{
-				Token.clear();
-				++Iterator;
-				return true;
-			}
-
-			auto cur = Iterator;
-			bool InBrackets = false;
-			bool InQuotes = false;
-
-			while (cur != List.cend()) // важно! проверка *cur должна стоять первой
-			{
-				if (Flags.Check(STLF_PROCESSBRACKETS)) // чтобы не сортировать уже отсортированное
-				{
-					if (*cur == L']')
-						InBrackets = false;
-					else if (*cur == L'[' && contains(make_range(cur + 1, List.cend()), L']'))
-						InBrackets = true;
-				}
-
-				if (!Flags.Check(STLF_NOQUOTING) && *cur == L'\"')
-				{
-					InQuotes = InQuotes? false : contains(make_range(cur + 1, List.cend()), L'\"');
-				}
-
-				if (!InBrackets && !InQuotes && contains(strSeparators, *cur))
-					break;
-
-				++cur;
-			}
-
-			Token.assign(Iterator, cur);
-			Iterator = cur == List.cend() ? cur : cur + 1;
-
-			if (!Flags.Check(STLF_NOTRIM))
-				RemoveExternalSpaces(Token);
-
-			if (!Flags.Check(STLF_NOUNQUOTE))
-				inplace::unquote(Token);
-
-			return true;
-		}
-
-		std::list<value_type> ItemsList;
-	};
-
-	void split(const string& InitString, DWORD Flags, const wchar_t* Separators, const std::function<void(string&&)>& inserter)
-	{
-		for (auto& i: UserDefinedList(InitString, Flags, Separators).ItemsList)
-		{
-			inserter(std::move(i.first));
-		}
-	}
-
 char IntToHex(int h)
 {
 	if (h > 15)
-		throw MAKE_FAR_EXCEPTION(L"Not a hex char");
+		throw MAKE_FAR_EXCEPTION(L"Not a hex char"sv);
 	if (h >= 10)
 		return 'A' + h - 10;
 	return '0' + h;
@@ -1288,7 +970,7 @@ int HexToInt(char h)
 	if (std::iswdigit(h))
 		return h - '0';
 
-	throw MAKE_FAR_EXCEPTION(L"Not a hex char");
+	throw MAKE_FAR_EXCEPTION(L"Not a hex char"sv);
 }
 
 template<class S, class C>
@@ -1315,16 +997,16 @@ static S BlobToHexStringT(const void* Blob, size_t Size, C Separator)
 	return Hex;
 }
 
-template<class C>
-static auto HexStringToBlobT(const C* Hex, size_t Size, C Separator)
+template<typename char_type>
+static auto HexStringToBlobT(const std::basic_string_view<char_type> Hex, const char_type Separator)
 {
 	// Size shall be either 3 * N + 2 or even
-	if (Size && (Separator? Size % 3 != 2 : Size & 1))
-		throw MAKE_FAR_EXCEPTION(L"Incomplete hex string");
+	if (!Hex.empty() && (Separator? Hex.size() % 3 != 2 : Hex.size() & 1))
+		throw MAKE_FAR_EXCEPTION(L"Incomplete hex string"sv);
 
 	const auto SeparatorSize = Separator? 1 : 0;
 	const auto StepSize = 2 + SeparatorSize;
-	const auto AlignedSize = Size + SeparatorSize;
+	const auto AlignedSize = Hex.size() + SeparatorSize;
 	const auto BlobSize = AlignedSize / StepSize;
 
 	if (!BlobSize)
@@ -1350,9 +1032,9 @@ std::string BlobToHexString(const bytes_view& Blob, char Separator)
 	return BlobToHexString(Blob.data(), Blob.size(), Separator);
 }
 
-bytes HexStringToBlob(const char* Hex, char Separator)
+bytes HexStringToBlob(const std::string_view Hex, const char Separator)
 {
-	return HexStringToBlobT(Hex, strlen(Hex), Separator);
+	return HexStringToBlobT(Hex, Separator);
 }
 
 string BlobToHexWString(const void* Blob, size_t Size, wchar_t Separator)
@@ -1365,9 +1047,9 @@ string BlobToHexWString(const bytes_view& Blob, char Separator)
 	return BlobToHexWString(Blob.data(), Blob.size(), Separator);
 }
 
-bytes HexStringToBlob(const wchar_t* Hex, wchar_t Separator)
+bytes HexStringToBlob(const string_view Hex, const wchar_t Separator)
 {
-	return HexStringToBlobT(Hex, wcslen(Hex), Separator);
+	return HexStringToBlobT(Hex, Separator);
 }
 
 string ExtractHexString(const string& HexString)
@@ -1391,8 +1073,8 @@ string ConvertHexString(const string& From, uintptr_t Codepage, bool FromHex)
 	const auto CompatibleCp = IsVirtualCodePage(Codepage)? CP_ACP : Codepage;
 	if (FromHex)
 	{
-		const auto Blob = HexStringToBlob(ExtractHexString(From).data(), 0);
-		return encoding::get_chars(CompatibleCp, Blob.data(), Blob.size());
+		const auto Blob = HexStringToBlob(ExtractHexString(From), 0);
+		return encoding::get_chars(CompatibleCp, { Blob.data(), Blob.size() });
 	}
 	else
 	{
@@ -1426,8 +1108,8 @@ wchar_t * xwcsncpy(wchar_t * dest, const wchar_t * src, size_t DestSize)
 	return tmpsrc;
 }
 
-std::pair<string, string> split_name_value(const wchar_t* Line)
+std::pair<string_view, string_view> split_name_value(string_view Str)
 {
-	const auto SeparatorPos = wcschr(Line + 1, L'=');
-	return { { Line, SeparatorPos }, SeparatorPos + 1 };
+	const auto SeparatorPos = Str.find(L'=');
+	return { Str.substr(0, SeparatorPos), Str.substr(SeparatorPos + 1) };
 }

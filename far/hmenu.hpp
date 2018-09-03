@@ -37,13 +37,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "modal.hpp"
 
+#include "common/range.hpp"
+
+struct menu_item;
+
 struct HMenuData
 {
-	const wchar_t *Name;
-	const wchar_t *SubMenuHelp;
-	struct MenuDataEx *SubMenu;
-	size_t SubMenuSize;
-	int Selected;
+	string_view Name;
+	string_view SubMenuHelp;
+	range<menu_item*> SubMenu;
+	bool Selected;
 	int XPos;
 };
 
@@ -56,22 +59,22 @@ class HMenu: public SimpleModal
 public:
 	static hmenu_ptr create(HMenuData* Item, size_t ItemCount);
 	HMenu(private_tag, HMenuData* Item, size_t ItemCount);
-	virtual ~HMenu() override;
+	~HMenu() override;
 
-	virtual bool ProcessKey(const Manager::Key& Key) override;
-	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
-	virtual void ResizeConsole() override;
-	virtual int GetType() const override { return windowtype_hmenu; }
-	virtual int GetTypeAndName(string &, string &) override { return windowtype_hmenu; }
+	bool ProcessKey(const Manager::Key& Key) override;
+	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
+	void ResizeConsole() override;
+	int GetType() const override { return windowtype_hmenu; }
+	int GetTypeAndName(string &, string &) override { return windowtype_hmenu; }
 
 	void GetExitCode(int &ExitCode, int &VExitCode) const;
 
 private:
 	void init();
 
-	virtual void DisplayObject() override;
-	virtual string GetTitle() const override { return {}; }
+	void DisplayObject() override;
+	string GetTitle() const override { return {}; }
 
 	void ShowMenu();
 	bool ProcessCurrentSubMenu();

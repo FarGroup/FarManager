@@ -30,20 +30,27 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "sqlitedb.hpp"
-#include "sqlite.hpp"
-#include "sqlite_unicode.hpp"
+
 #include "pathmix.hpp"
 #include "config.hpp"
-#include "synchro.hpp"
 #include "components.hpp"
 #include "encoding.hpp"
+#include "global.hpp"
+
+#include "platform.concurrency.hpp"
+#include "platform.fs.hpp"
+
+#include "common/bytes_view.hpp"
+
+#include "format.hpp"
+#include "sqlite.hpp"
+#include "sqlite_unicode.hpp"
 
 namespace
 {
+	const auto MemoryDbName = L":memory:"sv;
+
 	SCOPED_ACTION(components::component)([]
 	{
 		return components::component::info{ L"SQLite"s, WIDE(SQLITE_VERSION) };
@@ -54,16 +61,11 @@ namespace
 		return components::component::info{ L"SQLite Unicode extension"s, sqlite_unicode::SQLite_Unicode_Version };
 	});
 
-	static string GetDatabasePath(const string& FileName, bool Local)
+	static string GetDatabasePath(string_view const FileName, bool Local)
 	{
-		if (FileName != L":memory:")
-		{
-			auto Result = Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath;
-			AddEndSlash(Result);
-			return Result + FileName;
-		}
-
-		return FileName;
+		return FileName == MemoryDbName?
+			string(FileName) :
+			path::join(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, FileName);
 	}
 }
 
@@ -84,7 +86,7 @@ void SQLiteDb::SQLiteStmt::stmt_deleter::operator()(sqlite::sqlite3_stmt* object
 
 SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::Reset()
 {
-	m_Param = 1;
+	m_Param = 0;
 	sqlite::sqlite3_clear_bindings(m_Stmt.get());
 	sqlite::sqlite3_reset(m_Stmt.get());
 	return *this;
@@ -95,49 +97,57 @@ bool SQLiteDb::SQLiteStmt::Step() const
 	return sqlite::sqlite3_step(m_Stmt.get()) == SQLITE_ROW;
 }
 
-bool SQLiteDb::SQLiteStmt::FinalStep() const
+bool SQLiteDb::SQLiteStmt::Execute() const
 {
 	return sqlite::sqlite3_step(m_Stmt.get()) == SQLITE_DONE;
 }
 
 SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(std::nullptr_t)
 {
-	sqlite::sqlite3_bind_null(m_Stmt.get(), m_Param++);
+	sqlite::sqlite3_bind_null(m_Stmt.get(), ++m_Param);
 	return *this;
 }
 
 SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(int Value)
 {
-	sqlite::sqlite3_bind_int(m_Stmt.get(), m_Param++, Value);
+	sqlite::sqlite3_bind_int(m_Stmt.get(), ++m_Param, Value);
 	return *this;
 }
 
 SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(long long Value)
 {
-	sqlite::sqlite3_bind_int64(m_Stmt.get(), m_Param++, Value);
+	sqlite::sqlite3_bind_int64(m_Stmt.get(), ++m_Param, Value);
 	return *this;
 }
 
-SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const string_view& Value, bool bStatic)
+SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const string_view Value, const bool bStatic)
 {
-	sqlite::sqlite3_bind_text16(m_Stmt.get(), m_Param++, Value.raw_data(), static_cast<int>(Value.size() * sizeof(wchar_t)), bStatic? sqlite::static_destructor : sqlite::transient_destructor);
+	sqlite::sqlite3_bind_text16(m_Stmt.get(), ++m_Param, Value.data(), static_cast<int>(Value.size() * sizeof(wchar_t)), bStatic? sqlite::static_destructor : sqlite::transient_destructor);
 	return *this;
 }
 
 SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const bytes_view& Value, bool bStatic)
 {
-	sqlite::sqlite3_bind_blob(m_Stmt.get(), m_Param++, Value.data(), static_cast<int>(Value.size()), bStatic? sqlite::static_destructor : sqlite::transient_destructor);
+	sqlite::sqlite3_bind_blob(m_Stmt.get(), ++m_Param, Value.data(), static_cast<int>(Value.size()), bStatic? sqlite::static_destructor : sqlite::transient_destructor);
 	return *this;
 }
 
-const wchar_t* SQLiteDb::SQLiteStmt::GetColText(int Col) const
+string SQLiteDb::SQLiteStmt::GetColText(int Col) const
 {
-	return static_cast<const wchar_t*>(sqlite::sqlite3_column_text16(m_Stmt.get(), Col));
+	return
+	{
+		static_cast<const wchar_t*>(sqlite::sqlite3_column_text16(m_Stmt.get(), Col)),
+		static_cast<size_t>(sqlite::sqlite3_column_bytes16(m_Stmt.get(), Col) / sizeof(wchar_t))
+	};
 }
 
-const char* SQLiteDb::SQLiteStmt::GetColTextUTF8(int Col) const
+std::string SQLiteDb::SQLiteStmt::GetColTextUTF8(int Col) const
 {
-	return reinterpret_cast<const char*>(sqlite::sqlite3_column_text(m_Stmt.get(), Col));
+	return
+	{
+		reinterpret_cast<const char*>(sqlite::sqlite3_column_text(m_Stmt.get(), Col)),
+		static_cast<size_t>(sqlite::sqlite3_column_bytes(m_Stmt.get(), Col))
+	};
 }
 
 int SQLiteDb::SQLiteStmt::GetColInt(int Col) const
@@ -171,7 +181,7 @@ SQLiteDb::column_type SQLiteDb::SQLiteStmt::GetColType(int Col) const
 }
 
 
-SQLiteDb::SQLiteDb(initialiser Initialiser, const string& DbName, bool Local, bool WAL)
+SQLiteDb::SQLiteDb(initialiser Initialiser, string_view const DbName, bool Local, bool WAL)
 {
 	Initialize(Initialiser, DbName, Local, WAL);
 }
@@ -186,20 +196,21 @@ void SQLiteDb::db_closer::operator()(sqlite::sqlite3* Object) const
 	sqlite::sqlite3_close(Object);
 }
 
-bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
+bool SQLiteDb::Open(string_view const DbFile, bool Local, bool WAL)
 {
-	const auto& v1_opener = [](const string& Name, database_ptr& Db)
+	const auto& v1_opener = [](string_view const Name, database_ptr& Db)
 	{
-		return sqlite::sqlite3_open16(Name.data(), &ptr_setter(Db)) == SQLITE_OK;
+		return sqlite::sqlite3_open16(null_terminated(Name).c_str(), &ptr_setter(Db)) == SQLITE_OK;
 	};
 
-	const auto& v2_opener = [WAL](const string& Name, database_ptr& Db)
+	const auto& v2_opener = [WAL](string_view const Name, database_ptr& Db)
 	{
-		return sqlite::sqlite3_open_v2(encoding::utf8::get_bytes(Name).data(), &ptr_setter(Db), WAL? SQLITE_OPEN_READWRITE : SQLITE_OPEN_READONLY, nullptr) == SQLITE_OK;
+		return sqlite::sqlite3_open_v2(encoding::utf8::get_bytes(Name).c_str(), &ptr_setter(Db), WAL? SQLITE_OPEN_READWRITE : SQLITE_OPEN_READONLY, nullptr) == SQLITE_OK;
 	};
 
 	m_Path = GetDatabasePath(DbFile, Local);
-	const auto mem_db = DbFile == L":memory:";
+
+	const auto mem_db = DbFile == MemoryDbName;
 
 	if (!Global->Opt->ReadOnlyConfig || mem_db)
 	{
@@ -216,7 +227,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 
 	// copy db to memory
 	//
-	if (!v1_opener(L":memory:", m_Db))
+	if (!v1_opener(MemoryDbName, m_Db))
 		return false;
 
 	bool ok = true, copied = false;
@@ -263,55 +274,55 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 	if (copied)
 		os::fs::delete_file(m_Path);
 
-	m_Path = L":memory:";
+	assign(m_Path, MemoryDbName);
 	if (!ok)
 		Close();
 	return ok;
 }
 
-void SQLiteDb::Initialize(initialiser Initialiser, const string& DbName, bool Local, bool WAL)
+void SQLiteDb::Initialize(initialiser Initialiser, string_view const DbName, bool Local, bool WAL)
 {
-	os::mutex m(os::make_name<os::mutex>(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, DbName).data());
+	assign(m_Name, DbName);
+
+	os::mutex m(os::make_name<os::mutex>(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, m_Name));
 	SCOPED_ACTION(std::lock_guard<os::mutex>)(m);
 
-	m_Name = DbName;
-
-	const auto& OpenAndInitialise = [&](const string& Name)
+	const auto& OpenAndInitialise = [&](string_view const Name)
 	{
 		return Open(Name, Local, WAL) && Initialiser(db_initialiser(this));
 	};
 
-	if (!OpenAndInitialise(DbName))
+	if (!OpenAndInitialise(m_Name))
 	{
 		Close();
 		++init_status;
 
-		bool in_memory = Global->Opt->ReadOnlyConfig ||
-			!(os::fs::move_file(m_Path, m_Path + L".bad", MOVEFILE_REPLACE_EXISTING) && OpenAndInitialise(DbName));
+		const auto in_memory = Global->Opt->ReadOnlyConfig ||
+			!(os::fs::move_file(m_Path, m_Path + L".bad"sv, MOVEFILE_REPLACE_EXISTING) && OpenAndInitialise(m_Name));
 
 		if (in_memory)
 		{
 			Close();
 			++init_status;
-			OpenAndInitialise(L":memory:"s);
+			OpenAndInitialise(MemoryDbName);
 		}
 	}
 }
 
 int SQLiteDb::GetInitStatus(string& name, bool full_name) const
 {
-	name = (full_name && !m_Path.empty() && m_Path != L":memory:") ? m_Path : m_Name;
+	name = (full_name && !m_Path.empty() && m_Path != MemoryDbName)? m_Path : m_Name;
 	return init_status;
 }
 
-const wchar_t* SQLiteDb::GetErrorMessage(int InitStatus)
+string_view SQLiteDb::GetErrorMessage(int InitStatus)
 {
 	switch (InitStatus)
 	{
-	case 0:  return L"no errors";
-	case 1:  return L"database file is renamed to *.bad and new one is created";
-	case 2:  return L"database is opened in memory";
-	default: return L"unknown error";
+	case 0:  return L"no errors"sv;
+	case 1:  return L"database file is renamed to *.bad and new one is created"sv;
+	case 2:  return L"database is opened in memory"sv;
+	default: return L"unknown error"sv;
 	}
 }
 
@@ -335,19 +346,23 @@ bool SQLiteDb::RollbackTransaction()
 	return Exec("ROLLBACK TRANSACTION;");
 }
 
-SQLiteDb::SQLiteStmt SQLiteDb::create_stmt(const wchar_t* Stmt) const
+SQLiteDb::SQLiteStmt SQLiteDb::create_stmt(std::string_view const Stmt) const
 {
 	sqlite::sqlite3_stmt* pStmt;
-	if (sqlite::sqlite3_prepare16_v2(m_Db.get(), Stmt, -1, &pStmt, nullptr) != SQLITE_OK)
-	{
-		throw MAKE_FAR_EXCEPTION(L"SQLiteDb::create_stmt failed");
-	}
-	return SQLiteStmt(pStmt);
-}
 
-bool SQLiteDb::Changes() const
-{
-	return sqlite::sqlite3_changes(m_Db.get()) != 0;
+	// https://www.sqlite.org/c3ref/prepare.html
+	// If the caller knows that the supplied string is nul-terminated,
+	// then there is a small performance advantage to passing an nByte parameter
+	// that is the number of bytes in the input string *including* the nul-terminator.
+
+	// We use data() instead of operator[] here to bypass any bounds checks in debug mode
+	const auto IsNullTerminated = !Stmt.data()[Stmt.size()];
+
+	const auto Result = sqlite::sqlite3_prepare_v3(m_Db.get(), Stmt.data(), static_cast<int>(Stmt.size() + (IsNullTerminated? 1 : 0)), SQLITE_PREPARE_PERSISTENT, &pStmt, nullptr);
+	if (Result != SQLITE_OK)
+		throw MAKE_FAR_EXCEPTION(format(L"SQLiteDb::create_stmt error {0} - {1}", Result, GetErrorString(Result)));
+
+	return SQLiteStmt(pStmt);
 }
 
 unsigned long long SQLiteDb::LastInsertRowID() const
@@ -381,4 +396,9 @@ int SQLiteDb::GetLastErrorCode() const
 string SQLiteDb::GetLastErrorString() const
 {
 	return static_cast<const wchar_t*>(sqlite::sqlite3_errmsg16(m_Db.get()));
+}
+
+string SQLiteDb::GetErrorString(int Code) const
+{
+	return encoding::utf8::get_chars(sqlite::sqlite3_errstr(Code));
 }

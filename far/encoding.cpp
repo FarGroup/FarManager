@@ -31,12 +31,13 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "encoding.hpp"
+
 #include "strmix.hpp"
 #include "exception.hpp"
+#include "plugin.hpp"
+
+#include "common/io.hpp"
 
 class installed_codepages
 {
@@ -88,7 +89,8 @@ public:
 					const auto CloseBracketPos = cp_data.rfind(L')');
 					if (CloseBracketPos != string::npos && CloseBracketPos > OpenBracketPos)
 					{
-						cp_data = cp_data.substr(OpenBracketPos + 1, CloseBracketPos - OpenBracketPos - 1);
+						cp_data.resize(CloseBracketPos);
+						cp_data.erase(0, OpenBracketPos + 1);
 					}
 				}
 				context->insert(cp, cpix.MaxCharSize, cp_data);
@@ -243,36 +245,59 @@ size_t MultibyteCodepageDecoder::GetChar(const char* Buffer, size_t Size, wchar_
 	}
 }
 
-static size_t get_bytes_impl(uintptr_t const Codepage, const wchar_t* const Data, size_t const DataSize, char* const Buffer, size_t const BufferSize, bool* const UsedDefaultChar)
+static size_t get_bytes_impl(uintptr_t const Codepage, string_view const Str, char* const Buffer, size_t const BufferSize, bool* const UsedDefaultChar)
 {
+	if (Str.empty())
+		return 0;
+
 	switch(Codepage)
 	{
 	case CP_UTF8:
-		return Utf8::get_bytes(Data, DataSize, Buffer, BufferSize);
+		return Utf8::get_bytes(Str, Buffer, BufferSize);
 
 	case CP_UNICODE:
 		if (BufferSize) // paranoid gcc null checks are paranoid
-			memcpy(Buffer, Data, std::min(DataSize * sizeof(wchar_t), BufferSize));
-		return DataSize * sizeof(wchar_t);
+			memcpy(Buffer, Str.data(), std::min(Str.size() * sizeof(wchar_t), BufferSize));
+		return Str.size() * sizeof(wchar_t);
 
 	case CP_REVERSEBOM:
-		swap_bytes(Data, Buffer, std::min(DataSize * sizeof(wchar_t), BufferSize));
-		return DataSize * sizeof(wchar_t);
+		swap_bytes(Str.data(), Buffer, std::min(Str.size() * sizeof(wchar_t), BufferSize));
+		return Str.size() * sizeof(wchar_t);
 
 	default:
 		{
 			BOOL bUsedDefaultChar = FALSE;
-			const auto Result = WideCharToMultiByte(Codepage, GetNoBestFitCharsFlag(Codepage), Data, static_cast<int>(DataSize), Buffer, static_cast<int>(BufferSize), nullptr, UsedDefaultChar? &bUsedDefaultChar : nullptr);
+			auto Result = WideCharToMultiByte(Codepage, GetNoBestFitCharsFlag(Codepage), Str.data(), static_cast<int>(Str.size()), Buffer, static_cast<int>(BufferSize), nullptr, UsedDefaultChar? &bUsedDefaultChar : nullptr);
+			if (!Result && BufferSize < Str.size() && GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+			{
+				// https://msdn.microsoft.com/en-us/library/windows/desktop/dd374130.aspx
+				// If BufferSize is less than DataSize, this function writes the number of characters specified by BufferSize to the buffer indicated by Buffer.
+
+				// If the function succeeds and BufferSize is 0, the return value is the required size, in bytes, for the buffer indicated by Buffer.
+				Result = WideCharToMultiByte(Codepage, GetNoBestFitCharsFlag(Codepage), Str.data(), static_cast<int>(Str.size()), nullptr, 0, nullptr, UsedDefaultChar ? &bUsedDefaultChar : nullptr);
+			}
+
 			if (UsedDefaultChar)
 				*UsedDefaultChar = bUsedDefaultChar != FALSE;
+
 			return Result;
 		}
 	}
 }
 
-size_t encoding::get_bytes(uintptr_t const Codepage, const wchar_t* const Data, size_t const DataSize, char* const Buffer, size_t const BufferSize, bool* const UsedDefaultChar)
+uintptr_t encoding::codepage::ansi()
 {
-	const auto Result = get_bytes_impl(Codepage, Data, DataSize, Buffer, BufferSize, UsedDefaultChar);
+	return GetACP();
+}
+
+uintptr_t encoding::codepage::oem()
+{
+	return GetOEMCP();
+}
+
+size_t encoding::get_bytes(uintptr_t const Codepage, string_view const Str, char* const Buffer, size_t const BufferSize, bool* const UsedDefaultChar)
+{
+	const auto Result = get_bytes_impl(Codepage, Str, Buffer, BufferSize, UsedDefaultChar);
 	if (Result < BufferSize)
 	{
 		Buffer[Result] = '\0';
@@ -280,49 +305,57 @@ size_t encoding::get_bytes(uintptr_t const Codepage, const wchar_t* const Data, 
 	return Result;
 }
 
-std::string encoding::get_bytes(uintptr_t const Codepage, const wchar_t* const Data, size_t const DataSize, bool* const UsedDefaultChar)
+std::string encoding::get_bytes(uintptr_t const Codepage, string_view const Str, bool* const UsedDefaultChar)
 {
-	if (const auto NewSize = encoding::get_bytes_count(Codepage, Data, DataSize))
+	if (Str.empty())
+		return {};
+
+	// DataSize is a good estimation for the bytes count.
+	// With this approach we can fill the buffer with only one attempt in many cases.
+	std::string Buffer(Str.size(), '\0');
+
+	for (auto Overflow = true; Overflow;)
 	{
-		std::string Buffer(NewSize, L'\0');
-		encoding::get_bytes(Codepage, Data, DataSize, &Buffer[0], Buffer.size(), UsedDefaultChar);
-		return Buffer;
+		const auto Size = get_bytes(Codepage, Str, Buffer.data(), Buffer.size(), UsedDefaultChar);
+		Overflow = Size > Buffer.size();
+		Buffer.resize(Size);
 	}
-	return {};
+
+	return Buffer;
 }
 
 namespace Utf7
 {
-	size_t get_chars(const char* Str, size_t StrSize, wchar_t* Buffer, size_t BufferSize, Utf::errors *Errors);
+	size_t get_chars(std::string_view Str, wchar_t* Buffer, size_t BufferSize, Utf::errors *Errors);
 }
 
-static size_t get_chars_impl(uintptr_t const Codepage, const char* const Data, size_t const DataSize, wchar_t* const Buffer, size_t const BufferSize)
+static size_t get_chars_impl(uintptr_t const Codepage, std::string_view Str, wchar_t* const Buffer, size_t const BufferSize)
 {
 	switch (Codepage)
 	{
 	case CP_UTF8:
-		return Utf8::get_chars(Data, DataSize, Buffer, BufferSize, nullptr);
+		return Utf8::get_chars(Str, Buffer, BufferSize, nullptr);
 
 	case CP_UTF7:
-		return Utf7::get_chars(Data, DataSize, Buffer, BufferSize, nullptr);
+		return Utf7::get_chars(Str, Buffer, BufferSize, nullptr);
 
 	case CP_UNICODE:
 		if (BufferSize) // paranoid gcc null checks are paranoid
-			memcpy(Buffer, Data, std::min(DataSize, BufferSize * sizeof(wchar_t)));
-		return DataSize / sizeof(wchar_t);
+			memcpy(Buffer, Str.data(), std::min(Str.size(), BufferSize * sizeof(wchar_t)));
+		return Str.size() / sizeof(wchar_t);
 
 	case CP_REVERSEBOM:
-		swap_bytes(Data, Buffer, std::min(DataSize, BufferSize * sizeof(wchar_t)));
-		return DataSize / sizeof(wchar_t);
+		swap_bytes(Str.data(), Buffer, std::min(Str.size(), BufferSize * sizeof(wchar_t)));
+		return Str.size() / sizeof(wchar_t);
 
 	default:
-		return MultiByteToWideChar(Codepage, 0, Data, static_cast<int>(DataSize), Buffer, static_cast<int>(BufferSize));
+		return MultiByteToWideChar(Codepage, 0, Str.data(), static_cast<int>(Str.size()), Buffer, static_cast<int>(BufferSize));
 	}
 }
 
-size_t encoding::get_chars(uintptr_t const Codepage, const char* const Data, size_t const DataSize, wchar_t* const Buffer, size_t const BufferSize)
+size_t encoding::get_chars(uintptr_t const Codepage, std::string_view const Str, wchar_t* const Buffer, size_t const BufferSize)
 {
-	const auto Result = get_chars_impl(Codepage, Data, DataSize, Buffer, BufferSize);
+	const auto Result = get_chars_impl(Codepage, Str, Buffer, BufferSize);
 	if (Result < BufferSize)
 	{
 		Buffer[Result] = L'\0';
@@ -330,36 +363,111 @@ size_t encoding::get_chars(uintptr_t const Codepage, const char* const Data, siz
 	return Result;
 }
 
-string encoding::get_chars(uintptr_t const Codepage, const char* const Data, size_t const DataSize)
+string encoding::get_chars(uintptr_t const Codepage, std::string_view const Str)
 {
-	if (const auto NewSize = encoding::get_chars_count(Codepage, Data, DataSize))
+	if (Str.empty())
+		return {};
+
+	const auto& EstimatedCharsCount = [&]
 	{
-		string Buffer(NewSize, L'\0');
-		encoding::get_chars(Codepage, Data, DataSize, &Buffer[0], Buffer.size());
-		return Buffer;
+		switch (Codepage)
+		{
+		case CP_UNICODE:
+		case CP_REVERSEBOM:
+			return Str.size() / sizeof(wchar_t);
+
+		case CP_UTF7:
+		case CP_UTF8:
+			// Even though DataSize is always >= BufferSize for these guys, we can't use DataSize for estimation - it can be three times larger than necessary.
+			return get_chars_count(Codepage, Str);
+
+		default:
+			return Str.size();
+		}
+	};
+
+	// With this approach we can fill the buffer with only one attempt in many cases.
+	string Buffer(EstimatedCharsCount(), L'\0');
+	for (auto Overflow = true; Overflow;)
+	{
+		const auto Size = get_chars(Codepage, Str, Buffer.data(), Buffer.size());
+		Overflow = Size > Buffer.size();
+		Buffer.resize(Size);
 	}
-	return {};
+
+	return Buffer;
+}
+
+std::string_view encoding::get_signature_bytes(uintptr_t Cp)
+{
+	switch (Cp)
+	{
+	case CP_UNICODE:
+		return "\xFF\xFE"sv;
+	case CP_REVERSEBOM:
+		return "\xFE\xFF"sv;
+	case CP_UTF8:
+		return "\xEF\xBB\xBF"sv;
+	default:
+		return {};
+	}
+}
+
+encoding::writer::writer(std::ostream& Stream, uintptr_t Codepage, bool AddSignature):
+	m_Stream(&Stream),
+	m_Codepage(Codepage),
+	m_AddSignature(AddSignature)
+{
+}
+
+void encoding::writer::write(const string_view Str)
+{
+	if (m_AddSignature)
+	{
+		io::write(*m_Stream, get_signature_bytes(m_Codepage));
+		m_AddSignature = false;
+	}
+
+	// Nothing to do here
+	if (Str.empty())
+		return;
+
+	// No need to encode
+	if (m_Codepage == CP_UNICODE)
+		return io::write(*m_Stream, Str);
+
+	// External buffer to minimise allocations
+	m_Buffer.resize(m_Buffer.capacity());
+
+	for (auto Overflow = true; Overflow;)
+	{
+		const auto Size = get_bytes(m_Codepage, Str, m_Buffer);
+		Overflow = Size > m_Buffer.size();
+		m_Buffer.resize(Size);
+	}
+
+	io::write(*m_Stream, m_Buffer);
 }
 
 //################################################################################################
 
-size_t Utf::get_chars(uintptr_t const Codepage, const char* const Data, size_t const DataSize, wchar_t* const Buffer, size_t const BufferSize, errors* const Errors)
+size_t Utf::get_chars(uintptr_t const Codepage, std::string_view const Str, wchar_t* const Buffer, size_t const BufferSize, errors* const Errors)
 {
 	switch (Codepage)
 	{
 	case CP_UTF7:
-		return Utf7::get_chars(Data, DataSize, Buffer, BufferSize, Errors);
+		return Utf7::get_chars(Str, Buffer, BufferSize, Errors);
 	case CP_UTF8:
-		return Utf8::get_chars(Data, DataSize, Buffer, BufferSize, Errors);
+		return Utf8::get_chars(Str, Buffer, BufferSize, Errors);
 	default:
-		throw MAKE_FAR_EXCEPTION(L"Not a utf codepage");
+		throw MAKE_FAR_EXCEPTION(L"Not a utf codepage"sv);
 	}
 }
 
 //################################################################################################
 
 //                                   2                         5         6
-//	        0                         6                         2         2
+//         0                         6                         2         2
 // base64: ABCDEFGHIJKLMNOPQRSTUVWXYZabcdrfghijklmnopqrstuvwxyz0123456789+/
 
 static const int ill = 0x0100; // illegal
@@ -404,16 +512,18 @@ static const short m7[128] =
 };
 
 // BUGBUG non-BMP range is not supported
-static size_t Utf7_GetChar(const char* const Data, size_t const DataSize, wchar_t* const Buffer, bool& ConversionError, int& state)
+static size_t Utf7_GetChar(std::string_view::const_iterator const Iterator, std::string_view::const_iterator const End, wchar_t* const Buffer, bool& ConversionError, int& state)
 {
+	const size_t DataSize = End - Iterator;
+
 	if (!DataSize)
 		return 0;
 
-	auto DataIterator = Data;
+	auto StrIterator = Iterator;
 
 	size_t BytesConsumed = 1;
 	int m[3];
-	BYTE c = *DataIterator++;
+	BYTE c = *StrIterator++;
 	if (c >= 128)
 	{
 		ConversionError = true;
@@ -447,7 +557,7 @@ static size_t Utf7_GetChar(const char* const Data, size_t const DataSize, wchar_
 			return BytesConsumed;
 		}
 
-		c = *DataIterator++;
+		c = *StrIterator++;
 		BytesConsumed = 2;
 		if (c >= 128)
 		{
@@ -479,7 +589,7 @@ static size_t Utf7_GetChar(const char* const Data, size_t const DataSize, wchar_
 		return DataSize;
 	}
 
-	if ((c = *DataIterator++) >= 128)
+	if ((c = *StrIterator++) >= 128)
 	{
 		u.s.base64 = false;
 		state = u.state;
@@ -502,7 +612,7 @@ static size_t Utf7_GetChar(const char* const Data, size_t const DataSize, wchar_
 	else
 	{
 		++BytesConsumed;
-		if ((c = *DataIterator++) >= 128)
+		if ((c = *StrIterator++) >= 128)
 		{
 			u.s.base64 = false;
 			state = u.state;
@@ -534,7 +644,7 @@ static size_t Utf7_GetChar(const char* const Data, size_t const DataSize, wchar_
 	}
 	++BytesConsumed;
 
-	if (DataSize > BytesConsumed && *Data == (BYTE)'-')
+	if (DataSize > BytesConsumed && *Iterator == '-')
 	{
 		u.s.base64 = false;
 		++BytesConsumed;
@@ -545,19 +655,19 @@ static size_t Utf7_GetChar(const char* const Data, size_t const DataSize, wchar_
 }
 
 static size_t BytesToUnicode(
-	const char* const Str, size_t const StrSize,
+	std::string_view const Str,
 	wchar_t* const Buffer, size_t const BufferSize,
-	size_t(*GetChar)(const char*, size_t, wchar_t*, bool&, int&),
+	size_t(*GetChar)(std::string_view::const_iterator, std::string_view::const_iterator, wchar_t*, bool&, int&),
 	Utf::errors* const Errors)
 {
-	if (!StrSize)
+	if (Str.empty())
 		return 0;
 
 	if (Errors)
 		*Errors = {};
 
-	auto DataIterator = Str;
-	const auto DataEnd = Str + StrSize;
+	auto StrIterator = Str.begin();
+	const auto StrEnd = Str.end();
 
 	auto BufferIterator = Buffer;
 	const auto BufferEnd = Buffer + BufferSize;
@@ -565,11 +675,11 @@ static size_t BytesToUnicode(
 	int State = 0;
 	size_t RequiredSize = 0;
 
-	while (DataIterator != DataEnd)
+	while (StrIterator != StrEnd)
 	{
 		wchar_t TmpBuffer[2]{};
 		auto ConversionError = false;
-		const auto BytesConsumed = GetChar(DataIterator, DataEnd - DataIterator, TmpBuffer, ConversionError, State);
+		const auto BytesConsumed = GetChar(StrIterator, StrEnd, TmpBuffer, ConversionError, State);
 
 		if (!BytesConsumed)
 			break;
@@ -580,7 +690,7 @@ static size_t BytesToUnicode(
 			if (Errors && !Errors->Conversion.Error)
 			{
 				Errors->Conversion.Error = true;
-				Errors->Conversion.Position = DataIterator - Str;
+				Errors->Conversion.Position = StrIterator - Str.begin();
 			}
 		}
 
@@ -600,31 +710,111 @@ static size_t BytesToUnicode(
 			StoreChar(TmpBuffer[1]);
 		}
 
-		DataIterator += BytesConsumed;
+		StrIterator += BytesConsumed;
 	}
 
 	return RequiredSize;
 }
 
-size_t Utf7::get_chars(const char* const Data, size_t const DataSize, wchar_t* const Buffer, size_t const BufferSize, Utf::errors* const Errors)
+size_t Utf7::get_chars(std::string_view const Str, wchar_t* const Buffer, size_t const BufferSize, Utf::errors* const Errors)
 {
-	return BytesToUnicode(Data, DataSize, Buffer, BufferSize, Utf7_GetChar, Errors);
+	return BytesToUnicode(Str, Buffer, BufferSize, Utf7_GetChar, Errors);
 }
 
-size_t Utf8::get_char(const char*& DataIterator, const char* const DataEnd, wchar_t& First, wchar_t& Second)
+namespace utf8
+{
+	const auto surrogate_low_first  = 0b11011100'00000000u;
+	const auto surrogate_low_last   = 0b11011111'11111111u;
+	const auto surrogate_high_first = 0b11011000'00000000u;
+	const auto surrogate_high_last  = 0b11011011'11111111u;
+
+	const auto invalid_first        = 0b11011100'10000000u;
+	const auto invalid_last         = 0b11011100'11111111u;
+
+	static constexpr bool is_ascii_byte(unsigned int c)
+	{
+		return c < 0b10000000;
+	}
+
+	static constexpr bool is_continuation_byte(unsigned char c)
+	{
+		return (c & 0b11000000) == 0b10000000;
+	}
+
+	namespace detail
+	{
+		template<size_t continuation_bytes>
+		static constexpr unsigned int extract_leading_bits(unsigned char const Char)
+		{
+			return (Char & (0b11111111 >> (continuation_bytes + 2))) << (6 * continuation_bytes);
+		}
+
+		static unsigned int extract_continuation_bits() { return 0; }
+
+		template<typename... bytes>
+		static constexpr unsigned int extract_continuation_bits(unsigned char const Byte, bytes... Bytes)
+		{
+			return ((Byte & 0b00111111) << (6 * sizeof...(Bytes))) | extract_continuation_bits(Bytes...);
+		}
+
+		template<size_t total>
+		static constexpr unsigned char make_leading_byte(unsigned int const Char)
+		{
+			return ((0b11111111 << (8 - total)) & 0b11111111) | (Char >> (6 * (total - 1)));
+		}
+
+		template<size_t total, size_t number>
+		static constexpr unsigned char make_continuation_byte(unsigned int const Char)
+		{
+			static_assert(number <= total);
+			return 0b10000000 | ((Char >> (6 * (total - number))) & 0b00111111);
+		}
+
+		template<size_t total, size_t number, typename iterator, REQUIRES((number > total))>
+		static constexpr void write_continuation_bytes(unsigned int, iterator&) {}
+
+		template<size_t total, size_t number, typename iterator, REQUIRES(number <= total)>
+		static void write_continuation_bytes(unsigned int const Char, iterator& Iterator)
+		{
+			*Iterator++ = make_continuation_byte<total, number>(Char);
+			write_continuation_bytes<total, number + 1>(Char, Iterator);
+		}
+	}
+
+	template<typename... bytes>
+	static constexpr unsigned int extract(unsigned char const Byte, bytes... Bytes)
+	{
+		static_assert(sizeof...(Bytes) < 4);
+		return detail::extract_leading_bits<sizeof...(Bytes)>(Byte) | detail::extract_continuation_bits(Bytes...);
+	}
+
+	template<size_t total, typename iterator, REQUIRES(total == 1)>
+	static void write(unsigned int const Char, iterator& Iterator)
+	{
+		*Iterator++ = Char;
+	}
+
+	template<size_t total, typename iterator, REQUIRES((total > 1))>
+	static void write(unsigned int const Char, iterator& Iterator)
+	{
+		*Iterator++ = detail::make_leading_byte<total>(Char);
+		detail::write_continuation_bytes<total - 1, 1>(Char, Iterator);
+	}
+}
+
+size_t Utf8::get_char(std::string_view::const_iterator& StrIterator, std::string_view::const_iterator const StrEnd, wchar_t& First, wchar_t& Second)
 {
 	size_t NumberOfChars = 1;
 
-	const auto& InvalidChar = [](unsigned char c) { return 0xDC00 + c; };
+	const auto& InvalidChar = [](unsigned char c) { return utf8::surrogate_low_first | c; };
 
-	const auto c1 = *DataIterator++;
+	const unsigned char c1 = *StrIterator++;
 
-	if (c1 < 0x80)
+	if (utf8::is_ascii_byte(c1))
 	{
-		// simple ASCII
 		First = c1;
 	}
-	else if (c1 < 0xC2 || c1 >= 0xF5)
+	else if (c1 < 0b11000010 || c1 > 0b11110100)
 	{
 		// illegal 1-st byte
 		First = InvalidChar(c1);
@@ -638,64 +828,65 @@ size_t Utf8::get_char(const char*& DataIterator, const char* const DataEnd, wcha
 		};
 
 		// multibyte (2, 3, 4)
-		if (DataIterator == DataEnd)
+		if (StrIterator == StrEnd)
 		{
 			return Unfinished();
 		}
 
-		const auto c2 = *DataIterator;
+		const unsigned char c2 = *StrIterator;
 
-		if ((c2 & 0xC0) != 0x80 ||        // illegal 2-nd byte
-			(c1 == 0xE0 && c2 <= 0x9F) || // illegal 3-byte start (overlaps with 2-byte)
-			(c1 == 0xF0 && c2 <= 0x8F) || // illegal 4-byte start (overlaps with 3-byte)
-			(c1 == 0xF4 && c2 >= 0x90))   // illegal 4-byte (out of unicode range)
+		if (c2 > 0b10111111 ||                       // illegal 2-nd byte
+			(c1 == 0b11100000 && c2 < 0b10100000) || // illegal 3-byte start (overlaps with 2-byte)
+			(c1 == 0b11110000 && c2 < 0b10010000) || // illegal 4-byte start (overlaps with 3-byte)
+			(c1 == 0b11110100 && c2 > 0b10001111))   // illegal 4-byte (out of unicode range)
 		{
 			First = InvalidChar(c1);
 		}
-		else if (c1 < 0xE0)
+		else if (c1 <= 0b11011111)
 		{
 			// legal 2-byte
-			First = ((c1 & 0x1F) << 6) | (c2 & 0x3F);
-			++DataIterator;
+			First = utf8::extract(c1, c2);
+			++StrIterator;
 		}
 		else
 		{
 			// 3 or 4-byte
-			if (DataIterator + 1 == DataEnd)
+			if (StrIterator + 1 == StrEnd)
 			{
 				return Unfinished();
 			}
 
-			const auto c3 = *(DataIterator + 1);
-			if ((c3 & 0xC0) != 0x80)
+			const unsigned char c3 = *(StrIterator + 1);
+			if (!utf8::is_continuation_byte(c3))
 			{
 				// illegal 3-rd byte
 				First = InvalidChar(c1);
 			}
-			else if (c1 < 0xF0)
+			else if (c1 <= 0b11101111)
 			{
 				// legal 3-byte
-				First = ((c1 & 0x0F) << 12) | ((c2 & 0x3F) << 6) | (c3 & 0x3F);
-				if (First >= 0xD800 && First <= 0xDFFF)
+				First = utf8::extract(c1, c2, c3);
+
+				if (utf8::surrogate_high_first <= First && First <= utf8::surrogate_low_last)
 				{
 					// invalid: surrogate area code
 					First = InvalidChar(c1);
 				}
 				else
 				{
-					DataIterator += 2;
+					StrIterator += 2;
 				}
 			}
 			else
 			{
 				// 4-byte
-				if (DataIterator + 2 == DataEnd)
+				if (StrIterator + 2 == StrEnd)
 				{
 					return Unfinished();
 				}
 
-				const auto c4 = *(DataIterator + 2);
-				if ((c4 & 0xC0) != 0x80)
+				const unsigned char c4 = *(StrIterator + 2);
+				if (!utf8::is_continuation_byte(c4))
 				{
 					// illegal 4-th byte
 					First = InvalidChar(c1);
@@ -703,11 +894,12 @@ size_t Utf8::get_char(const char*& DataIterator, const char* const DataEnd, wcha
 				else
 				{
 					// legal 4-byte (produces 2 WCHARs)
-					const auto FullChar = ((c1 & 0x07) << 18 | (c2 & 0x3F) << 12 | (c3 & 0x3F) << 6 | (c4 & 0x3F)) - 0x10000;
-					First = 0xD800 + (FullChar >> 10);
-					Second = 0xDC00 + (FullChar & 0x3FF);
+					const auto FullChar = utf8::extract(c1, c2, c3, c4) - 0b1'00000000'00000000;
+					
+					First  = utf8::surrogate_high_first + (FullChar >> 10);
+					Second = utf8::surrogate_low_first + (FullChar & 0b00000011'11111111);
 					NumberOfChars = 2;
-					DataIterator += 3;
+					StrIterator += 3;
 				}
 			}
 		}
@@ -716,10 +908,10 @@ size_t Utf8::get_char(const char*& DataIterator, const char* const DataEnd, wcha
 	return NumberOfChars;
 }
 
-size_t Utf8::get_chars(const char* const Data, size_t const DataSize, wchar_t* const Buffer, size_t const BufferSize, int& Tail)
+size_t Utf8::get_chars(std::string_view const Str, wchar_t* const Buffer, size_t const BufferSize, int& Tail)
 {
-	auto DataIterator = Data;
-	const auto DataEnd = Data + DataSize;
+	auto StrIterator = Str.begin();
+	const auto StrEnd = Str.end();
 
 	auto BufferIterator = Buffer;
 	const auto BufferEnd = Buffer + BufferSize;
@@ -734,10 +926,10 @@ size_t Utf8::get_chars(const char* const Data, size_t const DataSize, wchar_t* c
 		return false;
 	};
 
-	while (DataIterator != DataEnd)
+	while (StrIterator != StrEnd)
 	{
 		wchar_t First, Second;
-		const auto NumberOfChars = get_char(DataIterator, DataEnd, First, Second);
+		const auto NumberOfChars = get_char(StrIterator, StrEnd, First, Second);
 
 		if (!StoreChar(NumberOfChars == 1 || BufferIterator + 1 != BufferEnd? First : Utf::REPLACE_CHAR))
 			break;
@@ -749,55 +941,61 @@ size_t Utf8::get_chars(const char* const Data, size_t const DataSize, wchar_t* c
 		}
 	}
 
-	Tail = DataEnd - DataIterator;
+	Tail = StrEnd - StrIterator;
 	return BufferIterator - Buffer;
 }
 
-size_t Utf8::get_chars(const char* const Data, size_t const DataSize, wchar_t* const Buffer, size_t const BufferSize, Utf::errors* const Errors)
+size_t Utf8::get_chars(std::string_view const Str, wchar_t* const Buffer, size_t const BufferSize, Utf::errors* const Errors)
 {
-	return BytesToUnicode(Data, DataSize, Buffer, BufferSize, [](const char* Data, size_t DataSize, wchar_t* Buffer, bool&, int&)
+	return BytesToUnicode(Str, Buffer, BufferSize, [](std::string_view::const_iterator const Iterator, std::string_view::const_iterator const End, wchar_t* CharBuffer, bool&, int&)
 	{
-		auto Iterator = Data;
-		Utf8::get_char(Iterator, Data + DataSize, Buffer[0], Buffer[1]);
-		return static_cast<size_t>(Iterator - Data);
+		auto NextIterator = Iterator;
+		get_char(NextIterator, End, CharBuffer[0], CharBuffer[1]);
+		return static_cast<size_t>(NextIterator - Iterator);
 	}, Errors);
 }
 
-size_t Utf8::get_bytes(const wchar_t* const Data, size_t const DataSize, char* const Buffer, size_t const BufferSize)
+size_t Utf8::get_bytes(string_view const Str, char* const Buffer, size_t const BufferSize)
 {
-	const auto End = Data + DataSize;
-	auto StrPtr = Data;
-	auto BufferPtr = Buffer;
+	auto StrIterator = Str.begin();
+	const auto StrEnd = Str.end();
+
+	auto BufferIterator = Buffer;
 	size_t RequiredCapacity = 0;
 	auto AvailableCapacity = BufferSize;
 
-	while (StrPtr != End)
+	while (StrIterator != StrEnd)
 	{
-		unsigned int Char = *StrPtr++;
+		unsigned int Char = *StrIterator++;
 
 		size_t BytesNumber;
 
-		if (Char < 0x80)
+		if (utf8::is_ascii_byte(Char))
 		{
 			BytesNumber = 1;
 		}
-		else if (Char < 0x800)
+		else if (Char < 0b1000'00000000)
 		{
 			BytesNumber = 2;
 		}
-		else if (!InRange(0xD800u, Char, 0xDFFFu)) // not surrogates
+		else if (!InRange(utf8::surrogate_high_first, Char, utf8::surrogate_low_last))
 		{
+			// not surrogates
 			BytesNumber = 3;
 		}
-		else if (InRange(0xDC80u, Char, 0xDCFFu)) // embedded raw byte
+		else if (InRange(utf8::invalid_first, Char, utf8::invalid_last))
 		{
+			// embedded raw byte
 			BytesNumber = 1;
-			Char &= 0xFF;
+			Char &= 0b11111111;
 		}
-		else if (InRange(0xD800u, Char, 0xDBFFu) && StrPtr != End && InRange(0xDC00u, *StrPtr, 0xDFFFu)) // valid surrogate pair
+		else if (StrIterator != StrEnd &&
+			InRange(utf8::surrogate_high_first, Char, utf8::surrogate_high_last) &&
+			InRange(utf8::surrogate_low_first, *StrIterator, utf8::surrogate_low_last))
 		{
+			// valid surrogate pair
 			BytesNumber = 4;
-			Char = 0x10000u + ((Char - 0xD800u) << 10) + (*StrPtr++ - 0xDC00u);
+			Char = 0b1'00000000'00000000u + ((Char - utf8::surrogate_high_first) << 10) + (*StrIterator++ - utf8::surrogate_low_first);
 		}
 		else
 		{
@@ -816,27 +1014,10 @@ size_t Utf8::get_bytes(const wchar_t* const Data, size_t const DataSize, char* c
 
 		switch (BytesNumber)
 		{
-		case 1:
-			*BufferPtr++ = Char;
-			break;
-
-		case 2:
-			*BufferPtr++ = 0xC0 | (Char >> 6);
-			*BufferPtr++ = 0x80 | (Char & 0x3F);
-			break;
-
-		case 3:
-			*BufferPtr++ = 0xE0 | (Char >> 12);
-			*BufferPtr++ = 0x80 | (Char >> 6 & 0x3F);
-			*BufferPtr++ = 0x80 | (Char & 0x3F);
-			break;
-
-		case 4:
-			*BufferPtr++ = 0xF0 | (Char >> 18);
-			*BufferPtr++ = 0x80 | (Char >> 12 & 0x3F);
-			*BufferPtr++ = 0x80 | (Char >> 6 & 0x3F);
-			*BufferPtr++ = 0x80 | (Char & 0x3F);
-			break;
+		case 1: utf8::write<1>(Char, BufferIterator); break;
+		case 2: utf8::write<2>(Char, BufferIterator); break;
+		case 3: utf8::write<3>(Char, BufferIterator); break;
+		case 4: utf8::write<4>(Char, BufferIterator); break;
 		}
 	}
 
@@ -853,3 +1034,182 @@ void swap_bytes(const void* const Src, void* const Dst, const size_t SizeInBytes
 	}
 	_swab(reinterpret_cast<char*>(const_cast<void*>(Src)), reinterpret_cast<char*>(Dst), static_cast<int>(SizeInBytes));
 }
+
+bool IsVirtualCodePage(uintptr_t cp)
+{
+	return cp == CP_DEFAULT || cp == CP_REDETECT || cp == CP_ALL;
+}
+
+bool IsUnicodeCodePage(uintptr_t cp)
+{
+	return cp == CP_UNICODE || cp == CP_REVERSEBOM;
+}
+
+bool IsStandardCodePage(uintptr_t cp)
+{
+	return IsUnicodeCodePage(cp) || cp == CP_UTF8 || cp == encoding::codepage::oem() || cp == encoding::codepage::ansi();
+}
+
+bool IsUnicodeOrUtfCodePage(uintptr_t cp)
+{
+	return IsUnicodeCodePage(cp) || cp == CP_UTF8 || cp == CP_UTF7;
+}
+
+// See https://msdn.microsoft.com/en-us/library/windows/desktop/dd319072.aspx
+bool IsNoFlagsCodepage(uintptr_t cp)
+{
+	return
+		(cp >= 50220 && cp <= 50222) ||
+		cp == 50225 ||
+		cp == 50227 ||
+		cp == 50229 ||
+		(cp >= 57002 && cp <= 57011) ||
+		cp == CP_UTF7 ||
+		cp == CP_SYMBOL;
+}
+
+/*
+	1 byte:  0xxxxxxx
+	2 bytes: 110xxxxx 10xxxxxx
+	3 bytes: 1110xxxx 10xxxxxx 10xxxxxx
+	4 bytes: 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+
+	1 byte, 7 bits:
+	00000000                                                 00000000     00
+	01111111                                                 01111111     7F
+	 ^^^^^^^
+	2 bytes, 5 + 6 = 11 bits:
+	11000010 10000000                                    000'10000000    080
+	11011111 10111111                                    111'11111111    7FF
+	   ^^^^^   ^^^^^^
+	3 bytes, 4 + 6 + 6 = 16 bits:
+	11100000 10100000 10000000                      00001000'00000000   0800
+	11101111 10111111 10111111                      11111111'11111111   FFFF
+	    ^^^^   ^^^^^^   ^^^^^^
+	4 bytes, 3 + 6 + 6 + 6 = 21 bits:
+	11110000 10010000 10000000 10000000       00001'00000000'00000000 010000
+	11110100 10001111 10111111 10111111       10000'11111111'11111111 10FFFF
+	     ^^^   ^^^^^^   ^^^^^^   ^^^^^^
+*/
+
+// PureAscii makes sense only if the function returned true
+bool encoding::is_valid_utf8(std::string_view const Str, bool const PartialContent, bool& PureAscii)
+{
+	// The number of consecutive 1 bits in 000-111
+	static const char LookupTable[] =
+	{
+		0, // 000
+		0, // 001
+		0, // 010
+		0, // 011
+		1, // 100
+		1, // 101
+		2, // 110
+		3, // 111
+	};
+
+	bool Ascii = true;
+	size_t ContinuationBytes = 0;
+	const unsigned char Min = 0b10000000, Max = 0b10111111;
+	auto NextMin = Min, NextMax = Max;
+
+	for (const unsigned char c: Str)
+	{
+		if (ContinuationBytes)
+		{
+			if (!::utf8::is_continuation_byte(c))
+				return false;
+
+			if (c < NextMin || c > NextMax)
+				return false;
+
+			NextMin = Min;
+			NextMax = Max;
+
+			--ContinuationBytes;
+			continue;
+		}
+
+		if (::utf8::is_ascii_byte(c))
+			continue;
+
+		Ascii = false;
+
+		const auto Bits = (c & 0b01111000) >> 3;
+		if (Bits & 1)
+			return false;
+
+		ContinuationBytes = LookupTable[Bits >> 1];
+		if (!ContinuationBytes)
+			return false;
+
+		NextMin = Min;
+		NextMax = Max;
+
+		switch (ContinuationBytes)
+		{
+		case 1:
+			if (c < 0b11000010)
+				return false;
+			break;
+
+		case 2:
+			if (c == 0b11100000)
+				NextMin = 0b10100000;
+			break;
+
+		case 3:
+			if (c > 0b11110100)
+				return false;
+			if (c == 0b11110000)
+				NextMin = 0b10010000;
+			else if (c == 0b11110100)
+				NextMax = 0b10001111;
+			break;
+		}
+	}
+
+	PureAscii = Ascii;
+	return !ContinuationBytes || PartialContent;
+}
+
+SELF_TEST
+({
+	const auto& TestUtfDetection = [](bool Utf8, bool Ascii, std::string_view const Str)
+	{
+		bool PureAscii = false;
+		assert(encoding::is_valid_utf8(Str, false, PureAscii) == Utf8);
+		assert(PureAscii == Ascii);
+	};
+
+	TestUtfDetection(true, false, u8R"(
+ᚠᛇᚻ᛫ᛒᛦᚦ᛫ᚠᚱᚩᚠᚢᚱ᛫ᚠᛁᚱᚪ᛫ᚷᛖᚻᚹᛦᛚᚳᚢᛗ
+ᛋᚳᛖᚪᛚ᛫ᚦᛖᚪᚻ᛫ᛗᚪᚾᚾᚪ᛫ᚷᛖᚻᚹᛦᛚᚳ᛫ᛗᛁᚳᛚᚢᚾ᛫ᚻᛦᛏ᛫ᛞᚫᛚᚪᚾ
+ᚷᛁᚠ᛫ᚻᛖ᛫ᚹᛁᛚᛖ᛫ᚠᚩᚱ᛫ᛞᚱᛁᚻᛏᚾᛖ᛫ᛞᚩᛗᛖᛋ᛫ᚻᛚᛇᛏᚪᚾ᛬
+)"sv);
+
+	TestUtfDetection(true, false, u8R"(
+𠜎 𠜱 𠝹 𠱓 𠱸 𠲖 𠳏 𠳕 𠴕 𠵼 𠵿 𠸎
+𠸏 𠹷 𠺝 𠺢 𠻗 𠻹 𠻺 𠼭 𠼮 𠽌 𠾴 𠾼
+𠿪 𡁜 𡁯 𡁵 𡁶 𡁻 𡃁 𡃉 𡇙 𢃇 𢞵 𢫕
+𢭃 𢯊 𢱑 𢱕 𢳂 𢴈 𢵌 𢵧 𢺳 𣲷 𤓓 𤶸
+𤷪 𥄫 𦉘 𦟌 𦧲 𦧺 𧨾 𨅝 𨈇 𨋢 𨳊 𨳍
+)"sv);
+
+	TestUtfDetection(true, true, u8R"(
+Lorem ipsum dolor sit amet,
+consectetur adipiscing elit,
+sed do eiusmod tempor incididunt
+ut labore et dolore magna aliqua.
+)"sv);
+
+	TestUtfDetection(false, false, "\x80"sv);
+	TestUtfDetection(false, false, "\xFF"sv);
+	TestUtfDetection(false, false, "\xC0"sv);
+	TestUtfDetection(false, false, "\xC1"sv);
+	TestUtfDetection(false, false, "\xC2\x20"sv);
+	TestUtfDetection(false, false, "\xC2\xC0"sv);
+	TestUtfDetection(false, false, "\xE0\xC0\xC0"sv);
+	TestUtfDetection(false, false, "\xF0\xC0\xC0\xC0"sv);
+	TestUtfDetection(false, false, "\xF4\xBF\xBF\xBF"sv);
+})

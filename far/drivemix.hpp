@@ -35,6 +35,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "platform.fs.hpp"
+
 enum
 {
 	// DRIVE_UNKNOWN            = 0,
@@ -63,7 +65,9 @@ enum
 
 bool IsDriveTypeRemote(UINT DriveType);
 
-void UpdateSavedDrives(const any& Payload);
+void UpdateSavedDrives(const std::any& Payload);
+
+os::fs::drives_set allowed_drives_mask();
 
 namespace os
 {

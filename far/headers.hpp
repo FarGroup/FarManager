@@ -68,6 +68,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <random>
 #include <regex>
 #include <set>
+#include <shared_mutex>
 #include <sstream>
 #include <stack>
 #include <string>
@@ -94,7 +95,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #undef _W32API_OLD
 
 #ifdef _MSC_VER
-# if _MSC_FULL_VER < 190024215
+# if !defined __clang__ && _MSC_FULL_VER < 190024210
 #  error Visual C++ 2015 Update 3 (or higher) required
 # endif
 # include <sdkddkver.h>
@@ -107,8 +108,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # define GCC_VER_(gcc_major,gcc_minor,gcc_patch) (100*(gcc_major) + 10*(gcc_minor) + (gcc_patch))
 # define _GCC_VER GCC_VER_(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
 
-# if _GCC_VER < GCC_VER_(6,0,0)
-#  error gcc 6.0.0 (or higher) required
+# if _GCC_VER < GCC_VER_(7,1,0)
+#  error gcc 7.1.0 (or higher) required
 # endif
 
 # include <w32api.h>
@@ -153,6 +154,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <shellapi.h>
 #include <userenv.h>
 #include <DbgHelp.h>
+#include <dwmapi.h>
+#include <restartmanager.h>
 
 #ifdef _MSC_VER
 # include <ntstatus.h>
@@ -189,25 +192,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cpp.hpp"
 
 using string = std::wstring;
+using string_view = std::wstring_view;
 
 using namespace std::string_literals;
+using namespace std::string_view_literals;
 using namespace std::chrono_literals;
 
-#include "memcheck.hpp"
-
 #include "common.hpp"
-
-#include "format.hpp"
-
-#include "platform.hpp"
-#include "platform.chrono.hpp"
-#include "platform.env.hpp"
-#include "platform.fs.hpp"
-#include "platform.memory.hpp"
-#include "platform.reg.hpp"
-
-#include "plugin.hpp"
-
-#include "global.hpp"
 
 #endif // HEADERS_HPP_9A02D08B_02BB_4240_845F_36ED60ED2647

@@ -33,6 +33,11 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "platform.hpp"
+#include "platform.chrono.hpp"
+
+#include "common/enumerator.hpp"
+
 namespace os::fs
 {
 	namespace detail
@@ -56,6 +61,11 @@ namespace os::fs
 		{
 			void operator()(HANDLE Handle) const;
 		};
+
+		struct file_unmapper
+		{
+			void operator()(const void* Data) const;
+		};
 	}
 
 	using find_handle = os::detail::handle_t<detail::find_handle_closer>;
@@ -63,23 +73,32 @@ namespace os::fs
 	using find_volume_handle = os::detail::handle_t<detail::find_volume_handle_closer>;
 	using find_notification_handle = os::detail::handle_t<detail::find_notification_handle_closer>;
 
+	using file_view = std::unique_ptr<void, detail::file_unmapper>;
+
 	using drives_set = std::bitset<26>;
 
 	using security_descriptor = block_ptr<SECURITY_DESCRIPTOR, default_buffer_size>;
 
 	struct find_data
 	{
-		os::chrono::time_point CreationTime;
-		os::chrono::time_point LastAccessTime;
-		os::chrono::time_point LastWriteTime;
-		os::chrono::time_point ChangeTime;
-		unsigned long long nFileSize{};
-		unsigned long long nAllocationSize{};
+	public:
+		string FileName;
+	private:
+		string AlternateFileNameData;
+	public:
+		chrono::time_point CreationTime;
+		chrono::time_point LastAccessTime;
+		chrono::time_point LastWriteTime;
+		chrono::time_point ChangeTime;
+		unsigned long long FileSize{};
+		unsigned long long AllocationSize{};
 		unsigned long long FileId{};
-		string strFileName;
-		string strAlternateFileName;
-		DWORD dwFileAttributes{};
-		DWORD dwReserved0{};
+		DWORD Attributes{};
+		DWORD ReparseTag{};
+
+		const string& AlternateFileName() const;
+		void SetAlternateFileName(string_view Name);
+		bool HasAlternateFileName() const;
 	};
 
 	bool is_standard_drive_letter(wchar_t Letter);
@@ -95,7 +114,7 @@ namespace os::fs
 		explicit enum_drives(drives_set Drives);
 
 	private:
-		bool get(size_t Index, wchar_t& Value) const;
+		bool get(bool Reset, wchar_t& Value) const;
 
 		drives_set m_Drives;
 		mutable size_t m_CurrentIndex{};
@@ -106,10 +125,10 @@ namespace os::fs
 		IMPLEMENTS_ENUMERATOR(enum_files);
 
 	public:
-		explicit enum_files(const string_view& Object, bool ScanSymLink = true);
+		explicit enum_files(string_view Object, bool ScanSymLink = true);
 
 	private:
-		bool get(size_t Index, find_data& Value) const;
+		bool get(bool Reset, find_data& Value) const;
 
 		string m_Object;
 		bool m_ScanSymlink;
@@ -121,10 +140,10 @@ namespace os::fs
 		IMPLEMENTS_ENUMERATOR(enum_names);
 
 	public:
-		explicit enum_names(const string_view& Object);
+		explicit enum_names(string_view Object);
 
 	private:
-		bool get(size_t Index, string& Value) const;
+		bool get(bool Reset, string& Value) const;
 
 		string m_Object;
 		mutable find_handle m_Handle;
@@ -135,10 +154,10 @@ namespace os::fs
 		IMPLEMENTS_ENUMERATOR(enum_streams);
 
 	public:
-		explicit enum_streams(const string_view& Object);
+		explicit enum_streams(string_view Object);
 
 	private:
-		bool get(size_t Index, WIN32_FIND_STREAM_DATA& Value) const;
+		bool get(bool Reset, WIN32_FIND_STREAM_DATA& Value) const;
 
 		string m_Object;
 		mutable find_file_handle m_Handle;
@@ -152,13 +171,13 @@ namespace os::fs
 		enum_volumes();
 
 	private:
-		bool get(size_t Index, string& Value) const;
+		bool get(bool Reset, string& Value) const;
 
 		string m_Object;
 		mutable find_volume_handle m_Handle;
 	};
 
-	class file: public conditional<file>
+	class file
 	{
 	public:
 		NONCOPYABLE(file);
@@ -177,17 +196,17 @@ namespace os::fs
 			Open(FWD(Args)...);
 		}
 
-		bool operator!() const noexcept;
+		explicit operator bool() const noexcept;
 		// TODO: half of these should be free functions
-		bool Open(const string_view& Object, DWORD DesiredAccess, DWORD ShareMode, SECURITY_ATTRIBUTES* SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes = 0, const file* TemplateFile = nullptr, bool ForceElevation = false);
+		bool Open(string_view Object, DWORD DesiredAccess, DWORD ShareMode, SECURITY_ATTRIBUTES* SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes = 0, const file* TemplateFile = nullptr, bool ForceElevation = false);
 		// TODO: async overloads when needed
 		bool Read(void* Buffer, size_t NumberOfBytesToRead, size_t& NumberOfBytesRead) const;
 		bool Write(const void* Buffer, size_t NumberOfBytesToWrite) const;
 		unsigned long long GetPointer() const;
 		bool SetPointer(long long DistanceToMove, unsigned long long* NewFilePointer, DWORD MoveMethod) const;
 		bool SetEnd();
-		bool GetTime(os::chrono::time_point* CreationTime, os::chrono::time_point* LastAccessTime, os::chrono::time_point* LastWriteTime, os::chrono::time_point* ChangeTime) const;
-		bool SetTime(const os::chrono::time_point* CreationTime, const os::chrono::time_point* LastAccessTime, const os::chrono::time_point* LastWriteTime, const os::chrono::time_point* ChangeTime) const;
+		bool GetTime(chrono::time_point* CreationTime, chrono::time_point* LastAccessTime, chrono::time_point* LastWriteTime, chrono::time_point* ChangeTime) const;
+		bool SetTime(const chrono::time_point* CreationTime, const chrono::time_point* LastAccessTime, const chrono::time_point* LastWriteTime, const chrono::time_point* ChangeTime) const;
 		bool GetSize(unsigned long long& Size) const;
 		bool FlushBuffers() const;
 		bool GetInformation(BY_HANDLE_FILE_INFORMATION& info) const;
@@ -234,11 +253,37 @@ namespace os::fs
 		bool m_IsSparse{};
 	};
 
+	class filebuf : public std::streambuf
+	{
+	public:
+		NONCOPYABLE(filebuf);
+
+		filebuf(const file& File, std::ios::openmode Mode, size_t BufferSize = 65536);
+
+	protected:
+		int_type underflow() override;
+		int_type overflow(int_type Ch) override;
+		int sync() override;
+		pos_type seekoff(off_type Offset, std::ios::seekdir Way, std::ios::openmode Which) override;
+		pos_type seekpos(pos_type Pos, std::ios::openmode Which) override;
+		int_type pbackfail(int_type Ch) override;
+
+	private:
+		void reset_get_area();
+		void reset_put_area();
+		bool adjust_pos_in_cache(std::streamoff Offset);
+		unsigned long long set_pointer(unsigned long long Value, int Way);
+
+		const file& m_File;
+		std::ios::openmode m_Mode;
+		std::vector<char> m_Buffer;
+	};
+
 	class file_status
 	{
 	public:
 		file_status();
-		explicit file_status(const string_view& Object);
+		explicit file_status(string_view Object);
 
 		bool check(DWORD Data) const;
 
@@ -247,25 +292,44 @@ namespace os::fs
 	};
 
 	bool exists(file_status Status);
-	bool exists(const string_view& Object);
+	bool exists(string_view Object);
 
 	bool is_file(file_status Status);
-	bool is_file(const string_view& Object);
+	bool is_file(string_view Object);
 
 	bool is_directory(file_status Status);
-	bool is_directory(const string_view& Object);
+	bool is_directory(string_view Object);
 
 	bool is_not_empty_directory(const string& Object);
 
-	class process_current_directory_guard: noncopyable
+	class current_directory_guard
 	{
 	public:
-		process_current_directory_guard(bool Active, const std::function<string()>& Provider);
+		NONCOPYABLE(current_directory_guard);
+		MOVABLE(current_directory_guard);
+
+		current_directory_guard() = default;
+		explicit current_directory_guard(const string& Directory);
+		~current_directory_guard();
+
+	private:
+		string m_Directory;
+		movable<bool> m_Active;
+	};
+
+	class process_current_directory_guard
+	{
+	public:
+		NONCOPYABLE(process_current_directory_guard);
+		MOVABLE(process_current_directory_guard);
+
+		process_current_directory_guard() = default;
+		explicit process_current_directory_guard(const string& Directory);
 		~process_current_directory_guard();
 
 	private:
 		string m_Directory;
-		bool m_Active;
+		movable<bool> m_Active;
 	};
 
 	namespace low
@@ -290,15 +354,15 @@ namespace os::fs
 	string GetCurrentDirectory();
 	bool SetCurrentDirectory(const string& PathName, bool Validate = true);
 
-	bool create_directory(const string_view& PathName, SECURITY_ATTRIBUTES* SecurityAttributes = nullptr);
-	bool create_directory(const string_view& TemplateDirectory, const string_view& NewDirectory, SECURITY_ATTRIBUTES* SecurityAttributes = nullptr);
-	bool remove_directory(const string_view& DirName);
-	handle create_file(const string_view& Object, DWORD DesiredAccess, DWORD ShareMode, SECURITY_ATTRIBUTES* SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes = 0, HANDLE TemplateFile = nullptr, bool ForceElevation = false);
-	bool delete_file(const string_view& FileName);
-	bool copy_file(const string_view& ExistingFileName, const string_view& NewFileName, LPPROGRESS_ROUTINE ProgressRoutine, void* Data, BOOL* Cancel, DWORD CopyFlags);
-	bool move_file(const string_view& ExistingFileName, const string_view& NewFileName, DWORD Flags = 0);
-	DWORD get_file_attributes(const string_view& FileName);
-	bool set_file_attributes(const string_view& FileName, DWORD FileAttributes);
+	bool create_directory(string_view PathName, SECURITY_ATTRIBUTES* SecurityAttributes = nullptr);
+	bool create_directory(string_view TemplateDirectory, string_view NewDirectory, SECURITY_ATTRIBUTES* SecurityAttributes = nullptr);
+	bool remove_directory(string_view DirName);
+	handle create_file(string_view Object, DWORD DesiredAccess, DWORD ShareMode, SECURITY_ATTRIBUTES* SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes = 0, HANDLE TemplateFile = nullptr, bool ForceElevation = false);
+	bool delete_file(string_view FileName);
+	bool copy_file(string_view ExistingFileName, string_view NewFileName, LPPROGRESS_ROUTINE ProgressRoutine, void* Data, BOOL* Cancel, DWORD CopyFlags);
+	bool move_file(string_view ExistingFileName, string_view NewFileName, DWORD Flags = 0);
+	DWORD get_file_attributes(string_view FileName);
+	bool set_file_attributes(string_view FileName, DWORD FileAttributes);
 
 	bool GetLongPathName(const string& ShortPath, string& LongPath);
 	bool GetShortPathName(const string& LongPath, string& ShortPath);
@@ -306,29 +370,29 @@ namespace os::fs
 	bool GetVolumeNameForVolumeMountPoint(const string& VolumeMountPoint, string& VolumeName);
 	bool GetVolumePathNamesForVolumeName(const string& VolumeName, string& VolumePathNames);
 	bool QueryDosDevice(const string& DeviceName, string& Path);
-	bool SearchPath(const wchar_t* Path, const string& FileName, const wchar_t* Extension, string& strDest);
+	bool SearchPath(const wchar_t* Path, string_view FileName, const wchar_t* Extension, string& strDest);
 	bool GetTempPath(string& strBuffer);
 	bool GetModuleFileName(HANDLE hProcess, HMODULE hModule, string& strFileName);
-	security_descriptor get_file_security(const string_view& Object, SECURITY_INFORMATION RequestedInformation);
-	bool set_file_security(const string_view& Object, SECURITY_INFORMATION RequestedInformation, const security_descriptor& SecurityDescriptor);
+	security_descriptor get_file_security(string_view Object, SECURITY_INFORMATION RequestedInformation);
+	bool set_file_security(string_view Object, SECURITY_INFORMATION RequestedInformation, const security_descriptor& SecurityDescriptor);
 
-	bool get_disk_size(const string_view& Path, unsigned long long* TotalSize, unsigned long long* TotalFree, unsigned long long* UserFree);
+	bool get_disk_size(string_view Path, unsigned long long* TotalSize, unsigned long long* TotalFree, unsigned long long* UserFree);
 
-	bool GetFileTimeSimple(const string& FileName, os::chrono::time_point* CreationTime, os::chrono::time_point* LastAccessTime, os::chrono::time_point* LastWriteTime, os::chrono::time_point* ChangeTime);
+	bool GetFileTimeSimple(string_view FileName, chrono::time_point* CreationTime, chrono::time_point* LastAccessTime, chrono::time_point* LastWriteTime, chrono::time_point* ChangeTime);
 
 	bool get_find_data(const string& FileName, find_data& FindData, bool ScanSymLink = true);
 
 	find_notification_handle FindFirstChangeNotification(const string& PathName, bool WatchSubtree, DWORD NotifyFilter);
-	int GetFileTypeByName(const string& Name);
 	bool IsDiskInDrive(const string& Root);
 
 	bool create_hard_link(const string& FileName, const string& ExistingFileName, SECURITY_ATTRIBUTES* SecurityAttributes);
 
 	bool CreateSymbolicLink(const string& SymlinkFileName, const string& TargetFileName, DWORD Flags);
 
-	bool set_file_encryption(const string_view& FileName, bool Encrypt);
-	bool detach_virtual_disk(const string_view& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType);
+	bool set_file_encryption(string_view FileName, bool Encrypt);
+	bool detach_virtual_disk(string_view Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType);
 
+	bool is_directory_symbolic_link(const find_data& Data);
 
 
 	bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD Flags);

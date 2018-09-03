@@ -15,16 +15,20 @@ to the project, please follow those guidelines:
    please provide the needed updates.
    Please create the patch against the latest code from the repository.
 5. Patches should be submitted as pull requests to the repository
-   or as diff files to our [bugtracker](http://bugs.farmanager.com)
-   or [forum](http://forum.farmanager.com/viewforum.php?f=54)
+   or as diff files to our [bugtracker](https://bugs.farmanager.com)
+   or [forum](https://forum.farmanager.com/viewforum.php?f=54)
 6. If you plan to create large patches or want to keep current with the
    development of Far Manager, subscribe to the
-   [Developers mailing list](http://groups.google.com/group/fardeven)
-   (fardeven@googlegroups.com).
+   [Developers mailing list](https://groups.google.com/group/fardeven)
+   (<fardeven@googlegroups.com>).
 7. Frequent patchers will be eligible for full repository access, by our discretion.
 
 
 #### Compilation
+
+```
+cd far
+```
 
 1. To compile with Visual Studio you can either use the IDE project or makefile.  
    Example for msbuild & vcxproj:  
@@ -104,4 +108,4 @@ to the project, please follow those guidelines:
    - ...
 
 
-> Reminders, todos, notes should go to the [bugtracker](http://bugs.farmanager.com).
+> Reminders, todos, notes should go to the [bugtracker](https://bugs.farmanager.com).

@@ -1,12 +1,13 @@
-﻿#ifndef CONDITIONAL_HPP_18900E4A_F2F5_48B9_A92A_DEE70617591B
-#define CONDITIONAL_HPP_18900E4A_F2F5_48B9_A92A_DEE70617591B
+﻿#ifndef PLATFORM_FWD_HPP_60B0B42C_97EB_40DE_8473_9636B5409EB7
+#define PLATFORM_FWD_HPP_60B0B42C_97EB_40DE_8473_9636B5409EB7
 #pragma once
 
 /*
-conditional.hpp
+platform.fwd.hpp
+
 */
 /*
-Copyright © 2015 Far Group
+Copyright © 2018 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -32,35 +33,13 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*
-Usage:
-
-class object: public conditional<object>
+namespace os
 {
-public:
-    bool operator!() { return false; }
-};
-
-object Object;
-
-if (Object)
-    foo();
-
-if (!Object)
-    bar();
-*/
-
-template<typename T>
-class conditional
-{
-public:
-	explicit operator bool() const
+	namespace fs
 	{
-		return !!static_cast<const T&>(*this);
+		class file;
+		struct find_data;
 	}
+}
 
-protected:
-	conditional() { static_assert((std::is_base_of<conditional, T>::value)); }
-};
-
-#endif // CONDITIONAL_HPP_18900E4A_F2F5_48B9_A92A_DEE70617591B
+#endif // PLATFORM_FWD_HPP_60B0B42C_97EB_40DE_8473_9636B5409EB7

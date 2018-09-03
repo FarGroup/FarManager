@@ -6,7 +6,6 @@ FARDIR := $(dir $(COMMON_MAKEFILE))
 #
 #DEBUG - set if a debug build is needed
 #
-DIRBIT ?= 32
 
 ifndef DEBUG
  DIRNAME=Release
@@ -17,7 +16,7 @@ endif
  DEBUGLINKFLAGS=-Xlinker -s -Xlinker -x -Xlinker --gc-sections
 else
  DIRNAME=Debug
- DEBUGFLAGS=-g -D_DEBUG
+ DEBUGFLAGS=-g -D_DEBUG -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
  DEBUGLINKFLAGS=
 endif
 
@@ -56,6 +55,18 @@ DLLTOOL = $(GCC_PREFIX)dlltool
 RANLIB = $(GCC_PREFIX)ranlib
 AR = $(GCC_PREFIX)ar
 
+ifndef DIRBIT
+ ifneq (,$(findstring i686-w64,$(shell $(CC) -dumpmachine)))
+  DIRBIT = 32
+ else
+  ifeq (,$(findstring 64,$(shell $(CC) -dumpmachine)))
+   DIRBIT = 32
+  else
+   DIRBIT = 64
+  endif
+ endif
+endif
+
 M4 = $(strip $(call os_name, $(TOOLS_PREFIX)m4)) -P -DFARBIT=$(DIRBIT) -DHOSTTYPE=$(HOST_TYPE)
 GAWK = $(strip $(call os_name, $(TOOLS_PREFIX)gawk))
 LGEN = $(WINE_CMD)$(strip $(call os_name, $(TOOLSDIR)lng.generator.exe))
@@ -72,12 +83,14 @@ CFLAGS += \
 -Wodr \
 -Winvalid-pch \
 -Wlogical-op \
+-Wduplicated-cond \
+-Wduplicated-branches \
+-Wdouble-promotion \
 -Wno-unknown-pragmas \
--Wno-char-subscripts \
 -Wno-unused-parameter \
 -Wno-missing-field-initializers \
 
-CCFLAGS = $(CFLAGS) -std=c++1z \
+CCFLAGS = $(CFLAGS) -std=gnu++17 \
 -Wnon-virtual-dtor \
 -Woverloaded-virtual \
 -Wctor-dtor-privacy \

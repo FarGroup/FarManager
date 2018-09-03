@@ -35,6 +35,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "string_utils.hpp"
+
 class DizList: noncopyable
 {
 public:
@@ -45,7 +47,7 @@ public:
 	void Set(const string& Name, const string& ShortName, const string& DizText);
 	bool Erase(const string& Name, const string& ShortName);
 
-	const wchar_t* Get(const string& Name, const string& ShortName, const long long FileSize) const;
+	const wchar_t* Get(const string& Name, const string& ShortName, long long FileSize) const;
 
 	void Reset();
 	bool Flush(const string& Path, const string *DizName=nullptr);
@@ -53,11 +55,8 @@ public:
 	const string& GetDizName() const { return m_DizFileName; }
 
 private:
-	struct hasher { size_t operator()(const string& Key) const; };
-	struct key_equal { bool operator()(const string& a, const string& b) const; };
-
 	using description_data = std::list<string>;
-	using desc_map = std::unordered_multimap<string, description_data, hasher, key_equal>;
+	using desc_map = std::unordered_multimap<string, description_data, hash_icase_t, equal_icase_t>;
 
 	desc_map::iterator Insert(const string& Name);
 	desc_map::iterator Find(const string& Name, const string& ShortName);

@@ -31,10 +31,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "filepanels.hpp"
+
 #include "keys.hpp"
 #include "macroopcode.hpp"
 #include "filelist.hpp"
@@ -56,8 +54,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keybar.hpp"
 #include "menubar.hpp"
 #include "strmix.hpp"
-#include "colormix.hpp"
 #include "diskmenu.hpp"
+#include "global.hpp"
+
+#include "platform.env.hpp"
+#include "platform.fs.hpp"
 
 FilePanels::FilePanels(private_tag):
 	m_ActivePanelIndex(panel_left)
@@ -70,7 +71,6 @@ filepanels_ptr FilePanels::create(bool CreateRealPanels, int DirCount)
 
 	FilePanelsPtr->m_windowKeyBar = std::make_unique<KeyBar>(FilePanelsPtr);
 	FilePanelsPtr->SetMacroMode(MACROAREA_SHELL);
-	FilePanelsPtr->m_KeyBarVisible = Global->Opt->ShowKeyBar;
 
 	if (CreateRealPanels)
 	{
@@ -82,6 +82,7 @@ filepanels_ptr FilePanels::create(bool CreateRealPanels, int DirCount)
 	{
 		FilePanelsPtr->m_Panels[panel_left].m_Panel = std::make_unique<dummy_panel>(FilePanelsPtr);
 		FilePanelsPtr->m_Panels[panel_right].m_Panel = std::make_unique<dummy_panel>(FilePanelsPtr);
+		FilePanelsPtr->CmdLine = std::make_unique<CommandLine>(FilePanelsPtr);
 	}
 	return FilePanelsPtr;
 }
@@ -98,7 +99,7 @@ static void PrepareOptFolder(string &strSrc, int IsLocalPath_FarPath)
 		strSrc = os::env::expand(strSrc);
 	}
 
-	if (strSrc == L"/")
+	if (strSrc == L"/"sv)
 	{
 		strSrc = Global->g_strFarPath;
 
@@ -136,8 +137,6 @@ void FilePanels::Init(int DirCount)
 		if (panel_sort(Params.second.SortMode.Get()) < panel_sort::COUNT)
 			Params.first->SetSortMode(panel_sort(Params.second.SortMode.Get()));
 
-		Params.first->SetNumericSort(Params.second.NumericSort);
-		Params.first->SetCaseSensitiveSort(Params.second.CaseSensitiveSort);
 		Params.first->SetSortOrder(Params.second.ReverseSortOrder);
 		Params.first->SetSortGroups(Params.second.SortGroups);
 		Params.first->SetShowShortNamesMode(Params.second.ShowShortNames);
@@ -232,10 +231,6 @@ void FilePanels::Init(int DirCount)
 	}
 
 	SetScreenPosition();
-}
-
-FilePanels::~FilePanels()
-{
 }
 
 void FilePanels::SetPanelPositions(bool LeftFullScreen, bool RightFullScreen) const
@@ -379,14 +374,12 @@ long long FilePanels::VMProcess(int OpCode, void* vParam, long long iParam)
 			case 1:
 				Global->Opt->ShowKeyBar = true;
 				m_windowKeyBar->Show();
-				m_KeyBarVisible = Global->Opt->ShowKeyBar;
 				SetScreenPosition();
 				Global->WindowManager->RefreshWindow();
 				break;
 			case 2:
 				Global->Opt->ShowKeyBar = false;
 				m_windowKeyBar->Hide();
-				m_KeyBarVisible = Global->Opt->ShowKeyBar;
 				SetScreenPosition();
 				Global->WindowManager->RefreshWindow();
 				break;
@@ -405,8 +398,6 @@ long long FilePanels::VMProcess(int OpCode, void* vParam, long long iParam)
 bool FilePanels::ProcessKey(const Manager::Key& Key)
 {
 	const auto LocalKey = Key();
-	if (!LocalKey)
-		return true;
 
 	if ((LocalKey==KEY_CTRLLEFT || LocalKey==KEY_CTRLRIGHT || LocalKey==KEY_CTRLNUMPAD4 || LocalKey==KEY_CTRLNUMPAD6
 		|| LocalKey==KEY_RCTRLLEFT || LocalKey==KEY_RCTRLRIGHT || LocalKey==KEY_RCTRLNUMPAD4 || LocalKey==KEY_RCTRLNUMPAD6
@@ -425,7 +416,7 @@ bool FilePanels::ProcessKey(const Manager::Key& Key)
 		{
 			if (!ActivePanel()->ProcessKey(Manager::Key(KEY_F1)))
 			{
-				Help::create(L"Contents");
+				Help::create(L"Contents"sv);
 			}
 
 			return true;
@@ -481,9 +472,8 @@ bool FilePanels::ProcessKey(const Manager::Key& Key)
 		case KEY_RCTRLB:
 		{
 			Global->Opt->ShowKeyBar=!Global->Opt->ShowKeyBar;
-			m_KeyBarVisible = Global->Opt->ShowKeyBar;
 
-			if (!m_KeyBarVisible)
+			if (!IsKeyBarVisible())
 				m_windowKeyBar->Hide();
 
 			SetScreenPosition();
@@ -493,7 +483,7 @@ bool FilePanels::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLT: case KEY_RCTRLT:
 			if (Global->Opt->Tree.TurnOffCompletely)
 				break;
-			// fallthrough
+			[[fallthrough]];
 		case KEY_CTRLL: case KEY_RCTRLL:
 		case KEY_CTRLQ: case KEY_RCTRLQ:
 		{
@@ -640,20 +630,6 @@ bool FilePanels::ProcessKey(const Manager::Key& Key)
 			if (!IsLeftActive())
 				ActivePanel()->SetCurPath();
 
-			/*
-			It's not the best place to update the keybar.
-			Usually it's called from PopPlugin with EnableRestoreViewMode = true (and works),
-			but in this case PopPlugin is called from ~FileList with EnableRestoreViewMode = false,
-			which is kinda makes sense in general (e. g. exiting), except that ChangeDisk
-			causes FileList destruction as well.
-
-			It shall be consistent for all ways of closing plugin panel - "..", Disk menu, "cd c:" etc.
-
-			Same for KEY_ALTF2 below.
-			 */
-			if (IsLeftActive())
-				LeftPanel()->UpdateKeyBar();
-
 			break;
 		}
 		case KEY_ALTF2:
@@ -663,9 +639,6 @@ bool FilePanels::ProcessKey(const Manager::Key& Key)
 
 			if (!IsRightActive())
 				ActivePanel()->SetCurPath();
-
-			if (IsRightActive())
-				RightPanel()->UpdateKeyBar();
 
 			break;
 		}
@@ -861,17 +834,24 @@ bool FilePanels::ChangePanelViewMode(panel_ptr Current, int Mode, bool RefreshWi
 void FilePanels::SetActivePanel(Panel* ToBeActive)
 {
 	if (ActivePanel().get() != ToBeActive)
+	{
+		SetPassivePanelInternal(ActivePanel());
 		SetActivePanelInternal(ToBeActive->shared_from_this());
+	}
+}
+
+void FilePanels::SetPassivePanelInternal(panel_ptr ToBePassive)
+{
+	ToBePassive->OnFocusChange(false);
 }
 
 void FilePanels::SetActivePanelInternal(panel_ptr ToBeActive)
 {
-	const auto ToBePassive = ActivePanel();
 	m_ActivePanelIndex = IsLeft(ToBeActive)? panel_left : panel_right;
 
 	Global->WindowManager->UpdateMacroArea();
 
-	ToBePassive->OnFocusChange(false);
+	PassivePanel()->Redraw();
 	ToBeActive->OnFocusChange(true);
 
 	FarChDir(ToBeActive->GetCurDir());
@@ -922,8 +902,6 @@ panel_ptr FilePanels::ChangePanel(panel_ptr Current, panel_type NewType, int Cre
 	bool OldFullScreen=Current->IsFullScreen();
 	const auto OldSortMode=Current->GetPrevSortMode();
 	bool OldSortOrder=Current->GetPrevSortOrder();
-	bool OldNumericSort=Current->GetPrevNumericSort();
-	bool OldCaseSensitiveSort=Current->GetPrevCaseSensitiveSort();
 	bool OldSortGroups=Current->GetSortGroups();
 	bool OldShowShortNames=Current->GetShowShortNamesMode();
 	bool OldFocus = Current->IsFocused();
@@ -933,11 +911,10 @@ panel_ptr FilePanels::ChangePanel(panel_ptr Current, panel_type NewType, int Cre
 
 	auto& LastFilePanel = m_Panels[LeftPosition? panel_left : panel_right].m_LastFilePanel;
 	Current->GetPosition(X1,Y1,X2,Y2);
-	int ChangePosition = ((OldType == panel_type::FILE_PANEL && NewType != panel_type::FILE_PANEL &&
-	                    OldFullScreen) || (NewType==panel_type::FILE_PANEL &&
-	                                    ((OldFullScreen && !FileList::IsModeFullScreen(OldViewMode)) ||
-	                                     (!OldFullScreen && FileList::IsModeFullScreen(OldViewMode)))));
+	const auto ChangePosition = (OldType == panel_type::FILE_PANEL && NewType != panel_type::FILE_PANEL && OldFullScreen) ||
+		(NewType==panel_type::FILE_PANEL && OldFullScreen != FileList::IsModeFullScreen(OldViewMode));
 
+	if (OldFocus) SetPassivePanelInternal(Current);
 	if (!ChangePosition)
 	{
 		TemporarySaveScr = std::move(Current->SaveScr);
@@ -985,8 +962,7 @@ panel_ptr FilePanels::ChangePanel(panel_ptr Current, panel_type NewType, int Cre
 
 		if (!ChangePosition)
 		{
-			if ((NewPanel->IsFullScreen() && !OldFullScreen) ||
-			        (!NewPanel->IsFullScreen() && OldFullScreen))
+			if (NewPanel->IsFullScreen() != OldFullScreen)
 			{
 				const auto AnotherPanel = GetAnotherPanel(Current);
 
@@ -1031,8 +1007,6 @@ panel_ptr FilePanels::ChangePanel(panel_ptr Current, panel_type NewType, int Cre
 
 		NewPanel->SetSortMode(OldSortMode);
 		NewPanel->SetSortOrder(OldSortOrder);
-		NewPanel->SetNumericSort(OldNumericSort);
-		NewPanel->SetCaseSensitiveSort(OldCaseSensitiveSort);
 		NewPanel->SetSortGroups(OldSortGroups);
 		NewPanel->SetShowShortNamesMode(OldShowShortNames);
 		NewPanel->SetPrevViewMode(OldViewMode);
@@ -1041,6 +1015,7 @@ panel_ptr FilePanels::ChangePanel(panel_ptr Current, panel_type NewType, int Cre
 		NewPanel->SetDirectoriesFirst(OldDirectoriesFirst);
 	}
 
+	if (NewPanel->IsFocused()) SetActivePanelInternal(NewPanel);
 	return NewPanel;
 }
 
@@ -1056,10 +1031,16 @@ int FilePanels::GetTypeAndName(string &strType, string &strName)
 	case panel_type::INFO_PANEL:
 		{
 			string strShortName;
-			ActivePanel()->GetCurName(strName, strShortName);
-			auto Directory = ActivePanel()->GetCurDir();
-			AddEndSlash(Directory);
-			strName.insert(0, Directory);
+			if (ActivePanel()->GetCurName(strName, strShortName))
+			{
+				auto Directory = ActivePanel()->GetCurDir();
+				AddEndSlash(Directory);
+				strName.insert(0, Directory);
+			}
+			else
+			{
+				strName.clear();
+			}
 		}
 		break;
 	}
@@ -1084,7 +1065,6 @@ void FilePanels::DisplayObject()
 	else if (m_windowKeyBar->IsVisible())
 		m_windowKeyBar->Hide();
 
-	m_KeyBarVisible=Global->Opt->ShowKeyBar;
 #if 1
 
 	if (LeftPanel()->IsVisible())
@@ -1209,7 +1189,7 @@ bool FilePanels::CanFastHide() const
 	return (Global->Opt->AllCtrlAltShiftRule & CASR_PANEL) != 0;
 }
 
-void FilePanels::GoToFile(const string_view& FileName)
+void FilePanels::GoToFile(const string_view FileName)
 {
 	if (FindSlash(FileName) != string::npos)
 	{
@@ -1232,7 +1212,7 @@ void FilePanels::GoToFile(const string_view& FileName)
 		}
 
 		const auto strNameFile = PointToName(FileName);
-		string strNameDir = make_string(FileName);
+		string strNameDir(FileName);
 		CutToSlash(strNameDir);
 		/* $ 10.04.2001 IS
 		     Не делаем SetCurDir, если нужный путь уже есть на открытых
@@ -1273,7 +1253,12 @@ FARMACROAREA FilePanels::GetMacroArea() const
 	return MACROAREA_INVALID;
 }
 
-Viewer* FilePanels::GetViewer(void)
+bool FilePanels::IsKeyBarVisible() const
+{
+	return Global->Opt->ShowKeyBar;
+}
+
+Viewer* FilePanels::GetViewer()
 {
 	auto result=ActivePanel()->GetViewer();
 	if (!result) result=PassivePanel()->GetViewer();
@@ -1287,7 +1272,7 @@ Viewer* FilePanels::GetById(int ID)
 	return result;
 }
 
-CommandLine* FilePanels::GetCmdLine(void) const
+CommandLine* FilePanels::GetCmdLine() const
 {
 	return CmdLine.get();
 }

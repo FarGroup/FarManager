@@ -31,10 +31,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "fileview.hpp"
+
 #include "keys.hpp"
 #include "ctrlobj.hpp"
 #include "filepanels.hpp"
@@ -57,6 +55,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keybar.hpp"
 #include "constitle.hpp"
 #include "pathmix.hpp"
+#include "global.hpp"
+
+#include "platform.fs.hpp"
+
+#include "format.hpp"
 
 FileViewer::FileViewer(private_tag, int DisableEdit, const wchar_t *Title):
 	RedrawTitle(),
@@ -77,7 +80,7 @@ fileviewer_ptr FileViewer::create(const string& Name, bool EnableSwitch, bool Di
 {
 	const auto FileViewerPtr = std::make_shared<FileViewer>(private_tag(), DisableEdit, Title);
 	FileViewerPtr->SetPosition(0, 0, ScrX, ScrY);
-	FileViewerPtr->Init(Name, EnableSwitch, DisableHistory, ViewStartPos, PluginData, ViewNamesList, ToSaveAs, aCodePage, Update);
+	FileViewerPtr->Init(Name, EnableSwitch, DisableHistory, ViewStartPos, PluginData, ViewNamesList, ToSaveAs, aCodePage, std::move(Update));
 
 	if (DeleteOnClose)
 	{
@@ -108,13 +111,13 @@ fileviewer_ptr FileViewer::create(const string& Name, bool EnableSwitch, bool Di
 	if (Y2 < 0 || Y2 > ScrY)
 		Y2=ScrY;
 
-	if (X1 >= X2)
+	if (X1 > X2)
 	{
 		X1=0;
 		X2=ScrX;
 	}
 
-	if (Y1 >= Y2)
+	if (Y1 > Y2)
 	{
 		Y1=0;
 		Y2=ScrY;
@@ -136,8 +139,6 @@ void FileViewer::Init(const string& name, bool EnableSwitch, int disableHistory,
 	m_windowKeyBar = std::make_unique<KeyBar>(shared_from_this());
 
 	RedrawTitle = FALSE;
-	m_KeyBarVisible = Global->Opt->ViOpt.ShowKeyBar;
-	m_TitleBarVisible = Global->Opt->ViOpt.ShowTitleBar;
 	SetMacroMode(MACROAREA_VIEWER);
 	m_View->SetPluginData(PluginData);
 	m_View->SetHostFileViewer(this);
@@ -164,7 +165,7 @@ void FileViewer::Init(const string& name, bool EnableSwitch, int disableHistory,
 
 	m_ExitCode=TRUE;
 
-	if (Global->Opt->ViOpt.ShowKeyBar)
+	if (IsKeyBarVisible())
 	{
 		m_windowKeyBar->Show();
 	}
@@ -204,7 +205,7 @@ void FileViewer::InitKeyBar()
 	}
 
 	m_windowKeyBar->SetCustomLabels(KBA_VIEWER);
-	m_View->SetPosition(m_X1,m_Y1+(Global->Opt->ViOpt.ShowTitleBar?1:0),m_X2,m_Y2-(Global->Opt->ViOpt.ShowKeyBar?1:0));
+	m_View->SetPosition(m_X1,m_Y1+(IsTitleBarVisible()?1:0),m_X2,m_Y2-(IsKeyBarVisible()?1:0));
 	m_View->SetViewKeyBar(m_windowKeyBar.get());
 }
 
@@ -212,16 +213,17 @@ void FileViewer::Show()
 {
 	if (FullScreen)
 	{
-		if (Global->Opt->ViOpt.ShowKeyBar)
+		if (IsKeyBarVisible())
 		{
 			m_windowKeyBar->SetPosition(0, ScrY, ScrX, ScrY);
-			m_windowKeyBar->Redraw();
 		}
-
-		SetPosition(0,0,ScrX,ScrY-(Global->Opt->ViOpt.ShowKeyBar?1:0));
-		m_View->SetPosition(0,(Global->Opt->ViOpt.ShowTitleBar?1:0),ScrX,ScrY-(Global->Opt->ViOpt.ShowKeyBar?1:0));
+		SetPosition(0,0,ScrX,ScrY);
 	}
-
+	if (IsKeyBarVisible())
+	{
+		m_windowKeyBar->Redraw();
+	}
+	m_View->SetPosition(m_X1,m_Y1+(IsTitleBarVisible()?1:0),m_X2,m_Y2-(IsKeyBarVisible()?1:0));
 	ScreenObjectWithShadow::Show();
 	ShowStatus();
 }
@@ -236,26 +238,28 @@ long long FileViewer::VMProcess(int OpCode,void *vParam,long long iParam)
 {
 	if (OpCode == MCODE_F_KEYBAR_SHOW)
 	{
-		int PrevMode=Global->Opt->ViOpt.ShowKeyBar?2:1;
+		int PrevMode=IsKeyBarVisible()?2:1;
 		switch (iParam)
 		{
 			case 0:
 				break;
+
 			case 1:
 				Global->Opt->ViOpt.ShowKeyBar = true;
 				m_windowKeyBar->Show();
 				Show();
-				m_KeyBarVisible = Global->Opt->ViOpt.ShowKeyBar;
 				break;
+
 			case 2:
 				Global->Opt->ViOpt.ShowKeyBar = false;
 				m_windowKeyBar->Hide();
 				Show();
-				m_KeyBarVisible = Global->Opt->ViOpt.ShowKeyBar;
 				break;
+
 			case 3:
 				ProcessKey(Manager::Key(KEY_CTRLB));
 				break;
+
 			default:
 				PrevMode=0;
 				break;
@@ -304,50 +308,47 @@ bool FileViewer::ProcessKey(const Manager::Key& Key)
 			RedrawTitle = TRUE;
 			return true;
 		}
+
 		// $ 15.07.2000 tran + CtrlB switch KeyBar
 		case KEY_CTRLB:
 		case KEY_RCTRLB:
 			Global->Opt->ViOpt.ShowKeyBar=!Global->Opt->ViOpt.ShowKeyBar;
 
-			if (Global->Opt->ViOpt.ShowKeyBar)
+			if (IsKeyBarVisible())
 				m_windowKeyBar->Show();
 			else
 				m_windowKeyBar->Hide();
 
-			Show();
-			m_KeyBarVisible = Global->Opt->ViOpt.ShowKeyBar;
+			Global->WindowManager->RefreshWindow();
 			return true;
+
 		case KEY_CTRLSHIFTB:
 		case KEY_RCTRLSHIFTB:
-		{
 			Global->Opt->ViOpt.ShowTitleBar=!Global->Opt->ViOpt.ShowTitleBar;
-			m_TitleBarVisible = Global->Opt->ViOpt.ShowTitleBar;
 			Show();
 			return true;
-		}
+
 		case KEY_CTRLO:
 		case KEY_RCTRLO:
 			if (Global->WindowManager->ShowBackground())
 			{
 				SetCursorType(false, 0);
 				WaitKey();
-				Global->WindowManager->RefreshWindow();
+				Global->WindowManager->RefreshAll();
 			}
-
 			return true;
+
 		case KEY_F3:
 		case KEY_NUMPAD5:  case KEY_SHIFTNUMPAD5:
-
 			if (F3KeyOnly)
 				return true;
-			// fallthrough
-
+			[[fallthrough]];
 		case KEY_ESC:
 		case KEY_F10:
 			Global->WindowManager->DeleteWindow();
 			return true;
-		case KEY_F6:
 
+		case KEY_F6:
 			if (!DisableEdit)
 			{
 				const auto cp = m_View->m_Codepage;
@@ -379,11 +380,10 @@ bool FileViewer::ProcessKey(const Manager::Key& Key)
 					ShellEditor->SetNamesList(m_View->GetNamesList());
 
 					// Если переключаемся в редактор, то удалять файл уже не нужно
-					SetTempViewName(L"");
+					SetTempViewName({});
 					SetExitCode(0);
 				}
 			}
-
 			return true;
 
 		case KEY_ALTSHIFTF9:
@@ -391,17 +391,19 @@ bool FileViewer::ProcessKey(const Manager::Key& Key)
 			// Работа с локальной копией ViewerOptions
 			Global->Opt->LocalViewerConfig(m_View->ViOpt);
 
-			if (Global->Opt->ViOpt.ShowKeyBar)
+			if (IsKeyBarVisible())
 				m_windowKeyBar->Show();
 
 			m_View->Show();
 			return true;
+
 		case KEY_ALTF11:
 		case KEY_RALTF11:
 			if (GetCanLoseFocus())
 				Global->CtrlObject->CmdLine()->ShowViewEditHistory();
 
 			return true;
+
 		default:
 //      Этот кусок - на будущее (по аналогии с редактором :-)
 //      if (Global->CtrlObject->Macro.IsExecuting() || !View.ProcessViewerInput(&ReadRec))
@@ -410,7 +412,7 @@ bool FileViewer::ProcessKey(const Manager::Key& Key)
 			   Это помогло от залипания :-)
 			*/
 			if (!Global->CtrlObject->Macro.IsExecuting())
-				if (Global->Opt->ViOpt.ShowKeyBar)
+				if (IsKeyBarVisible())
 					m_windowKeyBar->Show();
 
 			if (!m_windowKeyBar->ProcessKey(Key))
@@ -443,8 +445,8 @@ int FileViewer::GetTypeAndName(string &strType, string &strName)
 void FileViewer::ShowConsoleTitle()
 {
 	string strViewerTitleFormat = Global->Opt->strViewerTitleFormat.Get();
-	ReplaceStrings(strViewerTitleFormat, L"%Lng", msg(lng::MInViewer), true);
-	ReplaceStrings(strViewerTitleFormat, L"%File", PointToName(GetViewer()->strFileName), true);
+	ReplaceStrings(strViewerTitleFormat, L"%Lng"sv, msg(lng::MInViewer), true);
+	ReplaceStrings(strViewerTitleFormat, L"%File"sv, PointToName(GetViewer()->strFileName), true);
 	ConsoleTitle::SetFarTitle(strViewerTitleFormat);
 	RedrawTitle = FALSE;
 }
@@ -468,7 +470,7 @@ void FileViewer::OnDestroy()
 
 	m_bClosing = true;
 
-	if (!DisableHistory && (Global->CtrlObject->Cp()->ActivePanel() || m_Name != L"-"))
+	if (!DisableHistory && (Global->CtrlObject->Cp()->ActivePanel() || m_Name != L"-"sv))
 	{
 		Global->CtrlObject->ViewHistory->AddToHistory(m_View->GetFileName(), HR_VIEWER);
 	}
@@ -484,7 +486,16 @@ int FileViewer::ViewerControl(int Command, intptr_t Param1, void *Param2) const
 {
 	_VCTLLOG(CleverSysLog SL(L"FileViewer::ViewerControl()"));
 	_VCTLLOG(SysLog(L"(Command=%s, Param2=[%d/0x%08X])",_VCTL_ToName(Command),(int)Param2,Param2));
-	return m_View->ViewerControl(Command,Param1,Param2);
+	int result=m_View->ViewerControl(Command,Param1,Param2);
+	if (result&&VCTL_GETINFO==Command)
+	{
+		const auto Info=static_cast<ViewerInfo*>(Param2);
+		if (IsTitleBarVisible())
+			Info->Options |= VOPT_SHOWTITLEBAR;
+		if (IsKeyBarVisible())
+			Info->Options |= VOPT_SHOWKEYBAR;
+	}
+	return result;
 }
 
  string FileViewer::GetTitle() const
@@ -543,12 +554,12 @@ void FileViewer::OnChangeFocus(bool focus)
 	}
 }
 
-void FileViewer::OnReload(void)
+void FileViewer::OnReload()
 {
 	ReadEvent();
 }
 
-void FileViewer::ReadEvent(void)
+void FileViewer::ReadEvent()
 {
 	Global->WindowManager->CallbackWindow([this]()
 	{
@@ -556,7 +567,7 @@ void FileViewer::ReadEvent(void)
 	});
 }
 
-Viewer* FileViewer::GetViewer(void)
+Viewer* FileViewer::GetViewer()
 {
 	return m_View.get();
 }
@@ -564,4 +575,14 @@ Viewer* FileViewer::GetViewer(void)
 Viewer* FileViewer::GetById(int ID)
 {
 	return ID==GetId()?GetViewer():nullptr;
+}
+
+bool FileViewer::IsKeyBarVisible() const
+{
+	return Global->Opt->ViOpt.ShowKeyBar && ObjHeight() > 2;
+}
+
+bool FileViewer::IsTitleBarVisible() const
+{
+	return Global->Opt->ViOpt.ShowTitleBar && ObjHeight() > 1;
 }

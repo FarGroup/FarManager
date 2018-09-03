@@ -30,8 +30,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
+#include "console_session.hpp"
 
 #include "desktop.hpp"
 #include "global.hpp"
@@ -44,6 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "ctrlobj.hpp"
 #include "cmdline.hpp"
+#include "global.hpp"
 
 class context: noncopyable, public i_context
 {
@@ -61,6 +61,18 @@ public:
 		Global->WindowManager->PluginCommit();
 	}
 
+	void Deactivate() override
+	{
+		if (!m_Activated)
+			return;
+
+		m_Activated = false;
+		Global->WindowManager->UnModalDesktopWindow();
+		Global->WindowManager->PluginCommit();
+		--Global->SuppressClock;
+		--Global->SuppressIndicators;
+	}
+
 	void DrawCommand(const string& Command) override
 	{
 		Global->CtrlObject->CmdLine()->DrawFakeCommand(Command);
@@ -68,11 +80,9 @@ public:
 
 		m_Command = Command;
 		m_ShowCommand = true;
-
-		DoPrologue();
 	}
 
-	void Consolise(bool SetTextColour = true) override
+	void Consolise(bool SetTextColour) override
 	{
 		assert(m_Activated);
 
@@ -96,12 +106,12 @@ public:
 		Global->ScrBuf->SetLockCount(LockCount);
 
 		if (SetTextColour)
-			Console().SetTextAttributes(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
+			console.SetTextAttributes(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
 	}
 
 	void DoPrologue() override
 	{
-		Global->CtrlObject->Desktop->TakeSnapshot();
+		Global->WindowManager->Desktop()->TakeSnapshot();
 
 		const auto XPos = 0;
 		const auto YPos = ScrY - (Global->Opt->ShowKeyBar? 1 : 0);
@@ -110,7 +120,7 @@ public:
 		m_Finalised = false;
 	}
 
-	void DoEpilogue() override
+	void DoEpilogue(bool Scroll) override
 	{
 		if (!m_Activated)
 			return;
@@ -122,35 +132,27 @@ public:
 		{
 			if (Global->Opt->ShowKeyBar)
 			{
-				Console().Write(L"\n");
+				std::wcout << L'\n';
 			}
-			Console().Commit();
+			std::wcout.flush();
 			Global->ScrBuf->FillBuf();
 
 			m_Consolised = false;
 		}
 
-		// Empty command means that user simply pressed Enter in command line, in this case we don't want additional scrolling
-		// ShowCommand is false when there is no "command" - class instantiated by FCTL_GETUSERSCREEN.
-		if (!m_Command.empty() || !m_ShowCommand)
+		if (Scroll)
 		{
 			ScrollScreen(1);
 		}
 
-		Global->CtrlObject->Desktop->TakeSnapshot();
+		Global->WindowManager->Desktop()->TakeSnapshot();
 
 		m_Finalised = true;
 	}
 
 	~context() override
 	{
-		if (!m_Activated)
-			return;
-
-		Global->WindowManager->UnModalDesktopWindow();
-		Global->WindowManager->PluginCommit();
-		--Global->SuppressClock;
-		--Global->SuppressIndicators;
+		context::Deactivate();
 	}
 
 private:
@@ -161,7 +163,7 @@ private:
 	bool m_Consolised{};
 };
 
-void console_session::EnterPluginContext()
+void console_session::EnterPluginContext(bool Scroll)
 {
 	if (!m_PluginContextInvocations)
 	{
@@ -170,7 +172,7 @@ void console_session::EnterPluginContext()
 	}
 	else
 	{
-		m_PluginContext->DoEpilogue();
+		m_PluginContext->DoEpilogue(Scroll);
 	}
 
 	m_PluginContext->DoPrologue();
@@ -179,7 +181,7 @@ void console_session::EnterPluginContext()
 	++m_PluginContextInvocations;
 }
 
-void console_session::LeavePluginContext()
+void console_session::LeavePluginContext(bool Scroll)
 {
 	Global->ScrBuf->Flush();
 	if (m_PluginContextInvocations)
@@ -187,7 +189,7 @@ void console_session::LeavePluginContext()
 
 	if (m_PluginContext)
 	{
-		m_PluginContext->DoEpilogue();
+		m_PluginContext->DoEpilogue(Scroll);
 	}
 	else
 	{
@@ -195,17 +197,19 @@ void console_session::LeavePluginContext()
 		// Old (1.x) behaviour emulation:
 		if (Global->Opt->ShowKeyBar)
 		{
-			Console().Write(L"\n");
+			std::wcout << L'\n';
 		}
-		Console().Commit();
+		std::wcout.flush();
 		Global->ScrBuf->FillBuf();
-		ScrollScreen(1);
-		Global->CtrlObject->Desktop->TakeSnapshot();
+		if (Scroll)
+			ScrollScreen(1);
+		Global->WindowManager->Desktop()->TakeSnapshot();
 	}
 
 	if (m_PluginContextInvocations)
 		return;
 
+	if (m_PluginContext) m_PluginContext->Deactivate();
 	m_PluginContext.reset();
 }
 

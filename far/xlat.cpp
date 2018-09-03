@@ -32,26 +32,25 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*
-[HKEY_CURRENT_USER\Software\Far2\XLat]
-"Flags"=dword:00000001
-"Layouts"="04090409;04190419"
-"Table1"="№АВГДЕЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЯавгдезийклмнопрстуфхцчшщъыьэяёЁБЮ"
-"Table2"="#FDULTPBQRKVYJGHCNEA{WXIO}SMZfdultpbqrkvyjghcnea[wxio]sm'z`~<>"
-"Rules1"=",??&./б,ю.:^Ж:ж;;$\"@Э\""
-"Rules2"="?,&?/.,б.ю^::Ж;ж$;@\"\"Э"
-"Rules3"="^::ЖЖ^$;;жж$@\"\"ЭЭ@&??,,бб&/..юю/"
-*/
-
-#include "headers.hpp"
-#pragma hdrstop
+#include "xlat.hpp"
 
 #include "config.hpp"
-#include "xlat.hpp"
 #include "console.hpp"
 #include "configdb.hpp"
-#include "strmix.hpp"
-#include "string_utils.hpp"
+#include "global.hpp"
+
+#include "common/enum_tokens.hpp"
+#include "common/zip_view.hpp"
+
+/*
+Flags: 1
+Layouts: "04090409;04190419"
+Table1: "№АВГДЕЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЯавгдезийклмнопрстуфхцчшщъыьэяёЁБЮ"
+Table2: "#FDULTPBQRKVYJGHCNEA{WXIO}SMZfdultpbqrkvyjghcnea[wxio]sm'z`~<>"
+Rules1: ",??&./б,ю.:^Ж:ж;;$\"@Э\""
+Rules2: "?,&?/.,б.ю^::Ж;ж$;@\"\"Э"
+Rules3: "^::ЖЖ^$;;жж$@\"\"ЭЭ@&??,,бб&/..юю/"
+*/
 
 void xlat_initialize()
 {
@@ -70,20 +69,20 @@ void xlat_initialize()
 				const WORD RussianLanguageId = MAKELANGID(LANG_RUSSIAN, SUBLANG_RUSSIAN_RUSSIA);
 				if (std::any_of(CONST_RANGE(Layouts, i){ return LOWORD(i) == RussianLanguageId; }))
 				{
-					static const wchar_t* const Tables[] =
+					static const string_view Tables[] =
 					{
-						L"\x2116\x0410\x0412\x0413\x0414\x0415\x0417\x0418\x0419\x041a\x041b\x041c\x041d\x041e\x041f\x0420\x0421\x0422\x0423\x0424\x0425\x0426\x0427\x0428\x0429\x042a\x042b\x042c\x042f\x0430\x0432\x0433\x0434\x0435\x0437\x0438\x0439\x043a\x043b\x043c\x043d\x043e\x043f\x0440\x0441\x0442\x0443\x0444\x0445\x0446\x0447\x0448\x0449\x044a\x044b\x044c\x044d\x044f\x0451\x0401\x0411\x042e",
-						L"#FDULTPBQRKVYJGHCNEA{WXIO}SMZfdultpbqrkvyjghcnea[wxio]sm'z`~<>",
+						L"\x2116\x0410\x0412\x0413\x0414\x0415\x0417\x0418\x0419\x041a\x041b\x041c\x041d\x041e\x041f\x0420\x0421\x0422\x0423\x0424\x0425\x0426\x0427\x0428\x0429\x042a\x042b\x042c\x042f\x0430\x0432\x0433\x0434\x0435\x0437\x0438\x0439\x043a\x043b\x043c\x043d\x043e\x043f\x0440\x0441\x0442\x0443\x0444\x0445\x0446\x0447\x0448\x0449\x044a\x044b\x044c\x044d\x044f\x0451\x0401\x0411\x042e"sv,
+						L"#FDULTPBQRKVYJGHCNEA{WXIO}SMZfdultpbqrkvyjghcnea[wxio]sm'z`~<>"sv,
 					};
 
-					static const wchar_t* const Rules[] =
+					static const string_view Rules[] =
 					{
-						L",??&./\x0431,\x044e.:^\x0416:\x0436;;$\"@\x042d\"",
-						L"?,&?/.,\x0431.\x044e^::\x0416;\x0436$;@\"\"\x042d",
-						L"^::\x0416\x0416^$;;\x0436\x0436$@\"\"\x042d\x042d@&??,,\x0431\x0431&/..\x044e\x044e/",
+						L",??&./\x0431,\x044e.:^\x0416:\x0436;;$\"@\x042d\""sv,
+						L"?,&?/.,\x0431.\x044e^::\x0416;\x0436$;@\"\"\x042d"sv,
+						L"^::\x0416\x0416^$;;\x0436\x0436$@\"\"\x042d\x042d@&??,,\x0431\x0431&/..\x044e\x044e/"sv,
 					};
 
-					const auto& SetIfEmpty = [](StringOption& opt, const wchar_t* table) { if (opt.empty()) opt = table; };
+					const auto& SetIfEmpty = [](StringOption& opt, string_view const table) { if (opt.empty()) opt = string(table); };
 
 					for (const auto& i: zip(XLat.Table, Tables)) std::apply(SetIfEmpty, i);
 					for (const auto& i: zip(XLat.Rules, Rules)) std::apply(SetIfEmpty, i);
@@ -96,9 +95,15 @@ void xlat_initialize()
 	if (!XLat.strLayouts.empty())
 	{
 		size_t I = 0;
-		for (const auto& i: split<std::vector<string>>(XLat.strLayouts, STLF_UNIQUE))
+		for (const auto& i: enum_tokens(XLat.strLayouts.Get(), L";"sv))
 		{
-			DWORD res = std::stoul(i, nullptr, 16);
+			unsigned long res;
+			if (!from_string(string(i), res, nullptr, 16))
+			{
+				// TODO: log
+				continue;
+			}
+
 			XLat.Layouts[I] = (HKL)(intptr_t)(HIWORD(res)? res : MAKELONG(res, res));
 			++I;
 
@@ -121,7 +126,7 @@ wchar_t* Xlat(wchar_t *Line, int StartPos, int EndPos, unsigned long long Flags)
 	if (!Line || !*Line)
 		return nullptr;
 
-	int Length=StrLength(Line);
+	int Length = static_cast<int>(wcslen(Line));
 	EndPos=std::min(EndPos,Length);
 	StartPos=std::max(StartPos,0);
 
@@ -136,7 +141,7 @@ wchar_t* Xlat(wchar_t *Line, int StartPos, int EndPos, unsigned long long Flags)
 	bool ProcessLayoutName=false;
 	StringOption RulesNamed;
 
-	if ((Flags & XLAT_USEKEYBLAYOUTNAME) && Console().GetKeyboardLayoutName(strLayoutName))
+	if ((Flags & XLAT_USEKEYBLAYOUTNAME) && console.GetKeyboardLayoutName(strLayoutName))
 	{
 		/*
 			Уточнение по поводу этого куска, чтобы потом не вспоминать ;-)
@@ -166,7 +171,7 @@ wchar_t* Xlat(wchar_t *Line, int StartPos, int EndPos, unsigned long long Flags)
 		      снова конвертим и...
 		*/
 		string XlatRules;
-		ConfigProvider().GeneralCfg()->GetValue(L"XLat", strLayoutName, XlatRules, L"");
+		ConfigProvider().GeneralCfg()->GetValue(L"XLat"sv, strLayoutName, XlatRules, L"");
 		RulesNamed = XlatRules;
 		if (!RulesNamed.empty())
 			ProcessLayoutName=true;
@@ -276,7 +281,7 @@ wchar_t* Xlat(wchar_t *Line, int StartPos, int EndPos, unsigned long long Flags)
 	// переключаем раскладку клавиатуры?
 	if (Flags & XLAT_SWITCHKEYBLAYOUT)
 	{
-		if (const auto hWnd = Console().GetWindow())
+		if (const auto hWnd = console.GetWindow())
 		{
 			HKL Next = nullptr;
 

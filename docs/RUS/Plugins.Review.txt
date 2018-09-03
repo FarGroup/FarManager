@@ -51,18 +51,18 @@
 плагинов, можно порекомендовать:
 
   - сайт PlugRinG
-    http://plugring.farmanager.com
+    https://plugring.farmanager.com
   - Онлайн форум
-    http://forum.farmanager.com
+    https://forum.farmanager.com
   - листы рассылки
-    http://groups.google.com/group/fardev
-    http://groups.google.com/group/fardeven
-    http://groups.google.com/group/farcommits
+    https://groups.google.com/group/fardev
+    https://groups.google.com/group/fardeven
+    https://groups.google.com/group/farcommits
   - конференции USENET
     news:fido7.far.support
-    Google Groups: http://groups.google.ru/groups?hl=ru&lr=&ie=UTF-8&group=fido7.far.support
+    Google Groups: https://groups.google.ru/groups?hl=ru&lr=&ie=UTF-8&group=fido7.far.support
     news:fido7.far.development
-    Google Groups: http://groups.google.ru/groups?hl=ru&lr=&ie=UTF-8&group=fido7.far.development
+    Google Groups: https://groups.google.ru/groups?hl=ru&lr=&ie=UTF-8&group=fido7.far.development
   - конференции FidoNet
     far.support
     far.development

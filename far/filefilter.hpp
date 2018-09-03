@@ -36,6 +36,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "panelfwd.hpp"
+#include "plugin.hpp"
+
+#include "platform.chrono.hpp"
+#include "platform.fwd.hpp"
 
 enum enumFileFilterFlagsType: int;
 class FileFilterParams;
@@ -44,11 +48,11 @@ class VMenu2;
 class HierarchicalConfig;
 
 // почему FileInFilter вернул true или false
-enum enumFileInFilterType
+enum class filter_status
 {
-	FIFT_NOTINTFILTER = 0,   // файловый объект не попал ни в один из фильтров
-	FIFT_INCLUDE,            // файловый объект попал в Include
-	FIFT_EXCLUDE,            // файловый объект попал в Exclude
+	not_in_filter,
+	in_include,
+	in_exclude,
 };
 
 
@@ -59,13 +63,13 @@ public:
 
 	bool FilterEdit();
 	void UpdateCurrentTime();
-	bool FileInFilter(const FileListItem* fli, enumFileInFilterType *foundType = nullptr);
-	bool FileInFilter(const os::fs::find_data& fde, enumFileInFilterType *foundType = nullptr, const string* FullName = nullptr);
-	bool FileInFilter(const PluginPanelItem& fd, enumFileInFilterType *foundType = nullptr);
+	bool FileInFilter(const FileListItem* fli, filter_status* FilterStatus = nullptr);
+	bool FileInFilter(const os::fs::find_data& fde, filter_status* FilterStatus = nullptr, const string* FullName = nullptr);
+	bool FileInFilter(const PluginPanelItem& fd, filter_status* FilterStatus = nullptr);
 	bool IsEnabledOnPanel();
 
 	static void InitFilter();
-	static void LoadFilter(const HierarchicalConfig* cfg, unsigned long long Key, FileFilterParams& Item);
+	static void LoadFilter(const HierarchicalConfig* cfg, unsigned long long Key, FileFilterParams& Item, bool& OldFormat);
 	static void SaveFilter(HierarchicalConfig *cfg, unsigned long long Key, const FileFilterParams& Item);
 	static void CloseFilter();
 	static void SwapFilter();

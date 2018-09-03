@@ -41,6 +41,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "mix.hpp"
+#include "eol.hpp"
+
+#include "common/rel_ops.hpp"
 
 class FileEditor;
 class KeyBar;
@@ -50,11 +53,11 @@ class Editor: public SimpleScreenObject
 {
 public:
 	explicit Editor(window_ptr Owner, bool DialogUsed = false);
-	virtual ~Editor() override;
+	~Editor() override;
 
-	virtual bool ProcessKey(const Manager::Key& Key) override;
-	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual long long VMProcess(int OpCode, void *vParam = nullptr, long long iParam = 0) override;
+	bool ProcessKey(const Manager::Key& Key) override;
+	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	long long VMProcess(int OpCode, void *vParam = nullptr, long long iParam = 0) override;
 
 	void SetCacheParams(EditorPosCache &pc, bool count_bom = false);
 	void GetCacheParams(EditorPosCache &pc) const;
@@ -104,7 +107,6 @@ public:
 	// передавайте в качестве значения параметра "-1" для параметра,
 	// который не нужно менять
 	void SetSavePosMode(int SavePos, int SaveShortPos);
-	void GetRowCol(const string& argv, int& row, int& col);
 	int GetLineCurPos() const;
 	void BeginVBlockMarking();
 	void ProcessVBlockMarking();
@@ -120,7 +122,7 @@ public:
 	void SetClearFlag(bool Flag);
 	bool GetClearFlag() const;
 	int GetCurCol() const;
-	int GetCurRow() const { return static_cast<int>(m_it_CurLine.Number()); }
+	int GetCurRow() const { return m_it_CurLine.Number(); }
 	void SetCurPos(int NewCol, int NewRow = -1);
 	void DrawScrollbar();
 	bool EditorControlLocked() const { return EditorControlLock != 0; }
@@ -136,7 +138,7 @@ public:
 
 	static void PR_EditorShowMsg();
 	static void SetReplaceMode(bool Mode);
-	static const wchar_t* GetDefaultEOL();
+	static eol::type GetDefaultEOL();
 
 	struct EditorUndoData;
 
@@ -169,8 +171,10 @@ private:
 		{
 		}
 
-		// BUGBUG, size_t
+		// BUGBUG, migrate to uNumber, rename uNumber to Number
 		int Number() const { return static_cast<int>(m_Number); }
+		size_t uNumber() const { return m_Number; }
+
 		void IncrementNumber() { ++m_Number; }
 		void DecrementNumber() { --m_Number; }
 
@@ -181,21 +185,22 @@ private:
 		bool operator==(const T& rhs) const { return rhs == *this; }
 
 		T& base() { return *this; }
-		const std::conditional_t<std::is_base_of<ConstT, T>::value, ConstT, T>& base() const { return *this; }
-		std::conditional_t<std::is_base_of<ConstT, T>::value, const ConstT&, ConstT> cbase() const { return *this; }
+		const std::conditional_t<std::is_base_of_v<ConstT, T>, ConstT, T>& base() const { return *this; }
+		std::conditional_t<std::is_base_of_v<ConstT, T>, const ConstT&, ConstT> cbase() const { return *this; }
 
-	private:
 		// Intentionally not implemented, use prefix forms.
 		numbered_iterator_t operator++(int) = delete;
 		numbered_iterator_t operator--(int) = delete;
 
+	private:
 		size_t m_Number;
 	};
 
 	using numbered_iterator = numbered_iterator_t<iterator, const_iterator>;
 	using numbered_const_iterator = numbered_iterator_t<const_iterator>;
 
-	virtual void DisplayObject() override;
+	void DisplayObject() override;
+
 	void ShowEditor();
 	numbered_iterator DeleteString(numbered_iterator DelPtr, bool DeleteLast);
 	void InsertString();
@@ -204,8 +209,8 @@ private:
 	void ScrollDown();
 	void ScrollUp();
 	bool Search(bool Next);
-	void GoToLine(int Line);
-	void GoToLineAndShow(int Line);
+	void GoToLine(size_t Line);
+	void GoToLineAndShow(size_t Line);
 	void GoToPosition();
 	void TextChanged(bool State);
 	static int CalcDistance(const numbered_iterator& From, const numbered_iterator& To);
@@ -217,8 +222,8 @@ private:
 	void UnmarkBlock();
 	void UnmarkEmptyBlock();
 	void UnmarkMacroBlock();
-	void AddUndoData(int Type) { return AddUndoData(Type, {}, nullptr, 0, 0); }
-	void AddUndoData(int Type, const string& Str, const wchar_t *Eol, int StrNum, int StrPos);
+	void AddUndoData(int Type) { return AddUndoData(Type, {}, eol::type::none, 0, 0); }
+	void AddUndoData(int Type, const string& Str, eol::type Eol, int StrNum, int StrPos);
 	void Undo(int redo);
 	void SelectAll();
 	void BlockLeft();
@@ -275,9 +280,9 @@ private:
 	string Block2Text();
 	string VBlock2Text();
 	void Change(EDITOR_CHANGETYPE Type,int StrNum);
-	DWORD EditSetCodePage(const iterator& edit, uintptr_t codepage, bool check_only);
-	numbered_iterator InsertString(const wchar_t *Str, int Length, const numbered_iterator& Where);
-	numbered_iterator PushString(const wchar_t* Str, size_t Size) { return InsertString(Str, static_cast<int>(Size), EndIterator()); }
+	DWORD SetLineCodePage(const iterator& edit, uintptr_t codepage, bool check_only);
+	numbered_iterator InsertString(string_view Str, const numbered_iterator& Where);
+	numbered_iterator PushString(const string_view Str) { return InsertString(Str, EndIterator()); }
 	void TurnOffMarkingBlock();
 	void SwapState(Editor& swap_state);
 	bool ProcessKeyInternal(const Manager::Key& Key, bool& Refresh);
@@ -297,7 +302,7 @@ private:
 	bool IsLastLine(const iterator& Line) const;
 
 	static bool InitSessionBookmarksForPlugin(EditorBookmarks *Param, size_t Count, size_t& Size);
-	static void EditorShowMsg(const string& Title, const string& Msg, const string& Name, int Percent);
+	static void EditorShowMsg(const string& Title, const string& Msg, const string& Name, size_t Percent);
 
 	bool IsAnySelection() const { assert(Lines.end() == m_it_AnyBlockStart || m_BlockType != BTYPE_NONE); return Lines.end() != m_it_AnyBlockStart; }
 	bool IsStreamSelection() const { return IsAnySelection() && m_BlockType == BTYPE_STREAM; }
@@ -330,20 +335,19 @@ private:
 	numbered_iterator m_it_CurLine{ EndIterator() };
 	numbered_iterator m_it_LastGetLine{ EndIterator() };
 
-	std::unordered_set<GUID, uuid_hash> ChangeEventSubscribers;
+	std::unordered_set<UUID> ChangeEventSubscribers;
 	std::list<EditorUndoData> UndoData;
 	std::list<EditorUndoData>::iterator UndoPos{ UndoData.end() };
 	std::list<EditorUndoData>::iterator UndoSavePos{ UndoData.end() };
 	int UndoSkipLevel{};
 	int LastChangeStrPos{};
-	int m_LinesCount{};
 	/* $ 26.02.2001 IS
 	Сюда запомним размер табуляции и в дальнейшем будем использовать его,
 	а не Global->Opt->TabSize
 	*/
 	Options::EditorOptions EdOpt;
 	int Pasting{};
-	string GlobalEOL;
+	eol::type GlobalEOL;
 	// работа с блоками из макросов (MCODE_F_EDITOR_SEL)
 	numbered_iterator m_it_MBlockStart{ EndIterator() };
 	numbered_iterator m_it_AnyBlockStart{ EndIterator() };
@@ -385,13 +389,15 @@ private:
 
 	int m_InEERedraw{};
 
+	bool m_GotoHex{};
+
 	struct EditorPreRedrawItem : public PreRedrawItem
 	{
 		EditorPreRedrawItem();
 		string Title;
 		string Msg;
 		string Name;
-		int Percent;
+		size_t Percent{};
 	};
 };
 
@@ -399,7 +405,7 @@ class EditorContainer
 {
 public:
 	virtual ~EditorContainer() = default;
-	virtual Editor* GetEditor(void) = 0;
+	virtual Editor* GetEditor() = 0;
 };
 
 #endif // EDITOR_HPP_79DE09D5_8F9C_467E_A3BF_8E1BB34E4BD3

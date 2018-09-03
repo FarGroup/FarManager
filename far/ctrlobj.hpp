@@ -65,7 +65,6 @@ public:
 	static void ShowCopyright(DWORD Flags=0);
 
 	KeyMacro Macro;
-	desktop_ptr Desktop;
 	std::unique_ptr<highlight::configuration> HiFiles;
 	std::unique_ptr<PluginManager> Plugins;
 

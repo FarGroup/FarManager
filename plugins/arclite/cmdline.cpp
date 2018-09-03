@@ -54,10 +54,34 @@ CommandArgs parse_command(const wstring& cmd_text) {
       cmd_args.cmd = cmdUpdate;
     else if (cmd == L"x")
       cmd_args.cmd = cmdExtract;
+    else if (cmd == L"e")
+      cmd_args.cmd = cmdExtractItems;
+    else if (cmd == L"d")
+      cmd_args.cmd = cmdDeleteItems;
     else if (cmd == L"t")
       cmd_args.cmd = cmdTest;
     if (cmd_args.cmd != cmdOpen)
       cmd_args.args.erase(cmd_args.args.begin());
+  }
+  return cmd_args;
+}
+
+CommandArgs parse_plugin_call(const OpenMacroInfo *omi) {
+  CommandArgs cmd_args;
+  cmd_args.cmd = cmdOpen;
+  for (size_t i = 0; i < omi->Count; ++i) {
+    const auto& v = omi->Values[i];
+    CHECK_FMT(v.Type == FMVT_STRING);
+    wstring s = v.String;
+    if (i == 0) {
+      if (s == L"c" || s == L"C") { cmd_args.cmd = cmdCreate; continue; }
+      if (s == L"u" || s == L"U") { cmd_args.cmd = cmdUpdate; continue; }
+      if (s == L"x" || s == L"X") { cmd_args.cmd = cmdExtract; continue; }
+      if (s == L"e" || s == L"E") { cmd_args.cmd = cmdExtractItems; continue; }
+      if (s == L"d" || s == L"D") { cmd_args.cmd = cmdDeleteItems; continue; }
+      if (s == L"t" || s == L"T") { cmd_args.cmd = cmdTest; continue; }
+    }
+    cmd_args.args.push_back(s);
   }
   return cmd_args;
 }
@@ -170,9 +194,18 @@ const unsigned c_levels[] = { 0, 1, 3, 5, 7, 9 };
 const wchar_t* c_methods[] = { L"lzma", L"lzma2", L"ppmd" };
 
 UpdateCommand parse_update_command(const CommandArgs& ca) {
+  bool create = ca.cmd == cmdCreate;
+  if (!create) {
+    for (unsigned i = 0; i < ca.args.size(); i++) {
+      if (!is_param(ca.args[i])) {
+        create = !File::exists(Far::get_absolute_path(unquote(ca.args[i])));
+        break;
+      }
+    }
+  }
   UpdateCommand command;
   const vector<wstring>& args = ca.args;
-  command.new_arc = ca.cmd == cmdCreate;
+  command.new_arc = create;
   command.level_defined = false;
   command.method_defined = false;
   command.solid_defined = false;
@@ -181,7 +214,7 @@ UpdateCommand parse_update_command(const CommandArgs& ca) {
   for (unsigned i = 0; i < args.size() && is_param(args[i]); i++) {
     Param param = parse_param(args[i]);
     if (param.name == L"pr") {
-      CHECK_FMT(ca.cmd == cmdCreate);
+      CHECK_FMT(create);
       unsigned prof_idx = g_profiles.find_by_name(param.value);
       CHECK_FMT(prof_idx < g_profiles.size());
       static_cast<ProfileOptions&>(command.options) = g_profiles[prof_idx].options;
@@ -199,7 +232,7 @@ UpdateCommand parse_update_command(const CommandArgs& ca) {
     if (param.name == L"pr") {
     }
     else if (param.name == L"t") {
-      CHECK_FMT(ca.cmd == cmdCreate);
+      CHECK_FMT(create);
       arc_type_spec = true;
       ArcTypes arc_types = ArcAPI::formats().find_by_name(param.value);
       CHECK_FMT(!arc_types.empty());
@@ -231,7 +264,7 @@ UpdateCommand parse_update_command(const CommandArgs& ca) {
     else if (param.name == L"eh")
       command.options.encrypt_header = parse_tri_state_value(param.value);
     else if (param.name == L"sfx") {
-      CHECK_FMT(ca.cmd == cmdCreate);
+      CHECK_FMT(create);
       command.options.create_sfx = true;
       if (param.value.empty())
         command.options.sfx_options.name = L"7z.sfx";
@@ -239,7 +272,7 @@ UpdateCommand parse_update_command(const CommandArgs& ca) {
         command.options.sfx_options.name = param.value;
     }
     else if (param.name == L"v") {
-      CHECK_FMT(ca.cmd == cmdCreate);
+      CHECK_FMT(create);
       CHECK_FMT(!param.value.empty());
       command.options.enable_volumes = true;
       command.options.volume_size = param.value;
@@ -249,7 +282,7 @@ UpdateCommand parse_update_command(const CommandArgs& ca) {
     else if (param.name == L"ie")
       command.options.ignore_errors = parse_bool_value(param.value);
     else if (param.name == L"o") {
-      CHECK_FMT(ca.cmd == cmdUpdate);
+      CHECK_FMT(!create);
       wstring lcvalue = lc(param.value);
       if (lcvalue.empty())
         command.options.overwrite = oaOverwrite;
@@ -271,7 +304,7 @@ UpdateCommand parse_update_command(const CommandArgs& ca) {
   CHECK_FMT(!is_param(args[i]));
   command.options.arc_path = unquote(args[i]);
   i++;
-  if (ca.cmd == cmdCreate && !arc_type_spec) {
+  if (create && !arc_type_spec) {
     ArcTypes arc_types = ArcAPI::formats().find_by_ext(extract_file_ext(command.options.arc_path));
     if (!arc_types.empty())
       command.options.arc_type = arc_types.front();
@@ -292,56 +325,74 @@ UpdateCommand parse_update_command(const CommandArgs& ca) {
 
 
 // arc:x [-ie[:(y|n)]] [-o[:(o|s|r|a)]] [-mf[:(y|n)]] [-p:<password>] [-sd[:(a|y|n)]] [-da[:(y|n)]] <archive1> <archive2> ... <path>
-
-ExtractCommand parse_extract_command(const CommandArgs& ca) {
-  ExtractCommand command;
-  const vector<wstring>& args = ca.args;
-  unsigned i = 0;
-  for (; i < args.size() && is_param(args[i]); i++) {
-    Param param = parse_param(args[i]);
-    if (param.name == L"ie")
-      command.options.ignore_errors = parse_bool_value(param.value);
-    else if (param.name == L"o") {
-      wstring lcvalue = lc(param.value);
-      if (lcvalue.empty())
-        command.options.overwrite = oaOverwrite;
-      else if (lcvalue == L"o")
-        command.options.overwrite = oaOverwrite;
-      else if (lcvalue == L"s")
-        command.options.overwrite = oaSkip;
-      else if (lcvalue == L"r")
-        command.options.overwrite = oaRename;
-      else if (lcvalue == L"a")
-        command.options.overwrite = oaAppend;
+//
+// arc:e [-ie[:(y|n)]] [-o[:(o|s|r|a)]] [-mf[:(y|n)]] [-p:<password>] [-out:<outdir>] <archive> <extract_item> ...
+//
+// arc:d [-ie[:(y|n)]] [-p:<password>] <archive> <delete_item> ...
+//
+static void parse_extract_params(const CommandArgs& ca, ExtractOptions& o, vector<wstring>& items) {
+	bool options_enabled = true;
+	for (const auto& a : ca.args) {
+    if (options_enabled && a == L"--")
+      options_enabled = false;
+    else if (options_enabled && is_param(a)) {
+      auto param = parse_param(a);
+      if (param.name == L"ie")
+        o.ignore_errors = parse_bool_value(param.value);
+      else if (ca.cmd != cmdDeleteItems && param.name == L"o") {
+        auto lcvalue = lc(param.value);
+        if (lcvalue.empty() || lcvalue == L"o")
+          o.overwrite = oaOverwrite;
+        else if (lcvalue == L"s")
+          o.overwrite = oaSkip;
+        else if (lcvalue == L"r")
+          o.overwrite = oaRename;
+        else if (lcvalue == L"a")
+          o.overwrite = oaAppend;
+        else
+          CHECK_FMT(false);
+      }
+      else if (ca.cmd != cmdDeleteItems && param.name == L"mf")
+        o.move_files = parse_tri_state_value(param.value);
+      else if (param.name == L"p") {
+        CHECK_FMT(!param.value.empty());
+        o.password = param.value;
+      }
+      else if (ca.cmd == cmdExtract && param.name == L"sd")
+        o.separate_dir = parse_tri_state_value(param.value);
+      else if (ca.cmd == cmdExtract && param.name == L"da")
+        o.delete_archive = parse_bool_value(param.value);
+      else if (ca.cmd == cmdExtractItems && param.name == L"out" && !param.value.empty())
+        o.dst_dir = unquote(param.value);
       else
         CHECK_FMT(false);
     }
-    else if (param.name == L"mf")
-      command.options.move_files = parse_tri_state_value(param.value);
-    else if (param.name == L"p") {
-      CHECK_FMT(!param.value.empty());
-      command.options.password = param.value;
+    else {
+      items.push_back(unquote(a));
     }
-    else if (param.name == L"sd")
-      command.options.separate_dir = parse_tri_state_value(param.value);
-    else if (param.name == L"da")
-      command.options.delete_archive = parse_bool_value(param.value);
-    else
-      CHECK_FMT(false);
   }
-  CHECK_FMT(i + 1 < args.size());
-  for (; i + 1 < args.size(); i++) {
-    CHECK_FMT(!is_param(args[i]));
-    command.arc_list.push_back(unquote(args[i]));
-  }
-  CHECK_FMT(!is_param(args[i]));
-  command.options.dst_dir = unquote(args[i]);
+}
+//
+ExtractCommand parse_extract_command(const CommandArgs& ca) {
+  ExtractCommand command;
+  parse_extract_params(ca, command.options, command.arc_list);
+  CHECK_FMT(command.arc_list.size() >= 2);
+  command.options.dst_dir = command.arc_list.back();
+  command.arc_list.pop_back();
+  return command;
+}
+//
+ExtractItemsCommand parse_extractitems_command(const CommandArgs& ca) {
+  ExtractItemsCommand command;
+  parse_extract_params(ca, command.options, command.items);
+  CHECK_FMT(command.items.size() >= 2);
+  command.archname = command.items.front();
+  command.items.erase(command.items.begin());
   return command;
 }
 
-
 // arc:t <archive1> <archive2> ...
-
+//
 TestCommand parse_test_command(const CommandArgs& ca) {
   TestCommand command;
   const vector<wstring>& args = ca.args;

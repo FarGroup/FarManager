@@ -17,7 +17,7 @@ def check_links(dir_to_check):
       infile  = open(join(root, f))
       for line in infile:
         for r in link_match.findall(line):
-          if (r[1].startswith(("http:", "mailto:", "ftp:", "news:", "mk:"))):
+          if (r[1].startswith(("http:", "https:", "mailto:", "ftp:", "news:", "mk:"))):
             continue
           if (r[1].find("win32/") != -1):
             continue

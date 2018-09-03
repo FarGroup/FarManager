@@ -73,7 +73,7 @@ struct FAR_INPUT_RECORD
 #define CP_DEFAULT    ((uintptr_t)-1)
 #define CP_REDETECT   ((uintptr_t)-2)
 #ifdef FAR_USE_INTERNALS
-#define CP_SET        ((uintptr_t)-3)
+#define CP_ALL        ((uintptr_t)-3)
 #endif // END FAR_USE_INTERNALS
 
 typedef unsigned long long FARCOLORFLAGS;
@@ -161,6 +161,8 @@ struct FarColor
 #define COLORMASK 0x00ffffff
 #define ALPHAMASK 0xff000000
 
+#ifdef FAR_USE_INTERNALS
+#else // ELSE FAR_USE_INTERNALS
 #define INDEXVALUE(x) ((x)&INDEXMASK)
 #define COLORVALUE(x) ((x)&COLORMASK)
 #define ALPHAVALUE(x) ((x)&ALPHAMASK)
@@ -169,6 +171,7 @@ struct FarColor
 #define IS_TRANSPARENT(x) (!ALPHAVALUE(x))
 #define MAKE_OPAQUE(x) (x|=ALPHAMASK)
 #define MAKE_TRANSPARENT(x) (x&=COLORMASK)
+#endif // END FAR_USE_INTERNALS
 
 typedef unsigned long long COLORDIALOGFLAGS;
 static const COLORDIALOGFLAGS
@@ -446,7 +449,8 @@ struct FarListItem
 {
 	LISTITEMFLAGS Flags;
 	const wchar_t *Text;
-	intptr_t Reserved[2];
+	intptr_t UserData;
+	intptr_t Reserved;
 };
 
 struct FarListUpdate
@@ -751,6 +755,10 @@ typedef unsigned long long PLUGINPANELITEMFLAGS;
 static const PLUGINPANELITEMFLAGS
 	PPIF_SELECTED               = 0x0000000040000000ULL,
 	PPIF_PROCESSDESCR           = 0x0000000080000000ULL,
+
+#ifdef FAR_USE_INTERNALS
+	PPIF_RESERVED               = 0x8000000000000000ULL,
+#endif // END FAR_USE_INTERNALS
 	PPIF_NONE                   = 0;
 
 struct FarPanelItemFreeInfo
@@ -830,11 +838,9 @@ static const PANELINFOFLAGS
 	PFLAGS_USESORTGROUPS      = 0x0000000000000008ULL,
 	PFLAGS_SELECTEDFIRST      = 0x0000000000000010ULL,
 	PFLAGS_REALNAMES          = 0x0000000000000020ULL,
-	PFLAGS_NUMERICSORT        = 0x0000000000000040ULL,
 	PFLAGS_PANELLEFT          = 0x0000000000000080ULL,
 	PFLAGS_DIRECTORIESFIRST   = 0x0000000000000100ULL,
 	PFLAGS_USECRC32           = 0x0000000000000200ULL,
-	PFLAGS_CASESENSITIVESORT  = 0x0000000000000400ULL,
 	PFLAGS_PLUGIN             = 0x0000000000000800ULL,
 	PFLAGS_VISIBLE            = 0x0000000000001000ULL,
 	PFLAGS_FOCUS              = 0x0000000000002000ULL,
@@ -937,7 +943,6 @@ enum FILE_CONTROL_COMMANDS
 	FCTL_SETCMDLINESELECTION        = 15,
 	FCTL_GETCMDLINESELECTION        = 16,
 	FCTL_CHECKPANELSEXIST           = 17,
-	FCTL_SETNUMERICSORT             = 18,
 	FCTL_GETUSERSCREEN              = 19,
 	FCTL_ISACTIVEPANEL              = 20,
 	FCTL_GETPANELITEM               = 21,
@@ -952,7 +957,6 @@ enum FILE_CONTROL_COMMANDS
 	FCTL_SETDIRECTORIESFIRST        = 30,
 	FCTL_GETPANELFORMAT             = 31,
 	FCTL_GETPANELHOSTFILE           = 32,
-	FCTL_SETCASESENSITIVESORT       = 33,
 	FCTL_GETPANELPREFIX             = 34,
 	FCTL_SETACTIVEPANEL             = 35,
 };
@@ -1341,7 +1345,7 @@ struct FarMacroValue
 	FarMacroValue(const GUID& v)      { Type=FMVT_BINARY; Binary.Data=&const_cast<GUID&>(v); Binary.Size=sizeof(GUID); }
 	FarMacroValue(FarMacroValue* arr,size_t count) { Type=FMVT_ARRAY; Array.Values=arr; Array.Count=count; }
 #ifdef FAR_USE_INTERNALS
-	FarMacroValue(const string& v)    { Type=FMVT_STRING; String=v.data(); }
+	FarMacroValue(const string& v)    { Type=FMVT_STRING; String=v.c_str(); }
 #endif // END FAR_USE_INTERNALS
 #endif
 };
@@ -2231,9 +2235,10 @@ typedef void (WINAPI *FARSTDLOCALUPPERBUF)(wchar_t *Buf,intptr_t Length);
 typedef void (WINAPI *FARSTDLOCALLOWERBUF)(wchar_t *Buf,intptr_t Length);
 typedef void (WINAPI *FARSTDLOCALSTRUPR)(wchar_t *s1);
 typedef void (WINAPI *FARSTDLOCALSTRLWR)(wchar_t *s1);
-typedef int (WINAPI *FARSTDLOCALSTRICMP)(const wchar_t *s1,const wchar_t *s2);
-typedef int (WINAPI *FARSTDLOCALSTRNICMP)(const wchar_t *s1,const wchar_t *s2,intptr_t n);
+typedef int (WINAPI *FARSTDLOCALSTRICMP)(const wchar_t *s1,const wchar_t *s2); // Deprecated, don't use
+typedef int (WINAPI *FARSTDLOCALSTRNICMP)(const wchar_t *s1,const wchar_t *s2,intptr_t n); // Deprecated, don't use
 typedef unsigned long long (WINAPI *FARSTDFARCLOCK)();
+typedef int (WINAPI *FARSTDCOMPARESTRINGS)(const wchar_t*Str1, size_t Size1, const wchar_t* Str2, size_t Size2);
 
 typedef unsigned long long PROCESSNAME_FLAGS;
 static const PROCESSNAME_FLAGS
@@ -2356,8 +2361,8 @@ typedef struct FarStandardFunctions
 	FARSTDLOCALLOWERBUF        LLowerBuf;
 	FARSTDLOCALSTRUPR          LStrupr;
 	FARSTDLOCALSTRLWR          LStrlwr;
-	FARSTDLOCALSTRICMP         LStricmp;
-	FARSTDLOCALSTRNICMP        LStrnicmp;
+	FARSTDLOCALSTRICMP         LStricmp; // Deprecated, don't use
+	FARSTDLOCALSTRNICMP        LStrnicmp; // Deprecated, don't use
 
 	FARSTDUNQUOTE              Unquote;
 	FARSTDLTRIM                LTrim;
@@ -2385,6 +2390,7 @@ typedef struct FarStandardFunctions
 	FARGETCURRENTDIRECTORY     GetCurrentDirectory;
 	FARFORMATFILESIZE          FormatFileSize;
 	FARSTDFARCLOCK             FarClock;
+	FARSTDCOMPARESTRINGS       CompareStrings;
 } FARSTANDARDFUNCTIONS;
 
 struct PluginStartupInfo

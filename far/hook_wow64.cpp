@@ -210,6 +210,7 @@ static void WINAPI HookProc(PVOID, DWORD dwReason, PVOID)
 	{
 	case DLL_PROCESS_ATTACH:
 		init_hook();
+		[[fallthrough]];
 	case DLL_THREAD_ATTACH:
 		saveval = wow_disable();
 	default:

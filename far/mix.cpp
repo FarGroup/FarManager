@@ -31,144 +31,188 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "mix.hpp"
+
 #include "pathmix.hpp"
 #include "window.hpp"
-
 #include "cmdline.hpp"
 #include "dlgedit.hpp"
 #include "strmix.hpp"
-#include "datetime.hpp"
 
-/*
-             v - точка
-   prefXXX X X XXX
-       \ / ^   ^^^\ PID + TID
-        |  \------/
-        |
-        +---------- [0A-Z]
-*/
-bool FarMkTempEx(string &strDest, const wchar_t* Prefix, bool WithTempPath, const wchar_t* UserTempPath)
+#include "platform.env.hpp"
+#include "platform.fs.hpp"
+
+#include "common/enum_substrings.hpp"
+
+string MakeTemp(string_view Prefix, bool const WithTempPath, string_view const UserTempPath)
 {
 	static UINT s_shift = 0;
-	if (!(Prefix && *Prefix))
-		Prefix=L"F3T";
 
-	string strPath = L".";
+	if (Prefix.empty())
+		Prefix = L"FAR"sv;
+
+	auto strPath = L"."s;
 
 	if (WithTempPath)
 	{
 		os::fs::GetTempPath(strPath);
 	}
-	else if(UserTempPath)
+	else if(!UserTempPath.empty())
 	{
-		strPath=UserTempPath;
+		assign(strPath, UserTempPath);
 	}
 
 	AddEndSlash(strPath);
 
-	wchar_t_ptr_n<MAX_PATH> Buffer(wcslen(Prefix) + strPath.size() + 13);
+	wchar_t_ptr_n<MAX_PATH> Buffer(Prefix.size() + strPath.size() + 13);
 
-	UINT uniq = 23*GetCurrentProcessId() + s_shift, uniq0 = uniq ? uniq : 1;
+	auto Unique = 23 * GetCurrentProcessId() + s_shift;
+	const auto UniqueCopy = Unique? Unique : 1;
 	s_shift = (s_shift + 1) % 23;
+
+	null_terminated PrefixStr(Prefix);
+
+	bool UseSystemFunction = true;
+
+	const auto& Generator = [&]()
+	{
+		if (!UseSystemFunction || !GetTempFileName(strPath.c_str(), PrefixStr.c_str(), Unique, Buffer.get()))
+		{
+			// GetTempFileName uses only the last 16 bits of Unique.
+			// We either did a full round trip through them or GetTempFileName failed for whatever reason.
+			// Let's try the full 32-bit range manually.
+			return path::join(strPath, concat(Prefix, to_hex_wstring(Unique), L".tmp"sv));
+		}
+
+		return string(Buffer.get());
+	};
 
 	for (;;)
 	{
-		if (!uniq) ++uniq;
+		if (!Unique) ++Unique;
 
-		if (GetTempFileName(strPath.data(), Prefix, uniq, Buffer.get()))
-		{
-			const auto Find = os::fs::enum_files(Buffer.get(), false);
-			if (Find.begin() == Find.end())
-				break;
-		}
+		const auto Str = Generator();
 
-		if ((++uniq & 0xffff) == (uniq0 & 0xffff))
+		const auto Find = os::fs::enum_files(Str, false);
+		if (Find.begin() == Find.end())
+			return Str;
+
+		if ((++Unique & 0xffff) == (UniqueCopy & 0xffff))
 		{
-			Buffer[0] = L'\0';
-			break;
+			UseSystemFunction = false;
 		}
 	}
-
-	strDest = Buffer.get();
-	return !strDest.empty();
 }
 
 void PluginPanelItemToFindDataEx(const PluginPanelItem& Src, os::fs::find_data& Dest)
 {
+	Dest = {};
 	Dest.CreationTime = os::chrono::nt_clock::from_filetime(Src.CreationTime);
 	Dest.LastAccessTime = os::chrono::nt_clock::from_filetime(Src.LastAccessTime);
 	Dest.LastWriteTime = os::chrono::nt_clock::from_filetime(Src.LastWriteTime);
 	Dest.ChangeTime = os::chrono::nt_clock::from_filetime(Src.ChangeTime);
-	Dest.nFileSize = Src.FileSize;
-	Dest.nAllocationSize = Src.AllocationSize;
-	Dest.FileId = 0;
-	Dest.strFileName = NullToEmpty(Src.FileName);
-	Dest.strAlternateFileName = NullToEmpty(Src.AlternateFileName);
-	Dest.dwFileAttributes = Src.FileAttributes;
-	Dest.dwReserved0 = 0;
+	Dest.FileSize = Src.FileSize;
+	Dest.AllocationSize = Src.AllocationSize;
+	Dest.FileName = NullToEmpty(Src.FileName);
+	Dest.SetAlternateFileName(NullToEmpty(Src.AlternateFileName));
+	Dest.Attributes = Src.FileAttributes;
 }
 
 void FindDataExToPluginPanelItemHolder(const os::fs::find_data& Src, PluginPanelItemHolder& Holder)
 {
 	auto& Dest = Holder.Item;
+	Dest = {};
 
 	Dest.CreationTime = os::chrono::nt_clock::to_filetime(Src.CreationTime);
 	Dest.LastAccessTime = os::chrono::nt_clock::to_filetime(Src.LastAccessTime);
 	Dest.LastWriteTime = os::chrono::nt_clock::to_filetime(Src.LastWriteTime);
 	Dest.ChangeTime = os::chrono::nt_clock::to_filetime(Src.ChangeTime);
-	Dest.FileSize = Src.nFileSize;
-	Dest.AllocationSize = Src.nAllocationSize;
-
-	auto Buffer = std::make_unique<wchar_t[]>(Src.strFileName.size() + 1);
-	*std::copy(ALL_CONST_RANGE(Src.strFileName), Buffer.get()) = L'\0';
-	Dest.FileName = Buffer.release();
-
-	Buffer = std::make_unique<wchar_t[]>(Src.strAlternateFileName.size() + 1);
-	*std::copy(ALL_CONST_RANGE(Src.strAlternateFileName), Buffer.get()) = L'\0';
-	Dest.AlternateFileName = Buffer.release();
-
-	Dest.Description = nullptr;
-	Dest.Owner = nullptr;
-	Dest.CustomColumnData = nullptr;
-	Dest.CustomColumnNumber = 0;
-	Dest.Flags = 0;
-	Dest.UserData = {};
-	Dest.FileAttributes = Src.dwFileAttributes;
+	Dest.FileSize = Src.FileSize;
+	Dest.AllocationSize = Src.AllocationSize;
+	Dest.FileAttributes = Src.Attributes;
 	Dest.NumberOfLinks = 1;
-	Dest.CRC32 = 0;
-	std::fill(ALL_RANGE(Dest.Reserved), 0);
+
+	const auto& MakeCopy = [](string_view const Str)
+	{
+		auto Buffer = std::make_unique<wchar_t[]>(Str.size() + 1);
+		*std::copy(ALL_CONST_RANGE(Str), Buffer.get()) = L'\0';
+		return Buffer.release();
+	};
+
+	Dest.FileName = MakeCopy(Src.FileName);
+	Dest.AlternateFileName = MakeCopy(Src.AlternateFileName());
 }
 
 PluginPanelItemHolder::~PluginPanelItemHolder()
 {
-	FreePluginPanelItem(Item);
+	FreePluginPanelItemNames(Item);
 }
 
-void FreePluginPanelItem(const PluginPanelItem& Data)
+void FreePluginPanelItemNames(const PluginPanelItem& Data)
 {
 	delete[] Data.FileName;
 	delete[] Data.AlternateFileName;
 }
 
-void FreePluginPanelItems(std::vector<PluginPanelItem>& Items)
+void FreePluginPanelItemUserData(HANDLE hPlugin, const UserDataItem& Data)
 {
-	std::for_each(ALL_RANGE(Items), FreePluginPanelItem);
+	if (!Data.FreeData)
+		return;
+
+	FarPanelItemFreeInfo info{ sizeof(FarPanelItemFreeInfo), hPlugin };
+	Data.FreeData(Data.Data, &info);
 }
 
-void FreePluginPanelItemsUserData(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber)
+void FreePluginPanelItemDescriptionOwnerAndColumns(const PluginPanelItem & Data)
 {
-	std::for_each(PanelItem, PanelItem + ItemsNumber, [&hPlugin](const PluginPanelItem& i)
-	{
-		if (i.UserData.FreeData)
-		{
-			FarPanelItemFreeInfo info = { sizeof(FarPanelItemFreeInfo), hPlugin };
-			i.UserData.FreeData(i.UserData.Data, &info);
-		}}
-	);
+	delete[] Data.Description;
+	delete[] Data.Owner;
+	DeleteRawArray(make_range(Data.CustomColumnData, Data.CustomColumnNumber));
+}
+
+void FreePluginPanelItemsNames(const std::vector<PluginPanelItem>& Items)
+{
+	std::for_each(ALL_CONST_RANGE(Items), FreePluginPanelItemNames);
+}
+
+plugin_item_list::~plugin_item_list()
+{
+	FreePluginPanelItemsNames(m_Data);
+}
+
+const PluginPanelItem* plugin_item_list::data() const
+{
+	return m_Data.data();
+}
+
+PluginPanelItem* plugin_item_list::data()
+{
+	return m_Data.data();
+}
+
+size_t plugin_item_list::size() const
+{
+	return m_Data.size();
+}
+
+bool plugin_item_list::empty() const
+{
+	return m_Data.empty();
+}
+
+const std::vector<PluginPanelItem>& plugin_item_list::items() const
+{
+	return m_Data;
+}
+
+void plugin_item_list::emplace_back(const PluginPanelItem& Item)
+{
+	m_Data.emplace_back(Item);
+}
+
+void plugin_item_list::reserve(size_t const Size)
+{
+	m_Data.reserve(Size);
 }
 
 WINDOWINFO_TYPE WindowTypeToPluginWindowType(const int fType)
@@ -224,23 +268,23 @@ SetAutocomplete::~SetAutocomplete()
 void ReloadEnvironment()
 {
 	// these are handled incorrectly by CreateEnvironmentBlock
-	std::vector<const wchar_t*> PreservedNames =
+	std::vector<string_view> PreservedNames =
 	{
-		L"USERDOMAIN", // absent
-		L"USERNAME", //absent
+		L"USERDOMAIN"sv, // absent
+		L"USERNAME"sv, //absent
 	};
 
 #ifndef _WIN64
 	if (os::IsWow64Process())
 	{
-		PreservedNames.emplace_back(L"PROCESSOR_ARCHITECTURE"); // Incorrect under WOW64
+		PreservedNames.emplace_back(L"PROCESSOR_ARCHITECTURE"sv); // Incorrect under WOW64
 	}
 #endif
 
-	std::vector<std::pair<const wchar_t*, string>> PreservedVariables;
+	std::vector<std::pair<string_view, string>> PreservedVariables;
 	PreservedVariables.reserve(std::size(PreservedNames));
 
-	std::transform(ALL_CONST_RANGE(PreservedNames), std::back_inserter(PreservedVariables), [](const wchar_t* i)
+	std::transform(ALL_CONST_RANGE(PreservedNames), std::back_inserter(PreservedVariables), [](string_view const i)
 	{
 		return std::make_pair(i, os::env::get(i));
 	});

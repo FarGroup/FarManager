@@ -29,10 +29,11 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "new_handler.hpp"
+
+#include "global.hpp"
+
+#include "common/scope_exit.hpp"
 
 static new_handler* NewHandler;
 
@@ -63,8 +64,8 @@ new_handler::new_handler():
 	if (!SetConsoleTextAttribute(m_Screen.native_handle(), WhiteOnBlue))
 		return;
 
-	DWORD Written;
-	if (!FillConsoleOutputAttribute(m_Screen.native_handle(), WhiteOnBlue, BufferSize.X * BufferSize.Y, { 0, 0 }, &Written))
+	DWORD AttrWritten;
+	if (!FillConsoleOutputAttribute(m_Screen.native_handle(), WhiteOnBlue, BufferSize.X * BufferSize.Y, { 0, 0 }, &AttrWritten))
 		return;
 
 	const CONSOLE_CURSOR_INFO cci{ 1 };
@@ -74,16 +75,16 @@ new_handler::new_handler():
 	const string_view Strings[] =
 	{
 		global::Version(),
-		L""_sv,
-		L"Not enough memory is available to complete this operation."_sv,
-		L"Press Enter to retry or Esc to continue..."_sv
+		L""sv,
+		L"Not enough memory is available to complete this operation."sv,
+		L"Press Enter to retry or Esc to continue..."sv
 	};
 
-	const auto& Write = [this](const string_view& Str, size_t Y)
+	const auto& Write = [this](const string_view Str, size_t Y)
 	{
 		SetConsoleCursorPosition(m_Screen.native_handle(), { static_cast<short>((m_BufferSize.X - Str.size()) / 2), static_cast<short>(Y) });
-		DWORD Written;
-		return WriteConsole(m_Screen.native_handle(), Str.raw_data(), static_cast<DWORD>(Str.size()), &Written, nullptr) && Written == Str.size();
+		DWORD CharWritten;
+		return WriteConsole(m_Screen.native_handle(), Str.data(), static_cast<DWORD>(Str.size()), &CharWritten, nullptr) && CharWritten == Str.size();
 	};
 
 	auto InitialY = (m_BufferSize.Y - std::size(Strings)) / 2;

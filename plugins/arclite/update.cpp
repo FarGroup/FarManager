@@ -5,6 +5,7 @@
 #include "common.hpp"
 #include "ui.hpp"
 #include "archive.hpp"
+#include "options.hpp"
 
 wstring format_time(unsigned __int64 t) {
   unsigned __int64 s = t % 60;
@@ -787,54 +788,89 @@ public:
 void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options) {
   ComObject<ISetProperties> set_props;
   if (SUCCEEDED(out_arc->QueryInterface(IID_ISetProperties, reinterpret_cast<void**>(&set_props)))) {
-    struct extra_method {
-      const wchar_t *name;
-      unsigned minL; unsigned maxL;
-      unsigned L1; unsigned L3; unsigned L5; unsigned L7; unsigned L9;
-      unsigned mod0;
-      bool bcj_only;
-    };
-    static const extra_method defopts = { nullptr, 1,9, 1,3,5,7,9, 0, false };
-    static const extra_method extra[] = {
-    //{c_method_lzham,   1,  9,  1, 3, 5, 7, 9,  0, false}, === default
-      { c_method_zstd,   1, 22,  1, 5,11,17,22,  0, true },
-      { c_method_lz4,    1, 12,  1, 3, 6, 9,12,  0, true },
-      { c_method_lz5,    1, 15,  1, 3, 7,11,15,  0, true },
-      { c_method_brotli, 1, 11,  1, 3, 6, 9,11,  0, true },
-      { c_method_lizard, 11,49, 21,23,25,27,29, 10, true }
-    };
+    static const ExternalCodec defopts { L"", 1,9,0, 1,3,5,7,9, false };
+
+    wstring method;
+    if (options.arc_type == c_7z)
+      method = options.method;
+	 else if (ArcAPI::formats().count(options.arc_type))
+      method = ArcAPI::formats().at(options.arc_type).name;
 
     auto method_params = &defopts;
-    for (size_t i = 0; i < _countof(extra); ++i) {
-      if (options.method == extra[i].name) {
-        method_params = &extra[i];
+    for (size_t i = 0; i < g_options.codecs.size(); ++i) {
+      if (method == g_options.codecs[i].name) {
+        method_params = &g_options.codecs[i];
         break;
       }
     }
 
-    auto adv_params = split(options.advanced, L' ');
+    const auto is_digit = [](const wstring& n, const wchar_t up) {
+      return n.size() == 1 && n[0] >= L'0' && n[0] <= up;
+    };
+    const auto variant = [](const wstring& v) {
+      PropVariant var;
+      if (!v.empty()) {
+        wchar_t *endptr = nullptr;
+        UINT64 v64 = _wcstoui64(v.c_str(), &endptr, 10);
+        if (endptr && !*endptr) {
+          if (v64 >= 0 && v64 <= UINT_MAX)
+            var = static_cast<UInt32>(v64);
+          else
+            var = v64;
+        }
+        else
+          var = v;
+      }
+      return var;
+    };
+
+    auto adv = options.advanced;
+	 bool ignore_method = false;
+    if (!adv.empty() && adv[0] == L'-') {
+      adv.erase(0, 1);
+      if (!adv.empty() && adv[0] == L'-') {
+        adv.erase(0, 1);
+        ignore_method = true; 
+      }
+    }
+	 else
+      adv = method_params->adv + L' ' + adv;
+
+    auto adv_params = split(adv, L' ');
     int adv_level = -1;
-    bool adv_have_0 = false, adv_have_1 = false, adv_have_bcj = false;
+    bool adv_have_0 = false, adv_have_1 = false, adv_have_bcj = false, adv_have_qs = false;
     for (auto it = adv_params.begin(); it != adv_params.end(); ) {
       auto param = *it;
-      if (param == L"s" || param == L"s1" || param == L"s+") {
+      if (param == L"s" || param == L"s1" || param == L"s+") { // s s+ s1
         *it = param = L"s=on";
       }
-      if (param == L"s0" || param == L"s-") {
+      else if (param == L"s0" || param == L"s-") {
         *it = param = L"s=off";
       }
-      else if (param.size() >= 2 && param[0] == L'x' && param[1] >= L'0' && param[1] <= L'9') {
+      else if (param == L"qs1" || param == L"qs+" || param == L"qs=on") {
+        *it = param = L"qs=on"; adv_have_qs = true;
+      }
+      else if (param == L"qs0" || param == L"qs-" || param == L"qs=off") {
+        *it = param = L"qs=off"; adv_have_qs = true;
+      }
+      else if (param.size() >= 2 && param[0] == L'x' && param[1] >= L'0' && param[1] <= L'9') { // xN
         *it = param.insert(1, 1, L'=');
       }
+      else if (param.size() >= 3 && param[0] == L'm' && param[1] == 't' && param[2] >= L'1' && param[2] <= L'9') { // mtN
+        *it = param.insert(2, 1, L'='); // mt=N
+      }
+      else if (param.size() >= 3 && param[0] == L'y' && param[1] == 'x' && param[2] >= L'1' && param[2] <= L'9') { // yxN
+        *it = param.insert(2, 1, L'='); // yx=N
+      }
       auto sep = param.find(L'=');
-      if (sep == wstring::npos || sep == 0) {
+      if (param.empty() || sep == 0) {
         it = adv_params.erase(it);
         continue;
       }
-      else {
+      else if (sep != wstring::npos) {
         auto name = param.substr(0, sep);
         auto value = param.substr(sep + 1);
-        if (0 == _wcsicmp(name.data(), L"x")) {
+        if (0 == _wcsicmp(name.c_str(), L"x")) {
           it = adv_params.erase(it);
           if (!value.empty() && value[0] >= L'0' && value[0] <= L'9')
             adv_level = static_cast<int>(str_to_uint(value));
@@ -842,11 +878,13 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
         }
         adv_have_0 = adv_have_0 || name == L"0";
         adv_have_1 = adv_have_0 || name == L"1";
-        if (name.size() == 1 && name[0] >= L'0' && name[0] <= '9' && value.size() >= 3)
-          adv_have_bcj = adv_have_bcj || 0 == _wcsicmp(value.substr(0,3).data(), L"BCJ");
+        if (is_digit(name, L'9') && value.size() >= 3)
+          adv_have_bcj = adv_have_bcj || 0 == _wcsicmp(value.substr(0,3).c_str(), L"BCJ");
       }
       it++;
     }
+    if (!adv_have_qs && g_options.qs_by_default && options.arc_type == c_7z)
+      adv_params.emplace_back(L"qs=on");
 
     auto level = options.level;
     if (adv_level < 0) {
@@ -858,11 +896,11 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
     }
     else {
       level = adv_level;
-      if (method_params->mod0 && level % method_params->mod0 == 0)
+      if (method_params->mod0L && level % method_params->mod0L == 0)
         level = 0;
-      else if (level > 0 && level < method_params->minL)
+      else if (level && level < method_params->minL)
         level = method_params->minL;
-      else if (level > 0 && level > method_params->maxL)
+      else if (level > method_params->maxL)
         level = method_params->maxL;
     }
 
@@ -871,14 +909,13 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
     int n_01 = 0;
 
     if (options.arc_type == c_7z) {
-      //if (options.method != c_method_lzma2) { // LZMA2 is default method
-      {
-        names.push_back(L"0"); values.push_back(options.method);
-        n_01 = 1;
-        if (method_params->bcj_only && !adv_have_bcj) {
-          names.push_back(L"1"); values.push_back(L"BCJ");
-          n_01 = 2;
-        }
+      if (!ignore_method) {
+        names.push_back(L"0"); values.push_back(method);
+        ++n_01;
+      }
+      if (method_params->bcj_only && !adv_have_bcj && !ignore_method) {
+        names.push_back(L"1"); values.push_back(L"BCJ");
+        ++n_01;
       }
       names.push_back(L"x"); values.push_back(level);
       if (level != 0) {
@@ -890,37 +927,47 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
         }
       }
     }
-    else if (options.arc_type == c_zip || options.arc_type == c_gzip || options.arc_type == c_xz) {
+    else if (options.arc_type != c_bzip2 || level != 0) {
       names.push_back(L"x"); values.push_back(level);
-    }
-    else if (options.arc_type == c_bzip2) {
-      if (level != 0) {
-        names.push_back(L"x"); values.push_back(level);
-      }
     }
 
     int n_shift = (adv_have_0 || adv_have_1) ? n_01 : 0;
     for (const auto& param : adv_params) {
       auto sep = param.find(L'=');
-      wstring name = param.substr(0, sep);
-      wstring value = param.substr(sep + 1);
-      if (n_shift && name.size() == 1 && name[0] >= L'0' && name[0] <= '7')
+      wstring name = sep != wstring::npos ? param.substr(0, sep) : param;
+      wstring value = sep != wstring::npos ? param.substr(sep + 1) : wstring();
+      if (n_shift && is_digit(name, L'7'))
         name[0] = static_cast<wchar_t>(name[0] + n_shift);
       bool found = false;
       unsigned i = 0;
       for (const auto& n : names) {
-        if (0 == _wcsicmp(n.data(), name.data())) {
+        wstring v = values[i].is_str() ? values[i].get_str() : wstring();
+        if (0 == _wcsicmp(n.c_str(), name.c_str()) || ((int)i < n_01 && is_digit(n,L'9') && is_digit(name,L'9') && !v.empty() && substr_match(upcase(value), 0, upcase(v).c_str()))) {
           found = true;
-          values[i] = value;
+          values[i] = variant(value);
           break;
         }
         ++i;
       }
       if (!found) {
         names.push_back(name);
-        values.push_back(value);
+        values.push_back(variant(value));
       }
     }
+
+    // normalize {N}=... parameter names (start from '0', no gaps): {'1' '5' '3'} -> {'0' '2' '1'}
+    //
+    int gaps[10] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+    for (const auto& n : names)
+      if (is_digit(n,L'9'))
+        gaps[n[0] - L'0'] = 0;
+    int gap = 0;
+    for (int i = 0; i < 10; ++i) {
+      auto t = gaps[i]; gaps[i] = gap; gap += t;
+    }
+    for (size_t i = 0; i < names.size(); ++i)
+      if (is_digit(names[i],L'9'))
+        names[i][0] = static_cast<wchar_t>(names[i][0] - gaps[names[i][0]-L'0']);
 
     vector<const wchar_t*> name_ptrs;
     name_ptrs.reserve(names.size());

@@ -30,10 +30,9 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "components.hpp"
+
+#include "common/function_traits.hpp"
 
 namespace components
 {
@@ -65,9 +64,9 @@ namespace components
 		++m_size;
 	}
 
-	bool components_list::get(size_t index, value_type& value) const
+	bool components_list::get(bool Reset, value_type& value) const
 	{
-		if (!index)
+		if (Reset)
 			enum_ptr = list;
 
 		if (!enum_ptr)
@@ -78,7 +77,7 @@ namespace components
 		return true;
 	}
 
-	const std::map<string, string>& GetComponentsInfo()
+	const std::map<string, string, string_sort::less_t>& GetComponentsInfo()
 	{
 		static const auto sList = []
 		{
