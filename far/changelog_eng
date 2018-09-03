@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+MZK 02.09.2018 23:09:13 -0700
+
+1. Translated help page @ChangeDriveMode into English and edited Russian page.
+
 drkns 02.09.2018 22:14:00 +0100 - build 5263
 
 1. "Owner" field in attributes dialog has been moved to the bottom.
@@ -576,7 +580,7 @@ drkns 01.03.2018 21:45:36 +0000 - build 5155
 
 MZK 28.02.2018 22:26:27 -0800
 
-1. Translated and edited @Viewer help page (Both English and Russian).
+1. Translated and edited @Viewer help page (both English and Russian).
 
 drkns 01.03.2018 00:25:44 +0000 - build 5154
 
