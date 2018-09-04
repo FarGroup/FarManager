@@ -1516,7 +1516,9 @@ bool Help::JumpTopic()
 	// наверное подразумевается URL
 	{
 		const auto ColonPos = StackData->strSelTopic.find(L':');
-		if (ColonPos != 0 && ColonPos != string::npos && OpenURL(StackData->strSelTopic))
+		if (ColonPos != 0 && ColonPos != string::npos &&
+			!(starts_with(StackData->strSelTopic, HelpBeginLink) && contains(StackData->strSelTopic, HelpEndLink))
+			&& OpenURL(StackData->strSelTopic))
 			return false;
 	}
 	// а вот теперь попробуем...

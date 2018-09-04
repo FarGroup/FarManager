@@ -245,31 +245,17 @@ static os::handle create_named_pipe(const string& Name)
 	return os::handle(CreateNamedPipe(concat(L"\\\\.\\pipe\\"sv, Name).c_str(), PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT, 1, 0, 0, 0, &sa));
 }
 
-static os::handle create_job_for_current_process()
+static os::handle create_job()
 {
-	// IsProcessInJob not exist in win2k. use QueryInformationJobObject(nullptr, ...) instead.
-	// IsProcessInJob(GetCurrentProcess(), nullptr, &InJob);
-
-	JOBOBJECT_EXTENDED_LIMIT_INFORMATION jeli = {};
-	const auto InJob = QueryInformationJobObject(nullptr, JobObjectExtendedLimitInformation, &jeli, sizeof(jeli), nullptr) != FALSE;
-	if (InJob)
-	{
-		// TODO: Windows 8+ supports nested jobs
-		return nullptr;
-	}
-
 	os::handle Job(CreateJobObject(nullptr, nullptr));
 	if (!Job)
 		return nullptr;
 
-	// Child processes shall not inherit this job by default
-	jeli.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_SILENT_BREAKAWAY_OK | JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+	JOBOBJECT_EXTENDED_LIMIT_INFORMATION jeli{};
+	jeli.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
 	if (!SetInformationJobObject(Job.native_handle(), JobObjectExtendedLimitInformation, &jeli, sizeof(jeli)))
 		return nullptr;
 	
-	if (!AssignProcessToJobObject(Job.native_handle(), GetCurrentProcess()))
-		return nullptr;
-
 	return Job;
 }
 
@@ -341,22 +327,18 @@ bool elevation::Initialize()
 
 	const auto Param = concat(ElevationArgument, L' ', m_PipeName, L' ', str(GetCurrentProcessId()), L' ', (Global->Opt->ElevationMode & ELEVATION_USE_PRIVILEGES)? L'1' : L'0');
 
-	m_Process = create_elevated_process(Param);
+	if (!m_Job)
+	{
+		m_Job = create_job();
+		if (!m_Job)
+			return false;
+	}
 
+	m_Process = create_elevated_process(Param);
 	if (!m_Process)
 		return false;
 
-	if (!m_Job)
-	{
-		m_Job = create_job_for_current_process();
-	}
-
-	if (m_Job)
-	{
-		AssignProcessToJobObject(m_Job.native_handle(), m_Process.native_handle());
-	}
-
-	if (!connect_pipe_to_process(m_Process, m_Pipe))
+	if (!AssignProcessToJobObject(m_Job.native_handle(), m_Process.native_handle()) || !connect_pipe_to_process(m_Process, m_Pipe))
 	{
 		if (m_Process.is_signaled())
 		{
