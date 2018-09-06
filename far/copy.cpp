@@ -3718,10 +3718,10 @@ bool ShellCopy::CalcTotalSize() const
 			if (GetDirInfo(i.FileName, Data, m_Filter.get(), DirInfoCallback, (Flags&FCOPY_COPYSYMLINKCONTENTS? GETDIRINFO_SCANSYMLINK : 0) | (m_UseFilter? GETDIRINFO_USEFILTER : 0)) <= 0)
 				return false;
 
-			if (Data.FileCount > 0)
+			if (Data.FileCount > 0) // Not everything filtered out
 			{
 				CP->m_Bytes.Total += Data.FileSize;
-				CP->m_Files.Total += Data.DirCount + Data.FileCount;
+				CP->m_Files.Total += Data.DirCount + Data.FileCount + 1;
 			}
 		}
 		else

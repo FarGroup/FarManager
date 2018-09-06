@@ -1693,7 +1693,7 @@ void Options::InitConfigsData()
 		L'\x255A', L'\x2554', L'\x2569', L'\x2566', L'\x2560', L'\x2550', L'\x256C', L'\x2567',
 		L'\x2568', L'\x2564', L'\x2565', L'\x2559', L'\x2558', L'\x2552', L'\x2553', L'\x256B',
 		L'\x256A', L'\x2518', L'\x250C', L'\x2588', L'\x2584', L'\x258C', L'\x2590', L'\x2580',
-		L'\0'
+		L' ', L'\0'
 	};
 	static_assert(std::size(DefaultBoxSymbols) == BS_COUNT + 1);
 

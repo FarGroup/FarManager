@@ -55,7 +55,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "stddlg.hpp"
 #include "lang.hpp"
 #include "FarDlgBuilder.hpp"
-#include "datetime.hpp"
 #include "strmix.hpp"
 #include "DlgGuid.hpp"
 #include "cvtname.hpp"
@@ -554,8 +553,14 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 		m_SkipMode=-1;
 		SkipWipeMode=-1;
 		SkipFoldersMode=-1;
-		ULONG ItemsCount=0;
 		ProcessedItems=0;
+
+		struct
+		{
+			unsigned long long Items = 0;
+			unsigned long long Size = 0;
+		}
+		Total;
 
 		if (Global->Opt->DelOpt.ShowTotal)
 		{
@@ -564,28 +569,25 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 			const auto& DirInfoCallback = [&](string_view const Name, unsigned long long const Items, unsigned long long const Size)
 			{
 				if (TimeCheck)
-					DirInfoMsg(msg(lng::MDeletingTitle), Name, Items, Size);
+					DirInfoMsg(msg(lng::MDeletingTitle), Name, Total.Items + Items, Total.Size + Size);
 			};
 
 			for (const auto& i: SrcPanel->enum_selected())
 			{
-				if (Cancel)
-					break;
-
-				++ItemsCount;
+				++Total.Items;
 
 				if (i.Attributes & FILE_ATTRIBUTE_DIRECTORY && !os::fs::is_directory_symbolic_link(i))
 				{
 					DirInfoData Data = {};
 
-					if (GetDirInfo(i.FileName, Data, nullptr, DirInfoCallback, 0) > 0)
+					if (GetDirInfo(i.FileName, Data, nullptr, DirInfoCallback, 0) <= 0)
 					{
-						ItemsCount+=Data.FileCount+Data.DirCount+1;
+						Cancel = true;
+						break;
 					}
-					else
-					{
-						Cancel=true;
-					}
+
+					Total.Items += Data.FileCount + Data.DirCount;
+					Total.Size += Data.FileSize;
 				}
 			}
 		}
@@ -614,7 +616,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 					break;
 				}
 
-				ShellDeleteMsg(strSelName, Wipe?DEL_WIPE:DEL_DEL, { ProcessedItems, ItemsCount }, 0);
+				ShellDeleteMsg(strSelName, Wipe?DEL_WIPE:DEL_DEL, { ProcessedItems, Total.Items }, 0);
 			}
 
 			if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
@@ -694,7 +696,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 								}
 							}
 
-							ShellDeleteMsg(strFullName, Wipe?DEL_WIPE:DEL_DEL, { ProcessedItems, ItemsCount }, 0);
+							ShellDeleteMsg(strFullName, Wipe?DEL_WIPE:DEL_DEL, { ProcessedItems, Total.Items }, 0);
 						}
 
 						if (FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY)
@@ -784,7 +786,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 							}
 
 							if (AskCode==DELETE_YES)
-								if (ShellRemoveFile(strFullName, Wipe, { ProcessedItems, ItemsCount }) == DELETE_CANCEL)
+								if (ShellRemoveFile(strFullName, Wipe, { ProcessedItems, Total.Items }) == DELETE_CANCEL)
 								{
 									Cancel=true;
 									break;
@@ -835,7 +837,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 
 				if (AskCode==DELETE_YES)
 				{
-					int DeleteCode = ShellRemoveFile(strSelName, Wipe, { ProcessedItems, ItemsCount });
+					int DeleteCode = ShellRemoveFile(strSelName, Wipe, { ProcessedItems, Total.Items });
 
 					if (DeleteCode==DELETE_SUCCESS && UpdateDiz)
 					{

@@ -388,7 +388,7 @@ static bool PartCmdLine(const string& CmdStr, string& strNewCmdStr, string& strN
 		}
 	}
 
-	const auto Begin = CmdStr.cbegin() + CmdStr.find_first_not_of(L' ');
+	const auto Begin = std::find_if(ALL_CONST_RANGE(CmdStr), [](wchar_t i){ return i != L' '; });
 	const auto End = CmdStr.cend();
 	auto CmdEnd = End;
 	auto ParamsBegin = End;

@@ -725,18 +725,18 @@ int Viewer::GetModeDependentLineSize() const
 	return m_DisplayMode == VMT_HEX? 16 : Width * getChSize(m_Codepage);
 }
 
-int Viewer::txt_dump(const char *Src, size_t Size, size_t ClientWidth, string& OutStr, wchar_t ZeroChar, int tail) const
+int Viewer::txt_dump(std::string_view const Str, size_t ClientWidth, string& OutStr, wchar_t ZeroChar, int tail) const
 {
 	OutStr.clear();
 
 	if (m_Codepage == CP_UNICODE || m_Codepage == CP_REVERSEBOM)
 	{
-		OutStr.assign(reinterpret_cast<const wchar_t*>(Src), Size / sizeof(wchar_t));
+		OutStr.assign(reinterpret_cast<const wchar_t*>(Str.data()), Str.size() / sizeof(wchar_t));
 		if (m_Codepage == CP_REVERSEBOM)
 		{
 			swap_bytes(OutStr.data(), OutStr.data(), OutStr.size() * sizeof(wchar_t));
 		}
-		if (Size & 1)
+		if (Str.size() & 1)
 		{
 			OutStr.push_back(Utf::REPLACE_CHAR);
 		}
@@ -745,7 +745,7 @@ int Viewer::txt_dump(const char *Src, size_t Size, size_t ClientWidth, string& O
 	{
 		std::vector<wchar_t> Buffer(ClientWidth);
 		int dummy_tail;
-		const auto WideCharsNumber = Utf8::get_chars({ Src, Size }, Buffer.data(), ClientWidth, dummy_tail);
+		const auto WideCharsNumber = Utf8::get_chars(Str, Buffer.data(), ClientWidth, dummy_tail);
 		for (size_t iw = 0; OutStr.size() < ClientWidth && iw != WideCharsNumber; ++iw)
 		{
 			if (tail)
@@ -764,7 +764,7 @@ int Viewer::txt_dump(const char *Src, size_t Size, size_t ClientWidth, string& O
 	}
 	else if (m_Codepage == MB.GetCP())
 	{
-		while (OutStr.size() < ClientWidth && OutStr.size() < Size)
+		while (OutStr.size() < ClientWidth && OutStr.size() < Str.size())
 		{
 			if (tail)
 			{
@@ -773,7 +773,7 @@ int Viewer::txt_dump(const char *Src, size_t Size, size_t ClientWidth, string& O
 				continue;
 			}
 			wchar_t Char;
-			const auto clen = MB.GetChar(Src + OutStr.size(), Size - OutStr.size(), Char);
+			const auto clen = MB.GetChar(Str.substr(OutStr.size()), Char);
 			if (clen)
 			{
 				OutStr.push_back(Char);
@@ -792,7 +792,7 @@ int Viewer::txt_dump(const char *Src, size_t Size, size_t ClientWidth, string& O
 	}
 	else
 	{
-		OutStr = encoding::get_chars(m_Codepage, { Src, Size });
+		OutStr = encoding::get_chars(m_Codepage, Str);
 	}
 
 	OutStr.resize(ClientWidth, L' ');
@@ -838,7 +838,7 @@ void Viewer::ShowDump()
 		else
 			LastPage = EndFile = veof();
 
-		tail = txt_dump(line.data(), BytesRead, Width, OutStr, ZeroChar(), tail);
+		tail = txt_dump({ line.data(), BytesRead }, Width, OutStr, ZeroChar(), tail);
 
 		Text(fit_to_left(OutStr, ObjWidth()));
 		if ( SelectSize > 0 && bpos < SelectPos+SelectSize && bpos+mb > SelectPos )
@@ -855,8 +855,7 @@ void Viewer::ShowDump()
 void Viewer::ShowHex()
 {
 	const auto HexLeftPos = ((LeftPos > 80 - ObjWidth())? std::max(80 - ObjWidth(), 0) : LeftPos);
-	const wchar_t BorderLine[] = { BoxSymbols[BS_V1], L' ', 0 };
-	const auto BorderLen = wcslen(BorderLine);
+	const string BorderLine{ BoxSymbols[BS_V1], L' '};
 
 	int tail = 0;
 	bool EndFile = false;
@@ -962,7 +961,7 @@ void Viewer::ShowHex()
 
 					if (X == 3*2)
 					{
-						OutStr +=BorderLine;
+						OutStr += BorderLine;
 					}
 					fpos += 2;
 				}
@@ -975,7 +974,7 @@ void Viewer::ShowHex()
 					{
 						const auto off = static_cast<int>(SelectPos - fpos);
 						bSelStartFound = true;
-						SelStart = static_cast<int>(OutStr.size() + 3 * off + (off < 8 ? 0 : BorderLen));
+						SelStart = static_cast<int>(OutStr.size() + 3 * off + (off < 8? 0 : BorderLine.size()));
 						if (!SelectSize)
 							--SelStart;
 					}
@@ -984,7 +983,7 @@ void Viewer::ShowHex()
 					{
 						const auto off = static_cast<int>(selectEnd - fpos);
 						bSelEndFound = true;
-						SelEnd = SelectSize? static_cast<int>(OutStr.size() + 3 * off + (off < 8? 0 : BorderLen) + 1) : SelStart;
+						SelEnd = SelectSize? static_cast<int>(OutStr.size() + 3 * off + (off < 8? 0 : BorderLine.size()) + 1) : SelStart;
 					}
 					else if ( SelectSize == 0 && SelectPos == fpos )
 					{
@@ -1003,7 +1002,7 @@ void Viewer::ShowHex()
 					if (X == 7)
 						OutStr += BorderLine;
 				}
-				tail = txt_dump(RawBuffer, BytesRead, 16, TextStr, ZeroChar(), tail);
+				tail = txt_dump({ RawBuffer, BytesRead }, 16, TextStr, ZeroChar(), tail);
 			}
 		}
 
@@ -3709,7 +3708,7 @@ int Viewer::vread(wchar_t *Buf, int Count, wchar_t *Buf2)
 			for (size_t i = 0; i < ConvertSize; )
 			{
 				bool EndOfData = false;
-				const auto clen = MB.GetChar(TmpBuf + i, ConvertSize - i, Buf[ReadSize], &EndOfData);
+				const auto clen = MB.GetChar({ TmpBuf + i, ConvertSize - i }, Buf[ReadSize], &EndOfData);
 				if (clen)
 				{
 					if (Buf2)
@@ -3846,7 +3845,7 @@ bool Viewer::vgetc(wchar_t *pCh)
 			if (m_Codepage == MB.GetCP())
 			{
 				bool DataEnd = false;
-				const auto clen = MB.GetChar(vgetc_buffer + vgetc_ib, vgetc_cb-vgetc_ib, *pCh, &DataEnd);
+				const auto clen = MB.GetChar({ vgetc_buffer + vgetc_ib, static_cast<size_t>(vgetc_cb - vgetc_ib) }, *pCh, &DataEnd);
 				if (clen)
 				{
 					vgetc_ib += static_cast<int>(clen);
@@ -3941,7 +3940,7 @@ wchar_t Viewer::vgetc_prev()
 				for (size_t i = 0; i < BytesRead; ++i)
 				{
 					wchar_t Char;
-					if (MB.GetChar(RawBuffer + i, BytesRead - i, Char) == BytesRead - i)
+					if (MB.GetChar({ RawBuffer + i, BytesRead - i }, Char) == BytesRead - i)
 					{
 						Result = Char;
 						break;

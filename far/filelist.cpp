@@ -5508,10 +5508,15 @@ FileListItem::FileListItem(const PluginPanelItem& pi)
 
 		for (size_t i = 0; i != pi.CustomColumnNumber; ++i)
 		{
-			const auto Data = NullToEmpty(pi.CustomColumnData[i]);
-			const auto Size = wcslen(Data);
-			CustomColumnData[i] = new wchar_t[Size + 1];
-			*std::copy(Data, Data + Size, CustomColumnData[i]) = L'\0';
+			if (!pi.CustomColumnData[i])
+			{
+				CustomColumnData[i] = nullptr;
+				continue;
+			}
+
+			string_view const Data = pi.CustomColumnData[i];
+			CustomColumnData[i] = new wchar_t[Data.size() + 1];
+			*std::copy(ALL_CONST_RANGE(Data), CustomColumnData[i]) = L'\0';
 		}
 	}
 
@@ -5520,8 +5525,9 @@ FileListItem::FileListItem(const PluginPanelItem& pi)
 
 	if (pi.Description)
 	{
-		const auto Str = new wchar_t[wcslen(pi.Description) + 1];
-		wcscpy(Str, pi.Description);
+		string_view const Description = pi.Description;
+		const auto Str = new wchar_t[Description.size() + 1];
+		*std::copy(ALL_CONST_RANGE(Description), Str) = L'\0';
 		DizText = Str;
 		DeleteDiz = true;
 	}
@@ -6528,7 +6534,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 
 	SetLastError(ERROR_SUCCESS);
 	// сформируем заголовок вне цикла
-	string Title = MakeSeparator(m_X2-m_X1-1, 9, nullptr);
+	const auto Title = MakeLine(m_X2-m_X1-1, line_type::h2);
 	bool IsShowTitle = false;
 
 	if (!m_Filter)

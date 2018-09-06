@@ -1678,11 +1678,11 @@ void Dialog::ShowDialog(size_t ID)
 
 				if (CY1 == CY2)
 				{
-					DrawLine(CX2-CX1+1,Items[I].Type==DI_SINGLEBOX?8:9); //???
+					DrawLine(CX2 - CX1 + 1, Items[I].Type == DI_SINGLEBOX ? line_type::h1 : line_type::h2);
 				}
 				else if (CX1 == CX2)
 				{
-					DrawLine(CY2-CY1+1,Items[I].Type==DI_SINGLEBOX?10:11);
+					DrawLine(CY2 - CY1 + 1, Items[I].Type == DI_SINGLEBOX ? line_type::v1 : line_type::v2);
 					IsDrawTitle = false;
 				}
 				else
@@ -1790,10 +1790,11 @@ void Dialog::ShowDialog(size_t ID)
 					{
 						SetColor(ItemColor[2]);
 						GotoXY(m_X1+((Items[I].Flags&DIF_SEPARATORUSER)?XS:(!DialogMode.Check(DMODE_SMALLDIALOG)?3:0)),m_Y1+Y); //????
-						ShowUserSeparator((Items[I].Flags&DIF_SEPARATORUSER)?CX2-CX1+1:RealWidth-(!DialogMode.Check(DMODE_SMALLDIALOG)?6:0/* -1 */),
-						                  (Items[I].Flags&DIF_SEPARATORUSER)?12:(Items[I].Flags&DIF_SEPARATOR2?3:1),
-					                       Items[I].strMask.c_str()
-					                     );
+						DrawLine(
+							(Items[I].Flags & DIF_SEPARATORUSER)? CX2 - CX1 + 1 : RealWidth - (DialogMode.Check(DMODE_SMALLDIALOG)? 0 : 6),
+							(Items[I].Flags & DIF_SEPARATORUSER)? line_type::h_user : (Items[I].Flags & DIF_SEPARATOR2? line_type::h2_to_v2 : line_type::h1_to_v2),
+							Items[I].strMask
+						);
 						if (!strStr.empty())
 						{
 							if (!starts_with(strStr, L" "sv))
@@ -1904,10 +1905,11 @@ void Dialog::ShowDialog(size_t ID)
 				{
 					SetColor(ItemColor[2]);
 					GotoXY(m_X1+X,m_Y1+ ((Items[I].Flags&DIF_SEPARATORUSER)?YS:(!DialogMode.Check(DMODE_SMALLDIALOG)?1:0)));  //????
-					ShowUserSeparator((Items[I].Flags&DIF_SEPARATORUSER)?CY2-CY1+1:RealHeight-(!DialogMode.Check(DMODE_SMALLDIALOG)?2:0),
-					                  (Items[I].Flags&DIF_SEPARATORUSER)?13:(Items[I].Flags&DIF_SEPARATOR2?7:5),
-					                  Items[I].strMask.c_str()
-					                 );
+					DrawLine(
+						(Items[I].Flags & DIF_SEPARATORUSER)? CY2 - CY1 + 1 : RealHeight - (DialogMode.Check(DMODE_SMALLDIALOG)? 0 : 2),
+						(Items[I].Flags & DIF_SEPARATORUSER)? line_type::v_user : (Items[I].Flags & DIF_SEPARATOR2? line_type::v2_to_h2 : line_type::v1_to_h2),
+						Items[I].strMask
+					);
 				}
 
 				SetColor(ItemColor[0]);

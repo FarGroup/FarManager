@@ -836,7 +836,7 @@ void Panel::DrawSeparator(int Y) const
 	{
 		SetColor(COL_PANELBOX);
 		GotoXY(m_X1,Y);
-		ShowSeparator(m_X2-m_X1+1,1);
+		DrawLine(m_X2 - m_X1 + 1, line_type::h1_to_v2);
 	}
 }
 

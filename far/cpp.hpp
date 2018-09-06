@@ -77,7 +77,7 @@ using std::wmemchr;
 
 #endif
 
-#if VS_OLDER_THAN(1910)
+#if defined _MSC_VER && _MSC_VER < 1910
 namespace std
 {
 	namespace detail
@@ -106,7 +106,7 @@ namespace std
 #endif
 
 
-#if VS_OLDER_THAN(1911)
+#if defined _MSC_VER && _MSC_VER < 1911
 namespace std
 {
 	namespace detail
@@ -130,7 +130,7 @@ namespace std
 #endif
 
 
-#if VS_OLDER_THAN(1910)
+#if defined _MSC_VER && _MSC_VER < 1910
 #include "common/any.hpp"
 
 namespace std
@@ -143,7 +143,7 @@ namespace std
 #include <any>
 #endif
 
-#if VS_OLDER_THAN(1910)
+#if defined _MSC_VER && _MSC_VER < 1910
 #include "common/string_view.hpp"
 
 namespace std

@@ -146,7 +146,7 @@ private:
 	void SavePosition();
 	intptr_t ViewerSearchDlgProc(Dialog* Dlg, intptr_t Msg,intptr_t Param1,void* Param2);
 	int getCharSize() const;
-	int txt_dump(const char *line, size_t nr, size_t width, string& outstr, wchar_t zch, int tail) const;
+	int txt_dump(std::string_view Str, size_t width, string& outstr, wchar_t zch, int tail) const;
 
 	static uintptr_t GetDefaultCodePage();
 

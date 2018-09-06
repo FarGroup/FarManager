@@ -60,8 +60,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #error Unknown compiler
 #endif
 
-#define VS_OLDER_THAN(version) (defined _MSC_VER && _MSC_VER < version)
-
 
 #if COMPILER == C_GCC || COMPILER == C_CLANG
 #define STR_PRAGMA(x) _Pragma(#x)

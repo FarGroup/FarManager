@@ -2100,7 +2100,7 @@ void VMenu::ShowMenu(bool IsParent)
 			{
 				int SepWidth = m_X2-m_X1+1;
 
-				string strTmpStr = MakeSeparator(SepWidth, m_BoxType==NO_BOX?0:(m_BoxType==SINGLE_BOX||m_BoxType==SHORT_SINGLE_BOX?2:1));
+				auto strTmpStr = MakeLine(SepWidth, m_BoxType == NO_BOX? line_type::h1_to_none : (m_BoxType == SINGLE_BOX || m_BoxType == SHORT_SINGLE_BOX? line_type::h1_to_v1 : line_type::h1_to_v2));
 
 				if (!CheckFlags(VMENU_NOMERGEBORDER) && I>0 && I<static_cast<int>(Items.size()-1) && SepWidth>3)
 				{

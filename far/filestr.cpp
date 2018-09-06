@@ -347,9 +347,9 @@ static bool GetUnicodeCpUsingWindows(const void* Data, size_t Size, uintptr_t& C
 	return false;
 }
 
-static bool GetCpUsingUniversalDetectorWithExceptions(const void* Data, size_t Size, uintptr_t& Codepage)
+static bool GetCpUsingUniversalDetectorWithExceptions(std::string_view const Str, uintptr_t& Codepage)
 {
-	if (!GetCpUsingUniversalDetector(Data, Size, Codepage))
+	if (!GetCpUsingUniversalDetector(Str, Codepage))
 		return false;
 
 	// This whole block shouldn't be here
@@ -413,7 +413,7 @@ static bool GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage,
 		return true;
 	}
 
-	return GetCpUsingUniversalDetectorWithExceptions(Buffer.get(), ReadSize, Codepage);
+	return GetCpUsingUniversalDetectorWithExceptions({ Buffer.get(), ReadSize }, Codepage);
 }
 
 uintptr_t GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage, bool* SignatureFound, bool UseHeuristics)

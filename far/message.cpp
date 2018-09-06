@@ -234,7 +234,7 @@ void Message::Init(
 
 	size_t BtnLength = std::accumulate(Buttons.cbegin(), Buttons.cend(), size_t(0), [](size_t Result, const auto& i)
 	{
-		return Result + HiStrlen(i.c_str()) + 2 + 2 + 1; // "[ ", " ]", " "
+		return Result + HiStrlen(i) + 2 + 2 + 1; // "[ ", " ]", " "
 	});
 
 	if (BtnLength)
@@ -496,7 +496,7 @@ void Message::Init(
 			{
 				SetColor((Flags & MSG_WARNING)?COL_WARNDIALOGBOX:COL_DIALOGBOX);
 				GotoXY(X1 + 3, Y1 + static_cast<int>(i) + 2);
-				DrawLine(Length, SrcItem.front() == L'\2'? 3 : 1);
+				DrawLine(Length, SrcItem.front() == L'\2'? line_type::h2_to_v2 : line_type::h1_to_v2);
 				string SeparatorText = SrcItem.substr(1);
 				if (!SeparatorText.empty())
 				{

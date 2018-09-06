@@ -5148,9 +5148,9 @@ private:
 		if (has(es) && !Global->ProcessException)
 		{
 			pVFDPanelItemA = nullptr;
-			const auto Length = wcslen(Info->Path);
-			char_ptr_n<MAX_PATH> PathA(Length + 1);
-			encoding::oem::get_bytes({ Info->Path, Length }, PathA.get(), Length + 1);
+			string_view const Path = Info->Path;
+			char_ptr_n<MAX_PATH> PathA(Path.size() + 1);
+			encoding::oem::get_bytes(Path, PathA.get(), PathA.size());
 			int ItemsNumber = 0;
 			ExecuteFunction(es, Info->hPanel, &pVFDPanelItemA, &ItemsNumber, PathA.get());
 			Info->ItemsNumber = ItemsNumber;

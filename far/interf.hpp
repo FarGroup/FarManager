@@ -110,6 +110,7 @@ enum BOX_DEF_SYMBOLS
 	BS_X_DD,          // 0xDD
 	BS_X_DE,          // 0xDE
 	BS_X_DF,          // 0xDF
+	BS_SPACE,         // 0x20
 
 	BS_COUNT
 };
@@ -147,25 +148,21 @@ void MoveRealCursor(int X,int Y);
 void GetRealCursorPos(SHORT& X,SHORT& Y);
 void ScrollScreen(int Count);
 
-void Text(int X, int Y, const FarColor& Color, const wchar_t* Str, size_t Size);
-inline void Text(int X, int Y, const FarColor& Color, string_view const Str) { return Text(X, Y, Color, Str.data(), Str.size()); }
+void Text(int X, int Y, const FarColor& Color, string_view const Str);
 
-void Text(const wchar_t* Str, size_t Size);
-inline void Text(const string_view Str) { return Text(Str.data(), Str.size()); }
-inline void Text(wchar_t c) { return Text(&c, 1); }
+void Text(string_view Str);
+inline void Text(wchar_t const c) { return Text({ &c, 1 }); }
 
 void Text(lng MsgId);
 
-void VText(const wchar_t* Str, size_t Size);
-inline void VText(const string_view Str) { return VText(Str.data(), Str.size()); }
+void VText(string_view Str);
 
 void HiText(const string& Str,const FarColor& HiColor,int isVertText=0);
 void PutText(int X1,int Y1,int X2,int Y2,const FAR_CHAR_INFO* Src);
 void GetText(int X1, int Y1, int X2, int Y2, matrix<FAR_CHAR_INFO>& Dest);
 
-void BoxText(const wchar_t* Str, size_t Size, bool IsVert = false);
-inline void BoxText(const string_view Str, const bool IsVert = false) { return BoxText(Str.data(), Str.size(), IsVert); }
-inline void BoxText(wchar_t Chr) { return BoxText(&Chr, 1, false); }
+void BoxText(string_view Str, bool IsVert = false);
+inline void BoxText(wchar_t const Chr) { return BoxText({ &Chr, 1 }, false); }
 
 void SetScreen(int X1,int Y1,int X2,int Y2,wchar_t Ch,const FarColor& Color);
 void MakeShadow(int X1,int Y1,int X2,int Y2);
@@ -181,10 +178,35 @@ void Box(int x1,int y1,int x2,int y2,const FarColor& Color,int Type);
 bool ScrollBarRequired(UINT Length, unsigned long long ItemsCount);
 bool ScrollBarEx(UINT X1, UINT Y1, UINT Length, unsigned long long TopItem, unsigned long long ItemsCount);
 bool ScrollBarEx3(UINT X1, UINT Y1, UINT Length, unsigned long long Start, unsigned long long End, unsigned long long Size);
-void DrawLine(int Length,int Type, const wchar_t *UserSep=nullptr);
-inline void ShowSeparator(int Length, int Type) { return DrawLine(Length,Type); }
-inline void ShowUserSeparator(int Length, int Type, const wchar_t* UserSep) { return DrawLine(Length,Type,UserSep); }
-string MakeSeparator(int Length, int Type=1, const wchar_t* UserSep=nullptr);
+
+enum class line_type
+{
+	h1,
+	h2,
+	h1_to_none,
+	h2_to_none,
+	h1_to_v1,
+	h1_to_v2,
+	h2_to_v1,
+	h2_to_v2,
+	h_user,
+
+	v1,
+	v2,
+	v1_to_none,
+	v2_to_none,
+	v1_to_h1,
+	v1_to_h2,
+	v2_to_h1,
+	v2_to_h2,
+	v_user,
+
+	count
+};
+
+string MakeLine(int Length, line_type Type = line_type::h1_to_v2, string_view UserLine = {});
+void DrawLine(int Length, line_type Type, string_view UserLine = {});
+
 string make_progressbar(size_t Size, size_t Percent, bool ShowPercent, bool PropagateToTasbkar);
 
 void InitRecodeOutTable();

@@ -654,9 +654,9 @@ m1:
 							AddLine(strSplitLine);
 							StartPos = 0;
 						}
-						wchar_t userSeparator[4] = { L' ', (DrawLineChar ? DrawLineChar : BoxSymbols[BS_H1]), L' ', 0 }; // left-center-right
+						const string UserSeparator{ L' ', (DrawLineChar ? DrawLineChar : BoxSymbols[BS_H1]), L' ' }; // left-center-right
 						int Mul = (DrawLineChar == L'@' || DrawLineChar == L'~' || DrawLineChar == L'#' ? 2 : 1); // Double. See Help::OutString
-						AddLine(MakeSeparator(CanvasWidth() * Mul - (Mul>>1), 12, userSeparator)); // 12 -> UserSep horiz
+						AddLine(MakeLine(CanvasWidth() * Mul - (Mul >> 1), line_type::h_user, UserSeparator));
 						strReadStr.clear();
 						strSplitLine.clear();
 						continue;
@@ -841,7 +841,7 @@ void Help::FastShow()
 		{
 			GotoXY(m_X1,m_Y1+i+1);
 			SetColor(COL_HELPBOX);
-			ShowSeparator(ObjWidth(), 1);
+			DrawLine(ObjWidth(), line_type::h1_to_v2);
 			continue;
 		}
 		else

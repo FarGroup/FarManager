@@ -157,10 +157,10 @@ private:
 	int m_codepage;
 };
 
-bool GetCpUsingUniversalDetector(const void* data, size_t size, uintptr_t& Codepage)
+bool GetCpUsingUniversalDetector(std::string_view const Str, uintptr_t& Codepage)
 {
 	nsUniversalDetectorEx ns;
-	ns.HandleData(static_cast<const char*>(data), static_cast<uint32_t>(size));
+	ns.HandleData(Str.data(), static_cast<uint32_t>(Str.size()));
 	ns.DataEnd();
 	return ns.GetCodePage(Codepage);
 }

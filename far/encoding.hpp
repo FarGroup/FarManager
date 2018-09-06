@@ -136,7 +136,7 @@ public:
 	bool SetCP(uintptr_t Codepage);
 	uintptr_t GetCP() const { return m_Codepage; }
 	size_t GetSize() const { return m_Size; }
-	size_t GetChar(const char* Buffer, size_t Size, wchar_t& Char, bool* End = nullptr) const;
+	size_t GetChar(std::string_view Str, wchar_t& Char, bool* End = nullptr) const;
 
 private:
 	std::vector<char> len_mask; //[256]

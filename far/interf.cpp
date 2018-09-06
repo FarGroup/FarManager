@@ -745,22 +745,22 @@ void InitRecodeOutTable()
 }
 
 
-void Text(int X, int Y, const FarColor& Color, const wchar_t* Str, size_t Size)
+void Text(int X, int Y, const FarColor& Color, string_view const Str)
 {
 	CurColor=Color;
 	CurX=X;
 	CurY=Y;
-	Text(Str, Size);
+	Text(Str);
 }
 
-void Text(const wchar_t* Str, size_t Size)
+void Text(string_view const Str)
 {
-	if (!Size)
+	if (Str.empty())
 		return;
 
 	std::vector<FAR_CHAR_INFO> Buffer;
-	Buffer.reserve(Size);
-	std::transform(Str, Str + Size, std::back_inserter(Buffer), [](wchar_t c) { return FAR_CHAR_INFO{ c, CurColor }; });
+	Buffer.reserve(Str.size());
+	std::transform(ALL_CONST_RANGE(Str), std::back_inserter(Buffer), [](wchar_t c) { return FAR_CHAR_INFO{ c, CurColor }; });
 
 	Global->ScrBuf->Write(CurX, CurY, Buffer.data(), Buffer.size());
 	CurX += static_cast<int>(Buffer.size());
@@ -772,21 +772,19 @@ void Text(lng MsgId)
 	Text(msg(MsgId));
 }
 
-void VText(const wchar_t* Str, size_t Size)
+void VText(string_view const Str)
 {
-	if (!Size)
+	if (Str.empty())
 		return;
 
-	int StartCurX=CurX;
-	WCHAR ChrStr[2]={};
+	const auto StartCurX = CurX;
 
-	for (size_t i = 0; i != Size; ++i)
+	for (const auto i: Str)
 	{
-		GotoXY(CurX,CurY);
-		ChrStr[0]=Str[i];
-		Text(ChrStr);
-		CurY++;
-		CurX=StartCurX;
+		GotoXY(CurX, CurY);
+		Text(i);
+		++CurY;
+		CurX = StartCurX;
 	}
 }
 
@@ -951,14 +949,10 @@ void PutText(int X1, int Y1, int X2, int Y2, const FAR_CHAR_INFO *Src)
 		Global->ScrBuf->Write(X1, Y, Src, Width);
 }
 
-void BoxText(const wchar_t* Str, size_t Size, bool IsVert)
+void BoxText(string_view const Str, bool const IsVert)
 {
-	if (IsVert)
-		VText(Str, Size);
-	else
-		Text(Str, Size);
+	IsVert? VText(Str) : Text(Str);
 }
-
 
 /*
    Отрисовка прямоугольника.
@@ -986,22 +980,22 @@ void Box(int x1,int y1,int x2,int y2,const FarColor& Color,int Type)
 	Buffer.assign(y2 - y1 - 1, Symbol(LineV));
 
 	GotoXY(x1,y1+1);
-	VText(Buffer.data(), Buffer.size());
+	VText({ Buffer.data(), Buffer.size() });
 
 	GotoXY(x2,y1+1);
-	VText(Buffer.data(), Buffer.size());
+	VText({ Buffer.data(), Buffer.size() });
 
 	Buffer.assign(x2 - x1 + 1, Symbol(LineH));
 
 	Buffer.front() = Symbol(LineLT);
 	Buffer.back() = Symbol(LineRT);
 	GotoXY(x1,y1);
-	Text(Buffer.data(), Buffer.size());
+	Text({ Buffer.data(), Buffer.size() });
 
 	Buffer.front() = Symbol(LineLB);
 	Buffer.back() = Symbol(LineRB);
 	GotoXY(x1,y2);
-	Text(Buffer.data(), Buffer.size());
+	Text({ Buffer.data(), Buffer.size() });
 }
 
 bool ScrollBarRequired(UINT Length, unsigned long long ItemsCount)
@@ -1055,84 +1049,78 @@ bool ScrollBarEx3(UINT X1, UINT Y1, UINT Length, unsigned long long Start, unsig
 	std::fill(SliderBegin, SliderEnd, BoxSymbols[BS_X_B2]);
 
 	GotoXY(X1, Y1);
-	VText(Buffer.data(), Buffer.size());
+	VText({ Buffer.data(), Buffer.size() });
 
 	return true;
 }
 
-void DrawLine(int Length,int Type, const wchar_t* UserSep)
+string MakeLine(int const Length, line_type const Type, string_view const UserLine)
 {
-	if (Length>1)
+	if (Length < 2)
+		return {};
+
+	// left-center-right or top-center-bottom
+	static const size_t Predefined[][3]
 	{
-		string Buffer = MakeSeparator(Length, Type, UserSep);
-		// 12 - UserSep horiz
-		// 13 - UserSep vert
-		(Type >= 4 && Type <= 7) || (Type >= 10 && Type <= 11) || Type == 13? VText(Buffer) : Text(Buffer);
-	}
-}
+		{BS_H1,      BS_H1,  BS_H1},     // "───"  h1
+		{BS_H2,      BS_H2,  BS_H2},     // "═══"  h2
+		{BS_SPACE,   BS_H1,  BS_SPACE},  // " ─ "  h1_to_none
+		{BS_SPACE,   BS_H2,  BS_SPACE},  // " ═ "  h2_to_none
+		{BS_L_H1V1,  BS_H1,  BS_R_H1V1}, // "├─┤"  h1_to_v1
+		{BS_L_H1V2,  BS_H1,  BS_R_H1V2}, // "╟─╢"  h1_to_v2
+		{BS_L_H2V1,  BS_H2,  BS_R_H2V1}, // "╞═╡"  h2_to_v1
+		{BS_L_H2V2,  BS_H2,  BS_R_H2V2}, // "╠═╣"  h2_to_v2
+		{BS_L_H1V2,  BS_H1,  BS_R_H1V2}, // "╟─╢"  h_user, h1_to_v2 by default
 
-// "Нарисовать" сепаратор в памяти.
-string MakeSeparator(int Length, int Type, const wchar_t* UserSep)
-{
-	// left-center-right/top-center-bottom
-	const wchar_t BoxType[12][3]=
-	{
-		// h-horiz, s-space, v-vert, b-border, 1-one line, 2-two line
-		/* 00 */{L' ',                 BoxSymbols[BS_H1],                 L' '}, //  -     h1s
-		/* 01 */{BoxSymbols[BS_L_H1V2],BoxSymbols[BS_H1],BoxSymbols[BS_R_H1V2]}, // ||-||  h1b2
-		/* 02 */{BoxSymbols[BS_L_H1V1],BoxSymbols[BS_H1],BoxSymbols[BS_R_H1V1]}, // |-|    h1b1
-		/* 03 */{BoxSymbols[BS_L_H2V2],BoxSymbols[BS_H2],BoxSymbols[BS_R_H2V2]}, // ||=||  h2b2
-
-		/* 04 */{L' ',                 BoxSymbols[BS_V1],                 L' '}, //  |     v1s
-		/* 05 */{BoxSymbols[BS_T_H2V1],BoxSymbols[BS_V1],BoxSymbols[BS_B_H2V1]}, // =|=    v1b2
-		/* 06 */{BoxSymbols[BS_T_H1V1],BoxSymbols[BS_V1],BoxSymbols[BS_B_H1V1]}, // -|-    v1b1
-		/* 07 */{BoxSymbols[BS_T_H2V2],BoxSymbols[BS_V2],BoxSymbols[BS_B_H2V2]}, // =||=   v2b2
-
-		/* 08 */{BoxSymbols[BS_H1],    BoxSymbols[BS_H1],    BoxSymbols[BS_H1]}, // -      h1
-		/* 09 */{BoxSymbols[BS_H2],    BoxSymbols[BS_H2],    BoxSymbols[BS_H2]}, // =      h2
-		/* 10 */{BoxSymbols[BS_V1],    BoxSymbols[BS_V1],    BoxSymbols[BS_V1]}, // |      v1
-		/* 11 */{BoxSymbols[BS_V2],    BoxSymbols[BS_V2],    BoxSymbols[BS_V2]}, // ||     v2
+		{BS_V1,      BS_V1,  BS_V1},     // "|||"  v1
+		{BS_V2,      BS_V2,  BS_V2},     // "║║║"  v2
+		{BS_SPACE,   BS_V1,  BS_SPACE},  // " | "  v1_to_none
+		{BS_SPACE,   BS_V1,  BS_SPACE},  // " ║ "  v2_to_none
+		{BS_T_H1V1,  BS_V1,  BS_B_H1V1}, // "┬│┴"  v1_to_h1
+		{BS_T_H2V1,  BS_V1,  BS_B_H2V1}, // "╤│╧"  v1_to_h2
+		{BS_T_H1V2,  BS_V2,  BS_B_H1V2}, // "╥║╨"  v2_to_h1
+		{BS_T_H2V2,  BS_V2,  BS_B_H2V2}, // "╦║╩"  v2_to_h2
+		{BS_T_H2V1,  BS_V1,  BS_B_H2V1}, // "╤│╧"  v_user, v1_to_h2 by default
 	};
-	// 12 - UserSep horiz
-	// 13 - UserSep vert
 
-	string Result;
-	if (Length>1)
+	static_assert(std::size(Predefined) == static_cast<size_t>(line_type::count));
+
+	wchar_t Buffer[3];
+
+	if ((Type == line_type::h_user || Type == line_type::v_user) && !UserLine.empty())
 	{
-		wchar_t c[3];
-		bool stdUse=true;
-		if (Type >= static_cast<int>(std::size(BoxType)))
-		{
-			if (UserSep)
-			{
-				stdUse=false;
-
-				int i;
-				for(i=0; i < 3 && UserSep[i]; ++i)
-					c[i]=UserSep[i];
-				for(; i < 3; ++i)
-					c[i]=L' ';
-			}
-			else
-			{
-				Type=Type==12?1:5;
-			}
-		}
-
-		if (stdUse)
-		{
-			Type%=std::size(BoxType);
-			c[0]=BoxType[Type][0];
-			c[1]=BoxType[Type][1];
-			c[2]=BoxType[Type][2];
-		}
-
-		Result.assign(Length, c[1]);
-		Result.front() = c[0];
-		Result.back() = c[2];
+		const auto Size = std::min(UserLine.size(), std::size(Buffer));
+		std::copy_n(UserLine.cbegin(), Size, std::begin(Buffer));
+		std::fill(std::begin(Buffer) + Size, std::end(Buffer), L' ');
 	}
+	else
+	{
+		std::transform(ALL_CONST_RANGE(Predefined[static_cast<size_t>(Type)]), Buffer, [](size_t i){ return BoxSymbols[i]; });
+	}
+
+	string Result(Length, Buffer[1]);
+	Result.front() = Buffer[0];
+	Result.back() = Buffer[2];
 
 	return Result;
+}
+
+void DrawLine(int const Length, line_type const Type, string_view const UserLine)
+{
+	if (Length < 2)
+		return;
+
+	const auto Line = MakeLine(Length, Type, UserLine);
+
+	Type == line_type::v1_to_none ||
+		Type == line_type::v1_to_h2 ||
+		Type == line_type::v1_to_h1 ||
+		Type == line_type::v2_to_h2 ||
+		Type == line_type::v1 ||
+		Type == line_type::v2 ||
+		Type == line_type::v_user ?
+		VText(Line) :
+		Text(Line);
 }
 
 string make_progressbar(size_t Size, size_t Percent, bool ShowPercent, bool PropagateToTasbkar)

@@ -202,9 +202,9 @@ bool MultibyteCodepageDecoder::SetCP(uintptr_t Codepage)
 	return true;
 }
 
-size_t MultibyteCodepageDecoder::GetChar(const char* Buffer, size_t Size, wchar_t& Char, bool* End) const
+size_t MultibyteCodepageDecoder::GetChar(std::string_view const Str, wchar_t& Char, bool* End) const
 {
-	if (!Buffer || !Size)
+	if (Str.empty())
 	{
 		if (End)
 		{
@@ -213,7 +213,7 @@ size_t MultibyteCodepageDecoder::GetChar(const char* Buffer, size_t Size, wchar_
 		return 0;
 	}
 
-	char b1 = Buffer[0];
+	char b1 = Str[0];
 	char lmask = len_mask[b1];
 	if (!lmask)
 		return 0;
@@ -224,7 +224,7 @@ size_t MultibyteCodepageDecoder::GetChar(const char* Buffer, size_t Size, wchar_
 		return 1;
 	}
 
-	if (Size < 2)
+	if (Str.size() < 2)
 	{
 		if (End)
 		{
@@ -233,7 +233,7 @@ size_t MultibyteCodepageDecoder::GetChar(const char* Buffer, size_t Size, wchar_
 		return 0;
 	}
 
-	UINT16 b2 = b1 | (Buffer[1] << 8);
+	UINT16 b2 = b1 | (Str[1] << 8);
 	if (!m2[b2])
 	{
 		return 0;
