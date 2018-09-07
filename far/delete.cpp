@@ -557,8 +557,8 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 
 		struct
 		{
-			unsigned long long Items = 0;
-			unsigned long long Size = 0;
+			size_t Items = 0;
+			size_t Size = 0;
 		}
 		Total;
 
