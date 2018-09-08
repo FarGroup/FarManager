@@ -1,4 +1,8 @@
-﻿shmuel 29.08.2018 23:47:28 +0200 - build 663
+﻿shmuel 08.09.2018 18:01:32 +0200 - build 664
+
+1. LuaFAR: M#3652: метод raw для хэндлов панелей
+
+shmuel 29.08.2018 23:47:28 +0200 - build 663
 
 1. Suppress a warning in build 662.
 

@@ -5701,7 +5701,7 @@ id=7
 lv=2
 dt=Text
 nm=panel.GetPanelInfo
-mtime=3741446297
+mtime=3745591225
 <article>
 #_tPanelInfo = panel.GetPanelInfo (handle, whatpanel)
 #_
@@ -5725,7 +5725,13 @@ mtime=3741446297
 #_      Flags:               flags
 #_      PluginObject:        non-false Lua value
 #_
-#_**Note:**
+#_**Note 1:**
+#_  The *PluginHandle* field has a method:
+#_  *PluginHandle:rawhandle()*
+#_    returns the original value of handle received from Far Manager
+#_    that is suitable for using with LuaJIT FFI and as a table key.
+#_
+#_**Note 2:**
 #_  The *PluginObject* field is LuaFAR-specific. It is only present if OwnerGuid==PluginGuid,
 #_  i.e. when *panel.GetPanelInfo* was called from the same plugin that created the panel.
 #_  The intended use of this field is when a panel plugin processes macro calls for operations

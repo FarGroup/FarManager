@@ -377,6 +377,13 @@ static void PushPluginHandle(lua_State *L, HANDLE Handle)
 		lua_pushnil(L);
 }
 
+static int PluginHandle_rawhandle(lua_State *L)
+{
+	void* Handle = *(void**)luaL_checkudata(L, 1, PluginHandleType);
+	lua_pushlightuserdata(L, Handle);
+	return 1;
+}
+
 void ConvertLuaValue (lua_State *L, int pos, struct FarMacroValue *target)
 {
 	INT64 val64;
@@ -6163,7 +6170,12 @@ static int luaopen_far(lua_State *L)
 	lua_setfield(L, LUA_REGISTRYINDEX, SettingsHandles);
 
 	(void) luaL_dostring(L, far_Dialog);
+
 	luaL_newmetatable(L, PluginHandleType);
+	lua_pushvalue(L, -1);
+	lua_setfield(L, -2, "__index");
+	lua_pushcfunction(L, PluginHandle_rawhandle);
+	lua_setfield(L, -2, "rawhandle");
 
 	luaL_newmetatable(L, AddMacroDataType);
 	lua_pushcfunction(L, AddMacroData_gc);
