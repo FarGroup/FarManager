@@ -3,6 +3,20 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 06.09.2018 23:43:10 +0100 - build 5265
+
+1. Initial size calculation would display incorrectly when deleting several folders.
+
+2. assert in debug when space is typed in the command line.
+
+3. Refactoring.
+
+drkns 04.09.2018 21:37:50 +0100 - build 5264
+
+1. In presence of the elevated process the main process would stop earlier than necessary.
+
+2. Forum: Error getting help on plugin.
+
 MZK 02.09.2018 23:09:13 -0700
 
 1. Translated help page @ChangeDriveMode into English and edited Russian page.
