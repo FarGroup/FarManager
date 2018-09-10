@@ -60,15 +60,15 @@ private:
 	string GetTitle() const override { return {}; }
 
 	void init();
-	std::tuple<COORD&, COORD&> GetSelection();
+	std::tuple<point&, point&> GetSelection();
 	void CopyGrabbedArea(bool Append, bool VerticalBlock);
 	void Reset();
 
 	struct
 	{
-		COORD Begin;
-		COORD End;
-		COORD Current;
+		point Begin;
+		point End;
+		point Current;
 	}
 	GArea;
 	bool ResetArea;

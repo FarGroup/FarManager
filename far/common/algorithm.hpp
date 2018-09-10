@@ -78,18 +78,6 @@ I fill_n_if(I First, N Size, const T& Value, P Predicate)
 	return First;
 }
 
-template<class T, class P>
-void for_submatrix(T& Matrix, size_t X1, size_t Y1, size_t X2, size_t Y2, P Predicate)
-{
-	for (auto i = Y1; i <= Y2; ++i)
-	{
-		for (auto j = X1; j <= X2; ++j)
-		{
-			Predicate(Matrix[i][j]);
-		}
-	}
-}
-
 template<typename Iter1, typename Iter2>
 void apply_permutation(Iter1 first, Iter1 last, Iter2 indices)
 {

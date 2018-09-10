@@ -1,11 +1,13 @@
-﻿/*
-menubar.cpp
+﻿#ifndef RECTANGLE_HPP_5553FC58_2069_43EC_AA37_98495C03BAD2
+#define RECTANGLE_HPP_5553FC58_2069_43EC_AA37_98495C03BAD2
+#pragma once
 
-Показ горизонтального меню при включенном "Always show menu bar"
+/*
+rectangle.hpp
+
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright © 2018 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -31,18 +33,44 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "menubar.hpp"
+#include "point.hpp"
 
-#include "farcolor.hpp"
-#include "lang.hpp"
-#include "interf.hpp"
-
-void MenuBar::DisplayObject()
+template<typename T>
+struct rectangle_t
 {
-	const auto strSpace = L"    "s;
-	auto strMsg = concat(strSpace, msg(lng::MMenuLeftTitle), strSpace, msg(lng::MMenuFilesTitle), strSpace, msg(lng::MMenuCommandsTitle), strSpace, msg(lng::MMenuOptionsTitle), strSpace, msg(lng::MMenuRightTitle));
-	RemoveHighlights(strMsg);
-	GotoXY(m_Where.left, m_Where.top);
-	SetColor(COL_HMENUTEXT);
-	Text(fit_to_left(strMsg, m_Where.width()));
-}
+	T left;
+	T top;
+	T right;
+	T bottom;
+
+	rectangle_t() = default;
+
+	rectangle_t(T const Left, T const Top, T const Right, T const Bottom):
+		left(Left),
+		top(Top),
+		right(Right),
+		bottom(Bottom)
+	{
+		//assert(left <= right);
+		//assert(top <= bottom);
+	}
+
+	template<typename Y>
+	rectangle_t(rectangle_t<Y> const Rectangle):
+		rectangle_t(Rectangle.left, Rectangle.top, Rectangle.right, Rectangle.bottom)
+	{
+	}
+
+	auto width() const { assert(left <= right); return right - left + 1; }
+	auto height() const { assert(top <= bottom); return bottom - top + 1; }
+
+	bool contains(point Point) const
+	{
+		return InRange(left, Point.x, right) && InRange(top, Point.y, bottom);
+	}
+};
+
+using small_rectangle = rectangle_t<short>;
+using rectangle = rectangle_t<int>;
+
+#endif // RECTANGLE_HPP_5553FC58_2069_43EC_AA37_98495C03BAD2

@@ -78,7 +78,7 @@ void FolderTree::init(string &strResultFolder)
 
 		SetMacroMode(MACROAREA_FINDFOLDER);
 		strLastName.clear();
-		Tree->SetPosition(m_X1,m_Y1,m_X2,m_Y2);
+		Tree->SetPosition(m_Where);
 
 		if (ModalMode == MODALTREE_FREE)
 			Tree->SetRootDir(strResultFolder);
@@ -117,7 +117,7 @@ void FolderTree::DisplayObject()
 
 	if (!IsFullScreen)
 	{
-		m_windowKeyBar->SetPosition(0,ScrY,ScrX,ScrY);
+		m_windowKeyBar->SetPosition({ 0, ScrY, ScrX, ScrY });
 		m_windowKeyBar->Show();
 	}
 	else
@@ -129,14 +129,14 @@ void FolderTree::SetCoords()
 {
 	if (IsFullScreen)
 	{
-		SetPosition(0,0,ScrX,ScrY);
+		SetPosition({ 0, 0, ScrX, ScrY });
 	}
 	else
 	{
 		if (IsStandalone)
-			SetPosition(4,2,ScrX-4,ScrY-4);
+			SetPosition({ 4, 2, ScrX - 4, ScrY - 4 });
 		else
-			SetPosition(ScrX/3,2,ScrX-7,ScrY-4);
+			SetPosition({ ScrX / 3, 2, ScrX - 7, ScrY - 4 });
 	}
 }
 
@@ -144,7 +144,7 @@ void FolderTree::ResizeConsole()
 {
 	Hide();
 	SetCoords();
-	Tree->SetPosition(m_X1,m_Y1,m_X2,m_Y2);
+	Tree->SetPosition(m_Where);
 }
 
 void FolderTree::SetScreenPosition()
@@ -297,10 +297,7 @@ bool FolderTree::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		return true;
 	}
 
-	int MsX=MouseEvent->dwMousePosition.X;
-	int MsY=MouseEvent->dwMousePosition.Y;
-
-	if ((MsX<m_X1 || MsY<m_Y1 || MsX>m_X2 || MsY>m_Y2) && IntKeyState.MouseEventFlags != MOUSE_MOVED)
+	if (!m_Where.contains(MouseEvent->dwMousePosition) && IntKeyState.MouseEventFlags != MOUSE_MOVED)
 	{
 		if (!(MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && (Global->Opt->Dialogs.MouseButton&DMOUSEBUTTON_LEFT))
 			ProcessKey(Manager::Key(KEY_ESC));
@@ -310,7 +307,7 @@ bool FolderTree::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		return true;
 	}
 
-	if (MsY == m_Y2-2)
+	if (MouseEvent->dwMousePosition.Y == m_Where.bottom - 2)
 		FindEdit->ProcessMouse(MouseEvent);
 	else
 	{
@@ -326,19 +323,19 @@ bool FolderTree::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 void FolderTree::DrawEdit() const
 {
-	int FindY=m_Y2-2;
+	const auto FindY = m_Where.bottom - 2;
 	const auto& SearchTxt = msg(lng::MFoldTreeSearch);
-	GotoXY(m_X1+1,FindY);
+	GotoXY(m_Where.left + 1, FindY);
 	SetColor(COL_PANELTEXT);
-	Text(SearchTxt + L"  "s);
-	FindEdit->SetPosition(m_X1 + static_cast<int>(SearchTxt.size()) + 2, FindY, std::min(m_X2 - 1, m_X1 + 25), FindY);
+	Text(concat(SearchTxt, L"  "sv));
+	FindEdit->SetPosition({ m_Where.left + static_cast<int>(SearchTxt.size()) + 2, FindY, std::min(m_Where.right - 1, m_Where.left + 25), FindY });
 	FindEdit->SetObjectColor(COL_DIALOGEDIT);
 	FindEdit->Show();
 
-	if (WhereX()<m_X2)
+	if (WhereX() < m_Where.right)
 	{
 		SetColor(COL_PANELTEXT);
-		Text(string(m_X2 - WhereX(), L' '));
+		Text(string(m_Where.right - WhereX(), L' '));
 	}
 }
 

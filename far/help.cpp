@@ -184,9 +184,9 @@ void Help::init(string_view const Topic, const wchar_t *Mask, unsigned long long
 	assign(StackData->strHelpTopic, Topic);
 
 	if (Global->Opt->FullScreenHelp)
-		SetPosition(0,0,ScrX,ScrY);
+		SetPosition({ 0, 0, ScrX, ScrY });
 	else
-		SetPosition(4,2,ScrX-4,ScrY-2);
+		SetPosition({ 4, 2, ScrX - 4, ScrY - 2 });
 
 	if (!ReadHelp(StackData->strHelpMask) && (Flags&FHELP_USECONTENTS))
 	{
@@ -801,7 +801,7 @@ void Help::DisplayObject()
 
 	if (!Global->Opt->FullScreenHelp)
 	{
-		m_windowKeyBar->SetPosition(0, ScrY, ScrX, ScrY);
+		m_windowKeyBar->SetPosition({ 0, ScrY, ScrX, ScrY });
 
 		if (Global->Opt->ShowKeyBar)
 			m_windowKeyBar->Show();
@@ -839,7 +839,7 @@ void Help::FastShow()
 		}
 		else if (i==FixCount && FixCount>0)
 		{
-			GotoXY(m_X1,m_Y1+i+1);
+			GotoXY(m_Where.left, m_Where.top + i + 1);
 			SetColor(COL_HELPBOX);
 			DrawLine(ObjWidth(), line_type::h1_to_v2);
 			continue;
@@ -859,11 +859,11 @@ void Help::FastShow()
 			if (starts_with(OutStr, L'^'))
 			{
 				OutStr.remove_prefix(1);
-				GotoXY(m_X1 + 1 + std::max(0, (CanvasWidth() - StringLen(OutStr)) / 2), m_Y1 + i + 1);
+				GotoXY(m_Where.left + 1 + std::max(0, (CanvasWidth() - StringLen(OutStr)) / 2), m_Where.top + i + 1);
 			}
 			else
 			{
-				GotoXY(m_X1+1,m_Y1+i+1);
+				GotoXY(m_Where.left + 1, m_Where.top + i + 1);
 			}
 
 			OutString(OutStr);
@@ -871,17 +871,17 @@ void Help::FastShow()
 	}
 
 	SetColor(COL_HELPSCROLLBAR);
-	ScrollBarEx(m_X2, m_Y1 + HeaderHeight() + 1, BodyHeight(), StackData->TopStr, HelpList.size() - FixCount);
+	ScrollBarEx(m_Where.right, m_Where.top + HeaderHeight() + 1, BodyHeight(), StackData->TopStr, HelpList.size() - FixCount);
 }
 
 void Help::DrawWindowFrame() const
 {
-	SetScreen(m_X1,m_Y1,m_X2,m_Y2,L' ',colors::PaletteColorToFarColor(COL_HELPTEXT));
-	Box(m_X1,m_Y1,m_X2,m_Y2,colors::PaletteColorToFarColor(COL_HELPBOX),DOUBLE_BOX);
+	SetScreen(m_Where, L' ', colors::PaletteColorToFarColor(COL_HELPTEXT));
+	Box(m_Where, colors::PaletteColorToFarColor(COL_HELPBOX), DOUBLE_BOX);
 	SetColor(COL_HELPBOXTITLE);
 	auto strHelpTitleBuf = concat(msg(lng::MHelpTitle), L" - "sv, strCurPluginContents.empty()? L"Far"s : strCurPluginContents);
 	TruncStrFromEnd(strHelpTitleBuf, CanvasWidth() - 2);
-	GotoXY(m_X1 + (ObjWidth() - (int)strHelpTitleBuf.size() - 2) / 2, m_Y1);
+	GotoXY(m_Where.left + (ObjWidth() - static_cast<int>(strHelpTitleBuf.size()) - 2) / 2, m_Where.top);
 	Text(concat(L' ', strHelpTitleBuf, L' '));
 }
 
@@ -1017,17 +1017,17 @@ static bool FastParseLine(string_view Str, int* const pLen, const int x0, const 
 bool Help::GetTopic(int realX, int realY, string& strTopic)
 {
 	strTopic.clear();
-	if (realY <= m_Y1 || realY >= m_Y2 || realX <= m_X1 || realX >= m_X2)
+	if (realY <= m_Where.top || realY >= m_Where.bottom || realX <= m_Where.left || realX >= m_Where.right)
 		return false;
 
 	int y = -1;
-	if (realY-m_Y1 <= HeaderHeight())
+	if (realY - m_Where.top <= HeaderHeight())
 	{
 		if (y != FixCount)
-			y = realY - m_Y1 - 1;
+			y = realY - m_Where.top - 1;
 	}
 	else
-		y = realY - m_Y1 - 1 - HeaderHeight() + FixCount + StackData->TopStr;
+		y = realY - m_Where.top - 1 - HeaderHeight() + FixCount + StackData->TopStr;
 
 	if (y < 0 || y >= static_cast<int>(HelpList.size()))
 		return false;
@@ -1037,11 +1037,11 @@ bool Help::GetTopic(int realX, int realY, string& strTopic)
 	if (!*Str)
 		return false;
 
-	int x = m_X1 + 1;
+	int x = m_Where.left + 1;
 	if (*Str == L'^') // center
 	{
 		int w = StringLen(++Str);
-		x = m_X1 + 1 + std::max(0, (CanvasWidth() - w) / 2);
+		x = m_Where.left + 1 + std::max(0, (CanvasWidth() - w) / 2);
 	}
 
 	return FastParseLine(Str, nullptr, x, realX, &strTopic, strCtrlColorChar.empty()? 0 : strCtrlColorChar[0]);
@@ -1081,9 +1081,9 @@ void Help::OutString(string_view Str)
 
 			if (Topic)
 			{
-				int RealCurX = m_X1 + StackData->CurX + 1;
-				int RealCurY = m_Y1 + StackData->CurY + HeaderHeight() + 1;
-				bool found = WhereY() == RealCurY && RealCurX >= WhereX() && RealCurX < WhereX() + (Str.data() - StartTopic) - 1;
+				const auto RealCurX = m_Where.left + StackData->CurX + 1;
+				const auto RealCurY = m_Where.top + StackData->CurY + HeaderHeight() + 1;
+				const auto found = WhereY() == RealCurY && RealCurX >= WhereX() && RealCurX < WhereX() + (Str.data() - StartTopic) - 1;
 
 				SetColor(found ? COL_HELPSELECTEDTOPIC : COL_HELPTOPIC);
 				if (Str.size() > 1 && Str[1]==L'@')
@@ -1099,8 +1099,8 @@ void Help::OutString(string_view Str)
 
 			/* $ 24.09.2001 VVM
 			  ! Обрежем длинные строки при показе. Такое будет только при длинных ссылках... */
-			if (static_cast<int>(wcslen(OutStr)) + WhereX() > m_X2)
-				OutStr[m_X2 - WhereX()] = 0;
+			if (static_cast<int>(wcslen(OutStr)) + WhereX() > m_Where.right)
+				OutStr[m_Where.right - WhereX()] = 0;
 
 			Text(OutStr);
 
@@ -1135,10 +1135,10 @@ void Help::OutString(string_view Str)
 		}
 	}
 
-	if (WhereX()<m_X2)
+	if (WhereX() < m_Where.right)
 	{
 		SetColor(CurColor);
-		Text(string(m_X2-WhereX(), L' '));
+		Text(string(m_Where.right - WhereX(), L' '));
 	}
 }
 
@@ -1655,13 +1655,12 @@ bool Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		return true;
 	}
 
-	int prevMsX = MsX , prevMsY = MsY;
+	const auto prevMsX = MsX , prevMsY = MsY;
 	MsX=MouseEvent->dwMousePosition.X;
 	MsY=MouseEvent->dwMousePosition.Y;
-	bool simple_move = (IntKeyState.MouseEventFlags == MOUSE_MOVED);
+	bool simple_move = IntKeyState.MouseEventFlags == MOUSE_MOVED;
 
-
-	if ((MsX<m_X1 || MsY<m_Y1 || MsX>m_X2 || MsY>m_Y2) && IntKeyState.MouseEventFlags != MOUSE_MOVED)
+	if (!simple_move && !m_Where.contains(MouseEvent->dwMousePosition))
 	{
 		static const int HELPMODE_CLICKOUTSIDE = 0x20000000; // было нажатие мыши вне хелпа?
 
@@ -1678,11 +1677,11 @@ bool Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		return true;
 	}
 
-	if (IntKeyState.MouseX==m_X2 && (MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED))
+	if (IntKeyState.MousePos.x == m_Where.right && MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED)
 	{
-		int ScrollY = m_Y1 + HeaderHeight() + 1;
+		const auto ScrollY = m_Where.top + HeaderHeight() + 1;
 
-		if (IntKeyState.MouseY==ScrollY)
+		if (IntKeyState.MousePos.y == ScrollY)
 		{
 			while (IsMouseButtonPressed())
 				ProcessKey(Manager::Key(KEY_UP));
@@ -1690,7 +1689,7 @@ bool Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			return true;
 		}
 
-		if (IntKeyState.MouseY == ScrollY + BodyHeight() - 1)
+		if (IntKeyState.MousePos.y == ScrollY + BodyHeight() - 1)
 		{
 			while (IsMouseButtonPressed())
 				ProcessKey(Manager::Key(KEY_DOWN));
@@ -1703,18 +1702,18 @@ bool Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	/* $ 15.03.2002 DJ
 	   обработаем щелчок в середине скроллбара
 	*/
-	if (IntKeyState.MouseX == m_X2)
+	if (IntKeyState.MousePos.x == m_Where.right)
 	{
-		int ScrollY = m_Y1 + HeaderHeight() + 1;
+		const auto ScrollY = m_Where.top + HeaderHeight() + 1;
 
 		if (static_cast<int>(HelpList.size()) > BodyHeight())
 		{
 			while (IsMouseButtonPressed())
 			{
-				if (IntKeyState.MouseY > ScrollY && IntKeyState.MouseY < ScrollY + BodyHeight() + 1)
+				if (IntKeyState.MousePos.y > ScrollY && IntKeyState.MousePos.y < ScrollY + BodyHeight() + 1)
 				{
 					StackData->CurX=StackData->CurY=0;
-					StackData->TopStr = (IntKeyState.MouseY - ScrollY - 1) * (static_cast<int>(HelpList.size()) - FixCount - BodyHeight() + 1) / (BodyHeight() - 2);
+					StackData->TopStr = (IntKeyState.MousePos.y - ScrollY - 1) * (static_cast<int>(HelpList.size()) - FixCount - BodyHeight() + 1) / (BodyHeight() - 2);
 					FastShow();
 				}
 			}
@@ -1727,23 +1726,23 @@ bool Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	// DoubliClock - свернуть/развернуть хелп.
 	if (MouseEvent->dwEventFlags==DOUBLE_CLICK &&
 	        (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) &&
-		MouseEvent->dwMousePosition.Y < m_Y1 + 1 + HeaderHeight())
+		MouseEvent->dwMousePosition.Y < m_Where.top + 1 + HeaderHeight())
 	{
 		ProcessKey(Manager::Key(KEY_F5));
 		return true;
 	}
 
-	if (MouseEvent->dwMousePosition.Y < m_Y1 + 1 + HeaderHeight())
+	if (MouseEvent->dwMousePosition.Y < m_Where.top + 1 + HeaderHeight())
 	{
-		while (IsMouseButtonPressed() && IntKeyState.MouseY < m_Y1 + 1 + HeaderHeight())
+		while (IsMouseButtonPressed() && IntKeyState.MousePos.y < m_Where.top + 1 + HeaderHeight())
 			ProcessKey(Manager::Key(KEY_UP));
 
 		return true;
 	}
 
-	if (MouseEvent->dwMousePosition.Y>=m_Y2)
+	if (MouseEvent->dwMousePosition.Y >= m_Where.bottom)
 	{
-		while (IsMouseButtonPressed() && IntKeyState.MouseY>=m_Y2)
+		while (IsMouseButtonPressed() && IntKeyState.MousePos.y >= m_Where.bottom)
 			ProcessKey(Manager::Key(KEY_DOWN));
 
 		return true;
@@ -1756,8 +1755,8 @@ bool Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	{
 		BeforeMouseDownX = StackData->CurX;
 		BeforeMouseDownY = StackData->CurY;
-		StackData->CurX = MouseDownX = MsX-m_X1-1;
-		StackData->CurY = MouseDownY = MsY - m_Y1 - 1 - HeaderHeight();
+		StackData->CurX = MouseDownX = MsX - m_Where.left - 1;
+		StackData->CurY = MouseDownY = MsY - m_Where.top - 1 - HeaderHeight();
 		MouseDown = true;
 		simple_move = false;
 	}
@@ -1790,8 +1789,8 @@ bool Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		{
 			//if (strTopic != StackData->strSelTopic)
 			{
-				StackData->CurX = MsX-m_X1-1;
-				StackData->CurY = MsY - m_Y1 - 1 - HeaderHeight();
+				StackData->CurX = MsX - m_Where.left - 1;
+				StackData->CurY = MsY - m_Where.top - 1 - HeaderHeight();
 			}
 		}
 	}
@@ -2126,11 +2125,11 @@ void Help::SetScreenPosition()
 	if (Global->Opt->FullScreenHelp)
 	{
 		m_windowKeyBar->Hide();
-		SetPosition(0,0,ScrX,ScrY);
+		SetPosition({ 0, 0, ScrX, ScrY });
 	}
 	else
 	{
-		SetPosition(4,2,ScrX-4,ScrY-2);
+		SetPosition({ 4, 2, ScrX - 4, ScrY - 2 });
 	}
 
 	Show();
@@ -2189,10 +2188,10 @@ void Help::ResizeConsole()
 	if (Global->Opt->FullScreenHelp)
 	{
 		m_windowKeyBar->Hide();
-		SetPosition(0,0,ScrX,ScrY);
+		SetPosition({ 0, 0, ScrX, ScrY });
 	}
 	else
-		SetPosition(4,2,ScrX-4,ScrY-2);
+		SetPosition({ 4, 2, ScrX - 4, ScrY - 2 });
 
 	ReadHelp(StackData->strHelpMask);
 	ErrorHelp = false;

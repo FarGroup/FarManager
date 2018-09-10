@@ -38,6 +38,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "bitflags.hpp"
 #include "manager.hpp" //Manager::Key
 
+#include "common/2d/rectangle.hpp"
+
 class SaveScreen;
 
 // можно использовать только младший байт (т.е. маска 0x000000FF), остальное отдается порожденным классам
@@ -61,15 +63,15 @@ public:
 	virtual void Hide();
 	virtual void Show();
 	virtual void ShowConsoleTitle() {}
-	virtual void SetPosition(int X1,int Y1,int X2,int Y2);
-	virtual void GetPosition(int& X1,int& Y1,int& X2,int& Y2) const;
+	virtual void SetPosition(rectangle Where);
+	virtual rectangle GetPosition() const;
 	virtual void SetScreenPosition();
 	virtual void ResizeConsole() {}
 	virtual long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam=0) {return 0;}
 	virtual void Refresh();
 
-	int ObjWidth() const {return m_X2 - m_X1 + 1;}
-	int ObjHeight() const {return m_Y2 - m_Y1 + 1;}
+	int ObjWidth() const { return m_Where.width(); }
+	int ObjHeight() const { return m_Where.height(); }
 	void Redraw();
 	bool IsVisible() const {return m_Flags.Check(FSCROBJ_VISIBLE);}
 	void SetVisible(bool Visible) {m_Flags.Change(FSCROBJ_VISIBLE,Visible);}
@@ -86,7 +88,7 @@ protected:
 	// KEEP ALIGNED!
 	std::weak_ptr<window> m_Owner;
 	BitFlags m_Flags;
-	SHORT m_X1, m_Y1, m_X2, m_Y2;
+	small_rectangle m_Where{};
 };
 
 class ScreenObject:public SimpleScreenObject
@@ -94,7 +96,7 @@ class ScreenObject:public SimpleScreenObject
 public:
 	NONCOPYABLE(ScreenObject);
 
-	void SetPosition(int X1, int Y1, int X2, int Y2) override;
+	void SetPosition(rectangle Where) override;
 	void Show() override;
 	void Hide() override;
 

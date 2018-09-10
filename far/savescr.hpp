@@ -35,17 +35,20 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "matrix.hpp"
+
 #include "plugin.hpp"
+
+#include "common/2d/matrix.hpp"
+#include "common/2d/rectangle.hpp"
 
 class SaveScreen: noncopyable
 {
 public:
 	SaveScreen();
-	SaveScreen(int X1, int Y1, int X2, int Y2);
+	explicit SaveScreen(rectangle Where);
 	~SaveScreen();
 
-	void SaveArea(int X1, int Y1, int X2, int Y2);
+	void SaveArea(rectangle Where);
 	void SaveArea();
 	void RestoreArea(int RestoreCursor = TRUE);
 	void Discard();
@@ -56,14 +59,14 @@ public:
 private:
 	friend class Grabber;
 
-	int width() const { return m_X2 - m_X1 + 1; }
-	int height() const { return m_Y2 - m_Y1 + 1; }
+	int width() const { return m_Where.width(); }
+	int height() const { return m_Where.height(); }
 
 	matrix<FAR_CHAR_INFO> ScreenBuf;
-	SHORT CurPosX,CurPosY;
+	point m_Cursor;
 	bool CurVisible;
 	DWORD CurSize;
-	int m_X1, m_Y1, m_X2, m_Y2;
+	rectangle m_Where;
 };
 
 #endif // SAVESCR_HPP_778D9931_B748_4300_B9AF_330A1B2C80B9

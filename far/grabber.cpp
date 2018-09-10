@@ -54,7 +54,7 @@ Grabber::Grabber(private_tag):
 	ResetArea(true),
 	m_VerticalBlock(false)
 {
-	ScreenObject::SetPosition(0, 0, ScrX, ScrY);
+	ScreenObject::SetPosition({ 0, 0, ScrX, ScrY });
 }
 
 grabber_ptr Grabber::create()
@@ -73,14 +73,11 @@ void Grabber::init()
 	GetCursorType(Visible,Size);
 
 	if (Visible)
-		GetCursorPos(GArea.Current.X, GArea.Current.Y);
+		GArea.Current = GetCursorPos();
 	else
-	{
-		GArea.Current.X = 0;
-		GArea.Current.Y = 0;
-	}
+		GArea.Current = {};
 
-	GArea.Begin.X = -1;
+	GArea.Begin.x = -1;
 	Process();
 	SaveScr.reset();
 	Global->WindowManager->RefreshWindow();
@@ -138,24 +135,24 @@ static wchar_t GetChar(const FAR_CHAR_INFO& Cell)
 	return Chr;
 }
 
-std::tuple<COORD&, COORD&> Grabber::GetSelection()
+std::tuple<point&, point&> Grabber::GetSelection()
 {
-	auto& SelectionBegin = GArea.Begin.Y == GArea.End.Y?
-	    GArea.Begin.X < GArea.End.X? GArea.Begin : GArea.End :
-	    GArea.Begin.Y < GArea.End.Y? GArea.Begin : GArea.End;
+	auto& SelectionBegin = GArea.Begin.y == GArea.End.y?
+	    GArea.Begin.x < GArea.End.x? GArea.Begin : GArea.End :
+	    GArea.Begin.y < GArea.End.y? GArea.Begin : GArea.End;
 	auto& SelectionEnd = &SelectionBegin == &GArea.Begin? GArea.End : GArea.Begin;
 	return std::tie(SelectionBegin, SelectionEnd);
 }
 
 void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 {
-	if (GArea.Begin.X < 0)
+	if (GArea.Begin.x < 0)
 		return;
 
-	const auto X1 = std::min(GArea.Begin.X, GArea.End.X);
-	const auto X2 = std::max(GArea.Begin.X, GArea.End.X);
-	const auto Y1 = std::min(GArea.Begin.Y, GArea.End.Y);
-	const auto Y2 = std::max(GArea.Begin.Y, GArea.End.Y);
+	const auto X1 = std::min(GArea.Begin.x, GArea.End.x);
+	const auto X2 = std::max(GArea.Begin.x, GArea.End.x);
+	const auto Y1 = std::min(GArea.Begin.y, GArea.End.y);
+	const auto Y2 = std::max(GArea.Begin.y, GArea.End.y);
 
 	auto FromX = X1;
 	auto ToX = X2;
@@ -169,7 +166,7 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 	}
 
 	matrix<FAR_CHAR_INFO> CharBuf(ToY - FromY + 1, ToX - FromX + 1);
-	GetText(FromX, FromY, ToX, ToY, CharBuf);
+	GetText({ FromX, FromY, ToX, ToY }, CharBuf);
 
 	string CopyBuf;
 	CopyBuf.reserve(CharBuf.height() * (CharBuf.width() + 2));
@@ -189,8 +186,8 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 
 		if (m_StreamSelection)
 		{
-			Begin += IsFirstLine? std::get<0>(Selection).X : 0;
-			End -= IsLastLine? ScrX - std::get<1>(Selection).X : 0;
+			Begin += IsFirstLine? std::get<0>(Selection).x : 0;
+			End -= IsLastLine? ScrX - std::get<1>(Selection).x : 0;
 		}
 		Line.clear();
 		std::transform(Begin, End, std::back_inserter(Line), GetChar);
@@ -244,16 +241,16 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 
 void Grabber::DisplayObject()
 {
-	MoveCursor(GArea.Current.X, GArea.Current.Y);
+	MoveCursor({ GArea.Current.x, GArea.Current.y });
 
-	const auto X1 = std::min(GArea.Begin.X,GArea.End.X);
-	const auto X2 = std::max(GArea.Begin.X,GArea.End.X);
-	const auto Y1 = std::min(GArea.Begin.Y,GArea.End.Y);
-	const auto Y2 = std::max(GArea.Begin.Y,GArea.End.Y);
+	const auto X1 = std::min(GArea.Begin.x, GArea.End.x);
+	const auto X2 = std::max(GArea.Begin.x, GArea.End.x);
+	const auto Y1 = std::min(GArea.Begin.y, GArea.End.y);
+	const auto Y2 = std::max(GArea.Begin.y, GArea.End.y);
 
 	m_StreamSelection.forget();
 
-	if (GArea.Begin.X != -1)
+	if (GArea.Begin.x != -1)
 	{
 		auto FromX = X1;
 		auto ToX = X2;
@@ -267,7 +264,7 @@ void Grabber::DisplayObject()
 		}
 
 		matrix<FAR_CHAR_INFO> CharBuf(ToY - FromY + 1, ToX - FromX + 1);
-		GetText(FromX, FromY, ToX, ToY, CharBuf);
+		GetText({ FromX, FromY, ToX, ToY }, CharBuf);
 
 		for (int Y = FromY; Y <= ToY; Y++)
 		{
@@ -279,7 +276,7 @@ void Grabber::DisplayObject()
 
 				if (m_StreamSelection)
 				{
-					bool ToUp = GArea.Begin.Y < GArea.End.Y;
+					bool ToUp = GArea.Begin.y < GArea.End.y;
 					bool ToDown = !ToUp;
 					bool FirstLine = Y == FromY;
 					bool LastLine = Y == ToY;
@@ -293,12 +290,12 @@ void Grabber::DisplayObject()
 								continue;
 							}
 						}
-						else if ((FirstLine && X < GArea.End.X) || (LastLine && X > GArea.Begin.X))
+						else if ((FirstLine && X < GArea.End.x) || (LastLine && X > GArea.Begin.x))
 							continue;
 					}
 					else
 					{
-						if ((FirstLine && X < GArea.Begin.X) || (LastLine && X > GArea.End.X))
+						if ((FirstLine && X < GArea.Begin.x) || (LastLine && X > GArea.End.x))
 							continue;
 					}
 				}
@@ -317,13 +314,13 @@ void Grabber::DisplayObject()
 			}
 		}
 
-		PutText(FromX, FromY, ToX, ToY, CharBuf.data());
+		PutText({ FromX, FromY, ToX, ToY }, CharBuf.data());
 	}
 
-	if (GArea.Begin.X == -2)
+	if (GArea.Begin.x == -2)
 	{
 		SaveScr->RestoreArea(FALSE);
-		GArea.Begin.X = GArea.End.X;
+		GArea.Begin.x = GArea.End.x;
 	}
 
 	SetCursorType(true, 60);
@@ -359,20 +356,20 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 			ResetArea = true;
 	}
 
-	const auto& Move = [](COORD& What, int Count, int Direction, int LimitX, int LimitY, int NewX)
+	const auto& Move = [](point& What, int Count, int Direction, int LimitX, int LimitY, int NewX)
 	{
 		for (; Count; --Count)
 		{
-			if (What.X != LimitX)
+			if (What.x != LimitX)
 			{
-				What.X += Direction;
+				What.x += Direction;
 			}
 			else if (m_StreamSelection)
 			{
-				if (What.Y != LimitY)
+				if (What.y != LimitY)
 				{
-					What.Y += Direction;
-					What.X = NewX;
+					What.y += Direction;
+					What.x = NewX;
 				}
 				else
 				{
@@ -387,24 +384,24 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 		return true;
 	};
 
-	const auto& MoveCoordLeft = [&](COORD& What, int Count)
+	const auto& MovePointLeft = [&](point& What, int Count)
 	{
 		return Move(What, Count, -1, 0, 0, ScrX);
 	};
 
-	const auto& MoveCoordRight = [&](COORD& What, int Count)
+	const auto& MovePointRight = [&](point& What, int Count)
 	{
 		return Move(What, Count, 1, ScrX, ScrY, 0);
 	};
 
 	const auto& MoveLeft = [&](int Count)
 	{
-		return MoveCoordLeft(GArea.Current, Count);
+		return MovePointLeft(GArea.Current, Count);
 	};
 
 	const auto& MoveRight = [&](int Count)
 	{
-		return MoveCoordRight(GArea.Current, Count);
+		return MovePointRight(GArea.Current, Count);
 	};
 
 	switch (LocalKey)
@@ -416,7 +413,7 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLU:
 		case KEY_RCTRLU:
 			Reset();
-			GArea.Begin.X = -2;
+			GArea.Begin.x = -2;
 			break;
 
 		case KEY_ESC:
@@ -447,40 +444,39 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 			break;
 
 		case KEY_UP:        case KEY_NUMPAD8:   case L'8':
-			if (GArea.Current.Y > 0)
-				--GArea.Current.Y;
+			if (GArea.Current.y > 0)
+				--GArea.Current.y;
 			break;
 
 		case KEY_DOWN:      case KEY_NUMPAD2:   case L'2':
-			if (GArea.Current.Y < ScrY)
-				++GArea.Current.Y;
+			if (GArea.Current.y < ScrY)
+				++GArea.Current.y;
 			break;
 
 		case KEY_HOME:      case KEY_NUMPAD7:   case L'7':
-			GArea.Current.X = 0;
+			GArea.Current.x = 0;
 			break;
 
 		case KEY_END:       case KEY_NUMPAD1:   case L'1':
-			GArea.Current.X = ScrX;
+			GArea.Current.x = ScrX;
 			break;
 
 		case KEY_PGUP:      case KEY_NUMPAD9:   case L'9':
-			GArea.Current.Y = 0;
+			GArea.Current.y = 0;
 			break;
 
 		case KEY_PGDN:      case KEY_NUMPAD3:   case L'3':
-			GArea.Current.Y = ScrY;
+			GArea.Current.y = ScrY;
 			break;
 
 		case KEY_CTRLHOME:  case KEY_CTRLNUMPAD7:
 		case KEY_RCTRLHOME: case KEY_RCTRLNUMPAD7:
-			GArea.Current.X = GArea.Current.Y = 0;
+			GArea.Current = {};
 			break;
 
 		case KEY_CTRLEND:   case KEY_CTRLNUMPAD1:
 		case KEY_RCTRLEND:  case KEY_RCTRLNUMPAD1:
-			GArea.Current.X = ScrX;
-			GArea.Current.Y = ScrY;
+			GArea.Current = { ScrX, ScrY };
 			break;
 
 		case KEY_CTRLLEFT:       case KEY_CTRLNUMPAD4:
@@ -509,20 +505,20 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 		case KEY_RCTRLUP:       case KEY_RCTRLNUMPAD8:
 		case KEY_CTRLSHIFTUP:   case KEY_CTRLSHIFTNUMPAD8:
 		case KEY_RCTRLSHIFTUP:  case KEY_RCTRLSHIFTNUMPAD8:
-			if ((GArea.Current.Y -= 5) < 0)
-				GArea.Current.Y = 0;
+			if ((GArea.Current.y -= 5) < 0)
+				GArea.Current.y = 0;
 			if (LocalKey == KEY_CTRLSHIFTUP || LocalKey == KEY_RCTRLSHIFTUP || LocalKey == KEY_CTRLSHIFTNUMPAD8 || LocalKey == KEY_RCTRLSHIFTNUMPAD8)
-				GArea.Begin.Y = GArea.Current.Y;
+				GArea.Begin.y = GArea.Current.y;
 			break;
 
 		case KEY_CTRLDOWN:       case KEY_CTRLNUMPAD2:
 		case KEY_RCTRLDOWN:      case KEY_RCTRLNUMPAD2:
 		case KEY_CTRLSHIFTDOWN:  case KEY_CTRLSHIFTNUMPAD2:
 		case KEY_RCTRLSHIFTDOWN: case KEY_RCTRLSHIFTNUMPAD2:
-			if ((GArea.Current.Y += 5) > ScrY)
-				GArea.Current.Y = ScrY;
+			if ((GArea.Current.y += 5) > ScrY)
+				GArea.Current.y = ScrY;
 			if (LocalKey == KEY_CTRLSHIFTDOWN || LocalKey == KEY_RCTRLSHIFTDOWN || LocalKey == KEY_CTRLSHIFTNUMPAD2 || LocalKey == KEY_RCTRLSHIFTNUMPAD2)
-				GArea.Begin.Y = GArea.Current.Y;
+				GArea.Begin.y = GArea.Current.y;
 			break;
 
 		case KEY_SHIFTLEFT:  case KEY_SHIFTNUMPAD4:
@@ -536,81 +532,81 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 			break;
 
 		case KEY_SHIFTUP:    case KEY_SHIFTNUMPAD8:
-			if (GArea.Begin.Y > 0)
-				--GArea.Begin.Y;
+			if (GArea.Begin.y > 0)
+				--GArea.Begin.y;
 			GArea.Current = GArea.Begin;
 			break;
 
 		case KEY_SHIFTDOWN:  case KEY_SHIFTNUMPAD2:
-			if (GArea.Begin.Y < ScrY)
-				++GArea.Begin.Y;
+			if (GArea.Begin.y < ScrY)
+				++GArea.Begin.y;
 			GArea.Current = GArea.Begin;
 			break;
 
 		case KEY_SHIFTHOME:  case KEY_SHIFTNUMPAD7:
-			GArea.Current.X = GArea.Begin.X = 0;
+			GArea.Current.x = GArea.Begin.x = 0;
 			break;
 
 		case KEY_SHIFTEND:   case KEY_SHIFTNUMPAD1:
-			GArea.Current.X = GArea.Begin.X = ScrX;
+			GArea.Current.x = GArea.Begin.x = ScrX;
 			break;
 
 		case KEY_SHIFTPGUP:  case KEY_SHIFTNUMPAD9:
-			GArea.Current.Y = GArea.Begin.Y = 0;
+			GArea.Current.y = GArea.Begin.y = 0;
 			break;
 
 		case KEY_SHIFTPGDN:  case KEY_SHIFTNUMPAD3:
-			GArea.Current.Y = GArea.Begin.Y = ScrY;
+			GArea.Current.y = GArea.Begin.y = ScrY;
 			break;
 
 		case KEY_ALTSHIFTHOME:  case KEY_ALTSHIFTNUMPAD7:
 		case KEY_RALTSHIFTHOME: case KEY_RALTSHIFTNUMPAD7:
-			GArea.End.X = 0;
+			GArea.End.x = 0;
 			break;
 
 		case KEY_ALTSHIFTEND:   case KEY_ALTSHIFTNUMPAD1:
 		case KEY_RALTSHIFTEND:  case KEY_RALTSHIFTNUMPAD1:
-			GArea.End.X = ScrX;
+			GArea.End.x = ScrX;
 			break;
 
 		case KEY_ALTSHIFTPGUP:  case KEY_ALTSHIFTNUMPAD9:
 		case KEY_RALTSHIFTPGUP: case KEY_RALTSHIFTNUMPAD9:
-			GArea.End.Y = 0;
+			GArea.End.y = 0;
 			break;
 
 		case KEY_ALTSHIFTPGDN:  case KEY_ALTSHIFTNUMPAD3:
 		case KEY_RALTSHIFTPGDN: case KEY_RALTSHIFTNUMPAD3:
-			GArea.End.Y = ScrY;
+			GArea.End.y = ScrY;
 			break;
 
 		case KEY_ALTSHIFTLEFT:  case KEY_ALTSHIFTNUMPAD4:
 		case KEY_RALTSHIFTLEFT: case KEY_RALTSHIFTNUMPAD4:
-			MoveCoordLeft(GArea.End, 1);
+			MovePointLeft(GArea.End, 1);
 			break;
 
 		case KEY_ALTSHIFTRIGHT:  case KEY_ALTSHIFTNUMPAD6:
 		case KEY_RALTSHIFTRIGHT: case KEY_RALTSHIFTNUMPAD6:
-			MoveCoordRight(GArea.End, 1);
+			MovePointRight(GArea.End, 1);
 			break;
 
 		case KEY_ALTSHIFTUP:    case KEY_ALTSHIFTNUMPAD8:
 		case KEY_RALTSHIFTUP:   case KEY_RALTSHIFTNUMPAD8:
-			if (GArea.End.Y > 0)
-				--GArea.End.Y;
+			if (GArea.End.y > 0)
+				--GArea.End.y;
 			break;
 
 		case KEY_ALTSHIFTDOWN:  case KEY_ALTSHIFTNUMPAD2:
 		case KEY_RALTSHIFTDOWN: case KEY_RALTSHIFTNUMPAD2:
-			if (GArea.End.Y < ScrY)
-				++GArea.End.Y;
+			if (GArea.End.y < ScrY)
+				++GArea.End.y;
 			break;
 
 		case KEY_CTRLA:
 		case KEY_RCTRLA:
-			GArea.Begin.X = ScrX;
-			GArea.Begin.Y = ScrY;
-			GArea.End.X = 0;
-			GArea.End.Y = 0;
+			GArea.Begin.x = ScrX;
+			GArea.Begin.y = ScrY;
+			GArea.End.x = 0;
+			GArea.End.y = 0;
 			GArea.Current = GArea.Begin;
 			break;
 
@@ -618,9 +614,9 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 		case KEY_RALTLEFT:
 			{
 				const auto& Selection = GetSelection();
-				if (MoveCoordLeft(std::get<0>(Selection), 1))
+				if (MovePointLeft(std::get<0>(Selection), 1))
 				{
-					MoveCoordLeft(std::get<1>(Selection), 1);
+					MovePointLeft(std::get<1>(Selection), 1);
 					GArea.Current = GArea.Begin;
 				}
 			}
@@ -630,9 +626,9 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 		case KEY_RALTRIGHT:
 			{
 				const auto& Selection = GetSelection();
-				if (MoveCoordRight(std::get<1>(Selection), 1))
+				if (MovePointRight(std::get<1>(Selection), 1))
 				{
-					MoveCoordRight(std::get<0>(Selection), 1);
+					MovePointRight(std::get<0>(Selection), 1);
 					GArea.Current = GArea.Begin;
 				}
 			}
@@ -640,46 +636,46 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 
 		case KEY_ALTUP:
 		case KEY_RALTUP:
-			if (GArea.Begin.Y && GArea.End.Y)
+			if (GArea.Begin.y && GArea.End.y)
 			{
-				--GArea.Begin.Y;
-				--GArea.End.Y;
+				--GArea.Begin.y;
+				--GArea.End.y;
 				GArea.Current = GArea.Begin;
 			}
 			break;
 
 		case KEY_ALTDOWN:
 		case KEY_RALTDOWN:
-			if (GArea.Begin.Y < ScrY && GArea.End.Y < ScrY)
+			if (GArea.Begin.y < ScrY && GArea.End.y < ScrY)
 			{
-				++GArea.Begin.Y;
-				++GArea.End.Y;
+				++GArea.Begin.y;
+				++GArea.End.y;
 				GArea.Current = GArea.Begin;
 			}
 			break;
 
 		case KEY_ALTHOME:
 		case KEY_RALTHOME:
-			GArea.Begin.X = GArea.Current.X = abs(GArea.Begin.X - GArea.End.X);
-			GArea.End.X = 0;
+			GArea.Begin.x = GArea.Current.x = abs(GArea.Begin.x - GArea.End.x);
+			GArea.End.x = 0;
 			break;
 
 		case KEY_ALTEND:
 		case KEY_RALTEND:
-			GArea.End.X = ScrX - abs(GArea.Begin.X - GArea.End.X);
-			GArea.Begin.X = GArea.Current.X = ScrX;
+			GArea.End.x = ScrX - abs(GArea.Begin.x - GArea.End.x);
+			GArea.Begin.x = GArea.Current.x = ScrX;
 			break;
 
 		case KEY_ALTPGUP:
 		case KEY_RALTPGUP:
-			GArea.Begin.Y = GArea.Current.Y = abs(GArea.Begin.Y - GArea.End.Y);
-			GArea.End.Y = 0;
+			GArea.Begin.y = GArea.Current.y = abs(GArea.Begin.y - GArea.End.y);
+			GArea.End.y = 0;
 			break;
 
 		case KEY_ALTPGDN:
 		case KEY_RALTPGDN:
-			GArea.End.Y = ScrY - abs(GArea.Begin.Y - GArea.End.Y);
-			GArea.Begin.Y = GArea.Current.Y = ScrY;
+			GArea.End.y = ScrY - abs(GArea.Begin.y - GArea.End.y);
+			GArea.Begin.y = GArea.Current.y = ScrY;
 			break;
 	}
 
@@ -710,8 +706,8 @@ bool Grabber::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		ResetArea = false;
 	}
 
-	GArea.Current.X = std::clamp(IntKeyState.MouseX, SHORT(0), ScrX);
-	GArea.Current.Y = std::clamp(IntKeyState.MouseY, SHORT(0), ScrY);
+	GArea.Current.x = std::clamp(IntKeyState.MousePos.x, 0, int(ScrX));
+	GArea.Current.y = std::clamp(IntKeyState.MousePos.y, 0, int(ScrY));
 
 	if (MouseEvent->dwEventFlags == MOUSE_MOVED)
 	{

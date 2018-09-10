@@ -37,6 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "exception.hpp"
 
+#include "common/2d/rectangle.hpp"
+
 enum class lng;
 
 enum
@@ -96,7 +98,7 @@ public:
 	};
 
 	int GetExitCode() const {return m_ExitCode;}
-	void GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2) const;
+	rectangle GetPosition() const;
 	operator int() const { return GetExitCode(); }
 
 private:
@@ -114,7 +116,7 @@ private:
 	intptr_t MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 
 	int m_ExitCode;
-	int MessageX1,MessageY1,MessageX2,MessageY2;
+	rectangle m_Position;
 	int FirstButtonIndex,LastButtonIndex;
 	bool IsWarningStyle;
 	bool IsErrorType;

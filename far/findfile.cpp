@@ -578,7 +578,7 @@ void FindFiles::AdvancedDialog()
 	auto AdvancedDlg = MakeDialogItemsEx(AdvancedDlgData);
 	const auto Dlg = Dialog::create(AdvancedDlg, &FindFiles::AdvancedDlgProc);
 	Dlg->SetHelp(L"FindFileAdvanced"sv);
-	Dlg->SetPosition(-1,-1,52+4,13);
+	Dlg->SetPosition({ -1, -1, 52 + 4, 13 });
 	Dlg->Process();
 	int ExitCode=Dlg->GetExitCode();
 
@@ -1804,7 +1804,15 @@ void FindFiles::OpenFile(string strSearchFileName, int openKey, const FindListIt
 
 			ViewList.SetCurName(FindItem->FindData.FileName);
 
-			const auto ShellViewer = FileViewer::create(strSearchFileName, false, false, false, -1, nullptr, (list_count > 1? &ViewList : nullptr));
+			const auto ShellViewer = FileViewer::create(
+				strSearchFileName,
+				false,
+				false,
+				false,
+				-1,
+				{},
+				list_count > 1? &ViewList : nullptr);
+
 			ShellViewer->SetEnableF6(TRUE);
 
 			if (FindItem->Arc && !(FindItem->Arc->Flags & OPIF_REALNAMES))
@@ -2554,7 +2562,7 @@ bool FindFiles::FindFilesProcess()
 
 	const auto Dlg = Dialog::create(FindDlg, &FindFiles::FindDlgProc, this);
 	Dlg->SetHelp(L"FindFileResult"sv);
-	Dlg->SetPosition(-1, -1, DlgWidth, DlgHeight);
+	Dlg->SetPosition({ -1, -1, DlgWidth, DlgHeight });
 	Dlg->SetId(FindFileResultId);
 
 	m_ResultsDialogPtr = Dlg.get();
@@ -2932,7 +2940,7 @@ FindFiles::FindFiles():
 		Dlg->SetAutomation(FAD_CHECKBOX_FILTER,FAD_BUTTON_FILTER,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 		Dlg->SetHelp(L"FindFile"sv);
 		Dlg->SetId(FindFileId);
-		Dlg->SetPosition(-1,-1,80,21);
+		Dlg->SetPosition({ -1, -1, 80, 21 });
 		Dlg->Process();
 		const auto ExitCode = Dlg->GetExitCode();
 		//Рефреш текущему времени для фильтра сразу после выхода из диалога

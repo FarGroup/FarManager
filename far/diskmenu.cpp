@@ -314,7 +314,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 	if (Global->Opt->Confirm.RemoveConnection)
 	{
 		const auto Dlg = Dialog::create(DCDlg);
-		Dlg->SetPosition(-1, -1, DCDlg[0].X2 + 4, 11);
+		Dlg->SetPosition({ -1, -1, static_cast<int>(DCDlg[0].X2 + 4), 11 });
 		Dlg->SetHelp(L"DisconnectDrive"sv);
 		Dlg->SetId(DisconnectDriveId);
 		Dlg->SetDialogMode(DMODE_WARNINGSTYLE);
@@ -643,8 +643,7 @@ static bool GetShellName(const string& Path, string& Name)
 
 static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 {
-	int Panel_X1, Panel_X2, Panel_Y1, Panel_Y2;
-	Owner->GetPosition(Panel_X1, Panel_Y1, Panel_X2, Panel_Y2);
+	const auto PanelRect = Owner->GetPosition();
 
 	class Guard_Macro_DskShowPosType  //фигня какая-то
 	{
@@ -663,7 +662,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 	PanelMenuItem Item, *mitem = nullptr;
 	{ // эта скобка надо, см. M#605
-		const auto ChDisk = VMenu2::create(msg(lng::MChangeDriveTitle), {}, ScrY - Panel_Y1 - 3);
+		const auto ChDisk = VMenu2::create(msg(lng::MChangeDriveTitle), {}, ScrY - PanelRect.top - 3);
 		ChDisk->SetBottomTitle(msg(lng::MChangeDriveMenuFooter));
 		ChDisk->SetHelp(L"DriveDlg"sv);
 		ChDisk->SetMenuFlags(VMENU_WRAPMODE);
@@ -884,12 +883,12 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 		DE.reset();
 
-		int X = Panel_X1 + 5;
+		int X = PanelRect.left + 5;
 
-		if ((Owner == Owner->Parent()->RightPanel()) && Owner->IsFullScreen() && (Panel_X2 - Panel_X1 > 40))
-			X = (Panel_X2 - Panel_X1 + 1) / 2 + 5;
+		if ((Owner == Owner->Parent()->RightPanel()) && Owner->IsFullScreen() && (PanelRect.width() > 40))
+			X = PanelRect.width() / 2 + 5;
 
-		ChDisk->SetPosition(X, -1, 0, 0);
+		ChDisk->SetPosition({ X, -1, 0, 0 });
 
 		int Y = (ScrY + 1 - static_cast<int>((DiskCount + PluginMenuItemsCount) + 5)) / 2;
 		if (Y < 3)

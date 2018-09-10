@@ -132,7 +132,7 @@ void PrintFiles(FileList* SrcPanel)
 
 			const auto PrinterList = VMenu2::create(strTitle, {}, ScrY - 4);
 			PrinterList->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
-			PrinterList->SetPosition(-1, -1, 0, 0);
+			PrinterList->SetPosition({ -1, -1, 0, 0 });
 			AddToPrintersMenu(PrinterList.get(), { pi.get(), Returned });
 
 			if (PrinterList->Run() < 0)

@@ -38,21 +38,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 
 SimpleScreenObject::SimpleScreenObject(window_ptr Owner):
-	m_Owner(Owner),
-	m_X1(),
-	m_Y1(),
-	m_X2(),
-	m_Y2()
+	m_Owner(Owner)
 {
 	//assert(m_Owner!=nullptr);
 }
 
-void SimpleScreenObject::SetPosition(int X1,int Y1,int X2,int Y2)
+void SimpleScreenObject::SetPosition(rectangle Where)
 {
-	m_X1 = X1;
-	m_Y1 = Y1;
-	m_X2 = X2;
-	m_Y2 = Y2;
+	m_Where = Where;
 	m_Flags.Set(FSCROBJ_SETPOSITIONDONE);
 }
 
@@ -62,12 +55,9 @@ void SimpleScreenObject::SetScreenPosition()
 }
 
 
-void SimpleScreenObject::GetPosition(int& X1, int& Y1, int& X2, int& Y2) const
+rectangle SimpleScreenObject::GetPosition() const
 {
-	X1 = m_X1;
-	Y1 = m_Y1;
-	X2 = m_X2;
-	Y2 = m_Y2;
+	return m_Where;
 }
 
 void SimpleScreenObject::Hide()
@@ -122,7 +112,7 @@ void ScreenObject::Show()
 	if (!IsVisible())
 	{
 		if (m_Flags.Check(FSCROBJ_ENABLERESTORESCREEN) && !SaveScr)
-			SaveScr = std::make_unique<SaveScreen>(m_X1, m_Y1, m_X2, m_Y2);
+			SaveScr = std::make_unique<SaveScreen>(m_Where);
 	}
 
 	SimpleScreenObject::Show();
@@ -139,7 +129,7 @@ void ScreenObject::HideButKeepSaveScreen()
 	SimpleScreenObject::Hide();
 }
 
-void ScreenObject::SetPosition(int X1, int Y1, int X2, int Y2)
+void ScreenObject::SetPosition(rectangle Where)
 {
 	/* $ 13.04.2002 KM
 	- Раз меняем позицию объекта на экране, то тогда
@@ -149,7 +139,7 @@ void ScreenObject::SetPosition(int X1, int Y1, int X2, int Y2)
 	*/
 	SaveScr.reset();
 
-	SimpleScreenObject::SetPosition(X1, Y1, X2, Y2);
+	SimpleScreenObject::SetPosition(Where);
 }
 
 
@@ -183,17 +173,17 @@ void ScreenObjectWithShadow::Shadow(bool Full)
 		if(Full)
 		{
 			if (!ShadowSaveScr)
-				ShadowSaveScr = std::make_unique<SaveScreen>(0,0,ScrX,ScrY);
+				ShadowSaveScr = std::make_unique<SaveScreen>(rectangle{ 0, 0, ScrX, ScrY });
 
-			MakeShadow(0,0,ScrX,ScrY);
+			MakeShadow({ 0, 0, ScrX, ScrY });
 		}
 		else
 		{
 			if (!ShadowSaveScr)
-				ShadowSaveScr = std::make_unique<SaveScreen>(m_X1, m_Y1, m_X2 + 2, m_Y2 + 1);
+				ShadowSaveScr = std::make_unique<SaveScreen>(rectangle{ m_Where.left, m_Where.top, m_Where.right + 2, m_Where.bottom + 1 });
 
-			MakeShadow(m_X1+2,m_Y2+1,m_X2+1,m_Y2+1);
-			MakeShadow(m_X2+1,m_Y1+1,m_X2+2,m_Y2+1);
+			MakeShadow({ m_Where.left + 2, m_Where.bottom + 1, m_Where.right + 1, m_Where.bottom + 1 });
+			MakeShadow({ m_Where.right + 1, m_Where.top + 1, m_Where.right + 2, m_Where.bottom + 1 });
 		}
 	}
 }

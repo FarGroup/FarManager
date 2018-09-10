@@ -75,12 +75,12 @@ KeyBar::KeyBar(window_ptr Owner):
 
 void KeyBar::DisplayObject()
 {
-	GotoXY(m_X1,m_Y1);
+	GotoXY(m_Where.left, m_Where.top);
 	AltState = IntKeyState.AltPressed();
 	CtrlState = IntKeyState.CtrlPressed();
 	ShiftState = IntKeyState.ShiftPressed();
 
-	int KeyWidth=(m_X2-m_X1-1)/12;
+	int KeyWidth = (m_Where.width() - 2) / 12;
 
 	if (KeyWidth<8)
 		KeyWidth=8;
@@ -89,7 +89,7 @@ void KeyBar::DisplayObject()
 
 	for (size_t i=0; i<KEY_COUNT; i++)
 	{
-		if (WhereX()+LabelWidth>=m_X2)
+		if (WhereX() + LabelWidth >= m_Where.right)
 			break;
 
 		SetColor(COL_KEYBARNUM);
@@ -148,7 +148,7 @@ void KeyBar::DisplayObject()
 		}
 	}
 
-	int Width=m_X2-WhereX()+1;
+	int Width = m_Where.right - WhereX() + 1;
 
 	if (Width>0)
 	{
@@ -287,16 +287,15 @@ bool KeyBar::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (!(MouseEvent->dwButtonState & 3) || MouseEvent->dwEventFlags)
 		return false;
 
-	if (MouseEvent->dwMousePosition.X<m_X1 || MouseEvent->dwMousePosition.X>m_X2 ||
-	        MouseEvent->dwMousePosition.Y!=m_Y1)
+	if (!m_Where.contains(MouseEvent->dwMousePosition))
 		return false;
 
-	int KeyWidth=(m_X2-m_X1-1)/12;
+	int KeyWidth = (m_Where.width() - 2) / 12;
 
 	if (KeyWidth<8)
 		KeyWidth=8;
 
-	int X=MouseEvent->dwMousePosition.X-m_X1;
+	int X = MouseEvent->dwMousePosition.X - m_Where.left;
 
 	if (X<KeyWidth*9)
 		Key=X/KeyWidth;
@@ -311,12 +310,10 @@ bool KeyBar::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			break;
 	}
 
-	if (rec.Event.MouseEvent.dwMousePosition.X<m_X1 ||
-	        rec.Event.MouseEvent.dwMousePosition.X>m_X2 ||
-	        rec.Event.MouseEvent.dwMousePosition.Y!=m_Y1)
+	if (!m_Where.contains(MouseEvent->dwMousePosition))
 		return false;
 
-	const int NewX = MouseEvent->dwMousePosition.X - m_X1;
+	const int NewX = MouseEvent->dwMousePosition.X - m_Where.left;
 	const size_t NewKey = NewX < KeyWidth * 9? NewX / KeyWidth : 9 + (NewX - KeyWidth * 9) / (KeyWidth + 1);
 
 	if (Key!=NewKey)

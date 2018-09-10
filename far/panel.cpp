@@ -164,12 +164,11 @@ Search::Search(private_tag, Panel* Owner, const Manager::Key& FirstKey):
 
 void Search::InitPositionAndSize()
 {
-	int X1, Y1, X2, Y2;
-	m_Owner->GetPosition(X1, Y1, X2, Y2);
-	int FindX=std::min(X1+9,ScrX-22);
-	int FindY=std::min(Y2,ScrY-2);
-	SetPosition(FindX,FindY,FindX+21,FindY+2);
-	m_FindEdit->SetPosition(FindX+2,FindY+1,FindX+19,FindY+1);
+	const auto OwnerRect = m_Owner->GetPosition();
+	int FindX = std::min(OwnerRect.left + 9, ScrX - 22);
+	int FindY = std::min(OwnerRect.bottom, ScrY - 2);
+	SetPosition({ FindX, FindY, FindX + 21, FindY + 2 });
+	m_FindEdit->SetPosition({ FindX + 2, FindY + 1, FindX + 19, FindY + 1 });
 }
 
 search_ptr Search::create(Panel* Owner, const Manager::Key& FirstKey)
@@ -356,12 +355,12 @@ bool Search::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 void Search::ShowBorder() const
 {
 	SetColor(COL_DIALOGTEXT);
-	GotoXY(m_X1+1,m_Y1+1);
+	GotoXY(m_Where.left + 1, m_Where.top + 1);
 	Text(L' ');
-	GotoXY(m_X1+20,m_Y1+1);
+	GotoXY(m_Where.left + 20, m_Where.top + 1);
 	Text(L' ');
-	Box(m_X1,m_Y1,m_X1+21,m_Y1+2,colors::PaletteColorToFarColor(COL_DIALOGBOX),DOUBLE_BOX);
-	GotoXY(m_X1+7,m_Y1);
+	Box({ m_Where.left, m_Where.top, m_Where.left + 21, m_Where.top + 2 }, colors::PaletteColorToFarColor(COL_DIALOGBOX), DOUBLE_BOX);
+	GotoXY(m_Where.left + 7, m_Where.top);
 	SetColor(COL_DIALOGBOXTITLE);
 	Text(L' ');
 	Text(lng::MSearchFileTitle);
@@ -437,8 +436,8 @@ void Panel::OnFocusChange(bool Get)
 bool Panel::IsMouseInClientArea(const MOUSE_EVENT_RECORD* MouseEvent) const
 {
 	return IsVisible() &&
-		InRange(m_X1, MouseEvent->dwMousePosition.X, m_X2) &&
-		InRange(m_Y1, MouseEvent->dwMousePosition.Y, m_Y2);
+		InRange(m_Where.left, MouseEvent->dwMousePosition.X, m_Where.right) &&
+		InRange(m_Where.top, MouseEvent->dwMousePosition.Y, m_Where.bottom);
 }
 
 bool Panel::ProcessMouseDrag(const MOUSE_EVENT_RECORD *MouseEvent)
@@ -459,7 +458,7 @@ bool Panel::ProcessMouseDrag(const MOUSE_EVENT_RECORD *MouseEvent)
 			return true;
 		}
 
-		if (MouseEvent->dwMousePosition.Y<=m_Y1 || MouseEvent->dwMousePosition.Y>=m_Y2 ||
+		if (MouseEvent->dwMousePosition.Y <= m_Where.top || MouseEvent->dwMousePosition.Y >= m_Where.bottom ||
 			!Parent()->GetAnotherPanel(SrcDragPanel)->IsVisible())
 		{
 			EndDrag();
@@ -489,7 +488,7 @@ bool Panel::ProcessMouseDrag(const MOUSE_EVENT_RECORD *MouseEvent)
 		}
 	}
 
-	if (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED && !MouseEvent->dwEventFlags && m_X2 - m_X1<ScrX)
+	if (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED && !MouseEvent->dwEventFlags && m_Where.width() - 1 < ScrX)
 	{
 		MoveToMouse(MouseEvent);
 		os::fs::find_data Data;
@@ -567,7 +566,7 @@ void Panel::DragMessage(int X,int Y,int Move)
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	// Important - the old one must be deleted before creating a new one, not after
 	DragSaveScr.reset();
-	DragSaveScr = std::make_unique<SaveScreen>(MsgX, Y, MsgX + Length - 1, Y);
+	DragSaveScr = std::make_unique<SaveScreen>(rectangle{ MsgX, Y, MsgX + Length - 1, Y });
 	GotoXY(MsgX,Y);
 	SetColor(COL_PANELDRAGTEXT);
 	Text(strDragMsg);
@@ -832,25 +831,25 @@ void Panel::ShowConsoleTitle()
 
 void Panel::DrawSeparator(int Y) const
 {
-	if (Y<m_Y2)
+	if (Y < m_Where.bottom)
 	{
 		SetColor(COL_PANELBOX);
-		GotoXY(m_X1,Y);
-		DrawLine(m_X2 - m_X1 + 1, line_type::h1_to_v2);
+		GotoXY(m_Where.left, Y);
+		DrawLine(m_Where.width(), line_type::h1_to_v2);
 	}
 }
 
 string Panel::GetTitleForDisplay() const
 {
 	auto Title = concat(L' ', GetTitle());
-	TruncStr(Title, m_X2 - m_X1 - 2);
+	TruncStr(Title, m_Where.width() - 3);
 	Title += L' ';
 	return Title;
 }
 
 void Panel::ShowScreensCount() const
 {
-	if (Global->Opt->ShowScreensNumber && !m_X1)
+	if (Global->Opt->ShowScreensNumber && !m_Where.left)
 	{
 		int Viewers = Global->WindowManager->GetWindowCountByType(windowtype_viewer);
 		int Editors = Global->WindowManager->GetWindowCountByType(windowtype_editor);
@@ -858,7 +857,7 @@ void Panel::ShowScreensCount() const
 
 		if (Viewers>0 || Editors>0 || Dialogs > 0)
 		{
-			GotoXY(Global->Opt->ShowColumnTitles ? m_X1:m_X1+2,m_Y1);
+			GotoXY(m_Where.left + (Global->Opt->ShowColumnTitles? 0 : 2), m_Where.top);
 			SetColor(COL_PANELSCREENSNUMBER);
 
 			auto Counter = L'[' + str(Viewers);
@@ -977,12 +976,11 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 				break;
 			}
 
-			int X1,Y1,X2,Y2;
-			GetPosition(X1,Y1,X2,Y2);
-			Info->PanelRect.left=X1;
-			Info->PanelRect.top=Y1;
-			Info->PanelRect.right=X2;
-			Info->PanelRect.bottom=Y2;
+			const auto Rect = GetPosition();
+			Info->PanelRect.left = Rect.left;
+			Info->PanelRect.top = Rect.top;
+			Info->PanelRect.right = Rect.right;
+			Info->PanelRect.bottom = Rect.bottom;
 			Info->ViewMode=GetViewMode();
 			Info->SortMode = static_cast<OPENPANELINFO_SORTMODES>((GetSortMode() < panel_sort::COUNT? SM_UNSORTED - static_cast<int>(panel_sort::UNSORTED) : 0) + static_cast<int>(GetSortMode()));
 

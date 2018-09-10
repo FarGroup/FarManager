@@ -33,7 +33,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "common/rel_ops.hpp"
+#include "../rel_ops.hpp"
 
 template<class T>
 class matrix
@@ -47,7 +47,6 @@ public:
 	{
 	public:
 		using iterator = pointer;
-		using const_iterator = typename std::add_const_t<row_t>::iterator;
 		using value_type = typename std::iterator_traits<iterator>::value_type;
 		using reference = typename std::iterator_traits<iterator>::reference;
 

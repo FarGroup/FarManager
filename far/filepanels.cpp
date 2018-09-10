@@ -249,33 +249,57 @@ void FilePanels::SetPanelPositions(bool LeftFullScreen, bool RightFullScreen) co
 
 	if (LeftFullScreen)
 	{
-		Left->SetPosition(0,Global->Opt->ShowMenuBar?1:0,ScrX,ScrY-1-(Global->Opt->ShowKeyBar)-Global->Opt->LeftHeightDecrement);
+		Left->SetPosition(
+			{
+				0,
+				Global->Opt->ShowMenuBar? 1 : 0,
+				ScrX,
+				static_cast<int>(ScrY - 1 - Global->Opt->ShowKeyBar - Global->Opt->LeftHeightDecrement)
+			});
 		Left->SetFullScreen();
 	}
 	else
 	{
-		Left->SetPosition(0,Global->Opt->ShowMenuBar?1:0,ScrX/2-Global->Opt->WidthDecrement,ScrY-1-(Global->Opt->ShowKeyBar)-Global->Opt->LeftHeightDecrement);
+		Left->SetPosition(
+			{
+				0,
+				Global->Opt->ShowMenuBar? 1 : 0,
+				static_cast<int>(ScrX / 2 - Global->Opt->WidthDecrement),
+				static_cast<int>(ScrY - 1 - Global->Opt->ShowKeyBar - Global->Opt->LeftHeightDecrement)
+			});
 	}
 
 	if (RightFullScreen)
 	{
-		Right->SetPosition(0,Global->Opt->ShowMenuBar?1:0,ScrX,ScrY-1-(Global->Opt->ShowKeyBar)-Global->Opt->RightHeightDecrement);
+		Right->SetPosition(
+			{
+				0,
+				Global->Opt->ShowMenuBar? 1 : 0,
+				ScrX,
+				static_cast<int>(ScrY - 1 - Global->Opt->ShowKeyBar - Global->Opt->RightHeightDecrement)
+			});
 		Right->SetFullScreen();
 	}
 	else
 	{
-		Right->SetPosition(ScrX/2+1-Global->Opt->WidthDecrement,Global->Opt->ShowMenuBar?1:0,ScrX,ScrY-1-(Global->Opt->ShowKeyBar)-Global->Opt->RightHeightDecrement);
+		Right->SetPosition(
+			{
+				static_cast<int>(ScrX / 2 + 1 - Global->Opt->WidthDecrement),
+				Global->Opt->ShowMenuBar? 1 : 0,
+				ScrX,
+				static_cast<int>(ScrY - 1 - Global->Opt->ShowKeyBar - Global->Opt->RightHeightDecrement)
+			});
 	}
 }
 
 void FilePanels::SetScreenPosition()
 {
 	_OT(SysLog(L"[%p] FilePanels::SetScreenPosition() {%d, %d - %d, %d}", this,m_X1,m_Y1,m_X2,m_Y2));
-	CmdLine->SetPosition(0,ScrY-(Global->Opt->ShowKeyBar),ScrX-1,ScrY-(Global->Opt->ShowKeyBar));
-	TopMenuBar->SetPosition(0, 0, ScrX, 0);
-	m_windowKeyBar->SetPosition(0, ScrY, ScrX, ScrY);
+	CmdLine->SetPosition({ 0, ScrY - Global->Opt->ShowKeyBar, ScrX - 1, ScrY - Global->Opt->ShowKeyBar });
+	TopMenuBar->SetPosition({ 0, 0, ScrX, 0 });
+	m_windowKeyBar->SetPosition({ 0, ScrY, ScrX, ScrY });
 	SetPanelPositions(LeftPanel()->IsFullScreen(), RightPanel()->IsFullScreen());
-	SetPosition(0,0,ScrX,ScrY);
+	SetPosition({ 0, 0, ScrX, ScrY });
 }
 
 void FilePanels::RedrawKeyBar()
@@ -330,36 +354,17 @@ int FilePanels::SetAnhoterPanelFocus()
 
 int FilePanels::SwapPanels()
 {
-	int Ret=FALSE; // это значит ни одна из панелей не видна
+	if (!LeftPanel()->IsVisible() && !RightPanel()->IsVisible())
+		return false;
 
-	if (LeftPanel()->IsVisible() || RightPanel()->IsVisible())
-	{
-		int XL1,YL1,XL2,YL2;
-		int XR1,YR1,XR2,YR2;
-		LeftPanel()->GetPosition(XL1,YL1,XL2,YL2);
-		RightPanel()->GetPosition(XR1,YR1,XR2,YR2);
+	using std::swap;
+	swap(m_Panels[panel_left], m_Panels[panel_right]);
+	FileFilter::SwapFilter();
+	m_ActivePanelIndex = IsLeftActive()? panel_right : panel_left;
 
-		if (!LeftPanel()->IsFullScreen() || !RightPanel()->IsFullScreen())
-		{
-			Global->Opt->WidthDecrement=-Global->Opt->WidthDecrement;
-
-			const auto LeftDecrement = Global->Opt->LeftHeightDecrement.Get();
-			Global->Opt->LeftHeightDecrement = Global->Opt->RightHeightDecrement.Get();
-			Global->Opt->RightHeightDecrement = LeftDecrement;
-		}
-
-		using std::swap;
-		swap(m_Panels[panel_left].m_Panel, m_Panels[panel_right].m_Panel);
-		swap(m_Panels[panel_left].m_LastFilePanel, m_Panels[panel_right].m_LastFilePanel);
-		swap(m_Panels[panel_left].m_LastType, m_Panels[panel_right].m_LastType);
-		swap(m_Panels[panel_left].m_StateBeforeHide, m_Panels[panel_right].m_StateBeforeHide);
-		FileFilter::SwapFilter();
-		m_ActivePanelIndex = IsLeftActive()? panel_right : panel_left;
-		Ret=TRUE;
-	}
 	SetScreenPosition();
 	Global->WindowManager->RefreshWindow();
-	return Ret;
+	return true;
 }
 
 long long FilePanels::VMProcess(int OpCode, void* vParam, long long iParam)
@@ -890,7 +895,6 @@ panel_ptr FilePanels::ChangePanel(panel_ptr Current, panel_type NewType, int Cre
 	std::unique_ptr<SaveScreen> TemporarySaveScr;
 	// OldType не инициализировался...
 	const auto OldType = Current->GetType();
-	int X1, Y1, X2, Y2;
 	const auto OldPanelMode = Current->GetMode();
 
 	if (!Force && NewType == OldType && OldPanelMode == panel_mode::NORMAL_PANEL)
@@ -910,7 +914,7 @@ panel_ptr FilePanels::ChangePanel(panel_ptr Current, panel_type NewType, int Cre
 	const auto LeftPosition = (Current == LeftPanel());
 
 	auto& LastFilePanel = m_Panels[LeftPosition? panel_left : panel_right].m_LastFilePanel;
-	Current->GetPosition(X1,Y1,X2,Y2);
+	const auto Rect = Current->GetPosition();
 	const auto ChangePosition = (OldType == panel_type::FILE_PANEL && NewType != panel_type::FILE_PANEL && OldFullScreen) ||
 		(NewType==panel_type::FILE_PANEL && OldFullScreen != FileList::IsModeFullScreen(OldViewMode));
 
@@ -950,13 +954,12 @@ panel_ptr FilePanels::ChangePanel(panel_ptr Current, panel_type NewType, int Cre
 
 	if (!CreateNew && NewType == panel_type::FILE_PANEL && LastFilePanel)
 	{
-		int LastX1,LastY1,LastX2,LastY2;
-		LastFilePanel->GetPosition(LastX1,LastY1,LastX2,LastY2);
+		const auto LastRect = LastFilePanel->GetPosition();
 
 		if (LastFilePanel->IsFullScreen())
-			LastFilePanel->SetPosition(LastX1,Y1,LastX2,Y2);
+			LastFilePanel->SetPosition({ LastRect.left, Rect.top, LastRect.right, Rect.bottom });
 		else
-			LastFilePanel->SetPosition(X1,Y1,X2,Y2);
+			LastFilePanel->SetPosition(Rect);
 
 		NewPanel = std::move(LastFilePanel);
 
@@ -990,19 +993,19 @@ panel_ptr FilePanels::ChangePanel(panel_ptr Current, panel_type NewType, int Cre
 		{
 			if (LeftPosition)
 			{
-				NewPanel->SetPosition(0,Y1,ScrX/2-Global->Opt->WidthDecrement,Y2);
+				NewPanel->SetPosition({ 0, Rect.top, static_cast<int>(ScrX / 2 - Global->Opt->WidthDecrement), Rect.bottom });
 				RightPanel()->Redraw();
 			}
 			else
 			{
-				NewPanel->SetPosition(ScrX/2+1-Global->Opt->WidthDecrement,Y1,ScrX,Y2);
+				NewPanel->SetPosition({ static_cast<int>(ScrX / 2 + 1 - Global->Opt->WidthDecrement), Rect.top, ScrX, Rect.bottom });
 				LeftPanel()->Redraw();
 			}
 		}
 		else
 		{
 			NewPanel->SaveScr = std::move(SaveScr);
-			NewPanel->SetPosition(X1,Y1,X2,Y2);
+			NewPanel->SetPosition(Rect);
 		}
 
 		NewPanel->SetSortMode(OldSortMode);

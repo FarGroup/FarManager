@@ -147,21 +147,21 @@ void copy_progress::Flush()
 
 	CreateBackground();
 
-	Text(m_Rect.Left + 5, m_Rect.Top + 3, m_Color, m_Src);
-	Text(m_Rect.Left + 5, m_Rect.Top + 5, m_Color, m_Dst);
-	Text(m_Rect.Left + 5, m_Rect.Top + 8, m_Color, m_FilesCopied);
+	Text({ m_Rect.left + 5, m_Rect.top + 3 }, m_Color, m_Src);
+	Text({ m_Rect.left + 5, m_Rect.top + 5 }, m_Color, m_Dst);
+	Text({ m_Rect.left + 5, m_Rect.top + 8 }, m_Color, m_FilesCopied);
 
 	const auto Result = FormatCounter(lng::MCopyBytesTotalInfo, lng::MCopyFilesTotalInfo, GetBytesDone(), m_Bytes.Total, m_Total, CanvasWidth() - 5);
-	Text(m_Rect.Left + 5, m_Rect.Top + 9, m_Color, Result);
+	Text({ m_Rect.left + 5, m_Rect.top + 9 }, m_Color, Result);
 
-	Text(m_Rect.Left + 5, m_Rect.Top + 6, m_Color, m_CurrentBar);
+	Text({ m_Rect.left + 5, m_Rect.top + 6 }, m_Color, m_CurrentBar);
 
 	if (m_Total)
 	{
-		Text(m_Rect.Left + 5, m_Rect.Top + 10, m_Color, m_TotalBar);
+		Text({ m_Rect.left + 5, m_Rect.top + 10 }, m_Color, m_TotalBar);
 	}
 
-	Text(m_Rect.Left + 5, m_Rect.Top + (m_Total ? 12 : 11), m_Color, m_Time);
+	Text({ m_Rect.left + 5, m_Rect.top + (m_Total ? 12 : 11) }, m_Color, m_Time);
 
 	if (m_Total || (m_Files.Total == 1))
 	{
@@ -223,17 +223,10 @@ void copy_progress::CreateBackground()
 		Items.emplace_back(L""s);
 	}
 
-	Message m(MSG_LEFTALIGN | MSG_NOFLUSH,
+	m_Rect = Message(MSG_LEFTALIGN | MSG_NOFLUSH,
 		Title,
 		std::move(Items),
-		{});
-
-	int MX1, MY1, MX2, MY2;
-	m.GetMessagePosition(MX1, MY1, MX2, MY2);
-	m_Rect.Left = MX1;
-	m_Rect.Right = MX2;
-	m_Rect.Top = MY1;
-	m_Rect.Bottom = MY2;
+		{}).GetPosition();
 }
 
 void copy_progress::SetNames(const string& Src, const string& Dst)

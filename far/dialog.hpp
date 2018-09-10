@@ -173,7 +173,7 @@ public:
 	int GetType() const override { return windowtype_dialog; }
 	bool CanFastHide() const override;
 	void ResizeConsole() override;
-	void SetPosition(int X1,int Y1,int X2,int Y2) override;
+	void SetPosition(rectangle Where) override;
 	void FastShow() {ShowDialog();}
 	void SetDeleting() override;
 	void ShowConsoleTitle() override;
@@ -277,7 +277,7 @@ private:
 	bool Do_ProcessFirstCtrl();
 	bool Do_ProcessSpace();
 	void SetComboBoxPos(DialogItemEx* Item=nullptr);
-	void CalcComboBoxPos(const DialogItemEx* CurItem, intptr_t ItemCount, int &X1, int &Y1, int &X2, int &Y2) const;
+	rectangle CalcComboBoxPos(const DialogItemEx* CurItem, intptr_t ItemCount) const;
 	void ProcessKey(int Key, size_t ItemPos);
 	void ProcessDrag(const MOUSE_EVENT_RECORD *MouseEvent);
 
@@ -299,7 +299,7 @@ private:
 	// переменные для перемещения диалога
 	struct
 	{
-		int OldX1,OldX2,OldY1,OldY2;
+		rectangle OldRect;
 		int MsX, MsY;
 	} m_Drag;
 	string HelpTopic;

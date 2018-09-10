@@ -1264,7 +1264,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			DlgY++;
 		}
 
-		Dlg->SetPosition(-1,-1,DlgX,DlgY);
+		Dlg->SetPosition({ -1, -1, DlgX, DlgY });
 		Dlg->Process();
 
 		switch(Dlg->GetExitCode())

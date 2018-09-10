@@ -640,7 +640,7 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 	if (!OnlyOne && ShowMenu)
 	{
 		const auto menu = VMenu2::create(msg(lng::MPluginConfirmationTitle), {}, ScrY - 4);
-		menu->SetPosition(-1, -1, 0, 0);
+		menu->SetPosition({ -1, -1, 0, 0 });
 		menu->SetHelp(L"ChoosePluginMenu"sv);
 		menu->SetMenuFlags(VMENU_SHOWAMPERSAND | VMENU_WRAPMODE);
 
@@ -750,7 +750,7 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFindListPlugin(const PluginPane
 	if (items.size() != 1)
 	{
 		const auto menu = VMenu2::create(msg(lng::MPluginConfirmationTitle), {}, ScrY - 4);
-		menu->SetPosition(-1, -1, 0, 0);
+		menu->SetPosition({ -1, -1, 0, 0 });
 		menu->SetHelp(L"ChoosePluginMenu"sv);
 		menu->SetMenuFlags(VMENU_SHOWAMPERSAND | VMENU_WRAPMODE);
 
@@ -1958,7 +1958,7 @@ bool PluginManager::ProcessCommandLine(const string& Command)
 	if (items.size() > 1)
 	{
 		const auto Menu = VMenu2::create(msg(lng::MPluginConfirmationTitle), {}, ScrY - 4);
-		Menu->SetPosition(-1, -1, 0, 0);
+		Menu->SetPosition({ -1, -1, 0, 0 });
 		Menu->SetHelp(L"ChoosePluginMenu"sv);
 		Menu->SetMenuFlags(VMENU_SHOWAMPERSAND | VMENU_WRAPMODE);
 

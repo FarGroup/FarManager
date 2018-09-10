@@ -36,10 +36,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "bitflags.hpp"
-#include "matrix.hpp"
 #include "plugin.hpp"
 
 #include "platform.concurrency.hpp"
+
+#include "common/2d/matrix.hpp"
+#include "common/2d/point.hpp"
+#include "common/2d/rectangle.hpp"
 
 enum class flush_type
 {
@@ -73,23 +76,23 @@ public:
 	int  GetLockCount() const {return LockCount;}
 	void SetLockCount(int Count);
 	void ResetLockCount() {LockCount=0;}
-	void MoveCursor(int X,int Y);
-	void GetCursorPos(SHORT& X, SHORT& Y) const;
+	void MoveCursor(point Point);
+	point GetCursorPos() const;
 	void SetCursorType(bool Visible, DWORD Size);
 	void GetCursorType(bool& Visible, DWORD& Size) const;
 	const string& GetTitle() const { return m_Title; }
 	void SetTitle(const string& Title);
 
 	void FillBuf();
-	void Read(int X1, int Y1, int X2, int Y2, matrix<FAR_CHAR_INFO>& Dest);
-	void Write(int X,int Y,const FAR_CHAR_INFO *Text, size_t Size);
+	void Read(rectangle Where, matrix<FAR_CHAR_INFO>& Dest);
+	void Write(int X,int Y, range<const FAR_CHAR_INFO*> Text);
 	void RestoreMacroChar();
 	void RestoreElevationChar();
 
-	void ApplyShadow(int X1,int Y1,int X2,int Y2);
-	void ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color, bool PreserveExFlags = false);
-	void ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color,const FarColor& ExceptColor, bool ForceExFlags = false);
-	void FillRect(int X1,int Y1,int X2,int Y2,WCHAR Ch,const FarColor& Color);
+	void ApplyShadow(rectangle Where);
+	void ApplyColor(rectangle Where, const FarColor& Color, bool PreserveExFlags = false);
+	void ApplyColor(rectangle Where, const FarColor& Color, const FarColor& ExceptColor, bool ForceExFlags = false);
+	void FillRect(rectangle Where, const FAR_CHAR_INFO& Info);
 
 	void Scroll(size_t Count);
 	void Flush(flush_type FlushType = flush_type::all);

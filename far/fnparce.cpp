@@ -650,7 +650,7 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 	int ExitCode;
 	{
 		const auto Dlg = Dialog::create(DlgData);
-		Dlg->SetPosition(-1, -1, 76, static_cast<int>(DlgData.size() + 2));
+		Dlg->SetPosition({ -1, -1, 76, static_cast<int>(DlgData.size() + 2) });
 		Dlg->SetId(UserMenuUserInputId);
 		Dlg->Process();
 		ExitCode=Dlg->GetExitCode();

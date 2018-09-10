@@ -48,14 +48,14 @@ static void CleanupBuffer(FAR_CHAR_INFO* Buffer, size_t BufSize)
 SaveScreen::SaveScreen()
 {
 	_OT(SysLog(L"[%p] SaveScreen::SaveScreen()", this));
-	SaveArea(0,0,ScrX,ScrY);
+	SaveArea({ 0, 0, ScrX, ScrY });
 }
 
-SaveScreen::SaveScreen(int X1,int Y1,int X2,int Y2)
+SaveScreen::SaveScreen(rectangle Where)
 {
-	fix_coordinates(X1, Y1, X2, Y2);
+	fix_coordinates(Where);
 	_OT(SysLog(L"[%p] SaveScreen::SaveScreen(X1=%i,Y1=%i,X2=%i,Y2=%i)",this,X1,Y1,X2,Y2));
-	SaveArea(X1,Y1,X2,Y2);
+	SaveArea(Where);
 }
 
 
@@ -78,24 +78,21 @@ void SaveScreen::RestoreArea(int RestoreCursor)
 	if (ScreenBuf.empty())
 		return;
 
-	PutText(m_X1, m_Y1, m_X2, m_Y2, ScreenBuf.data());
+	PutText(m_Where, ScreenBuf.data());
 
 	if (RestoreCursor)
 	{
 		SetCursorType(CurVisible,CurSize);
-		MoveCursor(CurPosX,CurPosY);
+		MoveCursor(m_Cursor);
 	}
 }
 
 
-void SaveScreen::SaveArea(int X1,int Y1,int X2,int Y2)
+void SaveScreen::SaveArea(rectangle Where)
 {
-	fix_coordinates(X1, Y1, X2, Y2);
+	fix_coordinates(Where);
 
-	m_X1=X1;
-	m_Y1=Y1;
-	m_X2=X2;
-	m_Y2=Y2;
+	m_Where = Where;
 
 	ScreenBuf.allocate(height(), width());
 	SaveArea();
@@ -106,8 +103,8 @@ void SaveScreen::SaveArea()
 	if (ScreenBuf.empty())
 		return;
 
-	GetText(m_X1, m_Y1, m_X2, m_Y2, ScreenBuf);
-	GetCursorPos(CurPosX,CurPosY);
+	GetText(m_Where, ScreenBuf);
+	m_Cursor = GetCursorPos();
 	GetCursorType(CurVisible,CurSize);
 }
 
@@ -115,13 +112,13 @@ void SaveScreen::AppendArea(const SaveScreen *NewArea)
 {
 	const auto& Offset = [](const SaveScreen* Ptr, int X, int Y)
 	{
-		return X - Ptr->m_X1 + Ptr->width() * (Y - Ptr->m_Y1);
+		return X - Ptr->m_Where.left + Ptr->width() * (Y - Ptr->m_Where.top);
 	};
 
-	for (int X = m_X1; X <= m_X2; X++)
-		if (X >= NewArea->m_X1 && X <= NewArea->m_X2)
-			for (int Y = m_Y1; Y <= m_Y2; Y++)
-				if (Y >= NewArea->m_Y1 && Y <= NewArea->m_Y2)
+	for (int X = m_Where.left; X <= m_Where.right; ++X)
+		if (X >= NewArea->m_Where.left && X <= NewArea->m_Where.right)
+			for (int Y = m_Where.top; Y <= m_Where.bottom; ++Y)
+				if (Y >= NewArea->m_Where.top && Y <= NewArea->m_Where.bottom)
 					ScreenBuf.vector()[Offset(this, X, Y)] = NewArea->ScreenBuf.vector()[Offset(NewArea, X, Y)];
 }
 
@@ -138,10 +135,7 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 	matrix<FAR_CHAR_INFO> NewBuf(DesiredHeight, DesiredWidth);
 	CleanupBuffer(NewBuf.data(), NewBuf.size());
 
-	const auto NewX1 = m_X1;
-	const auto NewX2 = m_X1 + DesiredWidth - 1;
-	const auto NewY1 = m_Y1;
-	const auto NewY2 = m_Y1 + DesiredHeight - 1;
+	const rectangle NewWhere = { m_Where.left, m_Where.top, m_Where.left + DesiredWidth - 1, m_Where.top + DesiredHeight - 1 };
 
 	const auto DeltaY = abs(DesiredHeight - OriginalHeight);
 	const size_t CopyWidth = std::min(OriginalWidth, DesiredWidth);
@@ -237,10 +231,10 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 
 	using std::swap;
 	swap(ScreenBuf, NewBuf);
-	m_X1 = NewX1; m_Y1 = NewY1; m_X2 = NewX2; m_Y2 = NewY2;
+	m_Where = NewWhere;
 }
 
 void SaveScreen::DumpBuffer(const wchar_t *Title)
 {
-	SaveScreenDumpBuffer(Title, ScreenBuf.data(), m_X1, m_Y1, m_X2, m_Y2, nullptr);
+	SaveScreenDumpBuffer(Title, ScreenBuf.data(), m_Where.left, m_Where.top, m_Where.right, m_Where.bottom, nullptr);
 }

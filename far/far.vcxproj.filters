@@ -27,6 +27,9 @@
     <Filter Include="Header Files\common">
       <UniqueIdentifier>{ca030415-47e9-45af-a4e4-d9f85f7b220e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\common\2d">
+      <UniqueIdentifier>{48d61e8c-4499-4899-935c-29b328d7be2c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cache.cpp">
@@ -694,9 +697,6 @@
     <ClInclude Include="manager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="matrix.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="memcheck.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1059,6 +1059,18 @@
     </ClInclude>
     <ClInclude Include="common\keep_alive.hpp">
       <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\2d\matrix.hpp">
+      <Filter>Header Files\common\2d</Filter>
+    </ClInclude>
+    <ClInclude Include="common\2d\point.hpp">
+      <Filter>Header Files\common\2d</Filter>
+    </ClInclude>
+    <ClInclude Include="common\2d\rectangle.hpp">
+      <Filter>Header Files\common\2d</Filter>
+    </ClInclude>
+    <ClInclude Include="common\2d\algorithm.hpp">
+      <Filter>Header Files\common\2d</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

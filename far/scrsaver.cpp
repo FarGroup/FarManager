@@ -162,7 +162,7 @@ int ScreenSaver()
 		SCOPED_ACTION(SaveScreen);
 		SetCursorType(false, 10);
 
-		SetScreen(0, 0, ScrX, ScrY, L' ', colors::ConsoleColorToFarColor(F_LIGHTGRAY | B_BLACK));
+		SetScreen({ 0, 0, ScrX, ScrY }, L' ', colors::ConsoleColorToFarColor(F_LIGHTGRAY | B_BLACK));
 
 		std::for_each(RANGE(Star, i)
 		{

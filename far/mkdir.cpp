@@ -118,7 +118,7 @@ void ShellMakeDir(Panel *SrcPanel)
 	auto MkDirDlg = MakeDialogItemsEx(MkDirDlgData);
 	MkDirDlg[MKDIR_COMBOBOX_LINKTYPE].ListItems=&ComboList;
 	const auto Dlg = Dialog::create(MkDirDlg, MkDirDlgProc);
-	Dlg->SetPosition(-1,-1,76,12);
+	Dlg->SetPosition({ -1, -1, 76, 12 });
 	Dlg->SetHelp(L"MakeFolder"sv);
 	Dlg->SetId(MakeFolderId);
 	Dlg->Process();

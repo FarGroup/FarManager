@@ -1218,7 +1218,7 @@ bool KeyMacro::GetMacroSettings(int Key, unsigned long long& Flags, const wchar_
 
 	DlgParam Param={0, 0, MACROAREA_OTHER, 0, false};
 	const auto Dlg = Dialog::create(MacroSettingsDlg, &KeyMacro::ParamMacroDlgProc, this, &Param);
-	Dlg->SetPosition(-1,-1,73,21);
+	Dlg->SetPosition({ -1, -1, 73, 21 });
 	Dlg->SetHelp(L"KeyMacroSetting"sv);
 	Dlg->Process();
 
@@ -1786,17 +1786,10 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_APANEL_HEIGHT: // APanel.Height
 		case MCODE_V_PPANEL_HEIGHT: // PPanel.Height
 		{
-			const auto SelPanel = CheckCode == MCODE_V_APANEL_WIDTH || CheckCode == MCODE_V_APANEL_HEIGHT? ActivePanel : PassivePanel;
-
-			if (SelPanel )
+			if (const auto SelPanel = CheckCode == MCODE_V_APANEL_WIDTH || CheckCode == MCODE_V_APANEL_HEIGHT? ActivePanel : PassivePanel)
 			{
-				int X1, Y1, X2, Y2;
-				SelPanel->GetPosition(X1,Y1,X2,Y2);
-
-				if (CheckCode == MCODE_V_APANEL_HEIGHT || CheckCode == MCODE_V_PPANEL_HEIGHT)
-					ret = Y2-Y1+1;
-				else
-					ret = X2-X1+1;
+				const auto PanelRect = SelPanel->GetPosition();
+				ret = (CheckCode == MCODE_V_APANEL_HEIGHT || CheckCode == MCODE_V_PPANEL_HEIGHT)? PanelRect.height() : PanelRect.width();
 			}
 			return ret;
 		}
@@ -1963,15 +1956,10 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_HEIGHT:  // Height - высота текущего объекта
 		case MCODE_V_WIDTH:   // Width - ширина текущего объекта
 		{
-			if (const auto f = Global->WindowManager->GetCurrentWindow())
+			if (const auto Window = Global->WindowManager->GetCurrentWindow())
 			{
-				int X1, Y1, X2, Y2;
-				f->GetPosition(X1,Y1,X2,Y2);
-
-				if (CheckCode == MCODE_V_HEIGHT)
-					ret = Y2-Y1+1;
-				else
-					ret = X2-X1+1;
+				const auto WindowRect = Window->GetPosition();
+				ret = CheckCode == MCODE_V_HEIGHT? WindowRect.height() : WindowRect.width();
 			}
 
 			return ret;
@@ -3108,7 +3096,7 @@ static bool menushowFunc(FarMacroCall* Data)
 	const auto Menu = VMenu2::create(strTitle, {}, ScrY - 4);
 	Menu->SetBottomTitle(strBottom);
 	Menu->SetMenuFlags(MenuFlags);
-	Menu->SetPosition(X,Y,0,0);
+	Menu->SetPosition({ X, Y, 0, 0 });
 	Menu->SetBoxType(BoxType);
 
 	PosLF = strItems.find(L'\n');
@@ -5113,7 +5101,7 @@ int KeyMacro::AssignMacroKey(DWORD &MacroKey, unsigned long long& Flags)
 	//_SVS(SysLog(L"StartMode=%d",m_StartMode));
 	Global->IsProcessAssignMacroKey++;
 	const auto Dlg = Dialog::create(MacroAssignDlg, &KeyMacro::AssignMacroDlgProc, this, &Param);
-	Dlg->SetPosition(-1,-1,34,6);
+	Dlg->SetPosition({ -1, -1, 34, 6 });
 	Dlg->SetHelp(L"KeyMacro"sv);
 	Dlg->Process();
 	Global->IsProcessAssignMacroKey--;

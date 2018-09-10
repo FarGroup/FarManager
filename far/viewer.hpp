@@ -81,7 +81,7 @@ public:
 	long long GetFilePos() const { return FilePos; }
 	long long GetViewFilePos() const { return FilePos; }
 	long long GetViewFileSize() const { return FileSize; }
-	void SetPluginData(const wchar_t *PluginData);
+	void SetPluginData(string_view PluginData);
 	void SetNamesList(NamesList& List);
 	int  ViewerControl(int Command, intptr_t Param1, void *Param2);
 	void SetHostFileViewer(FileViewer *Viewer) {HostFileViewer=Viewer;}

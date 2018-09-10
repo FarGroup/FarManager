@@ -829,7 +829,7 @@ intptr_t WINAPI apiMenuFn(
 				MenuFlags |= VMENU_CHANGECONSOLETITLE;
 
 			const auto FarMenu = VMenu2::create(NullToEmpty(Title), {}, MaxHeight, MenuFlags);
-			FarMenu->SetPosition(X,Y,0,0);
+			FarMenu->SetPosition({ static_cast<int>(X), static_cast<int>(Y), 0, 0 });
 			if(Id)
 			{
 				FarMenu->SetId(*Id);
@@ -1037,7 +1037,7 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, i
 
 				hDlg = FarDialog.get();
 
-				FarDialog->SetPosition(X1,Y1,X2,Y2);
+				FarDialog->SetPosition({ static_cast<int>(X1), static_cast<int>(Y1), static_cast<int>(X2), static_cast<int>(Y2) });
 
 				if (Flags & FDLG_WARNING)
 					FarDialog->SetDialogMode(DMODE_WARNINGSTYLE);
@@ -1462,7 +1462,7 @@ HANDLE WINAPI apiSaveScreen(intptr_t X1,intptr_t Y1,intptr_t X2,intptr_t Y2) noe
 		if (Y2 == -1)
 			Y2 = ScrY;
 
-		return new SaveScreen(X1, Y1, X2, Y2);
+		return new SaveScreen({ static_cast<int>(X1), static_cast<int>(Y1), static_cast<int>(X2), static_cast<int>(Y2) });
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return nullptr;
@@ -1630,7 +1630,18 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 		if (Flags & VF_NONMODAL)
 		{
 			/* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-			const auto Viewer = FileViewer::create(FileName, true, DisableHistory, Title, X1, Y1, X2, Y2, CodePage);
+			const auto Viewer = FileViewer::create(
+				FileName,
+				true,
+				DisableHistory,
+				NullToEmpty(Title),
+				{
+					static_cast<int>(X1),
+					static_cast<int>(Y1),
+					static_cast<int>(X2),
+					static_cast<int>(Y2)
+				},
+				CodePage);
 
 			if (!Viewer)
 				return FALSE;
@@ -1662,7 +1673,18 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 		else
 		{
 			/* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-			const auto Viewer = FileViewer::create(FileName, false, DisableHistory, Title, X1, Y1, X2, Y2, CodePage);
+			const auto Viewer = FileViewer::create(
+				FileName,
+				false,
+				DisableHistory,
+				NullToEmpty(Title),
+				{
+					static_cast<int>(X1),
+					static_cast<int>(Y1),
+					static_cast<int>(X2),
+					static_cast<int>(Y2)
+				},
+				CodePage);
 
 			Viewer->SetEnableF6(Flags & VF_ENABLE_F6);
 
@@ -1741,7 +1763,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 				(Locked ? FFILEEDIT_LOCKED : 0) |
 				(DisableSavePos ? FFILEEDIT_DISABLESAVEPOS : 0),
 				StartLine, StartChar, &strTitle,
-				X1, Y1, X2, Y2,
+				{ static_cast<int>(X1), static_cast<int>(Y1), static_cast<int>(X2), static_cast<int>(Y2) },
 				DeleteOnClose, nullptr, OpMode))
 			{
 				editorExitCode = Editor->GetExitCode();
@@ -1800,7 +1822,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 				(Locked ? FFILEEDIT_LOCKED : 0) |
 				(DisableSavePos ? FFILEEDIT_DISABLESAVEPOS : 0),
 				StartLine, StartChar, &strTitle,
-				X1, Y1, X2, Y2,
+				{ static_cast<int>(X1), static_cast<int>(Y1), static_cast<int>(X2), static_cast<int>(Y2) },
 				DeleteOnClose, nullptr, OpMode);
 			editorExitCode = Editor->GetExitCode();
 
@@ -1863,7 +1885,7 @@ void WINAPI apiText(intptr_t X,intptr_t Y,const FarColor* Color,const wchar_t *S
 		}
 		else
 		{
-			Text(X, Y, *Color, Str);
+			Text({ static_cast<int>(X), static_cast<int>(Y) }, *Color, Str);
 		}
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())

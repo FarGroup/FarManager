@@ -105,7 +105,7 @@ static void SetItemColors(const color_item* Items, size_t Size, COORD Position =
 		ItemsMenu->AddItem(msg(i.LngId));
 	}
 
-	ItemsMenu->SetPosition(Position.X += 10, Position.Y += 5, 0, 0);
+	ItemsMenu->SetPosition({ Position.X += 10, Position.Y += 5, 0, 0 });
 	ItemsMenu->SetMenuFlags(VMENU_WRAPMODE);
 	ItemsMenu->RunEx([&](int Msg, void *param)
 	{
@@ -378,7 +378,7 @@ void SetColors()
 		const auto BlackWhiteId = static_cast<int>(GroupsMenu->size());
 		GroupsMenu->AddItem(msg(lng::MSetBW));
 
-		GroupsMenu->SetPosition(2,1,0,0);
+		GroupsMenu->SetPosition({ 2, 1, 0, 0 });
 		GroupsMenu->SetMenuFlags(VMENU_WRAPMODE);
 		int GroupsCode=GroupsMenu->RunEx([&](int Msg, void *param)
 		{
@@ -611,9 +611,9 @@ bool GetColorDialogInternal(FarColor& Color,bool bCentered,bool bAddTransparent)
 		const auto Dlg = Dialog::create(ColorDlg, GetColorDlgProc, &CurColor);
 
 		if (bCentered)
-			Dlg->SetPosition(-1,-1,39+(bAddTransparent?4:0),15+(bAddTransparent?3:0));
+			Dlg->SetPosition({ -1, -1, 39 + (bAddTransparent? 4 : 0), 15 + (bAddTransparent? 3 : 0) });
 		else
-			Dlg->SetPosition(37,2,75+(bAddTransparent?4:0),16+(bAddTransparent?3:0));
+			Dlg->SetPosition({ 37, 2, 75 + (bAddTransparent? 4 : 0), 16 + (bAddTransparent? 3 : 0)});
 
 		Dlg->Process();
 		ExitCode=Dlg->GetExitCode();

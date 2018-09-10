@@ -416,7 +416,7 @@ static bool EditTypeRecord(unsigned long long EditPos,bool NewRec)
 	const auto Dlg = Dialog::create(EditDlg, EditTypeRecordDlgProc);
 	Dlg->SetHelp(L"FileAssocModify"sv);
 	Dlg->SetId(FileAssocModifyId);
-	Dlg->SetPosition(-1,-1,DlgX,DlgY);
+	Dlg->SetPosition({ -1, -1, DlgX, DlgY });
 	Dlg->Process();
 
 	if (Dlg->GetExitCode()==ETR_BUTTON_OK)

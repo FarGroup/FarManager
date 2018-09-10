@@ -90,7 +90,7 @@ public:
 			return;
 		m_Consolised = true;
 
-		Global->ScrBuf->MoveCursor(0, WhereY());
+		Global->ScrBuf->MoveCursor({ 0, WhereY() });
 		SetInitialCursorType();
 
 		if (!m_Command.empty())

@@ -493,7 +493,7 @@ void codepages::SetFavorite(bool State)
 
 		// Показываем меню
 		if (Global->Opt->CPMenuMode)
-			CodePagesMenu->SetPosition(-1, -1, 0, 0);
+			CodePagesMenu->SetPosition({ -1, -1, 0, 0 });
 	}
 }
 
@@ -523,7 +523,7 @@ void codepages::FillCodePagesVMenu(bool bShowUnicode, bool bViewOnly, bool bShow
 	// Восстанавливаем оригинальную таблицу символов
 	currentCodePage = codePage;
 	// Позиционируем меню
-	CodePagesMenu->SetPosition(-1, -1, 0, 0);
+	CodePagesMenu->SetPosition({ -1, -1, 0, 0 });
 	// Показываем меню
 }
 
@@ -631,7 +631,7 @@ void codepages::EditCodePageName()
 	};
 	auto EditDialog = MakeDialogItemsEx(EditDialogData);
 	const auto Dlg = Dialog::create(EditDialog, &codepages::EditDialogProc, this);
-	Dlg->SetPosition(-1, -1, 54, 7);
+	Dlg->SetPosition({ -1, -1, 54, 7 });
 	Dlg->SetHelp(L"EditCodePageNameDlg"sv);
 	Dlg->Process();
 }

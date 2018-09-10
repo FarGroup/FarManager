@@ -289,22 +289,18 @@ void Message::Init(
 
 	join(strClipText, Buttons, L" "sv);
 
-	int X1;
-
 	int MessageWidth = static_cast<int>(MaxLength + 6 + 2 + 2); // 6 for frame, 2 for border, 2 for inner margin
 	if (MessageWidth < ScrX)
 	{
-		X1 = (ScrX - MessageWidth) / 2 + 1;
+		m_Position.left = (ScrX - MessageWidth) / 2 + 1;
 	}
 	else
 	{
-		X1 = 0;
+		m_Position.left = 0;
 	}
 
-	int X2 = X1 + MessageWidth - 1;
+	m_Position.right = m_Position.left + MessageWidth - 1;
 
-	MessageX1 = X1;
-	MessageX2 = X2; 
 
 	int MessageHeight = static_cast<int>(Strings.size() + 2 + 2); // 2 for frame, 2 for border
 	if (!Buttons.empty())
@@ -312,24 +308,19 @@ void Message::Init(
 		MessageHeight += 2; // 1 for separator, 1 for buttons line
 	}
 
-	int Y1;
-
 	if (MessageHeight < ScrY)
 	{
 		// Should be +1 here to center the message properly,
 		// but it was shifted up one position for years
 		// and some buggy plugins depends on it
-		Y1 = (ScrY - MessageHeight) / 2; // + 1;
+		m_Position.top = (ScrY - MessageHeight) / 2; // + 1;
 	}
 	else
 	{
-		Y1 = 0;
+		m_Position.top = 0;
 	}
 
-	int Y2 = Y1 + MessageHeight - 1;
-
-	MessageY1 = Y1;
-	MessageY2 = Y2;
+	m_Position.bottom = m_Position.top + MessageHeight - 1;
 
 	// *** Вариант с Диалогом ***
 
@@ -343,8 +334,8 @@ void Message::Init(
 			Item.Type = DI_DOUBLEBOX;
 			Item.X1 = 3;
 			Item.Y1 = 1;
-			Item.X2 = X2 - X1 - 3;
-			Item.Y2 = Y2 - Y1 - 1;
+			Item.X2 = m_Position.width() - 4;
+			Item.Y2 = m_Position.height() - 2;
 			assign(Item.strData, Title);
 			MsgDlg.emplace_back(std::move(Item));
 		}
@@ -376,7 +367,7 @@ void Message::Init(
 					Item.Type = DI_EDIT;
 					Item.Flags |= DIF_READONLY | DIF_BTNNOCLOSE | DIF_SELECTONENTRY;
 					Item.X1 = 5;
-					Item.X2 = X2-X1-5;
+					Item.X2 = m_Position.width() - 6;
 				}
 
 				Item.strData = std::move(Strings[i]);
@@ -399,8 +390,7 @@ void Message::Init(
 		{
 			// BUGBUG
 			--MessageHeight;
-			--Y2;
-			--MessageY2;
+			--m_Position.bottom;
 			--MsgDlg[0].Y2;
 		}
 
@@ -414,7 +404,7 @@ void Message::Init(
 			Item.Type = DI_BUTTON;
 			Item.Flags = DIF_CENTERGROUP;
 
-			Item.Y1 = Y2 - Y1 - 2;
+			Item.Y1 = m_Position.height() - 3;
 			Item.strData = std::move(Buttons[i]);
 
 			if (!i)
@@ -429,10 +419,13 @@ void Message::Init(
 		clear_and_shrink(Buttons);
 
 		const auto Dlg = Dialog::create(MsgDlg, &Message::MsgDlgProc, this, &strClipText);
-		if (X1 == -1) X1 = 0;
-		if (Y1 == -1) Y1 = 0;
-		Dlg->SetPosition(X1,Y1,X2,Y2);
-		if(Id) Dlg->SetId(*Id);
+		if (m_Position.left == -1)
+			m_Position.left = 0;
+		if (m_Position.top == -1)
+			m_Position.top = 0;
+		Dlg->SetPosition(m_Position);
+		if(Id)
+			Dlg->SetId(*Id);
 
 		if (!HelpTopic.empty())
 			Dlg->SetHelp(HelpTopic);
@@ -466,10 +459,10 @@ void Message::Init(
 
 	if (!(Flags & MSG_KEEPBACKGROUND))
 	{
-		SetScreen(X1,Y1,X2,Y2,L' ',colors::PaletteColorToFarColor((Flags & MSG_WARNING)?COL_WARNDIALOGTEXT:COL_DIALOGTEXT));
-		MakeShadow(X1+2,Y2+1,X2+2,Y2+1);
-		MakeShadow(X2+1,Y1+1,X2+2,Y2+1);
-		Box(X1+3,Y1+1,X2-3,Y2-1,colors::PaletteColorToFarColor((Flags & MSG_WARNING)?COL_WARNDIALOGBOX:COL_DIALOGBOX),DOUBLE_BOX);
+		SetScreen(m_Position, L' ', colors::PaletteColorToFarColor((Flags & MSG_WARNING)? COL_WARNDIALOGTEXT : COL_DIALOGTEXT));
+		MakeShadow({ m_Position.left + 2, m_Position.bottom + 1, m_Position.right + 2, m_Position.bottom + 1 });
+		MakeShadow({ m_Position.right + 1, m_Position.top + 1, m_Position.right + 2, m_Position.bottom + 1 });
+		Box({ m_Position.left + 3, m_Position.top + 1, m_Position.right - 3, m_Position.bottom - 1 }, colors::PaletteColorToFarColor((Flags & MSG_WARNING)? COL_WARNDIALOGBOX : COL_DIALOGBOX), DOUBLE_BOX);
 	}
 
 	SetColor((Flags & MSG_WARNING)?COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
@@ -478,7 +471,7 @@ void Message::Init(
 	{
 		const auto strTempTitle = cut_right(Title, MaxLength);
 
-		GotoXY(X1+(X2-X1-1-(int)strTempTitle.size())/2,Y1+1);
+		GotoXY(m_Position.left + (m_Position.width() - 2 - static_cast<int>(strTempTitle.size())) / 2, m_Position.top + 1);
 		Text(concat(L' ', strTempTitle, L' '));
 	}
 
@@ -488,14 +481,14 @@ void Message::Init(
 
 		if (!SrcItem.empty() && (SrcItem.front() == L'\1' || SrcItem.front() == L'\2'))
 		{
-			int Length = X2 - X1;
+			int Length = m_Position.width() - 1;
 			if (Length > 5)
 				Length -= 5;
 
 			if (Length>1)
 			{
 				SetColor((Flags & MSG_WARNING)?COL_WARNDIALOGBOX:COL_DIALOGBOX);
-				GotoXY(X1 + 3, Y1 + static_cast<int>(i) + 2);
+				GotoXY(m_Position.left + 3, m_Position.top + static_cast<int>(i) + 2);
 				DrawLine(Length, SrcItem.front() == L'\2'? line_type::h2_to_v2 : line_type::h1_to_v2);
 				string SeparatorText = SrcItem.substr(1);
 				if (!SeparatorText.empty())
@@ -508,7 +501,7 @@ void Message::Init(
 
 				if (SeparatorText.size() < static_cast<size_t>(Length))
 				{
-					GotoXY(X1 + 3 + static_cast<int>(Length - SeparatorText.size()) / 2, Y1 + static_cast<int>(i)+2);
+					GotoXY(m_Position.left + 3 + static_cast<int>(Length - SeparatorText.size()) / 2, m_Position.top + static_cast<int>(i)+2);
 					Text(SeparatorText);
 				}
 
@@ -518,9 +511,8 @@ void Message::Init(
 			continue;
 		}
 
-		const auto Width = X2 - X1 + 1;
-		GotoXY(X1 + 5, Y1 + static_cast<int>(i) + 2);
-		Text((Flags & MSG_LEFTALIGN? fit_to_left : fit_to_center)(SrcItem, Width - 10));
+		GotoXY(m_Position.left + 5, m_Position.top + static_cast<int>(i) + 2);
+		Text((Flags & MSG_LEFTALIGN? fit_to_left : fit_to_center)(SrcItem, m_Position.width() - 10));
 	}
 
 	/* $ 13.01.2003 IS
@@ -541,12 +533,9 @@ void Message::Init(
 }
 
 
-void Message::GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2) const
+rectangle Message::GetPosition() const
 {
-	X1=MessageX1;
-	Y1=MessageY1;
-	X2=MessageX2;
-	Y2=MessageY2;
+	return m_Position;
 }
 
 /* $ 12.03.2002 VVM

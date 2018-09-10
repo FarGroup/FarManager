@@ -619,8 +619,8 @@ void ShowTime()
 		{
 			const auto CurrentClockPos = ScrX + 1 - static_cast<int>(Global->LastShownTimeSize);
 			matrix<FAR_CHAR_INFO> Char(1, 1);
-			Global->ScrBuf->Read(CurrentClockPos - 1, 0, CurrentClockPos - 1, 0, Char);
-			Global->ScrBuf->FillRect(CurrentClockPos, 0, CurrentClockPos + static_cast<int>(Global->LastShownTimeSize), 0, Char[0][0].Char, Char[0][0].Attributes);
+			Global->ScrBuf->Read({ CurrentClockPos - 1, 0, CurrentClockPos - 1, 0 }, Char);
+			Global->ScrBuf->FillRect({ CurrentClockPos, 0, CurrentClockPos + static_cast<int>(Global->LastShownTimeSize), 0 }, Char[0][0]);
 		}
 		GotoXY(static_cast<int>(ScrX + 1 - Global->CurrentTime.size()), 0);
 		int ModType=CurrentWindow->GetType();
@@ -649,15 +649,15 @@ int WhereY()
 }
 
 
-void MoveCursor(int X,int Y)
+void MoveCursor(point const Point)
 {
-	Global->ScrBuf->MoveCursor(X,Y);
+	Global->ScrBuf->MoveCursor(Point);
 }
 
 
-void GetCursorPos(SHORT& X, SHORT& Y)
+point GetCursorPos()
 {
-	Global->ScrBuf->GetCursorPos(X,Y);
+	return Global->ScrBuf->GetCursorPos();
 }
 
 void SetCursorType(bool Visible, DWORD Size)
@@ -745,11 +745,11 @@ void InitRecodeOutTable()
 }
 
 
-void Text(int X, int Y, const FarColor& Color, string_view const Str)
+void Text(point Where, const FarColor& Color, string_view const Str)
 {
 	CurColor=Color;
-	CurX=X;
-	CurY=Y;
+	CurX = Where.x;
+	CurY = Where.y;
 	Text(Str);
 }
 
@@ -762,7 +762,7 @@ void Text(string_view const Str)
 	Buffer.reserve(Str.size());
 	std::transform(ALL_CONST_RANGE(Str), std::back_inserter(Buffer), [](wchar_t c) { return FAR_CHAR_INFO{ c, CurColor }; });
 
-	Global->ScrBuf->Write(CurX, CurY, Buffer.data(), Buffer.size());
+	Global->ScrBuf->Write(CurX, CurY, make_span(Buffer));
 	CurX += static_cast<int>(Buffer.size());
 }
 
@@ -879,19 +879,19 @@ void RemoveHighlights(string &strStr)
 	}
 }
 
-void SetScreen(int X1,int Y1,int X2,int Y2,wchar_t Ch,const FarColor& Color)
+void SetScreen(rectangle const Where, wchar_t Ch, const FarColor& Color)
 {
-	Global->ScrBuf->FillRect(X1, Y1, X2, Y2, Ch, Color);
+	Global->ScrBuf->FillRect(Where, { Ch, Color });
 }
 
-void MakeShadow(int X1,int Y1,int X2,int Y2)
+void MakeShadow(rectangle const Where)
 {
-	Global->ScrBuf->ApplyShadow(X1,Y1,X2,Y2);
+	Global->ScrBuf->ApplyShadow(Where);
 }
 
-void ChangeBlockColor(int X1,int Y1,int X2,int Y2,const FarColor& Color)
+void ChangeBlockColor(rectangle const Where, const FarColor& Color)
 {
-	Global->ScrBuf->ApplyColor(X1, Y1, X2, Y2, Color, true);
+	Global->ScrBuf->ApplyColor(Where, Color, true);
 }
 
 void SetColor(int Color)
@@ -916,7 +916,7 @@ void SetRealColor(const FarColor& Color)
 
 void ClearScreen(const FarColor& Color)
 {
-	Global->ScrBuf->FillRect(0,0,ScrX,ScrY,L' ',Color);
+	Global->ScrBuf->FillRect({ 0, 0, ScrX, ScrY }, { L' ', Color });
 	if(Global->Opt->WindowMode)
 	{
 		console.ClearExtraRegions(Color, CR_BOTH);
@@ -937,16 +937,16 @@ void ScrollScreen(int Count)
 }
 
 
-void GetText(int X1,int Y1,int X2,int Y2, matrix<FAR_CHAR_INFO>& Dest)
+void GetText(rectangle Where, matrix<FAR_CHAR_INFO>& Dest)
 {
-	Global->ScrBuf->Read(X1, Y1, X2, Y2, Dest);
+	Global->ScrBuf->Read(Where, Dest);
 }
 
-void PutText(int X1, int Y1, int X2, int Y2, const FAR_CHAR_INFO *Src)
+void PutText(rectangle Where, const FAR_CHAR_INFO *Src)
 {
-	int Width=X2-X1+1;
-	for (int Y=Y1; Y<=Y2; ++Y, Src+=Width)
-		Global->ScrBuf->Write(X1, Y, Src, Width);
+	const size_t Width = Where.width();
+	for (int Y = Where.top; Y <= Where.bottom; ++Y, Src += Width)
+		Global->ScrBuf->Write(Where.left, Y, { Src, Width });
 }
 
 void BoxText(string_view const Str, bool const IsVert)
@@ -957,14 +957,14 @@ void BoxText(string_view const Str, bool const IsVert)
 /*
    Отрисовка прямоугольника.
 */
-void Box(int x1,int y1,int x2,int y2,const FarColor& Color,int Type)
+void Box(rectangle Where, const FarColor& Color, int Type)
 {
-	if (x1>=x2 || y1>=y2)
+	if (Where.left >= Where.right || Where.top >= Where.bottom)
 		return;
 
 	enum line { LineV, LineH, LineLT, LineRT, LineLB, LineRB, LineCount };
 
-	static const BOX_DEF_SYMBOLS BoxInit[2][LineCount] =
+	static const BOX_DEF_SYMBOLS BoxInit[][LineCount] =
 	{
 		{ BS_V1, BS_H1, BS_LT_H1V1, BS_RT_H1V1, BS_LB_H1V1, BS_RB_H1V1, },
 		{ BS_V2, BS_H2, BS_LT_H2V2, BS_RT_H2V2, BS_LB_H2V2, BS_RB_H2V2, },
@@ -977,24 +977,24 @@ void Box(int x1,int y1,int x2,int y2,const FarColor& Color,int Type)
 
 	std::vector<wchar_t> Buffer;
 
-	Buffer.assign(y2 - y1 - 1, Symbol(LineV));
+	Buffer.assign(Where.height() - 2, Symbol(LineV));
 
-	GotoXY(x1,y1+1);
+	GotoXY(Where.left, Where.top + 1);
 	VText({ Buffer.data(), Buffer.size() });
 
-	GotoXY(x2,y1+1);
+	GotoXY(Where.right, Where.top + 1);
 	VText({ Buffer.data(), Buffer.size() });
 
-	Buffer.assign(x2 - x1 + 1, Symbol(LineH));
+	Buffer.assign(Where.width(), Symbol(LineH));
 
 	Buffer.front() = Symbol(LineLT);
 	Buffer.back() = Symbol(LineRT);
-	GotoXY(x1,y1);
+	GotoXY(Where.left, Where.top);
 	Text({ Buffer.data(), Buffer.size() });
 
 	Buffer.front() = Symbol(LineLB);
 	Buffer.back() = Symbol(LineRB);
-	GotoXY(x1,y2);
+	GotoXY(Where.left, Where.bottom);
 	Text({ Buffer.data(), Buffer.size() });
 }
 
@@ -1301,12 +1301,12 @@ bool IsConsoleFullscreen()
 	return console.GetDisplayMode(ModeFlags) && ModeFlags & CONSOLE_FULLSCREEN_HARDWARE;
 }
 
-void fix_coordinates(int& X1, int& Y1, int& X2, int& Y2)
+void fix_coordinates(rectangle& Where)
 {
-	X1 = std::clamp(X1, 0, static_cast<int>(ScrX));
-	X2 = std::clamp(X2, 0, static_cast<int>(ScrX));
-	Y1 = std::clamp(Y1, 0, static_cast<int>(ScrY));
-	Y2 = std::clamp(Y2, 0, static_cast<int>(ScrY));
+	Where.left = std::clamp(Where.left, 0, static_cast<int>(ScrX));
+	Where.top = std::clamp(Where.top, 0, static_cast<int>(ScrY));
+	Where.right = std::clamp(Where.right, 0, static_cast<int>(ScrX));
+	Where.bottom = std::clamp(Where.bottom, 0, static_cast<int>(ScrY));
 }
 
 void SetVidChar(FAR_CHAR_INFO& CI, wchar_t Chr)

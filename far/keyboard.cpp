@@ -698,12 +698,10 @@ static bool ProcessMouseEvent(const MOUSE_EVENT_RECORD& MouseEvent, bool Exclude
 	}
 
 	IntKeyState.MouseButtonState = BtnState;
-	IntKeyState.PrevMouseX = IntKeyState.MouseX;
-	IntKeyState.PrevMouseY = IntKeyState.MouseY;
-	IntKeyState.MouseX = MouseEvent.dwMousePosition.X;
-	IntKeyState.MouseY = MouseEvent.dwMousePosition.Y;
-	KeyMacro::SetMacroConst(constMsX, IntKeyState.MouseX);
-	KeyMacro::SetMacroConst(constMsY, IntKeyState.MouseY);
+	IntKeyState.MousePrevPos = IntKeyState.MousePos;
+	IntKeyState.MousePos = MouseEvent.dwMousePosition;
+	KeyMacro::SetMacroConst(constMsX, IntKeyState.MousePos.x);
+	KeyMacro::SetMacroConst(constMsY, IntKeyState.MousePos.y);
 
 	/* $ 26.04.2001 VVM
 	+ Обработка колесика мышки. */
@@ -1709,8 +1707,8 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 					    (FShift&KEY_CTRL?LEFT_CTRL_PRESSED:0)|
 					    (FShift&KEY_RALT?RIGHT_ALT_PRESSED:0)|
 					    (FShift&KEY_RCTRL?RIGHT_CTRL_PRESSED:0);
-				Rec->Event.MouseEvent.dwMousePosition.X=IntKeyState.MouseX;
-				Rec->Event.MouseEvent.dwMousePosition.Y=IntKeyState.MouseY;
+				Rec->Event.MouseEvent.dwMousePosition.X = IntKeyState.MousePos.x;
+				Rec->Event.MouseEvent.dwMousePosition.Y = IntKeyState.MousePos.y;
 				break;
 			}
 			case WINDOW_BUFFER_SIZE_EVENT:

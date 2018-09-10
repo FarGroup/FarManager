@@ -80,7 +80,7 @@ HMenu::~HMenu()
 
 void HMenu::DisplayObject()
 {
-	SetScreen(m_X1,m_Y1,m_X2,m_Y2,L' ',colors::PaletteColorToFarColor(COL_HMENUTEXT));
+	SetScreen(m_Where, L' ', colors::PaletteColorToFarColor(COL_HMENUTEXT));
 	SetCursorType(false, 10);
 	ShowMenu();
 }
@@ -88,7 +88,7 @@ void HMenu::DisplayObject()
 
 void HMenu::ShowMenu()
 {
-	GotoXY(m_X1+2,m_Y1);
+	GotoXY(m_Where.left + 2, m_Where.top);
 
 	for (auto& i: Item)
 	{
@@ -336,19 +336,16 @@ bool HMenu::TestMouse(const MOUSE_EVENT_RECORD *MouseEvent) const
 	int MsX=MouseEvent->dwMousePosition.X;
 	int MsY=MouseEvent->dwMousePosition.Y;
 
-	return MsY != m_Y1 || ((!SelectPos || MsX >= Item[SelectPos].XPos) && (SelectPos == Item.size() - 1 || MsX<Item[SelectPos + 1].XPos));
+	return MsY != m_Where.top || ((!SelectPos || MsX >= Item[SelectPos].XPos) && (SelectPos == Item.size() - 1 || MsX<Item[SelectPos + 1].XPos));
 }
 
 bool HMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	UpdateSelectPos();
 
-	const auto MsX = MouseEvent->dwMousePosition.X;
-	const auto MsY = MouseEvent->dwMousePosition.Y;
-
-	if (MsY==m_Y1 && MsX>=m_X1 && MsX<=m_X2)
+	if (m_Where.contains(MouseEvent->dwMousePosition))
 	{
-		const auto SubmenuIterator = std::find_if(REVERSE_RANGE(Item, i) { return MsX >= i.XPos; });
+		const auto SubmenuIterator = std::find_if(REVERSE_RANGE(Item, i) { return MouseEvent->dwMousePosition.X >= i.XPos; });
 		const size_t NewPos = std::distance(SubmenuIterator, Item.rend()) - 1;
 
 		if (m_SubmenuOpened && SelectPos == NewPos)
@@ -394,7 +391,7 @@ bool HMenu::ProcessCurrentSubMenu()
 			SubMenu->SetBoxType(SHORT_DOUBLE_BOX);
 			SubMenu->SetMenuFlags(VMENU_WRAPMODE);
 			SubMenu->SetHelp(Item[SelectPos].SubMenuHelp);
-			SubMenu->SetPosition(Item[SelectPos].XPos, m_Y1 + 1, 0, 0);
+			SubMenu->SetPosition({ Item[SelectPos].XPos, m_Where.top + 1, 0, 0 });
 			SubMenu->SetMacroMode(MACROAREA_MAINMENU);
 
 			m_VExitCode = SubMenu->RunEx([&](int Msg, void *param)
@@ -421,7 +418,7 @@ bool HMenu::ProcessCurrentSubMenu()
 						SubMenu->Close(-1);
 						return 1;
 					}
-					if (rec.Event.MouseEvent.dwMousePosition.Y == m_Y1)
+					if (rec.Event.MouseEvent.dwMousePosition.Y == m_Where.top)
 						return 1;
 				}
 				else
@@ -462,7 +459,7 @@ void HMenu::ResizeConsole()
 	SaveScr.reset();
 	Hide();
 	Modal::ResizeConsole();
-	SetPosition(0,0,::ScrX,0);
+	SetPosition({ 0, 0, ScrX, 0 });
 }
 
 wchar_t HMenu::GetHighlights(const HMenuData& MenuItem) const

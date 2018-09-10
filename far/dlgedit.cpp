@@ -144,15 +144,15 @@ void DlgEdit::DisplayObject()
 		lineEdit->DisplayObject();
 }
 
-void DlgEdit::SetPosition(int X1,int Y1,int X2,int Y2)
+void DlgEdit::SetPosition(rectangle Where)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
 	if (Type == DLGEDIT_MULTILINE)
-		multiEdit->SetPosition(X1,Y1,X2,Y2);
+		multiEdit->SetPosition(Where);
 	else
 #endif
-		lineEdit->SetPosition(X1,Y1,X2,Y2);
+		lineEdit->SetPosition(Where);
 }
 
 void DlgEdit::Show()
@@ -166,15 +166,15 @@ void DlgEdit::Show()
 		lineEdit->Show();
 }
 
-void DlgEdit::GetPosition(int& X1,int& Y1,int& X2,int& Y2) const
+rectangle DlgEdit::GetPosition() const
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
 	if (Type == DLGEDIT_MULTILINE)
-		multiEdit->GetPosition(X1,Y1,X2,Y2);
+		return multiEdit->GetPosition();
 	else
 #endif
-		lineEdit->GetPosition(X1,Y1,X2,Y2);
+		return lineEdit->GetPosition();
 }
 
 void DlgEdit::SetDialogParent(DWORD Sets)

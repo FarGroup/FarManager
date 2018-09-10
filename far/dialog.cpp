@@ -441,18 +441,18 @@ void Dialog::CheckDialogCoord()
 {
 	// задано центрирование диалога по горизонтали?
 	// X2 при этом = ширине диалога.
-	if (m_X1 == -1)
+	if (m_Where.left == -1)
 	{
-		m_X1 = (ScrX - m_X2 + 1) / 2;
-		m_X2 += m_X1 - 1;
+		m_Where.left = (ScrX - m_Where.right + 1) / 2;
+		m_Where.right += m_Where.left - 1;
 	}
 
 	// задано центрирование диалога по вертикали?
 	// Y2 при этом = высоте диалога.
-	if (m_Y1 == -1)
+	if (m_Where.top == -1)
 	{
-		m_Y1 = (ScrY - m_Y2 + 1) / 2;
-		m_Y2 += m_Y1 - 1;
+		m_Where.top = (ScrY - m_Where.bottom + 1) / 2;
+		m_Where.bottom += m_Where.top - 1;
 	}
 }
 
@@ -593,7 +593,7 @@ void Dialog::ProcessCenterGroup()
 			if (Length && !FirstVisibleButton->strData.empty() && FirstVisibleButton->Type == DI_BUTTON)
 				--Length;
 
-			int StartX = std::max(0, (m_X2 - m_X1 + 1 - Length) / 2);
+			int StartX = std::max(0, (m_Where.width() - Length) / 2);
 
 			for (auto j = FirstVisibleButton; j != ButtonsEnd; ++j)
 			{
@@ -774,8 +774,13 @@ size_t Dialog::InitDialogObjects(size_t ID)
 					ListPtr->AssignHighlights(FALSE);
 
 				ListPtr->SetDialogStyle(DialogMode.Check(DMODE_WARNINGSTYLE));
-				ListPtr->SetPosition(m_X1+Items[I].X1,m_Y1+Items[I].Y1,
-				                     m_X1+Items[I].X2,m_Y1+Items[I].Y2);
+				ListPtr->SetPosition(
+					{
+						static_cast<int>(m_Where.left + Items[I].X1),
+						static_cast<int>(m_Where.top + Items[I].Y1),
+						static_cast<int>(m_Where.left + Items[I].X2),
+						static_cast<int>(m_Where.top + Items[I].Y2)
+					});
 				ListPtr->SetBoxType(SHORT_SINGLE_BOX);
 
 				// поле FarDialogItem.Data для DI_LISTBOX используется как верхний заголовок листа
@@ -845,8 +850,13 @@ size_t Dialog::InitDialogObjects(size_t ID)
 			if (DialogEdit->GetMaxLength() == -1)
 				DialogEdit->SetMaxLength(Items[I].MaxLength?(int)Items[I].MaxLength:-1);
 
-			DialogEdit->SetPosition(m_X1+Items[I].X1,m_Y1+Items[I].Y1,
-			                        m_X1+Items[I].X2,m_Y1+Items[I].Y2);
+			DialogEdit->SetPosition(
+				{
+					static_cast<int>(m_Where.left + Items[I].X1),
+					static_cast<int>(m_Where.top + Items[I].Y1),
+					static_cast<int>(m_Where.left + Items[I].X2),
+					static_cast<int>(m_Where.top + Items[I].Y2)
+				});
 
 //      DialogEdit->SetObjectColor(
 //         FarColorToReal(DialogMode.Check(DMODE_WARNINGSTYLE) ?
@@ -1059,13 +1069,13 @@ bool Dialog::SetItemRect(DialogItemEx& Item, const SMALL_RECT& Rect)
 		const auto DialogEdit = static_cast<DlgEdit*>(Item.ObjPtr);
 		Item.X2 = Rect.Right;
 		Item.Y2 = (Type == DI_MEMOEDIT? Rect.Bottom : 0);
-		DialogEdit->SetPosition(m_X1 + Rect.Left, m_Y1 + Rect.Top, m_X1 + Rect.Right, m_Y1 + Rect.Top);
+		DialogEdit->SetPosition({ m_Where.left + Rect.Left, m_Where.top + Rect.Top, m_Where.left + Rect.Right, m_Where.top + Rect.Top });
 	}
 	else if (Type==DI_LISTBOX)
 	{
 		Item.X2 = Rect.Right;
 		Item.Y2 = Rect.Bottom;
-		Item.ListPtr->SetPosition(m_X1 + Rect.Left, m_Y1 + Rect.Top, m_X1 + Rect.Right, m_Y1 + Rect.Bottom);
+		Item.ListPtr->SetPosition({ m_Where.left + Rect.Left, m_Where.top + Rect.Top, m_Where.left + Rect.Right, m_Where.top + Rect.Bottom });
 		Item.ListPtr->SetMaxHeight(Item.Y2-Item.Y1+1);
 	}
 
@@ -1129,13 +1139,13 @@ bool Dialog::GetItemRect(size_t I, SMALL_RECT& Rect)
 		case DI_TEXT:
 
 			if (Items[I].X1==-1)
-				Rect.Left=(m_X2-m_X1+1-Len)/2;
+				Rect.Left = (m_Where.width() - Len) / 2;
 
 			if (Rect.Left < 0)
 				Rect.Left=0;
 
 			if (Items[I].Y1==-1)
-				Rect.Top=(m_Y2-m_Y1+1)/2;
+				Rect.Top = m_Where.height() / 2;
 
 			if (Rect.Top < 0)
 				Rect.Top=0;
@@ -1150,20 +1160,20 @@ bool Dialog::GetItemRect(size_t I, SMALL_RECT& Rect)
 			{
 				Rect.Bottom=Rect.Top;
 				Rect.Left=(!DialogMode.Check(DMODE_SMALLDIALOG)?3:0); //???
-				Rect.Right=m_X2-m_X1-(!DialogMode.Check(DMODE_SMALLDIALOG)?5:0); //???
+				Rect.Right = m_Where.width() - 1 - (!DialogMode.Check(DMODE_SMALLDIALOG)? 5 : 0); //???
 			}
 
 			break;
 		case DI_VTEXT:
 
 			if (Items[I].X1==-1)
-				Rect.Left=(m_X2-m_X1+1)/2;
+				Rect.Left = m_Where.width() / 2;
 
 			if (Rect.Left < 0)
 				Rect.Left=0;
 
 			if (Items[I].Y1==-1)
-				Rect.Top=(m_Y2-m_Y1+1-Len)/2;
+				Rect.Top = (m_Where.height() - Len) / 2;
 
 			if (Rect.Top < 0)
 				Rect.Top=0;
@@ -1178,7 +1188,7 @@ bool Dialog::GetItemRect(size_t I, SMALL_RECT& Rect)
 			{
 				Rect.Right=Rect.Left;
 				Rect.Top=(!DialogMode.Check(DMODE_SMALLDIALOG)?1:0); //???
-				Rect.Bottom=m_Y2-m_Y1-(!DialogMode.Check(DMODE_SMALLDIALOG)?3:0); //???
+				Rect.Bottom = m_Where.height() - 1 - (!DialogMode.Check(DMODE_SMALLDIALOG)? 3 : 0); //???
 				break;
 			}
 			break;
@@ -1598,7 +1608,7 @@ void Dialog::ShowDialog(size_t ID)
 		{
 			FarColor Color = colors::PaletteColorToFarColor(DialogMode.Check(DMODE_WARNINGSTYLE) ? COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
 			DlgProc(DN_CTLCOLORDIALOG, 0, &Color);
-			SetScreen(m_X1, m_Y1, m_X2, m_Y2, L' ', Color);
+			SetScreen(m_Where, L' ', Color);
 		}
 
 		ID=0;
@@ -1648,11 +1658,11 @@ void Dialog::ShowDialog(size_t ID)
 		short CX2=Items[I].X2;
 		short CY2=Items[I].Y2;
 
-		if (CX2 > m_X2-m_X1)
-			CX2 = m_X2-m_X1;
+		if (CX2 > m_Where.width() - 1)
+			CX2 = m_Where.width() - 1;
 
-		if (CY2 > m_Y2-m_Y1)
-			CY2 = m_Y2-m_Y1;
+		if (CY2 > m_Where.height() - 1)
+			CY2 = m_Where.height() - 1;
 
 		short CW=CX2-CX1+1;
 		short CH=CY2-CY1+1;
@@ -1673,7 +1683,7 @@ void Dialog::ShowDialog(size_t ID)
 			case DI_DOUBLEBOX:
 			{
 				bool IsDrawTitle = true;
-				GotoXY(m_X1+CX1,m_Y1+CY1);
+				GotoXY(m_Where.left + CX1, m_Where.top + CY1);
 				SetColor(ItemColor[2]);
 
 				if (CY1 == CY2)
@@ -1687,9 +1697,11 @@ void Dialog::ShowDialog(size_t ID)
 				}
 				else
 				{
-					Box(m_X1+CX1,m_Y1+CY1,m_X1+CX2,m_Y1+CY2,
-					    ItemColor[2],
-					    (Items[I].Type==DI_SINGLEBOX) ? SINGLE_BOX:DOUBLE_BOX);
+					Box(
+						{ m_Where.left + CX1, m_Where.top + CY1, m_Where.left + CX2, m_Where.top + CY2 },
+						ItemColor[2],
+						(Items[I].Type==DI_SINGLEBOX)? SINGLE_BOX : DOUBLE_BOX
+					);
 				}
 
 				if (!Items[I].strData.empty() && IsDrawTitle && CW > 2)
@@ -1706,15 +1718,15 @@ void Dialog::ShowDialog(size_t ID)
 						LenText=LenStrItem(I, strStr);
 					}
 
-					X=m_X1+CX1+(CW-LenText)/2;
+					X = m_Where.left + CX1 + (CW - LenText) / 2;
 
-					if ((Items[I].Flags & DIF_LEFTTEXT) && m_X1+CX1+1 < X)
-						X=m_X1+CX1+1;
+					if ((Items[I].Flags & DIF_LEFTTEXT) && m_Where.left + CX1 + 1 < X)
+						X = m_Where.left + CX1 + 1;
 					else if (Items[I].Flags & DIF_RIGHTTEXT)
-						X=m_X1+CX1+(CW-LenText)-1; //2
+						X = m_Where.left + CX1 + (CW - LenText) - 1; //2
 
 					SetColor(ItemColor[0]);
-					GotoXY(X,m_Y1+CY1);
+					GotoXY(X, m_Where.top + CY1);
 
 					if (Items[I].Flags & DIF_SHOWAMPERSAND)
 						Text(strStr);
@@ -1748,8 +1760,8 @@ void Dialog::ShowDialog(size_t ID)
 					if ((CX2 <= 0) || (CX2 < CX1))
 						CW = LenText;
 
-					X=(CX1==-1)?(m_X2-m_X1+1-LenText)/2:CX1;
-					Y=(CY1==-1)?(m_Y2-m_Y1+1)/2:CY1;
+					X = (CX1 == -1)? (m_Where.width() - LenText) / 2 : CX1;
+					Y = (CY1 == -1)? m_Where.height() / 2 : CY1;
 					int XS=(CX1==-1 || !(Items[I].Flags&DIF_SEPARATORUSER))?X:CX1;
 
 					if( (Items[I].Flags & DIF_RIGHTTEXT) && CX2 > CX1 )
@@ -1758,7 +1770,7 @@ void Dialog::ShowDialog(size_t ID)
 					if (X < 0)
 						X=0;
 
-					if (m_X1+X+LenText > m_X2)
+					if (m_Where.left + X + LenText > m_Where.right)
 					{
 						int tmpCW=ObjWidth();
 
@@ -1770,7 +1782,7 @@ void Dialog::ShowDialog(size_t ID)
 
 					if (CX1 > -1 && CX2 > CX1 && !(Items[I].Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2))) //половинчатое решение
 					{
-						SetScreen(m_X1+CX1,m_Y1+Y,m_X1+CX2,m_Y1+Y,L' ',ItemColor[0]);
+						SetScreen({ m_Where.left + CX1, m_Where.top + Y, m_Where.left + CX2, m_Where.top + Y }, L' ', ItemColor[0]);
 						/*
 						int CntChr=CX2-CX1+1;
 						SetColor(ItemColor[0]);
@@ -1789,7 +1801,7 @@ void Dialog::ShowDialog(size_t ID)
 					if (Items[I].Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2))
 					{
 						SetColor(ItemColor[2]);
-						GotoXY(m_X1+((Items[I].Flags&DIF_SEPARATORUSER)?XS:(!DialogMode.Check(DMODE_SMALLDIALOG)?3:0)),m_Y1+Y); //????
+						GotoXY(m_Where.left + ((Items[I].Flags & DIF_SEPARATORUSER)? XS : (!DialogMode.Check(DMODE_SMALLDIALOG)? 3 : 0)), m_Where.top + Y); //????
 						DrawLine(
 							(Items[I].Flags & DIF_SEPARATORUSER)? CX2 - CX1 + 1 : RealWidth - (DialogMode.Check(DMODE_SMALLDIALOG)? 0 : 6),
 							(Items[I].Flags & DIF_SEPARATORUSER)? line_type::h_user : (Items[I].Flags & DIF_SEPARATOR2? line_type::h2_to_v2 : line_type::h1_to_v2),
@@ -1804,7 +1816,7 @@ void Dialog::ShowDialog(size_t ID)
 						}
 					}
 
-					GotoXY(m_X1+X,m_Y1+Y);
+					GotoXY(m_Where.left + X, m_Where.top + Y);
 					SetColor(ItemColor[0]);
 
 					if (Items[I].Flags & DIF_SHOWAMPERSAND)
@@ -1814,7 +1826,7 @@ void Dialog::ShowDialog(size_t ID)
 				}
 				else
 				{
-					SetScreen(m_X1+CX1,m_Y1+CY1,m_X1+CX2,m_Y1+CY2,L' ',ItemColor[0]);
+					SetScreen({ m_Where.left + CX1, m_Where.top + CY1, m_Where.left + CX2, m_Where.top + CY2 }, L' ', ItemColor[0]);
 
 					DWORD CountLine=0;
 
@@ -1833,7 +1845,7 @@ void Dialog::ShowDialog(size_t ID)
 						X=(CX1==-1 || (Items[I].Flags & DIF_CENTERTEXT))?(CW-LenText)/2:CX1;
 						if (X < CX1)
 							X=CX1;
-						GotoXY(m_X1+X,m_Y1+CY1+CountLine);
+						GotoXY(m_Where.left + X, m_Where.top + CY1 + CountLine);
 						SetColor(ItemColor[0]);
 
 						if (Items[I].Flags & DIF_SHOWAMPERSAND)
@@ -1863,8 +1875,8 @@ void Dialog::ShowDialog(size_t ID)
 				if ((CY2 <= 0) || (CY2 < CY1))
 					CH = LenStrItem(I,strStr);
 
-				X=(CX1==-1)?(m_X2-m_X1+1)/2:CX1;
-				Y=(CY1==-1)?(m_Y2-m_Y1+1-LenText)/2:CY1;
+				X = CX1 == -1? m_Where.width() / 2 : CX1;
+				Y = CY1 == -1? (m_Where.height() - LenText) / 2 : CY1;
 				int YS=(CY1==-1 || !(Items[I].Flags&DIF_SEPARATORUSER))?Y:CY1;
 
 				if( (Items[I].Flags & DIF_RIGHTTEXT) && CY2 > CY1 )
@@ -1873,7 +1885,7 @@ void Dialog::ShowDialog(size_t ID)
 				if (Y < 0)
 					Y=0;
 
-				if (m_Y1+Y+LenText > m_Y2)
+				if (Y + LenText >= m_Where.height())
 				{
 					int tmpCH=ObjHeight();
 
@@ -1888,7 +1900,7 @@ void Dialog::ShowDialog(size_t ID)
 				// вместо этого:
 				if (CY1 > -1 && CY2 > CY1 && !(Items[I].Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2))) //половинчатое решение
 				{
-					SetScreen(m_X1+X,m_Y1+CY1,m_X1+X,m_Y1+CY2,L' ',ItemColor[0]);
+					SetScreen({ m_Where.left + X, m_Where.top + CY1, m_Where.left + X, m_Where.top + CY2 }, L' ', ItemColor[0]);
 					/*
 					int CntChr=CY2-CY1+1;
 					SetColor(ItemColor[0]);
@@ -1904,7 +1916,7 @@ void Dialog::ShowDialog(size_t ID)
 				if (Items[I].Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2))
 				{
 					SetColor(ItemColor[2]);
-					GotoXY(m_X1+X,m_Y1+ ((Items[I].Flags&DIF_SEPARATORUSER)?YS:(!DialogMode.Check(DMODE_SMALLDIALOG)?1:0)));  //????
+					GotoXY(m_Where.left + X, m_Where.top + ((Items[I].Flags & DIF_SEPARATORUSER)? YS : (!DialogMode.Check(DMODE_SMALLDIALOG)? 1 : 0)));  //????
 					DrawLine(
 						(Items[I].Flags & DIF_SEPARATORUSER)? CY2 - CY1 + 1 : RealHeight - (DialogMode.Check(DMODE_SMALLDIALOG)? 0 : 2),
 						(Items[I].Flags & DIF_SEPARATORUSER)? line_type::v_user : (Items[I].Flags & DIF_SEPARATOR2? line_type::v2_to_h2 : line_type::v1_to_h2),
@@ -1913,7 +1925,7 @@ void Dialog::ShowDialog(size_t ID)
 				}
 
 				SetColor(ItemColor[0]);
-				GotoXY(m_X1+X,m_Y1+Y);
+				GotoXY(m_Where.left + X, m_Where.top + Y);
 
 				if (Items[I].Flags & DIF_SHOWAMPERSAND)
 					VText(strStr);
@@ -1927,7 +1939,7 @@ void Dialog::ShowDialog(size_t ID)
 			case DI_RADIOBUTTON:
 			{
 				SetColor(ItemColor[0]);
-				GotoXY(m_X1+CX1,m_Y1+CY1);
+				GotoXY(m_Where.left + CX1, m_Where.top + CY1);
 
 				if (Items[I].Type==DI_CHECKBOX)
 				{
@@ -1959,7 +1971,7 @@ void Dialog::ShowDialog(size_t ID)
 				strStr += Items[I].strData;
 				LenText=LenStrItem(I, strStr);
 
-				if (m_X1+CX1+LenText > m_X2)
+				if (CX1 + LenText >= m_Where.width())
 					strStr.resize(ObjWidth()-1);
 
 				if (Items[I].Flags & DIF_SHOWAMPERSAND)
@@ -1973,7 +1985,7 @@ void Dialog::ShowDialog(size_t ID)
 					if (!IsMoving())
 						SetCursorType(true, -1);
 
-					MoveCursor(m_X1+CX1+1,m_Y1+CY1);
+					MoveCursor({ m_Where.left + CX1 + 1, m_Where.top + CY1 });
 				}
 
 				break;
@@ -1983,7 +1995,7 @@ void Dialog::ShowDialog(size_t ID)
 			{
 				strStr = Items[I].strData;
 				SetColor(ItemColor[0]);
-				GotoXY(m_X1+CX1,m_Y1+CY1);
+				GotoXY(m_Where.left + CX1, m_Where.top + CY1);
 
 				if (Items[I].Flags & DIF_SHOWAMPERSAND)
 					Text(strStr);
@@ -1992,8 +2004,8 @@ void Dialog::ShowDialog(size_t ID)
 
 				if(Items[I].Flags & DIF_SETSHIELD)
 				{
-					int startx=m_X1+CX1+(Items[I].Flags&DIF_NOBRACKETS?0:2);
-					Global->ScrBuf->ApplyColor(startx, m_Y1 + CY1, startx + 1, m_Y1 + CY1, colors::ConsoleColorToFarColor(B_YELLOW|F_LIGHTBLUE));
+					int startx = m_Where.left + CX1 + (Items[I].Flags&DIF_NOBRACKETS? 0 : 2);
+					Global->ScrBuf->ApplyColor({ startx, m_Where.top + CY1, startx + 1, m_Where.top + CY1 }, colors::ConsoleColorToFarColor(B_YELLOW | F_LIGHTBLUE));
 				}
 				break;
 			}
@@ -2030,10 +2042,9 @@ void Dialog::ShowDialog(size_t ID)
 
 				if (ItemHasDropDownArrow(&Items[I]))
 				{
-					int EditX1,EditY1,EditX2,EditY2;
-					EditPtr->GetPosition(EditX1,EditY1,EditX2,EditY2);
+					const auto EditPos = EditPtr->GetPosition();
 					//Text((CurItem->Type == DI_COMBOBOX?"\x1F":"\x19"));
-					Text(EditX2 + 1, EditY1, ItemColor[3], L"\x2193"sv);
+					Text({ EditPos.right + 1, EditPos.top }, ItemColor[3], L"\x2193"sv);
 				}
 
 				if (Items[I].Type == DI_COMBOBOX && GetDropDownOpened() && Items[I].ListPtr->IsVisible()) // need redraw VMenu?
@@ -2078,7 +2089,7 @@ void Dialog::ShowDialog(size_t ID)
 
 				if (Items[I].VBuf)
 				{
-					PutText(m_X1+CX1,m_Y1+CY1,m_X1+CX2,m_Y1+CY2,Items[I].VBuf);
+					PutText({ m_Where.left + CX1, m_Where.top + CY1, m_Where.left + CX2, m_Where.top + CY2 }, Items[I].VBuf);
 
 					// не забудем переместить курсор, если он позиционирован.
 					if (m_FocusPos == I)
@@ -2086,7 +2097,7 @@ void Dialog::ShowDialog(size_t ID)
 						if (Items[I].UCData->CursorPos.X != -1 &&
 						        Items[I].UCData->CursorPos.Y != -1)
 						{
-							MoveCursor(Items[I].UCData->CursorPos.X+CX1+m_X1,Items[I].UCData->CursorPos.Y+CY1+m_Y1);
+							MoveCursor({ Items[I].UCData->CursorPos.X + CX1 + m_Where.left, Items[I].UCData->CursorPos.Y + CY1 + m_Where.top });
 							SetCursorType(Items[I].UCData->CursorVisible,Items[I].UCData->CursorSize);
 						}
 						else
@@ -2158,16 +2169,16 @@ bool Dialog::ProcessMoveDialog(DWORD Key)
 			case KEY_CTRLHOME:  case KEY_CTRLNUMPAD7:
 			case KEY_RCTRLHOME: case KEY_RCTRLNUMPAD7:
 			case KEY_HOME:      case KEY_NUMPAD7:
-				rr=(Key == KEY_CTRLLEFT || Key == KEY_RCTRLLEFT || Key == KEY_CTRLNUMPAD4 || Key == KEY_RCTRLNUMPAD4)?10:m_X1;
+				rr = (Key == KEY_CTRLLEFT || Key == KEY_RCTRLLEFT || Key == KEY_CTRLNUMPAD4 || Key == KEY_RCTRLNUMPAD4)? 10 : m_Where.left;
 				[[fallthrough]];
 			case KEY_LEFT:      case KEY_NUMPAD4:
 				Hide();
 
 				for (int i=0; i<rr; i++)
-					if (m_X2>0)
+					if (m_Where.right > 0)
 					{
-						m_X1--;
-						m_X2--;
+						--m_Where.left;
+						--m_Where.right;
 						AdjustEditPos(-1,0);
 					}
 
@@ -2179,16 +2190,16 @@ bool Dialog::ProcessMoveDialog(DWORD Key)
 			case KEY_CTRLEND:    case KEY_CTRLNUMPAD1:
 			case KEY_RCTRLEND:   case KEY_RCTRLNUMPAD1:
 			case KEY_END:       case KEY_NUMPAD1:
-				rr=(Key == KEY_CTRLRIGHT || Key == KEY_RCTRLRIGHT || Key == KEY_CTRLNUMPAD6 || Key == KEY_RCTRLNUMPAD6)?10:std::max(0,ScrX-m_X2);
+				rr = (Key == KEY_CTRLRIGHT || Key == KEY_RCTRLRIGHT || Key == KEY_CTRLNUMPAD6 || Key == KEY_RCTRLNUMPAD6) ? 10 : std::max(0, ScrX - m_Where.right);
 				[[fallthrough]];
 			case KEY_RIGHT:     case KEY_NUMPAD6:
 				Hide();
 
 				for (int i=0; i<rr; i++)
-					if (m_X1<ScrX)
+					if (m_Where.left < ScrX)
 					{
-						m_X1++;
-						m_X2++;
+						++m_Where.left;
+						++m_Where.right;
 						AdjustEditPos(1,0);
 					}
 
@@ -2200,16 +2211,16 @@ bool Dialog::ProcessMoveDialog(DWORD Key)
 			case KEY_RCTRLPGUP: case KEY_RCTRLNUMPAD9:
 			case KEY_CTRLUP:    case KEY_CTRLNUMPAD8:
 			case KEY_RCTRLUP:   case KEY_RCTRLNUMPAD8:
-				rr=(Key == KEY_CTRLUP || Key == KEY_RCTRLUP || Key == KEY_CTRLNUMPAD8 || Key == KEY_RCTRLNUMPAD8)?5:m_Y1;
+				rr = (Key == KEY_CTRLUP || Key == KEY_RCTRLUP || Key == KEY_CTRLNUMPAD8 || Key == KEY_RCTRLNUMPAD8)? 5 : m_Where.top;
 				[[fallthrough]];
 			case KEY_UP:        case KEY_NUMPAD8:
 				Hide();
 
 				for (int i=0; i<rr; i++)
-					if (m_Y2>0)
+					if (m_Where.bottom > 0)
 					{
-						m_Y1--;
-						m_Y2--;
+						--m_Where.top;
+						--m_Where.bottom;
 						AdjustEditPos(0,-1);
 					}
 
@@ -2221,16 +2232,16 @@ bool Dialog::ProcessMoveDialog(DWORD Key)
 			case KEY_CTRLPGDN:  case KEY_CTRLNUMPAD3:
 			case KEY_RCTRLPGDN: case KEY_RCTRLNUMPAD3:
 			case KEY_PGDN:      case KEY_NUMPAD3:
-				rr=(Key == KEY_CTRLDOWN || Key == KEY_RCTRLDOWN || Key == KEY_CTRLNUMPAD2 || Key == KEY_RCTRLNUMPAD2)? 5:std::max(0,ScrY-m_Y2);
+				rr = (Key == KEY_CTRLDOWN || Key == KEY_RCTRLDOWN || Key == KEY_CTRLNUMPAD2 || Key == KEY_RCTRLNUMPAD2)? 5 : std::max(0, ScrY - m_Where.bottom);
 				[[fallthrough]];
 			case KEY_DOWN:      case KEY_NUMPAD2:
 				Hide();
 
 				for (int i=0; i<rr; i++)
-					if (m_Y1<ScrY)
+					if (m_Where.top < ScrY)
 					{
-						m_Y1++;
-						m_Y2++;
+						++m_Where.top;
+						++m_Where.bottom;
 						AdjustEditPos(0,1);
 					}
 
@@ -2248,11 +2259,8 @@ bool Dialog::ProcessMoveDialog(DWORD Key)
 
 			case KEY_ESC:
 				Hide();
-				AdjustEditPos(m_Drag.OldX1-m_X1,m_Drag.OldY1-m_Y1);
-				m_X1=m_Drag.OldX1;
-				m_X2=m_Drag.OldX2;
-				m_Y1=m_Drag.OldY1;
-				m_Y2=m_Drag.OldY2;
+				AdjustEditPos(m_Drag.OldRect.left - m_Where.left, m_Drag.OldRect.top - m_Where.top);
+				m_Where = m_Drag.OldRect;
 				DialogMode.Clear(DMODE_KEYDRAGGED);
 
 				DlgProc(DN_DRAGGED,1,ToPtr(TRUE));
@@ -2269,7 +2277,7 @@ bool Dialog::ProcessMoveDialog(DWORD Key)
 		{
 			// включаем флаг и запоминаем координаты
 			DialogMode.Set(DMODE_KEYDRAGGED);
-			m_Drag.OldX1=m_X1; m_Drag.OldX2=m_X2; m_Drag.OldY1=m_Y1; m_Drag.OldY2=m_Y2;
+			m_Drag.OldRect = m_Where;
 			//# GetText(0,0,3,0,LV);
 			Show();
 			return true;
@@ -3159,8 +3167,9 @@ bool Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		Type=Items[I].Type;
 
 		if (Type == DI_LISTBOX &&
-		        MsY >= m_Y1+Items[I].Y1 && MsY <= m_Y1+Items[I].Y2 &&
-		        MsX >= m_X1+Items[I].X1 && MsX <= m_X1+Items[I].X2)
+			MsY >= m_Where.top + Items[I].Y1 && MsY <= m_Where.top + Items[I].Y2 &&
+			MsX >= m_Where.left + Items[I].X1 && MsX <= m_Where.left + Items[I].X2
+		)
 		{
 			auto& List = Items[I].ListPtr;
 			if (!MouseRecord.dwEventFlags && !(MouseRecord.dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && (PrevMouseRecord.dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED))
@@ -3193,11 +3202,11 @@ bool Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 						return true;
 					}
 					List->ProcessMouse(&MouseRecord);
-					int InScroolBar=(MsX==m_X1+Items[I].X2 && MsY >= m_Y1+Items[I].Y1 && MsY <= m_Y1+Items[I].Y2) &&
+					const auto InScroolBar = (MsX == m_Where.left + Items[I].X2 && MsY >= m_Where.top + Items[I].Y1 && MsY <= m_Where.top + Items[I].Y2) &&
 					                (List->CheckFlags(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Global->Opt->ShowMenuScrollbar);
 					if (List->GetLastSelectPosResult() >= 0)
 					{
-						if (List->CheckFlags(VMENU_SHOWNOBOX) ||  (MsY > m_Y1+Items[I].Y1 && MsY < m_Y1+Items[I].Y2))
+						if (List->CheckFlags(VMENU_SHOWNOBOX) || (MsY > m_Where.top + Items[I].Y1 && MsY < m_Where.top + Items[I].Y2))
 						{
 							if (!InScroolBar && !(Items[I].Flags&DIF_LISTNOCLOSE))
 							{
@@ -3231,7 +3240,7 @@ bool Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		}
 	}
 
-	if (MsX<m_X1 || MsY<m_Y1 || MsX>m_X2 || MsY>m_Y2)
+	if (!m_Where.contains(MouseRecord.dwMousePosition))
 	{
 		if (DialogMode.Check(DMODE_CLICKOUTSIDE) && !DlgProc(DN_CONTROLINPUT,-1,&mouse))
 		{
@@ -3271,8 +3280,10 @@ bool Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				continue;
 
 			GetItemRect(I,Rect);
-			Rect.Left+=m_X1;  Rect.Top+=m_Y1;
-			Rect.Right+=m_X1; Rect.Bottom+=m_Y1;
+			Rect.Left += m_Where.left;
+			Rect.Top += m_Where.top;
+			Rect.Right += m_Where.left;
+			Rect.Bottom += m_Where.top;
 
 			if (MsX >= Rect.Left && MsY >= Rect.Top && MsX <= Rect.Right && MsY <= Rect.Bottom)
 			{
@@ -3327,8 +3338,10 @@ bool Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				Type=Items[I].Type;
 
 				GetItemRect(I,Rect);
-				Rect.Left+=m_X1;  Rect.Top+=m_Y1;
-				Rect.Right+=m_X1; Rect.Bottom+=m_Y1;
+				Rect.Left += m_Where.left;
+				Rect.Top += m_Where.top;
+				Rect.Right += m_Where.left;
+				Rect.Bottom += m_Where.top;
 				if (ItemHasDropDownArrow(&Items[I]))
 					Rect.Right++;
 
@@ -3344,13 +3357,12 @@ bool Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 						   мышой переваливаем на другой элемент, то список закрывается
 						   но перехода реального на указанный элемент диалога не происходит
 						*/
-						int EditX1,EditY1,EditX2,EditY2;
 						const auto EditLine = static_cast<DlgEdit*>(Items[I].ObjPtr);
-						EditLine->GetPosition(EditX1,EditY1,EditX2,EditY2);
+						const auto EditRect = EditLine->GetPosition();
 
-						if (MsY==EditY1 && Type == DI_COMBOBOX &&
+						if (MsY == EditRect.top && Type == DI_COMBOBOX &&
 						        (Items[I].Flags & DIF_DROPDOWNLIST) &&
-						        MsX >= EditX1 && MsX <= EditX2+1)
+						        MsX >= EditRect.left && MsX <= EditRect.right + 1)
 						{
 							EditLine->SetClearFlag(false);
 
@@ -3378,7 +3390,7 @@ bool Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 						else
 						{
 							// Проверка на DI_COMBOBOX здесь лишняя. Убрана (KM).
-							if (MsX==EditX2+1 && MsY==EditY1 && ItemHasDropDownArrow(&Items[I]))
+							if (MsX == EditRect.bottom + 1 && MsY == EditRect.top && ItemHasDropDownArrow(&Items[I]))
 							{
 								EditLine->SetClearFlag(false); // раз уж покусились на, то и...
 
@@ -3396,8 +3408,8 @@ bool Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 					/* ********************************************************** */
 					if (Type==DI_BUTTON &&
-					        MsY==m_Y1+Items[I].Y1 &&
-							MsX < m_X1 + Items[I].X1 + static_cast<intptr_t>(HiStrlen(Items[I].strData)))
+						MsY == m_Where.top + Items[I].Y1 &&
+						MsX < m_Where.left + Items[I].X1 + static_cast<intptr_t>(HiStrlen(Items[I].strData)))
 					{
 						ChangeFocus2(I);
 						ShowDialog();
@@ -3405,9 +3417,9 @@ bool Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 						while (IsMouseButtonPressed())
 							;
 
-						if (IntKeyState.MouseX <  m_X1 ||
-							IntKeyState.MouseX >  m_X1 + Items[I].X1 + static_cast<intptr_t>(HiStrlen(Items[I].strData)) + 4 ||
-						        IntKeyState.MouseY != m_Y1+Items[I].Y1)
+						if (IntKeyState.MousePos.x < m_Where.left ||
+							IntKeyState.MousePos.x > m_Where.left + Items[I].X1 + static_cast<intptr_t>(HiStrlen(Items[I].strData)) + 4 ||
+							IntKeyState.MousePos.y != m_Where.top + Items[I].Y1)
 						{
 							ChangeFocus2(I);
 							ShowDialog();
@@ -3421,9 +3433,9 @@ bool Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 					/* ********************************************************** */
 					if ((Type == DI_CHECKBOX ||
-					        Type == DI_RADIOBUTTON) &&
-					        MsY==m_Y1+Items[I].Y1 &&
-							MsX < (m_X1 + Items[I].X1 + static_cast<intptr_t>(HiStrlen(Items[I].strData)) + 4 - ((Items[I].Flags & DIF_MOVESELECT) != 0)))
+						Type == DI_RADIOBUTTON) &&
+						MsY == m_Where.top + Items[I].Y1 &&
+						MsX < (m_Where.left + Items[I].X1 + static_cast<intptr_t>(HiStrlen(Items[I].strData)) + 4 - ((Items[I].Flags & DIF_MOVESELECT) != 0)))
 					{
 						ChangeFocus2(I);
 						ProcessKey(KEY_SPACE, I);
@@ -3441,10 +3453,10 @@ bool Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				if (DlgProc(DN_DRAGGED, 0, nullptr))
 				{
 					DialogMode.Set(DMODE_MOUSEDRAGGED);
-					m_Drag.OldX1=m_X1; m_Drag.OldX2=m_X2; m_Drag.OldY1=m_Y1; m_Drag.OldY2=m_Y2;
+					m_Drag.OldRect = m_Where;
 					// запомним delta места хватания и Left-Top диалогового окна
-					m_Drag.MsX = abs(m_X1-IntKeyState.MouseX);
-					m_Drag.MsY = abs(m_Y1-IntKeyState.MouseY);
+					m_Drag.MsX = abs(m_Where.left - IntKeyState.MousePos.x);
+					m_Drag.MsY = abs(m_Where.top - IntKeyState.MousePos.y);
 					Show();
 				}
 			}
@@ -3460,26 +3472,30 @@ void Dialog::ProcessDrag(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (buttons&FROM_LEFT_1ST_BUTTON_PRESSED) // still dragging
 	{
 		int mx,my;
-		if (IntKeyState.MouseX==IntKeyState.PrevMouseX)
-			mx=m_X1;
+		if (IntKeyState.MousePos.x == IntKeyState.MousePrevPos.x)
+			mx = m_Where.left;
 		else
-			mx=IntKeyState.MouseX-m_Drag.MsX;
+			mx = IntKeyState.MousePos.x - m_Drag.MsX;
 
-		if (IntKeyState.MouseY==IntKeyState.PrevMouseY)
-			my=m_Y1;
+		if (IntKeyState.MousePos.y == IntKeyState.MousePrevPos.y)
+			my = m_Where.top;
 		else
-			my=IntKeyState.MouseY-m_Drag.MsY;
+			my = IntKeyState.MousePos.y - m_Drag.MsY;
 
-		int X0=m_X1, Y0=m_Y1;
-		int OX1=m_X1 ,OY1=m_Y1;
-		int NX1=mx, NX2=mx+(m_X2-m_X1);
-		int NY1=my, NY2=my+(m_Y2-m_Y1);
+		int X0 = m_Where.left, Y0 = m_Where.top;
+		int OX1 = m_Where.left, OY1 = m_Where.top;
+		int NX1 = mx, NX2 = mx + m_Where.width() - 1;
+		int NY1 = my, NY2 = my + m_Where.height() - 1;
 		int AdjX=NX1-X0, AdjY=NY1-Y0;
 
 		if (OX1 != NX1 || OY1 != NY1)
 		{
 			Hide();
-			m_X1=NX1; m_X2=NX2; m_Y1=NY1; m_Y2=NY2;
+
+			m_Where.left = NX1;
+			m_Where.right = NX2;
+			m_Where.top = NY1;
+			m_Where.bottom = NY2;
 
 			if (AdjX || AdjY)
 				AdjustEditPos(AdjX,AdjY); //?
@@ -3489,11 +3505,8 @@ void Dialog::ProcessDrag(const MOUSE_EVENT_RECORD *MouseEvent)
 	else if (buttons == RIGHTMOST_BUTTON_PRESSED) // abort
 	{
 		Hide();
-		AdjustEditPos(m_Drag.OldX1-m_X1,m_Drag.OldY1-m_Y1);
-		m_X1=m_Drag.OldX1;
-		m_X2=m_Drag.OldX2;
-		m_Y1=m_Drag.OldY1;
-		m_Y2=m_Drag.OldY2;
+		AdjustEditPos(m_Drag.OldRect.left - m_Where.left, m_Drag.OldRect.top - m_Where.top);
+		m_Where = m_Drag.OldRect;
 		DialogMode.Clear(DMODE_MOUSEDRAGGED);
 		DlgProc(DN_DRAGGED,1,ToPtr(TRUE));
 		Show();
@@ -3877,12 +3890,6 @@ int Dialog::SelectFromComboBox(
 {
 		_DIALOG(CleverSysLog CL(L"Dialog::SelectFromComboBox()"));
 		const auto ComboBox = CurItem->ListPtr;
-		int EditX1,EditY1,EditX2,EditY2;
-		EditLine->GetPosition(EditX1,EditY1,EditX2,EditY2);
-
-		//BUGBUG, never used
-		if (EditX2-EditX1<20)
-			EditX2=EditX1+20;
 
 		SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.
 		DlgProc(DN_DROPDOWNOPENED, m_FocusPos, ToPtr(1));
@@ -4144,8 +4151,6 @@ bool Dialog::ProcessHighlighting(int Key,size_t FocusPos,int Translate)
 */
 void Dialog::AdjustEditPos(int dx, int dy)
 {
-	int x1,x2,y1,y2;
-
 	if (!DialogMode.Check(DMODE_OBJECTS_CREATED))
 		return;
 
@@ -4164,12 +4169,12 @@ void Dialog::AdjustEditPos(int dx, int dy)
 			else
 				DialogScrObject = static_cast<ScreenObject*>(i.ObjPtr);
 
-			DialogScrObject->GetPosition(x1,y1,x2,y2);
-			x1+=dx;
-			x2+=dx;
-			y1+=dy;
-			y2+=dy;
-			DialogScrObject->SetPosition(x1,y1,x2,y2);
+			auto Rect = DialogScrObject->GetPosition();
+			Rect.left += dx;
+			Rect.right += dx;
+			Rect.top += dy;
+			Rect.bottom += dy;
+			DialogScrObject->SetPosition(Rect);
 		}
 	});
 
@@ -4336,14 +4341,13 @@ void Dialog::ResizeConsole()
 	COORD c = {static_cast<SHORT>(ScrX+1), static_cast<SHORT>(ScrY+1)};
 	SendMessage(DN_RESIZECONSOLE, 0, &c);
 
-	int x1, y1, x2, y2;
-	GetPosition(x1, y1, x2, y2);
-	c.X = std::min(x1, ScrX-1);
-	c.Y = std::min(y1, ScrY-1);
-	if(c.X!=x1 || c.Y!=y1)
+	const auto Rect = GetPosition();
+	c.X = std::min(Rect.left, ScrX-1);
+	c.Y = std::min(Rect.top, ScrY-1);
+	if(c.X != Rect.left || c.Y != Rect.top)
 	{
-		c.X = x1;
-		c.Y = y1;
+		c.X = Rect.left;
+		c.Y = Rect.top;
 		SendMessage(DM_MOVEDIALOG, TRUE, &c);
 		SetComboBoxPos();
 	}
@@ -4424,11 +4428,11 @@ intptr_t Dialog::DefProc(intptr_t Msg, intptr_t Param1, void* Param2)
 				   1) когда диалог перемещается в угол
 				   2) когда диалог перемещается из угла
 				   сделал вывод красных палочек по углам */
-				FarColor Color = colors::ConsoleColorToFarColor(0xCE);
-				Text(m_X1, m_Y1, Color, L"\\"sv);
-				Text(m_X1, m_Y2, Color, L"/"sv);
-				Text(m_X2, m_Y1, Color, L"/"sv);
-				Text(m_X2, m_Y2, Color, L"\\"sv);
+				const auto Color = colors::ConsoleColorToFarColor(B_LIGHTRED|F_YELLOW);
+				Text({ m_Where.left, m_Where.top }, Color, L"\\"sv);
+				Text({ m_Where.left, m_Where.bottom }, Color, L"/"sv);
+				Text({ m_Where.right, m_Where.top }, Color, L"/"sv);
+				Text({ m_Where.right, m_Where.bottom }, Color, L"\\"sv);
 			}
 
 			return TRUE;
@@ -4519,26 +4523,23 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			[[fallthrough]];
 		case DM_MOVEDIALOG:
 		{
-			auto W1 = m_X2 - m_X1 + 1;
-			auto H1 = m_Y2 - m_Y1 + 1;
-			m_Drag.OldX1=m_X1;
-			m_Drag.OldY1=m_Y1;
-			m_Drag.OldX2=m_X2;
-			m_Drag.OldY2=m_Y2;
+			auto W1 = m_Where.width();
+			auto H1 = m_Where.height();
+			m_Drag.OldRect = m_Where;
 
 			// переместили
 			if (Param1>0)  // абсолютно?
 			{
-				m_X1=((COORD*)Param2)->X;
-				m_Y1=((COORD*)Param2)->Y;
-				m_X2=W1;
-				m_Y2=H1;
+				m_Where.left = static_cast<COORD*>(Param2)->X;
+				m_Where.top = static_cast<COORD*>(Param2)->Y;
+				m_Where.right = W1;
+				m_Where.bottom = H1;
 				CheckDialogCoord();
 			}
 			else if (!Param1)  // значит относительно
 			{
-				m_X1+=((COORD*)Param2)->X;
-				m_Y1+=((COORD*)Param2)->Y;
+				m_Where.left += static_cast<COORD*>(Param2)->X;
+				m_Where.top += static_cast<COORD*>(Param2)->Y;
 			}
 			else // Resize, Param2=width/height
 			{
@@ -4585,20 +4586,20 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			}
 
 			// проверили и скорректировали
-			if (m_X1+W1<0)
-				m_X1=-W1+1;
+			if (m_Where.left + W1 < 0)
+				m_Where.left = -W1 + 1;
 
-			if (m_Y1+H1<0)
-				m_Y1=-H1+1;
+			if (m_Where.top + H1 < 0)
+				m_Where.top = -H1 + 1;
 
-			if (m_X1>ScrX)
-				m_X1=ScrX;
+			if (m_Where.left > ScrX)
+				m_Where.left = ScrX;
 
-			if (m_Y1>ScrY)
-				m_Y1=ScrY;
+			if (m_Where.top > ScrY)
+				m_Where.top = ScrY;
 
-			m_X2=m_X1+W1-1;
-			m_Y2=m_Y1+H1-1;
+			m_Where.right = m_Where.left + W1 - 1;
+			m_Where.bottom = m_Where.top + H1 - 1;
 
 			if (Param1>0)  // абсолютно?
 			{
@@ -4607,13 +4608,13 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 			if (Param1 < 0)  // размер?
 			{
-				((COORD*)Param2)->X=m_X2-m_X1+1;
-				((COORD*)Param2)->Y=m_Y2-m_Y1+1;
+				static_cast<COORD*>(Param2)->X = m_Where.width();
+				static_cast<COORD*>(Param2)->Y = m_Where.height();
 			}
 			else
 			{
-				((COORD*)Param2)->X=m_X1;
-				((COORD*)Param2)->Y=m_Y1;
+				static_cast<COORD*>(Param2)->X = m_Where.left;
+				static_cast<COORD*>(Param2)->Y = m_Where.top;
 			}
 
 			int I=IsVisible();// && DialogMode.Check(DMODE_INITOBJECTS);
@@ -4621,7 +4622,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			if (I) Hide();
 
 			// приняли.
-			AdjustEditPos(m_X1-m_Drag.OldX1,m_Y1-m_Drag.OldY1);
+			AdjustEditPos(m_Where.left - m_Drag.OldRect.left, m_Where.top - m_Drag.OldRect.top);
 
 			if (I) Show(); // только если диалог был виден
 
@@ -4713,12 +4714,11 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		{
 			if (Param2)
 			{
-				int x1,y1,x2,y2;
-				GetPosition(x1,y1,x2,y2);
-				((SMALL_RECT*)Param2)->Left=x1;
-				((SMALL_RECT*)Param2)->Top=y1;
-				((SMALL_RECT*)Param2)->Right=x2;
-				((SMALL_RECT*)Param2)->Bottom=y2;
+				const auto Rect = GetPosition();
+				static_cast<SMALL_RECT*>(Param2)->Left = Rect.left;
+				static_cast<SMALL_RECT*>(Param2)->Top = Rect.top;
+				static_cast<SMALL_RECT*>(Param2)->Right = Rect.right;
+				static_cast<SMALL_RECT*>(Param2)->Bottom = Rect.bottom;
 				return TRUE;
 			}
 
@@ -5213,7 +5213,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				if (DialogMode.Check(DMODE_SHOW) && m_FocusPos == (size_t)Param1)
 				{
 					// что-то одно надо убрать :-)
-					MoveCursor(Coord.X+m_X1,Coord.Y+m_Y1); // ???
+					MoveCursor({ Coord.X + m_Where.left, Coord.Y + m_Where.top }); // ???
 					redraw(false); //???
 				}
 
@@ -6041,19 +6041,19 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 	return DlgProc(Msg,Param1,Param2);
 }
 
-void Dialog::SetPosition(int X1,int Y1,int X2,int Y2)
+void Dialog::SetPosition(rectangle Where)
 {
-	if (X1 != -1)
-		RealWidth = X2-X1+1;
+	if (Where.left != -1)
+		RealWidth = Where.width();
 	else
-		RealWidth = X2;
+		RealWidth = Where.right;
 
-	if (Y1 != -1)
-		RealHeight = Y2-Y1+1;
+	if (Where.top != -1)
+		RealHeight = Where.height();
 	else
-		RealHeight = Y2;
+		RealHeight = Where.bottom;
 
-	ScreenObjectWithShadow::SetPosition(X1, Y1, X2, Y2);
+	ScreenObjectWithShadow::SetPosition(Where);
 }
 //////////////////////////////////////////////////////////////////////////
 bool Dialog::IsInited() const
@@ -6061,28 +6061,30 @@ bool Dialog::IsInited() const
 	return DialogMode.Check(DMODE_OBJECTS_INITED);
 }
 
-void Dialog::CalcComboBoxPos(const DialogItemEx* CurItem, intptr_t ItemCount, int &X1, int &Y1, int &X2, int &Y2) const
+rectangle Dialog::CalcComboBoxPos(const DialogItemEx* CurItem, intptr_t ItemCount) const
 {
 	if(!CurItem)
 	{
 		CurItem = &Items[m_FocusPos];
 	}
 
-	static_cast<DlgEdit*>(CurItem->ObjPtr)->GetPosition(X1, Y1, X2, Y2);
+	auto Rect = static_cast<DlgEdit*>(CurItem->ObjPtr)->GetPosition();
 
-	if (X2-X1<20)
-		X2=X1+20;
-
-	if (ScrY-Y1<std::min(Global->Opt->Dialogs.CBoxMaxHeight.Get(),(long long)ItemCount)+2 && Y1>ScrY/2)
+	if (Rect.width() <= 20)
+		Rect.right = Rect.left + 20;
+	
+	if (ScrY - Rect.top<std::min(Global->Opt->Dialogs.CBoxMaxHeight.Get(), (long long)ItemCount) + 2 && Rect.top > ScrY / 2)
 	{
-		Y2=Y1-1;
-		Y1=std::max(0ll,Y1-1-std::min(Global->Opt->Dialogs.CBoxMaxHeight.Get(),(long long)ItemCount)-1);
+		Rect.bottom = Rect.top - 1;
+		Rect.top = std::max(0ll, Rect.top - 1 - std::min(Global->Opt->Dialogs.CBoxMaxHeight.Get(), (long long)ItemCount) - 1);
 	}
 	else
 	{
-		++Y1;
-		Y2=0;
+		++Rect.top;
+		Rect.bottom = 0;
 	}
+
+	return Rect;
 }
 
 void Dialog::SetComboBoxPos(DialogItemEx* CurItem)
@@ -6095,9 +6097,7 @@ void Dialog::SetComboBoxPos(DialogItemEx* CurItem)
 		}
 		if (CurItem->ListPtr)
 		{
-			int X1, Y1, X2, Y2;
-			CalcComboBoxPos(CurItem, CurItem->ListPtr->size(), X1, Y1, X2, Y2);
-			CurItem->ListPtr->SetPosition(X1, Y1, X2, Y2);
+			CurItem->ListPtr->SetPosition(CalcComboBoxPos(CurItem, CurItem->ListPtr->size()));
 		}
 	}
 }

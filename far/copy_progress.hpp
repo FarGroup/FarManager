@@ -37,6 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "plugin.hpp"
 
+#include "common/2d/rectangle.hpp"
+
 enum class lng;
 
 class copy_progress: noncopyable
@@ -70,7 +72,7 @@ private:
 	std::chrono::steady_clock::time_point m_CopyStartTime;
 	IndeterminateTaskbar m_TB;
 	wakeful m_Wakeful;
-	SMALL_RECT m_Rect;
+	small_rectangle m_Rect;
 
 	string m_CurrentBar;
 	size_t m_CurrentBarSize;

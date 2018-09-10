@@ -125,7 +125,7 @@ void Edit::DisplayObject()
 		}
 	}
 
-	MoveCursor(m_X1+GetLineCursorPos()-LeftPos,m_Y1);
+	MoveCursor({ m_Where.left + GetLineCursorPos() - LeftPos, m_Where.top });
 }
 
 void Edit::SetCursorType(bool Visible, DWORD Size)
@@ -224,7 +224,7 @@ void Edit::FastShow(const Edit::ShowInfo* Info)
 		XPos = Info->CurTabPos - Info->LeftPos;
 	}
 
-	GotoXY(m_X1,m_Y1);
+	GotoXY(m_Where.left, m_Where.top);
 	int TabSelStart=(m_SelStart==-1) ? -1:RealPosToTab(m_SelStart);
 	int TabSelEnd=(m_SelEnd<0) ? -1:RealPosToTab(m_SelEnd);
 
@@ -389,7 +389,7 @@ void Edit::FastShow(const Edit::ShowInfo* Info)
 		}
 		else
 		{
-			Text(cut_right(OutStr, m_X2 - m_X1 + 1));
+			Text(cut_right(OutStr, m_Where.width()));
 		}
 	}
 
@@ -1678,12 +1678,11 @@ bool Edit::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (!(MouseEvent->dwButtonState & 3))
 		return false;
 
-	if (MouseEvent->dwMousePosition.X<m_X1 || MouseEvent->dwMousePosition.X>m_X2 ||
-	        MouseEvent->dwMousePosition.Y!=m_Y1)
+	if (!m_Where.contains(MouseEvent->dwMousePosition))
 		return false;
 
 	//SetClearFlag(0); // пусть едитор сам заботится о снятии clear-текста?
-	SetTabCurPos(MouseEvent->dwMousePosition.X - m_X1 + LeftPos);
+	SetTabCurPos(MouseEvent->dwMousePosition.X - m_Where.left + LeftPos);
 
 	if (!m_Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
 		RemoveSelection();
@@ -2240,10 +2239,7 @@ void Edit::ApplyColor(const FarColor& SelColor, int XPos, int FocusedLeftPos)
 		if (End >= Start)
 		{
 			Global->ScrBuf->ApplyColor(
-			    m_X1+Start,
-			    m_Y1,
-			    m_X1+End,
-			    m_Y1,
+			    { m_Where.left + Start, m_Where.top, m_Where.left + End, m_Where.top },
 			    CurItem.GetColor(),
 			    // Не раскрашиваем выделение
 			    SelColor,

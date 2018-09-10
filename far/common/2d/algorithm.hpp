@@ -1,11 +1,13 @@
-﻿/*
-menubar.cpp
+﻿#ifndef ALGORITHM_HPP_6F8540EC_CCA6_4932_8DE1_D3BEDFF24453
+#define ALGORITHM_HPP_6F8540EC_CCA6_4932_8DE1_D3BEDFF24453
+#pragma once
 
-Показ горизонтального меню при включенном "Always show menu bar"
+/*
+algorithm.hpp
+
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright © 2018 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -31,18 +33,18 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "menubar.hpp"
+#include "rectangle.hpp"
 
-#include "farcolor.hpp"
-#include "lang.hpp"
-#include "interf.hpp"
-
-void MenuBar::DisplayObject()
+template<class T, class P>
+void for_submatrix(T& Matrix, rectangle Rect, P Predicate)
 {
-	const auto strSpace = L"    "s;
-	auto strMsg = concat(strSpace, msg(lng::MMenuLeftTitle), strSpace, msg(lng::MMenuFilesTitle), strSpace, msg(lng::MMenuCommandsTitle), strSpace, msg(lng::MMenuOptionsTitle), strSpace, msg(lng::MMenuRightTitle));
-	RemoveHighlights(strMsg);
-	GotoXY(m_Where.left, m_Where.top);
-	SetColor(COL_HMENUTEXT);
-	Text(fit_to_left(strMsg, m_Where.width()));
+	for (auto i = Rect.top; i <= Rect.bottom; ++i)
+	{
+		for (auto j = Rect.left; j <= Rect.right; ++j)
+		{
+			Predicate(Matrix[i][j]);
+		}
+	}
 }
+
+#endif // ALGORITHM_HPP_6F8540EC_CCA6_4932_8DE1_D3BEDFF24453

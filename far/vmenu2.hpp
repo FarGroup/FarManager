@@ -54,7 +54,7 @@ public:
 	int GetTypeAndName(string &strType, string &strName) override;
 	int GetType() const override { return windowtype_menu; }
 	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	void SetPosition(int X1, int Y1, int X2, int Y2) override;
+	void SetPosition(rectangle Where) override;
 
 	void Resize(bool force=false);
 	void SetTitle(const string& Title);

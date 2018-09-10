@@ -74,8 +74,8 @@ public:
 	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 
 	void Show() override;
-	void SetPosition(int X1,int Y1,int X2,int Y2) override;
-	void GetPosition(int& X1,int& Y1,int& X2,int& Y2) const override;
+	void SetPosition(rectangle Where) override;
+	rectangle GetPosition() const override;
 
 	void Hide() override;
 	void ShowConsoleTitle() override;

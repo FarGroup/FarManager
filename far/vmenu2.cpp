@@ -70,11 +70,8 @@ intptr_t VMenu2::VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void*
 	switch(Msg)
 	{
 	case DN_CTLCOLORDIALOG:
-		{
-			FarColor *color=(FarColor*)Param2;
-			*color=colors::PaletteColorToFarColor(COL_MENUBOX);
-			return true;
-		}
+		*static_cast<FarColor*>(Param2) = colors::PaletteColorToFarColor(COL_MENUBOX);
+		return true;
 
 	case DN_CTLCOLORDLGLIST:
 		{
@@ -186,9 +183,9 @@ int VMenu2::Call(int Msg, void *param)
 
 	bool Visible;
 	DWORD Size;
-	SHORT X, Y;
+
 	GetCursorType(Visible, Size);
-	GetCursorPos(X, Y);
+	const auto CursorPos = GetCursorPos();
 
 	--InsideCall;
 
@@ -197,7 +194,7 @@ int VMenu2::Call(int Msg, void *param)
 
 
 	SetCursorType(Visible, Size);
-	MoveCursor(X, Y);
+	MoveCursor(CursorPos);
 
 	if(InsideCall==0 && ListBox().UpdateRequired())
 		SendMessage(DM_REDRAW, 0, nullptr);
@@ -386,7 +383,7 @@ vmenu2_ptr VMenu2::create(const string& Title, range<const menu_item*> Data, int
 		VMenu2Ptr->at(i).AccelKey = Data[i].AccelKey;
 
 	// BUGBUG
-	VMenu2Ptr->Dialog::SetPosition(-1, -1, 20, 20);
+	VMenu2Ptr->Dialog::SetPosition({ -1, -1, 20, 20 });
 	VMenu2Ptr->SetMenuFlags(Flags | VMENU_MOUSEREACTION);
 	VMenu2Ptr->Resize();
 	return VMenu2Ptr;
@@ -554,15 +551,15 @@ void VMenu2::UpdateItemFlags(int Pos, unsigned long long NewFlags)
 	SendMessage(DM_LISTUPDATE, 0, &flu);
 }
 
-void VMenu2::SetPosition(int X1,int Y1,int X2,int Y2)
+void VMenu2::SetPosition(rectangle Where)
 {
-	if((X2>0 && X2<X1) || (Y2>0 && Y2<Y1))
+	if((Where.right > 0 && Where.right < Where.left) || (Where.bottom > 0 && Where.bottom < Where.top))
 		return;
 
-	m_X1=X1;
-	m_Y1=Y1;
-	m_X2=X2;
-	m_Y2=Y2;
+	m_X1 = Where.left;
+	m_Y1 = Where.top;
+	m_X2 = Where.right;
+	m_Y2 = Where.bottom;
 	Resize();
 }
 
@@ -682,10 +679,7 @@ bool VMenu2::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	if (!IsMoving())
 	{
-		// BUGBUG
-		// m_X1, m_X2, m_Y1, m_Y2 hides the same members from base class, fix it ASAP
-		if (MouseEvent->dwMousePosition.X < Dialog::m_X1 || MouseEvent->dwMousePosition.Y < Dialog::m_Y1 ||
-			MouseEvent->dwMousePosition.X > Dialog::m_X2 || MouseEvent->dwMousePosition.Y > Dialog::m_Y2)
+		if (!m_Where.contains(MouseEvent->dwMousePosition))
 		{
 			if (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED)
 				return ClickHandler(this, Global->Opt->VMenu.LBtnClick);

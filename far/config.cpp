@@ -458,7 +458,7 @@ void Options::MaskGroupsSettings()
 	MasksMenu->SetBottomTitle(msg(lng::MMaskGroupBottom));
 	MasksMenu->SetHelp(L"MaskGroupsSettings"sv);
 	FillMasksMenu(*MasksMenu);
-	MasksMenu->SetPosition(-1, -1, -1, -1);
+	MasksMenu->SetPosition({ -1, -1, -1, -1 });
 
 	bool Changed = false;
 	bool Filter = false;
@@ -476,7 +476,7 @@ void Options::MaskGroupsSettings()
 					{
 						MasksMenu->UpdateItemFlags(static_cast<int>(i), MasksMenu->at(i).Flags & ~MIF_HIDDEN);
 					}
-					MasksMenu->SetPosition(-1, -1, -1, -1);
+					MasksMenu->SetPosition({ -1, -1, -1, -1 });
 					MasksMenu->SetTitle(msg(lng::MMenuMaskGroups));
 					MasksMenu->SetBottomTitle(msg(lng::MMaskGroupBottom));
 				}
@@ -575,7 +575,7 @@ void Options::MaskGroupsSettings()
 								MasksMenu->UpdateItemFlags(static_cast<int>(i), MasksMenu->at(i).Flags | MIF_HIDDEN);
 							}
 						}
-						MasksMenu->SetPosition(-1, -1, -1, -1);
+						MasksMenu->SetPosition({ -1, -1, -1, -1 });
 						MasksMenu->SetTitle(Value);
 						MasksMenu->SetBottomTitle(format(msg(lng::MMaskGroupTotal), MasksMenu->GetShowItemCount()));
 						Filter = true;
@@ -1138,7 +1138,7 @@ void Options::SetFilePanelModes()
 		ModeListMenu[CurMode].SetSelect(true);
 		{
 			const auto ModeList = VMenu2::create(msg(lng::MEditPanelModes), { ModeListMenu.data(), ModeListMenu.size() }, ScrY - 4);
-			ModeList->SetPosition(-1,-1,0,0);
+			ModeList->SetPosition({ -1, -1, 0, 0 });
 			ModeList->SetHelp(L"PanelViewModes"sv);
 			ModeList->SetMenuFlags(VMENU_WRAPMODE);
 			ModeList->SetId(PanelViewModesId);
@@ -1308,7 +1308,7 @@ void Options::SetFilePanelModes()
 
 		{
 			const auto Dlg = Dialog::create(ModeDlg);
-			Dlg->SetPosition(-1,-1,76,19);
+			Dlg->SetPosition({ -1, -1, 76, 19 });
 			Dlg->SetHelp(L"PanelViewModes"sv);
 			Dlg->SetId(PanelViewModesEditId);
 			Dlg->Process();
@@ -2409,7 +2409,7 @@ bool Options::AdvancedConfig(config_type Mode)
 
 	const auto Dlg = Dialog::create(AdvancedConfigDlg, &Options::AdvancedConfigDlgProc, this);
 	Dlg->SetHelp(L"FarConfig"sv);
-	Dlg->SetPosition(-1, -1, DlgWidth, DlgHeight);
+	Dlg->SetPosition({ -1, -1, DlgWidth, DlgHeight });
 	Dlg->SetId(AdvancedConfigId);
 	Dlg->Process();
 	return true;
@@ -2855,7 +2855,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 	{
 		const auto HOptMenu = HMenu::create(MainMenu, std::size(MainMenu));
 		HOptMenu->SetHelp(L"Menus"sv);
-		HOptMenu->SetPosition(0,0,ScrX,0);
+		HOptMenu->SetPosition({ 0, 0, ScrX, 0 });
 		Global->WindowManager->ExecuteWindow(HOptMenu);
 
 		const auto& IsRightPanelActive = []

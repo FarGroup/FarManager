@@ -684,19 +684,23 @@ void VMenu::FilterUpdateHeight(bool bShrink)
 
 	if (WasAutoHeight || Parent)
 	{
-		int NewY2;
+		int NewBottom;
 		if (MaxHeight && MaxHeight<GetShowItemCount())
-			NewY2 = m_Y1 + MaxHeight + 1;
+			NewBottom = m_Where.top + MaxHeight + 1;
 		else
-			NewY2 = m_Y1 + GetShowItemCount() + 1;
-		if (NewY2 > ScrY)
-			NewY2 = ScrY;
-		if (NewY2 > m_Y2 || (bShrink && NewY2 < m_Y2))
+			NewBottom = m_Where.top + GetShowItemCount() + 1;
+		if (NewBottom > ScrY)
+			NewBottom = ScrY;
+		if (NewBottom > m_Where.bottom || (bShrink && NewBottom < m_Where.bottom))
 		{
 			if (Parent)
 				Parent->Resize();
 			else
-				SetPosition(m_X1,m_Y1,m_X2,NewY2);
+			{
+				auto NewPosition = m_Where;
+				NewPosition.bottom = NewBottom;
+				SetPosition(NewPosition);
+			}
 		}
 	}
 }
@@ -1200,7 +1204,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_PGUP:         case KEY_NUMPAD9:
 		{
-			int dy = ((m_BoxType!=NO_BOX)?m_Y2-m_Y1-1:m_Y2-m_Y1);
+			const auto dy = m_Where.height() - (m_BoxType == NO_BOX? 1 : 2);
 
 			int p = VisualPosToReal(GetVisualPos(SelectPos)-dy);
 
@@ -1214,7 +1218,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_PGDN:         case KEY_NUMPAD3:
 		{
-			int dy = ((m_BoxType!=NO_BOX)?m_Y2-m_Y1-1:m_Y2-m_Y1);
+			const auto dy = m_Where.height() - (m_BoxType == NO_BOX? 1 : 2);
 
 			int pSel = VisualPosToReal(GetVisualPos(SelectPos)+dy);
 			int pTop = VisualPosToReal(GetVisualPos(TopPos + 1));
@@ -1291,9 +1295,9 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 			if(SelectPos < static_cast<int>(Items.size()-1))
 			{
 				FarListPos Pos = { sizeof(Pos), SelectPos + 1, TopPos };
-				int Items_size=static_cast<int>(Items.size());
-				int Height_size = ((m_BoxType != NO_BOX) ? m_Y2 - m_Y1 - 1 : m_Y2 - m_Y1 + 1);
-				if (!(Items_size - TopPos <= Height_size || Items_size <= Height_size) )
+				const auto ItemsSize = static_cast<int>(Items.size());
+				const auto HeightSize = std::max(0, m_Where.height() - (m_BoxType == NO_BOX? 0 : 2));
+				if (!(ItemsSize - TopPos <= HeightSize || ItemsSize <= HeightSize))
 					Pos.TopPos++;
 				SetSelectPos(&Pos);
 				ShowMenu(true);
@@ -1493,30 +1497,33 @@ bool VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	if (MouseEvent->dwButtonState&FROM_LEFT_2ND_BUTTON_PRESSED && MouseEvent->dwEventFlags!=MOUSE_MOVED)
 	{
-		if (((m_BoxType!=NO_BOX)?
-				(MsX>m_X1 && MsX<m_X2 && MsY>m_Y1 && MsY<m_Y2):
-				(MsX>=m_X1 && MsX<=m_X2 && MsY>=m_Y1 && MsY<=m_Y2)))
+		if (
+			m_BoxType == NO_BOX?
+				MsX >= m_Where.left && MsX <= m_Where.right && MsY >= m_Where.top && MsY <= m_Where.bottom :
+				MsX > m_Where.left && MsX < m_Where.right && MsY > m_Where.top && MsY < m_Where.bottom
+			)
 		{
 			ProcessKey(Manager::Key(KEY_ENTER));
 		}
 		return true;
 	}
 
-	if ( (MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && ( MsX==m_X1+2||MsX==m_X2-1-(CheckFlags(VMENU_COMBOBOX|VMENU_LISTBOX)?0:2) ) )
+	if ((MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && (MsX == m_Where.left + 2 || MsX == m_Where.right - 1 - (CheckFlags(VMENU_COMBOBOX | VMENU_LISTBOX) ? 0 : 2)))
 	{
 		while (IsMouseButtonPressed())
-			ProcessKey(Manager::Key(MsX==m_X1+2?KEY_ALTLEFT:KEY_ALTRIGHT));
+			ProcessKey(Manager::Key(MsX == m_Where.left + 2? KEY_ALTLEFT : KEY_ALTRIGHT));
 
 		return true;
 	}
 
-	int SbY1 = ((m_BoxType!=NO_BOX)?m_Y1+1:m_Y1), SbY2=((m_BoxType!=NO_BOX)?m_Y2-1:m_Y2);
+	const auto SbY1 = m_Where.left + (m_BoxType == NO_BOX? 0 : 1);
+	const auto SbY2 = m_Where.right - (m_BoxType == NO_BOX? 0 : 1);
 	bool bShowScrollBar = false;
 
 	if (CheckFlags(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Global->Opt->ShowMenuScrollbar)
 		bShowScrollBar = true;
 
-	if (bShowScrollBar && MsX==m_X2 && ((m_BoxType!=NO_BOX)?m_Y2-m_Y1-1:m_Y2-m_Y1+1)<static_cast<int>(Items.size()) && (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED))
+	if (bShowScrollBar && MsX == m_Where.right && (m_Where.width() - (m_BoxType == NO_BOX? 0 : 2)) < static_cast<int>(Items.size()) && (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED))
 	{
 		if (MsY==SbY1)
 		{
@@ -1552,8 +1559,8 @@ bool VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 			while (IsMouseButtonPressed())
 			{
-				int SbHeight=m_Y2-m_Y1-2;
-				int MsPos=(GetShowItemCount()-1)*(IntKeyState.MouseY-m_Y1)/(SbHeight);
+				int SbHeight = m_Where.height() - 3;
+				int MsPos = (GetShowItemCount() - 1) * (IntKeyState.MousePos.y - m_Where.top) / SbHeight;
 
 				if (MsPos >= GetShowItemCount())
 				{
@@ -1578,34 +1585,35 @@ bool VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	}
 
 	// dwButtonState & 3 - Left & Right button
-	if (m_BoxType!=NO_BOX && (MouseEvent->dwButtonState & 3) && MsX>m_X1 && MsX<m_X2)
+	if (m_BoxType != NO_BOX && (MouseEvent->dwButtonState & 3) && MsX > m_Where.left && MsX < m_Where.right)
 	{
-		if (MsY==m_Y1)
+		if (MsY == m_Where.top)
 		{
-			while (MsY==m_Y1 && GetVisualPos(SelectPos)>0 && IsMouseButtonPressed())
+			while (MsY == m_Where.top && GetVisualPos(SelectPos) > 0 && IsMouseButtonPressed())
 				ProcessKey(Manager::Key(KEY_UP));
 
 			return true;
 		}
 
-		if (MsY==m_Y2)
+		if (MsY == m_Where.bottom)
 		{
-			while (MsY==m_Y2 && GetVisualPos(SelectPos)<GetShowItemCount()-1 && IsMouseButtonPressed())
+			while (MsY == m_Where.bottom && GetVisualPos(SelectPos) < GetShowItemCount() - 1 && IsMouseButtonPressed())
 				ProcessKey(Manager::Key(KEY_DOWN));
 
 			return true;
 		}
 	}
 
-	if ((m_BoxType!=NO_BOX)?
-	        (MsX>m_X1 && MsX<m_X2 && MsY>m_Y1 && MsY<m_Y2):
-	        (MsX>=m_X1 && MsX<=m_X2 && MsY>=m_Y1 && MsY<=m_Y2))
+	if (m_BoxType==NO_BOX?
+		MsX >= m_Where.left && MsX <= m_Where.right && MsY >= m_Where.top && MsY <= m_Where.bottom :
+		MsX > m_Where.left && MsX < m_Where.right && MsY > m_Where.top && MsY < m_Where.bottom
+		)
 	{
-		int MsPos=VisualPosToReal(GetVisualPos(TopPos)+((m_BoxType!=NO_BOX)?MsY-m_Y1-1:MsY-m_Y1));
+		int MsPos = VisualPosToReal(GetVisualPos(TopPos) + MsY - m_Where.top - (m_BoxType == NO_BOX? 0 : 1));
 
 		if (MsPos>=0 && MsPos<static_cast<int>(Items.size()) && ItemCanHaveFocus(Items[MsPos].Flags))
 		{
-			if (IntKeyState.MouseX!=IntKeyState.PrevMouseX || IntKeyState.MouseY!=IntKeyState.PrevMouseY || !MouseEvent->dwEventFlags)
+			if (IntKeyState.MousePos.x != IntKeyState.MousePrevPos.x || IntKeyState.MousePos.y != IntKeyState.MousePrevPos.y || !MouseEvent->dwEventFlags)
 			{
 				/* TODO:
 
@@ -1761,65 +1769,65 @@ void VMenu::Show()
 			bool HasSubMenus = ItemSubMenusCount > 0;
 			bool AutoCenter = false;
 
-			if (m_X1 == -1)
+			if (m_Where.left == -1)
 			{
-				m_X1 = static_cast<SHORT>(ScrX - m_MaxLength - 4 - (HasSubMenus ? 2 : 0)) / 2;
+				m_Where.left = static_cast<SHORT>(ScrX - m_MaxLength - 4 - (HasSubMenus? 2 : 0)) / 2;
 				AutoCenter = true;
 			}
 
-			if (m_X1 < 2)
-				m_X1 = 2;
+			if (m_Where.left < 2)
+				m_Where.left = 2;
 
-			if (m_X2 <= 0)
-				m_X2 = static_cast<SHORT>(m_X1 + m_MaxLength + 4 + (HasSubMenus ? 2 : 0));
+			if (m_Where.right <= 0)
+				m_Where.right = static_cast<SHORT>(m_Where.left + m_MaxLength + 4 + (HasSubMenus? 2 : 0));
 
-			if (!AutoCenter && m_X2 > ScrX-4+2*(m_BoxType==SHORT_DOUBLE_BOX || m_BoxType==SHORT_SINGLE_BOX))
+			if (!AutoCenter && m_Where.right > ScrX-4+2*(m_BoxType==SHORT_DOUBLE_BOX || m_BoxType==SHORT_SINGLE_BOX))
 			{
-				m_X1 += ScrX - 4 - m_X2;
-				m_X2 = ScrX - 4;
+				m_Where.left += ScrX - 4 - m_Where.right;
+				m_Where.right = ScrX - 4;
 
-				if (m_X1 < 2)
+				if (m_Where.left < 2)
 				{
-					m_X1 = 2;
-					m_X2 = ScrX - 2;
+					m_Where.left = 2;
+					m_Where.right = ScrX - 2;
 				}
 			}
 
-			if (m_X2 > ScrX-2)
-				m_X2 = ScrX - 2;
+			if (m_Where.right > ScrX - 2)
+				m_Where.right = ScrX - 2;
 
-			if (m_Y1 == -1)
+			if (m_Where.top == -1)
 			{
 				if (MaxHeight && MaxHeight<GetShowItemCount())
-					m_Y1 = (ScrY-MaxHeight-2)/2;
-				else if ((m_Y1=(ScrY-GetShowItemCount()-2)/2) < 0)
-					m_Y1 = 0;
+					m_Where.top = (ScrY - MaxHeight - 2) / 2;
+				else if ((m_Where.top = (ScrY - GetShowItemCount() - 2) / 2) < 0)
+					m_Where.top = 0;
 
 				AutoHeight=true;
 			}
 		}
 
 		WasAutoHeight = false;
-		if (m_Y2 <= 0)
+		if (m_Where.bottom <= 0)
 		{
 			WasAutoHeight = true;
 			if (MaxHeight && MaxHeight<GetShowItemCount())
-				m_Y2 = m_Y1 + MaxHeight + 1;
+				m_Where.bottom = m_Where.top + MaxHeight + 1;
 			else
-				m_Y2 = m_Y1 + GetShowItemCount() + 1;
+				m_Where.bottom = m_Where.top + GetShowItemCount() + 1;
 		}
 
-		if (m_Y2 > ScrY)
-			m_Y2 = ScrY;
+		if (m_Where.bottom > ScrY)
+			m_Where.bottom = ScrY;
 
-		if (AutoHeight && m_Y1 < 3 && m_Y2 > ScrY-3)
+		if (AutoHeight && m_Where.top < 3 && m_Where.bottom > ScrY - 3)
 		{
-			m_Y1 = 2;
-			m_Y2 = ScrY - 2;
+			m_Where.top = 2;
+			m_Where.bottom = ScrY - 2;
 		}
 	}
 
-	if (m_X2>m_X1 && m_Y2+(CheckFlags(VMENU_SHOWNOBOX)?1:0)>m_Y1)
+	if (m_Where.right > m_Where.left && m_Where.bottom + (CheckFlags(VMENU_SHOWNOBOX)? 1 : 0) > m_Where.top)
 	{
 		if (!CheckFlags(VMENU_LISTBOX))
 		{
@@ -1870,39 +1878,39 @@ void VMenu::DisplayObject()
 	if (!CheckFlags(VMENU_LISTBOX) && !SaveScr)
 	{
 		if (!CheckFlags(VMENU_DISABLEDRAWBACKGROUND) && !(m_BoxType==SHORT_DOUBLE_BOX || m_BoxType==SHORT_SINGLE_BOX))
-			SaveScr = std::make_unique<SaveScreen>(m_X1-2,m_Y1-1,m_X2+4,m_Y2+2);
+			SaveScr = std::make_unique<SaveScreen>(rectangle{ m_Where.left - 2, m_Where.top - 1, m_Where.right + 4, m_Where.bottom + 2 });
 		else
-			SaveScr = std::make_unique<SaveScreen>(m_X1, m_Y1, m_X2 + 2, m_Y2 + 1);
+			SaveScr = std::make_unique<SaveScreen>(rectangle{ m_Where.left, m_Where.top, m_Where.right + 2, m_Where.bottom + 1 });
 	}
 
 	if (!CheckFlags(VMENU_DISABLEDRAWBACKGROUND) && !CheckFlags(VMENU_LISTBOX))
 	{
 		if (m_BoxType==SHORT_DOUBLE_BOX || m_BoxType==SHORT_SINGLE_BOX)
 		{
-			SetScreen(m_X1,m_Y1,m_X2,m_Y2,L' ',Colors[VMenuColorBody]);
-			Box(m_X1,m_Y1,m_X2,m_Y2,Colors[VMenuColorBox],m_BoxType);
+			SetScreen(m_Where, L' ', Colors[VMenuColorBody]);
+			Box(m_Where, Colors[VMenuColorBox], m_BoxType);
 
 			if (!CheckFlags(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR))
 			{
-				MakeShadow(m_X1+2,m_Y2+1,m_X2+1,m_Y2+1);
-				MakeShadow(m_X2+1,m_Y1+1,m_X2+2,m_Y2+1);
+				MakeShadow({ m_Where.left + 2, m_Where.bottom + 1, m_Where.right + 1, m_Where.bottom + 1 });
+				MakeShadow({ m_Where.right + 1, m_Where.top + 1, m_Where.right + 2, m_Where.bottom + 1 });
 			}
 		}
 		else
 		{
 			if (m_BoxType!=NO_BOX)
-				SetScreen(m_X1-2,m_Y1-1,m_X2+2,m_Y2+1,L' ',Colors[VMenuColorBody]);
+				SetScreen({ m_Where.left - 2, m_Where.top - 1, m_Where.right + 2, m_Where.bottom + 1 }, L' ', Colors[VMenuColorBody]);
 			else
-				SetScreen(m_X1,m_Y1,m_X2,m_Y2,L' ',Colors[VMenuColorBody]);
+				SetScreen(m_Where, L' ', Colors[VMenuColorBody]);
 
 			if (!CheckFlags(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR))
 			{
-				MakeShadow(m_X1,m_Y2+2,m_X2+3,m_Y2+2);
-				MakeShadow(m_X2+3,m_Y1,m_X2+4,m_Y2+2);
+				MakeShadow({ m_Where.left, m_Where.bottom + 2, m_Where.right + 3, m_Where.bottom + 2 });
+				MakeShadow({ m_Where.right + 3, m_Where.top, m_Where.right + 4, m_Where.bottom + 2 });
 			}
 
 			if (m_BoxType!=NO_BOX)
-				Box(m_X1,m_Y1,m_X2,m_Y2,Colors[VMenuColorBox],m_BoxType);
+				Box(m_Where, Colors[VMenuColorBox], m_BoxType);
 		}
 
 		//SetMenuFlags(VMENU_DISABLEDRAWBACKGROUND);
@@ -1916,7 +1924,7 @@ void VMenu::DisplayObject()
 
 void VMenu::DrawTitles() const
 {
-	int MaxTitleLength = m_X2-m_X1-2;
+	const auto MaxTitleLength = m_Where.width() - 3;
 	int WidthTitle;
 
 	if (!strTitle.empty() || bFilterEnabled)
@@ -1938,7 +1946,7 @@ void VMenu::DrawTitles() const
 		if (WidthTitle > MaxTitleLength)
 			WidthTitle = MaxTitleLength - 1;
 
-		GotoXY(m_X1+(m_X2-m_X1-1-WidthTitle)/2,m_Y1);
+		GotoXY(m_Where.left + (m_Where.width() - 2 - WidthTitle) / 2, m_Where.top);
 		SetColor(Colors[VMenuColorTitle]);
 
 		Text(concat(L' ', string_view(strDisplayTitle).substr(0, WidthTitle), L' '));
@@ -1951,7 +1959,7 @@ void VMenu::DrawTitles() const
 		if (WidthTitle > MaxTitleLength)
 			WidthTitle = MaxTitleLength - 1;
 
-		GotoXY(m_X1+(m_X2-m_X1-1-WidthTitle)/2,m_Y2);
+		GotoXY(m_Where.left + (m_Where.width() - 2 - WidthTitle) / 2, m_Where.bottom);
 		SetColor(Colors[VMenuColorTitle]);
 
 		Text(concat(L' ', string_view(strBottomTitle).substr(0, WidthTitle), L' '));
@@ -1972,7 +1980,7 @@ void VMenu::ShowMenu(bool IsParent)
 		MaxItemLength = std::max(MaxItemLength, CheckFlags(VMENU_SHOWAMPERSAND)? i.Name.size() : HiStrlen(i.Name));
 	});
 
-	MaxLineWidth = m_X2 - m_X1 + 1;
+	MaxLineWidth = m_Where.width();
 
 	if (m_BoxType != NO_BOX)
 		MaxLineWidth -= 2; // frame
@@ -1982,7 +1990,7 @@ void VMenu::ShowMenu(bool IsParent)
 	if (/*!CheckFlags(VMENU_COMBOBOX|VMENU_LISTBOX) && */HasSubMenus)
 		MaxLineWidth -= 2; // sub menu arrow
 
-	if ((CheckFlags(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Global->Opt->ShowMenuScrollbar) && m_BoxType==NO_BOX && ScrollBarRequired(m_Y2-m_Y1+1, GetShowItemCount()))
+	if ((CheckFlags(VMENU_LISTBOX | VMENU_ALWAYSSCROLLBAR) || Global->Opt->ShowMenuScrollbar) && m_BoxType == NO_BOX && ScrollBarRequired(m_Where.height(), GetShowItemCount()))
 		MaxLineWidth -= 1; // scrollbar
 
 	if (MaxItemLength > MaxLineWidth)
@@ -1993,9 +2001,9 @@ void VMenu::ShowMenu(bool IsParent)
 
 	MaxLineWidth = std::max(MaxLineWidth, size_t(0));
 
-	if (m_X2<=m_X1 || m_Y2<=m_Y1)
+	if (m_Where.right <= m_Where.left || m_Where.bottom <= m_Where.top)
 	{
-		if (!(CheckFlags(VMENU_SHOWNOBOX) && m_Y2==m_Y1))
+		if (!(CheckFlags(VMENU_SHOWNOBOX) && m_Where.bottom == m_Where.top))
 			return;
 	}
 
@@ -2015,11 +2023,11 @@ void VMenu::ShowMenu(bool IsParent)
 			if (GetShowItemCount())
 				m_BoxType=CheckFlags(VMENU_SHOWNOBOX)?NO_BOX:SHORT_SINGLE_BOX;
 
-			SetScreen(m_X1,m_Y1,m_X2,m_Y2,L' ',Colors[VMenuColorBody]);
+			SetScreen(m_Where, L' ', Colors[VMenuColorBody]);
 		}
 
 		if (m_BoxType!=NO_BOX)
-			Box(m_X1,m_Y1,m_X2,m_Y2,Colors[VMenuColorBox],m_BoxType);
+			Box(m_Where, Colors[VMenuColorBox], m_BoxType);
 
 		DrawTitles();
 	}
@@ -2053,7 +2061,7 @@ void VMenu::ShowMenu(bool IsParent)
 	int VisualTopPos = GetVisualPos(TopPos);
 
 	// коррекция Top`а
-	if (VisualTopPos+GetShowItemCount() >= m_Y2-m_Y1 && VisualSelectPos == GetShowItemCount()-1)
+	if (VisualTopPos+GetShowItemCount() >= m_Where.height() - 1 && VisualSelectPos == GetShowItemCount()-1)
 	{
 		VisualTopPos--;
 
@@ -2061,11 +2069,11 @@ void VMenu::ShowMenu(bool IsParent)
 			VisualTopPos=0;
 	}
 
-	VisualTopPos = std::min(VisualTopPos, GetShowItemCount() - (m_Y2-m_Y1-1-((m_BoxType==NO_BOX)?2:0)));
+	VisualTopPos = std::min(VisualTopPos, GetShowItemCount() - (m_Where.height() - 2 - (m_BoxType == NO_BOX? 2 : 0)));
 
-	if (VisualSelectPos > VisualTopPos+((m_BoxType!=NO_BOX)?m_Y2-m_Y1-2:m_Y2-m_Y1))
+	if (VisualSelectPos > VisualTopPos + (m_Where.height() - 1 - (m_BoxType == NO_BOX? 0 : 2)))
 	{
-		VisualTopPos=VisualSelectPos-((m_BoxType!=NO_BOX)?m_Y2-m_Y1-2:m_Y2-m_Y1);
+		VisualTopPos = VisualSelectPos - (m_Where.height() - 1 - (m_BoxType == NO_BOX? 0 : 2));
 	}
 
 	if (VisualSelectPos < VisualTopPos)
@@ -2084,9 +2092,9 @@ void VMenu::ShowMenu(bool IsParent)
 	if (TopPos<0)
 		TopPos=0;
 
-	for (int Y=m_Y1+((m_BoxType!=NO_BOX)?1:0), I=TopPos; Y<((m_BoxType!=NO_BOX)?m_Y2:m_Y2+1); Y++, I++)
+	for (int Y = m_Where.top + (m_BoxType == NO_BOX? 0 : 1), I = TopPos; Y < m_Where.bottom + (m_BoxType == NO_BOX? 1 : 0); ++Y, ++I)
 	{
-		GotoXY(m_X1,Y);
+		GotoXY(m_Where.left, Y);
 
 		if (I < static_cast<int>(Items.size()))
 		{
@@ -2098,7 +2106,7 @@ void VMenu::ShowMenu(bool IsParent)
 
 			if (Items[I].Flags&LIF_SEPARATOR)
 			{
-				int SepWidth = m_X2-m_X1+1;
+				int SepWidth = m_Where.width();
 
 				auto strTmpStr = MakeLine(SepWidth, m_BoxType == NO_BOX? line_type::h1_to_none : (m_BoxType == SINGLE_BOX || m_BoxType == SHORT_SINGLE_BOX? line_type::h1_to_v1 : line_type::h1_to_v2));
 
@@ -2134,12 +2142,12 @@ void VMenu::ShowMenu(bool IsParent)
 
 				if (!Items[I].Name.empty())
 				{
-					int ItemWidth = (int)Items[I].Name.size();
+					auto ItemWidth = static_cast<int>(Items[I].Name.size());
 
-					if (ItemWidth > m_X2-m_X1-3)
-						ItemWidth = m_X2-m_X1-3;
+					if (ItemWidth > m_Where.width() - 4)
+						ItemWidth = m_Where.width() - 4;
 
-					GotoXY(m_X1+(m_X2-m_X1-1-ItemWidth)/2,Y);
+					GotoXY(m_Where.left + (m_Where.width() - 2 - ItemWidth) / 2, Y);
 					Text(concat(L' ', fit_to_left(Items[I].Name, ItemWidth), L' '));
 				}
 			}
@@ -2149,14 +2157,11 @@ void VMenu::ShowMenu(bool IsParent)
 				{
 					SetColor(Colors[VMenuColorBox]);
 					BoxText(BoxChar);
-					GotoXY(m_X2,Y);
+					GotoXY(m_Where.right, Y);
 					BoxText(BoxChar);
 				}
 
-				if (m_BoxType!=NO_BOX)
-					GotoXY(m_X1+1,Y);
-				else
-					GotoXY(m_X1,Y);
+				GotoXY(m_Where.left + (m_BoxType == NO_BOX? 0 : 1), Y);
 
 				FarColor CurColor;
 				if ((Items[I].Flags&LIF_SELECTED))
@@ -2260,14 +2265,14 @@ void VMenu::ShowMenu(bool IsParent)
 
 				// сделаем добавочку для NO_BOX
 				{
-					int Width = m_X2-WhereX()+(m_BoxType==NO_BOX?1:0);
+					int Width = m_Where.right - WhereX() + (m_BoxType == NO_BOX? 1 : 0);
 					if (Width > 0)
 						Text(string(Width, L' '));
 				}
 
 				if (Items[I].Flags & MIF_SUBMENU)
 				{
-					GotoXY(static_cast<int>(m_X1 + (m_BoxType != NO_BOX? 1 : 0) + 2 + MaxLineWidth + (HasRightScroll ? 1 : 0) + 1), Y);
+					GotoXY(static_cast<int>(m_Where.left + (m_BoxType == NO_BOX? 0 : 1) + 2 + MaxLineWidth + (HasRightScroll ? 1 : 0) + 1), Y);
 					BoxText(L'\x25BA'); // sub menu arrow
 				}
 
@@ -2275,13 +2280,13 @@ void VMenu::ShowMenu(bool IsParent)
 
 				if (/*BoxType!=NO_BOX && */Items[I].ShowPos > 0)
 				{
-					GotoXY(m_X1+(m_BoxType!=NO_BOX?1:0)+1,Y);
+					GotoXY(m_Where.left + (m_BoxType == NO_BOX? 0 : 1) + 1, Y);
 					BoxText(L'\xab'); // '<<'
 				}
 
 				if (strMItemPtrLen > MaxLineWidth)
 				{
-					GotoXY(static_cast<int>(m_X1 + (m_BoxType != NO_BOX ? 1 : 0) + 2 + MaxLineWidth), Y);
+					GotoXY(static_cast<int>(m_Where.left + (m_BoxType == NO_BOX? 0 : 1) + 2 + MaxLineWidth), Y);
 					BoxText(L'\xbb'); // '>>'
 				}
 			}
@@ -2292,18 +2297,18 @@ void VMenu::ShowMenu(bool IsParent)
 			{
 				SetColor(Colors[VMenuColorBox]);
 				BoxText(BoxChar);
-				GotoXY(m_X2,Y);
+				GotoXY(m_Where.right, Y);
 				BoxText(BoxChar);
-				GotoXY(m_X1+1,Y);
+				GotoXY(m_Where.left + 1, Y);
 			}
 			else
 			{
-				GotoXY(m_X1,Y);
+				GotoXY(m_Where.left, Y);
 			}
 
 			SetColor(Colors[VMenuColorText]);
 			// сделаем добавочку для NO_BOX
-			const auto Size = m_X2 - m_X1 + (m_BoxType == NO_BOX ? +1 : -1);
+			const auto Size = m_Where.width() - (m_BoxType == NO_BOX? 0 : 2);
 			Text(string(Size, L' '));
 		}
 	}
@@ -2313,9 +2318,9 @@ void VMenu::ShowMenu(bool IsParent)
 		SetColor(Colors[VMenuColorScrollBar]);
 
 		if (m_BoxType!=NO_BOX)
-			ScrollBarEx(m_X2,m_Y1+1,m_Y2-m_Y1-1,VisualTopPos,GetShowItemCount());
+			ScrollBarEx(m_Where.right, m_Where.top + 1, m_Where.height() - 2, VisualTopPos, GetShowItemCount());
 		else
-			ScrollBarEx(m_X2,m_Y1,m_Y2-m_Y1+1,VisualTopPos,GetShowItemCount());
+			ScrollBarEx(m_Where.right, m_Where.top, m_Where.height(), VisualTopPos, GetShowItemCount());
 	}
 }
 

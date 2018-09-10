@@ -36,8 +36,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "farcolor.hpp"
-#include "matrix.hpp"
 
+#include "common/2d/matrix.hpp"
+#include "common/2d/rectangle.hpp"
 #include "common/singleton.hpp"
 
 struct FAR_CHAR_INFO;
@@ -139,8 +140,8 @@ void RestoreConsoleWindowRect();
 void GotoXY(int X,int Y);
 int WhereX();
 int WhereY();
-void MoveCursor(int X,int Y);
-void GetCursorPos(SHORT& X, SHORT& Y);
+void MoveCursor(point Point);
+point GetCursorPos();
 void SetCursorType(bool Visible, DWORD Size);
 void SetInitialCursorType();
 void GetCursorType(bool& Visible, DWORD& Size);
@@ -148,7 +149,7 @@ void MoveRealCursor(int X,int Y);
 void GetRealCursorPos(SHORT& X,SHORT& Y);
 void ScrollScreen(int Count);
 
-void Text(int X, int Y, const FarColor& Color, string_view const Str);
+void Text(point Where, const FarColor& Color, string_view Str);
 
 void Text(string_view Str);
 inline void Text(wchar_t const c) { return Text({ &c, 1 }); }
@@ -158,15 +159,15 @@ void Text(lng MsgId);
 void VText(string_view Str);
 
 void HiText(const string& Str,const FarColor& HiColor,int isVertText=0);
-void PutText(int X1,int Y1,int X2,int Y2,const FAR_CHAR_INFO* Src);
-void GetText(int X1, int Y1, int X2, int Y2, matrix<FAR_CHAR_INFO>& Dest);
+void PutText(rectangle Where, const FAR_CHAR_INFO* Src);
+void GetText(rectangle Where, matrix<FAR_CHAR_INFO>& Dest);
 
 void BoxText(string_view Str, bool IsVert = false);
 inline void BoxText(wchar_t const Chr) { return BoxText({ &Chr, 1 }, false); }
 
-void SetScreen(int X1,int Y1,int X2,int Y2,wchar_t Ch,const FarColor& Color);
-void MakeShadow(int X1,int Y1,int X2,int Y2);
-void ChangeBlockColor(int X1,int Y1,int X2,int Y2,const FarColor& Color);
+void SetScreen(rectangle Where, wchar_t Ch,const FarColor& Color);
+void MakeShadow(rectangle Where);
+void ChangeBlockColor(rectangle Where, const FarColor& Color);
 void SetColor(int Color);
 void SetColor(PaletteColors Color);
 void SetColor(const FarColor& Color);
@@ -174,7 +175,7 @@ void SetRealColor(const FarColor& Color);
 void ClearScreen(const FarColor& Color);
 const FarColor& GetColor();
 
-void Box(int x1,int y1,int x2,int y2,const FarColor& Color,int Type);
+void Box(rectangle Where, const FarColor& Color,int Type);
 bool ScrollBarRequired(UINT Length, unsigned long long ItemsCount);
 bool ScrollBarEx(UINT X1, UINT Y1, UINT Length, unsigned long long TopItem, unsigned long long ItemsCount);
 bool ScrollBarEx3(UINT X1, UINT Y1, UINT Length, unsigned long long Start, unsigned long long End, unsigned long long Size);
@@ -211,7 +212,7 @@ string make_progressbar(size_t Size, size_t Percent, bool ShowPercent, bool Prop
 
 void InitRecodeOutTable();
 
-void fix_coordinates(int& X1, int& Y1, int& X2, int& Y2);
+void fix_coordinates(rectangle& Where);
 
 void SetVidChar(FAR_CHAR_INFO& CI, wchar_t Chr);
 

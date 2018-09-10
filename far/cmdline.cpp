@@ -156,7 +156,7 @@ size_t CommandLine::DrawPrompt()
 	}
 
 	size_t CurLength = 0;
-	GotoXY(m_X1, m_Y1);
+	GotoXY(m_Where.left, m_Where.top);
 
 	for (const auto& i: PromptList)
 	{
@@ -186,10 +186,10 @@ void CommandLine::DisplayObject()
 	const auto CurLength = DrawPrompt();
 
 	CmdStr.SetObjectColor(COL_COMMANDLINE,COL_COMMANDLINESELECTED);
-	CmdStr.SetPosition(m_X1 + static_cast<int>(CurLength), m_Y1, m_X2, m_Y2);
+	CmdStr.SetPosition({ m_Where.left + static_cast<int>(CurLength), m_Where.top, m_Where.right, m_Where.bottom });
 	CmdStr.Show();
 
-	GotoXY(m_X2+1,m_Y1);
+	GotoXY(m_Where.right + 1, m_Where.top);
 	SetColor(COL_COMMANDLINEPREFIX);
 	Text(L'\x2191'); // up arrow
 }
@@ -599,7 +599,7 @@ void CommandLine::InsertString(const string& Str)
 
 bool CommandLine::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
-	if(MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED && MouseEvent->dwMousePosition.X==m_X2+1)
+	if (MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED && MouseEvent->dwMousePosition.X == m_Where.right + 1)
 	{
 		return ProcessKey(Manager::Key(KEY_ALTF8));
 	}

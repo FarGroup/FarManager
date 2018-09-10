@@ -413,7 +413,7 @@ window_ptr Manager::WindowMenu()
 		const auto ModalMenu = VMenu2::create(msg(lng::MScreensTitle), {}, ScrY - 4);
 		ModalMenu->SetHelp(L"ScrSwitch"sv);
 		ModalMenu->SetMenuFlags(VMENU_WRAPMODE);
-		ModalMenu->SetPosition(-1, -1, 0, 0);
+		ModalMenu->SetPosition({ -1, -1, 0, 0 });
 		ModalMenu->SetId(ScreensSwitchId);
 
 		for(size_t i = 0, Size = Data.size(); i != Size; ++i)

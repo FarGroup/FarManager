@@ -422,7 +422,7 @@ static void ElevationApproveDlgSync(const EAData& Data)
 	auto ElevationApproveDlg = MakeDialogItemsEx(ElevationApproveDlgData);
 	const auto Dlg = Dialog::create(ElevationApproveDlg, ElevationApproveDlgProc);
 	Dlg->SetHelp(L"ElevationDlg"sv);
-	Dlg->SetPosition(-1, -1, DlgX, DlgY);
+	Dlg->SetPosition({ -1, -1, DlgX, DlgY });
 	Dlg->SetDialogMode(DMODE_FULLSHADOW | DMODE_NOPLUGINS);
 	const auto Current = Global->WindowManager->GetCurrentWindow();
 	const auto Lock = Global->ScrBuf->GetLockCount();

@@ -1126,7 +1126,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 
 	const auto Dlg = Dialog::create(FilterDlg, FileFilterConfigDlgProc, ColorConfig ? &Colors : nullptr);
 	Dlg->SetHelp(ColorConfig? L"HighlightEdit"sv : L"Filter"sv);
-	Dlg->SetPosition(-1,-1,FilterDlg[ID_FF_TITLE].X2+4,FilterDlg[ID_FF_TITLE].Y2+2);
+	Dlg->SetPosition({ -1, -1, static_cast<int>(FilterDlg[ID_FF_TITLE].X2 + 4), static_cast<int>(FilterDlg[ID_FF_TITLE].Y2 + 2) });
 	Dlg->SetId(ColorConfig?HighlightConfigId:FiltersConfigId);
 	Dlg->SetAutomation(ID_FF_MATCHMASK,ID_FF_MASKEDIT,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 	Dlg->SetAutomation(ID_FF_MATCHSIZE,ID_FF_SIZEFROMSIGN,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);

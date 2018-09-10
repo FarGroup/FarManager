@@ -109,16 +109,28 @@ public:
 	constexpr auto data() const { return &*m_Begin; }
 	constexpr size_t size() const { return m_End - m_Begin; }
 
-	/*constexpr*/ auto pop_front()
+	/*constexpr*/ void pop_front()
 	{
 		assert(!empty());
-		return m_Begin++;
+		++m_Begin;
 	}
 
-	/*constexpr*/ auto pop_back()
+	/*constexpr*/ void pop_front(size_t const Distance)
+	{
+		assert(size() >= Distance);
+		std::advance(m_Begin, Distance);
+	}
+
+	/*constexpr*/ void pop_back()
 	{
 		assert(!empty());
-		return m_End--;
+		--m_End;
+	}
+
+	/*constexpr*/ void pop_back(size_t const Distance)
+	{
+		assert(size() >= Distance);
+		std::advance(m_End, -static_cast<ptrdiff_t>(Distance));
 	}
 
 	void swap(range& Rhs) noexcept

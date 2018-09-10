@@ -520,7 +520,7 @@ void highlight::configuration::HiEdit(int MenuPos)
 	const auto HiMenu = VMenu2::create(msg(lng::MHighlightTitle), {}, ScrY - 4);
 	HiMenu->SetHelp(HLS.HighlightList);
 	HiMenu->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
-	HiMenu->SetPosition(-1,-1,0,0);
+	HiMenu->SetPosition({ -1, -1, 0, 0 });
 	HiMenu->SetBottomTitle(msg(lng::MHighlightBottom));
 	HiMenu->SetId(HighlightMenuId);
 	FillMenu(HiMenu.get(), MenuPos);

@@ -9,22 +9,28 @@ for /f "tokens=1,2,4 delims=," %%i in ('tools\m4 -P farversion.inc.m4') do (
 
 set tag=builds/%major%.%minor%.%build%
 
+for /f "tokens=2 delims=:" %%f in ('chcp') do set current_cp=%%f > nul
+chcp 65001 > nul
+
 echo --------------------------------------------------------------------
 echo Continue only if you are sure that you have set the correct
 echo build and commited the changes.
 echo This command will tag the current state of the repository as:
 echo %tag%
 echo --------------------------------------------------------------------
-echo If you're not sure press CtrlC.
+echo If you're not sure press Ctrl+C
 echo --------------------------------------------------------------------
 echo --------------------------------------------------------------------
-echo à®¤®«¦ ©â¥ â®«ìª® ¥á«¨ ¢ë ã¢¥à¥­ë, çâ® ¢ë ¢ëáâ ¢¨«¨ ¯à ¢¨«ì­ë©
-echo ­®¬¥à ¡¨«¤  ¨ § ª®¬¬¨â¨«¨ ¨§¬¥­¥­¨ï.
-echo â  ª®¬ ­¤  ¯®¬¥â¨â â¥ªãé¥¥ á®áâ®ï­¨¥ à¥¯®§¨â®à¨ï ª ª:
+echo ÐŸÑ€Ð¾Ð´Ð¾Ð»Ð¶Ð°Ð¹Ñ‚Ðµ Ñ‚Ð¾Ð»ÑŒÐºÐ¾ ÐµÑÐ»Ð¸ Ð²Ñ‹ ÑƒÐ²ÐµÑ€ÐµÐ½Ñ‹, Ñ‡Ñ‚Ð¾ Ð²Ñ‹ Ð²Ñ‹ÑÑ‚Ð°Ð²Ð¸Ð»Ð¸ Ð¿Ñ€Ð°Ð²Ð¸Ð»ÑŒÐ½Ñ‹Ð¹
+echo Ð½Ð¾Ð¼ÐµÑ€ Ð±Ð¸Ð»Ð´Ð° Ð¸ Ð·Ð°ÐºÐ¾Ð¼Ð¼Ð¸Ñ‚Ð¸Ð»Ð¸ Ð¸Ð·Ð¼ÐµÐ½ÐµÐ½Ð¸Ñ.
+echo Ð­Ñ‚Ð° ÐºÐ¾Ð¼Ð°Ð½Ð´Ð° Ð¿Ð¾Ð¼ÐµÑ‚Ð¸Ñ‚ Ñ‚ÐµÐºÑƒÑ‰ÐµÐµ ÑÐ¾ÑÑ‚Ð¾ÑÐ½Ð¸Ðµ Ñ€ÐµÐ¿Ð¾Ð·Ð¸Ñ‚Ð¾Ñ€Ð¸Ñ ÐºÐ°Ðº:
 echo %tag%
 echo --------------------------------------------------------------------
-echo …á«¨ ¢ë ­¥ ã¢¥à¥­ë, â® ­ ¦¬¨â¥ CtrlC
+echo Ð•ÑÐ»Ð¸ Ð²Ñ‹ Ð½Ðµ ÑƒÐ²ÐµÑ€ÐµÐ½Ñ‹, Ð½Ð°Ð¶Ð¼Ð¸Ñ‚Ðµ Ctrl+C
 echo --------------------------------------------------------------------
+
+chcp %current_cp% > nul
+
 pause
 echo.
 

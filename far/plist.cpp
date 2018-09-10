@@ -153,7 +153,7 @@ void ShowProcessList()
 
 	const auto ProcList = VMenu2::create(msg(lng::MProcessListTitle), {}, ScrY - 4);
 	ProcList->SetMenuFlags(VMENU_WRAPMODE);
-	ProcList->SetPosition(-1,-1,0,0);
+	ProcList->SetPosition({ -1, -1, 0, 0 });
 	bool ShowImage = false;
 
 	const auto& FillProcList = [&]

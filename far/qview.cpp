@@ -109,39 +109,39 @@ void QuickView::DisplayObject()
 		Parent()->GetAnotherPanel(this)->UpdateViewPanel();
 
 	if (QView)
-		QView->SetPosition(m_X1+1,m_Y1+1,m_X2-1,m_Y2-3);
+		QView->SetPosition({ m_Where.left + 1, m_Where.top + 1, m_Where.right - 1, m_Where.bottom - 3 });
 
-	Box(m_X1,m_Y1,m_X2,m_Y2,colors::PaletteColorToFarColor(COL_PANELBOX),DOUBLE_BOX);
-	SetScreen(m_X1+1,m_Y1+1,m_X2-1,m_Y2-1,L' ',colors::PaletteColorToFarColor(COL_PANELTEXT));
+	Box(m_Where, colors::PaletteColorToFarColor(COL_PANELBOX), DOUBLE_BOX);
+	SetScreen({ m_Where.left + 1, m_Where.top + 1, m_Where.right - 1, m_Where.bottom - 1 }, L' ', colors::PaletteColorToFarColor(COL_PANELTEXT));
 	SetColor(IsFocused()? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
 
 	const auto& strTitle = GetTitleForDisplay();
 	if (!strTitle.empty())
 	{
-		GotoXY(m_X1+(m_X2-m_X1+1-(int)strTitle.size())/2,m_Y1);
+		GotoXY(m_Where.left + (m_Where.width() - static_cast<int>(strTitle.size())) / 2, m_Where.top);
 		Text(strTitle);
 	}
 
-	DrawSeparator(m_Y2-2);
+	DrawSeparator(m_Where.bottom - 2);
 	SetColor(COL_PANELTEXT);
-	GotoXY(m_X1+1,m_Y2-1);
-	Text(fit_to_left(string(PointToName(strCurFileName)), m_X2 - m_X1 - 1));
+	GotoXY(m_Where.left + 1, m_Where.bottom - 1);
+	Text(fit_to_left(string(PointToName(strCurFileName)), m_Where.width() - 2));
 
 	if (!strCurFileType.empty())
 	{
 		auto strTypeText = concat(L' ', strCurFileType, L' ');
-		TruncStr(strTypeText,m_X2-m_X1-1);
+		TruncStr(strTypeText, m_Where.width() - 2);
 		SetColor(COL_PANELSELECTEDINFO);
-		GotoXY(m_X1+(m_X2-m_X1+1-(int)strTypeText.size())/2,m_Y2-2);
+		GotoXY(m_Where.left + (m_Where.width() - static_cast<int>(strTypeText.size())) / 2, m_Where.bottom - 2);
 		Text(strTypeText);
 	}
 
 	if (m_DirectoryScanStatus != scan_status::none)
 	{
 		SetColor(COL_PANELTEXT);
-		GotoXY(m_X1+2,m_Y1+2);
+		GotoXY(m_Where.left + 2, m_Where.top + 2);
 		auto DisplayName = strCurFileName;
-		TruncPathStr(DisplayName, std::max(0, m_X2 - m_X1 - 1 - static_cast<int>(msg(lng::MQuickViewFolder).size() - 5)));
+		TruncPathStr(DisplayName, std::max(0, m_Where.width() - 2 - static_cast<int>(msg(lng::MQuickViewFolder).size() - 5)));
 		PrintText(format(LR"({0} "{1}")", msg(lng::MQuickViewFolder), DisplayName));
 
 		const auto currAttr = os::fs::get_file_attributes(strCurFileName); // обламывается, если нет доступа
@@ -167,57 +167,56 @@ void QuickView::DisplayObject()
 						TypeName = msg(ID_Msg);
 					}
 					break;
-				// 0xA000000CL = Directory or File Symbolic Link
+
 				case IO_REPARSE_TAG_SYMLINK:
 					TypeName = msg(lng::MQuickViewSymlink);
 					break;
-				// 0x8000000AL = Distributed File System
+
 				case IO_REPARSE_TAG_DFS:
 					TypeName = msg(lng::MQuickViewDFS);
 					break;
-				// 0x80000012L = Distributed File System Replication
+
 				case IO_REPARSE_TAG_DFSR:
 					TypeName = msg(lng::MQuickViewDFSR);
 					break;
-				// 0xC0000004L = Hierarchical Storage Management
+
 				case IO_REPARSE_TAG_HSM:
 					TypeName = msg(lng::MQuickViewHSM);
 					break;
-				// 0x80000006L = Hierarchical Storage Management2
+
 				case IO_REPARSE_TAG_HSM2:
 					TypeName = msg(lng::MQuickViewHSM2);
 					break;
-				// 0x80000007L = Single Instance Storage
+
 				case IO_REPARSE_TAG_SIS:
 					TypeName = msg(lng::MQuickViewSIS);
 					break;
-				// 0x80000008L = Windows Imaging Format
+
 				case IO_REPARSE_TAG_WIM:
 					TypeName = msg(lng::MQuickViewWIM);
 					break;
-				// 0x80000009L = Cluster Shared Volumes
+
 				case IO_REPARSE_TAG_CSV:
 					TypeName = msg(lng::MQuickViewCSV);
 					break;
+
 				case IO_REPARSE_TAG_DEDUP:
 					TypeName = msg(lng::MQuickViewDEDUP);
 					break;
+
 				case IO_REPARSE_TAG_NFS:
 					TypeName = msg(lng::MQuickViewNFS);
 					break;
+
 				case IO_REPARSE_TAG_FILE_PLACEHOLDER:
 					TypeName = msg(lng::MQuickViewPlaceholder);
 					break;
-					// 0x????????L = anything else
+
 				default:
-					if (Global->Opt->ShowUnknownReparsePoint)
-					{
-						TypeName = format(L":{0:0>8X}", ReparseTag);
-					}
-					else
-					{
-						TypeName = msg(lng::MQuickViewUnknownReparsePoint);
-					}
+					TypeName = Global->Opt->ShowUnknownReparsePoint?
+						format(L":{0:0>8X}", ReparseTag) :
+						msg(lng::MQuickViewUnknownReparsePoint);
+					break;
 				}
 			}
 			else
@@ -226,9 +225,9 @@ void QuickView::DisplayObject()
 				Target = msg(lng::MQuickViewNoData);
 			}
 
-			TruncPathStr(Target, std::max(0, m_X2 - m_X1 - 1 - static_cast<int>(TypeName.size()) - 5));
+			TruncPathStr(Target, std::max(0, m_Where.width() - 2 - static_cast<int>(TypeName.size()) - 5));
 			SetColor(COL_PANELTEXT);
-			GotoXY(m_X1+2,m_Y1+3);
+			GotoXY(m_Where.left + 2, m_Where.top + 3);
 			PrintText(format(LR"({0} "{1}")", TypeName, Target));
 		}
 
@@ -265,7 +264,7 @@ void QuickView::DisplayObject()
 
 			const auto& PrintRow = [&](int Y, lng Id, string_view const Value)
 			{
-				GotoXY(m_X1 + 2, m_Y1 + Y);
+				GotoXY(m_Where.left + 2, m_Where.top + Y);
 				SetColor(COL_PANELTEXT);
 				PrintText(pad_right(msg(Id), ColumnSize));
 
@@ -488,7 +487,7 @@ void QuickView::ShowFile(string_view const FileName, const UserDataItem* const U
 		{
 			QView = std::make_unique<Viewer>(GetOwner(), true);
 			QView->SetRestoreScreenMode(false);
-			QView->SetPosition(m_X1+1,m_Y1+1,m_X2-1,m_Y2-3);
+			QView->SetPosition({ m_Where.left + 1, m_Where.top + 1, m_Where.right - 1, m_Where.bottom - 3 });
 			QView->SetStatusMode(0);
 			QView->EnableHideCursor(0);
 			OldWrapMode = QView->GetWrapMode();
@@ -553,10 +552,10 @@ void QuickView::QViewDelTempName()
 
 void QuickView::PrintText(string_view const Str) const
 {
-	if (WhereY()>m_Y2-3 || WhereX()>m_X2-2)
+	if (WhereY() > m_Where. bottom - 3 || WhereX() > m_Where.right - 2)
 		return;
 
-	Text(cut_right(Str, m_X2 - 2 - WhereX() + 1));
+	Text(cut_right(Str, m_Where.right - 2 - WhereX() + 1));
 }
 
 

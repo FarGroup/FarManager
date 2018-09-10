@@ -242,7 +242,7 @@ static reply ExcDialog(const string& ModuleName, const string& Exception, const 
 	auto DlgData = dialog_data_type(&Context, NestedStack);
 	const auto Dlg = Dialog::create(EditDlg, ExcDlgProc, &DlgData);
 	Dlg->SetDialogMode(DMODE_WARNINGSTYLE|DMODE_NOPLUGINS);
-	Dlg->SetPosition(-1, -1, 80, 12);
+	Dlg->SetPosition({ -1, -1, 80, 12 });
 	Dlg->Process();
 
 	switch (Dlg->GetExitCode())
@@ -717,7 +717,7 @@ static bool ExceptionTestHook(Manager::Key key)
 
 		const auto ModalMenu = VMenu2::create(L"Test Exceptions"s, {}, ScrY - 4);
 		ModalMenu->SetMenuFlags(VMENU_WRAPMODE);
-		ModalMenu->SetPosition(-1, -1, 0, 0);
+		ModalMenu->SetPosition({ -1, -1, 0, 0 });
 
 		std::for_each(CONST_RANGE(Names, i)
 		{

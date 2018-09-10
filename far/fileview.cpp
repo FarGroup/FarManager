@@ -61,7 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "format.hpp"
 
-FileViewer::FileViewer(private_tag, int DisableEdit, const wchar_t *Title):
+FileViewer::FileViewer(private_tag, int DisableEdit, string_view const Title):
 	RedrawTitle(),
 	F3KeyOnly(),
 	m_bClosing(),
@@ -70,16 +70,26 @@ FileViewer::FileViewer(private_tag, int DisableEdit, const wchar_t *Title):
 	DisableHistory(),
 	SaveToSaveAs(),
 	delete_on_close(),
-	str_title(NullToEmpty(Title))
+	str_title(Title)
 {
 }
 
-fileviewer_ptr FileViewer::create(const string& Name, bool EnableSwitch, bool DisableHistory, bool DisableEdit,
-                                  long long ViewStartPos,const wchar_t *PluginData, NamesList *ViewNamesList,bool ToSaveAs,
-                                  uintptr_t aCodePage, const wchar_t *Title, int DeleteOnClose, window_ptr Update)
+fileviewer_ptr FileViewer::create(
+	const string& Name,
+	bool EnableSwitch,
+	bool DisableHistory,
+	bool DisableEdit,
+	long long ViewStartPos,
+	string_view PluginData,
+	NamesList *ViewNamesList,
+	bool ToSaveAs,
+	uintptr_t aCodePage,
+	string_view Title,
+	int DeleteOnClose,
+	window_ptr Update)
 {
 	const auto FileViewerPtr = std::make_shared<FileViewer>(private_tag(), DisableEdit, Title);
-	FileViewerPtr->SetPosition(0, 0, ScrX, ScrY);
+	FileViewerPtr->SetPosition({ 0, 0, ScrX, ScrY });
 	FileViewerPtr->Init(Name, EnableSwitch, DisableHistory, ViewStartPos, PluginData, ViewNamesList, ToSaveAs, aCodePage, std::move(Update));
 
 	if (DeleteOnClose)
@@ -92,47 +102,60 @@ fileviewer_ptr FileViewer::create(const string& Name, bool EnableSwitch, bool Di
 }
 
 
-fileviewer_ptr FileViewer::create(const string& Name, bool EnableSwitch, bool DisableHistory,
-                                  const wchar_t *Title, int X1,int Y1,int X2,int Y2,uintptr_t aCodePage)
+fileviewer_ptr FileViewer::create(
+	const string& Name,
+	bool EnableSwitch,
+	bool DisableHistory,
+	string_view Title,
+	rectangle Position,
+	uintptr_t aCodePage)
 {
 	const auto FileViewerPtr = std::make_shared<FileViewer>(private_tag(), TRUE, Title);
 
 	_OT(SysLog(L"[%p] FileViewer::FileViewer(II variant...)", this));
 
-	if (X1 < 0)
-		X1=0;
+	// BUGBUG WHY ALL THIS?
+	if (Position.left < 0)
+		Position.left = 0;
 
-	if (X2 < 0 || X2 > ScrX)
-		X2=ScrX;
+	if (Position.right < 0 || Position.right > ScrX)
+		Position.right = ScrX;
 
-	if (Y1 < 0)
-		Y1=0;
+	if (Position.top < 0)
+		Position.top = 0;
 
-	if (Y2 < 0 || Y2 > ScrY)
-		Y2=ScrY;
+	if (Position.bottom < 0 || Position.bottom > ScrY)
+		Position.bottom = ScrY;
 
-	if (X1 > X2)
+	if (Position.left > Position.right)
 	{
-		X1=0;
-		X2=ScrX;
+		Position.left = 0;
+		Position.right = ScrX;
 	}
 
-	if (Y1 > Y2)
+	if (Position.top > Position.bottom)
 	{
-		Y1=0;
-		Y2=ScrY;
+		Position.top = 0;
+		Position.bottom = ScrY;
 	}
 
-	FileViewerPtr->SetPosition(X1, Y1, X2, Y2);
-	FileViewerPtr->FullScreen = (!X1 && !Y1 && X2 == ScrX && Y2 == ScrY);
-	FileViewerPtr->Init(Name, EnableSwitch, DisableHistory, -1, L"", nullptr, false, aCodePage);
+	FileViewerPtr->SetPosition(Position);
+	FileViewerPtr->FullScreen = (!Position.left && !Position.top && Position.right == ScrX && Position.bottom == ScrY);
+	FileViewerPtr->Init(Name, EnableSwitch, DisableHistory, -1, {}, nullptr, false, aCodePage);
 	return FileViewerPtr;
 }
 
 
-void FileViewer::Init(const string& name, bool EnableSwitch, int disableHistory,
-	long long ViewStartPos,const wchar_t *PluginData,
-	NamesList *ViewNamesList, bool ToSaveAs, uintptr_t aCodePage, window_ptr Update)
+void FileViewer::Init(
+	const string& name,
+	bool EnableSwitch,
+	int disableHistory,
+	long long ViewStartPos,
+	string_view PluginData,
+	NamesList *ViewNamesList,
+	bool ToSaveAs,
+	uintptr_t aCodePage,
+	window_ptr Update)
 {
 	m_View = std::make_unique<Viewer>(shared_from_this(), false, aCodePage);
 	m_View->SetTitle(str_title);
@@ -147,7 +170,7 @@ void FileViewer::Init(const string& name, bool EnableSwitch, int disableHistory,
 	SetCanLoseFocus(EnableSwitch);
 	SaveToSaveAs=ToSaveAs;
 	InitKeyBar();
-	m_windowKeyBar->SetPosition(m_X1, m_Y2, m_X2, m_Y2);
+	m_windowKeyBar->SetPosition(m_Where);
 
 	if (ViewNamesList)
 		m_View->SetNamesList(*ViewNamesList);
@@ -205,7 +228,7 @@ void FileViewer::InitKeyBar()
 	}
 
 	m_windowKeyBar->SetCustomLabels(KBA_VIEWER);
-	m_View->SetPosition(m_X1,m_Y1+(IsTitleBarVisible()?1:0),m_X2,m_Y2-(IsKeyBarVisible()?1:0));
+	m_View->SetPosition({ m_Where.left, m_Where.top + (IsTitleBarVisible()? 1 : 0), m_Where.right, m_Where.bottom - (IsKeyBarVisible()? 1 : 0) });
 	m_View->SetViewKeyBar(m_windowKeyBar.get());
 }
 
@@ -215,15 +238,15 @@ void FileViewer::Show()
 	{
 		if (IsKeyBarVisible())
 		{
-			m_windowKeyBar->SetPosition(0, ScrY, ScrX, ScrY);
+			m_windowKeyBar->SetPosition({ 0, ScrY, ScrX, ScrY });
 		}
-		SetPosition(0,0,ScrX,ScrY);
+		SetPosition({ 0, 0, ScrX, ScrY });
 	}
 	if (IsKeyBarVisible())
 	{
 		m_windowKeyBar->Redraw();
 	}
-	m_View->SetPosition(m_X1,m_Y1+(IsTitleBarVisible()?1:0),m_X2,m_Y2-(IsKeyBarVisible()?1:0));
+	m_View->SetPosition({ m_Where.left, m_Where.top + (IsTitleBarVisible()? 1 : 0), m_Where.right, m_Where.bottom - (IsKeyBarVisible()? 1 : 0) });
 	ScreenObjectWithShadow::Show();
 	ShowStatus();
 }
@@ -370,7 +393,7 @@ bool FileViewer::ProcessKey(const Manager::Key& Key)
 					strViewFileName, cp, flags, -2,
 					static_cast<int>(FilePos), // TODO: Editor StartChar should be long long
 					str_title.empty() ? nullptr: &str_title,
-					-1,-1, -1, -1, delete_on_close, shared_from_this());
+					{ -1, -1, -1, -1 }, delete_on_close, shared_from_this());
 
 				int load = ShellEditor->GetExitCode();
 				if (!(load == XC_LOADING_INTERRUPTED || load == XC_OPEN_ERROR))
@@ -538,7 +561,7 @@ void FileViewer::ShowStatus() const
 	    (m_View->LastPage ? 100:ToPercent(m_View->FilePos,m_View->FileSize))
 	);
 	SetColor(COL_VIEWERSTATUS);
-	GotoXY(m_X1,m_Y1);
+	GotoXY(m_Where.left, m_Where.top);
 	Text(fit_to_left(strStatus, m_View->Width + (m_View->ViOpt.ShowScrollbar? 1 : 0)));
 
 	if (Global->Opt->ViewerEditorClock && IsFullScreen())

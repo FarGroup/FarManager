@@ -42,6 +42,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "global.hpp"
 
+#include "common/2d/algorithm.hpp"
+
 enum
 {
 	SBFLAGS_FLUSHED         = bit(0),
@@ -54,9 +56,9 @@ enum
 // #define DIRECT_SCREEN_OUT
 //#endif
 
-static bool is_visible(int X1, int Y1, int X2, int Y2)
+static bool is_visible(rectangle const Where)
 {
-	return X1 <= ScrX && Y1 <= ScrY && X2 >= 0 && Y2 >= 0;
+	return Where.left <= ScrX && Where.top <= ScrY && Where.right >= 0 && Where.bottom >= 0;
 }
 
 ScreenBuf::ScreenBuf():
@@ -116,24 +118,23 @@ void ScreenBuf::FillBuf()
 
 /* Записать Text в виртуальный буфер
 */
-void ScreenBuf::Write(int X,int Y,const FAR_CHAR_INFO *Text, size_t Size)
+void ScreenBuf::Write(int X, int Y, range<const FAR_CHAR_INFO*> Text)
 {
 	SCOPED_ACTION(os::critical_section_lock)(CS);
 
 	if (X<0)
 	{
-		Text-=X;
-		Size = std::max(0, static_cast<int>(Size) + X);
+		Text.pop_front(std::min(static_cast<size_t>(-X), Text.size()));
 		X=0;
 	}
 
-	if (X >= static_cast<int>(Buf.width()) || Y >= static_cast<int>(Buf.height()) || !Size || Y<0)
+	if (X >= static_cast<int>(Buf.width()) || Y >= static_cast<int>(Buf.height()) || Text.empty() || Y < 0)
 		return;
 
-	if (static_cast<int>(X + Size) >= static_cast<int>(Buf.width()))
-		Size = Buf.width() - X; //??
+	if (static_cast<size_t>(X + Text.size()) > Buf.width())
+		Text.pop_back(Text.size() - (Buf.width() - X));
 
-	for (size_t i = 0; i != Size; ++i)
+	for (size_t i = 0; i != Text.size(); ++i)
 	{
 		auto& Element = Buf[Y][X + i];
 		SetVidChar(Element, Text[i].Char);
@@ -154,32 +155,32 @@ void ScreenBuf::Write(int X,int Y,const FAR_CHAR_INFO *Text, size_t Size)
 
 /* Читать блок из виртуального буфера.
 */
-void ScreenBuf::Read(int X1, int Y1, int X2, int Y2, matrix<FAR_CHAR_INFO>& Dest)
+void ScreenBuf::Read(rectangle Where, matrix<FAR_CHAR_INFO>& Dest)
 {
 	SCOPED_ACTION(os::critical_section_lock)(CS);
 
-	fix_coordinates(X1, Y1, X2, Y2);
+	fix_coordinates(Where);
 
-	for (auto i = Y1; i <= Y2; ++i)
+	for (auto i = Where.top; i <= Where.bottom; ++i)
 	{
 		const auto Row = Buf[i];
-		std::copy(&Row[X1], &Row[X2 + 1], &Dest[i - Y1][0]);
+		std::copy(&Row[Where.left], &Row[Where.right + 1], &Dest[i - Where.top][0]);
 	}
 }
 
 /* Изменить значение цветовых атрибутов в соответствии с маской
    (применяется для "создания" тени)
 */
-void ScreenBuf::ApplyShadow(int X1,int Y1,int X2,int Y2)
+void ScreenBuf::ApplyShadow(rectangle Where)
 {
-	if (!is_visible(X1, Y1, X2, Y2))
+	if (!is_visible(Where))
 		return;
 
 	SCOPED_ACTION(os::critical_section_lock)(CS);
 
-	fix_coordinates(X1, Y1, X2, Y2);
+	fix_coordinates(Where);
 
-	for_submatrix(Buf, X1, Y1, X2, Y2, [](FAR_CHAR_INFO& Element)
+	for_submatrix(Buf, Where, [](FAR_CHAR_INFO& Element)
 	{
 		Element.Attributes.BackgroundColor = 0;
 
@@ -214,18 +215,18 @@ void ScreenBuf::ApplyShadow(int X1,int Y1,int X2,int Y2)
 /* Непосредственное изменение цветовых атрибутов
 */
 // used in block selection
-void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color, bool PreserveExFlags)
+void ScreenBuf::ApplyColor(rectangle Where, const FarColor& Color, bool PreserveExFlags)
 {
-	if (!is_visible(X1, Y1, X2, Y2))
+	if (!is_visible(Where))
 		return;
 
 	SCOPED_ACTION(os::critical_section_lock)(CS);
 
-	fix_coordinates(X1, Y1, X2, Y2);
+	fix_coordinates(Where);
 
 	if(PreserveExFlags)
 	{
-		for_submatrix(Buf, X1, Y1, X2, Y2, [&Color](FAR_CHAR_INFO& Element)
+		for_submatrix(Buf, Where, [&Color](FAR_CHAR_INFO& Element)
 		{
 			const auto ExFlags = Element.Attributes.Flags&FCF_EXTENDEDFLAGS;
 			Element.Attributes = Color;
@@ -234,7 +235,7 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color, bo
 	}
 	else
 	{
-		for_submatrix(Buf, X1, Y1, X2, Y2, [&Color](FAR_CHAR_INFO& Element)
+		for_submatrix(Buf, Where, [&Color](FAR_CHAR_INFO& Element)
 		{
 			Element.Attributes = Color;
 		});
@@ -251,16 +252,16 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color, bo
 /* Непосредственное изменение цветовых атрибутов с заданным цветом исключением
 */
 // used in stream selection
-void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color,const FarColor& ExceptColor, bool ForceExFlags)
+void ScreenBuf::ApplyColor(rectangle Where, const FarColor& Color, const FarColor& ExceptColor, bool ForceExFlags)
 {
-	if (!is_visible(X1, Y1, X2, Y2))
+	if (!is_visible(Where))
 		return;
 
 	SCOPED_ACTION(os::critical_section_lock)(CS);
 
-	fix_coordinates(X1, Y1, X2, Y2);
+	fix_coordinates(Where);
 
-	for_submatrix(Buf, X1, Y1, X2, Y2, [&](FAR_CHAR_INFO& Element)
+	for_submatrix(Buf, Where, [&](FAR_CHAR_INFO& Element)
 	{
 		if (Element.Attributes.ForegroundColor != ExceptColor.ForegroundColor || Element.Attributes.BackgroundColor != ExceptColor.BackgroundColor)
 		{
@@ -282,20 +283,20 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color,con
 
 /* Закрасить прямоугольник символом Ch и цветом Color
 */
-void ScreenBuf::FillRect(int X1,int Y1,int X2,int Y2,WCHAR Ch,const FarColor& Color)
+void ScreenBuf::FillRect(rectangle Where, const FAR_CHAR_INFO& Info)
 {
-	if (!is_visible(X1, Y1, X2, Y2))
+	if (!is_visible(Where))
 		return;
 
 	SCOPED_ACTION(os::critical_section_lock)(CS);
 
 	FAR_CHAR_INFO CI;
-	CI.Attributes=Color;
-	SetVidChar(CI,Ch);
+	CI.Attributes = Info.Attributes;
+	SetVidChar(CI, Info.Char);
 
-	fix_coordinates(X1, Y1, X2, Y2);
+	fix_coordinates(Where);
 
-	for_submatrix(Buf, X1, Y1, X2, Y2, [&CI](FAR_CHAR_INFO& Element)
+	for_submatrix(Buf, Where, [&CI](FAR_CHAR_INFO& Element)
 	{
 		Element = CI;
 	});
@@ -495,7 +496,7 @@ void ScreenBuf::Flush(flush_type FlushType)
 
 		if (FlushType & flush_type::cursor && !SBFlags.Check(SBFLAGS_FLUSHEDCURPOS))
 		{
-			if (is_visible(CurX, CurY, CurX, CurY))
+			if (is_visible({ CurX, CurY, CurX, CurY }))
 			{
 				COORD C={CurX,CurY};
 				console.SetCursorPosition(C);
@@ -505,7 +506,7 @@ void ScreenBuf::Flush(flush_type FlushType)
 
 		if (FlushType & flush_type::cursor && !SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE))
 		{
-			CONSOLE_CURSOR_INFO cci = { CurSize, CurVisible && is_visible(CurX, CurY, CurX, CurY) };
+			CONSOLE_CURSOR_INFO cci = { CurSize, CurVisible && is_visible({CurX, CurY, CurX, CurY}) };
 			console.SetCursorInfo(cci);
 			SBFlags.Set(SBFLAGS_FLUSHEDCURTYPE);
 		}
@@ -534,28 +535,27 @@ void ScreenBuf::SetLockCount(int Count)
 	LockCount=Count;
 }
 
-void ScreenBuf::MoveCursor(int X,int Y)
+void ScreenBuf::MoveCursor(point const Point)
 {
 	SCOPED_ACTION(os::critical_section_lock)(CS);
 
-	if (!is_visible(CurX, CurY, CurX, CurY))
+	if (!is_visible({ CurX, CurY, CurX, CurY }))
 	{
 		CurVisible = false;
 	}
 
-	if(X!=CurX || Y!=CurY || !CurVisible)
+	if(Point.x != CurX || Point.y != CurY || !CurVisible)
 	{
-		CurX=X;
-		CurY=Y;
+		CurX = Point.x;
+		CurY = Point.y;
 		SBFlags.Clear(SBFLAGS_FLUSHEDCURPOS);
 	}
 }
 
 
-void ScreenBuf::GetCursorPos(SHORT& X, SHORT& Y) const
+point ScreenBuf::GetCursorPos() const
 {
-	X=CurX;
-	Y=CurY;
+	return { CurX, CurY };
 }
 
 
@@ -602,7 +602,7 @@ void ScreenBuf::RestoreElevationChar()
 {
 	if(ElevationCharUsed)
 	{
-		Write(static_cast<int>(Buf.width() - 1), static_cast<int>(Buf.height() - 1), &ElevationChar, 1);
+		Write(static_cast<int>(Buf.width() - 1), static_cast<int>(Buf.height() - 1), { &ElevationChar, 1 });
 		ElevationCharUsed=false;
 	}
 }
@@ -620,7 +620,7 @@ void ScreenBuf::Scroll(size_t Count)
 
 		// TODO: matrix_view to avoid copying
 		matrix<FAR_CHAR_INFO> BufferBlock(Count, ScrX + 1);
-		Read(Region.Left, Region.Top, Region.Right, Region.Bottom, BufferBlock);
+		Read({ Region.Left, Region.Top, Region.Right, Region.Bottom }, BufferBlock);
 
 		console.ScrollNonClientArea(Count, Fill);
 

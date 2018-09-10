@@ -336,6 +336,10 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="xlat.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="common\2d\algorithm.hpp" />
+    <ClInclude Include="common\2d\matrix.hpp" />
+    <ClInclude Include="common\2d\point.hpp" />
+    <ClInclude Include="common\2d\rectangle.hpp" />
     <ClInclude Include="common\algorithm.hpp" />
     <ClInclude Include="common\bytes_view.hpp" />
     <ClInclude Include="common\chrono.hpp" />
@@ -460,7 +464,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="macro.hpp" />
     <ClInclude Include="macroopcode.hpp" />
     <ClInclude Include="manager.hpp" />
-    <ClInclude Include="matrix.hpp" />
     <ClInclude Include="memcheck.hpp" />
     <ClInclude Include="menubar.hpp" />
     <ClInclude Include="message.hpp" />

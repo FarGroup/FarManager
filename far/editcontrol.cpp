@@ -95,7 +95,7 @@ EditControl::EditControl(window_ptr Owner, SimpleScreenObject* Parent, parent_pr
 
 void EditControl::Show()
 {
-	if (m_X2 - m_X1 + 1 > m_Str.size())
+	if (m_Where.width() > m_Str.size())
 	{
 		SetLeftPos(0);
 	}
@@ -123,16 +123,16 @@ void EditControl::SetMenuPos(VMenu2& menu)
 {
 	int MaxHeight = std::min(Global->Opt->Dialogs.CBoxMaxHeight.Get(), static_cast<long long>(menu.size())) + 1;
 
-	const auto NewX2 = std::max(std::min(ScrX - 2, static_cast<int>(m_X2)), m_X1 + 20);
+	const auto NewX2 = std::max(std::min(ScrX - 2, static_cast<int>(m_Where.right)), m_Where.left + 20);
 
-	if((ScrY-m_Y1<MaxHeight && m_Y1>ScrY/2) || MenuUp)
+	if((ScrY - m_Where.top < MaxHeight && m_Where.top > ScrY/2) || MenuUp)
 	{
 		MenuUp = true;
-		menu.SetPosition(m_X1, std::max(0, m_Y1-1-MaxHeight), NewX2, m_Y1-1);
+		menu.SetPosition({ m_Where.left, std::max(0, m_Where.top - 1 - MaxHeight), NewX2, m_Where.top - 1 });
 	}
 	else
 	{
-		menu.SetPosition(m_X1, m_Y1+1, NewX2, std::min(static_cast<int>(ScrY), m_Y1+1+MaxHeight));
+		menu.SetPosition({ m_Where.left, m_Where.top + 1, NewX2, std::min(static_cast<int>(ScrY), m_Where.top + 1 + MaxHeight) });
 	}
 }
 
@@ -491,7 +491,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 
 				SetString((Data && !Data->OriginalCaseStr.empty())? Data->OriginalCaseStr : FirstItem);
 
-				if (m_X2 - m_X1 > GetLength())
+				if (m_Where.width() - 1 > GetLength())
 					SetLeftPos(0);
 				Select(SelStart, GetLength());
 			}
@@ -768,7 +768,7 @@ bool EditControl::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		while(IsMouseButtonPressed()==FROM_LEFT_1ST_BUTTON_PRESSED)
 		{
 			m_Flags.Clear(FEDITLINE_CLEARFLAG);
-			SetTabCurPos(IntKeyState.MouseX - m_X1 + GetLeftPos());
+			SetTabCurPos(IntKeyState.MousePos.x - m_Where.left + GetLeftPos());
 			if(IntKeyState.MouseEventFlags&MOUSE_MOVED)
 			{
 				if(!Selection)

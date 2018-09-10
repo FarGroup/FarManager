@@ -79,7 +79,7 @@ class FileEditor: public window,public EditorContainer
 
 public:
 	static fileeditor_ptr create(string_view Name, uintptr_t codepage, DWORD InitFlags, int StartLine = -1, int StartChar = -1, const string* PluginData = nullptr, EDITOR_FLAGS OpenModeExstFile = EF_OPENMODE_QUERY);
-	static fileeditor_ptr create(string_view Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* Title, int X1, int Y1, int X2, int Y2, int DeleteOnClose = 0, const window_ptr& Update = nullptr, EDITOR_FLAGS OpenModeExstFile = EF_OPENMODE_QUERY);
+	static fileeditor_ptr create(string_view Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* Title, rectangle Position, int DeleteOnClose = 0, const window_ptr& Update = nullptr, EDITOR_FLAGS OpenModeExstFile = EF_OPENMODE_QUERY);
 
 	explicit FileEditor(private_tag) {}
 	~FileEditor() override;

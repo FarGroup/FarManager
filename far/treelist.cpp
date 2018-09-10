@@ -470,21 +470,21 @@ void TreeList::DisplayTree(bool Fast)
 //    xstrncpy(CurDir,ListData[CurFile].Name,sizeof(CurDir));
 	if (!Fast)
 	{
-		Box(m_X1,m_Y1,m_X2,m_Y2,colors::PaletteColorToFarColor(COL_PANELBOX),DOUBLE_BOX);
-		DrawSeparator(m_Y2-2-(m_ModalMode!=0));
+		Box(m_Where, colors::PaletteColorToFarColor(COL_PANELBOX), DOUBLE_BOX);
+		DrawSeparator(m_Where.bottom - 2 - (m_ModalMode != 0));
 
 		const auto& strTitle = GetTitleForDisplay();
 		if (!strTitle.empty())
 		{
 			SetColor((IsFocused() || m_ModalMode) ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
-			GotoXY(m_X1+(m_X2-m_X1+1-(int)strTitle.size())/2,m_Y1);
+			GotoXY(m_Where.left + (m_Where.width() - static_cast<int>(strTitle.size())) / 2, m_Where.top);
 			Text(strTitle);
 		}
 	}
 
-	for (size_t I=m_Y1+1,J=m_CurTopFile; I<static_cast<size_t>(m_Y2-2-(m_ModalMode!=0)); I++,J++)
+	for (size_t I = m_Where.top + 1, J = m_CurTopFile; I < static_cast<size_t>(m_Where.bottom - 2 - (m_ModalMode != 0)); ++I, ++J)
 	{
-		GotoXY(m_X1+1, static_cast<int>(I));
+		GotoXY(m_Where.left + 1, static_cast<int>(I));
 		SetColor(COL_PANELTEXT);
 		Text(L' ');
 
@@ -500,7 +500,7 @@ void TreeList::DisplayTree(bool Fast)
 			{
 				string strOutStr;
 
-				for (size_t i=0; i<CurPtr.Depth-1 && WhereX() + 3 * i < m_X2 - 6u; i++)
+				for (size_t i = 0; i < CurPtr.Depth - 1 && WhereX() + 3 * i < m_Where.right - 6u; ++i)
 				{
 					strOutStr+=TreeLineSymbol[CurPtr.Last[i]?0:1];
 				}
@@ -518,25 +518,25 @@ void TreeList::DisplayTree(bool Fast)
 
 		SetColor(COL_PANELTEXT);
 
-		if (WhereX()<m_X2)
+		if (WhereX() < m_Where.right)
 		{
-			Text(string(m_X2 - WhereX(), L' '));
+			Text(string(m_Where.right - WhereX(), L' '));
 		}
 	}
 
 	if (Global->Opt->ShowPanelScrollbar)
 	{
 		SetColor(COL_PANELSCROLLBAR);
-		ScrollBarEx(m_X2, m_Y1+1, m_Y2-m_Y1-3, m_CurTopFile, m_ListData.size());
+		ScrollBarEx(m_Where.right, m_Where.top + 1, m_Where.height() - 4, m_CurTopFile, m_ListData.size());
 	}
 
 	SetColor(COL_PANELTEXT);
-	SetScreen(m_X1+1,m_Y2-(m_ModalMode?2:1),m_X2-1,m_Y2-1,L' ',colors::PaletteColorToFarColor(COL_PANELTEXT));
+	SetScreen({ m_Where.left + 1, m_Where.bottom - (m_ModalMode? 2 : 1), m_Where.right - 1, m_Where.bottom - 1 }, L' ', colors::PaletteColorToFarColor(COL_PANELTEXT));
 
 	if (!m_ListData.empty())
 	{
-		GotoXY(m_X1+1,m_Y2-1);
-		Text(fit_to_left(m_ListData[m_CurFile].strName, m_X2 - m_X1 - 1));
+		GotoXY(m_Where.left + 1, m_Where.bottom - 1);
+		Text(fit_to_left(m_ListData[m_CurFile].strName, m_Where.width() - 2));
 	}
 
 	UpdateViewPanel();
@@ -545,8 +545,8 @@ void TreeList::DisplayTree(bool Fast)
 
 void TreeList::DisplayTreeName(const string_view Name, const size_t Pos) const
 {
-	if (WhereX()>m_X2-4)
-		GotoXY(m_X2-4,WhereY());
+	if (WhereX() > m_Where.right - 4)
+		GotoXY(m_Where.right - 4, WhereY());
 
 	if (Pos==static_cast<size_t>(m_CurFile))
 	{
@@ -555,18 +555,18 @@ void TreeList::DisplayTreeName(const string_view Name, const size_t Pos) const
 		if (IsFocused() || m_ModalMode)
 		{
 			SetColor(Pos == m_WorkDir? COL_PANELSELECTEDCURSOR : COL_PANELCURSOR);
-			Text(concat(L' ', cut_right(Name, m_X2 - WhereX() - 3), L' '));
+			Text(concat(L' ', cut_right(Name, m_Where.right - WhereX() - 3), L' '));
 		}
 		else
 		{
 			SetColor(Pos == m_WorkDir? COL_PANELSELECTEDTEXT : COL_PANELTEXT);
-			Text(concat(L'[', cut_right(Name, m_X2 - WhereX() - 3), L']'));
+			Text(concat(L'[', cut_right(Name, m_Where.right - WhereX() - 3), L']'));
 		}
 	}
 	else
 	{
 		SetColor(Pos == m_WorkDir? COL_PANELSELECTEDTEXT : COL_PANELTEXT);
-		Text(cut_right(Name, m_X2 - WhereX() - 1));
+		Text(cut_right(Name, m_Where.right - WhereX() - 1));
 	}
 }
 
@@ -1317,8 +1317,8 @@ bool TreeList::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_PGUP:        case KEY_NUMPAD9:
 		{
-			m_CurTopFile-=m_Y2-m_Y1-3-(m_ModalMode!=0);
-			m_CurFile-=m_Y2-m_Y1-3-(m_ModalMode!=0);
+			m_CurTopFile -= m_Where.height() - 4 - (m_ModalMode != 0);
+			m_CurFile -= m_Where.height() - 4 - (m_ModalMode != 0);
 			DisplayTree(true);
 
 			if (Global->Opt->Tree.AutoChangeFolder && !m_ModalMode)
@@ -1328,8 +1328,8 @@ bool TreeList::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_PGDN:        case KEY_NUMPAD3:
 		{
-			m_CurTopFile+=m_Y2-m_Y1-3-(m_ModalMode!=0);
-			m_CurFile+=m_Y2-m_Y1-3-(m_ModalMode!=0);
+			m_CurTopFile += m_Where.height() - 4 - (m_ModalMode != 0);
+			m_CurFile += m_Where.height() - 4 - (m_ModalMode != 0);
 			DisplayTree(true);
 
 			if (Global->Opt->Tree.AutoChangeFolder && !m_ModalMode)
@@ -1432,7 +1432,7 @@ void TreeList::CorrectPosition()
 		return;
 	}
 
-	int Height=m_Y2-m_Y1-3-(m_ModalMode!=0);
+	const auto Height = m_Where.height() - 4 - (m_ModalMode != 0);
 
 	if (m_CurTopFile+Height > static_cast<int>(m_ListData.size()))
 		m_CurTopFile = static_cast<int>(m_ListData.size() - Height);
@@ -1484,7 +1484,7 @@ bool TreeList::SetDirPosition(const string& NewDir)
 		{
 			m_WorkDir = i;
 			m_CurFile = static_cast<int>(i);
-			m_CurTopFile=m_CurFile-(m_Y2-m_Y1-1)/2;
+			m_CurTopFile = m_CurFile - (m_Where.height() - 2) / 2;
 			CorrectPosition();
 			return true;
 		}
@@ -1517,15 +1517,15 @@ bool TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (!(MouseEvent->dwButtonState & MOUSE_ANY_BUTTON_PRESSED))
 		return false;
 
-	int OldFile=m_CurFile;
+	const auto OldFile = m_CurFile;
 
-	if (Global->Opt->ShowPanelScrollbar && IntKeyState.MouseX==m_X2 &&
+	if (Global->Opt->ShowPanelScrollbar && IntKeyState.MousePos.x == m_Where.bottom &&
 	        (MouseEvent->dwButtonState & 1) && !IsDragging())
 	{
-		int ScrollY=m_Y1+1;
-		int Height=m_Y2-m_Y1-3;
+		const auto ScrollY = m_Where.top + 1;
+		const auto Height = m_Where.height() - 4;
 
-		if (IntKeyState.MouseY==ScrollY)
+		if (IntKeyState.MousePos.y == ScrollY)
 		{
 			while (IsMouseButtonPressed())
 				ProcessKey(Manager::Key(KEY_UP));
@@ -1536,7 +1536,7 @@ bool TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			return true;
 		}
 
-		if (IntKeyState.MouseY==ScrollY+Height-1)
+		if (IntKeyState.MousePos.y == ScrollY + Height - 1)
 		{
 			while (IsMouseButtonPressed())
 				ProcessKey(Manager::Key(KEY_DOWN));
@@ -1547,9 +1547,9 @@ bool TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			return true;
 		}
 
-		if (IntKeyState.MouseY>ScrollY && IntKeyState.MouseY<ScrollY+Height-1 && Height>2)
+		if (IntKeyState.MousePos.y > ScrollY && IntKeyState.MousePos.y < ScrollY + Height - 1 && Height>2)
 		{
-			m_CurFile = static_cast<int>(m_ListData.size() - 1) * (IntKeyState.MouseY - ScrollY) / (Height - 2);
+			m_CurFile = static_cast<int>(m_ListData.size() - 1) * (IntKeyState.MousePos.y - ScrollY) / (Height - 2);
 			DisplayTree(true);
 
 			if (!m_ModalMode)
@@ -1563,7 +1563,7 @@ bool TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (!(MouseEvent->dwButtonState & 3))
 		return false;
 
-	if (MouseEvent->dwMousePosition.Y>m_Y1 && MouseEvent->dwMousePosition.Y<m_Y2-2)
+	if (MouseEvent->dwMousePosition.Y > m_Where.top && MouseEvent->dwMousePosition.Y < m_Where.bottom - 2)
 	{
 		if (!m_ModalMode)
 			Parent()->SetActivePanel(this);
@@ -1596,7 +1596,7 @@ bool TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		return true;
 	}
 
-	if (MouseEvent->dwMousePosition.Y <= m_Y1 + 1 || MouseEvent->dwMousePosition.Y >= m_Y2 - 2)
+	if (MouseEvent->dwMousePosition.Y <= m_Where.top + 1 || MouseEvent->dwMousePosition.Y >= m_Where.bottom - 2)
 	{
 		if (!m_ModalMode)
 			Parent()->SetActivePanel(this);
@@ -1606,9 +1606,9 @@ bool TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 		while (IsMouseButtonPressed())
 		{
-			if (IntKeyState.MouseY <= m_Y1 + 1)
+			if (IntKeyState.MousePos.y <= m_Where.top + 1)
 				Up(1);
-			else if (IntKeyState.MouseY >= m_Y2 - 2)
+			else if (IntKeyState.MousePos.y >= m_Where.bottom - 2)
 				Down(1);
 		}
 		if (Global->Opt->Tree.AutoChangeFolder && !m_ModalMode)
@@ -1622,7 +1622,7 @@ bool TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 void TreeList::MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
-	m_CurFile=m_CurTopFile+MouseEvent->dwMousePosition.Y-m_Y1-1;
+	m_CurFile = m_CurTopFile + MouseEvent->dwMousePosition.Y - m_Where.top - 1;
 	CorrectPosition();
 }
 
@@ -1705,7 +1705,7 @@ bool TreeList::FindPartName(const string& Name,int Next,int Direct)
 		if (CmpName(strMask, m_ListData[i].strName, true, i == m_CurFile))
 		{
 			m_CurFile=i;
-			m_CurTopFile=m_CurFile-(m_Y2-m_Y1-1)/2;
+			m_CurTopFile = m_CurFile - (m_Where.height() - 2) / 2;
 			DisplayTree(true);
 			return true;
 		}
@@ -1716,7 +1716,7 @@ bool TreeList::FindPartName(const string& Name,int Next,int Direct)
 		if (CmpName(strMask, m_ListData[i].strName, true))
 		{
 			m_CurFile=static_cast<int>(i);
-			m_CurTopFile=m_CurFile-(m_Y2-m_Y1-1)/2;
+			m_CurTopFile = m_CurFile - (m_Where.height() - 2) / 2;
 			DisplayTree(true);
 			return true;
 		}

@@ -540,7 +540,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		const auto UserMenu = VMenu2::create(Title, {}, ScrY - 4);
 		UserMenu->SetMenuFlags(VMENU_WRAPMODE);
 		UserMenu->SetHelp(L"UserMenu"sv);
-		UserMenu->SetPosition(-1,-1,0,0);
+		UserMenu->SetPosition({ -1, -1, 0, 0 });
 		UserMenu->SetBottomTitle(msg(lng::MMainMenuBottomTitle));
 		UserMenu->SetMacroMode(MACROAREA_USERMENU);
 
@@ -1018,7 +1018,7 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 		const auto Dlg = Dialog::create(EditDlg, &UserMenu::EditMenuDlgProc, this);
 		Dlg->SetHelp(L"UserMenu"sv);
 		Dlg->SetId(EditUserMenuId);
-		Dlg->SetPosition(-1,-1,DLG_X,DLG_Y);
+		Dlg->SetPosition({ -1, -1, DLG_X, DLG_Y });
 		Dlg->Process();
 
 		if (Dlg->GetExitCode()==EM_BUTTON_OK)

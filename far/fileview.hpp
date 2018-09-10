@@ -42,15 +42,29 @@ class FileViewer:public window,public ViewerContainer
 {
 	struct private_tag {};
 public:
-	static fileviewer_ptr create(const string& Name, bool EnableSwitch = false, bool DisableHistory = false,
-		bool DisableEdit = false, long long ViewStartPos = -1, const wchar_t* PluginData = nullptr,
-		NamesList* ViewNamesList = nullptr, bool ToSaveAs = false, uintptr_t aCodePage = CP_DEFAULT,
-		const wchar_t* Title = nullptr, int DeleteOnClose = 0, window_ptr Update = nullptr);
+	static fileviewer_ptr create(
+		const string& Name,
+		bool EnableSwitch = false,
+		bool DisableHistory = false,
+		bool DisableEdit = false,
+		long long ViewStartPos = -1,
+		string_view PluginData = {},
+		NamesList* ViewNamesList = nullptr,
+		bool ToSaveAs = false,
+		uintptr_t aCodePage = CP_DEFAULT,
+		string_view Title = {},
+		int DeleteOnClose = 0,
+		window_ptr Update = nullptr);
 
-	static fileviewer_ptr create(const string& Name, bool EnableSwitch, bool DisableHistory,
-		const wchar_t *Title, int X1, int Y1, int X2, int Y2, uintptr_t aCodePage = CP_DEFAULT);
+	static fileviewer_ptr create(
+		const string& Name,
+		bool EnableSwitch,
+		bool DisableHistory,
+		string_view Title,
+		rectangle Position,
+		uintptr_t aCodePage = CP_DEFAULT);
 
-	FileViewer(private_tag, int DisableEdit, const wchar_t *Title);
+	FileViewer(private_tag, int DisableEdit, string_view Title);
 	~FileViewer() override;
 
 	void InitKeyBar() override;
@@ -94,7 +108,16 @@ private:
 	void Show() override;
 	void DisplayObject() override;
 
-	void Init(const string& Name, bool EnableSwitch, int DisableHistory, long long ViewStartPos, const wchar_t *PluginData, NamesList *ViewNamesList, bool ToSaveAs, uintptr_t aCodePage, window_ptr Update = nullptr);
+	void Init(
+		const string& Name,
+		bool EnableSwitch,
+		int DisableHistory,
+		long long ViewStartPos,
+		string_view PluginData,
+		NamesList *ViewNamesList,
+		bool ToSaveAs,
+		uintptr_t aCodePage,
+		window_ptr Update = nullptr);
 
 	std::unique_ptr<Viewer> m_View;
 	int RedrawTitle;

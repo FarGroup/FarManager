@@ -1994,7 +1994,14 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 									ViewList.SetCurName(strFileName);
 								}
 
-								const auto ShellViewer = FileViewer::create(strFileName, true, PluginMode, PluginMode, -1, strPluginData.c_str(), &ViewList);
+								const auto ShellViewer = FileViewer::create(
+									strFileName,
+									true,
+									PluginMode,
+									PluginMode,
+									-1,
+									strPluginData,
+									&ViewList);
 
 								/* $ 08.04.2002 IS
 								Сбросим DeleteViewedFile, т.к. внутренний viewer сам все удалит
@@ -3022,8 +3029,8 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	elevation::instance().ResetApprove();
 
 	if (IsVisible() && Global->Opt->ShowColumnTitles && !MouseEvent->dwEventFlags &&
-	        MouseEvent->dwMousePosition.Y==m_Y1+1 &&
-	        MouseEvent->dwMousePosition.X>m_X1 && MouseEvent->dwMousePosition.X<m_X1+3)
+		MouseEvent->dwMousePosition.Y == m_Where.top + 1 &&
+		MouseEvent->dwMousePosition.X > m_Where.left && MouseEvent->dwMousePosition.X < m_Where.left + 3)
 	{
 		if (MouseEvent->dwButtonState)
 		{
@@ -3036,12 +3043,12 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		return true;
 	}
 
-	if (IsVisible() && Global->Opt->ShowPanelScrollbar && IntKeyState.MouseX==m_X2 &&
+	if (IsVisible() && Global->Opt->ShowPanelScrollbar && IntKeyState.MousePos.x == m_Where.right &&
 	        (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && !(MouseEvent->dwEventFlags & MOUSE_MOVED) && !IsDragging())
 	{
-		int ScrollY=m_Y1+1+Global->Opt->ShowColumnTitles;
+		const auto ScrollY = m_Where.top + 1 + Global->Opt->ShowColumnTitles;
 
-		if (IntKeyState.MouseY==ScrollY)
+		if (IntKeyState.MousePos.y == ScrollY)
 		{
 			while (IsMouseButtonPressed())
 				ProcessKey(Manager::Key(KEY_UP));
@@ -3050,7 +3057,7 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			return true;
 		}
 
-		if (IntKeyState.MouseY==ScrollY+m_Height-1)
+		if (IntKeyState.MousePos.y == ScrollY + m_Height - 1)
 		{
 			while (IsMouseButtonPressed())
 				ProcessKey(Manager::Key(KEY_DOWN));
@@ -3059,11 +3066,11 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			return true;
 		}
 
-		if (IntKeyState.MouseY>ScrollY && IntKeyState.MouseY<ScrollY+m_Height-1 && m_Height>2)
+		if (IntKeyState.MousePos.y > ScrollY && IntKeyState.MousePos.y < ScrollY + m_Height - 1 && m_Height > 2)
 		{
 			while (IsMouseButtonPressed())
 			{
-				m_CurFile=static_cast<int>((m_ListData.size() - 1)*(IntKeyState.MouseY-ScrollY)/(m_Height-2));
+				m_CurFile = static_cast<int>((m_ListData.size() - 1)*(IntKeyState.MousePos.y - ScrollY) / (m_Height - 2));
 				ShowFileList();
 				Parent()->SetActivePanel(shared_from_this());
 			}
@@ -3085,8 +3092,10 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (!(MouseEvent->dwButtonState & MOUSE_ANY_BUTTON_PRESSED))
 		return false;
 
-	if (MouseEvent->dwMousePosition.Y>m_Y1+Global->Opt->ShowColumnTitles &&
-	        MouseEvent->dwMousePosition.Y<m_Y2-2*Global->Opt->ShowPanelStatus)
+	if (
+		MouseEvent->dwMousePosition.Y > m_Where.top + Global->Opt->ShowColumnTitles &&
+		MouseEvent->dwMousePosition.Y < m_Where.bottom - 2 * Global->Opt->ShowPanelStatus
+		)
 	{
 		Parent()->SetActivePanel(shared_from_this());
 
@@ -3162,14 +3171,14 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		return true;
 	}
 
-	if (MouseEvent->dwMousePosition.Y<=m_Y1+1)
+	if (MouseEvent->dwMousePosition.Y <= m_Where.top + 1)
 	{
 		Parent()->SetActivePanel(shared_from_this());
 
 		if (m_ListData.empty())
 			return true;
 
-		while (IsMouseButtonPressed() && IntKeyState.MouseY<=m_Y1+1)
+		while (IsMouseButtonPressed() && IntKeyState.MousePos.y <= m_Where.top + 1)
 		{
 			MoveCursorAndShow(-1);
 
@@ -3186,14 +3195,14 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		return true;
 	}
 
-	if (MouseEvent->dwMousePosition.Y>=m_Y2-2)
+	if (MouseEvent->dwMousePosition.Y >= m_Where.bottom - 2)
 	{
 		Parent()->SetActivePanel(shared_from_this());
 
 		if (m_ListData.empty())
 			return true;
 
-		while (IsMouseButtonPressed() && IntKeyState.MouseY>=m_Y2-2)
+		while (IsMouseButtonPressed() && IntKeyState.MousePos.y >= m_Where.bottom - 2)
 		{
 			MoveCursorAndShow(1);
 
@@ -3220,7 +3229,7 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 void FileList::MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	int CurColumn=1,ColumnsWidth = 0;
-	int PanelX=MouseEvent->dwMousePosition.X-m_X1-1;
+	const auto PanelX = MouseEvent->dwMousePosition.X - m_Where.left - 1;
 	int Level = 0;
 
 	for (const auto& i: m_ViewSettings.PanelColumns)
@@ -3242,8 +3251,8 @@ void FileList::MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 //  if (!CurColumn)
 //    CurColumn=1;
-	int OldCurFile=m_CurFile;
-	m_CurFile=m_CurTopFile+MouseEvent->dwMousePosition.Y-m_Y1-1-Global->Opt->ShowColumnTitles;
+	const auto OldCurFile = m_CurFile;
+	m_CurFile = m_CurTopFile + MouseEvent->dwMousePosition.Y - m_Where.top - 1 - Global->Opt->ShowColumnTitles;
 
 	if (CurColumn>1)
 		m_CurFile+=(CurColumn-1)*m_Height;
@@ -3305,8 +3314,8 @@ void FileList::SetViewMode(int Mode)
 
 	if ((m_ViewSettings.Flags&PVS_FULLSCREEN) && !CurFullScreen)
 	{
-		if (m_Y2>0)
-			SetPosition(0,m_Y1,ScrX,m_Y2);
+		if (m_Where.bottom > 0)
+			SetPosition({ 0, m_Where.top, ScrX, m_Where.bottom });
 
 		m_ViewMode=Mode;
 	}
@@ -3314,12 +3323,12 @@ void FileList::SetViewMode(int Mode)
 	{
 		if (!(m_ViewSettings.Flags&PVS_FULLSCREEN) && CurFullScreen)
 		{
-			if (m_Y2>0)
+			if (m_Where.bottom > 0)
 			{
 				if (Parent()->IsLeft(shared_from_this()))
-					SetPosition(0,m_Y1,ScrX/2-Global->Opt->WidthDecrement,m_Y2);
+					SetPosition({ 0, m_Where.top, static_cast<int>(ScrX / 2 - Global->Opt->WidthDecrement), m_Where.bottom });
 				else
-					SetPosition(ScrX/2+1-Global->Opt->WidthDecrement,m_Y1,ScrX,m_Y2);
+					SetPosition({ static_cast<int>(ScrX / 2 + 1 - Global->Opt->WidthDecrement), m_Where.top, ScrX, m_Where.bottom });
 			}
 
 			m_ViewMode=Mode;
@@ -3523,7 +3532,7 @@ bool FileList::FindPartName(const string& Name,int Next,int Direct)
 				if (!DirFind || (m_ListData[I].Attributes & FILE_ATTRIBUTE_DIRECTORY))
 				{
 					m_CurFile=I;
-					m_CurTopFile=m_CurFile-(m_Y2-m_Y1)/2;
+					m_CurTopFile = m_CurFile - (m_Where.height() - 1) / 2;
 					ShowFileList();
 					return true;
 				}
@@ -3540,7 +3549,7 @@ bool FileList::FindPartName(const string& Name,int Next,int Direct)
 				if (!DirFind || (m_ListData[I].Attributes & FILE_ATTRIBUTE_DIRECTORY))
 				{
 					m_CurFile=I;
-					m_CurTopFile=m_CurFile-(m_Y2-m_Y1)/2;
+					m_CurTopFile = m_CurFile - (m_Where.height() - 1) / 2;
 					ShowFileList();
 					return true;
 				}
@@ -3990,7 +3999,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 				{
 					const auto Dlg = Dialog::create(SelectDlg);
 					Dlg->SetHelp(L"SelectFiles"sv);
-					Dlg->SetPosition(-1,-1,55,7);
+					Dlg->SetPosition({ -1, -1, 55, 7 });
 					Dlg->SetId(Mode==SELECT_ADD?SelectDialogId:UnSelectDialogId);
 
 					for (;;)
@@ -4611,7 +4620,7 @@ void FileList::SelectSortMode()
 
 		const auto SortModeMenu = VMenu2::create(msg(lng::MMenuSortTitle), make_span(SortMenu), 0);
 		SortModeMenu->SetHelp(L"PanelCmdSort"sv);
-		SortModeMenu->SetPosition(m_X1+4,-1,0,0);
+		SortModeMenu->SetPosition({ m_Where.left + 4, -1, 0, 0 });
 		SortModeMenu->SetMenuFlags(VMENU_WRAPMODE);
 		SortModeMenu->SetId(SelectSortModeId);
 
@@ -6534,7 +6543,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 
 	SetLastError(ERROR_SUCCESS);
 	// сформируем заголовок вне цикла
-	const auto Title = MakeLine(m_X2-m_X1-1, line_type::h2);
+	const auto Title = MakeLine(m_Where.width() - 2, line_type::h2);
 	bool IsShowTitle = false;
 
 	if (!m_Filter)
@@ -6624,7 +6633,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 					{
 						if (!DrawMessage)
 						{
-							Text(m_X1+1,m_Y1,colors::PaletteColorToFarColor(COL_PANELBOX),Title);
+							Text({ m_Where.left + 1, m_Where.top }, colors::PaletteColorToFarColor(COL_PANELBOX), Title);
 							IsShowTitle = true;
 							SetColor(IsFocused()? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
 						}
@@ -6639,8 +6648,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 					else
 					{
 						TruncStr(strReadMsg,static_cast<int>(Title.size())-2);
-						int MsgLength=(int)strReadMsg.size();
-						GotoXY(m_X1+1+(static_cast<int>(Title.size())-MsgLength-1)/2,m_Y1);
+						GotoXY(m_Where.left + 1 + static_cast<int>(Title.size() - strReadMsg.size() - 1) / 2, m_Where.top);
 						Text(concat(L' ', strReadMsg, L' '));
 					}
 				}
@@ -7213,7 +7221,7 @@ void FileList::FillParentPoint(FileListItem& Item, size_t CurFilePos)
 
 void FileList::UpdateHeight()
 {
-	m_Height = m_Y2 - m_Y1 - 1 - (Global->Opt->ShowColumnTitles? 1 : 0) - (Global->Opt->ShowPanelStatus? 2 : 0);
+	m_Height = m_Where.height() - 2 - (Global->Opt->ShowColumnTitles? 1 : 0) - (Global->Opt->ShowPanelStatus? 2 : 0);
 }
 
 void FileList::DisplayObject()
@@ -7253,8 +7261,8 @@ void FileList::ShowFileList(bool Fast)
 		Parent()->GetAnotherPanel(this)->Update(UPDATE_KEEP_SELECTION | UPDATE_SECONDARY);
 	}
 
-	SetScreen(m_X1+1,m_Y1+1,m_X2-1,m_Y2-1,L' ',colors::PaletteColorToFarColor(COL_PANELTEXT));
-	Box(m_X1,m_Y1,m_X2,m_Y2,colors::PaletteColorToFarColor(COL_PANELBOX),DOUBLE_BOX);
+	SetScreen({ m_Where.left + 1, m_Where.top + 1, m_Where.right - 1, m_Where.bottom - 1 }, L' ', colors::PaletteColorToFarColor(COL_PANELTEXT));
+	Box(m_Where, colors::PaletteColorToFarColor(COL_PANELBOX), DOUBLE_BOX);
 
 	if (Global->Opt->ShowColumnTitles)
 	{
@@ -7264,7 +7272,7 @@ void FileList::ShowFileList(bool Fast)
 		//Text(string(X2 - X1 - 1, L' '));
 	}
 
-	for (size_t I=0,ColumnPos=m_X1+1; I < m_ViewSettings.PanelColumns.size(); I++)
+	for (size_t I = 0, ColumnPos = m_Where.left + 1; I < m_ViewSettings.PanelColumns.size(); I++)
 	{
 		if (m_ViewSettings.PanelColumns[I].width < 0)
 			continue;
@@ -7338,7 +7346,7 @@ void FileList::ShowFileList(bool Fast)
 			}
 
 			SetColor(COL_PANELCOLUMNTITLE);
-			GotoXY(static_cast<int>(ColumnPos),m_Y1+1);
+			GotoXY(static_cast<int>(ColumnPos), m_Where.top + 1);
 			Text(fit_to_center(strTitle, m_ViewSettings.PanelColumns[I].width));
 		}
 
@@ -7350,7 +7358,7 @@ void FileList::ShowFileList(bool Fast)
 
 		SetColor(COL_PANELBOX);
 		ColumnPos += m_ViewSettings.PanelColumns[I].width;
-		GotoXY(static_cast<int>(ColumnPos),m_Y1);
+		GotoXY(static_cast<int>(ColumnPos), m_Where.top);
 
 		bool DoubleLine = Global->Opt->DoubleGlobalColumnSeparator && (!((I+1)%m_ColumnsInStripe));
 
@@ -7362,20 +7370,20 @@ void FileList::ShowFileList(bool Fast)
 			c.BackgroundColor = colors::PaletteColorToFarColor(COL_PANELCOLUMNTITLE).BackgroundColor;
 			SetColor(c);
 
-			GotoXY(static_cast<int>(ColumnPos),m_Y1+1);
+			GotoXY(static_cast<int>(ColumnPos), m_Where.top + 1);
 			BoxText(BoxSymbols[DoubleLine?BS_V2:BS_V1]);
 		}
 
 		if (!Global->Opt->ShowPanelStatus)
 		{
-			GotoXY(static_cast<int>(ColumnPos),m_Y2);
+			GotoXY(static_cast<int>(ColumnPos), m_Where.bottom);
 			BoxText(BoxSymbols[DoubleLine?BS_B_H2V2:BS_B_H2V1]);
 		}
 
 		ColumnPos++;
 	}
 
-	int NextX1=m_X1+1;
+	int NextX1 = m_Where.left + 1;
 
 	if (Global->Opt->ShowSortMode)
 	{
@@ -7416,11 +7424,7 @@ void FileList::ShowFileList(bool Fast)
 
 		if (Indicator)
 		{
-			if (Global->Opt->ShowColumnTitles)
-				GotoXY(NextX1,m_Y1+1);
-			else
-				GotoXY(NextX1,m_Y1);
-
+			GotoXY(NextX1, m_Where.top + (Global->Opt->ShowColumnTitles? 1 : 0));
 			SetColor(COL_PANELCOLUMNTITLE);
 			Text(Indicator);
 			NextX1++;
@@ -7436,11 +7440,7 @@ void FileList::ShowFileList(bool Fast)
 	/* <режимы сортировки> */
 	if (/* GetSortGroups() || */GetSelectedFirstMode())
 	{
-		if (Global->Opt->ShowColumnTitles)
-			GotoXY(NextX1,m_Y1+1);
-		else
-			GotoXY(NextX1,m_Y1);
-
+		GotoXY(NextX1, m_Where.top + (Global->Opt->ShowColumnTitles? 1 : 0));
 		SetColor(COL_PANELCOLUMNTITLE);
 
 		string Indicators;
@@ -7468,11 +7468,11 @@ void FileList::ShowFileList(bool Fast)
 	}
 
 	strTitle = GetTitle();
-	int TitleX2 = m_X2;
-	if (Global->Opt->Clock && !Global->Opt->ShowMenuBar && m_X1 + strTitle.size() + 2 >= ScrX - Global->CurrentTime.size())
-		TitleX2 = std::min(static_cast<int>(ScrX - Global->CurrentTime.size()),(int)m_X2);
+	int TitleX2 = m_Where.right;
+	if (Global->Opt->Clock && !Global->Opt->ShowMenuBar && m_Where.left + strTitle.size() + 2 >= ScrX - Global->CurrentTime.size())
+		TitleX2 = std::min(static_cast<int>(ScrX - Global->CurrentTime.size()), static_cast<int>(m_Where.right));
 
-	int MaxSize=TitleX2-m_X1-1;
+	int MaxSize = TitleX2 - m_Where.left - 1;
 	int XShift = 0;
 	if (!Global->Opt->ShowColumnTitles && Global->Opt->ShowSortMode)
 	{
@@ -7489,18 +7489,18 @@ void FileList::ShowFileList(bool Fast)
 	strTitle.push_back(L' ');
 
 	const auto TitleSize = static_cast<int>(strTitle.size());
-	int TitleX = m_X1 + 1 + XShift + (TitleX2 - m_X1 - XShift - TitleSize) / 2;
+	int TitleX = m_Where.left + 1 + XShift + (TitleX2 - m_Where.left - XShift - TitleSize) / 2;
 
 	if (Global->Opt->Clock && !Global->Opt->ShowMenuBar && TitleX + TitleSize > ScrX - static_cast<int>(Global->CurrentTime.size()))
 		TitleX = ScrX - static_cast<int>(Global->CurrentTime.size()) - TitleSize;
 
 	SetColor(IsFocused()? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
-	GotoXY(TitleX, m_Y1);
+	GotoXY(TitleX, m_Where.top);
 	Text(strTitle);
 
 	if (m_ListData.empty())
 	{
-		SetScreen(m_X1+1,m_Y2-1,m_X2-1,m_Y2-1,L' ',colors::PaletteColorToFarColor(COL_PANELTEXT));
+		SetScreen({ m_Where.left + 1, m_Where.bottom - 1, m_Where.right - 1, m_Where.bottom - 1 }, L' ', colors::PaletteColorToFarColor(COL_PANELTEXT));
 		SetColor(COL_PANELTEXT); //???
 		//GotoXY(X1+1,Y2-1);
 		//Text(string(X2 - X1 - 1, L' '));
@@ -7558,7 +7558,7 @@ void FileList::ShowFileList(bool Fast)
 	if (Global->Opt->ShowPanelScrollbar)
 	{
 		SetColor(COL_PANELSCROLLBAR);
-		ScrollBarEx(m_X2,m_Y1+1+Global->Opt->ShowColumnTitles,m_Height,Round(m_CurTopFile,m_Stripes),Round(static_cast<int>(m_ListData.size()), m_Stripes));
+		ScrollBarEx(m_Where.right, m_Where.top + 1 + Global->Opt->ShowColumnTitles, m_Height, Round(m_CurTopFile, m_Stripes), Round(static_cast<int>(m_ListData.size()), m_Stripes));
 	}
 
 	ShowScreensCount();
@@ -7643,14 +7643,14 @@ void FileList::ShowSelectedSize()
 	if (Global->Opt->ShowPanelStatus)
 	{
 		SetColor(COL_PANELBOX);
-		DrawSeparator(m_Y2-2);
-		for (size_t I=0,ColumnPos=m_X1+1; I<m_ViewSettings.PanelColumns.size() - 1; I++)
+		DrawSeparator(m_Where.bottom - 2);
+		for (size_t I = 0, ColumnPos = m_Where.left + 1; I < m_ViewSettings.PanelColumns.size() - 1; I++)
 		{
 			if (m_ViewSettings.PanelColumns[I].width < 0 || (I == m_ViewSettings.PanelColumns.size() - 2 && m_ViewSettings.PanelColumns[I+1].width < 0))
 				continue;
 
 			ColumnPos += m_ViewSettings.PanelColumns[I].width;
-			GotoXY(static_cast<int>(ColumnPos),m_Y2-2);
+			GotoXY(static_cast<int>(ColumnPos), m_Where.bottom - 2);
 
 			bool DoubleLine = Global->Opt->DoubleGlobalColumnSeparator && (!((I+1)%m_ColumnsInStripe));
 			BoxText(BoxSymbols[DoubleLine?BS_B_H1V2:BS_B_H1V1]);
@@ -7672,7 +7672,7 @@ void FileList::ShowSelectedSize()
 				TruncStrFromEnd(strSelStr, static_cast<int>(AvailableWidth));
 		}
 		SetColor(COL_PANELSELECTEDINFO);
-		GotoXY(static_cast<int>(m_X1 + BorderSize + (AvailableWidth - strSelStr.size()) / 2), m_Y2 - 2 * Global->Opt->ShowPanelStatus);
+		GotoXY(static_cast<int>(m_Where.left + BorderSize + (AvailableWidth - strSelStr.size()) / 2), m_Where.top - 2 * Global->Opt->ShowPanelStatus);
 		Text(L' ');
 		Text(strSelStr);
 		Text(L' ');
@@ -7726,7 +7726,7 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 	const string_view TotalStrView = TotalStr;
 
 	SetColor(COL_PANELTOTALINFO);
-	GotoXY(static_cast<int>(m_X1 + BorderSize + (AvailableWidth - TotalStrView.size()) / 2), m_Y2);
+	GotoXY(static_cast<int>(m_Where.left + BorderSize + (AvailableWidth - TotalStrView.size()) / 2), m_Where.bottom);
 	const auto BoxPos = TotalStrView.find(BoxSymbols[BS_H2]);
 
 	Text(L' ');
@@ -7919,7 +7919,7 @@ void FileList::PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen
 	}
 
 	TotalWidth-=EmptyColumns;
-	int PanelTextWidth=m_X2-m_X1-1;
+	int PanelTextWidth = m_Where.width() - 2;
 
 	if (FullScreen)
 		PanelTextWidth=ScrX-1;
@@ -8074,19 +8074,19 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 	size_t ColumnCount=ShowStatus ? m_ViewSettings.StatusColumns.size() : m_ViewSettings.PanelColumns.size();
 	const auto& Columns = ShowStatus ? m_ViewSettings.StatusColumns : m_ViewSettings.PanelColumns;
 
-	for (int I=m_Y1+1+Global->Opt->ShowColumnTitles,J=m_CurTopFile; I<m_Y2-2*Global->Opt->ShowPanelStatus; I++,J++)
+	for (int I = m_Where.top + 1 + Global->Opt->ShowColumnTitles, J = m_CurTopFile; I < m_Where.bottom - 2 * Global->Opt->ShowPanelStatus; I++, J++)
 	{
 		int CurColumn=StartColumn;
 
 		if (ShowStatus)
 		{
 			SetColor(COL_PANELTEXT);
-			GotoXY(m_X1+1,m_Y2-1);
+			GotoXY(m_Where.left + 1, m_Where.bottom - 1);
 		}
 		else
 		{
 			SetShowColor(J);
-			GotoXY(m_X1+1,I);
+			GotoXY(m_Where.left + 1, I);
 		}
 
 		int StatusLine=FALSE;
@@ -8119,7 +8119,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 				{
 					SetColor(COL_PANELBOX);
 					GotoXY(CurX-1,CurY);
-					BoxText(CurX-1==m_X2 ? BoxSymbols[BS_V2]:L' ');
+					BoxText(CurX - 1 == m_Where.right? BoxSymbols[BS_V2] : L' ');
 				}
 
 				continue;
@@ -8514,7 +8514,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 				GotoXY(CurX+ColumnWidth,CurY);
 
 				if (K==ColumnCount-1)
-					BoxText(CurX+ColumnWidth==m_X2 ? BoxSymbols[BS_V2]:L' ');
+					BoxText(CurX + ColumnWidth == m_Where.right? BoxSymbols[BS_V2] : L' ');
 				else
 					BoxText(ShowStatus ? L' ':BoxSymbols[(Global->Opt->DoubleGlobalColumnSeparator && Level == m_ColumnsInStripe)?BS_V2:BS_V1]);
 
@@ -8534,16 +8534,16 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 			}
 		}
 
-		if ((!ShowStatus || StatusLine) && WhereX()<m_X2)
+		if ((!ShowStatus || StatusLine) && WhereX() < m_Where.right)
 		{
 			SetColor(COL_PANELTEXT);
-			Text(string(m_X2 - WhereX(), L' '));
+			Text(string(m_Where.right - WhereX(), L' '));
 		}
 	}
 
 	if (!ShowStatus && !StatusShown && Global->Opt->ShowPanelStatus)
 	{
-		SetScreen(m_X1+1,m_Y2-1,m_X2-1,m_Y2-1,L' ',colors::PaletteColorToFarColor(COL_PANELTEXT));
+		SetScreen({ m_Where.left + 1, m_Where.bottom - 1, m_Where.right - 1, m_Where.bottom - 1 }, L' ', colors::PaletteColorToFarColor(COL_PANELTEXT));
 		SetColor(COL_PANELTEXT); //???
 		//GotoXY(X1+1,Y2-1);
 		//Text(string(X2 - X1 - 1, L' '));

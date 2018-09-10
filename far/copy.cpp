@@ -883,7 +883,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 		const auto Dlg = Dialog::create(CopyDlg, &ShellCopy::CopyDlgProc, this);
 		Dlg->SetHelp(Link? L"HardSymLink"sv : L"CopyFiles"sv);
 		Dlg->SetId(Link?HardSymLinkId:(Move?MoveFilesId:CopyFilesId));
-		Dlg->SetPosition(-1,-1,DLG_WIDTH,DLG_HEIGHT);
+		Dlg->SetPosition({ -1, -1, DLG_WIDTH, DLG_HEIGHT });
 		Dlg->SetAutomation(ID_SC_USEFILTER,ID_SC_BTNFILTER,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 //    Dlg->Show();
 		// $ 02.06.2001 IS + Проверим список целей и поднимем тревогу, если он содержит ошибки
@@ -3148,7 +3148,17 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 				List.AddName(*WFN->Dest);
 				const auto ViewName = *(Param1 == WDLG_SRCFILEBTN ? WFN->Src : WFN->Dest);
 				List.SetCurName(ViewName);
-				const auto Viewer = FileViewer::create(ViewName, false, false, true, -1, nullptr, &List, false);
+
+				const auto Viewer = FileViewer::create(
+					ViewName,
+					false,
+					false,
+					true,
+					-1,
+					{},
+					&List,
+					false);
+
 				Global->WindowManager->ExecuteModal(Viewer);
 				Global->WindowManager->ResizeAllWindows();
 			}
@@ -3339,7 +3349,7 @@ bool ShellCopy::AskOverwrite(const os::fs::find_data &SrcData,
 					file_names_for_overwrite_dialog WFN = { &strFullSrcName, &strDestName, &strRenamedFilesPath };
 					const auto WarnDlg = Dialog::create(WarnCopyDlg, &ShellCopy::WarnDlgProc, &WFN);
 					WarnDlg->SetDialogMode(DMODE_WARNINGSTYLE);
-					WarnDlg->SetPosition(-1, -1, WARN_DLG_WIDTH, WARN_DLG_HEIGHT);
+					WarnDlg->SetPosition({ -1, -1, WARN_DLG_WIDTH, WARN_DLG_HEIGHT });
 					WarnDlg->SetHelp(L"CopyAskOverwrite"sv);
 					WarnDlg->SetId(CopyOverwriteId);
 					WarnDlg->Process();
@@ -3441,7 +3451,7 @@ bool ShellCopy::AskOverwrite(const os::fs::find_data &SrcData,
 					file_names_for_overwrite_dialog WFN[] = { &strSrcName, &strDestName };
 					const auto WarnDlg = Dialog::create(WarnCopyDlg, &ShellCopy::WarnDlgProc, &WFN);
 					WarnDlg->SetDialogMode(DMODE_WARNINGSTYLE);
-					WarnDlg->SetPosition(-1,-1,WARN_DLG_WIDTH,WARN_DLG_HEIGHT);
+					WarnDlg->SetPosition({ -1, -1, WARN_DLG_WIDTH, WARN_DLG_HEIGHT });
 					WarnDlg->SetHelp(L"CopyFiles"sv);
 					WarnDlg->SetId(CopyReadOnlyId);
 					WarnDlg->Process();

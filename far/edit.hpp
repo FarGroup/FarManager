@@ -200,7 +200,7 @@ public:
 	void GetCursorType(bool& Visible, DWORD& Size) const;
 	bool GetReadOnly() const {return m_Flags.Check(FEDITLINE_READONLY);}
 	void SetReadOnly(bool NewReadOnly) {m_Flags.Change(FEDITLINE_READONLY,NewReadOnly);}
-	void SetHorizontalPosition(int X1, int X2) {SetPosition(X1, m_Y2, X2, m_Y2);}
+	void SetHorizontalPosition(int X1, int X2) { SetPosition({ X1, m_Where.top, X2, m_Where.bottom }); }
 
 protected:
 	virtual void RefreshStrByMask(int InitMode=FALSE) {}
@@ -242,7 +242,7 @@ private:
 	bool ProcessInsPath(unsigned int Key,int PrevSelStart=-1,int PrevSelEnd=0);
 	int RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos) const;
 	void FixLeftPos(int TabCurPos=-1);
-	void SetRightCoord(int Value) {SetPosition(m_X1, m_Y2, Value, m_Y2);}
+	void SetRightCoord(int Value) { SetPosition({ m_Where.left, m_Where.top, Value, m_Where.bottom }); }
 	Editor* GetEditor() const;
 
 protected:

@@ -215,7 +215,7 @@ void Editor::ShowEditor()
 	Color = colors::PaletteColorToFarColor(COL_EDITORTEXT);
 	SelColor = colors::PaletteColorToFarColor(COL_EDITORSELECTEDTEXT);
 
-	XX2=m_X2 - (EdOpt.ShowScrollBar && ScrollBarRequired(ObjHeight(), Lines.size())? 1 : 0);
+	XX2 = m_Where.right - (EdOpt.ShowScrollBar && ScrollBarRequired(ObjHeight(), Lines.size())? 1 : 0);
 	/* 17.04.2002 skv
 	  Что б курсор не бегал при Alt-F9 в конце длинного файла.
 	  Если на экране есть свободное место, и есть текст сверху,
@@ -263,7 +263,7 @@ void Editor::ShowEditor()
 	//---
 	//для корректной отрисовки текста с табами у CurLine должна быть корректная LeftPos до начала отрисовки
 	//так же это позволяет возвращать корректную EditorInfo.LeftPos в EE_REDRAW
-	m_it_CurLine->SetHorizontalPosition(m_X1, XX2);
+	m_it_CurLine->SetHorizontalPosition(m_Where.left, XX2);
 	m_it_CurLine->FixLeftPos();
 	//---
 	if (!Pasting)
@@ -285,13 +285,13 @@ void Editor::ShowEditor()
 
 	auto LeftPos = m_it_CurLine->GetLeftPos();
 	Edit::ShowInfo info={LeftPos,CurPos};
-	auto Y = m_Y1;
-	for (auto CurPtr=m_it_TopScreen; Y<=m_Y2; Y++)
+	auto Y = m_Where.top;
+	for (auto CurPtr = m_it_TopScreen; Y <= m_Where.bottom; ++Y)
 	{
 		if (CurPtr != Lines.end())
 		{
 			CurPtr->SetEditBeyondEnd(true);
-			CurPtr->SetPosition(m_X1,Y,XX2,Y);
+			CurPtr->SetPosition({ m_Where.left, Y, XX2, Y });
 			CurPtr->SetLeftPos(LeftPos);
 			CurPtr->SetTabCurPos(CurPos);
 			CurPtr->SetEditBeyondEnd(EdOpt.CursorBeyondEOL);
@@ -306,7 +306,7 @@ void Editor::ShowEditor()
 		}
 		else
 		{
-			SetScreen(m_X1,Y,XX2,Y,L' ',colors::PaletteColorToFarColor(COL_EDITORTEXT)); //Пустые строки после конца текста
+			SetScreen({ m_Where.left, Y, XX2, Y }, L' ', colors::PaletteColorToFarColor(COL_EDITORTEXT)); //Пустые строки после конца текста
 		}
 	}
 
@@ -315,24 +315,24 @@ void Editor::ShowEditor()
 		int CurScreenLine = static_cast<int>(m_it_CurLine.Number() - CalcDistance(m_it_TopScreen,m_it_CurLine));
 		LeftPos=m_it_CurLine->GetLeftPos();
 
-		Y = m_Y1;
-		for (auto CurPtr=m_it_TopScreen; Y<=m_Y2; Y++)
+		Y = m_Where.top;
+		for (auto CurPtr = m_it_TopScreen; Y <= m_Where.bottom; ++Y)
 		{
 			if (CurPtr != Lines.end())
 			{
 				if (CurScreenLine >= m_it_AnyBlockStart.Number() && CurScreenLine < m_it_AnyBlockStart.Number() + VBlockSizeY)
 				{
-					int BlockX1=VBlockX-LeftPos+m_X1;
-					int BlockX2=VBlockX+VBlockSizeX-1-LeftPos+m_X1;
+					int BlockX1 = VBlockX - LeftPos + m_Where.left;
+					int BlockX2 = VBlockX + VBlockSizeX - 1 - LeftPos + m_Where.left;
 
-					if (BlockX1<m_X1)
-						BlockX1=m_X1;
+					if (BlockX1 < m_Where.left)
+						BlockX1 = m_Where.left;
 
 					if (BlockX2>XX2)
 						BlockX2=XX2;
 
-					if (BlockX1<=XX2 && BlockX2>=m_X1)
-						ChangeBlockColor(BlockX1,Y,BlockX2,Y,colors::PaletteColorToFarColor(COL_EDITORSELECTEDTEXT));
+					if (BlockX1 <= XX2 && BlockX2 >= m_Where.left)
+						ChangeBlockColor({ BlockX1, Y, BlockX2, Y }, colors::PaletteColorToFarColor(COL_EDITORSELECTEDTEXT));
 				}
 
 				++CurPtr;
@@ -985,7 +985,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 		case KEY_SHIFTPGUP:       case KEY_SHIFTNUMPAD9:
 		{
 			Pasting++;
-			repeat(m_Y2 - m_Y1, [this, &Refresh]
+			repeat(m_Where.height() - 1, [this, &Refresh]
 			{
 				ProcessKeyInternal(Manager::Key(KEY_SHIFTUP), Refresh);
 
@@ -1005,7 +1005,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 		case KEY_SHIFTPGDN:       case KEY_SHIFTNUMPAD3:
 		{
 			Pasting++;
-			repeat(m_Y2 - m_Y1, [this, &Refresh]
+			repeat(m_Where.height() - 1, [this, &Refresh]
 			{
 				ProcessKeyInternal(Manager::Key(KEY_SHIFTDOWN), Refresh);
 
@@ -1708,7 +1708,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 				if (m_it_TopScreen!=LastTopScreen)
 				{
-					m_it_CurLine->SetHorizontalPosition(m_X1, XX2);
+					m_it_CurLine->SetHorizontalPosition(m_Where.left, XX2);
 					m_it_CurLine->FixLeftPos();
 				}
 
@@ -1779,7 +1779,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 		{
 			m_Flags.Set(FEDITOR_NEWUNDO);
 
-			for (int I=m_Y1; I<m_Y2; I++)
+			for (int I = m_Where.top; I < m_Where.bottom; ++I)
 				ScrollUp();
 
 			Refresh = true;
@@ -1790,7 +1790,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 		{
 			m_Flags.Set(FEDITOR_NEWUNDO);
 
-			for (int I=m_Y1; I<m_Y2; I++)
+			for (int I = m_Where.top; I < m_Where.bottom; ++I)
 				ScrollDown();
 
 			Refresh = true;
@@ -1830,9 +1830,9 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 				int StartPos=m_it_CurLine->GetTabCurPos();
 				m_it_CurLine = LastLine();
 				m_it_TopScreen=m_it_CurLine;
-				for (int I = m_Y1; I < m_Y2 && m_it_TopScreen != Lines.begin(); I++)
+				for (int I = m_Where.top; I < m_Where.bottom && m_it_TopScreen != Lines.begin(); ++I)
 				{
-					m_it_TopScreen->SetPosition(m_X1,I,XX2,I);
+					m_it_TopScreen->SetPosition({ m_Where.left, I, XX2, I });
 					--m_it_TopScreen;
 				}
 
@@ -1886,7 +1886,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			{
 				m_Flags.Set(FEDITOR_NEWUNDO);
 				auto CurPtr = m_it_TopScreen;
-				for (int I = m_Y1; I<m_Y2; ++I, ++CurPtr)
+				for (int I = m_Where.top; I < m_Where.bottom; ++I, ++CurPtr)
 				{
 					if (IsLastLine(CurPtr))
 						break;
@@ -2309,7 +2309,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 		case KEY_RALTPGUP:
 		{
 			Pasting++;
-			for (int I=m_Y1; I<m_Y2; I++)
+			for (int I = m_Where.top; I < m_Where.bottom; ++I)
 				ProcessKeyInternal(Manager::Key(KEY_ALTSHIFTUP), Refresh);
 			Pasting--;
 			Refresh = true;
@@ -2322,7 +2322,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 		case KEY_RALTPGDN:
 		{
 			Pasting++;
-			for (int I=m_Y1; I<m_Y2; I++)
+			for (int I = m_Where.top; I < m_Where.bottom; ++I)
 				ProcessKeyInternal(Manager::Key(KEY_ALTSHIFTDOWN), Refresh);
 			Pasting--;
 			Refresh = true;
@@ -2752,16 +2752,16 @@ bool Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		}
 	}
 
-	if (EdOpt.ShowScrollBar && ScrollBarRequired(ObjHeight(), Lines.size()) && MouseEvent->dwMousePosition.X==m_X2 && !(MouseEvent->dwEventFlags & MOUSE_MOVED))
+	if (EdOpt.ShowScrollBar && ScrollBarRequired(ObjHeight(), Lines.size()) && MouseEvent->dwMousePosition.X == m_Where.right && !(MouseEvent->dwEventFlags & MOUSE_MOVED))
 	{
-		if (MouseEvent->dwMousePosition.Y==m_Y1)
+		if (MouseEvent->dwMousePosition.Y == m_Where.top)
 		{
 			while (IsMouseButtonPressed())
 			{
 				ProcessKey(Manager::Key(KEY_CTRLUP));
 			}
 		}
-		else if (MouseEvent->dwMousePosition.Y==m_Y2)
+		else if (MouseEvent->dwMousePosition.Y == m_Where.bottom)
 		{
 			while (IsMouseButtonPressed())
 			{
@@ -2771,7 +2771,7 @@ bool Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		else
 		{
 			while (IsMouseButtonPressed())
-				GoToLineAndShow((Lines.size() - 1) * (IntKeyState.MouseY - m_Y1) / (m_Y2 - m_Y1));
+				GoToLineAndShow((Lines.size() - 1) * (IntKeyState.MousePos.y - m_Where.top) / (m_Where.height() - 1));
 		}
 
 		return true;
@@ -2834,10 +2834,13 @@ bool Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (!(MouseEvent->dwButtonState & 3))
 		return false;
 
+	if (!m_Where.contains(MouseEvent->dwMousePosition))
+		return false;
+
 	// scroll up
-	if (MouseEvent->dwMousePosition.Y==m_Y1-1)
+	if (MouseEvent->dwMousePosition.Y == m_Where.top - 1)
 	{
-		while (IsMouseButtonPressed() && IntKeyState.MouseY==m_Y1-1)
+		while (IsMouseButtonPressed() && IntKeyState.MousePos.y == m_Where.top - 1)
 		{
 			ProcessKey(Manager::Key(KEY_UP));
 			Global->WindowManager->PluginCommit();
@@ -2847,9 +2850,9 @@ bool Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	}
 
 	// scroll down
-	if (MouseEvent->dwMousePosition.Y==m_Y2+1)
+	if (MouseEvent->dwMousePosition.Y == m_Where.bottom + 1)
 	{
-		while (IsMouseButtonPressed() && IntKeyState.MouseY==m_Y2+1)
+		while (IsMouseButtonPressed() && IntKeyState.MousePos.y == m_Where.bottom + 1)
 		{
 			ProcessKey(Manager::Key(KEY_DOWN));
 			Global->WindowManager->PluginCommit();
@@ -2858,11 +2861,7 @@ bool Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		return true;
 	}
 
-	if (MouseEvent->dwMousePosition.X<m_X1 || MouseEvent->dwMousePosition.X>m_X2 ||
-	        MouseEvent->dwMousePosition.Y<m_Y1 || MouseEvent->dwMousePosition.Y>m_Y2)
-		return false;
-
-	int NewDist = MouseEvent->dwMousePosition.Y-m_Y1;
+	int NewDist = MouseEvent->dwMousePosition.Y - m_Where.top;
 	auto NewPtr=m_it_TopScreen;
 
 	while (NewDist-- && !IsLastLine(NewPtr))
@@ -3252,7 +3251,7 @@ void Editor::Down()
 
 	const auto Y = std::distance(m_it_TopScreen, m_it_CurLine);
 
-	if (Y>=m_Y2-m_Y1)
+	if (Y >= m_Where.height() - 1)
 		++m_it_TopScreen;
 
 	UpdateIteratorAndKeepPos(m_it_CurLine, [](numbered_iterator& Iter) { ++Iter; });
@@ -3803,7 +3802,7 @@ bool Editor::Search(bool Next)
 		const auto MenuY1 = ScrY - 20;
 		const auto MenuY2 = MenuY1 + std::min(static_cast<int>(FindAllList->size()), 10) + 2;
 		FindAllList->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
-		FindAllList->SetPosition(-1, MenuY1, 0, MenuY2);
+		FindAllList->SetPosition({ -1, MenuY1, 0, MenuY2 });
 		FindAllList->SetTitle(format(msg(lng::MEditSearchStatistics), FindAllList->size(), AllRefLines));
 		FindAllList->SetBottomTitle(msg(lng::MEditFindAllMenuFooter));
 		FindAllList->SetHelp(L"FindAllMenu"sv);
@@ -3868,11 +3867,11 @@ bool Editor::Search(bool Next)
 					MenuZoomed=!MenuZoomed;
 					if(MenuZoomed)
 					{
-						FindAllList->SetPosition(-1, -1, 0, 0);
+						FindAllList->SetPosition({ -1, -1, 0, 0 });
 					}
 					else
 					{
-						FindAllList->SetPosition(-1, MenuY1, 0, MenuY2);
+						FindAllList->SetPosition({ -1, MenuY1, 0, MenuY2 });
 					}
 					break;
 
@@ -4421,7 +4420,7 @@ void Editor::GoToLine(size_t Line)
 
 		CurScrLine += m_it_CurLine.Number() - LastNumLine;
 
-		if (CurScrLine<0 || CurScrLine>m_Y2-m_Y1)
+		if (CurScrLine < 0 || CurScrLine > m_Where.height() - 1)
 			m_it_TopScreen=m_it_CurLine;
 
 		m_it_CurLine->SetLeftPos(LeftPos);
@@ -5546,7 +5545,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				{
 					m_it_TopScreen=m_it_CurLine;
 
-					for (int I = m_it_CurLine.Number(); I>0 && m_it_CurLine.Number() - I<m_Y2 - m_Y1 && I != Pos->TopScreenLine; I--)
+					for (int I = m_it_CurLine.Number(); I > 0 && m_it_CurLine.Number() - I < m_Where.height() - 1 && I != Pos->TopScreenLine; --I)
 						--m_it_TopScreen;
 				}
 
@@ -5790,8 +5789,8 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 					return FALSE;
 				}
 
-				col->StartPos=curcol.StartPos-m_X1;
-				col->EndPos=curcol.EndPos-m_X1;
+				col->StartPos = curcol.StartPos - m_Where.left;
+				col->EndPos = curcol.EndPos - m_Where.left;
 				col->Color=curcol.GetColor();
 				col->Flags=curcol.Flags;
 				col->Owner=curcol.GetOwner();
@@ -7128,7 +7127,7 @@ void Editor::DrawScrollbar()
 	if (EdOpt.ShowScrollBar)
 	{
 		SetColor(COL_EDITORSCROLLBAR);
-		XX2 = m_X2 - (ScrollBarEx(m_X2, m_Y1, ObjHeight(), m_it_CurLine.Number() - CalcDistance(m_it_TopScreen, m_it_CurLine), Lines.size()) ? 1 : 0);
+		XX2 = m_Where.right - (ScrollBarEx(m_Where.right, m_Where.top, ObjHeight(), m_it_CurLine.Number() - CalcDistance(m_it_TopScreen, m_it_CurLine), Lines.size())? 1 : 0);
 	}
 }
 

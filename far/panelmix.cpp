@@ -459,7 +459,13 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 
 	for (auto& i: Columns)
 	{
-		auto Width = EnumWidthsRange.empty()? L""sv : *EnumWidthsRange.pop_front();
+		auto Width = L""sv;
+		
+		if (!EnumWidthsRange.empty())
+		{
+			Width = EnumWidthsRange.front();
+			EnumWidthsRange.pop_front();
+		}
 
 		// "column types" is a determinant here (see the loop header) so we can't break or continue here -
 		// if "column sizes" ends earlier or if user entered two commas we just use default size.

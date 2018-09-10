@@ -1,11 +1,13 @@
-﻿/*
-menubar.cpp
+﻿#ifndef POINT_HPP_5D641DB2_6406_4A9E_8D64_C642ECCF9790
+#define POINT_HPP_5D641DB2_6406_4A9E_8D64_C642ECCF9790
+#pragma once
 
-Показ горизонтального меню при включенном "Always show menu bar"
+/*
+point.hpp
+
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright © 2018 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -31,18 +33,23 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "menubar.hpp"
-
-#include "farcolor.hpp"
-#include "lang.hpp"
-#include "interf.hpp"
-
-void MenuBar::DisplayObject()
+struct point
 {
-	const auto strSpace = L"    "s;
-	auto strMsg = concat(strSpace, msg(lng::MMenuLeftTitle), strSpace, msg(lng::MMenuFilesTitle), strSpace, msg(lng::MMenuCommandsTitle), strSpace, msg(lng::MMenuOptionsTitle), strSpace, msg(lng::MMenuRightTitle));
-	RemoveHighlights(strMsg);
-	GotoXY(m_Where.left, m_Where.top);
-	SetColor(COL_HMENUTEXT);
-	Text(fit_to_left(strMsg, m_Where.width()));
-}
+	int x;
+	int y;
+
+	point() = default;
+
+	point(int X, int Y):
+		x(X),
+		y(Y)
+	{
+	}
+
+	point(COORD Coord):
+		point(Coord.X, Coord.Y)
+	{
+	}
+};
+
+#endif // POINT_HPP_5D641DB2_6406_4A9E_8D64_C642ECCF9790

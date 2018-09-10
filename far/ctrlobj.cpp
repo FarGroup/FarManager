@@ -59,7 +59,7 @@ ControlObject::ControlObject()
 	GotoXY(0, ScrY - 3);
 	ShowCopyright();
 	GotoXY(0, ScrY - 2);
-	MoveCursor(0, ScrY - 1);
+	MoveCursor({ 0, ScrY - 1 });
 
 	Global->WindowManager->InitDesktop();
 

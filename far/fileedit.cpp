@@ -134,7 +134,7 @@ bool dlgOpenEditor(string &strFileName, uintptr_t &codepage)
 	};
 	auto EditDlg = MakeDialogItemsEx(EditDlgData);
 	const auto Dlg = Dialog::create(EditDlg, hndOpenEditor, &codepage);
-	Dlg->SetPosition(-1,-1,76,10);
+	Dlg->SetPosition({ -1, -1, 76, 10 });
 	Dlg->SetHelp(L"FileOpenCreate"sv);
 	Dlg->SetId(FileOpenCreateId);
 	Dlg->Process();
@@ -297,7 +297,7 @@ static bool dlgSaveFileAs(string &strFileName, eol::type& Eol, uintptr_t &codepa
 	}
 	EditDlg[ID_SF_DONOTCHANGE + static_cast<int>(Eol)].Selected = TRUE;
 	const auto Dlg = Dialog::create(EditDlg, hndSaveFileAs, &codepage);
-	Dlg->SetPosition(-1,-1,76,17);
+	Dlg->SetPosition({ -1, -1, 76, 17 });
 	Dlg->SetHelp(L"FileSaveAs"sv);
 	Dlg->SetId(FileSaveAsId);
 	Dlg->Process();
@@ -325,44 +325,45 @@ static bool dlgSaveFileAs(string &strFileName, eol::type& Eol, uintptr_t &codepa
 fileeditor_ptr FileEditor::create(const string_view Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* PluginData, EDITOR_FLAGS OpenModeExstFile)
 {
 	auto FileEditorPtr = std::make_shared<FileEditor>(private_tag());
-	FileEditorPtr->ScreenObjectWithShadow::SetPosition(0, 0, ScrX, ScrY);
+	FileEditorPtr->ScreenObjectWithShadow::SetPosition({ 0, 0, ScrX, ScrY });
 	FileEditorPtr->m_Flags.Set(InitFlags);
 	FileEditorPtr->m_Flags.Set(FFILEEDIT_FULLSCREEN);
 	FileEditorPtr->Init(Name, codepage, nullptr, StartLine, StartChar, PluginData, FALSE, nullptr, OpenModeExstFile);
 	return FileEditorPtr;
 }
 
-fileeditor_ptr FileEditor::create(const string_view Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* Title, int X1, int Y1, int X2, int Y2, int DeleteOnClose, const window_ptr& Update, EDITOR_FLAGS OpenModeExstFile)
+fileeditor_ptr FileEditor::create(const string_view Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* Title, rectangle Position, int DeleteOnClose, const window_ptr& Update, EDITOR_FLAGS OpenModeExstFile)
 {
 	auto FileEditorPtr = std::make_shared<FileEditor>(private_tag());
 	FileEditorPtr->m_Flags.Set(InitFlags);
 
-	if (X1 < 0)
-		X1=0;
+	// BUGBUG WHY ALL THIS?
+	if (Position.left < 0)
+		Position.left = 0;
 
-	if (X2 < 0 || X2 > ScrX)
-		X2=ScrX;
+	if (Position.right < 0 || Position.right > ScrX)
+		Position.right = ScrX;
 
-	if (Y1 < 0)
-		Y1=0;
+	if (Position.top < 0)
+		Position.top = 0;
 
-	if (Y2 < 0 || Y2 > ScrY)
-		Y2=ScrY;
+	if (Position.bottom < 0 || Position.bottom > ScrY)
+		Position.bottom = ScrY;
 
-	if (X1 > X2)
+	if (Position.left > Position.right)
 	{
-		X1=0;
-		X2=ScrX;
+		Position.left = 0;
+		Position.right = ScrX;
 	}
 
-	if (Y1 > Y2)
+	if (Position.top > Position.bottom)
 	{
-		Y1=0;
-		Y2=ScrY;
+		Position.top = 0;
+		Position.bottom = ScrY;
 	}
 
-	FileEditorPtr->SetPosition(X1, Y1, X2, Y2);
-	FileEditorPtr->m_Flags.Change(FFILEEDIT_FULLSCREEN, (!X1 && !Y1 && X2 == ScrX && Y2 == ScrY));
+	FileEditorPtr->SetPosition(Position);
+	FileEditorPtr->m_Flags.Change(FFILEEDIT_FULLSCREEN, (!Position.left && !Position.top && Position.right == ScrX && Position.bottom == ScrY));
 	string EmptyTitle;
 	FileEditorPtr->Init(Name, codepage, Title, StartLine, StartChar, &EmptyTitle, DeleteOnClose, Update, OpenModeExstFile);
 	return FileEditorPtr;
@@ -603,7 +604,7 @@ void FileEditor::Init(
 		}
 	}
 
-	m_editor->SetPosition(m_X1,m_Y1+(IsTitleBarVisible()?1:0),m_X2,m_Y2-(IsKeyBarVisible()?1:0));
+	m_editor->SetPosition({ m_Where.left, m_Where.top + (IsTitleBarVisible()? 1 : 0), m_Where.right, m_Where.bottom - (IsKeyBarVisible()? 1 : 0) });
 	m_editor->SetStartPos(StartLine,StartChar);
 	SetDeleteOnClose(DeleteOnClose);
 	int UserBreak;
@@ -669,7 +670,7 @@ void FileEditor::Init(
 		return;
 
 	InitKeyBar();
-	m_windowKeyBar->SetPosition(m_X1, m_Y2, m_X2, m_Y2);
+	m_windowKeyBar->SetPosition(m_Where);
 
 	if (IsKeyBarVisible())
 	{
@@ -737,15 +738,15 @@ void FileEditor::Show()
 	{
 		if (IsKeyBarVisible())
 		{
-			m_windowKeyBar->SetPosition(0,ScrY,ScrX,ScrY);
+			m_windowKeyBar->SetPosition({ 0, ScrY, ScrX, ScrY });
 		}
-		ScreenObjectWithShadow::SetPosition(0,0,ScrX,ScrY);
+		ScreenObjectWithShadow::SetPosition({ 0, 0, ScrX, ScrY });
 	}
 	if (IsKeyBarVisible())
 	{
 		m_windowKeyBar->Redraw();
 	}
-	m_editor->SetPosition(m_X1,m_Y1+(IsTitleBarVisible()?1:0),m_X2,m_Y2-(IsKeyBarVisible()?1:0));
+	m_editor->SetPosition({ m_Where.left, m_Where.top + (IsTitleBarVisible()? 1 : 0), m_Where.right, m_Where.bottom - (IsKeyBarVisible()? 1 : 0) });
 	ScreenObjectWithShadow::Show();
 }
 
@@ -901,10 +902,17 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 
 						FileViewer::create(
 							strFullFileName,
-							GetCanLoseFocus(), m_Flags.Check(FFILEEDIT_DISABLEHISTORY), false,
-							FilePos, nullptr, &EditNamesList, m_Flags.Check(FFILEEDIT_SAVETOSAVEAS), cp,
-							strTitle.c_str(),
-							delete_on_close, shared_from_this());
+							GetCanLoseFocus(),
+							m_Flags.Check(FFILEEDIT_DISABLEHISTORY),
+							false,
+							FilePos,
+							{},
+							&EditNamesList,
+							m_Flags.Check(FFILEEDIT_SAVETOSAVEAS),
+							cp,
+							strTitle,
+							delete_on_close,
+							shared_from_this());
 					}
 				}
 
@@ -2030,7 +2038,7 @@ void FileEditor::SetScreenPosition()
 {
 	if (m_Flags.Check(FFILEEDIT_FULLSCREEN))
 	{
-		SetPosition(0,0,ScrX,ScrY);
+		SetPosition({ 0, 0, ScrX, ScrY });
 	}
 }
 
@@ -2144,12 +2152,12 @@ void FileEditor::ShowStatus() const
 		return;
 
 	SetColor(COL_EDITORSTATUS);
-	GotoXY(m_X1,m_Y1); //??
+	GotoXY(m_Where.left, m_Where.top); //??
 	auto strLocalTitle = GetTitle();
 	int NameLength = 21;
 
-	if (m_X2 > 80)
-		NameLength += (m_X2 - 80);
+	if (m_Where.right > 80)
+		NameLength += m_Where.right - 80;
 
 	if (Global->Opt->ViewerEditorClock && m_Flags.Check(FFILEEDIT_FULLSCREEN))
 		NameLength -= static_cast<int>(Global->CurrentTime.size() + 1);
@@ -2220,7 +2228,7 @@ void FileEditor::ShowStatus() const
 				break;
 			}
 
-			GotoXY(StatusWidth - 1 - SpaceLeft, m_Y1);
+			GotoXY(StatusWidth - 1 - SpaceLeft, m_Where.top);
 			Text(fit_to_left(CharStr, SpaceLeft));
 
 			SpaceLeft = std::max(0, SpaceLeft - static_cast<int>(CharStr.size()));
@@ -2247,7 +2255,7 @@ void FileEditor::ShowStatus() const
 						break;
 					}
 
-					GotoXY(StatusWidth - 1 - SpaceLeft, m_Y1);
+					GotoXY(StatusWidth - 1 - SpaceLeft, m_Where.top);
 					Text(fit_to_left(L'/' + CharStr, SpaceLeft));
 				}
 			}

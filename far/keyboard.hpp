@@ -35,6 +35,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "common/2d/point.hpp"
+
 struct FarKey;
 
 enum
@@ -62,10 +64,8 @@ struct FarKeyboardState
 	bool PrevLButtonPressed;
 	bool PrevRButtonPressed;
 	bool PrevMButtonPressed;
-	SHORT PrevMouseX;
-	SHORT PrevMouseY;
-	SHORT MouseX;
-	SHORT MouseY;
+	point MousePrevPos;
+	point MousePos;
 	int PreMouseEventFlags;
 	int MouseEventFlags;
 	bool ReturnAltValue;   // только что был ввод Alt-Цифира?

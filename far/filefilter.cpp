@@ -127,7 +127,7 @@ bool FileFilter::FilterEdit()
 	bool bNeedUpdate=false;
 	const auto FilterList = VMenu2::create(msg(lng::MFilterTitle), {}, ScrY - 6);
 	FilterList->SetHelp(L"FiltersMenu"sv);
-	FilterList->SetPosition(-1,-1,0,0);
+	FilterList->SetPosition({ -1, -1, 0, 0 });
 	FilterList->SetBottomTitle(msg(lng::MFilterBottom));
 	FilterList->SetMenuFlags(/*VMENU_SHOWAMPERSAND|*/VMENU_WRAPMODE);
 	FilterList->SetId(FiltersMenuId);

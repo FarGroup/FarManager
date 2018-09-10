@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma warning(disable: 4371) // no page                                                layout of class may have changed from a previous version of the compiler due to better packing of member 'member'
 #pragma warning(disable: 4373) // https://msdn.microsoft.com/en-us/library/bb384874.aspx 'function': virtual function overrides 'function', previous versions of the compiler did not override when parameters only differed by const/volatile qualifiers
 #pragma warning(disable: 4435) // https://msdn.microsoft.com/en-us/library/jj155806.aspx 'class1' : Object layout under /vd2 will change due to virtual base 'class2'
+#pragma warning(disable: 4464) // no page                                                relative include path contains '..'
 #pragma warning(disable: 4503) // https://msdn.microsoft.com/en-us/library/074af4b6.aspx 'identifier' : decorated name length exceeded, name was truncated
 #pragma warning(disable: 4512) // https://msdn.microsoft.com/en-us/library/hsyx7kbz.aspx 'class' : assignment operator could not be generated
 #pragma warning(disable: 4514) // https://msdn.microsoft.com/en-us/library/cw9x3tcf.aspx 'function' : unreferenced inline function has been removed

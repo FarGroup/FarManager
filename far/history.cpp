@@ -144,7 +144,7 @@ history_return_type History::Select(const string& Title, string_view const HelpT
 	HistoryMenu->SetMenuFlags(VMENU_WRAPMODE);
 	HistoryMenu->SetHelp(HelpTopic);
 
-	HistoryMenu->SetPosition(-1,-1,0,0);
+	HistoryMenu->SetPosition({ -1, -1, 0, 0 });
 
 	if (m_TypeHistory == HISTORYTYPE_CMD || m_TypeHistory == HISTORYTYPE_FOLDER || m_TypeHistory == HISTORYTYPE_VIEW)
 		HistoryMenu->SetId(m_TypeHistory == HISTORYTYPE_CMD?HistoryCmdId:(m_TypeHistory == HISTORYTYPE_FOLDER?HistoryFolderId:HistoryEditViewId));
@@ -260,12 +260,10 @@ history_return_type History::ProcessMenu(string& strStr, GUID* const Guid, strin
 
 		if (m_TypeHistory == HISTORYTYPE_DIALOG)
 		{
-			int X1,Y1,X2,Y2;
-			Dlg->CalcComboBoxPos(nullptr, HistoryMenu.size(), X1, Y1, X2, Y2);
-			HistoryMenu.SetPosition(X1, Y1, X2, Y2);
+			HistoryMenu.SetPosition(Dlg->CalcComboBoxPos(nullptr, HistoryMenu.size()));
 		}
 		else
-			HistoryMenu.SetPosition(-1,-1,0,0);
+			HistoryMenu.SetPosition({ -1, -1, 0, 0 });
 
 		if (SetUpMenuPos)
 		{

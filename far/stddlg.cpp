@@ -192,12 +192,13 @@ int GetSearchReplaceString(
 	};
 
 	const auto Dlg = Dialog::create(ReplaceDlg, Handler);
-	Dlg->SetPosition(-1, -1, DlgWidth, 14 - YCorrection);
+	Dlg->SetPosition({ -1, -1, DlgWidth, 14 - YCorrection });
 
 	if (HelpTopic && *HelpTopic)
 		Dlg->SetHelp(HelpTopic);
 
-	if(Id) Dlg->SetId(*Id);
+	if(Id)
+		Dlg->SetId(*Id);
 
 	Dlg->Process();
 
@@ -321,7 +322,7 @@ bool GetString(
 
 	{
 		const auto Dlg = Dialog::create(make_range(StrDlg.data(), StrDlg.size() - Substract));
-		Dlg->SetPosition(-1,-1,76,offset+((Flags&FIB_BUTTONS)?8:6));
+		Dlg->SetPosition({ -1, -1, 76, offset + (Flags & FIB_BUTTONS? 8 : 6) });
 		if(Id) Dlg->SetId(*Id);
 
 		if (!HelpTopic.empty())
@@ -393,7 +394,7 @@ bool GetNameAndPassword(const string& Title, string &strUserName, string &strPas
 
 	{
 		const auto Dlg = Dialog::create(PassDlg);
-		Dlg->SetPosition(-1,-1,76,10);
+		Dlg->SetPosition({ -1, -1, 76, 10 });
 		Dlg->SetId(GetNameAndPasswordId);
 
 		if (HelpTopic)
