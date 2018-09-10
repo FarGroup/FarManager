@@ -117,7 +117,9 @@ protected:
 		SQLiteStmt& BindImpl(std::nullptr_t);
 		SQLiteStmt& BindImpl(int Value);
 		SQLiteStmt& BindImpl(long long Value);
+		SQLiteStmt& BindImpl(string&& Value);
 		SQLiteStmt& BindImpl(string_view Value, bool bStatic = true);
+		SQLiteStmt& BindImpl(bytes_view&& Value);
 		SQLiteStmt& BindImpl(const bytes_view& Value, bool bStatic = true);
 		SQLiteStmt& BindImpl(unsigned int Value) { return BindImpl(static_cast<int>(Value)); }
 		SQLiteStmt& BindImpl(unsigned long long Value) { return BindImpl(static_cast<long long>(Value)); }
@@ -175,10 +177,11 @@ protected:
 
 	auto_statement AutoStatement(size_t Index) const { return auto_statement(&m_Statements[Index]); }
 
+	// No forwarding here - ExecuteStatement is atomic so we don't have to deal with lifetimes
 	template<typename... args>
-	auto ExecuteStatement(size_t Index, args&&... Args) const
+	auto ExecuteStatement(size_t Index, const args&... Args) const
 	{
-		return AutoStatement(Index)->Bind(FWD(Args)...).Execute();
+		return AutoStatement(Index)->Bind(Args...).Execute();
 	}
 
 	class db_initialiser
