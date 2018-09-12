@@ -396,6 +396,7 @@ local function AddRegularMacro (srctable, FileName)
     if type(priority)=="number" then
       macro.sortpriority = priority>100 and 100 or priority<0 and 0 or priority
     end
+    macro.selected = srctable.selected and true
     AddId(macro, srctable)
 
     if FileName then
@@ -877,7 +878,7 @@ local function GetFromMenu (macrolist, area, key)
     if not descr or descr=="" then
       descr = ("< No description: Index=%d >"):format(macro.index)
     end
-    menuitems[i] = { text=descr, macro=macro }
+    menuitems[i] = { text=descr, macro=macro, selected=macro.selected }
   end
 
   table.sort(menuitems,

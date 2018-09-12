@@ -104,7 +104,7 @@ lv=2
 dt=Text
 nm=Regular macros
 ctime=3580139016
-mtime=3678015120
+mtime=3745945309
 <article>
 #_<markdown>
 #_
@@ -119,6 +119,7 @@ mtime=3678015120
 #_    filemask     = "*.txt,*.cpp";                             -- string (optional field)
 #_    priority     = 50;                                        -- number (optional field)
 #_    sortpriority = 50;                                        -- number (optional field)
+#_    selected     = true;                                      -- boolean (optional field)
 #_    condition    = function(key) return Far.Height>30 end;    -- function (optional field)
 #_    action       = function() msgbox("","Macro example") end; -- function
 #_    id           = "F0109446-AA63-4873-AEC3-17AEE993AA53";    -- string (optional field)
@@ -146,6 +147,9 @@ mtime=3678015120
 #_
 #_1. Optional field `sortpriority` - a number in the range 0 to 100. The default value = 50.<br>
 #_   This field affects the order of macros in the macro selection menu.
+#_
+#_1. Optional field `selected` - a boolean.<br>
+#_   This field assigns this macro to be initially selected in the macro selection menu.
 #_
 #_1. Optional field `filemask` - a string.<br>
 #_   It is applicable only for `Editor` and `Viewer` areas. It is processed according to
