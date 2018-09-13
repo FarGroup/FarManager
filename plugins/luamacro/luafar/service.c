@@ -2997,6 +2997,11 @@ static int far_SendDlgMessage(lua_State *L)
 		case DM_SETINPUTNOTIFY:
 		case DM_SHOWDIALOG:
 		case DM_USER:
+		// DN_*
+		case DN_DRAGGED:
+		case DN_DRAWDIALOG:
+		case DN_DRAWDIALOGDONE:
+		case DN_ENTERIDLE:
 			Param1 = luaL_optinteger(L,3,0);
 			break;
 		default: // dialog element position
@@ -3045,6 +3050,13 @@ static int far_SendDlgMessage(lua_State *L)
 		case DM_SHOWDIALOG:
 		case DM_SHOWITEM:
 		case DM_USER:
+		// DN_*
+		case DN_BTNCLICK:
+		case DN_DRAGGED:
+		case DN_DRAWDIALOG:
+		case DN_DRAWDIALOGDONE:
+		case DN_DROPDOWNOPENED:
+		case DN_ENTERIDLE:
 			Param2 = (void*)(intptr_t)luaL_optint(L,4,0);
 			break;
 		case DM_LISTGETDATASIZE:
@@ -3459,6 +3471,13 @@ static int far_SendDlgMessage(lua_State *L)
 			lua_settop(L, 4);
 			FillEditorSetPosition(L, &esp);
 			lua_pushinteger(L, Info->SendDlgMessage(hDlg, Msg, Param1, &esp));
+			return 1;
+		}
+		case DN_CONTROLINPUT:
+		{
+			INPUT_RECORD rec;
+			OptInputRecord(L, pluginData, 4, &rec);
+			lua_pushinteger(L, Info->SendDlgMessage(hDlg, Msg, Param1, &rec));
 			return 1;
 		}
 	}

@@ -3122,7 +3122,7 @@ id=71
 lv=2
 dt=Text
 nm=far.SendDlgMessage
-mtime=3735644846
+mtime=3746038169
 <article>
 #_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
 #_    or
@@ -3330,6 +3330,18 @@ mtime=3735644846
 #_      res = far.SendDlgMessage(hDlg, "DM_SETEDITPOSITION", id,
 #_        { CurPos=3, Overtype=0 })
 #_
+#_DN_BTNCLICK,
+#_DN_DRAGGED,
+#_DN_DRAWDIALOG,
+#_DN_DRAWDIALOGDONE,
+#_DN_DROPDOWNOPENED,
+#_DN_ENTERIDLE:
+#_    Param2:  integer
+#_    Result:  integer
+#_
+#_DN_CONTROLINPUT:
+#_    Param2:  `tInputRecord` or string
+#_    Result:  integer
 #_
 #_**Far API used:**
 #_  SendDlgMessage
@@ -3405,6 +3417,13 @@ mtime=3735644846
 #_{dm_showitem}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_showitem.html
 #_{dm_user}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_user.html
 #_{senddlgmessage}: http://api.farmanager.com/ru/service_functions/senddlgmessage.html
+#_{dn_btnclick}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_btnclick.html
+#_{dn_dragged}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_dragged.html
+#_{dn_drawdialog}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_drawdialog.html
+#_{dn_drawdialogdone}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_drawdialogdone.html
+#_{dn_dropdownopened}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_dropdownopened.html
+#_{dn_enteridle}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_enteridle.html
+#_{dn_controlinput}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_controlinput.html
 #_
 </article>
 </node>
