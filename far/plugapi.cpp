@@ -993,6 +993,9 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, i
 			return hDlg;
 
 		// ФИЧА! нельзя указывать отрицательные X2 и Y2
+		auto fixCoord = [] (intptr_t first, intptr_t second) { return (first < 0 && second == 0) ? 1 : second; };
+		X2 = fixCoord(X1, X2);
+		Y2 = fixCoord(Y1, Y2);
 		auto checkCoord = [] (intptr_t first, intptr_t second) { return second >= 0 && ((first < 0) ? (second > 0) : (first <= second)); };
 		if (!checkCoord(X1, X2) || !checkCoord(Y1, Y2))
 			return hDlg;
