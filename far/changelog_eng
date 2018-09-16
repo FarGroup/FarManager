@@ -3,6 +3,26 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 16.09.2018 07:59:04 +0100 - build 5269
+
+1. Correction of 5268.1.
+
+drkns 15.09.2018 15:13:24 +0100 - build 5268
+
+1. Refactoring. Patterns of "int X1, int X2, int Y1, int Y2" form are replaced with "rectangle", "int X, int Y" - with "point".
+
+2. Experimental: Ctrl+U does not change the size of panels.
+
+3. tag_build.bat should work correctly in locales other than 866.
+
+zg 13.09.2018 12:09:52 +0300 - build 5267
+
+1. correction of 5262: DialogInit(-1,-1,0,0) call is equal to DialogInit(-1,-1,1,1).
+
+drkns 10.09.2018 20:39:25 +0100 - build 5266
+
+1. Export of pluginhotkeys.db was broken.
+
 drkns 06.09.2018 23:43:10 +0100 - build 5265
 
 1. Initial size calculation would display incorrectly when deleting several folders.
