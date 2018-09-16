@@ -58,7 +58,6 @@ namespace pluginapi
 	wchar_t* WINAPI apiRemoveTrailingSpaces(wchar_t *Str) noexcept;
 	wchar_t* WINAPI apiRemoveExternalSpaces(wchar_t *Str) noexcept;
 	wchar_t* WINAPI apiQuoteSpaceOnly(wchar_t *Str) noexcept;
-	void     WINAPI apiDeleteBuffer(void* Buffer) noexcept;
 	void     WINAPI apiUpperBuf(wchar_t *Buf, intptr_t Length) noexcept;
 	void     WINAPI apiLowerBuf(wchar_t *Buf, intptr_t Length) noexcept;
 	void     WINAPI apiStrUpper(wchar_t *s1) noexcept;

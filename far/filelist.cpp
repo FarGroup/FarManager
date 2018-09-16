@@ -7672,7 +7672,7 @@ void FileList::ShowSelectedSize()
 				TruncStrFromEnd(strSelStr, static_cast<int>(AvailableWidth));
 		}
 		SetColor(COL_PANELSELECTEDINFO);
-		GotoXY(static_cast<int>(m_Where.left + BorderSize + (AvailableWidth - strSelStr.size()) / 2), m_Where.top - 2 * Global->Opt->ShowPanelStatus);
+		GotoXY(static_cast<int>(m_Where.left + BorderSize + (AvailableWidth - strSelStr.size()) / 2), m_Where.bottom - 2 * Global->Opt->ShowPanelStatus);
 		Text(L' ');
 		Text(strSelStr);
 		Text(L' ');
