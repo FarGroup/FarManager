@@ -3390,7 +3390,7 @@ bool Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 						else
 						{
 							// Проверка на DI_COMBOBOX здесь лишняя. Убрана (KM).
-							if (MsX == EditRect.bottom + 1 && MsY == EditRect.top && ItemHasDropDownArrow(&Items[I]))
+							if (MsX == EditRect.right + 1 && MsY == EditRect.top && ItemHasDropDownArrow(&Items[I]))
 							{
 								EditLine->SetClearFlag(false); // раз уж покусились на, то и...
 
