@@ -3,6 +3,18 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+MZK 18.09.2018 00:12:21 -0700
+
+1. Help: clarified description of file size formatting options.
+
+w17 17.09.2018 21:04:43 +0300 - build 5271
+
+1. Another correction of 5268.1.
+
+svs 17.09.2018 13:56:40 +0300 - build 5270
+
+1. SQLite 3.25.0
+
 drkns 16.09.2018 07:59:04 +0100 - build 5269
 
 1. Correction of 5268.1.
@@ -642,7 +654,7 @@ drkns 25.02.2018 23:42:42 +0000 - build 5150
 
 2. The function FSF.CompareStrings is available to plugins. It allows to sort the way Far sorts
    (exactly how is not specified and depends on the settings).
-   FSF.LStricmp и FSF.LStrnicmp - deprecated; their use is discouraged.
+   FSF.LStricmp and FSF.LStrnicmp - deprecated; their use is discouraged.
 
 3. FCTL_SETNUMERICSORT, FCTL_SETCASESENSITIVESORT, PFLAGS_NUMERICSORT, PFLAGS_CASESENSITIVESORT do not exist anymore.
 
@@ -23648,7 +23660,7 @@ object name (for cursor, like in panel.SetPos)
        N=mod(a,b) == a %  b
        S=replace(sS,sF,sR[,Count])
 
-   б) operation precedence set:
+   b) operation precedence set:
 
        Unary (R->L):          !  ~  -
        Binary arithmetical: * /
@@ -23763,7 +23775,7 @@ drkns 15.03.2008 15:53:04 +0200 - build 446
 1. Mantis#0000222: Incorrect processing of data streams tied to
 directories.
    Streams themselves didn't cause any problems, but processing paths
-like "\\?\c:\" и "\\?\Volume{GUID}\" did.
+like "\\?\c:\" and "\\?\Volume{GUID}\" did.
    A couple of fixes in the code where such paths were used.
 
 t-rex 15.03.2008 13:41:32 +0200 - build 445
@@ -23787,19 +23799,19 @@ simply removed everything like that.
 
 2. From Denis Kosy: Mantis#493: Execute broken.
 
-3. From Alexey Samlyukov: "" -> L"" в hilight.cpp.
+3. From Alexey Samlyukov: "" -> L"" in hilight.cpp.
 
 svs 14.03.2008 00:18:12 +0300 - build 442
 
 1. Bug in UserMenu.
-   а) UserMenu is empty.
+   a) UserMenu is empty.
       - F2
       - AltF4
       - paste from clipboard in the editor, or add manually
       - F2
       - Esc
       Menu is still empty
-   б) UserMenu is not empty.
+   b) UserMenu is not empty.
       - F2
       - AltF4
       - input "incorrect Unicode" in the editor
@@ -24078,9 +24090,9 @@ Redesign is necessary, but it is another separate task.
      N=BM.Prev()
      N=BM.Stat()
    Note that...
-   а) math in "BM.Stat()" needs redesign (something like
+   a) math in "BM.Stat()" needs redesign (something like
 StatStackBookmark())
-   б) "BM.XXX" can be something other than "editor" :-)
+   b) "BM.XXX" can be something other than "editor" :-)
 
 4. In F10 F1... panels, "Requested help topic not found:" is
 displayed. Who did that? :-)
@@ -24257,7 +24269,7 @@ ESPT_CHARTABLE because FAR cannot process it.
                       For ESPT_GETWORDDIV command in FAR itself, it is
 time to use Reserved2 to pass the length of an accepting buffer.
    e. ECTL_SETSTRING - this comment: "The string being placed must be
-in editor's encoding" was unclear, now we expect the string as ОЕМ (as
+in editor's encoding" was unclear, now we expect the string as OEM (as
 a result of ECTL_GETSTRING).
 
    All editor's API calls are now working except ECTL_EDITORTOOEM and
@@ -24366,8 +24378,8 @@ svs 15.12.2007 00:35:38 +0300 - build 393
 
 1. Macros with non-Latin characters in names were saved incorrectly.
    This resulted in the following changes:
-   а) correction in KeyNameToKey and KeyToText;
-   б) in KeyMacro::ReadMacros, another version of GetRegKey() is used
+   a) correction in KeyNameToKey and KeyToText;
+   b) in KeyMacro::ReadMacros, another version of GetRegKey() is used
 now.
 
 drkns 14.12.2007 21:59:01 +0200 - build 392
@@ -24701,10 +24713,10 @@ Numpad5
 
 2. Mantis#0000360: Assigned key wasn't displayed correctly
    Still some questions remain...
-   а) Code in InitKeysArray need tweaking for TechInfo#21 == 0
-   б) tested under locales 409 and 419; needs more testing on other
+   a) Code in InitKeysArray need tweaking for TechInfo#21 == 0
+   b) tested under locales 409 and 419; needs more testing on other
 locales
-   с) while Russian input locale is active, the
+   c) while Russian input locale is active, the
       '.' and '/' keys output the same code ==> '.', e.g.
       press <.> ==> LocalKeyToKey(0x44E) ==> 0x2E
       press </> ==> LocalKeyToKey(0x02E) ==> 0x2E
@@ -24798,11 +24810,11 @@ to work with now.
 -----------------------------------------
    Description of the new API:
    Now we have 3 functions: (Dialog and DialogEx don't exist any more)
-   а. HANDLE DialogInit(the same parameters as for DialogEx), returns
+   a. HANDLE DialogInit(the same parameters as for DialogEx), returns
 a dialog descriptor or INVALID_HANDLE_VALUE on error.
-   б. int DialogRun(HANDLE hDlg), runs a dialog, returns the same data
+   b. int DialogRun(HANDLE hDlg), runs a dialog, returns the same data
 DialogEx used to return.
-   с. void DialogFree(HANDLE hDlg), frees all dialog-related memory.
+   c. void DialogFree(HANDLE hDlg), frees all dialog-related memory.
 
    FarDialogItem doesn't have DataIn and DataOut but only const
 wchar_t *PtrData.
@@ -24820,16 +24832,16 @@ structures FarDialogItem
    DialogFree()
 
    Some additional DM_* added and one has been changed.
-   а. DM_GETDLGITEM - changed, Param2 must be 0, pointer to an element
+   a. DM_GETDLGITEM - changed, Param2 must be 0, pointer to an element
 is returned by the function itself (NULL on error).
                       FAR himself allocates memory for the element,
 you cannot change the element,
                       and it must be freed with DM_FREEDLGITEM when
 not needed anymore.
-   б. DM_FREEDLGITEM - frees an element received by DM_GETDLGITEM.
+   b. DM_FREEDLGITEM - frees an element received by DM_GETDLGITEM.
                        Param1=0, Param2 = pointer obtained from
 DM_GETDLGITEM.
-   с. DM_GETCONSTTEXTPTR - returns (const wchar_t *) pointer to an
+   c. DM_GETCONSTTEXTPTR - returns (const wchar_t *) pointer to an
 internal FAR buffer which is associated with the element's string. In
 no case should you change or store the pointer itself, because it is
 changed whenn the element's string is changed.
@@ -25158,8 +25170,8 @@ zg 05.11.2007 12:04:08 +0200 - build 323
 
 1. Troubles with...
  >       having 2 macros
->      а) in the shell area, Ctrl-CapsLock=CtrlShiftTab flock(1,2)
->      б) in the editor area, Ctrl-CapsLock=CtrlShiftTab flock(1,2)
+>      a) in the shell area, Ctrl-CapsLock=CtrlShiftTab flock(1,2)
+>      b) in the editor area, Ctrl-CapsLock=CtrlShiftTab flock(1,2)
 >
 >      0. in shell, we open a file in the editor, and switched back to
 > shell
@@ -25380,8 +25392,8 @@ usage contexts.
 
 9. Problems with...
      having 2 macros
-     а) in the shell area, Ctrl-CapsLock=CtrlShiftTab flock(1,2)
-     б) in the editor area, Ctrl-CapsLock=CtrlShiftTab flock(1,2)
+     a) in the shell area, Ctrl-CapsLock=CtrlShiftTab flock(1,2)
+     b) in the editor area, Ctrl-CapsLock=CtrlShiftTab flock(1,2)
 
      0. in shell, we open a file in the editor, and switched back to
 shell
