@@ -3515,7 +3515,9 @@ $ #Change Drive Menu Options#
     Key combination in #Change drive# menu: #Ctrl+5#.
 
     #Show size as a decimal fraction#
-    Show disk size and free space as a decimal fraction.
+    Show disk size and free space as a decimal fraction with no more
+than three digits before decimal point. If this option is on, 1 GiB (2
+to the power of 30) will be shown as #1.00 G#, otherwise as #1024 M#.
     Key combination in #Change drive# menu: #Ctrl+5# (press twice).
 
     #Show network name / SUBST path / VHD name#
@@ -4024,31 +4026,35 @@ files will be listed on a single stripe.
     The following column types are supported:
 
     N[M[D],O,R[F],N] - file name
-                 where: M - show selection marks
-                            where: D - dynamic selection marks;
-                        O - show names without paths
-                            (intended mainly for plugins);
-                        R - right align names that do not fit in column
-                            where: F - right align all names;
-                        N - do not show extensions in name column;
-                 These modifiers can be used in combination,
-                 for example NMR
+                 where: M - ^<wrap>show selection marks where: D
+- dynamic selection marks;
+                        O - ^<wrap>show names without paths (intended
+mainly for plugins);
+                        R - ^<wrap>right align names that do not fit in
+column where: F - right align all names;
+                        N - ^<wrap>do not show extensions in name
+column;
+                 ^<wrap>These modifiers can be used in combination, for
+example NMR
 
     X[R]       - file extension
-                 where: R - right align file extension;
+                 where: R - ^<wrap>right align file extension;
 
     S[C,T,F,E] - file size
     P[C,T,F,E] - allocation file size
     G[C,T,F,E] - size of file streams
-                 where: C - format file size;
-                        T - use 1000 instead of 1024 as a divider;
-                        F - show file sizes similar to Windows
-                            Explorer (i.e. 999 bytes will be
-                            displayed as 999 and 1000 bytes will
-                            be displayed as 0.97 K);
-                        E - economic mode, no space between file
-                            size and suffix will be shown
-                            (i.e. 0.97K);
+                 where: C - ^<wrap>group digits using the symbol from
+Windows settings;
+                        T - ^<wrap>use decimal units instead of binary,
+i.e., to calculate kilobytes, the size will be divided by 1000 instead
+of by 1024; in this mode unit symbol is shown in lower case, e.g., #k#,
+#m#, #g# instead of #K#, #M#, #G#;
+                        F - ^<wrap>show size as a decimal fraction with
+no more than three digits before decimal point, e.g., 999 bytes will
+be shown as #999#, while 1024 bytes as #1.00 K#; note that the behavior
+depends on whether the #T# modifier is used;
+                        E - ^<wrap>economic mode, no space between the
+size and the unit symbol, e.g., #1.00k#;
 
     D          - file last write date
     T          - file last write time
