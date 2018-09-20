@@ -327,18 +327,18 @@ bool elevation::Initialize()
 
 	const auto Param = concat(ElevationArgument, L' ', m_PipeName, L' ', str(GetCurrentProcessId()), L' ', (Global->Opt->ElevationMode & ELEVATION_USE_PRIVILEGES)? L'1' : L'0');
 
-	if (!m_Job)
-	{
-		m_Job = create_job();
-		if (!m_Job)
-			return false;
-	}
-
 	m_Process = create_elevated_process(Param);
 	if (!m_Process)
 		return false;
 
-	if (!AssignProcessToJobObject(m_Job.native_handle(), m_Process.native_handle()) || !connect_pipe_to_process(m_Process, m_Pipe))
+	if (!m_Job)
+		m_Job = create_job();
+
+	if (m_Job)
+		AssignProcessToJobObject(m_Job.native_handle(), m_Process.native_handle());
+	//TODO: else log
+
+	if (!connect_pipe_to_process(m_Process, m_Pipe))
 	{
 		if (m_Process.is_signaled())
 		{
