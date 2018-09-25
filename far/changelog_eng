@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+MZK 23.09.2018 19:02:35 -0700
+
+1. Translated help page @SelectFiles into English and reworked the Russian page.
+
+drkns 20.09.2018 07:47:30 +0100 - build 5272
+
+1. Correction of 5264.1.
+
 MZK 18.09.2018 00:12:21 -0700
 
 1. Help: clarified description of file size formatting options.
