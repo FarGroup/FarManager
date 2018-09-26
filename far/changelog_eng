@@ -3,6 +3,13 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 26.09.2018 18:54:39 +0300 - build 5273
+
+1. Added keyboard-style delays to mouse handling for cases like "a button is pressed and held for scrolling":
+   action -> long pause -> action -> short pause -> action -> short pause -> action...
+
+2. Small refactoring and a few more corrections of 5268.1.
+
 MZK 23.09.2018 19:02:35 -0700
 
 1. Translated help page @SelectFiles into English and reworked the Russian page.

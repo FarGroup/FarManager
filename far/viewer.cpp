@@ -2076,17 +2076,36 @@ bool Viewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (ViOpt.ShowScrollbar && IntKeyState.MousePos.x == m_Where.right + (m_bQuickView? 1 : 0))
 	{
 		if (IntKeyState.MousePos.y == m_Where.top)
-			while (IsMouseButtonPressed())
+		{
+			// Press and hold the [▲] button
+			while_mouse_button_pressed([&]
+			{
 				ProcessKey(Manager::Key(KEY_UP));
+				return true;
+			});
+		}
 		else if (IntKeyState.MousePos.y == m_Where.bottom)
-			while (IsMouseButtonPressed())
+		{
+			// Press and hold the [▼] button
+			while_mouse_button_pressed([&]
+			{
 				ProcessKey(Manager::Key(KEY_DOWN));
+				return true;
+			});
+		}
 		else if (IntKeyState.MousePos.y == m_Where.top + 1)
+		{
+			// Top click approximation
 			ProcessKey(Manager::Key(KEY_CTRLHOME));
+		}
 		else if (IntKeyState.MousePos.y == m_Where.bottom - 1)
+		{
+			// Bottom click approximation
 			ProcessKey(Manager::Key(KEY_CTRLEND));
+		}
 		else
 		{
+			// Drag the thumb
 			while (IsMouseButtonPressed())
 			{
 				FilePos = (FileSize - 1) / (m_Where.height() - 2) * (IntKeyState.MousePos.y - m_Where.top);
@@ -2170,18 +2189,21 @@ bool Viewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		return true;
 	}
 
-	if (IntKeyState.MousePos.x < m_Where.left + 7)
-		while (IsMouseButtonPressed() && IntKeyState.MousePos.x < m_Where.left + 7)
-			ProcessKey(Manager::Key(KEY_LEFT));
-	else if (IntKeyState.MousePos.x > m_Where.right - 7)
-		while (IsMouseButtonPressed() && IntKeyState.MousePos.x > m_Where.right - 7)
-			ProcessKey(Manager::Key(KEY_RIGHT));
-	else if (IntKeyState.MousePos.y < m_Where.top + (m_Where.height() - 1) / 2)
-		while (IsMouseButtonPressed() && IntKeyState.MousePos.y < m_Where.top + (m_Where.height() - 1) / 2)
-			ProcessKey(Manager::Key(KEY_UP));
-	else
-		while (IsMouseButtonPressed() && IntKeyState.MousePos.y >= m_Where.top + (m_Where.height() - 1) / 2)
-			ProcessKey(Manager::Key(KEY_DOWN));
+	const auto DoKey = [&](int Key)
+	{
+		ProcessKey(Manager::Key(Key));
+	};
+
+	while_mouse_button_pressed([&]
+	{
+		if (IntKeyState.MousePos.x < m_Where.left + 7)
+			DoKey(KEY_LEFT);
+		else if (IntKeyState.MousePos.x > m_Where.right - 7)
+			DoKey(KEY_RIGHT);
+
+		DoKey(IntKeyState.MousePos.y < m_Where.top + (m_Where.height() - 1) / 2? KEY_UP : KEY_DOWN);
+		return true;
+	});
 
 	return true;
 }

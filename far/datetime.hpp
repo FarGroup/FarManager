@@ -77,6 +77,11 @@ public:
 		m_Begin = Value;
 	}
 
+	bool is_time() const
+	{
+		return clock_type::now() - m_Begin > m_Interval;
+	}
+
 	explicit operator bool() const noexcept
 	{
 		const auto Current = clock_type::now();

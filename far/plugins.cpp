@@ -179,7 +179,7 @@ PluginManager::~PluginManager()
 
 Plugin* PluginManager::AddPlugin(std::unique_ptr<Plugin>&& pPlugin)
 {
-	const auto Result = m_Plugins.emplace(pPlugin->Id(), nullptr);
+	const auto Result = m_Plugins.try_emplace(pPlugin->Id());
 	if (!Result.second)
 	{
 		pPlugin->Unload(true);
@@ -206,7 +206,7 @@ bool PluginManager::UpdateId(Plugin *pPlugin, const GUID& Id)
 	Iterator->second.release();
 	m_Plugins.erase(Iterator);
 	pPlugin->SetGuid(Id);
-	const auto Result = m_Plugins.emplace(pPlugin->Id(), nullptr);
+	const auto Result = m_Plugins.try_emplace(pPlugin->Id());
 	if (!Result.second)
 	{
 		return false;

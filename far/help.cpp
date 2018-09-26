@@ -1683,16 +1683,22 @@ bool Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 		if (IntKeyState.MousePos.y == ScrollY)
 		{
-			while (IsMouseButtonPressed())
+			while_mouse_button_pressed([&]
+			{
 				ProcessKey(Manager::Key(KEY_UP));
+				return true;
+			});
 
 			return true;
 		}
 
 		if (IntKeyState.MousePos.y == ScrollY + BodyHeight() - 1)
 		{
-			while (IsMouseButtonPressed())
+			while_mouse_button_pressed([&]
+			{
 				ProcessKey(Manager::Key(KEY_DOWN));
+				return true;
+			});
 
 			return true;
 		}
@@ -1732,19 +1738,21 @@ bool Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		return true;
 	}
 
-	if (MouseEvent->dwMousePosition.Y < m_Where.top + 1 + HeaderHeight())
+	if (while_mouse_button_pressed([&]
 	{
-		while (IsMouseButtonPressed() && IntKeyState.MousePos.y < m_Where.top + 1 + HeaderHeight())
+		if (MouseEvent->dwMousePosition.Y < m_Where.top + 1 + HeaderHeight())
+		{
 			ProcessKey(Manager::Key(KEY_UP));
-
-		return true;
-	}
-
-	if (MouseEvent->dwMousePosition.Y >= m_Where.bottom)
-	{
-		while (IsMouseButtonPressed() && IntKeyState.MousePos.y >= m_Where.bottom)
+			return true;
+		}
+		else if (IntKeyState.MousePos.y >= m_Where.bottom)
+		{
 			ProcessKey(Manager::Key(KEY_DOWN));
-
+			return true;
+		}
+		return false;
+	}))
+	{
 		return true;
 	}
 

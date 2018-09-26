@@ -2756,20 +2756,25 @@ bool Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	{
 		if (MouseEvent->dwMousePosition.Y == m_Where.top)
 		{
-			while (IsMouseButtonPressed())
+			// Press and hold the [▲] button
+			while_mouse_button_pressed([&]
 			{
 				ProcessKey(Manager::Key(KEY_CTRLUP));
-			}
+				return true;
+			});
 		}
 		else if (MouseEvent->dwMousePosition.Y == m_Where.bottom)
 		{
-			while (IsMouseButtonPressed())
+			// Press and hold the [▼] button
+			while_mouse_button_pressed([&]
 			{
 				ProcessKey(Manager::Key(KEY_CTRLDOWN));
-			}
+				return true;
+			});
 		}
 		else
 		{
+			// Drag the thumb
 			while (IsMouseButtonPressed())
 				GoToLineAndShow((Lines.size() - 1) * (IntKeyState.MousePos.y - m_Where.top) / (m_Where.height() - 1));
 		}
@@ -2837,6 +2842,7 @@ bool Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (!m_Where.contains(MouseEvent->dwMousePosition))
 		return false;
 
+	// BUGBUG, dead code
 	// scroll up
 	if (MouseEvent->dwMousePosition.Y == m_Where.top - 1)
 	{
@@ -2849,6 +2855,7 @@ bool Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		return true;
 	}
 
+	// BUGBUG, dead code
 	// scroll down
 	if (MouseEvent->dwMousePosition.Y == m_Where.bottom + 1)
 	{

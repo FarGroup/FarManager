@@ -94,6 +94,7 @@ int KeyToKeyLayout(int Key);
 
 // возвращает: 1 - LeftPressed, 2 - Right Pressed, 3 - Middle Pressed, 0 - none
 DWORD IsMouseButtonPressed();
+bool while_mouse_button_pressed(const std::function<bool()>& Action);
 int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *rec=nullptr);
 int KeyNameToKey(const string& Name);
 bool InputRecordToText(const INPUT_RECORD *Rec, string &strKeyText);

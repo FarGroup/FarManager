@@ -1519,7 +1519,7 @@ bool TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	const auto OldFile = m_CurFile;
 
-	if (Global->Opt->ShowPanelScrollbar && IntKeyState.MousePos.x == m_Where.bottom &&
+	if (Global->Opt->ShowPanelScrollbar && IntKeyState.MousePos.x == m_Where.right &&
 	        (MouseEvent->dwButtonState & 1) && !IsDragging())
 	{
 		const auto ScrollY = m_Where.top + 1;
@@ -1527,8 +1527,12 @@ bool TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 		if (IntKeyState.MousePos.y == ScrollY)
 		{
-			while (IsMouseButtonPressed())
+			// Press and hold the [▲] button
+			while_mouse_button_pressed([&]
+			{
 				ProcessKey(Manager::Key(KEY_UP));
+				return true;
+			});
 
 			if (!m_ModalMode)
 				Parent()->SetActivePanel(this);
@@ -1538,8 +1542,12 @@ bool TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 		if (IntKeyState.MousePos.y == ScrollY + Height - 1)
 		{
-			while (IsMouseButtonPressed())
+			// Press and hold the [▼] button
+			while_mouse_button_pressed([&]
+			{
 				ProcessKey(Manager::Key(KEY_DOWN));
+				return true;
+			});
 
 			if (!m_ModalMode)
 				Parent()->SetActivePanel(this);
@@ -1604,13 +1612,16 @@ bool TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		if (m_ListData.empty())
 			return true;
 
-		while (IsMouseButtonPressed())
+		while_mouse_button_pressed([&]
 		{
 			if (IntKeyState.MousePos.y <= m_Where.top + 1)
 				Up(1);
 			else if (IntKeyState.MousePos.y >= m_Where.bottom - 2)
 				Down(1);
-		}
+
+			return true;
+		});
+
 		if (Global->Opt->Tree.AutoChangeFolder && !m_ModalMode)
 			ProcessKey(Manager::Key(KEY_ENTER));
 

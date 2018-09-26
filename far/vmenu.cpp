@@ -62,6 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 
 #include "common/function_traits.hpp"
+#include "common/scope_exit.hpp"
 #include "common/zip_view.hpp"
 
 static MenuItemEx FarList2MenuItem(const FarListItem& FItem)
@@ -1510,51 +1511,58 @@ bool VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	if ((MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && (MsX == m_Where.left + 2 || MsX == m_Where.right - 1 - (CheckFlags(VMENU_COMBOBOX | VMENU_LISTBOX) ? 0 : 2)))
 	{
-		while (IsMouseButtonPressed())
+		// Click [«] or [»]
+		while_mouse_button_pressed([&]
+		{
 			ProcessKey(Manager::Key(MsX == m_Where.left + 2? KEY_ALTLEFT : KEY_ALTRIGHT));
-
+			return true;
+		});
 		return true;
 	}
 
-	const auto SbY1 = m_Where.left + (m_BoxType == NO_BOX? 0 : 1);
-	const auto SbY2 = m_Where.right - (m_BoxType == NO_BOX? 0 : 1);
+	const auto SbY1 = m_Where.top + (m_BoxType == NO_BOX? 0 : 1);
+	const auto SbY2 = m_Where.bottom - (m_BoxType == NO_BOX? 0 : 1);
 	bool bShowScrollBar = false;
 
 	if (CheckFlags(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Global->Opt->ShowMenuScrollbar)
 		bShowScrollBar = true;
 
-	if (bShowScrollBar && MsX == m_Where.right && (m_Where.width() - (m_BoxType == NO_BOX? 0 : 2)) < static_cast<int>(Items.size()) && (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED))
+	if (bShowScrollBar && MsX == m_Where.right && (m_Where.height() - (m_BoxType == NO_BOX? 0 : 2)) < static_cast<int>(Items.size()) && (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED))
 	{
+		const auto WrapState = CheckFlags(VMENU_WRAPMODE);
+		if (WrapState)
+			ClearFlags(VMENU_WRAPMODE);
+		SCOPE_EXIT{ if (WrapState) SetMenuFlags(VMENU_WRAPMODE); };
+
 		if (MsY==SbY1)
 		{
-			while (IsMouseButtonPressed())
+			// Press and hold the [▲] button
+			while_mouse_button_pressed([&]
 			{
-				//прокрутка мышью не должна врапить меню
-				if (SelectPos>=0 && GetVisualPos(SelectPos))
-					ProcessKey(Manager::Key(KEY_UP));
-
+				ProcessKey(Manager::Key(KEY_UP));
 				ShowMenu(true);
-			}
+				return true;
+			});
 
 			return true;
 		}
 
 		if (MsY==SbY2)
 		{
-			while (IsMouseButtonPressed())
+			// Press and hold the [▼] button
+			while_mouse_button_pressed([&]
 			{
-				//прокрутка мышью не должна врапить меню
-				if (SelectPos>=0 && GetVisualPos(SelectPos)!=GetShowItemCount()-1)
-					ProcessKey(Manager::Key(KEY_DOWN));
-
+				ProcessKey(Manager::Key(KEY_DOWN));
 				ShowMenu(true);
-			}
+				return true;
+			});
 
 			return true;
 		}
 
 		if (MsY>SbY1 && MsY<SbY2)
 		{
+			// Drag the thumb
 			int Delta=0;
 
 			while (IsMouseButtonPressed())
@@ -1587,18 +1595,35 @@ bool VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	// dwButtonState & 3 - Left & Right button
 	if (m_BoxType != NO_BOX && (MouseEvent->dwButtonState & 3) && MsX > m_Where.left && MsX < m_Where.right)
 	{
+		const auto WrapState = CheckFlags(VMENU_WRAPMODE);
+		if (WrapState)
+			ClearFlags(VMENU_WRAPMODE);
+		SCOPE_EXIT{ if (WrapState) SetMenuFlags(VMENU_WRAPMODE); };
+
 		if (MsY == m_Where.top)
 		{
-			while (MsY == m_Where.top && GetVisualPos(SelectPos) > 0 && IsMouseButtonPressed())
+			while_mouse_button_pressed([&]
+			{
+				if (MsY != m_Where.top || !GetVisualPos(SelectPos))
+					return false;
+
 				ProcessKey(Manager::Key(KEY_UP));
+				return true;
+			});
 
 			return true;
 		}
 
 		if (MsY == m_Where.bottom)
 		{
-			while (MsY == m_Where.bottom && GetVisualPos(SelectPos) < GetShowItemCount() - 1 && IsMouseButtonPressed())
+			while_mouse_button_pressed([&]
+			{
+				if (MsY != m_Where.bottom || GetVisualPos(SelectPos) == GetShowItemCount() - 1)
+					return false;
+
 				ProcessKey(Manager::Key(KEY_DOWN));
+				return true;
+			});
 
 			return true;
 		}

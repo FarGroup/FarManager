@@ -3050,24 +3050,31 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 		if (IntKeyState.MousePos.y == ScrollY)
 		{
-			while (IsMouseButtonPressed())
+			// Press and hold the [▲] button
+			while_mouse_button_pressed([&]
+			{
 				ProcessKey(Manager::Key(KEY_UP));
+				return true;
+			});
 
 			Parent()->SetActivePanel(shared_from_this());
 			return true;
 		}
-
-		if (IntKeyState.MousePos.y == ScrollY + m_Height - 1)
+		else if (IntKeyState.MousePos.y == ScrollY + m_Height - 1)
 		{
-			while (IsMouseButtonPressed())
+			// Press and hold the [▼] button
+			while_mouse_button_pressed([&]
+			{
 				ProcessKey(Manager::Key(KEY_DOWN));
+				return true;
+			});
 
 			Parent()->SetActivePanel(shared_from_this());
 			return true;
 		}
-
-		if (IntKeyState.MousePos.y > ScrollY && IntKeyState.MousePos.y < ScrollY + m_Height - 1 && m_Height > 2)
+		else if (IntKeyState.MousePos.y > ScrollY && IntKeyState.MousePos.y < ScrollY + m_Height - 1 && m_Height > 2)
 		{
+			// Drag the thumb
 			while (IsMouseButtonPressed())
 			{
 				m_CurFile = static_cast<int>((m_ListData.size() - 1)*(IntKeyState.MousePos.y - ScrollY) / (m_Height - 2));
@@ -3178,8 +3185,11 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		if (m_ListData.empty())
 			return true;
 
-		while (IsMouseButtonPressed() && IntKeyState.MousePos.y <= m_Where.top + 1)
+		while_mouse_button_pressed([&]
 		{
+			if (IntKeyState.MousePos.y > m_Where.top + 1)
+				return false;
+
 			MoveCursorAndShow(-1);
 
 			if (IntKeyState.MouseButtonState==RIGHTMOST_BUTTON_PRESSED)
@@ -3187,7 +3197,9 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				assert(m_CurFile < static_cast<int>(m_ListData.size()));
 				Select(m_ListData[m_CurFile], MouseSelection);
 			}
-		}
+
+			return true;
+		});
 
 		if (SelectedFirst)
 			SortFileList(true);
@@ -3202,8 +3214,11 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		if (m_ListData.empty())
 			return true;
 
-		while (IsMouseButtonPressed() && IntKeyState.MousePos.y >= m_Where.bottom - 2)
+		while_mouse_button_pressed([&]
 		{
+			if (IntKeyState.MousePos.y < m_Where.bottom - 2)
+				return false;
+
 			MoveCursorAndShow(1);
 
 			if (IntKeyState.MouseButtonState==RIGHTMOST_BUTTON_PRESSED)
@@ -3211,7 +3226,9 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				assert(m_CurFile < static_cast<int>(m_ListData.size()));
 				Select(m_ListData[m_CurFile], MouseSelection);
 			}
-		}
+
+			return true;
+		});
 
 		if (SelectedFirst)
 			SortFileList(true);

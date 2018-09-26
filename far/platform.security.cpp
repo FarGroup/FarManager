@@ -52,7 +52,7 @@ namespace
 
 		SCOPED_ACTION(os::critical_section_lock)(s_CS);
 
-		auto Result = s_Cache.emplace(Name, value_type{});
+		auto Result = s_Cache.try_emplace(Name);
 
 		const auto& MapKey = Result.first->first;
 		auto& MapValue = Result.first->second;

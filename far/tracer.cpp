@@ -182,7 +182,7 @@ void tracer::store(const void* CppObject, const EXCEPTION_POINTERS* ExceptionInf
 		// We can't store them forever
 		m_CppMap.clear();
 	}
-	m_CppMap.emplace(CppObject, std::make_unique<exception_context>(ExceptionInfo->ExceptionRecord->ExceptionCode, ExceptionInfo));
+	m_CppMap.try_emplace(CppObject, std::make_unique<exception_context>(ExceptionInfo->ExceptionRecord->ExceptionCode, ExceptionInfo));
 }
 
 tracer* tracer::get_instance()
