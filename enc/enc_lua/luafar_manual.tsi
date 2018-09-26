@@ -10046,9 +10046,9 @@ id=73
 lv=3
 dt=Text
 nm=win.SetRegKey
-mtime=3664130941
+mtime=3747147972
 <article>
-#_win.SetRegKey (RootKey, Key, ValueName, DataType, ValueData, [AccessMask])
+#_result = win.SetRegKey (RootKey, Key, ValueName, DataType, ValueData, [AccessMask])
 #_
 #_**Parameters:**
 #_  RootKey:     string (one of: "HKLM", "HKCC", "HKCR", "HKCU", "HKU")
@@ -10059,7 +10059,7 @@ mtime=3664130941
 #_  AccessMask:  flag ("KEY_WOW64_32KEY" or "KEY_WOW64_64KEY"; the default is 0)
 #_
 #_**Returns:**
-#_  nothing
+#_  result:      boolean (true on success)
 #_
 #_**Description:**
 #_  This function sets a value in a registry key.

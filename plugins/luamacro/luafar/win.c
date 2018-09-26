@@ -77,37 +77,47 @@ static int win_SetRegKey(lua_State *L)
 	const char* DataType = luaL_checkstring(L, 4);
 	REGSAM samDesired    = (REGSAM) OptFlags(L, 6, 0);
 	size_t len;
+	BOOL result = FALSE;
 
 	if(!strcmp("string", DataType))
 	{
-		SetRegKeyStr(hRoot, Key, ValueName, (wchar_t*)check_utf8_string(L, 5, NULL), samDesired);
+		result=SetRegKeyStr(hRoot, Key, ValueName, (wchar_t*)check_utf8_string(L, 5, NULL), samDesired);
 	}
 	else if(!strcmp("dword", DataType))
 	{
-		SetRegKeyDword(hRoot, Key, ValueName, (DWORD)luaL_checkinteger(L, 5), samDesired);
+		result=SetRegKeyDword(hRoot, Key, ValueName, (DWORD)luaL_checkinteger(L, 5), samDesired);
 	}
 	else if(!strcmp("binary", DataType))
 	{
 		BYTE *data = (BYTE*)luaL_checklstring(L, 5, &len);
-		SetRegKeyArr(hRoot, Key, ValueName, data, (DWORD)len, samDesired);
+		result=SetRegKeyArr(hRoot, Key, ValueName, data, (DWORD)len, samDesired);
 	}
 	else if(!strcmp("expandstring", DataType))
 	{
 		const wchar_t* data = check_utf8_string(L, 5, &len);
 		HKEY hKey = CreateRegKey(hRoot, Key, samDesired);
-		RegSetValueExW(hKey, ValueName, 0, REG_EXPAND_SZ, (BYTE*)data, (DWORD)((1+len)*sizeof(wchar_t)));
-		RegCloseKey(hKey);
+		if (hKey)
+		{
+			result = (ERROR_SUCCESS == RegSetValueExW(hKey, ValueName, 0, REG_EXPAND_SZ, (BYTE*)data,
+				(DWORD)((1+len)*sizeof(wchar_t))));
+			RegCloseKey(hKey);
+		}
 	}
 	else if(!strcmp("multistring", DataType))
 	{
 		const wchar_t* data = check_utf8_string(L, 5, &len);
 		HKEY hKey = CreateRegKey(hRoot, Key, samDesired);
-		RegSetValueExW(hKey, ValueName, 0, REG_MULTI_SZ, (BYTE*)data, (DWORD)((1+len)*sizeof(wchar_t)));
-		RegCloseKey(hKey);
+		if (hKey)
+		{
+			result = (ERROR_SUCCESS == RegSetValueExW(hKey, ValueName, 0, REG_MULTI_SZ, (BYTE*)data,
+				(DWORD)((1+len)*sizeof(wchar_t))));
+			RegCloseKey(hKey);
+		}
 	}
 	else
 		luaL_argerror(L, 5, "unsupported value type");
 
+	lua_pushboolean(L, result==FALSE ? 0:1);
 	return 0;
 }
 

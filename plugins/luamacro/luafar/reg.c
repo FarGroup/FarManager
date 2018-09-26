@@ -1,30 +1,66 @@
 #include "reg.h"
 
-HKEY CreateRegKey(HKEY hRoot, wchar_t *Key, REGSAM samDesired);
-HKEY OpenRegKey(HKEY hRoot, wchar_t *Key, REGSAM samDesired);
-
-void SetRegKeyStr(HKEY hRoot, wchar_t *Key, wchar_t *ValueName, wchar_t *ValueData, REGSAM samDesired)
+HKEY CreateRegKey(HKEY hRoot, wchar_t *Key, REGSAM samDesired)
 {
-	HKEY hKey=CreateRegKey(hRoot, Key, samDesired);
-	RegSetValueExW(hKey, ValueName, 0, REG_SZ, (BYTE*)ValueData,
-	               sizeof(wchar_t) *((DWORD)wcslen(ValueData) + 1));
-	RegCloseKey(hKey);
+	HKEY hKey;
+	DWORD Disposition;
+
+	if(RegCreateKeyExW(hRoot, Key, 0, NULL, 0, samDesired|KEY_WRITE, NULL, &hKey, &Disposition)!=ERROR_SUCCESS)
+		return(NULL);
+
+	return(hKey);
 }
 
 
-void SetRegKeyDword(HKEY hRoot, wchar_t *Key, wchar_t *ValueName, DWORD ValueData, REGSAM samDesired)
+HKEY OpenRegKey(HKEY hRoot, wchar_t *Key, REGSAM samDesired)
 {
-	HKEY hKey=CreateRegKey(hRoot, Key, samDesired);
-	RegSetValueExW(hKey, ValueName, 0, REG_DWORD, (BYTE *)&ValueData, sizeof(DWORD));
-	RegCloseKey(hKey);
+	HKEY hKey;
+
+	if(RegOpenKeyExW(hRoot, Key, 0, samDesired|KEY_QUERY_VALUE, &hKey)!=ERROR_SUCCESS)
+		return(NULL);
+
+	return(hKey);
 }
 
 
-void SetRegKeyArr(HKEY hRoot, wchar_t *Key, wchar_t *ValueName, BYTE *ValueData, DWORD ValueSize, REGSAM samDesired)
+BOOL SetRegKeyStr(HKEY hRoot, wchar_t *Key, wchar_t *ValueName, wchar_t *ValueData, REGSAM samDesired)
 {
+	BOOL result = FALSE;
 	HKEY hKey=CreateRegKey(hRoot, Key, samDesired);
-	RegSetValueExW(hKey, ValueName, 0, REG_BINARY, ValueData, ValueSize);
-	RegCloseKey(hKey);
+	if(hKey)
+	{
+		result = (ERROR_SUCCESS == RegSetValueExW(hKey, ValueName, 0, REG_SZ, (BYTE*)ValueData,
+			sizeof(wchar_t) *((DWORD)wcslen(ValueData) + 1)));
+		RegCloseKey(hKey);
+	}
+	return result;
+}
+
+
+BOOL SetRegKeyDword(HKEY hRoot, wchar_t *Key, wchar_t *ValueName, DWORD ValueData, REGSAM samDesired)
+{
+	BOOL result = FALSE;
+	HKEY hKey=CreateRegKey(hRoot, Key, samDesired);
+	if(hKey)
+	{
+		result = (ERROR_SUCCESS == RegSetValueExW(hKey, ValueName, 0, REG_DWORD, (BYTE *)&ValueData,
+			sizeof(DWORD)));
+		RegCloseKey(hKey);
+	}
+	return result;
+}
+
+
+BOOL SetRegKeyArr(HKEY hRoot, wchar_t *Key, wchar_t *ValueName, BYTE *ValueData, DWORD ValueSize, REGSAM samDesired)
+{
+	BOOL result = FALSE;
+	HKEY hKey=CreateRegKey(hRoot, Key, samDesired);
+	if(hKey)
+	{
+		result = (ERROR_SUCCESS == RegSetValueExW(hKey, ValueName, 0, REG_BINARY, ValueData, ValueSize));
+		RegCloseKey(hKey);
+	}
+	return result;
 }
 
 
@@ -81,24 +117,3 @@ int GetRegKeyArr(HKEY hRoot, wchar_t *Key, wchar_t *ValueName, BYTE *ValueData, 
 
 	return(TRUE);
 }
-
-
-HKEY CreateRegKey(HKEY hRoot, wchar_t *Key, REGSAM samDesired)
-{
-	HKEY hKey;
-	DWORD Disposition;
-	RegCreateKeyExW(hRoot, Key, 0, NULL, 0, samDesired|KEY_WRITE, NULL, &hKey, &Disposition);
-	return(hKey);
-}
-
-
-HKEY OpenRegKey(HKEY hRoot, wchar_t *Key, REGSAM samDesired)
-{
-	HKEY hKey;
-
-	if(RegOpenKeyExW(hRoot, Key, 0, samDesired|KEY_QUERY_VALUE, &hKey)!=ERROR_SUCCESS)
-		return(NULL);
-
-	return(hKey);
-}
-

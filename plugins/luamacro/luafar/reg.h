@@ -3,9 +3,9 @@
 HKEY CreateRegKey(HKEY hRoot, wchar_t *Key, REGSAM samDesired);
 HKEY OpenRegKey(HKEY hRoot, wchar_t *Key, REGSAM samDesired);
 
-void SetRegKeyStr(HKEY hRoot, wchar_t *Key, wchar_t *ValueName, wchar_t *ValueData, REGSAM samDesired);
-void SetRegKeyDword(HKEY hRoot, wchar_t *Key, wchar_t *ValueName, DWORD ValueData, REGSAM samDesired);
-void SetRegKeyArr(HKEY hRoot, wchar_t *Key, wchar_t *ValueName, BYTE *ValueData, DWORD ValueSize, REGSAM samDesired);
+BOOL SetRegKeyStr(HKEY hRoot, wchar_t *Key, wchar_t *ValueName, wchar_t *ValueData, REGSAM samDesired);
+BOOL SetRegKeyDword(HKEY hRoot, wchar_t *Key, wchar_t *ValueName, DWORD ValueData, REGSAM samDesired);
+BOOL SetRegKeyArr(HKEY hRoot, wchar_t *Key, wchar_t *ValueName, BYTE *ValueData, DWORD ValueSize, REGSAM samDesired);
 
 int GetRegKeyStr(HKEY hRoot, wchar_t *Key, wchar_t *ValueName, wchar_t *ValueData, wchar_t *Default, DWORD DataSize, REGSAM samDesired);
 int GetRegKeyInt(HKEY hRoot, wchar_t *Key, wchar_t *ValueName, int *ValueData, DWORD Default, REGSAM samDesired);
