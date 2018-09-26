@@ -118,7 +118,7 @@ static int win_SetRegKey(lua_State *L)
 		luaL_argerror(L, 5, "unsupported value type");
 
 	lua_pushboolean(L, result==FALSE ? 0:1);
-	return 0;
+	return 1;
 }
 
 // ValueData, DataType = GetRegKey (Root, Key, ValueName [, samDesired])
