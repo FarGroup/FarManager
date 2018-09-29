@@ -109,7 +109,7 @@ bool ConvertWildcards(string_view const SrcName, string &strDest, int const Sele
 				}
 				else
 				{
-					strDest += SrcNamePart;
+					append(strDest, SrcNamePart);
 				}
 			}
 			break;
@@ -145,7 +145,7 @@ bool ConvertWildcards(string_view const SrcName, string &strDest, int const Sele
 
 	if (SelectedFolderNameLength)
 	{
-		strDest += SrcName.substr(SelectedFolderNameLength); //BUGBUG???, was src in 1.7x
+		append(strDest, SrcName.substr(SelectedFolderNameLength)); //BUGBUG???, was src in 1.7x
 	}
 
 	return true;
