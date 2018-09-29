@@ -1,21 +1,47 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
 	<s:String x:Key="/Default/CodeInspection/Highlighting/AnalysisEnabled/@EntryValue">SOLUTION</s:String>
 	<s:Boolean x:Key="/Default/CodeInspection/Highlighting/IdentifierHighlightingEnabled/@EntryValue">True</s:Boolean>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CommentTypo/@EntryIndexedValue">HINT</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppClangTidyBugproneBoolPointerImplicitConversion/@EntryIndexedValue">WARNING</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppClangTidyCertDcl50Cpp/@EntryIndexedValue">WARNING</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppClangTidyCertEnv33C/@EntryIndexedValue">WARNING</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppClangTidyCertErr52Cpp/@EntryIndexedValue">WARNING</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppClangTidyCertMsc50Cpp/@EntryIndexedValue">WARNING</s:String>
 	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppClangTidyClangDiagnosticUnknownPragmas/@EntryIndexedValue">DO_NOT_SHOW</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppClangTidyCppcoreguidelinesNoMalloc/@EntryIndexedValue">WARNING</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppClangTidyCppcoreguidelinesProTypeVararg/@EntryIndexedValue">WARNING</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppClangTidyModernizeMakeShared/@EntryIndexedValue">SUGGESTION</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppClangTidyModernizeMakeUnique/@EntryIndexedValue">SUGGESTION</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppClangTidyModernizeRedundantVoidArg/@EntryIndexedValue">SUGGESTION</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppClangTidyModernizeUseDefaultMemberInit/@EntryIndexedValue">SUGGESTION</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppClangTidyModernizeUseNullptr/@EntryIndexedValue">SUGGESTION</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppClangTidyModernizeUseOverride/@EntryIndexedValue">SUGGESTION</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppClangTidyModernizeUseUsing/@EntryIndexedValue">SUGGESTION</s:String>
 	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppClangTidyReadabilityStaticAccessedThroughInstance/@EntryIndexedValue">DO_NOT_SHOW</s:String>
 	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppConstValueFunctionReturnType/@EntryIndexedValue">ERROR</s:String>
 	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppDefaultCaseNotHandledInSwitchStatement/@EntryIndexedValue">HINT</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppHeaderHasBeenAlreadyIncluded/@EntryIndexedValue">SUGGESTION</s:String>
 	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppMemberInitializersOrder/@EntryIndexedValue">ERROR</s:String>
 	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppNonExceptionSafeResourceAcquisition/@EntryIndexedValue">WARNING</s:String>
 	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppNonExplicitConvertingConstructor/@EntryIndexedValue">WARNING</s:String>
 	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppNonReclaimedResourceAcquisition/@EntryIndexedValue">WARNING</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppNotAllPathsReturnValue/@EntryIndexedValue">ERROR</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppOverridingDestructorWithoutOverrideSpecifier/@EntryIndexedValue">WARNING</s:String>
 	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppOverridingFunctionWithoutOverrideSpecifier/@EntryIndexedValue">ERROR</s:String>
 	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppParameterNeverUsed/@EntryIndexedValue">HINT</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppRedundantAccessSpecifier/@EntryIndexedValue">SUGGESTION</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppRedundantInlineSpecifier/@EntryIndexedValue">SUGGESTION</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppRedundantQualifier/@EntryIndexedValue"></s:String>
+	<s:Boolean x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppRedundantQualifier/@EntryIndexRemoved">True</s:Boolean>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppRedundantVirtualSpecifierOnOverrideFunction/@EntryIndexedValue">SUGGESTION</s:String>
 	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppSmartPointerVsMakeFunction/@EntryIndexedValue">WARNING</s:String>
 	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppThrowExpressionCanBeReplacedWithRethrow/@EntryIndexedValue">ERROR</s:String>
 	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppUnusedIncludeDirective/@EntryIndexedValue">SUGGESTION</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppWrongSlashesInIncludeDirective/@EntryIndexedValue">WARNING</s:String>
 	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppZeroConstantCanBeReplacedWithNullptr/@EntryIndexedValue">WARNING</s:String>
 	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CyclomaticComplexity/@EntryIndexedValue">HINT</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=IdentifierTypo/@EntryIndexedValue">HINT</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=StringLiteralTypo/@EntryIndexedValue">HINT</s:String>
 	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=UnusedParameter_002ELocal/@EntryIndexedValue">SUGGESTION</s:String>
 	<s:String x:Key="/Default/CodeInspection/Highlighting/CodeIssueFilter/IssueTypesToHide/=_003CConfigurableSeverity_0020Id_003D_0022CppCStyleCast_0022_0020_002F_003E/@EntryIndexedValue">DoHide</s:String>
 	<s:String x:Key="/Default/CodeStyle/CodeCleanup/RecentlyUsedProfile/@EntryValue">Default: Full Cleanup</s:String>

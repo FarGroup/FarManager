@@ -132,7 +132,7 @@ void print_opcodes()
 	fprintf(fp, "MCODE_F_PANELITEM=0x%X // V=PanelItem(Panel,Index,TypeInfo)\n", MCODE_F_PANELITEM);
 	fprintf(fp, "MCODE_F_EVAL=0x%X // N=eval(S[,N])\n", MCODE_F_EVAL);
 	fprintf(fp, "MCODE_F_RINDEX=0x%X // S=rindex(S1,S2[,Mode])\n", MCODE_F_RINDEX);
-	fprintf(fp, "MCODE_F_SLEEP=0x%X // Sleep(N)\n", MCODE_F_SLEEP);
+	fprintf(fp, "MCODE_F_SLEEP=0x%X // std::this_thread::sleep_for(Nms)\n", MCODE_F_SLEEP);
 	fprintf(fp, "MCODE_F_STRING=0x%X // S=string(V)\n", MCODE_F_STRING);
 	fprintf(fp, "MCODE_F_SUBSTR=0x%X // S=substr(S,start[,length])\n", MCODE_F_SUBSTR);
 	fprintf(fp, "MCODE_F_UCASE=0x%X // S=ucase(S1)\n", MCODE_F_UCASE);
@@ -2646,15 +2646,15 @@ static bool itowFunc(FarMacroCall* Data)
 	return Ret;
 }
 
-// N=sleep(N)
+// std::this_thread::sleep_for(Nms)
 static bool sleepFunc(FarMacroCall* Data)
 {
-	auto Params = parseParams(1, Data);
-	long Period=(long)Params[0].asInteger();
+	const auto Params = parseParams(1, Data);
+	const auto Period = Params[0].asInteger();
 
 	if (Period > 0)
 	{
-		Sleep((DWORD)Period);
+		std::this_thread::sleep_for(std::chrono::milliseconds(Period));
 		PassNumber(1, Data);
 		return true;
 	}

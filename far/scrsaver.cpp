@@ -152,7 +152,7 @@ int ScreenSaver()
 		if (PeekInputRecord(&rec))
 			return 1;
 
-		Sleep(100);
+		std::this_thread::sleep_for(100ms);
 	}
 
 	Global->ScreenSaverActive = true;
@@ -182,7 +182,7 @@ int ScreenSaver()
 		INPUT_RECORD rec;
 		while (!PeekInputRecord(&rec))
 		{
-			Sleep(50);
+			std::this_thread::sleep_for(50ms);
 			ShowSaver(Step++, [&](star& i)
 			{
 				static const int Colors[] = { F_MAGENTA, F_RED, F_BLUE };

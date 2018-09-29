@@ -1309,9 +1309,10 @@ void fix_coordinates(rectangle& Where)
 	Where.bottom = std::clamp(Where.bottom, 0, static_cast<int>(ScrY));
 }
 
-void SetVidChar(FAR_CHAR_INFO& CI, wchar_t Chr)
+void SetVidChar(wchar_t& Char)
 {
-	CI.Char = (Chr < L'\x20' || Chr == L'\x7f')? Oem2Unicode[Chr] : Chr;
+	if (Char < L'\x20' || Char == L'\x7f')
+		Char = Oem2Unicode[Char];
 }
 
 void AdjustConsoleScreenBufferSize(bool TransitionFromFullScreen)

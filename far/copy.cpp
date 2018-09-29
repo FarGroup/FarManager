@@ -3711,10 +3711,10 @@ bool ShellCopy::CalcTotalSize() const
 
 	time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 
-	const auto& DirInfoCallback = [&](string_view const Name, unsigned long long const Items, unsigned long long const Size)
+	const auto& DirInfoCallback = [&](string_view const Name, unsigned long long const ItemsCount, unsigned long long const Size)
 	{
 		if (TimeCheck)
-			DirInfoMsg(msg(Flags & FCOPY_MOVE? lng::MMoveDlgTitle : lng::MCopyDlgTitle), Name, CP->m_Files.Total + Items, CP->m_Bytes.Total + Size);
+			DirInfoMsg(msg(Flags & FCOPY_MOVE? lng::MMoveDlgTitle : lng::MCopyDlgTitle), Name, CP->m_Files.Total + ItemsCount, CP->m_Bytes.Total + Size);
 	};
 
 	for (const auto& i: SrcPanel->enum_selected())

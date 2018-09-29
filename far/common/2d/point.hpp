@@ -33,22 +33,29 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-struct point
+#include "../rel_ops.hpp"
+
+struct point: public rel_ops<point>
 {
 	int x;
 	int y;
 
 	point() = default;
 
-	point(int X, int Y):
+	point(int const X, int const Y):
 		x(X),
 		y(Y)
 	{
 	}
 
-	point(COORD Coord):
+	point(COORD const Coord):
 		point(Coord.X, Coord.Y)
 	{
+	}
+
+	bool operator==(point const& rhs) const
+	{
+		return x == rhs.x && y == rhs.y;
 	}
 };
 

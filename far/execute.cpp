@@ -1079,7 +1079,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 										console.SetSize(ConsoleSize);
 										console.SetWindowRect(ConsoleWindowRect);
 										console.SetSize(ConsoleSize);
-										Sleep(100);
+										std::this_thread::sleep_for(100ms);
 										InitConsole(0);
 
 										consoleicons::instance().setFarIcons();

@@ -467,131 +467,150 @@ bool PathStartsWith(const string_view Path, const string_view Start)
 	return starts_with(Path, PathPart) && (Path.size() == PathPart.size() || IsSlash(Path[PathPart.size()]));
 }
 
-void TestPathParser()
-{
+#include "common/test.hpp"
+
 #ifdef _DEBUG
-	assert(path::join(L"foo"sv, L""sv) == L"foo\\"sv);
-	assert(path::join(L"foo"sv, L"\\"sv) == L"foo\\"sv);
-	assert(path::join(L""sv, L""sv) == L""sv);
-	assert(path::join(L""sv, L"\\"sv) == L""sv);
-	assert(path::join(L""sv, L"foo"sv) == L"foo"sv);
-	assert(path::join(L"\\foo"sv, L""sv) == L"\\foo\\"sv);
-	assert(path::join(L"\\foo"sv, L"\\"sv) == L"\\foo\\"sv);
-	assert(path::join(L"\\"sv, L"foo\\"sv) == L"foo"sv);
-	assert(path::join(L"foo"sv, L"bar"sv) == L"foo\\bar"sv);
-	assert(path::join(L"\\foo"sv, L"bar\\"sv) == L"\\foo\\bar"sv);
-	assert(path::join(L"foo\\"sv, L"bar"sv) == L"foo\\bar"sv);
-	assert(path::join(L"foo\\"sv, L"\\bar"sv) == L"foo\\bar"sv);
-	assert(path::join(L"foo\\"sv, L'\\', L"\\bar"sv) == L"foo\\bar"sv);
-	assert(path::join(L"foo\\"sv, L""sv, L"\\bar"sv) == L"foo\\bar"sv);
-	assert(path::join(L"\\\\foo\\\\"sv, L"\\\\bar\\"sv) == L"\\\\foo\\bar"sv);
+void TestPaths()
+{
 
-    assert(ExtractPathRoot(L"") == L"");
-    assert(ExtractPathRoot(L"\\") == L"");
-    assert(ExtractPathRoot(L"file") == L"");
-    assert(ExtractPathRoot(L"path\\file") == L"");
-    assert(ExtractPathRoot(L"C:") == L"C:\\");
-    assert(ExtractPathRoot(L"C:\\") == L"C:\\");
-    assert(ExtractPathRoot(L"C:\\path\\file") == L"C:\\");
-    assert(ExtractPathRoot(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}") == L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
-    assert(ExtractPathRoot(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\") == L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
-    assert(ExtractPathRoot(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file") == L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
-    assert(ExtractPathRoot(L"\\\\server\\share") == L"\\\\server\\share\\");
-    assert(ExtractPathRoot(L"\\\\server\\share\\") == L"\\\\server\\share\\");
-    assert(ExtractPathRoot(L"\\\\server\\share\\path\\file") == L"\\\\server\\share\\");
-    assert(ExtractPathRoot(L"\\\\1.2.3.4\\share\\path\\file") == L"\\\\1.2.3.4\\share\\");
-    assert(ExtractPathRoot(L"\\\\?\\UNC\\server\\share") == L"\\\\?\\UNC\\server\\share\\");
-    assert(ExtractPathRoot(L"\\\\?\\UNC\\server\\share\\") == L"\\\\?\\UNC\\server\\share\\");
-    assert(ExtractPathRoot(L"\\\\?\\UNC\\server\\share\\path\\file") == L"\\\\?\\UNC\\server\\share\\");
-    assert(ExtractPathRoot(L"\\\\?\\UNC\\1.2.3.4\\share\\path\\file") == L"\\\\?\\UNC\\1.2.3.4\\share\\");
+	ASSERT_EQ(path::join(L"foo"sv, L""sv), L"foo\\"sv);
+	ASSERT_EQ(path::join(L"foo"sv, L"\\"sv), L"foo\\"sv);
+	ASSERT_EQ(path::join(L""sv, L""sv), L""sv);
+	ASSERT_EQ(path::join(L""sv, L"\\"sv), L""sv);
+	ASSERT_EQ(path::join(L""sv, L"foo"sv), L"foo"sv);
+	ASSERT_EQ(path::join(L"\\foo"sv, L""sv), L"\\foo\\"sv);
+	ASSERT_EQ(path::join(L"\\foo"sv, L"\\"sv), L"\\foo\\"sv);
+	ASSERT_EQ(path::join(L"\\"sv, L"foo\\"sv), L"foo"sv);
+	ASSERT_EQ(path::join(L"foo"sv, L"bar"sv), L"foo\\bar"sv);
+	ASSERT_EQ(path::join(L"\\foo"sv, L"bar\\"sv), L"\\foo\\bar"sv);
+	ASSERT_EQ(path::join(L"foo\\"sv, L"bar"sv), L"foo\\bar"sv);
+	ASSERT_EQ(path::join(L"foo\\"sv, L"\\bar"sv), L"foo\\bar"sv);
+	ASSERT_EQ(path::join(L"foo\\"sv, L'\\', L"\\bar"sv), L"foo\\bar"sv);
+	ASSERT_EQ(path::join(L"foo\\"sv, L""sv, L"\\bar"sv), L"foo\\bar"sv);
+	ASSERT_EQ(path::join(L"\\\\foo\\\\"sv, L"\\\\bar\\"sv), L"\\\\foo\\bar"sv);
 
-    assert(ExtractFilePath(L"") == L"");
-    assert(ExtractFilePath(L"\\") == L"");
-    assert(ExtractFilePath(L"\\file") == L"");
-    assert(ExtractFilePath(L"file") == L"");
-    assert(ExtractFilePath(L"path\\") == L"path");
-    assert(ExtractFilePath(L"path\\file") == L"path");
-    assert(ExtractFilePath(L"C:") == L"C:\\");
-    assert(ExtractFilePath(L"C:\\") == L"C:\\");
-    assert(ExtractFilePath(L"C:\\file") == L"C:\\");
-    assert(ExtractFilePath(L"C:\\path\\file") == L"C:\\path");
-    assert(ExtractFilePath(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}") == L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
-    assert(ExtractFilePath(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\") == L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
-    assert(ExtractFilePath(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\file") == L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
-    assert(ExtractFilePath(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file") == L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path");
-    assert(ExtractFilePath(L"\\\\server\\share") == L"\\\\server\\share\\");
-    assert(ExtractFilePath(L"\\\\server\\share\\") == L"\\\\server\\share\\");
-    assert(ExtractFilePath(L"\\\\server\\share\\file") == L"\\\\server\\share\\");
-    assert(ExtractFilePath(L"\\\\server\\share\\path\\file") == L"\\\\server\\share\\path");
-    assert(ExtractFilePath(L"\\\\?\\UNC\\server\\share") == L"\\\\?\\UNC\\server\\share\\");
-    assert(ExtractFilePath(L"\\\\?\\UNC\\server\\share\\") == L"\\\\?\\UNC\\server\\share\\");
-    assert(ExtractFilePath(L"\\\\?\\UNC\\server\\share\\file") == L"\\\\?\\UNC\\server\\share\\");
-    assert(ExtractFilePath(L"\\\\?\\UNC\\server\\share\\path\\file") == L"\\\\?\\UNC\\server\\share\\path");
+	ASSERT_EQ(path::join(L"foo"sv, L""sv), L"foo\\"sv);
+	ASSERT_EQ(path::join(L"foo"sv, L"\\"sv), L"foo\\"sv);
+	ASSERT_EQ(path::join(L""sv, L""sv), L""sv);
+	ASSERT_EQ(path::join(L""sv, L"\\"sv), L""sv);
+	ASSERT_EQ(path::join(L""sv, L"foo"sv), L"foo"sv);
+	ASSERT_EQ(path::join(L"\\foo"sv, L""sv), L"\\foo\\"sv);
+	ASSERT_EQ(path::join(L"\\foo"sv, L"\\"sv), L"\\foo\\"sv);
+	ASSERT_EQ(path::join(L"\\"sv, L"foo\\"sv), L"foo"sv);
+	ASSERT_EQ(path::join(L"foo"sv, L"bar"sv), L"foo\\bar"sv);
+	ASSERT_EQ(path::join(L"\\foo"sv, L"bar\\"sv), L"\\foo\\bar"sv);
+	ASSERT_EQ(path::join(L"foo\\"sv, L"bar"sv), L"foo\\bar"sv);
+	ASSERT_EQ(path::join(L"foo\\"sv, L"\\bar"sv), L"foo\\bar"sv);
+	ASSERT_EQ(path::join(L"foo\\"sv, L'\\', L"\\bar"sv), L"foo\\bar"sv);
+	ASSERT_EQ(path::join(L"foo\\"sv, L""sv, L"\\bar"sv), L"foo\\bar"sv);
+	ASSERT_EQ(path::join(L"\\\\foo\\\\"sv, L"\\\\bar\\"sv), L"\\\\foo\\bar"sv);
 
-    assert(ExtractFileName(L"") == L"");
-    assert(ExtractFileName(L"\\") == L"");
-    assert(ExtractFileName(L"\\file") == L"file");
-    assert(ExtractFileName(L"file") == L"file");
-    assert(ExtractFileName(L"path\\") == L"");
-    assert(ExtractFileName(L"path\\file") == L"file");
-    assert(ExtractFileName(L"C:") == L"");
-    assert(ExtractFileName(L"C:\\") == L"");
-    assert(ExtractFileName(L"C:\\file") == L"file");
-    assert(ExtractFileName(L"C:\\path\\file") == L"file");
-    assert(ExtractFileName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}") == L"");
-    assert(ExtractFileName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\") == L"");
-    assert(ExtractFileName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\file") == L"file");
-    assert(ExtractFileName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file") == L"file");
-    assert(ExtractFileName(L"\\\\server\\share") == L"");
-    assert(ExtractFileName(L"\\\\server\\share\\") == L"");
-    assert(ExtractFileName(L"\\\\server\\share\\file") == L"file");
-    assert(ExtractFileName(L"\\\\server\\share\\path\\file") == L"file");
-    assert(ExtractFileName(L"\\\\?\\UNC\\server\\share") == L"");
-    assert(ExtractFileName(L"\\\\?\\UNC\\server\\share\\") == L"");
-    assert(ExtractFileName(L"\\\\?\\UNC\\server\\share\\file") == L"file");
-    assert(ExtractFileName(L"\\\\?\\UNC\\server\\share\\path\\file") == L"file");
+	ASSERT_EQ(ExtractPathRoot(L""), L"");
+	ASSERT_EQ(ExtractPathRoot(L"\\"), L"");
+	ASSERT_EQ(ExtractPathRoot(L"file"), L"");
+	ASSERT_EQ(ExtractPathRoot(L"path\\file"), L"");
+	ASSERT_EQ(ExtractPathRoot(L"C:"), L"C:\\");
+	ASSERT_EQ(ExtractPathRoot(L"C:\\"), L"C:\\");
+	ASSERT_EQ(ExtractPathRoot(L"C:\\path\\file"), L"C:\\");
+	ASSERT_EQ(ExtractPathRoot(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"), L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
+	ASSERT_EQ(ExtractPathRoot(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"), L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
+	ASSERT_EQ(ExtractPathRoot(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file"), L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
+	ASSERT_EQ(ExtractPathRoot(L"\\\\server\\share"), L"\\\\server\\share\\");
+	ASSERT_EQ(ExtractPathRoot(L"\\\\server\\share\\"), L"\\\\server\\share\\");
+	ASSERT_EQ(ExtractPathRoot(L"\\\\server\\share\\path\\file"), L"\\\\server\\share\\");
+	ASSERT_EQ(ExtractPathRoot(L"\\\\1.2.3.4\\share\\path\\file"), L"\\\\1.2.3.4\\share\\");
+	ASSERT_EQ(ExtractPathRoot(L"\\\\?\\UNC\\server\\share"), L"\\\\?\\UNC\\server\\share\\");
+	ASSERT_EQ(ExtractPathRoot(L"\\\\?\\UNC\\server\\share\\"), L"\\\\?\\UNC\\server\\share\\");
+	ASSERT_EQ(ExtractPathRoot(L"\\\\?\\UNC\\server\\share\\path\\file"), L"\\\\?\\UNC\\server\\share\\");
+	ASSERT_EQ(ExtractPathRoot(L"\\\\?\\UNC\\1.2.3.4\\share\\path\\file"), L"\\\\?\\UNC\\1.2.3.4\\share\\");
 
-	assert(PointToName(L""sv) == L""sv);
-	assert(PointToName(L"\\"sv) == L""sv);
-	assert(PointToName(L"\\file"sv) == L"file"sv);
-	assert(PointToName(L"file"sv) == L"file"sv);
-	assert(PointToName(L"path\\"sv) == L""sv);
-	assert(PointToName(L"path\\file"sv) == L"file"sv);
-	//assert(PointToName(L"C:"sv) == L""sv);
-	assert(PointToName(L"C:\\"sv) == L""sv);
-	assert(PointToName(L"C:\\file"sv) == L"file"sv);
-	assert(PointToName(L"C:\\path\\file"sv) == L"file"sv);
-	//assert(PointToName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"sv) == L""sv);
-	assert(PointToName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv) == L""sv);
-	assert(PointToName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\file"sv) == L"file"sv);
-	assert(PointToName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file"sv) == L"file"sv);
-	//assert(PointToName(L"\\\\server\\share"sv) == L""sv);
-	assert(PointToName(L"\\\\server\\share\\"sv) == L""sv);
-	assert(PointToName(L"\\\\server\\share\\file"sv) == L"file"sv);
-	assert(PointToName(L"\\\\server\\share\\path\\file"sv) == L"file"sv);
-	//assert(PointToName(L"\\\\?\\UNC\\server\\share"sv) == L""sv);
-	assert(PointToName(L"\\\\?\\UNC\\server\\share\\"sv) == L""sv);
-	assert(PointToName(L"\\\\?\\UNC\\server\\share\\file"sv) == L"file"sv);
-	assert(PointToName(L"\\\\?\\UNC\\server\\share\\path\\file"sv) == L"file"sv);
+	ASSERT_EQ(ExtractFilePath(L""), L"");
+	ASSERT_EQ(ExtractFilePath(L"\\"), L"");
+	ASSERT_EQ(ExtractFilePath(L"\\file"), L"");
+	ASSERT_EQ(ExtractFilePath(L"file"), L"");
+	ASSERT_EQ(ExtractFilePath(L"path\\"), L"path");
+	ASSERT_EQ(ExtractFilePath(L"path\\file"), L"path");
+	ASSERT_EQ(ExtractFilePath(L"C:"), L"C:\\");
+	ASSERT_EQ(ExtractFilePath(L"C:\\"), L"C:\\");
+	ASSERT_EQ(ExtractFilePath(L"C:\\file"), L"C:\\");
+	ASSERT_EQ(ExtractFilePath(L"C:\\path\\file"), L"C:\\path");
+	ASSERT_EQ(ExtractFilePath(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"), L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
+	ASSERT_EQ(ExtractFilePath(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"), L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
+	ASSERT_EQ(ExtractFilePath(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\file"), L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
+	ASSERT_EQ(ExtractFilePath(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file"), L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path");
+	ASSERT_EQ(ExtractFilePath(L"\\\\server\\share"), L"\\\\server\\share\\");
+	ASSERT_EQ(ExtractFilePath(L"\\\\server\\share\\"), L"\\\\server\\share\\");
+	ASSERT_EQ(ExtractFilePath(L"\\\\server\\share\\file"), L"\\\\server\\share\\");
+	ASSERT_EQ(ExtractFilePath(L"\\\\server\\share\\path\\file"), L"\\\\server\\share\\path");
+	ASSERT_EQ(ExtractFilePath(L"\\\\?\\UNC\\server\\share"), L"\\\\?\\UNC\\server\\share\\");
+	ASSERT_EQ(ExtractFilePath(L"\\\\?\\UNC\\server\\share\\"), L"\\\\?\\UNC\\server\\share\\");
+	ASSERT_EQ(ExtractFilePath(L"\\\\?\\UNC\\server\\share\\file"), L"\\\\?\\UNC\\server\\share\\");
+	ASSERT_EQ(ExtractFilePath(L"\\\\?\\UNC\\server\\share\\path\\file"), L"\\\\?\\UNC\\server\\share\\path");
 
-	assert(PointToExt(L""sv) == L""sv);
-	assert(PointToExt(L"file"sv) == L""sv);
-	assert(PointToExt(L"path\\file"sv) == L""sv);
-	assert(PointToExt(L"file.ext"sv) == L".ext"sv);
-	assert(PointToExt(L"path\\file.ext"sv) == L".ext"sv);
-	assert(PointToExt(L"file.ext1.ext2"sv) == L".ext2"sv);
-	assert(PointToExt(L"path\\file.ext1.ext2"sv) == L".ext2"sv);
+	ASSERT_EQ(ExtractFileName(L""), L"");
+	ASSERT_EQ(ExtractFileName(L"\\"), L"");
+	ASSERT_EQ(ExtractFileName(L"\\file"), L"file");
+	ASSERT_EQ(ExtractFileName(L"file"), L"file");
+	ASSERT_EQ(ExtractFileName(L"path\\"), L"");
+	ASSERT_EQ(ExtractFileName(L"path\\file"), L"file");
+	ASSERT_EQ(ExtractFileName(L"C:"), L"");
+	ASSERT_EQ(ExtractFileName(L"C:\\"), L"");
+	ASSERT_EQ(ExtractFileName(L"C:\\file"), L"file");
+	ASSERT_EQ(ExtractFileName(L"C:\\path\\file"), L"file");
+	ASSERT_EQ(ExtractFileName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"), L"");
+	ASSERT_EQ(ExtractFileName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"), L"");
+	ASSERT_EQ(ExtractFileName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\file"), L"file");
+	ASSERT_EQ(ExtractFileName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file"), L"file");
+	ASSERT_EQ(ExtractFileName(L"\\\\server\\share"), L"");
+	ASSERT_EQ(ExtractFileName(L"\\\\server\\share\\"), L"");
+	ASSERT_EQ(ExtractFileName(L"\\\\server\\share\\file"), L"file");
+	ASSERT_EQ(ExtractFileName(L"\\\\server\\share\\path\\file"), L"file");
+	ASSERT_EQ(ExtractFileName(L"\\\\?\\UNC\\server\\share"), L"");
+	ASSERT_EQ(ExtractFileName(L"\\\\?\\UNC\\server\\share\\"), L"");
+	ASSERT_EQ(ExtractFileName(L"\\\\?\\UNC\\server\\share\\file"), L"file");
+	ASSERT_EQ(ExtractFileName(L"\\\\?\\UNC\\server\\share\\path\\file"), L"file");
 
-    assert(IsRootPath(L"C:"));
-    assert(IsRootPath(L"C:\\"));
-    assert(IsRootPath(L"\\"));
-    assert(!IsRootPath(L"C:\\path"));
+	ASSERT_EQ(PointToName(L""sv), L""sv);
+	ASSERT_EQ(PointToName(L"\\"sv), L""sv);
+	ASSERT_EQ(PointToName(L"\\file"sv), L"file"sv);
+	ASSERT_EQ(PointToName(L"file"sv), L"file"sv);
+	ASSERT_EQ(PointToName(L"path\\"sv), L""sv);
+	ASSERT_EQ(PointToName(L"path\\file"sv), L"file"sv);
+	//ASSERT_EQ(PointToName(L"C:"sv), L""sv);
+	ASSERT_EQ(PointToName(L"C:\\"sv), L""sv);
+	ASSERT_EQ(PointToName(L"C:\\file"sv), L"file"sv);
+	ASSERT_EQ(PointToName(L"C:\\path\\file"sv), L"file"sv);
+	//ASSERT_EQ(PointToName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"sv), L""sv);
+	ASSERT_EQ(PointToName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv), L""sv);
+	ASSERT_EQ(PointToName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\file"sv), L"file"sv);
+	ASSERT_EQ(PointToName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file"sv), L"file"sv);
+	//ASSERT_EQ(PointToName(L"\\\\server\\share"sv), L""sv);
+	ASSERT_EQ(PointToName(L"\\\\server\\share\\"sv), L""sv);
+	ASSERT_EQ(PointToName(L"\\\\server\\share\\file"sv), L"file"sv);
+	ASSERT_EQ(PointToName(L"\\\\server\\share\\path\\file"sv), L"file"sv);
+	//ASSERT_EQ(PointToName(L"\\\\?\\UNC\\server\\share"sv), L""sv);
+	ASSERT_EQ(PointToName(L"\\\\?\\UNC\\server\\share\\"sv), L""sv);
+	ASSERT_EQ(PointToName(L"\\\\?\\UNC\\server\\share\\file"sv), L"file"sv);
+	ASSERT_EQ(PointToName(L"\\\\?\\UNC\\server\\share\\path\\file"sv), L"file"sv);
 
-    assert(PathStartsWith(L"C:\\path\\file", L"C:\\path"));
-    assert(PathStartsWith(L"C:\\path\\file", L"C:\\path\\"));
-    assert(!PathStartsWith(L"C:\\path\\file", L"C:\\pat"));
-    assert(PathStartsWith(L"\\", L""));
-    assert(!PathStartsWith(L"C:\\path\\file", L""));
+	ASSERT_EQ(PointToExt(L""sv), L""sv);
+	ASSERT_EQ(PointToExt(L"file"sv), L""sv);
+	ASSERT_EQ(PointToExt(L"path\\file"sv), L""sv);
+	ASSERT_EQ(PointToExt(L"file.ext"sv), L".ext"sv);
+	ASSERT_EQ(PointToExt(L"path\\file.ext"sv), L".ext"sv);
+	ASSERT_EQ(PointToExt(L"file.ext1.ext2"sv), L".ext2"sv);
+	ASSERT_EQ(PointToExt(L"path\\file.ext1.ext2"sv), L".ext2"sv);
+
+	ASSERT_TRUE(IsRootPath(L"C:"));
+	ASSERT_TRUE(IsRootPath(L"C:\\"));
+	ASSERT_TRUE(IsRootPath(L"\\"));
+	ASSERT_FALSE(IsRootPath(L"C:\\path"));
+
+	ASSERT_TRUE(PathStartsWith(L"C:\\path\\file", L"C:\\path"));
+	ASSERT_TRUE(PathStartsWith(L"C:\\path\\file", L"C:\\path\\"));
+	ASSERT_FALSE(PathStartsWith(L"C:\\path\\file", L"C:\\pat"));
+	ASSERT_TRUE(PathStartsWith(L"\\", L""));
+	ASSERT_FALSE(PathStartsWith(L"C:\\path\\file", L""));
 
 	static const string_view TestRoots[] =
 	{
@@ -641,10 +660,13 @@ void TestPathParser()
 			Path = format(Test.InputPath, Root);
 			Baseline = format(Test.ExpectedPath, Root);
 
-			const auto Result = CutToParent(Path);
-			assert(Result == Test.ExpectedResult);
-			assert(Path == Baseline);
+			ASSERT_EQ(Test.ExpectedResult, CutToParent(Path));
+			ASSERT_EQ(Baseline, Path);
 		}
 	}
-#endif
 }
+#endif
+
+SELF_TEST(TestPaths)
+
+

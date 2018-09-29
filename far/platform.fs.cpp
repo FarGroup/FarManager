@@ -785,7 +785,7 @@ namespace os::fs
 		const auto di = reinterpret_cast<FILE_ID_BOTH_DIR_INFORMATION*>(FileInformation);
 		di->NextEntryOffset = 0xffffffffUL;
 
-		NTSTATUS Result = imports.NtQueryDirectoryFile(m_Handle.native_handle(), nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, static_cast<ULONG>(Length), FileInformationClass, ReturnSingleEntry, pNameString, RestartScan);
+		const auto Result = imports.NtQueryDirectoryFile(m_Handle.native_handle(), nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, static_cast<ULONG>(Length), FileInformationClass, ReturnSingleEntry, pNameString, RestartScan);
 		SetLastError(imports.RtlNtStatusToDosError(Result));
 		if (Status)
 		{
@@ -798,7 +798,7 @@ namespace os::fs
 	bool file::NtQueryInformationFile(void* FileInformation, size_t Length, FILE_INFORMATION_CLASS FileInformationClass, NTSTATUS* Status) const
 	{
 		IO_STATUS_BLOCK IoStatusBlock;
-		NTSTATUS Result = imports.NtQueryInformationFile(m_Handle.native_handle(), &IoStatusBlock, FileInformation, static_cast<ULONG>(Length), FileInformationClass);
+		const auto Result = imports.NtQueryInformationFile(m_Handle.native_handle(), &IoStatusBlock, FileInformation, static_cast<ULONG>(Length), FileInformationClass);
 		SetLastError(imports.RtlNtStatusToDosError(Result));
 		if (Status)
 		{
@@ -853,11 +853,9 @@ namespace os::fs
 
 		SCOPE_EXIT{ imports.NtClose(hSymLink); };
 
-		ULONG BufSize = 32767;
+		const auto BufSize = 32767;
 		wchar_t_ptr Buffer(BufSize);
-		UNICODE_STRING LinkTarget;
-		LinkTarget.MaximumLength = static_cast<USHORT>(BufSize * sizeof(wchar_t));
-		LinkTarget.Buffer = Buffer.get();
+		UNICODE_STRING LinkTarget{ 0, static_cast<USHORT>(BufSize * sizeof(wchar_t)), Buffer.get() };
 
 		if (imports.NtQuerySymbolicLinkObject(hSymLink, &LinkTarget, nullptr) != STATUS_SUCCESS)
 			return 0;
@@ -1101,7 +1099,7 @@ namespace os::fs
 		if (!m_File)
 			throw MAKE_FAR_EXCEPTION(L"File not opened"sv);
 
-		if (!(m_Mode && std::ios::in))
+		if (!(m_Mode & std::ios::in))
 			throw MAKE_FAR_EXCEPTION(L"Buffer not opened for reading"sv);
 
 		size_t Read;
@@ -1120,7 +1118,7 @@ namespace os::fs
 		if (!m_File)
 			throw MAKE_FAR_EXCEPTION(L"File not opened"sv);
 
-		if (!(m_Mode && std::ios::out))
+		if (!(m_Mode & std::ios::out))
 			throw MAKE_FAR_EXCEPTION(L"Buffer not opened for writing"sv);
 
 		if (pptr() != pbase())
@@ -1880,8 +1878,11 @@ namespace os::fs
 		// Ага, значит файл таки есть. Заполним структуру ручками.
 		if (const auto File = file(FileName, FILE_READ_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
 		{
-			File.GetTime(&FindData.CreationTime, &FindData.LastAccessTime, &FindData.LastWriteTime, &FindData.ChangeTime);
-			File.GetSize(FindData.FileSize);
+			if (!File.GetTime(&FindData.CreationTime, &FindData.LastAccessTime, &FindData.LastWriteTime, &FindData.ChangeTime))
+				return false;
+
+			if (!File.GetSize(FindData.FileSize))
+				return false;
 		}
 
 		if (FindData.Attributes & FILE_ATTRIBUTE_REPARSE_POINT)

@@ -67,7 +67,7 @@ enum class clipboard::clipboard_format
 //-----------------------------------------------------------------------------
 class system_clipboard: public clipboard, public singleton<system_clipboard>
 {
-	IMPLEMENTS_SINGLETON(system_clipboard);
+	IMPLEMENTS_SINGLETON;
 
 public:
 	~system_clipboard() override
@@ -170,7 +170,7 @@ private:
 //-----------------------------------------------------------------------------
 class internal_clipboard: public clipboard, public singleton<internal_clipboard>
 {
-	IMPLEMENTS_SINGLETON(internal_clipboard);
+	IMPLEMENTS_SINGLETON;
 
 public:
 	static auto CreateInstance()

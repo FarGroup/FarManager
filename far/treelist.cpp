@@ -636,7 +636,7 @@ struct TreePreRedrawItem: public PreRedrawItem
 	size_t TreeCount;
 };
 
-static int MsgReadTree(size_t TreeCount, int FirstCall)
+static void MsgReadTreeImpl(size_t TreeCount)
 {
 	/* $ 24.09.2001 VVM
 	! Писать сообщение о чтении дерева только, если это заняло более 500 мсек. */
@@ -650,40 +650,34 @@ static int MsgReadTree(size_t TreeCount, int FirstCall)
 
 	if (IsChangeConsole || std::chrono::steady_clock::now() - TreeStartTime > 1s)
 	{
-		Message(FirstCall? 0 : MSG_KEEPBACKGROUND,
+		Message(0,
 			msg(lng::MTreeTitle),
 			{
 				msg(lng::MReadingTree),
 				str(TreeCount)
 			},
 			{});
-		if (!PreRedrawStack().empty())
-		{
-			const auto item = dynamic_cast<TreePreRedrawItem*>(PreRedrawStack().top());
-			assert(item);
-			if (item)
-			{
-				item->TreeCount = TreeCount;
-			}
-		}
+
 		TreeStartTime = std::chrono::steady_clock::now();
 	}
+}
 
-	return 1;
+static void MsgReadTree(size_t TreeCount)
+{
+	MsgReadTreeImpl(TreeCount);
+
+	TPreRedrawFunc::instance()([&](TreePreRedrawItem& Item)
+	{
+		Item.TreeCount = TreeCount;
+	});
 }
 
 static void PR_MsgReadTree()
 {
-	if (!PreRedrawStack().empty())
+	TPreRedrawFunc::instance()([](const TreePreRedrawItem& Item)
 	{
-		int FirstCall = 1;
-		const auto item = dynamic_cast<const TreePreRedrawItem*>(PreRedrawStack().top());
-		assert(item);
-		if (item)
-		{
-			MsgReadTree(item->TreeCount, FirstCall);
-		}
-	}
+		MsgReadTreeImpl(Item.TreeCount);
+	});
 }
 
 static os::fs::file OpenTreeFile(const string& Name, bool Writable)
@@ -809,13 +803,14 @@ bool TreeList::ReadTree()
 	SaveState();
 	GetRoot();
 
-	m_ListData.clear();
+	const auto PrevCurFile = std::exchange(m_CurFile, 0);
 
+	m_ListData.clear();
 	m_ListData.reserve(4096);
 
 	m_ListData.emplace_back(m_Root);
 
-	auto FirstCall = true, AscAbort = false;
+	auto AscAbort = false;
 	TreeStartTime = std::chrono::steady_clock::now();
 	SCOPED_ACTION(RefreshWindowManager)(ScrX, ScrY);
 	ScTree.SetFindPath(m_Root, L"*"sv, 0);
@@ -825,13 +820,12 @@ bool TreeList::ReadTree()
 	SCOPED_ACTION(wakeful);
 	while (ScTree.GetNextName(fdata,strFullName))
 	{
-		MsgReadTree(m_ListData.size(), FirstCall);
+		MsgReadTree(m_ListData.size());
 
 		if (CheckForEscSilent())
 		{
 			// BUGBUG, Dialog calls Commit, TreeList redraws and crashes.
 			AscAbort=ConfirmAbortOp();
-			FirstCall = true;
 		}
 
 		if (AscAbort)
@@ -858,12 +852,7 @@ bool TreeList::ReadTree()
 	if (!AscAbort)
 		SaveTreeFile();
 
-	if (!FirstCall && m_ModalMode)
-	{
-		// Перерисуем другую панель - удалим следы сообщений :)
-		Parent()->GetAnotherPanel(this)->Redraw();
-	}
-
+	m_CurFile = PrevCurFile;
 	return true;
 }
 
@@ -1843,7 +1832,7 @@ void TreeList::ReadSubTree(const string& Path)
 
 	const auto strDirName = ConvertNameToFull(Path);
 	AddTreeName(strDirName);
-	int FirstCall=TRUE, AscAbort=FALSE;
+	auto AscAbort = false;
 	ScTree.SetFindPath(strDirName, L"*"sv, 0);
 	LastScrX = ScrX;
 	LastScrY = ScrY;
@@ -1855,12 +1844,11 @@ void TreeList::ReadSubTree(const string& Path)
 	{
 		if (fdata.Attributes & FILE_ATTRIBUTE_DIRECTORY)
 		{
-			MsgReadTree(Count+1,FirstCall);
+			MsgReadTree(Count + 1);
 
 			if (CheckForEscSilent())
 			{
 				AscAbort=ConfirmAbortOp();
-				FirstCall=TRUE;
 			}
 
 			if (AscAbort)

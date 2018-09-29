@@ -66,7 +66,7 @@ public:
 	~ScanTree();
 
 	// 3-й параметр - флаги из старшего слова
-	void SetFindPath(const string& Path, string_view Mask, DWORD NewScanFlags = FSCANTREE_FILESFIRST);
+	void SetFindPath(string_view Path, string_view Mask, DWORD NewScanFlags = FSCANTREE_FILESFIRST);
 	bool GetNextName(os::fs::find_data& fdata, string &strFullName);
 	void SkipDir();
 	int IsDirSearchDone() const {return Flags.Check(FSCANTREE_SECONDDIRNAME);}

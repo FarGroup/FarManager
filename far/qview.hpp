@@ -72,7 +72,7 @@ private:
 
 	unique_ptr_with_ondestroy<Viewer> QView;
 	string strCurFileName;
-	UserDataItem CurUserData;
+	UserDataItem CurUserData{};
 	string strCurFileType;
 	DirInfoData Data;
 	bool OldWrapMode;

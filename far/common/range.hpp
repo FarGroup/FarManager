@@ -255,7 +255,7 @@ namespace detail
 		}
 
 		decltype(auto) operator*() { return std::invoke(m_Accessor, *m_Value); }
-		decltype(auto) operator*() const { return &std::invoke(m_Accessor, *m_Value); }
+		decltype(auto) operator*() const { return std::invoke(m_Accessor, *m_Value); }
 		auto operator->() { return &**this; }
 		auto operator->() const { return &**this; }
 

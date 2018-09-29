@@ -3,6 +3,20 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 30.09.2018 00:16:35 +0300 - build 5274
+
+1. More 5141 aka M#3578: the fix didn't work for formats like "ddddddddd, dd/MM/yy".
+
+2. Correction of wildcards processing in file names. It should be closer to cmd now.
+
+3. Scanning directories on plugin panels uses the same UI as on the regular.
+
+4. Crash on elevation dialog appearing during tree re-reading.
+
+5. Window maximise/restore didn't work during some operations.
+
+6. Refactoring.
+
 drkns 26.09.2018 18:54:39 +0300 - build 5273
 
 1. Added keyboard-style delays to mouse handling for cases like "a button is pressed and held for scrolling":

@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 // обработать имя файла: сравнить с маской, масками, сгенерировать по маске
-bool ConvertWildcards(const string& SrcName, string& strDest, int SelectedFolderNameLength);
+bool ConvertWildcards(string_view SrcName, string& strDest, int SelectedFolderNameLength);
 bool CmpName(string_view pattern, string_view str, bool skippath = true, bool CmpNameSearchMode = false);
 
 #endif // PROCESSNAME_HPP_8DEB440D_A0C0_40CB_9960_AF2BCD568A88

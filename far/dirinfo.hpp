@@ -47,15 +47,19 @@ enum GETDIRINFOFLAGS
 	GETDIRINFO_USEFILTER          =0x00000010,
 };
 
-struct DirInfoData
+struct BasicDirInfoData
 {
+	DWORD DirCount;
+	DWORD FileCount;
 	unsigned long long FileSize;
 	unsigned long long AllocationSize;
+};
+
+struct DirInfoData: public BasicDirInfoData
+{
 	unsigned long long FilesSlack;
 	unsigned long long MFTOverhead;
 	unsigned long long ClusterSize;
-	DWORD DirCount;
-	DWORD FileCount;
 };
 
 enum getdirinfo_message_delay
@@ -71,9 +75,9 @@ void DirInfoMsg(string_view Title, string_view Name, unsigned long long Items, u
 
 class plugin_panel;
 
-bool GetPluginDirInfo(const plugin_panel* hPlugin,const string& DirName, const UserDataItem* UserData, unsigned long& DirCount, unsigned long& FileCount,unsigned long long& FileSize, unsigned long long& CompressedFileSize);
+bool GetPluginDirInfo(const plugin_panel* hPlugin, const string& DirName, const UserDataItem* UserData, BasicDirInfoData& Data, const dirinfo_callback& Callback);
 
-bool GetPluginDirList(class Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, const UserDataItem* UserData, std::vector<PluginPanelItem>& Items);
+bool GetPluginDirList(class Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, const UserDataItem* UserData, std::vector<PluginPanelItem>& Items, const dirinfo_callback& Callback);
 void FreePluginDirList(HANDLE hPlugin, std::vector<PluginPanelItem>& Items);
 
 #endif // DIRINFO_HPP_DA86BD11_D517_4EC9_8324_44EDF0CC7C9A

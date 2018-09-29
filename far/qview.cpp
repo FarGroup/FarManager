@@ -451,26 +451,26 @@ void QuickView::ShowFile(string_view const FileName, const UserDataItem* const U
 		// Не показывать тип файла для каталогов в "Быстром просмотре"
 		strCurFileType.clear();
 
+		time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+
+		const auto& DirInfoCallback = [&](string_view const Name, unsigned long long const ItemsCount, unsigned long long const Size)
+		{
+			if (TimeCheck)
+				DirInfoMsg(msg(lng::MQuickViewTitle), Name, ItemsCount, Size);
+		};
+
 		if (SameFile && !hDirPlugin)
 		{
 			m_DirectoryScanStatus = scan_status::real_ok;
 		}
 		else if (hDirPlugin)
 		{
-			const auto Result = GetPluginDirInfo(hDirPlugin, strCurFileName, UserData, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize);
+			const auto Result = GetPluginDirInfo(hDirPlugin, strCurFileName, UserData, Data, DirInfoCallback);
 			m_DirectoryScanStatus = Result? scan_status::plugin_ok : scan_status::plugin_fail;
 			uncomplete_dirscan = !Result;
 		}
 		else
 		{
-			time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
-
-			const auto& DirInfoCallback = [&](string_view const Name, unsigned long long const Items, unsigned long long const Size) mutable
-			{
-				if (TimeCheck)
-					DirInfoMsg(msg(lng::MQuickViewTitle), Name, Items, Size);
-			};
-
 			const auto ExitCode = GetDirInfo(strCurFileName, Data, nullptr, DirInfoCallback, GETDIRINFO_ENHBREAK | GETDIRINFO_SCANSYMLINKDEF);
 			m_DirectoryScanStatus = ExitCode == -1? scan_status::real_fail : scan_status::real_ok; // ExitCode: 1=done; 0=Esc,CtrlBreak; -1=Other
 			uncomplete_dirscan = ExitCode != 1;

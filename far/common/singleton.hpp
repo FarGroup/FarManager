@@ -43,8 +43,11 @@ public:
 		static type Instance;
 		return Instance;
 	}
+
+protected:
+	using singleton_type = singleton<type>;
 };
 
-#define IMPLEMENTS_SINGLETON(...) friend class singleton<__VA_ARGS__>
+#define IMPLEMENTS_SINGLETON friend singleton_type
 
 #endif // SINGLETON_HPP_689EF327_41C5_4AB7_B9A6_CB5361D7B040

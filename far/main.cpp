@@ -140,8 +140,10 @@ static int MainProcess(
 )
 {
 		SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
-		FarColor InitAttributes={};
-		console.GetTextAttributes(InitAttributes);
+
+		FarColor InitAttributes;
+		if (!console.GetTextAttributes(InitAttributes))
+			InitAttributes = colors::ConsoleColorToFarColor(F_LIGHTGRAY | B_BLACK);
 		SetRealColor(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
 
 		string ename(EditName),vname(ViewName), apanel(DestName1),ppanel(DestName2);
@@ -425,8 +427,8 @@ static bool ProcessServiceModes(range<const wchar_t* const*> const Args, int& Se
 static void UpdateErrorMode()
 {
 	Global->ErrorMode |= SEM_NOGPFAULTERRORBOX;
-	long long IgnoreDataAlignmentFaults = 0;
-	ConfigProvider().GeneralCfg()->GetValue(L"System.Exception"sv, L"IgnoreDataAlignmentFaults"sv, IgnoreDataAlignmentFaults, IgnoreDataAlignmentFaults);
+	bool IgnoreDataAlignmentFaults;
+	ConfigProvider().GeneralCfg()->GetValue(L"System.Exception"sv, L"IgnoreDataAlignmentFaults"sv, IgnoreDataAlignmentFaults, false);
 	if (IgnoreDataAlignmentFaults)
 	{
 		Global->ErrorMode |= SEM_NOALIGNMENTFAULTEXCEPT;
@@ -437,8 +439,8 @@ static void UpdateErrorMode()
 
 static void SetDriveMenuHotkeys()
 {
-	long long InitDriveMenuHotkeys = 1;
-	ConfigProvider().GeneralCfg()->GetValue(L"Interface"sv, L"InitDriveMenuHotkeys"sv, InitDriveMenuHotkeys, InitDriveMenuHotkeys);
+	bool InitDriveMenuHotkeys;
+	ConfigProvider().GeneralCfg()->GetValue(L"Interface"sv, L"InitDriveMenuHotkeys"sv, InitDriveMenuHotkeys, true);
 
 	if (InitDriveMenuHotkeys)
 	{
@@ -477,8 +479,6 @@ static int mainImpl(range<const wchar_t* const*> const Args)
 	auto NoElevationDuringBoot = std::make_unique<elevation::suppress>();
 
 	os::set_error_mode(Global->ErrorMode);
-
-	TestPathParser();
 
 	RegisterTestExceptionsHook();
 

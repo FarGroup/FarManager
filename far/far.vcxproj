@@ -43,7 +43,7 @@
   <PropertyGroup Label="UserMacros">
     <NewOptions Condition="'$(VisualStudioVersion)' == '14.0'">
     </NewOptions>
-    <NewOptions Condition="'$(VisualStudioVersion)' == '15.0'">/permissive-</NewOptions>
+    <NewOptions Condition="'$(VisualStudioVersion)' == '15.0'">/permissive- /Zc:__cplusplus,externConstexpr /JMC</NewOptions>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.21006.1</_ProjectFileVersion>
@@ -67,7 +67,7 @@ if not exist Include mkdir Include
 if not exist bootstrap mkdir bootstrap</Command>
     </PreBuildEvent>
     <ClCompile>
-      <AdditionalOptions>/J /Zc:rvalueCast,inline,strictStrings,throwingNew,referenceBinding /std:c++latest $(NewOptions) %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/J /Zc:inline,referenceBinding,rvalueCast,strictStrings,throwingNew /std:c++latest $(NewOptions) %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>_ENABLE_EXTENDED_ALIGNED_STORAGE;_HAS_AUTO_PTR_ETC=0;_CRT_SECURE_NO_WARNINGS;FAR_ALPHA_VERSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Sync</ExceptionHandling>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -367,6 +367,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="common\string_view.hpp" />
     <ClInclude Include="common\any.hpp" />
     <ClInclude Include="codepage_selection.hpp" />
+    <ClInclude Include="common\test.hpp" />
     <ClInclude Include="common\type_traits.hpp" />
     <ClInclude Include="common\utility.hpp" />
     <ClInclude Include="common\zip_view.hpp" />

@@ -132,19 +132,17 @@ namespace detail
 			if (os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_SSHORTDATE, Value))
 			{
 				size_t pos = 0;
-				if (starts_with(Value, L"ddd"sv)) // starts with week day
+				const auto Weekday = L"ddd"sv;
+				if (starts_with(Value, Weekday))
 				{
-					pos = Value[3] == L'd'? 4 : 3;
+					pos = Value.find_first_not_of(L'd', Weekday.size());
 					// skip separators
-					while (Value[pos] != L'd' && Value[pos] != L'M' && Value[pos] != L'y')
-						++pos;
+					pos = Value.find_first_of(L"dMyg", pos);
 				}
 
 				// find separator
-				while (Value[pos] == L'd' || Value[pos] == L'M' || Value[pos] == L'y')
-					++pos;
-
-				if (Value[pos])
+				pos = Value.find_first_not_of(L"dMyg", pos);
+				if (pos != Value.npos)
 					m_DateSeparator = Value[pos];
 			}
 			else

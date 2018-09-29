@@ -40,7 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class taskbar: public singleton<taskbar>
 {
-	IMPLEMENTS_SINGLETON(taskbar);
+	IMPLEMENTS_SINGLETON;
 
 public:
 	TBPFLAG GetProgressState() const;

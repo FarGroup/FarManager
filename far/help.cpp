@@ -1804,7 +1804,7 @@ bool Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	}
 
 	FastShow();
-	Sleep(1);
+	std::this_thread::sleep_for(1ms);
 	return true;
 }
 

@@ -66,7 +66,7 @@ ScanTree::ScanTree(bool RetUpDir, bool Recurse, int ScanJunction)
 
 ScanTree::~ScanTree() = default;
 
-void ScanTree::SetFindPath(const string& Path, string_view const Mask, const DWORD NewScanFlags)
+void ScanTree::SetFindPath(string_view const Path, string_view const Mask, const DWORD NewScanFlags)
 {
 	ScanItems.clear();
 
@@ -74,7 +74,7 @@ void ScanTree::SetFindPath(const string& Path, string_view const Mask, const DWO
 
 	assign(strFindMask, Mask);
 
-	strFindPathOriginal = Path;
+	assign(strFindPathOriginal, Path);
 	AddEndSlash(strFindPathOriginal);
 
 	strFindPath = NTPath(ConvertNameToReal(Path));

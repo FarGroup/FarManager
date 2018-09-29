@@ -133,7 +133,7 @@ static bool CASHook(const Manager::Key& key)
 								break;
 						}
 
-						Sleep(1);
+						std::this_thread::sleep_for(1ms);
 					}
 				};
 				const auto
@@ -685,7 +685,7 @@ bool Manager::ProcessKey(Key key)
 				return true;
 			}
 			case KEY_CONSOLE_BUFFER_RESIZE:
-				Sleep(1);
+				std::this_thread::sleep_for(1ms);
 				ResizeAllWindows();
 				return true;
 		}
@@ -726,9 +726,9 @@ bool Manager::ProcessKey(Key key)
 				case KEY_RALTF9:
 				{
 					//_MANAGER(SysLog(1,"Manager::ProcessKey, KEY_ALTF9 pressed..."));
-					Sleep(1);
+					std::this_thread::sleep_for(1ms);
 					SetVideoMode();
-					Sleep(1);
+					std::this_thread::sleep_for(1ms);
 
 					/* В процессе исполнения Alt-F9 (в нормальном режиме) в очередь
 					   консоли попадает WINDOW_BUFFER_SIZE_EVENT, формируется в
@@ -740,7 +740,7 @@ bool Manager::ProcessKey(Key key)
 					{
 						int PScrX=ScrX;
 						int PScrY=ScrY;
-						Sleep(1);
+						std::this_thread::sleep_for(1ms);
 						UpdateScreenSize();
 
 						if (PScrX+1 == CurSize.X && PScrY+1 == CurSize.Y)

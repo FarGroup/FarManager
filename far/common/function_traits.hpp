@@ -37,7 +37,7 @@ namespace detail
 	template<typename T>
 	using root_type_t = std::remove_cv_t<std::remove_reference_t<std::remove_pointer_t<T>>>;
 
-	template<typename result, typename... args>
+	template<typename result, typename object, typename... args>
 	struct function_traits_impl
 	{
 		using result_type = result;
@@ -49,20 +49,20 @@ namespace detail
 	};
 }
 
-template<typename>
-struct function_traits;
+template<typename object>
+struct function_traits: function_traits<decltype(&object::operator())> {};
 
 template<typename result, typename... args>
-struct function_traits<result(args...)>: detail::function_traits_impl<result, args...> {};
+struct function_traits<result(args...)>: detail::function_traits_impl<result, void, args...> {};
 
 template<typename result, typename... args>
-struct function_traits<result(*)(args...)> : detail::function_traits_impl<result, args...> {};
+struct function_traits<result(*)(args...)> : detail::function_traits_impl<result, void, args...> {};
 
 template<typename result, typename object, typename... args>
-struct function_traits<result(object::*)(args...)>: detail::function_traits_impl<result, args...> {};
+struct function_traits<result(object::*)(args...)>: detail::function_traits_impl<result, object, args...> {};
 
 template<typename result, typename object, typename... args>
-struct function_traits<result(object::*)(args...) const>: detail::function_traits_impl<result, args...> {};
+struct function_traits<result(object::*)(args...) const>: detail::function_traits_impl<result, object, args...> {};
 
 
 #define FN_RETURN_TYPE(...) function_traits<decltype(&__VA_ARGS__)>::root_result_type

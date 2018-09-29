@@ -68,12 +68,12 @@ namespace detail
 	private:
 		void refresh() const;
 
-		mutable int m_DateFormat;
-		mutable int m_DigitsGrouping;
-		mutable wchar_t m_DateSeparator;
-		mutable wchar_t m_TimeSeparator;
-		mutable wchar_t m_DecimalSeparator;
-		mutable wchar_t m_ThousandSeparator;
+		mutable int m_DateFormat{};
+		mutable int m_DigitsGrouping{};
+		mutable wchar_t m_DateSeparator{};
+		mutable wchar_t m_TimeSeparator{};
+		mutable wchar_t m_DecimalSeparator{};
+		mutable wchar_t m_ThousandSeparator{};
 		mutable locale_names m_LocalNames;
 		mutable locale_names m_EnglishNames;
 

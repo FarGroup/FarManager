@@ -85,7 +85,7 @@ namespace detail
 
 class message_manager: public singleton<message_manager>
 {
-	IMPLEMENTS_SINGLETON(message_manager);
+	IMPLEMENTS_SINGLETON;
 
 public:
 	using handlers_map = std::multimap<string, const detail::event_handler*>;

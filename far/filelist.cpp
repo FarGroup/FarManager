@@ -1617,7 +1617,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 				return true;
 			}
 
-			ProcessEnter(true, (LocalKey & KEY_SHIFT) != 0, true, (LocalKey & KEY_CTRL || LocalKey & KEY_RCTRL) && (LocalKey & KEY_ALT || LocalKey & KEY_RALT), OFP_NORMAL);
+			ProcessEnter(true, (LocalKey & KEY_SHIFT) != 0, true, (LocalKey & (KEY_CTRL | KEY_RCTRL)) && (LocalKey & (KEY_ALT | KEY_RALT)), OFP_NORMAL);
 			return true;
 		}
 
@@ -4914,46 +4914,23 @@ void FileList::CountDirSize(bool IsRealNames)
 {
 	unsigned long SelDirCount=0;
 	DirInfoData Data = {};
-	/* $ 09.11.2000 OT
-	  F3 на ".." в плагинах
-	*/
-	if (m_PanelMode == panel_mode::PLUGIN_PANEL && !m_CurFile && IsParentDirectory(m_ListData[0]))
-	{
-		if (const auto DoubleDotDir = m_SelFileCount && std::any_of(CONST_RANGE(m_ListData, i) { return i.Selected && i.Attributes & FILE_ATTRIBUTE_DIRECTORY; })? nullptr : &m_ListData.front())
-		{
-			DoubleDotDir->ShowFolderSize=1;
-			DoubleDotDir->FileSize     = 0;
-			DoubleDotDir->AllocationSize    = 0;
-
-			for (const auto& i: make_range(m_ListData.begin() + 1, m_ListData.end()))
-			{
-				if (i.Attributes & FILE_ATTRIBUTE_DIRECTORY)
-				{
-					if (!IsParentDirectory(i) && GetPluginDirInfo(GetPluginHandle(), i.FileName, &i.UserData, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize))
-					{
-						DoubleDotDir->FileSize += Data.FileSize;
-						DoubleDotDir->AllocationSize += Data.AllocationSize;
-					}
-				}
-				else
-				{
-					DoubleDotDir->FileSize += i.FileSize;
-					DoubleDotDir->AllocationSize += i.AllocationSize;
-				}
-			}
-		}
-	}
 
 	//Рефреш текущему времени для фильтра перед началом операции
 	m_Filter->UpdateCurrentTime();
 
 	time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
-	unsigned long long TotalItems = 0;
+	
+	struct
+	{
+		unsigned long long Items;
+		unsigned long long Size;
+	}
+	Total{};
 
-	const auto& DirInfoCallback = [&](string_view const Name, unsigned long long const Items, unsigned long long const Size)
+	const auto& DirInfoCallback = [&](string_view const Name, unsigned long long const ItemsCount, unsigned long long const Size)
 	{
 		if (TimeCheck)
-			DirInfoMsg(msg(lng::MDirInfoViewTitle), Name, TotalItems + Items, SelFileSize + Size);
+			DirInfoMsg(msg(lng::MDirInfoViewTitle), Name, Total.Items + ItemsCount, Total.Size + Size);
 	};
 
 	for (auto& i: m_ListData)
@@ -4961,26 +4938,79 @@ void FileList::CountDirSize(bool IsRealNames)
 		if (i.Selected && (i.Attributes & FILE_ATTRIBUTE_DIRECTORY))
 		{
 			SelDirCount++;
-			if ((!IsRealNames && !IsParentDirectory(i) && GetPluginDirInfo(GetPluginHandle(), i.FileName, &i.UserData, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize)) ||
+			if ((!IsRealNames && !IsParentDirectory(i) && GetPluginDirInfo(GetPluginHandle(), i.FileName, &i.UserData, Data, DirInfoCallback)) ||
 			     (IsRealNames && GetDirInfo(i.FileName, Data, m_Filter.get(), DirInfoCallback, GETDIRINFO_SCANSYMLINKDEF) == 1))
 			{
 				SelFileSize -= i.FileSize;
 				SelFileSize += Data.FileSize;
+
 				i.FileSize = Data.FileSize;
 				i.AllocationSize = Data.AllocationSize;
-				i.ShowFolderSize=1;
-				TotalItems += Data.DirCount + Data.FileCount;
+				i.ShowFolderSize = 1;
+
+				Total.Items += Data.DirCount + Data.FileCount;
+				Total.Size += Data.FileSize;
 			}
 			else
 				break;
 		}
 	}
 
+	const auto& GetPluginDirInfoOrParent = [this, &Total](const plugin_panel* const ph, const string& DirName, const UserDataItem* const UserData, BasicDirInfoData& Data, const dirinfo_callback& Callback)
+	{
+		if (!m_CurFile && IsParentDirectory(m_ListData[0]))
+		{
+			const auto PluginCurDir = *m_CachedOpenPanelInfo.CurDir? PointToName(m_CachedOpenPanelInfo.CurDir) : L"\\"sv;
+			const auto& ParentDirInfoCallback = [&](string_view const, unsigned long long const ItemsCount, unsigned long long const Size)
+			{
+				return Callback(PluginCurDir, ItemsCount, Size);
+			};
+
+			for (const auto& i: make_range(m_ListData.begin() + 1, m_ListData.end()))
+			{
+				if (i.Attributes & FILE_ATTRIBUTE_DIRECTORY)
+				{
+					++Data.DirCount;
+
+					if (!IsParentDirectory(i))
+					{
+						BasicDirInfoData SubData{};
+						if (!GetPluginDirInfo(GetPluginHandle(), i.FileName, &i.UserData, SubData, ParentDirInfoCallback))
+							return false;
+
+						Data.FileCount += SubData.FileCount;
+						Data.DirCount += SubData.DirCount;
+						Data.FileSize += SubData.FileSize;
+						Data.AllocationSize += SubData.AllocationSize;
+
+						Total.Items += SubData.DirCount + SubData.FileCount;
+						Total.Size += SubData.FileSize;
+					}
+				}
+				else
+				{
+					++Data.FileCount;
+					Data.FileSize += i.FileSize;
+					Data.AllocationSize += i.AllocationSize;
+
+					++Total.Items;
+					Total.Size += i.FileSize;
+				}
+			}
+
+			return true;
+		}
+		else
+		{
+			return GetPluginDirInfo(ph, DirName, UserData, Data, Callback);
+		}
+	};
+	
 	if (!SelDirCount)
 	{
 		assert(m_CurFile < static_cast<int>(m_ListData.size()));
 		auto& CurFile = m_ListData[m_CurFile];
-		if ((!IsRealNames && !IsParentDirectory(CurFile) && GetPluginDirInfo(GetPluginHandle(), CurFile.FileName, &CurFile.UserData, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize)) ||
+		if ((!IsRealNames && GetPluginDirInfoOrParent(GetPluginHandle(), CurFile.FileName, &CurFile.UserData, Data, DirInfoCallback)) ||
 		     (IsRealNames && GetDirInfo(IsParentDirectory(CurFile)? L"."s : CurFile.FileName, Data, m_Filter.get(), DirInfoCallback, GETDIRINFO_SCANSYMLINKDEF) == 1))
 		{
 			CurFile.FileSize = Data.FileSize;
@@ -6406,7 +6436,7 @@ struct FileListPreRedrawItem : PreRedrawItem
 	string Msg;
 };
 
-static void ReadFileNamesMsg(const string& Msg)
+static void ReadFileNamesMsgImpl(const string& Msg)
 {
 	Message(0,
 		msg(lng::MReadingTitleFiles),
@@ -6414,29 +6444,24 @@ static void ReadFileNamesMsg(const string& Msg)
 			Msg
 		},
 		{});
+}
 
-	if (!PreRedrawStack().empty())
+static void ReadFileNamesMsg(const string& Msg)
+{
+	ReadFileNamesMsgImpl(Msg);
+
+	TPreRedrawFunc::instance()([&](FileListPreRedrawItem& Item)
 	{
-		const auto item = dynamic_cast<FileListPreRedrawItem*>(PreRedrawStack().top());
-		assert(item);
-		if (item)
-		{
-			item->Msg = Msg;
-		}
-	}
+		Item.Msg = Msg;
+	});
 }
 
 static void PR_ReadFileNamesMsg()
 {
-	if (!PreRedrawStack().empty())
+	TPreRedrawFunc::instance()([](const FileListPreRedrawItem& Item)
 	{
-		const auto item = dynamic_cast<const FileListPreRedrawItem*>(PreRedrawStack().top());
-		assert(item);
-		if (item)
-		{
-			ReadFileNamesMsg(item->Msg);
-		}
-	}
+		ReadFileNamesMsgImpl(Item.Msg);
+	});
 }
 
 void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, int DrawMessage)

@@ -526,7 +526,7 @@ struct AttrPreRedrawItem : public PreRedrawItem
 	string Name;
 };
 
-static void ShellSetFileAttributesMsg(const string& Name)
+static void ShellSetFileAttributesMsgImpl(const string& Name)
 {
 	static int Width=54;
 	int WidthTemp;
@@ -548,15 +548,16 @@ static void ShellSetFileAttributesMsg(const string& Name)
 			strOutFileName
 		},
 		{});
-	if (!PreRedrawStack().empty())
+}
+
+static void ShellSetFileAttributesMsg(const string& Name)
+{
+	ShellSetFileAttributesMsgImpl(Name);
+
+	TPreRedrawFunc::instance()([&](AttrPreRedrawItem& Item)
 	{
-		const auto item = dynamic_cast<AttrPreRedrawItem*>(PreRedrawStack().top());
-		assert(item);
-		if (item)
-		{
-			item->Name = Name;
-		}
-	}
+		Item.Name = Name;
+	});
 }
 
 static bool ReadFileTime(int Type, const string& Name, os::chrono::time_point& FileTime, const string& OSrcDate, const date_ranges& DateRanges, const string& OSrcTime, const time_ranges& TimeRanges)
@@ -615,17 +616,12 @@ static bool ReadFileTime(int Type, const string& Name, os::chrono::time_point& F
 	return FileTime != OriginalFileTime;
 }
 
-void PR_ShellSetFileAttributesMsg()
+static void PR_ShellSetFileAttributesMsg()
 {
-	if (PreRedrawStack().empty())
-		return;
-
-	const auto item = dynamic_cast<const AttrPreRedrawItem*>(PreRedrawStack().top());
-	assert(item);
-	if (item)
+	TPreRedrawFunc::instance()([](const AttrPreRedrawItem& Item)
 	{
-		ShellSetFileAttributesMsg(item->Name);
-	}
+		ShellSetFileAttributesMsgImpl(Item.Name);
+	});
 }
 
 bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)

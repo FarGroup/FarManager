@@ -91,7 +91,7 @@ enum MACRO_OP_CODE
 	MCODE_F_PANELITEM,                // V=PanelItem(Panel,Index,TypeInfo)
 	MCODE_F_EVAL,                     // N=eval(S[,N])
 	MCODE_F_RINDEX,                   // S=rindex(S1,S2[,Mode])
-	MCODE_F_SLEEP,                    // Sleep(N)
+	MCODE_F_SLEEP,                    // std::this_thread::sleep_for(Nms)
 	MCODE_F_STRING,                   // S=string(V)
 	MCODE_F_SUBSTR,                   // S=substr(S,start[,length])
 	MCODE_F_UCASE,                    // S=ucase(S1)

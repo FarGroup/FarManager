@@ -58,7 +58,7 @@ enum CodePagesCallbackCallSource: int;
 
 class codepages: public singleton<codepages>
 {
-	IMPLEMENTS_SINGLETON(codepages);
+	IMPLEMENTS_SINGLETON;
 
 public:
 	NONCOPYABLE(codepages);

@@ -6726,48 +6726,41 @@ void Editor::SetSavePosMode(int SavePos, int SaveShortPos)
 		EdOpt.SaveShortPos = (0 != SaveShortPos);
 }
 
-void Editor::EditorShowMsg(const string& Title, const string& Msg, const string& Name, size_t Percent)
+static void EditorShowMsgImpl(const string& Title, const string& Msg, const string& Name, size_t Percent)
 {
 	const auto strMsg = concat(Msg, L' ', Name);
 	const size_t Length = std::max(std::min(ScrX - 1 - 10, static_cast<int>(strMsg.size())), 40);
 	auto strProgress = make_progressbar(Length, Percent, true, true);
 
-	{
-		std::vector<string> MsgItems{ strMsg };
-		if (!strProgress.empty())
-			MsgItems.emplace_back(strProgress);
+	std::vector<string> MsgItems{ strMsg };
+	if (!strProgress.empty())
+		MsgItems.emplace_back(strProgress);
 
-		Message(MSG_LEFTALIGN,
-			Title,
-			std::move(MsgItems),
-			{});
-	}
+	Message(MSG_LEFTALIGN,
+		Title,
+		std::move(MsgItems),
+		{});
+}
 
-	if (!PreRedrawStack().empty())
+void Editor::EditorShowMsg(const string& Title, const string& Msg, const string& Name, size_t Percent)
+{
+	EditorShowMsgImpl(Title, Msg, Name, Percent);
+
+	TPreRedrawFunc::instance()([&](EditorPreRedrawItem& Item)
 	{
-		const auto item = dynamic_cast<EditorPreRedrawItem*>(PreRedrawStack().top());
-		assert(item);
-		if (item)
-		{
-			item->Title = Title;
-			item->Msg = Msg;
-			item->Name = Name;
-			item->Percent = Percent;
-		}
-	}
+		Item.Title = Title;
+		Item.Msg = Msg;
+		Item.Name = Name;
+		Item.Percent = Percent;
+	});
 }
 
 void Editor::PR_EditorShowMsg()
 {
-	if (!PreRedrawStack().empty())
+	TPreRedrawFunc::instance()([](const EditorPreRedrawItem& Item)
 	{
-		const auto item = dynamic_cast<const EditorPreRedrawItem*>(PreRedrawStack().top());
-		assert(item);
-		if (item)
-		{
-			Editor::EditorShowMsg(item->Title, item->Msg, item->Name, item->Percent);
-		}
-	}
+		EditorShowMsg(Item.Title, Item.Msg, Item.Name, Item.Percent);
+	});
 }
 
 Editor::EditorPreRedrawItem::EditorPreRedrawItem():

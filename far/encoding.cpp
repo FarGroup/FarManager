@@ -1173,43 +1173,58 @@ bool encoding::is_valid_utf8(std::string_view const Str, bool const PartialConte
 	return !ContinuationBytes || PartialContent;
 }
 
-SELF_TEST
-({
-	const auto& TestUtfDetection = [](bool Utf8, bool Ascii, std::string_view const Str)
-	{
-		bool PureAscii = false;
-		assert(encoding::is_valid_utf8(Str, false, PureAscii) == Utf8);
-		assert(PureAscii == Ascii);
-	};
+#include "common/test.hpp"
 
-	TestUtfDetection(true, false, u8R"(
+#ifdef _DEBUG
+void TestEncoding()
+{
+	struct
+	{
+		bool Utf8;
+		bool Ascii;
+		std::string_view Str;
+	}
+	Tests[]
+	{
+		{ true, false, u8R"(
 ᚠᛇᚻ᛫ᛒᛦᚦ᛫ᚠᚱᚩᚠᚢᚱ᛫ᚠᛁᚱᚪ᛫ᚷᛖᚻᚹᛦᛚᚳᚢᛗ
 ᛋᚳᛖᚪᛚ᛫ᚦᛖᚪᚻ᛫ᛗᚪᚾᚾᚪ᛫ᚷᛖᚻᚹᛦᛚᚳ᛫ᛗᛁᚳᛚᚢᚾ᛫ᚻᛦᛏ᛫ᛞᚫᛚᚪᚾ
 ᚷᛁᚠ᛫ᚻᛖ᛫ᚹᛁᛚᛖ᛫ᚠᚩᚱ᛫ᛞᚱᛁᚻᛏᚾᛖ᛫ᛞᚩᛗᛖᛋ᛫ᚻᛚᛇᛏᚪᚾ᛬
-)"sv);
+)"sv },
 
-	TestUtfDetection(true, false, u8R"(
+		{ true, false, u8R"(
 𠜎 𠜱 𠝹 𠱓 𠱸 𠲖 𠳏 𠳕 𠴕 𠵼 𠵿 𠸎
 𠸏 𠹷 𠺝 𠺢 𠻗 𠻹 𠻺 𠼭 𠼮 𠽌 𠾴 𠾼
 𠿪 𡁜 𡁯 𡁵 𡁶 𡁻 𡃁 𡃉 𡇙 𢃇 𢞵 𢫕
 𢭃 𢯊 𢱑 𢱕 𢳂 𢴈 𢵌 𢵧 𢺳 𣲷 𤓓 𤶸
 𤷪 𥄫 𦉘 𦟌 𦧲 𦧺 𧨾 𨅝 𨈇 𨋢 𨳊 𨳍
-)"sv);
+)"sv },
 
-	TestUtfDetection(true, true, u8R"(
+		{ true, true, u8R"(
 Lorem ipsum dolor sit amet,
 consectetur adipiscing elit,
 sed do eiusmod tempor incididunt
 ut labore et dolore magna aliqua.
-)"sv);
+)"sv },
 
-	TestUtfDetection(false, false, "\x80"sv);
-	TestUtfDetection(false, false, "\xFF"sv);
-	TestUtfDetection(false, false, "\xC0"sv);
-	TestUtfDetection(false, false, "\xC1"sv);
-	TestUtfDetection(false, false, "\xC2\x20"sv);
-	TestUtfDetection(false, false, "\xC2\xC0"sv);
-	TestUtfDetection(false, false, "\xE0\xC0\xC0"sv);
-	TestUtfDetection(false, false, "\xF0\xC0\xC0\xC0"sv);
-	TestUtfDetection(false, false, "\xF4\xBF\xBF\xBF"sv);
-})
+		{ false, false, "\x80"sv },
+		{ false, false, "\xFF"sv },
+		{ false, false, "\xC0"sv },
+		{ false, false, "\xC1"sv },
+		{ false, false, "\xC2\x20"sv },
+		{ false, false, "\xC2\xC0"sv },
+		{ false, false, "\xE0\xC0\xC0"sv },
+		{ false, false, "\xF0\xC0\xC0\xC0"sv },
+		{ false, false, "\xF4\xBF\xBF\xBF"sv },
+	};
+
+	for (const auto i: Tests)
+	{
+		bool PureAscii = false;
+		ASSERT_EQ(i.Utf8, encoding::is_valid_utf8(i.Str, false, PureAscii));
+		ASSERT_EQ(i.Ascii, PureAscii);
+	}
+}
+#endif
+
+SELF_TEST(TestEncoding)

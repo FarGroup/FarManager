@@ -207,7 +207,7 @@ void ShowProcessList()
 						},
 						{ lng::MKillProcessKill, lng::MCancel }) == Message::first_button)
 					{
-						const auto Process = os::handle(OpenProcess(PROCESS_TERMINATE, FALSE, MenuData->Pid));
+						const os::handle Process(OpenProcess(PROCESS_TERMINATE, FALSE, MenuData->Pid));
 						if (!Process || !TerminateProcess(Process.native_handle(), 0xFFFFFFFF))
 						{
 							const auto ErrorState = error_state::fetch();

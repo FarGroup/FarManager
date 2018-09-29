@@ -1583,7 +1583,18 @@ intptr_t WINAPI apiGetPluginDirList(const GUID* PluginId, HANDLE hPlugin, const 
 			return false;
 
 		auto Items = std::make_unique<std::vector<PluginPanelItem>>();
-		const auto Result = GetPluginDirList(GuidToPlugin(PluginId), hPlugin, Dir, nullptr, *Items);
+
+		// BUGBUG This is API, shouldn't the callback be empty?
+
+		time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+
+		const auto& DirInfoCallback = [&](string_view const Name, unsigned long long const ItemsCount, unsigned long long const Size)
+		{
+			if (TimeCheck)
+				DirInfoMsg(msg(lng::MPreparingList), Name, ItemsCount, Size);
+		};
+
+		const auto Result = GetPluginDirList(GuidToPlugin(PluginId), hPlugin, Dir, nullptr, *Items, DirInfoCallback);
 		std::tie(*pPanelItem, *pItemsNumber) = magic::CastVectorToRawData(std::move(Items));
 		return Result;
 	}

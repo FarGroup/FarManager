@@ -53,7 +53,7 @@ enum ELEVATION_COMMAND: int;
 
 class elevation: public singleton<elevation>
 {
-	IMPLEMENTS_SINGLETON(elevation);
+	IMPLEMENTS_SINGLETON;
 
 public:
 	~elevation();

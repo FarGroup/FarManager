@@ -94,7 +94,7 @@ private:
 
 class far_language final: private language, public singleton<far_language>
 {
-	IMPLEMENTS_SINGLETON(far_language);
+	IMPLEMENTS_SINGLETON;
 
 public:
 	using language::load;

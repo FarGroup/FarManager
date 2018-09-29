@@ -279,7 +279,7 @@ DEFINES=\
 DISABLED_WARNINGS=/FI disabled_warnings.hpp
 
 # common
-CPPFLAGS=/nologo /MP$(MP_LIMIT) /Wall $(DISABLED_WARNINGS) $(DEFUSERFLAGS) $(FARSYSLOG) $(DEFINES) /EHsc /Gy /GF /Fd"$(INTDIR)\\" /J /Zc:rvalueCast,inline,strictStrings,throwingNew,referenceBinding /std:c++latest /c
+CPPFLAGS=/nologo /MP$(MP_LIMIT) /Wall $(DISABLED_WARNINGS) $(DEFUSERFLAGS) $(FARSYSLOG) $(DEFINES) /EHsc /Gy /GF /Fd"$(INTDIR)\\" /J /Zc:inline,referenceBinding,rvalueCast,strictStrings,throwingNew /std:c++latest /c
 LINKFLAGS=/nologo /subsystem:console /release /nxcompat /largeaddressaware /dynamicbase /map /out:"$(OUTDIR)\Far.exe"
 ULINKFLAGS=-q -m- -ap -Gz -O- -o- -Gh -Gh- -GF:LARGEADDRESSAWARE -d*kernel32
 RFLAGS=/nologo /l 0x409 /fo"$(RES_FILE)" /d $(USEDEBUG)
@@ -339,7 +339,7 @@ LINKFLAGS=$(LINKFLAGS) /machine:ARM
 
 # compiler-specific
 !if "$(VC)"=="15"
-CPPFLAGS=$(CPPFLAGS) /permissive- /diagnostics:caret
+CPPFLAGS=$(CPPFLAGS) /permissive- /Zc:__cplusplus,externConstexpr /diagnostics:caret
 !endif
 
 !ifdef ICL

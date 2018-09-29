@@ -316,29 +316,37 @@ void string_sort::adjust_comparer()
 	DefaultComparer = Comparers[CollationIdex][Global->Opt->Sort.DigitsAsNumbers][Global->Opt->Sort.CaseSensitive];
 }
 
-SELF_TEST(
-	assert(compare_invariant_numeric_icase(L""sv, L""sv) == 0);
-	assert(compare_invariant_numeric_icase(L""sv, L"a"sv) < 0);
-	assert(compare_invariant_numeric_icase(L"a"sv, L"a"sv) == 0);
+#include "common/test.hpp"
 
-	assert(compare_invariant_numeric_icase(L"0"sv, L"1"sv) < 0);
-	assert(compare_invariant_numeric_icase(L"0"sv, L"00"sv) > 0);
-	assert(compare_invariant_numeric_icase(L"1"sv, L"00"sv) > 0);
-	assert(compare_invariant_numeric_icase(L"10"sv, L"1"sv) > 0);
-	assert(compare_invariant_numeric_icase(L"10"sv, L"2"sv) > 0);
-	assert(compare_invariant_numeric_icase(L"10"sv, L"0100"sv) < 0);
-	assert(compare_invariant_numeric_icase(L"1"sv, L"001"sv) > 0);
+#ifdef _DEBUG
+void TestSort()
+{
+	ASSERT_TRUE(compare_invariant_numeric_icase(L""sv, L""sv) == 0);
+	ASSERT_TRUE(compare_invariant_numeric_icase(L""sv, L"a"sv) < 0);
+	ASSERT_TRUE(compare_invariant_numeric_icase(L"a"sv, L"a"sv) == 0);
 
-	assert(compare_invariant_numeric_icase(L"10a"sv, L"2b"sv) > 0);
-	assert(compare_invariant_numeric_icase(L"10a"sv, L"0100b"sv) < 0);
-	assert(compare_invariant_numeric_icase(L"a1a"sv, L"a001a"sv) > 0);
-	assert(compare_invariant_numeric_icase(L"a1b2c"sv, L"a1b2c"sv) == 0);
-	assert(compare_invariant_numeric_icase(L"a01b2c"sv, L"a1b002c"sv) < 0);
-	assert(compare_invariant_numeric_icase(L"a01b3c"sv, L"a1b002"sv) < 0);
+	ASSERT_TRUE(compare_invariant_numeric_icase(L"0"sv, L"1"sv) < 0);
+	ASSERT_TRUE(compare_invariant_numeric_icase(L"0"sv, L"00"sv) > 0);
+	ASSERT_TRUE(compare_invariant_numeric_icase(L"1"sv, L"00"sv) > 0);
+	ASSERT_TRUE(compare_invariant_numeric_icase(L"10"sv, L"1"sv) > 0);
+	ASSERT_TRUE(compare_invariant_numeric_icase(L"10"sv, L"2"sv) > 0);
+	ASSERT_TRUE(compare_invariant_numeric_icase(L"10"sv, L"0100"sv) < 0);
+	ASSERT_TRUE(compare_invariant_numeric_icase(L"1"sv, L"001"sv) > 0);
 
-	assert(compare_invariant_numeric_icase(L"10"sv, L"01"sv) > 0);
-	assert(compare_invariant_numeric_icase(L"01"sv, L"01"sv) == 0);
+	ASSERT_TRUE(compare_invariant_numeric_icase(L"10a"sv, L"2b"sv) > 0);
+	ASSERT_TRUE(compare_invariant_numeric_icase(L"10a"sv, L"0100b"sv) < 0);
+	ASSERT_TRUE(compare_invariant_numeric_icase(L"a1a"sv, L"a001a"sv) > 0);
+	ASSERT_TRUE(compare_invariant_numeric_icase(L"a1b2c"sv, L"a1b2c"sv) == 0);
+	ASSERT_TRUE(compare_invariant_numeric_icase(L"a01b2c"sv, L"a1b002c"sv) < 0);
+	ASSERT_TRUE(compare_invariant_numeric_icase(L"a01b3c"sv, L"a1b002"sv) < 0);
 
-	assert(compare_invariant_numeric_icase(L"A1"sv, L"a2"sv) < 0);
-	assert(compare_invariant_numeric(L"A1"sv, L"a2"sv) < 0);
-)
+	ASSERT_TRUE(compare_invariant_numeric_icase(L"10"sv, L"01"sv) > 0);
+	ASSERT_TRUE(compare_invariant_numeric_icase(L"01"sv, L"01"sv) == 0);
+
+	ASSERT_TRUE(compare_invariant_numeric_icase(L"A1"sv, L"a2"sv) < 0);
+	ASSERT_TRUE(compare_invariant_numeric(L"A1"sv, L"a2"sv) < 0);
+}
+#endif
+
+SELF_TEST(TestSort)
+

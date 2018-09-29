@@ -2170,7 +2170,7 @@ void background_searcher::DoScanTree(const string& strRoot)
 
 		while (!Stopped() && ScTree.GetNextName(FindData, strFullName))
 		{
-			Sleep(0);
+			std::this_thread::yield();
 			PauseEvent.wait();
 
 			const auto& ProcessStream = [&](const string& FullStreamName)
@@ -2254,7 +2254,7 @@ void background_searcher::ScanPluginTree(plugin_panel* hPlugin, unsigned long lo
 	{
 		for (size_t I=0; I<ItemCount && !Stopped(); I++)
 		{
-			Sleep(0);
+			std::this_thread::yield();
 			PauseEvent.wait();
 
 			PluginPanelItem *CurPanelItem=PanelData+I;

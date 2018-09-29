@@ -62,30 +62,23 @@ static bool is_visible(rectangle const Where)
 }
 
 ScreenBuf::ScreenBuf():
-	MacroChar(),
-	ElevationChar(),
-	SBFlags(SBFLAGS_FLUSHED | SBFLAGS_FLUSHEDCURPOS | SBFLAGS_FLUSHEDCURTYPE | SBFLAGS_FLUSHEDTITLE),
-	LockCount(0),
-	CurSize(0),
-	CurX(0),
-	CurY(0),
-	MacroCharUsed(false),
-	ElevationCharUsed(false),
-	CurVisible(false)
+	SBFlags(SBFLAGS_FLUSHED | SBFLAGS_FLUSHEDCURPOS | SBFLAGS_FLUSHEDCURTYPE | SBFLAGS_FLUSHEDTITLE)
 {
 }
 
 void ScreenBuf::DebugDump() const
 {
 #ifdef _DEBUG
-	string s(Buf.width() + 1, L' ');
-	s.back() = L'\n';
+	string s;
+	s.reserve(Buf.width() + 1);
 
 	for (size_t row_num = 0; row_num != Buf.height(); ++row_num)
 	{
 		const auto& row = Buf[row_num];
-		std::transform(ALL_CONST_RANGE(row), s.begin(), [](const auto& i) { return i.Char; });
+		std::transform(ALL_CONST_RANGE(row), std::back_inserter(s), [](const auto& i) { return i.Char; });
+		s.push_back(L'\n');
 		OutputDebugString(s.c_str());
+		s.clear();
 	}
 #endif
 }
@@ -112,8 +105,7 @@ void ScreenBuf::FillBuf()
 	Shadow = Buf;
 	COORD CursorPosition;
 	console.GetCursorPosition(CursorPosition);
-	CurX=CursorPosition.X;
-	CurY=CursorPosition.Y;
+	m_CurPos = CursorPosition;
 }
 
 /* Записать Text в виртуальный буфер
@@ -137,8 +129,8 @@ void ScreenBuf::Write(int X, int Y, range<const FAR_CHAR_INFO*> Text)
 	for (size_t i = 0; i != Text.size(); ++i)
 	{
 		auto& Element = Buf[Y][X + i];
-		SetVidChar(Element, Text[i].Char);
-		Element.Attributes = Text[i].Attributes;
+		Element = Text[i];
+		SetVidChar(Element.Char);
 	}
 
 	SBFlags.Clear(SBFLAGS_FLUSHED);
@@ -184,21 +176,12 @@ void ScreenBuf::ApplyShadow(rectangle Where)
 	{
 		Element.Attributes.BackgroundColor = 0;
 
-		if (Element.Attributes.IsFg4Bit())
+		const auto Mask = Element.Attributes.IsFg4Bit()? FOREGROUND_INTENSITY : 0x808080;
+
+		Element.Attributes.ForegroundColor &= ~Mask;
+		if (!colors::color_value(Element.Attributes.ForegroundColor))
 		{
-			Element.Attributes.ForegroundColor &= ~0x8;
-			if (!colors::color_value(Element.Attributes.ForegroundColor))
-			{
-				Element.Attributes.ForegroundColor = 0x8;
-			}
-		}
-		else
-		{
-			Element.Attributes.ForegroundColor &= ~0x808080;
-			if (!colors::color_value(Element.Attributes.ForegroundColor))
-			{
-				Element.Attributes.ForegroundColor = 0x808080;
-			}
+			Element.Attributes.ForegroundColor = Mask;
 		}
 	});
 
@@ -290,9 +273,8 @@ void ScreenBuf::FillRect(rectangle Where, const FAR_CHAR_INFO& Info)
 
 	SCOPED_ACTION(os::critical_section_lock)(CS);
 
-	FAR_CHAR_INFO CI;
-	CI.Attributes = Info.Attributes;
-	SetVidChar(CI, Info.Char);
+	auto CI = Info;
+	SetVidChar(CI.Char);
 
 	fix_coordinates(Where);
 
@@ -472,9 +454,8 @@ void ScreenBuf::Flush(flush_type FlushType)
 				{
 					std::for_each(CONST_RANGE(WriteList, i)
 					{
-						COORD BufferCoord = { i.Left, i.Top };
-						SMALL_RECT WriteRegion = i;
-						console.WriteOutput(Buf, BufferCoord, WriteRegion);
+						auto WriteRegion = i; // Copy
+						console.WriteOutput(Buf, { i.Left, i.Top }, WriteRegion);
 					});
 					console.Commit();
 					Shadow = Buf;
@@ -496,18 +477,16 @@ void ScreenBuf::Flush(flush_type FlushType)
 
 		if (FlushType & flush_type::cursor && !SBFlags.Check(SBFLAGS_FLUSHEDCURPOS))
 		{
-			if (is_visible({ CurX, CurY, CurX, CurY }))
+			if (is_visible({ m_CurPos.x, m_CurPos.y, m_CurPos.x, m_CurPos.x }))
 			{
-				COORD C={CurX,CurY};
-				console.SetCursorPosition(C);
+				console.SetCursorPosition({ static_cast<SHORT>(m_CurPos.x), static_cast<SHORT>(m_CurPos.y) });
 			}
 			SBFlags.Set(SBFLAGS_FLUSHEDCURPOS);
 		}
 
 		if (FlushType & flush_type::cursor && !SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE))
 		{
-			CONSOLE_CURSOR_INFO cci = { CurSize, CurVisible && is_visible({CurX, CurY, CurX, CurY}) };
-			console.SetCursorInfo(cci);
+			console.SetCursorInfo({ CurSize, CurVisible && is_visible({ m_CurPos.x, m_CurPos.y, m_CurPos.x, m_CurPos.x }) });
 			SBFlags.Set(SBFLAGS_FLUSHEDCURTYPE);
 		}
 
@@ -521,7 +500,7 @@ void ScreenBuf::Flush(flush_type FlushType)
 
 void ScreenBuf::Lock()
 {
-	LockCount++;
+	++LockCount;
 }
 
 void ScreenBuf::Unlock()
@@ -539,25 +518,22 @@ void ScreenBuf::MoveCursor(point const Point)
 {
 	SCOPED_ACTION(os::critical_section_lock)(CS);
 
-	if (!is_visible({ CurX, CurY, CurX, CurY }))
+	if (!is_visible({ m_CurPos.x, m_CurPos.y, m_CurPos.x, m_CurPos.x }))
 	{
 		CurVisible = false;
 	}
 
-	if(Point.x != CurX || Point.y != CurY || !CurVisible)
+	if(Point != m_CurPos || !CurVisible)
 	{
-		CurX = Point.x;
-		CurY = Point.y;
+		m_CurPos = Point;
 		SBFlags.Clear(SBFLAGS_FLUSHEDCURPOS);
 	}
 }
 
-
 point ScreenBuf::GetCursorPos() const
 {
-	return { CurX, CurY };
+	return m_CurPos;
 }
-
 
 void ScreenBuf::SetCursorType(bool Visible, DWORD Size)
 {

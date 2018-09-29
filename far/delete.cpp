@@ -105,7 +105,7 @@ struct DelPreRedrawItem : public PreRedrawItem
 	int WipePercent{};
 };
 
-static void ShellDeleteMsg(const string& Name, DEL_MODE Mode, ShellDelete::progress Files, int WipePercent)
+static void ShellDeleteMsgImpl(const string& Name, DEL_MODE Mode, ShellDelete::progress Files, int WipePercent)
 {
 	string strProgress, strWipeProgress;
 	const auto Width = copy_progress::CanvasWidth();
@@ -147,31 +147,27 @@ static void ShellDeleteMsg(const string& Name, DEL_MODE Mode, ShellDelete::progr
 			std::move(MsgItems),
 			{});
 	}
-	if (!PreRedrawStack().empty())
+}
+
+static void ShellDeleteMsg(const string& Name, DEL_MODE Mode, ShellDelete::progress Files, int WipePercent)
+{
+	ShellDeleteMsgImpl(Name, Mode, Files, WipePercent);
+
+	TPreRedrawFunc::instance()([&](DelPreRedrawItem& Item)
 	{
-		const auto item = dynamic_cast<DelPreRedrawItem*>(PreRedrawStack().top());
-		assert(item);
-		if (item)
-		{
-			item->name = Name;
-			item->Mode = Mode;
-			item->Files = Files;
-			item->WipePercent = WipePercent;
-		}
-	}
+		Item.name = Name;
+		Item.Mode = Mode;
+		Item.Files = Files;
+		Item.WipePercent = WipePercent;
+	});
 }
 
 static void PR_ShellDeleteMsg()
 {
-	if (!PreRedrawStack().empty())
+	TPreRedrawFunc::instance()([](const DelPreRedrawItem& Item)
 	{
-		const auto item = dynamic_cast<const DelPreRedrawItem*>(PreRedrawStack().top());
-		assert(item);
-		if (item)
-		{
-			ShellDeleteMsg(item->name, item->Mode, item->Files, item->WipePercent);
-		}
-	}
+		ShellDeleteMsgImpl(Item.name, Item.Mode, Item.Files, Item.WipePercent);
+	});
 }
 
 static DWORD SHErrorToWinError(DWORD SHError)
@@ -566,10 +562,10 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 		{
 			time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 
-			const auto& DirInfoCallback = [&](string_view const Name, unsigned long long const Items, unsigned long long const Size)
+			const auto& DirInfoCallback = [&](string_view const Name, unsigned long long const ItemsCount, unsigned long long const Size)
 			{
 				if (TimeCheck)
-					DirInfoMsg(msg(lng::MDeletingTitle), Name, Total.Items + Items, Total.Size + Size);
+					DirInfoMsg(msg(lng::MDeletingTitle), Name, Total.Items + ItemsCount, Total.Size + Size);
 			};
 
 			for (const auto& i: SrcPanel->enum_selected())

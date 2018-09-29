@@ -90,22 +90,6 @@ constexpr bool InRange(min_type const Min, value_type const Value, max_type cons
 	return Min <= Value && Value <= Max;
 }
 
-#ifdef _DEBUG
-#define SELF_TEST(code) \
-namespace \
-{ \
-	struct SelfTest \
-	{ \
-		SelfTest() \
-		{ \
-			code; \
-		} \
-	} _SelfTest; \
-}
-#else
-#define SELF_TEST(code)
-#endif
-
 #define SIGN_UNICODE    0xFEFF
 #define SIGN_REVERSEBOM 0xFFFE
 #define SIGN_UTF8       0xBFBBEF

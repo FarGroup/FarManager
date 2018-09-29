@@ -3994,22 +3994,22 @@ void RegExp::TrimTail(const wchar_t* const start, const wchar_t*& strend) const
 	strend++;
 }
 
+#include "common/test.hpp"
+
 #ifdef _DEBUG
-static void Test()
+void TestRegex()
 {
 	RegExp re;
-	auto Result = re.Compile(L"/a*?ca/");
-
-	assert(Result);
+	ASSERT_EQ(1, re.Compile(L"/a*?ca/"));
 
 	RegExpMatch m = { -1, -1 };
 	intptr_t n = 1;
-	Result = re.Search(L"abca", &m, n);
+	ASSERT_EQ(1, re.Search(L"abca", &m, n));
 
-	assert(Result);
-	assert(n == 1);
-	assert(m.start == 2 && m.end == 4);
+	ASSERT_EQ(1, n);
+	ASSERT_EQ(2, m.start);
+	ASSERT_EQ(4, m.end);
 }
-
-SELF_TEST(Test());
 #endif
+
+SELF_TEST(TestRegex)

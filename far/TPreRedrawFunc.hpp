@@ -35,48 +35,71 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "common/function_traits.hpp"
+#include "common/singleton.hpp"
 
-struct PreRedrawItem: noncopyable
+class PreRedrawItem: noncopyable
 {
+public:
 	using handler_type = std::function<void()>;
 
-	explicit PreRedrawItem(handler_type PreRedrawFunc) : m_PreRedrawFunc(std::move(PreRedrawFunc)) {}
+	explicit PreRedrawItem(handler_type PreRedrawFunc):
+		m_PreRedrawFunc(std::move(PreRedrawFunc))
+	{
+	}
+
 	virtual ~PreRedrawItem() = default;
 
+	auto operator()() const
+	{
+		m_PreRedrawFunc();
+	}
+
+private:
 	handler_type m_PreRedrawFunc;
 };
 
-class TPreRedrawFunc: noncopyable
+class TPreRedrawFunc: public singleton<TPreRedrawFunc>
 {
+	IMPLEMENTS_SINGLETON;
+
 public:
-	void push(std::unique_ptr<PreRedrawItem>&& Source){ Items.emplace(std::move(Source)); }
-	std::unique_ptr<PreRedrawItem> pop() { auto Top = std::move(Items.top()); Items.pop(); return Top; }
-	PreRedrawItem* top() { return Items.top().get(); }
-	bool empty() const {return Items.empty();}
+	void push(std::unique_ptr<PreRedrawItem>&& Source)
+	{
+		m_Items.emplace(std::move(Source));
+	}
+
+	auto pop()
+	{
+		auto Top = std::move(m_Items.top());
+		m_Items.pop();
+		return Top;
+	}
+
+	template<typename callable>
+	void operator()(const callable& Callable)
+	{
+		if (!m_Items.empty())
+			Callable(dynamic_cast<typename function_traits<callable>::template arg<0>>(*m_Items.top()));
+	}
 
 private:
-	friend TPreRedrawFunc& PreRedrawStack();
-
 	TPreRedrawFunc() = default;
-	std::stack<std::unique_ptr<PreRedrawItem>> Items;
-};
 
-inline TPreRedrawFunc& PreRedrawStack()
-{
-	static TPreRedrawFunc pr;
-	return pr;
-}
+	std::stack<std::unique_ptr<PreRedrawItem>> m_Items;
+};
 
 class TPreRedrawFuncGuard: noncopyable
 {
 public:
 	explicit TPreRedrawFuncGuard(std::unique_ptr<PreRedrawItem>&& Item)
 	{
-		PreRedrawStack().push(std::move(Item));
+		TPreRedrawFunc::instance().push(std::move(Item));
 	}
+
 	~TPreRedrawFuncGuard()
 	{
-		PreRedrawStack().pop();
+		TPreRedrawFunc::instance().pop();
 	}
 };
 

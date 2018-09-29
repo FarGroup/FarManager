@@ -214,7 +214,7 @@ void InitRecodeOutTable();
 
 void fix_coordinates(rectangle& Where);
 
-void SetVidChar(FAR_CHAR_INFO& CI, wchar_t Chr);
+void SetVidChar(wchar_t& Char);
 
 size_t HiStrlen(const string& Str);
 int HiFindRealPos(const string& Str, int Pos, bool ShowAmp);
@@ -232,7 +232,7 @@ void AdjustConsoleScreenBufferSize(bool TransitionFromFullScreen);
 
 class consoleicons: public singleton<consoleicons>
 {
-	IMPLEMENTS_SINGLETON(consoleicons);
+	IMPLEMENTS_SINGLETON;
 
 public:
 	void setFarIcons();

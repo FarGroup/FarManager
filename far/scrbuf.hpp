@@ -99,18 +99,18 @@ public:
 
 private:
 	os::critical_section CS;
-	FAR_CHAR_INFO MacroChar;
-	FAR_CHAR_INFO ElevationChar;
+	FAR_CHAR_INFO MacroChar{};
+	FAR_CHAR_INFO ElevationChar{};
 	matrix<FAR_CHAR_INFO> Buf;
 	matrix<FAR_CHAR_INFO> Shadow;
 	string m_Title;
 	BitFlags SBFlags;
-	int LockCount;
-	DWORD CurSize;
-	SHORT CurX, CurY;
-	bool MacroCharUsed;
-	bool ElevationCharUsed;
-	bool CurVisible;
+	int LockCount{};
+	DWORD CurSize{};
+	point m_CurPos{};
+	bool MacroCharUsed{};
+	bool ElevationCharUsed{};
+	bool CurVisible{};
 };
 
 #endif // SCRBUF_HPP_9C71BBDC_FEF1_40D7_895F_7DEB31F6FBAC

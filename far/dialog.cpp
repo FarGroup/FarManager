@@ -501,10 +501,12 @@ void Dialog::Show()
 	if (!DialogMode.Check(DMODE_OBJECTS_INITED) || !DialogMode.Check(DMODE_VISIBLE))
 		return;
 
-	if (DialogMode.Check(DMODE_RESIZED) && !PreRedrawStack().empty())
+	if (DialogMode.Check(DMODE_RESIZED))
 	{
-		const auto item = PreRedrawStack().top();
-		item->m_PreRedrawFunc();
+		TPreRedrawFunc::instance()([](const PreRedrawItem& Item)
+		{
+			Item();
+		});
 	}
 
 	DialogMode.Clear(DMODE_RESIZED);
@@ -5871,7 +5873,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				if (GetDropDownOpened())
 				{
 					SetDropDownOpened(FALSE);
-					Sleep(10);
+					std::this_thread::sleep_for(10ms);
 				}
 
 				return TRUE;
@@ -5886,7 +5888,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				if (GetDropDownOpened())
 				{
 					SetDropDownOpened(FALSE);
-					Sleep(10);
+					std::this_thread::sleep_for(10ms);
 				}
 
 				if (SendMessage(DM_SETFOCUS, Param1, nullptr))
@@ -6115,7 +6117,7 @@ void Dialog::SetId(const GUID& Id)
 
 class dialogs_set: public singleton<dialogs_set>
 {
-	IMPLEMENTS_SINGLETON(dialogs_set);
+	IMPLEMENTS_SINGLETON;
 
 public:
 	std::unordered_set<Dialog*> Set;

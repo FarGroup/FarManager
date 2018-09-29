@@ -87,6 +87,37 @@ static TBitFlags<size_t> PressedLast;
 
 static std::chrono::steady_clock::time_point KeyPressedLastTime;
 
+static struct window_state
+{
+	struct state
+	{
+		bool m_IsMaximized;
+		bool m_IsMinimized;
+
+		bool is_restored() const
+		{
+			return !m_IsMaximized && !m_IsMinimized;
+		}
+	}
+	m_State, m_PrevState;
+
+	void update()
+	{
+		m_PrevState = std::exchange(m_State, { IsZoomed(console.GetWindow()) != FALSE, IsIconic(console.GetWindow()) != FALSE });
+
+		if ((m_PrevState.m_IsMaximized && m_State.is_restored()) || (m_PrevState.is_restored() && m_State.m_IsMaximized))
+		{
+			ChangeVideoMode(m_State.m_IsMaximized);
+		}
+	}
+
+	bool is_restored() const
+	{
+		return m_State.is_restored();
+	}
+}
+WindowState;
+
 /* ----------------------------------------------------------------- */
 struct TFKey
 {
@@ -668,7 +699,7 @@ static DWORD ProcessFocusEvent(bool Got)
 
 static DWORD ProcessBufferSizeEvent(COORD Size)
 {
-	if (!IsZoomed(console.GetWindow()))
+	if (WindowState.is_restored())
 	{
 		SaveNonMaximisedBufferSize(Size);
 	}
@@ -702,10 +733,10 @@ static DWORD ProcessBufferSizeEvent(COORD Size)
 		Global->WindowManager->ResizeAllWindows();
 		Global->WindowManager->GetCurrentWindow()->Show();
 		// _SVS(SysLog(L"PreRedrawFunc = %p",PreRedrawFunc));
-		if (!PreRedrawStack().empty())
+		TPreRedrawFunc::instance()([](const PreRedrawItem& Item)
 		{
-			PreRedrawStack().top()->m_PreRedrawFunc();
-		}
+			Item();
+		});
 	}
 
 	return KEY_CONSOLE_BUFFER_RESIZE;
@@ -840,20 +871,12 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 
 	LastEventIdle = false;
 
-	auto ZoomedState = IsZoomed(console.GetWindow());
-	auto IconicState = IsIconic(console.GetWindow());
-
 	auto FullscreenState = IsConsoleFullscreen();
 
 	DWORD LoopCount = 0;
 	for (;;)
 	{
-		// "Реакция" на максимизацию/восстановление окна консоли
-		if (ZoomedState!=IsZoomed(console.GetWindow()) && IconicState==IsIconic(console.GetWindow()))
-		{
-			ZoomedState=!ZoomedState;
-			ChangeVideoMode(ZoomedState != FALSE);
-		}
+		WindowState.update();
 
 		if (!(LoopCount & 15))
 		{
@@ -886,7 +909,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 		}
 
 		Global->ScrBuf->Flush();
-		Sleep(10);
+		std::this_thread::sleep_for(10ms);
 
 		static bool ExitInProcess = false;
 		if (Global->CloseFAR && !ExitInProcess)
@@ -1177,7 +1200,7 @@ DWORD WaitKey(DWORD KeyWait,DWORD delayMS,bool ExcludeMacro)
 			break;
 		}
 
-		Sleep(1);
+		std::this_thread::sleep_for(1ms);
 	}
 
 	return Key;

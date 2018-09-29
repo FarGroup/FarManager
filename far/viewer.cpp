@@ -1497,7 +1497,7 @@ bool Viewer::process_key(const Manager::Key& Key)
 		if (*m_IdleCheck)
 			LocalKey = KEY_IDLE;
 		else
-			Sleep(10);
+			std::this_thread::sleep_for(10ms);
 	}
 
 	if (!ViOpt.PersistentBlocks &&
@@ -2705,20 +2705,7 @@ struct ViewerPreRedrawItem : public PreRedrawItem
 	int hex;
 };
 
-static void PR_ViewerSearchMsg()
-{
-	if (!PreRedrawStack().empty())
-	{
-		const auto item = dynamic_cast<const ViewerPreRedrawItem*>(PreRedrawStack().top());
-		assert(item);
-		if (item)
-		{
-			ViewerSearchMsg(item->name, item->percent, item->hex);
-		}
-	}
-}
-
-void ViewerSearchMsg(const string& MsgStr, int Percent, int SearchHex)
+static void ViewerSearchMsgImpl(const string& MsgStr, int Percent, int SearchHex)
 {
 	string strProgress;
 	const auto strMsg = concat(msg(SearchHex? lng::MViewSearchingHex : lng::MViewSearchingFor), L' ', MsgStr);
@@ -2738,17 +2725,26 @@ void ViewerSearchMsg(const string& MsgStr, int Percent, int SearchHex)
 			std::move(MsgItems),
 			{});
 	}
-	if (!PreRedrawStack().empty())
+}
+
+static void ViewerSearchMsg(const string& MsgStr, int Percent, int SearchHex)
+{
+	ViewerSearchMsgImpl(MsgStr, Percent, SearchHex);
+
+	TPreRedrawFunc::instance()([&](ViewerPreRedrawItem& Item)
 	{
-		const auto item = dynamic_cast<ViewerPreRedrawItem*>(PreRedrawStack().top());
-		assert(item);
-		if (item)
-		{
-			item->name = MsgStr;
-			item->percent = Percent;
-			item->hex = SearchHex;
-		}
-	}
+		Item.name = MsgStr;
+		Item.percent = Percent;
+		Item.hex = SearchHex;
+	});
+}
+
+static void PR_ViewerSearchMsg()
+{
+	TPreRedrawFunc::instance()([](const ViewerPreRedrawItem& Item)
+	{
+		ViewerSearchMsgImpl(Item.name, Item.percent, Item.hex);
+	});
 }
 
 static auto hex2ss(const string_view from, intptr_t * const pos = nullptr)

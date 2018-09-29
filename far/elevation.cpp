@@ -424,19 +424,14 @@ static void ElevationApproveDlgSync(const EAData& Data)
 	Dlg->SetHelp(L"ElevationDlg"sv);
 	Dlg->SetPosition({ -1, -1, DlgX, DlgY });
 	Dlg->SetDialogMode(DMODE_FULLSHADOW | DMODE_NOPLUGINS);
-	const auto Current = Global->WindowManager->GetCurrentWindow();
+
 	const auto Lock = Global->ScrBuf->GetLockCount();
 	Global->ScrBuf->SetLockCount(0);
-
-	// We're locking current window as it might not expect refresh at this time at all
-	// However, that also mean that title won't be restored after closing the dialog.
-	// So we do it manually.
-	const auto OldTitle = ConsoleTitle::GetTitle();
 
 	console.FlushInputBuffer();
 
 	Dlg->Process();
-	ConsoleTitle::SetFarTitle(OldTitle);
+
 	Global->ScrBuf->SetLockCount(Lock);
 
 	Data.AskApprove = ElevationApproveDlg[AAD_CHECKBOX_DOFORALL].Selected == BSTATE_UNCHECKED;
@@ -821,7 +816,7 @@ public:
 			if (imports.GetNamedPipeServerProcessId && (!imports.GetNamedPipeServerProcessId(m_Pipe.native_handle(), &ServerProcessId) || ServerProcessId != PID))
 				return GetLastError();
 
-			const auto ParentProcess = os::handle(OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, PID));
+			const os::handle ParentProcess(OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, PID));
 			if (!ParentProcess)
 				return GetLastError();
 
