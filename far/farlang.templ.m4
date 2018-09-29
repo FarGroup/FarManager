@@ -9728,6 +9728,7 @@ MListEb
 "Е"
 
 MListFileSize
+l:{3} replacement field can receive a sum of files & folders
 "Байт: {0}, файлов: {1}, папок: {2}"
 "Bytes: {0}, files: {1}, folders: {2}"
 upd:"Bytes: {0}, files: {1}, folders: {2}"

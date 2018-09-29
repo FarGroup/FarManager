@@ -7702,14 +7702,14 @@ void FileList::ShowSelectedSize()
 	if (m_SelFileCount)
 	{
 		auto strFormStr = size2str(SelFileSize, 6, false, false);
-		auto strSelStr = format(msg(lng::MListFileSize), strFormStr, m_SelFileCount-m_SelDirCount, m_SelDirCount);
+		auto strSelStr = format(msg(lng::MListFileSize), strFormStr, m_SelFileCount - m_SelDirCount, m_SelDirCount, m_SelFileCount);
 		const auto BorderSize = 1;
 		const auto MarginSize = 1;
 		const auto AvailableWidth = static_cast<size_t>(std::max(0, ObjWidth() - BorderSize * 2 - MarginSize * 2));
 		if (strSelStr.size() > AvailableWidth)
 		{
 			strFormStr = size2str(SelFileSize, 6, false, true);
-			strSelStr = format(msg(lng::MListFileSize), strFormStr, m_SelFileCount-m_SelDirCount, m_SelDirCount);
+			strSelStr = format(msg(lng::MListFileSize), strFormStr, m_SelFileCount - m_SelDirCount, m_SelDirCount, m_SelFileCount);
 			if (strSelStr.size() > AvailableWidth)
 				TruncStrFromEnd(strSelStr, static_cast<int>(AvailableWidth));
 		}
@@ -7738,7 +7738,7 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 		{
 			if (!Global->Opt->ShowPanelFree || strFreeSize.empty())
 			{
-				strTotalSize = format(msg(lng::MListFileSize), strFormSize, m_TotalFileCount, m_TotalDirCount);
+				strTotalSize = format(msg(lng::MListFileSize), strFormSize, m_TotalFileCount, m_TotalDirCount, m_TotalFileCount + m_TotalDirCount);
 			}
 			else
 			{

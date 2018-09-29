@@ -3,6 +3,11 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 30.09.2018 02:13:21 +0300 - build 5275
+
+1. Lng MListFileSize can contain "{3}" replacement field, which will receive a sum of files and folders.
+   By replacing the string with something like "{0} bytes in {3} files" one can get the same selection status as before 4442.
+
 drkns 30.09.2018 00:16:35 +0300 - build 5274
 
 1. More 5141 aka M#3578: the fix didn't work for formats like "ddddddddd, dd/MM/yy".
