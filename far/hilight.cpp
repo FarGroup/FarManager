@@ -182,9 +182,9 @@ highlight::configuration::configuration()
 	UpdateCurrentTime();
 }
 
-static void LoadFilter(const HierarchicalConfig* cfg, const HierarchicalConfig::key& key, FileFilterParams& HData, int SortGroup, bool bSortGroup, bool& OldFormat)
+static void LoadFilter(const HierarchicalConfig* cfg, const HierarchicalConfig::key& key, FileFilterParams& HData, int SortGroup, bool bSortGroup)
 {
-	FileFilter::LoadFilter(cfg, key.get(), HData, OldFormat);
+	FileFilter::LoadFilter(cfg, key.get(), HData);
 
 	HData.SetSortGroup(SortGroup);
 
@@ -228,7 +228,7 @@ void highlight::configuration::InitHighlightFiles(const HierarchicalConfig* cfg)
 		{ DEFAULT_SORT_GROUP,     HighlightKeyName,  fmtLastGroup,  &LastCount },
 	};
 
-	HiData.clear();
+	ClearData();
 	FirstCount=UpperCount=LowerCount=LastCount=0;
 
 	for(const auto& Item: GroupItems)
@@ -244,7 +244,7 @@ void highlight::configuration::InitHighlightFiles(const HierarchicalConfig* cfg)
 				break;
 
 			FileFilterParams NewItem;
-			LoadFilter(cfg, key, NewItem, Item.Delta + (Item.Delta == DEFAULT_SORT_GROUP? 0 : i), Item.Delta != DEFAULT_SORT_GROUP, m_Changed);
+			LoadFilter(cfg, key, NewItem, Item.Delta + (Item.Delta == DEFAULT_SORT_GROUP? 0 : i), Item.Delta != DEFAULT_SORT_GROUP);
 			HiData.emplace_back(std::move(NewItem));
 			++*Item.Count;
 		}
@@ -524,15 +524,15 @@ void highlight::configuration::HiEdit(int MenuPos)
 	HiMenu->SetBottomTitle(msg(lng::MHighlightBottom));
 	HiMenu->SetId(HighlightMenuId);
 	FillMenu(HiMenu.get(), MenuPos);
-	int NeedUpdate;
+	bool NeedUpdate = false;
 
 	for (;;)
 	{
 		HiMenu->Run([&](const Manager::Key& RawKey)
 		{
 			const auto Key=RawKey();
-			int SelectPos=HiMenu->GetSelectPos();
-			NeedUpdate=FALSE;
+			auto SelectPos = HiMenu->GetSelectPos();
+			NeedUpdate = false;
 
 			int KeyProcessed = 1;
 
@@ -544,7 +544,6 @@ void highlight::configuration::HiEdit(int MenuPos)
 				case KEY_CTRLR:
 				case KEY_RCTRLR:
 				{
-
 					if (Message(MSG_WARNING,
 						msg(lng::MHighlightTitle),
 						{
@@ -558,9 +557,11 @@ void highlight::configuration::HiEdit(int MenuPos)
 
 					const auto cfg = ConfigProvider().CreateHighlightConfig();
 					SetHighlighting(true, cfg.get()); //delete old settings
-					ClearData();
+
 					InitHighlightFiles(cfg.get());
-					NeedUpdate=TRUE;
+					FillMenu(HiMenu.get(), SelectPos);
+
+					NeedUpdate = true;
 					break;
 				}
 
@@ -583,8 +584,9 @@ void highlight::configuration::HiEdit(int MenuPos)
 							break;
 						}
 						HiData.erase(HiData.begin()+RealSelectPos);
+						HiMenu->DeleteItem(SelectPos);
 						(*Count)--;
-						NeedUpdate=TRUE;
+						NeedUpdate = true;
 					}
 
 					break;
@@ -597,9 +599,13 @@ void highlight::configuration::HiEdit(int MenuPos)
 					int *Count=nullptr;
 					int RealSelectPos=MenuPosToRealPos(SelectPos, Count);
 
-					if (Count && RealSelectPos<(int)HiData.size())
-						if (FileFilterConfig(&HiData[RealSelectPos], true))
-							NeedUpdate=TRUE;
+					if (Count && RealSelectPos<(int)HiData.size() && FileFilterConfig(&HiData[RealSelectPos], true))
+					{
+						HiMenu->DeleteItem(SelectPos);
+						HiMenu->AddItem(MenuItemEx(MenuString(&HiData[RealSelectPos], true)), SelectPos);
+						HiMenu->SetSelectPos(SelectPos, 1);
+						NeedUpdate = true;
+					}
 
 					break;
 				}
@@ -621,8 +627,10 @@ void highlight::configuration::HiEdit(int MenuPos)
 						if (FileFilterConfig(&NewHData, true))
 						{
 							(*Count)++;
-							NeedUpdate=TRUE;
-							HiData.emplace(HiData.begin()+RealSelectPos, std::move(NewHData));
+							const auto Iterator = HiData.emplace(HiData.begin()+RealSelectPos, std::move(NewHData));
+							HiMenu->AddItem(MenuItemEx(MenuString(&*Iterator, true)), SelectPos);
+							HiMenu->SetSelectPos(SelectPos, 1);
+							NeedUpdate = true;
 						}
 					}
 
@@ -659,10 +667,10 @@ void highlight::configuration::HiEdit(int MenuPos)
 						{
 							using std::swap;
 							swap(HiData[RealSelectPos], HiData[RealSelectPos-1]);
+							swap(HiMenu->at(SelectPos), HiMenu->at(SelectPos - 1));
 						}
-						HiMenu->SetCheck(--SelectPos);
-						NeedUpdate=TRUE;
-						break;
+						HiMenu->SetSelectPos(--SelectPos);
+						NeedUpdate = true;
 					}
 
 					break;
@@ -698,9 +706,10 @@ void highlight::configuration::HiEdit(int MenuPos)
 						{
 							using std::swap;
 							swap(HiData[RealSelectPos], HiData[RealSelectPos+1]);
+							swap(HiMenu->at(SelectPos), HiMenu->at(SelectPos + 1));
 						}
-						HiMenu->SetCheck(++SelectPos);
-						NeedUpdate=TRUE;
+						HiMenu->SetSelectPos(++SelectPos);
+						NeedUpdate = true;
 					}
 
 					break;
@@ -713,14 +722,11 @@ void highlight::configuration::HiEdit(int MenuPos)
 			// повторяющийся кусок!
 			if (NeedUpdate)
 			{
-				Global->ScrBuf->Lock(); // отменяем всякую прорисовку
 				m_Changed = true;
 				UpdateHighlighting();
-				FillMenu(HiMenu.get(), MenuPos = SelectPos);
 
 				if (Global->Opt->AutoSaveSetup)
 					Save(false);
-				Global->ScrBuf->Unlock(); // разрешаем прорисовку
 			}
 			return KeyProcessed;
 		});

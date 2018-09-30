@@ -2669,24 +2669,24 @@ static void SetLeftRightMenuChecks(menu_item* pMenu, bool bLeft)
 			if (MenuLine <= MENU_LEFT_ALTERNATIVEVIEW)
 			{
 				if (!MenuLine)
-					pMenu[MENU_LEFT_ALTERNATIVEVIEW].SetCheck(1);
+					pMenu[MENU_LEFT_ALTERNATIVEVIEW].SetCheck();
 				else
-					pMenu[MenuLine-1].SetCheck(1);
+					pMenu[MenuLine-1].SetCheck();
 			}
 		}
 		break;
 	case panel_type::INFO_PANEL:
-		pMenu[MENU_LEFT_INFOPANEL].SetCheck(1);
+		pMenu[MENU_LEFT_INFOPANEL].SetCheck();
 		break;
 	case panel_type::TREE_PANEL:
-		pMenu[MENU_LEFT_TREEPANEL].SetCheck(1);
+		pMenu[MENU_LEFT_TREEPANEL].SetCheck();
 		break;
 	case panel_type::QVIEW_PANEL:
-		pMenu[MENU_LEFT_QUICKVIEW].SetCheck(1);
+		pMenu[MENU_LEFT_QUICKVIEW].SetCheck();
 		break;
 	}
 
-	pMenu[MENU_LEFT_LONGNAMES].SetCheck(!pPanel->GetShowShortNamesMode());
+	pPanel->GetShowShortNamesMode()? pMenu[MENU_LEFT_LONGNAMES].ClearCheck() : pMenu[MENU_LEFT_LONGNAMES].SetCheck();
 }
 
 void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEvent)

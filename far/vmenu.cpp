@@ -342,22 +342,22 @@ void VMenu::UpdateSelectPos()
 	{
 		if (!ItemCanHaveFocus(Items[i].Flags))
 		{
-			Items[i].SetSelect(FALSE);
+			Items[i].SetSelect(false);
 		}
 		else
 		{
 			if (SelectPos == -1)
 			{
-				Items[i].SetSelect(TRUE);
+				Items[i].SetSelect(true);
 				SelectPos = static_cast<int>(i);
 			}
 			else if (SelectPos != static_cast<int>(i))
 			{
-				Items[i].SetSelect(FALSE);
+				Items[i].SetSelect(false);
 			}
 			else
 			{
-				Items[i].SetSelect(TRUE);
+				Items[i].SetSelect(true);
 			}
 		}
 	}
@@ -555,15 +555,31 @@ int VMenu::GetCheck(int Position)
 	return Checked ? Checked : 1;
 }
 
-
-void VMenu::SetCheck(int Check, int Position)
+void VMenu::SetCheck(int Position)
 {
-	int ItemPos = GetItemPosition(Position);
-
+	const auto ItemPos = GetItemPosition(Position);
 	if (ItemPos < 0)
 		return;
 
-	Items[ItemPos].SetCheck(Check);
+	Items[ItemPos].SetCheck();
+}
+
+void VMenu::SetCustomCheck(wchar_t Char, int Position)
+{
+	const auto ItemPos = GetItemPosition(Position);
+	if (ItemPos < 0)
+		return;
+
+	Items[ItemPos].SetCustomCheck(Char);
+}
+
+void VMenu::ClearCheck(int Position)
+{
+	const auto ItemPos = GetItemPosition(Position);
+	if (ItemPos < 0)
+		return;
+
+	Items[ItemPos].ClearCheck();
 }
 
 void VMenu::RestoreFilteredItems()

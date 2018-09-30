@@ -116,20 +116,24 @@ struct menu_item
 	{
 	}
 
-	unsigned long long SetCheck(int Value)
+	unsigned long long SetCheck()
 	{
-		if (Value)
-		{
-			Flags|=LIF_CHECKED;
-			Flags &= ~0xFFFF;
+		Flags &= ~0xFFFF;
+		Flags |= LIF_CHECKED;
+		return Flags;
+	}
 
-			if (Value!=1) Flags|=Value&0xFFFF;
-		}
-		else
-		{
-			Flags&=~(0xFFFF|LIF_CHECKED);
-		}
+	unsigned long long SetCustomCheck(wchar_t Char)
+	{
+		Flags &= ~0xFFFF;
+		Flags |= LIF_CHECKED | Char;
+		return Flags;
+	}
 
+	unsigned long long ClearCheck()
+	{
+		Flags &= ~0xFFFF;
+		Flags &= ~LIF_CHECKED;
 		return Flags;
 	}
 
@@ -244,7 +248,9 @@ public:
 	int SetSelectPos(const FarListPos *ListPos, int Direct = 0);
 	int SetSelectPos(int Pos, int Direct, bool stop_on_edge = false);
 	int GetCheck(int Position = -1);
-	void SetCheck(int Check, int Position = -1);
+	void SetCheck(int Position = -1);
+	void SetCustomCheck(wchar_t Char, int Position = -1);
+	void ClearCheck(int Position = -1);
 	bool UpdateRequired() const;
 	void UpdateItemFlags(int Pos, unsigned long long NewFlags);
 	MenuItemEx& at(size_t n);

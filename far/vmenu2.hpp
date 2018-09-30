@@ -73,7 +73,9 @@ public:
 	int GetSelectPos();
 	int SetSelectPos(int Pos, int Direct=0/*, bool stop_on_edge=false*/);
 	int GetCheck(int Position=-1);
-	void SetCheck(int Check, int Position=-1);
+	void SetCheck(int Position=-1);
+	void SetCustomCheck(wchar_t Char, int Position = -1);
+	void ClearCheck(int Position = -1);
 	void UpdateItemFlags(int Pos, unsigned long long NewFlags);
 	void SetMaxHeight(int NewMaxHeight){MaxHeight=NewMaxHeight; Resize();}
 	/*

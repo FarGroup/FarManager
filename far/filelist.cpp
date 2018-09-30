@@ -4591,8 +4591,8 @@ void FileList::SelectSortMode()
 
 		if (ItemIterator != std::cend(SortModes))
 		{
-			SortMenu[ItemIterator - std::cbegin(SortModes)].SetCheck(Check);
-			SortMenu[ItemIterator - std::cbegin(SortModes)].SetSelect(TRUE);
+			SortMenu[ItemIterator - std::cbegin(SortModes)].SetCustomCheck(Check);
+			SortMenu[ItemIterator - std::cbegin(SortModes)].SetSelect(true);
 		}
 		else if (mpr)
 		{
@@ -4600,8 +4600,8 @@ void FileList::SelectSortMode()
 			{
 				if (static_cast<int>(mpr->Values[i].Double) == static_cast<int>(m_SortMode))
 				{
-					SortMenu[std::size(SortModes) + 1 + i/3].SetCheck(Check);
-					SortMenu[std::size(SortModes) + 1 + i/3].SetSelect(TRUE);
+					SortMenu[std::size(SortModes) + 1 + i/3].SetCustomCheck(Check);
+					SortMenu[std::size(SortModes) + 1 + i/3].SetSelect(true);
 					break;
 				}
 			}

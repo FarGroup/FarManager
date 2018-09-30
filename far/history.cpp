@@ -237,12 +237,12 @@ history_return_type History::ProcessMenu(string& strStr, GUID* const Guid, strin
 					ReplaceStrings(strRecord, L"&"sv, L"&&"sv);
 
 				MenuItemEx MenuItem(strRecord);
-				MenuItem.SetCheck(i.Lock? 1 : 0);
+				i.Lock? MenuItem.SetCheck() : MenuItem.ClearCheck();
 				MenuItem.ComplexUserData = i.Id;
 
 				if (!SetUpMenuPos && m_CurrentItem == i.Id)
 				{
-					MenuItem.SetSelect(TRUE);
+					MenuItem.SetSelect(true);
 					bSelected=true;
 				}
 

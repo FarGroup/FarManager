@@ -69,7 +69,7 @@ public:
 	bool IsEnabledOnPanel();
 
 	static void InitFilter();
-	static void LoadFilter(const HierarchicalConfig* cfg, unsigned long long Key, FileFilterParams& Item, bool& OldFormat);
+	static void LoadFilter(const HierarchicalConfig* cfg, unsigned long long Key, FileFilterParams& Item);
 	static void SaveFilter(HierarchicalConfig *cfg, unsigned long long Key, const FileFilterParams& Item);
 	static void CloseFilter();
 	static void SwapFilter();
@@ -78,7 +78,7 @@ public:
 private:
 	void ProcessSelection(VMenu2 *FilterList) const;
 	enumFileFilterFlagsType GetFFFT() const;
-	int  GetCheck(const FileFilterParams& FFP) const;
+	wchar_t GetCheck(const FileFilterParams& FFP) const;
 	static void SwapPanelFlags(FileFilterParams& CurFilterData);
 	static int  ParseAndAddMasks(std::list<std::pair<string, int>>& Extensions, const string& FileName, DWORD FileAttr, int Check);
 

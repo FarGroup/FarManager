@@ -3199,7 +3199,6 @@ static bool menushowFunc(FarMacroCall* Data)
 
 	int PrevSelectedPos=Menu->GetSelectPos();
 	DWORD LastKey=0;
-	bool CheckFlag;
 
 	Menu->Key(KEY_NONE);
 	Menu->Run([&](const Manager::Key& RawKey)
@@ -3220,7 +3219,7 @@ static bool menushowFunc(FarMacroCall* Data)
 			case KEY_NUMPAD0:
 			case KEY_INS:
 				if (bMultiSelect)
-					Menu->SetCheck(!Menu->GetCheck(SelectedPos));
+					Menu->GetCheck(SelectedPos)? Menu->ClearCheck(SelectedPos) : Menu->SetCheck(SelectedPos);
 				break;
 
 			case KEY_CTRLADD:
@@ -3236,15 +3235,13 @@ static bool menushowFunc(FarMacroCall* Data)
 						if (Menu->at(i).Flags & MIF_HIDDEN)
 							continue;
 
-						if (Key==KEY_CTRLMULTIPLY || Key==KEY_RCTRLMULTIPLY)
-						{
-							CheckFlag = !Menu->GetCheck(static_cast<int>(i));
-						}
-						else
-						{
-							CheckFlag=(Key==KEY_CTRLADD || Key==KEY_RCTRLADD);
-						}
-						Menu->SetCheck(CheckFlag, static_cast<int>(i));
+						const auto Check = (Key == KEY_CTRLADD || Key == KEY_RCTRLADD)?
+							true :
+							(Key==KEY_CTRLMULTIPLY || Key==KEY_RCTRLMULTIPLY)?
+								!Menu->GetCheck(static_cast<int>(i)) :
+								false;
+
+						Check? Menu->SetCheck(static_cast<int>(i)) : Menu->ClearCheck(static_cast<int>(i));
 					}
 				}
 				break;

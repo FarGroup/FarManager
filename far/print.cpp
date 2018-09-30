@@ -73,8 +73,8 @@ static void AddToPrintersMenu(VMenu2 *PrinterList, range<const PRINTER_INFO_4W*>
 		if (strDefaultPrinter == printer.pPrinterName)
 		{
 			bDefaultPrinterFound = true;
-			Item.SetCheck(TRUE);
-			Item.SetSelect(TRUE);
+			Item.SetCheck();
+			Item.SetSelect(true);
 		}
 		Item.ComplexUserData = Item.Name;
 		PrinterList->AddItem(Item);

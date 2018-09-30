@@ -604,13 +604,13 @@ void InfoList::SelectShowMode()
 
 	for_each_cnt(CONST_RANGE(SectionState, i, size_t index)
 	{
-		ShowModeMenuItem[index].SetCheck(i.Show ? L'+':L'-');
+		ShowModeMenuItem[index].SetCustomCheck(i.Show? L'+' : L'-');
 	});
 
 	if (!Global->Opt->InfoPanel.ShowPowerStatus)
 	{
-		ShowModeMenuItem[ILSS_POWERSTATUS].SetDisable(TRUE);
-		ShowModeMenuItem[ILSS_POWERSTATUS].SetCheck(L' ');
+		ShowModeMenuItem[ILSS_POWERSTATUS].SetDisable(true);
+		ShowModeMenuItem[ILSS_POWERSTATUS].SetCustomCheck(L' ');
 	}
 
 	int ShowCode=-1;

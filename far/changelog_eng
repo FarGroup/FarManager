@@ -3,6 +3,20 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 30.09.2018 17:49:39 +0300 - build 5276
+
+1. Continuation of 5068: removed reading filters and highlighting/sorting groups in the old format.
+
+2. Filters menu now works in the same way as all other dynamic menus - all changes performed in it
+   will be applied regardless of how it has been closed - using Esc or Enter.
+
+3. Visual artefacts during moving items of the highlighting menu with Ctrl+Up / Ctrl+Down.
+   Also, menu optimisation: items updated individually instead of "erase all and read from scratch".
+
+4. New versions of tinyxml2 and fmt.
+
+5. Refactoring.
+
 drkns 30.09.2018 02:13:21 +0300 - build 5275
 
 1. Lng MListFileSize can contain "{3}" replacement field, which will receive a sum of files and folders.
@@ -240,7 +254,7 @@ drkns 29.06.2018 20:49:29 +0100 - build 5234
 
 drkns 27.06.2018 22:31:19 +0100 - build 5233
 
-1. Continuation of 5068: remove storing filters and coloring/sorting groups in the old format.
+1. Continuation of 5068: remove storing filters and highlighting/sorting groups in the old format.
 
 2. Refactoring.
 
@@ -1126,7 +1140,7 @@ drkns 19.10.2017 01:07:23 +0100 - build 5068
 
 1. Inner representation of time uses standard time_point and duration instead FILETIME and raw numbers if possible. The changes are extensive, bugs are expected.
 
-2. Unify the format for filters and coloring/sorting groups because of too much copy-paste.
+2. Unify the format for filters and highlighting/sorting groups because of too much copy-paste.
    For compatibility the old format is still supported both ways (read and written).
    After a while, the support will be removed.
 
@@ -1979,7 +1993,7 @@ drkns 23.01.2017 19:30:10 +0000 - build 4887
 
 w17 23.01.2017 19:46:07 +0300 - build 4886
 
-1. forum: a mark character can't be inserted in coloring
+1. forum: a mark character can't be inserted in highlighting
 
 drkns 20.01.2017 18:35:54 +0000 - build 4885
 
@@ -3331,7 +3345,7 @@ drkns 26.03.2016 23:33:54 +0200 - build 4605
 
 drkns 26.03.2016 21:56:52 +0200 - build 4604
 
-1. Suppress querying of the rights on coloring.
+1. Suppress querying of the rights on highlighting.
 
 drkns 26.03.2016 21:16:07 +0200 - build 4603
 
@@ -3345,7 +3359,7 @@ drkns 26.03.2016 21:16:07 +0200 - build 4603
 
 drkns 26.03.2016 01:03:37 +0200 - build 4602
 
-1. Coloring is applied to files in panel when it is needed.
+1. Highlighting is applied to files in panel when it is needed.
    The effect must be noticeable on big number of groups and/or files.
 
 drkns 25.03.2016 10:08:48 +0200 - build 4601
@@ -7752,7 +7766,7 @@ drkns 13.12.2013 00:57:54 +0200 - build 3738
 
 drkns 09.12.2013 20:56:45 +0200 - build 3737
 
-1. File coloring was broken in 3733.
+1. Files highlighting was broken in 3733.
 
 w17 09.12.2013 14:03:54 +0400 - build 3736
 
@@ -15657,7 +15671,7 @@ drkns 04.12.2011 00:11:58 +0200 - build 2278
 
 drkns 03.12.2011 19:38:39 +0200 - build 2277
 
-1. Mantis#0001221: hard link coloring in panels
+1. Mantis#0001221: hard link highlighting in panels
 
 2. Mantis#0001932: cannot delete a macro
 
@@ -23911,13 +23925,13 @@ folder).
 
 svs 12.03.2008 11:42:45 +0300 - build 434
 
-1. After 431, navigation through coloring in the FileFilterConfig
+1. After 431, navigation through highlighting in the FileFilterConfig
 dialog was broken
 
-2. When a filter/coloring/sorting dialog is invoked, and ColorConfig's
+2. When a filter/highlighting/sorting dialog is invoked, and ColorConfig's
 second parameter is true,
    then the dialog title is changed and the corresponding help topic
-is substituted, describing coloring, not the filtering.
+is substituted, describing highlighting, not the filtering.
 
 t-rex 12.03.2008 00:36:38 +0200 - build 433
 
@@ -24802,8 +24816,8 @@ t-rex 24.11.2007 17:30:03 +0200 - build 356
 drkns 22.11.2007 19:33:01 +0200 - build 355
 
 1. Mantis#0000365: Crash when entering any symbol into the "Optional
-marking character" dialog (file coloring)
-2. Mantis#0000366: In file coloring dialog, optional marking symbols
+marking character" dialog (files highlighting)
+2. Mantis#0000366: In files highlighting dialog, optional marking symbols
 are displayed incorrectly sometimes.
 
 svs 19.11.2007 11:57:58 +0300 - build 354
@@ -24921,7 +24935,7 @@ drkns 14.11.2007 22:22:05 +0200 - build 344
 
 drkns 14.11.2007 21:22:05 +0200 - build 343
 
-1. The %pathext% mask wasn't processed in file coloring
+1. The %pathext% mask wasn't processed in files highlighting.
 
 2. In the "display owners" mode, caching didn't work and memory wasn't
 freed.

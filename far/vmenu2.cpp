@@ -525,18 +525,22 @@ int VMenu2::GetCheck(int Position)
 	return Checked ? Checked : 1;
 }
 
-void VMenu2::SetCheck(int Check, int Position)
+void VMenu2::SetCheck(int Position)
 {
-	LISTITEMFLAGS Flags=GetItemFlags(Position);
-	if (Check)
-	{
-		Flags &= ~0xFFFF;
-		Flags|=((Check&0xFFFF)|LIF_CHECKED);
-	}
-	else
-		Flags&=~(0xFFFF|LIF_CHECKED);
+	const auto Flags = GetItemFlags(Position) & ~0xFFFF;
+	UpdateItemFlags(Position, Flags | LIF_CHECKED);
+}
 
-	UpdateItemFlags(Position, Flags);
+void VMenu2::SetCustomCheck(wchar_t Char, int Position)
+{
+	const auto Flags = GetItemFlags(Position) & ~0xFFFF;
+	UpdateItemFlags(Position, Flags | LIF_CHECKED | Char);
+}
+
+void VMenu2::ClearCheck(int Position)
+{
+	const auto Flags = GetItemFlags(Position) & ~0xFFFF;
+	UpdateItemFlags(Position, Flags & ~LIF_CHECKED);
 }
 
 void VMenu2::UpdateItemFlags(int Pos, unsigned long long NewFlags)
