@@ -209,8 +209,7 @@ void palette::Reset(bool Black)
 	{
 		return colors::ConsoleColorToFarColor(std::invoke(IndexPtr, i));
 	});
-	colors::make_transparent(CurrentPalette[COL_PANELTEXT].BackgroundColor);
-	colors::make_transparent(CurrentPalette[COL_PANELSELECTEDTEXT].BackgroundColor);
+
 	PaletteChanged = true;
 }
 

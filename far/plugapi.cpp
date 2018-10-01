@@ -2834,7 +2834,7 @@ BOOL WINAPI apiColorDialog(const GUID* PluginId, COLORDIALOGFLAGS Flags, FarColo
 	try
 	{
 		return !Global->WindowManager->ManagerIsDown()?
-			console.GetColorDialog(*Color, true, false):
+			console.GetColorDialog(*Color, true):
 			FALSE;
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())

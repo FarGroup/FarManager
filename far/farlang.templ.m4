@@ -13504,29 +13504,17 @@ MHighlightMarking4
 "&8. Marca"
 "&8. Помітка"
 
-MHighlightExample1
-"║filename.ext │"
-"║filename.ext │"
-"║filename.ext │"
-"║dateinam.erw │"
-"║fájlneve.kit │"
-"║nazwa.roz    │"
-"║nombre.ext  │"
-"║filename.ext │"
-"║nome.ext │"
-"║filename.ext │"
-
-MHighlightExample2
-"║ filename.ext│"
-"║ filename.ext│"
-"║ filename.ext│"
-"║ dateinam.erw│"
-"║ fájlneve.kit│"
-"║ nazwa.roz   │"
-"║ nombre.ext │"
-"║ filename.ext│"
-"║ nome.ext│"
-"║ filename.ext│"
+MHighlightExample
+"filename.ext"
+"filename.ext"
+"filename.ext"
+"dateinam.erw"
+"fájlneve.kit"
+"nazwa.roz"
+"nombre.ext"
+"filename.ext"
+"nome.ext"
+"filename.ext"
 
 MHighlightContinueProcessing
 "Продолжать &обработку"

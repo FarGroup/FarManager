@@ -451,34 +451,46 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				}
 				else if (Param1 >= 37 && Param1 <= 39)
 				{
-					Colors->Colors[0] = *reinterpret_cast<FarColor*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+					const auto ColorState = reinterpret_cast<FarColor*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+					Colors->Colors[0] = colors::merge(ColorState[1], ColorState[0]);
 				}
 			}
 			break;
 
 		case DN_BTNCLICK:
+			{
+			const auto CurColor = reinterpret_cast<FarColor*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 
 			if (Param1 >= 2 && Param1 <= 34)
 			{
-				const auto CurColor = reinterpret_cast<FarColor*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 				FarDialogItem DlgItem = {};
 				Dlg->SendMessage( DM_GETDLGITEMSHORT, Param1, &DlgItem);
 
 				if (Param1 <= 17) // Fore
 				{
-					CurColor->ForegroundColor = GetColor(2).BackgroundColor;
+					CurColor->ForegroundColor = colors::alpha_value(CurColor->ForegroundColor)| colors::color_value(GetColor(2).BackgroundColor);
 					CurColor->SetFg4Bit(true);
 				}
 				else if (Param1 >= 19) // Back
 				{
-					CurColor->BackgroundColor = GetColor(19).BackgroundColor;
+					CurColor->BackgroundColor = colors::alpha_value(CurColor->BackgroundColor) | colors::color_value(GetColor(19).BackgroundColor);
 					CurColor->SetBg4Bit(true);
 				}
 
 				return TRUE;
 			}
+			else if (Param1 == 35)
+			{
+				Param2? colors::make_transparent(CurColor->ForegroundColor) : colors::make_opaque(CurColor->ForegroundColor);
+			}
+			else if (Param1 == 36)
+			{
+				Param2? colors::make_transparent(CurColor->BackgroundColor) : colors::make_opaque(CurColor->BackgroundColor);
+			}
+			}
 
 			break;
+
 		default:
 			break;
 	}
@@ -487,7 +499,7 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 }
 
 
-bool GetColorDialogInternal(FarColor& Color,bool bCentered,bool bAddTransparent)
+bool GetColorDialogInternal(FarColor& Color, bool const bCentered, const FarColor* const BaseColor)
 {
 	FarDialogItem ColorDlgData[]=
 	{
@@ -527,8 +539,8 @@ bool GetColorDialogInternal(FarColor& Color,bool bCentered,bool bAddTransparent)
 		{DI_RADIOBUTTON,30, 5, 0, 5, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
 		{DI_RADIOBUTTON,30, 6, 0, 6, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
 
-		{DI_CHECKBOX,    5, 10,0, 10,0,nullptr,nullptr,0,msg(lng::MSetColorForeTransparent).c_str()},
-		{DI_CHECKBOX,   22, 10,0, 10,0,nullptr,nullptr,0,msg(lng::MSetColorBackTransparent).c_str()},
+		{DI_CHECKBOX,    5, 8, 0, 8, 0,nullptr,nullptr,0,msg(lng::MSetColorForeTransparent).c_str()},
+		{DI_CHECKBOX,   22, 8, 0, 8, 0,nullptr,nullptr,0,msg(lng::MSetColorBackTransparent).c_str()},
 
 		{DI_TEXT,        5, 8, 33,8, 0,nullptr,nullptr,0,msg(lng::MSetColorSample).c_str()},
 		{DI_TEXT,        5, 9, 33,9, 0,nullptr,nullptr,0,msg(lng::MSetColorSample).c_str()},
@@ -540,7 +552,7 @@ bool GetColorDialogInternal(FarColor& Color,bool bCentered,bool bAddTransparent)
 	};
 	auto ColorDlg = MakeDialogItemsEx(ColorDlgData);
 	int ExitCode;
-	FarColor CurColor=Color;
+	FarColor CurColor[]{ Color, BaseColor? *BaseColor : Color };
 	int ConsoleColor = colors::FarColorToConsoleColor(Color);
 	for (size_t i=2; i<18; i++)
 	{
@@ -561,36 +573,29 @@ bool GetColorDialogInternal(FarColor& Color,bool bCentered,bool bAddTransparent)
 		}
 	}
 
-	if (bAddTransparent)
+	if (BaseColor)
 	{
 		ColorDlg[0].Y2++;
 
 		for (size_t i=37; i<=42; i++)
 		{
-			ColorDlg[i].Y1+=3;
-			ColorDlg[i].Y2+=3;
+			ColorDlg[i].Y1+=1;
+			ColorDlg[i].Y2+=1;
 		}
 
 		ColorDlg[0].X2+=4;
-		ColorDlg[0].Y2+=2;
 		ColorDlg[1].X2+=2;
-		ColorDlg[1].Y2+=2;
 		ColorDlg[18].X1+=2;
 		ColorDlg[18].X2+=4;
-		ColorDlg[18].Y2+=2;
 
 		for (size_t i=2; i<=17; i++)
 		{
 			ColorDlg[i].X1+=1;
-			ColorDlg[i].Y1+=1;
-			ColorDlg[i].Y2+=1;
 		}
 
 		for (size_t i=19; i<=34; i++)
 		{
 			ColorDlg[i].X1+=3;
-			ColorDlg[i].Y1+=1;
-			ColorDlg[i].Y2+=1;
 		}
 
 		for (size_t i=37; i<=39; i++)
@@ -608,12 +613,12 @@ bool GetColorDialogInternal(FarColor& Color,bool bCentered,bool bAddTransparent)
 	}
 
 	{
-		const auto Dlg = Dialog::create(ColorDlg, GetColorDlgProc, &CurColor);
+		const auto Dlg = Dialog::create(ColorDlg, GetColorDlgProc, CurColor);
 
 		if (bCentered)
-			Dlg->SetPosition({ -1, -1, 39 + (bAddTransparent? 4 : 0), 15 + (bAddTransparent? 3 : 0) });
+			Dlg->SetPosition({ -1, -1, 39 + (BaseColor? 4 : 0), 15 + (BaseColor? 1 : 0) });
 		else
-			Dlg->SetPosition({ 37, 2, 75 + (bAddTransparent? 4 : 0), 16 + (bAddTransparent? 3 : 0)});
+			Dlg->SetPosition({ 37, 2, 75 + (BaseColor? 4 : 0), 16 + (BaseColor? 1 : 0)});
 
 		Dlg->Process();
 		ExitCode=Dlg->GetExitCode();
@@ -621,9 +626,7 @@ bool GetColorDialogInternal(FarColor& Color,bool bCentered,bool bAddTransparent)
 
 	if (ExitCode==41)
 	{
-		Color=CurColor;
-		ColorDlg[35].Selected? colors::make_transparent(Color.ForegroundColor) : colors::make_opaque(Color.ForegroundColor);
-		ColorDlg[36].Selected? colors::make_transparent(Color.BackgroundColor) : colors::make_opaque(Color.BackgroundColor);
+		Color = CurColor[0];
 		return true;
 	}
 

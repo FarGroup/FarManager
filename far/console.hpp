@@ -140,7 +140,7 @@ namespace console_detail
 
 		bool ResetPosition() const;
 
-		bool GetColorDialog(FarColor& Color, bool Centered = false, bool AddTransparent = false) const;
+		bool GetColorDialog(FarColor& Color, bool Centered = false, const FarColor* BaseColor = nullptr) const;
 
 		bool ScrollNonClientArea(size_t NumLines, const FAR_CHAR_INFO& Fill) const;
 

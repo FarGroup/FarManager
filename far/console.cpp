@@ -829,12 +829,12 @@ namespace console_detail
 		return true;
 	}
 
-	bool console::GetColorDialog(FarColor& Color, bool Centered, bool AddTransparent) const
+	bool console::GetColorDialog(FarColor& Color, bool const Centered, const FarColor* const BaseColor) const
 	{
 		if (ExternalConsole.Imports.pGetColorDialog)
-			return ExternalConsole.Imports.pGetColorDialog(&Color, Centered, AddTransparent) != FALSE;
+			return ExternalConsole.Imports.pGetColorDialog(&Color, Centered, BaseColor != nullptr) != FALSE;
 
-		return GetColorDialogInternal(Color, Centered, AddTransparent);
+		return GetColorDialogInternal(Color, Centered, BaseColor);
 	}
 
 	short console::GetDelta() const

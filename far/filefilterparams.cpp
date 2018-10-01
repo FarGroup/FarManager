@@ -584,25 +584,24 @@ enum enumFileFilterConfig
 
 static void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const highlight::element &Colors)
 {
-	const PaletteColors PalColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR};
+	const PaletteColors DefaultColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR};
 	int VBufRow = 0;
 
-	for (const auto& i: zip(Colors.Color, PalColor))
+	for (const auto& i: zip(Colors.Color, DefaultColor))
 	{
 		auto& CurColor= std::get<0>(i);
 		const auto pal = std::get<1>(i);
 
 		auto Color = CurColor.FileColor;
+		const auto BaseColor = colors::PaletteColorToFarColor(pal);
 
-		if (!colors::color_value(Color.BackgroundColor) && !colors::color_value(Color.ForegroundColor))
-		{
-			FARCOLORFLAGS ExFlags = Color.Flags&FCF_EXTENDEDFLAGS;
-			Color=colors::PaletteColorToFarColor(pal);
-			Color.Flags|=ExFlags;
+		// Black-on-black = default
+		// It's for a preview, so we don't care about the extended flags here
+		Color = !colors::color_value(Color.BackgroundColor) && !colors::color_value(Color.ForegroundColor)?
+			BaseColor :
+			colors::merge(BaseColor, Color);
 
-		}
-
-		const auto& Str = msg(Colors.Mark.Char? lng::MHighlightExample2 : lng::MHighlightExample1);
+		const auto Str = concat(BoxSymbols[BS_V2], Colors.Mark.Char? L" "sv : L""sv, fit_to_left(msg(lng::MHighlightExample), Colors.Mark.Char? 12 : 13), BoxSymbols[BS_V1]);
 
 		for (int k=0; k<15; k++)
 		{
@@ -771,7 +770,10 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 			}
 
 			//Color[0=file, 1=mark][0=normal,1=selected,2=undercursor,3=selectedundercursor]
-			console.GetColorDialog(((Param1-ID_HER_NORMALFILE)&1)? EditData->Color[(Param1-ID_HER_NORMALFILE)/2].MarkColor : EditData->Color[(Param1-ID_HER_NORMALFILE)/2].FileColor, true, true);
+			static const PaletteColors BaseIndices[]{ COL_PANELTEXT, COL_PANELSELECTEDTEXT, COL_PANELCURSOR, COL_PANELSELECTEDCURSOR };
+			const auto BaseColor = colors::PaletteColorToFarColor(BaseIndices[(Param1 - ID_HER_NORMALFILE) / 2]);
+
+			console.GetColorDialog(((Param1-ID_HER_NORMALFILE)&1)? EditData->Color[(Param1-ID_HER_NORMALFILE)/2].MarkColor : EditData->Color[(Param1-ID_HER_NORMALFILE)/2].FileColor, true, &BaseColor);
 
 			size_t Size = Dlg->SendMessage(DM_GETDLGITEM, ID_HER_COLOREXAMPLE, nullptr);
 			block_ptr<FarDialogItem> Buffer(Size);

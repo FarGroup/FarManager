@@ -1,435 +1,241 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <farconfig>
     <colors>
-        <object name="Clock" background="FF00000A" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="CommandLine" background="FF000000" foreground="FF00000F" flags="fg4bit bg4bit" />
-        <object name="CommandLine.Prefix" background="FF000000" foreground="FF000007" flags="fg4bit bg4bit" />
-        <object name="CommandLine.Selected" background="FF00000F" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="CommandLine.UserScreen" background="FF000000" foreground="FF000007" flags="fg4bit bg4bit" />
-        <object name="Dialog.Box" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Dialog.Box.Title" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Dialog.Box.Title.Highlight" background="FF000007" foreground="FF00000E" flags="fg4bit bg4bit" />
-        <object name="Dialog.Button" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Dialog.Button.Highlight" background="FF000007" foreground="FF00000E" flags="fg4bit bg4bit" />
-        <object name="Dialog.Button.Highlight.Selected" background="FF00000F" foreground="FF000008" flags="fg4bit bg4bit" />
-        <object name="Dialog.Button.Selected" background="FF00000F" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Dialog.Combo.Arrows" background="FF000007" foreground="FF00000E" flags="fg4bit bg4bit" />
-        <object name="Dialog.Combo.Arrows.Disabled" background="FF000007" foreground="FF000008" flags="fg4bit bg4bit" />
-        <object name="Dialog.Combo.Arrows.Selected" background="FF000000" foreground="FF00000E" flags="fg4bit bg4bit" />
-        <object name="Dialog.Combo.Box" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Dialog.Combo.Disabled" background="FF00000F" foreground="FF000008" flags="fg4bit bg4bit" />
-        <object name="Dialog.Combo.GrayText" background="FF000007" foreground="FF000008" flags="fg4bit bg4bit" />
-        <object name="Dialog.Combo.GrayText.Selected" background="FF000000" foreground="FF000007" flags="fg4bit bg4bit" />
-        <object name="Dialog.Combo.Highlight" background="FF000007" foreground="FF00000E" flags="fg4bit bg4bit" />
-        <object name="Dialog.Combo.Highlight.Selected" background="FF000000" foreground="FF00000E" flags="fg4bit bg4bit" />
-        <object name="Dialog.Combo.Scrollbar" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Dialog.Combo.Text" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Dialog.Combo.Text.Selected" background="FF000000" foreground="FF00000F" flags="fg4bit bg4bit" />
-        <object name="Dialog.Combo.Title" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Dialog.DefaultButton" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Dialog.DefaultButton.Highlight" background="FF000007" foreground="FF00000E" flags="fg4bit bg4bit" />
-        <object name="Dialog.DefaultButton.Highlight.Selected" background="FF00000F" foreground="FF000008" flags="fg4bit bg4bit" />
-        <object name="Dialog.DefaultButton.Selected" background="FF00000F" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Dialog.Disabled" background="FF000007" foreground="FF000008" flags="fg4bit bg4bit" />
-        <object name="Dialog.Edit" background="FF00000F" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Dialog.Edit.Disabled" background="FF00000F" foreground="FF000008" flags="fg4bit bg4bit" />
-        <object name="Dialog.Edit.Selected" background="FF000000" foreground="FF00000F" flags="fg4bit bg4bit" />
-        <object name="Dialog.Edit.Unchanged" background="FF00000F" foreground="FF000008" flags="fg4bit bg4bit" />
-        <object name="Dialog.List.Arrows" background="FF000007" foreground="FF00000E" flags="fg4bit bg4bit" />
-        <object name="Dialog.List.Arrows.Disabled" background="FF000007" foreground="FF000008" flags="fg4bit bg4bit" />
-        <object name="Dialog.List.Arrows.Selected" background="FF000000" foreground="FF00000E" flags="fg4bit bg4bit" />
-        <object name="Dialog.List.Box" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Dialog.List.Disabled" background="FF00000F" foreground="FF000008" flags="fg4bit bg4bit" />
-        <object name="Dialog.List.GrayText" background="FF000007" foreground="FF000008" flags="fg4bit bg4bit" />
-        <object name="Dialog.List.GrayText.Selected" background="FF000000" foreground="FF000007" flags="fg4bit bg4bit" />
-        <object name="Dialog.List.Highlight" background="FF000007" foreground="FF00000E" flags="fg4bit bg4bit" />
-        <object name="Dialog.List.Highlight.Selected" background="FF000000" foreground="FF00000E" flags="fg4bit bg4bit" />
-        <object name="Dialog.List.Scrollbar" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Dialog.List.Text" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Dialog.List.Text.Selected" background="FF000000" foreground="FF00000F" flags="fg4bit bg4bit" />
-        <object name="Dialog.List.Title" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Dialog.Text" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Dialog.Text.Highlight" background="FF000007" foreground="FF00000E" flags="fg4bit bg4bit" />
-        <object name="Editor.Clock" background="FF00000A" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Editor.Scrollbar" background="FF000002" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Editor.Status" background="FF00000A" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Editor.Text" background="FF000002" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Editor.Text.Selected" background="FF00000A" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="HMenu.Highlight" background="FF00000A" foreground="FF000008" flags="fg4bit bg4bit" />
-        <object name="HMenu.Highlight.Selected" background="FF000000" foreground="FF00000E" flags="fg4bit bg4bit" />
-        <object name="HMenu.Text" background="FF00000A" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="HMenu.Text.Selected" background="FF000000" foreground="FF00000F" flags="fg4bit bg4bit" />
-        <object name="Help.Box" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Help.Box.Title" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Help.Scrollbar" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Help.Text" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Help.Text.Highlight" background="FF000007" foreground="FF00000E" flags="fg4bit bg4bit" />
-        <object name="Help.Topic" background="FF000007" foreground="FF000008" flags="fg4bit bg4bit" />
-        <object name="Help.Topic.Selected" background="FF000000" foreground="FF00000F" flags="fg4bit bg4bit" />
-        <object name="Keybar.Background" background="FF000000" foreground="FF000007" flags="fg4bit bg4bit" />
-        <object name="Keybar.Num" background="FF000002" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Keybar.Text" background="FF00000A" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Menu.Arrows" background="FF000007" foreground="FF000008" flags="fg4bit bg4bit" />
-        <object name="Menu.Arrows.Disabled" background="FF000007" foreground="FF000008" flags="fg4bit bg4bit" />
-        <object name="Menu.Arrows.Selected" background="FF000000" foreground="FF00000E" flags="fg4bit bg4bit" />
-        <object name="Menu.Box" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Menu.GrayText" background="FF000007" foreground="FF000008" flags="fg4bit bg4bit" />
-        <object name="Menu.GrayText.Selected" background="FF000000" foreground="FF000007" flags="fg4bit bg4bit" />
-        <object name="Menu.Highlight" background="FF000007" foreground="FF000008" flags="fg4bit bg4bit" />
-        <object name="Menu.Highlight.Selected" background="FF000000" foreground="FF00000E" flags="fg4bit bg4bit" />
-        <object name="Menu.Scrollbar" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Menu.Text" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Menu.Text.Disabled" background="FF000007" foreground="FF000008" flags="fg4bit bg4bit" />
-        <object name="Menu.Text.Selected" background="FF000000" foreground="FF00000F" flags="fg4bit bg4bit" />
-        <object name="Menu.Title" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Panel.Box" background="FF000002" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Panel.Cursor" background="FF00000A" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Panel.Cursor.Selected" background="FF00000A" foreground="FF00000F" flags="fg4bit bg4bit" />
-        <object name="Panel.DragText" background="FF00000A" foreground="FF00000F" flags="fg4bit bg4bit" />
-        <object name="Panel.Info.Selected" background="FF000002" foreground="FF00000F" flags="fg4bit bg4bit" />
-        <object name="Panel.Info.Total" background="FF000002" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Panel.ScreensNumber" background="FF00000A" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Panel.Scrollbar" background="FF000002" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Panel.Text" background="00000002" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Panel.Text.Highlight" background="FF000001" foreground="FF000007" flags="fg4bit bg4bit" />
-        <object name="Panel.Text.Info" background="FF000002" foreground="FF00000F" flags="fg4bit bg4bit" />
-        <object name="Panel.Text.Selected" background="00000002" foreground="FF00000F" flags="fg4bit bg4bit" />
-        <object name="Panel.Title" background="FF000002" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Panel.Title.Column" background="FF000002" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Panel.Title.Selected" background="FF00000A" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Viewer.Arrows" background="FF000002" foreground="FF000007" flags="fg4bit bg4bit" />
-        <object name="Viewer.Clock" background="FF00000A" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Viewer.Scrollbar" background="FF000002" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Viewer.Status" background="FF00000A" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Viewer.Text" background="FF000002" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="Viewer.Text.Selected" background="FF00000A" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.Box" background="FF000005" foreground="FF00000F" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.Box.Title" background="FF000005" foreground="FF00000F" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.Box.Title.Highlight" background="FF000005" foreground="FF00000E" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.Button" background="FF000005" foreground="FF00000F" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.Button.Highlight" background="FF000005" foreground="FF00000E" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.Button.Highlight.Selected" background="FF000007" foreground="FF00000E" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.Button.Selected" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.Combo.Arrows" background="FF000007" foreground="FF000008" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.Combo.Arrows.Disabled" background="FF000007" foreground="FF000008" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.Combo.Arrows.Selected" background="FF000000" foreground="FF00000E" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.Combo.Box" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.Combo.Disabled" background="FF000007" foreground="FF000008" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.Combo.GrayText" background="FF000007" foreground="FF000008" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.Combo.GrayText.Selected" background="FF000000" foreground="FF000007" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.Combo.Highlight" background="FF000007" foreground="FF000008" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.Combo.Highlight.Selected" background="FF000000" foreground="FF00000E" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.Combo.Scrollbar" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.Combo.Text" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.Combo.Text.Selected" background="FF000000" foreground="FF00000F" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.Combo.Title" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.DefaultButton" background="FF000005" foreground="FF00000F" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.DefaultButton.Highlight" background="FF000005" foreground="FF00000E" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.DefaultButton.Highlight.Selected" background="FF000007" foreground="FF00000E" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.DefaultButton.Selected" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.Disabled" background="FF000005" foreground="FF000008" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.Edit" background="FF00000F" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.Edit.Disabled" background="FF00000F" foreground="FF000008" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.Edit.Selected" background="FF000000" foreground="FF00000F" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.Edit.Unchanged" background="FF00000F" foreground="FF000008" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.List.Arrows" background="FF000004" foreground="FF00000E" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.List.Arrows.Disabled" background="FF000004" foreground="FF000008" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.List.Arrows.Selected" background="FF000007" foreground="FF00000E" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.List.Box" background="FF000004" foreground="FF00000F" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.List.Disabled" background="FF00000F" foreground="FF000008" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.List.GrayText" background="FF000004" foreground="FF000008" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.List.GrayText.Selected" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.List.Highlight" background="FF000004" foreground="FF00000E" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.List.Highlight.Selected" background="FF000007" foreground="FF00000E" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.List.Scrollbar" background="FF000004" foreground="FF00000F" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.List.Text" background="FF000004" foreground="FF00000F" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.List.Text.Selected" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.List.Title" background="FF000004" foreground="FF00000F" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.Text" background="FF000005" foreground="FF00000F" flags="fg4bit bg4bit" />
-        <object name="WarnDialog.Text.Highlight" background="FF000005" foreground="FF00000E" flags="fg4bit bg4bit" />
+        <object name="Clock" background="FF00000A" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="CommandLine" background="FF000000" foreground="FF00000F" flags="fg4bit bg4bit"/>
+        <object name="CommandLine.Prefix" background="FF000000" foreground="FF000007" flags="fg4bit bg4bit"/>
+        <object name="CommandLine.Selected" background="FF00000F" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="CommandLine.UserScreen" background="FF000000" foreground="FF000007" flags="fg4bit bg4bit"/>
+        <object name="Dialog.Box" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Dialog.Box.Title" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Dialog.Box.Title.Highlight" background="FF000007" foreground="FF00000E" flags="fg4bit bg4bit"/>
+        <object name="Dialog.Button" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Dialog.Button.Highlight" background="FF000007" foreground="FF00000E" flags="fg4bit bg4bit"/>
+        <object name="Dialog.Button.Highlight.Selected" background="FF00000F" foreground="FF000008" flags="fg4bit bg4bit"/>
+        <object name="Dialog.Button.Selected" background="FF00000F" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Dialog.Combo.Arrows" background="FF000007" foreground="FF00000E" flags="fg4bit bg4bit"/>
+        <object name="Dialog.Combo.Arrows.Disabled" background="FF000007" foreground="FF000008" flags="fg4bit bg4bit"/>
+        <object name="Dialog.Combo.Arrows.Selected" background="FF000000" foreground="FF00000E" flags="fg4bit bg4bit"/>
+        <object name="Dialog.Combo.Box" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Dialog.Combo.Disabled" background="FF00000F" foreground="FF000008" flags="fg4bit bg4bit"/>
+        <object name="Dialog.Combo.GrayText" background="FF000007" foreground="FF000008" flags="fg4bit bg4bit"/>
+        <object name="Dialog.Combo.GrayText.Selected" background="FF000000" foreground="FF000007" flags="fg4bit bg4bit"/>
+        <object name="Dialog.Combo.Highlight" background="FF000007" foreground="FF00000E" flags="fg4bit bg4bit"/>
+        <object name="Dialog.Combo.Highlight.Selected" background="FF000000" foreground="FF00000E" flags="fg4bit bg4bit"/>
+        <object name="Dialog.Combo.Scrollbar" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Dialog.Combo.Text" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Dialog.Combo.Text.Selected" background="FF000000" foreground="FF00000F" flags="fg4bit bg4bit"/>
+        <object name="Dialog.Combo.Title" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Dialog.DefaultButton" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Dialog.DefaultButton.Highlight" background="FF000007" foreground="FF00000E" flags="fg4bit bg4bit"/>
+        <object name="Dialog.DefaultButton.Highlight.Selected" background="FF00000F" foreground="FF000008" flags="fg4bit bg4bit"/>
+        <object name="Dialog.DefaultButton.Selected" background="FF00000F" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Dialog.Disabled" background="FF000007" foreground="FF000008" flags="fg4bit bg4bit"/>
+        <object name="Dialog.Edit" background="FF00000F" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Dialog.Edit.Disabled" background="FF00000F" foreground="FF000008" flags="fg4bit bg4bit"/>
+        <object name="Dialog.Edit.Selected" background="FF000000" foreground="FF00000F" flags="fg4bit bg4bit"/>
+        <object name="Dialog.Edit.Unchanged" background="FF00000F" foreground="FF000008" flags="fg4bit bg4bit"/>
+        <object name="Dialog.List.Arrows" background="FF000007" foreground="FF00000E" flags="fg4bit bg4bit"/>
+        <object name="Dialog.List.Arrows.Disabled" background="FF000007" foreground="FF000008" flags="fg4bit bg4bit"/>
+        <object name="Dialog.List.Arrows.Selected" background="FF000000" foreground="FF00000E" flags="fg4bit bg4bit"/>
+        <object name="Dialog.List.Box" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Dialog.List.Disabled" background="FF00000F" foreground="FF000008" flags="fg4bit bg4bit"/>
+        <object name="Dialog.List.GrayText" background="FF000007" foreground="FF000008" flags="fg4bit bg4bit"/>
+        <object name="Dialog.List.GrayText.Selected" background="FF000000" foreground="FF000007" flags="fg4bit bg4bit"/>
+        <object name="Dialog.List.Highlight" background="FF000007" foreground="FF00000E" flags="fg4bit bg4bit"/>
+        <object name="Dialog.List.Highlight.Selected" background="FF000000" foreground="FF00000E" flags="fg4bit bg4bit"/>
+        <object name="Dialog.List.Scrollbar" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Dialog.List.Text" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Dialog.List.Text.Selected" background="FF000000" foreground="FF00000F" flags="fg4bit bg4bit"/>
+        <object name="Dialog.List.Title" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Dialog.Text" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Dialog.Text.Highlight" background="FF000007" foreground="FF00000E" flags="fg4bit bg4bit"/>
+        <object name="Editor.Clock" background="FF00000A" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Editor.Scrollbar" background="FF000002" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Editor.Status" background="FF00000A" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Editor.Text" background="FF000002" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Editor.Text.Selected" background="FF00000A" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="HMenu.Highlight" background="FF00000A" foreground="FF000008" flags="fg4bit bg4bit"/>
+        <object name="HMenu.Highlight.Selected" background="FF000000" foreground="FF00000E" flags="fg4bit bg4bit"/>
+        <object name="HMenu.Text" background="FF00000A" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="HMenu.Text.Selected" background="FF000000" foreground="FF00000F" flags="fg4bit bg4bit"/>
+        <object name="Help.Box" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Help.Box.Title" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Help.Scrollbar" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Help.Text" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Help.Text.Highlight" background="FF000007" foreground="FF00000E" flags="fg4bit bg4bit"/>
+        <object name="Help.Topic" background="FF000007" foreground="FF000008" flags="fg4bit bg4bit"/>
+        <object name="Help.Topic.Selected" background="FF000000" foreground="FF00000F" flags="fg4bit bg4bit"/>
+        <object name="Keybar.Background" background="FF000000" foreground="FF000007" flags="fg4bit bg4bit"/>
+        <object name="Keybar.Num" background="FF000002" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Keybar.Text" background="FF00000A" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Menu.Arrows" background="FF000007" foreground="FF000008" flags="fg4bit bg4bit"/>
+        <object name="Menu.Arrows.Disabled" background="FF000007" foreground="FF000008" flags="fg4bit bg4bit"/>
+        <object name="Menu.Arrows.Selected" background="FF000000" foreground="FF00000E" flags="fg4bit bg4bit"/>
+        <object name="Menu.Box" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Menu.GrayText" background="FF000007" foreground="FF000008" flags="fg4bit bg4bit"/>
+        <object name="Menu.GrayText.Selected" background="FF000000" foreground="FF000007" flags="fg4bit bg4bit"/>
+        <object name="Menu.Highlight" background="FF000007" foreground="FF000008" flags="fg4bit bg4bit"/>
+        <object name="Menu.Highlight.Selected" background="FF000000" foreground="FF00000E" flags="fg4bit bg4bit"/>
+        <object name="Menu.Scrollbar" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Menu.Text" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Menu.Text.Disabled" background="FF000007" foreground="FF000008" flags="fg4bit bg4bit"/>
+        <object name="Menu.Text.Selected" background="FF000000" foreground="FF00000F" flags="fg4bit bg4bit"/>
+        <object name="Menu.Title" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Panel.Box" background="FF000002" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Panel.Cursor" background="FF00000A" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Panel.Cursor.Selected" background="FF00000A" foreground="FF00000F" flags="fg4bit bg4bit"/>
+        <object name="Panel.DragText" background="FF00000A" foreground="FF00000F" flags="fg4bit bg4bit"/>
+        <object name="Panel.Info.Selected" background="FF000002" foreground="FF00000F" flags="fg4bit bg4bit"/>
+        <object name="Panel.Info.Total" background="FF000002" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Panel.ScreensNumber" background="FF00000A" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Panel.Scrollbar" background="FF000002" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Panel.Text" background="FF000002" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Panel.Text.Highlight" background="FF000001" foreground="FF000007" flags="fg4bit bg4bit"/>
+        <object name="Panel.Text.Info" background="FF000002" foreground="FF00000F" flags="fg4bit bg4bit"/>
+        <object name="Panel.Text.Selected" background="FF000002" foreground="FF00000F" flags="fg4bit bg4bit"/>
+        <object name="Panel.Title" background="FF000002" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Panel.Title.Column" background="FF000002" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Panel.Title.Selected" background="FF00000A" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Viewer.Arrows" background="FF000002" foreground="FF000007" flags="fg4bit bg4bit"/>
+        <object name="Viewer.Clock" background="FF00000A" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Viewer.Scrollbar" background="FF000002" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Viewer.Status" background="FF00000A" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Viewer.Text" background="FF000002" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="Viewer.Text.Selected" background="FF00000A" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.Box" background="FF000005" foreground="FF00000F" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.Box.Title" background="FF000005" foreground="FF00000F" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.Box.Title.Highlight" background="FF000005" foreground="FF00000E" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.Button" background="FF000005" foreground="FF00000F" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.Button.Highlight" background="FF000005" foreground="FF00000E" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.Button.Highlight.Selected" background="FF000007" foreground="FF00000E" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.Button.Selected" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.Combo.Arrows" background="FF000007" foreground="FF000008" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.Combo.Arrows.Disabled" background="FF000007" foreground="FF000008" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.Combo.Arrows.Selected" background="FF000000" foreground="FF00000E" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.Combo.Box" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.Combo.Disabled" background="FF000007" foreground="FF000008" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.Combo.GrayText" background="FF000007" foreground="FF000008" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.Combo.GrayText.Selected" background="FF000000" foreground="FF000007" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.Combo.Highlight" background="FF000007" foreground="FF000008" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.Combo.Highlight.Selected" background="FF000000" foreground="FF00000E" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.Combo.Scrollbar" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.Combo.Text" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.Combo.Text.Selected" background="FF000000" foreground="FF00000F" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.Combo.Title" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.DefaultButton" background="FF000005" foreground="FF00000F" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.DefaultButton.Highlight" background="FF000005" foreground="FF00000E" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.DefaultButton.Highlight.Selected" background="FF000007" foreground="FF00000E" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.DefaultButton.Selected" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.Disabled" background="FF000005" foreground="FF000008" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.Edit" background="FF00000F" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.Edit.Disabled" background="FF00000F" foreground="FF000008" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.Edit.Selected" background="FF000000" foreground="FF00000F" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.Edit.Unchanged" background="FF00000F" foreground="FF000008" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.List.Arrows" background="FF000004" foreground="FF00000E" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.List.Arrows.Disabled" background="FF000004" foreground="FF000008" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.List.Arrows.Selected" background="FF000007" foreground="FF00000E" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.List.Box" background="FF000004" foreground="FF00000F" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.List.Disabled" background="FF00000F" foreground="FF000008" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.List.GrayText" background="FF000004" foreground="FF000008" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.List.GrayText.Selected" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.List.Highlight" background="FF000004" foreground="FF00000E" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.List.Highlight.Selected" background="FF000007" foreground="FF00000E" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.List.Scrollbar" background="FF000004" foreground="FF00000F" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.List.Text" background="FF000004" foreground="FF00000F" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.List.Text.Selected" background="FF000007" foreground="FF000000" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.List.Title" background="FF000004" foreground="FF00000F" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.Text" background="FF000005" foreground="FF00000F" flags="fg4bit bg4bit"/>
+        <object name="WarnDialog.Text.Highlight" background="FF000005" foreground="FF00000E" flags="fg4bit bg4bit"/>
     </colors>
     <highlight>
         <hierarchicalconfig>
-            <key name="Highlight" description="">
-                <key name="Group0" description="">
-                    <value name="ContinueProcessing" type="qword" value="0000000000000000" />
-                    <value name="CursorColor" type="color" background="FF00000A" foreground="FF000008" flags="fg4bit bg4bit" />
-                    <value name="DateAfter" type="hex" value="00,00,00,00,00,00,00,00" />
-                    <value name="DateBefore" type="hex" value="00,00,00,00,00,00,00,00" />
-                    <value name="DateRelative" type="qword" value="0000000000000000" />
-                    <value name="DateType" type="qword" value="0000000000000000" />
-                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
-                    <value name="HardLinksAbove" type="qword" value="0000000000000000" />
-                    <value name="HardLinksBelow" type="qword" value="0000000000000000" />
-                    <value name="IgnoreMask" type="qword" value="0000000000000000" />
-                    <value name="IncludeAttributes" type="qword" value="0000000000000002" />
-                    <value name="MarkChar" type="qword" value="0000000000000000" />
-                    <value name="MarkCharCursorColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="MarkCharNormalColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="MarkCharSelectedColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="MarkCharSelectedCursorColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="Mask" type="text" value="*.*" />
-                    <value name="NormalColor" type="color" background="FF000002" foreground="FF000008" flags="fg4bit bg4bit" />
-                    <value name="SelectedColor" type="color" background="FF000002" foreground="FF00000F" flags="fg4bit bg4bit" />
-                    <value name="SelectedCursorColor" type="color" background="FF00000A" foreground="FF00000F" flags="fg4bit bg4bit" />
-                    <value name="SizeAboveS" type="text" value="" />
-                    <value name="SizeBelowS" type="text" value="" />
-                    <value name="UseAttr" type="qword" value="0000000000000001" />
-                    <value name="UseDate" type="qword" value="0000000000000000" />
-                    <value name="UseHardLinks" type="qword" value="0000000000000000" />
-                    <value name="UseSize" type="qword" value="0000000000000000" />
+            <key name="Highlight">
+                <key name="Group0">
+                    <value name="UseMask" type="qword" value="0000000000000000"/>
+                    <value name="UseAttr" type="qword" value="0000000000000001"/>
+                    <value name="AttrSet" type="qword" value="0000000000000002"/>
+
+                    <value name="NormalColor"         type="color" background="FF000002" foreground="FF000008" flags="fg4bit bg4bit"/>
+                    <value name="CursorColor"         type="color" background="FF00000A" foreground="FF000008" flags="fg4bit bg4bit"/>
+                    <value name="SelectedColor"       type="color" background="FF000002" foreground="FF00000F" flags="fg4bit bg4bit"/>
+                    <value name="SelectedCursorColor" type="color" background="FF00000A" foreground="FF00000F" flags="fg4bit bg4bit"/>
                 </key>
-                <key name="Group1" description="">
-                    <value name="ContinueProcessing" type="qword" value="0000000000000000" />
-                    <value name="CursorColor" type="color" background="FF00000A" foreground="FF000008" flags="fg4bit bg4bit" />
-                    <value name="DateAfter" type="hex" value="00,00,00,00,00,00,00,00" />
-                    <value name="DateBefore" type="hex" value="00,00,00,00,00,00,00,00" />
-                    <value name="DateRelative" type="qword" value="0000000000000000" />
-                    <value name="DateType" type="qword" value="0000000000000000" />
-                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
-                    <value name="HardLinksAbove" type="qword" value="0000000000000000" />
-                    <value name="HardLinksBelow" type="qword" value="0000000000000000" />
-                    <value name="IgnoreMask" type="qword" value="0000000000000000" />
-                    <value name="IncludeAttributes" type="qword" value="0000000000000004" />
-                    <value name="MarkChar" type="qword" value="0000000000000000" />
-                    <value name="MarkCharCursorColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="MarkCharNormalColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="MarkCharSelectedColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="MarkCharSelectedCursorColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="Mask" type="text" value="*.*" />
-                    <value name="NormalColor" type="color" background="FF000002" foreground="FF000008" flags="fg4bit bg4bit" />
-                    <value name="SelectedColor" type="color" background="FF000002" foreground="FF00000F" flags="fg4bit bg4bit" />
-                    <value name="SelectedCursorColor" type="color" background="FF00000A" foreground="FF00000F" flags="fg4bit bg4bit" />
-                    <value name="SizeAboveS" type="text" value="" />
-                    <value name="SizeBelowS" type="text" value="" />
-                    <value name="UseAttr" type="qword" value="0000000000000001" />
-                    <value name="UseDate" type="qword" value="0000000000000000" />
-                    <value name="UseHardLinks" type="qword" value="0000000000000000" />
-                    <value name="UseSize" type="qword" value="0000000000000000" />
+                <key name="Group1">
+                    <value name="UseMask" type="qword" value="0000000000000000"/>
+                    <value name="UseAttr" type="qword" value="0000000000000001"/>
+                    <value name="AttrSet" type="qword" value="0000000000000004"/>
+
+                    <value name="NormalColor"         type="color" background="FF000002" foreground="FF000008" flags="fg4bit bg4bit"/>
+                    <value name="CursorColor"         type="color" background="FF00000A" foreground="FF000008" flags="fg4bit bg4bit"/>
+                    <value name="SelectedColor"       type="color" background="FF000002" foreground="FF00000F" flags="fg4bit bg4bit"/>
+                    <value name="SelectedCursorColor" type="color" background="FF00000A" foreground="FF00000F" flags="fg4bit bg4bit"/>
                 </key>
-                <key name="Group2" description="">
-                    <value name="ContinueProcessing" type="qword" value="0000000000000000" />
-                    <value name="CursorColor" type="color" background="FF00000A" foreground="FF000001" flags="fg4bit bg4bit" />
-                    <value name="DateAfter" type="hex" value="00,00,00,00,00,00,00,00" />
-                    <value name="DateBefore" type="hex" value="00,00,00,00,00,00,00,00" />
-                    <value name="DateRelative" type="qword" value="0000000000000000" />
-                    <value name="DateType" type="qword" value="0000000000000000" />
-                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
-                    <value name="HardLinksAbove" type="qword" value="0000000000000000" />
-                    <value name="HardLinksBelow" type="qword" value="0000000000000000" />
-                    <value name="IgnoreMask" type="qword" value="0000000000000000" />
-                    <value name="IncludeAttributes" type="qword" value="0000000000000010" />
-                    <value name="MarkChar" type="qword" value="0000000000000000" />
-                    <value name="MarkCharCursorColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="MarkCharNormalColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="MarkCharSelectedColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="MarkCharSelectedCursorColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="Mask" type="text" value="*.*" />
-                    <value name="NormalColor" type="color" background="FF000002" foreground="FF000001" flags="fg4bit bg4bit" />
-                    <value name="SelectedColor" type="color" background="FF000002" foreground="FF00000F" flags="fg4bit bg4bit" />
-                    <value name="SelectedCursorColor" type="color" background="FF00000A" foreground="FF00000F" flags="fg4bit bg4bit" />
-                    <value name="SizeAboveS" type="text" value="" />
-                    <value name="SizeBelowS" type="text" value="" />
-                    <value name="UseAttr" type="qword" value="0000000000000001" />
-                    <value name="UseDate" type="qword" value="0000000000000000" />
-                    <value name="UseHardLinks" type="qword" value="0000000000000000" />
-                    <value name="UseSize" type="qword" value="0000000000000000" />
+                <key name="Group2">
+                    <value name="UseMask" type="qword" value="0000000000000000"/>
+                    <value name="UseAttr" type="qword" value="0000000000000001"/>
+                    <value name="AttrSet" type="qword" value="0000000000000010"/>
+
+                    <value name="NormalColor"         type="color" background="FF000002" foreground="FF000001" flags="fg4bit bg4bit"/>
+                    <value name="CursorColor"         type="color" background="FF00000A" foreground="FF000001" flags="fg4bit bg4bit"/>
+                    <value name="SelectedColor"       type="color" background="FF000002" foreground="FF00000F" flags="fg4bit bg4bit"/>
+                    <value name="SelectedCursorColor" type="color" background="FF00000A" foreground="FF00000F" flags="fg4bit bg4bit"/>
                 </key>
-                <key name="Group3" description="">
-                    <value name="ContinueProcessing" type="qword" value="0000000000000000" />
-                    <value name="CursorColor" type="color" background="FF00000A" foreground="FF00000E" flags="fg4bit bg4bit" />
-                    <value name="DateAfter" type="hex" value="00,00,00,00,00,00,00,00" />
-                    <value name="DateBefore" type="hex" value="00,00,00,00,00,00,00,00" />
-                    <value name="DateRelative" type="qword" value="0000000000000000" />
-                    <value name="DateType" type="qword" value="0000000000000000" />
-                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
-                    <value name="HardLinksAbove" type="qword" value="0000000000000000" />
-                    <value name="HardLinksBelow" type="qword" value="0000000000000000" />
-                    <value name="IgnoreMask" type="qword" value="0000000000000000" />
-                    <value name="IncludeAttributes" type="qword" value="0000000000000000" />
-                    <value name="MarkChar" type="qword" value="0000000000000000" />
-                    <value name="MarkCharCursorColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="MarkCharNormalColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="MarkCharSelectedColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="MarkCharSelectedCursorColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="Mask" type="text" value="*.exe,*.com,*.bat,*.cmd,*.msi" />
-                    <value name="NormalColor" type="color" background="FF000002" foreground="FF00000E" flags="fg4bit bg4bit" />
-                    <value name="SelectedColor" type="color" background="FF000002" foreground="FF00000F" flags="fg4bit bg4bit" />
-                    <value name="SelectedCursorColor" type="color" background="FF00000A" foreground="FF00000F" flags="fg4bit bg4bit" />
-                    <value name="SizeAboveS" type="text" value="" />
-                    <value name="SizeBelowS" type="text" value="" />
-                    <value name="UseAttr" type="qword" value="0000000000000001" />
-                    <value name="UseDate" type="qword" value="0000000000000000" />
-                    <value name="UseHardLinks" type="qword" value="0000000000000000" />
-                    <value name="UseSize" type="qword" value="0000000000000000" />
+                <key name="Group3">
+                    <value name="Mask" type="text" value="*.exe,*.com,*.bat,*.cmd,*.msi"/>
+
+                    <value name="NormalColor"         type="color" background="FF000002" foreground="FF00000E" flags="fg4bit bg4bit"/>
+                    <value name="CursorColor"         type="color" background="FF00000A" foreground="FF00000E" flags="fg4bit bg4bit"/>
+                    <value name="SelectedColor"       type="color" background="FF000002" foreground="FF00000F" flags="fg4bit bg4bit"/>
+                    <value name="SelectedCursorColor" type="color" background="FF00000A" foreground="FF00000F" flags="fg4bit bg4bit"/>
                 </key>
-                <key name="Group4" description="">
-                    <value name="ContinueProcessing" type="qword" value="0000000000000000" />
-                    <value name="CursorColor" type="color" background="FF00000A" foreground="FF000005" flags="fg4bit bg4bit" />
-                    <value name="DateAfter" type="hex" value="00,00,00,00,00,00,00,00" />
-                    <value name="DateBefore" type="hex" value="00,00,00,00,00,00,00,00" />
-                    <value name="DateRelative" type="qword" value="0000000000000000" />
-                    <value name="DateType" type="qword" value="0000000000000000" />
-                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
-                    <value name="HardLinksAbove" type="qword" value="0000000000000000" />
-                    <value name="HardLinksBelow" type="qword" value="0000000000000000" />
-                    <value name="IgnoreMask" type="qword" value="0000000000000000" />
-                    <value name="IncludeAttributes" type="qword" value="0000000000000000" />
-                    <value name="MarkChar" type="qword" value="0000000000000000" />
-                    <value name="MarkCharCursorColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="MarkCharNormalColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="MarkCharSelectedColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="MarkCharSelectedCursorColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="Mask" type="text" value="*.rar,*.r[0-9][0-9],*.arj,*.zip,*.zip.*,*.jar,*.lha,*.lzh,*.cab,*.gz,*.gz.*,*.tar,*.tar.*,*.7z,*.7z.*,*.bz2,*.bz2.*,*.xz,*.xz.*" />
-                    <value name="NormalColor" type="color" background="FF000002" foreground="FF000005" flags="fg4bit bg4bit" />
-                    <value name="SelectedColor" type="color" background="FF000002" foreground="FF00000F" flags="fg4bit bg4bit" />
-                    <value name="SelectedCursorColor" type="color" background="FF00000A" foreground="FF00000F" flags="fg4bit bg4bit" />
-                    <value name="SizeAboveS" type="text" value="" />
-                    <value name="SizeBelowS" type="text" value="" />
-                    <value name="UseAttr" type="qword" value="0000000000000001" />
-                    <value name="UseDate" type="qword" value="0000000000000000" />
-                    <value name="UseHardLinks" type="qword" value="0000000000000000" />
-                    <value name="UseSize" type="qword" value="0000000000000000" />
+                <key name="Group4">
+                    <value name="Mask" type="text" value="*.rar,*.r[0-9][0-9],*.arj,*.zip,*.zip.*,*.jar,*.lha,*.lzh,*.cab,*.gz,*.gz.*,*.tar,*.tar.*,*.7z,*.7z.*,*.bz2,*.bz2.*,*.xz,*.xz.*"/>
+
+                    <value name="NormalColor"         type="color" background="FF000002" foreground="FF000005" flags="fg4bit bg4bit"/>
+                    <value name="CursorColor"         type="color" background="FF00000A" foreground="FF000005" flags="fg4bit bg4bit"/>
+                    <value name="SelectedColor"       type="color" background="FF000002" foreground="FF00000F" flags="fg4bit bg4bit"/>
+                    <value name="SelectedCursorColor" type="color" background="FF00000A" foreground="FF00000F" flags="fg4bit bg4bit"/>
                 </key>
-                <key name="Group5" description="">
-                    <value name="ContinueProcessing" type="qword" value="0000000000000000" />
-                    <value name="CursorColor" type="color" background="FF00000A" foreground="FF000006" flags="fg4bit bg4bit" />
-                    <value name="DateAfter" type="hex" value="00,00,00,00,00,00,00,00" />
-                    <value name="DateBefore" type="hex" value="00,00,00,00,00,00,00,00" />
-                    <value name="DateRelative" type="qword" value="0000000000000000" />
-                    <value name="DateType" type="qword" value="0000000000000000" />
-                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
-                    <value name="HardLinksAbove" type="qword" value="0000000000000000" />
-                    <value name="HardLinksBelow" type="qword" value="0000000000000000" />
-                    <value name="IgnoreMask" type="qword" value="0000000000000000" />
-                    <value name="IncludeAttributes" type="qword" value="0000000000000000" />
-                    <value name="MarkChar" type="qword" value="0000000000000000" />
-                    <value name="MarkCharCursorColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="MarkCharNormalColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="MarkCharSelectedColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="MarkCharSelectedCursorColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="Mask" type="text" value="*.bak,*.tmp,*.old" />
-                    <value name="NormalColor" type="color" background="FF000002" foreground="FF000006" flags="fg4bit bg4bit" />
-                    <value name="SelectedColor" type="color" background="FF000002" foreground="FF00000F" flags="fg4bit bg4bit" />
-                    <value name="SelectedCursorColor" type="color" background="FF00000A" foreground="FF00000F" flags="fg4bit bg4bit" />
-                    <value name="SizeAboveS" type="text" value="" />
-                    <value name="SizeBelowS" type="text" value="" />
-                    <value name="UseAttr" type="qword" value="0000000000000001" />
-                    <value name="UseDate" type="qword" value="0000000000000000" />
-                    <value name="UseHardLinks" type="qword" value="0000000000000000" />
-                    <value name="UseSize" type="qword" value="0000000000000000" />
+                <key name="Group5">
+                    <value name="Mask" type="text" value="*.bak,*.tmp,*.old"/>
+
+                    <value name="NormalColor"         type="color" background="FF000002" foreground="FF000006" flags="fg4bit bg4bit"/>
+                    <value name="CursorColor"         type="color" background="FF00000A" foreground="FF000006" flags="fg4bit bg4bit"/>
+                    <value name="SelectedColor"       type="color" background="FF000002" foreground="FF00000F" flags="fg4bit bg4bit"/>
+                    <value name="SelectedCursorColor" type="color" background="FF00000A" foreground="FF00000F" flags="fg4bit bg4bit"/>
                 </key>
-                <key name="Group6" description="">
-                    <value name="ContinueProcessing" type="qword" value="0000000000000000" />
-                    <value name="CursorColor" type="color" background="FF00000A" foreground="FF000004" flags="fg4bit bg4bit" />
-                    <value name="DateAfter" type="hex" value="00,00,00,00,00,00,00,00" />
-                    <value name="DateBefore" type="hex" value="00,00,00,00,00,00,00,00" />
-                    <value name="DateRelative" type="qword" value="0000000000000000" />
-                    <value name="DateType" type="qword" value="0000000000000000" />
-                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
-                    <value name="HardLinksAbove" type="qword" value="0000000000000000" />
-                    <value name="HardLinksBelow" type="qword" value="0000000000000000" />
-                    <value name="IgnoreMask" type="qword" value="0000000000000000" />
-                    <value name="IncludeAttributes" type="qword" value="0000000000000000" />
-                    <value name="MarkChar" type="qword" value="0000000000000000" />
-                    <value name="MarkCharCursorColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="MarkCharNormalColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="MarkCharSelectedColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="MarkCharSelectedCursorColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="Mask" type="text" value="*.aac,*.act,*.aiff,*.amr,*.au,*.awb,*.dct,*.dss,*.dvf,*.flac,*.gsm,*.iklax,*.ivs,*.m4a,*.m4r,*.mid,*.mmf,*.mp3,*.mpc,*.msv,*.ogg,*.opus,*.ra,*.raw,*.sln,*.tta,*.vox,*.wav,*.wma,*.wv" />
-                    <value name="NormalColor" type="color" background="FF000002" foreground="FF000004" flags="fg4bit bg4bit" />
-                    <value name="SelectedColor" type="color" background="FF000002" foreground="FF00000F" flags="fg4bit bg4bit" />
-                    <value name="SelectedCursorColor" type="color" background="FF00000A" foreground="FF00000F" flags="fg4bit bg4bit" />
-                    <value name="SizeAboveS" type="text" value="" />
-                    <value name="SizeBelowS" type="text" value="" />
-                    <value name="UseAttr" type="qword" value="0000000000000001" />
-                    <value name="UseDate" type="qword" value="0000000000000000" />
-                    <value name="UseHardLinks" type="qword" value="0000000000000000" />
-                    <value name="UseSize" type="qword" value="0000000000000000" />
+                <key name="Group6">
+                    <value name="Mask" type="text" value="*.aac,*.act,*.aiff,*.amr,*.au,*.awb,*.dct,*.dss,*.dvf,*.flac,*.gsm,*.iklax,*.ivs,*.m4a,*.m4r,*.mid,*.mmf,*.mp3,*.mpc,*.msv,*.ogg,*.opus,*.ra,*.raw,*.sln,*.tta,*.vox,*.wav,*.wma,*.wv"/>
+
+                    <value name="NormalColor"         type="color" background="FF000002" foreground="FF000004" flags="fg4bit bg4bit"/>
+                    <value name="CursorColor"         type="color" background="FF00000A" foreground="FF000004" flags="fg4bit bg4bit"/>
+                    <value name="SelectedColor"       type="color" background="FF000002" foreground="FF00000F" flags="fg4bit bg4bit"/>
+                    <value name="SelectedCursorColor" type="color" background="FF00000A" foreground="FF00000F" flags="fg4bit bg4bit"/>
                 </key>
-                <key name="Group7" description="">
-                    <value name="ContinueProcessing" type="qword" value="0000000000000000" />
-                    <value name="CursorColor" type="color" background="FF00000A" foreground="FF00000D" flags="fg4bit bg4bit" />
-                    <value name="DateAfter" type="hex" value="00,00,00,00,00,00,00,00" />
-                    <value name="DateBefore" type="hex" value="00,00,00,00,00,00,00,00" />
-                    <value name="DateRelative" type="qword" value="0000000000000000" />
-                    <value name="DateType" type="qword" value="0000000000000000" />
-                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
-                    <value name="HardLinksAbove" type="qword" value="0000000000000000" />
-                    <value name="HardLinksBelow" type="qword" value="0000000000000000" />
-                    <value name="IgnoreMask" type="qword" value="0000000000000000" />
-                    <value name="IncludeAttributes" type="qword" value="0000000000000000" />
-                    <value name="MarkChar" type="qword" value="0000000000000000" />
-                    <value name="MarkCharCursorColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="MarkCharNormalColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="MarkCharSelectedColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="MarkCharSelectedCursorColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="Mask" type="text" value="*.3g2,*.3gp,*.asf,*.avi,*.drc,*.flv,*.m2ts,*.m2v,*.m4p,*.m4v,*.mkv,*.mng,*.mov,*.mp2,*.mp4,*.mpe,*.mpeg,*.mpg,*.mpv,*.mts,*.mxf,*.nsv,*.ogv,*.qt,*.rm,*.rmvb,*.roq,*.svi,*.ts,*.vob,*.webm,*.wmv,*.yuv" />
-                    <value name="NormalColor" type="color" background="FF000002" foreground="FF00000D" flags="fg4bit bg4bit" />
-                    <value name="SelectedColor" type="color" background="FF000002" foreground="FF00000F" flags="fg4bit bg4bit" />
-                    <value name="SelectedCursorColor" type="color" background="FF00000A" foreground="FF00000F" flags="fg4bit bg4bit" />
-                    <value name="SizeAboveS" type="text" value="" />
-                    <value name="SizeBelowS" type="text" value="" />
-                    <value name="UseAttr" type="qword" value="0000000000000001" />
-                    <value name="UseDate" type="qword" value="0000000000000000" />
-                    <value name="UseHardLinks" type="qword" value="0000000000000000" />
-                    <value name="UseSize" type="qword" value="0000000000000000" />
+                <key name="Group7">
+                    <value name="Mask" type="text" value="*.3g2,*.3gp,*.asf,*.avi,*.drc,*.flv,*.m2ts,*.m2v,*.m4p,*.m4v,*.mkv,*.mng,*.mov,*.mp2,*.mp4,*.mpe,*.mpeg,*.mpg,*.mpv,*.mts,*.mxf,*.nsv,*.ogv,*.qt,*.rm,*.rmvb,*.roq,*.svi,*.ts,*.vob,*.webm,*.wmv,*.yuv"/>
+
+                    <value name="NormalColor"         type="color" background="FF000002" foreground="FF00000D" flags="fg4bit bg4bit"/>
+                    <value name="CursorColor"         type="color" background="FF00000A" foreground="FF00000D" flags="fg4bit bg4bit"/>
+                    <value name="SelectedColor"       type="color" background="FF000002" foreground="FF00000F" flags="fg4bit bg4bit"/>
+                    <value name="SelectedCursorColor" type="color" background="FF00000A" foreground="FF00000F" flags="fg4bit bg4bit"/>
                 </key>
-                <key name="Group8" description="">
-                    <value name="ContinueProcessing" type="qword" value="0000000000000000" />
-                    <value name="CursorColor" type="color" background="FF00000A" foreground="FF00000C" flags="fg4bit bg4bit" />
-                    <value name="DateAfter" type="hex" value="00,00,00,00,00,00,00,00" />
-                    <value name="DateBefore" type="hex" value="00,00,00,00,00,00,00,00" />
-                    <value name="DateRelative" type="qword" value="0000000000000000" />
-                    <value name="DateType" type="qword" value="0000000000000000" />
-                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
-                    <value name="HardLinksAbove" type="qword" value="0000000000000000" />
-                    <value name="HardLinksBelow" type="qword" value="0000000000000000" />
-                    <value name="IgnoreMask" type="qword" value="0000000000000000" />
-                    <value name="IncludeAttributes" type="qword" value="0000000000000000" />
-                    <value name="MarkChar" type="qword" value="0000000000000000" />
-                    <value name="MarkCharCursorColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="MarkCharNormalColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="MarkCharSelectedColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="MarkCharSelectedCursorColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="Mask" type="text" value="*.!draw,*.3d,*.3df,*.3dm,*.3ds,*.3dxml,*.ai,*.amf,*.blend,*.bmp,*.cd5,*.cdr,*.cgm,*.cpt,*.deep,*.dgn,*.dwf,*.dwg,*.dxf,*.ecw,*.emf,*.eps,*.fits,*.flt,*.gem,*.gif,*.hpgl,*.hsf,*.hvif,*.ico,*.iges,*.ilbm,*.img,*.imml,*.ipa,*.jpeg,*.jpg,*.jps,*.jt,*.mpo,*.nrrd,*.odg,*.pam,*.pcx,*.pgf,*.pict,*.plbm,*.png,*.pns,*.pot,*.ppt,*.pps,*.pptx,*.prc,*.psd,*.psp,*.sgi,*.sid,*.skp,*.step,*.stl,*.svg,*.swf,*.tga,*.tif,*.tiff,*.u3d,*.vml,*.vrml,*.wmf,*.x3d,*.xaml,*.xar,*.xcf,*.xgl,*.xvl,*.xvrml" />
-                    <value name="NormalColor" type="color" background="FF000002" foreground="FF00000C" flags="fg4bit bg4bit" />
-                    <value name="SelectedColor" type="color" background="FF000002" foreground="FF00000F" flags="fg4bit bg4bit" />
-                    <value name="SelectedCursorColor" type="color" background="FF00000A" foreground="FF00000F" flags="fg4bit bg4bit" />
-                    <value name="SizeAboveS" type="text" value="" />
-                    <value name="SizeBelowS" type="text" value="" />
-                    <value name="UseAttr" type="qword" value="0000000000000001" />
-                    <value name="UseDate" type="qword" value="0000000000000000" />
-                    <value name="UseHardLinks" type="qword" value="0000000000000000" />
-                    <value name="UseSize" type="qword" value="0000000000000000" />
+                <key name="Group8">
+                    <value name="Mask" type="text" value="*.!draw,*.3d,*.3df,*.3dm,*.3ds,*.3dxml,*.ai,*.amf,*.blend,*.bmp,*.cd5,*.cdr,*.cgm,*.cpt,*.deep,*.dgn,*.dwf,*.dwg,*.dxf,*.ecw,*.emf,*.eps,*.fits,*.flt,*.gem,*.gif,*.hpgl,*.hsf,*.hvif,*.ico,*.iges,*.ilbm,*.img,*.imml,*.ipa,*.jpeg,*.jpg,*.jps,*.jt,*.mpo,*.nrrd,*.odg,*.pam,*.pcx,*.pgf,*.pict,*.plbm,*.png,*.pns,*.pot,*.ppt,*.pps,*.pptx,*.prc,*.psd,*.psp,*.sgi,*.sid,*.skp,*.step,*.stl,*.svg,*.swf,*.tga,*.tif,*.tiff,*.u3d,*.vml,*.vrml,*.wmf,*.x3d,*.xaml,*.xar,*.xcf,*.xgl,*.xvl,*.xvrml"/>
+
+                    <value name="NormalColor"         type="color" background="FF000002" foreground="FF00000C" flags="fg4bit bg4bit"/>
+                    <value name="CursorColor"         type="color" background="FF00000A" foreground="FF00000C" flags="fg4bit bg4bit"/>
+                    <value name="SelectedColor"       type="color" background="FF000002" foreground="FF00000F" flags="fg4bit bg4bit"/>
+                    <value name="SelectedCursorColor" type="color" background="FF00000A" foreground="FF00000F" flags="fg4bit bg4bit"/>
                 </key>
-                <key name="Group9" description="">
-                    <value name="ContinueProcessing" type="qword" value="0000000000000000" />
-                    <value name="CursorColor" type="color" background="FF00000A" foreground="FF000009" flags="fg4bit bg4bit" />
-                    <value name="DateAfter" type="hex" value="00,00,00,00,00,00,00,00" />
-                    <value name="DateBefore" type="hex" value="00,00,00,00,00,00,00,00" />
-                    <value name="DateRelative" type="qword" value="0000000000000000" />
-                    <value name="DateType" type="qword" value="0000000000000000" />
-                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
-                    <value name="HardLinksAbove" type="qword" value="0000000000000000" />
-                    <value name="HardLinksBelow" type="qword" value="0000000000000000" />
-                    <value name="IgnoreMask" type="qword" value="0000000000000000" />
-                    <value name="IncludeAttributes" type="qword" value="0000000000000000" />
-                    <value name="MarkChar" type="qword" value="0000000000000000" />
-                    <value name="MarkCharCursorColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="MarkCharNormalColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="MarkCharSelectedColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="MarkCharSelectedCursorColor" type="color" background="FF000000" foreground="FF000000" flags="fg4bit bg4bit" />
-                    <value name="Mask" type="text" value="*.602,*.abw,*.acl,*.afp,*.ami,*.ans,*.asc,*.aww,*.bbs,*.ccf,*.chm,*.csv,*.cwk,*.dbk,*.diz,*.doc,*.docm,*.docx,*.dot,*.dotx,*.egt,*.epub,*.ezw,*.fdx,*.ftm,*.ftx,*.gdoc,*.hlp,*.htm,*.html,*.hwp,*.hwpml,*.info,*.ion,*.log,*.lwp,*.mbp,*.mcw,*.md,*.mobi,*.nb,*.nbp,*.nfo,*.odm,*.ods,*.odt,*.omm,*.ots,*.ott,*.pages,*.pap,*.pdax,*.pdf,*.quox,*.rpt,*.rtf,*.sdw,*.se,*.sgl,*.std,*.sti,*.stc,*.stw,*.sxc,*.sxd,*.sxi,*.sxm,*.sxw,*.tex,*.troff,*.txt,*.uof,*.uoml,*.via,*.vor,*.wpd,*.wps,*.wpt,*.wrd,*.wrf,*.wri,*.xht,*.xhtml,*.xls,*.xlsx,*.xml,*.xps" />
-                    <value name="NormalColor" type="color" background="FF000002" foreground="FF000009" flags="fg4bit bg4bit" />
-                    <value name="SelectedColor" type="color" background="FF000002" foreground="FF00000F" flags="fg4bit bg4bit" />
-                    <value name="SelectedCursorColor" type="color" background="FF00000A" foreground="FF00000F" flags="fg4bit bg4bit" />
-                    <value name="SizeAboveS" type="text" value="" />
-                    <value name="SizeBelowS" type="text" value="" />
-                    <value name="UseAttr" type="qword" value="0000000000000001" />
-                    <value name="UseDate" type="qword" value="0000000000000000" />
-                    <value name="UseHardLinks" type="qword" value="0000000000000000" />
-                    <value name="UseSize" type="qword" value="0000000000000000" />
+                <key name="Group9">
+                    <value name="Mask" type="text" value="*.602,*.abw,*.acl,*.afp,*.ami,*.ans,*.asc,*.aww,*.bbs,*.ccf,*.chm,*.csv,*.cwk,*.dbk,*.diz,*.doc,*.docm,*.docx,*.dot,*.dotx,*.egt,*.epub,*.ezw,*.fdx,*.ftm,*.ftx,*.gdoc,*.hlp,*.htm,*.html,*.hwp,*.hwpml,*.info,*.ion,*.log,*.lwp,*.mbp,*.mcw,*.md,*.mobi,*.nb,*.nbp,*.nfo,*.odm,*.ods,*.odt,*.omm,*.ots,*.ott,*.pages,*.pap,*.pdax,*.pdf,*.quox,*.rpt,*.rtf,*.sdw,*.se,*.sgl,*.std,*.sti,*.stc,*.stw,*.sxc,*.sxd,*.sxi,*.sxm,*.sxw,*.tex,*.troff,*.txt,*.uof,*.uoml,*.via,*.vor,*.wpd,*.wps,*.wpt,*.wrd,*.wrf,*.wri,*.xht,*.xhtml,*.xls,*.xlsx,*.xml,*.xps"/>
+
+                    <value name="NormalColor"         type="color" background="FF000002" foreground="FF000009" flags="fg4bit bg4bit"/>
+                    <value name="CursorColor"         type="color" background="FF00000A" foreground="FF000009" flags="fg4bit bg4bit"/>
+                    <value name="SelectedColor"       type="color" background="FF000002" foreground="FF00000F" flags="fg4bit bg4bit"/>
+                    <value name="SelectedCursorColor" type="color" background="FF00000A" foreground="FF00000F" flags="fg4bit bg4bit"/>
                 </key>
             </key>
         </hierarchicalconfig>

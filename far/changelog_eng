@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 02.10.2018 02:59:59 +0300 - build 5277
+
+1. The color preview in Files highlighting takes transparency into account.
+
+2. The color preview in Color dialog takes transparency into account.
+
+3. By default directories highlighting does not make an exception for ".." (simpler rules and faster processing).
+
 drkns 30.09.2018 17:49:39 +0300 - build 5276
 
 1. Continuation of 5068: removed reading filters and highlighting/sorting groups in the old format.

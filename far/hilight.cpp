@@ -131,14 +131,12 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 	}
 	DefaultHighlighting[]
 	{
-		{ L"*"sv,      FILE_ATTRIBUTE_HIDDEN,    MakeFarColor(B_BLUE | F_CYAN),         MakeFarColor(B_CYAN | F_DARKGRAY) },
-		{ L"*"sv,      FILE_ATTRIBUTE_SYSTEM,    MakeFarColor(B_BLUE | F_CYAN),         MakeFarColor(B_CYAN | F_DARKGRAY) },
-		{ L"*|.."sv,   FILE_ATTRIBUTE_DIRECTORY, MakeFarColor(B_BLUE | F_WHITE),        MakeFarColor(B_CYAN | F_WHITE) },
-		{ L".."sv,     FILE_ATTRIBUTE_DIRECTORY, MakeFarColor(B_BLACK | F_BLACK),       MakeFarColor(B_BLACK | F_BLACK) },
-		{ L"<exec>"sv, 0,                        MakeFarColor(B_BLUE | F_LIGHTGREEN),   MakeFarColor(B_CYAN | F_LIGHTGREEN) },
-		{ L"<arc>"sv,  0,                        MakeFarColor(B_BLUE | F_LIGHTMAGENTA), MakeFarColor(B_CYAN | F_LIGHTMAGENTA) },
-		{ L"<temp>"sv, 0,                        MakeFarColor(B_BLUE | F_BROWN),        MakeFarColor(B_CYAN | F_BROWN) },
-		{ {},           FILE_ATTRIBUTE_DIRECTORY, MakeFarColor(B_BLUE | F_WHITE),        MakeFarColor(B_CYAN | F_WHITE) },
+		{ {},          FILE_ATTRIBUTE_HIDDEN,    MakeFarColor(F_CYAN),         MakeFarColor(F_DARKGRAY) },
+		{ {},          FILE_ATTRIBUTE_SYSTEM,    MakeFarColor(F_CYAN),         MakeFarColor(F_DARKGRAY) },
+		{ {},          FILE_ATTRIBUTE_DIRECTORY, MakeFarColor(F_WHITE),        MakeFarColor(F_WHITE) },
+		{ L"<exec>"sv, 0,                        MakeFarColor(F_LIGHTGREEN),   MakeFarColor(F_LIGHTGREEN) },
+		{ L"<arc>"sv,  0,                        MakeFarColor(F_LIGHTMAGENTA), MakeFarColor(F_LIGHTMAGENTA) },
+		{ L"<temp>"sv, 0,                        MakeFarColor(F_BROWN),        MakeFarColor(F_BROWN) },
 	};
 
 	size_t Index = 0;
