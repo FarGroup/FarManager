@@ -42,7 +42,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgGuid.hpp"
 #include "pathmix.hpp"
 #include "strmix.hpp"
-#include "panelmix.hpp"
 #include "mix.hpp"
 #include "lang.hpp"
 #include "cvtname.hpp"
@@ -50,8 +49,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
-
-#include "common/algorithm.hpp"
 
 #include "format.hpp"
 
@@ -109,6 +106,7 @@ struct subst_data
 	string CmdDir;
 	bool PreserveLFN;
 	bool PassivePanel;
+	bool EscapeAmpersands;
 };
 
 
@@ -269,8 +267,22 @@ static size_t SkipInputToken(string_view const Str, subst_strings* const Strings
 	return tokens::input.size() + TitleSize + TextSize;
 }
 
-static string_view ProcessMetasymbol(string_view const CurStr, subst_data& SubstData, string &Out)
+static string_view ProcessMetasymbol(string_view const CurStr, subst_data& SubstData, string& Out)
 {
+	const auto& append_with_escape = [EscapeAmpersands = SubstData.EscapeAmpersands](string& Out, string_view const Str)
+	{
+		if (EscapeAmpersands && contains(Str, L"&"sv))
+		{
+			string Escaped(Str);
+			ReplaceStrings(Escaped, L"&"sv, L"&&"sv);
+			append(Out, Escaped);
+		}
+		else
+		{
+			append(Out, Str);
+		}
+	};
+
 	if (const auto Tail = tokens::skip(CurStr, tokens::passive_panel))
 	{
 		SubstData.PassivePanel = true;
@@ -296,14 +308,14 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 	{
 		if (!starts_with(Tail, L'?'))
 		{
-			append(Out, SubstData.Default().Normal.Name);
+			append_with_escape(Out, SubstData.Default().Normal.Name);
 			return Tail;
 		}
 	}
 
 	if (const auto Tail = tokens::skip(CurStr, tokens::short_name))
 	{
-		append(Out, SubstData.Default().Short.NameOnly);
+		append_with_escape(Out, SubstData.Default().Short.NameOnly);
 		return Tail;
 	}
 
@@ -315,19 +327,19 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 
 	if (const auto Tail = tokens::skip(CurStr, tokens::short_extension))
 	{
-		append(Out, GetExtension(SubstData.Default().Short.Name));
+		append_with_escape(Out, GetExtension(SubstData.Default().Short.Name));
 		return Tail;
 	}
 
 	if (const auto Tail = tokens::skip(CurStr, tokens::extension))
 	{
-		append(Out, GetExtension(SubstData.Default().Normal.Name));
+		append_with_escape(Out, GetExtension(SubstData.Default().Normal.Name));
 		return Tail;
 	}
 
-	const auto CollectNames = [&SubstData](string& Str, auto const Selector)
+	const auto CollectNames = [&SubstData, &append_with_escape](string& Str, auto const Selector)
 	{
-		join(Str, select(SubstData.Default().Panel->enum_selected(), Selector), L" "sv);
+		append_with_escape(Str, join(select(SubstData.Default().Panel->enum_selected(), Selector), L" "sv));
 	};
 
 	if (const auto Tail = tokens::skip(CurStr, tokens::short_list))
@@ -354,7 +366,7 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 		}
 	}
 
-	const auto& GetListName = [&Out](string_view const Tail, auto& Data, bool Short)
+	const auto& GetListName = [&Out, &append_with_escape](string_view const Tail, auto& Data, bool Short)
 	{
 		const auto ExclPos = Tail.find(L'!');
 		if (ExclPos == Tail.npos || starts_with(Tail.substr(ExclPos + 1), L'?'))
@@ -371,7 +383,7 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 				if (Short)
 					*ListName = ConvertNameToShort(*ListName);
 
-				Out += *ListName;
+				append_with_escape(Out, *ListName);
 			}
 		}
 		else
@@ -398,7 +410,7 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 	{
 		if (!starts_with(Tail, L'?'))
 		{
-			append(Out, SubstData.Default().Short.Name);
+			append_with_escape(Out, SubstData.Default().Short.Name);
 			return Tail;
 		}
 	}
@@ -407,7 +419,7 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 	{
 		if (!starts_with(Tail, L'?'))
 		{
-			append(Out, SubstData.Default().Short.Name);
+			append_with_escape(Out, SubstData.Default().Short.Name);
 			SubstData.PreserveLFN = true;
 			return Tail;
 		}
@@ -424,7 +436,7 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 
 		auto RootDir = GetPathRoot(CurDir);
 		DeleteEndSlash(RootDir);
-		Out += RootDir;
+		append_with_escape(Out, RootDir);
 		return Tail;
 	}
 
@@ -694,7 +706,8 @@ static bool SubstFileName(
 	bool* PreserveLongName,
 	bool IgnoreInput,                // true - не исполнять "!?<title>?<init>!"
 	string_view const CmdLineDir,    // Каталог исполнения
-	string_view const DlgTitle
+	string_view const DlgTitle,
+	bool const EscapeAmpersands
 )
 {
 	if (PreserveLongName)
@@ -744,6 +757,7 @@ static bool SubstFileName(
 
 	SubstData.PreserveLFN = false;
 	SubstData.PassivePanel = false; // первоначально речь идет про активную панель!
+	SubstData.EscapeAmpersands = EscapeAmpersands;
 
 	strStr = ProcessMetasymbols(strStr, SubstData);
 
@@ -761,7 +775,8 @@ bool SubstFileName(
 	list_names* const ListNames,
 	bool* const PreserveLongName,
 	bool const IgnoreInput,
-	string_view const DlgTitle
+	string_view const DlgTitle,
+	bool const EscapeAmpersands
 )
 {
 	return SubstFileName(
@@ -772,7 +787,8 @@ bool SubstFileName(
 		PreserveLongName,
 		IgnoreInput,
 		Context.Path,
-		DlgTitle
+		DlgTitle,
+		EscapeAmpersands
 	);
 }
 

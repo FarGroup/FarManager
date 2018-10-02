@@ -497,7 +497,7 @@ static void FillUserMenu(VMenu2& FarUserMenu, UserMenu::menu_container& Menu, in
 		else
 		{
 			string strLabel = MenuItem->strLabel;
-			SubstFileName(strLabel, subst_context(Name, ShortName), nullptr, nullptr, true);
+			SubstFileName(strLabel, subst_context(Name, ShortName), nullptr, nullptr, true, {}, true);
 			strLabel = os::env::expand(strLabel);
 			string strHotKey = MenuItem->strHotKey;
 			FuncNum = PrepareHotKey(strHotKey);
@@ -714,7 +714,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
  		const auto CurrentMenuItem = UserMenu->GetComplexUserDataPtr<ITERATOR(Menu)>(UserMenu->GetSelectPos());
 
 		auto CurrentLabel = (*CurrentMenuItem)->strLabel;
-		SubstFileName(CurrentLabel, Context, nullptr, nullptr, true);
+		SubstFileName(CurrentLabel, Context, nullptr, nullptr, true, {}, true);
 		CurrentLabel = os::env::expand(CurrentLabel);
 
 		if ((*CurrentMenuItem)->Submenu)
@@ -768,7 +768,6 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 
 					list_names ListNames;
 					bool PreserveLFN = false;
-					ReplaceStrings(CurrentLabel, L"&"sv, L"&&"sv);
 					if (SubstFileName(strCommand, Context, &ListNames, &PreserveLFN, false, CurrentLabel) && !strCommand.empty())
 					{
 						SCOPED_ACTION(PreserveLongName)(strShortName, PreserveLFN);

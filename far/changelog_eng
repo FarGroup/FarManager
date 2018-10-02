@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 02.10.2018 19:19:52 +0300 - build 5278
+
+1. #71: Ampersand in !?<title>?<init>!
+
 drkns 02.10.2018 02:59:59 +0300 - build 5277
 
 1. The color preview in Files highlighting takes transparency into account.

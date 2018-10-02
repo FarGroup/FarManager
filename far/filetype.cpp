@@ -116,7 +116,7 @@ bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, 
 			ActualCmdCount++;
 
 			if (!strDescription.empty())
-				SubstFileName(strDescription, Context, nullptr, nullptr, true);
+				SubstFileName(strDescription, Context, nullptr, nullptr, true, {}, true);
 			else
 				strDescription = strCommandText;
 

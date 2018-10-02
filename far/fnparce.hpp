@@ -65,7 +65,8 @@ bool SubstFileName(
 	list_names* ListNames = nullptr,
 	bool* PreserveLongName = nullptr,
 	bool IgnoreInput = false,
-	string_view DlgTitle = {}
+	string_view DlgTitle = {},
+	bool EscapeAmpersands = false
 );
 
 #endif // FNPARCE_HPP_4E73DE55_DA35_4962_86C4_EC0DBDE2E229
