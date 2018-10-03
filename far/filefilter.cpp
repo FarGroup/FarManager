@@ -116,11 +116,11 @@ FileFilter::FileFilter(Panel *HostPanel, FAR_FILE_FILTER_TYPE FilterType):
 	UpdateCurrentTime();
 }
 
-bool FileFilter::FilterEdit()
+void FileFilter::FilterEdit()
 {
 	static bool bMenuOpen = false;
 	if (bMenuOpen)
-		return false;
+		return;
 	bMenuOpen = true;
 	SCOPE_EXIT{ bMenuOpen = false; };
 
@@ -429,7 +429,7 @@ bool FileFilter::FilterEdit()
 	});
 
 	if (!NeedUpdate)
-		return false;
+		return;
 
 	Changed = true;
 
@@ -443,8 +443,6 @@ bool FileFilter::FilterEdit()
 		m_HostPanel->Update(UPDATE_KEEP_SELECTION);
 		m_HostPanel->Refresh();
 	}
-
-	return true;
 }
 
 enumFileFilterFlagsType FileFilter::GetFFFT() const

@@ -61,7 +61,7 @@ class FileFilter: noncopyable
 public:
 	FileFilter(Panel *HostPanel, FAR_FILE_FILTER_TYPE FilterType);
 
-	bool FilterEdit();
+	void FilterEdit();
 	void UpdateCurrentTime();
 	bool FileInFilter(const FileListItem* fli, filter_status* FilterStatus = nullptr);
 	bool FileInFilter(const os::fs::find_data& fde, filter_status* FilterStatus = nullptr, const string* FullName = nullptr);

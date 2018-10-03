@@ -4024,8 +4024,9 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 						Dlg->ClearDone();
 						Dlg->Process();
 
-						if (Dlg->GetExitCode()==4 && Filter.FilterEdit())
+						if (Dlg->GetExitCode() == 4)
 						{
+							Filter.FilterEdit();
 							//Рефреш текущему времени для фильтра сразу после выхода из диалога
 							Filter.UpdateCurrentTime();
 							bUseFilter = true;

@@ -2538,7 +2538,8 @@ intptr_t WINAPI apiFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONTROL_COM
 			return TRUE;
 
 		case FFCTL_OPENFILTERSMENU:
-			return Filter->FilterEdit();
+			Filter->FilterEdit();
+			return TRUE;
 
 		case FFCTL_STARTINGTOFILTER:
 			Filter->UpdateCurrentTime();
