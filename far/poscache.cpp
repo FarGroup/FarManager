@@ -128,11 +128,7 @@ bool FilePositionCache::AddPosition(const string& Name, const ViewerPosCache& po
 	unsigned long long id = 0;
 
 	if (Global->Opt->ViOpt.SavePos || Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SaveWrapMode)
-		id=ConfigProvider().HistoryCfg()->SetViewerPos(strFullName,
-				Global->Opt->ViOpt.SavePos?poscache.cur.FilePos:0,
-				Global->Opt->ViOpt.SavePos?poscache.cur.LeftPos:0,
-				Global->Opt->ViOpt.SaveWrapMode?poscache.ViewModeAndWrapState:0,
-				Global->Opt->ViOpt.SaveCodepage?poscache.CodePage:0);
+		id=ConfigProvider().HistoryCfg()->SetViewerPos(strFullName, poscache.cur.FilePos, poscache.cur.LeftPos, poscache.ViewModeAndWrapState,	poscache.CodePage);
 	else if (Global->Opt->ViOpt.SaveShortPos)
 		id=ConfigProvider().HistoryCfg()->SetViewerPos(strFullName, 0, 0, 0, 0);
 
