@@ -804,7 +804,7 @@ static void GetRowCol(const string& Str, bool Hex, goto_coord& Row, goto_coord& 
 		if (!Radix)
 			Radix = Hex? 16 : 10;
 
-		Dest.value = std::stoull(Part, nullptr, Radix);
+		Dest.value = from_string<unsigned long long>(Part, nullptr, Radix);
 		Dest.exist = true;
 	};
 

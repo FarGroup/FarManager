@@ -1176,9 +1176,9 @@ bool encoding::is_valid_utf8(std::string_view const Str, bool const PartialConte
 #include "common/test.hpp"
 
 #ifdef _DEBUG
-void TestEncoding()
+static void TestEncoding()
 {
-	struct
+	static const struct
 	{
 		bool Utf8;
 		bool Ascii;
@@ -1221,8 +1221,8 @@ ut labore et dolore magna aliqua.
 	for (const auto i: Tests)
 	{
 		bool PureAscii = false;
-		ASSERT_EQ(i.Utf8, encoding::is_valid_utf8(i.Str, false, PureAscii));
-		ASSERT_EQ(i.Ascii, PureAscii);
+		EXPECT_EQ(i.Utf8, encoding::is_valid_utf8(i.Str, false, PureAscii));
+		EXPECT_EQ(i.Ascii, PureAscii);
 	}
 }
 #endif

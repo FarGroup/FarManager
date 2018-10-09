@@ -48,31 +48,28 @@ namespace \
 namespace detail
 {
 	template<typename expected, typename actual>
-	void basic_assert(expected&& Expected, actual&& Actual, const char* ExpectedStr, const char* ActualStr, const char* Op, const char* File, int Line)
+	void basic_assert(expected&& Expected, actual&& Actual, const char* Assertion, const char* File, int Line)
 	{
 		if (Expected != Actual)
 		{
-			const auto ExpectedLen = strlen(ExpectedStr);
-			const auto ActualLen = strlen(ActualStr);
-			const auto Width = std::max(ExpectedLen, ActualLen);
-			std::wcerr << L"[ FAIL ] " << Op << L"("  << ExpectedStr << L", " << ActualStr << L") " << File << L":" << Line << L":\n"
-			           << L"         " << std::setw(Width) << ExpectedStr << L" = " << Expected << L'\n'
-			           << L"         " << std::setw(Width) << ActualStr << L" = " << Actual << L'\n'
+			std::wcerr << L"[ FAIL ] " << Assertion << L' ' << File << L':' << Line << L'\n'
+			           << std::boolalpha
+			           << L"         " << Expected << L" != " << Actual << L'\n'
 			           << std::endl;
 			assert(false);
 		}
 	}
 }
 
-#define ASSERT_EQ(expected, actual) detail::basic_assert(expected, actual, #expected, #actual, "ASSERT_EQ", __FILE__, __LINE__)
-#define ASSERT_TRUE(expression) detail::basic_assert(true, expression, "true", #expression, "ASSERT_TRUE", __FILE__, __LINE__)
-#define ASSERT_FALSE(expression) detail::basic_assert(false, expression, "false", #expression, "ASSERT_FALSE", __FILE__, __LINE__)
+#define EXPECT_EQ(expected, actual)   detail::basic_assert(expected, actual, "EXPECT_EQ(" #expected ", " #actual ")", __FILE__, __LINE__)
+#define EXPECT_TRUE(expression)       detail::basic_assert(true, expression, "EXPECT_TRUE(" #expression ")", __FILE__, __LINE__)
+#define EXPECT_FALSE(expression)      detail::basic_assert(false, expression, "EXPECT_FALSE(" #expression ")", __FILE__, __LINE__)
 
 #else
 #define SELF_TEST(callable)
-#define ASSERT_EQ(expected, actual)
-#define ASSERT_TRUE(expression)
-#define ASSERT_FALSE(expression)
+#define EXPECT_EQ(expected, actual)
+#define EXPECT_TRUE(expression)
+#define EXPECT_FALSE(expression)
 #endif
 
 #endif // TEST_HPP_C40D0453_C760_47F8_9B10_934BF1C0506E

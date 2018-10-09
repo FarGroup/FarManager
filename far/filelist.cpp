@@ -6762,7 +6762,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 				Item.Position = Position++;
 				Item.PrevSelected = Item.Selected = false;
 				Item.ShowFolderSize = 0;
-				Item.SortGroup = Global->CtrlObject->HiFiles->GetGroup(&Item, this);
+				Item.SortGroup = Global->CtrlObject->HiFiles->GetGroup(Item, this);
 
 				m_ListData.emplace_back(std::move(Item));
 
@@ -7082,7 +7082,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 		FileListItem NewItem(PanelData[i]);
 		NewItem.Position = i;
 
-		NewItem.SortGroup = (m_CachedOpenPanelInfo.Flags & OPIF_DISABLESORTGROUPS)? DEFAULT_SORT_GROUP : Global->CtrlObject->HiFiles->GetGroup(&NewItem, this);
+		NewItem.SortGroup = (m_CachedOpenPanelInfo.Flags & OPIF_DISABLESORTGROUPS)? DEFAULT_SORT_GROUP : Global->CtrlObject->HiFiles->GetGroup(NewItem, this);
 
 		m_ListData.emplace_back(std::move(NewItem));
 
@@ -7244,7 +7244,7 @@ void FileList::ReadSortGroups(bool UpdateFilterCurrentTime)
 
 		std::for_each(RANGE(m_ListData, i)
 		{
-			i.SortGroup = Global->CtrlObject->HiFiles->GetGroup(&i, this);
+			i.SortGroup = Global->CtrlObject->HiFiles->GetGroup(i, this);
 		});
 	}
 }
@@ -8045,16 +8045,15 @@ void FileList::PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen
 
 namespace
 {
-inline bool CanMakeStripes(const std::vector<column>& Columns, int StripeStride)
+bool CanMakeStripes(const std::vector<column>& Columns, int StripeStride)
 {
 	if (Columns.size() % StripeStride != 0)
 		return false;
 
-	auto FirstStripeBegin = Columns.cbegin();
-	auto FirstStripeEnd = FirstStripeBegin;
-	std::advance(FirstStripeEnd, StripeStride);
+	const auto FirstStripeBegin = Columns.cbegin();
+	const auto FirstStripeEnd = FirstStripeBegin + StripeStride;
 
-	for (auto Stripe = FirstStripeEnd; Stripe < Columns.cend(); std::advance(Stripe, StripeStride))
+	for (auto Stripe = FirstStripeEnd; Stripe != Columns.cend(); Stripe += StripeStride)
 	{
 		if (!std::equal(FirstStripeBegin, FirstStripeEnd, Stripe,
 			[](const auto& a, const auto& b) { return (a.type & 0xFF) == (b.type & 0xFF); }))
@@ -8095,14 +8094,14 @@ void FileList::HighlightBorder(int Level, int ListPos) const
 	}
 	else
 	{
-		FarColor FileColor = GetShowColor(ListPos, true);
+		const auto FileColor = GetShowColor(ListPos, true);
 		if (Global->Opt->HighlightColumnSeparator)
 		{
 			SetColor(FileColor);
 		}
 		else
 		{
-			FarColor Color = colors::PaletteColorToFarColor(COL_PANELBOX);
+			auto Color = colors::PaletteColorToFarColor(COL_PANELBOX);
 			Color.BackgroundColor = FileColor.BackgroundColor;
 			Color.SetBg4Bit(FileColor.IsBg4Bit());
 			SetColor(Color);

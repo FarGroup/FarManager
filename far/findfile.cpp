@@ -891,7 +891,7 @@ bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const os::fs::find_data& Fin
 		const auto End = Items + ItemsNumber;
 		const auto It = std::find_if(Items, End, [&](const auto& Item)
 		{
-			return equal(FileNameToFind, NullToEmpty(Item.FileName)) && equal(FileNameToFindShort, NullToEmpty(Item.AlternateFileName));
+			return FileNameToFind == NullToEmpty(Item.FileName) && FileNameToFindShort == NullToEmpty(Item.AlternateFileName);
 		});
 
 		if (It != End)

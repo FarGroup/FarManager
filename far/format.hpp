@@ -89,16 +89,9 @@ auto str(T&& Value)
 	return fmt::to_wstring(FWD(Value));
 }
 
-template<typename T>
-auto str(const T* Value)
+inline auto str(const void* Value)
 {
 	return format(L"0x{0:0{1}X}", reinterpret_cast<uintptr_t>(Value), sizeof(Value) * 2);
-}
-
-template<typename T>
-auto str(T* Value)
-{
-	return str(static_cast<const T*>(Value));
 }
 
 string str(const char*) = delete;

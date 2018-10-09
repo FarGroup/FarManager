@@ -65,8 +65,8 @@ namespace highlight
 	private:
 		struct colors
 		{
-			FarColor FileColor;
-			FarColor MarkColor;
+			FarColor FileColor{};
+			FarColor MarkColor{};
 
 			bool operator ==(const colors& rhs) const
 			{
@@ -76,8 +76,8 @@ namespace highlight
 
 		struct mark
 		{
-			wchar_t Char;
-			bool Transparent;
+			wchar_t Char{};
+			bool Transparent{};
 
 			bool operator ==(const mark& rhs) const
 			{
@@ -103,7 +103,7 @@ namespace highlight
 
 		void UpdateCurrentTime();
 		const element* GetHiColor(const FileListItem& Item, const FileList* Owner, bool UseAttrHighlighting = false);
-		int GetGroup(const FileListItem *fli, const FileList* Owner);
+		int GetGroup(const FileListItem& Object, const FileList* Owner);
 		void HiEdit(int MenuPos);
 		void UpdateHighlighting(bool RefreshMasks = false);
 		void Save(bool always);

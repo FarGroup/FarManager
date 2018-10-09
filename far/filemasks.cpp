@@ -313,14 +313,14 @@ bool filemasks::masks::assign(string&& Masks, DWORD Flags)
 			if (Mask.empty())
 				continue;
 
-			if (equal(Mask, L"*.*"sv))
+			if (Mask == L"*.*"sv)
 			{
 				m_Masks.emplace_back(1, L'*');
 			}
 			else if (contains(Mask, L"**"sv))
 			{
 				string NewMask(Mask);
-				ReplaceStrings(NewMask, L"**"sv, L"*"sv);
+				remove_duplicates(NewMask, L'*');
 				m_Masks.emplace_back(std::move(NewMask));
 			}
 			else

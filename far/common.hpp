@@ -127,4 +127,12 @@ bool from_string(const string& Str, T& Value, size_t* Pos = nullptr, int Base = 
 	}
 }
 
+template<typename T>
+T from_string(const string& Str, size_t* Pos = nullptr, int Base = 10)
+{
+	T Value;
+	detail::from_string(Str, Value, Pos, Base);
+	return Value;
+}
+
 #endif // COMMON_HPP_1BD5AB87_3379_4AFE_9F63_DB850DCF72B4

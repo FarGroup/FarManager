@@ -32,6 +32,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "null_iterator.hpp"
 #include "range.hpp"
 
 namespace string_view_impl
@@ -124,8 +125,11 @@ public:
 
 	/*constexpr*/ size_t find(const basic_string_view<T> Str, const size_t Pos = 0) const noexcept
 	{
-		if (Pos >= this->size())
+		if (Pos > this->size())
 			return npos;
+
+		if (Str.empty())
+			return Pos;
 
 		const auto Result = std::search(this->cbegin() + Pos, this->cend(), ALL_CONST_RANGE(Str));
 		return Result == this->cend()? npos : Result - this->begin();
@@ -133,7 +137,23 @@ public:
 
 	/*constexpr*/ size_t find(T Char, size_t Pos = 0) const noexcept
 	{
-		return find({&Char, 1}, Pos);
+		return find({ &Char, 1 }, Pos);
+	}
+
+	/*constexpr*/ size_t rfind(const basic_string_view<T> Str, size_t Pos = npos) const noexcept
+	{
+		if (Str.empty())
+			return std::min(this->size(), Pos);
+
+		Pos = std::min(Pos, this->size());
+		const auto End = this->cbegin() + std::min(this->size(), Pos + Str.size());
+		const auto Result = std::find_end(this->cbegin(), End, ALL_CONST_RANGE(Str));
+		return Result == End? npos : Result - this->begin();
+	}
+
+	/*constexpr*/ size_t rfind(T Char, const size_t Pos = npos) const noexcept
+	{
+		return rfind({ &Char, 1 }, Pos);
 	}
 
 	/*constexpr*/ size_t find_first_of(const basic_string_view<T> Str, const size_t Pos = 0) const noexcept
@@ -157,8 +177,11 @@ public:
 
 	/*constexpr*/ size_t find_first_not_of(const basic_string_view<T> Str, const size_t Pos = 0) const noexcept
 	{
-		if (Str.empty() || Pos >= this->size())
+		if (Pos >= this->size())
 			return npos;
+
+		if (Str.empty())
+			return Pos;
 
 		for (auto Iterator = this->begin() + Pos; Iterator != this->end(); ++Iterator)
 		{
@@ -174,14 +197,9 @@ public:
 		return find_first_not_of({ &Char, 1 }, Pos);
 	}
 
-	/*constexpr*/ size_t rfind(T Char, const size_t Pos = npos) const noexcept
-	{
-		return find_last_of(Char, Pos);
-	}
-
 	/*constexpr*/ size_t find_last_of(const basic_string_view<T> Str, size_t Pos = npos) const noexcept
 	{
-		if (Str.empty())
+		if (this->empty() || Str.empty())
 			return npos;
 
 		for (auto Iterator = this->begin() + (Pos < this->size()? Pos : this->size() - 1); ; --Iterator)
@@ -203,8 +221,11 @@ public:
 
 	/*constexpr*/ size_t find_last_not_of(const basic_string_view<T> Str, size_t Pos = npos) const noexcept
 	{
-		if (Str.empty())
+		if (this->empty())
 			return npos;
+
+		if (Str.empty())
+			return std::min(this->size() - 1, Pos);
 
 		for (auto Iterator = this->begin() + (Pos < this->size()? Pos : this->size() - 1); ; --Iterator)
 		{
@@ -255,6 +276,19 @@ bool operator==(const std::basic_string<T>& Lhs, const basic_string_view<T> Rhs)
 }
 
 template<typename T>
+bool operator==(const basic_string_view<T> Lhs, const T* Rhs)
+{
+	const auto Iterator = null_iterator(Rhs);
+	return std::equal(ALL_CONST_RANGE(Lhs), Iterator, Iterator.end());
+}
+
+template<typename T>
+bool operator==(const T* Lhs, const basic_string_view<T> Rhs)
+{
+	return Rhs == Lhs;
+}
+
+template<typename T>
 bool operator!=(const basic_string_view<T> Lhs, const basic_string_view<T> Rhs)
 {
 	return !(Lhs == Rhs);
@@ -268,6 +302,18 @@ bool operator!=(const basic_string_view<T> Lhs, const std::basic_string<T>& Rhs)
 
 template<typename T>
 bool operator!=(const std::basic_string<T>& Lhs, const basic_string_view<T> Rhs)
+{
+	return !(Lhs == Rhs);
+}
+
+template<typename T>
+bool operator!=(const basic_string_view<T>& Lhs, const T* Rhs)
+{
+	return !(Lhs == Rhs);
+}
+
+template<typename T>
+bool operator!=(const T* Lhs, const basic_string_view<T>& Rhs)
 {
 	return !(Lhs == Rhs);
 }

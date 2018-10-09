@@ -487,11 +487,10 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 
 // Заменить в строке Str Count вхождений подстроки FindStr на подстроку ReplStr
 // Если Count == npos - заменять "до полной победы"
-// Return - количество замен
-size_t ReplaceStrings(string& strStr, const string_view FindStr, const string_view ReplStr, const bool IgnoreCase, size_t Count)
+bool ReplaceStrings(string& strStr, const string_view FindStr, const string_view ReplStr, const bool IgnoreCase, size_t Count)
 {
 	if (strStr.empty() || FindStr.empty() || !Count)
-		return 0;
+		return false;
 
 	const auto AreEqual = IgnoreCase? equal_icase : equal;
 
@@ -514,7 +513,14 @@ size_t ReplaceStrings(string& strStr, const string_view FindStr, const string_vi
 		if (Count != string::npos && !--Count)
 			break;
 	}
-	return replaced;
+	return replaced != 0;
+}
+
+void remove_duplicates(string& Str, wchar_t const Char, bool const IgnoreCase)
+{
+	const wchar_t DoubleChar[]{ Char, Char, 0 };
+	while (ReplaceStrings(Str, DoubleChar, { &Char, 1 }, IgnoreCase))
+		;
 }
 
 /*
@@ -670,7 +676,7 @@ unsigned long long ConvertFileSizeString(const string& FileSizeStr)
 	if (!CheckFileSizeStringFormat(FileSizeStr))
 		return 0;
 
-	const auto n = std::stoull(FileSizeStr);
+	const auto n = from_string<unsigned long long>(FileSizeStr);
 
 	// https://en.wikipedia.org/wiki/Binary_prefix
 	// https://en.wikipedia.org/wiki/SI_prefix
@@ -722,7 +728,7 @@ namespace
 					if (TokenEnd != TokenStart)
 					{
 						size_t index = 0;
-						while (TokenEnd != TokenStart && (index = std::stoul(ReplaceStr.substr(TokenStart, TokenEnd - TokenStart))) >= Count)
+						while (TokenEnd != TokenStart && (index = from_string<unsigned long>(ReplaceStr.substr(TokenStart, TokenEnd - TokenStart))) >= Count)
 						{
 							--TokenEnd;
 						}
@@ -1084,9 +1090,10 @@ string ConvertHexString(const string& From, uintptr_t Codepage, bool FromHex)
 }
 
 // dest и src НЕ ДОЛЖНЫ пересекаться
-char * xstrncpy(char * dest, const char * src, size_t DestSize)
+template<typename T>
+static T* xncpy(T* dest, const T* src, size_t DestSize)
 {
-	char *tmpsrc = dest;
+	const auto tmpsrc = dest;
 
 	while (DestSize > 1 && (*dest++ = *src++) != 0)
 	{
@@ -1097,15 +1104,14 @@ char * xstrncpy(char * dest, const char * src, size_t DestSize)
 	return tmpsrc;
 }
 
-wchar_t * xwcsncpy(wchar_t * dest, const wchar_t * src, size_t DestSize)
+char* xstrncpy(char* dest, const char* src, size_t DestSize)
 {
-	wchar_t *tmpsrc = dest;
+	return xncpy(dest, src, DestSize);
+}
 
-	while (DestSize > 1 && (*dest++ = *src++) != 0)
-		DestSize--;
-
-	*dest = 0;
-	return tmpsrc;
+wchar_t* xwcsncpy(wchar_t* dest, const wchar_t* src, size_t DestSize)
+{
+	return xncpy(dest, src, DestSize);
 }
 
 std::pair<string_view, string_view> split_name_value(string_view Str)

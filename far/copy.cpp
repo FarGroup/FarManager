@@ -1337,7 +1337,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 
 		SelectedFolderNameLength = (i.Attributes & FILE_ATTRIBUTE_DIRECTORY)? static_cast<int>(i.FileName.size()) : 0;
 		if (UseWildCards)
-			ConvertWildcards(i.FileName, strDest, SelectedFolderNameLength);
+			strDest = ConvertWildcards(i.FileName, strDest, SelectedFolderNameLength);
 
 		bool simple_rename = false;
 		if (move_rename && first && SrcPanel->GetSelCount() == 1 && !src_abspath)

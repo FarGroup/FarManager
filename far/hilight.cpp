@@ -373,7 +373,7 @@ const highlight::element* highlight::configuration::GetHiColor(const FileListIte
 		if (UseAttrHighlighting && i.IsMaskUsed())
 			continue;
 
-		if (!i.FileInFilter(&Item, Owner, CurrentTime))
+		if (!i.FileInFilter(Item, Owner, CurrentTime))
 			continue;
 
 		ApplyColors(item, i.GetColors());
@@ -392,10 +392,10 @@ const highlight::element* highlight::configuration::GetHiColor(const FileListIte
 	return &*Colors.emplace(item).first;
 }
 
-int highlight::configuration::GetGroup(const FileListItem *fli, const FileList* Owner)
+int highlight::configuration::GetGroup(const FileListItem& Object, const FileList* Owner)
 {
 	const auto Begin = HiData.cbegin() + FirstCount, End = Begin + UpperCount + LowerCount;
-	const auto It = std::find_if(Begin, End, [&](const auto& i) { return i.FileInFilter(fli, Owner, CurrentTime); });
+	const auto It = std::find_if(Begin, End, [&](const auto& i) { return i.FileInFilter(Object, Owner, CurrentTime); });
 	return It != End? It->GetSortGroup() : DEFAULT_SORT_GROUP;
 }
 

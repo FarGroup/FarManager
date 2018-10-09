@@ -96,7 +96,7 @@ int KeyToKeyLayout(int Key);
 DWORD IsMouseButtonPressed();
 bool while_mouse_button_pressed(const std::function<bool()>& Action);
 int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *rec=nullptr);
-int KeyNameToKey(const string& Name);
+int KeyNameToKey(string_view Name);
 bool InputRecordToText(const INPUT_RECORD *Rec, string &strKeyText);
 bool KeyToText(int Key, string &strKeyText);
 bool KeyToLocalizedText(int Key, string &strKeyText);

@@ -70,7 +70,7 @@ enum enumFileFilterFlags
 
 enum enumFDateType
 {
-	FDATE_MODIFIED=0,
+	FDATE_MODIFIED,
 	FDATE_CREATED,
 	FDATE_OPENED,
 	FDATE_CHANGED,
@@ -97,7 +97,7 @@ public:
 private:
 	os::chrono::duration m_After;
 	os::chrono::duration m_Before;
-	bool m_Relative;
+	bool m_Relative{};
 };
 
 class FileFilterParams
@@ -127,8 +127,8 @@ public:
 	bool IsMaskUsed() const { return FMask.Used; }
 	bool GetDate(DWORD* DateType, filter_dates* Dates) const;
 	bool IsSizeUsed() const {return FSize.Used;}
-	const string& GetSizeAbove() const {return FSize.SizeAbove;}
-	const string& GetSizeBelow() const {return FSize.SizeBelow;}
+	const string& GetSizeAbove() const {return FSize.Above.Size;}
+	const string& GetSizeBelow() const {return FSize.Below.Size;}
 	bool  GetHardLinks(DWORD *HardLinksAbove, DWORD *HardLinksBelow) const;
 	bool  GetAttr(DWORD *AttrSet, DWORD *AttrClear) const;
 	highlight::element GetColors() const;
@@ -143,61 +143,62 @@ public:
 	// попадает ли файл fd под условие установленного фильтра.
 	// Возвращает true  - попадает;
 	//            false - не попадает.
-	bool FileInFilter(const FileListItem* fli, const FileList* Owner, os::chrono::time_point CurrentTime) const;
-	bool FileInFilter(const os::fs::find_data& fde, os::chrono::time_point CurrentTime, const string* FullName = nullptr) const; //Used in dirinfo, copy, findfile
-	bool FileInFilter(const PluginPanelItem& fd, os::chrono::time_point CurrentTime) const;
+	bool FileInFilter(const FileListItem& Object, const FileList* Owner, os::chrono::time_point CurrentTime) const;
+	bool FileInFilter(const os::fs::find_data& Object, os::chrono::time_point CurrentTime, const string* FullName = nullptr) const; //Used in dirinfo, copy, findfile
+	bool FileInFilter(const PluginPanelItem& Object, os::chrono::time_point CurrentTime) const;
 
 
 private:
-	bool FileInFilter(struct filter_file_object& Object, os::chrono::time_point CurrentTime, const std::function<void(filter_file_object&)>& Getter) const;
+	bool FileInFilter(struct filter_file_object const& Object, os::chrono::time_point CurrentTime, const std::function<int()>& HardlinkGetter) const;
 
 	string m_strTitle;
 
 	struct fmask
 	{
-		bool Used;
+		bool Used{};
 		string strMask;
 		filemasks FilterMask; // Хранилище скомпилированной маски.
 	} FMask;
 
 	struct
 	{
+		bool Used{};
 		filter_dates Dates;
-		enumFDateType DateType;
-		bool Used;
+		enumFDateType DateType{ FDATE_MODIFIED };
 	} FDate;
 
 	struct
 	{
-		unsigned long long SizeAboveReal; // Здесь всегда будет размер в байтах
-		unsigned long long SizeBelowReal; // Здесь всегда будет размер в байтах
-		string SizeAbove; // Здесь всегда будет размер как его ввёл юзер
-		string SizeBelow; // Здесь всегда будет размер как его ввёл юзер
-		bool Used;
+		bool Used{};
+		struct
+		{
+			string Size; // Здесь всегда будет размер как его ввёл юзер
+			unsigned long long SizeReal{}; // Здесь всегда будет размер в байтах
+		} Above, Below;
 	} FSize;
 
 	struct // Новая структура в фильтре, чтобы считать количество жестких ссылок. Пока что реально используем только флаг Used и априорно заданное условие "ссылок больше чем одна"
 	{
-		bool Used;
-		DWORD CountAbove;
-		DWORD CountBelow;
+		bool Used{};
+		DWORD CountAbove{};
+		DWORD CountBelow{};
 	} FHardLinks;
 
 	struct
 	{
-		bool Used;
-		DWORD AttrSet;
-		DWORD AttrClear;
+		bool Used{};
+		DWORD AttrSet{};
+		DWORD AttrClear{};
 	} FAttr;
 
 	struct
 	{
 		highlight::element Colors;
-		int SortGroup;
-		bool bContinueProcessing;
+		int SortGroup{};
+		bool bContinueProcessing{};
 	} FHighlight;
 
-	std::array<DWORD, FFFT_COUNT> FFlags;
+	std::array<DWORD, FFFT_COUNT> FFlags{};
 };
 
 bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig=false);

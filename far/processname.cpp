@@ -40,27 +40,25 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     Генерация нового имени по маске
     (взял из ShellCopy::ShellCopyConvertWildcards)
 */
-// На основе имени файла (Src) и маски (Dest) генерируем новое имя
+// На основе имени файла (SrcName) и маски (Mask) генерируем новое имя
 // SelectedFolderNameLength - длина каталога. Например, есть
 // каталог dir1, а в нем файл file1. Нужно сгенерировать имя по маске для dir1.
 // Параметры могут быть следующими: Src="dir1", SelectedFolderNameLength=0
 // или Src="dir1\\file1", а SelectedFolderNameLength=4 (длина "dir1")
-bool ConvertWildcards(string_view const SrcName, string &strDest, int const SelectedFolderNameLength)
+string ConvertWildcards(string_view const SrcName, string_view const Mask, int const SelectedFolderNameLength)
 {
-	const size_t DestNamePos = strDest.size() - PointToName(strDest).size();
-
-	if (strDest.find_first_of(L"*?", DestNamePos) == strDest.npos)
-		return false;
-
-	const string WildName = strDest.substr(DestNamePos);
+	const auto WildName = PointToName(Mask);
+	if (WildName.find_first_of(L"*?") == WildName.npos)
+		return string(Mask);
 
 	const auto Src = SelectedFolderNameLength? SrcName.substr(0, SelectedFolderNameLength) : SrcName;
 	auto SrcNamePart = PointToName(Src);
 
-	strDest.reserve(strDest.size() + SrcName.size());
-	strDest.resize(DestNamePos);
+	string Result;
+	Result.reserve(SrcName.size());
+	Result.assign(Mask.data(), Mask.size() - WildName.size());
 
-	const auto BeforeNameLength = DestNamePos? 0 : Src.size() - SrcNamePart.size();
+	const auto BeforeNameLength = Result.empty()? 0 : Src.size() - SrcNamePart.size();
 	const auto SrcNameLastDotPos = SrcNamePart.rfind(L'.');
 	const auto SrcNameLastDotPtr = SrcNameLastDotPos == SrcNamePart.npos? nullptr : SrcNamePart.data() + SrcNameLastDotPos;
 
@@ -77,7 +75,7 @@ bool ConvertWildcards(string_view const SrcName, string &strDest, int const Sele
 
 			if (!SrcNamePart.empty() && SrcNamePart.front() != L'.')
 			{
-				strDest.push_back(SrcNamePart.front());
+				Result.push_back(SrcNamePart.front());
 				SrcNamePart.remove_prefix(1);
 			}
 			break;
@@ -100,16 +98,16 @@ bool ConvertWildcards(string_view const SrcName, string &strDest, int const Sele
 						if (LastCharPos == SrcNamePart.npos)
 							LastCharPos = SrcNamePart.size();
 					}
-					std::copy_n(SrcNamePart.cbegin(), LastCharPos, std::back_inserter(strDest));
+					std::copy_n(SrcNamePart.cbegin(), LastCharPos, std::back_inserter(Result));
 					if (Char != L'?')
-						strDest.push_back(Char);
+						Result.push_back(Char);
 					SrcNamePart.remove_prefix(LastCharPos);
 					if (!SrcNamePart.empty())
 						SrcNamePart.remove_prefix(1);
 				}
 				else
 				{
-					append(strDest, SrcNamePart);
+					append(Result, SrcNamePart);
 				}
 			}
 			break;
@@ -117,7 +115,7 @@ bool ConvertWildcards(string_view const SrcName, string &strDest, int const Sele
 		case L'.':
 			{
 				WildPtr.remove_prefix(1);
-				strDest.push_back(L'.');
+				Result.push_back(L'.');
 
 				auto FirstDotPos = SrcNamePart.find(L'.');
 				if (FirstDotPos == SrcNamePart.npos)
@@ -130,7 +128,7 @@ bool ConvertWildcards(string_view const SrcName, string &strDest, int const Sele
 			break;
 
 		default:
-			strDest.push_back(WildPtr.front());
+			Result.push_back(WildPtr.front());
 			WildPtr.remove_prefix(1);
 			if (!SrcNamePart.empty() && SrcNamePart.front() != L'.')
 				SrcNamePart.remove_prefix(1);
@@ -138,17 +136,17 @@ bool ConvertWildcards(string_view const SrcName, string &strDest, int const Sele
 		}
 	}
 
-	if (ends_with(strDest, L'.'))
-		strDest.pop_back();
+	if (ends_with(Result, L'.'))
+		Result.pop_back();
 
-	strDest.insert(0, Src.data(), BeforeNameLength);
+	Result.insert(0, Src.data(), BeforeNameLength);
 
 	if (SelectedFolderNameLength)
 	{
-		append(strDest, SrcName.substr(SelectedFolderNameLength)); //BUGBUG???, was src in 1.7x
+		append(Result, SrcName.substr(SelectedFolderNameLength)); //BUGBUG???, was src in 1.7x
 	}
 
-	return true;
+	return Result;
 }
 
 bool CmpName(string_view pattern, string_view str, const bool skippath, const bool CmpNameSearchMode)
@@ -156,6 +154,10 @@ bool CmpName(string_view pattern, string_view str, const bool skippath, const bo
 	// BUGBUG rewrite
 	if (pattern.empty() || str.empty())
 		return false;
+
+	// Special case for these simplest and most common masks:
+	if (pattern == L"*"sv || pattern == L"*.*"sv)
+		return true;
 
 	if (skippath)
 		str = PointToName(str);
@@ -290,9 +292,9 @@ bool CmpName(string_view pattern, string_view str, const bool skippath, const bo
 #include "common/test.hpp"
 
 #ifdef _DEBUG
-void TestWildcards()
+static void TestWildcards()
 {
-	string_view Masks[]
+	static const string_view Masks[]
 	{
 		L"A?Z*"sv,
 		L"*.txt"sv,
@@ -302,7 +304,7 @@ void TestWildcards()
 		L"?x.????999.*rForTheCourse"sv,
 	};
 
-	struct
+	static const struct
 	{
 		int Mask;
 		string_view Src, Expected;
@@ -339,9 +341,7 @@ void TestWildcards()
 
 	for (const auto& i: Tests)
 	{
-		string Dest(Masks[i.Mask]);
-		ASSERT_TRUE(ConvertWildcards(i.Src, Dest, 0));
-		ASSERT_EQ(i.Expected, Dest);
+		EXPECT_EQ(i.Expected, ConvertWildcards(i.Src, Masks[i.Mask], 0));
 	}
 }
 #endif

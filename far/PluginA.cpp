@@ -4329,7 +4329,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 							std::unique_ptr<char[]> olddiv(UnicodeToAnsi(newsp.wszParam));
 							if (olddiv)
 							{
-								xstrncpy(oldsp->cParam, olddiv.get(), 0x100);
+								xstrncpy(oldsp->cParam, olddiv.get(), 256);
 							}
 
 							return ret;

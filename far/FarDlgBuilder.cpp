@@ -116,7 +116,7 @@ public:
 	void SaveValue(DialogItemEx *Item, int RadioGroupIndex) override
 	{
 		// Must be converted to unsigned type first regardless of underlying type
-		*IntValue = std::stoull(Item->strData, nullptr, 16);
+		*IntValue = from_string<unsigned long long>(Item->strData, nullptr, 16);
 	}
 
 	const wchar_t *GetMask() const

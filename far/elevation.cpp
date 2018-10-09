@@ -1143,5 +1143,5 @@ int ElevationMain(string_view const Uuid, DWORD PID, bool UsePrivileges)
 
 bool IsElevationArgument(const wchar_t* Argument)
 {
-	return equal(Argument, ElevationArgument);
+	return ElevationArgument == Argument;
 }

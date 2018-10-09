@@ -64,8 +64,7 @@ filter_dates::filter_dates(os::chrono::duration After, os::chrono::duration Befo
 
 filter_dates::filter_dates(os::chrono::time_point After, os::chrono::time_point Before):
 	m_After(After.time_since_epoch()),
-	m_Before(Before.time_since_epoch()),
-	m_Relative(false)
+	m_Before(Before.time_since_epoch())
 {
 }
 
@@ -75,14 +74,7 @@ filter_dates::operator bool() const
 }
 
 
-FileFilterParams::FileFilterParams():
-	FMask(),
-	FDate(),
-	FSize(),
-	FHardLinks(),
-	FAttr(),
-	FHighlight(),
-	FFlags()
+FileFilterParams::FileFilterParams()
 {
 	SetMask(true, L"*"sv);
 
@@ -104,9 +96,7 @@ FileFilterParams FileFilterParams::Clone() const
 	Result.FDate = FDate;
 	Result.FAttr = FAttr;
 	Result.FHardLinks = FHardLinks;
-	Result.FHighlight.Colors = FHighlight.Colors;
-	Result.FHighlight.SortGroup = FHighlight.SortGroup;
-	Result.FHighlight.bContinueProcessing = FHighlight.bContinueProcessing;
+	Result.FHighlight = FHighlight;
 	Result.FFlags = FFlags;
 	return Result;
 }
@@ -136,10 +126,10 @@ void FileFilterParams::SetDate(bool const Used, enumFDateType const DateType, co
 void FileFilterParams::SetSize(bool const Used, string_view const SizeAbove, string_view const SizeBelow)
 {
 	FSize.Used=Used;
-	assign(FSize.SizeAbove, SizeAbove);
-	assign(FSize.SizeBelow, SizeBelow);
-	FSize.SizeAboveReal=ConvertFileSizeString(FSize.SizeAbove);
-	FSize.SizeBelowReal=ConvertFileSizeString(FSize.SizeBelow);
+	assign(FSize.Above.Size, SizeAbove);
+	assign(FSize.Below.Size, SizeBelow);
+	FSize.Above.SizeReal = ConvertFileSizeString(FSize.Above.Size);
+	FSize.Below.SizeReal = ConvertFileSizeString(FSize.Below.Size);
 }
 
 void FileFilterParams::SetHardLinks(bool const Used, DWORD const HardLinksAbove, DWORD const HardLinksBelow)
@@ -210,7 +200,7 @@ wchar_t FileFilterParams::GetMarkChar() const
 
 struct filter_file_object
 {
-	string Name;
+	string_view Name;
 	unsigned long long Size;
 	os::chrono::time_point CreationTime;
 	os::chrono::time_point ModificationTime;
@@ -220,56 +210,56 @@ struct filter_file_object
 	int NumberOfLinks;
 };
 
-bool FileFilterParams::FileInFilter(const FileListItem* fli, const FileList* Owner, os::chrono::time_point CurrentTime) const
+bool FileFilterParams::FileInFilter(const FileListItem& Object, const FileList* Owner, os::chrono::time_point CurrentTime) const
 {
-	filter_file_object Object;
-	Object.Attributes = fli->Attributes;
-	Object.Size = fli->FileSize;
-	Object.CreationTime = fli->CreationTime;
-	Object.ModificationTime = fli->LastWriteTime;
-	Object.AccessTime = fli->LastAccessTime;
-	Object.ChangeTime = fli->ChangeTime;
-	Object.Name = fli->FileName;
-
-	return FileInFilter(Object, CurrentTime, [&](filter_file_object& Item)
+	const filter_file_object FilterObject
 	{
-		Item.NumberOfLinks = fli->NumberOfLinks(Owner);
-	});
+		Object.FileName,
+		Object.FileSize,
+		Object.CreationTime,
+		Object.LastWriteTime,
+		Object.LastAccessTime,
+		Object.ChangeTime,
+		Object.Attributes,
+	};
+
+	return FileInFilter(FilterObject, CurrentTime, [&](){ return Object.NumberOfLinks(Owner); });
 }
 
-bool FileFilterParams::FileInFilter(const os::fs::find_data& fde, os::chrono::time_point CurrentTime,const string* FullName) const
+bool FileFilterParams::FileInFilter(const os::fs::find_data& Object, os::chrono::time_point CurrentTime,const string* FullName) const
 {
-	filter_file_object Object;
-	Object.Attributes = fde.Attributes;
-	Object.Size = fde.FileSize;
-	Object.CreationTime = fde.CreationTime;
-	Object.ModificationTime = fde.LastWriteTime;
-	Object.AccessTime = fde.LastAccessTime;
-	Object.ChangeTime = fde.ChangeTime;
-	Object.Name = fde.FileName;
-
-	return FileInFilter(Object, CurrentTime, [&](filter_file_object& Item)
+	const filter_file_object FilterObject
 	{
-		Item.NumberOfLinks = FullName? GetNumberOfLinks(*FullName) : 1;
-	});
+		Object.FileName,
+		Object.FileSize,
+		Object.CreationTime,
+		Object.LastWriteTime,
+		Object.LastAccessTime,
+		Object.ChangeTime,
+		Object.Attributes,
+	};
+
+	return FileInFilter(FilterObject, CurrentTime, [&](){ return FullName? GetNumberOfLinks(*FullName) : 1; });
 }
 
-bool FileFilterParams::FileInFilter(const PluginPanelItem& fd, os::chrono::time_point CurrentTime) const
+bool FileFilterParams::FileInFilter(const PluginPanelItem& Object, os::chrono::time_point CurrentTime) const
 {
-	filter_file_object Object;
-	Object.Attributes = fd.FileAttributes;
-	Object.Size = fd.FileSize;
-	Object.CreationTime = os::chrono::nt_clock::from_filetime(fd.CreationTime);
-	Object.ModificationTime = os::chrono::nt_clock::from_filetime(fd.LastWriteTime);
-	Object.AccessTime = os::chrono::nt_clock::from_filetime(fd.LastAccessTime);
-	Object.ChangeTime = os::chrono::nt_clock::from_filetime(fd.ChangeTime);
-	Object.Name = fd.FileName;
-	Object.NumberOfLinks = fd.NumberOfLinks;
+	const filter_file_object FilterObject
+	{
+		Object.FileName,
+		Object.FileSize,
+		os::chrono::nt_clock::from_filetime(Object.CreationTime),
+		os::chrono::nt_clock::from_filetime(Object.LastWriteTime),
+		os::chrono::nt_clock::from_filetime(Object.LastAccessTime),
+		os::chrono::nt_clock::from_filetime(Object.ChangeTime),
+		static_cast<DWORD>(Object.FileAttributes),
+		static_cast<int>(Object.NumberOfLinks),
+	};
 
-	return FileInFilter(Object, CurrentTime, nullptr);
+	return FileInFilter(FilterObject, CurrentTime, nullptr);
 }
 
-bool FileFilterParams::FileInFilter(filter_file_object& Object, os::chrono::time_point CurrentTime, const std::function<void(filter_file_object&)>& Getter) const
+bool FileFilterParams::FileInFilter(const filter_file_object& Object, os::chrono::time_point CurrentTime, const std::function<int()>& HardlinkGetter) const
 {
 	// Режим проверки атрибутов файла включен?
 	if (FAttr.Used)
@@ -286,34 +276,16 @@ bool FileFilterParams::FileInFilter(filter_file_object& Object, os::chrono::time
 	// Режим проверки размера файла включен?
 	if (FSize.Used)
 	{
-		if (!FSize.SizeAbove.empty())
+		if (!FSize.Above.Size.empty())
 		{
-			if (Object.Size < FSize.SizeAboveReal) // Размер файла меньше минимального разрешённого по фильтру?
+			if (Object.Size < FSize.Above.SizeReal) // Размер файла меньше минимального разрешённого по фильтру?
 				return false;                          // Не пропускаем этот файл
 		}
 
-		if (!FSize.SizeBelow.empty())
+		if (!FSize.Below.Size.empty())
 		{
-			if (Object.Size > FSize.SizeBelowReal) // Размер файла больше максимального разрешённого по фильтру?
+			if (Object.Size > FSize.Below.SizeReal) // Размер файла больше максимального разрешённого по фильтру?
 				return false;                          // Не пропускаем этот файл
-		}
-	}
-
-	// Режим проверки количества жестких ссылок на файл включен?
-	// Пока что, при включенном условии, срабатывание происходит при случае "ссылок больше чем одна"
-	if (FHardLinks.Used)
-	{
-		if (Object.Attributes & FILE_ATTRIBUTE_DIRECTORY)
-		{
-			return false;
-		}
-
-		if (Getter)
-			Getter(Object);
-
-		if (Object.NumberOfLinks < 2)
-		{
-			return false;
 		}
 	}
 
@@ -377,6 +349,23 @@ bool FileFilterParams::FileInFilter(filter_file_object& Object, os::chrono::time
 		if (!FMask.FilterMask.Compare(Object.Name))
 		// Не пропускаем этот файл
 			return false;
+	}
+
+	// Режим проверки количества жестких ссылок на файл включен?
+	// Пока что, при включенном условии, срабатывание происходит при случае "ссылок больше чем одна"
+	if (FHardLinks.Used)
+	{
+		if (Object.Attributes & FILE_ATTRIBUTE_DIRECTORY)
+		{
+			return false;
+		}
+
+		const auto NumberOfLinks = HardlinkGetter? HardlinkGetter() : Object.NumberOfLinks;
+
+		if (NumberOfLinks < 2)
+		{
+			return false;
+		}
 	}
 
 	// Да! Файл выдержал все испытания и будет допущен к использованию
@@ -690,9 +679,9 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 				}
 
 				Dlg->SendMessage(DM_ENABLEREDRAW, FALSE, nullptr);
-				int relative = (int)Dlg->SendMessage(DM_GETCHECK, ID_FF_DATERELATIVE, nullptr);
-				int db = relative ? ID_FF_DAYSBEFOREEDIT : ID_FF_DATEBEFOREEDIT;
-				int da = relative ? ID_FF_DAYSAFTEREDIT  : ID_FF_DATEAFTEREDIT;
+				const auto relative = Dlg->SendMessage(DM_GETCHECK, ID_FF_DATERELATIVE, nullptr) != 0;
+				const auto db = relative? ID_FF_DAYSBEFOREEDIT : ID_FF_DATEBEFOREEDIT;
+				const auto da = relative? ID_FF_DAYSAFTEREDIT  : ID_FF_DATEAFTEREDIT;
 				Dlg->SendMessage(DM_SETTEXTPTR,da, UNSAFE_CSTR(strDate));
 				Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_TIMEAFTEREDIT, UNSAFE_CSTR(strTime));
 				Dlg->SendMessage(DM_SETTEXTPTR,db, UNSAFE_CSTR(strDate));
