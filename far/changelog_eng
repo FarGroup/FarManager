@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 09.10.2018 23:49:36 +0100 - build 5283
+
+1. Fix 5273.1.
+
+svs 09.10.2018 09:22:17 +0300 - build 5282
+
+1. SQLite 3.25.2
+
 drkns 09.10.2018 01:14:41 +0100 - build 5281
 
 1. Fix bugs in string_view implementation for VS2015.

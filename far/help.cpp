@@ -1738,24 +1738,6 @@ bool Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		return true;
 	}
 
-	if (while_mouse_button_pressed([&]
-	{
-		if (MouseEvent->dwMousePosition.Y < m_Where.top + 1 + HeaderHeight())
-		{
-			ProcessKey(Manager::Key(KEY_UP));
-			return true;
-		}
-		else if (IntKeyState.MousePos.y >= m_Where.bottom)
-		{
-			ProcessKey(Manager::Key(KEY_DOWN));
-			return true;
-		}
-		return false;
-	}))
-	{
-		return true;
-	}
-
 	/* $ 26.11.2001 VVM
 	  + Запомнить нажатие клавиши мышки и только в этом случае реагировать при отпускании */
 	if (!MouseEvent->dwEventFlags
@@ -1801,6 +1783,24 @@ bool Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				StackData->CurY = MsY - m_Where.top - 1 - HeaderHeight();
 			}
 		}
+	}
+
+	if (while_mouse_button_pressed([&]
+	{
+		if (MouseEvent->dwMousePosition.Y < m_Where.top + 1 + HeaderHeight())
+		{
+			ProcessKey(Manager::Key(KEY_UP));
+			return true;
+		}
+		else if (IntKeyState.MousePos.y >= m_Where.bottom)
+		{
+			ProcessKey(Manager::Key(KEY_DOWN));
+			return true;
+		}
+		return false;
+	}))
+	{
+		return true;
 	}
 
 	FastShow();
