@@ -237,13 +237,15 @@ static const TFKey FKeys1[]
 
 static const TFKey ModifKeyName[]
 {
-	{ KEY_CTRL,     lng::MKeyCtrl,   L"Ctrl"sv,  },
-	{ KEY_ALT,      lng::MKeyAlt,    L"Alt"sv,   },
-	{ KEY_SHIFT,    lng::MKeyShift,  L"Shift"sv, },
+	// The order matters - this is how we expect them in key names like CtrlAltWhatever
+	// Don't change.
+	{ KEY_CTRL,     lng::MKeyCtrl,   L"Ctrl"sv, },
 	{ KEY_RCTRL,    lng::MKeyRCtrl,  L"RCtrl"sv, },
-	{ KEY_RALT,     lng::MKeyRAlt,   L"RAlt"sv,  },
-	{ KEY_M_OEM,    lng(-1),         L"Oem"sv,   },
-	{ KEY_M_SPEC,   lng(-1),         L"Spec"sv,  },
+	{ KEY_ALT,      lng::MKeyAlt,    L"Alt"sv, },
+	{ KEY_RALT,     lng::MKeyRAlt,   L"RAlt"sv, },
+	{ KEY_SHIFT,    lng::MKeyShift,  L"Shift"sv, },
+	{ KEY_M_SPEC,   lng(-1),         L"Spec"sv, },
+	{ KEY_M_OEM,    lng(-1),         L"Oem"sv, },
 };
 
 #if defined(SYSLOG)
