@@ -6,6 +6,8 @@
 
 #define TYPE_REGEX "far_regex"
 
+enum { OP_FIND, OP_MATCH, OP_EXEC };
+
 typedef struct
 {
 	HANDLE hnd;
@@ -142,7 +144,7 @@ int _Gmatch(lua_State *L, int is_wide)
 int func_Gmatch(lua_State *L) { return _Gmatch(L, 0); }
 int func_GmatchW(lua_State *L) { return _Gmatch(L, 1); }
 
-int rx_find_match(lua_State *L, int op_find, int is_function, int is_wide)
+int rx_find_match(lua_State *L, int operation, int is_function, int is_wide)
 {
 	size_t len;
 	FARAPIREGEXPCONTROL RegExpControl = GetRegExpControl(L);
@@ -184,33 +186,61 @@ int rx_find_match(lua_State *L, int op_find, int is_function, int is_wide)
 
 	if(RegExpControl(fr->hnd, RECTL_SEARCHEX, 0, &data))
 	{
-		int i, skip;
+		int i;
+		int skip = (operation == OP_FIND || operation == OP_EXEC || data.Count>1) ? 1 : 0;
 
-		if(op_find)
+		if(operation == OP_FIND || operation == OP_EXEC)
 		{
 			lua_pushinteger(L, data.Match[0].start+1);
 			lua_pushinteger(L, data.Match[0].end);
 		}
-
-		skip = (op_find || data.Count>1) ? 1 : 0;
-		i = (int)data.Count - skip + 1;
-		if (!lua_checkstack(L, i))
-			luaL_error(L, "cannot add %d stack slots", i);
-
-		for(i=skip; i<data.Count; i++)
+		if (operation == OP_EXEC)
 		{
-			if(data.Match[i].start >= 0 && data.Match[i].end >= data.Match[i].start)
+			lua_createtable(L, 2*data.Count, 0);
+			for(i=skip; i<data.Count; i++)
 			{
-				if(is_wide)
-					push_utf16_string(L, data.Text+data.Match[i].start, data.Match[i].end-data.Match[i].start);
+				int k = (i-skip)*2 + 1;
+				if(data.Match[i].start >= 0 && data.Match[i].end >= data.Match[i].start)
+				{
+					lua_pushinteger(L, data.Match[i].start+1);
+					lua_rawseti(L, -2, k);
+					lua_pushinteger(L, data.Match[i].end);
+					lua_rawseti(L, -2, k+1);
+				}
 				else
-					push_utf8_string(L, data.Text+data.Match[i].start, data.Match[i].end-data.Match[i].start);
+				{
+					lua_pushboolean(L, 0);
+					lua_rawseti(L, -2, k);
+					lua_pushboolean(L, 0);
+					lua_rawseti(L, -2, k+1);
+				}
 			}
-			else
-				lua_pushboolean(L, 0);
 		}
-
-		return (op_find ? 2:0) + (int)data.Count - skip;
+		else
+		{
+			i = (int)data.Count - skip + 1;
+			if (!lua_checkstack(L, i))
+				luaL_error(L, "cannot add %d stack slots", i);
+			for(i=skip; i<data.Count; i++)
+			{
+				if(data.Match[i].start >= 0 && data.Match[i].end >= data.Match[i].start)
+				{
+					if(is_wide)
+						push_utf16_string(L, data.Text+data.Match[i].start, data.Match[i].end-data.Match[i].start);
+					else
+						push_utf8_string(L, data.Text+data.Match[i].start, data.Match[i].end-data.Match[i].start);
+				}
+				else
+					lua_pushboolean(L, 0);
+			}
+		}
+		switch (operation)
+		{
+			case OP_FIND:  return 2 + (int)data.Count - skip;
+			case OP_MATCH: return 0 + (int)data.Count - skip;
+			case OP_EXEC:  return 3;
+			default:       return 0;
+		}
 	}
 
 	return lua_pushnil(L), 1;
@@ -494,15 +524,20 @@ int func_New(lua_State *L)
 	return 1;
 }
 
-int method_find(lua_State *L)  { return rx_find_match(L, 1, 0, 0); }
-int func_find(lua_State *L)  { return rx_find_match(L, 1, 1, 0); }
-int method_findW(lua_State *L)  { return rx_find_match(L, 1, 0, 1); }
-int func_findW(lua_State *L)  { return rx_find_match(L, 1, 1, 1); }
+int method_find(lua_State *L)  { return rx_find_match(L, OP_FIND, 0, 0); }
+int func_find(lua_State *L)  { return rx_find_match(L, OP_FIND, 1, 0); }
+int method_findW(lua_State *L)  { return rx_find_match(L, OP_FIND, 0, 1); }
+int func_findW(lua_State *L)  { return rx_find_match(L, OP_FIND, 1, 1); }
 
-int method_match(lua_State *L)  { return rx_find_match(L, 0, 0, 0); }
-int func_match(lua_State *L)  { return rx_find_match(L, 0, 1, 0); }
-int method_matchW(lua_State *L)  { return rx_find_match(L, 0, 0, 1); }
-int func_matchW(lua_State *L)  { return rx_find_match(L, 0, 1, 1); }
+int method_match(lua_State *L)  { return rx_find_match(L, OP_MATCH, 0, 0); }
+int func_match(lua_State *L)  { return rx_find_match(L, OP_MATCH, 1, 0); }
+int method_matchW(lua_State *L)  { return rx_find_match(L, OP_MATCH, 0, 1); }
+int func_matchW(lua_State *L)  { return rx_find_match(L, OP_MATCH, 1, 1); }
+
+int method_exec(lua_State *L)  { return rx_find_match(L, OP_EXEC, 0, 0); }
+int func_exec(lua_State *L)  { return rx_find_match(L, OP_EXEC, 1, 0); }
+int method_execW(lua_State *L)  { return rx_find_match(L, OP_EXEC, 0, 1); }
+int func_execW(lua_State *L)  { return rx_find_match(L, OP_EXEC, 1, 1); }
 
 int method_gsub(lua_State *L)  { return rx_gsub(L, 0, 0); }
 int func_gsub(lua_State *L)  { return rx_gsub(L, 1, 0); }
@@ -514,10 +549,12 @@ const luaL_Reg regex_methods[] =
 	{"find",          method_find},
 	{"gsub",          method_gsub},
 	{"match",         method_match},
+	{"exec",          method_exec},
 
 	{"findW",         method_findW},
 	{"gsubW",         method_gsubW},
 	{"matchW",        method_matchW},
+	{"execW",         method_execW},
 
 	{"bracketscount", method_bracketscount},
 	{"__gc",          method_gc},
@@ -533,11 +570,13 @@ const luaL_Reg regex_functions[] =
 	{"gmatch",        func_Gmatch},
 	{"gsub",          func_gsub},
 	{"match",         func_match},
+	{"exec",          func_exec},
 
 	{"findW",         func_findW},
 	{"gmatchW",       func_GmatchW},
 	{"gsubW",         func_gsubW},
 	{"matchW",        func_matchW},
+	{"execW",         func_execW},
 	{NULL, NULL}
 };
 

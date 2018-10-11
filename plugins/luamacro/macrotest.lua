@@ -1372,8 +1372,10 @@ end
 local function test_RegexControl()
   local L = win.Utf8ToUtf16
   local pat = "([bc]+)"
+  local pat2 = "([bc]+)|(zz)"
   local rep = "%1%1"
   local R = regex.new(pat)
+  local R2 = regex.new(pat2)
 
   local fr,to,cap
   local str, nfound, nrep
@@ -1389,6 +1391,16 @@ local function test_RegexControl()
   assert(fr==2 and to==3 and cap=="bc")
   fr,to,cap = R:findW(L"abc")
   assert(fr==2 and to==3 and cap==L"bc")
+
+  fr,to,cap = regex.exec("abc", pat2)
+  assert(fr==2 and to==3 and #cap==4 and cap[1]==2 and cap[2]==3 and cap[3]==false and cap[4]==false)
+  fr,to,cap = regex.execW(L"abc", pat2)
+  assert(fr==2 and to==3 and #cap==4 and cap[1]==2 and cap[2]==3 and cap[3]==false and cap[4]==false)
+
+  fr,to,cap = R2:exec("abc")
+  assert(fr==2 and to==3 and #cap==4 and cap[1]==2 and cap[2]==3 and cap[3]==false and cap[4]==false)
+  fr,to,cap = R2:execW(L"abc")
+  assert(fr==2 and to==3 and #cap==4 and cap[1]==2 and cap[2]==3 and cap[3]==false and cap[4]==false)
 
   assert(regex.match("abc", pat)=="bc")
   assert(regex.matchW(L"abc", pat)==L"bc")
