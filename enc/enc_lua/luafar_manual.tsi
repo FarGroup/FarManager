@@ -8290,6 +8290,43 @@ nm=Regular expression functions
 </article>
 </node>
 <node>
+id=528
+lv=2
+dt=Text
+nm=regex.exec, regex.execW
+ctime=3748474620
+mtime=3748474986
+<article>
+#_from, to, offsets = regex.exec (s, pattern, [init], [cflags])
+#_
+#_**Parameters:**
+#_  s       :  string
+#_  pattern :  string
+#_  init    :  integer (default=1; can be negative)
+#_  cflags  :  string (any combination of 'i','m','o','s' and 'x')
+#_
+#_**Returns:**
+#_  from    : integer
+#_  to      : integer
+#_  offsets : table - array of captures' offsets (there can be *false*
+#_                    in place of captures not participated in the match)
+#_
+#_**Example:**
+#_  If the whole match is at offsets 10,20 and substring matches are
+#_  at offsets 12,14 and 16,19 then the function returns the following:
+#_  10, 20, { 12,14,16,19 }.
+#_
+#_**Note:**
+#_*regex.execW* receives its 1-st argument in UTF-16LE encoding.
+#_
+#_**Far API used:**
+#_  RegExpControl
+#_
+#_@@@
+#_{regexpcontrol}: http://api.farmanager.com/ru/service_functions/regexpcontrol.html
+</article>
+</node>
+<node>
 id=271
 lv=2
 dt=Text
@@ -8502,6 +8539,41 @@ mtime=3489990041
 #_@@@
 #_{regexpcontrol}: http://api.farmanager.com/ru/service_functions/regexpcontrol.html
 #_
+</article>
+</node>
+<node>
+id=529
+lv=3
+dt=Text
+nm=method exec, execW
+ctime=3748475041
+mtime=3748475255
+<article>
+#_from, to, offsets = regex_object:exec (subj [, init])
+#_
+#_**Parameters:**
+#_  subj   :  string
+#_  init   :  integer (default=1; can be negative)
+#_
+#_**Returns:**
+#_  from    : integer
+#_  to      : integer
+#_  offsets : table - array of captures' offsets (there can be *false*
+#_                    in place of captures not participated in the match)
+#_
+#_**Example:**
+#_  If the whole match is at offsets 10,20 and substring matches are
+#_  at offsets 12,14 and 16,19 then the method returns the following:
+#_  10, 20, { 12,14,16,19 }.
+#_
+#_**Note:**
+#_*regex_object:execW* receives its 1-st argument in UTF-16LE encoding.
+#_
+#_**Far API used:**
+#_  RegExpControl
+#_
+#_@@@
+#_{regexpcontrol}: http://api.farmanager.com/ru/service_functions/regexpcontrol.html
 </article>
 </node>
 <node>
