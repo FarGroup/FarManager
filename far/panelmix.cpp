@@ -701,7 +701,6 @@ string FormatStr_Size(long long Size, const string& strName,
 {
 	string strResult;
 
-	bool Packed=(ColumnType==PACKED_COLUMN);
 	bool Streams=(ColumnType==STREAMSSIZE_COLUMN);
 
 	if (ShowFolderSize==2)
@@ -714,7 +713,7 @@ string FormatStr_Size(long long Size, const string& strName,
 	bool rpt = (0 != (FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT));
 	bool have_size = !dir && (!rpt || ReparseTag==IO_REPARSE_TAG_DEDUP || Size > 0);
 
-	if (!Streams && !Packed && !have_size && !ShowFolderSize)
+	if (!Streams && !have_size && !ShowFolderSize)
 	{
 		static const lng FolderLabels[] =
 		{

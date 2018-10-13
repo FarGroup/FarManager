@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 13.10.2018 10:38:58 +0100 - build 5285
+
+1. Show "<Folder>" or "<  Up  >" for folders in "P" column (allocation size) as well.
+
 drkns 10.10.2018 19:46:45 +0100 - build 5284
 
 1. Fix 5281.2.
