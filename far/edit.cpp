@@ -292,29 +292,29 @@ void Edit::FastShow(const Edit::ShowInfo* Info)
 			switch(m_Eol)
 			{
 			case eol::type::mac:
-				OutStr.push_back(Oem2Unicode[13]);
+				OutStr.push_back(L'\x266A');
 				break;
 
 			case eol::type::unix:
-				OutStr.push_back(Oem2Unicode[10]);
+				OutStr.push_back(L'\x25D9');
 				break;
 
 			case eol::type::win:
-				OutStr.push_back(Oem2Unicode[13]);
+				OutStr.push_back(L'\x266A');
 				if(OutStr.size() < EditLength)
 				{
-					OutStr.push_back(Oem2Unicode[10]);
+					OutStr.push_back(L'\x25D9');
 				}
 				break;
 
 			case eol::type::bad_win:
-				OutStr.push_back(Oem2Unicode[13]);
+				OutStr.push_back(L'\x266A');
 				if(OutStr.size() < EditLength)
 				{
-					OutStr.push_back(Oem2Unicode[13]);
+					OutStr.push_back(L'\x266A');
 					if(OutStr.size() < EditLength)
 					{
-						OutStr.push_back(Oem2Unicode[10]);
+						OutStr.push_back(L'\x25D9');
 					}
 				}
 				break;

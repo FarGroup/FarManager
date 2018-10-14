@@ -1080,7 +1080,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 										console.SetWindowRect(ConsoleWindowRect);
 										console.SetSize(ConsoleSize);
 										std::this_thread::sleep_for(100ms);
-										InitConsole(0);
+										InitConsole();
 
 										consoleicons::instance().setFarIcons();
 										console.SetAllAliases(Aliases);

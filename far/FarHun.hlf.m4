@@ -144,11 +144,6 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 $ # FAR: a FAR parancssori kapcsolói#
   A FAR a következő parancssori kapcsolókkal indítható:
 
-  #/a#    ^<wrap>Letiltja a 0-31-ig terjedő és a 255-ös ASCII kódú
-karakterek megjelenítését. Hasznos lehet, ha a FAR-t telnet alól használjuk.
-
-  #/ag#   Letiltja a pszeudografikus karakterek megjelenítését.
-        ^<wrap>
   #/e[<sor>[:<pozíció>]] <fájlnév>#  A megadott fájlt szerkesztésre
 nyitja meg. A /e után megadható, hogy melyik sor hányadik karakterhelyére
 álljon a kurzor.

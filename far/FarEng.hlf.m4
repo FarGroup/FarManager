@@ -187,13 +187,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 $ # Far: command line switches#
   The following switches can be used in the command line:
 
-  #/a#
-  Disable display of characters with codes 0 - 31 and 255. Can be useful when
-executing Far under telnet.
-
-  #/ag#
-  Disable display of pseudo-graphic characters.
-
   #/e[<line>[:<pos>]] <filename>#
   Edit the specified file. After /e you can optionally specify editor start line
 and line position.

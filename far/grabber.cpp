@@ -83,58 +83,6 @@ void Grabber::init()
 	Global->WindowManager->RefreshWindow();
 }
 
-static wchar_t GetChar(const FAR_CHAR_INFO& Cell)
-{
-	WORD Chr2 = Cell.Char;
-	wchar_t Chr = Cell.Char;
-	if (Global->Opt->CleanAscii)
-	{
-		switch (Chr2)
-		{
-		case 0x07: Chr = L'*'; break;
-		case 0x10: Chr = L'>'; break;
-		case 0x11: Chr = L'<'; break;
-		case 0x15: Chr = L'$'; break;
-		case 0x16: Chr = L'-'; break;
-		case 0x18: Chr = L'|'; break;
-		case 0x19: Chr = L'|'; break;
-		case 0x1A: Chr = L'>'; break;
-		case 0x1B: Chr = L'<'; break;
-		case 0x1E: Chr = L'X'; break;
-		case 0x1F: Chr = L'X'; break;
-		case 0x7F: Chr = L'X'; break;
-		case 0xFF: Chr = L' '; break;
-		default:
-			if (Chr2 < L' ')
-				Chr = L'.';
-			else if (Chr2 <= UCHAR_MAX)
-				Chr = Chr2;
-			break;
-		}
-	}
-
-	if (Global->Opt->NoGraphics && InRange(BoxSymbols[BS_V1], Chr2, BoxSymbols[BS_LT_H1V1]))
-	{
-		if (Chr2 == BoxSymbols[BS_V1] || Chr2 == BoxSymbols[BS_V2])
-		{
-			Chr = L'|';
-		}
-		else if (Chr2 == BoxSymbols[BS_H1])
-		{
-			Chr = L'-';
-		}
-		else if (Chr2 == BoxSymbols[BS_H2])
-		{
-			Chr = L'=';
-		}
-		else
-		{
-			Chr = L'+';
-		}
-	}
-	return Chr;
-}
-
 std::tuple<point&, point&> Grabber::GetSelection()
 {
 	auto& SelectionBegin = GArea.Begin.y == GArea.End.y?
@@ -190,7 +138,7 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 			End -= IsLastLine? ScrX - std::get<1>(Selection).x : 0;
 		}
 		Line.clear();
-		std::transform(Begin, End, std::back_inserter(Line), GetChar);
+		std::transform(Begin, End, std::back_inserter(Line), [](const FAR_CHAR_INFO& Char) { return Char.Char; });
 		bool AddEol = !IsLastLine;
 		if (m_StreamSelection)
 		{

@@ -68,6 +68,48 @@ static void override_stream_buffers()
 		Log(std::wclog, BufLog);
 }
 
+static wchar_t ReplaceControlCharacter(wchar_t const Char)
+{
+	switch (Char)
+	{
+	case 0x01: return L'\x263a'; // ☺ white smiling face
+	case 0x02: return L'\x263b'; // ☻ black smiling face
+	case 0x03: return L'\x2665'; // ♥ black heart suit
+	case 0x04: return L'\x2666'; // ♦ black diamond suit
+	case 0x05: return L'\x2663'; // ♣ black club suit
+	case 0x06: return L'\x2660'; // ♠ black spade suit
+	case 0x07: return L'\x2022'; // • bullet
+	case 0x08: return L'\x25d8'; // ◘ inverse bullet
+	case 0x09: return L'\x25cb'; // ○ white circle
+	case 0x0a: return L'\x25d9'; // ◙ inverse white circle
+	case 0x0b: return L'\x2642'; // ♂ male sign
+	case 0x0c: return L'\x2640'; // ♀ female sign
+	case 0x0d: return L'\x266a'; // ♪ eighth note
+	case 0x0e: return L'\x266b'; // ♫ beamed eighth notes
+	case 0x0f: return L'\x263c'; // ☼ white sun with rays
+	case 0x10: return L'\x25ba'; // ► black right - pointing pointer
+	case 0x11: return L'\x25c4'; // ◄ black left - pointing pointer
+	case 0x12: return L'\x2195'; // ↕ up down arrow
+	case 0x13: return L'\x203c'; // ‼ double exclamation mark
+	case 0x14: return L'\x00b6'; // ¶ pilcrow sign
+	case 0x15: return L'\x00a7'; // § section sign
+	case 0x16: return L'\x25ac'; // ▬ black rectangle
+	case 0x17: return L'\x21a8'; // ↨ up down arrow with base
+	case 0x18: return L'\x2191'; // ↑ upwards arrow
+	case 0x19: return L'\x2193'; // ↓ downwards arrow
+	case 0x1a: return L'\x2192'; // → rightwards arrow
+	case 0x1b: return L'\x2190'; // ← leftwards arrow
+	case 0x1c: return L'\x221f'; // ∟ right angle
+	case 0x1d: return L'\x2194'; // ↔ left right arrow
+	case 0x1e: return L'\x25b2'; // ▲ black up - pointing triangle
+	case 0x1f: return L'\x25bc'; // ▼ black down - pointing triangle
+	case 0x7f: return L'\x2302'; // ⌂ house
+
+	default: return Char;
+	}
+}
+
+
 namespace console_detail
 {
 	// пишем/читаем порциями по 32 K, иначе проблемы.
@@ -439,7 +481,7 @@ namespace console_detail
 		matrix<CHAR_INFO> ConsoleBuffer(BufferSize.Y - BufferCoord.Y, BufferSize.X);
 		std::transform(Buffer.data() + Offset, Buffer.data() + Offset + Size, ConsoleBuffer.data(), [](const auto& i)
 		{
-			return CHAR_INFO{ i.Char, colors::FarColorToConsoleColor(i.Attributes) };
+			return CHAR_INFO{ ReplaceControlCharacter(i.Char), colors::FarColorToConsoleColor(i.Attributes) };
 		});
 
 		BufferSize.Y -= BufferCoord.Y;

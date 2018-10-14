@@ -89,8 +89,6 @@ static void show_help()
 		L"          for the passive panel\n"
 		L"The following switches may be used in the command line:\n"
 		L" -?   This help.\n"
-		L" -a   Disable display of characters with codes 0 - 31 and 255.\n"
-		L" -ag  Disable display of pseudographics characters.\n"
 		L" -clearcache [profilepath [localprofilepath]]\n"
 		L"      Clear plugins cache.\n"
 		L" -co  Forces FAR to load plugins from the cache only.\n"
@@ -540,20 +538,6 @@ static int mainImpl(range<const wchar_t* const*> const Args)
 		{
 			switch (upper(Arg[1]))
 			{
-				case L'A':
-					switch (upper(Arg[2]))
-					{
-					case 0:
-						Global->Opt->CleanAscii = true;
-						break;
-
-					case L'G':
-						if (!Arg[3])
-							Global->Opt->NoGraphics = true;
-						break;
-					}
-					break;
-
 				case L'E':
 					if (std::iswdigit(Arg[2]))
 					{

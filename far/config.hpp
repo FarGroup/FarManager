@@ -759,8 +759,6 @@ public:
 	BoolOption ShowSortMode;
 	BoolOption ShowMenuBar;
 	StringOption FormatNumberSeparators;
-	BoolOption CleanAscii;
-	BoolOption NoGraphics;
 
 	Confirmation Confirm;
 	PluginConfirmation PluginConfirm;

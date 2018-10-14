@@ -3,6 +3,15 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 14.10.2018 02:29:18 +0100 - build 5286
+
+1. Removed option "-a Disable display of characters with codes 0 - 31 and 255".
+   Reason: Far already doesn't show control characters for like 15 years, always replacing them with unicode glyphs.
+
+2. Removed option "-ag Disable display of pseudographics characters".
+   Reason: not all pseudographics was covered anyway and only in the interface, but not in, say, editor content or file names.
+   If for aesthetic reasons you find frames with -=|+ more pleasant than with ─═║┼ - System.BoxSymbols can be changed via far:config.
+
 drkns 13.10.2018 10:38:58 +0100 - build 5285
 
 1. Show "<Folder>" or "<  Up  >" for folders in "P" column (allocation size) as well.

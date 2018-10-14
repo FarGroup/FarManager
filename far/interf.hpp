@@ -44,7 +44,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 struct FAR_CHAR_INFO;
 struct FarColor;
 enum class lng : int;
-extern WCHAR Oem2Unicode[];
 extern WCHAR BoxSymbols[];
 extern COORD InitSize, CurSize;
 extern SHORT ScrX,ScrY;
@@ -119,12 +118,7 @@ enum BOX_DEF_SYMBOLS
 void ShowTime();
 void ShowTimeInBackground();
 
-/*$ 14.02.2001 SKV
-  Инитить ли палитру default значениями.
-  По умолчанию - да.
-  С 0 используется для ConsoleDetach.
-*/
-void InitConsole(int FirstInit=TRUE);
+void InitConsole();
 void CloseConsole();
 void SetFarConsoleMode(bool SetsActiveBuffer = false);
 void ChangeConsoleMode(HANDLE ConsoleHandle, DWORD Mode);
@@ -210,11 +204,7 @@ void DrawLine(int Length, line_type Type, string_view UserLine = {});
 
 string make_progressbar(size_t Size, size_t Percent, bool ShowPercent, bool PropagateToTasbkar);
 
-void InitRecodeOutTable();
-
 void fix_coordinates(rectangle& Where);
-
-void SetVidChar(wchar_t& Char);
 
 size_t HiStrlen(const string& Str);
 int HiFindRealPos(const string& Str, int Pos, bool ShowAmp);

@@ -1671,6 +1671,11 @@ Options::Options():
 
 	FormatNumberSeparators.SetCallback(option::notifier([](auto) { locale.invalidate(); }));
 
+	strBoxSymbols.SetCallback(option::notifier([](const string& Value)
+	{
+		std::copy_n(Value.begin(), std::min(size_t(BS_COUNT), Value.size()), BoxSymbols);
+	}));
+
 	// По умолчанию - брать плагины из основного каталога
 	LoadPlug.MainPluginDir = true;
 	LoadPlug.PluginsPersonal = true;

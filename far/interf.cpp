@@ -126,7 +126,6 @@ static CONSOLE_CURSOR_INFO InitialCursorInfo;
 
 static SMALL_RECT windowholder_rect;
 
-WCHAR Oem2Unicode[256];
 WCHAR BoxSymbols[BS_COUNT];
 
 COORD InitSize={};
@@ -264,21 +263,9 @@ static bool ConsoleScrollHook(const Manager::Key& key)
 	return false;
 }
 
-static void RegisterConsoleScrollHook()
+void InitConsole()
 {
-	static bool registered = false;
-	if (!registered)
-	{
-		Global->WindowManager->AddGlobalKeyHandler(ConsoleScrollHook);
-		registered = true;
-	}
-}
-
-void InitConsole(int FirstInit)
-{
-	RegisterConsoleScrollHook();
-
-	InitRecodeOutTable();
+	static bool FirstInit = true;
 
 	if (FirstInit)
 	{
@@ -290,12 +277,15 @@ void InitConsole(int FirstInit)
 			static const auto ConIn = os::OpenConsoleInputBuffer();
 			SetStdHandle(STD_INPUT_HANDLE, ConIn.native_handle());
 		}
+
 		if(!console.GetMode(console.GetOutputHandle(), Mode))
 		{
 			static const auto ConOut = os::OpenConsoleActiveScreenBuffer();
 			SetStdHandle(STD_OUTPUT_HANDLE, ConOut.native_handle());
 			SetStdHandle(STD_ERROR_HANDLE, ConOut.native_handle());
 		}
+
+		Global->WindowManager->AddGlobalKeyHandler(ConsoleScrollHook);
 	}
 
 	console.SetControlHandler(CtrlHandler, true);
@@ -346,6 +336,8 @@ void InitConsole(int FirstInit)
 	Global->ScrBuf->FillBuf();
 
 	consoleicons::instance().setFarIcons();
+
+	FirstInit = false;
 }
 
 void CloseConsole()
@@ -697,54 +689,6 @@ void GetRealCursorPos(SHORT& X,SHORT& Y)
 	Y=CursorPosition.Y;
 }
 
-void InitRecodeOutTable()
-{
-	for (size_t i=0; i<std::size(Oem2Unicode); i++)
-	{
-		char c = static_cast<char>(i);
-		MultiByteToWideChar(CP_OEMCP, MB_USEGLYPHCHARS, &c, 1, &Oem2Unicode[i], 1);
-	}
-
-	if (Global->Opt->CleanAscii)
-	{
-		std::fill_n(Oem2Unicode, size_t(L' '), L'.');
-
-		Oem2Unicode[0x07]=L'*';
-		Oem2Unicode[0x10]=L'>';
-		Oem2Unicode[0x11]=L'<';
-		Oem2Unicode[0x15]=L'$';
-		Oem2Unicode[0x16]=L'-';
-		Oem2Unicode[0x18]=L'|';
-		Oem2Unicode[0x19]=L'V';
-		Oem2Unicode[0x1A]=L'>';
-		Oem2Unicode[0x1B]=L'<';
-		Oem2Unicode[0x1E]=L'X';
-		Oem2Unicode[0x1F]=L'X';
-		Oem2Unicode[0x7F]=L'.';
-		Oem2Unicode[0xFF]=L' ';
-	}
-
-	const auto& ApplyNoGraphics = [](wchar_t* Buffer)
-	{
-		std::fill(Buffer + BS_V1, Buffer + BS_LT_H1V1 + 1, L'+');
-
-		Buffer[BS_V1] = L'|';
-		Buffer[BS_V2] = L'|';
-		Buffer[BS_H1] = L'-';
-		Buffer[BS_H2] = L'=';
-	};
-
-	// перед [пере]инициализацией восстановим буфер
-	std::copy_n(Global->Opt->strBoxSymbols.Get().begin(), std::min(std::size(BoxSymbols), Global->Opt->strBoxSymbols.size()), BoxSymbols);
-
-	if (Global->Opt->NoGraphics)
-	{
-		ApplyNoGraphics(Oem2Unicode);
-		ApplyNoGraphics(BoxSymbols);
-	}
-}
-
-
 void Text(point Where, const FarColor& Color, string_view const Str)
 {
 	CurColor=Color;
@@ -1014,8 +958,8 @@ bool ScrollBarEx3(UINT X1, UINT Y1, UINT Length, unsigned long long Start, unsig
 		return false;
 
 	std::vector<wchar_t> Buffer(Length, BoxSymbols[BS_X_B0]);
-	Buffer.front() = Oem2Unicode[0x1E];
-	Buffer.back() = Oem2Unicode[0x1F];
+	Buffer.front() = L'\x25B2';
+	Buffer.back() = L'\x25BC';
 
 	const auto FieldBegin = Buffer.begin() + 1;
 	const auto FieldEnd = Buffer.end() - 1;
@@ -1046,7 +990,7 @@ bool ScrollBarEx3(UINT X1, UINT Y1, UINT Length, unsigned long long Start, unsig
 		}
 	}
 
-	std::fill(SliderBegin, SliderEnd, BoxSymbols[BS_X_B2]);
+	std::fill(SliderBegin, SliderEnd, BoxSymbols[BS_X_DB]);
 
 	GotoXY(X1, Y1);
 	VText({ Buffer.data(), Buffer.size() });
@@ -1307,12 +1251,6 @@ void fix_coordinates(rectangle& Where)
 	Where.top = std::clamp(Where.top, 0, static_cast<int>(ScrY));
 	Where.right = std::clamp(Where.right, 0, static_cast<int>(ScrX));
 	Where.bottom = std::clamp(Where.bottom, 0, static_cast<int>(ScrY));
-}
-
-void SetVidChar(wchar_t& Char)
-{
-	if (Char < L'\x20' || Char == L'\x7f')
-		Char = Oem2Unicode[Char];
 }
 
 void AdjustConsoleScreenBufferSize(bool TransitionFromFullScreen)

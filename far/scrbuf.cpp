@@ -128,9 +128,7 @@ void ScreenBuf::Write(int X, int Y, range<const FAR_CHAR_INFO*> Text)
 
 	for (size_t i = 0; i != Text.size(); ++i)
 	{
-		auto& Element = Buf[Y][X + i];
-		Element = Text[i];
-		SetVidChar(Element.Char);
+		Buf[Y][X + i] = Text[i];
 	}
 
 	SBFlags.Clear(SBFLAGS_FLUSHED);
@@ -273,14 +271,11 @@ void ScreenBuf::FillRect(rectangle Where, const FAR_CHAR_INFO& Info)
 
 	SCOPED_ACTION(os::critical_section_lock)(CS);
 
-	auto CI = Info;
-	SetVidChar(CI.Char);
-
 	fix_coordinates(Where);
 
-	for_submatrix(Buf, Where, [&CI](FAR_CHAR_INFO& Element)
+	for_submatrix(Buf, Where, [&Info](FAR_CHAR_INFO& Element)
 	{
-		Element = CI;
+		Element = Info;
 	});
 
 	SBFlags.Clear(SBFLAGS_FLUSHED);
