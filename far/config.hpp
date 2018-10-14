@@ -750,8 +750,6 @@ public:
 	BoolOption ShowPanelFree;
 	BoolOption PanelDetailedJunction;
 	BoolOption ShowUnknownReparsePoint;
-	BoolOption HighlightColumnSeparator;
-	BoolOption DoubleGlobalColumnSeparator;
 
 	BoolOption ShowPanelScrollbar;
 	BoolOption ShowMenuScrollbar;

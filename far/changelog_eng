@@ -3,6 +3,11 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 14.10.2018 13:21:57 +0100 - build 5287
+
+1. Removed added in 2145 options "Highlight column separators" and "Double stripe separators".
+   Separators always use Panel.Box colour and doubled between stripes.
+
 drkns 14.10.2018 02:29:18 +0100 - build 5286
 
 1. Removed option "-a Disable display of characters with codes 0 - 31 and 255".

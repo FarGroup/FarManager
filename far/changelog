@@ -1,3 +1,8 @@
+drkns 14.10.2018 13:21:57 +0100 - build 5287
+
+1. Убраны добавленные в 2145 опции "Highlight column separators" и "Double stripe separators".
+   Разделители всегда используют цвет Panel.Box и удваиваются между полосами.
+
 drkns 14.10.2018 02:29:18 +0100 - build 5286
 
 1. Опции "-a Disable display of characters with codes 0 - 31 and 255" больше нет.

@@ -235,8 +235,6 @@ void Options::PanelSettings()
 	Builder.AddCheckbox(lng::MConfigShowScreensNumber, ShowScreensNumber);
 	Builder.AddCheckbox(lng::MConfigShowSortMode, ShowSortMode);
 	Builder.AddCheckbox(lng::MConfigShowDotsInRoot, ShowDotsInRoot);
-	Builder.AddCheckbox(lng::MConfigHighlightColumnSeparator, HighlightColumnSeparator);
-	Builder.AddCheckbox(lng::MConfigDoubleStripeSeparator, DoubleGlobalColumnSeparator);
 	Builder.AddOKCancel();
 
 	if (Builder.ShowDialog())
@@ -1841,10 +1839,8 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeyPanelInfo,              L"InfoUserNameFormat"sv,            InfoPanel.UserNameFormat, NameUserPrincipal},
 		{FSSF_PRIVATE,           NKeyPanelInfo,              L"ShowCDInfo"sv,                    InfoPanel.ShowCDInfo, true},
 		{FSSF_PRIVATE,           NKeyPanelInfo,              L"ShowPowerStatus"sv,               InfoPanel.ShowPowerStatus, false},
-		{FSSF_PRIVATE,           NKeyPanelLayout,            L"ColoredGlobalColumnSeparator"sv,  HighlightColumnSeparator, true},
 		{FSSF_PANELLAYOUT,       NKeyPanelLayout,            L"ColumnTitles"sv,                  ShowColumnTitles, true},
 		{FSSF_PANELLAYOUT,       NKeyPanelLayout,            L"DetailedJunction"sv,              PanelDetailedJunction, false},
-		{FSSF_PRIVATE,           NKeyPanelLayout,            L"DoubleGlobalColumnSeparator"sv,   DoubleGlobalColumnSeparator, false},
 		{FSSF_PRIVATE,           NKeyPanelLayout,            L"FreeInfo"sv,                      ShowPanelFree, false},
 		{FSSF_PRIVATE,           NKeyPanelLayout,            L"ScreensNumber"sv,                 ShowScreensNumber, 1},
 		{FSSF_PRIVATE,           NKeyPanelLayout,            L"Scrollbar"sv,                     ShowPanelScrollbar, false},

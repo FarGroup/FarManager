@@ -2298,30 +2298,6 @@ upd:"Show \"..\" in root folders"
 "Mostra \"..\" Nella Cartella Principale"
 "Показувати \"..\" в кореневих каталогах"
 
-MConfigHighlightColumnSeparator
-"Подсвечивать разделители колонок"
-"Highlight column separators"
-"Zvýrazňovat oddělovače sloupců"
-"Spaltentrennzeichen hinterlegen"
-upd:"Highlight column separators"
-upd:"Highlight column separators"
-"Resaltar separador de columnas"
-"Zvýrazňovať oddeľovače stĺpcov"
-"Evidenzia Separatori Di Colonna"
-"Підсвічувати роздільники колонок"
-
-MConfigDoubleStripeSeparator
-"Удваивать разделители полос"
-"Double stripe separators"
-upd:"Dvojité oddělovače hlavních sloupců"
-upd:"Globale Spaltentrennzeichen verdoppeln"
-upd:"Double stripe separators"
-upd:"Double stripe separators"
-upd:"Separador de columna doble"
-"Zdvojený oddeľovač pruhov"
-upd:"Raddoppia Il Separatore di Banda"
-"Подвоювати роздільники шпальт"
-
 MConfigInterfaceTitle
 l:
 "Настройки интерфейса"

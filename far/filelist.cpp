@@ -7403,7 +7403,7 @@ void FileList::ShowFileList(bool Fast)
 		ColumnPos += m_ViewSettings.PanelColumns[I].width;
 		GotoXY(static_cast<int>(ColumnPos), m_Where.top);
 
-		bool DoubleLine = Global->Opt->DoubleGlobalColumnSeparator && (!((I+1)%m_ColumnsInStripe));
+		const auto DoubleLine = !((I + 1) % m_ColumnsInStripe);
 
 		BoxText(BoxSymbols[DoubleLine?BS_T_H2V2:BS_T_H2V1]);
 
@@ -7695,7 +7695,7 @@ void FileList::ShowSelectedSize()
 			ColumnPos += m_ViewSettings.PanelColumns[I].width;
 			GotoXY(static_cast<int>(ColumnPos), m_Where.bottom - 2);
 
-			bool DoubleLine = Global->Opt->DoubleGlobalColumnSeparator && (!((I+1)%m_ColumnsInStripe));
+			const auto DoubleLine = !((I + 1) % m_ColumnsInStripe);
 			BoxText(BoxSymbols[DoubleLine?BS_B_H1V2:BS_B_H1V1]);
 			ColumnPos++;
 		}
@@ -8095,17 +8095,10 @@ void FileList::HighlightBorder(int Level, int ListPos) const
 	else
 	{
 		const auto FileColor = GetShowColor(ListPos, true);
-		if (Global->Opt->HighlightColumnSeparator)
-		{
-			SetColor(FileColor);
-		}
-		else
-		{
-			auto Color = colors::PaletteColorToFarColor(COL_PANELBOX);
-			Color.BackgroundColor = FileColor.BackgroundColor;
-			Color.SetBg4Bit(FileColor.IsBg4Bit());
-			SetColor(Color);
-		}
+		auto Color = colors::PaletteColorToFarColor(COL_PANELBOX);
+		Color.BackgroundColor = FileColor.BackgroundColor;
+		Color.SetBg4Bit(FileColor.IsBg4Bit());
+		SetColor(Color);
 	}
 }
 
@@ -8558,7 +8551,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 				if (K==ColumnCount-1)
 					BoxText(CurX + ColumnWidth == m_Where.right? BoxSymbols[BS_V2] : L' ');
 				else
-					BoxText(ShowStatus ? L' ':BoxSymbols[(Global->Opt->DoubleGlobalColumnSeparator && Level == m_ColumnsInStripe)?BS_V2:BS_V1]);
+					BoxText(ShowStatus? L' ' : BoxSymbols[Level == m_ColumnsInStripe? BS_V2 : BS_V1]);
 
 				if (!ShowStatus)
 					SetColor(COL_PANELTEXT);

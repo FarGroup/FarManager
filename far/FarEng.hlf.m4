@@ -2552,15 +2552,6 @@ $ #Settings dialog: panel#
   #root folders#            lists. Pressing #Enter# on this item opens
                           ~Change drive menu~@DriveDlg@.
 
-  #Highlight column#        If this option is on, internal column separators
-  #separators#              are displayed in the list item's color.
-                          Otherwise, the color of the outer frames is used.
-
-  #Double stripe#           If this option is on, panel stripes are separated
-  #separators#              by double frames; otherwise, by single frames.
-                          For the explanation of panel stripes see
-                          ~Customizing file panel view modes~@PanelViewModes@.
-
 @TreeSettings
 $ #Tree settings#
   #Auto change folder#      If turned on, moving cursor on the ~tree panel~@TreePanel@
