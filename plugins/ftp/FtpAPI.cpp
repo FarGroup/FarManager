@@ -816,7 +816,7 @@ BOOL ParseDirLine(Connection *Connect,BOOL AllFiles,FTPFileInfo* p)
 		if(p->FileType == NET_SKIP ||
 		        !CurName[0] ||
 		        StrCmp(CurName,".") == 0 ||
-		        !AllFiles && StrCmp(CurName,"..") == 0)
+		        /*!AllFiles &&*/ StrCmp(CurName,"..") == 0)
 			continue;
 
 		//Correct attrs
