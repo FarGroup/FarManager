@@ -3,7 +3,7 @@
 
 #include "Int.h"
 
-BOOL ParseDirLine(Connection *Connect,BOOL AllFiles,FTPFileInfo* lpFindFileData);
+static BOOL ParseDirLine(Connection *Connect, FTPFileInfo* lpFindFileData);
 
 //--------------------------------------------------------------------------------
 BOOL FtpKeepAlive(Connection *hConnect)
@@ -95,8 +95,7 @@ BOOL FtpFindFirstFile(Connection *hConnect, LPCSTR lpszSearchFile,FTPFileInfo* l
 {
 	Assert(hConnect && "FtpFindFirstFile");
 	String Command;
-	int    AllFiles = StrCmp(lpszSearchFile,"*")==0 ||
-	                  StrCmp(lpszSearchFile,"*.*")==0;
+	int    AllFiles = StrCmp(lpszSearchFile,"*")==0 || StrCmp(lpszSearchFile,"*.*")==0;
 	int    FromCache = 0;
 
 	if(ResetCache && *ResetCache == TRUE)
@@ -155,14 +154,14 @@ BOOL FtpFindFirstFile(Connection *hConnect, LPCSTR lpszSearchFile,FTPFileInfo* l
 	if(AllFiles && !FromCache)
 		hConnect->CacheAdd();
 
-	return ParseDirLine(hConnect,AllFiles,lpFindFileData);
+	return ParseDirLine(hConnect, lpFindFileData);
 }
 
 
 BOOL FtpFindNextFile(Connection *hConnect,FTPFileInfo* lpFindFileData)
 {
 	Assert(hConnect && "FtpFindNextFile");
-	return ParseDirLine(hConnect,TRUE,lpFindFileData);
+	return ParseDirLine(hConnect, lpFindFileData);
 }
 
 BOOL FtpGetCurrentDirectory(Connection *hConnect,String& s)
@@ -706,9 +705,9 @@ WORD FTP::SelectServerType(WORD Type)
 		return ((WORD)rc) == 0 ? FTP_TYPE_DETECT : ((WORD)rc-2);
 }
 
-BOOL ParseDirLine(Connection *Connect,BOOL AllFiles,FTPFileInfo* p)
+static BOOL ParseDirLine(Connection *Connect, FTPFileInfo* p)
 {
-	PROC(("ParseDirLine", "%p,%d", Connect, AllFiles))
+	PROC(("ParseDirLine", "%p", Connect))
 	String        Line, Line1;
 	FTPDirList    dl;
 	FTPServerInfo si;
@@ -813,10 +812,7 @@ BOOL ParseDirLine(Connection *Connect,BOOL AllFiles,FTPFileInfo* p)
 		//Skip entryes
 		char *CurName = FTP_FILENAME(p);
 
-		if(p->FileType == NET_SKIP ||
-		        !CurName[0] ||
-		        StrCmp(CurName,".") == 0 ||
-		        /*!AllFiles &&*/ StrCmp(CurName,"..") == 0)
+		if(p->FileType==NET_SKIP || !CurName[0] || StrCmp(CurName,".")==0 || StrCmp(CurName,"..")==0)
 			continue;
 
 		//Correct attrs
