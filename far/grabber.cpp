@@ -45,7 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "global.hpp"
 #include "colormix.hpp"
-//#include "scrbuf.hpp"
 
 monitored<bool> Grabber::m_StreamSelection;
 
@@ -249,15 +248,15 @@ void Grabber::DisplayObject()
 				}
 
 				Destination.BackgroundColor = colors::alpha_value(CurColor.BackgroundColor) | (
-					CurColor.Flags & FCF_BG_4BIT?
-						~colors::index_value(CurColor.BackgroundColor) :
-						~colors::color_value(CurColor.BackgroundColor)
+					CurColor.IsBg4Bit()?
+						colors::index_value(~colors::index_value(CurColor.BackgroundColor)) :
+						colors::color_value(~colors::color_value(CurColor.BackgroundColor))
 					);
 
 				Destination.ForegroundColor = colors::alpha_value(CurColor.ForegroundColor) | (
-					CurColor.Flags & FCF_FG_4BIT?
-						~colors::index_value(CurColor.ForegroundColor) :
-						~colors::color_value(CurColor.ForegroundColor)
+					CurColor.IsFg4Bit()?
+						colors::index_value(~colors::index_value(CurColor.ForegroundColor)) :
+						colors::color_value(~colors::color_value(CurColor.ForegroundColor))
 					);
 			}
 		}

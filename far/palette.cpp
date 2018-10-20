@@ -38,6 +38,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "plugin.hpp"
 
+#include "format.hpp"
+
 static const struct ColorsInit
 {
 	string_view Name;
@@ -237,25 +239,69 @@ void palette::CopyTo(FarColor* Destination, size_t Size) const
 	std::copy(ALL_CONST_RANGE(CurrentPalette), Destination);
 }
 
+static palette::custom_colors CustomColors;
+
+static string CustomLabel(size_t Index)
+{
+	return format(L"CustomColor{0}", Index);
+}
+
 void palette::Load()
 {
 	for_each_cnt(RANGE(CurrentPalette, i, size_t index)
 	{
 		ConfigProvider().ColorsCfg()->GetValue(Init[index].Name, i);
 	});
+
+	for (size_t i = 0; i != std::size(CustomColors); ++i)
+	{
+		FarColor Color;
+		ConfigProvider().ColorsCfg()->GetValue(CustomLabel(i), Color);
+		CustomColors[i] = Color.BackgroundColor;
+	}
+
 	PaletteChanged = false;
+	CustomColorsChanged = false;
 }
 
 void palette::Save(bool always)
 {
-	if (!PaletteChanged && !always)
+	if (!PaletteChanged && !CustomColorsChanged && !always)
 		return;
 
 	SCOPED_ACTION(auto)(ConfigProvider().ColorsCfg()->ScopedTransaction());
 
-	for_each_cnt(CONST_RANGE(CurrentPalette, i, size_t index)
+	if (PaletteChanged)
 	{
-		ConfigProvider().ColorsCfg()->SetValue(Init[index].Name, i);
-	});
-	PaletteChanged = false;
+		for_each_cnt(CONST_RANGE(CurrentPalette, i, size_t index)
+		{
+			ConfigProvider().ColorsCfg()->SetValue(Init[index].Name, i);
+		});
+		PaletteChanged = false;
+	}
+
+	if (CustomColorsChanged)
+	{
+		for (size_t i = 0; i != std::size(CustomColors); ++i)
+		{
+			FarColor Color;
+			Color.BackgroundColor = CustomColors[i];
+			ConfigProvider().ColorsCfg()->SetValue(CustomLabel(i), Color);
+		}
+		CustomColorsChanged = false;
+	}
+}
+
+palette::custom_colors palette::GetCustomColors()
+{
+	return CustomColors;
+}
+
+void palette::SetCustomColors(const palette::custom_colors& Colors)
+{
+	if (CustomColors == Colors)
+		return;
+
+	CustomColors = Colors;
+	CustomColorsChanged = true;
 }

@@ -216,7 +216,7 @@ void FileFilter::FilterEdit()
 		}
 	}
 
-	const auto ExitCode=FilterList->RunEx([&](int Msg, void *param)
+	FilterList->RunEx([&](int Msg, void *param)
 	{
 		if (Msg==DN_LISTHOTKEY)
 			return 1;

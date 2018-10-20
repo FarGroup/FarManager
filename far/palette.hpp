@@ -50,10 +50,15 @@ public:
 	const FarColor& operator[](size_t Index) const {return CurrentPalette[Index];}
 	size_t size() const {return CurrentPalette.size();}
 
+	using custom_colors = std::array<COLORREF, 16>;
+	custom_colors GetCustomColors();
+	void SetCustomColors(const custom_colors& Colors);
+
 private:
 	void Reset(bool Black);
 	std::vector<FarColor> CurrentPalette;
-	bool PaletteChanged;
+	bool PaletteChanged{};
+	bool CustomColorsChanged{};
 };
 
 #endif // PALETTE_HPP_8CFE8272_39B6_4198_9046_E94FEAD9832C

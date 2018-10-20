@@ -1,3 +1,13 @@
+drkns 20.10.2018 23:14:28 +0100 - build 5288
+
+1. И снова здравствуй, радуга: продолжение build 2070 семь лет спустя:
+   - В Interface settings добавлена опция "Use Virtual Terminal for rendering".
+   - В диалог выбора цвета добавлена кнопка "Advanced".
+   - Исправлены баги с комбинированием цветов.
+   Иными словами - счастливые обладатели Windows 10 теперь могут наслаждаться труколором без посредников и не отходя от кассы.
+
+2. Workaround для https://github.com/Microsoft/console/issues/281.
+
 drkns 14.10.2018 13:21:57 +0100 - build 5287
 
 1. Убраны добавленные в 2145 опции "Highlight column separators" и "Double stripe separators".

@@ -7409,9 +7409,11 @@ void FileList::ShowFileList(bool Fast)
 
 		if (Global->Opt->ShowColumnTitles)
 		{
-			FarColor c = colors::PaletteColorToFarColor(COL_PANELBOX);
-			c.BackgroundColor = colors::PaletteColorToFarColor(COL_PANELCOLUMNTITLE).BackgroundColor;
-			SetColor(c);
+			const auto ColumnTitleColor = colors::PaletteColorToFarColor(COL_PANELCOLUMNTITLE);
+			auto Color = colors::PaletteColorToFarColor(COL_PANELBOX);
+			Color.BackgroundColor = ColumnTitleColor.BackgroundColor;
+			Color.SetBg4Bit(ColumnTitleColor.IsBg4Bit());
+			SetColor(Color);
 
 			GotoXY(static_cast<int>(ColumnPos), m_Where.top + 1);
 			BoxText(BoxSymbols[DoubleLine?BS_V2:BS_V1]);

@@ -78,6 +78,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_sort.hpp"
 #include "global.hpp"
 #include "locale.hpp"
+#include "console.hpp"
 
 #include "platform.env.hpp"
 
@@ -325,6 +326,7 @@ void Options::InterfaceSettings()
 	Builder.AddCheckbox(lng::MConfigCopyTimeRule, CMOpt.CopyTimeRule);
 	Builder.AddCheckbox(lng::MConfigDeleteTotal, DelOpt.ShowTotal);
 	Builder.AddCheckbox(lng::MConfigPgUpChangeDisk, PgUpChangeDisk);
+	Builder.AddCheckbox(lng::MConfigUseVirtualTerminalForRendering, VirtualTerminalRendering);
 	Builder.AddCheckbox(lng::MConfigClearType, ClearType);
 	DialogItemEx* SetIconCheck = Builder.AddCheckbox(lng::MConfigSetConsoleIcon, SetIcon);
 	DialogItemEx* SetAdminIconCheck = Builder.AddCheckbox(lng::MConfigSetAdminConsoleIcon, SetAdminIcon);
@@ -1674,6 +1676,11 @@ Options::Options():
 		std::copy_n(Value.begin(), std::min(size_t(BS_COUNT), Value.size()), BoxSymbols);
 	}));
 
+	VirtualTerminalRendering.SetCallback(option::notifier([](bool const Value)
+	{
+		console.EnableVirtualTerminal(Value);
+	}));
+
 	// По умолчанию - брать плагины из основного каталога
 	LoadPlug.MainPluginDir = true;
 	LoadPlug.PluginsPersonal = true;
@@ -1785,6 +1792,7 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeyInterface,              L"DelShowSelected"sv,               DelOpt.ShowSelected, 10},
 		{FSSF_PRIVATE,           NKeyInterface,              L"DelShowTotal"sv,                  DelOpt.ShowTotal, false},
 		{FSSF_PRIVATE,           NKeyInterface,              L"AltF9"sv,                         AltF9, true},
+		{FSSF_PRIVATE,           NKeyInterface,              L"VirtualTerminalRendering"sv,      VirtualTerminalRendering, false},
 		{FSSF_PRIVATE,           NKeyInterface,              L"ClearType"sv,                     ClearType, true},
 		{FSSF_PRIVATE,           NKeyInterface,              L"CopyShowTotal"sv,                 CMOpt.CopyShowTotal, true},
 		{FSSF_PRIVATE,           NKeyInterface,              L"CtrlPgUp"sv,                      PgUpChangeDisk, 1},

@@ -851,7 +851,8 @@ public:
 	       консольного окна и обратно.*/
 	BoolOption AltF9;
 
-	BoolOption ClearType;
+	BoolOption VirtualTerminalRendering;
+	Bool3Option ClearType;
 
 	Bool3Option PgUpChangeDisk;
 	BoolOption ShowDotsInRoot;

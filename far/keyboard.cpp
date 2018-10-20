@@ -1039,7 +1039,14 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 		return ProcessFocusEvent(rec->Event.FocusEvent.bSetFocus != FALSE);
 	}
 
-	if (rec->EventType==WINDOW_BUFFER_SIZE_EVENT || IsConsoleSizeChanged())
+	if (
+		// Legitimate event, but skip if the size isn't changed to filter out Windows 10 rubbish (see https://github.com/Microsoft/console/issues/281)
+		(rec->EventType == WINDOW_BUFFER_SIZE_EVENT && rec->Event.WindowBufferSizeEvent.dwSize.X && rec->Event.WindowBufferSizeEvent.dwSize.Y && IsConsoleSizeChanged()) ||
+		// Fake event, generated internally
+		(rec->EventType == WINDOW_BUFFER_SIZE_EVENT && !rec->Event.WindowBufferSizeEvent.dwSize.X && !rec->Event.WindowBufferSizeEvent.dwSize.Y) ||
+		// Size changed
+		IsConsoleSizeChanged()
+	)
 	{
 		// Do not use rec->Event.WindowBufferSizeEvent.dwSize here - we need a 'virtual' size
 		COORD Size;
@@ -2264,7 +2271,15 @@ unsigned int CalcKeyCode(const INPUT_RECORD* rec, bool RealKey, bool* NotMacros)
 
 	if(const auto MappedKey = GetDirectlyMappedKey(KeyCode))
 	{
-		return Modif | MappedKey;
+		const auto Result = Modif | MappedKey;
+
+		if (Result == KEY_ESC && console.IsViewportShifted())
+		{
+			console.ResetPosition();
+			return KEY_NONE;
+		}
+		else
+			return Result;
 	}
 
 	if (!IntKeyState.CtrlPressed() && !IntKeyState.AltPressed() && (KeyCode >= VK_OEM_1 && KeyCode <= VK_OEM_8) && !Char)

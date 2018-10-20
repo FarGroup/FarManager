@@ -157,6 +157,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <DbgHelp.h>
 #include <dwmapi.h>
 #include <restartmanager.h>
+#include <commdlg.h>
 
 #ifdef _MSC_VER
 # include <ntstatus.h>

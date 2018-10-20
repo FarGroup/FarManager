@@ -913,7 +913,11 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 		ConsoleCP = console.GetInputCodepage();
 		ConsoleOutputCP = console.GetOutputCodepage();
 		FlushInputBuffer();
-		ChangeConsoleMode(console.GetInputHandle(), InitialConsoleMode);
+
+		ChangeConsoleMode(console.GetInputHandle(), InitialConsoleMode.Input);
+		ChangeConsoleMode(console.GetOutputHandle(), InitialConsoleMode.Output);
+		ChangeConsoleMode(console.GetErrorHandle(), InitialConsoleMode.Error);
+
 		console.GetWindowRect(ConsoleWindowRect);
 		console.GetSize(ConsoleSize);
 

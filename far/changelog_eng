@@ -3,6 +3,16 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 20.10.2018 23:14:28 +0100 - build 5288
+
+1. Hello again, rainbow: continuation of build 2070 after seven years.
+   - Added a new option "Use Virtual Terminal for rendering" to Interface settings.
+   - Added "Advanced" button to Color dialog.
+   - Fixed bugs related to colors combination.
+   In other words - happy Windows 10 owners now can enjoy TrueColor without intermediaries and right on the spot.
+
+2. Workaround for https://github.com/Microsoft/console/issues/281.
+
 drkns 14.10.2018 13:21:57 +0100 - build 5287
 
 1. Removed added in 2145 options "Highlight column separators" and "Double stripe separators".

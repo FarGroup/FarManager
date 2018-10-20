@@ -41,11 +41,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception.hpp"
 #include "global.hpp"
 
+#include "common/2d/algorithm.hpp"
 #include "common/enum_substrings.hpp"
 #include "common/function_traits.hpp"
 #include "common/io.hpp"
 #include "common/range.hpp"
 #include "common/scope_exit.hpp"
+
+#include "format.hpp"
+
+static bool sEnableVirtualTerminal;
 
 static void override_stream_buffers()
 {
@@ -402,120 +407,306 @@ namespace console_detail
 		return Result;
 	}
 
-	bool console::ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_RECT& ReadRegion) const
+	bool console::ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, const SMALL_RECT& ReadRegionRelative) const
 	{
 		if (ExternalConsole.Imports.pReadOutput)
 		{
 			const COORD SizeCoord = { static_cast<SHORT>(Buffer.width()), static_cast<SHORT>(Buffer.height()) };
+			auto ReadRegion = ReadRegionRelative;
 			return ExternalConsole.Imports.pReadOutput(Buffer.data(), SizeCoord, BufferCoord, &ReadRegion) != FALSE;
 		}
 
-		int Delta = Global->Opt->WindowMode? GetDelta() : 0;
+		const int Delta = Global->Opt->WindowMode? GetDelta() : 0;
+		auto ReadRegion = ReadRegionRelative;
 		ReadRegion.Top += Delta;
 		ReadRegion.Bottom += Delta;
 
-		COORD BufferSize = { static_cast<SHORT>(Buffer.width()), static_cast<SHORT>(Buffer.height()) };
+		const rectangle SubRect{ BufferCoord.X, BufferCoord.Y, BufferCoord.X + (ReadRegion.Right - ReadRegion.Left + 1) - 1, BufferCoord.Y + (ReadRegion.Bottom - ReadRegion.Top + 1) - 1 };
 
-		// skip unused region
-		const size_t Offset = BufferCoord.Y * BufferSize.X;
-		matrix<CHAR_INFO> ConsoleBuffer(BufferSize.Y - BufferCoord.Y, BufferSize.X);
+		std::vector<CHAR_INFO> ConsoleBuffer(SubRect.width() * SubRect.height());
 
-		BufferSize.Y -= BufferCoord.Y;
-		BufferCoord.Y = 0;
+		const COORD BufferSize{ static_cast<SHORT>(SubRect.width()), static_cast<SHORT>(SubRect.height()) };
 
-		if (BufferSize.X*BufferSize.Y * sizeof(CHAR_INFO) > MAXSIZE)
+		const auto& ReadOutput = [](CHAR_INFO* const Buffer, COORD const BufferSize, SMALL_RECT& ReadRegion)
 		{
-			const auto SavedY = BufferSize.Y;
-			BufferSize.Y = std::max(static_cast<int>(MAXSIZE / (BufferSize.X * sizeof(CHAR_INFO))), 1);
-			size_t Height = ReadRegion.Bottom - ReadRegion.Top + 1;
-			int Start = ReadRegion.Top;
-			SMALL_RECT SavedReadRegion = ReadRegion;
-			for (size_t i = 0; i < Height; i += BufferSize.Y)
+			return ReadConsoleOutput(::console.GetOutputHandle(), Buffer, BufferSize, {}, &ReadRegion) != FALSE;
+		};
+
+		if (BufferSize.X * BufferSize.Y * sizeof(CHAR_INFO) > MAXSIZE)
+		{
+			const auto HeightStep = std::max(MAXSIZE / (BufferSize.X * sizeof(CHAR_INFO)), size_t(1));
+
+			const size_t Height = ReadRegion.Bottom - ReadRegion.Top + 1;
+
+			for (size_t i = 0; i < Height; i += HeightStep)
 			{
-				ReadRegion = SavedReadRegion;
-				ReadRegion.Top = static_cast<SHORT>(Start + i);
-				if (!ReadConsoleOutput(GetOutputHandle(), ConsoleBuffer[i].data(), BufferSize, BufferCoord, &ReadRegion))
+				auto PartialReadRegion = ReadRegion;
+				PartialReadRegion.Top += static_cast<SHORT>(i);
+				PartialReadRegion.Bottom = std::min(ReadRegion.Bottom, static_cast<SHORT>(PartialReadRegion.Top + HeightStep - 1));
+				const COORD PartialBufferSize{ BufferSize.X, static_cast<SHORT>(PartialReadRegion.Bottom - PartialReadRegion.Top + 1) };
+				if (!ReadOutput(ConsoleBuffer.data() + i * PartialBufferSize.X, PartialBufferSize, PartialReadRegion))
 					return false;
 			}
-			BufferSize.Y = SavedY;
 		}
 		else
 		{
-			if (!ReadConsoleOutput(GetOutputHandle(), ConsoleBuffer.data(), BufferSize, BufferCoord, &ReadRegion))
+			auto ReadRegionCopy = ReadRegion;
+			if (!ReadOutput(ConsoleBuffer.data(), BufferSize, ReadRegionCopy))
 				return false;
 		}
 
-		auto& ConsoleBufferVector = ConsoleBuffer.vector();
-		std::transform(ALL_CONST_RANGE(ConsoleBufferVector), Buffer.data() + Offset, [](const auto& i)
+		auto ConsoleBufferIterator = ConsoleBuffer.cbegin();
+		for_submatrix(Buffer, SubRect, [&](FAR_CHAR_INFO& i)
 		{
-			return FAR_CHAR_INFO{ i.Char.UnicodeChar, colors::ConsoleColorToFarColor(i.Attributes) };
+			const auto& Cell = *ConsoleBufferIterator++;
+			i = { Cell.Char.UnicodeChar, colors::ConsoleColorToFarColor(Cell.Attributes) };
 		});
-
-		if (Global->Opt->WindowMode)
-		{
-			ReadRegion.Top -= Delta;
-			ReadRegion.Bottom -= Delta;
-		}
 
 		return true;
 	}
 
-	bool console::WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_RECT& WriteRegion) const
+	static const int vt_color[]
+	{
+		0, // black
+		4, // blue
+		2, // green
+		6, // cyan
+		1, // red
+		5, // magenta
+		3, // yellow
+		7, // white
+	};
+
+	static void make_vt_attributes(const FarColor& Attributes, string& Str, std::pair<bool, FarColor>& LastColor)
+	{
+		append(Str, L"\033["sv);
+
+		if (Attributes.IsFg4Bit())
+		{
+			Str += Attributes.ForegroundColor & FOREGROUND_INTENSITY ? L'9' : L'3';
+			Str += L'0' + vt_color[colors::color_value(Attributes.ForegroundColor) & ~FOREGROUND_INTENSITY];
+		}
+		else
+		{
+			const auto& c = Attributes.ForegroundRGBA;
+			Str += format(L"38;2;{0};{1};{2}", c.r, c.g, c.b);
+		}
+
+		Str += L';';
+
+		if (Attributes.IsBg4Bit())
+		{
+			append(Str, Attributes.BackgroundColor & FOREGROUND_INTENSITY ? L"10"sv : L"4"sv);
+			Str += L'0' + vt_color[colors::color_value(Attributes.BackgroundColor) & ~FOREGROUND_INTENSITY];
+		}
+		else
+		{
+			const auto& c = Attributes.BackgroundRGBA;
+			Str += format(L"48;2;{0};{1};{2}", c.r, c.g, c.b);
+		}
+
+		if (Attributes.Flags & FCF_FG_UNDERLINE)
+		{
+			if (!LastColor.first || !(LastColor.second.Flags & FCF_FG_UNDERLINE))
+				Str += L";4";
+		}
+		else
+		{
+			if (LastColor.first && LastColor.second.Flags & FCF_FG_UNDERLINE)
+				Str += L";24";
+		}
+
+		Str += L'm';
+	}
+
+	static void make_vt_sequence(range<const FAR_CHAR_INFO*> Input, string& Str, std::pair<bool, FarColor>& LastColor)
+	{
+		for (const auto& i: Input)
+		{
+			if (!LastColor.first || i.Attributes != LastColor.second)
+			{
+				make_vt_attributes(i.Attributes, Str, LastColor);
+				LastColor = { true, i.Attributes};
+			}
+
+			Str += ReplaceControlCharacter(i.Char);
+		}
+	}
+
+	class console::implementation
+	{
+	public:
+		static bool WriteVT(const matrix<FAR_CHAR_INFO>& Buffer, rectangle const SubRect, const SMALL_RECT& WriteRegion)
+		{
+			const auto Out = ::console.GetOutputHandle();
+
+			CONSOLE_SCREEN_BUFFER_INFO csbi;
+			if (!GetConsoleScreenBufferInfo(Out, &csbi))
+				return false;
+
+			COORD SavedCursorPosition;
+			if (!::console.GetCursorRealPosition(SavedCursorPosition))
+				return false;
+
+			CONSOLE_CURSOR_INFO SavedCursorInfo;
+			if (!::console.GetCursorInfo(SavedCursorInfo))
+				return false;
+
+			if (
+				// Hide cursor
+				!::console.SetCursorInfo({1}) ||
+				// Move the viewport down
+				!::console.SetCursorRealPosition({ 0, static_cast<SHORT>(csbi.dwSize.Y - 1) }) ||
+				// Set cursor position within the viewport
+				!::console.SetCursorRealPosition({ WriteRegion.Left, WriteRegion.Top }))
+				return false;
+
+			SCOPE_EXIT
+			{
+				// Move the viewport down
+				::console.SetCursorRealPosition({ 0, static_cast<SHORT>(csbi.dwSize.Y - 1) });
+				// Restore cursor position within the viewport
+				::console.SetCursorRealPosition(SavedCursorPosition);
+				// Restore cursor
+				::console.SetCursorInfo(SavedCursorInfo);
+				// Restore buffer relative position
+				if (csbi.srWindow.Left || csbi.srWindow.Bottom != csbi.dwSize.Y - 1)
+					::console.SetWindowRect(csbi.srWindow);
+			};
+
+			COORD CursorPosition{ WriteRegion.Left, WriteRegion.Top };
+
+			if (Global->Opt->WindowMode)
+			{
+				CursorPosition.Y -= ::console.GetDelta();
+
+				if (CursorPosition.Y < 0)
+				{
+					// Drawing above the viewport
+					CursorPosition.Y = 0;
+				}
+			}
+
+			string Str;
+
+			// TODO: optional
+			std::pair<bool, FarColor> LastColor;
+
+			for (short i = SubRect.top; i <= SubRect.bottom; ++i)
+			{
+				if (i != SubRect.top)
+					Str += format(L"\033[{0};{1}H", CursorPosition.Y + 1 + (i - SubRect.top), CursorPosition.X + 1);
+
+				make_vt_sequence(make_range(Buffer[i].data() + SubRect.left, Buffer[i].data() + SubRect.right + 1), Str, LastColor);
+			}
+
+			append(Str, L"\033[0m"sv);
+
+			return ::console.Write(Str);
+		}
+
+		static bool WriteNT(const matrix<FAR_CHAR_INFO>& Buffer, rectangle const SubRect, const SMALL_RECT& WriteRegion)
+		{
+			std::vector<CHAR_INFO> ConsoleBuffer;
+			ConsoleBuffer.reserve(SubRect.width() * SubRect.height());
+
+			for_submatrix(Buffer, SubRect, [&](const FAR_CHAR_INFO& i)
+			{
+				ConsoleBuffer.emplace_back(CHAR_INFO{ ReplaceControlCharacter(i.Char), colors::FarColorToConsoleColor(i.Attributes) });
+			});
+
+			const COORD BufferSize{ static_cast<SHORT>(SubRect.width()), static_cast<SHORT>(SubRect.height()) };
+
+			const auto& WriteOutputImpl = [](CHAR_INFO* const Buffer, COORD const BufferSize, SMALL_RECT& WriteRegion)
+			{
+				return WriteConsoleOutput(::console.GetOutputHandle(), Buffer, BufferSize, {}, &WriteRegion) != FALSE;
+			};
+
+			const auto& WriteOutput = [WriteOutputImpl](CHAR_INFO* const Buffer, COORD const BufferSize, SMALL_RECT& WriteRegion)
+			{
+#if 0
+				assert(BufferSize.X == WriteRegion.Right - WriteRegion.Left + 1);
+				assert(BufferSize.Y == WriteRegion.Bottom - WriteRegion.Top + 1);
+
+
+				for (auto&i : make_range(Buffer, BufferSize.X * BufferSize.Y))
+				{
+					i.Attributes = (i.Attributes & FCF_RAWATTR_MASK) | LOBYTE(~i.Attributes);
+				}
+
+				auto WriteRegionCopy = WriteRegion;
+				WriteOutputImpl(Buffer, BufferSize, WriteRegionCopy);
+				Sleep(50);
+
+				for (auto&i : make_range(Buffer, BufferSize.X * BufferSize.Y))
+					i.Attributes = (i.Attributes & FCF_RAWATTR_MASK) | LOBYTE(~i.Attributes);
+#endif
+				return WriteOutputImpl(Buffer, BufferSize, WriteRegion) != FALSE;
+			};
+
+			if (BufferSize.X * BufferSize.Y * sizeof(CHAR_INFO) > MAXSIZE)
+			{
+				const auto HeightStep = std::max(MAXSIZE / (BufferSize.X * sizeof(CHAR_INFO)), size_t(1));
+
+				const size_t Height = WriteRegion.Bottom - WriteRegion.Top + 1;
+
+				for (size_t i = 0; i < Height; i += HeightStep)
+				{
+					auto PartialWriteRegion = WriteRegion;
+					PartialWriteRegion.Top += static_cast<SHORT>(i);
+					PartialWriteRegion.Bottom = std::min(WriteRegion.Bottom, static_cast<SHORT>(PartialWriteRegion.Top + HeightStep - 1));
+					const COORD PartialBufferSize{ BufferSize.X, static_cast<SHORT>(PartialWriteRegion.Bottom - PartialWriteRegion.Top + 1) };
+					if (!WriteOutput(ConsoleBuffer.data() + i * PartialBufferSize.X, PartialBufferSize, PartialWriteRegion))
+						return false;
+				}
+			}
+			else
+			{
+				auto WriteRegionCopy = WriteRegion;
+				if (!WriteOutput(ConsoleBuffer.data(), BufferSize, WriteRegionCopy))
+					return false;
+			}
+
+			return true;
+		}
+
+		static bool SetTextAttributesVT(const FarColor& Attributes)
+		{
+			// For fallback
+			SetTextAttributesNT(Attributes);
+
+			string Str;
+			std::pair<bool, FarColor> Dummy;
+			make_vt_attributes(Attributes, Str, Dummy);
+			return ::console.Write(Str);
+		}
+
+		static bool SetTextAttributesNT(const FarColor& Attributes)
+		{
+			return SetConsoleTextAttribute(::console.GetOutputHandle(), colors::FarColorToConsoleColor(Attributes)) != FALSE;
+		}
+	};
+
+	bool console::WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, const SMALL_RECT& WriteRegionRelative) const
 	{
 		if (ExternalConsole.Imports.pWriteOutput)
 		{
 			const COORD BufferSize = { static_cast<SHORT>(Buffer.width()), static_cast<SHORT>(Buffer.height()) };
+			auto WriteRegion = WriteRegionRelative;
 			return ExternalConsole.Imports.pWriteOutput(Buffer.data(), BufferSize, BufferCoord, &WriteRegion) != FALSE;
 		}
 
-		int Delta = Global->Opt->WindowMode? GetDelta() : 0;
+		const int Delta = Global->Opt->WindowMode? GetDelta() : 0;
+		auto WriteRegion = WriteRegionRelative;
 		WriteRegion.Top += Delta;
 		WriteRegion.Bottom += Delta;
 
-		COORD BufferSize = { static_cast<SHORT>(Buffer.width()), static_cast<SHORT>(Buffer.height()) };
+		const rectangle SubRect{ BufferCoord.X, BufferCoord.Y, BufferCoord.X + (WriteRegion.Right - WriteRegion.Left + 1) - 1, BufferCoord.Y + (WriteRegion.Bottom - WriteRegion.Top + 1) - 1 };
 
-		// skip unused region
-		const size_t Offset = BufferCoord.Y * BufferSize.X;
-		const size_t Size = BufferSize.X * (BufferSize.Y - BufferCoord.Y);
+		DWORD Mode = 0;
+		const auto IsVT = sEnableVirtualTerminal && GetMode(GetOutputHandle(), Mode) && Mode & ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 
-		matrix<CHAR_INFO> ConsoleBuffer(BufferSize.Y - BufferCoord.Y, BufferSize.X);
-		std::transform(Buffer.data() + Offset, Buffer.data() + Offset + Size, ConsoleBuffer.data(), [](const auto& i)
-		{
-			return CHAR_INFO{ ReplaceControlCharacter(i.Char), colors::FarColorToConsoleColor(i.Attributes) };
-		});
-
-		BufferSize.Y -= BufferCoord.Y;
-		BufferCoord.Y = 0;
-
-		if (BufferSize.X*BufferSize.Y * sizeof(CHAR_INFO) > MAXSIZE)
-		{
-			const auto SavedY = BufferSize.Y;
-			BufferSize.Y = static_cast<SHORT>(std::max(static_cast<int>(MAXSIZE / (BufferSize.X * sizeof(CHAR_INFO))), 1));
-			size_t Height = WriteRegion.Bottom - WriteRegion.Top + 1;
-			int Start = WriteRegion.Top;
-			SMALL_RECT SavedWriteRegion = WriteRegion;
-			for (size_t i = 0; i < Height; i += BufferSize.Y)
-			{
-				WriteRegion = SavedWriteRegion;
-				WriteRegion.Top = static_cast<SHORT>(Start + i);
-				if (!WriteConsoleOutput(GetOutputHandle(), ConsoleBuffer[i].data(), BufferSize, BufferCoord, &WriteRegion))
-					return false;
-			}
-			BufferSize.Y = SavedY;
-		}
-		else
-		{
-			if (!WriteConsoleOutput(GetOutputHandle(), ConsoleBuffer.data(), BufferSize, BufferCoord, &WriteRegion))
-				return false;
-		}
-
-		if (Global->Opt->WindowMode)
-		{
-			WriteRegion.Top -= Delta;
-			WriteRegion.Bottom -= Delta;
-		}
-
-		return true;
+		return (IsVT? implementation::WriteVT : implementation::WriteNT)(Buffer, SubRect, WriteRegion);
 	}
 
 	bool console::Read(std::vector<wchar_t>& Buffer, size_t& Size) const
@@ -596,7 +787,10 @@ namespace console_detail
 		if (ExternalConsole.Imports.pSetTextAttributes)
 			return ExternalConsole.Imports.pSetTextAttributes(&Attributes) != FALSE;
 
-		return SetConsoleTextAttribute(GetOutputHandle(), colors::FarColorToConsoleColor(Attributes)) != FALSE;
+		DWORD Mode;
+		const auto IsVT = sEnableVirtualTerminal && GetMode(GetOutputHandle(), Mode) && Mode & ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+
+		return (IsVT? implementation::SetTextAttributesVT : implementation::SetTextAttributesNT)(Attributes);
 	}
 
 	bool console::GetCursorInfo(CONSOLE_CURSOR_INFO& ConsoleCursorInfo) const
@@ -611,15 +805,12 @@ namespace console_detail
 
 	bool console::GetCursorPosition(COORD& Position) const
 	{
-		CONSOLE_SCREEN_BUFFER_INFO ConsoleScreenBufferInfo;
-		if (!GetConsoleScreenBufferInfo(GetOutputHandle(), &ConsoleScreenBufferInfo))
+		if (!GetCursorRealPosition(Position))
 			return false;
 
-		Position = ConsoleScreenBufferInfo.dwCursorPosition;
 		if (Global->Opt->WindowMode)
-		{
 			Position.Y -= GetDelta();
-		}
+
 		return true;
 	}
 
@@ -627,14 +818,13 @@ namespace console_detail
 	{
 		if (Global->Opt->WindowMode)
 		{
-			ResetPosition();
 			COORD Size = {};
 			GetSize(Size);
 			Position.X = std::min(Position.X, static_cast<SHORT>(Size.X - 1));
 			Position.Y = std::max(static_cast<SHORT>(0), Position.Y);
 			Position.Y += GetDelta();
 		}
-		return SetConsoleCursorPosition(GetOutputHandle(), Position) != FALSE;
+		return SetCursorRealPosition(Position);
 	}
 
 	bool console::FlushInputBuffer() const
@@ -802,13 +992,7 @@ namespace console_detail
 			process = true;
 		}
 
-		if (process)
-		{
-			SetWindowRect(csbi.srWindow);
-			return true;
-		}
-
-		return false;
+		return process && SetWindowRect(csbi.srWindow);
 	}
 
 	bool console::ScrollWindowToBegin() const
@@ -901,6 +1085,58 @@ namespace console_detail
 		SMALL_RECT ScrollRectangle = { 0, 0, static_cast<SHORT>(csbi.dwSize.X - 1), static_cast<SHORT>(csbi.dwSize.Y - (ScrY + 1) - 1) };
 		COORD DestinationOigin = { 0, static_cast<SHORT>(-static_cast<SHORT>(NumLines)) };
 		return ScrollScreenBuffer(ScrollRectangle, nullptr, DestinationOigin, Fill) != FALSE;
+	}
+
+	bool console_detail::console::IsViewportVisible() const
+	{
+		CONSOLE_SCREEN_BUFFER_INFO csbi;
+		if (!GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi))
+			return false;
+
+		const auto Height = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+		const auto Width = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+
+		return csbi.srWindow.Bottom >= csbi.dwSize.Y - Height && csbi.srWindow.Left < Width;
+	}
+
+	bool console_detail::console::IsViewportShifted() const
+	{
+		CONSOLE_SCREEN_BUFFER_INFO csbi;
+		if (!GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi))
+			return false;
+
+		return csbi.srWindow.Left || csbi.srWindow.Bottom + 1 != csbi.dwSize.Y;
+	}
+
+	bool console::GetPalette(std::array<COLORREF, 16>& Palette) const
+	{
+		CONSOLE_SCREEN_BUFFER_INFOEX csbi{ sizeof(csbi) };
+		if (!imports.GetConsoleScreenBufferInfoEx(GetOutputHandle(), &csbi))
+			return false;
+
+		std::copy(ALL_CONST_RANGE(csbi.ColorTable), Palette.begin());
+
+		return true;
+	}
+
+	void console::EnableVirtualTerminal(bool const Value)
+	{
+		sEnableVirtualTerminal = Value;
+	}
+
+	bool console::GetCursorRealPosition(COORD& Position) const
+	{
+		CONSOLE_SCREEN_BUFFER_INFO ConsoleScreenBufferInfo;
+		if (!GetConsoleScreenBufferInfo(GetOutputHandle(), &ConsoleScreenBufferInfo))
+			return false;
+
+		Position = ConsoleScreenBufferInfo.dwCursorPosition;
+		return true;
+	}
+
+	bool console::SetCursorRealPosition(COORD Position) const
+	{
+		return SetConsoleCursorPosition(GetOutputHandle(), Position) != FALSE;
 	}
 }
 

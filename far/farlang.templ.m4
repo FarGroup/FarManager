@@ -2443,6 +2443,19 @@ MConfigPgUpChangeDisk
 "Usa [CTRL-Pag&Su] Per Cambiare Unità"
 "Використовувати Ctrl+PgUp для вибору диска"
 
+MConfigUseVirtualTerminalForRendering
+"Использовать Virtual Terminal для рендеринга"
+"Use Virtual Terminal for rendering"
+upd:"Use Virtual Terminal for rendering"
+upd:"Use Virtual Terminal for rendering"
+upd:"Use Virtual Terminal for rendering"
+upd:"Use Virtual Terminal for rendering"
+upd:"Use Virtual Terminal for rendering"
+upd:"Use Virtual Terminal for rendering"
+upd:"Use Virtual Terminal for rendering"
+"Використовувати Virtual Terminal для рендерингу"
+
+
 MConfigClearType
 "Перер&исовка с поддержкой ClearType (может быть медленной)"
 "Cl&earType friendly redraw (can be slow)"
@@ -18750,6 +18763,18 @@ MSetColorBackground
 "Po&zadie"
 "&Sfondo"
 "&Фон"
+
+MSetColorAdvanced
+"Дополнительно"
+"Advanced"
+"Pokročilé"
+"Erweitert"
+"Haladó"
+"Zaawansowane"
+"Avanzado"
+"Pokročilé"
+"Avanzate"
+"Додатково"
 
 MSetColorForeTransparent
 "&Прозрачный"

@@ -269,7 +269,7 @@ private:
 	bool SetItemRect(DialogItemEx& item, const SMALL_RECT& Rect);
 	void SetDropDownOpened(int Status) { DropDownOpened=Status; }
 	void ProcessCenterGroup();
-	size_t ProcessRadioButton(size_t);
+	size_t ProcessRadioButton(size_t CurRB, bool UncheckAll);
 	bool ProcessOpenComboBox(FARDIALOGITEMTYPES Type,DialogItemEx *CurItem,size_t CurFocusPos);
 	bool ProcessMoveDialog(DWORD Key);
 	bool Do_ProcessTab(bool Next);

@@ -95,10 +95,10 @@ namespace console_detail
 		bool PeekInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsRead) const;
 		bool ReadInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsRead) const;
 		bool WriteInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsWritten) const;
-		bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_RECT& ReadRegion) const;
-		bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, SMALL_RECT& ReadRegion) const { return ReadOutput(Buffer, {}, ReadRegion); }
-		bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_RECT& WriteRegion) const;
-		bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, SMALL_RECT& WriteRegion) const { return WriteOutput(Buffer, {}, WriteRegion); }
+		bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, const SMALL_RECT& ReadRegion) const;
+		bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, const SMALL_RECT& ReadRegion) const { return ReadOutput(Buffer, {}, ReadRegion); }
+		bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, const SMALL_RECT& WriteRegion) const;
+		bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, const SMALL_RECT& WriteRegion) const { return WriteOutput(Buffer, {}, WriteRegion); }
 		bool Read(std::vector<wchar_t>& Buffer, size_t& Size) const;
 		bool Write(string_view Str) const;
 		bool Commit() const;
@@ -144,9 +144,21 @@ namespace console_detail
 
 		bool ScrollNonClientArea(size_t NumLines, const FAR_CHAR_INFO& Fill) const;
 
+		bool IsViewportVisible() const;
+		bool IsViewportShifted() const;
+
+		bool GetPalette(std::array<COLORREF, 16>& Palette) const;
+
+		void EnableVirtualTerminal(bool Value);
+
 	private:
+		class implementation;
+		friend class implementation;
+
 		short GetDelta() const;
 		bool ScrollScreenBuffer(const SMALL_RECT& ScrollRectangle, const SMALL_RECT* ClipRectangle, COORD DestinationOrigin, const FAR_CHAR_INFO& Fill) const;
+		bool GetCursorRealPosition(COORD& Position) const;
+		bool SetCursorRealPosition(COORD Position) const;
 
 		HANDLE m_OriginalInputHandle;
 		mutable string m_Title;

@@ -3550,7 +3550,7 @@ bool Dialog::ProcessOpenComboBox(FARDIALOGITEMTYPES Type,DialogItemEx *CurItem, 
 	return true;
 }
 
-size_t Dialog::ProcessRadioButton(size_t CurRB)
+size_t Dialog::ProcessRadioButton(size_t CurRB, bool UncheckAll)
 {
 	size_t PrevRB=CurRB, I;
 
@@ -3585,7 +3585,7 @@ size_t Dialog::ProcessRadioButton(size_t CurRB)
 	while (I<Items.size() && Items[I].Type==DI_RADIOBUTTON &&
 	        !(Items[I].Flags & DIF_GROUP));
 
-	Items[CurRB].Selected=1;
+	Items[CurRB].Selected = !UncheckAll;
 
 	size_t ret = CurRB, focus = m_FocusPos;
 
@@ -3594,7 +3594,7 @@ size_t Dialog::ProcessRadioButton(size_t CurRB)
 	  посредством функции SendDlgMessage - в ней делается все!
 	*/
 	if (!SendMessage(DN_BTNCLICK, PrevRB, nullptr) ||
-		!SendMessage(DN_BTNCLICK,CurRB,ToPtr(1)))
+		!SendMessage(DN_BTNCLICK,CurRB,ToPtr(!UncheckAll)))
 	{
 		// вернем назад, если пользователь не захотел...
 		Items[CurRB].Selected=0;
@@ -3714,7 +3714,7 @@ bool Dialog::Do_ProcessSpace()
 	}
 	else if (Items[m_FocusPos].Type==DI_RADIOBUTTON)
 	{
-		m_FocusPos=ProcessRadioButton(m_FocusPos);
+		m_FocusPos=ProcessRadioButton(m_FocusPos, false);
 		ShowDialog();
 		return true;
 	}
@@ -5450,7 +5450,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			}
 			else if (Type == DI_RADIOBUTTON)
 			{
-				Param1=ProcessRadioButton(Param1);
+				Param1 = ProcessRadioButton(Param1, Param2 == ToPtr(BSTATE_3STATE));
 
 				if (DialogMode.Check(DMODE_SHOW))
 				{

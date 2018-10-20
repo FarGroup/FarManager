@@ -33,6 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 
 #include "config.hpp"
+#include "console.hpp"
 #include "string_utils.hpp"
 #include "global.hpp"
 
@@ -42,7 +43,6 @@ enum
 	ConsoleMask=0xf,
 	ConsoleBgShift=4,
 	ConsoleFgShift=0,
-	ConsoleExtraMask = 0xff00
 };
 
 namespace colors
@@ -137,7 +137,7 @@ WORD FarColorToConsoleColor(const FarColor& Color)
 
 	LastFlags = Color.Flags;
 
-	static BYTE IndexColors[2] = {};
+	static std::array<BYTE, 2> IndexColors{};
 
 	const struct
 	{
@@ -219,13 +219,16 @@ WORD FarColorToConsoleColor(const FarColor& Color)
 		*i.IndexColor = ToMask(R, RedMask) | ToMask(G, GreenMask) | ToMask(B, BlueMask) | ToMask(IntenseCount, IntensityMask);
 	}
 
-	if (color_value(data[0].Color) != color_value(data[1].Color) && IndexColors[0] == IndexColors[1])
+	auto FinalIndexColors = IndexColors;
+
+	if (color_value(data[0].Color) != color_value(data[1].Color) && FinalIndexColors[0] == FinalIndexColors[1])
 	{
 		// oops, unreadable
-		IndexColors[0] & IntensityMask? IndexColors[0] &= ~IntensityMask : IndexColors[1] |= IntensityMask;
+		// since background is more pronounced we try to adjust the foreground first
+		FinalIndexColors[1] & IntensityMask? FinalIndexColors[1] &= ~IntensityMask : FinalIndexColors[0] |= IntensityMask;
 	}
 
-	Result = (IndexColors[0] << ConsoleBgShift) | (IndexColors[1] << ConsoleFgShift) | (Color.Flags & ConsoleExtraMask);
+	Result = (FinalIndexColors[0] << ConsoleBgShift) | (FinalIndexColors[1] << ConsoleFgShift) | (Color.Flags & FCF_RAWATTR_MASK);
 
 	return Result;
 }
@@ -233,12 +236,41 @@ WORD FarColorToConsoleColor(const FarColor& Color)
 FarColor ConsoleColorToFarColor(WORD Color)
 {
 	FarColor NewColor;
-	static_assert(FCF_RAWATTR_MASK == ConsoleExtraMask);
-	NewColor.Flags = FCF_FG_4BIT | FCF_BG_4BIT | (Color & ConsoleExtraMask);
+	NewColor.Flags = FCF_FG_4BIT | FCF_BG_4BIT | (Color & FCF_RAWATTR_MASK);
 	NewColor.ForegroundColor = opaque((Color >> ConsoleFgShift) & ConsoleMask);
 	NewColor.BackgroundColor = opaque((Color >> ConsoleBgShift) & ConsoleMask);
 	NewColor.Reserved=nullptr;
 	return NewColor;
+}
+
+COLORREF ConsoleIndexToTrueColor(int Index)
+{
+	std::array<COLORREF, 16> Palette;
+	if (!console.GetPalette(Palette))
+	{
+		Palette =
+		{
+			//  BBGGRR
+			0x00000000, // black
+			0x00800000, // blue
+			0x00008000, // green
+			0x00808000, // cyan
+			0x00000080, // red
+			0x00800080, // magenta
+			0x00008080, // yellow
+			0x00C0C0C0, // white
+			0x00808080, // bright black
+			0x00FF0000, // bright blue
+			0x0000FF00, // bright green
+			0x00FFFF00, // bright cyan
+			0x000000FF, // bright red
+			0x00FF00FF, // bright magenta
+			0x0000FFFF, // bright yellow
+			0x00FFFFFF  // white
+		};
+	}
+
+	return opaque(Palette[Index & ConsoleMask]);
 }
 
 

@@ -132,7 +132,7 @@ COORD InitSize={};
 COORD CurSize={};
 SHORT ScrX=0,ScrY=0;
 SHORT PrevScrX=-1,PrevScrY=-1;
-DWORD InitialConsoleMode=0;
+console_mode InitialConsoleMode{};
 static SMALL_RECT InitWindowRect;
 static COORD InitialSize;
 
@@ -289,12 +289,15 @@ void InitConsole()
 	}
 
 	console.SetControlHandler(CtrlHandler, true);
-	console.GetMode(console.GetInputHandle(),InitialConsoleMode);
+
+	console.GetMode(console.GetInputHandle(),InitialConsoleMode.Input);
+	console.GetMode(console.GetOutputHandle(), InitialConsoleMode.Output);
+	console.GetMode(console.GetErrorHandle(), InitialConsoleMode.Error);
+
 	Global->strInitTitle = console.GetPhysicalTitle();
 	console.GetWindowRect(InitWindowRect);
 	console.GetSize(InitialSize);
 	console.GetCursorInfo(InitialCursorInfo);
-	SetFarConsoleMode();
 
 	if (FirstInit)
 	{
@@ -304,7 +307,9 @@ void InitConsole()
 
 		if(Global->Opt->WindowMode)
 		{
-			console.ResetPosition();
+			COORD Size;
+			if (console.GetSize(Size))
+			console.SetCursorPosition({0, static_cast<SHORT>(Size.Y - 1) });
 			AdjustConsoleScreenBufferSize(false);
 		}
 		else
@@ -332,6 +337,9 @@ void InitConsole()
 		}
 	}
 
+
+	SetFarConsoleMode();
+
 	UpdateScreenSize();
 	Global->ScrBuf->FillBuf();
 
@@ -345,7 +353,10 @@ void CloseConsole()
 	Global->ScrBuf->Flush();
 	MoveRealCursor(0, ScrY);
 	console.SetCursorInfo(InitialCursorInfo);
-	ChangeConsoleMode(console.GetInputHandle(), InitialConsoleMode);
+
+	ChangeConsoleMode(console.GetInputHandle(), InitialConsoleMode.Input);
+	ChangeConsoleMode(console.GetOutputHandle(), InitialConsoleMode.Output);
+	ChangeConsoleMode(console.GetErrorHandle(), InitialConsoleMode.Error);
 
 	console.SetTitle(Global->strInitTitle);
 	console.SetSize(InitialSize);
@@ -381,26 +392,26 @@ void SetFarConsoleMode(bool SetsActiveBuffer)
 {
 	// Inherit existing mode. We don't want to build these flags from scratch,
 	// as MS might introduce some new flags in future Windows versions.
-	auto Mode = InitialConsoleMode;
+	auto InputMode = InitialConsoleMode.Input;
 
 	// We need this one unconditionally
-	Mode |= ENABLE_WINDOW_INPUT;
+	InputMode |= ENABLE_WINDOW_INPUT;
 
 	// We don't need these guys unconditionally
-	Mode &= ~(ENABLE_PROCESSED_INPUT | ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT);
+	InputMode &= ~(ENABLE_PROCESSED_INPUT | ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT);
 
 	// And this one depends on interface settings
 	if (Global->Opt->Mouse)
 	{
-		Mode |= ENABLE_MOUSE_INPUT;
+		InputMode |= ENABLE_MOUSE_INPUT;
 
 		// Setting ENABLE_MOUSE_INPUT is not enough, we must also clear the ENABLE_QUICK_EDIT_MODE
-		Mode |= ENABLE_EXTENDED_FLAGS;
-		Mode &= ~ENABLE_QUICK_EDIT_MODE;
+		InputMode |= ENABLE_EXTENDED_FLAGS;
+		InputMode &= ~ENABLE_QUICK_EDIT_MODE;
 	}
 	else
 	{
-		Mode &= ~ENABLE_MOUSE_INPUT;
+		InputMode &= ~ENABLE_MOUSE_INPUT;
 	}
 
 	// Feature: if window rect is in unusual position (shifted up or right) - enable mouse selection
@@ -410,28 +421,51 @@ void SetFarConsoleMode(bool SetsActiveBuffer)
 			&& GetConsoleScreenBufferInfo(console.GetOutputHandle(), &csbi)
 			&& (csbi.srWindow.Bottom != csbi.dwSize.Y - 1 || csbi.srWindow.Left))
 		{
-			Mode &= ~ENABLE_MOUSE_INPUT;
-			Mode |= ENABLE_EXTENDED_FLAGS | ENABLE_QUICK_EDIT_MODE;
+			InputMode &= ~ENABLE_MOUSE_INPUT;
+			InputMode |= ENABLE_EXTENDED_FLAGS | ENABLE_QUICK_EDIT_MODE;
 		}
 	}
 
-	ChangeConsoleMode(console.GetInputHandle(), Mode);
+	ChangeConsoleMode(console.GetInputHandle(), InputMode);
 
 	if (SetsActiveBuffer)
 		console.SetActiveScreenBuffer(console.GetOutputHandle());
 
-	//востановим дефолтный режим вывода, а то есть такие проги что сбрасывают
-	ChangeConsoleMode(console.GetOutputHandle(), ENABLE_PROCESSED_OUTPUT|ENABLE_WRAP_AT_EOL_OUTPUT);
-	ChangeConsoleMode(console.GetErrorHandle(), ENABLE_PROCESSED_OUTPUT|ENABLE_WRAP_AT_EOL_OUTPUT);
+	static bool VirtualTerminalAttempted = false;
+	static bool VirtualTerminalSupported = false;
+
+	auto OutputMode = InitialConsoleMode.Output;
+
+	OutputMode |= ENABLE_PROCESSED_OUTPUT | ENABLE_WRAP_AT_EOL_OUTPUT;
+
+	if (VirtualTerminalSupported && Global->Opt->VirtualTerminalRendering)
+		OutputMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+
+	ChangeConsoleMode(console.GetOutputHandle(), OutputMode);
+	ChangeConsoleMode(console.GetErrorHandle(), OutputMode);
+
+
+	if (Global->Opt->VirtualTerminalRendering)
+		OutputMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+
+	if (!VirtualTerminalAttempted)
+	{
+		VirtualTerminalAttempted = true;
+
+		bool ResultOut = ChangeConsoleMode(console.GetOutputHandle(), OutputMode);
+		bool ResultErr = ChangeConsoleMode(console.GetErrorHandle(), OutputMode);
+
+		VirtualTerminalSupported = ResultOut || ResultErr;
+	}
 }
 
-void ChangeConsoleMode(HANDLE ConsoleHandle, DWORD Mode)
+bool ChangeConsoleMode(HANDLE ConsoleHandle, DWORD Mode)
 {
 	DWORD CurrentConsoleMode;
-	console.GetMode(ConsoleHandle, CurrentConsoleMode);
+	if (console.GetMode(ConsoleHandle, CurrentConsoleMode) && CurrentConsoleMode == Mode)
+		return true;
 
-	if (CurrentConsoleMode != Mode)
-		console.SetMode(ConsoleHandle, Mode);
+	return console.SetMode(ConsoleHandle, Mode);
 }
 
 void SaveConsoleWindowRect()
@@ -543,7 +577,7 @@ void ChangeVideoMode(int NumLines,int NumColumns)
 	}
 
 	UpdateScreenSize();
-	GenerateWINDOW_BUFFER_SIZE_EVENT(NumColumns,NumLines);
+	GenerateWINDOW_BUFFER_SIZE_EVENT();
 }
 
 bool IsConsoleSizeChanged()
@@ -554,19 +588,11 @@ bool IsConsoleSizeChanged()
 	return ConSize.Y != ScrY + 1 || ConSize.X != ScrX + 1;
 }
 
-void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx, int Sy)
+void GenerateWINDOW_BUFFER_SIZE_EVENT()
 {
-	COORD Size={};
-	if (Sx==-1 || Sy==-1)
-	{
-		console.GetSize(Size);
-	}
-	INPUT_RECORD Rec;
-	Rec.EventType=WINDOW_BUFFER_SIZE_EVENT;
-	Rec.Event.WindowBufferSizeEvent.dwSize.X=Sx==-1?Size.X:Sx;
-	Rec.Event.WindowBufferSizeEvent.dwSize.Y=Sy==-1?Size.Y:Sy;
+	INPUT_RECORD Rec{ WINDOW_BUFFER_SIZE_EVENT };
 	size_t Writes;
-	console.WriteInput(&Rec,1,Writes);
+	console.WriteInput(&Rec, 1, Writes);
 }
 
 void UpdateScreenSize()

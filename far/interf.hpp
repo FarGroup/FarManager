@@ -48,7 +48,14 @@ extern WCHAR BoxSymbols[];
 extern COORD InitSize, CurSize;
 extern SHORT ScrX,ScrY;
 extern SHORT PrevScrX,PrevScrY;
-extern DWORD InitialConsoleMode;
+
+extern struct console_mode
+{
+	DWORD Input;
+	DWORD Output;
+	DWORD Error;
+}
+InitialConsoleMode;
 
 // типы рамок
 enum
@@ -121,13 +128,13 @@ void ShowTimeInBackground();
 void InitConsole();
 void CloseConsole();
 void SetFarConsoleMode(bool SetsActiveBuffer = false);
-void ChangeConsoleMode(HANDLE ConsoleHandle, DWORD Mode);
+bool ChangeConsoleMode(HANDLE ConsoleHandle, DWORD Mode);
 void FlushInputBuffer();
 void SetVideoMode();
 void ChangeVideoMode(bool Maximize);
 void ChangeVideoMode(int NumLines,int NumColumns);
 void UpdateScreenSize();
-void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx=-1, int Sy=-1);
+void GenerateWINDOW_BUFFER_SIZE_EVENT();
 void SaveConsoleWindowRect();
 void RestoreConsoleWindowRect();
 

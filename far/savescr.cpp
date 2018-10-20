@@ -168,7 +168,6 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 		const auto IsExtraTop = WindowRect.second && !(WindowRect.first.Top == 0 && WindowRect.first.Bottom == ScrY);
 		const auto IsExtraRight = WindowRect.second && !(WindowRect.first.Left == 0 && WindowRect.first.Right == ScrX);
 
-		console.ResetPosition();
 		if (DesiredHeight != OriginalHeight)
 		{
 			matrix<FAR_CHAR_INFO> Tmp(abs(OriginalHeight - DesiredHeight), std::max(DesiredWidth, OriginalWidth));
@@ -188,7 +187,7 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 			}
 			else
 			{
-				SMALL_RECT WriteRegion = { 0, static_cast<SHORT>(DesiredHeight - OriginalHeight), static_cast<SHORT>(DesiredWidth - 1), -1 };
+				const SMALL_RECT WriteRegion{ 0, static_cast<SHORT>(DesiredHeight - OriginalHeight), static_cast<SHORT>(DesiredWidth - 1), -1 };
 				for (size_t i = 0; i != Tmp.height(); ++i)
 				{
 					std::copy_n(ScreenBuf[i].data(), Tmp.width(), Tmp[i].data());
@@ -215,7 +214,7 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 			}
 			else
 			{
-				SMALL_RECT WriteRegion = { static_cast<SHORT>(DesiredWidth), static_cast<SHORT>(DesiredHeight - OriginalHeight), static_cast<SHORT>(OriginalWidth - 1), static_cast<SHORT>(DesiredHeight - 1) };
+				const SMALL_RECT WriteRegion{ static_cast<SHORT>(DesiredWidth), static_cast<SHORT>(DesiredHeight - OriginalHeight), static_cast<SHORT>(OriginalWidth - 1), static_cast<SHORT>(DesiredHeight - 1) };
 				for (size_t i = 0; i != Tmp.height(); ++i)
 				{
 					if (static_cast<int>(i) < OriginalHeight)
