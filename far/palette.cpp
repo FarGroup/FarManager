@@ -256,8 +256,9 @@ void palette::Load()
 	for (size_t i = 0; i != std::size(CustomColors); ++i)
 	{
 		FarColor Color;
-		ConfigProvider().ColorsCfg()->GetValue(CustomLabel(i), Color);
-		CustomColors[i] = Color.BackgroundColor;
+		CustomColors[i] = ConfigProvider().ColorsCfg()->GetValue(CustomLabel(i), Color)?
+			Color.BackgroundColor :
+			RGB(255,255,255);
 	}
 
 	PaletteChanged = false;
