@@ -553,28 +553,20 @@ int ustring_Sleep(lua_State *L)
 
 void PushAttrString(lua_State *L, int attr)
 {
-	char buf[16], *p = buf;
-
-	if(attr & FILE_ATTRIBUTE_ARCHIVE)    *p++ = 'a';
-
-	if(attr & FILE_ATTRIBUTE_READONLY)   *p++ = 'r';
-
-	if(attr & FILE_ATTRIBUTE_HIDDEN)     *p++ = 'h';
-
-	if(attr & FILE_ATTRIBUTE_SYSTEM)     *p++ = 's';
-
-	if(attr & FILE_ATTRIBUTE_DIRECTORY)  *p++ = 'd';
-
-	if(attr & FILE_ATTRIBUTE_COMPRESSED) *p++ = 'c';
-
-	if(attr & FILE_ATTRIBUTE_OFFLINE)    *p++ = 'o';
-
-	if(attr & FILE_ATTRIBUTE_TEMPORARY)  *p++ = 't';
-
-	if(attr & FILE_ATTRIBUTE_SPARSE_FILE)   *p++ = 'p';
-
-	if(attr & FILE_ATTRIBUTE_REPARSE_POINT) *p++ = 'e';
-
+	char buf[32], *p = buf;
+	if (attr & FILE_ATTRIBUTE_ARCHIVE)             *p++ = 'a';
+	if (attr & FILE_ATTRIBUTE_COMPRESSED)          *p++ = 'c';
+	if (attr & FILE_ATTRIBUTE_DIRECTORY)           *p++ = 'd';
+	if (attr & FILE_ATTRIBUTE_REPARSE_POINT)       *p++ = 'e';
+	if (attr & FILE_ATTRIBUTE_HIDDEN)              *p++ = 'h';
+	if (attr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED) *p++ = 'i';
+	if (attr & FILE_ATTRIBUTE_ENCRYPTED)           *p++ = 'n';
+	if (attr & FILE_ATTRIBUTE_OFFLINE)             *p++ = 'o';
+	if (attr & FILE_ATTRIBUTE_SPARSE_FILE)         *p++ = 'p';
+	if (attr & FILE_ATTRIBUTE_READONLY)            *p++ = 'r';
+	if (attr & FILE_ATTRIBUTE_SYSTEM)              *p++ = 's';
+	if (attr & FILE_ATTRIBUTE_TEMPORARY)           *p++ = 't';
+	if (attr & FILE_ATTRIBUTE_VIRTUAL)             *p++ = 'v';
 	lua_pushlstring(L, buf, p-buf);
 }
 
@@ -592,16 +584,19 @@ int DecodeAttributes(const char* str)
 	{
 		char c = *str;
 
-		if(c == 'a' || c == 'A') attr |= FILE_ATTRIBUTE_ARCHIVE;
-		else if(c == 'r' || c == 'R') attr |= FILE_ATTRIBUTE_READONLY;
-		else if(c == 'h' || c == 'H') attr |= FILE_ATTRIBUTE_HIDDEN;
-		else if(c == 's' || c == 'S') attr |= FILE_ATTRIBUTE_SYSTEM;
-		else if(c == 'd' || c == 'D') attr |= FILE_ATTRIBUTE_DIRECTORY;
+		if     (c == 'a' || c == 'A') attr |= FILE_ATTRIBUTE_ARCHIVE;
 		else if(c == 'c' || c == 'C') attr |= FILE_ATTRIBUTE_COMPRESSED;
-		else if(c == 'o' || c == 'O') attr |= FILE_ATTRIBUTE_OFFLINE;
-		else if(c == 't' || c == 'T') attr |= FILE_ATTRIBUTE_TEMPORARY;
-		else if(c == 'p' || c == 'P') attr |= FILE_ATTRIBUTE_SPARSE_FILE;
+		else if(c == 'd' || c == 'D') attr |= FILE_ATTRIBUTE_DIRECTORY;
 		else if(c == 'e' || c == 'E') attr |= FILE_ATTRIBUTE_REPARSE_POINT;
+		else if(c == 'h' || c == 'H') attr |= FILE_ATTRIBUTE_HIDDEN;
+		else if(c == 'i' || c == 'I') attr |= FILE_ATTRIBUTE_NOT_CONTENT_INDEXED;
+		else if(c == 'n' || c == 'N') attr |= FILE_ATTRIBUTE_ENCRYPTED;
+		else if(c == 'o' || c == 'O') attr |= FILE_ATTRIBUTE_OFFLINE;
+		else if(c == 'p' || c == 'P') attr |= FILE_ATTRIBUTE_SPARSE_FILE;
+		else if(c == 'r' || c == 'R') attr |= FILE_ATTRIBUTE_READONLY;
+		else if(c == 's' || c == 'S') attr |= FILE_ATTRIBUTE_SYSTEM;
+		else if(c == 't' || c == 'T') attr |= FILE_ATTRIBUTE_TEMPORARY;
+		else if(c == 'v' || c == 'V') attr |= FILE_ATTRIBUTE_VIRTUAL;
 	}
 
 	return attr;

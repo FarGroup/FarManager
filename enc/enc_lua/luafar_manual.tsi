@@ -9383,7 +9383,7 @@ id=85
 lv=2
 dt=Text
 nm=tPluginPanelItem
-mtime=3602278950
+mtime=3749367769
 <article>
 #_<markdown>
 #_**`tPluginPanelItem`** is a table with the following predefined fields:
@@ -9420,11 +9420,14 @@ mtime=3602278950
 #_          d - directory
 #_          e - reparse point
 #_          h - hidden
+#_          i - not content indexed
+#_          n - encrypted
 #_          o - offline
 #_          p - sparse file
 #_          r - read only
 #_          s - system file
 #_          t - temporary
+#_          v - virtual
 #_
 #_1. **`LastWriteTime`**, **`LastAccessTime`**, **`CreationTime`**
 #_and **`ChangeTime`** are values measured in number of milliseconds

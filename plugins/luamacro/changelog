@@ -1,4 +1,8 @@
-﻿shmuel 12.10.2018 02:39:44 +0200 - build 669
+﻿shmuel 22.10.2018 11:41:37 +0200 - build 670
+
+1. LuaFAR: добавлена поддержка 3-х пропущенных файловых атрибутов (encrypted, not indexed, virtual).
+
+shmuel 12.10.2018 02:39:44 +0200 - build 669
 
 1. LuaFAR: добавлены функции: regex.exec, regex.execW;
            добавлены методы скомпилированного регекса: exec, execW;
