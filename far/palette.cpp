@@ -285,7 +285,7 @@ void palette::Save(bool always)
 	{
 		for (size_t i = 0; i != std::size(CustomColors); ++i)
 		{
-			FarColor Color;
+			FarColor Color{};
 			Color.BackgroundColor = CustomColors[i];
 			ConfigProvider().ColorsCfg()->SetValue(CustomLabel(i), Color);
 		}

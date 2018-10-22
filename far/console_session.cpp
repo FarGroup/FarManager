@@ -145,6 +145,8 @@ public:
 			ScrollScreen(1);
 		}
 
+		console.ResetPosition();
+
 		Global->WindowManager->Desktop()->TakeSnapshot();
 
 		m_Finalised = true;
