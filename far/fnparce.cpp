@@ -543,7 +543,7 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 		Item.X1 = 3;
 		Item.Y1 = 1;
 		Item.X2 = 72;
-		assign(Item.strData, DlgTitle);
+		Item.strData = DlgTitle;
 		DlgData.emplace_back(Item);
 	}
 
@@ -602,29 +602,29 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 				}
 			}
 
-			string TitleBuffer;
 			if (!Strings.Title.Sub.empty())
 			{
 				// Something between '(' and ')'
-				TitleBuffer = concat(Strings.Title.prefix(), ProcessMetasymbols(Strings.Title.Sub, SubstData), Strings.Title.suffix());
-				Strings.Title.All = TitleBuffer;
+				DlgData[DlgData.size() - 2].strData = os::env::expand(concat(Strings.Title.prefix(), ProcessMetasymbols(Strings.Title.Sub, SubstData), Strings.Title.suffix()));
 			}
-
-			DlgData[DlgData.size() - 2].strData = os::env::expand(Strings.Title.All);
+			else
+			{
+				DlgData[DlgData.size() - 2].strData = os::env::expand(Strings.Title.All);
+			}
 		}
 
 		if (!Strings.Text.All.empty())
 		{
 			// Something between '?' and '!'
-			string TextBuffer;
 			if (!Strings.Text.Sub.empty())
 			{
 				// Something between '(' and ')'
-				TextBuffer = concat(Strings.Text.prefix(), ProcessMetasymbols(Strings.Text.Sub, SubstData), Strings.Text.suffix());
-				Strings.Text.All = TextBuffer;
+				DlgData.back().strData = concat(Strings.Text.prefix(), ProcessMetasymbols(Strings.Text.Sub, SubstData), Strings.Text.suffix());
 			}
-
-			assign(DlgData.back().strData, Strings.Text.All);
+			else
+			{
+				DlgData.back().strData = Strings.Text.All;
+			}
 		}
 
 		Range.remove_prefix(SkipSize);
@@ -732,7 +732,7 @@ static bool SubstFileName(
 		SubstData.Another.Short.ListName = &ListNames->Another.ShortName;
 	}
 
-	assign(SubstData.CmdDir, CmdLineDir.empty()? Global->CtrlObject->CmdLine()->GetCurDir() : CmdLineDir);
+	SubstData.CmdDir = CmdLineDir.empty()? Global->CtrlObject->CmdLine()->GetCurDir() : CmdLineDir;
 
 	const auto& GetNameOnly = [](string_view Str)
 	{

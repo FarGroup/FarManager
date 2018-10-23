@@ -177,12 +177,6 @@ auto concat(args&&... Args)
 	return Str;
 }
 
-template<typename char_type>
-void assign(std::basic_string<char_type>& Str, const std::basic_string_view<char_type> View)
-{
-	Str.assign(ALL_CONST_RANGE(View));
-}
-
 namespace detail
 {
 	template<typename begin_iterator, typename end_iterator>

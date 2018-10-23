@@ -181,7 +181,7 @@ void Help::init(string_view const Topic, const wchar_t *Mask, unsigned long long
 
 	StackData->Flags=Flags;
 	StackData->strHelpMask = NullToEmpty(Mask); // сохраним маску файла
-	assign(StackData->strHelpTopic, Topic);
+	StackData->strHelpTopic = Topic;
 
 	if (Global->Opt->FullScreenHelp)
 		SetPosition({ 0, 0, ScrX, ScrY });
@@ -190,7 +190,7 @@ void Help::init(string_view const Topic, const wchar_t *Mask, unsigned long long
 
 	if (!ReadHelp(StackData->strHelpMask) && (Flags&FHELP_USECONTENTS))
 	{
-		assign(StackData->strHelpTopic, Topic);
+		StackData->strHelpTopic = Topic;
 
 		if (starts_with(StackData->strHelpTopic, HelpBeginLink))
 		{
@@ -376,7 +376,7 @@ bool Help::ReadHelp(const string& Mask)
 		{
 			if (FileIterator != EnumFileLines.end())
 			{
-				assign(strReadStr, FileIterator->Str);
+				strReadStr = FileIterator->Str;
 				++FileIterator;
 
 				if (InHeader)
@@ -1485,7 +1485,7 @@ bool Help::ProcessKey(const Manager::Key& Key)
 
 bool Help::JumpTopic(string_view const Topic)
 {
-	assign(StackData->strSelTopic, Topic);
+	StackData->strSelTopic = Topic;
 	return JumpTopic();
 }
 
@@ -1944,7 +1944,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 			Str = trim(Str);
 			if (!equal_icase(Str.substr(1), HelpContents))
 			{
-				assign(strCurTopic, Str);
+				strCurTopic = Str;
 				TopicFound=true;
 			}
 		}

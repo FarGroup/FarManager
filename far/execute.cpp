@@ -513,7 +513,7 @@ static string GetShellTypeFromExtension(string_view const FileName)
 	if (!GetShellType(Ext, Type))
 	{
 		// Type is absent, however, verbs could be specified right in the extension key
-		assign(Type, Ext);
+		Type = Ext;
 	}
 
 	return Type;
@@ -602,7 +602,7 @@ bool GetShellType(const string_view Ext, string& strType, const ASSOCIATIONTYPE 
 	{
 		if (aType == AT_URLPROTOCOL)
 		{
-			assign(strType, Ext);
+			strType = Ext;
 			return true;
 		}
 

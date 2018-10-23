@@ -73,7 +73,7 @@ void SimpleModal::Close(int Code)
 
 void SimpleModal::SetHelp(string_view const Topic)
 {
-	assign(m_HelpTopic, Topic);
+	m_HelpTopic = Topic;
 }
 
 void SimpleModal::ShowHelp() const

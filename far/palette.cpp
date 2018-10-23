@@ -293,12 +293,12 @@ void palette::Save(bool always)
 	}
 }
 
-palette::custom_colors palette::GetCustomColors()
+palette::custom_colors palette::GetCustomColors() const
 {
 	return CustomColors;
 }
 
-void palette::SetCustomColors(const palette::custom_colors& Colors)
+void palette::SetCustomColors(const custom_colors& Colors)
 {
 	if (CustomColors == Colors)
 		return;

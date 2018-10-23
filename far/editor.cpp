@@ -4735,7 +4735,7 @@ void Editor::Undo(int redo)
 
 				m_it_CurLine->SetCurPos(ud->m_StrPos);
 				// BUGBUG
-				ud->SetData(tmp.m_Type, string(ALL_CONST_RANGE(tmp.m_Str)), tmp.m_EOL, tmp.m_StrNum, tmp.m_StrPos);
+				ud->SetData(tmp.m_Type, tmp.m_Str, tmp.m_EOL, tmp.m_StrNum, tmp.m_StrPos);
 				break;
 			}
 		}

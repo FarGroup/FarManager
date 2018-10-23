@@ -59,7 +59,7 @@ string MakeTemp(string_view Prefix, bool const WithTempPath, string_view const U
 	}
 	else if(!UserTempPath.empty())
 	{
-		assign(strPath, UserTempPath);
+		strPath = UserTempPath;
 	}
 
 	AddEndSlash(strPath);

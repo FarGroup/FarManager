@@ -159,11 +159,9 @@ static void ParseMenu(UserMenu::menu_container& Menu, range<enum_file_lines::ite
 {
 	UserMenu::menu_container::value_type *MenuItem = nullptr;
 
-	string MenuStr;
 	for (auto i = FileStrings.begin(); i != FileStrings.end(); ++i)
 	{
-		assign(MenuStr, i->Str);
-		inplace::trim_right(MenuStr);
+		const auto MenuStr = trim_right(i->Str);
 
 		if (MenuStr.empty())
 			continue;
@@ -209,8 +207,7 @@ static void ParseMenu(UserMenu::menu_container& Menu, range<enum_file_lines::ite
 		}
 		else if (MenuItem)
 		{
-			inplace::trim_left(MenuStr);
-			MenuItem->Commands.emplace_back(MenuStr);
+			MenuItem->Commands.emplace_back(trim_left(MenuStr));
 		}
 	}
 }

@@ -155,7 +155,7 @@ void ShellMakeDir(Panel *SrcPanel)
 			EmptyList = false;
 			// TODO: almost the same code in dirmix::CreatePath()
 
-			assign(strOriginalDirName, i);
+			strOriginalDirName = i;
 			strDirName = ConvertNameToFull(i);
 			DeleteEndSlash(strDirName);
 			bool bSuccess = false;

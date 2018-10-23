@@ -106,7 +106,7 @@ bool GetLangParam(const os::fs::file& LangFile, string_view const ParamName, str
 
 			if (EqPos != string::npos)
 			{
-				assign(strParam1, i.Str.substr(EqPos + 1));
+				strParam1 = i.Str.substr(EqPos + 1);
 
 				if (strParam2)
 					strParam2->clear();
@@ -282,7 +282,7 @@ static void parse_lng_line(const string_view str, string& label, string& data, b
 	{
 		const auto LabelView = str.substr(3, str.size() - 3 - 1);
 		//-- //[Label=0]
-		assign(label, LabelView.substr(0, LabelView.find(L'=')));
+		label = LabelView.substr(0, LabelView.find(L'='));
 		return;
 	}
 
@@ -290,7 +290,7 @@ static void parse_lng_line(const string_view str, string& label, string& data, b
 	if (starts_with(str, L'"'))
 	{
 		have_data = true;
-		assign(data, str.substr(1));
+		data = str.substr(1);
 		if (!data.empty() && data.back() == L'"')
 			data.pop_back();
 		return;
@@ -302,10 +302,10 @@ static void parse_lng_line(const string_view str, string& label, string& data, b
 		const auto eq_pos = str.find(L'=');
 		if (eq_pos != string::npos && InRange(L'A', upper(str[0]), L'Z'))
 		{
-			assign(data, trim(str.substr(eq_pos + 1)));
+			data = trim(str.substr(eq_pos + 1));
 			if (data.size() > 1 && data[0] == L'"')
 			{
-				assign(label, trim(str.substr(0, eq_pos)));
+				label = trim(str.substr(0, eq_pos));
 				have_data = true;
 				data.pop_back();
 				data.erase(0, 1);

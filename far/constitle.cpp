@@ -98,7 +98,7 @@ static string& FarTitle()
 
 void ConsoleTitle::SetUserTitle(string_view const Title)
 {
-	assign(UserTitle(), Title);
+	UserTitle() = Title;
 }
 
 static os::critical_section TitleCS;
@@ -107,7 +107,7 @@ void ConsoleTitle::SetFarTitle(string_view const Title, bool Flush)
 {
 	SCOPED_ACTION(os::critical_section_lock)(TitleCS);
 
-	assign(FarTitle(), Title);
+	FarTitle() = Title;
 	Global->ScrBuf->SetTitle(UserTitle().empty()? FarTitle() + GetFarTitleAddons() : UserTitle());
 	if (Flush)
 	{

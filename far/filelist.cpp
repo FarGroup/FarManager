@@ -2944,7 +2944,7 @@ bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePa
 		}
 	}
 
-	assign(strFindDir, PointToName(m_CurDir));
+	strFindDir = PointToName(m_CurDir);
 	/*
 		// вот и зачем это? мы уже и так здесь, в Options.Folder
 		// + дальше по тексту strSetDir уже содержит полный путь
@@ -3902,7 +3902,7 @@ bool FileList::GetCurBaseName(string &strName, string &strShortName) const
 
 	if (m_PanelMode == panel_mode::PLUGIN_PANEL && !PluginsList.empty()) // для плагинов
 	{
-		assign(strName, PointToName(PluginsList.front()->m_HostFile));
+		strName = PointToName(PluginsList.front()->m_HostFile);
 		strShortName = strName;
 	}
 	else if (m_PanelMode == panel_mode::NORMAL_PANEL)
@@ -4417,7 +4417,7 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 					strQuotedName = GetCurDir();
 				}
 
-				assign(strQuotedName, PointToName(strQuotedName));
+				strQuotedName = PointToName(strQuotedName);
 			}
 		}
 
@@ -5150,7 +5150,7 @@ void FileList::ProcessCopyKeys(int Key)
 
 								if (m_CachedOpenPanelInfo.HostFile && *m_CachedOpenPanelInfo.HostFile)
 								{
-									assign(strDestPath, PointToName(m_CachedOpenPanelInfo.HostFile));
+									strDestPath = PointToName(m_CachedOpenPanelInfo.HostFile);
 									size_t pos = strDestPath.rfind(L'.');
 									if (pos != string::npos)
 										strDestPath.resize(pos);
@@ -5487,7 +5487,7 @@ void FileList::FileListToPluginItem(const FileListItem& fi, PluginPanelItemHolde
 	pi.AlternateFileName = MakeCopy(fi.AlternateFileName());
 	pi.CustomColumnData=fi.CustomColumnData;
 	pi.Description=fi.DizText; //BUGBUG???
-	pi.Owner = EmptyToNull(fi.IsOwnerRead()? fi.Owner(this).c_str() : L"");
+	pi.Owner = fi.IsOwnerRead()? EmptyToNull(fi.Owner(this).c_str()) : nullptr;
 }
 
 size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelItem* gpi) const
@@ -5884,7 +5884,7 @@ void FileList::PluginHostGetFiles()
 	if (((!AnotherPanel->IsVisible() || AnotherPanel->GetType() != panel_type::FILE_PANEL) &&
 	        !m_SelFileCount) || strDestPath.empty())
 	{
-		assign(strDestPath, PointToName(Data.FileName));
+		strDestPath = PointToName(Data.FileName);
 		// SVS: А зачем здесь велся поиск точки с начала?
 		size_t pos = strDestPath.rfind(L'.');
 		if (pos != string::npos)
@@ -7800,7 +7800,7 @@ bool FileList::ConvertName(const string_view SrcName, string& strDest, const int
 	{
 		if (SrcLength>MaxLength)
 		{
-			assign(strDest, SrcName.substr(SrcLength - MaxLength, MaxLength));
+			strDest = SrcName.substr(SrcLength - MaxLength, MaxLength);
 		}
 		else
 		{
@@ -8240,14 +8240,12 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 							string_view Name = m_ListData[ListPos].AlternateOrNormal(m_ShowShortNames);
 
-							string strNameCopy;
 							if (!(m_ListData[ListPos].Attributes & FILE_ATTRIBUTE_DIRECTORY) && (ViewFlags & COLUMN_NOEXTENSION))
 							{
 								const auto ExtPtr = PointToExt(Name);
 								if (!ExtPtr.empty())
 								{
-									assign(strNameCopy, Name.substr(0, Name.size() - ExtPtr.size()));
-									Name = strNameCopy;
+									Name.remove_suffix(ExtPtr.size());
 								}
 							}
 

@@ -871,7 +871,7 @@ namespace console_detail
 			for (const auto& AliasToken : enum_substrings(AliasesBuffer.data()))
 			{
 				const auto Pair = split_name_value(AliasToken);
-				ExeMap.emplace(string(Pair.first), string(Pair.second));
+				ExeMap.emplace(Pair.first, Pair.second);
 			}
 		}
 

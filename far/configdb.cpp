@@ -211,12 +211,7 @@ private:
 		return GetValueT<column_type::integer>(Key, Name, Value, Default, &SQLiteStmt::GetColInt64);
 	}
 
-	bool GetValue(const string_view Key, const string_view Name, string& Value, const wchar_t* const Default) const override
-	{
-		return GetValueT<column_type::string>(Key, Name, Value, Default, &SQLiteStmt::GetColText);
-	}
-
-	bool GetValue(const string_view Key, const string_view Name, string& Value, const string& Default) const override
+	bool GetValue(const string_view Key, const string_view Name, string& Value, string_view const Default) const override
 	{
 		return GetValueT<column_type::string>(Key, Name, Value, Default, &SQLiteStmt::GetColText);
 	}
@@ -1842,13 +1837,13 @@ private:
 		auto item = std::make_unique<AsyncWorkItem>();
 		item->DeleteId=DeleteId;
 		item->TypeHistory=TypeHistory;
-		item->HistoryName = string(HistoryName);
-		item->strName = string(Name);
+		item->HistoryName = HistoryName;
+		item->strName = Name;
 		item->Type=Type;
 		item->Lock=Lock;
-		item->strGuid = string(Guid);
-		item->strFile = string(File);
-		item->strData = string(Data);
+		item->strGuid = Guid;
+		item->strFile = File;
+		item->strData = Data;
 
 		WorkQueue.emplace(std::move(item));
 

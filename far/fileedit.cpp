@@ -2098,7 +2098,7 @@ void FileEditor::SetPluginTitle(const string* PluginTitle)
 
 bool FileEditor::SetFileName(const string_view NewFileName)
 {
-	assign(strFileName, NewFileName);
+	strFileName = NewFileName;
 
 	if (strFileName != msg(lng::MNewFileName))
 	{
@@ -2108,7 +2108,7 @@ bool FileEditor::SetFileName(const string_view NewFileName)
 		if (CutToParent(strFilePath))
 		{
 			if (equal_icase(strFilePath, os::fs::GetCurrentDirectory()))
-				assign(strFileName, PointToName(strFullFileName));
+				strFileName = PointToName(strFullFileName);
 		}
 
 		//Дабы избежать бардака, развернём слешики...

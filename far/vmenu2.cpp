@@ -334,7 +334,7 @@ string VMenu2::GetMenuTitle(bool bottom)
 		titles.Title = title.get();
 	}
 	SendMessage(DM_LISTGETTITLES, 0, &titles);
-	return string(title.get(), size - 1);
+	return { title.get(), size - 1 };
 }
 
 static const std::array<FarDialogItem, 1> VMenu2DialogItems =

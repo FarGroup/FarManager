@@ -81,7 +81,7 @@ bool FarChDir(string_view const NewDir, bool ChangeDir)
 		strCurDir = env_get_current_dir(NewDir[0]);
 		if (strCurDir.empty())
 		{
-			assign(strCurDir, NewDir);
+			strCurDir = NewDir;
 			AddEndSlash(strCurDir);
 			ReplaceSlashToBackslash(strCurDir);
 		}

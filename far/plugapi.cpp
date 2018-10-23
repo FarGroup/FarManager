@@ -388,7 +388,7 @@ BOOL WINAPI apiShowHelp(const wchar_t *ModuleName, const wchar_t *HelpTopic, FAR
 					if (Flags == FHELP_SELFHELP || (Flags&(FHELP_CUSTOMFILE)))
 					{
 						if (Flags&FHELP_CUSTOMFILE)
-							assign(strMask, PointToName(strPath));
+							strMask = PointToName(strPath);
 						else
 							strMask.clear();
 

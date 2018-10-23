@@ -336,7 +336,7 @@ void Message::Init(
 			Item.Y1 = 1;
 			Item.X2 = m_Position.width() - 4;
 			Item.Y2 = m_Position.height() - 2;
-			assign(Item.strData, Title);
+			Item.strData = Title;
 			MsgDlg.emplace_back(std::move(Item));
 		}
 

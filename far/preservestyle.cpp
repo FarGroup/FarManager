@@ -97,7 +97,7 @@ static auto InternalPreserveStyleTokenize(const string_view strStr, size_t From,
 		if (Seps[I-From])
 		{
 			PreserveStyleToken T;
-			assign(T.Token, strStr.substr(L, I - L));
+			T.Token = strStr.substr(L, I - L);
 			if (L >= From + 1 && Seps[L-1-From])
 				T.PrependChar = strStr[L-1];
 			Result.emplace_back(T);
@@ -109,7 +109,7 @@ static auto InternalPreserveStyleTokenize(const string_view strStr, size_t From,
 		if (!Seps[I-From-1] && is_lower(strStr[I-1]) && is_upper(strStr[I]))
 		{
 			PreserveStyleToken T;
-			assign(T.Token, strStr.substr(L, I - L));
+			T.Token = strStr.substr(L, I - L);
 			if (L >= From + 1 && Seps[L-1-From])
 				T.PrependChar = strStr[L-1];
 			Result.emplace_back(T);
@@ -120,7 +120,7 @@ static auto InternalPreserveStyleTokenize(const string_view strStr, size_t From,
 	if (L < From+Length)
 	{
 		PreserveStyleToken T;
-		assign(T.Token, strStr.substr(L, From + Length - L));
+		T.Token = strStr.substr(L, From + Length - L);
 		if (L >= From + 1 && Seps[L-1-From])
 			T.PrependChar = strStr[L-1];
 		Result.emplace_back(T);
@@ -135,7 +135,7 @@ static auto InternalPreserveStyleTokenize(const string_view strStr, size_t From,
 			{
 				Result.clear();
 				PreserveStyleToken T;
-				assign(T.Token, strStr.substr(From, Length));
+				T.Token = strStr.substr(From, Length);
 				T.TypeMask = 1 << UNKNOWN;
 				Result.emplace_back(T);
 				return Result;

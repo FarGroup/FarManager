@@ -63,7 +63,11 @@ public:
 	{
 	}
 
-	explicit operator std::basic_string<T>() const
+	// It's safer to make it explicit to prevent some incompatible conversions under VS2015
+	// - according to the standard, string ctor from string_view is explicit ("design by committee")
+	// but that would also prevent "legitimate" conversions for operator=.
+	// However, we build with 2017 now anyway so any incompatibilities won't stay hidden.
+	operator std::basic_string<T>() const
 	{
 		return { ALL_CONST_RANGE(*this) };
 	}

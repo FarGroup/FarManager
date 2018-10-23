@@ -143,7 +143,7 @@ long long HMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 			{
 				if (OpCode == MCODE_F_MENU_GETVALUE)
 				{
-					*static_cast<string*>(vParam) = string(Item[static_cast<size_t>(iParam)].Name);
+					*static_cast<string*>(vParam) = Item[static_cast<size_t>(iParam)].Name;
 					return 1;
 				}
 				else
@@ -172,7 +172,7 @@ long long HMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 		}
 		case MCODE_V_MENU_VALUE: // Menu.Value
 		{
-			*static_cast<string*>(vParam) = string(Item[SelectPos].Name);
+			*static_cast<string*>(vParam) = Item[SelectPos].Name;
 			return 1;
 		}
 	}

@@ -404,7 +404,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 						if (i.empty())
 							continue;
 
-						assign(strNewFolder, i);
+						strNewFolder = i;
 						break;
 					}
 				}
@@ -1890,7 +1890,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 		if (dir || (rpt && RPT==RP_EXACTCOPY && !cpc))
 		{
 			if (!Rename)
-				assign(strCopiedName, PointToName(strDestPath));
+				strCopiedName = PointToName(strDestPath);
 
 			if (DestAttr!=INVALID_FILE_ATTRIBUTES)
 			{
@@ -1942,7 +1942,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 						if (NamePart.size() == strDestPath.size())
 							strRenamedName = strDestPath;
 						else
-							assign(strCopiedName, NamePart);
+							strCopiedName = NamePart;
 
 						TreeList::RenTreeName(strSrcFullName, ConvertNameToFull(strDest));
 						return SameName? COPY_SKIPPED : COPY_SUCCESS_MOVE;
@@ -1976,7 +1976,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 									if (NamePart.size() == strDestPath.size())
 										strRenamedName = strDestPath;
 									else
-										assign(strCopiedName, NamePart);
+										strCopiedName = NamePart;
 
 									TreeList::AddTreeName(strDestPath);
 									return COPY_SUCCESS;
@@ -2335,7 +2335,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 						if (NamePart.size() == strDestPath.size())
 							strRenamedName = strDestPath;
 						else
-							assign(strCopiedName, NamePart);
+							strCopiedName = NamePart;
 					}
 
 					if (IsDriveTypeCDROM(SrcDriveType) && (SrcData.Attributes & FILE_ATTRIBUTE_READONLY))
@@ -2360,7 +2360,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 				if (CopyCode==COPY_SUCCESS)
 				{
-					assign(strCopiedName, PointToName(strDestPath));
+					strCopiedName = PointToName(strDestPath);
 
 					if (!(Flags&FCOPY_COPYTONUL))
 					{

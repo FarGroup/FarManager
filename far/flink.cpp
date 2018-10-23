@@ -411,7 +411,7 @@ bool GetSubstName(int DriveType,const string& DeviceName, string &strTargetPath)
 				}
 				else if (starts_with(Name, L"\\??\\"sv))
 				{
-					assign(strTargetPath, string_view(Name).substr(4));
+					strTargetPath.assign(Name, 4);
 					Ret=true;
 				}
 			}

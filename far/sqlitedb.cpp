@@ -284,7 +284,7 @@ bool SQLiteDb::Open(string_view const DbFile, bool Local, bool WAL)
 	if (copied)
 		os::fs::delete_file(m_Path);
 
-	assign(m_Path, MemoryDbName);
+	m_Path = MemoryDbName;
 	if (!ok)
 		Close();
 	return ok;
@@ -292,7 +292,7 @@ bool SQLiteDb::Open(string_view const DbFile, bool Local, bool WAL)
 
 void SQLiteDb::Initialize(initialiser Initialiser, string_view const DbName, bool Local, bool WAL)
 {
-	assign(m_Name, DbName);
+	m_Name = DbName;
 
 	os::mutex m(os::make_name<os::mutex>(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, m_Name));
 	SCOPED_ACTION(std::lock_guard<os::mutex>)(m);

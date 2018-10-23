@@ -538,7 +538,7 @@ void Panel::DragMessage(int X,int Y,int Move)
 		if (!SrcDragPanel->get_first_selected(Data))
 			return;
 
-		assign(strSelName, PointToName(Data.FileName));
+		strSelName = PointToName(Data.FileName);
 		QuoteSpace(strSelName);
 	}
 	else

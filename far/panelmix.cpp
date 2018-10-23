@@ -425,7 +425,7 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 		}
 		else if (Type.size() > 2 && Type.front() == L'<' && Type.back() == L'>')
 		{
-			NewColumn.title = string(Type.substr(1, Type.size() - 2));
+			NewColumn.title = Type.substr(1, Type.size() - 2);
 			NewColumn.type = CUSTOM_COLUMN0;
 		}
 		else
@@ -538,7 +538,7 @@ std::pair<string, string> SerialiseViewSettings(const std::vector<column>& Colum
 
 		if (ColumnType <= CUSTOM_COLUMN0)
 		{
-			strType = string(ColumnInfo[ColumnType].String);
+			strType = ColumnInfo[ColumnType].String;
 		}
 		else
 		{

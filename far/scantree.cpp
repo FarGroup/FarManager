@@ -72,9 +72,9 @@ void ScanTree::SetFindPath(string_view const Path, string_view const Mask, const
 
 	Flags.Clear(FSCANTREE_FILESFIRST);
 
-	assign(strFindMask, Mask);
+	strFindMask = Mask;
 
-	assign(strFindPathOriginal, Path);
+	strFindPathOriginal = Path;
 	AddEndSlash(strFindPathOriginal);
 
 	strFindPath = NTPath(ConvertNameToReal(Path));

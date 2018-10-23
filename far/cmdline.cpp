@@ -313,7 +313,7 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 			// $ 24.09.2000 SVS - Если задано поведение по "Несохранению при Esc", то позицию в хистори не меняем и ставим в первое положение.
 			if (Global->Opt->CmdHistoryRule)
 				Global->CtrlObject->CmdHistory->ResetPosition();
-			SetString(L"", true);
+			SetString({}, true);
 			return true;
 		}
 
@@ -480,7 +480,7 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 				Info.NewWindow = IsNewWindow;
 				Info.RunAs = IsRunAs;
 
-				SetString(L"", false);
+				SetString({}, false);
 				ExecString(Info);
 			}
 		}
@@ -632,13 +632,13 @@ std::list<CommandLine::segment> CommandLine::GetPrompt()
 
 			if (Iterator != Format.cbegin())
 			{
-				Result.emplace_back(segment{ string(Tail, Iterator), Color });
+				Result.emplace_back(segment{ { Tail, Iterator }, Color });
 			}
 			Iterator = NextIterator;
 			Tail = Iterator;
 			Color = NewColor;
 		}
-		Result.emplace_back(segment{ string(Tail, Format.cend()), Color });
+		Result.emplace_back(segment{ { Tail, Format.cend() }, Color });
 
 		for (auto Iterator = Result.begin(); Iterator != Result.end(); ++Iterator)
 		{
@@ -790,7 +790,7 @@ std::list<CommandLine::segment> CommandLine::GetPrompt()
 								if (it + 1 != strExpandedDestStr.end())
 								{
 									size_t pos;
-									if (from_string(string(it + 1, strExpandedDestStr.cend()), NewPromptSize, &pos))
+									if (from_string({ it + 1, strExpandedDestStr.cend() }, NewPromptSize, &pos))
 										it += pos;
 									// else
 										// bad format, NewPromptSize unchanged

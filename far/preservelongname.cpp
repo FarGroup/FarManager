@@ -42,7 +42,7 @@ PreserveLongName::PreserveLongName(string_view const ShortName, bool Preserve):
 {
 	if (Preserve)
 	{
-		assign(m_SaveShortName, ShortName);
+		m_SaveShortName = ShortName;
 
 		os::fs::find_data FindData;
 

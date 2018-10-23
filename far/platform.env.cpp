@@ -157,7 +157,7 @@ namespace os::env
 		}))
 		{
 			if (Failure)
-				assign(Result, Str);
+				Result = Str;
 		}
 		return Result;
 	}

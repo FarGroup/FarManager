@@ -51,7 +51,7 @@ public:
 	size_t size() const {return CurrentPalette.size();}
 
 	using custom_colors = std::array<COLORREF, 16>;
-	custom_colors GetCustomColors();
+	custom_colors GetCustomColors() const;
 	void SetCustomColors(const custom_colors& Colors);
 
 private:

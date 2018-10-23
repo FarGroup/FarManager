@@ -265,7 +265,7 @@ bool GetString(
 		Substract-=2;
 		StrDlg[0].Y2+=2;
 		StrDlg[4].Selected = *CheckBoxValue != 0;
-		StrDlg[4].strData = string(CheckBoxText);
+		StrDlg[4].strData = CheckBoxText;
 	}
 
 	if (Flags&FIB_BUTTONS)
@@ -298,7 +298,7 @@ bool GetString(
 
 	if (!HistoryName.empty())
 	{
-		StrDlg[2].strHistory = string(HistoryName);
+		StrDlg[2].strHistory = HistoryName;
 		StrDlg[2].Flags|=DIF_HISTORY|(Flags&FIB_NOUSELASTHISTORY?0:DIF_USELASTHISTORY);
 	}
 
@@ -306,11 +306,11 @@ bool GetString(
 		StrDlg[2].Type=DI_PSWEDIT;
 
 	if (!Title.empty())
-		StrDlg[0].strData = string(Title);
+		StrDlg[0].strData = Title;
 
 	if (!Prompt.empty())
 	{
-		StrDlg[1].strData = string(Prompt);
+		StrDlg[1].strData = Prompt;
 		TruncStrFromEnd(StrDlg[1].strData, 66);
 
 		if (Flags&FIB_NOAMPERSAND)
@@ -318,7 +318,7 @@ bool GetString(
 	}
 
 	if (!SrcText.empty())
-		StrDlg[2].strData = string(SrcText);
+		StrDlg[2].strData = SrcText;
 
 	{
 		const auto Dlg = Dialog::create(make_range(StrDlg.data(), StrDlg.size() - Substract));

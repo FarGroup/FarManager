@@ -104,7 +104,7 @@ void DizList::Read(const string& Path, const string* DizName)
 		string DizText;
 		for (const auto& i: enum_file_lines(DizFile, CodePage))
 		{
-			assign(DizText, i.Str);
+			DizText = i.Str;
 
 			if (TimeCheck)
 			{
@@ -152,7 +152,7 @@ void DizList::Read(const string& Path, const string* DizName)
 
 		m_CodePage = CodePage;
 		m_Modified = false;
-		assign(m_DizFileName, Name);
+		m_DizFileName = Name;
 
 		return true;
 	};

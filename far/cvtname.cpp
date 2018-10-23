@@ -136,7 +136,7 @@ static void MixToFullPath(const string_view stPath, string& Dest, const string_v
 						size_t CurDirDirOffset = 0;
 						if (ParsePath(stCurrentDir, &CurDirDirOffset) != root_type::unknown)
 						{
-							assign(strDest, stCurrentDir.substr(0, CurDirDirOffset));
+							strDest = stCurrentDir.substr(0, CurDirDirOffset);
 						}
 					}
 				}
@@ -165,7 +165,7 @@ static void MixToFullPath(const string_view stPath, string& Dest, const string_v
 					{
 						if (upper(stPath[0])==upper(stCurrentDir[0]))
 						{
-							assign(strDest, stCurrentDir);
+							strDest = stCurrentDir;
 						}
 						else
 						{
@@ -347,7 +347,7 @@ string ConvertNameToShort(string_view const  Object)
 	string strDest;
 	if(!os::fs::GetShortPathName(null_terminated(Object).c_str(), strDest))
 	{
-		assign(strDest, Object);
+		strDest = Object;
 
 		if (!HasPathPrefix(Object))
 		{
@@ -378,7 +378,7 @@ string ConvertNameToLong(string_view const Object)
 	string strDest;
 	if (!os::fs::GetLongPathName(null_terminated(Object).c_str(), strDest))
 	{
-		assign(strDest, Object);
+		strDest = Object;
 
 		if (!HasPathPrefix(Object))
 		{

@@ -105,12 +105,12 @@ struct menu_item
 	menu_item() = default;
 
 	explicit menu_item(string_view const Text):
-		Name(string(Text))
+		Name(Text)
 	{
 	}
 
 	menu_item(string_view const Text, LISTITEMFLAGS const Flags, DWORD const AccelKey = 0):
-		Name(string(Text)),
+		Name(Text),
 		Flags(Flags),
 		AccelKey(AccelKey)
 	{

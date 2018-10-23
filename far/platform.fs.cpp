@@ -111,7 +111,7 @@ namespace os::fs
 
 	void find_data::SetAlternateFileName(string_view Name)
 	{
-		assign(AlternateFileNameData, Name);
+		AlternateFileNameData = Name;
 	}
 
 	bool find_data::HasAlternateFileName() const
@@ -223,7 +223,7 @@ namespace os::fs
 
 		const auto& CopyNames = [&FindData](const auto& DirInfo)
 		{
-			assign(FindData.FileName, trim_trailing_zeros({ DirInfo.FileName, DirInfo.FileNameLength / sizeof(wchar_t) }));
+			FindData.FileName = trim_trailing_zeros({ DirInfo.FileName, DirInfo.FileNameLength / sizeof(wchar_t) });
 			FindData.SetAlternateFileName(trim_trailing_zeros(empty_if_zero({ DirInfo.ShortName, DirInfo.ShortNameLength / sizeof(wchar_t) })));
 		};
 
@@ -593,7 +593,7 @@ namespace os::fs
 			return false;
 		}
 
-		assign(m_Name, Object);
+		m_Name = Object;
 		m_ShareMode = ShareMode;
 		return true;
 	}
@@ -1891,7 +1891,7 @@ namespace os::fs
 			GetReparsePointInfo(FileName, strTmp, &FindData.ReparseTag);
 		}
 
-		assign(FindData.FileName, PointToName(FileName));
+		FindData.FileName = PointToName(FileName);
 		FindData.SetAlternateFileName(ConvertNameToShort(FileName));
 		return true;
 	}

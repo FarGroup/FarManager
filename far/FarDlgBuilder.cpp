@@ -316,7 +316,7 @@ DialogItemEx *DialogBuilder::AddEditField(string& Value, int Width, string_view 
 	Item->X2 = Item->X1 + Width;
 	if (!HistoryID.empty())
 	{
-		assign(Item->strHistory, HistoryID);
+		Item->strHistory = HistoryID;
 		Item->Flags |= DIF_HISTORY;
 	}
 	Item->Flags |= Flags;
@@ -332,7 +332,7 @@ DialogItemEx *DialogBuilder::AddEditField(StringOption& Value, int Width, string
 	Item->X2 = Item->X1 + Width;
 	if (!HistoryID.empty())
 	{
-		assign(Item->strHistory, HistoryID);
+		Item->strHistory = HistoryID;
 		Item->Flags |= DIF_HISTORY;
 	}
 	Item->Flags |= Flags;

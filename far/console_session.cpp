@@ -43,7 +43,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "ctrlobj.hpp"
 #include "cmdline.hpp"
-#include "global.hpp"
 
 class context: noncopyable, public i_context
 {

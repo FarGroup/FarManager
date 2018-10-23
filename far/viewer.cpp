@@ -3658,7 +3658,7 @@ void Viewer::SetFilePos(long long Pos)
 
 void Viewer::SetPluginData(string_view const PluginData)
 {
-	assign(strPluginData, PluginData);
+	strPluginData = PluginData;
 }
 
 void Viewer::SetNamesList(NamesList& List)

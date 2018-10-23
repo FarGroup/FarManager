@@ -156,7 +156,7 @@ string ExtractComputerName(const string_view CurDir, string* const strTail)
 	const auto CurDirPathType = ParsePath(CurDir);
 	if (CurDirPathType == root_type::remote || CurDirPathType == root_type::unc_remote)
 	{
-		assign(strNetDir, CurDir);
+		strNetDir = CurDir;
 	}
 	else
 	{

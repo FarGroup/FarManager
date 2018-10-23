@@ -1239,7 +1239,7 @@ bool background_searcher::IsFileIncluded(PluginPanelItem* FileItem, string_view 
 
 	if (!hPlugin)
 	{
-		assign(strSearchFileName, FullName);
+		strSearchFileName = FullName;
 	}
 	else
 	{

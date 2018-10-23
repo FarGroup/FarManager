@@ -76,8 +76,7 @@ public:
 
 	virtual bool GetValue(string_view Key, string_view Name, bool& Value, bool Default) const = 0;
 	virtual bool GetValue(string_view Key, string_view Name, long long& Value, long long Default) const = 0;
-	virtual bool GetValue(string_view Key, string_view Name, string& Value, const string& Default) const = 0;
-	virtual bool GetValue(string_view Key, string_view Name, string& Value, const wchar_t* Default) const = 0;
+	virtual bool GetValue(string_view Key, string_view Name, string& Value, string_view Default) const = 0;
 
 	virtual bool DeleteValue(string_view Key, string_view Name) = 0;
 	virtual bool EnumValues(string_view Key, bool Reset, string& strName, string& strValue) const = 0;

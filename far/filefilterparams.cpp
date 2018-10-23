@@ -103,13 +103,13 @@ FileFilterParams FileFilterParams::Clone() const
 
 void FileFilterParams::SetTitle(string_view const Title)
 {
-	assign(m_strTitle, Title);
+	m_strTitle = Title;
 }
 
 void FileFilterParams::SetMask(bool const Used, string_view const Mask)
 {
 	FMask.Used = Used;
-	assign(FMask.strMask, Mask);
+	FMask.strMask = Mask;
 	if (Used)
 	{
 		FMask.FilterMask.Set(FMask.strMask, FMF_SILENT);
@@ -126,8 +126,8 @@ void FileFilterParams::SetDate(bool const Used, enumFDateType const DateType, co
 void FileFilterParams::SetSize(bool const Used, string_view const SizeAbove, string_view const SizeBelow)
 {
 	FSize.Used=Used;
-	assign(FSize.Above.Size, SizeAbove);
-	assign(FSize.Below.Size, SizeBelow);
+	FSize.Above.Size = SizeAbove;
+	FSize.Below.Size = SizeBelow;
 	FSize.Above.SizeReal = ConvertFileSizeString(FSize.Above.Size);
 	FSize.Below.SizeReal = ConvertFileSizeString(FSize.Below.Size);
 }
