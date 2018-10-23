@@ -4,6 +4,10 @@
 #include <windows.h>
 #include <stdint.h>
 
+#ifndef FILE_ATTRIBUTE_NO_SCRUB_DATA
+#define FILE_ATTRIBUTE_NO_SCRUB_DATA 0x20000
+#endif
+
 #define ARRSIZE(buff) (sizeof(buff)/sizeof(buff[0]))
 #define CAST(tp,expr) ((tp)(expr))
 

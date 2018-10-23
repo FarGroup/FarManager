@@ -9383,7 +9383,7 @@ id=85
 lv=2
 dt=Text
 nm=tPluginPanelItem
-mtime=3749367769
+mtime=3749451868
 <article>
 #_<markdown>
 #_**`tPluginPanelItem`** is a table with the following predefined fields:
@@ -9427,6 +9427,7 @@ mtime=3749367769
 #_          r - read only
 #_          s - system file
 #_          t - temporary
+#_          u - no scrub data
 #_          v - virtual
 #_
 #_1. **`LastWriteTime`**, **`LastAccessTime`**, **`CreationTime`**

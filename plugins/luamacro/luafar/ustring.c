@@ -566,6 +566,7 @@ void PushAttrString(lua_State *L, int attr)
 	if (attr & FILE_ATTRIBUTE_READONLY)            *p++ = 'r';
 	if (attr & FILE_ATTRIBUTE_SYSTEM)              *p++ = 's';
 	if (attr & FILE_ATTRIBUTE_TEMPORARY)           *p++ = 't';
+	if (attr & FILE_ATTRIBUTE_NO_SCRUB_DATA)       *p++ = 'u';
 	if (attr & FILE_ATTRIBUTE_VIRTUAL)             *p++ = 'v';
 	lua_pushlstring(L, buf, p-buf);
 }
@@ -596,6 +597,7 @@ int DecodeAttributes(const char* str)
 		else if(c == 'r' || c == 'R') attr |= FILE_ATTRIBUTE_READONLY;
 		else if(c == 's' || c == 'S') attr |= FILE_ATTRIBUTE_SYSTEM;
 		else if(c == 't' || c == 'T') attr |= FILE_ATTRIBUTE_TEMPORARY;
+		else if(c == 'u' || c == 'U') attr |= FILE_ATTRIBUTE_NO_SCRUB_DATA;
 		else if(c == 'v' || c == 'V') attr |= FILE_ATTRIBUTE_VIRTUAL;
 	}
 
