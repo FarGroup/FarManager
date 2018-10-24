@@ -212,7 +212,7 @@ namespace os::fs
 		bool GetInformation(BY_HANDLE_FILE_INFORMATION& info) const;
 		bool IoControl(DWORD IoControlCode, void* InBuffer, DWORD InBufferSize, void* OutBuffer, DWORD OutBufferSize, DWORD* BytesReturned, OVERLAPPED* Overlapped = nullptr) const;
 		bool GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed) const;
-		bool NtQueryDirectoryFile(void* FileInformation, size_t Length, FILE_INFORMATION_CLASS FileInformationClass, bool ReturnSingleEntry, const wchar_t* FileName, bool RestartScan, NTSTATUS* Status = nullptr) const;
+		bool NtQueryDirectoryFile(void* FileInformation, size_t Length, FILE_INFORMATION_CLASS FileInformationClass, bool ReturnSingleEntry, string_view FileName, bool RestartScan, NTSTATUS* Status = nullptr) const;
 		bool NtQueryInformationFile(void* FileInformation, size_t Length, FILE_INFORMATION_CLASS FileInformationClass, NTSTATUS* Status = nullptr) const;
 		bool GetFinalPathName(string& FinalFilePath) const;
 		void Close();

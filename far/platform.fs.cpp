@@ -270,11 +270,11 @@ namespace os::fs
 		const auto NamePart = PointToName(Name);
 		Handle->Extended = true;
 
-		bool QueryResult = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.get(), Handle->BufferBase.size(), FileIdBothDirectoryInformation, false, null_terminated(NamePart).c_str(), true);
+		bool QueryResult = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.get(), Handle->BufferBase.size(), FileIdBothDirectoryInformation, false, NamePart, true);
 		if (QueryResult) // try next read immediately to avoid M#2128 bug
 		{
 			block_ptr<BYTE> Buffer2(Handle->BufferBase.size());
-			if (Handle->Object.NtQueryDirectoryFile(Buffer2.get(), Buffer2.size(), FileIdBothDirectoryInformation, false, null_terminated(NamePart).c_str(), false))
+			if (Handle->Object.NtQueryDirectoryFile(Buffer2.get(), Buffer2.size(), FileIdBothDirectoryInformation, false, NamePart, false))
 			{
 				Handle->Buffer2 = std::move(Buffer2);
 			}
@@ -295,7 +295,7 @@ namespace os::fs
 			Handle->Object.Close();
 			if (OpenDirectory())
 			{
-				QueryResult = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.get(), Handle->BufferBase.size(), FileBothDirectoryInformation, false, null_terminated(NamePart).c_str(), true);
+				QueryResult = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.get(), Handle->BufferBase.size(), FileBothDirectoryInformation, false, NamePart, true);
 			}
 		}
 
@@ -335,7 +335,7 @@ namespace os::fs
 				}
 				else
 				{
-					Status = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.get(), Handle->BufferBase.size(), Handle->Extended? FileIdBothDirectoryInformation : FileBothDirectoryInformation, false, nullptr, false);
+					Status = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.get(), Handle->BufferBase.size(), Handle->Extended ? FileIdBothDirectoryInformation : FileBothDirectoryInformation, false, {}, false);
 					set_errcode = false;
 				}
 			}
@@ -770,15 +770,15 @@ namespace os::fs
 		return Result == ERROR_SUCCESS;
 	}
 
-	bool file::NtQueryDirectoryFile(void* FileInformation, size_t Length, FILE_INFORMATION_CLASS FileInformationClass, bool ReturnSingleEntry, const wchar_t* FileName, bool RestartScan, NTSTATUS* Status) const
+	bool file::NtQueryDirectoryFile(void* FileInformation, size_t Length, FILE_INFORMATION_CLASS FileInformationClass, bool ReturnSingleEntry, string_view const FileName, bool RestartScan, NTSTATUS* Status) const
 	{
 		IO_STATUS_BLOCK IoStatusBlock;
 		PUNICODE_STRING pNameString = nullptr;
 		UNICODE_STRING NameString;
-		if (FileName && *FileName)
+		if (!FileName.empty())
 		{
-			NameString.Buffer = const_cast<LPWSTR>(FileName);
-			NameString.Length = static_cast<USHORT>(wcslen(FileName) * sizeof(WCHAR));
+			NameString.Buffer = const_cast<LPWSTR>(FileName.data());
+			NameString.Length = static_cast<USHORT>(FileName.size() * sizeof(WCHAR));
 			NameString.MaximumLength = NameString.Length;
 			pNameString = &NameString;
 		}

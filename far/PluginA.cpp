@@ -361,44 +361,41 @@ static const char *FirstSlashA(const char *String)
 	return nullptr;
 }
 
-static void AnsiToUnicodeBin(const char* AnsiString, wchar_t* UnicodeString, size_t Length, uintptr_t CodePage = CP_OEMCP)
+static void AnsiToUnicodeBin(std::string_view const AnsiString, wchar_t* UnicodeString, uintptr_t CodePage = CP_OEMCP)
 {
-	if (AnsiString && UnicodeString && Length)
+	if (!AnsiString.empty())
 	{
-		// BUGBUG, error checking
 		*UnicodeString = 0;
-		encoding::get_chars(CodePage, { AnsiString, Length }, UnicodeString, Length);
+		// BUGBUG, error checking
+		encoding::get_chars(CodePage, AnsiString, UnicodeString, AnsiString.size());
 	}
 }
 
-static wchar_t *AnsiToUnicodeBin(const char* AnsiString, size_t Length, uintptr_t CodePage = CP_OEMCP)
+static wchar_t *AnsiToUnicodeBin(std::string_view const AnsiString, uintptr_t CodePage = CP_OEMCP)
 {
-	auto Result = std::make_unique<wchar_t[]>(Length + 1);
-	AnsiToUnicodeBin(AnsiString, Result.get(), Length, CodePage);
+	auto Result = std::make_unique<wchar_t[]>(AnsiString.size() + 1);
+	AnsiToUnicodeBin(AnsiString, Result.get(), CodePage);
 	return Result.release();
 }
 
 static wchar_t *AnsiToUnicode(const char* AnsiString)
 {
-	return AnsiString? AnsiToUnicodeBin(AnsiString, strlen(AnsiString) + 1, CP_OEMCP) : nullptr;
+	return AnsiString? AnsiToUnicodeBin(AnsiString, CP_OEMCP) : nullptr;
 }
 
-static char *UnicodeToAnsiBin(const wchar_t* UnicodeString, size_t nLength, uintptr_t CodePage = CP_OEMCP)
+static char *UnicodeToAnsiBin(string_view const UnicodeString, uintptr_t CodePage = CP_OEMCP)
 {
 	/* $ 06.01.2008 TS
 	! Увеличил размер выделяемой под строку памяти на 1 байт для нормальной
 	работы старых плагинов, которые не знали, что надо смотреть на длину,
 	а не на завершающий ноль (например в EditorGetString.StringText).
 	*/
-	if (!UnicodeString)
-		return nullptr;
+	auto Result = std::make_unique<char[]>(UnicodeString.size() + 1);
 
-	auto Result = std::make_unique<char[]>(nLength + 1);
-
-	if (nLength)
+	if (!UnicodeString.empty())
 	{
 		// BUGBUG, error checking
-		encoding::get_bytes(CodePage, { UnicodeString, nLength }, Result.get(), nLength);
+		encoding::get_bytes(CodePage, UnicodeString, Result.get(), UnicodeString.size());
 	}
 
 	return Result.release();
@@ -409,7 +406,7 @@ static char *UnicodeToAnsi(const wchar_t* UnicodeString)
 	if (!UnicodeString)
 		return nullptr;
 
-	return UnicodeToAnsiBin(UnicodeString, wcslen(UnicodeString), CP_OEMCP);
+	return UnicodeToAnsiBin(UnicodeString, CP_OEMCP);
 }
 
 static wchar_t **AnsiArrayToUnicode(const char* const* lpaszAnsiString, size_t iCount)
@@ -925,7 +922,7 @@ static void AnsiVBufToUnicode(CHAR_INFO* VBufA, FAR_CHAR_INFO* VBuf, size_t Size
 		}
 		else
 		{
-			AnsiToUnicodeBin(&Src.Char.AsciiChar, &Dst.Char, 1);
+			AnsiToUnicodeBin({ &Src.Char.AsciiChar, 1 }, &Dst.Char);
 		}
 		Dst.Attributes = colors::ConsoleColorToFarColor(Src.Attributes);
 	};
@@ -1916,7 +1913,7 @@ static char* WINAPI PasteFromClipboardA() noexcept
 		{
 			std::vector<wchar_t> p(Size);
 			NativeFSF.PasteFromClipboard(FCT_STREAM, p.data(), p.size());
-			return UnicodeToAnsiBin(p.data(), p.size());
+			return UnicodeToAnsiBin({ p.data(), p.size() });
 		}
 		return nullptr;
 	}
@@ -2384,7 +2381,7 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber, int X, int Y, int MaxHeight,
 					mi[i].Flags |= MIF_CHECKED;
 
 					if (Item[i].Checked>1)
-						AnsiToUnicodeBin(reinterpret_cast<const char*>(&Item[i].Checked), reinterpret_cast<wchar_t*>(&mi[i].Flags), 1);
+						AnsiToUnicodeBin({ reinterpret_cast<const char*>(&Item[i].Checked), 1 }, reinterpret_cast<wchar_t*>(&mi[i].Flags));
 				}
 
 				if (Item[i].Separator)
@@ -4076,8 +4073,8 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 
 					const auto CodePage = GetEditorCodePageA();
 					static std::unique_ptr<char[]> gt, geol;
-					gt.reset(UnicodeToAnsiBin(egs.StringText,egs.StringLength,CodePage));
-					geol.reset(UnicodeToAnsiBin(egs.StringEOL, wcslen(egs.StringEOL), CodePage));
+					gt.reset(UnicodeToAnsiBin({ egs.StringText, static_cast<size_t>(egs.StringLength) }, CodePage));
+					geol.reset(UnicodeToAnsiBin(egs.StringEOL, CodePage));
 					oegs->StringText = gt.get();
 					oegs->StringEOL = geol.get();
 					return TRUE;
@@ -4350,8 +4347,8 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 					const auto oldss = static_cast<const oldfar::EditorSetString*>(Param);
 					newss.StringNumber=oldss->StringNumber;
 					const auto CodePage = GetEditorCodePageA();
-					newss.StringText = oldss->StringText? AnsiToUnicodeBin(oldss->StringText, oldss->StringLength, CodePage) : nullptr;
-					newss.StringEOL = oldss->StringEOL? AnsiToUnicodeBin(oldss->StringEOL, strlen(oldss->StringEOL), CodePage) : nullptr;
+					newss.StringText = oldss->StringText? AnsiToUnicodeBin({ oldss->StringText, static_cast<size_t>(oldss->StringLength) }, CodePage) : nullptr;
+					newss.StringEOL = oldss->StringEOL? AnsiToUnicodeBin(oldss->StringEOL, CodePage) : nullptr;
 					newss.StringLength=oldss->StringLength;
 				}
 
@@ -4637,7 +4634,7 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize) noexc
 			string sTableName = pad_right(str(nCP), 5);
 			append(sTableName, BoxSymbols[BS_V1], L' ', CodepageName);
 			encoding::oem::get_bytes(sTableName, TableSet->TableName);
-			std::unique_ptr<wchar_t[]> us(AnsiToUnicodeBin(reinterpret_cast<char*>(TableSet->DecodeTable), std::size(TableSet->DecodeTable), nCP));
+			std::unique_ptr<wchar_t[]> us(AnsiToUnicodeBin({ reinterpret_cast<char*>(TableSet->DecodeTable), std::size(TableSet->DecodeTable) }, nCP));
 
 			inplace::lower(us.get(), std::size(TableSet->DecodeTable));
 			encoding::get_bytes(nCP, { us.get(), std::size(TableSet->DecodeTable) }, reinterpret_cast<char*>(TableSet->LowerTable), std::size(TableSet->DecodeTable));

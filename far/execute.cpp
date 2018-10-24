@@ -1160,195 +1160,110 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	}
 }
 
+static bool exist_predicate(string_view const Str)
+{
+	auto ExpandedStr = os::env::expand(Str);
 
-/* $ 14.01.2001 SVS
-   + В ProcessOSCommands добавлена обработка
-     "IF [NOT] EXIST filename command"
-     "IF [NOT] DEFINED variable command"
+	if (!IsAbsolutePath(ExpandedStr))
+		ExpandedStr = ConvertNameToFull(ExpandedStr);
 
-   Эта функция предназначена для обработки вложенного IF`а
-   CmdLine - полная строка вида
-     if exist file if exist file2 command
-   Return - указатель на "command"
-            пуская строка - условие не выполнимо
-            nullptr - не попался "IF" или ошибки в предложении, например
-                   не exist, а exist или предложение неполно.
+	os::fs::find_data Data;
+	return os::fs::exists(ExpandedStr) || os::fs::get_find_data(ExpandedStr, Data);
+}
 
-   DEFINED - подобно EXIST, но оперирует с переменными среды
+static bool defined_predicate(string_view const Str)
+{
+	string Value;
+	return os::env::get(Str, Value);
+}
 
-   Исходная строка (CmdLine) не модифицируется!!! - на что явно указывает const
-                                                    IS 20.03.2002 :-)
-*/
+/*
+CmdLine:
+- "IF [NOT] EXIST filename command"
+- "IF [NOT] DEFINED variable command"
 
-static const wchar_t *PrepareOSIfExist(const string& CmdLine)
+Returns:
+- a view to the "command" part if the condition is met
+- an empty view if the condition is not met
+- a view to the whole string in case of any errors
+ */
+using predicate = bool(string_view);
+static string_view PrepareOSIfExist(string_view const CmdLine, predicate IsExists, predicate IsDefined)
 {
 	if (CmdLine.empty())
-		return nullptr;
+		return CmdLine;
 
-	string strExpandedStr;
-	auto PtrCmd = CmdLine.c_str();
-	const wchar_t* CmdStart;
-	bool Not = false;
-	int Exist=0; // признак наличия конструкции "IF [NOT] EXIST filename command"
-	// > 0 - есть такая конструкция
+	auto Command = CmdLine;
 
-	/* $ 25.04.2001 DJ
-	   обработка @ в IF EXIST
-	*/
-	if (*PtrCmd == L'@')
+	while (Command.front() == L'@')
+		Command.remove_prefix(1);
+
+	const auto& skip_spaces = [](string_view& Str)
 	{
-		// здесь @ игнорируется; ее вставит в правильное место функция
-		// ExtractIfExistCommand
-		PtrCmd++;
+		while (!Str.empty() && std::iswblank(Str.front()))
+			Str.remove_prefix(1);
 
-		while (*PtrCmd && std::iswblank(*PtrCmd))
-			++PtrCmd;
-	}
+		return !Str.empty();
+	};
 
-	constexpr auto Token_If = L"IF "sv;
-	constexpr auto Token_Not = L"NOT "sv;
-	constexpr auto Token_Exist = L"EXIST "sv;
-	constexpr auto Token_Defined = L"DEFINED "sv;
+	const auto& get_token = [](string_view & Str, string_view const Token)
+	{
+		if (!starts_with_icase(Str, Token))
+			return false;
+
+		Str.remove_prefix(Token.size());
+		return true;
+	};
+
+	bool SkippedSomethingValid = false;
 
 	for (;;)
 	{
-		if (!PtrCmd || !*PtrCmd || !starts_with_icase(PtrCmd, Token_If)) //??? IF/I не обрабатывается
+		if (!skip_spaces(Command))
 			break;
 
-		PtrCmd += Token_If.size();
-
-		while (*PtrCmd && std::iswblank(*PtrCmd))
-			++PtrCmd;
-
-		if (!*PtrCmd)
+		if (!get_token(Command, L"if "sv))
 			break;
 
-		if (starts_with_icase(PtrCmd, Token_Not))
+		if (!skip_spaces(Command))
+			break;
+
+		const auto IsNot = get_token(Command, L"not "sv);
+
+		if (!skip_spaces(Command))
+			break;
+
+		const auto IsExistToken = get_token(Command, L"exist "sv);
+
+		if (!IsExistToken && !get_token(Command, L"defined "sv))
+			break;
+
+		if (!skip_spaces(Command))
+			break;
+
+		const auto ExpressionStart = Command;
+
+		auto InQuotes = false;
+		while (!Command.empty())
 		{
-			Not = true;
-
-			PtrCmd += Token_Not.size();
-
-			while (*PtrCmd && std::iswblank(*PtrCmd))
-				++PtrCmd;
-
-			if (!*PtrCmd)
-				break;
-		}
-
-		if (*PtrCmd && starts_with_icase(PtrCmd, Token_Exist))
-		{
-
-			PtrCmd += Token_Exist.size();
-
-			while (*PtrCmd && std::iswblank(*PtrCmd))
-				++PtrCmd;
-
-			if (!*PtrCmd)
-				break;
-
-			CmdStart=PtrCmd;
-			/* $ 25.04.01 DJ
-			   обработка кавычек внутри имени файла в IF EXIST
-			*/
-			auto InQuotes = false;
-
-			while (*PtrCmd)
-			{
-				if (*PtrCmd == L'"')
-					InQuotes = !InQuotes;
-				else if (*PtrCmd == L' ' && !InQuotes)
-					break;
-
-				PtrCmd++;
-			}
-
-			if (*PtrCmd == L' ')
-			{
-				string strCmd(CmdStart, PtrCmd - CmdStart);
-				inplace::unquote(strCmd);
-				strExpandedStr = os::env::expand(strCmd);
-				string strFullPath;
-
-				if (!(strCmd[1] == L':' || (strCmd[0] == L'\\' && strCmd[1]==L'\\') || strExpandedStr[1] == L':' || (strExpandedStr[0] == L'\\' && strExpandedStr[1]==L'\\')))
-				{
-					strFullPath = Global->CtrlObject? Global->CtrlObject->CmdLine()->GetCurDir() : os::fs::GetCurrentDirectory();
-					AddEndSlash(strFullPath);
-				}
-
-				strFullPath += strExpandedStr;
-
-				size_t DirOffset = 0;
-				ParsePath(strExpandedStr, &DirOffset);
-				bool FileExists;
-				if (strExpandedStr.find_first_of(L"*?", DirOffset) != string::npos) // это маска?
-				{
-					os::fs::find_data wfd;
-					FileExists = os::fs::get_find_data(strFullPath, wfd);
-				}
-				else
-				{
-					strFullPath = ConvertNameToFull(strFullPath);
-					FileExists = os::fs::exists(strFullPath);
-				}
-
-//_SVS(SysLog(L"%08X FullPath=%s",FileAttr,FullPath));
-				if (FileExists != Not)
-				{
-					while (*PtrCmd && std::iswblank(*PtrCmd))
-						++PtrCmd;
-
-					Exist++;
-				}
-				else
-				{
-					return L"";
-				}
-			}
-		}
-		// "IF [NOT] DEFINED variable command"
-		else if (*PtrCmd && starts_with_icase(PtrCmd, Token_Defined))
-		{
-
-			PtrCmd += Token_Defined.size();
-
-			while (*PtrCmd && std::iswblank(*PtrCmd))
-				++PtrCmd;
-
-			if (!*PtrCmd)
+			if (Command.front() == L'"')
+				InQuotes = !InQuotes;
+			else if (Command.front() == L' ' && !InQuotes)
 				break;
 
-			CmdStart=PtrCmd;
-
-			if (*PtrCmd == L'"')
-				PtrCmd=wcschr(PtrCmd+1,L'"');
-
-			if (PtrCmd && *PtrCmd)
-			{
-				PtrCmd=wcschr(PtrCmd,L' ');
-
-				if (PtrCmd)
-				{
-					const auto ERet = os::env::get({ CmdStart, static_cast<size_t>(PtrCmd - CmdStart) }, strExpandedStr);
-
-//_SVS(SysLog(Cmd));
-					if (ERet != Not)
-					{
-						while (*PtrCmd && std::iswblank(*PtrCmd))
-							++PtrCmd;
-
-						Exist++;
-					}
-					else
-					{
-						return L"";
-					}
-				}
-			}
+			Command.remove_prefix(1);
 		}
+
+		if (Command.empty())
+			break;
+
+		if ((IsExistToken? IsExists : IsDefined)(unquote(string(ExpressionStart.substr(0, ExpressionStart.size() - Command.size())))) == IsNot)
+			return L""sv;
+
+		SkippedSomethingValid = true;
 	}
 
-	return Exist?PtrCmd:nullptr;
+	return SkippedSomethingValid? CmdLine.substr(CmdLine.size() - Command.size()) : CmdLine;
 }
 
 /* $ 25.04.2001 DJ
@@ -1359,33 +1274,18 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 
 bool ExtractIfExistCommand(string& strCommandText)
 {
-	bool Result = true;
-	const wchar_t *wPtrCmd = PrepareOSIfExist(strCommandText);
+	const auto Cmd = PrepareOSIfExist(strCommandText, exist_predicate, defined_predicate);
 
-	// Во! Условие не выполнено!!!
-	// (например, пока рассматривали менюху, в это время)
-	// какой-то злобный чебурашка стер файл!
-	if (wPtrCmd)
-	{
-		if (!*wPtrCmd)
-		{
-			Result = false;
-		}
-		else
-		{
-			// прокинем "if exist"
-			if (strCommandText.front() == L'@')
-			{
-				strCommandText.erase(1, wPtrCmd - strCommandText.data() - 1);
-			}
-			else
-			{
-				strCommandText = wPtrCmd;
-			}
-		}
-	}
+	if (Cmd.empty())
+		return false; // Do not execute
 
-	return Result;
+	if (Cmd.size() == strCommandText.size())
+		return true; // Something went wrong, continue as is
+
+	const auto Pos = strCommandText.front() == L'@'? strCommandText.find_first_not_of(L'@', 1) : 0;
+	strCommandText.erase(Pos, strCommandText.size() - Cmd.size() - Pos);
+
+	return true;
 }
 
 bool IsExecutable(string_view const Filename)
@@ -1438,3 +1338,106 @@ bool ExpandOSAliases(string& strStr)
 
 	return true;
 }
+
+#include "common/test.hpp"
+
+#ifdef _DEBUG
+static void TestIfExistDefined()
+{
+	static const struct
+	{
+		string_view From;
+		string_view To_ed, To_eD, To_Ed, To_ED;
+	}
+	Tests[]
+	{
+		{
+			L""sv,
+
+			L""sv, // ed
+			L""sv, // eD
+			L""sv, // Ed
+			L""sv, // ED
+		},
+		{
+			L" "sv,
+
+			L" "sv, // ed
+			L" "sv, // eD
+			L" "sv, // Ed
+			L" "sv, // ED
+		},
+		{
+			L"foo"sv,
+
+			L"foo"sv, // ed
+			L"foo"sv, // eD
+			L"foo"sv, // Ed
+			L"foo"sv, // ED
+		},
+		{
+			L"  if  exist  bar  foo"sv,
+
+			L""sv,    // ed
+			L""sv,    // eD
+			L"foo"sv, // Ed
+			L"foo"sv  // ED
+		},
+		{
+			L"  if  exist  bar  if  defined  ham  foo"sv,
+
+			L""sv,    // ed
+			L""sv,    // eD
+			L""sv,    // Ed
+			L"foo"sv, // ED
+		},
+		{
+			L"  if  exist  bar  if  not  defined  ham  foo"sv,
+
+			L""sv,    // ed
+			L""sv,    // eD
+			L"foo"sv, // Ed
+			L""sv,    // ED
+		},
+		{
+			L"  if  not  exist  bar  foo"sv,
+
+			L"foo"sv, // ed
+			L"foo"sv, // eD
+			L""sv,    // Ed
+			L""sv,    // ED
+		},
+		{
+			L"  if  not  exist  bar  if  defined  ham  foo"sv,
+
+			L""sv,    // ed
+			L"foo"sv, // eD
+			L""sv,    // Ed
+			L""sv     // ED
+		},
+		{
+			L"  if  not  exist  bar  if  not  defined  ham  foo"sv,
+
+			L"foo"sv, // ed
+			L""sv,    // eD
+			L""sv,    // Ed
+			L""sv     // ED
+		},
+	};
+
+	const auto& Exist      = [](string_view const Str) { EXPECT_EQ(L"bar", Str); return true; };
+	const auto& NotExist   = [](string_view const Str) { EXPECT_EQ(L"bar", Str); return false; };
+	const auto& Defined    = [](string_view const Str) { EXPECT_EQ(L"ham", Str); return true; };
+	const auto& NotDefined = [](string_view const Str) { EXPECT_EQ(L"ham", Str); return false; };
+
+	for (const auto& i: Tests)
+	{
+		EXPECT_EQ(i.To_ed, PrepareOSIfExist(i.From, NotExist, NotDefined));
+		EXPECT_EQ(i.To_eD, PrepareOSIfExist(i.From, NotExist, Defined));
+		EXPECT_EQ(i.To_Ed, PrepareOSIfExist(i.From, Exist, NotDefined));
+		EXPECT_EQ(i.To_ED, PrepareOSIfExist(i.From, Exist, Defined));
+	}
+}
+#endif
+
+SELF_TEST(TestIfExistDefined)

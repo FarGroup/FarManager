@@ -48,10 +48,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "execute.hpp"
 #include "fnparce.hpp"
 #include "configdb.hpp"
-#include "pathmix.hpp"
 #include "lang.hpp"
 #include "DlgGuid.hpp"
-#include "cvtname.hpp"
 #include "global.hpp"
 
 #include "platform.fs.hpp"
