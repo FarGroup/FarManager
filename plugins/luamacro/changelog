@@ -1,4 +1,8 @@
-﻿shmuel 23.10.2018 10:16:54 +0200 - build 671
+﻿shmuel 24.10.2018 15:22:08 +0200 - build 672
+
+1. LuaFAR: suppress compilation warning.
+
+shmuel 23.10.2018 10:16:54 +0200 - build 671
 
 1. LuaFAR: добавлена поддержка пропущенного файлового атрибута (no scrub data).
 

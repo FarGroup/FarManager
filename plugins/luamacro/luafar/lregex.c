@@ -196,7 +196,7 @@ int rx_find_match(lua_State *L, int operation, int is_function, int is_wide)
 		}
 		if (operation == OP_EXEC)
 		{
-			lua_createtable(L, 2*data.Count, 0);
+			lua_createtable(L, 2*(int)data.Count, 0);
 			for(i=skip; i<data.Count; i++)
 			{
 				int k = (i-skip)*2 + 1;
