@@ -175,7 +175,7 @@ static void ParseMenu(UserMenu::menu_container& Menu, range<enum_file_lines::ite
 		}
 
 		// '}' can be a hotkey as well
-		if (MenuStr.front() == L'}' && MenuStr[1] != L':')
+		if (MenuStr.front() == L'}' && !(MenuStr.size() > 1 && MenuStr[1] == L':'))
 			break;
 
 		if (!std::iswblank(MenuStr.front()))

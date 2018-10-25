@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 25.10.2018 20:33:20 +0100 - build 5293
+
+1. Fix 5291.
+
 drkns 24.10.2018 22:20:59 +0100 - build 5292
 
 1. In command line and file associations "if [not] exist" parser didn't work properly - a first encountered "not" was affecting all nested "if", e.g. "if not exist foo if defined tmp echo yes".
