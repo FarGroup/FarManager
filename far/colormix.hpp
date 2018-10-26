@@ -64,6 +64,7 @@ namespace colors
 	COLORREF ConsoleIndexToTrueColor(int Index);
 	const FarColor& PaletteColorToFarColor(PaletteColors ColorIndex);
 	const FarColor* StoreColor(const FarColor& Value);
+	COLORREF ARGB2ABGR(int Color);
 	// ([[T]FFFFFFFF][:[T]BBBBBBBB])
 	string_view::const_iterator ExtractColorInNewFormat(string_view::const_iterator Begin, string_view::const_iterator End, FarColor& Color, bool& Stop);
 }

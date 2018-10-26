@@ -285,7 +285,7 @@ const FarColor* StoreColor(const FarColor& Value)
 	return &*ColorSet.emplace(Value).first;
 }
 
-static COLORREF ARGB2ABGR(COLORREF Color)
+COLORREF ARGB2ABGR(int Color)
 {
 	return (Color & 0xFF000000) | ((Color & 0x00FF0000) >> 16) | (Color & 0x0000FF00) | ((Color & 0x000000FF) << 16);
 }
