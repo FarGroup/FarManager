@@ -57,8 +57,6 @@ namespace os::chrono
 
 	bool get_process_creation_time(HANDLE Process, time_point& CreationTime);
 
-	duration process_uptime();
-
 	string format_time();
 }
 #endif // PLATFORM_CHRONO_HPP_4942BDE7_47FB_49F8_B8F6_EE0AFF4EC61D

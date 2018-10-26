@@ -1,3 +1,9 @@
+drkns 26.10.2018 18:59:10 +0100 - build 5295
+
+1. После 5080 некореектно работали FSF.FarClock / Far.UpTime
+
+2. Улучшения диалога выбора цвета.
+
 drkns 26.10.2018 01:20:13 +0100 - build 5294
 
 1. С форума: Add color code (#RRGGBB) to the Color dialog

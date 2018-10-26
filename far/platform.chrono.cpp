@@ -78,18 +78,6 @@ namespace os::chrono
 		return true;
 	}
 
-	duration process_uptime()
-	{
-		static const auto ProcessCreationTime = []
-		{
-			time_point CreationTime;
-			get_process_creation_time(GetCurrentProcess(), CreationTime);
-			return CreationTime;
-		}();
-
-		return nt_clock::now() - ProcessCreationTime;
-	}
-
 	string format_time()
 	{
 		string Value;

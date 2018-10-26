@@ -442,16 +442,16 @@ enum color_dialog_items
 	cd_fg_color_first,
 	cd_fg_color_last = cd_fg_color_first + 15,
 
+	cd_fg_colorcode,
+	cd_fg_advanced,
+	cd_fg_transparent,
+
 	cd_bg_box,
 	cd_bg_color_first,
 	cd_bg_color_last = cd_bg_color_first + 15,
 
-	cd_fg_advanced,
-	cd_fg_colorcode,
-	cd_fg_transparent,
-
-	cd_bg_advanced,
 	cd_bg_colorcode,
+	cd_bg_advanced,
 	cd_bg_transparent,
 
 	cd_sample_first,
@@ -633,6 +633,10 @@ bool GetColorDialogInternal(FarColor& Color, bool const bCentered, const FarColo
 		{DI_RADIOBUTTON,15, 5, 0, 5, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
 		{DI_RADIOBUTTON,15, 6, 0, 6, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
 
+		{DI_FIXEDIT,     5, 8,10, 8, 0,nullptr,L"HHHHHH",DIF_MASKEDIT, L""},
+		{DI_BUTTON,     12, 8,18, 8, 0,nullptr,nullptr,0,msg(lng::MSetColorForeRGB).c_str()},
+		{DI_CHECKBOX,    5, 9, 0, 9, 0,nullptr,nullptr,0,msg(lng::MSetColorForeTransparent).c_str()},
+
 		{DI_SINGLEBOX,  20, 2,33, 7, 0,nullptr,nullptr,0,msg(lng::MSetColorBackground).c_str()},
 		{DI_RADIOBUTTON,21, 3, 0, 3, 0,nullptr,nullptr,DIF_GROUP|DIF_MOVESELECT,L""},
 		{DI_RADIOBUTTON,21, 4, 0, 4, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
@@ -651,12 +655,8 @@ bool GetColorDialogInternal(FarColor& Color, bool const bCentered, const FarColo
 		{DI_RADIOBUTTON,30, 5, 0, 5, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
 		{DI_RADIOBUTTON,30, 6, 0, 6, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
 
-		{DI_BUTTON,      5, 8,11, 8, 0,nullptr,nullptr,0,L"RGB"},
-		{DI_FIXEDIT,     13,8,18, 8, 0,nullptr,L"HHHHHH",DIF_MASKEDIT, L""},
-		{DI_CHECKBOX,    5, 9, 0, 9, 0,nullptr,nullptr,0,msg(lng::MSetColorForeTransparent).c_str()},
-
-		{DI_BUTTON,     20, 8,26, 8, 0,nullptr,nullptr,0,L"RGB"},
-		{DI_FIXEDIT,    28, 8,33, 8, 0,nullptr,L"HHHHHH",DIF_MASKEDIT,L""},
+		{DI_FIXEDIT,    20, 8,25, 8, 0,nullptr,L"HHHHHH",DIF_MASKEDIT,L""},
+		{DI_BUTTON,     27, 8,33, 8, 0,nullptr,nullptr,0,msg(lng::MSetColorBackRGB).c_str()},
 		{DI_CHECKBOX,   22, 9, 0, 9, 0,nullptr,nullptr,0,msg(lng::MSetColorBackTransparent).c_str()},
 
 		{DI_TEXT,        5, 9, 33, 9,0,nullptr,nullptr,0,msg(lng::MSetColorSample).c_str()},
@@ -705,7 +705,7 @@ bool GetColorDialogInternal(FarColor& Color, bool const bCentered, const FarColo
 	}
 	else
 	{
-		ColorDlg[cd_fg_advanced].Flags |= DIF_FOCUS;
+		ColorDlg[cd_fg_colorcode].Flags |= DIF_FOCUS;
 	}
 
 	if (BaseColor)

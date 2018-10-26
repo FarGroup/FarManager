@@ -1544,7 +1544,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			return PassNumber(GetCurrentProcessId(), Data);
 
 		case MCODE_V_FAR_UPTIME:
-			return PassNumber(std::chrono::duration_cast<std::chrono::milliseconds>(os::chrono::process_uptime()).count(), Data);
+			return PassNumber(std::chrono::duration_cast<std::chrono::milliseconds>(Global->FarUpTime()).count(), Data);
 
 		case MCODE_V_MACRO_AREA:
 			return PassNumber(GetArea(), Data);

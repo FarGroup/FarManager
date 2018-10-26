@@ -43,6 +43,7 @@ global::global():
 	OnlyEditorViewerUsed(),
 	m_MainThreadId(GetCurrentThreadId()),
 	m_MainThreadHandle(os::OpenCurrentThread()),
+	m_FarStartTime(std::chrono::steady_clock::now()),
 	m_SearchHex(),
 	m_ConfigProvider(),
 	Opt(std::make_unique<Options>()),
@@ -89,6 +90,11 @@ global::~global()
 	delete m_ConfigProvider;
 	m_ConfigProvider = nullptr;
 	Global = nullptr;
+}
+
+std::chrono::steady_clock::duration global::FarUpTime() const
+{
+	return std::chrono::steady_clock::now() - m_FarStartTime;
 }
 
 void global::StoreSearchString(const string& Str, bool Hex)

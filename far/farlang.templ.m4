@@ -18764,6 +18764,34 @@ MSetColorBackground
 "&Sfondo"
 "&Фон"
 
+MSetColorForeRGB
+l:
+l:// 3 characters max
+"&RGB"
+"&RGB"
+"&RGB"
+"&RGB"
+"&RGB"
+"&RGB"
+"&RGB"
+"&RGB"
+"&RGB"
+"&RGB"
+
+MSetColorBackRGB
+l:
+l:// 3 characters max
+"R&GB"
+"R&GB"
+"R&GB"
+"R&GB"
+"R&GB"
+"R&GB"
+"R&GB"
+"R&GB"
+"R&GB"
+"R&GB"
+
 MSetColorForeTransparent
 "&Прозрачный"
 "&Transparent"
