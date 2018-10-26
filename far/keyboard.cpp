@@ -176,7 +176,8 @@ static const TFKey FKeys1[]
 	{ KEY_NUMPAD2,                  lng::MKeyNumpad2,                L"Num2"sv,                   },
 	{ KEY_NUMPAD3,                  lng::MKeyNumpad3,                L"Num3"sv,                   },
 	{ KEY_NUMPAD4,                  lng::MKeyNumpad4,                L"Num4"sv,                   },
-	{ KEY_NUMPAD5,                  lng::MKeyNumpad5,                L"Num5"sv,                   },
+	// Same as KEY_CLEAR below
+	//{ KEY_NUMPAD5,                  lng::MKeyNumpad5,                L"Num5"sv,                   },
 	{ KEY_NUMPAD6,                  lng::MKeyNumpad6,                L"Num6"sv,                   },
 	{ KEY_NUMPAD7,                  lng::MKeyNumpad7,                L"Num7"sv,                   },
 	{ KEY_NUMPAD8,                  lng::MKeyNumpad8,                L"Num8"sv,                   },
