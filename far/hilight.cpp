@@ -643,29 +643,32 @@ void highlight::configuration::HiEdit(int MenuPos)
 
 					if (Count && SelectPos > 0)
 					{
+						using std::swap;
+						swap(HiMenu->at(SelectPos), HiMenu->at(SelectPos - 1));
 						if (UpperCount && RealSelectPos==FirstCount && RealSelectPos<FirstCount+UpperCount)
 						{
 							FirstCount++;
 							UpperCount--;
 							SelectPos--;
+							swap(HiMenu->at(SelectPos), HiMenu->at(SelectPos - 1));
 						}
 						else if (LowerCount && RealSelectPos==FirstCount+UpperCount && RealSelectPos<FirstCount+UpperCount+LowerCount)
 						{
 							UpperCount++;
 							LowerCount--;
 							SelectPos--;
+							swap(HiMenu->at(SelectPos), HiMenu->at(SelectPos - 1));
 						}
 						else if (LastCount && RealSelectPos==FirstCount+UpperCount+LowerCount)
 						{
 							LowerCount++;
 							LastCount--;
 							SelectPos--;
+							swap(HiMenu->at(SelectPos), HiMenu->at(SelectPos - 1));
 						}
 						else
 						{
-							using std::swap;
 							swap(HiData[RealSelectPos], HiData[RealSelectPos-1]);
-							swap(HiMenu->at(SelectPos), HiMenu->at(SelectPos - 1));
 						}
 						HiMenu->SetSelectPos(--SelectPos);
 						NeedUpdate = true;
@@ -682,29 +685,32 @@ void highlight::configuration::HiEdit(int MenuPos)
 
 					if (Count && SelectPos < static_cast<int>(HiMenu->size()-2))
 					{
+						using std::swap;
+						swap(HiMenu->at(SelectPos), HiMenu->at(SelectPos + 1));
 						if (FirstCount && RealSelectPos==FirstCount-1)
 						{
 							FirstCount--;
 							UpperCount++;
 							SelectPos++;
+							swap(HiMenu->at(SelectPos), HiMenu->at(SelectPos + 1));
 						}
 						else if (UpperCount && RealSelectPos==FirstCount+UpperCount-1)
 						{
 							UpperCount--;
 							LowerCount++;
 							SelectPos++;
+							swap(HiMenu->at(SelectPos), HiMenu->at(SelectPos + 1));
 						}
 						else if (LowerCount && RealSelectPos==FirstCount+UpperCount+LowerCount-1)
 						{
 							LowerCount--;
 							LastCount++;
 							SelectPos++;
+							swap(HiMenu->at(SelectPos), HiMenu->at(SelectPos + 1));
 						}
 						else
 						{
-							using std::swap;
 							swap(HiData[RealSelectPos], HiData[RealSelectPos+1]);
-							swap(HiMenu->at(SelectPos), HiMenu->at(SelectPos + 1));
 						}
 						HiMenu->SetSelectPos(++SelectPos);
 						NeedUpdate = true;
