@@ -176,8 +176,8 @@ static const TFKey FKeys1[]
 	{ KEY_NUMPAD2,                  lng::MKeyNumpad2,                L"Num2"sv,                   },
 	{ KEY_NUMPAD3,                  lng::MKeyNumpad3,                L"Num3"sv,                   },
 	{ KEY_NUMPAD4,                  lng::MKeyNumpad4,                L"Num4"sv,                   },
-	// Same as KEY_CLEAR below
-	//{ KEY_NUMPAD5,                  lng::MKeyNumpad5,                L"Num5"sv,                   },
+	{ KEY_CLEAR,                    lng::MKeyClear,                  L"Clear"sv,                  }, // KEY_CLEAR == KEY_NUMPAD5. We use "Clear", KeyNameToKey supports both
+	{ KEY_NUMPAD5,                  lng::MKeyNumpad5,                L"Num5"sv,                   },
 	{ KEY_NUMPAD6,                  lng::MKeyNumpad6,                L"Num6"sv,                   },
 	{ KEY_NUMPAD7,                  lng::MKeyNumpad7,                L"Num7"sv,                   },
 	{ KEY_NUMPAD8,                  lng::MKeyNumpad8,                L"Num8"sv,                   },
@@ -190,7 +190,6 @@ static const TFKey FKeys1[]
 	{ KEY_PGDN,                     lng::MKeyPgdn,                   L"PgDn"sv,                   },
 	{ KEY_PGUP,                     lng::MKeyPgup,                   L"PgUp"sv,                   },
 	{ KEY_BREAK,                    lng::MKeyBreak,                  L"Break"sv,                  },
-	{ KEY_CLEAR,                    lng::MKeyClear,                  L"Clear"sv,                  },
 	{ KEY_ENTER,                    lng::MKeyEnter,                  L"Enter"sv,                  },
 	{ KEY_PAUSE,                    lng::MKeyPause,                  L"Pause"sv,                  },
 	{ KEY_RIGHT,                    lng::MKeyRight,                  L"Right"sv,                  },
@@ -2336,6 +2335,8 @@ static void TestKeyNameToKey()
 		{ KEY_SLASH,                  L"/" },
 		{ KEY_SHIFT,                  L"SHIFT" },
 		{ KEY_CTRLC,                  L"CtrlC" },
+		{ KEY_CLEAR,                  L"Clear" },
+		{ KEY_NUMPAD5,                L"Num5" },
 		{ KEY_SHIFTF12,               L"ShiftF12" },
 		{ KEY_ALT,                    L"Alt00042" },
 		{ KEY_VK_0xFF_BEGIN + 42,     L"Spec00042" },
