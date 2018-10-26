@@ -18764,18 +18764,6 @@ MSetColorBackground
 "&Sfondo"
 "&Фон"
 
-MSetColorAdvanced
-"Дополнительно"
-"Advanced"
-"Pokročilé"
-"Erweitert"
-"Haladó"
-"Zaawansowane"
-"Avanzado"
-"Pokročilé"
-"Avanzate"
-"Додатково"
-
 MSetColorForeTransparent
 "&Прозрачный"
 "&Transparent"
