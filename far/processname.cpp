@@ -59,8 +59,6 @@ string ConvertWildcards(string_view const SrcName, string_view const Mask, int c
 	Result.assign(Mask.data(), Mask.size() - WildName.size());
 
 	const auto BeforeNameLength = Result.empty()? 0 : Src.size() - SrcNamePart.size();
-	const auto SrcNameLastDotPos = SrcNamePart.rfind(L'.');
-	const auto SrcNameLastDotPtr = SrcNameLastDotPos == SrcNamePart.npos? nullptr : SrcNamePart.data() + SrcNameLastDotPos;
 
 	string_view WildPtr = WildName;
 
@@ -90,8 +88,6 @@ string ConvertWildcards(string_view const SrcName, string_view const Mask, int c
 					size_t LastCharPos;
 					if (Char == L'?')
 						LastCharPos = SrcNamePart.size();
-					else if (Char == L'.' && SrcNameLastDotPtr)
-						LastCharPos = SrcNameLastDotPtr - SrcNamePart.data();
 					else
 					{
 						LastCharPos = SrcNamePart.rfind(Char);
@@ -302,6 +298,7 @@ static void TestWildcards()
 		L"?????.?????"sv,
 		L"*_NEW.*"sv,
 		L"?x.????999.*rForTheCourse"sv,
+		L"*.*.2"sv,
 	};
 
 	static const struct
@@ -337,6 +334,7 @@ static void TestWildcards()
 		{ 5, L"part1.part2.part3"sv,        L"px.part999.parForTheCourse"sv },
 		{ 5, L"a.b.c"sv,                    L"ax.b999.crForTheCourse"sv },
 		{ 5, L"a.b.CarPart3BEER"sv,         L"ax.b999.CarParForTheCourse"sv },
+		{ 6, L"1.1.1"sv,                    L"1.1.1.2"sv },
 	};
 
 	for (const auto& i: Tests)
