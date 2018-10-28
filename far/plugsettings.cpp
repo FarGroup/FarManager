@@ -65,9 +65,9 @@ void* AbstractSettings::Allocate(size_t Size)
 class PluginSettings: public AbstractSettings
 {
 public:
-	PluginSettings(const GUID& Guid, bool Local);
+	PluginSettings(const Plugin* pPlugin, bool Local);
+	~PluginSettings();
 
-	bool IsValid() const override;
 	bool Set(const FarSettingsItem& Item) override;
 	bool Get(FarSettingsItem& Item) override;
 	bool Enum(FarSettingsEnum& Enum) override;
@@ -83,20 +83,19 @@ private:
 };
 
 
-AbstractSettings* AbstractSettings::CreatePluginSettings(const GUID& Guid, bool Local)
+std::unique_ptr<AbstractSettings> AbstractSettings::CreatePluginSettings(const GUID& Guid, bool const Local)
 {
-	return new PluginSettings(Guid, Local);
+	const auto pPlugin = Global->CtrlObject->Plugins->FindPlugin(Guid);
+	return pPlugin? std::make_unique<PluginSettings>(pPlugin, Local) : nullptr;
 }
 
 
-PluginSettings::PluginSettings(const GUID& Guid, bool Local)
+PluginSettings::PluginSettings(const Plugin* const pPlugin, bool const Local)
 {
-	const auto pPlugin = Global->CtrlObject->Plugins->FindPlugin(Guid);
-	if (!pPlugin)
-		return;
-
-	const auto strGuid = GuidToStr(Guid);
+	const auto strGuid = GuidToStr(pPlugin->Id());
 	PluginsCfg = ConfigProvider().CreatePluginsConfig(strGuid, Local);
+	PluginsCfg->BeginTransaction();
+
 	m_Keys.emplace_back(PluginsCfg->CreateKey(HierarchicalConfig::root_key(), strGuid, &pPlugin->Title()));
 
 	if (!Global->Opt->ReadOnlyConfig)
@@ -114,9 +113,10 @@ PluginSettings::PluginSettings(const GUID& Guid, bool Local)
 	}
 }
 
-bool PluginSettings::IsValid() const
+PluginSettings::~PluginSettings()
 {
-	return !m_Keys.empty();
+	if (PluginsCfg)
+		PluginsCfg->EndTransaction();
 }
 
 bool PluginSettings::Set(const FarSettingsItem& Item)
@@ -224,7 +224,6 @@ private:
 class FarSettings: public AbstractSettings
 {
 public:
-	bool IsValid() const override { return true; }
 	bool Set(const FarSettingsItem& Item) override;
 	bool Get(FarSettingsItem& Item) override;
 	bool Enum(FarSettingsEnum& Enum) override;
@@ -240,9 +239,9 @@ private:
 };
 
 
-AbstractSettings* AbstractSettings::CreateFarSettings()
+std::unique_ptr<AbstractSettings> AbstractSettings::CreateFarSettings()
 {
-	return new FarSettings();
+	return std::make_unique<FarSettings>();
 }
 
 

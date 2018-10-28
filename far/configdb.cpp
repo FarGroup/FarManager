@@ -409,12 +409,6 @@ public:
 		async_delete_impl(os::make_name<os::event>(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, DbName)),
 		SQLiteDb(&HierarchicalConfigDb::Initialise, DbName, Local)
 	{
-		HierarchicalConfigDb::BeginTransaction();
-	}
-
-	~HierarchicalConfigDb() override
-	{
-		HierarchicalConfigDb::EndTransaction();
 	}
 
 protected:

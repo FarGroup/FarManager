@@ -102,6 +102,8 @@ static const auto HighlightKeyName = L"Highlight"sv;
 
 static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 {
+	SCOPED_ACTION(auto)(cfg->ScopedTransaction());
+
 	if (DeleteOld)
 	{
 		if (const auto root = cfg->FindByName(cfg->root_key(), HighlightKeyName))
@@ -770,6 +772,9 @@ void highlight::configuration::Save(bool always)
 	m_Changed = false;
 
 	const auto cfg = ConfigProvider().CreateHighlightConfig();
+
+	SCOPED_ACTION(auto)(cfg->ScopedTransaction());
+
 	auto root = cfg->FindByName(cfg->root_key(), HighlightKeyName);
 
 	if (root)

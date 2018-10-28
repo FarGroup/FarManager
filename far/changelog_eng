@@ -3,6 +3,11 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 28.10.2018 14:00:50 +0000 - build 5300
+
+1. Reduce transactions lifetime in HierarchicalConfigDb for internal databases.
+   For plugins everything is the same as before for now.
+
 drkns 27.10.2018 17:44:42 +0100 - build 5299
 
 1. Forum: Crash when renaming 1.1.1 to *.*.2

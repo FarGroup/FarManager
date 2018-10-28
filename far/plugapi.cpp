@@ -2631,27 +2631,20 @@ intptr_t WINAPI apiSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS
 		case SCTL_CREATE:
 		{
 			const auto data = static_cast<FarSettingsCreate*>(Param2);
-			if (CheckStructSize(data))
+			if (!CheckStructSize(data))
+				return FALSE;
+
+			if (data->Guid == FarGuid)
 			{
-				if (data->Guid == FarGuid)
-				{
-					settings = AbstractSettings::CreateFarSettings();
-				}
-				else
-				{
-					if (Global->CtrlObject->Plugins->FindPlugin(data->Guid))
-					{
-						settings = AbstractSettings::CreatePluginSettings(data->Guid, Param1 == PSL_LOCAL);
-					}
-				}
-				if (settings && settings->IsValid())
-				{
-					data->Handle = settings;
-					return TRUE;
-				}
-				delete settings;
+				data->Handle = AbstractSettings::CreateFarSettings().release();
+				return TRUE;
 			}
-			break;
+
+			if (!Global->CtrlObject->Plugins->FindPlugin(data->Guid))
+				return FALSE;
+
+			data->Handle = AbstractSettings::CreatePluginSettings(data->Guid, Param1 == PSL_LOCAL).release();
+			return TRUE;
 		}
 
 		case SCTL_FREE:

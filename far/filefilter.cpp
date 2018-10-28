@@ -912,6 +912,8 @@ void FileFilter::Save(bool always)
 
 	const auto cfg = ConfigProvider().CreateFiltersConfig();
 
+	SCOPED_ACTION(auto)(cfg->ScopedTransaction());
+
 	auto root = cfg->FindByName(cfg->root_key(), Strings.Filters);
 	if (root)
 		cfg->DeleteKeyTree(root);

@@ -142,6 +142,9 @@ void Shortcuts::Save()
 		return;
 
 	const auto Cfg = ConfigProvider().CreateShortcutsConfig();
+
+	SCOPED_ACTION(auto)(Cfg->ScopedTransaction());
+
 	auto Root = Cfg->FindByName(Cfg->root_key(), FolderShortcutsKey);
 	if (!Root)
 		Root = Cfg->CreateKey(Cfg->root_key(), FolderShortcutsKey);

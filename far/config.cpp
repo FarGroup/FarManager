@@ -2518,6 +2518,9 @@ void Options::SavePanelModes(bool always)
 		return;
 
 	const auto cfg = ConfigProvider().CreatePanelModesConfig();
+
+	SCOPED_ACTION(auto)(cfg->ScopedTransaction());
+
 	auto root = cfg->root_key();
 
 	const auto& SaveMode = [&](const auto& i, size_t Index)
