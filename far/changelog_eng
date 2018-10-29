@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+MZK 28.10.2018 19:31:15 -0700 - build 5301
+
+1. Optimization: make fuction while_mouse_button_pressed a template.
+
 drkns 28.10.2018 14:00:50 +0000 - build 5300
 
 1. Reduce transactions lifetime in HierarchicalConfigDb for internal databases.

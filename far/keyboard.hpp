@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "common/2d/point.hpp"
+#include "datetime.hpp"
 
 struct FarKey;
 
@@ -94,7 +95,6 @@ int KeyToKeyLayout(int Key);
 
 // возвращает: 1 - LeftPressed, 2 - Right Pressed, 3 - Middle Pressed, 0 - none
 DWORD IsMouseButtonPressed();
-bool while_mouse_button_pressed(const std::function<bool()>& Action);
 int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *rec=nullptr);
 int KeyNameToKey(string_view Name);
 bool InputRecordToText(const INPUT_RECORD *Rec, string &strKeyText);
@@ -119,5 +119,45 @@ bool IsModifKey(DWORD Key);
 bool CheckForEsc();
 bool CheckForEscSilent();
 bool ConfirmAbortOp();
+
+template<typename action>
+bool while_mouse_button_pressed(action&& Action)
+{
+	DWORD RepeatSpeed;
+	if (!SystemParametersInfo(SPI_GETKEYBOARDSPEED, 0, &RepeatSpeed, 0))
+		RepeatSpeed = 15;
+
+	DWORD RepeatDelay;
+	if (!SystemParametersInfo(SPI_GETKEYBOARDDELAY, 0, &RepeatDelay, 0))
+		RepeatDelay = 1;
+
+	// 0...31: approximately 2.5...30 repetitions per second
+	const auto RepetitionsPerSecond = 2.5 + (30.0 - 2.5) * RepeatSpeed / 31;
+	const auto RepeatDuration = std::chrono::duration_cast<std::chrono::steady_clock::duration>(1s / RepetitionsPerSecond);
+
+	// 0...3: 250...1000 ms
+	const auto DelayDuration = 250ms * (RepeatDelay + 1);
+
+	const time_check RepeatCheck(time_check::mode::immediate, RepeatDuration);
+	const time_check DelayCheck(time_check::mode::delayed, DelayDuration);
+
+	bool IsRepeating = false;
+
+	while (IsMouseButtonPressed())
+	{
+		if (RepeatCheck)
+		{
+			if (IsRepeating && !DelayCheck.is_time())
+				continue;
+
+			if (!Action())
+				return false;
+		}
+
+		IsRepeating = true;
+	}
+
+	return true;
+}
 
 #endif // KEYBOARD_HPP_63436F7A_609D_4E3B_8EF8_178B9829AB46

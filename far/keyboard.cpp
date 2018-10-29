@@ -486,46 +486,6 @@ DWORD IsMouseButtonPressed()
 	return IntKeyState.MouseButtonState;
 }
 
-bool while_mouse_button_pressed(const std::function<bool()>& Action)
-{
-	DWORD RepeatSpeed;
-	if (!SystemParametersInfo(SPI_GETKEYBOARDSPEED, 0, &RepeatSpeed, 0))
-		RepeatSpeed = 15;
-
-	DWORD RepeatDelay;
-	if (!SystemParametersInfo(SPI_GETKEYBOARDDELAY, 0, &RepeatDelay, 0))
-		RepeatDelay = 1;
-
-	// 0...31: approximately 2.5...30 repetitions per second
-	const auto RepetitionsPerSecond =  2.5 + (30.0 - 2.5) * RepeatSpeed / 31;
-	const auto RepeatDuration = std::chrono::duration_cast<std::chrono::steady_clock::duration>(1s / RepetitionsPerSecond);
-
-
-	// 0...3: 250...1000 ms
-	const auto DelayDuration = 250ms * (RepeatDelay + 1);
-
-	const time_check RepeatCheck(time_check::mode::immediate, RepeatDuration);
-	const time_check DelayCheck(time_check::mode::delayed, DelayDuration);
-
-	bool IsRepeating = false;
-
-	while (IsMouseButtonPressed())
-	{
-		if (RepeatCheck)
-		{
-			if (IsRepeating && !DelayCheck.is_time())
-				continue;
-
-			if (!Action())
-				return false;
-		}
-
-		IsRepeating = true;
-	}
-
-	return true;
-}
-
 static auto ButtonStateToKeyMsClick(DWORD ButtonState)
 {
 	switch (ButtonState)
