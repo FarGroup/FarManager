@@ -272,7 +272,7 @@ void FileFilter::FilterEdit()
 				{
 					FilterList->ClearCheck(static_cast<int>(i));
 				}
-
+				NeedUpdate = true;
 				break;
 			}
 			case KEY_F4:

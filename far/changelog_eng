@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 29.10.2018 19:17:34 +0000 - build 5301
+
+1. Forum: Shift+BS doesn't reset the filter.
+
 drkns 28.10.2018 14:00:50 +0000 - build 5300
 
 1. Reduce transactions lifetime in HierarchicalConfigDb for internal databases.
