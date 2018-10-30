@@ -3,6 +3,11 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 30.10.2018 22:03:16 +0000 - build 5302
+
+1. GH #74 Problem with relative paths in arguments if running from directory with full path longer than MAX_PATH chars
+   Let's try passing the short name to SHELLEXECUTEINFO.lpDirectory if the long one is longer than MAX_PATH.
+
 drkns 29.10.2018 19:17:34 +0000 - build 5301
 
 1. Forum: Shift+BS doesn't reset the filter.

@@ -899,7 +899,13 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 
 	SHELLEXECUTEINFO seInfo={sizeof(seInfo)};
-	const auto strCurDir = os::fs::GetCurrentDirectory();
+
+	auto strCurDir = os::fs::GetCurrentDirectory();
+	if (strCurDir.size() >= MAX_PATH - 1)
+	{
+		strCurDir = ConvertNameToShort(strCurDir);
+	}
+
 	seInfo.lpDirectory = strCurDir.c_str();
 	seInfo.nShow = SW_SHOWNORMAL;
 
@@ -996,7 +1002,13 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 		os::fs::process_current_directory_guard Guard;
 		if (os::fs::file_status(strCurDir).check(FILE_ATTRIBUTE_REPARSE_POINT))
 		{
-			Guard = os::fs::process_current_directory_guard(ConvertNameToReal(strCurDir));
+			auto RealDir = ConvertNameToReal(strCurDir);
+			if (RealDir.size() >= MAX_PATH - 1)
+			{
+				RealDir = ConvertNameToShort(RealDir);
+			}
+
+			Guard = os::fs::process_current_directory_guard(RealDir);
 		}
 
 		Result = ShellExecuteEx(&seInfo) != FALSE;
