@@ -1,3 +1,7 @@
+drkns 05.11.2018 18:44:11 +0000 - build 5303
+
+1. Уточнение 5281.2.
+
 drkns 30.10.2018 22:03:16 +0000 - build 5302
 
 1. GH #74 Problem with relative paths in arguments if running from directory with full path longer than MAX_PATH chars
