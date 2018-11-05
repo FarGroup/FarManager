@@ -7333,7 +7333,7 @@ lv=2
 dt=Text
 nm=far.FreeSettings
 ctime=3513437113
-mtime=3576062233
+mtime=3750618583
 <article>
 #_far.FreeSettings ()
 #_
@@ -7350,8 +7350,13 @@ mtime=3576062233
 #_**Far API used:**
 #_  SettingsControl
 #_
+#_**WARNING:**
+#_ For debug purposes only!
+#_ Normally you should use method `Free` to free each settings handle individually.
+#_
 #_@@@
 #_[far.CreateSettings]: 416.html
+#_[Free]: 419.html
 #_
 #_{settingscontrol}: http://api.farmanager.com/ru/service_functions/settingscontrol.html
 #_
