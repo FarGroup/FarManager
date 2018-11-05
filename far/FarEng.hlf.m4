@@ -4236,11 +4236,6 @@ the same #name# as that of the item under cursor. #†#
 
     #Shift+<Gray +># selects, and #Shift+<Gray -># deselects all items. #†#
 
-    #†# If the #Select folders# option of the
-~Panel settings~@PanelSettings@ dialog is off, only files are selected
-or deselected. Otherwise, the selection on the folders is changed
-as well.
-
     #Ctrl+<Gray *># inverts the current selection on all items,
 including folders.
 
@@ -4257,6 +4252,12 @@ the cursor forward or backward respectively, while selecting
 or deselecting items along the way. The action (selection
 or deselection) depends on the state of the item under cursor before the
 click.
+
+ ────────────────
+ #†# If the #Select folders# option of the
+~Panel settings~@PanelSettings@ dialog is off, only files are selected
+or deselected. Otherwise, the selection on the folders is changed
+as well.
 
 @CopyFiles
 $ #Copying, moving, renaming and creating links#
@@ -4568,7 +4569,8 @@ start the Windows Explorer and set the cursor to the current file or directory.
 
 @OSCommands
 $ #Operating system commands#
-    Far Manager by itself processes the following operating system commands:
+    Far Manager executes the following operating system commands
+internally, without invoking operating system command processor:
 
     #CLS#
 
@@ -4576,82 +4578,90 @@ $ #Operating system commands#
 
     #disk:#
 
-    To change the current disk on the active panel to the specified disk.
+    Changes the current drive on the active panel to the specified “disk”.
 
     #CD [disk:]path# or #CHDIR [disk:]path#
 
-    To change the current path on the active panel to the specified path. If
-the disk drive letter is specified, the current disk is also changed. If the
-active panel shows a ~plugin~@Plugins@ emulated file system, the command "CD"
-in the command line can be used to change the folder in the plugin file system.
-Unlike "CD", "CHDIR" command always treats the specified parameter as a real
-folder name, regardless of the file panel type.
+    Changes the current path on the active panel to the specified
+“path”. If the drive letter is specified, the current drive is also
+changed. If the active panel shows a ~plugin~@Plugins@ emulated file
+system, the “CD” command changes the folder in the plugin file system.
+Unlike “CD”, the “CHDIR” command treats its parameter as a path name
+in the disk file system, regardless of the file panel type.
 
-    Если в качестве параметра path указан символ #~~# (и в текущей папке нет 
-файлового объекта с таким именем), то произойдет переход в папку, содержащую 
-основной исполняемый модуль Far.
+    The #CD ~~# command changes to the home directory (if there is no
+real “~~” file or directory in the current directory). The home
+directory is specified in the #Use home dir# option of the
+~Command line settings~@CmdlineSettings@ dialog. By default, it is the
+string “%FARHOME%” denoting the Far Manager home directory.
 
     #CHCP [nnn]#
 
-    Displays or sets the active code page number. "nnn" - specifies a code
-page number. Type CHCP without a parameter to display the active code
-page number.
+    Displays or sets the active code page number. Parameter “nnn”
+specifies the code page number to set. “CHCP” without a parameter
+displays the active code page number.
 
     #SET variable=[string]#
 
-    Set environment variable "variable" to the value "string". If "string" is
-not specified, the environment variable "variable" will be removed. On startup,
-Far Manager sets several ~environment variables~@FAREnv@ by itself.
+    Sets environment “variable” to the value “string”. If “string”
+is not specified, the environment “variable” is removed. On startup, Far
+Manager sets several ~environment variables~@FAREnv@.
 
     #IF [NOT] EXIST filename command#
 
-    Execute a command "command" if "filename" exists. Prefix "NOT" - execute
-the command only if the condition is false.
+    Executes the “command” if the “filename” exists, or does not exist
+(if used with “NOT”).
 
     #IF [NOT] DEFINED variable command#
 
-    The "DEFINED" conditional works just like "EXISTS" except it takes an
-environment variable name and returns true if the environment variable is
-defined.
+    Executes the “command” if the environment “variable” is defined,
+or not defined (if used with “NOT”).
 
-
-    "IF" commands can be nested, for instance, command "command"
+    “IF” commands can be nested. In the following example the “command”
+will be executed if “file1” exists, “file2” does not exist, and the
+environment “variable” is defined.
 
     #if exist file1 if not exist file2 if defined variable command#
 
-    will be executed if the file "file1" exists, the file "file2" does not
-exist and the environment variable "variable" is defined.
+    #PUSHD path#
 
-    #pushd path#
+    Stores the current path for use by the “POPD” command, then changes
+the current path on the active panel to the specified “path”.
 
-    Команда PUSHD сохраняет текущий каталог во внутреннем стеке и делает
-текущим каталог path.
+    #POPD#
 
-    #popd#
+    Changes the current path on the active panel to that stored by the
+“PUSHD” command.
 
-    Переходит в каталог, сохраненный командой PUSHD.
+    #CLRD#
 
-    #clrd#
+    Clears the stack of paths stored by the “PUSHD” command.
 
-    Очищает стек каталогов, сохраненных командой PUSHD.
+    #TITLE [string]#
 
-    #title# [string]
+    Sets the “string” as the permanent title of the Far Manager console
+window. The title will not change with switching between panels, nor
+with the commands being executed, nor with the #Far window title# option
+of the ~Interface settings~@InterfSettings@ dialog. The “string” preset
+will be used until the end of the current session or until the default
+behavior is restored by the “TITLE” command with no parameters.
 
-    Sets the fixed title for the console window.
-    ^<wrap>String will be used instead of standard Far console title till the end of current session. 
-If string is not specified default title will be restored.
+    #EXIT#
+
+    Exits Far Manager.
 
     Notes:
 
-    1. ^<wrap>Any other commands will be sent to the operating
-system command processor.
+    1. ^<wrap>If the command syntax does not match one of the listed
+above, Far Manager will invoke the operating system command processor
+to execute the command.
 
-    2. The commands listed above work in:
+    2. ^<wrap>Far Manager executes the commands listed above in the
+following contexts:
        - ~Command line~@CmdLineCmd@
        - ~Apply command~@ApplyCmd@
        - ~User menu~@UserMenu@
        - ~File associations~@FileAssoc@
-
 
 @FAREnv
 $ #Environment variables#
