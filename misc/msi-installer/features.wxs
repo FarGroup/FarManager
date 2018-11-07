@@ -355,6 +355,7 @@
           <ComponentRef Id="CompEng.lng" />
           <ComponentRef Id="CompSky.lng" />
           <ComponentRef Id="CompSpa.lng" />
+          <ComponentRef Id="AdvCompare.CompareBufferSize.farconfig" />
           <Feature Id="Compare.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="CmpRus.hlf" />
             <ComponentRef Id="CompRus.lng" />
@@ -503,7 +504,7 @@
           </Feature>
         </Feature>
         <Feature Id="FARCmds" Level="1" Title="!(loc.Feature.Title.FARCmds)" AllowAdvertise="no" Description="!(loc.Feature.Description.FARCmds)">
-          <ComponentRef Id="FARCmds.dll" />
+          <ComponentRef Id="FarCmds.dll" />
           <ComponentRef Id="FARCmdsEng.hlf" />
           <ComponentRef Id="FARCmdsEng.lng" />
           <ComponentRef Id="FARCmdsSky.lng" />
@@ -514,7 +515,7 @@
           </Feature>
 <?if $(var.Platform) = x86 ?>
           <Feature Id="FARCmds.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
-            <ComponentRef Id="FARCmds.map" />
+            <ComponentRef Id="FarCmds.map" />
           </Feature>
 <?endif?>
           <Feature Id="FARCmds.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
@@ -651,14 +652,14 @@
         <Feature Id="Proclist" Level="1" Title="!(loc.Feature.Title.Proclist)" AllowAdvertise="no" Description="!(loc.Feature.Description.Proclist)">
           <ComponentRef Id="ProcEng.hlf" />
           <ComponentRef Id="ProcEng.lng" />
-          <ComponentRef Id="Proclist.dll" />
+          <ComponentRef Id="ProcList.dll" />
           <Feature Id="Proclist.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="ProcRus.hlf" />
             <ComponentRef Id="ProcRus.lng" />
           </Feature>
 <?if $(var.Platform) = x86 ?>
           <Feature Id="Proclist.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
-            <ComponentRef Id="Proclist.map" />
+            <ComponentRef Id="ProcList.map" />
           </Feature>
 <?endif?>
           <Feature Id="Proclist.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">

@@ -1,6 +1,8 @@
 @echo off
 setlocal
 
+set param=%1
+
 for /f "tokens=1,2,4 delims=," %%i in ('tools\m4 -P farversion.inc.m4') do (
 	set major=%%i
 	set minor=%%j
@@ -17,6 +19,7 @@ if exist %hdrpath% (
 goto :eof
 
 :commit
+if "nocommit" == "%param%" goto :eof
 if exist ..\.git call :git %* else call :svn %*
 goto :eof
 

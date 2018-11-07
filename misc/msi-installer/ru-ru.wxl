@@ -88,7 +88,7 @@
 <String Id="Feature.Description.EMenu">Контекстное меню Проводника.</String>
 <String Id="Feature.Title.FarColorer">FarColorer</String>
 <String Id="Feature.Description.FarColorer">Подсветка синтаксиса.</String>
-<String Id="Feature.Title.FARCmds">FARCmds</String>
+<String Id="Feature.Title.FARCmds">FarCmds</String>
 <String Id="Feature.Description.FARCmds">Расширенные команды управления Far Manager.</String>
 <String Id="Feature.Title.FARCmds">SameFolder</String>
 <String Id="Feature.Description.SameFolder">Установка такой же папки.</String>
@@ -100,7 +100,7 @@
 <String Id="Feature.Description.HlfViewer">Просмотр файлов помощи (*.hlf).</String>
 <String Id="Feature.Title.Network">Network</String>
 <String Id="Feature.Description.Network">Модуль обзора сети.</String>
-<String Id="Feature.Title.Proclist">Proclist</String>
+<String Id="Feature.Title.Proclist">ProcList</String>
 <String Id="Feature.Description.Proclist">Управление процессами Windows.</String>
 <String Id="Feature.Title.TmpPanel">TmpPanel</String>
 <String Id="Feature.Description.TmpPanel">Временная панель.</String>

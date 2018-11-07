@@ -13,13 +13,13 @@ $(OBJDIR)\ArcPut.obj \
 $(OBJDIR)\ArcRead.obj \
 $(OBJDIR)\ArcReg.obj \
 $(OBJDIR)\global.obj
-DOCS = arceng.hlf arcrus.hlf arceng.lng arcrus.lng MultiArc.TryIfNoOther.reg arcspa.lng
+DOCS = arceng.hlf arcrus.hlf arceng.lng arcrus.lng MultiArc.TryIfNoOther.reg arcspa.lng changelog
 
 !include ..\makefile_vc_def_inc
 
 !include ..\makefile_vc_target_inc
 
-ALL: dirs libpcre fmtdir fmts 
+ALL: dirs libpcre fmtdir fmts
 	@copy /Y Custom.ini $(OUTDIR)\Formats\*.* 1>nul
 
 FMTLIST=Custom Ace Arc Arj Cab Ha Lzh Rar TarGz Zip
@@ -43,7 +43,7 @@ fmts: $(FMTLIST)
 !include ../makefile_vc_getmode
 
 libpcre: $(FICTIVE)
-	@$(MAKE) $(_MKHIDE) /f makefile_vc_libpcre $(_MDEFS) 
+	@$(MAKE) $(_MKHIDE) /f makefile_vc_libpcre $(_MDEFS)
 
 $(FMTLIST): $(FICTIVE)
 !ifndef INSTALL
@@ -51,4 +51,3 @@ $(FMTLIST): $(FICTIVE)
 !else
 	@$(MAKE) $(_MKHIDE) /f makefile_vc_fmt $(_MKDO_)FMT=$@ $(_MDEFS) INSTALL=$(INSTALL)
 !endif
-

@@ -11,6 +11,15 @@ USERCPP=/Iluasdk/include /DEXPORT_OPEN /DEXPORT_CONFIGURE \
         /DRUN_LUAFAR_INIT
 LUA_VER=51
 
+LUALIB=$(FAR_WORKDIR)\luafar3.lib
+
+DOCS=_globalinfo.lua api.lua luamacro.lua macrotest.lua utils.lua \
+     mbrowser.lua lang.lua panelsort.lua winapi.lua farapi.lua moonscript.lua \
+     keymacro.lua lm_eng.lng lm_rus.lng lm_sky.lng lm_spa.lng \
+     luamacro.example.ini changelog
+
+!include ..\makefile_vc_def_inc
+
 !ifndef FAR_WORKDIR
 !ifndef DEBUG
 FAR_DIRNAME=Release
@@ -18,22 +27,9 @@ FAR_DIRNAME=Release
 FAR_DIRNAME=Debug
 !endif
 FAR_WORKDIR=..\..\far\$(FAR_DIRNAME).$(DIRBIT).vc
-!else
-!ifdef INSTALL
-FAR_WORKDIR=$(INSTALL)\$(FAR_WORKDIR)
-!endif
 !endif
 
-LUALIB=$(FAR_WORKDIR)\luafar3.lib
-
-DOCS=_globalinfo.lua api.lua luamacro.lua macrotest.lua utils.lua \
-     mbrowser.lua lang.lua panelsort.lua winapi.lua farapi.lua moonscript.lua \
-     keymacro.lua lm_eng.lng lm_rus.lng lm_sky.lng lm_spa.lng \
-     luamacro.example.ini
-
-!include ..\makefile_vc_def_inc
-
-$(DLLFULLNAME) : lualib lualegacy
+ALL: lualib lualegacy
 
 LINK_OBJS = $(OBJDIR)\luaplug.obj
 
@@ -48,7 +44,7 @@ LIBS=$(LIBS) luasdk\$(DIRBIT)\lua$(LUA_VER).lib $(LUALIB)
 <<
 !else
 {luafar}.c{$(OBJDIR)}.obj:
-	@$(CC) $(CPPFLAGS) /Fo$(OBJDIR)\ { $< } 
+	@$(CC) $(CPPFLAGS) /Fo$(OBJDIR)\ { $< }
 !endif
 
 .PHONY: lualib lualegacy

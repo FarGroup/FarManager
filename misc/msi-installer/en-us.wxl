@@ -88,7 +88,7 @@
 <String Id="Feature.Description.EMenu">Explorer context menu.</String>
 <String Id="Feature.Title.FarColorer">FarColorer</String>
 <String Id="Feature.Description.FarColorer">Syntax highlighting.</String>
-<String Id="Feature.Title.FARCmds">FARCmds</String>
+<String Id="Feature.Title.FARCmds">FarCmds</String>
 <String Id="Feature.Description.FARCmds">Advanced commands.</String>
 <String Id="Feature.Title.FileCase">FileCase</String>
 <String Id="Feature.Description.FileCase">File name case conversion.</String>
@@ -98,7 +98,7 @@
 <String Id="Feature.Description.HlfViewer">Help files (*.hlf) viewer.</String>
 <String Id="Feature.Title.Network">Network</String>
 <String Id="Feature.Description.Network">Network browser.</String>
-<String Id="Feature.Title.Proclist">Proclist</String>
+<String Id="Feature.Title.Proclist">ProcList</String>
 <String Id="Feature.Description.Proclist">Windows process management.</String>
 <String Id="Feature.Title.TmpPanel">TmpPanel</String>
 <String Id="Feature.Description.TmpPanel">Temporary panel.</String>

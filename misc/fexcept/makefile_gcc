@@ -1,6 +1,6 @@
 NAME = FExcept
 SRCS = FExcept.cpp
-DOCS = SetFarExceptionHandler.farconfig demangle32.dll
+DOCS = changelog SetFarExceptionHandler.farconfig demangle32.dll
 
 COMMON = ../../plugins/common
 

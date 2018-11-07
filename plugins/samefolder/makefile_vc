@@ -2,7 +2,7 @@
 
 NAME = SameFolder
 LINK_OBJS = $(OBJDIR)\SameFolder.obj
-DOCS = SameFolderEng.hlf SameFolderRus.hlf SameFolderEng.lng SameFolderRus.lng SameFolderSky.lng SameFolderSpa.lng
+DOCS = SameFolderEng.hlf SameFolderRus.hlf SameFolderEng.lng SameFolderRus.lng SameFolderSky.lng SameFolderSpa.lng changelog
 
 !include ..\makefile_vc_def_inc
 

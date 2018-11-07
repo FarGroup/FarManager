@@ -37,7 +37,7 @@ void NetBrowser::OpenLogFile(wchar_t *lpFileName)
 		LogFile = _wfopen(lpFileName, L"a+t");
 
 	if (LogFile)
-		_ftprintf(LogFile, L"Opening plugin\n");
+		fwprintf(LogFile, L"Opening plugin\n");
 
 	LogFileRef++;
 }
@@ -53,10 +53,10 @@ void NetBrowser::LogData(wchar_t * Data)
 {
 	if (LogFile)
 	{
-		_ftprintf(LogFile,L"%s\n", Data);
+		fwprintf(LogFile,L"%s\n", Data);
 		wchar_t buffer[MAX_PATH];
 		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), 0, buffer, ARRAYSIZE(buffer), NULL);
-		_ftprintf(LogFile,L"GetLastError returns: %s\n", buffer);
+		fwprintf(LogFile,L"GetLastError returns: %s\n", buffer);
 	}
 }
 #endif
@@ -248,8 +248,8 @@ void NetBrowser::LogNetResource(NETRESOURCE &Res)
 {
 	if (LogFile)
 	{
-		_ftprintf(LogFile, L"dwScope = %u\ndwType = %u\ndwDisplayType = %u\ndwUsage = %u\n", Res.dwScope, Res.dwType, Res.dwDisplayType, Res.dwUsage);
-		_ftprintf(LogFile, L"lpLocalName = %s\nlpRemoteName = %s\nlpComment = %s\nlpProvider = %s\n\n", Res.lpLocalName, Res.lpRemoteName, Res.lpComment, Res.lpProvider);
+		fwprintf(LogFile, L"dwScope = %u\ndwType = %u\ndwDisplayType = %u\ndwUsage = %u\n", Res.dwScope, Res.dwType, Res.dwDisplayType, Res.dwUsage);
+		fwprintf(LogFile, L"lpLocalName = %s\nlpRemoteName = %s\nlpComment = %s\nlpProvider = %s\n\n", Res.lpLocalName, Res.lpRemoteName, Res.lpComment, Res.lpProvider);
 	}
 }
 
@@ -945,7 +945,7 @@ int NetBrowser::SetDirectory(const wchar_t *Dir,OPERATION_MODES OpMode)
 				{
 #ifdef NETWORK_LOGGING
 					wchar_t szErrBuff[MAX_PATH*2];
-					_sntprintf(szErrBuff, ARRAYSIZE(szErrBuff), L"GetLastError = %d at line %d, file %s", GetLastError(), __LINE__, __FILE__);
+					_snwprintf(szErrBuff, ARRAYSIZE(szErrBuff), L"GetLastError = %d at line %d, file %S", GetLastError(), __LINE__, __FILE__);
 					LogData(szErrBuff);
 #endif
 					Info.Message(&MainGuid, nullptr, FMSG_WARNING | FMSG_ERRORTYPE | FMSG_MB_OK | FMSG_ALLINONE,
@@ -1221,7 +1221,7 @@ BOOL NetBrowser::GetResourceInfo(wchar_t *SrcName,LPNETRESOURCE DstNetResource)
 #ifdef NETWORK_LOGGING
 
 	if (LogFile)
-		_ftprintf(LogFile, L"GetResourceInfo %s\n", SrcName);
+		fwprintf(LogFile, L"GetResourceInfo %s\n", SrcName);
 
 #endif
 	NETRESOURCE nrOut [32];   // provide buffer space
@@ -1251,7 +1251,7 @@ BOOL NetBrowser::GetResourceInfo(wchar_t *SrcName,LPNETRESOURCE DstNetResource)
 #ifdef NETWORK_LOGGING
 
 		if (LogFile)
-			_ftprintf(LogFile, L"Result:\n");
+			fwprintf(LogFile, L"Result:\n");
 
 		LogNetResource(*DstNetResource);
 #endif
@@ -1266,7 +1266,7 @@ BOOL NetBrowser::GetResourceInfo(wchar_t *SrcName,LPNETRESOURCE DstNetResource)
 	else
 	{
 		if (LogFile)
-			_ftprintf(LogFile, L"error %u\n", GetLastError());
+			fwprintf(LogFile, L"error %u\n", GetLastError());
 	}
 
 #endif
@@ -1286,7 +1286,7 @@ BOOL NetBrowser::GetResourceParent(NETRESOURCE &SrcRes, LPNETRESOURCE DstNetReso
 #ifdef NETWORK_LOGGING
 
 	if (LogFile)
-		_ftprintf(LogFile, L"GetResourceParent( for:\n");
+		fwprintf(LogFile, L"GetResourceParent( for:\n");
 
 	LogNetResource(SrcRes);
 #endif
@@ -1316,7 +1316,7 @@ BOOL NetBrowser::GetResourceParent(NETRESOURCE &SrcRes, LPNETRESOURCE DstNetReso
 #ifdef NETWORK_LOGGING
 
 		if (LogFile)
-			_ftprintf(LogFile, L"WNetGetResourceInformation() returned:\n");
+			fwprintf(LogFile, L"WNetGetResourceInformation() returned:\n");
 
 		LogNetResource(*lpnrOut);
 #endif
@@ -1330,7 +1330,7 @@ BOOL NetBrowser::GetResourceParent(NETRESOURCE &SrcRes, LPNETRESOURCE DstNetReso
 #ifdef NETWORK_LOGGING
 
 			if (LogFile)
-				_ftprintf(LogFile, L"Result:\n");
+				fwprintf(LogFile, L"Result:\n");
 
 			LogNetResource(*DstNetResource);
 #endif

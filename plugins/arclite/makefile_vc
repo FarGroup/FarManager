@@ -1,6 +1,6 @@
-!include ../makefile_vc_base
-
 !include project.ini
+
+!include ../makefile_vc_base
 
 TOOL = tools\tool
 FARSDK = ..\common\unicode
@@ -30,13 +30,19 @@ OUTDIR = final
 DEFINES = $(DEFINES) -DNDEBUG
 CPPFLAGS = $(CPPFLAGS) -O2 -GL -MT
 LINKFLAGS = $(LINKFLAGS) -opt:ref -opt:icf -LTCG
+!ifndef NO_RELEASE_PDB
+LINK_FLAGS=$(LINK_FLAGS) /debug
+!endif
+!ifndef NO_RELEASE_PDB
+CPPFLAGS=$(CPPFLAGS) /Zi
+!endif
 !endif
 
 OUTDIR = $(OUTDIR).$(BITS)W.vc$(VisualStudioVersion)
 INCLUDES = -I$(OUTDIR) -I7z\h -I$(FARSDK)
-CPPFLAGS = $(CPPFLAGS) -Fo$(OUTDIR)\ -Fd$(OUTDIR)\ $(INCLUDES) $(DEFINES) $(USERCPP)
+CPPFLAGS = $(CPPFLAGS) -Fo$(OUTDIR)\ /Fd$(OUTDIR)\$(MODULE).pdb $(INCLUDES) $(DEFINES) $(USERCPP)
 RCFLAGS = $(RCFLAGS) $(INCLUDES) $(DEFINES)
-ASFLAGS = $(ASFLAGS) -Fo$(OUTDIR)\ 
+ASFLAGS = -Fo$(OUTDIR)\ $(ASFLAGS)
 
 !if $(VC) >= 11 && "$(BUILD_PLATFORM)" == "X86"
 CPPFLAGS=$(CPPFLAGS) /arch:IA32
@@ -78,9 +84,10 @@ _7Z = 7z\dll\final.$(DIRBIT)W.vc\7z.dll
 !endif
 
 SFX = $(OUTDIR)\7z.sfx $(OUTDIR)\7zCon.sfx $(OUTDIR)\7zS2.sfx $(OUTDIR)\7zS2con.sfx $(OUTDIR)\7zSD.sfx
-FILES = $(OUTDIR)\$(MODULE).dll $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng $(OUTDIR)\$(MODULE)_eng.hlf $(OUTDIR)\$(MODULE)_rus.hlf $(OUTDIR)\7z.dll $(SFX) $(OUTDIR)\arclite.xml
+FILES = $(OUTDIR)\$(MODULE).dll $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng $(OUTDIR)\$(MODULE)_spa.lng $(OUTDIR)\$(MODULE)_eng.hlf $(OUTDIR)\$(MODULE)_rus.hlf $(OUTDIR)\7z.dll $(SFX) $(OUTDIR)\arclite.xml
 
 !ifdef INSTALL
+INSTALL=$(INSTALL)\$(NAME)
 target = install_project
 !else
 target = build_project
@@ -106,7 +113,7 @@ depfile: $(OUTDIR) $(OUTDIR)\msg.h $(OUTDIR)\plugin.h
   $(TOOL) gendep $(INCLUDES) > $(OUTDIR)\dep.mak
 
 instmak: $(OUTDIR)
-  $(TOOL) geninst $(FILES) changelog > $(OUTDIR)\install.mak
+  $(TOOL) geninst $(FILES) $(OUTDIR)\$(MODULE).map $(OUTDIR)\$(MODULE).pdb changelog > $(OUTDIR)\install.mak
 
 $(OUTDIR)\msg.h $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng $(OUTDIR)\$(MODULE)_spa.lng: $(OUTDIR) $(OUTDIR)\en.msg $(OUTDIR)\ru.msg $(OUTDIR)\es.msg
   $(TOOL) msgc -in $(OUTDIR)\en.msg $(OUTDIR)\ru.msg $(OUTDIR)\es.msg -out $(OUTDIR)\msg.h $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng $(OUTDIR)\$(MODULE)_spa.lng

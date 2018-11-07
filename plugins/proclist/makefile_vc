@@ -1,6 +1,6 @@
 !include ../makefile_vc_base
 
-NAME = Proclist
+NAME = ProcList
 LINK_OBJS = $(OBJDIR)\fileio.obj \
 $(OBJDIR)\handles.obj \
 $(OBJDIR)\PCFG.OBJ \
@@ -10,7 +10,7 @@ $(OBJDIR)\Plist.obj \
 $(OBJDIR)\Pmix.obj \
 $(OBJDIR)\WMI.obj \
 $(OBJDIR)\Proclist.obj
-DOCS = ProcEng.hlf ProcRus.hlf ProcEng.lng ProcRus.lng
+DOCS = ProcEng.hlf ProcRus.hlf ProcEng.lng ProcRus.lng changelog
 
 USERCPP = /I".\WMI" -D"_WIN32_DCOM"
 
@@ -27,4 +27,3 @@ $(OBJDIR)\Plist.obj : Plist.cpp Proclist.hpp guid.hpp perfthread.hpp Proclng.hpp
 $(OBJDIR)\Pmix.obj : Pmix.cpp Proclist.hpp guid.hpp perfthread.hpp Proclng.hpp version.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
 $(OBJDIR)\Proclist.obj : Proclist.cpp Proclist.hpp guid.hpp perfthread.hpp Proclng.hpp version.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
 $(OBJDIR)\WMI.obj : WMI.cpp Proclist.hpp guid.hpp perfthread.hpp Proclng.hpp version.hpp $(COMINC)\plugin.hpp
-

@@ -2,7 +2,7 @@ ROOT_PATH=../../
 !include ../../plugins/makefile_vc_base
 
 NAME = FExcept
-DOCS = SetFarExceptionHandler.farconfig demangle$(DIRBIT).dll
+DOCS = changelog SetFarExceptionHandler.farconfig demangle$(DIRBIT).dll
 LINK_OBJS = $(OBJDIR)\FExcept.obj
 
 COMMON = ..\..\plugins\common
@@ -18,5 +18,9 @@ All: excdump
 .PHONY: excdump
 excdump:
 	@cd execdump
+!ifndef INSTALL
 	$(MAKE) /f makefile_vc $(_MKDO_)COPYTO=..\$(WORKDIR) $(_MDEFS)
+!else
+	$(MAKE) /f makefile_vc $(_MDEFS) $(_MKDO_)INSTALL=..\$(INSTALL)\$(NAME) $(_MKDO_)FARDIR=..\$(INSTALL)
+!endif
 	@cd ..

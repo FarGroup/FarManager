@@ -19,33 +19,81 @@ shallow_clone: true
 clone_depth: 1
 
 install:
-  - cd far
-  - for /f "tokens=1,2,4 delims=," %%i in ('tools\m4 -P farversion.inc.m4') do appveyor UpdateBuild -Version %%i.%%j.%%k.%APPVEYOR_BUILD_NUMBER%
+  #ci is the main artifacts output dir, clear previous just in case
+  - if exist ci rd /S /Q ci
+  #update AppVeyor build number to match Far build number
+  - cd far && for /f "tokens=1,2,4 delims=," %%i in ('tools\m4 -P farversion.inc.m4') do appveyor UpdateBuild -Version %%i.%%j.%%k.%APPVEYOR_BUILD_NUMBER% && cd ..
+  #build Plugin SDK Encyclopedia
+  - enc/tools/tool.make_enc_chm.bat
+  #build Lua MacroAPI docs
+  - enc/tools/tool.make_lua_chm.bat
 
-platform:
-  - Win32
-  - x64
+environment:
+  matrix:
+  - platform: Win32
+    configuration: Debug
+    ADD_MAKE: DEBUG=1
+    bit: 32
 
-configuration:
-  - Debug
-  - Release
+  - platform: x64
+    configuration: Debug
+    ADD_MAKE: DEBUG=1
+    bit: 64
 
-build:
-  parallel: true
-  project: far/far.sln
-  verbosity: minimal
+  - platform: Win32
+    configuration: Release
+    ADD_MAKE:
+    bit: 32
+
+  - platform: x64
+    configuration: Release
+    ADD_MAKE:
+    bit: 64
+
+build_script:
+  - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars%bit%.bat"
+  #build far
+  - cd far 
+  - nmake /f makefile_vc %ADD_MAKE%
+  - nmake /f makefile_vc install INSTALLDIR=..\ci\%configuration%.%platform% %ADD_MAKE%
+  - update_headers.bat nocommit
+  - cd ..
+  #build plugins
+  - cd plugins 
+  - nmake /f makefile_all_vc %ADD_MAKE% INSTALL=..\ci\%configuration%.%platform%\Plugins FAR_WORKDIR=..\..\ci\%configuration%.%platform%
+  - cd ..
+  #build fexcept if needed
+  - cd misc\fexcept
+  - if "%platform%" == "x86" nmake /f makefile_vc %ADD_MAKE% INSTALL=..\..\ci\%configuration%.%platform% FAR_WORKDIR=..\..\ci\%configuration%.%platform%
+  - cd ..\..
+  #remove not needed build artifacts
+  - if "%platform%" == "x86" powershell "Get-ChildItem ci\${Env:configuration}`.${Env:platform}\FExcept -filter *.map -File | Remove-Item"
+  - ps: Get-ChildItem ci\${Env:configuration}`.${Env:platform}\ -recurse -File | Where-Object { @(".lib", ".exp") -contains $_.extension } | Remove-Item
+
 
 test: off
 
 after_build:
-- cmd: >-
-    set PlatformArchitecture=%platform:~-2%
-
-    cd %configuration%.%PlatformArchitecture%.vc
-
-    del %APPVEYOR_BUILD_FOLDER%\far*.7z
-
-    7z a %APPVEYOR_BUILD_FOLDER%\far.%APPVEYOR_BUILD_VERSION%.7z *.exe *.dll *.lng *.hlf *.diz *.ini *.pdb ..\changelog*
+  #copy pregenerated CHM files
+  - mkdir ci\%configuration%.%platform%\Encyclopedia
+  - copy /Y enc\build\chm\ru\FarEncyclopedia.ru.chm ci\%configuration%.%platform%\Encyclopedia
+  - copy /Y enc\build\lua\luafar_manual\luafar_manual.chm ci\%configuration%.%platform%\Encyclopedia
+  - copy /Y enc\build\lua\macroapi_manual.en\macroapi_manual.en.chm ci\%configuration%.%platform%\Encyclopedia
+  - copy /Y enc\build\lua\macroapi_manual.ru\macroapi_manual.ru.chm ci\%configuration%.%platform%\Encyclopedia
+  #copy misc docs and addons
+  - xcopy /e /q /y /k extra\* ci\%configuration%.%platform%\
+  #archive 
+  - cd ci\%configuration%.%platform%
+  #archive PDBs
+  - if exist "%APPVEYOR_BUILD_FOLDER%\Far.%APPVEYOR_BUILD_VERSION%.%configuration%.%platform%.pdb.7z" del "%APPVEYOR_BUILD_FOLDER%\Far.%APPVEYOR_BUILD_VERSION%.%configuration%.%platform%.pdb.7z"
+  - 7z a -ir!*.pdb "%APPVEYOR_BUILD_FOLDER%\Far.%APPVEYOR_BUILD_VERSION%.%configuration%.%platform%.pdb.7z"
+  #archive Far without PDBs
+  - if exist "%APPVEYOR_BUILD_FOLDER%\Far.%APPVEYOR_BUILD_VERSION%.%configuration%.%platform%.7z" del "%APPVEYOR_BUILD_FOLDER%\Far.%APPVEYOR_BUILD_VERSION%.%configuration%.%platform%.7z"
+  - 7z a -xr!*.pdb "%APPVEYOR_BUILD_FOLDER%\Far.%APPVEYOR_BUILD_VERSION%.%configuration%.%platform%.7z"
+  - cd ..
 
 artifacts:
-- path: far.$(APPVEYOR_BUILD_VERSION).7z
+  - path: Far.$(APPVEYOR_BUILD_VERSION).$(configuration).$(platform).7z
+    name: Far Manager
+  - path: Far.$(APPVEYOR_BUILD_VERSION).$(configuration).$(platform).pdb.7z
+    name: PDBs

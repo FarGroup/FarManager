@@ -193,6 +193,7 @@
 <?define Guid.CompRus.lng = "4E7D2A4F-E24C-4CBB-87B3-C1CB88210337" ?>
 <?define Guid.CompSky.lng = "C315810B-9882-410A-BA6B-8094BFCFC6CA" ?>
 <?define Guid.CompSpa.lng = "39A2B72D-14CA-48CF-9EA0-12012D237162" ?>
+<?define Guid.AdvCompare.CompareBufferSize.farconfig = "5D079DA9-B4B9-4F33-B652-92BA2184B3DB" ?>
 <?define Guid.changelog_6 = "689902DA-A719-4F87-B5FC-8AEBB2B298AB" ?>
 <?define Guid.DrawEng.hlf = "36A318AE-2A81-4DD4-BCA6-3A07D0AE59B7" ?>
 <?define Guid.DrawEng.lng = "57A13C81-A105-4D71-8015-DBC352E7EE54" ?>

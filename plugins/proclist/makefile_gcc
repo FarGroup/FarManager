@@ -1,4 +1,4 @@
-NAME = Proclist
+NAME = ProcList
 SRCS = Proclist.cpp \
 fileio.cpp \
 handles.cpp \
@@ -8,7 +8,7 @@ perfthread.cpp \
 Plist.cpp \
 Pmix.cpp \
 wmi.cpp
-DOCS = ProcEng.hlf ProcRus.hlf ProcEng.lng ProcRus.lng
+DOCS = ProcEng.hlf ProcRus.hlf ProcEng.lng ProcRus.lng changelog
 
 USERCPP = -I ./WMI
 USERLIBS = -lversion -lmpr -lole32 -loleaut32

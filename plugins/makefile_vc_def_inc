@@ -80,7 +80,11 @@ DIRSUFF = W
 
 WORKDIR = $(DIRNAME).$(DIRBIT)$(DIRSUFF).vc
 !ifdef INSTALL
+!ifndef FARDIR
+OUTDIR=$(INSTALL)\$(NAME)
+!else
 OUTDIR=$(INSTALL)
+!endif
 !else
 OUTDIR=$(WORKDIR)
 !endif

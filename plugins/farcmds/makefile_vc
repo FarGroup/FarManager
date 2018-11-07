@@ -1,8 +1,8 @@
 !include ../makefile_vc_base
 
-NAME = FARCmds
+NAME = FarCmds
 LINK_OBJS = $(OBJDIR)\FARCmds.obj $(OBJDIR)\Mix.obj $(OBJDIR)\OpenCmd.obj
-DOCS = FARCmdsEng.hlf FARCmdsRus.hlf FARCmdsEng.lng FARCmdsRus.lng FARCmdsSky.lng FARCmdsSpa.lng
+DOCS = FARCmdsEng.hlf FARCmdsRus.hlf FARCmdsEng.lng FARCmdsRus.lng FARCmdsSky.lng FARCmdsSpa.lng changelog
 USERLIBS = rpcrt4.lib
 
 !include ..\makefile_vc_def_inc

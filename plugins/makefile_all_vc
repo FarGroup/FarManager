@@ -88,13 +88,13 @@ _ODB_=32
 
 !ifdef INSTALL
 
-OUTPATH=$(INSTALL)\$(_ODN_).$(_ODB_)W
+OUTPATH=$(INSTALL)
 
-$(OUTPATH): $(INSTALL)
+$(OUTPATH):
 	@if not exist "$(OUTPATH)\$(NULL)" mkdir "$(OUTPATH)"
 
-$(INSTALL):
-	@if not exist "$(INSTALL)\$(NULL)" mkdir "$(INSTALL)"
+#$(INSTALL):
+#@if not exist "$(INSTALL)\$(NULL)" mkdir "$(INSTALL)"
 
 !endif
 
@@ -104,7 +104,7 @@ $(ALLDIRS): $(FICTIVE) $(OUTPATH)
 !ifndef INSTALL
 	@$(MAKE) /nologo -s -f makefile_vc $(_MDEFS)
 !else
-	@$(MAKE) /nologo -s -f makefile_vc $(_MDEFS) $(_MKDO_)INSTALL=..\$(OUTPATH)\$@
+	@$(MAKE) /nologo -s -f makefile_vc $(_MDEFS) $(_MKDO_)INSTALL=..\$(OUTPATH)
 !endif
 	@cd ..
 

@@ -2,7 +2,7 @@
 
 ANSI = 1
 NAME = FarFtp
-DOCS = FtpEng.hlf FtpRus.hlf FtpEng.lng FtpRus.lng TechInfo.reg TechInfo_rus.reg FtpCmds.txt FtpCmds_rus.txt Notes.txt Notes_rus.txt
+DOCS = FtpEng.hlf FtpRus.hlf FtpEng.lng FtpRus.lng TechInfo.reg TechInfo_rus.reg FtpCmds.txt FtpCmds_rus.txt Notes.txt Notes_rus.txt changelog
 
 FSTDLIB=$(OBJDIR)\FsdLib.lib
 LIBSRC=FStdLib\FARStdLib
@@ -138,7 +138,7 @@ $(LIB_OBJS)
 <<
 !else
 {$(LIBSRC)}.cpp{$(OBJDIR)}.obj:
-	@$(CC) $(CPPFLAGS) /Fo$(OBJDIR)\ { $< } 
+	@$(CC) $(CPPFLAGS) /Fo$(OBJDIR)\ { $< }
 !endif
 
 {$(LIBSRC)}.asm{$(OBJDIR)}.obj:
@@ -164,4 +164,3 @@ $(FLLLIST): $(FICTIVE)
 !else
 	@$(MAKE) $(_MKHIDE) /f makefile_vc_fll $(_MKDO_)FLL=$@ $(_MDEFS) INSTALL=$(INSTALL)
 !endif
-

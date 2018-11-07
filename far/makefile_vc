@@ -517,3 +517,23 @@ CLEAN:
 	"$(OUTDIR)\Far.exe.example.ini"\
 	"Include\*.*"\
 	) do @if exist %%i del /q /f %%i
+
+!ifdef INSTALLDIR
+
+HPPINSTDIR=$(INSTALLDIR)\PluginSDK\Headers.c
+PASINSTDIR=$(INSTALLDIR)\PluginSDK\Headers.pas
+
+.PHONY: install
+install: instdir
+	@echo Installing to $(INSTALLDIR)
+	@copy /Y "$(FARINCLUDE)\*.hpp" "$(HPPINSTDIR)\" > nul
+	@copy /Y "$(FARINCLUDE)\*.pas" "$(PASINSTDIR)\" > nul
+	for %%i in (changelog changelog_eng "$(OUTDIR)\Far.*" "$(OUTDIR)\*.lng" "$(OUTDIR)\File_id.diz" "$(OUTDIR)\*.hlf" "$(OUTDIR)\Far.exe.example.ini") do @copy /Y %%i "$(INSTALLDIR)\" > nul
+
+.PHONY: instdir
+instdir:
+	@if not exist "$(INSTALLDIR)\$(NULL)" mkdir "$(INSTALLDIR)"
+	@if not exist "$(HPPINSTDIR)\$(NULL)" mkdir "$(HPPINSTDIR)"
+	@if not exist "$(PASINSTDIR)\$(NULL)" mkdir "$(PASINSTDIR)"
+
+!endif

@@ -617,6 +617,9 @@
           <Component Id="CompSpa.lng" Guid="$(var.Guid.CompSpa.lng)" Win64="$(var.Win64)">
             <File Id="CompSpa.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Compare\CompSpa.lng" />
           </Component>
+          <Component Id="AdvCompare.CompareBufferSize.farconfig" Guid="$(var.Guid.AdvCompare.CompareBufferSize.farconfig)" Win64="$(var.Win64)">
+            <File Id="AdvCompare.CompareBufferSize.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Compare\AdvCompare.CompareBufferSize.farconfig" />
+          </Component>
         </Directory>
         <Directory Id="DrawLine" Name="DrawLine">
           <Component Id="changelog_6" Guid="$(var.Guid.changelog_6)" Win64="$(var.Win64)">
@@ -990,12 +993,12 @@
           <Component Id="changelog_9" Guid="$(var.Guid.changelog_9)" Win64="$(var.Win64)">
             <File Id="changelog_9" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarCmds\changelog" />
           </Component>
-          <Component Id="FARCmds.dll" Guid="$(var.Guid.FARCmds.dll)" Win64="$(var.Win64)">
-            <File Id="FARCmds.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarCmds\FARCmds.dll" />
+          <Component Id="FarCmds.dll" Guid="$(var.Guid.FARCmds.dll)" Win64="$(var.Win64)">
+            <File Id="FarCmds.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarCmds\FarCmds.dll" />
           </Component>
 <?if $(var.Platform) = x86 ?>
-          <Component Id="FARCmds.map" Guid="$(var.Guid.FARCmds.map)" Win64="$(var.Win64)">
-            <File Id="FARCmds.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarCmds\FARCmds.map" />
+          <Component Id="FarCmds.map" Guid="$(var.Guid.FARCmds.map)" Win64="$(var.Win64)">
+            <File Id="FarCmds.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarCmds\FarCmds.map" />
           </Component>
 <?endif?>
           <Component Id="FARCmdsEng.hlf" Guid="$(var.Guid.FARCmdsEng.hlf)" Win64="$(var.Win64)">
@@ -1238,12 +1241,12 @@
           <Component Id="ProcEng.lng" Guid="$(var.Guid.ProcEng.lng)" Win64="$(var.Win64)">
             <File Id="ProcEng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ProcList\ProcEng.lng" />
           </Component>
-          <Component Id="Proclist.dll" Guid="$(var.Guid.Proclist.dll)" Win64="$(var.Win64)">
-            <File Id="Proclist.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ProcList\Proclist.dll" />
+          <Component Id="ProcList.dll" Guid="$(var.Guid.Proclist.dll)" Win64="$(var.Win64)">
+            <File Id="ProcList.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ProcList\ProcList.dll" />
           </Component>
 <?if $(var.Platform) = x86 ?>
-          <Component Id="Proclist.map" Guid="$(var.Guid.Proclist.map)" Win64="$(var.Win64)">
-            <File Id="Proclist.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ProcList\Proclist.map" />
+          <Component Id="ProcList.map" Guid="$(var.Guid.Proclist.map)" Win64="$(var.Win64)">
+            <File Id="ProcList.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ProcList\ProcList.map" />
           </Component>
 <?endif?>
           <Component Id="ProcRus.hlf" Guid="$(var.Guid.ProcRus.hlf)" Win64="$(var.Win64)">
