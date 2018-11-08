@@ -2798,7 +2798,7 @@ void FindFiles::ProcessMessage(const AddMenuData& Data)
 		break;
 
 	default:
-		throw MAKE_FAR_EXCEPTION(L"Unknown message type"sv);
+		throw MAKE_FAR_FATAL_EXCEPTION(L"Unknown message type"sv);
 	}
 }
 

@@ -93,7 +93,7 @@ std::unique_ptr<AbstractSettings> AbstractSettings::CreatePluginSettings(const G
 	{
 		return std::make_unique<PluginSettings>(pPlugin, Local);
 	}
-	catch(const far_exception&)
+	catch (const far_exception&)
 	{
 		return nullptr;
 	}

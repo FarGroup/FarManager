@@ -2397,7 +2397,7 @@ bool config_provider::Export(const string& File)
 
 bool config_provider::ServiceMode(const string& Filename)
 {
-	return m_Mode == mode::m_import? Import(Filename) : m_Mode == mode::m_export? Export(Filename) : throw MAKE_FAR_EXCEPTION(L"Unexpected service mode"sv);
+	return m_Mode == mode::m_import? Import(Filename) : m_Mode == mode::m_export? Export(Filename) : throw MAKE_FAR_FATAL_EXCEPTION(L"Unexpected service mode"sv);
 }
 
 bool config_provider::Import(const string& Filename)
@@ -2462,7 +2462,7 @@ bool config_provider::ShowProblems() const
 
 void config_provider::AsyncCall(const std::function<void()>& Routine)
 {
-	m_Threads.erase(std::remove_if(ALL_RANGE(m_Threads), std::mem_fn(&os::thread::is_signaled)), m_Threads.end());
+	m_Threads.erase(std::remove_if(ALL_RANGE(m_Threads), [](const os::thread& i){ return i.is_signaled(); }), m_Threads.end());
 	m_Threads.emplace_back(&os::thread::join, Routine);
 }
 

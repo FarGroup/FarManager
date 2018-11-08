@@ -204,7 +204,16 @@ enum reply
 	reply_ignore,
 };
 
-static reply ExcDialog(const string& ModuleName, const string& Exception, const string& Details, const exception_context& Context, const string_view Function, const Plugin* const PluginModule, const std::vector<string>* const NestedStack)
+static reply ExcDialog(
+	string const& ModuleName,
+	string const& Exception,
+	string const& Details,
+	exception_context const& Context,
+	string_view const Function,
+	string_view const Location,
+	Plugin const* const PluginModule,
+	std::vector<string> const* const NestedStack
+)
 {
 	// TODO: Far Dialog is not the best choice for exception reporting
 	// replace with something trivial
@@ -214,6 +223,9 @@ static reply ExcDialog(const string& ModuleName, const string& Exception, const 
 	tracer::get_one(Context.pointers()->ExceptionRecord->ExceptionAddress, Address, Name, Source);
 	if (!Name.empty())
 		append(Address, L" - "sv, Name);
+
+	if (Source.empty())
+		Source = Location;
 
 	const null_terminated FunctionName(Function);
 
@@ -256,12 +268,24 @@ static reply ExcDialog(const string& ModuleName, const string& Exception, const 
 	}
 }
 
-static reply ExcConsole(const string& ModuleName, const string& Exception, const string& Details, const exception_context& Context, const string_view Function, const Plugin* const Module, const std::vector<string>* const NestedStack)
+static reply ExcConsole(
+	string const& ModuleName,
+	string const& Exception,
+	string const& Details,
+	exception_context const& Context,
+	string_view const Function,
+	string_view const Location,
+	Plugin const* const Module,
+	std::vector<string> const* const NestedStack
+)
 {
 	string Address, Name, Source;
 	tracer::get_one(Context.pointers()->ExceptionRecord->ExceptionAddress, Address, Name, Source);
 	if (!Name.empty())
 		append(Address, L" - "sv, Name);
+
+	if (Source.empty())
+		Source = Location;
 
 	std::array<string_view, 6> Msg;
 	if (far_language::instance().is_loaded())
@@ -359,7 +383,7 @@ struct throw_info
 	DWORD pCatchableTypeArray;       // Image relative offset of CatchableTypeArray
 };
 
-static string ExtractObjectName(const EXCEPTION_RECORD* xr)
+static string ExtractObjectType(const EXCEPTION_RECORD* xr)
 {
 	const auto BaseAddress = xr->NumberParameters == 4? xr->ExceptionInformation[3] : 0;
 	const auto& ThrowInfo = *reinterpret_cast<const throw_info*>(xr->ExceptionInformation[2]);
@@ -370,7 +394,14 @@ static string ExtractObjectName(const EXCEPTION_RECORD* xr)
 	return encoding::ansi::get_chars(TypeInfo.name());
 }
 
-static bool ProcessGenericException(const exception_context& Context, const string_view Function, const Plugin* const PluginModule, const char* const Message, const std::vector<string>* const NestedStack = nullptr)
+static bool ProcessGenericException(
+	exception_context const& Context,
+	string_view const Function,
+	string_view const Location,
+	Plugin const* const PluginModule,
+	string_view const Message,
+	std::vector<string> const* const NestedStack = nullptr
+)
 {
 	if (Global)
 		Global->ProcessException = true;
@@ -499,7 +530,7 @@ static bool ProcessGenericException(const exception_context& Context, const stri
 	case EXCEPTION_ACCESS_VIOLATION:
 	case EXCEPTION_IN_PAGE_ERROR:
 		{
-			const auto Location = to_hex_wstring(xr->ExceptionInformation[1]);
+			const auto AccessedAddress = to_hex_wstring(xr->ExceptionInformation[1]);
 			const auto Mode = [](ULONG_PTR Code)
 			{
 				switch (Code)
@@ -511,14 +542,14 @@ static bool ProcessGenericException(const exception_context& Context, const stri
 				}
 			}(xr->ExceptionInformation[0]);
 
-			Details = format(L"Memory at {0} could not be {1}", Location, Mode);
+			Details = format(L"Memory at {0} could not be {1}", AccessedAddress, Mode);
 		}
 		break;
 
 	case EXCEPTION_MICROSOFT_CPLUSPLUS:
-		Details = xr->NumberParameters? ExtractObjectName(xr) : L""s;
-		if (Message)
-			append(Details, Details.empty()? L""sv : L", "sv, L"what(): "sv, encoding::utf8::get_chars(Message));
+		Details = xr->NumberParameters? ExtractObjectType(xr) : L""s;
+		if (!Message.empty())
+			append(Details, Details.empty()? L""sv : L", "sv, L"what(): "sv, Message);
 		break;
 
 	default:
@@ -530,12 +561,12 @@ static bool ProcessGenericException(const exception_context& Context, const stri
 
 	if (Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown())
 	{
-		MsgCode = ExcDialog(strFileName, Exception, Details, Context, Function, PluginModule, NestedStack);
+		MsgCode = ExcDialog(strFileName, Exception, Details, Context, Function, Location, PluginModule, NestedStack);
 		ShowMessages = true;
 	}
 	else
 	{
-		MsgCode = ExcConsole(strFileName, Exception, Details, Context, Function, PluginModule, NestedStack);
+		MsgCode = ExcConsole(strFileName, Exception, Details, Context, Function, Location, PluginModule, NestedStack);
 	}
 
 	if (ShowMessages && !PluginModule)
@@ -565,21 +596,37 @@ void RestoreGPFaultUI()
 	os::unset_error_mode(SEM_NOGPFAULTERRORBOX);
 }
 
-static std::string extract_nested_messages(const std::exception& Exception)
-{
-	std::string Result = Exception.what();
+extern "C" void** __current_exception();
+extern "C" void** __current_exception_context();
 
+static string extract_nested_messages(const std::exception& Exception, bool Top = true)
+{
+	string Result;
+
+	// far_exception.what() returns additional information (function, file and line).
+	// We don't need it on top level because it's extracted separately
+	if (const auto FarException = Top? dynamic_cast<const far_exception*>(&Exception) : nullptr)
+		Result = FarException->get_message();
+	else
+		Result = encoding::utf8::get_chars(Exception.what());
+	
 	try
 	{
 		std::rethrow_if_nested(Exception);
 	}
 	catch (const std::exception& e)
 	{
-		Result.append(" -> "s).append(extract_nested_messages(e));
+		append(Result, L" -> "sv, extract_nested_messages(e, false));
 	}
 	catch (...)
 	{
-		Result.append(" -> "s).append("Unknown exception"s);
+		append(Result, L" -> Unknown exception"sv);
+
+#ifdef _MSC_VER
+		const auto Record = static_cast<EXCEPTION_RECORD*>(*__current_exception());
+		if (IsCppException(Record))
+			append(Result, L" ("sv, ExtractObjectType(Record), L')');
+#endif
 	}
 
 	return Result;
@@ -589,7 +636,7 @@ bool ProcessStdException(const std::exception& e, string_view const Function, co
 {
 	if (const auto SehException = dynamic_cast<const seh_exception*>(&e))
 	{
-		return ProcessGenericException(SehException->context(), Function, Module, e.what());
+		return ProcessGenericException(SehException->context(), Function, {}, Module, {});
 	}
 
 	auto Context = tracer::get_exception_context(&e);
@@ -604,14 +651,11 @@ bool ProcessStdException(const std::exception& e, string_view const Function, co
 	if (const auto FarException = dynamic_cast<const far_exception*>(&e))
 	{
 		const auto Message = extract_nested_messages(e);
-		return ProcessGenericException(*Context, Function, Module, Message.c_str(), &FarException->get_stack());
+		return ProcessGenericException(*Context, FarException->get_function(), FarException->get_location(), Module, Message, &FarException->get_stack());
 	}
 
-	return ProcessGenericException(*Context, Function, Module, e.what());
+	return ProcessGenericException(*Context, Function, {}, Module, encoding::utf8::get_chars(e.what()));
 }
-
-extern "C" void** __current_exception();
-extern "C" void** __current_exception_context();
 
 bool ProcessUnknownException(string_view const Function, const Plugin* const Module)
 {
@@ -630,14 +674,14 @@ bool ProcessUnknownException(string_view const Function, const Plugin* const Mod
 	// It won't work in gcc etc.
 	// Set ExceptionCode manually so ProcessGenericException will at least report it as C++ exception
 	const exception_context Context(EXCEPTION_MICROSOFT_CPLUSPLUS, PointersPtr);
-	return ProcessGenericException(Context, Function, Module, nullptr);
+	return ProcessGenericException(Context, Function, {}, Module, {});
 }
 
 static LONG WINAPI FarUnhandledExceptionFilter(EXCEPTION_POINTERS *ExceptionInfo)
 {
 	SetFloatingPointExceptions(false);
 	const exception_context Context(ExceptionInfo->ExceptionRecord->ExceptionCode, ExceptionInfo);
-	if (ProcessGenericException(Context, L"FarUnhandledExceptionFilter"sv, nullptr, nullptr))
+	if (ProcessGenericException(Context, L"FarUnhandledExceptionFilter"sv, {}, {}, {}))
 	{
 		std::terminate();
 	}
@@ -896,9 +940,9 @@ void RegisterTestExceptionsHook()
 #endif
 }
 
-bool IsCppException(const EXCEPTION_POINTERS* e)
+bool IsCppException(const EXCEPTION_RECORD* Record)
 {
-	return e->ExceptionRecord->ExceptionCode == static_cast<DWORD>(EXCEPTION_MICROSOFT_CPLUSPLUS);
+	return Record->ExceptionCode == static_cast<DWORD>(EXCEPTION_MICROSOFT_CPLUSPLUS);
 }
 
 static thread_local bool StackOverflowHappened;
@@ -921,7 +965,7 @@ int SehFilter(int const Code, const EXCEPTION_POINTERS* Info, string_view const 
 	{
 		bool Result = false;
 		{
-			os::thread(&os::thread::join, [&]{ Result = ProcessGenericException(Context, Function, nullptr, nullptr); });
+			os::thread(&os::thread::join, [&] { Result = ProcessGenericException(Context, Function, {}, Module, {}); });
 		}
 
 		StackOverflowHappened = true;
@@ -933,7 +977,7 @@ int SehFilter(int const Code, const EXCEPTION_POINTERS* Info, string_view const 
 	}
 	else
 	{
-		if (ProcessGenericException(Context, Function, Module, nullptr))
+		if (ProcessGenericException(Context, Function, {}, Module, {}))
 			return EXCEPTION_EXECUTE_HANDLER;
 	}
 

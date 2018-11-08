@@ -460,7 +460,7 @@ size_t Utf::get_chars(uintptr_t const Codepage, std::string_view const Str, wcha
 	case CP_UTF8:
 		return Utf8::get_chars(Str, Buffer, BufferSize, Errors);
 	default:
-		throw MAKE_FAR_EXCEPTION(L"Not a utf codepage"sv);
+		throw MAKE_FAR_FATAL_EXCEPTION(L"Not a utf codepage"sv);
 	}
 }
 

@@ -2010,7 +2010,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 			ContentsName = L"PluginContents"sv;
 			break;
 		default:
-			throw MAKE_FAR_EXCEPTION(L"Unsupported index"sv);
+			throw MAKE_FAR_FATAL_EXCEPTION(L"Unsupported index"sv);
 	}
 
 	AddTitle(PtrTitle);
@@ -2050,7 +2050,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 			break;
 		}
 		default:
-			throw MAKE_FAR_EXCEPTION(L"Unsupported index"sv);
+			throw MAKE_FAR_FATAL_EXCEPTION(L"Unsupported index"sv);
 	}
 
 	// сортируем по алфавиту

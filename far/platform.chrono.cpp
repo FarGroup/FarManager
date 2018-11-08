@@ -68,9 +68,9 @@ namespace os::chrono
 		return time_point(duration(static_cast<unsigned long long>(Time.dwHighDateTime) << 32 | Time.dwLowDateTime));
 	}
 
-	void nt_clock::sleep_for_ms(size_t Count)
+	void sleep_for(std::chrono::milliseconds Duration)
 	{
-		Sleep(static_cast<DWORD>(Count));
+		Sleep(static_cast<DWORD>(Duration.count()));
 	}
 
 	bool get_process_creation_time(HANDLE Process, time_point& CreationTime)

@@ -51,31 +51,27 @@ bool error_state::engaged() const
 }
 
 detail::exception_impl::exception_impl(string_view const Message, const char* const Function, const char* const File, int const Line):
-	m_FullMessage(
-		format(
-			L"{0} (at {1}, {2}:{3})",
-			Message,
-			encoding::ansi::get_chars(Function),
-			encoding::ansi::get_chars(File),
-			Line)),
+	m_Function(encoding::ansi::get_chars(Function)),
+	m_Location(format(L"{0}:{1}", encoding::ansi::get_chars(File), Line)),
+	m_FullMessage(format(L"{0} (at {1}, {2})", Message, m_Function, m_Location)),
 	m_ErrorState(error_state::fetch(), Message)
 {
 }
 
-far_exception::far_exception(string_view const Message, const char* const Function, const char* const File, int const Line):
+far_base_exception::far_base_exception(string_view const Message, const char* const Function, const char* const File, int const Line):
 	exception_impl(Message, Function, File, Line),
 	std::runtime_error(encoding::utf8::get_bytes(get_full_message()))
 {
 }
 
-far_exception::far_exception(string_view const Message, std::vector<string>&& Stack, const char* const Function, const char* const File, int const Line):
+far_base_exception::far_base_exception(string_view const Message, std::vector<string>&& Stack, const char* const Function, const char* const File, int const Line):
 	exception_impl(Message, Function, File, Line),
 	std::runtime_error(encoding::utf8::get_bytes(get_full_message())),
 	m_Stack(std::move(Stack))
 {
 }
 
-const std::vector<string>& far_exception::get_stack() const
+const std::vector<string>& far_base_exception::get_stack() const
 {
 	return m_Stack;
 }

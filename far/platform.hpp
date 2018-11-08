@@ -112,8 +112,16 @@ namespace os
 				});
 		}
 
+		class handle_implementation
+		{
+		protected:
+			static HANDLE normalise(HANDLE Handle);
+			static void wait(HANDLE Handle);
+			static bool is_signaled(HANDLE Handle, std::chrono::milliseconds Timeout = 0ms);
+		};
+
 		template<class deleter>
-		class handle_t: public base<std::unique_ptr<std::remove_pointer_t<HANDLE>, deleter>>
+		class handle_t: handle_implementation, public base<std::unique_ptr<std::remove_pointer_t<HANDLE>, deleter>>
 		{
 			using base_type = typename handle_t::base_type;
 
@@ -121,17 +129,40 @@ namespace os
 			MOVABLE(handle_t);
 
 			constexpr handle_t() = default;
-			constexpr handle_t(std::nullptr_t) {}
-			explicit handle_t(HANDLE Handle): base_type(normalise(Handle)) {}
-			void reset(HANDLE Handle = nullptr) { base_type::reset(normalise(Handle)); }
-			HANDLE native_handle() const { return base_type::get(); }
-			void close() { reset(); }
-			bool wait(std::chrono::milliseconds Timeout) const { return WaitForSingleObject(native_handle(), Timeout.count()) == WAIT_OBJECT_0; }
-			bool wait() const { return WaitForSingleObject(native_handle(), INFINITE) == WAIT_OBJECT_0; }
-			bool is_signaled() const { return wait(0ms); }
 
-		private:
-			static HANDLE normalise(HANDLE Handle) { return Handle == INVALID_HANDLE_VALUE? nullptr : Handle; }
+			constexpr handle_t(std::nullptr_t)
+			{
+			}
+
+			explicit handle_t(HANDLE Handle):
+				base_type(normalise(Handle))
+			{
+			}
+
+			void reset(HANDLE Handle = nullptr)
+			{
+				base_type::reset(normalise(Handle));
+			}
+
+			HANDLE native_handle() const
+			{
+				return base_type::get();
+			}
+
+			void close()
+			{
+				reset();
+			}
+
+			void wait() const
+			{
+				handle_implementation::wait(native_handle());
+			}
+
+			bool is_signaled(std::chrono::milliseconds Timeout = 0ms) const
+			{
+				return handle_implementation::is_signaled(native_handle(), Timeout);
+			}
 		};
 
 		struct handle_closer

@@ -103,7 +103,7 @@ namespace os::concurrency
 	void thread::check_joinable() const
 	{
 		if (!joinable())
-			throw MAKE_FAR_EXCEPTION(L"Thread is not joinable"sv);
+			throw MAKE_FAR_FATAL_EXCEPTION(L"Thread is not joinable"sv);
 	}
 
 
@@ -117,14 +117,15 @@ namespace os::concurrency
 		return L"Far_Manager_Mutex_"sv;
 	}
 
-	bool mutex::lock() const
+	void mutex::lock() const
 	{
-		return wait();
+		wait();
 	}
 
-	bool mutex::unlock() const
+	void mutex::unlock() const
 	{
-		return ReleaseMutex(native_handle()) != FALSE;
+		if (!ReleaseMutex(native_handle()))
+			throw MAKE_FAR_FATAL_EXCEPTION(L"ReleaseMutex failed");
 	}
 
 
@@ -187,16 +188,18 @@ namespace os::concurrency
 		return L"Far_Manager_Event_"sv;
 	}
 
-	bool event::set() const
+	void event::set() const
 	{
 		check_valid();
-		return SetEvent(get()) != FALSE;
+		if (!SetEvent(get()))
+			throw MAKE_FAR_FATAL_EXCEPTION(L"SetEvent failed");
 	}
 
-	bool event::reset() const
+	void event::reset() const
 	{
 		check_valid();
-		return ResetEvent(get()) != FALSE;
+		if (!ResetEvent(get()))
+			throw MAKE_FAR_FATAL_EXCEPTION(L"ResetEvent failed");
 	}
 
 	void event::associate(OVERLAPPED& o) const
@@ -209,7 +212,7 @@ namespace os::concurrency
 	{
 		if (!*this)
 		{
-			throw MAKE_FAR_EXCEPTION(L"Event not initialized properly"sv);
+			throw MAKE_FAR_FATAL_EXCEPTION(L"Event is not initialized properly"sv);
 		}
 	}
 

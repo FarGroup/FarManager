@@ -53,7 +53,7 @@ void RestoreGPFaultUI();
 
 void RegisterTestExceptionsHook();
 
-bool IsCppException(const EXCEPTION_POINTERS* e);
+bool IsCppException(const EXCEPTION_RECORD* Record);
 
 template<class function, class filter, class handler>
 auto seh_invoke(function&& Callable, filter&& Filter, handler&& Handler)

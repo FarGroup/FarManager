@@ -204,7 +204,7 @@ static std::string FormatLine(const char* File, int Line, const char* Function, 
 		break;
 
 	default:
-		throw MAKE_FAR_EXCEPTION(L"Unknown allocation type"sv);
+		throw MAKE_FAR_FATAL_EXCEPTION(L"Unknown allocation type"sv);
 	};
 
 	return format("{0}:{1} -> {2}:{3} ({4} bytes)", File, Line, Function, sType, Size);

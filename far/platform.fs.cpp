@@ -1088,7 +1088,7 @@ namespace os::fs
 		m_Buffer(BufferSize)
 	{
 		if (!(m_Mode & std::ios::in) == !(m_Mode & std::ios::out))
-			throw MAKE_FAR_EXCEPTION(L"Unsupported mode"sv);
+			throw MAKE_FAR_FATAL_EXCEPTION(L"Unsupported mode"sv);
 
 		reset_get_area();
 		reset_put_area();
@@ -1097,10 +1097,10 @@ namespace os::fs
 	filebuf::int_type filebuf::underflow()
 	{
 		if (!m_File)
-			throw MAKE_FAR_EXCEPTION(L"File not opened"sv);
+			throw MAKE_FAR_FATAL_EXCEPTION(L"File not opened"sv);
 
 		if (!(m_Mode & std::ios::in))
-			throw MAKE_FAR_EXCEPTION(L"Buffer not opened for reading"sv);
+			throw MAKE_FAR_FATAL_EXCEPTION(L"Buffer not opened for reading"sv);
 
 		size_t Read;
 		if (!m_File.Read(m_Buffer.data(), m_Buffer.size() * sizeof(char), Read))
@@ -1116,10 +1116,10 @@ namespace os::fs
 	filebuf::int_type filebuf::overflow(int_type Ch)
 	{
 		if (!m_File)
-			throw MAKE_FAR_EXCEPTION(L"File not opened"sv);
+			throw MAKE_FAR_FATAL_EXCEPTION(L"File not opened"sv);
 
 		if (!(m_Mode & std::ios::out))
-			throw MAKE_FAR_EXCEPTION(L"Buffer not opened for writing"sv);
+			throw MAKE_FAR_FATAL_EXCEPTION(L"Buffer not opened for writing"sv);
 
 		if (pptr() != pbase())
 		{
@@ -1170,7 +1170,7 @@ namespace os::fs
 	filebuf::pos_type filebuf::seekoff(off_type Offset, std::ios::seekdir Way, std::ios::openmode Which)
 	{
 		if (!m_File)
-			throw MAKE_FAR_EXCEPTION(L"File not opened"sv);
+			throw MAKE_FAR_FATAL_EXCEPTION(L"File not opened"sv);
 
 		switch (Way)
 		{
@@ -1199,7 +1199,7 @@ namespace os::fs
 			return set_pointer(Offset, FILE_CURRENT);
 
 		default:
-			throw MAKE_FAR_EXCEPTION(L"Unknown seekdir"sv);
+			throw MAKE_FAR_FATAL_EXCEPTION(L"Unknown seekdir"sv);
 		}
 	}
 
@@ -1210,7 +1210,7 @@ namespace os::fs
 
 	filebuf::int_type filebuf::pbackfail(int_type Ch)
 	{
-		throw MAKE_FAR_EXCEPTION(L"Not implemented"sv);
+		throw MAKE_FAR_FATAL_EXCEPTION(L"Not implemented"sv);
 	}
 
 	void filebuf::reset_get_area()

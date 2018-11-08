@@ -527,7 +527,7 @@ std::pair<string, string> SerialiseViewSettings(const std::vector<column>& Colum
 		case COLUMN_NOEXTENSION:     return L'N';
 		case COLUMN_RIGHTALIGNFORCE: return L'F';
 		case COLUMN_MARK_DYNAMIC:    return L'D';
-		default:                     throw MAKE_FAR_EXCEPTION(L"Unexpected mode"sv);
+		default:                     throw MAKE_FAR_FATAL_EXCEPTION(format(L"Unexpected mode {0}", Mode));
 		}
 	};
 

@@ -37,16 +37,45 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "string_utils.hpp"
 #include "lasterror.hpp"
+#include "exception.hpp"
 
 #include "platform.fs.hpp"
 #include "platform.memory.hpp"
 
 #include "common/scope_exit.hpp"
 
+#include "format.hpp"
+
 namespace os
 {
 	namespace detail
 	{
+		HANDLE handle_implementation::normalise(HANDLE const Handle)
+		{
+			return Handle == INVALID_HANDLE_VALUE? nullptr : Handle;
+		}
+
+		void handle_implementation::wait(HANDLE const Handle)
+		{
+			WaitForSingleObject(Handle, INFINITE);
+		}
+
+		bool handle_implementation::is_signaled(HANDLE const Handle, std::chrono::milliseconds const Timeout)
+		{
+			const auto Result = WaitForSingleObject(Handle, Timeout.count());
+			switch (Result)
+			{
+			case WAIT_OBJECT_0:
+				return true;
+
+			case WAIT_TIMEOUT:
+				return false;
+
+			default:
+				throw MAKE_FAR_FATAL_EXCEPTION(format(L"WaitForSingleobject returned {0}", Result));
+			}
+		}
+
 		void handle_closer::operator()(HANDLE Handle) const
 		{
 			CloseHandle(Handle);

@@ -1166,7 +1166,7 @@ consolebuf::int_type consolebuf::underflow()
 {
 	size_t Read;
 	if (!console.Read(m_InBuffer, Read))
-		throw MAKE_FAR_EXCEPTION(L"Console read error"sv);
+		throw MAKE_FAR_FATAL_EXCEPTION(L"Console read error"sv);
 
 	if (!Read)
 		return traits_type::eof();

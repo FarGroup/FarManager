@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 08.11.2018 21:55:13 +0000 - build 5307
+
+1. Some improvements in exception throwing and handling.
+
+2. After 5304 the profile was consireded "read only" in some cases.
+
+3. Refactoring.
+
 drkns 08.11.2018 08:56:21 +0000 - build 5306
 
 1. Forum: Far hangs after moving the system date back a day.

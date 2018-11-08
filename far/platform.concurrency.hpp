@@ -103,7 +103,7 @@ namespace os::concurrency
 			reset(reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, wrapper<T>, Param.get(), 0, &m_ThreadId)));
 
 			if (!*this)
-				throw MAKE_FAR_EXCEPTION(L"Can't create thread"sv);
+				throw MAKE_FAR_FATAL_EXCEPTION(L"Can't create thread"sv);
 
 			Param.release();
 		}
@@ -129,8 +129,8 @@ namespace os::concurrency
 
 		static string_view get_namespace();
 
-		bool lock() const;
-		bool unlock() const;
+		void lock() const;
+		void unlock() const;
 	};
 
 	namespace detail
@@ -185,8 +185,8 @@ namespace os::concurrency
 
 		static string_view get_namespace();
 
-		bool set() const;
-		bool reset() const;
+		void set() const;
+		void reset() const;
 		void associate(OVERLAPPED& o) const;
 
 	private:

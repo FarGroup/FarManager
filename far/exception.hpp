@@ -69,25 +69,52 @@ namespace detail
 		const auto& get_message() const noexcept { return m_ErrorState.What; }
 		const auto& get_full_message() const noexcept { return m_FullMessage; }
 		const auto& get_error_state() const noexcept { return m_ErrorState; }
+		const auto& get_function() const noexcept { return m_Function; }
+		const auto& get_location() const noexcept { return m_Location; }
 
 	private:
+		string m_Function;
+		string m_Location;
 		string m_FullMessage;
 		error_state_ex m_ErrorState;
 	};
 }
 
-class far_exception: public detail::exception_impl, public std::runtime_error
+class far_base_exception: public detail::exception_impl, public std::runtime_error
 {
 public:
-	far_exception(string_view Message, const char* Function, const char* File, int Line);
-	far_exception(string_view Message, std::vector<string>&& Stack, const char* Function, const char* File, int Line);
+	far_base_exception(string_view Message, const char* Function, const char* File, int Line);
+	far_base_exception(string_view Message, std::vector<string>&& Stack, const char* Function, const char* File, int Line);
 	const std::vector<string>& get_stack() const;
 
 private:
 	std::vector<string> m_Stack;
 };
 
+/*
+  Represents a non-continuable failure:
+  - logic errors, which shouldn't happen
+  - fatal OS errors
+  - ...
+  I.e. we either don't really know what to do or doing anything will do more harm than good.
+  It shouldn't be caught explicitly in general and fly straight to main().
+*/
+class far_fatal_exception : public far_base_exception
+{
+	using far_base_exception::far_base_exception;
+};
+
+/*
+  Represents all other failures, potentially continuable.
+  Base class for more specific exceptions.
+*/
+class far_exception : public far_base_exception
+{
+	using far_base_exception::far_base_exception;
+};
+
 #define MAKE_EXCEPTION(ExceptionType, ...) ExceptionType(__VA_ARGS__, __FUNCTION__, __FILE__, __LINE__)
+#define MAKE_FAR_FATAL_EXCEPTION(...) MAKE_EXCEPTION(far_fatal_exception, __VA_ARGS__)
 #define MAKE_FAR_EXCEPTION(...) MAKE_EXCEPTION(far_exception, __VA_ARGS__)
 
 class exception_context

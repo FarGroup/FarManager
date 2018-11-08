@@ -959,7 +959,7 @@ bool SearchString(
 char IntToHex(int h)
 {
 	if (h > 15)
-		throw MAKE_FAR_EXCEPTION(L"Not a hex char"sv);
+		throw MAKE_FAR_FATAL_EXCEPTION(L"Not a hex char"sv);
 	if (h >= 10)
 		return 'A' + h - 10;
 	return '0' + h;
@@ -976,7 +976,7 @@ int HexToInt(char h)
 	if (std::iswdigit(h))
 		return h - '0';
 
-	throw MAKE_FAR_EXCEPTION(L"Not a hex char"sv);
+	throw MAKE_FAR_FATAL_EXCEPTION(L"Not a hex char"sv);
 }
 
 template<class S, class C>
@@ -1008,7 +1008,7 @@ static auto HexStringToBlobT(const std::basic_string_view<char_type> Hex, const 
 {
 	// Size shall be either 3 * N + 2 or even
 	if (!Hex.empty() && (Separator? Hex.size() % 3 != 2 : Hex.size() & 1))
-		throw MAKE_FAR_EXCEPTION(L"Incomplete hex string"sv);
+		throw MAKE_FAR_FATAL_EXCEPTION(L"Incomplete hex string"sv);
 
 	const auto SeparatorSize = Separator? 1 : 0;
 	const auto StepSize = 2 + SeparatorSize;

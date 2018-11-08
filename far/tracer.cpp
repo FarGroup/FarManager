@@ -130,7 +130,7 @@ static tracer* StaticInstance;
 
 static LONG WINAPI StackLogger(EXCEPTION_POINTERS *xp)
 {
-	if (IsCppException(xp))
+	if (IsCppException(xp->ExceptionRecord))
 	{
 		// 0 indicates rethrow
 		if (xp->ExceptionRecord->ExceptionInformation[1])

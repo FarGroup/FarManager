@@ -380,12 +380,15 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 	{
 		CreatePath(path::join(Global->Opt->ProfilePath, L"PluginsData"sv), true);
 
-		if (Global->Opt->LocalProfilePath != Global->Opt->ProfilePath)
+		const auto SingleProfile = equal_icase(Global->Opt->ProfilePath, Global->Opt->LocalProfilePath);
+
+		if (!SingleProfile)
 			CreatePath(path::join(Global->Opt->LocalProfilePath, L"PluginsData"sv), true);
 
 		const auto RandomName = GuidToStr(CreateUuid());
 
-		if (!os::fs::can_create_file(path::join(strProfilePath, RandomName)) || !os::fs::can_create_file(path::join(strLocalProfilePath, RandomName)))
+		if (!os::fs::can_create_file(path::join(Global->Opt->ProfilePath, RandomName)) ||
+			(!SingleProfile && !os::fs::can_create_file(path::join(Global->Opt->LocalProfilePath, RandomName))))
 		{
 			Global->Opt->ReadOnlyConfig = true;
 		}
@@ -798,7 +801,7 @@ static int wmain_seh(int Argc, const wchar_t* const Argv[])
 	{
 		return mainImpl({ Argv + 1, Argv + Argc });
 	}
-	catch(const language::exception& e)
+	catch (const language::exception& e)
 	{
 		// *.lng read failure. It is pretty clear what is wrong, no need to show the stack etc.
 		std::wcerr << e.what() << std::endl;

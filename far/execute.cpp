@@ -1051,7 +1051,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 					ctrl=ctrl&(PKF_CONTROL|PKF_RCONTROL);
 
 					//Тут нельзя делать WaitForMultipleObjects из за бага в Win7 при работе в телнет
-					while (!Process.wait(100ms))
+					while (!Process.is_signaled(100ms))
 					{
 						if (WaitForSingleObject(hInput, 100)==WAIT_OBJECT_0 && console.PeekInput(ir, 256, rd) && rd)
 						{
