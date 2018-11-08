@@ -42,6 +42,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "global.hpp"
 
+#include "platform.chrono.hpp"
+
 enum {STAR_NONE,STAR_NORMAL,STAR_PLANET};
 
 struct star
@@ -152,7 +154,7 @@ int ScreenSaver()
 		if (PeekInputRecord(&rec))
 			return 1;
 
-		std::this_thread::sleep_for(100ms);
+		os::chrono::sleep_for(100ms);
 	}
 
 	Global->ScreenSaverActive = true;
@@ -182,7 +184,7 @@ int ScreenSaver()
 		INPUT_RECORD rec;
 		while (!PeekInputRecord(&rec))
 		{
-			std::this_thread::sleep_for(50ms);
+			os::chrono::sleep_for(50ms);
 			ShowSaver(Step++, [&](star& i)
 			{
 				static const int Colors[] = { F_MAGENTA, F_RED, F_BLUE };

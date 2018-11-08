@@ -1497,7 +1497,7 @@ bool Viewer::process_key(const Manager::Key& Key)
 		if (*m_IdleCheck)
 			LocalKey = KEY_IDLE;
 		else
-			std::this_thread::sleep_for(10ms);
+			os::chrono::sleep_for(10ms);
 	}
 
 	if (!ViOpt.PersistentBlocks &&

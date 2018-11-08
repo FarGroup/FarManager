@@ -895,7 +895,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 		}
 
 		Global->ScrBuf->Flush();
-		std::this_thread::sleep_for(10ms);
+		os::chrono::sleep_for(10ms);
 
 		static bool ExitInProcess = false;
 		if (Global->CloseFAR && !ExitInProcess)
@@ -1193,7 +1193,7 @@ DWORD WaitKey(DWORD KeyWait,DWORD delayMS,bool ExcludeMacro)
 			break;
 		}
 
-		std::this_thread::sleep_for(1ms);
+		os::chrono::sleep_for(1ms);
 	}
 
 	return Key;

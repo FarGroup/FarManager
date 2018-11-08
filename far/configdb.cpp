@@ -159,7 +159,7 @@ int sqlite_busy_handler(void* Param, int Retries)
 	if (Retries < 10)
 	{
 		// Let's retry silently first:
-		std::this_thread::sleep_for(500ms);
+		os::chrono::sleep_for(500ms);
 		return 1;
 	}
 

@@ -50,10 +50,18 @@ namespace os::chrono
 		static time_point from_time_t(time_t Time) noexcept;
 		static FILETIME to_filetime(const time_point& Time) noexcept;
 		static time_point from_filetime(FILETIME Time) noexcept;
+
+		static void sleep_for_ms(size_t Count);
 	};
 
 	using duration = nt_clock::duration;
 	using time_point = nt_clock::time_point;
+
+	template<class rep, class period>
+	void sleep_for(const std::chrono::duration<rep, period>& Duration)
+	{
+		nt_clock::sleep_for_ms(std::chrono::duration_cast<std::chrono::milliseconds>(Duration).count());
+	}
 
 	bool get_process_creation_time(HANDLE Process, time_point& CreationTime);
 

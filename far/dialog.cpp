@@ -63,6 +63,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "edit.hpp"
 #include "global.hpp"
 
+#include "platform.chrono.hpp"
 #include "platform.env.hpp"
 #include "platform.memory.hpp"
 
@@ -5873,7 +5874,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				if (GetDropDownOpened())
 				{
 					SetDropDownOpened(FALSE);
-					std::this_thread::sleep_for(10ms);
+					os::chrono::sleep_for(10ms);
 				}
 
 				return TRUE;
@@ -5888,7 +5889,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				if (GetDropDownOpened())
 				{
 					SetDropDownOpened(FALSE);
-					std::this_thread::sleep_for(10ms);
+					os::chrono::sleep_for(10ms);
 				}
 
 				if (SendMessage(DM_SETFOCUS, Param1, nullptr))
