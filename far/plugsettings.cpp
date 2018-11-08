@@ -450,8 +450,11 @@ int FarSettings::SubKey(const FarSettingsValue& Value, bool bCreate)
 	if (bCreate || Value.Root != FSSF_ROOT)
 		return 0;
 
-	m_Keys.emplace_back(Value.Value);
-	return static_cast<int>(m_Keys.size() - 1 + FSSF_COUNT);
+	const size_t Position = std::find(ALL_CONST_RANGE(m_Keys), Value.Value) - m_Keys.cbegin();
+	if (Position == m_Keys.size())
+		m_Keys.emplace_back(Value.Value);
+
+	return static_cast<int>(Position + FSSF_COUNT);
 }
 
 static const auto& HistoryRef(int Type)

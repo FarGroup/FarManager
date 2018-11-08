@@ -776,19 +776,12 @@ static int mainImpl(range<const wchar_t* const*> const Args)
 			std::terminate();
 		throw;
 	}
-#if COMPILER == C_GCC
 	catch (...)
 	{
 		if (ProcessUnknownException(L"mainImpl"sv))
 			std::terminate();
 		throw;
 	}
-#else
-	// Absence of catch (...) block here is deliberate:
-	// Unknown C++ exceptions will be caught by FarUnhandledExceptionFilter
-	// and processed as SEH exceptions in more advanced way
-#endif
-
 }
 
 static int wmain_seh(int Argc, const wchar_t* const Argv[])
@@ -820,7 +813,6 @@ static int wmain_seh(int Argc, const wchar_t* const Argv[])
 		RestoreGPFaultUI();
 		throw;
 	}
-#if COMPILER == C_GCC
 	catch (...)
 	{
 		if (ProcessUnknownException(L"mainImpl"sv))
@@ -830,11 +822,6 @@ static int wmain_seh(int Argc, const wchar_t* const Argv[])
 		RestoreGPFaultUI();
 		throw;
 	}
-#else
-	// Absence of catch (...) block here is deliberate:
-	// Unknown C++ exceptions will be caught by FarUnhandledExceptionFilter
-	// and processed as SEH exceptions in more advanced way
-#endif
 }
 
 int main()

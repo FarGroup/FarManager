@@ -48,6 +48,7 @@ WARNING_DISABLE_GCC("-Warray-bounds")
 WARNING_DISABLE_GCC("-Wcast-qual")
 WARNING_DISABLE_GCC("-Wimplicit-fallthrough")
 WARNING_DISABLE_GCC("-Wunused-but-set-variable")
+WARNING_DISABLE_GCC("-Wunused-value")
 WARNING_DISABLE_GCC("-Wcast-function-type")
 
 WARNING_DISABLE_CLANG("-Weverything")

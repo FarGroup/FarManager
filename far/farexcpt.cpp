@@ -339,22 +339,35 @@ enum FARRECORDTYPE
 	RTYPE_PLUGIN = fourcc<'C', 'P', 'L', 'G'>, // информация о текущем плагине
 };
 
+struct catchable_type
+{
+	DWORD properties;                // Catchable Type properties (Bit field)
+	DWORD pType;                     // Image relative offset of TypeDescriptor
+};
+
+struct catchable_type_array
+{
+	DWORD nCatchableTypes;
+	DWORD arrayOfCatchableTypes;     // Image relative offset of Catchable Types
+};
+
+struct throw_info
+{
+	DWORD attributes;                // Throw Info attributes (Bit field)
+	DWORD pmfnUnwind;                // Destructor to call when exception has been handled or aborted
+	DWORD pForwardCompat;            // Image relative offset of Forward compatibility frame handler
+	DWORD pCatchableTypeArray;       // Image relative offset of CatchableTypeArray
+};
+
 static string ExtractObjectName(const EXCEPTION_RECORD* xr)
 {
-	// https://blogs.msdn.microsoft.com/oldnewthing/20100730-00/?p=13273
 	const auto BaseAddress = xr->NumberParameters == 4? xr->ExceptionInformation[3] : 0;
-	const auto Ptr1 = reinterpret_cast<const DWORD*>(xr->ExceptionInformation[2]);
-	const auto Ptr2 = reinterpret_cast<const DWORD*>(Ptr1[3] + BaseAddress);
-	const auto Ptr3 = reinterpret_cast<const DWORD*>(Ptr2[1] + BaseAddress);
-	const auto Ptr4 = reinterpret_cast<const char*>(Ptr3[1] + BaseAddress);
-	auto DataPtr = Ptr4 + sizeof(void*) * 2;
+	const auto& ThrowInfo = *reinterpret_cast<const throw_info*>(xr->ExceptionInformation[2]);
+	const auto& CatchableTypeArray = *reinterpret_cast<const catchable_type_array*>(BaseAddress + ThrowInfo.pCatchableTypeArray);
+	const auto& CatchableType = *reinterpret_cast<const catchable_type*>(BaseAddress + CatchableTypeArray.arrayOfCatchableTypes);
+	const auto& TypeInfo = *reinterpret_cast<const std::type_info*>(BaseAddress + CatchableType.pType);
 
-	char Buffer[MAX_SYM_NAME];
-	// https://stackoverflow.com/a/19637731
-	if (imports.UnDecorateSymbolName(DataPtr + 1, Buffer, static_cast<DWORD>(std::size(Buffer)), UNDNAME_32_BIT_DECODE | UNDNAME_NO_ARGUMENTS))
-		DataPtr = Buffer;
-
-	return encoding::ansi::get_chars(Buffer);
+	return encoding::ansi::get_chars(TypeInfo.name());
 }
 
 static bool ProcessGenericException(const exception_context& Context, const string_view Function, const Plugin* const PluginModule, const char* const Message, const std::vector<string>* const NestedStack = nullptr)
@@ -597,12 +610,26 @@ bool ProcessStdException(const std::exception& e, string_view const Function, co
 	return ProcessGenericException(*Context, Function, Module, e.what());
 }
 
+extern "C" void** __current_exception();
+extern "C" void** __current_exception_context();
+
 bool ProcessUnknownException(string_view const Function, const Plugin* const Module)
 {
+	const EXCEPTION_POINTERS* PointersPtr = nullptr;
+
+#ifdef _MSC_VER
+	EXCEPTION_POINTERS Pointers
+	{
+		static_cast<EXCEPTION_RECORD*>(*__current_exception()),
+		static_cast<CONTEXT*>(*__current_exception_context())
+	};
+	PointersPtr = &Pointers;
+#endif
+
 	// C++ exception to EXCEPTION_POINTERS translation relies on Microsoft implementation.
 	// It won't work in gcc etc.
 	// Set ExceptionCode manually so ProcessGenericException will at least report it as C++ exception
-	const exception_context Context(EXCEPTION_MICROSOFT_CPLUSPLUS);
+	const exception_context Context(EXCEPTION_MICROSOFT_CPLUSPLUS, PointersPtr);
 	return ProcessGenericException(Context, Function, Module, nullptr);
 }
 
@@ -741,7 +768,7 @@ static bool ExceptionTestHook(Manager::Key key)
 			break;
 
 		case exception_types::cpp_unknown:
-			throw 42;
+			throw 42u;
 
 		case exception_types::access_violation_read:
 			{

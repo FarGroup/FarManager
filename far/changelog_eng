@@ -3,6 +3,12 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 08.11.2018 00:26:26 +0000 - build 5305
+
+1. Some improvements in exception handling.
+
+2. Redundant allocations during subsequent SCTL_CREATESUBKEY calls.
+
 drkns 06.11.2018 20:35:22 +0000 - build 5304
 
 1. Major SQLite changes: now instead of returning false or error code (which we almost never checked anyway) on failures
