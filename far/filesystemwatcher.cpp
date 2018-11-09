@@ -134,7 +134,7 @@ bool FileSystemWatcher::Signaled() const
 {
 	PropagateException();
 
-	return m_Notification.is_signaled() || m_PreviousLastWriteTime != m_CurrentLastWriteTime;
+	return m_Notification && m_Notification.is_signaled() || m_PreviousLastWriteTime != m_CurrentLastWriteTime;
 }
 
 void FileSystemWatcher::Register()
