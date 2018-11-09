@@ -338,15 +338,29 @@ bool Viewer::OpenFile(const string& Name,int warning)
 
 	if ((Global->Opt->ViOpt.SavePos || Global->Opt->ViOpt.SaveShortPos || Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SaveWrapMode) && !ReadStdin)
 	{
-		string strCacheName=strPluginData.empty()?strFileName:strPluginData+PointToName(strFileName);
+		string strCacheName = strPluginData.empty() ? strFileName : strPluginData + PointToName(strFileName);
 		ViewerPosCache poscache;
-
-		bool found = FilePositionCache::GetPosition(strCacheName,poscache);
-		if (Global->Opt->ViOpt.SavePos || Global->Opt->ViOpt.SaveShortPos)
+		bool found = FilePositionCache::GetPosition(strCacheName, poscache);
+		if (found)
 		{
-			long long NewFilePos=std::max(poscache.cur.FilePos, 0LL);
-			long long NewLeftPos=poscache.cur.LeftPos;
-			if (found && !m_DisplayMode.touched()) // keep Mode if file listed (Gray+-)
+			if (Global->Opt->ViOpt.SavePos)
+			{
+				LastSelectPos = FilePos = std::max(poscache.cur.FilePos, 0LL);
+				LeftPos = poscache.cur.LeftPos;
+			}
+			if (Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SavePos)
+			{
+				CachedCodePage = poscache.CodePage;
+				if (CachedCodePage && !IsCodePageSupported(CachedCodePage))
+					CachedCodePage = 0;
+			}
+
+			if (Global->Opt->ViOpt.SaveShortPos)
+			{
+				BMSavePos = poscache.bm;
+			}
+
+			if (!m_DisplayMode.touched()) // keep Mode if file listed (Gray+-)
 			{
 				if (poscache.ViewModeAndWrapState & m_mode_changed)
 				{
@@ -359,26 +373,12 @@ bool Viewer::OpenFile(const string& Name,int warning)
 				if (m_DisplayMode != VMT_HEX)
 					m_DumpTextMode = m_DisplayMode == VMT_DUMP;
 			}
-			BMSavePos=poscache.bm;
-
-			LastSelectPos=FilePos=NewFilePos;
-			LeftPos=NewLeftPos;
+			if (Global->Opt->ViOpt.SaveWrapMode && poscache.ViewModeAndWrapState & m_mode_changed)
+			{
+				m_Wrap = (poscache.ViewModeAndWrapState & m_mode_wrap) != 0;
+				m_WordWrap = (poscache.ViewModeAndWrapState & m_mode_wrap_words) != 0;
+			}
 		}
-		if (Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SavePos)
-		{
-			CachedCodePage=poscache.CodePage;
-			if (CachedCodePage && !IsCodePageSupported(CachedCodePage))
-				CachedCodePage = 0;
-		}
-		if (Global->Opt->ViOpt.SaveWrapMode && poscache.ViewModeAndWrapState & m_mode_changed)
-		{
-			m_Wrap = (poscache.ViewModeAndWrapState & m_mode_wrap) != 0;
-			m_WordWrap = (poscache.ViewModeAndWrapState & m_mode_wrap_words) != 0;
-		}
-	}
-	else
-	{
-		FilePos=0;
 	}
 
 	if (m_Codepage == CP_DEFAULT)
