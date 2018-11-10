@@ -1764,8 +1764,6 @@ private:
 		AsyncWork.set();
 	}
 
-	void RollbackTransaction() override { WaitAllAsync(); SQLiteDb::RollbackTransaction(); }
-
 	static void Initialise(const db_initialiser& Db)
 	{
 		Db.SetBusyHandler(sqlite_busy_handler);

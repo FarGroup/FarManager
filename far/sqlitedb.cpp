@@ -266,7 +266,6 @@ SQLiteDb::SQLiteDb(initialiser Initialiser, string_view const DbName, bool WAL):
 	m_Db(Open(DbName, WAL)),
 	m_stmt_BeginTransaction(create_stmt("BEGIN;"sv)),
 	m_stmt_EndTransaction(create_stmt("END;"sv)),
-	m_stmt_RollbackTransaction(create_stmt("ROLLBACK;"sv)),
 	m_Init((Initialiser(db_initialiser(this)), init{})) // yay, operator comma!
 {
 }
@@ -373,17 +372,16 @@ void SQLiteDb::Exec(range<const std::string_view*> Command) const
 
 void SQLiteDb::BeginTransaction()
 {
-	m_stmt_BeginTransaction.Execute();
+	if (!m_ActiveTransactions)
+		m_stmt_BeginTransaction.Execute();
+	++m_ActiveTransactions;
 }
 
 void SQLiteDb::EndTransaction()
 {
-	m_stmt_EndTransaction.Execute();
-}
-
-void SQLiteDb::RollbackTransaction()
-{
-	m_stmt_RollbackTransaction.Execute();
+	--m_ActiveTransactions;
+	if (!m_ActiveTransactions)
+		m_stmt_EndTransaction.Execute();
 }
 
 SQLiteDb::SQLiteStmt SQLiteDb::create_stmt(std::string_view const Stmt, bool Persistent) const

@@ -3,6 +3,11 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 10.11.2018 18:52:03 +0000 - build 5311
+
+1. Since SQLite doesn't support nested transactions and we use them only for performance -
+   nested begin/end are ignored now.
+
 drkns 10.11.2018 00:09:59 +0000 - build 5310
 
 1. Small file sorting optimisations.

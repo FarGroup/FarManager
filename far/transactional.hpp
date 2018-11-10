@@ -39,7 +39,6 @@ public:
 
 	virtual void BeginTransaction() = 0;
 	virtual void EndTransaction() = 0;
-	virtual void RollbackTransaction() = 0;
 
 	auto ScopedTransaction() { return make_raii_wrapper(this, &transactional::BeginTransaction, &transactional::EndTransaction); }
 };

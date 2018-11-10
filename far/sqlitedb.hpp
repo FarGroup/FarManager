@@ -83,7 +83,6 @@ protected:
 
 	void BeginTransaction() override;
 	void EndTransaction() override;
-	void RollbackTransaction() override;
 
 	class SQLiteStmt
 	{
@@ -233,10 +232,10 @@ private:
 	database_ptr m_Db;
 	SQLiteStmt m_stmt_BeginTransaction;
 	SQLiteStmt m_stmt_EndTransaction;
-	SQLiteStmt m_stmt_RollbackTransaction;
 	mutable std::vector<SQLiteStmt> m_Statements;
 	struct init{} m_Init;
 	int db_exists{-1};
+	size_t m_ActiveTransactions{};
 };
 
 #endif // SQLITEDB_HPP_1C228281_1C8E_467F_9070_520E01F7DB70
