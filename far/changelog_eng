@@ -3,6 +3,16 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 10.11.2018 00:09:59 +0000 - build 5310
+
+1. Small file sorting optimisations.
+
+2. Refactoring.
+
+w17 09.11.2018 14:25:26 +0300 - build 5309
+
+1. GH #77 3.0.5300: Viewer Save file position is broken
+
 drkns 09.11.2018 09:02:24 +0000 - build 5308
 
 1. 5307 revealed an ancient bug - incorrect handle usage.

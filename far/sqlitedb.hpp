@@ -158,7 +158,7 @@ protected:
 	template<class T>
 	static auto transient(const T& Value) { return SQLiteStmt::transient_t<T>(Value); }
 
-	SQLiteStmt create_stmt(std::string_view Stmt) const;
+	SQLiteStmt create_stmt(std::string_view Stmt, bool Persistent = true) const;
 
 	template<typename T, size_t N>
 	void PrepareStatements(const stmt_init<T> (&Init)[N])
@@ -222,17 +222,20 @@ private:
 	class implementation;
 	friend class implementation;
 
-	void Open(string_view Path, bool WAL);
-	void Initialize(initialiser Initialiser, string_view DbName, bool WAL);
-	void Close();
-
 	struct db_closer { void operator()(sqlite::sqlite3*) const; };
 	using database_ptr = std::unique_ptr<sqlite::sqlite3, db_closer>;
 
-	// must be destroyed last
-	database_ptr m_Db;
-	mutable std::vector<SQLiteStmt> m_Statements;
+	database_ptr Open(string_view Path, bool WAL);
+	void Close();
+
+	// The order is important
 	string m_Path;
+	database_ptr m_Db;
+	SQLiteStmt m_stmt_BeginTransaction;
+	SQLiteStmt m_stmt_EndTransaction;
+	SQLiteStmt m_stmt_RollbackTransaction;
+	mutable std::vector<SQLiteStmt> m_Statements;
+	struct init{} m_Init;
 	int db_exists{-1};
 };
 

@@ -262,9 +262,13 @@ SQLiteDb::column_type SQLiteDb::SQLiteStmt::GetColType(int Col) const
 }
 
 
-SQLiteDb::SQLiteDb(initialiser Initialiser, string_view const DbName, bool WAL)
+SQLiteDb::SQLiteDb(initialiser Initialiser, string_view const DbName, bool WAL):
+	m_Db(Open(DbName, WAL)),
+	m_stmt_BeginTransaction(create_stmt("BEGIN;"sv)),
+	m_stmt_EndTransaction(create_stmt("END;"sv)),
+	m_stmt_RollbackTransaction(create_stmt("ROLLBACK;"sv)),
+	m_Init((Initialiser(db_initialiser(this)), init{})) // yay, operator comma!
 {
-	Initialize(Initialiser, DbName, WAL);
 }
 
 void SQLiteDb::db_closer::operator()(sqlite::sqlite3* Object) const
@@ -347,49 +351,42 @@ public:
 	}
 };
 
-void SQLiteDb::Open(string_view const Path, bool const WAL)
+SQLiteDb::database_ptr SQLiteDb::Open(string_view const Path, bool const WAL)
 {
 	if (!Global->Opt->ReadOnlyConfig || Path == memory_db_name())
 	{
-		m_Db = implementation::open(Path);
 		m_Path = Path;
-		return;
+		return implementation::open(Path);
 	}
 
-	m_Db = implementation::try_copy_db_to_memory(Path, WAL);
 	m_Path = memory_db_name();
-}
-
-void SQLiteDb::Initialize(initialiser Initialiser, string_view const DbName, bool WAL)
-{
-	Open(DbName, WAL);
-	Initialiser(db_initialiser(this));
+	return implementation::try_copy_db_to_memory(Path, WAL);
 }
 
 void SQLiteDb::Exec(range<const std::string_view*> Command) const
 {
 	for (const auto& i: Command)
 	{
-		create_stmt(i).Execute();
+		create_stmt(i, false).Execute();
 	}
 }
 
 void SQLiteDb::BeginTransaction()
 {
-	Exec({ "BEGIN TRANSACTION;"sv });
+	m_stmt_BeginTransaction.Execute();
 }
 
 void SQLiteDb::EndTransaction()
 {
-	Exec({ "END TRANSACTION;"sv });
+	m_stmt_EndTransaction.Execute();
 }
 
 void SQLiteDb::RollbackTransaction()
 {
-	Exec({ "ROLLBACK TRANSACTION;"sv });
+	m_stmt_RollbackTransaction.Execute();
 }
 
-SQLiteDb::SQLiteStmt SQLiteDb::create_stmt(std::string_view const Stmt) const
+SQLiteDb::SQLiteStmt SQLiteDb::create_stmt(std::string_view const Stmt, bool Persistent) const
 {
 	sqlite::sqlite3_stmt* pStmt;
 
@@ -401,7 +398,7 @@ SQLiteDb::SQLiteStmt SQLiteDb::create_stmt(std::string_view const Stmt) const
 	// We use data() instead of operator[] here to bypass any bounds checks in debug mode
 	const auto IsNullTerminated = Stmt.data()[Stmt.size()] == L'\0';
 
-	invoke(m_Db.get(), [&]{ return sqlite::sqlite3_prepare_v3(m_Db.get(), Stmt.data(), static_cast<int>(Stmt.size() + (IsNullTerminated? 1 : 0)), SQLITE_PREPARE_PERSISTENT, &pStmt, nullptr) == SQLITE_OK; });
+	invoke(m_Db.get(), [&]{ return sqlite::sqlite3_prepare_v3(m_Db.get(), Stmt.data(), static_cast<int>(Stmt.size() + (IsNullTerminated? 1 : 0)), Persistent? SQLITE_PREPARE_PERSISTENT : 0, &pStmt, nullptr) == SQLITE_OK; });
 
 	return SQLiteStmt(pStmt);
 }

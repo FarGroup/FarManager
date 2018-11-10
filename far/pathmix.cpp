@@ -222,20 +222,15 @@ bool IsParentDirectory(const PluginPanelItem& Data)
 		(!Data.AlternateFileName || !*Data.AlternateFileName || equal(NullToEmpty(Data.AlternateFileName), NullToEmpty(Data.FileName)));
 }
 
-bool IsCurrentDirectory(string_view Str)
+bool IsCurrentDirectory(string_view const Str)
 {
 	return starts_with(Str, L"."sv) && (Str.size() == 1 || (Str.size() == 2 && IsSlash(Str[1])));
 }
 
-string_view PointToName(string_view Path)
+string_view PointToName(string_view const Path)
 {
-	if (Path.empty())
-		return Path;
-
-	auto NameStart = std::find_if(ALL_CONST_REVERSE_RANGE(Path), IsSlash);
-	Path.remove_prefix(Path.crend() - NameStart);
-
-	return Path;
+	const auto NameStart = std::find_if(ALL_CONST_REVERSE_RANGE(Path), IsSlash);
+	return Path.substr(Path.crend() - NameStart);
 }
 
 //   Аналог PointToName, только для строк типа
@@ -249,16 +244,10 @@ string_view PointToFolderNameIfFolder(string_view Path)
 	return PointToName(Path);
 }
 
-string_view PointToExt(string_view Path)
+string_view PointToExt(string_view const Path)
 {
-	Path = PointToName(Path);
-
-	if (Path.empty())
-		return Path;
-
 	const auto ExtensionStart = std::find(ALL_CONST_REVERSE_RANGE(Path), L'.');
-	Path.remove_prefix(ExtensionStart == Path.crend()? Path.size() : Path.crend() - ExtensionStart - 1);
-	return Path;
+	return Path.substr(ExtensionStart == Path.crend()? Path.size() : Path.crend() - ExtensionStart - 1);
 }
 
 

@@ -513,7 +513,8 @@ public:
 		hSortPlugin(SortPlugin),
 		ListSortGroups(Owner->GetSortGroups()),
 		ListSelectedFirst(Owner->GetSelectedFirstMode()),
-		ListDirectoriesFirst(Owner->GetDirectoriesFirst())
+		ListDirectoriesFirst(Owner->GetDirectoriesFirst()),
+		SortFolderExt(Global->Opt->SortFolderExt)
 	{
 	}
 
@@ -578,9 +579,9 @@ public:
 			return ::CompareTime(std::invoke(time, a), std::invoke(time, b));
 		};
 
-		const auto& GetExt = [](const FileListItem& i)
+		const auto& GetExt = [SortFolderExt = SortFolderExt](const FileListItem& i)
 		{
-			if ((i.Attributes & FILE_ATTRIBUTE_DIRECTORY) && !Global->Opt->SortFolderExt)
+			if ((i.Attributes & FILE_ATTRIBUTE_DIRECTORY) && !SortFolderExt)
 				return string_view(i.FileName).substr(i.FileName.size());
 
 			return PointToExt(i.FileName);
@@ -731,12 +732,12 @@ public:
 		if (Ext2.empty())
 			Ext2 = GetExt(b);
 
-		const auto& GetNameOnly = [](const string_view NameWithExt, const string_view Ext)
+		const auto& GetNameOnly = [](string_view const FullName, string_view const Ext)
 		{
-			return NameWithExt.substr(0, NameWithExt.size() - Ext.size());
+			return PointToName(FullName.substr(0, FullName.size() - Ext.size()));
 		};
 
-		int NameCmp = string_sort::compare(GetNameOnly(PointToName(a.FileName), Ext1), GetNameOnly(PointToName(b.FileName), Ext2));
+		int NameCmp = string_sort::compare(GetNameOnly(a.FileName, Ext1), GetNameOnly(b.FileName, Ext2));
 
 		if (!NameCmp)
 		{
@@ -768,6 +769,7 @@ private:
 	bool ListSortGroups;
 	bool ListSelectedFirst;
 	bool ListDirectoriesFirst;
+	bool SortFolderExt;
 };
 
 
@@ -1770,7 +1772,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 							{
 								if (!(HasPathPrefix(strFileName) && pos==3))
 								{
-									if (!os::fs::exists(strFileName.substr(0, pos)))
+									if (!os::fs::exists(string_view(strFileName).substr(0, pos)))
 									{
 										if (Message(MSG_WARNING,
 											msg(lng::MWarning),
