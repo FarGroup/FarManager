@@ -157,6 +157,8 @@ public:
 		});
 	}
 
+	static int ToSettingsType(int Type);
+
 protected:
 	HierarchicalConfig() = default;
 };

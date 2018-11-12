@@ -3,6 +3,13 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 12.11.2018 23:59:59 +0000 - build 5312
+
+1. If codepage detection failed, but we know that it can't be valid UTF-8/16 -
+   ANSI will be used, even if UTF-8/16 is the default. Less chance of damaging the text.
+
+2. A few minor changes.
+
 drkns 10.11.2018 18:52:03 +0000 - build 5311
 
 1. Since SQLite doesn't support nested transactions and we use them only for performance -

@@ -372,7 +372,7 @@ static bool GetCpUsingUniversalDetectorWithExceptions(std::string_view const Str
 }
 
 // If the file contains a BOM this function will advance the file pointer by the BOM size (either 2 or 3)
-static bool GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage, uintptr_t& Codepage, bool& SignatureFound, bool UseHeuristics)
+static bool GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage, uintptr_t& Codepage, bool& SignatureFound, bool& NotUTF8, bool& NotUTF16, bool UseHeuristics)
 {
 	if (GetUnicodeCpUsingBOM(File, Codepage))
 	{
@@ -397,6 +397,8 @@ static bool GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage,
 	if (GetUnicodeCpUsingWindows(Buffer.get(), ReadSize, Codepage))
 		return true;
 
+	NotUTF16 = true;
+
 	unsigned long long FileSize = 0;
 	const auto WholeFileRead = File.GetSize(FileSize) && ReadSize == FileSize;
 	bool PureAscii = false;
@@ -413,6 +415,8 @@ static bool GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage,
 		return true;
 	}
 
+	NotUTF8 = true;
+
 	return GetCpUsingUniversalDetectorWithExceptions({ Buffer.get(), ReadSize }, Codepage);
 }
 
@@ -420,9 +424,16 @@ uintptr_t GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage, b
 {
 	bool SignatureFoundValue = false;
 	uintptr_t Codepage;
+	bool NotUTF8 = false;
+	bool NotUTF16 = false;
 
-	if (!GetFileCodepage(File, DefaultCodepage, Codepage, SignatureFoundValue, UseHeuristics))
-		Codepage = DefaultCodepage;
+	if (!GetFileCodepage(File, DefaultCodepage, Codepage, SignatureFoundValue, NotUTF8, NotUTF16, UseHeuristics))
+	{
+		Codepage =
+			(NotUTF8 && DefaultCodepage == CP_UTF8) || (NotUTF16 && IsUnicodeCodePage(DefaultCodepage))?
+				encoding::codepage::ansi() :
+				DefaultCodepage;
+	}
 
 	if (SignatureFound)
 		*SignatureFound = SignatureFoundValue;

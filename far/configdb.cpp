@@ -2468,3 +2468,22 @@ config_provider& ConfigProvider()
 {
 	return *Global->m_ConfigProvider;
 }
+
+int HierarchicalConfig::ToSettingsType(int Type)
+{
+	switch (static_cast<SQLiteDb::column_type>(Type))
+	{
+	case SQLiteDb::column_type::integer:
+		return FST_QWORD;
+
+	case SQLiteDb::column_type::string:
+		return FST_STRING;
+
+	case SQLiteDb::column_type::blob:
+		return FST_DATA;
+
+	case SQLiteDb::column_type::unknown:
+	default:
+		return FST_UNKNOWN;
+	}
+}

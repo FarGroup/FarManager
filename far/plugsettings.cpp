@@ -40,7 +40,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "pathmix.hpp"
 #include "plugins.hpp"
-#include "sqlitedb.hpp"
 #include "configdb.hpp"
 #include "global.hpp"
 
@@ -309,25 +308,8 @@ bool PluginSettings::Enum(FarSettingsEnum& Enum)
 
 	for(auto& i: PluginsCfg->ValuesEnumerator(root))
 	{
-		switch (static_cast<SQLiteDb::column_type>(i.second))
-		{
-		case SQLiteDb::column_type::integer:
-			item.Type = FST_QWORD;
-			break;
+		item.Type = static_cast<FARSETTINGSTYPES>(PluginsCfg->ToSettingsType(i.second));
 
-		case SQLiteDb::column_type::string:
-			item.Type = FST_STRING;
-			break;
-
-		case SQLiteDb::column_type::blob:
-			item.Type = FST_DATA;
-			break;
-
-		case SQLiteDb::column_type::unknown:
-		default:
-			item.Type = FST_UNKNOWN;
-			break;
-		}
 		if(item.Type!=FST_UNKNOWN)
 		{
 			NewEnumItem.add(item, std::move(i.first));
