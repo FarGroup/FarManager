@@ -358,7 +358,7 @@ int MkHardLink(const string& ExistingName,const string& NewName, bool Silent)
 bool EnumStreams(const string& FileName, unsigned long long& StreamsSize, DWORD& StreamsCount)
 {
 	bool Result=false;
-	
+
 	unsigned long long Size = 0;
 	DWORD Count = 0;
 
@@ -411,7 +411,7 @@ bool GetSubstName(int DriveType,const string& DeviceName, string &strTargetPath)
 				}
 				else if (starts_with(Name, L"\\??\\"sv))
 				{
-					strTargetPath.assign(Name, 4);
+					strTargetPath.assign(Name, 4, string::npos); // gcc 7.3 bug, npos required
 					Ret=true;
 				}
 			}

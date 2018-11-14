@@ -40,6 +40,7 @@ WARNING_DISABLE_MSC(4396) // https://msdn.microsoft.com/en-us/library/bb384968.a
 WARNING_DISABLE_MSC(4702) // https://msdn.microsoft.com/en-us/library/c26da40e.aspx unreachable code
 
 WARNING_DISABLE_GCC("-Wctor-dtor-privacy")
+WARNING_DISABLE_GCC("-Wmaybe-uninitialized")
 
 WARNING_DISABLE_CLANG("-Weverything")
 
