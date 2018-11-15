@@ -27,6 +27,15 @@ install:
   - enc/tools/tool.make_enc_chm.bat
   #build Lua MacroAPI docs
   - enc/tools/tool.make_lua_chm.bat
+  #clone NetBox
+  - if exist Far-NetBox rd /S /Q Far-NetBox
+  - git clone https://github.com/michaellukashov/Far-NetBox.git 
+  - cd Far-NetBox
+  - git checkout far3
+  - cd ..
+  #clone Colorer
+  - git clone https://github.com/colorer/Colorer-schemes.git
+  - git clone https://github.com/colorer/FarColorer.git --recursive
 
 environment:
   matrix:
@@ -66,6 +75,24 @@ build_script:
   - cd misc\fexcept
   - if "%platform%" == "x86" nmake /f makefile_vc %ADD_MAKE% INSTALL=..\..\ci\%configuration%.%platform% FAR_WORKDIR=..\..\ci\%configuration%.%platform%
   - cd ..\..
+  #build netbox
+  - set FAR_VERSION=Far3
+  - set PROJECT_ROOT=%APPVEYOR_BUILD_FOLDER%\Far-NetBox
+  - set PROJECT_CONFIG=%configuration%
+  - set PROJECT_BUILD=Build
+  - set PROJECT_CONF=%platform%
+  - set PROJECT_PLATFORM=Win32
+  - if "%platform%" == "x64" set PROJECT_PLATFORM=x64
+  - cd Far-NetBox
+  - mkdir build\%configuration%\%platform%
+  - cd build\%configuration%\%platform%
+  - cmake -G "NMake Makefiles" -D PROJECT_ROOT=%PROJECT_ROOT% -D CMAKE_BUILD_TYPE=%PROJECT_CONFIG% -D CONF=%PROJECT_CONF% -D FAR_VERSION=%FAR_VERSION% %PROJECT_ROOT%\src\NetBox
+  - nmake
+  - cd ..\..\..\..
+  - xcopy /e /q /y /k Far-NetBox\%FAR_VERSION%_%platform%\Plugins\* ci\%configuration%.%platform%\Plugins
+  - copy /Y Far-NetBox\ChangeLog ci\%configuration%.%platform%\Plugins\NetBox
+  - copy /Y Far-NetBox\*.md ci\%configuration%.%platform%\Plugins\NetBox
+  - copy /Y Far-NetBox\LICENSE.txt ci\%configuration%.%platform%\Plugins\NetBox
   #remove not needed build artifacts
   - if "%platform%" == "x86" powershell "Get-ChildItem ci\${Env:configuration}`.${Env:platform}\FExcept -filter *.map -File | Remove-Item"
   - ps: Get-ChildItem ci\${Env:configuration}`.${Env:platform}\ -recurse -File | Where-Object { @(".lib", ".exp") -contains $_.extension } | Remove-Item
