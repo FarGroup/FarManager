@@ -51,21 +51,25 @@ environment:
   - platform: Win32
     configuration: Debug
     ADD_MAKE: DEBUG=1
+    ADD_MAKE_MSI:
     bit: 32
 
   - platform: x64
     configuration: Debug
     ADD_MAKE: DEBUG=1
+    ADD_MAKE_MSI:
     bit: 64
 
   - platform: Win32
     configuration: Release
     ADD_MAKE:
+    ADD_MAKE_MSI: RELEASE=1
     bit: 32
 
   - platform: x64
     configuration: Release
     ADD_MAKE:
+    ADD_MAKE_MSI: RELEASE=1
     bit: 64
 
 build_script:
@@ -146,10 +150,20 @@ after_build:
   #archive Far without PDBs
   - if exist "%APPVEYOR_BUILD_FOLDER%\Far.%configuration%.%platform%.7z" del "%APPVEYOR_BUILD_FOLDER%\Far.%configuration%.%platform%.7z"
   - 7z a -xr!*.pdb "%APPVEYOR_BUILD_FOLDER%\Far.%configuration%.%platform%.7z"
-  - cd ..
+  - cd ..\..
+  #create msi
+  - cd misc\msi-installer
+  - set Path=%Path%;%WIX%
+  - cl -nologo -EHsc -DNIGHTLY genparams.cpp
+  - genparams ci\%configuration%.%platform% %platform%
+  - nmake -nologo %ADD_MAKE_MSI%
+  - cd ..\..
+  - move ci\%configuration%.%platform%\final.msi "%APPVEYOR_BUILD_FOLDER%\Far.$(configuration).$(platform).msi"
 
 artifacts:
   - path: Far.$(configuration).$(platform).7z
     name: Far Manager
+  - path: Far.$(configuration).$(platform).msi
+    name: Far Manager MSI
   - path: Far.$(configuration).$(platform).pdb.7z
     name: PDBs
