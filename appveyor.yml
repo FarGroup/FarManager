@@ -120,13 +120,12 @@ build_script:
   - mkdir ci\%configuration%.%platform%\Plugins\FarColorer\bin
   - copy /Y FarColorer\build\%configuration%\%platform%\colorer.* ci\%configuration%.%platform%\Plugins\FarColorer\bin
   - copy /Y FarColorer\docs\history.ru.txt ci\%configuration%.%platform%\Plugins\FarColorer
-  - copy /Y FarColorer\docs\LICENSE ci\%configuration%.%platform%\Plugins\FarColorer
-  - copy /Y FarColorer\docs\README.md ci\%configuration%.%platform%\Plugins\FarColorer
+  - copy /Y FarColorer\LICENSE ci\%configuration%.%platform%\Plugins\FarColorer
+  - copy /Y FarColorer\README.md ci\%configuration%.%platform%\Plugins\FarColorer
   - copy /Y FarColorer\misc\* ci\%configuration%.%platform%\Plugins\FarColorer\bin
   #remove not needed build artifacts
   - if "%platform%" == "x86" powershell "Get-ChildItem ci\${Env:configuration}`.${Env:platform}\FExcept -filter *.map -File | Remove-Item"
-  - ps: Get-ChildItem ci\${Env:configuration}`.${Env:platform}\ -recurse -File | Where-Object { @(".lib", ".exp") -contains $_.extension } | Remove-Item
-
+  - ps: Get-ChildItem ci\${Env:configuration}`.${Env:platform}\ -recurse -File | Where-Object { @(".lib", ".exp", ".ilk") -contains $_.extension } | Remove-Item
 
 test: off
 
