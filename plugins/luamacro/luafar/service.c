@@ -3788,7 +3788,7 @@ static int far_DialogInit(lua_State *L)
 	// 8-th parameter (flags)
 	Flags = CheckFlags(L, 8);
 	dd = NewDialogData(L, pd->Info, INVALID_HANDLE_VALUE, TRUE);
-	dd->isOwned = (Flags&FDLG_NONMODAL) == 0;
+	dd->isModal = (Flags&FDLG_NONMODAL) == 0;
 	// 9-th parameter (DlgProc function)
 	Proc = NULL;
 	Param = NULL;
