@@ -5796,8 +5796,8 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 					return FALSE;
 				}
 
-				col->StartPos = curcol.StartPos - m_Where.left;
-				col->EndPos = curcol.EndPos - m_Where.left;
+				col->StartPos = curcol.StartPos;
+				col->EndPos = curcol.EndPos;
 				col->Color=curcol.GetColor();
 				col->Flags=curcol.Flags;
 				col->Owner=curcol.GetOwner();
