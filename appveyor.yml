@@ -33,8 +33,16 @@ install:
   - cd Far-NetBox
   - git checkout far3
   - cd ..
-  #clone Colorer
+  #clone and build Colorer-schemes
+  - if exist Far-NetBox rd /S /Q Colorer-schemes
   - git clone https://github.com/colorer/Colorer-schemes.git
+  - cd Colorer-schemes
+  - if exist build rd /S /Q build
+  - build.cmd base.far.clean
+  - build.cmd base.far
+  - cd ..
+  #clone FarColorer
+  - if exist Far-NetBox rd /S /Q FarColorer
   - git clone https://github.com/colorer/FarColorer.git --recursive
 
 environment:
@@ -93,6 +101,27 @@ build_script:
   - copy /Y Far-NetBox\ChangeLog ci\%configuration%.%platform%\Plugins\NetBox
   - copy /Y Far-NetBox\*.md ci\%configuration%.%platform%\Plugins\NetBox
   - copy /Y Far-NetBox\LICENSE.txt ci\%configuration%.%platform%\Plugins\NetBox
+  #build FarColorer
+  - set PROJECT_ROOT=%APPVEYOR_BUILD_FOLDER%\FarColorer
+  - set PROJECT_CONFIG=%configuration%
+  - set PROJECT_BUILD=Build
+  - set PROJECT_CONF=%platform%
+  - set PROJECT_PLATFORM=Win32
+  - if "%platform%" == "x64" set PROJECT_PLATFORM=x64
+  - cd FarColorer
+  - mkdir build\%configuration%\%platform%
+  - cd build\%configuration%\%platform%
+  - cmake -G "NMake Makefiles" -D PROJECT_ROOT=%PROJECT_ROOT% -D CMAKE_BUILD_TYPE=%PROJECT_CONFIG% -D CONF=%PROJECT_CONF% %PROJECT_ROOT%\src
+  - nmake
+  - cd ..\..\..\..
+  - mkdir ci\%configuration%.%platform%\Plugins\FarColorer\base
+  - xcopy /e /q /y /k Colorer-schemes\build\basefar\* ci\%configuration%.%platform%\Plugins\FarColorer\base
+  - mkdir ci\%configuration%.%platform%\Plugins\FarColorer\bin
+  - copy /Y FarColorer\build\%configuration%\%platform%\colorer.* ci\%configuration%.%platform%\Plugins\FarColorer\bin
+  - copy /Y FarColorer\docs\history.ru.txt ci\%configuration%.%platform%\Plugins\FarColorer
+  - copy /Y FarColorer\docs\LICENSE ci\%configuration%.%platform%\Plugins\FarColorer
+  - copy /Y FarColorer\docs\README.md ci\%configuration%.%platform%\Plugins\FarColorer
+  - copy /Y FarColorer\misc\* ci\%configuration%.%platform%\Plugins\FarColorer\bin
   #remove not needed build artifacts
   - if "%platform%" == "x86" powershell "Get-ChildItem ci\${Env:configuration}`.${Env:platform}\FExcept -filter *.map -File | Remove-Item"
   - ps: Get-ChildItem ci\${Env:configuration}`.${Env:platform}\ -recurse -File | Where-Object { @(".lib", ".exp") -contains $_.extension } | Remove-Item
