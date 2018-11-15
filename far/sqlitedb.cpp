@@ -350,22 +350,18 @@ public:
 SQLiteDb::database_ptr SQLiteDb::Open(string_view const Path, bool const WAL)
 {
 	const auto MemDb = Path == memory_db_name();
-	const auto& db_exists = [&]{ return !MemDb && os::fs::is_file(Path); };
+	m_DbExists = !MemDb && os::fs::is_file(Path);
 
 	if (!Global->Opt->ReadOnlyConfig || MemDb)
 	{
-		m_DbExists = db_exists();
 		m_Path = Path;
 		return implementation::open(Path);
 	}
 
-	m_DbExists = db_exists();
 	m_Path = memory_db_name();
-
-	if (!m_DbExists)
-		return implementation::open(memory_db_name());
-
-	return implementation::try_copy_db_to_memory(Path, WAL);
+	return m_DbExists?
+		implementation::try_copy_db_to_memory(Path, WAL) :
+		implementation::open(memory_db_name());
 }
 
 void SQLiteDb::Exec(range<const std::string_view*> Command) const
