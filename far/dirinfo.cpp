@@ -470,4 +470,3 @@ bool GetPluginDirInfo(const plugin_panel* ph, const string& DirName, const UserD
 
 	return GetPluginDirListImpl(ph->plugin(), ph->panel(), DirName, UserData, PanelItems, Data, Callback); //intptr_t - BUGBUG
 }
-

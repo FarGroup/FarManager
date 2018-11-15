@@ -68,6 +68,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma warning(disable: 4625) // https://msdn.microsoft.com/en-us/library/306zwa5e.aspx 'derived class' : copy constructor could not be generated because a base class copy constructor is inaccessible
 #pragma warning(disable: 4626) // https://msdn.microsoft.com/en-us/library/6ay4xcyd.aspx 'derived class' : assignment operator could not be generated because a base class assignment operator is inaccessible
 #pragma warning(disable: 4640) // https://msdn.microsoft.com/en-us/library/4f5c8560.aspx 'instance' : construction of local static object is not thread-safe
+#pragma warning(disable: 4670) // https://msdn.microsoft.com/en-us/library/d8stxx4t.aspx identifier' : this base class is inaccessible
+#pragma warning(disable: 4673) // https://msdn.microsoft.com/en-us/library/32y577d8.aspx throwing 'identifier' the following types will not be considered at the catch site
 #pragma warning(disable: 4710) // https://msdn.microsoft.com/en-us/library/yd3056cz.aspx 'function' : function not inlined
 #pragma warning(disable: 4711) // https://msdn.microsoft.com/en-us/library/k402bt7y.aspx function 'function' selected for inline expansion
 #pragma warning(disable: 4770) // no page                                                partially validated enum 'name' used as index

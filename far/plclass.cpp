@@ -437,7 +437,7 @@ static void ShowMessageAboutIllegalPluginVersion(const string& plg, const Versio
 			msg(lng::MPlgBadVers),
 			plg,
 			format(msg(lng::MPlgRequired), str(required)),
-			format(msg(lng::MPlgRequired2), str(FAR_VERSION))
+			format(msg(lng::MPlgRequired2), str(build::version()))
 		},
 		{ lng::MOk }
 	);
@@ -691,7 +691,7 @@ bool Plugin::LoadFromCache(const os::fs::find_data &FindData)
 
 		if (!PlCache->GetMinFarVersion(id, &m_MinFarVersion))
 		{
-			m_MinFarVersion = FAR_VERSION;
+			m_MinFarVersion = build::version();
 		}
 
 		if (!PlCache->GetVersion(id, &m_PluginVersion))
@@ -821,9 +821,15 @@ bool Plugin::GetGlobalInfo(GlobalInfo* Info)
 	return false;
 }
 
+static bool CheckFarVersion(const VersionInfo& Desired)
+{
+	const auto FarVersion = build::version();
+	return CheckVersion(&FarVersion, &Desired) != FALSE;
+}
+
 bool Plugin::CheckMinFarVersion()
 {
-	if (!CheckVersion(&FAR_VERSION, &m_MinFarVersion))
+	if (!CheckFarVersion(m_MinFarVersion))
 	{
 		ShowMessageAboutIllegalPluginVersion(m_strModuleName, m_MinFarVersion);
 		return false;
@@ -1240,7 +1246,7 @@ public:
 			Info.Description && *Info.Description &&
 			Info.Author && *Info.Author)
 		{
-			m_Success = CheckVersion(&FAR_VERSION, &Info.MinFarVersion) != FALSE;
+			m_Success = CheckFarVersion(Info.MinFarVersion);
 			if (m_Success)
 			{
 				m_VersionString = VersionToString(Info.Version);

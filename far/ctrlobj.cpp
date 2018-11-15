@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "scrbuf.hpp"
 #include "global.hpp"
+#include "farversion.hpp"
 
 ControlObject::ControlObject()
 {
@@ -140,7 +141,7 @@ void ControlObject::ShowCopyright(DWORD Flags)
 {
 	if (Flags&1)
 	{
-		std::wcout << Global->Version() << L'\n' << Global->Copyright() << std::endl;
+		std::wcout << build::version_string() << L'\n' << build::copyright() << std::endl;
 	}
 	else
 	{
@@ -153,9 +154,9 @@ void ControlObject::ShowCopyright(DWORD Flags)
 			ScrollScreen(5-FreeSpace);
 
 		GotoXY(0,ScrY-4);
-		Text(Global->Version());
+		Text(build::version_string());
 		GotoXY(0,ScrY-3);
-		Text(Global->Copyright());
+		Text(build::copyright());
 	}
 }
 

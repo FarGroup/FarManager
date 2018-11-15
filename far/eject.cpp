@@ -192,4 +192,3 @@ bool IsEjectableMedia(wchar_t Letter)
 	DWORD Bytes;
 	return File.IoControl(IOCTL_DISK_GET_DRIVE_GEOMETRY, nullptr, 0, &dg, sizeof(dg), &Bytes) && dg.MediaType == RemovableMedia;
 }
-

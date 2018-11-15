@@ -38,6 +38,9 @@ def check(filename):
 		if CheckBom and not IsBom:
 			Raise("No BOM")
 
+		if content[-1] == "":
+			Raise("Too many empty lines", len(content) - 1)
+
 		if RawContent[-1][-1] not in ['\r', '\n']:
 			Raise("No final EOL", len(content) - 1)
 

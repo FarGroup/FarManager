@@ -60,22 +60,21 @@ static const string& GetFarTitleAddons()
 
 	strTitleAddons = concat(L" - Far "sv, os::env::expand(Global->Opt->strTitleAddons));
 
-	static const string strVer = concat(str(FAR_VERSION.Major), L'.', str(FAR_VERSION.Minor));
-	static const string strBuild = str(FAR_VERSION.Build);
+	static const auto Version = build::version();
+	static const string strVer = concat(str(Version.Major), L'.', str(Version.Minor));
+	static const string strBuild = str(Version.Build);
 	static const string strPID = str(GetCurrentProcessId());
 
 	ReplaceStrings(strTitleAddons, L"%PID"sv, strPID, true);
 	ReplaceStrings(strTitleAddons, L"%Ver"sv, strVer, true);
 	ReplaceStrings(strTitleAddons, L"%Build"sv, strBuild, true);
 	ReplaceStrings(strTitleAddons,L"%Platform"sv,
-#ifdef _WIN64
-#ifdef _M_IA64
-	L"IA64"sv,
-#else
+#if defined (_M_X64)
 	L"x64"sv,
-#endif
-#else
+#elif defined (_M_IX86)
 	L"x86"sv,
+#else
+	L"Unknown"sv,
 #endif
 	true);
 	ReplaceStrings(strTitleAddons, L"%Admin"sv, os::security::is_admin() ? msg(lng::MFarTitleAddonsAdmin) : L""sv, true);

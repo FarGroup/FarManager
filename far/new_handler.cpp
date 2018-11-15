@@ -31,25 +31,28 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "new_handler.hpp"
 
-#include "global.hpp"
+#include "farversion.hpp"
 
 #include "common/scope_exit.hpp"
 
 static new_handler* NewHandler;
 
+namespace
+{
+	enum size
+	{
+		X = 80,
+		Y = 25
+	};
+}
+
 new_handler::new_handler():
-	m_BufferSize{ 80, 25 },
+	m_BufferSize{ X, Y },
 	m_Screen(CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, CONSOLE_TEXTMODE_BUFFER, nullptr)),
 	m_OldHandler()
 {
 	if (!m_Screen)
 		return;
-
-	enum
-	{
-		X = 80,
-		Y = 25
-	};
 
 	const COORD BufferSize{ X, Y };
 
@@ -74,7 +77,7 @@ new_handler::new_handler():
 
 	const string_view Strings[] =
 	{
-		global::Version(),
+		build::version_string(),
 		L""sv,
 		L"Not enough memory is available to complete this operation."sv,
 		L"Press Enter to retry or Esc to continue..."sv

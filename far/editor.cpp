@@ -4880,7 +4880,7 @@ void Editor::BlockLeft()
 			else if (CurStr.front() == L'\t')
 			{
 				TmpStr.assign(EdOpt.TabSize - 1, L' ');
-				TmpStr.append(CurStr, 1, string::npos); // gcc 7.3 bug, npos required
+				TmpStr.append(CurStr, 1, string::npos); // gcc 7.3-8.1 bug: npos required. TODO: Remove after we move to 8.2 or later
 			}
 
 			if ((EndSel == -1 || EndSel > StartSel) && std::iswblank(CurStr.front()))

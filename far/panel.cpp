@@ -405,6 +405,10 @@ void Panel::FastFind(const Manager::Key& FirstKey)
 	{
 		const auto search = Search::create(this, FirstKey);
 		search->Process();
+
+		if (search->GetExitCode() < 0)
+			return;
+
 		KeyToProcess=search->KeyToProcess();
 	}
 	Show();

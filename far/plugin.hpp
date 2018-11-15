@@ -2517,7 +2517,11 @@ struct VersionInfo
 
 static __inline BOOL CheckVersion(const struct VersionInfo* Current, const struct VersionInfo* Required)
 {
-	return (Current->Major > Required->Major) || (Current->Major == Required->Major && Current->Minor > Required->Minor) || (Current->Major == Required->Major && Current->Minor == Required->Minor && Current->Revision > Required->Revision) || (Current->Major == Required->Major && Current->Minor == Required->Minor && Current->Revision == Required->Revision && Current->Build >= Required->Build);
+	return
+		(Current->Major > Required->Major) ||
+		(Current->Major == Required->Major && Current->Minor > Required->Minor) ||
+		(Current->Major == Required->Major && Current->Minor == Required->Minor && Current->Revision > Required->Revision) ||
+		(Current->Major == Required->Major && Current->Minor == Required->Minor && Current->Revision == Required->Revision && Current->Build >= Required->Build);
 }
 
 static __inline struct VersionInfo MAKEFARVERSION(DWORD Major, DWORD Minor, DWORD Revision, DWORD Build, enum VERSION_STAGE Stage)

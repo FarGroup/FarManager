@@ -120,8 +120,10 @@ const RAII_type ANONYMOUS_VARIABLE(scoped_object_)
 #define WSTR(x) L###x
 #define WSTRVIEW(x) L###x##sv
 
-#define DETAIL_WIDE_IMPL(x) L##x
+#define DETAIL_WIDE_IMPL(x, ...) L##x##__VA_ARGS__
 #define WIDE(x) DETAIL_WIDE_IMPL(x)
+#define WIDE_S(x) DETAIL_WIDE_IMPL(x, s)
+#define WIDE_SV(x) DETAIL_WIDE_IMPL(x, sv)
 
 #define REQUIRES(...) std::enable_if_t<__VA_ARGS__>* = nullptr
 

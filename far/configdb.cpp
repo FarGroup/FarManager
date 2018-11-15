@@ -478,6 +478,11 @@ protected:
 		BeginTransaction();
 	}
 
+	const string& GetName() const override
+	{
+		return GetPath();
+	}
+
 	key CreateKey(const key& Root, const string_view Name, const string* const Description) override
 	{
 		auto Key = FindByName(Root, Name);
@@ -1664,7 +1669,7 @@ private:
 		StopEvent = os::event(os::event::type::automatic, os::event::state::nonsignaled);
 		string EventName;
 		const auto& DbPath = GetPath();
-		if (DbPath != L":memory:"sv)
+		if (DbPath != memory_db_name())
 		{
 			EventName = os::make_name<os::event>(DbPath, PointToName(DbPath));
 		}
@@ -2220,7 +2225,7 @@ std::unique_ptr<T> config_provider::CreateWithFallback(string_view const Name)
 		if (Global->Opt->ReadOnlyConfig || !os::fs::move_file(Name, Name + L".bad"sv, MOVEFILE_REPLACE_EXISTING))
 		{
 			Report(L"  - database is opened in memory"sv);
-			return std::make_unique<T>(L":memory:"sv);
+			return std::make_unique<T>(SQLiteDb::memory_db_name());
 		}
 
 		try
@@ -2233,7 +2238,7 @@ std::unique_ptr<T> config_provider::CreateWithFallback(string_view const Name)
 		{
 			Report(concat(L"  "sv, e2.get_message()));
 			Report(L"  - database is opened in memory"sv);
-			return std::make_unique<T>(L":memory:"sv);
+			return std::make_unique<T>(SQLiteDb::memory_db_name());
 		}
 	}
 }
@@ -2315,14 +2320,12 @@ config_provider::implementation::~implementation()
 static auto pluginscache_db_name()
 {
 #if 1
-#if defined(_M_IA64)
-#define PLATFORM_SUFFIX L"IA64"
-#elif defined(_M_AMD64)
+#if defined (_M_X64)
 #define PLATFORM_SUFFIX L"64"
-#elif defined(_M_ARM)
-#define PLATFORM_SUFFIX L"ARM"
-#elif defined(_M_IX86)
+#elif defined (_M_IX86)
 #define PLATFORM_SUFFIX L"32"
+#else
+#define PLATFORM_SUFFIX L""
 #endif
 #else
 #define PLATFORM_SUFFIX L""
@@ -2343,7 +2346,7 @@ config_provider::config_provider(mode Mode):
 	m_PlCacheCfg(CreateDatabase<PluginsCacheConfigDb>(pluginscache_db_name(), true)),
 	m_PlHotkeyCfg(CreateDatabase<PluginsHotkeysConfigDb>(L"pluginhotkeys.db"sv, false)),
 	m_HistoryCfg(CreateDatabase<HistoryConfigDb>(L"history.db"sv, true)),
-	m_HistoryCfgMem(CreateDatabase<HistoryConfigMemory>(L":memory:"sv, true))
+	m_HistoryCfgMem(CreateDatabase<HistoryConfigMemory>(SQLiteDb::memory_db_name(), true))
 {
 }
 
@@ -2357,7 +2360,8 @@ bool config_provider::Export(const string& File)
 {
 	representation_destination Representation;
 	auto& root = Representation.GetRoot();
-	root.SetAttribute("version", format("{0}.{1}.{2}", FAR_VERSION.Major, FAR_VERSION.Minor, FAR_VERSION.Build).c_str());
+	const auto Version = build::version();
+	root.SetAttribute("version", format("{0}.{1}.{2}", Version.Major, Version.Minor, Version.Build).c_str());
 
 	GeneralCfg()->Export(Representation);
 	LocalGeneralCfg()->Export(Representation);

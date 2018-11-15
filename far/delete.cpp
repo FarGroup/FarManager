@@ -1227,4 +1227,3 @@ delayed_deleter::~delayed_deleter()
 	if (!m_pathToDelete.empty())
 		DeleteFileWithFolder(m_pathToDelete);
 }
-

@@ -109,7 +109,7 @@ namespace
 
 	SCOPED_ACTION(components::component)([]
 	{
-		return components::component::info{ L"SQLite"s, WIDE(SQLITE_VERSION) };
+		return components::component::info{ L"SQLite"s, WIDE_S(SQLITE_VERSION) };
 	});
 
 	SCOPED_ACTION(components::component)([]
@@ -336,9 +336,6 @@ public:
 
 	static database_ptr try_copy_db_to_memory(string_view const Path, bool WAL)
 	{
-		if (!os::fs::is_file(Path))
-			return open(memory_db_name());
-
 		try
 		{
 			return copy_db_to_memory(Path, WAL);
@@ -352,13 +349,22 @@ public:
 
 SQLiteDb::database_ptr SQLiteDb::Open(string_view const Path, bool const WAL)
 {
-	if (!Global->Opt->ReadOnlyConfig || Path == memory_db_name())
+	const auto MemDb = Path == memory_db_name();
+	const auto& db_exists = [&]{ return !MemDb && os::fs::is_file(Path); };
+
+	if (!Global->Opt->ReadOnlyConfig || MemDb)
 	{
+		m_DbExists = db_exists();
 		m_Path = Path;
 		return implementation::open(Path);
 	}
 
+	m_DbExists = db_exists();
 	m_Path = memory_db_name();
+
+	if (!m_DbExists)
+		return implementation::open(memory_db_name());
+
 	return implementation::try_copy_db_to_memory(Path, WAL);
 }
 

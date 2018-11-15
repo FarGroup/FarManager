@@ -59,7 +59,7 @@ public:
 	static void library_free();
 
 	const string& GetPath() const { return m_Path; }
-	bool IsNew() const { return db_exists <= 0; }
+	bool IsNew() const { return !m_DbExists; }
 
 	enum class column_type
 	{
@@ -228,13 +228,13 @@ private:
 	void Close();
 
 	// The order is important
+	bool m_DbExists{};
 	string m_Path;
 	database_ptr m_Db;
 	SQLiteStmt m_stmt_BeginTransaction;
 	SQLiteStmt m_stmt_EndTransaction;
 	mutable std::vector<SQLiteStmt> m_Statements;
 	struct init{} m_Init;
-	int db_exists{-1};
 	size_t m_ActiveTransactions{};
 };
 

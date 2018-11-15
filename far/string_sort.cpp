@@ -349,4 +349,3 @@ static void TestSort()
 #endif
 
 SELF_TEST(TestSort)
-

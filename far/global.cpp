@@ -127,6 +127,3 @@ void global::far_clock::update()
 {
 	m_CurrentTime = os::chrono::format_time();
 }
-
-
-#include "bootstrap/copyright.inc"

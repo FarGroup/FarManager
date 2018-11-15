@@ -91,6 +91,12 @@ private:
 	std::vector<string> m_Stack;
 };
 
+class attach_debugger
+{
+protected:
+	attach_debugger();
+};
+
 /*
   Represents a non-continuable failure:
   - logic errors, which shouldn't happen
@@ -99,7 +105,7 @@ private:
   I.e. we either don't really know what to do or doing anything will do more harm than good.
   It shouldn't be caught explicitly in general and fly straight to main().
 */
-class far_fatal_exception : public far_base_exception
+class far_fatal_exception : private attach_debugger, public far_base_exception
 {
 	using far_base_exception::far_base_exception;
 };

@@ -203,5 +203,3 @@ int ScreenSaver()
 	Global->StartIdleTime = std::chrono::steady_clock::now();
 	return 1;
 }
-
-

@@ -36,6 +36,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "format.hpp"
 
+attach_debugger::attach_debugger()
+{
+	if (IsDebuggerPresent())
+		DebugBreak();
+}
+
 error_state error_state::fetch()
 {
 	error_state State;

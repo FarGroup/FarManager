@@ -49,8 +49,6 @@ public:
 	HANDLE MainThreadHandle() const {return m_MainThreadHandle.native_handle();}
 	bool IsMainThread() const {return GetCurrentThreadId() == m_MainThreadId;}
 	std::chrono::steady_clock::duration FarUpTime() const;
-	static string_view Version();
-	static string_view Copyright();
 
 	const string& GetSearchString() const { return m_SearchString; }
 	bool GetSearchHex() const { return m_SearchHex; }

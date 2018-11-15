@@ -65,7 +65,7 @@ class PluginSettings: public AbstractSettings
 {
 public:
 	PluginSettings(const Plugin* pPlugin, bool Local);
-	~PluginSettings();
+	~PluginSettings() override;
 
 	bool Set(const FarSettingsItem& Item) override;
 	bool Get(FarSettingsItem& Item) override;
@@ -112,7 +112,7 @@ PluginSettings::PluginSettings(const Plugin* const pPlugin, bool const Local)
 		DizList Diz;
 		const auto DbPath = path::join(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, L"PluginsData"sv);
 		Diz.Read(DbPath);
-		const auto DbName = concat(strGuid, L".db"sv);
+		const string DbName(PointToName(PluginsCfg->GetName()));
 		const auto Description = concat(pPlugin->Title(), L" ("sv, pPlugin->Description(), L')');
 		if (Description != NullToEmpty(Diz.Get(DbName, {}, 0)))
 		{
@@ -294,8 +294,7 @@ bool PluginSettings::Enum(FarSettingsEnum& Enum)
 	if (Enum.Root >= m_Keys.size())
 		return false;
 
-	FarSettingsName item;
-	item.Type=FST_SUBKEY;
+	FarSettingsName item{ nullptr, FST_SUBKEY };
 
 	FarSettingsNameItems NewEnumItem;
 
@@ -412,7 +411,7 @@ bool FarSettings::Enum(FarSettingsEnum& Enum)
 	default:
 		if(Enum.Root >= FSSF_COUNT)
 		{
-			size_t root = Enum.Root - FSSF_COUNT;
+			const auto root = Enum.Root - FSSF_COUNT;
 			if(root < m_Keys.size())
 			{
 				return FillHistory(HISTORYTYPE_DIALOG, m_Keys[root], Enum, FilterNone);

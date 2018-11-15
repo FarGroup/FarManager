@@ -605,7 +605,7 @@ static string extract_nested_messages(const std::exception& Exception, bool Top 
 
 	// far_exception.what() returns additional information (function, file and line).
 	// We don't need it on top level because it's extracted separately
-	if (const auto FarException = Top? dynamic_cast<const far_exception*>(&Exception) : nullptr)
+	if (const auto FarException = Top? dynamic_cast<const far_base_exception*>(&Exception) : nullptr)
 		Result = FarException->get_message();
 	else
 		Result = encoding::utf8::get_chars(Exception.what());
@@ -648,7 +648,7 @@ bool ProcessStdException(const std::exception& e, string_view const Function, co
 		Context = std::make_unique<exception_context>(EXCEPTION_MICROSOFT_CPLUSPLUS);
 	}
 
-	if (const auto FarException = dynamic_cast<const far_exception*>(&e))
+	if (const auto FarException = dynamic_cast<const far_base_exception*>(&e))
 	{
 		const auto Message = extract_nested_messages(e);
 		return ProcessGenericException(*Context, FarException->get_function(), FarException->get_location(), Module, Message, &FarException->get_stack());
@@ -847,16 +847,10 @@ static bool ExceptionTestHook(Manager::Key key)
 
 		case exception_types::illegal_instruction:
 			{
-#if COMPILER == C_CL || COMPILER == C_INTEL
-#ifdef _M_IA64
-				const int REG_IA64_IntR0 = 1024;
-				__setReg(REG_IA64_IntR0, 666);
-#else
+#if COMPILER == C_GCC || COMPILER == C_CLANG
+				const auto& __ud2 = []{ asm("ud2"); };
+#endif
 				__ud2();
-#endif
-#elif COMPILER == C_GCC || COMPILER == C_CLANG
-				asm("ud2");
-#endif
 			}
 			break;
 

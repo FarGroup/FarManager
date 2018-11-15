@@ -67,6 +67,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "desktop.hpp"
 #include "keybar.hpp"
 #include "string_utils.hpp"
+#include "farversion.hpp"
 #include "global.hpp"
 
 #include "platform.env.hpp"
@@ -903,9 +904,20 @@ static bool ProcessFarCommands(const string& Command, const std::function<void(b
 
 	if (equal_icase(Command, L"far:about"sv))
 	{
+		const auto& CompilerInfo = []
+		{
+			return
+#ifdef _MSC_BUILD
+				format(L".{0}", _MSC_BUILD)
+#else
+				L""s
+#endif
+				;
+		};
+
 		auto strOut = concat(
-			L'\n', Global->Version(), L'\n', Global->Copyright(), L'\n',
-			L"\nCompiler:\n"sv, format(L"{0}, version {1}.{2}.{3}", COMPILER_NAME, COMPILER_VERSION_MAJOR, COMPILER_VERSION_MINOR, COMPILER_VERSION_PATCH), L'\n'
+			L'\n', build::version_string(), L'\n', build::copyright(), L'\n',
+			L"\nCompiler:\n"sv, format(L"{0}, version {1}.{2}.{3}{4}", COMPILER_NAME, COMPILER_VERSION_MAJOR, COMPILER_VERSION_MINOR, COMPILER_VERSION_PATCH, CompilerInfo()), L'\n'
 		);
 
 		const auto& ComponentsInfo = components::GetComponentsInfo();

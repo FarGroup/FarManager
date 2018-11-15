@@ -33,10 +33,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "farversion.hpp"
 
-/* $ 07.12.2000 SVS
-   + Версия берется из файла farversion.inc
-*/
-const VersionInfo FAR_VERSION
+#include "plugin.hpp"
+
+namespace build
 {
+#include "bootstrap/copyright.inc"
+
+	VersionInfo version()
+	{
+		return
+		{
 #include "bootstrap/farversion.inc"
-};
+		};
+	}
+}

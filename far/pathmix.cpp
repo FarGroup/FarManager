@@ -656,5 +656,3 @@ static void TestPaths()
 #endif
 
 SELF_TEST(TestPaths)
-
-

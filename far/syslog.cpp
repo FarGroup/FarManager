@@ -169,7 +169,7 @@ FILE * OpenLogStream(const string& file)
 {
 #if defined(SYSLOG)
 	const auto st = get_local_time();
-	return _wfsopen(str_printf(L"%s\\Far.%04d%02d%02d.%05d.log", file.c_str(), st.wYear, st.wMonth, st.wDay, FAR_VERSION.Build).data(), L"a+t,ccs=UTF-8", _SH_DENYWR);
+	return _wfsopen(str_printf(L"%s\\Far.%04d%02d%02d.%05d.log", file.c_str(), st.wYear, st.wMonth, st.wDay, build::version().Build).data(), L"a+t,ccs=UTF-8", _SH_DENYWR);
 #else
 	return nullptr;
 #endif

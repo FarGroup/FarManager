@@ -139,6 +139,8 @@ public:
 	virtual bool EnumValues(const key& Root, bool Reset, string& strName, int& Type) const = 0;
 	virtual void Flush() = 0;
 
+	virtual const string& GetName() const = 0;
+
 	auto KeysEnumerator(key const Root) const
 	{
 		using value_type = string;

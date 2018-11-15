@@ -473,7 +473,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		{
 		case ACTL_GETFARMANAGERVERSION:
 			if (Param2)
-				*static_cast<VersionInfo*>(Param2) = FAR_VERSION;
+				*static_cast<VersionInfo*>(Param2) = build::version();
 
 			return TRUE;
 
@@ -897,7 +897,7 @@ intptr_t WINAPI apiMenuFn(
 					return 0;
 
 				const auto ReadRec = static_cast<INPUT_RECORD*>(param);
-				int ReadKey=InputRecordToKey(ReadRec);
+				const auto ReadKey = InputRecordToKey(ReadRec);
 
 				if (ReadKey==KEY_NONE)
 					return 0;
@@ -912,7 +912,6 @@ intptr_t WINAPI apiMenuFn(
 
 					if (ReadRec->Event.KeyEvent.wVirtualKeyCode==BreakKeys[I].VirtualKeyCode)
 					{
-
 						const auto& NormalizeControlKeys = [](DWORD Value)
 						{
 							DWORD result = Value&(LEFT_CTRL_PRESSED | LEFT_ALT_PRESSED | SHIFT_PRESSED);
@@ -993,10 +992,10 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, i
 			return hDlg;
 
 		// ФИЧА! нельзя указывать отрицательные X2 и Y2
-		auto fixCoord = [] (intptr_t first, intptr_t second) { return (first < 0 && second == 0) ? 1 : second; };
+		const auto& fixCoord = [](intptr_t first, intptr_t second) { return (first < 0 && second == 0)? 1 : second; };
 		X2 = fixCoord(X1, X2);
 		Y2 = fixCoord(Y1, Y2);
-		auto checkCoord = [] (intptr_t first, intptr_t second) { return second >= 0 && ((first < 0) ? (second > 0) : (first <= second)); };
+		const auto& checkCoord = [](intptr_t first, intptr_t second) { return second >= 0 && ((first < 0)? (second > 0) : (first <= second)); };
 		if (!checkCoord(X1, X2) || !checkCoord(Y1, Y2))
 			return hDlg;
 
@@ -2386,7 +2385,7 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 
 				const auto ErrCode = Macro.GetMacroParseError(&ErrPos, ErrSrc);
 
-				int Size = static_cast<int>(aligned_sizeof<MacroParseResult>());
+				auto Size = static_cast<int>(aligned_sizeof<MacroParseResult>());
 				const size_t stringOffset = Size;
 				Size += static_cast<int>((ErrSrc.size() + 1)*sizeof(wchar_t));
 

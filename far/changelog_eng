@@ -3,6 +3,20 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 14.11.2018 00:40:20 +0000 - build 5314
+
+1. Some improvements in exception handling.
+
+2. Strange things when closing FastFind with a mouse.
+
+3. Correction of 5304.
+
+4. Refactoring.
+
+zg 14.11.2018 20:28:30 +0200 - build 5313
+
+1. gcc.
+
 drkns 12.11.2018 23:59:59 +0000 - build 5312
 
 1. If codepage detection failed, but we know that it can't be valid UTF-8/16 -

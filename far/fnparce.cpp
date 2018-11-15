@@ -791,5 +791,3 @@ bool SubstFileName(
 		EscapeAmpersands
 	);
 }
-
-
