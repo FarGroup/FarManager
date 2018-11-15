@@ -38,6 +38,7 @@ install:
   - git clone https://github.com/colorer/Colorer-schemes.git
   - cd Colorer-schemes
   - if exist build rd /S /Q build
+  - choco install ant
   - build.cmd base.far.clean
   - build.cmd base.far
   - cd ..
