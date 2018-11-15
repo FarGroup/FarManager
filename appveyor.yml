@@ -85,15 +85,15 @@ after_build:
   #archive 
   - cd ci\%configuration%.%platform%
   #archive PDBs
-  - if exist "%APPVEYOR_BUILD_FOLDER%\Far.%APPVEYOR_BUILD_VERSION%.%configuration%.%platform%.pdb.7z" del "%APPVEYOR_BUILD_FOLDER%\Far.%APPVEYOR_BUILD_VERSION%.%configuration%.%platform%.pdb.7z"
-  - 7z a -ir!*.pdb "%APPVEYOR_BUILD_FOLDER%\Far.%APPVEYOR_BUILD_VERSION%.%configuration%.%platform%.pdb.7z"
+  - if exist "%APPVEYOR_BUILD_FOLDER%\Far.%configuration%.%platform%.pdb.7z" del "%APPVEYOR_BUILD_FOLDER%\Far.%configuration%.%platform%.pdb.7z"
+  - 7z a -ir!*.pdb "%APPVEYOR_BUILD_FOLDER%\Far.%configuration%.%platform%.pdb.7z"
   #archive Far without PDBs
-  - if exist "%APPVEYOR_BUILD_FOLDER%\Far.%APPVEYOR_BUILD_VERSION%.%configuration%.%platform%.7z" del "%APPVEYOR_BUILD_FOLDER%\Far.%APPVEYOR_BUILD_VERSION%.%configuration%.%platform%.7z"
-  - 7z a -xr!*.pdb "%APPVEYOR_BUILD_FOLDER%\Far.%APPVEYOR_BUILD_VERSION%.%configuration%.%platform%.7z"
+  - if exist "%APPVEYOR_BUILD_FOLDER%\Far.%configuration%.%platform%.7z" del "%APPVEYOR_BUILD_FOLDER%\Far.%configuration%.%platform%.7z"
+  - 7z a -xr!*.pdb "%APPVEYOR_BUILD_FOLDER%\Far.%configuration%.%platform%.7z"
   - cd ..
 
 artifacts:
-  - path: Far.$(APPVEYOR_BUILD_VERSION).$(configuration).$(platform).7z
+  - path: Far.$(configuration).$(platform).7z
     name: Far Manager
-  - path: Far.$(APPVEYOR_BUILD_VERSION).$(configuration).$(platform).pdb.7z
+  - path: Far.$(configuration).$(platform).pdb.7z
     name: PDBs
