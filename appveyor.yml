@@ -153,7 +153,7 @@ after_build:
   - cd ..\..
   #create msi
   - cd misc\msi-installer
-  - set Path=%Path%;%WIX%
+  - set Path=%Path%;%WIX%\bin
   - cl -nologo -EHsc -DNIGHTLY genparams.cpp
   - genparams %APPVEYOR_BUILD_FOLDER%\ci\%configuration%.%platform% %platform%
   - nmake -nologo %ADD_MAKE_MSI%
