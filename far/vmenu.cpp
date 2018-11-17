@@ -915,47 +915,46 @@ long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 			  3 - вернуть количество отфильтрованных (невидимых) строк\
 			  4 - (по умолчанию) подправить высоту списка под количество элементов
 			*/
+			const auto Parameter = reinterpret_cast<intptr_t>(vParam);
 			switch (iParam)
 			{
 				case 0:
-					switch ((intptr_t)vParam)
+					switch (Parameter)
 					{
 						case 0:
 						case 1:
-							if (bFilterEnabled != ((intptr_t)vParam == 1))
+							if (bFilterEnabled != (Parameter == 1))
 							{
-								bFilterEnabled=((intptr_t)vParam == 1);
-								bFilterLocked=false;
-								strFilter.clear();
-								if (!vParam)
-									RestoreFilteredItems();
+								EnableFilter(Parameter == 1);
 								DisplayObject();
 							}
 							RetValue = 1;
 							break;
+
 						case -1:
-							RetValue = bFilterEnabled ? 1 : 0;
+							RetValue = bFilterEnabled;
 							break;
 					}
 					break;
 
 				case 1:
-					switch ((intptr_t)vParam)
+					switch (Parameter)
 					{
 						case 0:
 						case 1:
-							bFilterLocked=((intptr_t)vParam == 1);
+							bFilterLocked = Parameter == 1;
 							DisplayObject();
 							RetValue = 1;
 							break;
+
 						case -1:
-							RetValue = bFilterLocked ? 1 : 0;
+							RetValue = bFilterLocked;
 							break;
 					}
 					break;
 
 				case 2:
-					RetValue = (bFilterEnabled && !strFilter.empty()) ? 1 : 0;
+					RetValue = bFilterEnabled && !strFilter.empty();
 					break;
 
 				case 3:
@@ -1186,6 +1185,8 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 		case KEY_ESC:
 		case KEY_F10:
 		{
+			EnableFilter(false);
+
 			if (IsComboBox())
 			{
 				Close(-1);
@@ -1344,13 +1345,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLRALTF:
 		case KEY_RCTRLALTF:
 		{
-			bFilterEnabled=!bFilterEnabled;
-			bFilterLocked=false;
-			strFilter.clear();
-
-			if (!bFilterEnabled)
-				RestoreFilteredItems();
-
+			EnableFilter(!bFilterEnabled);
 			DisplayObject();
 			break;
 		}
@@ -2938,4 +2933,14 @@ std::vector<string> VMenu::AddHotkeys(range<menu_item*> const MenuItems)
 	}
 
 	return Result;
+}
+
+void VMenu::EnableFilter(bool const Enable)
+{
+	bFilterEnabled = Enable;
+	bFilterLocked = false;
+	strFilter.clear();
+
+	if (!Enable)
+		RestoreFilteredItems();
 }

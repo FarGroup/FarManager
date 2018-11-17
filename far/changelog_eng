@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 17.11.2018 00:11:01 +0000 - build 5318
+
+1. 0003679: DM_LISTGETCURPOS works incorrectly after pressing Esc in a filtered combobox.
+
+zg 15.11.2018 15:00:02 +0200 - build 5317
+
+1. ECTL_GETCOLOR was returning incorrect coordinates.
+
 drkns 15.11.2018 07:37:31 +0000 - build 5316
 
 1. And FastFind again.

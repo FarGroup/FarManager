@@ -303,6 +303,7 @@ private:
 	bool ShouldSendKeyToFilter(int Key) const;
 	//корректировка текущей позиции и флагов SELECTED
 	void UpdateSelectPos();
+	void EnableFilter(bool Enable);
 
 	string strTitle;
 	string strBottomTitle;
