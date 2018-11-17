@@ -1185,8 +1185,6 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 		case KEY_ESC:
 		case KEY_F10:
 		{
-			EnableFilter(false);
-
 			if (IsComboBox())
 			{
 				Close(-1);
@@ -2585,6 +2583,11 @@ void VMenu::ShowConsoleTitle()
 	{
 		ConsoleTitle::SetFarTitle(strTitle);
 	}
+}
+
+void VMenu::OnClose()
+{
+	EnableFilter(false);
 }
 
 void VMenu::SetBoxType(int BoxType)

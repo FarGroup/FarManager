@@ -190,6 +190,7 @@ public:
 	void ResizeConsole() override;
 	void SetDeleting() override;
 	void ShowConsoleTitle() override;
+	void OnClose() override;
 
 	void FastShow() { ShowMenu(); }
 	void ResetCursor();

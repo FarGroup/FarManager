@@ -61,6 +61,7 @@ protected:
 
 	void SetDone();
 	void Close(int Code);
+	virtual void OnClose() {}
 
 	string m_HelpTopic;
 

@@ -66,6 +66,7 @@ void SimpleModal::SetExitCode(int Code)
 
 void SimpleModal::Close(int Code)
 {
+	OnClose();
 	SetExitCode(Code);
 	Hide();
 	Global->WindowManager->DeleteWindow(shared_from_this());
