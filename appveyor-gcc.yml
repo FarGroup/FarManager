@@ -36,11 +36,11 @@ environment:
 build_script:
   #build Far
   - cd far
-  - mingw32-make -j8 %ADD_MAKE% -f makefile_gcc
+  - mingw32-make %ADD_MAKE% -f makefile_gcc
   - cd ..
   #build Plugins
   - cd plugins
-  - mingw32-make -j8 %ADD_MAKE% -f makefile_all_gcc
+  - mingw32-make %ADD_MAKE% -f makefile_all_gcc
   - cd ..
 
 test: off
