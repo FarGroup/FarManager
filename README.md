@@ -1,7 +1,9 @@
 ### Far Manager
 https://www.farmanager.com
 
-[![AppVeyor](https://img.shields.io/appveyor/ci/FarGroup/farmanager.svg)](https://ci.appveyor.com/project/FarGroup/farmanager/history)
+VS: [![AppVeyor](https://img.shields.io/appveyor/ci/FarGroup/farmanager.svg)](https://ci.appveyor.com/project/FarGroup/farmanager/history)
+GCC: [![AppVeyor](https://ci.appveyor.com/api/projects/status/k7ln3edp8nt5aoay?svg=true)](https://ci.appveyor.com/project/FarGroup/farmanager-5lhsj)
+
 
 ### Far Manager — what is it?
 Far Manager is a program for managing files and archives in Windows operating systems. Far Manager works in text mode and provides a simple and intuitive interface for performing most of the necessary actions:
