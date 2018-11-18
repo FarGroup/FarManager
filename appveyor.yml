@@ -50,24 +50,32 @@ environment:
   matrix:
   - platform: Win32
     configuration: Debug
+    CPU: i386
+    APPVER: 6.0
     ADD_MAKE: DEBUG=1
     ADD_MAKE_MSI:
     bit: 32
 
   - platform: x64
     configuration: Debug
+    CPU: AMD64
+    APPVER: 6.0
     ADD_MAKE: DEBUG=1
     ADD_MAKE_MSI:
     bit: 64
 
   - platform: Win32
     configuration: Release
+    CPU: i386
+    APPVER: 6.0
     ADD_MAKE:
     ADD_MAKE_MSI: RELEASE=1
     bit: 32
 
   - platform: x64
     configuration: Release
+    CPU: AMD64
+    APPVER: 6.0
     ADD_MAKE:
     ADD_MAKE_MSI: RELEASE=1
     bit: 64
@@ -158,7 +166,7 @@ after_build:
   - genparams %APPVEYOR_BUILD_FOLDER%\ci\%configuration%.%platform% %platform%
   - nmake -nologo %ADD_MAKE_MSI%
   - cd ..\..
-  - move ci\%configuration%.%platform%\final.msi "%APPVEYOR_BUILD_FOLDER%\Far.$(configuration).$(platform).msi"
+  - move ci\%configuration%.%platform%\final.msi "%APPVEYOR_BUILD_FOLDER%\Far.%configuration%.%platform%.msi"
 
 artifacts:
   - path: Far.$(configuration).$(platform).7z
