@@ -22,6 +22,10 @@ ipch
 *.vcxproj.user
 *.suo
 
+#InteliJ
+/.idea
+/*.iml
+
 # Build scripts
 __*.cmd
 
