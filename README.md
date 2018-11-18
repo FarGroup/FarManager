@@ -2,6 +2,7 @@
 https://www.farmanager.com
 
 VS: [![AppVeyor](https://img.shields.io/appveyor/ci/FarGroup/farmanager.svg)](https://ci.appveyor.com/project/FarGroup/farmanager/history)
+
 GCC: [![AppVeyor](https://ci.appveyor.com/api/projects/status/k7ln3edp8nt5aoay?svg=true)](https://ci.appveyor.com/project/FarGroup/farmanager-5lhsj)
 
 
