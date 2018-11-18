@@ -358,15 +358,15 @@ class config_provider: noncopyable
 {
 public:
 	enum class mode { m_default, m_import, m_export };
+	struct clear_cache{};
 
 	explicit config_provider(mode Mode = mode::m_default);
+	explicit config_provider(clear_cache);
 	~config_provider();
 	bool ShowProblems() const;
 	bool ServiceMode(const string& File);
 
 	void AsyncCall(const std::function<void()>& Routine);
-
-	static void ClearPluginsCache();
 
 	const auto& GeneralCfg() const { return m_GeneralCfg; }
 	const auto& LocalGeneralCfg() const { return m_LocalGeneralCfg; }
@@ -405,7 +405,7 @@ private:
 	std::vector<os::thread> m_Threads;
 	mutable std::vector<string> m_Problems;
 	std::unique_ptr<representation_source> m_TemplateSource;
-	mode m_Mode;
+	mode m_Mode{ mode::m_default };
 
 	std::unique_ptr<GeneralConfig> m_GeneralCfg;
 	std::unique_ptr<GeneralConfig> m_LocalGeneralCfg;

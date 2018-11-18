@@ -77,13 +77,16 @@ Plist::Plist()
 	bInit = false; // force initialize when opening the panel
 	*HostName = 0;
 	dwPluginThread = GetCurrentThreadId();
-	PluginSettings settings(MainGuid, Info.SettingsControl);
-	SortMode = settings.Get(0,L"SortMode", SM_UNSORTED); //SM_CUSTOM;
+
+	{
+		PluginSettings settings(MainGuid, Info.SettingsControl);
+		SortMode = settings.Get(0,L"SortMode", SM_UNSORTED); //SM_CUSTOM;
+		StartPanelMode = settings.Get(0,L"StartPanelMode", 1)+L'0';
+	}
 
 	if (SortMode >= SM_PERSEC)
 		SortMode &= (SM_PERSEC-1); // Ахтунг!
 
-	StartPanelMode = settings.Get(0,L"StartPanelMode", 1)+L'0';
 	InitializePanelModes();
 
 	pPerfThread = new PerfThread(*this);

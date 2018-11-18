@@ -2350,6 +2350,11 @@ config_provider::config_provider(mode Mode):
 {
 }
 
+config_provider::config_provider(clear_cache)
+{
+	PluginsCacheConfigDb(GetDatabasePath(pluginscache_db_name(), true)).DiscardCache();
+}
+
 config_provider::~config_provider()
 {
 	// Make sure all threads are joined before freeing the library
@@ -2444,11 +2449,6 @@ bool config_provider::Import(const string& Filename)
 	}
 
 	return true;
-}
-
-void config_provider::ClearPluginsCache()
-{
-	PluginsCacheConfigDb(GetDatabasePath(pluginscache_db_name(), true)).DiscardCache();
 }
 
 bool config_provider::ShowProblems() const
