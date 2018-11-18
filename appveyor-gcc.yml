@@ -1,0 +1,46 @@
+version: 3.0.{branch}.{build}
+
+branches:
+  only:
+    - master
+
+skip_tags: true
+skip_non_tags: false
+
+max_jobs: 8
+
+image: Visual Studio 2017
+
+init:
+
+clone_folder: c:\projects\FarManager
+
+shallow_clone: true
+clone_depth: 1
+
+install:
+  - cd far && for /f "tokens=1,2,4 delims=," %%i in ('tools\m4 -P farversion.inc.m4') do appveyor UpdateBuild -Version %%i.%%j.%%k.%APPVEYOR_BUILD_NUMBER% && cd ..
+  - choco install mingw
+
+environment:
+  matrix:
+
+  - platform: x64
+    configuration: Debug
+    ADD_MAKE: DEBUG=1 DIRBIT=64
+    
+  - platform: x64
+    configuration: Release
+    ADD_MAKE: DIRBIT=64
+
+build_script:
+  #build Far
+  - cd far
+  - mingw32-make -j8 %ADD_MAKE% -f makefile_gcc
+  - cd ..
+  #build Plugins
+  - cd plugins
+  - mingw32-make -j8 %ADD_MAKE% -f makefile_all_gcc
+  - cd ..
+
+test: off
