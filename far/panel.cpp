@@ -148,7 +148,7 @@ private:
 	void init();
 	void ProcessName(const string& Src) const;
 	void ShowBorder() const;
-	void Close();
+	void Close(int ExitCode);
 
 	Panel* m_Owner;
 	Manager::Key m_FirstKey;
@@ -239,8 +239,7 @@ bool Search::ProcessKey(const Manager::Key& Key)
 
 	if (LocalKey()==KEY_ESC || LocalKey()==KEY_F10)
 	{
-		m_KeyToProcess=KEY_NONE;
-		Close();
+		Close(-1);
 		return true;
 	}
 
@@ -292,7 +291,7 @@ bool Search::ProcessKey(const Manager::Key& Key)
 			        )
 			{
 				m_KeyToProcess=LocalKey;
-				Close();
+				Close(1);
 				return true;
 			}
 			auto strLastName = m_FindEdit->GetString();
@@ -348,7 +347,7 @@ bool Search::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (!(MouseEvent->dwButtonState & 3))
 		;
 	else
-		Close();
+		Close(-1);
 	return true;
 }
 
@@ -392,8 +391,9 @@ void Search::ResizeConsole()
 	InitPositionAndSize();
 }
 
-void Search::Close()
+void Search::Close(int ExitCode)
 {
+	SetExitCode(ExitCode);
 	Hide();
 	Global->WindowManager->DeleteWindow(shared_from_this());
 }
@@ -406,10 +406,10 @@ void Panel::FastFind(const Manager::Key& FirstKey)
 		const auto search = Search::create(this, FirstKey);
 		search->Process();
 
-		KeyToProcess=search->KeyToProcess();
-
-		if (KeyToProcess == KEY_NONE)
+		if (search->GetExitCode() < 0)
 			return;
+
+		KeyToProcess=search->KeyToProcess();
 	}
 	Show();
 	Parent()->GetKeybar().Redraw();

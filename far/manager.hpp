@@ -54,7 +54,6 @@ public:
 		Key& operator=(unsigned int Key);
 		Key& operator&=(unsigned int Key);
 		unsigned int operator()() const {return m_FarKey;}
-		bool operator==(unsigned int Key) const { return m_FarKey == Key; }
 
 	private:
 		INPUT_RECORD m_Event;
