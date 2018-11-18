@@ -526,7 +526,7 @@ void ShowHotplugDevices()
 		{
 			case KEY_F1:
 			{
-				Help::create(L"HotPlugList"sv);
+				help::show(L"HotPlugList"sv);
 				break;
 			}
 			case KEY_CTRLR:

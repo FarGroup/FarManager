@@ -467,6 +467,9 @@
     <ClCompile Include="console_session.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="fastfind.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="elevation.hpp">
@@ -1074,6 +1077,9 @@
     </ClInclude>
     <ClInclude Include="common\test.hpp">
       <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="fastfind.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

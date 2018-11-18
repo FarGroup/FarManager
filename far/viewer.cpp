@@ -1551,10 +1551,9 @@ bool Viewer::process_key(const Manager::Key& Key)
 	switch (LocalKey)
 	{
 		case KEY_F1:
-		{
-			Help::create(L"Viewer"sv);
+			help::show(L"Viewer"sv);
 			return true;
-		}
+
 		case KEY_CTRLU:
 		case KEY_RCTRLU:
 		{

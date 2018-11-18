@@ -37,33 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "panelfwd.hpp"
 
-enum DIRDELTYPE: int;
-enum DEL_RESULT: int;
-
-class ShellDelete: noncopyable
-{
-public:
-	ShellDelete(panel_ptr SrcPanel, bool Wipe);
-
-	struct progress
-	{
-		size_t Value;
-		size_t Total;
-	};
-
-private:
-	DEL_RESULT AskDeleteReadOnly(const string& Name, DWORD Attr, bool Wipe);
-	DEL_RESULT ShellRemoveFile(const string& Name, bool Wipe, progress Files);
-	DEL_RESULT ERemoveDirectory(const string& Name, DIRDELTYPE Type);
-	bool RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& ret);
-
-	int ReadOnlyDeleteMode;
-	int m_SkipMode;
-	int SkipWipeMode;
-	int SkipFoldersMode;
-	unsigned ProcessedItems;
-};
-
+void Delete(const panel_ptr& SrcPanel, bool Wipe);
 void DeleteDirTree(const string& Dir);
 bool DeleteFileWithFolder(const string& FileName);
 
@@ -72,8 +46,9 @@ class delayed_deleter: noncopyable
 public:
 	delayed_deleter() = default;
 	explicit delayed_deleter(string pathToDelete);
-	void set(string pathToDelete);
 	~delayed_deleter();
+
+	void set(string pathToDelete);
 
 private:
 	string m_pathToDelete;

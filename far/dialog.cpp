@@ -2467,8 +2467,6 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 	_DIALOG(CleverSysLog CL(L"Dialog::ProcessKey"));
 	_DIALOG(SysLog(L"Param: Key=%s",_FARKEY_ToName(LocalKey())));
 
-	string strStr;
-
 	assert(Key.IsEvent());
 	if (DialogMode.Check(DMODE_INPUTEVENT) && Key.IsReal())
 	{
@@ -2598,11 +2596,13 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 
 			// Перед выводом диалога посылаем сообщение в обработчик
 			//   и если вернули что надо, то выводим подсказку
-			if (Help::MkTopic(PluginOwner, NullToEmpty((const wchar_t*)DlgProc(DN_HELP,m_FocusPos, const_cast<wchar_t*>(EmptyToNull(HelpTopic.c_str())))), strStr))
 			{
-				Help::create(strStr);
+				const auto Topic = help::make_topic(PluginOwner, NullToEmpty(reinterpret_cast<const wchar_t*>(DlgProc(DN_HELP, m_FocusPos, const_cast<wchar_t*>(EmptyToNull(HelpTopic.c_str()))))));
+				if (!Topic.empty())
+				{
+					help::show(Topic);
+				}
 			}
-
 			return true;
 
 		case KEY_ESC:
@@ -2673,7 +2673,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 					return true;
 
 				const auto focus = static_cast<DlgEdit*>(Items[m_FocusPos].ObjPtr);
-				strStr = focus->GetString();
+				auto strStr = focus->GetString();
 				int CurPos = focus->GetCurPos();
 				SCOPED_ACTION(SetAutocomplete)(focus);
 				string strMove;
@@ -2937,7 +2937,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 								{	// добавляем к предыдущему и...
 									bool last = false;
 									const auto prev = static_cast<DlgEdit*>(Items[m_FocusPos - 1].ObjPtr);
-									strStr = prev->GetString();
+									auto strStr = prev->GetString();
 									int pos = static_cast<int>(strStr.size());
 									for (size_t I = m_FocusPos; !last && I < Items.size(); ++I)
 									{
@@ -2997,7 +2997,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 								const int Length=edt->GetLength();
 								intptr_t SelStart, SelEnd;
 								edt->GetSelection(SelStart, SelEnd);
-								strStr = edt->GetString();
+								auto strStr = edt->GetString();
 
 								if (SelStart > -1)
 								{
@@ -3076,7 +3076,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 							if (edt->LastPartLength ==-1)
 								edt->strLastStr = edt->GetString();
 
-							strStr = edt->strLastStr;
+							auto strStr = edt->strLastStr;
 							int CurCmdPartLength=static_cast<int>(strStr.size());
 							edt->HistoryGetSimilar(strStr, edt->LastPartLength);
 
@@ -4292,7 +4292,7 @@ void Dialog::ShowHelp() const
 {
 	if (!HelpTopic.empty())
 	{
-		Help::create(HelpTopic);
+		help::show(HelpTopic);
 	}
 }
 

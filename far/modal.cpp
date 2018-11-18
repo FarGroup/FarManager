@@ -80,5 +80,5 @@ void SimpleModal::SetHelp(string_view const Topic)
 void SimpleModal::ShowHelp() const
 {
 	if (!m_HelpTopic.empty())
-		Help::create(m_HelpTopic);
+		help::show(m_HelpTopic);
 }

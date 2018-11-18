@@ -2230,7 +2230,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 					if (LocalKey==KEY_SHIFTDEL || LocalKey==KEY_SHIFTNUMDEL || LocalKey==KEY_SHIFTDECIMAL)
 						Global->Opt->DeleteToRecycleBin = false;
 
-					ShellDelete(shared_from_this(), LocalKey == KEY_ALTDEL || LocalKey == KEY_RALTDEL || LocalKey == KEY_ALTNUMDEL || LocalKey == KEY_RALTNUMDEL || LocalKey == KEY_ALTDECIMAL || LocalKey == KEY_RALTDECIMAL);
+					Delete(shared_from_this(), LocalKey == KEY_ALTDEL || LocalKey == KEY_RALTDEL || LocalKey == KEY_ALTNUMDEL || LocalKey == KEY_RALTNUMDEL || LocalKey == KEY_ALTDECIMAL || LocalKey == KEY_RALTDECIMAL);
 					Global->Opt->DeleteToRecycleBin=SaveOpt;
 				}
 
@@ -5217,7 +5217,7 @@ bool FileList::PluginPanelHelp(const plugin_panel* hPlugin) const
 	if (!std::get<0>(HelpFileData))
 		return false;
 
-	Help::create(Help::MakeLink(strPath, L"Contents"sv));
+	help::show(help::make_link(strPath, L"Contents"sv));
 	return true;
 }
 

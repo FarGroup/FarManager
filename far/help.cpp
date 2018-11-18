@@ -58,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cvtname.hpp"
 #include "cmdline.hpp"
 #include "global.hpp"
+#include "modal.hpp"
 
 #include "platform.fs.hpp"
 
@@ -109,6 +110,82 @@ static bool OpenURL(const string& URLPath);
 static const wchar_t HelpFormatLink[] = L"<{0}\\>{1}";
 static const wchar_t HelpFormatLinkModule[] = L"<{0}>{1}";
 
+class Help :public Modal
+{
+	struct private_tag {};
+
+public:
+	static help_ptr create(string_view Topic, const wchar_t *Mask = nullptr, unsigned long long Flags = 0);
+	explicit Help(private_tag);
+
+	bool  ProcessKey(const Manager::Key& Key) override;
+	bool  ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	void InitKeyBar() override;
+	void SetScreenPosition() override;
+	void ResizeConsole() override;
+	bool CanFastHide() const override;
+	int GetTypeAndName(string &strType, string &strName) override;
+	int GetType() const override { return windowtype_help; }
+	long long VMProcess(int OpCode, void* vParam, long long iParam) override;
+	bool IsKeyBarVisible() const override { return true; }
+
+	bool GetError() const { return ErrorHelp; }
+
+	struct StackHelpData;
+
+private:
+	void DisplayObject() override;
+	string GetTitle() const override { return {}; }
+
+	void init(string_view Topic, const wchar_t *Mask, unsigned long long Flags);
+	bool ReadHelp(const string& Mask);
+	void AddLine(string_view Line);
+	void AddTitle(string_view Title);
+	static void HighlightsCorrection(string &strStr);
+	void FastShow();
+	void DrawWindowFrame() const;
+	void OutString(string_view Str);
+	int  StringLen(string_view Str);
+	void CorrectPosition() const;
+	bool IsReferencePresent();
+	bool GetTopic(int realX, int realY, string& strTopic);
+	void MoveToReference(int Forward, int CurScreen);
+	void ReadDocumentsHelp(int TypeIndex);
+	void Search(const os::fs::file& HelpFile, uintptr_t nCodePage);
+	bool JumpTopic(string_view JumpTopic);
+	bool JumpTopic();
+	int CanvasHeight() const { return ObjHeight() - 1 - 1; }
+	int HeaderHeight() const { return FixCount ? FixCount + 1 : 0; }
+	int BodyHeight() const { return CanvasHeight() - HeaderHeight(); }
+	int CanvasWidth() const { return ObjWidth() - 1 - 1; }
+
+	std::unique_ptr<StackHelpData> StackData;
+	std::stack<StackHelpData, std::vector<StackHelpData>> Stack; // стек возврата
+	std::vector<HelpRecord> HelpList; // "хелп" в памяти.
+	string  strFullHelpPathName;
+	string strCtrlColorChar;    // CtrlColorChar - опция! для спецсимвола-
+	string strCurPluginContents; // помним PluginContents (для отображения в заголовке)
+	string strCtrlStartPosChar;
+	string strLastSearchStr;
+
+	int FixCount;             // количество строк непрокручиваемой области
+
+	int MouseDownX, MouseDownY, BeforeMouseDownX, BeforeMouseDownY;
+	int MsX, MsY;
+
+	// символа - для атрибутов
+	FarColor CurColor;             // CurColor - текущий цвет отрисовки
+	int CtrlTabSize;          // CtrlTabSize - опция! размер табуляции
+
+	DWORD LastStartPos;
+	DWORD StartPos;
+
+	bool MouseDown;
+	bool IsNewTopic;
+	bool m_TopicFound;
+	bool ErrorHelp;
+	bool LastSearchCase, LastSearchWholeWords, LastSearchRegexp;
+};
 
 struct Help::StackHelpData
 {
@@ -131,11 +208,6 @@ struct Help::StackHelpData
 	int   TopStr;                 // номер верхней видимой строки темы
 	int   CurX, CurY;             // координаты (???)
 };
-
-string Help::MakeLink(string_view const path, string_view const topic)
-{
-	return concat(L'<', path, L"\\>"sv, topic);
-}
 
 static bool GetOptionsParam(const os::fs::file& LangFile, string_view const KeyName, string& Value, UINT CodePage)
 {
@@ -1535,7 +1607,7 @@ bool Help::JumpTopic()
 		else if (StackData->Flags&FHELP_CUSTOMFILE)
 			strNewTopic = StackData->strSelTopic;
 		else
-			strNewTopic = MakeLink(StackData->strHelpPath, StackData->strSelTopic);
+			strNewTopic = help::make_link(StackData->strHelpPath, StackData->strSelTopic);
 	}
 	else
 	{
@@ -2040,7 +2112,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 						{
 							append(strHelpLine, L',', strSecondParam);
 						}
-						append(strHelpLine, L"~@"sv, MakeLink(strPath, HelpContents), L'@');
+						append(strHelpLine, L"~@"sv, help::make_link(strPath, HelpContents), L'@');
 
 						AddLine(strHelpLine);
 					}
@@ -2057,75 +2129,6 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 	std::sort(HelpList.begin()+1, HelpList.end());
 	// $ 26.06.2000 IS - Устранение глюка с хелпом по f1, shift+f2, end (решение предложил IG)
 	AddLine({});
-}
-
-// Формирование топика с учетом разных факторов
-bool Help::MkTopic(const Plugin* pPlugin, const string& HelpTopic, string &strTopic)
-{
-	strTopic.clear();
-
-	if (!HelpTopic.empty())
-	{
-		if (HelpTopic.front() == L':')
-		{
-			strTopic.erase(0, 1);
-		}
-		else
-		{
-			if (pPlugin && HelpTopic.front() != HelpBeginLink)
-			{
-				strTopic = format(HelpFormatLinkModule, pPlugin->ModuleName(), HelpTopic);
-			}
-			else
-			{
-				strTopic = HelpTopic;
-			}
-
-			if (starts_with(strTopic, HelpBeginLink))
-			{
-				size_t EndPos = strTopic.find(HelpEndLink);
-
-				if (EndPos == string::npos)
-				{
-					strTopic.clear();
-				}
-				else
-				{
-					if (EndPos == strTopic.size() - 1) // Вона как поперло то...
-						append(strTopic, HelpContents); // ... значит покажем основную тему. //BUGBUG
-
-					/* А вот теперь разгребем...
-					   Формат может быть :
-					     "<FullPath>Topic" или "<FullModuleName>Topic"
-					   Для случая "FullPath" путь ДОЛЖЕН заканчиваться СЛЕШЕМ!
-					   Т.о. мы отличим ЧТО ЭТО - имя модуля или путь!
-					*/
-
-					size_t SlashPos = EndPos - 1;
-
-					if (!IsSlash(strTopic[SlashPos])) // Это имя модуля?
-					{
-						// значит удалим это чертово имя :-)
-						const auto pos = FindLastSlash(strTopic);
-						if (pos != string::npos)
-						{
-							SlashPos = pos;
-						}
-						else // ВО! Фигня какая-то :-(
-						{
-							strTopic.clear();
-						}
-					}
-
-					if (!strTopic.empty())
-					{
-						strTopic.erase(SlashPos + 1, EndPos - SlashPos - 1);
-					}
-				}
-			}
-		}
-	}
-	return !strTopic.empty();
 }
 
 void Help::SetScreenPosition()
@@ -2220,4 +2223,62 @@ int Help::GetTypeAndName(string &strType, string &strName)
 	strType = msg(lng::MHelpType);
 	strName = strFullHelpPathName;
 	return windowtype_help;
+}
+
+namespace help
+{
+	bool show(string_view const Topic, const wchar_t* const Mask, unsigned long long const Flags)
+	{
+		return !Help::create(Topic, Mask, Flags)->GetError();
+	}
+
+	string make_link(string_view const Path, string_view const Topic)
+	{
+		return concat(L'<', Path, L"\\>"sv, Topic);
+	}
+
+	string make_topic(const Plugin* const pPlugin, string_view const HelpTopic)
+	{
+		if (HelpTopic.empty())
+			return {};
+
+		if (HelpTopic.front() == L':')
+			return string(HelpTopic.substr(1));
+
+		auto Topic = pPlugin && HelpTopic.front() != HelpBeginLink?
+			format(HelpFormatLinkModule, pPlugin->ModuleName(), HelpTopic) :
+			string(HelpTopic);
+
+		if (!starts_with(Topic, HelpBeginLink))
+			return Topic;
+
+		const auto EndPos = Topic.find(HelpEndLink);
+
+		if (EndPos == string::npos)
+			return {};
+
+		if (EndPos == Topic.size() - 1) // Вона как поперло то...
+			append(Topic, HelpContents); // ... значит покажем основную тему. //BUGBUG
+
+		/* А вот теперь разгребем...
+		   Формат может быть :
+			 "<FullPath>Topic" или "<FullModuleName>Topic"
+		   Для случая "FullPath" путь ДОЛЖЕН заканчиваться СЛЕШЕМ!
+		   Т.о. мы отличим ЧТО ЭТО - имя модуля или путь!
+		*/
+
+		auto SlashPos = EndPos - 1;
+
+		if (!IsSlash(Topic[SlashPos])) // Это имя модуля?
+		{
+			// значит удалим это чертово имя :-)
+			const auto Pos = FindLastSlash(Topic);
+			if (Pos == string::npos)
+				return {}; // ВО! Фигня какая-то :-(
+
+			SlashPos = Pos;
+		}
+
+		return Topic.erase(SlashPos + 1, EndPos - SlashPos - 1);
+	}
 }

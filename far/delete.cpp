@@ -93,6 +93,30 @@ enum DEL_RESULT: int
 
 static void PR_ShellDeleteMsg();
 
+class ShellDelete : noncopyable
+{
+public:
+	ShellDelete(panel_ptr SrcPanel, bool Wipe);
+
+	struct progress
+	{
+		size_t Value;
+		size_t Total;
+	};
+
+private:
+	DEL_RESULT AskDeleteReadOnly(const string& Name, DWORD Attr, bool Wipe);
+	DEL_RESULT ShellRemoveFile(const string& Name, bool Wipe, progress Files);
+	DEL_RESULT ERemoveDirectory(const string& Name, DIRDELTYPE Type);
+	bool RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& ret);
+
+	int ReadOnlyDeleteMode;
+	int m_SkipMode;
+	int SkipWipeMode;
+	int SkipFoldersMode;
+	unsigned ProcessedItems;
+};
+
 struct DelPreRedrawItem : public PreRedrawItem
 {
 	DelPreRedrawItem():
@@ -1216,14 +1240,19 @@ delayed_deleter::delayed_deleter(string pathToDelete):
 {
 }
 
+delayed_deleter::~delayed_deleter()
+{
+	if (!m_pathToDelete.empty())
+		DeleteFileWithFolder(m_pathToDelete);
+}
+
 void delayed_deleter::set(string pathToDelete)
 {
 	assert(m_pathToDelete.empty());
 	m_pathToDelete = std::move(pathToDelete);
 }
 
-delayed_deleter::~delayed_deleter()
+void Delete(const panel_ptr& SrcPanel, bool const Wipe)
 {
-	if (!m_pathToDelete.empty())
-		DeleteFileWithFolder(m_pathToDelete);
+	ShellDelete(SrcPanel, Wipe);
 }

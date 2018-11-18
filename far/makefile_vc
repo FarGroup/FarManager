@@ -142,6 +142,7 @@ LINK_OBJS = \
 	"$(INTDIR)\FarDlgBuilder.obj" \
 	"$(INTDIR)\farexcpt.obj" \
 	"$(INTDIR)\farversion.obj" \
+	"$(INTDIR)\fastfind.obj" \
 	"$(INTDIR)\fileattr.obj" \
 	"$(INTDIR)\fileedit.obj" \
 	"$(INTDIR)\filefilter.obj" \

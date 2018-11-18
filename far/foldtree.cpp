@@ -181,10 +181,9 @@ bool FolderTree::ProcessKey(const Manager::Key& Key)
 	switch (LocalKey)
 	{
 		case KEY_F1:
-		{
-			Help::create(L"FindFolder"sv);
-		}
-		break;
+			help::show(L"FindFolder"sv);
+			break;
+
 		case KEY_ESC:
 		case KEY_F10:
 			Global->WindowManager->DeleteWindow();

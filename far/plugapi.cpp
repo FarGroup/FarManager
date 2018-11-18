@@ -366,7 +366,7 @@ BOOL WINAPI apiShowHelp(const wchar_t *ModuleName, const wchar_t *HelpTopic, FAR
 				if (const auto plugin = Global->CtrlObject->Plugins->FindPlugin(*reinterpret_cast<const GUID*>(ModuleName)))
 				{
 					OFlags |= FHELP_CUSTOMPATH;
-					strTopic = Help::MakeLink(ExtractFilePath(plugin->ModuleName()), HelpTopic);
+					strTopic = help::make_link(ExtractFilePath(plugin->ModuleName()), HelpTopic);
 				}
 			}
 		}
@@ -398,13 +398,13 @@ BOOL WINAPI apiShowHelp(const wchar_t *ModuleName, const wchar_t *HelpTopic, FAR
 				else
 					return FALSE;
 
-				strTopic = Help::MakeLink(strPath, HelpTopic);
+				strTopic = help::make_link(strPath, HelpTopic);
 			}
 			else
 				return FALSE;
 		}
 
-		return !Help::create(strTopic, strMask.c_str(), OFlags)->GetError();
+		return help::show(strTopic, strMask.c_str(), OFlags);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return FALSE;
@@ -839,10 +839,9 @@ intptr_t WINAPI apiMenuFn(
 				*BreakCode=-1;
 
 			{
-				string strTopic;
-
-				if (Help::MkTopic(GuidToPlugin(PluginId), NullToEmpty(HelpTopic), strTopic))
-					FarMenu->SetHelp(strTopic);
+				const auto Topic = help::make_topic(GuidToPlugin(PluginId), NullToEmpty(HelpTopic));
+				if (!Topic.empty())
+					FarMenu->SetHelp(Topic);
 			}
 
 			if (Bottom)
@@ -1218,11 +1217,7 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned long l
 
 		Plugin* PluginNumber = GuidToPlugin(PluginId);
 		// запоминаем топик
-		string strTopic;
-		if (PluginNumber)
-		{
-			Help::MkTopic(PluginNumber,NullToEmpty(HelpTopic),strTopic);
-		}
+		const auto strTopic = PluginNumber? help::make_topic(PluginNumber, NullToEmpty(HelpTopic)) : L""s;
 
 		const DWORD InternalFlags =
 			((Flags & FMSG_WARNING)? MSG_WARNING : 0) |

@@ -2306,11 +2306,10 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 						Dlg->SendMessage(DM_LISTINFO, Param1, &ListInfo);
 
 						const auto& CurrentItem = GetConfigItem(ListInfo.SelectPos);
-						auto HelpTopic = concat(CurrentItem.KeyName, L'.', CurrentItem.ValName);
-						if (Help::create(HelpTopic, nullptr, FHELP_NOSHOWERROR)->GetError())
+
+						if (!help::show(concat(CurrentItem.KeyName, L'.', CurrentItem.ValName), nullptr, FHELP_NOSHOWERROR))
 						{
-							HelpTopic = concat(CurrentItem.KeyName, L"Settings"sv);
-							Help::create(HelpTopic, nullptr, FHELP_NOSHOWERROR);
+							help::show(concat(CurrentItem.KeyName, L"Settings"sv), nullptr, FHELP_NOSHOWERROR);
 						}
 					}
 					break;

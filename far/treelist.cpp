@@ -1023,10 +1023,9 @@ bool TreeList::ProcessKey(const Manager::Key& Key)
 	switch (LocalKey)
 	{
 		case KEY_F1:
-		{
-			Help::create(L"TreePanel"sv);
+			help::show(L"TreePanel"sv);
 			return true;
-		}
+
 		case KEY_SHIFTNUMENTER:
 		case KEY_CTRLNUMENTER:
 		case KEY_RCTRLNUMENTER:
@@ -1197,7 +1196,7 @@ bool TreeList::ProcessKey(const Manager::Key& Key)
 				if (LocalKey==KEY_SHIFTDEL||LocalKey==KEY_SHIFTNUMDEL||LocalKey==KEY_SHIFTDECIMAL)
 					Global->Opt->DeleteToRecycleBin = false;
 
-				ShellDelete(shared_from_this(), LocalKey == KEY_ALTDEL || LocalKey == KEY_RALTDEL || LocalKey == KEY_ALTNUMDEL || LocalKey == KEY_RALTNUMDEL || LocalKey == KEY_ALTDECIMAL || LocalKey == KEY_RALTDECIMAL);
+				Delete(shared_from_this(), LocalKey == KEY_ALTDEL || LocalKey == KEY_RALTDEL || LocalKey == KEY_ALTNUMDEL || LocalKey == KEY_RALTNUMDEL || LocalKey == KEY_ALTDECIMAL || LocalKey == KEY_RALTDECIMAL);
 				// Надобно не забыть обновить противоположную панель...
 				const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 				AnotherPanel->Update(UPDATE_KEEP_SELECTION);

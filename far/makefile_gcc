@@ -59,6 +59,7 @@ SRCS = \
 	FarDlgBuilder.cpp \
 	farexcpt.cpp \
 	farversion.cpp \
+	fastfind.cpp \
 	fileattr.cpp \
 	fileedit.cpp \
 	filefilter.cpp \

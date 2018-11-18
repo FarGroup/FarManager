@@ -1,10 +1,14 @@
-﻿/*
-desktop.cpp
+﻿#ifndef FASTFIND_HPP_EBAA3EB9_1C5E_4A4C_AE66_BFBA288A324E
+#define FASTFIND_HPP_EBAA3EB9_1C5E_4A4C_AE66_BFBA288A324E
+#pragma once
 
+/*
+fastfind.hpp
 
+Fast Find
 */
 /*
-Copyright © 2014 Far Group
+Copyright © 2018 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,62 +34,43 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "desktop.hpp"
+#include "modal.hpp"
 
-#include "global.hpp"
-#include "manager.hpp"
-#include "savescr.hpp"
-#include "interf.hpp"
-#include "config.hpp"
-#include "keys.hpp"
-#include "help.hpp"
+class Panel;
+class EditControl;
 
-desktop::desktop(private_tag)
+class FastFind: public Modal
 {
-	SetCanLoseFocus(true);
-	desktop::SetPosition({ 0, 0, ScrX, ScrY });
-	SetMacroMode(MACROAREA_DESKTOP);
-}
+	struct private_tag {};
 
-desktop_ptr desktop::create()
-{
-	return std::make_shared<desktop>(private_tag());
-}
+public:
+	static fastfind_ptr create(Panel* Owner, const Manager::Key& FirstKey);
 
-void desktop::ResizeConsole()
-{
-	m_Background->Resize(ScrX + 1, ScrY + 1, Global->Opt->WindowMode != 0);
-	SetPosition({ 0, 0, ScrX, ScrY });
-}
+	FastFind(private_tag, Panel* Owner, const Manager::Key& FirstKey);
 
-void desktop::DisplayObject()
-{
-	m_Background->RestoreArea();
-}
+	bool ProcessKey(const Manager::Key& Key) override;
+	bool ProcessMouse(const MOUSE_EVENT_RECORD* MouseEvent) override;
+	int GetType() const override;
+	int GetTypeAndName(string&, string&) override;
+	void ResizeConsole() override;
 
-bool desktop::ProcessKey(const Manager::Key& Key)
-{
-	switch (Key())
-	{
-	case KEY_F1:
-		help::show(L"Contents"sv);
-		break;
+	void Process();
+	const Manager::Key& KeyToProcess() const;
 
-	case KEY_SHIFTF9:
-		Global->Opt->Save(true);
-		return true;
+private:
+	void DisplayObject() override;
+	string GetTitle() const override;
 
-	case KEY_F10:
-		Global->WindowManager->ExitMainLoop(TRUE);
-		return true;
-	}
-	return false;
-}
+	void InitPositionAndSize();
+	void init();
+	void ProcessName(const string& Src) const;
+	void ShowBorder() const;
+	void Close(int ExitCode);
 
-void desktop::TakeSnapshot()
-{
-	if (!m_Background)
-		m_Background = std::make_unique<SaveScreen>(rectangle{ 0, 0, ScrX, ScrY });
-	else
-		m_Background->SaveArea();
-}
+	Panel* m_Owner;
+	Manager::Key m_FirstKey;
+	std::unique_ptr<EditControl> m_FindEdit;
+	Manager::Key m_KeyToProcess;
+};
+
+#endif // FASTFIND_HPP_EBAA3EB9_1C5E_4A4C_AE66_BFBA288A324E

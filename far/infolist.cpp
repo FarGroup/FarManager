@@ -697,10 +697,9 @@ bool InfoList::ProcessKey(const Manager::Key& Key)
 	switch (LocalKey)
 	{
 		case KEY_F1:
-		{
-			Help::create(L"InfoPanel"sv);
+			help::show(L"InfoPanel"sv);
 			return true;
-		}
+
 		case KEY_CTRLF12:
 		case KEY_RCTRLF12:
 			SelectShowMode();

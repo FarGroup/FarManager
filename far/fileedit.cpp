@@ -958,7 +958,7 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 		{
 			case KEY_F1:
 			{
-				Help::create(L"Editor"sv);
+				help::show(L"Editor"sv);
 				return true;
 			}
 			/* $ 25.04.2001 IS

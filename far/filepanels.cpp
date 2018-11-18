@@ -421,7 +421,7 @@ bool FilePanels::ProcessKey(const Manager::Key& Key)
 		{
 			if (!ActivePanel()->ProcessKey(Manager::Key(KEY_F1)))
 			{
-				Help::create(L"Contents"sv);
+				help::show(L"Contents"sv);
 			}
 
 			return true;

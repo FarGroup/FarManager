@@ -188,10 +188,8 @@ void ShowProcessList()
 		switch (Key)
 		{
 			case KEY_F1:
-			{
-				Help::create(L"TaskList"sv);
+				help::show(L"TaskList"sv);
 				break;
-			}
 
 			case KEY_NUMDEL:
 			case KEY_DEL:

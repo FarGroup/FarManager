@@ -330,7 +330,7 @@ bool QuickView::ProcessKey(const Manager::Key& Key)
 
 	if (LocalKey == KEY_F1)
 	{
-		Help::create(L"QViewPanel"sv);
+		help::show(L"QViewPanel"sv);
 		return true;
 	}
 

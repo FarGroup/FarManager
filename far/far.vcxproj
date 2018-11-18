@@ -197,6 +197,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="dirmix.cpp" />
     <ClCompile Include="dizlist.cpp" />
     <ClCompile Include="FarDlgBuilder.cpp" />
+    <ClCompile Include="fastfind.cpp" />
     <ClCompile Include="filemasks.cpp" />
     <ClCompile Include="dlgedit.cpp" />
     <ClCompile Include="drivemix.cpp" />
@@ -419,6 +420,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="farexcpt.hpp" />
     <ClInclude Include="FarGuid.hpp" />
     <ClInclude Include="farversion.hpp" />
+    <ClInclude Include="fastfind.hpp" />
     <ClInclude Include="filemasks.hpp" />
     <ClInclude Include="filesystemwatcher.hpp" />
     <ClInclude Include="lasterror.hpp" />
