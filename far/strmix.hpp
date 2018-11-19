@@ -75,7 +75,7 @@ private:
 	string m_StrBuffer;
 	string_view m_Str;
 	string_view mutable m_Tail;
-	string_view mutable m_Break;
+	string_view m_Break;
 	size_t m_Width;
 	bool m_BreakWords;
 };
