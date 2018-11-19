@@ -50,12 +50,13 @@ WARNING_DISABLE_GCC("-Wimplicit-fallthrough")
 WARNING_DISABLE_GCC("-Wunused-but-set-variable")
 WARNING_DISABLE_GCC("-Wunused-value")
 WARNING_DISABLE_GCC("-Wcast-function-type")
+WARNING_DISABLE_GCC("-Wunused-function")
+WARNING_DISABLE_GCC("-Wempty-body")
 #ifdef _DEBUG
 WARNING_DISABLE_GCC("-Wformat=")
 WARNING_DISABLE_GCC("-Wformat-extra-args")
 WARNING_DISABLE_GCC("-Wformat-nonliteral")
 WARNING_DISABLE_GCC("-Wsign-compare")
-WARNING_DISABLE_GCC("-Wunused-function")
 #endif
 
 WARNING_DISABLE_CLANG("-Weverything")
