@@ -124,7 +124,7 @@ bool filemasks::Set(const string& Masks, DWORD Flags)
 			ConfigProvider().GeneralCfg()->GetValue(L"Masks"sv, MaskGroupName, MaskGroupValue, L"");
 			UsedGroups.emplace(std::move(MaskGroupName));
 		}
-		ReplaceStrings(ExpMasks, MaskGroupNameWithBrackets, MaskGroupValue);
+		replace(ExpMasks, MaskGroupNameWithBrackets, MaskGroupValue);
 	}
 
 	if (!ExpMasks.empty())
@@ -264,7 +264,7 @@ static void add_pathext(string& Masks)
 		if (!FarPathExt.empty())
 			FarPathExt.pop_back();
 
-		ReplaceStrings(Masks, PathExtName, FarPathExt, true);
+		replace_icase(Masks, PathExtName, FarPathExt);
 	}
 }
 

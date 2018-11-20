@@ -423,9 +423,9 @@ window_ptr Manager::WindowMenu()
 			const auto& Window = std::get<2>(Data[i]);
 
 			const auto Hotkey = static_cast<wchar_t>(i < 10? L'0' + i : i < 36? L'A' + i - 10 : L' ');
-			ReplaceStrings(Name, L"&"sv, L"&&"sv);
+			replace(Name, L"&"sv, L"&&"sv);
 			/*  добавляется "*" если файл изменен */
-			MenuItemEx ModalMenuItem(format(L"{0}{1}  {2:<{3}} {4} ", Hotkey == L' '? L""s : L"&"s,  Hotkey, Type, TypesWidth, Window->IsFileModified()? L'*' : L' ') + Name);
+			MenuItemEx ModalMenuItem(format(L"{0}{1}  {2:<{3}} {4} "sv, Hotkey == L' '? L""s : L"&"s,  Hotkey, Type, TypesWidth, Window->IsFileModified()? L'*' : L' ') + Name);
 			ModalMenuItem.ComplexUserData = Window.get();
 			ModalMenuItem.SetSelect(Window == GetBottomWindow());
 			ModalMenu->AddItem(ModalMenuItem);

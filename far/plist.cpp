@@ -131,7 +131,7 @@ static BOOL CALLBACK EnumWindowsProc(HWND Window, LPARAM Param)
 			MenuItem = WindowTitle;
 		}
 
-		MenuItemEx NewItem(format(L"{0:9} {1} {2}", ProcID, BoxSymbols[BS_V1], MenuItem));
+		MenuItemEx NewItem(format(L"{0:9} {1} {2}"sv, ProcID, BoxSymbols[BS_V1], MenuItem));
 		// for sorting
 		NewItem.ComplexUserData = menu_data{ WindowTitle, ProcID, Window };
 		Info->procList->AddItem(NewItem);

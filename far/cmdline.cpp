@@ -908,7 +908,7 @@ static bool ProcessFarCommands(const string& Command, const std::function<void(b
 		{
 			return
 #ifdef _MSC_BUILD
-				format(L".{0}", _MSC_BUILD)
+				format(L".{0}"sv, _MSC_BUILD)
 #else
 				L""s
 #endif
@@ -917,7 +917,7 @@ static bool ProcessFarCommands(const string& Command, const std::function<void(b
 
 		auto strOut = concat(
 			L'\n', build::version_string(), L'\n', build::copyright(), L'\n',
-			L"\nCompiler:\n"sv, format(L"{0}, version {1}.{2}.{3}{4}", COMPILER_NAME, COMPILER_VERSION_MAJOR, COMPILER_VERSION_MINOR, COMPILER_VERSION_PATCH, CompilerInfo()), L'\n'
+			L"\nCompiler:\n"sv, format(L"{0}, version {1}.{2}.{3}{4}"sv, COMPILER_NAME, COMPILER_VERSION_MAJOR, COMPILER_VERSION_MINOR, COMPILER_VERSION_PATCH, CompilerInfo()), L'\n'
 		);
 
 		const auto& ComponentsInfo = components::GetComponentsInfo();

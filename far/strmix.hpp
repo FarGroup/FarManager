@@ -59,6 +59,17 @@ string& QuoteOuterSpace(string &strStr);
 inline string QuoteOuterSpace(string&& strStr) { QuoteOuterSpace(strStr); return strStr; }
 
 bool ReplaceStrings(string& strStr, string_view FindStr, string_view ReplStr, bool IgnoreCase = false, size_t Count = string::npos);
+
+inline void replace(string& Str, string_view const Find, string_view const Replace)
+{
+	ReplaceStrings(Str, Find, Replace, false);
+}
+
+inline void replace_icase(string& Str, string_view const Find, string_view const Replace)
+{
+	ReplaceStrings(Str, Find, Replace, true);
+}
+
 void remove_duplicates(string& Str, wchar_t Char, bool IgnoreCase = false);
 
 class wrapped_text : public enumerator<wrapped_text, string_view>

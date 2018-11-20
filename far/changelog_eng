@@ -3,6 +3,12 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 20.11.2018 01:10:03 +0000 - build 5323
+
+1. New versions of tinyxml2 and fmt.
+
+2. Refactoring.
+
 drkns 18.11.2018 23:20:04 +0000 - build 5322
 
 1. /clearcache command didn't work.

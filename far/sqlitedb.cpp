@@ -89,7 +89,7 @@ namespace
 	[[noreturn]]
 	void throw_exception(int ErrorCode, const string& ErrorString = {})
 	{
-		throw MAKE_EXCEPTION(far_sqlite_exception, format(L"SQLite error {0} - {1}", ErrorCode, ErrorString.empty()? GetErrorString(ErrorCode) : ErrorString));
+		throw MAKE_EXCEPTION(far_sqlite_exception, format(L"SQLite error {0} - {1}"sv, ErrorCode, ErrorString.empty()? GetErrorString(ErrorCode) : ErrorString));
 	}
 
 	[[noreturn]]

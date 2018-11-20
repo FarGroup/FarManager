@@ -1236,9 +1236,9 @@ string Panel::CreateFullPathName(string_view const Name, bool const Directory, b
 
 void Panel::exclude_sets(string& mask)
 {
-	ReplaceStrings(mask, L"["sv, L"<[%>"sv, true);
-	ReplaceStrings(mask, L"]"sv, L"[]]"sv, true);
-	ReplaceStrings(mask, L"<[%>"sv, L"[[]"sv, true);
+	replace(mask, L"["sv, L"<[%>"sv);
+	replace(mask, L"]"sv, L"[]]"sv);
+	replace(mask, L"<[%>"sv, L"[[]"sv);
 }
 
 FilePanels* Panel::Parent() const

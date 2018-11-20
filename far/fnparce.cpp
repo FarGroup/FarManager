@@ -274,7 +274,7 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 		if (EscapeAmpersands && contains(Str, L"&"sv))
 		{
 			string Escaped(Str);
-			ReplaceStrings(Escaped, L"&"sv, L"&&"sv);
+			replace(Escaped, L"&"sv, L"&&"sv);
 			append(Out, Escaped);
 		}
 		else

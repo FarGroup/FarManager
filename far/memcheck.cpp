@@ -207,7 +207,7 @@ static std::string FormatLine(const char* File, int Line, const char* Function, 
 		throw MAKE_FAR_FATAL_EXCEPTION(L"Unknown allocation type"sv);
 	};
 
-	return format("{0}:{1} -> {2}:{3} ({4} bytes)", File, Line, Function, sType, Size);
+	return format("{0}:{1} -> {2}:{3} ({4} bytes)"sv, File, Line, Function, sType, Size);
 }
 
 static size_t GetRequiredSize(size_t RequestedSize)
@@ -285,13 +285,13 @@ void checker::summary() const
 		auto Message = L"Memory leaks detected:\n"s;
 
 		if (m_CallNewDeleteVector)
-			Message += format(L"  delete[]:   {0}\n", m_CallNewDeleteVector);
+			Message += format(L"  delete[]:   {0}\n"sv, m_CallNewDeleteVector);
 		if (m_CallNewDeleteScalar)
-			Message += format(L"  delete:     {0}\n", m_CallNewDeleteScalar);
+			Message += format(L"  delete:     {0}\n"sv, m_CallNewDeleteScalar);
 		if (m_AllocatedMemoryBlocks)
-			Message += format(L"Total blocks: {0}\n", m_AllocatedMemoryBlocks);
+			Message += format(L"Total blocks: {0}\n"sv, m_AllocatedMemoryBlocks);
 		if (m_AllocatedMemorySize)
-			Message += format(L"Total bytes:  {0} payload, {1} overhead\n", m_AllocatedMemorySize - m_AllocatedMemoryBlocks * (sizeof(MEMINFO) + sizeof(EndMarker)), m_AllocatedMemoryBlocks * sizeof(MEMINFO));
+			Message += format(L"Total bytes:  {0} payload, {1} overhead\n"sv, m_AllocatedMemorySize - m_AllocatedMemoryBlocks * (sizeof(MEMINFO) + sizeof(EndMarker)), m_AllocatedMemoryBlocks * sizeof(MEMINFO));
 
 		append(Message, L"\nNot freed blocks:\n"sv);
 

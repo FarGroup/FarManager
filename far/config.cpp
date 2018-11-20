@@ -1551,7 +1551,7 @@ void IntOption::Export(FarSettingsItem& To) const
 
 string IntOption::ExInfo() const
 {
-	return format(L" = 0x{0:X}", as_unsigned(Get()));
+	return format(L" = 0x{0:X}"sv, as_unsigned(Get()));
 }
 
 

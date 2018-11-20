@@ -16,7 +16,7 @@
 #include <type_traits>
 
 // The fmt library version in the form major * 10000 + minor * 100 + patch.
-#define FMT_VERSION 50201
+#define FMT_VERSION 50202
 
 #ifdef __has_feature
 # define FMT_HAS_FEATURE(x) __has_feature(x)
@@ -91,8 +91,10 @@
 
 #if FMT_HAS_FEATURE(cxx_explicit_conversions) || \
     FMT_GCC_VERSION >= 405 || FMT_MSC_VER >= 1800
+# define FMT_USE_EXPLICIT 1
 # define FMT_EXPLICIT explicit
 #else
+# define FMT_USE_EXPLICIT 0
 # define FMT_EXPLICIT
 #endif
 
@@ -206,144 +208,6 @@ FMT_CONSTEXPR typename std::make_unsigned<Int>::type to_unsigned(Int value) {
   return static_cast<typename std::make_unsigned<Int>::type>(value);
 }
 
-// A constexpr std::char_traits::length replacement for pre-C++17.
-template <typename Char>
-FMT_CONSTEXPR size_t length(const Char *s) {
-  const Char *start = s;
-  while (*s) ++s;
-  return s - start;
-}
-#if FMT_GCC_VERSION
-FMT_CONSTEXPR size_t length(const char *s) { return std::strlen(s); }
-#endif
-
-#if FMT_GCC_VERSION && FMT_GCC_VERSION < 405
-template <typename... T>
-struct is_constructible: std::false_type {};
-#else
-template <typename... T>
-struct is_constructible: std::is_constructible<T...> {};
-#endif
-
-template <typename T>
-struct no_formatter_error : std::false_type {};
-}  // namespace internal
-
-/**
-  An implementation of ``std::basic_string_view`` for pre-C++17. It provides a
-  subset of the API. ``fmt::basic_string_view`` is used for format strings even
-  if ``std::string_view`` is available to prevent issues when a library is
-  compiled with a different ``-std`` option than the client code (which is not
-  recommended).
- */
-template <typename Char>
-class basic_string_view {
- private:
-  const Char *data_;
-  size_t size_;
-
- public:
-  typedef Char char_type;
-  typedef const Char *iterator;
-
-  FMT_CONSTEXPR basic_string_view() FMT_NOEXCEPT : data_(FMT_NULL), size_(0) {}
-
-  /** Constructs a string reference object from a C string and a size. */
-  FMT_CONSTEXPR basic_string_view(const Char *s, size_t count) FMT_NOEXCEPT
-    : data_(s), size_(count) {}
-
-  /**
-    \rst
-    Constructs a string reference object from a C string computing
-    the size with ``std::char_traits<Char>::length``.
-    \endrst
-   */
-  FMT_CONSTEXPR basic_string_view(const Char *s)
-    : data_(s), size_(internal::length(s)) {}
-
-  /** Constructs a string reference from a ``std::basic_string`` object. */
-  template <typename Alloc>
-  FMT_CONSTEXPR basic_string_view(
-      const std::basic_string<Char, Alloc> &s) FMT_NOEXCEPT
-  : data_(s.data()), size_(s.size()) {}
-
-#ifdef FMT_STRING_VIEW
-  FMT_CONSTEXPR basic_string_view(FMT_STRING_VIEW<Char> s) FMT_NOEXCEPT
-  : data_(s.data()), size_(s.size()) {}
-#endif
-
-  /** Returns a pointer to the string data. */
-  FMT_CONSTEXPR const Char *data() const { return data_; }
-
-  /** Returns the string size. */
-  FMT_CONSTEXPR size_t size() const { return size_; }
-
-  FMT_CONSTEXPR iterator begin() const { return data_; }
-  FMT_CONSTEXPR iterator end() const { return data_ + size_; }
-
-  FMT_CONSTEXPR void remove_prefix(size_t n) {
-    data_ += n;
-    size_ -= n;
-  }
-
-  // Lexicographically compare this string reference to other.
-  int compare(basic_string_view other) const {
-    size_t str_size = size_ < other.size_ ? size_ : other.size_;
-    int result = std::char_traits<Char>::compare(data_, other.data_, str_size);
-    if (result == 0)
-      result = size_ == other.size_ ? 0 : (size_ < other.size_ ? -1 : 1);
-    return result;
-  }
-
-  friend bool operator==(basic_string_view lhs, basic_string_view rhs) {
-    return lhs.compare(rhs) == 0;
-  }
-  friend bool operator!=(basic_string_view lhs, basic_string_view rhs) {
-    return lhs.compare(rhs) != 0;
-  }
-  friend bool operator<(basic_string_view lhs, basic_string_view rhs) {
-    return lhs.compare(rhs) < 0;
-  }
-  friend bool operator<=(basic_string_view lhs, basic_string_view rhs) {
-    return lhs.compare(rhs) <= 0;
-  }
-  friend bool operator>(basic_string_view lhs, basic_string_view rhs) {
-    return lhs.compare(rhs) > 0;
-  }
-  friend bool operator>=(basic_string_view lhs, basic_string_view rhs) {
-    return lhs.compare(rhs) >= 0;
-  }
-};
-
-typedef basic_string_view<char> string_view;
-typedef basic_string_view<wchar_t> wstring_view;
-
-template <typename Context>
-class basic_format_arg;
-
-template <typename Context>
-class basic_format_args;
-
-// A formatter for objects of type T.
-template <typename T, typename Char = char, typename Enable = void>
-struct formatter {
-  static_assert(internal::no_formatter_error<T>::value,
-    "don't know how to format the type, include fmt/ostream.h if it provides "
-    "an operator<< that should be used");
-
-  // The following functions are not defined intentionally.
-  template <typename ParseContext>
-  typename ParseContext::iterator parse(ParseContext &);
-  template <typename FormatContext>
-  auto format(const T &val, FormatContext &ctx) -> decltype(ctx.out());
-};
-
-template <typename T, typename Char, typename Enable = void>
-struct convert_to_int: std::integral_constant<
-  bool, !std::is_arithmetic<T>::value && std::is_convertible<T, int>::value> {};
-
-namespace internal {
-
 /** A contiguous memory buffer with an optional growing ability. */
 template <typename T>
 class basic_buffer {
@@ -442,12 +306,217 @@ class container_buffer : public basic_buffer<typename Container::value_type> {
     : basic_buffer<typename Container::value_type>(c.size()), container_(c) {}
 };
 
+// Extracts a reference to the container from back_insert_iterator.
+template <typename Container>
+inline Container &get_container(std::back_insert_iterator<Container> it) {
+  typedef std::back_insert_iterator<Container> bi_iterator;
+  struct accessor: bi_iterator {
+    accessor(bi_iterator iter) : bi_iterator(iter) {}
+    using bi_iterator::container;
+  };
+  return *accessor(it).container;
+}
+
 struct error_handler {
   FMT_CONSTEXPR error_handler() {}
   FMT_CONSTEXPR error_handler(const error_handler &) {}
 
   // This function is intentionally not constexpr to give a compile-time error.
   FMT_API void on_error(const char *message);
+};
+
+template <typename T>
+struct no_formatter_error : std::false_type {};
+}  // namespace internal
+
+#if FMT_GCC_VERSION && FMT_GCC_VERSION < 405
+template <typename... T>
+struct is_constructible: std::false_type {};
+#else
+template <typename... T>
+struct is_constructible : std::is_constructible<T...> {};
+#endif
+
+/**
+  An implementation of ``std::basic_string_view`` for pre-C++17. It provides a
+  subset of the API. ``fmt::basic_string_view`` is used for format strings even
+  if ``std::string_view`` is available to prevent issues when a library is
+  compiled with a different ``-std`` option than the client code (which is not
+  recommended).
+ */
+template <typename Char>
+class basic_string_view {
+ private:
+  const Char *data_;
+  size_t size_;
+
+ public:
+  typedef Char char_type;
+  typedef const Char *iterator;
+
+  FMT_CONSTEXPR basic_string_view() FMT_NOEXCEPT : data_(FMT_NULL), size_(0) {}
+
+  /** Constructs a string reference object from a C string and a size. */
+  FMT_CONSTEXPR basic_string_view(const Char *s, size_t count) FMT_NOEXCEPT
+    : data_(s), size_(count) {}
+
+  /**
+    \rst
+    Constructs a string reference object from a C string computing
+    the size with ``std::char_traits<Char>::length``.
+    \endrst
+   */
+  basic_string_view(const Char *s)
+    : data_(s), size_(std::char_traits<Char>::length(s)) {}
+
+  /** Constructs a string reference from a ``std::basic_string`` object. */
+  template <typename Alloc>
+  FMT_CONSTEXPR basic_string_view(
+      const std::basic_string<Char, Alloc> &s) FMT_NOEXCEPT
+  : data_(s.data()), size_(s.size()) {}
+
+#ifdef FMT_STRING_VIEW
+  FMT_CONSTEXPR basic_string_view(FMT_STRING_VIEW<Char> s) FMT_NOEXCEPT
+  : data_(s.data()), size_(s.size()) {}
+#endif
+
+  /** Returns a pointer to the string data. */
+  FMT_CONSTEXPR const Char *data() const { return data_; }
+
+  /** Returns the string size. */
+  FMT_CONSTEXPR size_t size() const { return size_; }
+
+  FMT_CONSTEXPR iterator begin() const { return data_; }
+  FMT_CONSTEXPR iterator end() const { return data_ + size_; }
+
+  FMT_CONSTEXPR void remove_prefix(size_t n) {
+    data_ += n;
+    size_ -= n;
+  }
+
+  // Lexicographically compare this string reference to other.
+  int compare(basic_string_view other) const {
+    size_t str_size = size_ < other.size_ ? size_ : other.size_;
+    int result = std::char_traits<Char>::compare(data_, other.data_, str_size);
+    if (result == 0)
+      result = size_ == other.size_ ? 0 : (size_ < other.size_ ? -1 : 1);
+    return result;
+  }
+
+  friend bool operator==(basic_string_view lhs, basic_string_view rhs) {
+    return lhs.compare(rhs) == 0;
+  }
+  friend bool operator!=(basic_string_view lhs, basic_string_view rhs) {
+    return lhs.compare(rhs) != 0;
+  }
+  friend bool operator<(basic_string_view lhs, basic_string_view rhs) {
+    return lhs.compare(rhs) < 0;
+  }
+  friend bool operator<=(basic_string_view lhs, basic_string_view rhs) {
+    return lhs.compare(rhs) <= 0;
+  }
+  friend bool operator>(basic_string_view lhs, basic_string_view rhs) {
+    return lhs.compare(rhs) > 0;
+  }
+  friend bool operator>=(basic_string_view lhs, basic_string_view rhs) {
+    return lhs.compare(rhs) >= 0;
+  }
+};
+
+typedef basic_string_view<char> string_view;
+typedef basic_string_view<wchar_t> wstring_view;
+
+/**
+  \rst
+  The function ``to_string_view`` adapts non-intrusively any kind of string or
+  string-like type if the user provides a (possibly templated) overload of
+  ``to_string_view`` which takes an instance of the string class
+  ``StringType<Char>`` and returns a ``fmt::basic_string_view<Char>``.
+  The conversion function must live in the very same namespace as
+  ``StringType<Char>`` to be picked up by ADL. Non-templated string types
+  like f.e. QString must return a ``basic_string_view`` with a fixed matching
+  char type.
+
+  **Example**::
+
+    namespace my_ns {
+    inline string_view to_string_view(const my_string &s) {
+        return { s.data(), s.length() };
+    }
+    }
+
+    std::string message = fmt::format(my_string("The answer is {}"), 42);
+  \endrst
+ */
+template <typename Char>
+inline basic_string_view<Char>
+  to_string_view(basic_string_view<Char> s) { return s; }
+
+template <typename Char>
+inline basic_string_view<Char>
+  to_string_view(const std::basic_string<Char> &s) { return s; }
+
+template <typename Char>
+inline basic_string_view<Char> to_string_view(const Char *s) { return s; }
+
+#ifdef FMT_STRING_VIEW
+template <typename Char>
+inline basic_string_view<Char>
+  to_string_view(FMT_STRING_VIEW<Char> s) { return s; }
+#endif
+
+// A base class for compile-time strings. It is defined in the fmt namespace to
+// make formatting functions visible via ADL, e.g. format(fmt("{}"), 42).
+struct compile_string {};
+
+template <typename S>
+struct is_compile_string : std::is_base_of<compile_string, S> {};
+
+template <
+  typename S,
+  typename Enable = typename std::enable_if<is_compile_string<S>::value>::type>
+FMT_CONSTEXPR basic_string_view<typename S::char_type>
+  to_string_view(const S &s) { return s; }
+
+template <typename Context>
+class basic_format_arg;
+
+template <typename Context>
+class basic_format_args;
+
+// A formatter for objects of type T.
+template <typename T, typename Char = char, typename Enable = void>
+struct formatter {
+  static_assert(internal::no_formatter_error<T>::value,
+    "don't know how to format the type, include fmt/ostream.h if it provides "
+    "an operator<< that should be used");
+
+  // The following functions are not defined intentionally.
+  template <typename ParseContext>
+  typename ParseContext::iterator parse(ParseContext &);
+  template <typename FormatContext>
+  auto format(const T &val, FormatContext &ctx) -> decltype(ctx.out());
+};
+
+template <typename T, typename Char, typename Enable = void>
+struct convert_to_int: std::integral_constant<
+  bool, !std::is_arithmetic<T>::value && std::is_convertible<T, int>::value> {};
+
+namespace internal {
+
+struct dummy_string_view { typedef void char_type; };
+dummy_string_view to_string_view(...);
+using fmt::v5::to_string_view;
+
+// Specifies whether S is a string type convertible to fmt::basic_string_view.
+template <typename S>
+struct is_string : std::integral_constant<bool, !std::is_same<
+    dummy_string_view, decltype(to_string_view(declval<S>()))>::value> {};
+
+template <typename S>
+struct char_t {
+  typedef decltype(to_string_view(declval<S>())) result;
+  typedef typename result::char_type type;
 };
 
 template <typename Char>
@@ -600,7 +669,12 @@ FMT_MAKE_VALUE_SAME(long_long_type, long long)
 FMT_MAKE_VALUE_SAME(ulong_long_type, unsigned long long)
 FMT_MAKE_VALUE(int_type, signed char, int)
 FMT_MAKE_VALUE(uint_type, unsigned char, unsigned)
-FMT_MAKE_VALUE(char_type, typename C::char_type, int)
+
+// This doesn't use FMT_MAKE_VALUE because of ambiguity in gcc 4.4.
+template <typename C, typename Char>
+FMT_CONSTEXPR typename std::enable_if<
+  std::is_same<typename C::char_type, Char>::value,
+  init<C, int, char_type>>::type make_value(Char val) { return val; }
 
 template <typename C>
 FMT_CONSTEXPR typename std::enable_if<
@@ -653,15 +727,17 @@ inline typename std::enable_if<
 
 template <typename C, typename T, typename Char = typename C::char_type>
 inline typename std::enable_if<
-    internal::is_constructible<basic_string_view<Char>, T>::value,
+    is_constructible<basic_string_view<Char>, T>::value &&
+    !internal::is_string<T>::value,
     init<C, basic_string_view<Char>, string_type>>::type
   make_value(const T &val) { return basic_string_view<Char>(val); }
 
 template <typename C, typename T, typename Char = typename C::char_type>
 inline typename std::enable_if<
-    !convert_to_int<T, Char>::value &&
+    !convert_to_int<T, Char>::value && !std::is_same<T, Char>::value &&
     !std::is_convertible<T, basic_string_view<Char>>::value &&
-    !internal::is_constructible<basic_string_view<Char>, T>::value,
+    !is_constructible<basic_string_view<Char>, T>::value &&
+    !internal::is_string<T>::value,
     // Implicit conversion to std::string is not handled here because it's
     // unsafe: https://github.com/fmtlib/fmt/issues/729
     init<C, const T &, custom_type>>::type
@@ -673,6 +749,18 @@ init<C, const void*, named_arg_type>
   basic_format_arg<C> arg = make_arg<C>(val.value);
   std::memcpy(val.data, &arg, sizeof(arg));
   return static_cast<const void*>(&val);
+}
+
+template <typename C, typename S>
+FMT_CONSTEXPR11 typename std::enable_if<
+  internal::is_string<S>::value,
+  init<C, basic_string_view<typename C::char_type>, string_type>>::type
+    make_value(const S &val) {
+  // Handle adapted strings.
+  static_assert(std::is_same<
+    typename C::char_type, typename internal::char_t<S>::type>::value,
+    "mismatch between char-types of context and argument");
+  return to_string_view(val);
 }
 
 // Maximum number of arguments with packed types.
@@ -696,7 +784,7 @@ class basic_format_arg {
 
   template <typename Visitor, typename Ctx>
   friend FMT_CONSTEXPR typename internal::result_of<Visitor(int)>::type
-    visit(Visitor &&vis, const basic_format_arg<Ctx> &arg);
+    visit_format_arg(Visitor &&vis, const basic_format_arg<Ctx> &arg);
 
   friend class basic_format_args<Context>;
   friend class internal::arg_map<Context>;
@@ -737,7 +825,7 @@ struct monostate {};
  */
 template <typename Visitor, typename Context>
 FMT_CONSTEXPR typename internal::result_of<Visitor(int)>::type
-    visit(Visitor &&vis, const basic_format_arg<Context> &arg) {
+    visit_format_arg(Visitor &&vis, const basic_format_arg<Context> &arg) {
   typedef typename Context::char_type char_type;
   switch (arg.type_) {
   case internal::none_type:
@@ -772,6 +860,12 @@ FMT_CONSTEXPR typename internal::result_of<Visitor(int)>::type
     return vis(typename basic_format_arg<Context>::handle(arg.value_.custom));
   }
   return vis(monostate());
+}
+
+template <typename Visitor, typename Context>
+FMT_CONSTEXPR typename internal::result_of<Visitor(int)>::type
+    visit(Visitor &&vis, const basic_format_arg<Context> &arg) {
+  return visit_format_arg(std::forward<Visitor>(vis), arg);
 }
 
 // Parsing context consisting of a format string range being parsed and an
@@ -866,6 +960,22 @@ class arg_map {
   }
 };
 
+// A type-erased reference to an std::locale to avoid heavy <locale> include.
+class locale_ref {
+ private:
+  const void *locale_;  // A type-erased pointer to std::locale.
+  friend class locale;
+
+ public:
+  locale_ref() : locale_(FMT_NULL) {}
+
+  template <typename Locale>
+  explicit locale_ref(const Locale &loc);
+
+  template <typename Locale>
+  Locale get() const;
+};
+
 template <typename OutputIt, typename Context, typename Char>
 class context_base {
  public:
@@ -875,14 +985,16 @@ class context_base {
   basic_parse_context<Char> parse_context_;
   iterator out_;
   basic_format_args<Context> args_;
+  locale_ref loc_;
 
  protected:
   typedef Char char_type;
   typedef basic_format_arg<Context> format_arg;
 
   context_base(OutputIt out, basic_string_view<char_type> format_str,
-               basic_format_args<Context> ctx_args)
-  : parse_context_(format_str), out_(out), args_(ctx_args) {}
+               basic_format_args<Context> ctx_args,
+               locale_ref loc = locale_ref())
+  : parse_context_(format_str), out_(out), args_(ctx_args), loc_(loc) {}
 
   // Returns the argument with specified index.
   format_arg do_get_arg(unsigned arg_id) {
@@ -915,73 +1027,10 @@ class context_base {
 
   // Advances the begin iterator to ``it``.
   void advance_to(iterator it) { out_ = it; }
+
+  locale_ref locale() { return loc_; }
 };
 
-// Extracts a reference to the container from back_insert_iterator.
-template <typename Container>
-inline Container &get_container(std::back_insert_iterator<Container> it) {
-  typedef std::back_insert_iterator<Container> bi_iterator;
-  struct accessor: bi_iterator {
-    accessor(bi_iterator iter) : bi_iterator(iter) {}
-    using bi_iterator::container;
-  };
-  return *accessor(it).container;
-}
-}  // namespace internal
-
-// Formatting context.
-template <typename OutputIt, typename Char>
-class basic_format_context :
-  public internal::context_base<
-    OutputIt, basic_format_context<OutputIt, Char>, Char> {
- public:
-  /** The character type for the output. */
-  typedef Char char_type;
-
-  // using formatter_type = formatter<T, char_type>;
-  template <typename T>
-  struct formatter_type { typedef formatter<T, char_type> type; };
-
- private:
-  internal::arg_map<basic_format_context> map_;
-
-  basic_format_context(const basic_format_context &) = delete;
-  void operator=(const basic_format_context &) = delete;
-
-  typedef internal::context_base<OutputIt, basic_format_context, Char> base;
-  typedef typename base::format_arg format_arg;
-  using base::get_arg;
-
- public:
-  using typename base::iterator;
-
-  /**
-   Constructs a ``basic_format_context`` object. References to the arguments are
-   stored in the object so make sure they have appropriate lifetimes.
-   */
-  basic_format_context(OutputIt out, basic_string_view<char_type> format_str,
-                basic_format_args<basic_format_context> ctx_args)
-    : base(out, format_str, ctx_args) {}
-
-  format_arg next_arg() {
-    return this->do_get_arg(this->parse_context().next_arg_id());
-  }
-  format_arg get_arg(unsigned arg_id) { return this->do_get_arg(arg_id); }
-
-  // Checks if manual indexing is used and returns the argument with the
-  // specified name.
-  format_arg get_arg(basic_string_view<char_type> name);
-};
-
-template <typename Char>
-struct buffer_context {
-  typedef basic_format_context<
-    std::back_insert_iterator<internal::basic_buffer<Char>>, Char> type;
-};
-typedef buffer_context<char>::type format_context;
-typedef buffer_context<wchar_t>::type wformat_context;
-
-namespace internal {
 template <typename Context, typename T>
 struct get_type {
   typedef decltype(make_value<Context>(
@@ -1017,6 +1066,59 @@ inline typename std::enable_if<!IS_PACKED, basic_format_arg<Context>>::type
   return make_arg<Context>(value);
 }
 }  // namespace internal
+
+// Formatting context.
+template <typename OutputIt, typename Char>
+class basic_format_context :
+  public internal::context_base<
+    OutputIt, basic_format_context<OutputIt, Char>, Char> {
+ public:
+  /** The character type for the output. */
+  typedef Char char_type;
+
+  // using formatter_type = formatter<T, char_type>;
+  template <typename T>
+  struct formatter_type { typedef formatter<T, char_type> type; };
+
+ private:
+  internal::arg_map<basic_format_context> map_;
+
+  basic_format_context(const basic_format_context &) = delete;
+  void operator=(const basic_format_context &) = delete;
+
+  typedef internal::context_base<OutputIt, basic_format_context, Char> base;
+  typedef typename base::format_arg format_arg;
+  using base::get_arg;
+
+ public:
+  using typename base::iterator;
+
+  /**
+   Constructs a ``basic_format_context`` object. References to the arguments are
+   stored in the object so make sure they have appropriate lifetimes.
+   */
+  basic_format_context(OutputIt out, basic_string_view<char_type> format_str,
+                       basic_format_args<basic_format_context> ctx_args,
+                       internal::locale_ref loc = internal::locale_ref())
+    : base(out, format_str, ctx_args, loc) {}
+
+  format_arg next_arg() {
+    return this->do_get_arg(this->parse_context().next_arg_id());
+  }
+  format_arg get_arg(unsigned arg_id) { return this->do_get_arg(arg_id); }
+
+  // Checks if manual indexing is used and returns the argument with the
+  // specified name.
+  format_arg get_arg(basic_string_view<char_type> name);
+};
+
+template <typename Char>
+struct buffer_context {
+  typedef basic_format_context<
+    std::back_insert_iterator<internal::basic_buffer<Char>>, Char> type;
+};
+typedef buffer_context<char>::type format_context;
+typedef buffer_context<wchar_t>::type wformat_context;
 
 /**
   \rst
@@ -1082,12 +1184,8 @@ const long long format_arg_store<Context, Args...>::TYPES = get_types();
   can be omitted in which case it defaults to `~fmt::context`.
   \endrst
  */
-template <typename Context, typename ...Args>
+template <typename Context = format_context, typename ...Args>
 inline format_arg_store<Context, Args...>
-  make_format_args(const Args &... args) { return {args...}; }
-
-template <typename ...Args>
-inline format_arg_store<format_context, Args...>
   make_format_args(const Args &... args) { return {args...}; }
 
 /** Formatting arguments. */
@@ -1185,7 +1283,7 @@ class basic_format_args {
 
 /** An alias to ``basic_format_args<context>``. */
 // It is a separate type rather than a typedef to make symbols readable.
-struct format_args: basic_format_args<format_context> {
+struct format_args : basic_format_args<format_context> {
   template <typename ...Args>
   format_args(Args &&... arg)
   : basic_format_args<format_context>(std::forward<Args>(arg)...) {}
@@ -1196,13 +1294,38 @@ struct wformat_args : basic_format_args<wformat_context> {
   : basic_format_args<wformat_context>(std::forward<Args>(arg)...) {}
 };
 
+#ifndef FMT_USE_ALIAS_TEMPLATES
+# define FMT_USE_ALIAS_TEMPLATES FMT_HAS_FEATURE(cxx_alias_templates)
+#endif
+#if FMT_USE_ALIAS_TEMPLATES
+/** String's character type. */
+template <typename S>
+using char_t = typename std::enable_if<internal::is_string<S>::value,
+  typename internal::char_t<S>::type>::type;
+#define FMT_CHAR(S) fmt::char_t<S>
+
+template <typename S, typename T>
+using enable_if_string_t =
+  typename std::enable_if<internal::is_string<S>::value, T>::type;
+#define FMT_ENABLE_IF_STRING(S, T) enable_if_string_t<S, T>
+#else
+template <typename S>
+struct char_t : std::enable_if<
+    internal::is_string<S>::value, typename internal::char_t<S>::type> {};
+#define FMT_CHAR(S) typename char_t<S>::type
+
+#define FMT_ENABLE_IF_STRING(S, T) \
+  typename std::enable_if<internal::is_string<S>::value, T>::type
+#endif
+
 namespace internal {
 template <typename Char>
 struct named_arg_base {
   basic_string_view<Char> name;
 
   // Serialized value<context>.
-  mutable char data[sizeof(basic_format_arg<format_context>)];
+  mutable char data[
+    sizeof(basic_format_arg<typename buffer_context<Char>::type>)];
 
   named_arg_base(basic_string_view<Char> nm) : name(nm) {}
 
@@ -1221,6 +1344,36 @@ struct named_arg : named_arg_base<Char> {
   named_arg(basic_string_view<Char> name, const T &val)
     : named_arg_base<Char>(name), value(val) {}
 };
+
+template <typename... Args, typename S>
+inline typename std::enable_if<!is_compile_string<S>::value>::type
+  check_format_string(const S &) {}
+template <typename... Args, typename S>
+typename std::enable_if<is_compile_string<S>::value>::type
+  check_format_string(S);
+
+template <typename S, typename... Args>
+struct checked_args : format_arg_store<
+  typename buffer_context<FMT_CHAR(S)>::type, Args...> {
+  typedef typename buffer_context<FMT_CHAR(S)>::type context;
+
+  checked_args(const S &format_str, const Args &... args):
+    format_arg_store<context, Args...>(args...) {
+    internal::check_format_string<Args...>(format_str);
+  }
+
+  basic_format_args<context> operator*() const { return *this; }
+};
+
+template <typename Char>
+std::basic_string<Char> vformat(
+  basic_string_view<Char> format_str,
+  basic_format_args<typename buffer_context<Char>::type> args);
+
+template <typename Char>
+typename buffer_context<Char>::type::iterator vformat_to(
+  internal::basic_buffer<Char> &buf, basic_string_view<Char> format_str,
+  basic_format_args<typename buffer_context<Char>::type> args);
 }
 
 /**
@@ -1242,131 +1395,47 @@ inline internal::named_arg<T, wchar_t> arg(wstring_view name, const T &arg) {
   return {name, arg};
 }
 
-// This function template is deleted intentionally to disable nested named
-// arguments as in ``format("{}", arg("a", arg("b", 42)))``.
+// Disable nested named arguments, e.g. ``arg("a", arg("b", 42))``.
 template <typename S, typename T, typename Char>
 void arg(S, internal::named_arg<T, Char>) = delete;
 
-// A base class for compile-time strings. It is defined in the fmt namespace to
-// make formatting functions visible via ADL, e.g. format(fmt("{}"), 42).
-struct compile_string {};
-
-namespace internal {
-// If S is a format string type, format_string_traints<S>::char_type gives its
-// character type.
-template <typename S, typename Enable = void>
-class format_string_traits {
-  // Use emptyness as a way to detect if format_string_traits is
-  // specialized because other methods are broken on MSVC2013 or gcc 4.4.
-  int dummy;
-};
-
-template <typename Char>
-struct format_string_traits_base { typedef Char char_type; };
-
-template <typename Char>
-struct format_string_traits<Char *> : format_string_traits_base<Char> {};
-
-template <typename Char>
-struct format_string_traits<const Char *> : format_string_traits_base<Char> {};
-
-template <typename Char, std::size_t N>
-struct format_string_traits<Char[N]> : format_string_traits_base<Char> {};
-
-template <typename Char, std::size_t N>
-struct format_string_traits<const Char[N]> : format_string_traits_base<Char> {};
-
-template <typename Char>
-struct format_string_traits<std::basic_string<Char>> :
-    format_string_traits_base<Char> {};
-
-template <typename S>
-struct format_string_traits<
-    S, typename std::enable_if<std::is_base_of<
-         basic_string_view<typename S::char_type>, S>::value>::type> :
-    format_string_traits_base<typename S::char_type> {};
-
-template <typename S>
-struct is_format_string : std::is_empty<format_string_traits<S>> {};
-
-template <typename S>
-struct is_compile_string :
-    std::integral_constant<bool, std::is_base_of<compile_string, S>::value> {};
-
-template <typename... Args, typename S>
-inline typename std::enable_if<!is_compile_string<S>::value>::type
-    check_format_string(const S &) {}
-template <typename... Args, typename S>
-typename std::enable_if<is_compile_string<S>::value>::type
-    check_format_string(S);
-
-template <typename Char>
-std::basic_string<Char> vformat(
-    basic_string_view<Char> format_str,
-    basic_format_args<typename buffer_context<Char>::type> args);
-}  // namespace internal
-
-format_context::iterator vformat_to(
-    internal::buffer &buf, string_view format_str, format_args args);
-wformat_context::iterator vformat_to(
-    internal::wbuffer &buf, wstring_view format_str, wformat_args args);
-
 template <typename Container>
-struct is_contiguous : std::false_type {};
+struct is_contiguous: std::false_type {};
 
 template <typename Char>
-struct is_contiguous<std::basic_string<Char>> : std::true_type {};
+struct is_contiguous<std::basic_string<Char> >: std::true_type {};
 
 template <typename Char>
-struct is_contiguous<internal::basic_buffer<Char>> : std::true_type {};
+struct is_contiguous<internal::basic_buffer<Char> >: std::true_type {};
 
 /** Formats a string and writes the output to ``out``. */
-template <typename Container>
+template <typename Container, typename S>
 typename std::enable_if<
-  is_contiguous<Container>::value, std::back_insert_iterator<Container>>::type
-    vformat_to(std::back_insert_iterator<Container> out,
-               string_view format_str, format_args args) {
+    is_contiguous<Container>::value, std::back_insert_iterator<Container>>::type
+  vformat_to(
+    std::back_insert_iterator<Container> out,
+    const S &format_str,
+    basic_format_args<typename buffer_context<FMT_CHAR(S)>::type> args) {
   internal::container_buffer<Container> buf(internal::get_container(out));
-  vformat_to(buf, format_str, args);
+  internal::vformat_to(buf, to_string_view(format_str), args);
   return out;
 }
 
-template <typename Container>
-typename std::enable_if<
-  is_contiguous<Container>::value, std::back_insert_iterator<Container>>::type
-  vformat_to(std::back_insert_iterator<Container> out,
-             wstring_view format_str, wformat_args args) {
-  internal::container_buffer<Container> buf(internal::get_container(out));
-  vformat_to(buf, format_str, args);
-  return out;
-}
-
-template <typename Container, typename... Args>
+template <typename Container, typename S, typename... Args>
 inline typename std::enable_if<
-  is_contiguous<Container>::value, std::back_insert_iterator<Container>>::type
-    format_to(std::back_insert_iterator<Container> out,
-              string_view format_str, const Args &... args) {
-  format_arg_store<format_context, Args...> as{args...};
-  return vformat_to(out, format_str, as);
+  is_contiguous<Container>::value && internal::is_string<S>::value,
+  std::back_insert_iterator<Container>>::type
+    format_to(std::back_insert_iterator<Container> out, const S &format_str,
+              const Args &... args) {
+  internal::checked_args<S, Args...> ca(format_str, args...);
+  return vformat_to(out, to_string_view(format_str), *ca);
 }
 
-template <typename Container, typename... Args>
-inline typename std::enable_if<
-  is_contiguous<Container>::value, std::back_insert_iterator<Container>>::type
-    format_to(std::back_insert_iterator<Container> out,
-              wstring_view format_str, const Args &... args) {
-  return vformat_to(out, format_str,
-                    make_format_args<wformat_context>(args...));
-}
-
-#define FMT_CHAR(Str) typename internal::format_string_traits<Str>::char_type
-
-template <typename String, typename Char = FMT_CHAR(String) >
+template <typename S, typename Char = FMT_CHAR(S)>
 inline std::basic_string<Char> vformat(
-    const String &format_str,
+    const S &format_str,
     basic_format_args<typename buffer_context<Char>::type> args) {
-  // Convert format string to string_view to reduce the number of overloads.
-  return internal::vformat(basic_string_view<Char>(format_str), args);
+  return internal::vformat(to_string_view(format_str), args);
 }
 
 /**
@@ -1379,17 +1448,12 @@ inline std::basic_string<Char> vformat(
     std::string message = fmt::format("The answer is {}", 42);
   \endrst
 */
-template <typename String, typename... Args>
-inline std::basic_string< FMT_CHAR(String) > format(
-    const String &format_str, const Args &... args) {
-  internal::check_format_string<Args...>(format_str);
-  // This should be just
-  //   return vformat(format_str, make_format_args(args...));
-  // but gcc has trouble optimizing the latter, so break it down.
-  typedef typename buffer_context< FMT_CHAR(String) >::type context_t;
-  format_arg_store<context_t, Args...> as{args...};
-  return internal::vformat(basic_string_view< FMT_CHAR(String) >(format_str),
-                           basic_format_args<context_t>(as));
+template <typename S, typename... Args>
+inline std::basic_string<FMT_CHAR(S)> format(
+    const S &format_str, const Args &... args) {
+  return internal::vformat(
+    to_string_view(format_str),
+    *internal::checked_args<S, Args...>(format_str, args...));
 }
 
 FMT_API void vprint(std::FILE *f, string_view format_str, format_args args);
@@ -1397,26 +1461,20 @@ FMT_API void vprint(std::FILE *f, wstring_view format_str, wformat_args args);
 
 /**
   \rst
-  Prints formatted data to the file *f*.
+  Prints formatted data to the file *f*. For wide format strings,
+  *f* should be in wide-oriented mode set via ``fwide(f, 1)`` or
+  ``_setmode(_fileno(f), _O_U8TEXT)`` on Windows.
 
   **Example**::
 
     fmt::print(stderr, "Don't {}!", "panic");
   \endrst
  */
-template <typename... Args>
-inline void print(std::FILE *f, string_view format_str, const Args &... args) {
-  format_arg_store<format_context, Args...> as(args...);
-  vprint(f, format_str, as);
-}
-/**
-  Prints formatted data to the file *f* which should be in wide-oriented mode
-  set via ``fwide(f, 1)`` or ``_setmode(_fileno(f), _O_U8TEXT)`` on Windows.
- */
-template <typename... Args>
-inline void print(std::FILE *f, wstring_view format_str, const Args &... args) {
-  format_arg_store<wformat_context, Args...> as(args...);
-  vprint(f, format_str, as);
+template <typename S, typename... Args>
+inline FMT_ENABLE_IF_STRING(S, void)
+    print(std::FILE *f, const S &format_str, const Args &... args) {
+  vprint(f, to_string_view(format_str),
+         internal::checked_args<S, Args...>(format_str, args...));
 }
 
 FMT_API void vprint(string_view format_str, format_args args);
@@ -1431,16 +1489,11 @@ FMT_API void vprint(wstring_view format_str, wformat_args args);
     fmt::print("Elapsed time: {0:.2f} seconds", 1.23);
   \endrst
  */
-template <typename... Args>
-inline void print(string_view format_str, const Args &... args) {
-  format_arg_store<format_context, Args...> as{args...};
-  vprint(format_str, as);
-}
-
-template <typename... Args>
-inline void print(wstring_view format_str, const Args &... args) {
-  format_arg_store<wformat_context, Args...> as(args...);
-  vprint(format_str, as);
+template <typename S, typename... Args>
+inline FMT_ENABLE_IF_STRING(S, void)
+    print(const S &format_str, const Args &... args) {
+  vprint(to_string_view(format_str),
+         internal::checked_args<S, Args...>(format_str, args...));
 }
 FMT_END_NAMESPACE
 

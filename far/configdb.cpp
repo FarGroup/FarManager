@@ -68,12 +68,13 @@ public:
 			return;
 
 		const auto root = m_Document.FirstChildElement(RootName);
-		SetRoot(*root);
+		SetRoot(root);
 	}
 
 	auto GetRoot() const { return m_Root; }
 
 	void SetRoot(tinyxml::XMLHandle Root) { m_Root = Root; }
+	void SetRoot(tinyxml::XMLElement* const Root) { m_Root = tinyxml::XMLHandle{ Root }; }
 
 	string GetError() const
 	{
@@ -2366,7 +2367,7 @@ bool config_provider::Export(const string& File)
 	representation_destination Representation;
 	auto& root = Representation.GetRoot();
 	const auto Version = build::version();
-	root.SetAttribute("version", format("{0}.{1}.{2}", Version.Major, Version.Minor, Version.Build).c_str());
+	root.SetAttribute("version", format("{0}.{1}.{2}"sv, Version.Major, Version.Minor, Version.Build).c_str());
 
 	GeneralCfg()->Export(Representation);
 	LocalGeneralCfg()->Export(Representation);
@@ -2415,7 +2416,7 @@ bool config_provider::Import(const string& Filename)
 
 	if (!root.ToNode())
 	{
-		std::wcerr << format(L"Error importing {0}:\n {1}", Filename, Representation.GetError()) << std::endl;
+		std::wcerr << format(L"Error importing {0}:\n {1}"sv, Filename, Representation.GetError()) << std::endl;
 		return false;
 	}
 

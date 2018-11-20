@@ -59,9 +59,11 @@ namespace detail
 	char get_incompatible_char(wchar_t);
 	char get_incompatible_char(const wchar_t*);
 	char get_incompatible_char(const string&);
+	char get_incompatible_char(const string_view&);
 	wchar_t get_incompatible_char(char);
 	wchar_t get_incompatible_char(const char*);
 	wchar_t get_incompatible_char(const std::string&);
+	wchar_t get_incompatible_char(const std::string_view&);
 
 	template<typename char_type>
 	void check_char_compatibility(char_type) {}
@@ -77,12 +79,27 @@ namespace detail
 	}
 }
 
+#if defined _MSC_VER && _MSC_VER < 1910
+namespace string_view_impl
+{
+	template<typename char_type>
+	fmt::basic_string_view<char_type> to_string_view(const basic_string_view<char_type>& Str)
+	{
+		return { Str.data(), Str.size() };
+	}
+}
+#endif
+
 template<typename F, typename... args>
 auto format(F&& Format, args&&... Args)
 {
 	detail::check_char_compatibility(decltype(detail::get_incompatible_char(Format)){}, Args...);
 	return fmt::format(FWD(Format), FWD(Args)...);
 }
+
+// use string_view instead of string literals
+template<typename char_type, size_t N, typename... args>
+auto format(const char_type(&Format)[N], args&&...) = delete;
 
 template<typename T>
 auto str(T&& Value)
@@ -92,7 +109,7 @@ auto str(T&& Value)
 
 inline auto str(const void* Value)
 {
-	return format(L"0x{0:0{1}X}", reinterpret_cast<uintptr_t>(Value), sizeof(Value) * 2);
+	return format(L"0x{0:0{1}X}"sv, reinterpret_cast<uintptr_t>(Value), sizeof(Value) * 2);
 }
 
 string str(const char*) = delete;

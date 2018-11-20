@@ -48,7 +48,7 @@ namespace \
 namespace detail
 {
 	template<typename expected, typename actual>
-	void basic_assert(expected&& Expected, actual&& Actual, const char* Assertion, const char* File, int Line)
+	void basic_assert(expected&& Expected, actual&& Actual, string_view const Assertion, const char* File, int Line)
 	{
 		if (Expected != Actual)
 		{
@@ -61,9 +61,9 @@ namespace detail
 	}
 }
 
-#define EXPECT_EQ(expected, actual)   detail::basic_assert(expected, actual, "EXPECT_EQ(" #expected ", " #actual ")", __FILE__, __LINE__)
-#define EXPECT_TRUE(expression)       detail::basic_assert(true, expression, "EXPECT_TRUE(" #expression ")", __FILE__, __LINE__)
-#define EXPECT_FALSE(expression)      detail::basic_assert(false, expression, "EXPECT_FALSE(" #expression ")", __FILE__, __LINE__)
+#define EXPECT_EQ(expected, actual)   detail::basic_assert(expected, actual, L"EXPECT_EQ(" #expected ", " #actual ")"sv, __FILE__, __LINE__)
+#define EXPECT_TRUE(expression)       detail::basic_assert(true, expression, L"EXPECT_TRUE(" #expression ")"sv, __FILE__, __LINE__)
+#define EXPECT_FALSE(expression)      detail::basic_assert(false, expression, L"EXPECT_FALSE(" #expression ")"sv, __FILE__, __LINE__)
 
 #else
 #define SELF_TEST(callable)

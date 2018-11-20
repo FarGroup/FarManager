@@ -489,7 +489,7 @@ namespace console_detail
 		else
 		{
 			const auto& c = Attributes.ForegroundRGBA;
-			Str += format(L"38;2;{0};{1};{2}", c.r, c.g, c.b);
+			Str += format(L"38;2;{0};{1};{2}"sv, c.r, c.g, c.b);
 		}
 
 		Str += L';';
@@ -502,7 +502,7 @@ namespace console_detail
 		else
 		{
 			const auto& c = Attributes.BackgroundRGBA;
-			Str += format(L"48;2;{0};{1};{2}", c.r, c.g, c.b);
+			Str += format(L"48;2;{0};{1};{2}"sv, c.r, c.g, c.b);
 		}
 
 		if (Attributes.Flags & FCF_FG_UNDERLINE)
@@ -595,7 +595,7 @@ namespace console_detail
 			for (short i = SubRect.top; i <= SubRect.bottom; ++i)
 			{
 				if (i != SubRect.top)
-					Str += format(L"\033[{0};{1}H", CursorPosition.Y + 1 + (i - SubRect.top), CursorPosition.X + 1);
+					Str += format(L"\033[{0};{1}H"sv, CursorPosition.Y + 1 + (i - SubRect.top), CursorPosition.X + 1);
 
 				make_vt_sequence(make_range(Buffer[i].data() + SubRect.left, Buffer[i].data() + SubRect.right + 1), Str, LastColor);
 			}

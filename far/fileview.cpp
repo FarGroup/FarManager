@@ -468,8 +468,8 @@ int FileViewer::GetTypeAndName(string &strType, string &strName)
 void FileViewer::ShowConsoleTitle()
 {
 	string strViewerTitleFormat = Global->Opt->strViewerTitleFormat.Get();
-	ReplaceStrings(strViewerTitleFormat, L"%Lng"sv, msg(lng::MInViewer), true);
-	ReplaceStrings(strViewerTitleFormat, L"%File"sv, PointToName(GetViewer()->strFileName), true);
+	replace_icase(strViewerTitleFormat, L"%Lng"sv, msg(lng::MInViewer));
+	replace_icase(strViewerTitleFormat, L"%File"sv, PointToName(GetViewer()->strFileName));
 	ConsoleTitle::SetFarTitle(strViewerTitleFormat);
 	RedrawTitle = FALSE;
 }
@@ -550,7 +550,7 @@ void FileViewer::ShowStatus() const
 	NameLength = std::max(NameLength, 20);
 
 	TruncPathStr(strName, NameLength);
-	auto strStatus = format(L"{0:{1}} {2} {3:5} {4:13} {5:7.7} {6:<4} {7:3}%",
+	auto strStatus = format(L"{0:{1}} {2} {3:5} {4:13} {5:7.7} {6:<4} {7:3}%"sv,
 	    strName,
 	    NameLength,
 	    L"thd"[m_View->m_DisplayMode],
@@ -562,7 +562,7 @@ void FileViewer::ShowStatus() const
 	);
 	SetColor(COL_VIEWERSTATUS);
 	GotoXY(m_Where.left, m_Where.top);
-	Text(fit_to_left(strStatus, m_View->Width + (m_View->ViOpt.ShowScrollbar? 1 : 0)));
+	Text(fit_to_left(std::move(strStatus), m_View->Width + (m_View->ViOpt.ShowScrollbar? 1 : 0)));
 
 	if (Global->Opt->ViewerEditorClock && IsFullScreen())
 		ShowTime();

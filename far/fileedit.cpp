@@ -2028,8 +2028,8 @@ int FileEditor::GetTypeAndName(string &strType, string &strName)
 void FileEditor::ShowConsoleTitle()
 {
 	string strEditorTitleFormat=Global->Opt->strEditorTitleFormat.Get();
-	ReplaceStrings(strEditorTitleFormat, L"%Lng"sv, msg(lng::MInEditor), true);
-	ReplaceStrings(strEditorTitleFormat, L"%File"sv, PointToName(strFileName), true);
+	replace_icase(strEditorTitleFormat, L"%Lng"sv, msg(lng::MInEditor));
+	replace_icase(strEditorTitleFormat, L"%File"sv, PointToName(strFileName));
 	ConsoleTitle::SetFarTitle(strEditorTitleFormat);
 	m_Flags.Clear(FFILEEDIT_REDRAWTITLE);
 }
@@ -2178,9 +2178,9 @@ void FileEditor::ShowStatus() const
 	else
 		SizeLineStr = 12;
 
-	strLineStr = format(L"{0}/{1}", m_editor->m_it_CurLine.Number() + 1, m_editor->Lines.size());
+	strLineStr = format(L"{0}/{1}"sv, m_editor->m_it_CurLine.Number() + 1, m_editor->Lines.size());
 	const auto strAttr = *AttrStr? L" "s + AttrStr : L""s;
-	const auto StatusLine = format(L"{0:{1}} {2}{3}{4}{5:5} {6:>3} {7:>{8}} {9:>3} {10:<4} {11:>2} {12:<4}{13}",
+	const auto StatusLine = format(L"{0:{1}} {2}{3}{4}{5:5} {6:>3} {7:>{8}} {9:>3} {10:<4} {11:>2} {12:<4}{13}"sv,
 		strLocalTitle, NameLength,
 		m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED)?L'*':L' ',
 		m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE)?L'-':L' ',
@@ -2215,16 +2215,16 @@ void FileEditor::ShowStatus() const
 			switch(m_editor->EdOpt.CharCodeBase)
 			{
 			case 0:
-				CharStr = format(L"{0:>7}", format(L"0{0:o}", CharCode));
+				CharStr = format(L"{0:>7}"sv, format(L"0{0:o}"sv, CharCode));
 				break;
 
 			case 2:
-				CharStr = format(L"{0:4X}h", CharCode);
+				CharStr = format(L"{0:4X}h"sv, CharCode);
 				break;
 
 			case 1:
 			default:
-				CharStr = format(L"{0:5}", CharCode);
+				CharStr = format(L"{0:5}"sv, CharCode);
 				break;
 			}
 
@@ -2242,16 +2242,16 @@ void FileEditor::ShowStatus() const
 					switch(m_editor->EdOpt.CharCodeBase)
 					{
 					case 0:
-						CharStr = format(L"{0:3}", format(L"0{0:o}", CharCode));
+						CharStr = format(L"{0:3}"sv, format(L"0{0:o}"sv, CharCode));
 						break;
 
 					case 2:
-						CharStr = format(L"{0:02X}h", CharCode);
+						CharStr = format(L"{0:02X}h"sv, CharCode);
 						break;
 
 					case 1:
 					default:
-						CharStr = format(L"{0:3}", CharCode);
+						CharStr = format(L"{0:3}"sv, CharCode);
 						break;
 					}
 

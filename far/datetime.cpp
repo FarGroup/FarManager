@@ -60,7 +60,7 @@ static void st_time(string &strDest, const tm *tmPtr, const locale_names& Names,
 
 	if (chr==L'v')
 	{
-		strDest = format(L"{0:2}-{1:3:3}-{2:4}",
+		strDest = format(L"{0:2}-{1:3:3}-{2:4}"sv,
 			tmPtr->tm_mday,
 			Names.Months[tmPtr->tm_mon].Short,
 			tmPtr->tm_year+1900);
@@ -262,14 +262,14 @@ string StrFTime(const wchar_t* Format, const tm* t)
 					//appropriate date and time representation
 				case L'c':
 					// Thu Oct 07 12:37:32 1999
-					strBuf = format(L"{0} {1} {2:02} {3:02}:{4:02}:{5:02} {6:4}",
+					strBuf = format(L"{0} {1} {2:02} {3:02}:{4:02}:{5:02} {6:4}"sv,
 						locale.Names(IsLocal).Weekdays[t->tm_wday].Short,
 						locale.Names(IsLocal).Months[t->tm_mon].Short,
 						t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec, t->tm_year + 1900);
 					break;
 					// Столетие как десятичное число (00 - 99). Например, 1992 => 19
 				case L'C':
-					strBuf = format(L"{0:02}", (t->tm_year + 1900) / 100);
+					strBuf = format(L"{0:02}"sv, (t->tm_year + 1900) / 100);
 					break;
 					// day of month, blank padded
 				case L'e':
@@ -302,7 +302,7 @@ string StrFTime(const wchar_t* Format, const tm* t)
 				// Три цифры дня в году (001 - 366)
 				// day of the year, 001 - 366
 				case L'j':
-					strBuf = format(L"{0:03}", t->tm_yday+1);
+					strBuf = format(L"{0:03}"sv, t->tm_yday+1);
 					break;
 					// Две цифры месяца, как десятичное число (1 - 12)
 					// month, 01 - 12
@@ -321,7 +321,7 @@ string StrFTime(const wchar_t* Format, const tm* t)
 				// Две цифры минут (00 - 59)
 				// minute, 00 - 59
 				case L'M':
-					strBuf = format(L"{0:02}", t->tm_min);
+					strBuf = format(L"{0:02}"sv, t->tm_min);
 					break;
 					// AM или PM
 					// am or pm based on 12-hour clock
@@ -331,7 +331,7 @@ string StrFTime(const wchar_t* Format, const tm* t)
 					// Две цифры секунд (00 - 59)
 					// second, 00 - 59
 				case L'S':
-					strBuf = format(L"{0:02}", t->tm_sec);
+					strBuf = format(L"{0:02}"sv, t->tm_sec);
 					break;
 					// День недели где 0 - Воскресенье (Sunday) (0 - 6)
 					// weekday, Sunday == 0, 0 - 6
@@ -353,7 +353,7 @@ string StrFTime(const wchar_t* Format, const tm* t)
 					if (I<0)
 						I+=7;
 
-					strBuf = format(L"{0:02}", (t->tm_yday + I - (*Format == L'W')) / 7);
+					strBuf = format(L"{0:02}"sv, (t->tm_yday + I - (*Format == L'W')) / 7);
 					break;
 				}
 				// date as dd-bbb-YYYY
@@ -368,13 +368,13 @@ string StrFTime(const wchar_t* Format, const tm* t)
 					// appropriate time representation
 				case L'T':
 				case L'X':
-					strBuf = format(L"{1:02}{0}{2:02}{0}{3:02}", locale.time_separator(), t->tm_hour, t->tm_min, t->tm_sec);
+					strBuf = format(L"{1:02}{0}{2:02}{0}{3:02}"sv, locale.time_separator(), t->tm_hour, t->tm_min, t->tm_sec);
 					break;
 
 				// Две цифры года без столетия (00 to 99)
 				// year without a century, 00 - 99
 				case L'y':
-					strBuf = format(L"{0:02}", t->tm_year % 100);
+					strBuf = format(L"{0:02}"sv, t->tm_year % 100);
 					break;
 					// Год со столетием (19yy-20yy)
 					// year with century
@@ -386,7 +386,7 @@ string StrFTime(const wchar_t* Format, const tm* t)
 					{
 						using namespace std::chrono;
 						const auto Offset = split_duration<hours, minutes>(-seconds(_timezone + (t->tm_isdst? _dstbias : 0)));
-						strBuf = format(L"{0:+05}", Offset.get<hours>().count() * 100 + Offset.get<minutes>().count());
+						strBuf = format(L"{0:+05}"sv, Offset.get<hours>().count() * 100 + Offset.get<minutes>().count());
 					}
 					break;
 					// Timezone name or abbreviation
@@ -414,7 +414,7 @@ string StrFTime(const wchar_t* Format, const tm* t)
 					break;
 					// week of year according ISO 8601
 				case L'V':
-					strBuf = format(L"{0:02}", iso8601wknum(t));
+					strBuf = format(L"{0:02}"sv, iso8601wknum(t));
 					break;
 			}
 
@@ -552,11 +552,11 @@ void ConvertDate(os::chrono::time_point Point, string& strDateText, string& strT
 
 	if (TimeLength < 7)
 	{
-		strTimeText = format(L"{0:02}{1}{2:02}{3}", st.wHour, TimeSeparator, st.wMinute, Letter);
+		strTimeText = format(L"{0:02}{1}{2:02}{3}"sv, st.wHour, TimeSeparator, st.wMinute, Letter);
 	}
 	else
 	{
-		strTimeText = cut_right(format(L"{0:02}{1}{2:02}{1}{3:02}{4}{5:03}",
+		strTimeText = cut_right(format(L"{0:02}{1}{2:02}{1}{3:02}{4}{5:03}"sv,
 			st.wHour, TimeSeparator, st.wMinute, st.wSecond, DecimalSeparator, st.wMilliseconds), TimeLength);
 	}
 
@@ -614,7 +614,7 @@ void ConvertDate(os::chrono::time_point Point, string& strDateText, string& strT
 		strDateText.resize(TextMonth? 6 : 5);
 
 		if (get_local_time().wYear != st.wYear)
-			strTimeText = format(L"{0:5}", st.wYear);
+			strTimeText = format(L"{0:5}"sv, st.wYear);
 	}
 }
 
@@ -626,7 +626,7 @@ void ConvertDuration(os::chrono::duration Duration, string& strDaysText, string&
 	const auto Result = split_duration<days, hours, minutes, seconds, milliseconds>(Duration);
 
 	strDaysText = str(Result.get<days>().count());
-	strTimeText = format(L"{0:02}{4}{1:02}{4}{2:02}{5}{3:03}",
+	strTimeText = format(L"{0:02}{4}{1:02}{4}{2:02}{5}{3:03}"sv,
 		Result.get<hours>().count(),
 		Result.get<minutes>().count(),
 		Result.get<seconds>().count(),

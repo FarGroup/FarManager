@@ -126,7 +126,7 @@ static int LastScrY = -1;
 string& ConvertTemplateTreeName(string &strDest, const string &strTemplate, const wchar_t *D, DWORD SN, const wchar_t *L, const wchar_t *SR, const wchar_t *SH)
 {
 	strDest=strTemplate;
-	const auto strDiskNumber = format(L"{0:04X}-{1:04X}", HIWORD(SN), LOWORD(SN));
+	const auto strDiskNumber = format(L"{0:04X}-{1:04X}"sv, HIWORD(SN), LOWORD(SN));
 	/*
     	 %D    - буква диска
 	     %SN   - серийный номер
@@ -135,11 +135,11 @@ string& ConvertTemplateTreeName(string &strDest, const string &strTemplate, cons
     	 %SH   - share name
 	*/
 	string strDiskLetter(D ? D : L"", 1);
-	ReplaceStrings(strDest, L"%D"sv, strDiskLetter);
-	ReplaceStrings(strDest, L"%SN"sv, strDiskNumber);
-	ReplaceStrings(strDest, L"%L"sv, L && *L? L : L"");
-	ReplaceStrings(strDest, L"%SR"sv, SR && *SR? SR : L"");
-	ReplaceStrings(strDest, L"%SH"sv, SH && *SH? SH : L"");
+	replace(strDest, L"%D"sv, strDiskLetter);
+	replace(strDest, L"%SN"sv, strDiskNumber);
+	replace(strDest, L"%L"sv, L && *L? L : L"");
+	replace(strDest, L"%SR"sv, SR && *SR? SR : L"");
+	replace(strDest, L"%SH"sv, SH && *SH? SH : L"");
 
 	return strDest;
 }
@@ -318,7 +318,7 @@ static bool GetCacheTreeName(const string& Root, string& strName, int CreateDir)
 	}
 
 	std::replace(ALL_RANGE(strRemoteName), L'\\', L'_');
-	strName = format(L"{0}\\{1}.{2:X}.{3}.{4}", strFolderName, strVolumeName, dwVolumeSerialNumber, strFileSystemName, strRemoteName);
+	strName = format(L"{0}\\{1}.{2:X}.{3}.{4}"sv, strFolderName, strVolumeName, dwVolumeSerialNumber, strFileSystemName, strRemoteName);
 	return true;
 }
 

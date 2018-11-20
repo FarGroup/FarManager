@@ -411,7 +411,7 @@ DialogItemEx *DialogBuilder::AddIntEditField(IntOption& Value, int Width)
 DialogItemEx *DialogBuilder::AddHexEditField(IntOption& Value, int Width)
 {
 	const auto Item = AddDialogItem(DI_FIXEDIT, L"");
-	Item->strData = format(L"{0:016X}", as_unsigned(Value.Get()));
+	Item->strData = format(L"{0:016X}"sv, as_unsigned(Value.Get()));
 	SetNextY(Item);
 	Item->X2 = Item->X1 + Width - 1;
 

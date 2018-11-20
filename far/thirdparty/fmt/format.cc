@@ -9,14 +9,13 @@
 
 FMT_BEGIN_NAMESPACE
 template struct internal::basic_data<void>;
+template internal::locale_ref::locale_ref(const std::locale &loc);
 
 // Explicit instantiations for char.
 
-template FMT_API char internal::thousands_sep(locale_provider *lp);
+template FMT_API char internal::thousands_sep_impl(locale_ref);
 
 template void internal::basic_buffer<char>::append(const char *, const char *);
-
-template void basic_fixed_buffer<char>::grow(std::size_t);
 
 template void internal::arg_map<format_context>::init(
     const basic_format_args<format_context> &args);
@@ -30,14 +29,20 @@ template FMT_API int internal::char_traits<char>::format_float(
 template FMT_API std::string internal::vformat<char>(
     string_view, basic_format_args<format_context>);
 
+template format_context::iterator internal::vformat_to(
+    internal::buffer &, string_view, basic_format_args<format_context>);
+
+template FMT_API void internal::sprintf_format(
+    double, internal::buffer &, core_format_specs);
+template FMT_API void internal::sprintf_format(
+    long double, internal::buffer &, core_format_specs);
+
 // Explicit instantiations for wchar_t.
 
-template FMT_API wchar_t internal::thousands_sep(locale_provider *);
+template FMT_API wchar_t internal::thousands_sep_impl(locale_ref);
 
 template void internal::basic_buffer<wchar_t>::append(
     const wchar_t *, const wchar_t *);
-
-template void basic_fixed_buffer<wchar_t>::grow(std::size_t);
 
 template void internal::arg_map<wformat_context>::init(
     const basic_format_args<wformat_context> &);

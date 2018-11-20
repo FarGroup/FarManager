@@ -351,7 +351,7 @@ void InfoList::DisplayObject()
 				break;
 			}
 
-			strDiskNumber = format(L"{0:04X}-{1:04X}", HIWORD(VolumeNumber), LOWORD(VolumeNumber));
+			strDiskNumber = format(L"{0:04X}-{1:04X}"sv, HIWORD(VolumeNumber), LOWORD(VolumeNumber));
 		}
 		else // Error!
 			SectionTitle = strDriveRoot;

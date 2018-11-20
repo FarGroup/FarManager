@@ -142,7 +142,7 @@ void QuickView::DisplayObject()
 		GotoXY(m_Where.left + 2, m_Where.top + 2);
 		auto DisplayName = strCurFileName;
 		TruncPathStr(DisplayName, std::max(0, m_Where.width() - 2 - static_cast<int>(msg(lng::MQuickViewFolder).size() - 5)));
-		PrintText(format(LR"({0} "{1}")", msg(lng::MQuickViewFolder), DisplayName));
+		PrintText(format(LR"({0} "{1}")"sv, msg(lng::MQuickViewFolder), DisplayName));
 
 		const auto currAttr = os::fs::get_file_attributes(strCurFileName); // обламывается, если нет доступа
 		if (currAttr != INVALID_FILE_ATTRIBUTES && (currAttr&FILE_ATTRIBUTE_REPARSE_POINT))
@@ -214,7 +214,7 @@ void QuickView::DisplayObject()
 
 				default:
 					TypeName = Global->Opt->ShowUnknownReparsePoint?
-						format(L":{0:0>8X}", ReparseTag) :
+						format(L":{0:0>8X}"sv, ReparseTag) :
 						msg(lng::MQuickViewUnknownReparsePoint);
 					break;
 				}
@@ -228,7 +228,7 @@ void QuickView::DisplayObject()
 			TruncPathStr(Target, std::max(0, m_Where.width() - 2 - static_cast<int>(TypeName.size()) - 5));
 			SetColor(COL_PANELTEXT);
 			GotoXY(m_Where.left + 2, m_Where.top + 3);
-			PrintText(format(LR"({0} "{1}")", TypeName, Target));
+			PrintText(format(LR"({0} "{1}")"sv, TypeName, Target));
 		}
 
 		const auto bytes_suffix = upper(msg(lng::MListBytes));

@@ -107,8 +107,8 @@ public:
 
 static bool OpenURL(const string& URLPath);
 
-static const wchar_t HelpFormatLink[] = L"<{0}\\>{1}";
-static const wchar_t HelpFormatLinkModule[] = L"<{0}>{1}";
+static const auto HelpFormatLink = L"<{0}\\>{1}"sv;
+static const auto HelpFormatLinkModule = L"<{0}>{1}"sv;
 
 class Help :public Modal
 {
@@ -494,9 +494,9 @@ bool Help::ReadHelp(const string& Mask)
 			const auto& escape = [](string_view const Str)
 			{
 				string Result(Str);
-				ReplaceStrings(Result, L"~"sv, L"~~"sv);
-				ReplaceStrings(Result, L"#"sv, L"##"sv);
-				ReplaceStrings(Result, L"@"sv, L"@@"sv);
+				replace(Result, L"~"sv, L"~~"sv);
+				replace(Result, L"#"sv, L"##"sv);
+				replace(Result, L"@"sv, L"@@"sv);
 				return Result;
 			};
 
@@ -2159,9 +2159,9 @@ static bool OpenURL(const string& URLPath)
 
 	string FilteredURLPath(URLPath);
 	// удалим два идущих подряд ~~
-	ReplaceStrings(FilteredURLPath, L"~~"sv, L"~"sv);
+	replace(FilteredURLPath, L"~~"sv, L"~"sv);
 	// удалим два идущих подряд ##
-	ReplaceStrings(FilteredURLPath, L"##"sv, L"#"sv);
+	replace(FilteredURLPath, L"##"sv, L"#"sv);
 
 	if (FilteredURLPath.empty())
 		return false;

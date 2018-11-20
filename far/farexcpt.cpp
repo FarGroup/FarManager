@@ -520,7 +520,7 @@ static bool ProcessGenericException(
 	{
 		const auto ItemIterator = std::find_if(CONST_RANGE(KnownExceptions, i) { return i.second == Code; });
 		const auto Name = ItemIterator != std::cend(KnownExceptions)? ItemIterator->first : L"Unknown exception"sv;
-		return format(L"0x{0:0>8X} - {1}", static_cast<DWORD>(Code), Name);
+		return format(L"0x{0:0>8X} - {1}"sv, static_cast<DWORD>(Code), Name);
 	}(Context.code());
 
 	string Details;
@@ -542,7 +542,7 @@ static bool ProcessGenericException(
 				}
 			}(xr->ExceptionInformation[0]);
 
-			Details = format(L"Memory at {0} could not be {1}", AccessedAddress, Mode);
+			Details = format(L"Memory at {0} could not be {1}"sv, AccessedAddress, Mode);
 		}
 		break;
 

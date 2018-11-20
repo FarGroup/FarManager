@@ -1437,10 +1437,10 @@ static void TestIfExistDefined()
 		},
 	};
 
-	const auto& Exist      = [](string_view const Str) { EXPECT_EQ(L"bar", Str); return true; };
-	const auto& NotExist   = [](string_view const Str) { EXPECT_EQ(L"bar", Str); return false; };
-	const auto& Defined    = [](string_view const Str) { EXPECT_EQ(L"ham", Str); return true; };
-	const auto& NotDefined = [](string_view const Str) { EXPECT_EQ(L"ham", Str); return false; };
+	const auto& Exist      = [](string_view const Str) { EXPECT_EQ(L"bar"sv, Str); return true; };
+	const auto& NotExist   = [](string_view const Str) { EXPECT_EQ(L"bar"sv, Str); return false; };
+	const auto& Defined    = [](string_view const Str) { EXPECT_EQ(L"ham"sv, Str); return true; };
+	const auto& NotDefined = [](string_view const Str) { EXPECT_EQ(L"ham"sv, Str); return false; };
 
 	for (const auto& i: Tests)
 	{

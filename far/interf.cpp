@@ -786,14 +786,14 @@ static void HiTextBase(const string& Str, const std::function<void(const string&
 				HilightHandler(Str[AmpBegin + 1]);
 
 				string RightPart = Str.substr(AmpBegin + 1);
-				ReplaceStrings(RightPart, L"&&"sv, L"&"sv);
+				replace(RightPart, L"&&"sv, L"&"sv);
 				TextHandler(RightPart.substr(1));
 			}
 		}
 		else
 		{
 			string StrCopy(Str);
-			ReplaceStrings(StrCopy, L"&&"sv, L"&"sv);
+			replace(StrCopy, L"&&"sv, L"&"sv);
 			TextHandler(StrCopy);
 		}
 	}
@@ -1098,7 +1098,7 @@ string make_progressbar(size_t Size, size_t Percent, bool ShowPercent, bool Prop
 	string StrPercent;
 	if (ShowPercent)
 	{
-		StrPercent = format(L" {0:3}%", Percent);
+		StrPercent = format(L" {0:3}%"sv, Percent);
 		Size = Size > StrPercent.size()? Size - StrPercent.size(): 0;
 	}
 	string Str(Size, BoxSymbols[BS_X_B0]);

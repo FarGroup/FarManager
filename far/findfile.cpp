@@ -1361,7 +1361,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS, UNSAFE_CSTR(strSearchStr + strFM));
 			if (!strFindStr.empty())
 			{
-				Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS_PERCENTS, UNSAFE_CSTR(format(L"{0:3}%", itd->GetPercent())));
+				Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS_PERCENTS, UNSAFE_CSTR(format(L"{0:3}%"sv, itd->GetPercent())));
 			}
 
 			if (m_LastFoundNumber)

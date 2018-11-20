@@ -85,7 +85,7 @@ static void GetSymbols(const std::vector<const void*>& BackTrace, const std::fun
 	IMAGEHLP_LINE64 Line{ sizeof(Line) };
 	DWORD Displacement;
 
-	const auto MaxAddressSize = format(L"{0:0X}", reinterpret_cast<uintptr_t>(*std::max_element(ALL_CONST_RANGE(BackTrace)))).size();
+	const auto MaxAddressSize = format(L"{0:0X}"sv, reinterpret_cast<uintptr_t>(*std::max_element(ALL_CONST_RANGE(BackTrace)))).size();
 
 	for (const auto i: BackTrace)
 	{
@@ -103,11 +103,11 @@ static void GetSymbols(const std::vector<const void*>& BackTrace, const std::fun
 					L"<unknown> (get the pdb)"s);
 
 			sLocation = imports.SymGetLineFromAddr64(Process, Address, &Displacement, &Line)?
-				format(L"{0}:{1}", encoding::ansi::get_chars(Line.FileName), Line.LineNumber) :
+				format(L"{0}:{1}"sv, encoding::ansi::get_chars(Line.FileName), Line.LineNumber) :
 				L""s;
 		}
 
-		Consumer(format(L"0x{0:0{1}X}", Address, MaxAddressSize), std::move(sFunction), std::move(sLocation));
+		Consumer(format(L"0x{0:0{1}X}"sv, Address, MaxAddressSize), std::move(sFunction), std::move(sLocation));
 	}
 }
 

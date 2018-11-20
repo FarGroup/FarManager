@@ -792,9 +792,9 @@ F8CP::F8CP(bool viewer):
 	m_OemName(msg(Global->OnlyEditorViewerUsed? (viewer? lng::MSingleViewF8DOS : lng::MSingleEditF8DOS) : (viewer? lng::MViewF8DOS : lng::MEditF8DOS))),
 	m_UtfName(L"UTF-8"sv)
 {
-	uintptr_t defcp = viewer ? Global->Opt->ViOpt.DefaultCodePage : Global->Opt->EdOpt.DefaultCodePage;
+	uintptr_t defcp = viewer? Global->Opt->ViOpt.DefaultCodePage : Global->Opt->EdOpt.DefaultCodePage;
 
-	string cps(viewer ? Global->Opt->ViOpt.strF8CPs : Global->Opt->EdOpt.strF8CPs);
+	const auto& cps = (viewer? Global->Opt->ViOpt.strF8CPs : Global->Opt->EdOpt.strF8CPs).Get();
 	if (cps != L"-1"sv)
 	{
 		std::unordered_set<uintptr_t> used_cps;
@@ -843,7 +843,7 @@ uintptr_t F8CP::NextCP(uintptr_t cp) const
 	return curr != m_F8CpOrder.cend() && ++curr != m_F8CpOrder.cend()? *curr : *m_F8CpOrder.cbegin();
 }
 
-const string& F8CP::NextCPname(uintptr_t cp) const
+string F8CP::NextCPname(uintptr_t cp) const
 {
 	const auto next_cp = NextCP(cp);
 	if (next_cp == encoding::codepage::ansi())
@@ -855,5 +855,5 @@ const string& F8CP::NextCPname(uintptr_t cp) const
 	if (next_cp == CP_UTF8)
 		return m_UtfName;
 
-	return m_Number = str(next_cp);
+	return str(next_cp);
 }

@@ -119,7 +119,7 @@ public:
 		if (!Translation)
 			return false;
 
-		m_BlockPath = format(L"\\StringFileInfo\\{0:04X}{1:04X}\\", LOWORD(*Translation), HIWORD(*Translation));
+		m_BlockPath = format(L"\\StringFileInfo\\{0:04X}{1:04X}\\"sv, LOWORD(*Translation), HIWORD(*Translation));
 		return true;
 	}
 

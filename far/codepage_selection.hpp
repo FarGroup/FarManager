@@ -122,11 +122,10 @@ public:
 	explicit F8CP(bool viewer = false);
 
 	uintptr_t NextCP(uintptr_t cp) const;
-	const string& NextCPname(uintptr_t cp) const;
+	string NextCPname(uintptr_t cp) const;
 
 private:
 	string m_AcpName, m_OemName, m_UtfName;
-	mutable string m_Number;
 	std::vector<uintptr_t> m_F8CpOrder;
 };
 

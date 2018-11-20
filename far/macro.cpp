@@ -3043,7 +3043,7 @@ static bool menushowFunc(FarMacroCall* Data)
 	string strBottom;
 	TVar& Items(Params[0]);
 	string strItems = Items.toString();
-	ReplaceStrings(strItems, L"\r\n"sv, L"\n"sv);
+	replace(strItems, L"\r\n"sv, L"\n"sv);
 
 	if (strItems.back() != L'\n')
 		strItems += L'\n';
@@ -3084,7 +3084,7 @@ static bool menushowFunc(FarMacroCall* Data)
 	int SelectedPos=0;
 	int LineCount=0;
 	size_t CurrentPos=0;
-	ReplaceStrings(strTitle, L"\r\n"sv, L"\n"sv);
+	replace(strTitle, L"\r\n"sv, L"\n"sv);
 	auto PosLF = strTitle.find(L'\n');
 	bool CRFound = PosLF != string::npos;
 
@@ -3141,7 +3141,7 @@ static bool menushowFunc(FarMacroCall* Data)
 		if (bAutoNumbering && !(bSorting || bPacking) && !(NewItem.Flags & LIF_SEPARATOR))
 		{
 			LineCount++;
-			NewItem.Name = format(L"{0:{1}} - {2}", LineCount, nLeftShift - 3, NewItem.Name);
+			NewItem.Name = format(L"{0:{1}} - {2}"sv, LineCount, nLeftShift - 3, NewItem.Name);
 		}
 		Menu->AddItem(NewItem);
 		CurrentPos=PosLF+1;
@@ -3176,7 +3176,7 @@ static bool menushowFunc(FarMacroCall* Data)
 			if (!(Item.Flags & LIF_SEPARATOR))
 			{
 				LineCount++;
-				Item.Name = format(L"{0:{1}} - {2}", LineCount, nLeftShift - 3, Item.Name);
+				Item.Name = format(L"{0:{1}} - {2}"sv, LineCount, nLeftShift - 3, Item.Name);
 			}
 		}
 	}
@@ -3387,8 +3387,8 @@ static bool panelselectFunc(FarMacroCall* Data)
 		if (Mode == 2 || Mode == 3)
 		{
 			string strStr=ValItems.asString();
-			ReplaceStrings(strStr, L"\r"sv, L"\n"sv);
-			ReplaceStrings(strStr, L"\n\n"sv, L"\n"sv);
+			replace(strStr, L"\r"sv, L"\n"sv);
+			replace(strStr, L"\n\n"sv, L"\n"sv);
 			ValItems=strStr;
 		}
 

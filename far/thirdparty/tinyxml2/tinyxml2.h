@@ -98,13 +98,13 @@ distribution.
 /* Versioning, past 1.0.14:
 	http://semver.org/
 */
-static const int TIXML2_MAJOR_VERSION = 6;
-static const int TIXML2_MINOR_VERSION = 2;
-static const int TIXML2_PATCH_VERSION = 0;
+static const int TIXML2_MAJOR_VERSION = 7;
+static const int TIXML2_MINOR_VERSION = 0;
+static const int TIXML2_PATCH_VERSION = 1;
 
-#define TINYXML2_MAJOR_VERSION 6
-#define TINYXML2_MINOR_VERSION 2
-#define TINYXML2_PATCH_VERSION 0
+#define TINYXML2_MAJOR_VERSION 7
+#define TINYXML2_MINOR_VERSION 0
+#define TINYXML2_PATCH_VERSION 1
 
 // A fixed element depth limit is problematic. There needs to be a
 // limit to avoid a stack overflow. However, that limit varies per
@@ -129,8 +129,10 @@ class XMLPrinter;
 	pointers into the XML file itself, and will apply normalization
 	and entity translation if actually read. Can also store (and memory
 	manage) a traditional char[]
+
+    Isn't clear why TINYXML2_LIB is needed; but seems to fix #719
 */
-class StrPair
+class TINYXML2_LIB StrPair
 {
 public:
     enum {
@@ -190,7 +192,7 @@ private:
     char*   _end;
 
     StrPair( const StrPair& other );	// not supported
-    void operator=( StrPair& other );	// not supported, use TransferTo()
+    void operator=( const StrPair& other );	// not supported, use TransferTo()
 };
 
 
@@ -288,7 +290,7 @@ public:
         return _mem;
     }
 
-    T* Mem()							{
+    T* Mem() {
         TIXMLASSERT( _mem );
         return _mem;
     }
@@ -937,7 +939,7 @@ public:
 	void* GetUserData() const			{ return _userData; }
 
 protected:
-    XMLNode( XMLDocument* );
+    explicit XMLNode( XMLDocument* );
     virtual ~XMLNode();
 
     virtual char* ParseDeep( char* p, StrPair* parentEndTag, int* curLineNumPtr);
@@ -1005,7 +1007,7 @@ public:
     virtual bool ShallowEqual( const XMLNode* compare ) const;
 
 protected:
-    XMLText( XMLDocument* doc )	: XMLNode( doc ), _isCData( false )	{}
+    explicit XMLText( XMLDocument* doc )	: XMLNode( doc ), _isCData( false )	{}
     virtual ~XMLText()												{}
 
     char* ParseDeep( char* p, StrPair* parentEndTag, int* curLineNumPtr );
@@ -1036,7 +1038,7 @@ public:
     virtual bool ShallowEqual( const XMLNode* compare ) const;
 
 protected:
-    XMLComment( XMLDocument* doc );
+    explicit XMLComment( XMLDocument* doc );
     virtual ~XMLComment();
 
     char* ParseDeep( char* p, StrPair* parentEndTag, int* curLineNumPtr);
@@ -1075,7 +1077,7 @@ public:
     virtual bool ShallowEqual( const XMLNode* compare ) const;
 
 protected:
-    XMLDeclaration( XMLDocument* doc );
+    explicit XMLDeclaration( XMLDocument* doc );
     virtual ~XMLDeclaration();
 
     char* ParseDeep( char* p, StrPair* parentEndTag, int* curLineNumPtr );
@@ -1110,7 +1112,7 @@ public:
     virtual bool ShallowEqual( const XMLNode* compare ) const;
 
 protected:
-    XMLUnknown( XMLDocument* doc );
+    explicit XMLUnknown( XMLDocument* doc );
     virtual ~XMLUnknown();
 
     char* ParseDeep( char* p, StrPair* parentEndTag, int* curLineNumPtr );
@@ -1900,7 +1902,7 @@ private:
 	// the stack. Track stack depth, and error out if needed.
 	class DepthTracker {
 	public:
-		DepthTracker(XMLDocument * document) {
+		explicit DepthTracker(XMLDocument * document) {
 			this->_document = document;
 			document->PushDepth();
 		}
@@ -1989,10 +1991,10 @@ class TINYXML2_LIB XMLHandle
 {
 public:
     /// Create a handle from any node (at any depth of the tree.) This can be a null pointer.
-    XMLHandle( XMLNode* node ) : _node( node ) {
+    explicit XMLHandle( XMLNode* node ) : _node( node ) {
     }
     /// Create a handle from a node.
-    XMLHandle( XMLNode& node ) : _node( &node ) {
+    explicit XMLHandle( XMLNode& node ) : _node( &node ) {
     }
     /// Copy constructor
     XMLHandle( const XMLHandle& ref ) : _node( ref._node ) {
@@ -2069,9 +2071,9 @@ private:
 class TINYXML2_LIB XMLConstHandle
 {
 public:
-    XMLConstHandle( const XMLNode* node ) : _node( node ) {
+    explicit XMLConstHandle( const XMLNode* node ) : _node( node ) {
     }
-    XMLConstHandle( const XMLNode& node ) : _node( &node ) {
+    explicit XMLConstHandle( const XMLNode& node ) : _node( &node ) {
     }
     XMLConstHandle( const XMLConstHandle& ref ) : _node( ref._node ) {
     }

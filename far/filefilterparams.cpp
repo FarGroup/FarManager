@@ -465,7 +465,7 @@ string MenuString(const FileFilterParams* const FF, bool const bHighlightType, w
 	{
 		if (FF->GetContinueProcessing())
 			SizeDate[3]=DownArrow;
-		strDest = format(L"{1:3} {0} {2} {3} {0} {4}", BoxSymbols[BS_V1], MarkChar, Attr, SizeDate, Mask);
+		strDest = format(L"{1:3} {0} {2} {3} {0} {4}"sv, BoxSymbols[BS_V1], MarkChar, Attr, SizeDate, Mask);
 	}
 	else
 	{
@@ -473,14 +473,14 @@ string MenuString(const FileFilterParams* const FF, bool const bHighlightType, w
 
 		if (!Hotkey && !bPanelType)
 		{
-			strDest = format(L"{1:{2}.{2}} {0} {3} {4} {0} {5}", BoxSymbols[BS_V1], Name, 21 + (contains(Name, L'&')? 1 : 0), Attr, SizeDate, Mask);
+			strDest = format(L"{1:{2}.{2}} {0} {3} {4} {0} {5}"sv, BoxSymbols[BS_V1], Name, 21 + (contains(Name, L'&')? 1 : 0), Attr, SizeDate, Mask);
 		}
 		else
 		{
 			if (Hotkey)
-				strDest = format(L"&{1}. {2:18.18} {0} {3} {4} {0} {5}", BoxSymbols[BS_V1], Hotkey, Name, Attr, SizeDate, Mask);
+				strDest = format(L"&{1}. {2:18.18} {0} {3} {4} {0} {5}"sv, BoxSymbols[BS_V1], Hotkey, Name, Attr, SizeDate, Mask);
 			else
-				strDest = format(L"   {1:18.18} {0} {2} {3} {0} {4}", BoxSymbols[BS_V1], Name, Attr, SizeDate, Mask);
+				strDest = format(L"   {1:18.18} {0} {2} {3} {0} {4}"sv, BoxSymbols[BS_V1], Name, Attr, SizeDate, Mask);
 		}
 	}
 
@@ -855,19 +855,19 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	case 0:
 	case 1:
 		// Маска даты для форматов DD.MM.YYYYY и MM.DD.YYYYY
-		strDateMask = format(L"99{0}99{0}9999N", DateSeparator);
+		strDateMask = format(L"99{0}99{0}9999N"sv, DateSeparator);
 		DateRanges = {{ { 0, 2 }, { 3, 2 }, { 6, 5 } }};
 		break;
 
 	default:
 		// Маска даты для формата YYYYY.MM.DD
-		strDateMask = format(L"N9999{0}99{0}99", DateSeparator);
+		strDateMask = format(L"N9999{0}99{0}99"sv, DateSeparator);
 		DateRanges = {{ { 0, 5 }, { 6, 2 }, { 9, 2 } }};
 		break;
 	}
 
 	// Маска времени
-	const auto strTimeMask = format(L"99{0}99{0}99{1}999", TimeSeparator, DecimalSeparator);
+	const auto strTimeMask = format(L"99{0}99{0}99{1}999"sv, TimeSeparator, DecimalSeparator);
 	const time_ranges TimeRanges{{ {0, 2}, {3, 2}, {6, 2}, {9, 3} }};
 	const wchar_t VerticalLine[] = {BoxSymbols[BS_T_H1V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_B_H1V1],0};
 
