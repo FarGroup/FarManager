@@ -182,7 +182,7 @@ highlight::configuration::configuration()
 	UpdateCurrentTime();
 }
 
-static void LoadFilter(const HierarchicalConfig* cfg, const HierarchicalConfig::key& key, FileFilterParams& HData, int SortGroup, bool bSortGroup)
+static void LoadFilter(/*const*/ HierarchicalConfig* cfg, const HierarchicalConfig::key& key, FileFilterParams& HData, int SortGroup, bool bSortGroup)
 {
 	FileFilter::LoadFilter(cfg, key.get(), HData);
 
@@ -211,7 +211,7 @@ static void LoadFilter(const HierarchicalConfig* cfg, const HierarchicalConfig::
 	HData.SetContinueProcessing(ContinueProcessing!=0);
 }
 
-void highlight::configuration::InitHighlightFiles(const HierarchicalConfig* cfg)
+void highlight::configuration::InitHighlightFiles(/*const*/ HierarchicalConfig* cfg)
 {
 	const struct
 	{

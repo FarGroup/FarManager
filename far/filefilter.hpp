@@ -69,7 +69,7 @@ public:
 	bool IsEnabledOnPanel();
 
 	static void InitFilter();
-	static void LoadFilter(const HierarchicalConfig* cfg, unsigned long long Key, FileFilterParams& Item);
+	static void LoadFilter(/*const*/ HierarchicalConfig* cfg, unsigned long long Key, FileFilterParams& Item);
 	static void SaveFilter(HierarchicalConfig *cfg, unsigned long long Key, const FileFilterParams& Item);
 	static void CloseFilter();
 	static void SwapFilter();

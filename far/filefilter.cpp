@@ -78,7 +78,7 @@ static const struct
 	UseSize, SizeAbove, SizeBelow,
 	UseHardLinks, HardLinksAbove, HardLinksBelow;
 }
-Strings =
+Strings
 {
 	L"Filters"sv,
 	L"Filter"sv,
@@ -91,6 +91,29 @@ Strings =
 	L"UseDate"sv, L"DateType"sv, L"DateTimeAfter"sv, L"DateTimeBefore"sv, L"DateRelative"sv,
 	L"UseSize"sv, L"SizeAboveS"sv, L"SizeBelowS"sv,
 	L"UseHardLinks"sv, L"HardLinksAbove"sv, L"HardLinksBelow"sv,
+};
+
+// Old format
+// TODO 2019 Q4: remove
+static const struct
+{
+	const string_view
+	
+	IgnoreMask,
+	DateAfter,
+	DateBefore,
+	RelativeDate,
+	IncludeAttributes,
+	ExcludeAttributes;
+}
+LegacyStrings
+{
+	L"IgnoreMask"sv,
+	L"DateAfter"sv,
+	L"DateBefore"sv,
+	L"RelativeDate"sv,
+	L"IncludeAttributes"sv,
+	L"ExcludeAttributes"sv,
 };
 
 static auto& FilterData()
@@ -730,7 +753,7 @@ bool FileFilter::IsEnabledOnPanel()
 	return std::any_of(CONST_RANGE(TempFilterData(), i) { return i.GetFlags(FFFT); });
 }
 
-void FileFilter::LoadFilter(const HierarchicalConfig* cfg, unsigned long long KeyId, FileFilterParams& Item)
+void FileFilter::LoadFilter(/*const*/ HierarchicalConfig* cfg, unsigned long long KeyId, FileFilterParams& Item)
 {
 	HierarchicalConfig::key Key(KeyId);
 
@@ -739,17 +762,46 @@ void FileFilter::LoadFilter(const HierarchicalConfig* cfg, unsigned long long Ke
 	Item.SetTitle(Title);
 
 	unsigned long long UseMask = 1;
-	cfg->GetValue(Key, Strings.UseMask, UseMask);
+	if (!cfg->GetValue(Key, Strings.UseMask, UseMask))
+	{
+		// Old format
+		// TODO 2019 Q4: remove
+		unsigned long long IgnoreMask = 0;
+		if (cfg->GetValue(Key, LegacyStrings.IgnoreMask, IgnoreMask))
+		{
+			UseMask = !IgnoreMask;
+			cfg->SetValue(Key, Strings.UseMask, UseMask);
+			cfg->DeleteValue(Key, LegacyStrings.IgnoreMask);
+		}
+	}
 
 	string Mask;
 	cfg->GetValue(Key, Strings.Mask, Mask);
 	Item.SetMask(UseMask != 0, Mask);
 
 	unsigned long long DateAfter = 0;
-	cfg->GetValue(Key, Strings.DateTimeAfter, DateAfter);
+	if (!cfg->GetValue(Key, Strings.DateTimeAfter, DateAfter))
+	{
+		// Old format
+		// TODO 2019 Q4: remove
+		if (cfg->GetValue(Key, LegacyStrings.DateAfter, bytes::reference(DateAfter)))
+		{
+			cfg->SetValue(Key, Strings.DateTimeAfter, DateAfter);
+			cfg->DeleteValue(Key, LegacyStrings.DateAfter);
+		}
+	}
 
 	unsigned long long DateBefore = 0;
-	cfg->GetValue(Key, Strings.DateTimeBefore, DateBefore);
+	if (!cfg->GetValue(Key, Strings.DateTimeBefore, DateBefore))
+	{
+		// Old format
+		// TODO 2019 Q4: remove
+		if (cfg->GetValue(Key, LegacyStrings.DateBefore, bytes::reference(DateBefore)))
+		{
+			cfg->SetValue(Key, Strings.DateTimeBefore, DateBefore);
+			cfg->DeleteValue(Key, LegacyStrings.DateBefore);
+		}
+	}
 
 	unsigned long long UseDate = 0;
 	cfg->GetValue(Key, Strings.UseDate, UseDate);
@@ -758,7 +810,16 @@ void FileFilter::LoadFilter(const HierarchicalConfig* cfg, unsigned long long Ke
 	cfg->GetValue(Key, Strings.DateType, DateType);
 
 	unsigned long long DateRelative = 0;
-	cfg->GetValue(Key, Strings.DateRelative, DateRelative);
+	if (!cfg->GetValue(Key, Strings.DateRelative, DateRelative))
+	{
+		// Old format
+		// TODO 2019 Q4: remove
+		if (cfg->GetValue(Key, LegacyStrings.RelativeDate, DateRelative))
+		{
+			cfg->SetValue(Key, Strings.DateRelative, DateRelative);
+			cfg->DeleteValue(Key, LegacyStrings.RelativeDate);
+		}
+	}
 
 	Item.SetDate(UseDate != 0, static_cast<enumFDateType>(DateType), DateRelative?
 		filter_dates(os::chrono::duration(DateAfter), os::chrono::duration(DateBefore)) :
@@ -786,13 +847,40 @@ void FileFilter::LoadFilter(const HierarchicalConfig* cfg, unsigned long long Ke
 	Item.SetHardLinks(UseHardLinks != 0, HardLinksAbove, HardLinksBelow);
 
 	unsigned long long AttrSet = 0;
-	cfg->GetValue(Key, Strings.AttrSet, AttrSet);
+	if (!cfg->GetValue(Key, Strings.AttrSet, AttrSet))
+	{
+		// Old format
+		// TODO 2019 Q4: remove
+		if (cfg->GetValue(Key, LegacyStrings.IncludeAttributes, AttrSet))
+		{
+			cfg->SetValue(Key, LegacyStrings.IncludeAttributes, AttrSet);
+			cfg->DeleteValue(Key, LegacyStrings.IncludeAttributes);
+		}
+	}
 
 	unsigned long long AttrClear = 0;
-	cfg->GetValue(Key, Strings.AttrClear, AttrClear);
+	if (!cfg->GetValue(Key, Strings.AttrClear, AttrClear))
+	{
+		// Old format
+		// TODO 2019 Q4: remove
+		if (cfg->GetValue(Key, LegacyStrings.ExcludeAttributes, AttrClear))
+		{
+			cfg->SetValue(Key, Strings.AttrClear, AttrClear);
+			cfg->DeleteValue(Key, LegacyStrings.ExcludeAttributes);
+		}
+	}
 
 	unsigned long long UseAttr = 0;
-	cfg->GetValue(Key, Strings.UseAttr, UseAttr);
+	if (!cfg->GetValue(Key, Strings.UseAttr, UseAttr))
+	{
+		// Old format
+		// TODO 2019 Q4: remove
+		if (AttrSet || AttrClear)
+		{
+			UseAttr = true;
+			cfg->SetValue(Key, Strings.UseAttr, UseAttr);
+		}
+	}
 
 	Item.SetAttr(UseAttr != 0, static_cast<DWORD>(AttrSet), static_cast<DWORD>(AttrClear));
 }

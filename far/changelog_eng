@@ -3,6 +3,13 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 20.11.2018 19:20:12 +0000 - build 5324
+
+1. Partial revert of 5276: restored reading highlighting/sorting groups in the old format.
+   If new parameters don't exist, but old ones do - we will read them, delete and save as a new immediately.
+
+   The next attempt to finally remove the legacy code is in a year.
+
 drkns 20.11.2018 01:10:03 +0000 - build 5323
 
 1. New versions of tinyxml2 and fmt.
