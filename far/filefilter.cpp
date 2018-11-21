@@ -853,7 +853,7 @@ void FileFilter::LoadFilter(/*const*/ HierarchicalConfig* cfg, unsigned long lon
 		// TODO 2019 Q4: remove
 		if (cfg->GetValue(Key, LegacyStrings.IncludeAttributes, AttrSet))
 		{
-			cfg->SetValue(Key, LegacyStrings.IncludeAttributes, AttrSet);
+			cfg->SetValue(Key, Strings.AttrSet, AttrSet);
 			cfg->DeleteValue(Key, LegacyStrings.IncludeAttributes);
 		}
 	}
