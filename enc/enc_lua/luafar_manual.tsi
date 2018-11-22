@@ -10239,6 +10239,48 @@ mtime=3500653738
 </article>
 </node>
 <node>
+id=530
+lv=3
+dt=Text
+nm=win.GetConsoleCP
+ctime=3752084597
+mtime=3752085213
+<article>
+#_codepage = win.GetConsoleCP()
+#_
+#_**Parameters:**
+#_  none
+#_
+#_**Returns:**
+#_  codepage: integer
+#_
+#_**Windows API used:**
+#_  GetConsoleCP
+#_
+</article>
+</node>
+<node>
+id=533
+lv=3
+dt=Text
+nm=win.GetConsoleOutputCP
+ctime=3752084648
+mtime=3752085217
+<article>
+#_codepage = win.GetConsoleOutputCP()
+#_
+#_**Parameters:**
+#_  none
+#_
+#_**Returns:**
+#_  codepage: integer
+#_
+#_**Windows API used:**
+#_  GetConsoleOutputCP
+#_
+</article>
+</node>
+<node>
 id=392
 lv=3
 dt=Text
@@ -10322,6 +10364,49 @@ nm=win.OemToUtf8
 #_
 #_**Returns:**
 #_  str_out : string in UTF-8 encoding
+#_
+</article>
+</node>
+<node>
+id=531
+lv=3
+dt=Text
+nm=win.SetConsoleCP
+ctime=3752084616
+mtime=3752085222
+<article>
+#_result = win.SetConsoleCP(codepage)
+#_
+#_**Parameters:**
+#_  codepage: integer
+#_
+#_**Returns:**
+#_  result: true (on success) or nil + error message
+#_
+#_**Windows API used:**
+#_  SetConsoleCP
+#_
+#_
+</article>
+</node>
+<node>
+id=532
+lv=3
+dt=Text
+nm=win.SetConsoleOutputCP
+ctime=3752084634
+mtime=3752085226
+<article>
+#_result = win.SetConsoleOutputCP(codepage)
+#_
+#_**Parameters:**
+#_  codepage: integer
+#_
+#_**Returns:**
+#_  result: true (on success) or nil + error message
+#_
+#_**Windows API used:**
+#_  SetConsoleOutputCP
 #_
 </article>
 </node>

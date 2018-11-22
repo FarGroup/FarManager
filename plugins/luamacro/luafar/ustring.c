@@ -358,6 +358,30 @@ int ustring_GetOEMCP(lua_State* L)
 	return lua_pushinteger(L, GetOEMCP()), 1;
 }
 
+int ustring_GetConsoleCP(lua_State* L)
+{
+	return lua_pushinteger(L, GetConsoleCP()), 1;
+}
+
+int ustring_SetConsoleCP(lua_State* L)
+{
+	if (SetConsoleCP(luaL_checkinteger(L,1)))
+		return lua_pushboolean(L,1), 1;
+	return SysErrorReturn(L);
+}
+
+int ustring_GetConsoleOutputCP(lua_State* L)
+{
+	return lua_pushinteger(L, GetConsoleOutputCP()), 1;
+}
+
+int ustring_SetConsoleOutputCP(lua_State* L)
+{
+	if (SetConsoleOutputCP(luaL_checkinteger(L,1)))
+		return lua_pushboolean(L,1), 1;
+	return SysErrorReturn(L);
+}
+
 struct EnumCP_struct
 {
 	lua_State* L;
@@ -773,6 +797,10 @@ const luaL_Reg ustring_funcs[] =
 	{"GetKeyState",         ustring_GetKeyState},
 	{"GetLogicalDriveStrings",ustring_GetLogicalDriveStrings},
 	{"GetOEMCP",            ustring_GetOEMCP},
+	{"GetConsoleCP",        ustring_GetConsoleCP},
+	{"SetConsoleCP",        ustring_SetConsoleCP},
+	{"GetConsoleOutputCP",  ustring_GetConsoleOutputCP},
+	{"SetConsoleOutputCP",  ustring_SetConsoleOutputCP},
 	{"GlobalMemoryStatus",  ustring_GlobalMemoryStatus},
 	{"MultiByteToWideChar", ustring_MultiByteToWideChar },
 	{"OemToUtf8",           ustring_OemToUtf8},
