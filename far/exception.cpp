@@ -36,11 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "format.hpp"
 
-attach_debugger::attach_debugger()
-{
-	if (IsDebuggerPresent())
-		DebugBreak();
-}
 
 error_state error_state::fetch()
 {
@@ -56,85 +51,68 @@ bool error_state::engaged() const
 	return m_Engaged;
 }
 
-detail::exception_impl::exception_impl(string_view const Message, const char* const Function, const char* const File, int const Line):
-	m_Function(encoding::ansi::get_chars(Function)),
-	m_Location(format(L"{0}:{1}"sv, encoding::ansi::get_chars(File), Line)),
-	m_FullMessage(format(L"{0} (at {1}, {2})"sv, Message, m_Function, m_Location)),
-	m_ErrorState(error_state::fetch(), Message)
+namespace detail
 {
-}
-
-far_base_exception::far_base_exception(string_view const Message, const char* const Function, const char* const File, int const Line):
-	exception_impl(Message, Function, File, Line),
-	std::runtime_error(encoding::utf8::get_bytes(get_full_message()))
-{
-}
-
-far_base_exception::far_base_exception(string_view const Message, std::vector<string>&& Stack, const char* const Function, const char* const File, int const Line):
-	exception_impl(Message, Function, File, Line),
-	std::runtime_error(encoding::utf8::get_bytes(get_full_message())),
-	m_Stack(std::move(Stack))
-{
-}
-
-const std::vector<string>& far_base_exception::get_stack() const
-{
-	return m_Stack;
-}
-
-
-exception_context::exception_context(DWORD Code, const EXCEPTION_POINTERS* Pointers, bool ResumeThread):
-	m_Code(Code),
-	m_ExceptionRecord(),
-	m_ContextRecord(),
-	m_Pointers{ &m_ExceptionRecord, &m_ContextRecord },
-	m_ThreadHandle(os::OpenCurrentThread()),
-	m_ThreadId(GetCurrentThreadId()),
-	m_ResumeThread(ResumeThread)
-{
-	if (Pointers)
+	far_base_exception::far_base_exception(const char* const Function, const char* const File, int const Line, string_view const Message):
+		m_Function(encoding::ansi::get_chars(Function)),
+		m_Location(format(L"{0}:{1}"sv, encoding::ansi::get_chars(File), Line)),
+		m_FullMessage(format(L"{0} (at {1}, {2})"sv, Message, m_Function, m_Location)),
+		m_ErrorState(error_state::fetch(), Message)
 	{
-		m_ExceptionRecord = *Pointers->ExceptionRecord;
-		m_ContextRecord = *Pointers->ContextRecord;
 	}
 
-	auto Previous = &m_ExceptionRecord;
-	for (auto Iterator = m_ExceptionRecord.ExceptionRecord; Iterator; Iterator = Iterator->ExceptionRecord)
+	std::string far_std_exception::convert_message() const
 	{
-		m_ExceptionRecords.emplace_back(*Iterator);
-		Previous->ExceptionRecord = &m_ExceptionRecords.back();
-		Previous = Iterator;
+		return encoding::utf8::get_bytes(get_full_message());
+	}
+
+	attach_debugger::attach_debugger()
+	{
+		if (IsDebuggerPresent())
+			DebugBreak();
+	}
+
+	exception_context::exception_context(DWORD const Code, const EXCEPTION_POINTERS& Pointers, os::handle&& ThreadHandle, DWORD const ThreadId):
+		m_Code(Code),
+		m_Pointers(Pointers),
+		m_ThreadHandle(std::move(ThreadHandle)),
+		m_ThreadId(ThreadId)
+	{
+	}
+
+	seh_exception_context::~seh_exception_context()
+	{
+		if (m_ResumeThread)
+			ResumeThread(thread_handle());
 	}
 }
 
-exception_context::~exception_context()
+far_wrapper_exception::far_wrapper_exception(const char* const Function, const char* const File, int const Line):
+	far_exception(Function, File, Line, L"->"sv),
+	m_ThreadHandle(std::make_shared<os::handle>(os::OpenCurrentThread())),
+	m_Stack(tracer::get(tracer::get_pointers(), m_ThreadHandle->native_handle()))
 {
-	if (m_ResumeThread)
-		ResumeThread(m_ThreadHandle.native_handle());
 }
 
-
-std::exception_ptr CurrentException()
+seh_exception::seh_exception(DWORD const Code, EXCEPTION_POINTERS& Pointers, os::handle&& ThreadHandle, DWORD const ThreadId, bool const ResumeThread):
+	m_Context(std::make_shared<detail::seh_exception_context>(Code, Pointers, std::move(ThreadHandle), ThreadId, ResumeThread))
 {
-	return std::current_exception();
 }
 
-std::exception_ptr CurrentException(const std::exception& e)
+std::exception_ptr wrap_currrent_exception()
 {
 	try
 	{
-		std::throw_with_nested(MAKE_FAR_EXCEPTION(L"->"sv, tracer::get(&e)));
+		std::throw_with_nested(MAKE_EXCEPTION(far_wrapper_exception));
 	}
 	catch (...)
 	{
-		return CurrentException();
+		return std::current_exception();
 	}
 }
 
-void RethrowIfNeeded(std::exception_ptr& Ptr)
+void rethrow_if(std::exception_ptr& Ptr)
 {
 	if (Ptr)
-	{
 		std::rethrow_exception(std::exchange(Ptr, {}));
-	}
 }

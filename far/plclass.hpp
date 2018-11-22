@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "bitflags.hpp"
 #include "windowsfwd.hpp"
-#include "farexcpt.hpp"
+#include "exception_handler.hpp"
 #include "exception.hpp"
 #include "plugin.hpp"
 
@@ -362,7 +362,7 @@ protected:
 		try
 		{
 			detail::ExecuteFunctionImpl(es, reinterpret_cast<prototype_t<T::export_id::value, T::native::value>>(Exports[T::export_id::value].first), FWD(Args)...);
-			RethrowIfNeeded(GlobalExceptionPtr());
+			rethrow_if(GlobalExceptionPtr());
 			m_Factory->ProcessError(m_Factory->ExportsNames()[T::export_id::value].UName);
 		}
 		catch (const std::exception& e)

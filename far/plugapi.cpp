@@ -85,6 +85,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "desktop.hpp"
 #include "string_sort.hpp"
 #include "global.hpp"
+#include "exception_handler.hpp"
 
 #include "platform.fs.hpp"
 

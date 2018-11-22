@@ -3,6 +3,23 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 25.11.2018 22:07:47 +0000 - build 5327
+
+1. Some improvements in exception handling.
+
+2. Refactoring.
+
+w17 23.11.2018 16:13:05 +0300 - build 5326
+
+1. New option 'Save view mode' (true by default)
+
+2. New option 'Detect dump view mode' (true by default)
+   If disabled, new files will be always opened in text mode.
+
+3. Changed F2 key behaviour in viewer:
+   For Dump - switch to Text,
+   For Code (Hex) - switch to either Dump or Text (F4 and F2 choose different modes)
+
 drkns 21.11.2018 09:17:30 +0000 - build 5325
 
 1. Typo in 5324.

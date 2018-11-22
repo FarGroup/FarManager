@@ -139,7 +139,7 @@ namespace os
 			{
 			}
 
-			void reset(HANDLE Handle = nullptr)
+			void reset(HANDLE Handle)
 			{
 				base_type::reset(normalise(Handle));
 			}
@@ -151,7 +151,7 @@ namespace os
 
 			void close()
 			{
-				reset();
+				reset(nullptr);
 			}
 
 			void wait() const

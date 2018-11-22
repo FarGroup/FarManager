@@ -138,9 +138,10 @@ LINK_OBJS = \
 	"$(INTDIR)\encoding.obj" \
 	"$(INTDIR)\eol.obj" \
 	"$(INTDIR)\exception.obj" \
+	"$(INTDIR)\exception_handler.obj" \
+	"$(INTDIR)\exception_handler_test.obj" \
 	"$(INTDIR)\execute.obj" \
 	"$(INTDIR)\FarDlgBuilder.obj" \
-	"$(INTDIR)\farexcpt.obj" \
 	"$(INTDIR)\farversion.obj" \
 	"$(INTDIR)\fastfind.obj" \
 	"$(INTDIR)\fileattr.obj" \

@@ -137,7 +137,7 @@ void wm_listener::Check()
 {
 	if (!m_Thread.joinable() || m_Thread.is_signaled())
 	{
-		RethrowIfNeeded(m_ExceptionPtr);
+		rethrow_if(m_ExceptionPtr);
 		os::event ReadyEvent(os::event::type::automatic, os::event::state::nonsignaled);
 		m_Thread = os::thread(&os::thread::join, &wm_listener::WindowThreadRoutine, this, &ReadyEvent);
 		ReadyEvent.wait();

@@ -757,9 +757,7 @@ void FileFilter::LoadFilter(/*const*/ HierarchicalConfig* cfg, unsigned long lon
 {
 	HierarchicalConfig::key Key(KeyId);
 
-	string Title;
-	cfg->GetValue(Key, Strings.Title, Title);
-	Item.SetTitle(Title);
+	Item.SetTitle(cfg->GetValue<string>(Key, Strings.Title));
 
 	unsigned long long UseMask = 1;
 	if (!cfg->GetValue(Key, Strings.UseMask, UseMask))
@@ -775,9 +773,7 @@ void FileFilter::LoadFilter(/*const*/ HierarchicalConfig* cfg, unsigned long lon
 		}
 	}
 
-	string Mask;
-	cfg->GetValue(Key, Strings.Mask, Mask);
-	Item.SetMask(UseMask != 0, Mask);
+	Item.SetMask(UseMask != 0, cfg->GetValue<string>(Key, Strings.Mask));
 
 	unsigned long long DateAfter = 0;
 	if (!cfg->GetValue(Key, Strings.DateTimeAfter, DateAfter))
@@ -803,11 +799,8 @@ void FileFilter::LoadFilter(/*const*/ HierarchicalConfig* cfg, unsigned long lon
 		}
 	}
 
-	unsigned long long UseDate = 0;
-	cfg->GetValue(Key, Strings.UseDate, UseDate);
-
-	unsigned long long DateType = 0;
-	cfg->GetValue(Key, Strings.DateType, DateType);
+	const auto UseDate = cfg->GetValue<bool>(Key, Strings.UseDate);
+	const auto DateType = cfg->GetValue<unsigned long long>(Key, Strings.DateType);
 
 	unsigned long long DateRelative = 0;
 	if (!cfg->GetValue(Key, Strings.DateRelative, DateRelative))
@@ -821,30 +814,19 @@ void FileFilter::LoadFilter(/*const*/ HierarchicalConfig* cfg, unsigned long lon
 		}
 	}
 
-	Item.SetDate(UseDate != 0, static_cast<enumFDateType>(DateType), DateRelative?
+	Item.SetDate(UseDate, static_cast<enumFDateType>(DateType), DateRelative?
 		filter_dates(os::chrono::duration(DateAfter), os::chrono::duration(DateBefore)) :
 		filter_dates(os::chrono::time_point(os::chrono::duration(DateAfter)), os::chrono::time_point(os::chrono::duration(DateBefore))));
 
-	string SizeAbove;
-	cfg->GetValue(Key, Strings.SizeAbove, SizeAbove);
+	const auto UseSize = cfg->GetValue<bool>(Key, Strings.UseSize);
+	const auto SizeAbove = cfg->GetValue<string>(Key, Strings.SizeAbove);
+	const auto SizeBelow = cfg->GetValue<string>(Key, Strings.SizeBelow);
+	Item.SetSize(UseSize, SizeAbove, SizeBelow);
 
-	string SizeBelow;
-	cfg->GetValue(Key, Strings.SizeBelow, SizeBelow);
-
-	unsigned long long UseSize = 0;
-	cfg->GetValue(Key, Strings.UseSize, UseSize);
-	Item.SetSize(UseSize != 0, SizeAbove, SizeBelow);
-
-	unsigned long long UseHardLinks = 0;
-	cfg->GetValue(Key, Strings.UseHardLinks, UseHardLinks);
-
-	unsigned long long HardLinksAbove = 0;
-	cfg->GetValue(Key, Strings.HardLinksAbove, HardLinksAbove);
-
-	unsigned long long HardLinksBelow = 0;
-	cfg->GetValue(Key, Strings.HardLinksBelow, HardLinksBelow);
-
-	Item.SetHardLinks(UseHardLinks != 0, HardLinksAbove, HardLinksBelow);
+	const auto UseHardLinks = cfg->GetValue<bool>(Key, Strings.UseHardLinks);
+	const auto HardLinksAbove = cfg->GetValue<unsigned long long>(Key, Strings.HardLinksAbove);
+	const auto HardLinksBelow = cfg->GetValue<unsigned long long>(Key, Strings.HardLinksBelow);
+	Item.SetHardLinks(UseHardLinks, HardLinksAbove, HardLinksBelow);
 
 	unsigned long long AttrSet = 0;
 	if (!cfg->GetValue(Key, Strings.AttrSet, AttrSet))
@@ -929,9 +911,7 @@ void FileFilter::InitFilter()
 
 		FileFilterParams NewItem;
 
-		string Mask;
-		cfg->GetValue(key, Strings.Mask, Mask);
-		NewItem.SetMask(true, Mask);
+		NewItem.SetMask(true, cfg->GetValue<string>(key, Strings.Mask));
 
 		//Авто фильтры они только для файлов, папки не должны к ним подходить
 		NewItem.SetAttr(true, 0, FILE_ATTRIBUTE_DIRECTORY);

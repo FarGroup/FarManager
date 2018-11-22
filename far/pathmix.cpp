@@ -493,70 +493,70 @@ static void TestPaths()
 	EXPECT_EQ(path::join(L"foo\\"sv, L""sv, L"\\bar"sv), L"foo\\bar"sv);
 	EXPECT_EQ(path::join(L"\\\\foo\\\\"sv, L"\\\\bar\\"sv), L"\\\\foo\\bar"sv);
 
-	EXPECT_EQ(ExtractPathRoot(L""), L"");
-	EXPECT_EQ(ExtractPathRoot(L"\\"), L"");
-	EXPECT_EQ(ExtractPathRoot(L"file"), L"");
-	EXPECT_EQ(ExtractPathRoot(L"path\\file"), L"");
-	EXPECT_EQ(ExtractPathRoot(L"C:"), L"C:\\");
-	EXPECT_EQ(ExtractPathRoot(L"C:\\"), L"C:\\");
-	EXPECT_EQ(ExtractPathRoot(L"C:\\path\\file"), L"C:\\");
-	EXPECT_EQ(ExtractPathRoot(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"), L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
-	EXPECT_EQ(ExtractPathRoot(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"), L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
-	EXPECT_EQ(ExtractPathRoot(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file"), L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
-	EXPECT_EQ(ExtractPathRoot(L"\\\\server\\share"), L"\\\\server\\share\\");
-	EXPECT_EQ(ExtractPathRoot(L"\\\\server\\share\\"), L"\\\\server\\share\\");
-	EXPECT_EQ(ExtractPathRoot(L"\\\\server\\share\\path\\file"), L"\\\\server\\share\\");
-	EXPECT_EQ(ExtractPathRoot(L"\\\\1.2.3.4\\share\\path\\file"), L"\\\\1.2.3.4\\share\\");
-	EXPECT_EQ(ExtractPathRoot(L"\\\\?\\UNC\\server\\share"), L"\\\\?\\UNC\\server\\share\\");
-	EXPECT_EQ(ExtractPathRoot(L"\\\\?\\UNC\\server\\share\\"), L"\\\\?\\UNC\\server\\share\\");
-	EXPECT_EQ(ExtractPathRoot(L"\\\\?\\UNC\\server\\share\\path\\file"), L"\\\\?\\UNC\\server\\share\\");
-	EXPECT_EQ(ExtractPathRoot(L"\\\\?\\UNC\\1.2.3.4\\share\\path\\file"), L"\\\\?\\UNC\\1.2.3.4\\share\\");
+	EXPECT_EQ(ExtractPathRoot(L""sv), L""sv);
+	EXPECT_EQ(ExtractPathRoot(L"\\"sv), L""sv);
+	EXPECT_EQ(ExtractPathRoot(L"file"sv), L""sv);
+	EXPECT_EQ(ExtractPathRoot(L"path\\file"sv), L""sv);
+	EXPECT_EQ(ExtractPathRoot(L"C:"sv), L"C:\\"sv);
+	EXPECT_EQ(ExtractPathRoot(L"C:\\"sv), L"C:\\"sv);
+	EXPECT_EQ(ExtractPathRoot(L"C:\\path\\file"sv), L"C:\\"sv);
+	EXPECT_EQ(ExtractPathRoot(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"sv), L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv);
+	EXPECT_EQ(ExtractPathRoot(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv), L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv);
+	EXPECT_EQ(ExtractPathRoot(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file"sv), L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv);
+	EXPECT_EQ(ExtractPathRoot(L"\\\\server\\share"sv), L"\\\\server\\share\\"sv);
+	EXPECT_EQ(ExtractPathRoot(L"\\\\server\\share\\"sv), L"\\\\server\\share\\"sv);
+	EXPECT_EQ(ExtractPathRoot(L"\\\\server\\share\\path\\file"sv), L"\\\\server\\share\\"sv);
+	EXPECT_EQ(ExtractPathRoot(L"\\\\1.2.3.4\\share\\path\\file"sv), L"\\\\1.2.3.4\\share\\"sv);
+	EXPECT_EQ(ExtractPathRoot(L"\\\\?\\UNC\\server\\share"sv), L"\\\\?\\UNC\\server\\share\\"sv);
+	EXPECT_EQ(ExtractPathRoot(L"\\\\?\\UNC\\server\\share\\"sv), L"\\\\?\\UNC\\server\\share\\"sv);
+	EXPECT_EQ(ExtractPathRoot(L"\\\\?\\UNC\\server\\share\\path\\file"sv), L"\\\\?\\UNC\\server\\share\\"sv);
+	EXPECT_EQ(ExtractPathRoot(L"\\\\?\\UNC\\1.2.3.4\\share\\path\\file"sv), L"\\\\?\\UNC\\1.2.3.4\\share\\"sv);
 
-	EXPECT_EQ(ExtractFilePath(L""), L"");
-	EXPECT_EQ(ExtractFilePath(L"\\"), L"");
-	EXPECT_EQ(ExtractFilePath(L"\\file"), L"");
-	EXPECT_EQ(ExtractFilePath(L"file"), L"");
-	EXPECT_EQ(ExtractFilePath(L"path\\"), L"path");
-	EXPECT_EQ(ExtractFilePath(L"path\\file"), L"path");
-	EXPECT_EQ(ExtractFilePath(L"C:"), L"C:\\");
-	EXPECT_EQ(ExtractFilePath(L"C:\\"), L"C:\\");
-	EXPECT_EQ(ExtractFilePath(L"C:\\file"), L"C:\\");
-	EXPECT_EQ(ExtractFilePath(L"C:\\path\\file"), L"C:\\path");
-	EXPECT_EQ(ExtractFilePath(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"), L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
-	EXPECT_EQ(ExtractFilePath(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"), L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
-	EXPECT_EQ(ExtractFilePath(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\file"), L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
-	EXPECT_EQ(ExtractFilePath(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file"), L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path");
-	EXPECT_EQ(ExtractFilePath(L"\\\\server\\share"), L"\\\\server\\share\\");
-	EXPECT_EQ(ExtractFilePath(L"\\\\server\\share\\"), L"\\\\server\\share\\");
-	EXPECT_EQ(ExtractFilePath(L"\\\\server\\share\\file"), L"\\\\server\\share\\");
-	EXPECT_EQ(ExtractFilePath(L"\\\\server\\share\\path\\file"), L"\\\\server\\share\\path");
-	EXPECT_EQ(ExtractFilePath(L"\\\\?\\UNC\\server\\share"), L"\\\\?\\UNC\\server\\share\\");
-	EXPECT_EQ(ExtractFilePath(L"\\\\?\\UNC\\server\\share\\"), L"\\\\?\\UNC\\server\\share\\");
-	EXPECT_EQ(ExtractFilePath(L"\\\\?\\UNC\\server\\share\\file"), L"\\\\?\\UNC\\server\\share\\");
-	EXPECT_EQ(ExtractFilePath(L"\\\\?\\UNC\\server\\share\\path\\file"), L"\\\\?\\UNC\\server\\share\\path");
+	EXPECT_EQ(ExtractFilePath(L""sv), L""sv);
+	EXPECT_EQ(ExtractFilePath(L"\\"sv), L""sv);
+	EXPECT_EQ(ExtractFilePath(L"\\file"sv), L""sv);
+	EXPECT_EQ(ExtractFilePath(L"file"sv), L""sv);
+	EXPECT_EQ(ExtractFilePath(L"path\\"sv), L"path"sv);
+	EXPECT_EQ(ExtractFilePath(L"path\\file"sv), L"path"sv);
+	EXPECT_EQ(ExtractFilePath(L"C:"sv), L"C:\\"sv);
+	EXPECT_EQ(ExtractFilePath(L"C:\\"sv), L"C:\\"sv);
+	EXPECT_EQ(ExtractFilePath(L"C:\\file"sv), L"C:\\"sv);
+	EXPECT_EQ(ExtractFilePath(L"C:\\path\\file"sv), L"C:\\path"sv);
+	EXPECT_EQ(ExtractFilePath(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"sv), L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv);
+	EXPECT_EQ(ExtractFilePath(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv), L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv);
+	EXPECT_EQ(ExtractFilePath(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\file"sv), L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv);
+	EXPECT_EQ(ExtractFilePath(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file"sv), L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path"sv);
+	EXPECT_EQ(ExtractFilePath(L"\\\\server\\share"sv), L"\\\\server\\share\\"sv);
+	EXPECT_EQ(ExtractFilePath(L"\\\\server\\share\\"sv), L"\\\\server\\share\\"sv);
+	EXPECT_EQ(ExtractFilePath(L"\\\\server\\share\\file"sv), L"\\\\server\\share\\"sv);
+	EXPECT_EQ(ExtractFilePath(L"\\\\server\\share\\path\\file"sv), L"\\\\server\\share\\path"sv);
+	EXPECT_EQ(ExtractFilePath(L"\\\\?\\UNC\\server\\share"sv), L"\\\\?\\UNC\\server\\share\\"sv);
+	EXPECT_EQ(ExtractFilePath(L"\\\\?\\UNC\\server\\share\\"sv), L"\\\\?\\UNC\\server\\share\\"sv);
+	EXPECT_EQ(ExtractFilePath(L"\\\\?\\UNC\\server\\share\\file"sv), L"\\\\?\\UNC\\server\\share\\"sv);
+	EXPECT_EQ(ExtractFilePath(L"\\\\?\\UNC\\server\\share\\path\\file"sv), L"\\\\?\\UNC\\server\\share\\path"sv);
 
-	EXPECT_EQ(ExtractFileName(L""), L"");
-	EXPECT_EQ(ExtractFileName(L"\\"), L"");
-	EXPECT_EQ(ExtractFileName(L"\\file"), L"file");
-	EXPECT_EQ(ExtractFileName(L"file"), L"file");
-	EXPECT_EQ(ExtractFileName(L"path\\"), L"");
-	EXPECT_EQ(ExtractFileName(L"path\\file"), L"file");
-	EXPECT_EQ(ExtractFileName(L"C:"), L"");
-	EXPECT_EQ(ExtractFileName(L"C:\\"), L"");
-	EXPECT_EQ(ExtractFileName(L"C:\\file"), L"file");
-	EXPECT_EQ(ExtractFileName(L"C:\\path\\file"), L"file");
-	EXPECT_EQ(ExtractFileName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"), L"");
-	EXPECT_EQ(ExtractFileName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"), L"");
-	EXPECT_EQ(ExtractFileName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\file"), L"file");
-	EXPECT_EQ(ExtractFileName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file"), L"file");
-	EXPECT_EQ(ExtractFileName(L"\\\\server\\share"), L"");
-	EXPECT_EQ(ExtractFileName(L"\\\\server\\share\\"), L"");
-	EXPECT_EQ(ExtractFileName(L"\\\\server\\share\\file"), L"file");
-	EXPECT_EQ(ExtractFileName(L"\\\\server\\share\\path\\file"), L"file");
-	EXPECT_EQ(ExtractFileName(L"\\\\?\\UNC\\server\\share"), L"");
-	EXPECT_EQ(ExtractFileName(L"\\\\?\\UNC\\server\\share\\"), L"");
-	EXPECT_EQ(ExtractFileName(L"\\\\?\\UNC\\server\\share\\file"), L"file");
-	EXPECT_EQ(ExtractFileName(L"\\\\?\\UNC\\server\\share\\path\\file"), L"file");
+	EXPECT_EQ(ExtractFileName(L""sv), L""sv);
+	EXPECT_EQ(ExtractFileName(L"\\"sv), L""sv);
+	EXPECT_EQ(ExtractFileName(L"\\file"sv), L"file"sv);
+	EXPECT_EQ(ExtractFileName(L"file"sv), L"file"sv);
+	EXPECT_EQ(ExtractFileName(L"path\\"sv), L""sv);
+	EXPECT_EQ(ExtractFileName(L"path\\file"sv), L"file"sv);
+	EXPECT_EQ(ExtractFileName(L"C:"sv), L""sv);
+	EXPECT_EQ(ExtractFileName(L"C:\\"sv), L""sv);
+	EXPECT_EQ(ExtractFileName(L"C:\\file"sv), L"file"sv);
+	EXPECT_EQ(ExtractFileName(L"C:\\path\\file"sv), L"file"sv);
+	EXPECT_EQ(ExtractFileName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"sv), L""sv);
+	EXPECT_EQ(ExtractFileName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv), L""sv);
+	EXPECT_EQ(ExtractFileName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\file"sv), L"file"sv);
+	EXPECT_EQ(ExtractFileName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file"sv), L"file"sv);
+	EXPECT_EQ(ExtractFileName(L"\\\\server\\share"sv), L""sv);
+	EXPECT_EQ(ExtractFileName(L"\\\\server\\share\\"sv), L""sv);
+	EXPECT_EQ(ExtractFileName(L"\\\\server\\share\\file"sv), L"file"sv);
+	EXPECT_EQ(ExtractFileName(L"\\\\server\\share\\path\\file"sv), L"file"sv);
+	EXPECT_EQ(ExtractFileName(L"\\\\?\\UNC\\server\\share"sv), L""sv);
+	EXPECT_EQ(ExtractFileName(L"\\\\?\\UNC\\server\\share\\"sv), L""sv);
+	EXPECT_EQ(ExtractFileName(L"\\\\?\\UNC\\server\\share\\file"sv), L"file"sv);
+	EXPECT_EQ(ExtractFileName(L"\\\\?\\UNC\\server\\share\\path\\file"sv), L"file"sv);
 
 	EXPECT_EQ(PointToName(L""sv), L""sv);
 	EXPECT_EQ(PointToName(L"\\"sv), L""sv);
@@ -589,16 +589,16 @@ static void TestPaths()
 	EXPECT_EQ(PointToExt(L"file.ext1.ext2"sv), L".ext2"sv);
 	EXPECT_EQ(PointToExt(L"path\\file.ext1.ext2"sv), L".ext2"sv);
 
-	EXPECT_TRUE(IsRootPath(L"C:"));
-	EXPECT_TRUE(IsRootPath(L"C:\\"));
-	EXPECT_TRUE(IsRootPath(L"\\"));
-	EXPECT_FALSE(IsRootPath(L"C:\\path"));
+	EXPECT_TRUE(IsRootPath(L"C:"sv));
+	EXPECT_TRUE(IsRootPath(L"C:\\"sv));
+	EXPECT_TRUE(IsRootPath(L"\\"sv));
+	EXPECT_FALSE(IsRootPath(L"C:\\path"sv));
 
-	EXPECT_TRUE(PathStartsWith(L"C:\\path\\file", L"C:\\path"));
-	EXPECT_TRUE(PathStartsWith(L"C:\\path\\file", L"C:\\path\\"));
-	EXPECT_FALSE(PathStartsWith(L"C:\\path\\file", L"C:\\pat"));
-	EXPECT_TRUE(PathStartsWith(L"\\", L""));
-	EXPECT_FALSE(PathStartsWith(L"C:\\path\\file", L""));
+	EXPECT_TRUE(PathStartsWith(L"C:\\path\\file"sv, L"C:\\path"sv));
+	EXPECT_TRUE(PathStartsWith(L"C:\\path\\file"sv, L"C:\\path\\"sv));
+	EXPECT_FALSE(PathStartsWith(L"C:\\path\\file"sv, L"C:\\pat"sv));
+	EXPECT_TRUE(PathStartsWith(L"\\"sv, L""sv));
+	EXPECT_FALSE(PathStartsWith(L"C:\\path\\file"sv, L""sv));
 
 	static const string_view TestRoots[] =
 	{
@@ -614,27 +614,27 @@ static void TestPaths()
 
 	static const struct
 	{
-		const wchar_t* InputPath;
-		const wchar_t* ExpectedPath;
+		const string_view InputPath;
+		const string_view ExpectedPath;
 		bool RootMustExist;
 		bool ExpectedResult;
 	}
-	TestCases[] =
+	TestCases[]
 	{
 		// root directory, shall fail
-		{ L"{0}", L"{0}", false, false},
+		{ L"{0}"sv, L"{0}"sv, false, false},
 
 		// one level, shall return root directory
-		{ L"{0}dir1", L"{0}", true, true },
+		{ L"{0}dir1"sv, L"{0}"sv, true, true },
 
 		// one level without root, shall fail
-		{ L"dir1", L"dir1", false, false },
+		{ L"dir1"sv, L"dir1"sv, false, false },
 
 		// two levels, shall return first level
-		{ L"{0}dir1\\dir2", L"{0}dir1", false, true },
+		{ L"{0}dir1\\dir2"sv, L"{0}dir1"sv, false, true },
 
 		// two levels with trailing slash, shall return first level
-		{ L"{0}dir1\\dir2\\", L"{0}dir1", false, true },
+		{ L"{0}dir1\\dir2\\"sv, L"{0}dir1"sv, false, true },
 	};
 
 	string Path, Baseline;

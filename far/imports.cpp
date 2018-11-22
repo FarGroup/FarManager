@@ -237,20 +237,6 @@ BOOL WINAPI imports::stub_TzSpecificLocalTimeToSystemTime(const TIME_ZONE_INFORM
 	return FALSE;
 }
 
-PVOID WINAPI imports::stub_AddVectoredExceptionHandler(ULONG First, PVECTORED_EXCEPTION_HANDLER Handler)
-{
-	// TODO: log
-	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-	return nullptr;
-}
-
-ULONG WINAPI imports::stub_RemoveVectoredExceptionHandler(PVOID Handler)
-{
-	// TODO: log
-	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-	return 0;
-}
-
 void WINAPI imports::stub_InitializeSRWLock(PSRWLOCK SRWLock)
 {
 	// TODO: log

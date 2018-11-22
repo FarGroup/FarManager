@@ -513,7 +513,7 @@ static size_t enumerate_rm_processes(const string& Filename, DWORD& Reasons, con
 	return ProcessInfos.size();
 }
 
-operation OperationFailed(const error_state_ex& ErrorState, const string& Object, lng Title, const string& Description, bool AllowSkip)
+operation OperationFailed(const error_state_ex& ErrorState, string Object, lng Title, string Description, bool AllowSkip)
 {
 	std::vector<string> Msg;
 	os::com::ptr<IFileIsInUse> FileIsInUse;
@@ -601,11 +601,12 @@ operation OperationFailed(const error_state_ex& ErrorState, const string& Object
 		}
 	}
 
-	std::vector<string> Msgs{Description, QuoteOuterSpace(string(Object))};
+	std::vector<string> Msgs{std::move(Description), QuoteOuterSpace(std::move(Object))};
 	if(!Msg.empty())
 	{
 		Msgs.emplace_back(format(msg(lng::MObjectLockedReason), msg(Reason)));
-		Msgs.insert(Msgs.end(), ALL_CONST_RANGE(Msg));
+		std::move(ALL_RANGE(Msg), std::back_inserter(Msgs));
+		Msg.clear();
 	}
 
 	std::vector<lng> Buttons;

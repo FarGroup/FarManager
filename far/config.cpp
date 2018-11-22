@@ -518,7 +518,7 @@ void Options::MaskGroupsSettings()
 						if (!Item->empty())
 						{
 							Name = *Item;
-							ConfigProvider().GeneralCfg()->GetValue(L"Masks"sv, Name, Value, L"");
+							Value = ConfigProvider().GeneralCfg()->GetValue<string>(L"Masks"sv, Name);
 						}
 						DialogBuilder Builder(lng::MMenuMaskGroups, L"MaskGroupsSettings"sv);
 						Builder.AddText(lng::MMaskGroupName);
@@ -566,10 +566,8 @@ void Options::MaskGroupsSettings()
 					{
 						for (size_t i = 0, size = MasksMenu->size(); i != size; ++i)
 						{
-							string CurrentMasks;
-							ConfigProvider().GeneralCfg()->GetValue(L"Masks"sv, *MasksMenu->GetComplexUserDataPtr<string>(i), CurrentMasks, L"");
 							filemasks Masks;
-							Masks.Set(CurrentMasks);
+							Masks.Set(ConfigProvider().GeneralCfg()->GetValue<string>(L"Masks"sv, *MasksMenu->GetComplexUserDataPtr<string>(i)));
 							if(!Masks.Compare(Value))
 							{
 								MasksMenu->UpdateItemFlags(static_cast<int>(i), MasksMenu->at(i).Flags | MIF_HIDDEN);
@@ -1461,8 +1459,8 @@ template<class base_type, class derived>
 bool detail::OptionImpl<base_type, derived>::ReceiveValue(const GeneralConfig* Storage, string_view const KeyName, string_view const ValueName, const std::any& Default)
 {
 	base_type CfgValue;
-	const auto Result = Storage->GetValue(KeyName, ValueName, CfgValue, std::any_cast<base_type>(Default));
-	Set(CfgValue);
+	const auto Result = Storage->GetValue(KeyName, ValueName, CfgValue);
+	Set(Result? CfgValue : std::any_cast<base_type>(Default));
 	return Result;
 }
 
@@ -2472,26 +2470,23 @@ void Options::ReadPanelModes()
 		{
 			return false;
 		}
-		string strColumnTitles, strColumnWidths;
-		cfg->GetValue(Key, ModesColumnTitlesName, strColumnTitles);
-		cfg->GetValue(Key, ModesColumnWidthsName, strColumnWidths);
 
-		string strStatusColumnTitles, strStatusColumnWidths;
-		cfg->GetValue(Key, ModesStatusColumnTitlesName, strStatusColumnTitles);
-		cfg->GetValue(Key, ModesStatusColumnWidthsName, strStatusColumnWidths);
+		i.Name = cfg->GetValue<string>(Key, ModesNameName);
+		i.Flags = cfg->GetValue<unsigned long long>(Key, ModesFlagsName);
 
-		unsigned long long Flags=0;
-		cfg->GetValue(Key, ModesFlagsName, Flags);
+		const auto ColumnTitles = cfg->GetValue<string>(Key, ModesColumnTitlesName);
+		if (!ColumnTitles.empty())
+		{
+			const auto ColumnWidths = cfg->GetValue<string>(Key, ModesColumnWidthsName);
+			i.PanelColumns = DeserialiseViewSettings(ColumnTitles, ColumnWidths);
+		}
 
-		cfg->GetValue(Key, ModesNameName, i.Name);
-
-		if (!strColumnTitles.empty())
-			i.PanelColumns = DeserialiseViewSettings(strColumnTitles, strColumnWidths);
-
-		if (!strStatusColumnTitles.empty())
-			i.StatusColumns = DeserialiseViewSettings(strStatusColumnTitles, strStatusColumnWidths);
-
-		i.Flags = Flags;
+		const auto StatusColumnTitles = cfg->GetValue<string>(Key, ModesStatusColumnTitlesName);
+		if (!StatusColumnTitles.empty())
+		{
+			const auto StatusColumnWidths = cfg->GetValue<string>(Key, ModesStatusColumnWidthsName);
+			i.StatusColumns = DeserialiseViewSettings(StatusColumnTitles, StatusColumnWidths);
+		}
 
 		return true;
 	};

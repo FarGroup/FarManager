@@ -31,21 +31,20 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "tracer.hpp"
 
 #include "imports.hpp"
-#include "farexcpt.hpp"
 #include "encoding.hpp"
 #include "pathmix.hpp"
+#include "exception.hpp"
 
 #include "platform.fs.hpp"
 
 #include "format.hpp"
 
 
-static auto GetBackTrace(const exception_context& Context)
+// StackWalk64() may modify context record passed to it, so we will use a copy.
+static auto GetBackTrace(CONTEXT ContextRecord, HANDLE ThreadHandle)
 {
 	std::vector<const void*> Result;
 
-	// StackWalk64() may modify context record passed to it, so we will use a copy.
-	auto ContextRecord = *Context.pointers()->ContextRecord;
 	STACKFRAME64 StackFrame{};
 	const DWORD MachineType =
 #ifdef _WIN64
@@ -63,7 +62,7 @@ static auto GetBackTrace(const exception_context& Context)
 	StackFrame.AddrFrame.Mode = AddrModeFlat;
 	StackFrame.AddrStack.Mode = AddrModeFlat;
 
-	while (imports.StackWalk64(MachineType, GetCurrentProcess(), Context.thread_handle(), &StackFrame, &ContextRecord, nullptr, imports.SymFunctionTableAccess64, imports.SymGetModuleBase64, nullptr))
+	while (imports.StackWalk64(MachineType, GetCurrentProcess(), ThreadHandle, &StackFrame, &ContextRecord, nullptr, imports.SymFunctionTableAccess64, imports.SymGetModuleBase64, nullptr))
 	{
 		Result.emplace_back(reinterpret_cast<const void*>(StackFrame.AddrPC.Offset));
 	}
@@ -73,6 +72,8 @@ static auto GetBackTrace(const exception_context& Context)
 
 static void GetSymbols(const std::vector<const void*>& BackTrace, const std::function<void(string&&, string&&, string&&)>& Consumer)
 {
+	SCOPED_ACTION(auto)(tracer::with_symbols());
+
 	const auto Process = GetCurrentProcess();
 	const auto MaxNameLen = MAX_SYM_NAME;
 	block_ptr<SYMBOL_INFO> Symbol(sizeof(SYMBOL_INFO) + MaxNameLen + 1);
@@ -111,121 +112,40 @@ static void GetSymbols(const std::vector<const void*>& BackTrace, const std::fun
 	}
 }
 
-static auto GetSymbols(const std::vector<const void*>& BackTrace)
+extern "C" void** __current_exception();
+extern "C" void** __current_exception_context();
+
+static EXCEPTION_RECORD DummyRecord;
+static CONTEXT DummyContext;
+
+EXCEPTION_POINTERS tracer::get_pointers()
 {
-	std::vector<string> Result;
-	GetSymbols(BackTrace, [&](string&& Address, string&& Name, string&& Source)
+	return
 	{
-		if (!Name.empty())
-			append(Address, L' ', Name);
-
-		if (!Source.empty())
-			append(Address, L" ("sv, Source, L')');
-
-		Result.emplace_back(std::move(Address));
-	});
-	return Result;
+#ifdef _MSC_VER
+		static_cast<EXCEPTION_RECORD*>(*__current_exception()),
+		static_cast<CONTEXT*>(*__current_exception_context())
+#else
+		&DummyRecord,
+		&DummyContext
+#endif
+	};
 }
 
-static tracer* StaticInstance;
-
-static LONG WINAPI StackLogger(EXCEPTION_POINTERS *xp)
-{
-	if (IsCppException(xp->ExceptionRecord))
-	{
-		// 0 indicates rethrow
-		if (xp->ExceptionRecord->ExceptionInformation[1])
-		{
-			if (StaticInstance)
-				StaticInstance->store(ToPtr(xp->ExceptionRecord->ExceptionInformation[1]), xp);
-		}
-	}
-	return EXCEPTION_CONTINUE_SEARCH;
-}
-
-tracer::veh_handler::veh_handler(PVECTORED_EXCEPTION_HANDLER Handler):
-	m_Handler(imports.AddVectoredExceptionHandler(TRUE, Handler))
-{
-}
-
-tracer::veh_handler::~veh_handler()
-{
-	imports.RemoveVectoredExceptionHandler(m_Handler);
-}
-
-tracer::tracer():
-	m_Handler(StackLogger)
-{
-	assert(!StaticInstance);
-
-	string Path;
-	if (os::fs::GetModuleFileName(nullptr, nullptr, Path))
-	{
-		CutToParent(Path);
-		m_SymbolSearchPath = encoding::ansi::get_bytes(Path);
-	}
-
-	StaticInstance = this;
-}
-
-tracer::~tracer()
-{
-	assert(StaticInstance);
-
-	StaticInstance = nullptr;
-}
-
-void tracer::store(const void* CppObject, const EXCEPTION_POINTERS* ExceptionInfo)
-{
-	SCOPED_ACTION(os::critical_section_lock)(m_CS);
-	if (m_CppMap.size() > 2048)
-	{
-		// We can't store them forever
-		m_CppMap.clear();
-	}
-	m_CppMap.try_emplace(CppObject, std::make_unique<exception_context>(ExceptionInfo->ExceptionRecord->ExceptionCode, ExceptionInfo));
-}
-
-tracer* tracer::get_instance()
-{
-	return StaticInstance;
-}
-
-std::unique_ptr<exception_context> tracer::get_context(const void* CppObject)
-{
-	SCOPED_ACTION(os::critical_section_lock)(m_CS);
-	auto Iterator = m_CppMap.find(CppObject);
-	if (Iterator == m_CppMap.end())
-		return nullptr;
-	auto Result = std::move(Iterator->second);
-	m_CppMap.erase(Iterator);
-	return Result;
-}
-
-std::unique_ptr<exception_context> tracer::get_exception_context(const void* CppObject)
-{
-	return StaticInstance? StaticInstance->get_context(CppObject) : nullptr;
-}
-
-std::vector<string> tracer::get(const void* CppObject)
-{
-	const auto Context = StaticInstance? StaticInstance->get_context(CppObject) : nullptr;
-	if (!Context)
-		return {};
-
-	SCOPED_ACTION(auto)(with_symbols());
-	return GetSymbols(GetBackTrace(*Context));
-}
-
-std::vector<string> tracer::get(const exception_context& Context)
+std::vector<const void*> tracer::get(const EXCEPTION_POINTERS& Pointers, HANDLE ThreadHandle)
 {
 	SCOPED_ACTION(auto)(with_symbols());
-	return GetSymbols(GetBackTrace(Context));
+
+	return GetBackTrace(*Pointers.ContextRecord, ThreadHandle);
 }
 
-void tracer::get_one(const void* Ptr, string& Address, string& Name, string& Source)
+void tracer::get_symbols(const std::vector<const void*>& Trace, const std::function<void(string&& Address, string&& Name, string&& Source)>& Consumer)
 {
-	SCOPED_ACTION(auto)(with_symbols());
+	GetSymbols(Trace, Consumer);
+}
+
+void tracer::get_symbol(const void* Ptr, string& Address, string& Name, string& Source)
+{
 	GetSymbols({Ptr}, [&](string&& StrAddress, string&& StrName, string&& StrSource)
 	{
 		Address = std::move(StrAddress);
@@ -234,24 +154,32 @@ void tracer::get_one(const void* Ptr, string& Address, string& Name, string& Sou
 	});
 }
 
-bool tracer::SymInitialise()
+static int s_SymInitialised = 0;
+
+void tracer::sym_initialise()
 {
-	if (m_SymInitialised)
+	if (s_SymInitialised)
 	{
-		++m_SymInitialised;
-		return true;
+		++s_SymInitialised;
+		return;
 	}
 
-	if (imports.SymInitialize(GetCurrentProcess(), EmptyToNull(m_SymbolSearchPath.c_str()), TRUE))
-		++m_SymInitialised;
-	return m_SymInitialised != 0;
+	string Path;
+	if (!os::fs::GetModuleFileName(nullptr, nullptr, Path))
+		throw MAKE_FAR_FATAL_EXCEPTION(L"GetModuleFileName failed");
+
+	CutToParent(Path);
+	const auto SymbolSearchPath = encoding::ansi::get_bytes(Path);
+
+	if (imports.SymInitialize(GetCurrentProcess(), EmptyToNull(SymbolSearchPath.c_str()), TRUE))
+		++s_SymInitialised;
 }
 
-void tracer::SymCleanup()
+void tracer::sym_cleanup()
 {
-	if (m_SymInitialised)
-		--m_SymInitialised;
+	if (s_SymInitialised)
+		--s_SymInitialised;
 
-	if (!m_SymInitialised)
+	if (!s_SymInitialised)
 		imports.SymCleanup(GetCurrentProcess());
 }

@@ -121,8 +121,6 @@ public: const unique_function_pointer<decltype(&imports::stub_##NAME), name_##NA
 	DECLARE_IMPORT_FUNCTION(kernel32, BOOL, WINAPI, GetConsoleScreenBufferInfoEx, HANDLE ConsoleOutput, PCONSOLE_SCREEN_BUFFER_INFOEX ConsoleScreenBufferInfoEx);
 	DECLARE_IMPORT_FUNCTION(kernel32, BOOL, WINAPI, QueryFullProcessImageNameW, HANDLE Process, DWORD Flags, LPWSTR ExeName, PDWORD Size);
 	DECLARE_IMPORT_FUNCTION(kernel32, BOOL, WINAPI, TzSpecificLocalTimeToSystemTime, const TIME_ZONE_INFORMATION* TimeZoneInformation, const SYSTEMTIME* LocalTime, LPSYSTEMTIME UniversalTime);
-	DECLARE_IMPORT_FUNCTION(kernel32, PVOID, WINAPI, AddVectoredExceptionHandler, ULONG First, PVECTORED_EXCEPTION_HANDLER Handler);
-	DECLARE_IMPORT_FUNCTION(kernel32, ULONG, WINAPI, RemoveVectoredExceptionHandler, PVOID Handler);
 	DECLARE_IMPORT_FUNCTION(kernel32, void,    WINAPI, InitializeSRWLock, PSRWLOCK SRWLock);
 	DECLARE_IMPORT_FUNCTION(kernel32, void,    WINAPI, AcquireSRWLockExclusive, PSRWLOCK SRWLock);
 	DECLARE_IMPORT_FUNCTION(kernel32, void,    WINAPI, AcquireSRWLockShared, PSRWLOCK SRWLock);

@@ -221,22 +221,24 @@ private:
 		SetValueT(Key, Name, Value);
 	}
 
-	bool GetValue(const string_view Key, const string_view Name, bool& Value, const bool Default) const override
+	bool GetValue(const string_view Key, const string_view Name, bool& Value) const override
 	{
-		long long Data = Default;
-		const auto Result = GetValue(Key, Name, Data, Data);
+		long long Data;
+		if (!GetValue(Key, Name, Data))
+			return false;
+
 		Value = Data != 0;
-		return Result;
+		return true;
 	}
 
-	bool GetValue(const string_view Key, const string_view Name, long long& Value, const long long Default) const override
+	bool GetValue(const string_view Key, const string_view Name, long long& Value) const override
 	{
-		return GetValueT<column_type::integer>(Key, Name, Value, Default, &SQLiteStmt::GetColInt64);
+		return GetValueT<column_type::integer>(Key, Name, Value, &SQLiteStmt::GetColInt64);
 	}
 
-	bool GetValue(const string_view Key, const string_view Name, string& Value, string_view const Default) const override
+	bool GetValue(const string_view Key, const string_view Name, string& Value) const override
 	{
-		return GetValueT<column_type::string>(Key, Name, Value, Default, &SQLiteStmt::GetColText);
+		return GetValueT<column_type::string>(Key, Name, Value, &SQLiteStmt::GetColText);
 	}
 
 	void DeleteValue(const string_view Key, const string_view Name) override
@@ -328,15 +330,12 @@ private:
 
 	virtual const char* GetKeyName() const = 0;
 
-	template<column_type TypeId, class getter_t, class T, class DT>
-	bool GetValueT(const string_view Key, const string_view Name, T& Value, const DT& Default, const getter_t Getter) const
+	template<column_type TypeId, class getter_t, class T>
+	bool GetValueT(const string_view Key, const string_view Name, T& Value, const getter_t Getter) const
 	{
 		const auto Stmt = AutoStatement(stmtGetValue);
 		if (!Stmt->Bind(Key, Name).Step() || Stmt->GetColType(0) != TypeId)
-		{
-			Value = Default;
 			return false;
-		}
 
 		Value = std::invoke(Getter, Stmt, 0);
 		return true;

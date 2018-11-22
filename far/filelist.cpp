@@ -451,13 +451,13 @@ void FileList::ToBegin()
 
 void FileList::ToEnd()
 {
-	m_CurFile = static_cast<int>(m_ListData.size() - 1);
+	m_CurFile = m_ListData.empty()? 0 : static_cast<int>(m_ListData.size() - 1);
 	ShowFileList();
 }
 
 void FileList::MoveCursor(int offset)
 {
-	m_CurFile = std::clamp(m_CurFile + offset, 0, static_cast<int>(m_ListData.size() - 1));
+	m_CurFile = m_ListData.empty()? 0 : std::clamp(m_CurFile + offset, 0, static_cast<int>(m_ListData.size() - 1));
 }
 
 void FileList::MoveCursorAndShow(int offset)

@@ -75,7 +75,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "diskmenu.hpp"
 #include "string_utils.hpp"
 #include "vmenu.hpp"
-#include "farexcpt.hpp"
+#include "exception_handler.hpp"
 #include "drivemix.hpp"
 #include "global.hpp"
 
@@ -2607,7 +2607,7 @@ bool FindFiles::FindFilesProcess()
 				FindThread.detach();
 			}
 
-			RethrowIfNeeded(m_ExceptionPtr);
+			rethrow_if(m_ExceptionPtr);
 		}
 
 		switch (Dlg->GetExitCode())

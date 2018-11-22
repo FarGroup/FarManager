@@ -1,14 +1,12 @@
-﻿#ifndef PIPE_HPP_C460EC90_9861_4D55_B47D_D1E8F6EEBC78
-#define PIPE_HPP_C460EC90_9861_4D55_B47D_D1E8F6EEBC78
+﻿#ifndef EXCEPTION_HANDLER_TEST_HPP_8119AB71_22B0_4DCC_9A24_392834012EDB
+#define EXCEPTION_HANDLER_TEST_HPP_8119AB71_22B0_4DCC_9A24_392834012EDB
 #pragma once
 
 /*
-pipe.hpp
-
-Pipe-based IPC
+exception_handler_test.hpp
 */
 /*
-Copyright © 2014 Far Group
+Copyright © 2018 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -34,37 +32,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "platform.hpp"
+void RegisterTestExceptionsHook();
 
-#include "common/preprocessor.hpp"
-
-namespace pipe
-{
-	namespace detail
-	{
-		template<typename T>
-		constexpr bool supported_type = !std::is_pointer_v<T> && std::is_trivially_copyable_v<T>;
-	}
-
-	void read(const os::handle& Pipe, void* Data, size_t DataSize);
-
-	template<typename T, REQUIRES(detail::supported_type<T>)>
-	void read(const os::handle& Pipe, T& Data)
-	{
-		read(Pipe, &Data, sizeof(Data));
-	}
-
-	void read(const os::handle& Pipe, string& Data);
-
-	void write(const os::handle& Pipe, const void* Data, size_t DataSize);
-
-	template<typename T, REQUIRES(detail::supported_type<T>)>
-	void write(const os::handle& Pipe, const T& Data)
-	{
-		write(Pipe, &Data, sizeof(Data));
-	}
-
-	void write(const os::handle& Pipe, string_view Data);
-}
-
-#endif // PIPE_HPP_C460EC90_9861_4D55_B47D_D1E8F6EEBC78
+#endif // EXCEPTION_HANDLER_TEST_HPP_8119AB71_22B0_4DCC_9A24_392834012EDB

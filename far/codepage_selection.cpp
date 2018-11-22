@@ -542,7 +542,7 @@ void codepages::FormatCodePageName(uintptr_t CodePage, string& CodePageName, boo
 	string StoredName;
 
 	// Пытаемся получить заданное пользователем имя таблицы символов
-	if (!ConfigProvider().GeneralCfg()->GetValue(NamesOfCodePagesKey, strCodePage, StoredName, L""))
+	if (!ConfigProvider().GeneralCfg()->GetValue(NamesOfCodePagesKey, strCodePage, StoredName))
 		return;
 
 	if (StoredName == CodePageName)
@@ -769,9 +769,7 @@ bool codepages::IsCodePageSupported(uintptr_t CodePage, size_t MaxCharSize)
 
 long long codepages::GetFavorite(uintptr_t cp)
 {
-	long long value = 0;
-	ConfigProvider().GeneralCfg()->GetValue(FavoriteCodePagesKey(), str(cp), value, 0);
-	return value;
+	return ConfigProvider().GeneralCfg()->GetValue<long long>(FavoriteCodePagesKey(), str(cp));
 }
 
 void codepages::SetFavorite(uintptr_t cp, long long value)

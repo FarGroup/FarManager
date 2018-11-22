@@ -117,15 +117,14 @@ Shortcuts::Shortcuts(size_t Index):
 		if (!Cfg->GetValue(Key, FolderName + sIndex, Item.Folder))
 			break;
 
-		Cfg->GetValue(Key, NameName + sIndex, Item.Name);
+		Item.Name = Cfg->GetValue<string>(Key, NameName + sIndex);
 
-		string PluginGuid;
-		Cfg->GetValue(Key, PluginGuidName + sIndex, PluginGuid);
+		const auto PluginGuid = Cfg->GetValue<string>(Key, PluginGuidName + sIndex);
 		if(!StrToGuid(PluginGuid, Item.PluginGuid))
 			Item.PluginGuid=FarGuid;
 
-		Cfg->GetValue(Key, PluginFileName + sIndex, Item.PluginFile);
-		Cfg->GetValue(Key, PluginDataName + sIndex, Item.PluginData);
+		Item.PluginFile = Cfg->GetValue<string>(Key, PluginFileName + sIndex);
+		Item.PluginData = Cfg->GetValue<string>(Key, PluginDataName + sIndex);
 
 		m_Items.emplace_back(std::move(Item));
 	}

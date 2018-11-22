@@ -170,9 +170,7 @@ wchar_t* Xlat(wchar_t *Line, int StartPos, int EndPos, unsigned long long Flags)
 		      руками переключили раскладку,
 		      снова конвертим и...
 		*/
-		string XlatRules;
-		ConfigProvider().GeneralCfg()->GetValue(L"XLat"sv, strLayoutName, XlatRules, L"");
-		RulesNamed = XlatRules;
+		RulesNamed = ConfigProvider().GeneralCfg()->GetValue<string>(L"XLat"sv, strLayoutName);
 		if (!RulesNamed.empty())
 			ProcessLayoutName=true;
 	}

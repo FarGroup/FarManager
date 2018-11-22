@@ -3,13 +3,11 @@
 #pragma once
 
 /*
-farexcpt.hpp
+exception_handler.hpp
 
-Все про исключения
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright © 2018 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -51,9 +49,16 @@ public:
 
 void RestoreGPFaultUI();
 
-void RegisterTestExceptionsHook();
-
 bool IsCppException(const EXCEPTION_RECORD* Record);
+
+namespace detail
+{
+	int SehFilter(int Code, const EXCEPTION_POINTERS* Info, string_view Function, const Plugin* Module);
+	void ResetStackOverflowIfNeeded();
+	void SetFloatingPointExceptions(bool Enable);
+	std::exception_ptr MakeSehExceptionPtr(DWORD Code, EXCEPTION_POINTERS* Pointers, bool ResumeThread);
+}
+
 
 template<class function, class filter, class handler>
 auto seh_invoke(function&& Callable, filter&& Filter, handler&& Handler)
@@ -67,17 +72,14 @@ auto seh_invoke(function&& Callable, filter&& Filter, handler&& Handler)
 	std::function<DWORD(DWORD, EXCEPTION_POINTERS*)> FilterWrapper = Filter;
 #define Filter FilterWrapper
 #endif
-	void SetFloatingPointExceptions(bool);
 
 	__try
 	{
 		return Callable();
 	}
-	__except (SetFloatingPointExceptions(false), Filter(GetExceptionCode(), GetExceptionInformation()))
+	__except (detail::SetFloatingPointExceptions(false), Filter(GetExceptionCode(), GetExceptionInformation()))
 	{
-		void ResetStackOverflowIfNeeded();
-
-		ResetStackOverflowIfNeeded();
+		detail::ResetStackOverflowIfNeeded();
 		return Handler();
 	}
 #if COMPILER == C_CLANG
@@ -91,8 +93,7 @@ auto seh_invoke_with_ui(function&& Callable, handler&& Handler, const string_vie
 {
 	return seh_invoke(FWD(Callable), [&](auto Code, auto Info)
 	{
-		int SehFilter(int, const EXCEPTION_POINTERS*, string_view, const Plugin*);
-		return SehFilter(Code, Info, Function, Module);
+		return detail::SehFilter(Code, Info, Function, Module);
 	}, FWD(Handler));
 }
 
@@ -107,7 +108,7 @@ auto seh_invoke_thread(std::exception_ptr& ExceptionPtr, function&& Callable)
 {
 	return seh_invoke(FWD(Callable), [&](auto Code, auto Info)
 	{
-		ExceptionPtr = std::make_exception_ptr(seh_exception(Code, Info, true));
+		ExceptionPtr = detail::MakeSehExceptionPtr(Code, Info, true);
 		return EXCEPTION_EXECUTE_HANDLER;
 	},
 	[]

@@ -44,7 +44,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "lang.hpp"
 #include "language.hpp"
-#include "farexcpt.hpp"
 #include "imports.hpp"
 #include "syslog.hpp"
 #include "interf.hpp"
@@ -60,7 +59,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "treelist.hpp"
 #include "plugins.hpp"
 #include "notification.hpp"
-#include "tracer.hpp"
+#include "exception_handler.hpp"
+#include "exception_handler_test.hpp"
 #include "constitle.hpp"
 #include "string_utils.hpp"
 #include "cvtname.hpp"
@@ -411,7 +411,7 @@ static bool ProcessServiceModes(range<const wchar_t* const*> const Args, int& Se
 	if (InRange(2u, Args.size(), 5u) && (isArg(Args[0], L"export"sv) || isArg(Args[0], L"import"sv)))
 	{
 		const auto Export = isArg(Args[0], L"export"sv);
-		string strProfilePath(Args.size() > 2 ? Args[2] : L""), strLocalProfilePath(Args.size() > 3 ? Args[3] : L""), strTemplatePath(Args.size() > 4 ? Args[4] : L"");
+		string strProfilePath(Args.size() > 2? Args[2] : L""sv), strLocalProfilePath(Args.size() > 3 ? Args[3] : L""), strTemplatePath(Args.size() > 4 ? Args[4] : L"");
 		InitTemplateProfile(strTemplatePath);
 		InitProfile(strProfilePath, strLocalProfilePath);
 		Global->m_ConfigProvider = new config_provider(Export? config_provider::mode::m_export : config_provider::mode::m_import);
@@ -421,8 +421,8 @@ static bool ProcessServiceModes(range<const wchar_t* const*> const Args, int& Se
 
 	if (InRange(1u, Args.size(), 3u) && isArg(Args[0], L"clearcache"sv))
 	{
-		string strProfilePath(Args.size() > 1 ? Args[1] : L"");
-		string strLocalProfilePath(Args.size() > 2 ? Args[2] : L"");
+		string strProfilePath(Args.size() > 1? Args[1] : L""sv);
+		string strLocalProfilePath(Args.size() > 2? Args[2] : L""sv);
 		InitProfile(strProfilePath, strLocalProfilePath);
 		config_provider{config_provider::clear_cache{}};
 		ServiceResult = 0;
@@ -435,9 +435,8 @@ static bool ProcessServiceModes(range<const wchar_t* const*> const Args, int& Se
 static void UpdateErrorMode()
 {
 	Global->ErrorMode |= SEM_NOGPFAULTERRORBOX;
-	bool IgnoreDataAlignmentFaults;
-	ConfigProvider().GeneralCfg()->GetValue(L"System.Exception"sv, L"IgnoreDataAlignmentFaults"sv, IgnoreDataAlignmentFaults, false);
-	if (IgnoreDataAlignmentFaults)
+
+	if (ConfigProvider().GeneralCfg()->GetValue<bool>(L"System.Exception"sv, L"IgnoreDataAlignmentFaults"sv))
 	{
 		Global->ErrorMode |= SEM_NOALIGNMENTFAULTEXCEPT;
 	}
@@ -447,10 +446,7 @@ static void UpdateErrorMode()
 
 static void SetDriveMenuHotkeys()
 {
-	bool InitDriveMenuHotkeys;
-	ConfigProvider().GeneralCfg()->GetValue(L"Interface"sv, L"InitDriveMenuHotkeys"sv, InitDriveMenuHotkeys, true);
-
-	if (InitDriveMenuHotkeys)
+	if (ConfigProvider().GeneralCfg()->GetValue<bool>(L"Interface"sv, L"InitDriveMenuHotkeys"sv, true))
 	{
 		static const struct
 		{
@@ -793,7 +789,6 @@ static int wmain_seh(int Argc, const wchar_t* const Argv[])
 	atexit(PrintSysLogStat);
 #endif
 
-	SCOPED_ACTION(tracer);
 	SCOPED_ACTION(unhandled_exception_filter);
 	SCOPED_ACTION(new_handler);
 

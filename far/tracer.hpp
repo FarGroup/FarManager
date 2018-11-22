@@ -32,61 +32,39 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "platform.concurrency.hpp"
-
 class tracer: noncopyable
 {
 public:
-	tracer();
-	~tracer();
-
-	void store(const void* CppObject, const EXCEPTION_POINTERS* ExceptionInfo);
-
-	static std::vector<string> get(const void* CppObject);
-	static std::vector<string> get(const exception_context& Context);
-	static void get_one(const void* Ptr, string& Address, string& Name, string& Source);
-
-	static std::unique_ptr<exception_context> get_exception_context(const void* CppObject);
+	static EXCEPTION_POINTERS get_pointers();
+	static std::vector<const void*> get(const EXCEPTION_POINTERS& Pointers, HANDLE ThreadHandle);
+	static void get_symbols(const std::vector<const void*>& Trace, const std::function<void(string&& Address, string&& Name, string&& Source)>& Consumer);
+	static void get_symbol(const void* Ptr, string& Address, string& Name, string& Source);
 
 	static auto with_symbols()
 	{
-		return make_raii_wrapper(get_instance(),
-			[](tracer* const Tracer)
+		class with_symbols_t
+		{
+		public:
+			NONCOPYABLE(with_symbols_t);
+			MOVABLE(with_symbols_t);
+
+			with_symbols_t()
 			{
-				if (Tracer)
-					Tracer->SymInitialise();
-			},
-			[](tracer* const Tracer)
+				sym_initialise();
+			}
+
+			~with_symbols_t()
 			{
-				if (Tracer)
-					Tracer->SymCleanup();
-			});
+				sym_cleanup();
+			}
+		};
+
+		return with_symbols_t{};
 	}
 
 private:
-	static tracer* get_instance();
-
-	std::unique_ptr<exception_context> get_context(const void* CppObject);
-
-	bool SymInitialise();
-	void SymCleanup();
-
-	static tracer* sTracer;
-	mutable os::critical_section m_CS;
-	std::unordered_map<const void*, std::unique_ptr<exception_context>> m_CppMap;
-	std::string m_SymbolSearchPath;
-
-	class veh_handler: noncopyable
-	{
-	public:
-		explicit veh_handler(PVECTORED_EXCEPTION_HANDLER Handler);
-		~veh_handler();
-
-	private:
-		void* m_Handler;
-	}
-	m_Handler;
-	std::atomic_int32_t m_SymInitialised{};
+	static void sym_initialise();
+	static void sym_cleanup();
 };
 
 #endif // TRACER_HPP_AD7B9307_ECFD_46FC_B001_E48C9B89DE64

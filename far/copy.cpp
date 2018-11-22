@@ -1417,7 +1417,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 				{
 					const auto ErrorState = error_state::fetch();
 
-					const auto Result = OperationFailed(ErrorState, strDestDriveRoot, lng::MError, L"");
+					const auto Result = OperationFailed(ErrorState, strDestDriveRoot, lng::MError, {});
 					if (Result == operation::retry)
 					{
 						continue;
@@ -3665,7 +3665,7 @@ int ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,cons
 	callback_data CallbackData{ this };
 	if (!os::fs::copy_file(SrcName, DestName, callback_wrapper::callback, &CallbackData, nullptr, Flags&FCOPY_DECRYPTED_DESTINATION ? COPY_FILE_ALLOW_DECRYPTED_DESTINATION : 0))
 	{
-		RethrowIfNeeded(CallbackData.ExceptionPtr);
+		rethrow_if(CallbackData.ExceptionPtr);
 		Flags&=~FCOPY_DECRYPTED_DESTINATION;
 		return (GetLastError() == ERROR_REQUEST_ABORTED)? COPY_CANCEL : COPY_FAILURE;
 	}

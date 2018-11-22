@@ -163,7 +163,7 @@ void ShowProcessList()
 		ProcInfo Info{ ProcList.get(), ShowImage };
 		if (!EnumWindows(EnumWindowsProc, reinterpret_cast<LPARAM>(&Info)))
 		{
-			RethrowIfNeeded(Info.ExceptionPtr);
+			rethrow_if(Info.ExceptionPtr);
 			return false;
 		}
 

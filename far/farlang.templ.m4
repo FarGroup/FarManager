@@ -3244,19 +3244,20 @@ upd:"Save view mode"
 upd:"Save view mode"
 upd:"Save view mode"
 upd:"Save view mode"
-upd:"Save view mode"
+"Зберігати режим перегляду"
 
+# We really should come up with a better name for this option
 MViewConfigDetectDumpMode
-"Автов&ыбор дамп режима просмотра"
+"Автов&ыбор дамп-режима просмотра"
 "Detect d&ump mode view"
-upd:"Detect dump mode view"
-upd:"Detect dump mode view"
-upd:"Detect dump mode view"
-upd:"Detect dump mode view"
-upd:"Detect dump mode view"
-upd:"Detect dump mode view"
-upd:"Detect dump mode view"
-upd:"Detect dump mode view"
+upd:"Detect dump view mode"
+upd:"Detect dump view mode"
+upd:"Detect dump view mode"
+upd:"Detect dump view mode"
+upd:"Detect dump view mode"
+upd:"Detect dump view mode"
+upd:"Detect dump view mode"
+"Автовизначення дамп-режиму перегляду"
 
 MViewAutoDetectCodePage
 "&Автоопределение кодовой страницы"
@@ -11984,7 +11985,7 @@ MSingleViewAltShiftF10
 ""
 ""
 ""
-""   
+""
 
 MSingleViewAltShiftF11
 ""
@@ -15221,7 +15222,7 @@ MMenuMaskGroups
 "Группы масок файлов"
 "Groups of file masks"
 "Skupiny masek souborů"
-"Gruppe der Datenmasken" 
+"Gruppe der Datenmasken"
 upd:"Groups of file masks"
 upd:"Groups of file masks"
 "Grupos de máscara de archivos"
@@ -19339,7 +19340,7 @@ MFolderTreeF12
 ""
 
 
-MFolderTreeShiftF1 
+MFolderTreeShiftF1
 ""
 ""
 ""
@@ -19351,7 +19352,7 @@ MFolderTreeShiftF1
 ""
 ""
 
-MFolderTreeShiftF2 
+MFolderTreeShiftF2
 ""
 ""
 ""
@@ -19363,7 +19364,7 @@ MFolderTreeShiftF2
 ""
 ""
 
-MFolderTreeShiftF3 
+MFolderTreeShiftF3
 ""
 ""
 ""
@@ -19375,7 +19376,7 @@ MFolderTreeShiftF3
 ""
 ""
 
-MFolderTreeShiftF4 
+MFolderTreeShiftF4
 ""
 ""
 ""
@@ -19387,7 +19388,7 @@ MFolderTreeShiftF4
 ""
 ""
 
-MFolderTreeShiftF5 
+MFolderTreeShiftF5
 ""
 ""
 ""
@@ -19399,7 +19400,7 @@ MFolderTreeShiftF5
 ""
 ""
 
-MFolderTreeShiftF6 
+MFolderTreeShiftF6
 ""
 ""
 ""
@@ -19411,7 +19412,7 @@ MFolderTreeShiftF6
 ""
 ""
 
-MFolderTreeShiftF7 
+MFolderTreeShiftF7
 ""
 ""
 ""
@@ -19423,7 +19424,7 @@ MFolderTreeShiftF7
 ""
 ""
 
-MFolderTreeShiftF8 
+MFolderTreeShiftF8
 ""
 ""
 ""
@@ -19435,7 +19436,7 @@ MFolderTreeShiftF8
 ""
 ""
 
-MFolderTreeShiftF9 
+MFolderTreeShiftF9
 ""
 ""
 ""
@@ -19483,7 +19484,7 @@ MFolderTreeShiftF12
 ""
 ""
 
-MFolderTreeAltF1 
+MFolderTreeAltF1
 ""
 ""
 ""
@@ -19495,7 +19496,7 @@ MFolderTreeAltF1
 ""
 ""
 
-MFolderTreeAltF2 
+MFolderTreeAltF2
 ""
 ""
 ""
@@ -19507,7 +19508,7 @@ MFolderTreeAltF2
 ""
 ""
 
-MFolderTreeAltF3 
+MFolderTreeAltF3
 ""
 ""
 ""
@@ -19519,7 +19520,7 @@ MFolderTreeAltF3
 ""
 ""
 
-MFolderTreeAltF4 
+MFolderTreeAltF4
 ""
 ""
 ""
@@ -19531,7 +19532,7 @@ MFolderTreeAltF4
 ""
 ""
 
-MFolderTreeAltF5 
+MFolderTreeAltF5
 ""
 ""
 ""
@@ -19543,7 +19544,7 @@ MFolderTreeAltF5
 ""
 ""
 
-MFolderTreeAltF6 
+MFolderTreeAltF6
 ""
 ""
 ""
@@ -19555,7 +19556,7 @@ MFolderTreeAltF6
 ""
 ""
 
-MFolderTreeAltF7 
+MFolderTreeAltF7
 ""
 ""
 ""
@@ -19567,7 +19568,7 @@ MFolderTreeAltF7
 ""
 ""
 
-MFolderTreeAltF8 
+MFolderTreeAltF8
 ""
 ""
 ""
@@ -19579,7 +19580,7 @@ MFolderTreeAltF8
 ""
 ""
 
-MFolderTreeAltF9 
+MFolderTreeAltF9
 "Видео"
 "Video"
 "Video"
@@ -19627,7 +19628,7 @@ MFolderTreeAltF12
 ""
 ""
 
-MFolderTreeCtrlF1 
+MFolderTreeCtrlF1
 ""
 ""
 ""
@@ -19639,7 +19640,7 @@ MFolderTreeCtrlF1
 ""
 ""
 
-MFolderTreeCtrlF2 
+MFolderTreeCtrlF2
 ""
 ""
 ""
@@ -19651,7 +19652,7 @@ MFolderTreeCtrlF2
 ""
 ""
 
-MFolderTreeCtrlF3 
+MFolderTreeCtrlF3
 ""
 ""
 ""
@@ -19663,7 +19664,7 @@ MFolderTreeCtrlF3
 ""
 ""
 
-MFolderTreeCtrlF4 
+MFolderTreeCtrlF4
 ""
 ""
 ""
@@ -19675,7 +19676,7 @@ MFolderTreeCtrlF4
 ""
 ""
 
-MFolderTreeCtrlF5 
+MFolderTreeCtrlF5
 ""
 ""
 ""
@@ -19687,7 +19688,7 @@ MFolderTreeCtrlF5
 ""
 ""
 
-MFolderTreeCtrlF6 
+MFolderTreeCtrlF6
 ""
 ""
 ""
@@ -19699,7 +19700,7 @@ MFolderTreeCtrlF6
 ""
 ""
 
-MFolderTreeCtrlF7 
+MFolderTreeCtrlF7
 ""
 ""
 ""
@@ -19711,7 +19712,7 @@ MFolderTreeCtrlF7
 ""
 ""
 
-MFolderTreeCtrlF8 
+MFolderTreeCtrlF8
 ""
 ""
 ""
@@ -19723,7 +19724,7 @@ MFolderTreeCtrlF8
 ""
 ""
 
-MFolderTreeCtrlF9 
+MFolderTreeCtrlF9
 ""
 ""
 ""
@@ -19772,7 +19773,7 @@ MFolderTreeCtrlF12
 ""
 ""
 
-MFolderTreeCtrlShiftF1 
+MFolderTreeCtrlShiftF1
 ""
 ""
 ""
@@ -19784,7 +19785,7 @@ MFolderTreeCtrlShiftF1
 ""
 ""
 
-MFolderTreeCtrlShiftF2 
+MFolderTreeCtrlShiftF2
 ""
 ""
 ""
@@ -19796,7 +19797,7 @@ MFolderTreeCtrlShiftF2
 ""
 ""
 
-MFolderTreeCtrlShiftF3 
+MFolderTreeCtrlShiftF3
 ""
 ""
 ""
@@ -19808,7 +19809,7 @@ MFolderTreeCtrlShiftF3
 ""
 ""
 
-MFolderTreeCtrlShiftF4 
+MFolderTreeCtrlShiftF4
 ""
 ""
 ""
@@ -19820,7 +19821,7 @@ MFolderTreeCtrlShiftF4
 ""
 ""
 
-MFolderTreeCtrlShiftF5 
+MFolderTreeCtrlShiftF5
 ""
 ""
 ""
@@ -19832,7 +19833,7 @@ MFolderTreeCtrlShiftF5
 ""
 ""
 
-MFolderTreeCtrlShiftF6 
+MFolderTreeCtrlShiftF6
 ""
 ""
 ""
@@ -19844,7 +19845,7 @@ MFolderTreeCtrlShiftF6
 ""
 ""
 
-MFolderTreeCtrlShiftF7 
+MFolderTreeCtrlShiftF7
 ""
 ""
 ""
@@ -19856,7 +19857,7 @@ MFolderTreeCtrlShiftF7
 ""
 ""
 
-MFolderTreeCtrlShiftF8 
+MFolderTreeCtrlShiftF8
 ""
 ""
 ""
@@ -19868,7 +19869,7 @@ MFolderTreeCtrlShiftF8
 ""
 ""
 
-MFolderTreeCtrlShiftF9 
+MFolderTreeCtrlShiftF9
 ""
 ""
 ""
@@ -19916,7 +19917,7 @@ MFolderTreeCtrlShiftF12
 ""
 ""
 
-MFolderTreeCtrlAltF1 
+MFolderTreeCtrlAltF1
 ""
 ""
 ""
@@ -19928,7 +19929,7 @@ MFolderTreeCtrlAltF1
 ""
 ""
 
-MFolderTreeCtrlAltF2 
+MFolderTreeCtrlAltF2
 ""
 ""
 ""
@@ -19940,7 +19941,7 @@ MFolderTreeCtrlAltF2
 ""
 ""
 
-MFolderTreeCtrlAltF3 
+MFolderTreeCtrlAltF3
 ""
 ""
 ""
@@ -19952,7 +19953,7 @@ MFolderTreeCtrlAltF3
 ""
 ""
 
-MFolderTreeCtrlAltF4 
+MFolderTreeCtrlAltF4
 ""
 ""
 ""
@@ -19964,7 +19965,7 @@ MFolderTreeCtrlAltF4
 ""
 ""
 
-MFolderTreeCtrlAltF5 
+MFolderTreeCtrlAltF5
 ""
 ""
 ""
@@ -19976,7 +19977,7 @@ MFolderTreeCtrlAltF5
 ""
 ""
 
-MFolderTreeCtrlAltF6 
+MFolderTreeCtrlAltF6
 ""
 ""
 ""
@@ -19988,7 +19989,7 @@ MFolderTreeCtrlAltF6
 ""
 ""
 
-MFolderTreeCtrlAltF7 
+MFolderTreeCtrlAltF7
 ""
 ""
 ""
@@ -20000,7 +20001,7 @@ MFolderTreeCtrlAltF7
 ""
 ""
 
-MFolderTreeCtrlAltF8 
+MFolderTreeCtrlAltF8
 ""
 ""
 ""
@@ -20012,7 +20013,7 @@ MFolderTreeCtrlAltF8
 ""
 ""
 
-MFolderTreeCtrlAltF9 
+MFolderTreeCtrlAltF9
 ""
 ""
 ""
@@ -20060,7 +20061,7 @@ MFolderTreeCtrlAltF12
 ""
 ""
 
-MFolderTreeAltShiftF1 
+MFolderTreeAltShiftF1
 ""
 ""
 ""
@@ -20072,7 +20073,7 @@ MFolderTreeAltShiftF1
 ""
 ""
 
-MFolderTreeAltShiftF2 
+MFolderTreeAltShiftF2
 ""
 ""
 ""
@@ -20084,7 +20085,7 @@ MFolderTreeAltShiftF2
 ""
 ""
 
-MFolderTreeAltShiftF3 
+MFolderTreeAltShiftF3
 ""
 ""
 ""
@@ -20096,7 +20097,7 @@ MFolderTreeAltShiftF3
 ""
 ""
 
-MFolderTreeAltShiftF4 
+MFolderTreeAltShiftF4
 ""
 ""
 ""
@@ -20108,7 +20109,7 @@ MFolderTreeAltShiftF4
 ""
 ""
 
-MFolderTreeAltShiftF5 
+MFolderTreeAltShiftF5
 ""
 ""
 ""
@@ -20120,7 +20121,7 @@ MFolderTreeAltShiftF5
 ""
 ""
 
-MFolderTreeAltShiftF6 
+MFolderTreeAltShiftF6
 ""
 ""
 ""
@@ -20132,7 +20133,7 @@ MFolderTreeAltShiftF6
 ""
 ""
 
-MFolderTreeAltShiftF7 
+MFolderTreeAltShiftF7
 ""
 ""
 ""
@@ -20144,7 +20145,7 @@ MFolderTreeAltShiftF7
 ""
 ""
 
-MFolderTreeAltShiftF8 
+MFolderTreeAltShiftF8
 ""
 ""
 ""
@@ -20156,7 +20157,7 @@ MFolderTreeAltShiftF8
 ""
 ""
 
-MFolderTreeAltShiftF9 
+MFolderTreeAltShiftF9
 ""
 ""
 ""
@@ -20204,7 +20205,7 @@ MFolderTreeAltShiftF12
 ""
 ""
 
-MFolderTreeCtrlAltShiftF1 
+MFolderTreeCtrlAltShiftF1
 ""
 ""
 ""
@@ -20216,7 +20217,7 @@ MFolderTreeCtrlAltShiftF1
 ""
 ""
 
-MFolderTreeCtrlAltShiftF2 
+MFolderTreeCtrlAltShiftF2
 ""
 ""
 ""
@@ -20228,7 +20229,7 @@ MFolderTreeCtrlAltShiftF2
 ""
 ""
 
-MFolderTreeCtrlAltShiftF3 
+MFolderTreeCtrlAltShiftF3
 ""
 ""
 ""
@@ -20240,7 +20241,7 @@ MFolderTreeCtrlAltShiftF3
 ""
 ""
 
-MFolderTreeCtrlAltShiftF4 
+MFolderTreeCtrlAltShiftF4
 ""
 ""
 ""
@@ -20252,7 +20253,7 @@ MFolderTreeCtrlAltShiftF4
 ""
 ""
 
-MFolderTreeCtrlAltShiftF5 
+MFolderTreeCtrlAltShiftF5
 ""
 ""
 ""
@@ -20264,7 +20265,7 @@ MFolderTreeCtrlAltShiftF5
 ""
 ""
 
-MFolderTreeCtrlAltShiftF6 
+MFolderTreeCtrlAltShiftF6
 ""
 ""
 ""
@@ -20276,7 +20277,7 @@ MFolderTreeCtrlAltShiftF6
 ""
 ""
 
-MFolderTreeCtrlAltShiftF7 
+MFolderTreeCtrlAltShiftF7
 ""
 ""
 ""
@@ -20288,7 +20289,7 @@ MFolderTreeCtrlAltShiftF7
 ""
 ""
 
-MFolderTreeCtrlAltShiftF8 
+MFolderTreeCtrlAltShiftF8
 ""
 ""
 ""
@@ -20300,7 +20301,7 @@ MFolderTreeCtrlAltShiftF8
 ""
 ""
 
-MFolderTreeCtrlAltShiftF9 
+MFolderTreeCtrlAltShiftF9
 ""
 ""
 ""
@@ -27334,7 +27335,7 @@ MFileFilterSizeFromSign
 ">="
 ">="
 "=&>"
-">="                      
+">="
 
 MFileFilterSizeToSign
 "<="

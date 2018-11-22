@@ -55,9 +55,10 @@ SRCS = \
 	encoding.cpp \
 	eol.cpp \
 	exception.cpp \
+	exception_handler.cpp \
+	exception_handler_test.cpp \
 	execute.cpp \
 	FarDlgBuilder.cpp \
-	farexcpt.cpp \
 	farversion.cpp \
 	fastfind.cpp \
 	fileattr.cpp \

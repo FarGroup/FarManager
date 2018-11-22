@@ -188,7 +188,7 @@ static void LoadFilter(/*const*/ HierarchicalConfig* cfg, const HierarchicalConf
 
 	HData.SetSortGroup(SortGroup);
 
-	highlight::element Colors = {};
+	highlight::element Colors{};
 	cfg->GetValue(key,HLS.NormalColor, bytes::reference(Colors.Color[highlight::color::normal].FileColor));
 	cfg->GetValue(key,HLS.SelectedColor, bytes::reference(Colors.Color[highlight::color::selected].FileColor));
 	cfg->GetValue(key,HLS.CursorColor, bytes::reference(Colors.Color[highlight::color::normal_current].FileColor));
@@ -206,9 +206,8 @@ static void LoadFilter(/*const*/ HierarchicalConfig* cfg, const HierarchicalConf
 	}
 	HData.SetColors(Colors);
 
-	unsigned long long ContinueProcessing = 0;
-	cfg->GetValue(key, HLS.ContinueProcessing, ContinueProcessing);
-	HData.SetContinueProcessing(ContinueProcessing!=0);
+	const auto ContinueProcessing = cfg->GetValue<bool>(key, HLS.ContinueProcessing);
+	HData.SetContinueProcessing(ContinueProcessing);
 }
 
 void highlight::configuration::InitHighlightFiles(/*const*/ HierarchicalConfig* cfg)

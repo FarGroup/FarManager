@@ -111,7 +111,7 @@ installed_codepages::installed_codepages()
 	system_codepages_enumerator::context = this;
 	EnumSystemCodePages(system_codepages_enumerator::enum_cp, CP_INSTALLED);
 	system_codepages_enumerator::context = nullptr;
-	RethrowIfNeeded(m_ExceptionPtr);
+	rethrow_if(m_ExceptionPtr);
 }
 
 const cp_map& InstalledCodepages()

@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "flink.hpp"
 #include "elevation.hpp"
-#include "farexcpt.hpp"
+#include "exception_handler.hpp"
 #include "pathmix.hpp"
 
 #include "platform.fs.hpp"
@@ -122,11 +122,11 @@ void FileSystemWatcher::Release()
 	if (m_RegistrationThread)
 	{
 		m_Cancelled.set();
-		m_RegistrationThread.reset();
+		m_RegistrationThread = {};
 	}
 
 	m_Cancelled.reset();
-	m_Notification.reset();
+	m_Notification = {};
 	m_PreviousLastWriteTime = m_CurrentLastWriteTime;
 }
 
@@ -171,5 +171,5 @@ void FileSystemWatcher::PropagateException() const
 		// You're someone else's problem
 		m_RegistrationThread.detach();
 	}
-	RethrowIfNeeded(m_ExceptionPtr);
+	rethrow_if(m_ExceptionPtr);
 }

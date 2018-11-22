@@ -134,12 +134,12 @@ string& ConvertTemplateTreeName(string &strDest, const string &strTemplate, cons
 	     %SR   - server name
     	 %SH   - share name
 	*/
-	string strDiskLetter(D ? D : L"", 1);
+	string strDiskLetter(D ? D : L""sv, 1);
 	replace(strDest, L"%D"sv, strDiskLetter);
 	replace(strDest, L"%SN"sv, strDiskNumber);
-	replace(strDest, L"%L"sv, L && *L? L : L"");
-	replace(strDest, L"%SR"sv, SR && *SR? SR : L"");
-	replace(strDest, L"%SH"sv, SH && *SH? SH : L"");
+	replace(strDest, L"%L"sv, L && *L? L : L""sv);
+	replace(strDest, L"%SR"sv, SR && *SR? SR : L""sv);
+	replace(strDest, L"%SH"sv, SH && *SH? SH : L""sv);
 
 	return strDest;
 }

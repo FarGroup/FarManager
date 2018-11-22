@@ -32,56 +32,58 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "pipe.hpp"
 
+#include "exception.hpp"
+
+#include "format.hpp"
+
 namespace pipe
 {
-	static bool ReadPipe(const os::handle& Pipe, void* Data, size_t DataSize)
+	static void ReadPipe(const os::handle& Pipe, void* Data, size_t DataSize)
 	{
-		DWORD n;
-		return ReadFile(Pipe.native_handle(), Data, static_cast<DWORD>(DataSize), &n, nullptr) && n == DataSize;
+		DWORD BytesRead;
+		if (!ReadFile(Pipe.native_handle(), Data, static_cast<DWORD>(DataSize), &BytesRead, nullptr))
+			throw MAKE_FAR_EXCEPTION(L"Pipe read error"sv);
+
+		if (BytesRead != DataSize)
+			throw MAKE_FAR_EXCEPTION(format(L"Pipe read error: {0} bytes requested, but {1} bytes read"sv, DataSize, BytesRead));
 	}
 
-	static bool WritePipe(const os::handle& Pipe, const void* Data, size_t DataSize)
+	static void WritePipe(const os::handle& Pipe, const void* Data, size_t DataSize)
 	{
-		DWORD n;
-		return WriteFile(Pipe.native_handle(), Data, static_cast<DWORD>(DataSize), &n, nullptr) && n == DataSize;
+		DWORD BytesWritten;
+		if (!WriteFile(Pipe.native_handle(), Data, static_cast<DWORD>(DataSize), &BytesWritten, nullptr))
+			throw MAKE_FAR_EXCEPTION(L"Pipe write error"sv);
+
+		if (BytesWritten != DataSize)
+			throw MAKE_FAR_EXCEPTION(format(L"Pipe write error: {0} bytes sent, but {1} bytes written"sv, DataSize, BytesWritten));
 	}
 
-	bool Read(const os::handle& Pipe, void* Data, size_t DataSize)
+	void read(const os::handle& Pipe, void* Data, size_t DataSize)
 	{
-		size_t ReadSize = 0;
-		if (!ReadPipe(Pipe, &ReadSize, sizeof(ReadSize)))
-			return false;
-
-		if (ReadSize != DataSize)
-			return false;
-
-		return ReadPipe(Pipe, Data, DataSize);
+		ReadPipe(Pipe, Data, DataSize);
 	}
 
-	bool Read(const os::handle& Pipe, string& Data)
+	void read(const os::handle& Pipe, string& Data)
 	{
-		size_t DataSize = 0;
-		if (!ReadPipe(Pipe, &DataSize, sizeof(DataSize)))
-			return false;
+		size_t StringSize;
+		ReadPipe(Pipe, &StringSize, sizeof(StringSize));
 
-		if (!DataSize)
-			return true;
+		Data.resize(StringSize);
 
-		wchar_t_ptr_n<256> Buffer(DataSize / sizeof(wchar_t));
-		if (!ReadPipe(Pipe, Buffer.get(), DataSize))
-			return false;
-
-		Data.assign(Buffer.get(), Buffer.size() - 1);
-		return true;
+		if (StringSize)
+			ReadPipe(Pipe, Data.data(), StringSize * sizeof(string::value_type));
 	}
 
-	bool Write(const os::handle& Pipe, const void* Data, size_t DataSize)
+	void write(const os::handle& Pipe, const void* Data, size_t DataSize)
 	{
-		return WritePipe(Pipe, &DataSize, sizeof(DataSize)) && WritePipe(Pipe, Data, DataSize);
+		WritePipe(Pipe, Data, DataSize);
 	}
 
-	bool Write(const os::handle& Pipe, const string& Data)
+	void write(const os::handle& Pipe, string_view const Data)
 	{
-		return Write(Pipe, Data.data(), (Data.size() + 1)*sizeof(wchar_t));
+		write(Pipe, Data.size());
+
+		if (Data.size())
+			write(Pipe, Data.data(), Data.size() * sizeof(string::value_type));
 	}
 }

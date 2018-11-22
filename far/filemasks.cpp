@@ -121,7 +121,7 @@ bool filemasks::Set(const string& Masks, DWORD Flags)
 		}
 		else
 		{
-			ConfigProvider().GeneralCfg()->GetValue(L"Masks"sv, MaskGroupName, MaskGroupValue, L"");
+			MaskGroupValue = ConfigProvider().GeneralCfg()->GetValue<string>(L"Masks"sv, MaskGroupName);
 			UsedGroups.emplace(std::move(MaskGroupName));
 		}
 		replace(ExpMasks, MaskGroupNameWithBrackets, MaskGroupValue);

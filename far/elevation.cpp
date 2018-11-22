@@ -46,7 +46,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "pipe.hpp"
 #include "console.hpp"
-#include "constitle.hpp"
 #include "string_utils.hpp"
 #include "global.hpp"
 
@@ -54,8 +53,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.fs.hpp"
 #include "platform.memory.hpp"
 #include "platform.security.hpp"
-
-#include "common/bytes_view.hpp"
 
 #include "format.hpp"
 
@@ -136,29 +133,15 @@ template<typename T>
 T elevation::Read() const
 {
 	T Data;
-	if (!pipe::Read(m_Pipe, Data))
-		throw MAKE_FAR_EXCEPTION(L"Pipe read error"sv);
+	pipe::read(m_Pipe, Data);
 	return Data;
 }
 
 template<typename T, typename... args>
-void elevation::Write(const T& Data, args&&... Args) const
+void elevation::Write(const T& Data, const args&... Args) const
 {
-	WriteArg(Data);
-	Write(FWD(Args)...);
-}
-
-template<typename T>
-void elevation::WriteArg(const T& Data) const
-{
-	if (!pipe::Write(m_Pipe, Data))
-		throw MAKE_FAR_EXCEPTION(L"Pipe write error"sv);
-}
-
-void elevation::WriteArg(const bytes_view& Data) const
-{
-	if (!pipe::Write(m_Pipe, Data.data(), Data.size()))
-		throw MAKE_FAR_EXCEPTION(L"Pipe write error"sv);
+	pipe::write(m_Pipe, Data);
+	Write(Args...);
 }
 
 void elevation::RetrieveLastError() const
@@ -646,6 +629,13 @@ bool elevation::fCreateSymbolicLink(const string& Object, const string& Target, 
 		});
 }
 
+static size_t string_array_length(const wchar_t* const Str)
+{
+	for (auto i = Str; ; ++i)
+		if (!i[0] && !i[1])
+			return i - Str + 2;
+}
+
 int elevation::fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
 {
 	static const auto DE_ACCESSDENIEDSRC = 0x78;
@@ -657,9 +647,12 @@ int elevation::fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
 		},
 		[&]
 		{
-			Write(C_FUNCTION_MOVETORECYCLEBIN, FileOpStruct,
-				bytes_view(FileOpStruct.pFrom, (wcslen(FileOpStruct.pFrom) + 1 + 1) * sizeof(wchar_t)), // achtung! +1
-				bytes_view(FileOpStruct.pTo, FileOpStruct.pTo ? (wcslen(FileOpStruct.pTo) + 1 + 1) * sizeof(wchar_t) : 0)); // achtung! +1
+			Write(
+				C_FUNCTION_MOVETORECYCLEBIN,
+				FileOpStruct,
+				string_view{ FileOpStruct.pFrom, string_array_length(FileOpStruct.pFrom) },
+				string_view{ FileOpStruct.pTo, FileOpStruct.pTo? string_array_length(FileOpStruct.pTo) : 0 }
+			);
 
 			Read(FileOpStruct.fAnyOperationsAborted);
 			// achtung! no "last error" here
@@ -857,27 +850,24 @@ private:
 
 	void Write(const void* Data, size_t DataSize) const
 	{
-		if (!pipe::Write(m_Pipe, Data, DataSize))
-			throw MAKE_FAR_EXCEPTION(L"Pipe write error"sv);
+		pipe::write(m_Pipe, Data, DataSize);
 	}
 
 	template<typename T>
 	T Read() const
 	{
 		T Data;
-		if (!pipe::Read(m_Pipe, Data))
-			throw MAKE_FAR_EXCEPTION(L"Pipe read error"sv);
+		pipe::read(m_Pipe, Data);
 		return Data;
 	}
 
 	static void Write() {}
 
 	template<typename T, typename... args>
-	void Write(const T& Data, args&&... Args) const
+	void Write(const T& Data, const args&... Args) const
 	{
-		if (!pipe::Write(m_Pipe, Data))
-			throw MAKE_FAR_EXCEPTION(L"Pipe write error"sv);
-		Write(FWD(Args)...);
+		pipe::write(m_Pipe, Data);
+		Write(Args...);
 	}
 
 	void ExitHandler() const
@@ -928,7 +918,7 @@ private:
 
 		Write(0 /* not CallbackMagic */, error_state::fetch(), Result);
 
-		RethrowIfNeeded(Param.ExceptionPtr);
+		rethrow_if(Param.ExceptionPtr);
 	}
 
 	void MoveFileHandler() const

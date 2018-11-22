@@ -74,9 +74,16 @@ public:
 	virtual void SetValue(string_view Key, string_view Name, unsigned long long Value) = 0;
 	virtual void SetValue(string_view Key, string_view Name, const bytes_view& Value) = 0;
 
-	virtual bool GetValue(string_view Key, string_view Name, bool& Value, bool Default) const = 0;
-	virtual bool GetValue(string_view Key, string_view Name, long long& Value, long long Default) const = 0;
-	virtual bool GetValue(string_view Key, string_view Name, string& Value, string_view Default) const = 0;
+	virtual bool GetValue(string_view Key, string_view Name, bool& Value) const = 0;
+	virtual bool GetValue(string_view Key, string_view Name, long long& Value) const = 0;
+	virtual bool GetValue(string_view Key, string_view Name, string& Value) const = 0;
+
+	template<typename value_type, typename default_type = value_type>
+	value_type GetValue(string_view Key, string_view const Name, const default_type& Default = {})
+	{
+		value_type Value;
+		return GetValue(Key, Name, Value)? Value : value_type{ Default };
+	}
 
 	virtual void DeleteValue(string_view Key, string_view Name) = 0;
 	virtual bool EnumValues(string_view Key, bool Reset, string& strName, string& strValue) const = 0;
@@ -131,7 +138,26 @@ public:
 	virtual bool GetValue(const key& Root, string_view Name, unsigned long long& Value) const = 0;
 	virtual bool GetValue(const key& Root, string_view Name, string& strValue) const = 0;
 	virtual bool GetValue(const key& Root, string_view Name, bytes& Value) const = 0;
+
+	bool GetValue(const key& Root, string_view const Name, bool& Value) const
+	{
+		unsigned long long iValue;
+		if (!GetValue(Root, Name, iValue))
+			return false;
+
+		Value = iValue != 0;
+		return true;
+	}
+
 	bool GetValue(const key& Root, string_view Name, bytes&& Value) const { return GetValue(Root, Name, Value); }
+
+	template<typename value_type, typename default_type = value_type>
+	value_type GetValue(const key& Root, string_view const Name, const default_type& Default = {})
+	{
+		value_type Value;
+		return GetValue(Root, Name, Value)? Value : value_type{ Default };
+	}
+
 
 	virtual void DeleteKeyTree(const key& Key) = 0;
 	virtual void DeleteValue(const key& Root, string_view Name) = 0;

@@ -38,8 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "common/singleton.hpp"
 
-class bytes_view;
-
 enum class lng : int;
 
 enum ELEVATION_MODE
@@ -102,12 +100,7 @@ private:
 	static void Write() {}
 
 	template<typename T, typename... args>
-	void Write(const T& Data, args&&... Args) const;
-
-	template<typename T>
-	void WriteArg(const T& Data) const;
-
-	void WriteArg(const bytes_view& Data) const;
+	void Write(const T& Data, const args&... Args) const;
 
 	void RetrieveLastError() const;
 

@@ -1,11 +1,9 @@
 ﻿/*
-farexcpt.cpp
+exception_handler.cpp
 
-Все про исключения
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright © 2018 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -31,7 +29,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "farexcpt.hpp"
+#include "exception_handler.hpp"
 
 #include "plugins.hpp"
 #include "filepanels.hpp"
@@ -46,9 +44,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "message.hpp"
 #include "imports.hpp"
-#include "vmenu.hpp"
-#include "vmenu2.hpp"
-#include "interf.hpp"
 #include "strmix.hpp"
 #include "tracer.hpp"
 #include "string_utils.hpp"
@@ -90,19 +85,35 @@ enum exception_dialog
 	ed_last_button = ed_button_ignore
 };
 
-static void ShowStackTrace(std::vector<string>&& Symbols, const std::vector<string>* NestedStack)
+static void ShowStackTrace(const std::vector<const void*>& Stack, const std::vector<const void*>* NestedStack)
 {
+	std::vector<string> Symbols;
+	Symbols.reserve(Stack.size() + (NestedStack? NestedStack->size() + 3 : 0));
+
+	const auto Consumer = [&Symbols](string&& Address, string&& Name, string&& Source)
+	{
+		if (!Name.empty())
+			append(Address, L' ', Name);
+
+		if (!Source.empty())
+			append(Address, L" ("sv, Source, L')');
+
+		Symbols.emplace_back(std::move(Address));
+	};
+
+	tracer::get_symbols(Stack, Consumer);
+
+	if (NestedStack)
+	{
+		Symbols.emplace_back(40, L'-');
+		Symbols.emplace_back(L"Nested stack:"s);
+		Symbols.emplace_back(40, L'-');
+
+		tracer::get_symbols(*NestedStack, Consumer);
+	}
+
 	if (Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown())
 	{
-		if (NestedStack && !NestedStack->empty())
-		{
-			Symbols.reserve(Symbols.size() + 3 + NestedStack->size());
-			Symbols.emplace_back(40, L'-');
-			Symbols.emplace_back(L"Nested stack:"s);
-			Symbols.emplace_back(40, L'-');
-			Symbols.insert(Symbols.end(), ALL_CONST_RANGE(*NestedStack));
-		}
-
 		Message(MSG_WARNING | MSG_LEFTALIGN,
 			msg(lng::MExcTrappedException),
 			std::move(Symbols),
@@ -117,7 +128,7 @@ static void ShowStackTrace(std::vector<string>&& Symbols, const std::vector<stri
 	}
 }
 
-static bool write_minidump(const exception_context& Context)
+static bool write_minidump(const detail::exception_context& Context)
 {
 	if (!imports.MiniDumpWriteDump)
 		return false;
@@ -131,7 +142,7 @@ static bool write_minidump(const exception_context& Context)
 	return imports.MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), DumpFile.get().native_handle(), MiniDumpWithFullMemory, &Mei, nullptr, nullptr) != FALSE;
 }
 
-using dialog_data_type = std::pair<const exception_context*, const std::vector<string>*>;
+using dialog_data_type = std::pair<const detail::exception_context*, const std::vector<const void*>*>;
 
 static intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
@@ -181,7 +192,7 @@ static intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2
 			switch (Param1)
 			{
 			case ed_button_stack:
-				ShowStackTrace(tracer::get(*DialogData.first), DialogData.second);
+				ShowStackTrace(tracer::get(*DialogData.first->pointers(), DialogData.first->thread_handle()), DialogData.second);
 				return FALSE;
 
 			case ed_button_minidump:
@@ -208,19 +219,21 @@ static reply ExcDialog(
 	string const& ModuleName,
 	string const& Exception,
 	string const& Details,
-	exception_context const& Context,
+	detail::exception_context const& Context,
 	string_view const Function,
 	string_view const Location,
 	Plugin const* const PluginModule,
-	std::vector<string> const* const NestedStack
+	std::vector<const void*> const* const NestedStack
 )
 {
 	// TODO: Far Dialog is not the best choice for exception reporting
 	// replace with something trivial
 
-	string Address, Name, Source;
 	SCOPED_ACTION(auto)(tracer::with_symbols());
-	tracer::get_one(Context.pointers()->ExceptionRecord->ExceptionAddress, Address, Name, Source);
+
+	string Address, Name, Source;
+	tracer::get_symbol(Context.pointers()->ExceptionRecord->ExceptionAddress, Address, Name, Source);
+
 	if (!Name.empty())
 		append(Address, L" - "sv, Name);
 
@@ -272,15 +285,18 @@ static reply ExcConsole(
 	string const& ModuleName,
 	string const& Exception,
 	string const& Details,
-	exception_context const& Context,
+	detail::exception_context const& Context,
 	string_view const Function,
 	string_view const Location,
 	Plugin const* const Module,
-	std::vector<string> const* const NestedStack
+	std::vector<const void*> const* const NestedStack
 )
 {
+	SCOPED_ACTION(auto)(tracer::with_symbols());
+
 	string Address, Name, Source;
-	tracer::get_one(Context.pointers()->ExceptionRecord->ExceptionAddress, Address, Name, Source);
+	tracer::get_symbol(Context.pointers()->ExceptionRecord->ExceptionAddress, Address, Name, Source);
+
 	if (!Name.empty())
 		append(Address, L" - "sv, Name);
 
@@ -330,7 +346,7 @@ static reply ExcConsole(
 		std::wcerr << std::get<0>(i) << L' ' << std::get<1>(i) << L'\n';
 	}
 
-	ShowStackTrace(tracer::get(Context), NestedStack);
+	ShowStackTrace(tracer::get(*Context.pointers(), Context.thread_handle()), NestedStack);
 
 	std::wcerr << std::endl;
 
@@ -339,6 +355,7 @@ static reply ExcConsole(
 		std::wcout << L"Terminate process (Y/N)? "sv << std::flush;
 
 		wchar_t Input;
+		std::wcin.clear();
 		std::wcin.get(Input).ignore(std::numeric_limits<std::streamsize>::max(), L'\n');
 
 		switch (upper(Input))
@@ -394,78 +411,73 @@ static string ExtractObjectType(const EXCEPTION_RECORD* xr)
 	return encoding::ansi::get_chars(TypeInfo.name());
 }
 
+static bool ProcessExternally(EXCEPTION_POINTERS* Pointers, Plugin const* const PluginModule)
+{
+	if (!Global || !Global->Opt->ExceptUsed || Global->Opt->strExceptEventSvc.empty())
+		return false;
+
+	const os::rtdl::module Module(Global->Opt->strExceptEventSvc);
+	if (!Module)
+		return false;
+
+	struct PLUGINRECORD       // информация о плагине
+	{
+		DWORD TypeRec;          // Тип записи = RTYPE_PLUGIN
+		DWORD SizeRec;          // Размер
+		DWORD Reserved1[4];
+		// DWORD SysID; GUID
+		const wchar_t *ModuleName;
+		DWORD Reserved2[2];    // резерв :-)
+		DWORD SizeModuleName;
+	};
+
+	os::rtdl::function_pointer<BOOL(WINAPI*)(EXCEPTION_POINTERS*, const PLUGINRECORD*, const PluginStartupInfo*, DWORD*)> Function(Module, "ExceptionProc");
+	if (!Function)
+		return false;
+
+	static PluginStartupInfo LocalStartupInfo;
+	LocalStartupInfo = {};
+	static FarStandardFunctions LocalStandardFunctions;
+	LocalStandardFunctions = {};
+	CreatePluginStartupInfo(&LocalStartupInfo, &LocalStandardFunctions);
+	LocalStartupInfo.ModuleName = Global->Opt->strExceptEventSvc.c_str();
+	static PLUGINRECORD PlugRec;
+
+	if (PluginModule)
+	{
+		PlugRec = {};
+		PlugRec.TypeRec = RTYPE_PLUGIN;
+		PlugRec.SizeRec = sizeof(PLUGINRECORD);
+		PlugRec.ModuleName = PluginModule->ModuleName().c_str();
+	}
+
+	DWORD dummy;
+	return Function(Pointers, PluginModule ? &PlugRec : nullptr, &LocalStartupInfo, &dummy) != FALSE;
+}
+
 static bool ProcessGenericException(
-	exception_context const& Context,
+	detail::exception_context const& Context,
 	string_view const Function,
 	string_view const Location,
 	Plugin const* const PluginModule,
 	string_view const Message,
-	std::vector<string> const* const NestedStack = nullptr
+	std::vector<const void*> const* const NestedStack = nullptr
 )
 {
 	if (Global)
 		Global->ProcessException = true;
 
-	auto Result = false;
-
-	if (Global && Global->Opt->ExceptUsed && !Global->Opt->strExceptEventSvc.empty())
+	if (ProcessExternally(Context.pointers(), PluginModule))
 	{
-		os::rtdl::module m(Global->Opt->strExceptEventSvc);
-
-		if (m)
-		{
-			struct PLUGINRECORD       // информация о плагине
-			{
-				DWORD TypeRec;          // Тип записи = RTYPE_PLUGIN
-				DWORD SizeRec;          // Размер
-				DWORD Reserved1[4];
-				// DWORD SysID; GUID
-				const wchar_t *ModuleName;
-				DWORD Reserved2[2];    // резерв :-)
-				DWORD SizeModuleName;
-			};
-
-			os::rtdl::function_pointer<BOOL(WINAPI*)(EXCEPTION_POINTERS*, const PLUGINRECORD*, const PluginStartupInfo*, DWORD*)> p(m, "ExceptionProc");
-
-			if (p)
-			{
-				static PluginStartupInfo LocalStartupInfo;
-				LocalStartupInfo = {};
-				static FarStandardFunctions LocalStandardFunctions;
-				LocalStandardFunctions = {};
-				CreatePluginStartupInfo(&LocalStartupInfo, &LocalStandardFunctions);
-				LocalStartupInfo.ModuleName = Global->Opt->strExceptEventSvc.c_str();
-				static PLUGINRECORD PlugRec;
-
-				if (PluginModule)
-				{
-					PlugRec = {};
-					PlugRec.TypeRec=RTYPE_PLUGIN;
-					PlugRec.SizeRec=sizeof(PLUGINRECORD);
-					PlugRec.ModuleName = PluginModule->ModuleName().c_str();
-				}
-
-				DWORD dummy;
-				Result = p(Context.pointers(), PluginModule? &PlugRec : nullptr, &LocalStartupInfo, &dummy) != FALSE;
-			}
-		}
-	}
-
-	if (Result)
-	{
-		if (!PluginModule)
-		{
-			if (Global)
-				Global->CriticalInternalError = true;
-		}
+		if (!PluginModule && Global)
+			Global->CriticalInternalError = true;
 
 		return true;
 	}
 
-	static const std::pair<string_view, NTSTATUS> KnownExceptions[] =
+	static const std::pair<string_view, NTSTATUS> KnownExceptions[]
 	{
 #define TEXTANDCODE(x) L###x##sv, x
-
 		{TEXTANDCODE(EXCEPTION_ACCESS_VIOLATION)},
 		{TEXTANDCODE(EXCEPTION_DATATYPE_MISALIGNMENT)},
 		{TEXTANDCODE(EXCEPTION_BREAKPOINT)},
@@ -496,7 +508,6 @@ static bool ProcessGenericException(
 	};
 
 	string strFileName;
-	auto ShowMessages = false;
 
 	const auto xr = Context.pointers()->ExceptionRecord;
 
@@ -562,21 +573,17 @@ static bool ProcessGenericException(
 	if (Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown())
 	{
 		MsgCode = ExcDialog(strFileName, Exception, Details, Context, Function, Location, PluginModule, NestedStack);
-		ShowMessages = true;
 	}
 	else
 	{
 		MsgCode = ExcConsole(strFileName, Exception, Details, Context, Function, Location, PluginModule, NestedStack);
 	}
 
-	if (ShowMessages && !PluginModule)
-	{
-		Global->CriticalInternalError = true;
-	}
-
 	switch (MsgCode)
 	{
 	case reply_handle: // terminate / unload
+		if (!PluginModule && Global)
+			Global->CriticalInternalError = true;
 		return true;
 
 	case reply_ignore:
@@ -585,19 +592,10 @@ static bool ProcessGenericException(
 	}
 }
 
-void SetFloatingPointExceptions(bool Enable)
-{
-	_clearfp();
-	_controlfp(Enable? 0 : _MCW_EM, _MCW_EM);
-}
-
 void RestoreGPFaultUI()
 {
 	os::unset_error_mode(SEM_NOGPFAULTERRORBOX);
 }
-
-extern "C" void** __current_exception();
-extern "C" void** __current_exception_context();
 
 static string extract_nested_messages(const std::exception& Exception, bool Top = true)
 {
@@ -605,7 +603,7 @@ static string extract_nested_messages(const std::exception& Exception, bool Top 
 
 	// far_exception.what() returns additional information (function, file and line).
 	// We don't need it on top level because it's extracted separately
-	if (const auto FarException = Top? dynamic_cast<const far_base_exception*>(&Exception) : nullptr)
+	if (const auto FarException = Top? dynamic_cast<const detail::far_base_exception*>(&Exception) : nullptr)
 		Result = FarException->get_message();
 	else
 		Result = encoding::utf8::get_chars(Exception.what());
@@ -622,11 +620,9 @@ static string extract_nested_messages(const std::exception& Exception, bool Top 
 	{
 		append(Result, L" -> Unknown exception"sv);
 
-#ifdef _MSC_VER
-		const auto Record = static_cast<EXCEPTION_RECORD*>(*__current_exception());
-		if (IsCppException(Record))
-			append(Result, L" ("sv, ExtractObjectType(Record), L')');
-#endif
+		const auto Pointers = tracer::get_pointers();
+		if (IsCppException(Pointers.ExceptionRecord))
+			append(Result, L" ("sv, ExtractObjectType(Pointers.ExceptionRecord), L')');
 	}
 
 	return Result;
@@ -639,19 +635,21 @@ bool ProcessStdException(const std::exception& e, string_view const Function, co
 		return ProcessGenericException(SehException->context(), Function, {}, Module, {});
 	}
 
-	auto Context = tracer::get_exception_context(&e);
-	if (!Context)
-	{
-		// C++ exception to EXCEPTION_POINTERS translation relies on Microsoft implementation.
-		// It won't work in gcc etc.
-		// Set ExceptionCode manually so ProcessGenericException will at least report it as std::exception and display what()
-		Context = std::make_unique<exception_context>(EXCEPTION_MICROSOFT_CPLUSPLUS);
-	}
+	const auto Context = std::make_unique<detail::exception_context>(EXCEPTION_MICROSOFT_CPLUSPLUS, tracer::get_pointers(), os::OpenCurrentThread(), GetCurrentThreadId());
 
-	if (const auto FarException = dynamic_cast<const far_base_exception*>(&e))
+	if (const auto FarException = dynamic_cast<const detail::far_base_exception*>(&e))
 	{
 		const auto Message = extract_nested_messages(e);
-		return ProcessGenericException(*Context, FarException->get_function(), FarException->get_location(), Module, Message, &FarException->get_stack());
+
+		const std::vector<const void*>* NestedStack = nullptr;
+
+		if (const auto Wrapper = dynamic_cast<const far_wrapper_exception*>(&e))
+		{
+			const auto& Stack = Wrapper->get_stack();
+			NestedStack = &Stack;
+		}
+
+		return ProcessGenericException(*Context, FarException->get_function(), FarException->get_location(), Module, Message, NestedStack);
 	}
 
 	return ProcessGenericException(*Context, Function, {}, Module, encoding::utf8::get_chars(e.what()));
@@ -659,28 +657,17 @@ bool ProcessStdException(const std::exception& e, string_view const Function, co
 
 bool ProcessUnknownException(string_view const Function, const Plugin* const Module)
 {
-	const EXCEPTION_POINTERS* PointersPtr = nullptr;
-
-#ifdef _MSC_VER
-	EXCEPTION_POINTERS Pointers
-	{
-		static_cast<EXCEPTION_RECORD*>(*__current_exception()),
-		static_cast<CONTEXT*>(*__current_exception_context())
-	};
-	PointersPtr = &Pointers;
-#endif
-
 	// C++ exception to EXCEPTION_POINTERS translation relies on Microsoft implementation.
 	// It won't work in gcc etc.
 	// Set ExceptionCode manually so ProcessGenericException will at least report it as C++ exception
-	const exception_context Context(EXCEPTION_MICROSOFT_CPLUSPLUS, PointersPtr);
+	const detail::exception_context Context(EXCEPTION_MICROSOFT_CPLUSPLUS, tracer::get_pointers(), os::OpenCurrentThread(), GetCurrentThreadId());
 	return ProcessGenericException(Context, Function, {}, Module, {});
 }
 
-static LONG WINAPI FarUnhandledExceptionFilter(EXCEPTION_POINTERS *ExceptionInfo)
+static LONG WINAPI FarUnhandledExceptionFilter(EXCEPTION_POINTERS* const Pointers)
 {
-	SetFloatingPointExceptions(false);
-	const exception_context Context(ExceptionInfo->ExceptionRecord->ExceptionCode, ExceptionInfo);
+	detail::SetFloatingPointExceptions(false);
+	const detail::exception_context Context(Pointers->ExceptionRecord->ExceptionCode, *Pointers, os::OpenCurrentThread(), GetCurrentThreadId());
 	if (ProcessGenericException(Context, L"FarUnhandledExceptionFilter"sv, {}, {}, {}))
 	{
 		std::terminate();
@@ -704,280 +691,64 @@ void unhandled_exception_filter::dismiss()
 	SetUnhandledExceptionFilter(nullptr);
 }
 
-#if defined(FAR_ALPHA_VERSION)
-WARNING_PUSH()
-
-WARNING_DISABLE_MSC(4717) // https://msdn.microsoft.com/en-us/library/97c54274.aspx 'function' : recursive on all control paths, function will cause runtime stack overflow
-WARNING_DISABLE_CLANG("-Winfinite-recursion")
-
-static void Test_EXCEPTION_STACK_OVERFLOW(volatile char* target)
-{
-	volatile char Buffer[10240];
-	// "side effect" to prevent deletion of this function call due to C4718.
-	*Buffer = 0;
-	Test_EXCEPTION_STACK_OVERFLOW(Buffer);
-}
-WARNING_POP()
-
-static bool ExceptionTestHook(Manager::Key key)
-{
-	// сей код для проверки исключатор, просьба не трогать :-)
-	if (
-		key() == KEY_CTRLALTAPPS ||
-		key() == KEY_RCTRLRALTAPPS ||
-		key() == KEY_CTRLRALTAPPS ||
-		key() == KEY_RCTRLALTAPPS
-		)
-	{
-		enum class exception_types
-		{
-			cpp_std,
-			cpp_std_bad_alloc,
-			cpp_unknown,
-			access_violation_read,
-			access_violation_write,
-			access_violation_execute,
-			divide_by_zero,
-			illegal_instruction,
-			stack_overflow,
-			fp_divide_by_zero,
-			fp_overflow,
-			fp_underflow,
-			fp_inexact_result,
-			breakpoint,
-			alignment_fault,
-
-			count
-		};
-
-		static const string_view Names[]
-		{
-			L"C++ std::exception"sv,
-			L"C++ std::bad_alloc"sv,
-			L"C++ unknown exception"sv,
-			L"Access Violation (Read)"sv,
-			L"Access Violation (Write)"sv,
-			L"Access Violation (Execute)"sv,
-			L"Divide by zero"sv,
-			L"Illegal instruction"sv,
-			L"Stack Overflow"sv,
-			L"Floating-point divide by zero"sv,
-			L"Floating-point overflow"sv,
-			L"Floating-point underflow"sv,
-			L"Floating-point inexact result"sv,
-			L"Breakpoint"sv,
-			L"Alignment fault"sv,
-
-			/*
-			L"EXCEPTION_SINGLE_STEP"sv,
-			L"EXCEPTION_ARRAY_BOUNDS_EXCEEDED"sv,
-			L"EXCEPTION_FLT_DENORMAL_OPERAND"sv,
-			L"EXCEPTION_FLT_INVALID_OPERATION"sv,
-			L"EXCEPTION_FLT_STACK_CHECK"sv,
-			L"EXCEPTION_INT_OVERFLOW"sv,
-			L"EXCEPTION_PRIV_INSTRUCTION"sv,
-			L"EXCEPTION_IN_PAGE_ERROR"sv,
-			L"EXCEPTION_NONCONTINUABLE_EXCEPTION"sv,
-			L"EXCEPTION_INVALID_DISPOSITION"sv,
-			L"EXCEPTION_GUARD_PAGE"sv,
-			L"EXCEPTION_INVALID_HANDLE"sv,
-			*/
-		};
-
-		static_assert(std::size(Names) == static_cast<size_t>(exception_types::count));
-
-		const auto ModalMenu = VMenu2::create(L"Test Exceptions"s, {}, ScrY - 4);
-		ModalMenu->SetMenuFlags(VMENU_WRAPMODE);
-		ModalMenu->SetPosition({ -1, -1, 0, 0 });
-
-		std::for_each(CONST_RANGE(Names, i)
-		{
-			ModalMenu->AddItem(string(i));
-		});
-
-		const auto ExitCode = ModalMenu->Run();
-		if (ExitCode == -1)
-			return true;
-
-		switch (static_cast<exception_types>(ExitCode))
-		{
-		case exception_types::cpp_std:
-			throw MAKE_FAR_EXCEPTION(L"Test error"sv);
-
-		case exception_types::cpp_std_bad_alloc:
-			{
-				// Less than the physical limit to leave some space for a service block, if any
-				const auto Ptr = std::make_unique<char[]>(std::numeric_limits<size_t>::max() - 1024 * 1024);
-			}
-			break;
-
-		case exception_types::cpp_unknown:
-			throw 42u;
-
-		case exception_types::access_violation_read:
-			{
-				volatile const int* InvalidAddress = nullptr;
-				volatile const auto Result = *InvalidAddress;
-				(void)Result;
-			}
-			break;
-
-		case exception_types::access_violation_write:
-			{
-				volatile int* InvalidAddress = nullptr;
-				*InvalidAddress = 42;
-			}
-			break;
-
-		case exception_types::access_violation_execute:
-			{
-				using func_t = void(*)();
-				volatile const func_t InvalidAddress = nullptr;
-				InvalidAddress();
-			}
-			break;
-
-		case exception_types::divide_by_zero:
-			{
-				volatile const auto InvalidDenominator = 0;
-				volatile const auto Result = 42 / InvalidDenominator;
-				(void)Result;
-			}
-			break;
-
-		case exception_types::illegal_instruction:
-			{
-#if COMPILER == C_GCC || COMPILER == C_CLANG
-				const auto& __ud2 = []{ asm("ud2"); };
-#endif
-				__ud2();
-			}
-			break;
-
-		case exception_types::stack_overflow:
-			Test_EXCEPTION_STACK_OVERFLOW(nullptr);
-			break;
-
-		case exception_types::fp_divide_by_zero:
-			{
-				SetFloatingPointExceptions(true);
-				volatile const auto InvalidDenominator = 0.0;
-				volatile const auto Result = 42.0 / InvalidDenominator;
-				(void)Result;
-			}
-			break;
-
-		case exception_types::fp_overflow:
-			{
-				SetFloatingPointExceptions(true);
-				volatile const auto Max = std::numeric_limits<double>::max();
-				volatile const auto Result = Max * 2;
-				(void)Result;
-			}
-			break;
-
-		case exception_types::fp_underflow:
-			{
-				SetFloatingPointExceptions(true);
-				volatile const auto Min = std::numeric_limits<double>::min();
-				volatile const auto Result = Min / 2;
-				(void)Result;
-			}
-			break;
-
-		case exception_types::fp_inexact_result:
-			{
-				SetFloatingPointExceptions(true);
-				volatile const auto Max = std::numeric_limits<double>::max();
-				volatile const auto Result = Max + 1;
-				(void)Result;
-			}
-			break;
-
-		case exception_types::breakpoint:
-			DebugBreak();
-			break;
-
-		case exception_types::alignment_fault:
-			{
-				volatile const struct data
-				{
-					char Data[3 + sizeof(double)];
-				}
-				Data{};
-				volatile const auto Result = *reinterpret_cast<volatile const double*>(Data.Data + 3);
-				(void)Result;
-			}
-			break;
-
-		case exception_types::count:
-			// makes no sense, just to make compiler happy
-			break;
-		}
-
-		Message(MSG_WARNING,
-			L"Test Exceptions failed"sv,
-			{
-				string(Names[ExitCode]),
-			},
-			{ lng::MOk });
-		return true;
-	}
-	return false;
-}
-#endif
-
-void RegisterTestExceptionsHook()
-{
-#ifdef FAR_ALPHA_VERSION
-	Global->WindowManager->AddGlobalKeyHandler(ExceptionTestHook);
-#endif
-}
-
 bool IsCppException(const EXCEPTION_RECORD* Record)
 {
 	return Record->ExceptionCode == static_cast<DWORD>(EXCEPTION_MICROSOFT_CPLUSPLUS);
 }
 
-static thread_local bool StackOverflowHappened;
-
-void ResetStackOverflowIfNeeded()
+namespace detail
 {
-	if (StackOverflowHappened)
-	{
-		if (!_resetstkoflw())
-			std::terminate();
+	static thread_local bool StackOverflowHappened;
 
-		StackOverflowHappened = false;
-	}
-}
-
-int SehFilter(int const Code, const EXCEPTION_POINTERS* Info, string_view const Function, const Plugin* Module)
-{
-	const exception_context Context(Code, Info);
-	if (Code == EXCEPTION_STACK_OVERFLOW)
+	int SehFilter(int const Code, const EXCEPTION_POINTERS* const Info, string_view const Function, const Plugin* const Module)
 	{
-		bool Result = false;
+		const exception_context Context(Code, *Info, os::OpenCurrentThread(), GetCurrentThreadId());
+		if (Code == EXCEPTION_STACK_OVERFLOW)
 		{
-			os::thread(&os::thread::join, [&] { Result = ProcessGenericException(Context, Function, {}, Module, {}); });
+			bool Result = false;
+			{
+				os::thread(&os::thread::join, [&]{ Result = ProcessGenericException(Context, Function, {}, Module, {}); });
+			}
+
+			StackOverflowHappened = true;
+
+			if (Result)
+			{
+				return EXCEPTION_EXECUTE_HANDLER;
+			}
+		}
+		else
+		{
+			if (ProcessGenericException(Context, Function, {}, Module, {}))
+				return EXCEPTION_EXECUTE_HANDLER;
 		}
 
-		StackOverflowHappened = true;
+		unhandled_exception_filter::dismiss();
+		RestoreGPFaultUI();
+		return EXCEPTION_CONTINUE_SEARCH;
+	}
 
-		if (Result)
+	void ResetStackOverflowIfNeeded()
+	{
+		if (StackOverflowHappened)
 		{
-			return EXCEPTION_EXECUTE_HANDLER;
+			if (!_resetstkoflw())
+				std::terminate();
+
+			StackOverflowHappened = false;
 		}
 	}
-	else
+
+	void SetFloatingPointExceptions(bool const Enable)
 	{
-		if (ProcessGenericException(Context, Function, {}, Module, {}))
-			return EXCEPTION_EXECUTE_HANDLER;
+		_clearfp();
+		_controlfp(Enable? 0 : _MCW_EM, _MCW_EM);
 	}
 
-	unhandled_exception_filter::dismiss();
-	RestoreGPFaultUI();
-	return EXCEPTION_CONTINUE_SEARCH;
+	std::exception_ptr MakeSehExceptionPtr(DWORD const Code, EXCEPTION_POINTERS* const Info, bool const ResumeThread)
+	{
+		return std::make_exception_ptr(seh_exception(Code, *Info, os::OpenCurrentThread(), GetCurrentThreadId(), ResumeThread));
+	}
 }
 
 #undef EXCEPTION_MICROSOFT_CPLUSPLUS
