@@ -22,7 +22,7 @@ $(DLLFULLNAME) : $(LINK_OBJS) $(RES) $(LINK_DEP)
 !ifndef __MAKE__
 	for %%i in ($(DOCS)) do @copy /Y %%i $(OUTDIR)$(ADDOUTDIR) > nul
 !else
-	for %i in ($(DOCS)) do copy /Y %i $(OUTDIR)$(ADDOUTDIR) > nul
+	for %i in ($(DOCS)) do @copy /Y %i $(OUTDIR)$(ADDOUTDIR) > nul
 !endif
 !endif
 
