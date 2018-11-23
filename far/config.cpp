@@ -807,11 +807,13 @@ void Options::ViewerConfig(Options::ViewerOptions &ViOptRef, bool Local)
 		Builder.StartColumns();
 		save_pos = ++id; Builder.AddCheckbox(lng::MViewConfigSavePos, ViOpt.SavePos);
 		save_cp = ++id; Builder.AddCheckbox(lng::MViewConfigSaveCodepage, ViOpt.SaveCodepage);
+		Builder.AddCheckbox(lng::MViewConfigSaveShortPos, ViOpt.SaveShortPos);
 		DialogItemEx *MaxLineSize = Builder.AddIntEditField(ViOpt.MaxLineSize, 6);
 		Builder.AddTextAfter(MaxLineSize, lng::MViewConfigMaxLineSize);
 		Builder.ColumnBreak();
-		Builder.AddCheckbox(lng::MViewConfigSaveShortPos, ViOpt.SaveShortPos);
+		Builder.AddCheckbox(lng::MViewConfigSaveViewMode, ViOpt.SaveViewMode);
 		Builder.AddCheckbox(lng::MViewConfigSaveWrapMode, ViOpt.SaveWrapMode);
+		Builder.AddCheckbox(lng::MViewConfigDetectDumpMode, ViOpt.DetectDumpMode);
 		Builder.AddCheckbox(lng::MViewAutoDetectCodePage, ViOpt.AutoDetectCodePage);
 		Builder.EndColumns();
 		Builder.AddText(lng::MViewConfigDefaultCodePage);
@@ -1992,8 +1994,9 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeySystemExecutor,         L"ComspecCondition"sv,              Exec.ComspecCondition, L""sv},
 		{FSSF_PRIVATE,           NKeyViewer,                 L"AutoDetectCodePage"sv,            ViOpt.AutoDetectCodePage, true},
 		{FSSF_PRIVATE,           NKeyViewer,                 L"DefaultCodePage"sv,               ViOpt.DefaultCodePage, encoding::codepage::ansi()},
-		{FSSF_PRIVATE,           NKeyViewer,                 L"F8CPs"sv,                         ViOpt.strF8CPs, L""sv},
+		{FSSF_PRIVATE,           NKeyViewer,                 L"DetectDumpMode"sv,                ViOpt.DetectDumpMode, true},
 		{FSSF_PRIVATE,           NKeyViewer,                 L"ExternalViewerName"sv,            strExternalViewer, L""sv},
+		{FSSF_PRIVATE,           NKeyViewer,                 L"F8CPs"sv,                         ViOpt.strF8CPs, L""sv},
 		{FSSF_PRIVATE,           NKeyViewer,                 L"IsWrap"sv,                        ViOpt.ViewerIsWrap, true},
 		{FSSF_PRIVATE,           NKeyViewer,                 L"MaxLineSize"sv,                   ViOpt.MaxLineSize, ViewerOptions::eDefLineSize},
 		{FSSF_PRIVATE,           NKeyViewer,                 L"PersistentBlocks"sv,              ViOpt.PersistentBlocks, true},
@@ -2001,6 +2004,7 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeyViewer,                 L"SaveViewerPos"sv,                 ViOpt.SavePos, true},
 		{FSSF_PRIVATE,           NKeyViewer,                 L"SaveViewerShortPos"sv,            ViOpt.SaveShortPos, true},
 		{FSSF_PRIVATE,           NKeyViewer,                 L"SaveViewerWrapMode"sv,            ViOpt.SaveWrapMode, false},
+		{FSSF_PRIVATE,           NKeyViewer,                 L"SaveViewMode"sv,                  ViOpt.SaveViewMode, true},
 		{FSSF_PRIVATE,           NKeyViewer,                 L"SearchEditFocus"sv,               ViOpt.SearchEditFocus, false},
 		{FSSF_PRIVATE,           NKeyViewer,                 L"SearchRegexp"sv,                  ViOpt.SearchRegexp, false},
 		{FSSF_PRIVATE,           NKeyViewer,                 L"SearchWrapStop"sv,                ViOpt.SearchWrapStop, BSTATE_CHECKED},

@@ -2833,8 +2833,8 @@ $ #Viewer: control keys#
     #Ctrl+F10#           Position to the current file.
     #F11#                Call "~Plugin commands~@Plugins@" menu
     #Alt+F11#            Display ~view history~@HistoryViews@
-    #+#                  Go to next file
-    #-#                  Go to previous file
+    #Gray +#             Go to next file
+    #Gray -#             Go to previous file
     #Ctrl+O#             Show user screen
     #Ctrl+Alt+Shift#     Temporarily show user screen
                        (as long as these keys are held down)
@@ -2883,6 +2883,10 @@ from the beginning of the currently visible file part.
     5. ^<wrap>To auto-scroll a file that is being appended by another
 process (comp. Linux “tail”), set the current position to the end of the
 file (press the #End# key).
+
+
+@ViewerMode
+...
 
 @ViewerGotoPos
 $ #Viewer: go to specified position#

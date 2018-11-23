@@ -241,19 +241,17 @@ struct Viewer::ViewerUndoData
 
 void Viewer::SavePosition()
 {
-	if (Global->Opt->ViOpt.SaveShortPos || Global->Opt->ViOpt.SavePos || Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SaveWrapMode)
+	const auto& vo = Global->Opt->ViOpt;
+	if (vo.SaveShortPos || vo.SavePos || vo.SaveCodepage || vo.SaveViewMode || vo.SaveWrapMode)
 	{
 		ViewerPosCache poscache;
 
 		poscache.cur.FilePos = FilePos;
 		poscache.cur.LeftPos = LeftPos;
 
-		poscache.ViewModeAndWrapState = m_none;
-
-		if (m_DisplayMode.touched() || m_Wrap.touched() || m_WordWrap.touched())
-		{
-			poscache.ViewModeAndWrapState |= m_mode_changed | m_DisplayMode | (m_Wrap? m_mode_wrap : m_none) | (m_WordWrap? m_mode_wrap_words : m_none);
-		}
+		poscache.ViewModeAndWrapState = (m_DisplayMode.touched() || m_Wrap.touched() || m_WordWrap.touched())
+			? m_mode_changed | m_DisplayMode | (m_Wrap ? m_mode_wrap : 0) | (m_WordWrap ? m_mode_wrap_words : 0)
+			: m_none;
 
 		poscache.CodePage = m_Codepage;
 		poscache.bm = BMSavePos;
@@ -286,6 +284,8 @@ bool Viewer::OpenFile(const string& Name,int warning)
 
 	SelectSize = -1; // Сбросим выделение
 	strFileName = Name;
+
+	const auto& vo = Global->Opt->ViOpt;
 
 	if (Global->OnlyEditorViewerUsed && strFileName == L"-"sv)
 	{
@@ -336,33 +336,33 @@ bool Viewer::OpenFile(const string& Name,int warning)
 	os::fs::get_find_data(strFileName, ViewFindData);
 	uintptr_t CachedCodePage=0;
 
-	if ((Global->Opt->ViOpt.SavePos || Global->Opt->ViOpt.SaveShortPos || Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SaveWrapMode) && !ReadStdin)
+	if ((vo.SavePos || vo.SaveShortPos || vo.SaveCodepage || vo.SaveViewMode || vo.SaveWrapMode) && !ReadStdin)
 	{
 		string strCacheName = strPluginData.empty() ? strFileName : strPluginData + PointToName(strFileName);
 		ViewerPosCache poscache;
 		bool found = FilePositionCache::GetPosition(strCacheName, poscache);
 		if (found)
 		{
-			if (Global->Opt->ViOpt.SavePos)
+			if (vo.SavePos)
 			{
 				LastSelectPos = FilePos = std::max(poscache.cur.FilePos, 0LL);
 				LeftPos = poscache.cur.LeftPos;
 			}
-			if (Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SavePos)
+			if (vo.SaveCodepage || vo.SavePos)
 			{
 				CachedCodePage = poscache.CodePage;
 				if (CachedCodePage && !IsCodePageSupported(CachedCodePage))
 					CachedCodePage = 0;
 			}
 
-			if (Global->Opt->ViOpt.SaveShortPos)
+			if (vo.SaveShortPos)
 			{
 				BMSavePos = poscache.bm;
 			}
 
 			if (!m_DisplayMode.touched()) // keep Mode if file listed (Gray+-)
 			{
-				if (poscache.ViewModeAndWrapState & m_mode_changed)
+				if (vo.SaveViewMode && (poscache.ViewModeAndWrapState & m_mode_changed) != 0)
 				{
 					auto ViewMode = poscache.ViewModeAndWrapState & m_mode_mask;
 					if (ViewMode <= m_mode_last)
@@ -371,12 +371,13 @@ bool Viewer::OpenFile(const string& Name,int warning)
 					}
 				}
 				if (m_DisplayMode != VMT_HEX)
-					m_DumpTextMode = m_DisplayMode == VMT_DUMP;
-			}
-			if (Global->Opt->ViOpt.SaveWrapMode && poscache.ViewModeAndWrapState & m_mode_changed)
-			{
-				m_Wrap = (poscache.ViewModeAndWrapState & m_mode_wrap) != 0;
-				m_WordWrap = (poscache.ViewModeAndWrapState & m_mode_wrap_words) != 0;
+					m_DumpTextMode = (m_DisplayMode == VMT_DUMP);
+
+				if (vo.SaveWrapMode && (poscache.ViewModeAndWrapState & m_mode_changed) != 0)
+				{
+					m_Wrap = (poscache.ViewModeAndWrapState & m_mode_wrap) != 0;
+					m_WordWrap = (poscache.ViewModeAndWrapState & m_mode_wrap_words) != 0;
+				}
 			}
 		}
 	}
@@ -390,7 +391,7 @@ bool Viewer::OpenFile(const string& Name,int warning)
 		else
 		{
 			const auto DefaultCodepage = GetDefaultCodePage();
-			const auto DetectedCodepage = GetFileCodepage(ViewFile, DefaultCodepage, &Signature, Global->Opt->ViOpt.AutoDetectCodePage);
+			const auto DetectedCodepage = GetFileCodepage(ViewFile, DefaultCodepage, &Signature, vo.AutoDetectCodePage);
 			m_Codepage = IsCodePageSupported(DetectedCodepage)? DetectedCodepage : DefaultCodepage;
 		}
 
@@ -403,8 +404,8 @@ bool Viewer::OpenFile(const string& Name,int warning)
 
 	if (!m_DisplayMode.touched())
 	{
-		m_DumpTextMode = isBinaryFile(m_Codepage);
-		m_DisplayMode = m_DumpTextMode? VMT_DUMP : VMT_TEXT;
+		m_DumpTextMode = vo.DetectDumpMode && isBinaryFile(m_Codepage);
+		m_DisplayMode = m_DumpTextMode ? VMT_DUMP : VMT_TEXT;
 		m_DisplayMode.forget();
 	}
 
@@ -1669,7 +1670,12 @@ bool Viewer::process_key(const Manager::Key& Key)
 		}
 		case KEY_F2:
 		{
-			ProcessWrapMode(!m_Wrap);
+			if (m_DisplayMode == VMT_TEXT)
+				ProcessWrapMode(!m_Wrap);
+			else {
+				m_DisplayMode = m_DisplayMode == VMT_DUMP || m_DumpTextMode ? VMT_TEXT : VMT_DUMP;
+				ProcessDisplayMode(m_DisplayMode);
+			}
 			return true;
 		}
 		case KEY_F4:
@@ -2513,6 +2519,9 @@ void Viewer::UpdateViewKeyBar(KeyBar& keybar)
 		f2_label = msg(m_Wrap? lng::MViewF2Unwrap : m_WordWrap? lng::MViewShiftF2 : lng::MViewF2);
 		shiftf2_label = msg(m_WordWrap? lng::MViewF2 : lng::MViewShiftF2);
 	}
+	else
+		f2_label = msg(m_DisplayMode == VMT_DUMP || m_DumpTextMode ? lng::MViewF4Text : lng::MViewF4Dump);
+
 	keybar[KBL_MAIN][F2] = f2_label;
 	keybar[KBL_SHIFT][F2] = shiftf2_label;
 

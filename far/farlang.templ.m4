@@ -3151,8 +3151,8 @@ l:
 "Програма перегляду"
 
 MViewConfigExternalF3
-"Запускать внешнюю программу просмотра по F3 вместо Alt+F3"
-"Use external viewer for F3 instead of Alt+F3"
+"Запускать вне&шнюю программу просмотра по F3 вместо Alt+F3"
+"Use e&xternal viewer for F3 instead of Alt+F3"
 "Použít externí prohlížeč u F3 místo Alt+F3"
 upd:"Use external viewer for F3 instead of Alt+F3"
 "Alt+F3 helyett F3 indítja a külső nézőkét"
@@ -3233,6 +3233,30 @@ upd:"Save w&rap mode"
 "Uložiť &režim zalomenia"
 "Salva Stato Di &A Capo Automatico"
 "Зберігати &режим переносу"
+
+MViewConfigSaveViewMode
+"Сохранять р&ежим просмотра"
+"Save vi&ew mode"
+upd:"Save view mode"
+upd:"Save view mode"
+upd:"Save view mode"
+upd:"Save view mode"
+upd:"Save view mode"
+upd:"Save view mode"
+upd:"Save view mode"
+upd:"Save view mode"
+
+MViewConfigDetectDumpMode
+"Автов&ыбор дамп режима просмотра"
+"Detect d&ump mode view"
+upd:"Detect dump mode view"
+upd:"Detect dump mode view"
+upd:"Detect dump mode view"
+upd:"Detect dump mode view"
+upd:"Detect dump mode view"
+upd:"Detect dump mode view"
+upd:"Detect dump mode view"
+upd:"Detect dump mode view"
 
 MViewAutoDetectCodePage
 "&Автоопределение кодовой страницы"
