@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 26.11.2018 23:46:06 +0000 - build 5328
+
+1. 0001726: Entering symbols using Input Method Editor doesn't work.
+
 drkns 25.11.2018 22:07:47 +0000 - build 5327
 
 1. Some improvements in exception handling.

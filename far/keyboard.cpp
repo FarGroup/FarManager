@@ -1069,9 +1069,6 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 		else
 			IntKeyState.LeftShiftPressed = IntKeyState.RightShiftPressed = (CtrlState & SHIFT_PRESSED) != 0;
 
-		if (!KeyCode)
-			return KEY_NONE;
-
 		struct KeysData
 		{
 			size_t FarKey;
