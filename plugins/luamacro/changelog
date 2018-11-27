@@ -1,4 +1,8 @@
-﻿shmuel 22.11.2018 21:36:01 +0200 - build 674
+﻿shmuel 27.11.2018 15:27:30 +0200 - build 675
+
+1. LuaFAR: suppress compilation warnings.
+
+shmuel 22.11.2018 21:36:01 +0200 - build 674
 
 1. LuaFAR: добавлены функции win.GetConsoleCP, win.SetConsoleCP, win.GetConsoleOutputCP,
    win.SetConsoleOutputCP.

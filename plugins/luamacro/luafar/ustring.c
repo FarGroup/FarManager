@@ -365,7 +365,7 @@ int ustring_GetConsoleCP(lua_State* L)
 
 int ustring_SetConsoleCP(lua_State* L)
 {
-	if (SetConsoleCP(luaL_checkinteger(L,1)))
+	if (SetConsoleCP((UINT)luaL_checkinteger(L,1)))
 		return lua_pushboolean(L,1), 1;
 	return SysErrorReturn(L);
 }
@@ -377,7 +377,7 @@ int ustring_GetConsoleOutputCP(lua_State* L)
 
 int ustring_SetConsoleOutputCP(lua_State* L)
 {
-	if (SetConsoleOutputCP(luaL_checkinteger(L,1)))
+	if (SetConsoleOutputCP((UINT)luaL_checkinteger(L,1)))
 		return lua_pushboolean(L,1), 1;
 	return SysErrorReturn(L);
 }
