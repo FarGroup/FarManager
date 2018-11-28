@@ -4741,7 +4741,7 @@ zero-size expression.
     #(?<=pattern)# - ^<wrap>the backward lookup. Unfortunately, the pattern must have fixed length.
     #(?<!pattern)# - ^<wrap>the negation of backward lookup. The same restriction.
 
-    Also you can create brackets with name: (?{name}pattern)
+    #(?{name}pattern)# - brackets with name.
     Name can be empty (in such case you cannot refer to this brackets) or must
 contain word symbols (\w) and spaces (\s).
 
