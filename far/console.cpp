@@ -465,7 +465,7 @@ namespace console_detail
 		return true;
 	}
 
-	static const int vt_color[]
+	static const int vt_color_map[]
 	{
 		0, // black
 		4, // blue
@@ -477,14 +477,19 @@ namespace console_detail
 		7, // white
 	};
 
+	static wchar_t vt_color_index(COLORREF Color)
+	{
+		const auto NtIndex = colors::color_value(Color) & ~FOREGROUND_INTENSITY;
+		return L'0' + vt_color_map[NtIndex & 7]; // Yes, some people do not understand that console index has limits
+	}
+
 	static void make_vt_attributes(const FarColor& Attributes, string& Str, std::pair<bool, FarColor>& LastColor)
 	{
 		append(Str, L"\033["sv);
 
 		if (Attributes.IsFg4Bit())
 		{
-			Str += Attributes.ForegroundColor & FOREGROUND_INTENSITY ? L'9' : L'3';
-			Str += L'0' + vt_color[colors::color_value(Attributes.ForegroundColor) & ~FOREGROUND_INTENSITY];
+			append(Str, Attributes.ForegroundColor & FOREGROUND_INTENSITY? L'9' : L'3', vt_color_index(Attributes.ForegroundColor));
 		}
 		else
 		{
@@ -496,8 +501,7 @@ namespace console_detail
 
 		if (Attributes.IsBg4Bit())
 		{
-			append(Str, Attributes.BackgroundColor & FOREGROUND_INTENSITY ? L"10"sv : L"4"sv);
-			Str += L'0' + vt_color[colors::color_value(Attributes.BackgroundColor) & ~FOREGROUND_INTENSITY];
+			append(Str, Attributes.BackgroundColor & FOREGROUND_INTENSITY? L"10"sv : L"4"sv, vt_color_index(Attributes.BackgroundColor));
 		}
 		else
 		{

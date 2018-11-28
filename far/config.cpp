@@ -1666,6 +1666,11 @@ Options::Options():
 		return MacroKeyValidator(Value, Macro.KeyMacroRCtrlShiftDot, L"RCtrlShift."sv, KEY_RCTRL | KEY_SHIFT | KEY_DOT);
 	}));
 
+	ClearType.SetCallback(option::validator([](bool Value)
+	{
+		return Value? !IsWindows10OrGreater() : Value;
+	}));
+
 	Sort.Collation.SetCallback(option::notifier([](auto) { string_sort::adjust_comparer(); }));
 	Sort.DigitsAsNumbers.SetCallback(option::notifier([](auto) { string_sort::adjust_comparer(); }));
 	Sort.CaseSensitive.SetCallback(option::notifier([](auto) { string_sort::adjust_comparer(); }));

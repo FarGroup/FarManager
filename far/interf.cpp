@@ -398,7 +398,7 @@ void SetFarConsoleMode(bool SetsActiveBuffer)
 	InputMode |= ENABLE_WINDOW_INPUT;
 
 	// We don't need these guys unconditionally
-	InputMode &= ~(ENABLE_PROCESSED_INPUT | ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT);
+	InputMode &= ~(ENABLE_PROCESSED_INPUT | ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT | ENABLE_VIRTUAL_TERMINAL_INPUT);
 
 	// And this one depends on interface settings
 	if (Global->Opt->Mouse)
