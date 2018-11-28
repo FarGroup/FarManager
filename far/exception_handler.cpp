@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dialog.hpp"
 #include "farcolor.hpp"
 #include "colormix.hpp"
+#include "interf.hpp"
 #include "keys.hpp"
 #include "keyboard.hpp"
 #include "lang.hpp"
@@ -67,6 +68,10 @@ enum exception_dialog
 	ed_edit_exception,
 	ed_text_details,
 	ed_edit_details,
+	ed_text_lasterror,
+	ed_edit_lasterror,
+	ed_text_ntstatus,
+	ed_edit_ntstatus,
 	ed_text_address,
 	ed_edit_address,
 	ed_text_source,
@@ -121,6 +126,8 @@ static void ShowStackTrace(const std::vector<const void*>& Stack, const std::vec
 	}
 	else
 	{
+		std::wcerr << L'\n';
+
 		for (const auto& Str: Symbols)
 		{
 			std::wcerr << Str << L'\n';
@@ -223,6 +230,7 @@ static reply ExcDialog(
 	string_view const Function,
 	string_view const Location,
 	Plugin const* const PluginModule,
+	error_state const* const ErrorState,
 	std::vector<const void*> const* const NestedStack
 )
 {
@@ -240,34 +248,60 @@ static reply ExcDialog(
 	if (Source.empty())
 		Source = Location;
 
-	const null_terminated FunctionName(Function);
+	const string FunctionName(Function);
 
-	FarDialogItem EditDlgData[]=
+	const auto Errors = FormatSystemErrors(ErrorState);
+
+	const string* Messages[]
 	{
-		{DI_DOUBLEBOX,3,1,76,10,0,nullptr,nullptr,0,msg(lng::MExcTrappedException).c_str()},
-		{DI_TEXT,     5,2, 17,2,0,nullptr,nullptr,0,msg(lng::MExcException).c_str()},
-		{DI_EDIT,    18,2, 75,2,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,Exception.c_str()},
-		{DI_TEXT,     5,3, 17,3,0,nullptr,nullptr,0,msg(lng::MExcDetails).c_str()},
-		{DI_EDIT,    18,3, 75,3,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,Details.c_str()},
-		{DI_TEXT,     5,4, 17,4,0,nullptr,nullptr,0,msg(lng::MExcAddress).c_str()},
-		{DI_EDIT,    18,4, 75,4,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,Address.c_str()},
-		{DI_TEXT,     5,5, 17,5,0,nullptr,nullptr,0,msg(lng::MExcSource).c_str()},
-		{DI_EDIT,    18,5, 75,5,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,Source.c_str()},
-		{DI_TEXT,     5,6, 17,6,0,nullptr,nullptr,0,msg(lng::MExcFunction).c_str()},
-		{DI_EDIT,    18,6, 75,6,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY, FunctionName.c_str()},
-		{DI_TEXT,     5,7, 17,7,0,nullptr,nullptr,0,msg(lng::MExcModule).c_str()},
-		{DI_EDIT,    18,7, 75,7,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,ModuleName.c_str()},
-		{DI_TEXT,    -1,8,  0,8,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,   0,9,  0,9,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_CENTERGROUP, msg(PluginModule? lng::MExcUnload : lng::MExcTerminate).c_str()},
-		{DI_BUTTON,   0,9,  0,9,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MExcStack).c_str()},
-		{DI_BUTTON,   0,9,  0,9,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MExcMinidump).c_str()},
-		{DI_BUTTON,   0,9,  0,9,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MIgnore).c_str()},
+		&Exception,
+		&Details,
+		&Errors[0],
+		&Errors[1],
+		&Address,
+		&Source,
+		&FunctionName,
+		&ModuleName,
+	};
+
+	const auto MaxSize = (*std::max_element(ALL_CONST_RANGE(Messages), [](string const* const Str1, string const* const Str2) { return Str1->size() < Str2->size(); }))->size();
+	const auto SysArea = 5;
+	const auto Col1X = 5;
+	const auto Col1W = 12;
+	const auto Col2X = Col1X + Col1W + 1;
+	const auto DialogWidth = std::max(80, std::min(ScrX + 1, static_cast<int>(Col2X + MaxSize + SysArea + 1)));
+	const auto Col2W = DialogWidth - Col2X - SysArea - 1;
+
+	FarDialogItem EditDlgData[]
+	{
+		{DI_DOUBLEBOX,3, 1, DialogWidth-4,12, 0, nullptr, nullptr, 0, msg(lng::MExcTrappedException).c_str()},
+		{DI_TEXT, Col1X, 2, Col1X + Col1W, 2, 0, nullptr, nullptr, 0, msg(lng::MExcException).c_str()},
+		{DI_EDIT, Col2X, 2, Col2X + Col2W, 2, 0, nullptr, nullptr, DIF_READONLY | DIF_SELECTONENTRY, Exception.c_str()},
+		{DI_TEXT, Col1X, 3, Col1X + Col1W, 3, 0, nullptr, nullptr, 0, msg(lng::MExcDetails).c_str()},
+		{DI_EDIT, Col2X, 3, Col2X + Col2W, 3, 0, nullptr, nullptr, DIF_READONLY | DIF_SELECTONENTRY, Details.c_str()},
+		{DI_TEXT, Col1X, 4, Col1X + Col1W, 4, 0, nullptr, nullptr, 0, L"LastError:"},
+		{DI_EDIT, Col2X, 4, Col2X + Col2W, 4, 0, nullptr, nullptr, DIF_READONLY | DIF_SELECTONENTRY, Errors[0].c_str()},
+		{DI_TEXT, Col1X, 5, Col1X + Col1W, 5, 0, nullptr, nullptr, 0, L"NTSTATUS:"},
+		{DI_EDIT, Col2X, 5, Col2X + Col2W, 5, 0, nullptr, nullptr, DIF_READONLY | DIF_SELECTONENTRY, Errors[1].c_str()},
+		{DI_TEXT, Col1X, 6, Col1X + Col1W, 6, 0, nullptr, nullptr, 0, msg(lng::MExcAddress).c_str()},
+		{DI_EDIT, Col2X, 6, Col2X + Col2W, 6, 0, nullptr, nullptr, DIF_READONLY | DIF_SELECTONENTRY, Address.c_str()},
+		{DI_TEXT, Col1X, 7, Col1X + Col1W, 7, 0, nullptr, nullptr, 0, msg(lng::MExcSource).c_str()},
+		{DI_EDIT, Col2X, 7, Col2X + Col2W, 7, 0, nullptr, nullptr, DIF_READONLY | DIF_SELECTONENTRY, Source.c_str()},
+		{DI_TEXT, Col1X, 8, Col1X + Col1W, 8, 0, nullptr, nullptr, 0, msg(lng::MExcFunction).c_str()},
+		{DI_EDIT, Col2X, 8, Col2X + Col2W, 8, 0, nullptr, nullptr, DIF_READONLY | DIF_SELECTONENTRY, FunctionName.c_str()},
+		{DI_TEXT, Col1X, 9, Col1X + Col1W, 9, 0, nullptr, nullptr, 0, msg(lng::MExcModule).c_str()},
+		{DI_EDIT, Col2X, 9, Col2X + Col2W, 9, 0, nullptr, nullptr, DIF_READONLY | DIF_SELECTONENTRY, ModuleName.c_str()},
+		{DI_TEXT,    -1,10,             0,10, 0, nullptr, nullptr, DIF_SEPARATOR, L""},
+		{DI_BUTTON,   0,11,             0,11, 0, nullptr, nullptr, DIF_DEFAULTBUTTON | DIF_FOCUS | DIF_CENTERGROUP, msg(PluginModule? lng::MExcUnload : lng::MExcTerminate).c_str()},
+		{DI_BUTTON,   0,11,             0,11, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MExcStack).c_str()},
+		{DI_BUTTON,   0,11,             0,11, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MExcMinidump).c_str()},
+		{DI_BUTTON,   0,11,             0,11, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MIgnore).c_str()},
 	};
 	auto EditDlg = MakeDialogItemsEx(EditDlgData);
 	auto DlgData = dialog_data_type(&Context, NestedStack);
 	const auto Dlg = Dialog::create(EditDlg, ExcDlgProc, &DlgData);
 	Dlg->SetDialogMode(DMODE_WARNINGSTYLE|DMODE_NOPLUGINS);
-	Dlg->SetPosition({ -1, -1, 80, 12 });
+	Dlg->SetPosition({ -1, -1, DialogWidth, 14 });
 	Dlg->Process();
 
 	switch (Dlg->GetExitCode())
@@ -289,6 +323,7 @@ static reply ExcConsole(
 	string_view const Function,
 	string_view const Location,
 	Plugin const* const Module,
+	error_state const* const ErrorState,
 	std::vector<const void*> const* const NestedStack
 )
 {
@@ -303,13 +338,15 @@ static reply ExcConsole(
 	if (Source.empty())
 		Source = Location;
 
-	std::array<string_view, 6> Msg;
+	std::array<string_view, 8> Msg;
 	if (far_language::instance().is_loaded())
 	{
 		Msg =
 		{
 			msg(lng::MExcException),
 			msg(lng::MExcDetails),
+			L"LastError:"sv,
+			L"NTSTATUS:"sv,
 			msg(lng::MExcAddress),
 			msg(lng::MExcSource),
 			msg(lng::MExcFunction),
@@ -322,6 +359,8 @@ static reply ExcConsole(
 		{
 			L"Exception:"sv,
 			L"Details:  "sv,
+			L"LastError:"sv,
+			L"NTSTATUS: "sv,
 			L"Address:  "sv,
 			L"Source:   "sv,
 			L"Function: "sv,
@@ -329,10 +368,16 @@ static reply ExcConsole(
 		};
 	}
 
+	const auto ColumnWidth = std::max_element(ALL_CONST_RANGE(Msg), [](string_view const Str1, string_view const Str2){ return Str1.size() < Str2.size(); })->size();
+
+	const auto Errors = FormatSystemErrors(ErrorState);
+
 	const string_view Values[] =
 	{
 		Exception,
 		Details,
+		Errors[0],
+		Errors[1],
 		Address,
 		Source,
 		Function,
@@ -343,7 +388,8 @@ static reply ExcConsole(
 
 	for (const auto& i : zip(Msg, Values))
 	{
-		std::wcerr << std::get<0>(i) << L' ' << std::get<1>(i) << L'\n';
+		const auto Label = fit_to_left(string(std::get<0>(i)), ColumnWidth);
+		std::wcerr << Label << L' ' << std::get<1>(i) << L'\n';
 	}
 
 	ShowStackTrace(tracer::get(*Context.pointers(), Context.thread_handle()), NestedStack);
@@ -461,6 +507,7 @@ static bool ProcessGenericException(
 	string_view const Location,
 	Plugin const* const PluginModule,
 	string_view const Message,
+	error_state const* const ErrorState = nullptr,
 	std::vector<const void*> const* const NestedStack = nullptr
 )
 {
@@ -572,11 +619,11 @@ static bool ProcessGenericException(
 
 	if (Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown())
 	{
-		MsgCode = ExcDialog(strFileName, Exception, Details, Context, Function, Location, PluginModule, NestedStack);
+		MsgCode = ExcDialog(strFileName, Exception, Details, Context, Function, Location, PluginModule, ErrorState, NestedStack);
 	}
 	else
 	{
-		MsgCode = ExcConsole(strFileName, Exception, Details, Context, Function, Location, PluginModule, NestedStack);
+		MsgCode = ExcConsole(strFileName, Exception, Details, Context, Function, Location, PluginModule, ErrorState, NestedStack);
 	}
 
 	switch (MsgCode)
@@ -649,7 +696,7 @@ bool ProcessStdException(const std::exception& e, string_view const Function, co
 			NestedStack = &Stack;
 		}
 
-		return ProcessGenericException(*Context, FarException->get_function(), FarException->get_location(), Module, Message, NestedStack);
+		return ProcessGenericException(*Context, FarException->get_function(), FarException->get_location(), Module, Message, &FarException->get_error_state(), NestedStack);
 	}
 
 	return ProcessGenericException(*Context, Function, {}, Module, encoding::utf8::get_chars(e.what()));

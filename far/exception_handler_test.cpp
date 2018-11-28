@@ -42,7 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "platform.concurrency.hpp"
 
-#include "common/compiler.hpp"
+#include "common/preprocessor.hpp"
 
 
 #if defined(FAR_ALPHA_VERSION)

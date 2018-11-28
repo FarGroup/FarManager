@@ -74,6 +74,20 @@ string GetErrorString(const error_state_ex& ErrorState)
 	return Str;
 }
 
+std::array<string, 2> FormatSystemErrors(error_state const* const ErrorState)
+{
+	if (!ErrorState)
+		return {};
+
+	const auto Format = L"0x{0:0>8X} - {1}"sv;
+
+	return
+	{
+		format(Format, as_unsigned(ErrorState->Win32Error), os::GetErrorString(false, ErrorState->Win32Error)),
+		format(Format, as_unsigned(ErrorState->NtError), os::GetErrorString(true, ErrorState->NtError))
+	};
+}
+
 intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	switch (Msg)
@@ -117,9 +131,17 @@ intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 				case KEY_F3:
 					if(IsErrorType)
 					{
+						const auto Errors = FormatSystemErrors(&m_ErrorState);
+						const auto MaxStr = std::max(Errors[0].size(), Errors[1].size());
+						const auto SysArea = 5 * 2;
+						const auto FieldsWidth = std::max(80 - SysArea, std::min(static_cast<int>(MaxStr), ScrX - SysArea));
+
 						DialogBuilder Builder(lng::MError);
-						Builder.AddConstEditField(format(L"LastError: 0x{0:0>8X} - {1}"sv, as_unsigned(m_ErrorState.Win32Error), GetWin32ErrorString(m_ErrorState)), 65);
-						Builder.AddConstEditField(format(L"NTSTATUS: 0x{0:0>8X} - {1}"sv, as_unsigned(m_ErrorState.NtError), GetNtErrorString(m_ErrorState)), 65);
+						Builder.StartColumns();
+						Builder.AddText(L"LastError:");
+						Builder.AddConstEditField(Errors[0], FieldsWidth);
+						Builder.AddText(L"NTSTATUS:");
+						Builder.AddConstEditField(Errors[1], FieldsWidth);
 						Builder.AddOK();
 						Builder.ShowDialog();
 					}
