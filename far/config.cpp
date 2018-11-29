@@ -79,6 +79,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "locale.hpp"
 #include "console.hpp"
+#include "scrbuf.hpp"
 
 #include "platform.env.hpp"
 
@@ -1666,9 +1667,9 @@ Options::Options():
 		return MacroKeyValidator(Value, Macro.KeyMacroRCtrlShiftDot, L"RCtrlShift."sv, KEY_RCTRL | KEY_SHIFT | KEY_DOT);
 	}));
 
-	ClearType.SetCallback(option::validator([](bool Value)
+	ClearType.SetCallback(option::notifier([](int const Value)
 	{
-		return Value? !IsWindows10OrGreater() : Value;
+		Global->ScrBuf->SetClearTypeFix(Value);
 	}));
 
 	Sort.Collation.SetCallback(option::notifier([](auto) { string_sort::adjust_comparer(); }));

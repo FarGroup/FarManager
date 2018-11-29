@@ -357,7 +357,7 @@ void ScreenBuf::Flush(flush_type FlushType)
 			std::vector<SMALL_RECT>WriteList;
 			bool Changes=false;
 
-			if (Global->Opt->ClearType == BSTATE_CHECKED)
+			if (m_ClearTypeFix == BSTATE_CHECKED)
 			{
 				//Для полного избавления от артефактов ClearType будем перерисовывать на всю ширину.
 				//Чревато тормозами/миганием в зависимости от конфигурации системы.
@@ -406,7 +406,7 @@ void ScreenBuf::Flush(flush_type FlushType)
 						}
 						else if (Started && static_cast<SHORT>(I) > WriteRegion.Bottom && static_cast<SHORT>(J) >= WriteRegion.Left)
 						{
-							if (Global->Opt->ClearType == BSTATE_3STATE)
+							if (m_ClearTypeFix == BSTATE_3STATE)
 							{
 								//BUGBUG: при включенном СlearType-сглаживании на экране остаётся "мусор" - тонкие вертикальные полосы
 								// кстати, и при выключенном тоже (но реже).
@@ -623,4 +623,9 @@ void ScreenBuf::Scroll(size_t Count)
 		Flush();
 
 #endif
+}
+
+void ScreenBuf::SetClearTypeFix(int const ClearTypeFix)
+{
+	m_ClearTypeFix = ClearTypeFix;
 }

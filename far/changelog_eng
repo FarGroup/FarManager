@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 29.11.2018 18:07:01 +0000 - build 5332
+
+1. Restore "ClearType-friendly redraw" for Windows 10 - still relevant for Legacy Console.
+
 drkns 28.11.2018 19:20:40 +0000 - build 5331
 
 1. VT-renderer wasn't expecting that plugins can provide arbitrary rubbish instead of normal colour.

@@ -97,6 +97,8 @@ public:
 	void Scroll(size_t Count);
 	void Flush(flush_type FlushType = flush_type::all);
 
+	void SetClearTypeFix(int ClearTypeFix);
+
 private:
 	os::critical_section CS;
 	FAR_CHAR_INFO MacroChar{};
@@ -106,6 +108,7 @@ private:
 	string m_Title;
 	BitFlags SBFlags;
 	int LockCount{};
+	int m_ClearTypeFix{};
 	DWORD CurSize{};
 	point m_CurPos{};
 	bool MacroCharUsed{};
