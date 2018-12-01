@@ -5,6 +5,8 @@
 
 "Ejecutar un macro"
 "Dígito: ejecutar | AltF4: abrir en editor"
+"< No description: Index=%d >"
+"Low priority"
 
 // macro browser help window
 "F1         mostrar esta ventana de ayuda"

@@ -871,30 +871,42 @@ local function WriteMacros()
   return true
 end
 
-local function GetFromMenu (macrolist, area, key)
-  local menuitems = {}
-  for i,macro in ipairs(macrolist) do
-    local descr = macro.description
+local function GetFromMenu (menuitems, area, key)
+  for i,item in ipairs(menuitems) do
+    local descr = item.macro.description
     if not descr or descr=="" then
-      descr = ("< No description: Index=%d >"):format(macro.index)
+      descr = Msg.UtNoDescription_Index:format(item.macro.index)
     end
-    menuitems[i] = { text=descr, macro=macro, selected=macro.selected }
+    item.text = descr
+    item.selected = item.macro.selected
   end
 
   table.sort(menuitems,
     function(item1,item2)
-      local p1,p2 = item1.macro.sortpriority or 50, item2.macro.sortpriority or 50
-      return p1>p2 or p1==p2 and far.LStricmp(item1.text, item2.text) < 0
+      local p1,p2 = item1.priority, item2.priority
+      local s1,s2 = item1.macro.sortpriority or 50, item2.macro.sortpriority or 50
+      return p1>p2 or p1==p2 and (s1>s2 or s1==s2 and far.LStricmp(item1.text, item2.text) < 0)
     end)
+
+  local pos_sep
+  for i,item in ipairs(menuitems) do
+    if item.priority < menuitems[1].priority then
+      pos_sep = i; break
+    end
+  end
 
   local bkeys = { {BreakKey="A+F4"} }
   for i,item in ipairs(menuitems) do
     local ch = i<10 and tostring(i) or i<36 and string.char(i+55)
     if ch then
+      local pos = pos_sep and i>=pos_sep and i+1 or i
       item.text = ch..". "..item.text
-      table.insert(bkeys, {BreakKey=ch, pos=i})
-      if i>=10 then table.insert(bkeys, {BreakKey=ch:lower(), pos=i}) end
+      table.insert(bkeys, {BreakKey=ch, pos=pos})
+      if i>=10 then table.insert(bkeys, {BreakKey=ch:lower(), pos=pos}) end
     end
+  end
+  if pos_sep then
+    table.insert(menuitems, pos_sep, {separator=true, text=Msg.UtLowPriority})
   end
 
   local props = {
@@ -1026,16 +1038,20 @@ local function GetMacro (argMode, argKey, argUseCommon, argCheckOnly)
 
   -- Make an array with highest priority macros.
   local macrolist = {}
+  local nindex = nil
   for m,p in pairs(Collector) do
-    if CInfo[p]==max_priority then macrolist[#macrolist+1]=m end
+    macrolist[#macrolist+1] = { macro=m; priority=CInfo[p] }
+    if CInfo[p] == max_priority then
+      nindex = nindex and -1 or #macrolist
+    end
   end
-  if #macrolist == 1 then
-    local m = macrolist[1]
+  if nindex > 0 then
+    local m = macrolist[nindex].macro
     return m, CInfo[Collector[m]+1]
   end
 
   -- Make order of macros in the menu consistent
-  table.sort(macrolist, function(m1,m2) return Collector[m1] < Collector[m2] end)
+  table.sort(macrolist, function(m1,m2) return Collector[m1.macro] < Collector[m2.macro] end)
 
   local m = GetFromMenu(macrolist, GetTrueAreaName(argMode), argKey)
   if m then return m, CInfo[Collector[m]+1] end

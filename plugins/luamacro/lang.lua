@@ -4,6 +4,8 @@ local list = {
 
   "UtExecuteMacroTitle",
   "UtExecuteMacroBottom",
+  "UtNoDescription_Index",
+  "UtLowPriority",
 
   -- macro browser help window
   "MBHelpLine1",
