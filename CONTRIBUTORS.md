@@ -109,6 +109,7 @@
 * Michael Z. Kadaner
 * Vladimir Fekete
 * Daniele Babolin
+* Jesko Huettenhain
  
 > And special thanks to all of our community members!  
 > You are not less important than the people mentioned here.

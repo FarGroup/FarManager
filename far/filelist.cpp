@@ -4760,6 +4760,11 @@ string FileList::GetDizName() const
 	return m_PanelMode == panel_mode::NORMAL_PANEL? Diz.GetDizName() : string();
 }
 
+const wchar_t* FileList::GetDescription(const string& Name, const string& ShortName, long long const FileSize) const
+{
+	return Diz.Get(Name, ShortName, FileSize);
+}
+
 void FileList::CopyDiz(const string& Name, const string& ShortName,const string& DestName,
                        const string& DestShortName,DizList *DestDiz)
 {
