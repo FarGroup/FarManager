@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "cvtname.hpp"
 #include "global.hpp"
+#include "filelist.hpp"
 
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
@@ -97,6 +98,26 @@ struct subst_data
 		}
 		Normal, Short;
 		panel_ptr Panel;
+
+		string_view GetDescription() const
+		{
+			if (!m_Description.second)
+			{
+				if (const auto FList = dynamic_cast<FileList*>(Panel.get()))
+				{
+					FList->ReadDiz();
+					// BUGBUG size
+					m_Description.first = NullToEmpty(FList->GetDescription(string(Normal.Name), string(Short.Name), 0));
+				}
+				m_Description.second = true;
+			}
+
+			return m_Description.first;
+		}
+
+	private:
+		// TODO: std::optional
+		mutable std::pair<string_view, bool> m_Description;
 	}
 	This, Another;
 
@@ -133,6 +154,7 @@ namespace tokens
 		short_path                   = L"!/"sv,
 		real_path                    = L"!=\\"sv,
 		real_short_path              = L"!=/"sv,
+		description                  = L"!?!"sv,
 		input                        = L"!?"sv,
 		name                         = L"!"sv;
 
@@ -440,6 +462,12 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 		return Tail;
 	}
 
+	if (const auto Tail = tokens::skip(CurStr, tokens::description))
+	{
+		Out += SubstData.Default().GetDescription();
+		return Tail;
+	}
+
 	const auto& GetPath = [](string_view const Tail, const subst_data& Data, bool Short, bool Real)
 	{
 		// TODO: paths on plugin panels are ambiguous
@@ -698,18 +726,20 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
   Преобразование метасимволов ассоциации файлов в реальные значения
 
 */
-static bool SubstFileName(
+bool SubstFileName(
 	string &strStr,                  // результирующая строка
-	string_view const Name,
-	string_view const ShortName,
+	const subst_context& Context,
 	list_names* ListNames,
 	bool* PreserveLongName,
 	bool IgnoreInput,                // true - не исполнять "!?<title>?<init>!"
-	string_view const CmdLineDir,    // Каталог исполнения
 	string_view const DlgTitle,
 	bool const EscapeAmpersands
 )
 {
+	const auto& Name = Context.Name;
+	const auto& ShortName = Context.ShortName;
+	const auto& CmdLineDir = Context.Path;
+
 	if (PreserveLongName)
 		*PreserveLongName = false;
 
@@ -767,27 +797,4 @@ static bool SubstFileName(
 		*PreserveLongName = SubstData.PreserveLFN;
 
 	return Result;
-}
-
-bool SubstFileName(
-	string& Str,
-	const subst_context& Context,
-	list_names* const ListNames,
-	bool* const PreserveLongName,
-	bool const IgnoreInput,
-	string_view const DlgTitle,
-	bool const EscapeAmpersands
-)
-{
-	return SubstFileName(
-		Str,
-		Context.Name,
-		Context.ShortName,
-		ListNames,
-		PreserveLongName,
-		IgnoreInput,
-		Context.Path,
-		DlgTitle,
-		EscapeAmpersands
-	);
 }

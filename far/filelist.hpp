@@ -172,6 +172,7 @@ public:
 	void DeleteDiz(const string& Name, const string& ShortName) override;
 	void FlushDiz() override;
 	string GetDizName() const override;
+	const wchar_t* GetDescription(const string& Name, const string& ShortName, long long FileSize) const;
 	void CopyDiz(const string& Name, const string& ShortName, const string& DestName, const string& DestShortName, DizList *DestDiz) override;
 	bool IsDizDisplayed() const override;
 	bool IsColumnDisplayed(int Type) const override;

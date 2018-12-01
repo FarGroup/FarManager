@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 04.02.2019 22:22:35 +0000 - build 5357
+
+1. #78 Add a placeholder symbol for file descriptions
+
 drkns 24.01.2019 00:43:26 +0000 - build 5356
 
 1. New version of fmt.
