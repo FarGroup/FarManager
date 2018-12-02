@@ -136,13 +136,25 @@ void SQLiteDb::SQLiteStmt::stmt_deleter::operator()(sqlite::sqlite3_stmt* Object
 	// or if the statement is never been evaluated, then sqlite3_finalize() returns SQLITE_OK.
 	// If the most recent evaluation of statement S failed, then sqlite3_finalize(S)
 	// returns the appropriate error code or extended error code.
+
+	// All statement evaluations are checked so returning the error again makes no sense.
+	// This is called from a destructor so we can't throw here.
 	invoke(sqlite::sqlite3_db_handle(Object), [&]{ sqlite::sqlite3_finalize(Object); return true; });
 }
 
 SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::Reset()
 {
 	invoke(db(), [&]{ return sqlite::sqlite3_clear_bindings(m_Stmt.get()) == SQLITE_OK; });
-	invoke(db(), [&]{ return sqlite::sqlite3_reset(m_Stmt.get()) == SQLITE_OK; });
+
+	// https://www.sqlite.org/c3ref/reset.html
+	// If the most recent call to sqlite3_step(S) for the prepared statement S returned SQLITE_ROW or SQLITE_DONE,
+	// or if sqlite3_step(S) has never before been called on S, then sqlite3_reset(S) returns SQLITE_OK.
+	// If the most recent call to sqlite3_step(S) for the prepared statement S indicated an error,
+	// then sqlite3_reset(S) returns an appropriate error code.
+
+	// All sqlite3_step calls are checked so returning the error again makes no sense.
+	// This is called from a destructor so we can't throw here.
+	invoke(db(), [&]{ sqlite::sqlite3_reset(m_Stmt.get()); return true; });
 	m_Param = 0;
 	return *this;
 }
@@ -269,8 +281,16 @@ SQLiteDb::column_type SQLiteDb::SQLiteStmt::GetColType(int Col) const
 
 SQLiteDb::SQLiteDb(initialiser Initialiser, string_view const DbName, bool WAL):
 	m_Db(Open(DbName, WAL)),
-	m_stmt_BeginTransaction(create_stmt("BEGIN;"sv)),
-	m_stmt_EndTransaction(create_stmt("END;"sv)),
+	// https://www.sqlite.org/isolation.html
+	// If X starts a transaction that will initially only read but X knows it will eventually want to write
+	// and does not want to be troubled with possible SQLITE_BUSY_SNAPSHOT errors that arise because
+	// another connection jumped ahead of it in line, then X can issue BEGIN IMMEDIATE
+	// to start its transaction instead of just an ordinary BEGIN.
+	// The BEGIN IMMEDIATE command goes ahead and starts a write transaction,
+	// and thus blocks all other writers. If the BEGIN IMMEDIATE operation succeeds,
+	// then no subsequent operations in that transaction will ever fail with an SQLITE_BUSY error. 
+	m_stmt_BeginTransaction(create_stmt("BEGIN EXCLUSIVE"sv)),
+	m_stmt_EndTransaction(create_stmt("END"sv)),
 	m_Init((Initialiser(db_initialiser(this)), init{})) // yay, operator comma!
 {
 }
@@ -380,7 +400,7 @@ void SQLiteDb::Exec(range<const std::string_view*> Command) const
 void SQLiteDb::BeginTransaction()
 {
 	if (!m_ActiveTransactions)
-		m_stmt_BeginTransaction.Execute();
+		auto_statement(&m_stmt_BeginTransaction)->Execute();
 	++m_ActiveTransactions;
 }
 
@@ -388,7 +408,7 @@ void SQLiteDb::EndTransaction()
 {
 	--m_ActiveTransactions;
 	if (!m_ActiveTransactions)
-		m_stmt_EndTransaction.Execute();
+		auto_statement(&m_stmt_EndTransaction)->Execute();
 }
 
 SQLiteDb::SQLiteStmt SQLiteDb::create_stmt(std::string_view const Stmt, bool Persistent) const
@@ -420,8 +440,9 @@ unsigned long long SQLiteDb::LastInsertRowID() const
 
 void SQLiteDb::Close()
 {
-	// sqlite3_close() returns SQLITE_BUSY and leaves the connection option
-	// if there are unfinalized prepared statements or unfinished sqlite3_backups
+	// https://www.sqlite.org/c3ref/close.html
+	// If the database connection is associated with unfinalized prepared statements or unfinished sqlite3_backup objects
+	// then sqlite3_close() will leave the database connection open and return SQLITE_BUSY.
 	m_Statements.clear();
 	m_Db.reset();
 }

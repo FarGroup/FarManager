@@ -129,15 +129,21 @@ private:
 
 #define IMPLEMENTS_ENUMERATOR(type) friend typename type::enumerator_type
 
-template<typename value_type, typename callable>
-class inline_enumerator: public enumerator<inline_enumerator<value_type, callable>, value_type>
+template<typename value_type, typename callable, typename finaliser>
+class inline_enumerator: public enumerator<inline_enumerator<value_type, callable, finaliser>, value_type>
 {
 	IMPLEMENTS_ENUMERATOR(inline_enumerator);
 
 public:
-	explicit inline_enumerator(callable&& Callable):
-		m_Callable(FWD(Callable))
+	explicit inline_enumerator(callable&& Callable, finaliser&& Finaliser):
+		m_Callable(FWD(Callable)),
+		m_Finaliser(FWD(Finaliser))
 	{
+	}
+
+	~inline_enumerator()
+	{
+		m_Finaliser();
 	}
 
 private:
@@ -147,13 +153,21 @@ private:
 	}
 
 	mutable callable m_Callable;
+	finaliser m_Finaliser;
 };
+
+template<typename value_type, typename callable, typename finaliser>
+[[nodiscard]]
+auto make_inline_enumerator(callable&& Callable, finaliser&& Finaliser = [] {})
+{
+	return inline_enumerator<value_type, callable, finaliser>(FWD(Callable), FWD(Finaliser));
+}
 
 template<typename value_type, typename callable>
 [[nodiscard]]
 auto make_inline_enumerator(callable&& Callable)
 {
-	return inline_enumerator<value_type, callable>(FWD(Callable));
+	return make_inline_enumerator<value_type>(FWD(Callable), []{});
 }
 
 #endif // ENUMERATOR_HPP_6BCD3B36_3A68_400C_82B5_AB3644D0A874

@@ -256,6 +256,11 @@ private:
 		return EnumValuesT(Key, Reset, Name, Value, &SQLiteStmt::GetColInt64);
 	}
 
+	void CloseEnum() const override
+	{
+		SCOPED_ACTION(auto)(AutoStatement(stmtEnumValues));
+	}
+
 	void Export(representation_destination& Representation) const override
 	{
 		auto& root = CreateChild(Representation.GetRoot(), GetKeyName());
@@ -440,10 +445,20 @@ public:
 	}
 
 protected:
+	virtual void SerializeBlob(std::string_view /*Name*/, const bytes_view& Blob, tinyxml::XMLElement& e) const
+	{
+		e.SetAttribute("type", "hex");
+		e.SetAttribute("value", BlobToHexString(Blob).c_str());
+	}
+
+	virtual bytes DeserializeBlob(const char* Type, const char* Value, const tinyxml::XMLElement& e) const
+	{
+		return HexStringToBlob(Value);
+	}
+
+private:
 	static void Initialise(const db_initialiser& Db)
 	{
-		Db.SetBusyHandler(sqlite_busy_handler);
-
 		Db.EnableForeignKeysConstraints();
 
 		static const std::string_view Schema[]
@@ -568,6 +583,11 @@ protected:
 		return true;
 	}
 
+	void CloseEnumKeys() const override
+	{
+		SCOPED_ACTION(auto)(AutoStatement(stmtEnumKeys));
+	}
+
 	bool EnumValues(const key& Root, const bool Reset, string& Name, int& Type) const override
 	{
 		auto Stmt = AutoStatement(stmtEnumValues);
@@ -584,20 +604,14 @@ protected:
 		return true;
 	}
 
-	virtual void SerializeBlob(std::string_view /*Name*/, const bytes_view& Blob, tinyxml::XMLElement& e) const
+	void CloseEnumValues() const override
 	{
-		e.SetAttribute("type", "hex");
-		e.SetAttribute("value", BlobToHexString(Blob).c_str());
+		SCOPED_ACTION(auto)(AutoStatement(stmtEnumValues));
 	}
 
 	void Export(representation_destination& Representation) const override
 	{
 		Export(Representation, root_key(), CreateChild(Representation.GetRoot(), "hierarchicalconfig"));
-	}
-
-	virtual bytes DeserializeBlob(const char* Type, const char* Value, const tinyxml::XMLElement& e) const
-	{
-		return HexStringToBlob(Value);
 	}
 
 	void Import(const representation_source& Representation) override
@@ -951,7 +965,7 @@ private:
 		Db.PrepareStatements(Statements);
 	}
 
-	bool EnumMasks(const bool Reset, unsigned long long* const id, string& strMask) override
+	bool EnumMasks(const bool Reset, unsigned long long* const id, string& strMask) const override
 	{
 		auto Stmt = AutoStatement(stmtEnumMasks);
 
@@ -967,7 +981,12 @@ private:
 		return true;
 	}
 
-	bool EnumMasksForType(const bool Reset, const int Type, unsigned long long* const id, string& strMask) override
+	void CloseEnumMasks() const override
+	{
+		SCOPED_ACTION(auto)(AutoStatement(stmtEnumMasks));
+	}
+
+	bool EnumMasksForType(const bool Reset, const int Type, unsigned long long* const id, string& strMask) const override
 	{
 		auto Stmt = AutoStatement(stmtEnumMasksForType);
 
@@ -981,6 +1000,11 @@ private:
 		strMask = Stmt->GetColText(1);
 		Stmt.release();
 		return true;
+	}
+
+	void CloseEnumMasksForType() const override
+	{
+		SCOPED_ACTION(auto)(AutoStatement(stmtEnumMasks));
 	}
 
 	bool GetMask(unsigned long long id, string &strMask) override
@@ -1857,6 +1881,11 @@ private:
 		return true;
 	}
 
+	void CloseEnum(bool const Reverse) const override
+	{
+		SCOPED_ACTION(auto)(AutoStatement(Reverse? stmtEnumDesc : stmtEnum));
+	}
+
 	bool DeleteAndAddAsync(unsigned long long const DeleteId, unsigned int const TypeHistory, string_view const HistoryName, string_view const Name, int const Type, bool const Lock, string_view const Guid, string_view const File, string_view const Data) override
 	{
 		auto item = std::make_unique<AsyncWorkItem>();
@@ -1900,6 +1929,11 @@ private:
 		strHistoryName = Stmt->GetColText(0);
 		Stmt.release();
 		return true;
+	}
+
+	void CloseEnumLargeHistories() const override
+	{
+		SCOPED_ACTION(auto)(AutoStatement(stmtEnumLargeHistories));
 	}
 
 	bool GetNewest(const unsigned int TypeHistory, const string_view HistoryName, string& Name) override

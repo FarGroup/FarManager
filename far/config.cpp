@@ -2187,10 +2187,10 @@ void Options::Load(overrides&& Overrides)
 
 	SetSearchColumns(FindOpt.strSearchOutFormat, FindOpt.strSearchOutFormatWidth);
 
-	string tmp[2];
-	if (!ConfigProvider().GeneralCfg()->EnumValues(L"Masks"sv, true, tmp[0], tmp[1]))
 	{
-		ApplyDefaultMaskGroups();
+		const auto Enumerator = ConfigProvider().GeneralCfg()->ValuesEnumerator<string>(L"Masks"sv);
+		if (Enumerator.cbegin() == Enumerator.cend())
+			ApplyDefaultMaskGroups();
 	}
 
 	for(auto& i: GuidOptions)
