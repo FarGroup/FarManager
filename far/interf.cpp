@@ -1356,3 +1356,31 @@ COORD GetNonMaximisedBufferSize()
 {
 	return NonMaximisedBufferSize();
 }
+
+bool ConsoleYesNo(string_view const Message)
+{
+	ChangeConsoleMode(console.GetInputHandle(), InitialConsoleMode.Input);
+	ChangeConsoleMode(console.GetOutputHandle(), InitialConsoleMode.Output);
+	ChangeConsoleMode(console.GetErrorHandle(), InitialConsoleMode.Error);
+
+	for (;;)
+	{
+		std::wcout << L'\n' << Message << L" (Y/N)? "sv << std::flush;
+
+		wchar_t Input;
+		std::wcin.clear();
+		std::wcin.get(Input).ignore(std::numeric_limits<std::streamsize>::max(), L'\n');
+
+		switch (upper(Input))
+		{
+		case L'Y':
+			return true;
+
+		case L'N':
+			return false;
+
+		default:
+			break;
+		}
+	}
+}

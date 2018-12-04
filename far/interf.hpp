@@ -252,4 +252,6 @@ private:
 	bool m_Loaded{};
 };
 
+bool ConsoleYesNo(string_view Message);
+
 #endif // INTERF_HPP_A91E1A99_C78E_41EC_B0F8_5C35A6C99116

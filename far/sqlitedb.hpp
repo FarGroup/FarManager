@@ -55,6 +55,7 @@ class far_sqlite_exception : public far_exception
 class SQLiteDb: noncopyable, virtual protected transactional
 {
 public:
+	using busy_handler = int(*)(void*, int);
 	static bool library_load();
 	static void library_free();
 
@@ -79,7 +80,7 @@ protected:
 
 	using initialiser = void(const db_initialiser& Db);
 
-	SQLiteDb(initialiser Initialiser, string_view DbName, bool WAL = false);
+	SQLiteDb(busy_handler BusyHandler, initialiser Initialiser, string_view DbName, bool WAL = false);
 
 	void BeginTransaction() override;
 	void EndTransaction() override;
@@ -177,8 +178,7 @@ protected:
 	void Exec(range<const std::string_view*> Commands) const;
 	void SetWALJournalingMode() const;
 	void EnableForeignKeysConstraints() const;
-	using busy_handler = int(void*, int);
-	void SetBusyHandler(busy_handler Handler) const;
+
 	unsigned long long LastInsertRowID() const;
 
 	auto_statement AutoStatement(size_t Index) const { return auto_statement(&m_Statements[Index]); }
@@ -209,7 +209,6 @@ protected:
 		FORWARD_FUNCTION(SetWALJournalingMode)
 		FORWARD_FUNCTION(EnableForeignKeysConstraints)
 		FORWARD_FUNCTION(PrepareStatements)
-		FORWARD_FUNCTION(SetBusyHandler)
 
 #undef FORWARD_FUNCTION
 
@@ -224,7 +223,7 @@ private:
 	struct db_closer { void operator()(sqlite::sqlite3*) const; };
 	using database_ptr = std::unique_ptr<sqlite::sqlite3, db_closer>;
 
-	database_ptr Open(string_view Path, bool WAL);
+	database_ptr Open(string_view Path, busy_handler BusyHandler, bool WAL);
 	void Close();
 
 	// The order is important

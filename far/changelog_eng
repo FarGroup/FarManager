@@ -3,6 +3,12 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 04.12.2018 02:08:22 +0000 - build 5334
+
+1. More fixes in concurrent access to sqlite.
+
+2. Refactoring.
+
 drkns 02.12.2018 00:14:12 +0000 - build 5333
 
 1. As it turned out, SQlite, when finalising a write transaction, does not actually finalise it,

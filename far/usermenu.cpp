@@ -468,7 +468,7 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 using fkey_to_pos_map = std::array<int, 24>;
 
 // заполнение меню
-static void FillUserMenu(VMenu2& FarUserMenu, UserMenu::menu_container& Menu, int MenuPos, fkey_to_pos_map& FuncPos, const string& Name, const string& ShortName)
+static void FillUserMenu(VMenu2& FarUserMenu, UserMenu::menu_container& Menu, int MenuPos, fkey_to_pos_map& FuncPos, const subst_context& SubstContext)
 {
 	FarUserMenu.clear();
 	FuncPos.fill(-1);
@@ -494,7 +494,7 @@ static void FillUserMenu(VMenu2& FarUserMenu, UserMenu::menu_container& Menu, in
 		else
 		{
 			string strLabel = MenuItem->strLabel;
-			SubstFileName(strLabel, subst_context(Name, ShortName), nullptr, nullptr, true, {}, true);
+			SubstFileName(strLabel, SubstContext, nullptr, nullptr, true, {}, true);
 			strLabel = os::env::expand(strLabel);
 			string strHotKey = MenuItem->strHotKey;
 			FuncNum = PrepareHotKey(strHotKey);
@@ -545,7 +545,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 
 		fkey_to_pos_map FuncPos;
 
-		FillUserMenu(*UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
+		FillUserMenu(*UserMenu, Menu, MenuPos, FuncPos, Context);
 
 		const auto ExitCode = UserMenu->Run([&](const Manager::Key& RawKey)
 		{
@@ -601,7 +601,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 					if (CurrentMenuItem)
 					{
 						DeleteMenuRecord(Menu, *CurrentMenuItem);
-						FillUserMenu(*UserMenu, Menu, MenuPos, FuncPos, strName, strShortName);
+						FillUserMenu(*UserMenu, Menu, MenuPos, FuncPos, Context);
 					}
 					break;
 
@@ -615,7 +615,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 						break;
 
 					EditMenu(Menu, CurrentMenuItem, bNew);
-					FillUserMenu(*UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
+					FillUserMenu(*UserMenu, Menu, MenuPos, FuncPos, Context);
 					break;
 				}
 
@@ -645,7 +645,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 							}
 							node_swap(Menu, *CurrentMenuItem, Other);
 
-							FillUserMenu(*UserMenu, Menu, MenuPos, FuncPos, strName, strShortName);
+							FillUserMenu(*UserMenu, Menu, MenuPos, FuncPos, Context);
 						}
 					}
 				}

@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "regex_helpers.hpp"
 #include "global.hpp"
+#include "stddlg.hpp"
 
 #include "platform.concurrency.hpp"
 #include "platform.fs.hpp"
@@ -165,29 +166,30 @@ int sqlite_busy_handler(void* Param, int Retries)
 	}
 
 	const auto& Db = *static_cast<const SQLiteDb*>(Param);
-
-	return Message(FMSG_WARNING,
-		msg(lng::MError),
-		{ 
-			Db.GetPath(),
-			L"Database is busy"s,
-		},
-		{ lng::MRetry, lng::MAbort }) == Message::first_button;
+	return RetryAbort({ Db.GetPath(), L"Database is busy"s });
 }
 
-class iGeneralConfigDb: public GeneralConfig, public SQLiteDb
+class sqlite_boilerplate : public SQLiteDb
+{
+protected:
+	template<typename... args>
+	explicit sqlite_boilerplate(args&&... Args) :
+		SQLiteDb(sqlite_busy_handler, FWD(Args)...)
+	{
+	}
+};
+
+class iGeneralConfigDb: public GeneralConfig, public sqlite_boilerplate
 {
 protected:
 	explicit iGeneralConfigDb(string_view const DbName):
-		SQLiteDb(&iGeneralConfigDb::Initialise, DbName)
+		sqlite_boilerplate(&iGeneralConfigDb::Initialise, DbName)
 	{
 	}
 
 private:
 	static void Initialise(const db_initialiser& Db)
 	{
-		Db.SetBusyHandler(sqlite_busy_handler);
-
 		static const std::string_view Schema[]
 		{
 			"CREATE TABLE IF NOT EXISTS general_config(key TEXT NOT NULL, name TEXT NOT NULL, value BLOB, PRIMARY KEY (key, name));"sv,
@@ -435,12 +437,12 @@ private:
 	os::event m_AsyncDone;
 };
 
-class HierarchicalConfigDb: public async_delete_impl, public HierarchicalConfig, public SQLiteDb
+class HierarchicalConfigDb: public async_delete_impl, public HierarchicalConfig, public sqlite_boilerplate
 {
 public:
 	explicit HierarchicalConfigDb(string_view const DbName):
 		async_delete_impl(os::make_name<os::event>(DbName, PointToName(DbName))),
-		SQLiteDb(&HierarchicalConfigDb::Initialise, DbName)
+		sqlite_boilerplate(&HierarchicalConfigDb::Initialise, DbName)
 	{
 	}
 
@@ -821,19 +823,17 @@ private:
 	}
 };
 
-class ColorsConfigDb: public ColorsConfig, public SQLiteDb
+class ColorsConfigDb: public ColorsConfig, public sqlite_boilerplate
 {
 public:
-	ColorsConfigDb(string_view const Name):
-		SQLiteDb(&ColorsConfigDb::Initialise, Name)
+	explicit ColorsConfigDb(string_view const Name):
+		sqlite_boilerplate(&ColorsConfigDb::Initialise, Name)
 	{
 	}
 
 private:
 	static void Initialise(const db_initialiser& Db)
 	{
-		Db.SetBusyHandler(sqlite_busy_handler);
-
 		static const std::string_view Schema[]
 		{
 			"CREATE TABLE IF NOT EXISTS colors(name TEXT NOT NULL PRIMARY KEY, value BLOB);"sv,
@@ -924,11 +924,11 @@ private:
 	};
 };
 
-class AssociationsConfigDb: public AssociationsConfig, public SQLiteDb
+class AssociationsConfigDb: public AssociationsConfig, public sqlite_boilerplate
 {
 public:
-	AssociationsConfigDb(string_view const Name):
-		SQLiteDb(&AssociationsConfigDb::Initialise, Name)
+	explicit AssociationsConfigDb(string_view const Name):
+		sqlite_boilerplate(&AssociationsConfigDb::Initialise, Name)
 	{
 	}
 
@@ -1168,11 +1168,11 @@ private:
 	};
 };
 
-class PluginsCacheConfigDb: public PluginsCacheConfig, public SQLiteDb
+class PluginsCacheConfigDb: public PluginsCacheConfig, public sqlite_boilerplate
 {
 public:
-	PluginsCacheConfigDb(string_view const Name):
-		SQLiteDb(&PluginsCacheConfigDb::Initialise, Name, true)
+	explicit PluginsCacheConfigDb(string_view const Name):
+		sqlite_boilerplate(&PluginsCacheConfigDb::Initialise, Name, true)
 	{
 	}
 
@@ -1185,8 +1185,6 @@ public:
 private:
 	static void Initialise(const db_initialiser& Db)
 	{
-		Db.SetBusyHandler(sqlite_busy_handler);
-
 		Db.SetWALJournalingMode();
 		Db.EnableForeignKeysConstraints();
 
@@ -1505,19 +1503,17 @@ private:
 	};
 };
 
-class PluginsHotkeysConfigDb: public PluginsHotkeysConfig, public SQLiteDb
+class PluginsHotkeysConfigDb: public PluginsHotkeysConfig, public sqlite_boilerplate
 {
 public:
-	PluginsHotkeysConfigDb(string_view const Name):
-		SQLiteDb(&PluginsHotkeysConfigDb::Initialise, Name)
+	explicit PluginsHotkeysConfigDb(string_view const Name):
+		sqlite_boilerplate(&PluginsHotkeysConfigDb::Initialise, Name)
 	{
 	}
 
 private:
 	static void Initialise(const db_initialiser& Db)
 	{
-		Db.SetBusyHandler(sqlite_busy_handler);
-
 		static const std::string_view Schema[]
 		{
 			"CREATE TABLE IF NOT EXISTS pluginhotkeys(pluginkey TEXT NOT NULL, menuguid TEXT NOT NULL, type INTEGER NOT NULL, hotkey TEXT, PRIMARY KEY(pluginkey, menuguid, type));"sv,
@@ -1647,11 +1643,11 @@ private:
 	};
 };
 
-class HistoryConfigCustom: public HistoryConfig, public SQLiteDb
+class HistoryConfigCustom: public HistoryConfig, public sqlite_boilerplate
 {
 public:
-	HistoryConfigCustom(string_view const DbName):
-		SQLiteDb(&HistoryConfigCustom::Initialise, DbName, true)
+	explicit HistoryConfigCustom(string_view const DbName):
+		sqlite_boilerplate(&HistoryConfigCustom::Initialise, DbName, true)
 	{
 		StartThread();
 	}
@@ -1691,14 +1687,8 @@ private:
 	bool StartThread()
 	{
 		StopEvent = os::event(os::event::type::automatic, os::event::state::nonsignaled);
-		string EventName;
-		const auto& DbPath = GetPath();
-		if (DbPath != memory_db_name())
-		{
-			EventName = os::make_name<os::event>(DbPath, PointToName(DbPath));
-		}
-		AsyncDeleteAddDone = os::event(os::event::type::manual, os::event::state::signaled, EventName + L"_Delete"sv);
-		AsyncCommitDone = os::event(os::event::type::manual, os::event::state::signaled, EventName + L"_Commit"sv);
+		AsyncDeleteAddDone = os::event(os::event::type::manual, os::event::state::signaled);
+		AsyncCommitDone = os::event(os::event::type::manual, os::event::state::signaled);
 		AllWaiter.add(AsyncDeleteAddDone);
 		AllWaiter.add(AsyncCommitDone);
 		AsyncWork = os::event(os::event::type::automatic, os::event::state::nonsignaled);
@@ -1795,8 +1785,6 @@ private:
 
 	static void Initialise(const db_initialiser& Db)
 	{
-		Db.SetBusyHandler(sqlite_busy_handler);
-
 		Db.SetWALJournalingMode();
 		Db.EnableForeignKeysConstraints();
 
@@ -2151,7 +2139,7 @@ private:
 class HistoryConfigDb: public HistoryConfigCustom
 {
 public:
-	HistoryConfigDb(string_view const Name):
+	explicit HistoryConfigDb(string_view const Name):
 		HistoryConfigCustom(Name)
 	{
 	}
@@ -2166,7 +2154,7 @@ private:
 class HistoryConfigMemory: public HistoryConfigCustom
 {
 public:
-	HistoryConfigMemory(string_view const Name):
+	explicit HistoryConfigMemory(string_view const Name):
 		HistoryConfigCustom(Name)
 	{
 	}

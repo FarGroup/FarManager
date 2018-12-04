@@ -393,29 +393,9 @@ static reply ExcConsole(
 	}
 
 	ShowStackTrace(tracer::get(*Context.pointers(), Context.thread_handle()), NestedStack);
-
 	std::wcerr << std::endl;
 
-	for (;;)
-	{
-		std::wcout << L"Terminate process (Y/N)? "sv << std::flush;
-
-		wchar_t Input;
-		std::wcin.clear();
-		std::wcin.get(Input).ignore(std::numeric_limits<std::streamsize>::max(), L'\n');
-
-		switch (upper(Input))
-		{
-		case L'Y':
-			return reply_handle;
-
-		case L'N':
-			return reply_ignore;
-
-		default:
-			break;
-		}
-	}
+	return ConsoleYesNo(L"Terminate process"sv)? reply_handle : reply_ignore;
 }
 
 template<char c0, char c1, char c2, char c3>

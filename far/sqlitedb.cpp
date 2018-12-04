@@ -279,8 +279,8 @@ SQLiteDb::column_type SQLiteDb::SQLiteStmt::GetColType(int Col) const
 }
 
 
-SQLiteDb::SQLiteDb(initialiser Initialiser, string_view const DbName, bool WAL):
-	m_Db(Open(DbName, WAL)),
+SQLiteDb::SQLiteDb(busy_handler BusyHandler, initialiser Initialiser, string_view const DbName, bool WAL):
+	m_Db(Open(DbName, BusyHandler, WAL)),
 	// https://www.sqlite.org/isolation.html
 	// If X starts a transaction that will initially only read but X knows it will eventually want to write
 	// and does not want to be troubled with possible SQLITE_BUSY_SNAPSHOT errors that arise because
@@ -291,7 +291,7 @@ SQLiteDb::SQLiteDb(initialiser Initialiser, string_view const DbName, bool WAL):
 	// then no subsequent operations in that transaction will ever fail with an SQLITE_BUSY error. 
 	m_stmt_BeginTransaction(create_stmt("BEGIN EXCLUSIVE"sv)),
 	m_stmt_EndTransaction(create_stmt("END"sv)),
-	m_Init((Initialiser(db_initialiser(this)), init{})) // yay, operator comma!
+	m_Init((ScopedTransaction(), Initialiser(db_initialiser(this)), init{})) // yay, operator comma!
 {
 }
 
@@ -305,19 +305,32 @@ void SQLiteDb::db_closer::operator()(sqlite::sqlite3* Object) const
 class SQLiteDb::implementation
 {
 public:
-	static database_ptr open(string_view const Name, bool Writable = true)
+	static database_ptr open(string_view const Name, const std::pair<busy_handler, void*>& BusyHandler, bool Writable = true)
 	{
 		database_ptr Db;
-		const auto Result = sqlite::sqlite3_open_v2(encoding::utf8::get_bytes(Name).c_str(), &ptr_setter(Db), Writable? SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE : SQLITE_OPEN_READONLY, nullptr);
-		if (Result != SQLITE_OK)
+
+		int Retires = 0;
+
+		for (;;)
+		{
+			const auto Result = sqlite::sqlite3_open_v2(encoding::utf8::get_bytes(Name).c_str(), &ptr_setter(Db), Writable? SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE : SQLITE_OPEN_READONLY, nullptr);
+			if (Result == SQLITE_OK)
+				break;
+
+			if (Result == SQLITE_BUSY && BusyHandler.first && BusyHandler.first(BusyHandler.second, Retires++))
+				continue;
+
 			Db? throw_exception(Db.get()) : throw_exception(Result);
+		}
+
+		invoke(Db.get(), [&]{ return sqlite::sqlite3_busy_handler(Db.get(), BusyHandler.first, BusyHandler.second) == SQLITE_OK; });
 
 		return Db;
 	}
 
-	static database_ptr copy_db_to_memory(string_view const Path, bool WAL)
+	static database_ptr copy_db_to_memory(string_view const Path, const std::pair<busy_handler, void*>& BusyHandler, bool WAL)
 	{
-		auto Destination = open(memory_db_name());
+		auto Destination = open(memory_db_name(), {});
 
 		database_ptr SourceDb;
 		delayed_deleter Deleter;
@@ -330,11 +343,11 @@ public:
 
 			Deleter.set(TmpDbPath);
 			os::fs::set_file_attributes(TmpDbPath, FILE_ATTRIBUTE_NORMAL);
-			SourceDb = open(TmpDbPath);
+			SourceDb = open(TmpDbPath, BusyHandler);
 		}
 		else
 		{
-			SourceDb = open(Path, WAL);
+			SourceDb = open(Path, BusyHandler, WAL);
 		}
 
 		struct backup_closer
@@ -359,34 +372,35 @@ public:
 		return Destination;
 	}
 
-	static database_ptr try_copy_db_to_memory(string_view const Path, bool WAL)
+	static database_ptr try_copy_db_to_memory(string_view const Path, const std::pair<busy_handler, void*>& BusyHandler, bool WAL)
 	{
 		try
 		{
-			return copy_db_to_memory(Path, WAL);
+			return copy_db_to_memory(Path, BusyHandler, WAL);
 		}
 		catch (const far_sqlite_exception&)
 		{
-			return open(memory_db_name());
+			return open(memory_db_name(), {});
 		}
 	}
 };
 
-SQLiteDb::database_ptr SQLiteDb::Open(string_view const Path, bool const WAL)
+SQLiteDb::database_ptr SQLiteDb::Open(string_view const Path, busy_handler BusyHandler, bool const WAL)
 {
 	const auto MemDb = Path == memory_db_name();
 	m_DbExists = !MemDb && os::fs::is_file(Path);
+	const std::pair<busy_handler, void*> HandlerWithParam{ BusyHandler, this };
 
 	if (!Global->Opt->ReadOnlyConfig || MemDb)
 	{
 		m_Path = Path;
-		return implementation::open(Path);
+		return implementation::open(Path, { BusyHandler, this });
 	}
 
 	m_Path = memory_db_name();
 	return m_DbExists?
-		implementation::try_copy_db_to_memory(Path, WAL) :
-		implementation::open(memory_db_name());
+		implementation::try_copy_db_to_memory(Path, HandlerWithParam, WAL) :
+		implementation::open(memory_db_name(), {});
 }
 
 void SQLiteDb::Exec(range<const std::string_view*> Command) const
@@ -426,11 +440,6 @@ SQLiteDb::SQLiteStmt SQLiteDb::create_stmt(std::string_view const Stmt, bool Per
 	invoke(m_Db.get(), [&]{ return sqlite::sqlite3_prepare_v3(m_Db.get(), Stmt.data(), static_cast<int>(Stmt.size() + (IsNullTerminated? 1 : 0)), Persistent? SQLITE_PREPARE_PERSISTENT : 0, &pStmt, nullptr) == SQLITE_OK; });
 
 	return SQLiteStmt(pStmt);
-}
-
-void SQLiteDb::SetBusyHandler(busy_handler Handler) const
-{
-	invoke(m_Db.get(), [&]{ return sqlite::sqlite3_busy_handler(m_Db.get(), Handler, const_cast<SQLiteDb*>(this)) == SQLITE_OK; });
 }
 
 unsigned long long SQLiteDb::LastInsertRowID() const

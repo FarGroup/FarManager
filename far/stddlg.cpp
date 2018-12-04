@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "plist.hpp"
 #include "notification.hpp"
+#include "global.hpp"
 
 #include "platform.fs.hpp"
 
@@ -850,4 +851,22 @@ bool GoToRowCol(goto_coord& Row, goto_coord& Col, bool& Hex, string_view const H
 		// maybe we need to display a message in case of an incorrect input
 		return false;
 	}
+}
+
+int RetryAbort(std::vector<string>&& Messages)
+{
+	if (Global->WindowManager && !Global->WindowManager->ManagerIsDown())
+	{
+		return Message(FMSG_WARNING,
+			msg(lng::MError),
+			std::move(Messages),
+			{ lng::MRetry, lng::MAbort }) == Message::first_button;
+	}
+
+	std::wcerr << L"\nError:\n\n"sv;
+
+	for (const auto& i: Messages)
+		std::wcerr << i << L'\n';
+
+	return ConsoleYesNo(L"Retry"sv);
 }

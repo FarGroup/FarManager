@@ -158,7 +158,7 @@ private:
 
 template<typename value_type, typename callable, typename finaliser>
 [[nodiscard]]
-auto make_inline_enumerator(callable&& Callable, finaliser&& Finaliser = [] {})
+auto make_inline_enumerator(callable&& Callable, finaliser&& Finaliser)
 {
 	return inline_enumerator<value_type, callable, finaliser>(FWD(Callable), FWD(Finaliser));
 }
