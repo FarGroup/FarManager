@@ -3,6 +3,12 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 04.12.2018 23:30:45 +0000 - build 5335
+
+1. Crash in far:config dialog under certain circumstances.
+
+2. Support for compilation with Visual Studio 2019.
+
 drkns 04.12.2018 02:08:22 +0000 - build 5334
 
 1. More fixes in concurrent access to sqlite.

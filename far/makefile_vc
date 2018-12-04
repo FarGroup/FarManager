@@ -4,7 +4,7 @@
 #
 #LINK_ULINK - set if you want to use ulink for linking
 #
-#VC - set Visual C++ version (VC=14 for 2015, VC=15 for 2017, default is 14, we try to autodetect if not set)
+#VC - set Visual C++ version (VC=14 for 2015, VC=15 for 2017, VC=16 for 2019, default is 14, we try to autodetect if not set)
 #
 #AMD64 or CPU=AMD64 - set for x64 build
 #IA64 or CPU=IA64 - for IA64 build
@@ -59,7 +59,9 @@ DIRBIT=32
 
 !if !defined(VC) && defined(_NMAKE_VER)
 
-!if "$(_NMAKE_VER)">"14.10"
+!if "$(_NMAKE_VER)">"14.20"
+VC=16
+!elseif "$(_NMAKE_VER)">"14.10"
 VC=15
 !elseif "$(_NMAKE_VER)">"14"
 VC=14
@@ -340,7 +342,7 @@ LINKFLAGS=$(LINKFLAGS) /machine:ARM
 !endif
 
 # compiler-specific
-!if "$(VC)"=="15"
+!if "$(VC)">="15"
 CPPFLAGS=$(CPPFLAGS) /permissive- /Zc:__cplusplus,externConstexpr /diagnostics:caret
 !endif
 

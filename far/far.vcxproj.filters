@@ -137,6 +137,9 @@
     <ClCompile Include="exception.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="exception_handler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="exception_handler_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -144,9 +147,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FarDlgBuilder.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="farexcpt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="farversion.cpp">
@@ -706,6 +706,9 @@
     <ClInclude Include="exception.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="exception_handler.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="exception_handler_test.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -716,9 +719,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="FarDlgBuilder.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="farexcpt.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="FarGuid.hpp">

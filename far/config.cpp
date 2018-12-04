@@ -2280,9 +2280,11 @@ void Options::Save(bool Manual)
 
 intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
-	const auto& GetConfigItem = [Dlg](size_t Index) -> auto&
+	const auto& GetConfigItem = [Dlg](int Index)
 	{
-		return *reinterpret_cast<const FARConfigItem*>(Dlg->GetListItemSimpleUserData(0, Index));
+		return Index == -1 ?
+			nullptr : // Everything is filtered out
+			reinterpret_cast<const FARConfigItem*>(Dlg->GetListItemSimpleUserData(0, Index));
 	};
 
 	switch (Msg)
@@ -2313,11 +2315,12 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 						FarListInfo ListInfo = {sizeof(ListInfo)};
 						Dlg->SendMessage(DM_LISTINFO, Param1, &ListInfo);
 
-						const auto& CurrentItem = GetConfigItem(ListInfo.SelectPos);
-
-						if (!help::show(concat(CurrentItem.KeyName, L'.', CurrentItem.ValName), nullptr, FHELP_NOSHOWERROR))
+						if (const auto CurrentItem = GetConfigItem(ListInfo.SelectPos))
 						{
-							help::show(concat(CurrentItem.KeyName, L"Settings"sv), nullptr, FHELP_NOSHOWERROR);
+							if (!help::show(concat(CurrentItem->KeyName, L'.', CurrentItem->ValName), nullptr, FHELP_NOSHOWERROR))
+							{
+								help::show(concat(CurrentItem->KeyName, L"Settings"sv), nullptr, FHELP_NOSHOWERROR);
+							}
 						}
 					}
 					break;
@@ -2380,16 +2383,18 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 			FarListInfo ListInfo = {sizeof(ListInfo)};
 			Dlg->SendMessage(DM_LISTINFO, 0, &ListInfo);
 
-			const auto& CurrentItem = GetConfigItem(ListInfo.SelectPos);
-			if (CurrentItem.Edit(Param1 != 0))
+			if (const auto CurrentItem = GetConfigItem(ListInfo.SelectPos))
 			{
-				Dlg->SendMessage(DM_ENABLEREDRAW, 0, nullptr);
-				FarListUpdate flu = {sizeof(flu), ListInfo.SelectPos};
-				flu.Item = CurrentItem.MakeListItem((*m_ConfigStrings)[ListInfo.SelectPos]);
-				Dlg->SendMessage(DM_LISTUPDATE, 0, &flu);
-				FarListPos flp = {sizeof(flp), ListInfo.SelectPos, ListInfo.TopPos};
-				Dlg->SendMessage(DM_LISTSETCURPOS, 0, &flp);
-				Dlg->SendMessage(DM_ENABLEREDRAW, 1, nullptr);
+				if (CurrentItem->Edit(Param1 != 0))
+				{
+					Dlg->SendMessage(DM_ENABLEREDRAW, 0, nullptr);
+					FarListUpdate flu = { sizeof(flu), ListInfo.SelectPos };
+					flu.Item = CurrentItem->MakeListItem((*m_ConfigStrings)[ListInfo.SelectPos]);
+					Dlg->SendMessage(DM_LISTUPDATE, 0, &flu);
+					FarListPos flp = { sizeof(flp), ListInfo.SelectPos, ListInfo.TopPos };
+					Dlg->SendMessage(DM_LISTSETCURPOS, 0, &flp);
+					Dlg->SendMessage(DM_ENABLEREDRAW, 1, nullptr);
+				}
 			}
 			return FALSE;
 		}
