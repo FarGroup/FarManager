@@ -291,7 +291,7 @@ SQLiteDb::SQLiteDb(busy_handler BusyHandler, initialiser Initialiser, string_vie
 	// then no subsequent operations in that transaction will ever fail with an SQLITE_BUSY error. 
 	m_stmt_BeginTransaction(create_stmt("BEGIN EXCLUSIVE"sv)),
 	m_stmt_EndTransaction(create_stmt("END"sv)),
-	m_Init((ScopedTransaction(), Initialiser(db_initialiser(this)), init{})) // yay, operator comma!
+	m_Init((Initialiser(db_initialiser(this)), init{})) // yay, operator comma!
 {
 }
 

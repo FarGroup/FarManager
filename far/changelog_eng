@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 05.12.2018 07:54:14 +0000 - build 5336
+
+1. Fix 5334.
+
 drkns 04.12.2018 23:30:45 +0000 - build 5335
 
 1. Crash in far:config dialog under certain circumstances.
