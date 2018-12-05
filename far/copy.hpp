@@ -113,6 +113,7 @@ private:
 	bool m_UseFilter;
 	HANDLE m_FileHandleForStreamSizeFix;
 	size_t m_NumberOfTargets;
+	std::list<std::pair<string,os::fs::find_data>> m_CreatedFolders;
 };
 
 #endif // COPY_HPP_741275F9_6A07_4F73_9674_D8464C559194

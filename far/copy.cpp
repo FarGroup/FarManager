@@ -1228,6 +1228,15 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 			DestDiz.Flush(strDestDizPath);
 		}
 	}
+	std::for_each(CONST_RANGE(m_CreatedFolders, ii)
+	{
+		if (auto File = os::fs::file(ii.first, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
+		{
+			File.SetTime(&ii.second.CreationTime, &ii.second.LastAccessTime, &ii.second.LastWriteTime, &ii.second.ChangeTime);
+			File.Close();
+		}
+	});
+
 
 #if 1
 	SrcPanel->Update(UPDATE_KEEP_SELECTION);
@@ -2025,6 +2034,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 						return COPY_CANCEL;
 					}
 				}
+				m_CreatedFolders.emplace_back(strDestPath, SrcData);
 
 				DWORD SetAttr=SrcData.Attributes;
 
@@ -3757,7 +3767,7 @@ bool ShellCopy::CalcTotalSize() const
 */
 bool ShellCopy::ShellSetAttr(const string& Dest, DWORD Attr)
 {
-	int GetInfoSuccess = FALSE; 
+	int GetInfoSuccess = FALSE;
 	DWORD FileSystemFlagsDst=0;
 	if ((Attr & (FILE_ATTRIBUTE_COMPRESSED | FILE_ATTRIBUTE_ENCRYPTED)) != 0)
 	{
