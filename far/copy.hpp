@@ -74,6 +74,17 @@ private:
 	static intptr_t WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 	intptr_t CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 
+	struct created_folders
+	{
+		created_folders(const string& FullName, const os::chrono::time_point& CreationTime, const os::chrono::time_point& LastAccessTime, const os::chrono::time_point& LastWriteTime):
+			FullName(FullName), CreationTime(CreationTime), LastAccessTime(LastAccessTime), LastWriteTime(LastWriteTime)
+		{}
+		string FullName;
+		os::chrono::time_point CreationTime;
+		os::chrono::time_point LastAccessTime;
+		os::chrono::time_point LastWriteTime;
+	};
+
 	std::unique_ptr<copy_progress> CP;
 	std::unique_ptr<FileFilter> m_Filter;
 	DWORD Flags;
@@ -113,7 +124,7 @@ private:
 	bool m_UseFilter;
 	HANDLE m_FileHandleForStreamSizeFix;
 	size_t m_NumberOfTargets;
-	std::list<std::pair<string,os::fs::find_data>> m_CreatedFolders;
+	std::list<created_folders> m_CreatedFolders;
 };
 
 #endif // COPY_HPP_741275F9_6A07_4F73_9674_D8464C559194

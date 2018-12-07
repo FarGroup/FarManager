@@ -1230,9 +1230,9 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 	}
 	std::for_each(CONST_RANGE(m_CreatedFolders, ii)
 	{
-		if (auto File = os::fs::file(ii.first, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
+		if (auto File = os::fs::file(ii.FullName, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
 		{
-			File.SetTime(&ii.second.CreationTime, &ii.second.LastAccessTime, &ii.second.LastWriteTime, &ii.second.ChangeTime);
+			File.SetTime(&ii.CreationTime, &ii.LastAccessTime, &ii.LastWriteTime, nullptr);
 			File.Close();
 		}
 	});
@@ -2034,7 +2034,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 						return COPY_CANCEL;
 					}
 				}
-				m_CreatedFolders.emplace_back(strDestPath, SrcData);
+				m_CreatedFolders.emplace_back(strDestPath, SrcData.CreationTime, SrcData.LastAccessTime, SrcData.LastWriteTime);
 
 				DWORD SetAttr=SrcData.Attributes;
 
