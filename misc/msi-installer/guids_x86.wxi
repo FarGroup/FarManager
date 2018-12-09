@@ -255,6 +255,7 @@
 <?define Guid.catalog_console.xml = "95585C01-6F2B-1014-A753-80DB300C8DF9" ?>
 <?define Guid.catalog_rgb.xml = "95585CE3-6F2B-1014-ACC6-81C66B5C5743" ?>
 <?define Guid.catalog_text.xml = "95585DC5-6F2B-1014-91EB-F43568027F9D" ?>
+<?define Guid.catalog_user.xml = "80851D6D-420E-41F1-9C95-E4FED07CCD4D" ?>
 <?define Guid.black.hrd = "95585EA8-6F2B-1014-A671-D9E9BF8E714B" ?>
 <?define Guid.blue.hrd = "95585F88-6F2B-1014-AFAF-D9A3192BCCF7" ?>
 <?define Guid.default.hrd = "9558606A-6F2B-1014-8773-932C0C307D92" ?>
