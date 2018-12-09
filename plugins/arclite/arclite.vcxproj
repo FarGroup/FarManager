@@ -67,6 +67,7 @@
     <None Include="en.hlf" />
     <None Include="en.msg" />
     <None Include="es.msg" />
+    <None Include="it.msg" />
     <None Include="makefile_vc" />
     <None Include="plugin.def" />
     <None Include="project.ini" />

@@ -1,0 +1,76 @@
+﻿.Language=Italian,Italian (Italiano)
+
+"O&k"
+"&Annulla"
+"Errore"
+"&Si"
+
+"► Rete"
+
+"► Rete"
+
+"Mappa"
+"RiMap"
+"TMap"
+"RiTMap"
+"UnMap"
+"Togli"
+"ConMan"
+
+"Attendere Prego"
+"Scansione Rete In Corso..."
+
+"Non Posso Sfogliare La Rete"
+"Non Posso Connettermi \"%.40s\" A %s"
+"Questa Unità Ha Una Connessione Permanente"
+
+"Se Non Chiudete I Files Aperti, I Dati Potrebbero Essere Persi!"
+"Volete Disconnettervi Dall'Unità In Ogni Caso?"
+"Non Posso Disconnettermi Da %s"
+
+"Non Ci Sono Lettere Disponibili Per Le Unità"
+
+"Nome Utente"
+"Password"
+
+"Connessione Permanente A"
+"Connessione Temporanea A"
+"F6 - Temporanea"
+"F6 - Permanente"
+
+"Rete"
+"Nome Rete"
+"*:"
+"Commento"
+
+"Gestore Di Rete"
+"&Aggiungi Al Pannello Delle Unità"
+"A&ggiungi Al Menu' Plugins"
+"&Tasti Scelta Rapida [1-9], Lasciate Vuoto Per Automatico"
+"&Mostra Rete Locale"
+"Condivisioni"
+"Mostra Nome &Completo Condivisione"
+"Collegamenti &Nascosti"
+"Non Mostrare Mai"
+"Crealo Nascosto"
+"Mostralo Sempre"
+"Mostra Stam&panti"
+"Mostra \"..\" Nell'Elenco"
+"&Sfoglia Fino Ai Preferiti Se Possibile"
+"Controlla Se La Risorsa E' &Disponibile"
+
+"Disconnetteri Unità Di Rete"
+"Vuoi Scollegarti Dal Drive %s?"
+"L'Unità %s E' Mappata In"
+"&Reconnetti Al Riavvio"
+
+"Elimina Disco Di Rete\nIl Disco %s E' Mappato In Unità Multiple\nQuale Vuoi Eliminare?\n"
+
+"Preferiti"
+"Cartella Preferiti"
+
+"Ricorda &Password"
+
+"Rimuovi Dai Preferiti"
+"Rimuovi \"%s\" Dai Preferiti"
+"Rimuovi %d Oggetti Dai Preferiti"

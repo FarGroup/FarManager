@@ -475,6 +475,9 @@
           <Component Id="AlignSpa.lng" Guid="$(var.Guid.AlignSpa.lng)" Win64="$(var.Win64)">
             <File Id="AlignSpa.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Align\AlignSpa.lng" />
           </Component>
+          <Component Id="AlignIta.lng" Guid="$(var.Guid.AlignIta.lng)" Win64="$(var.Win64)">
+            <File Id="AlignIta.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Align\AlignIta.lng" />
+          </Component>
           <Component Id="changelog_2" Guid="$(var.Guid.changelog_2)" Win64="$(var.Win64)">
             <File Id="changelog_2" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Align\changelog" />
           </Component>
@@ -515,6 +518,9 @@
           <Component Id="arclite_spa.lng" Guid="$(var.Guid.arclite_spa.lng)" Win64="$(var.Win64)">
             <File Id="arclite_spa.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ArcLite\arclite_spa.lng" />
           </Component>
+          <Component Id="arclite_ita.lng" Guid="$(var.Guid.arclite_ita.lng)" Win64="$(var.Win64)">
+            <File Id="arclite_ita.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ArcLite\arclite_ita.lng" />
+          </Component>
           <Component Id="arclite_rus.hlf" Guid="$(var.Guid.arclite_rus.hlf)" Win64="$(var.Win64)">
             <File Id="arclite_rus.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ArcLite\arclite_rus.hlf" />
           </Component>
@@ -552,6 +558,9 @@
           <Component Id="WrapSpa.lng" Guid="$(var.Guid.WrapSpa.lng)" Win64="$(var.Win64)">
             <File Id="WrapSpa.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\AutoWrap\WrapSpa.lng" />
           </Component>
+          <Component Id="WrapIta.lng" Guid="$(var.Guid.WrapIta.lng)" Win64="$(var.Win64)">
+            <File Id="WrapIta.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\AutoWrap\WrapIta.lng" />
+          </Component>
         </Directory>
         <Directory Id="Brackets" Name="Brackets">
           <Component Id="BrackEng.hlf" Guid="$(var.Guid.BrackEng.hlf)" Win64="$(var.Win64)">
@@ -582,6 +591,9 @@
           </Component>
           <Component Id="BrackSpa.lng" Guid="$(var.Guid.BrackSpa.lng)" Win64="$(var.Win64)">
             <File Id="BrackSpa.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackSpa.lng" />
+          </Component>
+          <Component Id="BrackIta.lng" Guid="$(var.Guid.BrackIta.lng)" Win64="$(var.Win64)">
+            <File Id="BrackIta.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackIta.lng" />
           </Component>
           <Component Id="changelog_4" Guid="$(var.Guid.changelog_4)" Win64="$(var.Win64)">
             <File Id="changelog_4" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\changelog" />
@@ -617,6 +629,9 @@
           <Component Id="CompSpa.lng" Guid="$(var.Guid.CompSpa.lng)" Win64="$(var.Win64)">
             <File Id="CompSpa.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Compare\CompSpa.lng" />
           </Component>
+          <Component Id="CompIta.lng" Guid="$(var.Guid.CompIta.lng)" Win64="$(var.Win64)">
+            <File Id="CompIta.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Compare\CompIta.lng" />
+          </Component>
           <Component Id="AdvCompare.CompareBufferSize.farconfig" Guid="$(var.Guid.AdvCompare.CompareBufferSize.farconfig)" Win64="$(var.Win64)">
             <File Id="AdvCompare.CompareBufferSize.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Compare\AdvCompare.CompareBufferSize.farconfig" />
           </Component>
@@ -651,6 +666,9 @@
           <Component Id="DrawSpa.lng" Guid="$(var.Guid.DrawSpa.lng)" Win64="$(var.Win64)">
             <File Id="DrawSpa.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\DrawLine\DrawSpa.lng" />
           </Component>
+          <Component Id="DrawIta.lng" Guid="$(var.Guid.DrawIta.lng)" Win64="$(var.Win64)">
+            <File Id="DrawIta.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\DrawLine\DrawIta.lng" />
+          </Component>
         </Directory>
         <Directory Id="EditCase" Name="EditCase">
           <Component Id="changelog_7" Guid="$(var.Guid.changelog_7)" Win64="$(var.Win64)">
@@ -673,6 +691,9 @@
           </Component>
           <Component Id="ECaseSpa.lng" Guid="$(var.Guid.ECaseSpa.lng)" Win64="$(var.Win64)">
             <File Id="ECaseSpa.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EditCase\ECaseSpa.lng" />
+          </Component>
+          <Component Id="ECaseIta.lng" Guid="$(var.Guid.ECaseIta.lng)" Win64="$(var.Win64)">
+            <File Id="ECaseIta.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EditCase\ECaseIta.lng" />
           </Component>
           <Component Id="EditCase.dll" Guid="$(var.Guid.EditCase.dll)" Win64="$(var.Win64)">
             <File Id="EditCase.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EditCase\EditCase.dll" />
@@ -712,6 +733,9 @@
           </Component>
           <Component Id="EMenuSpa.lng" Guid="$(var.Guid.EMenuSpa.lng)" Win64="$(var.Win64)">
             <File Id="EMenuSpa.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\EMenuSpa.lng" />
+          </Component>
+          <Component Id="EMenuIta.lng" Guid="$(var.Guid.EMenuIta.lng)" Win64="$(var.Win64)">
+            <File Id="EMenuIta.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\EMenuIta.lng" />
           </Component>
           <Component Id="Hotkey.farconfig" Guid="$(var.Guid.Hotkey.farconfig)" Win64="$(var.Win64)">
             <File Id="Hotkey.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\Hotkey.farconfig" />
@@ -1022,6 +1046,9 @@
           <Component Id="FARCmdsSpa.lng" Guid="$(var.Guid.FARCmdsSpa.lng)" Win64="$(var.Win64)">
             <File Id="FARCmdsSpa.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarCmds\FARCmdsSpa.lng" />
           </Component>
+          <Component Id="FARCmdsIta.lng" Guid="$(var.Guid.FARCmdsIta.lng)" Win64="$(var.Win64)">
+            <File Id="FARCmdsIta.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarCmds\FARCmdsIta.lng" />
+          </Component>
         </Directory>
         <Directory Id="SameFolder" Name="SameFolder">
           <Component Id="changelog_20" Guid="$(var.Guid.changelog_20)" Win64="$(var.Win64)">
@@ -1053,6 +1080,9 @@
           <Component Id="SameFolderSpa.lng" Guid="$(var.Guid.SameFolderSpa.lng)" Win64="$(var.Win64)">
             <File Id="SameFolderSpa.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\SameFolder\SameFolderSpa.lng" />
           </Component>
+          <Component Id="SameFolderIta.lng" Guid="$(var.Guid.SameFolderIta.lng)" Win64="$(var.Win64)">
+            <File Id="SameFolderIta.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\SameFolder\SameFolderIta.lng" />
+          </Component>
         </Directory>
         <Directory Id="FileCase" Name="FileCase">
           <Component Id="CaseEng.hlf" Guid="$(var.Guid.CaseEng.hlf)" Win64="$(var.Win64)">
@@ -1072,6 +1102,9 @@
           </Component>
           <Component Id="CaseSpa.lng" Guid="$(var.Guid.CaseSpa.lng)" Win64="$(var.Win64)">
             <File Id="CaseSpa.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FileCase\CaseSpa.lng" />
+          </Component>
+          <Component Id="CaseIta.lng" Guid="$(var.Guid.CaseIta.lng)" Win64="$(var.Win64)">
+            <File Id="CaseIta.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FileCase\CaseIta.lng" />
           </Component>
           <Component Id="changelog_10" Guid="$(var.Guid.changelog_10)" Win64="$(var.Win64)">
             <File Id="changelog_10" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FileCase\changelog" />
@@ -1138,6 +1171,9 @@
           <Component Id="HlfViewerSpa.lng" Guid="$(var.Guid.HlfViewerSpa.lng)" Win64="$(var.Win64)">
             <File Id="HlfViewerSpa.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\HlfViewer\HlfViewerSpa.lng" />
           </Component>
+          <Component Id="HlfViewerIta.lng" Guid="$(var.Guid.HlfViewerIta.lng)" Win64="$(var.Win64)">
+            <File Id="HlfViewerIta.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\HlfViewer\HlfViewerIta.lng" />
+          </Component>
         </Directory>
         <Directory Id="LuaMacro" Name="LuaMacro">
           <Component Id="changelog_19" Guid="$(var.Guid.changelog_19)" Win64="$(var.Win64)">
@@ -1194,6 +1230,9 @@
           <Component Id="lm_spa.lng" Guid="$(var.Guid.lm_spa.lng)" Win64="$(var.Win64)">
             <File Id="lm_spa.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\lm_spa.lng" />
           </Component>
+          <Component Id="lm_ita.lng" Guid="$(var.Guid.lm_ita.lng)" Win64="$(var.Win64)">
+            <File Id="lm_ita.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\lm_ita.lng" />
+          </Component>
           <Component Id="luamacro.example.ini" Guid="$(var.Guid.luamacro.example.ini)" Win64="$(var.Win64)">
             <File Id="luamacro.example.ini" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\luamacro.example.ini" />
           </Component>
@@ -1224,6 +1263,9 @@
           </Component>
           <Component Id="NetSpa.lng" Guid="$(var.Guid.NetSpa.lng)" Win64="$(var.Win64)">
             <File Id="NetSpa.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Network\NetSpa.lng" />
+          </Component>
+          <Component Id="NetIta.lng" Guid="$(var.Guid.NetIta.lng)" Win64="$(var.Win64)">
+            <File Id="NetIta.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Network\NetIta.lng" />
           </Component>
           <Component Id="Network.dll" Guid="$(var.Guid.Network.dll)" Win64="$(var.Win64)">
             <File Id="Network.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Network\Network.dll" />
@@ -1257,6 +1299,9 @@
           </Component>
           <Component Id="ProcRus.lng" Guid="$(var.Guid.ProcRus.lng)" Win64="$(var.Win64)">
             <File Id="ProcRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ProcList\ProcRus.lng" />
+          </Component>
+          <Component Id="ProcIta.lng" Guid="$(var.Guid.ProcIta.lng)" Win64="$(var.Win64)">
+            <File Id="ProcIta.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ProcList\ProcIta.lng" />
           </Component>
         </Directory>
         <Directory Id="TmpPanel" Name="TmpPanel">
@@ -1295,6 +1340,9 @@
           </Component>
           <Component Id="TmpSpa.lng" Guid="$(var.Guid.TmpSpa.lng)" Win64="$(var.Win64)">
             <File Id="TmpSpa.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\TmpSpa.lng" />
+          </Component>
+          <Component Id="TmpIta.lng" Guid="$(var.Guid.TmpIta.lng)" Win64="$(var.Win64)">
+            <File Id="TmpIta.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\TmpIta.lng" />
           </Component>
           <Component Id="TmpPanel.dll" Guid="$(var.Guid.TmpPanel.dll)" Win64="$(var.Win64)">
             <File Id="TmpPanel.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\TmpPanel.dll" />

@@ -62,6 +62,9 @@
     <CustomBuild Include="lm_spa.lng">
       <Filter>Language Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="lm_ita.lng">
+      <Filter>Language Files</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <None Include="luamacroW.vc.def">

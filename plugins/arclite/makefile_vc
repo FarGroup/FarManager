@@ -84,7 +84,7 @@ _7Z = 7z\dll\final.$(DIRBIT)W.vc\7z.dll
 !endif
 
 SFX = $(OUTDIR)\7z.sfx $(OUTDIR)\7zCon.sfx $(OUTDIR)\7zS2.sfx $(OUTDIR)\7zS2con.sfx $(OUTDIR)\7zSD.sfx
-FILES = $(OUTDIR)\$(MODULE).dll $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng $(OUTDIR)\$(MODULE)_spa.lng $(OUTDIR)\$(MODULE)_eng.hlf $(OUTDIR)\$(MODULE)_rus.hlf $(OUTDIR)\7z.dll $(SFX) $(OUTDIR)\arclite.xml
+FILES = $(OUTDIR)\$(MODULE).dll $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng $(OUTDIR)\$(MODULE)_spa.lng $(OUTDIR)\$(MODULE)_ita.lng $(OUTDIR)\$(MODULE)_eng.hlf $(OUTDIR)\$(MODULE)_rus.hlf $(OUTDIR)\7z.dll $(SFX) $(OUTDIR)\arclite.xml
 
 !ifdef INSTALL
 INSTALL=$(INSTALL)\$(NAME)
@@ -115,8 +115,8 @@ depfile: $(OUTDIR) $(OUTDIR)\msg.h $(OUTDIR)\plugin.h
 instmak: $(OUTDIR)
   $(TOOL) geninst $(FILES) $(OUTDIR)\$(MODULE).map $(OUTDIR)\$(MODULE).pdb changelog > $(OUTDIR)\install.mak
 
-$(OUTDIR)\msg.h $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng $(OUTDIR)\$(MODULE)_spa.lng: $(OUTDIR) $(OUTDIR)\en.msg $(OUTDIR)\ru.msg $(OUTDIR)\es.msg
-  $(TOOL) msgc -in $(OUTDIR)\en.msg $(OUTDIR)\ru.msg $(OUTDIR)\es.msg -out $(OUTDIR)\msg.h $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng $(OUTDIR)\$(MODULE)_spa.lng
+$(OUTDIR)\msg.h $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng $(OUTDIR)\$(MODULE)_spa.lng $(OUTDIR)\$(MODULE)_ita.lng: $(OUTDIR) $(OUTDIR)\en.msg $(OUTDIR)\ru.msg $(OUTDIR)\es.msg $(OUTDIR)\it.msg
+  $(TOOL) msgc -in $(OUTDIR)\en.msg $(OUTDIR)\ru.msg $(OUTDIR)\es.msg $(OUTDIR)\it.msg -out $(OUTDIR)\msg.h $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng $(OUTDIR)\$(MODULE)_spa.lng $(OUTDIR)\$(MODULE)_ita.lng
 
 $(OUTDIR)\version.res: $(OUTDIR)\version.rc
   $(RC) $(RCFLAGS) -fo$@ $**
@@ -136,6 +136,9 @@ $(OUTDIR)\ru.msg: project.ini ru.msg
   $(PREPROC)
 
 $(OUTDIR)\es.msg: project.ini es.msg
+  $(PREPROC)
+
+$(OUTDIR)\it.msg: project.ini it.msg
   $(PREPROC)
 
 $(OUTDIR)\$(MODULE)_eng.hlf: project.ini en.hlf
