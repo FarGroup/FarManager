@@ -3,6 +3,18 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 07.12.2018 10:52:37 +0200 - build 5338
+
+continuation of 5337:
+
+1. memory usage optimization.
+
+2. "ChangeTime" is not restored.
+
+zg 05.12.2018 18:17:44 +0200 - build 5337
+
+1. copying a folder keeps its timestamps.
+
 drkns 05.12.2018 07:54:14 +0000 - build 5336
 
 1. Fix 5334.
