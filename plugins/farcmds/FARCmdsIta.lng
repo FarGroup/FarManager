@@ -1,0 +1,24 @@
+﻿.Language=Italian,Italian (Italiano)
+
+"► Comandi FAR"
+
+"&Separatore Comandi/Oggetti"
+
+"&Nascondi Risultati Esterni"
+"&Mantieni Risultato Del Comando D'Uscita"
+"&Duplica Risultato Intercettato A Video"
+
+"&Intercetta Sia stdout Che stderr"
+"Intercetta Solo std&out (Risultato Standard)"
+"Intercetta Solo std&err (Errori Standard)"
+"Intercetta stdout &E stderr Separatamente"
+"Visualizza/Modifica File Vuoti"
+
+"Modifica &Nuovi Files"
+
+"&Dimensione Dei Dati Letti"
+"<stdout>:"
+"<stderr>:"
+
+"&Ok"
+"&Annulla"

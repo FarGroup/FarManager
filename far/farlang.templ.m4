@@ -1849,7 +1849,7 @@ upd:"Sorting collation:"
 upd:"Sorting collation:"
 "Ordenamiento de colación:"
 "Spôsob triedenia:"
-upd:"Sorting collation:"
+"Ordinamento Collation:"
 "Сортувальне порівняння:"
 
 MConfigSortingOrdinal
@@ -1861,7 +1861,7 @@ upd:"ordinal"
 upd:"ordinal"
 "ordinal"
 "poradový"
-upd:"ordinal"
+"Ordinale"
 "порядкове"
 
 MConfigSortingInvariant
@@ -1873,7 +1873,7 @@ upd:"invariant"
 upd:"invariant"
 "invariante"
 "invariantný"
-upd:"invariant"
+"Invariante"
 "інваріантне"
 
 MConfigSortingLinguistic
@@ -1885,7 +1885,7 @@ upd:"linguistic"
 upd:"linguistic"
 "lingüístico"
 "slovný"
-upd:"linguistic"
+"Linguistico"
 "лінгвістичне"
 
 MConfigSortingDigitsAsNumbers
@@ -1897,7 +1897,7 @@ upd:"Treat digits as numbers"
 upd:"Treat digits as numbers"
 "Tratar dígitos como números"
 "Považuj cifry za čísla"
-upd:"Treat digits as numbers"
+"Tratta Cifre Come Numeri"
 "Трактувати цифри як числа"
 
 MConfigSortingCase
@@ -1934,7 +1934,7 @@ upd:"Tree settings"
 upd:"Tree settings"
 "Arbol de directorios"
 "Nastavenia stromu"
-"Impostazioni  Albero"
+"Impostazioni ► Albero"
 "Налаштування дерева папок"
 
 MConfigTreeAutoChange
@@ -2030,7 +2030,7 @@ upd:"optical drives"
 upd:"optical drives"
 "unidades ópticas"
 "optické disky"
-upd:"optical drives"
+"Dischi Ottici"
 "оптичних дисків"
 
 MConfigTreeLabelExceptPath
@@ -2054,7 +2054,7 @@ upd:"Path for local, removale and optical drives:"
 upd:"Path for local, removale and optical drives:"
 "Ruta para unidades locales, removibles y ópticas:"
 "Cesta pre lokálne, odpojiteľné a optické disky:"
-upd:"Path for local, removale and optical drives:"
+"Percorso Locale Per Supporti Ottici/Rimovibili:"
 "Шлях для локальних, змінних і оптичних дисків:"
 
 MConfigTreeLabelSaveNetPath
@@ -2079,7 +2079,7 @@ l:
 "Ustawienia panelu"
 "Configuración de paneles"
 "Nastavenie panelov"
-"Impostazione  Dei Pannelli"
+"Impostazione ► Dei Pannelli"
 "Налаштування панелі"
 
 MConfigHidden
@@ -2308,7 +2308,7 @@ l:
 "Ustawienia interfejsu"
 "Configuración de interfaz"
 "Nastavenie rozhrania"
-"Impostazioni  Interfaccia"
+"Impostazioni ► Interfaccia"
 "Налаштування інтерфейсу"
 
 MConfigClock
@@ -2452,7 +2452,7 @@ upd:"Use Virtual Terminal for rendering"
 upd:"Use Virtual Terminal for rendering"
 upd:"Use Virtual Terminal for rendering"
 upd:"Use Virtual Terminal for rendering"
-upd:"Use Virtual Terminal for rendering"
+"Usa Terminale Virtuale Per Il Rendering"
 "Використовувати Virtual Terminal для рендерингу"
 
 
@@ -2514,7 +2514,7 @@ l:
 "Ustawienia okien dialogowych"
 "Configuración de diálogo"
 "Nastavenia dialógov"
-"Impostazioni  Finestre Di Dialogo"
+"Impostazioni ► Finestre Di Dialogo"
 "Налаштування діалогів"
 
 MConfigDialogsEditHistory
@@ -2599,7 +2599,7 @@ upd:"Menu settings"
 upd:"Menu settings"
 "Configuración de menú"
 "Nastavenia menu"
-"Impostazioni  Menu"
+"Impostazioni ► Menu"
 "Налаштування меню"
 
 MConfigVMenuLBtnClick
@@ -2684,7 +2684,7 @@ upd:"Command line settings"
 upd:"Command line settings"
 "Configuración de línea de comando"
 "Nastavenia príkazového riadka"
-"Impostazioni  Linea Comando"
+"Impostazioni ► Linea Comando"
 "Налаштування командного рядка"
 
 MConfigCmdlineEditBlock
@@ -2769,7 +2769,7 @@ upd:"AutoComplete settings"
 upd:"AutoComplete settings"
 "Configuración de autocompletar"
 "Nastavenia AutoComplete"
-"Impostazioni  AutoCompletamento"
+"Impostazioni ► AutoCompletamento"
 "Налаштування автозавершення"
 
 MConfigAutoCompleteShowList
@@ -2821,7 +2821,7 @@ upd:"InfoPanel settings"
 upd:"InfoPanel settings"
 "Configuración de panel de información"
 "Nastavenia InfoPanela"
-"Impostazioni  Panello Info"
+"Impostazioni ► Panello Info"
 "Налаштування інформаційної панелі"
 
 MConfigInfoPanelCNTitle
@@ -2965,7 +2965,7 @@ upd:"Sam Compatible"
 upd:"Sam Compatible"
 "Compatible con Sam"
 "Sam Compatible"
-"Sam Compatibile"
+"SAM Compatibile"
 "Совмісне з Sam"
 
 MConfigInfoPanelUNDisplay
@@ -3147,7 +3147,7 @@ l:
 "Podgląd"
 "Visor"
 "Zobrazovač"
-"Impostazioni  Visualizzatore"
+"Impostazioni ► Visualizzatore"
 "Програма перегляду"
 
 MViewConfigExternalF3
@@ -3243,7 +3243,7 @@ upd:"Save view mode"
 upd:"Save view mode"
 upd:"Save view mode"
 upd:"Save view mode"
-upd:"Save view mode"
+"Salva Modo Vista"
 "Зберігати режим перегляду"
 
 # We really should come up with a better name for this option
@@ -3256,7 +3256,7 @@ upd:"Detect dump view mode"
 upd:"Detect dump view mode"
 upd:"Detect dump view mode"
 upd:"Detect dump view mode"
-upd:"Detect dump view mode"
+"Rileva Modo Vista Dump"
 "Автовизначення дамп-режиму перегляду"
 
 MViewAutoDetectCodePage
@@ -3377,7 +3377,7 @@ l:
 "Edytor"
 "Editor"
 "Editor"
-"Impostazioni  Editor"
+"Impostazioni ► Editor"
 "Редактор"
 
 MEditConfigEditorF4
@@ -4133,9 +4133,9 @@ MCMLTargetIN
 "&в"
 "in"
 "&v"
-upd:" &in"
-upd:" &in"
-upd:" &in"
+upd:"&in"
+upd:"&in"
+upd:"&in"
 "en"
 "&v"
 "&In"
@@ -4371,7 +4371,7 @@ MCopyDecrypt
 "&Deszyfruj"
 "&Descifrar"
 "Dešifovať"
-upd:"Decrypt"
+"Decripta"
 "Роз&шифрувати"
 
 MCopyDecryptAll
@@ -4383,7 +4383,7 @@ MCopyDecryptAll
 "Deszyfruj ws&zystkie"
 "Desci&frar todo"
 "Dešifrovať všetko"
-upd:"Decrypt all"
+"Decripta Tutti"
 "&Все"
 
 MCopyCannotCreateLink
@@ -4945,7 +4945,7 @@ upd:"Bytes:"
 upd:"Bytes:"
 "Bytes:"
 "Bytov:"
-upd:"Bytes:"
+"Bytes:"
 "Байт:"
 
 MCopyMoving
@@ -5320,7 +5320,7 @@ upd:"Folder contains symbolic links."
 upd:"Folder contains symbolic links."
 "Carpeta contiene enlaces simbólicos."
 "Adresár obsahuje symbolické linky."
-upd:"Folder contains symbolic links."
+"La Cartella Contiene Link Simbolici"
 "Папка містить символічні посилання."
 
 MRecycleFolderConfirmDeleteLink2
@@ -5332,7 +5332,7 @@ upd:"To prevent the loss of their content when clearing Recyle Bin"
 upd:"To prevent the loss of their content when clearing Recyle Bin"
 "Para prevenir la pérdida de su contenido cuando se vacía Papelera de Reciclaje"
 "Pre zabránenie straty obsahu z dôvodu čistenia koša"
-upd:"To prevent the loss of their content when clearing Recyle Bin"
+"Per Prevenire Perdite Di Dati Durante Lo Svuotamento Del Cestino"
 "Для запобігання втрати їхнього вмісту при очищенні Кошика"
 
 MRecycleFolderConfirmDeleteLink3
@@ -5344,7 +5344,7 @@ upd:"those links will be broken now."
 upd:"those links will be broken now."
 "esos enlaces serán cortados ahora."
 "budú tieto linky zrušené."
-upd:"those links will be broken now."
+"Questi Collegamenti Saranno Disattivati"
 "ці посилання зараз буде розірвано."
 
 MRecycleFolderConfirmDeleteLink4
@@ -5356,7 +5356,7 @@ upd:"It would be impossible to restore them later."
 upd:"It would be impossible to restore them later."
 "Será imposible recuperarlo después."
 "Nebude možné ich potom obnoviť."
-upd:"It would be impossible to restore them later."
+"Sarà Impossibile Ripristinarli In Seguito"
 "У подальшому відновити їх буде неможливо."
 
 MDeleteWipe
@@ -6019,7 +6019,7 @@ upd:"Word"
 upd:"Word"
 "Palabra"
 "Slovo"
-upd:"Word"
+"Parola"
 "&Слово"
 
 MEditSearchPickSelection
@@ -6031,7 +6031,7 @@ upd:"Selection"
 upd:"Selection"
 "Selección"
 "Výber"
-upd:"Selection"
+"Selezione"
 "В&иділення"
 
 MEditSearchCase
@@ -9462,7 +9462,7 @@ l:
 "W górę"
 "UP-DIR"
 "Nahor"
-"Su"
+"↑Su↑"
 "Угору"
 
 MListFolder
@@ -9630,7 +9630,7 @@ upd:"Placeholder"
 upd:"Placeholder"
 "Marcador de posición"
 "Zástupca"
-upd:"Placeholder"
+"Segnaposto"
 "Покажчик місця заповнення"
 
 MListUnknownReparsePoint
@@ -9751,7 +9751,7 @@ upd:"Bytes: {0}, files: {1}, folders: {2}"
 upd:"Bytes: {0}, files: {1}, folders: {2}"
 "Bytes: {0}, archivos: {1}, carpetas: {2}"
 "Bytov: {0}, súborov: {1}, adresárov: {2}"
-upd:"Bytes: {0}, files: {1}, folders: {2}"
+"Bytes: {0}, Files: {1}, Cartelle: {2}"
 "Байт: {0}, файлів: {1}, папок: {2}"
 
 MListFileSizeStatus
@@ -13261,7 +13261,7 @@ upd:"Rename the code page"
 upd:"Rename the code page"
 upd:"Editar nombre de página de códigos"
 "Upraviť názov tabuľky znakov"
-upd:"Modifica Nome Codepage"
+"Modifica Nome Codepage"
 "Перейменування кодової сторінки"
 
 MGetCodePageResetCodePageName
@@ -15083,7 +15083,7 @@ l:
 "Ustawienia &systemowe"
 "&Sistema"
 "S&ystémové nastavenia"
-" &Sistema"
+"► &Sistema"
 "Си&стемні параметри"
 
 MMenuPanelSettings
@@ -15095,7 +15095,7 @@ MMenuPanelSettings
 "Ustawienia &panelu"
 "&Paneles"
 "Nastavenia &panelov"
-" &Pannelli"
+"► &Pannelli"
 "Налаштування па&нелі"
 
 MMenuTreeSettings
@@ -15107,7 +15107,7 @@ upd:"Tree settings"
 upd:"Tree settings"
 "Ar&bol de directorios"
 "Nastavenia s&tromu"
-" &Albero Cartelle"
+"► &Albero Cartelle"
 "Налаштування д&ерева папок"
 
 MMenuInterface
@@ -15119,7 +15119,7 @@ MMenuInterface
 "Ustawienia &interfejsu"
 "Interfa&z"
 "Nastavenia ro&zhrania"
-" &Interfaccia"
+"► &Interfaccia"
 "Налаштування &інтерфейсу"
 
 MMenuLanguages
@@ -15131,7 +15131,7 @@ MMenuLanguages
 "&Język"
 "&Idiomas"
 "Nastavenia &jazyka"
-" &Lingua"
+"► &Lingua"
 "&Мови"
 
 MMenuPluginsConfig
@@ -15143,7 +15143,7 @@ MMenuPluginsConfig
 "Konfiguracja p&luginów"
 "Configuración de complementos"
 "Nastavenia mo&dulov"
-" Pl&ug-In"
+"► Pl&ug-In"
 "Параметри плагіні&в"
 
 MMenuPluginsManagerSettings
@@ -15155,7 +15155,7 @@ upd:"Plugins manager settings"
 upd:"Plugins manager settings"
 "&Gestor de complementos"
 "Nastavenia správcu modulov"
-" &Gestore Plug-In"
+"► &Gestore Plug-In"
 "Параметри менеджера плагінів"
 
 MMenuDialogSettings
@@ -15167,7 +15167,7 @@ MMenuDialogSettings
 "Ustawienia okna &dialogowego"
 "Diá&logo"
 "Nastavenia dialó&gov"
-" &Finestre"
+"► &Finestre"
 "Налаштування &діалогов"
 
 MMenuVMenuSettings
@@ -15179,7 +15179,7 @@ upd:"Menu settings"
 upd:"Menu settings"
 "Menú"
 "Nastavenia menu"
-" Imposta &Menu"
+"► Imposta &Menu"
 "Налаштування меню"
 
 MMenuCmdlineSettings
@@ -15191,7 +15191,7 @@ upd:"Command line settings"
 upd:"Command line settings"
 "Línea de comando"
 "Nastavenia príkazového riadka"
-" P&rompt Dei Commandi"
+"► P&rompt Dei Commandi"
 "Налаштування &командного рядка"
 
 MMenuAutoCompleteSettings
@@ -15203,7 +15203,7 @@ upd:"AutoComplete settings"
 upd:"AutoComplete settings"
 "A&utocompletar"
 "Nastavenia AutoComplete"
-" Au&tocompletamento"
+"► Au&tocompletamento"
 "Налаштування &автозавершення"
 
 MMenuInfoPanelSettings
@@ -15215,7 +15215,7 @@ upd:"Inf&oPanel settings"
 upd:"Inf&oPanel settings"
 "&Panel de información"
 "Nastavenia Inf&oPanela"
-" Pa&nnello Informazioni"
+"► Pa&nnello Informazioni"
 "Налаштування &інформаційної панелі"
 
 MMenuMaskGroups
@@ -15227,7 +15227,7 @@ upd:"Groups of file masks"
 upd:"Groups of file masks"
 "Grupos de máscara de archivos"
 "Skupiny masiek súborov"
-" Masc&here Filtri"
+"► Masc&here Filtri"
 "Групи масок файлів"
 
 MMenuConfirmation
@@ -15239,7 +15239,7 @@ MMenuConfirmation
 "P&otwierdzenia"
 "Co&nfirmaciones"
 "P&otvrzovanie"
-" C&onferme"
+"► C&onferme"
 "&Підтверждення"
 
 MMenuFilePanelModes
@@ -15251,7 +15251,7 @@ MMenuFilePanelModes
 "&Tryby wyświetlania panelu plików"
 "M&odo de paneles de archivos"
 "&Módy súborových panelov"
-" Modi Di &Visualizzazione"
+"► Modi Di &Visualizzazione"
 "Режим&и панелі файлов"
 
 MMenuFileDescriptions
@@ -15263,7 +15263,7 @@ MMenuFileDescriptions
 "Opis&y plików"
 "Descripción de &archivos"
 "Popi&sy súborov"
-" &Descrizioni Files"
+"► &Descrizioni Files"
 "&Описи файлів"
 
 MMenuFolderInfoFiles
@@ -15275,7 +15275,7 @@ MMenuFolderInfoFiles
 "Pliki opisu &katalogu"
 "Descripción de &directorios"
 "Popisy pr&iečinkov"
-" D&escrizioni Cartelle"
+"► D&escrizioni Cartelle"
 "Файли опису папок"
 
 MMenuViewer
@@ -15287,7 +15287,7 @@ MMenuViewer
 "Ustawienia pod&glądu"
 "&Visor"
 "Nastavenia zob&razovača"
-" Visuali&zzatore Interno"
+"► Visuali&zzatore Interno"
 "Налаштування про&грами перегляду"
 
 MMenuEditor
@@ -15299,7 +15299,7 @@ MMenuEditor
 "Ustawienia &edytora"
 "&Editor"
 "Nastavenia &editora"
-" Editor In&terno"
+"► Editor In&terno"
 "Налаштування &редактора"
 
 MMenuCodePages
@@ -15311,7 +15311,7 @@ upd:"Kódlapok"
 upd:"Strony kodowe"
 "Página de códigos"
 "Tabuľky znakov:"
-" Codifica Caratteri"
+"► Codifica Caratteri"
 "Кодові сто&рінки"
 
 MMenuColors
@@ -15323,7 +15323,7 @@ MMenuColors
 "Kolo&ry"
 "&Colores"
 "&Farby"
-" Colori Far"
+"► Colori Far"
 "&Кольори"
 
 MMenuFilesHighlighting
@@ -15335,7 +15335,7 @@ MMenuFilesHighlighting
 "&Wyróżnianie plików"
 "&Resaltar archivos y ordenar grupos"
 "Z&výrazňovanie súborov a skupiny triedenia"
-" Colori Files"
+"► Colori Files"
 "Розмальовка &файлів і групи сортування"
 
 MMenuSaveSetup
@@ -15384,7 +15384,7 @@ l:
 "&Lewy"
 "&Izquierdo"
 "&Ľavý"
-" &Sinistra"
+"◄ &Sinistra"
 "&Ліва"
 
 MMenuFilesTitle
@@ -15396,7 +15396,7 @@ MMenuFilesTitle
 "Pl&iki"
 "&Archivos"
 "&Súbory"
-" &Archivi"
+"▼ &Archivi"
 "&Файли"
 
 MMenuCommandsTitle
@@ -15408,7 +15408,7 @@ MMenuCommandsTitle
 "Pol&ecenia"
 "&Comandos"
 "Prí&kazy"
-" &Comandi"
+"▼ &Comandi"
 "&Команди"
 
 MMenuOptionsTitle
@@ -15420,7 +15420,7 @@ MMenuOptionsTitle
 "&Opcje"
 "&Opciones"
 "&Nastavenia"
-" &Opzioni"
+"▼ &Opzioni"
 "Па&раметри"
 
 MMenuRightTitle
@@ -15432,7 +15432,7 @@ MMenuRightTitle
 "&Prawy"
 "&Derecho"
 "&Pravý"
-"&Destra "
+"&Destra ►"
 "&Права"
 
 MMenuSortTitle
@@ -15445,7 +15445,7 @@ l:
 "Sortuj według..."
 "Ordenar por"
 "Triediť podľa"
-" Ordina Per..."
+"► Ordina Per..."
 "Критерій сортування"
 
 MMenuSortByName
@@ -15770,7 +15770,7 @@ l:
 "Napęd"
 "Unidad"
 "Disk"
-" Unità"
+"► Unità"
 "Диск"
 
 MChangeDriveRemovable
@@ -16035,7 +16035,7 @@ upd:"Cannot detach virtual disk {0}"
 upd:"Cannot detach virtual disk {0}"
 "No se puede desvincular disco virtual {0}"
 "Nemožno odpojiť virtuálny disk {0}"
-upd:"Cannot detach virtual disk {0}"
+"Non Posso Scollegare Disco Virtuale {0}"
 "Не вдається від'єднати віртуальний диск {0}"
 
 
@@ -16376,7 +16376,7 @@ upd:"Show size as a decimal fraction"
 upd:"Show size as a decimal fraction"
 "Mostrar tamaño como fracción decimal"
 "Zobraz veľkosť ako zlomok desiatky"
-upd:"Show size as a decimal fraction"
+"Mostra Dimensione Come Frazione Decimale"
 "Показувати ро&змір у вигляді десяткового дробу"
 
 MChangeDriveShowRemovableDrive
@@ -16800,7 +16800,7 @@ upd:"Placeholder"
 upd:"Placeholder"
 "Marcador de posición"
 "Zástupca"
-upd:"Placeholder"
+"Segnaposto"
 "Покажчик місця заповнення"
 
 MQuickViewUnknownReparsePoint
@@ -17173,7 +17173,7 @@ upd:"Integrity stream"
 upd:"Integrity stream"
 "Cadena de integridad"
 "Integrita dát"
-upd:"Integrity stream"
+"Integrità Flusso"
 "Потік цілісності"
 
 MSetAttrNoScrubData
@@ -17185,7 +17185,7 @@ upd:"No scrub data"
 upd:"No scrub data"
 "No hay datos depurados"
 "Žiadne dáta pre skener integrity dát"
-upd:"No scrub data"
+"Nessun Dato Scrub"
 "Нема даних очищення"
 
 MSetAttrSubfolders
@@ -20688,7 +20688,7 @@ upd:"Cannot update menu"
 upd:"Cannot update menu"
 "No se puede actualizar menú"
 "Nemožno aktualizovať menu"
-upd:"Cannot update menu"
+"Non Posso Aggiornare Il Menu"
 "Не вдалося оновити меню"
 
 MViewerTitle
@@ -22094,7 +22094,7 @@ upd:"Details:"
 upd:"Details:"
 "Detalles:"
 "Detaily:"
-upd:"Details:"
+"Dettagli:"
 "Подробиці:"
 
 MExcAddress
@@ -22118,7 +22118,7 @@ upd:"Source:"
 upd:"Source:"
 "Origen:"
 "Zdroje:"
-upd:"Source:"
+"Origine:"
 "Джерело:"
 
 MExcFunction
@@ -22178,7 +22178,7 @@ upd:"Stack"
 upd:"Stack"
 upd:"Stack"
 "Halda"
-upd:"Stack"
+"Stack"
 "Стек"
 
 MExcMinidump
@@ -22190,7 +22190,7 @@ upd:"Minidump"
 upd:"Minidump"
 upd:"Minidump"
 "Minivýpis"
-upd:"Minidump"
+"Minidump"
 "Мінідамп"
 
 MNetUserName
@@ -24177,7 +24177,7 @@ upd:"Mode"
 upd:"Mode"
 "Modo"
 "Režim"
-upd:"Mode"
+"Modo"
 "Режим"
 
 MInfoAltShiftF1
@@ -27658,7 +27658,7 @@ upd:"Integrity stream"
 upd:"Integrity stream"
 "Cadena de integridad"
 "Integrita dát"
-upd:"Integrity stream"
+"Integrità Flusso"
 "Потік цілісності"
 
 MFileFilterAttrNoScrubData
@@ -27670,7 +27670,7 @@ upd:"No scrub data"
 upd:"No scrub data"
 "No hay datos depurados"
 "Žiadne dáta pre skener integrity dát"
-upd:"No scrub data"
+"Dati Scrub Mancanti"
 "Нема даних очищення"
 
 
@@ -27984,7 +27984,7 @@ upd:"Environment"
 upd:"Environment"
 "Entorno"
 "Prostredie"
-upd:"Environment"
+"Ambiente"
 "Оточення"
 
 MCompletionFilesTitle
@@ -28056,7 +28056,7 @@ upd:"and {0} more processes."
 upd:"and {0} more processes."
 "y {0} procesos mas."
 "a {0} procesov."
-upd:"and {0} more processes."
+"e {0} altri processi"
 "i ще {0} процесах"
 
 MObjectLockedSwitchTo
@@ -28092,7 +28092,7 @@ upd:"One or more processes are running in another Terminal Services session."
 upd:"One or more processes are running in another Terminal Services session."
 "Uno o más procesos están corriendo en otra sesión de Servicios de Terminal."
 "Jeden, alebo viac procesov je spustených v inom sedení Terminal Services."
-upd:"One or more processes are running in another Terminal Services session."
+"Uno O Più Processi Sono In Esecuzione In Altre Sessioni Di Terminali"
 "Один або кілька процесів виконуються у іншому сеансі служб терміналів"
 
 MObjectLockedReasonCriticalProcess
@@ -28104,7 +28104,7 @@ upd:"One or more processes are critical processes."
 upd:"One or more processes are critical processes."
 "Uno o más procesos son procesos críticos."
 "Jeden, alebo viac procesov je kritických."
-upd:"One or more processes are critical processes."
+"Uno O Più Processi Sono Processi Critici"
 "Один або кілька процесів є критичними процесами."
 
 MObjectLockedReasonCriticalService
@@ -28116,7 +28116,7 @@ upd:"One or more services are critical services."
 upd:"One or more services are critical services."
 "Uno o más servicios son servicios críticos."
 "Jeden, alebo viac servisov je kritických."
-upd:"One or more services are critical services."
+"Uno O Più Servizi Sono Servizi Critici"
 "Одна або кілька служб є критичними службами."
 
 MObjectLockedReasonDetectedSelf
@@ -28128,7 +28128,7 @@ upd:"The file is opened by the current process."
 upd:"The file is opened by the current process."
 "El archivo está abierto por el proceso actual."
 "Súbor je otvorený aktuálnym procesom."
-upd:"The file is opened by the current process."
+"Il File E' Aperto Dal Processo Corrente"
 "Файл відкрито поточним процесом."
 
 MProblemDb
@@ -28164,7 +28164,7 @@ upd:"Incorrect language file"
 upd:"Incorrect language file"
 "Archivo de idioma incorrecto"
 "Nesprávny jazykový súbor"
-upd:"Incorrect language file"
+"File Di Lingua Errato"
 "Некоректний мовний файл"
 
 MLanguageStringNotFound
@@ -28176,7 +28176,7 @@ upd:"String {0} not found"
 upd:"String {0} not found"
 "Cadena {0} no encontrada"
 "Reťazec {0} nenájdený"
-upd:"String {0} not found"
+"Stringa {0} Non Trovata"
 "Рядок {0} не знайдено"
 
 MKeyLaunchMediaSelect

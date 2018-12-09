@@ -154,6 +154,11 @@
       <Command>copy /y "%(Identity)" "$(OutDir)"</Command>
       <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
+    <CustomBuild Include="arcita.lng">
+      <Message>Converting %(Identity)</Message>
+      <Command>copy /y "%(Identity)" "$(OutDir)"</Command>
+      <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
+    </CustomBuild>
     <CustomBuild Include="arcrus.lng">
       <Message>Converting %(Identity)</Message>
       <Command>copy /y "%(Identity)" "$(OutDir)"</Command>

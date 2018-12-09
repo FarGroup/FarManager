@@ -164,6 +164,11 @@
       <Command>copy /y "%(Identity)" "$(OutDir)"</Command>
       <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
+    <CustomBuild Include="FtpIta.lng">
+      <Message>Converting %(Identity)</Message>
+      <Command>copy /y "%(Identity)" "$(OutDir)"</Command>
+      <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
+    </CustomBuild>
     <CustomBuild Include="TechInfo.reg">
       <Message>Converting %(Identity)</Message>
       <Command>copy /y "%(Identity)" "$(OutDir)"</Command>
