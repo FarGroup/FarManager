@@ -61,15 +61,12 @@ namespace os::security
 		MOVABLE(privilege);
 
 		privilege(const std::initializer_list<const wchar_t*>& Names): privilege(make_span(Names)) {}
-		explicit privilege(const std::vector<const wchar_t*>& Names): privilege(make_span(Names)) {}
-		explicit privilege(range<const wchar_t* const*> Names);
+		explicit privilege(span<const wchar_t* const> Names);
 		~privilege();
 
 		template<class... args>
 		static bool check(args&&... Args) { return check({ FWD(Args)... }); }
-		static bool check(const std::initializer_list<const wchar_t*>& Names) { return check(make_span(Names)); }
-		static bool check(const std::vector<const wchar_t*>& Names) { return check(make_span(Names)); }
-		static bool check(range<const wchar_t* const*> Names);
+		static bool check(span<const wchar_t* const> Names);
 
 	private:
 		block_ptr<TOKEN_PRIVILEGES> m_SavedState;

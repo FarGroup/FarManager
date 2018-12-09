@@ -32,8 +32,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "compiler.hpp"
-
 #define EXPAND(x) x
 
 #define DETAIL_CONCATENATE_IMPL(s1, s2) s1 ## s2
@@ -116,14 +114,14 @@ Type& operator=(Type&&) = default
 #define SCOPED_ACTION(RAII_type) \
 const RAII_type ANONYMOUS_VARIABLE(scoped_object_)
 
-#define STR(x) #x
-#define WSTR(x) L###x
-#define WSTRVIEW(x) L###x##sv
-
 #define DETAIL_WIDE_IMPL(x, ...) L##x##__VA_ARGS__
 #define WIDE(x) DETAIL_WIDE_IMPL(x)
 #define WIDE_S(x) DETAIL_WIDE_IMPL(x, s)
 #define WIDE_SV(x) DETAIL_WIDE_IMPL(x, sv)
+
+#define STR(x) #x
+#define WSTR(x) WIDE(STR(x))
+#define WSTRVIEW(x) WIDE_SV(STR(x))
 
 #define REQUIRES(...) std::enable_if_t<__VA_ARGS__>* = nullptr
 

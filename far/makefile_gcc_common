@@ -82,7 +82,6 @@ CFLAGS += \
 -Wlogical-op \
 -Wodr \
 -Winvalid-pch \
--Wlogical-op \
 -Wduplicated-cond \
 -Wduplicated-branches \
 -Wdouble-promotion \

@@ -679,8 +679,8 @@ static void WINAPI FreeUserData(void* UserData, const FarPanelItemFreeInfo*)
 static PluginPanelItem* ConvertAnsiPanelItemsToUnicode(range<oldfar::PluginPanelItem*> const PanelItemA)
 {
 	auto Result = std::make_unique<PluginPanelItem[]>(PanelItemA.size());
-	auto DstRange = make_range(Result.get(), PanelItemA.size());
-	for(const auto& i: zip(PanelItemA, DstRange))
+	auto DstSpan = make_span(Result.get(), PanelItemA.size());
+	for(const auto& i: zip(PanelItemA, DstSpan))
 	{
 		const auto& Src = std::get<0>(i);
 		auto& Dst = std::get<1>(i);
@@ -806,7 +806,7 @@ static void FreePanelItemA(const oldfar::PluginPanelItem *PanelItem, size_t Item
 		delete[] Item.Description;
 		delete[] Item.Owner;
 
-		DeleteRawArray(make_range(Item.CustomColumnData, Item.CustomColumnNumber));
+		DeleteRawArray(make_span(Item.CustomColumnData, Item.CustomColumnNumber));
 
 		if (Item.Flags & oldfar::PPIF_USERDATA)
 		{
@@ -908,10 +908,10 @@ static void AnsiVBufToUnicode(CHAR_INFO* VBufA, FAR_CHAR_INFO* VBuf, size_t Size
 	if (!VBuf || !VBufA)
 		return;
 
-	const auto SrcRange = make_range(VBufA, Size);
-	auto DstRange = make_range(VBuf, Size);
+	const auto SrcSpan = make_span(VBufA, Size);
+	auto DstSpan = make_span(VBuf, Size);
 
-	for (const auto& i: zip(SrcRange, DstRange))
+	for (const auto& i: zip(SrcSpan, DstSpan))
 	{
 		const auto& Src = std::get<0>(i);
 		auto& Dst = std::get<1>(i);
@@ -3172,24 +3172,24 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 	return 0;
 }
 
-static int WINAPI FarDialogExA(intptr_t PluginNumber, int X1, int Y1, int X2, int Y2, const char *HelpTopic, oldfar::FarDialogItem *Item, int ItemsNumber, DWORD, DWORD Flags, oldfar::FARWINDOWPROC DlgProc, void* Param) noexcept
+static int WINAPI FarDialogExA(intptr_t PluginNumber, int X1, int Y1, int X2, int Y2, const char *HelpTopic, oldfar::FarDialogItem *Items, int ItemsNumber, DWORD, DWORD Flags, oldfar::FARWINDOWPROC DlgProc, void* Param) noexcept
 {
 	try
 	{
-		auto ItemsRange = make_range(Item, ItemsNumber);
+		auto ItemsSpan = make_span(Items, ItemsNumber);
 
-		std::vector<oldfar::FarDialogItem> diA(ItemsRange.size());
+		std::vector<oldfar::FarDialogItem> diA(ItemsSpan.size());
 
 		// to save DIF_SETCOLOR state
-		for (const auto& i: zip(diA, ItemsRange))
+		for (const auto& i: zip(diA, ItemsSpan))
 		{
 			std::get<0>(i).Flags = std::get<1>(i).Flags;
 		}
 
-		std::vector<FarDialogItem> di(ItemsRange.size());
-		std::vector<FarList> l(ItemsRange.size());
+		std::vector<FarDialogItem> di(ItemsSpan.size());
+		std::vector<FarList> l(ItemsSpan.size());
 
-		for (const auto& i: zip(ItemsRange, di, l))
+		for (const auto& i: zip(ItemsSpan, di, l))
 		{
 			std::apply(AnsiDialogItemToUnicode, i);
 		}
@@ -3235,23 +3235,23 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber, int X1, int Y1, int X2, in
 				if (gdi.Item)
 				{
 					NativeInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, i, &gdi);
-					UnicodeDialogItemToAnsiSafe(*gdi.Item,Item[i]);
+					UnicodeDialogItemToAnsiSafe(*gdi.Item, ItemsSpan[i]);
 					const wchar_t *res = NullToEmpty(gdi.Item->Data);
 
-					if ((di[i].Type==DI_EDIT || di[i].Type==DI_COMBOBOX) && Item[i].Flags&oldfar::DIF_VAREDIT)
-						encoding::oem::get_bytes(res, Item[i].Ptr.PtrData, Item[i].Ptr.PtrLength + 1);
+					if ((di[i].Type==DI_EDIT || di[i].Type==DI_COMBOBOX) && ItemsSpan[i].Flags&oldfar::DIF_VAREDIT)
+						encoding::oem::get_bytes(res, ItemsSpan[i].Ptr.PtrData, ItemsSpan[i].Ptr.PtrLength + 1);
 					else
-						encoding::oem::get_bytes(res, Item[i].Data);
+						encoding::oem::get_bytes(res, ItemsSpan[i].Data);
 
 					if (gdi.Item->Type==DI_USERCONTROL)
 					{
 						di[i].VBuf=gdi.Item->VBuf;
-						Item[i].VBuf=GetAnsiVBufPtr(gdi.Item->VBuf,GetAnsiVBufSize(Item[i]));
+						ItemsSpan[i].VBuf=GetAnsiVBufPtr(gdi.Item->VBuf,GetAnsiVBufSize(ItemsSpan[i]));
 					}
 
 					if (gdi.Item->Type==DI_COMBOBOX || gdi.Item->Type==DI_LISTBOX)
 					{
-						Item[i].ListPos = static_cast<int>(NativeInfo.SendDlgMessage(hDlg, DM_LISTGETCURPOS, i, nullptr));
+						ItemsSpan[i].ListPos = static_cast<int>(NativeInfo.SendDlgMessage(hDlg, DM_LISTGETCURPOS, i, nullptr));
 					}
 				}
 
@@ -3844,7 +3844,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 
 				auto strSequence = L"Keys(\""s;
 				string strKeyText;
-				for (const auto& Key: make_range(ksA->Sequence, ksA->Count))
+				for (const auto& Key: make_span(ksA->Sequence, ksA->Count))
 				{
 					if (KeyToText(OldKeyToKey(Key), strKeyText))
 					{
@@ -5598,7 +5598,7 @@ private:
 		delete[] OPI.Format;
 		delete[] OPI.PanelTitle;
 		FreeUnicodeInfoPanelLines({ OPI.InfoLines, OPI.InfoLinesNumber });
-		DeleteRawArray(make_range(OPI.DescrFiles, OPI.DescrFilesNumber));
+		DeleteRawArray(make_span(OPI.DescrFiles, OPI.DescrFilesNumber));
 		FreeUnicodePanelModes({ OPI.PanelModesArray, OPI.PanelModesNumber });
 		FreeUnicodeKeyBarTitles(const_cast<KeyBarTitles*>(OPI.KeyBar));
 		delete OPI.KeyBar;

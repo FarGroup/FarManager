@@ -84,7 +84,7 @@ enum ELEVATION_COMMAND: int
 
 static const auto ElevationArgument = L"/service:elevation"sv;
 
-static auto CreateBackupRestorePrivilege() { return privilege{SE_BACKUP_NAME, SE_RESTORE_NAME}; }
+static auto CreateBackupRestorePrivilege() { return privilege({SE_BACKUP_NAME, SE_RESTORE_NAME}); }
 
 elevation::elevation():
 	m_IsApproved(false),

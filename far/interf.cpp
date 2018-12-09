@@ -732,7 +732,7 @@ void Text(string_view const Str)
 	Buffer.reserve(Str.size());
 	std::transform(ALL_CONST_RANGE(Str), std::back_inserter(Buffer), [](wchar_t c) { return FAR_CHAR_INFO{ c, CurColor }; });
 
-	Global->ScrBuf->Write(CurX, CurY, make_span(Buffer));
+	Global->ScrBuf->Write(CurX, CurY, Buffer);
 	CurX += static_cast<int>(Buffer.size());
 }
 

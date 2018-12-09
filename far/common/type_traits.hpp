@@ -50,11 +50,16 @@ constexpr bool is_one_of_v = is_one_of<type, args...>::value;
 
 namespace detail
 {
-	template<typename type>
-	using try_begin = decltype(std::begin(std::declval<type&>()));
+#define DETAIL_TRY_(What) \
+	template<typename type> \
+	using try_ ## What = decltype(std::What(std::declval<type&>()));
 
-	template<typename type>
-	using try_end = decltype(std::end(std::declval<type&>()));
+	DETAIL_TRY_(begin);
+	DETAIL_TRY_(end);
+	DETAIL_TRY_(data);
+	DETAIL_TRY_(size);
+
+#undef DETAIL_TRY_
 }
 
 template<class type>
@@ -62,6 +67,12 @@ using is_range = std::conjunction<is_valid<type, detail::try_begin>, is_valid<ty
 
 template<class type>
 constexpr bool is_range_v = is_range<type>::value;
+
+template<class type>
+using is_span = std::conjunction<is_valid<type, detail::try_data>, is_valid<type, detail::try_size>>;
+
+template<class type>
+constexpr bool is_span_v = is_span<type>::value;
 
 
 #endif // TYPE_TRAITS_HPP_CC9B8497_9AF0_4882_A470_81FF9CBF6D7C

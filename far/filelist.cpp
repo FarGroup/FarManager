@@ -435,7 +435,7 @@ void FileList::list_data::clear()
 			if (i.DeleteDiz)
 				delete[] i.DizText;
 		}
-		DeleteRawArray(make_range(i.CustomColumnData, i.CustomColumnNumber));
+		DeleteRawArray(make_span(i.CustomColumnData, i.CustomColumnNumber));
 	});
 
 	Items.clear();
@@ -4636,9 +4636,9 @@ void FileList::SelectSortMode()
 	bool PlusPressed = false;
 
 	{
-		const auto MenuStrings = VMenu::AddHotkeys(make_span(SortMenu));
+		const auto MenuStrings = VMenu::AddHotkeys(SortMenu);
 
-		const auto SortModeMenu = VMenu2::create(msg(lng::MMenuSortTitle), make_span(SortMenu), 0);
+		const auto SortModeMenu = VMenu2::create(msg(lng::MMenuSortTitle), SortMenu, 0);
 		SortModeMenu->SetHelp(L"PanelCmdSort"sv);
 		SortModeMenu->SetPosition({ m_Where.left + 4, -1, 0, 0 });
 		SortModeMenu->SetMenuFlags(VMENU_WRAPMODE);
@@ -6758,7 +6758,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 
 			auto ParentPointSeen = AnotherPanelInfo.Flags & OPIF_ADDDOTS? true : false;
 
-			for (const auto& i: make_range(PanelData, PanelCount))
+			for (const auto& i: make_span(PanelData, PanelCount))
 			{
 				FileListItem Item{ i };
 				Item.Position = Position++;

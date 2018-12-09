@@ -440,7 +440,7 @@ string MkStrFTime(const wchar_t *Format)
 	return StrFTime(Format, std::localtime(&Time));
 }
 
-void ParseDateComponents(string_view const Src, range<const std::pair<size_t, size_t>*> const Ranges, range<WORD*> const Dst, WORD const Default)
+void ParseDateComponents(string_view const Src, span<const std::pair<size_t, size_t>> const Ranges, span<WORD> const Dst, WORD const Default)
 {
 	assert(Dst.size() == Ranges.size());
 	std::transform(ALL_CONST_RANGE(Ranges), Dst.begin(), [Src, Default](const auto& i)
@@ -453,9 +453,9 @@ void ParseDateComponents(string_view const Src, range<const std::pair<size_t, si
 os::chrono::time_point ParseDate(const string& Date, const string& Time, int DateFormat, const date_ranges& DateRanges, const time_ranges& TimeRanges)
 {
 	WORD DateN[3];
-	ParseDateComponents(Date, make_span(DateRanges), make_span(DateN));
+	ParseDateComponents(Date, DateRanges, DateN);
 	WORD TimeN[4];
-	ParseDateComponents(Time, make_span(TimeRanges), make_span(TimeN), 0);
+	ParseDateComponents(Time, TimeRanges, TimeN, 0);
 
 	if (DateN[0] == date_none || DateN[1] == date_none || DateN[2] == date_none)
 	{
@@ -505,10 +505,10 @@ os::chrono::duration ParseDuration(const string& Date, const string& Time, int D
 {
 	WORD DateN[1];
 	const std::pair<size_t, size_t> DateRange[]{ { 0, Date.size() } };
-	ParseDateComponents(Date, make_span(DateRange), make_span(DateN));
+	ParseDateComponents(Date, DateRange, DateN);
 
 	WORD TimeN[4];
-	ParseDateComponents(Time, make_span(TimeRanges), make_span(TimeN));
+	ParseDateComponents(Time, TimeRanges, TimeN);
 
 	using namespace std::chrono;
 	using namespace chrono;

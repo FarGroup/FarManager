@@ -240,7 +240,7 @@ bool native_plugin_factory::IsPlugin2(const void* Module) const
 		if (!dwExportAddr)
 			return false;
 
-		for (const auto& Section: make_range(IMAGE_FIRST_SECTION(pPEHeader), pPEHeader->FileHeader.NumberOfSections))
+		for (const auto& Section: make_span(IMAGE_FIRST_SECTION(pPEHeader), pPEHeader->FileHeader.NumberOfSections))
 		{
 			if ((Section.VirtualAddress == dwExportAddr) ||
 				((Section.VirtualAddress <= dwExportAddr) && ((Section.Misc.VirtualSize + Section.VirtualAddress) > dwExportAddr)))

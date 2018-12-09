@@ -44,7 +44,13 @@ public:
 	using reverse_iterator = std::reverse_iterator<iterator>;
 	using reference = typename std::iterator_traits<iterator>::reference;
 	using pointer = typename std::iterator_traits<iterator>::pointer;
+	using iterator_category = typename std::iterator_traits<iterator_type>::iterator_category;
 
+private:
+	template<typename T>
+	using opt_const_iterator = std::enable_if_t<std::is_const_v<value_type>, T>;
+
+public:
 	constexpr range() = default;
 
 	constexpr range(iterator Begin, iterator End):
@@ -79,14 +85,20 @@ public:
 	constexpr auto begin() const { return m_Begin; }
 	constexpr auto end() const { return m_End; }
 
-	constexpr auto cbegin() const { static_assert(is_const); return begin(); }
-	constexpr auto cend() const { static_assert(is_const); return end(); }
+	template<typename T = iterator, REQUIRES(std::is_same_v<T, iterator>)>
+	constexpr opt_const_iterator<T> cbegin() const { return begin(); }
+
+	template<typename T = iterator, REQUIRES(std::is_same_v<T, iterator>)>
+	constexpr opt_const_iterator<T> cend() const { return end(); }
 
 	constexpr auto rbegin() const { return reverse_iterator(m_End); }
 	constexpr auto rend() const { return reverse_iterator(m_Begin); }
 
-	constexpr auto crbegin() const { static_assert(is_const); return rbegin(); }
-	constexpr auto crend() const { static_assert(is_const); return rend(); }
+	template<typename T = reverse_iterator, REQUIRES(std::is_same_v<T, reverse_iterator>)>
+	constexpr opt_const_iterator<T> crbegin() const { return rbegin(); }
+
+	template<typename T = reverse_iterator, REQUIRES(std::is_same_v<T, reverse_iterator>)>
+	constexpr opt_const_iterator<T> crend() const { return rend(); }
 
 	constexpr auto& front() const
 	{
@@ -106,7 +118,8 @@ public:
 		return *(m_Begin + n);
 	}
 
-	constexpr auto data() const { return &*m_Begin; }
+	// Explicit "+ 0" to make sure that random access is supported
+	constexpr auto data() const { return &*(m_Begin + 0); }
 	constexpr size_t size() const { return m_End - m_Begin; }
 
 	/*constexpr*/ void pop_front()
@@ -140,10 +153,8 @@ public:
 	}
 
 private:
-	enum { is_const = std::is_const_v<std::remove_reference_t<reference>> };
-
-	iterator m_Begin {};
-	iterator m_End {};
+	iterator m_Begin{};
+	iterator m_End{};
 };
 
 template<class iterator_type>
@@ -169,23 +180,50 @@ constexpr auto make_range(container& Container)
 
 template<class container>
 [[nodiscard]]
-constexpr auto make_span(container& Container)
-{
-	return make_range(std::data(Container), std::size(Container));
-}
-
-template<class container>
-[[nodiscard]]
 constexpr auto make_range(const container& Container)
 {
 	return make_range(ALL_CONST_RANGE(Container));
 }
 
-template<class container>
-[[nodiscard]]
-constexpr auto make_span(const container& Container)
+template<class value_type>
+class span: public range<value_type*>
 {
-	return make_range(std::data(Container), std::size(Container));
+public:
+	constexpr span() = default;
+
+	constexpr span(value_type* Begin, value_type* End):
+		range<value_type*>(Begin, End)
+	{}
+
+	constexpr span(value_type* Data, size_t Size):
+		range<value_type*>(Data, Data + Size)
+	{
+	}
+
+	template<typename container, REQUIRES(is_span_v<container> && std::is_same_v<std::add_const_t<std::remove_reference_t<decltype(*std::data(std::declval<container&>()))>>, std::add_const_t<value_type>>)>
+	constexpr span(container& Container):
+		range<value_type*>(std::data(Container), std::size(Container))
+	{
+	}
+
+	constexpr span(const std::initializer_list<value_type>& List) :
+		range<value_type*>(ALL_RANGE(List))
+	{
+	}
+};
+
+template<typename value_type>
+[[nodiscard]]
+constexpr auto make_span(value_type* const Data, size_t Size)
+{
+	return span<value_type>(Data, Size);
+}
+
+template<typename container>
+[[nodiscard]]
+constexpr auto make_span(container& Container)
+{
+	return make_span(std::data(Container), std::size(Container));
 }
 
 template<class T>

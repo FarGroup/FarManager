@@ -1025,7 +1025,7 @@ namespace os::fs
 			if ((!QueryResult && GetLastError() != ERROR_MORE_DATA) || !BytesReturned)
 				break;
 
-			for (const auto& i : make_range(Ranges, BytesReturned / sizeof(*Ranges)))
+			for (const auto& i : make_span(Ranges, BytesReturned / sizeof(*Ranges)))
 			{
 				m_AllocSize += i.Length.QuadPart;
 				for (unsigned long long j = i.FileOffset.QuadPart, RangeEndOffset = i.FileOffset.QuadPart + i.Length.QuadPart; j < RangeEndOffset; j += m_ChunkSize)

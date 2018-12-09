@@ -44,7 +44,7 @@ namespace os::chrono
 
 	static nt_clock::duration posix_shift()
 	{
-		return std::chrono::seconds{ 11644473600 };
+		return 11644473600s;
 	}
 
 	time_t nt_clock::to_time_t(const time_point& Time) noexcept

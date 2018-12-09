@@ -456,11 +456,11 @@ bool Viewer::isBinaryFile(uintptr_t cp) // very approximate: looks for '\0' in f
 
 	if (IsUnicodeCodePage(cp))
 	{
-		return contains(make_range(reinterpret_cast<const wchar_t*>(Buffer), BytesRead / sizeof(wchar_t)), L'\0');
+		return contains(make_span(reinterpret_cast<const wchar_t*>(Buffer), BytesRead / sizeof(wchar_t)), L'\0');
 	}
 	else
 	{
-		return contains(make_range(Buffer, BytesRead), '\0');
+		return contains(make_span(Buffer, BytesRead), '\0');
 	}
 }
 

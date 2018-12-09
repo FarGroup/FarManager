@@ -85,7 +85,7 @@ public:
 
 	void FillBuf();
 	void Read(rectangle Where, matrix<FAR_CHAR_INFO>& Dest);
-	void Write(int X,int Y, range<const FAR_CHAR_INFO*> Text);
+	void Write(int X,int Y, span<const FAR_CHAR_INFO> Text);
 	void RestoreMacroChar();
 	void RestoreElevationChar();
 

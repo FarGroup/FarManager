@@ -117,7 +117,7 @@ private:
 };
 
 template<class T>
-void DeleteRawArray(range<T> Data)
+void DeleteRawArray(span<T> Data)
 {
 	for (const auto& i : Data)
 	{

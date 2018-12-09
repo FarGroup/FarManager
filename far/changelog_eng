@@ -3,6 +3,18 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 10.12.2018 22:50:11 +0000 - build 5341
+
+1. Refactoring.
+
+zg 10.12.2018 16:16:53 +0200 - build 5340
+
+1. 0003657: DM_SETTEXT doesn't reset LeftPos to 0.
+
+svs 10.12.2018 09:01:02 +0300 - build 5339
+
+1. SQLite 3.26.0
+
 zg 07.12.2018 10:52:37 +0200 - build 5338
 
 continuation of 5337:

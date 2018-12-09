@@ -345,7 +345,7 @@ namespace console_detail
 
 	static void AdjustMouseEvents(INPUT_RECORD* Buffer, size_t Length, short Delta, short MaxX)
 	{
-		for (auto& i : make_range(Buffer, Length))
+		for (auto& i : make_span(Buffer, Length))
 		{
 			if (i.EventType == MOUSE_EVENT)
 			{
@@ -393,7 +393,7 @@ namespace console_detail
 		{
 			const auto Delta = GetDelta();
 
-			for (auto& i : make_range(Buffer, Length))
+			for (auto& i : make_span(Buffer, Length))
 			{
 				if (i.EventType == MOUSE_EVENT)
 				{
@@ -523,7 +523,7 @@ namespace console_detail
 		Str += L'm';
 	}
 
-	static void make_vt_sequence(range<const FAR_CHAR_INFO*> Input, string& Str, std::pair<bool, FarColor>& LastColor)
+	static void make_vt_sequence(span<const FAR_CHAR_INFO> Input, string& Str, std::pair<bool, FarColor>& LastColor)
 	{
 		for (const auto& i: Input)
 		{
@@ -601,7 +601,7 @@ namespace console_detail
 				if (i != SubRect.top)
 					Str += format(L"\033[{0};{1}H"sv, CursorPosition.Y + 1 + (i - SubRect.top), CursorPosition.X + 1);
 
-				make_vt_sequence(make_range(Buffer[i].data() + SubRect.left, Buffer[i].data() + SubRect.right + 1), Str, LastColor);
+				make_vt_sequence(make_span(Buffer[i].data() + SubRect.left, SubRect.width()), Str, LastColor);
 			}
 
 			append(Str, L"\033[0m"sv);
@@ -633,7 +633,7 @@ namespace console_detail
 				assert(BufferSize.Y == WriteRegion.Bottom - WriteRegion.Top + 1);
 
 
-				for (auto&i : make_range(Buffer, BufferSize.X * BufferSize.Y))
+				for (auto&i : make_span(Buffer, BufferSize.X * BufferSize.Y))
 				{
 					i.Attributes = (i.Attributes & FCF_RAWATTR_MASK) | LOBYTE(~i.Attributes);
 				}
@@ -642,7 +642,7 @@ namespace console_detail
 				WriteOutputImpl(Buffer, BufferSize, WriteRegionCopy);
 				Sleep(50);
 
-				for (auto&i : make_range(Buffer, BufferSize.X * BufferSize.Y))
+				for (auto&i : make_span(Buffer, BufferSize.X * BufferSize.Y))
 					i.Attributes = (i.Attributes & FCF_RAWATTR_MASK) | LOBYTE(~i.Attributes);
 #endif
 				return WriteOutputImpl(Buffer, BufferSize, WriteRegion) != FALSE;

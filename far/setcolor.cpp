@@ -105,7 +105,7 @@ static void SetItemColors(const color_item* Items, size_t Size, COORD Position =
 {
 	const auto ItemsMenu = VMenu2::create(msg(lng::MSetColorItemsTitle), {});
 
-	for (const auto& i : make_range(Items, Size))
+	for (const auto& i : make_span(Items, Size))
 	{
 		ItemsMenu->AddItem(msg(i.LngId));
 	}
@@ -348,21 +348,21 @@ void SetColors()
 		static const struct
 		{
 			lng MenuId;
-			range<const color_item*> Subitems;
+			span<const color_item> Subitems;
 		}
 		Groups[] =
 		{
-			{ lng::MSetColorPanel,       make_range(PanelItems) },
-			{ lng::MSetColorDialog,      make_range(DialogItems) },
-			{ lng::MSetColorWarning,     make_range(WarnDialogItems) },
-			{ lng::MSetColorMenu,        make_range(MenuItems) },
-			{ lng::MSetColorHMenu,       make_range(HMenuItems) },
-			{ lng::MSetColorKeyBar,      make_range(KeyBarItems) },
-			{ lng::MSetColorCommandLine, make_range(CommandLineItems) },
-			{ lng::MSetColorClock,       make_range(ClockItems) },
-			{ lng::MSetColorViewer,      make_range(ViewerItems) },
-			{ lng::MSetColorEditor,      make_range(EditorItems) },
-			{ lng::MSetColorHelp,        make_range(HelpItems) },
+			{ lng::MSetColorPanel,       PanelItems },
+			{ lng::MSetColorDialog,      DialogItems },
+			{ lng::MSetColorWarning,     WarnDialogItems },
+			{ lng::MSetColorMenu,        MenuItems },
+			{ lng::MSetColorHMenu,       HMenuItems },
+			{ lng::MSetColorKeyBar,      KeyBarItems },
+			{ lng::MSetColorCommandLine, CommandLineItems },
+			{ lng::MSetColorClock,       ClockItems },
+			{ lng::MSetColorViewer,      ViewerItems },
+			{ lng::MSetColorEditor,      EditorItems },
+			{ lng::MSetColorHelp,        HelpItems },
 		};
 
 		const auto GroupsMenu = VMenu2::create(msg(lng::MSetColorGroupsTitle), {});

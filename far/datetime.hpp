@@ -48,7 +48,7 @@ enum { date_none = std::numeric_limits<WORD>::max() };
 using date_ranges = std::array<std::pair<size_t, size_t>, 3>;
 using time_ranges = std::array<std::pair<size_t, size_t>, 4>;
 
-void ParseDateComponents(string_view Src, range<const std::pair<size_t, size_t>*> Ranges, range<WORD*> Dst, WORD Default = date_none);
+void ParseDateComponents(string_view Src, span<const std::pair<size_t, size_t>> Ranges, span<WORD> Dst, WORD Default = date_none);
 os::chrono::time_point ParseDate(const string& Date, const string& Time, int DateFormat, const date_ranges& DateRanges, const time_ranges& TimeRanges);
 os::chrono::duration ParseDuration(const string& Date, const string& Time, int DateFormat, const time_ranges& TimeRanges);
 void ConvertDate(os::chrono::time_point Point, string& strDateText, string& StrTimeText, int TimeLength, int Brief = FALSE, int TextMonth = FALSE, int FullYear = 0);

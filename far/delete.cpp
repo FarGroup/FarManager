@@ -416,25 +416,23 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 	//   Обработка "удаления" линков
 	if (SelCount == 1 && (SingleSelData.Attributes & FILE_ATTRIBUTE_REPARSE_POINT))
 	{
-		auto strJuncName = ConvertNameToFull(SingleSelData.FileName);
+		auto FullName = ConvertNameToFull(SingleSelData.FileName);
 
-		if (GetReparsePointInfo(strJuncName, strJuncName)) // ? SelName ?
+		if (GetReparsePointInfo(FullName, FullName))
 		{
-			NormalizeSymlinkName(strJuncName);
-			string strAskDeleteLink=msg(lng::MAskDeleteLink);
-			os::fs::file_status Status(strJuncName);
+			NormalizeSymlinkName(FullName);
+			auto strAskDeleteLink = msg(lng::MAskDeleteLink);
+
+			const os::fs::file_status Status(FullName);
 			if (os::fs::exists(Status))
-			{
-				strAskDeleteLink += L' ';
-				strAskDeleteLink += msg(is_directory(Status)? lng::MAskDeleteLinkFolder : lng::MAskDeleteLinkFile);
-			}
+				append(strAskDeleteLink, L' ', msg(is_directory(Status)? lng::MAskDeleteLinkFolder : lng::MAskDeleteLinkFile));
 
 			Ret=Message(0,
 				msg(lng::MDeleteLinkTitle),
 				{
 					strDeleteFilesMsg,
 					strAskDeleteLink,
-					strJuncName
+					FullName
 				},
 				{ lng::MDeleteLinkDelete, lng::MCancel },
 				{}, &DeleteLinkId);

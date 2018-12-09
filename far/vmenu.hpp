@@ -281,7 +281,7 @@ public:
 	}
 
 	static FarListItem *MenuItem2FarList(const MenuItemEx *ListItem, FarListItem *Item);
-	static std::vector<string> AddHotkeys(range<menu_item*> MenuItems);
+	static std::vector<string> AddHotkeys(span<menu_item> MenuItems);
 
 private:
 	void init(range<const menu_item*> Data, DWORD Flags);

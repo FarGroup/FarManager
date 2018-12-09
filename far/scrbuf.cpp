@@ -110,7 +110,7 @@ void ScreenBuf::FillBuf()
 
 /* Записать Text в виртуальный буфер
 */
-void ScreenBuf::Write(int X, int Y, range<const FAR_CHAR_INFO*> Text)
+void ScreenBuf::Write(int X, int Y, span<const FAR_CHAR_INFO> Text)
 {
 	SCOPED_ACTION(os::critical_section_lock)(CS);
 

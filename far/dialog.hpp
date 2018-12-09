@@ -116,13 +116,13 @@ struct DialogItemEx: public FarDialogItem
 };
 
 bool IsKeyHighlighted(string_view Str, int Key, int Translate, int AmpPos = -1);
-void ItemsToItemsEx(range<const FarDialogItem*> Items, range<DialogItemEx*> ItemsEx, bool Short = false);
+void ItemsToItemsEx(span<const FarDialogItem> Items, span<DialogItemEx> ItemsEx, bool Short = false);
 
 template<size_t N>
 auto MakeDialogItemsEx(const FarDialogItem (&InitData)[N])
 {
 	std::vector<DialogItemEx> Items(N);
-	ItemsToItemsEx(make_span(InitData), make_span(Items));
+	ItemsToItemsEx(InitData, Items);
 	return Items;
 }
 
@@ -142,22 +142,23 @@ public:
 	static dialog_ptr create(T&& Src, intptr_t(O::*function)(Dialog*, intptr_t, intptr_t, void*), O* object, void* InitParam = nullptr)
 	{
 		auto Handler = (object && function)? [=](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2) { return std::invoke(function, object, Dlg, Msg, Param1, Param2); } : dialog_handler();
-		return std::make_shared<Dialog>(private_tag(), Src, Handler, InitParam);
+		return std::make_shared<Dialog>(private_tag(), make_span(Src), Handler, InitParam);
 	}
 
 	template<class T>
-	static dialog_ptr create(T&& Src, const dialog_handler& handler = nullptr, void* InitParam = nullptr)
+	static dialog_ptr create(
+		T&& Src, const dialog_handler& handler = nullptr, void* InitParam = nullptr)
 	{
-		return std::make_shared<Dialog>(private_tag(), Src, handler, InitParam);
+		return std::make_shared<Dialog>(private_tag(), make_span(Src), handler, InitParam);
 	}
 
 	template<class T>
-	Dialog(private_tag, T&& Src, const dialog_handler& Handler, void* InitParam):
+	Dialog(private_tag, span<T> const Src, const dialog_handler& Handler, void* InitParam):
 		bInitOK(),
 		DataDialog(InitParam),
 		m_handler(Handler)
 	{
-		Construct(make_span(Src));
+		Construct(Src);
 	}
 
 	~Dialog() override;
@@ -241,8 +242,8 @@ private:
 	void AddToList();
 	void RemoveFromList();
 
-	void Construct(range<DialogItemEx*> SrcItems);
-	void Construct(range<const FarDialogItem*> SrcItems);
+	void Construct(span<DialogItemEx> SrcItems);
+	void Construct(span<const FarDialogItem> SrcItems);
 	void Init();
 	void DeleteDialogObjects();
 	int LenStrItem(size_t ID, const string& Str) const;

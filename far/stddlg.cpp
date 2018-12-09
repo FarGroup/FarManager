@@ -322,7 +322,7 @@ bool GetString(
 		StrDlg[2].strData = SrcText;
 
 	{
-		const auto Dlg = Dialog::create(make_range(StrDlg.data(), StrDlg.size() - Substract));
+		const auto Dlg = Dialog::create(make_span(StrDlg.data(), StrDlg.size() - Substract));
 		Dlg->SetPosition({ -1, -1, 76, offset + (Flags & FIB_BUTTONS? 8 : 6) });
 		if(Id) Dlg->SetId(*Id);
 

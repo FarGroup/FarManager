@@ -366,7 +366,7 @@ size_t KeyBar::Change(const KeyBarTitles *Kbt)
 	size_t Result = 0;
 	if (Kbt)
 	{
-		for (const auto& i: make_range(Kbt->Labels, Kbt->CountLabels))
+		for (const auto& i: make_span(Kbt->Labels, Kbt->CountLabels))
 		{
 			DWORD Pos = i.Key.VirtualKeyCode - VK_F1;
 			if (Pos < KEY_COUNT)

@@ -343,7 +343,7 @@ static const std::array<FarDialogItem, 1> VMenu2DialogItems =
 }};
 
 VMenu2::VMenu2(private_tag, int MaxHeight):
-	Dialog(Dialog::private_tag(), VMenu2DialogItems, [this](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2) { return VMenu2DlgProc(Dlg, Msg, Param1, Param2); }, nullptr),
+	Dialog(Dialog::private_tag(), make_span(VMenu2DialogItems), [this](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2) { return VMenu2DlgProc(Dlg, Msg, Param1, Param2); }, nullptr),
 	MaxHeight(MaxHeight),
 	cancel(0),
 	m_X1(-1),
@@ -359,7 +359,7 @@ VMenu2::VMenu2(private_tag, int MaxHeight):
 {
 }
 
-vmenu2_ptr VMenu2::create(const string& Title, range<const menu_item*> Data, int MaxHeight, DWORD Flags)
+vmenu2_ptr VMenu2::create(const string& Title, span<const menu_item> Data, int MaxHeight, DWORD Flags)
 {
 	auto VMenu2Ptr = std::make_shared<VMenu2>(private_tag(), MaxHeight);
 

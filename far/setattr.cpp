@@ -580,9 +580,9 @@ static bool ReadFileTime(int Type, const string& Name, os::chrono::time_point& F
 		return false;
 
 	WORD DateN[3];
-	ParseDateComponents(OSrcDate, make_span(DateRanges), make_span(DateN));
+	ParseDateComponents(OSrcDate, DateRanges, DateN);
 	WORD TimeN[4];
-	ParseDateComponents(OSrcTime, make_span(TimeRanges), make_span(TimeN));
+	ParseDateComponents(OSrcTime, TimeRanges, TimeN);
 
 	SYSTEMTIME st{};
 
@@ -932,7 +932,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 								{
 									KnownReparsePoint = true;
 
-									auto DfsStorages = make_range(DfsInfo->Storage, DfsInfo->NumberOfStorages);
+									auto DfsStorages = make_span(DfsInfo->Storage, DfsInfo->NumberOfStorages);
 									ListItems.resize(DfsStorages.size());
 									Links.resize(DfsStorages.size());
 

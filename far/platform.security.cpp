@@ -101,7 +101,7 @@ namespace os::security
 		return Result;
 	}
 
-	privilege::privilege(range<const wchar_t* const*> const Names)
+	privilege::privilege(span<const wchar_t* const> const Names)
 	{
 		if (Names.empty())
 			return;
@@ -146,7 +146,7 @@ namespace os::security
 		// TODO: log if failed
 	}
 
-	bool privilege::check(range<const wchar_t* const*> const Names)
+	bool privilege::check(span<const wchar_t* const> const Names)
 	{
 		const auto Token = OpenCurrentProcessToken(TOKEN_QUERY);
 		if (!Token)
@@ -160,7 +160,7 @@ namespace os::security
 		if (!GetTokenInformation(Token.native_handle(), TokenPrivileges, TokenInformation.get(), TokenInformationLength, &TokenInformationLength))
 			return false;
 
-		const auto Privileges = make_range(TokenInformation->Privileges, TokenInformation->PrivilegeCount);
+		const auto Privileges = make_span(TokenInformation->Privileges, TokenInformation->PrivilegeCount);
 
 		for (const auto& Name: Names)
 		{

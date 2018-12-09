@@ -904,7 +904,7 @@ void Options::SetFolderInfoFiles()
 	}
 }
 
-static void ResetViewModes(range<PanelViewSettings*> const Modes, int const Index = -1)
+static void ResetViewModes(span<PanelViewSettings> const Modes, int const Index = -1)
 {
 	static const struct
 	{
@@ -1695,7 +1695,7 @@ Options::Options():
 
 	Macro.DisableMacro=0;
 
-	ResetViewModes(make_span(m_ViewSettings));
+	ResetViewModes(m_ViewSettings);
 }
 
 Options::~Options() = default;

@@ -47,7 +47,7 @@ class VMenu2 : public Dialog
 	struct private_tag {};
 
 public:
-	static vmenu2_ptr create(const string& Title, range<const menu_item*> Data, int MaxHeight=0, DWORD Flags=0);
+	static vmenu2_ptr create(const string& Title, span<const menu_item> Data, int MaxHeight=0, DWORD Flags=0);
 
 	VMenu2(private_tag, int MaxHeight);
 

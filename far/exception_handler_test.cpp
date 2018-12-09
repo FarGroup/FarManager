@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "keys.hpp"
 #include "lang.hpp"
-#include "manager.hpp"
 #include "message.hpp"
 #include "vmenu.hpp"
 #include "vmenu2.hpp"

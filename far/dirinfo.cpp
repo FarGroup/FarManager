@@ -330,7 +330,7 @@ static void ScanPluginDir(plugin_panel* hDirListPlugin, OPERATION_MODES OpMode, 
 
 	PluginDirList.reserve(PluginDirList.size() + ItemCount);
 
-	for (const auto& i: make_range(PanelData, ItemCount))
+	for (const auto& i: make_span(PanelData, ItemCount))
 	{
 		if (StopSearch)
 			break;
@@ -339,7 +339,7 @@ static void ScanPluginDir(plugin_panel* hDirListPlugin, OPERATION_MODES OpMode, 
 			PushPluginDirItem(PluginDirList, &i, PluginSearchPath, Data);
 	}
 
-	for (const auto& i : make_range(PanelData, ItemCount))
+	for (const auto& i : make_span(PanelData, ItemCount))
 	{
 		if (StopSearch)
 			break;

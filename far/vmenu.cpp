@@ -2911,7 +2911,7 @@ const GUID& VMenu::Id() const
 	return MenuId;
 }
 
-std::vector<string> VMenu::AddHotkeys(range<menu_item*> const MenuItems)
+std::vector<string> VMenu::AddHotkeys(span<menu_item> const MenuItems)
 {
 	FN_RETURN_TYPE(VMenu::AddHotkeys) Result(MenuItems.size());
 
