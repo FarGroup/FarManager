@@ -8,3 +8,8 @@ env:
 script:
  - export PATH="c:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin":$PATH
  - MSBuild.exe /property:Configuration=$CONFIG /property:Platform=$PLATFORM far/far.vcxproj
+
+#do not build tags
+branches:
+  except:
+  - /builds.*/
