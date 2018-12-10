@@ -38,7 +38,7 @@ install:
   - git clone https://github.com/colorer/Colorer-schemes.git
   - cd Colorer-schemes
   - if exist build rd /S /Q build
-  - choco install ant --ignore-dependencies
+  - appveyor-retry choco install ant --ignore-dependencies
   - set JAVA_HOME=C:\Program Files\Java\jdk1.8.0
   - build.cmd base.far.clean
   - build.cmd base.far
