@@ -5726,6 +5726,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 							{
 								SCOPED_ACTION(SetAutocomplete)(EditLine);
 								EditLine->SetString(CurItem->strData);
+								EditLine->SetLeftPos(0);
 							}
 							EditLine->SetReadOnly(ReadOnly);
 
@@ -6075,7 +6076,7 @@ rectangle Dialog::CalcComboBoxPos(const DialogItemEx* CurItem, intptr_t ItemCoun
 
 	if (Rect.width() <= 20)
 		Rect.right = Rect.left + 20;
-	
+
 	if (ScrY - Rect.top<std::min(Global->Opt->Dialogs.CBoxMaxHeight.Get(), (long long)ItemCount) + 2 && Rect.top > ScrY / 2)
 	{
 		Rect.bottom = Rect.top - 1;
