@@ -19,8 +19,6 @@ shallow_clone: true
 clone_depth: 1
 
 install:
-  #ci is the main artifacts output dir, clear previous just in case
-  - if exist ci rd /S /Q ci
   #update AppVeyor build number to match Far build number
   - cd far && for /f "tokens=1,2,4 delims=," %%i in ('tools\m4 -P farversion.inc.m4') do appveyor UpdateBuild -Version %%i.%%j.%%k.%APPVEYOR_BUILD_NUMBER% && cd ..
   #build Plugin SDK Encyclopedia
@@ -28,23 +26,19 @@ install:
   #build Lua MacroAPI docs
   - enc/tools/tool.make_lua_chm.bat
   #clone NetBox
-  - if exist Far-NetBox rd /S /Q Far-NetBox
   - git clone https://github.com/michaellukashov/Far-NetBox.git 
   - cd Far-NetBox
   - git checkout far3
   - cd ..
   #clone and build Colorer-schemes
-  - if exist Far-NetBox rd /S /Q Colorer-schemes
   - git clone https://github.com/colorer/Colorer-schemes.git
   - cd Colorer-schemes
-  - if exist build rd /S /Q build
   - appveyor-retry choco install ant --ignore-dependencies
   - set JAVA_HOME=C:\Program Files\Java\jdk1.8.0
   - build.cmd base.far.clean
   - build.cmd base.far
   - cd ..
   #clone FarColorer
-  - if exist Far-NetBox rd /S /Q FarColorer
   - git clone https://github.com/colorer/FarColorer.git --recursive
 
 environment:
@@ -55,6 +49,7 @@ environment:
     APPVER: 6.0
     ADD_MAKE: DEBUG=1
     ADD_MAKE_MSI:
+    NAME_ADD: .Debug
     bit: 32
 
   - platform: x64
@@ -62,6 +57,7 @@ environment:
     CPU: AMD64
     APPVER: 6.0
     ADD_MAKE: DEBUG=1
+    NAME_ADD: .Debug
     ADD_MAKE_MSI:
     bit: 64
 
@@ -71,6 +67,7 @@ environment:
     APPVER: 6.0
     ADD_MAKE:
     ADD_MAKE_MSI: RELEASE=1
+    NAME_ADD:
     bit: 32
 
   - platform: x64
@@ -79,6 +76,7 @@ environment:
     APPVER: 6.0
     ADD_MAKE:
     ADD_MAKE_MSI: RELEASE=1
+    NAME_ADD:
     bit: 64
 
 build_script:
@@ -154,11 +152,9 @@ after_build:
   #archive 
   - cd ci\%configuration%.%platform%
   #archive PDBs
-  - if exist "%APPVEYOR_BUILD_FOLDER%\Far.%configuration%.%platform%.pdb.7z" del "%APPVEYOR_BUILD_FOLDER%\Far.%configuration%.%platform%.pdb.7z"
-  - 7z a -ir!*.pdb "%APPVEYOR_BUILD_FOLDER%\Far.%configuration%.%platform%.pdb.7z"
+  - 7z a -ir!*.pdb "%APPVEYOR_BUILD_FOLDER%\Far%NAME_ADD%%.platform%.pdb.7z"
   #archive Far without PDBs
-  - if exist "%APPVEYOR_BUILD_FOLDER%\Far.%configuration%.%platform%.7z" del "%APPVEYOR_BUILD_FOLDER%\Far.%configuration%.%platform%.7z"
-  - 7z a -xr!*.pdb "%APPVEYOR_BUILD_FOLDER%\Far.%configuration%.%platform%.7z"
+  - 7z a -xr!*.pdb "%APPVEYOR_BUILD_FOLDER%\Far%NAME_ADD%.%platform%.7z"
   - cd ..\..
   #create msi
   - cd misc\msi-installer
@@ -167,12 +163,25 @@ after_build:
   - genparams %APPVEYOR_BUILD_FOLDER%\ci\%configuration%.%platform% %platform%
   - nmake -nologo %ADD_MAKE_MSI%
   - cd ..\..
-  - move ci\%configuration%.%platform%\final.msi "%APPVEYOR_BUILD_FOLDER%\Far.%configuration%.%platform%.msi"
+  - move ci\%configuration%.%platform%\final.msi "%APPVEYOR_BUILD_FOLDER%\Far%NAME_ADD%.%platform%.msi"
 
 artifacts:
-  - path: Far.$(configuration).$(platform).7z
+  - path: Far%NAME_ADD%.$(platform).7z
     name: Far Manager
-  - path: Far.$(configuration).$(platform).msi
+  - path: Far%NAME_ADD%.$(platform).msi
     name: Far Manager MSI
-  - path: Far.$(configuration).$(platform).pdb.7z
+  - path: Far%NAME_ADD%.$(platform).pdb.7z
     name: PDBs
+
+deploy:
+  release: v$(appveyor_build_version)
+  description: 'Far Manager'
+  provider: GitHub
+  auth_token:
+    secure: uQem/Z1RiWuohaCg2d+C+1wIcXkl/NOHwMMSX1anD2rFSwO4b9HZVBNBY2VswsaN
+  artifact: /.*\.(msi|7z)/
+  draft: false
+  prerelease: false
+  on:
+    branch: master                 # release from master branch only
+    configuration: Release         # only release builds
