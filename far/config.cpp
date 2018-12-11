@@ -1138,7 +1138,7 @@ void Options::SetFilePanelModes()
 
 		ModeListMenu[CurMode].SetSelect(true);
 		{
-			const auto ModeList = VMenu2::create(msg(lng::MEditPanelModes), { ModeListMenu.data(), ModeListMenu.size() }, ScrY - 4);
+			const auto ModeList = VMenu2::create(msg(lng::MEditPanelModes), ModeListMenu, ScrY - 4);
 			ModeList->SetPosition({ -1, -1, 0, 0 });
 			ModeList->SetHelp(L"PanelViewModes"sv);
 			ModeList->SetMenuFlags(VMENU_WRAPMODE);

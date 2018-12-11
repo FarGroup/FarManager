@@ -47,8 +47,9 @@ public:
 	using iterator_category = typename std::iterator_traits<iterator_type>::iterator_category;
 
 private:
+	// No is_const_v here, VS2015 bug
 	template<typename T>
-	using opt_const_iterator = std::enable_if_t<std::is_const_v<value_type>, T>;
+	using opt_const_iterator = std::enable_if_t<std::is_const<std::remove_reference_t<reference>>::value, T>;
 
 public:
 	constexpr range() = default;
@@ -185,45 +186,53 @@ constexpr auto make_range(const container& Container)
 	return make_range(ALL_CONST_RANGE(Container));
 }
 
-template<class value_type>
-class span: public range<value_type*>
+template<class span_value_type>
+class span: public range<span_value_type*>
 {
 public:
 	constexpr span() = default;
 
-	constexpr span(value_type* Begin, value_type* End):
-		range<value_type*>(Begin, End)
+	constexpr span(span_value_type* Begin, span_value_type* End):
+		range<span_value_type*>(Begin, End)
 	{}
 
-	constexpr span(value_type* Data, size_t Size):
-		range<value_type*>(Data, Data + Size)
+	constexpr span(span_value_type* Data, size_t Size):
+		range<span_value_type*>(Data, Data + Size)
 	{
 	}
 
-	template<typename container, REQUIRES(is_span_v<container> && std::is_same_v<std::add_const_t<std::remove_reference_t<decltype(*std::data(std::declval<container&>()))>>, std::add_const_t<value_type>>)>
+	template<typename container, REQUIRES(is_span_v<container>)>
 	constexpr span(container& Container):
-		range<value_type*>(std::data(Container), std::size(Container))
+		range<span_value_type*>(std::data(Container), std::size(Container))
 	{
 	}
 
-	constexpr span(const std::initializer_list<value_type>& List) :
-		range<value_type*>(ALL_RANGE(List))
+	constexpr span(const std::initializer_list<span_value_type>& List):
+		range<span_value_type*>(ALL_RANGE(List))
 	{
 	}
 };
 
 template<typename value_type>
 [[nodiscard]]
-constexpr auto make_span(value_type* const Data, size_t Size)
+constexpr auto make_span(value_type* Begin, value_type* End)
+{
+	return span<value_type>(Begin, End);
+}
+
+template<typename value_type>
+[[nodiscard]]
+constexpr auto make_span(value_type* Data, size_t Size)
 {
 	return span<value_type>(Data, Size);
 }
 
-template<typename container>
+template<typename container, REQUIRES(is_span_v<container>)>
 [[nodiscard]]
 constexpr auto make_span(container& Container)
 {
-	return make_span(std::data(Container), std::size(Container));
+	using value_type = std::remove_reference_t<decltype(*std::data(std::declval<container&>()))>;
+	return span<value_type>(Container);
 }
 
 template<class T>

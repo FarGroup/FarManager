@@ -350,19 +350,20 @@ void SetColors()
 			lng MenuId;
 			span<const color_item> Subitems;
 		}
-		Groups[] =
+		Groups[]
 		{
-			{ lng::MSetColorPanel,       PanelItems },
-			{ lng::MSetColorDialog,      DialogItems },
-			{ lng::MSetColorWarning,     WarnDialogItems },
-			{ lng::MSetColorMenu,        MenuItems },
-			{ lng::MSetColorHMenu,       HMenuItems },
-			{ lng::MSetColorKeyBar,      KeyBarItems },
-			{ lng::MSetColorCommandLine, CommandLineItems },
-			{ lng::MSetColorClock,       ClockItems },
-			{ lng::MSetColorViewer,      ViewerItems },
-			{ lng::MSetColorEditor,      EditorItems },
-			{ lng::MSetColorHelp,        HelpItems },
+			// make_span is required here - ICE in VS2015
+			{ lng::MSetColorPanel,       make_span(PanelItems) },
+			{ lng::MSetColorDialog,      make_span(DialogItems) },
+			{ lng::MSetColorWarning,     make_span(WarnDialogItems) },
+			{ lng::MSetColorMenu,        make_span(MenuItems) },
+			{ lng::MSetColorHMenu,       make_span(HMenuItems) },
+			{ lng::MSetColorKeyBar,      make_span(KeyBarItems) },
+			{ lng::MSetColorCommandLine, make_span(CommandLineItems) },
+			{ lng::MSetColorClock,       make_span(ClockItems) },
+			{ lng::MSetColorViewer,      make_span(ViewerItems) },
+			{ lng::MSetColorEditor,      make_span(EditorItems) },
+			{ lng::MSetColorHelp,        make_span(HelpItems) },
 		};
 
 		const auto GroupsMenu = VMenu2::create(msg(lng::MSetColorGroupsTitle), {});
