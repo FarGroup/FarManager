@@ -44,39 +44,39 @@ install:
 environment:
   matrix:
   - platform: Win32
-    configuration: Debug
+    configuration: Release
     CPU: i386
     APPVER: 6.0
-    ADD_MAKE: DEBUG=1
-    ADD_MAKE_MSI:
-    NAME_ADD: .Debug
+    ADD_MAKE:
+    ADD_MAKE_MSI: RELEASE=1
+    NAME_ADD:
     bit: 32
 
   - platform: x64
-    configuration: Debug
+    configuration: Release
     CPU: AMD64
     APPVER: 6.0
-    ADD_MAKE: DEBUG=1
-    NAME_ADD: .Debug
-    ADD_MAKE_MSI:
+    ADD_MAKE:
+    ADD_MAKE_MSI: RELEASE=1
+    NAME_ADD:
     bit: 64
-
+    
   - platform: Win32
-    configuration: Release
+    configuration: Debug
     CPU: i386
     APPVER: 6.0
-    ADD_MAKE:
-    ADD_MAKE_MSI: RELEASE=1
-    NAME_ADD:
+    ADD_MAKE: DEBUG=1
+    ADD_MAKE_MSI:
+    NAME_ADD: .Debug
     bit: 32
 
   - platform: x64
-    configuration: Release
+    configuration: Debug
     CPU: AMD64
     APPVER: 6.0
-    ADD_MAKE:
-    ADD_MAKE_MSI: RELEASE=1
-    NAME_ADD:
+    ADD_MAKE: DEBUG=1
+    NAME_ADD: .Debug
+    ADD_MAKE_MSI:
     bit: 64
 
 build_script:
@@ -152,7 +152,7 @@ after_build:
   #archive 
   - cd ci\%configuration%.%platform%
   #archive PDBs
-  - 7z a -ir!*.pdb "%APPVEYOR_BUILD_FOLDER%\Far%NAME_ADD%%.platform%.pdb.7z"
+  - 7z a -ir!*.pdb "%APPVEYOR_BUILD_FOLDER%\Far%NAME_ADD%.%platform%.pdb.7z"
   #archive Far without PDBs
   - 7z a -xr!*.pdb "%APPVEYOR_BUILD_FOLDER%\Far%NAME_ADD%.%platform%.7z"
   - cd ..\..
