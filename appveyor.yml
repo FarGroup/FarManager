@@ -164,6 +164,8 @@ after_build:
   - nmake -nologo %ADD_MAKE_MSI%
   - cd ..\..
   - move ci\%configuration%.%platform%\final.msi "%APPVEYOR_BUILD_FOLDER%\Far%NAME_ADD%.%platform%.msi"
+  #set NAME_ADD variable as otherwise it is not available when artifacts are collected
+  - appveyor SetVariable -Name NAME_ADD -Value "%NAME_ADD%"
 
 artifacts:
   - path: Far%NAME_ADD%.$(platform).7z
