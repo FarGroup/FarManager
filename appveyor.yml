@@ -164,18 +164,21 @@ after_build:
   - nmake -nologo %ADD_MAKE_MSI%
   - cd ..\..
   - move ci\%configuration%.%platform%\final.msi "%APPVEYOR_BUILD_FOLDER%\Far%NAME_ADD%.%platform%.msi"
+  #set NAME_PREFIX variable as otherwise it is not available when artifacts are collected
+  #can't use NAME_ADD directly as empty variables do not pass through
+  - appveyor SetVariable -Name NAME_PREFIX -Value "Far%NAME_ADD%"
 
 artifacts:
-  - path: Far$(NAME_ADD).$(platform).7z
+  - path: $(NAME_PREFIX).$(platform).7z
     name: Far Manager
-  - path: Far$(NAME_ADD).$(platform).msi
+  - path: $(NAME_PREFIX).$(platform).msi
     name: Far Manager MSI
-  - path: Far$(NAME_ADD).$(platform).pdb.7z
+  - path: $(NAME_PREFIX).$(platform).pdb.7z
     name: PDBs
 
 deploy:
   release: v$(appveyor_build_version)
-  description: 'Far Manager'
+  description: 'Far Manager $(appveyor_build_version)'
   provider: GitHub
   auth_token:
     secure: uQem/Z1RiWuohaCg2d+C+1wIcXkl/NOHwMMSX1anD2rFSwO4b9HZVBNBY2VswsaN
