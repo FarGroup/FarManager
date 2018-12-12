@@ -80,8 +80,10 @@ auto seh_invoke(function&& Callable, filter&& Filter, handler&& Handler)
 	__except (detail::SetFloatingPointExceptions(false), Filter(GetExceptionCode(), GetExceptionInformation()))
 	{
 		detail::ResetStackOverflowIfNeeded();
-		return Handler();
 	}
+
+	return Handler();
+
 #if COMPILER == C_CLANG
 #undef Filter
 #endif

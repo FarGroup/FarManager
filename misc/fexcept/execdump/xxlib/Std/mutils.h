@@ -239,8 +239,8 @@ HDECLSPEC BOOL          MYRTLEXP isUpper( char ch );
 HDECLSPEC void          MYRTLEXP StrUpr( char *str );
 HDECLSPEC void          MYRTLEXP StrLwr( char *str );
 #else
-inline    char                   ToUpperI( char c )  { return (char)CharUpper( (LPTSTR)MK_DWORD(0,(WORD)c) ); }
-inline    char                   ToLowerI( char c )  { return (char)CharLower( (LPTSTR)MK_DWORD(0,(WORD)c) ); }
+inline    char                   ToUpperI( char c )  { return (char)(int)CharUpper( (LPTSTR)MK_DWORD(0,(WORD)c) ); }
+inline    char                   ToLowerI( char c )  { return (char)(int)CharLower( (LPTSTR)MK_DWORD(0,(WORD)c) ); }
 inline    char                   ToLower( char ch )  { return ToLowerI(ch); }
 inline    char                   ToUpper( char ch )  { return ToUpperI(ch); }
 inline    BOOL                   isLower( char ch )  { return IsCharLower( (TCHAR)ch ); }

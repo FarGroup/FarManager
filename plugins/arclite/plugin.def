@@ -1,4 +1,3 @@
-LIBRARY <(MODULE)> BASE=0x64000000
 EXPORTS
   GetGlobalInfoW
   SetStartupInfoW
