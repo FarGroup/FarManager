@@ -162,6 +162,7 @@ void DestroyCollector(lua_State* L, HANDLE hPlugin, const char* Collector)
 
 // the value is on stack top (-1)
 // collector table is under the index 'pos' (this index cannot be a pseudo-index)
+// the function pops the value off the stack;
 const wchar_t* _AddStringToCollector(lua_State *L, int pos)
 {
 	if(lua_isstring(L,-1))
@@ -180,6 +181,7 @@ const wchar_t* _AddStringToCollector(lua_State *L, int pos)
 const wchar_t* AddStringToCollectorField(lua_State *L, int pos, const char* key)
 {
 	lua_getfield(L, -1, key);
+	if(pos < 0) --pos;
 	return _AddStringToCollector(L, pos);
 }
 
@@ -189,17 +191,15 @@ const wchar_t* AddStringToCollectorSlot(lua_State *L, int pos, int key)
 {
 	lua_pushinteger(L, key);
 	lua_gettable(L, -2);
+	if(pos < 0) --pos;
 	return _AddStringToCollector(L, pos);
 }
 
 // collector table is under the index 'pos' (this index cannot be a pseudo-index)
 void* AddBufToCollector(lua_State *L, int pos, size_t size)
 {
-	void *t;
-
+	void *t = lua_newuserdata(L, size);
 	if(pos < 0) --pos;
-
-	t = lua_newuserdata(L, size);
 	memset(t, 0, size);
 	lua_rawseti(L, pos, (int)lua_objlen(L, pos) + 1);
 	return t;
@@ -213,7 +213,8 @@ const wchar_t** CreateStringsArray(lua_State* L, int cpos, const char* field,
 {
 	const wchar_t **buf = NULL;
 	if(numstrings) *numstrings = 0;
-	lua_getfield(L, -1, field);
+	lua_getfield(L, -1, field);     //+1
+	if(cpos < 0) --cpos;
 
 	if(lua_istable(L, -1))
 	{
@@ -233,7 +234,7 @@ const wchar_t** CreateStringsArray(lua_State* L, int cpos, const char* field,
 		}
 	}
 
-	lua_pop(L, 1);
+	lua_pop(L, 1);  //+0
 	return buf;
 }
 
@@ -341,7 +342,8 @@ intptr_t LF_GetFindData(lua_State* L, struct GetFindDataInfo *Info)
 			{
 				PushPluginTable(L, Info->hPanel);      //+2: FindData,Tbl
 				lua_insert(L, -2);                     //+2: Tbl,FindData
-				FillFindData(L, Info);
+				FillFindData(L, Info);                 //+0
+				lua_gc(L, LUA_GCCOLLECT, 0);           //free memory taken by FindData
 				return TRUE;
 			}
 
@@ -356,7 +358,7 @@ void LF_FreeFindData(lua_State* L, const struct FreeFindDataInfo *Info)
 {
 	free(Info->PanelItem);
 	DestroyCollector(L, Info->hPanel, COLLECTOR_FD);
-	lua_gc(L, LUA_GCCOLLECT, 0);
+	lua_gc(L, LUA_GCCOLLECT, 0); //free memory taken by Collector
 }
 //---------------------------------------------------------------------------
 
