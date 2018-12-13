@@ -298,15 +298,14 @@ void FillPluginPanelItem(lua_State *L, struct PluginPanelItem *pi, int Collector
 
 // Two known values on the stack top: Tbl (at -2) and FindData (at -1).
 // Both are popped off the stack on return.
-void FillFindData(lua_State* L, struct PluginPanelItem **pPanelItems,
-                  size_t *pItemsNumber, const char* Collector)
+void FillFindData(lua_State* L, struct GetFindDataInfo *Info)
 {
 	struct PluginPanelItem *ppi;
 	size_t i, num = 0;
 	size_t numLines = lua_objlen(L,-1);
 	lua_newtable(L);                           //+3  Tbl,FindData,Coll
 	lua_pushvalue(L,-1);                       //+4: Tbl,FindData,Coll,Coll
-	lua_setfield(L, -4, Collector);            //+3: Tbl,FindData,Coll
+	lua_setfield(L, -4, COLLECTOR_FD);         //+3: Tbl,FindData,Coll
 	ppi = (struct PluginPanelItem *)malloc(sizeof(struct PluginPanelItem) * numLines);
 
 	for(i=1; i<=numLines; i++)
@@ -324,8 +323,8 @@ void FillFindData(lua_State* L, struct PluginPanelItem **pPanelItems,
 	}
 
 	lua_pop(L,3);                              //+0
-	*pItemsNumber = num;
-	*pPanelItems = ppi;
+	Info->ItemsNumber = num;
+	Info->PanelItem = ppi;
 }
 
 intptr_t LF_GetFindData(lua_State* L, struct GetFindDataInfo *Info)
@@ -342,7 +341,7 @@ intptr_t LF_GetFindData(lua_State* L, struct GetFindDataInfo *Info)
 			{
 				PushPluginTable(L, Info->hPanel);      //+2: FindData,Tbl
 				lua_insert(L, -2);                     //+2: Tbl,FindData
-				FillFindData(L, &Info->PanelItem, &Info->ItemsNumber, COLLECTOR_FD);
+				FillFindData(L, Info);
 				return TRUE;
 			}
 
@@ -355,8 +354,9 @@ intptr_t LF_GetFindData(lua_State* L, struct GetFindDataInfo *Info)
 
 void LF_FreeFindData(lua_State* L, const struct FreeFindDataInfo *Info)
 {
-	DestroyCollector(L, Info->hPanel, COLLECTOR_FD);
 	free(Info->PanelItem);
+	DestroyCollector(L, Info->hPanel, COLLECTOR_FD);
+	lua_gc(L, LUA_GCCOLLECT, 0);
 }
 //---------------------------------------------------------------------------
 
