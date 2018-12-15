@@ -560,9 +560,10 @@ end
 function mf.mload (key, name, location)
   checkarg(key, 1, "string")
   checkarg(name, 2, "string")
-  local obj = assert(
-    far.CreateSettings(nil, location=="local" and "PSL_LOCAL" or "PSL_ROAMING"),
-    "far.CreateSettings() failed")
+  local obj = far.CreateSettings(nil, location=="local" and "PSL_LOCAL" or "PSL_ROAMING")
+  if not obj then
+    return error("far.CreateSettings() failed", 3)
+  end
   local subkey = obj:OpenSubkey(0, key)
   local chunk = subkey and obj:Get(subkey, name, F.FST_DATA)
   obj:Free()
