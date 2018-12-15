@@ -262,7 +262,7 @@ static UINT64 get_env_flag(lua_State *L, int pos, int *success)
 static UINT64 check_env_flag(lua_State *L, int pos)
 {
 	int success = FALSE;
-	UINT64 ret = get_env_flag(L, pos, &success);
+	UINT64 ret = lua_isnoneornil(L, pos) ? 0 : get_env_flag(L, pos, &success);
 
 	if (!success)
 	{
@@ -314,7 +314,7 @@ UINT64 GetFlagCombination(lua_State *L, int pos, int *success)
 static UINT64 CheckFlags(lua_State* L, int pos)
 {
 	int success = FALSE;
-	UINT64 Flags = GetFlagCombination(L, pos, &success);
+	UINT64 Flags = lua_isnoneornil(L, pos) ? 0 : GetFlagCombination(L, pos, &success);
 
 	if(!success)
 		luaL_error(L, "invalid flag combination");
@@ -329,9 +329,11 @@ UINT64 OptFlags(lua_State* L, int pos, UINT64 dflt)
 
 static UINT64 CheckFlagsFromTable(lua_State *L, int pos, const char* key)
 {
-	UINT64 f;
+	UINT64 f = 0;
 	lua_getfield(L, pos, key);
-	f = CheckFlags(L, -1);
+	if (!lua_isnil(L, -1))
+	if (!lua_isnil(L, -1))
+		f = CheckFlags(L, -1);
 	lua_pop(L, 1);
 	return f;
 }
@@ -1378,7 +1380,7 @@ static int editor_AddColor(lua_State *L)
 	ec.StringNumber = luaL_optinteger(L, 2, 0) - 1;
 	ec.StartPos     = luaL_checkinteger(L, 3) - 1;
 	ec.EndPos       = luaL_checkinteger(L, 4) - 1;
-	ec.Flags        = CheckFlags(L, 5);
+	ec.Flags        = OptFlags(L, 5, 0);
 	luaL_argcheck(L, GetFarColor(L, 6, &ec.Color), 6, "table or number expected");
 	ec.Priority     = CAST(unsigned, luaL_optnumber(L, 7, EDITOR_COLOR_NORMAL_PRIORITY));
 	GetOptGuid(L, 8, &ec.Owner, pd->PluginId);
@@ -3461,7 +3463,7 @@ static int far_SendDlgMessage(lua_State *L)
 			Param2 = &small_rect;
 			break;
 		case DM_SETCOMBOBOXEVENT:
-			Param2 = (void*)(intptr_t)CheckFlags(L, 4);
+			Param2 = (void*)(intptr_t)OptFlags(L, 4, 0);
 			break;
 		case DM_SETEDITPOSITION:
 		{
@@ -3756,6 +3758,7 @@ static int far_DialogInit(lua_State *L)
 	intptr_t X2 = luaL_checkinteger(L, 4);
 	intptr_t Y2 = luaL_checkinteger(L, 5);
 	const wchar_t *HelpTopic = opt_utf8_string(L, 6, NULL);
+
 	luaL_checktype(L, 7, LUA_TTABLE);
 	lua_newtable(L);  // create a "histories" table, to prevent history strings
 	// from being garbage collected too early
@@ -3786,7 +3789,7 @@ static int far_DialogInit(lua_State *L)
 	}
 
 	// 8-th parameter (flags)
-	Flags = CheckFlags(L, 8);
+	Flags = OptFlags(L, 8, 0);
 	dd = NewDialogData(L, pd->Info, INVALID_HANDLE_VALUE, TRUE);
 	dd->isModal = (Flags&FDLG_NONMODAL) == 0;
 	// 9-th parameter (DlgProc function)
@@ -3916,7 +3919,7 @@ static int editor_Editor(lua_State *L)
 	intptr_t Y1 = luaL_optinteger(L, 4, 0);
 	intptr_t X2 = luaL_optinteger(L, 5, -1);
 	intptr_t Y2 = luaL_optinteger(L, 6, -1);
-	UINT64 Flags = CheckFlags(L,7);
+	UINT64 Flags = OptFlags(L,7,0);
 	intptr_t StartLine = luaL_optinteger(L, 8, -1);
 	intptr_t StartChar = luaL_optinteger(L, 9, -1);
 	intptr_t CodePage  = luaL_optinteger(L, 10, CP_DEFAULT);
@@ -3935,7 +3938,7 @@ static int viewer_Viewer(lua_State *L)
 	intptr_t Y1 = luaL_optinteger(L, 4, 0);
 	intptr_t X2 = luaL_optinteger(L, 5, -1);
 	intptr_t Y2 = luaL_optinteger(L, 6, -1);
-	UINT64 Flags = CheckFlags(L, 7);
+	UINT64 Flags = OptFlags(L, 7, 0);
 	intptr_t CodePage = luaL_optinteger(L, 8, CP_DEFAULT);
 	intptr_t ret = Info->Viewer(FileName, Title, X1, Y1, X2, Y2, Flags, CodePage);
 	lua_pushboolean(L, ret != 0);
@@ -4031,7 +4034,7 @@ static int viewer_SetPosition(lua_State *L)
 	{
 		vsp.StartPos = (__int64)luaL_optnumber(L,2,0);
 		vsp.LeftPos = (__int64)luaL_optnumber(L,3,1) - 1;
-		vsp.Flags = CheckFlags(L,4);
+		vsp.Flags = OptFlags(L,4,0);
 	}
 
 	if(Info->ViewerControl(ViewerId, VCTL_SETPOSITION, 0, &vsp))
@@ -4078,7 +4081,7 @@ static int far_ShowHelp(lua_State *L)
 {
 	const wchar_t *ModuleName = (const wchar_t*)luaL_checkstring(L, 1);
 	const wchar_t *HelpTopic = opt_utf8_string(L,2,NULL);
-	UINT64 Flags = CheckFlags(L,3);
+	UINT64 Flags = OptFlags(L,3,0);
 	PSInfo *Info = GetPluginData(L)->Info;
 	if ((Flags & FHELP_GUID) == 0)
 		ModuleName = check_utf8_string(L,1,NULL);
@@ -4269,7 +4272,7 @@ static int far_ProcessName(lua_State *L)
 	UINT64 Op = CheckFlags(L,1);
 	const wchar_t* Mask = check_utf8_string(L,2,NULL);
 	const wchar_t* Name = (Op==PN_CHECKMASK) ? L"" : check_utf8_string(L,3,NULL);
-	UINT64 Flags = CheckFlags(L,4);
+	UINT64 Flags = OptFlags(L,4,0);
 
 	if(Op == PN_CMPNAME || Op == PN_CMPNAMELIST || Op == PN_CHECKMASK)
 	{
@@ -4385,7 +4388,7 @@ static int far_MkLink(lua_State *L)
 	const wchar_t* src = check_utf8_string(L, 1, NULL);
 	const wchar_t* dst = check_utf8_string(L, 2, NULL);
 	UINT64 type = CheckFlags(L, 3);
-	UINT64 flags = CheckFlags(L, 4);
+	UINT64 flags = OptFlags(L, 4, 0);
 	lua_pushboolean(L, GetPluginData(L)->FSF->MkLink(src, dst, type, flags));
 	return 1;
 }
@@ -4466,7 +4469,7 @@ static int far_RecursiveSearch(lua_State *L)
 	const wchar_t *InitDir = check_utf8_string(L, 1, NULL);
 	const wchar_t *Mask = check_utf8_string(L, 2, NULL);
 	luaL_checktype(L, 3, LUA_TFUNCTION);
-	Flags = CheckFlags(L, 4);
+	Flags = OptFlags(L, 4, 0);
 	if (lua_gettop(L) == 3)
 		lua_pushnil(L);
 
@@ -4762,7 +4765,7 @@ static int MacroSendString(lua_State* L, int Param1)
 	memset(&smt, 0, sizeof(smt));
 	smt.StructSize = sizeof(smt);
 	smt.SequenceText = check_utf8_string(L, 1, NULL);
-	smt.Flags = CheckFlags(L, 2);
+	smt.Flags = OptFlags(L, 2, 0);
 	if (Param1 == MSSC_POST)
 		OptInputRecord(L, pd, 3, &smt.AKey);
 
@@ -5349,7 +5352,7 @@ static int far_XLat(lua_State *L)
 	wchar_t *Line = check_utf8_string(L, 1, &size), *str;
 	intptr_t StartPos = luaL_optinteger(L, 2, 1) - 1;
 	intptr_t EndPos = luaL_optinteger(L, 3, size);
-	UINT64 Flags = CheckFlags(L, 4);
+	UINT64 Flags = OptFlags(L, 4, 0);
 	StartPos < 0 ? StartPos = 0 : StartPos > (intptr_t)size ? StartPos = size : 0;
 	EndPos < StartPos ? EndPos = StartPos : EndPos > (intptr_t)size ? EndPos = size : 0;
 	str = GetPluginData(L)->FSF->XLat(Line, StartPos, EndPos, Flags);
@@ -5362,7 +5365,7 @@ static int far_FormatFileSize(lua_State *L)
 	wchar_t buf[256];
 	UINT64 Size = CAST(UINT64, luaL_checknumber(L, 1));
 	intptr_t Width = luaL_checkinteger(L, 2);
-	UINT64 Flags = CheckFlags(L, 3);
+	UINT64 Flags = OptFlags(L, 3, 0);
 
 	if(Flags & FFFS_MINSIZEINDEX)
 		Flags |= (luaL_optinteger(L, 4, 0) & FFFS_MINSIZEINDEX_MASK);
@@ -5865,7 +5868,7 @@ static int far_ColorDialog(lua_State *L)
 		Color.Flags = FCF_4BITMASK;
 	}
 
-	Flags = CheckFlags(L, 2);
+	Flags = OptFlags(L, 2, 0);
 
 	if(pd->Info->ColorDialog(pd->PluginId, Flags, &Color))
 	{

@@ -1885,7 +1885,7 @@ id=104
 lv=2
 dt=Text
 nm=export.GetOpenPanelInfo
-mtime=3730308165
+mtime=3754053574
 <article>
 #_OPInfo = export.GetOpenPanelInfo (object, handle)
 #_
@@ -1907,7 +1907,7 @@ mtime=3730308165
 #_      PanelModesArray:  table (array of `tPanelMode` tables)
 #_      PanelModesNumber: integer
 #_      StartPanelMode:   integer
-#_      StartSortMode:    integer
+#_      StartSortMode:    flag
 #_      StartSortOrder:   integer
 #_      KeyBar:           table (array of `tKeyBarLabel` tables)
 #_      ShortcutData:     string

@@ -693,7 +693,7 @@ void LF_GetOpenPanelInfo(lua_State* L, struct OpenPanelInfo *aInfo)
 
 	//---------------------------------------------------------------------------
 	Info->StartPanelMode = GetOptIntFromTable(L, "StartPanelMode", 0);
-	Info->StartSortMode  = GetOptIntFromTable(L, "StartSortMode", 0);
+	Info->StartSortMode  = GetFlagsFromTable(L, -1, "StartSortMode");
 	Info->StartSortOrder = GetOptIntFromTable(L, "StartSortOrder", 0);
 	//---------------------------------------------------------------------------
 	lua_getfield(L, -1, "KeyBar");

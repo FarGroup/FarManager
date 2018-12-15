@@ -1145,7 +1145,7 @@ lv=3
 dt=Text
 nm=mload
 ctime=3551993209
-mtime=3711104214
+mtime=3754053144
 <article>
 #_ret = mf.mload (key, name [, location])
 #_
@@ -1156,6 +1156,7 @@ mtime=3711104214
 #_
 #_**Возвращает:**
 #_  ret:      number, string, boolean, table, int64 или nil.
+#_  Функция "бросает" ошибку в случае неудачи подключения к базе данных.
 #_
 #_**Описание:**
 #_  Функция *mload* читает значение из базы данных.
@@ -1171,9 +1172,9 @@ lv=3
 dt=Text
 nm=msave
 ctime=3551993205
-mtime=3623048048
+mtime=3754051042
 <article>
-#_mf.msave (key, name, value [, location])
+#_ret = mf.msave (key, name, value [, location])
 #_
 #_**Параметры:**
 #_  key:       string
@@ -1182,7 +1183,7 @@ mtime=3623048048
 #_  location:  string ("roaming" или "local"; по умолчанию: "roaming")
 #_
 #_**Возвращает:**
-#_  ничего
+#_  ret:       boolean
 #_
 #_**Описание:**
 #_  Функция *msave* сохраняет переданное значение в базу данных.

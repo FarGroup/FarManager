@@ -547,16 +547,22 @@ function mf.msave (key, name, value, location)
   local str = serialize(value)
   if str then
     local obj = far.CreateSettings(nil, location=="local" and "PSL_LOCAL" or "PSL_ROAMING")
-    local subkey = obj:CreateSubkey(0, key)
-    obj:Set(subkey, name, F.FST_DATA, str)
-    obj:Free()
+    if obj then
+      local subkey = obj:CreateSubkey(0, key)
+      obj:Set(subkey, name, F.FST_DATA, str)
+      obj:Free()
+      return true
+    end
   end
+  return false
 end
 
 function mf.mload (key, name, location)
   checkarg(key, 1, "string")
   checkarg(name, 2, "string")
-  local obj = far.CreateSettings(nil, location=="local" and "PSL_LOCAL" or "PSL_ROAMING")
+  local obj = assert(
+    far.CreateSettings(nil, location=="local" and "PSL_LOCAL" or "PSL_ROAMING"),
+    "far.CreateSettings() failed")
   local subkey = obj:OpenSubkey(0, key)
   local chunk = subkey and obj:Get(subkey, name, F.FST_DATA)
   obj:Free()
