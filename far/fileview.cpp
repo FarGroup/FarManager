@@ -170,7 +170,8 @@ void FileViewer::Init(
 	SetCanLoseFocus(EnableSwitch);
 	SaveToSaveAs=ToSaveAs;
 	InitKeyBar();
-	m_windowKeyBar->SetPosition(m_Where);
+	// Note: bottom - bottom
+	m_windowKeyBar->SetPosition({ m_Where.left, m_Where.bottom, m_Where.right, m_Where.bottom });
 
 	if (ViewNamesList)
 		m_View->SetNamesList(*ViewNamesList);

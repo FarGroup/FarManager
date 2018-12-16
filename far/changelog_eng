@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 16.12.2018 19:12:45 +0000 - build 5343
+
+1. Incorrect keybar position in non-fullscreen windows (typo in 5268).
+
 drkns 11.12.2018 01:59:56 +0000 - build 5342
 
 1. VS 2015.
