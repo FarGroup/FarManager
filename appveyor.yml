@@ -151,10 +151,13 @@ after_build:
   - xcopy /e /q /y /k extra\* ci\%configuration%.%platform%\
   #archive 
   - cd ci\%configuration%.%platform%
+  #set NAME_PREFIX variable as otherwise it is not available when artifacts are collected
+  - set NAME_PREFIX="Far%NAME_ADD%.%platform%.%appveyor_build_version%.%APPVEYOR_REPO_COMMIT%"
+  - appveyor SetVariable -Name NAME_PREFIX -Value "%NAME_PREFIX%"
   #archive PDBs
-  - 7z a -ir!*.pdb "%APPVEYOR_BUILD_FOLDER%\Far%NAME_ADD%.%platform%.pdb.7z"
+  - 7z a -ir!*.pdb "%APPVEYOR_BUILD_FOLDER%\%NAME_PREFIX%.pdb.7z"
   #archive Far without PDBs
-  - 7z a -xr!*.pdb "%APPVEYOR_BUILD_FOLDER%\Far%NAME_ADD%.%platform%.7z"
+  - 7z a -xr!*.pdb "%APPVEYOR_BUILD_FOLDER%\%NAME_PREFIX%.7z"
   - cd ..\..
   #create msi
   - cd misc\msi-installer
@@ -163,22 +166,19 @@ after_build:
   - genparams %APPVEYOR_BUILD_FOLDER%\ci\%configuration%.%platform% %platform%
   - nmake -nologo %ADD_MAKE_MSI%
   - cd ..\..
-  - move ci\%configuration%.%platform%\final.msi "%APPVEYOR_BUILD_FOLDER%\Far%NAME_ADD%.%platform%.msi"
-  #set NAME_PREFIX variable as otherwise it is not available when artifacts are collected
-  #can't use NAME_ADD directly as empty variables do not pass through
-  - appveyor SetVariable -Name NAME_PREFIX -Value "Far%NAME_ADD%"
+  - move ci\%configuration%.%platform%\final.msi "%APPVEYOR_BUILD_FOLDER%\%NAME_PREFIX%.msi"
 
 artifacts:
-  - path: $(NAME_PREFIX).$(platform).7z
+  - path: $(NAME_PREFIX).7z
     name: Far Manager
-  - path: $(NAME_PREFIX).$(platform).msi
+  - path: $(NAME_PREFIX).msi
     name: Far Manager MSI
-  - path: $(NAME_PREFIX).$(platform).pdb.7z
-    name: PDBs
+  - path: $(NAME_PREFIX).pdb.7z
+    name: Far Manager PDBs
 
 deploy:
   release: v$(appveyor_build_version)
-  description: 'Far Manager $(appveyor_build_version)'
+  description: 'Far Manager $(appveyor_build_version) - ($APPVEYOR_REPO_COMMIT)'
   provider: GitHub
   auth_token:
     secure: uQem/Z1RiWuohaCg2d+C+1wIcXkl/NOHwMMSX1anD2rFSwO4b9HZVBNBY2VswsaN
