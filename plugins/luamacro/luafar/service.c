@@ -5641,7 +5641,7 @@ static int Settings_set(lua_State *L)
 	struct FarSettingsItem fsi;
 	FarSettingsUdata* udata = CheckSettings(L, 1);
 	fsi.StructSize = sizeof(fsi);
-	fsi.Root = luaL_checkinteger(L, 2);
+	fsi.Root = (size_t)check_env_flag(L, 2);
 	fsi.Name = opt_utf8_string(L, 3, NULL);
 	fsi.Type = (enum FARSETTINGSTYPES) check_env_flag(L, 4);
 
@@ -5663,7 +5663,7 @@ static int Settings_get(lua_State *L)
 	struct FarSettingsItem fsi;
 	FarSettingsUdata* udata = CheckSettings(L, 1);
 	fsi.StructSize = sizeof(fsi);
-	fsi.Root = luaL_checkinteger(L, 2);
+	fsi.Root = (size_t)check_env_flag(L, 2);
 	fsi.Name = check_utf8_string(L, 3, NULL);
 	fsi.Type = (enum FARSETTINGSTYPES) check_env_flag(L, 4);
 
@@ -5689,7 +5689,7 @@ static int Settings_delete(lua_State *L)
 	struct FarSettingsValue fsv;
 	FarSettingsUdata* udata = CheckSettings(L, 1);
 	fsv.StructSize = sizeof(fsv);
-	fsv.Root = luaL_checkinteger(L, 2);
+	fsv.Root = (size_t)check_env_flag(L, 2);
 	fsv.Value = opt_utf8_string(L, 3, NULL);
 	lua_pushboolean(L, GetPluginData(L)->Info->SettingsControl(udata->Handle, SCTL_DELETE, 0, &fsv) != 0);
 	return 1;
@@ -5703,7 +5703,7 @@ static int Settings_createsubkey(lua_State *L)
 	intptr_t subkey;
 	FarSettingsUdata* udata = CheckSettings(L, 1);
 	fsv.StructSize = sizeof(fsv);
-	fsv.Root = luaL_checkinteger(L, 2);
+	fsv.Root = (size_t)check_env_flag(L, 2);
 	fsv.Value = check_utf8_string(L, 3, NULL);
 	description = opt_utf8_string(L, 4, NULL);
 	subkey = Info->SettingsControl(udata->Handle, SCTL_CREATESUBKEY, 0, &fsv);
@@ -5735,7 +5735,7 @@ static int Settings_opensubkey(lua_State *L)
 	struct FarSettingsValue fsv;
 	FarSettingsUdata* udata = CheckSettings(L, 1);
 	fsv.StructSize = sizeof(fsv);
-	fsv.Root = luaL_checkinteger(L, 2);
+	fsv.Root = (size_t)check_env_flag(L, 2);
 	fsv.Value = check_utf8_string(L, 3, NULL);
 	subkey = GetPluginData(L)->Info->SettingsControl(udata->Handle, SCTL_OPENSUBKEY, 0, &fsv);
 

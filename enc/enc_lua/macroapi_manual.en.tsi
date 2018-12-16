@@ -1129,9 +1129,9 @@ lv=3
 dt=Text
 nm=mdelete
 ctime=3552066075
-mtime=3622999561
+mtime=3754137206
 <article>
-#_mf.mdelete (key, name [, location])
+#_ret = mf.mdelete (key, name [, location])
 #_
 #_**Parameters:**
 #_  key:       string
@@ -1139,7 +1139,7 @@ mtime=3622999561
 #_  location:  string ("roaming" or "local"; default: "roaming")
 #_
 #_**Returns:**
-#_  nothing
+#_  ret:       boolean
 #_
 #_**Description:**
 #_  Function *mdelete* deletes a value or key from the database.

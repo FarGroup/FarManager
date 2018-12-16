@@ -7368,12 +7368,12 @@ lv=2
 dt=Text
 nm=obj:CreateSubkey
 ctime=3507637684
-mtime=3513280434
+mtime=3754138477
 <article>
 #_subkey = obj:CreateSubkey (Root, Name [, Description])
 #_
 #_**Parameters:**
-#_  Root:        integer
+#_  Root:        flag
 #_  Name:        string
 #_  Description: string, or nil
 #_
@@ -7399,12 +7399,12 @@ lv=2
 dt=Text
 nm=obj:Delete
 ctime=3507637642
-mtime=3576228671
+mtime=3754138488
 <article>
 #_result = obj:Delete (Root, Name)
 #_
 #_**Parameters:**
-#_  Root:   integer
+#_  Root:   flag
 #_  Name:   string, or nil
 #_
 #_**Returns:**
@@ -7427,12 +7427,12 @@ lv=2
 dt=Text
 nm=obj:Enum
 ctime=3507637655
-mtime=3534075889
+mtime=3754138496
 <article>
 #_items = obj:Enum (Root[, from[, to]])
 #_
 #_**Parameters:**
-#_  Root:   integer
+#_  Root:   flag
 #_  from:   integer; 1-based; negative values count from the end; default=1;
 #_  to:     integer; 1-based; negative values count from the end; default=-1;
 #_
@@ -7495,12 +7495,12 @@ lv=2
 dt=Text
 nm=obj:Get
 ctime=3507637674
-mtime=3513106776
+mtime=3754138504
 <article>
 #_result = obj:Get (Root, Name, Type)
 #_
 #_**Parameters:**
-#_  Root:   integer
+#_  Root:   flag
 #_  Name:   string
 #_  Type:   flags
 #_
@@ -7527,12 +7527,12 @@ lv=2
 dt=Text
 nm=obj:OpenSubkey
 ctime=3513150721
-mtime=3513280638
+mtime=3754138512
 <article>
 #_subkey = obj:OpenSubkey (Root, Name)
 #_
 #_**Parameters:**
-#_  Root:        integer
+#_  Root:        flag
 #_  Name:        string
 #_
 #_**Returns:**
@@ -7555,12 +7555,12 @@ lv=2
 dt=Text
 nm=obj:Set
 ctime=3507637679
-mtime=3513143858
+mtime=3754138519
 <article>
 #_result = obj:Set (Root, Name, Type, Data)
 #_
 #_**Parameters:**
-#_  Root:   integer
+#_  Root:   flag
 #_  Name:   string, or nil
 #_  Type:   flags
 #_  Data:   flags,   for Type == FST_QWORD
