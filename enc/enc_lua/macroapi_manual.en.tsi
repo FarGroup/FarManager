@@ -1154,9 +1154,9 @@ lv=3
 dt=Text
 nm=mload
 ctime=3551993209
-mtime=3754053202
+mtime=3754161074
 <article>
-#_ret = mf.mload (key, name [, location])
+#_value, errmsg = mf.mload (key, name [, location])
 #_
 #_**Parameters:**
 #_  key:       string
@@ -1164,11 +1164,12 @@ mtime=3754053202
 #_  location:  string ("roaming" or "local"; default: "roaming")
 #_
 #_**Returns:**
-#_  ret:      number, string, boolean, table, int64 or nil.
-#_  The function throws an error in case the connection to database failed.
+#_  value:     number, string, boolean, table, int64 or nil.
+#_  errmsg:    nil on success, string on failure.
 #_
 #_**Description:**
 #_  Function *mload* reads a value from the database.
+#_  If the second return value is nil then the first return value is valid.
 #_
 #_**Note:**
 #_  int64 - a distinguished type of userdata, created by the bit64 library.

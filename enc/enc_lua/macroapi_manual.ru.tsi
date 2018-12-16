@@ -1145,9 +1145,9 @@ lv=3
 dt=Text
 nm=mload
 ctime=3551993209
-mtime=3754053144
+mtime=3754161081
 <article>
-#_ret = mf.mload (key, name [, location])
+#_value, errmsg = mf.mload (key, name [, location])
 #_
 #_**Параметры:**
 #_  key:       string
@@ -1155,11 +1155,12 @@ mtime=3754053144
 #_  location:  string ("roaming" или "local"; по умолчанию: "roaming")
 #_
 #_**Возвращает:**
-#_  ret:      number, string, boolean, table, int64 или nil.
-#_  Функция "бросает" ошибку в случае неудачи подключения к базе данных.
+#_  value:     number, string, boolean, table, int64 or nil.
+#_  errmsg:    nil в случае успеха, string в случае неудачи.
 #_
 #_**Описание:**
 #_  Функция *mload* читает значение из базы данных.
+#_  Если 2-е возвращаемое значение nil, то 1-е возвращаемое значение валидно.
 #_
 #_**Примечание**
 #_  int64 - особый тип userdata, создаваемый библиотекой bit64.
