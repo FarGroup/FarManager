@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 23.12.2018 16:09:53 +0000 - build 5344
+
+1. ColorDialog uses more obvious colour (black) as the base of the preview by default.
+
 drkns 16.12.2018 19:12:45 +0000 - build 5343
 
 1. Incorrect keybar position in non-fullscreen windows (typo in 5268).

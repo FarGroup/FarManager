@@ -673,7 +673,7 @@ bool GetColorDialogInternal(FarColor& Color, bool const bCentered, const FarColo
 	ColorDlg[cd_fg_colorcode].strData = color_code(Color.IsFg4Bit()? colors::ConsoleIndexToTrueColor(Color.ForegroundColor) : Color.ForegroundColor);
 	ColorDlg[cd_bg_colorcode].strData = color_code(Color.IsBg4Bit()? colors::ConsoleIndexToTrueColor(Color.BackgroundColor) : Color.BackgroundColor);
 
-	FarColor CurColor[]{ Color, BaseColor? *BaseColor : Color };
+	FarColor CurColor[]{ Color, BaseColor? *BaseColor : colors::ConsoleColorToFarColor(F_BLACK | B_BLACK) };
 
 	if (Color.IsFg4Bit() || Color.IsBg4Bit())
 	{
