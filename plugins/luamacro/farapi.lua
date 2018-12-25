@@ -1904,6 +1904,8 @@ typedef void (__stdcall *FARSTDLOCALSTRUPR)(wchar_t *s1);
 typedef void (__stdcall *FARSTDLOCALSTRLWR)(wchar_t *s1);
 typedef int (__stdcall *FARSTDLOCALSTRICMP)(const wchar_t *s1,const wchar_t *s2);
 typedef int (__stdcall *FARSTDLOCALSTRNICMP)(const wchar_t *s1,const wchar_t *s2,intptr_t n);
+typedef unsigned __int64 (__stdcall *FARSTDFARCLOCK)();
+typedef int (__stdcall *FARSTDCOMPARESTRINGS)(const wchar_t*Str1, size_t Size1, const wchar_t* Str2, size_t Size2);
 
 typedef unsigned __int64 PROCESSNAME_FLAGS;
 static const /*PROCESSNAME_FLAGS*/ uint32_t
@@ -2053,6 +2055,8 @@ typedef struct FarStandardFunctions
 	FARGETREPARSEPOINTINFO     GetReparsePointInfo;
 	FARGETCURRENTDIRECTORY     GetCurrentDirectory;
 	FARFORMATFILESIZE          FormatFileSize;
+	FARSTDFARCLOCK             FarClock;
+	FARSTDCOMPARESTRINGS       CompareStrings;
 } FARSTANDARDFUNCTIONS;
 
 struct PluginStartupInfo
