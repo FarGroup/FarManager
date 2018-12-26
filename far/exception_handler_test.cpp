@@ -48,11 +48,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace tests
 {
+	[[noreturn]]
 	static void cpp_far()
 	{
 		throw MAKE_FAR_EXCEPTION(L"Test far error"sv);
 	}
 
+	[[noreturn]]
 	static void cpp_std()
 	{
 		throw std::runtime_error("Test std error"s);
@@ -60,15 +62,13 @@ namespace tests
 
 	static void cpp_std_nested()
 	{
+		std::exception_ptr Ptr;
+		try
 		{
-			std::exception_ptr Ptr;
-			try
-			{
-				throw std::runtime_error("Test nested std error"s);
-			}
-			CATCH_AND_SAVE_EXCEPTION_TO(Ptr);
-			rethrow_if(Ptr);
+			throw std::runtime_error("Test nested std error"s);
 		}
+		CATCH_AND_SAVE_EXCEPTION_TO(Ptr)
+		rethrow_if(Ptr);
 	}
 
 	static void cpp_std_nested_thread()
@@ -80,7 +80,7 @@ namespace tests
 			{
 				throw std::runtime_error("Test nested std error (thread)"s);
 			}
-			CATCH_AND_SAVE_EXCEPTION_TO(Ptr);
+			CATCH_AND_SAVE_EXCEPTION_TO(Ptr)
 		});
 
 		rethrow_if(Ptr);
@@ -92,6 +92,7 @@ namespace tests
 		const auto Ptr = std::make_unique<char[]>(std::numeric_limits<size_t>::max() - 1024 * 1024);
 	}
 
+	[[noreturn]]
 	static void cpp_unknown()
 	{
 		throw 42u;
@@ -104,7 +105,7 @@ namespace tests
 		{
 			throw 69u;
 		}
-		CATCH_AND_SAVE_EXCEPTION_TO(Ptr);
+		CATCH_AND_SAVE_EXCEPTION_TO(Ptr)
 		rethrow_if(Ptr);
 	}
 

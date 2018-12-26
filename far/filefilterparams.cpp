@@ -259,7 +259,7 @@ bool FileFilterParams::FileInFilter(const PluginPanelItem& Object, os::chrono::t
 	return FileInFilter(FilterObject, CurrentTime, nullptr);
 }
 
-bool FileFilterParams::FileInFilter(const filter_file_object& Object, os::chrono::time_point CurrentTime, const std::function<int()>& HardlinkGetter) const
+bool FileFilterParams::FileInFilter(const filter_file_object& Object, os::chrono::time_point CurrentTime, function_ref<int()> const HardlinkGetter) const
 {
 	// Режим проверки атрибутов файла включен?
 	if (FAttr.Used)

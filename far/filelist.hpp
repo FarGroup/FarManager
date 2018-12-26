@@ -40,6 +40,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filesystemwatcher.hpp"
 #include "plugin.hpp"
 
+#include "common/function_ref.hpp"
+
 class FileFilter;
 class Plugin;
 class plugin_item_list;
@@ -284,7 +286,7 @@ private:
 	int ProcessOneHostFile(const FileListItem* Item);
 	void HighlightBorder(int Level, int ListPos) const;
 	void InitFSWatcher(bool CheckTree);
-	bool IsColumnDisplayed(std::function<bool(const column&)> Compare) const;
+	bool IsColumnDisplayed(function_ref<bool(const column&)> Compare) const;
 	void UpdateHeight();
 	enum direction
 	{

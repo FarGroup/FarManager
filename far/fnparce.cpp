@@ -269,17 +269,17 @@ static size_t SkipInputToken(string_view const Str, subst_strings* const Strings
 
 static string_view ProcessMetasymbol(string_view const CurStr, subst_data& SubstData, string& Out)
 {
-	const auto& append_with_escape = [EscapeAmpersands = SubstData.EscapeAmpersands](string& Out, string_view const Str)
+	const auto& append_with_escape = [EscapeAmpersands = SubstData.EscapeAmpersands](string& Destination, string_view const Str)
 	{
 		if (EscapeAmpersands && contains(Str, L"&"sv))
 		{
 			string Escaped(Str);
 			replace(Escaped, L"&"sv, L"&&"sv);
-			append(Out, Escaped);
+			append(Destination, Escaped);
 		}
 		else
 		{
-			append(Out, Str);
+			append(Destination, Str);
 		}
 	};
 

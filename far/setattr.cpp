@@ -947,7 +947,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 										Item.Flags =
 											((Storage.State & DFS_STORAGE_STATE_ACTIVE)? (LIF_CHECKED | LIF_SELECTED) : LIF_NONE) |
 											((Storage.State & DFS_STORAGE_STATE_OFFLINE)? LIF_GRAYED : LIF_NONE);
-									};
+									}
 
 									NameList.Items = ListItems.data();
 									NameList.ItemsNumber = DfsInfo->NumberOfStorages;

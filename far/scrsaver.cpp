@@ -44,6 +44,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "platform.chrono.hpp"
 
+#include "common/function_ref.hpp"
+
 enum {STAR_NONE,STAR_NORMAL,STAR_PLANET};
 
 struct star
@@ -66,7 +68,7 @@ static const wchar_t StarSymbol[]=
 	L'\x00B7',
 };
 
-static void ShowSaver(int Step, const std::function<void(star&)>& Fill)
+static void ShowSaver(int Step, function_ref<void(star&)> const Fill)
 {
 	std::for_each(RANGE(Star, i)
 	{

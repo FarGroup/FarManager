@@ -407,6 +407,11 @@ namespace console_detail
 		return Result;
 	}
 
+	static bool ReadOutputImpl(CHAR_INFO* const Buffer, COORD const BufferSize, SMALL_RECT& ReadRegion)
+	{
+		return ReadConsoleOutput(::console.GetOutputHandle(), Buffer, BufferSize, {}, &ReadRegion) != FALSE;
+	}
+
 	bool console::ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, const SMALL_RECT& ReadRegionRelative) const
 	{
 		if (ExternalConsole.Imports.pReadOutput)
@@ -427,11 +432,6 @@ namespace console_detail
 
 		const COORD BufferSize{ static_cast<SHORT>(SubRect.width()), static_cast<SHORT>(SubRect.height()) };
 
-		const auto& ReadOutput = [](CHAR_INFO* const Buffer, COORD const BufferSize, SMALL_RECT& ReadRegion)
-		{
-			return ReadConsoleOutput(::console.GetOutputHandle(), Buffer, BufferSize, {}, &ReadRegion) != FALSE;
-		};
-
 		if (BufferSize.X * BufferSize.Y * sizeof(CHAR_INFO) > MAXSIZE)
 		{
 			const auto HeightStep = std::max(MAXSIZE / (BufferSize.X * sizeof(CHAR_INFO)), size_t(1));
@@ -444,14 +444,14 @@ namespace console_detail
 				PartialReadRegion.Top += static_cast<SHORT>(i);
 				PartialReadRegion.Bottom = std::min(ReadRegion.Bottom, static_cast<SHORT>(PartialReadRegion.Top + HeightStep - 1));
 				const COORD PartialBufferSize{ BufferSize.X, static_cast<SHORT>(PartialReadRegion.Bottom - PartialReadRegion.Top + 1) };
-				if (!ReadOutput(ConsoleBuffer.data() + i * PartialBufferSize.X, PartialBufferSize, PartialReadRegion))
+				if (!ReadOutputImpl(ConsoleBuffer.data() + i * PartialBufferSize.X, PartialBufferSize, PartialReadRegion))
 					return false;
 			}
 		}
 		else
 		{
 			auto ReadRegionCopy = ReadRegion;
-			if (!ReadOutput(ConsoleBuffer.data(), BufferSize, ReadRegionCopy))
+			if (!ReadOutputImpl(ConsoleBuffer.data(), BufferSize, ReadRegionCopy))
 				return false;
 		}
 
@@ -540,7 +540,7 @@ namespace console_detail
 	class console::implementation
 	{
 	public:
-		static bool WriteVT(const matrix<FAR_CHAR_INFO>& Buffer, rectangle const SubRect, const SMALL_RECT& WriteRegion)
+		static bool WriteOutputVT(const matrix<FAR_CHAR_INFO>& Buffer, rectangle const SubRect, const SMALL_RECT& WriteRegion)
 		{
 			const auto Out = ::console.GetOutputHandle();
 
@@ -609,7 +609,34 @@ namespace console_detail
 			return ::console.Write(Str);
 		}
 
-		static bool WriteNT(const matrix<FAR_CHAR_INFO>& Buffer, rectangle const SubRect, const SMALL_RECT& WriteRegion)
+		static bool WriteOutputNTImpl(CHAR_INFO* const Buffer, COORD const BufferSize, SMALL_RECT& WriteRegion)
+		{
+			return WriteConsoleOutput(::console.GetOutputHandle(), Buffer, BufferSize, {}, &WriteRegion) != FALSE;
+		}
+
+		static bool WriteOutputNTImplDebug(CHAR_INFO* const Buffer, COORD const BufferSize, SMALL_RECT& WriteRegion)
+		{
+#if 0
+			assert(BufferSize.X == WriteRegion.Right - WriteRegion.Left + 1);
+			assert(BufferSize.Y == WriteRegion.Bottom - WriteRegion.Top + 1);
+
+
+			for (auto&i: make_span(Buffer, BufferSize.X * BufferSize.Y))
+			{
+				i.Attributes = (i.Attributes & FCF_RAWATTR_MASK) | LOBYTE(~i.Attributes);
+			}
+
+			auto WriteRegionCopy = WriteRegion;
+			WriteOutputNTImpl(Buffer, BufferSize, WriteRegionCopy);
+			Sleep(50);
+
+			for (auto&i: make_span(Buffer, BufferSize.X * BufferSize.Y))
+				i.Attributes = (i.Attributes & FCF_RAWATTR_MASK) | LOBYTE(~i.Attributes);
+#endif
+			return WriteOutputNTImpl(Buffer, BufferSize, WriteRegion) != FALSE;
+		}
+
+		static bool WriteOutputNT(const matrix<FAR_CHAR_INFO>& Buffer, rectangle const SubRect, const SMALL_RECT& WriteRegion)
 		{
 			std::vector<CHAR_INFO> ConsoleBuffer;
 			ConsoleBuffer.reserve(SubRect.width() * SubRect.height());
@@ -620,33 +647,6 @@ namespace console_detail
 			});
 
 			const COORD BufferSize{ static_cast<SHORT>(SubRect.width()), static_cast<SHORT>(SubRect.height()) };
-
-			const auto& WriteOutputImpl = [](CHAR_INFO* const Buffer, COORD const BufferSize, SMALL_RECT& WriteRegion)
-			{
-				return WriteConsoleOutput(::console.GetOutputHandle(), Buffer, BufferSize, {}, &WriteRegion) != FALSE;
-			};
-
-			const auto& WriteOutput = [WriteOutputImpl](CHAR_INFO* const Buffer, COORD const BufferSize, SMALL_RECT& WriteRegion)
-			{
-#if 0
-				assert(BufferSize.X == WriteRegion.Right - WriteRegion.Left + 1);
-				assert(BufferSize.Y == WriteRegion.Bottom - WriteRegion.Top + 1);
-
-
-				for (auto&i : make_span(Buffer, BufferSize.X * BufferSize.Y))
-				{
-					i.Attributes = (i.Attributes & FCF_RAWATTR_MASK) | LOBYTE(~i.Attributes);
-				}
-
-				auto WriteRegionCopy = WriteRegion;
-				WriteOutputImpl(Buffer, BufferSize, WriteRegionCopy);
-				Sleep(50);
-
-				for (auto&i : make_span(Buffer, BufferSize.X * BufferSize.Y))
-					i.Attributes = (i.Attributes & FCF_RAWATTR_MASK) | LOBYTE(~i.Attributes);
-#endif
-				return WriteOutputImpl(Buffer, BufferSize, WriteRegion) != FALSE;
-			};
 
 			if (BufferSize.X * BufferSize.Y * sizeof(CHAR_INFO) > MAXSIZE)
 			{
@@ -660,14 +660,14 @@ namespace console_detail
 					PartialWriteRegion.Top += static_cast<SHORT>(i);
 					PartialWriteRegion.Bottom = std::min(WriteRegion.Bottom, static_cast<SHORT>(PartialWriteRegion.Top + HeightStep - 1));
 					const COORD PartialBufferSize{ BufferSize.X, static_cast<SHORT>(PartialWriteRegion.Bottom - PartialWriteRegion.Top + 1) };
-					if (!WriteOutput(ConsoleBuffer.data() + i * PartialBufferSize.X, PartialBufferSize, PartialWriteRegion))
+					if (!WriteOutputNTImplDebug(ConsoleBuffer.data() + i * PartialBufferSize.X, PartialBufferSize, PartialWriteRegion))
 						return false;
 				}
 			}
 			else
 			{
 				auto WriteRegionCopy = WriteRegion;
-				if (!WriteOutput(ConsoleBuffer.data(), BufferSize, WriteRegionCopy))
+				if (!WriteOutputNTImplDebug(ConsoleBuffer.data(), BufferSize, WriteRegionCopy))
 					return false;
 			}
 
@@ -710,7 +710,7 @@ namespace console_detail
 		DWORD Mode = 0;
 		const auto IsVT = sEnableVirtualTerminal && GetMode(GetOutputHandle(), Mode) && Mode & ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 
-		return (IsVT? implementation::WriteVT : implementation::WriteNT)(Buffer, SubRect, WriteRegion);
+		return (IsVT? implementation::WriteOutputVT : implementation::WriteOutputNT)(Buffer, SubRect, WriteRegion);
 	}
 
 	bool console::Read(std::vector<wchar_t>& Buffer, size_t& Size) const

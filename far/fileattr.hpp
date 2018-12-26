@@ -37,6 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "platform.chrono.hpp"
 
+#include "common/function_ref.hpp"
+
 enum SETATTR_RET_CODES
 {
 	SETATTR_RET_ERROR,
@@ -53,7 +55,7 @@ int ESetFileTime(const string& Name, const os::chrono::time_point* LastWriteTime
 int ESetFileOwner(const string& Name, const string& Owner,int SkipMode=-1);
 int EDeleteReparsePoint(const string& Name, DWORD FileAttr, int SkipMode=-1);
 
-void enum_attributes(const std::function<bool(DWORD, wchar_t)>& Pred);
+void enum_attributes(function_ref<bool(DWORD, wchar_t)> Pred);
 
 
 #endif // FILEATTR_HPP_1920BF1F_BD95_4A22_B3D9_33F2544760D1

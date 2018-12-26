@@ -342,7 +342,7 @@ public:
 	}
 
 private:
-	void Update(int Mode) override {};
+	void Update(int Mode) override {}
 	void UpdateKeyBar() override {}
 };
 

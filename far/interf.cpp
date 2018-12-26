@@ -54,6 +54,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.concurrency.hpp"
 #include "platform.security.hpp"
 
+#include "common/function_ref.hpp"
+
 #include "format.hpp"
 
 static HICON load_icon(int IconId, bool Big)
@@ -758,7 +760,7 @@ void VText(string_view const Str)
 	}
 }
 
-static void HiTextBase(const string& Str, const std::function<void(const string&)>& TextHandler, const std::function<void(wchar_t)>& HilightHandler)
+static void HiTextBase(const string& Str, function_ref<void(const string&)> const TextHandler, function_ref<void(wchar_t)> const HilightHandler)
 {
 	const auto AmpBegin = Str.find(L'&');
 	if (AmpBegin != string::npos)

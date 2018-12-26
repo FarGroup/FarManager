@@ -35,9 +35,11 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class Viewer;
-
 #include "windowsfwd.hpp"
+
+#include "common/function_ref.hpp"
+
+class Viewer;
 
 class Manager: noncopyable
 {
@@ -180,7 +182,7 @@ private:
 	void WindowsChanged() { std::fill(m_windows_changed.begin(), m_windows_changed.end(), true); }
 
 	using windows = std::vector<window_ptr>;
-	void* GetCurrent(const std::function<void*(windows::const_reverse_iterator)>& Check) const;
+	void* GetCurrent(function_ref<void*(window_ptr const&)> Check) const;
 	windows m_windows;
 	size_t m_NonModalSize;
 	bool EndLoop;            // Признак выхода из цикла

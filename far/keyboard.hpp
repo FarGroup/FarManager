@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "common/2d/point.hpp"
+#include "common/function_ref.hpp"
 
 struct FarKey;
 
@@ -94,7 +95,7 @@ int KeyToKeyLayout(int Key);
 
 // возвращает: 1 - LeftPressed, 2 - Right Pressed, 3 - Middle Pressed, 0 - none
 DWORD IsMouseButtonPressed();
-bool while_mouse_button_pressed(const std::function<bool()>& Action);
+bool while_mouse_button_pressed(function_ref<bool()> Action);
 int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *rec=nullptr);
 int KeyNameToKey(string_view Name);
 bool InputRecordToText(const INPUT_RECORD *Rec, string &strKeyText);

@@ -37,6 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "plugin.hpp"
 
+#include "common/function_ref.hpp"
+
 WARNING_DISABLE_GCC("-Wpragmas")
 WARNING_DISABLE_GCC("-Wimplicit-fallthrough")
 
@@ -1801,7 +1803,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 
 		if (str<=strend)
 		{
-			const auto& MinSkip = [&](StateStackItem& st, const std::function<bool(const wchar_t*)>& cmp)
+			const auto& MinSkip = [&](StateStackItem& st, function_ref<bool(const wchar_t*)> const cmp)
 			{
 				int jj;
 				switch (std::next(op)->op)

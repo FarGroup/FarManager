@@ -55,6 +55,8 @@ class SimpleScreenObject
 {
 public:
 	NONCOPYABLE(SimpleScreenObject);
+	MOVABLE(SimpleScreenObject);
+
 	virtual ~SimpleScreenObject() = default;
 
 	virtual bool ProcessKey(const Manager::Key& Key) { return false; }

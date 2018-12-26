@@ -98,7 +98,7 @@ public:
 
 			return TRUE;
 		}
-		CATCH_AND_SAVE_EXCEPTION_TO(context->m_ExceptionPtr);
+		CATCH_AND_SAVE_EXCEPTION_TO(context->m_ExceptionPtr)
 
 		return FALSE;
 	}

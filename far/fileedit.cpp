@@ -844,7 +844,7 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 	*/
 	if ((LocalKey >= KEY_MACRO_BASE && LocalKey <= KEY_MACRO_ENDBASE) || (LocalKey>=KEY_OP_BASE && LocalKey <=KEY_OP_ENDBASE)) // исключаем MACRO
 	{
-		; //
+		// ; //
 	}
 
 	switch (LocalKey)

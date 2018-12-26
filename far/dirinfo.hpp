@@ -35,6 +35,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "common/function_ref.hpp"
+
 class FileFilter;
 struct PluginPanelItem;
 struct UserDataItem;
@@ -69,15 +71,15 @@ enum getdirinfo_message_delay
 	getdirinfo_default_delay = 500, // ms
 };
 
-using dirinfo_callback = std::function<void(string_view Name, unsigned long long Items, unsigned long long Size)>;
-int GetDirInfo(const string& DirName, DirInfoData& Data, FileFilter *Filter, const dirinfo_callback& Callback, DWORD Flags = GETDIRINFO_SCANSYMLINKDEF);
+using dirinfo_callback = function_ref<void(string_view Name, unsigned long long Items, unsigned long long Size)>;
+int GetDirInfo(const string& DirName, DirInfoData& Data, FileFilter *Filter, dirinfo_callback Callback, DWORD Flags = GETDIRINFO_SCANSYMLINKDEF);
 void DirInfoMsg(string_view Title, string_view Name, unsigned long long Items, unsigned long long Size);
 
 class plugin_panel;
 
-bool GetPluginDirInfo(const plugin_panel* hPlugin, const string& DirName, const UserDataItem* UserData, BasicDirInfoData& Data, const dirinfo_callback& Callback);
+bool GetPluginDirInfo(const plugin_panel* hPlugin, const string& DirName, const UserDataItem* UserData, BasicDirInfoData& Data, dirinfo_callback Callback);
 
-bool GetPluginDirList(class Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, const UserDataItem* UserData, std::vector<PluginPanelItem>& Items, const dirinfo_callback& Callback);
+bool GetPluginDirList(class Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, const UserDataItem* UserData, std::vector<PluginPanelItem>& Items, dirinfo_callback Callback);
 void FreePluginDirList(HANDLE hPlugin, std::vector<PluginPanelItem>& Items);
 
 #endif // DIRINFO_HPP_DA86BD11_D517_4EC9_8324_44EDF0CC7C9A

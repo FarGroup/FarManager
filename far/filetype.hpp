@@ -35,6 +35,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "common/function_ref.hpp"
+
 // Работа с ассоциациями файлов
 enum FILETYPE_MODE
 {
@@ -54,7 +56,7 @@ enum FILETYPE_MODE
  */
 bool GetFiletypeOpenMode(int keyPressed, FILETYPE_MODE& mode, bool& shouldForceInternal);
 
-bool ProcessLocalFileTypes(string_view Name, string_view ShortName, FILETYPE_MODE Mode, bool AlwaysWaitFinish, bool AddToHistory = true, bool RunAs = false, const std::function<void(struct execute_info&)>& Launcher = nullptr);
+bool ProcessLocalFileTypes(string_view Name, string_view ShortName, FILETYPE_MODE Mode, bool AlwaysWaitFinish, bool AddToHistory = true, bool RunAs = false, function_ref<void(struct execute_info&)> Launcher = nullptr);
 void ProcessExternal(const string& Command, const string& Name, const string& ShortName, bool AlwaysWaitFinish);
 void EditFileTypes();
 

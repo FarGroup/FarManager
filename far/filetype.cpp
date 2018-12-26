@@ -68,7 +68,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    - Убрал непонятный мне запрет на использование маски файлов типа "*.*"
      (был когда-то, вроде, такой баг-репорт)
 */
-bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, FILETYPE_MODE Mode, bool AlwaysWaitFinish, bool AddToHistory, bool RunAs, const std::function<void(execute_info&)>& Launcher)
+bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, FILETYPE_MODE Mode, bool AlwaysWaitFinish, bool AddToHistory, bool RunAs, function_ref<void(execute_info&)> const Launcher)
 {
 	string strCommand, strDescription;
 

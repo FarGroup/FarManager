@@ -111,7 +111,7 @@ static void PR_DrawGetDirInfoMsg()
 	});
 }
 
-int GetDirInfo(const string& DirName, DirInfoData& Data, FileFilter *Filter, const dirinfo_callback& Callback, DWORD Flags)
+int GetDirInfo(const string& DirName, DirInfoData& Data, FileFilter *Filter, dirinfo_callback const Callback, DWORD Flags)
 {
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<DirInfoPreRedrawItem>());
 	SCOPED_ACTION(IndeterminateTaskbar)(false);
@@ -312,7 +312,7 @@ static void PushPluginDirItem(std::vector<PluginPanelItem>& PluginDirList, const
 	PluginDirList.emplace_back(NewItem);
 }
 
-static void ScanPluginDir(plugin_panel* hDirListPlugin, OPERATION_MODES OpMode, const string& BaseDir, const string& PluginSearchPath, std::vector<PluginPanelItem>& PluginDirList, bool& StopSearch, BasicDirInfoData& Data, const dirinfo_callback& Callback)
+static void ScanPluginDir(plugin_panel* hDirListPlugin, OPERATION_MODES OpMode, const string& BaseDir, const string& PluginSearchPath, std::vector<PluginPanelItem>& PluginDirList, bool& StopSearch, BasicDirInfoData& Data, dirinfo_callback const Callback)
 {
 	Callback(BaseDir, Data.DirCount + Data.FileCount, Data.FileSize);
 
@@ -369,7 +369,7 @@ static void ScanPluginDir(plugin_panel* hDirListPlugin, OPERATION_MODES OpMode, 
 	Global->CtrlObject->Plugins->FreeFindData(hDirListPlugin,PanelData,ItemCount,true);
 }
 
-static bool GetPluginDirListImpl(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, const UserDataItem* const UserData, std::vector<PluginPanelItem>& Items, BasicDirInfoData& Data, const dirinfo_callback& Callback)
+static bool GetPluginDirListImpl(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, const UserDataItem* const UserData, std::vector<PluginPanelItem>& Items, BasicDirInfoData& Data, dirinfo_callback const Callback)
 {
 	Items.clear();
 
@@ -441,7 +441,7 @@ static bool GetPluginDirListImpl(Plugin* PluginNumber, HANDLE hPlugin, const str
 	return !StopSearch;
 }
 
-bool GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, const UserDataItem* const UserData, std::vector<PluginPanelItem>& Items, const dirinfo_callback& Callback)
+bool GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, const UserDataItem* const UserData, std::vector<PluginPanelItem>& Items, dirinfo_callback const Callback)
 {
 	BasicDirInfoData Data{};
 	return GetPluginDirListImpl(PluginNumber, hPlugin, Dir, UserData, Items, Data, Callback);
@@ -459,8 +459,13 @@ void FreePluginDirList(HANDLE hPlugin, std::vector<PluginPanelItem>& Items)
 	Items.clear();
 }
 
-bool GetPluginDirInfo(const plugin_panel* ph, const string& DirName, const UserDataItem* const UserData,
-	BasicDirInfoData& Data, const dirinfo_callback& Callback)
+bool GetPluginDirInfo(
+	const plugin_panel* ph,
+	const string& DirName,
+	const UserDataItem* const UserData,
+	BasicDirInfoData& Data,
+	dirinfo_callback const Callback
+)
 {
 	Data = {};
 

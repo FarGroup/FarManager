@@ -38,6 +38,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrobj.hpp"
 #include "editcontrol.hpp"
 
+#include "common/function_ref.hpp"
+
 struct execute_info
 {
 	enum class wait_mode { no_wait, wait_idle, wait_finish };
@@ -90,7 +92,7 @@ public:
 private:
 	void DisplayObject() override;
 	size_t DrawPrompt();
-	bool ProcessOSCommands(string_view CmdLine, const std::function<void(bool)>& ConsoleActivatior);
+	bool ProcessOSCommands(string_view CmdLine, function_ref<void(bool)> ConsoleActivatior);
 	struct segment
 	{
 		string Text;

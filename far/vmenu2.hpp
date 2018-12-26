@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "dialog.hpp"
 
+#include "common/function_ref.hpp"
 #include "common/range.hpp"
 
 struct menu_item;
@@ -109,7 +110,7 @@ public:
 	int SetSelectPos(const FarListPos* ListPos, int Direct = 0);
 
 	void SortItems(bool Reverse, int Offset);
-	void SortItems(const std::function<bool(const MenuItemEx&, const MenuItemEx&, SortItemParam&)>& Pred, bool Reverse = false, int Offset = 0);
+	void SortItems(function_ref<bool(const MenuItemEx&, const MenuItemEx&, SortItemParam&)> Pred, bool Reverse = false, int Offset = 0);
 
 	void Pack();
 	MenuItemEx& at(size_t n);

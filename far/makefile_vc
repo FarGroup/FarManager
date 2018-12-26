@@ -288,6 +288,23 @@ LINKFLAGS=/nologo /subsystem:console /release /nxcompat /largeaddressaware /dyna
 ULINKFLAGS=-q -m- -ap -Gz -O- -o- -Gh -Gh- -GF:LARGEADDRESSAWARE -d*kernel32
 RFLAGS=/nologo /l 0x409 /fo"$(RES_FILE)" /d $(USEDEBUG)
 
+# compiler-specific
+!if "$(VC)">="15"
+CPPFLAGS=$(CPPFLAGS) /permissive- /Zc:__cplusplus,externConstexpr /diagnostics:caret
+!endif
+
+!ifdef CLANG
+CPP = clang-cl
+CPPFLAGS = $(CPPFLAGS) -Qunused-arguments -Xclang -fno-char8_t
+NOBATCH=1
+NO_RELEASE_LTCG=1
+OUTDIR=$(OUTDIR).clang
+!elseifdef ICL
+CPP = icl
+LINK = xilink
+CPPFLAGS = $(CPPFLAGS) /Qstd=c++11 /Qdiag-disable:672,869,2415,3280
+!endif
+
 # config-specific
 !ifdef DEBUG
 CPPFLAGS=$(CPPFLAGS) /MTd /Od /ZI
@@ -339,17 +356,6 @@ LINKFLAGS=$(LINKFLAGS) /machine:IA64
 !elseifdef ARM
 OS_VERSION=5.2
 LINKFLAGS=$(LINKFLAGS) /machine:ARM
-!endif
-
-# compiler-specific
-!if "$(VC)">="15"
-CPPFLAGS=$(CPPFLAGS) /permissive- /Zc:__cplusplus,externConstexpr /diagnostics:caret
-!endif
-
-!ifdef ICL
-CPP = icl
-LINK = xilink
-CPPFLAGS = $(CPPFLAGS) /Qstd=c++11 /Qdiag-disable:672,869,2415,3280
 !endif
 
 CPPFLAGS = $(CPPFLAGS) /Fo"$(INTDIR)\\"
@@ -434,12 +440,22 @@ $(INTDIR)\vc_crt_fix_impl.obj: vc_crt_fix_impl.cpp
 $(INTDIR)\vc_crt_fix_ulink.obj: vc_crt_fix_ulink.cpp
 	$(CPP) $(CPPFLAGS) vc_crt_fix_ulink.cpp
 
+!ifdef NOBATCH
+.c{$(INTDIR)}.obj:
+	@echo $(@F)
+!else
 .c{$(INTDIR)}.obj::
+!endif
 	$(CPP) @<<
 	$(CPPFLAGS) $<
 <<
 
+!ifdef NOBATCH
+.cpp{$(INTDIR)}.obj:
+	@echo $(@F)
+!else
 .cpp{$(INTDIR)}.obj::
+!endif
 	$(CPP) @<<
 	$(CPPFLAGS) /Yuheaders.hpp /Fp"$(PCH_FILE)" /FI headers.hpp /FI memcheck.hpp $<
 <<

@@ -177,7 +177,7 @@ namespace os::fs
 		{
 			DeleteEndSlash(PreparedObject);
 		}
-		return PreparedObject;
+		return std::move(PreparedObject);
 	}
 
 	enum_files::enum_files(const string_view Object, const bool ScanSymlink):

@@ -82,7 +82,7 @@ string KernelPath(string&& NtPath)
 	{
 		NtPath[1] = L'?';
 	}
-	return NtPath;
+	return std::move(NtPath);
 }
 
 

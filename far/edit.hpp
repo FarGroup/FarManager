@@ -40,6 +40,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "eol.hpp"
 #include "plugin.hpp"
 
+#include "common/function_ref.hpp"
+
 struct FarColor;
 class RegExp;
 struct RegExpMatch;
@@ -117,7 +119,7 @@ public:
 	NONCOPYABLE(Edit);
 	MOVABLE(Edit);
 
-	using delete_color_condition = std::function<bool(const ColorItem&)>;
+	using delete_color_condition = function_ref<bool(const ColorItem&)>;
 
 	explicit Edit(window_ptr Owner);
 
@@ -192,7 +194,7 @@ public:
 	bool ReplaceTabs();
 	void InsertTab();
 	void AddColor(const ColorItem& col);
-	void DeleteColor(const delete_color_condition& Condition);
+	void DeleteColor(delete_color_condition Condition);
 	bool GetColor(ColorItem& col, size_t Item) const;
 	void Xlat(bool All=false);
 	void SetDialogParent(DWORD Sets);

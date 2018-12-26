@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 
 #include "common/bytes_view.hpp"
+#include "common/function_ref.hpp"
 
 const wchar_t* AbstractSettings::Add(const string& String)
 {
@@ -245,7 +246,7 @@ public:
 	class FarSettingsHistoryItems;
 
 private:
-	bool FillHistory(int Type, const string& HistoryName, FarSettingsEnum& Enum, const std::function<bool(history_record_type)>& Filter);
+	bool FillHistory(int Type, const string& HistoryName, FarSettingsEnum& Enum, function_ref<bool(history_record_type)> Filter);
 	std::vector<FarSettingsHistoryItems> m_Enum;
 	std::vector<string> m_Keys;
 };
@@ -455,7 +456,7 @@ static const auto& HistoryRef(int Type)
 	return IsSave()? ConfigProvider().HistoryCfg() : ConfigProvider().HistoryCfgMem();
 }
 
-bool FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum& Enum, const std::function<bool(history_record_type)>& Filter)
+bool FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum& Enum, function_ref<bool(history_record_type)> const Filter)
 {
 	FarSettingsHistory item = {};
 	FarSettingsHistoryItems NewEnumItem;

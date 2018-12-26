@@ -4959,7 +4959,7 @@ void FileList::CountDirSize(bool IsRealNames)
 		}
 	}
 
-	const auto& GetPluginDirInfoOrParent = [this, &Total](const plugin_panel* const ph, const string& DirName, const UserDataItem* const UserData, BasicDirInfoData& Data, const dirinfo_callback& Callback)
+	const auto& GetPluginDirInfoOrParent = [this, &Total](const plugin_panel* const ph, const string& DirName, const UserDataItem* const UserData, BasicDirInfoData& BasicData, const dirinfo_callback& Callback)
 	{
 		if (!m_CurFile && IsParentDirectory(m_ListData[0]))
 		{
@@ -4973,7 +4973,7 @@ void FileList::CountDirSize(bool IsRealNames)
 			{
 				if (i.Attributes & FILE_ATTRIBUTE_DIRECTORY)
 				{
-					++Data.DirCount;
+					++BasicData.DirCount;
 
 					if (!IsParentDirectory(i))
 					{
@@ -4981,10 +4981,10 @@ void FileList::CountDirSize(bool IsRealNames)
 						if (!GetPluginDirInfo(GetPluginHandle(), i.FileName, &i.UserData, SubData, ParentDirInfoCallback))
 							return false;
 
-						Data.FileCount += SubData.FileCount;
-						Data.DirCount += SubData.DirCount;
-						Data.FileSize += SubData.FileSize;
-						Data.AllocationSize += SubData.AllocationSize;
+						BasicData.FileCount += SubData.FileCount;
+						BasicData.DirCount += SubData.DirCount;
+						BasicData.FileSize += SubData.FileSize;
+						BasicData.AllocationSize += SubData.AllocationSize;
 
 						Total.Items += SubData.DirCount + SubData.FileCount;
 						Total.Size += SubData.FileSize;
@@ -4992,9 +4992,9 @@ void FileList::CountDirSize(bool IsRealNames)
 				}
 				else
 				{
-					++Data.FileCount;
-					Data.FileSize += i.FileSize;
-					Data.AllocationSize += i.AllocationSize;
+					++BasicData.FileCount;
+					BasicData.FileSize += i.FileSize;
+					BasicData.AllocationSize += i.AllocationSize;
 
 					++Total.Items;
 					Total.Size += i.FileSize;
@@ -5005,7 +5005,7 @@ void FileList::CountDirSize(bool IsRealNames)
 		}
 		else
 		{
-			return GetPluginDirInfo(ph, DirName, UserData, Data, Callback);
+			return GetPluginDirInfo(ph, DirName, UserData, BasicData, Callback);
 		}
 	};
 	
@@ -8607,7 +8607,7 @@ bool FileList::IsDizDisplayed() const
 	return IsColumnDisplayed(DIZ_COLUMN);
 }
 
-bool FileList::IsColumnDisplayed(std::function<bool(const column&)> Compare) const
+bool FileList::IsColumnDisplayed(function_ref<bool(const column&)> const Compare) const
 {
 	return std::any_of(ALL_CONST_RANGE(m_ViewSettings.PanelColumns), Compare) ||
 		std::any_of(ALL_CONST_RANGE(m_ViewSettings.StatusColumns), Compare);

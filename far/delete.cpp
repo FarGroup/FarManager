@@ -321,7 +321,7 @@ static bool WipeFile(const string& Name, ShellDelete::progress Files, bool& Canc
 	const auto strTempName = MakeTemp({}, false);
 
 	if (!os::fs::move_file(Name, strTempName))
-		return false;;
+		return false;
 
 	return os::fs::delete_file(strTempName);
 }
@@ -781,7 +781,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 
 								if (MsgCode==DELETE_CANCEL)
 								{
-									Cancel=true;;
+									Cancel=true;
 									break;
 								}
 								else if (MsgCode==DELETE_SKIP)

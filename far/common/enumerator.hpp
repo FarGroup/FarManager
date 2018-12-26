@@ -135,6 +135,9 @@ class inline_enumerator: public enumerator<inline_enumerator<value_type, callabl
 	IMPLEMENTS_ENUMERATOR(inline_enumerator);
 
 public:
+	NONCOPYABLE(inline_enumerator);
+	MOVABLE(inline_enumerator);
+
 	explicit inline_enumerator(callable&& Callable, finaliser&& Finaliser):
 		m_Callable(FWD(Callable)),
 		m_Finaliser(FWD(Finaliser))

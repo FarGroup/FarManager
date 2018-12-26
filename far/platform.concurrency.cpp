@@ -137,7 +137,7 @@ namespace os::concurrency
 			NONCOPYABLE(shared_mutex_legacy);
 
 			shared_mutex_legacy() { imports.RtlInitializeResource(&m_Lock); m_Lock.Flags |= RTL_RESOURCE_FLAG_LONG_TERM; }
-			~shared_mutex_legacy() { imports.RtlDeleteResource(&m_Lock); }
+			~shared_mutex_legacy() override { imports.RtlDeleteResource(&m_Lock); }
 
 			void lock() override { imports.RtlAcquireResourceExclusive(&m_Lock, TRUE); }
 			bool try_lock() override { return imports.RtlAcquireResourceExclusive(&m_Lock, FALSE) != FALSE; }

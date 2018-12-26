@@ -56,7 +56,7 @@ string InsertRegexpQuote(string strStr);
 string& RemoveUnprintableCharacters(string &strStr);
 string& QuoteSpaceOnly(string &strStr);
 string& QuoteOuterSpace(string &strStr);
-inline string QuoteOuterSpace(string&& strStr) { QuoteOuterSpace(strStr); return strStr; }
+inline string QuoteOuterSpace(string&& strStr) { QuoteOuterSpace(strStr); return std::move(strStr); }
 
 bool ReplaceStrings(string& strStr, string_view FindStr, string_view ReplStr, bool IgnoreCase = false, size_t Count = string::npos);
 

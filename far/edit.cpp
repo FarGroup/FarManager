@@ -1364,7 +1364,7 @@ bool Edit::InsertKey(int Key)
 			else
 			{
 				// Здесь вариант для "ввели символ из маски", например для SetAttr - ввели '.'
-				;// char *Ptr=strchr(Mask+CurPos,Key);
+				// char *Ptr=strchr(Mask+CurPos,Key);
 			}
 		}
 		else if (m_CurPos<m_Str.size())
@@ -2087,7 +2087,7 @@ void Edit::AddColor(const ColorItem& col)
 	ColorList.insert(col);
 }
 
-void Edit::DeleteColor(const delete_color_condition& Condition)
+void Edit::DeleteColor(delete_color_condition const Condition)
 {
 	erase_if(ColorList, Condition);
 }

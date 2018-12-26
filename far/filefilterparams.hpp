@@ -41,6 +41,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.chrono.hpp"
 #include "platform.fwd.hpp"
 
+#include "common/function_ref.hpp"
+
 enum
 {
 	DEFAULT_SORT_GROUP = 10000,
@@ -149,7 +151,7 @@ public:
 
 
 private:
-	bool FileInFilter(struct filter_file_object const& Object, os::chrono::time_point CurrentTime, const std::function<int()>& HardlinkGetter) const;
+	bool FileInFilter(struct filter_file_object const& Object, os::chrono::time_point CurrentTime, function_ref<int()> HardlinkGetter) const;
 
 	string m_strTitle;
 

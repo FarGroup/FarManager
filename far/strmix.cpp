@@ -399,14 +399,14 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 		const auto& FitToWidth = [&](string&& Str)
 		{
 			if (!Width)
-				return Str;
+				return std::move(Str);
 
 			if (Str.size() <= Width)
 				return (LeftAlign? inplace::pad_right : inplace::pad_left)(Str, Width, L' ');
 
 			Str = (LeftAlign? inplace::cut_right : inplace::cut_left)(Str, Width - 1);
 			Str.insert(LeftAlign? Str.end() : Str.begin(), L'\x2026');
-			return Str;
+			return std::move(Str);
 		};
 
 		if (!UnitIndex && !ShowUnit)

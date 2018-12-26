@@ -112,11 +112,13 @@
 #endif
 
 // Check if exceptions are disabled.
-#if (defined(__GNUC__) && !defined(__EXCEPTIONS)) || \
-    FMT_MSC_VER && !_HAS_EXCEPTIONS
-# define FMT_EXCEPTIONS 0
-#else
-# define FMT_EXCEPTIONS 1
+#ifndef FMT_EXCEPTIONS
+# if (defined(__GNUC__) && !defined(__EXCEPTIONS)) || \
+     FMT_MSC_VER && !_HAS_EXCEPTIONS
+#  define FMT_EXCEPTIONS 0
+# else
+#  define FMT_EXCEPTIONS 1
+# endif
 #endif
 
 // Define FMT_USE_NOEXCEPT to make fmt use noexcept (C++11 feature).
@@ -765,6 +767,7 @@ FMT_CONSTEXPR11 typename std::enable_if<
 
 // Maximum number of arguments with packed types.
 enum { max_packed_args = 15 };
+enum : unsigned long long { is_unpacked_bit = 1ull << 63 };
 
 template <typename Context>
 class arg_map;
@@ -918,6 +921,10 @@ class basic_parse_context : private ErrorHandler {
   FMT_CONSTEXPR ErrorHandler error_handler() const { return *this; }
 };
 
+typedef basic_parse_context<char> format_parse_context;
+typedef basic_parse_context<wchar_t> wformat_parse_context;
+
+// DEPRECATED!
 typedef basic_parse_context<char> parse_context;
 typedef basic_parse_context<wchar_t> wparse_context;
 
@@ -1013,7 +1020,8 @@ class context_base {
 
  public:
   basic_parse_context<char_type> &parse_context() { return parse_context_; }
-  basic_format_args<Context> args() const { return args_; }
+  basic_format_args<Context> args() const { return args_; } // DEPRECATED!
+  basic_format_arg<Context> arg(unsigned id) const { return args_.get(id); }
 
   internal::error_handler error_handler() {
     return parse_context_.error_handler();
@@ -1145,17 +1153,17 @@ class format_arg_store {
 
   friend class basic_format_args<Context>;
 
-  static FMT_CONSTEXPR11 long long get_types() {
+  static FMT_CONSTEXPR11 unsigned long long get_types() {
     return IS_PACKED ?
-      static_cast<long long>(internal::get_types<Context, Args...>()) :
-      -static_cast<long long>(NUM_ARGS);
+      internal::get_types<Context, Args...>() :
+      internal::is_unpacked_bit | NUM_ARGS;
   }
 
  public:
 #if FMT_USE_CONSTEXPR11
-  static FMT_CONSTEXPR11 long long TYPES = get_types();
+  static FMT_CONSTEXPR11 unsigned long long TYPES = get_types();
 #else
-  static const long long TYPES;
+  static const unsigned long long TYPES;
 #endif
 
 #if (FMT_GCC_VERSION && FMT_GCC_VERSION <= 405) || \
@@ -1174,7 +1182,8 @@ class format_arg_store {
 
 #if !FMT_USE_CONSTEXPR11
 template <typename Context, typename ...Args>
-const long long format_arg_store<Context, Args...>::TYPES = get_types();
+const unsigned long long format_arg_store<Context, Args...>::TYPES =
+    get_types();
 #endif
 
 /**
@@ -1209,11 +1218,12 @@ class basic_format_args {
     const format_arg *args_;
   };
 
+  bool is_packed() const { return (types_ & internal::is_unpacked_bit) == 0; }
+
   typename internal::type type(unsigned index) const {
     unsigned shift = index * 4;
-    unsigned long long mask = 0xf;
     return static_cast<typename internal::type>(
-      (types_ & (mask << shift)) >> shift);
+      (types_ & (0xfull << shift)) >> shift);
   }
 
   friend class internal::arg_map<Context>;
@@ -1223,10 +1233,8 @@ class basic_format_args {
 
   format_arg do_get(size_type index) const {
     format_arg arg;
-    long long signed_types = static_cast<long long>(types_);
-    if (signed_types < 0) {
-      unsigned long long num_args =
-          static_cast<unsigned long long>(-signed_types);
+    if (!is_packed()) {
+      auto num_args = max_size();
       if (index < num_args)
         arg = args_[index];
       return arg;
@@ -1261,7 +1269,7 @@ class basic_format_args {
    \endrst
    */
   basic_format_args(const format_arg *args, size_type count)
-  : types_(-static_cast<int64_t>(count)) {
+    : types_(internal::is_unpacked_bit | count) {
     set_data(args);
   }
 
@@ -1273,11 +1281,10 @@ class basic_format_args {
     return arg;
   }
 
-  unsigned max_size() const {
-    long long signed_types = static_cast<long long>(types_);
-    return static_cast<unsigned>(
-        signed_types < 0 ?
-        -signed_types : static_cast<long long>(internal::max_packed_args));
+  size_type max_size() const {
+    unsigned long long max_packed = internal::max_packed_args;
+    return static_cast<size_type>(
+      is_packed() ? max_packed : types_ & ~internal::is_unpacked_bit);
   }
 };
 
@@ -1294,28 +1301,22 @@ struct wformat_args : basic_format_args<wformat_context> {
   : basic_format_args<wformat_context>(std::forward<Args>(arg)...) {}
 };
 
+#define FMT_ENABLE_IF_T(B, T) typename std::enable_if<B, T>::type
+
 #ifndef FMT_USE_ALIAS_TEMPLATES
 # define FMT_USE_ALIAS_TEMPLATES FMT_HAS_FEATURE(cxx_alias_templates)
 #endif
 #if FMT_USE_ALIAS_TEMPLATES
 /** String's character type. */
 template <typename S>
-using char_t = typename std::enable_if<internal::is_string<S>::value,
-  typename internal::char_t<S>::type>::type;
+using char_t = FMT_ENABLE_IF_T(
+  internal::is_string<S>::value, typename internal::char_t<S>::type);
 #define FMT_CHAR(S) fmt::char_t<S>
-
-template <typename S, typename T>
-using enable_if_string_t =
-  typename std::enable_if<internal::is_string<S>::value, T>::type;
-#define FMT_ENABLE_IF_STRING(S, T) enable_if_string_t<S, T>
 #else
 template <typename S>
 struct char_t : std::enable_if<
     internal::is_string<S>::value, typename internal::char_t<S>::type> {};
 #define FMT_CHAR(S) typename char_t<S>::type
-
-#define FMT_ENABLE_IF_STRING(S, T) \
-  typename std::enable_if<internal::is_string<S>::value, T>::type
 #endif
 
 namespace internal {
@@ -1471,7 +1472,7 @@ FMT_API void vprint(std::FILE *f, wstring_view format_str, wformat_args args);
   \endrst
  */
 template <typename S, typename... Args>
-inline FMT_ENABLE_IF_STRING(S, void)
+inline FMT_ENABLE_IF_T(internal::is_string<S>::value, void)
     print(std::FILE *f, const S &format_str, const Args &... args) {
   vprint(f, to_string_view(format_str),
          internal::checked_args<S, Args...>(format_str, args...));
@@ -1490,7 +1491,7 @@ FMT_API void vprint(wstring_view format_str, wformat_args args);
   \endrst
  */
 template <typename S, typename... Args>
-inline FMT_ENABLE_IF_STRING(S, void)
+inline FMT_ENABLE_IF_T(internal::is_string<S>::value, void)
     print(const S &format_str, const Args &... args) {
   vprint(to_string_view(format_str),
          internal::checked_args<S, Args...>(format_str, args...));

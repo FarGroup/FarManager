@@ -70,7 +70,7 @@ static auto GetBackTrace(CONTEXT ContextRecord, HANDLE ThreadHandle)
 	return Result;
 }
 
-static void GetSymbols(const std::vector<const void*>& BackTrace, const std::function<void(string&&, string&&, string&&)>& Consumer)
+static void GetSymbols(const std::vector<const void*>& BackTrace, function_ref<void(string&&, string&&, string&&)> const Consumer)
 {
 	SCOPED_ACTION(auto)(tracer::with_symbols());
 
@@ -112,11 +112,13 @@ static void GetSymbols(const std::vector<const void*>& BackTrace, const std::fun
 	}
 }
 
+#ifdef _MSC_VER
 extern "C" void** __current_exception();
 extern "C" void** __current_exception_context();
-
+#else
 static EXCEPTION_RECORD DummyRecord;
 static CONTEXT DummyContext;
+#endif
 
 EXCEPTION_POINTERS tracer::get_pointers()
 {
@@ -139,7 +141,7 @@ std::vector<const void*> tracer::get(const EXCEPTION_POINTERS& Pointers, HANDLE 
 	return GetBackTrace(*Pointers.ContextRecord, ThreadHandle);
 }
 
-void tracer::get_symbols(const std::vector<const void*>& Trace, const std::function<void(string&& Address, string&& Name, string&& Source)>& Consumer)
+void tracer::get_symbols(const std::vector<const void*>& Trace, function_ref<void(string&& Address, string&& Name, string&& Source)> const Consumer)
 {
 	GetSymbols(Trace, Consumer);
 }

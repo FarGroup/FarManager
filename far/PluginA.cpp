@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.env.hpp"
 #include "platform.memory.hpp"
 
+#include "common/function_ref.hpp"
 #include "common/null_iterator.hpp"
 #include "common/range.hpp"
 #include "common/scope_exit.hpp"
@@ -724,7 +725,7 @@ static PluginPanelItem* ConvertAnsiPanelItemsToUnicode(range<oldfar::PluginPanel
 		Dst.AllocationSize = static_cast<unsigned long long>(Src.PackSize) + (static_cast<unsigned long long>(Src.PackSizeHigh) << 32);
 		Dst.FileName = AnsiToUnicode(Src.FindData.cFileName);
 		Dst.AlternateFileName = AnsiToUnicode(Src.FindData.cAlternateFileName);
-	};
+	}
 	return Result.release();
 }
 
@@ -925,7 +926,7 @@ static void AnsiVBufToUnicode(CHAR_INFO* VBufA, FAR_CHAR_INFO* VBuf, size_t Size
 			AnsiToUnicodeBin({ &Src.Char.AsciiChar, 1 }, &Dst.Char);
 		}
 		Dst.Attributes = colors::ConsoleColorToFarColor(Src.Attributes);
-	};
+	}
 }
 
 static FAR_CHAR_INFO* AnsiVBufToUnicode(const oldfar::FarDialogItem &diA)
@@ -1341,10 +1342,10 @@ static void ConvertUnicodePanelInfoToAnsi(const PanelInfo* PIW, oldfar::PanelInf
 	PIA->SelectedItems = nullptr;
 	PIA->CurrentItem = static_cast<int>(PIW->CurrentItem);
 	PIA->TopPanelItem = static_cast<int>(PIW->TopPanelItem);
-	PIA->Visible = (PIW->Flags&PFLAGS_VISIBLE) ? 1 : 0;;
-	PIA->Focus = (PIW->Flags&PFLAGS_FOCUS) ? 1 : 0;;
+	PIA->Visible = (PIW->Flags&PFLAGS_VISIBLE)? 1 : 0;
+	PIA->Focus = (PIW->Flags&PFLAGS_FOCUS)? 1 : 0;
 	PIA->ViewMode = PIW->ViewMode;
-	PIA->ShortNames = (PIW->Flags&PFLAGS_ALTERNATIVENAMES) ? 1 : 0;;
+	PIA->ShortNames = (PIW->Flags&PFLAGS_ALTERNATIVENAMES)? 1 : 0;
 	PIA->SortMode = 0;
 
 	switch (PIW->SortMode)
@@ -3597,7 +3598,7 @@ static void WINAPI FarRestoreScreenA(HANDLE Screen) noexcept
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 }
 
-static int GetDirListGeneric(oldfar::PluginPanelItem*& PanelItems, int& ItemsSize, const std::function<int(PluginPanelItem*&, size_t&, size_t&)>& Getter)
+static int GetDirListGeneric(oldfar::PluginPanelItem*& PanelItems, int& ItemsSize, function_ref<int(PluginPanelItem*&, size_t&, size_t&)> const Getter)
 {
 	PanelItems = nullptr;
 	ItemsSize = 0;
@@ -5578,7 +5579,7 @@ private:
 
 		};
 
-#define CREATE_ITEMS(ItemsType) CreatePluginMenuItems(Src.ItemsType##Strings, Src.ItemsType##StringsNumber, PI.ItemsType);
+#define CREATE_ITEMS(ItemsType) CreatePluginMenuItems(Src.ItemsType##Strings, Src.ItemsType##StringsNumber, PI.ItemsType)
 
 		CREATE_ITEMS(DiskMenu);
 		CREATE_ITEMS(PluginMenu);

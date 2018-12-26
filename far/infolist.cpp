@@ -569,7 +569,7 @@ void InfoList::DisplayObject()
 		{
 			if (ShowPluginDescription(CurY))
 			{
-				;
+				// ;
 			}
 		}
 	}

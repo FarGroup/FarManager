@@ -52,6 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "platform.fs.hpp"
 
+#include "common/function_ref.hpp"
 #include "common/function_traits.hpp"
 #include "common/scope_exit.hpp"
 
@@ -73,7 +74,7 @@ int GetSearchReplaceString(
 	const wchar_t *HelpTopic,
 	bool HideAll,
 	const GUID* Id,
-	const std::function<string(bool)>& Picker)
+	function_ref<string(bool)> const Picker)
 {
 	int Result = 0;
 
@@ -457,7 +458,7 @@ static os::com::ptr<IFileIsInUse> CreateIFileIsInUse(const string& File)
 	}
 }
 
-static size_t enumerate_rm_processes(const string& Filename, DWORD& Reasons, const std::function<bool(string&&)>& Handler)
+static size_t enumerate_rm_processes(const string& Filename, DWORD& Reasons, function_ref<bool(string&&)> const Handler)
 {
 	DWORD Session;
 	WCHAR SessionKey[CCH_RM_SESSION_KEY + 1] = {};

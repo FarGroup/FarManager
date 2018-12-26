@@ -242,7 +242,7 @@ bool Manager::ExitAll()
 
 void Manager::RefreshAll()
 {
-	m_Queue.emplace([=]{ RefreshAllCommit(); });
+	m_Queue.emplace([this]{ RefreshAllCommit(); });
 }
 
 void Manager::CloseAll()
@@ -1228,14 +1228,13 @@ Manager::sorted_windows Manager::GetSortedWindows() const
 	return sorted_windows(m_windows.cbegin(),m_windows.cbegin() + m_NonModalSize);
 }
 
-void* Manager::GetCurrent(const std::function<void*(windows::const_reverse_iterator)>& Check) const
+void* Manager::GetCurrent(function_ref<void*(window_ptr const&)> const Check) const
 {
-	const auto iterator = std::find_if(CONST_REVERSE_RANGE(m_windows, i) { return !std::dynamic_pointer_cast<Modal>(i) || GetCurrentWindow()->GetCanLoseFocus(); });
-	if (iterator!=m_windows.crend())
-	{
-		return Check(iterator);
-	}
-	return nullptr;
+	const auto Iterator = std::find_if(CONST_REVERSE_RANGE(m_windows, i) { return !std::dynamic_pointer_cast<Modal>(i) || GetCurrentWindow()->GetCanLoseFocus(); });
+	if (Iterator==m_windows.crend())
+		return nullptr;
+
+	return Check(*Iterator);
 }
 
 desktop* Manager::Desktop() const
@@ -1245,19 +1244,17 @@ desktop* Manager::Desktop() const
 
 Viewer* Manager::GetCurrentViewer() const
 {
-	return reinterpret_cast<Viewer*>(GetCurrent([](windows::const_reverse_iterator Iterator)
+	return static_cast<Viewer*>(GetCurrent([](window_ptr const& Window)
 	{
-		const auto result = std::dynamic_pointer_cast<ViewerContainer>(*Iterator);
-		return result?result->GetViewer():nullptr;
-	}
-	));
+		const auto Result = std::dynamic_pointer_cast<ViewerContainer>(Window);
+		return Result? Result->GetViewer() : nullptr;
+	}));
 }
 
 FileEditor* Manager::GetCurrentEditor() const
 {
-	return reinterpret_cast<FileEditor*>(GetCurrent([](windows::const_reverse_iterator Iterator)
+	return static_cast<FileEditor*>(GetCurrent([](window_ptr const& Window)
 	{
-		return std::dynamic_pointer_cast<FileEditor>(*Iterator).get();
-	}
-	));
+		return std::dynamic_pointer_cast<FileEditor>(Window).get();
+	}));
 }

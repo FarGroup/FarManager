@@ -1,12 +1,12 @@
-﻿#ifndef TRACER_HPP_AD7B9307_ECFD_46FC_B001_E48C9B89DE64
-#define TRACER_HPP_AD7B9307_ECFD_46FC_B001_E48C9B89DE64
+﻿#ifndef FUNCTION_REF_HPP_0B2E3AF4_AB0A_4C89_9FC1_1A92AC2699A4
+#define FUNCTION_REF_HPP_0B2E3AF4_AB0A_4C89_9FC1_1A92AC2699A4
 #pragma once
 
 /*
-tracer.hpp
+function_ref.hpp
 */
 /*
-Copyright © 2016 Far Group
+Copyright © 2018 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -32,41 +32,47 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "common/function_ref.hpp"
+#include "preprocessor.hpp"
 
-class tracer: noncopyable
+template <typename callable_type>
+class function_ref;
+
+template <typename return_type, typename... args>
+class function_ref<return_type(args...)> final
 {
 public:
-	static EXCEPTION_POINTERS get_pointers();
-	static std::vector<const void*> get(const EXCEPTION_POINTERS& Pointers, HANDLE ThreadHandle);
-	static void get_symbols(const std::vector<const void*>& Trace, function_ref<void(string&& Address, string&& Name, string&& Source)> Consumer);
-	static void get_symbol(const void* Ptr, string& Address, string& Name, string& Source);
-
-	static auto with_symbols()
+	template<typename callable_type, REQUIRES(!std::is_same_v<std::decay_t<callable_type>, function_ref>)>
+	function_ref(const callable_type& Callable) noexcept:
+		m_Ptr(&Callable)
 	{
-		class with_symbols_t
+		// TODO: use initializer list after dropping VS2015
+		m_ErasedFn = [](const void* Ptr, args... Args) -> return_type
 		{
-		public:
-			NONCOPYABLE(with_symbols_t);
-			MOVABLE(with_symbols_t);
-
-			with_symbols_t()
-			{
-				sym_initialise();
-			}
-
-			~with_symbols_t()
-			{
-				sym_cleanup();
-			}
+			return std::invoke(*static_cast<const callable_type*>(Ptr), FWD(Args)...);
 		};
+	}
 
-		return with_symbols_t{};
+	function_ref(std::nullptr_t) noexcept:
+		m_Ptr(),
+		m_ErasedFn()
+	{
+	}
+
+	decltype(auto) operator()(args... Args) const
+	{
+		return m_ErasedFn(m_Ptr, FWD(Args)...);
+	}
+
+	explicit operator bool() const noexcept
+	{
+		return m_Ptr != nullptr;
 	}
 
 private:
-	static void sym_initialise();
-	static void sym_cleanup();
+	using signature_type = return_type(const void*, args...);
+
+	const void* m_Ptr;
+	signature_type* m_ErasedFn;
 };
 
-#endif // TRACER_HPP_AD7B9307_ECFD_46FC_B001_E48C9B89DE64
+#endif // FUNCTION_REF_HPP_0B2E3AF4_AB0A_4C89_9FC1_1A92AC2699A4

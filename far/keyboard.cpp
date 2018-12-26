@@ -486,7 +486,7 @@ DWORD IsMouseButtonPressed()
 	return IntKeyState.MouseButtonState;
 }
 
-bool while_mouse_button_pressed(const std::function<bool()>& Action)
+bool while_mouse_button_pressed(function_ref<bool()> const Action)
 {
 	DWORD RepeatSpeed;
 	if (!SystemParametersInfo(SPI_GETKEYBOARDSPEED, 0, &RepeatSpeed, 0))

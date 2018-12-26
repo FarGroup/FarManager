@@ -83,6 +83,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.fs.hpp"
 
 #include "common/enum_tokens.hpp"
+#include "common/function_ref.hpp"
 #include "common/scope_exit.hpp"
 
 #include "format.hpp"
@@ -719,7 +720,7 @@ static os::fs::file OpenCacheableTreeFile(const string& Root, string& Name, bool
 	return Result;
 }
 
-static void ReadLines(const os::fs::file& TreeFile, const std::function<void(string_view)>& Inserter)
+static void ReadLines(const os::fs::file& TreeFile, function_ref<void(string_view)> const Inserter)
 {
 	for (const auto& i: enum_file_lines(TreeFile, CP_UNICODE))
 	{

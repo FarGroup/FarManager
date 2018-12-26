@@ -538,6 +538,9 @@
     <ClInclude Include="common\enumerator.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
+    <ClInclude Include="common\function_ref.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
     <ClInclude Include="common\function_traits.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>

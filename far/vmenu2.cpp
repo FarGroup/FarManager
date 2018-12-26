@@ -651,7 +651,7 @@ void VMenu2::SortItems(bool Reverse, int Offset)
 	ListBox().SortItems(Reverse, Offset);
 }
 
-void VMenu2::SortItems(const std::function<bool(const MenuItemEx&, const MenuItemEx&, SortItemParam&)>& Pred, bool Reverse, int Offset)
+void VMenu2::SortItems(function_ref<bool(const MenuItemEx&, const MenuItemEx&, SortItemParam&)> const Pred, bool Reverse, int Offset)
 {
 	ListBox().SortItems(Pred, Reverse, Offset);
 }

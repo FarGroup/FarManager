@@ -521,7 +521,6 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				else
 					return FALSE;
 			}
-			break;
 
 		case DN_BTNCLICK:
 			{

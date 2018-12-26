@@ -4797,7 +4797,7 @@ bool Editor::IsFileModified() const
 // используется в FileEditor
 long long Editor::GetCurPos(bool file_pos, bool add_bom) const
 {
-	enum { Unknown = -1 };
+	enum { UnknownMultiplier = -1 };
 	int Multiplier = 1;
 	unsigned long long bom = 0;
 
@@ -4811,13 +4811,13 @@ long long Editor::GetCurPos(bool file_pos, bool add_bom) const
 		}
 		else if (m_codepage == CP_UTF8)
 		{
-			Multiplier = Unknown;
+			Multiplier = UnknownMultiplier;
 			if (add_bom)
 				bom = 3;
 		}
 		else if (GetCodePageInfo(m_codepage).first > 1)
 		{
-			Multiplier = Unknown;
+			Multiplier = UnknownMultiplier;
 		}
 	}
 

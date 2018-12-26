@@ -35,11 +35,13 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "common/function_ref.hpp"
+
 bool GetShellType(string_view Ext, string& strType, ASSOCIATIONTYPE aType = AT_FILEEXTENSION);
 
 void OpenFolderInShell(const string& Folder);
 
-void Execute(struct execute_info& Info, bool FolderRun, bool Silent, const std::function<void(bool)>& ConsoleActivator = nullptr);
+void Execute(struct execute_info& Info, bool FolderRun, bool Silent, function_ref<void(bool)> ConsoleActivator = nullptr);
 
 bool IsExecutable(string_view Filename);
 

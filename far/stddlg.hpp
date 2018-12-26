@@ -35,6 +35,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "common/function_ref.hpp"
+
 enum class lng : int;
 class RegExp;
 struct error_state_ex;
@@ -102,22 +104,22 @@ struct error_state_ex;
 
 */
 int GetSearchReplaceString(
-    bool IsReplaceMode,
-    const wchar_t *Title,
-    const wchar_t *SubTitle,
-    string& SearchStr,
-    string& ReplaceStr,
-    const wchar_t *TextHistoryName,
-    const wchar_t *ReplaceHistoryName,
-    bool* Case,
-    bool* WholeWords,
-    bool* Reverse,
-    bool* Regexp,
-    bool* PreserveStyle,
-    const wchar_t *HelpTopic=nullptr,
-    bool HideAll=false,
-    const GUID* Id = nullptr,
-    const std::function<string(bool)>& Picker = nullptr
+	bool IsReplaceMode,
+	const wchar_t *Title,
+	const wchar_t *SubTitle,
+	string& SearchStr,
+	string& ReplaceStr,
+	const wchar_t *TextHistoryName,
+	const wchar_t *ReplaceHistoryName,
+	bool* Case,
+	bool* WholeWords,
+	bool* Reverse,
+	bool* Regexp,
+	bool* PreserveStyle,
+	const wchar_t *HelpTopic=nullptr,
+	bool HideAll=false,
+	const GUID* Id = nullptr,
+	function_ref<string(bool)> Picker = nullptr
 );
 
 bool GetString(

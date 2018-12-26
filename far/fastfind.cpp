@@ -210,7 +210,7 @@ bool FastFind::ProcessKey(const Manager::Key& Key)
 				{
 					//Global->CtrlObject->Macro.DropProcess(); // ... то дропнем макропроцесс
 					//Global->CtrlObject->Macro.PopState();
-					;
+					// ;
 				}
 
 				m_FindEdit->SetString(strLastName);

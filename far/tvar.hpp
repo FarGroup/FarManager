@@ -65,11 +65,11 @@ public:
 	explicit TVar(const wchar_t*);
 	explicit TVar(double);
 
-	COPY_AND_MOVE(TVar, long long);
-	COPY_AND_MOVE(TVar, string_view);
-	COPY_AND_MOVE(TVar, const wchar_t*);
-	COPY_AND_MOVE(TVar, int);
-	COPY_AND_MOVE(TVar, double);
+	COPY_AND_MOVE(TVar, long long)
+	COPY_AND_MOVE(TVar, string_view)
+	COPY_AND_MOVE(TVar, const wchar_t*)
+	COPY_AND_MOVE(TVar, int)
+	COPY_AND_MOVE(TVar, double)
 
 	bool operator<(const TVar&) const;
 	bool operator>(const TVar&) const;

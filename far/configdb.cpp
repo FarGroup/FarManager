@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.fs.hpp"
 
 #include "common/bytes_view.hpp"
+#include "common/function_ref.hpp"
 #include "common/scope_exit.hpp"
 
 #include "format.hpp"
@@ -1750,7 +1751,7 @@ private:
 		ExecuteStatement(stmtDel, id);
 	}
 
-	unsigned long long GetPrevImpl(const unsigned int TypeHistory, const string_view HistoryName, const unsigned long long id, string& Name, const std::function<unsigned long long()>& Fallback) const
+	unsigned long long GetPrevImpl(const unsigned int TypeHistory, const string_view HistoryName, const unsigned long long id, string& Name, function_ref<unsigned long long()> const Fallback) const
 	{
 		WaitAllAsync();
 		Name.clear();

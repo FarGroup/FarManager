@@ -893,7 +893,7 @@ void CommandLine::SetPromptSize(int NewSize)
 	PromptSize = NewSize? std::clamp(NewSize, 5, 95) : DEFAULT_CMDLINE_WIDTH;
 }
 
-static bool ProcessFarCommands(const string& Command, const std::function<void(bool)>& ConsoleActivatior)
+static bool ProcessFarCommands(const string& Command, function_ref<void(bool)> const ConsoleActivatior)
 {
 	if (equal_icase(Command, L"far:config"sv))
 	{
@@ -1056,7 +1056,7 @@ void CommandLine::ExecString(execute_info& Info)
 	IsUpdateNeeded = true;
 }
 
-bool CommandLine::ProcessOSCommands(string_view const CmdLine, const std::function<void(bool)>& ConsoleActivatior)
+bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void(bool)> const ConsoleActivatior)
 {
 	auto SetPanel = Global->CtrlObject->Cp()->ActivePanel();
 
@@ -1187,10 +1187,6 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, const std::functi
 		{
 			ppstack.push(PushDir);
 			os::env::set(L"FARDIRSTACK"sv, PushDir);
-		}
-		else
-		{
-			;
 		}
 
 		return true;

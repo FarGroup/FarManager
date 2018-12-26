@@ -551,7 +551,7 @@ static int mainImpl(range<const wchar_t* const*> const Args)
 						const wchar_t *ChPtr = wcschr(Arg + 2, L':');
 
 						if (ChPtr)
-							StartChar = static_cast<int>(std::wcstol(ChPtr + 1, nullptr, 10));;
+							StartChar = static_cast<int>(std::wcstol(ChPtr + 1, nullptr, 10));
 					}
 
 					if (Iter + 1 != Args.end())

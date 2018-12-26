@@ -2862,11 +2862,12 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 
 	HMenuData MainMenu[]
 	{
-		{ msg(lng::MMenuLeftTitle), L"LeftRightMenu"sv, LeftMenu, true },
-		{ msg(lng::MMenuFilesTitle), L"FilesMenu"sv, FilesMenu },
-		{ msg(lng::MMenuCommandsTitle), L"CmdMenu"sv, CmdMenu },
-		{ msg(lng::MMenuOptionsTitle), L"OptMenu"sv, OptionsMenu },
-		{ msg(lng::MMenuRightTitle), L"LeftRightMenu"sv, RightMenu },
+		// TODO: remove make_range after dropping VS2015
+		{ msg(lng::MMenuLeftTitle), L"LeftRightMenu"sv, make_range(LeftMenu), true },
+		{ msg(lng::MMenuFilesTitle), L"FilesMenu"sv, make_range(FilesMenu) },
+		{ msg(lng::MMenuCommandsTitle), L"CmdMenu"sv, make_range(CmdMenu) },
+		{ msg(lng::MMenuOptionsTitle), L"OptMenu"sv, make_range(OptionsMenu) },
+		{ msg(lng::MMenuRightTitle), L"LeftRightMenu"sv, make_range(RightMenu) },
 	};
 	static int LastHItem=-1,LastVItem=0;
 	int HItem,VItem;

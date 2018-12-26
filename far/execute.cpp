@@ -725,7 +725,7 @@ static bool GetProtocolType(string_view const Str, image_type& ImageType)
 	return false;
 }
 
-void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::function<void(bool)>& ConsoleActivator)
+void Execute(execute_info& Info, bool FolderRun, bool Silent, function_ref<void(bool)> const ConsoleActivator)
 {
 	bool Result = false;
 	string strNewCmdStr;

@@ -312,4 +312,7 @@ private:
 	string m_ConsoleTitle;
 };
 
+// BUGBUG
+extern std::chrono::steady_clock::duration WaitUserTime;
+
 #endif // DIALOG_HPP_7A9BE12B_EE5C_441F_84C9_64E9A63ABEFE

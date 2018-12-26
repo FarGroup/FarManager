@@ -171,7 +171,7 @@ bool EjectVolume(wchar_t Letter, unsigned long long Flags)
 			{
 				//printf("Media in Drive %c can be safely removed.\n",cDriveLetter);
 				//if(Flags&EJECT_NOTIFY_AFTERREMOVE)
-				;
+				//;
 			}
 		} // END: while(Retry)
 
