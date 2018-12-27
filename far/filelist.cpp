@@ -895,7 +895,7 @@ long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 		case MCODE_V_APANEL_PREFIX:           // APanel.Prefix
 		case MCODE_V_PPANEL_PREFIX:           // PPanel.Prefix
 		{
-			PluginInfo *PInfo=(PluginInfo *)vParam;
+			const auto PInfo = static_cast<PluginInfo*>(vParam);
 			const auto PluginPanel = GetPluginHandle();
 			if (GetMode() == panel_mode::PLUGIN_PANEL && PluginPanel && PluginPanel->plugin())
 				return Global->CtrlObject->Plugins->GetPluginInfo(PluginPanel->plugin(), PInfo)?1:0;

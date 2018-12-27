@@ -2456,7 +2456,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		}
 		case ECTL_SETTITLE:
 		{
-			strPluginTitle = NullToEmpty(reinterpret_cast<const wchar_t*>(Param2));
+			strPluginTitle = NullToEmpty(static_cast<const wchar_t*>(Param2));
 			ShowStatus();
 			if (!m_editor->m_InEERedraw)
 				Global->ScrBuf->Flush(); //???
@@ -2597,7 +2597,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		{
 			if (Param2)
 			{
-				auto& rec = *reinterpret_cast<const INPUT_RECORD*>(Param2);
+				const auto& rec = *static_cast<const INPUT_RECORD*>(Param2);
 
 				if (ProcessEditorInput(rec))
 					return TRUE;

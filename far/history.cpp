@@ -154,7 +154,7 @@ history_return_type History::Select(const string& Title, string_view const HelpT
 	return ret;
 }
 
-history_return_type History::Select(VMenu2 &HistoryMenu, int Height, Dialog *Dlg, string &strStr)
+history_return_type History::Select(VMenu2& HistoryMenu, int Height, Dialog const* const Dlg, string& strStr)
 {
 	history_record_type Type;
 	return ProcessMenu(strStr,nullptr ,nullptr ,nullptr , nullptr, HistoryMenu, Height, Type, Dlg);

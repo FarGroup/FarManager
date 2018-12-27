@@ -662,7 +662,7 @@ bool ProcessStdException(const std::exception& e, string_view const Function, co
 		return ProcessGenericException(SehException->context(), Function, {}, Module, {});
 	}
 
-	const auto Context = std::make_unique<detail::exception_context>(EXCEPTION_MICROSOFT_CPLUSPLUS, tracer::get_pointers(), os::OpenCurrentThread(), GetCurrentThreadId());
+	detail::exception_context const Context(EXCEPTION_MICROSOFT_CPLUSPLUS, tracer::get_pointers(), os::OpenCurrentThread(), GetCurrentThreadId());
 
 	if (const auto FarException = dynamic_cast<const detail::far_base_exception*>(&e))
 	{
@@ -676,10 +676,10 @@ bool ProcessStdException(const std::exception& e, string_view const Function, co
 			NestedStack = &Stack;
 		}
 
-		return ProcessGenericException(*Context, FarException->get_function(), FarException->get_location(), Module, Message, &FarException->get_error_state(), NestedStack);
+		return ProcessGenericException(Context, FarException->get_function(), FarException->get_location(), Module, Message, &FarException->get_error_state(), NestedStack);
 	}
 
-	return ProcessGenericException(*Context, Function, {}, Module, encoding::utf8::get_chars(e.what()));
+	return ProcessGenericException(Context, Function, {}, Module, encoding::utf8::get_chars(e.what()));
 }
 
 bool ProcessUnknownException(string_view const Function, const Plugin* const Module)

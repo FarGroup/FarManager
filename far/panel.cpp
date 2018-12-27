@@ -751,15 +751,15 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			if (GetType() == panel_type::FILE_PANEL && GetMode() == panel_mode::PLUGIN_PANEL)
 			{
 				PluginInfo PInfo = {sizeof(PInfo)};
-				FileList *DestPanel = ((FileList*)this);
+				const auto DestPanel = static_cast<const FileList*>(this);
 				if (DestPanel->GetPluginInfo(&PInfo))
 					strTemp = NullToEmpty(PInfo.CommandPrefix);
 			}
 
 			if (Param1&&Param2)
-				xwcsncpy((wchar_t*)Param2, strTemp.c_str(), Param1);
+				xwcsncpy(static_cast<wchar_t*>(Param2), strTemp.c_str(), Param1);
 
-			Result=(int)strTemp.size()+1;
+			Result = static_cast<int>(strTemp.size() + 1);
 			break;
 		}
 
@@ -770,7 +770,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 
 			if (GetType() == panel_type::FILE_PANEL)
 			{
-				FileList *DestFilePanel=(FileList *)this;
+				const auto DestFilePanel = static_cast<const FileList*>(this);
 				static int Reenter=0;
 
 				if (!Reenter && GetMode() == panel_mode::PLUGIN_PANEL)
@@ -934,7 +934,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 
 		case FCTL_REDRAWPANEL:
 		{
-			PanelRedrawInfo *Info=(PanelRedrawInfo *)Param2;
+			const auto Info = static_cast<const PanelRedrawInfo*>(Param2);
 
 			if (CheckStructSize(Info))
 			{

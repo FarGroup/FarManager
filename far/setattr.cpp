@@ -460,7 +460,7 @@ static intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 			{
 				const auto Point = reinterpret_cast<intptr_t>(Param2)==-1?
 					os::chrono::nt_clock::now() :
-					*reinterpret_cast<const os::chrono::time_point*>(Param2);
+					*static_cast<const os::chrono::time_point*>(Param2);
 
 				ConvertDate(Point,strDate,strTime,12,FALSE,FALSE,2);
 			}

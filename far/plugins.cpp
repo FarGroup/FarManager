@@ -86,7 +86,7 @@ static void ReadUserBackgound(SaveScreen *SaveScr)
 	}
 }
 
-static string GetHotKeyPluginKey(Plugin *pPlugin)
+static string GetHotKeyPluginKey(Plugin const* const pPlugin)
 {
 	/*
 	FarPath
@@ -2017,7 +2017,7 @@ bool PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,void *
 		{
 			if (os::memory::is_pointer(PluginPanel->panel()) && PluginPanel->panel() != INVALID_HANDLE_VALUE)
 			{
-				const auto fmc = reinterpret_cast<FarMacroCall*>(PluginPanel->panel());
+				const auto fmc = static_cast<FarMacroCall*>(PluginPanel->panel());
 				if (fmc->Count > 0 && fmc->Values[0].Type == FMVT_PANEL)
 				{
 					process = true;

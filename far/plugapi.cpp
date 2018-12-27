@@ -511,7 +511,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		case ACTL_GETARRAYCOLOR:
 			if (Param1 && Param2)
 			{
-				Global->Opt->Palette.CopyTo(reinterpret_cast<FarColor*>(Param2), Param1);
+				Global->Opt->Palette.CopyTo(static_cast<FarColor*>(Param2), Param1);
 			}
 			return Global->Opt->Palette.size();
 
@@ -2308,7 +2308,7 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 			// Param1=0, Param2 - FarMacroLoad*
 			case MCTL_LOADALL: // из реестра в память ФАР с затиранием предыдущего
 			{
-				const auto Data = static_cast<FarMacroLoad*>(Param2);
+				const auto Data = static_cast<const FarMacroLoad*>(Param2);
 				return
 					!Macro.IsRecording() &&
 					(!Data || CheckStructSize(Data)) &&
@@ -2418,7 +2418,7 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 		case PCTL_LOADPLUGIN:
 		case PCTL_FORCEDLOADPLUGIN:
 			if (Param1 == PLT_PATH && Param2)
-				return reinterpret_cast<intptr_t>(Global->CtrlObject->Plugins->LoadPluginExternal(ConvertNameToFull(reinterpret_cast<const wchar_t*>(Param2)), Command == PCTL_FORCEDLOADPLUGIN));
+				return reinterpret_cast<intptr_t>(Global->CtrlObject->Plugins->LoadPluginExternal(ConvertNameToFull(static_cast<const wchar_t*>(Param2)), Command == PCTL_FORCEDLOADPLUGIN));
 			break;
 
 		case PCTL_FINDPLUGIN:
@@ -2427,12 +2427,12 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 			switch (Param1)
 			{
 			case PFM_GUID:
-				plugin = Global->CtrlObject->Plugins->FindPlugin(*reinterpret_cast<GUID*>(Param2));
+				plugin = Global->CtrlObject->Plugins->FindPlugin(*static_cast<GUID*>(Param2));
 				break;
 
 			case PFM_MODULENAME:
 				{
-					const auto strPath = ConvertNameToFull(reinterpret_cast<const wchar_t*>(Param2));
+					const auto strPath = ConvertNameToFull(static_cast<const wchar_t*>(Param2));
 					const auto ItemIterator = std::find_if(CONST_RANGE(*Global->CtrlObject->Plugins, i)
 					{
 						return equal_icase(i->ModuleName(), strPath);
@@ -2457,10 +2457,10 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 
 		case PCTL_GETPLUGININFORMATION:
 			{
-				const auto Info = reinterpret_cast<FarGetPluginInformation*>(Param2);
+				const auto Info = static_cast<FarGetPluginInformation*>(Param2);
 				if (Handle && (!Info || (CheckStructSize(Info) && static_cast<size_t>(Param1) > sizeof(FarGetPluginInformation))))
 				{
-					return Global->CtrlObject->Plugins->GetPluginInformation(reinterpret_cast<Plugin*>(Handle), Info, Param1);
+					return Global->CtrlObject->Plugins->GetPluginInformation(static_cast<Plugin*>(Handle), Info, Param1);
 				}
 			}
 			break;
@@ -2543,7 +2543,7 @@ intptr_t WINAPI apiFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONTROL_COM
 		case FFCTL_ISFILEINFILTER:
 			if (!Param2)
 				break;
-			return Filter->FileInFilter(*reinterpret_cast<const PluginPanelItem*>(Param2));
+			return Filter->FileInFilter(*static_cast<const PluginPanelItem*>(Param2));
 		}
 		return FALSE;
 	}

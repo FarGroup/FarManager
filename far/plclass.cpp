@@ -214,11 +214,11 @@ bool native_plugin_factory::IsPlugin2(const void* Module) const
 {
 	return seh_invoke_no_ui([&]
 	{
-		const auto pDOSHeader = reinterpret_cast<const IMAGE_DOS_HEADER*>(Module);
+		const auto pDOSHeader = static_cast<const IMAGE_DOS_HEADER*>(Module);
 		if (pDOSHeader->e_magic != IMAGE_DOS_SIGNATURE)
 			return false;
 
-		const auto pPEHeader = reinterpret_cast<const IMAGE_NT_HEADERS*>(reinterpret_cast<const char*>(Module) + pDOSHeader->e_lfanew);
+		const auto pPEHeader = static_cast<const IMAGE_NT_HEADERS*>(static_cast<const void*>(static_cast<const char*>(Module) + pDOSHeader->e_lfanew));
 
 		if (pPEHeader->Signature != IMAGE_NT_SIGNATURE)
 			return false;
@@ -247,7 +247,7 @@ bool native_plugin_factory::IsPlugin2(const void* Module) const
 			{
 				const auto& GetAddress = [&](size_t Offset)
 				{
-					return reinterpret_cast<const char*>(Module) + Section.PointerToRawData - Section.VirtualAddress + Offset;
+					return static_cast<const char*>(Module) + Section.PointerToRawData - Section.VirtualAddress + Offset;
 				};
 
 				const auto pExportDir = reinterpret_cast<const IMAGE_EXPORT_DIRECTORY*>(GetAddress(dwExportAddr));
@@ -255,7 +255,7 @@ bool native_plugin_factory::IsPlugin2(const void* Module) const
 
 				if (std::any_of(pNames, pNames + pExportDir->NumberOfNames, [&](DWORD NameOffset)
 				{
-					return FindExport(reinterpret_cast<const char *>(GetAddress(NameOffset)));
+					return FindExport(GetAddress(NameOffset));
 				}))
 				{
 					return true;

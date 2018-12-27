@@ -189,7 +189,7 @@ static size_t ItemStringAndSize(const DialogItemEx *Data,string& ItemString)
 
 	if (IsEdit(Data->Type))
 	{
-		if (const auto EditPtr = static_cast<DlgEdit*>(Data->ObjPtr))
+		if (const auto EditPtr = static_cast<const DlgEdit*>(Data->ObjPtr))
 			ItemString = EditPtr->GetString();
 	}
 
@@ -237,7 +237,7 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 			{
 				const auto list = static_cast<FarList*>(static_cast<void*>(reinterpret_cast<char*>(Item->Item) + offsetList));
 				const auto listItems = static_cast<FarListItem*>(static_cast<void*>(reinterpret_cast<char*>(Item->Item) + offsetListItems));
-				wchar_t* text = static_cast<wchar_t*>(static_cast<void*>(listItems + ListBoxSize));
+				auto text = static_cast<wchar_t*>(static_cast<void*>(listItems + ListBoxSize));
 				for(size_t ii = 0; ii != ListBoxSize; ++ii)
 				{
 					auto& item = ListBox->at(ii);
@@ -1030,7 +1030,7 @@ void Dialog::ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex)
 
 	if (strData.empty())
 	{
-		if (const auto EditPtr = static_cast<DlgEdit*>(CurItem->ObjPtr))
+		if (const auto EditPtr = static_cast<const DlgEdit*>(CurItem->ObjPtr))
 		{
 			const auto& DlgHistory = EditPtr->GetHistory();
 			if(DlgHistory)
@@ -1334,7 +1334,7 @@ void Dialog::GetDialogObjectsData()
 			{
 				if (i.ObjPtr)
 				{
-					const auto EditPtr = static_cast<DlgEdit*>(i.ObjPtr);
+					const auto EditPtr = static_cast<const DlgEdit*>(i.ObjPtr);
 
 					// подготовим данные
 					// получим данные
@@ -2941,7 +2941,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 									int pos = static_cast<int>(strStr.size());
 									for (size_t I = m_FocusPos; !last && I < Items.size(); ++I)
 									{
-										const auto next = static_cast<DlgEdit*>(Items[I].ObjPtr);
+										const auto next = static_cast<const DlgEdit*>(Items[I].ObjPtr);
 										last = !IsEmulatedEditorLine(Items[I]);
 										if (!last)
 										{
@@ -4781,7 +4781,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		{
 			if (IdExist)
 			{
-				if (const auto di = reinterpret_cast<DialogInfo*>(Param2))
+				if (const auto di = static_cast<DialogInfo*>(Param2))
 				{
 					if (CheckStructSize(di))
 					{
@@ -4888,17 +4888,17 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						}
 						case DM_LISTFINDSTRING: // Param1=ID Param2=FarListFind
 						{
-							const auto lf = reinterpret_cast<FarListFind*>(Param2);
+							const auto lf = static_cast<const FarListFind*>(Param2);
 							return CheckStructSize(lf)?ListBox->FindItem(lf->StartIndex,lf->Pattern,lf->Flags):-1;
 						}
 						case DM_LISTADDSTR: // Param1=ID Param2=String
 						{
-							Ret=ListBox->AddItem((wchar_t*)Param2);
+							Ret=ListBox->AddItem(static_cast<const wchar_t*>(Param2));
 							break;
 						}
 						case DM_LISTADD: // Param1=ID Param2=FarList: ItemsNumber=Count, Items=Src
 						{
-							FarList *ListItems=(FarList *)Param2;
+							const auto ListItems = static_cast<const FarList*>(Param2);
 
 							if (!CheckStructSize(ListItems))
 								return FALSE;
@@ -4939,7 +4939,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						}
 						case DM_LISTGETITEM: // Param1=ID Param2=FarListGetItem: ItemsNumber=Index, Items=Dest
 						{
-							const auto ListItems = reinterpret_cast<FarListGetItem*>(Param2);
+							const auto ListItems = static_cast<FarListGetItem*>(Param2);
 
 							if (!CheckStructSize(ListItems))
 								return FALSE;
@@ -4982,7 +4982,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						}
 						case DM_LISTSETDATA: // Param1=ID Param2=FarListItemData
 						{
-							const auto ListItems = reinterpret_cast<FarListItemData*>(Param2);
+							const auto ListItems = static_cast<const FarListItemData*>(Param2);
 
 							if (CheckStructSize(ListItems) && static_cast<size_t>(ListItems->Index) < ListBox->size())
 							{
@@ -5002,7 +5002,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						*/
 						case DM_LISTSET: // Param1=ID Param2=FarList: ItemsNumber=Count, Items=Src
 						{
-							FarList *ListItems=(FarList *)Param2;
+							const auto ListItems = static_cast<const FarList*>(Param2);
 
 							if (!CheckStructSize(ListItems))
 								return FALSE;
@@ -5014,7 +5014,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						//case DM_LISTINS: // Param1=ID Param2=FarList: ItemsNumber=Index, Items=Dest
 						case DM_LISTSETTITLES: // Param1=ID Param2=FarListTitles
 						{
-							FarListTitles *ListTitle=(FarListTitles *)Param2;
+							const auto ListTitle = static_cast<const FarListTitles*>(Param2);
 							if(CheckStructSize(ListTitle))
 							{
 								ListBox->SetTitle(NullToEmpty(ListTitle->Title));
@@ -5237,10 +5237,10 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				}
 				else
 				{
-					EditorSetPosition *esp=(EditorSetPosition *)Param2;
+					const auto esp = static_cast<EditorSetPosition*>(Param2);
 					if (CheckStructSize(esp))
 					{
-						const auto EditPtr = static_cast<DlgEdit*>(CurItem->ObjPtr);
+						const auto EditPtr = static_cast<const DlgEdit*>(CurItem->ObjPtr);
 						esp->CurLine=0;
 						esp->CurPos=EditPtr->GetCurPos();
 						esp->CurTabPos=EditPtr->GetTabCurPos();
@@ -5266,7 +5266,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				}
 				else
 				{
-					EditorSetPosition *esp=(EditorSetPosition *)Param2;
+					const auto esp = static_cast<const EditorSetPosition*>(Param2);
 					if (CheckStructSize(esp))
 					{
 						const auto EditPtr = static_cast<DlgEdit*>(CurItem->ObjPtr);
@@ -5543,7 +5543,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 					case DI_PSWEDIT:
 					case DI_FIXEDIT:
 					{
-						const auto edit = static_cast<DlgEdit*>(CurItem->ObjPtr);
+						const auto edit = static_cast<const DlgEdit*>(CurItem->ObjPtr);
 						if (edit)
 						{
 							Ptr = edit->GetString().data();
@@ -5656,7 +5656,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		/*****************************************************************/
 		case DM_SETTEXT:
 		{
-			FarDialogItemData *did=(FarDialogItemData*)Param2;
+			const auto did = static_cast<const FarDialogItemData*>(Param2);
 			if (CheckStructSize(did))
 			{
 				int NeedInit=TRUE;
@@ -5946,7 +5946,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				SMALL_RECT Rect;
 				if (GetItemRect(Param1,Rect))
 				{
-					*reinterpret_cast<PSMALL_RECT>(Param2)=Rect;
+					*static_cast<PSMALL_RECT>(Param2) = Rect;
 					return TRUE;
 				}
 			}
@@ -5992,12 +5992,12 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		case DM_GETSELECTION: // Msg=DM_GETSELECTION, Param1=ID, Param2=*EditorSelect
 		case DM_SETSELECTION: // Msg=DM_SETSELECTION, Param1=ID, Param2=*EditorSelect
 		{
-			EditorSelect *EdSel=(EditorSelect *)Param2;
+			const auto EdSel = static_cast<EditorSelect*>(Param2);
 			if (IsEdit(Type) && CheckStructSize(EdSel))
 			{
 				if (Msg == DM_GETSELECTION)
 				{
-					const auto EditLine = static_cast<DlgEdit*>(CurItem->ObjPtr);
+					const auto EditLine = static_cast<const DlgEdit*>(CurItem->ObjPtr);
 					EdSel->BlockStartLine=0;
 					EdSel->BlockHeight=1;
 					EditLine->GetSelection(EdSel->BlockStartPos,EdSel->BlockWidth);

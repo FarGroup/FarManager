@@ -111,7 +111,7 @@ namespace os::concurrency
 		template<class T>
 		static unsigned int WINAPI wrapper(void* RawPtr)
 		{
-			std::invoke(*std::unique_ptr<T>(reinterpret_cast<T*>(RawPtr)));
+			std::invoke(*std::unique_ptr<T>(static_cast<T*>(RawPtr)));
 			return 0;
 		}
 

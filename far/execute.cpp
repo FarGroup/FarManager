@@ -1059,7 +1059,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, function_ref<void(
 
 							for (DWORD i=0; i<rd; i++)
 							{
-								PINPUT_RECORD pir=&ir[i];
+								const auto pir = &ir[i];
 
 								if (pir->EventType==KEY_EVENT)
 								{

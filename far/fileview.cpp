@@ -380,11 +380,7 @@ bool FileViewer::ProcessKey(const Manager::Key& Key)
 				os::fs::file Edit;
 				while(!Edit.Open(strViewFileName, FILE_READ_DATA, FILE_SHARE_READ|(Global->Opt->EdOpt.EditOpenedForWrite?FILE_SHARE_WRITE:0), nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 				{
-					const auto ErrorState = error_state::fetch();
-
-					if(OperationFailed(ErrorState, strViewFileName, lng::MEditTitle, msg(lng::MEditCannotOpen), false) == operation::retry)
-						continue;
-					else
+					if (OperationFailed(error_state::fetch(), strViewFileName, lng::MEditTitle, msg(lng::MEditCannotOpen), false) != operation::retry)
 						return true;
 				}
 				Edit.Close();

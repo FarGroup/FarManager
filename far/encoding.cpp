@@ -1032,7 +1032,7 @@ void swap_bytes(const void* const Src, void* const Dst, const size_t SizeInBytes
 		// It's safer to not call it.
 		return;
 	}
-	_swab(reinterpret_cast<char*>(const_cast<void*>(Src)), reinterpret_cast<char*>(Dst), static_cast<int>(SizeInBytes));
+	_swab(static_cast<char*>(const_cast<void*>(Src)), static_cast<char*>(Dst), static_cast<int>(SizeInBytes));
 }
 
 bool IsVirtualCodePage(uintptr_t cp)

@@ -936,7 +936,7 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 			return new PluginRadioButtonBinding(Info, &DialogHandle, m_DialogItemsCount-1, Value);
 		}
 
-		FarDialogItem *AddListControl(FARDIALOGITEMTYPES Type, int *SelectedItem, wchar_t *Text, int Width, int Height, const wchar_t* ItemsText [], size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
+		FarDialogItem *AddListControl(FARDIALOGITEMTYPES Type, int *SelectedItem, wchar_t *Text, int Width, int Height, const wchar_t* const* ItemsText, size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
 		{
 			FarDialogItem *Item = AddDialogItem(Type, Text ? Text : L"");
 			SetNextY(Item);
@@ -1071,22 +1071,22 @@ public:
 			return Item;
 		}
 
-		FarDialogItem *AddComboBox(int *SelectedItem, wchar_t *Text, int Width, const wchar_t* ItemsText[], size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
+		FarDialogItem *AddComboBox(int *SelectedItem, wchar_t *Text, int Width, const wchar_t* const* ItemsText, size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
 		{
 			return AddListControl(DI_COMBOBOX, SelectedItem, Text, Width, 0, ItemsText, ItemCount, ItemFlags);
 		}
 
-		FarDialogItem *AddComboBox(int *SelectedItem, wchar_t *Text,  int Width, const int MessageIDs[], size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
+		FarDialogItem *AddComboBox(int *SelectedItem, wchar_t *Text,  int Width, const int* MessageIDs, size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
 		{
 			return AddListControl(DI_COMBOBOX, SelectedItem, Text, Width, 0, MessageIDs, ItemCount, ItemFlags);
 		}
 
-		FarDialogItem *AddListBox(int *SelectedItem, int Width, int Height, const wchar_t* ItemsText[], size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
+		FarDialogItem *AddListBox(int *SelectedItem, int Width, int Height, const wchar_t* const* ItemsText, size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
 		{
 			return AddListControl(DI_LISTBOX, SelectedItem, nullptr, Width, Height, ItemsText, ItemCount, ItemFlags);
 		}
 
-		FarDialogItem *AddListBox(int *SelectedItem, int Width, int Height, const int MessageIDs[], size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
+		FarDialogItem *AddListBox(int *SelectedItem, int Width, int Height, const int* MessageIDs, size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
 		{
 			return AddListControl(DI_LISTBOX, SelectedItem, nullptr, Width, Height, MessageIDs, ItemCount, ItemFlags);
 		}

@@ -2139,7 +2139,7 @@ static void WINAPI FarRecursiveSearchA(const char *InitDir, const char *Mask, ol
 		auto NewFlags = FRS_NONE;
 		FirstFlagsToSecond(Flags, NewFlags, FlagsMap);
 
-		NativeFSF.FarRecursiveSearch(encoding::oem::get_chars(InitDir).c_str(), encoding::oem::get_chars(Mask).data(), FarRecursiveSearchA_Callback, NewFlags, static_cast<void *>(&CallbackParam));
+		NativeFSF.FarRecursiveSearch(encoding::oem::get_chars(InitDir).c_str(), encoding::oem::get_chars(Mask).data(), FarRecursiveSearchA_Callback, NewFlags, &CallbackParam);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 }
@@ -4754,7 +4754,7 @@ static void* TranslateResult(void* hResult)
 	if (INVALID_HANDLE_VALUE == hResult)
 		return nullptr;
 	if (hResult == ToPtr(-2))
-		return static_cast<void*>(PANEL_STOP);
+		return PANEL_STOP;
 	return hResult;
 }
 

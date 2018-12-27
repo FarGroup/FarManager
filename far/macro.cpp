@@ -627,7 +627,7 @@ bool KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 		{
 			if ((ctrldot||ctrlshiftdot) && !IsExecuting())
 			{
-				Plugin* LuaMacro = Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Luamacro.Id);
+				const auto LuaMacro = Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Luamacro.Id);
 				if (!LuaMacro || LuaMacro->IsPendingRemove())
 				{
 					Message(MSG_WARNING,
@@ -4898,7 +4898,7 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 	//_SVS(SysLog(L"LastKey=%d Msg=%s",LastKey,_DLGMSG_ToName(Msg)));
 	if (Msg == DN_INITDIALOG)
 	{
-		KMParam=reinterpret_cast<DlgParam*>(Param2);
+		KMParam = static_cast<DlgParam*>(Param2);
 		LastKey=0;
 		// <Клавиши, которые нельзя ввести в диалоге назначения>
 		static const DWORD PreDefKeyMain[]=

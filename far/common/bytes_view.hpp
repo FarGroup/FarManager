@@ -39,7 +39,7 @@ class bytes_view: public range<const char*>
 {
 public:
 	bytes_view(const void* Data, size_t Size):
-		range<const char*>(reinterpret_cast<const char*>(Data), reinterpret_cast<const char*>(Data) + Size)
+		range<const char*>(static_cast<const char*>(Data), static_cast<const char*>(Data) + Size)
 	{
 	}
 

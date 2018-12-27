@@ -357,15 +357,11 @@ void Edit::FastShow(const Edit::ShowInfo* Info)
 	}
 	else
 	{
-		if ((TabSelStart-=LeftPos)<0)
-			TabSelStart=0;
+		TabSelStart = std::max(TabSelStart - LeftPos, 0);
 
-		int AllString=(TabSelEnd==-1);
-
-		if (AllString)
-			TabSelEnd=static_cast<int>(EditLength);
-		else if ((TabSelEnd-=LeftPos)<0)
-			TabSelEnd=0;
+		TabSelEnd = TabSelEnd == -1?
+			static_cast<int>(EditLength) :
+			std::max(TabSelEnd - LeftPos, 0);
 
 		OutStr.append(EditLength - OutStr.size(), L' ');
 

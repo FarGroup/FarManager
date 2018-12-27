@@ -77,7 +77,7 @@ public:
 
 	void AddToHistory(const string& Str, history_record_type Type = HR_DEFAULT, const GUID* Guid = nullptr, string_view File = {}, string_view Data = {}, bool SaveForbid = false);
 	history_return_type Select(const string& Title, string_view HelpTopic, string &strStr, history_record_type &Type, GUID* Guid=nullptr, string *File=nullptr, string *Data=nullptr);
-	history_return_type Select(VMenu2 &HistoryMenu, int Height, Dialog *Dlg, string &strStr);
+	history_return_type Select(VMenu2& HistoryMenu, int Height, Dialog const* Dlg, string& strStr);
 	string GetPrev();
 	string GetNext();
 	bool GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend=false);

@@ -782,7 +782,7 @@ namespace os::fs
 			NameString.MaximumLength = NameString.Length;
 			pNameString = &NameString;
 		}
-		const auto di = reinterpret_cast<FILE_ID_BOTH_DIR_INFORMATION*>(FileInformation);
+		const auto di = static_cast<FILE_ID_BOTH_DIR_INFORMATION*>(FileInformation);
 		di->NextEntryOffset = 0xffffffffUL;
 
 		const auto Result = imports.NtQueryDirectoryFile(m_Handle.native_handle(), nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, static_cast<ULONG>(Length), FileInformationClass, ReturnSingleEntry, pNameString, RestartScan);

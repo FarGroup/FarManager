@@ -830,7 +830,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 		}
 		case DN_EDITCHANGE:
 		{
-			auto& Item=*reinterpret_cast<FarDialogItem*>(Param2);
+			auto& Item=*static_cast<FarDialogItem*>(Param2);
 
 			switch (Param1)
 			{
@@ -869,7 +869,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const os::fs::find_data& FindData, const string& DestPath, string &strResultName, const UserDataItem* const UserData)
+bool FindFiles::GetPluginFile(ArcListItem const* const ArcItem, const os::fs::find_data& FindData, const string& DestPath, string &strResultName, const UserDataItem* const UserData)
 {
 	SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 	_ALGO(CleverSysLog clv(L"FindFiles::GetPluginFile()"));

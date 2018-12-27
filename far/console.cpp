@@ -483,7 +483,7 @@ namespace console_detail
 		return L'0' + vt_color_map[NtIndex & 7]; // Yes, some people do not understand that console index has limits
 	}
 
-	static void make_vt_attributes(const FarColor& Attributes, string& Str, std::pair<bool, FarColor>& LastColor)
+	static void make_vt_attributes(const FarColor& Attributes, string& Str, std::pair<bool, FarColor> const& LastColor)
 	{
 		append(Str, L"\033["sv);
 
@@ -609,7 +609,7 @@ namespace console_detail
 			return ::console.Write(Str);
 		}
 
-		static bool WriteOutputNTImpl(CHAR_INFO* const Buffer, COORD const BufferSize, SMALL_RECT& WriteRegion)
+		static bool WriteOutputNTImpl(CHAR_INFO const* const Buffer, COORD const BufferSize, SMALL_RECT& WriteRegion)
 		{
 			return WriteConsoleOutput(::console.GetOutputHandle(), Buffer, BufferSize, {}, &WriteRegion) != FALSE;
 		}

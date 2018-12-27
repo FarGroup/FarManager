@@ -767,10 +767,12 @@ long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 		}
 		case MCODE_F_MENU_SELECT:
 		{
-			const string str = reinterpret_cast<const wchar_t*>(vParam);
+			const auto StrParam = static_cast<const wchar_t*>(vParam);
+			if (!*StrParam)
+				return 0;
 
-			if (!str.empty())
-			{
+			const string str = StrParam;
+
 				string strTemp;
 				int Direct=(iParam >> 8)&0xFF;
 				/*
@@ -839,7 +841,6 @@ long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 						return GetVisualPos(SelectPos)+1;
 					}
 				}
-			}
 
 			return 0;
 		}
@@ -892,7 +893,7 @@ long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 		{
 			if (empty())
 				return 0;
-			*reinterpret_cast<string*>(vParam) = at(SelectPos).Name;
+			*static_cast<string*>(vParam) = at(SelectPos).Name;
 			return 1;
 		}
 

@@ -452,8 +452,7 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 		case KEY_RCTRLUP:       case KEY_RCTRLNUMPAD8:
 		case KEY_CTRLSHIFTUP:   case KEY_CTRLSHIFTNUMPAD8:
 		case KEY_RCTRLSHIFTUP:  case KEY_RCTRLSHIFTNUMPAD8:
-			if ((GArea.Current.y -= 5) < 0)
-				GArea.Current.y = 0;
+			GArea.Current.y = std::max(GArea.Current.y - 5, 0);
 			if (LocalKey == KEY_CTRLSHIFTUP || LocalKey == KEY_RCTRLSHIFTUP || LocalKey == KEY_CTRLSHIFTNUMPAD8 || LocalKey == KEY_RCTRLSHIFTNUMPAD8)
 				GArea.Begin.y = GArea.Current.y;
 			break;
@@ -462,8 +461,7 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 		case KEY_RCTRLDOWN:      case KEY_RCTRLNUMPAD2:
 		case KEY_CTRLSHIFTDOWN:  case KEY_CTRLSHIFTNUMPAD2:
 		case KEY_RCTRLSHIFTDOWN: case KEY_RCTRLSHIFTNUMPAD2:
-			if ((GArea.Current.y += 5) > ScrY)
-				GArea.Current.y = ScrY;
+			GArea.Current.y = std::min(static_cast<int>(ScrY), GArea.Current.y + 5);
 			if (LocalKey == KEY_CTRLSHIFTDOWN || LocalKey == KEY_RCTRLSHIFTDOWN || LocalKey == KEY_CTRLSHIFTNUMPAD2 || LocalKey == KEY_RCTRLSHIFTNUMPAD2)
 				GArea.Begin.y = GArea.Current.y;
 			break;

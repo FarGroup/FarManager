@@ -973,7 +973,7 @@ int HexToInt(char h)
 	if (h >= 'A' && h <= 'F')
 		return h - 'A' + 10;
 
-	if (std::iswdigit(h))
+	if (std::isdigit(h))
 		return h - '0';
 
 	throw MAKE_FAR_FATAL_EXCEPTION(L"Not a hex char"sv);
@@ -986,7 +986,7 @@ static S BlobToHexStringT(const void* Blob, size_t Size, C Separator)
 
 	Hex.reserve(Size * (Separator? 3 : 2));
 
-	const auto CharBlob = reinterpret_cast<const char*>(Blob);
+	const auto CharBlob = static_cast<const char*>(Blob);
 	std::for_each(CharBlob, CharBlob + Size, [&](char i)
 	{
 		Hex.push_back(IntToHex((i & 0xF0) >> 4));

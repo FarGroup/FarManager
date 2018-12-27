@@ -364,7 +364,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 			break;
 		case DN_INPUT:
 			{
-				auto ir = reinterpret_cast<INPUT_RECORD*>(Param2);
+				const auto ir = static_cast<const INPUT_RECORD*>(Param2);
 				if (ir->EventType == MOUSE_EVENT && Dlg->SendMessage(DM_GETDROPDOWNOPENED, ID_SC_COMBO, nullptr))
 				{
 					if (Dlg->SendMessage(DM_LISTGETCURPOS, ID_SC_COMBO, nullptr) == CM_ASKRO && ir->Event.MouseEvent.dwButtonState && !(ir->Event.MouseEvent.dwEventFlags & MOUSE_MOVED))
@@ -2091,27 +2091,25 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 							},
 							{ lng::MCopyRetry, lng::MCopySkip, lng::MCopySkipAll, lng::MCopyCancel });
 
-						if (MsgCode)
+						if (MsgCode == Message::first_button) // Retry
 						{
-							if (MsgCode == Message::first_button) // Retry
-							{
-								continue;
-							}
-							else if (MsgCode == Message::second_button) // Skip
-							{
-								break;
-							}
-							else if (MsgCode == Message::third_button) // Skip all
-							{
-								Flags|=FCOPY_SKIPSETATTRFLD;
-								break;
-							}
-							else // Cancel
-							{
-								os::fs::remove_directory(strDestPath);
-								return COPY_CANCEL;
-							}
+							continue;
 						}
+						else if (MsgCode == Message::second_button) // Skip
+						{
+							break;
+						}
+						else if (MsgCode == Message::third_button) // Skip all
+						{
+							Flags|=FCOPY_SKIPSETATTRFLD;
+							break;
+						}
+						else // Cancel
+						{
+							os::fs::remove_directory(strDestPath);
+							return COPY_CANCEL;
+						}
+
 					}
 				}
 				else if (!(Flags & FCOPY_SKIPSETATTRFLD) && ((SetAttr & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY))
@@ -3149,7 +3147,7 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 	{
 		case DM_OPENVIEWER:
 		{
-			const auto WFN = reinterpret_cast<file_names_for_overwrite_dialog*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+			const auto WFN = reinterpret_cast<const file_names_for_overwrite_dialog*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 
 			if (WFN)
 			{

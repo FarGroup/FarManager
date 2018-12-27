@@ -745,7 +745,7 @@ long long Editor::VMProcess(int OpCode, void* vParam, long long iParam)
 		[[fallthrough]];
 		case MCODE_V_EDITORSELVALUE: // Editor.SelValue
 		{
-			*reinterpret_cast<string*>(vParam) = IsVerticalSelection()? VBlock2Text() : Block2Text();
+			*static_cast<string*>(vParam) = IsVerticalSelection()? VBlock2Text() : Block2Text();
 			return 1;
 		}
 	}
@@ -5742,7 +5742,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		// TODO: Если DI_MEMOEDIT не будет юзать раскраску, то должно выполняется в FileEditor::EditorControl(), в диалоге - нафиг ненать
 		case ECTL_ADDCOLOR:
 		{
-			EditorColor *col=(EditorColor *)Param2;
+			const auto col = static_cast<const EditorColor*>(Param2);
 			if (CheckStructSize(col))
 			{
 				_ECTLLOG(SysLog(L"EditorColor{"));
@@ -5816,7 +5816,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		}
 		case ECTL_DELCOLOR:
 		{
-			const auto col = reinterpret_cast<const EditorDeleteColor*>(Param2);
+			const auto col = static_cast<const EditorDeleteColor*>(Param2);
 			if (CheckStructSize(col))
 			{
 				const auto CurPtr = GetStringByNumber(col->StringNumber);
