@@ -1,3 +1,7 @@
+drkns 31.12.2018 17:05:00 +0000 - build 5347
+
+1. Не работали сочетания типа Ctrl+[Shift+]VK_OEM_8.
+
 drkns 27.12.2018 22:28:16 +0000 - build 5346
 
 1. /analyze warnings.

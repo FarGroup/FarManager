@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 31.12.2018 17:05:00 +0000 - build 5347
+
+1. Key combinations like Ctrl+[Shift+]VK_OEM_8 didn't work.
+
 drkns 27.12.2018 22:28:16 +0000 - build 5346
 
 1. /analyze warnings.

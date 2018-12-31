@@ -1290,10 +1290,9 @@ static string GetShiftKeyName(DWORD Key, tfkey_to_text ToText, add_separator Add
 
    1. Сочетания, определенные в структуре FKeys1[]
    2. Опциональные модификаторы (Alt/RAlt/Ctrl/RCtrl/Shift) и 1 символ, например, AltD или CtrlC
-   3. "Alt" (или RAlt) и 5 десятичных цифр (с ведущими нулями)
-   4. "Spec" и 5 десятичных цифр (с ведущими нулями)
-   5. "Oem" и 5 десятичных цифр (с ведущими нулями)
-   6. только модификаторы (Alt/RAlt/Ctrl/RCtrl/Shift)
+   3. "Spec" и 5 десятичных цифр (с ведущими нулями)
+   4. "Oem" и 5 десятичных цифр (с ведущими нулями)
+   5. только модификаторы (Alt/RAlt/Ctrl/RCtrl/Shift)
 */
 int KeyNameToKey(string_view Name)
 {
@@ -1350,10 +1349,9 @@ int KeyNameToKey(string_view Name)
 			/*
 				здесь только 5 оставшихся вариантов:
 				2) Опциональные модификаторы (Alt/RAlt/Ctrl/RCtrl/Shift) и 1 символ, например, AltD или CtrlC
-				3) "Alt" (или RAlt) и 5 десятичных цифр (с ведущими нулями)
-				4) "Spec" и 5 десятичных цифр (с ведущими нулями)
-				5) "Oem" и 5 десятичных цифр (с ведущими нулями)
-				6) только модификаторы (Alt/RAlt/Ctrl/RCtrl/Shift)
+				3) "Spec" и 5 десятичных цифр (с ведущими нулями)
+				4) "Oem" и 5 десятичных цифр (с ведущими нулями)
+				5) только модификаторы (Alt/RAlt/Ctrl/RCtrl/Shift)
 			*/
 
 			if (Name.size() == 1) // Вариант (2)
@@ -1375,21 +1373,21 @@ int KeyNameToKey(string_view Name)
 					Name.remove_prefix(1);
 			}
 			else if (
-				Name.size() == 5 &&
-				(Key == KEY_ALT || Key == KEY_RALT || Key == KEY_M_SPEC || Key == KEY_M_OEM) &&
+				Name.size() == 5 && (Key == KEY_M_SPEC || Key == KEY_M_OEM) &&
 				std::all_of(ALL_CONST_RANGE(Name), std::iswdigit)
-			) // Варианты (3), (4) и (5)
+			) // Варианты (3) и (4)
 			{
 				const auto K = from_string<int>(string(Name));
 
-				if (Key == KEY_M_SPEC) // Вариант (4)
-					Key=(Key|(K+KEY_VK_0xFF_BEGIN))&(~(KEY_M_SPEC|KEY_M_OEM));
-				else if (Key == KEY_M_OEM) // Вариант (5)
-					Key=(Key|(K+KEY_FKEY_BEGIN))&(~(KEY_M_SPEC|KEY_M_OEM));
+				if (Key == KEY_M_SPEC) // Вариант (3)
+					Key = (Key & ~KEY_M_SPEC) | (K + KEY_VK_0xFF_BEGIN);
+
+				else if (Key == KEY_M_OEM) // Вариант (4)
+					Key = (Key & ~KEY_M_OEM) | (K + KEY_FKEY_BEGIN);
 
 				Name = {};
 			}
-			// Вариант (6). Уже "собран".
+			// Вариант (5). Уже "собран".
 		}
 	}
 
@@ -1425,10 +1423,10 @@ static bool KeyToTextImpl(int Key0, string& strKeyText, tfkey_to_text ToText, ad
 			AddSeparator(strKeyText);
 			strKeyText += format(L"Spec{0:0>5}"sv, FKey - KEY_VK_0xFF_BEGIN);
 		}
-		else if (FKey > KEY_LAUNCH_APP2 && FKey < KEY_MSWHEEL_UP)
+		else if (FKey > KEY_VK_0xFF_END && FKey <= KEY_END_FKEY)
 		{
 			AddSeparator(strKeyText);
-			strKeyText += format(L"Oem{0:0>5}"sv, FKey - KEY_VK_0xFF_BEGIN);
+			strKeyText += format(L"Oem{0:0>5}"sv, FKey - KEY_FKEY_BEGIN);
 		}
 		else
 		{
@@ -1953,7 +1951,8 @@ static int GetMappedCharacter(int VKey)
 	case VK_OEM_COMMA: return KEY_COMMA;
 	case VK_OEM_MINUS: return '-';
 	case VK_OEM_PLUS: return '=';
-	// BUGBUG hard-coded for US keyboard
+
+	// BUGBUG hard-coded for the US standard keyboard
 	case VK_OEM_1: return KEY_SEMICOLON;
 	case VK_OEM_2: return KEY_SLASH;
 	case VK_OEM_3: return '`';
@@ -1961,7 +1960,14 @@ static int GetMappedCharacter(int VKey)
 	case VK_OEM_5: return KEY_BACKSLASH;
 	case VK_OEM_6: return KEY_BACKBRACKET;
 	case VK_OEM_7: return '\'';
+
+	// BUGBUG does not exist in the US standard keyboard,
+	// but does exist in some others (e.g. the UK)
+	// '`' might not always be accurate, but it's better than nothing
+	case VK_OEM_8: return '`';
+
 	case VK_OEM_102: return KEY_BACKSLASH; // <> \|
+
 	default: return 0;
 	}
 };
@@ -2317,33 +2323,43 @@ unsigned int CalcKeyCode(const INPUT_RECORD* rec, bool RealKey, bool* NotMacros)
 #ifdef _DEBUG
 static void TestKeyNameToKey()
 {
+	static_assert(KEY_CLEAR == KEY_NUMPAD5);
+
 	static const struct
 	{
 		int Key;
 		string_view Str;
+		string_view Str2;
 	}
 	Tests[]
 	{
-		{ L'C',                       L"C" },
-		{ KEY_ALT,                    L"Alt" },
-		{ KEY_RALT,                   L"RAlt" },
-		{ KEY_CTRL,                   L"CtRl" },
-		{ KEY_RCTRL,                  L"RCtrL" },
-		{ KEY_SLASH,                  L"/" },
-		{ KEY_SHIFT,                  L"SHIFT" },
-		{ KEY_CTRLC,                  L"CtrlC" },
-		{ KEY_CLEAR,                  L"Clear" },
-		{ KEY_NUMPAD5,                L"Num5" },
-		{ KEY_SHIFTF12,               L"ShiftF12" },
-		{ KEY_ALT,                    L"Alt00042" },
-		{ KEY_VK_0xFF_BEGIN + 42,     L"Spec00042" },
-		{ KEY_FKEY_BEGIN + 42,        L"Oem00042" },
-		{ KEY_CTRLALTENTER|KEY_SHIFT, L"CtrlAltShiftEnter" },
+		{ L'C',                       L"C"sv },
+		{ KEY_ALT,                    L"Alt"sv },
+		{ KEY_RALT,                   L"RAlt"sv },
+		{ KEY_CTRL,                   L"CtRl"sv },
+		{ KEY_RCTRL,                  L"RCtrL"sv },
+		{ KEY_SLASH,                  L"/"sv },
+		{ KEY_SHIFT,                  L"SHIFT"sv },
+		{ KEY_CTRLC,                  L"CtrlC"sv },
+		{ KEY_CLEAR,                  L"Clear"sv, L"Num5"sv },
+		{ KEY_SHIFTF12,               L"ShiftF12"sv },
+		{ KEY_CTRLALTENTER|KEY_SHIFT, L"CtrlAltShiftEnter"sv },
+		{ KEY_VK_0xFF_BEGIN,          L"Spec00000"sv },
+		{ KEY_VK_0xFF_END,            L"Spec00255"sv },
+		{ KEY_VK_0xFF_END + 1,        L"Oem00512"sv },
+		{ KEY_END_FKEY,               L"Oem65535"sv },
 	};
 
 	for (const auto& i: Tests)
 	{
 		EXPECT_EQ(i.Key, KeyNameToKey(i.Str));
+
+		if (!i.Str2.empty())
+			EXPECT_EQ(i.Key, KeyNameToKey(i.Str2));
+
+		string Str;
+		EXPECT_TRUE(KeyToText(i.Key, Str));
+		EXPECT_EQ(upper(string(i.Str)), upper(Str));
 	}
 }
 #endif
