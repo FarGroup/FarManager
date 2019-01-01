@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.fwd.hpp"
 
 #include "common/enumerator.hpp"
+#include "common/range.hpp"
 
 class plugin_panel;
 class DizList;
@@ -164,7 +165,7 @@ public:
 	virtual void EditFilter() {}
 	virtual bool FileInFilter(size_t idxItem) {return true;}
 	virtual bool FilterIsEnabled() {return false;}
-	virtual void ReadDiz(PluginPanelItem *ItemList=nullptr,int ItemLength=0, DWORD dwFlags=0) {}
+	virtual void ReadDiz(span<PluginPanelItem> Items = {}) {}
 	virtual void DeleteDiz(const string& Name,const string& ShortName) {}
 	virtual string GetDizName() const { return {}; }
 	virtual void FlushDiz() {}

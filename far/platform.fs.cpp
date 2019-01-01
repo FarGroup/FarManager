@@ -1888,7 +1888,9 @@ namespace os::fs
 		if (FindData.Attributes & FILE_ATTRIBUTE_REPARSE_POINT)
 		{
 			string strTmp;
-			GetReparsePointInfo(FileName, strTmp, &FindData.ReparseTag);
+			DWORD ReparseTag{};
+			if (GetReparsePointInfo(FileName, strTmp, &FindData.ReparseTag))
+				FindData.ReparseTag = ReparseTag;
 		}
 
 		FindData.FileName = PointToName(FileName);

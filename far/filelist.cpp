@@ -2013,8 +2013,6 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 									ShellViewer->SetTempViewName(strFileName);
 									DeleteViewedFile=false;
 								}
-
-								Modaling = false;
 							}
 						}
 					}
@@ -2045,7 +2043,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 					}
 				}
 
-				if (Modaling && (Edit || IsColumnDisplayed(ADATE_COLUMN)) && RefreshedPanel)
+				if (Modaling && RefreshedPanel)
 				{
 					if (!PluginMode || UploadFile)
 					{
@@ -7107,7 +7105,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 	/* $ 25.02.2001 VVM
 	    ! Не считывать повторно список файлов с панели плагина */
 	if (IsColumnDisplayed(DIZ_COLUMN))
-		ReadDiz(PanelData,static_cast<int>(PluginFileCount),RDF_NO_UPDATE);
+		ReadDiz({ PanelData, PluginFileCount });
 
 	CorrectPosition();
 	Global->CtrlObject->Plugins->FreeFindData(Item.lock()->m_Plugin.get(), PanelData, PluginFileCount, false);
@@ -7146,7 +7144,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 }
 
 
-void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
+void FileList::ReadDiz(span<PluginPanelItem> const Items)
 {
 	if (DizRead)
 		return;
@@ -7170,16 +7168,14 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 
 		int GetCode=TRUE;
 
-		/* $ 25.02.2001 VVM
-		    + Обработка флага RDF_NO_UPDATE */
-		if (!ItemList && !(dwFlags & RDF_NO_UPDATE))
+		if (Items.empty())
 		{
 			GetCode = Global->CtrlObject->Plugins->GetFindData(GetPluginHandle(), &PanelData, &PluginFileCount, 0);
 		}
 		else
 		{
-			PanelData=ItemList;
-			PluginFileCount=ItemLength;
+			PanelData = Items.data();
+			PluginFileCount = Items.size();
 		}
 
 		if (GetCode)
@@ -7215,9 +7211,7 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 				}
 			}
 
-			/* $ 25.02.2001 VVM
-			    + Обработка флага RDF_NO_UPDATE */
-			if (!ItemList && !(dwFlags & RDF_NO_UPDATE))
+			if (Items.empty())
 				Global->CtrlObject->Plugins->FreeFindData(GetPluginHandle(), PanelData, PluginFileCount, true);
 		}
 	}

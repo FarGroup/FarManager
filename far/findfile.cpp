@@ -2274,7 +2274,7 @@ void background_searcher::ScanPluginTree(plugin_panel* hPlugin, unsigned long lo
 				if (IsFileIncluded(CurPanelItem, CurName, CurPanelItem->FileAttributes, strFullName))
 					AddMenuRecord(strFullName, *CurPanelItem);
 
-				if (SearchInArchives && hPlugin && (Flags & OPIF_REALNAMES))
+				if (SearchInArchives && (Flags & OPIF_REALNAMES))
 					ArchiveSearch(strFullName);
 			}
 		}

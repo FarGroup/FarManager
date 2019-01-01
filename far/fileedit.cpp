@@ -1643,9 +1643,22 @@ bool FileEditor::ReloadFile(uintptr_t codepage)
 	m_codepage = codepage;
 	error_state_ex ErrorState;
 
-	int loaded = LoadFile(strFullFileName, user_break, ErrorState);
-	if (!loaded)
+	for (;;)
 	{
+		if (LoadFile(strFullFileName, user_break, ErrorState))
+		{
+			m_editor->m_Flags.Set(Editor::FEDITOR_WASCHANGED);
+			m_editor->m_Flags.Clear(Editor::FEDITOR_MODIFIED);
+			Show();
+			return true;
+		}
+
+		if (user_break != 1)
+		{
+			if (OperationFailed(ErrorState, strFullFileName, lng::MEditTitle, msg(lng::MEditCannotOpen), false) == operation::retry)
+				continue;
+		}
+
 		m_codepage = save_codepage;
 		m_bAddSignature = save_bAddSignature;
 		BadConversion = save_BadConversiom;
@@ -1654,19 +1667,9 @@ bool FileEditor::ReloadFile(uintptr_t codepage)
 		m_editor->m_Flags = save_Flags1;
 		m_editor->SwapState(saved);
 
-		if (user_break != 1)
-		{
-			// BUGBUG result check???
-			OperationFailed(ErrorState, strFullFileName, lng::MEditTitle, msg(lng::MEditCannotOpen), false);
-		}
+		Show();
+		return false;
 	}
-	else
-	{
-		m_editor->m_Flags.Set(Editor::FEDITOR_WASCHANGED);
-		m_editor->m_Flags.Clear(Editor::FEDITOR_MODIFIED);
-	}
-	Show();
-	return loaded != FALSE;
 }
 
 //TextFormat и codepage используются ТОЛЬКО, если bSaveAs = true!

@@ -154,7 +154,6 @@ public:
 
 	template<class T>
 	Dialog(private_tag, span<T> const Src, const dialog_handler& Handler, void* InitParam):
-		bInitOK(),
 		DataDialog(InitParam),
 		m_handler(Handler)
 	{
@@ -285,15 +284,15 @@ private:
 	static bool ItemHasDropDownArrow(const DialogItemEx *Item);
 
 
-	bool bInitOK;               // диалог был успешно инициализирован
-	class Plugin* PluginOwner;       // Плагин, для формирования HelpTopic
-	size_t m_FocusPos;               // всегда известно какой элемент в фокусе
-	size_t PrevFocusPos;           // всегда известно какой элемент был в фокусе
-	int m_DisableRedraw;         // Разрешена перерисовка диалога? ( 0 - разрешена)
-	BitFlags DialogMode;        // Флаги текущего режима диалога
-	void* DataDialog;        // Данные, специфические для конкретного экземпляра диалога (первоначально здесь параметр, переданный в конструктор)
-	std::vector<DialogItemEx> Items; // массив элементов диалога
-	DialogItemEx* SavedItems; // пользовательский массив элементов диалога
+	bool bInitOK{};                   // диалог был успешно инициализирован
+	class Plugin* PluginOwner{};      // Плагин, для формирования HelpTopic
+	size_t m_FocusPos{};              // всегда известно какой элемент в фокусе
+	size_t PrevFocusPos{};            // всегда известно какой элемент был в фокусе
+	int m_DisableRedraw{};            // Разрешена перерисовка диалога? ( 0 - разрешена)
+	BitFlags DialogMode;              // Флаги текущего режима диалога
+	void* DataDialog{};               // Данные, специфические для конкретного экземпляра диалога (первоначально здесь параметр, переданный в конструктор)
+	std::vector<DialogItemEx> Items;  // массив элементов диалога
+	DialogItemEx* SavedItems{};       // пользовательский массив элементов диалога
 
 	dialog_handler m_handler;
 
@@ -302,13 +301,15 @@ private:
 	{
 		rectangle OldRect;
 		int MsX, MsY;
-	} m_Drag;
+	}
+	m_Drag{};
 	string HelpTopic;
-	int DropDownOpened;// Содержит статус комбобокса и хистори: TRUE - открыт, FALSE - закрыт.
-	int RealWidth, RealHeight;
-	GUID m_Id;
-	bool IdExist;
-	MOUSE_EVENT_RECORD PrevMouseRecord;
+	int DropDownOpened{}; // Содержит статус комбобокса и хистори: TRUE - открыт, FALSE - закрыт.
+	int RealWidth{};
+	int RealHeight{};
+	GUID m_Id{};
+	bool IdExist{};
+	MOUSE_EVENT_RECORD PrevMouseRecord{};
 	string m_ConsoleTitle;
 };
 

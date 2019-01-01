@@ -168,7 +168,7 @@ public:
 	void EditFilter() override;
 	bool FileInFilter(size_t idxItem) override;
 	bool FilterIsEnabled() override;
-	void ReadDiz(PluginPanelItem *ItemList = nullptr, int ItemLength = 0, DWORD dwFlags = 0) override;
+	void ReadDiz(span<PluginPanelItem> Items = {}) override;
 	void DeleteDiz(const string& Name, const string& ShortName) override;
 	void FlushDiz() override;
 	string GetDizName() const override;

@@ -409,40 +409,37 @@ string ConvertNameToUNC(string_view const Object)
 	auto strFileName = ConvertNameToFull(Object);
 	// Посмотрим на тип файловой системы
 	string strFileSystemName;
-	os::fs::GetVolumeInformation(GetPathRoot(strFileName), nullptr, nullptr, nullptr, nullptr, &strFileSystemName);
-
-	DWORD uniSize = 1024;
-	block_ptr<UNIVERSAL_NAME_INFO> uni(uniSize);
-
 	// применяем WNetGetUniversalName для чего угодно, только не для Novell`а
-	if (!equal_icase(strFileSystemName, L"NWFS"sv))
-	{
-		switch (WNetGetUniversalName(strFileName.c_str(), UNIVERSAL_NAME_INFO_LEVEL, uni.get(), &uniSize))
-		{
-			case NO_ERROR:
-				strFileName = uni->lpUniversalName;
-				break;
-
-			case ERROR_MORE_DATA:
-				uni.reset(uniSize);
-				if (WNetGetUniversalName(strFileName.c_str(),UNIVERSAL_NAME_INFO_LEVEL,uni.get(),&uniSize)==NO_ERROR)
-					strFileName = uni->lpUniversalName;
-				break;
-		}
-	}
-	else if (strFileName.size() > 1 && strFileName[1] == L':')
+	if (os::fs::GetVolumeInformation(GetPathRoot(strFileName), nullptr, nullptr, nullptr, nullptr, &strFileSystemName) && equal_icase(strFileSystemName, L"NWFS"sv) && strFileName.size() > 1 && strFileName[1] == L':')
 	{
 		// BugZ#449 - Неверная работа CtrlAltF с ресурсами Novell DS
 		// Здесь, если не получилось получить UniversalName и если это
 		// мапленный диск - получаем как для меню выбора дисков
 		string strTemp;
-		if (DriveLocalToRemoteName(DRIVE_UNKNOWN,strFileName[0],strTemp))
+		if (DriveLocalToRemoteName(DRIVE_UNKNOWN, strFileName[0], strTemp))
 		{
 			const auto SlashPos = FindSlash(strFileName);
 			if (SlashPos != string::npos)
 				path::append(strTemp, string_view(strFileName).substr(SlashPos + 1));
 
 			strFileName = strTemp;
+		}
+	}
+	else 
+	{
+		DWORD uniSize = 1024;
+		block_ptr<UNIVERSAL_NAME_INFO> uni(uniSize);
+		switch (WNetGetUniversalName(strFileName.c_str(), UNIVERSAL_NAME_INFO_LEVEL, uni.get(), &uniSize))
+		{
+		case NO_ERROR:
+			strFileName = uni->lpUniversalName;
+			break;
+
+		case ERROR_MORE_DATA:
+			uni.reset(uniSize);
+			if (WNetGetUniversalName(strFileName.c_str(), UNIVERSAL_NAME_INFO_LEVEL, uni.get(), &uniSize) == NO_ERROR)
+				strFileName = uni->lpUniversalName;
+			break;
 		}
 	}
 

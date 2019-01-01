@@ -188,8 +188,7 @@ intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-Message::Message(DWORD const Flags, string_view const Title, std::vector<string> Strings, const std::vector<lng>& Buttons, string_view const HelpTopic, const GUID* const Id):
-	m_ExitCode(0)
+Message::Message(DWORD const Flags, string_view const Title, std::vector<string> Strings, const std::vector<lng>& Buttons, string_view const HelpTopic, const GUID* const Id)
 {
 	std::vector<string> StrButtons;
 	StrButtons.reserve(Buttons.size());
@@ -197,8 +196,7 @@ Message::Message(DWORD const Flags, string_view const Title, std::vector<string>
 	Init(Flags, Title, std::move(Strings), std::move(StrButtons), nullptr, {}, HelpTopic, nullptr, Id);
 }
 
-Message::Message(DWORD const Flags, const error_state_ex& ErrorState, string_view  const Title, std::vector<string> Strings, const std::vector<lng>& Buttons, string_view const HelpTopic, const GUID* const Id, const std::vector<string>& Inserts):
-	m_ExitCode(0)
+Message::Message(DWORD const Flags, const error_state_ex& ErrorState, string_view  const Title, std::vector<string> Strings, const std::vector<lng>& Buttons, string_view const HelpTopic, const GUID* const Id, const std::vector<string>& Inserts)
 {
 	std::vector<string> StrButtons;
 	StrButtons.reserve(Buttons.size());
@@ -206,8 +204,7 @@ Message::Message(DWORD const Flags, const error_state_ex& ErrorState, string_vie
 	Init(Flags, Title, std::move(Strings), std::move(StrButtons), &ErrorState, Inserts, HelpTopic, nullptr, Id);
 }
 
-Message::Message(DWORD const Flags, const error_state_ex* const ErrorState, string_view const Title, std::vector<string> Strings, std::vector<string> Buttons, string_view const HelpTopic, const GUID* const Id, Plugin* const PluginNumber):
-	m_ExitCode(0)
+Message::Message(DWORD const Flags, const error_state_ex* const ErrorState, string_view const Title, std::vector<string> Strings, std::vector<string> Buttons, string_view const HelpTopic, const GUID* const Id, Plugin* const PluginNumber)
 {
 	Init(Flags, Title, std::move(Strings), std::move(Buttons), ErrorState, {}, HelpTopic, PluginNumber, Id);
 }

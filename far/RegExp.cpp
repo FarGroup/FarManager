@@ -1131,7 +1131,7 @@ int RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int src
 					}
 				}
 
-				if (brdepth >= MAXDEPTH)
+				if ((brdepth + 1) >= MAXDEPTH)
 					return SetError(errMaxDepth, i + (src - start));
 
 				brackets[brdepth++]=op;
@@ -3451,8 +3451,8 @@ int RegExp::Optimize()
 	first.Reset();
 
 	minlength=0;
-	int mlstackmin[MAXDEPTH];
-	int mlstacksave[MAXDEPTH];
+	int mlstackmin[MAXDEPTH]{};
+	int mlstacksave[MAXDEPTH]{};
 	int mlscnt=0;
 
 	for (const auto* it = code.data(), *end = it + code.size(); it != end; ++it)

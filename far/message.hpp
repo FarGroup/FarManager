@@ -115,11 +115,12 @@ private:
 	);
 	intptr_t MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 
-	int m_ExitCode;
-	rectangle m_Position;
-	int FirstButtonIndex,LastButtonIndex;
-	bool IsWarningStyle;
-	bool IsErrorType;
+	int m_ExitCode{};
+	rectangle m_Position{};
+	int FirstButtonIndex{};
+	int LastButtonIndex{};
+	bool IsWarningStyle{};
+	bool IsErrorType{};
 	error_state_ex m_ErrorState;
 };
 

@@ -325,7 +325,7 @@ namespace detail
 	};
 
 	template<typename T, typename accessor>
-	auto make_select_iterator(T Iterator, const accessor& Accessor)
+	auto make_select_iterator(const T& Iterator, const accessor& Accessor)
 	{
 		return select_iterator<T, accessor>(Iterator, Accessor);
 	}
