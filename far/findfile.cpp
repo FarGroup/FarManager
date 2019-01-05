@@ -1226,6 +1226,9 @@ bool background_searcher::IsFileIncluded(PluginPanelItem* FileItem, string_view 
 	if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
 		return Global->Opt->FindOpt.FindFolders && strFindStr.empty();
 
+	if (strFindStr.empty())
+		return true;
+
 	m_Owner->itd->SetFindMessage(strDisplayName);
 
 	string strSearchFileName;

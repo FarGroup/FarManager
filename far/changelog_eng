@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 05.01.2019 14:08:45 +0000 - build 5349
+
+1. 0003689: Search in encrypted archives doesn't work.
+
 drkns 01.01.2019 16:19:36 +0000 - build 5348
 
 1. Coverity warnings.
