@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 09.01.2019 13:13:13 +0000 - build 5351
+
+1. More 5350.
+
 drkns 09.01.2019 11:37:01 +0000 - build 5350
 
 1. Don't try to set cursor size and position if it's not visible.
@@ -59,11 +63,9 @@ svs 10.12.2018 09:01:02 +0300 - build 5339
 
 zg 07.12.2018 10:52:37 +0200 - build 5338
 
-continuation of 5337:
-
-1. memory usage optimization.
-
-2. "ChangeTime" is not restored.
+1. Сontinuation of 5337:
+   - memory usage optimization.
+   - "ChangeTime" is not restored.
 
 zg 05.12.2018 18:17:44 +0200 - build 5337
 

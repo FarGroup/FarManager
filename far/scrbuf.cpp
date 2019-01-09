@@ -306,12 +306,6 @@ void ScreenBuf::Flush(flush_type FlushType)
 	if (!console.IsViewportVisible())
 		return;
 
-	if (FlushType & flush_type::cursor && !SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE) && !CurVisible)
-	{
-		console.SetCursorInfo({ CurSize,CurVisible });
-		SBFlags.Set(SBFLAGS_FLUSHEDCURTYPE);
-	}
-
 	if (FlushType & flush_type::screen)
 	{
 		if (!Global->SuppressIndicators)
@@ -482,19 +476,21 @@ void ScreenBuf::Flush(flush_type FlushType)
 		}
 	}
 
-	const auto IsCursorVisible = is_visible({ m_CurPos.x, m_CurPos.y, m_CurPos.x, m_CurPos.x });
-
-	if (FlushType & flush_type::cursor && console.IsPositionVisible(m_CurPos))
+	if (FlushType & flush_type::cursor)
 	{
-		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURPOS))
+		// Example: a dialog with and edit control, dragged beyond the screen
+		const auto IsCursorInBufffer = is_visible({ m_CurPos.x, m_CurPos.y, m_CurPos.x, m_CurPos.x });
+
+		// Skip setting cursor position if it's not in the viewport to prevent Windows from repositioning the console window
+		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURPOS) && IsCursorInBufffer && console.IsPositionVisible(m_CurPos))
 		{
 			console.SetCursorPosition({ static_cast<SHORT>(m_CurPos.x), static_cast<SHORT>(m_CurPos.y) });
+			SBFlags.Set(SBFLAGS_FLUSHEDCURPOS);
 		}
-		SBFlags.Set(SBFLAGS_FLUSHEDCURPOS);
 
 		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE))
 		{
-			console.SetCursorInfo({ CurSize, CurVisible && IsCursorVisible });
+			console.SetCursorInfo({ CurSize, CurVisible && IsCursorInBufffer });
 			SBFlags.Set(SBFLAGS_FLUSHEDCURTYPE);
 		}
 	}
