@@ -47,7 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "strmix.hpp"
 #include "tracer.hpp"
-#include "string_utils.hpp"
 #include "pathmix.hpp"
 #include "global.hpp"
 

@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugin.hpp"
 
 #include "common/2d/matrix.hpp"
+#include "common/2d/point.hpp"
 #include "common/nifty_counter.hpp"
 
 enum CLEAR_REGION
@@ -146,6 +147,7 @@ namespace console_detail
 
 		bool IsViewportVisible() const;
 		bool IsViewportShifted() const;
+		bool IsPositionVisible(point Position) const;
 
 		bool GetPalette(std::array<COLORREF, 16>& Palette) const;
 

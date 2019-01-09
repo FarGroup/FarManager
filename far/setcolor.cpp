@@ -51,7 +51,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 
 #include "common/null_iterator.hpp"
-#include "common/range.hpp"
 #include "common/scope_exit.hpp"
 
 #include "format.hpp"
@@ -130,6 +129,7 @@ static void SetItemColors(const color_item* Items, size_t Size, COORD Position =
 		return 1;
 	});
 }
+
 void SetColors()
 {
 	static const color_item
@@ -415,7 +415,7 @@ constexpr auto distinct(T value)
 	return (~value & 0xff) >> 4 | value;
 }
 
-static int ColorIndex[] =
+static const int ColorIndex[]
 {
 	distinct(B_BLACK),
 	distinct(B_RED),
@@ -612,7 +612,7 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 bool GetColorDialogInternal(FarColor& Color, bool const bCentered, const FarColor* const BaseColor)
 {
-	FarDialogItem ColorDlgData[]
+	const FarDialogItem ColorDlgData[]
 	{
 		{DI_DOUBLEBOX,   3, 1,35,14, 0,nullptr,nullptr,0,msg(lng::MSetColorTitle).c_str()},
 		{DI_SINGLEBOX,   5, 2,18, 7, 0,nullptr,nullptr,0,msg(lng::MSetColorForeground).c_str()},

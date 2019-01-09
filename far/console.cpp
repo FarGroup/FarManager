@@ -839,7 +839,7 @@ namespace console_detail
 	bool console::GetNumberOfInputEvents(size_t& NumberOfEvents) const
 	{
 		DWORD dwNumberOfEvents = 0;
-		bool Result = GetNumberOfConsoleInputEvents(GetInputHandle(), &dwNumberOfEvents) != FALSE;
+		const auto Result = GetNumberOfConsoleInputEvents(GetInputHandle(), &dwNumberOfEvents) != FALSE;
 		NumberOfEvents = dwNumberOfEvents;
 		return Result;
 	}
@@ -929,7 +929,7 @@ namespace console_detail
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
 		GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);
 		DWORD CharsWritten;
-		WORD ConColor = colors::FarColorToConsoleColor(Color);
+		const auto ConColor = colors::FarColorToConsoleColor(Color);
 
 		if (Mode&CR_TOP)
 		{
@@ -1076,7 +1076,7 @@ namespace console_detail
 
 	bool console::ScrollScreenBuffer(const SMALL_RECT& ScrollRectangle, const SMALL_RECT* ClipRectangle, COORD DestinationOrigin, const FAR_CHAR_INFO& Fill) const
 	{
-		const CHAR_INFO SysFill = { Fill.Char, colors::FarColorToConsoleColor(Fill.Attributes) };
+		const CHAR_INFO SysFill{ Fill.Char, colors::FarColorToConsoleColor(Fill.Attributes) };
 		return ScrollConsoleScreenBuffer(GetOutputHandle(), &ScrollRectangle, ClipRectangle, DestinationOrigin, &SysFill) != FALSE;
 	}
 
@@ -1086,8 +1086,8 @@ namespace console_detail
 		if (!GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi))
 			return false;
 
-		SMALL_RECT ScrollRectangle = { 0, 0, static_cast<SHORT>(csbi.dwSize.X - 1), static_cast<SHORT>(csbi.dwSize.Y - (ScrY + 1) - 1) };
-		COORD DestinationOigin = { 0, static_cast<SHORT>(-static_cast<SHORT>(NumLines)) };
+		const SMALL_RECT ScrollRectangle{ 0, 0, static_cast<SHORT>(csbi.dwSize.X - 1), static_cast<SHORT>(csbi.dwSize.Y - (ScrY + 1) - 1) };
+		const COORD DestinationOigin{ 0, static_cast<SHORT>(-static_cast<SHORT>(NumLines)) };
 		return ScrollScreenBuffer(ScrollRectangle, nullptr, DestinationOigin, Fill) != FALSE;
 	}
 
@@ -1110,6 +1110,16 @@ namespace console_detail
 			return false;
 
 		return csbi.srWindow.Left || csbi.srWindow.Bottom + 1 != csbi.dwSize.Y;
+	}
+
+	bool console_detail::console::IsPositionVisible(point const Position) const
+	{
+		CONSOLE_SCREEN_BUFFER_INFO csbi;
+		if (!GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi))
+			return false;
+
+		const auto Height = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+		return Position.x >= csbi.srWindow.Left && csbi.dwSize.Y - Height + Position.y <= csbi.srWindow.Bottom;
 	}
 
 	bool console::GetPalette(std::array<COLORREF, 16>& Palette) const

@@ -235,11 +235,10 @@ WORD FarColorToConsoleColor(const FarColor& Color)
 
 FarColor ConsoleColorToFarColor(WORD Color)
 {
-	FarColor NewColor;
+	FarColor NewColor{};
 	NewColor.Flags = FCF_FG_4BIT | FCF_BG_4BIT | (Color & FCF_RAWATTR_MASK);
 	NewColor.ForegroundColor = opaque((Color >> ConsoleFgShift) & ConsoleMask);
 	NewColor.BackgroundColor = opaque((Color >> ConsoleBgShift) & ConsoleMask);
-	NewColor.Reserved=nullptr;
 	return NewColor;
 }
 

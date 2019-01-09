@@ -482,19 +482,21 @@ void ScreenBuf::Flush(flush_type FlushType)
 		}
 	}
 
-	if (FlushType & flush_type::cursor && !SBFlags.Check(SBFLAGS_FLUSHEDCURPOS))
+	const auto IsCursorVisible = is_visible({ m_CurPos.x, m_CurPos.y, m_CurPos.x, m_CurPos.x });
+
+	if (FlushType & flush_type::cursor && console.IsPositionVisible(m_CurPos))
 	{
-		if (is_visible({ m_CurPos.x, m_CurPos.y, m_CurPos.x, m_CurPos.x }))
+		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURPOS))
 		{
 			console.SetCursorPosition({ static_cast<SHORT>(m_CurPos.x), static_cast<SHORT>(m_CurPos.y) });
 		}
 		SBFlags.Set(SBFLAGS_FLUSHEDCURPOS);
-	}
 
-	if (FlushType & flush_type::cursor && !SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE))
-	{
-		console.SetCursorInfo({ CurSize, CurVisible && is_visible({ m_CurPos.x, m_CurPos.y, m_CurPos.x, m_CurPos.x }) });
-		SBFlags.Set(SBFLAGS_FLUSHEDCURTYPE);
+		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE))
+		{
+			console.SetCursorInfo({ CurSize, CurVisible && IsCursorVisible });
+			SBFlags.Set(SBFLAGS_FLUSHEDCURTYPE);
+		}
 	}
 }
 

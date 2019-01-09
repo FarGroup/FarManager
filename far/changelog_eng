@@ -3,6 +3,12 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 09.01.2019 11:37:01 +0000 - build 5350
+
+1. Don't try to set cursor size and position if it's not visible.
+
+2. A few minor changes.
+
 drkns 05.01.2019 14:08:45 +0000 - build 5349
 
 1. 0003689: Search in encrypted archives doesn't work.
