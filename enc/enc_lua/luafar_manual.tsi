@@ -8839,7 +8839,7 @@ lv=2
 dt=Text
 nm=far.Timer
 ctime=3482124061
-mtime=3630782697
+mtime=3756386205
 <article>
 #_timer = far.Timer (interval, handler [, ...])
 #_
@@ -8875,7 +8875,7 @@ mtime=3630782697
 #_  AdvControl (ACTL_SYNCHRO), ProcessSynchroEventW.
 #_
 #_**Windows API used:**
-#_  CreateThread
+#_  CreateTimerQueueTimer, CreateTimerQueue, ChangeTimerQueueTimer, DeleteTimerQueueEx
 #_
 #_@@@
 #_[export.ProcessSynchroEvent]: 319.html
