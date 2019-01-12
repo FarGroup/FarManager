@@ -6321,6 +6321,37 @@ void LF_InitLuaState1(lua_State *L, lua_CFunction aOpenLibs)
 	lua_setglobal(L, "loadfile");
 }
 
+static const luaL_Reg lualibs_extra[] =
+{
+	{"bit64",         luaopen_bit64},
+	{"unicode",       luaopen_unicode},
+	{"win",           luaopen_win},
+	{NULL, NULL}
+};
+
+static void LoadExtraLibraries(lua_State *L)
+{
+	const luaL_Reg *lib;
+
+	FP_PROTECT();
+
+	// open Lua libraries
+	for(lib=lualibs_extra; lib->func; lib++)
+	{
+		lua_pushcfunction(L, lib->func);
+		lua_pushstring(L, lib->name);
+		lua_call(L, 1, 0);
+	}
+
+	// getmetatable("").__index = unicode.utf8
+	lua_pushliteral(L, "");
+	lua_getmetatable(L, -1);
+	lua_getglobal(L, "unicode");
+	lua_getfield(L, -1, "utf8");
+	lua_setfield(L, -3, "__index");
+	lua_pop(L, 3);
+}
+
 static void* CustomAllocator(void *ud, void *ptr, size_t osize, size_t nsize)
 {
 	return ((TPluginData*)ud)->origAlloc(((TPluginData*)ud)->origUserdata, ptr, osize, nsize);
@@ -6417,6 +6448,6 @@ __declspec(dllexport) int luaopen_luafar3 (lua_State *L)
 	OK = lua_isnil(L, -1);
 	lua_pop(L, 1);
 	if (OK) /* prevent loading from within Far Manager */
-		LF_InitLuaState1(L, NULL);  /* open libraries */
+		LoadExtraLibraries(L);  /* open libraries */
 	return 0;
 }
