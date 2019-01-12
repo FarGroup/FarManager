@@ -6409,3 +6409,14 @@ void LF_GetLuafarAPI (LuafarAPI* target)
 	memcpy(target, &api_functions, size);
 	target->StructSize = size;
 }
+
+__declspec(dllexport) int luaopen_luafar3 (lua_State *L)
+{
+	int OK;
+	lua_getglobal(L, "far");
+	OK = lua_isnil(L, -1);
+	lua_pop(L, 1);
+	if (OK) /* prevent loading from within Far Manager */
+		LF_InitLuaState1(L, NULL);  /* open libraries */
+	return 0;
+}
