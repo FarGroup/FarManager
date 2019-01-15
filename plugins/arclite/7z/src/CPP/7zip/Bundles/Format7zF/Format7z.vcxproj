@@ -107,7 +107,6 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <MinimalRebuild>true</MinimalRebuild>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <AdditionalIncludeDirectories>..\..\..\..\SDK;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;WIN32;_WINDOWS;_USRDLL;MY7Z_EXPORTS;NO_REGISTRY;EXTERNAL_CODECS;_7ZIP_LARGE_PAGES;_7ZIP_ST_9;%(PreprocessorDefinitions)</PreprocessorDefinitions>

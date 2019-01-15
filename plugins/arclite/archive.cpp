@@ -397,7 +397,7 @@ void ArcAPI::load_codecs(const wstring& path) {
 
   for (size_t ii = 1; ii < n_format_libs; ++ii) { // all but 7z.dll
     auto& arc_lib = arc_libs[ii];
-	 add_codecs(arc_lib, ii);
+    add_codecs(arc_lib, ii);
     add_hashers(arc_lib, ii);
   }
 

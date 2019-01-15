@@ -400,7 +400,7 @@ ArcEntries Archive::detect(Byte *buffer, UInt32 size, bool eof, const wstring& f
   vector<StrPos> sig_positions = msearch(buffer, size, signatures, eof);
 
   for_each(sig_positions.begin(), sig_positions.end(), [&] (const StrPos& sig_pos) {
-    auto format = signatures[sig_pos.idx].format;
+    const auto& format = signatures[sig_pos.idx].format;
     found_types.insert(format.ClassID);
     arc_entries.push_back(ArcEntry(format.ClassID, sig_pos.pos - format.SignatureOffset));
   });
