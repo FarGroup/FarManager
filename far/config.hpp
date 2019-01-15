@@ -107,6 +107,7 @@ enum disk_menu_mode
 	DRIVE_SHOW_SIZE_FLOAT        = bit(8),
 	DRIVE_SHOW_REMOTE            = bit(9),
 	DRIVE_SORT_PLUGINS_BY_HOTKEY = bit(10),
+	DRIVE_SHOW_LABEL_USE_SHELL   = bit(11),
 };
 
 class Option

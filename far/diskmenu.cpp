@@ -195,7 +195,10 @@ static void ConfigureChangeDriveMode()
 	DialogBuilder Builder(lng::MChangeDriveConfigure, L"ChangeDriveMode"sv);
 	Builder.SetId(ChangeDriveModeId);
 	Builder.AddCheckbox(lng::MChangeDriveShowDiskType, Global->Opt->ChangeDriveMode, DRIVE_SHOW_TYPE);
-	Builder.AddCheckbox(lng::MChangeDriveShowLabel, Global->Opt->ChangeDriveMode, DRIVE_SHOW_LABEL);
+	const auto ShowLabel = Builder.AddCheckbox(lng::MChangeDriveShowLabel, Global->Opt->ChangeDriveMode, DRIVE_SHOW_LABEL);
+	const auto ShowLabelUseShell = Builder.AddCheckbox(lng::MChangeDriveShowLabelUseShell, Global->Opt->ChangeDriveMode, DRIVE_SHOW_LABEL_USE_SHELL);
+	ShowLabelUseShell->Indent(4);
+	Builder.LinkFlags(ShowLabel, ShowLabelUseShell, DIF_DISABLE);
 	Builder.AddCheckbox(lng::MChangeDriveShowFileSystem, Global->Opt->ChangeDriveMode, DRIVE_SHOW_FILESYSTEM);
 
 	BOOL ShowSizeAny = Global->Opt->ChangeDriveMode & (DRIVE_SHOW_SIZE | DRIVE_SHOW_SIZE_FLOAT);
@@ -752,7 +755,9 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 			if (Global->Opt->ChangeDriveMode & (DRIVE_SHOW_LABEL | DRIVE_SHOW_FILESYSTEM))
 			{
-				const auto LabelRead = Global->Opt->ChangeDriveMode & DRIVE_SHOW_LABEL? GetShellName(strRootDir, NewItem.Label) : true;
+				const auto LabelRead = Global->Opt->ChangeDriveMode & DRIVE_SHOW_LABEL?
+					Global->Opt->ChangeDriveMode & DRIVE_SHOW_LABEL_USE_SHELL? GetShellName(strRootDir, NewItem.Label) : false
+					: true;
 
 				const auto LabelPtr = LabelRead? nullptr : &NewItem.Label;
 				const auto FsPtr = Global->Opt->ChangeDriveMode & DRIVE_SHOW_FILESYSTEM? &NewItem.Fs : nullptr;

@@ -16343,6 +16343,18 @@ upd:"Show disk &label"
 "Mostra &Etichetta"
 "Показувати м&ітку диска"
 
+MChangeDriveShowLabelUseShell
+"Использовать имя оболочки"
+"Use shell name"
+upd:"Use shell name"
+upd:"Use shell name"
+upd:"Use shell name"
+upd:"Use shell name"
+upd:"Use shell name"
+upd:"Use shell name"
+upd:"Use shell name"
+"Використвувати ім'я оболонки"
+
 MChangeDriveShowFileSystem
 "Показывать тип &файловой системы"
 "Show &file system type"

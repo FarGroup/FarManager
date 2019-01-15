@@ -3494,6 +3494,9 @@ $ #Change Drive Menu Options#
     Show disk label (if available).
     Key combination in #Change drive# menu: #Ctrl+3#.
 
+    #Use shell name#
+    Request the disk name from Windows Shell.
+
     #Show file system type#
     Show file system type: “NTFS”, “FAT”, etc.
     Key combination in #Change drive# menu: #Ctrl+4#.
