@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 16.01.2019 17:21:03 +0000 - build 5354
+
+1. More 5352.
+
+w17 16.01.2019 18:07:41 +0300 - build 5353
+
+1. fmt library & Far thousands separator.
+
 drkns 15.01.2019 20:56:22 +0000 - build 5352
 
 1. 0003621: Add "Use shell name" option.

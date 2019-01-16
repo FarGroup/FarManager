@@ -192,41 +192,43 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 
 static void ConfigureChangeDriveMode()
 {
+	auto& DriveMode = Global->Opt->ChangeDriveMode;
+
 	DialogBuilder Builder(lng::MChangeDriveConfigure, L"ChangeDriveMode"sv);
 	Builder.SetId(ChangeDriveModeId);
-	Builder.AddCheckbox(lng::MChangeDriveShowDiskType, Global->Opt->ChangeDriveMode, DRIVE_SHOW_TYPE);
-	const auto ShowLabel = Builder.AddCheckbox(lng::MChangeDriveShowLabel, Global->Opt->ChangeDriveMode, DRIVE_SHOW_LABEL);
-	const auto ShowLabelUseShell = Builder.AddCheckbox(lng::MChangeDriveShowLabelUseShell, Global->Opt->ChangeDriveMode, DRIVE_SHOW_LABEL_USE_SHELL);
+	Builder.AddCheckbox(lng::MChangeDriveShowDiskType, DriveMode, DRIVE_SHOW_TYPE);
+	const auto ShowLabel = Builder.AddCheckbox(lng::MChangeDriveShowLabel, DriveMode, DRIVE_SHOW_LABEL);
+	const auto ShowLabelUseShell = Builder.AddCheckbox(lng::MChangeDriveShowLabelUseShell, DriveMode, DRIVE_SHOW_LABEL_USE_SHELL);
 	ShowLabelUseShell->Indent(4);
 	Builder.LinkFlags(ShowLabel, ShowLabelUseShell, DIF_DISABLE);
-	Builder.AddCheckbox(lng::MChangeDriveShowFileSystem, Global->Opt->ChangeDriveMode, DRIVE_SHOW_FILESYSTEM);
+	Builder.AddCheckbox(lng::MChangeDriveShowFileSystem, DriveMode, DRIVE_SHOW_FILESYSTEM);
 
-	BOOL ShowSizeAny = Global->Opt->ChangeDriveMode & (DRIVE_SHOW_SIZE | DRIVE_SHOW_SIZE_FLOAT);
+	BOOL ShowSizeAny = DriveMode & (DRIVE_SHOW_SIZE | DRIVE_SHOW_SIZE_FLOAT);
 
 	DialogItemEx *ShowSize = Builder.AddCheckbox(lng::MChangeDriveShowSize, &ShowSizeAny);
-	DialogItemEx *ShowSizeFloat = Builder.AddCheckbox(lng::MChangeDriveShowSizeFloat, Global->Opt->ChangeDriveMode, DRIVE_SHOW_SIZE_FLOAT);
+	DialogItemEx *ShowSizeFloat = Builder.AddCheckbox(lng::MChangeDriveShowSizeFloat, DriveMode, DRIVE_SHOW_SIZE_FLOAT);
 	ShowSizeFloat->Indent(4);
 	Builder.LinkFlags(ShowSize, ShowSizeFloat, DIF_DISABLE);
 
-	Builder.AddCheckbox(lng::MChangeDriveShowPath, Global->Opt->ChangeDriveMode, DRIVE_SHOW_PATH);
-	Builder.AddCheckbox(lng::MChangeDriveShowPlugins, Global->Opt->ChangeDriveMode, DRIVE_SHOW_PLUGINS);
-	Builder.AddCheckbox(lng::MChangeDriveSortPluginsByHotkey, Global->Opt->ChangeDriveMode, DRIVE_SORT_PLUGINS_BY_HOTKEY)->Indent(4);
-	Builder.AddCheckbox(lng::MChangeDriveShowRemovableDrive, Global->Opt->ChangeDriveMode, DRIVE_SHOW_REMOVABLE);
-	Builder.AddCheckbox(lng::MChangeDriveShowCD, Global->Opt->ChangeDriveMode, DRIVE_SHOW_CDROM);
-	Builder.AddCheckbox(lng::MChangeDriveShowNetworkDrive, Global->Opt->ChangeDriveMode, DRIVE_SHOW_REMOTE);
+	Builder.AddCheckbox(lng::MChangeDriveShowPath, DriveMode, DRIVE_SHOW_PATH);
+	Builder.AddCheckbox(lng::MChangeDriveShowPlugins, DriveMode, DRIVE_SHOW_PLUGINS);
+	Builder.AddCheckbox(lng::MChangeDriveSortPluginsByHotkey, DriveMode, DRIVE_SORT_PLUGINS_BY_HOTKEY)->Indent(4);
+	Builder.AddCheckbox(lng::MChangeDriveShowRemovableDrive, DriveMode, DRIVE_SHOW_REMOVABLE);
+	Builder.AddCheckbox(lng::MChangeDriveShowCD, DriveMode, DRIVE_SHOW_CDROM);
+	Builder.AddCheckbox(lng::MChangeDriveShowNetworkDrive, DriveMode, DRIVE_SHOW_REMOTE);
 
 	Builder.AddOKCancel();
 	if (Builder.ShowDialog())
 	{
 		if (ShowSizeAny)
 		{
-			if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_SIZE_FLOAT)
-				Global->Opt->ChangeDriveMode &= ~DRIVE_SHOW_SIZE;
+			if (DriveMode & DRIVE_SHOW_SIZE_FLOAT)
+				DriveMode &= ~DRIVE_SHOW_SIZE;
 			else
-				Global->Opt->ChangeDriveMode |= DRIVE_SHOW_SIZE;
+				DriveMode |= DRIVE_SHOW_SIZE;
 		}
 		else
-			Global->Opt->ChangeDriveMode &= ~(DRIVE_SHOW_SIZE | DRIVE_SHOW_SIZE_FLOAT);
+			DriveMode &= ~(DRIVE_SHOW_SIZE | DRIVE_SHOW_SIZE_FLOAT);
 	}
 }
 
@@ -689,6 +691,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 
 		auto DE = std::make_unique<elevation::suppress>();
+		const auto& DriveMode = Global->Opt->ChangeDriveMode;
 
 		for (const auto& i: os::fs::enum_drives(AllDrives))
 		{
@@ -700,14 +703,14 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 			// We have to determine at least the basic drive type (fixed/removable/remote) regardlessly of the DRIVE_SHOW_TYPE state,
 			// as it affects the visibility of the other metrics
-			NewItem.DriveType = FAR_GetDriveType(strRootDir, Global->Opt->ChangeDriveMode & DRIVE_SHOW_CDROM?0x01:0);
+			NewItem.DriveType = FAR_GetDriveType(strRootDir, DriveMode & DRIVE_SHOW_CDROM? 1 : 0);
 
 			if (DisconnectedNetworkDrives[os::fs::get_drive_number(i)])
 			{
 				NewItem.DriveType = DRIVE_REMOTE_NOT_CONNECTED;
 			}
 
-			if (Global->Opt->ChangeDriveMode & (DRIVE_SHOW_TYPE | DRIVE_SHOW_PATH))
+			if (DriveMode & (DRIVE_SHOW_TYPE | DRIVE_SHOW_PATH))
 			{
 				// These types don't affect other checks so we can retrieve them only if needed:
 				if (GetSubstName(NewItem.DriveType, LocalName, NewItem.Path))
@@ -719,9 +722,9 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 					NewItem.DriveType = DRIVE_VIRTUAL;
 				}
 
-				if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_TYPE)
+				if (DriveMode & DRIVE_SHOW_TYPE)
 				{
-					static const std::pair<int, lng> DriveTypes[] =
+					static const std::pair<int, lng> DriveTypes[]
 					{
 						{ DRIVE_REMOVABLE, lng::MChangeDriveRemovable },
 						{ DRIVE_FIXED, lng::MChangeDriveFixed },
@@ -749,52 +752,57 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				}
 			}
 
-			const auto ShowDiskInfo = (NewItem.DriveType != DRIVE_REMOVABLE || (Global->Opt->ChangeDriveMode & DRIVE_SHOW_REMOVABLE)) &&
-				(!IsDriveTypeCDROM(NewItem.DriveType) || (Global->Opt->ChangeDriveMode & DRIVE_SHOW_CDROM)) &&
-				(!IsDriveTypeRemote(NewItem.DriveType) || (Global->Opt->ChangeDriveMode & DRIVE_SHOW_REMOTE));
+			const auto ShowDiskInfo =
+				((DriveMode & DRIVE_SHOW_REMOVABLE) || NewItem.DriveType != DRIVE_REMOVABLE) &&
+				((DriveMode & DRIVE_SHOW_CDROM) || !IsDriveTypeCDROM(NewItem.DriveType)) &&
+				((DriveMode & DRIVE_SHOW_REMOTE) || !IsDriveTypeRemote(NewItem.DriveType));
 
-			if (Global->Opt->ChangeDriveMode & (DRIVE_SHOW_LABEL | DRIVE_SHOW_FILESYSTEM))
+			if (ShowDiskInfo)
 			{
-				const auto LabelRead = Global->Opt->ChangeDriveMode & DRIVE_SHOW_LABEL?
-					Global->Opt->ChangeDriveMode & DRIVE_SHOW_LABEL_USE_SHELL? GetShellName(strRootDir, NewItem.Label) : false
-					: true;
-
-				const auto LabelPtr = LabelRead? nullptr : &NewItem.Label;
-				const auto FsPtr = Global->Opt->ChangeDriveMode & DRIVE_SHOW_FILESYSTEM? &NewItem.Fs : nullptr;
-
-				if (ShowDiskInfo && (LabelPtr || FsPtr) && !os::fs::GetVolumeInformation(strRootDir, LabelPtr, nullptr, nullptr, nullptr, FsPtr))
+				if (DriveMode & (DRIVE_SHOW_LABEL | DRIVE_SHOW_FILESYSTEM))
 				{
-					if (LabelPtr)
-						*LabelPtr = msg(lng::MChangeDriveLabelAbsent);
+					bool TryReadLabel = DriveMode & DRIVE_SHOW_LABEL;
 
-					// Should we set *FsPtr to something like "Absent" too?
+					if (TryReadLabel && DriveMode & DRIVE_SHOW_LABEL_USE_SHELL)
+					{
+						TryReadLabel = !GetShellName(strRootDir, NewItem.Label);
+					}
+
+					const auto LabelPtr = TryReadLabel? &NewItem.Label : nullptr;
+					const auto FsPtr = DriveMode & DRIVE_SHOW_FILESYSTEM? &NewItem.Fs : nullptr;
+
+					if ((LabelPtr || FsPtr) && !os::fs::GetVolumeInformation(strRootDir, LabelPtr, nullptr, nullptr, nullptr, FsPtr))
+					{
+						if (LabelPtr)
+							*LabelPtr = msg(lng::MChangeDriveLabelAbsent);
+
+						// Should we set *FsPtr to something like "Absent" too?
+					}
+				}
+
+				if (DriveMode & (DRIVE_SHOW_SIZE | DRIVE_SHOW_SIZE_FLOAT))
+				{
+					unsigned long long TotalSize = 0, UserFree = 0;
+					if (os::fs::get_disk_size(strRootDir, &TotalSize, nullptr, &UserFree))
+					{
+						const auto SizeFlags = DriveMode & DRIVE_SHOW_SIZE?
+							//размер как минимум в мегабайтах
+							COLUMN_GROUPDIGITS | COLUMN_UNIT_M :
+							//размер с точкой и для 0 добавляем букву размера (B)
+							COLUMN_FLOATSIZE | COLUMN_SHOWUNIT;
+
+						const auto& FormatSize = [SizeFlags](unsigned long long const Size)
+						{
+							return trim(FileSizeToStr(Size, 9, SizeFlags));
+						};
+
+						NewItem.TotalSize = FormatSize(TotalSize);
+						NewItem.FreeSize = FormatSize(UserFree);
+					}
 				}
 			}
 
-			if (Global->Opt->ChangeDriveMode & (DRIVE_SHOW_SIZE | DRIVE_SHOW_SIZE_FLOAT))
-			{
-				unsigned long long TotalSize = 0, UserFree = 0;
-
-				if (ShowDiskInfo && os::fs::get_disk_size(strRootDir, &TotalSize, nullptr, &UserFree))
-				{
-					if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_SIZE)
-					{
-						//размер как минимум в мегабайтах
-						NewItem.TotalSize = FileSizeToStr(TotalSize, 9, COLUMN_GROUPDIGITS | COLUMN_UNIT_M);
-						NewItem.FreeSize = FileSizeToStr(UserFree, 9, COLUMN_GROUPDIGITS | COLUMN_UNIT_M);
-					}
-					else
-					{
-						//размер с точкой и для 0 добавляем букву размера (B)
-						NewItem.TotalSize = FileSizeToStr(TotalSize, 9, COLUMN_FLOATSIZE | COLUMN_SHOWUNIT);
-						NewItem.FreeSize = FileSizeToStr(UserFree, 9, COLUMN_FLOATSIZE | COLUMN_SHOWUNIT);
-					}
-					inplace::trim(NewItem.TotalSize);
-					inplace::trim(NewItem.FreeSize);
-				}
-			}
-
-			if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_PATH)
+			if (DriveMode & DRIVE_SHOW_PATH)
 			{
 				switch (NewItem.DriveType)
 				{
@@ -845,24 +853,24 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 			separator Separator;
 
-			if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_TYPE)
+			if (DriveMode & DRIVE_SHOW_TYPE)
 			{
 				append(ItemName, Separator.Get(), fit_to_left(i.Type, TypeWidth));
 			}
-			if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_LABEL)
+			if (DriveMode & DRIVE_SHOW_LABEL)
 			{
 				append(ItemName, Separator.Get(), fit_to_left(i.Label, LabelWidth));
 			}
-			if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_FILESYSTEM)
+			if (DriveMode & DRIVE_SHOW_FILESYSTEM)
 			{
 				append(ItemName, Separator.Get(), fit_to_left(i.Fs, FsWidth));
 			}
-			if (Global->Opt->ChangeDriveMode & (DRIVE_SHOW_SIZE | DRIVE_SHOW_SIZE_FLOAT))
+			if (DriveMode & (DRIVE_SHOW_SIZE | DRIVE_SHOW_SIZE_FLOAT))
 			{
 				append(ItemName, Separator.Get(), fit_to_right(i.TotalSize, TotalSizeWidth));
 				append(ItemName, Separator.Get(), fit_to_right(i.FreeSize, FreeSizeWidth));
 			}
-			if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_PATH && PathWidth)
+			if (DriveMode & DRIVE_SHOW_PATH && PathWidth)
 			{
 				append(ItemName, Separator.Get(), i.Path);
 			}
@@ -881,7 +889,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 		size_t PluginMenuItemsCount = 0;
 
-		if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_PLUGINS)
+		if (DriveMode & DRIVE_SHOW_PLUGINS)
 		{
 			PluginMenuItemsCount = AddPluginItems(*ChDisk, Pos, static_cast<int>(DiskCount), SetSelected);
 		}
@@ -909,6 +917,8 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 		ChDisk->Run([&](const Manager::Key& RawKey)
 		{
+			auto& DriveMode = Global->Opt->ChangeDriveMode;
+
 			auto Key = RawKey();
 			if (Key == KEY_NONE && NeedRefresh)
 			{
@@ -1028,38 +1038,48 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			break;
 			case KEY_CTRL1:
 			case KEY_RCTRL1:
-				Global->Opt->ChangeDriveMode ^= DRIVE_SHOW_TYPE;
+				DriveMode ^= DRIVE_SHOW_TYPE;
 				RetCode = SelPos;
 				break;
 			case KEY_CTRL2:
 			case KEY_RCTRL2:
-				Global->Opt->ChangeDriveMode ^= DRIVE_SHOW_PATH;
+				DriveMode ^= DRIVE_SHOW_PATH;
 				RetCode = SelPos;
 				break;
 			case KEY_CTRL3:
 			case KEY_RCTRL3:
-				Global->Opt->ChangeDriveMode ^= DRIVE_SHOW_LABEL;
+				if (DriveMode & DRIVE_SHOW_LABEL)
+				{
+					if (DriveMode & DRIVE_SHOW_LABEL_USE_SHELL)
+						DriveMode &= ~(DRIVE_SHOW_LABEL | DRIVE_SHOW_LABEL_USE_SHELL);
+					else
+						DriveMode |= DRIVE_SHOW_LABEL_USE_SHELL;
+				}
+				else
+				{
+					DriveMode |= DRIVE_SHOW_LABEL;
+				}
 				RetCode = SelPos;
 				break;
 			case KEY_CTRL4:
 			case KEY_RCTRL4:
-				Global->Opt->ChangeDriveMode ^= DRIVE_SHOW_FILESYSTEM;
+				DriveMode ^= DRIVE_SHOW_FILESYSTEM;
 				RetCode = SelPos;
 				break;
 			case KEY_CTRL5:
 			case KEY_RCTRL5:
 			{
-				if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_SIZE)
+				if (DriveMode & DRIVE_SHOW_SIZE)
 				{
-					Global->Opt->ChangeDriveMode ^= DRIVE_SHOW_SIZE;
-					Global->Opt->ChangeDriveMode |= DRIVE_SHOW_SIZE_FLOAT;
+					DriveMode ^= DRIVE_SHOW_SIZE;
+					DriveMode |= DRIVE_SHOW_SIZE_FLOAT;
 				}
 				else
 				{
-					if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_SIZE_FLOAT)
-						Global->Opt->ChangeDriveMode ^= DRIVE_SHOW_SIZE_FLOAT;
+					if (DriveMode & DRIVE_SHOW_SIZE_FLOAT)
+						DriveMode ^= DRIVE_SHOW_SIZE_FLOAT;
 					else
-						Global->Opt->ChangeDriveMode ^= DRIVE_SHOW_SIZE;
+						DriveMode ^= DRIVE_SHOW_SIZE;
 				}
 
 				RetCode = SelPos;
@@ -1067,22 +1087,22 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			}
 			case KEY_CTRL6:
 			case KEY_RCTRL6:
-				Global->Opt->ChangeDriveMode ^= DRIVE_SHOW_REMOVABLE;
+				DriveMode ^= DRIVE_SHOW_REMOVABLE;
 				RetCode = SelPos;
 				break;
 			case KEY_CTRL7:
 			case KEY_RCTRL7:
-				Global->Opt->ChangeDriveMode ^= DRIVE_SHOW_PLUGINS;
+				DriveMode ^= DRIVE_SHOW_PLUGINS;
 				RetCode = SelPos;
 				break;
 			case KEY_CTRL8:
 			case KEY_RCTRL8:
-				Global->Opt->ChangeDriveMode ^= DRIVE_SHOW_CDROM;
+				DriveMode ^= DRIVE_SHOW_CDROM;
 				RetCode = SelPos;
 				break;
 			case KEY_CTRL9:
 			case KEY_RCTRL9:
-				Global->Opt->ChangeDriveMode ^= DRIVE_SHOW_REMOTE;
+				DriveMode ^= DRIVE_SHOW_REMOTE;
 				RetCode = SelPos;
 				break;
 			case KEY_F9:
@@ -1106,7 +1126,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			case KEY_ALTSHIFTF9:
 			case KEY_RALTSHIFTF9:
 
-				if (Global->Opt->ChangeDriveMode&DRIVE_SHOW_PLUGINS)
+				if (DriveMode&DRIVE_SHOW_PLUGINS)
 					Global->CtrlObject->Plugins->Configure();
 
 				RetCode = SelPos;
