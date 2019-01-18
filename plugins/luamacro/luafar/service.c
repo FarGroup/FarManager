@@ -332,7 +332,6 @@ static UINT64 CheckFlagsFromTable(lua_State *L, int pos, const char* key)
 	UINT64 f = 0;
 	lua_getfield(L, pos, key);
 	if (!lua_isnil(L, -1))
-	if (!lua_isnil(L, -1))
 		f = CheckFlags(L, -1);
 	lua_pop(L, 1);
 	return f;
