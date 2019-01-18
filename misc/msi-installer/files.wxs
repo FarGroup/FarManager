@@ -853,9 +853,6 @@
               <Component Id="catalog_text.xml" Guid="$(var.Guid.catalog_text.xml)" Win64="$(var.Win64)">
                 <File Id="catalog_text.xml" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\catalog-text.xml" />
               </Component>
-              <Component Id="catalog_user.xml" Guid="$(var.Guid.catalog_user.xml)" Win64="$(var.Win64)">
-                <File Id="catalog_user.xml" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\catalog-user.xml" />
-              </Component>
               <Directory Id="FarColorer.base.hrd.console" Name="console">
                 <Component Id="black.hrd" Guid="$(var.Guid.black.hrd)" Win64="$(var.Win64)">
                   <File Id="black.hrd" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\console\black.hrd" />

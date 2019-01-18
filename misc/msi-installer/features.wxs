@@ -432,7 +432,6 @@
               <ComponentRef Id="catalog_console.xml" />
               <ComponentRef Id="catalog_rgb.xml" />
               <ComponentRef Id="catalog_text.xml" />
-              <ComponentRef Id="catalog_user.xml" />
               <Feature Id="FarColorer.Ignore.base_hrd_console" Level="1" Display="hidden" AllowAdvertise="no">
                 <ComponentRef Id="black.hrd" />
                 <ComponentRef Id="blue.hrd" />
