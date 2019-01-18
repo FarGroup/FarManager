@@ -33,6 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "format.hpp"
 
 #include "components.hpp"
+#include "locale.hpp"
 
 WARNING_PUSH(3)
 
@@ -43,8 +44,8 @@ WARNING_DISABLE_CLANG("-Weverything")
 #pragma push_macro("static_assert")
 #undef static_assert
 
-#include "locale.hpp"
 #define FMT_STATIC_THOUSANDS_SEPARATOR ::locale.thousand_separator()
+
 #include "thirdparty/fmt/format.cc"
 
 #pragma pop_macro("static_assert")
