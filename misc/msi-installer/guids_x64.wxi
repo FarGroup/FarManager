@@ -263,7 +263,6 @@
 <?define Guid.catalog_console.xml = "7E43C2D9-6F2B-1014-81B7-D7B67EB629B5" ?>
 <?define Guid.catalog_rgb.xml = "7E43C3B1-6F2B-1014-87CD-C9D95F2BF399" ?>
 <?define Guid.catalog_text.xml = "7E43C48A-6F2B-1014-BE99-994D6F942EA5" ?>
-<?define Guid.catalog_user.xml = "93F98FBD-1E06-4D0A-AAB3-102BA77B62C8" ?>
 <?define Guid.black.hrd = "7E43C563-6F2B-1014-B1F6-849700DE49D3" ?>
 <?define Guid.blue.hrd = "7E43C63C-6F2B-1014-B7D1-F554971C0888" ?>
 <?define Guid.default.hrd = "7E43C715-6F2B-1014-90DF-D99E92AA2DA5" ?>
