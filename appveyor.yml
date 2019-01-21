@@ -12,6 +12,10 @@ max_jobs: 8
 image: Visual Studio 2017
 
 init:
+  #set locale to russian, needed for chm generation
+  - ps: Set-WinSystemLocale -SystemLocale ru-RU
+  - ps: Start-Sleep -s 5
+  - ps: Restart-Computer
 
 clone_folder: c:\projects\FarManager
 
