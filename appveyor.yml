@@ -12,10 +12,6 @@ max_jobs: 8
 image: Visual Studio 2017
 
 init:
-  #set locale to russian, needed for chm generation
-  - ps: Set-WinSystemLocale -SystemLocale ru-RU
-  - ps: Start-Sleep -s 5
-  - ps: Restart-Computer
 
 clone_folder: c:\projects\FarManager
 
@@ -25,10 +21,6 @@ clone_depth: 1
 install:
   #update AppVeyor build number to match Far build number
   - cd far && for /f "tokens=1,2,4 delims=," %%i in ('tools\m4 -P farversion.inc.m4') do appveyor UpdateBuild -Version %%i.%%j.%%k.%APPVEYOR_BUILD_NUMBER% && cd ..
-  #build Plugin SDK Encyclopedia
-  - enc/tools/tool.make_enc_chm.bat
-  #build Lua MacroAPI docs
-  - enc/tools/tool.make_lua_chm.bat
   #clone NetBox
   - git clone https://github.com/michaellukashov/Far-NetBox.git 
   - cd Far-NetBox
@@ -44,6 +36,10 @@ install:
   - cd ..
   #clone FarColorer
   - git clone https://github.com/colorer/FarColorer.git --recursive
+  #set locale to russian, needed for chm generation
+  - ps: Set-WinSystemLocale -SystemLocale ru-RU
+  - ps: Start-Sleep -s 5
+  - ps: Restart-Computer
 
 environment:
   matrix:
@@ -84,6 +80,11 @@ environment:
     bit: 64
 
 build_script:
+  #build Plugin SDK Encyclopedia
+  - enc/tools/tool.make_enc_chm.bat
+  #build Lua MacroAPI docs
+  - enc/tools/tool.make_lua_chm.bat
+  #set vs environment variables
   - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars%bit%.bat"
   #build far
   - cd far 
