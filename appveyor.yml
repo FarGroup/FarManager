@@ -40,6 +40,7 @@ install:
   - ps: Set-WinSystemLocale -SystemLocale ru-RU
   - ps: Start-Sleep -s 5
   - ps: Restart-Computer
+  - ps: Start-Sleep -s 5
 
 environment:
   matrix:
@@ -80,6 +81,8 @@ environment:
     bit: 64
 
 build_script:
+  #prevent lost commands after reboot in install
+  - ps: Start-Sleep -s 5
   #build Plugin SDK Encyclopedia
   - enc/tools/tool.make_enc_chm.bat
   #build Lua MacroAPI docs
