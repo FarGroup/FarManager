@@ -82,11 +82,6 @@ static bool is_alttab_window(HWND const Window)
 	if (Walk != Window)
 		return false;
 
-	// the following removes some task tray programs and "Program Manager"
-	TITLEBARINFO Info{sizeof(Info)};
-	if (GetTitleBarInfo(Window, &Info) && Info.rgstate[0] & STATE_SYSTEM_INVISIBLE)
-		return false;
-
 	// Tool windows should not be displayed either, these do not appear in the task bar
 	if (GetWindowLongPtr(Window, GWL_EXSTYLE) & WS_EX_TOOLWINDOW)
 		return false;

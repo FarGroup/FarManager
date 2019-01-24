@@ -62,6 +62,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "platform.fs.hpp"
 
+#include "common/from_string.hpp"
+
 #include "format.hpp"
 
 static const auto

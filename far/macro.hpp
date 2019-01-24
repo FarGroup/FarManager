@@ -105,7 +105,7 @@ private:
 	static int GetExecutingState();
 	intptr_t AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 	int  AssignMacroKey(DWORD& MacroKey, unsigned long long& Flags);
-	bool GetMacroSettings(int Key, unsigned long long &Flags, const wchar_t *Src = nullptr, const wchar_t *Descr = nullptr);
+	bool GetMacroSettings(int Key, unsigned long long &Flags, string_view Src = {}, string_view Descr = {});
 	intptr_t ParamMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 	void RestoreMacroChar() const;
 

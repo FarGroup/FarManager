@@ -75,6 +75,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.security.hpp"
 
 #include "common/enum_substrings.hpp"
+#include "common/from_string.hpp"
 #include "common/function_traits.hpp"
 #include "common/scope_exit.hpp"
 
@@ -758,7 +759,7 @@ std::list<CommandLine::segment> CommandLine::GetPrompt()
 							case L'D': // $D - Current date
 							case L'T': // $T - Current time
 							{
-								strDestStr += MkStrFTime(Chr == L'D'? L"%D" : L"%T");
+								strDestStr += MkStrFTime(Chr == L'D'? L"%D"sv : L"%T"sv);
 								break;
 							}
 							case L'N': // $N - Current drive
@@ -791,7 +792,7 @@ std::list<CommandLine::segment> CommandLine::GetPrompt()
 								if (it + 1 != strExpandedDestStr.end())
 								{
 									size_t pos;
-									if (from_string({ it + 1, strExpandedDestStr.cend() }, NewPromptSize, &pos))
+									if (from_string(string_view(strExpandedDestStr).substr(it + 1 - strExpandedDestStr.cbegin()), NewPromptSize, &pos))
 										it += pos;
 									// else
 										// bad format, NewPromptSize unchanged
@@ -1237,7 +1238,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 	{
 		const auto ChcpParams = trim(CmdLine.substr(CommandChcp.size()));
 		uintptr_t cp;
-		if (!from_string(string(ChcpParams), cp))
+		if (!from_string(ChcpParams, cp))
 			return false;
 
 		if (!console.SetInputCodepage(cp) || !console.SetOutputCodepage(cp))

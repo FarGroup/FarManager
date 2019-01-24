@@ -112,7 +112,7 @@ bool ConnectToNetworkResource(const string& NewDir)
 	netResource.lpLocalName = IsDrive? UNSAFE_CSTR(LocalName) : nullptr;
 	netResource.lpRemoteName = UNSAFE_CSTR(RemoteName);
 	netResource.lpProvider = nullptr;
-	DWORD res = WNetAddConnection2(&netResource, nullptr, EmptyToNull(strUserName.c_str()), 0);
+	DWORD res = WNetAddConnection2(&netResource, nullptr, EmptyToNull(strUserName), 0);
 
 	if (res == ERROR_SESSION_CREDENTIAL_CONFLICT)
 		res = WNetAddConnection2(&netResource, nullptr, nullptr, 0);
@@ -124,7 +124,7 @@ bool ConnectToNetworkResource(const string& NewDir)
 			if (!GetNameAndPassword(RemoteName, strUserName, strPassword, nullptr, GNP_USELAST))
 				break;
 
-			res = WNetAddConnection2(&netResource, strPassword.c_str(), EmptyToNull(strUserName.data()), 0);
+			res = WNetAddConnection2(&netResource, strPassword.c_str(), EmptyToNull(strUserName), 0);
 
 			if (res == NO_ERROR)
 				break;

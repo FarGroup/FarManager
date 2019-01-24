@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 
 #include "common/enum_tokens.hpp"
+#include "common/from_string.hpp"
 
 #include "format.hpp"
 
@@ -809,7 +810,7 @@ F8CP::F8CP(bool viewer):
 				cp = defcp;
 			else
 			{
-				if (!from_string(string(i), cp))
+				if (!from_string(i, cp))
 					cp = 0;
 			}
 

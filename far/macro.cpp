@@ -80,6 +80,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.fs.hpp"
 #include "platform.security.hpp"
 
+#include "common/from_string.hpp"
+
 #include "format.hpp"
 
 #if 0
@@ -478,7 +480,7 @@ static void SetMacroValue(bool Value)
 
 static bool TryToPostMacro(FARMACROAREA Area,const string& TextKey,DWORD IntKey)
 {
-	FarMacroValue values[] = { 10.0, (double)Area, TextKey.c_str(), (double)IntKey };
+	FarMacroValue values[] = { 10.0, (double)Area, TextKey, (double)IntKey };
 	FarMacroCall fmc={sizeof(FarMacroCall),std::size(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_KEYMACRO,&fmc};
 	return CallMacroPlugin(&info);
@@ -1133,7 +1135,7 @@ intptr_t KeyMacro::ParamMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-bool KeyMacro::GetMacroSettings(int Key, unsigned long long& Flags, const wchar_t *Src, const wchar_t *Descr)
+bool KeyMacro::GetMacroSettings(int Key, unsigned long long& Flags, string_view Src, string_view Descr)
 {
 	/*
 	          1         2         3         4         5         6
@@ -1202,19 +1204,8 @@ bool KeyMacro::GetMacroSettings(int Key, unsigned long long& Flags, const wchar_
 	MacroSettingsDlg[MS_CHECKBOX_P_SELECTION].Selected=Set3State(Flags,MFLAGS_PSELECTION,MFLAGS_PNOSELECTION);
 	MacroSettingsDlg[MS_CHECKBOX_CMDLINE].Selected=Set3State(Flags,MFLAGS_EMPTYCOMMANDLINE,MFLAGS_NOTEMPTYCOMMANDLINE);
 	MacroSettingsDlg[MS_CHECKBOX_SELBLOCK].Selected=Set3State(Flags,MFLAGS_EDITSELECTION,MFLAGS_EDITNOSELECTION);
-	if (Src && *Src)
-	{
-		MacroSettingsDlg[MS_EDIT_SEQUENCE].strData=Src;
-	}
-	else
-	{
-		MacroSettingsDlg[MS_EDIT_SEQUENCE].strData=m_RecCode;
-	}
-
-	if (Descr && *Descr)
-		MacroSettingsDlg[MS_EDIT_DESCR].strData = Descr;
-	else
-		MacroSettingsDlg[MS_EDIT_DESCR].strData = m_RecDescription;
+	MacroSettingsDlg[MS_EDIT_SEQUENCE].strData = Src.empty()? m_RecCode : Src;
+	MacroSettingsDlg[MS_EDIT_DESCR].strData = Descr.empty()? m_RecDescription : Descr;
 
 	DlgParam Param={0, 0, MACROAREA_OTHER, 0, false};
 	const auto Dlg = Dialog::create(MacroSettingsDlg, &KeyMacro::ParamMacroDlgProc, this, &Param);
@@ -1410,7 +1401,7 @@ static bool pluginloadFunc(FarMacroCall*);
 static bool pluginunloadFunc(FarMacroCall*);
 static bool pluginexistFunc(FarMacroCall*);
 
-static int PassString (const wchar_t *str, FarMacroCall* Data)
+static int PassString(const wchar_t *str, FarMacroCall* Data)
 {
 	if (Data->Callback)
 	{
@@ -1425,7 +1416,7 @@ static int PassString(const string& str, FarMacroCall* Data)
 	return PassString(str.c_str(), Data);
 }
 
-static int PassNumber (double dbl, FarMacroCall* Data)
+static int PassNumber(double dbl, FarMacroCall* Data)
 {
 	if (Data->Callback)
 	{
@@ -1435,7 +1426,7 @@ static int PassNumber (double dbl, FarMacroCall* Data)
 	return 1;
 }
 
-static int PassInteger (long long Int, FarMacroCall* Data)
+static int PassInteger(long long Int, FarMacroCall* Data)
 {
 	if (Data->Callback)
 	{
@@ -1445,7 +1436,7 @@ static int PassInteger (long long Int, FarMacroCall* Data)
 	return 1;
 }
 
-static int PassBoolean (int b, FarMacroCall* Data)
+static int PassBoolean(int b, FarMacroCall* Data)
 {
 	if (Data->Callback)
 	{
@@ -1455,7 +1446,7 @@ static int PassBoolean (int b, FarMacroCall* Data)
 	return 1;
 }
 
-static int PassValue (const TVar& Var, FarMacroCall* Data)
+static int PassValue(const TVar& Var, FarMacroCall* Data)
 {
 	if (Data->Callback)
 	{
@@ -2275,13 +2266,13 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			if (Data->Count>=4 && Data->Values[0].Type==FMVT_STRING && Data->Values[1].Type==FMVT_DOUBLE
 				&& Data->Values[2].Type==FMVT_STRING && Data->Values[3].Type==FMVT_STRING)
 			{
-				int Key = KeyNameToKey(Data->Values[0].String);
+				const auto Key = KeyNameToKey(Data->Values[0].String);
 				auto Flags = static_cast<unsigned long long>(Data->Values[1].Double);
-				const wchar_t *Src = Data->Values[2].String;
-				const wchar_t *Descr = Data->Values[3].String;
+				const auto Src = Data->Values[2].String;
+				const auto Descr = Data->Values[3].String;
 				if (GetMacroSettings(Key, Flags, Src, Descr))
 				{
-					PassNumber((double)Flags, Data);
+					PassNumber(static_cast<double>(Flags), Data);
 					PassString(m_RecCode, Data);
 					PassString(m_RecDescription, Data);
 					return 0;
@@ -2396,7 +2387,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			{
 				if (const auto f = Global->WindowManager->GetCurrentWindow())
 				{
-					Result = f->VMProcess(CheckCode, const_cast<wchar_t*>(Params[0].toString().c_str()), tmpMode);
+					Result = f->VMProcess(CheckCode, UNSAFE_CSTR(Params[0].toString()), tmpMode);
 				}
 			}
 
@@ -2816,7 +2807,7 @@ static bool dateFunc(FarMacroCall* Data)
 	if (Params[0].isInteger() && !Params[0].asInteger())
 		Params[0]=L""s;
 
-	const auto strTStr = MkStrFTime(Params[0].toString().c_str());
+	const auto strTStr = MkStrFTime(Params[0].toString());
 	const auto Ret = !strTStr.empty();
 	PassString(strTStr, Data);
 	return Ret;
@@ -2834,7 +2825,7 @@ static bool xlatFunc(FarMacroCall* Data)
 	auto Params = parseParams(2, Data);
 	auto StrParam = Params[0].toString();
 	const auto Ret = Xlat(StrParam.data(), 0, static_cast<int>(StrParam.size()), Params[1].asInteger()) != nullptr;
-	PassString(StrParam.c_str(), Data);
+	PassString(StrParam, Data);
 	return Ret;
 }
 
@@ -2900,9 +2891,8 @@ static bool kbdLayoutFunc(FarMacroCall* Data)
 	string LayoutName;
 	if (console.GetKeyboardLayoutName(LayoutName))
 	{
-		wchar_t *endptr;
-		DWORD res = std::wcstoul(LayoutName.c_str(), &endptr, 16);
-		RetLayout=(HKL)(intptr_t)(HIWORD(res)? res : MAKELONG(res,res));
+		const auto Layout = from_string<unsigned long>(LayoutName, nullptr, 16);
+		RetLayout = reinterpret_cast<HKL>(static_cast<intptr_t>(HIWORD(Layout)? Layout : MAKELONG(Layout, Layout)));
 	}
 
 	HWND hWnd = console.GetWindow();
@@ -2991,12 +2981,12 @@ static bool msgBoxFunc(FarMacroCall* Data)
 	auto& ValT = Params[0];
 	string_view title;
 	if (!(ValT.isInteger() && !ValT.asInteger()))
-		title = ValT.toString().c_str();
+		title = ValT.toString();
 
 	auto& ValB = Params[1];
 	string_view text;
 	if (!(ValB.isInteger() && !ValB.asInteger()))
-		text = ValB.toString().c_str();
+		text = ValB.toString();
 
 	auto Flags = static_cast<DWORD>(Params[2].asInteger());
 	Flags&=~(FMSG_KEEPBACKGROUND|FMSG_ERRORTYPE);
@@ -3289,11 +3279,12 @@ static bool menushowFunc(FarMacroCall* Data)
 				{
 					if (bResultAsIndex)
 					{
-						_i64tow(i+1,temp,10);
-						Result += TVar(temp);
+						Result += TVar(str(i + 1));
 					}
 					else
-						Result += TVar(Menu->at(i).Name.c_str() + nLeftShift);
+					{
+						Result += TVar(string_view(Menu->at(i).Name).substr(nLeftShift));
+					}
 					Result += TVar(L"\n"sv);
 				}
 			}
@@ -3305,12 +3296,12 @@ static bool menushowFunc(FarMacroCall* Data)
 					Result=temp;
 				}
 				else
-					Result = Menu->at(SelectedPos).Name.c_str() + nLeftShift;
+					Result = string_view(Menu->at(SelectedPos).Name).substr(nLeftShift);
 			}
 		}
 		else
 			if(!bResultAsIndex)
-				Result = Menu->at(SelectedPos).Name.c_str() + nLeftShift;
+				Result = string_view(Menu->at(SelectedPos).Name).substr(nLeftShift);
 			else
 				Result=SelectedPos+1;
 	}
@@ -3553,7 +3544,7 @@ static bool farcfggetFunc(FarMacroCall* Data)
 	TVar& Name(Params[1]);
 	TVar& Key(Params[0]);
 
-	const auto option = Global->Opt->GetConfigValue(Key.asString().c_str(), Name.asString().data());
+	const auto option = Global->Opt->GetConfigValue(Key.asString(), Name.asString());
 	option ? PassString(option->toString(), Data) : PassBoolean(0, Data);
 	return option != nullptr;
 }
@@ -3721,7 +3712,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 					if (IsEdit(ItemType))
 					{
 						if (const auto EditPtr = static_cast<const DlgEdit*>(Item.ObjPtr))
-							Ret=EditPtr->GetString().c_str();
+							Ret = EditPtr->GetString();
 					}
 
 					break;
@@ -4549,7 +4540,7 @@ static bool strpadFunc(FarMacroCall* Data)
 				break;
 			}
 
-			strDest = concat(string_view(NewFill.c_str(), CntL), strDest, string_view(NewFill.data(), CntR));
+			strDest = concat(string_view(NewFill).substr(0, CntL), strDest, string_view(NewFill).substr(0, CntR));
 		}
 	}
 
@@ -4609,8 +4600,8 @@ static bool ascFunc(FarMacroCall* Data)
 	auto Params = parseParams(1, Data);
 	TVar& tmpVar(Params[0]);
 
-	if (tmpVar.isString())
-		PassNumber((DWORD)(WORD)*tmpVar.toString().c_str(), Data);
+	if (tmpVar.isString() && !tmpVar.asString().empty())
+		PassNumber(static_cast<DWORD>(tmpVar.asString().front()), Data);
 	else
 		PassValue(tmpVar, Data);
 
@@ -4626,7 +4617,6 @@ static bool chrFunc(FarMacroCall* Data)
 	{
 		const wchar_t tmp[]={static_cast<wchar_t>(tmpVar.asInteger()), L'\0'};
 		tmpVar = tmp;
-		tmpVar.toString();
 	}
 
 	PassValue(tmpVar, Data);
@@ -5051,7 +5041,7 @@ M1:
 					if ( *Data.Description )
 						strDescription=Data.Description;
 
-					if (GetMacroSettings(key, Data.Flags, strBufKey.c_str(), strDescription.c_str()))
+					if (GetMacroSettings(key, Data.Flags, strBufKey, strDescription))
 					{
 						KMParam->Flags = Data.Flags;
 						KMParam->Changed = true;

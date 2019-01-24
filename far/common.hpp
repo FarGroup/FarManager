@@ -73,6 +73,12 @@ auto EmptyToNull(const T* Str)
 	return (Str && !*Str)? nullptr : Str;
 }
 
+template<class T>
+auto EmptyToNull(const T& Str)
+{
+	return Str.empty()? nullptr : Str.c_str();
+}
+
 template <class T>
 T Round(const T &a, const T &b)
 {
@@ -101,38 +107,5 @@ protected:
 	using T::T;
 	using base_type = base;
 };
-
-namespace detail
-{
-	inline void from_string(const string& Str, int& Value, size_t* Pos, int Base) { Value = std::stoi(Str, Pos, Base); }
-	inline void from_string(const string& Str, unsigned int& Value, size_t* Pos, int Base) { Value = std::stoul(Str, Pos, Base); }
-	inline void from_string(const string& Str, long& Value, size_t* Pos, int Base) { Value = std::stol(Str, Pos, Base); }
-	inline void from_string(const string& Str, unsigned long& Value, size_t* Pos, int Base) { Value = std::stoul(Str, Pos, Base); }
-	inline void from_string(const string& Str, long long& Value, size_t* Pos, int Base) { Value = std::stoll(Str, Pos, Base); }
-	inline void from_string(const string& Str, unsigned long long& Value, size_t* Pos, int Base) { Value = std::stoull(Str, Pos, Base); }
-	inline void from_string(const string& Str, double & Value, size_t* Pos, int) { Value = std::stod(Str, Pos); }
-}
-
-template<typename T>
-bool from_string(const string& Str, T& Value, size_t* Pos = nullptr, int Base = 10)
-{
-	try
-	{
-		detail::from_string(Str, Value, Pos, Base);
-		return true;
-	}
-	catch (const std::exception&)
-	{
-		return false;
-	}
-}
-
-template<typename T>
-T from_string(const string& Str, size_t* Pos = nullptr, int Base = 10)
-{
-	T Value;
-	detail::from_string(Str, Value, Pos, Base);
-	return Value;
-}
 
 #endif // COMMON_HPP_1BD5AB87_3379_4AFE_9F63_DB850DCF72B4

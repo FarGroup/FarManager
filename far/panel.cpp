@@ -1150,7 +1150,7 @@ bool Panel::ExecShortcutFolder(string strShortcutFolder, const GUID& PluginGuid,
 					OpenShortcutInfo info=
 					{
 						sizeof(OpenShortcutInfo),
-						strPluginFile.empty()? nullptr : strPluginFile.c_str(),
+						EmptyToNull(strPluginFile),
 						strPluginData.empty()? nullptr : strPluginData.c_str(),
 						IsActive? FOSF_ACTIVE : FOSF_NONE
 					};

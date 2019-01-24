@@ -40,8 +40,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "locale.hpp"
 #include "encoding.hpp"
 
-#include "common/enum_tokens.hpp"
-
 #include "format.hpp"
 
 DWORD ConvertYearToFull(DWORD ShortYear)
@@ -54,18 +52,16 @@ DWORD ConvertYearToFull(DWORD ShortYear)
 	return (UpperBoundary/100-(ShortYear<UpperBoundary%100?0:1))*100+ShortYear;
 }
 
-static void st_time(string &strDest, const tm *tmPtr, const locale_names& Names, const wchar_t chr)
+static string st_time(const tm* tmPtr, const locale_names& Names, const wchar_t chr)
 {
 	const auto DateSeparator = locale.date_separator();
 
-	if (chr==L'v')
+	if (chr == L'v')
 	{
-		strDest = format(L"{0:2}-{1:3:3}-{2:4}"sv,
+		return format(L"{0:2}-{1:3:3}-{2:4}"sv,
 			tmPtr->tm_mday,
-			Names.Months[tmPtr->tm_mon].Short,
-			tmPtr->tm_year+1900);
-
-		inplace::upper(strDest, 3, 3);
+			upper(Names.Months[tmPtr->tm_mon].Short),
+			tmPtr->tm_year + 1900);
 	}
 	else
 	{
@@ -79,365 +75,268 @@ static void st_time(string &strDest, const tm *tmPtr, const locale_names& Names,
 			}
 		};
 
-		strDest = format(GetFormat(), DateSeparator, tmPtr->tm_mday, tmPtr->tm_mon + 1, tmPtr->tm_year + 1900);
+		return format(GetFormat(), DateSeparator, tmPtr->tm_mday, tmPtr->tm_mon + 1, tmPtr->tm_year + 1900);
 	}
 }
 
-// weeknumber --- figure how many weeks into the year
-static int weeknumber(const tm *timeptr,const int firstweekday)
-{
-	int wday=timeptr->tm_wday;
-
-	if (firstweekday==1)
-	{
-		if (!wday) // sunday
-			wday=6;
-		else
-			wday--;
-	}
-
-	int ret=((timeptr->tm_yday+7-wday)/7);
-
-	if (ret<0)
-		ret=0;
-
-	return ret;
-}
-
-// isleap --- is a year a leap year?
-static int isleap(const int year)
-{
-	return (!(year%4) && (year%100)) || !(year%400);
-}
-
-static int iso8601wknum(const tm *timeptr)
-{
-	/*
-	 * From 1003.2:
-	 *  If the week (Monday to Sunday) containing January 1
-	 *  has four or more days in the new year, then it is week 1;
-	 *  otherwise it is the highest numbered week of the previous
-	 *  year (52 or 53), and the next week is week 1.
-	 *
-	 * ADR: This means if Jan 1 was Monday through Thursday,
-	 *  it was week 1, otherwise week 52 or 53.
-	 *
-	 * XPG4 erroneously included POSIX.2 rationale text in the
-	 * main body of the standard. Thus it requires week 53.
-	 */
-	// get week number, Monday as first day of the week
-	int weeknum=weeknumber(timeptr,1);
-	/*
-	 * With thanks and tip of the hatlo to tml@tik.vtt.fi
-	 *
-	 * What day of the week does January 1 fall on?
-	 * We know that
-	 *  (timeptr->tm_yday - jan1.tm_yday) MOD 7 ==
-	 *      (timeptr->tm_wday - jan1.tm_wday) MOD 7
-	 * and that
-	 *  jan1.tm_yday == 0
-	 * and that
-	 *  timeptr->tm_wday MOD 7 == timeptr->tm_wday
-	 * from which it follows that. . .
-	 */
-	int jan1day=timeptr->tm_wday-(timeptr->tm_yday%7);
-
-	if (jan1day<0)
-		jan1day+=7;
-
-	/*
-	 * If Jan 1 was a Monday through Thursday, it was in
-	 * week 1.  Otherwise it was last year's highest week, which is
-	 * this year's week 0.
-	 *
-	 * What does that mean?
-	 * If Jan 1 was Monday, the week number is exactly right, it can
-	 *  never be 0.
-	 * If it was Tuesday through Thursday, the weeknumber is one
-	 *  less than it should be, so we add one.
-	 * Otherwise, Friday, Saturday or Sunday, the week number is
-	 * OK, but if it is 0, it needs to be 52 or 53.
-	 */
-	switch (jan1day)
-	{
-		case 1: // Monday
-			break;
-		case 2: // Tuesday
-		case 3: // Wednesday
-		case 4: // Thursday
-			weeknum++;
-			break;
-		case 5: // Friday
-		case 6: // Saturday
-		case 0: // Sunday
-
-			if (!weeknum)
-			{
-#ifdef USE_BROKEN_XPG4
-				/* XPG4 (as of March 1994) says 53 unconditionally */
-				weeknum = 53;
-#else
-				// get week number of last week of last year
-				// 12/31 last year
-				tm dec31ly=*timeptr;
-				dec31ly.tm_year--;
-				dec31ly.tm_mon=11;
-				dec31ly.tm_mday=31;
-				dec31ly.tm_wday=!jan1day?6:jan1day-1;
-				dec31ly.tm_yday=364+isleap(dec31ly.tm_year+1900);
-				weeknum=iso8601wknum(&dec31ly);
-#endif
-			}
-
-			break;
-	}
-
-	if (timeptr->tm_mon==11)
-	{
-		/*
-		 * The last week of the year
-		 * can be in week 1 of next year.
-		 * Sigh.
-		 *
-		 * This can only happen if
-		 *  M   T  W
-		 *  29  30 31
-		 *  30  31
-		 *  31
-		 */
-		if ((timeptr->tm_wday==1&&(timeptr->tm_mday>=29&&timeptr->tm_mday<=31))||
-		        (timeptr->tm_wday==2&&(timeptr->tm_mday==30||timeptr->tm_mday==31))||
-		        (timeptr->tm_wday==3&&timeptr->tm_mday==31))
-			weeknum=1;
-	}
-
-	return weeknum;
-}
-
-string StrFTime(const wchar_t* Format, const tm* t)
+string StrFTime(string_view const Format, const tm* Time)
 {
 	bool IsLocal = false;
 
-	string strDest;
+	string Result;
 
-	for (; *Format; ++Format)
+	for (auto Iterator = Format.cbegin(); Iterator != Format.cend(); ++Iterator)
 	{
-		if (*Format!=L'%')
+		if (*Iterator != L'%')
 		{
-			const wchar_t Text[]={*Format,0};
-			strDest+=Text;
+			Result.push_back(*Iterator);
+			continue;
 		}
-#if 1
-		else
-		{
-			string strBuf;
 
-			switch (*++Format)
+		++Iterator;
+		if (Iterator == Format.cend())
+			break;
+
+		switch (*Iterator)
+		{
+		case L'%':
+			Result.push_back(L'%');
+			break;
+
+		case L'L':
+			IsLocal = !IsLocal;
+			continue;
+
+		// Краткое имя дня недели (Sun,Mon,Tue,Wed,Thu,Fri,Sat)
+		// abbreviated weekday name
+		case L'a':
+			Result += locale.Names(IsLocal).Weekdays[Time->tm_wday].Short;
+			break;
+
+		// Полное имя дня недели
+		// full weekday name
+		case L'A':
+			Result += locale.Names(IsLocal).Weekdays[Time->tm_wday].Full;
+			break;
+
+		// Краткое имя месяца (Jan,Feb,...)
+		// abbreviated month name
+		case L'h':
+		case L'b':
+			Result += locale.Names(IsLocal).Months[Time->tm_mon].Short;
+			break;
+
+		// Полное имя месяца
+		// full month name
+		case L'B':
+			Result += locale.Names(IsLocal).Months[Time->tm_mon].Full;
+			break;
+
+		//Дата и время в формате WDay Mnt  Day HH:MM:SS yyyy
+		//appropriate date and time representation
+		case L'c':
+			// Thu Oct 07 12:37:32 1999
+			Result += format(L"{0} {1} {2:02} {3:02}:{4:02}:{5:02} {6:4}"sv,
+				locale.Names(IsLocal).Weekdays[Time->tm_wday].Short,
+				locale.Names(IsLocal).Months[Time->tm_mon].Short,
+				Time->tm_mday, Time->tm_hour, Time->tm_min, Time->tm_sec, Time->tm_year + 1900);
+			break;
+
+		// Столетие как десятичное число (00 - 99). Например, 1992 => 19
+		case L'C':
+			Result += format(L"{0:02}"sv, (Time->tm_year + 1900) / 100);
+			break;
+
+		// day of month, blank padded
+		case L'e':
+		// Две цифры дня месяца (01 - 31)
+		// day of the month, 01 - 31
+		case L'd':
+			Result += format(*Iterator == L'e'? L"{0:2}"sv : L"{0:02}"sv, Time->tm_mday);
+			break;
+
+		// hour, 24-hour clock, blank pad
+		case L'k':
+		// Две цифры часа (00 - 23)
+		// hour, 24-hour clock, 00 - 23
+		case L'H':
+			Result += format(*Iterator == L'k'? L"{0:2}"sv : L"{0:02}"sv, Time->tm_hour);
+			break;
+
+		// hour, 12-hour clock, 1 - 12, blank pad
+		case L'l':
+		// Две цифры часа (01 - 12)
+		// hour, 12-hour clock, 01 - 12
+		case L'I':
+		{
+			int I = Time->tm_hour % 12;
+
+			if (!I)
+				I=12;
+
+			Result += format(*Iterator == L'l'? L"{0:2}"sv : L"{0:02}"sv, I);
+			break;
+		}
+
+		// Три цифры дня в году (001 - 366)
+		// day of the year, 001 - 366
+		case L'j':
+			Result += format(L"{0:03}"sv, Time->tm_yday+1);
+			break;
+
+		// Две цифры месяца, как десятичное число (1 - 12)
+		// month, 01 - 12
+		case L'm':
+			++Iterator;
+			if (Iterator == Format.cend())
+				break;
+
+			switch(*Iterator)
 			{
-				case L'L':
-					IsLocal = !IsLocal;
-					continue;
-					// Краткое имя дня недели (Sun,Mon,Tue,Wed,Thu,Fri,Sat)
-					// abbreviated weekday name
-				case L'a':
-					strBuf = locale.Names(IsLocal).Weekdays[t->tm_wday].Short;
-					break;
-					// Полное имя дня недели
-					// full weekday name
-				case L'A':
-					strBuf = locale.Names(IsLocal).Weekdays[t->tm_wday].Full;
-					break;
-					// Краткое имя месяца (Jan,Feb,...)
-					// abbreviated month name
-				case L'h':
-				case L'b':
-					strBuf = locale.Names(IsLocal).Months[t->tm_mon].Short;
-					break;
-					// Полное имя месяца
-					// full month name
-				case L'B':
-					strBuf = locale.Names(IsLocal).Months[t->tm_mon].Full;
-					break;
-					//Дата и время в формате WDay Mnt  Day HH:MM:SS yyyy
-					//appropriate date and time representation
-				case L'c':
-					// Thu Oct 07 12:37:32 1999
-					strBuf = format(L"{0} {1} {2:02} {3:02}:{4:02}:{5:02} {6:4}"sv,
-						locale.Names(IsLocal).Weekdays[t->tm_wday].Short,
-						locale.Names(IsLocal).Months[t->tm_mon].Short,
-						t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec, t->tm_year + 1900);
-					break;
-					// Столетие как десятичное число (00 - 99). Например, 1992 => 19
-				case L'C':
-					strBuf = format(L"{0:02}"sv, (t->tm_year + 1900) / 100);
-					break;
-					// day of month, blank padded
-				case L'e':
-					// Две цифры дня месяца (01 - 31)
-					// day of the month, 01 - 31
-				case L'd':
-					strBuf = format(*Format == L'e'? L"{0:2}" : L"{0:02}", t->tm_mday);
-					break;
-					// hour, 24-hour clock, blank pad
-				case L'k':
-					// Две цифры часа (00 - 23)
-					// hour, 24-hour clock, 00 - 23
-				case L'H':
-					strBuf = format(*Format == L'k'? L"{0:2}" : L"{0:02}", t->tm_hour);
-					break;
-					// hour, 12-hour clock, 1 - 12, blank pad
-				case L'l':
-					// Две цифры часа (01 - 12)
-					// hour, 12-hour clock, 01 - 12
-				case L'I':
-				{
-					int I=t->tm_hour%12;
+			// %mh - Hex month digit
+			case L'h':
+				Result += format(L"{0:X}"sv, Time->tm_mon + 1);
+				break;
 
-					if (!I)
-						I=12;
+			// %m0 - ведущий 0
+			case L'0':
+				Result += format(L"{0:02}"sv, Time->tm_mon + 1);
+				break;
 
-					strBuf = format(*Format == L'l'? L"{0:2}" : L"{0:02}", I);
-					break;
-				}
-				// Три цифры дня в году (001 - 366)
-				// day of the year, 001 - 366
-				case L'j':
-					strBuf = format(L"{0:03}"sv, t->tm_yday+1);
-					break;
-					// Две цифры месяца, как десятичное число (1 - 12)
-					// month, 01 - 12
-				case L'm':
-				{
-					// %mh - Hex month digit
-					// %m0 - ведущий 0
-					const auto fmt = Format[1] == L'h'? L"{0:X}" : Format[1] == L'0'? L"{0:02}" : L"{0}";
-
-					if (Format[1] == L'h' || Format[1] == L'0')
-						Format++;
-
-					strBuf = format(fmt, t->tm_mon + 1);
-					break;
-				}
-				// Две цифры минут (00 - 59)
-				// minute, 00 - 59
-				case L'M':
-					strBuf = format(L"{0:02}"sv, t->tm_min);
-					break;
-					// AM или PM
-					// am or pm based on 12-hour clock
-				case L'p':
-					strBuf = t->tm_hour / 12? L"PM"s : L"AM"s;
-					break;
-					// Две цифры секунд (00 - 59)
-					// second, 00 - 59
-				case L'S':
-					strBuf = format(L"{0:02}"sv, t->tm_sec);
-					break;
-					// День недели где 0 - Воскресенье (Sunday) (0 - 6)
-					// weekday, Sunday == 0, 0 - 6
-				case L'w':
-					strBuf = str(t->tm_wday);
-					break;
-					// Две цифры номера недели, где Воскресенье (Sunday)
-					//   является первым днем недели (00 - 53)
-					// week of year, Sunday is first day of week
-				case L'U':
-					// Две цифры номера недели, где Понедельник (Monday)
-					//    является первым днем недели (00 - 53)
-					// week of year, Monday is first day of week
-				case L'W':
-				{
-					int I=t->tm_wday-(t->tm_yday%7);
-
-					//I = (chr == 'W'?(!WeekFirst?((t->tm_wday+6)%7):(t->tm_wday? t->tm_wday-1:6)):(t->tm_wday)) - (t->tm_yday % 7);
-					if (I<0)
-						I+=7;
-
-					strBuf = format(L"{0:02}"sv, (t->tm_yday + I - (*Format == L'W')) / 7);
-					break;
-				}
-				// date as dd-bbb-YYYY
-				case L'v':
-					// Дата в формате mm.dd.yyyy
-					// appropriate date representation
-				case L'D':
-				case L'x':
-					st_time(strBuf, t, locale.Names(IsLocal), *Format);
-					break;
-					// Время в формате HH:MM:SS
-					// appropriate time representation
-				case L'T':
-				case L'X':
-					strBuf = format(L"{1:02}{0}{2:02}{0}{3:02}"sv, locale.time_separator(), t->tm_hour, t->tm_min, t->tm_sec);
-					break;
-
-				// Две цифры года без столетия (00 to 99)
-				// year without a century, 00 - 99
-				case L'y':
-					strBuf = format(L"{0:02}"sv, t->tm_year % 100);
-					break;
-					// Год со столетием (19yy-20yy)
-					// year with century
-				case L'Y':
-					strBuf = str(1900+t->tm_year);
-					break;
-					// ISO 8601 offset from UTC in timezone
-				case L'z':
-					{
-						using namespace std::chrono;
-						const auto Offset = split_duration<hours, minutes>(-seconds(_timezone + (t->tm_isdst? _dstbias : 0)));
-						strBuf = format(L"{0:+05}"sv, Offset.get<hours>().count() * 100 + Offset.get<minutes>().count());
-					}
-					break;
-					// Timezone name or abbreviation
-				case L'Z':
-					strBuf = encoding::ansi::get_chars(_tzname[t->tm_isdst]);
-					break;
-					// same as \n
-				case L'n':
-					strBuf = L'\n';
-					break;
-					// same as \t
-				case L't':
-					strBuf = L'\t';
-					break;
-				case L'%':
-					strBuf = L'%';
-					break;
-					// time as %I:%M:%S %p
-				case L'r':
-					strBuf = StrFTime(L"%I:%M:%S %p", t);
-					break;
-					// time as %H:%M
-				case L'R':
-					strBuf = StrFTime(L"%H:%M", t);
-					break;
-					// week of year according ISO 8601
-				case L'V':
-					strBuf = format(L"{0:02}"sv, iso8601wknum(t));
-					break;
+			default:
+				--Iterator;
+				Result += format(L"{0}"sv, Time->tm_mon + 1);
+				break;
 			}
+			break;
 
-			strDest+=strBuf;
+		// Две цифры минут (00 - 59)
+		// minute, 00 - 59
+		case L'M':
+			Result += format(L"{0:02}"sv, Time->tm_min);
+			break;
+
+		// AM или PM
+		// am or pm based on 12-hour clock
+		case L'p':
+			Result += Time->tm_hour / 12? L"PM"s : L"AM"s;
+			break;
+
+		// Две цифры секунд (00 - 59)
+		// second, 00 - 59
+		case L'S':
+			Result += format(L"{0:02}"sv, Time->tm_sec);
+			break;
+
+		// День недели где 0 - Воскресенье (Sunday) (0 - 6)
+		// weekday, Sunday == 0, 0 - 6
+		case L'w':
+			Result.push_back(L'0' + Time->tm_wday);
+			break;
+
+		// Две цифры номера недели, где Воскресенье (Sunday) является первым днем недели (00 - 53)
+		// week of year, Sunday is first day of week
+		case L'U':
+		// Две цифры номера недели, где Понедельник (Monday) является первым днем недели (00 - 53)
+		// week of year, Monday is first day of week
+		case L'W':
+		{
+			int I = Time->tm_wday - (Time->tm_yday % 7);
+
+			//I = (chr == 'W'?(!WeekFirst?((t->tm_wday+6)%7):(t->tm_wday? t->tm_wday-1:6)):(t->tm_wday)) - (t->tm_yday % 7);
+			if (I<0)
+				I+=7;
+
+			Result += format(L"{0:02}"sv, (Time->tm_yday + I - (*Iterator == L'W')) / 7);
+			break;
 		}
-#endif
+
+		// date as dd-bbb-YYYY
+		case L'v':
+		// Дата в формате mm.dd.yyyy
+		// appropriate date representation
+		case L'D':
+		case L'x':
+			Result += st_time(Time, locale.Names(IsLocal), *Iterator);
+			break;
+
+		// Время в формате HH:MM:SS
+		// appropriate time representation
+		case L'T':
+		case L'X':
+			Result += format(L"{1:02}{0}{2:02}{0}{3:02}"sv, locale.time_separator(), Time->tm_hour, Time->tm_min, Time->tm_sec);
+			break;
+
+		// Две цифры года без столетия (00 to 99)
+		// year without a century, 00 - 99
+		case L'y':
+			Result += format(L"{0:02}"sv, Time->tm_year % 100);
+			break;
+
+		// Год со столетием (19yy-20yy)
+		// year with century
+		case L'Y':
+			Result += str(1900 + Time->tm_year);
+			break;
+
+		// ISO 8601 offset from UTC in timezone
+		case L'z':
+			{
+				using namespace std::chrono;
+				const auto Offset = split_duration<hours, minutes>(-seconds(_timezone + (Time->tm_isdst? _dstbias : 0)));
+				Result += format(L"{0:+05}"sv, Offset.get<hours>().count() * 100 + Offset.get<minutes>().count());
+			}
+			break;
+
+		// Timezone name or abbreviation
+		case L'Z':
+			Result += encoding::ansi::get_chars(_tzname[Time->tm_isdst]);
+			break;
+
+		// same as \n
+		case L'n':
+			Result.push_back(L'\n');
+			break;
+
+		// same as \t
+		case L't':
+			Result.push_back(L'\t');
+			break;
+
+		// time as %I:%M:%S %p
+		case L'r':
+			Result += StrFTime(L"%I:%M:%S %p"sv, Time);
+			break;
+
+		// time as %H:%M
+		case L'R':
+			Result += StrFTime(L"%H:%M"sv, Time);
+			break;
+
+		// week of year according to ISO 8601
+		case L'V':
+			{
+				// [01,53]
+				wchar_t Buffer[3];
+				std::wcsftime(Buffer, std::size(Buffer), L"%V", Time);
+				Result += Buffer;
+			}
+			break;
+		}
+
+		if (Iterator == Format.cend())
+			break;
 	}
 
-	if (*Format)
-		strDest.clear();
-
-	return strDest;
+	return Result;
 }
 
-string MkStrFTime(const wchar_t *Format)
+string MkStrFTime(string_view const Format)
 {
 	const auto Time = os::chrono::nt_clock::to_time_t(os::chrono::nt_clock::now());
 
-	if (!Format || !*Format)
-		Format = Global->Opt->Macro.strDateFormat.c_str();
-
 	_tzset();
-	return StrFTime(Format, std::localtime(&Time));
+	return StrFTime(Format.empty()? Global->Opt->Macro.strDateFormat : Format, std::localtime(&Time));
 }
 
 void ParseDateComponents(string_view const Src, span<const std::pair<size_t, size_t>> const Ranges, span<WORD> const Dst, WORD const Default)
@@ -514,7 +413,6 @@ os::chrono::duration ParseDuration(const string& Date, const string& Time, int D
 	using namespace chrono;
 	return days(DateN[0]) + hours(TimeN[0]) + minutes(TimeN[1]) + seconds(TimeN[2]) + milliseconds(TimeN[3]);
 }
-
 
 void ConvertDate(os::chrono::time_point Point, string& strDateText, string& strTimeText, int TimeLength, int Brief, int TextMonth, int FullYear)
 {

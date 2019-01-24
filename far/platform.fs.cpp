@@ -1755,7 +1755,7 @@ namespace os::fs
 
 	bool QueryDosDevice(const string& DeviceName, string &Path)
 	{
-		const auto DeviceNamePtr = EmptyToNull(DeviceName.c_str());
+		const auto DeviceNamePtr = EmptyToNull(DeviceName);
 		return os::detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Path, [&](range<wchar_t*> Buffer)
 		{
 			const auto ReturnedSize = ::QueryDosDevice(DeviceNamePtr, Buffer.data(), static_cast<DWORD>(Buffer.size()));

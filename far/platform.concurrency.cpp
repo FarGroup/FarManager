@@ -108,7 +108,7 @@ namespace os::concurrency
 
 
 	mutex::mutex(string_view const Name):
-		handle(CreateMutex(nullptr, false, EmptyToNull(null_terminated(Name).c_str())))
+		handle(CreateMutex(nullptr, false, EmptyToNull(null_terminated(Name))))
 	{
 	}
 
@@ -179,7 +179,7 @@ namespace os::concurrency
 
 
 	event::event(type const Type, state const InitialState, string_view const Name):
-		handle(CreateEvent(nullptr, Type == type::manual, InitialState == state::signaled, EmptyToNull(null_terminated(Name).c_str())))
+		handle(CreateEvent(nullptr, Type == type::manual, InitialState == state::signaled, EmptyToNull(null_terminated(Name))))
 	{
 	}
 

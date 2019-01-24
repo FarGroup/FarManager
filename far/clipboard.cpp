@@ -119,23 +119,30 @@ private:
 		return GetClipboardData(uFormat);
 	}
 
-	bool SetData(unsigned uFormat, os::memory::global::ptr&& hMem) override
+	static bool Set(unsigned const Format, os::memory::global::ptr&& Data)
+	{
+		if (!SetClipboardData(Format, Data.get()))
+			return false;
+
+		// Owned by the OS now
+		(void)Data.release();
+		return true;
+	}
+
+	bool SetData(unsigned Format, os::memory::global::ptr&& Data) override
 	{
 		assert(m_Opened);
 
-		if (!SetClipboardData(uFormat, hMem.get()))
+		if (!Set(Format, std::move(Data)))
 			return false;
-
-		hMem.release();
 
 		auto Locale = os::memory::global::copy(GetUserDefaultLCID());
 		if (!Locale)
 			return false;
 
-		if (!SetClipboardData(CF_LOCALE, Locale.get()))
+		if (!Set(CF_LOCALE, std::move(Locale)))
 			return false;
 
-		Locale.release();
 		return true;
 	}
 

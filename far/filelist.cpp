@@ -159,7 +159,7 @@ static void FileListToSortingPanelItem(const FileListItem *arr, int index, Sorti
 	pi.SortGroup=fi.SortGroup - DEFAULT_SORT_GROUP; //! CHANGED
 
 	pi.NumberOfLinks = fi.IsNumberOfLinksRead() || FileListPtr->IsColumnDisplayed(NUMLINK_COLUMN)?fi.NumberOfLinks(FileListPtr) : 0;
-	pi.Owner = EmptyToNull(fi.IsOwnerRead() || FileListPtr->IsColumnDisplayed(OWNER_COLUMN)? fi.Owner(FileListPtr).c_str() : L"");
+	pi.Owner = fi.IsOwnerRead() || FileListPtr->IsColumnDisplayed(OWNER_COLUMN)? EmptyToNull(fi.Owner(FileListPtr)) : nullptr;
 	pi.NumberOfStreams = fi.IsNumberOfStreamsRead() || FileListPtr->IsColumnDisplayed(NUMSTREAMS_COLUMN)? fi.NumberOfStreams(FileListPtr) : 0;
 	pi.StreamsSize = fi.IsStreamsSizeRead() || FileListPtr->IsColumnDisplayed(STREAMSSIZE_COLUMN)? fi.StreamsSize(FileListPtr) : 0;
 }
@@ -5487,7 +5487,7 @@ void FileList::FileListToPluginItem(const FileListItem& fi, PluginPanelItemHolde
 	pi.AlternateFileName = MakeCopy(fi.AlternateFileName());
 	pi.CustomColumnData=fi.CustomColumnData;
 	pi.Description=fi.DizText; //BUGBUG???
-	pi.Owner = fi.IsOwnerRead()? EmptyToNull(fi.Owner(this).c_str()) : nullptr;
+	pi.Owner = fi.IsOwnerRead()? EmptyToNull(fi.Owner(this)) : nullptr;
 }
 
 size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelItem* gpi) const

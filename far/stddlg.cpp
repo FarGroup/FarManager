@@ -52,6 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "platform.fs.hpp"
 
+#include "common/from_string.hpp"
 #include "common/function_ref.hpp"
 #include "common/function_traits.hpp"
 #include "common/scope_exit.hpp"

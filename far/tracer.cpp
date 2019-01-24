@@ -173,7 +173,7 @@ void tracer::sym_initialise()
 	CutToParent(Path);
 	const auto SymbolSearchPath = encoding::ansi::get_bytes(Path);
 
-	if (imports.SymInitialize(GetCurrentProcess(), EmptyToNull(SymbolSearchPath.c_str()), TRUE))
+	if (imports.SymInitialize(GetCurrentProcess(), EmptyToNull(SymbolSearchPath), TRUE))
 		++s_SymInitialised;
 }
 

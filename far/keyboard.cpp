@@ -57,6 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "platform.reg.hpp"
 
+#include "common/from_string.hpp"
 #include "common/scope_exit.hpp"
 
 #include "format.hpp"

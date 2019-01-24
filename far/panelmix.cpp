@@ -52,6 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 
 #include "common/enum_tokens.hpp"
+#include "common/from_string.hpp"
 #include "common/function_traits.hpp"
 
 #include "format.hpp"
@@ -436,7 +437,7 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 			else if (Type.size() >= 2 && Type.size() <= 3 && Type.front() == L'C')
 			{
 				int Index;
-				if (from_string(TypeOrig.substr(1), Index))
+				if (from_string(string_view(TypeOrig).substr(1), Index))
 					NewColumn.type = CUSTOM_COLUMN0 + Index;
 				else
 				{
@@ -474,7 +475,7 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 			Width = L"0"sv;
 		}
 
-		if (!from_string(string(Width), i.width))
+		if (!from_string(Width, i.width))
 		{
 			// TODO: diagnostics
 			i.width = 0;

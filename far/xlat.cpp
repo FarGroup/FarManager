@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 
 #include "common/enum_tokens.hpp"
+#include "common/from_string.hpp"
 #include "common/zip_view.hpp"
 
 /*
@@ -98,7 +99,7 @@ void xlat_initialize()
 		for (const auto& i: enum_tokens(XLat.strLayouts.Get(), L";"sv))
 		{
 			unsigned long res;
-			if (!from_string(string(i), res, nullptr, 16))
+			if (!from_string(i, res, nullptr, 16))
 			{
 				// TODO: log
 				continue;

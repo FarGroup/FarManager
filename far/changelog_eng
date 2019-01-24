@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 24.01.2019 00:43:26 +0000 - build 5356
+
+1. New version of fmt.
+
+2. Task List didn't show captionless windows.
+
+3. Refactoring.
+
 drkns 18.01.2019 00:27:00 +0000 - build 5355
 
 1. 5353 broke GCC build due to a bug in fmt.

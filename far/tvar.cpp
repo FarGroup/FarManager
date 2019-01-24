@@ -36,6 +36,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "string_sort.hpp"
 
+#include "common/from_string.hpp"
+
 #include "format.hpp"
 
 //---------------------------------------------------------------

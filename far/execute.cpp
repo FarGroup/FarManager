@@ -960,7 +960,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, function_ref<void(
 		}
 
 		string DummyKeyName;
-		seInfo.lpVerb = IsDirectory? nullptr : EmptyToNull((Verb.empty()? Verb = GetShellActionForType(GetShellTypeFromExtension(strNewCmdStr), DummyKeyName) : Verb).c_str());
+		seInfo.lpVerb = IsDirectory? nullptr : EmptyToNull(Verb.empty()? Verb = GetShellActionForType(GetShellTypeFromExtension(strNewCmdStr), DummyKeyName) : Verb);
 	}
 	else
 	{

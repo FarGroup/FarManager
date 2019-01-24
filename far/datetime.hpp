@@ -54,8 +54,8 @@ os::chrono::duration ParseDuration(const string& Date, const string& Time, int D
 void ConvertDate(os::chrono::time_point Point, string& strDateText, string& StrTimeText, int TimeLength, int Brief = FALSE, int TextMonth = FALSE, int FullYear = 0);
 void ConvertDuration(os::chrono::duration Duration, string& strDaysText, string& strTimeText);
 
-string StrFTime(const wchar_t* Format, const tm* t);
-string MkStrFTime(const wchar_t* Format = nullptr);
+string StrFTime(string_view Format, const tm* Time);
+string MkStrFTime(string_view Format = {});
 
 bool Utc2Local(os::chrono::time_point UtcTime, SYSTEMTIME& LocalTime);
 bool Local2Utc(const SYSTEMTIME& LocalTime, os::chrono::time_point& UtcTime);

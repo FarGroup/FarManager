@@ -2597,7 +2597,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 			// Перед выводом диалога посылаем сообщение в обработчик
 			//   и если вернули что надо, то выводим подсказку
 			{
-				const auto Topic = help::make_topic(PluginOwner, NullToEmpty(reinterpret_cast<const wchar_t*>(DlgProc(DN_HELP, m_FocusPos, const_cast<wchar_t*>(EmptyToNull(HelpTopic.c_str()))))));
+				const auto Topic = help::make_topic(PluginOwner, NullToEmpty(reinterpret_cast<const wchar_t*>(DlgProc(DN_HELP, m_FocusPos, const_cast<wchar_t*>(EmptyToNull(HelpTopic))))));
 				if (!Topic.empty())
 				{
 					help::show(Topic);

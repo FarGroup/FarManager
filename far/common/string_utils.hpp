@@ -107,6 +107,12 @@ WARNING_POP()
 		}
 	}
 
+	[[nodiscard]]
+	bool empty() const
+	{
+		return !*c_str();
+	}
+
 private:
 	union
 	{

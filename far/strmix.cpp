@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 
 #include "common/bytes_view.hpp"
+#include "common/from_string.hpp"
 
 #include "format.hpp"
 

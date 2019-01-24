@@ -38,6 +38,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "config.hpp"
 
+#include "common/from_string.hpp"
+
 #include "format.hpp"
 
 template<class T>

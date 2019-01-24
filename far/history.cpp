@@ -149,7 +149,7 @@ history_return_type History::Select(const string& Title, string_view const HelpT
 	if (m_TypeHistory == HISTORYTYPE_CMD || m_TypeHistory == HISTORYTYPE_FOLDER || m_TypeHistory == HISTORYTYPE_VIEW)
 		HistoryMenu->SetId(m_TypeHistory == HISTORYTYPE_CMD?HistoryCmdId:(m_TypeHistory == HISTORYTYPE_FOLDER?HistoryFolderId:HistoryEditViewId));
 
-	const auto ret = ProcessMenu(strStr, Guid, File, Data, Title.c_str(), *HistoryMenu, Height, Type, nullptr);
+	const auto ret = ProcessMenu(strStr, Guid, File, Data, Title, *HistoryMenu, Height, Type, nullptr);
 	Global->ScrBuf->Flush();
 	return ret;
 }
@@ -157,10 +157,10 @@ history_return_type History::Select(const string& Title, string_view const HelpT
 history_return_type History::Select(VMenu2& HistoryMenu, int Height, Dialog const* const Dlg, string& strStr)
 {
 	history_record_type Type;
-	return ProcessMenu(strStr,nullptr ,nullptr ,nullptr , nullptr, HistoryMenu, Height, Type, Dlg);
+	return ProcessMenu(strStr, {}, {}, {}, {}, HistoryMenu, Height, Type, Dlg);
 }
 
-history_return_type History::ProcessMenu(string& strStr, GUID* const Guid, string* const pstrFile, string* const pstrData, const wchar_t* const Title, VMenu2& HistoryMenu, int const Height, history_record_type& Type, const Dialog* const Dlg)
+history_return_type History::ProcessMenu(string& strStr, GUID* const Guid, string* const pstrFile, string* const pstrData, string_view const Title, VMenu2& HistoryMenu, int const Height, history_record_type& Type, const Dialog* const Dlg)
 {
 	unsigned long long SelectedRecord = 0;
 	string strSelectedRecordName,strSelectedRecordGuid,strSelectedRecordFile,strSelectedRecordData;
