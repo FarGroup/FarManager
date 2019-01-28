@@ -29,7 +29,8 @@ environment:
   - platform: x64
     configuration: Debug
     ADD_MAKE: DEBUG=1 DIRBIT=64
-    
+    NAME_ADD: .Debug
+
   - platform: x64
     configuration: Release
     ADD_MAKE: DIRBIT=64
@@ -45,3 +46,17 @@ build_script:
   - cd ..
 
 test: off
+
+after_build:
+  #archive
+  - cd far\%configuration%.64.gcc
+  #set NAME_PREFIX variable as otherwise it is not available when artifacts are collected
+  - set NAME_PREFIX="Far%NAME_ADD%.%platform%.%appveyor_build_version%.%APPVEYOR_REPO_COMMIT%"
+  - appveyor SetVariable -Name NAME_PREFIX -Value "%NAME_PREFIX%"
+  #archive Far
+  - 7z a "%APPVEYOR_BUILD_FOLDER%\%NAME_PREFIX%.7z"
+  - cd ..\..
+
+artifacts:
+  - path: $(NAME_PREFIX).7z
+    name: Far Manager
