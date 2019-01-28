@@ -309,9 +309,6 @@ void InitConsole()
 
 		if(Global->Opt->WindowMode)
 		{
-			COORD Size;
-			if (console.GetSize(Size))
-			console.SetCursorPosition({0, static_cast<SHORT>(Size.Y - 1) });
 			AdjustConsoleScreenBufferSize(false);
 		}
 		else
