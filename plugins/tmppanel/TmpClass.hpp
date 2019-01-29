@@ -18,7 +18,7 @@ class TmpPanel
 		int LastOwnersRead;
 		int LastLinksRead;
 		int UpdateNotNeeded;
-    wchar_t* HostFile;
+		wchar_t* HostFile;
 
 	private:
 		void RemoveDups();
