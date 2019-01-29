@@ -479,7 +479,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *Info)
 					}
 					else
 					{
-						hPlugin=new TmpPanel();
+						hPlugin=new TmpPanel(TmpOut);
 
 						if (hPlugin==NULL)
 							return nullptr;
@@ -507,7 +507,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *Info)
 
 			if (!Opt.MenuForFilelist)
 			{
-				HANDLE hPlugin=new TmpPanel();
+				HANDLE hPlugin=new TmpPanel(pName);
 
 				if (hPlugin == NULL)
 					return nullptr;
@@ -518,7 +518,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *Info)
 			else
 			{
 				ShowMenuFromList(pName);
-				return nullptr;
+				return PANEL_STOP;
 			}
 		}
 		return nullptr;

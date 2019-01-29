@@ -20,7 +20,7 @@ Temporary panel plugin class implementation
 #include "guid.hpp"
 #include <SimpleString.hpp>
 
-TmpPanel::TmpPanel()
+TmpPanel::TmpPanel(const wchar_t* pHostFile)
 {
 	LastOwnersRead=FALSE;
 	LastLinksRead=FALSE;
@@ -29,6 +29,12 @@ TmpPanel::TmpPanel()
 	TmpItemsNumber=0;
 	PanelIndex=CurrentCommonPanel;
 	IfOptCommonPanel();
+	HostFile=nullptr;
+	if (pHostFile)
+	{
+		HostFile = (wchar_t*)malloc((lstrlen(pHostFile)+1)*sizeof(wchar_t));
+		lstrcpy(HostFile, pHostFile);
+	}
 }
 
 
@@ -36,6 +42,8 @@ TmpPanel::~TmpPanel()
 {
 	if (!StartupOptCommonPanel)
 		FreePanelItems(TmpPanelItem, TmpItemsNumber);
+	if (HostFile)
+		free(HostFile);
 }
 
 int TmpPanel::GetFindData(PluginPanelItem **pPanelItem,size_t *pItemsNumber,const OPERATION_MODES OpMode)
@@ -59,7 +67,7 @@ void TmpPanel::GetOpenPanelInfo(struct OpenPanelInfo *Info)
 
 	if (!Opt.SafeModePanel) Info->Flags|=OPIF_REALNAMES;
 
-	Info->HostFile=NULL;
+	Info->HostFile=this->HostFile;
 	Info->CurDir=L"";
 	Info->Format=(wchar_t*)GetMsg(MTempPanel);
 	static wchar_t Title[100];

@@ -18,6 +18,7 @@ class TmpPanel
 		int LastOwnersRead;
 		int LastLinksRead;
 		int UpdateNotNeeded;
+    wchar_t* HostFile;
 
 	private:
 		void RemoveDups();
@@ -34,7 +35,7 @@ class TmpPanel
 		bool IsCurrentFileCorrect(wchar_t **pCurFileName);
 
 	public:
-		TmpPanel();
+		TmpPanel(const wchar_t *pHostFile=nullptr);
 		~TmpPanel();
 
 	public:
