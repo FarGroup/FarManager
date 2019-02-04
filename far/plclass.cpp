@@ -469,7 +469,8 @@ bool Plugin::SaveToCache()
 	}
 
 	os::fs::find_data fdata;
-	os::fs::get_find_data(m_strModuleName, fdata);
+	// BUGBUG check result
+	(void)os::fs::get_find_data(m_strModuleName, fdata);
 	PlCache->SetSignature(id, MakeSignature(fdata));
 
 	const auto& SaveItems = [&PlCache, &id](const auto& Setter, const auto& Item)

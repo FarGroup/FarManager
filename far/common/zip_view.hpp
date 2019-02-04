@@ -47,10 +47,13 @@ namespace detail
 		using difference_type = ptrdiff_t;
 
 		template<size_t... index>
+		[[nodiscard]]
 		static auto dereference_impl(std::index_sequence<index...>, const pointer& Tuple)
 		{
 			return std::tie(*std::get<index>(Tuple)...);
 		}
+
+		[[nodiscard]]
 		static auto dereference(const pointer& Tuple) { return dereference_impl(std::make_index_sequence<sizeof...(args)>{}, Tuple); }
 
 		using reference = decltype(dereference(pointer()));
@@ -67,21 +70,25 @@ namespace detail
 		static void unary_for_each(predicate, pointer&) {}
 
 		template<size_t index = 0, REQUIRES(index < sizeof...(args)), typename predicate>
+		[[nodiscard]]
 		static bool binary_any_of(predicate Predicate, const pointer& Tuple1, const pointer& Tuple2)
 		{
 			return Predicate(std::get<index>(Tuple1), std::get<index>(Tuple2)) || binary_any_of<index + 1>(Predicate, Tuple1, Tuple2);
 		}
 
 		template<size_t index, REQUIRES(index >= sizeof...(args)), typename predicate>
+		[[nodiscard]]
 		static bool binary_any_of(predicate, const pointer&, const pointer&) { return false; }
 
 		template<size_t index = 0, REQUIRES(index < sizeof...(args)), typename predicate>
+		[[nodiscard]]
 		static bool binary_all_of(predicate Predicate, const pointer& Tuple1, const pointer& Tuple2)
 		{
 			return Predicate(std::get<index>(Tuple1), std::get<index>(Tuple2)) && binary_all_of<index + 1>(Predicate, Tuple1, Tuple2);
 		}
 
 		template<size_t index, REQUIRES(index >= sizeof...(args)), typename predicate>
+		[[nodiscard]]
 		static bool binary_all_of(predicate, const pointer&, const pointer&) { return true; }
 	};
 
@@ -109,10 +116,18 @@ public:
 	explicit zip_iterator(const args&... Args): m_Tuple(Args...) {}
 	auto& operator++() { detail::traits<args...>::unary_for_each(detail::increment{}, m_Tuple); return *this; }
 	auto& operator--() { detail::traits<args...>::unary_for_each(detail::decrement{}, m_Tuple); return *this; }
+
 	// tuple's operators == and < are inappropriate as ranges might be of different length and we want to stop on a shortest one
+	[[nodiscard]]
 	auto operator==(const zip_iterator& rhs) const { return detail::traits<args...>::binary_any_of(std::equal_to<>{}, m_Tuple, rhs.m_Tuple); }
+
+	[[nodiscard]]
 	auto operator<(const zip_iterator& rhs) const { return detail::traits<args...>::binary_all_of(std::less<>{}, m_Tuple, rhs.m_Tuple); }
+
+	[[nodiscard]]
 	auto operator*() const { return detail::traits<args...>::dereference(m_Tuple); }
+
+	[[nodiscard]]
 	auto operator-(const zip_iterator& rhs) const { return std::get<0>(m_Tuple) - std::get<0>(rhs.m_Tuple); }
 
 private:

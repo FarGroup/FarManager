@@ -37,8 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace detail
 {
 	template<typename result_type, typename converter_type>
-	[[nodiscard]]
-	result_type from_string(string_view const Str, size_t* Pos, int Base, converter_type Converter)
+	void from_string(string_view const Str, result_type& Value, size_t* Pos, int Base, converter_type Converter)
 	{
 		auto& Errno = errno; // Nonzero cost, pay it once
 		null_terminated Data(Str);
@@ -57,44 +56,44 @@ namespace detail
 		if (Pos != nullptr)
 			*Pos = static_cast<size_t>(EndPtr - Ptr);
 
-		return Result;
+		Value = Result;
 	}
 
 	inline void from_string(string_view const Str, int& Value, size_t* Pos, int Base)
 	{
 		static_assert(sizeof(int) == sizeof(long));
-		Value = from_string<int>(Str, Pos, Base, std::wcstol);
+		from_string(Str, Value, Pos, Base, std::wcstol);
 	}
 
 	inline void from_string(string_view const Str, unsigned int& Value, size_t* Pos, int Base)
 	{
 		static_assert(sizeof(int) == sizeof(long));
-		Value = from_string<unsigned int>(Str, Pos, Base, std::wcstoul);
+		from_string(Str, Value, Pos, Base, std::wcstoul);
 	}
 
 	inline void from_string(string_view const Str, long& Value, size_t* Pos, int Base)
 	{
-		Value = from_string<unsigned int>(Str, Pos, Base, std::wcstol);
+		from_string(Str, Value, Pos, Base, std::wcstol);
 	}
 
 	inline void from_string(string_view const Str, unsigned long& Value, size_t* Pos, int Base)
 	{
-		Value = from_string<unsigned int>(Str, Pos, Base, std::wcstoul);
+		from_string(Str, Value, Pos, Base, std::wcstoul);
 	}
 
 	inline void from_string(string_view const Str, long long& Value, size_t* Pos, int Base)
 	{
-		Value = from_string<unsigned int>(Str, Pos, Base, std::wcstoll);
+		from_string(Str, Value, Pos, Base, std::wcstoll);
 	}
 
 	inline void from_string(string_view const Str, unsigned long long& Value, size_t* Pos, int Base)
 	{
-		Value = from_string<unsigned int>(Str, Pos, Base, std::wcstoull);
+		from_string(Str, Value, Pos, Base, std::wcstoull);
 	}
 
 	inline void from_string(string_view const Str, double & Value, size_t* Pos, int)
 	{
-		Value = from_string<double>(Str, Pos, {}, [](const wchar_t* const Str, wchar_t** const EndPtr, int) { return std::wcstod(Str, EndPtr); });
+		from_string(Str, Value, Pos, {}, [](const wchar_t* const Str, wchar_t** const EndPtr, int) { return std::wcstod(Str, EndPtr); });
 	}
 }
 

@@ -39,7 +39,9 @@ namespace scope_exit
 	class uncaught_exceptions_counter
 	{
 	public:
+		[[nodiscard]]
 		bool is_new() const noexcept { return std::uncaught_exceptions() > m_Count; }
+
 		int m_Count{ std::uncaught_exceptions() }; // int... "a camel is a horse designed by a committee" :(
 	};
 
@@ -77,6 +79,7 @@ namespace scope_exit
 	{
 	public:
 		template<typename F>
+		[[nodiscard]]
 		auto operator << (F&& f) { return scope_guard<F, Type>(FWD(f)); }
 	};
 }

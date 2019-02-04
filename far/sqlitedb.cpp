@@ -208,7 +208,8 @@ SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const string_view Value, co
 	// https://www.sqlite.org/c3ref/bind_blob.html
 	// If the third parameter to sqlite3_bind_text() or sqlite3_bind_text16() or sqlite3_bind_blob() is a NULL pointer
 	// then the fourth parameter is ignored and the end result is the same as sqlite3_bind_null().
-	// And this is how you get a NULL constraint violation with empty strings. Truely amazing dezign. *facepalm*
+
+	// And this is how you get a NULL constraint violation with empty strings. Truly amazing design. *facepalm*
 
 	invoke(db(), [&]{ return sqlite::sqlite3_bind_text16(m_Stmt.get(), ++m_Param, NullToEmpty(Value.data()), static_cast<int>(Value.size() * sizeof(wchar_t)), bStatic? sqlite::static_destructor : sqlite::transient_destructor) == SQLITE_OK; });
 	return *this;

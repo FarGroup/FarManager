@@ -322,12 +322,12 @@ string ConvertNameToReal(string_view const Object)
 	if (File)
 	{
 		string FinalFilePath;
-		File.GetFinalPathName(FinalFilePath);
+		const auto Result = File.GetFinalPathName(FinalFilePath);
 		File.Close();
 
 		//assert(!FinalFilePath.empty());
 
-		if (!FinalFilePath.empty())
+		if (Result && !FinalFilePath.empty())
 		{
 			// append non-existent path part (if present)
 			DeleteEndSlash(Path);

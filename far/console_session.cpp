@@ -144,7 +144,7 @@ public:
 			ScrollScreen(1);
 		}
 
-		console.ResetPosition();
+		console.ResetViewportPosition();
 
 		Global->WindowManager->Desktop()->TakeSnapshot();
 

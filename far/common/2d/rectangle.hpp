@@ -61,9 +61,13 @@ struct rectangle_t
 	{
 	}
 
+	[[nodiscard]]
 	auto width() const { assert(left <= right); return right - left + 1; }
+
+	[[nodiscard]]
 	auto height() const { assert(top <= bottom); return bottom - top + 1; }
 
+	[[nodiscard]]
 	bool contains(point Point) const
 	{
 		return InRange(left, Point.x, right) && InRange(top, Point.y, bottom);

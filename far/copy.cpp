@@ -2106,7 +2106,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 						}
 						else // Cancel
 						{
-							os::fs::remove_directory(strDestPath);
+							// BUGBUG check result
+							(void)os::fs::remove_directory(strDestPath);
 							return COPY_CANCEL;
 						}
 
@@ -2140,7 +2141,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 						}
 						else // Cancel
 						{
-							os::fs::remove_directory(strDestPath);
+							// BUGBUG check result
+							(void)os::fs::remove_directory(strDestPath);
 							return COPY_CANCEL;
 						}
 					}
@@ -2375,9 +2377,9 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 						if (IsDriveTypeCDROM(SrcDriveType) && (SrcData.Attributes & FILE_ATTRIBUTE_READONLY))
 							ShellSetAttr(strDestPath,SrcData.Attributes & ~FILE_ATTRIBUTE_READONLY);
 
-						if (DestAttr!=INVALID_FILE_ATTRIBUTES && equal_icase(strCopiedName, DestData.FileName) &&
-						        strCopiedName != DestData.FileName)
-							os::fs::move_file(strDestPath,strDestPath); //???
+						if (DestAttr!=INVALID_FILE_ATTRIBUTES && equal_icase(strCopiedName, DestData.FileName) && strCopiedName != DestData.FileName)
+							// BUGBUG check result
+							(void)os::fs::move_file(strDestPath, strDestPath); //???
 					}
 
 					++CP->m_Files.Copied;
@@ -3303,7 +3305,7 @@ bool ShellCopy::AskOverwrite(const os::fs::find_data &SrcData,
 	if (DestAttr & FILE_ATTRIBUTE_DIRECTORY)
 		return true;
 
-	const auto Format = L"{0:26} {1:20} {2} {3}";
+	const auto Format = L"{0:26} {1:20} {2} {3}"sv;
 
 	string strDestName = DestName;
 
@@ -3319,7 +3321,8 @@ bool ShellCopy::AskOverwrite(const os::fs::find_data &SrcData,
 			else
 			{
 				DestData = {};
-				os::fs::get_find_data(DestName, DestData); // BUGBUG check result?
+				// BUGBUG check result
+				(void)os::fs::get_find_data(DestName, DestData);
 				DestDataFilled = TRUE;
 
 				if ((Flags&FCOPY_ONLYNEWERFILES))
@@ -3438,7 +3441,8 @@ bool ShellCopy::AskOverwrite(const os::fs::find_data &SrcData,
 					if (!DestDataFilled)
 					{
 						DestData = {};
-						os::fs::get_find_data(DestName,DestData); // BUGBUG check result
+						// BUGBUG check result
+						(void)os::fs::get_find_data(DestName, DestData);
 					}
 
 					string strDateText, strTimeText;

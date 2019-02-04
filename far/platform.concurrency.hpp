@@ -42,10 +42,12 @@ namespace os::concurrency
 {
 	namespace detail
 	{
+		[[nodiscard]]
 		string make_name(string_view Namespace, string_view HashPart, string_view TextPart);
 	}
 
 	template<class T>
+	[[nodiscard]]
 	string make_name(string_view const HashPart, string_view const TextPart)
 	{
 		return detail::make_name(T::get_namespace(), HashPart, TextPart);
@@ -88,8 +90,12 @@ namespace os::concurrency
 
 		~thread();
 
+		[[nodiscard]]
 		unsigned get_id() const;
+
+		[[nodiscard]]
 		bool joinable() const;
+
 		void detach();
 		void join();
 
@@ -127,6 +133,7 @@ namespace os::concurrency
 
 		explicit mutex(string_view Name = {});
 
+		[[nodiscard]]
 		static string_view get_namespace();
 
 		void lock() const;
@@ -141,10 +148,17 @@ namespace os::concurrency
 			virtual ~i_shared_mutex() = default;
 
 			virtual void lock() = 0;
+
+			[[nodiscard]]
 			virtual bool try_lock() = 0;
+
 			virtual void unlock() = 0;
+
 			virtual void lock_shared() = 0;
+
+			[[nodiscard]]
 			virtual bool try_lock_shared() = 0;
+
 			virtual void unlock_shared() = 0;
 		};
 	}
@@ -160,11 +174,17 @@ namespace os::concurrency
 		shared_mutex& operator=(const shared_mutex&) = delete;
 
 		void lock() { m_Impl->lock(); }
-		[[nodiscard]] bool try_lock() { return m_Impl->try_lock(); }
+
+		[[nodiscard]]
+		bool try_lock() { return m_Impl->try_lock(); }
+
 		void unlock() { m_Impl->unlock(); }
 
 		void lock_shared() { m_Impl->lock_shared(); }
-		[[nodiscard]] bool try_lock_shared() { return m_Impl->try_lock_shared(); }
+
+		[[nodiscard]]
+		bool try_lock_shared() { return m_Impl->try_lock_shared(); }
+
 		void unlock_shared() { m_Impl->unlock_shared(); }
 
 	private:
@@ -183,6 +203,7 @@ namespace os::concurrency
 		event() = default;
 		event(type Type, state InitialState, string_view Name = {});
 
+		[[nodiscard]]
 		static string_view get_namespace();
 
 		void set() const;
@@ -199,6 +220,7 @@ namespace os::concurrency
 	public:
 		using value_type = T;
 
+		[[nodiscard]]
 		bool empty() const
 		{
 			SCOPED_ACTION(critical_section_lock)(m_QueueCS);
@@ -224,6 +246,7 @@ namespace os::concurrency
 			m_Queue.push(FWD(item));
 		}
 
+		[[nodiscard]]
 		bool try_pop(T& To)
 		{
 			SCOPED_ACTION(critical_section_lock)(m_QueueCS);
@@ -236,6 +259,7 @@ namespace os::concurrency
 			return true;
 		}
 
+		[[nodiscard]]
 		auto size() const
 		{
 			SCOPED_ACTION(critical_section_lock)(m_QueueCS);
@@ -248,6 +272,7 @@ namespace os::concurrency
 			clear_and_shrink(m_Queue);
 		}
 
+		[[nodiscard]]
 		auto scoped_lock() { return make_raii_wrapper(this, &synced_queue::lock, &synced_queue::unlock); }
 
 	private:

@@ -1212,14 +1212,18 @@ void DeleteDirTree(const string& Dir)
 		if (FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY)
 		{
 			if (ScTree.IsDirSearchDone())
-				os::fs::remove_directory(strFullName);
+				// BUGBUG check result
+				(void)os::fs::remove_directory(strFullName);
 		}
 		else
-			os::fs::delete_file(strFullName);
+			// BUGBUG check result
+			(void)os::fs::delete_file(strFullName);
 	}
 
-	os::fs::set_file_attributes(Dir,FILE_ATTRIBUTE_NORMAL);
-	os::fs::remove_directory(Dir);
+	// BUGBUG check result
+	(void)os::fs::set_file_attributes(Dir,FILE_ATTRIBUTE_NORMAL);
+	// BUGBUG check result
+	(void)os::fs::remove_directory(Dir);
 }
 
 bool DeleteFileWithFolder(const string& FileName)

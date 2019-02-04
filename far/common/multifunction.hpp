@@ -108,6 +108,7 @@ namespace detail
 		{
 		}
 
+		[[nodiscard]]
 		std::unique_ptr<icallable<signatures...>> clone() const override
 		{
 			return std::make_unique<callable>(this->m_Callable);
@@ -147,6 +148,7 @@ public:
 		return (*m_Callable)(FWD(Args)...);
 	}
 
+	[[nodiscard]]
 	explicit operator bool() const noexcept
 	{
 		return m_Callable.operator bool();

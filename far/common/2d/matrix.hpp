@@ -52,26 +52,47 @@ public:
 
 		row_t(iterator Row, size_t Size): m_row(Row), m_size(Size) {}
 
+		[[nodiscard]]
 		auto size() const { return m_size; }
 
 		// assert for <= is ok, &row[size] can be used as an 'end' iterator
+		[[nodiscard]]
 		decltype(auto) operator[](size_t n) { assert(n <= m_size); return m_row[n]; }
+
+		[[nodiscard]]
 		decltype(auto) operator[](size_t n) const { assert(n <= m_size); return m_row[n]; }
+
+		[[nodiscard]]
 		decltype(auto) front() const { assert(m_size != 0); return m_row[0]; }
+
+		[[nodiscard]]
 		decltype(auto) back() const { assert(m_size != 0); return m_row[m_size - 1]; }
 
+		[[nodiscard]]
 		auto data() { return m_row; }
+
+		[[nodiscard]]
 		auto data() const { return m_row; }
 
+		[[nodiscard]]
 		auto begin() { return m_row; }
+
+		[[nodiscard]]
 		auto end() { return m_row + m_size; }
 
+		[[nodiscard]]
 		auto begin() const { return m_row; }
+
+		[[nodiscard]]
 		auto end() const { return m_row + m_size; }
 
+		[[nodiscard]]
 		auto cbegin() const { return m_row; }
+
+		[[nodiscard]]
 		auto cend() const { return m_row + m_size; }
 
+		[[nodiscard]]
 		bool operator==(const row_t& rhs) const { return m_size == rhs.m_size && std::equal(m_row, m_row + m_size, rhs.m_row); }
 
 	private:
@@ -96,27 +117,48 @@ public:
 	}
 
 	// assert for <= is ok, &matirx[size] can be used as an 'end' iterator
+	[[nodiscard]]
 	auto operator[](size_t n) { assert(n <= m_rows); return row(m_buffer.data() + m_cols * n, m_cols); }
+
+	[[nodiscard]]
 	auto operator[](size_t n) const { assert(n <= m_rows); return const_row(m_buffer.data() + m_cols * n, m_cols); }
 
+	[[nodiscard]]
 	auto height() const { return m_rows; }
+
+	[[nodiscard]]
 	auto width() const { return m_cols; }
 
+	[[nodiscard]]
 	auto front() { assert(m_rows != 0); return (*this)[0]; }
+
+	[[nodiscard]]
 	auto back() { assert(m_rows != 0); return (*this)[m_rows - 1]; }
 
+	[[nodiscard]]
 	auto front() const { assert(m_rows != 0); return (*this)[0]; }
+
+	[[nodiscard]]
 	auto back() const { assert(m_rows != 0); return (*this)[m_rows - 1]; }
 
+	[[nodiscard]]
 	auto empty() const { return m_buffer.empty(); }
+
+	[[nodiscard]]
 	auto size() const { return m_buffer.size(); }
 
+	[[nodiscard]]
 	auto data() { return m_buffer.data(); }
+
+	[[nodiscard]]
 	auto data() const { return m_buffer.data(); }
 
 	// TODO: iterator interface
 
+	[[nodiscard]]
 	auto& vector() { return m_buffer; }
+
+	[[nodiscard]]
 	auto& vector() const { return m_buffer; }
 
 private:

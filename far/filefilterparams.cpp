@@ -381,7 +381,7 @@ string MenuString(const FileFilterParams* const FF, bool const bHighlightType, w
 	const wchar_t DownArrow = L'\x2193';
 	string_view Name;
 	auto Mask = L""sv;
-	wchar_t MarkChar[]=L"' '";
+	auto MarkChar = L"' '"s;
 	DWORD IncludeAttr, ExcludeAttr;
 	bool UseSize, UseHardLinks, UseDate, RelativeDate;
 
@@ -395,10 +395,10 @@ string MenuString(const FileFilterParams* const FF, bool const bHighlightType, w
 	}
 	else
 	{
-		MarkChar[1] = FF->GetMarkChar();
-
-		if (!MarkChar[1])
-			*MarkChar=0;
+		if (const auto Char = FF->GetMarkChar())
+			MarkChar[1] = Char;
+		else
+			MarkChar.clear();
 
 		Name=FF->GetTitle();
 		

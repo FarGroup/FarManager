@@ -71,7 +71,8 @@ PreserveLongName::~PreserveLongName()
 			else
 				strNewName = m_SaveLongName;
 
-			os::fs::move_file(m_SaveShortName, strNewName);
+			// BUGBUG check result
+			(void)os::fs::move_file(m_SaveShortName, strNewName);
 		}
 	}
 }

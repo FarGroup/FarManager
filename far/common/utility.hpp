@@ -189,7 +189,7 @@ namespace detail
 	};
 
 	template<typename arg, typename... args>
-	struct overload_t<arg, args...>: arg, overload_t<args...>::type
+	struct [[nodiscard]] overload_t<arg, args...>: arg, overload_t<args...>::type
 	{
 		using type = overload_t;
 

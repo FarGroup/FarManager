@@ -767,7 +767,8 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		else
 		{
 			SingleSelFileName = *Object;
-			os::fs::get_find_data(SingleSelFileName, SingleSelFindData);
+			// BUGBUG check result
+			(void)os::fs::get_find_data(SingleSelFileName, SingleSelFindData);
 			SingleSelFileAttr = SingleSelFindData.Attributes;
 		}
 
@@ -907,7 +908,8 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 						// BUGBUG, cheating
 						KnownReparsePoint = true;
 						ReparseTag = IO_REPARSE_TAG_MOUNT_POINT;
-						os::fs::GetVolumeNameForVolumeMountPoint(SingleSelFileName, strLinkName);
+						// BUGBUG check result
+						(void)os::fs::GetVolumeNameForVolumeMountPoint(SingleSelFileName, strLinkName);
 					}
 					else
 					{

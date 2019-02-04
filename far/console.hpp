@@ -140,6 +140,7 @@ namespace console_detail
 		bool IsFullscreenSupported() const;
 
 		bool ResetPosition() const;
+		bool ResetViewportPosition() const;
 
 		bool GetColorDialog(FarColor& Color, bool Centered = false, const FarColor* BaseColor = nullptr) const;
 

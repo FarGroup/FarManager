@@ -69,9 +69,9 @@ static string st_time(const tm* tmPtr, const locale_names& Names, const wchar_t 
 		{
 			switch (locale.date_format())
 			{
-			case 0: return L"{2:02}{0}{1:02}{0}{3:4}";
-			case 1: return L"{1:02}{0}{2:02}{0}{3:4}";
-			default: return L"{3:4}{0}{2:02}{0}{1:02}";
+			case 0: return L"{2:02}{0}{1:02}{0}{3:4}"sv;
+			case 1: return L"{1:02}{0}{2:02}{0}{3:4}"sv;
+			default: return L"{3:4}{0}{2:02}{0}{1:02}"sv;
 			}
 		};
 
@@ -466,9 +466,9 @@ void ConvertDate(os::chrono::time_point Point, string& strDateText, string& strT
 		{
 			switch (CurDateFormat)
 			{
-			case 0:  return L"{1:3.3} {0:2} {2:02}";
-			case 1:  return L"{0:2} {1:3.3} {2:02}";
-			default: return L"{2:02} {1:3.3} {0:2}";
+			case 0:  return L"{1:3.3} {0:2} {2:02}"sv;
+			case 1:  return L"{0:2} {1:3.3} {2:02}"sv;
+			default: return L"{2:02} {1:3.3} {0:2}"sv;
 			}
 		};
 

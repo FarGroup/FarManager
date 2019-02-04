@@ -54,9 +54,13 @@ public:
 	movable(movable&& rhs) noexcept { *this = std::move(rhs); }
 	auto& operator=(movable&& rhs) noexcept { m_Value = std::exchange(rhs.m_Value, Default); return *this; }
 
+	[[nodiscard]]
 	bool operator==(T Value) const { return m_Value == Value; }
+
+	[[nodiscard]]
 	bool operator<(T Value) const { return m_Value < Value; }
 
+	[[nodiscard]]
 	operator T() const { return m_Value; }
 
 private:
@@ -65,7 +69,7 @@ private:
 
 namespace detail
 {
-	struct nop_deleter { void operator()(void*) const {} };
+	struct nop_deleter { void operator()(void*) const noexcept {} };
 }
 
 template<class T>

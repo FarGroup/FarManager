@@ -47,11 +47,21 @@ public:
 	explicit null_iterator_t(T* Data): m_Data(Data) {}
 	auto& operator++() { ++m_Data; return *this; }
 	auto operator++(int) { return null_iterator_t(m_Data++); }
+
+	[[nodiscard]]
 	auto& operator*() { return *m_Data; }
+
+	[[nodiscard]]
 	auto operator->() noexcept { return m_Data; }
 	auto& operator*() const { return *m_Data; }
+
+	[[nodiscard]]
 	auto operator->() const noexcept { return m_Data; }
+
+	[[nodiscard]]
 	static const auto& end() { static T Empty{}; static const null_iterator_t Iter(&Empty); return Iter; }
+
+	[[nodiscard]]
 	bool operator==(const null_iterator_t& rhs) const { return m_Data == rhs.m_Data || (rhs.m_Data == end().m_Data && !*m_Data); }
 
 private:

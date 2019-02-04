@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "rel_ops.hpp"
 
 template<typename Derived, typename T>
-class enumerator
+class [[nodiscard]] enumerator
 {
 public:
 	// VS2015
@@ -46,8 +46,7 @@ public:
 	using enumerator_type = enumerator;
 
 	template<typename item_type, typename owner>
-	class iterator_t:
-		public rel_ops<iterator_t<item_type, owner>>
+	class iterator_t: public rel_ops<iterator_t<item_type, owner>>
 	{
 	public:
 		using iterator_category = std::forward_iterator_tag;
@@ -68,10 +67,16 @@ public:
 		iterator_t() = default;
 		iterator_t(owner_type Owner, position Position): m_Owner(Owner), m_Position(Position) {}
 
+		[[nodiscard]]
 		auto operator->() { return &m_Value; }
+
+		[[nodiscard]]
 		auto operator->() const { return &m_Value; }
 
+		[[nodiscard]]
 		auto& operator*() { return m_Value; }
+
+		[[nodiscard]]
 		auto& operator*() const { return m_Value; }
 
 		auto& operator++()
@@ -88,12 +93,14 @@ public:
 			return Copy;
 		}
 
+		[[nodiscard]]
 		bool operator==(const iterator_t& rhs) const
 		{
 			assert(!m_Owner || !rhs.m_Owner || m_Owner == rhs.m_Owner);
 			return m_Owner == rhs.m_Owner && m_Position == rhs.m_Position;
 		}
 
+		[[nodiscard]]
 		explicit operator bool() const
 		{
 			return m_Owner != nullptr;
@@ -110,13 +117,22 @@ public:
 	using iterator = iterator_t<T, Derived*>;
 	using const_iterator = iterator_t<const T, const Derived*>;
 
+	[[nodiscard]]
 	auto begin() { return std::next(make_iterator<iterator>(this, iterator::position::begin)); }
+
+	[[nodiscard]]
 	auto end() { return make_iterator<iterator>(this); }
 
+	[[nodiscard]]
 	auto begin() const { return std::next(make_iterator<const_iterator>(this, const_iterator::position::begin)); }
+
+	[[nodiscard]]
 	auto end() const { return make_iterator<const_iterator>(this); }
 
+	[[nodiscard]]
 	auto cbegin() const { return begin(); }
+
+	[[nodiscard]]
 	auto cend() const { return end(); }
 
 protected:
@@ -124,6 +140,7 @@ protected:
 
 private:
 	template<typename iterator_type, typename owner_type>
+	[[nodiscard]]
 	static auto make_iterator(owner_type Owner, typename iterator_type::position Position = iterator_type::position::end) { return iterator_type{ static_cast<typename iterator_type::owner_type>(Owner), Position }; }
 };
 
@@ -150,6 +167,7 @@ public:
 	}
 
 private:
+	[[nodiscard]]
 	bool get(bool Reset, value_type& Value) const
 	{
 		return m_Callable(Reset, Value);

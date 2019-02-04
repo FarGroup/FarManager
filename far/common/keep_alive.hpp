@@ -46,8 +46,13 @@ namespace detail
 			m_Value(FWD(Value))
 		{}
 
+		[[nodiscard]]
 		operator const type&() const { return m_Value; }
+
+		[[nodiscard]]
 		auto operator&() const { return &m_Value; }
+
+		[[nodiscard]]
 		auto& get() const { return m_Value; }
 
 	private:
@@ -56,12 +61,14 @@ namespace detail
 }
 
 template<typename type>
+[[nodiscard]]
 auto keep_alive(type& Value)
 {
 	return detail::keep_alive_t<type&>(Value);
 }
 
 template<typename type>
+[[nodiscard]]
 auto keep_alive(type&& Value)
 {
 	return detail::keep_alive_t<type>(FWD(Value));

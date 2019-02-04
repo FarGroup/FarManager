@@ -512,12 +512,12 @@ namespace console_detail
 		if (Attributes.Flags & FCF_FG_UNDERLINE)
 		{
 			if (!LastColor.first || !(LastColor.second.Flags & FCF_FG_UNDERLINE))
-				Str += L";4";
+				Str += L";4"sv;
 		}
 		else
 		{
 			if (LastColor.first && LastColor.second.Flags & FCF_FG_UNDERLINE)
-				Str += L";24";
+				Str += L";24"sv;
 		}
 
 		Str += L'm';
@@ -1008,8 +1008,7 @@ namespace console_detail
 		{
 			csbi.srWindow.Bottom -= csbi.srWindow.Top;
 			csbi.srWindow.Top = 0;
-			SetWindowRect(csbi.srWindow);
-			return true;
+			return SetWindowRect(csbi.srWindow);
 		}
 
 		return false;
@@ -1024,8 +1023,7 @@ namespace console_detail
 		{
 			csbi.srWindow.Top += csbi.dwSize.Y - 1 - csbi.srWindow.Bottom;
 			csbi.srWindow.Bottom = csbi.dwSize.Y - 1;
-			SetWindowRect(csbi.srWindow);
-			return true;
+			return SetWindowRect(csbi.srWindow);
 		}
 
 		return false;
@@ -1057,6 +1055,12 @@ namespace console_detail
 			SetWindowRect(csbi.srWindow);
 		}
 		return true;
+	}
+
+	bool console::ResetViewportPosition() const
+	{
+		COORD Size;
+		return GetSize(Size) && SetCursorPosition({0, static_cast<SHORT>(Size.Y - 1) });
 	}
 
 	bool console::GetColorDialog(FarColor& Color, bool const Centered, const FarColor* const BaseColor) const

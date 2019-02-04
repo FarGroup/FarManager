@@ -235,7 +235,8 @@ namespace os::reg
 	enum_key::enum_key(const key& Key, const string_view SubKey, const REGSAM Sam):
 		m_KeyRef(m_Key)
 	{
-		m_Key.open(Key, SubKey, KEY_ENUMERATE_SUB_KEYS | Sam);
+		// BUGBUG check result
+		(void)m_Key.open(Key, SubKey, KEY_ENUMERATE_SUB_KEYS | Sam);
 	}
 
 	bool enum_key::get(bool Reset, value_type& Value) const
@@ -256,7 +257,8 @@ namespace os::reg
 	enum_value::enum_value(const key& Key, const string_view SubKey, const REGSAM Sam):
 		m_KeyRef(m_Key)
 	{
-		m_Key.open(Key, SubKey, KEY_QUERY_VALUE | Sam);
+		// BUGBUG check result
+		(void)m_Key.open(Key, SubKey, KEY_QUERY_VALUE | Sam);
 	}
 
 	bool enum_value::get(bool Reset, value_type& Value) const

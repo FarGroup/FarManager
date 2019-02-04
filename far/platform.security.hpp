@@ -50,8 +50,10 @@ namespace os::security
 
 	using sid_ptr = std::unique_ptr<std::remove_pointer_t<PSID>, detail::sid_deleter>;
 
+	[[nodiscard]]
 	sid_ptr make_sid(PSID_IDENTIFIER_AUTHORITY IdentifierAuthority, BYTE SubAuthorityCount, DWORD SubAuthority0 = 0, DWORD SubAuthority1 = 0, DWORD SubAuthority2 = 0, DWORD SubAuthority3 = 0, DWORD SubAuthority4 = 0, DWORD SubAuthority5 = 0, DWORD SubAuthority6 = 0, DWORD SubAuthority7 = 0);
 
+	[[nodiscard]]
 	bool is_admin();
 
 	class privilege
@@ -65,7 +67,10 @@ namespace os::security
 		~privilege();
 
 		template<class... args>
+		[[nodiscard]]
 		static bool check(args&&... Args) { return check({ FWD(Args)... }); }
+
+		[[nodiscard]]
 		static bool check(span<const wchar_t* const> Names);
 
 	private:
@@ -73,6 +78,7 @@ namespace os::security
 		bool m_Changed{};
 	};
 
+	[[nodiscard]]
 	fs::drives_set allowed_drives_mask();
 }
 

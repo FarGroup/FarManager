@@ -43,6 +43,7 @@ public:
 	}
 
 	template<typename type>
+	[[nodiscard]]
 	type& get()
 	{
 		// This idiotic cast to std::tuple is for clang
@@ -50,6 +51,7 @@ public:
 	}
 
 	template<typename type>
+	[[nodiscard]]
 	const type& get() const
 	{
 		// This idiotic cast to std::tuple is for clang

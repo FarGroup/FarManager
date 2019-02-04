@@ -55,7 +55,8 @@ string MakeTemp(string_view Prefix, bool const WithTempPath, string_view const U
 
 	if (WithTempPath)
 	{
-		os::fs::GetTempPath(strPath);
+		// BUGBUG check result
+		(void)os::fs::GetTempPath(strPath);
 	}
 	else if(!UserTempPath.empty())
 	{

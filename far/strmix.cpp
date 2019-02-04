@@ -1059,11 +1059,13 @@ bytes HexStringToBlob(const string_view Hex, const wchar_t Separator)
 	return HexStringToBlobT(Hex, Separator);
 }
 
-string ExtractHexString(const string& HexString)
+string ExtractHexString(string_view const HexString)
 {
-	auto Result{ HexString };
+	const auto Trimmed = trim_right(HexString);
+	string Result;
+	Result.reserve((Trimmed.size() + 2) / 3 * 2);
 	// TODO: Fix these and trailing spaces in Dialog class?
-	Result.erase(std::remove(ALL_RANGE(Result), L' '), Result.end());
+	std::remove_copy(ALL_CONST_RANGE(Trimmed), std::back_inserter(Result), L' ');
 	if (Result.size() & 1)
 	{
 		// Odd length - hex string is not valid.
@@ -1092,6 +1094,7 @@ string ConvertHexString(const string& From, uintptr_t Codepage, bool FromHex)
 
 // dest и src НЕ ДОЛЖНЫ пересекаться
 template<typename T>
+[[nodiscard]]
 static T* xncpy(T* dest, const T* src, size_t DestSize)
 {
 	const auto tmpsrc = dest;

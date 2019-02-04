@@ -49,11 +49,19 @@ public:
 
 	auto& operator=(T&& Value) noexcept { m_Value = std::move(Value); m_Touched = true; return *this; }
 
+	[[nodiscard]]
 	auto& value() { return m_Value; }
+
+	[[nodiscard]]
 	const auto& value() const { return m_Value; }
+
+	[[nodiscard]]
 	operator T&() { return m_Value; }
+
+	[[nodiscard]]
 	operator const T&() const { return m_Value; }
 
+	[[nodiscard]]
 	auto touched() const noexcept { return m_Touched; }
 
 	void forget() noexcept { m_Touched = false; }

@@ -408,7 +408,8 @@ namespace os::fs
 	{
 		NTPath NtFileName(FileName);
 		find_handle Handle;
-		os::detail::ApiDynamicStringReceiver(LinkName, [&](range<wchar_t*> Buffer)
+		// BUGBUG check result
+		(void)os::detail::ApiDynamicStringReceiver(LinkName, [&](range<wchar_t*> Buffer)
 		{
 			auto BufferSize = static_cast<DWORD>(Buffer.size());
 			Handle.reset(imports.FindFirstFileNameW(NtFileName.c_str(), Flags, &BufferSize, Buffer.data()));
@@ -488,7 +489,8 @@ namespace os::fs
 			// sometimes for directories NtQueryInformationFile returns STATUS_SUCCESS but doesn't fill the buffer
 			const auto StreamInfo = reinterpret_cast<FILE_STREAM_INFORMATION*>(Handle->BufferBase.get());
 			StreamInfo->StreamNameLength = 0;
-			Handle->Object.NtQueryInformationFile(Handle->BufferBase.get(), Handle->BufferBase.size(), FileStreamInformation, &Result);
+			// BUGBUG check result
+			(void)Handle->Object.NtQueryInformationFile(Handle->BufferBase.get(), Handle->BufferBase.size(), FileStreamInformation, &Result);
 		}
 		while (Result == STATUS_BUFFER_OVERFLOW || Result == STATUS_BUFFER_TOO_SMALL);
 
@@ -651,7 +653,8 @@ namespace os::fs
 		case FILE_END:
 			{
 				unsigned long long Size = 0;
-				GetSize(Size);
+				// BUGBUG check result
+				(void)GetSize(Size);
 				m_Pointer = Size + DistanceToMove;
 			}
 			break;
@@ -950,7 +953,8 @@ namespace os::fs
 	{
 		const auto Ptr = GetPointer();
 		unsigned long long Size = 0;
-		GetSize(Size);
+		// BUGBUG check result
+		(void)GetSize(Size);
 		return Ptr >= Size;
 	}
 
@@ -1812,7 +1816,8 @@ namespace os::fs
 	{
 		security_descriptor Result(default_buffer_size);
 		NTPath NtObject(Object);
-		os::detail::ApiDynamicReceiver(Result, [&](range<SECURITY_DESCRIPTOR*> Buffer)
+		// BUGBUG check result
+		(void)os::detail::ApiDynamicReceiver(Result, [&](range<SECURITY_DESCRIPTOR*> Buffer)
 		{
 			DWORD LengthNeeded = 0;
 			if (!::GetFileSecurity(NtObject.c_str(), RequestedInformation, Buffer.data(), static_cast<DWORD>(Buffer.size()), &LengthNeeded))

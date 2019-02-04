@@ -81,38 +81,52 @@ public:
 	{
 	}
 
+	[[nodiscard]]
 	constexpr bool empty() const { return m_Begin == m_End; }
 
+	[[nodiscard]]
 	constexpr auto begin() const { return m_Begin; }
+
+	[[nodiscard]]
 	constexpr auto end() const { return m_End; }
 
 	template<typename T = iterator, REQUIRES(std::is_same_v<T, iterator>)>
+	[[nodiscard]]
 	constexpr opt_const_iterator<T> cbegin() const { return begin(); }
 
 	template<typename T = iterator, REQUIRES(std::is_same_v<T, iterator>)>
+	[[nodiscard]]
 	constexpr opt_const_iterator<T> cend() const { return end(); }
 
+	[[nodiscard]]
 	constexpr auto rbegin() const { return reverse_iterator(m_End); }
+
+	[[nodiscard]]
 	constexpr auto rend() const { return reverse_iterator(m_Begin); }
 
 	template<typename T = reverse_iterator, REQUIRES(std::is_same_v<T, reverse_iterator>)>
+	[[nodiscard]]
 	constexpr opt_const_iterator<T> crbegin() const { return rbegin(); }
 
 	template<typename T = reverse_iterator, REQUIRES(std::is_same_v<T, reverse_iterator>)>
+	[[nodiscard]]
 	constexpr opt_const_iterator<T> crend() const { return rend(); }
 
+	[[nodiscard]]
 	constexpr auto& front() const
 	{
 		assert(!empty());
 		return *m_Begin;
 	}
 
+	[[nodiscard]]
 	constexpr auto& back() const
 	{
 		assert(!empty());
 		return *std::prev(m_End);
 	}
 
+	[[nodiscard]]
 	constexpr auto& operator[](size_t n) const
 	{
 		assert(n < size());
@@ -120,7 +134,10 @@ public:
 	}
 
 	// Explicit "+ 0" to make sure that random access is supported
+	[[nodiscard]]
 	constexpr auto data() const { return &*(m_Begin + 0); }
+
+	[[nodiscard]]
 	constexpr size_t size() const { return m_End - m_Begin; }
 
 	/*constexpr*/ void pop_front()
@@ -247,7 +264,10 @@ public:
 
 	explicit i_iterator(const T& value): m_value(value) {}
 
+	[[nodiscard]]
 	auto operator->() const { return &m_value; }
+
+	[[nodiscard]]
 	auto& operator*() const { return m_value; }
 
 	auto& operator++() { ++m_value; return *this; }
@@ -260,7 +280,11 @@ public:
 	auto operator-(size_t n) const { return i_iterator(m_value - n); }
 
 	auto operator-(const i_iterator& rhs) const { return m_value - rhs.m_value; }
+
+	[[nodiscard]]
 	auto operator==(const i_iterator& rhs) const { return m_value == rhs.m_value; }
+
+	[[nodiscard]]
 	auto operator<(const i_iterator& rhs) const { return m_value < rhs.m_value; }
 
 private:
@@ -301,9 +325,16 @@ namespace detail
 		{
 		}
 
+		[[nodiscard]]
 		decltype(auto) operator*() { return std::invoke(m_Accessor, *m_Value); }
+
+		[[nodiscard]]
 		decltype(auto) operator*() const { return std::invoke(m_Accessor, *m_Value); }
+
+		[[nodiscard]]
 		auto operator->() { return &**this; }
+
+		[[nodiscard]]
 		auto operator->() const { return &**this; }
 
 		auto& operator++() { ++m_Value; return *this; }
@@ -316,7 +347,11 @@ namespace detail
 		auto operator-(size_t n) const { return select_iterator(m_Value - n); }
 
 		auto operator-(const select_iterator& rhs) const { return m_Value - rhs.m_Value; }
+
+		[[nodiscard]]
 		auto operator==(const select_iterator& rhs) const { return m_Value == rhs.m_Value; }
+
+		[[nodiscard]]
 		auto operator<(const select_iterator& rhs) const { return m_Value < rhs.m_Value; }
 
 	private:
@@ -325,6 +360,7 @@ namespace detail
 	};
 
 	template<typename T, typename accessor>
+	[[nodiscard]]
 	auto make_select_iterator(const T& Iterator, const accessor& Accessor)
 	{
 		return select_iterator<T, accessor>(Iterator, Accessor);
@@ -340,12 +376,12 @@ namespace detail
 		{
 		}
 
-		auto begin()        { return make_select_iterator(std::begin(this->m_Container), this->m_Accessor); }
-		auto end()          { return make_select_iterator(std::end(this->m_Container), this->m_Accessor); }
-		auto begin()  const { return make_select_iterator(std::begin(this->m_Container), this->m_Accessor); }
-		auto end()    const { return make_select_iterator(std::end(this->m_Container), this->m_Accessor); }
-		auto cbegin() const { return make_select_iterator(std::begin(this->m_Container), this->m_Accessor); }
-		auto cend()   const { return make_select_iterator(std::end(this->m_Container), this->m_Accessor); }
+		[[nodiscard]] auto begin()        { return make_select_iterator(std::begin(this->m_Container), this->m_Accessor); }
+		[[nodiscard]] auto end()          { return make_select_iterator(std::end(this->m_Container), this->m_Accessor); }
+		[[nodiscard]] auto begin()  const { return make_select_iterator(std::begin(this->m_Container), this->m_Accessor); }
+		[[nodiscard]] auto end()    const { return make_select_iterator(std::end(this->m_Container), this->m_Accessor); }
+		[[nodiscard]] auto cbegin() const { return make_select_iterator(std::begin(this->m_Container), this->m_Accessor); }
+		[[nodiscard]] auto cend()   const { return make_select_iterator(std::end(this->m_Container), this->m_Accessor); }
 
 	private:
 		container m_Container;

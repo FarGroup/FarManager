@@ -121,7 +121,8 @@ int ESetFileCompression(const string& Name,int State,DWORD FileAttr,int SkipMode
 
 	// Drop Encryption
 	if ((FileAttr & FILE_ATTRIBUTE_ENCRYPTED) && State)
-		os::fs::set_file_encryption(Name, false);
+		// BUGBUG check result
+		(void)os::fs::set_file_encryption(Name, false);
 
 	while (!SetFileCompression(Name,State))
 	{

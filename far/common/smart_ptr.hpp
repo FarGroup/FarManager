@@ -75,27 +75,32 @@ public:
 		m_Size = 0;
 	}
 
+	[[nodiscard]]
 	size_t size() const noexcept
 	{
 		return m_Size;
 	}
 
+	[[nodiscard]]
 	explicit operator bool() const noexcept
 	{
 		return m_IsStatic || m_DynamicBuffer;
 	}
 
+	[[nodiscard]]
 	T* get() const noexcept
 	{
 		return m_IsStatic? m_StaticBuffer.data() : m_DynamicBuffer.get();
 	}
 
+	[[nodiscard]]
 	T& operator*() const
 	{
 		assert(m_Size);
 		return *get();
 	}
 
+	[[nodiscard]]
 	T& operator[](size_t Index) const
 	{
 		assert(Index < m_Size);
@@ -128,8 +133,14 @@ public:
 
 	using char_ptr_n<Size>::char_ptr_n;
 	block_ptr() = default;
+
+	[[nodiscard]]
 	decltype(auto) get() const noexcept {return reinterpret_cast<T*>(char_ptr_n<Size>::get());}
+
+	[[nodiscard]]
 	decltype(auto) operator->() const noexcept { return get(); }
+
+	[[nodiscard]]
 	decltype(auto) operator*() const noexcept {return *get();}
 };
 
@@ -138,10 +149,19 @@ class unique_ptr_with_ondestroy
 {
 public:
 	~unique_ptr_with_ondestroy() { OnDestroy(); }
+
+	[[nodiscard]]
 	decltype(auto) get() const noexcept { return ptr.get(); }
+
+	[[nodiscard]]
 	decltype(auto) operator->() const noexcept { return ptr.operator->(); }
+
+	[[nodiscard]]
 	decltype(auto) operator*() const { return *ptr; }
+
+	[[nodiscard]]
 	explicit operator bool() const noexcept { return ptr.operator bool(); }
+
 	decltype(auto) operator=(std::unique_ptr<T>&& value) noexcept { OnDestroy(); ptr = std::move(value); return *this; }
 
 private:
@@ -171,6 +191,8 @@ public:
 	MOVABLE(ptr_setter_t);
 	explicit ptr_setter_t(T& Ptr): m_Ptr(&Ptr) {}
 	~ptr_setter_t() { if (m_Ptr) m_Ptr->reset(m_RawPtr); }
+
+	[[nodiscard]]
 	auto operator&() { return &m_RawPtr; }
 
 private:

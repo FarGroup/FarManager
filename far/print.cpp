@@ -60,7 +60,8 @@ static void AddToPrintersMenu(VMenu2 *PrinterList, range<const PRINTER_INFO_4W*>
 {
 	// Получаем принтер по умолчанию
 	string strDefaultPrinter;
-	os::GetDefaultPrinter(strDefaultPrinter);
+	// BUGBUG check result
+	(void)os::GetDefaultPrinter(strDefaultPrinter);
 
 	// Признак наличия принтера по умолчанию
 	bool bDefaultPrinterFound = false;
@@ -189,7 +190,8 @@ void PrintFiles(FileList* SrcPanel)
 
 				if (!Global->CtrlObject->Plugins->GetFile(hPlugin, &PanelItem.Item, strTempDir, FileName, OPM_SILENT))
 				{
-					os::fs::remove_directory(strTempDir);
+					// BUGBUG check result
+					(void)os::fs::remove_directory(strTempDir);
 					throw MAKE_FAR_EXCEPTION(L"GetFile error"sv);
 				}
 

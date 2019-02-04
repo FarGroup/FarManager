@@ -175,7 +175,8 @@ bool EjectVolume(wchar_t Letter, unsigned long long Flags)
 			}
 		} // END: while(Retry)
 
-		Disk.IoControl(FSCTL_UNLOCK_VOLUME, nullptr, 0, nullptr, 0, &temp);
+		// BUGBUG check result
+		(void)Disk.IoControl(FSCTL_UNLOCK_VOLUME, nullptr, 0, nullptr, 0, &temp);
 	}
 
 	return fAutoEject || fRemoveSafely; //???

@@ -3407,7 +3407,8 @@ static bool fattrFuncImpl(int Type, FarMacroCall* Data)
 		auto Params = parseParams(1, Data);
 		TVar& Str(Params[0]);
 		os::fs::find_data FindData;
-		os::fs::get_find_data(Str.toString(), FindData);
+		// BUGBUG check result
+		(void)os::fs::get_find_data(Str.toString(), FindData);
 		FileAttr=FindData.Attributes;
 		Ret=true;
 	}

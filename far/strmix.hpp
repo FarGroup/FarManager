@@ -52,10 +52,14 @@ wchar_t* QuoteSpaceOnly(wchar_t *Str);
 
 string &QuoteSpace(string &strStr);
 
+[[nodiscard]]
 string InsertRegexpQuote(string strStr);
+
 string& RemoveUnprintableCharacters(string &strStr);
 string& QuoteSpaceOnly(string &strStr);
 string& QuoteOuterSpace(string &strStr);
+
+[[nodiscard]]
 inline string QuoteOuterSpace(string&& strStr) { QuoteOuterSpace(strStr); return std::move(strStr); }
 
 bool ReplaceStrings(string& strStr, string_view FindStr, string_view ReplStr, bool IgnoreCase = false, size_t Count = string::npos);
@@ -72,7 +76,7 @@ inline void replace_icase(string& Str, string_view const Find, string_view const
 
 void remove_duplicates(string& Str, wchar_t Char, bool IgnoreCase = false);
 
-class wrapped_text : public enumerator<wrapped_text, string_view>
+class [[nodiscard]] wrapped_text : public enumerator<wrapped_text, string_view>
 {
 	IMPLEMENTS_ENUMERATOR(wrapped_text);
 
@@ -92,13 +96,23 @@ private:
 };
 
 void PrepareUnitStr();
+
+[[nodiscard]]
 string FileSizeToStr(unsigned long long Size, int Width = -1, unsigned long long ViewFlags = COLUMN_GROUPDIGITS);
+
+[[nodiscard]]
 bool CheckFileSizeStringFormat(const string& FileSizeStr);
+
+[[nodiscard]]
 unsigned long long ConvertFileSizeString(const string& FileSizeStr);
+
+[[nodiscard]]
 string GroupDigits(unsigned long long Value);
 
+[[nodiscard]]
 inline bool IsWordDiv(const string& WordDiv, wchar_t Chr) { return !Chr || contains(WordDiv, Chr); }
 
+[[nodiscard]]
 bool FindWordInString(const string& Str, size_t CurPos, size_t& Begin, size_t& End, const string& WordDiv);
 
 wchar_t* TruncStr(wchar_t *Str,int MaxLength);
@@ -111,8 +125,10 @@ string& TruncStrFromEnd(string &strStr, int MaxLength);
 string& TruncStrFromCenter(string &strStr, int MaxLength);
 string& TruncPathStr(string &strStr, int MaxLength);
 
+[[nodiscard]]
 bool IsCaseMixed(string_view strStr);
 
+[[nodiscard]]
 bool SearchString(
 	string_view Haystack,
 	string_view Needle,
@@ -132,9 +148,11 @@ bool SearchString(
 	string_view WordDiv = {}
 );
 
+[[nodiscard]]
 inline wchar_t* UNSAFE_CSTR(const string& s) {return const_cast<wchar_t*>(s.c_str());}
 
 template<class container>
+[[nodiscard]]
 auto FlagsToString(unsigned long long Flags, const container& From, wchar_t Separator = L' ')
 {
 	string strFlags;
@@ -155,6 +173,7 @@ auto FlagsToString(unsigned long long Flags, const container& From, wchar_t Sepa
 }
 
 template<class container>
+[[nodiscard]]
 auto StringToFlags(const string& strFlags, const container& From, const string_view Separators = L"|;, "sv)
 {
 	decltype(std::begin(From)->first) Flags {};
@@ -172,18 +191,32 @@ auto StringToFlags(const string& strFlags, const container& From, const string_v
 	return Flags;
 }
 
+[[nodiscard]]
 char IntToHex(int h);
+
+[[nodiscard]]
 int HexToInt(char h);
 
+[[nodiscard]]
 std::string BlobToHexString(const void* Blob, size_t Size, char Separator = ',');
+
+[[nodiscard]]
 std::string BlobToHexString(const bytes_view& Blob, char Separator = ',');
+
+[[nodiscard]]
 bytes HexStringToBlob(std::string_view Hex, char Separator = ',');
 
+[[nodiscard]]
 string BlobToHexWString(const void* Blob, size_t Size, wchar_t Separator = L',');
+
+[[nodiscard]]
 string BlobToHexWString(const bytes_view& Blob, char Separator = ',');
+
+[[nodiscard]]
 bytes HexStringToBlob(string_view Hex, wchar_t Separator = L',');
 
 template<class S, class T>
+[[nodiscard]]
 auto to_hex_string_t(T Value)
 {
 	static_assert(std::is_integral_v<T>);
@@ -194,17 +227,23 @@ auto to_hex_string_t(T Value)
 }
 
 template<class T>
+[[nodiscard]]
 auto to_hex_string(T Value) { return to_hex_string_t<std::string>(Value); }
 
 template<class T>
+[[nodiscard]]
 auto to_hex_wstring(T Value) { return to_hex_string_t<string>(Value); }
 
-string ExtractHexString(const string& HexString);
+[[nodiscard]]
+string ExtractHexString(string_view HexString);
+
+[[nodiscard]]
 string ConvertHexString(const string& From, uintptr_t Codepage, bool FromHex);
 
 char* xstrncpy(char* dest, const char* src, size_t DestSize);
 wchar_t* xwcsncpy(wchar_t* dest, const wchar_t* src, size_t DestSize);
 
+[[nodiscard]]
 std::pair<string_view, string_view> split_name_value(string_view Str);
 
 #endif // STRMIX_HPP_66F8DC2A_61A6_4C06_9B54_E0513A9735FA

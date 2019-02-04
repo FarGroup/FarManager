@@ -191,14 +191,18 @@ namespace detail
 
 				for_each_cnt(RANGE(Names.Months, i, size_t index)
 				{
-					os::get_locale_value(CurLCID, LCTYPE(LOCALE_SMONTHNAME1 + index), i.Full);
-					os::get_locale_value(CurLCID, LCTYPE(LOCALE_SABBREVMONTHNAME1 + index), i.Short);
+					// BUGBUG check result
+					(void)os::get_locale_value(CurLCID, LCTYPE(LOCALE_SMONTHNAME1 + index), i.Full);
+					// BUGBUG check result
+					(void)os::get_locale_value(CurLCID, LCTYPE(LOCALE_SABBREVMONTHNAME1 + index), i.Short);
 				});
 
 				for_each_cnt(RANGE(Names.Weekdays, i, size_t index)
 				{
-					os::get_locale_value(CurLCID, DayIndexes[index], i.Full);
-					os::get_locale_value(CurLCID, ShortDayIndexes[index], i.Short);
+					// BUGBUG check result
+					(void)os::get_locale_value(CurLCID, DayIndexes[index], i.Full);
+					// BUGBUG check result
+					(void)os::get_locale_value(CurLCID, ShortDayIndexes[index], i.Short);
 				});
 			};
 

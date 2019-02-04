@@ -2196,13 +2196,9 @@ void Options::Load(overrides&& Overrides)
 
 	for(auto& i: GuidOptions)
 	{
-		if (i->StrId.empty())
+		if (i->StrId.empty() || !StrToGuid(i->StrId, i->Id))
 		{
 			i->Id = GUID_NULL;
-		}
-		else
-		{
-			StrToGuid(i->StrId, i->Id);
 		}
 	}
 

@@ -36,6 +36,7 @@ template<typename type>
 class singleton: noncopyable
 {
 public:
+	[[nodiscard]]
 	static type& instance()
 	{
 		static_assert((std::is_base_of_v<singleton, type>));

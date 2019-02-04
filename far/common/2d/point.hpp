@@ -53,6 +53,7 @@ struct point: public rel_ops<point>
 	{
 	}
 
+	[[nodiscard]]
 	bool operator==(point const& rhs) const
 	{
 		return x == rhs.x && y == rhs.y;

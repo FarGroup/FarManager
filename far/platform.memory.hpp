@@ -58,18 +58,21 @@ namespace os::memory
 		using lock_t = std::unique_ptr<std::remove_pointer_t<T>, detail::unlocker>;
 
 		template<class T>
+		[[nodiscard]]
 		auto lock(HGLOBAL Ptr)
 		{
 			return lock_t<T>(static_cast<T>(GlobalLock(Ptr)));
 		}
 
 		template<class T>
+		[[nodiscard]]
 		auto lock(const ptr& Ptr)
 		{
 			return lock<T>(Ptr.get());
 		}
 
 		template<class T>
+		[[nodiscard]]
 		ptr copy(const T& Object)
 		{
 			static_assert(std::is_pod_v<T>);
@@ -86,6 +89,7 @@ namespace os::memory
 			return Memory;
 		}
 
+		[[nodiscard]]
 		ptr copy(const wchar_t* Data, size_t Size);
 	}
 
@@ -103,12 +107,14 @@ namespace os::memory
 		using ptr = std::unique_ptr<T, detail::deleter>;
 
 		template<class T>
+		[[nodiscard]]
 		auto alloc(UINT Flags, size_t size)
 		{
 			return ptr<T>(static_cast<T*>(LocalAlloc(Flags, size)));
 		}
 	};
 
+	[[nodiscard]]
 	bool is_pointer(const void* Address);
 }
 

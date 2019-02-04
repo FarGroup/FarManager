@@ -96,14 +96,23 @@ namespace os::fs
 		DWORD Attributes{};
 		DWORD ReparseTag{};
 
+		[[nodiscard]]
 		const string& AlternateFileName() const;
 		void SetAlternateFileName(string_view Name);
+		[[nodiscard]]
 		bool HasAlternateFileName() const;
 	};
 
+	[[nodiscard]]
 	bool is_standard_drive_letter(wchar_t Letter);
+
+	[[nodiscard]]
 	int get_drive_number(wchar_t Letter);
+
+	[[nodiscard]]
 	string get_drive(wchar_t Letter);
+
+	[[nodiscard]]
 	string get_root_directory(wchar_t Letter);
 
 	class enum_drives: public enumerator<enum_drives, wchar_t>
@@ -193,31 +202,66 @@ namespace os::fs
 		template<typename... args>
 		explicit file(args... Args)
 		{
-			Open(FWD(Args)...);
+			(void)Open(FWD(Args)...);
 		}
 
 		explicit operator bool() const noexcept;
 		// TODO: half of these should be free functions
+
+		[[nodiscard]]
 		bool Open(string_view Object, DWORD DesiredAccess, DWORD ShareMode, SECURITY_ATTRIBUTES* SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes = 0, const file* TemplateFile = nullptr, bool ForceElevation = false);
 		// TODO: async overloads when needed
+
+		[[nodiscard]]
 		bool Read(void* Buffer, size_t NumberOfBytesToRead, size_t& NumberOfBytesRead) const;
+
+		[[nodiscard]]
 		bool Write(const void* Buffer, size_t NumberOfBytesToWrite) const;
+
+		[[nodiscard]]
 		unsigned long long GetPointer() const;
+
 		bool SetPointer(long long DistanceToMove, unsigned long long* NewFilePointer, DWORD MoveMethod) const;
+
 		bool SetEnd();
+
+		[[nodiscard]]
 		bool GetTime(chrono::time_point* CreationTime, chrono::time_point* LastAccessTime, chrono::time_point* LastWriteTime, chrono::time_point* ChangeTime) const;
+
 		bool SetTime(const chrono::time_point* CreationTime, const chrono::time_point* LastAccessTime, const chrono::time_point* LastWriteTime, const chrono::time_point* ChangeTime) const;
+
+		[[nodiscard]]
 		bool GetSize(unsigned long long& Size) const;
+
 		bool FlushBuffers() const;
+
+		[[nodiscard]]
 		bool GetInformation(BY_HANDLE_FILE_INFORMATION& info) const;
+
+		[[nodiscard]]
 		bool IoControl(DWORD IoControlCode, void* InBuffer, DWORD InBufferSize, void* OutBuffer, DWORD OutBufferSize, DWORD* BytesReturned, OVERLAPPED* Overlapped = nullptr) const;
+
+		[[nodiscard]]
 		bool GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed) const;
+
+		[[nodiscard]]
 		bool NtQueryDirectoryFile(void* FileInformation, size_t Length, FILE_INFORMATION_CLASS FileInformationClass, bool ReturnSingleEntry, string_view FileName, bool RestartScan, NTSTATUS* Status = nullptr) const;
+
+		[[nodiscard]]
 		bool NtQueryInformationFile(void* FileInformation, size_t Length, FILE_INFORMATION_CLASS FileInformationClass, NTSTATUS* Status = nullptr) const;
+
+		[[nodiscard]]
 		bool GetFinalPathName(string& FinalFilePath) const;
+
 		void Close();
+
+		[[nodiscard]]
 		bool Eof() const;
+
+		[[nodiscard]]
 		const string& GetName() const;
+
+		[[nodiscard]]
 		const handle& get() const;
 
 	private:
@@ -236,10 +280,19 @@ namespace os::fs
 		file_walker();
 		~file_walker();
 
+		[[nodiscard]]
 		bool InitWalk(size_t BlockSize);
+
+		[[nodiscard]]
 		bool Step();
+
+		[[nodiscard]]
 		unsigned long long GetChunkOffset() const;
+
+		[[nodiscard]]
 		DWORD GetChunkSize() const;
+
+		[[nodiscard]]
 		int GetPercent() const;
 
 	private:
@@ -285,21 +338,32 @@ namespace os::fs
 		file_status();
 		explicit file_status(string_view Object);
 
+		[[nodiscard]]
 		bool check(DWORD Data) const;
 
 	private:
 		DWORD m_Data;
 	};
 
+	[[nodiscard]]
 	bool exists(file_status Status);
+
+	[[nodiscard]]
 	bool exists(string_view Object);
 
+	[[nodiscard]]
 	bool is_file(file_status Status);
+
+	[[nodiscard]]
 	bool is_file(string_view Object);
 
+	[[nodiscard]]
 	bool is_directory(file_status Status);
+
+	[[nodiscard]]
 	bool is_directory(string_view Object);
 
+	[[nodiscard]]
 	bool is_not_empty_directory(const string& Object);
 
 	class current_directory_guard
@@ -334,69 +398,148 @@ namespace os::fs
 
 	namespace low
 	{
+		[[nodiscard]]
 		HANDLE create_file(const wchar_t* FileName, DWORD DesiredAccess, DWORD ShareMode, SECURITY_ATTRIBUTES* SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile);
+
+		[[nodiscard]]
 		bool create_directory(const wchar_t* TemplateDirectory, const wchar_t* NewDirectory, SECURITY_ATTRIBUTES* SecurityAttributes);
+
+		[[nodiscard]]
 		bool remove_directory(const wchar_t* PathName);
+
+		[[nodiscard]]
 		bool delete_file(const wchar_t* FileName);
+
+		[[nodiscard]]
 		DWORD get_file_attributes(const wchar_t* FileName);
+
+		[[nodiscard]]
 		bool set_file_attributes(const wchar_t* FileName, DWORD Attributes);
+
+		[[nodiscard]]
 		bool create_hard_link(const wchar_t* FileName, const wchar_t* ExistingFileName, SECURITY_ATTRIBUTES* SecurityAttributes);
+
+		[[nodiscard]]
 		bool copy_file(const wchar_t* ExistingFileName, const wchar_t* NewFileName, LPPROGRESS_ROUTINE ProgressRoutine, void* Data, BOOL* Cancel, DWORD CopyFlags);
+
+		[[nodiscard]]
 		bool move_file(const wchar_t* ExistingFileName, const wchar_t* NewFileName, DWORD Flags);
+
+		[[nodiscard]]
 		bool detach_virtual_disk(const wchar_t* Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType);
+
+		[[nodiscard]]
 		bool get_disk_free_space(const wchar_t* DirectoryName, unsigned long long* FreeBytesAvailableToCaller, unsigned long long* TotalNumberOfBytes, unsigned long long* TotalNumberOfFreeBytes);
+
+		[[nodiscard]]
 		bool set_file_encryption(const wchar_t* FileName, bool Encrypt);
 	}
 
+	[[nodiscard]]
 	bool GetProcessRealCurrentDirectory(string& Directory);
+
 	bool SetProcessRealCurrentDirectory(const string& Directory);
+
 	void InitCurrentDirectory();
+
+	[[nodiscard]]
 	string GetCurrentDirectory();
+
 	bool SetCurrentDirectory(const string& PathName, bool Validate = true);
 
+	[[nodiscard]]
 	bool create_directory(string_view PathName, SECURITY_ATTRIBUTES* SecurityAttributes = nullptr);
+
+	[[nodiscard]]
 	bool create_directory(string_view TemplateDirectory, string_view NewDirectory, SECURITY_ATTRIBUTES* SecurityAttributes = nullptr);
+
+	[[nodiscard]]
 	bool remove_directory(string_view DirName);
+
+	[[nodiscard]]
 	handle create_file(string_view Object, DWORD DesiredAccess, DWORD ShareMode, SECURITY_ATTRIBUTES* SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes = 0, HANDLE TemplateFile = nullptr, bool ForceElevation = false);
+
 	bool delete_file(string_view FileName);
+
+	[[nodiscard]]
 	bool copy_file(string_view ExistingFileName, string_view NewFileName, LPPROGRESS_ROUTINE ProgressRoutine, void* Data, BOOL* Cancel, DWORD CopyFlags);
+
+	[[nodiscard]]
 	bool move_file(string_view ExistingFileName, string_view NewFileName, DWORD Flags = 0);
+
+	[[nodiscard]]
 	DWORD get_file_attributes(string_view FileName);
+
 	bool set_file_attributes(string_view FileName, DWORD FileAttributes);
 
+	[[nodiscard]]
 	bool GetLongPathName(const string& ShortPath, string& LongPath);
+
+	[[nodiscard]]
 	bool GetShortPathName(const string& LongPath, string& ShortPath);
+
+	[[nodiscard]]
 	bool GetVolumeInformation(const string& RootPathName, string *pVolumeName, DWORD* VolumeSerialNumber, DWORD* MaximumComponentLength, DWORD* FileSystemFlags, string* FileSystemName);
+
+	[[nodiscard]]
 	bool GetVolumeNameForVolumeMountPoint(const string& VolumeMountPoint, string& VolumeName);
+
+	[[nodiscard]]
 	bool GetVolumePathNamesForVolumeName(const string& VolumeName, string& VolumePathNames);
+
+	[[nodiscard]]
 	bool QueryDosDevice(const string& DeviceName, string& Path);
+
+	[[nodiscard]]
 	bool SearchPath(const wchar_t* Path, string_view FileName, const wchar_t* Extension, string& strDest);
+
+	[[nodiscard]]
 	bool GetTempPath(string& strBuffer);
+
+	[[nodiscard]]
 	bool GetModuleFileName(HANDLE hProcess, HMODULE hModule, string& strFileName);
+
+	[[nodiscard]]
 	security_descriptor get_file_security(string_view Object, SECURITY_INFORMATION RequestedInformation);
+
+	[[nodiscard]]
 	bool set_file_security(string_view Object, SECURITY_INFORMATION RequestedInformation, const security_descriptor& SecurityDescriptor);
 
+	[[nodiscard]]
 	bool get_disk_size(string_view Path, unsigned long long* TotalSize, unsigned long long* TotalFree, unsigned long long* UserFree);
 
+	[[nodiscard]]
 	bool GetFileTimeSimple(string_view FileName, chrono::time_point* CreationTime, chrono::time_point* LastAccessTime, chrono::time_point* LastWriteTime, chrono::time_point* ChangeTime);
 
+	[[nodiscard]]
 	bool get_find_data(const string& FileName, find_data& FindData, bool ScanSymLink = true);
 
+	[[nodiscard]]
 	find_notification_handle FindFirstChangeNotification(const string& PathName, bool WatchSubtree, DWORD NotifyFilter);
+
+	[[nodiscard]]
 	bool IsDiskInDrive(const string& Root);
 
+	[[nodiscard]]
 	bool create_hard_link(const string& FileName, const string& ExistingFileName, SECURITY_ATTRIBUTES* SecurityAttributes);
 
+	[[nodiscard]]
 	bool CreateSymbolicLink(const string& SymlinkFileName, const string& TargetFileName, DWORD Flags);
 
+	[[nodiscard]]
 	bool set_file_encryption(string_view FileName, bool Encrypt);
+
+	[[nodiscard]]
 	bool detach_virtual_disk(string_view Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType);
 
+	[[nodiscard]]
 	bool is_directory_symbolic_link(const find_data& Data);
 
+	[[nodiscard]]
 	bool can_create_file(string_view Name);
 
 
+	[[nodiscard]]
 	bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD Flags);
 }
 

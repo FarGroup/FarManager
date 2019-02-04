@@ -35,20 +35,19 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 template <class T>
 struct rel_ops
 {
-	friend bool operator!=(const T& a, const T& b) { return !(a == b); }
-	friend bool operator> (const T& a, const T& b) { return b < a; }
-	friend bool operator<=(const T& a, const T& b) { return !(b < a); }
-	friend bool operator>=(const T& a, const T& b) { return !(a < b); }
+	[[nodiscard]] friend bool operator!=(const T& a, const T& b) { return !(a == b); }
+	[[nodiscard]] friend bool operator> (const T& a, const T& b) { return b < a; }
+	[[nodiscard]] friend bool operator<=(const T& a, const T& b) { return !(b < a); }
+	[[nodiscard]] friend bool operator>=(const T& a, const T& b) { return !(a < b); }
 
-	template <class Y> friend bool operator!=(const T& a, const Y& b) { return !(a == b); }
-	template <class Y> friend bool operator> (const T& a, const Y& b) { return b < a; }
-	template <class Y> friend bool operator<=(const T& a, const Y& b) { return !(b < a); }
-	template <class Y> friend bool operator>=(const T& a, const Y& b) { return !(a < b); }
-
-	template <class Y> friend bool operator!=(const Y& a, const T& b) { return !(a == b); }
-	template <class Y> friend bool operator> (const Y& a, const T& b) { return b < a; }
-	template <class Y> friend bool operator<=(const Y& a, const T& b) { return !(b < a); }
-	template <class Y> friend bool operator>=(const Y& a, const T& b) { return !(a < b); }
+	template <class Y> [[nodiscard]] friend bool operator!=(const T& a, const Y& b) { return !(a == b); }
+	template <class Y> [[nodiscard]] friend bool operator> (const T& a, const Y& b) { return b < a; }
+	template <class Y> [[nodiscard]] friend bool operator<=(const T& a, const Y& b) { return !(b < a); }
+	template <class Y> [[nodiscard]] friend bool operator>=(const T& a, const Y& b) { return !(a < b); }
+	template <class Y> [[nodiscard]] friend bool operator!=(const Y& a, const T& b) { return !(a == b); }
+	template <class Y> [[nodiscard]] friend bool operator> (const Y& a, const T& b) { return b < a; }
+	template <class Y> [[nodiscard]] friend bool operator<=(const Y& a, const T& b) { return !(b < a); }
+	template <class Y> [[nodiscard]] friend bool operator>=(const Y& a, const T& b) { return !(a < b); }
 };
 
 #endif // REL_OPS_HPP_216C5B74_491D_4AE0_AA85_4A424C1CF3BA

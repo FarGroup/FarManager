@@ -43,12 +43,22 @@ namespace os::chrono
 		using period = std::ratio_multiply<std::ratio<100, 1>, std::nano>;
 		using duration = std::chrono::duration<rep, period>;
 		using time_point = std::chrono::time_point<nt_clock>;
+
 		static constexpr bool is_steady = false;
+
+		[[nodiscard]]
 		static time_point now() noexcept;
 
+		[[nodiscard]]
 		static time_t to_time_t(const time_point& Time) noexcept;
+
+		[[nodiscard]]
 		static time_point from_time_t(time_t Time) noexcept;
+
+		[[nodiscard]]
 		static FILETIME to_filetime(const time_point& Time) noexcept;
+
+		[[nodiscard]]
 		static time_point from_filetime(FILETIME Time) noexcept;
 	};
 
@@ -59,8 +69,10 @@ namespace os::chrono
 	// A: MSVC implemented it in terms of sleep_until, which is mental
 	void sleep_for(std::chrono::milliseconds Duration);
 
+	[[nodiscard]]
 	bool get_process_creation_time(HANDLE Process, time_point& CreationTime);
 
+	[[nodiscard]]
 	string format_time();
 }
 #endif // PLATFORM_CHRONO_HPP_4942BDE7_47FB_49F8_B8F6_EE0AFF4EC61D

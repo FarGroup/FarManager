@@ -63,6 +63,7 @@ public:
 		return m_ErasedFn(m_Ptr, FWD(Args)...);
 	}
 
+	[[nodiscard]]
 	explicit operator bool() const noexcept
 	{
 		return m_Ptr != nullptr;

@@ -37,17 +37,20 @@ namespace string_sort
 {
 	// Default comparison enrty point.
 	// Exact behaviour is controlled by the user settings.
+	[[nodiscard]]
 	int compare(string_view, string_view);
 
 	void adjust_comparer();
 
+	[[nodiscard]]
 	inline bool less(string_view Str1, string_view Str2)
 	{
 		return compare(Str1, Str2) < 0;
 	}
 
-	struct less_t
+	struct [[nodiscard]] less_t
 	{
+		[[nodiscard]]
 		bool operator()(string_view Str1, string_view Str2) const
 		{
 			return less(Str1, Str2);

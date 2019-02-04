@@ -1529,7 +1529,8 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 		m_editor->GlobalEOL = eol::type::none;
 
 		unsigned long long FileSize = 0;
-		EditFile.GetSize(FileSize);
+		// BUGBUG check result
+		(void)EditFile.GetSize(FileSize);
 		const time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 
 		enum_file_lines EnumFileLines(EditFile, m_codepage);
@@ -1564,7 +1565,8 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 				// процентов может быть больше 100. Обрабатываем эту ситуацию.
 				if (Percent > 100)
 				{
-					EditFile.GetSize(FileSize);
+					// BUGBUG check result
+					(void)EditFile.GetSize(FileSize);
 					Percent = std::min(CurPos * 100 / FileSize, 100ull);
 				}
 				Editor::EditorShowMsg(msg(lng::MEditTitle), msg(lng::MEditReading), Name, Percent);
@@ -1612,7 +1614,8 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 	EditFile.Close();
 	m_editor->SetCacheParams(pc, m_bAddSignature);
 	ErrorState = error_state::fetch();
-	os::fs::get_find_data(Name, FileInfo);
+	// BUGBUG check result
+	(void)os::fs::get_find_data(Name, FileInfo);
 	EditorGetFileAttributes(Name);
 	return true;
 
@@ -1978,7 +1981,8 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 		os::fs::set_file_attributes(Name, m_FileAttributes | FILE_ATTRIBUTE_ARCHIVE);
 	}
 
-	os::fs::get_find_data(Name, FileInfo);
+	// BUGBUG check result
+	(void)os::fs::get_find_data(Name, FileInfo);
 	EditorGetFileAttributes(Name);
 
 	if (m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED) || NewFile)

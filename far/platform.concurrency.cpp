@@ -125,7 +125,7 @@ namespace os::concurrency
 	void mutex::unlock() const
 	{
 		if (!ReleaseMutex(native_handle()))
-			throw MAKE_FAR_FATAL_EXCEPTION(L"ReleaseMutex failed");
+			throw MAKE_FAR_FATAL_EXCEPTION(L"ReleaseMutex failed"sv);
 	}
 
 
@@ -192,14 +192,14 @@ namespace os::concurrency
 	{
 		check_valid();
 		if (!SetEvent(get()))
-			throw MAKE_FAR_FATAL_EXCEPTION(L"SetEvent failed");
+			throw MAKE_FAR_FATAL_EXCEPTION(L"SetEvent failed"sv);
 	}
 
 	void event::reset() const
 	{
 		check_valid();
 		if (!ResetEvent(get()))
-			throw MAKE_FAR_FATAL_EXCEPTION(L"ResetEvent failed");
+			throw MAKE_FAR_FATAL_EXCEPTION(L"ResetEvent failed"sv);
 	}
 
 	void event::associate(OVERLAPPED& o) const

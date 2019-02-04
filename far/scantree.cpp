@@ -166,7 +166,8 @@ bool ScanTree::GetNextName(os::fs::find_data& fdata,string &strFullName)
 			if (Flags.Check(FSCANTREE_RETUPDIR))
 			{
 				strFullName = strFindPathOriginal;
-				os::fs::get_find_data(strFindPath, fdata);
+				// BUGBUG check result
+				(void)os::fs::get_find_data(strFindPath, fdata);
 			}
 
 			CutToSlash(strFindPath);

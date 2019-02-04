@@ -111,6 +111,7 @@ public:
 		return *this;
 	}
 
+	[[nodiscard]]
 	operator bytes_view() const
 	{
 		return { data(), size() };

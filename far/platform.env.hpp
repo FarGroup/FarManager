@@ -42,6 +42,7 @@ namespace os::env
 			class provider: noncopyable
 			{
 			public:
+				[[nodiscard]]
 				const wchar_t* data() const;
 
 			protected:
@@ -67,10 +68,18 @@ namespace os::env
 	}
 
 	bool get(string_view Name, string& Value);
+
+	[[nodiscard]]
 	string get(string_view Name);
+
 	bool set(string_view Name, string_view Value);
+
 	bool del(string_view Name);
+
+	[[nodiscard]]
 	string expand(string_view Str);
+
+	[[nodiscard]]
 	string get_pathext();
 }
 

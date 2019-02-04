@@ -299,7 +299,8 @@ bool Viewer::OpenFile(const string& Name,int warning)
 		DWORD ReadSize = 0;
 		while (ReadFile(console.GetOriginalInputHandle(),vread_buffer.data(),(DWORD)vread_buffer.size(),&ReadSize,nullptr) && ReadSize)
 		{
-			ViewFile.Write(vread_buffer.data(), ReadSize);
+			// BUGBUG check result
+			(void)ViewFile.Write(vread_buffer.data(), ReadSize);
 		}
 		ViewFile.SetPointer(0, nullptr, FILE_BEGIN);
 
@@ -309,7 +310,8 @@ bool Viewer::OpenFile(const string& Name,int warning)
 	}
 	else
 	{
-		ViewFile.Open(strFileName, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING);
+		// BUGBUG check result
+		(void)ViewFile.Open(strFileName, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING);
 	}
 
 	if (!ViewFile)
@@ -333,7 +335,8 @@ bool Viewer::OpenFile(const string& Name,int warning)
 	Reader.AdjustAlignment();
 
 	strFullFileName = ConvertNameToFull(strFileName);
-	os::fs::get_find_data(strFileName, ViewFindData);
+	// BUGBUG check result
+	(void)os::fs::get_find_data(strFileName, ViewFindData);
 	uintptr_t CachedCodePage=0;
 
 	if ((vo.SavePos || vo.SaveShortPos || vo.SaveCodepage || vo.SaveViewMode || vo.SaveWrapMode) && !ReadStdin)
@@ -4076,7 +4079,8 @@ void Viewer::SetFileSize()
 		return;
 
 	unsigned long long uFileSize = 0; // BUGBUG, sign
-	ViewFile.GetSize(uFileSize);
+	// BUGBUG check result
+	(void)ViewFile.GetSize(uFileSize);
 	FileSize=uFileSize;
 }
 

@@ -62,7 +62,7 @@ void CachedRead::AdjustAlignment()
 			m_Alignment = static_cast<int>(Saad.BytesPerPhysicalSector);
 			BufferSize = 16 * Saad.BytesPerPhysicalSector;
 		}
-		m_File.IoControl(FSCTL_ALLOW_EXTENDED_DASD_IO, nullptr, 0, nullptr, 0, &BytesReturned, nullptr);
+		(void)m_File.IoControl(FSCTL_ALLOW_EXTENDED_DASD_IO, nullptr, 0, nullptr, 0, &BytesReturned, nullptr);
 	}
 
 	if (BufferSize > m_Buffer.size())

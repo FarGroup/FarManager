@@ -41,7 +41,10 @@ namespace detail
 	{
 	public:
 		void reset() {}
+
+		[[nodiscard]]
 		bool active(wchar_t) { return false; }
+
 		void postprocess(string_view&) {}
 	};
 
@@ -55,6 +58,7 @@ namespace detail
 			return reset_impl();
 		}
 
+		[[nodiscard]]
 		bool active(wchar_t i)
 		{
 			// applied to all args left to right
@@ -69,6 +73,7 @@ namespace detail
 
 	private:
 		template<size_t index, template<class> typename operation>
+		[[nodiscard]]
 		auto& get_opt()
 		{
 			using nth_type = std::tuple_element_t<index, std::tuple<null_overrider, args...>>;
@@ -94,9 +99,11 @@ namespace detail
 		using try_active = decltype(std::declval<T&>().active(wchar_t{}));
 
 		template<size_t index, REQUIRES(index >= sizeof...(args) + 1)>
+		[[nodiscard]]
 		bool active_impl(wchar_t) { return false; }
 
 		template<size_t index = 1, REQUIRES(index < sizeof...(args) + 1)>
+		[[nodiscard]]
 		bool active_impl(wchar_t i)
 		{
 			return get_opt<index, try_active>().active(i) || active_impl<index + 1>(i);
@@ -125,6 +132,7 @@ namespace detail
 			m_MetQuote = false;
 		}
 
+		[[nodiscard]]
 		bool active(wchar_t i)
 		{
 			if (i == L'"')
@@ -165,6 +173,7 @@ namespace detail
 	class simple_policy
 	{
 	public:
+		[[nodiscard]]
 		string_view::const_iterator extract(string_view::const_iterator const Begin, string_view::const_iterator const End, const string_view Separators, string_view& Value) const
 		{
 			const auto NewIterator = std::find_first_of(Begin, End, ALL_CONST_RANGE(Separators));
@@ -177,6 +186,7 @@ namespace detail
 	class custom_policy
 	{
 	public:
+		[[nodiscard]]
 		string_view::const_iterator extract(string_view::const_iterator const Begin, string_view::const_iterator const End, const string_view Separators, string_view& Value) const
 		{
 			m_Overrider.reset();
@@ -236,6 +246,7 @@ public:
 	}
 
 private:
+	[[nodiscard]]
 	bool get(bool Reset, string_view& Value) const
 	{
 		if (Reset)

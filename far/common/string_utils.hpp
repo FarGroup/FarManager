@@ -41,7 +41,7 @@ Builds a compatible null-terminated std::basic_string if the given view is not n
 otherwise uses the same data.
 */
 template<typename T>
-class null_terminated_t
+class [[nodiscard]] null_terminated_t
 {
 public:
 	NONCOPYABLE(null_terminated_t);
@@ -153,12 +153,17 @@ namespace detail
 	// and while for string literals the length formula is pretty simple: N - 1,
 	// for arrays it is not, as they could have no trailing \0 at all, or (worse) have multiple.
 	// Use string_view literal if you need to.
+	[[nodiscard]]
 	inline size_t size_one(wchar_t) { return 1; }
+
+	[[nodiscard]]
 	inline size_t size_one(const string_view Str) { return Str.size(); }
 
+	[[nodiscard]]
 	inline size_t size_impl(size_t*) { return 0; }
 
 	template<typename arg, typename... args>
+	[[nodiscard]]
 	size_t size_impl(size_t* Sizes, arg&& Arg, args&&... Args)
 	{
 		*Sizes = size_one(FWD(Arg));
@@ -186,6 +191,7 @@ auto concat(args&&... Args)
 namespace detail
 {
 	template<typename begin_iterator, typename end_iterator>
+	[[nodiscard]]
 	size_t get_space_count(begin_iterator Begin, end_iterator End)
 	{
 		return std::find_if_not(Begin, End, std::iswspace) - Begin;
@@ -540,18 +546,21 @@ inline bool contains(const char* const Str, char const What)
 
 // std::string_view is a drop-in replacement for const std::string& they say
 template<typename T>
+[[nodiscard]]
 auto operator+(const std::basic_string<T>& Lhs, const std::basic_string_view<T> Rhs)
 {
 	return concat(Lhs, Rhs);
 }
 
 template<typename T>
+[[nodiscard]]
 auto operator+(const std::basic_string_view<T> Lhs, const std::basic_string<T>& Rhs)
 {
 	return concat(Lhs, Rhs);
 }
 
 template<typename T>
+[[nodiscard]]
 auto operator+(const std::basic_string_view<T> Lhs, std::basic_string_view<T> Rhs)
 {
 	return concat(Lhs, Rhs);
@@ -561,6 +570,7 @@ auto operator+(const std::basic_string_view<T> Lhs, std::basic_string_view<T> Rh
 // string_view has iterators, but you cannot construct it from them
 // "Design by committee" *facepalm*
 template <typename T>
+[[nodiscard]]
 auto make_string_view(T const Begin, T const End)
 {
 	using char_type = typename std::iterator_traits<T>::value_type;

@@ -51,7 +51,8 @@ static string GetStoredUserName(wchar_t Drive)
 {
 	//Тут может быть надо заюзать WNetGetUser
 	string UserName;
-	os::reg::key::current_user.get(concat(L"Network\\"sv, Drive), L"UserName"sv, UserName);
+	// BUGBUG check result
+	(void)os::reg::key::current_user.get(concat(L"Network\\"sv, Drive), L"UserName"sv, UserName);
 	return UserName;
 }
 

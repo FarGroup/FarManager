@@ -277,7 +277,7 @@ void QuickView::DisplayObject()
 			PrintRow(5, lng::MQuickViewFiles, str(Data.FileCount));
 			PrintRow(6, lng::MQuickViewBytes, size2str(Data.FileSize));
 
-			const auto Format = L"{0} ({1}%)";
+			const auto Format = L"{0} ({1}%)"sv;
 			PrintRow(7, lng::MQuickViewAllocated, format(Format, size2str(Data.AllocationSize), ToPercent(Data.AllocationSize, Data.FileSize)));
 
 			if (m_DirectoryScanStatus == scan_status::real_ok)
@@ -442,7 +442,8 @@ void QuickView::ShowFile(string_view const FileName, const UserDataItem* const U
 
 		if (GetShellType(string_view(strCurFileName).substr(pos), strValue))
 		{
-			os::reg::key::classes_root.get(strValue, {}, strCurFileType);
+			// BUGBUG check result
+			(void)os::reg::key::classes_root.get(strValue, {}, strCurFileType);
 		}
 	}
 
@@ -544,7 +545,8 @@ void QuickView::QViewDelTempName()
 		os::fs::delete_file(strCurFileName);  //BUGBUG
 		string TempDirectoryName = strCurFileName;
 		CutToSlash(TempDirectoryName);
-		os::fs::remove_directory(TempDirectoryName);
+		// BUGBUG check result
+		(void)os::fs::remove_directory(TempDirectoryName);
 		m_TemporaryFile = false;
 	}
 }

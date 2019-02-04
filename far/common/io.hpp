@@ -63,6 +63,7 @@ namespace io
 
 	using wstreambuf_override = basic_streambuf_override<wchar_t>;
 
+	[[nodiscard]]
 	inline size_t read(std::istream& Stream, const range<char*>& Buffer)
 	{
 		{

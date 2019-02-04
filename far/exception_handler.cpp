@@ -545,7 +545,8 @@ static bool ProcessGenericException(
 		}
 		else
 		{
-			os::fs::GetModuleFileName(nullptr, nullptr, strFileName);
+			// BUGBUG check result
+			(void)os::fs::GetModuleFileName(nullptr, nullptr, strFileName);
 		}
 	}
 	else

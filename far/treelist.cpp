@@ -301,8 +301,10 @@ static bool GetCacheTreeName(const string& Root, string& strName, int CreateDir)
 
 	if (CreateDir)
 	{
-		os::fs::create_directory(strFolderName);
-		os::fs::set_file_attributes(strFolderName, Global->Opt->Tree.TreeFileAttr);
+		// BUGBUG check result
+		(void)os::fs::create_directory(strFolderName);
+		// BUGBUG check result
+		(void)os::fs::set_file_attributes(strFolderName, Global->Opt->Tree.TreeFileAttr);
 	}
 
 	string strRemoteName;

@@ -58,6 +58,7 @@ namespace os
 		}
 
 		template<typename buffer_type, typename receiver, typename condition, typename assigner>
+		[[nodiscard]]
 		bool ApiDynamicReceiver(buffer_type&& Buffer, const receiver& Receiver, const condition& Condition, const assigner& Assigner)
 		{
 			size_t Size = Receiver({ Buffer.get(), Buffer.size() });
@@ -76,6 +77,7 @@ namespace os
 		}
 
 		template<typename T>
+		[[nodiscard]]
 		bool ApiDynamicStringReceiver(string& Destination, const T& Callable)
 		{
 			return ApiDynamicReceiver(
@@ -97,6 +99,7 @@ namespace os
 		}
 
 		template<typename T>
+		[[nodiscard]]
 		bool ApiDynamicErrorBasedStringReceiver(DWORD ExpectedErrorCode, string& Destination, const T& Callable)
 		{
 			return ApiDynamicReceiver(
@@ -115,8 +118,10 @@ namespace os
 		class handle_implementation
 		{
 		protected:
+			[[nodiscard]]
 			static HANDLE normalise(HANDLE Handle);
 			static void wait(HANDLE Handle);
+			[[nodiscard]]
 			static bool is_signaled(HANDLE Handle, std::chrono::milliseconds Timeout = 0ms);
 		};
 
@@ -144,6 +149,7 @@ namespace os
 				base_type::reset(normalise(Handle));
 			}
 
+			[[nodiscard]]
 			HANDLE native_handle() const
 			{
 				return base_type::get();
@@ -159,6 +165,7 @@ namespace os
 				handle_implementation::wait(native_handle());
 			}
 
+			[[nodiscard]]
 			bool is_signaled(std::chrono::milliseconds Timeout = 0ms) const
 			{
 				return handle_implementation::is_signaled(native_handle(), Timeout);
@@ -182,35 +189,55 @@ namespace os
 	void set_error_mode(unsigned Mask);
 	void unset_error_mode(unsigned Mask);
 
+	[[nodiscard]]
 	NTSTATUS GetLastNtStatus();
 
+	[[nodiscard]]
 	string GetErrorString(bool Nt, DWORD Code);
 
 	bool WNetGetConnection(string_view LocalName, string &RemoteName);
 
 	void EnableLowFragmentationHeap();
 
+	[[nodiscard]]
 	string GetPrivateProfileString(const string& AppName, const string& KeyName, const string& Default, const string& FileName);
 
 	bool GetWindowText(HWND Hwnd, string& Text);
 
+	[[nodiscard]]
 	bool IsWow64Process();
 
+	[[nodiscard]]
 	DWORD GetAppPathsRedirectionFlag();
 
+	[[nodiscard]]
 	bool GetDefaultPrinter(string& Printer);
 
+	[[nodiscard]]
 	bool GetComputerName(string& Name);
+
+	[[nodiscard]]
 	bool GetComputerNameEx(COMPUTER_NAME_FORMAT NameFormat, string& Name);
+
+	[[nodiscard]]
 	bool GetUserName(string& Name);
+
+	[[nodiscard]]
 	bool GetUserNameEx(EXTENDED_NAME_FORMAT NameFormat, string& Name);
 
+	[[nodiscard]]
 	bool get_locale_value(LCID LcId, LCTYPE Id, string& Value);
+
+	[[nodiscard]]
 	bool get_locale_value(LCID LcId, LCTYPE Id, int& Value);
 
+	[[nodiscard]]
 	handle OpenCurrentThread();
 
+	[[nodiscard]]
 	handle OpenConsoleInputBuffer();
+
+	[[nodiscard]]
 	handle OpenConsoleActiveScreenBuffer();
 
 
@@ -229,10 +256,14 @@ namespace os
 				m_AlternativeLoad(AlternativeLoad)
 			{}
 
+			[[nodiscard]]
 			void* GetProcAddress(const char* name) const { return reinterpret_cast<void*>(::GetProcAddress(get_module(), name)); }
+
+			[[nodiscard]]
 			explicit operator bool() const noexcept { return get_module() != nullptr; }
 
 		private:
+			[[nodiscard]]
 			HMODULE get_module() const;
 
 			struct module_deleter { void operator()(HMODULE Module) const; };
@@ -253,10 +284,14 @@ namespace os
 				m_Name(Name)
 			{}
 
+			[[nodiscard]]
 			operator T() const { return get_pointer(); }
+
+			[[nodiscard]]
 			explicit operator bool() const noexcept { return get_pointer() != nullptr; }
 
 		private:
+			[[nodiscard]]
 			T get_pointer() const
 			{
 				if (!m_Tried)
@@ -330,8 +365,13 @@ namespace os
 	}
 }
 
+[[nodiscard]]
 UUID CreateUuid();
+
+[[nodiscard]]
 string GuidToStr(const GUID& Guid);
+
+[[nodiscard]]
 bool StrToGuid(string_view Value, GUID& Guid);
 
 #endif // PLATFORM_HPP_632CB91D_08A9_4793_8FC7_2E38C30CE234

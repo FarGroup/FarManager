@@ -49,20 +49,34 @@ namespace os::reg
 		static const key current_user;
 		static const key local_machine;
 
+		[[nodiscard]]
 		static key open(const key& Key, string_view SubKey, DWORD SamDesired);
 
 		void close();
+
+		[[nodiscard]]
 		HKEY native_handle() const;
 
+		[[nodiscard]]
 		bool enum_keys(size_t Index, string& Name) const;
+
+		[[nodiscard]]
 		bool enum_values(size_t Index, value& Value) const;
 
+		[[nodiscard]]
 		bool get(string_view Name) const;
+
+		[[nodiscard]]
 		bool get(string_view Name, string& Value) const;
+
+		[[nodiscard]]
 		bool get(string_view Name, unsigned int& Value) const;
+
+		[[nodiscard]]
 		bool get(string_view Name, unsigned long long& Value) const;
 
 		template<class T, REQUIRES(is_one_of_v<T, string, unsigned int, unsigned long long>)>
+		[[nodiscard]]
 		bool get(string_view SubKey, string_view Name, T& Value, REGSAM Sam = 0) const
 		{
 			const auto NewKey = open(*this, SubKey, KEY_QUERY_VALUE | Sam);
@@ -72,6 +86,7 @@ namespace os::reg
 			return NewKey.get(Name, Value);
 		}
 
+		[[nodiscard]]
 		explicit operator bool() const;
 
 	private:
@@ -88,10 +103,19 @@ namespace os::reg
 	class value
 	{
 	public:
+		[[nodiscard]]
 		const string& name() const;
+
+		[[nodiscard]]
 		DWORD type() const;
+
+		[[nodiscard]]
 		string get_string() const;
+
+		[[nodiscard]]
 		unsigned int get_unsigned() const;
+
+		[[nodiscard]]
 		unsigned long long get_unsigned_64() const;
 
 	private:
@@ -111,6 +135,7 @@ namespace os::reg
 		enum_key(const key& Key, string_view SubKey, REGSAM Sam = 0);
 
 	private:
+		[[nodiscard]]
 		bool get(bool Reset, value_type& Value) const;
 
 		key m_Key;
@@ -127,6 +152,7 @@ namespace os::reg
 		enum_value(const key& Key, string_view SubKey, REGSAM Sam = 0);
 
 	private:
+		[[nodiscard]]
 		bool get(bool Reset, value_type& Value) const;
 
 		key m_Key;

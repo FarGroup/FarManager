@@ -982,7 +982,8 @@ bool background_searcher::LookForString(const string& Name)
 		offset = hexFindString.size() - 1;
 
 	unsigned long long FileSize = 0;
-	File.GetSize(FileSize);
+	// BUGBUG check result
+	(void)File.GetSize(FileSize);
 
 	if (SearchInFirst)
 	{
@@ -1270,7 +1271,8 @@ bool background_searcher::IsFileIncluded(PluginPanelItem* FileItem, string_view 
 
 			if (!GetFile())
 			{
-				os::fs::remove_directory(strTempDir);
+				// BUGBUG check result
+				(void)os::fs::remove_directory(strTempDir);
 				return false;
 			}
 
@@ -1593,7 +1595,8 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 							if (!bGet)
 							{
-								os::fs::remove_directory(strTempDir);
+								// BUGBUG check result
+								(void)os::fs::remove_directory(strTempDir);
 								return FALSE;
 							}
 

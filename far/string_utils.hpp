@@ -81,14 +81,18 @@ string upper(string Str);
 [[nodiscard]]
 string lower(string Str);
 
-struct hash_icase_t
+struct [[nodiscard]] hash_icase_t
 {
+	[[nodiscard]]
 	size_t operator()(const string& Str) const;
 };
 
-struct equal_icase_t
+struct [[nodiscard]] equal_icase_t
 {
+	[[nodiscard]]
 	bool operator()(wchar_t Chr1, wchar_t Chr2) const;
+
+	[[nodiscard]]
 	bool operator()(string_view Str1, string_view Str2) const;
 };
 
