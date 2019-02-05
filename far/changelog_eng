@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 05.02.2019 21:16:42 +0000 - build 5358
+
+1. Forum: invalid from utf-8 perspective byte sequence sometimes was treated as a valid character.
+
 drkns 04.02.2019 22:22:35 +0000 - build 5357
 
 1. #78 Add a placeholder symbol for file descriptions

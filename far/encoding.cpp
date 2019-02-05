@@ -835,7 +835,8 @@ size_t Utf8::get_char(std::string_view::const_iterator& StrIterator, std::string
 
 		const unsigned char c2 = *StrIterator;
 
-		if (c2 > 0b10111111 ||                       // illegal 2-nd byte
+		if (
+			 c2 <  0b10000000 || c2 > 0b10111111  || // illegal 2-nd byte
 			(c1 == 0b11100000 && c2 < 0b10100000) || // illegal 3-byte start (overlaps with 2-byte)
 			(c1 == 0b11110000 && c2 < 0b10010000) || // illegal 4-byte start (overlaps with 3-byte)
 			(c1 == 0b11110100 && c2 > 0b10001111))   // illegal 4-byte (out of unicode range)
@@ -1214,8 +1215,11 @@ ut labore et dolore magna aliqua.
 		{ false, false, "\xC2\x20"sv },
 		{ false, false, "\xC2\xC0"sv },
 		{ false, false, "\xE0\xC0\xC0"sv },
+		{ false, false, "\xEB\x20\xA8"sv },
+		{ false, false, "\xEB\xA0\x28"sv },
 		{ false, false, "\xF0\xC0\xC0\xC0"sv },
 		{ false, false, "\xF4\xBF\xBF\xBF"sv },
+		{ false, false, "\xF0\xA0\xA0\x20"sv },
 	};
 
 	for (const auto i: Tests)
@@ -1223,6 +1227,10 @@ ut labore et dolore magna aliqua.
 		bool PureAscii = false;
 		EXPECT_EQ(i.Utf8, encoding::is_valid_utf8(i.Str, false, PureAscii));
 		EXPECT_EQ(i.Ascii, PureAscii);
+
+		const auto Str = encoding::utf8::get_chars(i.Str);
+		const auto Bytes = encoding::utf8::get_bytes(Str);
+		EXPECT_TRUE(i.Str == Bytes);
 	}
 }
 #endif
