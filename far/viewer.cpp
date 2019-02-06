@@ -73,6 +73,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cvtname.hpp"
 #include "panel.hpp"
 #include "global.hpp"
+#include "DlgGuid.hpp"
 
 #include "platform.fs.hpp"
 
@@ -3377,8 +3378,9 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 		SearchDlg[SD_EDIT_TEXT].UserData = (intptr_t)&my;
 
 		const auto Dlg = Dialog::create(SearchDlg, &Viewer::ViewerSearchDlgProc, this, const_cast<Manager::Key*>(FirstChar));
-		Dlg->SetPosition({ -1, -1, 76, 13 });
+		Dlg->SetId(ViewerSearchId);
 		Dlg->SetHelp(L"ViewerSearch"sv);
+		Dlg->SetPosition({ -1, -1, 76, 13 });
 
 		Dlg->Process();
 
