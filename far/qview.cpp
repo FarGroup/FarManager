@@ -624,3 +624,9 @@ Viewer* QuickView::GetById(int ID)
 {
 	return QView && ID==QView->GetId()?GetViewer():nullptr;
 }
+
+void QuickView::OnDestroy()
+{
+	if (QView)
+		QView->OnDestroy();
+}

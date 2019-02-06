@@ -66,11 +66,12 @@ private:
 	void DisplayObject() override;
 	Viewer* GetViewer() override;
 	Viewer* GetById(int ID) override;
+	void OnDestroy() override;
 
 	void PrintText(string_view Str) const;
 	void DynamicUpdateKeyBar() const;
 
-	unique_ptr_with_ondestroy<Viewer> QView;
+	std::unique_ptr<Viewer> QView;
 	string strCurFileName;
 	UserDataItem CurUserData{};
 	string strCurFileType;

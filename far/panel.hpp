@@ -227,6 +227,7 @@ public:
 	virtual size_t GetFileCount() const { return 0; }
 	virtual Viewer* GetViewer() {return nullptr;}
 	virtual Viewer* GetById(int ID) { return nullptr;}
+	virtual void OnDestroy() {}
 
 	static void exclude_sets(string& mask);
 

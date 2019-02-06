@@ -1,4 +1,5 @@
 ﻿/*
+/*
 filepanels.cpp
 
 Файловые панели
@@ -923,6 +924,8 @@ panel_ptr FilePanels::ChangePanel(panel_ptr Current, panel_type NewType, int Cre
 	{
 		TemporarySaveScr = std::move(Current->SaveScr);
 	}
+
+	Current->OnDestroy();
 
 	if (OldType == panel_type::FILE_PANEL && NewType != panel_type::FILE_PANEL)
 	{
