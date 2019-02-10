@@ -104,10 +104,10 @@ private:
 	int OvrMode;
 	int ReadOnlyOvrMode;
 	int ReadOnlyDelMode;
-	int SkipMode;          // ...для пропуска при копировании залоченных файлов.
+	bool SkipErrors{};     // ...для пропуска при копировании залоченных файлов.
 	int SkipEncMode;
-	int SkipDeleteMode;
-	bool SkipSecurityErrors;
+	bool SkipDeleteErrors{};
+	bool SkipSecurityErrors{};
 	int SelectedFolderNameLength;
 	std::vector<string> m_DestList;
 	// тип создаваемого репарспоинта.

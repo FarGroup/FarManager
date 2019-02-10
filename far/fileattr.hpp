@@ -47,13 +47,13 @@ enum SETATTR_RET_CODES
 	SETATTR_RET_SKIPALL,
 };
 
-int ESetFileAttributes(const string& Name,DWORD Attr,int SkipMode=-1);
-int ESetFileCompression(const string& Name,int State,DWORD FileAttr,int SkipMode=-1);
-int ESetFileEncryption(const string& Name,bool State,DWORD FileAttr,int SkipMode=-1,int Silent=0);
-int ESetFileSparse(const string& Name,bool State,DWORD FileAttr,int SkipMode=-1);
-int ESetFileTime(const string& Name, const os::chrono::time_point* LastWriteTime, const os::chrono::time_point* CreationTime, const os::chrono::time_point* LastAccessTime, const os::chrono::time_point* ChangeTime, DWORD FileAttr, int SkipMode=-1);
-int ESetFileOwner(const string& Name, const string& Owner,int SkipMode=-1);
-int EDeleteReparsePoint(const string& Name, DWORD FileAttr, int SkipMode=-1);
+[[nodiscard]] int ESetFileAttributes(const string& Name, DWORD Attr, bool SkipErrors);
+[[nodiscard]] int ESetFileCompression(const string& Name, int State, DWORD FileAttr, bool SkipErrors);
+[[nodiscard]] int ESetFileEncryption(const string& Name, bool State, DWORD FileAttr, bool SkipErrors, int Silent = 0);
+[[nodiscard]] int ESetFileSparse(const string& Name, bool State, DWORD FileAttr, bool SkipErrors);
+[[nodiscard]] int ESetFileTime(const string& Name, const os::chrono::time_point* LastWriteTime, const os::chrono::time_point* CreationTime, const os::chrono::time_point* LastAccessTime, const os::chrono::time_point* ChangeTime, DWORD FileAttr, bool SkipErrors);
+[[nodiscard]] int ESetFileOwner(const string& Name, const string& Owner, bool SkipErrors);
+[[nodiscard]] int EDeleteReparsePoint(const string& Name, DWORD FileAttr, bool SkipErrors);
 
 void enum_attributes(function_ref<bool(DWORD, wchar_t)> Pred);
 

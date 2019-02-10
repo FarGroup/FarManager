@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "elevation.hpp"
 #include "flink.hpp"
 #include "imports.hpp"
+#include "lasterror.hpp"
 #include "pathmix.hpp"
 #include "plugins.hpp"
 #include "string_utils.hpp"
@@ -1653,11 +1654,13 @@ namespace os::fs
 
 		if (ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
 		{
+			GuardLastError gle;
 			// exclude fake elevation request for: move file over existing directory with same name
 			const file_status SrcStatus(strFrom), DstStatus(strTo);
 			if (is_directory(DstStatus) && is_file(SrcStatus))
 			{
 				::SetLastError(ERROR_FILE_EXISTS); // existing directory name == moved file name
+				gle.dismiss();
 				return false;
 			}
 			return elevation::instance().move_file(strFrom, strTo, dwFlags);

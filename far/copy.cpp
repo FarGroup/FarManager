@@ -489,10 +489,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 	OvrMode(-1),
 	ReadOnlyOvrMode(-1),
 	ReadOnlyDelMode(-1),
-	SkipMode(-1),
 	SkipEncMode(-1),
-	SkipDeleteMode(-1),
-	SkipSecurityErrors(),
 	SelectedFolderNameLength(),
 	RPT(RP_EXACTCOPY),
 	AltF10(),
@@ -1422,7 +1419,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 			{
 				const auto Exists_1 = os::fs::exists(strDestDriveRoot);
 				auto Exists_2 = Exists_1;
-				while ( !Exists_2 && SkipMode != 2)
+				while ( !Exists_2 && !SkipErrors)
 				{
 					const auto ErrorState = error_state::fetch();
 
@@ -1437,7 +1434,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 					}
 					else if (Result == operation::skip_all)
 					{
-						SkipMode = static_cast<int>(operation::skip);
+						SkipErrors = true;
 						return COPY_SKIPPED;
 					}
 					else if (Result == operation::cancel)
@@ -1959,19 +1956,12 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					else
 					{
 						const auto ErrorState = error_state::fetch();
-
-						int MsgCode = Message(MSG_WARNING, ErrorState,
-							msg(lng::MError),
-							{
-								msg(lng::MCopyCannotRenameFolder),
-								Src
-							},
-							{ lng::MCopyRetry, lng::MCopyIgnore, lng::MCopyCancel });
-
-						switch (MsgCode)
+						switch (OperationFailed(ErrorState, Src, lng::MError, msg(lng::MCopyCannotRenameFolder), true, false))
 						{
-							case 0:  continue;
-							case 1:
+							case operation::retry:
+								continue;
+
+							case operation::skip:
 							{
 								int CopySecurity = Flags&FCOPY_COPYSECURITY;
 								os::fs::security_descriptor tmpsd;
@@ -2053,7 +2043,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					{
 						for (;;)
 						{
-							int MsgCode=ESetFileCompression(strDestPath,1,0,SkipMode);
+							int MsgCode=ESetFileCompression(strDestPath,1,0, SkipErrors);
 
 							if (MsgCode == SETATTR_RET_ERROR)
 							{
@@ -2070,7 +2060,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 							else if (MsgCode == SETATTR_RET_SKIPALL)
 							{
 								Flags|=FCOPY_SKIPSETATTRFLD;
-								SkipMode=SETATTR_RET_SKIP;
+								SkipErrors = true;
 								break;
 							}
 							else
@@ -2083,23 +2073,17 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					while (!ShellSetAttr(strDestPath,SetAttr))
 					{
 						const auto ErrorState = error_state::fetch();
-						const int MsgCode = Message(MSG_WARNING, ErrorState,
-							msg(lng::MError),
-							{
-								msg(lng::MCopyCannotChangeFolderAttr),
-								strDestPath
-							},
-							{ lng::MCopyRetry, lng::MCopySkip, lng::MCopySkipAll, lng::MCopyCancel });
 
-						if (MsgCode == Message::first_button) // Retry
+						const auto MsgCode = OperationFailed(ErrorState, strDestPath, lng::MError, msg(lng::MCopyCannotChangeFolderAttr));
+						if (MsgCode == operation::retry)
 						{
 							continue;
 						}
-						else if (MsgCode == Message::second_button) // Skip
+						else if (MsgCode == operation::skip)
 						{
 							break;
 						}
-						else if (MsgCode == Message::third_button) // Skip all
+						else if (MsgCode == operation::skip_all)
 						{
 							Flags|=FCOPY_SKIPSETATTRFLD;
 							break;
@@ -2118,23 +2102,17 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					while (!ShellSetAttr(strDestPath,SetAttr))
 					{
 						const auto ErrorState = error_state::fetch();
-						const int MsgCode = Message(MSG_WARNING, ErrorState,
-							msg(lng::MError),
-							{
-								msg(lng::MCopyCannotChangeFolderAttr),
-								strDestPath
-							},
-							{ lng::MCopyRetry, lng::MCopySkip, lng::MCopySkipAll, lng::MCopyCancel });
+						const auto MsgCode = OperationFailed(ErrorState, strDestPath, lng::MError, msg(lng::MCopyCannotChangeFolderAttr));
 
-						if (MsgCode == Message::first_button) // Retry
+						if (MsgCode == operation::retry)
 						{
 							continue;
 						}
-						else if (MsgCode == Message::second_button) // Skip
+						else if (MsgCode == operation::skip)
 						{
 							break;
 						}
-						else if (MsgCode == Message::third_button) // Skip all
+						else if (MsgCode == operation::skip_all)
 						{
 							Flags |= FCOPY_SKIPSETATTRFLD;
 							break;
@@ -2456,9 +2434,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			}
 			else
 			{
-				if (SkipMode!=-1)
-					MsgCode=SkipMode;
-				else
+				if (!SkipErrors)
 				{
 					if (!ErrorState.engaged())
 						ErrorState = error_state::fetch();
@@ -2473,17 +2449,22 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 						},
 						{ lng::MCopyRetry, lng::MCopySkip, lng::MCopySkipAll, lng::MCopyCancel });
 				}
+				else
+				{
+					MsgCode = Message::second_button;
+				}
 
 				switch (MsgCode)
 				{
-				case  1:
+				case Message::second_button:
 					return COPY_SKIPPED;
-				case  2:
-					SkipMode=1;
+
+				case Message::third_button:
+					SkipErrors = true;
 					return COPY_SKIPPED;
 				case -1:
 				case -2:
-				case  3:
+				case Message::fourth_button:
 					return COPY_CANCEL;
 				}
 			}
@@ -2600,8 +2581,10 @@ int ShellCopy::DeleteAfterMove(const string& Name,DWORD Attr)
 	{
 		operation MsgCode;
 
-		if (SkipDeleteMode!=-1)
-			MsgCode = static_cast<operation>(SkipDeleteMode);
+		if (SkipDeleteErrors)
+		{
+			MsgCode = operation::skip;
+		}
 		else
 		{
 			const auto ErrorState = error_state::fetch();
@@ -2618,7 +2601,7 @@ int ShellCopy::DeleteAfterMove(const string& Name,DWORD Attr)
 			return COPY_SKIPPED;
 
 		case operation::skip_all:
-			SkipDeleteMode = static_cast<int>(operation::skip);
+			SkipDeleteErrors = true;
 			return COPY_SKIPPED;
 
 		case operation::cancel:
@@ -3517,62 +3500,62 @@ bool ShellCopy::AskOverwrite(const os::fs::find_data &SrcData,
 
 bool ShellCopy::GetSecurity(const string& FileName, os::fs::security_descriptor& sd)
 {
-	sd = os::fs::get_file_security(NTPath(FileName), DACL_SECURITY_INFORMATION);
-	if (sd)
-		return true;
-
-	if (SkipSecurityErrors)
-		return true;
-
-	const auto ErrorState = error_state::fetch();
-
-	switch (Message(MSG_WARNING, ErrorState,
-		msg(lng::MError),
-		{
-			msg(lng::MCannotGetSecurity),
-			FileName
-		},
-		{ lng::MSkip, lng::MCopySkipAll, lng::MCancel }))
+	for (;;)
 	{
-	case Message::first_button:
-		return true;
+		sd = os::fs::get_file_security(NTPath(FileName), DACL_SECURITY_INFORMATION);
+		if (sd)
+			return true;
 
-	case Message::second_button:
-		SkipSecurityErrors = true;
-		return true;
+		if (SkipSecurityErrors)
+			return true;
 
-	default:
-		return false;
+		const auto ErrorState = error_state::fetch();
+
+		switch (OperationFailed(ErrorState, FileName, lng::MError, msg(lng::MCannotGetSecurity)))
+		{
+		case operation::retry:
+			continue;
+
+		case operation::skip:
+			return true;
+
+		case operation::skip_all:
+			SkipSecurityErrors = true;
+			return true;
+
+		default:
+			return false;
+		}
 	}
 }
 
 bool ShellCopy::SetSecurity(const string& FileName, const os::fs::security_descriptor& sd)
 {
-	if (os::fs::set_file_security(NTPath(FileName), DACL_SECURITY_INFORMATION, sd))
-		return true;
-
-	if (SkipSecurityErrors)
-		return true;
-
-	const auto ErrorState = error_state::fetch();
-
-	switch (Message(MSG_WARNING, ErrorState,
-		msg(lng::MError),
-		{
-			msg(lng::MCannotSetSecurity),
-			FileName
-		},
-		{ lng::MSkip, lng::MCopySkipAll, lng::MCancel }))
+	for (;;)
 	{
-	case Message::first_button:
-		return true;
+		if (os::fs::set_file_security(NTPath(FileName), DACL_SECURITY_INFORMATION, sd))
+			return true;
 
-	case Message::second_button:
-		SkipSecurityErrors = true;
-		return true;
+		if (SkipSecurityErrors)
+			return true;
 
-	default:
-		return false;
+		const auto ErrorState = error_state::fetch();
+
+		switch (OperationFailed(ErrorState, FileName, lng::MError, msg(lng::MCannotSetSecurity)))
+		{
+		case operation::retry:
+			continue;
+
+		case operation::skip:
+			return true;
+
+		case operation::skip_all:
+			SkipSecurityErrors = true;
+			return true;
+
+		default:
+			return false;
+		}
 	}
 }
 
@@ -3800,15 +3783,14 @@ bool ShellCopy::ShellSetAttr(const string& Dest, DWORD Attr)
 
 	if ((Attr&FILE_ATTRIBUTE_COMPRESSED) && !(Attr&FILE_ATTRIBUTE_ENCRYPTED))
 	{
-		int Ret=ESetFileCompression(Dest,1,Attr&(~FILE_ATTRIBUTE_COMPRESSED),SkipMode);
-
-		if (Ret==SETATTR_RET_ERROR)
+		switch (ESetFileCompression(Dest, 1, Attr&(~FILE_ATTRIBUTE_COMPRESSED), SkipErrors))
 		{
+		case SETATTR_RET_ERROR:
 			return false;
-		}
-		else if (Ret==SETATTR_RET_SKIPALL)
-		{
-			SkipMode = SETATTR_RET_SKIP;
+
+		case SETATTR_RET_SKIPALL:
+			SkipErrors = true;
+			break;
 		}
 	}
 
@@ -3816,15 +3798,14 @@ bool ShellCopy::ShellSetAttr(const string& Dest, DWORD Attr)
 	// для каталога, если он есть
 	if (GetInfoSuccess && FileSystemFlagsDst&FILE_SUPPORTS_ENCRYPTION && Attr&FILE_ATTRIBUTE_ENCRYPTED && Attr&FILE_ATTRIBUTE_DIRECTORY)
 	{
-		int Ret=ESetFileEncryption(Dest, true, 0, SkipMode);
-
-		if (Ret==SETATTR_RET_ERROR)
-		{
+		switch(ESetFileEncryption(Dest, true, 0, SkipErrors))
+		{ 
+		case SETATTR_RET_ERROR:
 			return false;
-		}
-		else if (Ret==SETATTR_RET_SKIPALL)
-		{
-			SkipMode=SETATTR_RET_SKIP;
+		
+		case SETATTR_RET_SKIPALL:
+			SkipErrors = true;
+			break;
 		}
 	}
 

@@ -516,7 +516,7 @@ static size_t enumerate_rm_processes(const string& Filename, DWORD& Reasons, fun
 	return ProcessInfos.size();
 }
 
-operation OperationFailed(const error_state_ex& ErrorState, string Object, lng Title, string Description, bool AllowSkip)
+operation OperationFailed(const error_state_ex& ErrorState, string Object, lng Title, string Description, bool AllowSkip, bool AllowSkipAll)
 {
 	std::vector<string> Msg;
 	os::com::ptr<IFileIsInUse> FileIsInUse;
@@ -622,17 +622,24 @@ operation OperationFailed(const error_state_ex& ErrorState, string Object, lng T
 	if(AllowSkip)
 	{
 		Buttons.emplace_back(lng::MDeleteSkip);
-		Buttons.emplace_back(lng::MDeleteFileSkipAll);
+		if (AllowSkipAll)
+		{
+			Buttons.emplace_back(lng::MDeleteFileSkipAll);
+		}
 	}
-	Buttons.emplace_back(lng::MDeleteCancel);
+	Buttons.emplace_back(lng::MCancel);
 
-	listener Listener([](const std::any& Payload)
+	std::unique_ptr<listener> Listener;
+	if (SwitchBtn)
 	{
-		// Switch asynchroniously after the message is reopened,
-		// otherwise Far will lose the focus too early
-		// and reopened message will cause window flashing.
-		SwitchToWindow(std::any_cast<HWND>(Payload));
-	});
+		Listener = std::make_unique<listener>([](const std::any& Payload)
+		{
+			// Switch asynchronously after the message is reopened,
+			// otherwise Far will lose the focus too early
+			// and reopened message will cause window flashing.
+			SwitchToWindow(std::any_cast<HWND>(Payload));
+		});
+	}
 
 	int Result;
 	for(;;)
@@ -649,7 +656,7 @@ operation OperationFailed(const error_state_ex& ErrorState, string Object, lng T
 				HWND Window = nullptr;
 				if (FileIsInUse && SUCCEEDED(FileIsInUse->GetSwitchToHWND(&Window)))
 				{
-					message_manager::instance().notify(Listener.GetEventName(), Window);
+					message_manager::instance().notify(Listener->GetEventName(), Window);
 				}
 				continue;
 			}
@@ -670,7 +677,7 @@ operation OperationFailed(const error_state_ex& ErrorState, string Object, lng T
 		break;
 	}
 
-	if (Result < 0 || (!AllowSkip && Result == Message::second_button))
+	if (Result < 0 || static_cast<size_t>(Result) == Buttons.size() - 1)
 		return operation::cancel;
 
 	return static_cast<operation>(Result);

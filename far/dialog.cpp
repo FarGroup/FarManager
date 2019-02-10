@@ -182,23 +182,22 @@ static void ConvertItemSmall(const DialogItemEx& From, FarDialogItem& To)
 	To.UserData = From.UserData;
 }
 
-static size_t ItemStringAndSize(const DialogItemEx *Data,string& ItemString)
+static string_view ItemString(const DialogItemEx *Data)
 {
-	//TODO: тут видимо надо сделать поумнее
-	ItemString=Data->strData;
+	string_view Str = Data->strData;
 
 	if (IsEdit(Data->Type))
 	{
 		if (const auto EditPtr = static_cast<const DlgEdit*>(Data->ObjPtr))
-			ItemString = EditPtr->GetString();
+			Str = EditPtr->GetString();
 	}
 
-	size_t sz = ItemString.size();
-
+	const auto sz = Str.size();
+	
 	if (sz > Data->MaxLength && Data->MaxLength > 0)
-		sz = Data->MaxLength;
+		Str.remove_suffix(sz - Data->MaxLength);
 
-	return sz;
+	return Str;
 }
 
 static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
@@ -222,9 +221,8 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 		}
 	}
 	size_t offsetStrings=size;
-	string str;
-	size_t sz = ItemStringAndSize(ItemEx,str);
-	size+=(sz+1)*sizeof(wchar_t);
+	const auto str = ItemString(ItemEx);
+	size += (str.size() + 1) * sizeof(wchar_t);
 	size+=(ItemEx->strHistory.size()+1)*sizeof(wchar_t);
 	size+=(ItemEx->strMask.size()+1)*sizeof(wchar_t);
 
@@ -255,7 +253,7 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 			}
 			auto p = static_cast<wchar_t*>(static_cast<void*>(reinterpret_cast<char*>(Item->Item) + offsetStrings));
 			Item->Item->Data = p;
-			p = std::copy_n(str.data(), sz, p);
+			p = std::copy(ALL_CONST_RANGE(str), p);
 			*p++ = L'\0';
 			Item->Item->History = p;
 			p = std::copy(ALL_CONST_RANGE(ItemEx->strHistory), p);

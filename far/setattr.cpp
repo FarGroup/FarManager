@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "locale.hpp"
 #include "string_utils.hpp"
 #include "global.hpp"
+#include "stddlg.hpp"
 
 #include "platform.fs.hpp"
 
@@ -1272,17 +1273,15 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				//reparse point editor
 				if (!equal_icase(AttrDlg[SA_EDIT_SYMLINK].strData, strLinkName))
 				{
-					if(!ModifyReparsePoint(SingleSelFileName, unquote(AttrDlg[SA_EDIT_SYMLINK].strData)))
+					for (;;)
 					{
+						if (ModifyReparsePoint(SingleSelFileName, unquote(AttrDlg[SA_EDIT_SYMLINK].strData)))
+							break;
+
 						const auto ErrorState = error_state::fetch();
 
-						Message(MSG_WARNING, ErrorState,
-							msg(lng::MError),
-							{
-								msg(lng::MCopyCannotCreateLink),
-								SingleSelFileName
-							},
-							{ lng::MHOk });
+						if (OperationFailed(ErrorState, SingleSelFileName, lng::MError, msg(lng::MCopyCannotCreateLink), false) != operation::retry)
+							break;
 					}
 				}
 
@@ -1295,7 +1294,8 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 				SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<AttrPreRedrawItem>());
 				ShellSetFileAttributesMsg(SelCount==1? SingleSelFileName : string{});
-				int SkipMode=-1;
+
+				auto SkipErrors = false;
 
 				if (SelCount==1 && !(SingleSelFileAttr & FILE_ATTRIBUTE_DIRECTORY))
 				{
@@ -1311,10 +1311,10 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 					if(!AttrDlg[SA_EDIT_OWNER].strData.empty() && !equal_icase(strInitOwner, AttrDlg[SA_EDIT_OWNER].strData))
 					{
-						int Result = ESetFileOwner(SingleSelFileName, AttrDlg[SA_EDIT_OWNER].strData, SkipMode);
+						int Result = ESetFileOwner(SingleSelFileName, AttrDlg[SA_EDIT_OWNER].strData, SkipErrors);
 						if(Result==SETATTR_RET_SKIPALL)
 						{
-							SkipMode=SETATTR_RET_SKIP;
+							SkipErrors = true;
 						}
 						else if(Result==SETATTR_RET_ERROR)
 						{
@@ -1338,70 +1338,70 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 							SetLastAccessTime? &LastAccessTime : nullptr,
 							SetChangeTime? &ChangeTime : nullptr,
 							SingleSelFileAttr,
-							SkipMode) == SETATTR_RET_SKIPALL)
+							SkipErrors) == SETATTR_RET_SKIPALL)
 						{
-							SkipMode=SETATTR_RET_SKIP;
+							SkipErrors = true;
 						}
 					}
 
 					if ((NewAttr&FILE_ATTRIBUTE_COMPRESSED) && !(SingleSelFileAttr & FILE_ATTRIBUTE_COMPRESSED))
 					{
-						if (ESetFileCompression(SingleSelFileName, 1, SingleSelFileAttr, SkipMode) == SETATTR_RET_SKIPALL)
+						if (ESetFileCompression(SingleSelFileName, 1, SingleSelFileAttr, SkipErrors) == SETATTR_RET_SKIPALL)
 						{
-							SkipMode=SETATTR_RET_SKIP;
+							SkipErrors = true;
 						}
 					}
 					else if (!(NewAttr&FILE_ATTRIBUTE_COMPRESSED) && (SingleSelFileAttr & FILE_ATTRIBUTE_COMPRESSED))
 					{
-						if (ESetFileCompression(SingleSelFileName, 0, SingleSelFileAttr, SkipMode) == SETATTR_RET_SKIPALL)
+						if (ESetFileCompression(SingleSelFileName, 0, SingleSelFileAttr, SkipErrors) == SETATTR_RET_SKIPALL)
 						{
-							SkipMode=SETATTR_RET_SKIP;
+							SkipErrors = true;
 						}
 					}
 
 					if ((NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && !(SingleSelFileAttr & FILE_ATTRIBUTE_ENCRYPTED))
 					{
-						if (ESetFileEncryption(SingleSelFileName, true, SingleSelFileAttr, SkipMode) == SETATTR_RET_SKIPALL)
+						if (ESetFileEncryption(SingleSelFileName, true, SingleSelFileAttr, SkipErrors) == SETATTR_RET_SKIPALL)
 						{
-							SkipMode=SETATTR_RET_SKIP;
+							SkipErrors = true;
 						}
 					}
 					else if (!(NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && (SingleSelFileAttr & FILE_ATTRIBUTE_ENCRYPTED))
 					{
-						if (ESetFileEncryption(SingleSelFileName, false, SingleSelFileAttr, SkipMode) == SETATTR_RET_SKIPALL)
+						if (ESetFileEncryption(SingleSelFileName, false, SingleSelFileAttr, SkipErrors) == SETATTR_RET_SKIPALL)
 						{
-							SkipMode=SETATTR_RET_SKIP;
+							SkipErrors = true;
 						}
 					}
 
 					if ((NewAttr&FILE_ATTRIBUTE_SPARSE_FILE) && !(SingleSelFileAttr & FILE_ATTRIBUTE_SPARSE_FILE))
 					{
-						if (ESetFileSparse(SingleSelFileName, true, SingleSelFileAttr, SkipMode) == SETATTR_RET_SKIPALL)
+						if (ESetFileSparse(SingleSelFileName, true, SingleSelFileAttr, SkipErrors) == SETATTR_RET_SKIPALL)
 						{
-							SkipMode=SETATTR_RET_SKIP;
+							SkipErrors = true;
 						}
 					}
 					else if (!(NewAttr&FILE_ATTRIBUTE_SPARSE_FILE) && (SingleSelFileAttr & FILE_ATTRIBUTE_SPARSE_FILE))
 					{
-						if (ESetFileSparse(SingleSelFileName, false, SingleSelFileAttr, SkipMode) == SETATTR_RET_SKIPALL)
+						if (ESetFileSparse(SingleSelFileName, false, SingleSelFileAttr, SkipErrors) == SETATTR_RET_SKIPALL)
 						{
-							SkipMode=SETATTR_RET_SKIP;
+							SkipErrors = true;
 						}
 					}
 
 					if ((SingleSelFileAttr & ~(FILE_ATTRIBUTE_ENCRYPTED | FILE_ATTRIBUTE_COMPRESSED | FILE_ATTRIBUTE_SPARSE_FILE)) != (NewAttr&~(FILE_ATTRIBUTE_ENCRYPTED | FILE_ATTRIBUTE_COMPRESSED | FILE_ATTRIBUTE_SPARSE_FILE)))
 					{
-						if (ESetFileAttributes(SingleSelFileName,NewAttr&~(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_COMPRESSED|FILE_ATTRIBUTE_SPARSE_FILE),SkipMode)==SETATTR_RET_SKIPALL)
+						if (ESetFileAttributes(SingleSelFileName, NewAttr&~(FILE_ATTRIBUTE_ENCRYPTED | FILE_ATTRIBUTE_COMPRESSED | FILE_ATTRIBUTE_SPARSE_FILE), SkipErrors) == SETATTR_RET_SKIPALL)
 						{
-							SkipMode=SETATTR_RET_SKIP;
+							SkipErrors = true;
 						}
 					}
 
 					if (!(NewAttr&FILE_ATTRIBUTE_REPARSE_POINT) && (SingleSelFileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
 					{
-						if (EDeleteReparsePoint(SingleSelFileName, SingleSelFileAttr, SkipMode)==SETATTR_RET_SKIPALL)
+						if (EDeleteReparsePoint(SingleSelFileName, SingleSelFileAttr, SkipErrors) == SETATTR_RET_SKIPALL)
 						{
-							SkipMode=SETATTR_RET_SKIP;
+							SkipErrors = true;
 						}
 					}
 				}
@@ -1467,10 +1467,10 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 						if(!AttrDlg[SA_EDIT_OWNER].strData.empty() && !equal_icase(strInitOwner, AttrDlg[SA_EDIT_OWNER].strData))
 						{
-							int Result=ESetFileOwner(SingleSelFileName,AttrDlg[SA_EDIT_OWNER].strData,SkipMode);
+							int Result = ESetFileOwner(SingleSelFileName, AttrDlg[SA_EDIT_OWNER].strData, SkipErrors);
 							if(Result==SETATTR_RET_SKIPALL)
 							{
-								SkipMode=SETATTR_RET_SKIP;
+								SkipErrors = true;
 							}
 							else if(Result==SETATTR_RET_ERROR)
 							{
@@ -1491,7 +1491,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 							SetLastAccessTime? &LastAccessTime : nullptr,
 							SetChangeTime? &ChangeTime : nullptr,
 							SingleSelFileAttr,
-							SkipMode);
+							SkipErrors);
 
 						if (RetCode == SETATTR_RET_ERROR)
 							break;
@@ -1499,7 +1499,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 							continue;
 						else if (RetCode == SETATTR_RET_SKIPALL)
 						{
-							SkipMode=SETATTR_RET_SKIP;
+							SkipErrors = true;
 							continue;
 						}
 
@@ -1509,7 +1509,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 							{
 								if (AttrDlg[SA_CHECKBOX_COMPRESSED].Selected != BSTATE_3STATE)
 								{
-									RetCode = ESetFileCompression(SingleSelFileName, AttrDlg[SA_CHECKBOX_COMPRESSED].Selected, SingleSelFileAttr, SkipMode);
+									RetCode = ESetFileCompression(SingleSelFileName, AttrDlg[SA_CHECKBOX_COMPRESSED].Selected, SingleSelFileAttr, SkipErrors);
 
 									if (RetCode == SETATTR_RET_ERROR)
 										break;
@@ -1517,7 +1517,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 										continue;
 									else if (RetCode == SETATTR_RET_SKIPALL)
 									{
-										SkipMode=SETATTR_RET_SKIP;
+										SkipErrors = true;
 										continue;
 									}
 								}
@@ -1526,7 +1526,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 								{
 									if (AttrDlg[SA_CHECKBOX_COMPRESSED].Selected != BSTATE_CHECKED)
 									{
-										RetCode=ESetFileEncryption(SingleSelFileName, AttrDlg[SA_CHECKBOX_ENCRYPTED].Selected != 0, SingleSelFileAttr, SkipMode);
+										RetCode=ESetFileEncryption(SingleSelFileName, AttrDlg[SA_CHECKBOX_ENCRYPTED].Selected != 0, SingleSelFileAttr, SkipErrors);
 
 										if (RetCode == SETATTR_RET_ERROR)
 											break;
@@ -1534,7 +1534,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 											continue;
 										else if (RetCode == SETATTR_RET_SKIPALL)
 										{
-											SkipMode=SETATTR_RET_SKIP;
+											SkipErrors = true;
 											continue;
 										}
 									}
@@ -1542,7 +1542,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 								if (AttrDlg[SA_CHECKBOX_SPARSE].Selected!=BSTATE_3STATE)
 								{
-									RetCode = ESetFileSparse(SingleSelFileName, AttrDlg[SA_CHECKBOX_SPARSE].Selected == BSTATE_CHECKED, SingleSelFileAttr, SkipMode);
+									RetCode = ESetFileSparse(SingleSelFileName, AttrDlg[SA_CHECKBOX_SPARSE].Selected == BSTATE_CHECKED, SingleSelFileAttr, SkipErrors);
 
 									if (RetCode == SETATTR_RET_ERROR)
 									{
@@ -1554,14 +1554,14 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 									}
 									else if (RetCode == SETATTR_RET_SKIPALL)
 									{
-										SkipMode=SETATTR_RET_SKIP;
+										SkipErrors = true;
 										continue;
 									}
 								}
 
 								if (AttrDlg[SA_CHECKBOX_REPARSEPOINT].Selected == BSTATE_UNCHECKED)
 								{
-									RetCode=EDeleteReparsePoint(SingleSelFileName, SingleSelFileAttr, SkipMode);
+									RetCode=EDeleteReparsePoint(SingleSelFileName, SingleSelFileAttr, SkipErrors);
 
 									if (RetCode == SETATTR_RET_ERROR)
 									{
@@ -1573,12 +1573,12 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 									}
 									else if (RetCode == SETATTR_RET_SKIPALL)
 									{
-										SkipMode=SETATTR_RET_SKIP;
+										SkipErrors = true;
 										continue;
 									}
 								}
 
-								RetCode = ESetFileAttributes(SingleSelFileName, ((SingleSelFileAttr | SetAttr)&(~ClearAttr)), SkipMode);
+								RetCode = ESetFileAttributes(SingleSelFileName, ((SingleSelFileAttr | SetAttr)&(~ClearAttr)), SkipErrors);
 
 								if (RetCode == SETATTR_RET_ERROR)
 									break;
@@ -1586,7 +1586,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 									continue;
 								else if (RetCode == SETATTR_RET_SKIPALL)
 								{
-									SkipMode=SETATTR_RET_SKIP;
+									SkipErrors = true;
 									continue;
 								}
 							}
@@ -1613,10 +1613,10 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 									if(!AttrDlg[SA_EDIT_OWNER].strData.empty() && (DlgParam.OSubfoldersState || !equal_icase(strInitOwner, AttrDlg[SA_EDIT_OWNER].strData)))
 									{
-										int Result=ESetFileOwner(strFullName,AttrDlg[SA_EDIT_OWNER].strData,SkipMode);
+										int Result=ESetFileOwner(strFullName,AttrDlg[SA_EDIT_OWNER].strData,SkipErrors);
 										if(Result==SETATTR_RET_SKIPALL)
 										{
-											SkipMode=SETATTR_RET_SKIP;
+											SkipErrors = true;
 										}
 										else if(Result==SETATTR_RET_ERROR)
 										{
@@ -1638,7 +1638,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 											SetLastAccessTime? &LastAccessTime : nullptr,
 											SetChangeTime? &ChangeTime : nullptr,
 											SingleSelFindData.Attributes,
-											SkipMode);
+											SkipErrors);
 
 										if (RetCode == SETATTR_RET_ERROR)
 										{
@@ -1649,7 +1649,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 											continue;
 										else if (RetCode == SETATTR_RET_SKIPALL)
 										{
-											SkipMode=SETATTR_RET_SKIP;
+											SkipErrors = true;
 											continue;
 										}
 									}
@@ -1658,7 +1658,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 									{
 										if (AttrDlg[SA_CHECKBOX_COMPRESSED].Selected!=BSTATE_3STATE)
 										{
-											RetCode = ESetFileCompression(strFullName, AttrDlg[SA_CHECKBOX_COMPRESSED].Selected, SingleSelFindData.Attributes, SkipMode);
+											RetCode = ESetFileCompression(strFullName, AttrDlg[SA_CHECKBOX_COMPRESSED].Selected, SingleSelFindData.Attributes, SkipErrors);
 
 											if (RetCode == SETATTR_RET_ERROR)
 											{
@@ -1669,7 +1669,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 												continue;
 											else if (RetCode == SETATTR_RET_SKIPALL)
 											{
-												SkipMode=SETATTR_RET_SKIP;
+												SkipErrors = true;
 												continue;
 											}
 										}
@@ -1678,7 +1678,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 										{
 											if (AttrDlg[SA_CHECKBOX_COMPRESSED].Selected != 1)
 											{
-												RetCode=ESetFileEncryption(strFullName, AttrDlg[SA_CHECKBOX_ENCRYPTED].Selected!=0, SingleSelFindData.Attributes, SkipMode);
+												RetCode=ESetFileEncryption(strFullName, AttrDlg[SA_CHECKBOX_ENCRYPTED].Selected!=0, SingleSelFindData.Attributes, SkipErrors);
 
 												if (RetCode == SETATTR_RET_ERROR)
 												{
@@ -1689,7 +1689,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 													continue;
 												else if (RetCode == SETATTR_RET_SKIPALL)
 												{
-													SkipMode=SETATTR_RET_SKIP;
+													SkipErrors = true;
 													continue;
 												}
 											}
@@ -1697,7 +1697,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 										if (AttrDlg[SA_CHECKBOX_SPARSE].Selected!=BSTATE_3STATE)
 										{
-											RetCode = ESetFileSparse(strFullName, AttrDlg[SA_CHECKBOX_SPARSE].Selected == BSTATE_CHECKED, SingleSelFindData.Attributes, SkipMode);
+											RetCode = ESetFileSparse(strFullName, AttrDlg[SA_CHECKBOX_SPARSE].Selected == BSTATE_CHECKED, SingleSelFindData.Attributes, SkipErrors);
 
 											if (RetCode == SETATTR_RET_ERROR)
 											{
@@ -1710,14 +1710,14 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 											}
 											else if (RetCode == SETATTR_RET_SKIPALL)
 											{
-												SkipMode=SETATTR_RET_SKIP;
+												SkipErrors = true;
 												continue;
 											}
 										}
 
 										if (AttrDlg[SA_CHECKBOX_REPARSEPOINT].Selected == BSTATE_UNCHECKED)
 										{
-											RetCode = EDeleteReparsePoint(strFullName, SingleSelFindData.Attributes, SkipMode);
+											RetCode = EDeleteReparsePoint(strFullName, SingleSelFindData.Attributes, SkipErrors);
 
 											if (RetCode == SETATTR_RET_ERROR)
 											{
@@ -1729,12 +1729,12 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 											}
 											else if (RetCode == SETATTR_RET_SKIPALL)
 											{
-												SkipMode=SETATTR_RET_SKIP;
+												SkipErrors = true;
 												continue;
 											}
 										}
 
-										RetCode = ESetFileAttributes(strFullName, (SingleSelFindData.Attributes | SetAttr)&(~ClearAttr), SkipMode);
+										RetCode = ESetFileAttributes(strFullName, (SingleSelFindData.Attributes | SetAttr)&(~ClearAttr), SkipErrors);
 
 										if (RetCode == SETATTR_RET_ERROR)
 										{
@@ -1745,7 +1745,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 											continue;
 										else if (RetCode == SETATTR_RET_SKIPALL)
 										{
-											SkipMode=SETATTR_RET_SKIP;
+											SkipErrors = true;
 											continue;
 										}
 									}

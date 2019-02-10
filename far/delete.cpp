@@ -111,9 +111,9 @@ private:
 	bool RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& ret);
 
 	int ReadOnlyDeleteMode;
-	int m_SkipMode;
+	bool m_SkipErrors{};
 	int SkipWipeMode;
-	int SkipFoldersMode;
+	bool m_SkipFolderErrors{};
 	unsigned ProcessedItems;
 };
 
@@ -347,9 +347,7 @@ static bool WipeDirectory(const string& Name)
 
 ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 	ReadOnlyDeleteMode(-1),
-	m_SkipMode(-1),
 	SkipWipeMode(-1),
-	SkipFoldersMode(-1),
 	ProcessedItems(0)
 {
 	SCOPED_ACTION(ChangePriority)(Global->Opt->DelThreadPriority);
@@ -568,9 +566,9 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 		bool Cancel=false;
 		SetCursorType(false, 0);
 		ReadOnlyDeleteMode=-1;
-		m_SkipMode=-1;
+		m_SkipErrors = false;
 		SkipWipeMode=-1;
-		SkipFoldersMode=-1;
+		m_SkipFolderErrors = false;
 		ProcessedItems=0;
 
 		struct
@@ -989,10 +987,10 @@ DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, progress 
 			if (RemoveToRecycleBin(strFullName, false, ret))
 				break;
 
-			if (m_SkipMode == -1 && (ret == DELETE_SKIP || ret == DELETE_CANCEL))
+			if (!m_SkipErrors && (ret == DELETE_SKIP || ret == DELETE_CANCEL))
 				return ret;
 
-			if (m_SkipMode == -1 && ret == DELETE_YES)
+			if (!m_SkipErrors && ret == DELETE_YES)
 			{
 				recycle_bin = false;
 				if (os::fs::delete_file(strFullName))
@@ -1002,13 +1000,15 @@ DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, progress 
 
 		operation MsgCode;
 
-		if (m_SkipMode != -1)
-			MsgCode = static_cast<operation>(m_SkipMode);
-		else
+		if (!m_SkipErrors)
 		{
 			const auto ErrorState = error_state::fetch();
 
 			MsgCode = OperationFailed(ErrorState, strFullName, lng::MError, msg(recycle_bin ? lng::MCannotRecycleFile : lng::MCannotDeleteFile));
+		}
+		else
+		{
+			MsgCode = operation::skip;
 		}
 
 		switch (MsgCode)
@@ -1020,7 +1020,7 @@ DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, progress 
 			return DELETE_SKIP;
 
 		case operation::skip_all:
-			m_SkipMode = static_cast<int>(operation::skip);
+			m_SkipErrors = true;
 			return DELETE_SKIP;
 
 		case operation::cancel:
@@ -1055,7 +1055,7 @@ DEL_RESULT ShellDelete::ERemoveDirectory(const string& Name,DIRDELTYPE Type)
 				DEL_RESULT ret;
 				Success = RemoveToRecycleBin(Name, true, ret);
 
-				if (!Success && SkipFoldersMode == -1 && ret >= DELETE_YES)
+				if (!Success && !m_SkipFolderErrors && ret >= DELETE_YES)
 					return ret; // DELETE_YES, DELETE_SKIP, DELETE_CANCEL
 			}
 			break;
@@ -1065,15 +1065,15 @@ DEL_RESULT ShellDelete::ERemoveDirectory(const string& Name,DIRDELTYPE Type)
 		{
 			operation MsgCode;
 
-			if (SkipFoldersMode!=-1)
-			{
-				MsgCode = static_cast<operation>(SkipFoldersMode);
-			}
-			else
+			if (!m_SkipFolderErrors)
 			{
 				const auto ErrorState = error_state::fetch();
 
 				MsgCode = OperationFailed(ErrorState, Name, lng::MError, msg(recycle_bin? lng::MCannotRecycleFolder : lng::MCannotDeleteFolder));
+			}
+			else
+			{
+				MsgCode = operation::skip;
 			}
 
 			switch (MsgCode)
@@ -1085,7 +1085,7 @@ DEL_RESULT ShellDelete::ERemoveDirectory(const string& Name,DIRDELTYPE Type)
 				return DELETE_SKIP;
 
 			case operation::skip_all:
-				SkipFoldersMode = static_cast<int>(operation::skip);
+				m_SkipFolderErrors = true;
 				return DELETE_SKIP;
 
 			case operation::cancel:
@@ -1110,7 +1110,6 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 		ScTree.SetFindPath(Name, L"*"sv, 0);
 
 		bool MessageShown = false;
-		int SkipMode = -1;
 		
 		while (ScTree.GetNextName(FindData,strFullName2))
 		{
@@ -1135,7 +1134,8 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 						return false;
 					}
 				}
-				EDeleteReparsePoint(strFullName2, FindData.Attributes, SkipMode);
+				// BUGBUG, check result
+				(void)EDeleteReparsePoint(strFullName2, FindData.Attributes, false);
 			}
 		}
 	}
@@ -1147,7 +1147,8 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 		ret = DELETE_SUCCESS;
 		return true;
 	}
-	if ((dir && SkipFoldersMode != -1) || (!dir && m_SkipMode != -1))
+
+	if (dir? m_SkipFolderErrors : m_SkipErrors)
 	{
 		ret = DELETE_SKIP;
 		return false;
@@ -1176,10 +1177,7 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 			ret = DELETE_CANCEL;
 			break;
 		case 2:                         // [Skip All]
-			if (dir)
-				SkipFoldersMode = 2;
-			else
-				m_SkipMode = 2;
+			(dir? m_SkipFolderErrors : m_SkipErrors) = true;
 			[[fallthrough]];
 		case 1:                         // [Skip]
 			ret =  DELETE_SKIP;

@@ -3,6 +3,12 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 10.02.2019 23:17:26 +0000 - build 5362
+
+1. Continuation of 2493.
+
+2. Refactoring.
+
 w17 06.02.2019 19:46:32 +0300 - build 5361
 
 1. M#3694: Guid is required for viewer search dialog

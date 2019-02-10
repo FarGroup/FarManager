@@ -35,38 +35,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "flink.hpp"
 #include "lang.hpp"
-#include "message.hpp"
 #include "fileowner.hpp"
 #include "exception.hpp"
+#include "stddlg.hpp"
 
 #include "platform.fs.hpp"
 
 #include "common/scope_exit.hpp"
 
-struct response
-{
-	enum
-	{
-		retry = 0,
-		skip = 1,
-		skip_all = 2,
-		cancel = 3
-	};
-};
 
-static int ShowErrorMessage(const error_state_ex& ErrorState, lng Id, const string& Name)
-{
-	return Message(MSG_WARNING, ErrorState,
-		msg(lng::MError),
-		{
-			msg(Id),
-			Name
-		},
-		{ lng::MHRetry, lng::MHSkip, lng::MHSkipAll, lng::MHCancel }
-	);
-}
-
-int ESetFileAttributes(const string& Name,DWORD Attr,int SkipMode)
+int ESetFileAttributes(const string& Name, DWORD Attr, bool SkipErrors)
 {
 	if (Attr&FILE_ATTRIBUTE_DIRECTORY && Attr&FILE_ATTRIBUTE_TEMPORARY)
 		Attr&=~FILE_ATTRIBUTE_TEMPORARY;
@@ -75,17 +53,15 @@ int ESetFileAttributes(const string& Name,DWORD Attr,int SkipMode)
 	{
 		const auto ErrorState = error_state::fetch();
 
-		switch (SkipMode != -1? SkipMode : ShowErrorMessage(ErrorState, lng::MSetAttrCannotFor, Name))
+		switch (SkipErrors? OperationFailed(ErrorState, Name, lng::MError, msg(lng::MSetAttrCannotFor)) : operation::skip)
 		{
-		case response::retry:
+		case operation::retry:
 			break;
-		case response::skip:
+		case operation::skip:
 			return SETATTR_RET_SKIP;
-		case response::skip_all:
+		case operation::skip_all:
 			return SETATTR_RET_SKIPALL;
-		case -2:
-		case -1:
-		case response::cancel:
+		case operation::cancel:
 			return SETATTR_RET_ERROR;
 		}
 	}
@@ -105,7 +81,7 @@ static bool SetFileCompression(const string& Name,int State)
 }
 
 
-int ESetFileCompression(const string& Name,int State,DWORD FileAttr,int SkipMode)
+int ESetFileCompression(const string& Name, int State, DWORD FileAttr, bool SkipErrors)
 {
 	if (((FileAttr & FILE_ATTRIBUTE_COMPRESSED)!=0) == State)
 		return SETATTR_RET_OK;
@@ -128,17 +104,15 @@ int ESetFileCompression(const string& Name,int State,DWORD FileAttr,int SkipMode
 	{
 		const auto ErrorState = error_state::fetch();
 
-		switch(SkipMode != -1? SkipMode : ShowErrorMessage(ErrorState, lng::MSetAttrCompressedCannotFor, Name))
+		switch(SkipErrors? OperationFailed(ErrorState, Name, lng::MError, msg(lng::MSetAttrCompressedCannotFor)) : operation::skip)
 		{
-		case response::retry:
+		case operation::retry:
 			break;
-		case response::skip:
+		case operation::skip:
 			return SETATTR_RET_SKIP;
-		case response::skip_all:
+		case operation::skip_all:
 			return SETATTR_RET_SKIPALL;
-		case -2:
-		case -1:
-		case response::cancel:
+		case operation::cancel:
 			return SETATTR_RET_ERROR;
 		}
 	}
@@ -147,7 +121,7 @@ int ESetFileCompression(const string& Name,int State,DWORD FileAttr,int SkipMode
 }
 
 
-int ESetFileEncryption(const string& Name, bool State, DWORD FileAttr, int SkipMode, int Silent)
+int ESetFileEncryption(const string& Name, bool State, DWORD FileAttr, bool SkipErrors, int Silent)
 {
 	if (((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0) == State)
 		return SETATTR_RET_OK;
@@ -168,17 +142,15 @@ int ESetFileEncryption(const string& Name, bool State, DWORD FileAttr, int SkipM
 
 		const auto ErrorState = error_state::fetch();
 
-		switch (SkipMode != -1? SkipMode : ShowErrorMessage(ErrorState, lng::MSetAttrEncryptedCannotFor, Name))
+		switch (SkipErrors? OperationFailed(ErrorState, Name, lng::MError, msg(lng::MSetAttrEncryptedCannotFor)) : operation::skip)
 		{
-		case response::retry:
+		case operation::retry:
 			break;
-		case response::skip:
+		case operation::skip:
 			return SETATTR_RET_SKIP;
-		case response::skip_all:
+		case operation::skip_all:
 			return SETATTR_RET_SKIPALL;
-		case -2:
-		case -1:
-		case response::cancel:
+		case operation::cancel:
 			return SETATTR_RET_ERROR;
 		}
 	}
@@ -187,7 +159,7 @@ int ESetFileEncryption(const string& Name, bool State, DWORD FileAttr, int SkipM
 }
 
 
-int ESetFileTime(const string& Name, const os::chrono::time_point* LastWriteTime, const os::chrono::time_point* CreationTime, const os::chrono::time_point* LastAccessTime, const os::chrono::time_point* ChangeTime, DWORD FileAttr, int SkipMode)
+int ESetFileTime(const string& Name, const os::chrono::time_point* LastWriteTime, const os::chrono::time_point* CreationTime, const os::chrono::time_point* LastAccessTime, const os::chrono::time_point* ChangeTime, DWORD FileAttr, bool SkipErrors)
 {
 	if (!LastWriteTime && !CreationTime && !LastAccessTime && !ChangeTime)
 		return SETATTR_RET_OK;
@@ -225,17 +197,15 @@ int ESetFileTime(const string& Name, const os::chrono::time_point* LastWriteTime
 		if (SetTime)
 			break;
 
-		switch (SkipMode != -1? SkipMode : ShowErrorMessage(ErrorState, lng::MSetAttrTimeCannotFor, Name))
+		switch (SkipErrors? OperationFailed(ErrorState, Name, lng::MError, msg(lng::MSetAttrTimeCannotFor)) : operation::skip)
 		{
-		case response::retry:
+		case operation::retry:
 			break;
-		case response::skip:
+		case operation::skip:
 			return SETATTR_RET_SKIP;
-		case response::skip_all:
+		case operation::skip_all:
 			return SETATTR_RET_SKIPALL;
-		case -2:
-		case -1:
-		case response::cancel:
+		case operation::cancel:
 			return SETATTR_RET_ERROR;
 		}
 	}
@@ -254,7 +224,7 @@ static bool SetFileSparse(const string& Name,bool State)
 	return File.IoControl(FSCTL_SET_SPARSE,&sb,sizeof(sb),nullptr,0,&BytesReturned,nullptr);
 }
 
-int ESetFileSparse(const string& Name,bool State,DWORD FileAttr,int SkipMode)
+int ESetFileSparse(const string& Name, bool State, DWORD FileAttr, bool SkipErrors)
 {
 	if (((FileAttr & FILE_ATTRIBUTE_SPARSE_FILE) != 0) == State || FileAttr & FILE_ATTRIBUTE_DIRECTORY)
 		return SETATTR_RET_OK;
@@ -272,17 +242,15 @@ int ESetFileSparse(const string& Name,bool State,DWORD FileAttr,int SkipMode)
 	{
 		const auto ErrorState = error_state::fetch();
 
-		switch (SkipMode != -1? SkipMode : ShowErrorMessage(ErrorState, lng::MSetAttrSparseCannotFor, Name))
+		switch (SkipErrors? OperationFailed(ErrorState, Name, lng::MError, msg(lng::MSetAttrSparseCannotFor)) : operation::skip)
 		{
-		case response::retry:
+		case operation::retry:
 			break;
-		case response::skip:
+		case operation::skip:
 			return SETATTR_RET_SKIP;
-		case response::skip_all:
+		case operation::skip_all:
 			return SETATTR_RET_SKIPALL;
-		case -2:
-		case -1:
-		case response::cancel:
+		case operation::cancel:
 			return SETATTR_RET_ERROR;
 		}
 	}
@@ -290,30 +258,28 @@ int ESetFileSparse(const string& Name,bool State,DWORD FileAttr,int SkipMode)
 	return SETATTR_RET_OK;
 }
 
-int ESetFileOwner(const string& Name, const string& Owner,int SkipMode)
+int ESetFileOwner(const string& Name, const string& Owner, bool SkipErrors)
 {
 	while (!SetFileOwner(Name, Owner))
 	{
 		const auto ErrorState = error_state::fetch();
 
-		switch (SkipMode != -1? SkipMode : ShowErrorMessage(ErrorState, lng::MSetAttrOwnerCannotFor, Name))
+		switch (SkipErrors? OperationFailed(ErrorState, Name, lng::MError, msg(lng::MSetAttrOwnerCannotFor)) : operation::skip)
 		{
-		case response::retry:
+		case operation::retry:
 			break;
-		case response::skip:
+		case operation::skip:
 			return SETATTR_RET_SKIP;
-		case response::skip_all:
+		case operation::skip_all:
 			return SETATTR_RET_SKIPALL;
-		case -2:
-		case -1:
-		case response::cancel:
+		case operation::cancel:
 			return SETATTR_RET_ERROR;
 		}
 	}
 	return SETATTR_RET_OK;
 }
 
-int EDeleteReparsePoint(const string& Name, DWORD FileAttr, int SkipMode)
+int EDeleteReparsePoint(const string& Name, DWORD FileAttr, bool SkipErrors)
 {
 	if (!(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
 		return SETATTR_RET_OK;
@@ -322,17 +288,15 @@ int EDeleteReparsePoint(const string& Name, DWORD FileAttr, int SkipMode)
 	{
 		const auto ErrorState = error_state::fetch();
 
-		switch (SkipMode != -1? SkipMode : ShowErrorMessage(ErrorState, lng::MSetAttrCannotFor, Name))
+		switch (SkipErrors? OperationFailed(ErrorState, Name, lng::MError, msg(lng::MSetAttrCannotFor)) : operation::skip)
 		{
-		case response::retry:
+		case operation::retry:
 			break;
-		case response::skip:
+		case operation::skip:
 			return SETATTR_RET_SKIP;
-		case response::skip_all:
+		case operation::skip_all:
 			return SETATTR_RET_SKIPALL;
-		case -2:
-		case -1:
-		case response::cancel:
+		case operation::cancel:
 			return SETATTR_RET_ERROR;
 		}
 	}

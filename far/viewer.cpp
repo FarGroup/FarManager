@@ -311,28 +311,27 @@ bool Viewer::OpenFile(const string& Name,int warning)
 	}
 	else
 	{
-		// BUGBUG check result
-		(void)ViewFile.Open(strFileName, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING);
+		for (;;)
+		{
+			if (ViewFile.Open(strFileName, FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
+				break;
+
+			/* $ 04.07.2000 tran
+			   + 'warning' flag processing, in QuickView it is FALSE
+				 so don't show red message box */
+			if (warning)
+			{
+				const auto ErrorState = error_state::fetch();
+
+				if (OperationFailed(ErrorState, strFileName, lng::MViewerTitle, msg(lng::MViewerCannotOpenFile), false) == operation::retry)
+					continue;
+			}
+
+			OpenFailed = true;
+			return false;
+		}
 	}
 
-	if (!ViewFile)
-	{
-		/* $ 04.07.2000 tran
-		   + 'warning' flag processing, in QuickView it is FALSE
-		     so don't show red message box */
-		if (warning)
-		{
-			Message(MSG_WARNING, error_state::fetch(),
-				msg(lng::MViewerTitle),
-				{
-					msg(lng::MViewerCannotOpenFile),
-					strFileName
-				},
-				{ lng::MOk });
-		}
-		OpenFailed=true;
-		return false;
-	}
 	Reader.AdjustAlignment();
 
 	strFullFileName = ConvertNameToFull(strFileName);

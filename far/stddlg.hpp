@@ -149,10 +149,10 @@ enum class operation
 	retry,
 	skip,
 	skip_all,
-	cancel,
+	cancel
 };
 
-operation OperationFailed(const error_state_ex& ErrorState, string Object, lng Title, string Description, bool AllowSkip = true);
+operation OperationFailed(const error_state_ex& ErrorState, string Object, lng Title, string Description, bool AllowSkip = true, bool AllowSkipAll = true);
 
 void ReCompileErrorMessage(const RegExp& re, const string& str);
 void ReMatchErrorMessage(const RegExp& re);

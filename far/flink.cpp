@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "elevation.hpp"
 #include "cvtname.hpp"
 #include "global.hpp"
+#include "stddlg.hpp"
 
 #include "platform.fs.hpp"
 #include "platform.security.hpp"
@@ -336,23 +337,23 @@ int GetNumberOfLinks(const string& Name, bool negative_if_error)
 	return bhfi.nNumberOfLinks;
 }
 
-int MkHardLink(const string& ExistingName,const string& NewName, bool Silent)
+bool MkHardLink(const string& ExistingName,const string& NewName, bool Silent)
 {
-	const auto Result = os::fs::create_hard_link(NewName, ExistingName, nullptr);
-
-	if (!Result && !Silent)
+	for (;;)
 	{
+		if (os::fs::create_hard_link(NewName, ExistingName, nullptr))
+			return true;
+
+		if (Silent)
+			return false;
+
 		const auto ErrorState = error_state::fetch();
 
-		Message(MSG_WARNING, ErrorState,
-			msg(lng::MError),
-			{
-				msg(lng::MCopyCannotCreateLink),
-				NewName
-			},
-			{ lng::MOk });
+		if (OperationFailed(ErrorState, NewName, lng::MError, msg(lng::MCopyCannotCreateLink), false) != operation::retry)
+			break;
 	}
-	return Result;
+
+	return false;
 }
 
 bool EnumStreams(const string& FileName, unsigned long long& StreamsSize, DWORD& StreamsCount)
