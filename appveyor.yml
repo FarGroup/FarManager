@@ -159,8 +159,10 @@ after_build:
   - copy /Y enc\build\lua\macroapi_manual.ru\macroapi_manual.ru.chm ci\%configuration%.%platform%\Encyclopedia
   #copy misc docs and addons
   - xcopy /e /q /y /k extra\* ci\%configuration%.%platform%\
-  #archive 
+  #test & archive 
   - cd ci\%configuration%.%platform%
+  #Run macrotest.lua, on failure %ERRORLEVEL% is non zero
+  - Far.exe "lua:far.MacroPost([=[R=win.GetEnv('FARHOME');R=R or os.exit(1); R=R..[[\Plugins\LuaMacro\macrotest.lua]]; R=loadfile(R);R=R or os.exit(2); OK,R=pcall(R);OK=OK or os.exit(3); OK,R=pcall(R.test_all);os.exit(OK and 0 or 4);]=],nil,'CtrlShiftF12')"
   #set NAME_PREFIX variable as otherwise it is not available when artifacts are collected
   - set NAME_PREFIX="Far%NAME_ADD%.%platform%.%appveyor_build_version%.%APPVEYOR_REPO_COMMIT%"
   - appveyor SetVariable -Name NAME_PREFIX -Value "%NAME_PREFIX%"
