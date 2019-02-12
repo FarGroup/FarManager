@@ -3002,8 +3002,8 @@ SEARCHER_RESULT Viewer::search_text_forward(search_data* sd)
 		 || (slen > 2 && !std::equal(buff + i + 2, buff + i + slen, search_str + 2))
 		) continue;
 
-		sd->MatchPos = cpos + GetStrBytesNum({ t_buff, static_cast<size_t>(i) });
-		sd->search_len = GetStrBytesNum({ t_buff + i, static_cast<size_t>(slen) });
+		sd->MatchPos = cpos + GetStrBytesNum({ buff, static_cast<size_t>(i) });
+		sd->search_len = GetStrBytesNum({ buff + i, static_cast<size_t>(slen) });
 		return Search_Found;
 	}
 
@@ -3600,16 +3600,28 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 
 	if ( sd.MatchPos >= 0 )
 	{
-		SelectText(sd.MatchPos, sd.search_len, ReverseSearch?0x2:0);
-		LastSelectSize = SelectSize;
+		DWORD flags = ReverseSearch ? 0x2 : 0;
 
-		// Покажем найденное на расстоянии четверти экрана от верха.
-		int FromTop=(ScrY-(Global->Opt->ViOpt.ShowKeyBar?2:1))/4;
+		if (sd.search_len < 0
+		 || (sd.MatchPos >= BegOfScreen() && sd.MatchPos + sd.search_len <= EndOfScreen(0)))
+		{
+			SelectPos = sd.MatchPos;
+			SelectSize = LastSelectSize = sd.search_len;
+			SelectFlags = flags;
+		}
+		else
+		{
+			SelectText(sd.MatchPos, sd.search_len, flags);
+			LastSelectSize = SelectSize;
 
-		if (FromTop<0 || FromTop>ScrY)
-			FromTop=0;
+			// Покажем найденное на расстоянии четверти экрана от верха.
+			int FromTop = (ScrY - (Global->Opt->ViOpt.ShowKeyBar ? 2 : 1)) / 4;
 
-		Up(FromTop, false);
+			if (FromTop<0 || FromTop>ScrY)
+				FromTop = 0;
+
+			Up(FromTop, false);
+		}
 
 		AdjustSelPosition = true;
 		Show();
