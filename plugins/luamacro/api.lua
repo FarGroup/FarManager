@@ -562,7 +562,7 @@ end
 function mf.mload (key, name, location)
   checkarg(key, 1, "string")
   checkarg(name, 2, "string")
-  local val, err = nil, nil
+  local val, err, ok = nil, nil, nil
   local obj = far.CreateSettings(nil, location=="local" and "PSL_LOCAL" or "PSL_ROAMING")
   if obj then
     local subkey = obj:OpenSubkey(0, key)
@@ -570,7 +570,13 @@ function mf.mload (key, name, location)
       local chunk = obj:Get(subkey, name, F.FST_DATA)
       if chunk then
         val, err = loadstring(chunk)
-        if val then val=val(); end
+        if val then
+          setfenv(val, { bit64=bit64; setmetatable=setmetatable; })
+          ok, val = pcall(val)
+          if not ok then
+            val, err = nil, val
+          end
+        end
       else
         err = "method Get() failed"
       end
