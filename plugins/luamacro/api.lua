@@ -568,8 +568,11 @@ function mf.mload (key, name, location)
     local subkey = obj:OpenSubkey(0, key)
     if subkey then
       local chunk = obj:Get(subkey, name, F.FST_DATA)
-      if chunk then val = assert(loadstring(chunk))()
-      else err = "method Get() failed"
+      if chunk then
+        val, err = loadstring(chunk)
+        if val then val=val(); end
+      else
+        err = "method Get() failed"
       end
     else
       err = "method OpenSubkey() failed"
