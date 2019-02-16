@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "global.hpp"
 #include "colormix.hpp"
+#include "eol.hpp"
 
 monitored<bool> Grabber::m_StreamSelection;
 
@@ -122,6 +123,7 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 	Line.reserve(CharBuf.width());
 
 	const auto& Selection = GetSelection();
+	const auto Eol = eol::str(eol::system());
 
 	for (size_t i = 0; i != CharBuf.height(); ++i)
 	{
@@ -157,7 +159,7 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 
 		if (AddEol)
 		{
-			CopyBuf += L"\r\n"s;
+			CopyBuf += Eol;
 		}
 	}
 
@@ -172,7 +174,7 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 			{
 				if (!OldData.empty() && OldData.back() != L'\n')
 				{
-					OldData += L"\r\n"s;
+					OldData += Eol;
 				}
 				CopyBuf.insert(0, OldData);
 			}

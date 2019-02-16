@@ -138,7 +138,7 @@ static void EnsureLuaCpuCompatibility()
 
 	static os::rtdl::module LuaModule(path::join(Global->g_strFarPath, L"legacy"sv, L"lua51.dll"sv));
 	// modules are lazy loaded
-	LuaModule.operator bool();
+	(void)LuaModule.operator bool();
 #endif
 }
 

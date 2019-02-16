@@ -276,7 +276,7 @@ bool CmpName(string_view pattern, string_view str, const bool skippath, const bo
 			if (patternc != stringc)
 			{
 				if (patternc==L'.' && !stringc && !CmpNameSearchMode)
-					return pattern[0] != L'.' && CmpName(pattern, str, true, CmpNameSearchMode);
+					return !starts_with(pattern, L'.') && CmpName(pattern, str, true, CmpNameSearchMode);
 
 				return false;
 			}

@@ -51,7 +51,7 @@ public:
 	filemasks(filemasks&&) noexcept;
 	filemasks& operator=(filemasks&&) noexcept;
 
-	bool Set(const string& Masks, DWORD Flags = 0);
+	bool Set(string_view Masks, DWORD Flags = 0);
 	bool Compare(string_view Name) const;
 	bool empty() const;
 

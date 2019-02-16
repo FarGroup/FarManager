@@ -3,6 +3,18 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 16.02.2019 21:38:09 +0000 - build 5365
+
+1. Refactoring.
+
+w17 12.02.2019 18:22:53 +0300 - build 5364
+
+1. M#3695: Excessive movements during search
+
+svs 12.02.2019 09:12:09 +0300 - build 5363
+
+1. SQLite 3.27.1
+
 drkns 10.02.2019 23:17:26 +0000 - build 5362
 
 1. Continuation of 2493.

@@ -39,6 +39,11 @@ static const auto
 	mac_s = L"\r"sv,         // Mac
 	bad_win_s = L"\r\r\n"sv; // result of <CR><LF> text mode conversion
 
+eol::type eol::system()
+{
+	return type::win;
+}
+
 string_view eol::str(type const Value)
 {
 	switch (Value)

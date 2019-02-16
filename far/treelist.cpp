@@ -752,11 +752,12 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 			std::ostream Stream(&StreamBuffer);
 			Stream.exceptions(Stream.badbit | Stream.failbit);
 			encoding::writer Writer(Stream, CP_UNICODE, false);
+			const auto Eol = eol::str(eol::system());
 
 			for (const auto& i: Container)
 			{
 				Writer.write(string_view(i).substr(offset));
-				Writer.write(L"\n"sv);
+				Writer.write(Eol);
 			}
 
 			Stream.flush();

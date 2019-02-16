@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "console.hpp"
 #include "encoding.hpp"
+#include "eol.hpp"
 
 #include "common/enum_substrings.hpp"
 #include "common/singleton.hpp"
@@ -398,19 +399,21 @@ bool clipboard::GetHDROPAsText(string& data) const
 
 	const auto StartA=reinterpret_cast<const char*>(Files.get()) + Files->pFiles;
 
+	const auto Eol = eol::str(eol::system());
 	if (Files->fWide)
 	{
 		const auto Start = reinterpret_cast<const wchar_t*>(StartA);
+
 		for (const auto& i: enum_substrings(Start))
 		{
-			append(data, i, L"\r\n"sv);
+			append(data, i, Eol);
 		}
 	}
 	else
 	{
 		for (const auto& i: enum_substrings(StartA))
 		{
-			append(data, encoding::ansi::get_chars(i), L"\r\n"sv);
+			append(data, encoding::ansi::get_chars(i), Eol);
 		}
 	}
 

@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "strmix.hpp"
 #include "global.hpp"
+#include "eol.hpp"
 
 #include "format.hpp"
 
@@ -267,11 +268,12 @@ void Message::Init(
 
 	MaxLength = std::min(MaxLength, MAX_MESSAGE_WIDTH);
 
+	const auto Eol = eol::str(eol::system());
 	for (const auto& i : Strings)
 	{
-		append(strClipText, i, L"\r\n"sv);
+		append(strClipText, i, Eol);
 	}
-	append(strClipText, L"\r\n"sv);
+	append(strClipText, Eol);
 
 	if (!strErrStr.empty())
 	{

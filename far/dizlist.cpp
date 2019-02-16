@@ -342,6 +342,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 				std::ostream Stream(&StreamBuffer);
 				Stream.exceptions(Stream.badbit | Stream.failbit);
 				encoding::writer Writer(Stream, Global->Opt->Diz.SaveInUTF? CP_UTF8 : Global->Opt->Diz.AnsiByDefault? CP_ACP : CP_OEMCP);
+				const auto Eol = eol::str(eol::type::win);
 
 				for (const auto& i_ptr : m_OrderForWrite)
 				{
@@ -352,7 +353,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 					for (const auto& Description : i.second)
 					{
 						Writer.write(Description);
-						Writer.write(L"\r\n"sv);
+						Writer.write(Eol);
 					}
 				}
 

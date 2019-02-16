@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.env.hpp"
 
 #include "common/enum_tokens.hpp"
+#include "common/test.hpp"
 
 static const wchar_t ExcludeMaskSeparator = L'|';
 static const wchar_t RE_start = L'/', RE_end = L'/';
@@ -96,7 +97,7 @@ filemasks::~filemasks() = default;
 filemasks::filemasks(filemasks&&) noexcept = default;
 filemasks& filemasks::operator=(filemasks&&) noexcept = default;
 
-bool filemasks::Set(const string& Masks, DWORD Flags)
+bool filemasks::Set(string_view const Masks, DWORD Flags)
 {
 	if (Masks.empty())
 		return false;
@@ -105,7 +106,7 @@ bool filemasks::Set(const string& Masks, DWORD Flags)
 
 	clear();
 
-	auto ExpMasks = Masks;
+	string ExpMasks(Masks);
 	std::unordered_set<string> UsedGroups;
 	size_t LBPos, RBPos;
 	string MaskGroupValue;
@@ -364,3 +365,34 @@ bool filemasks::masks::empty() const
 {
 	return m_Regex? m_Match.empty() : m_Masks.empty();
 }
+
+#ifdef _DEBUG
+static void TestMasks()
+{
+	struct
+	{
+		string_view Mask, Test;
+		bool Match;
+	}
+	Tests[]
+	{
+		{ L".."sv, L"."sv, false },
+		{ L".."sv, L".."sv, true },
+		{ L"*.ext"sv, L"file.ext"sv, true },
+		{ L"*.ex*"sv, L"file.ext"sv, true },
+		{ L"*.e?t"sv, L"file.est"sv, true },
+		{ L"*.ext"sv, L"file.bin"sv, false },
+	};
+
+	filemasks Masks;
+
+	for (const auto &i: Tests)
+	{
+		EXPECT_TRUE(Masks.Set(i.Mask, FMF_SILENT));
+		EXPECT_EQ(i.Match, Masks.Compare(i.Test));
+	}
+}
+#endif
+
+SELF_TEST(TestMasks)
+

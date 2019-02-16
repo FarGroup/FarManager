@@ -4360,10 +4360,11 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 		Global->CtrlObject->Plugins->GetOpenPanelInfo(GetPluginHandle(), &m_CachedOpenPanelInfo);
 	}
 
+	const auto Eol = eol::str(eol::system());
 	for (const auto& i: enum_selected())
 	{
 		if (!CopyData.empty())
-			append(CopyData, L"\r\n"sv);
+			append(CopyData, Eol);
 
 		auto strQuotedName = m_ShowShortNames? i.AlternateFileName() : i.FileName;
 

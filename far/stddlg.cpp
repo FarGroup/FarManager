@@ -728,7 +728,7 @@ void ReCompileErrorMessage(const RegExp& re, const string& str)
 		{
 			GetReErrorString(re.LastError()),
 			str,
-			string(re.ErrorPosition(), L' ') + L'^'
+			string(re.ErrorPosition(), L' ') + L'↑'
 		},
 		{ lng::MOk });
 }
@@ -750,7 +750,7 @@ static void GetRowCol(const string& Str, bool Hex, goto_coord& Row, goto_coord& 
 {
 	const auto& Parse = [Hex](string Part, goto_coord& Dest)
 	{
-		Part.resize(std::remove(ALL_RANGE(Part), L' ') - Part.begin());
+		inplace::erase_all(Part, L' ');
 
 		if (Part.empty())
 			return;

@@ -226,7 +226,7 @@ SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const bytes_view& Value, bo
 	return *this;
 }
 
-sqlite::sqlite3 * SQLiteDb::SQLiteStmt::db() const
+sqlite::sqlite3* SQLiteDb::SQLiteStmt::db() const
 {
 	return sqlite::sqlite3_db_handle(m_Stmt.get());
 }

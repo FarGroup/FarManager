@@ -145,7 +145,7 @@ private:
 template<>
 struct std::hash<UUID>
 {
-	size_t operator()(const UUID& Value) const
+	size_t operator()(const UUID& Value) const noexcept
 	{
 		RPC_STATUS Status;
 		return UuidHash(const_cast<UUID*>(&Value), &Status);
@@ -153,7 +153,5 @@ struct std::hash<UUID>
 };
 
 void ReloadEnvironment();
-
-unsigned int CRC32(unsigned int crc, const void* buffer, size_t size);
 
 #endif // MIX_HPP_67869A41_F20D_4C95_86E1_4D598A356EE1

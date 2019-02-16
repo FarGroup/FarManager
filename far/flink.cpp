@@ -230,7 +230,7 @@ bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointT
 			case RP_VOLMOUNT:
 			{
 				const auto strPrintName = ConvertNameToFull(Target);
-				auto strSubstituteName = KernelPath(NTPath(strPrintName));
+				const auto strSubstituteName = KernelPath(NTPath(strPrintName));
 				block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
 				rdb->ReparseTag=IO_REPARSE_TAG_MOUNT_POINT;
 
@@ -395,7 +395,7 @@ bool GetSubstName(int DriveType,const string& DeviceName, string &strTargetPath)
 	0 - если установлен, то опрашивать сменные диски
 	1 - если установлен, то опрашивать все остальные
 	*/
-	bool DriveRemovable = (DriveType==DRIVE_REMOVABLE || DriveType==DRIVE_CDROM);
+	const auto DriveRemovable = DriveType == DRIVE_REMOVABLE || DriveType == DRIVE_CDROM;
 
 	if (DriveType==DRIVE_NOT_INIT || (((Global->Opt->SubstNameRule & 1) || !DriveRemovable) && ((Global->Opt->SubstNameRule & 2) || DriveRemovable)))
 	{
@@ -453,10 +453,8 @@ bool GetVHDInfo(const string& DeviceName, string &strVolumePath, VIRTUAL_STORAGE
 	if(StorageType)
 		*StorageType = StorageDependencyInfo->Version2Entries[0].VirtualStorageType;
 
-	strVolumePath = StorageDependencyInfo->Version2Entries[0].HostVolumeName;
-	strVolumePath += StorageDependencyInfo->Version2Entries[0].DependentVolumeRelativePath;
 	// trick: ConvertNameToReal also converts \\?\{GUID} to drive letter, if possible.
-	strVolumePath = ConvertNameToReal(strVolumePath);
+	strVolumePath = ConvertNameToReal(concat(StorageDependencyInfo->Version2Entries[0].HostVolumeName, StorageDependencyInfo->Version2Entries[0].DependentVolumeRelativePath));
 
 	return true;
 }

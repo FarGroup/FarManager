@@ -268,32 +268,21 @@ SetAutocomplete::~SetAutocomplete()
 
 void ReloadEnvironment()
 {
-	// these are handled incorrectly by CreateEnvironmentBlock
-	std::vector<string_view> PreservedNames =
-	{
-		L"USERDOMAIN"sv, // absent
-		L"USERNAME"sv, //absent
-	};
+	std::vector<std::pair<string_view, string>> PreservedVariables;
 
-#ifndef _WIN64
 	if (os::IsWow64Process())
 	{
-		PreservedNames.emplace_back(L"PROCESSOR_ARCHITECTURE"sv); // Incorrect under WOW64
+		PreservedVariables.emplace_back(L"PROCESSOR_ARCHITECTURE"sv, L""s); // Incorrect under WOW64
 	}
-#endif
 
-	std::vector<std::pair<string_view, string>> PreservedVariables;
-	PreservedVariables.reserve(std::size(PreservedNames));
-
-	std::transform(ALL_CONST_RANGE(PreservedNames), std::back_inserter(PreservedVariables), [](string_view const i)
+	for (auto& i: PreservedVariables)
 	{
-		return std::make_pair(i, os::env::get(i));
-	});
+		i.second = os::env::get(i.first);
+	}
 
 	{
 		const os::env::provider::block EnvBlock;
-		const auto EnvBlockPtr = EnvBlock.data();
-		for (const auto& i: enum_substrings(EnvBlockPtr))
+		for (const auto& i: enum_substrings(EnvBlock.data()))
 		{
 			const auto Data = split_name_value(i);
 			os::env::set(Data.first, Data.second);
@@ -304,33 +293,4 @@ void ReloadEnvironment()
 	{
 		os::env::set(i.first, i.second);
 	}
-}
-
-unsigned int CRC32(unsigned int crc, const void* buffer, size_t size)
-{
-	static unsigned int crc_table[256];
-
-	if (!crc_table[1])
-	{
-		for (unsigned int n = 0; n < 256; ++n)
-		{
-			unsigned int c = n;
-
-			for (unsigned int k = 0; k < 8; k++)
-				c = (c >> 1) ^ (c & 1 ? 0xedb88320L : 0);
-
-			crc_table[n] = c;
-		}
-	}
-
-	crc = crc ^ ~0u;
-
-	auto buf = static_cast<const unsigned char*>(buffer);
-
-	while (size--)
-	{
-		crc = crc_table[(crc ^ (*buf++)) & 0xff] ^ (crc >> 8);
-	}
-
-	return crc ^ ~0u;
 }

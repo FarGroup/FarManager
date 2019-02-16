@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "message.hpp"
 #include "fastfind.hpp"
+#include "eol.hpp"
 
 #include "platform.env.hpp"
 
@@ -446,6 +447,7 @@ bool Panel::MakeListFile(string& ListFileName, bool ShortNames, string_view cons
 			std::ostream Stream(&StreamBuffer);
 			Stream.exceptions(Stream.badbit | Stream.failbit);
 			encoding::writer Writer(Stream, CodePage);
+			const auto Eol = eol::str(eol::system());
 
 			for (const auto& i: enum_selected())
 			{
@@ -454,7 +456,7 @@ bool Panel::MakeListFile(string& ListFileName, bool ShortNames, string_view cons
 				transform(Name);
 
 				Writer.write(Name);
-				Writer.write(L"\r\n"sv);
+				Writer.write(Eol);
 			}
 
 			Stream.flush();

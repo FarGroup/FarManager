@@ -46,6 +46,8 @@ public:
 		bad_win,  // <CR><CR><LF>  \r\r\n
 	};
 
+	static type system();
+
 	static string_view str(type Value);
 	static type parse(string_view Value);
 };

@@ -244,10 +244,15 @@ namespace inplace
 		return Str.size() < Size? pad_left(Str, Size) : cut_right(Str, Size);
 	}
 
+	inline auto& erase_all(string& Str, wchar_t Char)
+	{
+		Str.erase(std::remove(ALL_RANGE(Str), Char), Str.end());
+		return Str;
+	}
+
 	inline auto& unquote(string& Str)
 	{
-		Str.erase(std::remove(ALL_RANGE(Str), L'"'), Str.end());
-		return Str;
+		return erase_all(Str, L'"');
 	}
 
 	inline auto& quote(string& Str)
@@ -373,6 +378,12 @@ inline auto fit_to_center(string Str, size_t Size)
 inline auto fit_to_right(string Str, size_t Size)
 {
 	return inplace::fit_to_right(Str, Size);
+}
+
+[[nodiscard]]
+inline auto erase_all(string Str, wchar_t Char)
+{
+	return inplace::erase_all(Str, Char);
 }
 
 [[nodiscard]]

@@ -133,7 +133,8 @@ struct UserMenu::UserMenuItem
 static string SerializeMenu(const UserMenu::menu_container& Menu)
 {
 	string Result;
-	const auto Eol = eol::str(eol::type::win);
+	const auto Eol = eol::str(eol::system());
+
 	for (const auto& i: Menu)
 	{
 		auto HotkeyStr = pad_right(i.strHotKey + L':', 5);
@@ -249,7 +250,7 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 	if (!m_MenuModified)
 		return;
 
-	DWORD FileAttr=os::fs::get_file_attributes(MenuFileName);
+	const auto FileAttr = os::fs::get_file_attributes(MenuFileName);
 
 	if (FileAttr != INVALID_FILE_ATTRIBUTES)
 	{
