@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+MZK 24.02.2019 16:26:04 -0800
+
+1. Revised @Viewer help page, both English and Russian
+
 drkns 24.02.2019 02:23:08 +0000 - build 5369
 
 1. Switching from editor to viewer didn't work in UTF-8 files due to a typo in 5345.

@@ -549,9 +549,9 @@ $ #Panel control commands - service commands#
 
   Show ~user menu~@UserMenu@                                                  #F2#
 
-  View                                   #Ctrl+Shift+F3, Numpad 5, F3#
+  View                                   #Ctrl+Shift+F3, Numpad5, F3#
 
-    If pressed on a file, #Numpad 5# and #F3# invoke ~internal~@Viewer@,
+    If pressed on a file, #Numpad5# and #F3# invoke ~internal~@Viewer@,
 external or ~associated~@FileAssoc@ viewer, depending upon the file type and
 ~external viewer settings~@ViewerSettings@.
     #Ctrl+Shift+F3# always calls internal viewer ignoring file associations.
@@ -1527,7 +1527,7 @@ $ #Menus: options menu#
 
    #Editor settings#       External and internal ~editor settings~@EditorSettings@.
 
-   #Code pages#            Shows ~Code pages~@CodePagesMenu@ menu.
+   #Code pages#            Shows the ~Code pages~@CodePagesMenu@ menu.
 
 
    #Colors#                Allows to select colors for different
@@ -1841,9 +1841,9 @@ actions.
 
     During or after search you can view or edit found files.
 
-   View                          #F3, Alt+F3, Numpad 5, Ctrl+Shift+F3#
+   View                          #F3, Alt+F3, Numpad5, Ctrl+Shift+F3#
 
-    #F3#, #Alt+F3# or #NumPad 5# invokes ~internal~@Viewer@, external or ~associated ~@FileAssoc@ viewer,
+    #F3#, #Alt+F3# or #Numpad5# invokes ~internal~@Viewer@, external or ~associated ~@FileAssoc@ viewer,
 depending on file type and ~viewer settings~@ViewerSettings@.
     #Ctrl+Shift+F3# always invokes internal viewer regardless of file associations.
 
@@ -2049,7 +2049,7 @@ shortcuts are available:
   Open a file in the ~editor~@Editor@                                        #F4#
 
   Open a file in the ~viewer~@Viewer@                                        #F3#
-                                                          or #Numpad 5#
+                                                          or #Numpad5#
 
     Items of the view and edit history are moved to the end of the list after
 they are selected. You can use #Shift+Enter# to select an item without changing
@@ -2799,95 +2799,244 @@ saved path.
 
 @Viewer
 $ #Viewer: control keys#
-   Viewer commands
+  Navigation keys
 
-    #Left#               Character left
-    #Right#              Character right
-    #Up#                 Line up
-    #Down#               Line down
-    #Ctrl+Left#          20 characters left
-                       In Hex-mode - 1 position left
-    #Ctrl+Right#         20 characters right
-                       In Hex-mode - 1 position right
-    #PgUp#               Page up
-    #PgDn#               Page down
-    #Ctrl+Shift+Left#    Start of lines on the screen
-    #Ctrl+Shift+Right#   End of lines on the screen
-    #Home, Ctrl+Home#    Start of file
-    #End, Ctrl+End#      End of file
+  The behavior of navigation keys depends on the ~view mode~@ViewerMode@.
 
-    #F1#                 Help
-    #F2#                 Toggle line wrap/unwrap
-    #Shift+F2#           Toggle wrap type (letters/words)
-    #F4#                 Toggle text/hex or dump/hex mode
-    #Shift+F4#           Select viewer mode (text/hex/dump)
-    #F6#                 Switch to ~editor~@Editor@
-    #F7#                 ~Search~@ViewerSearch@
-    #Shift+F7, Space#    Continue search
-    #Alt+F7#             Continue search in "reverse" mode
-    #F8#                 Toggle OEM/ANSI code page
-    #Shift+F8#           Select code page
-    #Alt+F8#             ~Change current position~@ViewerGotoPos@
-    #Alt+F9#             Toggles the size of the Far console window
-    #Alt+Shift+F9#       Call ~Viewer settings~@ViewerSettings@ dialog
-    #Numpad5,F3,F10,Esc# Quit
-    #Ctrl+F10#           Position to the current file.
-    #F11#                Call "~Plugin commands~@Plugins@" menu
-    #Alt+F11#            Display ~view history~@HistoryViews@
-    #Gray +#             Go to next file
-    #Gray -#             Go to previous file
-    #Ctrl+O#             Show user screen
-    #Ctrl+Alt+Shift#     Temporarily show user screen
-                       (as long as these keys are held down)
-    #Ctrl+B#             Show/Hide functional key bar at the bottom
-                       line.
-    #Ctrl+Shift+B#       Show/Hide status line
-    #Ctrl+S#             Show/Hide the scrollbar.
-    #Alt+BS, Ctrl+Z#     Undo position change
-    #RightCtrl+0..9#     Set a bookmark 0..9 at the current position
-    #Ctrl+Shift+0..9#    Set a bookmark 0..9 at the current position
-    #LeftCtrl+0..9#      Go to bookmark 0..9
+  The following keys work in all modes:
 
-    #Ctrl+Ins, Ctrl+C#   Copy the text highlighted as a result of
-                       the search or manual selection to the clipboard.
-    #Ctrl+U#             Remove the highlighting of the selected text.
-    #Shift+Mouse click#  Manual text selection.
-                       If the mouse cursor is over the text, the first
-                       click marks the start of the selection and the
-                       second click marks the end of the selection. Use
-                       navigation keys after the first click to bring
-                       the end position into the view. The end position
-                       may be set earlier than the start.
+    #Up#
+    Line up
 
-    See also the list of ~macro keys~@KeyMacroViewerList@, available in the viewer.
+    #Down#
+    Line down
 
-    Notes:
+    #PgUp#
+    Screenful up
 
-    1. ^<wrap>To open the ~search~@ViewerSearch@ dialog you also can
-just start typing the search pattern.
+    #PgDn#
+    Screenful down
 
-    2. ^<wrap>The viewer opens a file with the permission to be deleted
-by other processes. If the file is deleted while it is still open in the
-viewer, the file will actually be deleted only after closing the viewer.
-However, any operations on such a file will fail. This is a feature
-of Windows operating system.
+    #Home#, #Ctrl+Home#
+    Beginning of the file
 
-    3. ^<wrap>The maximum number of columns displayed in the viewer can
-be configured in the ~settings~@ViewerSettings@ dialog. The range
-is from 100 to 100,000, the default is 10,000. Lines longer than the
-maximum will be split into several lines, even if word wrap mode
-is turned off.
+    #End#, #Ctrl+End#
+    End of the file
 
-    4. ^<wrap>Far starts ~searching~@ViewerSearch@ for the string (#F7#)
-from the beginning of the currently visible file part.
+  The following additional keys work in #text mode without line wrap#:
 
-    5. ^<wrap>To auto-scroll a file that is being appended by another
-process (comp. Linux “tail”), set the current position to the end of the
-file (press the #End# key).
+    #Left#
+    One column left
 
+    #Right#
+    One column right
+
+    #Ctrl+Left#
+    20 columns left
+
+    #Ctrl+Right#
+    20 columns right
+
+    #Ctrl+Shift+Left#
+    Show the leftmost column
+
+    #Ctrl+Shift+Right#
+    Show the rightmost column of all lines currently visible on the screen
+
+  The following additional keys work in #hex# and #dump# modes:
+
+    #Ctrl+Left#
+    Shift the content within the window to the right one byte at a time
+
+    #Ctrl+Right#
+    Shift the content within the window to the left one byte at a time
+
+  Viewer commands
+
+    #F1#
+    Help
+
+    #F2#
+    Toggle line wrap/unwrap in #text# mode, or change ~view mode~@ViewerMode@
+
+    #Shift+F2#
+    Toggle wrap type (characters or words) in #text# ~view mode~@ViewerMode@
+
+    #F4#
+    Toggle ~view mode~@ViewerMode@ to #hex# and back
+
+    #Shift+F4#
+    Select ~view mode~@ViewerMode@: #text#, #hex#, or #dump#
+
+    #F6#
+    Switch to ~editor~@Editor@
+
+    #F7#
+    ~Search~@ViewerSearch@
+
+    #Shift+F7#, #Space#
+    Continue search
+
+    #Alt+F7#
+    Continue search in reverse direction
+
+    #F8#
+    Switch between OEM and ANSI code pages
+
+    #Shift+F8#
+    Select code page using the ~Code pages~@CodePagesMenu@ menu
+
+    #Alt+F8#
+    ~Change current position~@ViewerGotoPos@
+
+    #Alt+F9#
+    Maximize or restore the size of the Far console window; see also
+~Interface.AltF9~@Interface.AltF9@
+
+    #Alt+Shift+F9#
+    Open ~Viewer settings~@ViewerSettings@ dialog
+
+    #Numpad5#, #F3#, #F10#, #Esc#
+    Quit viewer
+
+    #Ctrl+F10#
+    Jump to the current file on the active file panel
+
+    #F11#
+    Open ~Plugin commands~@Plugins@ menu
+
+    #Alt+F11#
+    Display view and edit ~history~@HistoryViews@
+
+    #Gray +#
+    View the next file on the active file panel
+
+    #Gray -#
+    View the previous file on the active file panel
+
+    #Ctrl+O#
+    Show user screen
+
+    #Ctrl+Alt+Shift#
+    Temporarily show user screen (while the key combination is held down)
+
+    #Ctrl+B#
+    Toggle functional key bar at the bottom of the screen
+
+    #Ctrl+Shift+B#
+    Toggle status line
+
+    #Ctrl+S#
+    Toggle the scrollbar
+
+    #Alt+BS#, #Ctrl+Z#
+    Undo position change
+
+    #RightCtrl+0..9#, #Ctrl+Shift+0..9#
+    Set bookmark 0..9 at the current position
+
+    #LeftCtrl+0..9#
+    Go to bookmark 0..9
+
+    #Ctrl+Ins#, #Ctrl+C#
+    Copy the selected text to the clipboard. The text can be selected
+manually or as the result of a ~search~@ViewerSearch@.
+
+    #Ctrl+U#
+    Unselect the text
+
+    #Shift+Mouse click#
+    Select text manually. The first mouse click indicates the beginning
+of the selected area; the second click indicates the end. Use navigation
+keys after the first click to bring the end position into the view. The
+end of the selected area may be set before or after the beginning in the
+text.
+
+  See also the list of ~macro keys~@KeyMacroViewerList@ available in the viewer.
+
+  Notes:
+
+    1. ^<wrap>Start typing the search pattern to open the
+~search~@ViewerSearch@ dialog.
+
+    2. ^<wrap>The viewer opens files with the permission to be deleted.
+If another process attempts to delete the file while it is open in the
+viewer, the file will be deleted after the viewer is closed. Any
+operation on a file while its deletion is pending will fail. This is
+a feature of the Windows operating system.
+
+    3. ^<wrap>The maximum number of columns displayed in the #text#
+~view mode~@ViewerMode@ can be configured in the
+~settings~@ViewerSettings@ dialog. The range is between 100 to 100,000,
+the default is 10,000. Lines longer than the maximum will be split into
+several lines even if word wrap mode is turned off.
+
+    4. ^<wrap>Far starts ~searching~@ViewerSearch@ (#F7#) from the
+beginning of the currently visible area.
+
+    5. ^<wrap>To auto-scroll a file which is being appended by another
+process (conf. Linux “tail”), go to the end of the file (press the #End#
+key).
 
 @ViewerMode
-...
+$ #Viewer: view modes#
+    В программе просмотра предусмотрено три режима отображения содержимого просматриваемого файла: 
+#Текст#, #Код# и #Дамп#. При открытии файла, если включено сохранение режима просмотра
+и открываемый файл в истории есть - выбирается последний использованный режим.
+В противном случае, если включена ~опция~@ViewerSettings@ #Автовыбор дамп режима просмотра#
+и Far считает файл бинарным - выбирается режим #дамп#, иначе - #текст#.
+
+    Режим просмотра можно изменить вручную клавишами:
+
+    #F4# - переключение между режимом #Код# и последним из использованных #Текст# или #Дамп#
+    #Shift+F4# - будет отображено меню для выбора одного из трех режимов
+    #F2# - для режима #Текст# меняет режим переноса, режим #Дамп# переключается в #Текст#,
+режим #Код# переключается в #Дамп# или #Текст# (#F4# и #F2# переключают в разные режимы). 
+
+    Текущий режим отображается одной буквой в первой строке окна, перед значением
+текущей кодовой страницы: #t# - Текст, #h# - Код, #d# - Дамп. 
+
+    Режим #Текст#
+
+    В режиме #Текст# Far отображает содержимое файла, интерпретируя последовательность байтов
+как строки символов в текущей кодировке (кодировки не только однобайтовые). Непечатаемые символы
+или символы, для которых нет отображения в текущем шрифте/кодировке, будут отображены как знаки
+вопроса, либо как знак "пустой прямоугольник", либо как знак "маленький вопросительный знак в
+прямоугольнике", либо не будут отображены - это зависит от выбора шрифта окна Far. Строки
+переводятся после нахождения признака окончания текстовой строки.
+    Для просмотра длинных строк, выходящих за границу окна, можно клавишей #F2#
+включить/выключить режим переноса.
+    Если перенос разрешен, строки принудительно переводятся (сворачиваются) при достижении правой
+границы экрана. Можно разрешить/запретить перенос внутри слова #Shift+F2#.
+    Если перенос отключен и строка не помещается на экране, то отображается только часть строки
+и у правой границы окна просмотра другим цветом рисуется знак #»# (если включена настройка
+#Показывать стрелки сдвига#). Клавишами #Right#/#Ctrl+Right# можно сдвигать начало отображаемой
+части строк вправо на 1/20 символов (#Left#/#Ctrl+Left# влево). Если строки отображаются не с
+первого символа, у левой границы окна просмотра рисуется знак #«# (настраивается).
+Максимальная длина строки просмотра ограничена: #Максимальная ширина строки# в диалоге
+~настроек~@ViewerSettings@. Более длинные строки разбиваются на несколько, даже если они
+не содержат символов перевода строки.
+
+    Режим #Дамп#
+
+    В режиме #Дамп# Far отображает содержимое файла с текущей позиции, интерпретируя каждый байт
+(для кодовых страниц UTF-16 - каждые два байта, UTF-8 символы переменной длины) как отображаемый
+символ в текущей кодировке. При достижении края окна следующий символ отображается с начала новой
+строки. Переводы строк и управляющие коды отображаются как обычные печатные символы.
+    В режиме #Дамп# нет понятия строки, клавиши горизонтального перемещения работают не так
+как в режиме #Текст# (а почти как в режиме #Код#). Клавиши #Left#/#Right# игнорируются,
+а клавиши #Ctrl+Left#/#Ctrl+Right# начало отображаемой в окне части файла на 1 символ (не 1 байт!).
+Таким образом, отображаемые символы как бы "перетекают" через края окна отображения.
+
+    Режим #Код# (Hex / 16-ричные коды)
+
+    В режиме #Код# Far отображает содержимое файла аналогично шестнадцатеричным редакторам:
+в строке указывается шестнадцатеричное смещение каждых 16 байт от начала файла, их 16-ричные
+коды и отображение в виде символов. Для кодировок UTF-16: 8 16-ричных слов и 8 символов.
+Для кодировки UTF-8 многобайтные символы дополняются знаками '»'.
+#Ctrl+Left#/#Ctrl+Right# (в отличии от режима #Дамп#) сдвигают начало отображаемой части файла
+всегда на 1 байт, многобайтные символы могут 'разрезаться' на части.
+
 
 @ViewerGotoPos
 $ #Viewer: go to specified position#
@@ -3020,7 +3169,7 @@ behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
    #F8#                      Toggle OEM/ANSI code page
    #Shift+F8#                Select code page
    #Alt+F8#                  ~Go to~@EditorGotoPos@ specified line and column
-   #Alt+F9#                  Toggles the size of the Far console window
+   #Alt+F9#                  ^<wrap>Maximize or restore the size of the Far console window; see also ~Interface.AltF9~@Interface.AltF9@
    #Alt+Shift+F9#            Call ~Editor settings~@EditorSettings@ dialog
    #F10, F4, Esc#            Quit
    #Shift+F10#               Save and quit
@@ -3800,7 +3949,8 @@ $ #Autodetect code pages#
 Note that correct detection is not guaranteed, especially for small or
 non-typical text files.
 
-    See also ~Code pages~@CodePagesMenu@ menu and ~far:config Codepages.NoAutoDetectCP~@Codepages.NoAutoDetectCP@
+    See also the ~Code pages~@CodePagesMenu@ menu and
+~far:config Codepages.NoAutoDetectCP~@Codepages.NoAutoDetectCP@
 
 
 @FileAttrDlg
@@ -5386,7 +5536,7 @@ detectable by UCD (about 20, much less than there is usually available
 in the system) are enabled.
 
     If this parameter is set to string #"-1"# and the #Other# section
-of ~Code pages~@CodePagesMenu@ menu is hidden (#Ctrl+H# key
+of the ~Code pages~@CodePagesMenu@ menu is hidden (#Ctrl+H# key
 combination), only #System# (ANSI, OEM), #Unicode#, and #Favorites# code
 pages will be enabled for UCD. If the #Other# section is visible, all
 code pages are enabled.
