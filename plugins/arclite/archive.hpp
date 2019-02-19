@@ -14,6 +14,8 @@ extern const ArcType c_split;
 extern const ArcType c_wim;
 extern const ArcType c_tar;
 extern const ArcType c_SWFc;
+extern const ArcType c_dmg;
+extern const ArcType c_hfs;
 
 extern const wchar_t* c_method_copy;   // pseudo method
 
@@ -218,6 +220,7 @@ private:
   static ArcEntries detect(Byte *buffer, UInt32 size, bool eof, const wstring& file_ext, const ArcTypes& arc_types);
   static void open(const OpenOptions& options, Archives& archives);
 public:
+  shared_ptr<Archive> parent;
   static unsigned max_check_size;
   wstring arc_path;
   FindData arc_info;

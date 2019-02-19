@@ -393,9 +393,11 @@ ArcEntries Archive::detect(Byte *buffer, UInt32 size, bool eof, const wstring& f
   signatures.reserve(2 * arc_types.size());
   for_each(arc_types.begin(), arc_types.end(), [&] (const ArcType& arc_type) {
     const auto& format = ArcAPI::formats().at(arc_type);
-    for_each(format.Signatures.begin(), format.Signatures.end(), [&](const ByteVector& signature) {
-      signatures.emplace_back(SigData(signature, format));
-    });
+    if (format.ClassID != c_dmg) {
+      for_each(format.Signatures.begin(), format.Signatures.end(), [&](const ByteVector& signature) {
+        signatures.emplace_back(SigData(signature, format));
+      });
+    }
   });
   vector<StrPos> sig_positions = msearch(buffer, size, signatures, eof);
 
@@ -427,6 +429,8 @@ ArcEntries Archive::detect(Byte *buffer, UInt32 size, bool eof, const wstring& f
   prioritize(arc_entries, c_udf, c_iso);
   // special case: Rar must go before Split
   prioritize(arc_entries, c_rar, c_split);
+  // special case: Dmg must go before HFS
+  prioritize(arc_entries, c_dmg, c_hfs);
 
   return arc_entries;
 }
@@ -506,6 +510,10 @@ void Archive::open(const OpenOptions& options, Archives& archives) {
     if (parent_idx != -1)
       archive->volume_names = archives[parent_idx]->volume_names;
 
+#ifdef _DEBUG
+	const auto& format = ArcAPI::formats().at(arc_entry->type);
+	(void)format;
+#endif
     bool opened = false;
     CHECK_COM(stream->Seek(arc_entry->sig_pos, STREAM_SEEK_SET, nullptr));
     if (!arc_entry->sig_pos) {
@@ -529,9 +537,11 @@ void Archive::open(const OpenOptions& options, Archives& archives) {
       if (opened)
         archive->base_stream = stream;
     }
-    if (opened /*&& archive->get_nitems() > 0*/) {
-      if (parent_idx != -1)
+    if (opened) {
+      if (parent_idx != -1) {
+        archive->parent = archives[parent_idx];
         archive->arc_chain.assign(archives[parent_idx]->arc_chain.begin(), archives[parent_idx]->arc_chain.end());
+      }
       archive->arc_chain.push_back(*arc_entry);
 
       archives.push_back(archive);
