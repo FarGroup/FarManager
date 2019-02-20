@@ -493,27 +493,24 @@ bool ReplaceStrings(string& strStr, const string_view FindStr, const string_view
 	if (strStr.empty() || FindStr.empty() || !Count)
 		return false;
 
-	const auto AreEqual = IgnoreCase? equal_icase : equal;
+	const auto& FindC = [](const string& Str, string_view const What, size_t Pos) { return find(Str, What, Pos); };
+	const auto& FindI = [](const string& Str, string_view const What, size_t Pos) { return find_icase(Str, What, Pos); };
+	const auto& Find = IgnoreCase? FindI : FindC;
 
 	size_t replaced = 0;
-	for (size_t I = 0, L = strStr.size(); I + FindStr.size() <= L; ++I)
+	size_t StartPos = 0;
+
+	while ((StartPos = Find(strStr, FindStr, StartPos)) != strStr.npos)
 	{
-		if (!AreEqual(string_view(strStr).substr(I, FindStr.size()), FindStr))
-			continue;
-
-		strStr.replace(I, FindStr.size(), ReplStr.data(), ReplStr.size());
-
-		L += ReplStr.size();
-		L -= FindStr.size();
-
-		I += ReplStr.size();
-		I -= 1;
-
+		// TODO: use string_view overload after migrating to VS2017
+		strStr.replace(StartPos, FindStr.size(), ReplStr.data(), ReplStr.size());
+		StartPos += ReplStr.size();
 		++replaced;
 
-		if (Count != string::npos && !--Count)
+		if (replaced == Count)
 			break;
 	}
+
 	return replaced != 0;
 }
 
@@ -1123,3 +1120,36 @@ std::pair<string_view, string_view> split_name_value(string_view Str)
 	const auto SeparatorPos = Str.find(L'=');
 	return { Str.substr(0, SeparatorPos), Str.substr(SeparatorPos + 1) };
 }
+
+#include "common/test.hpp"
+
+#ifdef _DEBUG
+static void TestReplaceStrings()
+{
+	static const struct
+	{
+		string_view Src, Find, Replace, Result;
+	}
+	Tests[]
+	{
+		{ L"lorem ipsum dolor"sv, L"loREm"sv, L""sv, L" ipsum dolor"sv },
+		{ L"lorem ipsum dolor"sv, L"lorem"sv, L"alpha"sv, L"alpha ipsum dolor"sv },
+		{ L"lorem ipsum dolor"sv, L"m"sv, L"q"sv, L"loreq ipsuq dolor"sv },
+		{ L"lorem ipsum dolor"sv, L""sv, L"alpha"sv, L"lorem ipsum dolor"sv },
+		{ L"lorem ipsum dolor"sv, L""sv, L""sv, L"lorem ipsum dolor"sv },
+		{ L"lorem ipsum dolor"sv, L"lorem ipsum dolor"sv, L""sv, L""sv },
+		{ L"lorem ipsum dolor"sv, L"lorem ipsum dolor"sv, L"bravo"sv, L"bravo"sv },
+		{ L"lorem"sv, L"lorem ipsum"sv, L"charlie"sv, L"lorem"sv },
+	};
+
+	string Src;
+	for (const auto& i : Tests)
+	{
+		Src = i.Src;
+		ReplaceStrings(Src, i.Find, i.Replace, true);
+		EXPECT_EQ(i.Result, Src);
+	}
+}
+#endif
+
+SELF_TEST(TestReplaceStrings)

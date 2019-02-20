@@ -46,7 +46,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.env.hpp"
 
 #include "common/enum_tokens.hpp"
-#include "common/test.hpp"
 
 static const wchar_t ExcludeMaskSeparator = L'|';
 static const wchar_t RE_start = L'/', RE_end = L'/';
@@ -366,6 +365,8 @@ bool filemasks::masks::empty() const
 	return m_Regex? m_Match.empty() : m_Masks.empty();
 }
 
+#include "common/test.hpp"
+
 #ifdef _DEBUG
 static void TestMasks()
 {
@@ -395,4 +396,3 @@ static void TestMasks()
 #endif
 
 SELF_TEST(TestMasks)
-

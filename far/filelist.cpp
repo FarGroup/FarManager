@@ -4896,6 +4896,7 @@ bool FileList::ApplyCommand()
 				SCOPED_ACTION(PreserveLongName)(i.AlternateFileName(), PreserveLFN);
 
 				execute_info Info;
+				Info.DisplayCommand = strConvertedCommand;
 				Info.Command = strConvertedCommand;
 				Info.WaitMode = ListNames.any()? execute_info::wait_mode::wait_idle : execute_info::wait_mode::no_wait;
 

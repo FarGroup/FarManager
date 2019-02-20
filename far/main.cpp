@@ -247,6 +247,7 @@ static int MainProcess(
 						AnotherPanel->Parent()->SetActivePanel(AnotherPanel);
 
 						execute_info Info;
+						Info.DisplayCommand = ppanel;
 						Info.Command = ppanel;
 
 						Global->CtrlObject->CmdLine()->ExecString(Info);
@@ -269,6 +270,7 @@ static int MainProcess(
 				if (IsPluginPrefixPath(apanel))
 				{
 					execute_info Info;
+					Info.DisplayCommand = apanel;
 					Info.Command = apanel;
 
 					Global->CtrlObject->CmdLine()->ExecString(Info);

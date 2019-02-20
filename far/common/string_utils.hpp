@@ -504,6 +504,21 @@ string join(const container& Container, string_view const Separator)
 	return Str;
 }
 
+// uniform "find"
+
+template<typename find_type, typename... traits>
+[[nodiscard]]
+auto find(const std::basic_string<traits...>& Str, const find_type& What, size_t Pos = 0)
+{
+	return Str.find(What, Pos);
+}
+
+template<typename find_type, typename... traits>
+[[nodiscard]]
+auto find(const std::basic_string_view<traits...>& Str, const find_type& What, size_t Pos = 0)
+{
+	return Str.find(What, Pos);
+}
 
 // uniform "contains"
 

@@ -37,8 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 struct point: public rel_ops<point>
 {
-	int x;
-	int y;
+	int x{};
+	int y{};
 
 	point() = default;
 

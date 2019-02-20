@@ -158,6 +158,7 @@ bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, 
 		SCOPED_ACTION(PreserveLongName)(ShortName, PreserveLFN);
 
 		execute_info Info;
+		Info.DisplayCommand = strCommand;
 		Info.Command = strCommand;
 		Info.WaitMode = AlwaysWaitFinish? execute_info::wait_mode::wait_finish : ListNames.any()? execute_info::wait_mode::wait_idle : execute_info::wait_mode::no_wait;
 		Info.RunAs = RunAs;
@@ -261,6 +262,7 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 	SCOPED_ACTION(PreserveLongName)(ShortName, PreserveLFN);
 
 	execute_info Info;
+	Info.DisplayCommand = strExecStr;
 	Info.Command = strExecStr;
 	Info.WaitMode = AlwaysWaitFinish? execute_info::wait_mode::wait_finish : ListNames.any()? execute_info::wait_mode::wait_idle : execute_info::wait_mode::no_wait;
 

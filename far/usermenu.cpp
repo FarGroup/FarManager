@@ -771,6 +771,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 						SCOPED_ACTION(PreserveLongName)(strShortName, PreserveLFN);
 
 						execute_info Info;
+						Info.DisplayCommand = strCommand;
 						Info.Command = strCommand;
 						Info.WaitMode = ListNames.any()? execute_info::wait_mode::wait_idle : execute_info::wait_mode::no_wait;
 

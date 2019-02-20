@@ -103,6 +103,12 @@ bool starts_with_icase(string_view Str, string_view Prefix);
 [[nodiscard]]
 bool ends_with_icase(string_view Str, string_view Suffix);
 [[nodiscard]]
-bool contains_icase(string_view Str, string_view Token);
+size_t find_icase(string_view Str, string_view What, size_t Pos = 0);
+[[nodiscard]]
+size_t find_icase(string_view Str, wchar_t What, size_t Pos = 0);
+[[nodiscard]]
+bool contains_icase(string_view Str, string_view What);
+[[nodiscard]]
+bool contains_icase(string_view Str, wchar_t What);
 
 #endif // STRING_UTILS_HPP_82ECD8BE_D484_4023_AB42_21D93B2DF8B9

@@ -156,9 +156,32 @@ bool ends_with_icase(const string_view Str, const string_view Suffix)
 	return Str.size() >= Suffix.size() && equal_icase(Str.substr(Str.size() - Suffix.size()), Suffix);
 }
 
-bool contains_icase(const string_view Str, const string_view Token)
+size_t find_icase(string_view const Str, string_view const What, size_t Pos)
 {
-	return std::search(ALL_CONST_RANGE(Str), ALL_CONST_RANGE(Token), equal_icase_t{}) != Str.cend();
+	if (Pos >= Str.size())
+		return Str.npos;
+
+	const auto It = std::search(Str.cbegin() + Pos, Str.cend(), ALL_CONST_RANGE(What), equal_icase_t{});
+	return It == Str.cend()? Str.npos : It - Str.cbegin();
+}
+
+size_t find_icase(string_view const Str, wchar_t const What, size_t Pos)
+{
+	if (Pos >= Str.size())
+		return Str.npos;
+
+	const auto It = std::find_if(Str.cbegin() + Pos, Str.cend(), [&](wchar_t const Char) { return equal_icase_t{}(What, Char); });
+	return It == Str.cend() ? Str.npos : It - Str.cbegin();
+}
+
+bool contains_icase(const string_view Str, const string_view What)
+{
+	return find_icase(Str, What) != Str.npos;
+}
+
+bool contains_icase(const string_view Str, wchar_t const What)
+{
+	return find_icase(Str, What) != Str.npos;
 }
 
 #if defined _MSC_VER && _MSC_VER < 1910

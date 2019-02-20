@@ -643,6 +643,7 @@ bool GetShellType(const string_view Ext, string& strType, const ASSOCIATIONTYPE 
 void OpenFolderInShell(const string& Folder)
 {
 	execute_info Info;
+	Info.DisplayCommand = Folder;
 	Info.Command = Folder;
 	Info.NewWindow = true;
 	Info.ExecMode = execute_info::exec_mode::direct;

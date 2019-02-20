@@ -478,6 +478,7 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 				const auto IsRunAs = (KeyCode & KEY_CTRL || KeyCode & KEY_RCTRL) && (KeyCode & KEY_ALT || KeyCode & KEY_RALT);
 
 				execute_info Info;
+				Info.DisplayCommand = strStr;
 				Info.Command = strStr;
 				Info.NewWindow = IsNewWindow;
 				Info.RunAs = IsRunAs;
@@ -868,6 +869,7 @@ void CommandLine::ShowViewEditHistory()
 				case HR_EXTERNAL_WAIT:
 				{
 					execute_info Info;
+					Info.DisplayCommand = strStr;
 					Info.Command = strStr;
 					Info.WaitMode = Type == HR_EXTERNAL_WAIT? execute_info::wait_mode::wait_finish : execute_info::wait_mode::no_wait;
 
@@ -1035,7 +1037,10 @@ void CommandLine::ExecString(execute_info& Info)
 		ExpandOSAliases(Info.Command);
 
 		if (!ExtractIfExistCommand(Info.Command))
+		{
+			Activator(false);
 			return;
+		}
 
 		if (!Info.NewWindow && !Info.RunAs)
 		{

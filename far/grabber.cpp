@@ -50,7 +50,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 monitored<bool> Grabber::m_StreamSelection;
 
 Grabber::Grabber(private_tag):
-	GArea(),
 	ResetArea(true),
 	m_VerticalBlock(false)
 {
@@ -266,12 +265,6 @@ void Grabber::DisplayObject()
 		PutText({ FromX, FromY, ToX, ToY }, CharBuf.data());
 	}
 
-	if (GArea.Begin.x == -2)
-	{
-		SaveScr->RestoreArea(FALSE);
-		GArea.Begin.x = GArea.End.x;
-	}
-
 	SetCursorType(true, 60);
 }
 
@@ -362,7 +355,7 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLU:
 		case KEY_RCTRLU:
 			Reset();
-			GArea.Begin.x = -2;
+			GArea.Begin.x = -1;
 			break;
 
 		case KEY_ESC:
