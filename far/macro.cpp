@@ -4218,17 +4218,14 @@ static bool panelsetposidxFunc(FarMacroCall* Data)
 						//WindowManager->RefreshWindow(WindowManager->GetCurrentWindow());
 						// </Mantis#0000289>
 
-						if ( !InSelection )
-							Ret=(long long)(SelPanel->GetCurrentPos()+1);
-						else
-							Ret=(long long)(idxFoundItem+1);
+						Ret = static_cast<long long>(InSelection? idxFoundItem : SelPanel->GetCurrentPos()) + 1;
 					}
 				}
 			}
 			else // = 0 - вернем текущую позицию
 			{
 				if ( !InSelection )
-					Ret=(long long)(SelPanel->GetCurrentPos()+1);
+					Ret = static_cast<long long>(SelPanel->GetCurrentPos()) + 1;
 				else
 				{
 					long CurPos=SelPanel->GetCurrentPos();
@@ -4238,7 +4235,7 @@ static bool panelsetposidxFunc(FarMacroCall* Data)
 						{
 							if (I == static_cast<size_t>(CurPos))
 							{
-								Ret=(long long)(idxFoundItem+1);
+								Ret = static_cast<long long>(idxFoundItem) + 1;
 								break;
 							}
 							idxFoundItem++;
@@ -4279,7 +4276,7 @@ static bool panelsetposFunc(FarMacroCall* Data)
 				SelPanel->UpdateIfChanged(false);
 				Global->WindowManager->RefreshWindow(Global->WindowManager->GetCurrentWindow());
 				// </Mantis#0000289>
-				Ret=(long long)(SelPanel->GetCurrentPos()+1);
+				Ret = static_cast<long long>(SelPanel->GetCurrentPos()) + 1;
 			}
 		}
 	}

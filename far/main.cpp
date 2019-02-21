@@ -426,7 +426,7 @@ static bool ProcessServiceModes(range<const wchar_t* const*> const Args, int& Se
 		string strProfilePath(Args.size() > 1? Args[1] : L""sv);
 		string strLocalProfilePath(Args.size() > 2? Args[2] : L""sv);
 		InitProfile(strProfilePath, strLocalProfilePath);
-		config_provider{config_provider::clear_cache{}};
+		(void)config_provider{config_provider::clear_cache{}};
 		ServiceResult = 0;
 		return true;
 	}

@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 21.02.2019 22:00:35 +0000 - build 5366
+
+1. Show executed command exactly as entered by the user.
+
+2. Removing selection worked incorrectly in Grabber.
+
+3. Reading/setting file owners optimisation.
+
 drkns 16.02.2019 21:38:09 +0000 - build 5365
 
 1. Refactoring.

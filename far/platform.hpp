@@ -49,14 +49,14 @@ namespace os
 		NT_MAX_PATH = 32768
 	};
 
+	template<typename buffer_type>
+	auto buffer()
+	{
+		return array_ptr<buffer_type, default_buffer_size>(default_buffer_size);
+	}
+
 	namespace detail
 	{
-		template<typename buffer_type>
-		auto default_buffer()
-		{
-			return array_ptr<buffer_type, default_buffer_size>(default_buffer_size);
-		}
-
 		template<typename buffer_type, typename receiver, typename condition, typename assigner>
 		[[nodiscard]]
 		bool ApiDynamicReceiver(buffer_type&& Buffer, const receiver& Receiver, const condition& Condition, const assigner& Assigner)
@@ -81,7 +81,7 @@ namespace os
 		bool ApiDynamicStringReceiver(string& Destination, const T& Callable)
 		{
 			return ApiDynamicReceiver(
-				default_buffer<wchar_t>(),
+				buffer<wchar_t>(),
 				Callable,
 				[](size_t ReturnedSize, size_t AllocatedSize)
 				{
@@ -103,7 +103,7 @@ namespace os
 		bool ApiDynamicErrorBasedStringReceiver(DWORD ExpectedErrorCode, string& Destination, const T& Callable)
 		{
 			return ApiDynamicReceiver(
-				default_buffer<wchar_t>(),
+				buffer<wchar_t>(),
 				Callable,
 				[&](size_t ReturnedSize, size_t AllocatedSize)
 				{

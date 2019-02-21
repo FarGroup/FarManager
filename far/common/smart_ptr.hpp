@@ -41,9 +41,9 @@ public:
 	NONCOPYABLE(array_ptr);
 	MOVABLE(array_ptr);
 
-	array_ptr() noexcept:
-		m_Size(),
-		m_IsStatic()
+	array_ptr() noexcept = default;
+
+	array_ptr(std::nullptr_t) noexcept
 	{
 	}
 
@@ -110,8 +110,8 @@ public:
 private:
 	mutable std::array<T, StaticSize> m_StaticBuffer;
 	std::unique_ptr<T[]> m_DynamicBuffer;
-	size_t m_Size;
-	bool m_IsStatic;
+	size_t m_Size{};
+	bool m_IsStatic{};
 };
 
 template<size_t Size = 1>
