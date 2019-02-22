@@ -273,12 +273,12 @@ static string ConvertString(const string_view Src)
 	return Result;
 }
 
-static void parse_lng_line(const string_view str, string& label, string& data, bool& have_data)
+static void parse_lng_line(const string_view str, bool ParseLabels, string& label, string& data, bool& have_data)
 {
 	have_data = false;
 
 	//-- //[Label]
-	if (starts_with(str, L"//["sv) && ends_with(str, L"]"sv))
+	if (ParseLabels && starts_with(str, L"//["sv) && ends_with(str, L"]"sv))
 	{
 		const auto LabelView = str.substr(3, str.size() - 3 - 1);
 		//-- //[Label=0]
@@ -297,7 +297,7 @@ static void parse_lng_line(const string_view str, string& label, string& data, b
 	}
 
 	//-- MLabel="Text"
-	if (!str.empty() && str.back() == L'"')
+	if (ParseLabels && !str.empty() && str.back() == L'"')
 	{
 		const auto eq_pos = str.find(L'=');
 		if (eq_pos != string::npos && InRange(L'A', upper(str[0]), L'Z'))
@@ -351,17 +351,22 @@ void language::load(const string& Path, const string& Language, int CountNeed)
 		Data->reserve(CountNeed);
 	}
 
+	const auto CustomLngInSameDir = Data->m_FileName + L".custom"sv;
+	const auto CustomLngInProfileDir = concat(Global->Opt->ProfilePath, L'\\', ExtractFileName(CustomLngInSameDir));
+
+	const auto LoadLabels = os::fs::exists(CustomLngInSameDir) || os::fs::exists(CustomLngInProfileDir);
+
 	std::unordered_map<string, size_t> id_map;
 	string label, text;
 	for (const auto& i: enum_file_lines(LangFile, LangFileCodePage))
 	{
 		bool have_text;
-		parse_lng_line(trim(i.Str), label, text, have_text);
+		parse_lng_line(trim(i.Str), LoadLabels, label, text, have_text);
 		if (have_text)
 		{
 			auto idx = Data->size();
 			Data->add(ConvertString(text));
-			if (!label.empty())
+			if (LoadLabels && !label.empty())
 			{
 				id_map[label] = idx;
 				label.clear();
@@ -390,7 +395,7 @@ void language::load(const string& Path, const string& Language, int CountNeed)
 			for (const auto& i: enum_file_lines(CustomFile, CustomFileCodepage))
 			{
 				bool have_text;
-				parse_lng_line(trim(i.Str), label, text, have_text);
+				parse_lng_line(trim(i.Str), true, label, text, have_text);
 				if (have_text && !label.empty())
 				{
 					const auto found = id_map.find(label);
@@ -402,9 +407,6 @@ void language::load(const string& Path, const string& Language, int CountNeed)
 				}
 			}
 		};
-
-		const auto CustomLngInSameDir = Data->m_FileName + L".custom"sv;
-		const auto CustomLngInProfileDir = concat(Global->Opt->ProfilePath, L'\\', ExtractFileName(CustomLngInSameDir));
 
 		LoadStrings(CustomLngInSameDir);
 		LoadStrings(CustomLngInProfileDir);

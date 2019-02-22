@@ -761,7 +761,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			{
 				if (DriveMode & (DRIVE_SHOW_LABEL | DRIVE_SHOW_FILESYSTEM))
 				{
-					bool TryReadLabel = DriveMode & DRIVE_SHOW_LABEL;
+					bool TryReadLabel = (DriveMode & DRIVE_SHOW_LABEL) != 0;
 
 					if (TryReadLabel && DriveMode & DRIVE_SHOW_LABEL_USE_SHELL)
 					{

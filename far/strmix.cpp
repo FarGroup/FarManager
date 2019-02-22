@@ -493,14 +493,13 @@ bool ReplaceStrings(string& strStr, const string_view FindStr, const string_view
 	if (strStr.empty() || FindStr.empty() || !Count)
 		return false;
 
-	const auto& FindC = [](const string& Str, string_view const What, size_t Pos) { return find(Str, What, Pos); };
-	const auto& FindI = [](const string& Str, string_view const What, size_t Pos) { return find_icase(Str, What, Pos); };
-	const auto& Find = IgnoreCase? FindI : FindC;
-
 	size_t replaced = 0;
 	size_t StartPos = 0;
 
-	while ((StartPos = Find(strStr, FindStr, StartPos)) != strStr.npos)
+	while ((StartPos = IgnoreCase?
+		find_icase(strStr, FindStr, StartPos) :
+		      find(strStr, FindStr, StartPos)
+		) != strStr.npos)
 	{
 		// TODO: use string_view overload after migrating to VS2017
 		strStr.replace(StartPos, FindStr.size(), ReplStr.data(), ReplStr.size());

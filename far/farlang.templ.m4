@@ -5872,44 +5872,44 @@ MEditSaving
 "Salvataggio In Corso..."
 "Збереження файлу"
 
-# 3 max
 MEditStatusLine
+l:// Up to 3 characters
 "Стр"
 "Ln"
-"Řádek"
-upd:"Zeile"
+"Řdk"
+upd:"Zei"
 upd:"Sor"
-upd:"linia"
-"Línea"
-"Riadok"
+upd:"lin"
+"Lín"
+"Rdk"
 "Lin"
-"Рядок"
+"Ряд"
 
-# 3 max
 MEditStatusCol
+l:// Up to 3 characters
 "Кол"
 "Col"
-"Sloupec"
-upd:"Spal"
-upd:"Oszlop"
-upd:"kolumna"
+"Slp"
+upd:"Spl"
+upd:"Osz"
+upd:"Kol"
 "Col"
-"Stĺpec"
+"Stĺ"
 "Col"
-"Поз."
+"Кол"
 
-# 2 max
 MEditStatusChar
+l:// Up to 2 characters
 "С"
 "Ch"
-"Znak"
-"Symbol"
+"Zn"
+"Sm"
 upd:"Ch"
 upd:"Ch"
 "Ch"
-"Znak"
-"Car"
-"З"
+"Zn"
+"Cr"
+"См"
 
 MEditRSH
 l:

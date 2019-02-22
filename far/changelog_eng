@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 22.02.2019 20:02:42 +0000 - build 5367
+
+1. Don't try to read labels from the main lng if lng.custom files are absent.
+
+2. Translation corrections.
+
+3. VS2015.
+
 drkns 21.02.2019 22:00:35 +0000 - build 5366
 
 1. Show executed command exactly as entered by the user.
