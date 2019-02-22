@@ -20729,16 +20729,17 @@ MViewerCannotOpenFile
 "Помилка відкриття файлу"
 
 MViewerStatusCol
+l:// Up to 3 characters
 "Кол"
 "Col"
-"Sloupec"
-"Spalte"
-"Oszlop"
-"Kolumna"
+"Slp"
+upd:"Spl"
+upd:"Osz"
+upd:"Kol"
 "Col"
-"Stĺpec"
+"Stĺ"
 "Col"
-"Кіл"
+"Кол"
 
 MViewSearchTitle
 l:

@@ -128,6 +128,8 @@ bool IsStandardCodePage(uintptr_t cp);
 bool IsUnicodeOrUtfCodePage(uintptr_t cp);
 bool IsNoFlagsCodepage(uintptr_t cp);
 
+string ShortReadableCodepageName(uintptr_t cp);
+
 //#############################################################################
 
 class MultibyteCodepageDecoder: noncopyable

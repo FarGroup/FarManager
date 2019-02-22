@@ -328,14 +328,26 @@ void codepages::AddCodePages(DWORD codePages)
 	if (codePages & SearchAll)
 		AddStandardCodePage(msg(lng::MFindFileAllCodePages), CP_ALL, -1, true);
 
+	const auto& GetSystemCodepageName = [](uintptr_t const Cp, string_view const SystemName)
+	{
+		auto Info = GetCodePageInfo(Cp);
+		if (starts_with(Info.second, SystemName))
+			return Info.second;
+		return concat(SystemName, L" - "sv, Info.second);
+	};
+
 	// system codepages
 	//
 	AddSeparator(msg(lng::MGetCodePageSystem));
-	AddStandardCodePage(L"ANSI"s, encoding::codepage::ansi(), -1, (codePages & ::ANSI) != 0);
 
-	if (encoding::codepage::oem() != encoding::codepage::ansi())
-		AddStandardCodePage(L"OEM"s, encoding::codepage::oem(), -1, (codePages & ::OEM) != 0);
+	{
+		const auto AnsiCp = encoding::codepage::ansi();
+		AddStandardCodePage(GetSystemCodepageName(AnsiCp, L"ANSI"sv), AnsiCp, -1, (codePages & ::ANSI) != 0);
 
+		const auto OemCp = encoding::codepage::oem();
+		if (OemCp != AnsiCp)
+			AddStandardCodePage(GetSystemCodepageName(OemCp, L"OEM"sv), OemCp, -1, (codePages & ::OEM) != 0);
+	}
 	// unicode codepages
 	//
 	AddSeparator(msg(lng::MGetCodePageUnicode));

@@ -3,6 +3,16 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 22.02.2019 23:12:51 +0000 - build 5368
+
+1. Use '│' instead of ' ' as a separator in editor & viewer status lines. Readability should improve.
+
+2. Show names for Unicode (UTF7-8-16) code pages instead of numbers in editor & viewer status lines.
+
+3. Show proper names for system code pages in code pages menu.
+
+4. Translation corrections.
+
 drkns 22.02.2019 20:02:42 +0000 - build 5367
 
 1. Don't try to read labels from the main lng if lng.custom files are absent.

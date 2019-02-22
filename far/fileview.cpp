@@ -538,6 +538,9 @@ void FileViewer::ShowStatus() const
 	if (!IsTitleBarVisible())
 		return;
 
+	SetColor(COL_VIEWERSTATUS);
+	GotoXY(m_Where.left, m_Where.top);
+
 	string strName = GetTitle();
 	int NameLength = ScrX+1 - 40;
 
@@ -545,24 +548,29 @@ void FileViewer::ShowStatus() const
 		NameLength -= 3 + static_cast<int>(Global->CurrentTime.size());
 
 	NameLength = std::max(NameLength, 20);
-
 	TruncPathStr(strName, NameLength);
-	auto strStatus = format(L"{0:{1}} {2} {3:5} {4:13} {5:7.7} {6:<4} {7:3}%"sv,
-	    strName,
-	    NameLength,
-	    L"thd"[m_View->m_DisplayMode],
-	    m_View->m_Codepage,
-	    m_View->FileSize,
-	    msg(lng::MViewerStatusCol),
-	    m_View->LeftPos,
-	    (m_View->LastPage ? 100:ToPercent(m_View->FilePos,m_View->FileSize))
-	);
-	SetColor(COL_VIEWERSTATUS);
-	GotoXY(m_Where.left, m_Where.top);
-	Text(fit_to_left(std::move(strStatus), m_View->Width + (m_View->ViOpt.ShowScrollbar? 1 : 0)));
 
-	if (Global->Opt->ViewerEditorClock && IsFullScreen())
+	auto strStatus = format(L"{0:{1}.{1}}│{2}│{3:5.5}│{4:13.13}│{5:3.3} {6:4.4}│{7:4.4}"sv,
+		strName,
+		NameLength,
+		L"thd"[m_View->m_DisplayMode],
+		ShortReadableCodepageName(m_View->m_Codepage),
+		str(m_View->FileSize),
+		msg(lng::MViewerStatusCol),
+		str(m_View->LeftPos),
+		str(m_View->LastPage? 100 : ToPercent(m_View->FilePos,m_View->FileSize)) + L'%'
+	);
+
+	const auto ClockSize = Global->Opt->ViewerEditorClock && IsFullScreen()? static_cast<int>(Global->CurrentTime.size()) : 0;
+	const auto StatusWidth = std::max(0, ObjWidth() - ClockSize);
+
+	Text(fit_to_left(std::move(strStatus), StatusWidth - (ClockSize? 1 : 0)));
+
+	if (ClockSize)
+	{
+		Text(L'│'); // Separator before the clock
 		ShowTime();
+	}
 }
 
 void FileViewer::OnChangeFocus(bool focus)

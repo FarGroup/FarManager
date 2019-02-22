@@ -2162,6 +2162,7 @@ void FileEditor::ShowStatus() const
 
 	SetColor(COL_EDITORSTATUS);
 	GotoXY(m_Where.left, m_Where.top); //??
+
 	auto strLocalTitle = GetTitle();
 	int NameLength = 21;
 
@@ -2188,31 +2189,35 @@ void FileEditor::ShowStatus() const
 		SizeLineStr = 12;
 
 	strLineStr = format(L"{0}/{1}"sv, m_editor->m_it_CurLine.Number() + 1, m_editor->Lines.size());
-	const auto strAttr = *AttrStr? L" "s + AttrStr : L""s;
-	const auto StatusLine = format(L"{0:{1}} {2}{3}{4}{5:5} {6:>3} {7:>{8}} {9:>3} {10:<4} {11:>2} {12:<4}{13}"sv,
+	const auto strAttr = *AttrStr? L"│"s + AttrStr : L""s;
+	const auto StatusLine = format(L"{0:{1}.{1}}│{2}{3}│{4:5.5}│{5:3.3} {6:>{7}.{7}}│{8:3.3} {9:<4.4}│{10:2.2} {11:<4.4}{12}"sv,
 		strLocalTitle, NameLength,
 		m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED)?L'*':L' ',
-		m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE)?L'-':L' ',
-		m_editor->m_Flags.Check(Editor::FEDITOR_PROCESSCTRLQ)?L'"':L' ',
-		m_codepage,
+		m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE)? L'-' : m_editor->m_Flags.Check(Editor::FEDITOR_PROCESSCTRLQ)? L'"' : L' ',
+		ShortReadableCodepageName(m_codepage),
 		msg(lng::MEditStatusLine),
 		strLineStr, SizeLineStr,
 		msg(lng::MEditStatusCol),
-		m_editor->m_it_CurLine->GetTabCurPos() + 1,
+		str(m_editor->m_it_CurLine->GetTabCurPos() + 1),
 		msg(lng::MEditStatusChar),
-		m_editor->m_it_CurLine->GetCurPos() + 1,
+		str(m_editor->m_it_CurLine->GetCurPos() + 1),
 		strAttr);
 
 	const auto ClockSize = Global->Opt->ViewerEditorClock && m_Flags.Check(FFILEEDIT_FULLSCREEN)? static_cast<int>(Global->CurrentTime.size()) : 0;
 	const auto StatusWidth = std::max(0, ObjWidth() - ClockSize);
 
-	Text(fit_to_left(StatusLine, StatusWidth - 1));
-	Text(L' '); // Separator before the clock
+	Text(fit_to_left(StatusLine, StatusWidth - (ClockSize? 1 : 0)));
+
+	if (ClockSize)
+		Text(L'│'); // Separator before the clock
 
 	if (auto SpaceLeft = std::max(0, StatusWidth - static_cast<int>(StatusLine.size()) - 1 - 1)) // 1 for the separator after the main status
 	{
 		const auto& Str = m_editor->m_it_CurLine->GetString();
 		size_t CurPos = m_editor->m_it_CurLine->GetCurPos();
+
+		GotoXY(StatusWidth - 2 - SpaceLeft, m_Where.top);
+		Text(L'│');
 
 		if (CurPos < Str.size())
 		{
@@ -2224,16 +2229,16 @@ void FileEditor::ShowStatus() const
 			switch(m_editor->EdOpt.CharCodeBase)
 			{
 			case 0:
-				CharStr = format(L"{0:>7}"sv, format(L"0{0:o}"sv, CharCode));
+				CharStr = cut_right(format(L"0{0:o}"sv, CharCode), 7);
 				break;
 
 			case 2:
-				CharStr = format(L"{0:4X}h"sv, CharCode);
+				CharStr = cut_right(format(L"{0:X}h"sv, CharCode), 5);
 				break;
 
 			case 1:
 			default:
-				CharStr = format(L"{0:5}"sv, CharCode);
+				CharStr = cut_right(str(CharCode), 5);
 				break;
 			}
 

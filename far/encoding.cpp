@@ -39,6 +39,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "common/io.hpp"
 
+#include "format.hpp"
+
 class installed_codepages
 {
 public:
@@ -1067,6 +1069,18 @@ bool IsNoFlagsCodepage(uintptr_t cp)
 		(cp >= 57002 && cp <= 57011) ||
 		cp == CP_UTF7 ||
 		cp == CP_SYMBOL;
+}
+
+string ShortReadableCodepageName(uintptr_t cp)
+{
+	switch (cp)
+	{
+	case CP_UTF7:        return L"UTF-7"s;
+	case CP_UTF8:        return L"UTF-8"s;
+	case CP_UNICODE:     return L"U16LE"s;
+	case CP_REVERSEBOM:  return L"U16BE"s;
+	default:             return str(cp);
+	}
 }
 
 /*
