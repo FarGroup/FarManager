@@ -417,12 +417,12 @@ string ExtractPathRoot(string_view const Path)
 	return path::join(Path.substr(0, PathRootLen), L""sv);
 }
 
-string ExtractFileName(string_view const Path)
+string_view ExtractFileName(string_view const Path)
 {
 	auto p = FindLastSlash(Path);
 	p = p == string::npos? 0 : p + 1;
 	p = std::max(p, GetPathRootLength(Path));
-	return string(Path.substr(p));
+	return Path.substr(p);
 }
 
 string ExtractFilePath(string_view const Path)

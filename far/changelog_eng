@@ -3,6 +3,12 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 24.02.2019 02:23:08 +0000 - build 5369
+
+1. Switching from editor to viewer didn't work in UTF-8 files due to a typo in 5345.
+
+2. Lng read optimisation.
+
 drkns 22.02.2019 23:12:51 +0000 - build 5368
 
 1. Use '│' instead of ' ' as a separator in editor & viewer status lines. Readability should improve.

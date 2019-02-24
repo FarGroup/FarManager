@@ -4824,10 +4824,10 @@ long long Editor::GetCurPos(bool file_pos, bool add_bom) const
 	const auto TotalSize = std::accumulate(Lines.cbegin(), m_it_TopScreen.cbase(), bom, [&](auto Value, const auto& line)
 	{
 		const auto& Str = line.GetString();
-		return Value + (Multiplier != Unknown? Str.size() : encoding::get_bytes_count(m_codepage, Str)) + eol::str(line.GetEOL()).size();
+		return Value + (Multiplier != UnknownMultiplier? Str.size() : encoding::get_bytes_count(m_codepage, Str)) + eol::str(line.GetEOL()).size();
 	});
 
-	return Multiplier != Unknown? TotalSize * Multiplier : TotalSize;
+	return Multiplier != UnknownMultiplier? TotalSize * Multiplier : TotalSize;
 }
 
 

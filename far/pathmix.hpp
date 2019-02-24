@@ -186,10 +186,7 @@ bool IsParentDirectory(const PluginPanelItem& Data);
 bool IsCurrentDirectory(string_view Str);
 
 string ExtractPathRoot(string_view Path);
-string ExtractFileName(string_view Path);
+string_view ExtractFileName(string_view Path);
 string ExtractFilePath(string_view Path);
-
-void TestPathParser();
-
 
 #endif // PATHMIX_HPP_4A60B3C3_4328_407E_A0E8_F55A9A9BE343

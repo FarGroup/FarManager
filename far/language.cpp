@@ -273,45 +273,55 @@ static string ConvertString(const string_view Src)
 	return Result;
 }
 
-static void parse_lng_line(const string_view str, bool ParseLabels, string& label, string& data, bool& have_data)
+enum class lng_line_type
 {
-	have_data = false;
+	none,
+	label,
+	text,
+	both
+};
 
-	//-- //[Label]
-	if (ParseLabels && starts_with(str, L"//["sv) && ends_with(str, L"]"sv))
-	{
-		const auto LabelView = str.substr(3, str.size() - 3 - 1);
-		//-- //[Label=0]
-		label = LabelView.substr(0, LabelView.find(L'='));
-		return;
-	}
+static lng_line_type parse_lng_line(const string_view str, bool ParseLabels, string_view& Label, string_view& Data)
+{
+	Label = {};
+	Data = {};
 
 	//-- "Text"
 	if (starts_with(str, L'"'))
 	{
-		have_data = true;
-		data = str.substr(1);
-		if (!data.empty() && data.back() == L'"')
-			data.pop_back();
-		return;
+		Data = str.substr(1, str.size() - (ends_with(str, L'"')? 2 : 1));
+		return lng_line_type::text;
+	}
+
+	//-- //[Label]
+	if (ParseLabels)
+	{
+		const auto Prefix = L"//["sv, Suffix = L"]"sv;
+		if (starts_with(str, Prefix) && ends_with(str, Suffix))
+		{
+			Label = str.substr(Prefix.size(), str.size() - Prefix.size() - Suffix.size());
+			return lng_line_type::label;
+		}
 	}
 
 	//-- MLabel="Text"
 	if (ParseLabels && !str.empty() && str.back() == L'"')
 	{
 		const auto eq_pos = str.find(L'=');
-		if (eq_pos != string::npos && InRange(L'A', upper(str[0]), L'Z'))
+		if (eq_pos != str.npos && std::iswalpha(str[0]))
 		{
-			data = trim(str.substr(eq_pos + 1));
-			if (data.size() > 1 && data[0] == L'"')
+			const auto Value = trim(str.substr(eq_pos + 1));
+
+			if (starts_with(Value, L'"'))
 			{
-				label = trim(str.substr(0, eq_pos));
-				have_data = true;
-				data.pop_back();
-				data.erase(0, 1);
+				Label = trim(str.substr(0, eq_pos));
+				Data = Value.substr(1, Value.size() - 2);
+				return lng_line_type::both;
 			}
 		}
 	}
+
+	return lng_line_type::none;
 }
 
 class language_data final: public i_language_data
@@ -328,6 +338,40 @@ public:
 private:
 	std::vector<string> m_Messages;
 };
+
+static void LoadCustomStrings(const string& FileName, std::unordered_map<string, string>& Strings)
+{
+	const os::fs::file CustomFile(FileName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
+	if (!CustomFile)
+		return;
+
+	const auto CustomFileCodepage = GetFileCodepage(CustomFile, encoding::codepage::oem(), nullptr, false);
+
+	string SavedLabel;
+
+	for (const auto& i : enum_file_lines(CustomFile, CustomFileCodepage))
+	{
+		string_view Label, Text;
+		switch (parse_lng_line(trim(i.Str), true, Label, Text))
+		{
+		case lng_line_type::label:
+			SavedLabel = Label;
+			break;
+
+		case lng_line_type::text:
+			Strings.emplace(std::move(SavedLabel), ConvertString(Text));
+			SavedLabel.clear();
+			break;
+
+		case lng_line_type::both:
+			Strings.emplace(Label, ConvertString(Text));
+			break;
+
+		default:
+			break;
+		}
+	}
+}
 
 void language::load(const string& Path, const string& Language, int CountNeed)
 {
@@ -351,26 +395,44 @@ void language::load(const string& Path, const string& Language, int CountNeed)
 		Data->reserve(CountNeed);
 	}
 
+	// try to load Far<LNG>.lng.custom file(s)
+	std::unordered_map<string, string> CustomStrings;
+
 	const auto CustomLngInSameDir = Data->m_FileName + L".custom"sv;
 	const auto CustomLngInProfileDir = concat(Global->Opt->ProfilePath, L'\\', ExtractFileName(CustomLngInSameDir));
 
-	const auto LoadLabels = os::fs::exists(CustomLngInSameDir) || os::fs::exists(CustomLngInProfileDir);
+	LoadCustomStrings(CustomLngInSameDir, CustomStrings);
+	LoadCustomStrings(CustomLngInProfileDir, CustomStrings);
 
-	std::unordered_map<string, size_t> id_map;
-	string label, text;
+	const auto LoadLabels = !CustomStrings.empty();
+
+	string SavedLabel;
+
 	for (const auto& i: enum_file_lines(LangFile, LangFileCodePage))
 	{
-		bool have_text;
-		parse_lng_line(trim(i.Str), LoadLabels, label, text, have_text);
-		if (have_text)
+		string_view Label, Text;
+		switch (parse_lng_line(trim(i.Str), LoadLabels, Label, Text))
 		{
-			auto idx = Data->size();
-			Data->add(ConvertString(text));
-			if (LoadLabels && !label.empty())
+		case lng_line_type::label:
+			SavedLabel = Label;
+			break;
+
+		case lng_line_type::text:
+			if (LoadLabels)
 			{
-				id_map[label] = idx;
-				label.clear();
+				const auto Iterator = CustomStrings.find(SavedLabel);
+				if (Iterator != CustomStrings.cend())
+				{
+					Text = Iterator->second;
+				}
+				SavedLabel.clear();
 			}
+
+			Data->add(ConvertString(Text));
+			break;
+
+		default:
+			break;
 		}
 	}
 
@@ -378,38 +440,6 @@ void language::load(const string& Path, const string& Language, int CountNeed)
 	if (CountNeed != -1 && CountNeed != static_cast<int>(Data->size()))
 	{
 		throw MAKE_EXCEPTION(exception, Data->m_FileName + L": language data is incorrect or damaged"sv);
-	}
-
-	// try to load Far<LNG>.lng.custom file(s)
-	//
-	if (!id_map.empty())
-	{
-		const auto& LoadStrings = [&](const string& FileName)
-		{
-			const os::fs::file CustomFile(FileName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
-			if (!CustomFile)
-				return;
-
-			const auto CustomFileCodepage = GetFileCodepage(CustomFile, encoding::codepage::oem(), nullptr, false);
-			label.clear();
-			for (const auto& i: enum_file_lines(CustomFile, CustomFileCodepage))
-			{
-				bool have_text;
-				parse_lng_line(trim(i.Str), true, label, text, have_text);
-				if (have_text && !label.empty())
-				{
-					const auto found = id_map.find(label);
-					if (found != id_map.end())
-					{
-						Data->set_at(found->second, ConvertString(text));
-					}
-					label.clear();
-				}
-			}
-		};
-
-		LoadStrings(CustomLngInSameDir);
-		LoadStrings(CustomLngInProfileDir);
 	}
 
 	m_Data = std::move(Data);
@@ -472,3 +502,39 @@ const string& msg(lng Id)
 {
 	return far_language::instance().Msg(Id);
 }
+
+#include "common/test.hpp"
+
+#ifdef _DEBUG
+static void TestLngParser()
+{
+	static const struct
+	{
+		string_view Line, Label, Data;
+		lng_line_type Result;
+	}
+	Tests[]
+	{
+		L"\"Text\""sv,    {},          L"Text"sv,  lng_line_type::text,
+		L"\"Text"sv,      {},          L"Text"sv,  lng_line_type::text,
+		L"//[Label]"sv,   L"Label"sv,  {},         lng_line_type::label,
+		L"//[Lab"sv,      {},          {},         lng_line_type::none,
+		L"foo=\"bar\""sv, L"foo"sv,    L"bar"sv,   lng_line_type::both,
+		L"foo=\"bar"sv,   {},          {},         lng_line_type::none,
+		L"foo=bar"sv,     {},          {},         lng_line_type::none,
+		L"foo="sv,        {},          {},         lng_line_type::none,
+		L"foo"sv,         {},          {},         lng_line_type::none,
+	};
+
+	for (const auto& i: Tests)
+	{
+		string_view Label, Data;
+		const auto Result = parse_lng_line(i.Line, true, Label, Data);
+		EXPECT_TRUE(i.Result == Result);
+		EXPECT_EQ(i.Label, Label);
+		EXPECT_EQ(i.Data, Data);
+	}
+}
+#endif
+
+SELF_TEST(TestLngParser)

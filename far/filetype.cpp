@@ -248,9 +248,9 @@ bool GetFiletypeOpenMode(int keyPressed, FILETYPE_MODE& mode, bool& shouldForceI
 /*
   Используется для запуска внешнего редактора и вьювера
 */
-void ProcessExternal(const string& Command, const string& Name, const string& ShortName, bool AlwaysWaitFinish)
+void ProcessExternal(string_view const Command, string_view const Name, string_view const ShortName, bool const AlwaysWaitFinish)
 {
-	string strExecStr = Command;
+	string strExecStr(Command);
 	list_names ListNames;
 	bool PreserveLFN = false;
 	if (!SubstFileName(strExecStr, subst_context(Name, ShortName), &ListNames, &PreserveLFN) || strExecStr.empty())
