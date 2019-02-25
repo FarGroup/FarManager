@@ -119,6 +119,31 @@ public:
 		m_Finalised = false;
 	}
 
+	static bool DoWeReallyHaveToScroll()
+	{
+		/*
+		Q: WTF is this magic?
+		A: The whole point of scrolling here is to move the output up to make room for:
+		  - an empty line after the output
+		  - prompt
+		  - keybar (optional).
+
+		Sometimes the output happens at the very top of the buffer (say, a bat file that does 'cls' before anything else),
+		or just ends with a few empty lines so there could be enough room for us already, in which case there's no point in scrolling it further.
+
+		This function reads 3 (or 2) last lines from the screen buffer and checks if there's anything else in them but spaces.
+		*/
+
+		const short Rows = Global->Opt->ShowKeyBar? 3 : 2;
+		const SMALL_RECT Region = { 0, ScrY - Rows + 1, ScrX, ScrY };
+
+		// TODO: matrix_view to avoid copying
+		matrix<FAR_CHAR_INFO> BufferBlock(Rows, ScrX + 1);
+		Global->ScrBuf->Read({ Region.Left, Region.Top, Region.Right, Region.Bottom }, BufferBlock);
+
+		return std::any_of(ALL_CONST_RANGE(BufferBlock.vector()), [](const FAR_CHAR_INFO& i) { return !std::iswspace(i.Char); });
+	}
+
 	void DoEpilogue(bool Scroll) override
 	{
 		if (!m_Activated)
@@ -139,7 +164,7 @@ public:
 			m_Consolised = false;
 		}
 
-		if (Scroll)
+		if (Scroll && DoWeReallyHaveToScroll())
 		{
 			ScrollScreen(1);
 		}

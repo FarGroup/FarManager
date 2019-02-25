@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 25.02.2019 23:31:27 +0000 - build 5370
+
+1. Some AI in executor to skip scrolling if possible, based on https://forum.farmanager.com/viewtopic.php?p=153198#p153198.
+
 MZK 24.02.2019 16:26:04 -0800
 
 1. Revised @Viewer help page, both English and Russian
