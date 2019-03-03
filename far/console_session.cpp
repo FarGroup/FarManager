@@ -135,7 +135,7 @@ public:
 		*/
 
 		const short Rows = Global->Opt->ShowKeyBar? 3 : 2;
-		const SMALL_RECT Region = { 0, ScrY - Rows + 1, ScrX, ScrY };
+		const SMALL_RECT Region = { 0, static_cast<short>(ScrY - Rows + 1), ScrX, ScrY };
 
 		// TODO: matrix_view to avoid copying
 		matrix<FAR_CHAR_INFO> BufferBlock(Rows, ScrX + 1);

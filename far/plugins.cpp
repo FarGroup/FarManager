@@ -74,18 +74,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/enum_tokens.hpp"
 #include "common/scope_exit.hpp"
 
-static void ReadUserBackgound(SaveScreen *SaveScr)
-{
-	if (Global->KeepUserScreen)
-	{
-		if (SaveScr)
-			SaveScr->Discard();
-
-		Global->ScrBuf->FillBuf();
-		Global->WindowManager->Desktop()->TakeSnapshot();
-	}
-}
-
 static string GetHotKeyPluginKey(Plugin const* const pPlugin)
 {
 	/*
@@ -975,15 +963,7 @@ int PluginManager::SetDirectory(const plugin_panel* hPlugin, const string& Dir, 
 bool PluginManager::GetFile(const plugin_panel* hPlugin, PluginPanelItem *PanelItem, const string& DestPath, string &strResultName, int OpMode)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
-	std::unique_ptr<SaveScreen> SaveScr;
 	bool Found = false;
-	Global->KeepUserScreen=FALSE;
-
-	if (!(OpMode & OPM_FIND))
-		SaveScr = std::make_unique<SaveScreen>(); //???
-
-	SCOPED_ACTION(UndoGlobalSaveScrPtr)(SaveScr.get());
-
 	GetFilesInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
 	Info.PanelItem = PanelItem;
@@ -1013,8 +993,6 @@ bool PluginManager::GetFile(const plugin_panel* hPlugin, PluginPanelItem *PanelI
 			os::fs::delete_file(Result); //BUGBUG
 		}
 	}
-
-	ReadUserBackgound(SaveScr.get());
 	return Found;
 }
 
@@ -1022,19 +1000,12 @@ bool PluginManager::GetFile(const plugin_panel* hPlugin, PluginPanelItem *PanelI
 int PluginManager::DeleteFiles(const plugin_panel* hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, int OpMode)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
-	SaveScreen SaveScr;
-	Global->KeepUserScreen=FALSE;
-
 	DeleteFilesInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
 	Info.PanelItem = PanelItem;
 	Info.ItemsNumber = ItemsNumber;
 	Info.OpMode = OpMode;
-
 	int Code = hPlugin->plugin()->DeleteFiles(&Info);
-
-	ReadUserBackgound(&SaveScr);
-
 	return Code;
 }
 
@@ -1042,20 +1013,12 @@ int PluginManager::DeleteFiles(const plugin_panel* hPlugin, PluginPanelItem *Pan
 int PluginManager::MakeDirectory(const plugin_panel* hPlugin, const wchar_t **Name, int OpMode)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
-	SaveScreen SaveScr;
-	Global->KeepUserScreen=FALSE;
-
 	MakeDirectoryInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
 	Info.Name = *Name;
 	Info.OpMode = OpMode;
-
 	int Code = hPlugin->plugin()->MakeDirectory(&Info);
-
 	*Name = Info.Name;
-
-	ReadUserBackgound(&SaveScr);
-
 	return Code;
 }
 
@@ -1063,19 +1026,12 @@ int PluginManager::MakeDirectory(const plugin_panel* hPlugin, const wchar_t **Na
 int PluginManager::ProcessHostFile(const plugin_panel* hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, int OpMode)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
-	SaveScreen SaveScr;
-	Global->KeepUserScreen=FALSE;
-
 	ProcessHostFileInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
 	Info.PanelItem = PanelItem;
 	Info.ItemsNumber = ItemsNumber;
 	Info.OpMode = OpMode;
-
 	int Code = hPlugin->plugin()->ProcessHostFile(&Info);
-
-	ReadUserBackgound(&SaveScr);
-
 	return Code;
 }
 
@@ -1101,9 +1057,6 @@ int PluginManager::GetFiles(const plugin_panel* hPlugin, PluginPanelItem *PanelI
 int PluginManager::PutFiles(const plugin_panel* hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, bool Move, int OpMode)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
-	SaveScreen SaveScr;
-	Global->KeepUserScreen=FALSE;
-
 	static string strCurrentDirectory;
 	strCurrentDirectory = os::fs::GetCurrentDirectory();
 	PutFilesInfo Info = {sizeof(Info)};
@@ -1113,11 +1066,7 @@ int PluginManager::PutFiles(const plugin_panel* hPlugin, PluginPanelItem *PanelI
 	Info.Move = Move;
 	Info.SrcPath = strCurrentDirectory.c_str();
 	Info.OpMode = OpMode;
-
 	const auto Result = hPlugin->plugin()->PutFiles(&Info);
-
-	ReadUserBackgound(&SaveScr);
-
 	return Result;
 }
 
