@@ -50,7 +50,7 @@ test: off
 
 after_build:
   #archive
-  - cd far\%configuration%.64.vc
+  - cd far\%configuration%.64.vc.clang
   #set NAME_PREFIX variable as otherwise it is not available when artifacts are collected
   - set NAME_PREFIX="Far%NAME_ADD%.%platform%.%appveyor_build_version%.%APPVEYOR_REPO_COMMIT%"
   - appveyor SetVariable -Name NAME_PREFIX -Value "%NAME_PREFIX%"
