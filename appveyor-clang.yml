@@ -1,0 +1,63 @@
+version: 3.0.{branch}.{build}
+
+branches:
+  only:
+    - master
+
+skip_tags: true
+skip_non_tags: false
+
+max_jobs: 8
+
+image: Visual Studio 2017
+
+init:
+
+clone_folder: c:\projects\FarManager
+
+shallow_clone: true
+clone_depth: 1
+
+install:
+  - cd far && for /f "tokens=1,2,4 delims=," %%i in ('tools\m4 -P farversion.inc.m4') do appveyor UpdateBuild -Version %%i.%%j.%%k.%APPVEYOR_BUILD_NUMBER% && cd ..
+  - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars%bit%.bat"
+  - set Path=C:\Program Files\LLVM\bin;%Path%
+
+environment:
+  matrix:
+
+  - platform: x64
+    configuration: Debug
+    ADD_MAKE: DEBUG=1
+    NAME_ADD: .Debug
+    bit: 64
+
+  - platform: x64
+    configuration: Release
+    bit: 64
+
+build_script:
+  #build Far
+  - cd far
+  - nmake %ADD_MAKE% /f makefile_vc
+  - cd ..
+  #build Plugins
+  - cd plugins
+  - # TODO
+  - cd ..
+
+test: off
+
+after_build:
+  #archive
+  - cd far\%configuration%.64.vc
+  #set NAME_PREFIX variable as otherwise it is not available when artifacts are collected
+  - set NAME_PREFIX="Far%NAME_ADD%.%platform%.%appveyor_build_version%.%APPVEYOR_REPO_COMMIT%"
+  - appveyor SetVariable -Name NAME_PREFIX -Value "%NAME_PREFIX%"
+  #archive Far
+  - 7z a "%APPVEYOR_BUILD_FOLDER%\%NAME_PREFIX%.7z" -x!obj\
+  - cd ..\..
+
+artifacts:
+  - path: $(NAME_PREFIX).7z
+    name: Far Manager

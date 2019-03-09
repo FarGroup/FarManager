@@ -295,7 +295,7 @@ CPPFLAGS=$(CPPFLAGS) /permissive- /Zc:__cplusplus,externConstexpr /diagnostics:c
 
 !ifdef CLANG
 CPP = clang-cl
-CPPFLAGS = $(CPPFLAGS) -Qunused-arguments -Xclang -fno-char8_t
+CPPFLAGS = $(CPPFLAGS) -Qunused-arguments
 NOBATCH=1
 NO_RELEASE_LTCG=1
 OUTDIR=$(OUTDIR).clang
@@ -426,7 +426,7 @@ AllDirs:
 
 $(PCH_FILE): headers.cpp headers.hpp
 	@echo Making precompiled headers
-	$(CPP) $(CPPFLAGS) headers.cpp /Yc /Fp"$(PCH_FILE)"
+	$(CPP) $(CPPFLAGS) headers.cpp /Yc"headers.hpp" /Fp"$(PCH_FILE)"
 
 $(INTDIR)\initguid.obj: initguid.cpp
 	$(CPP) $(CPPFLAGS) initguid.cpp
