@@ -37,7 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 template<typename T>
 T GetFunctionPointer(const wchar_t* ModuleName, const char* FunctionName, T Replacement)
 {
-	const auto Address = GetProcAddress(GetModuleHandleW(ModuleName), FunctionName);
+	const auto Module = GetModuleHandleW(ModuleName);
+	const auto Address = Module? GetProcAddress(Module, FunctionName) : nullptr;
 	return Address? reinterpret_cast<T>(reinterpret_cast<void*>(Address)) : Replacement;
 }
 
