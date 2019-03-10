@@ -271,6 +271,6 @@ public:
   bool del_dir(const wchar_t* name);
 };
 
-ArclitePrivateInfo* get_system_functions();
+const ArclitePrivateInfo* get_system_functions();
 
 };

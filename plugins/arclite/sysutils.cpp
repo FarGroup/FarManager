@@ -149,7 +149,7 @@ void File::open(const wstring& file_path, DWORD desired_access, DWORD share_mode
 bool File::open_nt(const wstring& file_path, DWORD desired_access, DWORD share_mode, DWORD creation_disposition, DWORD flags_and_attributes) {
   close();
   this->file_path = file_path;
-  ArclitePrivateInfo* system_functions = Far::get_system_functions();
+  const auto system_functions = Far::get_system_functions();
   if (system_functions) {
     h_file = system_functions->CreateFile(long_path_norm(file_path).c_str(), desired_access, share_mode, nullptr, creation_disposition, flags_and_attributes, nullptr);
     if (h_file == nullptr)
@@ -262,7 +262,7 @@ bool File::exists(const wstring& file_path) {
 }
 
 DWORD File::attributes(const wstring& file_path) {
-  ArclitePrivateInfo* system_functions = Far::get_system_functions();
+  const auto system_functions = Far::get_system_functions();
   if (system_functions)
     return system_functions->GetFileAttributes(long_path_norm(file_path).c_str()); 
   else
@@ -274,7 +274,7 @@ void File::set_attr(const wstring& file_path, DWORD attr) {
 }
 
 bool File::set_attr_nt(const wstring& file_path, DWORD attr) {
-  ArclitePrivateInfo* system_functions = Far::get_system_functions();
+  const auto system_functions = Far::get_system_functions();
   if (system_functions)
     return system_functions->SetFileAttributes(long_path_norm(file_path).c_str(), attr) != 0;
   else
@@ -286,7 +286,7 @@ void File::delete_file(const wstring& file_path) {
 }
 
 bool File::delete_file_nt(const wstring& file_path) {
-  ArclitePrivateInfo* system_functions = Far::get_system_functions();
+  const auto system_functions = Far::get_system_functions();
   if (system_functions)
     return system_functions->DeleteFile(long_path_norm(file_path).c_str()) != 0;
   else
@@ -298,7 +298,7 @@ void File::create_dir(const wstring& file_path) {
 }
 
 bool File::create_dir_nt(const wstring& file_path) {
-  ArclitePrivateInfo* system_functions = Far::get_system_functions();
+  const auto system_functions = Far::get_system_functions();
   if (system_functions)
     return system_functions->CreateDirectory(long_path_norm(file_path).c_str(), nullptr) != 0;
   else
@@ -310,7 +310,7 @@ void File::remove_dir(const wstring& file_path) {
 }
 
 bool File::remove_dir_nt(const wstring& file_path) {
-  ArclitePrivateInfo* system_functions = Far::get_system_functions();
+  const auto system_functions = Far::get_system_functions();
   if (system_functions)
     return system_functions->RemoveDirectory(long_path_norm(file_path).c_str()) != 0;
   else
@@ -322,7 +322,7 @@ void File::move_file(const wstring& file_path, const wstring& new_path, DWORD fl
 }
 
 bool File::move_file_nt(const wstring& file_path, const wstring& new_path, DWORD flags) {
-  ArclitePrivateInfo* system_functions = Far::get_system_functions();
+  const auto system_functions = Far::get_system_functions();
   if (system_functions)
     return system_functions->MoveFileEx(long_path_norm(file_path).c_str(), long_path_norm(new_path).c_str(), flags) != 0;
   else
