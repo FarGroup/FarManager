@@ -3656,7 +3656,7 @@ bool Editor::Search(bool Next)
 							// If Replace string doesn't contain control symbols (tab and return),
 							// processed with fast method, otherwise use improved old one.
 							//
-							if (strReplaceStrCurrent.find_first_of(L"\t\r") != string::npos)
+							if (strReplaceStrCurrent.find_first_of(L"\t\r"sv) != string::npos)
 							{
 								int SaveOvertypeMode=m_Flags.Check(FEDITOR_OVERTYPE);
 								m_Flags.Set(FEDITOR_OVERTYPE);
@@ -4131,7 +4131,7 @@ string Editor::Block2Text()
 	string CopyData;
 	CopyData.reserve(TotalChars);
 
-	for (const auto& i: make_range(m_it_AnyBlockStart.base(), SelEnd))
+	for (const auto& i: range(m_it_AnyBlockStart.base(), SelEnd))
 	{
 		CopyData += i.GetSelString();
 

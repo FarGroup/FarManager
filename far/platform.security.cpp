@@ -160,7 +160,7 @@ namespace os::security
 		if (!GetTokenInformation(Token.native_handle(), TokenPrivileges, TokenInformation.get(), TokenInformationLength, &TokenInformationLength))
 			return false;
 
-		const auto Privileges = make_span(TokenInformation->Privileges, TokenInformation->PrivilegeCount);
+		const auto Privileges = span(TokenInformation->Privileges, TokenInformation->PrivilegeCount);
 
 		for (const auto& Name: Names)
 		{

@@ -535,8 +535,7 @@ static int mainImpl(range<const wchar_t* const*> const Args)
 
 	string strProfilePath, strLocalProfilePath, strTemplatePath;
 
-	// TODO: std::optional
-	std::pair<string, bool> CustomTitle;
+	std::optional<string> CustomTitle;
 
 	Options::overrides Overrides;
 	FOR_RANGE(Args, Iter)
@@ -621,9 +620,10 @@ static int mainImpl(range<const wchar_t* const*> const Args)
 						const auto Title = L"title"sv;
 						if (starts_with_icase(Arg + 1, Title))
 						{
-							CustomTitle.second = true;
 							if (Arg[1 + Title.size()] == L':')
-								CustomTitle.first = Arg + 1 + Title.size() + 1;
+								CustomTitle = Arg + 1 + Title.size() + 1;
+							else
+								CustomTitle = L""s;
 						}
 						else if (Iter + 1 != Args.end())
 						{
@@ -739,8 +739,8 @@ static int mainImpl(range<const wchar_t* const*> const Args)
 	}
 
 	InitConsole();
-	if (CustomTitle.second)
-		ConsoleTitle::SetUserTitle(CustomTitle.first.empty() ? Global->strInitTitle : CustomTitle.first);
+	if (CustomTitle.has_value())
+		ConsoleTitle::SetUserTitle(CustomTitle->empty() ? Global->strInitTitle : *CustomTitle);
 
 	SCOPE_EXIT
 	{
@@ -831,7 +831,7 @@ int main()
 	{
 		// wmain is a non-standard extension and not available in gcc.
 		int Argc;
-		const os::memory::local::ptr<const wchar_t* const> Argv(CommandLineToArgvW(GetCommandLine(), &Argc));
+		os::memory::local::ptr Argv(CommandLineToArgvW(GetCommandLine(), &Argc));
 		return wmain_seh(Argc, Argv.get());
 	},
 	[]() -> int

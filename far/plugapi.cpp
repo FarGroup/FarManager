@@ -85,7 +85,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "desktop.hpp"
 #include "string_sort.hpp"
 #include "global.hpp"
-#include "exception_handler.hpp"
 
 #include "platform.fs.hpp"
 
@@ -1204,7 +1203,7 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned long l
 			std::vector<string> Strings;
 			for (const auto& i : enum_tokens(reinterpret_cast<const wchar_t*>(Items), L"\n"sv))
 			{
-				Strings.emplace_back(ALL_CONST_RANGE(i));
+				Strings.emplace_back(i);
 			}
 			AssignStrings(std::move(Strings));
 		}
@@ -2939,7 +2938,8 @@ wchar_t* WINAPI apiXlat(wchar_t *Line, intptr_t StartPos, intptr_t EndPos, XLAT_
 {
 	try
 	{
-		return Xlat(Line, StartPos, EndPos, Flags);
+		Xlat(Line, StartPos, EndPos, Flags);
+		return Line;
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return Line;
@@ -3026,4 +3026,101 @@ intptr_t WINAPI apiCallFar(intptr_t CheckCode, FarMacroCall* Data) noexcept
 	return 0;
 }
 
+}
+
+static const FarStandardFunctions NativeFSF
+{
+	sizeof(NativeFSF),
+	pluginapi::apiAtoi,
+	pluginapi::apiAtoi64,
+	pluginapi::apiItoa,
+	pluginapi::apiItoa64,
+	pluginapi::apiSprintf,
+	pluginapi::apiSscanf,
+	pluginapi::apiQsort,
+	pluginapi::apiBsearch,
+	pluginapi::apiSnprintf,
+	pluginapi::apiIsLower,
+	pluginapi::apiIsUpper,
+	pluginapi::apiIsAlpha,
+	pluginapi::apiIsAlphaNum,
+	pluginapi::apiUpper,
+	pluginapi::apiLower,
+	pluginapi::apiUpperBuf,
+	pluginapi::apiLowerBuf,
+	pluginapi::apiStrUpper,
+	pluginapi::apiStrLower,
+	pluginapi::apiStrCmpI,
+	pluginapi::apiStrCmpNI,
+	pluginapi::apiUnquote,
+	pluginapi::apiRemoveLeadingSpaces,
+	pluginapi::apiRemoveTrailingSpaces,
+	pluginapi::apiRemoveExternalSpaces,
+	pluginapi::apiTruncStr,
+	pluginapi::apiTruncPathStr,
+	pluginapi::apiQuoteSpaceOnly,
+	pluginapi::apiPointToName,
+	pluginapi::apiGetPathRoot,
+	pluginapi::apiAddEndSlash,
+	pluginapi::apiCopyToClipboard,
+	pluginapi::apiPasteFromClipboard,
+	pluginapi::apiInputRecordToKeyName,
+	pluginapi::apiKeyNameToInputRecord,
+	pluginapi::apiXlat,
+	pluginapi::apiGetFileOwner,
+	pluginapi::apiGetNumberOfLinks,
+	pluginapi::apiRecursiveSearch,
+	pluginapi::apiMkTemp,
+	pluginapi::apiProcessName,
+	pluginapi::apiMkLink,
+	pluginapi::apiConvertPath,
+	pluginapi::apiGetReparsePointInfo,
+	pluginapi::apiGetCurrentDirectory,
+	pluginapi::apiFormatFileSize,
+	pluginapi::apiFarClock,
+	pluginapi::apiCompareStrings,
+};
+
+static const PluginStartupInfo NativeInfo
+{
+	sizeof(NativeInfo),
+	nullptr, //ModuleName, dynamic
+	pluginapi::apiMenuFn,
+	pluginapi::apiMessageFn,
+	pluginapi::apiGetMsgFn,
+	pluginapi::apiPanelControl,
+	pluginapi::apiSaveScreen,
+	pluginapi::apiRestoreScreen,
+	pluginapi::apiGetDirList,
+	pluginapi::apiGetPluginDirList,
+	pluginapi::apiFreeDirList,
+	pluginapi::apiFreePluginDirList,
+	pluginapi::apiViewer,
+	pluginapi::apiEditor,
+	pluginapi::apiText,
+	pluginapi::apiEditorControl,
+	nullptr, // FSF, dynamic
+	pluginapi::apiShowHelp,
+	pluginapi::apiAdvControl,
+	pluginapi::apiInputBox,
+	pluginapi::apiColorDialog,
+	pluginapi::apiDialogInit,
+	pluginapi::apiDialogRun,
+	pluginapi::apiDialogFree,
+	pluginapi::apiSendDlgMessage,
+	pluginapi::apiDefDlgProc,
+	pluginapi::apiViewerControl,
+	pluginapi::apiPluginsControl,
+	pluginapi::apiFileFilterControl,
+	pluginapi::apiRegExpControl,
+	pluginapi::apiMacroControl,
+	pluginapi::apiSettingsControl,
+	nullptr, //Private, dynamic
+};
+
+void CreatePluginStartupInfo(PluginStartupInfo* PSI, FarStandardFunctions* FSF)
+{
+	*PSI = NativeInfo;
+	*FSF = NativeFSF;
+	PSI->FSF = FSF;
 }

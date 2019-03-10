@@ -104,10 +104,11 @@ protected:
 		bool Step() const;
 		void Execute() const;
 
-		template<typename arg, typename... args>
-		auto& Bind(arg&& Arg, args&&... Args)
+		template<typename... args>
+		auto& Bind(args&&... Args)
 		{
-			return BindImpl(FWD(Arg)), Bind(FWD(Args)...);
+			(..., BindImpl(FWD(Args)));
+			return *this;
 		}
 
 		string GetColText(int Col) const;
@@ -118,8 +119,6 @@ protected:
 		column_type GetColType(int Col) const;
 
 	private:
-		auto& Bind() { return *this; }
-
 		template<typename type>
 		SQLiteStmt& BindImpl(const type* Value)
 		{

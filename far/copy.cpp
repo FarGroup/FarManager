@@ -432,7 +432,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 					if (MultiCopy) // мультикопирование
 					{
 						// Добавим кавычки, если имя каталога содержит символы-разделители
-						if (strNewFolder.find_first_of(L",;") != string::npos)
+						if (strNewFolder.find_first_of(L",;"sv) != string::npos)
 							inplace::quote(strNewFolder);
 
 						if (!strOldFolder.empty())
@@ -735,7 +735,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 		// При копировании только элемента под курсором берем его имя в кавычки, если оно содержит разделители.
 		CopyDlg[ID_SC_TARGETEDIT].strData = SingleSelName;
 
-		if (Ask && !Move && CopyDlg[ID_SC_TARGETEDIT].strData.find_first_of(L",;") != string::npos)
+		if (Ask && !Move && CopyDlg[ID_SC_TARGETEDIT].strData.find_first_of(L",;"sv) != string::npos)
 		{
 			inplace::quote(CopyDlg[ID_SC_TARGETEDIT].strData);
 		}
@@ -758,7 +758,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 				   Если цель содержит разделители, то возьмем ее в кавычки, дабы не получить
 				   ерунду при F5, Enter в панелях, когда пользователь включит MultiCopy
 				*/
-				if (Ask &&!Move && CopyDlg[ID_SC_TARGETEDIT].strData.find_first_of(L",;") != string::npos)
+				if (Ask &&!Move && CopyDlg[ID_SC_TARGETEDIT].strData.find_first_of(L",;"sv) != string::npos)
 				{
 					// возьмем в кавычки, т.к. могут быть разделители
 					inplace::quote(CopyDlg[ID_SC_TARGETEDIT].strData);
@@ -916,7 +916,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 				}
 				else
 				{
-					if (strCopyDlgValue.find_first_of(L",;") == string::npos)
+					if (strCopyDlgValue.find_first_of(L",;"sv) == string::npos)
 					{
 						m_DestList = { unquote(strCopyDlgValue) };
 					}
@@ -924,7 +924,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 					{
 						for (const auto& i: enum_tokens_with_quotes_t<with_trim>(strCopyDlgValue, L",;"sv))
 						{
-							m_DestList.emplace_back(ALL_CONST_RANGE(i));
+							m_DestList.emplace_back(i);
 						}
 					}
 				}
@@ -1136,7 +1136,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 				// Если выделенных элементов больше 1 и среди них есть каталог, то всегда
 				// делаем так, чтобы на конце был '\\'
 				// делаем так не всегда, а только когда NameTmp не является маской.
-				if (AddSlash && strNameTmp.find_first_of(L"*?") == string::npos)
+				if (AddSlash && strNameTmp.find_first_of(L"*?"sv) == string::npos)
 					AddEndSlash(strNameTmp);
 
 				if (SelCount==1 && !FolderPresent)
@@ -1309,7 +1309,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 	DWORD Flags0 = Flags;
 
 	bool first = true;
-	bool UseWildCards = Dest.find_first_of(L"*?") != string::npos;
+	bool UseWildCards = Dest.find_first_of(L"*?"sv) != string::npos;
 	bool copy_to_null = (0 != (Flags & FCOPY_COPYTONUL));
 	bool move_rename = (0 != (Flags & FCOPY_MOVE));
 	bool SameDisk = false;

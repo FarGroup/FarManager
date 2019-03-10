@@ -32,46 +32,50 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "movable.hpp"
-
 namespace scope_exit
 {
-	class uncaught_exceptions_counter
-	{
-	public:
-		[[nodiscard]]
-		bool is_new() const noexcept { return std::uncaught_exceptions() > m_Count; }
-
-		int m_Count{ std::uncaught_exceptions() }; // int... "a camel is a horse designed by a committee" :(
-	};
-
 	enum class scope_type
 	{
 		exit,
 		fail,
-
 		success
 	};
 
-	template<typename F, scope_type Type>
+	template<scope_type Type>
+	class exception_monitor
+	{
+	public:
+		[[nodiscard]]
+		bool invoke_handler() const noexcept { return (Type == scope_type::fail) == (std::uncaught_exceptions() > m_Count); }
+
+		int m_Count{ std::uncaught_exceptions() }; // int... "a camel is a horse designed by a committee" :(
+	};
+
+	template<>
+	class exception_monitor<scope_type::exit>
+	{
+	public:
+		[[nodiscard]]
+		constexpr static bool invoke_handler() noexcept { return true; }
+	};
+
+	template<scope_type Type, typename F>
 	class scope_guard
 	{
 	public:
 		NONCOPYABLE(scope_guard);
-		MOVABLE(scope_guard);
 
 		explicit scope_guard(F&& f): m_f(FWD(f)) {}
 
 		~scope_guard() noexcept(Type == scope_type::fail)
 		{
-			if (m_Active && (Type == scope_type::exit || (Type == scope_type::fail) == m_Ec.is_new()))
+			if (m_Monitor.invoke_handler())
 				m_f();
 		}
 
 	private:
 		F m_f;
-		movable<bool> m_Active{ true };
-		uncaught_exceptions_counter m_Ec;
+		exception_monitor<Type> m_Monitor;
 	};
 
 	template<scope_type Type>
@@ -80,7 +84,7 @@ namespace scope_exit
 	public:
 		template<typename F>
 		[[nodiscard]]
-		auto operator << (F&& f) { return scope_guard<F, Type>(FWD(f)); }
+		auto operator << (F&& f) { return scope_guard<Type, F>(FWD(f)); }
 	};
 }
 

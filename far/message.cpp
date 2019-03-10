@@ -304,7 +304,7 @@ void Message::Init(
 
 		for (const auto& i : wrapped_text(strErrStr, LenErrStr))
 		{
-			Strings.emplace_back(ALL_CONST_RANGE(i));
+			Strings.emplace_back(i);
 		}
 	}
 

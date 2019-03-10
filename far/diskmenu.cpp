@@ -691,7 +691,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 
 		auto DE = std::make_unique<elevation::suppress>();
-		const auto& DriveMode = Global->Opt->ChangeDriveMode;
+		auto& DriveMode = Global->Opt->ChangeDriveMode;
 
 		for (const auto& i: os::fs::enum_drives(AllDrives))
 		{
@@ -917,8 +917,6 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 		ChDisk->Run([&](const Manager::Key& RawKey)
 		{
-			auto& DriveMode = Global->Opt->ChangeDriveMode;
-
 			auto Key = RawKey();
 			if (Key == KEY_NONE && NeedRefresh)
 			{

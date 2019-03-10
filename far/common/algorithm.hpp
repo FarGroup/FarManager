@@ -161,7 +161,7 @@ namespace detail
 	using try_emplace_hint = decltype(std::declval<T&>().emplace_hint(std::declval<T&>().end(), *std::declval<T&>().begin()));
 
 	template<class T>
-	constexpr bool has_emplace_hint_v = is_valid<T, try_emplace_hint>::value;
+	constexpr bool has_emplace_hint_v = is_detected_v<try_emplace_hint, T>;
 }
 
 // Unified container emplace
@@ -186,24 +186,24 @@ namespace detail
 	using try_find = decltype(std::declval<T&>().find(std::declval<typename T::key_type&>()));
 
 	template<class T>
-	constexpr bool has_find_v = is_valid<T, try_find>::value;
+	constexpr bool has_find_v = is_detected_v<try_find, T>;
 }
 
-// associative containers
-template<typename container, typename element, REQUIRES(is_range_v<container> && detail::has_find_v<container>)>
+template<typename container, typename element, REQUIRES(is_range_v<container>)>
 [[nodiscard]]
 bool contains(const container& Container, const element& Element)
 {
-	return Container.find(Element) != Container.cend();
-}
-
-// everything else
-template<typename container, typename element, REQUIRES(is_range_v<container> && !detail::has_find_v<container>)>
-[[nodiscard]]
-bool contains(const container& Container, const element& Element)
-{
-	const auto End = std::cend(Container);
-	return std::find(std::cbegin(Container), End, Element) != End;
+	if constexpr (detail::has_find_v<container>)
+	{
+		// associative containers
+		return Container.find(Element) != Container.cend();
+	}
+	else
+	{
+		// everything else
+		const auto End = std::cend(Container);
+		return std::find(std::cbegin(Container), End, Element) != End;
+	}
 }
 
 #endif // ALGORITHM_HPP_BBD588C0_4752_46B2_AAB9_65450622FFF0

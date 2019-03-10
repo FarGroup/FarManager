@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.chrono.hpp"
 
 #include "common/enumerator.hpp"
+#include "common/movable.hpp"
 
 namespace os::fs
 {

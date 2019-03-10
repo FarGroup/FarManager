@@ -90,7 +90,7 @@ namespace os::memory
 		}
 
 		[[nodiscard]]
-		ptr copy(const wchar_t* Data, size_t Size);
+		ptr copy(string_view Str);
 	}
 
 	namespace local
@@ -104,7 +104,13 @@ namespace os::memory
 		};
 
 		template<class T>
-		using ptr = std::unique_ptr<T, detail::deleter>;
+		class ptr: public base<std::unique_ptr<T, detail::deleter>>
+		{
+			using ptr::base_ctor::base_ctor;
+		};
+
+		template<class T>
+		ptr(T*) -> ptr<T>;
 
 		template<class T>
 		[[nodiscard]]
@@ -112,7 +118,13 @@ namespace os::memory
 		{
 			return ptr<T>(static_cast<T*>(LocalAlloc(Flags, size)));
 		}
-	};
+
+		template<class T>
+		ptr<T> to_ptr(T* Ptr)
+		{
+			return ptr<T>{ Ptr };
+		}
+	}
 
 	[[nodiscard]]
 	bool is_pointer(const void* Address);

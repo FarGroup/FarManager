@@ -931,20 +931,19 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 							{
 								const auto path = path::join(SrcPanel->GetCurDir(), SingleSelFileName);
 								os::netapi::ptr<DFS_INFO_3> DfsInfo;
-								if (imports.NetDfsGetInfo(UNSAFE_CSTR(path), nullptr, nullptr, 3, reinterpret_cast<LPBYTE*>(&ptr_setter(DfsInfo))) == NERR_Success)
+								auto Result = imports.NetDfsGetInfo(UNSAFE_CSTR(path), nullptr, nullptr, 3, reinterpret_cast<LPBYTE*>(&ptr_setter(DfsInfo)));
+								if (Result != NERR_Success)
+									Result = imports.NetDfsGetClientInfo(UNSAFE_CSTR(path), nullptr, nullptr, 3, reinterpret_cast<LPBYTE*>(&ptr_setter(DfsInfo)));
+								if (Result == NERR_Success)
 								{
 									KnownReparsePoint = true;
 
-									auto DfsStorages = make_span(DfsInfo->Storage, DfsInfo->NumberOfStorages);
+									const span DfsStorages(DfsInfo->Storage, DfsInfo->NumberOfStorages);
 									ListItems.resize(DfsStorages.size());
 									Links.resize(DfsStorages.size());
 
-									for (const auto& i: zip(Links, ListItems, DfsStorages))
+									for (const auto& [Link, Item, Storage]: zip(Links, ListItems, DfsStorages))
 									{
-										auto& Link = std::get<0>(i);
-										auto& Item = std::get<1>(i);
-										const auto& Storage = std::get<2>(i);
-
 										Link = concat(L"\\\\"sv, Storage.ServerName, L'\\', Storage.ShareName);
 										Item.Text = Link.c_str();
 										Item.Flags =

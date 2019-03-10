@@ -39,36 +39,40 @@ public:
 	template<typename duration_type>
 	explicit split_duration(duration_type Duration)
 	{
-		split<0, duration_type, tuple_types...>(Duration);
+		(..., (set_and_chop<tuple_types>(Duration)));
 	}
 
 	template<typename type>
 	[[nodiscard]]
 	type& get()
 	{
-		// This idiotic cast to std::tuple is for clang
-		return std::get<type>(static_cast<std::tuple<tuple_types...>&>(*this));
+		return std::get<type>(tuple_cast(*this));
 	}
 
 	template<typename type>
 	[[nodiscard]]
 	const type& get() const
 	{
-		// This idiotic cast to std::tuple is for clang
-		return std::get<type>(static_cast<const std::tuple<tuple_types...>&>(*this));
+		return std::get<type>(tuple_cast(*this));
 	}
 
 private:
-	template<size_t Index, typename duration_type>
-	void split(duration_type) const {}
-
-	template<size_t Index, typename duration_type, typename arg, typename... args>
-	void split(duration_type Duration)
+	template<typename self_type>
+	static auto& tuple_cast(self_type& Self)
 	{
-		const auto Value = std::chrono::duration_cast<arg>(Duration);
 		// This idiotic cast to std::tuple is for clang
-		std::get<Index>(static_cast<std::tuple<tuple_types...>&>(*this)) = Value;
-		split<Index + 1, duration_type, args...>(Duration - Value);
+		using tuple_type = std::tuple<tuple_types...>;
+		using result_type = std::conditional_t<std::is_const_v<self_type>, const tuple_type, tuple_type>;
+
+		return static_cast<result_type&>(Self);
+	}
+
+	template<typename cast_type, typename duration_type>
+	void set_and_chop(duration_type& Duration)
+	{
+		auto& Element = get<cast_type>();
+		Element = std::chrono::duration_cast<cast_type>(Duration);
+		Duration -= std::chrono::duration_cast<duration_type>(Element);
 	}
 };
 

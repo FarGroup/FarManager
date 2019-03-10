@@ -318,7 +318,7 @@ std::string encoding::get_bytes(uintptr_t const Codepage, string_view const Str,
 
 	for (auto Overflow = true; Overflow;)
 	{
-		const auto Size = get_bytes(Codepage, Str, Buffer.data(), Buffer.size(), UsedDefaultChar);
+		const auto Size = get_bytes(Codepage, Str, Buffer, UsedDefaultChar);
 		Overflow = Size > Buffer.size();
 		Buffer.resize(Size);
 	}
@@ -392,7 +392,7 @@ string encoding::get_chars(uintptr_t const Codepage, std::string_view const Str)
 	string Buffer(EstimatedCharsCount(), L'\0');
 	for (auto Overflow = true; Overflow;)
 	{
-		const auto Size = get_chars(Codepage, Str, Buffer.data(), Buffer.size());
+		const auto Size = get_chars(Codepage, Str, Buffer);
 		Overflow = Size > Buffer.size();
 		Buffer.resize(Size);
 	}
@@ -751,12 +751,17 @@ namespace utf8
 			return (Char & (0b11111111 >> (continuation_bytes + 2))) << (6 * continuation_bytes);
 		}
 
-		static unsigned int extract_continuation_bits() { return 0; }
+		template<size_t... I, typename... bytes>
+		static constexpr unsigned int extract_continuation_bits_impl(std::index_sequence<I...>, bytes... Bytes)
+		{
+			return (... | ((Bytes & 0b00111111) << (6 * (sizeof...(Bytes) - 1 - I))));
+		}
 
 		template<typename... bytes>
-		static constexpr unsigned int extract_continuation_bits(unsigned char const Byte, bytes... Bytes)
+		static constexpr unsigned int extract_continuation_bits(bytes... Bytes)
 		{
-			return ((Byte & 0b00111111) << (6 * sizeof...(Bytes))) | extract_continuation_bits(Bytes...);
+			static_assert(sizeof...(bytes) > 0);
+			return extract_continuation_bits_impl(std::index_sequence_for<bytes...>{}, Bytes...);
 		}
 
 		template<size_t total>
@@ -765,21 +770,16 @@ namespace utf8
 			return ((0b11111111 << (8 - total)) & 0b11111111) | (Char >> (6 * (total - 1)));
 		}
 
-		template<size_t total, size_t number>
+		template<size_t index>
 		static constexpr unsigned char make_continuation_byte(unsigned int const Char)
 		{
-			static_assert(number <= total);
-			return 0b10000000 | ((Char >> (6 * (total - number))) & 0b00111111);
+			return 0b10000000 | ((Char >> (index * 6)) & 0b00111111);
 		}
 
-		template<size_t total, size_t number, typename iterator, REQUIRES((number > total))>
-		static constexpr void write_continuation_bytes(unsigned int, iterator&) {}
-
-		template<size_t total, size_t number, typename iterator, REQUIRES(number <= total)>
-		static void write_continuation_bytes(unsigned int const Char, iterator& Iterator)
+		template<size_t... I, typename iterator>
+		static void write_continuation_bytes(unsigned int const Char, iterator& Iterator, std::index_sequence<I...>)
 		{
-			*Iterator++ = make_continuation_byte<total, number>(Char);
-			write_continuation_bytes<total, number + 1>(Char, Iterator);
+			(..., (*Iterator++ = make_continuation_byte<sizeof...(I) - 1 - I>(Char)));
 		}
 	}
 
@@ -790,17 +790,18 @@ namespace utf8
 		return detail::extract_leading_bits<sizeof...(Bytes)>(Byte) | detail::extract_continuation_bits(Bytes...);
 	}
 
-	template<size_t total, typename iterator, REQUIRES(total == 1)>
+	template<size_t total, typename iterator>
 	static void write(unsigned int const Char, iterator& Iterator)
 	{
-		*Iterator++ = Char;
-	}
-
-	template<size_t total, typename iterator, REQUIRES((total > 1))>
-	static void write(unsigned int const Char, iterator& Iterator)
-	{
-		*Iterator++ = detail::make_leading_byte<total>(Char);
-		detail::write_continuation_bytes<total - 1, 1>(Char, Iterator);
+		if constexpr (total == 1)
+		{
+			*Iterator++ = Char;
+		}
+		else
+		{
+			*Iterator++ = detail::make_leading_byte<total>(Char);
+			detail::write_continuation_bytes(Char, Iterator, std::make_index_sequence<total - 1>{});
+		}
 	}
 }
 

@@ -168,7 +168,7 @@ void FreePluginPanelItemDescriptionOwnerAndColumns(const PluginPanelItem & Data)
 {
 	delete[] Data.Description;
 	delete[] Data.Owner;
-	DeleteRawArray(make_span(Data.CustomColumnData, Data.CustomColumnNumber));
+	DeleteRawArray(span(Data.CustomColumnData, Data.CustomColumnNumber));
 }
 
 void FreePluginPanelItemsNames(const std::vector<PluginPanelItem>& Items)

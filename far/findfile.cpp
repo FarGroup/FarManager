@@ -2369,7 +2369,7 @@ void background_searcher::DoPrepareFileList()
 			if (i.empty())
 				continue;
 
-			Locations.emplace_back(ALL_CONST_RANGE(i));
+			Locations.emplace_back(i);
 		}
 	}
 	else if (SearchMode==FINDAREA_ROOT)

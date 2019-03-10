@@ -545,7 +545,7 @@ static string GetAssociatedApplicationFromType(string_view const TypeName, strin
 	}
 	else
 	{
-		const auto pos = Application.find_first_of(L" \t/");
+		const auto pos = Application.find_first_of(L" \t/"sv);
 		if (pos != string::npos)
 			Application.resize(pos);
 	}

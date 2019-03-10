@@ -3249,7 +3249,7 @@ upd:"Save view mode"
 # We really should come up with a better name for this option
 MViewConfigDetectDumpMode
 "Автов&ыбор дамп-режима просмотра"
-"Detect d&ump mode view"
+"Detect d&ump view mode"
 upd:"Detect dump view mode"
 upd:"Detect dump view mode"
 upd:"Detect dump view mode"

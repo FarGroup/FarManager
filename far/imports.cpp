@@ -354,6 +354,13 @@ NET_API_STATUS NET_API_FUNCTION imports::stub_NetDfsGetInfo(LPWSTR DfsEntryPath,
 	return NERR_InvalidAPI;
 }
 
+// netapi32
+NET_API_STATUS NET_API_FUNCTION imports::stub_NetDfsGetClientInfo(LPWSTR DfsEntryPath, LPWSTR ServerName, LPWSTR ShareName, DWORD Level, LPBYTE* Buffer)
+{
+	// TODO: log
+	return NERR_InvalidAPI;
+}
+
 // dbghelp
 BOOL WINAPI imports::stub_MiniDumpWriteDump(HANDLE Process, DWORD ProcessId, HANDLE File, MINIDUMP_TYPE DumpType, PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam, PMINIDUMP_CALLBACK_INFORMATION CallbackParam)
 {

@@ -44,7 +44,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/smart_ptr.hpp"
 #include "common/algorithm.hpp"
 #include "common/string_utils.hpp"
-#include "common/chrono.hpp"
 
 // TODO: clean up & split
 
@@ -105,7 +104,8 @@ class base: public T
 {
 protected:
 	using T::T;
-	using base_type = base;
+	using base_ctor = base;
+	using base_type = T;
 };
 
 #endif // COMMON_HPP_1BD5AB87_3379_4AFE_9F63_DB850DCF72B4

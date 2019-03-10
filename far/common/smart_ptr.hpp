@@ -32,8 +32,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "movable.hpp"
-
 template<typename T, size_t StaticSize>
 class array_ptr
 {
@@ -184,25 +182,21 @@ namespace detail
 using file_ptr = std::unique_ptr<FILE, detail::file_closer>;
 
 template<typename T>
-class ptr_setter_t
+class ptr_setter
 {
 public:
-	NONCOPYABLE(ptr_setter_t);
-	MOVABLE(ptr_setter_t);
-	explicit ptr_setter_t(T& Ptr): m_Ptr(&Ptr) {}
-	~ptr_setter_t() { if (m_Ptr) m_Ptr->reset(m_RawPtr); }
+	NONCOPYABLE(ptr_setter);
+
+	explicit ptr_setter(T& Ptr): m_Ptr(&Ptr) {}
+	~ptr_setter() { m_Ptr->reset(m_RawPtr); }
 
 	[[nodiscard]]
 	auto operator&() { return &m_RawPtr; }
 
 private:
-	movalbe_ptr<T> m_Ptr;
+	T* m_Ptr;
 	typename T::pointer m_RawPtr{};
 };
-
-template<typename T>
-[[nodiscard]]
-auto ptr_setter(T& Ptr) { return ptr_setter_t<T>(Ptr); }
 
 template<typename owner, typename acquire, typename release>
 [[nodiscard]]

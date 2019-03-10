@@ -849,7 +849,13 @@ namespace os::fs
 		ObjName.Length = ObjName.MaximumLength = static_cast<USHORT>(TargetPath.size() * sizeof(wchar_t));
 		ObjName.Buffer = UNSAFE_CSTR(TargetPath);
 		OBJECT_ATTRIBUTES ObjAttrs;
+
+		WARNING_PUSH()
+		WARNING_DISABLE_CLANG("-Wextra-semi-stmt")
+
 		InitializeObjectAttributes(&ObjAttrs, &ObjName, 0, nullptr, nullptr);
+
+		WARNING_POP()
 
 		HANDLE hSymLink;
 		if (imports.NtOpenSymbolicLinkObject(&hSymLink, GENERIC_READ, &ObjAttrs) != STATUS_SUCCESS)
@@ -883,7 +889,7 @@ namespace os::fs
 			if (!starts_with(NtPath, OldRoot))
 				return false;
 
-			FinalFilePath = NtPath.replace(0, OldRoot.size(), NewRoot.data(), NewRoot.size());
+			FinalFilePath = NtPath.replace(0, OldRoot.size(), NewRoot);
 			return true;
 		};
 
@@ -1030,7 +1036,7 @@ namespace os::fs
 			if ((!QueryResult && GetLastError() != ERROR_MORE_DATA) || !BytesReturned)
 				break;
 
-			for (const auto& i : make_span(Ranges, BytesReturned / sizeof(*Ranges)))
+			for (const auto& i : span(Ranges, BytesReturned / sizeof(*Ranges)))
 			{
 				m_AllocSize += i.Length.QuadPart;
 				for (unsigned long long j = i.FileOffset.QuadPart, RangeEndOffset = i.FileOffset.QuadPart + i.Length.QuadPart; j < RangeEndOffset; j += m_ChunkSize)

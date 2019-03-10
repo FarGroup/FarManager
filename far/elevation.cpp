@@ -137,11 +137,10 @@ T elevation::Read() const
 	return Data;
 }
 
-template<typename T, typename... args>
-void elevation::Write(const T& Data, const args&... Args) const
+template<typename... args>
+void elevation::Write(const args&... Args) const
 {
-	pipe::write(m_Pipe, Data);
-	Write(Args...);
+	(..., pipe::write(m_Pipe, Args));
 }
 
 void elevation::RetrieveLastError() const
@@ -631,9 +630,12 @@ bool elevation::fCreateSymbolicLink(const string& Object, const string& Target, 
 
 static size_t string_array_length(const wchar_t* const Str)
 {
-	for (auto i = Str; ; ++i)
-		if (!i[0] && !i[1])
-			return i - Str + 2;
+	for (auto i = Str;;)
+	{
+		i += wcslen(i) + 1;
+		if (!*i)
+			return i + 1 - Str;
+	}
 }
 
 int elevation::fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
@@ -861,13 +863,10 @@ private:
 		return Data;
 	}
 
-	static void Write() {}
-
-	template<typename T, typename... args>
-	void Write(const T& Data, const args&... Args) const
+	template<typename... args>
+	void Write(const args&... Args) const
 	{
-		pipe::write(m_Pipe, Data);
-		Write(Args...);
+		(..., pipe::write(m_Pipe, Args));
 	}
 
 	void ExitHandler() const

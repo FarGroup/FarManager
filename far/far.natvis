@@ -1,18 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
 
-  <Type Name="string_view_impl::basic_string_view&lt;*&gt;">
-      <DisplayString>{m_Begin,[m_End - m_Begin]}</DisplayString>
-      <StringView>m_Begin,[m_End - m_Begin]</StringView>
-      <Expand>
-          <Item Name="[size]" ExcludeView="simple">m_End - m_Begin</Item>
-          <ArrayItems>
-              <Size>m_End - m_Begin</Size>
-              <ValuePointer>m_Begin</ValuePointer>
-          </ArrayItems>
-      </Expand>
-  </Type>
-
   <Type Name="range&lt;*&gt;">
       <DisplayString>{m_Begin,[m_End - m_Begin]}</DisplayString>
       <Expand>
@@ -24,20 +12,14 @@
       </Expand>
   </Type>
 
-  <Type Name="any_impl::detail::any_impl&lt;*&gt;">
-      <DisplayString>{m_Data}</DisplayString>
-      <StringView>m_Data</StringView>
+  <Type Name="span&lt;*&gt;">
+      <DisplayString>{m_Begin,[m_End - m_Begin]}</DisplayString>
       <Expand>
-          <Item Name="[value]" ExcludeView="simple">m_Data</Item>
-      </Expand>
-  </Type>
-
-  <Type Name="any_impl::any">
-      <DisplayString Condition="m_Data._Mypair._Myval2 == 0">empty</DisplayString>
-      <DisplayString>{m_Data._Mypair._Myval2,na}</DisplayString>
-      <StringView>m_Data._Mypair._Myval2</StringView>
-      <Expand>
-          <ExpandedItem Condition="m_Data._Mypair._Myval2 != 0">m_Data._Mypair._Myval2,na</ExpandedItem>
+          <Item Name="[size]" ExcludeView="simple">m_End - m_Begin</Item>
+          <ArrayItems>
+              <Size>m_End - m_Begin</Size>
+              <ValuePointer>m_Begin</ValuePointer>
+          </ArrayItems>
       </Expand>
   </Type>
 

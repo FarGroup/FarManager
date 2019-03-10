@@ -43,13 +43,12 @@ class function_ref<return_type(args...)> final
 public:
 	template<typename callable_type, REQUIRES(!std::is_same_v<std::decay_t<callable_type>, function_ref>)>
 	function_ref(const callable_type& Callable) noexcept:
-		m_Ptr(&Callable)
-	{
-		// TODO: use initializer list after dropping VS2015
-		m_ErasedFn = [](const void* Ptr, args... Args) -> return_type
+		m_Ptr(&Callable),
+		m_ErasedFn([](const void* Ptr, args... Args) -> return_type
 		{
 			return std::invoke(*static_cast<const callable_type*>(Ptr), FWD(Args)...);
-		};
+		})
+	{
 	}
 
 	function_ref(std::nullptr_t) noexcept:

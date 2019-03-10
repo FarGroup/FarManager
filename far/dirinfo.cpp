@@ -75,7 +75,7 @@ struct DirInfoPreRedrawItem : public PreRedrawItem
 
 static void DirInfoMsgImpl(string_view const Title, string_view const Name, unsigned long long const Items, unsigned long long const Size)
 {
-	auto TruncatedName = string(Name);
+	string TruncatedName(Name);
 	TruncStrFromEnd(TruncatedName, static_cast<int>(copy_progress::CanvasWidth()));
 
 	Message(MSG_LEFTALIGN,
@@ -330,7 +330,7 @@ static void ScanPluginDir(plugin_panel* hDirListPlugin, OPERATION_MODES OpMode, 
 
 	PluginDirList.reserve(PluginDirList.size() + ItemCount);
 
-	for (const auto& i: make_span(PanelData, ItemCount))
+	for (const auto& i: span(PanelData, ItemCount))
 	{
 		if (StopSearch)
 			break;
@@ -339,7 +339,7 @@ static void ScanPluginDir(plugin_panel* hDirListPlugin, OPERATION_MODES OpMode, 
 			PushPluginDirItem(PluginDirList, &i, PluginSearchPath, Data);
 	}
 
-	for (const auto& i : make_span(PanelData, ItemCount))
+	for (const auto& i : span(PanelData, ItemCount))
 	{
 		if (StopSearch)
 			break;

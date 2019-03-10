@@ -325,7 +325,7 @@ bool filemasks::masks::assign(string&& Masks, DWORD Flags)
 			}
 			else
 			{
-				m_Masks.emplace_back(ALL_CONST_RANGE(Mask));
+				m_Masks.emplace_back(Mask);
 			}
 		}
 

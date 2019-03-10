@@ -456,7 +456,7 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 	}
 
 	const auto EnumWidths = enum_tokens(ColumnWidths, L","sv);
-	auto EnumWidthsRange = make_range(EnumWidths);
+	auto EnumWidthsRange = range(EnumWidths);
 
 	for (auto& i: Columns)
 	{

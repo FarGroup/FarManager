@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.fs.hpp"
 
 #include "common/bytes_view.hpp"
+#include "common/chrono.hpp"
 #include "common/function_ref.hpp"
 #include "common/scope_exit.hpp"
 
@@ -293,8 +294,7 @@ private:
 			case column_type::unknown:
 				{
 					e.SetAttribute("type", "hex");
-					const auto Blob = stmtEnumAllValues.GetColBlob(2);
-					e.SetAttribute("value", BlobToHexString(Blob.data(), Blob.size()).c_str());
+					e.SetAttribute("value", BlobToHexString(stmtEnumAllValues.GetColBlob(2)).c_str());
 				}
 			}
 		}

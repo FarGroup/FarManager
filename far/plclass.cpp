@@ -51,7 +51,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.fs.hpp"
 
 #include "common/enum_tokens.hpp"
-#include "common/scope_exit.hpp"
 #include "common/zip_view.hpp"
 
 #include "format.hpp"
@@ -240,7 +239,7 @@ bool native_plugin_factory::IsPlugin2(const void* Module) const
 		if (!dwExportAddr)
 			return false;
 
-		for (const auto& Section: make_span(IMAGE_FIRST_SECTION(pPEHeader), pPEHeader->FileHeader.NumberOfSections))
+		for (const auto& Section: span(IMAGE_FIRST_SECTION(pPEHeader), pPEHeader->FileHeader.NumberOfSections))
 		{
 			if ((Section.VirtualAddress == dwExportAddr) ||
 				((Section.VirtualAddress <= dwExportAddr) && ((Section.Misc.VirtualSize + Section.VirtualAddress) > dwExportAddr)))
@@ -278,97 +277,7 @@ static void PrepareModulePath(const string& ModuleName)
 	FarChDir(strModulePath);
 }
 
-FarStandardFunctions NativeFSF =
-{
-	sizeof(NativeFSF),
-	pluginapi::apiAtoi,
-	pluginapi::apiAtoi64,
-	pluginapi::apiItoa,
-	pluginapi::apiItoa64,
-	pluginapi::apiSprintf,
-	pluginapi::apiSscanf,
-	pluginapi::apiQsort,
-	pluginapi::apiBsearch,
-	pluginapi::apiSnprintf,
-	pluginapi::apiIsLower,
-	pluginapi::apiIsUpper,
-	pluginapi::apiIsAlpha,
-	pluginapi::apiIsAlphaNum,
-	pluginapi::apiUpper,
-	pluginapi::apiLower,
-	pluginapi::apiUpperBuf,
-	pluginapi::apiLowerBuf,
-	pluginapi::apiStrUpper,
-	pluginapi::apiStrLower,
-	pluginapi::apiStrCmpI,
-	pluginapi::apiStrCmpNI,
-	pluginapi::apiUnquote,
-	pluginapi::apiRemoveLeadingSpaces,
-	pluginapi::apiRemoveTrailingSpaces,
-	pluginapi::apiRemoveExternalSpaces,
-	pluginapi::apiTruncStr,
-	pluginapi::apiTruncPathStr,
-	pluginapi::apiQuoteSpaceOnly,
-	pluginapi::apiPointToName,
-	pluginapi::apiGetPathRoot,
-	pluginapi::apiAddEndSlash,
-	pluginapi::apiCopyToClipboard,
-	pluginapi::apiPasteFromClipboard,
-	pluginapi::apiInputRecordToKeyName,
-	pluginapi::apiKeyNameToInputRecord,
-	pluginapi::apiXlat,
-	pluginapi::apiGetFileOwner,
-	pluginapi::apiGetNumberOfLinks,
-	pluginapi::apiRecursiveSearch,
-	pluginapi::apiMkTemp,
-	pluginapi::apiProcessName,
-	pluginapi::apiMkLink,
-	pluginapi::apiConvertPath,
-	pluginapi::apiGetReparsePointInfo,
-	pluginapi::apiGetCurrentDirectory,
-	pluginapi::apiFormatFileSize,
-	pluginapi::apiFarClock,
-	pluginapi::apiCompareStrings,
-};
-
-PluginStartupInfo NativeInfo =
-{
-	sizeof(NativeInfo),
-	nullptr, //ModuleName, dynamic
-	pluginapi::apiMenuFn,
-	pluginapi::apiMessageFn,
-	pluginapi::apiGetMsgFn,
-	pluginapi::apiPanelControl,
-	pluginapi::apiSaveScreen,
-	pluginapi::apiRestoreScreen,
-	pluginapi::apiGetDirList,
-	pluginapi::apiGetPluginDirList,
-	pluginapi::apiFreeDirList,
-	pluginapi::apiFreePluginDirList,
-	pluginapi::apiViewer,
-	pluginapi::apiEditor,
-	pluginapi::apiText,
-	pluginapi::apiEditorControl,
-	nullptr, // FSF, dynamic
-	pluginapi::apiShowHelp,
-	pluginapi::apiAdvControl,
-	pluginapi::apiInputBox,
-	pluginapi::apiColorDialog,
-	pluginapi::apiDialogInit,
-	pluginapi::apiDialogRun,
-	pluginapi::apiDialogFree,
-	pluginapi::apiSendDlgMessage,
-	pluginapi::apiDefDlgProc,
-	pluginapi::apiViewerControl,
-	pluginapi::apiPluginsControl,
-	pluginapi::apiFileFilterControl,
-	pluginapi::apiRegExpControl,
-	pluginapi::apiMacroControl,
-	pluginapi::apiSettingsControl,
-	nullptr, //Private, dynamic
-};
-
-static ArclitePrivateInfo ArcliteInfo =
+static const ArclitePrivateInfo ArcliteInfo
 {
 	sizeof(ArcliteInfo),
 	pluginapi::apiCreateFile,
@@ -380,7 +289,7 @@ static ArclitePrivateInfo ArcliteInfo =
 	pluginapi::apiCreateDirectory
 };
 
-static NetBoxPrivateInfo NetBoxInfo =
+static const NetBoxPrivateInfo NetBoxInfo
 {
 	sizeof(NetBoxInfo),
 	pluginapi::apiCreateFile,
@@ -392,18 +301,11 @@ static NetBoxPrivateInfo NetBoxInfo =
 	pluginapi::apiCreateDirectory
 };
 
-static MacroPrivateInfo MacroInfo =
+static const MacroPrivateInfo MacroInfo
 {
 	sizeof(MacroPrivateInfo),
 	pluginapi::apiCallFar,
 };
-
-void CreatePluginStartupInfo(PluginStartupInfo *PSI, FarStandardFunctions *FSF)
-{
-	*PSI = NativeInfo;
-	*FSF = NativeFSF;
-	PSI->FSF = FSF;
-}
 
 static void CreatePluginStartupInfo(const Plugin* pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF)
 {
@@ -495,9 +397,9 @@ bool Plugin::SaveToCache()
 	PlCache->SetDescription(id, strDescription);
 	PlCache->SetAuthor(id, strAuthor);
 
-	for (const auto& i: zip(m_Factory->ExportsNames(), Exports))
+	for (const auto& [Name, Export]: zip(m_Factory->ExportsNames(), Exports))
 	{
-		PlCache->SetExportState(id, std::get<0>(i).UName, std::get<1>(i).second);
+		PlCache->SetExportState(id, Name.UName, Export.second);
 	}
 
 	return true;

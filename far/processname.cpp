@@ -48,7 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 string ConvertWildcards(string_view const SrcName, string_view const Mask, int const SelectedFolderNameLength)
 {
 	const auto WildName = PointToName(Mask);
-	if (WildName.find_first_of(L"*?") == WildName.npos)
+	if (WildName.find_first_of(L"*?"sv) == WildName.npos)
 		return string(Mask);
 
 	const auto Src = SelectedFolderNameLength? SrcName.substr(0, SelectedFolderNameLength) : SrcName;
@@ -56,7 +56,7 @@ string ConvertWildcards(string_view const SrcName, string_view const Mask, int c
 
 	string Result;
 	Result.reserve(SrcName.size());
-	Result.assign(Mask.data(), Mask.size() - WildName.size());
+	Result = Mask.substr(0, Mask.size() - WildName.size());
 
 	const auto BeforeNameLength = Result.empty()? 0 : Src.size() - SrcNamePart.size();
 

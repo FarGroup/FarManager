@@ -59,8 +59,7 @@ private:
 	mutable os::thread m_RegistrationThread;
 	os::fs::find_notification_handle m_Notification;
 	os::event m_Cancelled;
-	// TODO: optional
-	std::pair<bool, bool> m_IsFatFilesystem;
+	std::optional<bool> m_IsFatFilesystem;
 	mutable std::exception_ptr m_ExceptionPtr;
 	bool m_IsRegularException{};
 };

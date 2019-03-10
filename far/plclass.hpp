@@ -133,9 +133,6 @@ enum PLUGINWORKFLAGS
 	PIWF_DATALOADED    = bit(4), // LoadData успешно выполнилась
 };
 
-extern PluginStartupInfo NativeInfo;
-extern FarStandardFunctions NativeFSF;
-
 class i_plugin_module
 {
 public:
@@ -241,16 +238,13 @@ namespace detail
 		intptr_t Result;
 	};
 
-	template<typename function, typename... args, REQUIRES(std::is_void_v<std::invoke_result_t<function, args...>>)>
-	void ExecuteFunctionImpl(ExecuteStruct&, const function& Function, args&&... Args)
-	{
-		Function(FWD(Args)...);
-	}
-
-	template<typename function, typename... args, REQUIRES(!std::is_void_v<std::invoke_result_t<function, args...>>)>
+	template<typename function, typename... args>
 	void ExecuteFunctionImpl(ExecuteStruct& es, const function& Function, args&&... Args)
 	{
-		es = Function(FWD(Args)...);
+		if constexpr (std::is_void_v<std::invoke_result_t<function, args...>>)
+			Function(FWD(Args)...);
+		else
+			es = Function(FWD(Args)...);
 	}
 }
 

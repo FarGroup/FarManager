@@ -101,23 +101,25 @@ struct subst_data
 
 		string_view GetDescription() const
 		{
-			if (!m_Description.second)
+			if (!m_Description.has_value())
 			{
 				if (const auto FList = dynamic_cast<FileList*>(Panel.get()))
 				{
 					FList->ReadDiz();
 					// BUGBUG size
-					m_Description.first = NullToEmpty(FList->GetDescription(string(Normal.Name), string(Short.Name), 0));
+					m_Description = NullToEmpty(FList->GetDescription(string(Normal.Name), string(Short.Name), 0));
 				}
-				m_Description.second = true;
+				else
+				{
+					m_Description = L""sv;
+				}
 			}
 
-			return m_Description.first;
+			return *m_Description;
 		}
 
 	private:
-		// TODO: std::optional
-		mutable std::pair<string_view, bool> m_Description;
+		mutable std::optional<string_view> m_Description;
 	}
 	This, Another;
 

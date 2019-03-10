@@ -135,4 +135,6 @@ namespace pluginapi
 	intptr_t WINAPI apiCallFar(intptr_t CheckCode, FarMacroCall* Data) noexcept;
 };
 
+void CreatePluginStartupInfo(PluginStartupInfo* PSI, FarStandardFunctions* FSF);
+
 #endif // PLUGAPI_HPP_2389ECC5_6302_4627_9495_F76642AA9B56

@@ -345,7 +345,7 @@ namespace console_detail
 
 	static void AdjustMouseEvents(INPUT_RECORD* Buffer, size_t Length, short Delta, short MaxX)
 	{
-		for (auto& i : make_span(Buffer, Length))
+		for (auto& i : span(Buffer, Length))
 		{
 			if (i.EventType == MOUSE_EVENT)
 			{
@@ -393,7 +393,7 @@ namespace console_detail
 		{
 			const auto Delta = GetDelta();
 
-			for (auto& i : make_span(Buffer, Length))
+			for (auto& i : span(Buffer, Length))
 			{
 				if (i.EventType == MOUSE_EVENT)
 				{
@@ -483,7 +483,7 @@ namespace console_detail
 		return L'0' + vt_color_map[NtIndex & 7]; // Yes, some people do not understand that console index has limits
 	}
 
-	static void make_vt_attributes(const FarColor& Attributes, string& Str, std::pair<bool, FarColor> const& LastColor)
+	static void make_vt_attributes(const FarColor& Attributes, string& Str, std::optional<FarColor> const& LastColor)
 	{
 		append(Str, L"\033["sv);
 
@@ -511,26 +511,26 @@ namespace console_detail
 
 		if (Attributes.Flags & FCF_FG_UNDERLINE)
 		{
-			if (!LastColor.first || !(LastColor.second.Flags & FCF_FG_UNDERLINE))
+			if (!LastColor.has_value() || !(LastColor->Flags & FCF_FG_UNDERLINE))
 				Str += L";4"sv;
 		}
 		else
 		{
-			if (LastColor.first && LastColor.second.Flags & FCF_FG_UNDERLINE)
+			if (LastColor.has_value() && LastColor->Flags & FCF_FG_UNDERLINE)
 				Str += L";24"sv;
 		}
 
 		Str += L'm';
 	}
 
-	static void make_vt_sequence(span<const FAR_CHAR_INFO> Input, string& Str, std::pair<bool, FarColor>& LastColor)
+	static void make_vt_sequence(span<const FAR_CHAR_INFO> Input, string& Str, std::optional<FarColor>& LastColor)
 	{
 		for (const auto& i: Input)
 		{
-			if (!LastColor.first || i.Attributes != LastColor.second)
+			if (!LastColor.has_value() || i.Attributes != *LastColor)
 			{
 				make_vt_attributes(i.Attributes, Str, LastColor);
-				LastColor = { true, i.Attributes};
+				LastColor = i.Attributes;
 			}
 
 			Str += ReplaceControlCharacter(i.Char);
@@ -593,15 +593,14 @@ namespace console_detail
 
 			string Str;
 
-			// TODO: optional
-			std::pair<bool, FarColor> LastColor;
+			std::optional<FarColor> LastColor;
 
 			for (short i = SubRect.top; i <= SubRect.bottom; ++i)
 			{
 				if (i != SubRect.top)
 					Str += format(L"\033[{0};{1}H"sv, CursorPosition.Y + 1 + (i - SubRect.top), CursorPosition.X + 1);
 
-				make_vt_sequence(make_span(Buffer[i].data() + SubRect.left, SubRect.width()), Str, LastColor);
+				make_vt_sequence(span(Buffer[i].data() + SubRect.left, SubRect.width()), Str, LastColor);
 			}
 
 			append(Str, L"\033[0m"sv);
@@ -621,7 +620,7 @@ namespace console_detail
 			assert(BufferSize.Y == WriteRegion.Bottom - WriteRegion.Top + 1);
 
 
-			for (auto&i: make_span(Buffer, BufferSize.X * BufferSize.Y))
+			for (auto&i: span(Buffer, BufferSize.X * BufferSize.Y))
 			{
 				i.Attributes = (i.Attributes & FCF_RAWATTR_MASK) | LOBYTE(~i.Attributes);
 			}
@@ -630,7 +629,7 @@ namespace console_detail
 			WriteOutputNTImpl(Buffer, BufferSize, WriteRegionCopy);
 			Sleep(50);
 
-			for (auto&i: make_span(Buffer, BufferSize.X * BufferSize.Y))
+			for (auto&i: span(Buffer, BufferSize.X * BufferSize.Y))
 				i.Attributes = (i.Attributes & FCF_RAWATTR_MASK) | LOBYTE(~i.Attributes);
 #endif
 			return WriteOutputNTImpl(Buffer, BufferSize, WriteRegion) != FALSE;
@@ -680,8 +679,7 @@ namespace console_detail
 			SetTextAttributesNT(Attributes);
 
 			string Str;
-			std::pair<bool, FarColor> Dummy;
-			make_vt_attributes(Attributes, Str, Dummy);
+			make_vt_attributes(Attributes, Str, {});
 			return ::console.Write(Str);
 		}
 

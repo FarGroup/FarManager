@@ -363,16 +363,14 @@ void codepages::AddCodePages(DWORD codePages)
 		if (IsStandardCodePage(cp))
 			continue;
 
-		string CodepageName;
-		UINT len = 0;
-		std::tie(len, CodepageName) = GetCodePageInfo(cp);
+		auto [len, CodepageName] = GetCodePageInfo(cp);
 		if (!len || (len > 2 && (codePages & ::VOnly)))
 			continue;
 
 		bool IsCodePageNameCustom = false;
 		FormatCodePageName(cp, CodepageName, IsCodePageNameCustom);
 
-		long long selectType = GetFavorite(cp);
+		const auto selectType = GetFavorite(cp);
 
 		// Добавляем таблицу символов либо в нормальные, либо в выбранные таблицы символов
 		if (selectType & CPST_FAVORITE)
@@ -601,9 +599,7 @@ intptr_t codepages::EditDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 			else
 				ConfigProvider().GeneralCfg()->SetValue(NamesOfCodePagesKey, strCodePage, strCodePageName);
 			// Получаем информацию о кодовой странице
-			string CodepageName;
-			UINT len = 0;
-			std::tie(len, CodepageName) = GetCodePageInfo(static_cast<UINT>(CodePage));
+			auto [len, CodepageName] = GetCodePageInfo(static_cast<UINT>(CodePage));
 			if (len)
 			{
 				// Формируем имя таблиц символов

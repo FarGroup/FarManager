@@ -292,7 +292,7 @@ SQLiteDb::SQLiteDb(busy_handler BusyHandler, initialiser Initialiser, string_vie
 	// then no subsequent operations in that transaction will ever fail with an SQLITE_BUSY error. 
 	m_stmt_BeginTransaction(create_stmt("BEGIN EXCLUSIVE"sv)),
 	m_stmt_EndTransaction(create_stmt("END"sv)),
-	m_Init((Initialiser(db_initialiser(this)), init{})) // yay, operator comma!
+	m_Init(((void)Initialiser(db_initialiser(this)), init{})) // yay, operator comma!
 {
 }
 
@@ -321,7 +321,10 @@ public:
 			if (Result == SQLITE_BUSY && BusyHandler.first && BusyHandler.first(BusyHandler.second, Retires++))
 				continue;
 
-			Db? throw_exception(Db.get()) : throw_exception(Result);
+			if (Db)
+				throw_exception(Db.get());
+			else
+				throw_exception(Result);
 		}
 
 		invoke(Db.get(), [&]{ return sqlite::sqlite3_busy_handler(Db.get(), BusyHandler.first, BusyHandler.second) == SQLITE_OK; });

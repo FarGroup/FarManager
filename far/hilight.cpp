@@ -307,11 +307,8 @@ static void ApplyColors(highlight::element& DestColors, const highlight::element
 	auto SrcColors = Src;
 	ApplyBlackOnBlackColors(SrcColors.Color);
 
-	for (const auto& i: zip(SrcColors.Color, DestColors.Color))
+	for (const auto& [SrcItem, DstItem]: zip(SrcColors.Color, DestColors.Color))
 	{
-		const auto& SrcItem = std::get<0>(i);
-		auto& DstItem = std::get<1>(i);
-
 		DstItem.FileColor = colors::merge(DstItem.FileColor, SrcItem.FileColor);
 		DstItem.MarkColor = colors::merge(DstItem.MarkColor, SrcItem.MarkColor);
 	}

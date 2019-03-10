@@ -53,10 +53,7 @@ namespace colors
 	void make_opaque(COLORREF& Colour);
 	void make_transparent(COLORREF& Colour);
 
-	struct color_hash
-	{
-		size_t operator()(const FarColor& Key) const;
-	};
+	size_t color_hash(const FarColor& Value);
 
 	FarColor merge(const FarColor& Bottom, const FarColor& Top);
 	WORD FarColorToConsoleColor(const FarColor& Color);
@@ -72,9 +69,9 @@ namespace colors
 template<>
 struct std::hash<FarColor>
 {
-	std::size_t operator()(const FarColor& Value) const
+	size_t operator()(const FarColor& Value) const noexcept
 	{
-		return colors::color_hash{}(Value);
+		return colors::color_hash(Value);
 	}
 };
 

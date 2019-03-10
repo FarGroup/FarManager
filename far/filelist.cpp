@@ -435,7 +435,7 @@ void FileList::list_data::clear()
 			if (i.DeleteDiz)
 				delete[] i.DizText;
 		}
-		DeleteRawArray(make_span(i.CustomColumnData, i.CustomColumnNumber));
+		DeleteRawArray(span(i.CustomColumnData, i.CustomColumnNumber));
 	});
 
 	Items.clear();
@@ -4979,7 +4979,7 @@ void FileList::CountDirSize(bool IsRealNames)
 				return Callback(PluginCurDir, ItemsCount, Size);
 			};
 
-			for (const auto& i: make_range(m_ListData.begin() + 1, m_ListData.end()))
+			for (const auto& i: range(m_ListData.begin() + 1, m_ListData.end()))
 			{
 				if (i.Attributes & FILE_ATTRIBUTE_DIRECTORY)
 				{
@@ -6773,7 +6773,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 
 			auto ParentPointSeen = AnotherPanelInfo.Flags & OPIF_ADDDOTS? true : false;
 
-			for (const auto& i: make_span(PanelData, PanelCount))
+			for (const auto& i: span(PanelData, PanelCount))
 			{
 				FileListItem Item{ i };
 				Item.Position = Position++;
@@ -7841,14 +7841,14 @@ bool FileList::ConvertName(const string_view SrcName, string& strDest, const int
 		if (Name.size() > 1 && Name[Name.size() - 2] != L' ')
 			Name.remove_suffix(1);
 
-		strDest.append(ALL_CONST_RANGE(Name));
+		strDest += Name;
 		strDest.resize(DotPos, L' ');
-		strDest.append(ALL_CONST_RANGE(Extension));
+		strDest += Extension;
 		strDest.resize(MaxLength, L' ');
 	}
 	else
 	{
-		strDest.assign(SrcName.data(), std::min(SrcLength, MaxLength));
+		strDest.assign(SrcName, 0, std::min(SrcLength, MaxLength));
 		strDest.resize(MaxLength, L' ');
 	}
 

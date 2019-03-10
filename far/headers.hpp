@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
 #include <algorithm>
+#include <any>
 #include <array>
 #include <atomic>
 #include <bitset>
@@ -65,6 +66,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <memory>
 #include <mutex>
 #include <numeric>
+#include <optional>
 #include <random>
 #include <regex>
 #include <set>
@@ -72,6 +74,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sstream>
 #include <stack>
 #include <string>
+#include <string_view>
 #include <thread>
 #include <tuple>
 #include <unordered_map>
@@ -96,8 +99,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #undef _W32API_OLD
 
 #ifdef _MSC_VER
-# if !defined __clang__ && _MSC_FULL_VER < 190024210
-#  error Visual C++ 2015 Update 3 (or higher) required
+# if !defined __clang__ && _MSC_FULL_VER < 191627023
+#  error Visual C++ 2017 Update 9 (or higher) required
 # endif
 # include <sdkddkver.h>
 # if _WIN32_WINNT < 0x0603

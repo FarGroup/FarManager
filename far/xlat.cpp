@@ -117,7 +117,7 @@ void xlat_initialize()
 	}
 }
 
-wchar_t* Xlat(wchar_t *Line, int StartPos, int EndPos, unsigned long long Flags)
+void Xlat(wchar_t *Line, int StartPos, int EndPos, unsigned long long Flags)
 {
 	const auto& XLat = Global->Opt->XLat;
 
@@ -125,17 +125,17 @@ wchar_t* Xlat(wchar_t *Line, int StartPos, int EndPos, unsigned long long Flags)
 	size_t LangCount[2]={};
 
 	if (!Line || !*Line)
-		return nullptr;
+		return;
 
 	int Length = static_cast<int>(wcslen(Line));
 	EndPos=std::min(EndPos,Length);
 	StartPos=std::max(StartPos,0);
 
 	if (StartPos > EndPos || StartPos >= Length)
-		return Line;
+		return;
 
 	if (XLat.Table[0].empty() || XLat.Table[1].empty())
-		return Line;
+		return;
 
 	size_t MinLenTable=std::min(XLat.Table[0].size(),XLat.Table[1].size());
 	string strLayoutName;
@@ -299,6 +299,4 @@ wchar_t* Xlat(wchar_t *Line, int StartPos, int EndPos, unsigned long long Flags)
 				MessageBeep(0);
 		}
 	}
-
-	return Line;
 }

@@ -92,7 +92,7 @@ namespace colors
 		Colour = transparent(Colour);
 	}
 
-	size_t color_hash::operator()(const FarColor& Value) const
+	size_t color_hash(const FarColor& Value)
 	{
 		size_t Seed = 0;
 

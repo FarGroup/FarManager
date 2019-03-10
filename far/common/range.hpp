@@ -47,9 +47,8 @@ public:
 	using iterator_category = typename std::iterator_traits<iterator_type>::iterator_category;
 
 private:
-	// No is_const_v here, VS2015 bug
 	template<typename T>
-	using opt_const_iterator = std::enable_if_t<std::is_const<std::remove_reference_t<reference>>::value, T>;
+	using opt_const_iterator = std::enable_if_t<std::is_const_v<std::remove_reference_t<reference>>, T>;
 
 public:
 	constexpr range() = default;
@@ -59,7 +58,7 @@ public:
 		m_End(End)
 	{}
 
-	constexpr range(pointer Begin, size_t Count):
+	constexpr range(iterator Begin, size_t Count):
 		range(Begin, Begin + Count)
 	{
 	}
@@ -175,33 +174,12 @@ private:
 	iterator m_End{};
 };
 
-template<class iterator_type>
-[[nodiscard]]
-constexpr auto make_range(iterator_type i_begin, iterator_type i_end)
-{
-	return range<iterator_type>(i_begin, i_end);
-}
+template<typename container>
+range(container& c) -> range<std::remove_reference_t<decltype(std::begin(c))>>;
 
-template<class iterator_type>
-[[nodiscard]]
-constexpr auto make_range(iterator_type i_begin, size_t Size)
-{
-	return range<iterator_type>(i_begin, i_begin + Size);
-}
+template<typename value_type>
+range(const std::initializer_list<value_type>&) -> range<const value_type*>;
 
-template<class container>
-[[nodiscard]]
-constexpr auto make_range(container& Container)
-{
-	return make_range(ALL_RANGE(Container));
-}
-
-template<class container>
-[[nodiscard]]
-constexpr auto make_range(const container& Container)
-{
-	return make_range(ALL_CONST_RANGE(Container));
-}
 
 template<class span_value_type>
 class span: public range<span_value_type*>
@@ -214,43 +192,34 @@ public:
 	{}
 
 	constexpr span(span_value_type* Data, size_t Size):
-		range<span_value_type*>(Data, Data + Size)
+		span(Data, Data + Size)
+	{
+	}
+
+	template<typename compatible_span_value_type, REQUIRES((std::is_convertible_v<compatible_span_value_type*, span_value_type*>))>
+	constexpr span(const span<compatible_span_value_type>& Rhs):
+		span(ALL_RANGE(Rhs))
 	{
 	}
 
 	template<typename container, REQUIRES(is_span_v<container>)>
 	constexpr span(container& Container):
-		range<span_value_type*>(std::data(Container), std::size(Container))
+		span(std::data(Container), std::size(Container))
 	{
 	}
 
-	constexpr span(const std::initializer_list<span_value_type>& List):
-		range<span_value_type*>(ALL_RANGE(List))
+	constexpr span(const std::initializer_list<span_value_type>& List) :
+		span(ALL_CONST_RANGE(List))
 	{
 	}
 };
 
-template<typename value_type>
-[[nodiscard]]
-constexpr auto make_span(value_type* Begin, value_type* End)
-{
-	return span<value_type>(Begin, End);
-}
+template<typename container>
+span(container& c) -> span<std::remove_pointer_t<decltype(std::data(c))>>;
 
 template<typename value_type>
-[[nodiscard]]
-constexpr auto make_span(value_type* Data, size_t Size)
-{
-	return span<value_type>(Data, Size);
-}
+span(const std::initializer_list<value_type>&) -> span<const value_type>;
 
-template<typename container, REQUIRES(is_span_v<container>)>
-[[nodiscard]]
-constexpr auto make_span(container& Container)
-{
-	using value_type = std::remove_reference_t<decltype(*std::data(std::declval<container&>()))>;
-	return span<value_type>(Container);
-}
 
 template<class T>
 class i_iterator: public rel_ops<i_iterator<T>>
@@ -359,13 +328,6 @@ namespace detail
 		accessor m_Accessor;
 	};
 
-	template<typename T, typename accessor>
-	[[nodiscard]]
-	auto make_select_iterator(const T& Iterator, const accessor& Accessor)
-	{
-		return select_iterator<T, accessor>(Iterator, Accessor);
-	}
-
 	template<typename container, typename container_ref, typename accessor, typename accessor_ref, typename T>
 	class selector
 	{
@@ -376,12 +338,12 @@ namespace detail
 		{
 		}
 
-		[[nodiscard]] auto begin()        { return make_select_iterator(std::begin(this->m_Container), this->m_Accessor); }
-		[[nodiscard]] auto end()          { return make_select_iterator(std::end(this->m_Container), this->m_Accessor); }
-		[[nodiscard]] auto begin()  const { return make_select_iterator(std::begin(this->m_Container), this->m_Accessor); }
-		[[nodiscard]] auto end()    const { return make_select_iterator(std::end(this->m_Container), this->m_Accessor); }
-		[[nodiscard]] auto cbegin() const { return make_select_iterator(std::begin(this->m_Container), this->m_Accessor); }
-		[[nodiscard]] auto cend()   const { return make_select_iterator(std::end(this->m_Container), this->m_Accessor); }
+		[[nodiscard]] auto begin()        { return select_iterator(std::begin(this->m_Container), this->m_Accessor); }
+		[[nodiscard]] auto end()          { return select_iterator(std::end(this->m_Container), this->m_Accessor); }
+		[[nodiscard]] auto begin()  const { return select_iterator(std::begin(this->m_Container), this->m_Accessor); }
+		[[nodiscard]] auto end()    const { return select_iterator(std::end(this->m_Container), this->m_Accessor); }
+		[[nodiscard]] auto cbegin() const { return select_iterator(std::begin(this->m_Container), this->m_Accessor); }
+		[[nodiscard]] auto cend()   const { return select_iterator(std::end(this->m_Container), this->m_Accessor); }
 
 	private:
 		container m_Container;

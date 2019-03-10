@@ -49,77 +49,68 @@ namespace detail
 	};
 
 	template<typename... args>
-	class composite_overrider: public std::tuple<null_overrider, args...>
+	class composite_overrider: public base<std::tuple<null_overrider, args...>>
 	{
+		using base_type = typename composite_overrider::base_type;
+
 	public:
 		void reset()
 		{
 			// applied to all args
-			return reset_impl();
+			return reset_impl(index_sequence{});
 		}
 
 		[[nodiscard]]
 		bool active(wchar_t i)
 		{
 			// applied to all args left to right
-			return active_impl(i);
+			return active_impl(i, index_sequence{});
 		}
 
 		void postprocess(string_view& Value)
 		{
 			// applied to all args right to left
-			return postprocess_impl(Value);
+			return postprocess_impl(Value, index_sequence{});
 		}
 
 	private:
-		template<size_t index, template<class> typename operation>
+		using index_sequence = std::index_sequence_for<args...>;
+
+		template<size_t index, template<typename> typename operation>
 		[[nodiscard]]
 		auto& get_opt()
 		{
-			using nth_type = std::tuple_element_t<index, std::tuple<null_overrider, args...>>;
-			using is_valid = is_valid<nth_type, operation>;
+			using nth_type = std::tuple_element_t<index + 1, base_type>;
 			// This idiotic cast to std::tuple is for clang
-			return std::get<is_valid::value? index : 0>(static_cast<std::tuple<null_overrider, args...>&>(*this));
+			return std::get<is_detected_v<operation, nth_type>? index + 1 : 0>(static_cast<base_type&>(*this));
 		}
 
 		template<typename T>
 		using try_reset = decltype(std::declval<T&>().reset());
 
-		template<size_t index, REQUIRES(index >= sizeof...(args) + 1)>
-		void reset_impl() {}
-
-		template<size_t index = 1, REQUIRES(index < sizeof...(args) + 1)>
-		void reset_impl()
+		template<size_t... I>
+		void reset_impl(std::index_sequence<I...>)
 		{
-			get_opt<index, try_reset>().reset();
-			reset_impl<index + 1>();
+			(..., get_opt<I, try_reset>().reset());
 		}
 
 		template<class T>
 		using try_active = decltype(std::declval<T&>().active(wchar_t{}));
 
-		template<size_t index, REQUIRES(index >= sizeof...(args) + 1)>
+		template<size_t... I>
 		[[nodiscard]]
-		bool active_impl(wchar_t) { return false; }
-
-		template<size_t index = 1, REQUIRES(index < sizeof...(args) + 1)>
-		[[nodiscard]]
-		bool active_impl(wchar_t i)
+		bool active_impl(wchar_t i, std::index_sequence<I...>)
 		{
-			return get_opt<index, try_active>().active(i) || active_impl<index + 1>(i);
+			return (... || get_opt<I, try_active>().active(i));
 		}
 
 		template<typename T>
 		using try_postprocess = decltype(std::declval<T&>().postprocess(std::declval<string_view&>()));
 
-		template<size_t index, REQUIRES(index >= sizeof...(args) + 1)>
-		void postprocess_impl(string_view&) {}
-
-		template<size_t index = 1, REQUIRES(index < sizeof...(args) + 1)>
-		void postprocess_impl(string_view& Value)
+		template<size_t... I>
+		void postprocess_impl(string_view& Value, std::index_sequence<I...>)
 		{
-			get_opt<sizeof...(args) + 1 - index, try_postprocess>().postprocess(Value);
-			postprocess_impl<index + 1>(Value);
+			(..., get_opt<sizeof...(args) - 1 - I, try_postprocess>().postprocess(Value));
 		}
 	};
 
@@ -235,12 +226,7 @@ public:
 	{
 	}
 
-	enum_tokens_t(const string& Str, const string_view Separators):
-		enum_tokens_t(string_view(Str), Separators)
-	{
-	}
-
-	enum_tokens_t(const wchar_t* const Str, const string_view Separators):
+	enum_tokens_t(const wchar_t* const Str, const string_view Separators) :
 		enum_tokens_t(string_view(Str), Separators)
 	{
 	}

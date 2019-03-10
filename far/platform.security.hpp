@@ -62,7 +62,7 @@ namespace os::security
 		NONCOPYABLE(privilege);
 		MOVABLE(privilege);
 
-		privilege(const std::initializer_list<const wchar_t*>& Names): privilege(make_span(Names)) {}
+		privilege(const std::initializer_list<const wchar_t* const>& Names): privilege(span(Names)) {}
 		explicit privilege(span<const wchar_t* const> Names);
 		~privilege();
 

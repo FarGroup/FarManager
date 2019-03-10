@@ -268,11 +268,8 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 
 void ItemsToItemsEx(span<const FarDialogItem> const Items, span<DialogItemEx> const ItemsEx, bool const Short)
 {
-	for (const auto& i: zip(Items, ItemsEx))
+	for (const auto& [Item, ItemEx]: zip(Items, ItemsEx))
 	{
-		const auto& Item = std::get<0>(i);
-		auto& ItemEx = std::get<1>(i);
-
 		static_cast<FarDialogItem&>(ItemEx) = Item;
 
 		if(!Short)
@@ -356,15 +353,15 @@ void Dialog::Construct(span<DialogItemEx> const SrcItems)
 	Items.assign(ALL_CONST_RANGE(SrcItems));
 
 	// Items[i].Auto.Owner points to SrcItems, we need to update:
-	for (const auto& i: zip(Items, SrcItems))
+	for (const auto& [Item, SrcItem]: zip(Items, SrcItems))
 	{
-		for (const auto& j : zip(std::get<0>(i).Auto, std::get<1>(i).Auto))
+		for (const auto& [ItemAuto, SrcItemAuto] : zip(Item.Auto, SrcItem.Auto))
 		{
-			const auto SrcItemIterator = std::find_if(ALL_CONST_RANGE(SrcItems), [&](const auto& SrcItem)
+			const auto SrcItemIterator = std::find_if(ALL_CONST_RANGE(SrcItems), [SrcItemAuto = SrcItemAuto](const auto& i)
 			{
-				return &SrcItem == std::get<1>(j).Owner;
+				return &i == SrcItemAuto.Owner;
 			});
-			std::get<0>(j).Owner = &Items[SrcItemIterator - SrcItems.begin()];
+			ItemAuto.Owner = &Items[SrcItemIterator - SrcItems.begin()];
 		}
 	}
 
@@ -676,7 +673,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 		if (Type==DI_BUTTON && ItemFlags&DIF_SETSHIELD)
 		{
 			static const auto Shield = L"\x2580\x2584 "sv;
-			Items[I].strData.insert(0, Shield.data(), Shield.size());
+			Items[I].strData.insert(0, Shield);
 		}
 
 		// для кнопок не имеющих стиля "Показывает заголовок кнопки без скобок"
@@ -692,8 +689,8 @@ size_t Dialog::InitDialogObjects(size_t ID)
 			const auto Start = Items[I].Flags&DIF_DEFAULTBUTTON? 2 : 0;
 			if (!Items[I].strData.empty() && Items[I].strData.front() != Brackets[Start].front())
 			{
-				Items[I].strData.insert(0, Brackets[Start].data(), Brackets[Start].size());
-				Items[I].strData.append(Brackets[Start + 1].data(), Brackets[Start + 1].size());
+				Items[I].strData.insert(0, Brackets[Start]);
+				Items[I].strData.append(Brackets[Start + 1]);
 			}
 		}
 		// предварительный поиск фокуса

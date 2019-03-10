@@ -46,6 +46,8 @@ namespace detail
 		using pointer = std::tuple<args...>;
 		using difference_type = ptrdiff_t;
 
+		using index_sequence = std::index_sequence_for<args...>;
+
 		template<size_t... index>
 		[[nodiscard]]
 		static auto dereference_impl(std::index_sequence<index...>, const pointer& Tuple)
@@ -54,51 +56,59 @@ namespace detail
 		}
 
 		[[nodiscard]]
-		static auto dereference(const pointer& Tuple) { return dereference_impl(std::make_index_sequence<sizeof...(args)>{}, Tuple); }
+		static auto dereference(const pointer& Tuple)
+		{
+			return dereference_impl(index_sequence{}, Tuple);
+		}
 
 		using reference = decltype(dereference(pointer()));
 		using value_type = reference;
 
-		template<size_t index = 0, REQUIRES(index < sizeof...(args)), typename predicate>
-		static void unary_for_each(predicate Predicate, pointer& Tuple)
+		template<size_t... index, typename predicate>
+		static void unary_for_each_impl(std::index_sequence<index...>, predicate Predicate, pointer& Tuple)
 		{
-			Predicate(std::get<index>(Tuple));
-			unary_for_each<index + 1>(Predicate, Tuple);
+			(..., Predicate(std::get<index>(Tuple)));
 		}
 
-		template<size_t index, REQUIRES(index >= sizeof...(args)), typename predicate>
-		static void unary_for_each(predicate, pointer&) {}
+		template<typename predicate>
+		static void unary_for_each(predicate Predicate, pointer& Tuple)
+		{
+			unary_for_each_impl(index_sequence{}, Predicate, Tuple);
+		}
 
-		template<size_t index = 0, REQUIRES(index < sizeof...(args)), typename predicate>
+		template<size_t... index, typename predicate>
+		[[nodiscard]]
+		static bool binary_any_of_impl(std::index_sequence<index...>, predicate Predicate, const pointer& Tuple1, const pointer& Tuple2)
+		{
+			return (... || Predicate(std::get<index>(Tuple1), std::get<index>(Tuple2)));
+		}
+
+		template<typename predicate>
 		[[nodiscard]]
 		static bool binary_any_of(predicate Predicate, const pointer& Tuple1, const pointer& Tuple2)
 		{
-			return Predicate(std::get<index>(Tuple1), std::get<index>(Tuple2)) || binary_any_of<index + 1>(Predicate, Tuple1, Tuple2);
+			return binary_any_of_impl(index_sequence{}, Predicate, Tuple1, Tuple2);
 		}
 
-		template<size_t index, REQUIRES(index >= sizeof...(args)), typename predicate>
+		template<size_t... index, typename predicate>
 		[[nodiscard]]
-		static bool binary_any_of(predicate, const pointer&, const pointer&) { return false; }
+		static bool binary_all_of_impl(std::index_sequence<index...>, predicate Predicate, const pointer& Tuple1, const pointer& Tuple2)
+		{
+			return (... && Predicate(std::get<index>(Tuple1), std::get<index>(Tuple2)));
+		}
 
-		template<size_t index = 0, REQUIRES(index < sizeof...(args)), typename predicate>
+		template<typename predicate>
 		[[nodiscard]]
 		static bool binary_all_of(predicate Predicate, const pointer& Tuple1, const pointer& Tuple2)
 		{
-			return Predicate(std::get<index>(Tuple1), std::get<index>(Tuple2)) && binary_all_of<index + 1>(Predicate, Tuple1, Tuple2);
+			return binary_all_of_impl(index_sequence{}, Predicate, Tuple1, Tuple2);
 		}
-
-		template<size_t index, REQUIRES(index >= sizeof...(args)), typename predicate>
-		[[nodiscard]]
-		static bool binary_all_of(predicate, const pointer&, const pointer&) { return true; }
 	};
 
-	inline void check() {}
-
-	template<typename arg, typename... args>
-	void check(arg&&, args&&... Args)
+	template<typename... args>
+	void check(args&&... Args)
 	{
-		static_assert(std::is_lvalue_reference_v<arg>);
-		check(FWD(Args)...);
+		static_assert(std::conjunction_v<std::is_lvalue_reference<args>...>);
 	}
 }
 
@@ -135,12 +145,12 @@ private:
 };
 
 template<typename... args>
-class zip_view
+class[[nodiscard]] zip
 {
 public:
 	using iterator = zip_iterator<decltype(std::begin(std::declval<args>()))...>;
 
-	explicit zip_view(args&&... Args):
+	explicit zip(args&&... Args):
 		m_Begin(std::begin(Args)...),
 		m_End(std::end(Args)...)
 	{
@@ -158,10 +168,6 @@ private:
 };
 
 template<typename... args>
-[[nodiscard]]
-auto zip(args&&... Args)
-{
-	return zip_view<args...>(FWD(Args)...);
-}
+zip(args&&... Args) -> zip<args...>;
 
 #endif // ZIP_VIEW_HPP_92A80223_8204_4A14_AACC_93D632A39884

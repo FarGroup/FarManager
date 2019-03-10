@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "common/compiler.hpp"
-#include "common/preprocessor.hpp"
 
 #if COMPILER == C_GCC
 // These inline implementations in gcc/cwchar are wrong and non-compilable if _CONST_RETURN is defined.
@@ -77,91 +76,14 @@ using std::wmemchr;
 
 #endif
 
-#if defined _MSC_VER && _MSC_VER < 1910
-namespace std
+#if COMPILER == C_GCC && !defined(_GLIBCXX_HAS_GTHREADS)
+namespace std::this_thread
 {
-	namespace detail
+	inline void yield() noexcept
 	{
-		template <class F, class Tuple, size_t... I>
-		constexpr decltype(auto) apply_impl(F&& f, Tuple&& t, std::index_sequence<I...>)
-		{
-			return std::invoke(FWD(f), std::get<I>(FWD(t))...);
-		}
-	}
-
-	template <class F, class Tuple>
-	constexpr decltype(auto) apply(F&& f, Tuple&& t)
-	{
-		return detail::apply_impl(FWD(f), FWD(t), std::make_index_sequence<std::tuple_size_v<std::decay_t<Tuple>>>{});
+		Sleep(0);
 	}
 }
-#endif
-
-
-#if COMPILER == C_CL && _MSC_VER < 1910
-#define DETAIL_STATIC_ASSERT_2(expression, message) static_assert(expression, message)
-#define DETAIL_STATIC_ASSERT_1(expression) DETAIL_STATIC_ASSERT_2(expression, #expression)
-#define DETAIL_STATIC_ASSERT_GET_MACRO(_1, _2, NAME, ...) NAME
-#define static_assert(...) EXPAND(DETAIL_STATIC_ASSERT_GET_MACRO(__VA_ARGS__, DETAIL_STATIC_ASSERT_2, DETAIL_STATIC_ASSERT_1)(__VA_ARGS__))
-#endif
-
-
-#if defined _MSC_VER && _MSC_VER < 1911
-namespace std
-{
-	namespace detail
-	{
-		template <typename void_type, typename, typename...>
-		struct invoke_result {};
-
-		template <typename callable, typename... args>
-		struct invoke_result<decltype(void(std::invoke(std::declval<callable>(), std::declval<args>()...))), callable, args...>
-		{
-			using type = decltype(std::invoke(std::declval<callable>(), std::declval<args>()...));
-		};
-	}
-
-	template <typename callable, typename... args>
-	struct invoke_result: detail::invoke_result<void, callable, args...> {};
-
-	template <typename callable, typename... args>
-	using invoke_result_t = typename invoke_result<callable, args...>::type;
-}
-#endif
-
-
-#if defined _MSC_VER && _MSC_VER < 1910
-#include "common/any.hpp"
-
-namespace std
-{
-	using ::any_impl::any;
-	using ::any_impl::any_cast;
-	using ::any_impl::bad_any_cast;
-}
-#else
-#include <any>
-#endif
-
-#if defined _MSC_VER && _MSC_VER < 1910
-#include "common/string_view.hpp"
-
-namespace std
-{
-	using ::string_view_impl::basic_string_view;
-	using ::string_view_impl::string_view;
-	using ::string_view_impl::wstring_view;
-
-	inline namespace literals
-	{
-		inline namespace string_view_literals
-		{
-			using namespace ::string_view_impl::string_view_literals;
-		}
-	}
-}
-#else
-#include <string_view>
 #endif
 
 #endif // CPP_HPP_95E41B70_5DB2_4E5B_A468_95343C6438AD

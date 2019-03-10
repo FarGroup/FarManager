@@ -131,7 +131,7 @@ void ShellMakeDir(Panel *SrcPanel)
 		// это по поводу создания одиночного каталога, который
 		// начинается с пробела! Чтобы ручками не заключать
 		// такой каталог в кавычки
-		if (Global->Opt->MultiMakeDir && strDirName.find_first_of(L";,\"") == string::npos)
+		if (Global->Opt->MultiMakeDir && strDirName.find_first_of(L";,\""sv) == string::npos)
 		{
 			QuoteSpaceOnly(strDirName);
 		}

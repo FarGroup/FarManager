@@ -197,7 +197,10 @@ void InfoList::DisplayObject()
 	/* #1 - computer name/user name */
 	{
 		string strComputerName;
-		os::GetComputerNameEx(static_cast<COMPUTER_NAME_FORMAT>(Global->Opt->InfoPanel.ComputerNameFormat.Get()), strComputerName) || os::GetComputerName(strComputerName);
+		if (!os::GetComputerNameEx(static_cast<COMPUTER_NAME_FORMAT>(Global->Opt->InfoPanel.ComputerNameFormat.Get()), strComputerName) && !os::GetComputerName(strComputerName))
+		{
+			// TODO: fallback?
+		}
 
 		GotoXY(m_Where.left + 2, CurY++);
 		PrintText(lng::MInfoCompName);
@@ -215,7 +218,10 @@ void InfoList::DisplayObject()
 		}
 
 		string strUserName;
-		os::GetUserNameEx(static_cast<EXTENDED_NAME_FORMAT>(Global->Opt->InfoPanel.UserNameFormat.Get()), strUserName) || os::GetUserName(strUserName);
+		if (!os::GetUserNameEx(static_cast<EXTENDED_NAME_FORMAT>(Global->Opt->InfoPanel.UserNameFormat.Get()), strUserName) && !os::GetUserName(strUserName))
+		{
+			// TODO: fallback?
+		}
 
 		GotoXY(m_Where.left + 2, CurY++);
 		PrintText(lng::MInfoUserName);

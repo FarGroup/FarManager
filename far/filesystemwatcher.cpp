@@ -68,7 +68,7 @@ void FileSystemWatcher::Set(const string& Directory, bool WatchSubtree)
 	if (os::fs::GetFileTimeSimple(Directory, nullptr, nullptr, &m_PreviousLastWriteTime, nullptr))
 		m_CurrentLastWriteTime = m_PreviousLastWriteTime;
 
-	m_IsFatFilesystem = {};
+	m_IsFatFilesystem.reset();
 }
 
 void FileSystemWatcher::Watch(bool got_focus, bool check_time)
@@ -82,20 +82,20 @@ void FileSystemWatcher::Watch(bool got_focus, bool check_time)
 
 	if (got_focus)
 	{
-		if (!m_IsFatFilesystem.second)
+		if (!m_IsFatFilesystem.has_value())
 		{
+			m_IsFatFilesystem = false;
+
 			const auto strRoot = GetPathRoot(m_Directory);
 			if (!strRoot.empty())
 			{
 				string strFileSystem;
 				if (os::fs::GetVolumeInformation(strRoot, nullptr, nullptr, nullptr, nullptr, &strFileSystem))
-					m_IsFatFilesystem.first = starts_with(strFileSystem, L"FAT"sv);
+					m_IsFatFilesystem = starts_with(strFileSystem, L"FAT"sv);
 			}
-
-			m_IsFatFilesystem.second = true;
 		}
 
-		if (m_IsFatFilesystem.first)
+		if (*m_IsFatFilesystem)
 		{
 			// emulate FAT folder time change
 			// otherwise changes missed (FAT folder time is NOT modified)

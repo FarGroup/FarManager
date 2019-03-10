@@ -80,13 +80,13 @@ bool enum_file_lines::GetString(string_view& Str, eol::type& Eol) const
 		if (!GetTString(m_wReadBuf, m_wStr, Eol, m_CodePage == CP_REVERSEBOM))
 			return false;
 
-		Str = { m_wStr.data(), m_wStr.size() };
+		Str = m_wStr;
 		return true;
 
 	case CP_UTF8:
 	case CP_UTF7:
 		{
-			std::vector<char> CharStr;
+			std::string CharStr;
 			CharStr.reserve(DELTA);
 			if (!GetTString(m_ReadBuf, CharStr, Eol))
 				return false;
@@ -98,7 +98,7 @@ bool enum_file_lines::GetString(string_view& Str, eol::type& Eol) const
 
 				for (auto Overflow = true; Overflow;)
 				{
-					const auto Size = Utf::get_chars(m_CodePage, { CharStr.data(), CharStr.size() }, m_wStr.data(), m_wStr.size(), &Errors);
+					const auto Size = Utf::get_chars(m_CodePage, CharStr, m_wStr.data(), m_wStr.size(), &Errors);
 					Overflow = Size > m_wStr.size();
 					m_wStr.resize(Size);
 				}
@@ -110,13 +110,13 @@ bool enum_file_lines::GetString(string_view& Str, eol::type& Eol) const
 				m_wStr.clear();
 			}
 
-			Str = { m_wStr.data(), m_wStr.size() };
+			Str = m_wStr;
 			return true;
 		}
 
 	default:
 		{
-			std::vector<char> CharStr;
+			std::string CharStr;
 			CharStr.reserve(DELTA);
 			if (!GetTString(m_ReadBuf, CharStr, Eol))
 				return false;
@@ -149,7 +149,7 @@ bool enum_file_lines::GetString(string_view& Str, eol::type& Eol) const
 
 				if (bGet)
 				{
-					nResultLength = encoding::get_chars(m_CodePage, { CharStr.data(), CharStr.size() }, m_wStr);
+					nResultLength = encoding::get_chars(m_CodePage, CharStr, m_wStr);
 					if (nResultLength > m_wStr.size())
 					{
 						Result = ERROR_INSUFFICIENT_BUFFER;
@@ -158,9 +158,9 @@ bool enum_file_lines::GetString(string_view& Str, eol::type& Eol) const
 
 				if (Result == ERROR_INSUFFICIENT_BUFFER)
 				{
-					nResultLength = encoding::get_chars_count(m_CodePage, { CharStr.data(), CharStr.size() });
+					nResultLength = encoding::get_chars_count(m_CodePage, CharStr);
 					m_wStr.resize(nResultLength);
-					encoding::get_chars(m_CodePage, { CharStr.data(), CharStr.size() }, m_wStr);
+					encoding::get_chars(m_CodePage, CharStr, m_wStr);
 				}
 
 				if (!nResultLength)
@@ -173,14 +173,14 @@ bool enum_file_lines::GetString(string_view& Str, eol::type& Eol) const
 				m_wStr.clear();
 			}
 
-			Str = { m_wStr.data(), m_wStr.size() };
+			Str = m_wStr;
 			return true;
 		}
 	}
 }
 
 template<typename T>
-bool enum_file_lines::GetTString(std::vector<T>& From, std::vector<T>& To, eol::type& Eol, bool bBigEndian) const
+bool enum_file_lines::GetTString(std::vector<T>& From, std::basic_string<T>& To, eol::type& Eol, bool bBigEndian) const
 {
 	To.clear();
 
@@ -272,7 +272,7 @@ bool enum_file_lines::GetTString(std::vector<T>& From, std::vector<T>& To, eol::
 			break;
 		}
 
-		To.emplace_back(*ReadBufPtr);
+		To.push_back(*ReadBufPtr);
 		CurrentEol = eol::type::none;
 	}
 

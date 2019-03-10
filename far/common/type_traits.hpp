@@ -32,14 +32,20 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<class type, template<class> class operation, class = void>
-struct is_valid: std::false_type {};
+namespace detail
+{
+	template<typename void_type, template<typename...> typename operation, typename... args>
+	struct is_detected : std::false_type{};
 
-template<class type, template<class> class operation>
-struct is_valid<type, operation, std::void_t<operation<type>>>: std::true_type {};
+	template<template<typename...> typename operation, typename... args>
+	struct is_detected<std::void_t<operation<args...>>, operation, args...> : std::true_type{};
+}
 
-template<typename type, template<class> class operation>
-constexpr bool is_valid_v = is_valid<type, operation>::value;
+template <template<typename...> typename operation, typename... args>
+using is_detected = typename detail::is_detected<void, operation, args...>::type;
+
+template<template<typename...> typename operation, typename... args>
+constexpr bool is_detected_v = is_detected<operation, args...>::value;
 
 
 template<typename type, typename... args>
@@ -63,13 +69,13 @@ namespace detail
 }
 
 template<class type>
-using is_range = std::conjunction<is_valid<type, detail::try_begin>, is_valid<type, detail::try_end>>;
+using is_range = std::conjunction<is_detected<detail::try_begin, type>, is_detected<detail::try_end, type>>;
 
 template<class type>
 constexpr bool is_range_v = is_range<type>::value;
 
 template<class type>
-using is_span = std::conjunction<is_valid<type, detail::try_data>, is_valid<type, detail::try_size>>;
+using is_span = std::conjunction<is_detected<detail::try_data, type>, is_detected<detail::try_size, type>>;
 
 template<class type>
 constexpr bool is_span_v = is_span<type>::value;

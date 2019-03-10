@@ -62,7 +62,7 @@ private:
 	bool GetString(string_view& Str, eol::type& Eol) const;
 
 	template<typename T>
-	bool GetTString(std::vector<T>& From, std::vector<T>& To, eol::type& Eol, bool bBigEndian = false) const;
+	bool GetTString(std::vector<T>& From, std::basic_string<T>& To, eol::type& Eol, bool bBigEndian = false) const;
 
 	const os::fs::file& SrcFile;
 	size_t BeginPos;
@@ -71,7 +71,7 @@ private:
 
 	mutable std::vector<char> m_ReadBuf;
 	mutable std::vector<wchar_t> m_wReadBuf;
-	mutable std::vector<wchar_t> m_wStr;
+	mutable string m_wStr;
 	mutable size_t ReadPos{};
 	mutable size_t ReadSize{};
 	mutable bool m_ConversionError{};

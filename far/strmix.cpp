@@ -501,8 +501,7 @@ bool ReplaceStrings(string& strStr, const string_view FindStr, const string_view
 		      find(strStr, FindStr, StartPos)
 		) != strStr.npos)
 	{
-		// TODO: use string_view overload after migrating to VS2017
-		strStr.replace(StartPos, FindStr.size(), ReplStr.data(), ReplStr.size());
+		strStr.replace(StartPos, FindStr.size(), ReplStr);
 		StartPos += ReplStr.size();
 		++replaced;
 

@@ -53,9 +53,9 @@ namespace os::memory
 			return ptr(GlobalAlloc(Flags, size));
 		}
 
-		ptr copy(const wchar_t* Data, size_t Size)
+		ptr copy(string_view const Str)
 		{
-			auto Memory = alloc(GMEM_MOVEABLE, (Size + 1) * sizeof(wchar_t));
+			auto Memory = alloc(GMEM_MOVEABLE, (Str.size() + 1) * sizeof(wchar_t));
 			if (!Memory)
 				return nullptr;
 
@@ -63,7 +63,7 @@ namespace os::memory
 			if (!Copy)
 				return nullptr;
 
-			*std::copy_n(Data, Size, Copy.get()) = L'\0';
+			*std::copy(ALL_CONST_RANGE(Str), Copy.get()) = L'\0';
 			return Memory;
 		}
 

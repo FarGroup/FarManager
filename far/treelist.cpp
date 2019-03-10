@@ -341,7 +341,7 @@ public:
 
 	bool empty() const { return m_Names.empty(); }
 
-	void add(const string_view Name) { m_Names.emplace(ALL_CONST_RANGE(Name)); }
+	void add(const string_view Name) { m_Names.emplace(Name); }
 
 	void remove(const wchar_t* Name)
 	{
@@ -940,7 +940,7 @@ bool TreeList::FillLastData()
 	};
 
 	const auto RootLength = m_Root.empty()? 0 : m_Root.size()-1;
-	const auto Range = make_range(m_ListData.begin() + 1, m_ListData.end());
+	const range Range(m_ListData.begin() + 1, m_ListData.end());
 	FOR_RANGE(Range, i)
 	{
 		const auto Pos = i->strName.rfind(L'\\');
@@ -953,7 +953,7 @@ bool TreeList::FillLastData()
 		auto SubDirPos = i;
 		int Last = 1;
 
-		const auto SubRange = make_range(i + 1, Range.end());
+		const range SubRange(i + 1, Range.end());
 		FOR_RANGE(SubRange, j)
 		{
 			if (CountSlash(j->strName, RootLength) > Depth)

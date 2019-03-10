@@ -97,10 +97,8 @@ private:
 	template<typename T>
 	void Read(T& Data) const { Data = Read<T>(); }
 
-	static void Write() {}
-
-	template<typename T, typename... args>
-	void Write(const T& Data, const args&... Args) const;
+	template<typename... args>
+	void Write(const args&... Args) const;
 
 	void RetrieveLastError() const;
 

@@ -324,7 +324,7 @@ bool GetString(
 		StrDlg[2].strData = SrcText;
 
 	{
-		const auto Dlg = Dialog::create(make_span(StrDlg.data(), StrDlg.size() - Substract));
+		const auto Dlg = Dialog::create(span(StrDlg.data(), StrDlg.size() - Substract));
 		Dlg->SetPosition({ -1, -1, 76, offset + (Flags & FIB_BUTTONS? 8 : 6) });
 		if(Id) Dlg->SetId(*Id);
 
@@ -819,7 +819,7 @@ static void GetRowCol(const string& Str, bool Hex, goto_coord& Row, goto_coord& 
 		Dest.exist = true;
 	};
 
-	const auto SeparatorPos = Str.find_first_of(L".,;:");
+	const auto SeparatorPos = Str.find_first_of(L".,;:"sv);
 
 	if (SeparatorPos == Str.npos)
 	{

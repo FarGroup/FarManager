@@ -104,7 +104,7 @@ public:
 		}
 		else
 		{
-			static_cast<range<char*>&>(*this) = make_range(new char[rhs.size()], rhs.size());
+			static_cast<range<char*>&>(*this) = { new char[rhs.size()], rhs.size() };
 			m_Allocated = true;
 		}
 		std::copy(ALL_CONST_RANGE(rhs), begin());

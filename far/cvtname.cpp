@@ -233,7 +233,7 @@ static string TryConvertVolumeGuidToDrivePath(string_view const Path, const stri
 
 					if (IsRootPath(i))
 					{
-						Result.replace(0, DirectoryOffset, i.data(), i.size());
+						Result.replace(0, DirectoryOffset, i);
 						break;
 					}
 				}

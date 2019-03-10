@@ -36,6 +36,21 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace detail
 {
+	namespace handler
+	{
+		[[noreturn]]
+		inline void invalid_argument()
+		{
+			throw std::out_of_range("invalid from_string argument");
+		}
+
+		[[noreturn]]
+		inline void out_of_range()
+		{
+			throw std::out_of_range("from_string argument out of range");
+		}
+	}
+
 	template<typename result_type, typename converter_type>
 	void from_string(string_view const Str, result_type& Value, size_t* Pos, int Base, converter_type Converter)
 	{
@@ -48,27 +63,15 @@ namespace detail
 		const auto Result = Converter(Ptr, &EndPtr, Base);
 
 		if (Ptr == EndPtr)
-			throw std::invalid_argument("invalid from_string argument");
+			handler::invalid_argument();
 
 		if (Errno == ERANGE)
-			throw std::out_of_range("from_string argument out of range");
+			handler::out_of_range();
 
 		if (Pos != nullptr)
 			*Pos = static_cast<size_t>(EndPtr - Ptr);
 
 		Value = Result;
-	}
-
-	inline void from_string(string_view const Str, int& Value, size_t* Pos, int Base)
-	{
-		static_assert(sizeof(int) == sizeof(long));
-		from_string(Str, Value, Pos, Base, std::wcstol);
-	}
-
-	inline void from_string(string_view const Str, unsigned int& Value, size_t* Pos, int Base)
-	{
-		static_assert(sizeof(int) == sizeof(long));
-		from_string(Str, Value, Pos, Base, std::wcstoul);
 	}
 
 	inline void from_string(string_view const Str, long& Value, size_t* Pos, int Base)
@@ -91,9 +94,45 @@ namespace detail
 		from_string(Str, Value, Pos, Base, std::wcstoull);
 	}
 
-	inline void from_string(string_view const Str, double & Value, size_t* Pos, int)
+	inline void from_string(string_view const Str, int& Value, size_t* Pos, int Base)
 	{
-		from_string(Str, Value, Pos, {}, [](const wchar_t* const Str, wchar_t** const EndPtr, int) { return std::wcstod(Str, EndPtr); });
+		static_assert(sizeof(int) == sizeof(long));
+		long LongValue;
+		from_string(Str, LongValue, Pos, Base);
+		Value = static_cast<int>(LongValue);
+	}
+
+	inline void from_string(string_view const Str, unsigned int& Value, size_t* Pos, int Base)
+	{
+		static_assert(sizeof(unsigned int) == sizeof(unsigned long));
+		unsigned long LongValue;
+		from_string(Str, LongValue, Pos, Base);
+		Value = static_cast<unsigned int>(LongValue);
+	}
+
+	inline void from_string(string_view const Str, short& Value, size_t* Pos, int Base)
+	{
+		long LongValue;
+		from_string(Str, LongValue, Pos, Base);
+		if (LongValue < std::numeric_limits<short>::min() || LongValue > std::numeric_limits<short>::max())
+			handler::out_of_range();
+
+		Value = static_cast<short>(LongValue);
+	}
+
+	inline void from_string(string_view const Str, unsigned short& Value, size_t* Pos, int Base)
+	{
+		unsigned long LongValue;
+		from_string(Str, LongValue, Pos, Base);
+		if (LongValue > std::numeric_limits<unsigned short>::max())
+			handler::out_of_range();
+
+		Value = static_cast<unsigned short>(LongValue);
+	}
+
+	inline void from_string(string_view const Str, double& Value, size_t* Pos, int)
+	{
+		from_string(Str, Value, Pos, {}, [](const wchar_t* const StrPtr, wchar_t** const EndPtr, int) { return std::wcstod(StrPtr, EndPtr); });
 	}
 }
 

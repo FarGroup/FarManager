@@ -419,7 +419,7 @@ void PluginManager::LoadPlugins()
 				if (i.empty())
 					continue;
 
-				PluginDirectories.emplace_back(i.data(), i.size());
+				PluginDirectories.emplace_back(i);
 			}
 		}
 
@@ -2129,7 +2129,7 @@ bool PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data)
 			}
 			else
 			{
-				if (contains(make_span(MenuItems->Guids, MenuItems->Count), *Data->ItemGuid))
+				if (contains(span(MenuItems->Guids, MenuItems->Count), *Data->ItemGuid))
 				{
 					Data->FoundGuid = *Data->ItemGuid;
 					Data->ItemGuid = &Data->FoundGuid;

@@ -141,7 +141,7 @@ void DizList::Read(const string& Path, const string* DizName)
 				}
 
 				// Insert unconditionally
-				LastAdded = Insert(string(NameBegin, NameEnd));
+				LastAdded = Insert({ NameBegin, NameEnd });
 				LastAdded->second.emplace_back(DescBegin, DizText.cend());
 			}
 			else if (LastAdded != m_DizData.end())

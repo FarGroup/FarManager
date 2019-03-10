@@ -296,7 +296,7 @@ TVar::TVar(double v) :
 TVar::TVar(string_view const v):
 	inum(),
 	dnum(),
-	str(ALL_CONST_RANGE(v)),
+	str(v),
 	vType(vtString)
 {
 }

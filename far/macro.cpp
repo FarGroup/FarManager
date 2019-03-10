@@ -2824,9 +2824,9 @@ static bool xlatFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams(2, Data);
 	auto StrParam = Params[0].toString();
-	const auto Ret = Xlat(StrParam.data(), 0, static_cast<int>(StrParam.size()), Params[1].asInteger()) != nullptr;
+	Xlat(StrParam.data(), 0, static_cast<int>(StrParam.size()), Params[1].asInteger());
 	PassString(StrParam, Data);
-	return Ret;
+	return true;
 }
 
 // N=beep([N])
@@ -3421,10 +3421,10 @@ static bool fattrFuncImpl(int Type, FarMacroCall* Data)
 
 		if (const auto SelPanel = TypeToPanel(typePanel))
 		{
-			if (Str.find_first_of(L"*?") != string::npos)
+			if (Str.find_first_of(L"*?"sv) != string::npos)
 				Pos=SelPanel->FindFirst(Str);
 			else
-				Pos = SelPanel->FindFile(Str, Str.find_first_of(L"\\/:") != string::npos);
+				Pos = SelPanel->FindFile(Str, Str.find_first_of(L"\\/:"sv) != string::npos);
 
 			if (Pos >= 0)
 			{

@@ -47,8 +47,8 @@ public:
 	NONCOPYABLE(null_terminated_t);
 
 WARNING_PUSH()
-WARNING_DISABLE_MSC(4582) // no page                                                '%$S': constructor is not implicitly called
-WARNING_DISABLE_MSC(4583) // no page                                                '%$S': destructor is not implicitly called
+WARNING_DISABLE_MSC(4582) // no page                                                'class': constructor is not implicitly called
+WARNING_DISABLE_MSC(4583) // no page                                                'class': destructor is not implicitly called
 
 	explicit null_terminated_t(const std::basic_string_view<T> Str)
 	{
@@ -133,58 +133,42 @@ private:
 using null_terminated = null_terminated_t<wchar_t>;
 
 
-namespace detail
+namespace string_utils::detail
 {
-	inline void append_one(string& Str, const wchar_t Arg, size_t) { Str += Arg; }
-	inline void append_one(string& Str, const wchar_t* const Arg, const size_t Size) { Str.append(Arg, Size); }
-	inline void append_one(string& Str, const string& Arg, size_t) { Str += Arg; }
-	inline void append_one(string& Str, const string_view Arg, size_t) { Str.append(ALL_CONST_RANGE(Arg)); }
-
-	inline void append_impl(string&, const size_t*) {}
-
-	template<typename arg, typename... args>
-	void append_impl(string& Str, const size_t* Sizes, arg&& Arg, args&&... Args)
-	{
-		append_one(Str, FWD(Arg), *Sizes);
-		append_impl(Str, Sizes + 1, FWD(Args)...);
-	}
-
 	// The overload for string literals is deliberately omitted as it also matches arrays
 	// and while for string literals the length formula is pretty simple: N - 1,
 	// for arrays it is not, as they could have no trailing \0 at all, or (worse) have multiple.
 	// Use string_view literal if you need to.
-	[[nodiscard]]
-	inline size_t size_one(wchar_t) { return 1; }
+	[[nodiscard]] inline size_t size_one(wchar_t) { return 1; }
+	[[nodiscard]] inline size_t size_one(string_view const Str) { return Str.size(); }
 
-	[[nodiscard]]
-	inline size_t size_one(const string_view Str) { return Str.size(); }
+	inline void append_one(string& Str, wchar_t const Arg, size_t) { Str += Arg; }
+	inline void append_one(string& Str, wchar_t const* const Arg, size_t const Size) { Str.append(Arg, Size); }
+	inline void append_one(string& Str, string const & Arg, size_t) { Str += Arg; }
+	inline void append_one(string& Str, string_view const Arg, size_t) { Str += Arg; }
 
-	[[nodiscard]]
-	inline size_t size_impl(size_t*) { return 0; }
-
-	template<typename arg, typename... args>
-	[[nodiscard]]
-	size_t size_impl(size_t* Sizes, arg&& Arg, args&&... Args)
+	template<size_t... I, typename... args>
+	void append_all(string& Str, std::index_sequence<I...> Sequence, args const&... Args)
 	{
-		*Sizes = size_one(FWD(Arg));
-		return *Sizes + size_impl(Sizes + 1, FWD(Args)...);
+		size_t Sizes[Sequence.size()];
+		const auto TotalSize = (Str.size() + ... + (Sizes[I] = size_one(Args)));
+		reserve_exp_noshrink(Str, TotalSize);
+		(..., append_one(Str, Args, Sizes[I]));
 	}
 }
 
 template<typename... args>
-void append(string& Str, args&&... Args)
+void append(string& Str, args const&... Args)
 {
-	size_t Sizes[sizeof...(Args)];
-	reserve_exp_noshrink(Str, Str.size() + ::detail::size_impl(Sizes, FWD(Args)...));
-	::detail::append_impl(Str, Sizes, FWD(Args)...);
+	string_utils::detail::append_all(Str, std::index_sequence_for<args...>{}, Args...);
 }
 
 template<typename... args>
 [[nodiscard]]
-auto concat(args&&... Args)
+auto concat(args const&... Args)
 {
 	string Str;
-	append(Str, FWD(Args)...);
+	append(Str, Args...);
 	return Str;
 }
 
@@ -541,7 +525,7 @@ template<typename char_type>
 [[nodiscard]]
 bool contains(const std::basic_string<char_type>& Str, const std::basic_string_view<char_type> What)
 {
-	return Str.find(What.data(), 0, What.size()) != Str.npos;
+	return Str.find(What) != Str.npos;
 }
 #endif
 
@@ -600,7 +584,7 @@ template <typename T>
 auto make_string_view(T const Begin, T const End)
 {
 	using char_type = typename std::iterator_traits<T>::value_type;
-	static_assert((std::is_same_v<typename std::basic_string_view<char_type>::const_iterator, T>));
+	static_assert(std::is_same_v<typename std::basic_string_view<char_type>::const_iterator, T>);
 
 	const auto Size = static_cast<size_t>(End - Begin);
 	return std::basic_string_view<char_type>{ Size ? &*Begin : nullptr, Size };

@@ -1307,7 +1307,7 @@ int KeyNameToKey(string_view Name)
 		if (Name[0] == L'%')
 		return -1;
 
-		if (Name.find_first_of(L"()") != string::npos) // встречаются '(' или ')', то это явно не клавиша!
+		if (Name.find_first_of(L"()"sv) != string::npos) // встречаются '(' или ')', то это явно не клавиша!
 			return -1;
 	}
 
@@ -1378,7 +1378,7 @@ int KeyNameToKey(string_view Name)
 				std::all_of(ALL_CONST_RANGE(Name), std::iswdigit)
 			) // Варианты (3) и (4)
 			{
-				const auto K = from_string<int>(string(Name));
+				const auto K = from_string<int>(Name);
 
 				if (Key == KEY_M_SPEC) // Вариант (3)
 					Key = (Key & ~KEY_M_SPEC) | (K + KEY_VK_0xFF_BEGIN);
@@ -2360,7 +2360,7 @@ static void TestKeyNameToKey()
 
 		string Str;
 		EXPECT_TRUE(KeyToText(i.Key, Str));
-		EXPECT_EQ(upper(string(i.Str)), upper(Str));
+		EXPECT_TRUE(equal_icase(i.Str, Str));
 	}
 }
 #endif

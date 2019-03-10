@@ -69,13 +69,13 @@ namespace detail
 		using without_payload = decltype(std::declval<T&>()());
 
 	public:
-		template<typename callable_type, REQUIRES(is_valid_v<callable_type, with_payload>)>
+		template<typename callable_type, REQUIRES(is_detected_v<with_payload, callable_type>)>
 		explicit event_handler(callable_type&& Handler):
 			function(FWD(Handler))
 		{
 		}
 
-		template<typename callable_type, REQUIRES(is_valid_v<callable_type, without_payload>)>
+		template<typename callable_type, REQUIRES(is_detected_v<without_payload, callable_type>)>
 		explicit event_handler(callable_type&& Handler):
 			function([Handler = FWD(Handler)](const std::any&) { Handler(); })
 		{

@@ -1534,7 +1534,7 @@ void Edit::SetString(string_view Str)
 	}
 	else
 	{
-		m_Str.assign(ALL_CONST_RANGE(Str));
+		m_Str.assign(Str);
 
 		if (GetTabExpandMode() == EXPAND_ALLTABS)
 			ReplaceTabs();
@@ -1651,7 +1651,7 @@ void Edit::InsertString(string_view Str)
 				m_Str.resize(m_CurPos, L' ');
 			}
 
-			m_Str.insert(m_CurPos, Str.data(), Str.size());
+			m_Str.insert(m_CurPos, Str);
 
 			SetPrevCurPos(m_CurPos);
 			m_CurPos += static_cast<int>(Str.size());

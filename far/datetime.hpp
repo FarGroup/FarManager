@@ -50,7 +50,7 @@ using time_ranges = std::array<std::pair<size_t, size_t>, 4>;
 
 void ParseDateComponents(string_view Src, span<const std::pair<size_t, size_t>> Ranges, span<WORD> Dst, WORD Default = date_none);
 os::chrono::time_point ParseDate(const string& Date, const string& Time, int DateFormat, const date_ranges& DateRanges, const time_ranges& TimeRanges);
-os::chrono::duration ParseDuration(const string& Date, const string& Time, int DateFormat, const time_ranges& TimeRanges);
+os::chrono::duration ParseDuration(const string& Date, const string& Time, const time_ranges& TimeRanges);
 void ConvertDate(os::chrono::time_point Point, string& strDateText, string& StrTimeText, int TimeLength, int Brief = FALSE, int TextMonth = FALSE, int FullYear = 0);
 void ConvertDuration(os::chrono::duration Duration, string& strDaysText, string& strTimeText);
 

@@ -3,6 +3,24 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 10.03.2019 00:47:09 +0000 - build 5373
+
+1. Minimal supported Visual Studio version is now 2017 Update 9.
+
+2. Removed VS2015-specific workarounds, some parts are reimplemented more efficiently.
+
+3. Win32 versions of mingw are supported again.
+
+4. Clang warnings.
+
+zg 03.03.2019 16:22:37 +0200 - build 5372
+
+1. Forum: keybar is not updated after calling a plugin.
+
+svs 27.02.2019 13:44:44 +0300 - build 5371
+
+1. SQLite 3.27.2
+
 drkns 25.02.2019 23:31:27 +0000 - build 5370
 
 1. Some AI in executor to skip scrolling if possible, based on https://forum.farmanager.com/viewtopic.php?p=153198#p153198.

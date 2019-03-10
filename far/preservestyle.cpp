@@ -129,7 +129,7 @@ static auto InternalPreserveStyleTokenize(const string_view strStr, size_t From,
 	if (Result.size() > 1)
 	{
 		const auto PrependChar = std::next(Result.cbegin())->PrependChar;
-		for (const auto& i: make_range(std::next(Result.cbegin(), 2), Result.cend()))
+		for (const auto& i: range(std::next(Result.cbegin(), 2), Result.cend()))
 		{
 			if (PrependChar != i.PrependChar)
 			{
@@ -416,7 +416,7 @@ bool PreserveStyleReplaceString(
 						int AfterFirstCommonTypeMask = -1;
 						wchar_t PrependChar = SourceTokens.back().PrependChar;
 
-						for (const auto& SourceI: make_range(std::next(SourceTokens.cbegin()), SourceTokens.cend()))
+						for (const auto& SourceI: range(std::next(SourceTokens.cbegin()), SourceTokens.cend()))
 						{
 							if (AfterFirstCommonTypeMask == -1)
 								AfterFirstCommonTypeMask = SourceI.TypeMask;
@@ -433,7 +433,7 @@ bool PreserveStyleReplaceString(
 							PrependChar = ReplaceStrTokens.back().PrependChar;
 						}
 
-						for (auto& ReplaceI: make_range(std::next(ReplaceStrTokens.begin()), ReplaceStrTokens.end()))
+						for (auto& ReplaceI: range(std::next(ReplaceStrTokens.begin()), ReplaceStrTokens.end()))
 						{
 							ToPreserveStyleType(ReplaceI.Token, ChoosePreserveStyleType(AfterFirstCommonTypeMask));
 							ReplaceI.PrependChar = PrependChar;

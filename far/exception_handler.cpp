@@ -385,10 +385,10 @@ static reply ExcConsole(
 
 	static_assert(std::size(Msg) == std::size(Values));
 
-	for (const auto& i : zip(Msg, Values))
+	for (const auto& [m, v] : zip(Msg, Values))
 	{
-		const auto Label = fit_to_left(string(std::get<0>(i)), ColumnWidth);
-		std::wcerr << Label << L' ' << std::get<1>(i) << L'\n';
+		const auto Label = fit_to_left(string(m), ColumnWidth);
+		std::wcerr << Label << L' ' << v << L'\n';
 	}
 
 	ShowStackTrace(tracer::get(*Context.pointers(), Context.thread_handle()), NestedStack);
@@ -397,12 +397,20 @@ static reply ExcConsole(
 	return ConsoleYesNo(L"Terminate process"sv)? reply_handle : reply_ignore;
 }
 
-template<char c0, char c1, char c2, char c3>
-constexpr uint32_t fourcc = MAKELONG(MAKEWORD(c0, c1), MAKEWORD(c2, c3));
+template<size_t... I>
+static constexpr uint32_t any_cc(char const* const Str, std::index_sequence<I...>)
+{
+	return (... | (Str[I] << 8 * I)) | (Str[sizeof...(I)] * 0);
+}
+
+static constexpr uint32_t fourcc(char const* const Str)
+{
+	return any_cc(Str, std::make_index_sequence<4>{});
+}
 
 enum FARRECORDTYPE
 {
-	RTYPE_PLUGIN = fourcc<'C', 'P', 'L', 'G'>, // информация о текущем плагине
+	RTYPE_PLUGIN = fourcc("CPLG"), // информация о текущем плагине
 };
 
 struct catchable_type

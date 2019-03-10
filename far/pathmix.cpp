@@ -58,7 +58,7 @@ void NTPath::Transform()
 				ReplaceSlashToBackslash(Data);
 				const auto Prefix = ParsePath(Data) == root_type::drive_letter? L"\\\\?\\"sv : L"\\\\?\\UNC"sv;
 				remove_duplicates(Data, L'\\');
-				Data.insert(0, Prefix.data(), Prefix.size());
+				Data.insert(0, Prefix);
 			}
 		}
 		static const bool is_win2k = !IsWindowsXPOrGreater();
@@ -71,7 +71,7 @@ void NTPath::Transform()
 	}
 }
 
-string KernelPath(const string& NtPath)
+string KernelPath(string_view const NtPath)
 {
 	return KernelPath(string(NtPath));
 }

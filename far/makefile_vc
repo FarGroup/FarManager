@@ -4,7 +4,7 @@
 #
 #LINK_ULINK - set if you want to use ulink for linking
 #
-#VC - set Visual C++ version (VC=14 for 2015, VC=15 for 2017, VC=16 for 2019, default is 14, we try to autodetect if not set)
+#VC - set Visual C++ version (VC=15 for 2017, VC=16 for 2019, default is 15, we try to autodetect if not set)
 #
 #AMD64 or CPU=AMD64 - set for x64 build
 #IA64 or CPU=IA64 - for IA64 build
@@ -63,12 +63,11 @@ DIRBIT=32
 VC=16
 !elseif "$(_NMAKE_VER)">"14.10"
 VC=15
-!elseif "$(_NMAKE_VER)">"14"
-VC=14
 !else
 #default
-VC=14
+VC=15
 !endif
+
 !endif
 
 !ifndef DEBUG
@@ -283,15 +282,43 @@ DEFINES=\
 DISABLED_WARNINGS=/FI disabled_warnings.hpp
 
 # common
-CPPFLAGS=/nologo /MP$(MP_LIMIT) /Wall $(DISABLED_WARNINGS) $(DEFUSERFLAGS) $(FARSYSLOG) $(DEFINES) /EHsc /Gy /GF /Fd"$(INTDIR)\\" /J /Zc:inline,referenceBinding,rvalueCast,strictStrings,throwingNew /std:c++latest /c
-LINKFLAGS=/nologo /subsystem:console /release /nxcompat /largeaddressaware /dynamicbase /map /out:"$(OUTDIR)\Far.exe"
+CPPFLAGS=\
+	/c\
+	/J\
+	/EHsc\
+	/std:c++latest\
+	/permissive-\
+	/Zc:__cplusplus,externConstexpr,inline,referenceBinding,rvalueCast,strictStrings,throwingNew\
+	/Wall\
+	/Gy\
+	/GF\
+	/Fd"$(INTDIR)\\"\
+	/diagnostics:caret\
+	/nologo\
+	/MP$(MP_LIMIT)\
+	$(DISABLED_WARNINGS)\
+	$(DEFUSERFLAGS)\
+	$(FARSYSLOG)\
+	$(DEFINES)\
+
+
+LINKFLAGS=\
+	/nologo\
+	/subsystem:console\
+	/release\
+	/nxcompat\
+	/largeaddressaware\
+	/dynamicbase\
+	/map\
+	/out:"$(OUTDIR)\Far.exe"\
+
+
 ULINKFLAGS=-q -m- -ap -Gz -O- -o- -Gh -Gh- -GF:LARGEADDRESSAWARE -d*kernel32
 RFLAGS=/nologo /l 0x409 /fo"$(RES_FILE)" /d $(USEDEBUG)
 
 # compiler-specific
-!if "$(VC)">="15"
-CPPFLAGS=$(CPPFLAGS) /permissive- /Zc:__cplusplus,externConstexpr /diagnostics:caret
-!endif
+#!if "$(VC)">="15"
+#!endif
 
 !ifdef CLANG
 CPP = clang-cl

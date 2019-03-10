@@ -40,6 +40,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "locale.hpp"
 #include "encoding.hpp"
 
+#include "common/chrono.hpp"
+#include "common/from_string.hpp"
+
 #include "format.hpp"
 
 DWORD ConvertYearToFull(DWORD ShortYear)
@@ -345,7 +348,7 @@ void ParseDateComponents(string_view const Src, span<const std::pair<size_t, siz
 	std::transform(ALL_CONST_RANGE(Ranges), Dst.begin(), [Src, Default](const auto& i)
 	{
 		const auto Part = trim(Src.substr(i.first, i.second));
-		return Part.empty()? Default : std::stoul(string(Part));
+		return Part.empty()? Default : from_string<WORD>(Part);
 	});
 }
 
@@ -400,7 +403,7 @@ os::chrono::time_point ParseDate(const string& Date, const string& Time, int Dat
 	return Point;
 }
 
-os::chrono::duration ParseDuration(const string& Date, const string& Time, int DateFormat, const time_ranges& TimeRanges)
+os::chrono::duration ParseDuration(const string& Date, const string& Time, const time_ranges& TimeRanges)
 {
 	WORD DateN[1];
 	const std::pair<size_t, size_t> DateRange[]{ { 0, Date.size() } };

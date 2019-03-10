@@ -38,9 +38,8 @@ template<typename Derived, typename T>
 class [[nodiscard]] enumerator
 {
 public:
-	// VS2015
-	//NONCOPYABLE(enumerator);
-	//MOVABLE(enumerator);
+	NONCOPYABLE(enumerator);
+	MOVABLE(enumerator);
 
 	using value_type = T;
 	using enumerator_type = enumerator;
@@ -136,7 +135,7 @@ public:
 	auto cend() const { return end(); }
 
 protected:
-	enumerator() { static_assert((std::is_base_of_v<enumerator, Derived>)); }
+	enumerator() { static_assert(std::is_base_of_v<enumerator, Derived>); }
 
 private:
 	template<typename iterator_type, typename owner_type>

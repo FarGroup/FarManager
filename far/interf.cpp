@@ -945,27 +945,26 @@ void Box(rectangle Where, const FarColor& Color, int Type)
 
 	SetColor(Color);
 
-	std::vector<wchar_t> Buffer;
-
-	Buffer.assign(Where.height() - 2, Symbol(LineV));
+	string Buffer(Where.height() - 2, Symbol(LineV));
 
 	GotoXY(Where.left, Where.top + 1);
-	VText({ Buffer.data(), Buffer.size() });
+	VText(Buffer);
 
 	GotoXY(Where.right, Where.top + 1);
-	VText({ Buffer.data(), Buffer.size() });
+	VText(Buffer);
 
 	Buffer.assign(Where.width(), Symbol(LineH));
-
 	Buffer.front() = Symbol(LineLT);
 	Buffer.back() = Symbol(LineRT);
+
 	GotoXY(Where.left, Where.top);
-	Text({ Buffer.data(), Buffer.size() });
+	Text(Buffer);
 
 	Buffer.front() = Symbol(LineLB);
 	Buffer.back() = Symbol(LineRB);
+
 	GotoXY(Where.left, Where.bottom);
-	Text({ Buffer.data(), Buffer.size() });
+	Text(Buffer);
 }
 
 bool ScrollBarRequired(UINT Length, unsigned long long ItemsCount)
@@ -983,7 +982,7 @@ bool ScrollBarEx3(UINT X1, UINT Y1, UINT Length, unsigned long long Start, unsig
 	if ( Length < 2)
 		return false;
 
-	std::vector<wchar_t> Buffer(Length, BoxSymbols[BS_X_B0]);
+	string Buffer(Length, BoxSymbols[BS_X_B0]);
 	Buffer.front() = L'\x25B2';
 	Buffer.back() = L'\x25BC';
 
@@ -997,7 +996,7 @@ bool ScrollBarEx3(UINT X1, UINT Y1, UINT Length, unsigned long long Start, unsig
 
 	if (Size && Start < End)
 	{
-		auto SliderSize = std::max(1u, static_cast<UINT>(((End - Start) * FieldSize) / Size));
+		const auto SliderSize = std::max(1u, static_cast<UINT>(((End - Start) * FieldSize) / Size));
 
 		if (SliderSize >= FieldSize)
 		{
@@ -1019,7 +1018,7 @@ bool ScrollBarEx3(UINT X1, UINT Y1, UINT Length, unsigned long long Start, unsig
 	std::fill(SliderBegin, SliderEnd, BoxSymbols[BS_X_DB]);
 
 	GotoXY(X1, Y1);
-	VText({ Buffer.data(), Buffer.size() });
+	VText(Buffer);
 
 	return true;
 }

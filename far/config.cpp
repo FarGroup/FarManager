@@ -2123,11 +2123,8 @@ void Options::Load(overrides&& Overrides)
 	};
 	static_assert(std::size(GuidOptions) == std::size(DefaultKnownGuids));
 
-	for(const auto& i: zip(DefaultKnownGuids, GuidOptions))
+	for(const auto& [a, b]: zip(DefaultKnownGuids, GuidOptions))
 	{
-		auto& a = std::get<0>(i);
-		auto& b = std::get<1>(i);
-
 		a.second = GuidToStr(a.first);
 		b->Default = a.second.c_str();
 		b->Id = a.first;
@@ -2859,12 +2856,11 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 
 	HMenuData MainMenu[]
 	{
-		// TODO: remove make_range after dropping VS2015
-		{ msg(lng::MMenuLeftTitle), L"LeftRightMenu"sv, make_range(LeftMenu), true },
-		{ msg(lng::MMenuFilesTitle), L"FilesMenu"sv, make_range(FilesMenu) },
-		{ msg(lng::MMenuCommandsTitle), L"CmdMenu"sv, make_range(CmdMenu) },
-		{ msg(lng::MMenuOptionsTitle), L"OptMenu"sv, make_range(OptionsMenu) },
-		{ msg(lng::MMenuRightTitle), L"LeftRightMenu"sv, make_range(RightMenu) },
+		{ msg(lng::MMenuLeftTitle), L"LeftRightMenu"sv, LeftMenu, true },
+		{ msg(lng::MMenuFilesTitle), L"FilesMenu"sv, FilesMenu },
+		{ msg(lng::MMenuCommandsTitle), L"CmdMenu"sv, CmdMenu },
+		{ msg(lng::MMenuOptionsTitle), L"OptMenu"sv, OptionsMenu },
+		{ msg(lng::MMenuRightTitle), L"LeftRightMenu"sv, RightMenu },
 	};
 	static int LastHItem=-1,LastVItem=0;
 	int HItem,VItem;

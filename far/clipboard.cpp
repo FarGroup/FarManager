@@ -291,7 +291,7 @@ bool clipboard::SetText(const string_view Str)
 	if (!Clear())
 		return false;
 
-	auto hData = os::memory::global::copy(Str.data(), Str.size());
+	auto hData = os::memory::global::copy(Str);
 	if (!hData)
 		return false;
 

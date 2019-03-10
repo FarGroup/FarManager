@@ -576,11 +576,8 @@ static void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const
 	const PaletteColors DefaultColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR};
 	int VBufRow = 0;
 
-	for (const auto& i: zip(Colors.Color, DefaultColor))
+	for (const auto& [CurColor, pal]: zip(Colors.Color, DefaultColor))
 	{
-		auto& CurColor= std::get<0>(i);
-		const auto pal = std::get<1>(i);
-
 		auto Color = CurColor.FileColor;
 		const auto BaseColor = colors::PaletteColorToFarColor(pal);
 
@@ -1173,8 +1170,8 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 			const auto NewDates = IsRelative?
 				filter_dates
 				(
-					ParseDuration(FilterDlg[ID_FF_DAYSAFTEREDIT].strData, FilterDlg[ID_FF_TIMEAFTEREDIT].strData, DateFormat, TimeRanges),
-					ParseDuration(FilterDlg[ID_FF_DAYSBEFOREEDIT].strData, FilterDlg[ID_FF_TIMEBEFOREEDIT].strData, DateFormat, TimeRanges)
+					ParseDuration(FilterDlg[ID_FF_DAYSAFTEREDIT].strData, FilterDlg[ID_FF_TIMEAFTEREDIT].strData, TimeRanges),
+					ParseDuration(FilterDlg[ID_FF_DAYSBEFOREEDIT].strData, FilterDlg[ID_FF_TIMEBEFOREEDIT].strData, TimeRanges)
 				) :
 				filter_dates
 				(

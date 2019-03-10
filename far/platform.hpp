@@ -92,9 +92,9 @@ namespace os
 					// It's Callable's responsibility to handle and fix that.
 					return ReturnedSize >= AllocatedSize;
 				},
-				[&](range<const wchar_t*> Buffer)
+				[&](string_view const Buffer)
 				{
-					Destination.assign(ALL_CONST_RANGE(Buffer));
+					Destination = Buffer;
 				});
 		}
 
@@ -109,9 +109,9 @@ namespace os
 				{
 					return !ReturnedSize && GetLastError() == ExpectedErrorCode;
 				},
-				[&](range<const wchar_t*> Buffer)
+				[&](string_view const Buffer)
 				{
-					Destination.assign(ALL_CONST_RANGE(Buffer));
+					Destination = Buffer;
 				});
 		}
 
@@ -128,8 +128,6 @@ namespace os
 		template<class deleter>
 		class handle_t: handle_implementation, public base<std::unique_ptr<std::remove_pointer_t<HANDLE>, deleter>>
 		{
-			using base_type = typename handle_t::base_type;
-
 		public:
 			MOVABLE(handle_t);
 
@@ -140,19 +138,19 @@ namespace os
 			}
 
 			explicit handle_t(HANDLE Handle):
-				base_type(normalise(Handle))
+				handle_t::base_ctor(normalise(Handle))
 			{
 			}
 
 			void reset(HANDLE Handle)
 			{
-				base_type::reset(normalise(Handle));
+				handle_t::base_type::reset(normalise(Handle));
 			}
 
 			[[nodiscard]]
 			HANDLE native_handle() const
 			{
-				return base_type::get();
+				return handle_t::base_type::get();
 			}
 
 			void close()
@@ -251,7 +249,7 @@ namespace os
 			MOVABLE(module);
 
 			explicit module(string_view const Name, bool AlternativeLoad = false):
-				m_name(ALL_CONST_RANGE(Name)),
+				m_name(Name),
 				m_tried(),
 				m_AlternativeLoad(AlternativeLoad)
 			{}
