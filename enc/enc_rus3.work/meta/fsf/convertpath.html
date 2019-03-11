@@ -85,16 +85,19 @@ size_t WINAPI ConvertPath(
 
 <p>Правильно:</p>
 <pre class=code>
-   wchar_t *FullName = new wchar_t[MAX_PATH];
-   size_t Size = FSF.ConvertPath(CPM_FULL, L"..\\some_file", FullName, Size);
-   if (Size > MAX_PATH)
+   std::vector<wchar_t> Buffer(MAX_PATH);
+
+   for (;;)
    {
-     delete[] FullName;
-     FullName = new wchar_t[Size];
-     FSF.ConvertPath(CPM_FULL, L"..\\some_file", FullName, Size);
+     const auto ActualSize = FSF.ConvertPath(CPM_FULL, L"..\\some_file", Buffer.data(), Buffer.size());
+
+     if (ActualSize <= BufferSize)
+        break;
+
+     Buffer.resize(ActualSize);
    }
-   GetFileAttributes(FullName);
-   delete[] FullName;
+
+   GetFileAttributes(Buffer.data());
 </pre>
 </div>
 
