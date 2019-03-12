@@ -15,7 +15,7 @@
 </div>
 
 <div class=shortdescr>
-Функция <code>FSF.ConvertPath</code> преобразует относительное имя файлового объекта в полное.
+Функция <code>FSF.ConvertPath</code> преобразует относительное имя файлового объекта в полное (относительно FSF.GetCurrentDirectory() - в большинстве случаев это соответствует текущему каталогу активной панели).
 </div>
 
 <p class=note>
@@ -85,13 +85,13 @@ size_t WINAPI ConvertPath(
 
 <p>Правильно:</p>
 <pre class=code>
-   std::vector<wchar_t> Buffer(MAX_PATH);
+   std::vector&lt;wchar_t&gt; Buffer(MAX_PATH);
 
    for (;;)
    {
      const auto ActualSize = FSF.ConvertPath(CPM_FULL, L"..\\some_file", Buffer.data(), Buffer.size());
 
-     if (ActualSize <= BufferSize)
+     if (ActualSize <= Buffer.size())
         break;
 
      Buffer.resize(ActualSize);
