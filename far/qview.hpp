@@ -71,7 +71,7 @@ private:
 	void PrintText(string_view Str) const;
 	void DynamicUpdateKeyBar() const;
 
-	std::unique_ptr<Viewer> QView;
+	unique_ptr_with_ondestroy<Viewer> QView;
 	string strCurFileName;
 	UserDataItem CurUserData{};
 	string strCurFileType;
