@@ -11,11 +11,23 @@ pool:
 
 variables:
   solution: 'far/far.sln'
-  buildPlatform: x86, x64
-  buildConfiguration: Debug, Release
+
+strategy:
+    matrix:
+      x86_RELEASE:
+        buildPlatform: 'Win32'
+        buildConfiguration: 'Release'
+      x64_RELEASE:
+        buildPlatform: 'x64'
+        buildConfiguration: 'Release'
+      x86_DEBUG:
+        buildPlatform: 'Win32'
+        buildConfiguration: 'Debug'
+      x64_DEBUG:
+        buildPlatform: 'x64'
+        buildConfiguration: 'Debug'
 
 steps:
-
 - task: VSBuild@1
   inputs:
     solution: '$(solution)'
