@@ -84,7 +84,7 @@ namespace
 	string GetDatabaseName(sqlite::sqlite3* Db)
 	{
 		const auto NamePtr = sqlite::sqlite3_db_filename(Db, "main");
-		const auto Name = NamePtr? *NamePtr? encoding::utf8::get_chars(NamePtr) : L":memory:"s : L"unknown"s;
+		const string Name(NamePtr? *NamePtr? encoding::utf8::get_chars(NamePtr) : SQLiteDb::memory_db_name() : L"unknown"sv);
 		return string(PointToName(Name));
 	}
 
