@@ -81,21 +81,28 @@ namespace
 		return encoding::utf8::get_chars(sqlite::sqlite3_errstr(ErrorCode));
 	}
 
+	string GetDatabaseName(sqlite::sqlite3* Db)
+	{
+		const auto NamePtr = sqlite::sqlite3_db_filename(Db, "main");
+		const auto Name = NamePtr? *NamePtr? encoding::utf8::get_chars(NamePtr) : L":memory:"s : L"unknown"s;
+		return string(PointToName(Name));
+	}
+
 	string GetLastErrorString(sqlite::sqlite3* Db)
 	{
 		return static_cast<const wchar_t*>(sqlite::sqlite3_errmsg16(Db));
 	}
 
 	[[noreturn]]
-	void throw_exception(int ErrorCode, const string& ErrorString = {})
+	void throw_exception(int ErrorCode, string_view const DatabaseName, string_view const ErrorString = {})
 	{
-		throw MAKE_EXCEPTION(far_sqlite_exception, format(L"SQLite error {0} - {1}"sv, ErrorCode, ErrorString.empty()? GetErrorString(ErrorCode) : ErrorString));
+		throw MAKE_EXCEPTION(far_sqlite_exception, format(L"SQLite error {0} - [{1}] {2}"sv, ErrorCode, DatabaseName, ErrorString.empty()? GetErrorString(ErrorCode) : ErrorString));
 	}
 
 	[[noreturn]]
 	void throw_exception(sqlite::sqlite3* Db)
 	{
-		throw_exception(GetLastErrorCode(Db), GetLastErrorString(Db));
+		throw_exception(GetLastErrorCode(Db), GetDatabaseName(Db), GetLastErrorString(Db));
 	}
 
 	template<typename callable>
@@ -324,7 +331,7 @@ public:
 			if (Db)
 				throw_exception(Db.get());
 			else
-				throw_exception(Result);
+				throw_exception(Result, Name);
 		}
 
 		invoke(Db.get(), [&]{ return sqlite::sqlite3_busy_handler(Db.get(), BusyHandler.first, BusyHandler.second) == SQLITE_OK; });
@@ -343,7 +350,7 @@ public:
 		{
 			const auto TmpDbPath = concat(MakeTemp(), str(GetCurrentProcessId()), L'-', PointToName(Path));
 			if (!os::fs::copy_file(Path, TmpDbPath, nullptr, nullptr, nullptr, 0))
-				throw_exception(SQLITE_READONLY);
+				throw_exception(SQLITE_READONLY, Path);
 
 			Deleter.set(TmpDbPath);
 			os::fs::set_file_attributes(TmpDbPath, FILE_ATTRIBUTE_NORMAL);
@@ -371,7 +378,7 @@ public:
 
 		const auto StepResult = sqlite::sqlite3_backup_step(DbBackup.get(), -1);
 		if (StepResult != SQLITE_DONE)
-			throw_exception(StepResult);
+			throw_exception(StepResult, GetDatabaseName(SourceDb.get()));
 
 		return Destination;
 	}
@@ -407,7 +414,7 @@ SQLiteDb::database_ptr SQLiteDb::Open(string_view const Path, busy_handler BusyH
 		implementation::open(memory_db_name(), {});
 }
 
-void SQLiteDb::Exec(range<const std::string_view*> Command) const
+void SQLiteDb::Exec(range<const std::string_view*> const Command) const
 {
 	for (const auto& i: Command)
 	{
