@@ -1,4 +1,6 @@
-#define _CRT_NON_CONFORMING_WCSTOK
+#ifndef _CRT_NON_CONFORMING_WCSTOK
+#  define _CRT_NON_CONFORMING_WCSTOK
+#endif
 
 #include <stdio.h>
 #include <plugin.hpp>
