@@ -4,7 +4,12 @@
 # https://docs.microsoft.com/azure/devops/pipelines/apps/windows/dot-net
 
 trigger:
-- master
+  batch: true
+  branches:
+    include:
+    - master
+  pr:
+  - master
 
 pool:
   vmImage: 'VS2017-Win2016'
@@ -28,6 +33,9 @@ strategy:
         buildConfiguration: 'Debug'
 
 steps:
+- checkout: self
+  clean: true
+  fetchDepth: 1
 - task: VSBuild@1
   inputs:
     solution: '$(solution)'
