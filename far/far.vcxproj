@@ -21,10 +21,9 @@
   <PropertyGroup Label="Globals">
     <ProjectName>Far</ProjectName>
     <ProjectGuid>{62F794C9-5F4C-40F6-B358-5DC1A9D6D2CB}</ProjectGuid>
-    <RootNamespace>far</RootNamespace>
-    <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
-    <WindowsTargetPlatformVersion Condition="'$(VisualStudioVersion)' == '15.0'">10.0.16299.0</WindowsTargetPlatformVersion>
-    <WindowsTargetPlatformVersion Condition="'$(VisualStudioVersion)' == '16.0'">10.0.17763.0</WindowsTargetPlatformVersion>
+    <RootNamespace>Far</RootNamespace>
+    <WindowsTargetPlatformVersion Condition="'$(VisualStudioVersion)'=='15.0'">10.0.16299.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(VisualStudioVersion)'=='16.0'">10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
@@ -42,30 +41,30 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros">
-    <NewOptions Condition="'$(VisualStudioVersion)' == '15.0'">
-    </NewOptions>
-    <NewOptions Condition="'$(VisualStudioVersion)' &gt;= '16.0'">
-    </NewOptions>
+    <TargetOsVersion Condition="'$(Platform)'=='Win32'">5.0</TargetOsVersion>
+    <TargetOsVersion Condition="'$(Platform)'=='x64'">5.2</TargetOsVersion>
+    <NewOptions Condition="'$(VisualStudioVersion)'=='15.0'"></NewOptions>
+    <NewOptions Condition="'$(VisualStudioVersion)'&gt;='16.0'"></NewOptions>
   </PropertyGroup>
   <PropertyGroup>
-    <_ProjectFileVersion>10.0.21006.1</_ProjectFileVersion>
     <OutDir>$(Configuration).$(PlatformArchitecture).vc\</OutDir>
     <IntDir>$(OutDir)obj\</IntDir>
-    <LinkIncremental Condition="'$(Configuration)'=='Release'">false</LinkIncremental>
-    <LinkIncremental Condition="'$(Configuration)'=='Debug'">true</LinkIncremental>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <TargetName>Far</TargetName>
     <EmbedManifest>false</EmbedManifest>
     <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <LinkIncremental>false</LinkIncremental>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <LinkIncremental>true</LinkIncremental>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <PreBuildEvent>
       <Message>Creating mandatory folders...</Message>
-      <Command>if not exist $(OutDir)cod mkdir $(OutDir)cod
-if not exist Include mkdir Include
+      <Command>if not exist Include mkdir Include
 if not exist bootstrap mkdir bootstrap</Command>
     </PreBuildEvent>
     <ClCompile>
@@ -76,7 +75,6 @@ if not exist bootstrap mkdir bootstrap</Command>
       <PrecompiledHeaderFile>headers.hpp</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)headers.pch</PrecompiledHeaderOutputFile>
       <WarningLevel>EnableAllWarnings</WarningLevel>
-      <AssemblerOutput>NoListing</AssemblerOutput>
       <AssemblerListingLocation>$(OutDir)cod\</AssemblerListingLocation>
       <StringPooling>true</StringPooling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -86,7 +84,6 @@ if not exist bootstrap mkdir bootstrap</Command>
       <ForcedIncludeFiles>disabled_warnings.hpp;headers.hpp;memcheck.hpp</ForcedIncludeFiles>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
-      <SupportJustMyCode>true</SupportJustMyCode>
       <DiagnosticsFormat>Caret</DiagnosticsFormat>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ConformanceMode>true</ConformanceMode>
@@ -96,7 +93,6 @@ if not exist bootstrap mkdir bootstrap</Command>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>netapi32.lib;mpr.lib;psapi.lib;secur32.lib;setupapi.lib;rpcrt4.lib;version.lib;userenv.lib;comdlg32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)Far.exe</OutputFile>
       <GenerateManifest>false</GenerateManifest>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
@@ -106,11 +102,11 @@ if not exist bootstrap mkdir bootstrap</Command>
       <LargeAddressAware>true</LargeAddressAware>
     </Link>
     <PostBuildEvent>
+      <Command>editbin /nologo /subsystem:console,$(TargetOsVersion) /osversion:$(TargetOsVersion) $(OutDir)$(TargetName)$(TargetExt) &gt; nul</Command>
+      <Message>Fixing subsystem version</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
-    <PreBuildEvent>
-    </PreBuildEvent>
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -123,19 +119,19 @@ if not exist bootstrap mkdir bootstrap</Command>
     </ResourceCompile>
     <Link>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <SetChecksum>true</SetChecksum>
     </Link>
-    <PostBuildEvent>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
-    <PreBuildEvent>
-    </PreBuildEvent>
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PreprocessorDefinitions>_DEBUG;SYSLOG;SYSLOG_FARSYSLOG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <SupportJustMyCode>true</SupportJustMyCode>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <ResourceCompile>
@@ -144,23 +140,13 @@ if not exist bootstrap mkdir bootstrap</Command>
     <Link>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
-    <PostBuildEvent>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
     <ClCompile>
       <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
-    <PostBuildEvent>
-      <Command>editbin /nologo /subsystem:console,5.0 /osversion:5.0 $(OutDir)\Far.exe &gt; nul</Command>
-      <Message>fixing subsystem version</Message>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Platform)'=='x64'">
-    <PostBuildEvent>
-      <Command>editbin /nologo /subsystem:console,5.2 /osversion:5.2 $(OutDir)\Far.exe &gt; nul</Command>
-      <Message>fixing subsystem version</Message>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <CustomBuild Include="api_test.c">
