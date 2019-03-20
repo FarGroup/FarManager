@@ -223,7 +223,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="foldtree.cpp" />
     <ClCompile Include="format.cpp" />
     <ClCompile Include="global.cpp" />
-    <ClCompile Include="testing.cpp" />
     <ClCompile Include="grabber.cpp" />
     <ClCompile Include="headers.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
@@ -315,6 +314,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="strmix.cpp" />
     <ClCompile Include="syslog.cpp" />
     <ClCompile Include="taskbar.cpp" />
+    <ClCompile Include="testing.cpp" />
     <ClCompile Include="tinyxml.cpp" />
     <ClCompile Include="tracer.cpp" />
     <ClCompile Include="treelist.cpp" />
@@ -435,7 +435,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="foldtree.hpp" />
     <ClInclude Include="format.hpp" />
     <ClInclude Include="global.hpp" />
-    <ClInclude Include="testing.hpp" />
     <ClInclude Include="grabber.hpp" />
     <ClInclude Include="headers.hpp" />
     <ClInclude Include="help.hpp" />
@@ -522,6 +521,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="strmix.hpp" />
     <ClInclude Include="syslog.hpp" />
     <ClInclude Include="taskbar.hpp" />
+    <ClInclude Include="testing.hpp" />
     <ClInclude Include="tinyxml.hpp" />
     <ClInclude Include="TPreRedrawFunc.hpp" />
     <ClInclude Include="tracer.hpp" />

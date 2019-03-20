@@ -437,6 +437,9 @@
     <ClCompile Include="taskbar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="testing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="tinyxml.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -471,9 +474,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="xlat.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="testing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1042,6 +1042,9 @@
     <ClInclude Include="taskbar.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="testing.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="tinyxml.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1085,9 +1088,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="xlat.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="testing.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
