@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 20.03.2019 23:35:45 +0000 - build 5376
+
+1. Use Catch2 for unit tests.
+
+2. Run unit tests as a part of the build process (debug - always, release - optionally).
+
+3. Continuation of 5373.2 - removed some more redundant code.
+
 drkns 13.03.2019 22:27:54 +0000 - build 5375
 
 1. SQLite exceptions include the database name.

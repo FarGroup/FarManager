@@ -1,12 +1,11 @@
-﻿#ifndef TEST_HPP_C40D0453_C760_47F8_9B10_934BF1C0506E
-#define TEST_HPP_C40D0453_C760_47F8_9B10_934BF1C0506E
-#pragma once
+﻿/*
+testing.cpp
 
-/*
-test.hpp
+Testing framework wrapper
+
 */
 /*
-Copyright © 2018 Far Group
+Copyright © 2019 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -32,44 +31,38 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifdef _DEBUG
-#define SELF_TEST(callable) \
-namespace \
-{ \
-	struct SelfTest \
-	{ \
-		SelfTest() \
-		{ \
-			callable(); \
-		} \
-	} _SelfTest; \
-}
+#define CATCH_CONFIG_RUNNER
 
-namespace detail
+#include "testing.hpp"
+
+#ifdef ENABLE_TESTS
+
+#include "components.hpp"
+
+#include "platform.memory.hpp"
+
+#include "format.hpp"
+
+int testing_main()
 {
-	template<typename expected, typename actual>
-	void basic_assert(expected&& Expected, actual&& Actual, string_view const Assertion, const char* File, int Line)
-	{
-		if (Expected != Actual)
-		{
-			std::wcerr << L"[ FAIL ] " << Assertion << L' ' << File << L':' << Line << L'\n'
-			           << std::boolalpha
-			           << L"         " << Expected << L" != " << Actual << L'\n'
-			           << std::endl;
-			assert(false);
-		}
-	}
+	int Argc;
+	const os::memory::local::ptr Argv(CommandLineToArgvW(GetCommandLine(), &Argc));
+	const auto Data = Argv.get();
+
+	std::vector<const wchar_t*> Args;
+	Args.reserve(Argc - 1);
+	Args.push_back(*Data);
+	Args.insert(Args.end(), &Data[2], &Data[Argc]);
+
+	return Catch::Session().run(Argc - 1, Args.data());
 }
 
-#define EXPECT_EQ(expected, actual)   detail::basic_assert(expected, actual, L"EXPECT_EQ(" #expected ", " #actual ")"sv, __FILE__, __LINE__)
-#define EXPECT_TRUE(expression)       detail::basic_assert(true, expression, L"EXPECT_TRUE(" #expression ")"sv, __FILE__, __LINE__)
-#define EXPECT_FALSE(expression)      detail::basic_assert(false, expression, L"EXPECT_FALSE(" #expression ")"sv, __FILE__, __LINE__)
+namespace
+{
+	SCOPED_ACTION(components::component)([]
+	{
+		return components::component::info{ L"Catch2"s, format(L"{0}.{1}.{2}"sv, CATCH_VERSION_MAJOR, CATCH_VERSION_MINOR, CATCH_VERSION_PATCH) };
+	});
+}
 
-#else
-#define SELF_TEST(callable)
-#define EXPECT_EQ(expected, actual)
-#define EXPECT_TRUE(expression)
-#define EXPECT_FALSE(expression)
 #endif
-
-#endif // TEST_HPP_C40D0453_C760_47F8_9B10_934BF1C0506E

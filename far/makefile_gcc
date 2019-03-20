@@ -15,6 +15,11 @@ DEFINES += -D FAR_ALPHA_VERSION
 
 ifdef DEBUG
 DEFINES += -D SYSLOG -D SYSLOG_FARSYSLOG
+ENABLE_TESTS = 1
+endif
+
+ifdef ENABLE_TESTS
+DEFINES += -D ENABLE_TESTS
 endif
 
 SRCS = \
@@ -152,6 +157,7 @@ SRCS = \
 	syslog.cpp \
 	tinyxml.cpp \
 	taskbar.cpp \
+	testing.cpp \
 	tracer.cpp \
 	treelist.cpp \
 	tvar.cpp \
@@ -221,6 +227,10 @@ build: $(EXEFULLNAME)
 $(EXEFULLNAME): $(BOOTSTRAPDIR)copyright.inc $(BOOTSTRAPDIR)farversion.inc $(OBJS)
 	@echo Linking $@
 	$(CXX) -o $@ $(OBJS) $(LNKFLAGS)
+ifdef ENABLE_TESTS
+	@echo Running unit tests
+	$@ /service:test
+endif
 
 $(OBJDIR)%.o: %.c
 	@echo $<

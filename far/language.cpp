@@ -503,10 +503,11 @@ const string& msg(lng Id)
 	return far_language::instance().Msg(Id);
 }
 
-#include "common/test.hpp"
+#ifdef ENABLE_TESTS
 
-#ifdef _DEBUG
-static void TestLngParser()
+#include "testing.hpp"
+
+TEST_CASE("language.parser")
 {
 	static const struct
 	{
@@ -530,11 +531,9 @@ static void TestLngParser()
 	{
 		string_view Label, Data;
 		const auto Result = parse_lng_line(i.Line, true, Label, Data);
-		EXPECT_TRUE(i.Result == Result);
-		EXPECT_EQ(i.Label, Label);
-		EXPECT_EQ(i.Data, Data);
+		REQUIRE(i.Result == Result);
+		REQUIRE(i.Label == Label);
+		REQUIRE(i.Data == Data);
 	}
 }
 #endif
-
-SELF_TEST(TestLngParser)

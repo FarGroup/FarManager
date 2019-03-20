@@ -473,6 +473,9 @@
     <ClCompile Include="xlat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="testing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bitflags.hpp">
@@ -590,9 +593,6 @@
       <Filter>Header Files\common</Filter>
     </ClInclude>
     <ClInclude Include="common\string_utils.hpp">
-      <Filter>Header Files\common</Filter>
-    </ClInclude>
-    <ClInclude Include="common\test.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
     <ClInclude Include="common\type_traits.hpp">
@@ -1085,6 +1085,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="xlat.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="testing.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

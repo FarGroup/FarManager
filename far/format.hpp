@@ -44,13 +44,8 @@ WARNING_DISABLE_GCC("-Wmaybe-uninitialized")
 
 WARNING_DISABLE_CLANG("-Weverything")
 
-#pragma push_macro("static_assert")
-#undef static_assert
-
 #include "thirdparty/fmt/fmt/format.h"
 #include "thirdparty/fmt/fmt/ostream.h"
-
-#pragma pop_macro("static_assert")
 
 WARNING_POP()
 

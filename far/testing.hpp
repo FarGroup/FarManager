@@ -1,10 +1,15 @@
-﻿/*
-format.cpp
+﻿#ifndef TESTING_HPP_DF49B287_DB16_4C12_AB55_9D6F14D3A409
+#define TESTING_HPP_DF49B287_DB16_4C12_AB55_9D6F14D3A409
+#pragma once
 
-Форматирование строк
+/*
+testing.hpp
+
+Testing framework wrapper
+
 */
 /*
-Copyright © 2009 Far Group
+Copyright © 2019 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,27 +35,23 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "format.hpp"
+#ifdef ENABLE_TESTS
 
-#include "components.hpp"
-#include "locale.hpp"
+#include "disable_warnings_in_std_begin.hpp"
 
-WARNING_PUSH(3)
+#ifdef MEMCHECK
+#pragma push_macro("new")
+#undef new
+#endif
 
-WARNING_DISABLE_GCC("-Wformat-nonliteral")
+#include "thirdparty/catch2/catch.hpp"
 
-WARNING_DISABLE_CLANG("-Weverything")
+#ifdef MEMCHECK
+#pragma pop_macro("new")
+#endif
 
-#define FMT_STATIC_THOUSANDS_SEPARATOR ::locale.thousand_separator()
+#include "disable_warnings_in_std_end.hpp"
 
-#include "thirdparty/fmt/format.cc"
+#endif
 
-WARNING_POP()
-
-namespace
-{
-	SCOPED_ACTION(components::component)([]
-	{
-		return components::component::info{ L"fmt"s, format(L"{0}.{1}.{2}"sv, FMT_VERSION / 10000, FMT_VERSION % 10000 / 100, FMT_VERSION % 100) };
-	});
-}
+#endif // TESTING_HPP_DF49B287_DB16_4C12_AB55_9D6F14D3A409

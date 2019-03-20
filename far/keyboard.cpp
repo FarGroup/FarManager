@@ -2319,10 +2319,11 @@ unsigned int CalcKeyCode(const INPUT_RECORD* rec, bool RealKey, bool* NotMacros)
 	return Char? Modif | Char : KEY_NONE;
 }
 
-#include "common/test.hpp"
+#ifdef ENABLE_TESTS
 
-#ifdef _DEBUG
-static void TestKeyNameToKey()
+#include "testing.hpp"
+
+TEST_CASE("keyboard.KeyNames")
 {
 	static_assert(KEY_CLEAR == KEY_NUMPAD5);
 
@@ -2353,16 +2354,14 @@ static void TestKeyNameToKey()
 
 	for (const auto& i: Tests)
 	{
-		EXPECT_EQ(i.Key, KeyNameToKey(i.Str));
+		REQUIRE(i.Key == KeyNameToKey(i.Str));
 
 		if (!i.Str2.empty())
-			EXPECT_EQ(i.Key, KeyNameToKey(i.Str2));
+			REQUIRE(i.Key == KeyNameToKey(i.Str2));
 
 		string Str;
-		EXPECT_TRUE(KeyToText(i.Key, Str));
-		EXPECT_TRUE(equal_icase(i.Str, Str));
+		REQUIRE(KeyToText(i.Key, Str));
+		REQUIRE(equal_icase(i.Str, Str));
 	}
 }
 #endif
-
-SELF_TEST(TestKeyNameToKey)

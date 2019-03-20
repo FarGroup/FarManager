@@ -59,7 +59,6 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <LinkIncremental>true</LinkIncremental>
-    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <PreBuildEvent>
@@ -101,10 +100,6 @@ if not exist bootstrap mkdir bootstrap</Command>
       <SubSystem>Console</SubSystem>
       <LargeAddressAware>true</LargeAddressAware>
     </Link>
-    <PostBuildEvent>
-      <Command>editbin /nologo /subsystem:console,$(TargetOsVersion) /osversion:$(TargetOsVersion) $(OutDir)$(TargetName)$(TargetExt) &gt; nul</Command>
-      <Message>Fixing subsystem version</Message>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
     <ClCompile>
@@ -123,13 +118,17 @@ if not exist bootstrap mkdir bootstrap</Command>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <SetChecksum>true</SetChecksum>
     </Link>
+    <PostBuildEvent>
+      <Command>editbin /nologo /subsystem:console,$(TargetOsVersion) /osversion:$(TargetOsVersion) $(OutDir)$(TargetName)$(TargetExt) &gt; nul</Command>
+      <Message>Fixing subsystem version</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <PreprocessorDefinitions>_DEBUG;SYSLOG;SYSLOG_FARSYSLOG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;ENABLE_TESTS;SYSLOG;SYSLOG_FARSYSLOG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <SupportJustMyCode>true</SupportJustMyCode>
       <SDLCheck>true</SDLCheck>
@@ -140,6 +139,10 @@ if not exist bootstrap mkdir bootstrap</Command>
     <Link>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
+    <PostBuildEvent>
+      <Command>$(OutDir)$(TargetName)$(TargetExt) /service:test</Command>
+      <Message>Running unit tests</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
     <ClCompile>
@@ -220,6 +223,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="foldtree.cpp" />
     <ClCompile Include="format.cpp" />
     <ClCompile Include="global.cpp" />
+    <ClCompile Include="testing.cpp" />
     <ClCompile Include="grabber.cpp" />
     <ClCompile Include="headers.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
@@ -368,7 +372,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="common\singleton.hpp" />
     <ClInclude Include="common\smart_ptr.hpp" />
     <ClInclude Include="common\string_utils.hpp" />
-    <ClInclude Include="common\test.hpp" />
     <ClInclude Include="common\type_traits.hpp" />
     <ClInclude Include="common\utility.hpp" />
     <ClInclude Include="common\zip_view.hpp" />
@@ -432,6 +435,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="foldtree.hpp" />
     <ClInclude Include="format.hpp" />
     <ClInclude Include="global.hpp" />
+    <ClInclude Include="testing.hpp" />
     <ClInclude Include="grabber.hpp" />
     <ClInclude Include="headers.hpp" />
     <ClInclude Include="help.hpp" />

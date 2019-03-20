@@ -365,10 +365,11 @@ bool filemasks::masks::empty() const
 	return m_Regex? m_Match.empty() : m_Masks.empty();
 }
 
-#include "common/test.hpp"
+#ifdef ENABLE_TESTS
 
-#ifdef _DEBUG
-static void TestMasks()
+#include "testing.hpp"
+
+TEST_CASE("masks")
 {
 	struct
 	{
@@ -389,10 +390,8 @@ static void TestMasks()
 
 	for (const auto &i: Tests)
 	{
-		EXPECT_TRUE(Masks.Set(i.Mask, FMF_SILENT));
-		EXPECT_EQ(i.Match, Masks.Compare(i.Test));
+		REQUIRE(Masks.Set(i.Mask, FMF_SILENT));
+		REQUIRE(i.Match == Masks.Compare(i.Test));
 	}
 }
 #endif
-
-SELF_TEST(TestMasks)

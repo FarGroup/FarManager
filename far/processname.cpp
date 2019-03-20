@@ -285,10 +285,11 @@ bool CmpName(string_view pattern, string_view str, const bool skippath, const bo
 	}
 }
 
-#include "common/test.hpp"
+#ifdef ENABLE_TESTS
 
-#ifdef _DEBUG
-static void TestWildcards()
+#include "testing.hpp"
+
+TEST_CASE("ConvertWildcards")
 {
 	static const string_view Masks[]
 	{
@@ -339,9 +340,7 @@ static void TestWildcards()
 
 	for (const auto& i: Tests)
 	{
-		EXPECT_EQ(i.Expected, ConvertWildcards(i.Src, Masks[i.Mask], 0));
+		REQUIRE(i.Expected == ConvertWildcards(i.Src, Masks[i.Mask], 0));
 	}
 }
 #endif
-
-SELF_TEST(TestWildcards)

@@ -3997,22 +3997,20 @@ void RegExp::TrimTail(const wchar_t* const start, const wchar_t*& strend) const
 	strend++;
 }
 
-#include "common/test.hpp"
+#ifdef ENABLE_TESTS
 
-#ifdef _DEBUG
-static void TestRegex()
+#include "testing.hpp"
+
+TEST_CASE("regex")
 {
 	RegExp re;
-	EXPECT_EQ(1, re.Compile(L"/a*?ca/"));
+	REQUIRE(re.Compile(L"/a*?ca/") == 1);
 
 	RegExpMatch m = { -1, -1 };
 	intptr_t n = 1;
-	EXPECT_EQ(1, re.Search(L"abca", &m, n));
-
-	EXPECT_EQ(1, n);
-	EXPECT_EQ(2, m.start);
-	EXPECT_EQ(4, m.end);
+	REQUIRE(re.Search(L"abca", &m, n) == 1);
+	REQUIRE(n == 1);
+	REQUIRE(m.start == 2);
+	REQUIRE(m.end == 4);
 }
 #endif
-
-SELF_TEST(TestRegex)

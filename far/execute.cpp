@@ -1352,10 +1352,11 @@ bool ExpandOSAliases(string& strStr)
 	return true;
 }
 
-#include "common/test.hpp"
+#ifdef ENABLE_TESTS
 
-#ifdef _DEBUG
-static void TestIfExistDefined()
+#include "testing.hpp"
+
+TEST_CASE("execute.exist.defined")
 {
 	static const struct
 	{
@@ -1438,19 +1439,17 @@ static void TestIfExistDefined()
 		},
 	};
 
-	const auto& Exist      = [](string_view const Str) { EXPECT_EQ(L"bar"sv, Str); return true; };
-	const auto& NotExist   = [](string_view const Str) { EXPECT_EQ(L"bar"sv, Str); return false; };
-	const auto& Defined    = [](string_view const Str) { EXPECT_EQ(L"ham"sv, Str); return true; };
-	const auto& NotDefined = [](string_view const Str) { EXPECT_EQ(L"ham"sv, Str); return false; };
+	const auto& Exist      = [](string_view const Str) { REQUIRE(Str == L"bar"sv); return true; };
+	const auto& NotExist   = [](string_view const Str) { REQUIRE(Str == L"bar"sv); return false; };
+	const auto& Defined    = [](string_view const Str) { REQUIRE(Str == L"ham"sv); return true; };
+	const auto& NotDefined = [](string_view const Str) { REQUIRE(Str == L"ham"sv); return false; };
 
 	for (const auto& i: Tests)
 	{
-		EXPECT_EQ(i.To_ed, PrepareOSIfExist(i.From, NotExist, NotDefined));
-		EXPECT_EQ(i.To_eD, PrepareOSIfExist(i.From, NotExist, Defined));
-		EXPECT_EQ(i.To_Ed, PrepareOSIfExist(i.From, Exist, NotDefined));
-		EXPECT_EQ(i.To_ED, PrepareOSIfExist(i.From, Exist, Defined));
+		REQUIRE(i.To_ed == PrepareOSIfExist(i.From, NotExist, NotDefined));
+		REQUIRE(i.To_eD == PrepareOSIfExist(i.From, NotExist, Defined));
+		REQUIRE(i.To_Ed == PrepareOSIfExist(i.From, Exist, NotDefined));
+		REQUIRE(i.To_ED == PrepareOSIfExist(i.From, Exist, Defined));
 	}
 }
 #endif
-
-SELF_TEST(TestIfExistDefined)

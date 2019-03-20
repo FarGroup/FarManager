@@ -31,6 +31,8 @@
 #
 #MP_LIMIT - specifies the maximum number of processes that the compiler can create
 #
+#ENABLE_TESTS - Enable unit tests in Release mode (always enabled in Debug)
+#
 #DEFUSERFLAGS -
 
 .SILENT:
@@ -76,6 +78,7 @@ USEDEBUG=NDEBUG
 !else
 DIRNAME=Debug
 USEDEBUG=_DEBUG
+ENABLE_TESTS=1
 !endif
 
 DEPFILE=bootstrap\far.vc.dep
@@ -237,6 +240,7 @@ LINK_OBJS = \
 	"$(INTDIR)\syslog.obj" \
 	"$(INTDIR)\tinyxml.obj" \
 	"$(INTDIR)\taskbar.obj" \
+	"$(INTDIR)\testing.obj" \
 	"$(INTDIR)\tracer.obj" \
 	"$(INTDIR)\treelist.obj" \
 	"$(INTDIR)\tvar.obj" \
@@ -268,6 +272,9 @@ DEFINES=\
 	/D "_UNICODE"\
 	/D "$(USEDEBUG)"\
 	/D "FAR_ALPHA_VERSION"\
+!ifdef ENABLE_TESTS
+	/D "ENABLE_TESTS"\
+!endif
 !ifdef DEBUG
 	/D "SYSLOG"\
 	/D "SYSLOG_FARSYSLOG"\
@@ -423,8 +430,6 @@ docs: \
 
 .PHONY: build
 build: "$(OUTDIR)\Far.exe"
-	@echo Fixing subsystem version
-	editbin /nologo /subsystem:console,$(OS_VERSION) /osversion:$(OS_VERSION) $(OUTDIR)\Far.exe > $(INTDIR)\version_fix.log
 
 .PHONY: AllDirs
 AllDirs:
@@ -449,6 +454,12 @@ AllDirs:
 	,$(LINK_LIBS)
 	,far.def,"$(RES_FILE)"
 <<
+!endif
+	@echo Fixing subsystem version
+	editbin /nologo /subsystem:console,$(OS_VERSION) /osversion:$(OS_VERSION) $(OUTDIR)\Far.exe > $(INTDIR)\version_fix.log
+!ifdef ENABLE_TESTS
+	@echo Running unit tests
+	$(OUTDIR)\Far.exe /service:test
 !endif
 
 $(PCH_FILE): headers.cpp headers.hpp

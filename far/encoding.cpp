@@ -1189,10 +1189,11 @@ bool encoding::is_valid_utf8(std::string_view const Str, bool const PartialConte
 	return !ContinuationBytes || PartialContent;
 }
 
-#include "common/test.hpp"
+#ifdef ENABLE_TESTS
 
-#ifdef _DEBUG
-static void TestEncoding()
+#include "testing.hpp"
+
+TEST_CASE("encoding.utf8")
 {
 	static const struct
 	{
@@ -1240,14 +1241,12 @@ ut labore et dolore magna aliqua.
 	for (const auto i: Tests)
 	{
 		bool PureAscii = false;
-		EXPECT_EQ(i.Utf8, encoding::is_valid_utf8(i.Str, false, PureAscii));
-		EXPECT_EQ(i.Ascii, PureAscii);
+		REQUIRE(i.Utf8 == encoding::is_valid_utf8(i.Str, false, PureAscii));
+		REQUIRE(i.Ascii == PureAscii);
 
 		const auto Str = encoding::utf8::get_chars(i.Str);
 		const auto Bytes = encoding::utf8::get_bytes(Str);
-		EXPECT_TRUE(i.Str == Bytes);
+		REQUIRE(i.Str == Bytes);
 	}
 }
 #endif
-
-SELF_TEST(TestEncoding)

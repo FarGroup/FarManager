@@ -1119,10 +1119,11 @@ std::pair<string_view, string_view> split_name_value(string_view Str)
 	return { Str.substr(0, SeparatorPos), Str.substr(SeparatorPos + 1) };
 }
 
-#include "common/test.hpp"
+#ifdef ENABLE_TESTS
 
-#ifdef _DEBUG
-static void TestReplaceStrings()
+#include "testing.hpp"
+
+TEST_CASE("ReplaceStrings")
 {
 	static const struct
 	{
@@ -1145,9 +1146,7 @@ static void TestReplaceStrings()
 	{
 		Src = i.Src;
 		ReplaceStrings(Src, i.Find, i.Replace, true);
-		EXPECT_EQ(i.Result, Src);
+		REQUIRE(i.Result == Src);
 	}
 }
 #endif
-
-SELF_TEST(TestReplaceStrings)

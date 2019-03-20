@@ -826,12 +826,20 @@ static int wmain_seh(int Argc, const wchar_t* const Argv[])
 
 int main()
 {
+#ifdef ENABLE_TESTS
+	if (contains(string_view(GetCommandLine()), L"/service:test"sv))
+	{
+		int testing_main();
+		return testing_main();
+	}
+#endif
+
 	return seh_invoke_with_ui(
 	[]
 	{
 		// wmain is a non-standard extension and not available in gcc.
 		int Argc;
-		os::memory::local::ptr Argv(CommandLineToArgvW(GetCommandLine(), &Argc));
+		const os::memory::local::ptr Argv(CommandLineToArgvW(GetCommandLine(), &Argc));
 		return wmain_seh(Argc, Argv.get());
 	},
 	[]() -> int
