@@ -412,7 +412,7 @@ void Options::save() const {
 
 UpdateProfiles g_profiles;
 
-const wchar_t* c_profiles_key_name = L"profiles";
+const wchar_t c_profiles_key_name[] = L"profiles";
 
 wstring get_profile_key_name(const wstring& name) {
   return add_trailing_slash(c_profiles_key_name) + name;
