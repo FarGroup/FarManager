@@ -166,30 +166,12 @@ namespace console_detail
 		HANDLE m_OriginalInputHandle;
 		mutable string m_Title;
 		mutable int m_FileHandle{ -1 };
+
+		class stream_buffers_overrider;
+		std::unique_ptr<stream_buffers_overrider> m_StreamBuffersOverrider;
 	};
 }
 
 NIFTY_DECLARE(console_detail::console, console);
-
-class consolebuf : public std::wstreambuf
-{
-public:
-	NONCOPYABLE(consolebuf);
-
-	consolebuf();
-
-	void color(const FarColor& Color);
-
-protected:
-	int_type underflow() override;
-	int_type overflow(int_type Ch) override;
-	int sync() override;
-
-private:
-	bool Write(string_view Str);
-
-	std::vector<wchar_t> m_InBuffer, m_OutBuffer;
-	std::pair<FarColor, bool> m_Colour;
-};
 
 #endif // CONSOLE_HPP_DB857D87_FD76_4E96_A9EE_4C06712C6B6D

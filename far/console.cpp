@@ -52,26 +52,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static bool sEnableVirtualTerminal;
 
-static void override_stream_buffers()
-{
-	std::ios::sync_with_stdio(false);
-
-	static consolebuf
-		BufIn,
-		BufOut,
-		BufErr,
-		BufLog;
-
-	auto Color = colors::ConsoleColorToFarColor(F_LIGHTRED);
-	colors::make_transparent(Color.BackgroundColor);
-	BufErr.color(Color);
-
-	static const io::wstreambuf_override
-		In(std::wcin, BufIn),
-		Out(std::wcout, BufOut),
-		Err(std::wcerr, BufErr),
-		Log(std::wclog, BufLog);
-}
 
 static wchar_t ReplaceControlCharacter(wchar_t const Char)
 {
@@ -151,11 +131,10 @@ namespace console_detail
 	static auto& ExternalConsole = reinterpret_cast<external_console&>(Storage);
 
 	console::console():
-		m_OriginalInputHandle(GetStdHandle(STD_INPUT_HANDLE))
+		m_OriginalInputHandle(GetStdHandle(STD_INPUT_HANDLE)),
+		m_StreamBuffersOverrider(std::make_unique<stream_buffers_overrider>())
 	{
 		placement::construct(ExternalConsole);
-
-		override_stream_buffers();
 	}
 
 	console::~console()
@@ -1163,73 +1142,104 @@ enum
 	BufferSize = 10240
 };
 
-consolebuf::consolebuf():
-	m_InBuffer(BufferSize),
-	m_OutBuffer(BufferSize)
-
+class consolebuf : public std::wstreambuf
 {
-	setg(m_InBuffer.data(), m_InBuffer.data() + m_InBuffer.size(), m_InBuffer.data() + m_InBuffer.size());
-	setp(m_OutBuffer.data(), m_OutBuffer.data() + m_OutBuffer.size());
-}
+public:
+	NONCOPYABLE(consolebuf);
 
-void consolebuf::color(const FarColor& Color)
-{
-	m_Colour.first = Color;
-	m_Colour.second = true;
-}
-
-consolebuf::int_type consolebuf::underflow()
-{
-	size_t Read;
-	if (!console.Read(m_InBuffer, Read))
-		throw MAKE_FAR_FATAL_EXCEPTION(L"Console read error"sv);
-
-	if (!Read)
-		return traits_type::eof();
-
-	setg(m_InBuffer.data(), m_InBuffer.data(), m_InBuffer.data() + Read);
-	return m_InBuffer[0];
-}
-
-consolebuf::int_type consolebuf::overflow(consolebuf::int_type Ch)
-{
-	if (!Write({ pbase(), static_cast<size_t>(pptr() - pbase()) }))
-		return traits_type::eof();
-
-	setp(m_OutBuffer.data(), m_OutBuffer.data() + m_OutBuffer.size());
-
-	if (traits_type::eq_int_type(Ch, traits_type::eof()))
+	consolebuf():
+		m_InBuffer(BufferSize),
+		m_OutBuffer(BufferSize)
 	{
-		console.Commit();
-	}
-	else
-	{
-		sputc(Ch);
+		setg(m_InBuffer.data(), m_InBuffer.data() + m_InBuffer.size(), m_InBuffer.data() + m_InBuffer.size());
+		setp(m_OutBuffer.data(), m_OutBuffer.data() + m_OutBuffer.size());
 	}
 
-	return 0;
-}
-
-int consolebuf::sync()
-{
-	overflow(traits_type::eof());
-	return 0;
-}
-
-bool consolebuf::Write(const string_view Str)
-{
-	if (Str.empty())
-		return true;
-
-	FarColor CurrentColor;
-	const auto ChangeColour = m_Colour.second && console.GetTextAttributes(CurrentColor);
-
-	if (ChangeColour)
+	void color(const FarColor& Color)
 	{
-		console.SetTextAttributes(colors::merge(CurrentColor, m_Colour.first));
+		m_Colour.first = Color;
+		m_Colour.second = true;
 	}
 
-	SCOPE_EXIT{ if (ChangeColour) console.SetTextAttributes(CurrentColor); };
+protected:
+	int_type underflow() override
+	{
+		size_t Read;
+		if (!console.Read(m_InBuffer, Read))
+			throw MAKE_FAR_FATAL_EXCEPTION(L"Console read error"sv);
 
-	return console.Write(Str);
-}
+		if (!Read)
+			return traits_type::eof();
+
+		setg(m_InBuffer.data(), m_InBuffer.data(), m_InBuffer.data() + Read);
+		return m_InBuffer[0];
+	}
+
+	int_type overflow(int_type Ch) override
+	{
+		if (!Write({ pbase(), static_cast<size_t>(pptr() - pbase()) }))
+			return traits_type::eof();
+
+		setp(m_OutBuffer.data(), m_OutBuffer.data() + m_OutBuffer.size());
+
+		if (traits_type::eq_int_type(Ch, traits_type::eof()))
+		{
+			console.Commit();
+		}
+		else
+		{
+			sputc(Ch);
+		}
+
+		return 0;
+	}
+
+	int sync() override
+	{
+		overflow(traits_type::eof());
+		return 0;
+	}
+
+private:
+	bool Write(string_view Str)
+	{
+		if (Str.empty())
+			return true;
+
+		FarColor CurrentColor;
+		const auto ChangeColour = m_Colour.second && console.GetTextAttributes(CurrentColor);
+
+		if (ChangeColour)
+		{
+			console.SetTextAttributes(colors::merge(CurrentColor, m_Colour.first));
+		}
+
+		SCOPE_EXIT{ if (ChangeColour) console.SetTextAttributes(CurrentColor); };
+
+		return console.Write(Str);
+	}
+
+	std::vector<wchar_t> m_InBuffer, m_OutBuffer;
+	std::pair<FarColor, bool> m_Colour;
+};
+
+class console_detail::console::stream_buffers_overrider
+{
+public:
+	NONCOPYABLE(stream_buffers_overrider);
+
+	stream_buffers_overrider():
+		m_In(std::wcin, m_BufIn),
+		m_Out(std::wcout, m_BufOut),
+		m_Err(std::wcerr, m_BufErr),
+		m_Log(std::wclog, m_BufLog)
+	{
+		auto Color = colors::ConsoleColorToFarColor(F_LIGHTRED);
+		colors::make_transparent(Color.BackgroundColor);
+		m_BufErr.color(Color);
+	}
+
+private:
+	consolebuf m_BufIn, m_BufOut, m_BufErr, m_BufLog;
+	io::wstreambuf_override m_In, m_Out, m_Err, m_Log;
+};

@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 22.03.2019 23:45:48 +0000 - build 5377
+
+1. Fix GCC debug build.
+
 drkns 20.03.2019 23:35:45 +0000 - build 5376
 
 1. Use Catch2 for unit tests.
