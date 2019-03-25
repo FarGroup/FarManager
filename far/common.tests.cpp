@@ -149,26 +149,25 @@ TEST_CASE("enum_substrings")
 TEST_CASE("chrono")
 {
 	using namespace std::chrono;
-	using std::get;
 
 	const auto Duration = 17h + 63min + 71s + 3117ms;
 
 	{
 		const auto Result = split_duration<hours, minutes, seconds, milliseconds>(Duration);
-		REQUIRE(get<hours>(Result) == 18h);
-		REQUIRE(get<minutes>(Result) == 4min);
-		REQUIRE(get<seconds>(Result) == 14s);
-		REQUIRE(get<milliseconds>(Result) == 117ms);
+		REQUIRE(Result.get<hours>() == 18h);
+		REQUIRE(Result.get<minutes>() == 4min);
+		REQUIRE(Result.get<seconds>() == 14s);
+		REQUIRE(Result.get<milliseconds>() == 117ms);
 	}
 
 	{
 		const auto Result = split_duration<hours>(Duration);
-		REQUIRE(get<hours>(Result) == 18h);
+		REQUIRE(Result.get<hours>() == 18h);
 	}
 
 	{
 		const auto Result = split_duration<seconds>(Duration);
-		REQUIRE(get<seconds>(Result) == 65054s);
+		REQUIRE(Result.get<seconds>() == 65054s);
 	}
 }
 
