@@ -6992,15 +6992,14 @@ bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 				total_len += len;
 			}
 
-			std::pair<bool, size_t> Error {};
+			std::optional<size_t> Error;
 			if (codepage == CP_UTF8 || codepage == CP_UTF7)
 			{
 				Utf::errors errs;
 				Utf::get_chars(codepage, { decoded.data(), total_len }, nullptr, 0, &errs);
 				if (errs.Conversion.Error)
 				{
-					Error.first = true;
-					Error.second = errs.Conversion.Position;
+					Error = errs.Conversion.Position;
 				}
 			}
 			else
@@ -7027,16 +7026,15 @@ bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 					}
 					else
 					{
-						Error.first = true;
-						Error.second = j;
+						Error = j;
 						break;
 					}
 				}
 			}
 
-			if (Error.first)
+			if (Error)
 			{
-				const auto low_pos = std::lower_bound(wchar_offsets.begin(), wchar_offsets.end(), Error.second);
+				const auto low_pos = std::lower_bound(wchar_offsets.begin(), wchar_offsets.end(), *Error);
 				if (low_pos != wchar_offsets.end())
 					X = static_cast<int>(low_pos - wchar_offsets.begin());
 			}

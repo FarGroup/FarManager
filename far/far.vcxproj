@@ -171,6 +171,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="cmdline.cpp" />
     <ClCompile Include="codepage_selection.cpp" />
     <ClCompile Include="colormix.cpp" />
+    <ClCompile Include="common.tests.cpp" />
     <ClCompile Include="components.cpp" />
     <ClCompile Include="config.cpp" />
     <ClCompile Include="configdb.cpp" />

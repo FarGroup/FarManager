@@ -273,7 +273,7 @@ private:
 
 	std::vector<wchar_t> ReadBuffer;
 	F8CP f8cps;
-	std::pair<bool, bool> m_GotoHex;
+	std::optional<bool> m_GotoHex;
 };
 
 class ViewerContainer

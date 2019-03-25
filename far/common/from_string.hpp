@@ -41,7 +41,7 @@ namespace detail
 		[[noreturn]]
 		inline void invalid_argument()
 		{
-			throw std::out_of_range("invalid from_string argument");
+			throw std::invalid_argument("invalid from_string argument");
 		}
 
 		[[noreturn]]

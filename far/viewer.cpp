@@ -3998,15 +3998,14 @@ void Viewer::GoTo(bool ShowDlg, long long Offset, unsigned long long Flags)
 
 	if (ShowDlg)
 	{
-		if (!m_GotoHex.second)
+		if (!m_GotoHex)
 		{
-			m_GotoHex.first = m_DisplayMode == VMT_HEX;
-			m_GotoHex.second = true;
+			m_GotoHex = m_DisplayMode == VMT_HEX;
 		}
 
 		goto_coord Row{};
 		goto_coord Col{};
-		if (!GoToRowCol(Row, Col, m_GotoHex.first, L"ViewerGotoPos"sv))
+		if (!GoToRowCol(Row, Col, *m_GotoHex, L"ViewerGotoPos"sv))
 			return;
 
 		if (Row.exist)

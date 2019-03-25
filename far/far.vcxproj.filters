@@ -53,6 +53,9 @@
     <ClCompile Include="colormix.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="common.tests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="components.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

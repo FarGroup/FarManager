@@ -1157,8 +1157,7 @@ public:
 
 	void color(const FarColor& Color)
 	{
-		m_Colour.first = Color;
-		m_Colour.second = true;
+		m_Colour = Color;
 	}
 
 protected:
@@ -1207,11 +1206,11 @@ private:
 			return true;
 
 		FarColor CurrentColor;
-		const auto ChangeColour = m_Colour.second && console.GetTextAttributes(CurrentColor);
+		const auto ChangeColour = m_Colour && console.GetTextAttributes(CurrentColor);
 
 		if (ChangeColour)
 		{
-			console.SetTextAttributes(colors::merge(CurrentColor, m_Colour.first));
+			console.SetTextAttributes(colors::merge(CurrentColor, *m_Colour));
 		}
 
 		SCOPE_EXIT{ if (ChangeColour) console.SetTextAttributes(CurrentColor); };
@@ -1220,7 +1219,7 @@ private:
 	}
 
 	std::vector<wchar_t> m_InBuffer, m_OutBuffer;
-	std::pair<FarColor, bool> m_Colour;
+	std::optional<FarColor> m_Colour;
 };
 
 class console_detail::console::stream_buffers_overrider

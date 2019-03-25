@@ -328,45 +328,43 @@ namespace detail
 		accessor m_Accessor;
 	};
 
-	template<typename container, typename container_ref, typename accessor, typename accessor_ref, typename T>
-	class selector
-	{
-	public:
-		selector(container_ref Container, accessor_ref Accessor):
-			m_Container(FWD(Container)),
-			m_Accessor(FWD(Accessor))
-		{
-		}
-
-		[[nodiscard]] auto begin()        { return select_iterator(std::begin(this->m_Container), this->m_Accessor); }
-		[[nodiscard]] auto end()          { return select_iterator(std::end(this->m_Container), this->m_Accessor); }
-		[[nodiscard]] auto begin()  const { return select_iterator(std::begin(this->m_Container), this->m_Accessor); }
-		[[nodiscard]] auto end()    const { return select_iterator(std::end(this->m_Container), this->m_Accessor); }
-		[[nodiscard]] auto cbegin() const { return select_iterator(std::begin(this->m_Container), this->m_Accessor); }
-		[[nodiscard]] auto cend()   const { return select_iterator(std::end(this->m_Container), this->m_Accessor); }
-
-	private:
-		container m_Container;
-		accessor m_Accessor;
-	};
-
 	template<typename arg_type>
-	using stored_type = std::conditional_t<
-		std::is_rvalue_reference_v<arg_type>,
-		std::remove_reference_t<arg_type>,
-		std::add_lvalue_reference_t<std::remove_reference_t<arg_type>>
-	>;
+	using stored_type =
+		std::conditional_t<
+			std::is_rvalue_reference_v<arg_type>,
+			std::remove_reference_t<arg_type>,
+			std::add_lvalue_reference_t<std::remove_reference_t<arg_type>>
+		>;
 }
 
-template<typename container, typename accessor>
-[[nodiscard]]
-auto select(container&& Container, accessor&& Accessor)
+template<typename container, typename container_ref, typename accessor, typename accessor_ref, typename T>
+class select
 {
-	return detail::selector<
+public:
+	select(container_ref Container, accessor_ref Accessor):
+		m_Container(FWD(Container)),
+		m_Accessor(FWD(Accessor))
+	{
+	}
+
+	[[nodiscard]] auto begin()        { return detail::select_iterator(std::begin(this->m_Container), this->m_Accessor); }
+	[[nodiscard]] auto end()          { return detail::select_iterator(std::end(this->m_Container), this->m_Accessor); }
+	[[nodiscard]] auto begin()  const { return detail::select_iterator(std::begin(this->m_Container), this->m_Accessor); }
+	[[nodiscard]] auto end()    const { return detail::select_iterator(std::end(this->m_Container), this->m_Accessor); }
+	[[nodiscard]] auto cbegin() const { return detail::select_iterator(std::begin(this->m_Container), this->m_Accessor); }
+	[[nodiscard]] auto cend()   const { return detail::select_iterator(std::end(this->m_Container), this->m_Accessor); }
+
+private:
+	container m_Container;
+	accessor m_Accessor;
+};
+
+template<typename container, typename accessor>
+select(container&& Container, accessor&& Accessor) ->
+	select<
 		detail::stored_type<decltype(Container)>, decltype(Container),
 		detail::stored_type<decltype(Accessor)>, decltype(Accessor),
 		decltype(std::begin(Container))
-	>(FWD(Container), FWD(Accessor));
-}
+	>;
 
 #endif // RANGE_HPP_3B87674F_96D1_487D_B83E_43E43EFBA4D3

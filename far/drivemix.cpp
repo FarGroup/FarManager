@@ -40,20 +40,20 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.fs.hpp"
 #include "platform.security.hpp"
 
-static std::pair<os::fs::drives_set, bool> SavedLogicalDrives;
+static std::optional<os::fs::drives_set> SavedLogicalDrives;
 
 void UpdateSavedDrives(const std::any& Payload)
 {
-	if (!SavedLogicalDrives.second)
+	if (!SavedLogicalDrives)
 		return;
 
 	const auto& Message = std::any_cast<const update_devices_message&>(Payload);
 	const os::fs::drives_set Drives(Message.Drives);
 
 	if (Message.Arrival)
-		SavedLogicalDrives.first |= Drives;
+		*SavedLogicalDrives |= Drives;
 	else
-		SavedLogicalDrives.first &= ~Drives;
+		*SavedLogicalDrives &= ~Drives;
 }
 
 os::fs::drives_set allowed_drives_mask()
@@ -65,13 +65,12 @@ os::fs::drives_set allowed_drives_mask()
 
 os::fs::drives_set os::fs::get_logical_drives()
 {
-	if (!SavedLogicalDrives.second || !(Global && Global->Opt && Global->Opt->RememberLogicalDrives))
+	if (!SavedLogicalDrives || !(Global && Global->Opt && Global->Opt->RememberLogicalDrives))
 	{
-		SavedLogicalDrives.first = GetLogicalDrives();
-		SavedLogicalDrives.second = true;
+		SavedLogicalDrives = GetLogicalDrives();
 	}
 
-	return SavedLogicalDrives.first;
+	return *SavedLogicalDrives;
 }
 
 bool IsDriveTypeRemote(UINT DriveType)

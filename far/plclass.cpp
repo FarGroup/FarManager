@@ -399,7 +399,7 @@ bool Plugin::SaveToCache()
 
 	for (const auto& [Name, Export]: zip(m_Factory->ExportsNames(), Exports))
 	{
-		PlCache->SetExportState(id, Name.UName, Export.second);
+		PlCache->SetExportState(id, Name.UName, Export.has_value());
 	}
 
 	return true;
@@ -407,11 +407,11 @@ bool Plugin::SaveToCache()
 
 void Plugin::InitExports()
 {
-	std::transform(ALL_CONST_RANGE(m_Factory->ExportsNames()), Exports.begin(), [&](const auto& i)
+	for (const auto& [Name, Export]: zip(m_Factory->ExportsNames(), Exports))
 	{
-		const auto Address = m_Factory->Function(m_Instance, i);
-		return std::make_pair(Address, Address != nullptr);
-	});
+		if (const auto Address = m_Factory->Function(m_Instance, Name))
+			Export = Address;
+	}
 }
 
 Plugin::Plugin(plugin_factory* Factory, const string& ModuleName):
@@ -610,10 +610,11 @@ bool Plugin::LoadFromCache(const os::fs::find_data &FindData)
 		strDescription = PlCache->GetDescription(id);
 		strAuthor = PlCache->GetAuthor(id);
 
-		std::transform(ALL_CONST_RANGE(m_Factory->ExportsNames()), Exports.begin(), [&PlCache, &id](const auto& i)
+		for (const auto& [Name, Export]: zip(m_Factory->ExportsNames(), Exports))
 		{
-			return std::make_pair(nullptr, PlCache->GetExportState(id, i.UName));
-		});
+			if (PlCache->GetExportState(id, Name.UName))
+				Export = nullptr;
+		}
 
 		WorkFlags.Set(PIWF_CACHED); //too many "cached" flags
 		return true;
@@ -650,7 +651,7 @@ int Plugin::Unload(bool bExitFAR)
 
 void Plugin::ClearExports()
 {
-	Exports.fill({ nullptr, false });
+	Exports.fill({});
 }
 
 void Plugin::AddDialog(const window_ptr& Dlg)
@@ -692,7 +693,7 @@ bool Plugin::IsPanelPlugin()
 	};
 	return std::any_of(CONST_RANGE(PanelExports, i)
 	{
-		return Exports[i].second;
+		return Exports[i].has_value();
 	});
 }
 

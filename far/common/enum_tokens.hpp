@@ -262,7 +262,7 @@ template<typename... args>
 using enum_tokens_custom_t = enum_tokens_t<detail::custom_policy<args...>>;
 
 template<typename... args>
-using enum_tokens_with_quotes_t = enum_tokens_custom_t<detail::quotes_overrider, args...>;
+using enum_tokens_with_quotes_t = enum_tokens_custom_t<with_quotes, args...>;
 
 using enum_tokens_with_quotes = enum_tokens_with_quotes_t<>;
 

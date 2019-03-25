@@ -52,12 +52,11 @@ namespace
 
 		SCOPED_ACTION(os::critical_section_lock)(s_CS);
 
-		auto Result = s_Cache.try_emplace(Name);
+		const auto [Iterator, IsEmplaced] = s_Cache.try_emplace(Name);
 
-		const auto& MapKey = Result.first->first;
-		auto& MapValue = Result.first->second;
+		auto& [MapKey, MapValue] = *Iterator;
 
-		if (Result.second)
+		if (IsEmplaced)
 		{
 			MapValue.second = LookupPrivilegeValue(nullptr, MapKey.c_str(), &MapValue.first) != FALSE;
 		}

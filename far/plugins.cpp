@@ -167,15 +167,15 @@ PluginManager::~PluginManager()
 
 Plugin* PluginManager::AddPlugin(std::unique_ptr<Plugin>&& pPlugin)
 {
-	const auto Result = m_Plugins.try_emplace(pPlugin->Id());
-	if (!Result.second)
+	const auto [Iterator, IsEmplaced] = m_Plugins.try_emplace(pPlugin->Id());
+	if (!IsEmplaced)
 	{
 		pPlugin->Unload(true);
 		return nullptr;
 	}
-	Result.first->second = std::move(pPlugin);
+	Iterator->second = std::move(pPlugin);
 
-	const auto PluginPtr = Result.first->second.get();
+	const auto PluginPtr = Iterator->second.get();
 
 	SortedPlugins.emplace(PluginPtr);
 #ifndef NO_WRAPPER
@@ -194,12 +194,12 @@ bool PluginManager::UpdateId(Plugin *pPlugin, const GUID& Id)
 	Iterator->second.release();
 	m_Plugins.erase(Iterator);
 	pPlugin->SetGuid(Id);
-	const auto Result = m_Plugins.try_emplace(pPlugin->Id());
-	if (!Result.second)
+	const auto [NewIterator, IsEmplaced] = m_Plugins.try_emplace(pPlugin->Id());
+	if (!IsEmplaced)
 	{
 		return false;
 	}
-	Result.first->second.reset(pPlugin);
+	NewIterator->second.reset(pPlugin);
 	return true;
 }
 

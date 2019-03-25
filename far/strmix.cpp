@@ -498,7 +498,7 @@ bool ReplaceStrings(string& strStr, const string_view FindStr, const string_view
 
 	while ((StartPos = IgnoreCase?
 		find_icase(strStr, FindStr, StartPos) :
-		      find(strStr, FindStr, StartPos)
+		strStr.find(FindStr, StartPos)
 		) != strStr.npos)
 	{
 		strStr.replace(StartPos, FindStr.size(), ReplStr);

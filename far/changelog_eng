@@ -3,6 +3,12 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 25.03.2019 17:22:38 +0000 - build 5378
+
+1. Minor refactoring.
+
+2. More tests.
+
 drkns 22.03.2019 23:45:48 +0000 - build 5377
 
 1. Fix GCC debug build.

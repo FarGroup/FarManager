@@ -146,7 +146,7 @@ public:
 	explicit plugin_factory(PluginManager* owner);
 	using plugin_module_ptr = std::unique_ptr<i_plugin_module>;
 	using function_address = void*;
-	using exports_array = std::array<std::pair<function_address, bool>, ExportsCount>;
+	using exports_array = std::array<std::optional<function_address>, ExportsCount>;
 
 	struct export_name
 	{
@@ -301,7 +301,7 @@ public:
 	virtual bool InitLang(const string& Path, const string& Language);
 	void CloseLang();
 
-	bool has(EXPORTS_ENUM id) const { return Exports[id].second; }
+	bool has(EXPORTS_ENUM id) const { return Exports[id].has_value(); }
 	bool has(const detail::ExecuteStruct& es) const { return has(es.id); }
 
 	const string& ModuleName() const { return m_strModuleName; }
@@ -355,7 +355,7 @@ protected:
 
 		try
 		{
-			detail::ExecuteFunctionImpl(es, reinterpret_cast<prototype_t<T::export_id::value, T::native::value>>(Exports[T::export_id::value].first), FWD(Args)...);
+			detail::ExecuteFunctionImpl(es, reinterpret_cast<prototype_t<T::export_id::value, T::native::value>>(*Exports[T::export_id::value]), FWD(Args)...);
 			rethrow_if(GlobalExceptionPtr());
 			m_Factory->ProcessError(m_Factory->ExportsNames()[T::export_id::value].UName);
 		}
