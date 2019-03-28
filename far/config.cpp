@@ -430,25 +430,25 @@ static void ApplyDefaultMaskGroups()
 		{ L"exec"sv, L"*.exe,*.com,*.bat,*.cmd,%PATHEXT%"sv },
 	};
 
-	std::for_each(CONST_RANGE(Sets, i)
+	for (const auto& [Name, Value]: Sets)
 	{
-		ConfigProvider().GeneralCfg()->SetValue(L"Masks"sv, i.first, i.second);
-	});
+		ConfigProvider().GeneralCfg()->SetValue(L"Masks"sv, Name, Value);
+	}
 }
 
 static void FillMasksMenu(VMenu2& MasksMenu, int SelPos = 0)
 {
 	MasksMenu.clear();
 
-	for(const auto& i: ConfigProvider().GeneralCfg()->ValuesEnumerator<string>(L"Masks"sv))
+	for(const auto& [Name, Value]: ConfigProvider().GeneralCfg()->ValuesEnumerator<string>(L"Masks"sv))
 	{
 		MenuItemEx Item;
-		string DisplayName(i.first);
+		string DisplayName(Name);
 		const int NameWidth = 10;
 		TruncStrFromEnd(DisplayName, NameWidth);
 		DisplayName.resize(NameWidth, L' ');
-		Item.Name = concat(DisplayName, L' ', BoxSymbols[BS_V1], L' ', i.second);
-		Item.ComplexUserData = i.first;
+		Item.Name = concat(DisplayName, L' ', BoxSymbols[BS_V1], L' ', Value);
+		Item.ComplexUserData = Name;
 		MasksMenu.AddItem(Item);
 	}
 	MasksMenu.SetSelectPos(SelPos, 0);
@@ -643,11 +643,11 @@ void Options::VMenuSettings()
 
 	DialogBuilder Builder(lng::MConfigVMenuTitle, L"VMenuSettings"sv);
 
-	std::for_each(CONST_RANGE(DialogItems, i)
+	for (const auto& [LngId, OptPtr]: DialogItems)
 	{
-		Builder.AddText(i.first);
-		Builder.AddComboBox(std::invoke(i.second, VMenu), nullptr, 40, CAListItems, std::size(CAListItems), DIF_LISTAUTOHIGHLIGHT | DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
-	});
+		Builder.AddText(LngId);
+		Builder.AddComboBox(std::invoke(OptPtr, VMenu), nullptr, 40, CAListItems, std::size(CAListItems), DIF_LISTAUTOHIGHLIGHT | DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
+	}
 
 	Builder.AddOKCancel();
 	Builder.ShowDialog();
@@ -1296,9 +1296,9 @@ void Options::SetFilePanelModes()
 		{
 			auto& CurrentSettings = ViewSettings[ModeNumber];
 
-			for (const auto& i : ModesFlagsMapping)
+			for (const auto& [Mode, Flag]: ModesFlagsMapping)
 			{
-				ModeDlg[i.first].Selected = CurrentSettings.Flags & i.second? BSTATE_CHECKED : BSTATE_UNCHECKED;
+				ModeDlg[Mode].Selected = CurrentSettings.Flags & Flag? BSTATE_CHECKED : BSTATE_UNCHECKED;
 			}
 
 			ModeDlg[MD_EDITNAME].strData = CurrentSettings.Name;
@@ -1323,10 +1323,10 @@ void Options::SetFilePanelModes()
 
 			if (ExitCode == MD_BUTTON_OK)
 			{
-				for(const auto& i: ModesFlagsMapping)
+				for(const auto& [Mode, Flag]: ModesFlagsMapping)
 				{
-					if (ModeDlg[i.first].Selected == BSTATE_CHECKED)
-						NewSettings.Flags |= i.second;
+					if (ModeDlg[Mode].Selected == BSTATE_CHECKED)
+						NewSettings.Flags |= Flag;
 				}
 
 				NewSettings.Name = ModeDlg[MD_EDITNAME].strData;
@@ -1608,7 +1608,6 @@ Options::Options():
 	ElevationMode(0),
 	WindowMode(-1),
 	ViewSettings(m_ViewSettings),
-	m_ConfigStrings(),
 	m_ViewSettings(predefined_panel_modes_count),
 	m_ViewSettingsChanged(false)
 {
@@ -2093,42 +2092,31 @@ void Options::SetSearchColumns(const string& Columns, const string& Widths)
 	{
 		auto& FindOpt = Global->Opt->FindOpt;
 		FindOpt.OutColumns = DeserialiseViewSettings(Columns, Widths);
-		auto Result = SerialiseViewSettings(FindOpt.OutColumns);
-		FindOpt.strSearchOutFormat = Result.first;
-		FindOpt.strSearchOutFormatWidth = Result.second;
+		std::tie(FindOpt.strSearchOutFormat, FindOpt.strSearchOutFormatWidth) = SerialiseViewSettings(FindOpt.OutColumns);
 	}
 }
 
 void Options::Load(overrides&& Overrides)
 {
 	// KnownModulesIDs::GuidOption::Default pointer is used in the static config structure, so it MUST be initialized before calling InitConfig()
-	static std::pair<GUID, string> DefaultKnownGuids[] =
+	static std::tuple<KnownModulesIDs::GuidOption KnownModulesIDs::*, GUID, string> DefaultKnownGuids[]
 	{
-		{ NetworkGuid, {} },
-		{ EMenuGuid, {} },
-		{ ArcliteGuid, {} },
-		{ LuamacroGuid, {} },
-		{ NetBoxGuid, {} },
+		{ &KnownModulesIDs::Network, NetworkGuid, {} },
+		{ &KnownModulesIDs::Emenu, EMenuGuid, {} },
+		{ &KnownModulesIDs::Arclite, ArcliteGuid, {} },
+		{ &KnownModulesIDs::Luamacro, LuamacroGuid, {} },
+		{ &KnownModulesIDs::Netbox, NetBoxGuid, {} },
 	};
 
 	static_assert(std::size(DefaultKnownGuids) == sizeof(Options::KnownModulesIDs) / sizeof(Options::KnownModulesIDs::GuidOption));
 
-	KnownModulesIDs::GuidOption* GuidOptions[] =
+	for(auto& [Ptr, Id, Str]: DefaultKnownGuids)
 	{
-		&KnownIDs.Network,
-		&KnownIDs.Emenu,
-		&KnownIDs.Arclite,
-		&KnownIDs.Luamacro,
-		&KnownIDs.Netbox,
-	};
-	static_assert(std::size(GuidOptions) == std::size(DefaultKnownGuids));
-
-	for(const auto& [a, b]: zip(DefaultKnownGuids, GuidOptions))
-	{
-		a.second = GuidToStr(a.first);
-		b->Default = a.second.c_str();
-		b->Id = a.first;
-		b->StrId = a.second;
+		auto& GuidOption = std::invoke(Ptr, KnownIDs);
+		Str = GuidToStr(Id);
+		GuidOption.Default = Str.c_str();
+		GuidOption.Id = Id;
+		GuidOption.StrId = Str;
 	}
 
 	InitConfigs();
@@ -2191,11 +2179,12 @@ void Options::Load(overrides&& Overrides)
 			ApplyDefaultMaskGroups();
 	}
 
-	for(auto& i: GuidOptions)
+	for (auto& [Ptr, Id, Str]: DefaultKnownGuids)
 	{
-		if (i->StrId.empty() || !StrToGuid(i->StrId, i->Id))
+		auto& GuidOption = std::invoke(Ptr, KnownIDs);
+		if (GuidOption.StrId.empty() || !StrToGuid(GuidOption.StrId, GuidOption.Id))
 		{
-			i->Id = GUID_NULL;
+			GuidOption.Id = GUID_NULL;
 		}
 	}
 
@@ -2383,7 +2372,8 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 				{
 					Dlg->SendMessage(DM_ENABLEREDRAW, 0, nullptr);
 					FarListUpdate flu = { sizeof(flu), ListInfo.SelectPos };
-					flu.Item = CurrentItem->MakeListItem((*m_ConfigStrings)[ListInfo.SelectPos]);
+					auto& ConfigStrings = *reinterpret_cast<std::vector<string>*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+					flu.Item = CurrentItem->MakeListItem(ConfigStrings[ListInfo.SelectPos]);
 					Dlg->SendMessage(DM_LISTUPDATE, 0, &flu);
 					FarListPos flp = { sizeof(flp), ListInfo.SelectPos, ListInfo.TopPos };
 					Dlg->SendMessage(DM_LISTSETCURPOS, 0, &flp);
@@ -2414,8 +2404,6 @@ bool Options::AdvancedConfig(config_type Mode)
 	std::vector<FarListItem> items;
 	items.reserve(CurrentConfig.size());
 	std::vector<string> Strings(CurrentConfig.size());
-	m_ConfigStrings = &Strings;
-	SCOPE_EXIT{ m_ConfigStrings = nullptr; };
 	const auto ConfigData = zip(CurrentConfig, Strings);
 	std::transform(ALL_CONST_RANGE(ConfigData), std::back_inserter(items), [](const auto& i) { return std::get<0>(i).MakeListItem(std::get<1>(i)); });
 
@@ -2423,7 +2411,7 @@ bool Options::AdvancedConfig(config_type Mode)
 
 	AdvancedConfigDlg[0].ListItems = &Items;
 
-	const auto Dlg = Dialog::create(AdvancedConfigDlg, &Options::AdvancedConfigDlgProc, this);
+	const auto Dlg = Dialog::create(AdvancedConfigDlg, &Options::AdvancedConfigDlgProc, &Strings);
 	Dlg->SetHelp(L"FarConfig"sv);
 	Dlg->SetPosition({ -1, -1, DlgWidth, DlgHeight });
 	Dlg->SetId(AdvancedConfigId);
@@ -2529,16 +2517,16 @@ void Options::SavePanelModes(bool always)
 
 	const auto& SaveMode = [&](const auto& i, size_t Index)
 	{
-		const auto PanelResult = SerialiseViewSettings(i.PanelColumns);
-		const auto StatusResult = SerialiseViewSettings(i.StatusColumns);
+		const auto [PanelTitles, PanelWidths] = SerialiseViewSettings(i.PanelColumns);
+		const auto [StatusTitles, StatusWidths] = SerialiseViewSettings(i.StatusColumns);
 
 		if(const auto Key = cfg->CreateKey(root, str(Index)))
 		{
 			cfg->SetValue(Key, ModesNameName, i.Name);
-			cfg->SetValue(Key, ModesColumnTitlesName, PanelResult.first);
-			cfg->SetValue(Key, ModesColumnWidthsName, PanelResult.second);
-			cfg->SetValue(Key, ModesStatusColumnTitlesName, StatusResult.first);
-			cfg->SetValue(Key, ModesStatusColumnWidthsName, StatusResult.second);
+			cfg->SetValue(Key, ModesColumnTitlesName, PanelTitles);
+			cfg->SetValue(Key, ModesColumnWidthsName, PanelWidths);
+			cfg->SetValue(Key, ModesStatusColumnTitlesName, StatusTitles);
+			cfg->SetValue(Key, ModesStatusColumnWidthsName, StatusWidths);
 			cfg->SetValue(Key, ModesFlagsName, i.Flags);
 		}
 	};

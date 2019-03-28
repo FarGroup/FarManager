@@ -5223,8 +5223,8 @@ bool FileList::PluginPanelHelp(const plugin_panel* hPlugin) const
 {
 	auto strPath = hPlugin->plugin()->ModuleName();
 	CutToSlash(strPath);
-	const auto HelpFileData = OpenLangFile(strPath, Global->HelpFileMask, Global->Opt->strHelpLanguage);
-	if (!std::get<0>(HelpFileData))
+	const auto [File, Name, Codepage] = OpenLangFile(strPath, Global->HelpFileMask, Global->Opt->strHelpLanguage);
+	if (!File)
 		return false;
 
 	help::show(help::make_link(strPath, L"Contents"sv));

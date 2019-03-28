@@ -161,12 +161,12 @@ private:
 
 		static_assert(std::size(FormatNames) == static_cast<size_t>(clipboard_format::count));
 		assert(Format < clipboard_format::count);
-		auto& FormatData = FormatNames[static_cast<unsigned>(Format)];
-		if (!FormatData.second)
+		auto& [FormatName, FormatId] = FormatNames[static_cast<unsigned>(Format)];
+		if (!FormatId)
 		{
-			FormatData.second = RegisterClipboardFormat(FormatData.first);
+			FormatId = RegisterClipboardFormat(FormatName);
 		}
-		return FormatData.second;
+		return FormatId;
 	}
 
 	bool IsFormatAvailable(unsigned Format) const override

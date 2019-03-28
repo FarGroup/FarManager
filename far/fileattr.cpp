@@ -324,9 +324,9 @@ void enum_attributes(function_ref<bool(DWORD, wchar_t)> const Pred)
 		{FILE_ATTRIBUTE_NO_SCRUB_DATA, L'N'},
 	};
 
-	for (const auto& i: AttrMap)
+	for (const auto& [Attr, Letter]: AttrMap)
 	{
-		if (!Pred(i.first, i.second))
+		if (!Pred(Attr, Letter))
 			break;
 	}
 }

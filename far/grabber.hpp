@@ -60,6 +60,7 @@ private:
 	string GetTitle() const override { return {}; }
 
 	void init();
+	// (begin, end)
 	std::tuple<point&, point&> GetSelection();
 	void CopyGrabbedArea(bool Append, bool VerticalBlock);
 	void Reset();

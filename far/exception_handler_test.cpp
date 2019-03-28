@@ -262,9 +262,9 @@ static bool ExceptionTestHook(Manager::Key key)
 	ModalMenu->SetMenuFlags(VMENU_WRAPMODE);
 	ModalMenu->SetPosition({ -1, -1, 0, 0 });
 
-	for (const auto& i: Tests)
+	for (const auto& [Ptr, Description]: Tests)
 	{
-		ModalMenu->AddItem(string(i.second));
+		ModalMenu->AddItem(string(Description));
 	}
 
 	const auto ExitCode = ModalMenu->Run();

@@ -411,13 +411,13 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 				auto Items = pHistory->GetAllSimilar(Str);
 				if (!Items.empty())
 				{
-					for (auto& i : Items)
+					for (auto& [Name, Id, IsLocked] : Items)
 					{
 						MenuItemEx Item;
 						// Preserve the case of the already entered part
-						Item.ComplexUserData = cmp_user_data{ Global->Opt->AutoComplete.AppendCompletion? Str + std::get<0>(i).substr(Str.size()) : L""s, std::get<1>(i) };
-						Item.Name = std::move(std::get<0>(i));
-						Item.Flags |= std::get<2>(i)? LIF_CHECKED : LIF_NONE;
+						Item.ComplexUserData = cmp_user_data{ Global->Opt->AutoComplete.AppendCompletion? Str + string_view(Name).substr(Str.size()) : L""s, Id };
+						Item.Name = std::move(Name);
+						Item.Flags |= IsLocked? LIF_CHECKED : LIF_NONE;
 						ComplMenu->AddItem(std::move(Item));
 					}
 					ComplMenu->SetTitle(msg(lng::MCompletionHistoryTitle));

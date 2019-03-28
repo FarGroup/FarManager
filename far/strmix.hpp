@@ -156,13 +156,13 @@ template<class container>
 auto FlagsToString(unsigned long long Flags, const container& From, wchar_t Separator = L' ')
 {
 	string strFlags;
-	std::for_each(CONST_RANGE(From, i)
+	for (const auto& [Value, Name]: From)
 	{
-		if (Flags & i.first)
+		if (Flags & Value)
 		{
-			append(strFlags, i.second, Separator);
+			append(strFlags, Name, Separator);
 		}
-	});
+	}
 
 	if (!strFlags.empty())
 	{

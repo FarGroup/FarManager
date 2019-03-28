@@ -418,9 +418,7 @@ window_ptr Manager::WindowMenu()
 
 		for(size_t i = 0, Size = Data.size(); i != Size; ++i)
 		{
-			const auto& Type = std::get<0>(Data[i]);
-			auto& Name = std::get<1>(Data[i]);
-			const auto& Window = std::get<2>(Data[i]);
+			auto& [Type, Name, Window] = Data[i];
 
 			const auto Hotkey = static_cast<wchar_t>(i < 10? L'0' + i : i < 36? L'A' + i - 10 : L' ');
 			replace(Name, L"&"sv, L"&&"sv);

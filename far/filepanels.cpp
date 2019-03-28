@@ -134,7 +134,7 @@ void FilePanels::Init(int DirCount)
 	{
 		Params.first->SetViewMode(Params.second.ViewMode);
 
-		if (panel_sort(Params.second.SortMode.Get()) < panel_sort::COUNT)
+		if (static_cast<panel_sort>(Params.second.SortMode.Get()) < panel_sort::COUNT)
 			Params.first->SetSortMode(panel_sort(Params.second.SortMode.Get()));
 
 		Params.first->SetSortOrder(Params.second.ReverseSortOrder);

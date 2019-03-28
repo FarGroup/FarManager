@@ -878,9 +878,9 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 
 	const auto ColumnSize = msg(std::max_element(ALL_CONST_RANGE(NameLabels), [](const auto& a, const auto& b) { return msg(a.first).size() < msg(b.first).size(); })->first).size() + 1;
 
-	for (auto& i: NameLabels)
+	for (auto& [LngId, Label]: NameLabels)
 	{
-		i.second = pad_right(msg(i.first), ColumnSize);
+		Label = pad_right(msg(LngId), ColumnSize);
 	}
 
 	FarDialogItem FilterDlgData[]=
@@ -1101,9 +1101,9 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	DWORD AttrSet, AttrClear;
 	FilterDlg[ID_FF_MATCHATTRIBUTES].Selected=FF->GetAttr(&AttrSet,&AttrClear)?1:0;
 
-	for (const auto& i: AttributeMapping)
+	for (const auto& [DlgId, Attr]: AttributeMapping)
 	{
-		FilterDlg[i.first].Selected = AttrSet & i.second? BSTATE_CHECKED : AttrClear & i.second? BSTATE_UNCHECKED : BSTATE_3STATE;
+		FilterDlg[DlgId].Selected = AttrSet & Attr? BSTATE_CHECKED : AttrClear & Attr? BSTATE_UNCHECKED : BSTATE_3STATE;
 	}
 
 	if (!FilterDlg[ID_FF_MATCHATTRIBUTES].Selected)
@@ -1183,16 +1183,16 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 			AttrSet=0;
 			AttrClear=0;
 
-			for(const auto& i: AttributeMapping)
+			for(const auto& [DlgId, Attr]: AttributeMapping)
 			{
-				switch (FilterDlg[i.first].Selected)
+				switch (FilterDlg[DlgId].Selected)
 				{
 				case BSTATE_CHECKED:
-					AttrSet |= i.second;
+					AttrSet |= Attr;
 					break;
 
 				case BSTATE_UNCHECKED:
-					AttrClear |= i.second;
+					AttrClear |= Attr;
 					break;
 
 				default:

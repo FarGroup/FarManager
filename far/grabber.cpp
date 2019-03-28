@@ -121,7 +121,7 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 	string Line;
 	Line.reserve(CharBuf.width());
 
-	const auto& Selection = GetSelection();
+	const auto& [SelectionBegin, SelectionEnd] = GetSelection();
 	const auto Eol = eol::str(eol::system());
 
 	for (size_t i = 0; i != CharBuf.height(); ++i)
@@ -134,8 +134,8 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 
 		if (m_StreamSelection)
 		{
-			Begin += IsFirstLine? std::get<0>(Selection).x : 0;
-			End -= IsLastLine? ScrX - std::get<1>(Selection).x : 0;
+			Begin += IsFirstLine? SelectionBegin.x : 0;
+			End -= IsLastLine? ScrX - SelectionEnd.x : 0;
 		}
 		Line.clear();
 		std::transform(Begin, End, std::back_inserter(Line), [](const FAR_CHAR_INFO& Char) { return Char.Char; });
@@ -553,10 +553,10 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 		case KEY_ALTLEFT:
 		case KEY_RALTLEFT:
 			{
-				const auto& Selection = GetSelection();
-				if (MovePointLeft(std::get<0>(Selection), 1))
+				const auto& [SelectionBegin, SelectionEnd] = GetSelection();
+				if (MovePointLeft(SelectionBegin, 1))
 				{
-					MovePointLeft(std::get<1>(Selection), 1);
+					MovePointLeft(SelectionEnd, 1);
 					GArea.Current = GArea.Begin;
 				}
 			}
@@ -565,10 +565,10 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 		case KEY_ALTRIGHT:
 		case KEY_RALTRIGHT:
 			{
-				const auto& Selection = GetSelection();
-				if (MovePointRight(std::get<1>(Selection), 1))
+				const auto& [SelectionBegin, SelectionEnd] = GetSelection();
+				if (MovePointRight(SelectionEnd, 1))
 				{
-					MovePointRight(std::get<0>(Selection), 1);
+					MovePointRight(SelectionBegin, 1);
 					GArea.Current = GArea.Begin;
 				}
 			}

@@ -2275,9 +2275,9 @@ void VMenu::ShowMenu(bool IsParent)
 						FarColor InvColor = CurColor;
 						using std::swap;
 						swap(InvColor.ForegroundColor, InvColor.BackgroundColor);
-						std::for_each(CONST_RANGE(Items[I].Annotations, i)
+						for (const auto& [AnnPos, AnnSize]: Items[I].Annotations)
 						{
-							size_t pre_len = i.first - Items[I].ShowPos + StartOffset - Pos + 1;
+							const size_t pre_len = AnnPos - Items[I].ShowPos + StartOffset - Pos + 1;
 							if (Pos < strMenuLine.size())
 							{
 								Text(string_view(strMenuLine).substr(Pos, pre_len));
@@ -2285,12 +2285,12 @@ void VMenu::ShowMenu(bool IsParent)
 								if (Pos < strMenuLine.size())
 								{
 									SetColor(Col);
-									Text(string_view(strMenuLine).substr(Pos, i.second));
-									Pos += i.second;
+									Text(string_view(strMenuLine).substr(Pos, AnnSize));
+									Pos += AnnSize;
 									SetColor(CurColor);
 								}
 							}
-						});
+						}
 						if (Pos < strMenuLine.size())
 							Text(string_view(strMenuLine).substr(Pos));
 					}

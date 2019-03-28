@@ -2559,10 +2559,10 @@ static bool SplitPath(string_view const FullPath, string& Dest, int Flags)
 
 	Dest.clear();
 
-	for (const auto& i: Mappings)
+	for (const auto& [Flag, Part]: Mappings)
 	{
-		if (Flags & i.first)
-			append(Dest, i.second);
+		if (Flags & Flag)
+			append(Dest, Part);
 	}
 
 	return true;

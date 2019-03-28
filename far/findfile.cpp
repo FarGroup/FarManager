@@ -390,15 +390,16 @@ void background_searcher::InitInFileSearch()
 				}
 
 				// Добавляем избранные таблицы символов
-				std::for_each(CONST_RANGE(CpEnum, i)
+				for (const auto& [Name, Value]: CpEnum)
 				{
-					if (i.second & (hasSelected?CPST_FIND:CPST_FAVORITE))
+					if (Value & (hasSelected? CPST_FIND : CPST_FAVORITE))
 					{
 						// Проверяем дубли
-						if (hasSelected || !std::any_of(CONST_RANGE(m_CodePages, cp) { return cp.CodePage == i.first; }))
-							m_CodePages.emplace_back(i.first);
+						// TODO: P1091R3
+						if (hasSelected || !std::any_of(ALL_CONST_RANGE(m_CodePages), [&Name = Name](const CodePageInfo& cp) { return cp.CodePage == Name; }))
+							m_CodePages.emplace_back(Name);
 					}
-				});
+				}
 			}
 			else
 			{
@@ -591,7 +592,7 @@ void FindFiles::AdvancedDialog()
 
 intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
-	const auto& SetAllCpTitle = [&]()
+	const auto& SetAllCpTitle = [&]
 	{
 		const int TitlePosition = 1;
 		const auto CpEnum = codepages::GetFavoritesEnumerator();
@@ -2099,8 +2100,8 @@ void background_searcher::ArchiveSearch(const string& ArcName)
 	if (!hArc)
 		return;
 
-	FINDAREA SaveSearchMode = SearchMode;
-	FindFiles::ArcListItem* SaveArcItem = m_Owner->itd->GetFindFileArcItem();
+	const auto SaveSearchMode = SearchMode;
+	const auto SaveArcItem = m_Owner->itd->GetFindFileArcItem();
 	{
 		const auto SavePluginsOutput = std::exchange(Global->DisablePluginsOutput, true);
 
@@ -2123,7 +2124,7 @@ void background_searcher::ArchiveSearch(const string& ArcName)
 				SCOPED_ACTION(auto)(m_Owner->ScopedLock());
 				Global->CtrlObject->Plugins->ClosePanel(std::move(hArc));
 
-				FindFiles::ArcListItem* ArcItem = m_Owner->itd->GetFindFileArcItem();
+				const auto ArcItem = m_Owner->itd->GetFindFileArcItem();
 				ArcItem->hPlugin = nullptr;
 			}
 
@@ -2258,31 +2259,33 @@ void background_searcher::ScanPluginTree(plugin_panel* hPlugin, unsigned long lo
 
 	if (SearchMode!=FINDAREA_SELECTED || RecurseLevel!=1)
 	{
-		for (size_t I=0; I<ItemCount && !Stopped(); I++)
+		for (auto& CurPanelItem: span(PanelData, ItemCount))
 		{
+			if (Stopped())
+				break;
+
 			std::this_thread::yield();
 			PauseEvent.wait();
 
-			PluginPanelItem *CurPanelItem=PanelData+I;
-			string_view CurName = NullToEmpty(CurPanelItem->FileName);
-			if (CurName.empty() || IsParentDirectory(*CurPanelItem))
+			string_view CurName = NullToEmpty(CurPanelItem.FileName);
+			if (CurName.empty() || IsParentDirectory(CurPanelItem))
+				continue;
+
+			if (UseFilter && !m_Owner->GetFilter()->FileInFilter(CurPanelItem))
 				continue;
 
 			const auto strFullName = concat(strPluginSearchPath, CurName);
 
-			if (!UseFilter || m_Owner->GetFilter()->FileInFilter(*CurPanelItem))
+			if (CurPanelItem.FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 			{
-				if (CurPanelItem->FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-				{
-					m_Owner->itd->SetFindMessage(strFullName);
-				}
-
-				if (IsFileIncluded(CurPanelItem, CurName, CurPanelItem->FileAttributes, strFullName))
-					AddMenuRecord(strFullName, *CurPanelItem);
-
-				if (SearchInArchives && (Flags & OPIF_REALNAMES))
-					ArchiveSearch(strFullName);
+				m_Owner->itd->SetFindMessage(strFullName);
 			}
+
+			if (IsFileIncluded(&CurPanelItem, CurName, CurPanelItem.FileAttributes, strFullName))
+				AddMenuRecord(strFullName, CurPanelItem);
+
+			if (SearchInArchives && (Flags & OPIF_REALNAMES))
+				ArchiveSearch(strFullName);
 		}
 	}
 
@@ -2294,11 +2297,12 @@ void background_searcher::ScanPluginTree(plugin_panel* hPlugin, unsigned long lo
 			Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin, &PanelInfo);
 		}
 
-		auto ParentPointSeen = PanelInfo.Flags & OPIF_ADDDOTS? true : false;
+		auto ParentPointSeen = (PanelInfo.Flags & OPIF_ADDDOTS) != 0;
 
-		for (size_t I = 0; I<ItemCount && !Stopped(); I++)
+		for (const auto& CurPanelItem: span(PanelData, ItemCount))
 		{
-			const auto& CurPanelItem = PanelData[I];
+			if (Stopped())
+				break;
 
 			if (!(CurPanelItem.FileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 				continue;
@@ -2386,7 +2390,7 @@ void background_searcher::DoPrepareFileList()
 		{
 			auto RootDir = os::fs::get_root_directory(i);
 
-			int DriveType=FAR_GetDriveType(RootDir);
+			const auto DriveType = FAR_GetDriveType(RootDir);
 
 			if (DriveType != DRIVE_REMOVABLE && !IsDriveTypeCDROM(DriveType) && (DriveType != DRIVE_REMOTE || SearchMode != FINDAREA_ALL_BUTNETWORK))
 			{
@@ -2401,7 +2405,7 @@ void background_searcher::DoPrepareFileList()
 
 		for (auto& VolumeName: os::fs::enum_volumes())
 		{
-			int DriveType=FAR_GetDriveType(VolumeName);
+			const auto DriveType = FAR_GetDriveType(VolumeName);
 
 			if (DriveType==DRIVE_REMOVABLE || IsDriveTypeCDROM(DriveType) || (DriveType==DRIVE_REMOTE && SearchMode==FINDAREA_ALL_BUTNETWORK))
 			{
@@ -2431,7 +2435,7 @@ void background_searcher::DoPrepareFileList()
 
 void background_searcher::DoPreparePluginList(bool Internal)
 {
-	FindFiles::ArcListItem* ArcItem = m_Owner->itd->GetFindFileArcItem();
+	const auto ArcItem = m_Owner->itd->GetFindFileArcItem();
 	OpenPanelInfo Info;
 	string strSaveDir;
 	{

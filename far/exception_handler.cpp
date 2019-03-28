@@ -193,16 +193,16 @@ static intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2
 
 		case DN_CLOSE:
 		{
-			const auto& DialogData = *reinterpret_cast<dialog_data_type*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+			const auto& [ExceptionContext, NestedStack] = *reinterpret_cast<dialog_data_type*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 
 			switch (Param1)
 			{
 			case ed_button_stack:
-				ShowStackTrace(tracer::get(*DialogData.first->pointers(), DialogData.first->thread_handle()), DialogData.second);
+				ShowStackTrace(tracer::get(*ExceptionContext->pointers(), ExceptionContext->thread_handle()), NestedStack);
 				return FALSE;
 
 			case ed_button_minidump:
-				write_minidump(*DialogData.first);
+				write_minidump(*ExceptionContext);
 				return FALSE;
 			}
 		}

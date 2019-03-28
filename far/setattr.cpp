@@ -287,10 +287,10 @@ static intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 										{SA_TEXT_CHANGE, &FindData.ChangeTime},
 									};
 
-									std::for_each(CONST_RANGE(Items, i)
+									for (const auto& [Id, Value]: Items)
 									{
-										Dlg->SendMessage(DM_SETATTR, i.first, SubfoldersState? nullptr : i.second);
-									});
+										Dlg->SendMessage(DM_SETATTR, Id, SubfoldersState? nullptr : Value);
+									}
 								}
 							}
 						}
@@ -815,7 +815,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 		bool FolderPresent=false,LinkPresent=false;
 		string strLinkName;
-		static const std::pair<SETATTRDLG, DWORD> AttributePair[] =
+		static const std::pair<SETATTRDLG, DWORD> AttributeMap[]
 		{
 			{SA_CHECKBOX_RO,FILE_ATTRIBUTE_READONLY},
 			{SA_CHECKBOX_ARCHIVE,FILE_ATTRIBUTE_ARCHIVE},
@@ -868,10 +868,10 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 					if (SingleSelFileAttr != INVALID_FILE_ATTRIBUTES)
 					{
-						std::for_each(CONST_RANGE(AttributePair, i)
+						for (const auto& [Id, Attr]: AttributeMap)
 						{
-							AttrDlg[i.first].Selected = (SingleSelFileAttr & i.second)? BSTATE_CHECKED : BSTATE_UNCHECKED;
-						});
+							AttrDlg[Id].Selected = (SingleSelFileAttr & Attr)? BSTATE_CHECKED : BSTATE_UNCHECKED;
+						}
 					}
 
 					for (size_t i=SA_ATTR_FIRST; i<= SA_ATTR_LAST; i++)
@@ -1066,10 +1066,10 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 			if (SingleSelFileAttr != INVALID_FILE_ATTRIBUTES)
 			{
-				std::for_each(CONST_RANGE(AttributePair, i)
+				for (const auto& [Id, Attr]: AttributeMap)
 				{
-					AttrDlg[i.first].Selected = (SingleSelFileAttr & i.second)? BSTATE_CHECKED : BSTATE_UNCHECKED;
-				});
+					AttrDlg[Id].Selected = (SingleSelFileAttr & Attr)? BSTATE_CHECKED : BSTATE_UNCHECKED;
+				}
 			}
 
 			const struct DateTimeId
@@ -1103,10 +1103,10 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		}
 		else
 		{
-			std::for_each(CONST_RANGE(AttributePair, i)
+			for (const auto& [Id, Attr]: AttributeMap)
 			{
-				AttrDlg[i.first].Selected = BSTATE_3STATE;
-			});
+				AttrDlg[Id].Selected = BSTATE_3STATE;
+			}
 
 			AttrDlg[SA_EDIT_WDATE].strData.clear();
 			AttrDlg[SA_EDIT_WTIME].strData.clear();
@@ -1149,13 +1149,13 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 						DlgY+=2;
 					}
 
-					std::for_each(CONST_RANGE(AttributePair, p)
+					for (const auto& [Id, Attr]: AttributeMap)
 					{
-						if (i.Attributes & p.second)
+						if (i.Attributes & Attr)
 						{
-							++AttrDlg[p.first].Selected;
+							++AttrDlg[Id].Selected;
 						}
-					});
+					}
 
 					if(CheckOwner)
 					{
@@ -1189,13 +1189,14 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					}
 					DlgY+=2;
 				}
-				std::for_each(CONST_RANGE(AttributePair, i)
+
+				for (const auto& [Id, Attr]: AttributeMap)
 				{
-					if (SingleSelFindData.Attributes & i.second)
+					if (SingleSelFindData.Attributes & Attr)
 					{
-						++AttrDlg[i.first].Selected;
+						++AttrDlg[Id].Selected;
 					}
-				});
+				}
 			}
 			if(SrcPanel)
 			{
@@ -1300,13 +1301,13 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				{
 					DWORD NewAttr = SingleSelFileAttr & FILE_ATTRIBUTE_DIRECTORY;
 
-					std::for_each(CONST_RANGE(AttributePair, i)
+					for (const auto& [Id, Attr]: AttributeMap)
 					{
-						if (AttrDlg[i.first].Selected)
+						if (AttrDlg[Id].Selected)
 						{
-							NewAttr |= i.second;
+							NewAttr |= Attr;
 						}
-					});
+					}
 
 					if(!AttrDlg[SA_EDIT_OWNER].strData.empty() && !equal_icase(strInitOwner, AttrDlg[SA_EDIT_OWNER].strData))
 					{
@@ -1414,18 +1415,19 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					}
 					DWORD SetAttr=0,ClearAttr=0;
 
-					std::for_each(CONST_RANGE(AttributePair, i)
+					for (const auto& [Id, Attr]: AttributeMap)
 					{
-						switch (AttrDlg[i.first].Selected)
+						switch (AttrDlg[Id].Selected)
 						{
 							case BSTATE_CHECKED:
-								SetAttr |= i.second;
+								SetAttr |= Attr;
 								break;
+
 							case BSTATE_UNCHECKED:
-								ClearAttr |= i.second;
+								ClearAttr |= Attr;
 								break;
 						}
-					});
+					}
 
 					if (AttrDlg[SA_CHECKBOX_COMPRESSED].Selected==BSTATE_CHECKED)
 					{

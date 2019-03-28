@@ -930,7 +930,7 @@ private:
 	void InitConfigsData();
 	farconfig& GetConfig(config_type Type);
 	const farconfig& GetConfig(config_type Type) const;
-	intptr_t AdvancedConfigDlgProc(class Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
+	static intptr_t AdvancedConfigDlgProc(class Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	void SystemSettings();
 	void PanelSettings();
 	void InterfaceSettings();
@@ -955,7 +955,6 @@ private:
 	void SavePanelModes(bool always);
 
 	std::vector<farconfig> m_Configs;
-	std::vector<string>* m_ConfigStrings;
 	std::vector<PanelViewSettings> m_ViewSettings;
 	bool m_ViewSettingsChanged;
 };

@@ -346,11 +346,11 @@ bool DizList::Flush(const string& Path,const string* DizName)
 
 				for (const auto& i_ptr : m_OrderForWrite)
 				{
-					const auto& i = *i_ptr;
-					auto FileName = i.first;
+					const auto& [Name, Lines] = *i_ptr;
+					auto FileName = Name;
 					QuoteSpaceOnly(FileName);
 					Writer.write(FileName);
-					for (const auto& Description : i.second)
+					for (const auto& Description : Lines)
 					{
 						Writer.write(Description);
 						Writer.write(Eol);

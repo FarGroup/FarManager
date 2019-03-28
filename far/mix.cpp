@@ -275,22 +275,22 @@ void ReloadEnvironment()
 		PreservedVariables.emplace_back(L"PROCESSOR_ARCHITECTURE"sv, L""s); // Incorrect under WOW64
 	}
 
-	for (auto& i: PreservedVariables)
+	for (auto& [Name, Value]: PreservedVariables)
 	{
-		i.second = os::env::get(i.first);
+		Value = os::env::get(Name);
 	}
 
 	{
 		const os::env::provider::block EnvBlock;
 		for (const auto& i: enum_substrings(EnvBlock.data()))
 		{
-			const auto Data = split_name_value(i);
-			os::env::set(Data.first, Data.second);
+			const auto [Name, Value] = split_name_value(i);
+			os::env::set(Name, Value);
 		}
 	}
 
-	for (const auto& i: PreservedVariables)
+	for (const auto& [Name, Value]: PreservedVariables)
 	{
-		os::env::set(i.first, i.second);
+		os::env::set(Name, Value);
 	}
 }

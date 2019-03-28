@@ -508,8 +508,7 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 std::pair<string, string> SerialiseViewSettings(const std::vector<column>& Columns)
 {
 	FN_RETURN_TYPE(SerialiseViewSettings) Result;
-	auto& strColumnTitles = Result.first;
-	auto& strColumnWidths = Result.second;
+	auto& [strColumnTitles, strColumnWidths] = Result;
 
 	const auto& GetModeSymbol = [](FILEPANEL_COLUMN_MODES Mode)
 	{
@@ -532,7 +531,8 @@ std::pair<string, string> SerialiseViewSettings(const std::vector<column>& Colum
 		}
 	};
 
-	std::for_each(CONST_RANGE(Columns, i)
+	// TODO: P1091R3
+	std::for_each(ALL_CONST_RANGE(Columns), [&, &strColumnTitles = strColumnTitles, &strColumnWidths = strColumnWidths](const column& i)
 	{
 		string strType;
 		const auto ColumnType=static_cast<int>(i.type & 0xff);

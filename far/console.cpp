@@ -851,8 +851,7 @@ namespace console_detail
 			auto& ExeMap = Result[ExeNamePtr];
 			for (const auto& AliasToken : enum_substrings(AliasesBuffer.data()))
 			{
-				const auto Pair = split_name_value(AliasToken);
-				ExeMap.emplace(Pair.first, Pair.second);
+				ExeMap.emplace(split_name_value(AliasToken));
 			}
 		}
 
@@ -861,11 +860,15 @@ namespace console_detail
 
 	void console::SetAllAliases(const std::unordered_map<string, std::unordered_map<string, string>>& Aliases) const
 	{
-		for (const auto& ExeItem : Aliases)
+		for (const auto& [ExeName, ExeAliases]: Aliases)
 		{
-			for (const auto& AliasesItem : ExeItem.second)
+			for (const auto& [Alias, Value]: ExeAliases)
 			{
-				AddConsoleAlias(const_cast<wchar_t*>(AliasesItem.first.c_str()), const_cast<wchar_t*>(AliasesItem.second.c_str()), const_cast<wchar_t*>(ExeItem.first.c_str()));
+				AddConsoleAlias(
+					const_cast<wchar_t*>(Alias.c_str()),
+					const_cast<wchar_t*>(Value.c_str()),
+					const_cast<wchar_t*>(ExeName.c_str())
+				);
 			}
 		}
 	}

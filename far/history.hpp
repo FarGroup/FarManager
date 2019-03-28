@@ -81,6 +81,7 @@ public:
 	string GetPrev();
 	string GetNext();
 	bool GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend=false);
+	// (Name, Id, IsLocked)
 	std::vector<std::tuple<string, unsigned long long, bool>> GetAllSimilar(const string& Str) const;
 	void SetAddMode(bool EnableAdd, int RemoveDups, bool KeepSelectedPos);
 	void ResetPosition() { m_CurrentItem = 0; }

@@ -306,13 +306,13 @@ bool PluginSettings::Enum(FarSettingsEnum& Enum)
 		NewEnumItem.add(item, std::move(i));
 	}
 
-	for(auto& i: PluginsCfg->ValuesEnumerator(root))
+	for(auto& [Name, Value]: PluginsCfg->ValuesEnumerator(root))
 	{
-		item.Type = static_cast<FARSETTINGSTYPES>(PluginsCfg->ToSettingsType(i.second));
+		item.Type = static_cast<FARSETTINGSTYPES>(PluginsCfg->ToSettingsType(Value));
 
 		if(item.Type!=FST_UNKNOWN)
 		{
-			NewEnumItem.add(item, std::move(i.first));
+			NewEnumItem.add(item, std::move(Name));
 		}
 	}
 	NewEnumItem.get(Enum);

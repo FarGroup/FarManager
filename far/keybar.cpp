@@ -236,30 +236,30 @@ void KeyBar::SetCustomLabels(KEYBARAREA Area)
 		CustomArea = Area;
 		ClearKeyTitles(true);
 
-		for (auto& i: ConfigProvider().GeneralCfg()->ValuesEnumerator<string>(concat(L"KeyBarLabels."sv, strLanguage, L'.', Names[Area])))
+		for (auto& [Name, Value]: ConfigProvider().GeneralCfg()->ValuesEnumerator<string>(concat(L"KeyBarLabels."sv, strLanguage, L'.', Names[Area])))
 		{
-			DWORD Key = KeyNameToKey(i.first);
-			DWORD fnum = (Key & ~KEY_CTRLMASK) - KEY_F1;
+			const auto Key = KeyNameToKey(Name);
+			const auto fnum = (Key & ~KEY_CTRLMASK) - KEY_F1;
 			if (fnum < KEY_COUNT)
 			{
-				int fgroup = FnGroup(Key & KEY_CTRLMASK);
+				const auto fgroup = FnGroup(Key & KEY_CTRLMASK);
 				if (fgroup >= 0)
-					Items[fgroup][fnum].second = i.second;
+					Items[fgroup][fnum].second = Value;
 			}
 		}
 		CustomLabelsReaded = true;
 	}
 
-	std::for_each(RANGE(Items, Group)
+	for (auto& Group: Items)
 	{
-		std::for_each(RANGE(Group, i)
+		for (auto& [Title, CustomTitle]: Group)
 		{
-			if (!i.second.empty())
+			if (!CustomTitle.empty())
 			{
-				i.first = i.second;
+				Title = CustomTitle;
 			}
-		});
-	});
+		}
+	}
 }
 
 bool KeyBar::ProcessKey(const Manager::Key& Key)

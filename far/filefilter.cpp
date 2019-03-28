@@ -228,11 +228,11 @@ void FileFilter::FilterEdit()
 		});
 
 		wchar_t h = L'1';
-		for (const auto& i: Extensions)
+		for (const auto& [Ext, Mark]: Extensions)
 		{
-			MenuItemEx ListItem(MenuString(nullptr, false, h, true, i.first, msg(lng::MPanelFileType)));
-			i.second? ListItem.SetCustomCheck(i.second) : ListItem.ClearCheck();
-			ListItem.ComplexUserData = i.first;
+			MenuItemEx ListItem(MenuString(nullptr, false, h, true, Ext, msg(lng::MPanelFileType)));
+			Mark? ListItem.SetCustomCheck(Mark) : ListItem.ClearCheck();
+			ListItem.ComplexUserData = Ext;
 			FilterList->AddItem(ListItem);
 
 			h == L'9' ? h = L'A' : ((h == L'Z' || !h)? h = 0 : ++h);

@@ -928,12 +928,12 @@ static bool ProcessFarCommands(const string& Command, function_ref<void(bool)> c
 		{
 			append(strOut, L"\nLibraries:\n"sv);
 
-			for (const auto& i: ComponentsInfo)
+			for (const auto& [Name, Version]: ComponentsInfo)
 			{
-				strOut += i.first;
-				if (!i.second.empty())
+				strOut += Name;
+				if (!Version.empty())
 				{
-					append(strOut, L", version "sv, i.second);
+					append(strOut, L", version "sv, Version);
 				}
 				strOut += L'\n';
 			}

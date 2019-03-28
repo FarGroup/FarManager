@@ -55,14 +55,15 @@ namespace
 		const auto [Iterator, IsEmplaced] = s_Cache.try_emplace(Name);
 
 		auto& [MapKey, MapValue] = *Iterator;
+		auto& [Luid, Result] = MapValue;
 
 		if (IsEmplaced)
 		{
-			MapValue.second = LookupPrivilegeValue(nullptr, MapKey.c_str(), &MapValue.first) != FALSE;
+			Result = LookupPrivilegeValue(nullptr, MapKey.c_str(), &Luid) != FALSE;
 		}
 
-		Value = MapValue.first;
-		return MapValue.second;
+		Value = Luid;
+		return Result;
 	}
 
 	static bool operator==(const LUID& a, const LUID& b)

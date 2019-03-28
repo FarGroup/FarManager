@@ -390,8 +390,9 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 	const bool UseBinaryUnit = (ViewFlags & COLUMN_THOUSAND) == 0;
 	const size_t MinUnit = (ViewFlags & COLUMN_UNIT_MASK) + 1;
 
-	static const auto BinaryDivider = std::make_pair(1024, std::log(1024));
-	static const auto DecimalDivider = std::make_pair(1000, std::log(1000));
+	static std::pair const
+		BinaryDivider(1024, std::log(1024)),
+		DecimalDivider(1000, std::log(1000));
 
 	const auto& Divider = ViewFlags & COLUMN_THOUSAND? DecimalDivider : BinaryDivider;
 

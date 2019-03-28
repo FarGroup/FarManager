@@ -221,14 +221,14 @@ static bool FindObject(string_view const Module, string& strDest, bool* Internal
 	{
 		// If absolute path has been specified it makes no sense to walk through the %PATH%, App Paths etc.
 		// Just try all the extensions and we are done here:
-		const auto Result = TryWithExtOrPathExt(Module, [](string_view const NameWithExt)
+		const auto [Found, FoundName] = TryWithExtOrPathExt(Module, [](string_view const NameWithExt)
 		{
 			return std::make_pair(os::fs::is_file(NameWithExt), string(NameWithExt));
 		});
 
-		if (Result.first)
+		if (Found)
 		{
-			strDest = Result.second;
+			strDest = FoundName;
 			return true;
 		}
 	}
@@ -248,14 +248,14 @@ static bool FindObject(string_view const Module, string& strDest, bool* Internal
 	{
 		// Look in the current directory:
 		const auto FullName = ConvertNameToFull(Module);
-		const auto Result = TryWithExtOrPathExt(FullName, [](string_view const NameWithExt)
+		const auto[Found, FoundName] = TryWithExtOrPathExt(FullName, [](string_view const NameWithExt)
 		{
 			return std::make_pair(os::fs::is_file(NameWithExt), string(NameWithExt));
 		});
 
-		if (Result.first)
+		if (Found)
 		{
-			strDest = Result.second;
+			strDest = FoundName;
 			return true;
 		}
 	}
@@ -270,14 +270,14 @@ static bool FindObject(string_view const Module, string& strDest, bool* Internal
 				if (Path.empty())
 					continue;
 
-				const auto Result = TryWithExtOrPathExt(path::join(Path, Module), [](string_view const NameWithExt)
+				const auto[Found, FoundName] = TryWithExtOrPathExt(path::join(Path, Module), [](string_view const NameWithExt)
 				{
 					return std::make_pair(os::fs::is_file(NameWithExt), string(NameWithExt));
 				});
 
-				if (Result.first)
+				if (Found)
 				{
-					strDest = Result.second;
+					strDest = FoundName;
 					return true;
 				}
 			}
@@ -286,15 +286,15 @@ static bool FindObject(string_view const Module, string& strDest, bool* Internal
 
 	{
 		// Use SearchPath:
-		const auto Result = TryWithExtOrPathExt(Module, [](string_view const NameWithExt)
+		const auto[Found, FoundName] = TryWithExtOrPathExt(Module, [](string_view const NameWithExt)
 		{
 			string Str;
 			return std::make_pair(os::fs::SearchPath(nullptr, NameWithExt, nullptr, Str), Str);
 		});
 
-		if (Result.first)
+		if (Found)
 		{
-			strDest = Result.second;
+			strDest = FoundName;
 			return true;
 		}
 	}
@@ -322,7 +322,7 @@ static bool FindObject(string_view const Module, string& strDest, bool* Internal
 					}
 				}
 
-				const auto Result = TryWithExtOrPathExt(FullName, [&](string_view const NameWithExt)
+				const auto[Found, FoundName] = TryWithExtOrPathExt(FullName, [&](string_view const NameWithExt)
 				{
 					string RealName;
 					if (RootFindKey[i]->get(NameWithExt, {}, RealName, samDesired))
@@ -334,9 +334,9 @@ static bool FindObject(string_view const Module, string& strDest, bool* Internal
 					return std::make_pair(false, L""s);
 				});
 
-				if (Result.first)
+				if (Found)
 				{
-					strDest = Result.second;
+					strDest = FoundName;
 					return true;
 				}
 			}

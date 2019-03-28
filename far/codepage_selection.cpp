@@ -330,10 +330,10 @@ void codepages::AddCodePages(DWORD codePages)
 
 	const auto& GetSystemCodepageName = [](uintptr_t const Cp, string_view const SystemName)
 	{
-		auto Info = GetCodePageInfo(Cp);
-		if (starts_with(Info.second, SystemName))
-			return Info.second;
-		return concat(SystemName, L" - "sv, Info.second);
+		const auto& [MaxCharSize, Name] = GetCodePageInfo(Cp);
+		if (starts_with(Name, SystemName))
+			return Name;
+		return concat(SystemName, L" - "sv, Name);
 	};
 
 	// system codepages

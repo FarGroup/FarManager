@@ -107,12 +107,12 @@ bool PluginManager::plugin_less::operator()(const Plugin* a, const Plugin *b) co
 
 static void CallPluginSynchroEvent(const std::any& Payload)
 {
-	const auto& Data = std::any_cast<const std::pair<GUID, void*>&>(Payload);
-	if (const auto pPlugin = Global->CtrlObject->Plugins->FindPlugin(Data.first))
+	const auto& [Id, Param] = std::any_cast<const std::pair<GUID, void*>&>(Payload);
+	if (const auto pPlugin = Global->CtrlObject->Plugins->FindPlugin(Id))
 	{
 		ProcessSynchroEventInfo Info = { sizeof(Info) };
 		Info.Event = SE_COMMONSYNCHRO;
-		Info.Param = Data.second;
+		Info.Param = Param;
 		pPlugin->ProcessSynchroEvent(&Info);
 	}
 }
@@ -1679,7 +1679,7 @@ size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformat
 		string Name;
 		GUID Guid;
 
-		const auto& ReadCache = [&](const auto& Getter, auto& Items)
+		const auto& ReadCache = [&](const auto& Getter, menu_items& Items)
 		{
 			for (size_t i = 0; std::invoke(Getter, ConfigProvider().PlCacheCfg(), id, i, Name, Guid); ++i)
 			{

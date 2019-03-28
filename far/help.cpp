@@ -341,9 +341,7 @@ bool Help::ReadHelp(const string& Mask)
 		return true;
 	}
 
-	const auto HelpFileData = OpenLangFile(strPath, Mask.empty()? Global->HelpFileMask : Mask, Global->Opt->strHelpLanguage);
-	const auto& HelpFile = std::get<0>(HelpFileData);
-	const auto HelpFileCodePage = std::get<2>(HelpFileData);
+	const auto [HelpFile, Name, HelpFileCodePage] = OpenLangFile(strPath, Mask.empty()? Global->HelpFileMask : Mask, Global->Opt->strHelpLanguage);
 	if (!HelpFile)
 	{
 		ErrorHelp = true;
@@ -2100,9 +2098,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 			{
 				auto strPath = i->ModuleName();
 				CutToSlash(strPath);
-				const auto HelpFileData = OpenLangFile(strPath, Global->HelpFileMask, Global->Opt->strHelpLanguage);
-				const auto& HelpFile = std::get<0>(HelpFileData);
-				const auto HelpFileCodePage = std::get<2>(HelpFileData);
+				const auto [HelpFile, HelpLangName, HelpFileCodePage] = OpenLangFile(strPath, Global->HelpFileMask, Global->Opt->strHelpLanguage);
 				if (HelpFile)
 				{
 					string strEntryName, strSecondParam;

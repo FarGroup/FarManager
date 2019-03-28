@@ -290,15 +290,15 @@ namespace detail
 
 		explicit select_iterator(const T& Value, const accessor& Accessor):
 			m_Value(Value),
-			m_Accessor(Accessor)
+			m_Accessor(&Accessor)
 		{
 		}
 
 		[[nodiscard]]
-		decltype(auto) operator*() { return std::invoke(m_Accessor, *m_Value); }
+		decltype(auto) operator*() { return std::invoke(*m_Accessor, *m_Value); }
 
 		[[nodiscard]]
-		decltype(auto) operator*() const { return std::invoke(m_Accessor, *m_Value); }
+		decltype(auto) operator*() const { return std::invoke(*m_Accessor, *m_Value); }
 
 		[[nodiscard]]
 		auto operator->() { return &**this; }
@@ -325,7 +325,7 @@ namespace detail
 
 	private:
 		T m_Value;
-		accessor m_Accessor;
+		accessor const* m_Accessor;
 	};
 
 	template<typename arg_type>

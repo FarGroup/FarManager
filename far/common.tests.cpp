@@ -60,27 +60,30 @@ TEST_CASE("bytes_view")
 }
 
 //-----------------------------------------------------------------------------
-#include "common/from_string.hpp"
+#include "common/chrono.hpp"
 
-TEST_CASE("from_string")
+TEST_CASE("chrono")
 {
+	using namespace std::chrono;
+
+	const auto Duration = 17h + 63min + 71s + 3117ms;
+
 	{
-		size_t Pos = 0;
-		REQUIRE(from_string<int>(L"0x42qqq"sv, &Pos, 16) == 66);
-		REQUIRE(Pos == 4u);
+		const auto Result = split_duration<hours, minutes, seconds, milliseconds>(Duration);
+		REQUIRE(Result.get<hours>() == 18h);
+		REQUIRE(Result.get<minutes>() == 4min);
+		REQUIRE(Result.get<seconds>() == 14s);
+		REQUIRE(Result.get<milliseconds>() == 117ms);
 	}
 
-	REQUIRE(from_string<int>(L"-1"sv) == -1);
-	REQUIRE(from_string<unsigned int>(L"4294967295"sv) == 4294967295u);
-	REQUIRE(from_string<unsigned long long>(L"18446744073709551615"sv) == 18446744073709551615ull);
-
-	REQUIRE_THROWS_AS(from_string<short>(L"32768"sv), std::out_of_range);
-	REQUIRE_THROWS_AS(from_string<unsigned int>(L"4294967296"sv), std::out_of_range);
-	REQUIRE_THROWS_AS(from_string<int>(L"fubar"sv), std::invalid_argument);
+	{
+		const auto Result = split_duration<hours>(Duration);
+		REQUIRE(Result.get<hours>() == 18h);
+	}
 
 	{
-		int Value;
-		REQUIRE(!from_string(L"qqq"sv, Value));
+		const auto Result = split_duration<seconds>(Duration);
+		REQUIRE(Result.get<seconds>() == 65054s);
 	}
 }
 
@@ -144,30 +147,27 @@ TEST_CASE("enum_substrings")
 }
 
 //-----------------------------------------------------------------------------
-#include "common/chrono.hpp"
+#include "common/from_string.hpp"
 
-TEST_CASE("chrono")
+TEST_CASE("from_string")
 {
-	using namespace std::chrono;
-
-	const auto Duration = 17h + 63min + 71s + 3117ms;
-
 	{
-		const auto Result = split_duration<hours, minutes, seconds, milliseconds>(Duration);
-		REQUIRE(Result.get<hours>() == 18h);
-		REQUIRE(Result.get<minutes>() == 4min);
-		REQUIRE(Result.get<seconds>() == 14s);
-		REQUIRE(Result.get<milliseconds>() == 117ms);
+		size_t Pos = 0;
+		REQUIRE(from_string<int>(L"0x42qqq"sv, &Pos, 16) == 66);
+		REQUIRE(Pos == 4u);
 	}
 
-	{
-		const auto Result = split_duration<hours>(Duration);
-		REQUIRE(Result.get<hours>() == 18h);
-	}
+	REQUIRE(from_string<int>(L"-1"sv) == -1);
+	REQUIRE(from_string<unsigned int>(L"4294967295"sv) == 4294967295u);
+	REQUIRE(from_string<unsigned long long>(L"18446744073709551615"sv) == 18446744073709551615ull);
+
+	REQUIRE_THROWS_AS(from_string<short>(L"32768"sv), std::out_of_range);
+	REQUIRE_THROWS_AS(from_string<unsigned int>(L"4294967296"sv), std::out_of_range);
+	REQUIRE_THROWS_AS(from_string<int>(L"fubar"sv), std::invalid_argument);
 
 	{
-		const auto Result = split_duration<seconds>(Duration);
-		REQUIRE(Result.get<seconds>() == 65054s);
+		int Value;
+		REQUIRE(!from_string(L"qqq"sv, Value));
 	}
 }
 

@@ -199,8 +199,8 @@ public:
 			WA("ProcessDialogEvent"),
 			WA(""), // ProcessSynchroEvent not used
 			WA(""), // ProcessConsoleEvent not used
-			WA(""), // Analyze not used
-			WA(""), // CloseAnalyze not used
+			WA(""), // Analyse not used
+			WA(""), // CloseAnalyse not used
 			WA(""), // GetContentFields not used
 			WA(""), // GetContentData not used
 			WA(""), // FreeContentData not used
@@ -248,10 +248,7 @@ private:
 	bool FindExport(const std::string_view ExportName) const override
 	{
 		// module with ANY known export can be OEM plugin
-		return std::find_if(ALL_RANGE(m_ExportsNames), [&](const export_name& i)
-		{
-			return i.AName == ExportName;
-		}) != m_ExportsNames.end();
+		return contains(select(m_ExportsNames, [](const export_name& Item) { return Item.AName; }), ExportName);
 	}
 
 	std::string m_userName;
@@ -498,11 +495,11 @@ static DWORD KeyToOldKey(DWORD dKey)
 template<class F1, class F2, class M>
 static void FirstFlagsToSecond(const F1& FirstFlags, F2& SecondFlags, M& Map)
 {
-	for (const auto& i: Map)
+	for (const auto& [f1, f2]: Map)
 	{
-		if (FirstFlags & i.first)
+		if (FirstFlags & f1)
 		{
-			SecondFlags |= i.second;
+			SecondFlags |= f2;
 		}
 	}
 }
@@ -510,11 +507,11 @@ static void FirstFlagsToSecond(const F1& FirstFlags, F2& SecondFlags, M& Map)
 template<class F1, class F2, class M>
 static void SecondFlagsToFirst(const F2& SecondFlags, F1& FirstFlags, M& Map)
 {
-	for (const auto& i: Map)
+	for (const auto& [f1, f2]: Map)
 	{
-		if (SecondFlags & i.second)
+		if (SecondFlags & f2)
 		{
-			FirstFlags |= i.first;
+			FirstFlags |= f1;
 		}
 	}
 }
@@ -569,9 +566,9 @@ static void ConvertPanelModeToUnicode(const oldfar::PanelMode& Mode, PanelMode& 
 
 static void ConvertPanelModesToUnicode(range<const oldfar::PanelMode*> Modes, range<PanelMode*> UnicodeModes)
 {
-	for (const auto& i: zip(Modes, UnicodeModes))
+	for (const auto& [m, u]: zip(Modes, UnicodeModes))
 	{
-		std::apply(ConvertPanelModeToUnicode, i);
+		ConvertPanelModeToUnicode(m, u);
 	}
 }
 
@@ -611,9 +608,7 @@ static void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles *kbtA, KeyBarTitles 
 
 		const auto Extract = [&](const auto& Item, size_t i)
 		{
-			return (kbtA->*Item.first)[i];
-			// VS bug #3106053
-			//return std::invoke(Item.first, kbtA)[i];
+			return std::invoke(Item.first, kbtA)[i];
 		};
 
 		for (size_t i = 0; i != 12; ++i)
@@ -1439,12 +1434,12 @@ static int GetEditorCodePageFavA()
 	auto result = -(static_cast<int>(CodePage) + 2);
 	DWORD FavIndex = 2;
 
-	for (const auto& i: codepages::GetFavoritesEnumerator())
+	for (const auto& [Name, Value]: codepages::GetFavoritesEnumerator())
 	{
-		if (!(i.second & CPST_FAVORITE))
+		if (!(Value & CPST_FAVORITE))
 			continue;
 
-		if (i.first == CodePage)
+		if (Name == CodePage)
 		{
 			result = FavIndex;
 			break;
@@ -1487,14 +1482,14 @@ static uintptr_t ConvertCharTableToCodePage(int Command)
 		default:
 			{
 				int FavIndex = 2;
-				for (const auto& i: codepages::GetFavoritesEnumerator())
+				for (const auto& [Name, Value]: codepages::GetFavoritesEnumerator())
 				{
-					if (!(i.second & CPST_FAVORITE))
+					if (!(Value & CPST_FAVORITE))
 						continue;
 
 					if (FavIndex == Command)
 					{
-						nCP = i.first;
+						nCP = Name;
 						break;
 					}
 

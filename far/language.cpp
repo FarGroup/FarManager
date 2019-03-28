@@ -64,9 +64,7 @@ std::tuple<os::fs::file, string, uintptr_t> OpenLangFile(string_view const Path,
 	{
 		const auto CurrentFileName = path::join(Path, FindData.FileName);
 
-		auto& CurrentFile = std::get<0>(CurrentFileData);
-		auto& CurrentLngName = std::get<1>(CurrentFileData);
-		auto& CurrentCodepage = std::get<2>(CurrentFileData);
+		auto& [CurrentFile, CurrentLngName, CurrentCodepage] = CurrentFileData;
 
 		CurrentFile = os::fs::file(CurrentFileName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
 		if (CurrentFile)
@@ -379,10 +377,7 @@ void language::load(const string& Path, const string& Language, int CountNeed)
 
 	auto Data = m_Data->create();
 
-	const auto LangFileData = OpenLangFile(Path, LangFileMask, Language);
-	const auto& LangFile = std::get<0>(LangFileData);
-	const auto LangFileCodePage = std::get<2>(LangFileData);
-
+	const auto [LangFile, LangFileName, LangFileCodePage] = OpenLangFile(Path, LangFileMask, Language);
 	if (!LangFile)
 	{
 		throw MAKE_EXCEPTION(exception, L"Cannot find language data"sv);

@@ -357,7 +357,8 @@ void Dialog::Construct(span<DialogItemEx> const SrcItems)
 	{
 		for (const auto& [ItemAuto, SrcItemAuto] : zip(Item.Auto, SrcItem.Auto))
 		{
-			const auto SrcItemIterator = std::find_if(ALL_CONST_RANGE(SrcItems), [SrcItemAuto = SrcItemAuto](const auto& i)
+			// TODO: P1091R3
+			const auto SrcItemIterator = std::find_if(ALL_CONST_RANGE(SrcItems), [&SrcItemAuto = SrcItemAuto](const DialogItemEx& i)
 			{
 				return &i == SrcItemAuto.Owner;
 			});

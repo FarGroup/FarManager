@@ -588,18 +588,18 @@ operation OperationFailed(const error_state_ex& ErrorState, string Object, lng T
 
 			bool SeparatorAdded = false;
 
-			for (const auto& i: Mappings)
+			for (const auto& [Flag, Lng]: Mappings)
 			{
-				if (Reasons & i.first)
-				{
-					if (!SeparatorAdded)
-					{
-						Msg.emplace_back(L"\1"sv);
-						SeparatorAdded = true;
-					}
+				if (!(Reasons & Flag))
+					continue;
 
-					Msg.emplace_back(msg(i.second));
+				if (!SeparatorAdded)
+				{
+					Msg.emplace_back(L"\1"sv);
+					SeparatorAdded = true;
 				}
+
+				Msg.emplace_back(msg(Lng));
 			}
 		}
 	}

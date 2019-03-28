@@ -82,19 +82,19 @@ bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, 
 
 		std::vector<MenuItemEx> MenuItems;
 
-		for(const auto& i: ConfigProvider().AssocConfig()->TypedMasksEnumerator(Mode))
+		for(const auto& [Id, Mask]: ConfigProvider().AssocConfig()->TypedMasksEnumerator(Mode))
 		{
 			strCommand.clear();
 
-			if (FMask.Set(i.second, FMF_SILENT))
+			if (FMask.Set(Mask, FMF_SILENT))
 			{
 				if (FMask.Compare(Context.Name))
 				{
-					ConfigProvider().AssocConfig()->GetCommand(i.first, Mode, strCommand);
+					ConfigProvider().AssocConfig()->GetCommand(Id, Mode, strCommand);
 
 					if (!strCommand.empty())
 					{
-						ConfigProvider().AssocConfig()->GetDescription(i.first, strDescription);
+						ConfigProvider().AssocConfig()->GetDescription(Id, strDescription);
 						CommandCount++;
 					}
 				}
@@ -280,9 +280,9 @@ static auto FillFileTypesMenu(VMenu2* TypesMenu, int MenuPos)
 
 	std::vector<data_item> Data;
 
-	for(auto& i: ConfigProvider().AssocConfig()->MasksEnumerator())
+	for(auto& [Id, Mask]: ConfigProvider().AssocConfig()->MasksEnumerator())
 	{
-		data_item Item{ i.first, std::move(i.second) };
+		data_item Item{ Id, std::move(Mask) };
 		ConfigProvider().AssocConfig()->GetDescription(Item.Id, Item.Description);
 		Data.emplace_back(std::move(Item));
 	}
