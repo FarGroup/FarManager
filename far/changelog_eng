@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 28.03.2019 16:45:06 +0000 - build 5380
+
+1. Running the screen saver resets the viewport position.
+
 drkns 28.03.2019 13:54:13 +0000 - build 5379
 
 1. Refactoring.

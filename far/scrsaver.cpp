@@ -159,6 +159,12 @@ int ScreenSaver()
 		os::chrono::sleep_for(100ms);
 	}
 
+	// The whole point of a screen saver is to be visible
+	if (console.IsViewportShifted())
+	{
+		console.ResetPosition();
+	}
+
 	Global->ScreenSaverActive = true;
 	CONSOLE_CURSOR_INFO CursorInfo;
 	console.GetCursorInfo(CursorInfo);
