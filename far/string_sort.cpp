@@ -38,8 +38,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 template<typename comparer>
 static int per_char_compare(const string_view Str1, const string_view Str2, const comparer Comparer)
 {
-	std::pair Iterator(Str1.cbegin(), Str2.cbegin());
-	std::pair const End(Str1.cend(), Str2.cend());
+	// VS2019 bug - 'classic' CTAD breaks the compilation here
+	auto Iterator = std::pair(Str1.cbegin(), Str2.cbegin());
+	const auto End = std::pair(Str1.cend(), Str2.cend());
 
 	while (Iterator.first != End.first && Iterator.second != End.second)
 	{
