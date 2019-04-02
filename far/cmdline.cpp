@@ -332,10 +332,10 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 			const auto SelectType = Global->CtrlObject->CmdHistory->Select(msg(lng::MHistoryTitle), L"History"sv, strStr, Type);
 			if (SelectType == HRT_ENTER || SelectType == HRT_SHIFTETNER || SelectType == HRT_CTRLENTER || SelectType == HRT_CTRLALTENTER)
 			{
-				std::unique_ptr<SetAutocomplete> disable;
+				std::optional<SetAutocomplete> disable;
 				if(SelectType != HRT_CTRLENTER)
 				{
-					disable = std::make_unique<SetAutocomplete>(&CmdStr);
+					disable.emplace(&CmdStr);
 				}
 				SetString(strStr, true);
 

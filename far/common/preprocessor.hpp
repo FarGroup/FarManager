@@ -92,24 +92,53 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define FOR_REVERSE_RANGE(Object, i) DETAIL_FOR_RANGE_IMPL(Object, i, DETAIL_STD_REVERSE_MUTATOR)
 #define FOR_CONST_REVERSE_RANGE(Object, i) DETAIL_FOR_RANGE_IMPL(Object, i, DETAIL_STD_CONST_REVERSE_MUTATOR)
 
-#define NONCOPYABLE(Type) \
-Type(const Type&) = delete; \
-Type& operator=(const Type&) = delete
 
 #define COPY_AND_MOVE(Type, ...) \
-Type& operator=(__VA_ARGS__ rhs) { return *this = Type(rhs); }
+	Type& operator=(__VA_ARGS__ rhs) { return *this = Type(rhs); }
+
+#define COPY_CONSTRUCTIBLE(Type) \
+	Type(const Type&) = default
+
+#define NOT_COPY_CONSTRUCTIBLE(Type) \
+	Type(const Type&) = delete
+
+#define COPY_ASSIGNABLE_DEFAULT(Type) \
+	Type& operator=(const Type&) = default
+
+#define COPY_ASSIGNABLE_SWAP(Type) \
+	COPY_AND_MOVE(Type, const Type&)
+
+#define NOT_COPY_ASSIGNABLE(Type) \
+	Type& operator=(const Type&) = delete
 
 #define COPYABLE(Type) \
-COPY_AND_MOVE(Type, const Type&) \
-Type(const Type&) = default
+	COPY_ASSIGNABLE_SWAP(Type) \
+	COPY_CONSTRUCTIBLE(Type) \
 
-#define NONMOVABLE(Type) \
-Type(Type&&) = delete; \
-Type& operator=(Type&&) = delete
+#define NONCOPYABLE(Type) \
+	NOT_COPY_CONSTRUCTIBLE(Type); \
+	NOT_COPY_ASSIGNABLE(Type)
+
+#define MOVE_CONSTRUCTIBLE(Type) \
+	Type(Type&&) = default
+
+#define NOT_MOVE_CONSTRUCTIBLE(Type) \
+	Type(Type&&) = delete
+
+#define MOVE_ASSIGNABLE(Type) \
+	Type& operator=(Type&&) = default
+
+#define NOT_MOVE_ASSIGNABLE(Type) \
+	Type& operator=(Type&&) = delete
 
 #define MOVABLE(Type) \
-Type(Type&&) = default; \
-Type& operator=(Type&&) = default
+	MOVE_CONSTRUCTIBLE(Type); \
+	MOVE_ASSIGNABLE(Type)
+
+#define NONMOVABLE(Type) \
+	NOT_MOVE_CONSTRUCTIBLE(Type); \
+	NOT_MOVE_ASSIGNABLE(Type)
+
 
 #define SCOPED_ACTION(RAII_type) \
 const RAII_type ANONYMOUS_VARIABLE(scoped_object_)

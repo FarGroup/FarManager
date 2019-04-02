@@ -55,7 +55,7 @@ class SimpleScreenObject
 {
 public:
 	NONCOPYABLE(SimpleScreenObject);
-	MOVABLE(SimpleScreenObject);
+	MOVE_CONSTRUCTIBLE(SimpleScreenObject);
 
 	virtual ~SimpleScreenObject() = default;
 

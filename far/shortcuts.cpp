@@ -476,17 +476,15 @@ static bool EditListItem(const std::list<Shortcuts::shortcut>& List, VMenu2& Men
 	return true;
 }
 
+template<size_t... I>
+static auto make_shortcuts(std::index_sequence<I...>)
+{
+	return std::array{ Shortcuts(I)... };
+}
+
 int Shortcuts::Configure()
 {
-	constexpr auto ShortcutsNumber = 10;
-
-	std::vector<Shortcuts> AllShortcuts;
-	AllShortcuts.reserve(ShortcutsNumber);
-	for (auto i: make_irange(ShortcutsNumber))
-	{
-		AllShortcuts.emplace_back(i);
-	}
-
+	auto AllShortcuts = make_shortcuts(std::make_index_sequence<10>{});
 	const auto FolderList = VMenu2::create(msg(lng::MFolderShortcutsTitle), {}, ScrY - 4);
 	FolderList->SetMenuFlags(VMENU_WRAPMODE);
 	FolderList->SetHelp(HelpFolderShortcuts);

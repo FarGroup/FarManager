@@ -210,7 +210,7 @@ static bool CanSort(int SortMode)
 struct FileList::PluginsListItem
 {
 	NONCOPYABLE(PluginsListItem);
-	MOVABLE(PluginsListItem);
+	MOVE_CONSTRUCTIBLE(PluginsListItem);
 
 	PluginsListItem(std::unique_ptr<plugin_panel>&& hPlugin, string HostFile, int Modified, int PrevViewMode, panel_sort PrevSortMode, bool PrevSortOrder, bool PrevDirectoriesFirst, const PanelViewSettings& PrevViewSettings):
 		m_Plugin(std::move(hPlugin)),
@@ -361,7 +361,7 @@ const string& FileListItem::AlternateOrNormal(bool Alternate) const
 struct FileList::PrevDataItem
 {
 	NONCOPYABLE(PrevDataItem);
-	MOVABLE(PrevDataItem);
+	MOVE_CONSTRUCTIBLE(PrevDataItem);
 
 	PrevDataItem(string rhsPrevName, list_data&& rhsPrevListData, int rhsPrevTopFile):
 		strPrevName(std::move(rhsPrevName)),
@@ -1879,11 +1879,11 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 				if (!strFileName.empty())
 				{
-					os::fs::current_directory_guard Guard;
+					std::optional<os::fs::current_directory_guard> Guard;
 
 					// We have to set it - users can have associations like !.! which will work funny without this
 					if (PluginMode)
-						Guard = os::fs::current_directory_guard(TemporaryDirectory);
+						Guard.emplace(TemporaryDirectory);
 
 					if (Edit)
 					{

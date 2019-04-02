@@ -3333,7 +3333,7 @@ bool Editor::Search(bool Next)
 {
 	static string strLastReplaceStr;
 	bool Match,UserBreak,RefreshMe = false;
-	std::unique_ptr<undo_block> UndoBlock;
+	std::optional<undo_block> UndoBlock;
 
 	if (Next && strLastSearchStr.empty())
 		return true;
@@ -3646,7 +3646,7 @@ bool Editor::Search(bool Next)
 						}
 
 						if (ReplaceAll)
-							UndoBlock = std::make_unique<undo_block>(this);
+							UndoBlock.emplace(this);
 
 						if (!MsgCode || MsgCode==1)
 						{
@@ -4487,7 +4487,7 @@ void Editor::GoToPosition()
 struct Editor::EditorUndoData
 {
 	NONCOPYABLE(EditorUndoData);
-	MOVABLE(EditorUndoData);
+	MOVE_CONSTRUCTIBLE(EditorUndoData);
 
 	int m_Type;
 	int m_StrPos;

@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.chrono.hpp"
 
 #include "common/enumerator.hpp"
-#include "common/movable.hpp"
 
 namespace os::fs
 {
@@ -371,30 +370,26 @@ namespace os::fs
 	{
 	public:
 		NONCOPYABLE(current_directory_guard);
-		MOVABLE(current_directory_guard);
 
-		current_directory_guard() = default;
 		explicit current_directory_guard(const string& Directory);
 		~current_directory_guard();
 
 	private:
 		string m_Directory;
-		movable<bool> m_Active;
+		bool m_Active;
 	};
 
 	class process_current_directory_guard
 	{
 	public:
 		NONCOPYABLE(process_current_directory_guard);
-		MOVABLE(process_current_directory_guard);
 
-		process_current_directory_guard() = default;
 		explicit process_current_directory_guard(const string& Directory);
 		~process_current_directory_guard();
 
 	private:
 		string m_Directory;
-		movable<bool> m_Active;
+		bool m_Active;
 	};
 
 	namespace low

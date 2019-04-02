@@ -73,7 +73,7 @@ class ChDiskPluginItem
 {
 public:
 	NONCOPYABLE(ChDiskPluginItem);
-	MOVABLE(ChDiskPluginItem);
+	MOVE_CONSTRUCTIBLE(ChDiskPluginItem);
 
 	ChDiskPluginItem():
 		HotKey()
@@ -690,7 +690,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 		size_t TypeWidth = 0, LabelWidth = 0, FsWidth = 0, TotalSizeWidth = 0, FreeSizeWidth = 0, PathWidth = 0;
 
 
-		auto DE = std::make_unique<elevation::suppress>();
+		std::optional<elevation::suppress> DE(std::in_place);
 		auto& DriveMode = Global->Opt->ChangeDriveMode;
 
 		for (const auto& i: os::fs::enum_drives(AllDrives))

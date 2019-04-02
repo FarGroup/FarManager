@@ -210,4 +210,12 @@ auto make_raii_wrapper(owner* Owner, const acquire& Acquire, const release& Rele
 	return std::unique_ptr<owner, std::remove_reference_t<decltype(Releaser)>>(Owner, std::move(Releaser));
 }
 
+namespace detail
+{
+	struct nop_deleter { void operator()(void*) const noexcept {} };
+}
+
+template<class T>
+using movable_ptr = std::unique_ptr<T, detail::nop_deleter>;
+
 #endif // SMART_PTR_HPP_DE65D1E8_C925_40F7_905A_B7E3FF40B486

@@ -32,7 +32,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "movable.hpp"
 #include "range.hpp"
 
 class bytes_view: public range<const char*>
@@ -51,7 +50,7 @@ public:
 	}
 };
 
-class bytes: public range<char*>
+class bytes: public base<range<char*>>
 {
 public:
 	NONCOPYABLE(bytes);
@@ -81,18 +80,12 @@ public:
 		static_assert(std::is_trivially_copyable_v<T>);
 
 		bytes Bytes;
-		static_cast<range<char*>&>(Bytes) =
+		static_cast<base_type&>(Bytes) =
 		{
 			static_cast<char*>(static_cast<void*>(&Object)),
 			static_cast<char*>(static_cast<void*>(&Object)) + sizeof(Object)
 		};
 		return Bytes;
-	}
-
-	~bytes()
-	{
-		if (m_Allocated)
-			delete[] static_cast<const char*>(data());
 	}
 
 	bytes& operator=(const bytes_view& rhs)
@@ -104,8 +97,8 @@ public:
 		}
 		else
 		{
-			static_cast<range<char*>&>(*this) = { new char[rhs.size()], rhs.size() };
-			m_Allocated = true;
+			m_Buffer = std::make_unique<char[]>(rhs.size());
+			static_cast<base_type&>(*this) = { m_Buffer.get(), rhs.size() };
 		}
 		std::copy(ALL_CONST_RANGE(rhs), begin());
 		return *this;
@@ -118,7 +111,7 @@ public:
 	}
 
 private:
-	movable<bool> m_Allocated{ false };
+	std::unique_ptr<char[]> m_Buffer;
 };
 
 template<typename T>

@@ -89,7 +89,7 @@ protected:
 	{
 	public:
 		NONCOPYABLE(SQLiteStmt);
-		MOVABLE(SQLiteStmt);
+		MOVE_CONSTRUCTIBLE(SQLiteStmt);
 
 		explicit SQLiteStmt(sqlite::sqlite3_stmt* Stmt): m_Stmt(Stmt) {}
 

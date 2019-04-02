@@ -42,7 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.fwd.hpp"
 
 #include "common/function_traits.hpp"
-#include "common/movable.hpp"
+#include "common/smart_ptr.hpp"
 
 class SaveScreen;
 class FileEditor;
@@ -89,32 +89,32 @@ class plugin_panel
 {
 public:
 	NONCOPYABLE(plugin_panel);
-	MOVABLE(plugin_panel);
+	MOVE_CONSTRUCTIBLE(plugin_panel);
 
 	plugin_panel(Plugin* PluginInstance, HANDLE Panel);
 	~plugin_panel();
 
 	Plugin* plugin() const
 	{
-		return m_Plugin;
+		return m_Plugin.get();
 	}
 
 	HANDLE panel() const
 	{
-		return m_Panel;
+		return m_Panel.get();
 	}
 
 	void set_panel(HANDLE Panel)
 	{
-		m_Panel = Panel;
+		m_Panel.reset(Panel);
 	}
 
 	void delayed_delete(const string& Name);
 
 private:
-	movable<Plugin*> m_Plugin;
+	movable_ptr<Plugin> m_Plugin;
 	FN_RETURN_TYPE(Plugin::keep_activity) m_PluginActivity;
-	movable<HANDLE> m_Panel{};
+	movable_ptr<std::remove_pointer_t<HANDLE>> m_Panel;
 	std::list<delayed_deleter> m_DelayedDeleters;
 };
 

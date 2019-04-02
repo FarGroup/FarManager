@@ -88,7 +88,7 @@ namespace
 	{
 	public:
 		NONCOPYABLE(sid);
-		MOVABLE(sid);
+		MOVE_CONSTRUCTIBLE(sid);
 
 		sid() noexcept = default;
 

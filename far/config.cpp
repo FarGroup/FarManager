@@ -1574,7 +1574,7 @@ class Options::farconfig
 {
 public:
 	NONCOPYABLE(farconfig);
-	MOVABLE(farconfig);
+	MOVE_CONSTRUCTIBLE(farconfig);
 
 	using iterator = const FARConfigItem*;
 	using const_iterator = iterator;

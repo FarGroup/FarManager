@@ -629,10 +629,10 @@ operation OperationFailed(const error_state_ex& ErrorState, string Object, lng T
 	}
 	Buttons.emplace_back(lng::MCancel);
 
-	std::unique_ptr<listener> Listener;
+	std::optional<listener> Listener;
 	if (SwitchBtn)
 	{
-		Listener = std::make_unique<listener>([](const std::any& Payload)
+		Listener.emplace([](const std::any& Payload)
 		{
 			// Switch asynchronously after the message is reopened,
 			// otherwise Far will lose the focus too early

@@ -48,7 +48,7 @@ public:
 		{
 		public:
 			NONCOPYABLE(with_symbols_t);
-			MOVABLE(with_symbols_t);
+			MOVE_CONSTRUCTIBLE(with_symbols_t);
 
 			with_symbols_t()
 			{

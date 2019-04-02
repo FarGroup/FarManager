@@ -98,7 +98,7 @@ class plugin_item_list
 {
 public:
 	NONCOPYABLE(plugin_item_list);
-	MOVABLE(plugin_item_list);
+	MOVE_CONSTRUCTIBLE(plugin_item_list);
 
 	plugin_item_list() = default;
 	~plugin_item_list();

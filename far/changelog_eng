@@ -3,6 +3,12 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 02.04.2019 19:41:21 +0100 - build 5381
+
+1. Standard Boyer-Moore-Horspool implementation in Find File.
+
+2. Refactoring.
+
 drkns 28.03.2019 16:45:06 +0000 - build 5380
 
 1. Running the screen saver resets the viewport position.

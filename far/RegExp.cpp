@@ -453,7 +453,7 @@ struct REOpCode_data
 struct RegExp::REOpCode: public REOpCode_data
 {
 	NONCOPYABLE(REOpCode);
-	MOVABLE(REOpCode);
+	MOVE_CONSTRUCTIBLE(REOpCode);
 
 	REOpCode():
 		REOpCode_data{}

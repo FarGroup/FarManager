@@ -40,6 +40,8 @@ template<typename T, T Default = T{}>
 class movable
 {
 public:
+	NONCOPYABLE(movable);
+
 	movable() = default;
 	movable(T Value): m_Value(Value){}
 	auto& operator=(T Value) { m_Value = Value; return *this; }
@@ -47,9 +49,6 @@ public:
 	auto& operator-=(T Value) { m_Value -= Value; return *this; }
 	auto& operator++() { ++m_Value; return *this; }
 	auto& operator--() { --m_Value; return *this; }
-
-	movable(const movable& rhs) { *this = rhs; }
-	auto& operator=(const movable& rhs) { m_Value = rhs.m_Value; return *this; }
 
 	movable(movable&& rhs) noexcept { *this = std::move(rhs); }
 	auto& operator=(movable&& rhs) noexcept { m_Value = std::exchange(rhs.m_Value, Default); return *this; }
@@ -66,13 +65,5 @@ public:
 private:
 	T m_Value{Default};
 };
-
-namespace detail
-{
-	struct nop_deleter { void operator()(void*) const noexcept {} };
-}
-
-template<class T>
-using movalbe_ptr = std::unique_ptr<T, detail::nop_deleter>;
 
 #endif // MOVABLE_HPP_A063CBC7_C7FC_470D_901E_620E0D6A2D51

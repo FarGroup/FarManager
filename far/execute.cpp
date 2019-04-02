@@ -1000,7 +1000,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, function_ref<void(
 
 	{
 		// ShellExecuteEx fails if IE10 is installed and if current directory is symlink/junction
-		os::fs::process_current_directory_guard Guard;
+		std::optional<os::fs::process_current_directory_guard> Guard;
 		if (os::fs::file_status(strCurDir).check(FILE_ATTRIBUTE_REPARSE_POINT))
 		{
 			auto RealDir = ConvertNameToReal(strCurDir);
@@ -1009,7 +1009,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, function_ref<void(
 				RealDir = ConvertNameToShort(RealDir);
 			}
 
-			Guard = os::fs::process_current_directory_guard(RealDir);
+			Guard.emplace(RealDir);
 		}
 
 		Result = ShellExecuteEx(&seInfo) != FALSE;

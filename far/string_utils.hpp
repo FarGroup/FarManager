@@ -84,6 +84,9 @@ string lower(string Str);
 struct [[nodiscard]] hash_icase_t
 {
 	[[nodiscard]]
+	size_t operator()(wchar_t Char) const;
+
+	[[nodiscard]]
 	size_t operator()(const string& Str) const;
 };
 

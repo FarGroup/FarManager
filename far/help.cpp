@@ -170,45 +170,35 @@ private:
 	string strCtrlStartPosChar;
 	string strLastSearchStr;
 
-	int FixCount;             // количество строк непрокручиваемой области
+	int FixCount{};             // количество строк непрокручиваемой области
 
-	int MouseDownX, MouseDownY, BeforeMouseDownX, BeforeMouseDownY;
-	int MsX, MsY;
+	int MouseDownX{}, MouseDownY{}, BeforeMouseDownX{}, BeforeMouseDownY{};
+	int MsX{-1}, MsY{-1};
 
 	// символа - для атрибутов
 	FarColor CurColor;             // CurColor - текущий цвет отрисовки
 	int CtrlTabSize;          // CtrlTabSize - опция! размер табуляции
 
-	DWORD LastStartPos;
-	DWORD StartPos;
+	DWORD LastStartPos{};
+	DWORD StartPos{};
 
-	bool MouseDown;
-	bool IsNewTopic;
-	bool m_TopicFound;
-	bool ErrorHelp;
+	bool MouseDown{};
+	bool IsNewTopic{true};
+	bool m_TopicFound{};
+	bool ErrorHelp{true};
 	bool LastSearchCase, LastSearchWholeWords, LastSearchRegexp;
 };
 
 struct Help::StackHelpData
 {
-	COPYABLE(StackHelpData);
-	MOVABLE(StackHelpData);
-
-	StackHelpData():
-		Flags(),
-		TopStr(),
-		CurX(),
-		CurY()
-	{}
-
 	string strHelpMask;           // значение маски
 	string strHelpPath;           // путь к хелпам
 	string strHelpTopic;          // текущий топик
 	string strSelTopic;           // выделенный топик (???)
 
-	unsigned long long Flags;     // флаги
-	int   TopStr;                 // номер верхней видимой строки темы
-	int   CurX, CurY;             // координаты (???)
+	unsigned long long Flags{};   // флаги
+	int TopStr{};                 // номер верхней видимой строки темы
+	int CurX{}, CurY{};           // координаты (???)
 };
 
 static bool GetOptionsParam(const os::fs::file& LangFile, string_view const KeyName, string& Value, UINT CodePage)
@@ -218,21 +208,8 @@ static bool GetOptionsParam(const os::fs::file& LangFile, string_view const KeyN
 
 Help::Help(private_tag):
 	StackData(std::make_unique<StackHelpData>()),
-	FixCount(0),
-	MouseDownX(0),
-	MouseDownY(0),
-	BeforeMouseDownX(0),
-	BeforeMouseDownY(0),
-	MsX(-1),
-	MsY(-1),
 	CurColor(colors::PaletteColorToFarColor(COL_HELPTEXT)),
 	CtrlTabSize(Global->Opt->HelpTabSize),
-	LastStartPos(0),
-	StartPos(0),
-	MouseDown(false),
-	IsNewTopic(true),
-	m_TopicFound(false),
-	ErrorHelp(true),
 	LastSearchCase(Global->GlobalSearchCase),
 	LastSearchWholeWords(Global->GlobalSearchWholeWords),
 	LastSearchRegexp(Global->Opt->HelpSearchRegexp)

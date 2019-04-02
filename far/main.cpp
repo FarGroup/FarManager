@@ -482,7 +482,7 @@ static int mainImpl(range<const wchar_t* const*> const Args)
 
 	SCOPED_ACTION(global);
 
-	auto NoElevationDuringBoot = std::make_unique<elevation::suppress>();
+	std::optional<elevation::suppress> NoElevationDuringBoot(std::in_place);
 
 	os::set_error_mode(Global->ErrorMode);
 

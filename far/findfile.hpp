@@ -41,8 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.concurrency.hpp"
 #include "platform.fs.hpp"
 
-#include "common/bytes_view.hpp"
-
 enum FINDAREA
 {
 	FINDAREA_ALL,
@@ -179,81 +177,4 @@ private:
 	os::event m_MessageEvent;
 };
 
-class background_searcher: noncopyable
-{
-public:
-	background_searcher(FindFiles* Owner,
-		string FindString,
-		FINDAREA SearchMode,
-		uintptr_t CodePage,
-		unsigned long long SearchInFirst,
-		bool CmpCase,
-		bool WholeWords,
-		bool SearchInArchives,
-		bool SearchHex,
-		bool NotContaining,
-		bool UseFilter,
-		bool PluginMode
-	);
-
-	void Search();
-	void Pause() const { PauseEvent.reset(); }
-	void Resume() const { PauseEvent.set(); }
-	void Stop() const;
-	bool Stopped() const { return StopEvent.is_signaled(); }
-
-
-	auto ExceptionPtr() const { return m_ExceptionPtr; }
-	auto IsRegularException() const { return m_IsRegularException; }
-
-private:
-	void InitInFileSearch();
-	void ReleaseInFileSearch();
-
-	int FindStringBMH(const wchar_t* searchBuffer, size_t searchBufferCount) const;
-	int FindStringBMH(const char* searchBuffer, size_t searchBufferCount) const;
-	bool LookForString(const string& Name);
-	bool IsFileIncluded(PluginPanelItem* FileItem, string_view FullName, DWORD FileAttr, const string &strDisplayName);
-	void DoPrepareFileList();
-	void DoPreparePluginList(bool Internal);
-	void ArchiveSearch(const string& ArcName);
-	void DoScanTree(const string& strRoot);
-	void ScanPluginTree(plugin_panel* hPlugin, unsigned long long Flags, int& RecurseLevel);
-	void AddMenuRecord(const string& FullName, PluginPanelItem& FindData) const;
-
-	FindFiles* const m_Owner;
-	const string m_EventName;
-
-	std::vector<char> readBufferA;
-	std::vector<wchar_t> readBuffer;
-	bytes hexFindString;
-	std::vector<size_t> skipCharsTable;
-	struct CodePageInfo;
-	std::list<CodePageInfo> m_CodePages;
-	string findStringBuffer;
-	string strPluginSearchPath;
-
-	const wchar_t *findString;
-
-	bool InFileSearchInited;
-	bool m_Autodetection;
-
-	const string strFindStr;
-	const FINDAREA SearchMode;
-	const uintptr_t CodePage;
-	const unsigned long long SearchInFirst;
-	const bool CmpCase;
-	const bool WholeWords;
-	const bool SearchInArchives;
-	const bool SearchHex;
-	const bool NotContaining;
-	const bool UseFilter;
-	const bool m_PluginMode;
-
-	os::event PauseEvent;
-	os::event StopEvent;
-
-	std::exception_ptr m_ExceptionPtr;
-	bool m_IsRegularException{};
-};
 #endif // FINDFILE_HPP_8601893C_E4B7_4EC6_A79F_9C6E491FF5ED

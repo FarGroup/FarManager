@@ -126,6 +126,11 @@ string lower(string Str)
 	return inplace::lower(Str, 0, string::npos);
 }
 
+size_t hash_icase_t::operator()(wchar_t const Char) const
+{
+	return make_hash(upper(Char));
+}
+
 size_t hash_icase_t::operator()(const string& Str) const
 {
 	return make_hash(upper(Str));

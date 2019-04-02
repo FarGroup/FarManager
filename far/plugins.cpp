@@ -493,7 +493,7 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 	class plugin_panel_holder: public plugin_panel
 	{
 	public:
-		MOVABLE(plugin_panel_holder);
+		MOVE_CONSTRUCTIBLE(plugin_panel_holder);
 
 		plugin_panel_holder(Plugin* PluginInstance, HANDLE Panel, HANDLE Analyse):
 			plugin_panel(PluginInstance, Panel),
@@ -694,7 +694,7 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFindListPlugin(const PluginPane
 	class plugin_panel_holder: public plugin_panel
 	{
 	public:
-		MOVABLE(plugin_panel_holder);
+		MOVE_CONSTRUCTIBLE(plugin_panel_holder);
 
 		using plugin_panel::plugin_panel;
 

@@ -39,7 +39,7 @@ class [[nodiscard]] enumerator
 {
 public:
 	NONCOPYABLE(enumerator);
-	MOVABLE(enumerator);
+	MOVE_CONSTRUCTIBLE(enumerator);
 
 	using value_type = T;
 	using enumerator_type = enumerator;
@@ -152,7 +152,7 @@ class inline_enumerator: public enumerator<inline_enumerator<value_type, callabl
 
 public:
 	NONCOPYABLE(inline_enumerator);
-	MOVABLE(inline_enumerator);
+	MOVE_CONSTRUCTIBLE(inline_enumerator);
 
 	explicit inline_enumerator(callable&& Callable, finaliser&& Finaliser):
 		m_Callable(FWD(Callable)),

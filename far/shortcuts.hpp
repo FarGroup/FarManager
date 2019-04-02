@@ -45,7 +45,6 @@ class Shortcuts
 {
 public:
 	NONCOPYABLE(Shortcuts);
-	MOVABLE(Shortcuts);
 
 	explicit Shortcuts(size_t Index);
 	~Shortcuts();
@@ -84,7 +83,7 @@ private:
 
 	std::list<shortcut> m_Items;
 	string m_KeyName;
-	movable<bool> m_Changed = false;
+	bool m_Changed{};
 };
 
 #endif // SHORTCUTS_HPP_29F659B5_FECB_4C3C_8499_D17E01487D1C

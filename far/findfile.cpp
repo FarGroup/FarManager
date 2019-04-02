@@ -83,6 +83,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
 
+#include "common/bytes_view.hpp"
 #include "common/enum_tokens.hpp"
 #include "common/scope_exit.hpp"
 
@@ -305,6 +306,88 @@ enum FINDDLG
 	FD_BUTTON_STOP,
 };
 
+class background_searcher: noncopyable
+{
+public:
+	background_searcher(
+		FindFiles* Owner,
+		string FindString,
+		FINDAREA SearchMode,
+		uintptr_t CodePage,
+		unsigned long long SearchInFirst,
+		bool CmpCase,
+		bool WholeWords,
+		bool SearchInArchives,
+		bool SearchHex,
+		bool NotContaining,
+		bool UseFilter,
+		bool PluginMode
+	);
+
+	void Search();
+	void Pause() const { PauseEvent.reset(); }
+	void Resume() const { PauseEvent.set(); }
+	void Stop() const;
+	bool Stopped() const { return StopEvent.is_signaled(); }
+
+
+	auto ExceptionPtr() const { return m_ExceptionPtr; }
+	auto IsRegularException() const { return m_IsRegularException; }
+
+private:
+	void InitInFileSearch();
+	void ReleaseInFileSearch();
+
+	template<typename char_type, typename searcher>
+	int FindStringBMH(const char_type* searchBuffer, size_t searchBufferCount, const searcher& Searcher) const;
+
+	bool LookForString(const string& Name);
+	bool IsFileIncluded(PluginPanelItem* FileItem, string_view FullName, DWORD FileAttr, const string& strDisplayName);
+	void DoPrepareFileList();
+	void DoPreparePluginList(bool Internal);
+	void ArchiveSearch(const string& ArcName);
+	void DoScanTree(const string& strRoot);
+	void ScanPluginTree(plugin_panel* hPlugin, unsigned long long Flags, int& RecurseLevel);
+	void AddMenuRecord(const string& FullName, PluginPanelItem& FindData) const;
+
+	FindFiles* const m_Owner;
+	const string m_EventName;
+
+	std::vector<char> readBufferA;
+	std::vector<wchar_t> readBuffer;
+	bytes hexFindString;
+	struct CodePageInfo;
+	std::list<CodePageInfo> m_CodePages;
+	string strPluginSearchPath;
+
+	bool m_Autodetection;
+
+	const string strFindStr;
+	const FINDAREA SearchMode;
+	const uintptr_t CodePage;
+	const unsigned long long SearchInFirst;
+	const bool CmpCase;
+	const bool WholeWords;
+	const bool SearchInArchives;
+	const bool SearchHex;
+	const bool NotContaining;
+	const bool UseFilter;
+	const bool m_PluginMode;
+
+	os::event PauseEvent;
+	os::event StopEvent;
+
+	std::exception_ptr m_ExceptionPtr;
+	bool m_IsRegularException{};
+
+	template<typename... args>
+	using searcher = std::boyer_moore_horspool_searcher<args...>;
+
+	std::optional<searcher<string::const_iterator>> CaseSensitiveSearcher;
+	std::optional<searcher<string::const_iterator, hash_icase_t, equal_icase_t>> CaseInsensitiveSearcher;
+	std::optional<searcher<const char*>> HexSearcher;
+};
+
 struct background_searcher::CodePageInfo
 {
 	explicit CodePageInfo(uintptr_t CodePage):
@@ -341,107 +424,79 @@ struct background_searcher::CodePageInfo
 
 void background_searcher::InitInFileSearch()
 {
-	if (!InFileSearchInited && !strFindStr.empty())
+	if (strFindStr.empty())
+		return;
+
+	// Инициализируем буферы чтения из файла
+	const size_t readBufferSize = 32768;
+
+	readBufferA.resize(readBufferSize);
+	readBuffer.resize(readBufferSize);
+
+	if (!SearchHex)
 	{
-		size_t findStringCount = strFindStr.size();
-		// Инициализируем буферы чтения из файла
-		const size_t readBufferSize = 32768;
+		if (CmpCase)
+			CaseSensitiveSearcher.emplace(ALL_CONST_RANGE(strFindStr));
+		else
+			CaseInsensitiveSearcher.emplace(ALL_CONST_RANGE(strFindStr));
 
-		readBufferA.resize(readBufferSize);
-		readBuffer.resize(readBufferSize);
-
-		if (!SearchHex)
+		// Формируем список кодовых страниц
+		if (CodePage == CP_ALL)
 		{
-			// Формируем строку поиска
-			if (!CmpCase)
+			// Проверяем наличие выбранных страниц символов
+			const auto CpEnum = codepages::GetFavoritesEnumerator();
+			const auto hasSelected = std::any_of(CONST_RANGE(CpEnum, i) { return i.second & CPST_FIND; });
+
+			if (hasSelected)
 			{
-				findStringBuffer = upper(strFindStr) + lower(strFindStr);
-				findString = findStringBuffer.c_str();
-			}
-			else
-				findString = strFindStr.c_str();
-
-			// Инициализируем данные для алгоритма поиска
-			skipCharsTable.assign(std::numeric_limits<wchar_t>::max() + 1, findStringCount);
-
-			for (size_t index = 0; index < findStringCount-1; index++)
-				skipCharsTable[findString[index]] = findStringCount-1-index;
-
-			if (!CmpCase)
-				for (size_t index = 0; index < findStringCount-1; index++)
-					skipCharsTable[findString[index+findStringCount]] = findStringCount-1-index;
-
-			// Формируем список кодовых страниц
-			if (CodePage == CP_ALL)
-			{
-				// Проверяем наличие выбранных страниц символов
-				const auto CpEnum = codepages::GetFavoritesEnumerator();
-				const auto hasSelected = std::any_of(CONST_RANGE(CpEnum, i) { return i.second & CPST_FIND; });
-
-				if (hasSelected)
-				{
-					m_CodePages.clear();
-				}
-				else
-				{
-					// Добавляем стандартные таблицы символов
-					const uintptr_t Predefined[] = { encoding::codepage::oem(), encoding::codepage::ansi(), CP_UTF8, CP_UNICODE, CP_REVERSEBOM };
-					m_CodePages.insert(m_CodePages.end(), ALL_CONST_RANGE(Predefined));
-				}
-
-				// Добавляем избранные таблицы символов
-				for (const auto& [Name, Value]: CpEnum)
-				{
-					if (Value & (hasSelected? CPST_FIND : CPST_FAVORITE))
-					{
-						// Проверяем дубли
-						// TODO: P1091R3
-						if (hasSelected || !std::any_of(ALL_CONST_RANGE(m_CodePages), [&Name = Name](const CodePageInfo& cp) { return cp.CodePage == Name; }))
-							m_CodePages.emplace_back(Name);
-					}
-				}
+				m_CodePages.clear();
 			}
 			else
 			{
-				m_CodePages.emplace_back(CodePage);
-				m_Autodetection = CodePage == CP_DEFAULT;
+				// Добавляем стандартные таблицы символов
+				const uintptr_t Predefined[] = { encoding::codepage::oem(), encoding::codepage::ansi(), CP_UTF8, CP_UNICODE, CP_REVERSEBOM };
+				m_CodePages.insert(m_CodePages.end(), ALL_CONST_RANGE(Predefined));
 			}
 
-			std::for_each(RANGE(m_CodePages, i)
+			// Добавляем избранные таблицы символов
+			for (const auto& [Name, Value]: CpEnum)
 			{
-				i.initialize();
-			});
+				if (Value & (hasSelected? CPST_FIND : CPST_FAVORITE))
+				{
+					// Проверяем дубли
+					// TODO: P1091R3
+					if (hasSelected || !std::any_of(ALL_CONST_RANGE(m_CodePages), [&Name = Name](const CodePageInfo& cp) { return cp.CodePage == Name; }))
+						m_CodePages.emplace_back(Name);
+				}
+			}
 		}
 		else
 		{
-			// Формируем hex-строку для поиска
-			if (SearchHex)
-			{
-				hexFindString = HexStringToBlob(strFindStr, 0);
-			}
-
-			// Инициализируем данные для аглоритма поиска
-			skipCharsTable.assign(std::numeric_limits<unsigned char>::max() + 1, hexFindString.size());
-
-			for (size_t index = 0; index < hexFindString.size() - 1; index++)
-				skipCharsTable[hexFindString[index]] = hexFindString.size() - 1 - index;
+			m_CodePages.emplace_back(CodePage);
+			m_Autodetection = CodePage == CP_DEFAULT;
 		}
 
-		InFileSearchInited=true;
+		std::for_each(RANGE(m_CodePages, i)
+		{
+			i.initialize();
+		});
+	}
+	else
+	{
+		// Формируем hex-строку для поиска
+		hexFindString = HexStringToBlob(strFindStr, 0);
+
+		// Инициализируем данные для аглоритма поиска
+		HexSearcher.emplace(ALL_CONST_RANGE(hexFindString));
 	}
 }
 
 void background_searcher::ReleaseInFileSearch()
 {
-	if (InFileSearchInited && !strFindStr.empty())
-	{
-		clear_and_shrink(readBufferA);
-		clear_and_shrink(readBuffer);
-		clear_and_shrink(skipCharsTable);
-		hexFindString = {};
-		m_CodePages.clear();
-		InFileSearchInited=false;
-	}
+	clear_and_shrink(readBufferA);
+	clear_and_shrink(readBuffer);
+	hexFindString = {};
+	m_CodePages.clear();
 }
 
 string& FindFiles::PrepareDriveNameStr(string &strSearchFromRoot) const
@@ -908,56 +963,10 @@ bool FindFiles::GetPluginFile(ArcListItem const* const ArcItem, const os::fs::fi
 	return nResult;
 }
 
-
-// Алгоритма Бойера-Мура-Хорспула поиска подстроки
-template<typename char_type, typename predicate>
-static int FindStringBMH_Impl(const char_type* searchBuffer, size_t searchBufferCount, size_t findStringCount, const std::vector<size_t>& skipCharsTable, predicate Predicate)
-{
-	auto buffer = searchBuffer;
-	const auto lastBufferChar = findStringCount - 1;
-
-	while (searchBufferCount >= findStringCount)
-	{
-		for (auto index = lastBufferChar; Predicate(buffer, index); --index)
-			if (!index)
-				return static_cast<int>(buffer - searchBuffer);
-
-		const auto offset = skipCharsTable[buffer[lastBufferChar]];
-		searchBufferCount -= offset;
-		buffer += offset;
-	}
-
-	return -1;
-}
-
-int background_searcher::FindStringBMH(const wchar_t* searchBuffer, size_t searchBufferCount) const
-{
-	const auto findStringCount = strFindStr.size();
-	const auto findStringLower = CmpCase? nullptr : findString + findStringCount;
-
-	return FindStringBMH_Impl(searchBuffer, searchBufferCount, findStringCount, skipCharsTable, [&](const wchar_t* Buffer, size_t index)
-	{
-		return Buffer[index] == findString[index] || (findStringLower && Buffer[index] == findStringLower[index]);
-	});
-}
-
-int background_searcher::FindStringBMH(const char* searchBuffer, size_t searchBufferCount) const
-{
-	return FindStringBMH_Impl(searchBuffer, searchBufferCount, hexFindString.size(), skipCharsTable, [&](const char* Buffer, size_t index)
-	{
-		return Buffer[index] == hexFindString[index];
-	});
-}
-
-
 bool background_searcher::LookForString(const string& Name)
 {
 	// Длина строки поиска
-	size_t findStringCount = strFindStr.size();
-
-	// Если строки поиска пустая, то считаем, что мы всегда что-нибудь найдём
-	if (!findStringCount)
-		return true;
+	const auto findStringCount = strFindStr.size();
 
 	// Открываем файл
 	os::fs::file File(Name, FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
@@ -1010,12 +1019,13 @@ bool background_searcher::LookForString(const string& Name)
 		// Для hex и обыкновенного поиска разные ветки
 		if (SearchHex)
 		{
-			// Выходим, если ничего не прочитали или прочитали мало
-			if (!readBlockSize || readBlockSize < hexFindString.size())
+			// Выходим, если прочитали мало
+			if (readBlockSize < hexFindString.size())
 				return false;
 
 			// Ищем
-			if (FindStringBMH(readBufferA.data(), readBlockSize) != -1)
+			const auto Begin = readBufferA.data(), End = Begin + readBlockSize;
+			if (std::search(Begin, End, *HexSearcher) != End)
 				return true;
 		}
 		else
@@ -1131,28 +1141,32 @@ bool background_searcher::LookForString(const string& Name)
 				}
 
 				i.WordFound = false;
-				unsigned int index = 0;
+
+				auto Iterator = buffer;
+				const auto End = buffer + bufferCount;
 
 				do
 				{
 					// Ищем подстроку в буфере и возвращаем индекс её начала в случае успеха
-					int foundIndex = FindStringBMH(buffer+index, bufferCount-index);
+					const auto NewIterator = CmpCase?
+						std::search(Iterator, End, *CaseSensitiveSearcher):
+						std::search(Iterator, End, *CaseInsensitiveSearcher);
 
 					// Если подстрока не найдена идём на следующий шаг
-					if (foundIndex == -1)
+					if (NewIterator == End)
 						break;
 
 					// Если подстрока найдена и отключен поиск по словам, то считаем что всё хорошо
 					if (!WholeWords)
 						return true;
 					// Устанавливаем позицию в исходном буфере
-					index += foundIndex;
+					Iterator = NewIterator;
 
 					// Если идёт поиск по словам, то делаем соответствующие проверки
 					bool firstWordDiv = false;
 
 					// Если мы находимся вначале блока
-					if (!index)
+					if (Iterator == buffer)
 					{
 						// Если мы находимся вначале файла, то считаем, что разделитель есть
 						// Если мы находимся вначале блока, то проверяем является
@@ -1163,7 +1177,7 @@ bool background_searcher::LookForString(const string& Name)
 					else
 					{
 						// Проверяем является или нет предыдущий найденному символ блока разделителем
-						i.LastSymbol = buffer[index-1];
+						i.LastSymbol = *std::prev(Iterator);
 
 						if (FindFiles::IsWordDiv(i.LastSymbol))
 							firstWordDiv = true;
@@ -1173,10 +1187,10 @@ bool background_searcher::LookForString(const string& Name)
 					if (firstWordDiv)
 					{
 						// Если блок выбран не до конца
-						if (index+findStringCount!=bufferCount)
+						if (Iterator + findStringCount != End)
 						{
 							// Проверяем является или нет последующий за найденным символ блока разделителем
-							i.LastSymbol = buffer[index+findStringCount];
+							i.LastSymbol = *std::next(Iterator, findStringCount);
 
 							if (FindFiles::IsWordDiv(i.LastSymbol))
 								return true;
@@ -1185,7 +1199,7 @@ bool background_searcher::LookForString(const string& Name)
 							i.WordFound = true;
 					}
 				}
-				while (++index<=bufferCount-findStringCount);
+				while (++Iterator != End - findStringCount);
 
 				// Выходим, если мы вышли за пределы количества байт разрешённых для поиска
 				if (SearchInFirst && alreadyRead >= SearchInFirst)
@@ -3061,8 +3075,6 @@ background_searcher::background_searcher(
 	bool PluginMode):
 
 	m_Owner(Owner),
-	findString(),
-	InFileSearchInited(),
 	m_Autodetection(),
 	strFindStr(std::move(FindString)),
 	SearchMode(SearchMode),

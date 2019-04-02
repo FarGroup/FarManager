@@ -46,7 +46,7 @@ struct ScanTree::scantree_item
 {
 public:
 	NONCOPYABLE(scantree_item);
-	MOVABLE(scantree_item);
+	MOVE_CONSTRUCTIBLE(scantree_item);
 
 	scantree_item() = default;
 

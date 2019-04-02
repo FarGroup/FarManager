@@ -460,10 +460,10 @@ void TreeList::DisplayTree(bool Fast)
 		{BoxSymbols[BS_L_H1V1], BoxSymbols[BS_H1],0},
 	};
 
-	std::unique_ptr<LockScreen> LckScreen;
+	std::optional<LockScreen> LckScreen;
 
 	if (!m_ModalMode && Parent()->GetAnotherPanel(this)->GetType() == panel_type::QVIEW_PANEL)
-		LckScreen = std::make_unique<LockScreen>();
+		LckScreen.emplace();
 
 	CorrectPosition();
 

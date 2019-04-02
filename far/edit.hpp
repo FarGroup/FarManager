@@ -117,7 +117,7 @@ class Edit: public SimpleScreenObject
 	};
 public:
 	NONCOPYABLE(Edit);
-	MOVABLE(Edit);
+	MOVE_CONSTRUCTIBLE(Edit);
 
 	using delete_color_condition = function_ref<bool(const ColorItem&)>;
 

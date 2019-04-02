@@ -60,7 +60,7 @@ namespace os::security
 	{
 	public:
 		NONCOPYABLE(privilege);
-		MOVABLE(privilege);
+		MOVE_CONSTRUCTIBLE(privilege);
 
 		privilege(const std::initializer_list<const wchar_t* const>& Names): privilege(span(Names)) {}
 		explicit privilege(span<const wchar_t* const> Names);
