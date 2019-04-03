@@ -232,7 +232,7 @@ void QuickView::DisplayObject()
 		}
 
 		const auto bytes_suffix = upper(msg(lng::MListBytes));
-		const auto& size2str = [&bytes_suffix](ULONGLONG Size)
+		const auto size2str = [&bytes_suffix](ULONGLONG Size)
 		{
 			if (Global->Opt->ShowBytes)
 			{
@@ -262,7 +262,7 @@ void QuickView::DisplayObject()
 			const auto iColor = uncomplete_dirscan? COL_PANELHIGHLIGHTTEXT : COL_PANELINFOTEXT;
 			const auto prefix = uncomplete_dirscan? L"~"sv : L""sv;
 
-			const auto& PrintRow = [&](int Y, lng Id, string_view const Value)
+			const auto PrintRow = [&](int Y, lng Id, string_view const Value)
 			{
 				GotoXY(m_Where.left + 2, m_Where.top + Y);
 				SetColor(COL_PANELTEXT);
@@ -454,7 +454,7 @@ void QuickView::ShowFile(string_view const FileName, const UserDataItem* const U
 
 		time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 
-		const auto& DirInfoCallback = [&](string_view const Name, unsigned long long const ItemsCount, unsigned long long const Size)
+		const auto DirInfoCallback = [&](string_view const Name, unsigned long long const ItemsCount, unsigned long long const Size)
 		{
 			if (TimeCheck)
 				DirInfoMsg(msg(lng::MQuickViewTitle), Name, ItemsCount, Size);

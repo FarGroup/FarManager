@@ -150,7 +150,7 @@ void PrintFiles(FileList* SrcPanel)
 
 		SCOPED_ACTION(SaveScreen);
 
-		const auto& PR_PrintMsg = []
+		const auto PR_PrintMsg = []
 		{
 			Message(0,
 				msg(lng::MPrintTitle),

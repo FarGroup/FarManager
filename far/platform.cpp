@@ -135,7 +135,7 @@ bool WNetGetConnection(const string_view LocalName, string &RemoteName)
 		Result = ::WNetGetConnection(C_LocalName.c_str(), Buffer.get(), &Size);
 	}
 
-	const auto& IsReceived = [](int Code) { return Code == NO_ERROR || Code == ERROR_NOT_CONNECTED || Code == ERROR_CONNECTION_UNAVAIL; };
+	const auto IsReceived = [](int Code) { return Code == NO_ERROR || Code == ERROR_NOT_CONNECTED || Code == ERROR_CONNECTION_UNAVAIL; };
 
 	if (IsReceived(Result) && *Buffer)
 	{

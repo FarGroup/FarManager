@@ -146,7 +146,7 @@ static bool SetREPARSE_DATA_BUFFER(const string& Object, REPARSE_DATA_BUFFER* rd
 			os::fs::set_file_attributes(Object, Attributes);
 	};
 
-	const auto& SetBuffer = [&](bool ForceElevation)
+	const auto SetBuffer = [&](bool ForceElevation)
 	{
 		const os::fs::file fObject(Object, GetDesiredAccessForReparsePointChange(), 0, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT, nullptr, ForceElevation);
 		DWORD dwBytesReturned;
@@ -288,7 +288,7 @@ bool GetReparsePointInfo(const string& Object, string &strDestBuff,LPDWORD Repar
 	if (ReparseTag)
 		*ReparseTag=rdb->ReparseTag;
 
-	const auto& Extract = [&](const auto& Buffer)
+	const auto Extract = [&](const auto& Buffer)
 	{
 		const wchar_t *PathBuffer = nullptr;
 		auto NameLength = Buffer.PrintNameLength / sizeof(wchar_t);
@@ -430,7 +430,7 @@ bool GetVHDInfo(const string& DeviceName, string &strVolumePath, VIRTUAL_STORAGE
 
 	block_ptr<STORAGE_DEPENDENCY_INFO> StorageDependencyInfo;
 
-	const auto& InitStorage = [&](size_t Size)
+	const auto InitStorage = [&](size_t Size)
 	{
 		StorageDependencyInfo.reset(Size);
 		StorageDependencyInfo->Version = STORAGE_DEPENDENCY_INFO_VERSION_2;

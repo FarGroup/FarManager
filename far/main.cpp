@@ -197,7 +197,7 @@ static int MainProcess(
 			// воспользуемся тем, что ControlObject::Init() создает панели
 			// юзая Global->Opt->*
 
-			const auto& SetupPanel = [&](bool active)
+			const auto SetupPanel = [&](bool active)
 			{
 				++DirCount;
 				string strPath = active? apanel : ppanel;
@@ -344,7 +344,7 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 		const auto UseSystemProfiles = GetFarIniInt(L"General"s, L"UseSystemProfiles"s, 1);
 		if (UseSystemProfiles)
 		{
-			const auto& GetShellProfilePath = [](int Idl)
+			const auto GetShellProfilePath = [](int Idl)
 			{
 				wchar_t Buffer[MAX_PATH];
 				SHGetFolderPath(nullptr, Idl | (Global->Opt->ReadOnlyConfig? 0 : CSIDL_FLAG_CREATE), nullptr, SHGFP_TYPE_CURRENT, Buffer);
@@ -399,7 +399,7 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 
 static bool ProcessServiceModes(range<const wchar_t* const*> const Args, int& ServiceResult)
 {
-	const auto& isArg = [](const wchar_t* Arg, string_view const Name)
+	const auto isArg = [](const wchar_t* Arg, string_view const Name)
 	{
 		return (*Arg == L'/' || *Arg == L'-') && equal_icase(Arg + 1, Name);
 	};

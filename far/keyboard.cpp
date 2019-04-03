@@ -764,7 +764,7 @@ static bool ProcessMouseEvent(const MOUSE_EVENT_RECORD& MouseEvent, bool Exclude
 	/* $ 26.04.2001 VVM
 	+ Обработка колесика мышки. */
 
-	const auto& GetModifiers = [CtrlState]
+	const auto GetModifiers = [CtrlState]
 	{
 		return
 			(CtrlState & SHIFT_PRESSED? KEY_SHIFT : NO_KEY) |
@@ -821,7 +821,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 
 	auto NotMacros = false;
 
-	const auto& ProcessMacroEvent = [&]
+	const auto ProcessMacroEvent = [&]
 	{
 		if (NotMacros || ExcludeMacro)
 			return CalcKey;
@@ -1223,7 +1223,7 @@ bool CheckForEscSilent()
 	// если в "макросе"...
 	if (Global->CtrlObject->Macro.IsExecuting() && Global->WindowManager->GetCurrentWindow())
 	{
-		if (Global->CtrlObject->Macro.IsDisableOutput())
+		if (Global->CtrlObject->Macro.IsOutputDisabled())
 			Processed = false;
 	}
 
@@ -1997,7 +1997,7 @@ static int GetNumpadKey(const int KeyCode, const int CtrlState, const int Modif)
 		{ VK_DECIMAL, KEY_NUMDEL, KEY_DEL, KEY_DECIMAL },
 	};
 
-	const auto& GetMappingIndex = [KeyCode]
+	const auto GetMappingIndex = [KeyCode]
 	{
 		switch (KeyCode)
 		{

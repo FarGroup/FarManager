@@ -76,14 +76,15 @@ enum OPENFILEPLUGINTYPE: int
 };
 
 // параметры вызова макрофункций plugin.call и т.п.
-using CALLPLUGINFLAGS = unsigned int;
-static const CALLPLUGINFLAGS
-	CPT_MENU        = 0x00000001L,
-	CPT_CONFIGURE   = 0x00000002L,
-	CPT_CMDLINE     = 0x00000004L,
-	CPT_INTERNAL    = 0x00000008L,
-	CPT_MASK        = 0x0000000FL,
-	CPT_CHECKONLY   = 0x10000000L;
+enum CALLPLUGINFLAGS: unsigned int
+{
+	CPT_MENU        = bit(0),
+	CPT_CONFIGURE   = bit(1),
+	CPT_CMDLINE     = bit(2),
+	CPT_INTERNAL    = bit(3),
+	CPT_MASK        = 0b1111,
+	CPT_CHECKONLY   = bit(28),
+};
 
 class plugin_panel
 {
@@ -179,7 +180,7 @@ public:
 
 	struct CallPluginInfo
 	{
-		CALLPLUGINFLAGS CallFlags;
+		unsigned int CallFlags; // CALLPLUGINFLAGS
 		int OpenFrom;
 		union
 		{

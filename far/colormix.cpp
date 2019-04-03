@@ -108,7 +108,7 @@ namespace colors
 	{
 		FarColor Result = Bottom;
 
-		const auto& ApplyColorPart = [&](COLORREF FarColor::*ColorAccessor, const FARCOLORFLAGS Flag)
+		const auto ApplyColorPart = [&](COLORREF FarColor::*ColorAccessor, const FARCOLORFLAGS Flag)
 		{
 			const auto TopPart = std::invoke(ColorAccessor, Top);
 			if (is_opaque(TopPart))
@@ -215,7 +215,7 @@ WORD FarColorToConsoleColor(const FarColor& Color)
 			}
 		}
 
-		const auto& ToMask = [](size_t component, console_mask mask) { return component? mask : 0; };
+		const auto ToMask = [](size_t component, console_mask mask) { return component? mask : 0; };
 		*i.IndexColor = ToMask(R, RedMask) | ToMask(G, GreenMask) | ToMask(B, BlueMask) | ToMask(IntenseCount, IntensityMask);
 	}
 
@@ -295,7 +295,7 @@ static const wchar_t* ExtractColor(const wchar_t* Color, COLORREF& Target, FARCO
 	if (!*Color)
 		return Color;
 
-	const auto& Convert = [](const wchar_t*& Ptr, COLORREF& Result)
+	const auto Convert = [](const wchar_t*& Ptr, COLORREF& Result)
 	{
 		wchar_t* EndPtr;
 		const auto Value = std::wcstoul(Ptr, &EndPtr, 16);

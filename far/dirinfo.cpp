@@ -263,7 +263,7 @@ static int PluginSearchMsgOut;
 
 static void PushPluginDirItem(std::vector<PluginPanelItem>& PluginDirList, const PluginPanelItem *CurPanelItem, const string& strPluginSearchPath, BasicDirInfoData& Data)
 {
-	const auto& MakeCopy = [](string_view const Str)
+	const auto MakeCopy = [](string_view const Str)
 	{
 		auto Buffer = std::make_unique<wchar_t[]>(Str.size() + 1);
 		*std::copy(ALL_CONST_RANGE(Str), Buffer.get()) = {};

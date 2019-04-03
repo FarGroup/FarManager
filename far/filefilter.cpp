@@ -581,7 +581,7 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList) const
 		if (!CurFilterData)
 			continue;
 
-		const auto& KeyToFlags = [](int Key) -> DWORD
+		const auto KeyToFlags = [](int Key) -> DWORD
 		{
 			switch (Key)
 			{
@@ -618,7 +618,7 @@ bool FileFilter::FileInFilter(const os::fs::find_data& fde, filter_status* Filte
 	auto IsAnyFolderIncludeFound = false;
 	auto IsIncluded = false;
 
-	const auto& ProcessFilters = [&]
+	const auto ProcessFilters = [&]
 	{
 		for (const auto& CurFilterData : FilterData())
 		{
@@ -649,7 +649,7 @@ bool FileFilter::FileInFilter(const os::fs::find_data& fde, filter_status* Filte
 		return true;
 	};
 
-	const auto& ProcessFoldersAutoFilter = [&]
+	const auto ProcessFoldersAutoFilter = [&]
 	{
 		if (FFFT == FFFT_CUSTOM)
 			return true;
@@ -676,7 +676,7 @@ bool FileFilter::FileInFilter(const os::fs::find_data& fde, filter_status* Filte
 		return true;
 	};
 
-	const auto& ProcessAutoFilters = [&]
+	const auto ProcessAutoFilters = [&]
 	{
 		for (const auto& CurFilterData : TempFilterData())
 		{
@@ -875,12 +875,12 @@ void FileFilter::InitFilter()
 	FoldersFilter->SetAttr(true, FILE_ATTRIBUTE_DIRECTORY, 0);
 
 	const auto cfg = ConfigProvider().CreateFiltersConfig();
-	const auto root = cfg->FindByName(cfg->root_key(), Strings.Filters);
+	const auto root = cfg->FindByName(cfg->root_key, Strings.Filters);
 
 	if (!root)
 		return;
 
-	const auto& LoadFlags = [&cfg](const auto& Key, const auto& Name, auto& Item)
+	const auto LoadFlags = [&cfg](const auto& Key, const auto& Name, auto& Item)
 	{
 		DWORD Flags[FFFT_COUNT]{};
 		cfg->GetValue(Key, Name, bytes::reference(Flags));
@@ -982,15 +982,15 @@ void FileFilter::Save(bool always)
 
 	SCOPED_ACTION(auto)(cfg->ScopedTransaction());
 
-	auto root = cfg->FindByName(cfg->root_key(), Strings.Filters);
+	auto root = cfg->FindByName(cfg->root_key, Strings.Filters);
 	if (root)
 		cfg->DeleteKeyTree(root);
 
-	root = cfg->CreateKey(cfg->root_key(), Strings.Filters);
+	root = cfg->CreateKey(cfg->root_key, Strings.Filters);
 	if (!root)
 		return;
 
-	const auto& SaveFlags = [&cfg](const auto& Key, const auto& Name, const auto& Item)
+	const auto SaveFlags = [&cfg](const auto& Key, const auto& Name, const auto& Item)
 	{
 		DWORD Flags[FFFT_COUNT];
 

@@ -995,7 +995,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 		FilterDlg[ID_FF_MAKETRANSPARENT].Flags=DIF_HIDDEN;
 	}
 
-	const auto& AmpFixup = [&](size_t Index)
+	const auto AmpFixup = [&](size_t Index)
 	{
 		return contains(FilterDlg[Index].strData, L'&')? 1 : 0;
 	};
@@ -1049,13 +1049,13 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	FilterDlg[ID_FF_DATETYPE].ListItems=&DateList;
 	TableItemDate[DateType].Flags=LIF_SELECTED;
 
-	const auto& ProcessDuration = [&](auto Duration, auto DateId, auto TimeId)
+	const auto ProcessDuration = [&](auto Duration, auto DateId, auto TimeId)
 	{
 		FilterDlg[ID_FF_DATERELATIVE].Selected = BSTATE_CHECKED;
 		ConvertDuration(Duration, FilterDlg[DateId].strData, FilterDlg[TimeId].strData);
 	};
 
-	const auto& ProcessPoint = [&](auto Point, auto DateId, auto TimeId)
+	const auto ProcessPoint = [&](auto Point, auto DateId, auto TimeId)
 	{
 		FilterDlg[ID_FF_DATERELATIVE].Selected = BSTATE_UNCHECKED;
 		ConvertDate(Point, FilterDlg[DateId].strData, FilterDlg[TimeId].strData, 12, FALSE, FALSE, 2);

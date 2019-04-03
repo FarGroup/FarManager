@@ -791,7 +791,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 							//размер с точкой и для 0 добавляем букву размера (B)
 							COLUMN_FLOATSIZE | COLUMN_SHOWUNIT;
 
-						const auto& FormatSize = [SizeFlags](unsigned long long const Size)
+						const auto FormatSize = [SizeFlags](unsigned long long const Size)
 						{
 							return trim(FileSizeToStr(Size, 9, SizeFlags));
 						};

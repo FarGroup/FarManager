@@ -2336,7 +2336,7 @@ static int process_back(int BufferSize, int pos, long long& fpos, const F& Reade
 
 	if (!pos)
 	{
-		const auto& PopEol = [&](T Char) { return nr && Buffer[nr - 1] == Char && --nr; };
+		const auto PopEol = [&](T Char) { return nr && Buffer[nr - 1] == Char && --nr; };
 
 		if (PopEol(eol.lf<T>()))
 		{
@@ -2427,7 +2427,7 @@ void Viewer::Up( int nlines, bool adjust )
 
 			if ( ch_size <= 1 )
 			{
-				const auto& BufferReader = [&](range<char*> Buffer)
+				const auto BufferReader = [&](range<char*> Buffer)
 				{
 					size_t nread = 0;
 					Reader.Read(Buffer.data(), buff_size, &nread);
@@ -2445,7 +2445,7 @@ void Viewer::Up( int nlines, bool adjust )
 			}
 			else
 			{
-				const auto& BufferReader = [&](range<wchar_t*> Buffer)
+				const auto BufferReader = [&](range<wchar_t*> Buffer)
 				{
 					return vread(Buffer.data(), static_cast<int>(Buffer.size()));
 				};

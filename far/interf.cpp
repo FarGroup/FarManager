@@ -86,7 +86,7 @@ void consoleicons::setFarIcons()
 		m_Loaded = true;
 	}
 
-	const auto& Set = [hWnd](icon& Icon)
+	const auto Set = [hWnd](icon& Icon)
 	{
 		if (Icon.Icon)
 		{
@@ -108,7 +108,7 @@ void consoleicons::restorePreviousIcons()
 	if (!hWnd)
 		return;
 
-	const auto& Restore = [hWnd](icon& Icon)
+	const auto Restore = [hWnd](icon& Icon)
 	{
 		if (!Icon.Changed)
 			return;
@@ -941,7 +941,7 @@ void Box(rectangle Where, const FarColor& Color, int Type)
 	};
 
 	const auto Box = BoxInit[(Type == DOUBLE_BOX || Type == SHORT_DOUBLE_BOX)? 1 : 0];
-	const auto& Symbol = [Box](line Line) { return BoxSymbols[Box[Line]]; };
+	const auto Symbol = [Box](line Line) { return BoxSymbols[Box[Line]]; };
 
 	SetColor(Color);
 

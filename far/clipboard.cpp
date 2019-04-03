@@ -40,8 +40,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/enum_substrings.hpp"
 #include "common/singleton.hpp"
 
-clipboard_mode default_clipboard_mode::m_Mode = clipboard_mode::system;
-
 void default_clipboard_mode::set(clipboard_mode Mode)
 {
 	m_Mode = Mode;
@@ -372,7 +370,7 @@ bool clipboard::GetText(string& Data) const
 	if (!ClipAddr)
 		return false;
 
-	const auto& GetBinaryTextLength = [this]
+	const auto GetBinaryTextLength = [this]
 	{
 		const auto hClipDataLen = GetData(RegisterFormat(clipboard_format::notepad_plusplus_binary_text_length));
 		if (!hClipDataLen)
@@ -422,7 +420,7 @@ bool clipboard::GetHDROPAsText(string& data) const
 
 bool clipboard::GetVText(string& data) const
 {
-	const auto& IsBorlandVerticalBlock = [this]
+	const auto IsBorlandVerticalBlock = [this]
 	{
 		const auto hClipData = GetData(RegisterFormat(clipboard_format::borland_ide_dev_block));
 		if (!hClipData)

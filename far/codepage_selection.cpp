@@ -297,7 +297,7 @@ size_t codepages::size() const
 // Получаем позицию для вставки таблицы с учётом сортировки по номеру кодовой страницы
 size_t codepages::GetCodePageInsertPosition(uintptr_t codePage, size_t start, size_t length)
 {
-	const auto& GetCodePage = [this](size_t position) -> uintptr_t
+	const auto GetCodePage = [this](size_t position) -> uintptr_t
 	{
 		switch (CallbackCallSource)
 		{
@@ -328,7 +328,7 @@ void codepages::AddCodePages(DWORD codePages)
 	if (codePages & SearchAll)
 		AddStandardCodePage(msg(lng::MFindFileAllCodePages), CP_ALL, -1, true);
 
-	const auto& GetSystemCodepageName = [](uintptr_t const Cp, string_view const SystemName)
+	const auto GetSystemCodepageName = [](uintptr_t const Cp, string_view const SystemName)
 	{
 		const auto& [MaxCharSize, Name] = GetCodePageInfo(Cp);
 		if (starts_with(Name, SystemName))

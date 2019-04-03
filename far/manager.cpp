@@ -65,8 +65,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "format.hpp"
 
-std::atomic_long Manager::CurrentWindowType(-1);
-
 bool Manager::window_comparer::operator()(const window_ptr& lhs, const window_ptr& rhs) const
 {
 	return lhs->ID() < rhs->ID();
@@ -120,7 +118,7 @@ static bool CASHook(const Manager::Key& key)
 					maskLeft=LEFT_CTRL_PRESSED|LEFT_ALT_PRESSED|SHIFT_PRESSED,
 					maskRight=RIGHT_CTRL_PRESSED|RIGHT_ALT_PRESSED|SHIFT_PRESSED;
 				const auto state = KeyRecord.dwControlKeyState;
-				const auto& wait = [](DWORD mask)
+				const auto wait = [](DWORD mask)
 				{
 					for (;;)
 					{
@@ -493,18 +491,18 @@ void Manager::ActivateWindow(const window_ptr& Activated)
 	if (Activated) CheckAndPushWindow(Activated,&Manager::ActivateCommit);
 }
 
-void Manager::SwitchWindow(DirectionType Direction)
+void Manager::SwitchWindow(direction Direction)
 {
 	const auto windows = GetSortedWindows();
 	auto pos = windows.find(GetBottomWindow());
-	const auto& process = [&]()
+	const auto process = [&]()
 	{
-		if (Direction==Manager::NextWindow)
+		if (Direction == direction::next)
 		{
 			++pos;
 			if (pos==windows.end()) pos = windows.begin();
 		}
-		else if (Direction==Manager::PreviousWindow)
+		else if (Direction == direction::previous)
 		{
 			if (pos==windows.begin()) pos=windows.end();
 			--pos;
@@ -777,7 +775,7 @@ bool Manager::ProcessKey(Key key)
 
 					if (GetCurrentWindow()->GetCanLoseFocus())
 					{
-						SwitchWindow((key()==KEY_CTRLTAB||key()==KEY_RCTRLTAB)?NextWindow:PreviousWindow);
+						SwitchWindow((key()==KEY_CTRLTAB||key()==KEY_RCTRLTAB)? direction::next : direction::previous);
 					}
 					else
 						break;

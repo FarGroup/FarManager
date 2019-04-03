@@ -110,7 +110,7 @@ void SaveScreen::SaveArea()
 
 void SaveScreen::AppendArea(const SaveScreen *NewArea)
 {
-	const auto& Offset = [](const SaveScreen* Ptr, int X, int Y)
+	const auto Offset = [](const SaveScreen* Ptr, int X, int Y)
 	{
 		return X - Ptr->m_Where.left + Ptr->width() * (Y - Ptr->m_Where.top);
 	};

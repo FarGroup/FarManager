@@ -85,7 +85,7 @@ public:
 
 	bool operator==(const shortcut& rhs) const
 	{
-		const auto& tie = [](const shortcut& s)
+		const auto tie = [](const shortcut& s)
 		{
 			return std::tie(s.Name, s.Folder, s.PluginGuid, s.PluginFile, s.PluginData);
 		};
@@ -101,7 +101,7 @@ Shortcuts::Shortcuts(size_t Index):
 {
 	const auto Cfg = ConfigProvider().CreateShortcutsConfig();
 
-	const auto Root = Cfg->FindByName(Cfg->root_key(), FolderShortcutsKey);
+	const auto Root = Cfg->FindByName(Cfg->root_key, FolderShortcutsKey);
 	if (!Root)
 		return;
 
@@ -144,9 +144,9 @@ void Shortcuts::Save()
 
 	SCOPED_ACTION(auto)(Cfg->ScopedTransaction());
 
-	auto Root = Cfg->FindByName(Cfg->root_key(), FolderShortcutsKey);
+	auto Root = Cfg->FindByName(Cfg->root_key, FolderShortcutsKey);
 	if (!Root)
-		Root = Cfg->CreateKey(Cfg->root_key(), FolderShortcutsKey);
+		Root = Cfg->CreateKey(Cfg->root_key, FolderShortcutsKey);
 
 	auto Key = Cfg->FindByName(Root, m_KeyName);
 	if (Key)
@@ -503,14 +503,14 @@ int Shortcuts::Configure()
 		const auto Key=RawKey();
 		const auto Pos = FolderList->GetSelectPos();
 
-		const auto& UpdateItem = [&]
+		const auto UpdateItem = [&]
 		{
 			auto& MenuItem = FolderList->current();
 			MakeListName(AllShortcuts[Pos].m_Items, str(Pos), MenuItem);
 			FolderList->UpdateItemFlags(FolderList->GetSelectPos(), std::exchange(MenuItem.Flags, 0));
 		};
 
-		const auto& EditSubmenu = [&]
+		const auto EditSubmenu = [&]
 		{
 			// We don't care about the result here, just letting the user to edit the submenu
 			AllShortcuts[Pos].Select(true);

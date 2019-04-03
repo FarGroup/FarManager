@@ -87,7 +87,7 @@ namespace path
 
 			reserve_exp_noshrink(Str, (Str.size() + ... + (Sizes[I] = size_one(Offsets[I], Args))) + sizeof...(Args) - 1);
 
-			const auto& separate_and_append = [&](size_t Index, const auto& Arg)
+			const auto separate_and_append = [&](size_t Index, const auto& Arg)
 			{
 				if (!Str.empty() && (Sizes[Index] || Index + 1 == Sequence.size()))
 					Str += separators().front();

@@ -55,7 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 list_names::names::~names()
 {
-	const auto& Delete = [](string_view const Filename)
+	const auto Delete = [](string_view const Filename)
 	{
 		if (!Filename.empty())
 			os::fs::delete_file(Filename);
@@ -293,7 +293,7 @@ static size_t SkipInputToken(string_view const Str, subst_strings* const Strings
 
 static string_view ProcessMetasymbol(string_view const CurStr, subst_data& SubstData, string& Out)
 {
-	const auto& append_with_escape = [EscapeAmpersands = SubstData.EscapeAmpersands](string& Destination, string_view const Str)
+	const auto append_with_escape = [EscapeAmpersands = SubstData.EscapeAmpersands](string& Destination, string_view const Str)
 	{
 		if (EscapeAmpersands && contains(Str, L"&"sv))
 		{
@@ -343,7 +343,7 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 		return Tail;
 	}
 
-	const auto& GetExtension = [](string_view const Name)
+	const auto GetExtension = [](string_view const Name)
 	{
 		const auto Extension = PointToExt(Name);
 		return Extension.empty()? Extension : Extension.substr(1);
@@ -390,7 +390,7 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 		}
 	}
 
-	const auto& GetListName = [&Out, &append_with_escape](string_view const Tail, auto& Data, bool Short)
+	const auto GetListName = [&Out, &append_with_escape](string_view const Tail, auto& Data, bool Short)
 	{
 		const auto ExclPos = Tail.find(L'!');
 		if (ExclPos == Tail.npos || starts_with(Tail.substr(ExclPos + 1), L'?'))
@@ -470,7 +470,7 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 		return Tail;
 	}
 
-	const auto& GetPath = [](string_view const Tail, const subst_data& Data, bool Short, bool Real)
+	const auto GetPath = [](string_view const Tail, const subst_data& Data, bool Short, bool Real)
 	{
 		// TODO: paths on plugin panels are ambiguous
 
@@ -766,7 +766,7 @@ bool SubstFileName(
 
 	SubstData.CmdDir = CmdLineDir.empty()? Global->CtrlObject->CmdLine()->GetCurDir() : CmdLineDir;
 
-	const auto& GetNameOnly = [](string_view Str)
+	const auto GetNameOnly = [](string_view Str)
 	{
 		Str.remove_suffix(PointToExt(Str).size());
 		return Str;

@@ -90,7 +90,7 @@ void DizList::Read(const string& Path, const string* DizName)
 
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<DizPreRedrawItem>());
 
-	const auto& ReadDizFile = [this](const string_view Name)
+	const auto ReadDizFile = [this](const string_view Name)
 	{
 		const os::fs::file DizFile(Name, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
 		if (!DizFile)

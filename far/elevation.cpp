@@ -737,7 +737,7 @@ bool elevation::get_disk_free_space(const string& Object, unsigned long long* Fr
 			const auto Result = RetrieveLastErrorAndResult<bool>();
 			if (Result)
 			{
-				const auto& ReadAndAssign = [this](auto* Destination)
+				const auto ReadAndAssign = [this](auto* Destination)
 				{
 					unsigned long long Value;
 					Read(Value);

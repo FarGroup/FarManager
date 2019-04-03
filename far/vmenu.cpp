@@ -1156,7 +1156,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 			LocalKey = L'/'|S;
 	}
 
-	const auto& ProcessEnter = [this]()
+	const auto ProcessEnter = [this]()
 	{
 		if (ItemCanBeEntered(Items[SelectPos].Flags))
 		{

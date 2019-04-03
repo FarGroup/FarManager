@@ -419,7 +419,7 @@ bool Panel::MakeListFile(string& ListFileName, bool ShortNames, string_view cons
 		}
 	}
 
-	const auto& transform = [&](string& strFileName)
+	const auto transform = [&](string& strFileName)
 	{
 		if (!Modifers.empty())
 		{

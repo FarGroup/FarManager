@@ -77,9 +77,9 @@ public:
 	static bool DelMacro(const GUID& PluginId,void* Id);
 	static bool ExecuteString(MacroExecuteString *Data);
 	static bool GetMacroKeyInfo(const string& strArea,int Pos,string &strKeyName,string &strDescription);
-	static bool IsDisableOutput();
+	static bool IsOutputDisabled();
 	static bool IsExecuting() { return GetExecutingState() != MACROSTATE_NOMACRO; }
-	static bool IsHistoryDisable(int TypeHistory);
+	static bool IsHistoryDisabled(int TypeHistory);
 	static bool MacroExists(int Key, FARMACROAREA Area, bool UseCommon);
 	static void RunStartMacro();
 	static bool SaveMacros(bool always);

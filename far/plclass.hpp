@@ -348,7 +348,7 @@ protected:
 		Prologue(); ++Activity;
 		SCOPE_EXIT{ --Activity; Epilogue(); };
 
-		const auto& ProcessException = [&](const auto& Handler, auto&&... ProcArgs)
+		const auto ProcessException = [&](const auto& Handler, auto&&... ProcArgs)
 		{
 			Handler(FWD(ProcArgs)..., m_Factory->ExportsNames()[T::export_id::value].UName, this)? HandleFailure(T::export_id::value) : throw;
 		};

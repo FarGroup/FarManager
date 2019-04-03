@@ -287,7 +287,7 @@ bool PreserveStyleReplaceString(
 
 	const auto StrTokens = PreserveStyleTokenize(Str, 0, Str.size());
 
-	const auto& BlankOrWordDiv = [&WordDiv](wchar_t Ch)
+	const auto BlankOrWordDiv = [&WordDiv](wchar_t Ch)
 	{
 		return std::iswblank(Ch) || WordDiv.find(Ch) != WordDiv.npos;
 	};

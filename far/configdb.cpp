@@ -520,7 +520,7 @@ private:
 	{
 		const auto Stmt = AutoStatement(stmtFindKey);
 		if (!Stmt->Bind(Root.get(), Name).Step())
-			return root_key();
+			return root_key;
 
 		return key(Stmt->GetColInt64(0));
 	}
@@ -614,7 +614,7 @@ private:
 
 	void Export(representation_destination& Representation) const override
 	{
-		Export(Representation, root_key(), CreateChild(Representation.GetRoot(), "hierarchicalconfig"));
+		Export(Representation, root_key, CreateChild(Representation.GetRoot(), "hierarchicalconfig"));
 	}
 
 	void Import(const representation_source& Representation) override
@@ -622,7 +622,7 @@ private:
 		SCOPED_ACTION(auto)(ScopedTransaction());
 		for (const auto& e: xml_enum(Representation.GetRoot().FirstChildElement("hierarchicalconfig"), "key"))
 		{
-			Import(root_key(), *e);
+			Import(root_key, *e);
 		}
 	}
 
@@ -2229,7 +2229,7 @@ static string GetDatabasePath(string_view const FileName, bool const Local)
 template<class T>
 std::unique_ptr<T> config_provider::CreateWithFallback(string_view const Name)
 {
-	const auto& Report = [&](string_view const Msg)
+	const auto Report = [&](string_view const Msg)
 	{
 		if (m_Mode != mode::m_default)
 			std::wcerr << Msg << std::endl;

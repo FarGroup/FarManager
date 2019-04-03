@@ -510,7 +510,7 @@ std::pair<string, string> SerialiseViewSettings(const std::vector<column>& Colum
 	FN_RETURN_TYPE(SerialiseViewSettings) Result;
 	auto& [strColumnTitles, strColumnWidths] = Result;
 
-	const auto& GetModeSymbol = [](FILEPANEL_COLUMN_MODES Mode)
+	const auto GetModeSymbol = [](FILEPANEL_COLUMN_MODES Mode)
 	{
 		switch (Mode)
 		{
@@ -546,7 +546,7 @@ std::pair<string, string> SerialiseViewSettings(const std::vector<column>& Colum
 			strType = L'C' + str(ColumnType - CUSTOM_COLUMN0);
 		}
 
-		const auto& AddFlag = [&](auto Flag)
+		const auto AddFlag = [&](auto Flag)
 		{
 			if (!(i.type & Flag))
 				return false;

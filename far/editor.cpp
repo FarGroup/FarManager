@@ -2905,7 +2905,7 @@ struct Editor::InternalEditorSessionBookMark
 
 Editor::numbered_iterator Editor::DeleteString(numbered_iterator DelPtr, bool DeleteLast)
 {
-	const auto& UpdateIterator = [&DelPtr, this](numbered_iterator& What)
+	const auto UpdateIterator = [&DelPtr, this](numbered_iterator& What)
 	{
 		if (What == DelPtr)
 		{
@@ -3350,7 +3350,7 @@ bool Editor::Search(bool Next)
 
 	if (!Next)
 	{
-		const auto& Picker = [this](bool PickSelection)
+		const auto Picker = [this](bool PickSelection)
 		{
 			if (PickSelection)
 			{
@@ -3745,7 +3745,7 @@ bool Editor::Search(bool Next)
 
 								if (IsSelection)
 								{
-									const auto& AdjustPos = [&](int Pos)
+									const auto AdjustPos = [&](int Pos)
 									{
 										if (Pos > CurPos)
 										{
@@ -6500,7 +6500,7 @@ void Editor::AdjustVBlock(int PrevX)
 
 void Editor::Xlat()
 {
-	const auto& XLatStr = [&](Edit::edit_string& Str, int StartPos, int EndPos)
+	const auto XLatStr = [&](Edit::edit_string& Str, int StartPos, int EndPos)
 	{
 		::Xlat(Str.data(), StartPos, EndPos, Global->Opt->XLat.Flags);
 	};
@@ -6774,7 +6774,7 @@ Editor::numbered_iterator Editor::InsertString(const string_view Str, const numb
 
 	const auto NewLine = numbered_iterator(Lines.emplace(Where, GetOwner()), Where.Number());
 
-	const auto& UpdateIterator = [&Where](numbered_iterator& What)
+	const auto UpdateIterator = [&Where](numbered_iterator& What)
 	{
 		if (What.Number() >= Where.Number())
 		{

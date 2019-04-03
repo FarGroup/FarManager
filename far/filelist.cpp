@@ -574,12 +574,12 @@ public:
 			}
 		}
 
-		const auto& CompareTime = [&a, &b](const os::chrono::time_point FileListItem::*time)
+		const auto CompareTime = [&a, &b](const os::chrono::time_point FileListItem::*time)
 		{
 			return ::CompareTime(std::invoke(time, a), std::invoke(time, b));
 		};
 
-		const auto& GetExt = [SortFolderExt = SortFolderExt](const FileListItem& i)
+		const auto GetExt = [SortFolderExt = SortFolderExt](const FileListItem& i)
 		{
 			if ((i.Attributes & FILE_ATTRIBUTE_DIRECTORY) && !SortFolderExt)
 				return string_view(i.FileName).substr(i.FileName.size());
@@ -732,7 +732,7 @@ public:
 		if (Ext2.empty())
 			Ext2 = GetExt(b);
 
-		const auto& GetNameOnly = [](string_view const FullName, string_view const Ext)
+		const auto GetNameOnly = [](string_view const FullName, string_view const Ext)
 		{
 			return PointToName(FullName.substr(0, FullName.size() - Ext.size()));
 		};
@@ -928,7 +928,7 @@ long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 			if (mps->Mode == 1 && static_cast<size_t>(mps->Index) >= m_ListData.size())
 				return Result;
 
-			const auto& ApplyToList = [&](const auto& Selector)
+			const auto ApplyToList = [&](const auto& Selector)
 			{
 				for (const auto& i : enum_tokens_with_quotes(mps->Item, L"\r\n"sv))
 				{
@@ -3831,7 +3831,7 @@ bool FileList::GetSelName(string* strName, DWORD& FileAttr, string* strShortName
 		return true;
 	}
 
-	const auto& CopyFrom = [&](const FileListItem& Src)
+	const auto CopyFrom = [&](const FileListItem& Src)
 	{
 		*strName = Src.FileName;
 
@@ -4299,7 +4299,7 @@ void FileList::CompareDir()
 		}
 	}
 
-	const auto& refresh = [](FileList& Panel)
+	const auto refresh = [](FileList& Panel)
 	{
 		if (Panel.GetSelectedFirstMode())
 			Panel.SortFileList(true);
@@ -4722,7 +4722,7 @@ void FileList::SelectSortMode()
 	// sort options
 	else
 	{
-		const auto& Switch = [&](bool CurrentState)
+		const auto Switch = [&](bool CurrentState)
 		{
 			return PlusPressed || (InvertPressed && !CurrentState);
 		};
@@ -4940,7 +4940,7 @@ void FileList::CountDirSize(bool IsRealNames)
 	}
 	Total{};
 
-	const auto& DirInfoCallback = [&](string_view const Name, unsigned long long const ItemsCount, unsigned long long const Size)
+	const auto DirInfoCallback = [&](string_view const Name, unsigned long long const ItemsCount, unsigned long long const Size)
 	{
 		if (TimeCheck)
 			DirInfoMsg(msg(lng::MDirInfoViewTitle), Name, Total.Items + ItemsCount, Total.Size + Size);
@@ -4969,12 +4969,12 @@ void FileList::CountDirSize(bool IsRealNames)
 		}
 	}
 
-	const auto& GetPluginDirInfoOrParent = [this, &Total](const plugin_panel* const ph, const string& DirName, const UserDataItem* const UserData, BasicDirInfoData& BasicData, const dirinfo_callback& Callback)
+	const auto GetPluginDirInfoOrParent = [this, &Total](const plugin_panel* const ph, const string& DirName, const UserDataItem* const UserData, BasicDirInfoData& BasicData, const dirinfo_callback& Callback)
 	{
 		if (!m_CurFile && IsParentDirectory(m_ListData[0]))
 		{
 			const auto PluginCurDir = *m_CachedOpenPanelInfo.CurDir? PointToName(m_CachedOpenPanelInfo.CurDir) : L"\\"sv;
-			const auto& ParentDirInfoCallback = [&](string_view const, unsigned long long const ItemsCount, unsigned long long const Size)
+			const auto ParentDirInfoCallback = [&](string_view const, unsigned long long const ItemsCount, unsigned long long const Size)
 			{
 				return Callback(PluginCurDir, ItemsCount, Size);
 			};
@@ -5504,7 +5504,7 @@ void FileList::FileListToPluginItem(const FileListItem& fi, PluginPanelItemHolde
 
 size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelItem* gpi) const
 {
-	const auto& StringSizeInBytes = [](string_view const Str)
+	const auto StringSizeInBytes = [](string_view const Str)
 	{
 		return (Str.size() + 1) * sizeof(wchar_t);
 	};
@@ -5527,7 +5527,7 @@ size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelI
 
 			auto data = reinterpret_cast<char*>(gpi->Item) + aligned_sizeof<PluginPanelItem>();
 
-			const auto& CopyToBuffer = [&](string_view const Str)
+			const auto CopyToBuffer = [&](string_view const Str)
 			{
 				const auto Result = reinterpret_cast<const wchar_t*>(data);
 				*std::copy(ALL_CONST_RANGE(Str), reinterpret_cast<wchar_t*>(data)) = L'\0';
@@ -5633,7 +5633,7 @@ plugin_item_list FileList::CreatePluginItemList()
 
 	ItemList.reserve(m_SelFileCount+1);
 
-	const auto& ConvertAndAddToList = [&](const FileListItem& What)
+	const auto ConvertAndAddToList = [&](const FileListItem& What)
 	{
 		PluginPanelItemHolderNonOwning NewItem;
 		FileListToPluginItem(What, NewItem);
@@ -7745,7 +7745,7 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 	if (!Global->Opt->ShowPanelTotals && m_PanelMode == panel_mode::PLUGIN_PANEL && !(Info.Flags & OPIF_REALNAMES))
 		return;
 
-	const auto& calc_total_string = [this, Info](bool short_mode)
+	const auto calc_total_string = [this, Info](bool short_mode)
 	{
 		string strFreeSize, strTotalSize;
 		auto strFormSize = size2str(TotalFileSize, 6, false, short_mode);
@@ -8200,7 +8200,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 					if (!ColumnData)
 					{
-						const auto& GetContentData = [&]
+						const auto GetContentData = [&]
 						{
 							const auto& ContentMapPtr = m_ListData[ListPos].ContentData(this);
 							if (!ContentMapPtr)

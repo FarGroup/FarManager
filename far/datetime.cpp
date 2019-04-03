@@ -68,7 +68,7 @@ static string st_time(const tm* tmPtr, const locale_names& Names, const wchar_t 
 	}
 	else
 	{
-		const auto& GetFormat = []
+		const auto GetFormat = []
 		{
 			switch (locale.date_format())
 			{

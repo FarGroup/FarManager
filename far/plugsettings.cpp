@@ -106,7 +106,7 @@ PluginSettings::PluginSettings(const Plugin* const pPlugin, bool const Local)
 	PluginsCfg = ConfigProvider().CreatePluginsConfig(strGuid, Local, false);
 	PluginsCfg->BeginTransaction();
 
-	m_Keys.emplace_back(PluginsCfg->CreateKey(HierarchicalConfig::root_key(), strGuid, &pPlugin->Title()));
+	m_Keys.emplace_back(PluginsCfg->CreateKey(HierarchicalConfig::root_key, strGuid, &pPlugin->Title()));
 
 	if (!Global->Opt->ReadOnlyConfig)
 	{
@@ -368,7 +368,7 @@ bool FarSettings::Get(FarSettingsItem& Item)
 
 bool FarSettings::Enum(FarSettingsEnum& Enum)
 {
-	const auto& FilterNone = [](history_record_type) { return true; };
+	const auto FilterNone = [](history_record_type) { return true; };
 
 	switch(Enum.Root)
 	{
@@ -441,7 +441,7 @@ int FarSettings::SubKey(const FarSettingsValue& Value, bool bCreate)
 
 static const auto& HistoryRef(int Type)
 {
-	const auto& IsSave = [Type]() -> bool
+	const auto IsSave = [Type]() -> bool
 	{
 		switch (Type)
 		{

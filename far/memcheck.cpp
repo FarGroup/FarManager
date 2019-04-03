@@ -274,7 +274,7 @@ static string FindStr(const void* Data, size_t Size)
 
 void checker::summary() const
 {
-	const auto& Print = [](const string& Str)
+	const auto Print = [](const string& Str)
 	{
 		std::wcerr << Str;
 		OutputDebugString(Str.c_str());

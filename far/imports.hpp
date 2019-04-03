@@ -62,23 +62,26 @@ private:
 
 #undef DECLARE_MODULE
 
-	template<typename T, class Y, T stub>
+	template<typename text_type, auto StubFunction>
 	class unique_function_pointer
 	{
+		// The indirection is a workaround for MSVC 
+		using stub_type = std::enable_if_t<true, decltype(StubFunction)>;
+
 	public:
 		NONCOPYABLE(unique_function_pointer);
 
 		explicit unique_function_pointer(const os::rtdl::module& Module): m_module(&Module) {}
-		operator T() const { return get_pointer(); }
-		explicit operator bool() const noexcept { return get_pointer() != stub; }
+		operator stub_type() const { return get_pointer(); }
+		explicit operator bool() const noexcept { return get_pointer() != StubFunction; }
 
 	private:
-		T get_pointer() const
+		auto get_pointer() const
 		{
-			static const T dyn_pointer = reinterpret_cast<T>(m_module->GetProcAddress(Y::get()));
+			static const auto DynamicPointer = reinterpret_cast<stub_type>(m_module->GetProcAddress(text_type::name));
 			// TODO: log if nullptr
-			static const T pointer = dyn_pointer? dyn_pointer : stub;
-			return pointer;
+			static const auto Pointer = DynamicPointer? DynamicPointer : StubFunction;
+			return Pointer;
 		}
 
 		const os::rtdl::module* m_module;
@@ -86,8 +89,8 @@ private:
 
 #define DECLARE_IMPORT_FUNCTION(MODULE, CALLTYPE, RETTYPE, NAME, ...)\
 private: static RETTYPE CALLTYPE stub_##NAME(__VA_ARGS__);\
-private: struct name_##NAME { static auto get() { return #NAME; } };\
-public: const unique_function_pointer<decltype(&imports::stub_##NAME), name_##NAME, imports::stub_##NAME> NAME{m_##MODULE}
+private: struct name_##NAME { static constexpr auto name = #NAME; };\
+public: const unique_function_pointer<name_##NAME, imports::stub_##NAME> NAME{m_##MODULE}
 
 	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, NtQueryDirectoryFile, HANDLE FileHandle, HANDLE Event, PVOID ApcRoutine, PVOID ApcContext, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, BOOLEAN ReturnSingleEntry, PUNICODE_STRING FileName, BOOLEAN RestartScan);
 	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, NtQueryInformationFile, HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass);

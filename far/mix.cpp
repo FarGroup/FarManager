@@ -75,7 +75,7 @@ string MakeTemp(string_view Prefix, bool const WithTempPath, string_view const U
 
 	bool UseSystemFunction = true;
 
-	const auto& Generator = [&]()
+	const auto Generator = [&]()
 	{
 		if (!UseSystemFunction || !GetTempFileName(strPath.c_str(), PrefixStr.c_str(), Unique, Buffer.get()))
 		{
@@ -133,7 +133,7 @@ void FindDataExToPluginPanelItemHolder(const os::fs::find_data& Src, PluginPanel
 	Dest.FileAttributes = Src.Attributes;
 	Dest.NumberOfLinks = 1;
 
-	const auto& MakeCopy = [](string_view const Str)
+	const auto MakeCopy = [](string_view const Str)
 	{
 		auto Buffer = std::make_unique<wchar_t[]>(Str.size() + 1);
 		*std::copy(ALL_CONST_RANGE(Str), Buffer.get()) = L'\0';

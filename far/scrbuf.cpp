@@ -310,7 +310,7 @@ void ScreenBuf::Flush(flush_type FlushType)
 	{
 		if (!Global->SuppressIndicators)
 		{
-			const auto& SetMacroChar = [this](FAR_CHAR_INFO& Where, wchar_t Char, WORD Color)
+			const auto SetMacroChar = [this](FAR_CHAR_INFO& Where, wchar_t Char, WORD Color)
 			{
 				Where.Char = Char;
 				Where.Attributes = colors::ConsoleColorToFarColor(Color);

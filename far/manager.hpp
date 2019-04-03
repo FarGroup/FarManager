@@ -66,10 +66,10 @@ public:
 
 	Manager();
 
-	enum DirectionType
+	enum class direction
 	{
-		PreviousWindow,
-		NextWindow
+		previous,
+		next
 	};
 
 	void InitDesktop();
@@ -177,7 +177,7 @@ private:
 	void CheckAndPushWindow(const window_ptr& Param, window_callback Callback);
 	void RedeleteWindow(const window_ptr& Deleted);
 	bool AddWindow(const window_ptr& Param);
-	void SwitchWindow(DirectionType Direction);
+	void SwitchWindow(direction Direction);
 
 	void WindowsChanged() { std::fill(m_windows_changed.begin(), m_windows_changed.end(), true); }
 
@@ -189,7 +189,7 @@ private:
 	int ModalExitCode;
 	bool StartManager;
 	int m_DesktopModalled;
-	static std::atomic_long CurrentWindowType;
+	static inline std::atomic_long CurrentWindowType{-1};
 	std::queue<std::function<void()>> m_Queue;
 	std::vector<std::function<bool(const Key&)>> m_GlobalKeyHandlers;
 	std::unordered_map<window_ptr, bool*> m_Executed;

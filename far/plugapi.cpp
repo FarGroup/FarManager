@@ -911,7 +911,7 @@ intptr_t WINAPI apiMenuFn(
 
 					if (ReadRec->Event.KeyEvent.wVirtualKeyCode==BreakKeys[I].VirtualKeyCode)
 					{
-						const auto& NormalizeControlKeys = [](DWORD Value)
+						const auto NormalizeControlKeys = [](DWORD Value)
 						{
 							DWORD result = Value&(LEFT_CTRL_PRESSED | LEFT_ALT_PRESSED | SHIFT_PRESSED);
 							if (Value&RIGHT_CTRL_PRESSED) result |= LEFT_CTRL_PRESSED;
@@ -953,7 +953,7 @@ intptr_t WINAPI apiDefDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Par
 // Посылка сообщения диалогу
 intptr_t WINAPI apiSendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2) noexcept
 {
-	const auto& ErrorResult = [Msg]
+	const auto ErrorResult = [Msg]
 	{
 		switch (Msg)
 		{
@@ -991,10 +991,10 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, i
 			return hDlg;
 
 		// ФИЧА! нельзя указывать отрицательные X2 и Y2
-		const auto& fixCoord = [](intptr_t first, intptr_t second) { return (first < 0 && second == 0)? 1 : second; };
+		const auto fixCoord = [](intptr_t first, intptr_t second) { return (first < 0 && second == 0)? 1 : second; };
 		X2 = fixCoord(X1, X2);
 		Y2 = fixCoord(Y1, Y2);
-		const auto& checkCoord = [](intptr_t first, intptr_t second) { return second >= 0 && ((first < 0)? (second > 0) : (first <= second)); };
+		const auto checkCoord = [](intptr_t first, intptr_t second) { return second >= 0 && ((first < 0)? (second > 0) : (first <= second)); };
 		if (!checkCoord(X1, X2) || !checkCoord(Y1, Y2))
 			return hDlg;
 
@@ -1180,7 +1180,7 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned long l
 			break;
 		}
 
-		const auto& AssignStrings = [&](auto&& Source)
+		const auto AssignStrings = [&](auto&& Source)
 		{
 			if (Source.empty())
 				return;
@@ -1511,7 +1511,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 			return FALSE;
 
 		{
-			const auto& PR_FarGetDirListMsg = []
+			const auto PR_FarGetDirListMsg = []
 			{
 				Message(0,
 					{},
@@ -1582,7 +1582,7 @@ intptr_t WINAPI apiGetPluginDirList(const GUID* PluginId, HANDLE hPlugin, const 
 
 		time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 
-		const auto& DirInfoCallback = [&](string_view const Name, unsigned long long const ItemsCount, unsigned long long const Size)
+		const auto DirInfoCallback = [&](string_view const Name, unsigned long long const ItemsCount, unsigned long long const Size)
 		{
 			if (TimeCheck)
 				DirInfoMsg(msg(lng::MPreparingList), Name, ItemsCount, Size);

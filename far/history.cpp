@@ -92,7 +92,7 @@ void History::AddToHistory(const string& Str, history_record_type const Type, co
 	if (!m_EnableAdd || SaveForbid)
 		return;
 
-	if (Global->CtrlObject->Macro.IsExecuting() && Global->CtrlObject->Macro.IsHistoryDisable((int)m_TypeHistory))
+	if (Global->CtrlObject->Macro.IsExecuting() && Global->CtrlObject->Macro.IsHistoryDisabled((int)m_TypeHistory))
 		return;
 
 	if (m_TypeHistory!=HISTORYTYPE_DIALOG && (m_TypeHistory!=HISTORYTYPE_FOLDER || !Guid || *Guid == FarGuid) && Str.empty())
@@ -182,7 +182,7 @@ history_return_type History::ProcessMenu(string& strStr, GUID* const Guid, strin
 			bool bSelected=false;
 			int LastDay=0, LastMonth = 0, LastYear = 0;
 
-			const auto& GetTitle = [](auto RecordType)
+			const auto GetTitle = [](auto RecordType)
 			{
 				switch (RecordType)
 				{

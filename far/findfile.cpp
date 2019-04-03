@@ -647,7 +647,7 @@ void FindFiles::AdvancedDialog()
 
 intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
-	const auto& SetAllCpTitle = [&]
+	const auto SetAllCpTitle = [&]
 	{
 		const int TitlePosition = 1;
 		const auto CpEnum = codepages::GetFavoritesEnumerator();
@@ -1262,7 +1262,7 @@ bool background_searcher::IsFileIncluded(PluginPanelItem* FileItem, string_view 
 	}
 	else
 	{
-		const auto& UseFarCommand = [&]
+		const auto UseFarCommand = [&]
 		{
 			SCOPED_ACTION(auto)(m_Owner->ScopedLock());
 			return Global->CtrlObject->Plugins->UseFarCommand(hPlugin, PLUGIN_FARGETFILES);
@@ -1278,7 +1278,7 @@ bool background_searcher::IsFileIncluded(PluginPanelItem* FileItem, string_view 
 			if (!os::fs::create_directory(strTempDir))
 				return false;
 
-			const auto& GetFile = [&]
+			const auto GetFile = [&]
 			{
 				SCOPED_ACTION(auto)(m_Owner->ScopedLock());
 				return Global->CtrlObject->Plugins->GetFile(hPlugin, FileItem, strTempDir, strSearchFileName, OPM_SILENT | OPM_FIND) != FALSE;
@@ -2194,7 +2194,7 @@ void background_searcher::DoScanTree(const string& strRoot)
 			std::this_thread::yield();
 			PauseEvent.wait();
 
-			const auto& ProcessStream = [&](const string& FullStreamName)
+			const auto ProcessStream = [&](const string& FullStreamName)
 			{
 				filter_status FilterStatus;
 				if (UseFilter && !m_Owner->GetFilter()->FileInFilter(FindData, &FilterStatus, &FullStreamName))

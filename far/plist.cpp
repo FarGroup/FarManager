@@ -152,7 +152,7 @@ void ShowProcessList()
 	ProcList->SetPosition({ -1, -1, 0, 0 });
 	bool ShowImage = false;
 
-	const auto& FillProcList = [&]
+	const auto FillProcList = [&]
 	{
 		ProcList->clear();
 

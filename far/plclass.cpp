@@ -244,7 +244,7 @@ bool native_plugin_factory::IsPlugin2(const void* Module) const
 			if ((Section.VirtualAddress == dwExportAddr) ||
 				((Section.VirtualAddress <= dwExportAddr) && ((Section.Misc.VirtualSize + Section.VirtualAddress) > dwExportAddr)))
 			{
-				const auto& GetAddress = [&](size_t Offset)
+				const auto GetAddress = [&](size_t Offset)
 				{
 					return static_cast<const char*>(Module) + Section.PointerToRawData - Section.VirtualAddress + Offset;
 				};
@@ -375,7 +375,7 @@ bool Plugin::SaveToCache()
 	(void)os::fs::get_find_data(m_strModuleName, fdata);
 	PlCache->SetSignature(id, MakeSignature(fdata));
 
-	const auto& SaveItems = [&PlCache, &id](const auto& Setter, const auto& Item)
+	const auto SaveItems = [&PlCache, &id](const auto& Setter, const auto& Item)
 	{
 		for (size_t i = 0; i != Item.Count; ++i)
 		{

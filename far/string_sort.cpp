@@ -61,7 +61,7 @@ static int per_char_compare(const string_view Str1, const string_view Str2, cons
 
 static int number_comparer(string_view::const_iterator& It1, string_view::const_iterator const End1, string_view::const_iterator& It2, string_view::const_iterator const End2)
 {
-	const auto& IsZero = [](wchar_t Char) { return Char == L'0'; };
+	const auto IsZero = [](wchar_t Char) { return Char == L'0'; };
 
 	const auto Begin1 = It1;
 	const auto Begin2 = It2;

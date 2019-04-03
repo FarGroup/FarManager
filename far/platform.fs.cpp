@@ -222,7 +222,7 @@ namespace os::fs
 		FindData.AllocationSize = DirectoryInfo.AllocationSize.QuadPart;
 		FindData.ReparseTag = FindData.Attributes&FILE_ATTRIBUTE_REPARSE_POINT? DirectoryInfo.EaSize : 0;
 
-		const auto& CopyNames = [&FindData](const auto& DirInfo)
+		const auto CopyNames = [&FindData](const auto& DirInfo)
 		{
 			FindData.FileName = trim_trailing_zeros({ DirInfo.FileName, DirInfo.FileNameLength / sizeof(wchar_t) });
 			FindData.SetAlternateFileName(trim_trailing_zeros(empty_if_zero({ DirInfo.ShortName, DirInfo.ShortNameLength / sizeof(wchar_t) })));
@@ -250,7 +250,7 @@ namespace os::fs
 		auto strDirectory(Name);
 		CutToSlash(strDirectory);
 
-		const auto& OpenDirectory = [&]
+		const auto OpenDirectory = [&]
 		{
 			return Handle->Object.Open(strDirectory, FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING);
 		};
@@ -816,7 +816,7 @@ namespace os::fs
 		block_ptr<OBJECT_NAME_INFORMATION> oni(NT_MAX_PATH);
 		ULONG ReturnLength;
 
-		const auto& QueryObject = [&]
+		const auto QueryObject = [&]
 		{
 			return imports.NtQueryObject(hFile, ObjectNameInformation, oni.get(), static_cast<unsigned long>(oni.size()), &ReturnLength);
 		};
@@ -884,7 +884,7 @@ namespace os::fs
 		if (!GetObjectName(hFile, NtPath))
 			return false;
 
-		const auto& ReplaceRoot = [&](const auto& OldRoot, const auto& NewRoot)
+		const auto ReplaceRoot = [&](const auto& OldRoot, const auto& NewRoot)
 		{
 			if (!starts_with(NtPath, OldRoot))
 				return false;
@@ -923,7 +923,7 @@ namespace os::fs
 
 	bool file::GetFinalPathName(string& FinalFilePath) const
 	{
-		const auto& GetFinalPathNameByHandleGuarded = [](HANDLE File, wchar_t* Buffer, DWORD Size, DWORD Flags)
+		const auto GetFinalPathNameByHandleGuarded = [](HANDLE File, wchar_t* Buffer, DWORD Size, DWORD Flags)
 		{
 			// It seems that Microsoft has forgotten to put an exception handler around this function.
 			// It causes EXCEPTION_ACCESS_VIOLATION (read from 0) in kernel32 under certain conditions,
@@ -940,7 +940,7 @@ namespace os::fs
 			});
 		};
 
-		const auto& GetFinalPathNameByHandleImpl = [&]
+		const auto GetFinalPathNameByHandleImpl = [&]
 		{
 			return os::detail::ApiDynamicStringReceiver(FinalFilePath, [&](range<wchar_t*> Buffer)
 			{
@@ -1402,7 +1402,7 @@ namespace os::fs
 			if (!::GetDiskFreeSpaceEx(DirectoryName, &uFreeBytesAvailableToCaller, &uTotalNumberOfBytes, &uTotalNumberOfFreeBytes))
 				return false;
 
-			const auto& SetOpt = [](const ULARGE_INTEGER& From, unsigned long long* To)
+			const auto SetOpt = [](const ULARGE_INTEGER& From, unsigned long long* To)
 			{
 				if (To)
 					*To = From.QuadPart;
@@ -1509,7 +1509,7 @@ namespace os::fs
 	{
 		NTPath NtNewDirectory(NewDirectory);
 
-		const auto& Create = [&](const string& Template)
+		const auto Create = [&](const string& Template)
 		{
 			if (low::create_directory(Template.c_str(), NtNewDirectory.c_str(), SecurityAttributes))
 				return true;
@@ -1558,7 +1558,7 @@ namespace os::fs
 			FlagsAndAttributes |= FILE_FLAG_POSIX_SEMANTICS;
 		}
 
-		const auto& create_elevated = [&]
+		const auto create_elevated = [&]
 		{
 			return handle(elevation::instance().create_file(strObject, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile));
 		};
@@ -1930,7 +1930,7 @@ namespace os::fs
 
 	bool create_hard_link(const string& FileName, const string& ExistingFileName, SECURITY_ATTRIBUTES* SecurityAttributes)
 	{
-		const auto& Create = [SecurityAttributes](const string& Object, const string& Target)
+		const auto Create = [SecurityAttributes](const string& Object, const string& Target)
 		{
 			if (low::create_hard_link(Object.c_str(), Target.c_str(), SecurityAttributes))
 				return true;

@@ -468,7 +468,7 @@ bool Help::ReadHelp(const string& Mask)
 
 			++MI;
 
-			const auto& escape = [](string_view const Str)
+			const auto escape = [](string_view const Str)
 			{
 				string Result(Str);
 				replace(Result, L"~"sv, L"~~"sv);

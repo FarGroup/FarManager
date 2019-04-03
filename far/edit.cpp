@@ -2250,7 +2250,7 @@ void Edit::ApplyColor(const FarColor& SelColor, int XPos, int FocusedLeftPos)
 */
 void Edit::Xlat(bool All)
 {
-	const auto& XLatStr = [&](int StartPos, int EndPos)
+	const auto XLatStr = [&](int StartPos, int EndPos)
 	{
 		::Xlat(m_Str.data(), StartPos, EndPos, Global->Opt->XLat.Flags);
 	};

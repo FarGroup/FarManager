@@ -190,7 +190,7 @@ static bool FindObject(string_view const Module, string& strDest, bool* Internal
 	const auto ModuleExt = PointToExt(Module);
 	const auto PathExtList = enum_tokens(lower(os::env::get_pathext()), L";"sv);
 
-	const auto& TryWithExtOrPathExt = [&](string_view const Name, const auto& Predicate)
+	const auto TryWithExtOrPathExt = [&](string_view const Name, const auto& Predicate)
 	{
 		if (!ModuleExt.empty())
 		{
@@ -460,7 +460,7 @@ static string GetShellActionForType(string_view const TypeName, string& KeyName)
 	if (!Key)
 		return {};
 
-	const auto& TryAction = [&](string_view const Action)
+	const auto TryAction = [&](string_view const Action)
 	{
 		if (!os::reg::key::open(os::reg::key::classes_root, concat(KeyName, L'\\', Action, L'\\', CommandName), KEY_QUERY_VALUE))
 			return false;
@@ -735,7 +735,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, function_ref<void(
 	// Info.NewWindow may be changed later
 	const auto IgnoreInternalAssociations = Info.NewWindow || !Info.UseAssociations;
 
-	const auto& TryProtocolOrFallToComspec = [&]
+	const auto TryProtocolOrFallToComspec = [&]
 	{
 		auto ImageType = image_type::unknown;
 		if (GetProtocolType(Info.Command, ImageType))
@@ -801,7 +801,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, function_ref<void(
 	}
 	else if (Info.ExecMode == execute_info::exec_mode::detect)
 	{
-		const auto& GetImageTypeFallback = [](image_type& ImageType)
+		const auto GetImageTypeFallback = [](image_type& ImageType)
 		{
 			// Object is found, but its type is unknown.
 			// Decision is controversial:
@@ -1211,7 +1211,7 @@ static string_view PrepareOSIfExist(string_view const CmdLine, predicate IsExist
 	while (Command.front() == L'@')
 		Command.remove_prefix(1);
 
-	const auto& skip_spaces = [](string_view& Str)
+	const auto skip_spaces = [](string_view& Str)
 	{
 		while (!Str.empty() && std::iswblank(Str.front()))
 			Str.remove_prefix(1);
@@ -1219,7 +1219,7 @@ static string_view PrepareOSIfExist(string_view const CmdLine, predicate IsExist
 		return !Str.empty();
 	};
 
-	const auto& get_token = [](string_view & Str, string_view const Token)
+	const auto get_token = [](string_view & Str, string_view const Token)
 	{
 		if (!starts_with_icase(Str, Token))
 			return false;
@@ -1439,10 +1439,10 @@ TEST_CASE("execute.exist.defined")
 		},
 	};
 
-	const auto& Exist      = [](string_view const Str) { REQUIRE(Str == L"bar"sv); return true; };
-	const auto& NotExist   = [](string_view const Str) { REQUIRE(Str == L"bar"sv); return false; };
-	const auto& Defined    = [](string_view const Str) { REQUIRE(Str == L"ham"sv); return true; };
-	const auto& NotDefined = [](string_view const Str) { REQUIRE(Str == L"ham"sv); return false; };
+	const auto Exist      = [](string_view const Str) { REQUIRE(Str == L"bar"sv); return true; };
+	const auto NotExist   = [](string_view const Str) { REQUIRE(Str == L"bar"sv); return false; };
+	const auto Defined    = [](string_view const Str) { REQUIRE(Str == L"ham"sv); return true; };
+	const auto NotDefined = [](string_view const Str) { REQUIRE(Str == L"ham"sv); return false; };
 
 	for (const auto& i: Tests)
 	{

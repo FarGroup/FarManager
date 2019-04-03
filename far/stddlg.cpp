@@ -182,7 +182,7 @@ int GetSearchReplaceString(
 	if (!pPreserveStyle)
 		ReplaceDlg[dlg_checkbox_style].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
 
-	const auto& Handler = [&](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2) -> intptr_t
+	const auto Handler = [&](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2) -> intptr_t
 	{
 		if (Msg == DN_BTNCLICK && Picker && (Param1 == dlg_button_word || Param1 == dlg_button_selection))
 		{
@@ -748,7 +748,7 @@ void ReMatchErrorMessage(const RegExp& re)
 
 static void GetRowCol(const string& Str, bool Hex, goto_coord& Row, goto_coord& Col)
 {
-	const auto& Parse = [Hex](string Part, goto_coord& Dest)
+	const auto Parse = [Hex](string Part, goto_coord& Dest)
 	{
 		inplace::erase_all(Part, L' ');
 

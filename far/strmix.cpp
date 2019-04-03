@@ -396,9 +396,9 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 
 	const auto& Divider = ViewFlags & COLUMN_THOUSAND? DecimalDivider : BinaryDivider;
 
-	const auto& FormatSize = [&](string&& StrSize, size_t UnitIndex)
+	const auto FormatSize = [&](string&& StrSize, size_t UnitIndex)
 	{
-		const auto& FitToWidth = [&](string&& Str)
+		const auto FitToWidth = [&](string&& Str)
 		{
 			if (!Width)
 				return std::move(Str);
@@ -460,7 +460,7 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 		return FormatSize(std::move(Str), UnitIndex);
 	}
 
-	const auto& ToStr = [UseGroupDigits](auto Size)
+	const auto ToStr = [UseGroupDigits](auto Size)
 	{
 		return UseGroupDigits? GroupDigits(Size) : str(Size);
 	};
@@ -576,7 +576,7 @@ bool wrapped_text::get(bool Reset, string_view& Value) const
 	if (m_Tail.empty())
 		return false;
 
-	const auto& advance = [&](size_t TokenEnd, size_t NextTokenBegin)
+	const auto advance = [&](size_t TokenEnd, size_t NextTokenBegin)
 	{
 		Value = m_Tail.substr(0, TokenEnd);
 		m_Tail.remove_prefix(NextTokenBegin);
@@ -839,7 +839,7 @@ namespace
 
 static bool CanContainWholeWord(string_view const Haystack, size_t const Offset, size_t const NeedleSize, string_view const WordDiv)
 {
-	const auto& BlankOrWordDiv = [&WordDiv](wchar_t Ch)
+	const auto BlankOrWordDiv = [&WordDiv](wchar_t Ch)
 	{
 		return std::iswblank(Ch) || WordDiv.find(Ch) != WordDiv.npos;
 	};

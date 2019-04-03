@@ -872,7 +872,7 @@ void TreeList::SaveTreeFile()
 		return;
 #endif
 
-	const auto& Opener = [&](string& Name) { return OpenCacheableTreeFile(m_Root, Name, true); };
+	const auto Opener = [&](string& Name) { return OpenCacheableTreeFile(m_Root, Name, true); };
 
 	WriteTree(strName, m_ListData, Opener, RootLength);
 
@@ -934,7 +934,7 @@ void TreeList::SyncDir()
 
 bool TreeList::FillLastData()
 {
-	const auto& CountSlash = [](const string& Str, size_t Offset)
+	const auto CountSlash = [](const string& Str, size_t Offset)
 	{
 		return static_cast<size_t>(std::count_if(Str.cbegin() + Offset, Str.cend(), IsSlash));
 	};
@@ -1899,7 +1899,7 @@ void TreeList::FlushCache()
 
 	if (!TreeCache().GetTreeName().empty())
 	{
-		const auto& Opener = [&](const string& Name) { return OpenTreeFile(Name, true); };
+		const auto Opener = [&](const string& Name) { return OpenTreeFile(Name, true); };
 
 		WriteTree(TreeCache().GetTreeName(), TreeCache(), Opener, 0);
 	}

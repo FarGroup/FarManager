@@ -454,7 +454,7 @@ void ShowHotplugDevices()
 	const auto HotPlugList = VMenu2::create(msg(lng::MHotPlugListTitle), {}, 0);
 	std::vector<DeviceInfo> Info;
 
-	const auto& FillMenu = [&]()
+	const auto FillMenu = [&]()
 	{
 		HotPlugList->clear();
 		Info = GetHotplugDevicesInfo();

@@ -47,8 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "eol.hpp"
 
-monitored<bool> Grabber::m_StreamSelection;
-
 Grabber::Grabber(private_tag):
 	ResetArea(true),
 	m_VerticalBlock(false)
@@ -298,7 +296,7 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 			ResetArea = true;
 	}
 
-	const auto& Move = [](point& What, int Count, int Direction, int LimitX, int LimitY, int NewX)
+	const auto Move = [](point& What, int Count, int Direction, int LimitX, int LimitY, int NewX)
 	{
 		for (; Count; --Count)
 		{
@@ -326,22 +324,22 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 		return true;
 	};
 
-	const auto& MovePointLeft = [&](point& What, int Count)
+	const auto MovePointLeft = [&](point& What, int Count)
 	{
 		return Move(What, Count, -1, 0, 0, ScrX);
 	};
 
-	const auto& MovePointRight = [&](point& What, int Count)
+	const auto MovePointRight = [&](point& What, int Count)
 	{
 		return Move(What, Count, 1, ScrX, ScrY, 0);
 	};
 
-	const auto& MoveLeft = [&](int Count)
+	const auto MoveLeft = [&](int Count)
 	{
 		return MovePointLeft(GArea.Current, Count);
 	};
 
-	const auto& MoveRight = [&](int Count)
+	const auto MoveRight = [&](int Count)
 	{
 		return MovePointRight(GArea.Current, Count);
 	};

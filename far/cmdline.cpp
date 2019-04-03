@@ -679,7 +679,7 @@ std::list<CommandLine::segment> CommandLine::GetPrompt()
 					}
 					else
 					{
-						const auto& AddCollapsible = [&](string&& Str)
+						const auto AddCollapsible = [&](string&& Str)
 						{
 							if (strDestStr.empty())
 							{
@@ -907,7 +907,7 @@ static bool ProcessFarCommands(const string& Command, function_ref<void(bool)> c
 
 	if (equal_icase(Command, L"far:about"sv))
 	{
-		const auto& CompilerInfo = []
+		const auto CompilerInfo = []
 		{
 			return
 #ifdef _MSC_BUILD
@@ -1000,7 +1000,7 @@ void CommandLine::ExecString(execute_info& Info)
 		}
 	};
 
-	const auto& Activator = [&](bool DoConsolise)
+	const auto Activator = [&](bool DoConsolise)
 	{
 		ExecutionContext->Activate();
 
@@ -1069,14 +1069,14 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 	if (SetPanel->GetType() != panel_type::FILE_PANEL && Global->CtrlObject->Cp()->PassivePanel()->GetType() == panel_type::FILE_PANEL)
 		SetPanel=Global->CtrlObject->Cp()->PassivePanel();
 
-	const auto& IsCommand = [&CmdLine](const string_view cmd, const bool bslash)
+	const auto IsCommand = [&CmdLine](const string_view cmd, const bool bslash)
 	{
 		const auto n = cmd.size();
 		return starts_with_icase(CmdLine, cmd)
 			&& (n == CmdLine.size() || contains(L"/ \t"sv, CmdLine[n]) || (bslash && CmdLine[n] == L'\\'));
 	};
 
-	const auto& FindKey = [&CmdLine](wchar_t Key)
+	const auto FindKey = [&CmdLine](wchar_t Key)
 	{
 		const auto FirstSpacePos = CmdLine.find(L' ');
 		const auto NotSpacePos = CmdLine.find_first_not_of(L' ', FirstSpacePos);
@@ -1087,7 +1087,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 			upper(CmdLine[NotSpacePos + 1]) == upper(Key);
 	};
 
-	const auto& FindHelpKey = [&FindKey]() { return FindKey(L'?'); };
+	const auto FindHelpKey = [&FindKey]() { return FindKey(L'?'); };
 
 	if (CmdLine.size() > 1 && CmdLine[1] == L':' && (CmdLine.size() == 2 || CmdLine.find_first_not_of(L' ', 2) == string::npos))
 	{

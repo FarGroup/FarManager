@@ -156,7 +156,7 @@ static size_t RealModeToDisplay(size_t Mode)
 
 void Options::SystemSettings()
 {
-	const auto& GetSortingState = [&]
+	const auto GetSortingState = [&]
 	{
 		return std::make_tuple(Sort.Collation.Get(), Sort.DigitsAsNumbers.Get(), Sort.CaseSensitive.Get());
 	};
@@ -1066,7 +1066,7 @@ static void ResetViewModes(span<PanelViewSettings> const Modes, int const Index 
 	};
 	static_assert(std::size(InitialModes) == predefined_panel_modes_count);
 
-	const auto& InitMode = [](const auto& src, auto& dst)
+	const auto InitMode = [](const auto& src, auto& dst)
 	{
 		dst.PanelColumns = src.PanelColumns;
 		dst.StatusColumns = src.StatusColumns;
@@ -1205,7 +1205,7 @@ void Options::SetFilePanelModes()
 
 		if (DeleteMode)
 		{
-			const auto& SwitchToAnotherMode = [&](panel_ptr p)
+			const auto SwitchToAnotherMode = [&](panel_ptr p)
 			{
 				const auto RealMode = static_cast<int>(DisplayModeToReal(CurMode));
 				if (p->GetViewMode() == RealMode)
@@ -1580,7 +1580,7 @@ public:
 	using const_iterator = iterator;
 	using value_type = FARConfigItem;
 
-	farconfig(range<const FARConfigItem*> Items, GeneralConfig* cfg):
+	farconfig(span<const FARConfigItem> Items, GeneralConfig* cfg):
 		m_items(Items),
 		m_cfg(cfg)
 	{
@@ -1596,7 +1596,7 @@ public:
 	GeneralConfig* GetConfig() const { return m_cfg; }
 
 private:
-	range<const FARConfigItem*> m_items;
+	span<const FARConfigItem> m_items;
 	GeneralConfig* m_cfg;
 };
 
@@ -1637,7 +1637,7 @@ Options::Options():
 
 	HelpTabSize.SetCallback(option::validator([](long long Value) { return DefaultTabSize; })); // пока жестко пропишем...
 
-	const auto& MacroKeyValidator = [](const string& Value, DWORD& Key, string_view const DefaultValue, DWORD DefaultKey)
+	const auto MacroKeyValidator = [](const string& Value, DWORD& Key, string_view const DefaultValue, DWORD DefaultKey)
 	{
 		if ((Key = KeyNameToKey(Value)) == static_cast<DWORD>(-1))
 		{
@@ -2121,7 +2121,7 @@ void Options::Load(overrides&& Overrides)
 
 	InitConfigs();
 
-	const auto& GetOverride = [&](const FARConfigItem& Item)
+	const auto GetOverride = [&](const FARConfigItem& Item)
 	{
 		if (Overrides.empty())
 			return false;
@@ -2215,7 +2215,7 @@ void Options::Save(bool Manual)
 
 	/* <ПРЕПРОЦЕССЫ> *************************************************** */
 
-	const auto& StorePanelOptions = [](panel_ptr PanelPtr, PanelOptions& Panel)
+	const auto StorePanelOptions = [](panel_ptr PanelPtr, PanelOptions& Panel)
 	{
 		if (PanelPtr->GetMode() == panel_mode::NORMAL_PANEL)
 		{
@@ -2263,7 +2263,7 @@ void Options::Save(bool Manual)
 
 intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
-	const auto& GetConfigItem = [Dlg](int Index)
+	const auto GetConfigItem = [Dlg](int Index)
 	{
 		return Index == -1 ?
 			nullptr : // Everything is filtered out
@@ -2453,9 +2453,9 @@ void Options::ReadPanelModes()
 {
 	const auto cfg = ConfigProvider().CreatePanelModesConfig();
 
-	auto root = HierarchicalConfig::root_key();
+	auto root = HierarchicalConfig::root_key;
 
-	const auto& ReadMode = [&](auto& i, size_t Index)
+	const auto ReadMode = [&](auto& i, size_t Index)
 	{
 		const auto Key = cfg->FindByName(root, str(Index));
 
@@ -2486,7 +2486,7 @@ void Options::ReadPanelModes()
 
 	for_each_cnt(m_ViewSettings.begin(), m_ViewSettings.begin() + predefined_panel_modes_count, ReadMode);
 
-	root = cfg->FindByName(cfg->root_key(), CustomModesKeyName);
+	root = cfg->FindByName(cfg->root_key, CustomModesKeyName);
 
 	if (root)
 	{
@@ -2513,9 +2513,9 @@ void Options::SavePanelModes(bool always)
 
 	SCOPED_ACTION(auto)(cfg->ScopedTransaction());
 
-	auto root = cfg->root_key();
+	auto root = cfg->root_key;
 
-	const auto& SaveMode = [&](const auto& i, size_t Index)
+	const auto SaveMode = [&](const auto& i, size_t Index)
 	{
 		const auto [PanelTitles, PanelWidths] = SerialiseViewSettings(i.PanelColumns);
 		const auto [StatusTitles, StatusWidths] = SerialiseViewSettings(i.StatusColumns);
@@ -2533,12 +2533,12 @@ void Options::SavePanelModes(bool always)
 
 	for_each_cnt(ViewSettings.cbegin(), ViewSettings.cbegin() + predefined_panel_modes_count, SaveMode);
 
-	if ((root = cfg->FindByName(cfg->root_key(), CustomModesKeyName)))
+	if ((root = cfg->FindByName(cfg->root_key, CustomModesKeyName)))
 	{
 		cfg->DeleteKeyTree(root);
 	}
 
-	if ((root = cfg->CreateKey(cfg->root_key(), CustomModesKeyName)))
+	if ((root = cfg->CreateKey(cfg->root_key, CustomModesKeyName)))
 	{
 		for_each_cnt(ViewSettings.cbegin() + predefined_panel_modes_count, ViewSettings.cend(), SaveMode);
 	}
@@ -2695,7 +2695,7 @@ static void SetLeftRightMenuChecks(menu_item* pMenu, bool bLeft)
 
 void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEvent)
 {
-	const auto& ApplyViewModesNames = [this](menu_item* Menu)
+	const auto ApplyViewModesNames = [this](menu_item* Menu)
 	{
 		for (size_t i = 0; i < predefined_panel_modes_count; ++i)
 		{
@@ -2862,7 +2862,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		HOptMenu->SetPosition({ 0, 0, ScrX, 0 });
 		Global->WindowManager->ExecuteWindow(HOptMenu);
 
-		const auto& IsRightPanelActive = []
+		const auto IsRightPanelActive = []
 		{
 			return Global->CtrlObject->Cp()->ActivePanel() == Global->CtrlObject->Cp()->RightPanel() &&
 				Global->CtrlObject->Cp()->ActivePanel()->IsVisible();

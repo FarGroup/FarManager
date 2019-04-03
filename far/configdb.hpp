@@ -132,7 +132,7 @@ public:
 		unsigned long long m_Key;
 	};
 
-	static key root_key() { return key(0); }
+	static inline const key root_key{0};
 
 	virtual key CreateKey(const key& Root, string_view Name, const string* Description = nullptr) = 0;
 	virtual key FindByName(const key& Root, string_view Name) const = 0;

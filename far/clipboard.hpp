@@ -50,7 +50,7 @@ public:
 	static clipboard_mode get();
 
 private:
-	static clipboard_mode m_Mode;
+	static inline clipboard_mode m_Mode = clipboard_mode::system;
 };
 
 class clipboard

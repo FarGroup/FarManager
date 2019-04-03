@@ -181,7 +181,7 @@ namespace detail
 		}
 
 		{
-			const auto& InitNames = [](int Language, locale_names& Names)
+			const auto InitNames = [](int Language, locale_names& Names)
 			{
 				// LOCALE_S[ABBREV]DAYNAME<1-7> indexes start from Monday, remap to Sunday to make them compatible with tm::tm_wday
 				static const LCTYPE DayIndexes[] = { LOCALE_SDAYNAME7, LOCALE_SDAYNAME1, LOCALE_SDAYNAME2, LOCALE_SDAYNAME3, LOCALE_SDAYNAME4, LOCALE_SDAYNAME5, LOCALE_SDAYNAME6 };

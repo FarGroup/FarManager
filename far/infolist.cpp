@@ -368,7 +368,7 @@ void InfoList::DisplayObject()
 	DrawTitle(SectionTitle,ILSS_DISKINFO,CurY);
 
 	const auto bytes_suffix = upper(msg(lng::MListBytes));
-	const auto& size2str = [&bytes_suffix](ULONGLONG Size)
+	const auto size2str = [&bytes_suffix](ULONGLONG Size)
 	{
 		string str;
 		if (Global->Opt->ShowBytes)
@@ -517,7 +517,7 @@ void InfoList::DisplayObject()
 			}
 			PrintInfo(strOutStr);
 
-			const auto& GetBatteryTime = [](size_t SecondsCount)
+			const auto GetBatteryTime = [](size_t SecondsCount)
 			{
 				if (SecondsCount == BATTERY_LIFE_UNKNOWN)
 					return string(msg(lng::MInfoPowerStatusUnknown));

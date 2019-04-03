@@ -203,7 +203,7 @@ template<typename owner, typename acquire, typename release>
 auto make_raii_wrapper(owner* Owner, const acquire& Acquire, const release& Release)
 {
 	std::invoke(Acquire, Owner);
-	auto&& Releaser = [Release](owner* OwnerPtr)
+	auto Releaser = [Release](owner* OwnerPtr)
 	{
 		std::invoke(Release, OwnerPtr);
 	};

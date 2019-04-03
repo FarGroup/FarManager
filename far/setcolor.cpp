@@ -478,17 +478,17 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	const auto ColorState = reinterpret_cast<FarColor*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 	auto& CurColor = ColorState[0];
 
-	const auto& GetColor = [Param1](size_t const Offset)
+	const auto GetColor = [Param1](size_t const Offset)
 	{
 		return colors::ConsoleColorToFarColor(ColorIndex[Param1 - Offset]);
 	};
 
-	const auto& Flag4Bit = [](bool const IsFg)
+	const auto Flag4Bit = [](bool const IsFg)
 	{
 		return IsFg? FCF_FG_4BIT : FCF_BG_4BIT;
 	};
 
-	const auto& SetComponentColorValue = [&CurColor](bool IsFg, COLORREF const Value)
+	const auto SetComponentColorValue = [&CurColor](bool IsFg, COLORREF const Value)
 	{
 		auto& Component = IsFg? CurColor.ForegroundColor : CurColor.BackgroundColor;
 		Component = colors::alpha_value(Component) | colors::color_value(Value);

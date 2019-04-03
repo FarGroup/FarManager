@@ -370,7 +370,7 @@ string encoding::get_chars(uintptr_t const Codepage, std::string_view const Str)
 	if (Str.empty())
 		return {};
 
-	const auto& EstimatedCharsCount = [&]
+	const auto EstimatedCharsCount = [&]
 	{
 		switch (Codepage)
 		{
@@ -696,7 +696,7 @@ static size_t BytesToUnicode(
 			}
 		}
 
-		const auto& StoreChar = [&](wchar_t Char)
+		const auto StoreChar = [&](wchar_t Char)
 		{
 			if (BufferIterator != BufferEnd)
 			{
@@ -809,7 +809,7 @@ size_t Utf8::get_char(std::string_view::const_iterator& StrIterator, std::string
 {
 	size_t NumberOfChars = 1;
 
-	const auto& InvalidChar = [](unsigned char c) { return utf8::surrogate_low_first | c; };
+	const auto InvalidChar = [](unsigned char c) { return utf8::surrogate_low_first | c; };
 
 	const unsigned char c1 = *StrIterator++;
 
@@ -824,7 +824,7 @@ size_t Utf8::get_char(std::string_view::const_iterator& StrIterator, std::string
 	}
 	else
 	{
-		const auto& Unfinished = [&]
+		const auto Unfinished = [&]
 		{
 			First = InvalidChar(c1);
 			return NumberOfChars;
@@ -920,7 +920,7 @@ size_t Utf8::get_chars(std::string_view const Str, wchar_t* const Buffer, size_t
 	auto BufferIterator = Buffer;
 	const auto BufferEnd = Buffer + BufferSize;
 
-	const auto& StoreChar = [&](wchar_t Char)
+	const auto StoreChar = [&](wchar_t Char)
 	{
 		if (BufferIterator != BufferEnd)
 		{

@@ -106,14 +106,14 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 
 	if (DeleteOld)
 	{
-		if (const auto root = cfg->FindByName(cfg->root_key(), HighlightKeyName))
+		if (const auto root = cfg->FindByName(cfg->root_key, HighlightKeyName))
 			cfg->DeleteKeyTree(root);
 	}
 
-	if (cfg->FindByName(cfg->root_key(), HighlightKeyName))
+	if (cfg->FindByName(cfg->root_key, HighlightKeyName))
 		return;
 
-	const auto root = cfg->CreateKey(cfg->root_key(), HighlightKeyName);
+	const auto root = cfg->CreateKey(cfg->root_key, HighlightKeyName);
 	if (!root)
 		return;
 
@@ -232,7 +232,7 @@ void highlight::configuration::InitHighlightFiles(/*const*/ HierarchicalConfig* 
 
 	for(const auto& Item: GroupItems)
 	{
-		const auto root = cfg->FindByName(cfg->root_key(), Item.KeyName);
+		const auto root = cfg->FindByName(cfg->root_key, Item.KeyName);
 		if (!root)
 			continue;
 
@@ -275,7 +275,7 @@ static void ApplyDefaultStartingColors(highlight::element& Colors)
 
 static void ApplyBlackOnBlackColor(highlight::element::colors_array::value_type& Colors, DWORD PaletteColor)
 {
-	const auto& InheritColor = [](FarColor& Color, const FarColor& Base)
+	const auto InheritColor = [](FarColor& Color, const FarColor& Base)
 	{
 		if (!colors::color_value(Color.ForegroundColor) && !colors::color_value(Color.BackgroundColor))
 		{
@@ -332,7 +332,7 @@ void highlight::configuration::ApplyFinalColor(highlight::element::colors_array:
 
 	//Если какой то из текущих цветов (fore или back) прозрачный
 	//то унаследуем соответствующий цвет с панелей.
-	const auto& ApplyColorPart = [&](FarColor& i, COLORREF FarColor::*ColorAccessor, const FARCOLORFLAGS Flag)
+	const auto ApplyColorPart = [&](FarColor& i, COLORREF FarColor::*ColorAccessor, const FARCOLORFLAGS Flag)
 	{
 		auto& ColorPart = std::invoke(ColorAccessor, i);
 		if(colors::is_transparent(ColorPart))
@@ -771,12 +771,12 @@ void highlight::configuration::Save(bool always)
 
 	SCOPED_ACTION(auto)(cfg->ScopedTransaction());
 
-	auto root = cfg->FindByName(cfg->root_key(), HighlightKeyName);
+	auto root = cfg->FindByName(cfg->root_key, HighlightKeyName);
 
 	if (root)
 		cfg->DeleteKeyTree(root);
 
-	root = cfg->FindByName(cfg->root_key(), SortGroupsKeyName);
+	root = cfg->FindByName(cfg->root_key, SortGroupsKeyName);
 
 	if (root)
 		cfg->DeleteKeyTree(root);
@@ -799,7 +799,7 @@ void highlight::configuration::Save(bool always)
 
 	for(const auto& i: Data)
 	{
-		root = cfg->CreateKey(cfg->root_key(), i.KeyName);
+		root = cfg->CreateKey(cfg->root_key, i.KeyName);
 		if (!root)
 			continue; // TODO: log
 

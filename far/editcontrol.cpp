@@ -225,7 +225,7 @@ static bool EnumWithQuoutes(VMenu2& Menu, const string_view strStart, const stri
 
 	for (const auto& i: ResultStrings)
 	{
-		const auto& BuildQuotedString = [&](string Str)
+		const auto BuildQuotedString = [&](string Str)
 		{
 			if (!StartQuote)
 				QuoteSpace(Str);
@@ -395,12 +395,12 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 
 		ComplMenu->SetMacroMode(Area);
 
-		const auto& CompletionEnabled = [&Manual](int State)
+		const auto CompletionEnabled = [&Manual](int State)
 		{
 			return (Manual && State) || (!Manual && State == 1);
 		};
 
-		const auto& Complete = [&](VMenu2& Menu, const string& Str)
+		const auto Complete = [&](VMenu2& Menu, const string& Str)
 		{
 			if (Str.empty())
 				return;
@@ -463,7 +463,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 
 		Complete(*ComplMenu, CurrentInput);
 
-		const auto& AppendCmd = [&]
+		const auto AppendCmd = [&]
 		{
 			int SelStart = GetLength();
 

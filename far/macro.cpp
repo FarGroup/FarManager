@@ -437,7 +437,7 @@ int KeyMacro::GetExecutingState()
 	return MacroPluginOp(1.0,false,&Ret) ? Ret.ReturnType : static_cast<int>(MACROSTATE_NOMACRO);
 }
 
-bool KeyMacro::IsDisableOutput()
+bool KeyMacro::IsOutputDisabled()
 {
 	MacroPluginReturn Ret;
 	return MacroPluginOp(2.0,false,&Ret)? Ret.ReturnType != 0 : false;
@@ -455,7 +455,7 @@ static DWORD GetHistoryDisableMask()
 	return MacroPluginOp(3.0,false,&Ret) ? Ret.ReturnType : 0;
 }
 
-bool KeyMacro::IsHistoryDisable(int TypeHistory)
+bool KeyMacro::IsHistoryDisabled(int TypeHistory)
 {
 	MacroPluginReturn Ret;
 	return MacroPluginOp(4.0,(double)TypeHistory,&Ret) ? !!Ret.ReturnType : false;
@@ -1243,7 +1243,7 @@ bool KeyMacro::GetMacroSettings(int Key, unsigned long long& Flags, string_view 
 
 	static_assert(key_count == std::size(Mapping));
 
-	const auto& get_flag = [&](MACROSETTINGSDLG ControlId, key_id KeyId)
+	const auto get_flag = [&](MACROSETTINGSDLG ControlId, key_id KeyId)
 	{
 		return Mapping[KeyId][MacroSettingsDlg[ControlId].Selected];
 	};
@@ -2765,8 +2765,8 @@ static bool indexFunc(FarMacroCall* Data)
 	const auto& s = Params[0].toString();
 	const auto& p = Params[1].toString();
 
-	const auto& StrStr = [](const string& Str1, const string& Str2) { return std::search(ALL_CONST_RANGE(Str1), ALL_CONST_RANGE(Str2)); };
-	const auto& StrStrI = [](const string& Str1, const string& Str2) { return std::search(ALL_CONST_RANGE(Str1), ALL_CONST_RANGE(Str2), equal_icase_t{}); };
+	const auto StrStr = [](const string& Str1, const string& Str2) { return std::search(ALL_CONST_RANGE(Str1), ALL_CONST_RANGE(Str2)); };
+	const auto StrStrI = [](const string& Str1, const string& Str2) { return std::search(ALL_CONST_RANGE(Str1), ALL_CONST_RANGE(Str2), equal_icase_t{}); };
 
 	const auto i = Params[2].asInteger()? StrStr(s, p) : StrStrI(s, p);
 	const auto Position = i != s.cend() ? i - s.cbegin() : -1;
@@ -2781,8 +2781,8 @@ static bool rindexFunc(FarMacroCall* Data)
 	const auto& s = Params[0].toString();
 	const auto& p = Params[1].toString();
 
-	const auto& RevStrStr = [](const string& Str1, const string& Str2) { return std::find_end(ALL_CONST_RANGE(Str1), ALL_CONST_RANGE(Str2)); };
-	const auto& RevStrStrI = [](const string& Str1, const string& Str2) { return std::find_end(ALL_CONST_RANGE(Str1), ALL_CONST_RANGE(Str2), equal_icase_t{}); };
+	const auto RevStrStr = [](const string& Str1, const string& Str2) { return std::find_end(ALL_CONST_RANGE(Str1), ALL_CONST_RANGE(Str2)); };
+	const auto RevStrStrI = [](const string& Str1, const string& Str2) { return std::find_end(ALL_CONST_RANGE(Str1), ALL_CONST_RANGE(Str2), equal_icase_t{}); };
 
 	const auto i = Params[2].asInteger()? RevStrStr(s, p) : RevStrStrI(s, p);
 	const auto Position = i != s.cend()? i - s.cbegin() : -1;
@@ -3104,7 +3104,7 @@ static bool menushowFunc(FarMacroCall* Data)
 
 		if (NewItem.Name != L"\n"sv)
 		{
-			const auto& CharToFlag = [](wchar_t c)
+			const auto CharToFlag = [](wchar_t c)
 			{
 				switch (c)
 				{
