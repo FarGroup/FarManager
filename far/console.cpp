@@ -33,13 +33,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 
 #include "imports.hpp"
-#include "config.hpp"
 #include "colormix.hpp"
 #include "interf.hpp"
 #include "setcolor.hpp"
 #include "strmix.hpp"
 #include "exception.hpp"
-#include "global.hpp"
 
 #include "common/2d/algorithm.hpp"
 #include "common/enum_substrings.hpp"
@@ -50,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "format.hpp"
 
+static bool sWindowMode;
 static bool sEnableVirtualTerminal;
 
 
@@ -94,6 +93,10 @@ static wchar_t ReplaceControlCharacter(wchar_t const Char)
 	}
 }
 
+static short GetDelta(CONSOLE_SCREEN_BUFFER_INFO const& csbi)
+{
+	return csbi.dwSize.Y - (csbi.srWindow.Bottom - csbi.srWindow.Top + 1);
+}
 
 namespace console_detail
 {
@@ -186,7 +189,7 @@ namespace console_detail
 		CONSOLE_SCREEN_BUFFER_INFO ConsoleScreenBufferInfo;
 		if (GetConsoleScreenBufferInfo(GetOutputHandle(), &ConsoleScreenBufferInfo))
 		{
-			if (Global->Opt->WindowMode)
+			if (sWindowMode)
 			{
 				Size.X = ConsoleScreenBufferInfo.srWindow.Right - ConsoleScreenBufferInfo.srWindow.Left + 1;
 				Size.Y = ConsoleScreenBufferInfo.srWindow.Bottom - ConsoleScreenBufferInfo.srWindow.Top + 1;
@@ -202,7 +205,7 @@ namespace console_detail
 
 	bool console::SetSize(COORD Size) const
 	{
-		if (!Global->Opt->WindowMode)
+		if (!sWindowMode)
 			return SetConsoleScreenBufferSize(GetOutputHandle(), Size) != FALSE;
 
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
@@ -339,7 +342,7 @@ namespace console_detail
 		DWORD dwNumberOfEventsRead = 0;
 		bool Result = PeekConsoleInput(GetInputHandle(), Buffer, static_cast<DWORD>(Length), &dwNumberOfEventsRead) != FALSE;
 		NumberOfEventsRead = dwNumberOfEventsRead;
-		if (Global->Opt->WindowMode)
+		if (sWindowMode)
 		{
 			COORD Size = {};
 			GetSize(Size);
@@ -356,7 +359,7 @@ namespace console_detail
 
 		NumberOfEventsRead = dwNumberOfEventsRead;
 
-		if (Global->Opt->WindowMode)
+		if (sWindowMode)
 		{
 			COORD Size = {};
 			GetSize(Size);
@@ -368,7 +371,7 @@ namespace console_detail
 
 	bool console::WriteInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsWritten) const
 	{
-		if (Global->Opt->WindowMode)
+		if (sWindowMode)
 		{
 			const auto Delta = GetDelta();
 
@@ -400,7 +403,7 @@ namespace console_detail
 			return ExternalConsole.Imports.pReadOutput(Buffer.data(), SizeCoord, BufferCoord, &ReadRegion) != FALSE;
 		}
 
-		const int Delta = Global->Opt->WindowMode? GetDelta() : 0;
+		const int Delta = sWindowMode? GetDelta() : 0;
 		auto ReadRegion = ReadRegionRelative;
 		ReadRegion.Top += Delta;
 		ReadRegion.Bottom += Delta;
@@ -559,9 +562,9 @@ namespace console_detail
 
 			COORD CursorPosition{ WriteRegion.Left, WriteRegion.Top };
 
-			if (Global->Opt->WindowMode)
+			if (sWindowMode)
 			{
-				CursorPosition.Y -= ::console.GetDelta();
+				CursorPosition.Y -= ::GetDelta(csbi);
 
 				if (CursorPosition.Y < 0)
 				{
@@ -677,7 +680,7 @@ namespace console_detail
 			return ExternalConsole.Imports.pWriteOutput(Buffer.data(), BufferSize, BufferCoord, &WriteRegion) != FALSE;
 		}
 
-		const int Delta = Global->Opt->WindowMode? GetDelta() : 0;
+		const int Delta = sWindowMode? GetDelta() : 0;
 		auto WriteRegion = WriteRegionRelative;
 		WriteRegion.Top += Delta;
 		WriteRegion.Bottom += Delta;
@@ -789,7 +792,7 @@ namespace console_detail
 		if (!GetCursorRealPosition(Position))
 			return false;
 
-		if (Global->Opt->WindowMode)
+		if (sWindowMode)
 			Position.Y -= GetDelta();
 
 		return true;
@@ -797,7 +800,7 @@ namespace console_detail
 
 	bool console::SetCursorPosition(COORD Position) const
 	{
-		if (Global->Opt->WindowMode)
+		if (sWindowMode)
 		{
 			COORD Size = {};
 			GetSize(Size);
@@ -922,7 +925,7 @@ namespace console_detail
 		if (Mode&CR_RIGHT)
 		{
 			DWORD RightSize = csbi.dwSize.X - csbi.srWindow.Right;
-			COORD RightCoord = { csbi.srWindow.Right,GetDelta() };
+			COORD RightCoord = { csbi.srWindow.Right, ::GetDelta(csbi) };
 			for (; RightCoord.Y < csbi.dwSize.Y; RightCoord.Y++)
 			{
 				FillConsoleOutputCharacter(GetOutputHandle(), L' ', RightSize, RightCoord, &CharsWritten);
@@ -1055,7 +1058,7 @@ namespace console_detail
 	{
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
 		GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);
-		return csbi.dwSize.Y - (csbi.srWindow.Bottom - csbi.srWindow.Top + 1);
+		return ::GetDelta(csbi);
 	}
 
 	bool console::ScrollScreenBuffer(const SMALL_RECT& ScrollRectangle, const SMALL_RECT* ClipRectangle, COORD DestinationOrigin, const FAR_CHAR_INFO& Fill) const
@@ -1075,7 +1078,7 @@ namespace console_detail
 		return ScrollScreenBuffer(ScrollRectangle, nullptr, DestinationOigin, Fill) != FALSE;
 	}
 
-	bool console_detail::console::IsViewportVisible() const
+	bool console::IsViewportVisible() const
 	{
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
 		if (!GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi))
@@ -1087,8 +1090,11 @@ namespace console_detail
 		return csbi.srWindow.Bottom >= csbi.dwSize.Y - Height && csbi.srWindow.Left < Width;
 	}
 
-	bool console_detail::console::IsViewportShifted() const
+	bool console::IsViewportShifted() const
 	{
+		if (!sWindowMode)
+			return false;
+
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
 		if (!GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi))
 			return false;
@@ -1096,15 +1102,18 @@ namespace console_detail
 		return csbi.srWindow.Left || csbi.srWindow.Bottom + 1 != csbi.dwSize.Y;
 	}
 
-	bool console_detail::console::IsPositionVisible(point const Position) const
+	bool console::IsPositionVisible(point const Position) const
 	{
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
 		if (!GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi))
 			return false;
 
-		const auto Height = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
-		return Position.x >= csbi.srWindow.Left && csbi.dwSize.Y - Height + Position.y <= csbi.srWindow.Bottom;
-	}
+		if (!InRange(csbi.srWindow.Left, Position.x, csbi.srWindow.Right))
+			return false;
+
+		const auto RealY = Position.y + (sWindowMode? ::GetDelta(csbi) : 0);
+		return InRange(csbi.srWindow.Top, RealY, csbi.srWindow.Bottom);
+	}	
 
 	bool console::GetPalette(std::array<COLORREF, 16>& Palette) const
 	{
@@ -1115,6 +1124,11 @@ namespace console_detail
 		std::copy(ALL_CONST_RANGE(csbi.ColorTable), Palette.begin());
 
 		return true;
+	}
+
+	void console::EnableWindowMode(bool const Value)
+	{
+		sWindowMode = Value;
 	}
 
 	void console::EnableVirtualTerminal(bool const Value)

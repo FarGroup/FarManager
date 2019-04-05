@@ -2157,6 +2157,8 @@ void Options::Load(overrides&& Overrides)
 		WindowMode = StoredWindowMode;
 	}
 
+	console.EnableWindowMode(WindowMode != 0);
+
 	ElevationMode = StoredElevationMode;
 
 	ReadPanelModes();

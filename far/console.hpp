@@ -152,7 +152,8 @@ namespace console_detail
 
 		bool GetPalette(std::array<COLORREF, 16>& Palette) const;
 
-		void EnableVirtualTerminal(bool Value);
+		static void EnableWindowMode(bool Value);
+		static void EnableVirtualTerminal(bool Value);
 
 	private:
 		class implementation;
