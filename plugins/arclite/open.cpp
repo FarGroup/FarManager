@@ -383,6 +383,34 @@ void prioritize(list<ArcEntry>& arc_entries, const ArcType& first, const ArcType
   }
 }
 
+//??? filter multi-volume .zip archives to avoid wrong opening.
+//??? if someone can find better solution - welcome...
+//
+static Byte zip_LOCAL_sig[] = { 0x50, 0x4B, 0x03, 0x04 };
+static Byte zip_EOCD_sig [] = { 0x50, 0x4B, 0x05, 0x06 };
+//
+static bool accepted_signature(size_t pos, const SigData& sig, const Byte *buffer, size_t size)
+{
+  if (!pos
+   || sig.signature.size() != sizeof(zip_LOCAL_sig)
+   || !std::equal(zip_LOCAL_sig, zip_LOCAL_sig+ sizeof(zip_LOCAL_sig), buffer+pos)
+  ) return true;
+
+  pos += 30; // 30 - min LOCAL header size
+  if (pos + 65536 < size)
+	  pos = size - 65536; // look for EOCD in last 64K buffer portion
+
+  const Byte *pb = buffer+pos, *pe = buffer + size - 22+1; // 22 - min EOCD size
+  while ((pb = std::find(pb, pe, zip_EOCD_sig[0])) < pe) {
+    ++pb;
+    if (std::equal(zip_EOCD_sig+1, zip_EOCD_sig+sizeof(zip_EOCD_sig), pb)) {
+      if (pb[sizeof(zip_EOCD_sig)-1+0] != 0 || pb[sizeof(zip_EOCD_sig)-1+1] != 0) // This disk number
+        return false;
+    }
+  }
+  return true;
+}
+
 ArcEntries Archive::detect(Byte *buffer, UInt32 size, bool eof, const wstring& file_ext, const ArcTypes& arc_types) {
   ArcEntries arc_entries;
   set<ArcType> found_types;
@@ -402,9 +430,12 @@ ArcEntries Archive::detect(Byte *buffer, UInt32 size, bool eof, const wstring& f
   vector<StrPos> sig_positions = msearch(buffer, size, signatures, eof);
 
   for_each(sig_positions.begin(), sig_positions.end(), [&] (const StrPos& sig_pos) {
-    const auto& format = signatures[sig_pos.idx].format;
-    found_types.insert(format.ClassID);
-    arc_entries.push_back(ArcEntry(format.ClassID, sig_pos.pos - format.SignatureOffset));
+    const auto& signature = signatures[sig_pos.idx];
+    const auto& format = signature.format;
+    if (accepted_signature(sig_pos.pos, signature, buffer, size)) {
+      found_types.insert(format.ClassID);
+      arc_entries.push_back(ArcEntry(format.ClassID, sig_pos.pos - format.SignatureOffset));
+    }
   });
 
   // 2. find formats by file extension

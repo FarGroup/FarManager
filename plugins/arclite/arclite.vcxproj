@@ -22,7 +22,7 @@
     <ProjectGuid>{38CF1530-243C-4C81-9B0E-DCA51551AC81}</ProjectGuid>
     <Keyword>MakeFileProj</Keyword>
     <WindowsTargetPlatformVersion Condition="'$(VisualStudioVersion)' == '15.0'">10.0.16299.0</WindowsTargetPlatformVersion>
-    <WindowsTargetPlatformVersion Condition="'$(VisualStudioVersion)' == '16.0'">10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(VisualStudioVersion)' == '16.0'">10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -50,9 +50,8 @@
     <IntDir>final.64W.vc$(VisualStudioVersion)\</IntDir>
   </PropertyGroup>
   <PropertyGroup>
-    <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
-    <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v141</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings" />
@@ -77,8 +76,7 @@
     <NMakeForcedIncludes>headers.hpp</NMakeForcedIncludes>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <NMakeOutput>
-    </NMakeOutput>
+    <NMakeOutput />
     <NMakePreprocessorDefinitions>WIN32;NDEBUG;WIN32_LEAN_AND_MEAN;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;_WIN32_WINNT=0x0500;UNICODE;_UNICODE;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <NMakeBuildCommandLine>nmake -nologo -f makefile_vc VisualStudioVersion=$(VisualStudioVersion)</NMakeBuildCommandLine>
     <NMakeCleanCommandLine>nmake -nologo -f makefile_vc VisualStudioVersion=$(VisualStudioVersion) clean</NMakeCleanCommandLine>
@@ -86,8 +84,7 @@
     <NMakeForcedIncludes>headers.hpp</NMakeForcedIncludes>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <NMakeOutput>
-    </NMakeOutput>
+    <NMakeOutput />
     <NMakePreprocessorDefinitions>WIN32;NDEBUG;WIN32_LEAN_AND_MEAN;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;_WIN32_WINNT=0x0500;UNICODE;_UNICODE;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <NMakeBuildCommandLine>nmake -nologo -f makefile_vc CPU=AMD64 VisualStudioVersion=$(VisualStudioVersion)</NMakeBuildCommandLine>
     <NMakeCleanCommandLine>nmake -nologo -f makefile_vc CPU=AMD64 VisualStudioVersion=$(VisualStudioVersion) clean</NMakeCleanCommandLine>
