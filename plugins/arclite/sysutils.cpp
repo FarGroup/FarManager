@@ -131,10 +131,10 @@ wstring get_current_directory() {
 
 #define CHECK_FILE(code) { if (!(code)) throw Error(HRESULT_FROM_WIN32(GetLastError()), file_path, __FILE__, __LINE__); }
 
-File::File(): h_file(INVALID_HANDLE_VALUE) {
+File::File() noexcept : h_file(INVALID_HANDLE_VALUE) {
 }
 
-File::~File() {
+File::~File() noexcept {
   close();
 }
 
@@ -146,7 +146,7 @@ void File::open(const wstring& file_path, DWORD desired_access, DWORD share_mode
   CHECK_FILE(open_nt(file_path, desired_access, share_mode, creation_disposition, flags_and_attributes));
 }
 
-bool File::open_nt(const wstring& file_path, DWORD desired_access, DWORD share_mode, DWORD creation_disposition, DWORD flags_and_attributes) {
+bool File::open_nt(const wstring& file_path, DWORD desired_access, DWORD share_mode, DWORD creation_disposition, DWORD flags_and_attributes) noexcept {
   close();
   this->file_path = file_path;
   const auto system_functions = Far::get_system_functions();
@@ -160,7 +160,7 @@ bool File::open_nt(const wstring& file_path, DWORD desired_access, DWORD share_m
   return h_file != INVALID_HANDLE_VALUE;
 }
 
-void File::close() {
+void File::close() noexcept {
   if (h_file != INVALID_HANDLE_VALUE) {
     CloseHandle(h_file);
     h_file = INVALID_HANDLE_VALUE;
@@ -173,7 +173,7 @@ unsigned __int64 File::size() {
   return file_size;
 }
 
-bool File::size_nt(unsigned __int64& file_size) {
+bool File::size_nt(unsigned __int64& file_size) noexcept {
   LARGE_INTEGER fs;
   if (GetFileSizeEx(h_file, &fs)) {
     file_size = fs.QuadPart;
@@ -189,7 +189,7 @@ size_t File::read(void* data, size_t size) {
   return size_read;
 }
 
-bool File::read_nt(void* data, size_t size, size_t& size_read) {
+bool File::read_nt(void* data, size_t size, size_t& size_read) noexcept {
   DWORD sz;
   if (ReadFile(h_file, data, static_cast<DWORD>(size), &sz, nullptr)) {
     size_read = sz;
@@ -205,7 +205,7 @@ size_t File::write(const void* data, size_t size) {
   return size_written;
 }
 
-bool File::write_nt(const void* data, size_t size, size_t& size_written) {
+bool File::write_nt(const void* data, size_t size, size_t& size_written) noexcept {
   DWORD sz;
   if (WriteFile(h_file, data, static_cast<DWORD>(size), &sz, nullptr)) {
     size_written = sz;
@@ -219,7 +219,7 @@ void File::set_time(const FILETIME& ctime, const FILETIME& atime, const FILETIME
   CHECK_FILE(set_time_nt(ctime, atime, mtime));
 };
 
-bool File::set_time_nt(const FILETIME& ctime, const FILETIME& atime, const FILETIME& mtime) {
+bool File::set_time_nt(const FILETIME& ctime, const FILETIME& atime, const FILETIME& mtime) noexcept {
   return SetFileTime(h_file, &ctime, &atime, &mtime) != 0;
 };
 
@@ -229,7 +229,7 @@ unsigned __int64 File::set_pos(__int64 offset, DWORD method) {
   return new_pos;
 }
 
-bool File::set_pos_nt(__int64 offset, DWORD method, unsigned __int64* new_pos) {
+bool File::set_pos_nt(__int64 offset, DWORD method, unsigned __int64* new_pos) noexcept {
   LARGE_INTEGER distance_to_move, new_file_pointer;
   distance_to_move.QuadPart = offset;
   if (!SetFilePointerEx(h_file, distance_to_move, &new_file_pointer, method))
@@ -243,7 +243,7 @@ void File::set_end() {
   CHECK_FILE(set_end_nt());
 }
 
-bool File::set_end_nt() {
+bool File::set_end_nt() noexcept {
   return SetEndOfFile(h_file) != 0;
 }
 
@@ -253,15 +253,15 @@ BY_HANDLE_FILE_INFORMATION File::get_info() {
   return info;
 }
 
-bool File::get_info_nt(BY_HANDLE_FILE_INFORMATION& info) {
+bool File::get_info_nt(BY_HANDLE_FILE_INFORMATION& info) noexcept {
   return GetFileInformationByHandle(h_file, &info) != 0;
 }
 
-bool File::exists(const wstring& file_path) {
+bool File::exists(const wstring& file_path) noexcept {
   return attributes(file_path) != INVALID_FILE_ATTRIBUTES;
 }
 
-DWORD File::attributes(const wstring& file_path) {
+DWORD File::attributes(const wstring& file_path) noexcept {
   const auto system_functions = Far::get_system_functions();
   if (system_functions)
     return system_functions->GetFileAttributes(long_path_norm(file_path).c_str()); 
@@ -273,7 +273,7 @@ void File::set_attr(const wstring& file_path, DWORD attr) {
   CHECK_FILE(set_attr_nt(file_path, attr));
 }
 
-bool File::set_attr_nt(const wstring& file_path, DWORD attr) {
+bool File::set_attr_nt(const wstring& file_path, DWORD attr) noexcept {
   const auto system_functions = Far::get_system_functions();
   if (system_functions)
     return system_functions->SetFileAttributes(long_path_norm(file_path).c_str(), attr) != 0;
@@ -285,7 +285,7 @@ void File::delete_file(const wstring& file_path) {
   CHECK_FILE(delete_file_nt(file_path));
 }
 
-bool File::delete_file_nt(const wstring& file_path) {
+bool File::delete_file_nt(const wstring& file_path) noexcept {
   const auto system_functions = Far::get_system_functions();
   if (system_functions)
     return system_functions->DeleteFile(long_path_norm(file_path).c_str()) != 0;
@@ -297,7 +297,7 @@ void File::create_dir(const wstring& file_path) {
   CHECK_FILE(create_dir_nt(file_path));
 }
 
-bool File::create_dir_nt(const wstring& file_path) {
+bool File::create_dir_nt(const wstring& file_path) noexcept {
   const auto system_functions = Far::get_system_functions();
   if (system_functions)
     return system_functions->CreateDirectory(long_path_norm(file_path).c_str(), nullptr) != 0;
@@ -309,7 +309,7 @@ void File::remove_dir(const wstring& file_path) {
   CHECK_FILE(remove_dir_nt(file_path));
 }
 
-bool File::remove_dir_nt(const wstring& file_path) {
+bool File::remove_dir_nt(const wstring& file_path) noexcept {
   const auto system_functions = Far::get_system_functions();
   if (system_functions)
     return system_functions->RemoveDirectory(long_path_norm(file_path).c_str()) != 0;
@@ -321,7 +321,7 @@ void File::move_file(const wstring& file_path, const wstring& new_path, DWORD fl
   CHECK_FILE(move_file_nt(file_path, new_path, flags));
 }
 
-bool File::move_file_nt(const wstring& file_path, const wstring& new_path, DWORD flags) {
+bool File::move_file_nt(const wstring& file_path, const wstring& new_path, DWORD flags) noexcept {
   const auto system_functions = Far::get_system_functions();
   if (system_functions)
     return system_functions->MoveFileEx(long_path_norm(file_path).c_str(), long_path_norm(new_path).c_str(), flags) != 0;
@@ -335,7 +335,7 @@ FindData File::get_find_data(const wstring& file_path) {
   return find_data;
 }
 
-bool File::get_find_data_nt(const wstring& file_path, FindData& find_data) {
+bool File::get_find_data_nt(const wstring& file_path, FindData& find_data) noexcept {
   HANDLE h_find = FindFirstFileW(long_path_norm(file_path).c_str(), &find_data);
   if (h_find != INVALID_HANDLE_VALUE) {
     FindClose(h_find);
@@ -348,14 +348,14 @@ bool File::get_find_data_nt(const wstring& file_path, FindData& find_data) {
 #undef CHECK_FILE
 
 
-void Key::close() {
+void Key::close() noexcept {
   if (h_key) {
     RegCloseKey(h_key);
     h_key = nullptr;
   }
 }
 
-Key::Key(): h_key(nullptr) {
+Key::Key() noexcept : h_key(nullptr) {
 }
 
 Key::~Key() {
@@ -372,7 +372,7 @@ Key& Key::open(HKEY h_parent, LPCWSTR sub_key, REGSAM sam_desired, bool create) 
   return *this;
 }
 
-bool Key::open_nt(HKEY h_parent, LPCWSTR sub_key, REGSAM sam_desired, bool create) {
+bool Key::open_nt(HKEY h_parent, LPCWSTR sub_key, REGSAM sam_desired, bool create) noexcept {
   close();
   LONG res;
   if (create)
@@ -392,7 +392,7 @@ bool Key::query_bool(const wchar_t* name) {
   return value;
 }
 
-bool Key::query_bool_nt(bool& value, const wchar_t* name) {
+bool Key::query_bool_nt(bool& value, const wchar_t* name) noexcept {
   DWORD type = REG_DWORD;
   DWORD data;
   DWORD data_size = sizeof(data);
@@ -411,7 +411,7 @@ unsigned Key::query_int(const wchar_t* name) {
   return value;
 }
 
-bool Key::query_int_nt(unsigned& value, const wchar_t* name) {
+bool Key::query_int_nt(unsigned& value, const wchar_t* name) noexcept {
   DWORD type = REG_DWORD;
   DWORD data;
   DWORD data_size = sizeof(data);
@@ -430,7 +430,7 @@ wstring Key::query_str(const wchar_t* name) {
   return value;
 }
 
-bool Key::query_str_nt(wstring& value, const wchar_t* name) {
+bool Key::query_str_nt(wstring& value, const wchar_t* name) noexcept {
   DWORD type = REG_SZ;
   DWORD data_size;
   LONG res = RegQueryValueExW(h_key, name, nullptr, &type, nullptr, &data_size);
@@ -454,7 +454,7 @@ ByteVector Key::query_binary(const wchar_t* name) {
   return value;
 }
 
-bool Key::query_binary_nt(ByteVector& value, const wchar_t* name) {
+bool Key::query_binary_nt(ByteVector& value, const wchar_t* name) noexcept {
   DWORD type = REG_BINARY;
   DWORD data_size;
   LONG res = RegQueryValueExW(h_key, name, nullptr, &type, nullptr, &data_size);
@@ -476,7 +476,7 @@ void Key::set_bool(const wchar_t* name, bool value) {
   CHECK_SYS(set_bool_nt(name, value));
 }
 
-bool Key::set_bool_nt(const wchar_t* name, bool value) {
+bool Key::set_bool_nt(const wchar_t* name, bool value) noexcept {
   DWORD data = value ? 1 : 0;
   LONG res = RegSetValueExW(h_key, name, 0, REG_DWORD, reinterpret_cast<LPBYTE>(&data), sizeof(data));
   if (res != ERROR_SUCCESS) {
@@ -490,7 +490,7 @@ void Key::set_int(const wchar_t* name, unsigned value) {
   CHECK_SYS(set_int_nt(name, value));
 }
 
-bool Key::set_int_nt(const wchar_t* name, unsigned value) {
+bool Key::set_int_nt(const wchar_t* name, unsigned value) noexcept {
   DWORD data = value;
   LONG res = RegSetValueExW(h_key, name, 0, REG_DWORD, reinterpret_cast<LPBYTE>(&data), sizeof(data));
   if (res != ERROR_SUCCESS) {
@@ -504,7 +504,7 @@ void Key::set_str(const wchar_t* name, const wstring& value) {
   CHECK_SYS(set_str_nt(name, value));
 }
 
-bool Key::set_str_nt(const wchar_t* name, const wstring& value) {
+bool Key::set_str_nt(const wchar_t* name, const wstring& value) noexcept {
   LONG res = RegSetValueExW(h_key, name, 0, REG_SZ, reinterpret_cast<LPBYTE>(const_cast<wchar_t*>(value.c_str())), (static_cast<DWORD>(value.size()) + 1) * sizeof(wchar_t));
   if (res != ERROR_SUCCESS) {
     SetLastError(res);
@@ -517,7 +517,7 @@ void Key::set_binary(const wchar_t* name, const unsigned char* value, unsigned s
   CHECK_SYS(set_binary_nt(name, value, size));
 }
 
-bool Key::set_binary_nt(const wchar_t* name, const unsigned char* value, unsigned size) {
+bool Key::set_binary_nt(const wchar_t* name, const unsigned char* value, unsigned size) noexcept {
   LONG res = RegSetValueExW(h_key, name, 0, REG_BINARY, value, size);
   if (res != ERROR_SUCCESS) {
     SetLastError(res);
@@ -530,7 +530,7 @@ void Key::delete_value(const wchar_t* name) {
   CHECK_SYS(delete_value_nt(name));
 }
 
-bool Key::delete_value_nt(const wchar_t* name) {
+bool Key::delete_value_nt(const wchar_t* name) noexcept {
   LONG res = RegDeleteValueW(h_key, name);
   if (res != ERROR_SUCCESS) {
     SetLastError(res);
@@ -545,7 +545,7 @@ vector<wstring> Key::enum_sub_keys() {
   return names;
 }
 
-bool Key::enum_sub_keys_nt(vector<wstring>& names) {
+bool Key::enum_sub_keys_nt(vector<wstring>& names) noexcept {
   DWORD index = 0;
   const unsigned c_key_name_size = 256;
   Buffer<wchar_t> name(c_key_name_size);
@@ -572,7 +572,7 @@ void Key::delete_sub_key(const wchar_t* name) {
   CHECK_SYS(delete_sub_key_nt(name));
 }
 
-bool Key::delete_sub_key_nt(const wchar_t* name) {
+bool Key::delete_sub_key_nt(const wchar_t* name) noexcept {
   LONG res = RegDeleteKeyW(h_key, name);
   if (res != ERROR_SUCCESS) {
     SetLastError(res);
@@ -581,7 +581,7 @@ bool Key::delete_sub_key_nt(const wchar_t* name) {
   return true;
 }
 
-FileEnum::FileEnum(const wstring& file_mask): file_mask(file_mask), h_find(INVALID_HANDLE_VALUE) {
+FileEnum::FileEnum(const wstring& file_mask) noexcept : file_mask(file_mask), h_find(INVALID_HANDLE_VALUE) {
   n_far_items = -1;
 }
 
@@ -623,7 +623,7 @@ int FileEnum::far_emum_cb(const PluginPanelItem& item)
   return TRUE;
 }
 
-bool FileEnum::next_nt(bool& more) {
+bool FileEnum::next_nt(bool& more) noexcept {
   for (;;) {
     if (h_find == INVALID_HANDLE_VALUE) {
       if (n_far_items >= 0) {
@@ -676,7 +676,7 @@ bool FileEnum::next_nt(bool& more) {
   }
 }
 
-DirList::DirList(const wstring& dir_path): FileEnum(add_trailing_slash(dir_path) + L'*') {
+DirList::DirList(const wstring& dir_path) noexcept : FileEnum(add_trailing_slash(dir_path) + L'*') {
 }
 
 wstring get_temp_path() {

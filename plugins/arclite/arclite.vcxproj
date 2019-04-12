@@ -19,8 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
+    <ProjectName>arclite</ProjectName>
     <ProjectGuid>{38CF1530-243C-4C81-9B0E-DCA51551AC81}</ProjectGuid>
-    <Keyword>MakeFileProj</Keyword>
     <WindowsTargetPlatformVersion Condition="'$(VisualStudioVersion)' == '15.0'">10.0.16299.0</WindowsTargetPlatformVersion>
     <WindowsTargetPlatformVersion Condition="'$(VisualStudioVersion)' == '16.0'">10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>

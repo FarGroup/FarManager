@@ -70,7 +70,7 @@ vector<StrPos> msearch(unsigned char* data, size_t size, const vector<SigData>& 
   if (str_list.empty())
     return result;
   result.reserve(str_list.size());
-  auto_ptr<StateMatrix> matrix(create_state_matrix(str_list));
+  unique_ptr<StateMatrix> matrix(create_state_matrix(str_list));
   vector<bool> found(str_list.size(), false);
   for (size_t i = 0; i < size; i++) {
     State state = 0;

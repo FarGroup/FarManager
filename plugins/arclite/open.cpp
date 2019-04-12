@@ -396,18 +396,23 @@ static bool accepted_signature(size_t pos, const SigData& sig, const Byte *buffe
    || !std::equal(zip_LOCAL_sig, zip_LOCAL_sig+ sizeof(zip_LOCAL_sig), buffer+pos)
   ) return true;
 
-  pos += 30; // 30 - min LOCAL header size
-  if (pos + 65536 < size)
-	  pos = size - 65536; // look for EOCD in last 64K buffer portion
+  pos += 30;                         // 30 - min LOCAL header size
+  size -= 22 - sizeof(zip_EOCD_sig); // 22 - min EOCD size
+  if (pos >= size)
+	  return true;
 
-  const Byte *pb = buffer+pos, *pe = buffer + size - 22+1; // 22 - min EOCD size
-  while ((pb = std::find(pb, pe, zip_EOCD_sig[0])) < pe) {
-    ++pb;
-    if (std::equal(zip_EOCD_sig+1, zip_EOCD_sig+sizeof(zip_EOCD_sig), pb)) {
-      if (pb[sizeof(zip_EOCD_sig)-1+0] != 0 || pb[sizeof(zip_EOCD_sig)-1+1] != 0) // This disk number
-        return false;
-    }
-  }
+  if (pos + 16384 < size) //???
+	  pos = size - 16384;  //  look for EOCDonly in last 16K buffer portion
+  std::string_view where((const char*)buffer + pos, size);
+  std::string_view what((const char*)zip_EOCD_sig, sizeof(zip_EOCD_sig));
+  auto eocd = where.rfind(what);
+  if (eocd == std::string_view::npos)
+	  return true;
+
+  pos += eocd + sizeof(zip_EOCD_sig);
+  if (buffer[pos] != 0 || buffer[pos + 1] != 0) // This disk (aka Volume) number
+	  return false;
+
   return true;
 }
 

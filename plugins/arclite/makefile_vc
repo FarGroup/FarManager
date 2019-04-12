@@ -49,7 +49,7 @@ CPPFLAGS=$(CPPFLAGS) /arch:IA32
 !endif
 
 !if $(VC) >= 14
-CPPFLAGS = $(CPPFLAGS) /Zc:threadSafeInit-
+CPPFLAGS = $(CPPFLAGS) /Zc:threadSafeInit- /std:c++latest
 !endif
 
 !ifdef BUILD

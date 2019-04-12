@@ -448,7 +448,7 @@ public:
     COM_ERROR_HANDLER_END
   }
 
-  virtual void clean_files() throw() {
+  virtual void clean_files() noexcept {
     volume.close();
     unsigned __int64 last_volume_idx = get_last_volume_idx();
     for (unsigned __int64 volume_idx = 0; volume_idx <= last_volume_idx; volume_idx++) {

@@ -61,88 +61,88 @@ protected:
   HANDLE h_file;
   wstring file_path;
 public:
-  File() throw();
-  ~File() throw();
+  File() noexcept;
+  ~File() noexcept;
   File(const wstring& file_path, DWORD desired_access, DWORD share_mode, DWORD creation_disposition, DWORD flags_and_attributes);
   void open(const wstring& file_path, DWORD desired_access, DWORD share_mode, DWORD creation_disposition, DWORD flags_and_attributes);
-  bool open_nt(const wstring& file_path, DWORD desired_access, DWORD share_mode, DWORD creation_disposition, DWORD flags_and_attributes) throw();
-  void close() throw();
-  bool is_open() const throw() {
+  bool open_nt(const wstring& file_path, DWORD desired_access, DWORD share_mode, DWORD creation_disposition, DWORD flags_and_attributes) noexcept;
+  void close() noexcept;
+  bool is_open() const noexcept {
     return h_file != INVALID_HANDLE_VALUE;
   }
-  HANDLE handle() const throw() {
+  HANDLE handle() const noexcept {
     return h_file;
   }
-  const wstring& path() const throw() {
+  const wstring& path() const noexcept {
     return file_path;
   }
   unsigned __int64 size();
-  bool size_nt(unsigned __int64& file_size) throw();
+  bool size_nt(unsigned __int64& file_size) noexcept;
   size_t read(void* data, size_t size);
-  bool read_nt(void* data, size_t size, size_t& size_read) throw();
+  bool read_nt(void* data, size_t size, size_t& size_read) noexcept;
   size_t write(const void* data, size_t size);
-  bool write_nt(const void* data, size_t size, size_t& size_written) throw();
+  bool write_nt(const void* data, size_t size, size_t& size_written) noexcept;
   void set_time(const FILETIME& ctime, const FILETIME& atime, const FILETIME& mtime);
-  bool set_time_nt(const FILETIME& ctime, const FILETIME& atime, const FILETIME& mtime) throw();
+  bool set_time_nt(const FILETIME& ctime, const FILETIME& atime, const FILETIME& mtime) noexcept;
   unsigned __int64 set_pos(__int64 offset, DWORD method = FILE_BEGIN);
-  bool set_pos_nt(__int64 offset, DWORD method = FILE_BEGIN, unsigned __int64* new_pos = nullptr) throw();
+  bool set_pos_nt(__int64 offset, DWORD method = FILE_BEGIN, unsigned __int64* new_pos = nullptr) noexcept;
   void set_end();
-  bool set_end_nt() throw();
+  bool set_end_nt() noexcept;
   BY_HANDLE_FILE_INFORMATION get_info();
-  bool get_info_nt(BY_HANDLE_FILE_INFORMATION& info) throw();
-  template<typename Type> bool io_control_out_nt(DWORD code, Type& data) throw() {
+  bool get_info_nt(BY_HANDLE_FILE_INFORMATION& info) noexcept;
+  template<typename Type> bool io_control_out_nt(DWORD code, Type& data) noexcept {
     DWORD size_ret;
     return DeviceIoControl(h_file, code, nullptr, 0, &data, sizeof(Type), &size_ret, nullptr) != 0;
   }
-  static DWORD attributes(const wstring& file_path) throw();
-  static bool exists(const wstring& file_path) throw();
+  static DWORD attributes(const wstring& file_path) noexcept;
+  static bool exists(const wstring& file_path) noexcept;
   static void set_attr(const wstring& file_path, DWORD attr);
-  static bool set_attr_nt(const wstring& file_path, DWORD attr) throw();
+  static bool set_attr_nt(const wstring& file_path, DWORD attr) noexcept;
   static void delete_file(const wstring& file_path);
-  static bool delete_file_nt(const wstring& file_path) throw();
+  static bool delete_file_nt(const wstring& file_path) noexcept;
   static void create_dir(const wstring& dir_path);
-  static bool create_dir_nt(const wstring& dir_path) throw();
+  static bool create_dir_nt(const wstring& dir_path) noexcept;
   static void remove_dir(const wstring& file_path);
-  static bool remove_dir_nt(const wstring& file_path) throw();
+  static bool remove_dir_nt(const wstring& file_path) noexcept;
   static void move_file(const wstring& file_path, const wstring& new_path, DWORD flags);
-  static bool move_file_nt(const wstring& file_path, const wstring& new_path, DWORD flags) throw();
+  static bool move_file_nt(const wstring& file_path, const wstring& new_path, DWORD flags) noexcept;
   static FindData get_find_data(const wstring& file_path);
-  static bool get_find_data_nt(const wstring& file_path, FindData& find_data) throw();
+  static bool get_find_data_nt(const wstring& file_path, FindData& find_data) noexcept;
 };
 
 class Key: private NonCopyable {
 protected:
   HKEY h_key;
 public:
-  Key() throw();
-  ~Key() throw();
+  Key() noexcept;
+  ~Key() noexcept;
   Key(HKEY h_parent, LPCWSTR sub_key, REGSAM sam_desired, bool create);
   Key& open(HKEY h_parent, LPCWSTR sub_key, REGSAM sam_desired, bool create);
-  bool open_nt(HKEY h_parent, LPCWSTR sub_key, REGSAM sam_desired, bool create) throw();
-  void close() throw();
-  HKEY handle() const throw();
+  bool open_nt(HKEY h_parent, LPCWSTR sub_key, REGSAM sam_desired, bool create) noexcept;
+  void close() noexcept;
+  HKEY handle() const noexcept;
   bool query_bool(const wchar_t* name);
-  bool query_bool_nt(bool& value, const wchar_t* name) throw();
+  bool query_bool_nt(bool& value, const wchar_t* name) noexcept;
   unsigned query_int(const wchar_t* name);
-  bool query_int_nt(unsigned& value, const wchar_t* name) throw();
+  bool query_int_nt(unsigned& value, const wchar_t* name) noexcept;
   wstring query_str(const wchar_t* name);
-  bool query_str_nt(wstring& value, const wchar_t* name) throw();
+  bool query_str_nt(wstring& value, const wchar_t* name) noexcept;
   ByteVector query_binary(const wchar_t* name);
-  bool query_binary_nt(ByteVector& value, const wchar_t* name) throw();
+  bool query_binary_nt(ByteVector& value, const wchar_t* name) noexcept;
   void set_bool(const wchar_t* name, bool value);
-  bool set_bool_nt(const wchar_t* name, bool value) throw();
+  bool set_bool_nt(const wchar_t* name, bool value) noexcept;
   void set_int(const wchar_t* name, unsigned value);
-  bool set_int_nt(const wchar_t* name, unsigned value) throw();
+  bool set_int_nt(const wchar_t* name, unsigned value) noexcept;
   void set_str(const wchar_t* name, const wstring& value);
-  bool set_str_nt(const wchar_t* name, const wstring& value) throw();
+  bool set_str_nt(const wchar_t* name, const wstring& value) noexcept;
   void set_binary(const wchar_t* name, const unsigned char* value, unsigned size);
-  bool set_binary_nt(const wchar_t* name, const unsigned char* value, unsigned size) throw();
+  bool set_binary_nt(const wchar_t* name, const unsigned char* value, unsigned size) noexcept;
   void delete_value(const wchar_t* name);
-  bool delete_value_nt(const wchar_t* name) throw();
+  bool delete_value_nt(const wchar_t* name) noexcept;
   vector<wstring> enum_sub_keys();
-  bool enum_sub_keys_nt(vector<wstring>& names) throw();
+  bool enum_sub_keys_nt(vector<wstring>& names) noexcept;
   void delete_sub_key(const wchar_t* name);
-  bool delete_sub_key_nt(const wchar_t* name) throw();
+  bool delete_sub_key_nt(const wchar_t* name) noexcept;
 };
 
 class FileEnum: private NonCopyable {
@@ -153,11 +153,11 @@ protected:
   int n_far_items;
   std::list<FindData> far_items;
 public:
-  FileEnum(const wstring& file_mask) throw();
-  ~FileEnum() throw();
+  FileEnum(const wstring& file_mask) noexcept;
+  ~FileEnum() noexcept;
   bool next();
-  bool next_nt(bool& more) throw();
-  const FindData& data() const throw() {
+  bool next_nt(bool& more) noexcept;
+  const FindData& data() const noexcept {
     return find_data;
   }
 public:
@@ -166,7 +166,7 @@ public:
 
 class DirList: public FileEnum {
 public:
-  DirList(const wstring& dir_path) throw();
+  DirList(const wstring& dir_path) noexcept;
 };
 
 wstring get_temp_path();
