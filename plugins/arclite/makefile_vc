@@ -14,10 +14,12 @@ ASFLAGS = -nologo -c
 !if "$(BUILD_PLATFORM)" == "AMD64"
 BITS = 64
 RCFLAGS = $(RCFLAGS) -Dx64
+OS_VERSION = 5.2
 !else
 BITS = 32
 LINKFLAGS = $(LINKFLAGS) -safeseh $(SUBSYSTEM)
 ASFLAGS = $(ASFLAGS) -safeseh
+OS_VERSION = 5.0
 !endif
 
 !ifdef DEBUG
@@ -100,6 +102,7 @@ build_project: $(FILES)
 
 $(OUTDIR)\$(MODULE).dll: $(OUTDIR)\plugin.def $(OBJS) $(OUTDIR)\headers.pch $(OUTDIR)\version.res project.ini
   link $(LINKFLAGS) -def:$(OUTDIR)\plugin.def -out:$@ $(OBJS) $(OUTDIR)\headers.obj $(OUTDIR)\version.res $(LIBS)
+  editbin /nologo /subsystem:console,$(OS_VERSION) /osversion:$(OS_VERSION) $(OUTDIR)\$(MODULE).dll
 
 $(OBJS): $(OUTDIR)\headers.pch
 
