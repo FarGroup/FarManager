@@ -403,7 +403,7 @@ static bool accepted_signature(size_t pos, const SigData& sig, const Byte *buffe
 
   if (pos + 16384 < size) //???
 	  pos = size - 16384;  //  look for EOCDonly in last 16K buffer portion
-  std::string_view where((const char*)buffer + pos, size);
+  std::string_view where((const char*)buffer + pos, size-pos);
   std::string_view what((const char*)zip_EOCD_sig, sizeof(zip_EOCD_sig));
   auto eocd = where.rfind(what);
   if (eocd == std::string_view::npos)
