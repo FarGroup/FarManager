@@ -140,6 +140,8 @@
 @if not exist $(OutDir)\Legacy @md $(OutDir)\Legacy 1&gt;nul
 @copy /y luasdk\32\legacy\lua51.dll $(OutDir)\Legacy 1&gt;nul</Command>
       <Message>copy prebuilt DLLs</Message>
+      <Command>editbin /nologo /subsystem:console,5.0 /osversion:5.0 $(OutDir)$(TargetName)$(TargetExt) &gt; nul</Command>
+      <Message>Fixing subsystem version</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
 
@@ -160,6 +162,8 @@
     <PostBuildEvent>
       <Command>@for %%s in (lua51 lua5.1 lpeg) do @copy /y luasdk\64\%%s.dll $(OutDir) 1&gt;nul</Command>
       <Message>copy prebuilt DLLs</Message>
+      <Command>editbin /nologo /subsystem:console,5.2 /osversion:5.2 $(OutDir)$(TargetName)$(TargetExt) &gt; nul</Command>
+      <Message>Fixing subsystem version</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
 
