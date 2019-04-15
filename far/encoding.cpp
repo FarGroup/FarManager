@@ -491,7 +491,7 @@ static const int OPT = opt + 255;
 static const int PLS = pls + b64 + 62;
 static const int MNS = mns + dir + 255;
 
-constexpr short operator ""_D(size_t const n)
+constexpr short operator ""_D(unsigned long long const n)
 {
 	return static_cast<short>(dir + b64 + n);
 }
