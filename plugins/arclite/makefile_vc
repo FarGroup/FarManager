@@ -54,10 +54,6 @@ CPPFLAGS=$(CPPFLAGS) /arch:IA32
 CPPFLAGS = $(CPPFLAGS) /Zc:threadSafeInit- /std:c++latest
 !endif
 
-!ifdef BUILD
-!include $(OUTDIR)\far.ini
-!endif
-
 OBJS = $(OUTDIR)\archive.obj $(OUTDIR)\plugin.obj $(OUTDIR)\ui.obj $(OUTDIR)\extract.obj $(OUTDIR)\open.obj \
   $(OUTDIR)\update.obj $(OUTDIR)\delete.obj $(OUTDIR)\options.obj $(OUTDIR)\msearch.obj $(OUTDIR)\attr.obj \
   $(OUTDIR)\test.obj $(OUTDIR)\common.obj $(OUTDIR)\sfx.obj $(OUTDIR)\cmdline.obj $(OUTDIR)\rsrc.obj \
