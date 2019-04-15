@@ -68,7 +68,7 @@ $(OUTDIR)/$(MODULE)_eng.hlf: project.ini en.hlf
 	@echo preproc $(@F) && $(TOOL) preproc $(subst /,\,$? $@)
 
 $(OUTDIR)/$(MODULE)_rus.hlf: project.ini ru.hlf
-	$(TOOL) preproc $(subst /,\,$? $@)
+	@echo preproc $(TOOL) preproc $(subst /,\,$? $@)
 
 $(OUTDIR)/en.msg: project.ini en.msg
 	@echo preproc $(@F) && $(TOOL) preproc $(subst /,\,$? $@)
