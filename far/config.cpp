@@ -84,7 +84,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.env.hpp"
 
 #include "common/from_string.hpp"
-#include "common/scope_exit.hpp"
 #include "common/zip_view.hpp"
 
 #include "format.hpp"
@@ -158,7 +157,7 @@ void Options::SystemSettings()
 {
 	const auto GetSortingState = [&]
 	{
-		return std::make_tuple(Sort.Collation.Get(), Sort.DigitsAsNumbers.Get(), Sort.CaseSensitive.Get());
+		return std::tuple(Sort.Collation.Get(), Sort.DigitsAsNumbers.Get(), Sort.CaseSensitive.Get());
 	};
 
 	const auto CurrentSortingState = GetSortingState();
@@ -1252,8 +1251,9 @@ void Options::SetFilePanelModes()
 			MD_BUTTON_OK,
 			MD_BUTTON_RESET,
 			MD_BUTTON_CANCEL,
-		} ;
-		FarDialogItem ModeDlgData[]=
+		};
+
+		FarDialogItem const ModeDlgData[]
 		{
 			{DI_DOUBLEBOX, 3, 1,72,17,0,nullptr,nullptr,0,AddNewMode? nullptr : ModeListMenu[CurMode].Name.c_str()},
 			{DI_TEXT,      5, 2, 0, 2,0,nullptr,nullptr,0,msg(lng::MEditPanelModeName).c_str()},
@@ -2397,7 +2397,7 @@ bool Options::AdvancedConfig(config_type Mode)
 	auto& CurrentConfig = GetConfig(Mode);
 
 	int DlgWidth = std::max(ScrX-4, 60), DlgHeight = std::max(ScrY-2, 20);
-	FarDialogItem AdvancedConfigDlgData[]=
+	FarDialogItem const AdvancedConfigDlgData[]
 	{
 		{DI_LISTBOX,3,1,DlgWidth-4,DlgHeight-2,0,nullptr,nullptr,DIF_NONE,nullptr},
 	};

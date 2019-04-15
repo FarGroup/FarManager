@@ -35,6 +35,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "platform.hpp"
 
+#include "common/range.hpp"
+
 namespace os::env
 {
 	const wchar_t* provider::detail::provider::data() const

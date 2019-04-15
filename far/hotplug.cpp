@@ -262,7 +262,7 @@ static DWORD GetRelationDrivesMask(DEVINST hDevInst)
 	if (CM_Get_Device_ID_List_Size(&dwSize, szDeviceID, CM_GETIDLIST_FILTER_REMOVALRELATIONS) != CR_SUCCESS || !dwSize)
 		return 0;
 
-	wchar_t_ptr_n<MAX_PATH> DeviceIdList(dwSize);
+	wchar_t_ptr_n<os::default_buffer_size> DeviceIdList(dwSize);
 	if (CM_Get_Device_ID_List(szDeviceID, DeviceIdList.get(), dwSize, CM_GETIDLIST_FILTER_REMOVALRELATIONS) != CR_SUCCESS)
 		return 0;
 

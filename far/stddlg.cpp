@@ -131,7 +131,7 @@ int GetSearchReplaceString(
 		dlg_button_cancel,
 	};
 
-	FarDialogItem ReplaceDlgData[]=
+	FarDialogItem const ReplaceDlgData[]
 	{
 		{ DI_DOUBLEBOX, 3, 1, DlgWidth - 4, 12 - YCorrection, 0, nullptr, nullptr, 0, Title },
 		{ DI_BUTTON, WordButtonX1, 2, WordButtonX2, 2, 0, nullptr, nullptr, DIF_BTNNOCLOSE, WordLabel },
@@ -250,7 +250,7 @@ bool GetString(
 	int ExitCode;
 	const auto addCheckBox = Flags&FIB_CHECKBOX && CheckBoxValue && !CheckBoxText.empty();
 	const auto offset = addCheckBox? 2 : 0;
-	FarDialogItem StrDlgData[]=
+	FarDialogItem const StrDlgData[]
 	{
 		{DI_DOUBLEBOX, 3, 1, 72, 4, 0, nullptr, nullptr, 0,                                L""},
 		{DI_TEXT,      5, 2,  0, 2, 0, nullptr, nullptr, DIF_SHOWAMPERSAND,                L""},
@@ -382,7 +382,7 @@ bool GetNameAndPassword(const string& Title, string &strUserName, string &strPas
 	|8   +---------------------------------------------------------------------+   |
 	|9                                                                             |
 	*/
-	FarDialogItem PassDlgData[]=
+	FarDialogItem const PassDlgData[]
 	{
 		{DI_DOUBLEBOX,  3, 1,72, 8,0,nullptr,nullptr,0,NullToEmpty(Title.c_str())},
 		{DI_TEXT,       5, 2, 0, 2,0,nullptr,nullptr,0,msg(lng::MNetUserName).c_str()},

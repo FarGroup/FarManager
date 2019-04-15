@@ -78,11 +78,11 @@ static MOUSE_EVENT_RECORD lastMOUSE_EVENT_RECORD;
 
 enum MODIF_PRESSED_LAST
 {
-	MODIF_SHIFT = bit(0),
-	MODIF_ALT   = bit(1),
-	MODIF_RALT  = bit(2),
-	MODIF_CTRL  = bit(3),
-	MODIF_RCTRL = bit(4),
+	MODIF_SHIFT = 0_bit,
+	MODIF_ALT   = 1_bit,
+	MODIF_RALT  = 2_bit,
+	MODIF_CTRL  = 3_bit,
+	MODIF_RCTRL = 4_bit,
 };
 static TBitFlags<size_t> PressedLast;
 
@@ -1076,7 +1076,8 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 			size_t VkKey;
 			size_t Modif;
 			bool Enhanced;
-		} Keys[]=
+		}
+		const Keys[]
 		{
 			{KEY_SHIFT,VK_SHIFT,MODIF_SHIFT,false},
 			{KEY_ALT,VK_MENU,MODIF_ALT,false},
@@ -1646,11 +1647,12 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 		}
 		if (FShift&KEY_SHIFT)
 		{
-			const struct KeysData
+			struct KeysData
 			{
 				DWORD FarKey;
 				wchar_t Char;
-			} Keys[]=
+			}
+			const Keys[]
 			{
 				{'0',')'},{'1','!'},{'2','@'},{'3','#'},{'4','$'},
 				{'5','%'},{'6','^'},{'7','&'},{'8','*'},{'9','('},
@@ -2234,7 +2236,7 @@ unsigned int CalcKeyCode(const INPUT_RECORD* rec, bool RealKey, bool* NotMacros)
 	{
 		if (!(CtrlState & ENHANCED_KEY))
 		{
-			static unsigned int ScanCodes[]={82,79,80,81,75,76,77,71,72,73};
+			static unsigned int const ScanCodes[]{ 82, 79, 80, 81, 75, 76, 77, 71, 72, 73 };
 
 			for (size_t i = 0; i != std::size(ScanCodes); ++i)
 			{

@@ -65,7 +65,7 @@ string MakeTemp(string_view Prefix, bool const WithTempPath, string_view const U
 
 	AddEndSlash(strPath);
 
-	wchar_t_ptr_n<MAX_PATH> Buffer(Prefix.size() + strPath.size() + 13);
+	wchar_t_ptr_n<os::default_buffer_size> Buffer(Prefix.size() + strPath.size() + 13);
 
 	auto Unique = 23 * GetCurrentProcessId() + s_shift;
 	const auto UniqueCopy = Unique? Unique : 1;

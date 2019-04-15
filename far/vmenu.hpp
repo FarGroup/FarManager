@@ -69,28 +69,28 @@ enum vmenu_colors
 
 enum VMENU_FLAGS
 {
-	VMENU_NONE                 =0x00000000,
-	VMENU_ALWAYSSCROLLBAR      =0x00000100, // всегда показывать скроллбар
-	VMENU_LISTBOX              =0x00000200, // Это список в диалоге
-	VMENU_SHOWNOBOX            =0x00000400, // показать без рамки
-	VMENU_AUTOHIGHLIGHT        =0x00000800, // автоматически выбирать симолы подсветки
-	VMENU_REVERSEHIGHLIGHT     =0x00001000, // ... только с конца
-	VMENU_UPDATEREQUIRED       =0x00002000, // лист необходимо обновить (перерисовать)
-	VMENU_DISABLEDRAWBACKGROUND=0x00004000, // подложку не рисовать
-	VMENU_WRAPMODE             =0x00008000, // зацикленный список (при перемещении)
-	VMENU_SHOWAMPERSAND        =0x00010000, // символ '&' показывать AS IS
-	VMENU_WARNDIALOG           =0x00020000, //
-	VMENU_LISTHASFOCUS         =0x00200000, // меню является списком в диалоге и имеет фокус
-	VMENU_COMBOBOX             =0x00400000, // меню является комбобоксом и обрабатывается менеджером по-особому.
-	VMENU_MOUSEDOWN            =0x00800000, //
-	VMENU_CHANGECONSOLETITLE   =0x01000000, //
-	VMENU_MOUSEREACTION        =0x02000000, // реагировать на движение мыши? (перемещать позицию при перемещении курсора мыши?)
-	VMENU_DISABLED             =0x04000000, //
-	VMENU_NOMERGEBORDER        =0x08000000, //
-	VMENU_REFILTERREQUIRED     =0x10000000, // перед отрисовкой необходимо обновить фильтр
-	VMENU_LISTSINGLEBOX        =0x20000000, // список, всегда с одинарной рамкой
-	VMENU_COMBOBOXEVENTKEY     =0x40000000, // посылать события клавиатуры в диалоговую проц. для открытого комбобокса
-	VMENU_COMBOBOXEVENTMOUSE   =0x80000000, // посылать события мыши в диалоговую проц. для открытого комбобокса
+	VMENU_NONE                 = 0,
+	VMENU_ALWAYSSCROLLBAR      = 8_bit,  // всегда показывать скроллбар
+	VMENU_LISTBOX              = 9_bit,  // Это список в диалоге
+	VMENU_SHOWNOBOX            = 10_bit, // показать без рамки
+	VMENU_AUTOHIGHLIGHT        = 11_bit, // автоматически выбирать симолы подсветки
+	VMENU_REVERSEHIGHLIGHT     = 12_bit, // ... только с конца
+	VMENU_UPDATEREQUIRED       = 13_bit, // лист необходимо обновить (перерисовать)
+	VMENU_DISABLEDRAWBACKGROUND= 14_bit, // подложку не рисовать
+	VMENU_WRAPMODE             = 15_bit, // зацикленный список (при перемещении)
+	VMENU_SHOWAMPERSAND        = 16_bit, // символ '&' показывать AS IS
+	VMENU_WARNDIALOG           = 17_bit, //
+	VMENU_LISTHASFOCUS         = 21_bit, // меню является списком в диалоге и имеет фокус
+	VMENU_COMBOBOX             = 22_bit, // меню является комбобоксом и обрабатывается менеджером по-особому.
+	VMENU_MOUSEDOWN            = 23_bit, //
+	VMENU_CHANGECONSOLETITLE   = 24_bit, //
+	VMENU_MOUSEREACTION        = 25_bit, // реагировать на движение мыши? (перемещать позицию при перемещении курсора мыши?)
+	VMENU_DISABLED             = 26_bit, //
+	VMENU_NOMERGEBORDER        = 27_bit, //
+	VMENU_REFILTERREQUIRED     = 28_bit, // перед отрисовкой необходимо обновить фильтр
+	VMENU_LISTSINGLEBOX        = 29_bit, // список, всегда с одинарной рамкой
+	VMENU_COMBOBOXEVENTKEY     = 30_bit, // посылать события клавиатуры в диалоговую проц. для открытого комбобокса
+	VMENU_COMBOBOXEVENTMOUSE   = 31_bit, // посылать события мыши в диалоговую проц. для открытого комбобокса
 };
 
 class Dialog;

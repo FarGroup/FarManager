@@ -111,7 +111,7 @@ namespace os::reg
 
 		for (DWORD Size = MAX_PATH; ExitCode == ERROR_MORE_DATA; Size *= 2)
 		{
-			wchar_t_ptr_n<MAX_PATH> Buffer(Size);
+			wchar_t_ptr_n<default_buffer_size> Buffer(Size);
 			auto RetSize = Size;
 			ExitCode = RegEnumValue(native_handle(), static_cast<DWORD>(Index), Buffer.get(), &RetSize, nullptr, &Value.m_Type, nullptr, nullptr);
 			if (ExitCode == ERROR_SUCCESS)

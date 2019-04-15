@@ -481,7 +481,7 @@ $(INTDIR)\vc_crt_fix_ulink.obj: vc_crt_fix_ulink.cpp
 
 !ifdef NOBATCH
 .c{$(INTDIR)}.obj:
-	@echo $(@F)
+	@echo $(@B).c
 !else
 .c{$(INTDIR)}.obj::
 !endif
@@ -491,7 +491,7 @@ $(INTDIR)\vc_crt_fix_ulink.obj: vc_crt_fix_ulink.cpp
 
 !ifdef NOBATCH
 .cpp{$(INTDIR)}.obj:
-	@echo $(@F)
+	@echo $(@B).cpp
 !else
 .cpp{$(INTDIR)}.obj::
 !endif

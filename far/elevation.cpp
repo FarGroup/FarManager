@@ -389,7 +389,7 @@ static void ElevationApproveDlgSync(const EAData& Data)
 	SCOPED_ACTION(auto)(message_manager::instance().suppress());
 
 	enum {DlgX=64,DlgY=12};
-	FarDialogItem ElevationApproveDlgData[]=
+	FarDialogItem const ElevationApproveDlgData[]
 	{
 		{DI_DOUBLEBOX,3,1,DlgX-4,DlgY-2,0,nullptr,nullptr,0,msg(lng::MAccessDenied).c_str()},
 		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(is_admin()? lng::MElevationRequiredPrivileges : lng::MElevationRequired).c_str()},

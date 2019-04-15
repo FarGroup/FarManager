@@ -3,6 +3,12 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 15.04.2019 21:42:35 +0100 - build 5384
+
+1. Refactoring.
+
+2. Please do not check in files with crlf line endings into git. Thanks.
+
 drkns 05.04.2019 17:10:06 +0100 - build 5383
 
 1. Forum: corrections for WindowMode = false.

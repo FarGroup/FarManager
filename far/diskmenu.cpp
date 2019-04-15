@@ -235,8 +235,7 @@ static void ConfigureChangeDriveMode()
 class separator
 {
 public:
-	separator():m_value(L' '){}
-	string Get()
+	string operator()()
 	{
 		if (m_value == L' ')
 		{
@@ -245,8 +244,9 @@ public:
 		}
 		return { L' ', m_value, L' '};
 	}
+
 private:
-	wchar_t m_value;
+	wchar_t m_value{L' '};
 };
 
 enum
@@ -274,7 +274,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 	10  +------------------------------------------------+
 	11
 	*/
-	FarDialogItem DCDlgData[] =
+	FarDialogItem const DCDlgData[]
 	{
 		{ DI_DOUBLEBOX, 3, 1, 72, 9, 0, nullptr, nullptr, 0, msg(lng::MChangeDriveDisconnectTitle).c_str() },
 		{ DI_TEXT, 5, 2, 0, 2, 0, nullptr, nullptr, DIF_SHOWAMPERSAND, L"" },
@@ -855,24 +855,24 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 			if (DriveMode & DRIVE_SHOW_TYPE)
 			{
-				append(ItemName, Separator.Get(), fit_to_left(i.Type, TypeWidth));
+				append(ItemName, Separator(), fit_to_left(i.Type, TypeWidth));
 			}
 			if (DriveMode & DRIVE_SHOW_LABEL)
 			{
-				append(ItemName, Separator.Get(), fit_to_left(i.Label, LabelWidth));
+				append(ItemName, Separator(), fit_to_left(i.Label, LabelWidth));
 			}
 			if (DriveMode & DRIVE_SHOW_FILESYSTEM)
 			{
-				append(ItemName, Separator.Get(), fit_to_left(i.Fs, FsWidth));
+				append(ItemName, Separator(), fit_to_left(i.Fs, FsWidth));
 			}
 			if (DriveMode & (DRIVE_SHOW_SIZE | DRIVE_SHOW_SIZE_FLOAT))
 			{
-				append(ItemName, Separator.Get(), fit_to_right(i.TotalSize, TotalSizeWidth));
-				append(ItemName, Separator.Get(), fit_to_right(i.FreeSize, FreeSizeWidth));
+				append(ItemName, Separator(), fit_to_right(i.TotalSize, TotalSizeWidth));
+				append(ItemName, Separator(), fit_to_right(i.FreeSize, FreeSizeWidth));
 			}
 			if (DriveMode & DRIVE_SHOW_PATH && PathWidth)
 			{
-				append(ItemName, Separator.Get(), i.Path);
+				append(ItemName, Separator(), i.Path);
 			}
 
 			PanelMenuItem item;

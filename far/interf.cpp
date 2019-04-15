@@ -1272,7 +1272,7 @@ bool IsConsoleFullscreen()
 
 void fix_coordinates(rectangle& Where)
 {
-	Where.left = std::clamp(Where.left, 0, static_cast<int>(ScrX));
+	Where.left = std::	clamp(Where.left, 0, static_cast<int>(ScrX));
 	Where.top = std::clamp(Where.top, 0, static_cast<int>(ScrY));
 	Where.right = std::clamp(Where.right, 0, static_cast<int>(ScrX));
 	Where.bottom = std::clamp(Where.bottom, 0, static_cast<int>(ScrY));

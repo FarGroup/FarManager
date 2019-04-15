@@ -155,10 +155,10 @@ WORD FarColorToConsoleColor(const FarColor& Color)
 
 	enum console_mask
 	{
-		BlueMask      = bit(0),
-		GreenMask     = bit(1),
-		RedMask       = bit(2),
-		IntensityMask = bit(3),
+		BlueMask      = 0_bit,
+		GreenMask     = 1_bit,
+		RedMask       = 2_bit,
+		IntensityMask = 3_bit,
 	};
 
 	for (auto& i: data)

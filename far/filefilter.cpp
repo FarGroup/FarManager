@@ -62,59 +62,49 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "format.hpp"
 
-static const struct
+#define STR_INIT(x) x{L ## #x ## sv}
+
+namespace names
 {
-	const string_view
-
-	Filters,
-	Filter,
-	FFlags,
-	FoldersFilterFFlags,
-
-	Title,
-	UseAttr, AttrSet, AttrClear,
-	UseMask, Mask,
-	UseDate, DateType, DateTimeAfter, DateTimeBefore, DateRelative,
-	UseSize, SizeAbove, SizeBelow,
-	UseHardLinks, HardLinksAbove, HardLinksBelow;
+	static const string_view
+		STR_INIT(Filters),
+		STR_INIT(Filter),
+		STR_INIT(FFlags),
+		STR_INIT(FoldersFilterFFlags),
+		STR_INIT(Title),
+		STR_INIT(UseAttr),
+		STR_INIT(AttrSet),
+		STR_INIT(AttrClear),
+		STR_INIT(UseMask),
+		STR_INIT(Mask),
+		STR_INIT(UseDate),
+		STR_INIT(DateType),
+		STR_INIT(DateTimeAfter),
+		STR_INIT(DateTimeBefore),
+		STR_INIT(DateRelative),
+		STR_INIT(UseSize),
+		STR_INIT(SizeAboveS),
+		STR_INIT(SizeBelowS),
+		STR_INIT(UseHardLinks),
+		STR_INIT(HardLinksAbove),
+		STR_INIT(HardLinksBelow);
 }
-Strings
-{
-	L"Filters"sv,
-	L"Filter"sv,
-	L"FFlags"sv,
-	L"FoldersFilterFFlags"sv,
-
-	L"Title"sv,
-	L"UseAttr"sv, L"AttrSet"sv, L"AttrClear"sv,
-	L"UseMask"sv, L"Mask"sv,
-	L"UseDate"sv, L"DateType"sv, L"DateTimeAfter"sv, L"DateTimeBefore"sv, L"DateRelative"sv,
-	L"UseSize"sv, L"SizeAboveS"sv, L"SizeBelowS"sv,
-	L"UseHardLinks"sv, L"HardLinksAbove"sv, L"HardLinksBelow"sv,
-};
 
 // Old format
 // TODO 2019 Q4: remove
-static const struct
+namespace legacy_names
 {
-	const string_view
-	
-	IgnoreMask,
-	DateAfter,
-	DateBefore,
-	RelativeDate,
-	IncludeAttributes,
-	ExcludeAttributes;
+	static const string_view
+		STR_INIT(IgnoreMask),
+		STR_INIT(DateAfter),
+		STR_INIT(DateBefore),
+		STR_INIT(RelativeDate),
+		STR_INIT(IncludeAttributes),
+		STR_INIT(ExcludeAttributes);
+
 }
-LegacyStrings
-{
-	L"IgnoreMask"sv,
-	L"DateAfter"sv,
-	L"DateBefore"sv,
-	L"RelativeDate"sv,
-	L"IncludeAttributes"sv,
-	L"ExcludeAttributes"sv,
-};
+
+#undef STR_INIT
 
 static auto& FilterData()
 {
@@ -753,64 +743,66 @@ bool FileFilter::IsEnabledOnPanel()
 	return std::any_of(CONST_RANGE(TempFilterData(), i) { return i.GetFlags(FFFT); });
 }
 
-void FileFilter::LoadFilter(/*const*/ HierarchicalConfig* cfg, unsigned long long KeyId, FileFilterParams& Item)
+FileFilterParams FileFilter::LoadFilter(/*const*/ HierarchicalConfig& cfg, unsigned long long KeyId)
 {
+	FileFilterParams Item;
+
 	HierarchicalConfig::key Key(KeyId);
 
-	Item.SetTitle(cfg->GetValue<string>(Key, Strings.Title));
+	Item.SetTitle(cfg.GetValue<string>(Key, names::Title));
 
 	unsigned long long UseMask = 1;
-	if (!cfg->GetValue(Key, Strings.UseMask, UseMask))
+	if (!cfg.GetValue(Key, names::UseMask, UseMask))
 	{
 		// Old format
 		// TODO 2019 Q4: remove
 		unsigned long long IgnoreMask = 0;
-		if (cfg->GetValue(Key, LegacyStrings.IgnoreMask, IgnoreMask))
+		if (cfg.GetValue(Key, legacy_names::IgnoreMask, IgnoreMask))
 		{
 			UseMask = !IgnoreMask;
-			cfg->SetValue(Key, Strings.UseMask, UseMask);
-			cfg->DeleteValue(Key, LegacyStrings.IgnoreMask);
+			cfg.SetValue(Key, names::UseMask, UseMask);
+			cfg.DeleteValue(Key, legacy_names::IgnoreMask);
 		}
 	}
 
-	Item.SetMask(UseMask != 0, cfg->GetValue<string>(Key, Strings.Mask));
+	Item.SetMask(UseMask != 0, cfg.GetValue<string>(Key, names::Mask));
 
 	unsigned long long DateAfter = 0;
-	if (!cfg->GetValue(Key, Strings.DateTimeAfter, DateAfter))
+	if (!cfg.GetValue(Key, names::DateTimeAfter, DateAfter))
 	{
 		// Old format
 		// TODO 2019 Q4: remove
-		if (cfg->GetValue(Key, LegacyStrings.DateAfter, bytes::reference(DateAfter)))
+		if (cfg.GetValue(Key, legacy_names::DateAfter, bytes::reference(DateAfter)))
 		{
-			cfg->SetValue(Key, Strings.DateTimeAfter, DateAfter);
-			cfg->DeleteValue(Key, LegacyStrings.DateAfter);
+			cfg.SetValue(Key, names::DateTimeAfter, DateAfter);
+			cfg.DeleteValue(Key, legacy_names::DateAfter);
 		}
 	}
 
 	unsigned long long DateBefore = 0;
-	if (!cfg->GetValue(Key, Strings.DateTimeBefore, DateBefore))
+	if (!cfg.GetValue(Key, names::DateTimeBefore, DateBefore))
 	{
 		// Old format
 		// TODO 2019 Q4: remove
-		if (cfg->GetValue(Key, LegacyStrings.DateBefore, bytes::reference(DateBefore)))
+		if (cfg.GetValue(Key, legacy_names::DateBefore, bytes::reference(DateBefore)))
 		{
-			cfg->SetValue(Key, Strings.DateTimeBefore, DateBefore);
-			cfg->DeleteValue(Key, LegacyStrings.DateBefore);
+			cfg.SetValue(Key, names::DateTimeBefore, DateBefore);
+			cfg.DeleteValue(Key, legacy_names::DateBefore);
 		}
 	}
 
-	const auto UseDate = cfg->GetValue<bool>(Key, Strings.UseDate);
-	const auto DateType = cfg->GetValue<unsigned long long>(Key, Strings.DateType);
+	const auto UseDate = cfg.GetValue<bool>(Key, names::UseDate);
+	const auto DateType = cfg.GetValue<unsigned long long>(Key, names::DateType);
 
 	unsigned long long DateRelative = 0;
-	if (!cfg->GetValue(Key, Strings.DateRelative, DateRelative))
+	if (!cfg.GetValue(Key, names::DateRelative, DateRelative))
 	{
 		// Old format
 		// TODO 2019 Q4: remove
-		if (cfg->GetValue(Key, LegacyStrings.RelativeDate, DateRelative))
+		if (cfg.GetValue(Key, legacy_names::RelativeDate, DateRelative))
 		{
-			cfg->SetValue(Key, Strings.DateRelative, DateRelative);
-			cfg->DeleteValue(Key, LegacyStrings.RelativeDate);
+			cfg.SetValue(Key, names::DateRelative, DateRelative);
+			cfg.DeleteValue(Key, legacy_names::RelativeDate);
 		}
 	}
 
@@ -818,53 +810,56 @@ void FileFilter::LoadFilter(/*const*/ HierarchicalConfig* cfg, unsigned long lon
 		filter_dates(os::chrono::duration(DateAfter), os::chrono::duration(DateBefore)) :
 		filter_dates(os::chrono::time_point(os::chrono::duration(DateAfter)), os::chrono::time_point(os::chrono::duration(DateBefore))));
 
-	const auto UseSize = cfg->GetValue<bool>(Key, Strings.UseSize);
-	const auto SizeAbove = cfg->GetValue<string>(Key, Strings.SizeAbove);
-	const auto SizeBelow = cfg->GetValue<string>(Key, Strings.SizeBelow);
+	const auto UseSize = cfg.GetValue<bool>(Key, names::UseSize);
+
+	const auto SizeAbove = cfg.GetValue<string>(Key, names::SizeAboveS);
+	const auto SizeBelow = cfg.GetValue<string>(Key, names::SizeBelowS);
 	Item.SetSize(UseSize, SizeAbove, SizeBelow);
 
-	const auto UseHardLinks = cfg->GetValue<bool>(Key, Strings.UseHardLinks);
-	const auto HardLinksAbove = cfg->GetValue<unsigned long long>(Key, Strings.HardLinksAbove);
-	const auto HardLinksBelow = cfg->GetValue<unsigned long long>(Key, Strings.HardLinksBelow);
+	const auto UseHardLinks = cfg.GetValue<bool>(Key, names::UseHardLinks);
+	const auto HardLinksAbove = cfg.GetValue<unsigned long long>(Key, names::HardLinksAbove);
+	const auto HardLinksBelow = cfg.GetValue<unsigned long long>(Key, names::HardLinksBelow);
 	Item.SetHardLinks(UseHardLinks, HardLinksAbove, HardLinksBelow);
 
 	unsigned long long AttrSet = 0;
-	if (!cfg->GetValue(Key, Strings.AttrSet, AttrSet))
+	if (!cfg.GetValue(Key, names::AttrSet, AttrSet))
 	{
 		// Old format
 		// TODO 2019 Q4: remove
-		if (cfg->GetValue(Key, LegacyStrings.IncludeAttributes, AttrSet))
+		if (cfg.GetValue(Key, legacy_names::IncludeAttributes, AttrSet))
 		{
-			cfg->SetValue(Key, Strings.AttrSet, AttrSet);
-			cfg->DeleteValue(Key, LegacyStrings.IncludeAttributes);
+			cfg.SetValue(Key, names::AttrSet, AttrSet);
+			cfg.DeleteValue(Key, legacy_names::IncludeAttributes);
 		}
 	}
 
 	unsigned long long AttrClear = 0;
-	if (!cfg->GetValue(Key, Strings.AttrClear, AttrClear))
+	if (!cfg.GetValue(Key, names::AttrClear, AttrClear))
 	{
 		// Old format
 		// TODO 2019 Q4: remove
-		if (cfg->GetValue(Key, LegacyStrings.ExcludeAttributes, AttrClear))
+		if (cfg.GetValue(Key, legacy_names::ExcludeAttributes, AttrClear))
 		{
-			cfg->SetValue(Key, Strings.AttrClear, AttrClear);
-			cfg->DeleteValue(Key, LegacyStrings.ExcludeAttributes);
+			cfg.SetValue(Key, names::AttrClear, AttrClear);
+			cfg.DeleteValue(Key, legacy_names::ExcludeAttributes);
 		}
 	}
 
 	unsigned long long UseAttr = 0;
-	if (!cfg->GetValue(Key, Strings.UseAttr, UseAttr))
+	if (!cfg.GetValue(Key, names::UseAttr, UseAttr))
 	{
 		// Old format
 		// TODO 2019 Q4: remove
 		if (AttrSet || AttrClear)
 		{
 			UseAttr = true;
-			cfg->SetValue(Key, Strings.UseAttr, UseAttr);
+			cfg.SetValue(Key, names::UseAttr, UseAttr);
 		}
 	}
 
 	Item.SetAttr(UseAttr != 0, static_cast<DWORD>(AttrSet), static_cast<DWORD>(AttrClear));
+
+	return Item;
 }
 
 void FileFilter::InitFilter()
@@ -875,7 +870,7 @@ void FileFilter::InitFilter()
 	FoldersFilter->SetAttr(true, FILE_ATTRIBUTE_DIRECTORY, 0);
 
 	const auto cfg = ConfigProvider().CreateFiltersConfig();
-	const auto root = cfg->FindByName(cfg->root_key, Strings.Filters);
+	const auto root = cfg->FindByName(cfg->root_key, names::Filters);
 
 	if (!root)
 		return;
@@ -889,17 +884,16 @@ void FileFilter::InitFilter()
 			Item.SetFlags(static_cast<enumFileFilterFlagsType>(i), Flags[i]);
 	};
 
-	LoadFlags(root, Strings.FoldersFilterFFlags, *FoldersFilter);
+	LoadFlags(root, names::FoldersFilterFFlags, *FoldersFilter);
 
 	for (;;)
 	{
-		const auto key = cfg->FindByName(root, Strings.Filter + str(FilterData().size()));
+		const auto key = cfg->FindByName(root, names::Filter + str(FilterData().size()));
 		if (!key)
 			break;
 
-		FileFilterParams NewItem;
-		LoadFilter(cfg.get(), key.get(), NewItem);
-		LoadFlags(key, Strings.FFlags, NewItem);
+		auto NewItem = LoadFilter(*cfg, key.get());
+		LoadFlags(key, names::FFlags, NewItem);
 		FilterData().emplace_back(std::move(NewItem));
 	}
 
@@ -911,12 +905,12 @@ void FileFilter::InitFilter()
 
 		FileFilterParams NewItem;
 
-		NewItem.SetMask(true, cfg->GetValue<string>(key, Strings.Mask));
+		NewItem.SetMask(true, cfg->GetValue<string>(key, names::Mask));
 
 		//Авто фильтры они только для файлов, папки не должны к ним подходить
 		NewItem.SetAttr(true, 0, FILE_ATTRIBUTE_DIRECTORY);
 
-		LoadFlags(key, Strings.FFlags, NewItem);
+		LoadFlags(key, names::FFlags, NewItem);
 
 		TempFilterData().emplace_back(std::move(NewItem));
 	}
@@ -929,48 +923,48 @@ void FileFilter::CloseFilter()
 	TempFilterData().clear();
 }
 
-void FileFilter::SaveFilter(HierarchicalConfig *cfg, unsigned long long KeyId, const FileFilterParams& Item)
+void FileFilter::SaveFilter(HierarchicalConfig& cfg, unsigned long long KeyId, const FileFilterParams& Item)
 {
 	HierarchicalConfig::key Key(KeyId);
 
-	cfg->SetValue(Key, Strings.Title, Item.GetTitle());
-	cfg->SetValue(Key, Strings.UseMask, Item.IsMaskUsed());
-	cfg->SetValue(Key, Strings.Mask, Item.GetMask());
+	cfg.SetValue(Key, names::Title, Item.GetTitle());
+	cfg.SetValue(Key, names::UseMask, Item.IsMaskUsed());
+	cfg.SetValue(Key, names::Mask, Item.GetMask());
 
 	DWORD DateType;
 	filter_dates Dates;
-	cfg->SetValue(Key, Strings.UseDate, Item.GetDate(&DateType, &Dates));
-	cfg->SetValue(Key, Strings.DateType, DateType);
+	cfg.SetValue(Key, names::UseDate, Item.GetDate(&DateType, &Dates));
+	cfg.SetValue(Key, names::DateType, DateType);
 
 	Dates.visit(overload
 	(
 		[&](os::chrono::duration After, os::chrono::duration Before)
 		{
-			cfg->SetValue(Key, Strings.DateTimeAfter, After.count());
-			cfg->SetValue(Key, Strings.DateTimeBefore, Before.count());
-			cfg->SetValue(Key, Strings.DateRelative, true);
+			cfg.SetValue(Key, names::DateTimeAfter, After.count());
+			cfg.SetValue(Key, names::DateTimeBefore, Before.count());
+			cfg.SetValue(Key, names::DateRelative, true);
 		},
 		[&](os::chrono::time_point After, os::chrono::time_point Before)
 		{
-			cfg->SetValue(Key, Strings.DateTimeAfter, After.time_since_epoch().count());
-			cfg->SetValue(Key, Strings.DateTimeBefore, Before.time_since_epoch().count());
-			cfg->SetValue(Key, Strings.DateRelative, false);
+			cfg.SetValue(Key, names::DateTimeAfter, After.time_since_epoch().count());
+			cfg.SetValue(Key, names::DateTimeBefore, Before.time_since_epoch().count());
+			cfg.SetValue(Key, names::DateRelative, false);
 		}
 	));
 
-	cfg->SetValue(Key, Strings.UseSize, Item.IsSizeUsed());
-	cfg->SetValue(Key, Strings.SizeAbove, Item.GetSizeAbove());
-	cfg->SetValue(Key, Strings.SizeBelow, Item.GetSizeBelow());
+	cfg.SetValue(Key, names::UseSize, Item.IsSizeUsed());
+	cfg.SetValue(Key, names::SizeAboveS, Item.GetSizeAbove());
+	cfg.SetValue(Key, names::SizeBelowS, Item.GetSizeBelow());
 
 	DWORD HardLinksAbove,HardLinksBelow;
-	cfg->SetValue(Key, Strings.UseHardLinks, Item.GetHardLinks(&HardLinksAbove,&HardLinksBelow)? 1 : 0);
-	cfg->SetValue(Key, Strings.HardLinksAbove, HardLinksAbove);
-	cfg->SetValue(Key, Strings.HardLinksBelow, HardLinksBelow);
+	cfg.SetValue(Key, names::UseHardLinks, Item.GetHardLinks(&HardLinksAbove,&HardLinksBelow)? 1 : 0);
+	cfg.SetValue(Key, names::HardLinksAbove, HardLinksAbove);
+	cfg.SetValue(Key, names::HardLinksBelow, HardLinksBelow);
 
 	DWORD AttrSet, AttrClear;
-	cfg->SetValue(Key, Strings.UseAttr, Item.GetAttr(&AttrSet, &AttrClear));
-	cfg->SetValue(Key, Strings.AttrSet, AttrSet);
-	cfg->SetValue(Key, Strings.AttrClear, AttrClear);
+	cfg.SetValue(Key, names::UseAttr, Item.GetAttr(&AttrSet, &AttrClear));
+	cfg.SetValue(Key, names::AttrSet, AttrSet);
+	cfg.SetValue(Key, names::AttrClear, AttrClear);
 }
 
 void FileFilter::Save(bool always)
@@ -982,11 +976,11 @@ void FileFilter::Save(bool always)
 
 	SCOPED_ACTION(auto)(cfg->ScopedTransaction());
 
-	auto root = cfg->FindByName(cfg->root_key, Strings.Filters);
+	auto root = cfg->FindByName(cfg->root_key, names::Filters);
 	if (root)
 		cfg->DeleteKeyTree(root);
 
-	root = cfg->CreateKey(cfg->root_key, Strings.Filters);
+	root = cfg->CreateKey(cfg->root_key, names::Filters);
 	if (!root)
 		return;
 
@@ -1002,14 +996,14 @@ void FileFilter::Save(bool always)
 
 	for (size_t i=0; i<FilterData().size(); ++i)
 	{
-		const auto Key = cfg->CreateKey(root, Strings.Filter + str(i));
+		const auto Key = cfg->CreateKey(root, names::Filter + str(i));
 		if (!Key)
 			break;
 
 		const auto& CurFilterData = FilterData()[i];
 
-		SaveFilter(cfg.get(), Key.get(), CurFilterData);
-		SaveFlags(Key, Strings.FFlags, CurFilterData);
+		SaveFilter(*cfg, Key.get(), CurFilterData);
+		SaveFlags(Key, names::FFlags, CurFilterData);
 	}
 
 	for (size_t i=0; i<TempFilterData().size(); ++i)
@@ -1020,11 +1014,11 @@ void FileFilter::Save(bool always)
 
 		const auto& CurFilterData = TempFilterData()[i];
 
-		cfg->SetValue(Key, Strings.Mask, CurFilterData.GetMask());
-		SaveFlags(Key, Strings.FFlags, CurFilterData);
+		cfg->SetValue(Key, names::Mask, CurFilterData.GetMask());
+		SaveFlags(Key, names::FFlags, CurFilterData);
 	}
 
-	SaveFlags(root, Strings.FoldersFilterFFlags, *FoldersFilter);
+	SaveFlags(root, names::FoldersFilterFFlags, *FoldersFilter);
 
 	Changed = false;
 }

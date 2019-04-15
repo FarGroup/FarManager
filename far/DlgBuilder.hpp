@@ -624,8 +624,8 @@ class DialogBuilderBase
 			if (Separator)
 				AddSeparator();
 
-			int MsgIDs[] = { OKMessageId, CancelMessageId, ExtraMessageId };
-			int NumButtons = (ExtraMessageId != -1) ? 3 : (CancelMessageId != -1? 2 : 1);
+			int const MsgIDs[] = { OKMessageId, CancelMessageId, ExtraMessageId };
+			int const NumButtons = (ExtraMessageId != -1) ? 3 : (CancelMessageId != -1? 2 : 1);
 
 			AddButtons(NumButtons, MsgIDs, 0, 1);
 		}

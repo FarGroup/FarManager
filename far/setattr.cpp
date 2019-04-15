@@ -629,7 +629,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	short DlgX=74,DlgY=25;
-	FarDialogItem AttrDlgData[]=
+	FarDialogItem const AttrDlgData[]
 	{
 		{DI_DOUBLEBOX,3,1,DlgX-4,DlgY-2,0,nullptr,nullptr,0,msg(lng::MSetAttrTitle).c_str()},
 		{DI_TEXT,-1,2,0,2,0,nullptr,nullptr,0,msg(lng::MSetAttrFor).c_str()},
@@ -1059,9 +1059,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				}
 			}
 
-			string strSelNameQ(SingleSelFileName);
-			QuoteOuterSpace(strSelNameQ);
-			AttrDlg[SA_TEXT_NAME].strData = strSelNameQ;
+			AttrDlg[SA_TEXT_NAME].strData = QuoteOuterSpace(SingleSelFileName);
 			TruncStr(AttrDlg[SA_TEXT_NAME].strData,DlgX-10);
 
 			if (SingleSelFileAttr != INVALID_FILE_ATTRIBUTES)

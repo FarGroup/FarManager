@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.fs.hpp"
 #include "platform.memory.hpp"
 
+#include "common/range.hpp"
 #include "common/scope_exit.hpp"
 
 #include "format.hpp"
@@ -111,15 +112,13 @@ string GetErrorString(bool Nt, DWORD Code)
 	const size_t Size = FormatMessage((Nt? FORMAT_MESSAGE_FROM_HMODULE : FORMAT_MESSAGE_FROM_SYSTEM) | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS, (Nt? GetModuleHandle(L"ntdll.dll") : nullptr), Code, 0, reinterpret_cast<wchar_t*>(&ptr_setter(Buffer)), 0, nullptr);
 	string Result(Buffer.get(), Size);
 	std::replace_if(ALL_RANGE(Result), IsEol, L' ');
-	const auto End = Result.find_last_not_of(' ');
-	if (End != Result.npos)
-		Result.resize(End);
+	inplace::trim_right(Result);
 	return Result;
 }
 
 bool WNetGetConnection(const string_view LocalName, string &RemoteName)
 {
-	wchar_t_ptr_n<MAX_PATH> Buffer(MAX_PATH);
+	auto Buffer = os::buffer<wchar_t>();
 	// MSDN says that call can fail with ERROR_NOT_CONNECTED or ERROR_CONNECTION_UNAVAIL if calling application
 	// is running in a different logon session than the application that made the connection.
 	// However, it may fail with ERROR_NOT_CONNECTED for non-network too, in this case Buffer will not be initialised.

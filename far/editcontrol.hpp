@@ -71,11 +71,11 @@ public:
 
 	enum ECFLAGS
 	{
-		EC_ENABLEAUTOCOMPLETE                   = bit(0),
-		EC_COMPLETE_FILESYSTEM                  = bit(1),
-		EC_COMPLETE_PATH                        = bit(2),
-		EC_COMPLETE_HISTORY                     = bit(3),
-		EC_COMPLETE_ENVIRONMENT                 = bit(4),
+		EC_ENABLEAUTOCOMPLETE                   = 0_bit,
+		EC_COMPLETE_FILESYSTEM                  = 1_bit,
+		EC_COMPLETE_PATH                        = 2_bit,
+		EC_COMPLETE_HISTORY                     = 3_bit,
+		EC_COMPLETE_ENVIRONMENT                 = 4_bit,
 	};
 
 protected:

@@ -167,7 +167,7 @@ namespace os::fs
 
 	static string enum_files_prepare(const string_view Object)
 	{
-		auto PreparedObject = NTPath(Object);
+		string PreparedObject = NTPath(Object);
 		auto Root = false;
 		const auto Type = ParsePath(PreparedObject, nullptr, &Root);
 		if (Root && (Type == root_type::drive_letter || Type == root_type::unc_drive_letter || Type == root_type::volume))
@@ -178,7 +178,7 @@ namespace os::fs
 		{
 			DeleteEndSlash(PreparedObject);
 		}
-		return std::move(PreparedObject);
+		return PreparedObject;
 	}
 
 	enum_files::enum_files(const string_view Object, const bool ScanSymlink):

@@ -381,9 +381,7 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 		{
 			CollectNames(Out, [](const os::fs::find_data& Data)
 			{
-				auto Name = Data.FileName;
-				QuoteSpaceOnly(Name);
-				return Name;
+				return QuoteSpaceOnly(Data.FileName);
 			});
 
 			return Tail;

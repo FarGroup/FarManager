@@ -334,7 +334,6 @@ void SysLogLastError()
 	if (LogStream)
 	{
 		wchar_t timebuf[64];
-		// RemoveUnprintableCharacters(MsgPtr.get());
 		fwprintf(LogStream, L"%s %sGetLastError()=[%lu/0x%lX] \"%s\"\n", PrintTime(timebuf, std::size(timebuf)), MakeSpace(), LastErr, LastErr, MsgPtr.get());
 		fflush(LogStream);
 	}

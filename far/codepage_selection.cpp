@@ -65,15 +65,15 @@ enum CodePagesCallbackCallSource: int
 // Стандартные элементы меню кодовых страниц
 enum StandardCodePagesMenuItems
 {
-	SearchAll = bit(0), // Find-in-Files dialog
-	AutoCP    = bit(1), // show <Autodetect> item
-	OEM       = bit(2), // show OEM codepage
-	ANSI      = bit(3), // show ANSI codepage
-	UTF8      = bit(4), // show UTF-8 codepage
-	UTF16LE   = bit(5), // show UTF-16 LE codepage
-	UTF16BE   = bit(6), // show UTF-16 BE codepage
-	VOnly     = bit(7), // show only viewer-supported codepages
-	DefaultCP = bit(8), // show <Default> item
+	SearchAll = 0_bit, // Find-in-Files dialog
+	AutoCP    = 1_bit, // show <Autodetect> item
+	OEM       = 2_bit, // show OEM codepage
+	ANSI      = 3_bit, // show ANSI codepage
+	UTF8      = 4_bit, // show UTF-8 codepage
+	UTF16LE   = 5_bit, // show UTF-16 LE codepage
+	UTF16BE   = 6_bit, // show UTF-16 BE codepage
+	VOnly     = 7_bit, // show only viewer-supported codepages
+	DefaultCP = 8_bit, // show <Default> item
 
 	AllStandard = OEM | ANSI | UTF8 | UTF16BE | UTF16LE
 };
@@ -625,11 +625,11 @@ void codepages::EditCodePageName()
 	if (IsPositionStandard(Position))
 		return;
 	string CodePageName = CodePagesMenu->at(Position).Name;
-	size_t BoxPosition = CodePageName.find(BoxSymbols[BS_V1]);
+	const auto BoxPosition = CodePageName.find(BoxSymbols[BS_V1]);
 	if (BoxPosition == string::npos)
 		return;
 	CodePageName.erase(0, BoxPosition + 2);
-	FarDialogItem EditDialogData[] =
+	FarDialogItem const EditDialogData[]
 	{
 		{ DI_DOUBLEBOX, 3, 1, 50, 5, 0, nullptr, nullptr, 0, msg(lng::MGetCodePageEditCodePageName).c_str() },
 		{ DI_EDIT, 5, 2, 48, 2, 0, L"CodePageName", nullptr, DIF_FOCUS | DIF_HISTORY, CodePageName.c_str() },

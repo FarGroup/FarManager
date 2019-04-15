@@ -49,32 +49,32 @@ class History;
 // Флаги текущего режима диалога
 enum DIALOG_MODES
 {
-	DMODE_NONE                  =0x00000000,
-	DMODE_OBJECTS_INITED        =0x00000001, // элементы инициализарованы?
-	DMODE_OBJECTS_CREATED       =0x00000002, // объекты (Edit,...) созданы?
-	DMODE_WARNINGSTYLE          =0x00000004, // Warning Dialog Style?
-	DMODE_KEYDRAGGED            =0x00000008, // диалог двигается клавиатурой?
-	DMODE_ISCANMOVE             =0x00000010, // можно ли двигать диалог?
-	DMODE_MOUSEDRAGGED          =0x00000020, // диалог двигается мышью?
-	DMODE_SMALLDIALOG           =0x00000040, // "короткий диалог"
-	DMODE_DRAWING               =0x00001000, // диалог рисуется?
-	DMODE_KEY                   =0x00002000, // Идет посылка клавиш?
-	DMODE_SHOW                  =0x00004000, // Диалог виден?
-	DMODE_INPUTEVENT            =0x00008000, // Нужно посылать DN_INPUT в обработчик?
-	DMODE_RESIZED               =0x00010000, //
-	DMODE_ENDLOOP               =0x00020000, // Конец цикла обработки диалога?
-	DMODE_BEGINLOOP             =0x00040000, // Начало цикла обработки диалога?
-	DMODE_ISMENU                =0x00080000, // диалог является экземпляром VMenu2
-	DMODE_NODRAWSHADOW          =0x00100000, // не рисовать тень?
-	DMODE_NODRAWPANEL           =0x00200000, // не рисовать подложку?
-	DMODE_FULLSHADOW            =0x00400000,
-	DMODE_NOPLUGINS             =0x00800000,
-	DMODE_NEEDUPDATE            =0x01000000, // необходимо обновить весь диалог?
-	DMODE_VISIBLE               =0x02000000, // отображать диалог на экране (DM_SHOWDIALOG)
-	DMODE_KEEPCONSOLETITLE      =0x10000000, // не изменять заголовок консоли
-	DMODE_CLICKOUTSIDE          =0x20000000, // было нажатие мыши вне диалога?
-	DMODE_MSGINTERNAL           =0x40000000, // Внутренняя Message?
-	DMODE_OLDSTYLE              =0x80000000, // Диалог в старом (до 1.70) стиле
+	DMODE_NONE                  = 0,
+	DMODE_OBJECTS_INITED        = 0_bit,  // элементы инициализарованы?
+	DMODE_OBJECTS_CREATED       = 1_bit,  // объекты (Edit,...) созданы?
+	DMODE_WARNINGSTYLE          = 2_bit,  // Warning Dialog Style?
+	DMODE_KEYDRAGGED            = 3_bit,  // диалог двигается клавиатурой?
+	DMODE_ISCANMOVE             = 4_bit,  // можно ли двигать диалог?
+	DMODE_MOUSEDRAGGED          = 5_bit,  // диалог двигается мышью?
+	DMODE_SMALLDIALOG           = 6_bit,  // "короткий диалог"
+	DMODE_DRAWING               = 12_bit, // диалог рисуется?
+	DMODE_KEY                   = 13_bit, // Идет посылка клавиш?
+	DMODE_SHOW                  = 14_bit, // Диалог виден?
+	DMODE_INPUTEVENT            = 15_bit, // Нужно посылать DN_INPUT в обработчик?
+	DMODE_RESIZED               = 16_bit, //
+	DMODE_ENDLOOP               = 17_bit, // Конец цикла обработки диалога?
+	DMODE_BEGINLOOP             = 18_bit, // Начало цикла обработки диалога?
+	DMODE_ISMENU                = 19_bit, // диалог является экземпляром VMenu2
+	DMODE_NODRAWSHADOW          = 20_bit, // не рисовать тень?
+	DMODE_NODRAWPANEL           = 21_bit, // не рисовать подложку?
+	DMODE_FULLSHADOW            = 22_bit,
+	DMODE_NOPLUGINS             = 23_bit,
+	DMODE_NEEDUPDATE            = 24_bit, // необходимо обновить весь диалог?
+	DMODE_VISIBLE               = 25_bit, // отображать диалог на экране (DM_SHOWDIALOG)
+	DMODE_KEEPCONSOLETITLE      = 28_bit, // не изменять заголовок консоли
+	DMODE_CLICKOUTSIDE          = 29_bit, // было нажатие мыши вне диалога?
+	DMODE_MSGINTERNAL           = 30_bit, // Внутренняя Message?
+	DMODE_OLDSTYLE              = 31_bit, // Диалог в старом (до 1.70) стиле
 };
 
 /*

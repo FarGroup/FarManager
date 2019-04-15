@@ -82,22 +82,22 @@ struct PanelViewSettings
 enum panel_view_settings_flags
 {
 	PVS_NONE                  = 0,
-	PVS_FULLSCREEN            = bit(0),
-	PVS_ALIGNEXTENSIONS       = bit(1),
-	PVS_FOLDERALIGNEXTENSIONS = bit(2),
-	PVS_FOLDERUPPERCASE       = bit(3),
-	PVS_FILELOWERCASE         = bit(5),
-	PVS_FILEUPPERTOLOWERCASE  = bit(6),
+	PVS_FULLSCREEN            = 0_bit,
+	PVS_ALIGNEXTENSIONS       = 1_bit,
+	PVS_FOLDERALIGNEXTENSIONS = 2_bit,
+	PVS_FOLDERUPPERCASE       = 3_bit,
+	PVS_FILELOWERCASE         = 5_bit,
+	PVS_FILEUPPERTOLOWERCASE  = 6_bit,
 };
 
 enum {VIEW_0=0,VIEW_1,VIEW_2,VIEW_3,VIEW_4,VIEW_5,VIEW_6,VIEW_7,VIEW_8,VIEW_9};
 
 enum
 {
-	UPDATE_KEEP_SELECTION = bit(0),
-	UPDATE_SECONDARY      = bit(1),
-	UPDATE_IGNORE_VISIBLE = bit(2),
-	UPDATE_DRAW_MESSAGE   = bit(3),
+	UPDATE_KEEP_SELECTION = 0_bit,
+	UPDATE_SECONDARY      = 1_bit,
+	UPDATE_IGNORE_VISIBLE = 2_bit,
+	UPDATE_DRAW_MESSAGE   = 3_bit,
 };
 
 enum class panel_mode

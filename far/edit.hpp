@@ -50,24 +50,24 @@ struct MatchHash;
 // Младший байт (маска 0xFF) юзается классом ScreenObject!!!
 enum FLAGS_CLASS_EDITLINE
 {
-	FEDITLINE_MARKINGBLOCK         = 0x00000100,
-	FEDITLINE_DROPDOWNBOX          = 0x00000200,
-	FEDITLINE_CLEARFLAG            = 0x00000400,
-	FEDITLINE_PASSWORDMODE         = 0x00000800,
-	FEDITLINE_EDITBEYONDEND        = 0x00001000,
-	FEDITLINE_EDITORMODE           = 0x00002000,
-	FEDITLINE_OVERTYPE             = 0x00004000,
-	FEDITLINE_DELREMOVESBLOCKS     = 0x00008000,  // Del удаляет блоки (Global->Opt->EditorDelRemovesBlocks)
-	FEDITLINE_PERSISTENTBLOCKS     = 0x00010000,  // Постоянные блоки (Global->Opt->EditorPersistentBlocks)
-	FEDITLINE_SHOWWHITESPACE       = 0x00020000,
-	FEDITLINE_SHOWLINEBREAK        = 0x00040000,
-	FEDITLINE_READONLY             = 0x00080000,
-	FEDITLINE_CURSORVISIBLE        = 0x00100000,
+	FEDITLINE_MARKINGBLOCK         = 8_bit,
+	FEDITLINE_DROPDOWNBOX          = 9_bit,
+	FEDITLINE_CLEARFLAG            = 10_bit,
+	FEDITLINE_PASSWORDMODE         = 11_bit,
+	FEDITLINE_EDITBEYONDEND        = 12_bit,
+	FEDITLINE_EDITORMODE           = 13_bit,
+	FEDITLINE_OVERTYPE             = 14_bit,
+	FEDITLINE_DELREMOVESBLOCKS     = 15_bit,  // Del удаляет блоки (Global->Opt->EditorDelRemovesBlocks)
+	FEDITLINE_PERSISTENTBLOCKS     = 16_bit,  // Постоянные блоки (Global->Opt->EditorPersistentBlocks)
+	FEDITLINE_SHOWWHITESPACE       = 17_bit,
+	FEDITLINE_SHOWLINEBREAK        = 18_bit,
+	FEDITLINE_READONLY             = 19_bit,
+	FEDITLINE_CURSORVISIBLE        = 20_bit,
 	// Если ни один из FEDITLINE_PARENT_ не указан (или указаны оба), то Edit
 	// явно не в диалоге юзается.
-	FEDITLINE_PARENT_SINGLELINE    = 0x00200000,  // обычная строка ввода в диалоге
-	FEDITLINE_PARENT_MULTILINE     = 0x00400000,  // для будущего Memo-Edit (DI_EDITOR или DIF_MULTILINE)
-	FEDITLINE_PARENT_EDITOR        = 0x00800000,  // "вверху" обычный редактор
+	FEDITLINE_PARENT_SINGLELINE    = 21_bit,  // обычная строка ввода в диалоге
+	FEDITLINE_PARENT_MULTILINE     = 22_bit,  // для будущего Memo-Edit (DI_EDITOR или DIF_MULTILINE)
+	FEDITLINE_PARENT_EDITOR        = 23_bit,  // "вверху" обычный редактор
 };
 
 struct ColorItem
@@ -100,10 +100,10 @@ struct ColorItem
 
 enum SetCPFlags
 {
-	SETCP_NOERROR    = 0x00000000,
-	SETCP_WC2MBERROR = 0x00000001,
-	SETCP_MB2WCERROR = 0x00000002,
-	SETCP_OTHERERROR = 0x10000000,
+	SETCP_NOERROR    = 0,
+	SETCP_WC2MBERROR = 0_bit,
+	SETCP_MB2WCERROR = 1_bit,
+	SETCP_OTHERERROR = 28_bit,
 };
 
 class Editor;

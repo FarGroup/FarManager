@@ -50,7 +50,7 @@ public:
 private:
 	void insert(UINT Codepage, UINT MaxCharSize, const string& Name)
 	{
-		m_InstalledCp.emplace(Codepage, std::make_pair(MaxCharSize, Name));
+		m_InstalledCp.emplace(Codepage, std::pair(MaxCharSize, Name));
 	}
 	friend class system_codepages_enumerator;
 
@@ -258,13 +258,19 @@ static size_t get_bytes_impl(uintptr_t const Codepage, string_view const Str, ch
 		return Utf8::get_bytes(Str, Buffer, BufferSize);
 
 	case CP_UNICODE:
-		if (BufferSize) // paranoid gcc null checks are paranoid
-			memcpy(Buffer, Str.data(), std::min(Str.size() * sizeof(wchar_t), BufferSize));
-		return Str.size() * sizeof(wchar_t);
-
 	case CP_REVERSEBOM:
-		swap_bytes(Str.data(), Buffer, std::min(Str.size() * sizeof(wchar_t), BufferSize));
-		return Str.size() * sizeof(wchar_t);
+		{
+			const auto Size = std::min(Str.size() * sizeof(wchar_t), BufferSize);
+			if (Codepage == CP_UNICODE)
+			{
+				if (Size) // paranoid gcc null checks are paranoid
+					memcpy(Buffer, Str.data(), Size);
+			}
+			else
+				swap_bytes(Str.data(), Buffer, Size);
+
+			return Str.size() * sizeof(wchar_t);
+		}
 
 	default:
 		{
@@ -485,32 +491,36 @@ static const int OPT = opt + 255;
 static const int PLS = pls + b64 + 62;
 static const int MNS = mns + dir + 255;
 
-constexpr short D(int n) { return dir + b64 + n; }
+constexpr short operator ""_D(size_t const n)
+{
+	return static_cast<short>(dir + b64 + n);
+}
 
 static const short m7[128] =
-//  x00   x01   x02   x03   x04   x05   x06   x07   x08   x09   x0a   x0b   x0c   x0d   x0e   x0f
-{   ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  DIR,  DIR,  ILL,  ILL,  DIR,  ILL,  ILL
+{
+	//  x00   x01   x02   x03   x04   x05   x06   x07   x08   x09   x0a   x0b   x0c   x0d   x0e   x0f
+	    ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  DIR,  DIR,  ILL,  ILL,  DIR,  ILL,  ILL,
 
-//  x10   x11   x12   x13   x14   x15   x16   x17   x18   x19   x1a   x1b   x1c   x1d   x1e   x1f
-,   ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL
+	//  x10   x11   x12   x13   x14   x15   x16   x17   x18   x19   x1a   x1b   x1c   x1d   x1e   x1f
+	    ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,
 
-// =x20 !=x21 "=x22 #=x23 $=x24 %=x25 &=x26 '=x27 (=x28 )=x29 *=x2a +=x2b ,x=2c -=x2d .=x2e /=x2f
-,   DIR,  OPT,  OPT,  OPT,  OPT,  OPT,  OPT,  DIR,  DIR,  DIR,  OPT,  PLS,  DIR,  MNS, DIR, D(63)
+	// =x20 !=x21 "=x22 #=x23 $=x24 %=x25 &=x26 '=x27 (=x28 )=x29 *=x2a +=x2b ,x=2c -=x2d .=x2e /=x2f
+	    DIR,  OPT,  OPT,  OPT,  OPT,  OPT,  OPT,  DIR,  DIR,  DIR,  OPT,  PLS,  DIR,  MNS,  DIR, 63_D,
 
-//0=x30 1=x31 2=x32 3=x33 4=x34 5=x35 6=x36 7=x37 8=x38 9=x39 :=x3a ;=x3b <=x3c ==x3d >=x3e ?=x3f
-, D(52),D(53),D(54),D(55),D(56),D(57),D(58),D(59),D(60),D(61),  DIR,  OPT,  OPT,  OPT,  OPT,  DIR
+	//0=x30 1=x31 2=x32 3=x33 4=x34 5=x35 6=x36 7=x37 8=x38 9=x39 :=x3a ;=x3b <=x3c ==x3d >=x3e ?=x3f
+	   52_D, 53_D, 54_D, 55_D, 56_D, 57_D, 58_D, 59_D, 60_D, 61_D,  DIR,  OPT,  OPT,  OPT,  OPT,  DIR,
 
-//@=x40 A=x41 B=x42 C=x43 D=x44 E=x45 F=x46 G=x47 H=x48 I=x49 J=x4a K=x4b L=x4c M=x4d N=x4e O=x4f
-,   OPT, D(0), D(1), D(2), D(3), D(4), D(5), D(6), D(7), D(8), D(9),D(10),D(11),D(12),D(13),D(14)
+	//@=x40 A=x41 B=x42 C=x43 D=x44 E=x45 F=x46 G=x47 H=x48 I=x49 J=x4a K=x4b L=x4c M=x4d N=x4e O=x4f
+	    OPT,  0_D,  1_D,  2_D,  3_D,  4_D,  5_D,  6_D,  7_D,  8_D,  9_D, 10_D, 11_D, 12_D, 13_D, 14_D,
 
-//P=x50 Q=x51 R=x52 S=x53 T=x54 U=x55 V=x56 W=x57 X=x58 Y=x59 Z=x5a [=x5b \=x5c ]=x5d ^=x5e _=x5f
-, D(15),D(16),D(17),D(18),D(19),D(20),D(21),D(22),D(23),D(24),D(25),  OPT,  ILL,  OPT,  OPT,  OPT
+	//P=x50 Q=x51 R=x52 S=x53 T=x54 U=x55 V=x56 W=x57 X=x58 Y=x59 Z=x5a [=x5b \=x5c ]=x5d ^=x5e _=x5f
+	   15_D, 16_D, 17_D, 18_D, 19_D, 20_D, 21_D, 22_D, 23_D, 24_D, 25_D,  OPT,  ILL,  OPT,  OPT,  OPT,
 
-//`=x60 a=x61 b=x62 c=x63 d=x64 e=x65 f=x66 g=x67 h=x68 i=x69 j=x6a k=x6b l=x6c m=x6d n=x6e o=x6f
-,   OPT,D(26),D(27),D(28),D(29),D(30),D(31),D(32),D(33),D(34),D(35),D(36),D(37),D(38),D(39),D(40)
+	//`=x60 a=x61 b=x62 c=x63 d=x64 e=x65 f=x66 g=x67 h=x68 i=x69 j=x6a k=x6b l=x6c m=x6d n=x6e o=x6f
+	    OPT, 26_D, 27_D, 28_D, 29_D, 30_D, 31_D, 32_D, 33_D, 34_D, 35_D, 36_D, 37_D, 38_D, 39_D, 40_D,
 
-//p=x70 q=x71 r=x72 s=x73 t=x74 u=x75 v=x76 w=x77 x=x78 y=x79 z=x7a {=x7b |=x7c }=x7d ~=x7e   x7f
-, D(41),D(42),D(43),D(44),D(45),D(46),D(47),D(48),D(49),D(50),D(51),  OPT,  OPT,  OPT,  ILL,  ILL
+	//p=x70 q=x71 r=x72 s=x73 t=x74 u=x75 v=x76 w=x77 x=x78 y=x79 z=x7a {=x7b |=x7c }=x7d ~=x7e   x7f
+	   41_D, 42_D, 43_D, 44_D, 45_D, 46_D, 47_D, 48_D, 49_D, 50_D, 51_D,  OPT,  OPT,  OPT,  ILL,  ILL,
 };
 
 // BUGBUG non-BMP range is not supported

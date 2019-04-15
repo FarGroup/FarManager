@@ -2298,10 +2298,10 @@ HierarchicalConfigUniquePtr config_provider::CreateHierarchicalConfig(dbcheck Db
 enum dbcheck: int
 {
 	CHECK_NONE       = 0,
-	CHECK_FILTERS    = bit(0),
-	CHECK_HIGHLIGHT  = bit(1),
-	CHECK_SHORTCUTS  = bit(2),
-	CHECK_PANELMODES = bit(3),
+	CHECK_FILTERS    = 0_bit,
+	CHECK_HIGHLIGHT  = 1_bit,
+	CHECK_SHORTCUTS  = 2_bit,
+	CHECK_PANELMODES = 3_bit,
 };
 
 HierarchicalConfigUniquePtr config_provider::CreatePluginsConfig(const string_view guid, const bool Local, bool UseFallback)

@@ -181,7 +181,7 @@ bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointT
 			case RP_SYMLINKFILE:
 			case RP_SYMLINKDIR:
 				{
-					os::fs::file_status ObjectStatus(Object);
+					os::fs::file_status const ObjectStatus(Object);
 					if(Type == RP_SYMLINK)
 					{
 						Type = os::fs::is_directory(Target)? RP_SYMLINKDIR : RP_SYMLINKFILE;
@@ -290,7 +290,7 @@ bool GetReparsePointInfo(const string& Object, string &strDestBuff,LPDWORD Repar
 
 	const auto Extract = [&](const auto& Buffer)
 	{
-		const wchar_t *PathBuffer = nullptr;
+		const wchar_t* PathBuffer;
 		auto NameLength = Buffer.PrintNameLength / sizeof(wchar_t);
 
 		if (NameLength)

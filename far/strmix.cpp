@@ -73,7 +73,7 @@ string GroupDigits(unsigned long long Value)
 
 	string strSrc = str(Value);
 	const size_t Size = GetNumberFormat(LOCALE_USER_DEFAULT, 0, strSrc.c_str(), &Fmt, nullptr, 0);
-	wchar_t_ptr_n<MAX_PATH> Dest(Size);
+	wchar_t_ptr_n<os::default_buffer_size> Dest(Size);
 	GetNumberFormat(LOCALE_USER_DEFAULT, 0, strSrc.c_str(), &Fmt, Dest.get(), static_cast<int>(Size));
 	return { Dest.get(), Size - 1 };
 }
@@ -150,7 +150,7 @@ wchar_t* QuoteSpaceOnly(wchar_t *Str)
 	return Str;
 }
 
-string& QuoteSpaceOnly(string &strStr)
+string& inplace::QuoteSpaceOnly(string &strStr)
 {
 	if (contains(strStr, L' '))
 		inplace::quote(strStr);
@@ -158,7 +158,7 @@ string& QuoteSpaceOnly(string &strStr)
 	return strStr;
 }
 
-string &QuoteOuterSpace(string &strStr)
+string &inplace::QuoteOuterSpace(string &strStr)
 {
 	if (!strStr.empty() && (strStr.front() == L' ' || strStr.back() == L' '))
 		inplace::quote(strStr);
@@ -327,16 +327,6 @@ string& TruncPathStr(string &strStr, int MaxLength)
 		strStr.replace(start, nLength-MaxLength+DotsLen, DotsLen, L'.');
 	}
 	return strStr;
-}
-
-/* $ 02.02.2001 IS
-   Заменяет пробелами непечатные символы в строке. В настоящий момент
-   обрабатываются только cr и lf.
-*/
-string& RemoveUnprintableCharacters(string &strStr)
-{
-	std::replace_if(ALL_RANGE(strStr), IsEol, L' ');
-	return inplace::trim(strStr);
 }
 
 bool IsCaseMixed(const string_view strSrc)

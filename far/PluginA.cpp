@@ -1924,7 +1924,7 @@ static int WINAPI ProcessNameA(const char *Param1, char *Param2, DWORD Flags) no
 	{
 		const auto strP1 = encoding::oem::get_chars(Param1), strP2 = encoding::oem::get_chars(Param2);
 		const auto size = static_cast<int>(strP1.size() + strP2.size() + oldfar::NM) + 1; //а хрен ещё как угадать скока там этот Param2 для PN_GENERATENAME
-		wchar_t_ptr_n<MAX_PATH> p(size);
+		wchar_t_ptr_n<os::default_buffer_size> p(size);
 		*std::copy(ALL_CONST_RANGE(strP2), p.get()) = L'\0';
 
 		auto newFlags = PN_NONE;
@@ -4092,7 +4092,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 					*oei = {};
 					if (const size_t FileNameSize = pluginapi::apiEditorControl(-1, ECTL_GETFILENAME, 0, nullptr))
 					{
-						wchar_t_ptr_n<MAX_PATH> FileName(FileNameSize);
+						wchar_t_ptr_n<os::default_buffer_size> FileName(FileNameSize);
 						pluginapi::apiEditorControl(-1,ECTL_GETFILENAME,FileNameSize,FileName.get());
 						static std::unique_ptr<char[]> fn;
 						fn.reset(UnicodeToAnsi(FileName.get()));
@@ -4472,7 +4472,7 @@ static int WINAPI FarViewerControlA(int Command, void* Param) noexcept
 
 				if (const size_t FileNameSize = pluginapi::apiViewerControl(-1, VCTL_GETFILENAME, 0, nullptr))
 				{
-					wchar_t_ptr_n<MAX_PATH> FileName(FileNameSize);
+					wchar_t_ptr_n<os::default_buffer_size> FileName(FileNameSize);
 					pluginapi::apiViewerControl(-1,VCTL_GETFILENAME,FileNameSize,FileName.get());
 					static std::unique_ptr<char[]> filename;
 					filename.reset(UnicodeToAnsi(FileName.get()));
@@ -5137,7 +5137,7 @@ private:
 		{
 			pVFDPanelItemA = nullptr;
 			string_view const Path = Info->Path;
-			char_ptr_n<MAX_PATH> PathA(Path.size() + 1);
+			char_ptr_n<os::default_buffer_size> PathA(Path.size() + 1);
 			encoding::oem::get_bytes(Path, PathA.get(), PathA.size());
 			int ItemsNumber = 0;
 			ExecuteFunction(es, Info->hPanel, &pVFDPanelItemA, &ItemsNumber, PathA.get());

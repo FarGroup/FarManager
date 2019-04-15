@@ -139,7 +139,7 @@ static bool GetImageType(const string& FileName, image_type& ImageType)
 	{
 		const auto& Os2Header = ImageHeader.Os2Header;
 
-		enum { DllOrDriverFlag = bit(7) };
+		enum { DllOrDriverFlag = 7_bit };
 		if (!(HIBYTE(Os2Header.ne_flags) & DllOrDriverFlag))
 		{
 			enum

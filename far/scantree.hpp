@@ -44,19 +44,19 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 enum
 {
 	// эту фигню может ставить плагин (младшие 8 бит)
-	FSCANTREE_RETUPDIR         = 0x00000001, // = FRS_RETUPDIR
+	FSCANTREE_RETUPDIR         = 0_bit,  // = FRS_RETUPDIR
 	// FSCANTREE_RETUPDIR causes GetNextName() to return every directory twice:
 	// 1. when scanning its parent directory 2. after directory scan is finished
-	FSCANTREE_RECUR            = 0x00000002, // = FRS_RECUR
-	FSCANTREE_SCANSYMLINK      = 0x00000004, // = FRS_SCANSYMLINK
+	FSCANTREE_RECUR            = 1_bit,  // = FRS_RECUR
+	FSCANTREE_SCANSYMLINK      = 2_bit,  // = FRS_SCANSYMLINK
 
 	// в младшем слове старшие 8 бита служебные!
-	FSCANTREE_SECONDPASS       = 0x00002000, // то, что раньше было было SecondPass[]
-	FSCANTREE_SECONDDIRNAME    = 0x00004000, // set when FSCANTREE_RETUPDIR is enabled and directory scan is finished
-	FSCANTREE_INSIDEJUNCTION   = 0x00008000, // - мы внутри симлинка?
+	FSCANTREE_SECONDPASS       = 13_bit, // то, что раньше было было SecondPass[]
+	FSCANTREE_SECONDDIRNAME    = 14_bit, // set when FSCANTREE_RETUPDIR is enabled and directory scan is finished
+	FSCANTREE_INSIDEJUNCTION   = 15_bit, // - мы внутри симлинка?
 
 	// здесь те флаги, которые могут выставляться в 3-м параметре SetFindPath()
-	FSCANTREE_FILESFIRST       = 0x00010000, // Сканирование каталога за два прохода. Сначала файлы, затем каталоги
+	FSCANTREE_FILESFIRST       = 16_bit, // Сканирование каталога за два прохода. Сначала файлы, затем каталоги
 };
 
 class ScanTree: noncopyable

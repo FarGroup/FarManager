@@ -64,10 +64,10 @@ enum enumFileFilterFlagsType: int
 
 enum enumFileFilterFlags
 {
-	FFF_NONE    = 0x00000000,
-	FFF_INCLUDE = 0x00000001,
-	FFF_EXCLUDE = 0x00000002,
-	FFF_STRONG  = 0x10000000
+	FFF_NONE    = 0,
+	FFF_INCLUDE = 0_bit,
+	FFF_EXCLUDE = 1_bit,
+	FFF_STRONG  = 28_bit
 };
 
 enum enumFDateType

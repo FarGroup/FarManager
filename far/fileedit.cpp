@@ -120,7 +120,7 @@ static intptr_t hndOpenEditor(Dialog* Dlg, intptr_t msg, intptr_t param1, void* 
 
 bool dlgOpenEditor(string &strFileName, uintptr_t &codepage)
 {
-	FarDialogItem EditDlgData[]=
+	FarDialogItem const EditDlgData[]
 	{
 		{DI_DOUBLEBOX,3,1,72,8,0,nullptr,nullptr,0,msg(lng::MEditTitle).c_str()},
 		{DI_TEXT,     5,2, 0,2,0,nullptr,nullptr,0,msg(lng::MEditOpenCreateLabel).c_str()},
@@ -269,7 +269,7 @@ static bool dlgSaveFileAs(string &strFileName, eol::type& Eol, uintptr_t &codepa
 {
    bool ucp = IsUnicodeOrUtfCodePage(codepage);
 
-	FarDialogItem EditDlgData[]=
+	FarDialogItem const EditDlgData[]
 	{
 		{DI_DOUBLEBOX,3,1,72,15,0,nullptr,nullptr,0,msg(lng::MEditTitle).c_str()},
 		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(lng::MEditSaveAs).c_str()},
@@ -579,7 +579,7 @@ void FileEditor::Init(
 		return;
 	}
 
-	if (m_editor->EdOpt.ReadOnlyLock & bit(1) &&
+	if (m_editor->EdOpt.ReadOnlyLock & 1_bit &&
 		FileStatus.check(FILE_ATTRIBUTE_READONLY |
 		/*  Hidden=0x2 System=0x4 - располагаются во 2-м полубайте,
 		    поэтому применяем маску 0110.0000 и
@@ -766,19 +766,19 @@ long long FileEditor::VMProcess(int OpCode, void* vParam, long long iParam)
 	if (OpCode == MCODE_V_EDITORSTATE)
 	{
 		DWORD MacroEditState = 0;
-		MacroEditState |= m_Flags.Check(FFILEEDIT_NEW)?                                   bit(0) : 0;
-		MacroEditState |= m_Flags.Check(FFILEEDIT_ENABLEF6)?                              bit(1) : 0;
-		MacroEditState |= m_Flags.Check(FFILEEDIT_DELETEONCLOSE)?                         bit(2) : 0;
-		MacroEditState |= m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED)?              bit(3) : 0;
-		MacroEditState |= m_editor->IsStreamSelection()?                                  bit(4) : 0;
-		MacroEditState |= m_editor->IsVerticalSelection()?                                bit(5) : 0;
-		MacroEditState |= m_editor->m_Flags.Check(Editor::FEDITOR_WASCHANGED)?            bit(6) : 0;
-		MacroEditState |= m_editor->m_Flags.Check(Editor::FEDITOR_OVERTYPE)?              bit(7) : 0;
-		MacroEditState |= m_editor->m_Flags.Check(Editor::FEDITOR_CURPOSCHANGEDBYPLUGIN)? bit(8) : 0;
-		MacroEditState |= m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE)?              bit(9) : 0;
-		MacroEditState |= m_editor->EdOpt.PersistentBlocks?                               bit(10) : 0;
-		MacroEditState |= !GetCanLoseFocus()?                                             bit(11) : 0;
-		MacroEditState |= Global->OnlyEditorViewerUsed ?                                  bit(27) | bit(11) : 0;
+		MacroEditState |= m_Flags.Check(FFILEEDIT_NEW)?                                   0_bit : 0;
+		MacroEditState |= m_Flags.Check(FFILEEDIT_ENABLEF6)?                              1_bit : 0;
+		MacroEditState |= m_Flags.Check(FFILEEDIT_DELETEONCLOSE)?                         2_bit : 0;
+		MacroEditState |= m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED)?              3_bit : 0;
+		MacroEditState |= m_editor->IsStreamSelection()?                                  4_bit : 0;
+		MacroEditState |= m_editor->IsVerticalSelection()?                                5_bit : 0;
+		MacroEditState |= m_editor->m_Flags.Check(Editor::FEDITOR_WASCHANGED)?            6_bit : 0;
+		MacroEditState |= m_editor->m_Flags.Check(Editor::FEDITOR_OVERTYPE)?              7_bit : 0;
+		MacroEditState |= m_editor->m_Flags.Check(Editor::FEDITOR_CURPOSCHANGEDBYPLUGIN)? 8_bit : 0;
+		MacroEditState |= m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE)?              9_bit : 0;
+		MacroEditState |= m_editor->EdOpt.PersistentBlocks?                               10_bit : 0;
+		MacroEditState |= !GetCanLoseFocus()?                                             11_bit : 0;
+		MacroEditState |= Global->OnlyEditorViewerUsed ?                                  27_bit | 11_bit : 0;
 		return MacroEditState;
 	}
 
@@ -1494,7 +1494,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 		const auto Cached = LoadFromCache(pc);
 
 		const os::fs::file_status FileStatus(Name);
-		if ((m_editor->EdOpt.ReadOnlyLock & bit(0)) && FileStatus.check(FILE_ATTRIBUTE_READONLY | (m_editor->EdOpt.ReadOnlyLock & 0b0110'0000) >> 4))
+		if ((m_editor->EdOpt.ReadOnlyLock & 0_bit) && FileStatus.check(FILE_ATTRIBUTE_READONLY | (m_editor->EdOpt.ReadOnlyLock & 0b0110'0000) >> 4))
 		{
 			m_editor->m_Flags.Invert(Editor::FEDITOR_LOCKMODE);
 		}

@@ -46,7 +46,7 @@ error_state error_state::fetch()
 	return State;
 }
 
-bool error_state::engaged() const
+error_state::operator bool() const
 {
 	return m_Engaged;
 }

@@ -77,7 +77,7 @@ public:
 	{
 		return select(ConfigProvider().GeneralCfg()->ValuesEnumerator<long long>(FavoriteCodePagesKey()), [](const auto& i)
 		{
-			return std::make_pair(std::stoul(i.first), i.second);
+			return std::pair(std::stoul(i.first), i.second);
 		});
 	}
 

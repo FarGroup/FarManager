@@ -778,7 +778,7 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 		ErrorState = error_state::fetch();
 	}
 
-	if (ErrorState.engaged())
+	if (ErrorState)
 	{
 		os::fs::delete_file(TreeCache().GetTreeName());
 		if (!Global->WindowManager->ManagerIsDown())

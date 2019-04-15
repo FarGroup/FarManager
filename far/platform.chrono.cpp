@@ -33,6 +33,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "platform.hpp"
 
+#include "common/range.hpp"
+
 namespace os::chrono
 {
 	nt_clock::time_point nt_clock::now() noexcept

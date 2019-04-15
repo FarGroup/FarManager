@@ -353,32 +353,31 @@ void print_opcodes()
 using MACROFLAGS_MFLAGS = unsigned long long;
 enum: MACROFLAGS_MFLAGS
 {
-	MFLAGS_NONE                    =0,
+	MFLAGS_NONE                    = 0,
 	// public flags, read from/saved to config
-	MFLAGS_PUBLIC_MASK             =0x000000000FFFFFFF,
-	MFLAGS_ENABLEOUTPUT            =0x0000000000000001, // не подавлять обновление экрана во время выполнения макроса
-	MFLAGS_NOSENDKEYSTOPLUGINS     =0x0000000000000002, // НЕ передавать плагинам клавиши во время записи/воспроизведения макроса
-	MFLAGS_RUNAFTERFARSTART        =0x0000000000000008, // этот макрос запускается при старте ФАРа
-	MFLAGS_EMPTYCOMMANDLINE        =0x0000000000000010, // запускать, если командная линия пуста
-	MFLAGS_NOTEMPTYCOMMANDLINE     =0x0000000000000020, // запускать, если командная линия не пуста
-	MFLAGS_EDITSELECTION           =0x0000000000000040, // запускать, если есть выделение в редакторе
-	MFLAGS_EDITNOSELECTION         =0x0000000000000080, // запускать, если есть нет выделения в редакторе
-	MFLAGS_SELECTION               =0x0000000000000100, // активная:  запускать, если есть выделение
-	MFLAGS_PSELECTION              =0x0000000000000200, // пассивная: запускать, если есть выделение
-	MFLAGS_NOSELECTION             =0x0000000000000400, // активная:  запускать, если есть нет выделения
-	MFLAGS_PNOSELECTION            =0x0000000000000800, // пассивная: запускать, если есть нет выделения
-	MFLAGS_NOFILEPANELS            =0x0000000000001000, // активная:  запускать, если это плагиновая панель
-	MFLAGS_PNOFILEPANELS           =0x0000000000002000, // пассивная: запускать, если это плагиновая панель
-	MFLAGS_NOPLUGINPANELS          =0x0000000000004000, // активная:  запускать, если это файловая панель
-	MFLAGS_PNOPLUGINPANELS         =0x0000000000008000, // пассивная: запускать, если это файловая панель
-	MFLAGS_NOFOLDERS               =0x0000000000010000, // активная:  запускать, если текущий объект "файл"
-	MFLAGS_PNOFOLDERS              =0x0000000000020000, // пассивная: запускать, если текущий объект "файл"
-	MFLAGS_NOFILES                 =0x0000000000040000, // активная:  запускать, если текущий объект "папка"
-	MFLAGS_PNOFILES                =0x0000000000080000, // пассивная: запускать, если текущий объект "папка"
-
+	MFLAGS_ENABLEOUTPUT            = 0_bit, // не подавлять обновление экрана во время выполнения макроса
+	MFLAGS_NOSENDKEYSTOPLUGINS     = 1_bit, // НЕ передавать плагинам клавиши во время записи/воспроизведения макроса
+	MFLAGS_RUNAFTERFARSTART        = 3_bit, // этот макрос запускается при старте ФАРа
+	MFLAGS_EMPTYCOMMANDLINE        = 4_bit, // запускать, если командная линия пуста
+	MFLAGS_NOTEMPTYCOMMANDLINE     = 5_bit, // запускать, если командная линия не пуста
+	MFLAGS_EDITSELECTION           = 6_bit, // запускать, если есть выделение в редакторе
+	MFLAGS_EDITNOSELECTION         = 7_bit, // запускать, если есть нет выделения в редакторе
+	MFLAGS_SELECTION               = 8_bit, // активная:  запускать, если есть выделение
+	MFLAGS_PSELECTION              = 9_bit, // пассивная: запускать, если есть выделение
+	MFLAGS_NOSELECTION             = 10_bit, // активная:  запускать, если есть нет выделения
+	MFLAGS_PNOSELECTION            = 11_bit, // пассивная: запускать, если есть нет выделения
+	MFLAGS_NOFILEPANELS            = 12_bit, // активная:  запускать, если это плагиновая панель
+	MFLAGS_PNOFILEPANELS           = 13_bit, // пассивная: запускать, если это плагиновая панель
+	MFLAGS_NOPLUGINPANELS          = 14_bit, // активная:  запускать, если это файловая панель
+	MFLAGS_PNOPLUGINPANELS         = 15_bit, // пассивная: запускать, если это файловая панель
+	MFLAGS_NOFOLDERS               = 16_bit, // активная:  запускать, если текущий объект "файл"
+	MFLAGS_PNOFOLDERS              = 17_bit, // пассивная: запускать, если текущий объект "файл"
+	MFLAGS_NOFILES                 = 18_bit, // активная:  запускать, если текущий объект "папка"
+	MFLAGS_PNOFILES                = 19_bit, // пассивная: запускать, если текущий объект "папка"
+	MFLAGS_PUBLIC_MASK             = 28_bit - 1,
 	// private flags, for runtime purposes only
-	MFLAGS_PRIVATE_MASK            =0xFFFFFFFFF0000000,
-	MFLAGS_POSTFROMPLUGIN          =0x0000000010000000  // последовательность пришла от АПИ
+	MFLAGS_PRIVATE_MASK            = ~MFLAGS_PUBLIC_MASK,
+	MFLAGS_POSTFROMPLUGIN          = 28_bit  // последовательность пришла от АПИ
 };
 
 // для диалога назначения клавиши
@@ -916,7 +915,7 @@ bool KeyMacro::AddMacro(const GUID& PluginId, const MacroAddMacroV1* Data)
 		Flags,
 		Data->Description,
 		PluginId,
-		(void*)Data->Callback,
+		Data->Callback,
 		Data->Id,
 		Priority
 	};
@@ -1161,7 +1160,7 @@ bool KeyMacro::GetMacroSettings(int Key, unsigned long long& Flags, string_view 
 	19 L=================================================================+
 
 	*/
-	FarDialogItem MacroSettingsDlgData[]=
+	FarDialogItem const MacroSettingsDlgData[]
 	{
 		{DI_DOUBLEBOX,3,1,69,19,0,nullptr,nullptr,0,L""},
 		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(lng::MMacroSequence).c_str()},
@@ -2424,7 +2423,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 						string NewStr;
 						if (tmpVar.isString())
 							NewStr = tmpVar.toString();
-						if (f->VMProcess(MCODE_F_MENU_FILTERSTR, (void*)&NewStr, tmpAction.toInteger()))
+						if (f->VMProcess(MCODE_F_MENU_FILTERSTR, &NewStr, tmpAction.toInteger()))
 						{
 							tmpVar=NewStr;
 							success=true;
@@ -2551,10 +2550,10 @@ static bool SplitPath(string_view const FullPath, string& Dest, int Flags)
 
 	const std::pair<int, string_view> Mappings[] =
 	{
-		{ bit(0), Root },
-		{ bit(1), Path },
-		{ bit(2), Name },
-		{ bit(3), Ext  },
+		{ 0_bit, Root },
+		{ 1_bit, Path },
+		{ 2_bit, Name },
+		{ 3_bit, Ext  },
 	};
 
 	Dest.clear();
@@ -2734,7 +2733,7 @@ static bool minFunc(FarMacroCall* Data)
 	return true;
 }
 
-// n=max(n1.n2)
+// n=max(n1,n2)
 static bool maxFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams(2, Data);
@@ -2747,15 +2746,60 @@ static bool modFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams(2, Data);
 
-	if (!Params[1].asInteger())
+	const auto NumeratorType = Params[0].ParseType();
+	const auto DenominatorType = Params[1].ParseType();
+
+	TVar Result;
+
+	switch(DenominatorType)
 	{
-		_KEYMACRO(___FILEFUNCLINE___;SysLog(L"Error: Divide (mod) by zero"));
-		PassNumber(0, Data);
-		return false;
+	case vtUnknown:
+	case vtInteger:
+		if (const auto Denominator = Params[1].asInteger())
+		{
+			switch (NumeratorType)
+			{
+			case vtUnknown:
+			case vtInteger:
+				Result = Params[0].asInteger() % Denominator;
+				break;
+
+			case vtDouble:
+				Result = std::fmod(Params[0].asDouble(), Denominator);
+				break;
+
+			default:
+				break;
+			}
+		}
+		break;
+
+	case vtDouble:
+		if (const auto Denominator = Params[1].asDouble())
+		{
+			switch (NumeratorType)
+			{
+			case vtUnknown:
+			case vtInteger:
+				Result = std::fmod(Params[0].asInteger(), Denominator);
+				break;
+
+			case vtDouble:
+				Result = std::fmod(Params[0].asDouble(), Denominator);
+				break;
+
+			default:
+				break;
+			}
+		}
+		break;
+
+	default:
+		break;
 	}
 
-	PassValue(Params[0] % Params[1], Data);
-	return true;
+	PassValue(Result, Data);
+	return !Result.isUnknown();
 }
 
 // N=index(S1,S2[,Mode])
@@ -3197,7 +3241,7 @@ static bool menushowFunc(FarMacroCall* Data)
 		if (bSetMenuFilter && !VFindOrFilter.isUnknown())
 		{
 			string NewStr=VFindOrFilter.toString();
-			Menu->VMProcess(MCODE_F_MENU_FILTERSTR, (void*)&NewStr, 1);
+			Menu->VMProcess(MCODE_F_MENU_FILTERSTR, &NewStr, 1);
 			bSetMenuFilter = false;
 		}
 
@@ -3272,23 +3316,30 @@ static bool menushowFunc(FarMacroCall* Data)
 		SelectedPos=Menu->GetExitCode();
 		if (bMultiSelect)
 		{
-			Result=L""s;
+			string StrResult;
+
 			for (size_t i = 0, size = Menu->size(); i != size; ++i)
 			{
 				if (Menu->GetCheck(static_cast<int>(i)))
 				{
 					if (bResultAsIndex)
 					{
-						Result += TVar(str(i + 1));
+						StrResult += str(i + 1);
 					}
 					else
 					{
-						Result += TVar(string_view(Menu->at(i).Name).substr(nLeftShift));
+						StrResult += string_view(Menu->at(i).Name).substr(nLeftShift);
 					}
-					Result += TVar(L"\n"sv);
+
+					StrResult += L"\n"sv;
 				}
 			}
-			if(Result == TVar(L""sv))
+
+			if (!StrResult.empty())
+			{
+				Result = StrResult;
+			}
+			else
 			{
 				if (bResultAsIndex)
 				{
@@ -3309,9 +3360,11 @@ static bool menushowFunc(FarMacroCall* Data)
 	{
 		if (bExitAfterNavigate)
 		{
-			Result=SelectedPos+1;
 			if ((LastKey == KEY_ESC) || (LastKey == KEY_F10) || (LastKey == KEY_BREAK))
-				Result=-Result;
+				Result = -(SelectedPos + 1);
+			else
+				Result = SelectedPos + 1;
+
 		}
 		else
 		{
@@ -4584,13 +4637,35 @@ static bool floatFunc(FarMacroCall* Data)
 static bool absFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams(1, Data);
-	TVar& tmpVar(Params[0]);
 
-	if (tmpVar < TVar(0))
-		tmpVar=-tmpVar;
+	TVar Result;
 
-	PassValue(tmpVar, Data);
-	return true;
+	switch(Params[0].ParseType())
+	{
+	case vtInteger:
+		{
+			if (const auto i = Params[0].asInteger(); i < 0)
+				Result = -i;
+			else
+				Result = Params[0];
+		}
+		break;
+
+	case vtDouble:
+		{
+		if (const auto d = Params[0].asDouble(); d < 0)
+			Result = -d;
+		else
+			Result = Params[0];
+		}
+		break;
+
+	default:
+		break;
+	}
+
+	PassValue(Result, Data);
+	return !Result.isUnknown();
 }
 
 static bool ascFunc(FarMacroCall* Data)
@@ -5075,7 +5150,7 @@ int KeyMacro::AssignMacroKey(DWORD &MacroKey, unsigned long long& Flags)
 	  | ________________________ |
 	  +--------------------------+
 	*/
-	FarDialogItem MacroAssignDlgData[]=
+	FarDialogItem const MacroAssignDlgData[]
 	{
 		{DI_DOUBLEBOX,3,1,30,4,0,nullptr,nullptr,0,msg(lng::MDefineMacroTitle).c_str()},
 		{DI_TEXT,-1,2,0,2,0,nullptr,nullptr,0,msg(lng::MDefineMacro).c_str()},

@@ -129,9 +129,15 @@ constexpr auto as_underlying_type(T Value)
 }
 
 [[nodiscard]]
-constexpr auto bit(size_t Number)
+constexpr auto bit(size_t const Number)
 {
 	return 1ull << Number;
+}
+
+[[nodiscard]]
+constexpr auto operator ""_bit(unsigned long long const Number)
+{
+	return bit(Number);
 }
 
 template<typename value_type, typename bits_type>

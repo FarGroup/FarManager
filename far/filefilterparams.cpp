@@ -883,9 +883,9 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 		Label = pad_right(msg(LngId), ColumnSize);
 	}
 
-	FarDialogItem FilterDlgData[]=
+	FarDialogItem const FilterDlgData[]=
 	{
-		{DI_DOUBLEBOX,3,1,76,23,0,nullptr,nullptr,DIF_SHOWAMPERSAND,msg(lng::MFileFilterTitle).c_str()},
+		{DI_DOUBLEBOX,3,1,76,23,0,nullptr,nullptr,DIF_SHOWAMPERSAND, msg(ColorConfig? lng::MFileHilightTitle : lng::MFileFilterTitle).c_str()},
 
 		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,DIF_FOCUS,msg(lng::MFileFilterName).c_str()},
 		{DI_EDIT,5,2,74,2,0,FilterNameHistoryName,nullptr,DIF_HISTORY,L""},
@@ -965,7 +965,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MFileFilterCancel).c_str()},
 		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,msg(lng::MFileFilterMakeTransparent).c_str()},
 	};
-	FilterDlgData[0].Data = msg(ColorConfig? lng::MFileHilightTitle : lng::MFileFilterTitle).c_str();
+
 	auto FilterDlg = MakeDialogItemsEx(FilterDlgData);
 
 	if (ColorConfig)

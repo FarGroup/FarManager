@@ -100,7 +100,7 @@ void ShellMakeDir(Panel *SrcPanel)
 	ComboList.Items[2].Text=msg(lng::MMakeFolderLinkSymlink).c_str();
 	ComboList.Items[0].Flags|=LIF_SELECTED;
 
-	FarDialogItem MkDirDlgData[]=
+	FarDialogItem const MkDirDlgData[]
 	{
 		{DI_DOUBLEBOX,3,1,72,10,0,nullptr,nullptr,0,msg(lng::MMakeFolderTitle).c_str()},
 		{DI_TEXT,     5,2, 0,2,0,nullptr,nullptr,0,msg(lng::MCreateFolder).c_str()},
@@ -133,7 +133,7 @@ void ShellMakeDir(Panel *SrcPanel)
 		// такой каталог в кавычки
 		if (Global->Opt->MultiMakeDir && strDirName.find_first_of(L";,\""sv) == string::npos)
 		{
-			QuoteSpaceOnly(strDirName);
+			inplace::QuoteSpaceOnly(strDirName);
 		}
 
 		// нужно создать только ОДИН каталог

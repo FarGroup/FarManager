@@ -45,10 +45,10 @@ class SaveScreen;
 // можно использовать только младший байт (т.е. маска 0x000000FF), остальное отдается порожденным классам
 enum
 {
-	FSCROBJ_VISIBLE              = 0x00000001,
-	FSCROBJ_ENABLERESTORESCREEN  = 0x00000002,
-	FSCROBJ_SETPOSITIONDONE      = 0x00000004,
-	FSCROBJ_ISREDRAWING          = 0x00000008,   // идет процесс Show?
+	FSCROBJ_VISIBLE              = 0_bit,
+	FSCROBJ_ENABLERESTORESCREEN  = 1_bit,
+	FSCROBJ_SETPOSITIONDONE      = 2_bit,
+	FSCROBJ_ISREDRAWING          = 3_bit,   // идет процесс Show?
 };
 
 class SimpleScreenObject

@@ -1459,14 +1459,14 @@ long long Viewer::VMProcess(int OpCode,void *vParam,long long iParam)
 		case MCODE_V_VIEWERSTATE:
 		{
 			DWORD MacroViewerState = 0;
-			MacroViewerState |= ViOpt.AutoDetectCodePage?                             bit(0) : 0;
-			MacroViewerState |= IsUnicodeCodePage(m_Codepage)?                        bit(2) : 0;
-			MacroViewerState |= m_Wrap?                                               bit(3) : 0;
-			MacroViewerState |= m_WordWrap?                                           bit(4) : 0;
-			MacroViewerState |= m_DisplayMode == VMT_HEX?                             bit(5) : 0;
-			MacroViewerState |= m_DisplayMode == VMT_DUMP?                            bit(6) : 0;
-			MacroViewerState |= HostFileViewer && !HostFileViewer->GetCanLoseFocus()? bit(11) : 0;
-			MacroViewerState |= Global->OnlyEditorViewerUsed?                         bit(27) | bit(11) : 0;
+			MacroViewerState |= ViOpt.AutoDetectCodePage?                             0_bit : 0;
+			MacroViewerState |= IsUnicodeCodePage(m_Codepage)?                        2_bit : 0;
+			MacroViewerState |= m_Wrap?                                               3_bit : 0;
+			MacroViewerState |= m_WordWrap?                                           4_bit : 0;
+			MacroViewerState |= m_DisplayMode == VMT_HEX?                             5_bit : 0;
+			MacroViewerState |= m_DisplayMode == VMT_DUMP?                            6_bit : 0;
+			MacroViewerState |= HostFileViewer && !HostFileViewer->GetCanLoseFocus()? 11_bit : 0;
+			MacroViewerState |= Global->OnlyEditorViewerUsed?                         27_bit | 11_bit : 0;
 			return MacroViewerState;
 		}
 		case MCODE_V_ITEMCOUNT: // ItemCount - число элементов в текущем объекте
@@ -3338,9 +3338,9 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 
 	search_data sd;
 
-	if ( !Next )
+	if (!Next)
 	{
-		FarDialogItem SearchDlgData[]=
+		FarDialogItem const SearchDlgData[]
 		{
 			{DI_DOUBLEBOX,3,1,72,11,0,nullptr,nullptr,0,msg(lng::MViewSearchTitle).c_str()},
 			{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(lng::MViewSearchFor).c_str()},

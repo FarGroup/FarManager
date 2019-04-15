@@ -111,7 +111,7 @@ namespace highlight
 		static void ApplyFinalColor(element::colors_array::value_type& Colors, size_t PaletteIndex);
 
 	private:
-		void InitHighlightFiles(/*const*/ HierarchicalConfig* cfg);
+		void InitHighlightFiles(/*const*/ HierarchicalConfig& cfg);
 		void ClearData();
 		int  MenuPosToRealPos(int MenuPos, int*& Count, bool Insert = false);
 		void FillMenu(VMenu2 *HiMenu, int MenuPos);
@@ -125,7 +125,7 @@ namespace highlight
 		std::unordered_set<element, element_hash> Colors;
 		std::vector<FileFilterParams> HiData;
 
-		int FirstCount, UpperCount, LowerCount, LastCount;
+		int FirstCount{}, UpperCount{}, LowerCount{}, LastCount{};
 		os::chrono::time_point CurrentTime;
 		bool m_Changed{};
 	};

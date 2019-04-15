@@ -80,7 +80,7 @@ enum CVTITEMFLAGS
 
 enum DLGITEMINTERNALFLAGS
 {
-	DLGIIF_COMBOBOXNOREDRAWEDIT     = 0x00000008, // не прорисовывать строку редактирования при изменениях в комбо
+	DLGIIF_COMBOBOXNOREDRAWEDIT     = 3_bit, // не прорисовывать строку редактирования при изменениях в комбо
 };
 
 struct DlgUserControl

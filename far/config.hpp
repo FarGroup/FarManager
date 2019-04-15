@@ -52,32 +52,32 @@ struct FARConfigItem;
 
 enum
 {
-	CASR_PANEL  = bit(0),
-	CASR_EDITOR = bit(1),
-	CASR_VIEWER = bit(2),
-	CASR_HELP   = bit(3),
-	CASR_DIALOG = bit(4),
+	CASR_PANEL  = 0_bit,
+	CASR_EDITOR = 1_bit,
+	CASR_VIEWER = 2_bit,
+	CASR_HELP   = 3_bit,
+	CASR_DIALOG = 4_bit,
 };
 
 enum ExcludeCmdHistoryType
 {
-	EXCLUDECMDHISTORY_NOTWINASS    = bit(0), // не помещать в историю команды ассоциаций Windows
-	EXCLUDECMDHISTORY_NOTFARASS    = bit(1), // не помещать в историю команды выполнения ассоциаций файлов
-	EXCLUDECMDHISTORY_NOTPANEL     = bit(2), // не помещать в историю команды выполнения с панели
-	EXCLUDECMDHISTORY_NOTCMDLINE   = bit(3), // не помещать в историю команды выполнения с ком.строки
-	//EXCLUDECMDHISTORY_NOTAPPLYCMD   = bit(4), // не помещать в историю команды выполнения из "Apply Command"
+	EXCLUDECMDHISTORY_NOTWINASS    = 0_bit, // не помещать в историю команды ассоциаций Windows
+	EXCLUDECMDHISTORY_NOTFARASS    = 1_bit, // не помещать в историю команды выполнения ассоциаций файлов
+	EXCLUDECMDHISTORY_NOTPANEL     = 2_bit, // не помещать в историю команды выполнения с панели
+	EXCLUDECMDHISTORY_NOTCMDLINE   = 3_bit, // не помещать в историю команды выполнения с ком.строки
+	//EXCLUDECMDHISTORY_NOTAPPLYCMD   = 4_bit, // не помещать в историю команды выполнения из "Apply Command"
 };
 
 enum QUOTEDNAMETYPE
 {
-	QUOTEDNAME_INSERT         = bit(0), // кавычить при сбросе в командную строку, в диалогах и редакторе
-	QUOTEDNAME_CLIPBOARD      = bit(1), // кавычить при помещении в буфер обмена
+	QUOTEDNAME_INSERT         = 0_bit, // кавычить при сбросе в командную строку, в диалогах и редакторе
+	QUOTEDNAME_CLIPBOARD      = 1_bit, // кавычить при помещении в буфер обмена
 };
 
 enum
 {
-	DMOUSEBUTTON_LEFT = bit(0),
-	DMOUSEBUTTON_RIGHT = bit(1),
+	DMOUSEBUTTON_LEFT  = 0_bit,
+	DMOUSEBUTTON_RIGHT = 1_bit,
 };
 
 enum
@@ -96,18 +96,18 @@ enum DIZUPDATETYPE
 
 enum disk_menu_mode
 {
-	DRIVE_SHOW_TYPE              = bit(0),
-	DRIVE_SHOW_PATH              = bit(1),
-	DRIVE_SHOW_LABEL             = bit(2),
-	DRIVE_SHOW_FILESYSTEM        = bit(3),
-	DRIVE_SHOW_SIZE              = bit(4),
-	DRIVE_SHOW_REMOVABLE         = bit(5),
-	DRIVE_SHOW_PLUGINS           = bit(6),
-	DRIVE_SHOW_CDROM             = bit(7),
-	DRIVE_SHOW_SIZE_FLOAT        = bit(8),
-	DRIVE_SHOW_REMOTE            = bit(9),
-	DRIVE_SORT_PLUGINS_BY_HOTKEY = bit(10),
-	DRIVE_SHOW_LABEL_USE_SHELL   = bit(11),
+	DRIVE_SHOW_TYPE              = 0_bit,
+	DRIVE_SHOW_PATH              = 1_bit,
+	DRIVE_SHOW_LABEL             = 2_bit,
+	DRIVE_SHOW_FILESYSTEM        = 3_bit,
+	DRIVE_SHOW_SIZE              = 4_bit,
+	DRIVE_SHOW_REMOVABLE         = 5_bit,
+	DRIVE_SHOW_PLUGINS           = 6_bit,
+	DRIVE_SHOW_CDROM             = 7_bit,
+	DRIVE_SHOW_SIZE_FLOAT        = 8_bit,
+	DRIVE_SHOW_REMOTE            = 9_bit,
+	DRIVE_SORT_PLUGINS_BY_HOTKEY = 10_bit,
+	DRIVE_SHOW_LABEL_USE_SHELL   = 11_bit,
 };
 
 class Option

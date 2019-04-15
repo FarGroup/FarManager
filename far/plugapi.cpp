@@ -1489,7 +1489,7 @@ namespace magic
 		T Item{};
 		Item.Reserved[0] = reinterpret_cast<intptr_t>(Items.get());
 		Items->emplace_back(Item);
-		const auto Result = std::make_tuple(Items->data(), Items->size() - 1);
+		const std::tuple Result(Items->data(), Items->size() - 1);
 		Items.release();
 		return Result;
 	}

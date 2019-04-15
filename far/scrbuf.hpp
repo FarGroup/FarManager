@@ -43,12 +43,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/2d/matrix.hpp"
 #include "common/2d/point.hpp"
 #include "common/2d/rectangle.hpp"
+#include "common/range.hpp"
 
 enum class flush_type
 {
-	screen = bit(0),
-	cursor = bit(1),
-	title  = bit(2),
+	screen = 0_bit,
+	cursor = 1_bit,
+	title  = 2_bit,
 
 	all = screen | cursor | title
 };

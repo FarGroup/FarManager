@@ -51,8 +51,8 @@ enum
 
 enum MACRODISABLEONLOAD
 {
-	MDOL_ALL            = 0x80000000, // дисаблим все макросы при загрузке
-	MDOL_AUTOSTART      = 0x00000001, // дисаблим автостартующие макросы
+	MDOL_AUTOSTART      = 0_bit, // дисаблим автостартующие макросы
+	MDOL_ALL            = 31_bit, // дисаблим все макросы при загрузке
 };
 
 class TVar;

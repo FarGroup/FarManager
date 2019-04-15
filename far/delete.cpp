@@ -389,8 +389,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 			return;
 		}
 
-		strDeleteFilesMsg = SingleSelData.FileName;
-		QuoteOuterSpace(strDeleteFilesMsg);
+		strDeleteFilesMsg = QuoteOuterSpace(SingleSelData.FileName);
 	}
 	else
 	{
@@ -469,7 +468,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 				string name, sname;
 				if (SrcPanel->GetCurName(name, sname))
 				{
-					QuoteOuterSpace(name);
+					inplace::QuoteOuterSpace(name);
 					bHilite = strDeleteFilesMsg != name;
 				}
 			}
@@ -491,9 +490,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 
 				for (const auto& i: SrcPanel->enum_selected())
 				{
-					auto Name = i.FileName;
-					QuoteOuterSpace(Name);
-					items.emplace_back(Name);
+					items.emplace_back(QuoteOuterSpace(i.FileName));
 
 					if (items.size() > mshow && items.size() < SelCount)
 					{
@@ -1160,14 +1157,11 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 	{
 		const auto ErrorState = error_state::fetch();
 
-		string qName(strFullName);
-		QuoteOuterSpace(qName);
-
 		const int MsgCode = Message(MSG_WARNING, ErrorState,
 			msg(lng::MError),
 			{
 				msg(dir? lng::MCannotRecycleFolder : lng::MCannotRecycleFile),
-				qName
+				QuoteOuterSpace(strFullName)
 			},
 			{ lng::MDeleteFileDelete, lng::MDeleteSkip, lng::MDeleteSkipAll, lng::MDeleteCancel },
 			{}, dir? &CannotRecycleFolderId : &CannotRecycleFileId);

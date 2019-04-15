@@ -78,12 +78,12 @@ enum OPENFILEPLUGINTYPE: int
 // параметры вызова макрофункций plugin.call и т.п.
 enum CALLPLUGINFLAGS: unsigned int
 {
-	CPT_MENU        = bit(0),
-	CPT_CONFIGURE   = bit(1),
-	CPT_CMDLINE     = bit(2),
-	CPT_INTERNAL    = bit(3),
+	CPT_MENU        = 0_bit,
+	CPT_CONFIGURE   = 1_bit,
+	CPT_CMDLINE     = 2_bit,
+	CPT_INTERNAL    = 3_bit,
 	CPT_MASK        = 0b1111,
-	CPT_CHECKONLY   = bit(28),
+	CPT_CHECKONLY   = 28_bit,
 };
 
 class plugin_panel

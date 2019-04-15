@@ -3385,7 +3385,7 @@ void FileList::SetSortMode(panel_sort Mode, bool KeepOrder)
 	{
 		if (!KeepOrder)
 		{
-			static bool InvertByDefault[] =
+			static bool const InvertByDefault[]
 			{
 				false, // UNSORTED,
 				false, // BY_NAME,
@@ -3937,7 +3937,7 @@ const string& FileList::GetComputerName() const
 long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 {
 	filemasks FileMask; // Класс для работы с масками
-	FarDialogItem SelectDlgData[]=
+	FarDialogItem const SelectDlgData[]
 	{
 		{DI_DOUBLEBOX,3,1,51,5,0,nullptr,nullptr,0,L""},
 		{DI_EDIT,5,2,49,2,0,L"Masks",nullptr,DIF_FOCUS|DIF_HISTORY,L""},
@@ -4788,9 +4788,7 @@ void FileList::DescribeFiles()
 	for (const auto& i: enum_selected())
 	{
 		const auto PrevText = NullToEmpty(Diz.Get(i.FileName, i.AlternateFileName(), i.FileSize));
-		auto strQuotedName = i.FileName;
-		QuoteSpaceOnly(strQuotedName);
-		const auto strMsg = concat(msg(lng::MEnterDescription), L' ', strQuotedName, L':');
+		const auto strMsg = concat(msg(lng::MEnterDescription), L' ', QuoteSpaceOnly(i.FileName), L':');
 
 		/* $ 09.08.2000 SVS
 		   Для Ctrl-Z не нужно брать предыдущее значение!
@@ -6404,7 +6402,7 @@ void FileList::PluginClearSelection(const std::vector<PluginPanelItem>& ItemList
 // Флаги для ReadDiz()
 enum ReadDizFlags
 {
-	RDF_NO_UPDATE         = bit(0),
+	RDF_NO_UPDATE         = 0_bit,
 };
 
 void FileList::Update(int Mode)
@@ -6721,7 +6719,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 		}
 	}
 
-	if (!ErrorState.engaged())
+	if (!ErrorState)
 		ErrorState = error_state::fetch();
 
 	if (!(ErrorState.Win32Error == ERROR_SUCCESS || ErrorState.Win32Error == ERROR_NO_MORE_FILES || ErrorState.Win32Error == ERROR_FILE_NOT_FOUND))

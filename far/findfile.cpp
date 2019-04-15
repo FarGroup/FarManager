@@ -617,7 +617,7 @@ intptr_t FindFiles::AdvancedDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, 
 
 void FindFiles::AdvancedDialog()
 {
-	FarDialogItem AdvancedDlgData[]=
+	FarDialogItem const AdvancedDlgData[]
 	{
 		{DI_DOUBLEBOX,3,1,52,11,0,nullptr,nullptr,0,msg(lng::MFindFileAdvancedTitle).c_str()},
 		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(lng::MFindFileSearchFirst).c_str()},
@@ -2542,7 +2542,7 @@ bool FindFiles::FindFilesProcess()
 
 	int DlgWidth = ScrX + 1 - 2;
 	int DlgHeight = ScrY + 1 - 2;
-	FarDialogItem FindDlgData[]=
+	FarDialogItem const FindDlgData[]
 	{
 		{DI_DOUBLEBOX,3,1,DlgWidth-4,DlgHeight-2,0,nullptr,nullptr,DIF_SHOWAMPERSAND,strTitle.c_str()},
 		{DI_LISTBOX,4,2,DlgWidth-5,DlgHeight-7,0,nullptr,nullptr,DIF_LISTNOBOX|DIF_DISABLE,L""},
@@ -2868,7 +2868,7 @@ FindFiles::FindFiles():
 		static const wchar_t MasksHistoryName[] = L"Masks", TextHistoryName[] = L"SearchText";
 		static const wchar_t HexMask[]=L"HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH";
 		const wchar_t VSeparator[] = { BoxSymbols[BS_T_H1V1], BoxSymbols[BS_V1], BoxSymbols[BS_V1], BoxSymbols[BS_V1], BoxSymbols[BS_V1], BoxSymbols[BS_B_H1V1], 0 };
-		FarDialogItem FindAskDlgData[]=
+		FarDialogItem const FindAskDlgData[]
 		{
 			{DI_DOUBLEBOX,3,1,76,19,0,nullptr,nullptr,0,msg(lng::MFindFileTitle).c_str()},
 			{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(lng::MFindFileMasks).c_str()},

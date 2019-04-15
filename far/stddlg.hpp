@@ -139,7 +139,7 @@ bool GetString(
 // для диалога GetNameAndPassword()
 enum FlagsNameAndPassword
 {
-	GNP_USELAST      = 0x00000001UL, // использовать последние введенные данные
+	GNP_USELAST      = 0_bit, // использовать последние введенные данные
 };
 
 bool GetNameAndPassword(const string& Title,string &strUserName, string &strPassword, const wchar_t *HelpTopic,DWORD Flags);

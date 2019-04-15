@@ -1129,7 +1129,7 @@ void PluginManager::ConfigureCurrent(Plugin *pPlugin, const GUID& Guid)
 
 	if (pPlugin->Configure(&Info))
 	{
-		panel_ptr Panels[] =
+		panel_ptr const Panels[]
 		{
 			Global->CtrlObject->Cp()->LeftPanel(),
 			Global->CtrlObject->Cp()->RightPanel(),

@@ -76,7 +76,8 @@ static void GetSymbols(const std::vector<const void*>& BackTrace, function_ref<v
 
 	const auto Process = GetCurrentProcess();
 	const auto MaxNameLen = MAX_SYM_NAME;
-	block_ptr<SYMBOL_INFO> Symbol(sizeof(SYMBOL_INFO) + MaxNameLen + 1);
+	const auto BufferSize = sizeof(SYMBOL_INFO) + MaxNameLen + 1;
+	block_ptr<SYMBOL_INFO, BufferSize> Symbol(BufferSize);
 	Symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
 	Symbol->MaxNameLen = MaxNameLen;
 

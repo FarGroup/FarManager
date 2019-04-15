@@ -316,18 +316,18 @@ private:
 	// Младший байт (маска 0xFF) юзается классом ScreenObject!!!
 	enum editor_flags
 	{
-		FEDITOR_MODIFIED = bit(8),
-		FEDITOR_MARKINGBLOCK = bit(9),
-		FEDITOR_MARKINGVBLOCK = bit(10),
-		FEDITOR_WASCHANGED =  bit(11),
-		FEDITOR_OVERTYPE = bit(12),
-		FEDITOR_NEWUNDO = bit(13),
-		FEDITOR_UNDOSAVEPOSLOST = bit(14),
-		FEDITOR_DISABLEUNDO = bit(15),   // возможно процесс Undo уже идет?
-		FEDITOR_LOCKMODE = bit(16),
-		FEDITOR_CURPOSCHANGEDBYPLUGIN = bit(17),   // установлен, если позиция в редакторе была изменена плагином (ECTL_SETPOSITION)
-		FEDITOR_PROCESSCTRLQ = bit(19),   // нажата Ctrl-Q и идет процесс вставки кода символа
-		FEDITOR_DIALOGMEMOEDIT = bit(20),   // Editor используется в диалоге в качестве DI_MEMOEDIT
+		FEDITOR_MODIFIED              = 8_bit,
+		FEDITOR_MARKINGBLOCK          = 9_bit,
+		FEDITOR_MARKINGVBLOCK         = 10_bit,
+		FEDITOR_WASCHANGED            = 11_bit,
+		FEDITOR_OVERTYPE              = 12_bit,
+		FEDITOR_NEWUNDO               = 13_bit,
+		FEDITOR_UNDOSAVEPOSLOST       = 14_bit,
+		FEDITOR_DISABLEUNDO           = 15_bit,   // возможно процесс Undo уже идет?
+		FEDITOR_LOCKMODE              = 16_bit,
+		FEDITOR_CURPOSCHANGEDBYPLUGIN = 17_bit,   // установлен, если позиция в редакторе была изменена плагином (ECTL_SETPOSITION)
+		FEDITOR_PROCESSCTRLQ          = 19_bit,   // нажата Ctrl-Q и идет процесс вставки кода символа
+		FEDITOR_DIALOGMEMOEDIT        = 20_bit,   // Editor используется в диалоге в качестве DI_MEMOEDIT
 	};
 
 	editor_container Lines;

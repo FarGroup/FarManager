@@ -50,8 +50,6 @@ enum TVarType
 	vtDouble  = 3,
 };
 
-using TVarFuncCmp = bool(TVarType vt, const void*, const void*);
-
 class TVar
 {
 public:
@@ -72,25 +70,15 @@ public:
 	COPY_AND_MOVE(TVar, double)
 
 	bool operator<(const TVar&) const;
-	bool operator>(const TVar&) const;
-	bool operator==(const TVar&) const;
-
-	TVar& operator+=(const TVar& b) { return *this = *this + b; }
-	TVar operator-() const;
-
-	TVar operator+(const TVar&) const;
-	TVar operator%(const TVar&) const;
-
-	TVar& AppendStr(wchar_t);
-	TVar& AppendStr(const TVar&);
 
 	TVarType type() const { return vType; }
+	TVarType ParseType() const;
 	void SetType(TVarType newType) {vType=newType;}
 
-	bool isString()   const { return vType == vtString;  }
+	bool isString()   const { return vType == vtString; }
 	bool isInteger()  const { return vType == vtInteger || vType == vtUnknown; }
-	bool isDouble()   const { return vType == vtDouble;  }
-	bool isUnknown()  const { return vType == vtUnknown;  }
+	bool isDouble()   const { return vType == vtDouble; }
+	bool isUnknown()  const { return vType == vtUnknown; }
 
 	bool isNumber()   const;
 
@@ -103,10 +91,11 @@ public:
 	long long asInteger() const;
 
 private:
-	friend bool CompAB(const TVar& a, const TVar& b, TVarFuncCmp fcmp);
-
-	long long inum;
-	double dnum;
+	union
+	{
+		long long inum{};
+		double dnum;
+	};
 	mutable string str;
 	TVarType vType;
 };

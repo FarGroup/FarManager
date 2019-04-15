@@ -337,10 +337,10 @@ string VMenu2::GetMenuTitle(bool bottom)
 	return { title.get(), size - 1 };
 }
 
-static const std::array<FarDialogItem, 1> VMenu2DialogItems =
-{{
+static const FarDialogItem VMenu2DialogItems[]
+{
 	{DI_LISTBOX, 2, 1, 10, 10, 0, nullptr, nullptr, DIF_LISTNOAMPERSAND/*|DIF_LISTNOCLOSE*/, nullptr},
-}};
+};
 
 VMenu2::VMenu2(private_tag, int MaxHeight):
 	Dialog(Dialog::private_tag(), span(VMenu2DialogItems), [this](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2) { return VMenu2DlgProc(Dlg, Msg, Param1, Param2); }, nullptr),

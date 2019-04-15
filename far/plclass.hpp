@@ -126,11 +126,11 @@ enum EXPORTS_ENUM
 
 enum PLUGINWORKFLAGS
 {
-	PIWF_LOADED        = bit(0), // DLL загружена
-	PIWF_CACHED        = bit(1), // кешируется
-	PIWF_PRELOADED     = bit(2), //
-	PIWF_DONTLOADAGAIN = bit(3), // не загружать плагин снова, ставится в результате проверки требуемой версии фара
-	PIWF_DATALOADED    = bit(4), // LoadData успешно выполнилась
+	PIWF_LOADED        = 0_bit, // DLL загружена
+	PIWF_CACHED        = 1_bit, // кешируется
+	PIWF_PRELOADED     = 2_bit, //
+	PIWF_DONTLOADAGAIN = 3_bit, // не загружать плагин снова, ставится в результате проверки требуемой версии фара
+	PIWF_DATALOADED    = 4_bit, // LoadData успешно выполнилась
 };
 
 class i_plugin_module
