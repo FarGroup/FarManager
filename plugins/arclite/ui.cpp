@@ -14,7 +14,15 @@ wstring get_error_dlg_title() {
   return Far::get_msg(MSG_PLUGIN_NAME);
 }
 
-ProgressMonitor::ProgressMonitor(const wstring& progress_title, bool progress_known, bool lazy): progress_title(progress_title), progress_known(progress_known), h_scr(nullptr), percent_done(0), paused(false), low_priority(false) {
+ProgressMonitor::ProgressMonitor(const wstring& progress_title, bool progress_known, bool lazy) :
+  h_scr(nullptr),
+  paused(false),
+  low_priority(false),
+  confirm_esc(false),
+  progress_title(progress_title),
+  progress_known(progress_known),
+  percent_done(0)
+{
   QueryPerformanceCounter(reinterpret_cast<PLARGE_INTEGER>(&time_cnt));
   QueryPerformanceFrequency(reinterpret_cast<PLARGE_INTEGER>(&time_freq));
   time_total = 0;
@@ -185,8 +193,11 @@ private:
   }
 
 public:
-  PasswordDialog(wstring& password, const wstring& arc_path): Far::Dialog(Far::get_msg(MSG_PASSWORD_TITLE), &c_password_dialog_guid, c_client_xs), password(password), arc_path(arc_path) {
-  }
+  PasswordDialog(wstring& password, const wstring& arc_path) :
+    Far::Dialog(Far::get_msg(MSG_PASSWORD_TITLE), &c_password_dialog_guid, c_client_xs),
+    arc_path(arc_path),
+    password(password)
+  {}
 
   bool show() {
     label(fit_str(arc_path, c_client_xs), c_client_xs, DIF_SHOWAMPERSAND);
@@ -472,10 +483,9 @@ void retry_or_ignore_error(const Error& error, bool& ignore, bool& ignore_errors
     }
     st << extract_file_name(widen(error.file)) << L':' << error.line << L'\n';
     unsigned button_cnt = 0;
-    unsigned retry_id, ignore_id, ignore_all_id, cancel_id;
+    unsigned ignore_id=0, ignore_all_id=0;
     if (can_retry) {
       st << Far::get_msg(MSG_BUTTON_RETRY) << L'\n';
-      retry_id = button_cnt;
       button_cnt++;
     }
     if (can_ignore) {
@@ -487,16 +497,13 @@ void retry_or_ignore_error(const Error& error, bool& ignore, bool& ignore_errors
       button_cnt++;
     }
     st << Far::get_msg(MSG_BUTTON_CANCEL) << L'\n';
-    cancel_id = button_cnt;
     button_cnt++;
     ProgressSuspend ps(progress);
-    intptr_t id = Far::message(c_retry_ignore_dialog_guid, st.str(), button_cnt, FMSG_WARNING);
-    if (can_retry && id == retry_id) {
-    }
-    else if (can_ignore && id == ignore_id) {
+    auto id = Far::message(c_retry_ignore_dialog_guid, st.str(), button_cnt, FMSG_WARNING);
+    if (can_ignore && (unsigned)id == ignore_id) {
       ignore = true;
     }
-    else if (can_ignore && id == ignore_all_id) {
+    else if (can_ignore && (unsigned)id == ignore_all_id) {
       ignore = true;
       ignore_errors = true;
     }
@@ -813,13 +820,13 @@ private:
         flu.Item.Text = Far::msg_ptr(c_levels[i].name_id);
         send_message(DM_LISTUPDATE, level_ctrl_id, &flu);
       }
-      if (!skip && (def_level_sel == -1 || c_levels[i].value == 5)) // normal or first enabled
+      if (!skip && (def_level_sel == (unsigned)-1 || c_levels[i].value == 5)) // normal or first enabled
           def_level_sel = i;
       if (c_levels[i].value == level && !skip) // if current level enabled
         new_level_sel = i;
     }
-    if (new_level_sel == -1)
-      new_level_sel = def_level_sel != -1 ? def_level_sel : level_sel;
+    if (new_level_sel == (unsigned)-1)
+      new_level_sel = def_level_sel != (unsigned)-1 ? def_level_sel : level_sel;
     if (new_level_sel != level_sel)
       set_list_pos(level_ctrl_id, new_level_sel);
     level = c_levels[new_level_sel].value;
@@ -866,7 +873,7 @@ private:
       bool other_format = get_check(other_formats_ctrl_id);
       enable(other_formats_ctrl_id + 1, other_format);
       unsigned profile_idx = get_list_pos(profile_ctrl_id);
-      enable(delete_profile_ctrl_id, profile_idx != -1 && profile_idx < profiles.size());
+      enable(delete_profile_ctrl_id, profile_idx != (unsigned)-1 && profile_idx < profiles.size());
     }
     enable(move_files_ctrl_id, !get_check(enable_filter_ctrl_id));
   }
@@ -907,11 +914,11 @@ private:
     bool is_7z = options.arc_type == c_7z;
     bool is_zip = options.arc_type == c_zip;
 
-    options.level = -1;
+    options.level = (unsigned)-1;
     unsigned level_sel = get_list_pos(level_ctrl_id);
     if (level_sel < ARRAYSIZE(c_levels))
       options.level = c_levels[level_sel].value;
-    if (options.level == -1) {
+    if (options.level == (unsigned)-1) {
       FAIL_MSG(Far::get_msg(MSG_UPDATE_DLG_WRONG_LEVEL));
     }
     bool is_compressed = options.level != 0;
@@ -1084,7 +1091,7 @@ private:
     }
     else if (msg == DN_EDITCHANGE && param1 == profile_ctrl_id) {
       unsigned profile_idx = get_list_pos(profile_ctrl_id);
-      if (profile_idx != -1 && profile_idx < profiles.size()) {
+      if (profile_idx != (unsigned)-1 && profile_idx < profiles.size()) {
         write_controls(profiles[profile_idx].options);
         set_control_state();
       }
@@ -1151,7 +1158,7 @@ private:
     }
     else if (new_arc && msg == DN_BTNCLICK && param1 == delete_profile_ctrl_id) {
       unsigned profile_idx = get_list_pos(profile_ctrl_id);
-      if (profile_idx != -1 && profile_idx < profiles.size()) {
+      if (profile_idx != (unsigned)-1 && profile_idx < profiles.size()) {
         if (Far::message(c_delete_profile_dialog_guid, Far::get_msg(MSG_PLUGIN_NAME) + L'\n' + Far::get_msg(MSG_UPDATE_DLG_CONFIRM_PROFILE_DELETE), 0, FMSG_MB_YESNO) == 0) {
           DisableEvents de(*this);
           profiles.erase(profiles.begin() + profile_idx);
@@ -1348,7 +1355,6 @@ public:
     label(Far::get_msg(MSG_UPDATE_DLG_LEVEL));
     vector<wstring> level_names;
     unsigned level_sel = 0;
-    unsigned level_width = 0;
     for (unsigned i = 0; i < ARRAYSIZE(c_levels); i++) {
       level_names.push_back(Far::get_msg(c_levels[i].name_id));
       if (options.level == c_levels[i].value)
@@ -1527,11 +1533,12 @@ private:
   }
 
 public:
-  MultiSelectDialog(const wstring& title, const wstring& items_str, wstring& selected_str): Far::Dialog(title, &c_multi_select_dialog_guid, 1), items_str(items_str), selected_str(selected_str), read_only(false) {
-  }
-
-  MultiSelectDialog(const wstring& title, const wstring& items_str): Far::Dialog(title, &c_multi_select_dialog_guid, 1), items_str(items_str), selected_str(selected_str), read_only(true) {
-  }
+  MultiSelectDialog(const wstring& title, const wstring& items_str, wstring& selected_str) :
+    Far::Dialog(title, &c_multi_select_dialog_guid, 1),
+    read_only(false),
+    items_str(items_str),
+    selected_str(selected_str)
+  {}
 
   bool show() {
     struct ItemCompare {
@@ -1594,11 +1601,10 @@ private:
   map<intptr_t, size_t> mask_btn_map;
 
   wstring get_masks(size_t lib_index) {
-    const ArcFormats& arc_formats = ArcAPI::formats();
     wstring masks;
     for (auto format_iter = ArcAPI::formats().cbegin(); format_iter != ArcAPI::formats().cend(); ++format_iter) {
       const ArcFormat& format = format_iter->second;
-      if (format.lib_index == lib_index) {
+      if ((size_t)format.lib_index == lib_index) {
         for_each(format.extension_list.cbegin(), format.extension_list.cend(), [&] (const wstring& ext) {
           masks += L"*" + ext + L",";
         });
@@ -1610,11 +1616,10 @@ private:
   }
 
   wstring get_formats(size_t lib_index) {
-    const ArcFormats& arc_formats = ArcAPI::formats();
     wstring formats;
     for (auto format_iter = ArcAPI::formats().cbegin(); format_iter != ArcAPI::formats().cend(); ++format_iter) {
       const ArcFormat& format = format_iter->second;
-      if (format.lib_index == lib_index) {
+      if ((size_t)format.lib_index == lib_index) {
         if (!formats.empty())
           formats += L',';
         formats += format.name;
@@ -1646,14 +1651,15 @@ private:
       }
     }
     else if (msg == DN_BTNCLICK) {
+		 wstring unused;
       auto lib_iter = format_btn_map.find(param1);
       if (lib_iter != format_btn_map.end()) {
-        MultiSelectDialog(Far::get_msg(MSG_SETTINGS_DLG_LIB_FORMATS), get_formats(lib_iter->second)).show();
+        MultiSelectDialog(Far::get_msg(MSG_SETTINGS_DLG_LIB_FORMATS), get_formats(lib_iter->second),unused).show();
       }
       else {
         lib_iter = mask_btn_map.find(param1);
         if (lib_iter != mask_btn_map.end()) {
-          MultiSelectDialog(Far::get_msg(MSG_SETTINGS_DLG_LIB_MASKS), get_masks(lib_iter->second)).show();
+          MultiSelectDialog(Far::get_msg(MSG_SETTINGS_DLG_LIB_MASKS), get_masks(lib_iter->second),unused).show();
         }
       }
     }

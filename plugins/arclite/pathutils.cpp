@@ -289,7 +289,7 @@ static bool is_matched(const wstring& name, const wchar_t *res)
         return false;
     }
     else {
-      if (c1 != (wchar_t)(size_t)CharUpperW((LPWSTR)c2))
+      if (c1 != (wchar_t)(size_t)CharUpperW((LPWSTR)(size_t)c2))
         return false;
     }
     ++i;

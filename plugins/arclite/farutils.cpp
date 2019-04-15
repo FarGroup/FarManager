@@ -318,8 +318,10 @@ intptr_t Dialog::send_message(intptr_t msg, intptr_t param1, void* param2) {
   return g_far.SendDlgMessage(h_dlg, msg, param1, param2);
 }
 
-Dialog::Dialog(const wstring& title, const GUID* guid, unsigned width, const wchar_t* help, FARDIALOGFLAGS flags):
-  guid(guid), client_xs(width), x(c_x_frame), y(c_y_frame), help(help), events_enabled(true), flags(flags)
+Dialog::Dialog(
+  const wstring& title, const GUID* guid, unsigned width, const wchar_t* help, FARDIALOGFLAGS flags
+) :
+  client_xs(width), x(c_x_frame), y(c_y_frame), help(help), flags(flags), guid(guid), events_enabled(true)
 {
   frame(title);
 }
@@ -366,7 +368,7 @@ unsigned Dialog::label(const wstring& text, size_t boxsize, FARDIALOGITEMFLAGS f
   di.type = DI_TEXT;
   di.x1 = x;
   di.y1 = y;
-  if (boxsize == AUTO_SIZE)
+  if ((intptr_t)boxsize == AUTO_SIZE)
     x += get_label_len(text, flags);
   else
     x += boxsize;
@@ -384,7 +386,7 @@ unsigned Dialog::edit_box(const wstring& text, size_t boxsize, FARDIALOGITEMFLAG
   di.type = DI_EDIT;
   di.x1 = x;
   di.y1 = y;
-  if (boxsize == AUTO_SIZE)
+  if ((intptr_t)boxsize == AUTO_SIZE)
     x = c_x_frame + client_xs;
   else
     x += boxsize;
@@ -414,7 +416,7 @@ unsigned Dialog::fix_edit_box(const wstring& text, size_t boxsize, FARDIALOGITEM
   di.type = DI_FIXEDIT;
   di.x1 = x;
   di.y1 = y;
-  if (boxsize == AUTO_SIZE)
+  if ((intptr_t)boxsize == AUTO_SIZE)
     x += static_cast<unsigned>(text.size());
   else
     x += boxsize;
@@ -432,7 +434,7 @@ unsigned Dialog::pwd_edit_box(const wstring& text, size_t boxsize, FARDIALOGITEM
   di.type = DI_PSWEDIT;
   di.x1 = x;
   di.y1 = y;
-  if (boxsize == AUTO_SIZE)
+  if ((intptr_t)boxsize == AUTO_SIZE)
     x = c_x_frame + client_xs;
   else
     x += boxsize;
@@ -494,7 +496,7 @@ unsigned Dialog::combo_box(const vector<wstring>& list_items, size_t sel_idx, si
   di.type = DI_COMBOBOX;
   di.x1 = x;
   di.y1 = y;
-  if (boxsize == AUTO_SIZE) {
+  if ((intptr_t)boxsize == AUTO_SIZE) {
     if (flags & DIF_DROPDOWNLIST) {
       unsigned max_len = 1;
       for (unsigned i = 0; i < list_items.size(); i++) {

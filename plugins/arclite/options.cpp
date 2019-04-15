@@ -250,7 +250,7 @@ Options::Options():
 
 void load_sfx_options(OptionsKey& key, SfxOptions& sfx_options) {
   SfxOptions def_sfx_options;
-#define GET_VALUE(name, type) sfx_options.name = key.get_##type(L"sfx." L#name, def_sfx_options.name)
+#define GET_VALUE(name, type) sfx_options.name = key.get_##type(L"sfx." L###name, def_sfx_options.name)
   GET_VALUE(name, str);
   GET_VALUE(replace_icon, bool);
   GET_VALUE(icon_path, str);
@@ -274,7 +274,7 @@ void load_sfx_options(OptionsKey& key, SfxOptions& sfx_options) {
 
 void save_sfx_options(OptionsKey& key, const SfxOptions& sfx_options) {
   SfxOptions def_sfx_options;
-#define SET_VALUE(name, type) key.set_##type(L"sfx." L#name, sfx_options.name, def_sfx_options.name)
+#define SET_VALUE(name, type) key.set_##type(L"sfx." L###name, sfx_options.name, def_sfx_options.name)
   SET_VALUE(name, str);
   SET_VALUE(replace_icon, bool);
   SET_VALUE(icon_path, str);
@@ -301,8 +301,8 @@ void Options::load() {
   key.create();
   Options def_options;
   load_arclite_xml(*this);
-#define GET_VALUE(name, type) name = key.get_##type(L#name, def_options.name)
-#define GET_VALUE_XML(name, type) name = loaded_from_xml.name ? def_options.name : GET_VALUE(name, type)
+#define GET_VALUE(name, type) name = key.get_##type(L###name, def_options.name)
+#define GET_VALUE_XML(name, type) if (loaded_from_xml.name) name=def_options.name; else GET_VALUE(name, type)
   GET_VALUE(handle_create, bool);
   GET_VALUE(handle_commands, bool);
   GET_VALUE(plugin_prefix, str);
@@ -356,7 +356,7 @@ void Options::save() const {
   OptionsKey key;
   key.create();
   Options def_options;
-#define SET_VALUE(name, type) key.set_##type(L#name, name, def_options.name)
+#define SET_VALUE(name, type) key.set_##type(L###name, name, def_options.name)
 #define SET_VALUE_XML(name, type) if (!loaded_from_xml.name) SET_VALUE(name, type)
   SET_VALUE(handle_create, bool);
   SET_VALUE(handle_commands, bool);
@@ -460,7 +460,7 @@ void UpdateProfiles::load() {
     UpdateProfile profile;
     profile.name = profile_names[i];
     key.set_dir(get_profile_key_name(profile.name));
-#define GET_VALUE(name, type) profile.options.name = key.get_##type(L#name, def_profile_options.name)
+#define GET_VALUE(name, type) profile.options.name = key.get_##type(L###name, def_profile_options.name)
     GET_VALUE(arc_type, binary);
     GET_VALUE(level, int);
     GET_VALUE(method, str);
@@ -493,7 +493,7 @@ void UpdateProfiles::save() const {
   ProfileOptions def_profile_options;
   for_each(cbegin(), cend(), [&] (const UpdateProfile& profile) {
     key.set_dir(get_profile_key_name(profile.name));
-#define SET_VALUE(name, type) key.set_##type(L#name, profile.options.name, def_profile_options.name)
+#define SET_VALUE(name, type) key.set_##type(L###name, profile.options.name, def_profile_options.name)
     SET_VALUE(arc_type, binary);
     SET_VALUE(level, int);
     SET_VALUE(method, str);

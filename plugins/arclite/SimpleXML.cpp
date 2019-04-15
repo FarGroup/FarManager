@@ -51,7 +51,7 @@ public:
 	void move(const int offset) noexcept { ps += offset; }
 
 	static inline bool space(const char c) noexcept { return c==' ' || c=='\t' || c=='\n' || c=='\r' || c=='\0'; }
-	static inline bool Name(const char c) noexcept { return (c>='A' && c<='Z') || (c>='a' && c<='z' || c=='_'); }
+	static inline bool Name(const char c) noexcept { return (c>='A' && c<='Z') || (c>='a' && c<='z') || c=='_'; }
 	static inline bool name(const char c) noexcept { return Name(c) || (c>='0' && c<='9') || c=='-' || c=='.' || c==':'; }
 
 	char skip_spaces() noexcept {
@@ -103,7 +103,9 @@ parseRet parse(const char *xml, size_t size, const IParseCallback* cb)
 
 	View s(xml, xml + size);
 	auto res = parseRet::Ok;
+#if defined(_WIN32) && defined(_MSC_VER) && defined(_DEBUG)
 	bool attr = false;
+#endif
 
 	try {
 		if (!xml || !size || !cb)
@@ -214,7 +216,9 @@ parseRet parse(const char *xml, size_t size, const IParseCallback* cb)
 				if (has_attr && r != cbRet::Stop && r != cbRet::ContinueSkipAttr)
 				{
 					View a(all_attributes.begin(), all_attributes.end());
+#if defined(_WIN32) && defined(_MSC_VER) && defined(_DEBUG)
 					attr = true;
+#endif
 					for (;;) {
 						if (!a.skip_spaces())
 							break;
@@ -243,7 +247,9 @@ parseRet parse(const char *xml, size_t size, const IParseCallback* cb)
 						if (r == cbRet::Stop || r == cbRet::ContinueSkipAttr)
 							break;
 					}
+#if defined(_WIN32) && defined(_MSC_VER) && defined(_DEBUG)
 					attr = false;
+#endif
 				}
 				if (r == cbRet::Stop)
 					break;

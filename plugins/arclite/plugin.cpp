@@ -291,7 +291,8 @@ public:
       }
     };
     PluginPanelItems pp_items(this);
-    extract(pp_items, extract_file_path(archive->arc_path), false, 0);
+	 auto dst = extract_file_path(archive->arc_path);
+    extract(pp_items, dst, false, 0);
   }
 
   static void extract(const vector<wstring>& arc_list, ExtractOptions options) {
@@ -1105,7 +1106,7 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
     unsigned extract_menu_id = menu_items.add(Far::get_msg(MSG_MENU_EXTRACT));
     unsigned test_menu_id = menu_items.add(Far::get_msg(MSG_MENU_TEST));
     unsigned sfx_convert_menu_id = menu_items.add(Far::get_msg(MSG_MENU_SFX_CONVERT));
-    intptr_t item = Far::menu(c_main_menu_guid, Far::get_msg(MSG_PLUGIN_NAME), menu_items, L"Contents");
+    auto item = (unsigned)Far::menu(c_main_menu_guid, Far::get_msg(MSG_PLUGIN_NAME), menu_items, L"Contents");
     if (item == open_menu_id || item == detect_menu_id) {
       OpenOptions options;
       options.detect = item == detect_menu_id;
@@ -1213,6 +1214,8 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
       case cmdTest:
         Plugin::cmdline_test(parse_test_command(cmd_args));
         break;
+		default:
+			break;
       }
     }
     catch (const Error& e) {
@@ -1405,7 +1408,7 @@ intptr_t WINAPI ConfigureW(const struct ConfigureInfo* info) {
   FAR_ERROR_HANDLER_END(return FALSE, return FALSE, false);
 }
 
-void WINAPI ExitFARW(ExitInfo* Info) {
+void WINAPI ExitFARW(const struct ExitInfo* Info) {
   //CriticalSectionLock lock(GetExportSync());
   ArcAPI::free();
 }

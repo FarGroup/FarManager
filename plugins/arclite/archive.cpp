@@ -309,7 +309,7 @@ ArcAPI::~ArcAPI() {
     if (arc_lib.h_module && arc_lib.SetCodecs)
       arc_lib.SetCodecs(nullptr); // calls ~MyCompressInfo()
   }
-  for (auto& arc_lib = arc_libs.rbegin(); arc_lib != arc_libs.rend(); ++arc_lib) {
+  for (auto arc_lib = arc_libs.rbegin(); arc_lib != arc_libs.rend(); ++arc_lib) {
     if (arc_lib->h_module) {
       arc_lib->ComHashers = nullptr;
       FreeLibrary(arc_lib->h_module);
@@ -365,7 +365,7 @@ void ArcAPI::load_codecs(const wstring& path) {
   if (n_base_format_libs <= 0)
     return;
 
-  auto& add_codecs = [this](ArcLib &arc_lib, size_t lib_index) {
+  const auto& add_codecs = [this](ArcLib &arc_lib, size_t lib_index) {
     if ((arc_lib.CreateObject || arc_lib.CreateDecoder || arc_lib.CreateEncoder) && arc_lib.GetMethodProperty) {
       UInt32 numMethods = 1;
       bool ok = true;
@@ -385,7 +385,7 @@ void ArcAPI::load_codecs(const wstring& path) {
     }
   };
 
-  auto& add_hashers = [this](ArcLib &arc_lib, size_t lib_index) {
+  const auto& add_hashers = [this](ArcLib &arc_lib, size_t lib_index) {
     if (arc_lib.ComHashers) {
       UInt32 numHashers = arc_lib.ComHashers->GetNumHashers();
       for (UInt32 i = 0; i < numHashers; i++) {
@@ -855,8 +855,8 @@ UInt32 Archive::find_dir(const wstring& path) {
     if (end_pos != begin_pos) {
       dir_info.name.assign(path.data() + begin_pos, end_pos - begin_pos);
       FileIndexRange fi_range = equal_range(file_list_index.begin(), file_list_index.end(), -1, [&] (UInt32 left, UInt32 right) -> bool {
-        const ArcFileInfo& fi_left = left == -1 ? dir_info : file_list[left];
-        const ArcFileInfo& fi_right = right == -1 ? dir_info : file_list[right];
+        const ArcFileInfo& fi_left = left == (UInt32)-1 ? dir_info : file_list[left];
+        const ArcFileInfo& fi_right = right == (UInt32)-1 ? dir_info : file_list[right];
         return fi_left < fi_right;
       });
       if (fi_range.first == fi_range.second)
@@ -875,8 +875,8 @@ FileIndexRange Archive::get_dir_list(UInt32 dir_index) {
   ArcFileInfo file_info;
   file_info.parent = dir_index;
   FileIndexRange index_range = equal_range(file_list_index.begin(), file_list_index.end(), -1, [&] (UInt32 left, UInt32 right) -> bool {
-    const ArcFileInfo& fi_left = left == -1 ? file_info : file_list[left];
-    const ArcFileInfo& fi_right = right == -1 ? file_info : file_list[right];
+    const ArcFileInfo& fi_left = left == (UInt32)-1 ? file_info : file_list[left];
+    const ArcFileInfo& fi_right = right == (UInt32)-1 ? file_info : file_list[right];
     return fi_left.parent < fi_right.parent;
   });
 

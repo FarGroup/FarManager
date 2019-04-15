@@ -512,7 +512,7 @@ void Archive::open(const OpenOptions& options, Archives& archives) {
   ComObject<IInStream> stream;
   FindData arc_info;
   memzero(arc_info);
-  if (parent_idx == -1) {
+  if (parent_idx == (size_t)-1) {
     stream_impl = new ArchiveOpenStream(options.arc_path);
     stream = stream_impl;
     arc_info = stream_impl->get_info();
@@ -543,7 +543,7 @@ void Archive::open(const OpenOptions& options, Archives& archives) {
     archive->arc_path = options.arc_path;
     archive->arc_info = arc_info;
     archive->password = options.password;
-    if (parent_idx != -1)
+    if (parent_idx != (size_t)-1)
       archive->volume_names = archives[parent_idx]->volume_names;
 
 #ifdef _DEBUG
@@ -574,7 +574,7 @@ void Archive::open(const OpenOptions& options, Archives& archives) {
         archive->base_stream = stream;
     }
     if (opened) {
-      if (parent_idx != -1) {
+      if (parent_idx != (size_t)-1) {
         archive->parent = archives[parent_idx];
         archive->arc_chain.assign(archives[parent_idx]->arc_chain.begin(), archives[parent_idx]->arc_chain.end());
       }

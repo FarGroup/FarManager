@@ -304,7 +304,7 @@ private:
     }
     else if (msg == DN_EDITCHANGE && param1 == profile_ctrl_id) {
       unsigned profile_idx = get_list_pos(profile_ctrl_id);
-      if (profile_idx != -1 && profile_idx < profiles.size()) {
+      if (profile_idx != (unsigned)-1 && profile_idx < profiles.size()) {
         write_controls(profiles[profile_idx].options);
         set_control_state();
       }

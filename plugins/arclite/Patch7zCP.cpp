@@ -121,7 +121,7 @@ static bool patch_7z_dll()
   static const char f_MultiByteToWideChar[] = "MultiByteToWideChar";
   static const char f_WideCharToMultiByte[] = "WideCharToMultiByte";
 
-  HMODULE hm = ::GetModuleHandleA("7z.dll");
+  HMODULE hm = ::GetModuleHandleA(dll_7z);
   if (!hm)
     return false;
 
@@ -160,7 +160,7 @@ static bool patch_7z_dll()
         else if (0 == memcmp(func, f_WideCharToMultiByte, sizeof(f_WideCharToMultiByte)))
           pf = (FARPROC)patched::WideCharToMultiByte;
 
-        if (pf != nullptr && patch_IAT((void **)ppfnIATEntry, pf))
+        if (pf != nullptr && patch_IAT((void **)ppfnIATEntry, (const void *)pf))
           ++n_patched;
       }
     }

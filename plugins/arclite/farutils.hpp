@@ -158,7 +158,7 @@ protected:
   }
   intptr_t send_message(intptr_t msg, intptr_t param1, void* param2 = nullptr);
 public:
-  Dialog(const wstring& title, const GUID* guid, unsigned width = 60, const wchar_t* help = nullptr, FARDIALOGFLAGS flags = 0);
+  Dialog(const wstring& title,const GUID* guid,unsigned width=60,const wchar_t* help=nullptr,FARDIALOGFLAGS flags=0);
   // create different controls
   void new_line();
   void reset_line();

@@ -57,8 +57,8 @@ wstring center(const wstring& str, unsigned width) {
 }
 
 template<class CharType> basic_string<CharType> strip(const basic_string<CharType>& str) {
-  basic_string<CharType>::size_type hp = 0;
-  basic_string<CharType>::size_type tp = str.size();
+  size_t hp = 0;
+  size_t tp = str.size();
   while ((hp < str.size()) && ((static_cast<unsigned>(str[hp]) <= 0x20) || (str[hp] == 0x7F)))
     hp++;
   if (hp < str.size())

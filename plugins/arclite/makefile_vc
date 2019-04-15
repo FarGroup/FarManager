@@ -70,12 +70,6 @@ OBJS = $(OBJS) $(OUTDIR)\vc_crt_fix.obj $(OUTDIR)\vc_crt_fix_impl.obj
 LIBS = user32.lib advapi32.lib ole32.lib oleaut32.lib version.lib
 
 !ifdef DEBUG_7Z
-# Microsoft Windows SDK v7.1
-# cd 7z\src\CPP\7zip\Bundles\Format7zF
-# setenv /x86
-# msbuild Format7z.vcxproj
-# setenv /x64
-# msbuild Format7z.vcxproj /p:Configuration=Debug /p:Platform=x64
 !if "$(BITS)" == "32"
 _7Z = 7z\src\CPP\7zip\Bundles\Format7zF\Debug\7z.dll
 !else
@@ -86,7 +80,9 @@ _7Z = 7z\dll\final.$(DIRBIT)W.vc\7z.dll
 !endif
 
 SFX = $(OUTDIR)\7z.sfx $(OUTDIR)\7zCon.sfx $(OUTDIR)\7zS2.sfx $(OUTDIR)\7zS2con.sfx $(OUTDIR)\7zSD.sfx
-FILES = $(OUTDIR)\$(MODULE).dll $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng $(OUTDIR)\$(MODULE)_spa.lng $(OUTDIR)\$(MODULE)_ita.lng $(OUTDIR)\$(MODULE)_eng.hlf $(OUTDIR)\$(MODULE)_rus.hlf $(OUTDIR)\7z.dll $(SFX) $(OUTDIR)\arclite.xml
+LNG = $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng $(OUTDIR)\$(MODULE)_spa.lng $(OUTDIR)\$(MODULE)_ita.lng
+HLF = $(OUTDIR)\$(MODULE)_eng.hlf $(OUTDIR)\$(MODULE)_rus.hlf
+FILES = $(OUTDIR)\$(MODULE).dll $(LNG) $(HLF) $(OUTDIR)\7z.dll $(SFX) $(OUTDIR)\arclite.xml
 
 !ifdef INSTALL
 INSTALL=$(INSTALL)\$(NAME)
@@ -100,8 +96,8 @@ project: depfile instmak $(OUTDIR)\far.ini
 
 build_project: $(FILES)
 
-$(OUTDIR)\$(MODULE).dll: $(OUTDIR)\plugin.def $(OBJS) $(OUTDIR)\headers.pch $(OUTDIR)\version.res project.ini
-  link $(LINKFLAGS) -def:$(OUTDIR)\plugin.def -out:$@ $(OBJS) $(OUTDIR)\headers.obj $(OUTDIR)\version.res $(LIBS)
+$(OUTDIR)\$(MODULE).dll: plugin.def $(OBJS) $(OUTDIR)\headers.pch $(OUTDIR)\version.res project.ini
+  link $(LINKFLAGS) -def:plugin.def -out:$@ $(OBJS) $(OUTDIR)\headers.obj $(OUTDIR)\version.res $(LIBS)
   editbin /nologo /subsystem:console,$(OS_VERSION) /osversion:$(OS_VERSION) $(OUTDIR)\$(MODULE).dll > nul
 
 $(OBJS): $(OUTDIR)\headers.pch
@@ -127,9 +123,6 @@ $(OUTDIR)\version.res: $(OUTDIR)\version.rc
 PREPROC = $(TOOL) preproc $** $@
 
 $(OUTDIR)\version.rc: project.ini $(OUTDIR)\far.ini version.rc
-  $(PREPROC)
-
-$(OUTDIR)\plugin.def: project.ini plugin.def
   $(PREPROC)
 
 $(OUTDIR)\en.msg: project.ini en.msg

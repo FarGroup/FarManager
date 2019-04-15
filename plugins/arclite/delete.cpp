@@ -34,7 +34,7 @@ private:
   }
 
 public:
-  ArchiveFileDeleterProgress(): ProgressMonitor(Far::get_msg(MSG_PROGRESS_UPDATE)), completed(0), total(0) {
+  ArchiveFileDeleterProgress(): ProgressMonitor(Far::get_msg(MSG_PROGRESS_UPDATE)), total(0), completed(0) {
   }
 
   void update_total(unsigned __int64 total) {

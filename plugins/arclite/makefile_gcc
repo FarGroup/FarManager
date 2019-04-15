@@ -1,0 +1,132 @@
+.SILENT:
+
+include ../../far/makefile_gcc_common
+THIS_MAKE = $(TOP_MAKEFILE)
+
+include project.ini
+USERLIBS = -loleaut32 -lversion -luuid
+include ../makefile_gcc_def_inc
+OUTDIR = $(BASEDIR)
+CCFLAGS += -fexceptions -std=c++17 -I $(OUTDIR) -I 7z/h
+
+.PHONY: all dirs copy preproc depfile build clean
+
+all: dirs copy preproc depfile
+	$(MAKE) -f $(THIS_MAKE) $(MK_FLAGS) build
+
+clean:
+	@echo cleaning...
+	@$(RM) -r $(OBJDIR) $(OUTDIR)/*
+
+dirs:
+	$(MKDIR) $(OUTDIR) $(OBJDIR)
+
+#------------------------------------------------------------------------------
+SFXDIR = 7z/sfx
+SFXFILES = $(addprefix $(OUTDIR)/,$(notdir $(wildcard $(SFXDIR)/*.sfx)))
+
+copy: $(OUTDIR)/7z.dll $(OUTDIR)/arclite.xml $(SFXFILES)
+
+ifdef DEBUG_7Z
+ifeq (32,$(DIRBIT))
+_7Z = 7z/src/CPP/7zip/Bundles/Format7zF/Debug/7z.dll
+else
+_7Z = 7z/src/CPP/7zip/Bundles/Format7zF/x64/Debug/7z.dll
+endif
+else
+_7Z = 7z/dll/final.$(DIRBIT)W.vc/7z.dll
+endif
+
+$(OUTDIR)/7z.dll : $(_7Z)
+	@echo copy $< && @$(CP) $< $(OUTDIR)
+
+$(OUTDIR)/arclite.xml : arclite.xml
+	@echo copy $< && @$(CP) $< $(OUTDIR)
+
+vpath %.sfx $(SFXDIR)
+$(OUTDIR)/%.sfx : %.sfx
+	@echo copy $< && @$(CP) $< $(OUTDIR)
+
+#------------------------------------------------------------------------------
+TOOL = tools\tool.exe
+HLFS = $(addprefix $(OUTDIR)/$(MODULE)_,eng.hlf rus.hlf)
+MSGS = $(addprefix $(OUTDIR)/,          en.msg  ru.msg  es.msg  it.msg )
+LNGS = $(addprefix $(OUTDIR)/$(MODULE)_,eng.lng rus.lng spa.lng ita.msg)
+
+preproc: $(OUTDIR)/far.ini $(OUTDIR)/version.rc $(OUTDIR)/plugin.h $(HLFS) $(MSGS) $(OUTDIR)/msg.h #$(LNGS)
+
+$(OUTDIR)/far.ini: $(COMINC)/plugin.hpp
+	@echo preproc $(@F) && $(TOOL) farver $(subst /,\,$? $@)
+
+$(OUTDIR)/version.rc: project.ini $(OUTDIR)/far.ini version.rc
+	@echo preproc $(@F) && $(TOOL) preproc $(subst /,\,$? $@)
+
+$(OUTDIR)/plugin.h: project.ini $(OUTDIR)\far.ini plugin_h.h
+	@echo preproc $(@F) && $(TOOL) preproc $(subst /,\,$? $@)
+
+$(OUTDIR)/$(MODULE)_eng.hlf: project.ini en.hlf
+	@echo preproc $(@F) && $(TOOL) preproc $(subst /,\,$? $@)
+
+$(OUTDIR)/$(MODULE)_rus.hlf: project.ini ru.hlf
+	$(TOOL) preproc $(subst /,\,$? $@)
+
+$(OUTDIR)/en.msg: project.ini en.msg
+	@echo preproc $(@F) && $(TOOL) preproc $(subst /,\,$? $@)
+
+$(OUTDIR)/es.msg: project.ini es.msg
+	@echo preproc $(@F) && $(TOOL) preproc $(subst /,\,$? $@)
+
+$(OUTDIR)/it.msg: project.ini it.msg
+	@echo preproc $(@F) && $(TOOL) preproc $(subst /,\,$? $@)
+
+$(OUTDIR)/ru.msg: project.ini ru.msg
+	@echo preproc $(@F) && $(TOOL) preproc $(subst /,\,$? $@)
+
+$(OUTDIR)/msg.h: $(MSGS)
+	@echo Compile message files...
+	$(TOOL) msgc -in $(subst /,\,$(MSGS)) -out $(subst /,\,$(OUTDIR)/msg.h $(LNGS))
+
+#------------------------------------------------------------------------------
+DEPFILE = $(OBJDIR)/$(MODULE).dep
+
+depfile:
+	@echo Rebuilding dependencies...
+	$(LS) *.cpp *.hpp *.rc > $(OBJDIR)/mkdep.list
+	$(GAWK) -f $(FARDIR)/scripts/mkdep.awk -v compiler=gcc $(OBJDIR)/mkdep.list > $(DEPFILE)
+
+vpath %.h $(OUTDIR)
+
+ifeq ($(MAKECMDGOALS),build)
+#include $(OUTDIR)\far.ini
+ include $(DEPFILE)
+endif
+
+#------------------------------------------------------------------------------
+DLLFULLNAME := $(OUTDIR)/$(MODULE).$(EXT) # MODULE=arclite NAME=ArcLite
+MAPFULLNAME = $(OUTDIR)/$(MODULE).map
+
+build: $(DLLFULLNAME)
+
+SRCS = $(wildcard *.cpp)
+OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(SRCS)) $(OBJDIR)/version.rc.o
+
+$(OBJDIR)/version.rc.o: $(OUTDIR)/version.rc
+	@echo Compiling resource file
+	$(WINDRES) -i $< -o $@
+
+$(OBJDIR)/%.o: %.cpp
+	@echo $<
+	$(CXX) $(CCFLAGS) -c -include $(OBJDIR)/headers -include headers.hpp -o $@ $<
+
+$(OBJS): $(OBJDIR)/headers.gch
+
+$(OBJDIR)/headers.gch: headers.cpp headers.hpp
+	@echo Making precompiled headers
+	$(CXX) -x c++-header -c $(CCFLAGS) -o $@ $<
+
+$(DLLFULLNAME) : $(OBJS) plugin.gcc.def
+	@echo linking $@
+	$(CXX) -o $@ plugin.gcc.def $(OBJS) $(LNKFLAGS) -Wl,--kill-at -shared -Xlinker -Map=$(MAPFULLNAME)
+
+#------------------------------------------------------------------------------
+#END

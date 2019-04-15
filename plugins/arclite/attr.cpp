@@ -472,7 +472,7 @@ void Archive::load_update_props() {
 
   solid = in_arc->GetArchiveProperty(kpidSolid, prop.ref()) == S_OK && prop.is_bool() && prop.get_bool();
 
-  level = -1;
+  level = (unsigned)-1;
   method.clear();
   if (in_arc->GetArchiveProperty(kpidMethod, prop.ref()) == S_OK && prop.is_str()) {
     list<wstring> m_list = split(prop.get_str(), L' ');
@@ -498,7 +498,7 @@ void Archive::load_update_props() {
     }
   }
 
-  if (level == -1)
+  if (level == (unsigned)-1)
     level = 7; // maximum
   if (method.empty())
     method = c_method_lzma;

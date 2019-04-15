@@ -67,14 +67,14 @@ private:
   }
 
 public:
-  ArchiveUpdateProgress(bool new_arc, const wstring& arc_path):
+  ArchiveUpdateProgress(bool new_arc, const wstring& arcpath):
     ProgressMonitor(Far::get_msg(new_arc ? MSG_PROGRESS_CREATE : MSG_PROGRESS_UPDATE)),
     new_arc(new_arc),
-    arc_path(arc_path),
-    completed(0),
     total(0),
-    file_completed(0),
+    completed(0),
+    arc_path(arcpath),
     file_total(0),
+    file_completed(0),
     total_data_read(0),
     total_data_written(0) {
   }
@@ -566,8 +566,8 @@ private:
     file_info.parent = dst_dir_index;
     file_info.name = src_find_data.cFileName;
     FileIndexRange fi_range = std::equal_range(archive.file_list_index.begin(), archive.file_list_index.end(), -1, [&] (UInt32 left, UInt32 right) -> bool {
-      const ArcFileInfo& fi_left = left == -1 ? file_info : archive.file_list[left];
-      const ArcFileInfo& fi_right = right == -1 ? file_info : archive.file_list[right];
+      const ArcFileInfo& fi_left = left == (UInt32)-1 ? file_info : archive.file_list[left];
+      const ArcFileInfo& fi_right = right == (UInt32)-1 ? file_info : archive.file_list[right];
       return fi_left < fi_right;
     });
     if (fi_range.first == fi_range.second) {
@@ -646,9 +646,32 @@ private:
   }
 
 public:
-  PrepareUpdate(const wstring& src_dir, const vector<wstring>& file_names, UInt32 dst_dir_index, Archive& archive, FileIndexMap& file_index_map, UInt32& new_index, OverwriteAction overwrite_action, bool& ignore_errors, ErrorLog& error_log, Far::FileFilter* filter, bool& skipped_files): ProgressMonitor(Far::get_msg(MSG_PROGRESS_SCAN_DIRS), false), src_dir(src_dir), archive(archive), file_index_map(file_index_map), new_index(new_index), overwrite_action(overwrite_action), ignore_errors(ignore_errors), error_log(error_log), filter(filter), skipped_files(skipped_files) {
+  PrepareUpdate(
+    const wstring& src_dir,
+    const vector<wstring>& file_names,
+    UInt32 dst_dir_index,
+    Archive& archive,
+    FileIndexMap& file_index_map,
+    UInt32& new_index,
+    OverwriteAction overwrite_action,
+    bool& ignore_errors,
+    ErrorLog& error_log,
+    Far::FileFilter* filter,
+    bool& skipped_files
+  ) : ProgressMonitor(Far::get_msg(MSG_PROGRESS_SCAN_DIRS), false),
+    src_dir(src_dir),
+    archive(archive),
+    file_index_map(file_index_map),
+    new_index(new_index),
+    ignore_errors(ignore_errors),
+    error_log(error_log),
+    overwrite_action(overwrite_action),
+    filter(filter),
+    skipped_files(skipped_files)
+  {
     skipped_files = false;
-    if (filter) filter->start();
+    if (filter)
+      filter->start();
     for (unsigned i = 0; i < file_names.size(); i++) {
       wstring full_path = add_trailing_slash(src_dir) + file_names[i];
       FileEnum file_enum(full_path);
@@ -656,7 +679,6 @@ public:
     }
   }
 };
-
 
 class ArchiveUpdater: public IArchiveUpdateCallback, public ICryptoGetTextPassword2, public ComBase {
 private:
