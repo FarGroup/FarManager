@@ -111,7 +111,7 @@ depfile: $(OUTDIR) bootstrap\msg.h bootstrap\plugin.h
   $(TOOL) gendep $(INCLUDES) > $(OBJDIR)\dep.mak
 
 instmak: $(OUTDIR)
-  $(TOOL) geninst $(FILES) $(OUTDIR)\$(MODULE).map $(OUTDIR)\$(MODULE).pdb changelog > $(OBJDIR)\install.mak
+  $(TOOL) geninst $(FILES) $(OUTDIR)\$(MODULE).map $(OUTDIR)\$(MODULE).pdb > $(OBJDIR)\install.mak
 
 bootstrap\msg.h $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng $(OUTDIR)\$(MODULE)_spa.lng $(OUTDIR)\$(MODULE)_ita.lng: $(OUTDIR) bootstrap\en.msg bootstrap\ru.msg bootstrap\es.msg bootstrap\it.msg
   $(TOOL) msgc -in bootstrap\en.msg bootstrap\ru.msg bootstrap\es.msg bootstrap\it.msg -out bootstrap\msg.h $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng $(OUTDIR)\$(MODULE)_spa.lng $(OUTDIR)\$(MODULE)_ita.lng
