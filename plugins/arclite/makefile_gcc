@@ -7,7 +7,7 @@ include project.ini
 USERLIBS = -loleaut32 -lversion -luuid
 include ../makefile_gcc_def_inc
 OUTDIR = $(BASEDIR)
-CCFLAGS += -fexceptions -std=c++17 -I $(OBJDIR) -I 7z/h
+CCFLAGS += -fexceptions -std=c++17 -I bootstrap -I 7z/h
 
 .PHONY: all dirs copy preproc depfile build clean
 
@@ -15,17 +15,17 @@ all: dirs copy preproc depfile
 	$(MAKE) -f $(THIS_MAKE) $(MK_FLAGS) build
 
 clean:
-	@echo cleaning...
-	@$(RM) -r $(OBJDIR) $(OUTDIR)/*
+	@echo cleaning
+	@$(RM) -r $(OBJDIR) bootstrap/* $(OUTDIR)/*
 
 dirs:
-	$(MKDIR) $(OUTDIR) $(OBJDIR)
+	$(MKDIR) bootstrap $(OUTDIR) $(OBJDIR)
 
 #------------------------------------------------------------------------------
 SFXDIR = 7z/sfx
 SFXFILES = $(addprefix $(OUTDIR)/,$(notdir $(wildcard $(SFXDIR)/*.sfx)))
 
-copy: $(OUTDIR)/7z.dll $(OUTDIR)/arclite.xml $(SFXFILES)
+copy: $(OUTDIR)/7z.dll $(SFXFILES) $(OUTDIR)/arclite.xml $(OUTDIR)/changelog
 
 ifdef DEBUG_7Z
 ifeq (32,$(DIRBIT))
@@ -37,23 +37,51 @@ else
 _7Z = 7z/dll/final.$(DIRBIT)W.vc/7z.dll
 endif
 
-$(OUTDIR)/7z.dll : $(_7Z)
+$(OUTDIR)/arclite.xml: arclite.xml
 	@echo copy $< && @$(CP) $< $(OUTDIR)
 
-$(OUTDIR)/arclite.xml : arclite.xml
+$(OUTDIR)/changelog: changelog
+	@echo copy $< && @$(CP) $< $(OUTDIR)
+
+$(OUTDIR)/7z.dll: $(_7Z)
 	@echo copy $< && @$(CP) $< $(OUTDIR)
 
 vpath %.sfx $(SFXDIR)
-$(OUTDIR)/%.sfx : %.sfx
+$(OUTDIR)/%.sfx: %.sfx
 	@echo copy $< && @$(CP) $< $(OUTDIR)
 
 #------------------------------------------------------------------------------
 TOOL = tools\tool.exe
 HLFS = $(addprefix $(OUTDIR)/$(MODULE)_,eng.hlf rus.hlf)
-MSGS = $(addprefix $(OUTDIR)/,          en.msg  ru.msg  es.msg  it.msg )
-LNGS = $(addprefix $(OUTDIR)/$(MODULE)_,eng.lng rus.lng spa.lng ita.msg)
+MSGS = $(addprefix           bootstrap/,en.msg  ru.msg  es.msg  it.msg)
+LNGS = $(addprefix $(OUTDIR)/$(MODULE)_,eng.lng rus.lng spa.lng ita.lng)
 
-preproc: $(OBJDIR)/far.ini $(OBJDIR)/version.rc $(OBJDIR)/plugin.h $(HLFS) $(MSGS) $(OBJDIR)/msg.h #$(LNGS)
+preproc: bootstrap/far.ini bootstrap/version.rc bootstrap/plugin.h bootstrap/msg.h $(HLFS) $(MSGS) #$(LNGS)
+
+bootstrap/far.ini: $(COMINC)/plugin.hpp
+	@echo preproc $(@F) && $(TOOL) farver  $(subst /,\,$? $@)
+
+bootstrap/version.rc: project.ini bootstrap/far.ini version.rc
+	@echo preproc $(@F) && $(TOOL) preproc $(subst /,\,$? $@)
+
+bootstrap/plugin.h: project.ini bootstrap/far.ini plugin_h.h
+	@echo preproc $(@F) && $(TOOL) preproc $(subst /,\,$? $@)
+
+bootstrap/en.msg: project.ini en.msg
+	@echo preproc $(@F) && $(TOOL) preproc $(subst /,\,$? $@)
+
+bootstrap/ru.msg: project.ini ru.msg
+	@echo preproc $(@F) && $(TOOL) preproc $(subst /,\,$? $@)
+
+bootstrap/es.msg: project.ini es.msg
+	@echo preproc $(@F) && $(TOOL) preproc $(subst /,\,$? $@)
+
+bootstrap/it.msg: project.ini it.msg
+	@echo preproc $(@F) && $(TOOL) preproc $(subst /,\,$? $@)
+
+bootstrap/msg.h: $(MSGS)
+	@echo Compiling message files
+	$(TOOL) msgc -in $(subst /,\,$(MSGS)) -out $(subst /,\,bootstrap/msg.h $(LNGS))
 
 $(OUTDIR)/$(MODULE)_eng.hlf: project.ini en.hlf
 	@echo preproc $(@F) && $(TOOL) preproc $(subst /,\,$? $@)
@@ -61,40 +89,12 @@ $(OUTDIR)/$(MODULE)_eng.hlf: project.ini en.hlf
 $(OUTDIR)/$(MODULE)_rus.hlf: project.ini ru.hlf
 	@echo preproc $(@F) && $(TOOL) preproc $(subst /,\,$? $@)
 
-$(OUTDIR)/en.msg: project.ini en.msg
-	@echo preproc $(@F) && $(TOOL) preproc $(subst /,\,$? $@)
-
-$(OUTDIR)/es.msg: project.ini es.msg
-	@echo preproc $(@F) && $(TOOL) preproc $(subst /,\,$? $@)
-
-$(OUTDIR)/it.msg: project.ini it.msg
-	@echo preproc $(@F) && $(TOOL) preproc $(subst /,\,$? $@)
-
-$(OUTDIR)/ru.msg: project.ini ru.msg
-	@echo preproc $(@F) && $(TOOL) preproc $(subst /,\,$? $@)
-
-$(OBJDIR)/version.rc: project.ini $(OBJDIR)/far.ini version.rc
-	@echo preproc $(@F) && $(TOOL) preproc $(subst /,\,$? $@)
-
-$(OBJDIR)/plugin.h: project.ini $(OBJDIR)\far.ini plugin_h.h
-	@echo preproc $(@F) && $(TOOL) preproc $(subst /,\,$? $@)
-
-$(OBJDIR)/far.ini: $(COMINC)/plugin.hpp
-	@echo preproc $(@F) && $(TOOL) farver $(subst /,\,$? $@)
-
-$(OBJDIR)/msg.h: $(MSGS)
-	@echo Compile message files...
-	$(TOOL) msgc -in $(subst /,\,$(MSGS)) -out $(subst /,\,$(OBJDIR)/msg.h $(LNGS))
-
 #------------------------------------------------------------------------------
 DEPFILE = $(OBJDIR)/$(MODULE).dep
 
 depfile:
-	@echo Rebuilding dependencies...
-	$(LS) *.cpp *.hpp *.rc > $(OBJDIR)/mkdep.list
-	$(GAWK) -f $(FARDIR)/scripts/mkdep.awk -v compiler=gcc $(OBJDIR)/mkdep.list > $(DEPFILE)
-
-vpath %.h $(OBJDIR)
+	@echo Rebuilding dependencies
+	$(TOOL) gendep -gcc $(subst /,\,-I7z/h -I$(COMINC) . bootstrap) > $(DEPFILE)
 
 ifeq ($(MAKECMDGOALS),build)
  include $(DEPFILE)
@@ -109,7 +109,7 @@ build: $(DLLFULLNAME)
 SRCS = $(wildcard *.cpp)
 OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(SRCS)) $(OBJDIR)/version.rc.o
 
-$(OBJDIR)/version.rc.o: $(OBJDIR)/version.rc
+$(OBJDIR)/version.rc.o: bootstrap/version.rc
 	@echo Compiling resource file
 	$(WINDRES) -i $< -o $@
 

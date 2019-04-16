@@ -186,6 +186,7 @@ wstring remove_path_root(const wstring& path) {
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
+#ifndef TOOLS_TOOL
 
 static const wchar_t simple_replace_char  = L'_';
 static const wchar_t simple_replace_str[] = L"_";
@@ -378,6 +379,6 @@ wstring correct_filename(const wstring& orig_name, int mode, bool alt_stream)
     
   return name;
 }
-
+#endif
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------

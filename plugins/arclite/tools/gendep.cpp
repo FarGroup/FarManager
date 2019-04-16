@@ -74,6 +74,11 @@ void fix_slashes(wstring& path) {
     if (path[i] == L'/') path[i] = L'\\';
   }
 }
+void fix_slashes_gcc(wstring& path) {
+  for (size_t i = 0; i < path.size(); i++) {
+    if (path[i] == L'\\') path[i] = L'/';
+  }
+}
 
 list<wstring> get_include_file_list(const wstring& file_path, const list<wstring>& include_dirs) {
   list<wstring> file_list;
@@ -133,7 +138,9 @@ void parse_cmd_line(const deque<wstring>& params, list<wstring>& source_dirs, li
 }
 #undef CHECK_CMD
 
-void gendep(const deque<wstring>& params) {
+void gendep(deque<wstring>& params) { // [-gcc] Other_options
+  bool gcc = false;
+  if (!params.empty() && params.front() == L"-gcc") { gcc = true; params.pop_front(); }
   list<wstring> source_dirs, include_dirs;
   parse_cmd_line(params, source_dirs, include_dirs);
   wstring output;
@@ -146,5 +153,6 @@ void gendep(const deque<wstring>& params) {
       }
     }
   }
+  if (gcc) fix_slashes_gcc(output);
   cout << unicode_to_ansi(output, CP_ACP);
 }

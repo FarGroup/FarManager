@@ -41,7 +41,7 @@ CPPFLAGS=$(CPPFLAGS) /Zi
 !endif
 
 OUTDIR = $(OUTDIR).$(BITS)W.vc$(VisualStudioVersion)
-INCLUDES = -I$(OUTDIR) -I7z\h -I$(FARSDK)
+INCLUDES = -Ibootstrap -I7z\h -I$(FARSDK)
 CPPFLAGS = $(CPPFLAGS) -Fo$(OUTDIR)\ /Fd$(OUTDIR)\$(MODULE).pdb $(INCLUDES) $(DEFINES) $(USERCPP)
 RCFLAGS = $(RCFLAGS) $(INCLUDES) $(DEFINES)
 ASFLAGS = -Fo$(OUTDIR)\ $(ASFLAGS)
@@ -87,7 +87,7 @@ target = install_project
 target = build_project
 !endif
 
-project: depfile instmak $(OUTDIR)\far.ini
+project: dirs depfile instmak bootstrap\far.ini
   $(MAKE) -nologo -f makefile_vc -$(MAKEFLAGS) $(target) VisualStudioVersion=$(VisualStudioVersion) BUILD=1
 
 build_project: $(FILES)
@@ -104,33 +104,33 @@ $(OBJS): $(OUTDIR)\headers.pch
 $(OUTDIR)\headers.pch: headers.cpp headers.hpp
   $(CPP) $(CPPFLAGS) headers.cpp -Ycheaders.hpp -Fp$(OUTDIR)\headers.pch
 
-depfile: $(OUTDIR) $(OUTDIR)\msg.h $(OUTDIR)\plugin.h
+depfile: $(OUTDIR) bootstrap\msg.h bootstrap\plugin.h
   $(TOOL) gendep $(INCLUDES) > $(OUTDIR)\dep.mak
 
 instmak: $(OUTDIR)
   $(TOOL) geninst $(FILES) $(OUTDIR)\$(MODULE).map $(OUTDIR)\$(MODULE).pdb changelog > $(OUTDIR)\install.mak
 
-$(OUTDIR)\msg.h $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng $(OUTDIR)\$(MODULE)_spa.lng $(OUTDIR)\$(MODULE)_ita.lng: $(OUTDIR) $(OUTDIR)\en.msg $(OUTDIR)\ru.msg $(OUTDIR)\es.msg $(OUTDIR)\it.msg
-  $(TOOL) msgc -in $(OUTDIR)\en.msg $(OUTDIR)\ru.msg $(OUTDIR)\es.msg $(OUTDIR)\it.msg -out $(OUTDIR)\msg.h $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng $(OUTDIR)\$(MODULE)_spa.lng $(OUTDIR)\$(MODULE)_ita.lng
+bootstrap\msg.h $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng $(OUTDIR)\$(MODULE)_spa.lng $(OUTDIR)\$(MODULE)_ita.lng: $(OUTDIR) bootstrap\en.msg bootstrap\ru.msg bootstrap\es.msg bootstrap\it.msg
+  $(TOOL) msgc -in bootstrap\en.msg bootstrap\ru.msg bootstrap\es.msg bootstrap\it.msg -out bootstrap\msg.h $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng $(OUTDIR)\$(MODULE)_spa.lng $(OUTDIR)\$(MODULE)_ita.lng
 
-$(OUTDIR)\version.res: $(OUTDIR)\version.rc
+$(OUTDIR)\version.res: bootstrap\version.rc
   $(RC) $(RCFLAGS) -fo$@ $**
 
 PREPROC = $(TOOL) preproc $** $@
 
-$(OUTDIR)\version.rc: project.ini $(OUTDIR)\far.ini version.rc
+bootstrap\version.rc: project.ini bootstrap\far.ini version.rc
   $(PREPROC)
 
-$(OUTDIR)\en.msg: project.ini en.msg
+bootstrap\en.msg: project.ini en.msg
   $(PREPROC)
 
-$(OUTDIR)\ru.msg: project.ini ru.msg
+bootstrap\ru.msg: project.ini ru.msg
   $(PREPROC)
 
-$(OUTDIR)\es.msg: project.ini es.msg
+bootstrap\es.msg: project.ini es.msg
   $(PREPROC)
 
-$(OUTDIR)\it.msg: project.ini it.msg
+bootstrap\it.msg: project.ini it.msg
   $(PREPROC)
 
 $(OUTDIR)\$(MODULE)_eng.hlf: project.ini en.hlf
@@ -139,8 +139,8 @@ $(OUTDIR)\$(MODULE)_eng.hlf: project.ini en.hlf
 $(OUTDIR)\$(MODULE)_rus.hlf: project.ini ru.hlf
   $(PREPROC)
 
-$(OUTDIR)\plugin.h: project.ini $(OUTDIR)\far.ini plugin_h.h
-  $(TOOL) preproc project.ini $(OUTDIR)\far.ini plugin_h.h $@
+bootstrap\plugin.h: project.ini bootstrap\far.ini plugin_h.h
+  $(TOOL) preproc project.ini bootstrap\far.ini plugin_h.h $@
 
 COPY = copy /y $** $@
 
@@ -153,7 +153,7 @@ $(OUTDIR)\7z.dll: $(_7Z)
 {7z\sfx}.sfx{$(OUTDIR)}.sfx:
   $(COPY)
 
-$(OUTDIR)\far.ini: $(FARSDK)\plugin.hpp
+bootstrap\far.ini: $(FARSDK)\plugin.hpp
   $(TOOL) farver $(FARSDK)\plugin.hpp $@
 
 $(OUTDIR)\vc_crt_fix.obj: ..\common\vc_crt_fix.asm
@@ -162,8 +162,9 @@ $(OUTDIR)\vc_crt_fix.obj: ..\common\vc_crt_fix.asm
 $(OUTDIR)\vc_crt_fix_impl.obj: ..\common\vc_crt_fix_impl.cpp
   $(CPP) $(CPPFLAGS) ..\common\vc_crt_fix_impl.cpp
 
-$(OUTDIR):
+dirs $(OUTDIR):
   if not exist $(OUTDIR) mkdir $(OUTDIR)
+  if not exist bootstrap mkdir bootstrap
 
 
 !ifdef BUILD
@@ -176,7 +177,8 @@ $(OUTDIR):
 
 clean:
   if exist $(OUTDIR) rd /s /q $(OUTDIR)
+  if exist bootstrap rd /s /q bootstrap
 
 
-.PHONY: project build_project install_project depfile instmak clean
+.PHONY: project dirs build_project install_project depfile instmak clean
 .SUFFIXES: .sfx

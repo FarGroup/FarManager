@@ -1,3 +1,6 @@
+#define TOOLS_TOOL
+
+#define NOMINMAX 1
 #include <windows.h>
 
 #include <algorithm>
@@ -28,7 +31,7 @@ using namespace std;
 #include "sysutils.cpp"
 #include "iniparse.cpp"
 
-namespace Far { ArclitePrivateInfo* get_system_functions() { return nullptr; } }
+namespace Far { const ArclitePrivateInfo* get_system_functions() { return nullptr; } }
 
 #define BEGIN_ERROR_HANDLER try {
 #define END_ERROR_HANDLER \

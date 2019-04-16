@@ -399,19 +399,19 @@ static bool accepted_signature(size_t pos, const SigData& sig, const Byte *buffe
   pos += 30;                         // 30 - min LOCAL header size
   size -= 22 - sizeof(zip_EOCD_sig); // 22 - min EOCD size
   if (pos >= size)
-	  return true;
+    return true;
 
   if (pos + 16384 < size) //???
-	  pos = size - 16384;  //  look for EOCDonly in last 16K buffer portion
+    pos = size - 16384;  // look for EOCDonly in last 16K buffer portion
   std::string_view where((const char*)buffer + pos, size-pos);
   std::string_view what((const char*)zip_EOCD_sig, sizeof(zip_EOCD_sig));
   auto eocd = where.rfind(what);
   if (eocd == std::string_view::npos)
-	  return true;
+    return true;
 
   pos += eocd + sizeof(zip_EOCD_sig);
   if (buffer[pos] != 0 || buffer[pos + 1] != 0) // This disk (aka Volume) number
-	  return false;
+    return false;
 
   return true;
 }
