@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 16.04.2019 08:17:59 +0100 - build 5385
+
+1. Correction of 5384.
+
 drkns 15.04.2019 21:42:35 +0100 - build 5384
 
 1. Refactoring.

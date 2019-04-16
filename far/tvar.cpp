@@ -327,7 +327,10 @@ long long TVar::asInteger() const
 		return dnum;
 
 	case vtString:
-		return from_string<long long>(str);
+		{
+			long long Value;
+			return from_string(str, Value)? Value : 0;
+		}
 
 	default:
 		return 0;
@@ -346,7 +349,10 @@ double TVar::asDouble() const
 		return dnum;
 
 	case vtString:
-		return from_string<double>(str);
+		{
+			double Value;
+			return from_string(str, Value)? Value : 0;
+		}
 
 	default:
 		return 0;
