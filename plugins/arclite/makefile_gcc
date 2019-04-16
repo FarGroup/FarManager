@@ -94,7 +94,7 @@ DEPFILE = $(OBJDIR)/$(MODULE).dep
 
 depfile:
 	@echo Rebuilding dependencies
-	$(TOOL) gendep -gcc $(subst /,\,-I7z/h -I$(COMINC) . bootstrap) > $(DEPFILE)
+	$(TOOL) gendep -gcc $(subst /,\,-I7z/h -I$(COMINC) bootstrap) > $(DEPFILE)
 
 ifeq ($(MAKECMDGOALS),build)
  include $(DEPFILE)
@@ -123,7 +123,7 @@ $(OBJDIR)/headers.gch: headers.cpp headers.hpp
 	@echo Making precompiled headers
 	$(CXX) -x c++-header -c $(CCFLAGS) -o $@ $<
 
-$(DLLFULLNAME) : $(OBJS) plugin.gcc.def
+$(DLLFULLNAME): $(OBJS) plugin.gcc.def
 	@echo linking $@
 	$(CXX) -o $@ plugin.gcc.def $(OBJS) $(LNKFLAGS) -Wl,--kill-at -shared -Xlinker -Map=$(MAPFULLNAME)
 
