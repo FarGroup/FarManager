@@ -1,4 +1,7 @@
 #include <windows.h>
+
+#pragma code_page(65001)
+
 #include "res.hpp"
 
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
@@ -6,12 +9,36 @@ FAR_ICON ICON "Far.ico"
 FAR_ICON_A ICON "FarA.ico"
 
 VS_VERSION_INFO VERSIONINFO
+FILEFLAGSMASK   VS_FFI_FILEFLAGSMASK
 #ifdef _DEBUG
-FILEFLAGS VS_FF_DEBUG
+FILEFLAGS       VS_FF_DEBUG | VS_FF_PRERELEASE
 #endif
-FILEOS VOS_NT_WINDOWS32
-FILETYPE VFT_APP
+FILEOS          VOS_NT_WINDOWS32
+FILETYPE        VFT_APP
 
 #include "bootstrap/far.rc.inc"
+
+FILEVERSION RC_MAJOR, RC_MINOR, RC_BUILD, RC_REVISION
+PRODUCTVERSION RC_MAJOR, RC_MINOR, RC_BUILD, RC_REVISION
+{
+	BLOCK "StringFileInfo"
+	{
+		BLOCK "000004B0"
+		{
+			VALUE "CompanyName", "Eugene Roshal & Far Group"
+			VALUE "FileDescription", "File and archive manager"
+			VALUE "FileVersion", RC_FULLVERSION
+			VALUE "InternalName", "Far"
+			VALUE "LegalCopyright", "© Eugene Roshal, 1996-2000. © Far Group, " RC_COPYRIGHTYEARS
+			VALUE "OriginalFilename", "Far.exe"
+			VALUE "ProductName", "Far Manager"
+			VALUE "ProductVersion", RC_FULLVERSION
+		}
+	}
+	BLOCK "VarFileInfo"
+	{
+		VALUE "Translation", 0x0, 1200
+	}
+}
 
 CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "bootstrap/Far.exe.manifest"

@@ -1,4 +1,5 @@
-m4_include(`vbuild.m4')m4_dnl
+m4_define(BUILD,m4_patsubst(m4_include(`vbuild.m4'),`
+',`'))m4_dnl
 m4_include(`tools.m4')m4_dnl
 m4_define(FROMBIT,m4_ifelse(FARBIT,`64',`$2',FARBIT,`IA64',`$3',`$1'))m4_dnl
 m4_define(BUILDTYPE,`')m4_dnl

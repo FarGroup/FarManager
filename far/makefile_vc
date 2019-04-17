@@ -81,9 +81,6 @@ USEDEBUG=_DEBUG
 ENABLE_TESTS=1
 !endif
 
-DEPFILE=bootstrap\far.vc.dep
-STATICDEPFILE=static.dep
-
 OUTDIR=$(DIRNAME).$(DIRBIT).vc
 
 FARINCLUDE=Include
@@ -94,11 +91,11 @@ M4=tools\m4 -P -DFARBIT=$(DIRBIT)
 GAWK=tools\gawk
 
 INTDIR=$(OUTDIR)\obj
-!ifdef FARSYSLOG
-INTDIR=$(INTDIR)log
-!endif
+BOOTSTRAPDIR=$(INTDIR)/include/bootstrap/
+CODDIR=$(INTDIR)\cod
 
-CODDIR=$(OUTDIR)\cod
+DEPFILE=$(BOOTSTRAPDIR)far.vc.dep
+STATICDEPFILE=static.dep
 
 RES_FILE = "$(INTDIR)\far.res"
 
@@ -289,6 +286,8 @@ DEFINES=\
 
 DISABLED_WARNINGS=/FI disabled_warnings.hpp
 
+ADDINCLUDE=/I $(BOOTSTRAPDIR)..
+
 # common
 CPPFLAGS=\
 	/c\
@@ -304,6 +303,7 @@ CPPFLAGS=\
 	/diagnostics:caret\
 	/nologo\
 	/MP$(MP_LIMIT)\
+	$(ADDINCLUDE)\
 	$(DISABLED_WARNINGS)\
 	$(DEFUSERFLAGS)\
 	$(FARSYSLOG)\
@@ -322,7 +322,7 @@ LINKFLAGS=\
 
 
 ULINKFLAGS=-q -m- -ap -Gz -O- -o- -Gh -Gh- -GF:LARGEADDRESSAWARE -d*kernel32
-RFLAGS=/nologo /l 0x409 /fo"$(RES_FILE)" /d $(USEDEBUG)
+RFLAGS=/nologo /l 0x409 /fo"$(RES_FILE)" $(ADDINCLUDE) /d $(USEDEBUG)
 
 # compiler-specific
 #!if "$(VC)">="15"
@@ -399,16 +399,15 @@ ALL: AllDirs lng depfile include docs $(TEST_OBJS)
 	$(MAKE) /nologo /f makefile_vc build USEDEPS=1
 
 .PHONY: lng
-lng: bootstrap\farlang.templ
+lng: $(BOOTSTRAPDIR)farlang.templ
 	@echo Generating language files
-	tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol "$(OUTDIR)" bootstrap\farlang.templ
+	tools\lng.generator.exe -nc -i "$(BOOTSTRAPDIR)lang.ini" -oh "$(BOOTSTRAPDIR)" -ol "$(OUTDIR)" "$(BOOTSTRAPDIR)farlang.templ"
 
 .PHONY: depfile
 depfile:
 	@echo Rebuilding dependencies...
-	dir /b *.cpp *.hpp *.c *.rc > bootstrap\mkdep.list
-	$(GAWK) -f scripts\mkdep.awk bootstrap\mkdep.list > $(DEPFILE)
-	del bootstrap\mkdep.list
+	set BOOTSTRAPDIR=$(BOOTSTRAPDIR)
+	dir /b *.cpp *.hpp *.c *.rc | $(GAWK) -f scripts\mkdep.awk - > $(DEPFILE)
 
 .PHONY: include
 include: \
@@ -434,15 +433,15 @@ build: "$(OUTDIR)\Far.exe"
 
 .PHONY: AllDirs
 AllDirs:
-	if not exist "bootstrap" mkdir "bootstrap"
 	if not exist "$(OUTDIR)\" mkdir "$(OUTDIR)"
 	if not exist "$(FARINCLUDE)\" mkdir "$(FARINCLUDE)"
 	if not exist "$(INTDIR)\" mkdir "$(INTDIR)"
+	if not exist "$(BOOTSTRAPDIR)" mkdir "$(BOOTSTRAPDIR)"
 !ifdef ASM_LISTING
 	if not exist "$(CODDIR)\" mkdir "$(CODDIR)"
 !endif
 
-"$(OUTDIR)\Far.exe": $(PCH_FILE) $(LINK_OBJS) $(RES_FILE) bootstrap\copyright.inc bootstrap\farversion.inc
+"$(OUTDIR)\Far.exe": $(PCH_FILE) $(LINK_OBJS) $(RES_FILE) $(BOOTSTRAPDIR)copyright.inc $(BOOTSTRAPDIR)farversion.inc
 	@echo Linking $@
 !ifndef LINK_ULINK
 	$(LINK) @<<
@@ -503,7 +502,7 @@ $(INTDIR)\vc_crt_fix_ulink.obj: vc_crt_fix_ulink.cpp
 .asm{$(INTDIR)}.obj:
 	ml /nologo /c /Fo$@ $<
 
-$(RES_FILE): far.rc Far.ico FarA.ico bootstrap\Far.exe.manifest
+$(RES_FILE): far.rc $(BOOTSTRAPDIR)far.rc.inc $(BOOTSTRAPDIR)Far.exe.manifest Far.ico FarA.ico
 	@echo Compiling resource file
 	$(RC) $(RFLAGS) far.rc
 
@@ -522,11 +521,11 @@ $(INTDIR)\api_test_c++.testobj: $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/farcolor.
 
 MSG=@echo Generating $@
 
-bootstrap\Far.exe.manifest \
-bootstrap\copyright.inc \
-bootstrap\farversion.inc \
-bootstrap\farlang.templ \
-bootstrap\far.rc.inc \
+$(BOOTSTRAPDIR)Far.exe.manifest \
+$(BOOTSTRAPDIR)copyright.inc \
+$(BOOTSTRAPDIR)farversion.inc \
+$(BOOTSTRAPDIR)farlang.templ \
+$(BOOTSTRAPDIR)far.rc.inc \
 $(OUTDIR)\File_id.diz: $(@F).m4 farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
 	$(M4) $(@F).m4 > $@
@@ -562,9 +561,9 @@ $(FARINCLUDE)\vc_crt_fix_ulink.cpp: $(@F)
 CLEAN:
 	@echo Cleaning
 	for %%i in (\
-	"$(INTDIR)"\
+	"$(BOOTSTRAPDIR)"\
 	"$(CODDIR)"\
-	"bootstrap"\
+	"$(INTDIR)"\
 	"$(OUTDIR)\Far.exe"\
 	"$(OUTDIR)\Far.exp"\
 	"$(OUTDIR)\Far.lib"\

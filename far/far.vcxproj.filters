@@ -1118,7 +1118,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="bootstrap\farlang.templ">
+    <CustomBuild Include="$(BootstrapDir)farlang.templ">
       <Filter>Generated Files</Filter>
     </CustomBuild>
     <CustomBuild Include="copyright.inc.m4">

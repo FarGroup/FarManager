@@ -40,18 +40,19 @@
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
   </ImportGroup>
-  <PropertyGroup Label="UserMacros">
-    <TargetOsVersion Condition="'$(Platform)'=='Win32'">5.0</TargetOsVersion>
-    <TargetOsVersion Condition="'$(Platform)'=='x64'">5.2</TargetOsVersion>
-    <NewOptions Condition="'$(VisualStudioVersion)'=='15.0'"></NewOptions>
-    <NewOptions Condition="'$(VisualStudioVersion)'&gt;='16.0'"></NewOptions>
-  </PropertyGroup>
   <PropertyGroup>
     <OutDir>$(Configuration).$(PlatformArchitecture).vc\</OutDir>
     <IntDir>$(OutDir)obj\</IntDir>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <EmbedManifest>false</EmbedManifest>
     <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup Label="UserMacros">
+    <BootstrapDir>$(IntDir)include\bootstrap\</BootstrapDir>
+    <TargetOsVersion Condition="'$(Platform)'=='Win32'">5.0</TargetOsVersion>
+    <TargetOsVersion Condition="'$(Platform)'=='x64'">5.2</TargetOsVersion>
+    <NewOptions Condition="'$(VisualStudioVersion)'=='15.0'"></NewOptions>
+    <NewOptions Condition="'$(VisualStudioVersion)'&gt;='16.0'"></NewOptions>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <LinkIncremental>false</LinkIncremental>
@@ -64,9 +65,10 @@
     <PreBuildEvent>
       <Message>Creating mandatory folders...</Message>
       <Command>if not exist Include mkdir Include
-if not exist bootstrap mkdir bootstrap</Command>
+if not exist $(BootstrapDir) mkdir $(BootstrapDir)</Command>
     </PreBuildEvent>
     <ClCompile>
+      <AdditionalIncludeDirectories>$(BootstrapDir)..</AdditionalIncludeDirectories>
       <AdditionalOptions>/J /Zc:__cplusplus,externConstexpr,inline,referenceBinding,rvalueCast,strictStrings,throwingNew $(NewOptions) %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>_ENABLE_EXTENDED_ALIGNED_STORAGE;_HAS_AUTO_PTR_ETC=0;_CRT_SECURE_NO_WARNINGS;FAR_ALPHA_VERSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Sync</ExceptionHandling>
@@ -567,37 +569,37 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <CustomBuild Include="copyright.inc.m4">
       <FileType>Document</FileType>
       <Message>Compiling %(Identity)...</Message>
-      <Command>tools\m4 -P -DFARBIT=$(PlatformArchitecture) %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command>tools\m4 -P -DFARBIT=$(PlatformArchitecture) %(Identity) &gt; $(BootstrapDir)%(FileName)</Command>
       <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs>bootstrap\%(FileName);%(Outputs)</Outputs>
+      <Outputs>$(BootstrapDir)%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="Far.exe.manifest.m4">
       <FileType>Document</FileType>
       <Message>Compiling %(Identity)...</Message>
-      <Command>tools\m4 -P -DFARBIT=$(PlatformArchitecture) %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command>tools\m4 -P -DFARBIT=$(PlatformArchitecture) %(Identity) &gt; $(BootstrapDir)%(FileName)</Command>
       <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs>bootstrap\%(FileName);%(Outputs)</Outputs>
+      <Outputs>$(BootstrapDir)%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="far.rc.inc.m4">
       <FileType>Document</FileType>
       <Message>Compiling %(Identity)...</Message>
-      <Command>tools\m4 -P -DFARBIT=$(PlatformArchitecture) %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command>tools\m4 -P -DFARBIT=$(PlatformArchitecture) %(Identity) &gt; $(BootstrapDir)%(FileName)</Command>
       <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs>bootstrap\%(FileName);%(Outputs)</Outputs>
+      <Outputs>$(BootstrapDir)%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="farlang.templ.m4">
       <FileType>Document</FileType>
       <Message>Compiling %(Identity)...</Message>
-      <Command>tools\m4 -P -DFARBIT=$(PlatformArchitecture) %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command>tools\m4 -P -DFARBIT=$(PlatformArchitecture) %(Identity) &gt; $(BootstrapDir)%(FileName)</Command>
       <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs>bootstrap\%(FileName);%(Outputs)</Outputs>
+      <Outputs>$(BootstrapDir)%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="farversion.inc.m4">
       <FileType>Document</FileType>
       <Message>Compiling %(Identity)...</Message>
-      <Command>tools\m4 -P -DFARBIT=$(PlatformArchitecture) %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command>tools\m4 -P -DFARBIT=$(PlatformArchitecture) %(Identity) &gt; $(BootstrapDir)%(FileName)</Command>
       <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs>bootstrap\%(FileName);%(Outputs)</Outputs>
+      <Outputs>$(BootstrapDir)%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="File_id.diz.m4">
       <FileType>Document</FileType>
@@ -627,12 +629,12 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
       <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs>$(OutDir)%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
-    <CustomBuild Include="bootstrap\farlang.templ">
+    <CustomBuild Include="$(BootstrapDir)farlang.templ">
       <FileType>Document</FileType>
       <Message>Generating language files based on %(Identity)...</Message>
-      <Command>tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) %(Identity)</Command>
-      <AdditionalInputs>%(RelativeDir)..\%(FileName)%(Extension).m4;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs>bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\FarCze.lng;$(OutDir)\FarEng.lng;$(OutDir)\FarGer.lng;$(OutDir)\FarHun.lng;$(OutDir)\FarPol.lng;$(OutDir)\FarRus.lng;$(OutDir)\FarSpa.lng;$(OutDir)\FarSky.lng;$(OutDir)\FarIta.lng;$(OutDir)\FarUkr.lng;%(Outputs)</Outputs>
+      <Command>tools\lng.generator.exe -nc -i $(BootstrapDir)lang.ini -oh $(BootstrapDir) -ol $(OutDir) %(Identity)</Command>
+      <AdditionalInputs>%(FileName)%(Extension).m4;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs>$(BootstrapDir)lang.inc;$(BootstrapDir)lang.ini;$(OutDir)\FarCze.lng;$(OutDir)\FarEng.lng;$(OutDir)\FarGer.lng;$(OutDir)\FarHun.lng;$(OutDir)\FarPol.lng;$(OutDir)\FarRus.lng;$(OutDir)\FarSpa.lng;$(OutDir)\FarSky.lng;$(OutDir)\FarIta.lng;$(OutDir)\FarUkr.lng;%(Outputs)</Outputs>
     </CustomBuild>
     <MASM Include="vc_crt_fix.asm">
       <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
@@ -645,7 +647,9 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <None Include="vbuild.m4" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="far.rc" />
+    <ResourceCompile Include="far.rc">
+      <AdditionalIncludeDirectories>$(BootstrapDir)..</AdditionalIncludeDirectories>
+    </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="far.natvis" />

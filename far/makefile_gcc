@@ -5,7 +5,7 @@ THIS_MAKE = $(TOP_MAKEFILE)
 
 EXEDIR = $(DIRNAME).$(DIRBIT).gcc/
 OBJDIR = $(EXEDIR)obj/
-BOOTSTRAPDIR = bootstrap/
+export BOOTSTRAPDIR=$(OBJDIR)include/bootstrap/
 EXENAME = Far.exe
 EXEFULLNAME = $(EXEDIR)$(EXENAME)
 DEPFILE = $(BOOTSTRAPDIR)far.gcc.dep
@@ -181,7 +181,8 @@ MAP = $(patsubst %.exe,%.map,$(EXEFULLNAME))
 
 TESTOBJS = $(OBJDIR)api_test_c.testobj $(OBJDIR)api_test_c++.testobj
 
-CFLAGS += -fexceptions
+ADDINCLUDE=-I$(BOOTSTRAPDIR)..
+CCFLAGS += $(ADDINCLUDE)
 
 .PHONY: all
 all: dirs lng depfile include docs $(TESTOBJS)
@@ -190,14 +191,12 @@ all: dirs lng depfile include docs $(TESTOBJS)
 .PHONY: lng
 lng: $(BOOTSTRAPDIR)farlang.templ
 	@echo Generating language files
-	$(LGEN) -nc -i $(BOOTSTRAPDIR)lang.ini -ol "$(EXEDIR)" $(BOOTSTRAPDIR)farlang.templ
+	$(LGEN) -nc -i "$(BOOTSTRAPDIR)lang.ini" -oh "$(BOOTSTRAPDIR)" -ol "$(EXEDIR)" "$(BOOTSTRAPDIR)farlang.templ"
 
 .PHONY: depfile
 depfile:
 	@echo Rebuilding dependencies...
-	$(LS) *.cpp *.hpp *.c *.rc > bootstrap/mkdep.list
-	$(GAWK) -f scripts/mkdep.awk -v compiler=gcc bootstrap/mkdep.list > $(DEPFILE)
-	$(RM) bootstrap/mkdep.list
+	$(LS) *.cpp *.hpp *.c *.rc | $(GAWK) -f scripts/mkdep.awk -v compiler=gcc - > $(DEPFILE)
 
 .PHONY: dirs
 dirs:
@@ -255,9 +254,9 @@ $(OBJDIR)headers.gch: headers.cpp headers.hpp
 
 $(OBJS): $(OBJDIR)headers.gch
 
-$(OBJDIR)far.rc.o: far.rc $(BOOTSTRAPDIR)far.rc.inc Far.ico FarA.ico bootstrap/Far.exe.manifest
+$(OBJDIR)far.rc.o: far.rc $(BOOTSTRAPDIR)far.rc.inc $(BOOTSTRAPDIR)Far.exe.manifest Far.ico FarA.ico
 	@echo Compiling resource file
-	$(WINDRES) -i $< -o $@
+	$(WINDRES) $(ADDINCLUDE) -i $< -o $@
 
 $(OBJDIR)api_test_c.testobj: $(FARINCLUDE)plugin.hpp $(FARINCLUDE)farcolor.hpp api_test.c
 	@echo Testing C plugin API
@@ -351,5 +350,5 @@ clean:
 	@echo Cleaning
 	$(RM) $(OBJS) $(TESTOBJS) $(OBJDIR)headers.gch
 	$(RM) $(EXEFULLNAME) $(MAP)
-	$(RM) $(BOOTSTRAPDIR)*.*  $(FARINCLUDE)*.*
+	$(RM) $(BOOTSTRAPDIR)*.* $(FARINCLUDE)*.*
 	$(RM) $(EXEDIR)*.lng $(EXEDIR)*.hlf $(EXEDIR)File_id.diz $(EXEDIR)Far.exe.example.ini

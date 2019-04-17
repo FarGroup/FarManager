@@ -1,6 +1,6 @@
 ﻿m4_include(`farversion.m4')m4_dnl
 #hpp file name
-bootstrap\lang.inc
+lang.inc
 
 #number of languages
 10

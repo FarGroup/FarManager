@@ -18,11 +18,11 @@ mkdir -p $OUTDIR
 mkdir -p $OUTDIR/obj
 mkdir -p $OUTDIR/cod
 
-m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix farlang.templ.m4 > ${BOOTSTRAP}farlang.templ
-m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix far.rc.inc.m4 > ${BOOTSTRAP}far.rc.inc
-m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix Far.exe.manifest.m4 > ${BOOTSTRAP}Far.exe.manifest
-m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix farversion.inc.m4 > ${BOOTSTRAP}farversion.inc
-m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix copyright.inc.m4 > ${BOOTSTRAP}copyright.inc
+m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix farlang.templ.m4 > ${BOOTSTRAPDIR}farlang.templ
+m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix far.rc.inc.m4 > ${BOOTSTRAPDIR}far.rc.inc
+m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix Far.exe.manifest.m4 > ${BOOTSTRAPDIR}Far.exe.manifest
+m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix farversion.inc.m4 > ${BOOTSTRAPDIR}farversion.inc
+m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix copyright.inc.m4 > ${BOOTSTRAPDIR}copyright.inc
 
 m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix File_id.diz.m4 | unix2dos -m > $OUTDIR/File_id.diz
 dos2unix FarEng.hlf.m4
@@ -32,7 +32,7 @@ gawk -f ./scripts/mkhlf.awk FarEng.hlf.m4 | m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Un
 gawk -f ./scripts/mkhlf.awk FarRus.hlf.m4 | m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix | unix2dos -m > $OUTDIR/FarRus.hlf
 gawk -f ./scripts/mkhlf.awk FarHun.hlf.m4 | m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix | unix2dos -m > $OUTDIR/FarHun.hlf
 
-wine tools/lng.generator.exe -nc -ol $OUTDIR ${BOOTSTRAP}farlang.templ
+wine tools/lng.generator.exe -nc -ol $OUTDIR ${BOOTSTRAPDIR}farlang.templ
 
 wine cmd /c ../mysetnew.${DIRBIT}.bat
 
@@ -60,8 +60,8 @@ m4 -P -DFARBIT=32 -DHOSTTYPE=Unix -DINPUT=farcolor.hpp headers.m4 | unix2dos > I
 m4 -P -DFARBIT=32 -DHOSTTYPE=Unix -DINPUT=plugin.hpp headers.m4 | unix2dos > Include/plugin.hpp
 m4 -P -DFARBIT=32 -DHOSTTYPE=Unix -DINPUT=DlgBuilder.hpp headers.m4 | unix2dos > Include/DlgBuilder.hpp
 
-BOOTSTRAP=bootstrap/
-mkdir -p bootstrap
+export BOOTSTRAPDIR=bootstrap/
+mkdir -p ${BOOTSTRAPDIR}
 dos2unix PluginW.pas
 dos2unix FarColorW.pas
 m4 -P -DFARBIT=32 -DHOSTTYPE=Unix -DINPUT=PluginW.pas headers.m4 | unix2dos > Include/PluginW.pas
@@ -71,9 +71,7 @@ unix2dos -m changelog
 unix2dos -m changelog_eng
 unix2dos Far.exe.example.ini
 
-ls *.cpp *.hpp *.c *.rc > bootstrap/mkdep.list
-gawk -f ./scripts/mkdep.awk bootstrap/mkdep.list | unix2dos > ${BOOTSTRAP}far.vc.dep
-rm bootstrap/mkdep.list
+ls *.cpp *.hpp *.c *.rc | gawk -f ./scripts/mkdep.awk - | unix2dos > ${BOOTSTRAPDIR}far.vc.dep
 cd ..
 
 (buildfar2 32 $1 && buildfar2 64 $1) || return 1
