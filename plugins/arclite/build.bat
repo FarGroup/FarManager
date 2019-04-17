@@ -17,7 +17,6 @@
   set "deb_b=N"
   set "clean=N"& set "cleanonly=N"
   set "vcbld=nmake"
-  set "vcbld=msbuild"
   set "vcver=15"
 
   for %%a in (%*) do call :proc_param %%a
@@ -48,6 +47,7 @@ goto :EOF
   for %%p in (msbuild) do if /i "%%p" == "%~1" set "vcbld=Msbuild"
   for %%p in (mmake) do if /i "%%p" == "%~1" set "vcbld=nmake"
   for %%p in (15 15.0 141 vc15 2017 vs2017) do if /i "%%p" == "%~1" set "vcver=15"
+  for %%p in (16 16.0 142 vc16 2019 vs2019) do if /i "%%p" == "%~1" set "vcver=16"
 goto :EOF
 
 :init
@@ -72,7 +72,7 @@ goto :EOF
 
 :build_vc
   if /i "Msbuild" == "%vcbld%" goto :msbuild
-  set m=nmake -f makefile_vc
+  set m=nmake -f makefile_vc VisualStudioVersion=%VisualStudioVersion%
   if /i "64" == "%dirbit%" (set m=%m% CPU=AMD64) else (set m=%m% CPU=X86)
 goto :do_make
 :msbuild
@@ -86,11 +86,10 @@ goto :EOF
 :set_vc
   set "PATH=%opath%"
   set "VisualStudioVersion=%vcver%.0"
-  set "vcmod=%~1"
-  if "%vcmod:~0,2%" == "32" set "vcmod=x86"
-  if "%vcmod:~0,2%" == "64" set "vcmod=x86_amd64"
-  if "%vcver%" == "14" call "%VS140COMNTOOLS%\..\..\vc\vcvarsall.bat" %vcmod%
-  if "%vcver%" == "15" pushd .
-  if "%vcver%" == "15" call "%VS150COMNTOOLS%\..\..\VC\Auxiliary\Build\vcvarsall.bat" %vcmod%
-  if "%vcver%" == "15" popd
+  set "vcmod=32"
+  if "%~1" == "64" set "vcmod=64"
+  if "%~1" == "64/32" set "vcmod2=x86_amd64"
+  if "%~1" == "32/64" set "vcmod2=amd64_x86"
+  if "%vcver%" == "15" call "%VS150COMNTOOLS%\..\..\VC\Auxiliary\Build\vcvars%vcmod%.bat"
+  if "%vcver%" == "16" call "%VS160COMNTOOLS%\..\..\VC\Auxiliary\Build\vcvars%vcmod%.bat"
 goto :EOF
