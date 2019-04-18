@@ -90,7 +90,7 @@ ULINK=ulink.exe
 M4=tools\m4 -P -DFARBIT=$(DIRBIT)
 GAWK=tools\gawk
 
-INTDIR=$(OUTDIR)\obj
+INTDIR=$(OUTDIR)/obj
 BOOTSTRAPDIR=$(INTDIR)/include/bootstrap/
 CODDIR=$(INTDIR)\cod
 
