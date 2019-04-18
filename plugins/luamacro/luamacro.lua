@@ -459,7 +459,7 @@ function export.Open (OpenFrom, guid, ...)
     for _,mod in ipairs(utils.GetPanelModules()) do
       if type(mod.Open) == "function" then
         local obj = mod.Open(OpenFrom, guid, ...)
-        return obj and { module=mod; object=obj }
+        if obj then return { module=mod; object=obj } end
       end
     end
 
