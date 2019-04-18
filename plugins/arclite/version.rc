@@ -1,4 +1,6 @@
 #include <winresrc.h>
+#include <farversion.hpp>
+
 1 VERSIONINFO
 FILEVERSION <(VER_MAJOR)>,<(VER_MINOR)>,<(VER_BUILD)>,0
 PRODUCTVERSION <(FAR_VER_MAJOR)>,<(FAR_VER_MINOR)>,<(FAR_VER_BUILD)>,0
@@ -23,8 +25,8 @@ BEGIN
 #ifdef DEBUG
       VALUE "SpecialBuild", "Debug build.\0"
 #endif
-      VALUE "LegalCopyright", "Copyright © 2010-2015 Far Group\0"
-      VALUE "CompanyName", "Eugene Roshal & Far Group\0"
+      VALUE "LegalCopyright", FARGROUPCOPYRIGHT("2010") "\0"
+      VALUE "CompanyName", FARCOMPANYNAME "\0"
     END
   END
   BLOCK "VarFileInfo"
