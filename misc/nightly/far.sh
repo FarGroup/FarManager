@@ -3,6 +3,7 @@
 function buildfar2 {
 
 OUTDIR=Release.$1.vc
+export BOOTSTRAPDIR=$OUTDIR/include/bootstrap/
 DIRBIT=$1
 BINDIR=outfinalnew${DIRBIT}
 
@@ -17,6 +18,9 @@ cd $2 || return 1
 mkdir -p $OUTDIR
 mkdir -p $OUTDIR/obj
 mkdir -p $OUTDIR/cod
+mkdir -p ${BOOTSTRAPDIR}
+
+ls *.cpp *.hpp *.c *.rc | gawk -f ./scripts/mkdep.awk - | unix2dos > ${BOOTSTRAPDIR}far.vc.dep
 
 m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix farlang.templ.m4 > ${BOOTSTRAPDIR}farlang.templ
 m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix far.rc.inc.m4 > ${BOOTSTRAPDIR}far.rc.inc
@@ -32,7 +36,7 @@ gawk -f ./scripts/mkhlf.awk FarEng.hlf.m4 | m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Un
 gawk -f ./scripts/mkhlf.awk FarRus.hlf.m4 | m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix | unix2dos -m > $OUTDIR/FarRus.hlf
 gawk -f ./scripts/mkhlf.awk FarHun.hlf.m4 | m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix | unix2dos -m > $OUTDIR/FarHun.hlf
 
-wine tools/lng.generator.exe -nc -ol $OUTDIR ${BOOTSTRAPDIR}farlang.templ
+wine tools/lng.generator.exe -nc -oh ${BOOTSTRAPDIR} -ol $OUTDIR ${BOOTSTRAPDIR}farlang.templ
 
 wine cmd /c ../mysetnew.${DIRBIT}.bat
 
@@ -60,8 +64,6 @@ m4 -P -DFARBIT=32 -DHOSTTYPE=Unix -DINPUT=farcolor.hpp headers.m4 | unix2dos > I
 m4 -P -DFARBIT=32 -DHOSTTYPE=Unix -DINPUT=plugin.hpp headers.m4 | unix2dos > Include/plugin.hpp
 m4 -P -DFARBIT=32 -DHOSTTYPE=Unix -DINPUT=DlgBuilder.hpp headers.m4 | unix2dos > Include/DlgBuilder.hpp
 
-export BOOTSTRAPDIR=bootstrap/
-mkdir -p ${BOOTSTRAPDIR}
 dos2unix PluginW.pas
 dos2unix FarColorW.pas
 m4 -P -DFARBIT=32 -DHOSTTYPE=Unix -DINPUT=PluginW.pas headers.m4 | unix2dos > Include/PluginW.pas
@@ -71,7 +73,6 @@ unix2dos -m changelog
 unix2dos -m changelog_eng
 unix2dos Far.exe.example.ini
 
-ls *.cpp *.hpp *.c *.rc | gawk -f ./scripts/mkdep.awk - | unix2dos > ${BOOTSTRAPDIR}far.vc.dep
 cd ..
 
 (buildfar2 32 $1 && buildfar2 64 $1) || return 1
