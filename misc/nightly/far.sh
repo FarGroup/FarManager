@@ -3,7 +3,7 @@
 function buildfar2 {
 
 OUTDIR=Release.$1.vc
-export BOOTSTRAPDIR=$OUTDIR/include/bootstrap/
+export BOOTSTRAPDIR=$OUTDIR/obj/include/bootstrap/
 DIRBIT=$1
 BINDIR=outfinalnew${DIRBIT}
 
