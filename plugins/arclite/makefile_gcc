@@ -60,7 +60,7 @@ LNGS = $(addprefix $(OUTDIR)/$(MODULE)_,eng.lng rus.lng spa.lng ita.lng)
 preproc: bootstrap/far.ini bootstrap/version.rc bootstrap/plugin.h bootstrap/msg.h $(HLFS) $(MSGS) #$(LNGS)
 
 bootstrap/far.ini: $(COMINC)/plugin.hpp
-	@echo preproc $(@F) && $(TOOL) farver  $(call os_name,$^ $@)
+	@echo preproc $(@F) && $(TOOL) farver $(call os_name,$^ $@)
 
 bootstrap/version.rc: project.ini bootstrap/far.ini version.rc
 	@echo preproc $(@F) && $(TOOL) preproc $(call os_name,$^ $@)
@@ -95,7 +95,7 @@ DEPFILE = $(OBJDIR)/$(MODULE).dep
 
 depfile:
 	@echo Rebuilding dependencies
-	$(TOOL) gendep -gcc $(subst /,\,-I7z/h -I$(COMINC) bootstrap) > $(DEPFILE)
+	$(TOOL) gendep -gcc $(call os_name,-I7z/h -I$(COMINC) bootstrap) > $(DEPFILE)
 
 ifeq ($(MAKECMDGOALS),build)
  include $(DEPFILE)
@@ -116,7 +116,7 @@ RCFLAGS += -Dx64
 endif
 $(OBJDIR)/version.rc.o: bootstrap/version.rc
 	@echo Compiling resource file
-	$(WINDRES) -i $<  $(RCFLAGS) -o $@
+	$(WINDRES) -i $< $(RCFLAGS) -o $@
 
 $(OBJDIR)/%.o: %.cpp
 	@echo $<
