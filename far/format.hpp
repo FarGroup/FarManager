@@ -44,14 +44,6 @@ WARNING_DISABLE_GCC("-Wmaybe-uninitialized")
 
 WARNING_DISABLE_CLANG("-Weverything")
 
-#if COMPILER == C_CLANG
-#if  defined(__cpp_char8_t) && __clang_major__ < 9
-// "cannot mangle this built-in char8_t type yet" *facepalm*
-enum char8_t_dummy : unsigned char {};
-#define char8_t char8_t_dummy
-#endif
-#endif
-
 #include "thirdparty/fmt/fmt/format.h"
 #include "thirdparty/fmt/fmt/ostream.h"
 

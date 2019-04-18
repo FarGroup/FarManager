@@ -293,7 +293,7 @@ CPPFLAGS=\
 	/c\
 	/J\
 	/EHsc\
-	/std:c++latest\
+	/std:c++17\
 	/permissive-\
 	/Zc:__cplusplus,externConstexpr,inline,referenceBinding,rvalueCast,strictStrings,throwingNew\
 	/Wall\
