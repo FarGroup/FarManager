@@ -51,7 +51,8 @@ $(OUTDIR)/%.sfx: %.sfx
 	@echo copy $< && @$(CP) $< $(OUTDIR)
 
 #------------------------------------------------------------------------------
-TOOL = tools\tool.exe
+TOOL = $(WINE_CMD)$(strip $(call os_name, tools/tool.exe))
+
 HLFS = $(addprefix $(OUTDIR)/$(MODULE)_,eng.hlf rus.hlf)
 MSGS = $(addprefix           bootstrap/,en.msg  ru.msg  es.msg  it.msg)
 LNGS = $(addprefix $(OUTDIR)/$(MODULE)_,eng.lng rus.lng spa.lng ita.lng)
@@ -59,35 +60,35 @@ LNGS = $(addprefix $(OUTDIR)/$(MODULE)_,eng.lng rus.lng spa.lng ita.lng)
 preproc: bootstrap/far.ini bootstrap/version.rc bootstrap/plugin.h bootstrap/msg.h $(HLFS) $(MSGS) #$(LNGS)
 
 bootstrap/far.ini: $(COMINC)/plugin.hpp
-	@echo preproc $(@F) && $(TOOL) farver  $(subst /,\,$? $@)
+	@echo preproc $(@F) && $(TOOL) farver  $(call os_name,$^ $@)
 
 bootstrap/version.rc: project.ini bootstrap/far.ini version.rc
-	@echo preproc $(@F) && $(TOOL) preproc $(subst /,\,$? $@)
+	@echo preproc $(@F) && $(TOOL) preproc $(call os_name,$^ $@)
 
 bootstrap/plugin.h: project.ini bootstrap/far.ini plugin_h.h
-	@echo preproc $(@F) && $(TOOL) preproc $(subst /,\,$? $@)
+	@echo preproc $(@F) && $(TOOL) preproc $(call os_name,$^ $@)
 
 bootstrap/en.msg: project.ini en.msg
-	@echo preproc $(@F) && $(TOOL) preproc $(subst /,\,$? $@)
+	@echo preproc $(@F) && $(TOOL) preproc $(call os_name,$^ $@)
 
 bootstrap/ru.msg: project.ini ru.msg
-	@echo preproc $(@F) && $(TOOL) preproc $(subst /,\,$? $@)
+	@echo preproc $(@F) && $(TOOL) preproc $(call os_name,$^ $@)
 
 bootstrap/es.msg: project.ini es.msg
-	@echo preproc $(@F) && $(TOOL) preproc $(subst /,\,$? $@)
+	@echo preproc $(@F) && $(TOOL) preproc $(call os_name,$^ $@)
 
 bootstrap/it.msg: project.ini it.msg
-	@echo preproc $(@F) && $(TOOL) preproc $(subst /,\,$? $@)
+	@echo preproc $(@F) && $(TOOL) preproc $(call os_name,$^ $@)
 
 bootstrap/msg.h: $(MSGS)
 	@echo Compiling message files
-	$(TOOL) msgc -in $(subst /,\,$(MSGS)) -out $(subst /,\,bootstrap/msg.h $(LNGS))
+	$(TOOL) msgc -in $(call os_name,$(MSGS)) -out $(call os_name,bootstrap/msg.h $(LNGS))
 
-$(OUTDIR)/$(MODULE)_eng.hlf: en.hlf project.ini
-	@echo preproc $(@F) && $(TOOL) preproc project.ini $(subst /,\,$< $@)
+$(OUTDIR)/$(MODULE)_eng.hlf: project.ini en.hlf
+	@echo preproc $(@F) && $(TOOL) preproc $(call os_name,$^ $@)
 
-$(OUTDIR)/$(MODULE)_rus.hlf: ru.hlf project.ini
-	@echo preproc $(@F) && $(TOOL) preproc project.ini $(subst /,\,$< $@)
+$(OUTDIR)/$(MODULE)_rus.hlf: project.ini ru.hlf
+	@echo preproc $(@F) && $(TOOL) preproc $(call os_name,$^ $@)
 
 #------------------------------------------------------------------------------
 DEPFILE = $(OBJDIR)/$(MODULE).dep
@@ -102,7 +103,7 @@ endif
 
 #------------------------------------------------------------------------------
 DLLFULLNAME := $(OUTDIR)/$(MODULE).$(EXT) # MODULE=arclite NAME=ArcLite
-MAPFULLNAME = $(OUTDIR)/$(MODULE).map
+MAPFULLNAME = $(patsubst %.($EXT),%.map,$(DLLFULLNAME))
 
 build: $(DLLFULLNAME)
 

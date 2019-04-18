@@ -2,7 +2,7 @@
   setlocal
   pushd "%~dp0"
 
-  set "vc=16"
+  set "vc=10"
 
   if "%vc%"=="10" call "%VS100COMNTOOLS%\..\..\vc\vcvarsall.bat" x86
   if "%vc%"=="12" call "%VS120COMNTOOLS%\..\..\vc\vcvarsall.bat" x86
