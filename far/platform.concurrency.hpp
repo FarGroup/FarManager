@@ -234,7 +234,7 @@ namespace os::concurrency
 		}
 
 		template<typename... args>
-		void emplace(args... Args)
+		void emplace(args&&... Args)
 		{
 			SCOPED_ACTION(critical_section_lock)(m_QueueCS);
 			m_Queue.emplace(FWD(Args)...);

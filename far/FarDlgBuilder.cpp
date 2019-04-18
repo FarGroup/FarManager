@@ -323,7 +323,7 @@ DialogItemEx *DialogBuilder::AddEditField(string& Value, int Width, string_view 
 	}
 	Item->Flags |= Flags;
 
-	SetLastItemBinding(new EditFieldBinding<decltype(Value)>(Value));
+	SetLastItemBinding(new EditFieldBinding(Value));
 	return Item;
 }
 
@@ -339,7 +339,7 @@ DialogItemEx *DialogBuilder::AddEditField(StringOption& Value, int Width, string
 	}
 	Item->Flags |= Flags;
 
-	SetLastItemBinding(new EditFieldBinding<decltype(Value)>(Value));
+	SetLastItemBinding(new EditFieldBinding(Value));
 	return Item;
 }
 
@@ -354,7 +354,7 @@ DialogItemEx *DialogBuilder::AddFixEditField(string& Value, int Width, const wch
 		Item->Flags |= DIF_MASKEDIT;
 	}
 
-	SetLastItemBinding(new EditFieldBinding<decltype(Value)>(Value));
+	SetLastItemBinding(new EditFieldBinding(Value));
 	return Item;
 }
 
@@ -369,7 +369,7 @@ DialogItemEx *DialogBuilder::AddFixEditField(StringOption& Value, int Width, con
 		Item->Flags |= DIF_MASKEDIT;
 	}
 
-	SetLastItemBinding(new EditFieldBinding<decltype(Value)>(Value));
+	SetLastItemBinding(new EditFieldBinding(Value));
 	return Item;
 }
 

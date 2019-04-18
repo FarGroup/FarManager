@@ -65,7 +65,7 @@ private:
 	template<typename text_type, auto StubFunction>
 	class unique_function_pointer
 	{
-		// The indirection is a workaround for MSVC 
+		// The indirection is a workaround for MSVC
 		using stub_type = std::enable_if_t<true, decltype(StubFunction)>;
 
 	public:

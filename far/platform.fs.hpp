@@ -200,7 +200,7 @@ namespace os::fs
 		}
 
 		template<typename... args>
-		explicit file(args... Args)
+		explicit file(args&&... Args)
 		{
 			(void)Open(FWD(Args)...);
 		}

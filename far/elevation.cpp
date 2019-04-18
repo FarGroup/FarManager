@@ -237,7 +237,7 @@ static os::handle create_job()
 	jeli.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
 	if (!SetInformationJobObject(Job.native_handle(), JobObjectExtendedLimitInformation, &jeli, sizeof(jeli)))
 		return nullptr;
-	
+
 	return Job;
 }
 
@@ -1090,7 +1090,7 @@ private:
 	{
 		assert(Command < C_COMMANDS_COUNT);
 
-		static const decltype(&elevated::ExitHandler) Handlers[] =
+		static const std::array Handlers
 		{
 			&elevated::ExitHandler,
 			&elevated::CreateDirectoryHandler,

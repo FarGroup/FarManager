@@ -32,45 +32,68 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "placement.hpp"
+
 template<typename T, size_t StaticSize>
 class array_ptr
 {
 public:
 	NONCOPYABLE(array_ptr);
-	MOVABLE(array_ptr);
 
-	array_ptr() noexcept = default;
+WARNING_PUSH()
+WARNING_DISABLE_MSC(4582) // no page                                                'class': constructor is not implicitly called
+WARNING_DISABLE_MSC(4583) // no page                                                'class': destructor is not implicitly called
 
-	array_ptr(std::nullptr_t) noexcept
+	array_ptr() noexcept
 	{
+		placement::construct(m_StaticBuffer);
 	}
 
-	explicit array_ptr(size_t Size, bool Init = false)
+	explicit array_ptr(size_t const Size, bool Init = false):
+		array_ptr()
 	{
 		reset(Size, Init);
 	}
 
-	void reset(size_t Size, bool Init = false)
+	array_ptr(array_ptr&& rhs) noexcept
+	{
+		move_from(rhs);
+	}
+
+	~array_ptr()
+	{
+		destruct();
+	}
+
+WARNING_POP()
+
+	array_ptr& operator=(array_ptr&& rhs) noexcept
+	{
+		destruct();
+		return move_from(rhs);
+	}
+
+	void reset(size_t const Size = 0, bool const Init = false)
 	{
 		if (Size > StaticSize)
 		{
-			m_IsStatic = false;
+			if (!is_dynamic())
+			{
+				placement::destruct(m_StaticBuffer);
+				placement::construct(m_DynamicBuffer);
+			}
 			m_DynamicBuffer.reset(Init? new T[Size]() : new T[Size]);
 		}
 		else
 		{
-			m_IsStatic = true;
-			m_DynamicBuffer.reset();
+			if (is_dynamic())
+			{
+				placement::destruct(m_DynamicBuffer);
+				placement::construct(m_StaticBuffer);
+			}
 		}
 
 		m_Size = Size;
-	}
-
-	void reset() noexcept
-	{
-		m_IsStatic = false;
-		m_DynamicBuffer.reset();
-		m_Size = 0;
 	}
 
 	[[nodiscard]]
@@ -82,13 +105,14 @@ public:
 	[[nodiscard]]
 	explicit operator bool() const noexcept
 	{
-		return m_IsStatic || m_DynamicBuffer;
+		return m_Size != 0;
 	}
 
 	[[nodiscard]]
 	T* get() const noexcept
 	{
-		return m_IsStatic? m_StaticBuffer.data() : m_DynamicBuffer.get();
+		assert(m_Size);
+		return size() > StaticSize? m_DynamicBuffer.get() : m_StaticBuffer.data();
 	}
 
 	[[nodiscard]]
@@ -106,10 +130,43 @@ public:
 	}
 
 private:
-	mutable std::array<T, StaticSize> m_StaticBuffer;
-	std::unique_ptr<T[]> m_DynamicBuffer;
+	bool is_dynamic() const
+	{
+		return m_Size > StaticSize;
+	}
+
+	void destruct()
+	{
+		if (is_dynamic())
+			placement::destruct(m_DynamicBuffer);
+		else
+			placement::destruct(m_StaticBuffer);
+	}
+
+	array_ptr& move_from(array_ptr& rhs) noexcept
+	{
+		if (rhs.is_dynamic())
+		{
+			placement::construct(m_DynamicBuffer, std::move(rhs.m_DynamicBuffer));
+			placement::destruct(rhs.m_DynamicBuffer);
+		}
+		else
+		{
+			placement::construct(m_StaticBuffer, std::move(rhs.m_StaticBuffer));
+			placement::destruct(rhs.m_StaticBuffer);
+		}
+
+		m_Size = std::exchange(rhs.m_Size, 0);
+
+		return *this;
+	}
+
+	union
+	{
+		mutable std::array<T, StaticSize> m_StaticBuffer;
+		std::unique_ptr<T[]> m_DynamicBuffer;
+	};
 	size_t m_Size{};
-	bool m_IsStatic{};
 };
 
 template<size_t Size = 1>
@@ -130,7 +187,7 @@ public:
 	MOVABLE(block_ptr);
 
 	using char_ptr_n<Size>::char_ptr_n;
-	block_ptr() = default;
+	block_ptr() noexcept = default;
 
 	[[nodiscard]]
 	decltype(auto) get() const noexcept {return reinterpret_cast<T*>(char_ptr_n<Size>::get());}

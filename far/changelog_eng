@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 18.04.2019 21:59:52 +0100 - build 5387
+
+1. New fmt version.
+
+2. Workaround for Clang 8.
+
+3. Minor refactoring.
+
 drkns 17.04.2019 22:23:24 +0100 - build 5386
 
 1. Build process:

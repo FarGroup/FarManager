@@ -2088,12 +2088,12 @@ void Options::InitConfigs()
 
 void Options::SetSearchColumns(const string& Columns, const string& Widths)
 {
-	if (!Columns.empty())
-	{
-		auto& FindOpt = Global->Opt->FindOpt;
-		FindOpt.OutColumns = DeserialiseViewSettings(Columns, Widths);
-		std::tie(FindOpt.strSearchOutFormat, FindOpt.strSearchOutFormatWidth) = SerialiseViewSettings(FindOpt.OutColumns);
-	}
+	if (Columns.empty())
+		return;
+
+	auto& FindOpt = Global->Opt->FindOpt;
+	FindOpt.OutColumns = DeserialiseViewSettings(Columns, Widths);
+	std::tie(FindOpt.strSearchOutFormat, FindOpt.strSearchOutFormatWidth) = SerialiseViewSettings(FindOpt.OutColumns);
 }
 
 void Options::Load(overrides&& Overrides)
@@ -2108,7 +2108,7 @@ void Options::Load(overrides&& Overrides)
 		{ &KnownModulesIDs::Netbox, NetBoxGuid, {} },
 	};
 
-	static_assert(std::size(DefaultKnownGuids) == sizeof(Options::KnownModulesIDs) / sizeof(Options::KnownModulesIDs::GuidOption));
+	static_assert(std::size(DefaultKnownGuids) == sizeof(KnownModulesIDs) / sizeof(KnownModulesIDs::GuidOption));
 
 	for(auto& [Ptr, Id, Str]: DefaultKnownGuids)
 	{
@@ -2193,13 +2193,9 @@ void Options::Load(overrides&& Overrides)
 /* *************************************************** </ПОСТПРОЦЕССЫ> */
 
 	// we assume that any changes after this point will be made by the user
-	std::for_each(RANGE(m_Configs, i)
-	{
-		std::for_each(RANGE(i, j)
-		{
+	for (auto& i: m_Configs)
+		for (auto& j: i)
 			j.Value->MakeUnchanged();
-		});
-	});
 }
 
 void Options::Save(bool Manual)

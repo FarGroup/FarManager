@@ -318,11 +318,11 @@ static CDROM_DeviceCapabilities getCapsUsingDeviceProps(const os::fs::file& Devi
 	if (!Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &query, sizeof(query), &hdr, sizeof(hdr), &returnedLength) || !hdr.Size)
 		return CAPABILITIES_NONE;
 
-	std::vector<char> Buffer(hdr.Size);
-	if (!Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &query, sizeof(query), Buffer.data(), static_cast<DWORD>(Buffer.size()), &returnedLength))
+	char_ptr_n<os::default_buffer_size> Buffer(hdr.Size);
+	if (!Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &query, sizeof(query), Buffer.get(), static_cast<DWORD>(Buffer.size()), &returnedLength))
 		return CAPABILITIES_NONE;
 
-	const auto devDesc = reinterpret_cast<const STORAGE_DEVICE_DESCRIPTOR*>(Buffer.data());
+	const auto devDesc = reinterpret_cast<const STORAGE_DEVICE_DESCRIPTOR*>(Buffer.get());
 
 	if (!devDesc->ProductIdOffset || !Buffer[devDesc->ProductIdOffset])
 		return CAPABILITIES_NONE;

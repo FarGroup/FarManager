@@ -44,6 +44,14 @@ WARNING_DISABLE_GCC("-Wmaybe-uninitialized")
 
 WARNING_DISABLE_CLANG("-Weverything")
 
+#if COMPILER == C_CLANG
+#if  defined(__cpp_char8_t) && __clang_major__ < 9
+// "cannot mangle this built-in char8_t type yet" *facepalm*
+enum char8_t_dummy : unsigned char {};
+#define char8_t char8_t_dummy
+#endif
+#endif
+
 #include "thirdparty/fmt/fmt/format.h"
 #include "thirdparty/fmt/fmt/ostream.h"
 
@@ -51,33 +59,26 @@ WARNING_POP()
 
 namespace detail
 {
-	char get_incompatible_char(wchar_t);
-	char get_incompatible_char(const wchar_t*);
-	char get_incompatible_char(const string&);
 	char get_incompatible_char(const string_view&);
-	wchar_t get_incompatible_char(char);
-	wchar_t get_incompatible_char(const char*);
-	wchar_t get_incompatible_char(const std::string&);
 	wchar_t get_incompatible_char(const std::string_view&);
 
-	template<typename char_type>
-	void check_char_compatibility(char_type) {}
-
-	template<typename char_type, typename arg, typename... args>
-	void check_char_compatibility(char_type, const arg&, const args&... Args)
+	template<typename char_type, typename... args>
+	void check_char_compatibility(const args&...)
 	{
-		static_assert(!std::is_convertible_v<arg, const char_type*>);
-		static_assert(!std::is_convertible_v<arg, std::basic_string<char_type>>);
-		static_assert(!std::is_convertible_v<arg, std::basic_string_view<char_type>>);
-
-		check_char_compatibility(char_type{}, Args...);
+		static_assert(
+			!std::disjunction_v<
+				std::is_same<args, char_type>...,
+				std::is_convertible<args, const char_type*>...,
+				std::is_convertible<args, std::basic_string_view<char_type>>...,
+				std::is_convertible<args, std::basic_string<char_type>>...
+			>);
 	}
 }
 
 template<typename F, typename... args>
 auto format(F&& Format, args&&... Args)
 {
-	detail::check_char_compatibility(decltype(detail::get_incompatible_char(Format)){}, Args...);
+	detail::check_char_compatibility<decltype(detail::get_incompatible_char(Format))>(Args...);
 	return fmt::format(FWD(Format), FWD(Args)...);
 }
 
