@@ -83,11 +83,11 @@ bootstrap/msg.h: $(MSGS)
 	@echo Compiling message files
 	$(TOOL) msgc -in $(subst /,\,$(MSGS)) -out $(subst /,\,bootstrap/msg.h $(LNGS))
 
-$(OUTDIR)/$(MODULE)_eng.hlf: project.ini en.hlf
-	@echo preproc $(@F) && $(TOOL) preproc $(subst /,\,$? $@)
+$(OUTDIR)/$(MODULE)_eng.hlf: en.hlf project.ini
+	@echo preproc $(@F) && $(TOOL) preproc project.ini $(subst /,\,$< $@)
 
-$(OUTDIR)/$(MODULE)_rus.hlf: project.ini ru.hlf
-	@echo preproc $(@F) && $(TOOL) preproc $(subst /,\,$? $@)
+$(OUTDIR)/$(MODULE)_rus.hlf: ru.hlf project.ini
+	@echo preproc $(@F) && $(TOOL) preproc project.ini $(subst /,\,$< $@)
 
 #------------------------------------------------------------------------------
 DEPFILE = $(OBJDIR)/$(MODULE).dep
@@ -109,9 +109,13 @@ build: $(DLLFULLNAME)
 SRCS = $(wildcard *.cpp)
 OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(SRCS)) $(OBJDIR)/version.rc.o
 
+RCFLAGS = -I$(COMINC)
+ifeq (64,$(DIRBIT))
+RCFLAGS += -Dx64
+endif
 $(OBJDIR)/version.rc.o: bootstrap/version.rc
 	@echo Compiling resource file
-	$(WINDRES) -i $< -o $@
+	$(WINDRES) -i $<  $(RCFLAGS) -o $@
 
 $(OBJDIR)/%.o: %.cpp
 	@echo $<
