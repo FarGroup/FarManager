@@ -92,7 +92,7 @@ public:
 	int  GetKey();
 	DWORD GetMacroParseError(COORD* ErrPos, string& ErrSrc) const;
 	FARMACROAREA GetArea() const { return m_Area; }
-	const wchar_t* GetStringToPrint() const { return m_StringToPrint; }
+	string_view GetStringToPrint() const { return m_StringToPrint; }
 	bool IsRecording() const { return m_Recording != MACROSTATE_NOMACRO; }
 	bool LoadMacros(bool FromFar, bool InitedRAM=true, const FarMacroLoad *Data=nullptr);
 	bool ParseMacroString(const wchar_t* Sequence,FARKEYMACROFLAGS Flags,bool skipFile);
@@ -116,7 +116,7 @@ private:
 	string m_RecDescription;
 	int m_InternalInput;
 	int m_WaitKey;
-	const wchar_t* m_StringToPrint;
+	string_view m_StringToPrint;
 };
 
 inline bool IsMenuArea(int Area){return Area==MACROAREA_MAINMENU || Area==MACROAREA_MENU || Area==MACROAREA_DISKS || Area==MACROAREA_USERMENU || Area==MACROAREA_SHELLAUTOCOMPLETION || Area==MACROAREA_DIALOGAUTOCOMPLETION;}

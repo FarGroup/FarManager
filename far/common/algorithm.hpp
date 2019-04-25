@@ -166,17 +166,13 @@ namespace detail
 
 // Unified container emplace
 template<typename container, typename... args>
-std::enable_if_t<detail::has_emplace_hint_v<container>> emplace(container& Container, args&&... Args)
+void emplace(container& Container, args&&... Args)
 {
-	Container.emplace_hint(Container.end(), FWD(Args)...);
+	if constexpr (detail::has_emplace_hint_v<container>)
+		Container.emplace_hint(Container.end(), FWD(Args)...);
+	else
+		Container.emplace(Container.end(), FWD(Args)...);
 }
-
-template<typename container, typename... args>
-std::enable_if_t<!detail::has_emplace_hint_v<container>> emplace(container& Container, args&&... Args)
-{
-	Container.emplace(Container.end(), FWD(Args)...);
-}
-
 
 // uniform "contains"
 

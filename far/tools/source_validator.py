@@ -156,6 +156,10 @@ def check(filename):
 					Raise("No empty line")
 				LineNumber += 1
 
+		for i, line in enumerate(content):
+			if line.endswith(' ') or line.endswith('\t'):
+				LineNumber = i
+				Raise("Trailing whitespace")
 
 def get_list(dir):
 	return [ os.path.join(dir, f) for f in os.listdir(dir)]

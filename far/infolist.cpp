@@ -935,7 +935,7 @@ bool InfoList::ShowDirDescription(int YPos)
 	const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 
 	string strFullDizName(AnotherPanel->GetCurDir());
-	
+
 	if (!strFullDizName.empty())
 		AddEndSlash(strFullDizName);
 

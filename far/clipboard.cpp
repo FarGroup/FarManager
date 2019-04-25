@@ -425,7 +425,7 @@ bool clipboard::GetVText(string& data) const
 		const auto hClipData = GetData(RegisterFormat(clipboard_format::borland_ide_dev_block));
 		if (!hClipData)
 			return false;
-		
+
 		const auto ClipAddr = os::memory::global::lock<const char*>(hClipData);
 		return ClipAddr && *ClipAddr == 0x02;
 	};

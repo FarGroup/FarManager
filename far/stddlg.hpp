@@ -116,7 +116,7 @@ int GetSearchReplaceString(
 	bool* Reverse,
 	bool* Regexp,
 	bool* PreserveStyle,
-	const wchar_t *HelpTopic=nullptr,
+	string_view HelpTopic = {},
 	bool HideAll=false,
 	const GUID* Id = nullptr,
 	function_ref<string(bool)> Picker = nullptr
@@ -142,7 +142,7 @@ enum FlagsNameAndPassword
 	GNP_USELAST      = 0_bit, // использовать последние введенные данные
 };
 
-bool GetNameAndPassword(const string& Title,string &strUserName, string &strPassword, const wchar_t *HelpTopic,DWORD Flags);
+bool GetNameAndPassword(const string& Title, string& strUserName, string& strPassword, string_view HelpTopic, DWORD Flags);
 
 enum class operation
 {

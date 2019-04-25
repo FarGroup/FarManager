@@ -432,7 +432,7 @@ int RemoveHotplugDisk(wchar_t Disk, DWORD Flags)
 {
 	if (!os::fs::is_standard_drive_letter(Disk))
 		return -1;
-	
+
 	string DevName;
 	if (GetVHDInfo(os::fs::get_drive(Disk), DevName))
 	{

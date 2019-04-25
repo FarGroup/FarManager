@@ -117,7 +117,7 @@ class Help :public Modal
 	struct private_tag {};
 
 public:
-	static help_ptr create(string_view Topic, const wchar_t *Mask = nullptr, unsigned long long Flags = 0);
+	static help_ptr create(string_view Topic, string_view Mask, unsigned long long Flags);
 	explicit Help(private_tag);
 
 	bool  ProcessKey(const Manager::Key& Key) override;
@@ -139,7 +139,7 @@ private:
 	void DisplayObject() override;
 	string GetTitle() const override { return {}; }
 
-	void init(string_view Topic, const wchar_t *Mask, unsigned long long Flags);
+	void init(string_view Topic, string_view Mask, unsigned long long Flags);
 	bool ReadHelp(const string& Mask);
 	void AddLine(string_view Line);
 	void AddTitle(string_view Title);
@@ -177,7 +177,7 @@ private:
 
 	// символа - для атрибутов
 	FarColor CurColor;             // CurColor - текущий цвет отрисовки
-	int CtrlTabSize;          // CtrlTabSize - опция! размер табуляции
+	unsigned CtrlTabSize;          // CtrlTabSize - опция! размер табуляции
 
 	DWORD LastStartPos{};
 	DWORD StartPos{};
@@ -216,14 +216,14 @@ Help::Help(private_tag):
 {
 }
 
-help_ptr Help::create(string_view const Topic, const wchar_t *Mask, unsigned long long Flags)
+help_ptr Help::create(string_view const Topic, string_view const Mask, unsigned long long const Flags)
 {
 	auto HelpPtr = std::make_shared<Help>(private_tag());
 	HelpPtr->init(Topic, Mask, Flags);
 	return HelpPtr;
 }
 
-void Help::init(string_view const Topic, const wchar_t *Mask, unsigned long long Flags)
+void Help::init(string_view const Topic, string_view const Mask, unsigned long long const Flags)
 {
 	m_windowKeyBar = std::make_unique<KeyBar>(shared_from_this());
 
@@ -231,7 +231,7 @@ void Help::init(string_view const Topic, const wchar_t *Mask, unsigned long long
 	SetRestoreScreenMode(true);
 
 	StackData->Flags=Flags;
-	StackData->strHelpMask = NullToEmpty(Mask); // сохраним маску файла
+	StackData->strHelpMask = Mask; // сохраним маску файла
 	StackData->strHelpTopic = Topic;
 
 	if (Global->Opt->FullScreenHelp)
@@ -348,10 +348,10 @@ bool Help::ReadHelp(const string& Mask)
 
 	if (GetOptionsParam(HelpFile, L"TabSize"sv, strReadStr, HelpFileCodePage))
 	{
-		int UserTabSize;
+		unsigned UserTabSize;
 		if (from_string(strReadStr, UserTabSize))
 		{
-			if (InRange(0, UserTabSize, 16))
+			if (InRange(0u, UserTabSize, 16u))
 			{
 				CtrlTabSize = UserTabSize;
 			}
@@ -983,10 +983,10 @@ static bool GetHelpColor(string_view& Str, wchar_t cColor, FarColor& color)
 	}
 
 	bool Stop;
-	const auto Next = colors::ExtractColorInNewFormat(Str.cbegin() + 1, Str.cend(), color, Stop);
-	if (Next != Str.cbegin() + 1)
+	const auto Tail = colors::ExtractColorInNewFormat(Str.substr(1), color, Stop);
+	if (Tail.size() != Str.size() - 1)
 	{
-		Str = make_string_view(Next, Str.cend());
+		Str = Tail;
 		return true;
 	}
 
@@ -1025,10 +1025,10 @@ static bool FastParseLine(string_view Str, int* const pLen, const int x0, const 
 
 			FarColor Color;
 			bool Stop;
-			const auto Next = colors::ExtractColorInNewFormat(Str.cbegin(), Str.cend(), Color, Stop);
-			if (Next != Str.cbegin())
+			const auto Tail = colors::ExtractColorInNewFormat(Str, Color, Stop);
+			if (Tail.size() != Str.size())
 			{
-				Str = make_string_view(Next, Str.cend());
+				Str = Tail;
 				continue;
 			}
 		}
@@ -1454,7 +1454,7 @@ bool Help::ProcessKey(const Manager::Key& Key)
 					nullptr,
 					&Regexp,
 					nullptr,
-					nullptr,
+					{},
 					true,
 					&HelpSearchId);
 
@@ -2049,20 +2049,20 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 	m_TopicFound = true;
 	StackData->CurX=StackData->CurY=0;
 	strCtrlColorChar.clear();
-	const wchar_t *PtrTitle = nullptr;
+	string_view Title;
 	string_view ContentsName;
 
 	switch (TypeIndex)
 	{
 		case HIDX_PLUGINS:
-			PtrTitle = msg(lng::MPluginsHelpTitle).c_str();
+			Title = msg(lng::MPluginsHelpTitle);
 			ContentsName = L"PluginContents"sv;
 			break;
 		default:
 			throw MAKE_FAR_FATAL_EXCEPTION(L"Unsupported index"sv);
 	}
 
-	AddTitle(PtrTitle);
+	AddTitle(Title);
 	/* TODO:
 	   1. Поиск (для "документов") не только в каталоге Documets, но
 	      и в плагинах
@@ -2203,7 +2203,7 @@ int Help::GetTypeAndName(string &strType, string &strName)
 
 namespace help
 {
-	bool show(string_view const Topic, const wchar_t* const Mask, unsigned long long const Flags)
+	bool show(string_view const Topic, string_view const Mask, unsigned long long const Flags)
 	{
 		return !Help::create(Topic, Mask, Flags)->GetError();
 	}

@@ -296,7 +296,7 @@ SQLiteDb::SQLiteDb(busy_handler BusyHandler, initialiser Initialiser, string_vie
 	// to start its transaction instead of just an ordinary BEGIN.
 	// The BEGIN IMMEDIATE command goes ahead and starts a write transaction,
 	// and thus blocks all other writers. If the BEGIN IMMEDIATE operation succeeds,
-	// then no subsequent operations in that transaction will ever fail with an SQLITE_BUSY error. 
+	// then no subsequent operations in that transaction will ever fail with an SQLITE_BUSY error.
 	m_stmt_BeginTransaction(create_stmt("BEGIN EXCLUSIVE"sv)),
 	m_stmt_EndTransaction(create_stmt("END"sv)),
 	m_Init(((void)Initialiser(db_initialiser(this)), init{})) // yay, operator comma!

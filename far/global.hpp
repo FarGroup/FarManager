@@ -55,8 +55,6 @@ public:
 	void StoreSearchString(const string& Str, bool Hex);
 	bool IsPanelsActive() const;
 
-	const wchar_t* GetLangMsg(lng Id) const;
-
 	// BUGBUG
 
 	std::chrono::steady_clock::time_point StartIdleTime;

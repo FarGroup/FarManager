@@ -1093,8 +1093,7 @@ static bool is_word_div(const wchar_t ch)
 
 static bool wrapped_char(const wchar_t ch)
 {
-	static const wchar_t wrapped_chars[] = {L',', L';', L'>', L')'}; // word-wrap enabled after it
-	return IsBlankOrEos(ch) || contains(wrapped_chars, ch);
+	return IsBlankOrEos(ch) || contains(L",;>)"sv, ch);
 }
 
 void Viewer::ReadString(ViewerString *pString, int MaxSize, bool update_cache)

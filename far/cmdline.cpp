@@ -612,21 +612,22 @@ bool CommandLine::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 std::list<CommandLine::segment> CommandLine::GetPrompt()
 {
 	FN_RETURN_TYPE(CommandLine::GetPrompt) Result;
-	int NewPromptSize = DEFAULT_CMDLINE_WIDTH;
+	size_t NewPromptSize = DEFAULT_CMDLINE_WIDTH;
 
 	const auto& PrefixColor = colors::PaletteColorToFarColor(COL_COMMANDLINEPREFIX);
 
 	if (Global->Opt->CmdLine.UsePromptFormat)
 	{
 		const string_view Format = Global->Opt->CmdLine.strPromptFormat.Get();
-		auto Tail = Format.cbegin();
+		auto SegmentBegin = Format.cbegin();
 		auto Color = PrefixColor;
 		FOR_CONST_RANGE(Format, Iterator)
 		{
 			bool Stop;
 			auto NewColor = PrefixColor;
-			const auto NextIterator = colors::ExtractColorInNewFormat(Iterator, Format.cend(), NewColor, Stop);
-			if (NextIterator == Iterator)
+			const auto Str = make_string_view(Iterator, Format.cend());
+			const auto Tail = colors::ExtractColorInNewFormat(Str, NewColor, Stop);
+			if (Tail.size() == Str.size())
 			{
 				if (Stop)
 					break;
@@ -635,13 +636,13 @@ std::list<CommandLine::segment> CommandLine::GetPrompt()
 
 			if (Iterator != Format.cbegin())
 			{
-				Result.emplace_back(segment{ { Tail, Iterator }, Color });
+				Result.emplace_back(segment{ { SegmentBegin, Iterator }, Color });
 			}
-			Iterator = NextIterator;
-			Tail = Iterator;
+			Iterator = Format.cend() - Tail.size();
+			SegmentBegin = Iterator;
 			Color = NewColor;
 		}
-		Result.emplace_back(segment{ { Tail, Format.cend() }, Color });
+		Result.emplace_back(segment{ { SegmentBegin, Format.cend() }, Color });
 
 		for (auto Iterator = Result.begin(); Iterator != Result.end(); ++Iterator)
 		{
@@ -824,7 +825,7 @@ std::list<CommandLine::segment> CommandLine::GetPrompt()
 			{ L">"s, PrefixColor, false },
 		};
 	}
-	SetPromptSize(NewPromptSize);
+	SetPromptSize(static_cast<int>(NewPromptSize));
 	return Result;
 }
 
@@ -1119,7 +1120,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 		if (SetParams.empty() || ((pos = SetParams.find(L'=')) == string::npos) || !pos)
 		{
 			//forward "set [prefix]| command" and "set [prefix]> file" to COMSPEC
-			static const wchar_t CharsToFind[] = L"|>";
+			static const auto CharsToFind = L"|>"sv;
 			if (std::find_first_of(ALL_CONST_RANGE(SetParams), ALL_CONST_RANGE(CharsToFind)) != SetParams.cend())
 				return false;
 

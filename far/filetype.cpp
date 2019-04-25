@@ -472,7 +472,7 @@ void EditFileTypes()
 	TypesMenu->SetMenuFlags(VMENU_WRAPMODE);
 	TypesMenu->SetBottomTitle(msg(lng::MAssocBottom));
 	TypesMenu->SetId(FileAssocMenuId);
-	
+
 	bool Changed = false;
 	for (;;)
 	{

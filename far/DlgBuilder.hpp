@@ -268,7 +268,7 @@ class DialogBuilderBase
 				{//BUGBUG: two columns items are not supported
 					m_DialogItems[i].X2 = m_DialogItems[i].X1 + MaxWidth - 1;
 				}
-				
+
 				if (m_DialogItems[i].Y2 > MaxHeight)
 				{
 					MaxHeight = m_DialogItems[i].Y2;
@@ -852,7 +852,7 @@ private:
 	int *SelectedIndex;
 	wchar_t *TextBuf;
 	FarList *List;
-	
+
 public:
 	PluginListControlBinding(const PluginStartupInfo &aInfo, HANDLE *aHandle, int aID, int *aValue, wchar_t *aText, FarList *aList)
 		: DialogAPIBinding(aInfo, aHandle, aID), SelectedIndex(aValue), TextBuf(aText), List(aList)

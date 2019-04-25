@@ -3799,10 +3799,10 @@ bool ShellCopy::ShellSetAttr(const string& Dest, DWORD Attr)
 	if (GetInfoSuccess && FileSystemFlagsDst&FILE_SUPPORTS_ENCRYPTION && Attr&FILE_ATTRIBUTE_ENCRYPTED && Attr&FILE_ATTRIBUTE_DIRECTORY)
 	{
 		switch(ESetFileEncryption(Dest, true, 0, SkipErrors))
-		{ 
+		{
 		case SETATTR_RET_ERROR:
 			return false;
-		
+
 		case SETATTR_RET_SKIPALL:
 			SkipErrors = true;
 			break;

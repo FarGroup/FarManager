@@ -343,15 +343,15 @@ public:
 
 	void add(const string_view Name) { m_Names.emplace(Name); }
 
-	void remove(const wchar_t* Name)
+	void remove(string_view const Name)
 	{
-		erase_if(m_Names, [NameView = string_view(Name)](const auto& i)
+		erase_if(m_Names, [&](const auto& i)
 		{
-			return starts_with_icase(i, NameView) && (i.size() == NameView.size() || (i.size() > NameView.size() && IsSlash(i[NameView.size()])));
+			return starts_with_icase(i, Name) && (i.size() == Name.size() || (i.size() > Name.size() && IsSlash(i[Name.size()])));
 		});
 	}
 
-	void rename(const wchar_t* OldName, const wchar_t* NewName)
+	void rename(string_view const OldName, string_view const NewName)
 	{
 		const auto Count = m_Names.size();
 		remove(OldName);
@@ -1796,10 +1796,10 @@ void TreeList::DelTreeName(const string_view Name)
 
 	const auto strFullName = ConvertNameToFull(Name);
 	const auto strRoot = ExtractPathRoot(strFullName);
-	const auto NamePtr = strFullName.c_str() + strRoot.size() - 1;
+	const auto NamePart = string_view(strFullName).substr(strRoot.size() - 1);
 
 	ReadCache(strRoot);
-	TreeCache().remove(NamePtr);
+	TreeCache().remove(NamePart);
 }
 
 void TreeList::RenTreeName(const string& strSrcName,const string& strDestName)
@@ -1816,8 +1816,8 @@ void TreeList::RenTreeName(const string& strSrcName,const string& strDestName)
 		ReadSubTree(strSrcName);
 	}
 
-	const auto SrcName = strSrcName.c_str() + strSrcRoot.size() - 1;
-	const auto DestName = strDestName.c_str() + strDestRoot.size() - 1;
+	const auto SrcName = string_view(strSrcName).substr(strSrcRoot.size() - 1);
+	const auto DestName = string_view(strDestName).substr(strDestRoot.size() - 1);
 	ReadCache(strSrcRoot);
 
 	TreeCache().rename(SrcName, DestName);

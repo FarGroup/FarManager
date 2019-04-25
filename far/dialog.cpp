@@ -193,7 +193,7 @@ static string_view ItemString(const DialogItemEx *Data)
 	}
 
 	const auto sz = Str.size();
-	
+
 	if (sz > Data->MaxLength && Data->MaxLength > 0)
 		Str.remove_suffix(sz - Data->MaxLength);
 
@@ -5118,10 +5118,10 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		{
 			if (Type==DI_EDIT || Type==DI_FIXEDIT)
 			{
-				if (Param2 && *(const wchar_t *)Param2)
+				if (Param2 && *static_cast<const wchar_t*>(Param2))
 				{
 					CurItem->Flags|=DIF_HISTORY;
-					CurItem->strHistory=(const wchar_t *)Param2;
+					CurItem->strHistory = static_cast<const wchar_t*>(Param2);
 					static_cast<DlgEdit*>(CurItem->ObjPtr)->SetHistory(CurItem->strHistory);
 					if (Type==DI_EDIT && (CurItem->Flags&DIF_USELASTHISTORY))
 					{
@@ -5151,7 +5151,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			        (Type==DI_EDIT || Type==DI_FIXEDIT) &&
 			        (CurItem->Flags & DIF_HISTORY))
 			{
-				return AddToEditHistory(CurItem, (const wchar_t*)Param2);
+				return AddToEditHistory(CurItem, static_cast<const wchar_t*>(Param2));
 			}
 
 			return FALSE;

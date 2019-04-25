@@ -115,7 +115,7 @@ PluginSettings::PluginSettings(const Plugin* const pPlugin, bool const Local)
 		Diz.Read(DbPath);
 		const string DbName(PointToName(PluginsCfg->GetName()));
 		const auto Description = concat(pPlugin->Title(), L" ("sv, pPlugin->Description(), L')');
-		if (Description != NullToEmpty(Diz.Get(DbName, {}, 0)))
+		if (Description != Diz.Get(DbName, {}, 0))
 		{
 			Diz.Set(DbName, {}, Description);
 			Diz.Flush(DbPath);
@@ -374,19 +374,19 @@ bool FarSettings::Enum(FarSettingsEnum& Enum)
 	{
 	case FSSF_HISTORY_CMD:
 		return FillHistory(HISTORYTYPE_CMD, {}, Enum, FilterNone);
-	
+
 	case FSSF_HISTORY_FOLDER:
 		return FillHistory(HISTORYTYPE_FOLDER, {}, Enum, FilterNone);
-	
+
 	case FSSF_HISTORY_VIEW:
 		return FillHistory(HISTORYTYPE_VIEW, {}, Enum, [](history_record_type Type) { return Type == HR_VIEWER; });
-	
+
 	case FSSF_HISTORY_EDIT:
 		return FillHistory(HISTORYTYPE_VIEW, {}, Enum, [](history_record_type Type) { return Type == HR_EDITOR || Type == HR_EDITOR_RO; });
-	
+
 	case FSSF_HISTORY_EXTERNAL:
 		return FillHistory(HISTORYTYPE_VIEW, {}, Enum, [](history_record_type Type) { return Type == HR_EXTERNAL || Type == HR_EXTERNAL_WAIT; });
-	
+
 	case FSSF_FOLDERSHORTCUT_0:
 	case FSSF_FOLDERSHORTCUT_1:
 	case FSSF_FOLDERSHORTCUT_2:

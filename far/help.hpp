@@ -39,7 +39,7 @@ class Plugin;
 
 namespace help
 {
-	bool show(string_view Topic, const wchar_t *Mask = nullptr, unsigned long long Flags = 0);
+	bool show(string_view Topic, string_view Mask = {}, unsigned long long Flags = 0);
 	string make_link(string_view Path, string_view Topic);
 	string make_topic(const Plugin* pPlugin, string_view HelpTopic);
 }

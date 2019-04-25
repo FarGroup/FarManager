@@ -163,12 +163,32 @@ TEST_CASE("from_string")
 
 	REQUIRE_THROWS_AS(from_string<short>(L"32768"sv), std::out_of_range);
 	REQUIRE_THROWS_AS(from_string<unsigned int>(L"4294967296"sv), std::out_of_range);
+	REQUIRE_THROWS_AS(from_string<unsigned int>(L"-42"sv), std::out_of_range);
 	REQUIRE_THROWS_AS(from_string<int>(L"fubar"sv), std::invalid_argument);
+	REQUIRE_THROWS_AS(from_string<int>(L""sv), std::invalid_argument);
+	REQUIRE_THROWS_AS(from_string<int>(L" 42"sv), std::invalid_argument);
+	REQUIRE_THROWS_AS(from_string<int>(L" +42"sv), std::invalid_argument);
 
 	{
 		int Value;
 		REQUIRE(!from_string(L"qqq"sv, Value));
 	}
+}
+
+//-----------------------------------------------------------------------------
+#include "common/keep_alive.hpp"
+
+TEST_CASE("keep_alive")
+{
+#define TEST_KEEPALIVE(type) static_assert(std::is_same_v<decltype(keep_alive(std::declval<type>())), keep_alive<type>>)
+
+	TEST_KEEPALIVE(int);
+	TEST_KEEPALIVE(int&);
+	TEST_KEEPALIVE(const int&);
+
+#undef TEST_KEEPALIVE
+
+	SUCCEED();
 }
 
 //-----------------------------------------------------------------------------
@@ -258,7 +278,66 @@ TEST_CASE("placement")
 //-----------------------------------------------------------------------------
 #include "common/range.hpp"
 
-TEST_CASE("range")
+TEST_CASE("range.static")
+{
+	{
+		const auto Test = [](auto&& Container)
+		{
+			const auto TestImpl = [](auto& ContainerVersion)
+			{
+				auto Range = range(ContainerVersion);
+
+				const auto TestType = [&](const auto & ContainerGetter, const auto & RangeGetter)
+				{
+					static_assert(std::is_same_v<decltype(ContainerGetter(ContainerVersion)), decltype(RangeGetter(Range))>);
+				};
+
+// std::cbegin and friends are broken in the standard for shallow-const containers, thus the member version.
+#define TEST_TYPE(x) TestType(LIFT(std::x), LIFT_MF(x))
+#define TEST_ALL_ACCESSORS(callable, x) callable(x), callable(c##x), callable(r##x), callable(cr##x)
+
+				TEST_ALL_ACCESSORS(TEST_TYPE, begin);
+				TEST_ALL_ACCESSORS(TEST_TYPE, end);
+
+#undef TEST_ALL_ACCESSORS
+#undef TEST_TYPE
+			};
+
+			TestImpl(Container);
+			TestImpl(std::as_const(Container));
+		};
+
+		{ Test(std::vector<int>{}); }
+		{ Test(std::list<int>{}); }
+		using ints = int[2];
+		{ Test(ints{}); }
+	}
+
+	{
+		int Data[2]{};
+		range Range(std::begin(Data), std::end(Data));
+		static_assert(std::is_same_v<decltype(*Range.begin()), int&>);
+		static_assert(std::is_same_v<decltype(*Range.cbegin()), const int&>);
+	}
+
+	{
+		std::vector<int> Data;
+		range Range(std::begin(Data), std::end(Data));
+		static_assert(std::is_same_v<decltype(*Range.begin()), int&>);
+		// It's not possible to deduce const_iterator here
+		static_assert(std::is_same_v<decltype(*Range.cbegin()), int&>);
+	}
+
+	{
+		int Data[2]{};
+		span Span(Data);
+		static_assert(std::is_same_v<decltype(*Span.begin()), int&>);
+		static_assert(std::is_same_v<decltype(*Span.cbegin()), const int&>);
+	}
+	SUCCEED();
+}
+
+TEST_CASE("range.dynamic")
 {
 	{
 		std::array Value{ 1, 2, 3, 4, 5 };

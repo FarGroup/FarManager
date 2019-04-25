@@ -215,7 +215,7 @@ private:
 	void TextChanged(bool State);
 	static int CalcDistance(const numbered_iterator& From, const numbered_iterator& To);
 	void PasteFromClipboard();
-	void Paste(const string& Data);
+	void Paste(string_view Data);
 	void ProcessChar(wchar_t Char);
 	void Copy(int Append);
 	void DeleteBlock();

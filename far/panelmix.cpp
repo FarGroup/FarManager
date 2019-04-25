@@ -436,7 +436,7 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 				NewColumn.type = ItemIterator->Type;
 			else if (Type.size() >= 2 && Type.size() <= 3 && Type.front() == L'C')
 			{
-				int Index;
+				size_t Index;
 				if (from_string(string_view(TypeOrig).substr(1), Index))
 					NewColumn.type = CUSTOM_COLUMN0 + Index;
 				else
@@ -461,7 +461,7 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 	for (auto& i: Columns)
 	{
 		auto Width = L""sv;
-		
+
 		if (!EnumWidthsRange.empty())
 		{
 			Width = EnumWidthsRange.front();
@@ -696,9 +696,16 @@ string FormatStr_DateTime(os::chrono::time_point FileTime, int ColumnType, unsig
 	return fit_to_right(strOutStr, Width);
 }
 
-string FormatStr_Size(long long Size, const string& strName,
-							DWORD FileAttributes,DWORD ShowFolderSize,DWORD ReparseTag,int ColumnType,
-							unsigned long long Flags,int Width,const wchar_t *CurDir)
+string FormatStr_Size(
+	long long const Size,
+	string const& strName,
+	DWORD const FileAttributes,
+	DWORD const ShowFolderSize,
+	DWORD const ReparseTag,
+	int const ColumnType,
+	unsigned long long const Flags,
+	int Width,
+	string_view const CurDir)
 {
 	string strResult;
 
@@ -740,7 +747,7 @@ string FormatStr_Size(long long Size, const string& strName,
 				case IO_REPARSE_TAG_MOUNT_POINT:
 					{
 						lng ID_Msg = lng::MListJunction;
-						if (Global->Opt->PanelDetailedJunction && CurDir)
+						if (Global->Opt->PanelDetailedJunction && !CurDir.empty())
 						{
 							string strLinkName;
 							if (GetReparsePointInfo(path::join(CurDir, PointToName(strName)), strLinkName))

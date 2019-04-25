@@ -225,7 +225,6 @@ public:
 	void SetFilterEnabled(bool bEnabled) { bFilterEnabled = bEnabled; }
 	void SetFilterLocked(bool bLocked) { bFilterEnabled = bLocked; }
 	bool AddToFilter(string_view Str);
-	void SetFilterString(const wchar_t *str);
 	// SelectPos == -1 & non-empty Items - everything is filtered
 	size_t size() const { return SelectPos == -1? 0 : Items.size(); }
 	bool empty() const { return SelectPos == -1 || Items.empty(); }

@@ -401,7 +401,7 @@ string MenuString(const FileFilterParams* const FF, bool const bHighlightType, w
 			MarkChar.clear();
 
 		Name=FF->GetTitle();
-		
+
 		if (FF->IsMaskUsed())
 			Mask = FF->GetMask();
 

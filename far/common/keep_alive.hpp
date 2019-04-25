@@ -32,15 +32,21 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+template<typename arg_type>
+using keep_alive_type =
+	std::enable_if_t<std::is_reference_v<arg_type>,
+		std::conditional_t<
+			std::is_rvalue_reference_v<arg_type>,
+			std::remove_reference_t<arg_type>,
+			arg_type
+		>
+	>;
+
 template<typename type>
 class [[nodiscard]] keep_alive
 {
 public:
-	explicit keep_alive(type const& Value):
-		m_Value(Value)
-	{}
-
-	explicit keep_alive(std::remove_reference_t<type>&& Value):
+	explicit keep_alive(type&& Value):
 		m_Value(FWD(Value))
 	{}
 
@@ -56,5 +62,8 @@ public:
 private:
 	type m_Value;
 };
+
+template<typename type>
+keep_alive(type&& Value) -> keep_alive<keep_alive_type<decltype(Value)>>;
 
 #endif // KEEP_ALIVE_HPP_9C3E665F_56D5_4A21_9950_F1F8F6BFC7A3

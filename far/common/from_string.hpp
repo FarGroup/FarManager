@@ -54,10 +54,20 @@ namespace detail
 	template<typename result_type, typename converter_type>
 	void from_string(string_view const Str, result_type& Value, size_t* Pos, int Base, converter_type Converter)
 	{
+		if (Str.empty() || Str.front() == L' ' || Str.front() == L'+')
+			handler::invalid_argument();
+
+		if constexpr(std::is_unsigned_v<result_type>)
+		{
+			if (Str.front() == L'-')
+				handler::out_of_range();
+		}
+
 		auto& Errno = errno; // Nonzero cost, pay it once
+
 		null_terminated Data(Str);
 		const auto Ptr = Data.c_str();
-		wchar_t* EndPtr;
+		auto EndPtr = const_cast<wchar_t*>(Ptr);
 
 		Errno = 0;
 		const auto Result = Converter(Ptr, &EndPtr, Base);

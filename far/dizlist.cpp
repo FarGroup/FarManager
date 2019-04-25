@@ -171,19 +171,19 @@ void DizList::Read(const string& Path, const string* DizName)
 	}
 }
 
-const wchar_t* DizList::Get(const string& Name, const string& ShortName, const long long FileSize) const
+string_view DizList::Get(const string& Name, const string& ShortName, const long long FileSize) const
 {
 	const auto Iterator = Find(Name, ShortName);
 
 	if (Iterator == m_DizData.end())
 	{
-		return nullptr;
+		return {};
 	}
 
 	const auto& Description = Iterator->second.front();
 	if (Description.empty())
 	{
-		return nullptr;
+		return {};
 	}
 
 	auto Begin = Description.begin();
@@ -212,10 +212,10 @@ const wchar_t* DizList::Get(const string& Name, const string& ShortName, const l
 	Begin = std::find_if_not(Begin, Description.cend(), std::iswblank);
 	if (Begin == Description.cend())
 	{
-		return nullptr;
+		return {};
 	}
 
-	return &*Begin;
+	return string_view(Description).substr(Begin - Description.begin());
 }
 
 template<class T>

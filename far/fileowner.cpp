@@ -151,6 +151,7 @@ static bool SidToNameCached(PSID Sid, string& Name, const string& Computer)
 
 	static std::unordered_map<sid, string, sid_hash> SIDCache;
 
+	// TODO: use transparent_key_equal once available
 	sid SidCopy(Sid);
 	const auto ItemIterator = SIDCache.find(SidCopy);
 

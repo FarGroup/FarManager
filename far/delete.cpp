@@ -254,7 +254,7 @@ static bool WipeFileData(const string& Name, ShellDelete:: progress Files, bool&
 	unsigned long long FileSize;
 	if (!WipeFile.GetSize(FileSize))
 		return false;
-	
+
 	if (!FileSize)
 		return true; // nothing to do here
 
@@ -1107,7 +1107,7 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 		ScTree.SetFindPath(Name, L"*"sv, 0);
 
 		bool MessageShown = false;
-		
+
 		while (ScTree.GetNextName(FindData,strFullName2))
 		{
 			if (os::fs::is_directory_symbolic_link(FindData))

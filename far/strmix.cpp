@@ -132,7 +132,7 @@ string &QuoteSpace(string &strStr)
 	if (strStr.find_first_of(Global->Opt->strQuotedSymbols.Get()) != string::npos)
 	{
 		inplace::quote(strStr);
-		
+
 		// forward slash can't harm the quotation mark, but consistency is preferable
 		if (IsSlash(*(strStr.end() - 2)))
 		{
@@ -459,7 +459,7 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 	auto Str = ToStr(FileSize);
 
 	const auto SuffixSize = (ShowUnit || (Width && Str.size() > Width))? UseCompact? 1u : 2u : 0u;
-	
+
 	const auto MaxNumberWidth = Width > SuffixSize? Width - SuffixSize : 0;
 
 	while ((UseUnit && UnitIndex < MinUnit) || (Width && Str.size() > MaxNumberWidth))

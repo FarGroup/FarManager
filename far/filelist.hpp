@@ -172,7 +172,7 @@ public:
 	void DeleteDiz(const string& Name, const string& ShortName) override;
 	void FlushDiz() override;
 	string GetDizName() const override;
-	const wchar_t* GetDescription(const string& Name, const string& ShortName, long long FileSize) const;
+	string_view GetDescription(const string& Name, const string& ShortName, long long FileSize) const;
 	void CopyDiz(const string& Name, const string& ShortName, const string& DestName, const string& DestShortName, DizList *DestDiz) override;
 	bool IsDizDisplayed() const override;
 	bool IsColumnDisplayed(int Type) const override;
@@ -250,7 +250,7 @@ private:
 	void ShowTotalSize(const OpenPanelInfo &Info);
 	bool ConvertName(string_view SrcName, string &strDest, int MaxLength, unsigned long long RightAlign, int ShowStatus, DWORD dwFileAttr) const;
 	void Select(FileListItem& SelItem, bool Selection);
-	long SelectFiles(int Mode, const wchar_t *Mask = nullptr);
+	long SelectFiles(int Mode, string_view Mask = {});
 	void ProcessEnter(bool EnableExec, bool SeparateWindow, bool EnableAssoc, bool RunAs, OPENFILEPLUGINTYPE Type);
 	// ChangeDir возвращает false, eсли не смогла выставить заданный путь
 	bool ChangeDir(string_view NewDir, bool IsParent, bool ResolvePath, bool IsUpdated, const UserDataItem* DataItem, OPENFILEPLUGINTYPE Type);

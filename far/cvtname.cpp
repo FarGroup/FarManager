@@ -425,7 +425,7 @@ string ConvertNameToUNC(string_view const Object)
 			strFileName = strTemp;
 		}
 	}
-	else 
+	else
 	{
 		DWORD uniSize = 1024;
 		block_ptr<UNIVERSAL_NAME_INFO> uni(uniSize);

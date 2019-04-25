@@ -190,7 +190,7 @@ static PreserveStyleType ChoosePreserveStyleType(int Mask)
 {
 	if (Mask == (1 << UNKNOWN))
 		return UNKNOWN;
-	
+
 	PreserveStyleType Result = UNKNOWN;
 	for (int Style = 0; UPPERCASE_ALL+Style < UNKNOWN; Style++)
 		if ((Mask & (1 << Style)) != 0)
@@ -208,7 +208,7 @@ static void FindStyleTypeMaskAndPrependCharByExpansion(const string_view Source,
 		if (static_cast<size_t>(Right) < Source.size() && (is_alphanumeric(Source[Right]) || IsPreserveStyleTokenSeparator(Source[Right])))
 		{
 			Right++;
-			
+
 			while (static_cast<size_t>(Right) < Source.size())
 			{
 				if (!is_alphanumeric(Source[Right]) || (is_lower(Source[Right-1]) && is_upper(Source[Right])))
@@ -371,7 +371,7 @@ bool PreserveStyleReplaceString(
 
 		if (WholeWords && Idx < Source.size() && !BlankOrWordDiv(Source[Idx]))
 			continue;
-		
+
 		if (Matched && T == j->Token.size() && j == LastItem)
 		{
 			const auto SourceTokens = PreserveStyleTokenize(Source, I, Idx - I);

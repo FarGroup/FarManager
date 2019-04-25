@@ -321,13 +321,13 @@ private:
 				SetValue(Key, Name, strtoull(value, nullptr, 16));
 				continue;
 			}
-			
+
 			if (!strcmp(type,"text"))
 			{
 				SetValue(Key, Name, encoding::utf8::get_chars(value));
 				continue;
 			}
-			
+
 			if (!strcmp(type,"hex"))
 			{
 				SetValue(Key, Name, HexStringToBlob(value));
@@ -574,7 +574,7 @@ private:
 	bool EnumKeys(const key& Root, const bool Reset, string& Name) const override
 	{
 		auto Stmt = AutoStatement(stmtEnumKeys);
-	
+
 		if (Reset)
 			Stmt->Reset().Bind(Root.get());
 

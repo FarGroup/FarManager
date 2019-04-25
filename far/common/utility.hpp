@@ -194,6 +194,6 @@ struct [[nodiscard]] overload: args...
 	using args::operator()...;
 };
 
-template<typename... args> overload(args...) -> overload<args...>;
+template<typename... args> overload(args&&...) -> overload<args...>;
 
 #endif // UTILITY_HPP_D8E934C7_BF30_4CEB_B80C_6E508DF7A1BC

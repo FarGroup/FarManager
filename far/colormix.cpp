@@ -34,8 +34,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "config.hpp"
 #include "console.hpp"
-#include "string_utils.hpp"
 #include "global.hpp"
+
+#include "common/from_string.hpp"
 
 enum
 {
@@ -289,60 +290,39 @@ COLORREF ARGB2ABGR(int Color)
 	return (Color & 0xFF000000) | ((Color & 0x00FF0000) >> 16) | (Color & 0x0000FF00) | ((Color & 0x000000FF) << 16);
 }
 
-static const wchar_t* ExtractColor(const wchar_t* Color, COLORREF& Target, FARCOLORFLAGS& TargetFlags, FARCOLORFLAGS SetFlag)
+static bool ExtractColor(string_view const Str, COLORREF& Target, FARCOLORFLAGS& TargetFlags, FARCOLORFLAGS SetFlag)
 {
-	// Empty string - default color
-	if (!*Color)
-		return Color;
+	const auto IsTrueColour = Str.front() == L'T';
 
-	const auto Convert = [](const wchar_t*& Ptr, COLORREF& Result)
-	{
-		wchar_t* EndPtr;
-		const auto Value = std::wcstoul(Ptr, &EndPtr, 16);
-		if (EndPtr == Ptr)
-		{
-			return false;
-		}
-		Result = Value;
-		Ptr = EndPtr;
-		return true;
-	};
+	if (!from_string(Str.substr(IsTrueColour? 1 : 0), Target, nullptr, 16))
+		return false;
 
-	if (upper(Color[0]) == L'T')
+	if (IsTrueColour)
 	{
-		auto NewPtr = Color + 1;
-		if (!Convert(NewPtr, Target))
-		{
-			return Color;
-		}
-		Color = NewPtr;
 		Target = ARGB2ABGR(Target);
 		TargetFlags &= ~SetFlag;
 	}
 	else
 	{
-		if (!Convert(Color, Target))
-		{
-			return Color;
-		}
 		TargetFlags |= SetFlag;
 	}
-	return Color;
+
+	return true;
 }
 
-string_view::const_iterator ExtractColorInNewFormat(string_view::const_iterator const Begin, string_view::const_iterator const End, FarColor& Color, bool& Stop)
+string_view ExtractColorInNewFormat(string_view const Str, FarColor& Color, bool& Stop)
 {
 	Stop = false;
 
-	if (*Begin != L'(')
-		return Begin;
+	if (!starts_with(Str, L'('))
+		return Str;
 
-	const auto FgColorBegin = Begin + 1;
-	const auto ColorEnd = std::find(FgColorBegin, End, L')');
-	if (ColorEnd == End)
+	const auto FgColorBegin = Str.cbegin() + 1;
+	const auto ColorEnd = std::find(FgColorBegin, Str.cend(), L')');
+	if (ColorEnd == Str.cend())
 	{
 		Stop = true;
-		return Begin;
+		return Str;
 	}
 
 	const auto FgColorEnd = std::find(FgColorBegin, ColorEnd, L':');
@@ -350,14 +330,77 @@ string_view::const_iterator ExtractColorInNewFormat(string_view::const_iterator 
 	const auto BgColorEnd = ColorEnd;
 
 	auto NewColor = Color;
-	if ((FgColorBegin == FgColorEnd || ExtractColor(&*FgColorBegin, NewColor.ForegroundColor, NewColor.Flags, FCF_FG_4BIT)) &&
-		(BgColorBegin == BgColorEnd || ExtractColor(&*BgColorBegin, NewColor.BackgroundColor, NewColor.Flags, FCF_BG_4BIT)))
+	if (
+		(FgColorBegin == FgColorEnd || ExtractColor(make_string_view(FgColorBegin, FgColorEnd), NewColor.ForegroundColor, NewColor.Flags, FCF_FG_4BIT)) &&
+		(BgColorBegin == BgColorEnd || ExtractColor(make_string_view(BgColorBegin, BgColorEnd), NewColor.BackgroundColor, NewColor.Flags, FCF_BG_4BIT))
+	)
 	{
 		Color = NewColor;
-		return ColorEnd + 1;
+		return make_string_view(ColorEnd + 1, Str.cend());
 	}
 
-	return Begin;
+	return Str;
 }
 
 }
+
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("colors.parser")
+{
+	static const struct
+	{
+		string_view Input;
+		FarColor Color;
+	}
+	ValidTests[]
+	{
+		{L"(E)"sv, { FCF_FG_4BIT, 0xE, 0 }},
+		{L"(:F)"sv, { FCF_BG_4BIT, 0, 0xF }},
+		{L"(B:C)"sv, { FCF_FG_4BIT | FCF_BG_4BIT, 0xB, 0xC }},
+		{L"()"sv, {}},
+		{L"(T00CCCC:TE34234)"sv, { 0, 0x00CCCC00, 0x003442E3}},
+	};
+
+	for (const auto& i: ValidTests)
+	{
+		FarColor Color{};
+		bool Stop = false;
+		const auto Tail = colors::ExtractColorInNewFormat(i.Input, Color, Stop);
+		REQUIRE(Color == i.Color);
+		REQUIRE(Tail.empty());
+		REQUIRE(!Stop);
+	}
+
+	static const struct
+	{
+		string_view Input;
+		bool Stop;
+	}
+	InvalidTests[]
+	{
+		{L""sv, false},
+		{L"("sv, true},
+		{L"(z"sv, true},
+		{L"(z)"sv, false},
+		{L"(0:z)"sv, false},
+		{L"(z:0)"sv, false},
+		{L"(Tz)"sv, false},
+		{L"( )"sv, false},
+		{L"( 0)"sv, false},
+		{L"( -0)"sv, false},
+		{L"( +0)"sv, false},
+	};
+
+	for (const auto& i: InvalidTests)
+	{
+		FarColor Color{};
+		bool Stop = false;
+		const auto Tail = colors::ExtractColorInNewFormat(i.Input, Color, Stop);
+		REQUIRE(Tail.size() == i.Input.size());
+		REQUIRE(Stop == i.Stop);
+	}
+}
+#endif

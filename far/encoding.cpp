@@ -909,7 +909,7 @@ size_t Utf8::get_char(std::string_view::const_iterator& StrIterator, std::string
 				{
 					// legal 4-byte (produces 2 WCHARs)
 					const auto FullChar = utf8::extract(c1, c2, c3, c4) - 0b1'00000000'00000000;
-					
+
 					First  = utf8::surrogate_high_first + (FullChar >> 10);
 					Second = utf8::surrogate_low_first + (FullChar & 0b00000011'11111111);
 					NumberOfChars = 2;
@@ -1205,6 +1205,9 @@ bool encoding::is_valid_utf8(std::string_view const Str, bool const PartialConte
 
 TEST_CASE("encoding.utf8")
 {
+WARNING_PUSH()
+WARNING_DISABLE_CLANG("-Wc++2a-compat")
+
 	static const struct
 	{
 		bool Utf8;
@@ -1247,6 +1250,8 @@ ut labore et dolore magna aliqua.
 		{ false, false, "\xF4\xBF\xBF\xBF"sv },
 		{ false, false, "\xF0\xA0\xA0\x20"sv },
 	};
+
+WARNING_POP()
 
 	for (const auto i: Tests)
 	{

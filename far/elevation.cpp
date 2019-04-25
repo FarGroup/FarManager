@@ -790,7 +790,7 @@ public:
 	{
 		os::set_error_mode(SEM_FAILCRITICALERRORS | SEM_NOOPENFILEERRORBOX);
 
-		std::vector<const wchar_t*> Privileges{ SE_TAKE_OWNERSHIP_NAME, SE_DEBUG_NAME, SE_CREATE_SYMBOLIC_LINK_NAME };
+		std::vector Privileges{ SE_TAKE_OWNERSHIP_NAME, SE_DEBUG_NAME, SE_CREATE_SYMBOLIC_LINK_NAME };
 		if (UsePrivileges)
 		{
 			Privileges.emplace_back(SE_BACKUP_NAME);

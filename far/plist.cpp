@@ -118,7 +118,7 @@ static BOOL CALLBACK EnumWindowsProc(HWND Window, LPARAM Param)
 			if (const auto Process = os::handle(OpenProcess(imports.QueryFullProcessImageNameW? PROCESS_QUERY_LIMITED_INFORMATION : PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, ProcID)))
 				// BUGBUG check result
 				(void)os::fs::GetModuleFileName(Process.native_handle(), nullptr, MenuItem);
-			
+
 			if (MenuItem.empty())
 				MenuItem = L"???"s;
 		}

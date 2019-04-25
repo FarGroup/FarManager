@@ -227,7 +227,7 @@ static bool ConsoleScrollHook(const Manager::Key& key)
 		case KEY_RCTRLRALTNUMPAD9:
 			console.ScrollWindow(-ScrY);
 			return true;
-			
+
 		case KEY_CTRLALTHOME:
 		case KEY_RCTRLRALTHOME:
 		case KEY_CTRLRALTHOME:

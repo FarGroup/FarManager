@@ -409,7 +409,7 @@ void ScreenBuf::Flush(flush_type FlushType)
 								WriteRegion.Left=std::max(static_cast<SHORT>(0),static_cast<SHORT>(WriteRegion.Left-1));
 								WriteRegion.Right = std::min(static_cast<SHORT>(WriteRegion.Right + 1), static_cast<SHORT>(Buf.width() - 1));
 							}
-							
+
 							bool Merge=false;
 							if (!WriteList.empty())
 							{

@@ -1036,11 +1036,6 @@ bool VMenu::AddToFilter(string_view const Str)
 	return true;
 }
 
-void VMenu::SetFilterString(const wchar_t *str)
-{
-	strFilter=str;
-}
-
 bool VMenu::ProcessFilterKey(int Key)
 {
 	if (!bFilterEnabled || bFilterLocked || !IsFilterEditKey(Key))
@@ -1107,9 +1102,9 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 
 	if (LocalKey == KEY_OP_PLAINTEXT)
 	{
-		const wchar_t *str = Global->CtrlObject->Macro.GetStringToPrint();
+		const auto str = Global->CtrlObject->Macro.GetStringToPrint();
 
-		if (!*str)
+		if (str.empty())
 			return false;
 
 		if ( AddToFilter(str) ) // для фильтра: всю строку целиком в фильтр, а там разберемся.
@@ -1124,7 +1119,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 			return true;
 		}
 		else // не для фильтра: по старинке, первый символ последовательности, остальное игнорируем (ибо некуда)
-			LocalKey=*str;
+			LocalKey = str.front();
 	}
 
 	SetMenuFlags(VMENU_UPDATEREQUIRED);

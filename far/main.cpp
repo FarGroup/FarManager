@@ -76,6 +76,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/range.hpp"
 #include "common/scope_exit.hpp"
 
+#ifdef ENABLE_TESTS
+#define TESTS_ENTRYPOINT_ONLY
+#include "testing.hpp"
+#undef TESTS_ENTRYPOINT_ONLY
+#endif
+
 global *Global = nullptr;
 
 static void show_help()
@@ -829,7 +835,6 @@ int main()
 #ifdef ENABLE_TESTS
 	if (contains(string_view(GetCommandLine()), L"/service:test"sv))
 	{
-		int testing_main();
 		return testing_main();
 	}
 #endif

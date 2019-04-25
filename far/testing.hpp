@@ -37,6 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef ENABLE_TESTS
 
+#ifndef TESTS_ENTRYPOINT_ONLY
+
 #include "disable_warnings_in_std_begin.hpp"
 
 #ifdef MEMCHECK
@@ -51,6 +53,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 #include "disable_warnings_in_std_end.hpp"
+
+#endif
+
+int testing_main();
 
 #endif
 

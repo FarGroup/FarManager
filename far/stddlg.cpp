@@ -72,7 +72,7 @@ int GetSearchReplaceString(
 	bool* pReverse,
 	bool* pRegexp,
 	bool* pPreserveStyle,
-	const wchar_t *HelpTopic,
+	string_view const HelpTopic,
 	bool HideAll,
 	const GUID* Id,
 	function_ref<string(bool)> const Picker)
@@ -197,7 +197,7 @@ int GetSearchReplaceString(
 	const auto Dlg = Dialog::create(ReplaceDlg, Handler);
 	Dlg->SetPosition({ -1, -1, DlgWidth, 14 - YCorrection });
 
-	if (HelpTopic && *HelpTopic)
+	if (!HelpTopic.empty())
 		Dlg->SetHelp(HelpTopic);
 
 	if(Id)
@@ -350,21 +350,20 @@ bool GetString(
 
 		return true;
 	}
-	
+
 	return false;
 }
 
 /*
   Стандартный диалог ввода пароля.
   Умеет сам запоминать последнего юзвера и пароль.
-
-  Name      - сюда будет помещен юзвер (max 256 символов!!!)
-  Password  - сюда будет помещен пароль (max 256 символов!!!)
-  Title     - заголовок диалога (может быть nullptr)
-  HelpTopic - тема помощи (может быть nullptr)
-  Flags     - флаги (GNP_*)
 */
-bool GetNameAndPassword(const string& Title, string &strUserName, string &strPassword,const wchar_t *HelpTopic,DWORD Flags)
+bool GetNameAndPassword(
+	string const& Title,
+	string& strUserName,
+	string& strPassword,
+	string_view const HelpTopic,
+	DWORD const Flags)
 {
 	static string strLastName, strLastPassword;
 	int ExitCode;
@@ -384,7 +383,7 @@ bool GetNameAndPassword(const string& Title, string &strUserName, string &strPas
 	*/
 	FarDialogItem const PassDlgData[]
 	{
-		{DI_DOUBLEBOX,  3, 1,72, 8,0,nullptr,nullptr,0,NullToEmpty(Title.c_str())},
+		{DI_DOUBLEBOX,  3, 1,72, 8,0,nullptr,nullptr,0,Title.c_str()},
 		{DI_TEXT,       5, 2, 0, 2,0,nullptr,nullptr,0,msg(lng::MNetUserName).c_str()},
 		{DI_EDIT,       5, 3,70, 3,0,L"NetworkUser",nullptr,DIF_FOCUS|DIF_USELASTHISTORY|DIF_HISTORY,(Flags & GNP_USELAST)? strLastName.c_str() : strUserName.c_str()},
 		{DI_TEXT,       5, 4, 0, 4,0,nullptr,nullptr,0,msg(lng::MNetUserPassword).c_str()},
@@ -400,7 +399,7 @@ bool GetNameAndPassword(const string& Title, string &strUserName, string &strPas
 		Dlg->SetPosition({ -1, -1, 76, 10 });
 		Dlg->SetId(GetNameAndPasswordId);
 
-		if (HelpTopic)
+		if (!HelpTopic.empty())
 			Dlg->SetHelp(HelpTopic);
 
 		Dlg->Process();

@@ -971,7 +971,7 @@ long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 
 						case 3: // масками файлов, разделенных запятыми
 							SaveSelection();
-							Result = SelectFiles(SELECT_REMOVEMASK, mps->Item.c_str());
+							Result = SelectFiles(SELECT_REMOVEMASK, mps->Item);
 							break;
 					}
 					break;
@@ -1004,7 +1004,7 @@ long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 
 						case 3: // масками файлов, разделенных запятыми
 							SaveSelection();
-							Result = SelectFiles(SELECT_ADDMASK, mps->Item.c_str());
+							Result = SelectFiles(SELECT_ADDMASK, mps->Item);
 							break;
 					}
 					break;
@@ -1037,7 +1037,7 @@ long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 
 						case 3: // масками файлов, разделенных запятыми
 							SaveSelection();
-							Result = SelectFiles(SELECT_INVERTMASK, mps->Item.c_str());
+							Result = SelectFiles(SELECT_INVERTMASK, mps->Item);
 							break;
 					}
 					break;
@@ -3733,7 +3733,7 @@ bool FileList::GetPlainString(string& Dest, int ListPos) const
 							ColumnType,
 							ColumnTypes[K],
 							ColumnWidth,
-							m_CurDir.c_str());
+							m_CurDir);
 						break;
 					}
 
@@ -3934,7 +3934,7 @@ const string& FileList::GetComputerName() const
 	return m_ComputerName;
 }
 
-long FileList::SelectFiles(int Mode,const wchar_t *Mask)
+long FileList::SelectFiles(int Mode, string_view const Mask)
 {
 	filemasks FileMask; // Класс для работы с масками
 	FarDialogItem const SelectDlgData[]
@@ -4766,7 +4766,7 @@ string FileList::GetDizName() const
 	return m_PanelMode == panel_mode::NORMAL_PANEL? Diz.GetDizName() : string();
 }
 
-const wchar_t* FileList::GetDescription(const string& Name, const string& ShortName, long long const FileSize) const
+string_view FileList::GetDescription(const string& Name, const string& ShortName, long long const FileSize) const
 {
 	return Diz.Get(Name, ShortName, FileSize);
 }
@@ -4787,7 +4787,7 @@ void FileList::DescribeFiles()
 	const auto AnotherType = AnotherPanel->GetType();
 	for (const auto& i: enum_selected())
 	{
-		const auto PrevText = NullToEmpty(Diz.Get(i.FileName, i.AlternateFileName(), i.FileSize));
+		const auto PrevText = Diz.Get(i.FileName, i.AlternateFileName(), i.FileSize);
 		const auto strMsg = concat(msg(lng::MEnterDescription), L' ', QuoteSpaceOnly(i.FileName), L':');
 
 		/* $ 09.08.2000 SVS
@@ -4930,7 +4930,7 @@ void FileList::CountDirSize(bool IsRealNames)
 	m_Filter->UpdateCurrentTime();
 
 	time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
-	
+
 	struct
 	{
 		unsigned long long Items;
@@ -5016,7 +5016,7 @@ void FileList::CountDirSize(bool IsRealNames)
 			return GetPluginDirInfo(ph, DirName, UserData, BasicData, Callback);
 		}
 	};
-	
+
 	if (!SelDirCount)
 	{
 		assert(m_CurFile < static_cast<int>(m_ListData.size()));
@@ -7238,7 +7238,8 @@ void FileList::ReadDiz(span<PluginPanelItem> const Items)
 		if (!i.DizText)
 		{
 			i.DeleteDiz = false;
-			i.DizText = Diz.Get(i.FileName, i.AlternateFileName(), i.FileSize);
+			// It's ok, the description is null-terminated here
+			i.DizText = Diz.Get(i.FileName, i.AlternateFileName(), i.FileSize).data();
 		}
 	}
 }
@@ -8426,7 +8427,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								ColumnType,
 								Columns[K].type,
 								ColumnWidth,
-								m_CurDir.c_str()));
+								m_CurDir));
 							break;
 						}
 

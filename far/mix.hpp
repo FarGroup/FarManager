@@ -123,7 +123,7 @@ void DeleteRawArray(span<T> Data)
 	{
 		delete[] i;
 	}
-	
+
 	delete[] Data.data();
 }
 

@@ -549,7 +549,7 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 					CHOOSECOLOR Params{sizeof(Params)};
 					Params.hwndOwner = console.GetWindow();
-					
+
 					Params.Flags = CC_ANYCOLOR | CC_FULLOPEN | CC_RGBINIT;
 					Params.lpCustColors = CustomColors.data();
 

@@ -107,7 +107,7 @@ struct subst_data
 				{
 					FList->ReadDiz();
 					// BUGBUG size
-					m_Description = NullToEmpty(FList->GetDescription(string(Normal.Name), string(Short.Name), 0));
+					m_Description = FList->GetDescription(string(Normal.Name), string(Short.Name), 0);
 				}
 				else
 				{

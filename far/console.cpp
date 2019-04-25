@@ -1113,7 +1113,7 @@ namespace console_detail
 
 		const auto RealY = Position.y + (sWindowMode? ::GetDelta(csbi) : 0);
 		return InRange(csbi.srWindow.Top, RealY, csbi.srWindow.Bottom);
-	}	
+	}
 
 	bool console::GetPalette(std::array<COLORREF, 16>& Palette) const
 	{

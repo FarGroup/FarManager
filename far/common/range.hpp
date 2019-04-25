@@ -32,23 +32,24 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "keep_alive.hpp"
 #include "rel_ops.hpp"
 #include "type_traits.hpp"
 
-template<class iterator_type>
+template<typename iterator_type, typename const_iterator_type = iterator_type>
 class range
 {
 public:
 	using iterator = iterator_type;
-	using value_type = typename std::iterator_traits<iterator>::value_type;
+	using const_iterator = std::conditional_t<std::is_same_v<iterator, const_iterator_type>&& std::is_pointer_v<iterator>,
+		std::add_pointer_t<std::add_const_t<std::remove_pointer_t<iterator>>>,
+		const_iterator_type>;
 	using reverse_iterator = std::reverse_iterator<iterator>;
+	using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+	using value_type = typename std::iterator_traits<iterator>::value_type;
 	using reference = typename std::iterator_traits<iterator>::reference;
 	using pointer = typename std::iterator_traits<iterator>::pointer;
 	using iterator_category = typename std::iterator_traits<iterator_type>::iterator_category;
-
-private:
-	template<typename T>
-	using opt_const_iterator = std::enable_if_t<std::is_const_v<std::remove_reference_t<reference>>, T>;
 
 public:
 	constexpr range() = default;
@@ -63,8 +64,9 @@ public:
 	{
 	}
 
-	template<typename compatible_iterator, REQUIRES((std::is_convertible_v<compatible_iterator, iterator_type>))>
-	constexpr range(const range<compatible_iterator>& Rhs):
+	template<typename compatible_iterator, typename compatible_const_iterator,
+		REQUIRES((std::is_convertible_v<compatible_iterator, iterator> && std::is_convertible_v<compatible_const_iterator, const_iterator>))>
+	constexpr range(const range<compatible_iterator, compatible_const_iterator>& Rhs):
 		range(ALL_RANGE(Rhs))
 	{
 	}
@@ -89,13 +91,11 @@ public:
 	[[nodiscard]]
 	constexpr auto end() const { return m_End; }
 
-	template<typename T = iterator, REQUIRES(std::is_same_v<T, iterator>)>
 	[[nodiscard]]
-	constexpr opt_const_iterator<T> cbegin() const { return begin(); }
+	constexpr auto cbegin() const { return const_iterator(m_Begin); }
 
-	template<typename T = iterator, REQUIRES(std::is_same_v<T, iterator>)>
 	[[nodiscard]]
-	constexpr opt_const_iterator<T> cend() const { return end(); }
+	constexpr auto cend() const { return const_iterator(m_End); }
 
 	[[nodiscard]]
 	constexpr auto rbegin() const { return reverse_iterator(m_End); }
@@ -103,13 +103,11 @@ public:
 	[[nodiscard]]
 	constexpr auto rend() const { return reverse_iterator(m_Begin); }
 
-	template<typename T = reverse_iterator, REQUIRES(std::is_same_v<T, reverse_iterator>)>
 	[[nodiscard]]
-	constexpr opt_const_iterator<T> crbegin() const { return rbegin(); }
+	constexpr auto crbegin() const { return const_reverse_iterator(m_End); }
 
-	template<typename T = reverse_iterator, REQUIRES(std::is_same_v<T, reverse_iterator>)>
 	[[nodiscard]]
-	constexpr opt_const_iterator<T> crend() const { return rend(); }
+	constexpr auto crend() const { return const_reverse_iterator(m_Begin); }
 
 	[[nodiscard]]
 	constexpr auto& front() const
@@ -128,36 +126,36 @@ public:
 	[[nodiscard]]
 	constexpr auto& operator[](size_t n) const
 	{
-		assert(n < size());
+		static_assert(std::is_convertible_v<iterator_category, std::random_access_iterator_tag>);
+		assert(n < size() || (!n && empty()));
 		return *(m_Begin + n);
 	}
 
-	// Explicit "+ 0" to make sure that random access is supported
 	[[nodiscard]]
-	constexpr auto data() const { return &*(m_Begin + 0); }
+	constexpr auto data() const { return &(*this)[0]; }
 
 	[[nodiscard]]
 	constexpr size_t size() const { return m_End - m_Begin; }
 
-	/*constexpr*/ void pop_front()
+	constexpr void pop_front()
 	{
 		assert(!empty());
 		++m_Begin;
 	}
 
-	/*constexpr*/ void pop_front(size_t const Distance)
+	constexpr void pop_front(size_t const Distance)
 	{
 		assert(size() >= Distance);
 		std::advance(m_Begin, Distance);
 	}
 
-	/*constexpr*/ void pop_back()
+	constexpr void pop_back()
 	{
 		assert(!empty());
 		--m_End;
 	}
 
-	/*constexpr*/ void pop_back(size_t const Distance)
+	constexpr void pop_back(size_t const Distance)
 	{
 		assert(size() >= Distance);
 		std::advance(m_End, -static_cast<ptrdiff_t>(Distance));
@@ -175,20 +173,20 @@ private:
 };
 
 template<typename container>
-range(container& c) -> range<std::remove_reference_t<decltype(std::begin(c))>>;
+range(container& c) -> range<std::remove_reference_t<decltype(std::begin(c))>, std::remove_reference_t<decltype(std::cbegin(c))>>;
 
 template<typename value_type>
 range(const std::initializer_list<value_type>&) -> range<const value_type*>;
 
 
 template<class span_value_type>
-class span: public range<span_value_type*>
+class span: public range<span_value_type*, span_value_type const*>
 {
 public:
 	constexpr span() = default;
 
 	constexpr span(span_value_type* Begin, span_value_type* End):
-		range<span_value_type*>(Begin, End)
+		range<span_value_type*, span_value_type const*>(Begin, End)
 	{}
 
 	constexpr span(span_value_type* Data, size_t Size):
@@ -327,14 +325,6 @@ namespace detail
 		T m_Value;
 		accessor const* m_Accessor;
 	};
-
-	template<typename arg_type>
-	using stored_type =
-		std::conditional_t<
-			std::is_rvalue_reference_v<arg_type>,
-			std::remove_reference_t<arg_type>,
-			std::add_lvalue_reference_t<std::remove_reference_t<arg_type>>
-		>;
 }
 
 template<typename container, typename container_ref, typename accessor, typename accessor_ref, typename T>
@@ -362,8 +352,8 @@ private:
 template<typename container, typename accessor>
 select(container&& Container, accessor&& Accessor) ->
 	select<
-		detail::stored_type<decltype(Container)>, decltype(Container),
-		detail::stored_type<decltype(Accessor)>, decltype(Accessor),
+		keep_alive_type<decltype(Container)>, decltype(Container),
+		keep_alive_type<decltype(Accessor)>, decltype(Accessor),
 		decltype(std::begin(Container))
 	>;
 

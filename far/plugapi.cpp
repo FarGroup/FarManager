@@ -404,7 +404,7 @@ BOOL WINAPI apiShowHelp(const wchar_t *ModuleName, const wchar_t *HelpTopic, FAR
 				return FALSE;
 		}
 
-		return help::show(strTopic, strMask.c_str(), OFlags);
+		return help::show(strTopic, strMask, OFlags);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return FALSE;

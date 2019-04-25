@@ -154,6 +154,18 @@ const RAII_type ANONYMOUS_VARIABLE(scoped_object_)
 
 #define REQUIRES(...) std::enable_if_t<__VA_ARGS__>* = nullptr
 
-#define FWD(x) std::forward<decltype(x)>(x)
+#define FWD(...) std::forward<decltype(__VA_ARGS__)>(__VA_ARGS__)
+
+// noexcept part is commented due to MSVC bug #540185
+#define LIFT(...) [](auto&&... Args) /*noexcept(noexcept(__VA_ARGS__(FWD(Args)...)))*/ -> decltype(auto) \
+{ \
+	return __VA_ARGS__(FWD(Args)...); \
+}
+
+// noexcept part is commented due to MSVC bug #540185
+#define LIFT_MF(...) [](auto&& Self, auto&&... Args) /*noexcept(noexcept(FWD(Self).__VA_ARGS__(FWD(Args)...)))*/ -> decltype(auto) \
+{ \
+	return FWD(Self).__VA_ARGS__(FWD(Args)...); \
+}
 
 #endif // PREPROCESSOR_HPP_35FF3F1D_40F4_4741_9366_6A0723C14CBB

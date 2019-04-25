@@ -642,7 +642,7 @@ static string extract_nested_messages(const std::exception& Exception, bool Top 
 		Result = FarException->get_message();
 	else
 		Result = encoding::utf8::get_chars(Exception.what());
-	
+
 	try
 	{
 		std::rethrow_if_nested(Exception);

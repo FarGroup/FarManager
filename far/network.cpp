@@ -122,7 +122,7 @@ bool ConnectToNetworkResource(const string& NewDir)
 	{
 		for (;;)
 		{
-			if (!GetNameAndPassword(RemoteName, strUserName, strPassword, nullptr, GNP_USELAST))
+			if (!GetNameAndPassword(RemoteName, strUserName, strPassword, {}, GNP_USELAST))
 				break;
 
 			res = WNetAddConnection2(&netResource, strPassword.c_str(), EmptyToNull(strUserName), 0);

@@ -84,7 +84,7 @@ T Round(const T &a, const T &b)
 	return a / b + ((a % b * 2 > b)? 1 : 0);
 }
 
-inline void* ToPtr(intptr_t Value)
+inline void* ToPtr(intptr_t Value) noexcept
 {
 	return reinterpret_cast<void*>(Value);
 }

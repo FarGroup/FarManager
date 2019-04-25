@@ -497,8 +497,7 @@ KeyMacro::KeyMacro():
 	m_StartMode(MACROAREA_OTHER),
 	m_Recording(MACROSTATE_NOMACRO),
 	m_InternalInput(0),
-	m_WaitKey(0),
-	m_StringToPrint()
+	m_WaitKey(0)
 {
 	//print_opcodes();
 }

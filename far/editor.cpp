@@ -2463,8 +2463,6 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 		{
 			if (!m_Flags.Check(FEDITOR_LOCKMODE))
 			{
-				string strTStr(Global->CtrlObject->Macro.GetStringToPrint());
-
 				Pasting++;
 				//_SVS(SysLogDump(Fmt,0,TStr,strlen(TStr),nullptr));
 				TextChanged(true);
@@ -2476,7 +2474,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 				}
 
 				//AddUndoData(UNDO_EDIT,CurLine->GetString(),CurLine->GetEOL(),NumLine,CurLine->GetCurPos());
-				Paste(strTStr);
+				Paste(Global->CtrlObject->Macro.GetStringToPrint());
 				//if (!EdOpt.PersistentBlocks && IsBlock)
 				UnmarkBlock();
 				Pasting--;
@@ -3407,7 +3405,7 @@ bool Editor::Search(bool Next)
 			&ReverseSearch,
 			&Regexp,
 			&PreserveStyle,
-			L"EditorSearch",
+			L"EditorSearch"sv,
 			false,
 			ReplaceMode? &EditorReplaceId : &EditorSearchId,
 			Picker))
@@ -3943,7 +3941,7 @@ void Editor::PasteFromClipboard()
 	}
 }
 
-void Editor::Paste(const string& Data)
+void Editor::Paste(string_view const Data)
 {
 	if (m_Flags.Check(FEDITOR_LOCKMODE))
 		return;

@@ -1379,7 +1379,7 @@ int KeyNameToKey(string_view Name)
 				std::all_of(ALL_CONST_RANGE(Name), std::iswdigit)
 			) // Варианты (3) и (4)
 			{
-				const auto K = from_string<int>(Name);
+				const auto K = from_string<unsigned>(Name);
 
 				if (Key == KEY_M_SPEC) // Вариант (3)
 					Key = (Key & ~KEY_M_SPEC) | (K + KEY_VK_0xFF_BEGIN);
