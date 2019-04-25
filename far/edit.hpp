@@ -147,7 +147,7 @@ public:
 	string GetSelString() const;
 	int GetLength() const;
 
-	void SetString(string_view Str);
+	void SetString(string_view Str, bool KeepSelection = false);
 	void InsertString(string_view Str);
 	void AppendString(string_view Str);
 

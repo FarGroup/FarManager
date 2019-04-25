@@ -1450,7 +1450,7 @@ eol::type Edit::GetEOL() const
    в этом методе DropDownBox не обрабатывается
    ибо он вызывается только из SetString и из класса Editor
    в Dialog он нигде не вызывается */
-void Edit::SetString(string_view Str)
+void Edit::SetString(string_view Str, bool const KeepSelection)
 {
 	if (m_Flags.Check(FEDITLINE_READONLY))
 		return;
@@ -1461,7 +1461,8 @@ void Edit::SetString(string_view Str)
 		Str = Str.substr(0, GetMaxLength()); // ??
 	}
 
-	RemoveSelection();
+	if (!KeepSelection)
+		RemoveSelection();
 
 	if (!m_Flags.Check(FEDITLINE_PARENT_SINGLELINE))
 	{
