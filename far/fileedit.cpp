@@ -2155,6 +2155,62 @@ string FileEditor::GetTitle() const
 	return strLocalTitle;
 }
 
+static std::pair<string, size_t> char_code(std::optional<wchar_t> const& Char, int const Codebase)
+{
+	const auto process = [&](string_view const Format, string_view const Max)
+	{
+		return std::pair{ Char.has_value()? format(Format, unsigned(*Char)) : L""s, Max.size() };
+	};
+
+	switch (Codebase)
+	{
+	case 0:
+		return process(L"0{0:o}"sv, L"0177777"sv);
+
+	case 2:
+		return process(L"{0:X}h"sv, L"FFFFh"sv);
+
+	case 1:
+	default:
+		return process(L"{0}"sv, L"65535"sv);
+	}
+}
+
+static std::pair<string, size_t> ansi_char_code(std::optional<wchar_t> const& Char, int const Codebase, uintptr_t const Codepage)
+{
+	const auto process = [&](string_view const Format, string_view const Max)
+	{
+		std::optional<unsigned> CharCode;
+
+		char Buffer;
+		bool UsedDefaultChar;
+		if (Char.has_value() && encoding::get_bytes(Codepage, { &*Char, 1 }, &Buffer, 1, &UsedDefaultChar) == 1 && !UsedDefaultChar)
+		{
+			const unsigned AnsiCode = Buffer;
+			if (AnsiCode != *Char)
+			{
+				CharCode = AnsiCode;
+			}
+		}
+
+		return std::pair{ CharCode.has_value()? format(Format, *CharCode) : L""s, Max.size() };
+	};
+
+	switch (Codebase)
+	{
+	case 0:
+		return process(L"0{0:<3o}"sv, L"0377"sv);
+
+	case 2:
+		return process(L"{0:02X}h"sv, L"FFh"sv);
+
+	case 1:
+	default:
+		return process(L"{0:<3}"sv, L"255"sv);
+	}
+}
+
+
 void FileEditor::ShowStatus() const
 {
 	if (!IsTitleBarVisible())
@@ -2163,121 +2219,73 @@ void FileEditor::ShowStatus() const
 	SetColor(COL_EDITORSTATUS);
 	GotoXY(m_Where.left, m_Where.top); //??
 
-	auto strLocalTitle = GetTitle();
-	int NameLength = 21;
 
-	if (m_Where.right > 80)
-		NameLength += m_Where.right - 80;
+	const auto& Str = m_editor->m_it_CurLine->GetString();
+	const size_t CurPos = m_editor->m_it_CurLine->GetCurPos();
 
-	if (Global->Opt->ViewerEditorClock && m_Flags.Check(FFILEEDIT_FULLSCREEN))
-		NameLength -= static_cast<int>(Global->CurrentTime.size() + 1);
+	string CharCode;
 
-	NameLength = std::max(0, NameLength);
+	{
+		std::optional<wchar_t> Char;
+		if (CurPos < Str.size())
+			Char = Str[CurPos];
 
-	if (!strPluginTitle.empty() || !strTitle.empty())
-		TruncPathStr(strLocalTitle, (ObjWidth()<NameLength?ObjWidth():NameLength));
-	else
-		TruncPathStr(strLocalTitle, NameLength);
+		auto [UnicodeStr, UnicodeSize] = char_code(Char, m_editor->EdOpt.CharCodeBase);
+		CharCode = std::move(UnicodeStr);
+
+		if (!IsUnicodeOrUtfCodePage(m_codepage))
+		{
+			const auto [AnsiStr, AnsiSize] = ansi_char_code(Char, m_editor->EdOpt.CharCodeBase, m_codepage);
+			if (!CharCode.empty() && !AnsiStr.empty())
+			{
+				append(CharCode, L'/', AnsiStr);
+			}
+			UnicodeSize += AnsiSize + 1;
+		}
+
+		if (Char.has_value())
+			inplace::pad_right(CharCode, UnicodeSize);
+		else
+			CharCode.assign(UnicodeSize, L' ');
+	}
 
 	//предварительный расчет
-	auto strLineStr = str(m_editor->Lines.size()) + L'/' + str(m_editor->Lines.size());
-	int SizeLineStr = (int)strLineStr.size();
-
-	if (SizeLineStr > 12)
-		NameLength -= (SizeLineStr-12);
-	else
-		SizeLineStr = 12;
-
-	strLineStr = format(L"{0}/{1}"sv, m_editor->m_it_CurLine.Number() + 1, m_editor->Lines.size());
+	const auto LinesFormat = L"{0}/{1}"sv;
+	const auto SizeLineStr = format(LinesFormat, m_editor->Lines.size(), m_editor->Lines.size()).size();
+	const auto strLineStr = format(LinesFormat, m_editor->m_it_CurLine.Number() + 1, m_editor->Lines.size());
 	const auto strAttr = *AttrStr? L"│"s + AttrStr : L""s;
-	const auto StatusLine = format(L"{0:{1}.{1}}│{2}{3}│{4:5.5}│{5:3.3} {6:>{7}.{7}}│{8:3.3} {9:<4.4}│{10:2.2} {11:<4.4}{12}"sv,
-		strLocalTitle, NameLength,
+	auto StatusLine = format(L"│{0}{1}│{2:5.5}│{3:.3} {4:>{5}}│{6:.3} {7:<3}│{8:.3} {9:<3}{10}│{11}"sv,
 		m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED)?L'*':L' ',
 		m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE)? L'-' : m_editor->m_Flags.Check(Editor::FEDITOR_PROCESSCTRLQ)? L'"' : L' ',
 		ShortReadableCodepageName(m_codepage),
 		msg(lng::MEditStatusLine),
-		strLineStr, SizeLineStr,
+		strLineStr,
+		SizeLineStr,
 		msg(lng::MEditStatusCol),
-		str(m_editor->m_it_CurLine->GetTabCurPos() + 1),
+		m_editor->m_it_CurLine->GetTabCurPos() + 1,
 		msg(lng::MEditStatusChar),
-		str(m_editor->m_it_CurLine->GetCurPos() + 1),
-		strAttr);
+		m_editor->m_it_CurLine->GetCurPos() + 1,
+		strAttr,
+		CharCode);
 
-	const auto ClockSize = Global->Opt->ViewerEditorClock && m_Flags.Check(FFILEEDIT_FULLSCREEN)? static_cast<int>(Global->CurrentTime.size()) : 0;
-	const auto StatusWidth = std::max(0, ObjWidth() - ClockSize);
+	// Explicitly signed types - it's too easy to screw it up on small console sizes otherwise
+	const int ClockSize = Global->Opt->ViewerEditorClock && m_Flags.Check(FFILEEDIT_FULLSCREEN)? static_cast<int>(Global->CurrentTime.size()) : 0;
+	const int AvailableSpace = std::max(0, ObjWidth() - ClockSize - (ClockSize? 1 : 0));
+	inplace::cut_right(StatusLine, AvailableSpace);
+	const int NameWidth = std::max(0, AvailableSpace - static_cast<int>(StatusLine.size()));
 
-	Text(fit_to_left(StatusLine, StatusWidth - (ClockSize? 1 : 0)));
+	auto Name = GetTitle();
+	TruncPathStr(Name, NameWidth);
+	inplace::fit_to_left(Name, NameWidth);
+
+	Text(Name);
+	Text(StatusLine);
 
 	if (ClockSize)
-		Text(L'│'); // Separator before the clock
-
-	if (auto SpaceLeft = std::max(0, StatusWidth - static_cast<int>(StatusLine.size()) - 1 - 1)) // 1 for the separator after the main status
 	{
-		const auto& Str = m_editor->m_it_CurLine->GetString();
-		size_t CurPos = m_editor->m_it_CurLine->GetCurPos();
-
-		GotoXY(StatusWidth - 2 - SpaceLeft, m_Where.top);
-		Text(L'│');
-
-		if (CurPos < Str.size())
-		{
-			/* $ 27.02.2001 SVS
-			Показываем в зависимости от базы */
-
-			unsigned CharCode = Str[CurPos];
-			string CharStr;
-			switch(m_editor->EdOpt.CharCodeBase)
-			{
-			case 0:
-				CharStr = cut_right(format(L"0{0:o}"sv, CharCode), 7);
-				break;
-
-			case 2:
-				CharStr = cut_right(format(L"{0:X}h"sv, CharCode), 5);
-				break;
-
-			case 1:
-			default:
-				CharStr = cut_right(str(CharCode), 5);
-				break;
-			}
-
-			GotoXY(StatusWidth - 1 - SpaceLeft, m_Where.top);
-			Text(fit_to_left(CharStr, SpaceLeft));
-
-			SpaceLeft = std::max(0, SpaceLeft - static_cast<int>(CharStr.size()));
-
-			if (SpaceLeft && !IsUnicodeOrUtfCodePage(m_codepage))
-			{
-				char Buffer;
-				bool UsedDefaultChar;
-				if (encoding::get_bytes(m_codepage, { &Str[CurPos], 1 }, &Buffer, 1, &UsedDefaultChar) == 1 && !UsedDefaultChar && (CharCode = as_unsigned(Buffer)) != 0 && CharCode != Str[CurPos])
-				{
-					switch(m_editor->EdOpt.CharCodeBase)
-					{
-					case 0:
-						CharStr = format(L"{0:3}"sv, format(L"0{0:o}"sv, CharCode));
-						break;
-
-					case 2:
-						CharStr = format(L"{0:02X}h"sv, CharCode);
-						break;
-
-					case 1:
-					default:
-						CharStr = format(L"{0:3}"sv, CharCode);
-						break;
-					}
-
-					GotoXY(StatusWidth - 1 - SpaceLeft, m_Where.top);
-					Text(fit_to_left(L'/' + CharStr, SpaceLeft));
-				}
-			}
-		}
-	}
-
-	if (Global->Opt->ViewerEditorClock && m_Flags.Check(FFILEEDIT_FULLSCREEN))
+		Text(L'│'); // Separator before the clock
 		ShowTime();
+	}
 }
 
 /* $ 13.02.2001

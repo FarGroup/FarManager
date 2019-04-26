@@ -541,30 +541,27 @@ void FileViewer::ShowStatus() const
 	SetColor(COL_VIEWERSTATUS);
 	GotoXY(m_Where.left, m_Where.top);
 
-	string strName = GetTitle();
-	int NameLength = ScrX+1 - 40;
-
-	if (Global->Opt->ViewerEditorClock && IsFullScreen())
-		NameLength -= 3 + static_cast<int>(Global->CurrentTime.size());
-
-	NameLength = std::max(NameLength, 20);
-	TruncPathStr(strName, NameLength);
-
-	auto strStatus = format(L"{0:{1}.{1}}│{2}│{3:5.5}│{4:13.13}│{5:3.3} {6:4.4}│{7:4.4}"sv,
-		strName,
-		NameLength,
+	auto StatusLine = format(L"│{0}│{1:5.5}│{2:<10}│{3:.3} {4:<3}│{5:4}"sv,
 		L"thd"[m_View->m_DisplayMode],
 		ShortReadableCodepageName(m_View->m_Codepage),
-		str(m_View->FileSize),
+		m_View->FileSize,
 		msg(lng::MViewerStatusCol),
-		str(m_View->LeftPos),
+		m_View->LeftPos,
 		str(m_View->LastPage? 100 : ToPercent(m_View->FilePos,m_View->FileSize)) + L'%'
 	);
 
-	const auto ClockSize = Global->Opt->ViewerEditorClock && IsFullScreen()? static_cast<int>(Global->CurrentTime.size()) : 0;
-	const auto StatusWidth = std::max(0, ObjWidth() - ClockSize);
+	// Explicitly signed types - it's too easy to screw it up on small console sizes otherwise
+	const int ClockSize = Global->Opt->ViewerEditorClock && IsFullScreen()? static_cast<int>(Global->CurrentTime.size()) : 0;
+	const int AvailableSpace = std::max(0, ObjWidth() - ClockSize - (ClockSize? 1 : 0));
+	inplace::cut_right(StatusLine, AvailableSpace);
+	const int NameWidth = std::max(0, AvailableSpace - static_cast<int>(StatusLine.size()));
 
-	Text(fit_to_left(std::move(strStatus), StatusWidth - (ClockSize? 1 : 0)));
+	auto Name = GetTitle();
+	TruncPathStr(Name, NameWidth);
+	inplace::fit_to_left(Name, NameWidth);
+
+	Text(Name);
+	Text(StatusLine);
 
 	if (ClockSize)
 	{
