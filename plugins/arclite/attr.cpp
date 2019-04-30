@@ -38,13 +38,13 @@ wstring format_str_prop(const PropVariant& prop) {
 
 wstring format_int_prop(const PropVariant& prop) {
   wchar_t buf[32];
-  CHECK(_i64tow_s(prop.get_int(), buf, ARRAYSIZE(buf), 10) == 0);
+  CHECK(_i64tow(prop.get_int(), buf, 10) == 0);
   return buf;
 }
 
 wstring format_uint_prop(const PropVariant& prop) {
   wchar_t buf[32];
-  CHECK(_ui64tow_s(prop.get_uint(), buf, ARRAYSIZE(buf), 10) == 0);
+  CHECK(_ui64tow(prop.get_uint(), buf, 10) == 0);
   return buf;
 }
 
