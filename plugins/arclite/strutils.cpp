@@ -175,13 +175,13 @@ wstring format_data_size(unsigned __int64 value, const wchar_t* suffixes[5]) {
   }
 
   wstring result;
-  wchar_t buf[30];
-  _ui64tow_s(v1, buf, ARRAYSIZE(buf), 10);
+  wchar_t buf[65];
+  _ui64tow(v1, buf, 10);
   result += buf;
   if (v2 != 0) {
     result += L'.';
     if ((v1 < 10) && (v2 < 10)) result += L'0';
-    _ui64tow_s(v2, buf, ARRAYSIZE(buf), 10);
+    _ui64tow(v2, buf, 10);
     result += buf;
   }
   if (*suffixes[f]) {

@@ -37,14 +37,16 @@ wstring format_str_prop(const PropVariant& prop) {
 }
 
 wstring format_int_prop(const PropVariant& prop) {
-  wchar_t buf[32];
-  CHECK(_i64tow(prop.get_int(), buf, 10) == 0);
+  wchar_t buf[65];
+  _i64tow(prop.get_int(), buf, 10);
+  CHECK(errno == 0);
   return buf;
 }
 
 wstring format_uint_prop(const PropVariant& prop) {
-  wchar_t buf[32];
-  CHECK(_ui64tow(prop.get_uint(), buf, 10) == 0);
+  wchar_t buf[65];
+  _ui64tow(prop.get_uint(), buf, 10);
+  CHECK(errno == 0);
   return buf;
 }
 
