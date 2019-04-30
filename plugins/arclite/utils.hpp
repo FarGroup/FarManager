@@ -88,7 +88,3 @@ public:
     memset(buffer, 0, buf_size * sizeof(Type));
   }
 };
-
-template<typename T> void memzero(T& v) {
-  memset(&v, 0, sizeof(T));
-}

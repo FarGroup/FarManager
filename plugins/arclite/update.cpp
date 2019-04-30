@@ -544,8 +544,7 @@ private:
 
   bool process_file(const wstring& sub_dir, const FindData& src_find_data, UInt32 dst_dir_index, UInt32& file_index) {
     if (filter) {
-      PluginPanelItem filter_data;
-      memzero(filter_data);
+      PluginPanelItem filter_data{};
       filter_data.FileAttributes = src_find_data.dwFileAttributes;
       filter_data.CreationTime = src_find_data.ftCreationTime;
       filter_data.LastAccessTime = src_find_data.ftLastAccessTime;
@@ -1158,8 +1157,7 @@ void Archive::create_dir(const wstring& dir_name, const wstring& dst_dir) {
   DisableSleepMode dsm;
 
   shared_ptr<FileIndexMap> file_index_map(new FileIndexMap());
-  FileIndexInfo file_index_info;
-  memzero(file_index_info.find_data);
+  FileIndexInfo file_index_info{};
   file_index_info.find_data.dwFileAttributes = FILE_ATTRIBUTE_DIRECTORY;
   SYSTEMTIME sys_time;
   GetSystemTime(&sys_time);

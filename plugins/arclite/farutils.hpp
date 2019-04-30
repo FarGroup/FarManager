@@ -96,22 +96,19 @@ const unsigned c_x_frame = 5;
 const unsigned c_y_frame = 2;
 
 struct DialogItem {
-  FARDIALOGITEMTYPES type;
-  size_t x1;
-  size_t y1;
-  size_t x2;
-  size_t y2;
-  FARDIALOGITEMFLAGS flags;
-  int selected;
-  unsigned history_idx;
-  unsigned mask_idx;
-  unsigned text_idx;
-  unsigned list_idx;
-  size_t list_size;
-  size_t list_pos;
-  DialogItem() {
-    memzero(*this);
-  }
+  FARDIALOGITEMTYPES type{};
+  size_t x1{};
+  size_t y1{};
+  size_t x2{};
+  size_t y2{};
+  FARDIALOGITEMFLAGS flags{};
+  int selected{};
+  unsigned history_idx{};
+  unsigned mask_idx{};
+  unsigned text_idx{};
+  unsigned list_idx{};
+  size_t list_size{};
+  size_t list_pos{};
 };
 
 class Dialog {

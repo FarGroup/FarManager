@@ -103,7 +103,7 @@ endif
 
 #------------------------------------------------------------------------------
 DLLFULLNAME := $(OUTDIR)/$(MODULE).$(EXT) # MODULE=arclite NAME=ArcLite
-MAPFULLNAME = $(patsubst %.($EXT),%.map,$(DLLFULLNAME))
+MAPFULLNAME = $(patsubst %.$(EXT),%.map,$(DLLFULLNAME))
 
 build: $(DLLFULLNAME)
 

@@ -50,7 +50,7 @@ intptr_t menu(const GUID& id, const wstring& title, const MenuItems& items, cons
   menu_items.reserve(items.size());
   FarMenuItem mi;
   for (unsigned i = 0; i < items.size(); i++) {
-    memzero(mi);
+    mi = {};
     mi.Text = items[i].c_str();
     menu_items.push_back(mi);
   }
@@ -671,8 +671,7 @@ Regex::~Regex() {
 size_t Regex::search(const wstring& expr, const wstring& text) {
   CHECK(g_far.RegExpControl(h_regex, RECTL_COMPILE, 0, const_cast<wchar_t*>((L"/" + expr + L"/").c_str())));
   CHECK(g_far.RegExpControl(h_regex, RECTL_OPTIMIZE, 0, nullptr));
-  RegExpSearch regex_search;
-  memzero(regex_search);
+  RegExpSearch regex_search{};
   regex_search.Text = text.c_str();
   regex_search.Position = 0;
   regex_search.Length = static_cast<int>(text.size());
@@ -755,8 +754,7 @@ bool get_color(PaletteColors color_id, FarColor& color) {
 }
 
 bool panel_go_to_dir(HANDLE h_panel, const wstring& dir) {
-  FarPanelDirectory fpd;
-  memzero(fpd);
+  FarPanelDirectory fpd{};
   fpd.StructSize = sizeof(FarPanelDirectory);
   fpd.Name = dir.c_str();
   return g_far.PanelControl(h_panel, FCTL_SETPANELDIRECTORY, 0, &fpd) != 0;
@@ -765,8 +763,7 @@ bool panel_go_to_dir(HANDLE h_panel, const wstring& dir) {
 // set current file on panel to file_path
 bool panel_go_to_file(HANDLE h_panel, const wstring& file_path) {
   wstring dir = extract_file_path(file_path);
-  FarPanelDirectory fpd;
-  memzero(fpd);
+  FarPanelDirectory fpd{};
   fpd.StructSize = sizeof(FarPanelDirectory);
   fpd.Name = dir.c_str();
   // we don't want to call FCTL_SETPANELDIRECTORY unless needed to not lose previous selection

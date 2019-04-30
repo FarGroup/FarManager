@@ -170,8 +170,7 @@ public:
   }
 
   FindData get_info() {
-    FindData file_info;
-    memzero(file_info);
+    FindData file_info{};
     wstring file_name = extract_file_name(path());
     if (file_name.empty())
       file_name = path();
@@ -510,8 +509,7 @@ void Archive::open(const OpenOptions& options, Archives& archives) {
 
   ArchiveOpenStream* stream_impl = nullptr;
   ComObject<IInStream> stream;
-  FindData arc_info;
-  memzero(arc_info);
+  FindData arc_info{};
   if (parent_idx == (size_t)-1) {
     stream_impl = new ArchiveOpenStream(options.arc_path);
     stream = stream_impl;

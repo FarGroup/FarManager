@@ -806,14 +806,12 @@ private:
     for (unsigned i = 0; i < ARRAYSIZE(c_levels); ++i) {
       bool skip = c_levels[i].value == 0 && arc_type == c_bzip2;
       skip = skip || (c_levels[i].value != 0 && (arc_type == c_wim || arc_type == c_tar));
-      FarListGetItem flgi;
-      memzero(flgi);
+      FarListGetItem flgi{};
       flgi.StructSize = sizeof(FarListGetItem);
       flgi.ItemIndex = i;
       CHECK(send_message(DM_LISTGETITEM, level_ctrl_id, &flgi));
       if ((skip && (flgi.Item.Flags & LIF_DISABLE) == 0) || (!skip && (flgi.Item.Flags & LIF_DISABLE) != 0)) {
-        FarListUpdate flu;
-        memzero(flu);
+        FarListUpdate flu{};
         flu.StructSize = sizeof(FarListUpdate);
         flu.Index = i;
         flu.Item.Flags = skip ? LIF_DISABLE : 0;
@@ -1064,8 +1062,7 @@ private:
   void populate_profile_list() {
     DisableEvents de(*this);
     vector<FarListItem> fl_items;
-    FarListItem fl_item;
-    memzero(fl_item);
+    FarListItem fl_item{};
     for (unsigned i = 0; i < profiles.size(); i++) {
       fl_item.Text = profiles[i].name.c_str();
       fl_items.push_back(fl_item);

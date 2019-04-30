@@ -900,8 +900,7 @@ FindData Archive::get_file_info(UInt32 index) {
   if (file_list.empty())
     make_index();
 
-  FindData file_info;
-  memzero(file_info);
+  FindData file_info{};
   wcscpy(file_info.cFileName, file_list[index].name.c_str());
   file_info.dwFileAttributes = get_attr(index);
   file_info.set_size(get_size(index));
