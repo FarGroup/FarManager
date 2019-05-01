@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "qview.hpp"
 
+// Internal:
 #include "macroopcode.hpp"
 #include "flink.hpp"
 #include "farcolor.hpp"
@@ -55,10 +57,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.fs.hpp"
 #include "platform.reg.hpp"
 
+// Common:
+
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 static bool LastMode = false;
 static bool LastWrapMode = false;
@@ -129,8 +137,7 @@ void QuickView::DisplayObject()
 
 	if (!strCurFileType.empty())
 	{
-		auto strTypeText = concat(L' ', strCurFileType, L' ');
-		TruncStr(strTypeText, m_Where.width() - 2);
+		const auto strTypeText = truncate_left(concat(L' ', strCurFileType, L' '), m_Where.width() - 2);
 		SetColor(COL_PANELSELECTEDINFO);
 		GotoXY(m_Where.left + (m_Where.width() - static_cast<int>(strTypeText.size())) / 2, m_Where.bottom - 2);
 		Text(strTypeText);
@@ -140,8 +147,7 @@ void QuickView::DisplayObject()
 	{
 		SetColor(COL_PANELTEXT);
 		GotoXY(m_Where.left + 2, m_Where.top + 2);
-		auto DisplayName = strCurFileName;
-		TruncPathStr(DisplayName, std::max(0, m_Where.width() - 2 - static_cast<int>(msg(lng::MQuickViewFolder).size() - 5)));
+		const auto DisplayName = truncate_path(strCurFileName, std::max(size_t{}, m_Where.width() - 2 - msg(lng::MQuickViewFolder).size() - 5));
 		PrintText(format(LR"({0} "{1}")"sv, msg(lng::MQuickViewFolder), DisplayName));
 
 		const auto currAttr = os::fs::get_file_attributes(strCurFileName); // обламывается, если нет доступа
@@ -225,7 +231,7 @@ void QuickView::DisplayObject()
 				Target = msg(lng::MQuickViewNoData);
 			}
 
-			TruncPathStr(Target, std::max(0, m_Where.width() - 2 - static_cast<int>(TypeName.size()) - 5));
+			inplace::truncate_path(Target, std::max(size_t{}, m_Where.width() - 2 - TypeName.size() - 5));
 			SetColor(COL_PANELTEXT);
 			GotoXY(m_Where.left + 2, m_Where.top + 3);
 			PrintText(format(LR"({0} "{1}")"sv, TypeName, Target));

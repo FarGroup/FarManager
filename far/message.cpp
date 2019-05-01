@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "message.hpp"
 
+// Internal:
 #include "ctrlobj.hpp"
 #include "farcolor.hpp"
 #include "dialog.hpp"
@@ -50,7 +52,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "eol.hpp"
 
+// Platform:
+
+// Common:
+
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 static string GetWin32ErrorString(const error_state_ex& ErrorState)
 {

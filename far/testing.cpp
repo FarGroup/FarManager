@@ -35,13 +35,21 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define CATCH_CONFIG_RUNNER
 
+// Self:
 #include "testing.hpp"
 
+// Internal:
 #include "components.hpp"
 
+// Platform:
 #include "platform.memory.hpp"
 
+// Common:
+
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 int testing_main()
 {

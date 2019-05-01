@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "dialog.hpp"
 
+// Internal:
 #include "keyboard.hpp"
 #include "macroopcode.hpp"
 #include "keys.hpp"
@@ -63,12 +65,20 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "edit.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.chrono.hpp"
 #include "platform.env.hpp"
 #include "platform.memory.hpp"
 
+// Common:
+#include "common.hpp"
+#include "common/algorithm.hpp"
 #include "common/singleton.hpp"
 #include "common/zip_view.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 // Флаги для функции ConvertItem
 enum CVTITEMFLAGS
@@ -1706,8 +1716,7 @@ void Dialog::ShowDialog(size_t ID)
 				if (!Items[I].strData.empty() && IsDrawTitle && CW > 2)
 				{
 					//  ! Пусть диалог сам заботится о ширине собственного заголовка.
-					strStr = Items[I].strData;
-					TruncStrFromEnd(strStr,CW-2); // 5 ???
+					strStr = truncate_right(Items[I].strData, CW - 2); // 5 ???
 					LenText=LenStrItem(I,strStr);
 
 					if (LenText < CW-2)

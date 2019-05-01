@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "config.hpp"
 
+// Internal:
 #include "keys.hpp"
 #include "cmdline.hpp"
 #include "ctrlobj.hpp"
@@ -81,12 +83,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "scrbuf.hpp"
 
+// Platform:
 #include "platform.env.hpp"
 
+// Common:
+#include "common/algorithm.hpp"
 #include "common/from_string.hpp"
 #include "common/zip_view.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 static const size_t predefined_panel_modes_count = 10;
 
@@ -442,10 +450,8 @@ static void FillMasksMenu(VMenu2& MasksMenu, int SelPos = 0)
 	for(const auto& [Name, Value]: ConfigProvider().GeneralCfg()->ValuesEnumerator<string>(L"Masks"sv))
 	{
 		MenuItemEx Item;
-		string DisplayName(Name);
 		const int NameWidth = 10;
-		TruncStrFromEnd(DisplayName, NameWidth);
-		DisplayName.resize(NameWidth, L' ');
+		const auto DisplayName = pad_right(truncate_right(Name, NameWidth), NameWidth);
 		Item.Name = concat(DisplayName, L' ', BoxSymbols[BS_V1], L' ', Value);
 		Item.ComplexUserData = Name;
 		MasksMenu.AddItem(Item);
@@ -1613,7 +1619,7 @@ Options::Options():
 {
 	const auto& TabSizeValidator = option::validator([](long long TabSize)
 	{
-		return InRange(1, TabSize, 512)? TabSize : DefaultTabSize;
+		return in_range(1, TabSize, 512)? TabSize : DefaultTabSize;
 	});
 
 	EdOpt.TabSize.SetCallback(TabSizeValidator);

@@ -35,11 +35,20 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
 #include "palette.hpp"
 #include "plugin.hpp"
 
+// Platform:
+
+// Common:
 #include "common/multifunction.hpp"
 #include "common/monitored.hpp"
+#include "common/utility.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 struct FarSettingsItem;
 class GeneralConfig;

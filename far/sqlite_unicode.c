@@ -31,8 +31,17 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
+
+// Platform:
+
+// Common:
 #include "common/compiler.hpp"
 #include "common/preprocessor.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 #define SQLITE_CORE
 #define SQLITE_ENABLE_UNICODE

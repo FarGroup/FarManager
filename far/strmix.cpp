@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "strmix.hpp"
 
+// Internal:
 #include "RegExp.hpp"
 #include "lang.hpp"
 #include "config.hpp"
@@ -46,10 +48,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception.hpp"
 #include "global.hpp"
 
+// Platform:
+
+// Common:
 #include "common/bytes_view.hpp"
 #include "common/from_string.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 string GroupDigits(unsigned long long Value)
 {
@@ -150,183 +158,154 @@ wchar_t* QuoteSpaceOnly(wchar_t *Str)
 	return Str;
 }
 
-string& inplace::QuoteSpaceOnly(string &strStr)
+void inplace::QuoteSpaceOnly(string &strStr)
 {
 	if (contains(strStr, L' '))
 		inplace::quote(strStr);
-
-	return strStr;
 }
 
-string &inplace::QuoteOuterSpace(string &strStr)
+void inplace::QuoteOuterSpace(string &strStr)
 {
 	if (!strStr.empty() && (strStr.front() == L' ' || strStr.back() == L' '))
 		inplace::quote(strStr);
-
-	return strStr;
 }
 
+// TODO: Consider using "…" - 'HORIZONTAL ELLIPSIS' (U+2026)
+static const auto Dots = L"..."sv;
 
-static const int DotsLen = 3;
-
-string& TruncStrFromEnd(string &strStr, int maxLength)
-{
-	assert(maxLength >= 0);
-	size_t MaxLength = static_cast<size_t>(std::max(0, maxLength));
-
-	if (strStr.size() > MaxLength)
-	{
-		strStr.resize(MaxLength);
-		if (MaxLength > (size_t)DotsLen)
-			strStr.replace(MaxLength-DotsLen, DotsLen, DotsLen, L'.');
-	}
-	return strStr;
-}
-
-wchar_t* TruncStrFromEnd(wchar_t *Str, int MaxLength)
+static auto legacy_operation(wchar_t* Str, int MaxLength, void (*handler)(span<wchar_t>, size_t, string_view))
 {
 	assert(MaxLength >= 0);
-	MaxLength=std::max(0, MaxLength);
+	const size_t Max = std::max(0, MaxLength);
 
-	if (Str)
-	{
-		int Length = static_cast<int>(wcslen(Str));
-
-		if (Length > MaxLength)
-		{
-			if (MaxLength > DotsLen)
-				std::fill_n(Str + MaxLength - DotsLen, DotsLen, L'.');
-
-			Str[MaxLength] = '\0';
-		}
-	}
-	return Str;
-}
-
-wchar_t* TruncStr(wchar_t *Str, int MaxLength)
-{
-	assert(MaxLength >= 0);
-	MaxLength = std::max(0, MaxLength);
-
-	if (Str)
-	{
-		int Length = static_cast<int>(wcslen(Str));
-
-		if (Length > MaxLength)
-		{
-			std::copy_n(Str + Length - MaxLength, MaxLength + 1, Str);
-			if (MaxLength > DotsLen)
-				std::fill_n(Str, DotsLen, L'.');
-		}
-	}
-	return Str;
-}
-
-string& TruncStr(string &strStr, int maxLength)
-{
-	assert(maxLength >= 0);
-	size_t MaxLength = static_cast<size_t>(std::max(0, maxLength));
-	size_t Length = strStr.size();
-
-	if (Length > MaxLength)
-	{
-		strStr = strStr.substr(Length-MaxLength, MaxLength);
-		if (MaxLength > (size_t)DotsLen)
-			strStr.replace(0, DotsLen, DotsLen, L'.');
-	}
-	return strStr;
-}
-
-wchar_t* TruncStrFromCenter(wchar_t *Str, int MaxLength)
-{
-	assert(MaxLength >= 0);
-	MaxLength=std::max(0, MaxLength);
-
-	if (!Str)
-		return nullptr;
-
-	const auto Length = static_cast<int>(wcslen(Str));
-	if (Length <= MaxLength)
+	if (!Str || !*Str)
 		return Str;
 
-	if (MaxLength > DotsLen)
-	{
-		int Len1 = (MaxLength - DotsLen) / 2;
-		int Len2 = MaxLength - DotsLen - Len1;
-		std::copy_n(L"...", DotsLen, Str + Len1);
-		std::copy_n(Str + Length - Len2, Len2, Str + Len1 + DotsLen);
-	}
+	const auto Size = wcslen(Str);
 
-	Str[MaxLength] = 0;
+	if (Size <= Max)
+		return Str;
+
+	handler({ Str, Size }, Max, Dots.substr(0, Max));
 	return Str;
 }
 
-string& TruncStrFromCenter(string &strStr, int maxLength)
+wchar_t* legacy::truncate_right(wchar_t *Str, int MaxLength)
 {
-	assert(maxLength >= 0);
-	size_t MaxLength = static_cast<size_t>(std::max(0, maxLength));
-	size_t Length = strStr.size();
-
-	if (Length > MaxLength)
+	return legacy_operation(Str, MaxLength, [](span<wchar_t> const StrParam, size_t const MaxLengthParam, string_view const CurrentDots)
 	{
-		if (MaxLength > (size_t)DotsLen)
-		{
-			size_t start = (MaxLength - DotsLen) / 2;
-			strStr.replace(start, Length-MaxLength+DotsLen, DotsLen, L'.');
-		}
-		else
-			strStr.resize(MaxLength);
-	}
-	return strStr;
+		*std::copy(ALL_CONST_RANGE(CurrentDots), StrParam.data() + MaxLengthParam - CurrentDots.size()) = '\0';
+	});
 }
 
-static int StartOffset(const string& Str)
+void inplace::truncate_right(string& Str, size_t const MaxLength)
+{
+	if (Str.size() <= MaxLength)
+		return;
+
+	const auto CurrentDots = Dots.substr(0, MaxLength);
+	Str.replace(MaxLength - CurrentDots.size(), Str.size() - MaxLength + CurrentDots.size(), CurrentDots);
+}
+
+string truncate_right(string Str, size_t const MaxLength)
+{
+	inplace::truncate_right(Str, MaxLength);
+	return Str;
+}
+
+wchar_t* legacy::truncate_left(wchar_t *Str, int MaxLength)
+{
+	return legacy_operation(Str, MaxLength, [](span<wchar_t> const StrParam, size_t const MaxLengthParam, string_view const CurrentDots)
+	{
+		const auto Iterator = std::copy(ALL_CONST_RANGE(CurrentDots), StrParam.begin());
+
+		const auto StrEnd = StrParam.end();
+		const auto StrBegin = StrEnd - MaxLengthParam + CurrentDots.size();
+
+		*std::copy(StrBegin, StrEnd, Iterator) = L'\0';
+	});
+}
+
+void inplace::truncate_left(string& Str, size_t const MaxLength)
+{
+	if (Str.size() <= MaxLength)
+		return;
+
+	const auto CurrentDots = Dots.substr(0, MaxLength);
+	Str.replace(0, Str.size() - MaxLength + CurrentDots.size(), CurrentDots);
+}
+
+string truncate_left(string Str, size_t const MaxLength)
+{
+	inplace::truncate_left(Str, MaxLength);
+	return Str;
+}
+
+wchar_t* legacy::truncate_center(wchar_t *Str, int MaxLength)
+{
+	return legacy_operation(Str, MaxLength, [](span<wchar_t> const StrParam, size_t const MaxLengthParam, string_view const CurrentDots)
+	{
+		const auto Iterator = std::copy(ALL_CONST_RANGE(CurrentDots), StrParam.data() + (MaxLengthParam - CurrentDots.size()) / 2);
+
+		const auto StrEnd = StrParam.end();
+		const auto StrBegin = Iterator + (StrParam.size() - MaxLengthParam);
+
+		*std::copy(StrBegin, StrEnd, Iterator) = L'\0';
+	});
+}
+
+void inplace::truncate_center(string& Str, size_t const MaxLength)
+{
+	if (Str.size() <= MaxLength)
+		return;
+
+	const auto CurrentDots = Dots.substr(0, MaxLength);
+	Str.replace((MaxLength - CurrentDots.size()) / 2, Str.size() - MaxLength + CurrentDots.size(), CurrentDots);
+}
+
+string truncate_center(string Str, size_t const MaxLength)
+{
+	inplace::truncate_center(Str, MaxLength);
+	return Str;
+}
+
+
+static auto StartOffset(const string& Str)
 {
 	size_t DirOffset = 0;
 	ParsePath(Str, &DirOffset);
-	return static_cast<int>(DirOffset);
+	return DirOffset;
 }
 
-wchar_t* TruncPathStr(wchar_t *Str, int MaxLength)
+wchar_t* legacy::truncate_path(wchar_t*Str, int MaxLength)
 {
-	assert(MaxLength >= 0);
-	MaxLength = std::max(0, MaxLength);
-
-	if (Str)
+	return legacy_operation(Str, MaxLength, [](span<wchar_t> const StrParam, size_t const MaxLengthParam, string_view const CurrentDots)
 	{
-		int nLength = static_cast<int>(wcslen(Str));
+		const auto Offset = std::min(StartOffset(StrParam.data()), MaxLengthParam - CurrentDots.size());
 
-		if (nLength > MaxLength)
-		{
-			int start = StartOffset(Str);
+		const auto Iterator = std::copy(ALL_CONST_RANGE(CurrentDots), StrParam.begin() + Offset);
 
-			if (!start || start+2+DotsLen > MaxLength)
-				return TruncStr(Str, MaxLength);
+		const auto StrEnd = StrParam.end();
+		const auto StrBegin = StrEnd - MaxLengthParam + CurrentDots.size() + Offset;
 
-			std::fill_n(Str + start, DotsLen, L'.');
-			wcscpy(Str+start+DotsLen, Str+start+DotsLen+nLength-MaxLength);
-		}
-	}
+		*std::copy(StrBegin, StrEnd, Iterator) = L'\0';
+	});
+}
+
+void inplace::truncate_path(string& Str, size_t const MaxLength)
+{
+	if (Str.size() <= MaxLength)
+		return;
+
+	const auto CurrentDots = Dots.substr(0, MaxLength);
+	const auto Offset = std::min(StartOffset(Str), MaxLength - CurrentDots.size());
+	Str.replace(Offset, Str.size() - MaxLength + CurrentDots.size(), CurrentDots);
+}
+
+string truncate_path(string Str, size_t const MaxLength)
+{
+	inplace::truncate_path(Str, MaxLength);
 	return Str;
-}
-
-string& TruncPathStr(string &strStr, int MaxLength)
-{
-	assert(MaxLength >= 0);
-	MaxLength = std::max(0, MaxLength);
-
-	int nLength = static_cast<int>(strStr.size());
-
-	if (nLength > MaxLength)
-	{
-		int start = StartOffset(strStr);
-
-		if (!start || start+DotsLen+2 > MaxLength)
-			return TruncStr(strStr, MaxLength);
-
-		strStr.replace(start, nLength-MaxLength+DotsLen, DotsLen, L'.');
-	}
-	return strStr;
 }
 
 bool IsCaseMixed(const string_view strSrc)
@@ -394,9 +373,12 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 				return std::move(Str);
 
 			if (Str.size() <= Width)
-				return (LeftAlign? inplace::pad_right : inplace::pad_left)(Str, Width, L' ');
+			{
+				(LeftAlign? inplace::pad_right : inplace::pad_left)(Str, Width, L' ');
+				return std::move(Str);
+			}
 
-			Str = (LeftAlign? inplace::cut_right : inplace::cut_left)(Str, Width - 1);
+			(LeftAlign? inplace::cut_right : inplace::cut_left)(Str, Width - 1);
 			Str.insert(LeftAlign? Str.end() : Str.begin(), L'\x2026');
 			return std::move(Str);
 		};
@@ -1104,12 +1086,6 @@ wchar_t* xwcsncpy(wchar_t* dest, const wchar_t* src, size_t DestSize)
 	return xncpy(dest, src, DestSize);
 }
 
-std::pair<string_view, string_view> split_name_value(string_view Str)
-{
-	const auto SeparatorPos = Str.find(L'=');
-	return { Str.substr(0, SeparatorPos), Str.substr(SeparatorPos + 1) };
-}
-
 #ifdef ENABLE_TESTS
 
 #include "testing.hpp"
@@ -1122,14 +1098,14 @@ TEST_CASE("ReplaceStrings")
 	}
 	Tests[]
 	{
-		{ L"lorem ipsum dolor"sv, L"loREm"sv, L""sv, L" ipsum dolor"sv },
-		{ L"lorem ipsum dolor"sv, L"lorem"sv, L"alpha"sv, L"alpha ipsum dolor"sv },
-		{ L"lorem ipsum dolor"sv, L"m"sv, L"q"sv, L"loreq ipsuq dolor"sv },
-		{ L"lorem ipsum dolor"sv, L""sv, L"alpha"sv, L"lorem ipsum dolor"sv },
-		{ L"lorem ipsum dolor"sv, L""sv, L""sv, L"lorem ipsum dolor"sv },
-		{ L"lorem ipsum dolor"sv, L"lorem ipsum dolor"sv, L""sv, L""sv },
-		{ L"lorem ipsum dolor"sv, L"lorem ipsum dolor"sv, L"bravo"sv, L"bravo"sv },
-		{ L"lorem"sv, L"lorem ipsum"sv, L"charlie"sv, L"lorem"sv },
+		{ L"lorem ipsum dolor"sv,    L"loREm"sv,                L""sv,            L" ipsum dolor"sv,      },
+		{ L"lorem ipsum dolor"sv,    L"lorem"sv,                L"alpha"sv,       L"alpha ipsum dolor"sv, },
+		{ L"lorem ipsum dolor"sv,    L"m"sv,                    L"q"sv,           L"loreq ipsuq dolor"sv, },
+		{ L"lorem ipsum dolor"sv,    L""sv,                     L"alpha"sv,       L"lorem ipsum dolor"sv, },
+		{ L"lorem ipsum dolor"sv,    L""sv,                     L""sv,            L"lorem ipsum dolor"sv, },
+		{ L"lorem ipsum dolor"sv,    L"lorem ipsum dolor"sv,    L""sv,            L""sv,                  },
+		{ L"lorem ipsum dolor"sv,    L"lorem ipsum dolor"sv,    L"bravo"sv,       L"bravo"sv,             },
+		{ L"lorem"sv,                L"lorem ipsum"sv,          L"charlie"sv,     L"lorem"sv,             },
 	};
 
 	string Src;
@@ -1138,6 +1114,115 @@ TEST_CASE("ReplaceStrings")
 		Src = i.Src;
 		ReplaceStrings(Src, i.Find, i.Replace, true);
 		REQUIRE(i.Result == Src);
+	}
+}
+
+TEST_CASE("truncate")
+{
+	static const struct tests
+	{
+		string_view Src;
+		size_t Size;
+		string_view ResultLeft, ResultCenter, ResultRight, ResultPath;
+	}
+	Tests[]
+	{
+		{ L"c:/123/456"sv, 20, L"c:/123/456"sv,  L"c:/123/456"sv,  L"c:/123/456"sv,  L"c:/123/456"sv, },
+		{ L"c:/123/456"sv, 10, L"c:/123/456"sv,  L"c:/123/456"sv,  L"c:/123/456"sv,  L"c:/123/456"sv, },
+		{ L"c:/123/456"sv, 9,  L"...23/456"sv,   L"c:/...456"sv,   L"c:/123..."sv,   L"c:/...456"sv,  },
+		{ L"c:/123/456"sv, 8,  L"...3/456"sv,    L"c:...456"sv,    L"c:/12..."sv,    L"c:/...56"sv,   },
+		{ L"c:/123/456"sv, 7,  L".../456"sv,     L"c:...56"sv,     L"c:/1..."sv,     L"c:/...6"sv,    },
+		{ L"c:/123/456"sv, 6,  L"...456"sv,      L"c...56"sv,      L"c:/..."sv,      L"c:/..."sv,     },
+		{ L"c:/123/456"sv, 5,  L"...56"sv,       L"c...6"sv,       L"c:..."sv,       L"c:..."sv,      },
+		{ L"c:/123/456"sv, 4,  L"...6"sv,        L"...6"sv,        L"c..."sv,        L"c..."sv,       },
+		{ L"c:/123/456"sv, 3,  L"..."sv,         L"..."sv,         L"..."sv,         L"..."sv,        },
+		{ L"c:/123/456"sv, 2,  L".."sv,          L".."sv,          L".."sv,          L".."sv,         },
+		{ L"c:/123/456"sv, 1,  L"."sv,           L"."sv,           L"."sv,           L"."sv,          },
+		{ L"c:/123/456"sv, 0,  L""sv,            L""sv,            L""sv,            L""sv,           },
+
+		{ L"0123456789"sv, 20, L"0123456789"sv,  L"0123456789"sv,  L"0123456789"sv,  L"0123456789"sv, },
+		{ L"0123456789"sv, 10, L"0123456789"sv,  L"0123456789"sv,  L"0123456789"sv,  L"0123456789"sv, },
+		{ L"0123456789"sv, 9,  L"...456789"sv,   L"012...789"sv,   L"012345..."sv,   L"...456789"sv,  },
+		{ L"0123456789"sv, 8,  L"...56789"sv,    L"01...789"sv,    L"01234..."sv,    L"...56789"sv,   },
+		{ L"0123456789"sv, 7,  L"...6789"sv,     L"01...89"sv,     L"0123..."sv,     L"...6789"sv,    },
+		{ L"0123456789"sv, 6,  L"...789"sv,      L"0...89"sv,      L"012..."sv,      L"...789"sv,     },
+		{ L"0123456789"sv, 5,  L"...89"sv,       L"0...9"sv,       L"01..."sv,       L"...89"sv,      },
+		{ L"0123456789"sv, 4,  L"...9"sv,        L"...9"sv,        L"0..."sv,        L"...9"sv,       },
+		{ L"0123456789"sv, 3,  L"..."sv,         L"..."sv,         L"..."sv,         L"..."sv,        },
+		{ L"0123456789"sv, 2,  L".."sv,          L".."sv,          L".."sv,          L".."sv,         },
+		{ L"0123456789"sv, 1,  L"."sv,           L"."sv,           L"."sv,           L"."sv,          },
+		{ L"0123456789"sv, 0,  L""sv,            L""sv,            L""sv,            L""sv,           },
+
+		{ L"0123"sv,       5,  L"0123"sv,        L"0123"sv,        L"0123"sv,        L"0123"sv,       },
+		{ L"0123"sv,       4,  L"0123"sv,        L"0123"sv,        L"0123"sv,        L"0123"sv,       },
+		{ L"0123"sv,       3,  L"..."sv,         L"..."sv,         L"..."sv,         L"..."sv,        },
+		{ L"0123"sv,       2,  L".."sv,          L".."sv,          L".."sv,          L".."sv,         },
+		{ L"0123"sv,       1,  L"."sv,           L"."sv,           L"."sv,           L"."sv,          },
+		{ L"0123"sv,       0,  L""sv,            L""sv,            L""sv,            L""sv,           },
+
+		{ L"012"sv,        4,  L"012"sv,         L"012"sv,         L"012"sv,         L"012"sv,        },
+		{ L"012"sv,        3,  L"012"sv,         L"012"sv,         L"012"sv,         L"012"sv,        },
+		{ L"012"sv,        2,  L".."sv,          L".."sv,          L".."sv,          L".."sv,         },
+		{ L"012"sv,        1,  L"."sv,           L"."sv,           L"."sv,           L"."sv,          },
+		{ L"012"sv,        0,  L""sv,            L""sv,            L""sv,            L""sv,           },
+
+		{ L"01"sv,         3,  L"01"sv,          L"01"sv,          L"01"sv,          L"01"sv,         },
+		{ L"01"sv,         2,  L"01"sv,          L"01"sv,          L"01"sv,          L"01"sv,         },
+		{ L"01"sv,         1,  L"."sv,           L"."sv,           L"."sv,           L"."sv,          },
+		{ L"01"sv,         0,  L""sv,            L""sv,            L""sv,            L""sv,           },
+
+		{ L"0"sv,          2,  L"0"sv,           L"0"sv,           L"0"sv,           L"0"sv,          },
+		{ L"0"sv,          1,  L"0"sv,           L"0"sv,           L"0"sv,           L"0"sv,          },
+		{ L"0"sv,          0,  L""sv,            L""sv,            L""sv,            L""sv,           },
+
+		{ L""sv,           4,  L""sv,            L""sv,            L""sv,            L""sv,           },
+		{ L""sv,           3,  L""sv,            L""sv,            L""sv,            L""sv,           },
+		{ L""sv,           2,  L""sv,            L""sv,            L""sv,            L""sv,           },
+		{ L""sv,           1,  L""sv,            L""sv,            L""sv,            L""sv,           },
+		{ L""sv,           0,  L""sv,            L""sv,            L""sv,            L""sv,           },
+	};
+
+	static const std::array Functions
+	{
+		std::tuple{ truncate_left,   legacy::truncate_left,   &tests::ResultLeft   },
+		std::tuple{ truncate_center, legacy::truncate_center, &tests::ResultCenter },
+		std::tuple{ truncate_right,  legacy::truncate_right,  &tests::ResultRight  },
+		std::tuple{ truncate_path,   legacy::truncate_path,   &tests::ResultPath   },
+	};
+
+	for (const auto& i: Tests)
+	{
+		for (const auto& f: Functions)
+		{
+			const auto Baseline = std::invoke(std::get<2>(f), i);
+
+			REQUIRE(std::get<0>(f)(string(i.Src), i.Size) == Baseline);
+
+			string Buffer(i.Src);
+			REQUIRE(std::get<1>(f)(Buffer.data(), static_cast<int>(i.Size)) == Baseline);
+		}
+	}
+}
+
+TEST_CASE("hex")
+{
+	static const struct
+	{
+		string_view Src, Result;
+	}
+	Tests[]
+	{
+		{ L"12 34"sv,    L"1234"sv, },
+		{ L"12 3"sv,     L"1203"sv, },
+		{ L"12 "sv,      L"12"sv,   },
+		{ L"  "sv,       L""sv,     },
+		{ L" "sv,        L""sv,     },
+		{ L""sv,         L""sv,     },
+	};
+
+	for (const auto& i: Tests)
+	{
+		REQUIRE(ExtractHexString(i.Src) == i.Result);
 	}
 }
 #endif

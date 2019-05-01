@@ -35,10 +35,18 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
 #include "panelctype.hpp"
 #include "string_utils.hpp"
 
+// Platform:
+
+// Common:
 #include "common/enum_tokens.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 class bytes;
 class bytes_view;
@@ -57,8 +65,8 @@ string InsertRegexpQuote(string strStr);
 
 namespace inplace
 {
-	string& QuoteSpaceOnly(string &strStr);
-	string& QuoteOuterSpace(string &strStr);
+	void QuoteSpaceOnly(string &strStr);
+	void QuoteOuterSpace(string &strStr);
 }
 
 [[nodiscard]]
@@ -119,15 +127,30 @@ inline bool IsWordDiv(const string& WordDiv, wchar_t Chr) { return !Chr || conta
 [[nodiscard]]
 bool FindWordInString(const string& Str, size_t CurPos, size_t& Begin, size_t& End, const string& WordDiv);
 
-wchar_t* TruncStr(wchar_t *Str,int MaxLength);
-wchar_t* TruncStrFromCenter(wchar_t *Str, int MaxLength);
-wchar_t* TruncStrFromEnd(wchar_t *Str,int MaxLength);
-wchar_t* TruncPathStr(wchar_t *Str, int MaxLength);
+namespace legacy
+{
+	wchar_t* truncate_left(wchar_t* Str, int MaxLength);
+	wchar_t* truncate_center(wchar_t* Str, int MaxLength);
+	wchar_t* truncate_right(wchar_t* Str, int MaxLength);
+	wchar_t* truncate_path(wchar_t* Str, int MaxLength);
+}
 
-string& TruncStr(string &strStr,int MaxLength);
-string& TruncStrFromEnd(string &strStr, int MaxLength);
-string& TruncStrFromCenter(string &strStr, int MaxLength);
-string& TruncPathStr(string &strStr, int MaxLength);
+namespace inplace
+{
+	void truncate_left(string& Str, size_t MaxLength);
+	void truncate_right(string& Str, size_t MaxLength);
+	void truncate_center(string& Str, size_t MaxLength);
+	void truncate_path(string& Str, size_t MaxLength);
+}
+
+[[nodiscard]]
+string truncate_left(string Str, size_t MaxLength);
+[[nodiscard]]
+string truncate_right(string Str, size_t MaxLength);
+[[nodiscard]]
+string truncate_center(string Str, size_t MaxLength);
+[[nodiscard]]
+string truncate_path(string Str, size_t MaxLength);
 
 [[nodiscard]]
 bool IsCaseMixed(string_view strStr);

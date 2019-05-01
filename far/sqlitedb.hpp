@@ -34,10 +34,18 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
 #include "transactional.hpp"
 #include "exception.hpp"
 
+// Platform:
+
+// Common:
 #include "common/range.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 class bytes_view;
 

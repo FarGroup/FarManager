@@ -42,8 +42,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   Это пока только шаблон, заготовка для будущего перехода
 */
 
+// Internal:
 #include "scrobj.hpp"
 #include "farcolor.hpp"
+
+// Platform:
+
+// Common:
+
+// External:
+
+//----------------------------------------------------------------------------
 
 struct FarColor;
 class History;

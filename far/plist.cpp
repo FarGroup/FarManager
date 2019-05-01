@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "plist.hpp"
 
+// Internal:
 #include "keys.hpp"
 #include "help.hpp"
 #include "vmenu.hpp"
@@ -44,11 +46,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_sort.hpp"
 #include "exception.hpp"
 
+// Platform:
 #include "platform.fs.hpp"
 
+// Common:
 #include "common/scope_exit.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 struct menu_data
 {

@@ -28,16 +28,26 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "tracer.hpp"
 
+// Internal:
 #include "imports.hpp"
 #include "encoding.hpp"
 #include "pathmix.hpp"
 #include "exception.hpp"
 
+// Platform:
 #include "platform.fs.hpp"
 
+// Common:
+#include "common.hpp"
+#include "common/string_utils.hpp"
+
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 
 // StackWalk64() may modify context record passed to it, so we will use a copy.

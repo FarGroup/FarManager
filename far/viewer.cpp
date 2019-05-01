@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "viewer.hpp"
 
+// Internal:
 #include "encoding.hpp"
 #include "macroopcode.hpp"
 #include "keyboard.hpp"
@@ -75,11 +77,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "DlgGuid.hpp"
 
+// Platform:
 #include "platform.fs.hpp"
 
+// Common:
 #include "common/bytes_view.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 enum SHOW_MODES
 {

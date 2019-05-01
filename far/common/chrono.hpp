@@ -32,6 +32,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+//----------------------------------------------------------------------------
+
 template<typename... tuple_types>
 class split_duration: public std::tuple<tuple_types...>
 {

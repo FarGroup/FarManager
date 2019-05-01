@@ -34,6 +34,16 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
+
+// Platform:
+
+// Common:
+
+// External:
+
+//----------------------------------------------------------------------------
+
 bool GetCpUsingUniversalDetector(std::string_view Str, uintptr_t& Codepage);
 
 #endif // NSUNIVERSALDETECTOREX_HPP_7F1F1121_B057_4058_8645_ACE66F719838

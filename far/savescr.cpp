@@ -31,13 +31,24 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "savescr.hpp"
 
+// Internal:
 #include "farcolor.hpp"
 #include "syslog.hpp"
 #include "interf.hpp"
 #include "console.hpp"
 #include "colormix.hpp"
+
+// Platform:
+
+// Common:
+#include "common/utility.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 static void CleanupBuffer(FAR_CHAR_INFO* Buffer, size_t BufSize)
 {

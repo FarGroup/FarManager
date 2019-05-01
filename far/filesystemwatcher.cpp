@@ -30,14 +30,24 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "filesystemwatcher.hpp"
 
+// Internal:
 #include "flink.hpp"
 #include "elevation.hpp"
 #include "exception_handler.hpp"
 #include "pathmix.hpp"
 
+// Platform:
 #include "platform.fs.hpp"
+
+// Common:
+#include "common/string_utils.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 FileSystemWatcher::FileSystemWatcher():
 	m_WatchSubtree(false),

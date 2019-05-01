@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "scrsaver.hpp"
 
+// Internal:
 #include "farcolor.hpp"
 #include "chgprior.hpp"
 #include "savescr.hpp"
@@ -42,9 +44,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.chrono.hpp"
 
+// Common:
 #include "common/function_ref.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 enum {STAR_NONE,STAR_NORMAL,STAR_PLANET};
 

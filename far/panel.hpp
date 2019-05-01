@@ -35,13 +35,20 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
 #include "scrobj.hpp"
 #include "panelfwd.hpp"
 
+// Platform:
 #include "platform.fwd.hpp"
 
+// Common:
 #include "common/enumerator.hpp"
 #include "common/range.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 class plugin_panel;
 class DizList;

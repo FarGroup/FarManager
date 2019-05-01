@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "panel.hpp"
 
+// Internal:
 #include "keyboard.hpp"
 #include "flink.hpp"
 #include "keys.hpp"
@@ -62,9 +64,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fastfind.hpp"
 #include "eol.hpp"
 
+// Platform:
 #include "platform.env.hpp"
 
+// Common:
+#include "common/algorithm.hpp"
+
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;
@@ -145,8 +154,8 @@ void Panel::OnFocusChange(bool Get)
 bool Panel::IsMouseInClientArea(const MOUSE_EVENT_RECORD* MouseEvent) const
 {
 	return IsVisible() &&
-		InRange(m_Where.left, MouseEvent->dwMousePosition.X, m_Where.right) &&
-		InRange(m_Where.top, MouseEvent->dwMousePosition.Y, m_Where.bottom);
+		in_range(m_Where.left, MouseEvent->dwMousePosition.X, m_Where.right) &&
+		in_range(m_Where.top, MouseEvent->dwMousePosition.Y, m_Where.bottom);
 }
 
 bool Panel::ProcessMouseDrag(const MOUSE_EVENT_RECORD *MouseEvent)
@@ -267,7 +276,7 @@ void Panel::DragMessage(int X,int Y,int Move)
 		if (MsgX<0)
 		{
 			MsgX=0;
-			TruncStrFromEnd(strDragMsg,ScrX);
+			inplace::truncate_right(strDragMsg, ScrX);
 			Length=(int)strDragMsg.size();
 		}
 	}
@@ -551,10 +560,7 @@ void Panel::DrawSeparator(int Y) const
 
 string Panel::GetTitleForDisplay() const
 {
-	auto Title = concat(L' ', GetTitle());
-	TruncStr(Title, m_Where.width() - 3);
-	Title += L' ';
-	return Title;
+	return truncate_left(concat(L' ', GetTitle()), m_Where.width() - 3) + L' ';
 }
 
 void Panel::ShowScreensCount() const

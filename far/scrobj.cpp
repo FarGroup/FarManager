@@ -31,11 +31,21 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "scrobj.hpp"
 
+// Internal:
 #include "savescr.hpp"
 #include "interf.hpp"
 #include "global.hpp"
+
+// Platform:
+
+// Common:
+
+// External:
+
+//----------------------------------------------------------------------------
 
 SimpleScreenObject::SimpleScreenObject(window_ptr Owner):
 	m_Owner(Owner)

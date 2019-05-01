@@ -34,6 +34,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "rel_ops.hpp"
 
+//----------------------------------------------------------------------------
+
 namespace detail
 {
 	struct increment { template<typename T> auto operator()(T& Object) const { return ++Object; } };

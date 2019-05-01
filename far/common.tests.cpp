@@ -33,9 +33,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef ENABLE_TESTS
 
+// Internal:
 #include "testing.hpp"
 
-//-----------------------------------------------------------------------------
+// Platform:
+
+// Common:
+
+// External:
+
+//----------------------------------------------------------------------------
+
 #include "common/bytes_view.hpp"
 
 TEST_CASE("bytes_view")
@@ -59,7 +67,8 @@ TEST_CASE("bytes_view")
 	REQUIRE_NOTHROW(SmallerView = BytesCopy);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+
 #include "common/chrono.hpp"
 
 TEST_CASE("chrono")
@@ -87,7 +96,8 @@ TEST_CASE("chrono")
 	}
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+
 #include "common/enum_tokens.hpp"
 
 TEST_CASE("enum_tokens")
@@ -96,7 +106,7 @@ TEST_CASE("enum_tokens")
 		const std::array Baseline = { L"abc"sv, L""sv, L"def"sv, L" q "sv, L"123"sv };
 		auto BaselineIterator = Baseline.begin();
 
-		for (const auto& i : enum_tokens(L"abc;,def; q ,123;"sv, L",;"sv))
+		for (const auto& i: enum_tokens(L"abc;,def; q ,123;"sv, L",;"sv))
 		{
 			REQUIRE(i == *BaselineIterator++);
 		}
@@ -108,7 +118,7 @@ TEST_CASE("enum_tokens")
 		const std::array Baseline = { L"abc;"sv, L"de;,f"sv, L"123"sv, L""sv };
 		auto BaselineIterator = Baseline.begin();
 
-		for (const auto& i : enum_tokens_with_quotes(L"\"abc;\",\"de;,f\";123;;"sv, L",;"sv))
+		for (const auto& i: enum_tokens_with_quotes(L"\"abc;\",\"de;,f\";123;;"sv, L",;"sv))
 		{
 			REQUIRE(i == *BaselineIterator++);
 		}
@@ -120,7 +130,7 @@ TEST_CASE("enum_tokens")
 		const std::array Baseline = { L"abc"sv, L"def"sv, L""sv };
 		auto BaselineIterator = Baseline.begin();
 
-		for (const auto& i : enum_tokens_custom_t<with_trim>(L"  abc|   def  |  "sv, L"|"sv))
+		for (const auto& i: enum_tokens_custom_t<with_trim>(L"  abc|   def  |  "sv, L"|"sv))
 		{
 			REQUIRE(i == *BaselineIterator++);
 		}
@@ -130,7 +140,8 @@ TEST_CASE("enum_tokens")
 
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+
 #include "common/enum_substrings.hpp"
 
 TEST_CASE("enum_substrings")
@@ -138,7 +149,7 @@ TEST_CASE("enum_substrings")
 	const std::array Baseline = { L"abc"sv, L"def"sv, L"q"sv };
 	auto BaselineIterator = Baseline.begin();
 
-	for (const auto& i : enum_substrings(L"abc\0def\0q\0"sv.data()))
+	for (const auto& i: enum_substrings(L"abc\0def\0q\0"sv.data()))
 	{
 		REQUIRE(i == *BaselineIterator++);
 	}
@@ -146,7 +157,8 @@ TEST_CASE("enum_substrings")
 	REQUIRE(BaselineIterator == Baseline.end());
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+
 #include "common/from_string.hpp"
 
 TEST_CASE("from_string")
@@ -175,7 +187,8 @@ TEST_CASE("from_string")
 	}
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+
 #include "common/keep_alive.hpp"
 
 TEST_CASE("keep_alive")
@@ -191,7 +204,8 @@ TEST_CASE("keep_alive")
 	SUCCEED();
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+
 #include "common/io.hpp"
 
 TEST_CASE("io")
@@ -205,7 +219,8 @@ TEST_CASE("io")
 	REQUIRE(!io::read(Stream, Buffer));
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+
 #include "common/monitored.hpp"
 
 TEST_CASE("monitored")
@@ -220,7 +235,8 @@ TEST_CASE("monitored")
 	REQUIRE(a == 33);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+
 #include "common/movable.hpp"
 
 TEST_CASE("movable")
@@ -234,7 +250,8 @@ TEST_CASE("movable")
 	REQUIRE(m1 == 0);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+
 #include "common/null_iterator.hpp"
 
 TEST_CASE("null_iterator")
@@ -245,7 +262,6 @@ TEST_CASE("null_iterator")
 	REQUIRE(Count == wcslen(Ptr));
 }
 
-//-----------------------------------------------------------------------------
 TEST_CASE("placement")
 {
 	struct raii
@@ -275,7 +291,8 @@ TEST_CASE("placement")
 	REQUIRE(Value == 33);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+
 #include "common/range.hpp"
 
 TEST_CASE("range.static")
@@ -380,118 +397,257 @@ TEST_CASE("range.dynamic")
 	}
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+
 #include "common/scope_exit.hpp"
 
-template<scope_exit::scope_type type>
-static void TestScope(bool Throw, int Expected)
+namespace
 {
-	int Result;
-	try
+	template<scope_exit::scope_type type>
+	static void test_scope_impl(bool const Throw, bool const MustBeTriggered)
 	{
-		Result = 0;
-		const auto Guard = scope_exit::make_scope_guard<type>() << [&](){ Result = 42; };
-		REQUIRE(Result == 0);
-		Result = 1;
-		if (Throw)
-			throw 1;
-	}
-	catch (int) {}
-	REQUIRE(Result == Expected);
-};
+		bool IsTriggered = false;
 
+		try
+		{
+			SCOPE_TYPE(type) { IsTriggered = true; };
+			REQUIRE(!IsTriggered);
+			if (Throw)
+				throw 1;
+		}
+		catch (int)
+		{
+		}
+
+		REQUIRE(IsTriggered == MustBeTriggered);
+	};
+
+	template<scope_exit::scope_type type>
+	static void test_scope(bool OnFail, bool OnSuccess)
+	{
+		test_scope_impl<type>(true, OnFail);
+		test_scope_impl<type>(false, OnSuccess);
+	}
+}
 TEST_CASE("scope_exit")
 {
-	TestScope<scope_exit::scope_type::exit>(false, 42);
-	TestScope<scope_exit::scope_type::exit>(true, 42);
-
-	TestScope<scope_exit::scope_type::fail>(false, 1);
-	TestScope<scope_exit::scope_type::fail>(true, 42);
-
-	TestScope<scope_exit::scope_type::success>(false, 42);
-	TestScope<scope_exit::scope_type::success>(true, 1);
+	test_scope<scope_exit::scope_type::exit>(true, true);
+	test_scope<scope_exit::scope_type::fail>(true, false);
+	test_scope<scope_exit::scope_type::success>(false, true);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+
 #include "common/string_utils.hpp"
 
-TEST_CASE("string_utils")
+TEST_CASE("string_utils.cut")
+{
+	static const struct
+	{
+		string_view Src;
+		size_t Size;
+		string_view ResultLeft, ResultRight;
+	}
+	Tests[]
+	{
+		{ L"12345"sv, 6, L"12345"sv, L"12345"sv, },
+		{ L"12345"sv, 3, L"345"sv,   L"123"sv,   },
+		{ L"12345"sv, 1, L"5"sv,     L"1"sv,     },
+		{ L"12345"sv, 0, L""sv,      L""sv,      },
+
+		{ L"1"sv,     2, L"1"sv,     L"1"sv,     },
+		{ L"1"sv,     1, L"1"sv,     L"1"sv,     },
+		{ L"1"sv,     0, L""sv,      L""sv,      },
+
+		{ L""sv,      1, L""sv,      L""sv,      },
+		{ L""sv,      0, L""sv,      L""sv,      },
+	};
+
+	for (const auto& i: Tests)
+	{
+		REQUIRE(cut_left(i.Src, i.Size) == i.ResultLeft);
+		REQUIRE(cut_right(i.Src, i.Size) == i.ResultRight);
+	}
+}
+
+TEST_CASE("string_utils.pad")
+{
+	static const struct
+	{
+		string_view Src;
+		size_t Size;
+		string_view ResultLeft, ResultRight;
+	}
+	Tests[]
+	{
+		{ L"123"sv, 5, L"  123"sv, L"123  "sv, },
+		{ L"123"sv, 2, L"123"sv,   L"123"sv,   },
+		{ L"123"sv, 0, L"123"sv,   L"123"sv,   },
+
+		{ L"1"sv,   3, L"  1"sv,   L"1  "sv,   },
+		{ L"1"sv,   1, L"1"sv,     L"1"sv,     },
+		{ L"1"sv,   0, L"1"sv,     L"1"sv,     },
+
+		{ L""sv,    2, L"  "sv,    L"  "sv,    },
+		{ L""sv,    1, L" "sv,     L" "sv,     },
+		{ L""sv,    0, L""sv,      L""sv,      },
+	};
+
+	for (const auto& i: Tests)
+	{
+		REQUIRE(pad_left(string(i.Src), i.Size) == i.ResultLeft);
+		REQUIRE(pad_right(string(i.Src), i.Size) == i.ResultRight);
+	}
+}
+
+TEST_CASE("string_utils.trim")
+{
+	static const struct
+	{
+		string_view Src;
+		string_view ResultLeft, ResultRight, Result;
+	}
+	Tests[]
+	{
+		{ L"12345"sv,     L"12345"sv,   L"12345"sv,   L"12345"sv, },
+		{ L"  12345"sv,   L"12345"sv,   L"  12345"sv, L"12345"sv, },
+		{ L"12345  "sv,   L"12345  "sv, L"12345"sv,   L"12345"sv, },
+		{ L"  12345  "sv, L"12345  "sv, L"  12345"sv, L"12345"sv, },
+		{ L" "sv,         L""sv,        L""sv,        L""sv,      },
+		{ L""sv,          L""sv,        L""sv,        L""sv,      },
+	};
+
+	for (const auto& i: Tests)
+	{
+		REQUIRE(trim_left(string(i.Src)) == i.ResultLeft);
+		REQUIRE(trim_right(string(i.Src)) == i.ResultRight);
+		REQUIRE(trim(string(i.Src)) == i.Result);
+	}
+}
+
+TEST_CASE("string_utils.fit")
+{
+	static const struct
+	{
+		string_view Src;
+		size_t Size;
+		string_view ResultLeft, ResultCenter, ResultRight;
+	}
+	Tests[]
+	{
+		{ L"12345"sv,  7,   L"12345  "sv,   L" 12345 "sv,   L"  12345"sv, },
+		{ L"12345"sv,  5,   L"12345"sv,     L"12345"sv,     L"12345"sv,   },
+		{ L"12345"sv,  3,   L"123"sv,       L"123"sv,       L"123"sv,     },
+		{ L"12345"sv,  1,   L"1"sv,         L"1"sv,         L"1"sv,       },
+		{ L"12345"sv,  0,   L""sv,          L""sv,          L""sv,        },
+
+		{ L"1"sv,      2,   L"1 "sv,        L"1 "sv,        L" 1"sv,      },
+		{ L"1"sv,      1,   L"1"sv,         L"1"sv,         L"1"sv,       },
+		{ L"1"sv,      0,   L""sv,          L""sv,          L""sv,        },
+
+		{ L""sv,       2,   L"  "sv,        L"  "sv,        L"  "sv,      },
+		{ L""sv,       1,   L" "sv,         L" "sv,         L" "sv,       },
+		{ L""sv,       0,   L""sv,          L""sv,          L""sv,        },
+	};
+
+	for (const auto& i: Tests)
+	{
+		REQUIRE(fit_to_left(string(i.Src), i.Size) == i.ResultLeft);
+		REQUIRE(fit_to_center(string(i.Src), i.Size) == i.ResultCenter);
+		REQUIRE(fit_to_right(string(i.Src), i.Size) == i.ResultRight);
+	}
+}
+
+TEST_CASE("string_utils.contains")
+{
+	static const struct
+	{
+		string_view Src;
+		string_view Pattern;
+		bool Starts, Ends, Contains;
+	}
+	Tests[]
+	{
+		{ L"12345"sv,      L"123456"sv, false,  false,  false,  },
+		{ L"12345"sv,      L"12345"sv,  true,   true,   true,   },
+		{ L"12345"sv,      L"123"sv,    true,   false,  true,   },
+		{ L"12345"sv,      L"345"sv,    false,  true,   true,   },
+		{ L"12345"sv,      L"234"sv,    false,  false,  true,   },
+		{ L"12345"sv,      L""sv,       true,   true,   true,   },
+		{ L"12345"sv,      L"foo"sv,    false,  false,  false,  },
+		{ L"12345"sv,      L"24"sv,     false,  false,  false,  },
+
+		{ L""sv,           L"1"sv,      false,  false,  false,  },
+		{ L""sv,           L""sv,       true,   true,   true,   },
+	};
+
+	for (const auto& i: Tests)
+	{
+		REQUIRE(starts_with(i.Src, i.Pattern) == i.Starts);
+		REQUIRE(ends_with(i.Src, i.Pattern) == i.Ends);
+		REQUIRE(contains(i.Src, i.Pattern) == i.Contains);
+	}
+}
+
+TEST_CASE("string_utils.quotes")
+{
+	REQUIRE(unquote(LR"("12"345")"s) == L"12345"sv);
+	REQUIRE(unquote(L"12345"s) == L"12345"sv);
+	REQUIRE(unquote(L""s) == L""sv);
+
+	REQUIRE(quote(L"12345"s) == LR"("12345")"sv);
+	REQUIRE(quote(LR"("12345")"s) == LR"("12345")"sv);
+	REQUIRE(quote(L""s) == LR"("")"sv);
+	REQUIRE(quote(LR"("")"s) == LR"("")"sv);
+
+	REQUIRE(quote_unconditional(LR"("12345")"s) == LR"(""12345"")"sv);
+	REQUIRE(quote_unconditional(L"12345"s) == LR"("12345")"sv);
+	REQUIRE(quote_unconditional(L""s) == LR"("")"sv);
+
+	REQUIRE(quote_normalise(LR"("12"345")"s) == LR"("12345")"sv);
+	REQUIRE(quote_normalise(L"12345"s) == LR"("12345")"sv);
+	REQUIRE(quote_normalise(L""s) == LR"("")"sv);
+}
+
+TEST_CASE("string_utils.split_name_value")
+{
+	static const struct
+	{
+		string_view Src;
+		std::pair<string_view, string_view> Result;
+	}
+	Tests[]
+	{
+		{ L"foo=bar"sv,    { L"foo"sv,   L"bar"sv,   }, },
+		{ L"foo=bar="sv,   { L"foo"sv,   L"bar="sv,  }, },
+		{ L"=foo"sv,       { L""sv,      L"foo"sv,   }, },
+		{ L"==foo"sv,      { L""sv,      L"=foo"sv,  }, },
+		{ L"foo="sv,       { L"foo"sv,   L""sv,      }, },
+		{ L"foo=="sv,      { L"foo"sv,   L"="sv,     }, },
+		{ L"="sv,          { L""sv,      L""sv,      }, },
+		{ L""sv,           { L""sv,      L""sv,      }, },
+		{ L"foo"sv,        { L"foo"sv,   L"foo"sv,   }, },
+	};
+
+	for (const auto& i: Tests)
+	{
+		REQUIRE(split_name_value(i.Src) == i.Result);
+	}
+}
+
+TEST_CASE("string_utils.misc")
 {
 	REQUIRE(!null_terminated(L"12345"sv.substr(0, 2)).c_str()[2]);
 
 	REQUIRE(concat(L'a', L"bc", L"def"sv, L"1234"s) == L"abcdef1234"sv);
-
-	REQUIRE(cut_left(L"12345"sv, 3) == L"345"sv);
-	REQUIRE(cut_left(L"12345"sv, 6) == L"12345"sv);
-
-	REQUIRE(cut_right(L"12345"sv, 3) == L"123"sv);
-	REQUIRE(cut_right(L"12345"sv, 6) == L"12345"sv);
-
-	REQUIRE(pad_left(L"123"s, 5) == L"  123"sv);
-	REQUIRE(pad_left(L"123"s, 2) == L"123"sv);
-
-	REQUIRE(pad_right(L"123"s, 5) == L"123  "sv);
-	REQUIRE(pad_right(L"123"s, 2) == L"123"sv);
-
-	REQUIRE(fit_to_left(L"12345"s, 3) == L"123"sv);
-	REQUIRE(fit_to_left(L"12345"s, 5) == L"12345"sv);
-	REQUIRE(fit_to_left(L"12345"s, 7) == L"12345  "sv);
-
-	REQUIRE(fit_to_center(L"12345"s, 3) == L"123"sv);
-	REQUIRE(fit_to_center(L"12345"s, 5) == L"12345"sv);
-	REQUIRE(fit_to_center(L"12345"s, 7) == L" 12345 "sv);
-
-	REQUIRE(fit_to_right(L"12345"s, 3) == L"123"sv);
-	REQUIRE(fit_to_right(L"12345"s, 5) == L"12345"sv);
-	REQUIRE(fit_to_right(L"12345"s, 7) == L"  12345"sv);
+	REQUIRE(concat(L""sv, L""sv) == L""sv);
+	REQUIRE(concat(L""sv) == L""sv);
 
 	REQUIRE(erase_all(L"1,2,3,4,5"s, L',') == L"12345"sv);
 	REQUIRE(erase_all(L"12345"s, L',') == L"12345"sv);
+	REQUIRE(erase_all(L""s, L',') == L""sv);
 
-	REQUIRE(unquote(L"\"12\"345\""s) == L"12345"sv);
-	REQUIRE(unquote(L"12345"s) == L"12345"sv);
-
-	REQUIRE(quote(L"12345"s) == L"\"12345\""sv);
-	REQUIRE(quote(L"\"12345\""s) == L"\"12345\""sv);
-
-	REQUIRE(quote_unconditional(L"\"12345\""s) == L"\"\"12345\"\""sv);
-	REQUIRE(quote_unconditional(L"12345"s) == L"\"12345\""sv);
-
-	REQUIRE(quote_normalise(L"\"12\"345\""s) == L"\"12345\""sv);
-	REQUIRE(quote_normalise(L"12345"s) == L"\"12345\""sv);
-
-	REQUIRE(starts_with(L"12345"sv, L"123"sv));
-	REQUIRE(starts_with(L"12345"sv, L'1'));
-	REQUIRE(!starts_with(L"12345"sv, L"345"sv));
-	REQUIRE(!starts_with(L"12345"sv, L'3'));
-	REQUIRE(!starts_with(L""sv, L'3'));
-
-	REQUIRE(ends_with(L"12345"sv, L"345"sv));
-	REQUIRE(ends_with(L"12345"sv, L'5'));
-	REQUIRE(!ends_with(L"12345"sv, L"123"sv));
-	REQUIRE(!ends_with(L"12345"sv, L'3'));
-	REQUIRE(!ends_with(L""sv, L'3'));
-
-	REQUIRE(trim_left(L"12345"sv) == L"12345"sv);
-	REQUIRE(trim_left(L"  12345"sv) == L"12345"sv);
-	REQUIRE(trim_left(L"12345  "sv) == L"12345  "sv);
-	REQUIRE(trim_left(L"  12345  "sv) == L"12345  "sv);
-
-	REQUIRE(trim_right(L"12345"sv) == L"12345"sv);
-	REQUIRE(trim_right(L"  12345"sv) == L"  12345"sv);
-	REQUIRE(trim_right(L"12345  "sv) == L"12345"sv);
-	REQUIRE(trim_right(L"  12345  "sv) == L"  12345"sv);
-
-	REQUIRE(trim(L"12345"sv) == L"12345"sv);
-	REQUIRE(trim(L"  12345"sv) == L"12345"sv);
-	REQUIRE(trim(L"12345  "sv) == L"12345"sv);
-	REQUIRE(trim(L"  12345  "sv) == L"12345"sv);
-
-	REQUIRE(join(std::array{ L"123"sv, L"45"sv, L"6"sv }, L","sv) == L"123,45,6"sv);
-
-	REQUIRE(contains(L"12345"sv, L"123"sv));
-	REQUIRE(contains(L"12345"sv, L'5'));
-	REQUIRE(!contains(L"12345"sv, L'R'));
+	REQUIRE(join(std::array{ L"123"sv, L"45"sv, L""sv, L"6"sv }, L","sv) == L"123,45,,6"sv);
 
 	REQUIRE(L"123"s + L"45"sv == L"12345"sv);
 	REQUIRE(L"123"sv + L"45"s == L"12345"sv);
@@ -501,7 +657,8 @@ TEST_CASE("string_utils")
 	REQUIRE(make_string_view(Str.begin() + 1, Str.end() - 1) == L"234"sv);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+
 #include "common/utility.hpp"
 
 TEMPLATE_TEST_CASE("utility.reserve_exp_noshrink", "", string, std::vector<int>)
@@ -551,7 +708,8 @@ TEST_CASE("utility")
 	REQUIRE(*Ptr5 == 5);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+
 #include "common/zip_view.hpp"
 
 TEST_CASE("zip")

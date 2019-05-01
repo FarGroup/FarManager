@@ -29,8 +29,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "plclass.hpp"
 
+// Internal:
 #include "plugins.hpp"
 #include "pathmix.hpp"
 #include "config.hpp"
@@ -47,13 +49,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
 
+// Common:
 #include "common/enum_tokens.hpp"
 #include "common/zip_view.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 std::exception_ptr& GlobalExceptionPtr()
 {

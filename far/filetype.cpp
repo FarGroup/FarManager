@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "filetype.hpp"
 
+// Internal:
 #include "keys.hpp"
 #include "dialog.hpp"
 #include "vmenu.hpp"
@@ -52,7 +54,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgGuid.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.fs.hpp"
+
+// Common:
+#include "common.hpp"
+#include "common/string_utils.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 /* $ 14.01.2001 SVS
    Добавим интеллектуальности.

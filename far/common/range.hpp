@@ -32,9 +32,12 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "preprocessor.hpp"
 #include "keep_alive.hpp"
 #include "rel_ops.hpp"
 #include "type_traits.hpp"
+
+//----------------------------------------------------------------------------
 
 template<typename iterator_type, typename const_iterator_type = iterator_type>
 class range

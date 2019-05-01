@@ -35,7 +35,16 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
+
+// Platform:
+
+// Common:
 #include "common/preprocessor.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 #define SQLITE_DEFAULT_MEMSTATUS 0
 #define SQLITE_DEFAULT_WAL_SYNCHRONOUS 1

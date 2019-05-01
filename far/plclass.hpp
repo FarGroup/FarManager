@@ -33,16 +33,24 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
 #include "bitflags.hpp"
 #include "windowsfwd.hpp"
 #include "exception_handler.hpp"
 #include "exception.hpp"
 #include "plugin.hpp"
 
+// Platform:
 #include "platform.fwd.hpp"
 
+// Common:
+#include "common.hpp"
 #include "common/scope_exit.hpp"
 #include "common/range.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 enum class lng : int;
 class PluginManager;

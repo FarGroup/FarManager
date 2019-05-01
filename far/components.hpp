@@ -34,9 +34,17 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
 #include "string_sort.hpp"
 
+// Platform:
+
+// Common:
 #include "common/enumerator.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 namespace components
 {

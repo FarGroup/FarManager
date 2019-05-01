@@ -35,7 +35,17 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
 #include "common/function_ref.hpp"
+
+// Platform:
+
+// Common:
+#include "common/utility.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 class FileFilter;
 struct PluginPanelItem;

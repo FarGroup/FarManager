@@ -29,11 +29,21 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "string_sort.hpp"
 
+// Internal:
 #include "string_utils.hpp"
 #include "config.hpp"
 #include "global.hpp"
+
+// Platform:
+
+// Common:
+
+// External:
+
+//----------------------------------------------------------------------------
 
 template<typename comparer>
 static int per_char_compare(const string_view Str1, const string_view Str2, const comparer Comparer)

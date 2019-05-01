@@ -36,10 +36,19 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
+// Internal:
 #include "plugin.hpp"
 
+// Platform:
+
+// Common:
 #include "common/2d/matrix.hpp"
 #include "common/2d/rectangle.hpp"
+#include "common/noncopyable.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 class SaveScreen: noncopyable
 {

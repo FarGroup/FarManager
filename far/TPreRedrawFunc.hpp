@@ -35,8 +35,17 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
+
+// Platform:
+
+// Common:
 #include "common/function_traits.hpp"
 #include "common/singleton.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 class PreRedrawItem: noncopyable
 {

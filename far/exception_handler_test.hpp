@@ -32,6 +32,16 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
+
+// Platform:
+
+// Common:
+
+// External:
+
+//----------------------------------------------------------------------------
+
 void RegisterTestExceptionsHook();
 
 #endif // EXCEPTION_HANDLER_TEST_HPP_8119AB71_22B0_4DCC_9A24_392834012EDB

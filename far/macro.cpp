@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "macro.hpp"
 
+// Internal:
 #include "FarGuid.hpp"
 #include "cmdline.hpp"
 #include "config.hpp"
@@ -76,13 +78,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "tvar.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
 #include "platform.security.hpp"
 
+// Common:
 #include "common/from_string.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 #if 0
 void print_opcodes()

@@ -28,8 +28,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "exception_handler_test.hpp"
 
+// Internal:
 #include "exception_handler.hpp"
 #include "global.hpp"
 #include "interf.hpp"
@@ -39,10 +41,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu.hpp"
 #include "vmenu2.hpp"
 
+// Platform:
 #include "platform.concurrency.hpp"
 
+// Common:
 #include "common/preprocessor.hpp"
 
+// External:
+
+//----------------------------------------------------------------------------
 
 #if defined(FAR_ALPHA_VERSION)
 

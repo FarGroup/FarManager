@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "edit.hpp"
 
+// Internal:
 #include "keyboard.hpp"
 #include "macroopcode.hpp"
 #include "ctrlobj.hpp"
@@ -49,7 +51,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.env.hpp"
+
+// Common:
+#include "common/algorithm.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 void ColorItem::SetOwner(const GUID& Value)
 {

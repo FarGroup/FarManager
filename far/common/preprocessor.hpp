@@ -32,6 +32,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+//----------------------------------------------------------------------------
+
 #define EXPAND(x) x
 
 #define DETAIL_CONCATENATE_IMPL(s1, s2) s1 ## s2

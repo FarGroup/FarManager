@@ -31,17 +31,25 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "eject.hpp"
 
+// Internal:
 #include "lang.hpp"
 #include "cddrv.hpp"
 #include "stddlg.hpp"
 #include "exception.hpp"
 #include "plugin.hpp"
 
+// Platform:
 #include "platform.fs.hpp"
 
+// Common:
+
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 #if 0
 static bool DismountVolume(HANDLE hVolume)

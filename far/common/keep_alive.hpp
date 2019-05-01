@@ -32,6 +32,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+//----------------------------------------------------------------------------
+
 template<typename arg_type>
 using keep_alive_type =
 	std::enable_if_t<std::is_reference_v<arg_type>,

@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "history.hpp"
 
+// Internal:
 #include "lang.hpp"
 #include "keys.hpp"
 #include "message.hpp"
@@ -53,9 +55,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu2.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.fs.hpp"
 
+// Common:
 #include "common/function_traits.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 History::History(history_type TypeHistory, string HistoryName, const BoolOption& EnableSave):
 	m_TypeHistory(TypeHistory),

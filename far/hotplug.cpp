@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "hotplug.hpp"
 
+// Internal:
 #include "lang.hpp"
 #include "keys.hpp"
 #include "help.hpp"
@@ -48,12 +50,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "drivemix.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.fs.hpp"
 
+// Common:
 #include "common/enum_substrings.hpp"
 #include "common/keep_alive.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 /*
 A device is considered a HotPlug device if the following are TRUE:
@@ -64,6 +71,33 @@ A device is considered a HotPlug device if the following are TRUE:
 - does NOT have Capability CM_DEVCAP_SURPRISEREMOVALOK
 - does NOT have Capability CM_DEVCAP_DOCKDEVICE
 */
+
+namespace
+{
+	class enum_child_devices: public enumerator<enum_child_devices, DEVINST>
+	{
+		IMPLEMENTS_ENUMERATOR(enum_child_devices);
+
+	public:
+		explicit enum_child_devices(DEVINST Root):
+			m_Root(Root)
+		{
+		}
+
+	private:
+		bool get(bool Reset, DEVINST& Value) const
+		{
+			if ((Reset? CM_Get_Child(&m_Current, m_Root, 0) : CM_Get_Sibling(&m_Current, m_Current, 0)) != CR_SUCCESS)
+				return false;
+
+			Value = m_Current;
+			return true;
+		}
+
+		DEVINST m_Root;
+		mutable DEVINST m_Current{};
+	};
+}
 
 namespace detail
 {
@@ -278,38 +312,24 @@ static DWORD GetRelationDrivesMask(DEVINST hDevInst)
 	return dwMask;
 }
 
-static DWORD GetDriveMaskForDeviceInternal(DEVINST hDevInst)
-{
-	DWORD dwMask = 0;
-	do
-	{
-		if (IsDeviceHotplug(hDevInst))
-			continue;
-
-		dwMask |= GetDriveMaskFromMountPoints(hDevInst);
-		dwMask |= GetRelationDrivesMask(hDevInst);
-
-		DEVINST hDevChild;
-		if (CM_Get_Child(&hDevChild, hDevInst, 0) == CR_SUCCESS)
-			dwMask |= GetDriveMaskForDeviceInternal(hDevChild);
-	}
-	while (CM_Get_Sibling(&hDevInst, hDevInst, 0) == CR_SUCCESS);
-
-	return dwMask;
-}
-
-
 static os::fs::drives_set GetDisksForDevice(DEVINST hDevInst)
 {
-	int DisksMask = 0;
-	DisksMask |= GetDriveMaskFromMountPoints(hDevInst);
-	DisksMask |= GetRelationDrivesMask(hDevInst);
+	os::fs::drives_set Drives;
 
-	DEVINST hDevChild;
-	if (CM_Get_Child(&hDevChild, hDevInst, 0) == CR_SUCCESS)
-		DisksMask |= GetDriveMaskForDeviceInternal(hDevChild);
+	Drives |= GetDriveMaskFromMountPoints(hDevInst);
+	Drives |= GetRelationDrivesMask(hDevInst);
 
-	return DisksMask;
+	for (const auto& i: enum_child_devices(hDevInst))
+	{
+		/*
+		Only get the drive letter for this device if it is not a hotplug device.
+		If it is a hotplug device then it will have its own subtree that contains its drive letters.
+		*/
+		if (!IsDeviceHotplug(i))
+			Drives |= GetDisksForDevice(i);
+	}
+
+	return Drives;
 }
 
 struct DeviceInfo
@@ -318,35 +338,29 @@ struct DeviceInfo
 	os::fs::drives_set Disks;
 };
 
-static void GetChildHotplugDevicesInfo(DEVINST hDevInst, std::vector<DeviceInfo>& Info)
+static void GetHotplugDevicesInfo(DEVINST hDevInst, std::vector<DeviceInfo>& Info)
 {
-	do
+	if (IsDeviceHotplug(hDevInst))
 	{
-		if (IsDeviceHotplug(hDevInst))
-		{
-			Info.emplace_back(DeviceInfo{ hDevInst, GetDisksForDevice(hDevInst) });
-		}
-
-		DEVINST hDevChild;
-		if (CM_Get_Child(&hDevChild, hDevInst, 0) == CR_SUCCESS)
-			GetChildHotplugDevicesInfo(hDevChild, Info);
+		Info.emplace_back(DeviceInfo{ hDevInst, GetDisksForDevice(hDevInst) });
 	}
-	while (CM_Get_Sibling(&hDevInst, hDevInst, 0) == CR_SUCCESS);
+
+	for (const auto& i: enum_child_devices(hDevInst))
+	{
+		GetHotplugDevicesInfo(i, Info);
+	}
 }
 
 static auto GetHotplugDevicesInfo()
 {
 	std::vector<DeviceInfo> Result;
 
-	DEVNODE hDevRoot;
-	if (CM_Locate_DevNodeW(&hDevRoot, nullptr, CM_LOCATE_DEVNODE_NORMAL) == CR_SUCCESS)
+	DEVNODE Root;
+	if (CM_Locate_DevNodeW(&Root, nullptr, CM_LOCATE_DEVNODE_NORMAL) == CR_SUCCESS)
 	{
-		DEVINST hDevChild;
-		if (CM_Get_Child(&hDevChild, hDevRoot, 0) == CR_SUCCESS)
-		{
-			GetChildHotplugDevicesInfo(hDevChild, Result);
-		}
+		GetHotplugDevicesInfo(Root, Result);
 	}
+
 	return Result;
 }
 

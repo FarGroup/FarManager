@@ -35,7 +35,17 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
 #include "panelfwd.hpp"
+
+// Platform:
+
+// Common:
+#include "common/noncopyable.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 void Delete(const panel_ptr& SrcPanel, bool Wipe);
 void DeleteDirTree(const string& Dir);

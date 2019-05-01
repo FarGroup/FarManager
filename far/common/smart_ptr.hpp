@@ -33,6 +33,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "placement.hpp"
+#include "preprocessor.hpp"
+
+//----------------------------------------------------------------------------
 
 template<typename T, size_t StaticSize>
 class array_ptr

@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "keyboard.hpp"
 
+// Internal:
 #include "keys.hpp"
 #include "ctrlobj.hpp"
 #include "filepanels.hpp"
@@ -55,12 +57,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.reg.hpp"
 
+// Common:
+#include "common/algorithm.hpp"
 #include "common/from_string.hpp"
 #include "common/scope_exit.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 /* start Глобальные переменные */
 
@@ -627,8 +635,8 @@ static bool ProcessMacros(INPUT_RECORD* rec, DWORD& Result)
 		int VirtKey, ControlState;
 		TranslateKeyToVK(MacroKey, VirtKey, ControlState, rec);
 		rec->EventType =
-			InRange(KEY_MACRO_BASE, static_cast<far_key_code>(MacroKey), KEY_MACRO_ENDBASE) ||
-			InRange(KEY_OP_BASE, static_cast<far_key_code>(MacroKey), KEY_OP_ENDBASE) ||
+			in_range(KEY_MACRO_BASE, static_cast<far_key_code>(MacroKey), KEY_MACRO_ENDBASE) ||
+			in_range(KEY_OP_BASE, static_cast<far_key_code>(MacroKey), KEY_OP_ENDBASE) ||
 			(MacroKey&~0xFF000000) >= KEY_END_FKEY?
 			0 : KEY_EVENT;
 
@@ -2229,7 +2237,7 @@ unsigned int CalcKeyCode(const INPUT_RECORD* rec, bool RealKey, bool* NotMacros)
 	if (KeyCode==VK_MENU)
 		AltValue=0;
 
-	if (InRange(unsigned(VK_F1), KeyCode, unsigned(VK_F24)))
+	if (in_range(unsigned(VK_F1), KeyCode, unsigned(VK_F24)))
 		return Modif + KEY_F1 + (KeyCode - VK_F1);
 
 	if (IntKeyState.OnlyAltPressed())
@@ -2310,7 +2318,7 @@ unsigned int CalcKeyCode(const INPUT_RECORD* rec, bool RealKey, bool* NotMacros)
 		return Char;
 	}
 
-	if (InRange(L'0',  KeyCode, L'9') || InRange(L'A', KeyCode, L'Z'))
+	if (in_range(L'0',  KeyCode, L'9') || in_range(L'A', KeyCode, L'Z'))
 		return Modif | KeyCode;
 
 	if (const auto OemKey = GetMappedCharacter(KeyCode))

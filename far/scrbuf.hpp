@@ -35,15 +35,22 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
 #include "bitflags.hpp"
 #include "plugin.hpp"
 
+// Platform:
 #include "platform.concurrency.hpp"
 
+// Common:
 #include "common/2d/matrix.hpp"
 #include "common/2d/point.hpp"
 #include "common/2d/rectangle.hpp"
 #include "common/range.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 enum class flush_type
 {

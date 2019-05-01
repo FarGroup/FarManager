@@ -35,13 +35,21 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
 #include "window.hpp"
 #include "editor.hpp"
 #include "plugin.hpp"
 #include "namelist.hpp"
 #include "codepage_selection.hpp"
 
+// Platform:
 #include "platform.fs.hpp"
+
+// Common:
+
+// External:
+
+//----------------------------------------------------------------------------
 
 struct error_state_ex;
 

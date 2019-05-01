@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "hilight.hpp"
 
+// Internal:
 #include "farcolor.hpp"
 #include "keys.hpp"
 #include "vmenu.hpp"
@@ -55,10 +57,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filefilter.hpp"
 #include "global.hpp"
 
+// Platform:
+
+// Common:
 #include "common/bytes_view.hpp"
+#include "common/string_utils.hpp"
 #include "common/zip_view.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 namespace names
 {

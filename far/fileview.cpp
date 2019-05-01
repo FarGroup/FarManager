@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "fileview.hpp"
 
+// Internal:
 #include "keys.hpp"
 #include "ctrlobj.hpp"
 #include "filepanels.hpp"
@@ -57,9 +59,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.fs.hpp"
 
+// Common:
+
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 FileViewer::FileViewer(private_tag, int DisableEdit, string_view const Title):
 	RedrawTitle(),
@@ -556,11 +564,7 @@ void FileViewer::ShowStatus() const
 	inplace::cut_right(StatusLine, AvailableSpace);
 	const int NameWidth = std::max(0, AvailableSpace - static_cast<int>(StatusLine.size()));
 
-	auto Name = GetTitle();
-	TruncPathStr(Name, NameWidth);
-	inplace::fit_to_left(Name, NameWidth);
-
-	Text(Name);
+	Text(fit_to_left(truncate_path(GetTitle(), NameWidth), NameWidth));
 	Text(StatusLine);
 
 	if (ClockSize)

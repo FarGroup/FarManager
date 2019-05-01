@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "dirinfo.hpp"
 
+// Internal:
 #include "keys.hpp"
 #include "scantree.hpp"
 #include "savescr.hpp"
@@ -57,7 +59,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "copy_progress.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.fs.hpp"
+
+// Common:
+
+// External:
+
+//----------------------------------------------------------------------------
 
 static void PR_DrawGetDirInfoMsg();
 
@@ -75,14 +84,11 @@ struct DirInfoPreRedrawItem : public PreRedrawItem
 
 static void DirInfoMsgImpl(string_view const Title, string_view const Name, unsigned long long const Items, unsigned long long const Size)
 {
-	string TruncatedName(Name);
-	TruncStrFromEnd(TruncatedName, static_cast<int>(copy_progress::CanvasWidth()));
-
 	Message(MSG_LEFTALIGN,
 		Title,
 		{
 			msg(lng::MScanningFolder),
-			pad_right(std::move(TruncatedName), copy_progress::CanvasWidth()),
+			pad_right(truncate_right(string(Name), copy_progress::CanvasWidth()), copy_progress::CanvasWidth()),
 			L"\1"s,
 			copy_progress::FormatCounter(lng::MCopyFilesTotalInfo, lng::MCopyBytesTotalInfo, Items, 0, false, copy_progress::CanvasWidth() - 5),
 			copy_progress::FormatCounter(lng::MCopyBytesTotalInfo, lng::MCopyFilesTotalInfo, Size, 0, false, copy_progress::CanvasWidth() - 5),
@@ -404,9 +410,7 @@ static bool GetPluginDirListImpl(Plugin* PluginNumber, HANDLE hPlugin, const str
 	{
 		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<DirInfoPreRedrawItem>());
 		{
-			auto strDirName = Dir;
-			TruncStr(strDirName,30);
-			inplace::fit_to_center(strDirName, 30);
+			const auto strDirName = fit_to_center(truncate_left(Dir, 30), 30);
 			SetCursorType(false, 0);
 			PluginSearchMsgOut=FALSE;
 

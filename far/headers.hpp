@@ -205,6 +205,4 @@ using namespace std::string_view_literals;
 using namespace std::chrono_literals;
 WARNING_POP()
 
-#include "common.hpp"
-
 #endif // HEADERS_HPP_9A02D08B_02BB_4240_845F_36ED60ED2647

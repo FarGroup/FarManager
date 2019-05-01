@@ -32,7 +32,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "preprocessor.hpp"
 #include "type_traits.hpp"
+
+//----------------------------------------------------------------------------
 
 // for_each with embedded counter
 template<class I, class F>
@@ -200,6 +203,12 @@ bool contains(const container& Container, const element& Element)
 		const auto End = std::cend(Container);
 		return std::find(std::cbegin(Container), End, Element) != End;
 	}
+}
+
+template<typename min_type, typename value_type, typename max_type>
+constexpr bool in_range(min_type const& Min, value_type const& Value, max_type const& Max)
+{
+	return Min <= Value && Value <= Max;
 }
 
 #endif // ALGORITHM_HPP_BBD588C0_4752_46B2_AAB9_65450622FFF0

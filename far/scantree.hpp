@@ -37,9 +37,19 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
+// Internal:
 #include "bitflags.hpp"
 
+// Platform:
 #include "platform.fwd.hpp"
+
+// Common:
+#include "common/noncopyable.hpp"
+#include "common/utility.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 enum
 {

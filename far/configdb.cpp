@@ -30,8 +30,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "configdb.hpp"
 
+// Internal:
 #include "sqlitedb.hpp"
 #include "strmix.hpp"
 #include "encoding.hpp"
@@ -44,16 +46,22 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "stddlg.hpp"
 
+// Platform:
 #include "platform.concurrency.hpp"
 #include "platform.fs.hpp"
 
+// Common:
+#include "common.hpp"
 #include "common/bytes_view.hpp"
 #include "common/chrono.hpp"
 #include "common/function_ref.hpp"
 #include "common/scope_exit.hpp"
 
+// External:
 #include "format.hpp"
 #include "tinyxml.hpp"
+
+//----------------------------------------------------------------------------
 
 class representation_source
 {

@@ -33,10 +33,18 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
+
+// Platform:
 #include "platform.hpp"
 #include "platform.chrono.hpp"
 
+// Common:
 #include "common/enumerator.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 namespace os::fs
 {

@@ -32,6 +32,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+//----------------------------------------------------------------------------
+
 namespace nifty_counter
 {
 	// GCC 7.1 says that using an aligned_storage here (which is the whole purpose of it) "will break strict-aliasing rules".

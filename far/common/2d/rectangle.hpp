@@ -33,7 +33,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "../algorithm.hpp"
 #include "point.hpp"
+
+//----------------------------------------------------------------------------
 
 template<typename T>
 struct rectangle_t
@@ -70,7 +73,7 @@ struct rectangle_t
 	[[nodiscard]]
 	bool contains(point Point) const
 	{
-		return InRange(left, Point.x, right) && InRange(top, Point.y, bottom);
+		return in_range(left, Point.x, right) && in_range(top, Point.y, bottom);
 	}
 };
 

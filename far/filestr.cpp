@@ -31,18 +31,26 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "filestr.hpp"
 
+// Internal:
 #include "nsUniversalDetectorEx.hpp"
 #include "config.hpp"
 #include "codepage_selection.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.fs.hpp"
 
+// Common:
+#include "common/algorithm.hpp"
 #include "common/enum_tokens.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 static const size_t DELTA = 1024;
 static const size_t ReadBufCount = 65536;

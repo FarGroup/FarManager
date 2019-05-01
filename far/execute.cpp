@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "execute.hpp"
 
+// Internal:
 #include "keyboard.hpp"
 #include "ctrlobj.hpp"
 #include "chgprior.hpp"
@@ -53,14 +55,20 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
 #include "platform.reg.hpp"
 
+// Common:
+#include "common.hpp"
 #include "common/enum_tokens.hpp"
 #include "common/scope_exit.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 enum class image_type
 {

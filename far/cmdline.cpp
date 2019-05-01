@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "cmdline.hpp"
 
+// Internal:
 #include "execute.hpp"
 #include "macroopcode.hpp"
 #include "keys.hpp"
@@ -70,15 +72,19 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farversion.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
 #include "platform.security.hpp"
 
+// Common:
+#include "common/algorithm.hpp"
 #include "common/enum_substrings.hpp"
 #include "common/from_string.hpp"
 #include "common/function_traits.hpp"
 #include "common/scope_exit.hpp"
 
+// External:
 #include "format.hpp"
 
 enum
@@ -166,11 +172,11 @@ size_t CommandLine::DrawPrompt()
 
 		if (TryCollapse && i.Collapsible)
 		{
-			TruncPathStr(str, static_cast<int>(CollapsibleItemLength));
+			inplace::truncate_path(str, CollapsibleItemLength);
 		}
 
 		if (CurLength + str.size() > MaxLength)
-			TruncPathStr(str, std::max(0, static_cast<int>(MaxLength - CurLength)));
+			inplace::truncate_path(str, std::max(size_t{}, MaxLength - CurLength));
 		SetColor(i.Colour);
 		Text(str);
 		CurLength += str.size();

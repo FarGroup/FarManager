@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "mkdir.hpp"
 
+// Internal:
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "treelist.hpp"
@@ -49,9 +51,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cvtname.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.fs.hpp"
 
+// Common:
+#include "common.hpp"
 #include "common/enum_tokens.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 enum
 {

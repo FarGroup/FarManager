@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "infolist.hpp"
 
+// Internal:
 #include "imports.hpp"
 #include "macroopcode.hpp"
 #include "flink.hpp"
@@ -63,11 +65,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.fs.hpp"
 
+// Common:
+#include "common.hpp"
 #include "common/enum_tokens.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 static bool LastMode = false;
 static bool LastDizWrapMode = false;
@@ -155,7 +163,7 @@ void InfoList::DrawTitle(string &strTitle,int Id,int &CurY)
 	SetColor(COL_PANELBOX);
 	DrawSeparator(CurY);
 	SetColor(COL_PANELTEXT);
-	TruncStr(strTitle, std::max(0, m_Where.width() - 4));
+	inplace::truncate_left(strTitle, std::max(0, m_Where.width() - 4));
 	GotoXY(m_Where.left + (m_Where.width() - static_cast<int>(strTitle.size())) / 2, CurY);
 	PrintText(strTitle);
 	GotoXY(m_Where.left + 1, CurY);
@@ -908,8 +916,7 @@ void InfoList::PrintInfo(const string& str) const
 	if (MaxLength<0)
 		MaxLength=0;
 
-	auto strStr = str;
-	TruncStr(strStr,MaxLength);
+	const auto strStr = truncate_left(str, MaxLength);
 	const auto Length=static_cast<int>(strStr.size());
 	const auto NewX = m_Where.right - Length - 1;
 
@@ -994,7 +1001,7 @@ bool InfoList::ShowPluginDescription(int YPos)
 				strTitle = concat(L' ', InfoLine->Text, L' ');
 
 			DrawSeparator(Y);
-			TruncStr(strTitle, std::max(0, m_Where.width() - 4));
+			inplace::truncate_left(strTitle, std::max(0, m_Where.width() - 4));
 			GotoXY(m_Where.left + (m_Where.width() - 1 - static_cast<int>(strTitle.size())) / 2, Y);
 			SetColor(COL_PANELTEXT);
 			PrintText(strTitle);

@@ -30,12 +30,23 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "platform.concurrency.hpp"
 
+// Internal:
 #include "imports.hpp"
 #include "pathmix.hpp"
 
+// Platform:
+
+// Common:
+#include "common.hpp"
+#include "common/string_utils.hpp"
+
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 namespace os::concurrency
 {

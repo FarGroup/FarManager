@@ -34,6 +34,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "enumerator.hpp"
 
+//----------------------------------------------------------------------------
+
 // Enumerator for string1\0string2\0string3\0...stringN\0\0
 
 template<class char_type>

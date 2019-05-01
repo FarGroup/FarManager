@@ -30,8 +30,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "network.hpp"
 
+// Internal:
 #include "lang.hpp"
 #include "message.hpp"
 #include "stddlg.hpp"
@@ -42,10 +44,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "exception.hpp"
 
+// Platform:
 #include "platform.fs.hpp"
 #include "platform.reg.hpp"
 
+// Common:
+#include "common.hpp"
 #include "common/scope_exit.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 static string GetStoredUserName(wchar_t Drive)
 {

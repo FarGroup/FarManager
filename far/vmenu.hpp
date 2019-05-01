@@ -39,11 +39,19 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
 #include "modal.hpp"
 #include "bitflags.hpp"
 #include "farcolor.hpp"
 
+// Platform:
+
+// Common:
 #include "common/range.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 // Цветовые атрибуты - индексы в массиве цветов
 enum vmenu_colors

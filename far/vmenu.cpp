@@ -35,8 +35,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "vmenu.hpp"
 
+// Internal:
 #include "keyboard.hpp"
 #include "keys.hpp"
 #include "macroopcode.hpp"
@@ -61,9 +63,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception.hpp"
 #include "global.hpp"
 
+// Platform:
+
+// Common:
+#include "common.hpp"
 #include "common/function_traits.hpp"
 #include "common/scope_exit.hpp"
 #include "common/zip_view.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 static MenuItemEx FarList2MenuItem(const FarListItem& FItem)
 {

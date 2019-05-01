@@ -34,6 +34,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "preprocessor.hpp"
 
+//----------------------------------------------------------------------------
+
 template <typename callable_type>
 class function_ref;
 

@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "scrbuf.hpp"
 
+// Internal:
 #include "farcolor.hpp"
 #include "ctrlobj.hpp"
 #include "interf.hpp"
@@ -42,7 +44,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "global.hpp"
 
+// Platform:
+
+// Common:
 #include "common/2d/algorithm.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 enum
 {

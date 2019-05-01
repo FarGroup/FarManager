@@ -30,8 +30,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "console.hpp"
 
+// Internal:
 #include "imports.hpp"
 #include "colormix.hpp"
 #include "interf.hpp"
@@ -39,14 +41,22 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "exception.hpp"
 
+// Platform:
+
+// Common:
+#include "common.hpp"
 #include "common/2d/algorithm.hpp"
+#include "common/algorithm.hpp"
 #include "common/enum_substrings.hpp"
 #include "common/function_traits.hpp"
 #include "common/io.hpp"
 #include "common/range.hpp"
 #include "common/scope_exit.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 static bool sWindowMode;
 static bool sEnableVirtualTerminal;
@@ -1108,11 +1118,11 @@ namespace console_detail
 		if (!GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi))
 			return false;
 
-		if (!InRange(csbi.srWindow.Left, Position.x, csbi.srWindow.Right))
+		if (!in_range(csbi.srWindow.Left, Position.x, csbi.srWindow.Right))
 			return false;
 
 		const auto RealY = Position.y + (sWindowMode? ::GetDelta(csbi) : 0);
-		return InRange(csbi.srWindow.Top, RealY, csbi.srWindow.Bottom);
+		return in_range(csbi.srWindow.Top, RealY, csbi.srWindow.Bottom);
 	}
 
 	bool console::GetPalette(std::array<COLORREF, 16>& Palette) const

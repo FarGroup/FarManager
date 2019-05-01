@@ -34,6 +34,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "rel_ops.hpp"
 
+//----------------------------------------------------------------------------
+
 template <class T>
 class null_iterator: public rel_ops<null_iterator<T>>
 {

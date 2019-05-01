@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "interf.hpp"
 
+// Internal:
 #include "keyboard.hpp"
 #include "keys.hpp"
 #include "farcolor.hpp"
@@ -51,12 +53,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "taskbar.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.concurrency.hpp"
 #include "platform.security.hpp"
 
+// Common:
 #include "common/function_ref.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 static HICON load_icon(int IconId, bool Big)
 {

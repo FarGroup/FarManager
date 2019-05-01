@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "findfile.hpp"
 
+// Internal:
 #include "flink.hpp"
 #include "keys.hpp"
 #include "ctrlobj.hpp"
@@ -79,15 +81,20 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "drivemix.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.concurrency.hpp"
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
 
+// Common:
 #include "common/bytes_view.hpp"
 #include "common/enum_tokens.hpp"
 #include "common/scope_exit.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 // Список найденных файлов. Индекс из списка хранится в меню.
 struct FindListItem
@@ -1363,9 +1370,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 			if (!strFindStr.empty())
 			{
-				string strFStr(strFindStr);
-				TruncStrFromEnd(strFStr,10);
-				strSearchStr = format(msg(lng::MFindSearchingIn), quote_unconditional(strFStr));
+				strSearchStr = format(msg(lng::MFindSearchingIn), quote_unconditional(truncate_right(strFindStr, 10)));
 			}
 
 			auto strFM = itd->GetFindMessage();
@@ -1377,7 +1382,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				strSearchStr += L' ';
 			}
 
-			TruncStrFromCenter(strFM, Rect.Right-Rect.Left+1 - static_cast<int>(strSearchStr.size()));
+			inplace::truncate_center(strFM, Rect.Right - Rect.Left + 1 - strSearchStr.size());
 			Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS, UNSAFE_CSTR(strSearchStr + strFM));
 			if (!strFindStr.empty())
 			{

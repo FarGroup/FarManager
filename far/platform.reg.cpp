@@ -29,13 +29,22 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "platform.reg.hpp"
 
+// Internal:
 #include "exception.hpp"
 
-#include "common/bytes_view.hpp"
+// Platform:
 
+// Common:
+#include "common/bytes_view.hpp"
+#include "common/string_utils.hpp"
+
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 namespace
 {

@@ -35,8 +35,18 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
 #include "scrobj.hpp"
 #include "plugin.hpp"
+
+// Platform:
+
+// Common:
+#include "common/smart_ptr.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 class KeyBar;
 

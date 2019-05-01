@@ -31,11 +31,22 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "menubar.hpp"
 
+// Internal:
 #include "farcolor.hpp"
 #include "lang.hpp"
 #include "interf.hpp"
+
+// Platform:
+
+// Common:
+#include "common/string_utils.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 void MenuBar::DisplayObject()
 {

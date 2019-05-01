@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "dirmix.hpp"
 
+// Internal:
 #include "cvtname.hpp"
 #include "message.hpp"
 #include "lang.hpp"
@@ -45,10 +47,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "network.hpp"
 #include "string_utils.hpp"
 
+// Platform:
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
 
+// Common:
+
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 static auto make_curdir_name(wchar_t Drive)
 {
@@ -199,8 +207,7 @@ bool CheckShortcutFolder(string& TestPath, bool TryClosest, bool Silent)
 	SetLastError(ERROR_PATH_NOT_FOUND);
 	const auto ErrorState = error_state::fetch();
 
-	auto Target = TestPath;
-	TruncPathStr(Target, ScrX - 16);
+	const auto Target = truncate_path(TestPath, ScrX - 16);
 
 	if (!TryClosest)
 	{

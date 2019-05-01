@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "foldtree.hpp"
 
+// Internal:
 #include "keyboard.hpp"
 #include "keys.hpp"
 #include "treelist.hpp"
@@ -47,7 +49,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.fs.hpp"
+
+// Common:
+#include "common/string_utils.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 FolderTree::FolderTree(private_tag, int iModalMode, int IsStandalone, bool IsFullScreen):
 	Tree(nullptr),

@@ -35,10 +35,19 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
 #include "bitflags.hpp"
 #include "manager.hpp" //Manager::Key
 
+// Platform:
+
+// Common:
 #include "common/2d/rectangle.hpp"
+#include "common/utility.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 class SaveScreen;
 

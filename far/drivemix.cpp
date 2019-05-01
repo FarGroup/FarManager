@@ -31,14 +31,23 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "drivemix.hpp"
 
+// Internal:
 #include "config.hpp"
 #include "notification.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.fs.hpp"
 #include "platform.security.hpp"
+
+// Common:
+
+// External:
+
+//----------------------------------------------------------------------------
 
 static std::optional<os::fs::drives_set> SavedLogicalDrives;
 

@@ -29,8 +29,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "codepage_selection.hpp"
 
+// Internal:
 #include "encoding.hpp"
 #include "vmenu2.hpp"
 #include "keys.hpp"
@@ -45,10 +47,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu.hpp"
 #include "global.hpp"
 
+// Platform:
+
+// Common:
+#include "common/algorithm.hpp"
 #include "common/enum_tokens.hpp"
 #include "common/from_string.hpp"
+#include "common/preprocessor.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 // Ключ где хранятся имена кодовых страниц
 static const auto NamesOfCodePagesKey = L"CodePages.Names"sv;

@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "editor.hpp"
 
+// Internal:
 #include "edit.hpp"
 #include "keyboard.hpp"
 #include "macroopcode.hpp"
@@ -64,10 +66,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "global.hpp"
 
+// Platform:
+
+// Common:
 #include "common/bytes_view.hpp"
 #include "common/scope_exit.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 static bool ReplaceMode, ReplaceAll;
 

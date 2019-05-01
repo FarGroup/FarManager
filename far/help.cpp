@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "help.hpp"
 
+// Internal:
 #include "keyboard.hpp"
 #include "keys.hpp"
 #include "farcolor.hpp"
@@ -60,11 +62,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "modal.hpp"
 
+// Platform:
 #include "platform.fs.hpp"
 
+// Common:
+#include "common/algorithm.hpp"
 #include "common/from_string.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 static const auto
 	FoundContents = L"__FoundContents__"sv,
@@ -351,7 +359,7 @@ bool Help::ReadHelp(const string& Mask)
 		unsigned UserTabSize;
 		if (from_string(strReadStr, UserTabSize))
 		{
-			if (InRange(0u, UserTabSize, 16u))
+			if (in_range(0u, UserTabSize, 16u))
 			{
 				CtrlTabSize = UserTabSize;
 			}
@@ -928,8 +936,7 @@ void Help::DrawWindowFrame() const
 	SetScreen(m_Where, L' ', colors::PaletteColorToFarColor(COL_HELPTEXT));
 	Box(m_Where, colors::PaletteColorToFarColor(COL_HELPBOX), DOUBLE_BOX);
 	SetColor(COL_HELPBOXTITLE);
-	auto strHelpTitleBuf = concat(msg(lng::MHelpTitle), L" - "sv, strCurPluginContents.empty()? L"Far"s : strCurPluginContents);
-	TruncStrFromEnd(strHelpTitleBuf, CanvasWidth() - 2);
+	const auto strHelpTitleBuf = truncate_right(concat(msg(lng::MHelpTitle), L" - "sv, strCurPluginContents.empty()? L"Far"s : strCurPluginContents), CanvasWidth() - 2);
 	GotoXY(m_Where.left + (ObjWidth() - static_cast<int>(strHelpTitleBuf.size()) - 2) / 2, m_Where.top);
 	Text(concat(L' ', strHelpTitleBuf, L' '));
 }

@@ -29,13 +29,22 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "platform.env.hpp"
 
+// Internal:
 #include "lasterror.hpp"
 
+// Platform:
 #include "platform.hpp"
 
+// Common:
 #include "common/range.hpp"
+#include "common/string_utils.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 namespace os::env
 {

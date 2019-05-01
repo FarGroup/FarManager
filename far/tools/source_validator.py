@@ -166,7 +166,7 @@ def get_list(dir):
 
 if __name__ == "__main__":
 	extensions = ('.cpp', '.hpp', '.c', '.h')
-	files = get_list(".") + get_list("common") + get_list("sdk")
+	files = get_list(".") + get_list("common") + get_list("common/2d") + get_list("sdk")
 	for file in files:
 		ext = os.path.splitext(file)[-1].lower()
 		if ext in extensions:

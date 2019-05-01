@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "hmenu.hpp"
 
+// Internal:
 #include "farcolor.hpp"
 #include "keys.hpp"
 #include "dialog.hpp"
@@ -50,7 +52,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "global.hpp"
 
+// Platform:
+
+// Common:
 #include "common/scope_exit.hpp"
+#include "common/string_utils.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 HMenu::HMenu(private_tag, HMenuData *Item,size_t ItemCount):
 	Item(Item, Item + ItemCount),

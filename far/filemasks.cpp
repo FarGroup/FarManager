@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "filemasks.hpp"
 
+// Internal:
 #include "message.hpp"
 #include "lang.hpp"
 #include "processname.hpp"
@@ -43,9 +45,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "plugin.hpp"
 
+// Platform:
 #include "platform.env.hpp"
 
+// Common:
 #include "common/enum_tokens.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 static const wchar_t ExcludeMaskSeparator = L'|';
 static const wchar_t RE_start = L'/', RE_end = L'/';

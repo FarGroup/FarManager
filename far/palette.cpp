@@ -31,14 +31,24 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "palette.hpp"
 
+// Internal:
 #include "farcolor.hpp"
 #include "colormix.hpp"
 #include "configdb.hpp"
 #include "plugin.hpp"
 
+// Platform:
+
+// Common:
+#include "common/algorithm.hpp"
+
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 static const struct ColorsInit
 {

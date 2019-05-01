@@ -31,12 +31,23 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "poscache.hpp"
 
+// Internal:
 #include "config.hpp"
 #include "configdb.hpp"
 #include "cvtname.hpp"
 #include "global.hpp"
+
+// Platform:
+
+// Common:
+#include "common/algorithm.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 static auto GetFullName(const string& Name)
 {

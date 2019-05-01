@@ -30,15 +30,23 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "memcheck.hpp"
 
+// Internal:
 #include "strmix.hpp"
 #include "encoding.hpp"
 #include "exception.hpp"
 
+// Platform:
 #include "platform.concurrency.hpp"
 
+// Common:
+
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 #ifdef MEMCHECK
 

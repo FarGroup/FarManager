@@ -36,6 +36,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "range.hpp"
 #include "scope_exit.hpp"
 
+//----------------------------------------------------------------------------
+
 namespace io
 {
 	template<typename char_type>

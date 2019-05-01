@@ -30,7 +30,20 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "string_utils.hpp"
+
+// Internal:
+
+// Platform:
+
+// Common:
+#include "common/preprocessor.hpp"
+#include "common/utility.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 const string& GetSpaces()
 {
@@ -104,26 +117,26 @@ void inplace::lower(wchar_t* Str)
 	lower(Str, wcslen(Str));
 }
 
-string& inplace::upper(string& Str, size_t Pos, size_t Count)
+void inplace::upper(string& Str, size_t Pos, size_t Count)
 {
 	upper(&Str[Pos], Count == string::npos? Str.size() - Pos : Count);
-	return Str;
 }
 
-string& inplace::lower(string& Str, size_t Pos, size_t Count)
+void inplace::lower(string& Str, size_t Pos, size_t Count)
 {
 	lower(&Str[Pos], Count == string::npos? Str.size() - Pos : Count);
-	return Str;
 }
 
 string upper(string Str)
 {
-	return inplace::upper(Str, 0, string::npos);
+	inplace::upper(Str, 0, string::npos);
+	return Str;
 }
 
 string lower(string Str)
 {
-	return inplace::lower(Str, 0, string::npos);
+	inplace::lower(Str, 0, string::npos);
+	return Str;
 }
 
 size_t hash_icase_t::operator()(wchar_t const Char) const

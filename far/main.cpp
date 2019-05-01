@@ -32,6 +32,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
 #include "keys.hpp"
 #include "chgprior.hpp"
 #include "farcolor.hpp"
@@ -69,12 +70,20 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "locale.hpp"
 
+// Platform:
 #include "platform.env.hpp"
 #include "platform.memory.hpp"
 #include "platform.security.hpp"
 
+// Common:
+#include "common/algorithm.hpp"
 #include "common/range.hpp"
 #include "common/scope_exit.hpp"
+#include "common/string_utils.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 #ifdef ENABLE_TESTS
 #define TESTS_ENTRYPOINT_ONLY
@@ -416,7 +425,7 @@ static bool ProcessServiceModes(range<const wchar_t* const*> const Args, int& Se
 		return true;
 	}
 
-	if (InRange(2u, Args.size(), 5u) && (isArg(Args[0], L"export"sv) || isArg(Args[0], L"import"sv)))
+	if (in_range(2u, Args.size(), 5u) && (isArg(Args[0], L"export"sv) || isArg(Args[0], L"import"sv)))
 	{
 		const auto Export = isArg(Args[0], L"export"sv);
 		string strProfilePath(Args.size() > 2? Args[2] : L""sv), strLocalProfilePath(Args.size() > 3 ? Args[3] : L""), strTemplatePath(Args.size() > 4 ? Args[4] : L"");
@@ -427,7 +436,7 @@ static bool ProcessServiceModes(range<const wchar_t* const*> const Args, int& Se
 		return true;
 	}
 
-	if (InRange(1u, Args.size(), 3u) && isArg(Args[0], L"clearcache"sv))
+	if (in_range(1u, Args.size(), 3u) && isArg(Args[0], L"clearcache"sv))
 	{
 		string strProfilePath(Args.size() > 1? Args[1] : L""sv);
 		string strLocalProfilePath(Args.size() > 2? Args[2] : L""sv);

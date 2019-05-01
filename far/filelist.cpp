@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "filelist.hpp"
 
+// Internal:
 #include "keyboard.hpp"
 #include "flink.hpp"
 #include "keys.hpp"
@@ -97,13 +99,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_sort.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.fs.hpp"
 
+// Common:
 #include "common/enum_tokens.hpp"
 #include "common/rel_ops.hpp"
 #include "common/scope_exit.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 static int CompareTime(os::chrono::time_point First, os::chrono::time_point Second)
 {
@@ -1759,7 +1766,9 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 						if (!strFileName.empty())
 						{
-							strShortFileName = ConvertNameToShort(inplace::unquote(strFileName));
+							inplace::unquote(strFileName);
+
+							strShortFileName = ConvertNameToShort(strFileName);
 
 							if (IsAbsolutePath(strFileName))
 							{
@@ -6704,7 +6713,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 					}
 					else
 					{
-						TruncStr(strReadMsg,static_cast<int>(Title.size())-2);
+						inplace::truncate_left(strReadMsg, Title.size() - 2);
 						GotoXY(m_Where.left + 1 + static_cast<int>(Title.size() - strReadMsg.size() - 1) / 2, m_Where.top);
 						Text(concat(L' ', strReadMsg, L' '));
 					}
@@ -7542,7 +7551,7 @@ void FileList::ShowFileList(bool Fast)
 	MaxSize -= XShift;
 	if (MaxSize >= 2)
 	{
-		TruncPathStr(strTitle, MaxSize - 2);
+		inplace::truncate_path(strTitle, MaxSize - 2);
 	}
 	strTitle.insert(0, 1, L' ');
 	strTitle.push_back(L' ');
@@ -7728,7 +7737,7 @@ void FileList::ShowSelectedSize()
 			strFormStr = size2str(SelFileSize, 6, false, true);
 			strSelStr = format(msg(lng::MListFileSize), strFormStr, m_SelFileCount - m_SelDirCount, m_SelDirCount, m_SelFileCount);
 			if (strSelStr.size() > AvailableWidth)
-				TruncStrFromEnd(strSelStr, static_cast<int>(AvailableWidth));
+				inplace::truncate_right(strSelStr, AvailableWidth);
 		}
 		SetColor(COL_PANELSELECTEDINFO);
 		GotoXY(static_cast<int>(m_Where.left + BorderSize + (AvailableWidth - strSelStr.size()) / 2), m_Where.bottom - 2 * Global->Opt->ShowPanelStatus);
@@ -7779,7 +7788,7 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 	{
 		if (Global->Opt->ShowBytes)
 			TotalStr = calc_total_string(true);
-		TruncStrFromEnd(TotalStr, static_cast<int>(AvailableWidth));
+		inplace::truncate_right(TotalStr, AvailableWidth);
 	}
 
 	const string_view TotalStrView = TotalStr;

@@ -33,8 +33,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "editcontrol.hpp"
 
+// Internal:
 #include "config.hpp"
 #include "keys.hpp"
 #include "keyboard.hpp"
@@ -53,13 +55,20 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_sort.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.env.hpp"
 #include "platform.reg.hpp"
 #include "platform.fs.hpp"
 
+// Common:
+#include "common/algorithm.hpp"
 #include "common/enum_tokens.hpp"
 #include "common/enum_substrings.hpp"
 #include "common/scope_exit.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 EditControl::EditControl(window_ptr Owner, SimpleScreenObject* Parent, parent_processkey_t&& ParentProcessKey, Callback* aCallback, History* iHistory, FarList* iList, DWORD iFlags):
 	Edit(std::move(Owner)),

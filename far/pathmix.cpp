@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "pathmix.hpp"
 
+// Internal:
 #include "strmix.hpp"
 #include "regex_helpers.hpp"
 #include "string_utils.hpp"
@@ -40,9 +42,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filelist.hpp"
 #include "plugin.hpp"
 
+// Platform:
 #include "platform.fs.hpp"
 
+// Common:
+#include "common.hpp"
+
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 void NTPath::Transform()
 {

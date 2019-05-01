@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "syslog.hpp"
 
+// Internal:
 #include "filelist.hpp"
 #include "manager.hpp"
 #include "window.hpp"
@@ -46,9 +48,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.memory.hpp"
 
+// Common:
+#include "common.hpp"
 #include "common/scope_exit.hpp"
+#include "common/string_utils.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 #if !defined(SYSLOG)
 #if defined(SYSLOG_OT)             || \

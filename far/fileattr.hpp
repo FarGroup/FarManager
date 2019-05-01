@@ -35,9 +35,17 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
+
+// Platform:
 #include "platform.chrono.hpp"
 
+// Common:
 #include "common/function_ref.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 enum SETATTR_RET_CODES
 {

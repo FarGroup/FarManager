@@ -30,14 +30,23 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "wm_listener.hpp"
 
+// Internal:
 #include "config.hpp"
 #include "imports.hpp"
 #include "notification.hpp"
 #include "global.hpp"
 
+// Platform:
+
+// Common:
 #include "common/scope_exit.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 static std::exception_ptr* WndProcExceptionPtr;
 static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)

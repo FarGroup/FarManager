@@ -32,13 +32,22 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "RegExp.hpp"
 
+// Internal:
 #include "string_utils.hpp"
 #include "plugin.hpp"
 
+// Platform:
+
+// Common:
 #include "common/function_ref.hpp"
 #include "common/movable.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 WARNING_DISABLE_GCC("-Wpragmas")
 WARNING_DISABLE_GCC("-Wimplicit-fallthrough")

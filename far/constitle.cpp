@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "constitle.hpp"
 
+// Internal:
 #include "lang.hpp"
 #include "config.hpp"
 #include "farversion.hpp"
@@ -40,11 +42,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.concurrency.hpp"
 #include "platform.env.hpp"
 #include "platform.security.hpp"
 
+// Common:
+
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 static const string& GetFarTitleAddons()
 {

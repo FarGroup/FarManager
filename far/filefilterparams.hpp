@@ -35,13 +35,21 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
 #include "filemasks.hpp"
 #include "hilight.hpp"
 
+// Platform:
 #include "platform.chrono.hpp"
 #include "platform.fwd.hpp"
 
+// Common:
 #include "common/function_ref.hpp"
+#include "common/utility.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 enum
 {

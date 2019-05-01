@@ -32,15 +32,25 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "scantree.hpp"
 
+// Internal:
 #include "syslog.hpp"
 #include "config.hpp"
 #include "pathmix.hpp"
 #include "cvtname.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.fs.hpp"
+
+// Common:
+#include "common/string_utils.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 struct ScanTree::scantree_item
 {

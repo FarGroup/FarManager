@@ -35,6 +35,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "rectangle.hpp"
 
+//----------------------------------------------------------------------------
+
 template<class T, class P>
 void for_submatrix(T& Matrix, rectangle Rect, P Predicate)
 {

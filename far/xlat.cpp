@@ -32,16 +32,25 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "xlat.hpp"
 
+// Internal:
 #include "config.hpp"
 #include "console.hpp"
 #include "configdb.hpp"
 #include "global.hpp"
 
+// Platform:
+
+// Common:
 #include "common/enum_tokens.hpp"
 #include "common/from_string.hpp"
 #include "common/zip_view.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 /*
 Flags: 1

@@ -32,6 +32,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+//----------------------------------------------------------------------------
+
 namespace scope_exit
 {
 	enum class scope_type
@@ -88,11 +90,11 @@ namespace scope_exit
 	};
 }
 
-#define DETAIL_SCOPE_IMPL(type) \
-const auto ANONYMOUS_VARIABLE(scope_##type##_guard) = scope_exit::make_scope_guard<scope_exit::scope_type::type>() << [&]() /* lambda body here */
+#define SCOPE_TYPE(type) \
+	const auto ANONYMOUS_VARIABLE(scope_guard) = scope_exit::make_scope_guard<type>() << [&]() /* lambda body here */
 
-#define SCOPE_EXIT DETAIL_SCOPE_IMPL(exit)
-#define SCOPE_FAIL DETAIL_SCOPE_IMPL(fail) noexcept
-#define SCOPE_SUCCESS DETAIL_SCOPE_IMPL(success)
+#define SCOPE_EXIT    SCOPE_TYPE(scope_exit::scope_type::exit)
+#define SCOPE_FAIL    SCOPE_TYPE(scope_exit::scope_type::fail) noexcept
+#define SCOPE_SUCCESS SCOPE_TYPE(scope_exit::scope_type::success)
 
 #endif // SCOPE_EXIT_HPP_EDB9D84F_7B9F_408C_8FC8_94626C4B3CE3

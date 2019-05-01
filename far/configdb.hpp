@@ -34,13 +34,20 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
 #include "transactional.hpp"
 #include "bitflags.hpp"
 
+// Platform:
 #include "platform.chrono.hpp"
 
+// Common:
 #include "common/enumerator.hpp"
 #include "common/keep_alive.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 struct FarColor;
 struct VersionInfo;

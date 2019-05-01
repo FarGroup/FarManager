@@ -33,11 +33,19 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
 #include "configdb.hpp"
 #include "windowsfwd.hpp"
 
+// Platform:
+
+// Common:
 #include "common/range.hpp"
 #include "common/singleton.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 // Тип выбранной таблицы символов
 enum CPSelectType

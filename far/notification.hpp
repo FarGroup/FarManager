@@ -33,10 +33,18 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
+
+// Platform:
 #include "platform.concurrency.hpp"
 
+// Common:
 #include "common/singleton.hpp"
 #include "common/type_traits.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 enum event_id
 {

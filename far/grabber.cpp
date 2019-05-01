@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "grabber.hpp"
 
+// Internal:
 #include "keyboard.hpp"
 #include "keys.hpp"
 #include "savescr.hpp"
@@ -46,6 +48,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "colormix.hpp"
 #include "eol.hpp"
+
+// Platform:
+
+// Common:
+#include "common/string_utils.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 Grabber::Grabber(private_tag):
 	ResetArea(true),

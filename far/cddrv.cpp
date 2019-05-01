@@ -31,16 +31,26 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "cddrv.hpp"
 
+// Internal:
 #include "drivemix.hpp"
 #include "flink.hpp"
 #include "pathmix.hpp"
 #include "string_utils.hpp"
 
+// Platform:
 #include "platform.fs.hpp"
 
+// Common:
 #include "common/null_iterator.hpp"
+#include "common/string_utils.hpp"
+#include "common/utility.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 enum CDROM_DeviceCapabilities
 {

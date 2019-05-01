@@ -35,6 +35,16 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
+
+// Platform:
+
+// Common:
+
+// External:
+
+//----------------------------------------------------------------------------
+
 bool IsDriveTypeCDROM(UINT DriveType);
 bool DriveCanBeVirtual(UINT DriveType);
 UINT FAR_GetDriveType(string_view RootDir, DWORD Detect=0);

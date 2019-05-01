@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "stddlg.hpp"
 
+// Internal:
 #include "dialog.hpp"
 #include "strmix.hpp"
 #include "imports.hpp"
@@ -50,14 +52,19 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "notification.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.fs.hpp"
 
+// Common:
 #include "common/from_string.hpp"
 #include "common/function_ref.hpp"
 #include "common/function_traits.hpp"
 #include "common/scope_exit.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 int GetSearchReplaceString(
 	bool IsReplaceMode,
@@ -313,8 +320,7 @@ bool GetString(
 
 	if (!Prompt.empty())
 	{
-		StrDlg[1].strData = Prompt;
-		TruncStrFromEnd(StrDlg[1].strData, 66);
+		StrDlg[1].strData = truncate_right(string(Prompt), 66);
 
 		if (Flags&FIB_NOAMPERSAND)
 			StrDlg[1].Flags&=~DIF_SHOWAMPERSAND;

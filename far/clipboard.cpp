@@ -31,14 +31,24 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "clipboard.hpp"
 
+// Internal:
 #include "console.hpp"
 #include "encoding.hpp"
 #include "eol.hpp"
 
+// Platform:
+
+// Common:
 #include "common/enum_substrings.hpp"
 #include "common/singleton.hpp"
+#include "common/string_utils.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 void default_clipboard_mode::set(clipboard_mode Mode)
 {

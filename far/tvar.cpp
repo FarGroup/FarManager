@@ -32,13 +32,22 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "tvar.hpp"
 
+// Internal:
 #include "string_sort.hpp"
 
+// Platform:
+
+// Common:
+#include "common.hpp"
 #include "common/from_string.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 //---------------------------------------------------------------
 // If this code works, it was written by Alexander Nazarenko.

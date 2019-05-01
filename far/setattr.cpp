@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "setattr.hpp"
 
+// Internal:
 #include "flink.hpp"
 #include "dialog.hpp"
 #include "chgprior.hpp"
@@ -63,11 +65,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "stddlg.hpp"
 
+// Platform:
 #include "platform.fs.hpp"
 
+// Common:
 #include "common/zip_view.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 enum SETATTRDLG
 {
@@ -539,14 +546,12 @@ static void ShellSetFileAttributesMsgImpl(const string& Name)
 
 	WidthTemp=std::min(WidthTemp, ScrX/2);
 	Width=std::max(Width,WidthTemp);
-	auto strOutFileName = Name;
-	TruncPathStr(strOutFileName,Width);
-	inplace::fit_to_center(strOutFileName, Width + 4);
+
 	Message(0,
 		msg(lng::MSetAttrTitle),
 		{
 			msg(lng::MSetAttrSetting),
-			strOutFileName
+			fit_to_center(truncate_path(Name, Width), Width + 4)
 		},
 		{});
 }
@@ -1059,8 +1064,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				}
 			}
 
-			AttrDlg[SA_TEXT_NAME].strData = QuoteOuterSpace(SingleSelFileName);
-			TruncStr(AttrDlg[SA_TEXT_NAME].strData,DlgX-10);
+			AttrDlg[SA_TEXT_NAME].strData = truncate_left(QuoteOuterSpace(SingleSelFileName), DlgX - 10);
 
 			if (SingleSelFileAttr != INVALID_FILE_ATTRIBUTES)
 			{

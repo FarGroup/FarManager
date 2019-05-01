@@ -34,6 +34,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "string_utils.hpp"
 
+//----------------------------------------------------------------------------
+
 namespace detail
 {
 	namespace handler

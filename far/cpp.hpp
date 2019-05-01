@@ -36,7 +36,16 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
 #include "common/compiler.hpp"
+
+// Platform:
+
+// Common:
+
+// External:
+
+//----------------------------------------------------------------------------
 
 #if COMPILER == C_GCC
 // These inline implementations in gcc/cwchar are wrong and non-compilable if _CONST_RETURN is defined.

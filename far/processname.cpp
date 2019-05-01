@@ -31,10 +31,21 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "processname.hpp"
 
+// Internal:
 #include "pathmix.hpp"
 #include "string_utils.hpp"
+
+// Platform:
+
+// Common:
+#include "common/string_utils.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 /* $ 09.10.2000 IS
     Генерация нового имени по маске

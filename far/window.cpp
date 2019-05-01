@@ -31,13 +31,23 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "window.hpp"
 
+// Internal:
 #include "keybar.hpp"
 #include "manager.hpp"
 #include "syslog.hpp"
 #include "savescr.hpp"
 #include "global.hpp"
+
+// Platform:
+
+// Common:
+
+// External:
+
+//----------------------------------------------------------------------------
 
 static int windowID=0;
 

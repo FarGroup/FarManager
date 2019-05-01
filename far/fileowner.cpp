@@ -31,17 +31,26 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "fileowner.hpp"
 
+// Internal:
 #include "pathmix.hpp"
 #include "elevation.hpp"
 
+// Platform:
 #include "platform.memory.hpp"
 #include "platform.fs.hpp"
 #include "platform.security.hpp"
 
+// Common:
+#include "common.hpp"
 #include "common/function_traits.hpp"
+#include "common/string_utils.hpp"
 
+// External:
+
+//----------------------------------------------------------------------------
 
 static bool SidToName(PSID Sid, string& Name, const string& Computer)
 {

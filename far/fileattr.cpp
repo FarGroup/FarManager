@@ -31,18 +31,25 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "fileattr.hpp"
 
+// Internal:
 #include "flink.hpp"
 #include "lang.hpp"
 #include "fileowner.hpp"
 #include "exception.hpp"
 #include "stddlg.hpp"
 
+// Platform:
 #include "platform.fs.hpp"
 
+// Common:
 #include "common/scope_exit.hpp"
 
+// External:
+
+//----------------------------------------------------------------------------
 
 int ESetFileAttributes(const string& Name, DWORD Attr, bool SkipErrors)
 {

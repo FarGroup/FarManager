@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "language.hpp"
 
+// Internal:
 #include "lang.hpp"
 #include "vmenu.hpp"
 #include "vmenu2.hpp"
@@ -47,12 +49,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.fs.hpp"
 
+// Common:
 #include "common/function_traits.hpp"
 #include "common/scope_exit.hpp"
+#include "common/string_utils.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 static const auto LangFileMask = L"*.lng"sv;
 

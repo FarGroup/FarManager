@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "delete.hpp"
 
+// Internal:
 #include "flink.hpp"
 #include "chgprior.hpp"
 #include "scantree.hpp"
@@ -62,11 +64,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "copy_progress.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.fs.hpp"
 
+// Common:
 #include "common/scope_exit.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 enum DEL_MODE
 {
@@ -146,15 +153,11 @@ static void ShellDeleteMsgImpl(const string& Name, DEL_MODE Mode, ShellDelete::p
 		ConsoleTitle::SetFarTitle(concat(L'{', str(Percent), L"%} "sv, msg(Mode == DEL_WIPE || Mode == DEL_WIPEPROCESS? lng::MDeleteWipeTitle : lng::MDeleteTitle)));
 	}
 
-	auto strOutFileName = Name;
-	TruncPathStr(strOutFileName,static_cast<int>(Width));
-	inplace::fit_to_left(strOutFileName, Width);
-
 	{
 		std::vector<string> MsgItems
 		{
 			msg(Mode == DEL_SCAN ? lng::MScanningFolder : (Mode == DEL_WIPE || Mode == DEL_WIPEPROCESS) ? lng::MDeletingWiping : lng::MDeleting),
-			std::move(strOutFileName)
+			fit_to_left(truncate_path(Name, Width), Width)
 		};
 
 		if (!strWipeProgress.empty())
@@ -523,7 +526,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 
 		std::for_each(RANGE(items, i)
 		{
-			TruncStrFromCenter(i, ScrX+1-6*2);
+			inplace::truncate_center(i, ScrX+1-6*2);
 			const auto dx = Builder.AddText(i.c_str());
 			dx->Flags = (SelCount <= 1 || mshow <= 1 ? DIF_CENTERTEXT : 0) | DIF_SHOWAMPERSAND;
 			size_t index = Builder.GetLastID();

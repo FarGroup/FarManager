@@ -28,8 +28,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "diskmenu.hpp"
 
+// Internal:
 #include "global.hpp"
 #include "config.hpp"
 #include "vmenu.hpp"
@@ -64,10 +66,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_sort.hpp"
 #include "pathmix.hpp"
 
+// Platform:
 #include "platform.reg.hpp"
 #include "platform.fs.hpp"
 
+// Common:
+
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 class ChDiskPluginItem
 {
@@ -291,11 +299,15 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 	DCDlg[1].strData = format(msg(lng::MChangeDriveDisconnectQuestion), Letter);
 	DCDlg[2].strData = format(msg(lng::MChangeDriveDisconnectMapped), Letter);
 
-	string strMsgText;
-	// TODO: check result
-	DriveLocalToRemoteName(DRIVE_REMOTE, Letter, strMsgText);
 	const auto Len = std::max({ DCDlg[0].strData.size(), DCDlg[1].strData.size(), DCDlg[2].strData.size(), DCDlg[5].strData.size() });
-	DCDlg[3].strData = TruncPathStr(strMsgText, static_cast<int>(Len));
+
+	{
+		string strMsgText;
+		// TODO: check result
+		DriveLocalToRemoteName(DRIVE_REMOTE, Letter, strMsgText);
+		DCDlg[3].strData = truncate_path(std::move(strMsgText), Len);
+	}
+
 	// проверяем - это было постоянное соединение или нет?
 	// Если ветка в реестре HKCU\Network\БукваДиска есть - это
 	//   есть постоянное подключение.

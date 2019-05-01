@@ -34,6 +34,17 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
+
+// Platform:
+
+// Common:
+#include "common/preprocessor.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
+
 WARNING_PUSH(3)
 
 WARNING_DISABLE_MSC(4396) // https://msdn.microsoft.com/en-us/library/bb384968.aspx 'name': the inline specifier cannot be used when a friend declaration refers to a specialization of a function template

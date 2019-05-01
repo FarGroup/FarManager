@@ -35,9 +35,17 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
 #include "exception.hpp"
 
+// Platform:
+
+// Common:
 #include "common/2d/rectangle.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 enum class lng;
 

@@ -35,11 +35,19 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
 #include "farcolor.hpp"
 
+// Platform:
+
+// Common:
 #include "common/2d/matrix.hpp"
 #include "common/2d/rectangle.hpp"
 #include "common/singleton.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 struct FAR_CHAR_INFO;
 struct FarColor;

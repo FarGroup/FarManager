@@ -30,17 +30,25 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "FarDlgBuilder.hpp"
 
+// Internal:
 #include "lang.hpp"
 #include "dialog.hpp"
 #include "interf.hpp"
 #include "strmix.hpp"
 #include "config.hpp"
 
+// Platform:
+
+// Common:
 #include "common/from_string.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 template<class T>
 struct EditFieldBinding: public DialogItemBinding<DialogItemEx>

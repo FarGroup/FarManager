@@ -34,12 +34,19 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
 #include "encoding.hpp"
 #include "eol.hpp"
 
+// Platform:
 #include "platform.fwd.hpp"
 
+// Common:
 #include "common/enumerator.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 struct file_line
 {

@@ -29,8 +29,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "platform.fs.hpp"
 
+// Internal:
 #include "ctrlobj.hpp"
 #include "cvtname.hpp"
 #include "drivemix.hpp"
@@ -44,9 +46,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.hpp"
 
+// Common:
+#include "common/algorithm.hpp"
 #include "common/scope_exit.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 namespace
 {
@@ -122,7 +131,7 @@ namespace os::fs
 
 	bool is_standard_drive_letter(wchar_t Letter)
 	{
-		return InRange(L'A', upper(Letter), L'Z');
+		return in_range(L'A', upper(Letter), L'Z');
 	}
 
 	int get_drive_number(wchar_t Letter)

@@ -28,8 +28,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "copy_progress.hpp"
 
+// Internal:
 #include "colormix.hpp"
 #include "lang.hpp"
 #include "config.hpp"
@@ -42,7 +44,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "global.hpp"
 
+// Platform:
+
+// Common:
+
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 /* Общее время ожидания пользователя */
 extern std::chrono::steady_clock::duration WaitUserTime;
@@ -242,10 +251,8 @@ void copy_progress::SetNames(const string& Src, const string& Dst)
 	}
 
 	const auto NameWidth = static_cast<int>(CanvasWidth());
-	m_Src = Src;
-	TruncPathStr(m_Src, NameWidth);
-	m_Dst = Dst;
-	TruncPathStr(m_Dst, NameWidth);
+	m_Src = truncate_path(Src, NameWidth);
+	m_Dst = truncate_path(Dst, NameWidth);
 	m_FilesCopied = FormatCounter(lng::MCopyFilesTotalInfo, lng::MCopyBytesTotalInfo, m_Files.Copied, m_Files.Total, m_Total, CanvasWidth() - 5);
 
 	Flush();

@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "flink.hpp"
 
+// Internal:
 #include "imports.hpp"
 #include "config.hpp"
 #include "pathmix.hpp"
@@ -46,12 +48,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "stddlg.hpp"
 
+// Platform:
 #include "platform.fs.hpp"
 #include "platform.security.hpp"
 
+// Common:
 #include "common/scope_exit.hpp"
+#include "common/string_utils.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 bool CreateVolumeMountPoint(const string& TargetVolume, const string& Object)
 {

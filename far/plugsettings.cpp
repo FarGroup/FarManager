@@ -30,8 +30,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "plugsettings.hpp"
 
+// Internal:
 #include "ctrlobj.hpp"
 #include "history.hpp"
 #include "FarGuid.hpp"
@@ -43,8 +45,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "global.hpp"
 
+// Platform:
+
+// Common:
 #include "common/bytes_view.hpp"
 #include "common/function_ref.hpp"
+#include "common/string_utils.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 const wchar_t* AbstractSettings::Add(const string& String)
 {

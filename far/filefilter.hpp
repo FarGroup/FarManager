@@ -35,11 +35,20 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
 #include "panelfwd.hpp"
 #include "plugin.hpp"
 
+// Platform:
 #include "platform.chrono.hpp"
 #include "platform.fwd.hpp"
+
+// Common:
+#include "common/noncopyable.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 enum enumFileFilterFlagsType: int;
 class FileFilterParams;

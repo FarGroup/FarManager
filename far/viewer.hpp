@@ -35,6 +35,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
 #include "scrobj.hpp"
 #include "namelist.hpp"
 #include "poscache.hpp"
@@ -43,9 +44,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "encoding.hpp"
 #include "codepage_selection.hpp"
 
+// Platform:
 #include "platform.fs.hpp"
 
+// Common:
 #include "common/monitored.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 class FileViewer;
 class KeyBar;

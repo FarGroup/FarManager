@@ -35,7 +35,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef NO_WRAPPER
 
+// Internal:
 #include "plclass.hpp"
+
+// Platform:
+
+// Common:
+
+// External:
+
+//----------------------------------------------------------------------------
 
 plugin_factory_ptr CreateOemPluginFactory(PluginManager* Owner);
 

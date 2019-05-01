@@ -29,11 +29,20 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "platform.chrono.hpp"
 
+// Internal:
 #include "platform.hpp"
 
+// Platform:
+
+// Common:
 #include "common/range.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 namespace os::chrono
 {

@@ -33,6 +33,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "range.hpp"
+#include "utility.hpp"
+
+//----------------------------------------------------------------------------
 
 class bytes_view: public range<const char*>
 {

@@ -32,12 +32,20 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
 #include "taskbar.hpp"
 #include "wakeful.hpp"
 #include "datetime.hpp"
 #include "plugin.hpp"
 
+// Platform:
+
+// Common:
 #include "common/2d/rectangle.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 enum class lng;
 

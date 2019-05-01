@@ -32,6 +32,17 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+//----------------------------------------------------------------------------
+
+template<typename T>
+class base: public T
+{
+protected:
+	using T::T;
+	using base_ctor = base;
+	using base_type = T;
+};
+
 template<typename container>
 void reserve_exp_noshrink(container& Container, size_t Capacity)
 {

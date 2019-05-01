@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "print.hpp"
 
+// Internal:
 #include "panel.hpp"
 #include "vmenu.hpp"
 #include "vmenu2.hpp"
@@ -49,12 +51,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.fs.hpp"
 
+// Common:
 #include "common/io.hpp"
 #include "common/range.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 static void AddToPrintersMenu(VMenu2 *PrinterList, range<const PRINTER_INFO_4W*> Printers)
 {
@@ -123,8 +130,7 @@ void PrintFiles(FileList* SrcPanel)
 				if (!SrcPanel->get_first_selected(Data))
 					return;
 
-				auto Name = Data.FileName;
-				strTitle = format(msg(lng::MPrintTo), inplace::quote_unconditional(TruncStr(Name, 50)));
+				strTitle = format(msg(lng::MPrintTo), quote_unconditional(truncate_left(Data.FileName, 50)));
 			}
 			else
 			{

@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "plugins.hpp"
 
+// Internal:
 #include "keys.hpp"
 #include "scantree.hpp"
 #include "chgprior.hpp"
@@ -68,11 +70,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "delete.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.env.hpp"
 #include "platform.memory.hpp"
 
+// Common:
 #include "common/enum_tokens.hpp"
 #include "common/scope_exit.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 static string GetHotKeyPluginKey(Plugin const* const pPlugin)
 {

@@ -31,11 +31,21 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "preservelongname.hpp"
 
+// Internal:
 #include "pathmix.hpp"
 
+// Platform:
 #include "platform.fs.hpp"
+
+// Common:
+#include "common/string_utils.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 PreserveLongName::PreserveLongName(string_view const ShortName, bool Preserve):
 	m_Preserve(Preserve)

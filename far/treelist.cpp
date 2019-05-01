@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "treelist.hpp"
 
+// Internal:
 #include "keyboard.hpp"
 #include "farcolor.hpp"
 #include "keys.hpp"
@@ -73,20 +75,26 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_sort.hpp"
 #include "cvtname.hpp"
 #include "global.hpp"
-
 #if defined(TREEFILE_PROJECT)
 #include "drivemix.hpp"
 #include "network.hpp"
-#include "platform.env.hpp"
 #endif
 
+// Platform:
+#if defined(TREEFILE_PROJECT)
+#include "platform.env.hpp"
+#endif
 #include "platform.fs.hpp"
 
+// Common:
 #include "common/enum_tokens.hpp"
 #include "common/function_ref.hpp"
 #include "common/scope_exit.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 static std::chrono::steady_clock::time_point TreeStartTime;
 static int LastScrX = -1;

@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "plugapi.hpp"
 
+// Internal:
 #include "keys.hpp"
 #include "help.hpp"
 #include "vmenu.hpp"
@@ -86,12 +88,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_sort.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.fs.hpp"
 
+// Common:
 #include "common/enum_tokens.hpp"
 #include "common/null_iterator.hpp"
 #include "common/range.hpp"
 #include "common/scope_exit.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 static Plugin* GuidToPlugin(const GUID* Id)
 {
@@ -1949,7 +1957,7 @@ void WINAPI apiUpperBuf(wchar_t *Buf, intptr_t Length) noexcept
 {
 	try
 	{
-		return inplace::upper(Buf, Length);
+		inplace::upper(Buf, Length);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 }
@@ -1958,7 +1966,7 @@ void WINAPI apiLowerBuf(wchar_t *Buf, intptr_t Length) noexcept
 {
 	try
 	{
-		return inplace::lower(Buf, Length);
+		inplace::lower(Buf, Length);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 }
@@ -1967,7 +1975,7 @@ void WINAPI apiStrUpper(wchar_t *s1) noexcept
 {
 	try
 	{
-		return inplace::upper(s1);
+		inplace::upper(s1);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 }
@@ -1976,7 +1984,7 @@ void WINAPI apiStrLower(wchar_t *s1) noexcept
 {
 	try
 	{
-		return inplace::lower(s1);
+		inplace::lower(s1);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 }
@@ -2070,7 +2078,7 @@ wchar_t* WINAPI apiTruncStr(wchar_t *Str,intptr_t MaxLength) noexcept
 {
 	try
 	{
-		return TruncStr(Str, MaxLength);
+		return legacy::truncate_left(Str, MaxLength);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return Str;
@@ -2080,7 +2088,7 @@ wchar_t* WINAPI apiTruncStrFromCenter(wchar_t *Str, intptr_t MaxLength) noexcept
 {
 	try
 	{
-		return TruncStrFromCenter(Str, MaxLength);
+		return legacy::truncate_left(Str, MaxLength);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return Str;
@@ -2090,7 +2098,7 @@ wchar_t* WINAPI apiTruncStrFromEnd(wchar_t *Str, intptr_t MaxLength) noexcept
 {
 	try
 	{
-		return TruncStrFromEnd(Str, MaxLength);
+		return legacy::truncate_right(Str, MaxLength);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return Str;
@@ -2100,7 +2108,7 @@ wchar_t* WINAPI apiTruncPathStr(wchar_t *Str, intptr_t MaxLength) noexcept
 {
 	try
 	{
-		return TruncPathStr(Str, MaxLength);
+		return legacy::truncate_path(Str, MaxLength);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return Str;

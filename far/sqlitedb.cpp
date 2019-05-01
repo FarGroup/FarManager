@@ -30,8 +30,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "sqlitedb.hpp"
 
+// Internal:
 #include "pathmix.hpp"
 #include "config.hpp"
 #include "components.hpp"
@@ -40,14 +42,21 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.concurrency.hpp"
 #include "platform.fs.hpp"
 
+// Common:
+#include "common.hpp"
 #include "common/bytes_view.hpp"
+#include "common/string_utils.hpp"
 
+// External:
 #include "format.hpp"
 #include "sqlite.hpp"
 #include "sqlite_unicode.hpp"
+
+//----------------------------------------------------------------------------
 
 namespace
 {

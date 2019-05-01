@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "filefilterparams.hpp"
 
+// Internal:
 #include "farcolor.hpp"
 #include "filemasks.hpp"
 #include "dialog.hpp"
@@ -49,11 +51,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fileattr.hpp"
 #include "DlgGuid.hpp"
 
+// Platform:
 #include "platform.fs.hpp"
 
+// Common:
+#include "common.hpp"
 #include "common/zip_view.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 filter_dates::filter_dates(os::chrono::duration After, os::chrono::duration Before):
 	m_After(After),

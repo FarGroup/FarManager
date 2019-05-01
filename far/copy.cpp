@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "copy.hpp"
 
+// Internal:
 #include "keys.hpp"
 #include "flink.hpp"
 #include "dialog.hpp"
@@ -70,12 +72,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
 
+// Common:
+#include "common.hpp"
 #include "common/enum_tokens.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 enum
 {
@@ -672,8 +680,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 		const auto SpaceAvailable = std::max(0, static_cast<int>(CopyDlg[ID_SC_TITLE].X2 - CopyDlg[ID_SC_TITLE].X1 - 1 - 1));
 		if (const auto MaxLength = std::max(0, SpaceAvailable - static_cast<int>(HiStrlen(format(Format, L""sv, ToOrIn)))))
 		{
-			strCopyStr = SingleSelName;
-			TruncStrFromEnd(strCopyStr, MaxLength);
+			strCopyStr = truncate_right(SingleSelName, MaxLength);
 		}
 		strCopyStr = format(Format, strCopyStr, ToOrIn);
 
@@ -3576,8 +3583,7 @@ static bool ShellCopySecuryMsg(const copy_progress* CP, const string& Name)
 		WidthTemp=std::min(WidthTemp, ScrX/2);
 		Width=std::max(Width,WidthTemp);
 
-		auto strOutFileName = Name; //??? nullptr ???
-		TruncStrFromEnd(strOutFileName,Width);
+		auto strOutFileName = truncate_right(Name, Width);
 		inplace::fit_to_center(strOutFileName, Width + 4);
 		Message(0,
 			msg(lng::MMoveDlgTitle),

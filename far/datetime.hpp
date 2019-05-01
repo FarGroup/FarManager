@@ -35,9 +35,18 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
+
+// Platform:
 #include "platform.chrono.hpp"
 
+// Common:
+#include "common/noncopyable.hpp"
 #include "common/range.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 inline auto get_local_time() { SYSTEMTIME Time; GetLocalTime(&Time); return Time; }
 inline auto get_utc_time() { SYSTEMTIME Time; GetSystemTime(&Time); return Time; }

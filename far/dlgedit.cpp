@@ -32,14 +32,24 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "dlgedit.hpp"
 
+// Internal:
 #include "dialog.hpp"
 #include "history.hpp"
 #include "editcontrol.hpp"
 #include "config.hpp"
 #include "syslog.hpp"
 #include "global.hpp"
+
+// Platform:
+
+// Common:
+
+// External:
+
+//----------------------------------------------------------------------------
 
 DlgEdit::DlgEdit(window_ptr Owner,size_t Index,DLGEDITTYPE Type):
 	SimpleScreenObject(std::move(Owner)),

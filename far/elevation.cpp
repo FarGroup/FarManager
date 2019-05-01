@@ -30,8 +30,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "elevation.hpp"
 
+// Internal:
 #include "config.hpp"
 #include "lang.hpp"
 #include "dialog.hpp"
@@ -49,12 +51,20 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "global.hpp"
 
+// Platform:
 #include "platform.concurrency.hpp"
 #include "platform.fs.hpp"
 #include "platform.memory.hpp"
 #include "platform.security.hpp"
 
+// Common:
+#include "common.hpp"
+#include "common/string_utils.hpp"
+
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 using namespace os::security;
 

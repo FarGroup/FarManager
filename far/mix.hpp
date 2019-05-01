@@ -35,11 +35,19 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
 #include "plugin.hpp"
 
+// Platform:
 #include "platform.fwd.hpp"
 
+// Common:
+#include "common/noncopyable.hpp"
 #include "common/range.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 template<class T>
 auto ToPercent(T Value, T Base)

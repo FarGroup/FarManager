@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "setcolor.hpp"
 
+// Internal:
 #include "farcolor.hpp"
 #include "vmenu.hpp"
 #include "vmenu2.hpp"
@@ -50,10 +52,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "strmix.hpp"
 
+// Platform:
+
+// Common:
+#include "common.hpp"
 #include "common/null_iterator.hpp"
 #include "common/scope_exit.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 static void GetColor(PaletteColors PaletteIndex)
 {

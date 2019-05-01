@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "cvtname.hpp"
 
+// Internal:
 #include "flink.hpp"
 #include "pathmix.hpp"
 #include "network.hpp"
@@ -42,10 +44,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "drivemix.hpp"
 
+// Platform:
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
 
+// Common:
 #include "common/enum_substrings.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 static void MixToFullPath(string& strPath)
 {

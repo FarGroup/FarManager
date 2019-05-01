@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "datetime.hpp"
 
+// Internal:
 #include "config.hpp"
 #include "strmix.hpp"
 #include "global.hpp"
@@ -40,10 +42,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "locale.hpp"
 #include "encoding.hpp"
 
+// Platform:
+
+// Common:
 #include "common/chrono.hpp"
 #include "common/from_string.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 DWORD ConvertYearToFull(DWORD ShortYear)
 {

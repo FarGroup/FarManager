@@ -35,6 +35,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "preprocessor.hpp"
 #include "placement.hpp"
 
+//----------------------------------------------------------------------------
+
 /*
 Helper class to safely pass string_view to low level C or platform API.
 Builds a compatible null-terminated std::basic_string if the given view is not null-terminated,
@@ -184,116 +186,116 @@ namespace detail
 
 namespace inplace
 {
-	inline auto& cut_left(string& Str, size_t MaxWidth)
+	inline void cut_left(string& Str, size_t MaxWidth)
 	{
 		if (Str.size() > MaxWidth)
 			Str.erase(0, Str.size() - MaxWidth);
-		return Str;
 	}
 
-	inline auto& cut_right(string& Str, size_t MaxWidth)
+	inline void cut_right(string& Str, size_t MaxWidth)
 	{
 		if (Str.size() > MaxWidth)
 			Str.resize(MaxWidth);
-		return Str;
 	}
 
-	inline auto& pad_left(string& Str, size_t MinWidth, wchar_t Padding = L' ')
+	inline void pad_left(string& Str, size_t MinWidth, wchar_t Padding = L' ')
 	{
 		if (Str.size() < MinWidth)
 			Str.insert(0, MinWidth - Str.size(), Padding);
-		return Str;
 	}
 
-	inline auto& pad_right(string& Str, size_t MinWidth, wchar_t Padding = L' ')
+	inline void pad_right(string& Str, size_t MinWidth, wchar_t Padding = L' ')
 	{
 		if (Str.size() < MinWidth)
 			Str.append(MinWidth - Str.size(), Padding);
-		return Str;
 	}
 
-	inline auto& fit_to_left(string& Str, size_t Size)
+	inline void fit_to_left(string& Str, size_t Size)
 	{
-		return Str.size() < Size? pad_right(Str, Size) : cut_right(Str, Size);
+		Str.size() < Size? pad_right(Str, Size) : cut_right(Str, Size);
 	}
 
-	inline auto& fit_to_center(string& Str, size_t Size)
+	inline void fit_to_center(string& Str, size_t Size)
 	{
 		const auto StrSize = Str.size();
-		return Str.size() < Size? pad_right(pad_left(Str, StrSize + (Size - StrSize) / 2), Size) : cut_right(Str, Size);
+
+		if (Str.size() < Size)
+		{
+			pad_left(Str, StrSize + (Size - StrSize) / 2);
+			pad_right(Str, Size);
+		}
+		else
+		{
+			cut_right(Str, Size);
+		}
 	}
 
-	inline auto& fit_to_right(string& Str, size_t Size)
+	inline void fit_to_right(string& Str, size_t Size)
 	{
-		return Str.size() < Size? pad_left(Str, Size) : cut_right(Str, Size);
+		Str.size() < Size? pad_left(Str, Size) : cut_right(Str, Size);
 	}
 
-	inline auto& erase_all(string& Str, wchar_t Char)
+	inline void erase_all(string& Str, wchar_t Char)
 	{
 		Str.erase(std::remove(ALL_RANGE(Str), Char), Str.end());
-		return Str;
 	}
 
-	inline auto& unquote(string& Str)
+	inline void unquote(string& Str)
 	{
-		return erase_all(Str, L'"');
+		erase_all(Str, L'"');
 	}
 
-	inline auto& quote(string& Str)
+	inline void quote(string& Str)
 	{
 		if (Str.empty() || Str.front() != L'"')
 			Str.insert(0, 1, L'"');
 
 		if (Str.size() == 1 || Str.back() != L'"')
 			Str.push_back(L'"');
-
-		return Str;
 	}
 
-	inline auto& quote_unconditional(string& Str)
+	inline void quote_unconditional(string& Str)
 	{
 		Str.insert(0, 1, L'"');
 		Str.push_back(L'"');
-		return Str;
 	}
 
-	inline auto& quote_normalise(string& Str)
+	inline void quote_normalise(string& Str)
 	{
-		return quote(unquote(Str));
+		unquote(Str);
+		quote(Str);
 	}
 
-	inline auto& trim_left(string& Str)
+	inline void trim_left(string& Str)
 	{
 		Str.erase(0, detail::get_space_count(ALL_CONST_RANGE(Str)));
-		return Str;
 	}
 
-	inline auto& trim_left(string_view& Str)
+	inline void trim_left(string_view& Str)
 	{
 		Str.remove_prefix(detail::get_space_count(ALL_CONST_RANGE(Str)));
-		return Str;
 	}
 
-	inline auto& trim_right(string& Str)
+	inline void trim_right(string& Str)
 	{
 		Str.resize(Str.size() - detail::get_space_count(ALL_CONST_REVERSE_RANGE(Str)));
-		return Str;
 	}
 
-	inline auto& trim_right(string_view& Str)
+	inline void trim_right(string_view& Str)
 	{
 		Str.remove_suffix(detail::get_space_count(ALL_CONST_REVERSE_RANGE(Str)));
-		return Str;
 	}
 
-	inline auto& trim(string& Str)
+	inline void trim(string& Str)
 	{
-		return trim_left(trim_right(Str));
+		trim_right(Str);
+		trim_left(Str);
 	}
 
-	inline auto& trim(string_view& Str)
+	inline void trim(string_view& Str)
 	{
-		return trim_left(trim_right(Str));
+		trim_right(Str);
+		trim_left(Str);
 	}
 }
 
@@ -309,13 +311,15 @@ namespace copy
 [[nodiscard]]
 inline auto cut_left(string Str, size_t MaxWidth)
 {
-	return inplace::cut_left(Str, MaxWidth);
+	inplace::cut_left(Str, MaxWidth);
+	return Str;
 }
 
 [[nodiscard]]
 inline auto cut_right(string Str, size_t MaxWidth)
 {
-	return inplace::cut_right(Str, MaxWidth);
+	inplace::cut_right(Str, MaxWidth);
+	return Str;
 }
 
 [[nodiscard]]
@@ -337,61 +341,71 @@ inline auto cut_right(string_view Str, size_t MaxWidth)
 [[nodiscard]]
 inline auto pad_left(string Str, size_t MinWidth, wchar_t Padding = L' ')
 {
-	return inplace::pad_left(Str, MinWidth, Padding);
+	inplace::pad_left(Str, MinWidth, Padding);
+	return Str;
 }
 
 [[nodiscard]]
 inline auto pad_right(string Str, size_t MinWidth, wchar_t Padding = L' ')
 {
-	return inplace::pad_right(Str, MinWidth, Padding);
+	inplace::pad_right(Str, MinWidth, Padding);
+	return Str;
 }
 
 [[nodiscard]]
 inline auto fit_to_left(string Str, size_t Size)
 {
-	return inplace::fit_to_left(Str, Size);
+	inplace::fit_to_left(Str, Size);
+	return Str;
 }
 
 [[nodiscard]]
 inline auto fit_to_center(string Str, size_t Size)
 {
-	return inplace::fit_to_center(Str, Size);
+	inplace::fit_to_center(Str, Size);
+	return Str;
 }
 
 [[nodiscard]]
 inline auto fit_to_right(string Str, size_t Size)
 {
-	return inplace::fit_to_right(Str, Size);
+	inplace::fit_to_right(Str, Size);
+	return Str;
 }
 
 [[nodiscard]]
 inline auto erase_all(string Str, wchar_t Char)
 {
-	return inplace::erase_all(Str, Char);
+	inplace::erase_all(Str, Char);
+	return Str;
 }
 
 [[nodiscard]]
 inline auto unquote(string Str)
 {
-	return inplace::unquote(Str);
+	inplace::unquote(Str);
+	return Str;
 }
 
 [[nodiscard]]
 inline auto quote(string Str)
 {
-	return inplace::quote(Str);
+	inplace::quote(Str);
+	return Str;
 }
 
 [[nodiscard]]
 inline auto quote_unconditional(string Str)
 {
-	return inplace::quote_unconditional(Str);
+	inplace::quote_unconditional(Str);
+	return Str;
 }
 
 [[nodiscard]]
 inline auto quote_normalise(string Str)
 {
-	return inplace::quote_normalise(Str);
+	inplace::quote_normalise(Str);
+	return Str;
 }
 
 [[nodiscard]]
@@ -427,37 +441,43 @@ inline bool ends_with(const string_view Str, wchar_t const Suffix)
 [[nodiscard]]
 inline auto trim_left(string Str)
 {
-	return inplace::trim_left(Str);
+	inplace::trim_left(Str);
+	return Str;
 }
 
 [[nodiscard]]
 inline auto trim_left(string_view Str)
 {
-	return inplace::trim_left(Str);
+	inplace::trim_left(Str);
+	return Str;
 }
 
 [[nodiscard]]
 inline auto trim_right(string Str)
 {
-	return inplace::trim_right(Str);
+	inplace::trim_right(Str);
+	return Str;
 }
 
 [[nodiscard]]
 inline auto trim_right(string_view Str)
 {
-	return inplace::trim_right(Str);
+	inplace::trim_right(Str);
+	return Str;
 }
 
 [[nodiscard]]
 inline auto trim(string Str)
 {
-	return inplace::trim(Str);
+	inplace::trim(Str);
+	return Str;
 }
 
 [[nodiscard]]
 inline auto trim(string_view Str)
 {
-	return inplace::trim(Str);
+	inplace::trim(Str);
+	return Str;
 }
 
 template<typename container>
@@ -525,6 +545,12 @@ inline bool contains(const char* const Str, const char* const What)
 inline bool contains(const char* const Str, char const What)
 {
 	return strchr(Str, What) != nullptr;
+}
+
+inline std::pair<string_view, string_view> split_name_value(string_view const Str)
+{
+	const auto SeparatorPos = Str.find(L'=');
+	return { Str.substr(0, SeparatorPos), Str.substr(SeparatorPos + 1) };
 }
 
 

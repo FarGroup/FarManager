@@ -29,11 +29,22 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "preservestyle.hpp"
 
+// Internal:
 #include "string_utils.hpp"
 
+// Platform:
+
+// Common:
+#include "common/algorithm.hpp"
 #include "common/range.hpp"
+#include "common/string_utils.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 enum PreserveStyleType
 {

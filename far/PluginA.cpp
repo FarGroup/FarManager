@@ -29,10 +29,12 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "PluginA.hpp"
 
 #ifndef NO_WRAPPER
 
+// Internal:
 #include "plugins.hpp"
 #include "encoding.hpp"
 #include "chgprior.hpp"
@@ -58,16 +60,22 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "plugapi.hpp"
 
+// Platform:
 #include "platform.env.hpp"
 #include "platform.memory.hpp"
 
+// Common:
+#include "common/algorithm.hpp"
 #include "common/function_ref.hpp"
 #include "common/null_iterator.hpp"
 #include "common/range.hpp"
 #include "common/scope_exit.hpp"
 #include "common/zip_view.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 #define OLDFAR_TO_FAR_MAP(x) { oldfar::x, x }
 

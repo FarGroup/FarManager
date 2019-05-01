@@ -31,18 +31,27 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "mix.hpp"
 
+// Internal:
 #include "pathmix.hpp"
 #include "window.hpp"
 #include "cmdline.hpp"
 #include "dlgedit.hpp"
 #include "strmix.hpp"
 
+// Platform:
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
 
+// Common:
+#include "common.hpp"
 #include "common/enum_substrings.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 string MakeTemp(string_view Prefix, bool const WithTempPath, string_view const UserTempPath)
 {

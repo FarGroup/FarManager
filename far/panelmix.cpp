@@ -31,8 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "panelmix.hpp"
 
+// Internal:
 #include "strmix.hpp"
 #include "filepanels.hpp"
 #include "config.hpp"
@@ -51,11 +53,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cvtname.hpp"
 #include "global.hpp"
 
+// Platform:
+
+// Common:
 #include "common/enum_tokens.hpp"
 #include "common/from_string.hpp"
 #include "common/function_traits.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 static const struct column_info
 {
@@ -629,7 +637,8 @@ string FormatStr_Attribute(DWORD FileAttributes, size_t Width)
 		return OutStr.size() < Width;
 	});
 
-	return inplace::fit_to_left(OutStr, Width);
+	inplace::fit_to_left(OutStr, Width);
+	return OutStr;
 }
 
 string FormatStr_DateTime(os::chrono::time_point FileTime, int ColumnType, unsigned long long Flags, int Width)

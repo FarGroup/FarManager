@@ -39,6 +39,16 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
+
+// Platform:
+
+// Common:
+
+// External:
+
+//----------------------------------------------------------------------------
+
 #define EXTENDED_KEY_BASE     0x00010000
 #define INTERNAL_KEY_BASE     0x00020000
 #define INTERNAL_KEY_BASE_2   0x00030000

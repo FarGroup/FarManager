@@ -31,15 +31,24 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "encoding.hpp"
 
+// Internal:
 #include "strmix.hpp"
 #include "exception.hpp"
 #include "plugin.hpp"
 
+// Platform:
+
+// Common:
+#include "common/algorithm.hpp"
 #include "common/io.hpp"
 
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 class installed_codepages
 {
@@ -992,20 +1001,20 @@ size_t Utf8::get_bytes(string_view const Str, char* const Buffer, size_t const B
 		{
 			BytesNumber = 2;
 		}
-		else if (!InRange(utf8::surrogate_high_first, Char, utf8::surrogate_low_last))
+		else if (!in_range(utf8::surrogate_high_first, Char, utf8::surrogate_low_last))
 		{
 			// not surrogates
 			BytesNumber = 3;
 		}
-		else if (InRange(utf8::invalid_first, Char, utf8::invalid_last))
+		else if (in_range(utf8::invalid_first, Char, utf8::invalid_last))
 		{
 			// embedded raw byte
 			BytesNumber = 1;
 			Char &= 0b11111111;
 		}
 		else if (StrIterator != StrEnd &&
-			InRange(utf8::surrogate_high_first, Char, utf8::surrogate_high_last) &&
-			InRange(utf8::surrogate_low_first, *StrIterator, utf8::surrogate_low_last))
+			in_range(utf8::surrogate_high_first, Char, utf8::surrogate_high_last) &&
+			in_range(utf8::surrogate_low_first, *StrIterator, utf8::surrogate_low_last))
 		{
 			// valid surrogate pair
 			BytesNumber = 4;

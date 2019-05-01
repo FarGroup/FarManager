@@ -31,13 +31,23 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "global.hpp"
 
+// Internal:
 #include "scrbuf.hpp"
 #include "config.hpp"
 #include "configdb.hpp"
 #include "ctrlobj.hpp"
 #include "manager.hpp"
+
+// Platform:
+
+// Common:
+
+// External:
+
+//----------------------------------------------------------------------------
 
 global::global():
 	OnlyEditorViewerUsed(),

@@ -34,11 +34,19 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
 #include "plugin.hpp"
 
+// Platform:
+
+// Common:
 #include "common/2d/matrix.hpp"
 #include "common/2d/point.hpp"
 #include "common/nifty_counter.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 enum CLEAR_REGION
 {

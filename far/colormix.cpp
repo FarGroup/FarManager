@@ -30,13 +30,23 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "colormix.hpp"
 
+// Internal:
 #include "config.hpp"
 #include "console.hpp"
 #include "global.hpp"
 
+// Platform:
+
+// Common:
+#include "common/algorithm.hpp"
 #include "common/from_string.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 enum
 {
@@ -179,7 +189,7 @@ WORD FarColorToConsoleColor(const FarColor& Color)
 		int B = i.RGBA.b;
 
 		// special case, silver color:
-		if (InRange(160, R, 223) && InRange(160, G, 223) && InRange(160, B, 223))
+		if (in_range(160, R, 223) && in_range(160, G, 223) && in_range(160, B, 223))
 		{
 			*i.IndexColor = RedMask | GreenMask | BlueMask;
 			continue;
@@ -189,15 +199,15 @@ WORD FarColorToConsoleColor(const FarColor& Color)
 		size_t IntenseCount = 0;
 		for (auto& component : p)
 		{
-			if(InRange(0, *component, 63))
+			if(in_range(0, *component, 63))
 			{
 				*component = 0;
 			}
-			else if(InRange(64, *component, 191))
+			else if(in_range(64, *component, 191))
 			{
 				*component = 128;
 			}
-			else if(InRange(192, *component, 255))
+			else if(in_range(192, *component, 255))
 			{
 				*component = 255;
 				++IntenseCount;

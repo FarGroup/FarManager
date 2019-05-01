@@ -28,13 +28,22 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "exception.hpp"
 
+// Internal:
 #include "imports.hpp"
 #include "encoding.hpp"
 #include "tracer.hpp"
 
+// Platform:
+
+// Common:
+
+// External:
 #include "format.hpp"
+
+//----------------------------------------------------------------------------
 
 
 error_state error_state::fetch()

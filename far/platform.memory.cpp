@@ -29,7 +29,19 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Self:
 #include "platform.memory.hpp"
+
+// Internal:
+
+// Platform:
+
+// Common:
+#include "common/algorithm.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
 
 namespace os::memory
 {
@@ -89,7 +101,7 @@ namespace os::memory
 			return Info;
 		}();
 
-		return InRange(
+		return in_range(
 			reinterpret_cast<uintptr_t>(info.lpMinimumApplicationAddress),
 			reinterpret_cast<uintptr_t>(Address),
 			reinterpret_cast<uintptr_t>(info.lpMaximumApplicationAddress)
