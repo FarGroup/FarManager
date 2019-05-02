@@ -547,6 +547,7 @@ inline bool contains(const char* const Str, char const What)
 	return strchr(Str, What) != nullptr;
 }
 
+[[nodiscard]]
 inline std::pair<string_view, string_view> split_name_value(string_view const Str)
 {
 	const auto SeparatorPos = Str.find(L'=');

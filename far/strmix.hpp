@@ -270,7 +270,4 @@ string ConvertHexString(const string& From, uintptr_t Codepage, bool FromHex);
 char* xstrncpy(char* dest, const char* src, size_t DestSize);
 wchar_t* xwcsncpy(wchar_t* dest, const wchar_t* src, size_t DestSize);
 
-[[nodiscard]]
-std::pair<string_view, string_view> split_name_value(string_view Str);
-
 #endif // STRMIX_HPP_66F8DC2A_61A6_4C06_9B54_E0513A9735FA
