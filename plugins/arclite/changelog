@@ -1,3 +1,11 @@
+w17 03.05.2019 14:55:36 +0300 - build 302
+
+1. avoid _itow_s again.
+
+w17 03.05.2019 14:55:36 +0300 - build 301
+
+1. DrKnS changes (missed changelog & project.ini corrections)
+
 w17 16.04.2019 17:53:21 +0300 - build 300
 
 1. bootstrap & tools
