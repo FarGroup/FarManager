@@ -2736,7 +2736,10 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 	{
 		//if (DestAttr!=INVALID_FILE_ATTRIBUTES && !Append) //вот это портит копирование поверх хардлинков
 		//api::DeleteFile(DestName);
-		SECURITY_ATTRIBUTES SecAttr = {sizeof(SecAttr), sd.get(), FALSE};
+		SECURITY_ATTRIBUTES SecAttr = {sizeof(SecAttr)};
+		if (Flags & FCOPY_COPYSECURITY)
+			SecAttr.lpSecurityDescriptor = sd.get();
+
 		flags_attrs = SrcData.Attributes&(~((Flags&(FCOPY_DECRYPTED_DESTINATION))?FILE_ATTRIBUTE_ENCRYPTED|FILE_FLAG_SEQUENTIAL_SCAN:FILE_FLAG_SEQUENTIAL_SCAN));
 		bool DstOpened = DestFile.Open(strDestName, GENERIC_WRITE, FILE_SHARE_READ, (Flags&FCOPY_COPYSECURITY) ? &SecAttr:nullptr, (Append ? OPEN_EXISTING:CREATE_ALWAYS), flags_attrs);
 		Flags&=~FCOPY_DECRYPTED_DESTINATION;

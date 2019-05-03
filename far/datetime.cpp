@@ -415,10 +415,10 @@ os::chrono::duration ParseDuration(const string& Date, const string& Time, const
 {
 	WORD DateN[1];
 	const std::pair<size_t, size_t> DateRange[]{ { 0, Date.size() } };
-	ParseDateComponents(Date, DateRange, DateN);
+	ParseDateComponents(Date, DateRange, DateN, 0);
 
 	WORD TimeN[4];
-	ParseDateComponents(Time, TimeRanges, TimeN);
+	ParseDateComponents(Time, TimeRanges, TimeN, 0);
 
 	using namespace std::chrono;
 	using namespace chrono;

@@ -146,12 +146,12 @@ private:
 
 void checker::updateCallCount(allocation_type type, bool increment)
 {
-	int op = increment? 1 : -1;
+	const auto op = increment? 1 : -1;
 	switch (type)
 	{
 	case allocation_type::scalar: m_CallNewDeleteScalar += op; break;
 	case allocation_type::vector: m_CallNewDeleteVector += op; break;
-	default: assert(false); //Unknown allocation type
+	default: throw MAKE_FAR_FATAL_EXCEPTION(L"Unknown allocation type"sv);
 	}
 }
 
@@ -213,7 +213,7 @@ static std::string FormatLine(const char* File, int Line, const char* Function, 
 
 	default:
 		throw MAKE_FAR_FATAL_EXCEPTION(L"Unknown allocation type"sv);
-	};
+	}
 
 	return format("{0}:{1} -> {2}:{3} ({4} bytes)"sv, File, Line, Function, sType, Size);
 }

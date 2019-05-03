@@ -3,6 +3,12 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 03.05.2019 22:15:49 +0100 - build 5393
+
+1. 0003709: Incorrect relative dates in filters
+
+2. A few minor changes.
+
 drkns 01.05.2019 23:00:19 +0100 - build 5392
 
 1. Refactoring.
