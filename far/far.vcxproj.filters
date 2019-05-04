@@ -787,6 +787,9 @@
     <ClInclude Include="grabber.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="guid_parse.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="headers.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1064,9 +1067,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="usermenu.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="uuid.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="viewer.hpp">
