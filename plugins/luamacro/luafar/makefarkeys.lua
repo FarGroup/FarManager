@@ -49,22 +49,17 @@ local function makefarcolors (colors_file, guids_file, out_file)
   local colors = get_insert(fp:read("*all"))
   fp:close()
 
---{40A699F1-BBDD-4E21-A137-97FFF798B0C8}
---DEFINE_GUID(EditAskSaveExtId,0x40a699f1,0xbbdd,0x4e21,0xa1,0x37,0x97,0xff,0xf7,0x98,0xb0,0xc8);
+--EditAskSaveExtId = "40A699F1-BBDD-4E21-A137-97FFF798B0C8"_guid
   fp = assert(io.open(guids_file))
   local collect = {}
-  local pat = "^%s*DEFINE_GUID.-([%w_]+).-"..("0[xX](%x+).-"):rep(11)
+  local pat = "^%s*([%w_]+)%s*=%s*\"(.+)\"_guid"
   local lineno = 0
   local errmsg
   for line in fp:lines() do
     lineno = lineno + 1
     local t = { line:match(pat) }
     if t[1] then
-      for k=2,#t do t[k] = tonumber(t[k],16) end
-      collect[#collect+1] = ("%s='%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X'"):format(unpack(t))
-    elseif line:match("^%s*DEFINE_GUID") then
-      errmsg = "GUIDs file: could not process line #"..lineno
-      break
+      collect[#collect+1] = ("%s='%s'"):format(unpack(t))
     end
   end
   fp:close()

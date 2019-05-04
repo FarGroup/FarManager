@@ -88,8 +88,8 @@ namespace guids::far::dialogs
 		HelpSearchId                     = "F63B558F-9185-46BA-8701-D143B8F62658"_guid,
 		FiltersMenuId                    = "5B87B32E-494A-4982-AF55-DAFFCD251383"_guid,
 		FiltersConfigId                  = "EDDB9286-3B08-4593-8F7F-E5925A3A0FF8"_guid,
-		HighlightMenuId                  = "D0422DF0-AAF5-46e0-B98B-1776B427E70D"_guid,
-		HighlightConfigId                = "51B6E342-B499-464d-978C-029F18ECCE59"_guid,
+		HighlightMenuId                  = "D0422DF0-AAF5-46E0-B98B-1776B427E70D"_guid,
+		HighlightConfigId                = "51B6E342-B499-464D-978C-029F18ECCE59"_guid,
 		PluginsConfigMenuId              = "B4C242E7-AA8E-4449-B0C3-BD8D9FA11AED"_guid,
 		ChangeDiskMenuId                 = "252CE4A3-C415-4B19-956B-83E2FDD85960"_guid,
 		FileAssocMenuId                  = "F6D2437C-FEDC-4075-AA56-275666FC8979"_guid,
@@ -107,8 +107,8 @@ namespace guids::far::dialogs
 		SUBSTDisconnectDriveId           = "75554EEB-A3A7-45FD-9795-4A85887A75A0"_guid,
 		VHDDisconnectDriveId             = "629A8CA6-25C6-498C-B3DD-0E18D1CC0BCD"_guid,
 		EditorFindAllListId              = "9BD3E306-EFB8-4113-8405-E7BADE8F0A59"_guid,
-		BadEditorCodePageId              = "4811039D-03A3-4f15-8D7A-8EBC4BCC97F9"_guid,
-		UserMenuUserInputId              = "D2750B57-D3E6-42f4-8137-231C50DDC6E4"_guid,
+		BadEditorCodePageId              = "4811039D-03A3-4F15-8D7A-8EBC4BCC97F9"_guid,
+		UserMenuUserInputId              = "D2750B57-D3E6-42F4-8137-231C50DDC6E4"_guid,
 		DescribeFileId                   = "D8AF7A38-8357-44A5-A44B-A595CF707549"_guid,
 		SelectDialogId                   = "29C03C36-9C50-4F78-AB99-F5DC1A9C67CD"_guid,
 		UnSelectDialogId                 = "34614DDB-2A22-4EA9-BD4A-2DC075643F1B"_guid,
@@ -136,7 +136,7 @@ namespace guids::far::dialogs
 		AskInsertMenuOrCommandId         = "57209AD5-51F6-4257-BAB6-837462BBCE74"_guid,
 		EditUserMenuId                   = "73BC6E3E-4CC3-4FE3-8709-545FF72B49B4"_guid,
 		PluginInformationId              = "FC4FD19A-43D2-4987-AC31-0F7A94901692"_guid,
-		ViewerSearchId                   = "03B6C098-A3D6-4dfb-AED4-EB32D711D9AA"_guid;
+		ViewerSearchId                   = "03B6C098-A3D6-4DFB-AED4-EB32D711D9AA"_guid;
 }
 
 // TODO: Use fully qualified names everywhere
