@@ -673,6 +673,8 @@ public:
 		GuidOption Arclite;
 		GuidOption Luamacro;
 		GuidOption Netbox;
+		GuidOption ProcList;
+		GuidOption TmpPanel;
 	};
 
 	struct ExecuteOptions
@@ -962,6 +964,7 @@ private:
 	void DeleteViewSettings(size_t Index);
 	void ReadPanelModes();
 	void SavePanelModes(bool always);
+	void SetDriveMenuHotkeys();
 
 	std::vector<farconfig> m_Configs;
 	std::vector<PanelViewSettings> m_ViewSettings;

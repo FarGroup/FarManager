@@ -1,11 +1,14 @@
-﻿// validator: no-self-include
-/*
-initguid.cpp
+﻿#ifndef GUID_PARSE_HPP_800DD3D1_3DE5_4A72_B28B_207EDF88005C
+#define GUID_PARSE_HPP_800DD3D1_3DE5_4A72_B28B_207EDF88005C
+#pragma once
 
-Init GUID's
+/*
+guid_parse.hpp
+
+guid_parse wrapper
 */
 /*
-Copyright © 2011 Far Group
+Copyright © 2019 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -31,8 +34,16 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <initguid.h>
+// Internal:
 
-#include "FarGuid.hpp"
-#include "DlgGuid.hpp"
-#include "KnownGuids.hpp"
+// Platform:
+
+// Common:
+
+// External:
+
+//----------------------------------------------------------------------------
+
+#include "thirdparty/guid_parse/guid_parse.hpp"
+
+#endif // GUID_PARSE_HPP_800DD3D1_3DE5_4A72_B28B_207EDF88005C

@@ -172,7 +172,6 @@ LINK_OBJS = \
 	"$(INTDIR)\hmenu.obj" \
 	"$(INTDIR)\hotplug.obj" \
 	"$(INTDIR)\imports.obj"\
-	"$(INTDIR)\initguid.obj"\
 	"$(INTDIR)\infolist.obj" \
 	"$(INTDIR)\interf.obj" \
 	"$(INTDIR)\keybar.obj" \
@@ -465,9 +464,6 @@ AllDirs:
 $(PCH_FILE): headers.cpp headers.hpp
 	@echo Making precompiled headers
 	$(CPP) $(CPPFLAGS) headers.cpp /Yc"headers.hpp" /Fp"$(PCH_FILE)"
-
-$(INTDIR)\initguid.obj: initguid.cpp
-	$(CPP) $(CPPFLAGS) initguid.cpp
 
 $(INTDIR)\hook_wow64.obj: hook_wow64.cpp
 	$(CPP) $(CPPFLAGS) hook_wow64.cpp

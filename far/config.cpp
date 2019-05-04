@@ -93,6 +93,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // External:
 #include "format.hpp"
+#include "guid_parse.hpp"
 
 //----------------------------------------------------------------------------
 
@@ -2101,27 +2102,65 @@ void Options::SetSearchColumns(const string& Columns, const string& Widths)
 	std::tie(FindOpt.strSearchOutFormat, FindOpt.strSearchOutFormatWidth) = SerialiseViewSettings(FindOpt.OutColumns);
 }
 
+void Options::SetDriveMenuHotkeys()
+{
+	if (!ConfigProvider().GeneralCfg()->GetValue<bool>(L"Interface"sv, L"InitDriveMenuHotkeys"sv, true))
+		return;
+
+	using namespace guid_parse::literals;
+
+	static constexpr const struct
+	{
+		KnownModulesIDs::GuidOption KnownModulesIDs::* Option;
+		GUID MenuId;
+		string_view Hotkey;
+	}
+	DriveMenuHotkeys[]
+	{
+		{ &KnownModulesIDs::ProcList, "61026851-2643-4C67-BF80-D3C77A3AE830"_guid, L"0"sv },
+		{ &KnownModulesIDs::TmpPanel, "F98C70B3-A1AE-4896-9388-C5C8E05013B7"_guid, L"1"sv },
+		{ &KnownModulesIDs::Netbox,   "C9FB4F53-54B5-48FF-9BA2-E8EB27F012A2"_guid, L"2"sv },
+		{ &KnownModulesIDs::Network,  "24B6DD41-DF12-470A-A47C-8675ED8D2ED4"_guid, L"3"sv },
+	};
+
+	for (const auto& i: DriveMenuHotkeys)
+	{
+		ConfigProvider().PlHotkeyCfg()->SetHotkey(std::invoke(i.Option, KnownIDs).StrId, i.MenuId, hotkey_type::drive_menu, i.Hotkey);
+	}
+
+	ConfigProvider().GeneralCfg()->SetValue(L"Interface"sv, L"InitDriveMenuHotkeys"sv, false);
+}
+
 void Options::Load(overrides&& Overrides)
 {
 	// KnownModulesIDs::GuidOption::Default pointer is used in the static config structure, so it MUST be initialized before calling InitConfig()
-	static std::tuple<KnownModulesIDs::GuidOption KnownModulesIDs::*, GUID, string> DefaultKnownGuids[]
+	static struct
 	{
-		{ &KnownModulesIDs::Network, NetworkGuid, {} },
-		{ &KnownModulesIDs::Emenu, EMenuGuid, {} },
-		{ &KnownModulesIDs::Arclite, ArcliteGuid, {} },
-		{ &KnownModulesIDs::Luamacro, LuamacroGuid, {} },
-		{ &KnownModulesIDs::Netbox, NetBoxGuid, {} },
+		KnownModulesIDs::GuidOption KnownModulesIDs::* Option;
+		const GUID& Id;
+		string StrId;
+	}
+	DefaultKnownGuids[]
+	{
+		{ &KnownModulesIDs::Network,  NetworkGuid,  },
+		{ &KnownModulesIDs::Emenu,    EMenuGuid,    },
+		{ &KnownModulesIDs::Arclite,  ArcliteGuid,  },
+		{ &KnownModulesIDs::Luamacro, LuamacroGuid, },
+		{ &KnownModulesIDs::Netbox,   NetBoxGuid,   },
+		{ &KnownModulesIDs::ProcList, ProcListGuid, },
+		{ &KnownModulesIDs::TmpPanel, TmpPanelGuid, },
 	};
 
 	static_assert(std::size(DefaultKnownGuids) == sizeof(KnownModulesIDs) / sizeof(KnownModulesIDs::GuidOption));
 
-	for(auto& [Ptr, Id, Str]: DefaultKnownGuids)
+	for(auto& i: DefaultKnownGuids)
 	{
-		auto& GuidOption = std::invoke(Ptr, KnownIDs);
-		Str = GuidToStr(Id);
-		GuidOption.Default = Str.c_str();
-		GuidOption.Id = Id;
-		GuidOption.StrId = Str;
+		i.StrId = GuidToStr(i.Id);
+
+		auto& GuidOption = std::invoke(i.Option, KnownIDs);
+		GuidOption.Id = i.Id;
+		GuidOption.StrId = i.StrId;
+		GuidOption.Default = i.StrId;
 	}
 
 	InitConfigs();
@@ -2194,6 +2233,8 @@ void Options::Load(overrides&& Overrides)
 			GuidOption.Id = GUID_NULL;
 		}
 	}
+
+	SetDriveMenuHotkeys();
 
 /* *************************************************** </ПОСТПРОЦЕССЫ> */
 

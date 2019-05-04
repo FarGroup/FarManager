@@ -193,6 +193,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "sdk.hpp"
 
+#undef far
+#undef near
+
 #include "cpp.hpp"
 
 using string = std::wstring;

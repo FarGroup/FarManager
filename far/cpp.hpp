@@ -95,4 +95,18 @@ namespace std::this_thread
 }
 #endif
 
+#if COMPILER == C_GCC
+#if _GCC_VER < GCC_VER_(7,2,0)
+// https://gcc.gnu.org/git/?p=gcc.git;a=commit;h=fd847994d5093b888c5cc1ead8625c6c1c03501b
+namespace std
+{
+	template<typename forward_iterator_type, typename searcher_type>
+	forward_iterator_type search(forward_iterator_type First, forward_iterator_type Last, const searcher_type& Searcher)
+	{
+		return Searcher(First, Last).first;
+	}
+}
+#endif
+#endif
+
 #endif // CPP_HPP_95E41B70_5DB2_4E5B_A468_95343C6438AD

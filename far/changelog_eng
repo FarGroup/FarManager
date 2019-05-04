@@ -3,6 +3,12 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 04.05.2019 17:16:12 +0100 - build 5394
+
+1. initguid.cpp removed - GUIDs are initialised directly now.
+
+2. A workaround to support GCC 7.1.
+
 drkns 03.05.2019 22:15:49 +0100 - build 5393
 
 1. 0003709: Incorrect relative dates in filters

@@ -175,7 +175,7 @@ ifeq ($(DIRBIT),32)
 endif
 
 OBJS = $(patsubst %.c,$(OBJDIR)%.o,$(filter %.c,$(SRCS))) $(patsubst %.cpp,$(OBJDIR)%.o,$(filter %.cpp,$(SRCS)))
-OBJS += $(OBJDIR)initguid.o $(OBJDIR)far.rc.o
+OBJS += $(OBJDIR)far.rc.o
 
 MAP = $(patsubst %.exe,%.map,$(EXEFULLNAME))
 
@@ -239,10 +239,6 @@ $(OBJDIR)%.o: %.c
 $(OBJDIR)hook_wow64.o: hook_wow64.cpp
 	@echo $<
 	$(CXX) $(CCFLAGS) -fomit-frame-pointer -c -o $@ $<
-
-$(OBJDIR)initguid.o: initguid.cpp
-	@echo $<
-	$(CXX) $(CCFLAGS) -c -o $@ $<
 
 $(OBJDIR)%.o: %.cpp
 	@echo $<

@@ -38,26 +38,31 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
-#include "common/compiler.hpp"
 
 // External:
+#include "guid_parse.hpp"
 
 //----------------------------------------------------------------------------
 
+namespace guids::plugins
+{
+	using namespace guid_parse::literals;
+
+	constexpr inline const auto
+		NetworkGuid  = "773B5051-7C5F-4920-A201-68051C4176A4"_guid,
+		EMenuGuid    = "742910F1-02ED-4542-851F-DEE37C2E13B2"_guid,
+		ArcliteGuid  = "65642111-AA69-4B84-B4B8-9249579EC4FA"_guid,
+		LuamacroGuid = "4EBBEFC8-2084-4B7F-94C0-692CE136894D"_guid,
+		NetBoxGuid   = "42E4AEB1-A230-44F4-B33C-F195BB654931"_guid,
+		ProcListGuid = "1E26A927-5135-48C6-88B2-845FB8945484"_guid,
+		TmpPanelGuid = "B77C964B-E31E-4D4C-8FE5-D6B0C6853E7C"_guid;
+
+}
+
+// TODO: Use fully qualified names everywhere
 WARNING_PUSH()
-WARNING_DISABLE_CLANG("-Wmissing-variable-declarations")
-
-// {773B5051-7C5F-4920-A201-68051C4176A4}
-DEFINE_GUID(NetworkGuid, 0x773b5051, 0x7c5f, 0x4920, 0xa2, 0x1, 0x68, 0x5, 0x1c, 0x41, 0x76, 0xa4);
-// {742910F1-02ED-4542-851F-DEE37C2E13B2}
-DEFINE_GUID(EMenuGuid, 0x742910f1, 0x2ed, 0x4542, 0x85, 0x1f, 0xde, 0xe3, 0x7c, 0x2e, 0x13, 0xb2);
-// {65642111-AA69-4B84-B4B8-9249579EC4FA}
-DEFINE_GUID(ArcliteGuid, 0x65642111, 0xaa69, 0x4b84, 0xb4, 0xb8, 0x92, 0x49, 0x57, 0x9e, 0xc4, 0xfa);
-// {4EBBEFC8-2084-4B7F-94C0-692CE136894D}
-DEFINE_GUID(LuamacroGuid, 0x4ebbefc8, 0x2084, 0x4b7f, 0x94, 0xc0, 0x69, 0x2c, 0xe1, 0x36, 0x89, 0x4d);
-// {42E4AEB1-A230-44F4-B33C-F195BB654931}
-DEFINE_GUID(NetBoxGuid, 0x42e4aeb1, 0xa230, 0x44f4, 0xb3, 0x3c, 0xf1, 0x95, 0xbb, 0x65, 0x49, 0x31);
-
+WARNING_DISABLE_CLANG("-Wheader-hygiene")
+using namespace guids::plugins;
 WARNING_POP()
 
 #endif // KNOWNGUIDS_HPP_346A7786_E86B_4C38_A02F_68FDAABB07AE

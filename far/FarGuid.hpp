@@ -39,18 +39,24 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
-#include "common/compiler.hpp"
 
 // External:
+#include "guid_parse.hpp"
 
 //----------------------------------------------------------------------------
 
+namespace guids::far
+{
+	using namespace guid_parse::literals;
+
+	constexpr inline const auto
+		FarGuid = "00000000-0000-0000-0000-000000000000"_guid;
+}
+
+// TODO: Use fully qualified names everywhere
 WARNING_PUSH()
-WARNING_DISABLE_CLANG("-Wmissing-variable-declarations")
-
-// {00000000-0000-0000-0000-000000000000}
-DEFINE_GUID(FarGuid,0,0,0,0,0,0,0,0,0,0,0);
-
+WARNING_DISABLE_CLANG("-Wheader-hygiene")
+using namespace guids::far;
 WARNING_POP()
 
 #endif // FARGUID_HPP_49C263EE_12A1_48FD_BA02_52CCE8950C28

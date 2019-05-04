@@ -242,9 +242,6 @@
     <ClCompile Include="infolist.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="initguid.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="interf.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1067,6 +1064,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="usermenu.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="uuid.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="viewer.hpp">
