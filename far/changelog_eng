@@ -3,6 +3,12 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 06.05.2019 22:44:11 +0100 - build 5395
+
+1. Use "…" instead of "..." for UI string truncation to save some space.
+
+2. Minor changes in vcxproj and build scripts.
+
 drkns 04.05.2019 17:16:12 +0100 - build 5394
 
 1. initguid.cpp removed - GUIDs are initialised directly now.

@@ -4,4 +4,4 @@ m4_include(`farversion.m4')m4_dnl
 `#'define RC_BUILD BUILD
 `#'define RC_REVISION REVISION
 `#'define RC_FULLVERSION "FULLVERSION"
-`#'define RC_COPYRIGHTYEARS "COPYRIGHTYEARS"
+`#'define RC_COPYRIGHTYEAR "COPYRIGHTYEAR"

@@ -170,8 +170,8 @@ void inplace::QuoteOuterSpace(string &strStr)
 		inplace::quote(strStr);
 }
 
-// TODO: Consider using "…" - 'HORIZONTAL ELLIPSIS' (U+2026)
-static const auto Dots = L"..."sv;
+// TODO: "…" is displayed as "." in raster fonts. Make it lng-customisable?
+static const auto Dots = L"…"sv;
 
 static auto legacy_operation(wchar_t* Str, int MaxLength, void (*handler)(span<wchar_t>, size_t, string_view))
 {
@@ -1129,46 +1129,46 @@ TEST_CASE("truncate")
 	{
 		{ L"c:/123/456"sv, 20, L"c:/123/456"sv,  L"c:/123/456"sv,  L"c:/123/456"sv,  L"c:/123/456"sv, },
 		{ L"c:/123/456"sv, 10, L"c:/123/456"sv,  L"c:/123/456"sv,  L"c:/123/456"sv,  L"c:/123/456"sv, },
-		{ L"c:/123/456"sv, 9,  L"...23/456"sv,   L"c:/...456"sv,   L"c:/123..."sv,   L"c:/...456"sv,  },
-		{ L"c:/123/456"sv, 8,  L"...3/456"sv,    L"c:...456"sv,    L"c:/12..."sv,    L"c:/...56"sv,   },
-		{ L"c:/123/456"sv, 7,  L".../456"sv,     L"c:...56"sv,     L"c:/1..."sv,     L"c:/...6"sv,    },
-		{ L"c:/123/456"sv, 6,  L"...456"sv,      L"c...56"sv,      L"c:/..."sv,      L"c:/..."sv,     },
-		{ L"c:/123/456"sv, 5,  L"...56"sv,       L"c...6"sv,       L"c:..."sv,       L"c:..."sv,      },
-		{ L"c:/123/456"sv, 4,  L"...6"sv,        L"...6"sv,        L"c..."sv,        L"c..."sv,       },
-		{ L"c:/123/456"sv, 3,  L"..."sv,         L"..."sv,         L"..."sv,         L"..."sv,        },
-		{ L"c:/123/456"sv, 2,  L".."sv,          L".."sv,          L".."sv,          L".."sv,         },
-		{ L"c:/123/456"sv, 1,  L"."sv,           L"."sv,           L"."sv,           L"."sv,          },
+		{ L"c:/123/456"sv, 9,  L"…/123/456"sv,   L"c:/1…/456"sv,   L"c:/123/4…"sv,   L"c:/…3/456"sv,  },
+		{ L"c:/123/456"sv, 8,  L"…123/456"sv,    L"c:/…/456"sv,    L"c:/123/…"sv,    L"c:/…/456"sv,   },
+		{ L"c:/123/456"sv, 7,  L"…23/456"sv,     L"c:/…456"sv,     L"c:/123…"sv,     L"c:/…456"sv,    },
+		{ L"c:/123/456"sv, 6,  L"…3/456"sv,      L"c:…456"sv,      L"c:/12…"sv,      L"c:/…56"sv,     },
+		{ L"c:/123/456"sv, 5,  L"…/456"sv,       L"c:…56"sv,       L"c:/1…"sv,       L"c:/…6"sv,      },
+		{ L"c:/123/456"sv, 4,  L"…456"sv,        L"c…56"sv,        L"c:/…"sv,        L"c:/…"sv,       },
+		{ L"c:/123/456"sv, 3,  L"…56"sv,         L"c…6"sv,         L"c:…"sv,         L"c:…"sv,        },
+		{ L"c:/123/456"sv, 2,  L"…6"sv,          L"…6"sv,          L"c…"sv,          L"c…"sv,         },
+		{ L"c:/123/456"sv, 1,  L"…"sv,           L"…"sv,           L"…"sv,           L"…"sv,          },
 		{ L"c:/123/456"sv, 0,  L""sv,            L""sv,            L""sv,            L""sv,           },
 
 		{ L"0123456789"sv, 20, L"0123456789"sv,  L"0123456789"sv,  L"0123456789"sv,  L"0123456789"sv, },
 		{ L"0123456789"sv, 10, L"0123456789"sv,  L"0123456789"sv,  L"0123456789"sv,  L"0123456789"sv, },
-		{ L"0123456789"sv, 9,  L"...456789"sv,   L"012...789"sv,   L"012345..."sv,   L"...456789"sv,  },
-		{ L"0123456789"sv, 8,  L"...56789"sv,    L"01...789"sv,    L"01234..."sv,    L"...56789"sv,   },
-		{ L"0123456789"sv, 7,  L"...6789"sv,     L"01...89"sv,     L"0123..."sv,     L"...6789"sv,    },
-		{ L"0123456789"sv, 6,  L"...789"sv,      L"0...89"sv,      L"012..."sv,      L"...789"sv,     },
-		{ L"0123456789"sv, 5,  L"...89"sv,       L"0...9"sv,       L"01..."sv,       L"...89"sv,      },
-		{ L"0123456789"sv, 4,  L"...9"sv,        L"...9"sv,        L"0..."sv,        L"...9"sv,       },
-		{ L"0123456789"sv, 3,  L"..."sv,         L"..."sv,         L"..."sv,         L"..."sv,        },
-		{ L"0123456789"sv, 2,  L".."sv,          L".."sv,          L".."sv,          L".."sv,         },
-		{ L"0123456789"sv, 1,  L"."sv,           L"."sv,           L"."sv,           L"."sv,          },
+		{ L"0123456789"sv, 9,  L"…23456789"sv,   L"0123…6789"sv,   L"01234567…"sv,   L"…23456789"sv,  },
+		{ L"0123456789"sv, 8,  L"…3456789"sv,    L"012…6789"sv,    L"0123456…"sv,    L"…3456789"sv,   },
+		{ L"0123456789"sv, 7,  L"…456789"sv,     L"012…789"sv,     L"012345…"sv,     L"…456789"sv,    },
+		{ L"0123456789"sv, 6,  L"…56789"sv,      L"01…789"sv,      L"01234…"sv,      L"…56789"sv,     },
+		{ L"0123456789"sv, 5,  L"…6789"sv,       L"01…89"sv,       L"0123…"sv,       L"…6789"sv,      },
+		{ L"0123456789"sv, 4,  L"…789"sv,        L"0…89"sv,        L"012…"sv,        L"…789"sv,       },
+		{ L"0123456789"sv, 3,  L"…89"sv,         L"0…9"sv,         L"01…"sv,         L"…89"sv,        },
+		{ L"0123456789"sv, 2,  L"…9"sv,          L"…9"sv,          L"0…"sv,          L"…9"sv,         },
+		{ L"0123456789"sv, 1,  L"…"sv,           L"…"sv,           L"…"sv,           L"…"sv,          },
 		{ L"0123456789"sv, 0,  L""sv,            L""sv,            L""sv,            L""sv,           },
 
 		{ L"0123"sv,       5,  L"0123"sv,        L"0123"sv,        L"0123"sv,        L"0123"sv,       },
 		{ L"0123"sv,       4,  L"0123"sv,        L"0123"sv,        L"0123"sv,        L"0123"sv,       },
-		{ L"0123"sv,       3,  L"..."sv,         L"..."sv,         L"..."sv,         L"..."sv,        },
-		{ L"0123"sv,       2,  L".."sv,          L".."sv,          L".."sv,          L".."sv,         },
-		{ L"0123"sv,       1,  L"."sv,           L"."sv,           L"."sv,           L"."sv,          },
+		{ L"0123"sv,       3,  L"…23"sv,         L"0…3"sv,         L"01…"sv,         L"…23"sv,        },
+		{ L"0123"sv,       2,  L"…3"sv,          L"…3"sv,          L"0…"sv,          L"…3"sv,         },
+		{ L"0123"sv,       1,  L"…"sv,           L"…"sv,           L"…"sv,           L"…"sv,          },
 		{ L"0123"sv,       0,  L""sv,            L""sv,            L""sv,            L""sv,           },
 
 		{ L"012"sv,        4,  L"012"sv,         L"012"sv,         L"012"sv,         L"012"sv,        },
 		{ L"012"sv,        3,  L"012"sv,         L"012"sv,         L"012"sv,         L"012"sv,        },
-		{ L"012"sv,        2,  L".."sv,          L".."sv,          L".."sv,          L".."sv,         },
-		{ L"012"sv,        1,  L"."sv,           L"."sv,           L"."sv,           L"."sv,          },
+		{ L"012"sv,        2,  L"…2"sv,          L"…2"sv,          L"0…"sv,          L"…2"sv,         },
+		{ L"012"sv,        1,  L"…"sv,           L"…"sv,           L"…"sv,           L"…"sv,          },
 		{ L"012"sv,        0,  L""sv,            L""sv,            L""sv,            L""sv,           },
 
 		{ L"01"sv,         3,  L"01"sv,          L"01"sv,          L"01"sv,          L"01"sv,         },
 		{ L"01"sv,         2,  L"01"sv,          L"01"sv,          L"01"sv,          L"01"sv,         },
-		{ L"01"sv,         1,  L"."sv,           L"."sv,           L"."sv,           L"."sv,          },
+		{ L"01"sv,         1,  L"…"sv,           L"…"sv,           L"…"sv,           L"…"sv,          },
 		{ L"01"sv,         0,  L""sv,            L""sv,            L""sv,            L""sv,           },
 
 		{ L"0"sv,          2,  L"0"sv,           L"0"sv,           L"0"sv,           L"0"sv,          },

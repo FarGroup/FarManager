@@ -557,12 +557,9 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
       <AdditionalInputs>headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs>Include\%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
-    <CustomBuild Include="Far.exe.example.ini">
+    <CopyFileToFolders Include="Far.exe.example.ini">
       <FileType>Document</FileType>
-      <Command>copy /y %(Identity) $(OutDir) &gt; nul</Command>
-      <Message>Compiling %(Identity)...</Message>
-      <Outputs>$(OutDir)%(Identity)</Outputs>
-    </CustomBuild>
+    </CopyFileToFolders>
     <CustomBuild Include="copyright.inc.m4">
       <FileType>Document</FileType>
       <Message>Compiling %(Identity)...</Message>
@@ -636,7 +633,12 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <MASM Include="vc_crt_fix.asm">
       <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
     </MASM>
-    <None Include="changelog" />
+    <CopyFileToFolders Include="changelog">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="changelog_eng">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
     <None Include="Far.ico" />
     <None Include="FarA.ico" />
     <None Include="farversion.m4" />

@@ -1110,7 +1110,6 @@
     <None Include="vbuild.m4">
       <Filter>Dependencies</Filter>
     </None>
-    <None Include="changelog" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="far.rc">
@@ -1154,9 +1153,6 @@
     <CustomBuild Include="plugin.hpp">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="Far.exe.example.ini">
-      <Filter>Dependencies</Filter>
-    </CustomBuild>
     <CustomBuild Include="api_test.c">
       <Filter>Source Files</Filter>
     </CustomBuild>
@@ -1171,5 +1167,10 @@
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="far.natvis" />
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="changelog" />
+    <CopyFileToFolders Include="changelog_eng" />
+    <CopyFileToFolders Include="Far.exe.example.ini" />
   </ItemGroup>
 </Project>

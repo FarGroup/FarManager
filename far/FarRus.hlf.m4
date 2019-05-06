@@ -48,7 +48,7 @@
 $^#Программа управления файлами и архивами#
 `$^#'FULLVERSIONNOBRACES`#'
 $^#Copyright © 1996-2000 Eugene Roshal#
-`$^#Copyright ©' COPYRIGHTYEARS `Far Group#'
+`$^#Copyright © 2000-'COPYRIGHTYEAR` Far Group#'
    ~Индекс файла помощи~@Index@
    ~Как пользоваться помощью~@Help@
 
