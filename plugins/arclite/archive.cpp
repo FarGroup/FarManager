@@ -1041,7 +1041,7 @@ list<wstring> Archive::get_openerrors(bool warnings) const {
       }
       if ((flags & kpv_ErrorFlags_UnconfirmedStart) == kpv_ErrorFlags_UnconfirmedStart) { // 16
         errors.push_back(L"UnconfirmedStart"); // TODO: localize
-        flags &= ~kpv_ErrorFlags_UnavailableStart;
+        flags &= ~kpv_ErrorFlags_UnconfirmedStart;
       }
       if ((flags & kpv_ErrorFlags_UnexpectedEnd) == kpv_ErrorFlags_UnexpectedEnd) { // 32
         errors.push_back(Far::get_msg(MSG_ERROR_EXTRACT_UNEXPECTED_END_DATA));
