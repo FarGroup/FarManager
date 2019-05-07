@@ -270,6 +270,8 @@ public:
   bool get_anti(UInt32 index) const;
   bool get_isaltstream(UInt32 index) const;
 
+  list<wstring> get_openerrors(bool warnings = false) const;
+
   // extract
 private:
   wstring get_default_name() const;

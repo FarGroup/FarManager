@@ -547,6 +547,12 @@ public:
       });
 
       try {
+        auto open_errors = archive->get_openerrors();
+        if (!open_errors.empty()) {
+          Error error(E_FAIL, arc_list[i], __FILE__, __LINE__);
+          error.messages.splice(error.messages.end(), open_errors);
+          throw error;
+        }
         archive->test(c_root_index, indices);
       }
       catch (const Error& error) {

@@ -183,8 +183,8 @@ dirs $(OUTDIR):
 !endif
 
 clean:
-  if exist $(OBJDIR) rd /s /q $(OBJDIR)
-  if exist $(OUTDIR) rd /s /q $(OUTDIR)
-  if exist bootstrap rd /s /q bootstrap
+  if exist $(OBJDIR)\* del /q $(OBJDIR)\*
+  if exist $(OUTDIR)\* del /q $(OUTDIR)\*
+  if exist bootstrap\* del /q bootstrap\*
 
 .PHONY: project dirs build_project install_project depfile instmak clean

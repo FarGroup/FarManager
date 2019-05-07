@@ -57,7 +57,6 @@ goto :EOF
   echo.
   echo build far-%2 %1%cver% [clean=%clean% debug=%deb_b%]
   echo.
-  for %%f in (copyright.inc far.rc) do if exist bootsrap\%%f del /q bootstrap\%%f >NUL
   call :set_%1 %2
 goto :EOF
 

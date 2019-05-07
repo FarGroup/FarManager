@@ -38,14 +38,12 @@ wstring format_str_prop(const PropVariant& prop) {
 
 wstring format_int_prop(const PropVariant& prop) {
   wchar_t buf[32];
-  _i64tow(prop.get_int(), buf, 10);
-  return buf;
+  return wstring(_i64tow(prop.get_int(), buf, 10));
 }
 
 wstring format_uint_prop(const PropVariant& prop) {
   wchar_t buf[32];
-  _ui64tow(prop.get_uint(), buf, 10);
-  return buf;
+  return wstring(_ui64tow(prop.get_uint(), buf, 10));
 }
 
 wstring format_size_prop(const PropVariant& prop) {

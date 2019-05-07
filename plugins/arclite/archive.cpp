@@ -1013,3 +1013,71 @@ bool Archive::get_isaltstream(UInt32 index) const {
   else
     return false;
 }
+
+list<wstring> Archive::get_openerrors(bool warnings) const {
+  list<wstring> errors;
+  auto kpid_flags = warnings ? kpidWarningFlags : kpidErrorFlags;
+  auto kpid_ermsg = warnings ? kpidWarning : kpidError;
+  PropVariant prop, prop1;
+  if (in_arc->GetArchiveProperty(kpid_flags, prop.ref()) == S_OK && (prop.vt == VT_UI4 || prop.vt == VT_UI8)) {
+    auto flags = static_cast<UInt32>(prop.get_uint());
+    if (flags != 0) {
+      if ((flags & kpv_ErrorFlags_IsNotArc) == kpv_ErrorFlags_IsNotArc) { // 1
+        errors.push_back(Far::get_msg(MSG_ERROR_EXTRACT_IS_NOT_ARCHIVE));
+        flags &= ~kpv_ErrorFlags_IsNotArc;
+      }
+      if ((flags & kpv_ErrorFlags_HeadersError) == kpv_ErrorFlags_HeadersError) { // 2
+        errors.push_back(Far::get_msg(MSG_ERROR_EXTRACT_HEADERS_ERROR));
+        flags &= ~kpv_ErrorFlags_HeadersError;
+      }
+      if ((flags & kpv_ErrorFlags_EncryptedHeadersError) == kpv_ErrorFlags_EncryptedHeadersError) { // 4
+        errors.push_back(L"EncryptedHeadersError"); // TODO: localize
+        flags &= ~kpv_ErrorFlags_EncryptedHeadersError;
+      }
+      if ((flags & kpv_ErrorFlags_UnavailableStart) == kpv_ErrorFlags_UnavailableStart) { // 8
+        //errors.push_back(L"UnavailableStart"); // TODO: localize
+        errors.push_back(Far::get_msg(MSG_ERROR_EXTRACT_UNAVAILABLE_DATA));
+        flags &= ~kpv_ErrorFlags_UnavailableStart;
+      }
+      if ((flags & kpv_ErrorFlags_UnconfirmedStart) == kpv_ErrorFlags_UnconfirmedStart) { // 16
+        errors.push_back(L"UnconfirmedStart"); // TODO: localize
+        flags &= ~kpv_ErrorFlags_UnavailableStart;
+      }
+      if ((flags & kpv_ErrorFlags_UnexpectedEnd) == kpv_ErrorFlags_UnexpectedEnd) { // 32
+        errors.push_back(Far::get_msg(MSG_ERROR_EXTRACT_UNEXPECTED_END_DATA));
+        flags &= ~kpv_ErrorFlags_UnexpectedEnd;
+      }
+      if ((flags & kpv_ErrorFlags_DataAfterEnd) == kpv_ErrorFlags_DataAfterEnd) { // 64
+        errors.push_back(Far::get_msg(MSG_ERROR_EXTRACT_DATA_AFTER_END));
+        flags &= ~kpv_ErrorFlags_DataAfterEnd;
+      }
+      if ((flags & kpv_ErrorFlags_UnsupportedMethod) == kpv_ErrorFlags_UnsupportedMethod) { // 128
+        errors.push_back(Far::get_msg(MSG_ERROR_EXTRACT_UNSUPPORTED_METHOD));
+        flags &= ~kpv_ErrorFlags_UnsupportedMethod;
+      }
+      if ((flags & kpv_ErrorFlags_UnsupportedFeature) == kpv_ErrorFlags_UnsupportedFeature) { // 256
+        errors.push_back(L"UnsupportedFeature"); // TODO: localize
+        flags &= ~kpv_ErrorFlags_UnsupportedFeature;
+      }
+      if ((flags & kpv_ErrorFlags_DataError) == kpv_ErrorFlags_DataError) { // 512
+        errors.push_back(Far::get_msg(MSG_ERROR_EXTRACT_DATA_ERROR));
+        flags &= ~kpv_ErrorFlags_DataError;
+      }
+      if ((flags & kpv_ErrorFlags_CrcError) == kpv_ErrorFlags_CrcError) { // 1024
+        errors.push_back(Far::get_msg(MSG_ERROR_EXTRACT_CRC_ERROR));
+        flags &= ~kpv_ErrorFlags_CrcError;
+      }
+      if (flags != 0) {
+        wchar_t buf[32];
+        errors.emplace_back(L"Unknown error: ");
+        errors.back().append(_ui64tow(flags, buf, 10));
+      }
+    }
+  }
+  if (in_arc->GetArchiveProperty(kpid_ermsg, prop1.ref()) == S_OK && prop1.is_str()) {
+    auto msg = prop1.get_str();
+    if (!msg.empty())
+      errors.push_back(msg);
+  }
+  return errors;
+}
