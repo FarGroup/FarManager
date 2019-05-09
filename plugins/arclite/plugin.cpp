@@ -520,6 +520,8 @@ public:
     shared_ptr<ErrorLog> error_log(new ErrorLog());
     for (unsigned i = 0; i < arc_list.size(); i++) {
       unique_ptr<Archives> archives;
+      Error err;
+      err.objects = { arc_list[i] };
       try {
         OpenOptions open_options;
         open_options.arc_path = arc_list[i];
@@ -527,16 +529,19 @@ public:
         open_options.arc_types = ArcAPI::formats().get_arc_types();
         archives = Archive::open(open_options);
         if (archives->empty())
-          throw Error(Far::get_msg(MSG_ERROR_NOT_ARCHIVE), arc_list[i], __FILE__, __LINE__);
+           throw Error(Far::get_msg(MSG_ERROR_NOT_ARCHIVE), __FILE__, __LINE__);
       }
       catch (const Error& error) {
         if (error.code == E_ABORT)
           throw;
-        error_log->push_back(error);
+        err.Append(error);
+        error_log->push_back(err);
         continue;
       }
 
       shared_ptr<Archive> archive = (*archives)[0];
+      archive->read_open_results();
+      err.SetResults(archive->get_open_errors(), archive->get_open_warnings());
       archive->make_index();
 
       FileIndexRange dir_list = archive->get_dir_list(c_root_index);
@@ -547,19 +552,15 @@ public:
       });
 
       try {
-        auto open_errors = archive->get_openerrors();
-        if (!open_errors.empty()) {
-          Error error(E_FAIL, arc_list[i], __FILE__, __LINE__);
-          error.messages.splice(error.messages.end(), open_errors);
-          throw error;
-        }
         archive->test(c_root_index, indices);
       }
       catch (const Error& error) {
         if (error.code == E_ABORT)
           throw;
-        error_log->push_back(error);
+        err.Append(error);
       }
+      if (err)
+        error_log->push_back(err);
     }
 
     if (!error_log->empty()) {

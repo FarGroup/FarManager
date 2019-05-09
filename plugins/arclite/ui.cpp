@@ -530,14 +530,24 @@ void show_error_log(const ErrorLog& error_log) {
   wstring line;
   for (ErrorLog::const_iterator error = error_log.begin(); error != error_log.end(); error++) {
     line.clear();
-    if (error->code != E_MESSAGE) {
+    if (error->code != E_MESSAGE && error->code != S_FALSE) {
       wstring sys_msg = get_system_message(error->code, Far::get_lang_id());
       if (!sys_msg.empty())
         line.append(sys_msg).append(1, L'\n');
     }
-    for (list<wstring>::const_iterator err_msg = error->messages.begin(); err_msg != error->messages.end(); err_msg++) {
-      line.append(*err_msg).append(1, L'\n');
+    for (const auto& o : error->objects)
+       line.append(o).append(1, L'\n');
+    wstring indent;
+    if (!error->messages.empty() && (!error->objects.empty() || !error->warnings.empty())) {
+       line.append(Far::get_msg(MSG_KPID_ERRORFLAGS)).append(L":\n");
+       indent = L"  ";
     }
+    for (const auto& e : error->messages)
+       line.append(indent).append(e).append(1, L'\n');
+    if (!error->warnings.empty())
+       line.append(Far::get_msg(MSG_KPID_WARNINGFLAGS)).append(L":\n");
+    for (const auto& w : error->warnings)
+       line.append(L"  ").append(w).append(1, L'\n');
     line.append(1, L'\n');
     file.write(line.data(), static_cast<unsigned>(line.size()) * sizeof(wchar_t));
   }

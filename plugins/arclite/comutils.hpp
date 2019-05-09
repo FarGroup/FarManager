@@ -238,6 +238,9 @@ public:
   bool is_uint() const {
     return vt == VT_UI1 || vt == VT_UI2 || vt == VT_UI4 || vt == VT_UINT || vt == VT_UI8;
   }
+  bool is_size() const {
+    return vt == VT_I4 || vt == VT_INT || vt == VT_I8 || vt == VT_UI4 || vt == VT_UINT || vt == VT_UI8;
+  }
   bool is_str() const {
     return vt == VT_BSTR || vt == VT_LPWSTR;
   }
@@ -276,6 +279,24 @@ public:
       return uintVal;
     case VT_UI8:
       return uhVal.QuadPart;
+    default:
+      FAIL(E_INVALIDARG);
+    }
+  }
+  unsigned __int64 get_size() const {
+    switch (vt) {
+    case VT_UI4:
+      return ulVal;
+    case VT_UINT:
+      return uintVal;
+    case VT_UI8:
+      return uhVal.QuadPart;
+    case VT_I4:
+       return (unsigned __int64)lVal;
+    case VT_INT:
+       return (unsigned __int64)intVal;
+    case VT_I8:
+       return (unsigned __int64)hVal.QuadPart;
     default:
       FAIL(E_INVALIDARG);
     }

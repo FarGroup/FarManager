@@ -213,6 +213,8 @@ class Archive: public enable_shared_from_this<Archive> {
   // open
 private:
   ComObject<IInArchive> in_arc;
+  UInt32 error_flags, warning_flags;
+  wstring error_text, warning_text;
   IInStream *base_stream;
   bool open(IInStream* in_stream, const ArcType& type);
   UInt64 get_physize();
@@ -270,7 +272,9 @@ public:
   bool get_anti(UInt32 index) const;
   bool get_isaltstream(UInt32 index) const;
 
-  list<wstring> get_openerrors(bool warnings = false) const;
+  void read_open_results();
+  list<wstring> get_open_errors() const;
+  list<wstring> get_open_warnings() const;
 
   // extract
 private:
@@ -318,5 +322,5 @@ public:
   Archive()
    : base_stream(nullptr), num_indices(0)
    , level(0), solid(false), encrypted(false), open_password(0), update_props_defined(false), has_crc(false)
-  {}
+  { error_flags = warning_flags = 0; }
 };
