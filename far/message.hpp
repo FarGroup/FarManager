@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/2d/rectangle.hpp"
+#include "common/range.hpp"
 
 // External:
 
@@ -69,7 +70,7 @@ public:
 		DWORD Flags,
 		string_view Title,
 		std::vector<string> Strings,
-		const std::vector<lng>& Buttons,
+		span<lng const> Buttons,
 		string_view HelpTopic = {},
 		const GUID* Id = nullptr
 	);
@@ -79,10 +80,10 @@ public:
 		const error_state_ex& ErrorState,
 		string_view Title,
 		std::vector<string> Strings,
-		const std::vector<lng>& Buttons,
+		span<lng const> Buttons,
 		string_view HelpTopic = {},
 		const GUID* Id = nullptr,
-		const std::vector<string>& Inserts = {}
+		span<string const> Inserts = {}
 	);
 
 	Message(
@@ -116,7 +117,7 @@ private:
 		std::vector<string>&& Strings,
 		std::vector<string>&& Buttons,
 		const error_state_ex* ErrorState,
-		const std::vector<string>& Inserts,
+		span<string const> Inserts,
 		string_view HelpTopic,
 		Plugin* PluginNumber,
 		const GUID* Id

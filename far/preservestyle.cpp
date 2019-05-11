@@ -300,7 +300,7 @@ bool PreserveStyleReplaceString(
 
 	const auto BlankOrWordDiv = [&WordDiv](wchar_t Ch)
 	{
-		return std::iswblank(Ch) || WordDiv.find(Ch) != WordDiv.npos;
+		return std::iswblank(Ch) || contains(WordDiv, Ch);
 	};
 
 	for (int I=Position; (Reverse && I>=0) || (!Reverse && static_cast<size_t>(I) < Source.size()); Reverse? I-- : I++)

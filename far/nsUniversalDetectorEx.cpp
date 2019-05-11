@@ -95,7 +95,7 @@ namespace
 {
 	SCOPED_ACTION(components::component)([]
 	{
-		return components::component::info{ L"Mozilla Universal Charset Detector"s, {} }; // BUGBUG, version unknown
+		return components::component::info{ L"Mozilla Universal Charset Detector"sv, {} }; // BUGBUG, version unknown
 	});
 }
 

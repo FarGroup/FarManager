@@ -53,17 +53,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // If not, I don't know who wrote it.
 //---------------------------------------------------------------
 
-enum TVarType
-{
-	vtUnknown = 0,
-	vtInteger = 1,
-	vtString  = 2,
-	vtDouble  = 3,
-};
-
 class TVar
 {
 public:
+	enum class Type
+	{
+		Unknown = 0,
+		Integer = 1,
+		String = 2,
+		Double = 3,
+	};
+
 	COPYABLE(TVar);
 	MOVABLE(TVar);
 
@@ -82,14 +82,14 @@ public:
 
 	bool operator<(const TVar&) const;
 
-	TVarType type() const { return vType; }
-	TVarType ParseType() const;
-	void SetType(TVarType newType) {vType=newType;}
+	Type type() const { return vType; }
+	Type ParseType() const;
+	void SetType(Type newType) {vType=newType;}
 
-	bool isString()   const { return vType == vtString; }
-	bool isInteger()  const { return vType == vtInteger || vType == vtUnknown; }
-	bool isDouble()   const { return vType == vtDouble; }
-	bool isUnknown()  const { return vType == vtUnknown; }
+	bool isString()   const { return vType == Type::String; }
+	bool isInteger()  const { return vType == Type::Integer || vType == Type::Unknown; }
+	bool isDouble()   const { return vType == Type::Double; }
+	bool isUnknown()  const { return vType == Type::Unknown; }
 
 	bool isNumber()   const;
 
@@ -108,7 +108,7 @@ private:
 		double dnum;
 	};
 	mutable string str;
-	TVarType vType;
+	Type vType;
 };
 
 #endif // TVAR_HPP_684F1D24_C3BA_43F6_9099_C617C30385EE

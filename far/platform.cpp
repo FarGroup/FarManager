@@ -183,7 +183,7 @@ void EnableLowFragmentationHeap()
 
 bool get_locale_value(LCID const LcId, LCTYPE const Id, string& Value)
 {
-	return detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Value, [&](range<wchar_t*> Buffer)
+	return detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Value, [&](span<wchar_t> Buffer)
 	{
 		const auto ReturnedSize = GetLocaleInfo(LcId, Id, Buffer.data(), static_cast<int>(Buffer.size()));
 		return ReturnedSize? ReturnedSize - 1 : 0;
@@ -210,7 +210,7 @@ bool GetWindowText(HWND Hwnd, string& Text)
 	GuardLastError ErrorGuard;
 	SetLastError(ERROR_SUCCESS);
 
-	if (detail::ApiDynamicStringReceiver(Text, [&](range<wchar_t*> Buffer)
+	if (detail::ApiDynamicStringReceiver(Text, [&](span<wchar_t> Buffer)
 	{
 		const size_t Length = ::GetWindowTextLength(Hwnd);
 
@@ -270,7 +270,7 @@ DWORD GetAppPathsRedirectionFlag()
 
 bool GetDefaultPrinter(string& Printer)
 {
-	return detail::ApiDynamicStringReceiver(Printer, [&](range<wchar_t*> Buffer)
+	return detail::ApiDynamicStringReceiver(Printer, [&](span<wchar_t> Buffer)
 	{
 		auto dwSize = static_cast<DWORD>(Buffer.size());
 		if (::GetDefaultPrinter(Buffer.data(), &dwSize))
@@ -293,7 +293,7 @@ bool GetComputerName(string& Name)
 
 bool GetComputerNameEx(COMPUTER_NAME_FORMAT NameFormat, string& Name)
 {
-	return detail::ApiDynamicStringReceiver(Name, [&](range<wchar_t*> Buffer)
+	return detail::ApiDynamicStringReceiver(Name, [&](span<wchar_t> Buffer)
 	{
 		auto dwSize = static_cast<DWORD>(Buffer.size());
 		if (!::GetComputerNameEx(NameFormat, Buffer.data(), &dwSize) && GetLastError() != ERROR_MORE_DATA)
@@ -315,7 +315,7 @@ bool GetUserName(string& Name)
 
 bool GetUserNameEx(EXTENDED_NAME_FORMAT NameFormat, string& Name)
 {
-	return detail::ApiDynamicStringReceiver(Name, [&](range<wchar_t*> Buffer)
+	return detail::ApiDynamicStringReceiver(Name, [&](span<wchar_t> Buffer)
 	{
 		auto dwSize = static_cast<DWORD>(Buffer.size());
 		if (!::GetUserNameEx(NameFormat, Buffer.data(), &dwSize) && GetLastError() != ERROR_MORE_DATA)

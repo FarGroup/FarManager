@@ -69,7 +69,7 @@ namespace
 {
 	SCOPED_ACTION(components::component)([]
 	{
-		return components::component::info{ L"Catch2"s, format(L"{0}.{1}.{2}"sv, CATCH_VERSION_MAJOR, CATCH_VERSION_MINOR, CATCH_VERSION_PATCH) };
+		return components::component::info{ L"Catch2"sv, format(L"{0}.{1}.{2}"sv, CATCH_VERSION_MAJOR, CATCH_VERSION_MINOR, CATCH_VERSION_PATCH) };
 	});
 }
 

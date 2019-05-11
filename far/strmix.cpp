@@ -79,11 +79,18 @@ string GroupDigits(unsigned long long Value)
 	// Don't care - can't be negative
 	Fmt.NegativeOrder = 1;
 
-	string strSrc = str(Value);
-	const size_t Size = GetNumberFormat(LOCALE_USER_DEFAULT, 0, strSrc.c_str(), &Fmt, nullptr, 0);
-	wchar_t_ptr_n<os::default_buffer_size> Dest(Size);
-	GetNumberFormat(LOCALE_USER_DEFAULT, 0, strSrc.c_str(), &Fmt, Dest.get(), static_cast<int>(Size));
-	return { Dest.get(), Size - 1 };
+	auto Src = str(Value);
+	string Result;
+
+	if (os::detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Result, [&](span<wchar_t> Buffer)
+	{
+		const size_t Size = GetNumberFormat(LOCALE_USER_DEFAULT, 0, Src.c_str(), &Fmt, Buffer.data(), static_cast<int>(Buffer.size()));
+		return Size? Size - 1 : 0;
+		}))
+		return Result;
+
+	// Better than nothing
+	return Src;
 }
 
 wchar_t* InsertQuote(wchar_t *Str)
@@ -156,12 +163,6 @@ wchar_t* QuoteSpaceOnly(wchar_t *Str)
 		InsertQuote(Str);
 
 	return Str;
-}
-
-void inplace::QuoteSpaceOnly(string &strStr)
-{
-	if (contains(strStr, L' '))
-		inplace::quote(strStr);
 }
 
 void inplace::QuoteOuterSpace(string &strStr)
@@ -813,7 +814,7 @@ static bool CanContainWholeWord(string_view const Haystack, size_t const Offset,
 {
 	const auto BlankOrWordDiv = [&WordDiv](wchar_t Ch)
 	{
-		return std::iswblank(Ch) || WordDiv.find(Ch) != WordDiv.npos;
+		return std::iswblank(Ch) || contains(WordDiv, Ch);
 	};
 
 	if (Offset && !BlankOrWordDiv(Haystack[Offset - 1]))

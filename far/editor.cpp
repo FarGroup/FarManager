@@ -6918,7 +6918,7 @@ DWORD Editor::SetLineCodePage(const iterator& edit, uintptr_t codepage, bool che
 		if (codepage == CP_UTF8 || codepage == CP_UTF7)
 		{
 			Utf::errors errs;
-			Utf::get_chars(codepage, { decoded.data(), length }, nullptr, 0, &errs);
+			Utf::get_chars(codepage, { decoded.data(), length }, {}, &errs);
 			if (errs.Conversion.Error)
 				Ret |= SETCP_MB2WCERROR;
 		}
@@ -6972,7 +6972,7 @@ bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 				wchar_offsets.emplace_back(total_len);
 				char *s = decoded.data() + total_len;
 
-				const size_t len = encoding::get_bytes(m_codepage, { &i->m_Str[j], 1 }, s, 3, p_def);
+				const size_t len = encoding::get_bytes(m_codepage, { &i->m_Str[j], 1 }, { s, 3 }, p_def);
 				if (!len || def)
 				{
 					X = j;
@@ -6985,7 +6985,7 @@ bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 			if (codepage == CP_UTF8 || codepage == CP_UTF7)
 			{
 				Utf::errors errs;
-				Utf::get_chars(codepage, { decoded.data(), total_len }, nullptr, 0, &errs);
+				Utf::get_chars(codepage, { decoded.data(), total_len }, {}, &errs);
 				if (errs.Conversion.Error)
 				{
 					Error = errs.Conversion.Position;

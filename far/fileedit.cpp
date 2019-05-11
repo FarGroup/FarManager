@@ -1873,12 +1873,12 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 			const auto& SaveStr = Line.GetString();
 			auto LineEol = Line.GetEOL();
 
-			bool UsedDefaultCharStr = encoding::get_bytes(codepage, SaveStr, nullptr, 0, &UsedDefaultCharStr) && UsedDefaultCharStr;
+			bool UsedDefaultCharStr = encoding::get_bytes(codepage, SaveStr, {}, &UsedDefaultCharStr) && UsedDefaultCharStr;
 
 			if (Eol != eol::type::none && LineEol != eol::type::none)
 				LineEol = m_editor->GlobalEOL;
 
-			bool UsedDefaultCharEOL = encoding::get_bytes(codepage, eol::str(LineEol), nullptr, 0, &UsedDefaultCharEOL) && UsedDefaultCharEOL;
+			bool UsedDefaultCharEOL = encoding::get_bytes(codepage, eol::str(LineEol), {}, &UsedDefaultCharEOL) && UsedDefaultCharEOL;
 
 			if (UsedDefaultCharStr || UsedDefaultCharEOL)
 			{
@@ -1902,7 +1902,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 						const auto BadCharIterator = std::find_if(CONST_RANGE(SaveStr, i)
 						{
 							bool UseDefChar;
-							return encoding::get_bytes(codepage, { &i, 1 }, nullptr, 0, &UseDefChar) == 1 && UseDefChar;
+							return encoding::get_bytes(codepage, { &i, 1 }, {}, &UseDefChar) == 1 && UseDefChar;
 						});
 
 						if (BadCharIterator != SaveStr.cend())
@@ -2192,7 +2192,7 @@ static std::pair<string, size_t> ansi_char_code(std::optional<wchar_t> const& Ch
 
 		char Buffer;
 		bool UsedDefaultChar;
-		if (Char.has_value() && encoding::get_bytes(Codepage, { &*Char, 1 }, &Buffer, 1, &UsedDefaultChar) == 1 && !UsedDefaultChar)
+		if (Char.has_value() && encoding::get_bytes(Codepage, { &*Char, 1 }, { &Buffer, 1 }, &UsedDefaultChar) == 1 && !UsedDefaultChar)
 		{
 			const unsigned AnsiCode = Buffer;
 			if (AnsiCode != *Char)

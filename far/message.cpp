@@ -198,7 +198,7 @@ intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-Message::Message(DWORD const Flags, string_view const Title, std::vector<string> Strings, const std::vector<lng>& Buttons, string_view const HelpTopic, const GUID* const Id)
+Message::Message(DWORD const Flags, string_view const Title, std::vector<string> Strings, span<lng const> const Buttons, string_view const HelpTopic, const GUID* const Id)
 {
 	std::vector<string> StrButtons;
 	StrButtons.reserve(Buttons.size());
@@ -206,7 +206,7 @@ Message::Message(DWORD const Flags, string_view const Title, std::vector<string>
 	Init(Flags, Title, std::move(Strings), std::move(StrButtons), nullptr, {}, HelpTopic, nullptr, Id);
 }
 
-Message::Message(DWORD const Flags, const error_state_ex& ErrorState, string_view  const Title, std::vector<string> Strings, const std::vector<lng>& Buttons, string_view const HelpTopic, const GUID* const Id, const std::vector<string>& Inserts)
+Message::Message(DWORD const Flags, const error_state_ex& ErrorState, string_view  const Title, std::vector<string> Strings, span<lng const> const Buttons, string_view const HelpTopic, const GUID* const Id, span<string const> const Inserts)
 {
 	std::vector<string> StrButtons;
 	StrButtons.reserve(Buttons.size());
@@ -225,7 +225,7 @@ void Message::Init(
 	std::vector<string>&& Strings,
 	std::vector<string>&& Buttons,
 	const error_state_ex* const ErrorState,
-	const std::vector<string>& Inserts,
+	span<string const> const Inserts,
 	string_view const HelpTopic,
 	Plugin* const PluginNumber,
 	const GUID* const Id

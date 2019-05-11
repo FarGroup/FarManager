@@ -32,8 +32,9 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "preprocessor.hpp"
 #include "placement.hpp"
+#include "preprocessor.hpp"
+#include "utility.hpp"
 
 //----------------------------------------------------------------------------
 
@@ -174,6 +175,45 @@ auto concat(args const&... Args)
 	return Str;
 }
 
+// uniform "contains"
+template<typename find_type, typename... traits>
+[[nodiscard]]
+bool contains(const std::basic_string<traits...>& Str, const find_type& What)
+{
+	return Str.find(What) != Str.npos;
+}
+
+template<typename find_type, typename... traits>
+[[nodiscard]]
+bool contains(const std::basic_string_view<traits...> Str, const find_type& What)
+{
+	return Str.find(What) != Str.npos;
+}
+
+[[nodiscard]]
+inline bool contains(const wchar_t* const Str, const wchar_t* const What)
+{
+	return wcsstr(Str, What) != nullptr;
+}
+
+[[nodiscard]]
+inline bool contains(const wchar_t* const Str, wchar_t const What)
+{
+	return wcschr(Str, What) != nullptr;
+}
+
+[[nodiscard]]
+inline bool contains(const char* const Str, const char* const What)
+{
+	return strstr(Str, What) != nullptr;
+}
+
+[[nodiscard]]
+inline bool contains(const char* const Str, char const What)
+{
+	return strchr(Str, What) != nullptr;
+}
+
 namespace detail
 {
 	template<typename begin_iterator, typename end_iterator>
@@ -264,6 +304,12 @@ namespace inplace
 	{
 		unquote(Str);
 		quote(Str);
+	}
+
+	inline void quote_space(string& Str)
+	{
+		if (contains(Str, L' '))
+			quote(Str);
 	}
 
 	inline void trim_left(string& Str)
@@ -409,6 +455,13 @@ inline auto quote_normalise(string Str)
 }
 
 [[nodiscard]]
+inline auto quote_space(string Str)
+{
+	inplace::quote_space(Str);
+	return Str;
+}
+
+[[nodiscard]]
 inline bool equal(const string_view Str1, const string_view Str2)
 {
 	return Str1 == Str2;
@@ -506,45 +559,6 @@ string join(const container& Container, string_view const Separator)
 	string Str;
 	join(Str, Container, Separator);
 	return Str;
-}
-
-// uniform "contains"
-template<typename find_type, typename... traits>
-[[nodiscard]]
-bool contains(const std::basic_string<traits...>& Str, const find_type& What)
-{
-	return Str.find(What) != Str.npos;
-}
-
-template<typename find_type, typename... traits>
-[[nodiscard]]
-bool contains(const std::basic_string_view<traits...> Str, const find_type& What)
-{
-	return Str.find(What) != Str.npos;
-}
-
-[[nodiscard]]
-inline bool contains(const wchar_t* const Str, const wchar_t* const What)
-{
-	return wcsstr(Str, What) != nullptr;
-}
-
-[[nodiscard]]
-inline bool contains(const wchar_t* const Str, wchar_t const What)
-{
-	return wcschr(Str, What) != nullptr;
-}
-
-[[nodiscard]]
-inline bool contains(const char* const Str, const char* const What)
-{
-	return strstr(Str, What) != nullptr;
-}
-
-[[nodiscard]]
-inline bool contains(const char* const Str, char const What)
-{
-	return strchr(Str, What) != nullptr;
 }
 
 [[nodiscard]]

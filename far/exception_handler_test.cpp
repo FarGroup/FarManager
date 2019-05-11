@@ -62,6 +62,12 @@ namespace tests
 	}
 
 	[[noreturn]]
+	static void cpp_far_fatal()
+	{
+		throw MAKE_FAR_FATAL_EXCEPTION(L"Test far fatal error"sv);
+	}
+
+	[[noreturn]]
 	static void cpp_std()
 	{
 		throw std::runtime_error("Test std error"s);
@@ -245,6 +251,7 @@ static bool ExceptionTestHook(Manager::Key key)
 	static const std::pair<void(*)(), string_view> Tests[]
 	{
 		{ tests::cpp_far,                  L"C++ far_exception"sv },
+		{ tests::cpp_far_fatal,            L"C++ far_fatal_exception"sv },
 		{ tests::cpp_std,                  L"C++ std::exception"sv },
 		{ tests::cpp_std_nested,           L"C++ nested std::exception"sv },
 		{ tests::cpp_std_nested_thread,    L"C++ nested std::exception (thread)"sv },

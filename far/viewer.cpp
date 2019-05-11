@@ -755,7 +755,7 @@ int Viewer::txt_dump(std::string_view const Str, size_t ClientWidth, string& Out
 	{
 		std::vector<wchar_t> Buffer(ClientWidth);
 		int dummy_tail;
-		const auto WideCharsNumber = Utf8::get_chars(Str, Buffer.data(), ClientWidth, dummy_tail);
+		const auto WideCharsNumber = Utf8::get_chars(Str, Buffer, dummy_tail);
 		for (size_t iw = 0; OutStr.size() < ClientWidth && iw != WideCharsNumber; ++iw)
 		{
 			if (tail)
@@ -2451,7 +2451,7 @@ void Viewer::Up( int nlines, bool adjust )
 			}
 			else
 			{
-				const auto BufferReader = [&](range<wchar_t*> Buffer)
+				const auto BufferReader = [&](span<wchar_t> Buffer)
 				{
 					return vread(Buffer.data(), static_cast<int>(Buffer.size()));
 				};
@@ -3733,7 +3733,7 @@ int Viewer::vread(wchar_t *Buf, int Count, wchar_t *Buf2)
 		if (m_Codepage == CP_UTF8)
 		{
 			int tail;
-			ReadSize = Utf8::get_chars({ TmpBuf, ConvertSize }, Buf, Count, tail);
+			ReadSize = Utf8::get_chars({ TmpBuf, ConvertSize }, { Buf, static_cast<size_t>(Count) }, tail);
 
 			if (Buf2)
 			{
@@ -3780,7 +3780,7 @@ int Viewer::vread(wchar_t *Buf, int Count, wchar_t *Buf2)
 		}
 		else
 		{
-			ReadSize = encoding::get_chars(m_Codepage, { TmpBuf, ConvertSize }, Buf, Count);
+			ReadSize = encoding::get_chars(m_Codepage, { TmpBuf, ConvertSize }, { Buf, static_cast<size_t>(Count) });
 		}
 	}
 
@@ -3909,7 +3909,7 @@ bool Viewer::vgetc(wchar_t *pCh)
 			}
 			else
 			{
-				encoding::get_chars(m_Codepage, { vgetc_buffer + vgetc_ib, 1 }, pCh, 1);
+				encoding::get_chars(m_Codepage, { vgetc_buffer + vgetc_ib, 1 }, { pCh, 1 });
 				++vgetc_ib;
 			}
 		break;
@@ -3964,7 +3964,7 @@ wchar_t Viewer::vgetc_prev()
 			{
 				int tail = 0;
 				wchar_t CharBuffer[4];
-				const auto Length = Utf8::get_chars({ RawBuffer, BytesRead }, CharBuffer, std::size(CharBuffer), tail);
+				const auto Length = Utf8::get_chars({ RawBuffer, BytesRead }, CharBuffer, tail);
 				if (!tail && Length)
 				{
 					Result = CharBuffer[Length - 1];
@@ -3975,7 +3975,7 @@ wchar_t Viewer::vgetc_prev()
 		default:
 			if (CharSize == 1)
 			{
-				encoding::get_chars(m_Codepage, { RawBuffer, 1 }, &Result, 1);
+				encoding::get_chars(m_Codepage, { RawBuffer, 1 }, { &Result, 1 });
 			}
 			else
 			{

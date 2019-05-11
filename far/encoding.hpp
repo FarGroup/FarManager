@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/noncopyable.hpp"
+#include "common/range.hpp"
 
 // External:
 
@@ -54,36 +55,24 @@ namespace encoding
 		uintptr_t oem();
 	}
 
-	size_t get_bytes(uintptr_t Codepage, string_view Str, char* Buffer, size_t BufferSize, bool* UsedDefaultChar = nullptr);
-
-	template<typename T>
-	auto get_bytes(uintptr_t const Codepage, string_view const Str, T& Buffer, bool* const UsedDefaultChar = nullptr)
-	{
-		return get_bytes(Codepage, Str, std::data(Buffer), std::size(Buffer), UsedDefaultChar);
-	}
+	size_t get_bytes(uintptr_t Codepage, string_view Str, span<char> Buffer, bool* UsedDefaultChar = nullptr);
 
 	std::string get_bytes(uintptr_t Codepage, string_view Str, bool* UsedDefaultChar = nullptr);
 
 	inline auto get_bytes_count(uintptr_t const Codepage, string_view const Str)
 	{
-		return get_bytes(Codepage, Str, nullptr, 0);
+		return get_bytes(Codepage, Str, span<char>{});
 	}
 
 	//-------------------------------------------------------------------------
 
-	size_t get_chars(uintptr_t Codepage, std::string_view Str, wchar_t* Buffer, size_t BufferSize);
-
-	template<typename T>
-	auto get_chars(uintptr_t const Codepage, std::string_view const Str, T& Buffer)
-	{
-		return get_chars(Codepage, Str, std::data(Buffer), std::size(Buffer));
-	}
+	size_t get_chars(uintptr_t Codepage, std::string_view Str, span<wchar_t> Buffer);
 
 	string get_chars(uintptr_t Codepage, std::string_view Str);
 
 	inline auto get_chars_count(uintptr_t const Codepage, std::string_view const Str)
 	{
-		return get_chars(Codepage, Str, nullptr, 0);
+		return get_chars(Codepage, Str, {});
 	}
 
 	//-------------------------------------------------------------------------
@@ -94,17 +83,35 @@ namespace encoding
 		class codepage
 		{
 		public:
-			template<class... args>
-			static auto get_bytes_count(string_view Str, args&&... Args) { return encoding::get_bytes_count(Codepage, Str, FWD(Args)...); }
+			static auto get_bytes(string_view const Str, span<char> const Buffer, bool* const UsedDefaultChar = nullptr)
+			{
+				return encoding::get_bytes(Codepage, Str, Buffer, UsedDefaultChar);
+			}
 
-			template<class... args>
-			static auto get_bytes(string_view Str, args&&... Args) { return encoding::get_bytes(Codepage, Str, FWD(Args)...); }
+			static auto get_bytes(string_view const Str, bool* const UsedDefaultChar = nullptr)
+			{
+				return encoding::get_bytes(Codepage, Str, UsedDefaultChar);
+			}
 
-			template<class... args>
-			static auto get_chars_count(std::string_view Str, args&&... Args) { return encoding::get_chars_count(Codepage, Str, FWD(Args)...); }
+			static auto get_bytes_count(string_view const Str)
+			{
+				return encoding::get_bytes_count(Codepage, Str);
+			}
 
-			template<class... args>
-			static auto get_chars(std::string_view Str, args&&... Args) { return encoding::get_chars(Codepage, Str, FWD(Args)...); }
+			static auto get_chars(std::string_view const Str, span<wchar_t> const Buffer)
+			{
+				return encoding::get_chars(Codepage, Str, Buffer);
+			}
+
+			static auto get_chars(std::string_view const Str)
+			{
+				return encoding::get_chars(Codepage, Str);
+			}
+
+			static auto get_chars_count(std::string_view const Str)
+			{
+				return encoding::get_chars_count(Codepage, Str);
+			}
 		};
 	}
 
@@ -179,19 +186,19 @@ namespace Utf
 		Conversion;
 	};
 
-	size_t get_chars(uintptr_t Codepage, std::string_view Str, wchar_t* Buffer, size_t BufferSize, errors* Errors);
+	size_t get_chars(uintptr_t Codepage, std::string_view Str, span<wchar_t> Buffer, errors* Errors);
 }
 
 namespace Utf8
 {
 	// returns the number of decoded chars, 1 or 2. Moves the StrIterator forward as required.
 	size_t get_char(std::string_view::const_iterator& StrIterator, std::string_view::const_iterator StrEnd, wchar_t& First, wchar_t& Second);
-	// returns the number of decoded chars, up to the BufferSize. Stops on buffer overflow. Tail contains the number of unprocessed bytes.
-	size_t get_chars(std::string_view Str, wchar_t* Buffer, size_t BufferSize, int& Tail);
-	// returns the required buffer size. Fills Buffer up to the BufferSize.
-	size_t get_chars(std::string_view Str, wchar_t* Buffer, size_t BufferSize, Utf::errors* Errors);
-	// returns the required buffer size. Fills Buffer up to the BufferSize.
-	size_t get_bytes(string_view Str, char* Buffer, size_t BufferSize);
+	// returns the number of decoded chars, up to Buffer.size(). Stops on buffer overflow. Tail contains the number of unprocessed bytes.
+	size_t get_chars(std::string_view Str, span<wchar_t> Buffer, int& Tail);
+	// returns the required buffer size. Fills Buffer up to its size.
+	size_t get_chars(std::string_view Str, span<wchar_t> Buffer, Utf::errors* Errors);
+	// returns the required buffer size. Fills Buffer up to its size.
+	size_t get_bytes(string_view Str, span<char> Buffer);
 }
 
 //#############################################################################
@@ -211,7 +218,7 @@ private:
 	static char to(uintptr_t Codepage, wchar_t WideChar)
 	{
 		char Char = WideChar;
-		encoding::get_bytes(Codepage, { &WideChar, 1 }, &Char, 1);
+		encoding::get_bytes(Codepage, { &WideChar, 1 }, { &Char, 1 });
 		return Char;
 	}
 

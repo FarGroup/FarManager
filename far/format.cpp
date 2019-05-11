@@ -61,6 +61,6 @@ namespace
 {
 	SCOPED_ACTION(components::component)([]
 	{
-		return components::component::info{ L"fmt"s, format(L"{0}.{1}.{2}"sv, FMT_VERSION / 10000, FMT_VERSION % 10000 / 100, FMT_VERSION % 100) };
+		return components::component::info{ L"fmt"sv, format(L"{0}.{1}.{2}"sv, FMT_VERSION / 10000, FMT_VERSION % 10000 / 100, FMT_VERSION % 100) };
 	});
 }

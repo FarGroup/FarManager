@@ -2759,18 +2759,18 @@ static bool modFunc(FarMacroCall* Data)
 
 	switch(DenominatorType)
 	{
-	case vtUnknown:
-	case vtInteger:
+	case TVar::Type::Unknown:
+	case TVar::Type::Integer:
 		if (const auto Denominator = Params[1].asInteger())
 		{
 			switch (NumeratorType)
 			{
-			case vtUnknown:
-			case vtInteger:
+			case TVar::Type::Unknown:
+			case TVar::Type::Integer:
 				Result = Params[0].asInteger() % Denominator;
 				break;
 
-			case vtDouble:
+			case TVar::Type::Double:
 				Result = std::fmod(Params[0].asDouble(), Denominator);
 				break;
 
@@ -2780,17 +2780,17 @@ static bool modFunc(FarMacroCall* Data)
 		}
 		break;
 
-	case vtDouble:
+	case TVar::Type::Double:
 		if (const auto Denominator = Params[1].asDouble())
 		{
 			switch (NumeratorType)
 			{
-			case vtUnknown:
-			case vtInteger:
+			case TVar::Type::Unknown:
+			case TVar::Type::Integer:
 				Result = std::fmod(Params[0].asInteger(), Denominator);
 				break;
 
-			case vtDouble:
+			case TVar::Type::Double:
 				Result = std::fmod(Params[0].asDouble(), Denominator);
 				break;
 
@@ -3664,14 +3664,14 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 		// TODO: fix indentation
 		if (const auto Dlg = std::dynamic_pointer_cast<Dialog>(Global->WindowManager->GetCurrentWindow()))
 		{
-		TVarType typeIndex=Params[0].type();
+		const auto IndexType = Params[0].type();
 		size_t Index=(unsigned)Params[0].asInteger()-1;
-		if (typeIndex == vtUnknown || ((typeIndex==vtInteger || typeIndex==vtDouble) && (int)Index < -1))
+		if (IndexType == TVar::Type::Unknown || ((IndexType == TVar::Type::Integer || IndexType == TVar::Type::Double) && (int)Index < -1))
 			Index=Dlg->GetDlgFocusPos();
 
-		TVarType typeInfoID=Params[1].type();
+		const auto InfoIDType = Params[1].type();
 		int InfoID=(int)Params[1].asInteger();
-		if (typeInfoID == vtUnknown || (typeInfoID == vtInteger && InfoID < 0))
+		if (InfoIDType == TVar::Type::Unknown || (InfoIDType == TVar::Type::Integer && InfoID < 0))
 			InfoID=0;
 
 		FarGetValue fgv={sizeof(FarGetValue),InfoID,FMVT_UNKNOWN};
@@ -3692,7 +3692,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 					case 4: Ret=Rect.Right; break;
 					case 5: Ret=Rect.Bottom; break;
 					case 6: Ret=(long long)Dlg->GetDlgFocusPos()+1; break;
-					default: Ret=0; Ret.SetType(vtUnknown); break;
+					default: Ret=0; Ret.SetType(TVar::Type::Unknown); break;
 				}
 			}
 		}
@@ -3798,22 +3798,22 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 		{
 			switch (Ret.type())
 			{
-				case vtUnknown:
+				case TVar::Type::Unknown:
 					fgv.Value.Type = FMVT_UNKNOWN;
 					fgv.Value.Integer = Ret.asInteger();
 					break;
 
-				case vtInteger:
+				case TVar::Type::Integer:
 					fgv.Value.Type = FMVT_INTEGER;
 					fgv.Value.Integer=Ret.asInteger();
 					break;
 
-				case vtString:
+				case TVar::Type::String:
 					fgv.Value.Type = FMVT_STRING;
 					fgv.Value.String=Ret.asString().c_str();
 					break;
 
-				case vtDouble:
+				case TVar::Type::Double:
 					fgv.Value.Type = FMVT_DOUBLE;
 					fgv.Value.Double=Ret.asDouble();
 					break;
@@ -4648,7 +4648,7 @@ static bool absFunc(FarMacroCall* Data)
 
 	switch(Params[0].ParseType())
 	{
-	case vtInteger:
+	case TVar::Type::Integer:
 		{
 			if (const auto i = Params[0].asInteger(); i < 0)
 				Result = -i;
@@ -4657,7 +4657,7 @@ static bool absFunc(FarMacroCall* Data)
 		}
 		break;
 
-	case vtDouble:
+	case TVar::Type::Double:
 		{
 		if (const auto d = Params[0].asDouble(); d < 0)
 			Result = -d;
@@ -5090,8 +5090,8 @@ M1:
 				}
 				const auto strBuf = format(msg(MessageTemplate), strKeyText);
 
-				const std::vector<lng> ChangeButtons = { lng::MYes, lng::MMacroEditKey, lng::MNo };
-				const std::vector<lng> NoChangeButtons = { lng::MYes, lng::MNo };
+				const std::array ChangeButtons{ lng::MYes, lng::MMacroEditKey, lng::MNo };
+				const std::array NoChangeButtons{ lng::MYes, lng::MNo };
 
 				const int Result = Message(MSG_WARNING,
 					msg(lng::MWarning),
@@ -5101,7 +5101,7 @@ M1:
 						strBufKey,
 						msg(SetChange? lng::MMacroDeleteKey2 : lng::MMacroReDefinedKey2)
 					},
-					SetChange? ChangeButtons : NoChangeButtons);
+					SetChange? span(ChangeButtons) : span(NoChangeButtons));
 
 				if (Result == Message::first_button)
 				{

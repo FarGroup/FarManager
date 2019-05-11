@@ -189,10 +189,20 @@
 #    define FMT_API __declspec(dllexport)
 #  elif defined(FMT_SHARED)
 #    define FMT_API __declspec(dllimport)
+#    define FMT_EXTERN_TEMPLATE_API FMT_API
 #  endif
 #endif
 #ifndef FMT_API
 #  define FMT_API
+#endif
+#ifndef FMT_EXTERN_TEMPLATE_API
+#  define FMT_EXTERN_TEMPLATE_API
+#endif
+
+#ifndef FMT_HEADER_ONLY
+#  define FMT_EXTERN extern
+#else
+#  define FMT_EXTERN
 #endif
 
 #ifndef FMT_ASSERT
@@ -217,7 +227,8 @@
 
 // An enable_if helper to be used in template parameters. enable_if in template
 // parameters results in much shorter symbols: https://godbolt.org/z/sWw4vP.
-#define FMT_ENABLE_IF(...) typename std::enable_if<__VA_ARGS__, int>::type = 0
+#define FMT_ENABLE_IF_T(...) typename std::enable_if<(__VA_ARGS__), int>::type
+#define FMT_ENABLE_IF(...) FMT_ENABLE_IF_T(__VA_ARGS__) = 0
 
 FMT_BEGIN_NAMESPACE
 namespace internal {

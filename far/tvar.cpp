@@ -246,13 +246,13 @@ static TypeString checkTypeString(const string& TestStr)
 }
 
 TVar::TVar():
-	vType(vtUnknown)
+	vType(Type::Unknown)
 {
 }
 
 TVar::TVar(long long v):
 	inum(v),
-	vType(vtInteger)
+	vType(Type::Integer)
 {
 }
 
@@ -263,13 +263,13 @@ TVar::TVar(int v):
 
 TVar::TVar(double v):
 	dnum(v),
-	vType(vtDouble)
+	vType(Type::Double)
 {
 }
 
 TVar::TVar(string_view const v):
 	str(v),
-	vType(vtString)
+	vType(Type::String)
 {
 }
 
@@ -280,38 +280,23 @@ TVar::TVar(const wchar_t* v):
 
 const string& TVar::toString()
 {
-	switch (vType)
-	{
-	case vtDouble:
-		str = ::str(dnum);
-		break;
-	case vtUnknown:
-	case vtInteger:
-		str = ::str(inum);
-		break;
-	case vtString:
-		// TODO: log
-		break;
-	default:
-		// TODO: log
-		break;
-	}
-
-	vType = vtString;
+	// this already writes to str
+	(void)asString();
+	vType = Type::String;
 	return str;
 }
 
 long long TVar::toInteger()
 {
 	inum = asInteger();
-	vType = vtInteger;
+	vType = Type::Integer;
 	return inum;
 }
 
 double TVar::toDouble()
 {
 	dnum = asDouble();
-	vType = vtDouble;
+	vType = Type::Double;
 	return dnum;
 };
 
@@ -319,7 +304,11 @@ const string& TVar::asString() const
 {
 	if (!isString())
 	{
-		str = isInteger()? ::str(inum) : ::str(dnum);
+		// str() is implemented in terms of fmt::to_wstring().
+		// For doubles fmt::to_wstring adds ".0" even if there's no fractional part
+		// (e.g. 1234.0 to "1234.0"), and it's a feature (see issue #1153).
+		// For historical reasons we prefer the shortest possible representation, hence "g".
+		str = isInteger()? ::str(inum) : format(L"{0:.6g}"sv, dnum);
 	}
 	return str;
 }
@@ -328,14 +317,14 @@ long long TVar::asInteger() const
 {
 	switch (vType)
 	{
-	case vtInteger:
-	case vtUnknown:
+	case Type::Integer:
+	case Type::Unknown:
 		return inum;
 
-	case vtDouble:
+	case Type::Double:
 		return dnum;
 
-	case vtString:
+	case Type::String:
 		{
 			long long Value;
 			return from_string(str, Value)? Value : 0;
@@ -350,14 +339,14 @@ double TVar::asDouble() const
 {
 	switch (vType)
 	{
-	case vtInteger:
-	case vtUnknown:
+	case Type::Integer:
+	case Type::Unknown:
 		return inum;
 
-	case vtDouble:
+	case Type::Double:
 		return dnum;
 
-	case vtString:
+	case Type::String:
 		{
 			double Value;
 			return from_string(str, Value)? Value : 0;
@@ -372,12 +361,12 @@ bool TVar::isNumber() const
 {
 	switch (type())
 	{
-		case vtUnknown:
-		case vtInteger:
-		case vtDouble:
+		case Type::Unknown:
+		case Type::Integer:
+		case Type::Double:
 			return true;
 
-		case vtString:
+		case Type::String:
 			switch (checkTypeString(str))
 			{
 				case tsInt:
@@ -391,21 +380,21 @@ bool TVar::isNumber() const
 	return false;
 }
 
-TVarType TVar::ParseType() const
+TVar::Type TVar::ParseType() const
 {
-	if (vType != vtString)
+	if (vType != Type::String)
 		return vType;
 
 	switch(checkTypeString(str))
 	{
 	case tsInt:
-		return vtInteger;
+		return Type::Integer;
 
 	case tsFloat:
-		return vtDouble;
+		return Type::Double;
 
 	default:
-		return vtString;
+		return Type::String;
 	}
 }
 
@@ -413,18 +402,18 @@ bool TVar::operator<(const TVar& rhs) const
 {
 	switch (type())
 	{
-	case vtUnknown:
-	case vtInteger:
+	case Type::Unknown:
+	case Type::Integer:
 		switch (rhs.type())
 		{
-		case vtUnknown:
-		case vtInteger:
+		case Type::Unknown:
+		case Type::Integer:
 			return asInteger() < rhs.asInteger();
 
-		case vtDouble:
+		case Type::Double:
 			return asInteger() < rhs.asDouble();
 
-		case vtString:
+		case Type::String:
 			switch (checkTypeString(rhs.asString()))
 			{
 			case tsStr:
@@ -440,17 +429,17 @@ bool TVar::operator<(const TVar& rhs) const
 		}
 		break;
 
-	case vtDouble:
+	case Type::Double:
 		switch (rhs.type())
 		{
-		case vtUnknown:
-		case vtInteger:
+		case Type::Unknown:
+		case Type::Integer:
 			return asDouble() < rhs.asInteger();
 
-		case vtDouble:
+		case Type::Double:
 			return asDouble() < rhs.asDouble();
 
-		case vtString:
+		case Type::String:
 			switch (checkTypeString(rhs.asString()))
 			{
 			case tsStr:
@@ -466,7 +455,7 @@ bool TVar::operator<(const TVar& rhs) const
 		}
 		break;
 
-	case vtString:
+	case Type::String:
 		return string_sort::less(asString(), rhs.asString());
 	}
 

@@ -106,7 +106,7 @@ bool enum_file_lines::GetString(string_view& Str, eol::type& Eol) const
 
 				for (auto Overflow = true; Overflow;)
 				{
-					const auto Size = Utf::get_chars(m_CodePage, CharStr, m_wStr.data(), m_wStr.size(), &Errors);
+					const auto Size = Utf::get_chars(m_CodePage, CharStr, m_wStr, &Errors);
 					Overflow = Size > m_wStr.size();
 					m_wStr.resize(Size);
 				}

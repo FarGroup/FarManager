@@ -159,16 +159,6 @@ FMT_END_NAMESPACE
 #  define FMT_UDL_TEMPLATE 0
 #endif
 
-#ifndef FMT_USE_EXTERN_TEMPLATES
-#  ifndef FMT_HEADER_ONLY
-#    define FMT_USE_EXTERN_TEMPLATES                           \
-      ((FMT_CLANG_VERSION >= 209 && __cplusplus >= 201103L) || \
-       (FMT_GCC_VERSION >= 303 && FMT_HAS_GXX_CXX11))
-#  else
-#    define FMT_USE_EXTERN_TEMPLATES 0
-#  endif
-#endif
-
 #if FMT_HAS_GXX_CXX11 || FMT_HAS_FEATURE(cxx_trailing_return) || \
     FMT_MSC_VER >= 1600
 #  define FMT_USE_TRAILING_RETURN 1
@@ -712,7 +702,7 @@ template <typename T> struct int_traits {
 
 // Static data is placed in this class template to allow header-only
 // configuration.
-template <typename T = void> struct FMT_API basic_data {
+template <typename T = void> struct FMT_EXTERN_TEMPLATE_API basic_data {
   static const uint64_t POWERS_OF_10_64[];
   static const uint32_t ZERO_OR_POWERS_OF_10_32[];
   static const uint64_t ZERO_OR_POWERS_OF_10_64[];
@@ -726,9 +716,7 @@ template <typename T = void> struct FMT_API basic_data {
   static const wchar_t WRESET_COLOR[5];
 };
 
-#if FMT_USE_EXTERN_TEMPLATES
-extern template struct basic_data<void>;
-#endif
+FMT_EXTERN template struct basic_data<void>;
 
 // This is a struct rather than a typedef to avoid shadowing warnings in gcc.
 struct data : basic_data<> {};
@@ -1124,13 +1112,19 @@ FMT_CONSTEXPR unsigned basic_parse_context<Char, ErrorHandler>::next_arg_id() {
 
 namespace internal {
 
-// Formats value using Grisu2 algorithm:
+namespace grisu_options {
+enum {
+  fixed = 1,
+  grisu3 = 2
+};
+}
+
+// Formats value using the Grisu algorithm:
 // https://www.cs.tufts.edu/~nr/cs257/archive/florian-loitsch/printf.pdf
 template <typename Double, FMT_ENABLE_IF(sizeof(Double) == sizeof(uint64_t))>
-FMT_API bool grisu2_format(Double value, buffer<char>& buf, int precision,
-                           bool fixed, int& exp);
+FMT_API bool grisu_format(Double, buffer<char>&, int, unsigned, int&);
 template <typename Double, FMT_ENABLE_IF(sizeof(Double) != sizeof(uint64_t))>
-inline bool grisu2_format(Double, buffer<char>&, int, bool, int&) {
+inline bool grisu_format(Double, buffer<char>&, int, unsigned, int&) {
   return false;
 }
 
@@ -1166,8 +1160,8 @@ template <typename Char, typename It> It write_exponent(int exp, It it) {
 
 // The number is given as v = digits * pow(10, exp).
 template <typename Char, typename It>
-It grisu2_prettify(const char* digits, int size, int exp, It it,
-                   gen_digits_params params) {
+It grisu_prettify(const char* digits, int size, int exp, It it,
+                  gen_digits_params params) {
   // pow(10, full_exp - 1) <= v <= pow(10, full_exp).
   int full_exp = size + exp;
   if (!params.fixed) {
@@ -1181,8 +1175,7 @@ It grisu2_prettify(const char* digits, int size, int exp, It it,
     *it++ = static_cast<Char>(params.upper ? 'E' : 'e');
     return write_exponent<Char>(exp, it);
   }
-  const int exp_threshold = 21;
-  if (size <= full_exp && full_exp <= exp_threshold) {
+  if (size <= full_exp) {
     // 1234e7 -> 12340000000[.0+]
     it = copy_str<Char>(digits, digits + size, it);
     it = std::fill_n(it, full_exp - size, static_cast<Char>('0'));
@@ -1194,12 +1187,14 @@ It grisu2_prettify(const char* digits, int size, int exp, It it,
   } else if (full_exp > 0) {
     // 1234e-2 -> 12.34[0+]
     it = copy_str<Char>(digits, digits + full_exp, it);
-    *it++ = static_cast<Char>('.');
     if (!params.trailing_zeros) {
       // Remove trailing zeros.
       while (size > full_exp && digits[size - 1] == '0') --size;
+      if (size != full_exp)
+        *it++ = static_cast<Char>('.');
       return copy_str<Char>(digits + full_exp, digits + size, it);
     }
+    *it++ = static_cast<Char>('.');
     it = copy_str<Char>(digits + full_exp, digits + size, it);
     if (params.num_digits > size) {
       // Add trailing zeros.
@@ -1214,6 +1209,8 @@ It grisu2_prettify(const char* digits, int size, int exp, It it,
     if (params.num_digits >= 0 && params.num_digits < num_zeros)
       num_zeros = params.num_digits;
     it = std::fill_n(it, num_zeros, static_cast<Char>('0'));
+    if (!params.trailing_zeros)
+      while (size > 0 && digits[size - 1] == '0') --size;
     it = copy_str<Char>(digits, digits + size, it);
   }
   return it;
@@ -2244,7 +2241,7 @@ FMT_CONSTEXPR bool do_check_format_string(basic_string_view<Char> s,
 }
 
 template <typename... Args, typename S,
-          typename std::enable_if<is_compile_string<S>::value, int>::type>
+          FMT_ENABLE_IF_T(is_compile_string<S>::value)>
 void check_format_string(S format_str) {
   typedef typename S::char_type char_t;
   FMT_CONSTEXPR_DECL bool invalid_format =
@@ -2662,7 +2659,7 @@ template <typename Range> class basic_writer {
       int full_exp = num_digits + exp - 1;
       int precision = params.num_digits > 0 ? params.num_digits : 11;
       params_.fixed |= full_exp >= -4 && full_exp < precision;
-      auto it = internal::grisu2_prettify<char>(
+      auto it = internal::grisu_prettify<char>(
           digits.data(), num_digits, exp, internal::counting_iterator<char>(),
           params_);
       size_ = it.count();
@@ -2674,8 +2671,8 @@ template <typename Range> class basic_writer {
     template <typename It> void operator()(It&& it) {
       if (sign_) *it++ = static_cast<char_type>(sign_);
       int num_digits = static_cast<int>(digits_.size());
-      it = internal::grisu2_prettify<char_type>(digits_.data(), num_digits,
-                                                exp_, it, params_);
+      it = internal::grisu_prettify<char_type>(digits_.data(), num_digits, exp_,
+                                               it, params_);
     }
   };
 
@@ -2875,11 +2872,12 @@ void basic_writer<Range>::write_double(T value, const format_specs& spec) {
   memory_buffer buffer;
   int exp = 0;
   int precision = spec.has_precision() || !spec.type ? spec.precision : 6;
+  unsigned options = handler.fixed ? internal::grisu_options::fixed : 0;
   bool use_grisu = fmt::internal::use_grisu<T>() &&
                    (spec.type != 'a' && spec.type != 'A' && spec.type != 'e' &&
                     spec.type != 'E') &&
-                   internal::grisu2_format(static_cast<double>(value), buffer,
-                                           precision, handler.fixed, exp);
+                   internal::grisu_format(static_cast<double>(value), buffer,
+                                           precision, options, exp);
   if (!use_grisu) internal::sprintf_format(value, buffer, spec);
 
   if (handler.as_percentage) {

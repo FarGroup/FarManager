@@ -55,6 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.fs.hpp"
 
 // Common:
+#include "common/string_utils.hpp"
 
 // External:
 #include "format.hpp"
@@ -389,7 +390,7 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 		{
 			CollectNames(Out, [](const os::fs::find_data& Data)
 			{
-				return QuoteSpaceOnly(Data.FileName);
+				return quote_space(Data.FileName);
 			});
 
 			return Tail;

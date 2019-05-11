@@ -69,6 +69,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/algorithm.hpp"
+#include "common/string_utils.hpp"
 
 // External:
 #include "format.hpp"
@@ -438,7 +439,7 @@ bool Panel::MakeListFile(string& ListFileName, bool ShortNames, string_view cons
 			}
 
 			if (contains(Modifers, L'Q')) // 'Q' - заключать имена с пробелами в кавычки;
-				inplace::QuoteSpaceOnly(strFileName);
+				inplace::quote_space(strFileName);
 
 			if (contains(Modifers, L'S')) // 'S' - использовать '/' вместо '\' в путях файлов;
 			{

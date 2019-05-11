@@ -42,7 +42,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "config.hpp"
 #include "pathmix.hpp"
-#include "strmix.hpp"
 #include "filestr.hpp"
 #include "encoding.hpp"
 #include "exception.hpp"
@@ -354,7 +353,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 				for (const auto& i_ptr : m_OrderForWrite)
 				{
 					const auto& [Name, Lines] = *i_ptr;
-					Writer.write(QuoteSpaceOnly(Name));
+					Writer.write(quote_space(Name));
 					for (const auto& Description : Lines)
 					{
 						Writer.write(Description);

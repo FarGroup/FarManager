@@ -93,7 +93,10 @@ namespace os::concurrency
 		template<typename callable, typename... args>
 		thread(mode Mode, callable&& Callable, args&&... Args): m_Mode(Mode)
 		{
-			starter(std::bind(FWD(Callable), FWD(Args)...));
+			starter([Callable = FWD(Callable), Args = FWD(Args)...]() mutable
+			{
+				std::invoke(FWD(Callable), FWD(Args)...);
+			});
 		}
 
 		~thread();

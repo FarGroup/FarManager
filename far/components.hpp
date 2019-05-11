@@ -51,7 +51,7 @@ namespace components
 	class component
 	{
 	public:
-		using info = std::pair<string, string>;
+		using info = std::pair<string_view, string>;
 		using get_info = info(*)();
 
 		explicit component(get_info getInfo);
@@ -85,7 +85,7 @@ namespace components
 		size_t m_size{};
 	};
 
-	const std::map<string, string, string_sort::less_t>& GetComponentsInfo();
+	const std::map<string_view, string, string_sort::less_t>& GetComponentsInfo();
 }
 
 #endif // COMPONENTS_HPP_5EB4061D_47B2_4941_8B57_FE405EBD3D83

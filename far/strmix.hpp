@@ -65,14 +65,11 @@ string InsertRegexpQuote(string strStr);
 
 namespace inplace
 {
-	void QuoteSpaceOnly(string &strStr);
 	void QuoteOuterSpace(string &strStr);
 }
 
 [[nodiscard]]
 inline string QuoteOuterSpace(string strStr) { inplace::QuoteOuterSpace(strStr); return strStr; }
-[[nodiscard]]
-inline string QuoteSpaceOnly(string strStr) { inplace::QuoteSpaceOnly(strStr); return strStr; }
 
 bool ReplaceStrings(string& strStr, string_view FindStr, string_view ReplStr, bool IgnoreCase = false, size_t Count = string::npos);
 

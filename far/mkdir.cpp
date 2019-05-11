@@ -43,7 +43,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "dialog.hpp"
 #include "pathmix.hpp"
-#include "strmix.hpp"
 #include "DlgGuid.hpp"
 #include "flink.hpp"
 #include "stddlg.hpp"
@@ -57,6 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common.hpp"
 #include "common/enum_tokens.hpp"
+#include "common/string_utils.hpp"
 
 // External:
 
@@ -142,7 +142,7 @@ void ShellMakeDir(Panel *SrcPanel)
 		// такой каталог в кавычки
 		if (Global->Opt->MultiMakeDir && strDirName.find_first_of(L";,\""sv) == string::npos)
 		{
-			inplace::QuoteSpaceOnly(strDirName);
+			inplace::quote_space(strDirName);
 		}
 
 		// нужно создать только ОДИН каталог

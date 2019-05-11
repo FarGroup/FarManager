@@ -98,7 +98,7 @@ namespace os::chrono
 	{
 		string Value;
 		// BUGBUG check result
-		(void)os::detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Value, [&](range<wchar_t*> Buffer)
+		(void)os::detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Value, [&](span<wchar_t> Buffer)
 		{
 			const auto ReturnedSize = ::GetTimeFormat(LOCALE_USER_DEFAULT, TIME_NOSECONDS, nullptr, nullptr, Buffer.data(), static_cast<int>(Buffer.size()));
 			return ReturnedSize? ReturnedSize - 1 : 0;

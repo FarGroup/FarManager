@@ -100,7 +100,7 @@ namespace os::env
 		// which doesn't change it upon success.
 		SetLastError(ERROR_SUCCESS);
 
-		if (detail::ApiDynamicStringReceiver(Value, [&](range<wchar_t*> Buffer)
+		if (detail::ApiDynamicStringReceiver(Value, [&](span<wchar_t> Buffer)
 		{
 			return ::GetEnvironmentVariable(C_Name.c_str(), Buffer.data(), static_cast<DWORD>(Buffer.size()));
 		}))
@@ -143,7 +143,7 @@ namespace os::env
 		bool Failure = false;
 
 		string Result;
-		if (!detail::ApiDynamicStringReceiver(Result, [&](range<wchar_t*> Buffer)
+		if (!detail::ApiDynamicStringReceiver(Result, [&](span<wchar_t> Buffer)
 		{
 			// ExpandEnvironmentStrings return value always includes the terminating null character.
 			// ApiDynamicStringReceiver expects a string length upon success (e.g. without the \0),

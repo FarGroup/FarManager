@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/preprocessor.hpp"
+#include "common/string_utils.hpp"
 #include "common/utility.hpp"
 
 // External:
@@ -62,7 +63,7 @@ namespace path
 	{
 		inline size_t size_one(size_t&, wchar_t const Char)
 		{
-			return separators().find(Char) == string_view::npos? 1 : 0;
+			return contains(separators(), Char)? 0 : 1;
 		}
 
 		inline size_t size_one(size_t& Offset, string_view Str)

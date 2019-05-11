@@ -1120,7 +1120,7 @@ private:
 			&elevated::GetDiskFreeSpaceHandler,
 		};
 
-		static_assert(std::size(Handlers) == C_COMMANDS_COUNT);
+		static_assert(Handlers.size() == C_COMMANDS_COUNT);
 
 		try
 		{

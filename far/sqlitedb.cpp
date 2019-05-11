@@ -125,12 +125,12 @@ namespace
 
 	SCOPED_ACTION(components::component)([]
 	{
-		return components::component::info{ L"SQLite"s, WIDE_S(SQLITE_VERSION) };
+		return components::component::info{ L"SQLite"sv, WIDE_S(SQLITE_VERSION) };
 	});
 
 	SCOPED_ACTION(components::component)([]
 	{
-		return components::component::info{ L"SQLite Unicode extension"s, sqlite_unicode::SQLite_Unicode_Version };
+		return components::component::info{ L"SQLite Unicode extension"sv, sqlite_unicode::SQLite_Unicode_Version };
 	});
 }
 

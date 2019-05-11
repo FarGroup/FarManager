@@ -106,6 +106,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/enum_tokens.hpp"
 #include "common/rel_ops.hpp"
 #include "common/scope_exit.hpp"
+#include "common/string_utils.hpp"
 
 // External:
 #include "format.hpp"
@@ -4797,7 +4798,7 @@ void FileList::DescribeFiles()
 	for (const auto& i: enum_selected())
 	{
 		const auto PrevText = Diz.Get(i.FileName, i.AlternateFileName(), i.FileSize);
-		const auto strMsg = concat(msg(lng::MEnterDescription), L' ', QuoteSpaceOnly(i.FileName), L':');
+		const auto strMsg = concat(msg(lng::MEnterDescription), L' ', quote_space(i.FileName), L':');
 
 		/* $ 09.08.2000 SVS
 		   Для Ctrl-Z не нужно брать предыдущее значение!
@@ -6632,9 +6633,8 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 		m_ContentValues.clear();
 
 		std::unordered_set<string> ColumnsSet;
-		const std::vector<column>* ColumnsContainers[] = { &m_ViewSettings.PanelColumns, &m_ViewSettings.StatusColumns };
 
-		for (const auto& ColumnsContainer: ColumnsContainers)
+		for (const auto& ColumnsContainer: { &m_ViewSettings.PanelColumns, &m_ViewSettings.StatusColumns })
 		{
 			for (const auto& Column: *ColumnsContainer)
 			{
