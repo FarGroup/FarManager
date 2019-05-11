@@ -262,3 +262,16 @@ namespace os::concurrency
 		m_Objects.clear();
 	}
 }
+
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("thread.forwarding")
+{
+	{
+		os::thread Thread(&os::thread::join, [Ptr = std::make_unique<int>(33)](auto&&){}, std::make_unique<int>(42));
+	}
+	SUCCEED();
+}
+#endif

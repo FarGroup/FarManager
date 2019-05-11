@@ -93,9 +93,9 @@ namespace os::concurrency
 		template<typename callable, typename... args>
 		thread(mode Mode, callable&& Callable, args&&... Args): m_Mode(Mode)
 		{
-			starter([Callable = FWD(Callable), Args = FWD(Args)...]() mutable
+			starter([Callable = FWD(Callable), Args = std::make_tuple(FWD(Args)...)]() mutable
 			{
-				std::invoke(FWD(Callable), FWD(Args)...);
+				std::apply(FWD(Callable), FWD(Args));
 			});
 		}
 

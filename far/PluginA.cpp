@@ -3703,7 +3703,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 						const auto Length = wcslen(item.String);
 						Result = Length + 1;
 						if (Param)
-							encoding::oem::get_bytes({ item.String, Length }, { static_cast<char*>(Param), oldfar::NM });
+							encoding::oem::get_bytes({ item.String, Length }, { static_cast<char*>(Param), static_cast<size_t>(oldfar::NM) });
 					}
 					pluginapi::apiSettingsControl(Settings, SCTL_FREE, 0, nullptr);
 				}
@@ -4691,7 +4691,7 @@ static int WINAPI GetFileOwnerA(const char *Computer, const char *Name, char *Ow
 		const auto Ret = pluginapi::apiGetFileOwner(encoding::oem::get_chars(Computer).c_str(), encoding::oem::get_chars(Name).c_str(), wOwner, std::size(wOwner));
 		if (Ret)
 		{
-			encoding::oem::get_bytes({ wOwner, Ret - 1 }, { Owner, oldfar::NM });
+			encoding::oem::get_bytes({ wOwner, Ret - 1 }, { Owner, static_cast<size_t>(oldfar::NM) });
 		}
 		return static_cast<int>(Ret);
 	}
