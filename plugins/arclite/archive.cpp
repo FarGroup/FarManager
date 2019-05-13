@@ -1042,14 +1042,12 @@ void Archive::read_open_results()
     UInt64 offset = 0;
     if (in_arc->GetArchiveProperty(kpidOffset, prop.ref()) == S_OK && prop.is_size())
       offset = prop.get_size();
+    auto file_size = archive_filesize();
     auto end_pos = offset + phy_size;
-    if (volume_names.empty()) { //??? TODO:
-      auto file_size = this->arc_info.size();
-      if (end_pos < file_size)
-        warning_flags |= kpv_ErrorFlags_DataAfterEnd;
-      else if (end_pos > file_size)
-        error_flags |= kpv_ErrorFlags_UnexpectedEnd;
-     }
+    if (end_pos < file_size)
+      warning_flags |= kpv_ErrorFlags_DataAfterEnd;
+    else if (end_pos > file_size)
+      error_flags |= kpv_ErrorFlags_UnexpectedEnd;
   }
 }
 

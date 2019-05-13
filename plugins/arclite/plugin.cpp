@@ -501,13 +501,27 @@ public:
   }
 
   void test_files(struct PluginPanelItem* panel_items, intptr_t items_number, OPERATION_MODES op_mode) {
+    Error err;
+    err.objects = { archive->arc_path };
+    archive->read_open_results();
+    err.SetResults(archive->get_open_errors(), archive->get_open_warnings());
+
     UInt32 src_dir_index = archive->find_dir(current_dir);
     vector<UInt32> indices;
     indices.reserve(items_number);
     for (int i = 0; i < items_number; i++) {
       indices.push_back(static_cast<UInt32>(reinterpret_cast<size_t>(panel_items[i].UserData.Data)));
     }
-    archive->test(src_dir_index, indices);
+
+    try {
+      archive->test(src_dir_index, indices);
+    }
+    catch (const Error& error) {
+      err.Append(error);
+    }
+    if (err)
+       throw err;
+
     if (op_mode == OPM_NONE) {
       for (int i = 0; i < items_number; i++) {
         panel_items[i].Flags &= ~PPIF_SELECTED;

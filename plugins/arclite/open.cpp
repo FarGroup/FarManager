@@ -480,6 +480,20 @@ UInt64 Archive::get_physize()
   return physize;
 }
 
+UInt64 Archive::archive_filesize()
+{
+  auto arc_size = arc_info.size();
+#if 0
+  for (const auto& volume_name : volume_names) {
+    auto volume_path = add_trailing_slash(arc_dir()) + volume_name;
+    FindData find_data;
+    if (File::get_find_data_nt(volume_path, find_data))
+      arc_size += find_data.size();
+  }
+#endif
+  return arc_size;
+}
+
 UInt64 Archive::get_skip_header(IInStream *stream, const ArcType& type)
 {
   if (ArcAPI::formats().at(type).Flags_PreArc()) {

@@ -418,13 +418,7 @@ void Archive::load_arc_attr() {
   }
   if (total_size_defined) {
     attr.name = Far::get_msg(MSG_PROPERTY_COMPRESSION_RATIO);
-    unsigned __int64 arc_size = arc_info.size();
-    for_each(volume_names.begin(), volume_names.end(), [&] (const wstring& volume_name) {
-      wstring volume_path = add_trailing_slash(arc_dir()) + volume_name;
-      FindData find_data;
-      if (File::get_find_data_nt(volume_path, find_data))
-        arc_size += find_data.size();
-    });
+    auto arc_size = archive_filesize();
     unsigned ratio = total_size ? al_round(static_cast<double>(arc_size) / total_size * 100) : 100;
     if (ratio > 100)
       ratio = 100;

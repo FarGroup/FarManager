@@ -228,15 +228,31 @@ PanelItem get_selected_panel_item(HANDLE h_panel, size_t index) {
 void error_dlg(const wstring& title, const Error& e) {
   wostringstream st;
   st << title << L'\n';
-  if (e.code != E_MESSAGE) {
+
+  bool show_file_line = false;
+  if (e.code != E_MESSAGE && e.code != S_FALSE) {
+    show_file_line = true;
     wstring sys_msg = get_system_message(e.code, get_lang_id());
     if (!sys_msg.empty())
       st << word_wrap(sys_msg, get_optimal_msg_width()) << L'\n';
   }
-  for (list<wstring>::const_iterator msg = e.messages.begin(); msg != e.messages.end(); msg++) {
-    st << word_wrap(*msg, get_optimal_msg_width()) << L'\n';
-  }
-  st << extract_file_name(widen(e.file)) << L':' << e.line;
+
+  for (const auto& s : e.objects)
+    st << s << L'\n';
+
+  if (!e.messages.empty() && (!e.objects.empty() || !e.warnings.empty()))
+    st << Far::get_msg(MSG_KPID_ERRORFLAGS) << L":\n";
+  for (const auto& s : e.messages)
+    st << word_wrap(s, get_optimal_msg_width()) << L'\n';
+
+  if (!e.warnings.empty())
+    st << Far::get_msg(MSG_KPID_WARNINGFLAGS) << L":\n";
+  for (const auto& s : e.warnings)
+    st << word_wrap(s, get_optimal_msg_width()) << L'\n';
+
+  if (show_file_line)
+    st << extract_file_name(widen(e.file)) << L':' << e.line;
+
   message(c_error_dialog_guid, st.str(), 0, FMSG_WARNING | FMSG_MB_OK);
 }
 
