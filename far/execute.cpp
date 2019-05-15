@@ -967,9 +967,6 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, function_ref<void(
 		{
 			seInfo.lpParameters = strNewCmdPar.c_str();
 		}
-
-		string DummyKeyName;
-		seInfo.lpVerb = IsDirectory? nullptr : EmptyToNull(Verb.empty()? Verb = GetShellActionForType(GetShellTypeFromExtension(strNewCmdStr), DummyKeyName) : Verb);
 	}
 	else
 	{
@@ -993,7 +990,6 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, function_ref<void(
 
 		seInfo.lpFile = strComspec.c_str();
 		seInfo.lpParameters = ComSpecParams.c_str();
-		seInfo.lpVerb = nullptr;
 	}
 
 	if (Info.RunAs && RunAsSupported(seInfo.lpFile))

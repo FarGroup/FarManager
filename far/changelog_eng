@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 15.05.2019 23:45:23 +0200 - build 5398
+
+1. https://docs.microsoft.com/en-us/windows/desktop/shell/launch
+   "In general, trying to determine the list of available verbs for a particular file is somewhat complicated.
+   In many cases, you can simply set the lpVerb parameter to NULL, which invokes the default command for the file type."
+
+   Let's follow the manual here - the result of "trying to determine" is sometimes insane.
+
 drkns 11.05.2019 23:42:12 +0100 - build 5397
 
 1. Fix build.
