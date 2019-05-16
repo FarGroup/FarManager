@@ -220,7 +220,7 @@ private:
   UInt64 get_physize();
   UInt64 archive_filesize();
   UInt64 get_skip_header(IInStream *stream, const ArcType& type);
-  static ArcEntries detect(Byte *buffer, UInt32 size, bool eof, const wstring& file_ext, const ArcTypes& arc_types);
+  static ArcEntries detect(Byte *buffer, UInt32 size, bool eof, const wstring& file_ext, const ArcTypes& arc_types, IInStream *stream);
   static void open(const OpenOptions& options, Archives& archives);
 public:
   shared_ptr<Archive> parent;

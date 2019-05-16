@@ -386,36 +386,58 @@ void prioritize(list<ArcEntry>& arc_entries, const ArcType& first, const ArcType
 //??? if someone can find better solution - welcome...
 //
 static Byte zip_LOCAL_sig[] = { 0x50, 0x4B, 0x03, 0x04 };
-static Byte zip_EOCD_sig [] = { 0x50, 0x4B, 0x05, 0x06 };
+static const std::string_view zip_EOCD_sig = "\x50\x4B\x05\x06"sv;
+static const UInt32 check_size = 16 * 1024, min_LOCAL = 30, min_EOCD = 22;
 //
-static bool accepted_signature(size_t pos, const SigData& sig, const Byte *buffer, size_t size)
+static bool accepted_signature(
+  size_t pos, const SigData& sig, const Byte *buffer, size_t size, IInStream* stream, int eof_i)
 {
   if (!pos
    || sig.signature.size() != sizeof(zip_LOCAL_sig)
-   || !std::equal(zip_LOCAL_sig, zip_LOCAL_sig+ sizeof(zip_LOCAL_sig), buffer+pos)
+   || !equal(zip_LOCAL_sig, zip_LOCAL_sig+ sizeof(zip_LOCAL_sig), buffer+pos)
   ) return true;
-
-  pos += 30;                         // 30 - min LOCAL header size
-  size -= 22 - sizeof(zip_EOCD_sig); // 22 - min EOCD size
-  if (pos >= size)
-    return true;
-
-  if (pos + 16384 < size) //???
-    pos = size - 16384;  // look for EOCDonly in last 16K buffer portion
-  std::string_view where((const char*)buffer + pos, size-pos);
-  std::string_view what((const char*)zip_EOCD_sig, sizeof(zip_EOCD_sig));
-  auto eocd = where.rfind(what);
-  if (eocd == std::string_view::npos)
-    return true;
-
-  pos += eocd + sizeof(zip_EOCD_sig);
-  if (buffer[pos] != 0 || buffer[pos + 1] != 0) // This disk (aka Volume) number
+  if (eof_i < 0)
     return false;
 
+  std::unique_ptr<Byte[]> buf;
+  std::string_view tail;
+  if (eof_i) {
+    pos += min_LOCAL;
+    size -= (min_EOCD - zip_EOCD_sig.size());
+    if (pos >= size)
+      return true;
+    if (pos + check_size < size)
+      pos = size - check_size;
+	 tail = { (const char*)buffer + pos, size - pos };
+  }
+  else {
+    buf = make_unique<Byte[]>(check_size);
+	 pos = 0;
+	 buffer = buf.get();
+    UInt64 cur_pos;
+    if (S_OK != stream->Seek(0, STREAM_SEEK_CUR, &cur_pos))
+      return false;
+    if (S_OK == stream->Seek(-(Int64)check_size, STREAM_SEEK_END, nullptr)) {
+      UInt32 nr;
+      if (S_OK == stream->Read(buf.get(), check_size, &nr) && nr == check_size)
+        tail = { (const char*)buffer, check_size - min_EOCD + zip_EOCD_sig.size() };
+    }
+    stream->Seek((Int64)cur_pos, STREAM_SEEK_SET, nullptr);
+  }
+  if (!tail.empty()) {
+	 auto eocd = tail.rfind(zip_EOCD_sig);
+	 if (eocd != string_view::npos) {
+      pos += eocd + zip_EOCD_sig.size();
+      if (buffer[pos] != 0 || buffer[pos + 1] != 0) // This disk (aka Volume) number
+        return false;
+	 }
+  }
   return true;
 }
 
-ArcEntries Archive::detect(Byte *buffer, UInt32 size, bool eof, const wstring& file_ext, const ArcTypes& arc_types) {
+ArcEntries Archive::detect(
+  Byte *buffer, UInt32 size, bool eof, const wstring& file_ext, const ArcTypes& arc_types, IInStream *stream)
+{
   ArcEntries arc_entries;
   set<ArcType> found_types;
 
@@ -433,12 +455,16 @@ ArcEntries Archive::detect(Byte *buffer, UInt32 size, bool eof, const wstring& f
   });
   vector<StrPos> sig_positions = msearch(buffer, size, signatures, eof);
 
+  int eof_i = eof ? 1 : 0;
   for_each(sig_positions.begin(), sig_positions.end(), [&] (const StrPos& sig_pos) {
     const auto& signature = signatures[sig_pos.idx];
     const auto& format = signature.format;
-    if (accepted_signature(sig_pos.pos, signature, buffer, size)) {
+    if (accepted_signature(sig_pos.pos, signature, buffer, size, stream, eof_i)) {
       found_types.insert(format.ClassID);
       arc_entries.push_back(ArcEntry(format.ClassID, sig_pos.pos - format.SignatureOffset));
+    }
+    else {
+      eof_i = -1;
     }
   });
 
@@ -546,7 +572,7 @@ void Archive::open(const OpenOptions& options, Archives& archives) {
 
   UInt64 skip_header = 0;
   bool first_open = true;
-  ArcEntries arc_entries = detect(buffer.data(), size, size < max_check_size, extract_file_ext(arc_info.cFileName), options.arc_types);
+  ArcEntries arc_entries = detect(buffer.data(), size, size < max_check_size, extract_file_ext(arc_info.cFileName), options.arc_types, stream);
 
   for (ArcEntries::const_iterator arc_entry = arc_entries.cbegin(); arc_entry != arc_entries.cend(); ++arc_entry) {
     shared_ptr<Archive> archive(new Archive());

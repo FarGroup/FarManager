@@ -16,7 +16,7 @@
   set "nbits=32 64"
   set "deb_b=N"
   set "clean=N"& set "cleanonly=N"
-  set "vcbld=nmake"
+  set "vcbld=msbuild"
   set "vcver=15"
 
   for %%a in (%*) do call :proc_param %%a
