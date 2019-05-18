@@ -1,13 +1,22 @@
-﻿language: bash
+﻿language: minimal
 os: windows
+
 env:
- - CONFIG=Release PLATFORM=x64
- - CONFIG=Release PLATFORM=Win32
- - CONFIG=Debug PLATFORM=x64
- - CONFIG=Debug PLATFORM=Win32
+ - COMPILER=MSVC_PROJ PLATFORM=x64 CONFIG=Debug
+ - COMPILER=MSVC_PROJ PLATFORM=x64 CONFIG=Release
+ - COMPILER=MSVC_PROJ PLATFORM=Win32 CONFIG=Debug
+ - COMPILER=MSVC_PROJ PLATFORM=Win32 CONFIG=Release
+ - COMPILER=MSVC_NMAKE PLATFORM=x64 CONFIG=Debug
+ - COMPILER=MSVC_NMAKE PLATFORM=x64 CONFIG=Release
+ - COMPILER=MSVC_NMAKE PLATFORM=Win32 CONFIG=Debug
+ - COMPILER=MSVC_NMAKE PLATFORM=Win32 CONFIG=Release
+ - COMPILER=CLANG_NMAKE PLATFORM=x64 CONFIG=Debug
+ - COMPILER=CLANG_NMAKE PLATFORM=x64 CONFIG=Release
+ - COMPILER=GCC_MAKE PLATFORM=x64 CONFIG=Debug
+ - COMPILER=GCC_MAKE PLATFORM=x64 CONFIG=Release
+
 script:
- - export PATH="c:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin":$PATH
- - MSBuild.exe /property:Configuration=$CONFIG /property:Platform=$PLATFORM far/far.vcxproj
+ - .\\_build\\ci\\travis\\build.cmd
 
 branches:
   only:
