@@ -1,4 +1,4 @@
-﻿language: minimal
+language: bash
 os: windows
 
 env:
@@ -16,7 +16,7 @@ env:
  - COMPILER=GCC_MAKE PLATFORM=x64 CONFIG=Release
 
 script:
- - .\\_build\\ci\\travis\\build.cmd
+ - ./_build/ci/travis/build.cmd
 
 branches:
   only:
