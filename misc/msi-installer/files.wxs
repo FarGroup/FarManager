@@ -478,6 +478,9 @@
           <Component Id="AlignIta.lng" Guid="$(var.Guid.AlignIta.lng)" Win64="$(var.Win64)">
             <File Id="AlignIta.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Align\AlignIta.lng" />
           </Component>
+          <Component Id="AlignPol.lng" Guid="$(var.Guid.AlignPol.lng)" Win64="$(var.Win64)">
+            <File Id="AlignPol.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Align\AlignPol.lng" />
+          </Component>
           <Component Id="changelog_2" Guid="$(var.Guid.changelog_2)" Win64="$(var.Win64)">
             <File Id="changelog_2" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Align\changelog" />
           </Component>
@@ -561,6 +564,9 @@
           <Component Id="WrapIta.lng" Guid="$(var.Guid.WrapIta.lng)" Win64="$(var.Win64)">
             <File Id="WrapIta.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\AutoWrap\WrapIta.lng" />
           </Component>
+          <Component Id="WrapPol.lng" Guid="$(var.Guid.WrapPol.lng)" Win64="$(var.Win64)">
+            <File Id="WrapPol.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\AutoWrap\WrapPol.lng" />
+          </Component>
         </Directory>
         <Directory Id="Brackets" Name="Brackets">
           <Component Id="BrackEng.hlf" Guid="$(var.Guid.BrackEng.hlf)" Win64="$(var.Win64)">
@@ -594,6 +600,9 @@
           </Component>
           <Component Id="BrackIta.lng" Guid="$(var.Guid.BrackIta.lng)" Win64="$(var.Win64)">
             <File Id="BrackIta.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackIta.lng" />
+          </Component>
+          <Component Id="BrackPol.lng" Guid="$(var.Guid.BrackPol.lng)" Win64="$(var.Win64)">
+            <File Id="BrackPol.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackPol.lng" />
           </Component>
           <Component Id="changelog_4" Guid="$(var.Guid.changelog_4)" Win64="$(var.Win64)">
             <File Id="changelog_4" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\changelog" />

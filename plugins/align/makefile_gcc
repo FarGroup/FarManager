@@ -1,6 +1,6 @@
 NAME = Align
 SRCS = Align.cpp
-DOCS = AlignEng.lng AlignRus.lng AlignSky.lng AlignSpa.lng AlignIta.lng changelog
+DOCS = AlignEng.lng AlignRus.lng AlignSky.lng AlignSpa.lng AlignIta.lng AlignPol.lng changelog
 
 include ../../far/makefile_gcc_common
 

@@ -223,6 +223,7 @@
             <ComponentRef Id="AlignSky.lng" />
             <ComponentRef Id="AlignSpa.lng" />
             <ComponentRef Id="AlignIta.lng" />
+            <ComponentRef Id="AlignPol.lng" />
             <Feature Id="Align.Russian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="AlignRus.lng" />
             </Feature>
@@ -241,6 +242,7 @@
             <ComponentRef Id="WrapSky.lng" />
             <ComponentRef Id="WrapSpa.lng" />
             <ComponentRef Id="WrapIta.lng" />
+            <ComponentRef Id="WrapPol.lng" />
             <Feature Id="AutoWrap.Russian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="WrapRus.lng" />
             </Feature>
@@ -259,6 +261,7 @@
             <ComponentRef Id="BrackSky.lng" />
             <ComponentRef Id="BrackSpa.lng" />
             <ComponentRef Id="BrackIta.lng" />
+            <ComponentRef Id="BrackPol.lng" />
             <ComponentRef Id="Brackets.lua" />
             <ComponentRef Id="Brackets.dll" />
             <Feature Id="Brackets.Russian" Level="1" Display="hidden" AllowAdvertise="no">

@@ -152,6 +152,7 @@
 <?define Guid.AlignSky.lng = "2AE2065A-409F-4F83-9AF4-FE3C84DDF728" ?>
 <?define Guid.AlignSpa.lng = "811C1062-9570-4A46-8BCB-6897037D0951" ?>
 <?define Guid.AlignIta.lng = "F9676E31-2B61-46BC-973E-A2E2A94D3AF0" ?>
+<?define Guid.AlignPol.lng = "912A7BEB-5285-4EEA-BC4E-71EA1D128899" ?>
 <?define Guid.changelog_2 = "594537CA-EE0B-473D-8042-1A6E87D9F4A2" ?>
 <?define Guid._7z.dll = "068AEE30-5B25-4511-AD33-24D04FCDAE8C" ?>
 <?define Guid._7z.sfx = "CA472D4F-7697-44CB-A6B9-2B7D06E15ADA" ?>
@@ -177,6 +178,7 @@
 <?define Guid.WrapSky.lng = "83BFFCF5-BB18-4AAA-85BC-999D320AC9A7" ?>
 <?define Guid.WrapSpa.lng = "309F3300-59FE-4F3E-AEF5-3D718D7D30B2" ?>
 <?define Guid.WrapIta.lng = "49777075-4C83-4224-868B-D6604A70B796" ?>
+<?define Guid.WrapPol.lng = "80B59EEF-D958-47A4-9138-07386B2514AB" ?>
 <?define Guid.BrackEng.hlf = "4508C1A9-B1DB-4454-B7B4-AB6DD347537F" ?>
 <?define Guid.BrackEng.lng = "96264C8C-57DE-4A23-978A-FCFC40F438F6" ?>
 <?define Guid.Brackets.lua = "623ABD58-3194-4D87-9C85-21A9E09FEF72" ?>
@@ -187,6 +189,7 @@
 <?define Guid.BrackSky.lng = "FE471E1F-69CF-44DB-B073-F28C841C88F1" ?>
 <?define Guid.BrackSpa.lng = "96437C55-167B-441E-B3D2-5AF2E5B78D0B" ?>
 <?define Guid.BrackIta.lng = "B33327AC-BFDC-4659-A45D-DB1AF35901FE" ?>
+<?define Guid.BrackPol.lng = "EE5C3564-2E3C-4D0E-BC9D-1C155089AAD6" ?>
 <?define Guid.changelog_4 = "B16A18B7-64CB-41B9-B189-70B492F1FA9E" ?>
 <?define Guid.changelog_5 = "47F9BEA2-9C5F-4DE0-A2FB-F7EDA398DEDA" ?>
 <?define Guid.CmpEng.hlf = "DC63E6AF-DE8A-41C2-BDB6-9B7265EB7E64" ?>

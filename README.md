@@ -4,8 +4,8 @@ https://www.farmanager.com
 | | AppVeyor | Travis | Azure |
 |-|-|-|-|
 | VS | [![AppVeyor](https://img.shields.io/appveyor/ci/FarGroup/farmanager.svg?logo=appveyor)](https://ci.appveyor.com/project/FarGroup/farmanager/history) | [![Travis CI](https://img.shields.io/travis/FarGroup/FarManager.svg?logo=travis)](https://travis-ci.com/FarGroup/FarManager/builds) | [![Azure Pipelines](https://img.shields.io/azure-devops/build/FarGroup/66d0ddcf-a098-4b98-9470-1c90632c4ba3/1.svg?logo=azuredevops)](https://dev.azure.com/FarGroup/FarManager/_build?definitionId=1) |
-| GCC | [![AppVeyor](https://img.shields.io/appveyor/ci/FarGroup/farmanager-5lhsj.svg?logo=appveyor)](https://ci.appveyor.com/project/FarGroup/farmanager-5lhsj/history) | TBD | TBD |
-| Clang | [![AppVeyor](https://img.shields.io/appveyor/ci/FarGroup/farmanager-tgu1s.svg?logo=appveyor)](https://ci.appveyor.com/project/FarGroup/farmanager-tgu1s/history) | TBD | TBD |
+| GCC | [![AppVeyor](https://img.shields.io/appveyor/ci/FarGroup/farmanager-5lhsj.svg?logo=appveyor)](https://ci.appveyor.com/project/FarGroup/farmanager-5lhsj/history) | [![Travis CI](https://img.shields.io/travis/FarGroup/FarManager.svg?logo=travis)](https://travis-ci.com/FarGroup/FarManager/builds) | TBD |
+| Clang | [![AppVeyor](https://img.shields.io/appveyor/ci/FarGroup/farmanager-tgu1s.svg?logo=appveyor)](https://ci.appveyor.com/project/FarGroup/farmanager-tgu1s/history) | [![Travis CI](https://img.shields.io/travis/FarGroup/FarManager.svg?logo=travis)](https://travis-ci.com/FarGroup/FarManager/builds) | TBD |
 
 
 ### Far Manager — what is it?
