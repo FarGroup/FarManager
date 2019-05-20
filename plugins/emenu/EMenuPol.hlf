@@ -1,0 +1,161 @@
+﻿.Language=Polish,Polish (Polski)
+.PluginContents=EMenu
+
+@Contents
+$ #EMenu - menu kontekstowe#
+^#Opis#
+
+    Wtyczka pozwala skorzystać z menu kontekstowego Eksploratora Windows
+dla bieżącego lub wskazanego pliku/foldera. Wtyka może działać w panelu
+plików, panelu drzewa, folderze tymczasowym lub w przeglądarce sieciowej.
+
+    Wtyczka pozwala pokazywać menu w wersji tekstowej lub graficznej (GUI),
+zależnie od ustawień w ~oknie konfiguracji~@Config@.
+
+
+^#Jak używać EMenu#
+
+    EMenu może być uruchomione na dwa sposoby:
+
+    #1) Z menu wtyczek.#
+
+    Wybierz w panelu plik, folder lub linię .. (folder nadrzędny), wciśnij F11
+i wybierz pozycję EMenu. Możesz zaznaczyć kilka plików lub folderów i skorzystać
+z menu tak jak w Eksploratorze. Menu kontekstowe dla linii .. (folder nadrzędny)
+pokaże menu dla bieżącego folderu.
+    Dla Waszej wygody do wtyczki dołączone jest makro obsługujące trzy skróty
+ klawiszowe, aby pokazać menu:
+
+ #Apps#       Pokazuje menu tekstowe
+ #Shift-Apps# Pokazuje menu graficzne
+ #Ctrl-Apps#  Pokazuje menu wyboru pomiędzy menu tekstowym a graficznym
+
+    Aby zainstalować makro należy zaimportować plik Hotkey.farconfig i uruchomić ponownie program FAR.
+
+    #2) Używając prefix'ów w linii poleceń#
+
+ #rclk:      [pliki]#             Pokazuje menu kontekstowe.
+ #rclk_txt:  [pliki]#             Pokazuje tekstowe menu kontekstowe.
+ #rclk_gui:  [pliki]#             Pokazuje graficzne menu kontekstowe.
+ #rclk_cmd:  <polecenie> [pliki]# Wykonuje podane polecenie menu.
+ #rclk_item: <pozycja> [pliki]#   Wykonuje podaną pozycję menu.
+
+    Pliki są rozdzielane spacjami. Pliki mogą zawierać pełną ścieżkę lub nazwy plików
+(wtedy przyjmuje bieżący folder). Jeżeli pominięto pliki - to użyte zostanie zaznaczenie
+z bieżącego panelu.
+    Jeżeli dowolna część z linii poleceń zawiera spacje - należy użyć cudzysłowów.
+    Linia poleceń może zawierać zmienne systemowe ujęte w %. Zmienne zostaną rozwinięte
+w ich pełne wartości.
+
+@Config
+$ #EMenu - okno konfiguracji#
+^#Pokaż komunikat po wykonaniu#
+
+    Enable this option if you want a message to be shown after the plugin
+has finished working. This message may be needed under Windows 9x where
+problems can arise if you execute some context menu commands in parallel
+to working with Far.
+
+    Domyślna wartość: #wyłączone#.
+
+^#Pokaż menu graficzne#
+
+    There may be some context menu items that are not just a text strings.
+Such items can't be displayed correctly in Far menu (though you will see them
+and be able to execute). To see the menu as it is shown in explorer you can
+use GUI menu.
+    The option can have one of the following values:
+
+ #[ ]# Pokaż menu tekstowe
+ #[x]# Pokaż menu graficzne
+ #[?]# Pozwala wybrać pomiędzy menu tekstowym i graficznym, przy każdym uruchomieniu wtyczki.
+
+    Domyślna wartość: #[?]#.
+
+^#Usuń używając FAR#
+
+    When this option is enabled the "delete" menu command acts like the F8
+key in Far.
+
+    Domyślna wartość: #wyłączone#.
+
+^#Wyczyść zaznaczenie po uruchomieniu polecenia#
+
+    When this option is enabled the selection on the panel is cleared
+after exiting the menu if any menu command has been executed.
+
+    Domyślna wartość: #enabled#.
+
+^#Tryb cichy (nie pokazuj żadnego komunikatu)#
+
+    When this option is enabled plugin never shows any messages.
+
+    Domyślna wartość: #wyłączone#.
+
+^#Dodatkowe informacje w menu tekstowym#
+
+    This group controls an additional menu item information that can be
+displayed in the text menu in brackets next to item.
+
+ #( ) Brak#                     Nie pokazuje żadnej dodatkowej informacji.
+ #( ) Pokaż pomoc#              Helptext is displayed. Helptext is the text
+                              that Explorer shows in its status bar for
+                              currently selected context menu command.
+ #( ) Pokaż polecenie#          Commands are displayed. Useful if you want
+                              to know the command to write a "rclk_cmd:"
+                              prefix command line.
+ #[ ] Ukryj jeżeli takie same#  Hide additional information if it is the
+                              same as menu item.
+
+^#Pozycja menu GUI#
+
+    To proste.
+
+ #( ) W miejscu kursora myszy#
+ #( ) Na środku okna FAR#
+
+@Main
+$ #Główne menu EMenu#
+    In the main menu you can choose whether to show the context menu for
+the items on the panel or select an item from "My computer" for which you
+want to show the context menu.
+
+    #Menu kontekstowe# Show the context menu for the items on the panel.
+
+    #Mój Komputer# Select for which item in "My computer" explorer branch you
+want to show the context menu.
+
+@ChooseMenuType
+$ #Wybór typu menu#
+    Choose between text context menu and GUI context menu. This behaviour
+can be changed in the ~oknie konfiguracyjnym~@Config@.
+
+@MyComp
+$ #Mój Komputer#
+    Select an item for which you want to get the context menu.
+
+@ContextMenu
+$ #Menu kontekstowe#
+    This is a context menu shown by the ~EMenu~@Contents@ plugin.
+
+@Error0
+$ #Nie mogę pokazać menu, ponieważ pliki pochodzą z różnych folderów.#
+    This message appears when selected files are placed in different
+folders.
+
+@Error1
+$ #Nie mogę pokazać menu.#
+    This message appears when EMenu is unable to show the context menu.
+
+@Error2
+$ #Nie mogę przetworzyć polecenia menu.#
+    This message appears when error occurred during invoking of menu command.
+
+@Close
+$ #Wciśnij "OK", aby kontynuować...#
+    There are some cases when you have to wait until the execution of the menu
+command finishes, and only after that continue working with Far. One of
+such commands is "paste" in Windows 9x for files with paths containing
+national letters.
+
+    Komunikat ten może być wyłączony w ~oknie konfiguracyjnym~@Config@.

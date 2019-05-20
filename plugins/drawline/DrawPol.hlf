@@ -1,0 +1,16 @@
+﻿.Language=Polish,Polish (Polski)
+.PluginContents=Rysuj linie
+
+@Contents
+$ #Rysuj linie#
+    Wtyczka pozwala rysować pojedyncze i podwójne linie w wewnętrznym edytorze FAR
+za pomocą preudo-graficznych znaków. Wtyczka poprawnie rysuje połączenia linii.
+
+    Aby narysować linię należy wciskać kombinacje klawiszy #Shift-Left#, #Shift-Up#,
+#Shift-Right# oraz #Shift-Down#.
+
+    Aby zmienić styl linii (pojedyncze lub podwójne), należy wcisnąć klawisz #F2#.
+
+    Klawisz #F10# kończy pracę ze wtyczką i wraca do normalnego trybu edycji.
+
+    Klawisz #F1# pokazuje to okno pomocy.

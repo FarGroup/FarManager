@@ -1,0 +1,36 @@
+﻿.Language=Polish,Polish (Polski)
+.PluginContents=Zmiana wielkości znaków
+.Options CtrlStartPosChar=^<wrap>
+
+@Contents
+$ #Zmiana wielkości znaków#
+    Wtyczka pozwala na zmianę wielkości znaków w zaznaczonym tekscie lub w bieżącym słowie, w wewnętrznym edytorze FAR.
+
+    Zobacz także "~Wywoływanie wtyczki w makrach~@MacroCallPlugin@"
+
+@MacroCallPlugin
+$ #Wywoływanie wtyczki w makrach#
+    ^<wrap>Wtyczkę można wywołać w makrach, używając polecenia Plugin.Call.
+    ^<wrap>Format wywołania:
+
+       #Plugin.Call("0E92FC81-4888-4297-A85D-31C79E0E0CEE",<Parametr>)#
+
+    ^<wrap>gdzie:
+       #0E92FC81-4888-4297-A85D-31C79E0E0CEE#
+          identyfikator wtyczki
+
+       #<Parametr>#
+          ^<wrap>ciąg znaków lub wartość liczbowa wskazująca na tryb konwersji:
+
+          Lower   0 - małe litery
+          Title   1 - Pierwsza Wielka
+          Upper   2 - WIELKIE LITERY
+          Toggle  3 - zMIANA tRYBU
+          Cyclic  4 - Zmiana cykliczna
+
+          ^<wrap>Jeśli <Parametr> będzie mieć wartości spoza podanego zakresu, to wtyczka zakończy działanie.
+          ^<wrap>Jeśli <Parametr> nie zostanie podany, zostanie wyświetlone okno wyboru parametru.
+
+    ^<wrap>Przykład: zmiana tekstu w edytorze na "Pierwsza Wielka" należy wpisać:
+
+       Plugin.Call("0E92FC81-4888-4297-A85D-31C79E0E0CEE",1)
