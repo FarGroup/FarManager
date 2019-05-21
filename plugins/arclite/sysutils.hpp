@@ -53,10 +53,10 @@ struct FindData: public WIN32_FIND_DATAW {
   bool is_dir() const {
     return (dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
   }
-  unsigned __int64 size() const {
-    return (static_cast<unsigned __int64>(nFileSizeHigh) << 32) | nFileSizeLow;
+  UInt64 size() const {
+    return (static_cast<UInt64>(nFileSizeHigh) << 32) | nFileSizeLow;
   }
-  void set_size(unsigned __int64 size) {
+  void set_size(UInt64 size) {
     nFileSizeLow = static_cast<DWORD>(size & 0xFFFFFFFF);
     nFileSizeHigh = static_cast<DWORD>(size >> 32);
   }
@@ -82,16 +82,16 @@ public:
   const wstring& path() const NOEXCEPT {
     return file_path;
   }
-  unsigned __int64 size();
-  bool size_nt(unsigned __int64& file_size) NOEXCEPT;
+  UInt64 size();
+  bool size_nt(UInt64& file_size) NOEXCEPT;
   size_t read(void* data, size_t size);
   bool read_nt(void* data, size_t size, size_t& size_read) NOEXCEPT;
   size_t write(const void* data, size_t size);
   bool write_nt(const void* data, size_t size, size_t& size_written) NOEXCEPT;
   void set_time(const FILETIME& ctime, const FILETIME& atime, const FILETIME& mtime);
   bool set_time_nt(const FILETIME& ctime, const FILETIME& atime, const FILETIME& mtime) NOEXCEPT;
-  unsigned __int64 set_pos(__int64 offset, DWORD method = FILE_BEGIN);
-  bool set_pos_nt(__int64 offset, DWORD method = FILE_BEGIN, unsigned __int64* new_pos = nullptr) NOEXCEPT;
+  UInt64 set_pos(Int64 offset, DWORD method = FILE_BEGIN);
+  bool set_pos_nt(Int64 offset, DWORD method = FILE_BEGIN, UInt64* new_pos = nullptr) NOEXCEPT;
   void set_end();
   bool set_end_nt() NOEXCEPT;
   BY_HANDLE_FILE_INFORMATION get_info();

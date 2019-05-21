@@ -71,7 +71,7 @@ IconFile load_icon_file(const wstring& file_path) {
   IconFile icon;
   File file(file_path, FILE_READ_DATA, FILE_SHARE_READ, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
   IconFileHeader header;
-  unsigned __int64 file_size = file.size();
+  UInt64 file_size = file.size();
   file.read(&header, sizeof(header));
   for (unsigned i = 0; i < header.count; i++) {
     IconImage image;
@@ -83,7 +83,7 @@ IconFile load_icon_file(const wstring& file_path) {
     image.plane_cnt = entry.planes;
     image.bit_cnt = entry.bit_count;
     CHECK(entry.image_offset + entry.bytes_in_res <= file_size);
-    unsigned __int64 cur_pos = file.set_pos(0, FILE_CURRENT);
+    UInt64 cur_pos = file.set_pos(0, FILE_CURRENT);
     file.set_pos(entry.image_offset);
     Buffer<unsigned char> buf(entry.bytes_in_res);
     file.read(buf.data(), buf.size());

@@ -18,8 +18,8 @@ CriticalSection& GetSync()
 
 CriticalSection& GetExportSync()
 {
-	static CriticalSection sync;
-	return sync;
+  static CriticalSection sync;
+  return sync;
 }
 
 wstring get_system_message(HRESULT hr, DWORD lang_id) {
@@ -167,13 +167,13 @@ void File::close() NOEXCEPT {
   }
 }
 
-unsigned __int64 File::size() {
-  unsigned __int64 file_size;
+UInt64 File::size() {
+  UInt64 file_size;
   CHECK_FILE(size_nt(file_size));
   return file_size;
 }
 
-bool File::size_nt(unsigned __int64& file_size) NOEXCEPT {
+bool File::size_nt(UInt64& file_size) NOEXCEPT {
   LARGE_INTEGER fs;
   if (GetFileSizeEx(h_file, &fs)) {
     file_size = fs.QuadPart;
@@ -223,13 +223,13 @@ bool File::set_time_nt(const FILETIME& ctime, const FILETIME& atime, const FILET
   return SetFileTime(h_file, &ctime, &atime, &mtime) != 0;
 };
 
-unsigned __int64 File::set_pos(__int64 offset, DWORD method) {
-  unsigned __int64 new_pos;
+UInt64 File::set_pos(Int64 offset, DWORD method) {
+  UInt64 new_pos;
   CHECK_FILE(set_pos_nt(offset, method, &new_pos));
   return new_pos;
 }
 
-bool File::set_pos_nt(__int64 offset, DWORD method, unsigned __int64* new_pos) NOEXCEPT {
+bool File::set_pos_nt(Int64 offset, DWORD method, UInt64* new_pos) NOEXCEPT {
   LARGE_INTEGER distance_to_move, new_file_pointer;
   distance_to_move.QuadPart = offset;
   if (!SetFilePointerEx(h_file, distance_to_move, &new_file_pointer, method))

@@ -133,7 +133,7 @@ void ProgressMonitor::clean() {
 }
 
 void ProgressMonitor::update_time() {
-  unsigned __int64 time_curr;
+  UInt64 time_curr;
   QueryPerformanceCounter(reinterpret_cast<PLARGE_INTEGER>(&time_curr));
   time_total += time_curr - time_cnt;
   time_cnt = time_curr;
@@ -143,12 +143,12 @@ void ProgressMonitor::discard_time() {
   QueryPerformanceCounter(reinterpret_cast<PLARGE_INTEGER>(&time_cnt));
 }
 
-unsigned __int64 ProgressMonitor::time_elapsed() {
+UInt64 ProgressMonitor::time_elapsed() {
   update_time();
   return time_total;
 }
 
-unsigned __int64 ProgressMonitor::ticks_per_sec() {
+UInt64 ProgressMonitor::ticks_per_sec() {
   return time_freq;
 }
 
@@ -1658,7 +1658,7 @@ private:
       }
     }
     else if (msg == DN_BTNCLICK) {
-		 wstring unused;
+      wstring unused;
       auto lib_iter = format_btn_map.find(param1);
       if (lib_iter != format_btn_map.end()) {
         MultiSelectDialog(Far::get_msg(MSG_SETTINGS_DLG_LIB_FORMATS), get_formats(lib_iter->second),unused).show();

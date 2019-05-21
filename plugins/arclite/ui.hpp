@@ -11,7 +11,7 @@ struct OverwriteOptions {
 };
 struct OverwriteFileInfo {
   bool is_dir;
-  unsigned __int64 size;
+  UInt64 size;
   FILETIME mtime;
 };
 enum OverwriteDialogKind {

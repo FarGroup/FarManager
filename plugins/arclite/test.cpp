@@ -12,14 +12,14 @@ private:
   shared_ptr<Archive> archive;
 
   wstring file_path;
-  unsigned __int64 completed;
-  unsigned __int64 total;
+  UInt64 completed;
+  UInt64 total;
   virtual void do_update_ui() {
     const unsigned c_width = 60;
 
     percent_done = calc_percent(completed, total);
 
-    unsigned __int64 speed;
+    UInt64 speed;
     if (time_elapsed() == 0)
       speed = 0;
     else

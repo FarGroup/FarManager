@@ -10,8 +10,8 @@
 class AttachSfxModuleProgress: public ProgressMonitor {
 private:
   wstring file_path;
-  unsigned __int64 completed;
-  unsigned __int64 total;
+  UInt64 completed;
+  UInt64 total;
 
   virtual void do_update_ui() {
     const unsigned c_width = 60;
@@ -28,10 +28,10 @@ public:
   AttachSfxModuleProgress(const wstring& file_path): ProgressMonitor(Far::get_msg(MSG_PROGRESS_SFX_CONVERT)), file_path(file_path), completed(0), total(0) {
   }
 
-  void set_total(unsigned __int64 size) {
+  void set_total(UInt64 size) {
     total = size;
   }
-  void update_completed(unsigned __int64 size) {
+  void update_completed(UInt64 size) {
     completed += size;
     update_ui();
   }

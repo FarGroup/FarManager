@@ -112,7 +112,7 @@ public:
     File file;
     if (!file.open_nt(xml_name, FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE, OPEN_EXISTING, 0))
       return false;
-    unsigned __int64 fsize = 0;
+    UInt64 fsize = 0;
     if (!file.size_nt(fsize) || fsize <= 0 || fsize > 100ull * 1024 * 1024)
       return false;
     size_t nr = static_cast<size_t>(fsize);
@@ -141,7 +141,7 @@ class OptionsKey: public Far::Settings {
 public:
   template<class Integer>
   Integer get_int(const wchar_t* name, Integer def_value) {
-    unsigned __int64 value;
+    UInt64 value;
     if (get(name, value))
       return static_cast<Integer>(value);
     else
@@ -149,7 +149,7 @@ public:
   }
 
   bool get_bool(const wchar_t* name, bool def_value) {
-    unsigned __int64 value;
+    UInt64 value;
     if (get(name, value))
       return value != 0;
     else
@@ -564,7 +564,7 @@ bool get_app_option(size_t category, const wchar_t* name, bool& value) {
     Far::Settings settings;
     if (!settings.create(true))
       return false;
-    unsigned __int64 setting_value;
+    UInt64 setting_value;
     if (!settings.get(category, name, setting_value))
       return false;
     value = setting_value != 0;

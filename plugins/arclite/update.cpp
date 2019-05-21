@@ -7,10 +7,10 @@
 #include "archive.hpp"
 #include "options.hpp"
 
-wstring format_time(unsigned __int64 t) {
-  unsigned __int64 s = t % 60;
-  unsigned __int64 m = (t / 60) % 60;
-  unsigned __int64 h = t / 60 / 60;
+wstring format_time(UInt64 t) {
+  UInt64 s = t % 60;
+  UInt64 m = (t / 60) % 60;
+  UInt64 h = t / 60 / 60;
   wostringstream st;
   st << setfill(L'0') << setw(2) << h << L":" << setw(2) << m << L":" << setw(2) << s;
   return st.str();
@@ -25,24 +25,24 @@ private:
   wstring file_path;
   UInt64 file_total;
   UInt64 file_completed;
-  unsigned __int64 total_data_read;
-  unsigned __int64 total_data_written;
+  UInt64 total_data_read;
+  UInt64 total_data_written;
 
   virtual void do_update_ui() {
     const unsigned c_width = 60;
 
     percent_done = calc_percent(completed, total);
 
-    unsigned __int64 time = time_elapsed();
-    unsigned __int64 speed;
+    UInt64 time = time_elapsed();
+    UInt64 speed;
     if (time == 0)
       speed = 0;
     else
       speed = al_round(static_cast<double>(completed) / time * ticks_per_sec());
 
-    unsigned __int64 total_time;
+    UInt64 total_time;
     if (completed)
-      total_time = static_cast<unsigned __int64>(static_cast<double>(total) / completed * time);
+      total_time = static_cast<UInt64>(static_cast<double>(total) / completed * time);
     else
       total_time = 0;
     if (total_time < time)
@@ -79,7 +79,7 @@ public:
     total_data_written(0) {
   }
 
-  void on_open_file(const wstring& file_path, unsigned __int64 size) {
+  void on_open_file(const wstring& file_path, UInt64 size) {
     CriticalSectionLock lock(GetSync());
     this->file_path = file_path;
     file_total = size;
@@ -170,7 +170,7 @@ public:
     COM_ERROR_HANDLER_BEGIN
     if (newPosition)
       *newPosition = 0;
-    unsigned __int64 new_position = set_pos(offset, translate_seek_method(seekOrigin));
+    UInt64 new_position = set_pos(offset, translate_seek_method(seekOrigin));
     if (newPosition)
       *newPosition = new_position;
     return S_OK;
@@ -197,7 +197,7 @@ void create_sfx_module(const wstring& file_path, const SfxOptions& sfx_options);
 
 class SfxUpdateStream: public UpdateStream, public ComBase, private File {
 private:
-  unsigned __int64 start_offset;
+  UInt64 start_offset;
 
 public:
   SfxUpdateStream(const wstring& file_path, const SfxOptions& sfx_options, shared_ptr<ArchiveUpdateProgress> progress): UpdateStream(progress) {
@@ -238,10 +238,10 @@ public:
     COM_ERROR_HANDLER_BEGIN
     if (newPosition)
       *newPosition = 0;
-    __int64 real_offset = offset;
+    Int64 real_offset = offset;
     if (seekOrigin == STREAM_SEEK_SET)
       real_offset += start_offset;
-    unsigned __int64 new_position = set_pos(real_offset, translate_seek_method(seekOrigin));
+    UInt64 new_position = set_pos(real_offset, translate_seek_method(seekOrigin));
     if (new_position < start_offset)
       FAIL(E_INVALIDARG);
     new_position -= start_offset;
@@ -270,15 +270,15 @@ public:
 class MultiVolumeUpdateStream: public UpdateStream, public ComBase {
 private:
   wstring file_path;
-  unsigned __int64 volume_size;
+  UInt64 volume_size;
 
-  unsigned __int64 stream_pos;
-  unsigned __int64 seek_stream_pos;
-  unsigned __int64 stream_size;
+  UInt64 stream_pos;
+  UInt64 seek_stream_pos;
+  UInt64 stream_size;
   bool next_volume;
   File volume;
 
-  wstring get_volume_path(unsigned __int64 volume_idx) {
+  wstring get_volume_path(UInt64 volume_idx) {
     wstring volume_ext = uint_to_str(volume_idx + 1);
     if (volume_ext.size() < 3)
       volume_ext.insert(0, 3 - volume_ext.size(), L'0');
@@ -293,12 +293,12 @@ private:
     return file_path + volume_ext;
   }
 
-  unsigned __int64 get_last_volume_idx() {
+  UInt64 get_last_volume_idx() {
     return stream_size ? (stream_size - 1) / volume_size : 0;
   }
 
 public:
-  MultiVolumeUpdateStream(const wstring& file_path, unsigned __int64 volume_size, shared_ptr<ArchiveUpdateProgress> progress): UpdateStream(progress), file_path(file_path), volume_size(volume_size), stream_pos(0), seek_stream_pos(0), stream_size(0), next_volume(false) {
+  MultiVolumeUpdateStream(const wstring& file_path, UInt64 volume_size, shared_ptr<ArchiveUpdateProgress> progress): UpdateStream(progress), file_path(file_path), volume_size(volume_size), stream_pos(0), seek_stream_pos(0), stream_size(0), next_volume(false) {
     RETRY_OR_IGNORE_BEGIN
     volume.open(get_volume_path(0), GENERIC_WRITE, FILE_SHARE_READ, CREATE_ALWAYS, 0);
     RETRY_END(*progress)
@@ -314,8 +314,8 @@ public:
     if (processedSize)
       *processedSize = 0;
     if (seek_stream_pos != stream_pos) {
-      unsigned __int64 volume_idx = seek_stream_pos / volume_size;
-      unsigned __int64 last_volume_idx = get_last_volume_idx();
+      UInt64 volume_idx = seek_stream_pos / volume_size;
+      UInt64 last_volume_idx = get_last_volume_idx();
       while (last_volume_idx + 1 < volume_idx) {
         last_volume_idx += 1;
         RETRY_OR_IGNORE_BEGIN
@@ -343,7 +343,7 @@ public:
 
     unsigned data_off = 0;
     do {
-      unsigned __int64 volume_idx = stream_pos / volume_size;
+      UInt64 volume_idx = stream_pos / volume_size;
 
       if (next_volume) { // advance to next volume
         if (volume_idx > get_last_volume_idx()) {
@@ -359,7 +359,7 @@ public:
         next_volume = false;
       }
 
-      unsigned __int64 volume_upper_bound = (volume_idx + 1) * volume_size;
+      UInt64 volume_upper_bound = (volume_idx + 1) * volume_size;
       unsigned write_size;
       if (stream_pos + (size - data_off) >= volume_upper_bound) {
         write_size = static_cast<unsigned>(volume_upper_bound - stream_pos);
@@ -415,8 +415,8 @@ public:
     if (stream_size == newSize)
       return S_OK;
 
-    unsigned __int64 last_volume_idx = get_last_volume_idx();
-    unsigned __int64 volume_idx = static_cast<unsigned>(newSize / volume_size);
+    UInt64 last_volume_idx = get_last_volume_idx();
+    UInt64 volume_idx = static_cast<unsigned>(newSize / volume_size);
     while (last_volume_idx + 1 < volume_idx) {
       last_volume_idx += 1;
       RETRY_OR_IGNORE_BEGIN
@@ -438,7 +438,7 @@ public:
     volume.set_end();
     RETRY_END(*progress)
 
-    for (unsigned __int64 extra_idx = volume_idx + 1; extra_idx <= last_volume_idx; extra_idx++) {
+    for (UInt64 extra_idx = volume_idx + 1; extra_idx <= last_volume_idx; extra_idx++) {
       File::delete_file(get_volume_path(extra_idx));
     }
 
@@ -450,8 +450,8 @@ public:
 
   virtual void clean_files() noexcept {
     volume.close();
-    unsigned __int64 last_volume_idx = get_last_volume_idx();
-    for (unsigned __int64 volume_idx = 0; volume_idx <= last_volume_idx; volume_idx++) {
+    UInt64 last_volume_idx = get_last_volume_idx();
+    for (UInt64 volume_idx = 0; volume_idx <= last_volume_idx; volume_idx++) {
       File::delete_file_nt(get_volume_path(volume_idx));
     }
   }
@@ -489,7 +489,7 @@ public:
     COM_ERROR_HANDLER_BEGIN
     if (newPosition)
       *newPosition = 0;
-    unsigned __int64 new_position = set_pos(offset, translate_seek_method(seekOrigin));
+    UInt64 new_position = set_pos(offset, translate_seek_method(seekOrigin));
     if (newPosition)
       *newPosition = new_position;
     return S_OK;
@@ -814,7 +814,7 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
     wstring method;
     if (options.arc_type == c_7z)
       method = options.method;
-	 else if (ArcAPI::formats().count(options.arc_type))
+    else if (ArcAPI::formats().count(options.arc_type))
       method = ArcAPI::formats().at(options.arc_type).name;
 
     auto method_params = &defopts;
@@ -846,7 +846,7 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
     };
 
     auto adv = options.advanced;
-	 bool ignore_method = false;
+    bool ignore_method = false;
     if (!adv.empty() && adv[0] == L'-') {
       adv.erase(0, 1);
       if (!adv.empty() && adv[0] == L'-') {
@@ -854,7 +854,7 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
         ignore_method = true; 
       }
     }
-	 else
+    else
       adv = method_params->adv + L' ' + adv;
 
     auto adv_params = split(adv, L' ');

@@ -1,4 +1,4 @@
-ALLDIRS = align autowrap brackets compare drawline editcase emenu farcmds \
+ALLDIRS = align arclite autowrap brackets compare drawline editcase emenu farcmds \
           filecase hlfviewer luamacro network proclist tmppanel samefolder\
 #ftp multiarc
 

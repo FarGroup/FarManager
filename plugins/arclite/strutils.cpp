@@ -88,15 +88,15 @@ wstring int_to_str(int val) {
   return _itow(val, str, 10);
 }
 
-unsigned __int64 str_to_uint(const wstring& str) {
-  unsigned __int64 val = 0;
+UInt64 str_to_uint(const wstring& str) {
+  UInt64 val = 0;
   for (unsigned i = 0; i < str.size() && str[i] >= L'0' && str[i] <= L'9'; i++) {
     val = val * 10 + (str[i] - L'0');
   }
   return val;
 }
 
-wstring uint_to_str(unsigned __int64 val) {
+wstring uint_to_str(UInt64 val) {
   if (val == 0)
     return L"0";
   wchar_t str[32];
@@ -144,22 +144,22 @@ wstring combine(const list<wstring>& lst, wchar_t sep) {
   return result;
 }
 
-wstring format_data_size(unsigned __int64 value, const wchar_t* suffixes[5]) {
+wstring format_data_size(UInt64 value, const wchar_t* suffixes[5]) {
   unsigned f = 0;
-  unsigned __int64 div = 1;
+  UInt64 div = 1;
   while ((value / div >= 1000) && (f < 4)) {
     f++;
     div *= 1024;
   }
-  unsigned __int64 v1 = value / div;
+  UInt64 v1 = value / div;
 
-  unsigned __int64 mul;
+  UInt64 mul;
   if (v1 < 10) mul = 100;
   else if (v1 < 100) mul = 10;
   else mul = 1;
 
-  unsigned __int64 v2 = value % div;
-  unsigned __int64 d = v2 * mul * 10 / div % 10;
+  UInt64 v2 = value % div;
+  UInt64 d = v2 * mul * 10 / div % 10;
   v2 = v2 * mul / div;
   if (d >= 5) {
     if (v2 + 1 == mul) {

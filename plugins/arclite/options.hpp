@@ -11,7 +11,7 @@ struct ExternalCodec {
     minL = 1; maxL = 9; mod0L = 0;
     L1 = 1; L3 = 3; L5 = 5; L7 = 7; L9 = 9;
     bcj_only = false;
-	 adv.clear();
+    adv.clear();
   }
 };
 

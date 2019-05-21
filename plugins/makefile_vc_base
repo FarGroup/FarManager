@@ -14,14 +14,13 @@ DIRBIT = 32
 !endif
 
 !if !defined(VC) && defined(_NMAKE_VER)
-
-!if "$(_NMAKE_VER)">"14"
-VC=14
-!elseif "$(_NMAKE_VER)">"11"
-VC=11
+!if "$(_NMAKE_VER)">"14.20"
+VC=16
+!elseif "$(_NMAKE_VER)">"14.10"
+VC=15
 !else
 #default
-VC=10
+VC=15
 !endif
 !endif
 

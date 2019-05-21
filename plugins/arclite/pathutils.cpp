@@ -22,7 +22,7 @@ wstring long_path_norm(const wstring& path) {
   }
   return nt_path;
 }
-	
+
 wstring add_trailing_slash(const wstring& path) {
   if ((path.size() == 0) || (path[path.size() - 1] == L'\\')) {
     return path;

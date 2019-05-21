@@ -43,8 +43,8 @@ public:
 class ArchiveOpenStream: public IInStream, private ComBase, private File {
 private:
   bool device_file;
-  unsigned __int64 device_pos;
-  unsigned __int64 device_size;
+  UInt64 device_pos;
+  UInt64 device_size;
   unsigned device_sector_size;
 
   Byte *cached_header;
@@ -102,7 +102,7 @@ public:
       *processedSize = 0;
     unsigned size_read;
     if (device_file) {
-      unsigned __int64 aligned_pos = device_pos / device_sector_size * device_sector_size;
+      UInt64 aligned_pos = device_pos / device_sector_size * device_sector_size;
       unsigned aligned_offset = static_cast<unsigned>(device_pos - aligned_pos);
       unsigned aligned_size = aligned_offset + size;
       aligned_size = (aligned_size / device_sector_size + (aligned_size % device_sector_size ? 1 : 0)) * device_sector_size;
@@ -146,7 +146,7 @@ public:
     COM_ERROR_HANDLER_BEGIN
     if (newPosition)
       *newPosition = 0;
-    unsigned __int64 new_position;
+    UInt64 new_position;
     if (device_file) {
       switch (seekOrigin) {
       case STREAM_SEEK_SET:
@@ -294,7 +294,7 @@ public:
         archive->open_password = -3;
         FAIL(E_ABORT);
       }
-		else {
+      else {
         archive->open_password = static_cast<int>(archive->password.size());
       }
     }
@@ -408,12 +408,12 @@ static bool accepted_signature(
       return true;
     if (pos + check_size < size)
       pos = size - check_size;
-	 tail = { (const char*)buffer + pos, size - pos };
+    tail = { (const char*)buffer + pos, size - pos };
   }
   else {
     buf = make_unique<Byte[]>(check_size);
-	 pos = 0;
-	 buffer = buf.get();
+    pos = 0;
+    buffer = buf.get();
     UInt64 cur_pos;
     if (S_OK != stream->Seek(0, STREAM_SEEK_CUR, &cur_pos))
       return false;
@@ -425,12 +425,12 @@ static bool accepted_signature(
     stream->Seek((Int64)cur_pos, STREAM_SEEK_SET, nullptr);
   }
   if (!tail.empty()) {
-	 auto eocd = tail.rfind(zip_EOCD_sig);
-	 if (eocd != string_view::npos) {
+    auto eocd = tail.rfind(zip_EOCD_sig);
+    if (eocd != string_view::npos) {
       pos += eocd + zip_EOCD_sig.size();
       if (buffer[pos] != 0 || buffer[pos + 1] != 0) // This disk (aka Volume) number
         return false;
-	 }
+    }
   }
   return true;
 }
@@ -585,8 +585,8 @@ void Archive::open(const OpenOptions& options, Archives& archives) {
       archive->volume_names = archives[parent_idx]->volume_names;
 
 #ifdef _DEBUG
-	const auto& format = ArcAPI::formats().at(arc_entry->type);
-	(void)format;
+    const auto& format = ArcAPI::formats().at(arc_entry->type);
+    (void)format;
 #endif
     bool opened = false;
     CHECK_COM(stream->Seek(arc_entry->sig_pos, STREAM_SEEK_SET, nullptr));
@@ -665,7 +665,7 @@ void Archive::reopen() {
     ComObject<IInStream> sub_stream;
     CHECK(get_stream(main_file, sub_stream.ref()))
     arc_info = get_file_info(main_file);
-	 sub_stream->Seek(arc_entry->sig_pos, STREAM_SEEK_SET, nullptr);
+    sub_stream->Seek(arc_entry->sig_pos, STREAM_SEEK_SET, nullptr);
     CHECK(open(sub_stream, arc_entry->type));
     arc_entry++;
   }

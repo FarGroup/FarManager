@@ -45,9 +45,9 @@ public:
 };
 intptr_t menu(const GUID& id, const wstring& title, const MenuItems& items, const wchar_t* help = NULL);
 
-wstring get_progress_bar_str(unsigned width, unsigned __int64 completed, unsigned __int64 total);
+wstring get_progress_bar_str(unsigned width, UInt64 completed, UInt64 total);
 void set_progress_state(TBPFLAG state);
-void set_progress_value(unsigned __int64 completed, unsigned __int64 total);
+void set_progress_value(UInt64 completed, UInt64 total);
 void progress_notify();
 
 void call_user_apc(void* param);
@@ -77,8 +77,8 @@ struct PanelItem {
   FILETIME creation_time;
   FILETIME last_access_time;
   FILETIME last_write_time;
-  unsigned __int64 file_size;
-  unsigned __int64 pack_size;
+  UInt64 file_size;
+  UInt64 pack_size;
   wstring file_name;
   wstring alt_file_name;
   void* user_data;
@@ -255,13 +255,13 @@ public:
   bool create(bool app_settings = false);
   bool set_dir(const wstring& path);
   bool list_dir(vector<wstring>& result);
-  bool set(const wchar_t* name, unsigned __int64 value);
+  bool set(const wchar_t* name, UInt64 value);
   bool set(const wchar_t* name, const wstring& value);
   bool set(const wchar_t* name, const void* value, size_t value_size);
-  bool get(const wchar_t* name, unsigned __int64& value);
+  bool get(const wchar_t* name, UInt64& value);
   bool get(const wchar_t* name, wstring& value);
   bool get(const wchar_t* name, ByteVector& value);
-  bool get(size_t root, const wchar_t* name, unsigned __int64& value);
+  bool get(size_t root, const wchar_t* name, UInt64& value);
   bool get(size_t root, const wchar_t* name, wstring& value);
   bool get(size_t root, const wchar_t* name, ByteVector& value);
   bool del(const wchar_t* name);

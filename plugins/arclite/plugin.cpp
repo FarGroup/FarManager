@@ -291,7 +291,7 @@ public:
       }
     };
     PluginPanelItems pp_items(this);
-	 auto dst = extract_file_path(archive->arc_path);
+    auto dst = extract_file_path(archive->arc_path);
     extract(pp_items, dst, false, 0);
   }
 
@@ -423,7 +423,7 @@ public:
       for (const auto& n : items) {
         if (lstrcmpiW(file_path.c_str(),n.c_str()) == 0 || Far::match_masks(file_path, n)) {
           matched_indices.push_back(j);
-			 break;
+          break;
         }
       }
     }
@@ -456,7 +456,7 @@ public:
       for (const auto& n : items) {
         if (lstrcmpiW(file_path.c_str(),n.c_str()) == 0 || Far::match_masks(file_path, n)) {
           matched_indices.push_back(j);
-			 break;
+          break;
         }
       }
     }
@@ -486,8 +486,8 @@ public:
 
   static void cmdline_extract(const ExtractItemsCommand& cmd) {
     auto full_arch_name = Far::get_absolute_path(cmd.archname);
-	 auto options = cmd.options;
-	 if (cmd.options.dst_dir.empty())
+    auto options = cmd.options;
+    if (cmd.options.dst_dir.empty())
       options.dst_dir = Far::get_panel_dir(PANEL_ACTIVE);
     if (!is_absolute_path(options.dst_dir))
       options.dst_dir = Far::get_absolute_path(options.dst_dir);
@@ -650,9 +650,9 @@ public:
       options.encrypt_header = triUndef;
       options.password = archive->password;
 
-		//options.level = archive->level;
-		options.level = g_options.update_level;
-		options.levels = g_options.update_levels;
+      //options.level = archive->level;
+      options.level = g_options.update_level;
+      options.levels = g_options.update_levels;
 
       options.overwrite = g_options.update_overwrite;
       if (op_mode & OPM_EDIT)
@@ -1036,14 +1036,14 @@ static HANDLE analyse_open(const AnalyseInfo* info, bool from_analyse) {
     options.detect = false;
     if (!g_options.handle_commands)
       FAIL(E_INVALIDARG);
-  	 bool pgdn = (info->OpMode & OPM_PGDN) != 0;
-  	 if (!pgdn || g_options.pgdn_masks) {
-  	   if (g_options.use_include_masks && !Far::match_masks(extract_file_name(info->FileName), g_options.include_masks))
-  	     FAIL(E_INVALIDARG);
+    bool pgdn = (info->OpMode & OPM_PGDN) != 0;
+    if (!pgdn || g_options.pgdn_masks) {
+      if (g_options.use_include_masks && !Far::match_masks(extract_file_name(info->FileName), g_options.include_masks))
+        FAIL(E_INVALIDARG);
       if (g_options.use_exclude_masks && Far::match_masks(extract_file_name(info->FileName), g_options.exclude_masks))
         FAIL(E_INVALIDARG);
     }
-  	 if ((g_options.use_enabled_formats || g_options.use_disabled_formats) && (pgdn ? g_options.pgdn_formats : true)) {
+    if ((g_options.use_enabled_formats || g_options.use_disabled_formats) && (pgdn ? g_options.pgdn_formats : true)) {
       set<wstring> enabled_formats;
       if (g_options.use_enabled_formats) {
         list<wstring> name_list = split(upcase(g_options.enabled_formats), L',');
@@ -1068,7 +1068,7 @@ static HANDLE analyse_open(const AnalyseInfo* info, bool from_analyse) {
       }
       if (options.arc_types.empty())
         FAIL(E_INVALIDARG);
-  	 }
+    }
   }
   else
     options.detect = g_detect_next_time == triTrue;
@@ -1076,12 +1076,12 @@ static HANDLE analyse_open(const AnalyseInfo* info, bool from_analyse) {
   int password_len;
   options.open_password_len = &password_len;
   for (;;) {
-	  password_len = from_analyse ? -'A' : 0;
-	  unique_ptr<Archives> archives(Archive::open(options));
-	  if (!archives->empty())
-		  return archives.release();
-	  if (from_analyse || password_len <= 0)
-		  break;
+    password_len = from_analyse ? -'A' : 0;
+    unique_ptr<Archives> archives(Archive::open(options));
+    if (!archives->empty())
+      return archives.release();
+    if (from_analyse || password_len <= 0)
+      break;
   }
   FAIL(password_len ? E_ABORT : E_FAIL);
 }
@@ -1102,7 +1102,7 @@ HANDLE WINAPI AnalyseW(const AnalyseInfo* info) {
     return (e.code == E_PENDING) ? INVALID_HANDLE_VALUE : nullptr;
   }
   catch (const std::exception& /*e*/) {
-	 return nullptr;
+    return nullptr;
   }
   catch (...) {
     return nullptr;
@@ -1235,8 +1235,8 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
       case cmdTest:
         Plugin::cmdline_test(parse_test_command(cmd_args));
         break;
-		default:
-			break;
+      default:
+        break;
       }
     }
     catch (const Error& e) {
@@ -1249,8 +1249,8 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
   else if (info->OpenFrom == OPEN_ANALYSE) {
     const OpenAnalyseInfo* oai = reinterpret_cast<const OpenAnalyseInfo*>(info->Data);
     delayed_analyse_open = oai->Handle == INVALID_HANDLE_VALUE;
-	 auto handle = delayed_analyse_open ? analyse_open(oai->Info, false) : oai->Handle;
-	 delayed_analyse_open = false;
+    auto handle = delayed_analyse_open ? analyse_open(oai->Info, false) : oai->Handle;
+    delayed_analyse_open = false;
     unique_ptr<Archives> archives(static_cast<Archives*>(handle));
     bool real_panel = true;
     PanelInfo panel_info;
