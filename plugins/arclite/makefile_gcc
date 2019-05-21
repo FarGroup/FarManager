@@ -38,17 +38,17 @@ _7Z = 7z/dll/final.$(DIRBIT)W.vc/7z.dll
 endif
 
 $(OUTDIR)/arclite.xml: arclite.xml
-	@echo copy $< && @$(CP) $< $(OUTDIR)
+	@$(CP) $< $(OUTDIR)
 
 $(OUTDIR)/changelog: changelog
-	@echo copy $< && @$(CP) $< $(OUTDIR)
+	@$(CP) $< $(OUTDIR)
 
 $(OUTDIR)/7z.dll: $(_7Z)
-	@echo copy $< && @$(CP) $< $(OUTDIR)
+	@$(CP) $< $(OUTDIR)
 
 vpath %.sfx $(SFXDIR)
 $(OUTDIR)/%.sfx: %.sfx
-	@echo copy $< && @$(CP) $< $(OUTDIR)
+	@$(CP) $< $(OUTDIR)
 
 #------------------------------------------------------------------------------
 TOOL = $(WINE_CMD)$(strip $(call os_name, tools/tool.exe))
