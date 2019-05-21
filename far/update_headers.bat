@@ -11,7 +11,7 @@ for /f "tokens=1,2,4 delims=," %%i in ('tools\m4 -P farversion.inc.m4') do (
 
 set hdrpath=..\plugins\common\unicode
 if exist %hdrpath% (
-	copy Include\*.hpp %hdrpath% && copy Include\vc_crt_fix* %hdrpath%\.. && call :commit %hdrpath% "update headers to %build%"
+	copy Include\*.hpp %hdrpath% && copy Include\vc_crt_fix* %hdrpath%\.. && call :commit %hdrpath%\.. "update headers to %build%"
 ) else (
 	echo %hdrpath% directory is absent
 )
@@ -33,7 +33,7 @@ git fetch
 for /f "tokens=1" %%i in ('git rev-parse HEAD') do set head_rev=%%i
 for /f "tokens=1" %%i in ('git rev-parse %remote%/%branch%') do set remote_rev=%%i
 if %head_rev% neq %remote_rev% echo ERROR: Your branch and '%remote%/%branch%' have diverged. && exit
-git add %1 && git commit %1 -m %2 && git push %remote% %branch%
+git add %1 && git commit %1 -m %2 && pause && git push %remote% %branch%
 goto :eof
 
 :svn
