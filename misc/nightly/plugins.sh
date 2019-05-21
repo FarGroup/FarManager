@@ -52,9 +52,9 @@ wine cmd /c ../../../common.64.bat &> ../../../logs/CRT64
 cd ../..
 
 ( \
-bplugin "align" "Align" "Align.dll AlignEng.lng AlignRus.lng AlignSky.lng AlignSpa.lng AlignIta.lng Align.map" && \
-bplugin "autowrap" "AutoWrap" "AutoWrap.dll WrapEng.lng WrapRus.lng WrapSky.lng WrapSpa.lng WrapIta.lng AutoWrap.map" && \
-bplugin "brackets" "Brackets" "Brackets.dll BrackEng.hlf BrackRus.hlf BrackEng.lng BrackRus.lng BrackSky.lng BrackSpa.lng BrackIta.lng Brackets.lua Brackets.map" && \
+bplugin "align" "Align" "Align.dll AlignEng.lng AlignRus.lng AlignSky.lng AlignSpa.lng AlignIta.lng AlignPol.lng Align.map" && \
+bplugin "autowrap" "AutoWrap" "AutoWrap.dll WrapEng.lng WrapRus.lng WrapSky.lng WrapSpa.lng WrapIta.lng WrapPol.lng AutoWrap.map" && \
+bplugin "brackets" "Brackets" "Brackets.dll BrackEng.hlf BrackRus.hlf BrackEng.lng BrackRus.lng BrackSky.lng BrackSpa.lng BrackIta.lng BrackPol.lng Brackets.lua Brackets.map" && \
 bplugin "compare" "Compare" "Compare.dll CmpEng.hlf CmpRus.hlf CompEng.lng CompRus.lng CompSky.lng CompSpa.lng CompIta.lng Compare.map AdvCompare.CompareBufferSize.farconfig" && \
 bplugin "drawline" "DrawLine" "DrawLine.dll DrawEng.hlf DrawRus.hlf DrawEng.lng DrawRus.lng DrawSky.lng DrawSpa.lng DrawIta.lng DrawLine.map" && \
 bplugin "editcase" "EditCase" "EditCase.dll ECaseEng.hlf ECaseRus.hlf ECaseEng.lng ECaseRus.lng ECaseSky.lng ECaseSpa.lng ECaseIta.lng EditCase.map" && \
