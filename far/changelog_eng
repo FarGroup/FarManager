@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 21.05.2019 21:42:42 +0100 - build 5399
+
+1. x64 support in vc_crt_fix.asm. Probably we can work in XP x64 as well now.
+
 drkns 15.05.2019 23:45:23 +0200 - build 5398
 
 1. https://docs.microsoft.com/en-us/windows/desktop/shell/launch

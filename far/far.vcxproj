@@ -631,7 +631,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
       <Outputs>$(BootstrapDir)lang.inc;$(BootstrapDir)lang.ini;$(OutDir)\FarCze.lng;$(OutDir)\FarEng.lng;$(OutDir)\FarGer.lng;$(OutDir)\FarHun.lng;$(OutDir)\FarPol.lng;$(OutDir)\FarRus.lng;$(OutDir)\FarSpa.lng;$(OutDir)\FarSky.lng;$(OutDir)\FarIta.lng;$(OutDir)\FarUkr.lng;%(Outputs)</Outputs>
     </CustomBuild>
     <MASM Include="vc_crt_fix.asm">
-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+      <PreprocessorDefinitions Condition="'$(Platform)'=='x64'">X64</PreprocessorDefinitions>
     </MASM>
     <CopyFileToFolders Include="changelog">
       <FileType>Document</FileType>

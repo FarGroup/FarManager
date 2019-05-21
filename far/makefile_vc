@@ -248,8 +248,7 @@ LINK_OBJS = \
 	"$(INTDIR)\window.obj" \
 	"$(INTDIR)\wm_listener.obj" \
 	"$(INTDIR)\xlat.obj" \
-!if defined(X86)
-!if !defined(DISABLE_WOW64_HOOK)
+!if defined(X86) && !defined(DISABLE_WOW64_HOOK)
 	"$(INTDIR)\hook_wow64.obj" \
 !endif
 !ifndef LINK_ULINK
@@ -257,7 +256,6 @@ LINK_OBJS = \
 	"$(INTDIR)\vc_crt_fix_impl.obj" \
 !else
 	"$(INTDIR)\vc_crt_fix_ulink.obj"
-!endif
 !endif
 
 LINK_LIBS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib netapi32.lib mpr.lib ole32.lib psapi.lib secur32.lib setupapi.lib rpcrt4.lib version.lib userenv.lib comdlg32.lib
@@ -381,15 +379,19 @@ CPPFLAGS=$(CPPFLAGS) /Oy-
 !endif
 LINKFLAGS=$(LINKFLAGS) /machine:i386
 OS_VERSION=5.0
+MASM=ml
+MASM_DEFINES=
 !elseifdef AMD64
 LINKFLAGS=$(LINKFLAGS) /machine:amd64
 ULINKFLAGS=$(ULINKFLAGS) -Tpe+
 OS_VERSION=5.2
-!elseifdef IA64
-LINKFLAGS=$(LINKFLAGS) /machine:IA64
+MASM=ml64
+MASM_DEFINES=/D "X64"
 !elseifdef ARM
 OS_VERSION=5.2
 LINKFLAGS=$(LINKFLAGS) /machine:ARM
+#MASM=?
+#MASM_DEFINES=?
 !endif
 
 CPPFLAGS = $(CPPFLAGS) /Fo"$(INTDIR)\\"
@@ -496,7 +498,7 @@ $(INTDIR)\vc_crt_fix_ulink.obj: vc_crt_fix_ulink.cpp
 
 #Do not use $(AS) here - nmake incorrectly substitutes ml64 when compiling in amd64_x86 environment
 .asm{$(INTDIR)}.obj:
-	ml /nologo /c /Fo$@ $<
+	$(MASM) /nologo /c $(MASM_DEFINES) /Fo$@ $<
 
 $(RES_FILE): far.rc $(BOOTSTRAPDIR)far.rc.inc $(BOOTSTRAPDIR)Far.exe.manifest Far.ico FarA.ico
 	@echo Compiling resource file
