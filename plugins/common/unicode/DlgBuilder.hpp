@@ -5,7 +5,7 @@
 /*
 DlgBuilder.hpp
 
-Dynamic construction of dialogs for FAR Manager 3.0 build 5373
+Dynamic construction of dialogs for FAR Manager 3.0 build 5398
 */
 /*
 Copyright © 2009 Far Group
@@ -265,7 +265,7 @@ class DialogBuilderBase
 				{//BUGBUG: two columns items are not supported
 					m_DialogItems[i].X2 = m_DialogItems[i].X1 + MaxWidth - 1;
 				}
-				
+
 				if (m_DialogItems[i].Y2 > MaxHeight)
 				{
 					MaxHeight = m_DialogItems[i].Y2;
@@ -621,8 +621,8 @@ class DialogBuilderBase
 			if (Separator)
 				AddSeparator();
 
-			int MsgIDs[] = { OKMessageId, CancelMessageId, ExtraMessageId };
-			int NumButtons = (ExtraMessageId != -1) ? 3 : (CancelMessageId != -1? 2 : 1);
+			int const MsgIDs[] = { OKMessageId, CancelMessageId, ExtraMessageId };
+			int const NumButtons = (ExtraMessageId != -1) ? 3 : (CancelMessageId != -1? 2 : 1);
 
 			AddButtons(NumButtons, MsgIDs, 0, 1);
 		}
@@ -849,7 +849,7 @@ private:
 	int *SelectedIndex;
 	wchar_t *TextBuf;
 	FarList *List;
-	
+
 public:
 	PluginListControlBinding(const PluginStartupInfo &aInfo, HANDLE *aHandle, int aID, int *aValue, wchar_t *aText, FarList *aList)
 		: DialogAPIBinding(aInfo, aHandle, aID), SelectedIndex(aValue), TextBuf(aText), List(aList)
