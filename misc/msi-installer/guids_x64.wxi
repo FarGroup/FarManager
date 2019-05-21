@@ -201,6 +201,7 @@
 <?define Guid.CompSky.lng = "C315810B-9882-410A-BA6B-8094BFCFC6CA" ?>
 <?define Guid.CompSpa.lng = "39A2B72D-14CA-48CF-9EA0-12012D237162" ?>
 <?define Guid.CompIta.lng = "038AE4F7-74A7-45B0-9804-6B57F4B0048E" ?>
+<?define Guid.CompPol.lng = "CE33AEF2-EF20-4264-BF0F-17AA0DFDCFAD" ?>
 <?define Guid.AdvCompare.CompareBufferSize.farconfig = "5D079DA9-B4B9-4F33-B652-92BA2184B3DB" ?>
 <?define Guid.changelog_6 = "689902DA-A719-4F87-B5FC-8AEBB2B298AB" ?>
 <?define Guid.DrawEng.hlf = "36A318AE-2A81-4DD4-BCA6-3A07D0AE59B7" ?>
@@ -212,6 +213,8 @@
 <?define Guid.DrawSky.lng = "9AEBD48A-B9F4-4FF9-A65F-91000E5E6531" ?>
 <?define Guid.DrawSpa.lng = "2A70E93F-13A2-4055-9DA3-3E9ACE784520" ?>
 <?define Guid.DrawIta.lng = "F49CB42F-D835-4428-8588-E4E02958D13C" ?>
+<?define Guid.DrawPol.hlf = "730B0490-E061-4833-B100-C791BB7B1FA5" ?>
+<?define Guid.DrawPol.lng = "F5823F49-102B-4A8C-8410-E79371E04F4A" ?>
 <?define Guid.changelog_7 = "E3E12393-FE49-420F-8527-546C3F96F9F5" ?>
 <?define Guid.ECaseEng.hlf = "A775F093-B7B7-476C-BC57-BCE3BD4DCEE0" ?>
 <?define Guid.ECaseEng.lng = "6CDCEBD2-7002-470D-AD93-EA41B7B12348" ?>
@@ -220,6 +223,8 @@
 <?define Guid.ECaseSky.lng = "187400AA-F233-429E-B576-6C358BDE5FCA" ?>
 <?define Guid.ECaseSpa.lng = "EC7089D4-3F99-421C-9154-A64F9B95A950" ?>
 <?define Guid.ECaseIta.lng = "36489ECA-9965-4922-B4F7-4438742A1037" ?>
+<?define Guid.ECasePol.hlf = "3B9E278D-EBE5-42C3-B29F-99E314A6E5A6" ?>
+<?define Guid.ECasePol.lng = "8803E076-811E-40AA-895E-6E3EA2D0B198" ?>
 <?define Guid.EditCase.dll = "31016FCB-31D3-4272-9EC3-C1A3F40D333A" ?>
 <?define Guid.EditCase.map = "CC2086FA-663A-4CAE-8760-148EED994E09" ?>
 <?define Guid.changelog_8 = "09CB6FC9-6B6E-4C3A-BC7E-1BCA576BE504" ?>
@@ -232,6 +237,8 @@
 <?define Guid.EMenuSky.lng = "A7903A53-71B6-4288-A13A-26AE4ADC39DF" ?>
 <?define Guid.EMenuSpa.lng = "2F65C26F-3B69-475A-981B-128D6D82B76C" ?>
 <?define Guid.EMenuIta.lng = "73146F4E-92BC-4C1A-9AE3-4D05D4A43BDC" ?>
+<?define Guid.EMenuPol.hlf = "775DA435-C86F-49E1-A70B-C33139B294C5" ?>
+<?define Guid.EMenuPol.lng = "CE7C80E7-AAB0-4CDC-8A99-421592D3FE88" ?>
 <?define Guid.Hotkey.farconfig = "856DA618-AB03-4C04-8576-5AA7DB0FC1F7" ?>
 <?define Guid.Hotkey.lua = "0B91D0B3-2784-4FAB-9AEC-B435783A10F3" ?>
 <?define Guid.HotkeyClipboard.lua = "3C37F61C-B33A-4AC6-8E0F-03AC9844DAF2" ?>
