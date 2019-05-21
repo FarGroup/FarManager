@@ -641,6 +641,9 @@
           <Component Id="CompIta.lng" Guid="$(var.Guid.CompIta.lng)" Win64="$(var.Win64)">
             <File Id="CompIta.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Compare\CompIta.lng" />
           </Component>
+          <Component Id="CompPol.lng" Guid="$(var.Guid.CompPol.lng)" Win64="$(var.Win64)">
+            <File Id="CompPol.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Compare\CompPol.lng" />
+          </Component>
           <Component Id="AdvCompare.CompareBufferSize.farconfig" Guid="$(var.Guid.AdvCompare.CompareBufferSize.farconfig)" Win64="$(var.Win64)">
             <File Id="AdvCompare.CompareBufferSize.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Compare\AdvCompare.CompareBufferSize.farconfig" />
           </Component>
@@ -678,6 +681,12 @@
           <Component Id="DrawIta.lng" Guid="$(var.Guid.DrawIta.lng)" Win64="$(var.Win64)">
             <File Id="DrawIta.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\DrawLine\DrawIta.lng" />
           </Component>
+          <Component Id="DrawPol.hlf" Guid="$(var.Guid.DrawPol.hlf)" Win64="$(var.Win64)">
+            <File Id="DrawPol.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\DrawLine\DrawPol.hlf" />
+          </Component>
+          <Component Id="DrawPol.lng" Guid="$(var.Guid.DrawPol.lng)" Win64="$(var.Win64)">
+            <File Id="DrawPol.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\DrawLine\DrawPol.lng" />
+          </Component>
         </Directory>
         <Directory Id="EditCase" Name="EditCase">
           <Component Id="changelog_7" Guid="$(var.Guid.changelog_7)" Win64="$(var.Win64)">
@@ -703,6 +712,12 @@
           </Component>
           <Component Id="ECaseIta.lng" Guid="$(var.Guid.ECaseIta.lng)" Win64="$(var.Win64)">
             <File Id="ECaseIta.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EditCase\ECaseIta.lng" />
+          </Component>
+          <Component Id="ECasePol.hlf" Guid="$(var.Guid.ECasePol.hlf)" Win64="$(var.Win64)">
+            <File Id="ECasePol.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EditCase\ECasePol.hlf" />
+          </Component>
+          <Component Id="ECasePol.lng" Guid="$(var.Guid.ECasePol.lng)" Win64="$(var.Win64)">
+            <File Id="ECasePol.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EditCase\ECasePol.lng" />
           </Component>
           <Component Id="EditCase.dll" Guid="$(var.Guid.EditCase.dll)" Win64="$(var.Win64)">
             <File Id="EditCase.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EditCase\EditCase.dll" />
@@ -745,6 +760,12 @@
           </Component>
           <Component Id="EMenuIta.lng" Guid="$(var.Guid.EMenuIta.lng)" Win64="$(var.Win64)">
             <File Id="EMenuIta.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\EMenuIta.lng" />
+          </Component>
+          <Component Id="EMenuPol.hlf" Guid="$(var.Guid.EMenuPol.hlf)" Win64="$(var.Win64)">
+            <File Id="EMenuPol.v" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\EMenuPol.hlf" />
+          </Component>
+          <Component Id="EMenuPol.lng" Guid="$(var.Guid.EMenuPol.lng)" Win64="$(var.Win64)">
+            <File Id="EMenuPol.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\EMenuPol.lng" />
           </Component>
           <Component Id="Hotkey.farconfig" Guid="$(var.Guid.Hotkey.farconfig)" Win64="$(var.Win64)">
             <File Id="Hotkey.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\Hotkey.farconfig" />

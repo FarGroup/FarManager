@@ -55,10 +55,10 @@ cd ../..
 bplugin "align" "Align" "Align.dll AlignEng.lng AlignRus.lng AlignSky.lng AlignSpa.lng AlignIta.lng AlignPol.lng Align.map" && \
 bplugin "autowrap" "AutoWrap" "AutoWrap.dll WrapEng.lng WrapRus.lng WrapSky.lng WrapSpa.lng WrapIta.lng WrapPol.lng AutoWrap.map" && \
 bplugin "brackets" "Brackets" "Brackets.dll BrackEng.hlf BrackRus.hlf BrackEng.lng BrackRus.lng BrackSky.lng BrackSpa.lng BrackIta.lng BrackPol.lng Brackets.lua Brackets.map" && \
-bplugin "compare" "Compare" "Compare.dll CmpEng.hlf CmpRus.hlf CompEng.lng CompRus.lng CompSky.lng CompSpa.lng CompIta.lng Compare.map AdvCompare.CompareBufferSize.farconfig" && \
-bplugin "drawline" "DrawLine" "DrawLine.dll DrawEng.hlf DrawRus.hlf DrawEng.lng DrawRus.lng DrawSky.lng DrawSpa.lng DrawIta.lng DrawLine.map" && \
-bplugin "editcase" "EditCase" "EditCase.dll ECaseEng.hlf ECaseRus.hlf ECaseEng.lng ECaseRus.lng ECaseSky.lng ECaseSpa.lng ECaseIta.lng EditCase.map" && \
-bplugin "emenu" "EMenu" "EMenu.dll EMenuEng.hlf EMenuRus.hlf EMenuEng.lng EMenuRus.lng EMenuSky.lng EMenuSpa.lng EMenuIta.lng EMenu.map HotkeyClipboard.lua HotkeyProperties.lua Hotkey.lua Hotkey.farconfig" && \
+bplugin "compare" "Compare" "Compare.dll CmpEng.hlf CmpRus.hlf CompEng.lng CompRus.lng CompSky.lng CompSpa.lng CompIta.lng CompPol.lng Compare.map AdvCompare.CompareBufferSize.farconfig" && \
+bplugin "drawline" "DrawLine" "DrawLine.dll DrawEng.hlf DrawRus.hlf DrawPol.hlf DrawEng.lng DrawRus.lng DrawSky.lng DrawSpa.lng DrawIta.lng DrawPol.lng DrawLine.map" && \
+bplugin "editcase" "EditCase" "EditCase.dll ECaseEng.hlf ECaseRus.hlf ECasePol.hlf ECaseEng.lng ECaseRus.lng ECaseSky.lng ECaseSpa.lng ECaseIta.lng ECasePol.lng EditCase.map" && \
+bplugin "emenu" "EMenu" "EMenu.dll EMenuEng.hlf EMenuRus.hlf EMenuPol.hlf EMenuEng.lng EMenuRus.lng EMenuSky.lng EMenuSpa.lng EMenuIta.lng EMenuPol.lng EMenu.map HotkeyClipboard.lua HotkeyProperties.lua Hotkey.lua Hotkey.farconfig" && \
 bplugin "farcmds" "FarCmds" "FarCmds.dll FARCmdsEng.hlf FARCmdsRus.hlf FARCmdsEng.lng FARCmdsRus.lng FARCmdsSky.lng FARCmdsSpa.lng FARCmdsIta.lng FarCmds.map" && \
 bplugin "samefolder" "SameFolder" "SameFolder.dll SameFolderEng.hlf SameFolderRus.hlf SameFolderEng.lng SameFolderRus.lng SameFolderSky.lng SameFolderSpa.lng SameFolderIta.lng SameFolder.map" && \
 bplugin "filecase" "FileCase" "FileCase.dll CaseEng.hlf CaseRus.hlf CaseEng.lng CaseRus.lng CaseSky.lng CaseSpa.lng CaseIta.lng FileCase.map" && \
