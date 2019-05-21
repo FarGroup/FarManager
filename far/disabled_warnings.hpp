@@ -86,6 +86,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma warning(disable: 5030) // no page                                                attribute 'attribute' is not recognized
 #pragma warning(disable: 5039) // no page                                                'function': pointer or reference to potentially throwing function passed to extern C function under -EHc. Undefined behavior may occur if this function throws an exception.
 #pragma warning(disable: 5045) // no page                                                Compiler will insert Spectre mitigation for memory load if /Qspectre switch specified
+#pragma warning(disable: 5052) // no page                                                Keyword 'char8_t' was introduced in C++20... (VS2019.1)
 #endif
 
 #ifdef __clang__
