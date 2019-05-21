@@ -331,8 +331,8 @@ UpdateCommand parse_update_command(const CommandArgs& ca) {
 // arc:d [-ie[:(y|n)]] [-p:<password>] <archive> <delete_item> ...
 //
 static void parse_extract_params(const CommandArgs& ca, ExtractOptions& o, vector<wstring>& items) {
-	bool options_enabled = true;
-	for (const auto& a : ca.args) {
+  bool options_enabled = true;
+  for (const auto& a : ca.args) {
     if (options_enabled && a == L"--")
       options_enabled = false;
     else if (options_enabled && is_param(a)) {

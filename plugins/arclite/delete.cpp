@@ -8,8 +8,8 @@
 
 class ArchiveFileDeleterProgress: public ProgressMonitor {
 private:
-  unsigned __int64 total;
-  unsigned __int64 completed;
+  UInt64 total;
+  UInt64 completed;
 
   virtual void do_update_ui() {
     const unsigned c_width = 60;
@@ -21,7 +21,7 @@ private:
     if (percent_done > 100)
       percent_done = 100;
 
-    unsigned __int64 speed;
+    UInt64 speed;
     if (time_elapsed() == 0)
       speed = 0;
     else
@@ -37,12 +37,12 @@ public:
   ArchiveFileDeleterProgress(): ProgressMonitor(Far::get_msg(MSG_PROGRESS_UPDATE)), total(0), completed(0) {
   }
 
-  void update_total(unsigned __int64 total) {
+  void update_total(UInt64 total) {
     this->total = total;
     update_ui();
   }
 
-  void update_completed(unsigned __int64 completed) {
+  void update_completed(UInt64 completed) {
     this->completed = completed;
     update_ui();
   }
@@ -81,7 +81,7 @@ public:
     COM_ERROR_HANDLER_BEGIN
     if (newPosition)
       *newPosition = 0;
-    unsigned __int64 new_position = set_pos(offset, translate_seek_method(seekOrigin));
+    UInt64 new_position = set_pos(offset, translate_seek_method(seekOrigin));
     if (newPosition)
       *newPosition = new_position;
     return S_OK;

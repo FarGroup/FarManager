@@ -251,7 +251,7 @@ public:
     return vt == VT_FILETIME;
   }
 
-  __int64 get_int() const {
+  Int64 get_int() const {
     switch (vt) {
     case VT_I1:
       return cVal;
@@ -267,7 +267,7 @@ public:
       FAIL(E_INVALIDARG);
     }
   }
-  unsigned __int64 get_uint() const {
+  UInt64 get_uint() const {
     switch (vt) {
     case VT_UI1:
       return bVal;
@@ -283,7 +283,7 @@ public:
       FAIL(E_INVALIDARG);
     }
   }
-  unsigned __int64 get_size() const {
+  UInt64 get_size() const {
     switch (vt) {
     case VT_UI4:
       return ulVal;
@@ -292,11 +292,11 @@ public:
     case VT_UI8:
       return uhVal.QuadPart;
     case VT_I4:
-       return (unsigned __int64)lVal;
+       return (UInt64)lVal;
     case VT_INT:
-       return (unsigned __int64)intVal;
+       return (UInt64)intVal;
     case VT_I8:
-       return (unsigned __int64)hVal.QuadPart;
+       return (UInt64)hVal.QuadPart;
     default:
       FAIL(E_INVALIDARG);
     }

@@ -68,7 +68,7 @@ intptr_t menu(const GUID& id, const wstring& title, const MenuItems& items, cons
   return ret;
 }
 
-wstring get_progress_bar_str(unsigned width, unsigned __int64 completed, unsigned __int64 total) {
+wstring get_progress_bar_str(unsigned width, UInt64 completed, UInt64 total) {
   const wchar_t c_pb_black = 9608;
   const wchar_t c_pb_white = 9617;
   unsigned len1;
@@ -89,7 +89,7 @@ void set_progress_state(TBPFLAG state) {
   g_far.AdvControl(&c_plugin_guid, ACTL_SETPROGRESSSTATE, state, nullptr);
 }
 
-void set_progress_value(unsigned __int64 completed, unsigned __int64 total) {
+void set_progress_value(UInt64 completed, UInt64 total) {
   ProgressValue pv;
   pv.StructSize = sizeof(ProgressValue);
   pv.Completed = completed;
@@ -889,7 +889,7 @@ bool Settings::list_dir(vector<wstring>& result) {
   return true;
 }
 
-bool Settings::set(const wchar_t* name, unsigned __int64 value) {
+bool Settings::set(const wchar_t* name, UInt64 value) {
   FarSettingsItem fsi = { sizeof(FarSettingsItem) };
   fsi.Root = dir_id;
   fsi.Name = name;
@@ -917,7 +917,7 @@ bool Settings::set(const wchar_t* name, const void* value, size_t value_size) {
   return control(SCTL_SET, &fsi) != 0;
 }
 
-bool Settings::get(const wchar_t* name, unsigned __int64& value) {
+bool Settings::get(const wchar_t* name, UInt64& value) {
   return get(dir_id, name, value);
 }
 
@@ -929,7 +929,7 @@ bool Settings::get(const wchar_t* name, ByteVector& value) {
   return get(dir_id, name, value);
 }
 
-bool Settings::get(size_t root, const wchar_t* name, unsigned __int64& value) {
+bool Settings::get(size_t root, const wchar_t* name, UInt64& value) {
   FarSettingsItem fsi = { sizeof(FarSettingsItem) };
   fsi.Root = root;
   fsi.Name = name;

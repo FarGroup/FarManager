@@ -23,7 +23,7 @@ extern const wchar_t* c_method_lzma;   // standard 7z methods
 extern const wchar_t* c_method_lzma2;  //
 extern const wchar_t* c_method_ppmd;   // 
 
-extern const unsigned __int64 c_min_volume_size;
+extern const UInt64 c_min_volume_size;
 
 extern const wchar_t* c_sfx_ext; 
 extern const wchar_t* c_volume_ext;
@@ -32,7 +32,7 @@ struct ICompressCodecsInfo;
 
 struct ArcLib {
   HMODULE h_module;
-  unsigned __int64 version;
+  UInt64 version;
   wstring module_path;
   Func_CreateObject CreateObject;
   Func_GetNumberOfMethods GetNumberOfMethods;
@@ -264,8 +264,8 @@ public:
   FindData get_file_info(UInt32 index);
   bool get_main_file(UInt32& index) const;
   DWORD get_attr(UInt32 index) const;
-  unsigned __int64 get_size(UInt32 index) const;
-  unsigned __int64 get_psize(UInt32 index) const;
+  UInt64 get_size(UInt32 index) const;
+  UInt64 get_psize(UInt32 index) const;
   FILETIME get_ctime(UInt32 index) const;
   FILETIME get_mtime(UInt32 index) const;
   FILETIME get_atime(UInt32 index) const;

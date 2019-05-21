@@ -44,10 +44,10 @@ private:
   wstring con_title;
   static const unsigned c_first_delay_div = 2;
   static const unsigned c_update_delay_div = 2;
-  unsigned __int64 time_cnt;
-  unsigned __int64 time_freq;
-  unsigned __int64 time_total;
-  unsigned __int64 time_update;
+  UInt64 time_cnt;
+  UInt64 time_freq;
+  UInt64 time_total;
+  UInt64 time_update;
   bool paused;
   bool low_priority;
   DWORD initial_priority;
@@ -69,8 +69,8 @@ public:
   virtual ~ProgressMonitor();
   void update_ui(bool force = false);
   void clean();
-  unsigned __int64 time_elapsed();
-  unsigned __int64 ticks_per_sec();
+  UInt64 time_elapsed();
+  UInt64 ticks_per_sec();
   friend class ProgressSuspend;
 };
 
@@ -194,9 +194,9 @@ struct Attr {
 typedef list<Attr> AttrList;
 
 int al_round(double d);
-unsigned calc_percent(unsigned __int64 completed, unsigned __int64 total);
-unsigned __int64 get_module_version(const wstring& file_path);
-unsigned __int64 parse_size_string(const wstring& str);
+unsigned calc_percent(UInt64 completed, UInt64 total);
+UInt64 get_module_version(const wstring& file_path);
+UInt64 parse_size_string(const wstring& str);
 DWORD translate_seek_method(UInt32 seek_origin);
 wstring expand_macros(const wstring& text);
 wstring load_file(const wstring& file_name, unsigned* code_page = nullptr);

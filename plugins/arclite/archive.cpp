@@ -34,7 +34,7 @@ DEFINE_ARC_ID(hfs, "\xE3")
 
 #undef DEFINE_ARC_ID
 
-const unsigned __int64 c_min_volume_size = 16 * 1024;
+const UInt64 c_min_volume_size = 16 * 1024;
 
 const wchar_t* c_sfx_ext = L".exe";
 const wchar_t* c_volume_ext = L".001";
@@ -425,13 +425,13 @@ void ArcAPI::load_codecs(const wstring& path) {
     arc_lib.version = 0;
     auto n_start_codecs = arc_codecs.size();
     auto n_start_hashers = arc_hashers.size();
-	 add_codecs(arc_lib, arc_libs.size());
+    add_codecs(arc_lib, arc_libs.size());
     Func_GetHashers getHashers = reinterpret_cast<Func_GetHashers>(GetProcAddress(arc_lib.h_module, "GetHashers"));
     if (getHashers) {
       IHashers *hashers = nullptr;
       if (S_OK == getHashers(&hashers) && hashers) {
         arc_lib.ComHashers = hashers;
-		  add_hashers(arc_lib, arc_libs.size());
+        add_hashers(arc_lib, arc_libs.size());
       }
     }
     if (n_start_codecs < arc_codecs.size() || n_start_hashers < arc_hashers.size())
@@ -743,7 +743,7 @@ void Archive::make_index() {
   for (UInt32 i = 0; i < num_indices; i++) {
     // is directory?
     file_info.is_dir = in_arc->GetProperty(i, kpidIsDir, prop.ref()) == S_OK && prop.is_bool() && prop.get_bool();
-	 file_info.is_altstream = get_isaltstream(i);
+    file_info.is_altstream = get_isaltstream(i);
 
     // file name
     if (in_arc->GetProperty(i, kpidPath, prop.ref()) == S_OK && prop.is_str())
@@ -816,7 +816,7 @@ void Archive::make_index() {
       file_info.parent = dir_info.parent;
       file_info.name = dir_info.name;
       file_info.is_dir = true;
-		file_info.is_altstream = false;
+      file_info.is_altstream = false;
       dir_index++;
       file_list.push_back(file_info);
     }
@@ -934,7 +934,7 @@ DWORD Archive::get_attr(UInt32 index) const {
   return attr;
 }
 
-unsigned __int64 Archive::get_size(UInt32 index) const {
+UInt64 Archive::get_size(UInt32 index) const {
   PropVariant prop;
   if (index >= num_indices)
     return 0;
@@ -944,7 +944,7 @@ unsigned __int64 Archive::get_size(UInt32 index) const {
     return 0;
 }
 
-unsigned __int64 Archive::get_psize(UInt32 index) const {
+UInt64 Archive::get_psize(UInt32 index) const {
   PropVariant prop;
   if (index >= num_indices)
     return 0;

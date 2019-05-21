@@ -42,12 +42,12 @@ wstring get_progress_bar_str(unsigned width, unsigned percent1, unsigned percent
 class ExtractProgress: public ProgressMonitor {
 private:
   wstring arc_path;
-  unsigned __int64 extract_completed;
-  unsigned __int64 extract_total;
+  UInt64 extract_completed;
+  UInt64 extract_total;
   wstring extract_file_path;
-  unsigned __int64 cache_stored;
-  unsigned __int64 cache_written;
-  unsigned __int64 cache_total;
+  UInt64 cache_stored;
+  UInt64 cache_written;
+  UInt64 cache_total;
   wstring cache_file_path;
 
   virtual void do_update_ui() {
@@ -55,7 +55,7 @@ private:
 
     percent_done = calc_percent(extract_completed, extract_total);
 
-    unsigned __int64 extract_speed;
+    UInt64 extract_speed;
     if (time_elapsed() == 0)
       extract_speed = 0;
     else
@@ -96,11 +96,11 @@ public:
     extract_file_path = file_path;
     update_ui();
   }
-  void set_extract_total(unsigned __int64 size) {
+  void set_extract_total(UInt64 size) {
     CriticalSectionLock lock(GetSync());
     extract_total = size;
   }
-  void update_extract_completed(unsigned __int64 size) {
+  void update_extract_completed(UInt64 size) {
     CriticalSectionLock lock(GetSync());
     extract_completed = size;
     update_ui();
@@ -110,16 +110,16 @@ public:
     cache_file_path = file_path;
     update_ui();
   }
-  void set_cache_total(unsigned __int64 size) {
+  void set_cache_total(UInt64 size) {
     CriticalSectionLock lock(GetSync());
     cache_total = size;
   }
-  void update_cache_stored(unsigned __int64 size) {
+  void update_cache_stored(UInt64 size) {
     CriticalSectionLock lock(GetSync());
     cache_stored += size;
     update_ui();
   }
-  void update_cache_written(unsigned __int64 size) {
+  void update_cache_written(UInt64 size) {
     CriticalSectionLock lock(GetSync());
     cache_written += size;
     update_ui();
@@ -197,7 +197,7 @@ private:
   void allocate_file() {
     if (error_state) return;
     if (archive->get_size(current_rec.file_id) == 0) return;
-    unsigned __int64 size;
+    UInt64 size;
     if (current_rec.overwrite == oaAppend)
       size = file.size();
     else

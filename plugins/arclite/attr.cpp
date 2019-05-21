@@ -9,7 +9,7 @@
 #include "archive.hpp"
 #include "options.hpp"
 
-wstring uint_to_hex_str(unsigned __int64 val, unsigned num_digits = 0) {
+wstring uint_to_hex_str(UInt64 val, unsigned num_digits = 0) {
   wchar_t str[16];
   unsigned pos = 16;
   do {
@@ -396,9 +396,9 @@ void Archive::load_arc_attr() {
 
   // compression ratio
   bool total_size_defined = true;
-  unsigned __int64 total_size = 0;
+  UInt64 total_size = 0;
   bool total_packed_size_defined = true;
-  unsigned __int64 total_packed_size = 0;
+  UInt64 total_packed_size = 0;
   unsigned file_count = 0;
   PropVariant prop;
   for (UInt32 file_id = 0; file_id < num_indices && total_size_defined; file_id++) {
