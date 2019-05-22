@@ -61,7 +61,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.reg.hpp"
 
 // Common:
-#include "common.hpp"
 #include "common/enum_tokens.hpp"
 #include "common/scope_exit.hpp"
 

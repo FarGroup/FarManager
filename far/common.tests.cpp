@@ -211,7 +211,7 @@ TEST_CASE("keep_alive")
 TEST_CASE("io")
 {
 	std::stringstream Stream;
-	constexpr const auto Str = "12345"sv;
+	constexpr auto Str = "12345"sv;
 	REQUIRE_NOTHROW(io::write(Stream, Str));
 
 	char Buffer[Str.size()];

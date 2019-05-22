@@ -2109,7 +2109,7 @@ void Options::SetDriveMenuHotkeys()
 
 	using namespace guid_parse::literals;
 
-	static constexpr const struct
+	static constexpr struct
 	{
 		KnownModulesIDs::GuidOption KnownModulesIDs::* Option;
 		GUID MenuId;

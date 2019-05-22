@@ -32,6 +32,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "compiler.hpp"
+
 //----------------------------------------------------------------------------
 
 #define EXPAND(x) x
@@ -158,14 +160,22 @@ const RAII_type ANONYMOUS_VARIABLE(scoped_object_)
 
 #define FWD(...) std::forward<decltype(__VA_ARGS__)>(__VA_ARGS__)
 
-// noexcept part is commented due to MSVC bug #540185
-#define LIFT(...) [](auto&&... Args) /*noexcept(noexcept(__VA_ARGS__(FWD(Args)...)))*/ -> decltype(auto) \
+#if COMPILER == C_CL // && _MSC_FULL_VER < 192030324
+// See MSVC bug #540185
+// Note: even though they fixed the initial issue, the fix requires /experimental:newLambdaProcessor,
+// which currently breaks more than it solves (see #578912, #578858, #578868).
+// It seems that for VS this will remain disabled int the foreseeable future.
+#define NOEXCEPT_NOEXCEPT(...)
+#else
+#define NOEXCEPT_NOEXCEPT(...) noexcept(noexcept(__VA_ARGS__))
+#endif
+
+#define LIFT(...) [](auto&&... Args) NOEXCEPT_NOEXCEPT(__VA_ARGS__(FWD(Args)...)) -> decltype(auto) \
 { \
 	return __VA_ARGS__(FWD(Args)...); \
 }
 
-// noexcept part is commented due to MSVC bug #540185
-#define LIFT_MF(...) [](auto&& Self, auto&&... Args) /*noexcept(noexcept(FWD(Self).__VA_ARGS__(FWD(Args)...)))*/ -> decltype(auto) \
+#define LIFT_MF(...) [](auto&& Self, auto&&... Args) NOEXCEPT_NOEXCEPT(FWD(Self).__VA_ARGS__(FWD(Args)...)) -> decltype(auto) \
 { \
 	return FWD(Self).__VA_ARGS__(FWD(Args)...); \
 }
