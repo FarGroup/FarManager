@@ -45,6 +45,7 @@ HOOK MACRO name, size, args:VARARG
 	endif
 ENDM
 
+ifndef X64
 HOOK EncodePointer                          ,  4, :dword
 HOOK DecodePointer                          ,  4, :dword
 HOOK GetModuleHandleExW                     , 12, :dword, :dword, :dword
@@ -57,5 +58,6 @@ HOOK RtlFirstEntrySList                     ,  4, :dword
 HOOK QueryDepthSList                        ,  4, :dword
 HOOK GetNumaHighestNodeNumber               ,  4, :dword
 HOOK GetLogicalProcessorInformation         ,  8, :dword, :dword
+endif
 
 end
