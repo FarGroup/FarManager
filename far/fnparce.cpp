@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cvtname.hpp"
 #include "global.hpp"
 #include "filelist.hpp"
+#include "delete.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -61,18 +62,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "format.hpp"
 
 //----------------------------------------------------------------------------
-
-list_names::names::~names()
-{
-	const auto Delete = [](string_view const Filename)
-	{
-		if (!Filename.empty())
-			os::fs::delete_file(Filename);
-	};
-
-	Delete(Name);
-	Delete(ShortName);
-}
 
 subst_context::subst_context(string_view NameStr, string_view ShortNameStr):
 	Name(NameStr),
@@ -90,11 +79,6 @@ subst_context::subst_context(string_view NameStr, string_view ShortNameStr):
 	}
 }
 
-bool list_names::any() const
-{
-	return !This.Name.empty() || !This.ShortName.empty() || !Another.Name.empty() || !Another.ShortName.empty();
-}
-
 struct subst_data
 {
 	struct
@@ -103,7 +87,6 @@ struct subst_data
 		{
 			string_view Name;
 			string_view NameOnly;
-			string* ListName{};
 		}
 		Normal, Short;
 		panel_ptr Panel;
@@ -135,6 +118,7 @@ struct subst_data
 	auto& Default() { return PassivePanel? Another : This; }
 	const auto& Default() const { return PassivePanel? Another : This; }
 
+	delayed_deleter* ListNames{};
 	string CmdDir;
 	bool PreserveLFN;
 	bool PassivePanel;
@@ -397,7 +381,7 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 		}
 	}
 
-	const auto GetListName = [&Out, &append_with_escape](string_view const Tail, auto& Data, bool Short)
+	const auto GetListName = [&Out, &append_with_escape](string_view const Tail, subst_data& Data, bool Short)
 	{
 		const auto ExclPos = Tail.find(L'!');
 		if (ExclPos == Tail.npos || starts_with(Tail.substr(ExclPos + 1), L'?'))
@@ -405,16 +389,16 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 
 		const auto Modifiers = Tail.substr(0, ExclPos);
 
-		const auto ListName = Short? Data.Normal.ListName : Data.Short.ListName;
-
-		if (ListName)
+		if (Data.ListNames)
 		{
-			if(!ListName->empty() || Data.Panel->MakeListFile(*ListName, Short, Modifiers))
+			string Str;
+			if (Data.Default().Panel->MakeListFile(Str, Short, Modifiers))
 			{
 				if (Short)
-					*ListName = ConvertNameToShort(*ListName);
+					Str = ConvertNameToShort(Str);
 
-				append_with_escape(Out, *ListName);
+				append_with_escape(Out, Str);
+				Data.ListNames->add(std::move(Str));
 			}
 		}
 		else
@@ -427,13 +411,13 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 
 	if (const auto Tail = tokens::skip(CurStr, tokens::list_file))
 	{
-		if (const auto Offset = GetListName(Tail, SubstData.Default(), false))
+		if (const auto Offset = GetListName(Tail, SubstData, false))
 			return string_view(Tail).substr(Offset);
 	}
 
 	if (const auto Tail = tokens::skip(CurStr, tokens::short_list_file))
 	{
-		if (const auto Offset = GetListName(Tail, SubstData.Default(), true))
+		if (const auto Offset = GetListName(Tail, SubstData, true))
 			return string_view(Tail).substr(Offset);
 	}
 
@@ -738,7 +722,7 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 bool SubstFileName(
 	string &strStr,                  // результирующая строка
 	const subst_context& Context,
-	list_names* ListNames,
+	delayed_deleter* ListNames,
 	bool* PreserveLongName,
 	bool IgnoreInput,                // true - не исполнять "!?<title>?<init>!"
 	string_view const DlgTitle,
@@ -763,14 +747,8 @@ bool SubstFileName(
 	subst_data SubstData;
 	SubstData.This.Normal.Name = Name;
 	SubstData.This.Short.Name = ShortName;
-	if (ListNames)
-	{
-		SubstData.This.Normal.ListName = &ListNames->This.Name;
-		SubstData.This.Short.ListName = &ListNames->This.ShortName;
-		SubstData.Another.Normal.ListName = &ListNames->Another.Name;
-		SubstData.Another.Short.ListName = &ListNames->Another.ShortName;
-	}
 
+	SubstData.ListNames = ListNames;
 	SubstData.CmdDir = CmdLineDir.empty()? Global->CtrlObject->CmdLine()->GetCurDir() : CmdLineDir;
 
 	const auto GetNameOnly = [](string_view Str)

@@ -135,7 +135,7 @@ private:
 	void AdvancedDialog();
 	intptr_t MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	intptr_t FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
-	void OpenFile(string strSearchFileName, int key, const FindListItem* FindItem, Dialog* Dlg) const;
+	void OpenFile(const string& strSearchFileName, int key, const FindListItem* FindItem, Dialog* Dlg) const;
 	bool FindFilesProcess();
 	void ProcessMessage(const AddMenuData& Data);
 	void SetPluginDirectory(string_view DirName, const plugin_panel* hPlugin, bool UpdatePanel, const UserDataItem *UserData);
@@ -166,7 +166,7 @@ private:
 	std::unique_ptr<FileFilter> Filter;
 	std::unique_ptr<IndeterminateTaskbar> TB;
 
-	std::list<delayed_deleter> m_DelayedDeleters;
+	std::unique_ptr<delayed_deleter> m_DelayedDeleter;
 
 	int m_FileCount{};
 	int m_DirCount{};

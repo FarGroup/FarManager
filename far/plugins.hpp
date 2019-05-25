@@ -123,7 +123,7 @@ private:
 	movable_ptr<Plugin> m_Plugin;
 	FN_RETURN_TYPE(Plugin::keep_activity) m_PluginActivity;
 	movable_ptr<std::remove_pointer_t<HANDLE>> m_Panel;
-	std::list<delayed_deleter> m_DelayedDeleters;
+	std::unique_ptr<delayed_deleter> m_DelayedDeleter;
 };
 
 class PluginManager: noncopyable

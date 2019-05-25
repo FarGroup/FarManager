@@ -353,7 +353,7 @@ public:
 		auto Destination = open(memory_db_name(), {});
 
 		database_ptr SourceDb;
-		delayed_deleter Deleter;
+		delayed_deleter Deleter(true);
 
 		if (WAL && !os::fs::can_create_file(concat(Path, L'.', GuidToStr(CreateUuid())))) // can't open db -- copy to %TEMP%
 		{
@@ -361,7 +361,7 @@ public:
 			if (!os::fs::copy_file(Path, TmpDbPath, nullptr, nullptr, nullptr, 0))
 				throw_exception(SQLITE_READONLY, Path);
 
-			Deleter.set(TmpDbPath);
+			Deleter.add(TmpDbPath);
 			os::fs::set_file_attributes(TmpDbPath, FILE_ATTRIBUTE_NORMAL);
 			SourceDb = open(TmpDbPath, BusyHandler);
 		}

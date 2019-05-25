@@ -54,14 +54,15 @@ bool DeleteFileWithFolder(const string& FileName);
 class delayed_deleter: noncopyable
 {
 public:
-	delayed_deleter() = default;
-	explicit delayed_deleter(string pathToDelete);
+	delayed_deleter(bool WithFolder);
 	~delayed_deleter();
 
-	void set(string pathToDelete);
+	void add(string File);
+	bool any() const;
 
 private:
-	string m_pathToDelete;
+	std::vector<string> m_Files;
+	bool m_WithFolder;
 };
 
 #endif // DELETE_HPP_835E1D6F_E70E_4AF7_8D20_1668C007B16C

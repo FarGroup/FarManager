@@ -2343,5 +2343,9 @@ plugin_panel::~plugin_panel() = default;
 
 void plugin_panel::delayed_delete(const string& Name)
 {
-	m_DelayedDeleters.emplace_back(Name);
+	if (!m_DelayedDeleter)
+	{
+		m_DelayedDeleter = std::make_unique<delayed_deleter>(true);
+	}
+	m_DelayedDeleter->add(Name);
 }

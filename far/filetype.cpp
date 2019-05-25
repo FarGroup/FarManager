@@ -53,6 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "DlgGuid.hpp"
 #include "global.hpp"
+#include "delete.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -162,7 +163,7 @@ bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, 
 		strCommand = *TypesMenu->GetComplexUserDataPtr<string>(ExitCode);
 	}
 
-	list_names ListNames;
+	delayed_deleter ListNames(false);
 	bool PreserveLFN = false;
 	if (SubstFileName(strCommand, Context, &ListNames, &PreserveLFN) && !strCommand.empty())
 	{
@@ -262,7 +263,7 @@ bool GetFiletypeOpenMode(int keyPressed, FILETYPE_MODE& mode, bool& shouldForceI
 void ProcessExternal(string_view const Command, string_view const Name, string_view const ShortName, bool const AlwaysWaitFinish)
 {
 	string strExecStr(Command);
-	list_names ListNames;
+	delayed_deleter ListNames(false);
 	bool PreserveLFN = false;
 	if (!SubstFileName(strExecStr, subst_context(Name, ShortName), &ListNames, &PreserveLFN) || strExecStr.empty())
 		return;

@@ -1636,7 +1636,11 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					if (RemoveTemp)
 					{
 						// external editor may not have enough time to open this file, so defer deletion
-						m_DelayedDeleters.emplace_back(strSearchFileName);
+						if (!m_DelayedDeleter)
+						{
+							m_DelayedDeleter = std::make_unique<delayed_deleter>(true);
+						}
+						m_DelayedDeleter->add(strSearchFileName);
 					}
 					return TRUE;
 				}
@@ -1785,7 +1789,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-void FindFiles::OpenFile(string strSearchFileName, int openKey, const FindListItem* FindItem, Dialog* Dlg) const
+void FindFiles::OpenFile(const string& strSearchFileName, int openKey, const FindListItem* FindItem, Dialog* Dlg) const
 {
 	if (!os::fs::exists(strSearchFileName))
 		return;

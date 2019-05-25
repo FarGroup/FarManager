@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 25.05.2019 14:14:54 +0100 - build 5401
+
+1. 0003711: Allow multiple file list metasymbols.
+
 drkns 22.05.2019 19:43:43 +0100 - build 5400
 
 1. As it turned out, XP x64 has everything we need so wrappers have been disabled for x64 (at least until they use something else in the CRT that isn't there).

@@ -177,7 +177,7 @@ void PrintFiles(FileList* SrcPanel)
 			if (i.Attributes & FILE_ATTRIBUTE_DIRECTORY)
 				continue;
 
-			delayed_deleter Deleter;
+			delayed_deleter Deleter(true);
 
 			string FileName;
 
@@ -201,7 +201,7 @@ void PrintFiles(FileList* SrcPanel)
 					throw MAKE_FAR_EXCEPTION(L"GetFile error"sv);
 				}
 
-				Deleter.set(FileName);
+				Deleter.add(FileName);
 			}
 			else
 			{

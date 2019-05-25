@@ -46,19 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-struct list_names
-{
-	bool any() const;
-
-	struct names: noncopyable
-	{
-		~names();
-
-		string Name;
-		string ShortName;
-	}
-	This, Another;
-};
+class delayed_deleter;
 
 class subst_context
 {
@@ -73,7 +61,7 @@ public:
 bool SubstFileName(
 	string &Str,
 	const subst_context& Context,
-	list_names* ListNames = nullptr,
+	delayed_deleter* ListNames = nullptr,
 	bool* PreserveLongName = nullptr,
 	bool IgnoreInput = false,
 	string_view DlgTitle = {},

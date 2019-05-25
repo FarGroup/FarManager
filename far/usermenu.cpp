@@ -58,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception.hpp"
 #include "DlgGuid.hpp"
 #include "global.hpp"
+#include "delete.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -772,7 +773,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 					}
 					*/
 
-					list_names ListNames;
+					delayed_deleter ListNames(false);
 					bool PreserveLFN = false;
 					if (SubstFileName(strCommand, Context, &ListNames, &PreserveLFN, false, CurrentLabel) && !strCommand.empty())
 					{

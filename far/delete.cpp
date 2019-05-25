@@ -1232,21 +1232,32 @@ bool DeleteFileWithFolder(const string& FileName)
 	return CutToParent(strFileOrFolderName) && os::fs::remove_directory(strFileOrFolderName);
 }
 
-delayed_deleter::delayed_deleter(string pathToDelete):
-	m_pathToDelete(std::move(pathToDelete))
+delayed_deleter::delayed_deleter(bool const WithFolder):
+	m_WithFolder(WithFolder)
 {
 }
 
 delayed_deleter::~delayed_deleter()
 {
-	if (!m_pathToDelete.empty())
-		DeleteFileWithFolder(m_pathToDelete);
+	for (const auto& i: m_Files)
+	{
+		if (os::fs::delete_file(i) && m_WithFolder)
+		{
+			auto Folder = i;
+			if (CutToParent(Folder))
+				(void)os::fs::remove_directory(Folder);
+		}
+	}
 }
 
-void delayed_deleter::set(string pathToDelete)
+void delayed_deleter::add(string File)
 {
-	assert(m_pathToDelete.empty());
-	m_pathToDelete = std::move(pathToDelete);
+	m_Files.emplace_back(std::move(File));
+}
+
+bool delayed_deleter::any() const
+{
+	return !m_Files.empty();
 }
 
 void Delete(const panel_ptr& SrcPanel, bool const Wipe)
