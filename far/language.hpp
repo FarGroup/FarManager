@@ -74,11 +74,6 @@ public:
 
 	virtual ~language() = default;
 
-	class exception: public far_exception
-	{
-		using far_exception::far_exception;
-	};
-
 protected:
 	explicit language(std::unique_ptr<i_language_data>& Data): m_Data(Data) {}
 

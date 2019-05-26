@@ -48,8 +48,13 @@ struct error_state
 	static error_state fetch();
 	explicit operator bool() const;
 
+	int Errno = 0;
 	DWORD Win32Error = ERROR_SUCCESS;
 	NTSTATUS NtError = STATUS_SUCCESS;
+
+	string ErrnoStr() const;
+	string Win32ErrorStr() const;
+	string NtErrorStr() const;
 
 private:
 	bool m_Engaged = false;
@@ -131,6 +136,14 @@ class far_exception : public detail::far_std_exception
 	using far_std_exception::far_std_exception;
 };
 
+/*
+  For the cases where it is pretty clear what is wrong, no need to show the stack etc.
+ */
+class far_known_exception : public far_exception
+{
+	using far_exception::far_exception;
+};
+
 namespace detail
 {
 	class exception_context
@@ -201,6 +214,7 @@ void rethrow_if(std::exception_ptr& Ptr);
 #define MAKE_EXCEPTION(ExceptionType, ...) ExceptionType(__FUNCTION__, __FILE__, __LINE__, ##__VA_ARGS__)
 #define MAKE_FAR_FATAL_EXCEPTION(...) MAKE_EXCEPTION(far_fatal_exception, __VA_ARGS__)
 #define MAKE_FAR_EXCEPTION(...) MAKE_EXCEPTION(far_exception, __VA_ARGS__)
+#define MAKE_FAR_KNOWN_EXCEPTION(...) MAKE_EXCEPTION(far_known_exception, __VA_ARGS__)
 
 #define CATCH_AND_SAVE_EXCEPTION_TO(ExceptionPtr) \
 		catch (...) \

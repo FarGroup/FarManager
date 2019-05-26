@@ -388,7 +388,7 @@ void language::load(const string& Path, const string& Language, int CountNeed)
 	const auto [LangFile, LangFileName, LangFileCodePage] = OpenLangFile(Path, LangFileMask, Language);
 	if (!LangFile)
 	{
-		throw MAKE_EXCEPTION(exception, L"Cannot find language data"sv);
+		throw MAKE_FAR_KNOWN_EXCEPTION(L"Cannot find language data"sv);
 	}
 
 	Data->m_FileName = LangFile.GetName();
@@ -442,7 +442,7 @@ void language::load(const string& Path, const string& Language, int CountNeed)
 	//   Проведем проверку на количество строк в LNG-файлах
 	if (CountNeed != -1 && CountNeed != static_cast<int>(Data->size()))
 	{
-		throw MAKE_EXCEPTION(exception, Data->m_FileName + L": language data is incorrect or damaged"sv);
+		throw MAKE_FAR_KNOWN_EXCEPTION(Data->m_FileName + L": language data is incorrect or damaged"sv);
 	}
 
 	m_Data = std::move(Data);

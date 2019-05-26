@@ -834,7 +834,7 @@ public:
 				return GetLastError();
 
 			if (!equal_icase(CurrentProcessFileName, ParentProcessFileName))
-				return DNS_ERROR_INVALID_NAME;
+				return ERROR_INVALID_NAME;
 		}
 
 		m_ParentPid = PID;

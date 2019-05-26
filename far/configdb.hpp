@@ -441,7 +441,7 @@ public:
 	explicit config_provider(clear_cache);
 	~config_provider();
 	bool ShowProblems() const;
-	bool ServiceMode(const string& File);
+	void ServiceMode(const string& File);
 
 	void AsyncCall(const std::function<void()>& Routine);
 
@@ -465,8 +465,8 @@ private:
 	template<class T> std::unique_ptr<T> CreateWithFallback(string_view Name);
 	template<class T> std::unique_ptr<T> CreateDatabase(string_view Name, bool Local);
 	template<class T> HierarchicalConfigUniquePtr CreateHierarchicalConfig(dbcheck DbId, string_view DbName, const char* ImportNodeName, bool IsLocal = false, bool IsPlugin = false, bool UseFallback = true);
-	bool Import(const string& File);
-	bool Export(const string& File);
+	void Import(const string& File);
+	void Export(const string& File);
 	void TryImportDatabase(representable* p, const char* NodeName = nullptr, bool IsPlugin = false);
 	void CheckDatabase(class SQLiteDb const* pDb);
 

@@ -63,22 +63,21 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
+static const auto XmlDocumentRootName = "farconfig";
+
 class representation_source
 {
 public:
-	explicit representation_source(const string& File):
-		m_Root(nullptr)
+	explicit representation_source(const string& File)
 	{
-		const auto RootName = "farconfig";
-
-		const auto XmlFile = file_ptr(_wfopen(NTPath(File).c_str(), L"rb"));
+		const file_ptr XmlFile(_wfsopen(NTPath(File).c_str(), L"rb", _SH_DENYWR));
 		if (!XmlFile)
-			return;
+			throw MAKE_FAR_KNOWN_EXCEPTION(format(L"Error opening file {0}: {1}"sv, File, _wcserror(errno)));
 
-		if (m_Document.LoadFile(XmlFile.get()) != tinyxml::XML_SUCCESS)
-			return;
+		if (const auto LoadResult = m_Document.LoadFile(XmlFile.get()); LoadResult != tinyxml::XML_SUCCESS)
+			throw MAKE_FAR_KNOWN_EXCEPTION(format(L"Error loading document: {0}"sv, encoding::utf8::get_chars(m_Document.ErrorIDToName(LoadResult))));
 
-		const auto root = m_Document.FirstChildElement(RootName);
+		const auto root = m_Document.FirstChildElement(XmlDocumentRootName);
 		SetRoot(root);
 	}
 
@@ -94,7 +93,7 @@ public:
 
 private:
 	tinyxml::XMLDocument m_Document;
-	tinyxml::XMLHandle m_Root;
+	tinyxml::XMLHandle m_Root{ nullptr };
 };
 
 static auto& CreateChild(tinyxml::XMLElement& Parent, const char* Name)
@@ -107,14 +106,11 @@ static auto& CreateChild(tinyxml::XMLElement& Parent, const char* Name)
 class representation_destination
 {
 public:
-	representation_destination():
-		m_Root()
+	representation_destination()
 	{
-		const auto RootName = "farconfig";
-
 		m_Document.SetBOM(true);
 		m_Document.LinkEndChild(m_Document.NewDeclaration());
-		const auto root = m_Document.NewElement(RootName);
+		const auto root = m_Document.NewElement(XmlDocumentRootName);
 		m_Document.LinkEndChild(root);
 		SetRoot(*root);
 	}
@@ -123,15 +119,19 @@ public:
 
 	void SetRoot(tinyxml::XMLElement& Root) { m_Root = &Root; }
 
-	bool Save(const string& File)
+	void Save(const string& File)
 	{
-		const file_ptr XmlFile(_wfopen(NTPath(File).c_str(), L"w"));
-		return XmlFile && m_Document.SaveFile(XmlFile.get()) == tinyxml::XML_SUCCESS;
+		const file_ptr XmlFile(_wfsopen(NTPath(File).c_str(), L"w", _SH_DENYWR));
+		if (!XmlFile)
+			throw MAKE_FAR_KNOWN_EXCEPTION(format(L"Error opening file {0}: {1}"sv, File, _wcserror(errno)));
+
+		if (const auto SaveResult = m_Document.SaveFile(XmlFile.get()); SaveResult != tinyxml::XML_SUCCESS)
+			throw MAKE_FAR_KNOWN_EXCEPTION(format(L"Error saving document: {0}"sv, encoding::utf8::get_chars(m_Document.ErrorIDToName(SaveResult))));
 	}
 
 private:
 	tinyxml::XMLDocument m_Document;
-	tinyxml::XMLElement* m_Root;
+	tinyxml::XMLElement* m_Root{};
 };
 
 namespace
@@ -2183,7 +2183,7 @@ static const std::wregex& uuid_regex()
 
 void config_provider::TryImportDatabase(representable* p, const char* NodeName, bool IsPlugin)
 {
-	if (!m_TemplateSource && !Global->Opt->TemplateProfilePath.empty())
+	if (!m_TemplateSource && !Global->Opt->TemplateProfilePath.empty() && os::fs::exists(Global->Opt->TemplateProfilePath))
 	{
 		m_TemplateSource = std::make_unique<representation_source>(Global->Opt->TemplateProfilePath);
 	}
@@ -2392,7 +2392,7 @@ config_provider::~config_provider()
 	m_Threads.clear();
 }
 
-bool config_provider::Export(const string& File)
+void config_provider::Export(const string& File)
 {
 	representation_destination Representation;
 	auto& root = Representation.GetRoot();
@@ -2433,22 +2433,26 @@ bool config_provider::Export(const string& File)
 	return Representation.Save(File);
 }
 
-bool config_provider::ServiceMode(const string& Filename)
+void config_provider::ServiceMode(const string& Filename)
 {
-	return m_Mode == mode::m_import? Import(Filename) : m_Mode == mode::m_export? Export(Filename) : throw MAKE_FAR_FATAL_EXCEPTION(L"Unexpected service mode"sv);
+	switch (m_Mode)
+	{
+	case mode::m_import:
+		return Import(Filename);
+
+	case mode::m_export:
+		return Export(Filename);
+
+	default:
+		throw MAKE_FAR_FATAL_EXCEPTION(L"Unexpected service mode"sv);
+	}
 }
 
-bool config_provider::Import(const string& Filename)
+void config_provider::Import(const string& Filename)
 {
 	representation_source Representation(Filename);
 
 	auto root = Representation.GetRoot();
-
-	if (!root.ToNode())
-	{
-		std::wcerr << format(L"Error importing {0}:\n {1}"sv, Filename, Representation.GetError()) << std::endl;
-		return false;
-	}
 
 	GeneralCfg()->Import(Representation);
 	LocalGeneralCfg()->Import(Representation);
@@ -2478,8 +2482,6 @@ bool config_provider::Import(const string& Filename)
 			CreatePluginsConfig(Guid)->Import(Representation);
 		}
 	}
-
-	return true;
 }
 
 bool config_provider::ShowProblems() const

@@ -61,16 +61,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-static string GetWin32ErrorString(const error_state_ex& ErrorState)
-{
-	return os::GetErrorString(false, ErrorState.Win32Error);
-}
-
-static string GetNtErrorString(const error_state_ex& ErrorState)
-{
-	return os::GetErrorString(true, ErrorState.NtError);
-}
-
 string GetErrorString(const error_state_ex& ErrorState)
 {
 	auto Str = ErrorState.What;
@@ -79,12 +69,10 @@ string GetErrorString(const error_state_ex& ErrorState)
 
 	const auto UseNtMessages = false;
 
-	Str += (UseNtMessages? GetNtErrorString : GetWin32ErrorString)(ErrorState);
-
-	return Str;
+	return Str + (UseNtMessages? ErrorState.NtErrorStr() : ErrorState.Win32ErrorStr());
 }
 
-std::array<string, 2> FormatSystemErrors(error_state const* const ErrorState)
+std::array<string, 3> FormatSystemErrors(error_state const* const ErrorState)
 {
 	if (!ErrorState)
 		return {};
@@ -93,8 +81,9 @@ std::array<string, 2> FormatSystemErrors(error_state const* const ErrorState)
 
 	return
 	{
-		format(Format, as_unsigned(ErrorState->Win32Error), os::GetErrorString(false, ErrorState->Win32Error)),
-		format(Format, as_unsigned(ErrorState->NtError), os::GetErrorString(true, ErrorState->NtError))
+		format(Format, as_unsigned(ErrorState->Errno), ErrorState->ErrnoStr()),
+		format(Format, as_unsigned(ErrorState->Win32Error), ErrorState->Win32ErrorStr()),
+		format(Format, as_unsigned(ErrorState->NtError), ErrorState->NtErrorStr())
 	};
 }
 
@@ -148,10 +137,12 @@ intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 
 						DialogBuilder Builder(lng::MError);
 						Builder.StartColumns();
-						Builder.AddText(L"LastError:");
+						Builder.AddText(L"errno:");
 						Builder.AddConstEditField(Errors[0], FieldsWidth);
-						Builder.AddText(L"NTSTATUS:");
+						Builder.AddText(L"LastError:");
 						Builder.AddConstEditField(Errors[1], FieldsWidth);
+						Builder.AddText(L"NTSTATUS:");
+						Builder.AddConstEditField(Errors[2], FieldsWidth);
 						Builder.AddOK();
 						Builder.ShowDialog();
 					}

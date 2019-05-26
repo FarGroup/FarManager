@@ -74,6 +74,8 @@ enum exception_dialog
 	ed_edit_exception,
 	ed_text_details,
 	ed_edit_details,
+	ed_text_errno,
+	ed_edit_errno,
 	ed_text_lasterror,
 	ed_edit_lasterror,
 	ed_text_ntstatus,
@@ -264,6 +266,7 @@ static reply ExcDialog(
 		&Details,
 		&Errors[0],
 		&Errors[1],
+		&Errors[2],
 		&Address,
 		&Source,
 		&FunctionName,
@@ -280,34 +283,36 @@ static reply ExcDialog(
 
 	FarDialogItem EditDlgData[]
 	{
-		{DI_DOUBLEBOX,3, 1, DialogWidth-4,12, 0, nullptr, nullptr, 0, msg(lng::MExcTrappedException).c_str()},
-		{DI_TEXT, Col1X, 2, Col1X + Col1W, 2, 0, nullptr, nullptr, 0, msg(lng::MExcException).c_str()},
-		{DI_EDIT, Col2X, 2, Col2X + Col2W, 2, 0, nullptr, nullptr, DIF_READONLY | DIF_SELECTONENTRY, Exception.c_str()},
-		{DI_TEXT, Col1X, 3, Col1X + Col1W, 3, 0, nullptr, nullptr, 0, msg(lng::MExcDetails).c_str()},
-		{DI_EDIT, Col2X, 3, Col2X + Col2W, 3, 0, nullptr, nullptr, DIF_READONLY | DIF_SELECTONENTRY, Details.c_str()},
-		{DI_TEXT, Col1X, 4, Col1X + Col1W, 4, 0, nullptr, nullptr, 0, L"LastError:"},
-		{DI_EDIT, Col2X, 4, Col2X + Col2W, 4, 0, nullptr, nullptr, DIF_READONLY | DIF_SELECTONENTRY, Errors[0].c_str()},
-		{DI_TEXT, Col1X, 5, Col1X + Col1W, 5, 0, nullptr, nullptr, 0, L"NTSTATUS:"},
-		{DI_EDIT, Col2X, 5, Col2X + Col2W, 5, 0, nullptr, nullptr, DIF_READONLY | DIF_SELECTONENTRY, Errors[1].c_str()},
-		{DI_TEXT, Col1X, 6, Col1X + Col1W, 6, 0, nullptr, nullptr, 0, msg(lng::MExcAddress).c_str()},
-		{DI_EDIT, Col2X, 6, Col2X + Col2W, 6, 0, nullptr, nullptr, DIF_READONLY | DIF_SELECTONENTRY, Address.c_str()},
-		{DI_TEXT, Col1X, 7, Col1X + Col1W, 7, 0, nullptr, nullptr, 0, msg(lng::MExcSource).c_str()},
-		{DI_EDIT, Col2X, 7, Col2X + Col2W, 7, 0, nullptr, nullptr, DIF_READONLY | DIF_SELECTONENTRY, Source.c_str()},
-		{DI_TEXT, Col1X, 8, Col1X + Col1W, 8, 0, nullptr, nullptr, 0, msg(lng::MExcFunction).c_str()},
-		{DI_EDIT, Col2X, 8, Col2X + Col2W, 8, 0, nullptr, nullptr, DIF_READONLY | DIF_SELECTONENTRY, FunctionName.c_str()},
-		{DI_TEXT, Col1X, 9, Col1X + Col1W, 9, 0, nullptr, nullptr, 0, msg(lng::MExcModule).c_str()},
-		{DI_EDIT, Col2X, 9, Col2X + Col2W, 9, 0, nullptr, nullptr, DIF_READONLY | DIF_SELECTONENTRY, ModuleName.c_str()},
-		{DI_TEXT,    -1,10,             0,10, 0, nullptr, nullptr, DIF_SEPARATOR, L""},
-		{DI_BUTTON,   0,11,             0,11, 0, nullptr, nullptr, DIF_DEFAULTBUTTON | DIF_FOCUS | DIF_CENTERGROUP, msg(PluginModule? lng::MExcUnload : lng::MExcTerminate).c_str()},
-		{DI_BUTTON,   0,11,             0,11, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MExcStack).c_str()},
-		{DI_BUTTON,   0,11,             0,11, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MExcMinidump).c_str()},
-		{DI_BUTTON,   0,11,             0,11, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MIgnore).c_str()},
+		{DI_DOUBLEBOX,3,  1, DialogWidth-4,13, 0, nullptr, nullptr, 0, msg(lng::MExcTrappedException).c_str()},
+		{DI_TEXT, Col1X,  2, Col1X + Col1W, 2, 0, nullptr, nullptr, 0, msg(lng::MExcException).c_str()},
+		{DI_EDIT, Col2X,  2, Col2X + Col2W, 2, 0, nullptr, nullptr, DIF_READONLY | DIF_SELECTONENTRY, Exception.c_str()},
+		{DI_TEXT, Col1X,  3, Col1X + Col1W, 3, 0, nullptr, nullptr, 0, msg(lng::MExcDetails).c_str()},
+		{DI_EDIT, Col2X,  3, Col2X + Col2W, 3, 0, nullptr, nullptr, DIF_READONLY | DIF_SELECTONENTRY, Details.c_str()},
+		{DI_TEXT, Col1X,  4, Col1X + Col1W, 4, 0, nullptr, nullptr, 0, L"errno:"},
+		{DI_EDIT, Col2X,  4, Col2X + Col2W, 4, 0, nullptr, nullptr, DIF_READONLY | DIF_SELECTONENTRY, Errors[0].c_str()},
+		{DI_TEXT, Col1X,  5, Col1X + Col1W, 4, 0, nullptr, nullptr, 0, L"LastError:"},
+		{DI_EDIT, Col2X,  5, Col2X + Col2W, 4, 0, nullptr, nullptr, DIF_READONLY | DIF_SELECTONENTRY, Errors[0].c_str()},
+		{DI_TEXT, Col1X,  6, Col1X + Col1W, 5, 0, nullptr, nullptr, 0, L"NTSTATUS:"},
+		{DI_EDIT, Col2X,  6, Col2X + Col2W, 5, 0, nullptr, nullptr, DIF_READONLY | DIF_SELECTONENTRY, Errors[1].c_str()},
+		{DI_TEXT, Col1X,  7, Col1X + Col1W, 6, 0, nullptr, nullptr, 0, msg(lng::MExcAddress).c_str()},
+		{DI_EDIT, Col2X,  7, Col2X + Col2W, 6, 0, nullptr, nullptr, DIF_READONLY | DIF_SELECTONENTRY, Address.c_str()},
+		{DI_TEXT, Col1X,  8, Col1X + Col1W, 7, 0, nullptr, nullptr, 0, msg(lng::MExcSource).c_str()},
+		{DI_EDIT, Col2X,  8, Col2X + Col2W, 7, 0, nullptr, nullptr, DIF_READONLY | DIF_SELECTONENTRY, Source.c_str()},
+		{DI_TEXT, Col1X,  9, Col1X + Col1W, 8, 0, nullptr, nullptr, 0, msg(lng::MExcFunction).c_str()},
+		{DI_EDIT, Col2X,  9, Col2X + Col2W, 8, 0, nullptr, nullptr, DIF_READONLY | DIF_SELECTONENTRY, FunctionName.c_str()},
+		{DI_TEXT, Col1X, 10, Col1X + Col1W, 9, 0, nullptr, nullptr, 0, msg(lng::MExcModule).c_str()},
+		{DI_EDIT, Col2X, 10, Col2X + Col2W, 9, 0, nullptr, nullptr, DIF_READONLY | DIF_SELECTONENTRY, ModuleName.c_str()},
+		{DI_TEXT,    -1, 11,             0,10, 0, nullptr, nullptr, DIF_SEPARATOR, L""},
+		{DI_BUTTON,   0, 12,             0,11, 0, nullptr, nullptr, DIF_DEFAULTBUTTON | DIF_FOCUS | DIF_CENTERGROUP, msg(PluginModule? lng::MExcUnload : lng::MExcTerminate).c_str()},
+		{DI_BUTTON,   0, 12,             0,11, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MExcStack).c_str()},
+		{DI_BUTTON,   0, 12,             0,11, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MExcMinidump).c_str()},
+		{DI_BUTTON,   0, 12,             0,11, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MIgnore).c_str()},
 	};
 	auto EditDlg = MakeDialogItemsEx(EditDlgData);
 	auto DlgData = dialog_data_type(&Context, NestedStack);
 	const auto Dlg = Dialog::create(EditDlg, ExcDlgProc, &DlgData);
 	Dlg->SetDialogMode(DMODE_WARNINGSTYLE|DMODE_NOPLUGINS);
-	Dlg->SetPosition({ -1, -1, DialogWidth, 14 });
+	Dlg->SetPosition({ -1, -1, DialogWidth, 15 });
 	Dlg->Process();
 
 	switch (Dlg->GetExitCode())
@@ -344,13 +349,14 @@ static reply ExcConsole(
 	if (Source.empty())
 		Source = Location;
 
-	std::array<string_view, 8> Msg;
+	std::array<string_view, 9> Msg;
 	if (far_language::instance().is_loaded())
 	{
 		Msg =
 		{
 			msg(lng::MExcException),
 			msg(lng::MExcDetails),
+			L"errno:"sv,
 			L"LastError:"sv,
 			L"NTSTATUS:"sv,
 			msg(lng::MExcAddress),
@@ -365,6 +371,7 @@ static reply ExcConsole(
 		{
 			L"Exception:"sv,
 			L"Details:  "sv,
+			L"errno:    "sv,
 			L"LastError:"sv,
 			L"NTSTATUS: "sv,
 			L"Address:  "sv,
@@ -384,6 +391,7 @@ static reply ExcConsole(
 		Details,
 		Errors[0],
 		Errors[1],
+		Errors[2],
 		Address,
 		Source,
 		Function,
@@ -401,7 +409,7 @@ static reply ExcConsole(
 	ShowStackTrace(tracer::get(*Context.pointers(), Context.thread_handle()), NestedStack);
 	std::wcerr << std::endl;
 
-	return ConsoleYesNo(L"Terminate process"sv)? reply_handle : reply_ignore;
+	return ConsoleYesNo(L"Terminate the process"sv)? reply_handle : reply_ignore;
 }
 
 template<size_t... I>

@@ -141,7 +141,7 @@ COORD InitSize={};
 COORD CurSize={};
 SHORT ScrX=0,ScrY=0;
 SHORT PrevScrX=-1,PrevScrY=-1;
-console_mode InitialConsoleMode{};
+std::optional<console_mode> InitialConsoleMode;
 static SMALL_RECT InitWindowRect;
 static COORD InitialSize;
 
@@ -299,9 +299,11 @@ void InitConsole()
 
 	console.SetControlHandler(CtrlHandler, true);
 
-	console.GetMode(console.GetInputHandle(),InitialConsoleMode.Input);
-	console.GetMode(console.GetOutputHandle(), InitialConsoleMode.Output);
-	console.GetMode(console.GetErrorHandle(), InitialConsoleMode.Error);
+	console_mode Mode;
+	console.GetMode(console.GetInputHandle(), Mode.Input);
+	console.GetMode(console.GetOutputHandle(), Mode.Output);
+	console.GetMode(console.GetErrorHandle(), Mode.Error);
+	InitialConsoleMode = Mode;
 
 	Global->strInitTitle = console.GetPhysicalTitle();
 	console.GetWindowRect(InitWindowRect);
@@ -361,9 +363,12 @@ void CloseConsole()
 	MoveRealCursor(0, ScrY);
 	console.SetCursorInfo(InitialCursorInfo);
 
-	ChangeConsoleMode(console.GetInputHandle(), InitialConsoleMode.Input);
-	ChangeConsoleMode(console.GetOutputHandle(), InitialConsoleMode.Output);
-	ChangeConsoleMode(console.GetErrorHandle(), InitialConsoleMode.Error);
+	if (InitialConsoleMode)
+	{
+		ChangeConsoleMode(console.GetInputHandle(), InitialConsoleMode->Input);
+		ChangeConsoleMode(console.GetOutputHandle(), InitialConsoleMode->Output);
+		ChangeConsoleMode(console.GetErrorHandle(), InitialConsoleMode->Error);
+	}
 
 	console.SetTitle(Global->strInitTitle);
 	console.SetSize(InitialSize);
@@ -399,7 +404,7 @@ void SetFarConsoleMode(bool SetsActiveBuffer)
 {
 	// Inherit existing mode. We don't want to build these flags from scratch,
 	// as MS might introduce some new flags in future Windows versions.
-	auto InputMode = InitialConsoleMode.Input;
+	auto InputMode = InitialConsoleMode->Input;
 
 	// We need this one unconditionally
 	InputMode |= ENABLE_WINDOW_INPUT;
@@ -441,7 +446,7 @@ void SetFarConsoleMode(bool SetsActiveBuffer)
 	static bool VirtualTerminalAttempted = false;
 	static bool VirtualTerminalSupported = false;
 
-	auto OutputMode = InitialConsoleMode.Output;
+	auto OutputMode = InitialConsoleMode->Output;
 
 	OutputMode |= ENABLE_PROCESSED_OUTPUT | ENABLE_WRAP_AT_EOL_OUTPUT;
 
@@ -1365,9 +1370,12 @@ COORD GetNonMaximisedBufferSize()
 
 bool ConsoleYesNo(string_view const Message)
 {
-	ChangeConsoleMode(console.GetInputHandle(), InitialConsoleMode.Input);
-	ChangeConsoleMode(console.GetOutputHandle(), InitialConsoleMode.Output);
-	ChangeConsoleMode(console.GetErrorHandle(), InitialConsoleMode.Error);
+	if (InitialConsoleMode)
+	{
+		ChangeConsoleMode(console.GetInputHandle(), InitialConsoleMode->Input);
+		ChangeConsoleMode(console.GetOutputHandle(), InitialConsoleMode->Output);
+		ChangeConsoleMode(console.GetErrorHandle(), InitialConsoleMode->Error);
+	}
 
 	for (;;)
 	{

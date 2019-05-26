@@ -432,7 +432,8 @@ static bool ProcessServiceModes(range<const wchar_t* const*> const Args, int& Se
 		InitTemplateProfile(strTemplatePath);
 		InitProfile(strProfilePath, strLocalProfilePath);
 		Global->m_ConfigProvider = new config_provider(Export? config_provider::mode::m_export : config_provider::mode::m_import);
-		ServiceResult = !ConfigProvider().ServiceMode(Args[1]);
+		ConfigProvider().ServiceMode(Args[1]);
+		ServiceResult = 0;
 		return true;
 	}
 
@@ -488,7 +489,6 @@ static int mainImpl(range<const wchar_t* const*> const Args)
 
 	if (os::fs::GetModuleFileName(nullptr, nullptr, Global->g_strFarModuleName))
 	{
-		Global->g_strFarModuleName = ConvertNameToLong(Global->g_strFarModuleName);
 		PrepareDiskPath(Global->g_strFarModuleName);
 	}
 
@@ -784,9 +784,8 @@ static int wmain_seh(int Argc, const wchar_t* const Argv[])
 	{
 		return mainImpl({ Argv + 1, Argv + Argc });
 	}
-	catch (const language::exception& e)
+	catch (const far_known_exception& e)
 	{
-		// *.lng read failure. It is pretty clear what is wrong, no need to show the stack etc.
 		std::wcerr << e.what() << std::endl;
 		return 1;
 	}

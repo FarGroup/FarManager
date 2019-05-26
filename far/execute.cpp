@@ -928,9 +928,9 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, function_ref<void(
 		ConsoleOutputCP = console.GetOutputCodepage();
 		FlushInputBuffer();
 
-		ChangeConsoleMode(console.GetInputHandle(), InitialConsoleMode.Input);
-		ChangeConsoleMode(console.GetOutputHandle(), InitialConsoleMode.Output);
-		ChangeConsoleMode(console.GetErrorHandle(), InitialConsoleMode.Error);
+		ChangeConsoleMode(console.GetInputHandle(), InitialConsoleMode->Input);
+		ChangeConsoleMode(console.GetOutputHandle(), InitialConsoleMode->Output);
+		ChangeConsoleMode(console.GetErrorHandle(), InitialConsoleMode->Error);
 
 		console.GetWindowRect(ConsoleWindowRect);
 		console.GetSize(ConsoleSize);

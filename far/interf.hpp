@@ -57,13 +57,14 @@ extern COORD InitSize, CurSize;
 extern SHORT ScrX,ScrY;
 extern SHORT PrevScrX,PrevScrY;
 
-extern struct console_mode
+struct console_mode
 {
-	DWORD Input;
-	DWORD Output;
-	DWORD Error;
-}
-InitialConsoleMode;
+	DWORD Input{};
+	DWORD Output{};
+	DWORD Error{};
+};
+
+extern std::optional<console_mode> InitialConsoleMode;
 
 // типы рамок
 enum

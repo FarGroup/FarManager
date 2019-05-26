@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 error_state error_state::fetch()
 {
 	error_state State;
+	State.Errno = errno;
 	State.Win32Error = GetLastError();
 	State.NtError = imports.RtlGetLastNtStatus();
 	State.m_Engaged = true;
@@ -59,6 +60,22 @@ error_state::operator bool() const
 {
 	return m_Engaged;
 }
+
+string error_state::ErrnoStr() const
+{
+	return _wcserror(Errno);
+}
+
+string error_state::Win32ErrorStr() const
+{
+	return os::GetErrorString(false, Win32Error);
+}
+
+string error_state::NtErrorStr() const
+{
+	return os::GetErrorString(true, NtError);
+}
+
 
 namespace detail
 {
