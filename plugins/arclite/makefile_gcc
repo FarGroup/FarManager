@@ -54,8 +54,8 @@ $(OUTDIR)/%.sfx: %.sfx
 TOOL = $(WINE_CMD)$(strip $(call os_name, tools/tool.exe))
 
 HLFS = $(addprefix $(OUTDIR)/$(MODULE)_,eng.hlf rus.hlf)
-MSGS = $(addprefix           bootstrap/,en.msg  ru.msg  es.msg  it.msg)
-LNGS = $(addprefix $(OUTDIR)/$(MODULE)_,eng.lng rus.lng spa.lng ita.lng)
+MSGS = $(addprefix           bootstrap/,en.msg  ru.msg  es.msg  it.msg pl.msg)
+LNGS = $(addprefix $(OUTDIR)/$(MODULE)_,eng.lng rus.lng spa.lng ita.lng pol.lng)
 
 preproc: bootstrap/far.ini bootstrap/version.rc bootstrap/plugin.h bootstrap/msg.h $(HLFS) $(MSGS) #$(LNGS)
 
@@ -78,6 +78,9 @@ bootstrap/es.msg: project.ini es.msg
 	@echo preproc $(@F) && $(TOOL) preproc $(call os_name,$^ $@)
 
 bootstrap/it.msg: project.ini it.msg
+	@echo preproc $(@F) && $(TOOL) preproc $(call os_name,$^ $@)
+
+bootstrap/pl.msg: project.ini pl.msg
 	@echo preproc $(@F) && $(TOOL) preproc $(call os_name,$^ $@)
 
 bootstrap/msg.h: $(MSGS)

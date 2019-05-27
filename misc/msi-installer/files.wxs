@@ -527,6 +527,9 @@
           <Component Id="arclite_ita.lng" Guid="$(var.Guid.arclite_ita.lng)" Win64="$(var.Win64)">
             <File Id="arclite_ita.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ArcLite\arclite_ita.lng" />
           </Component>
+          <Component Id="arclite_pol.lng" Guid="$(var.Guid.arclite_pol.lng)" Win64="$(var.Win64)">
+            <File Id="arclite_pol.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ArcLite\arclite_pol.lng" />
+          </Component>
           <Component Id="arclite_rus.hlf" Guid="$(var.Guid.arclite_rus.hlf)" Win64="$(var.Win64)">
             <File Id="arclite_rus.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ArcLite\arclite_rus.hlf" />
           </Component>

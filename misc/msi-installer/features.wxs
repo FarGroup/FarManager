@@ -375,6 +375,9 @@
           <Feature Id="arclite.Italian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="arclite_ita.lng" />
           </Feature>
+          <Feature Id="arclite.Polish" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="arclite_pol.lng" />
+          </Feature>
           <Feature Id="arclite.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="arclite_rus.hlf" />
             <ComponentRef Id="arclite_rus.lng" />

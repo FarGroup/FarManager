@@ -169,6 +169,7 @@
 <?define Guid.arclite_rus.lng = "E0BF8062-4EBB-4711-9451-FC4D2D1F30FD" ?>
 <?define Guid.arclite_spa.lng = "DBABBFE1-00E7-4E00-A1CF-6868A7CBF589" ?>
 <?define Guid.arclite_ita.lng = "9460EE6A-1E92-4E97-BDB4-DA1E12768CBF" ?>
+<?define Guid.arclite_pol.lng = "12F94907-256D-47EB-A217-464C948B3D97" ?>
 <?define Guid.arclite.xml = "D2C17923-DEDE-4803-94F9-9AA91AAB950E" ?>
 <?define Guid.changelog_18 = "446DC157-BD73-4D1C-B4BC-1C9BA63DCB6C" ?>
 <?define Guid.AutoWrap.dll = "984C5B72-FC1B-47FC-BFFC-CFE9D0E79E9F" ?>

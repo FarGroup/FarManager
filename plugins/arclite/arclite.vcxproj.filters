@@ -151,6 +151,9 @@
     <None Include="it.msg">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="pl.msg">
+      <Filter>Resource Files</Filter>
+    </None>
     <None Include="makefile_vc">
       <Filter>Resource Files</Filter>
     </None>

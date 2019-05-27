@@ -113,8 +113,8 @@ depfile: $(OUTDIR) bootstrap\msg.h bootstrap\plugin.h
 instmak: $(OUTDIR)
   $(TOOL) geninst $(FILES) $(OUTDIR)\$(MODULE).map $(OUTDIR)\$(MODULE).pdb > $(OBJDIR)\install.mak
 
-bootstrap\msg.h $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng $(OUTDIR)\$(MODULE)_spa.lng $(OUTDIR)\$(MODULE)_ita.lng: $(OUTDIR) bootstrap\en.msg bootstrap\ru.msg bootstrap\es.msg bootstrap\it.msg
-  $(TOOL) msgc -in bootstrap\en.msg bootstrap\ru.msg bootstrap\es.msg bootstrap\it.msg -out bootstrap\msg.h $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng $(OUTDIR)\$(MODULE)_spa.lng $(OUTDIR)\$(MODULE)_ita.lng
+bootstrap\msg.h $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng $(OUTDIR)\$(MODULE)_spa.lng $(OUTDIR)\$(MODULE)_ita.lng: $(OUTDIR) bootstrap\en.msg bootstrap\ru.msg bootstrap\es.msg bootstrap\it.msg bootstrap\pl.msg
+  $(TOOL) msgc -in bootstrap\en.msg bootstrap\ru.msg bootstrap\es.msg bootstrap\it.msg bootstrap\pl.msg -out bootstrap\msg.h $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng $(OUTDIR)\$(MODULE)_spa.lng $(OUTDIR)\$(MODULE)_ita.lng $(OUTDIR)\$(MODULE)_pol.lng
 
 $(OBJDIR)\version.res: bootstrap\version.rc
   $(RC) $(RCFLAGS) -fo$@ $**
@@ -134,6 +134,9 @@ bootstrap\es.msg: project.ini es.msg
   $(PREPROC)
 
 bootstrap\it.msg: project.ini it.msg
+  $(PREPROC)
+
+bootstrap\pl.msg: project.ini pl.msg
   $(PREPROC)
 
 $(OUTDIR)\$(MODULE)_eng.hlf: project.ini en.hlf
