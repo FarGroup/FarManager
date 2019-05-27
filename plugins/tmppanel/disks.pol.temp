@@ -1,0 +1,11 @@
+﻿|&C: stały|C:
+|&D: stały|D:
+|-|
+|&M: Muzyka|D:\Music
+|&M: Narzędzia|D:\Tools
+|&M: Pulpit|%HOMEDRIVE%%HOMEPATH%\Desktop
+|-|
+|&1: Tymczasowy|tmp:
+|&2: FTP|ftp:
+|&3: Sieć|net:
+|&8: Rejestr|reg:
