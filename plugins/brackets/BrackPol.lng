@@ -3,7 +3,7 @@
 "Dopasowanie nawiasów"
 
 "&Szukaj"
-"&Select"
+"&Wybierz"
 
 "&Naprzów"
 "&Wstecz"
@@ -13,9 +13,9 @@
 "Dopasowanie nawiasów - konfiguracja"
 "Zasady"
 "&Ignoruj nawiasy w cudzysłowach"
-"Do not jump if &after bracket"
-"&Priority of double brackets"
-"&Go to bracket when selecting"
+"Nie przeskakuj, &jeżeli poza nawiasem"
+"&Priorytet - podwójne nawiasy"
+"Przejdź do &nawiasu przy zaznaczaniu"
 "&Dźwięk po znalezieniu"
 "Definicje"
 "Znaki &cytowania:"
