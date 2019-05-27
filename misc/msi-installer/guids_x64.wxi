@@ -34,6 +34,7 @@
 <?define Guid.FarSky.lng = "55234BE9-4EB1-490A-A0FA-A1657089123E" ?>
 <?define Guid.FarIta.lng = "43FDC9FB-8CC5-473F-9BA4-D332407F545B" ?>
 <?define Guid.FarUkr.lng = "80985731-F89B-49BD-A42F-84B79F03A52B" ?>
+<?define Guid.FarBel.lng = "BF3A5342-F6F5-4FDB-91EF-5D60C75383D9" ?>
 <?define Guid.RestoreOldPluginSettings.cmd = "4D0EAB15-49AE-4EA9-8AEE-D3764AF5648D" ?>
 <?define Guid.SaveOldPluginSettings.cmd = "6CCDB7C8-427C-485F-9C92-9328DBEBD716" ?>
 <?define Guid.Descript.ion_1 = "B3E6B774-0808-4CF2-BB3F-DFEBAF32AEBD" ?>

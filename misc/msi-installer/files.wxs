@@ -78,6 +78,9 @@
       <Component Id="FarUkr.lng" Guid="$(var.Guid.FarUkr.lng)" Win64="$(var.Win64)">
         <File Id="FarUkr.lng" KeyPath="yes" Source="$(var.SourceDir)\FarUkr.lng" />
       </Component>
+      <Component Id="FarBel.lng" Guid="$(var.Guid.FarBel.lng)" Win64="$(var.Win64)">
+        <File Id="FarBel.lng" KeyPath="yes" Source="$(var.SourceDir)\FarBel.lng" />
+      </Component>
       <Component Id="RestoreOldPluginSettings.cmd" Guid="$(var.Guid.RestoreOldPluginSettings.cmd)" Win64="$(var.Win64)">
         <File Id="RestoreOldPluginSettings.cmd" KeyPath="yes" Source="$(var.SourceDir)\RestoreOldPluginSettings.cmd" />
       </Component>

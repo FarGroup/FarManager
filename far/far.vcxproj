@@ -628,7 +628,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
       <Message>Generating language files based on %(Identity)...</Message>
       <Command>tools\lng.generator.exe -nc -i $(BootstrapDir)lang.ini -oh $(BootstrapDir) -ol $(OutDir) %(Identity)</Command>
       <AdditionalInputs>%(FileName)%(Extension).m4;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs>$(BootstrapDir)lang.inc;$(BootstrapDir)lang.ini;$(OutDir)\FarCze.lng;$(OutDir)\FarEng.lng;$(OutDir)\FarGer.lng;$(OutDir)\FarHun.lng;$(OutDir)\FarPol.lng;$(OutDir)\FarRus.lng;$(OutDir)\FarSpa.lng;$(OutDir)\FarSky.lng;$(OutDir)\FarIta.lng;$(OutDir)\FarUkr.lng;%(Outputs)</Outputs>
+      <Outputs>$(BootstrapDir)lang.inc;$(BootstrapDir)lang.ini;$(OutDir)\FarCze.lng;$(OutDir)\FarEng.lng;$(OutDir)\FarGer.lng;$(OutDir)\FarHun.lng;$(OutDir)\FarPol.lng;$(OutDir)\FarRus.lng;$(OutDir)\FarSpa.lng;$(OutDir)\FarSky.lng;$(OutDir)\FarIta.lng;$(OutDir)\FarUkr.lng;$(OutDir)\FarBel.lng;%(Outputs)</Outputs>
     </CustomBuild>
     <MASM Include="vc_crt_fix.asm">
       <PreprocessorDefinitions Condition="'$(Platform)'=='x64'">X64</PreprocessorDefinitions>

@@ -38,6 +38,7 @@
 <String Id="Feature.Title.Slovak">Słowacki</String>
 <String Id="Feature.Title.Italian">Włoski</String>
 <String Id="Feature.Title.Ukrainian">Ukraiński</String>
+<String Id="Feature.Title.Belarusian">Białoruski</String>
 <String Id="Feature.Title.FarShortcuts">Skróty do programu</String>
 <String Id="Feature.Title.FarProgramsShortcut">Programy</String>
 <String Id="Feature.Title.FarDesktopShortcut">Pulpit</String>

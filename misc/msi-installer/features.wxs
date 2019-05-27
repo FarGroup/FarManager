@@ -182,6 +182,9 @@
         <Feature Id="Ukrainian" Level="2" Title="!(loc.Feature.Title.Ukrainian)" AllowAdvertise="no">
           <ComponentRef Id="FarUkr.lng" />
         </Feature>
+        <Feature Id="Belarusian" Level="2" Title="!(loc.Feature.Title.Belarusian)" AllowAdvertise="no">
+          <ComponentRef Id="FarBel.lng" />
+        </Feature>
       </Feature>
       <Feature Id="FarShortcuts" Level="1" Title="!(loc.Feature.Title.FarShortcuts)" AllowAdvertise="no">
         <Feature Id="FarProgramsShortcut" Level="1" Title="!(loc.Feature.Title.FarProgramsShortcut)" AllowAdvertise="no">
@@ -220,10 +223,18 @@
           <Feature Id="Align" Level="1" Title="!(loc.Feature.Title.Align)" AllowAdvertise="no" Description="!(loc.Feature.Description.Align)">
             <ComponentRef Id="Align.dll" />
             <ComponentRef Id="AlignEng.lng" />
-            <ComponentRef Id="AlignSky.lng" />
-            <ComponentRef Id="AlignSpa.lng" />
-            <ComponentRef Id="AlignIta.lng" />
-            <ComponentRef Id="AlignPol.lng" />
+            <Feature Id="Align.Slovak" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="AlignSky.lng" />
+            </Feature>
+            <Feature Id="Align.Spanish" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="AlignSpa.lng" />
+            </Feature>
+            <Feature Id="Align.Italian" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="AlignIta.lng" />
+            </Feature>
+            <Feature Id="Align.Polish" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="AlignPol.lng" />
+            </Feature>
             <Feature Id="Align.Russian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="AlignRus.lng" />
             </Feature>
@@ -239,10 +250,18 @@
           <Feature Id="AutoWrap" Level="1" Title="!(loc.Feature.Title.AutoWrap)" AllowAdvertise="no" Description="!(loc.Feature.Description.AutoWrap)">
             <ComponentRef Id="AutoWrap.dll" />
             <ComponentRef Id="WrapEng.lng" />
-            <ComponentRef Id="WrapSky.lng" />
-            <ComponentRef Id="WrapSpa.lng" />
-            <ComponentRef Id="WrapIta.lng" />
-            <ComponentRef Id="WrapPol.lng" />
+            <Feature Id="AutoWrap.Slovak" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="WrapSky.lng" />
+            </Feature>
+            <Feature Id="AutoWrap.Spanish" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="WrapSpa.lng" />
+            </Feature>
+            <Feature Id="AutoWrap.Italian" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="WrapIta.lng" />
+            </Feature>
+            <Feature Id="AutoWrap.Polish" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="WrapPol.lng" />
+            </Feature>
             <Feature Id="AutoWrap.Russian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="WrapRus.lng" />
             </Feature>
@@ -256,14 +275,21 @@
             </Feature>
           </Feature>
           <Feature Id="Brackets" Level="1" Title="!(loc.Feature.Title.Brackets)" AllowAdvertise="no" Description="!(loc.Feature.Description.Brackets)">
+            <ComponentRef Id="Brackets.dll" />
             <ComponentRef Id="BrackEng.hlf" />
             <ComponentRef Id="BrackEng.lng" />
-            <ComponentRef Id="BrackSky.lng" />
-            <ComponentRef Id="BrackSpa.lng" />
-            <ComponentRef Id="BrackIta.lng" />
-            <ComponentRef Id="BrackPol.lng" />
-            <ComponentRef Id="Brackets.lua" />
-            <ComponentRef Id="Brackets.dll" />
+            <Feature Id="Brackets.SLovak" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="BrackSky.lng" />
+            </Feature>
+            <Feature Id="Brackets.Spanish" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="BrackSpa.lng" />
+            </Feature>
+            <Feature Id="Brackets.Italian" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="BrackIta.lng" />
+            </Feature>
+            <Feature Id="Brackets.Polish" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="BrackPol.lng" />
+            </Feature>
             <Feature Id="Brackets.Russian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="BrackRus.hlf" />
               <ComponentRef Id="BrackRus.lng" />
@@ -273,19 +299,28 @@
               <ComponentRef Id="Brackets.map" />
             </Feature>
 <?endif?>
+            <ComponentRef Id="Brackets.lua" />
             <Feature Id="Brackets.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="changelog_4" />
             </Feature>
           </Feature>
           <Feature Id="DrawLine" Level="1" Title="!(loc.Feature.Title.DrawLine)" AllowAdvertise="no" Description="!(loc.Feature.Description.DrawLine)">
+            <ComponentRef Id="DrawLine.dll" />
             <ComponentRef Id="DrawEng.hlf" />
             <ComponentRef Id="DrawEng.lng" />
-            <ComponentRef Id="DrawSky.lng" />
-            <ComponentRef Id="DrawSpa.lng" />
-            <ComponentRef Id="DrawIta.lng" />
-            <ComponentRef Id="DrawPol.hlf" />
-            <ComponentRef Id="DrawPol.lng" />
-            <ComponentRef Id="DrawLine.dll" />
+            <Feature Id="DrawLine.Slovak" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="DrawSky.lng" />
+            </Feature>
+            <Feature Id="DrawLine.Spanish" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="DrawSpa.lng" />
+            </Feature>
+            <Feature Id="DrawLine.Italian" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="DrawIta.lng" />
+            </Feature>
+            <Feature Id="DrawLine.Polish" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="DrawPol.hlf" />
+              <ComponentRef Id="DrawPol.lng" />
+            </Feature>
             <Feature Id="DrawLine.Russian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="DrawRus.hlf" />
               <ComponentRef Id="DrawRus.lng" />
@@ -300,14 +335,22 @@
             </Feature>
           </Feature>
           <Feature Id="EditCase" Level="1" Title="!(loc.Feature.Title.EditCase)" AllowAdvertise="no" Description="!(loc.Feature.Description.EditCase)">
+            <ComponentRef Id="EditCase.dll" />
             <ComponentRef Id="ECaseEng.hlf" />
             <ComponentRef Id="ECaseEng.lng" />
-            <ComponentRef Id="ECaseSky.lng" />
-            <ComponentRef Id="ECaseSpa.lng" />
-            <ComponentRef Id="ECaseIta.lng" />
-            <ComponentRef Id="ECasePol.hlf" />
-            <ComponentRef Id="ECasePol.lng" />
-            <ComponentRef Id="EditCase.dll" />
+            <Feature Id="EditCase.Slovak" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="ECaseSky.lng" />
+            </Feature>
+            <Feature Id="EditCase.Spanish" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="ECaseSpa.lng" />
+            </Feature>
+            <Feature Id="EditCase.Italian" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="ECaseIta.lng" />
+            </Feature>
+            <Feature Id="EditCase.Polish" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="ECasePol.hlf" />
+              <ComponentRef Id="ECasePol.lng" />
+            </Feature>
             <Feature Id="EditCase.Russian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="ECaseRus.hlf" />
               <ComponentRef Id="ECaseRus.lng" />
@@ -326,8 +369,16 @@
           <ComponentRef Id="arclite.dll" />
           <ComponentRef Id="arclite_eng.hlf" />
           <ComponentRef Id="arclite_eng.lng" />
-          <ComponentRef Id="arclite_spa.lng" />
-          <ComponentRef Id="arclite_ita.lng" />
+          <Feature Id="arclite.Spanish" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="arclite_spa.lng" />
+          </Feature>
+          <Feature Id="arclite.Italian" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="arclite_ita.lng" />
+          </Feature>
+          <Feature Id="arclite.Russian" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="arclite_rus.hlf" />
+            <ComponentRef Id="arclite_rus.lng" />
+          </Feature>
           <ComponentRef Id="arclite.xml" />
           <Feature Id="_7z.dll" Level="1" Title="!(loc.Feature.Title._7z.dll)" AllowAdvertise="no" Description="!(loc.Feature.Description._7z.dll)">
             <ComponentRef Id="_7z.dll" />
@@ -349,10 +400,6 @@
               <ComponentRef Id="_7zS2con.sfx" />
             </Feature>
           </Feature>
-          <Feature Id="arclite.Russian" Level="1" Display="hidden" AllowAdvertise="no">
-            <ComponentRef Id="arclite_rus.hlf" />
-            <ComponentRef Id="arclite_rus.lng" />
-          </Feature>
 <?if $(var.Platform) = x86 ?>
           <Feature Id="arclite.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="arclite.map" />
@@ -363,18 +410,26 @@
           </Feature>
         </Feature>
         <Feature Id="Compare" Level="1" Title="!(loc.Feature.Title.Compare)" AllowAdvertise="no" Description="!(loc.Feature.Description.Compare)">
-          <ComponentRef Id="CmpEng.hlf" />
           <ComponentRef Id="Compare.dll" />
+          <ComponentRef Id="CmpEng.hlf" />
           <ComponentRef Id="CompEng.lng" />
+            <Feature Id="Compare.Slovak" Level="1" Display="hidden" AllowAdvertise="no">
           <ComponentRef Id="CompSky.lng" />
-          <ComponentRef Id="CompSpa.lng" />
-          <ComponentRef Id="CompIta.lng" />
-          <ComponentRef Id="CompPol.lng" />
-          <ComponentRef Id="AdvCompare.CompareBufferSize.farconfig" />
+          </Feature>
+          <Feature Id="Compare.Spanish" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="CompSpa.lng" />
+          </Feature>
+          <Feature Id="Compare.Italian" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="CompIta.lng" />
+          </Feature>
+          <Feature Id="Compare.Polish" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="CompPol.lng" />
+          </Feature>
           <Feature Id="Compare.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="CmpRus.hlf" />
             <ComponentRef Id="CompRus.lng" />
           </Feature>
+          <ComponentRef Id="AdvCompare.CompareBufferSize.farconfig" />
 <?if $(var.Platform) = x86 ?>
           <Feature Id="Compare.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="Compare.map" />
@@ -388,19 +443,27 @@
           <ComponentRef Id="EMenu.dll" />
           <ComponentRef Id="EMenuEng.hlf" />
           <ComponentRef Id="EMenuEng.lng" />
-          <ComponentRef Id="EMenuSky.lng" />
-          <ComponentRef Id="EMenuSpa.lng" />
-          <ComponentRef Id="EMenuIta.lng" />
-          <ComponentRef Id="EMenuPol.hlf" />
-          <ComponentRef Id="EMenuPol.lng" />
-          <ComponentRef Id="Hotkey.lua" />
-          <ComponentRef Id="Hotkey.farconfig" />
-          <ComponentRef Id="HotkeyClipboard.lua" />
-          <ComponentRef Id="HotkeyProperties.lua" />
+          <Feature Id="EMenu.Slovak" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="EMenuSky.lng" />
+          </Feature>
+          <Feature Id="EMenu.Spanish" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="EMenuSpa.lng" />
+          </Feature>
+          <Feature Id="EMenu.Italian" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="EMenuIta.lng" />
+          </Feature>
+          <Feature Id="EMenu.Polish" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="EMenuPol.hlf" />
+            <ComponentRef Id="EMenuPol.lng" />
+          </Feature>
           <Feature Id="EMenu.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="EMenuRus.hlf" />
             <ComponentRef Id="EMenuRus.lng" />
           </Feature>
+          <ComponentRef Id="Hotkey.lua" />
+          <ComponentRef Id="Hotkey.farconfig" />
+          <ComponentRef Id="HotkeyClipboard.lua" />
+          <ComponentRef Id="HotkeyProperties.lua" />
 <?if $(var.Platform) = x86 ?>
           <Feature Id="EMenu.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="EMenu.map" />
@@ -525,9 +588,15 @@
           <ComponentRef Id="FarCmds.dll" />
           <ComponentRef Id="FARCmdsEng.hlf" />
           <ComponentRef Id="FARCmdsEng.lng" />
-          <ComponentRef Id="FARCmdsSky.lng" />
-          <ComponentRef Id="FARCmdsSpa.lng" />
-          <ComponentRef Id="FARCmdsIta.lng" />
+          <Feature Id="FARCmds.Slovak" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="FARCmdsSky.lng" />
+          </Feature>
+          <Feature Id="FARCmds.Spanish" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="FARCmdsSpa.lng" />
+          </Feature>
+          <Feature Id="FARCmds.Italian" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="FARCmdsIta.lng" />
+          </Feature>
           <Feature Id="FARCmds.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="FARCmdsRus.hlf" />
             <ComponentRef Id="FARCmdsRus.lng" />
@@ -545,9 +614,15 @@
           <ComponentRef Id="SameFolder.dll" />
           <ComponentRef Id="SameFolderEng.hlf" />
           <ComponentRef Id="SameFolderEng.lng" />
-          <ComponentRef Id="SameFolderSky.lng" />
-          <ComponentRef Id="SameFolderSpa.lng" />
-          <ComponentRef Id="SameFolderIta.lng" />
+          <Feature Id="SameFolder.Slovak" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="SameFolderSky.lng" />
+          </Feature>
+          <Feature Id="SameFolder.Spanish" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="SameFolderSpa.lng" />
+          </Feature>
+          <Feature Id="SameFolder.Italian" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="SameFolderIta.lng" />
+          </Feature>
           <Feature Id="SameFolder.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="SameFolderRus.hlf" />
             <ComponentRef Id="SameFolderRus.lng" />
@@ -562,12 +637,18 @@
           </Feature>
         </Feature>
         <Feature Id="FileCase" Level="1" Title="!(loc.Feature.Title.FileCase)" AllowAdvertise="no" Description="!(loc.Feature.Description.FileCase)">
+          <ComponentRef Id="FileCase.dll" />
           <ComponentRef Id="CaseEng.hlf" />
           <ComponentRef Id="CaseEng.lng" />
-          <ComponentRef Id="CaseSky.lng" />
-          <ComponentRef Id="CaseSpa.lng" />
-          <ComponentRef Id="CaseIta.lng" />
-          <ComponentRef Id="FileCase.dll" />
+          <Feature Id="FileCase.Slovak" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="CaseSky.lng" />
+          </Feature>
+          <Feature Id="FileCase.Spanish" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="CaseSpa.lng" />
+          </Feature>
+          <Feature Id="FileCase.Italian" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="CaseIta.lng" />
+          </Feature>
           <Feature Id="FileCase.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="CaseRus.hlf" />
             <ComponentRef Id="CaseRus.lng" />
@@ -598,9 +679,15 @@
           <ComponentRef Id="HlfViewer.dll" />
           <ComponentRef Id="HlfViewerEng.hlf" />
           <ComponentRef Id="HlfViewerEng.lng" />
-          <ComponentRef Id="HlfViewerSky.lng" />
-          <ComponentRef Id="HlfViewerSpa.lng" />
-          <ComponentRef Id="HlfViewerIta.lng" />
+          <Feature Id="HlfViewer.Slovak" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="HlfViewerSky.lng" />
+          </Feature>
+          <Feature Id="HlfViewer.Spanish" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="HlfViewerSpa.lng" />
+          </Feature>
+          <Feature Id="HlfViewer.Italian" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="HlfViewerIta.lng" />
+          </Feature>
           <Feature Id="HlfViewer.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="HlfViewerRus.hlf" />
             <ComponentRef Id="HlfViewerRus.lng" />
@@ -635,11 +722,17 @@
           <ComponentRef Id="farapi.lua" />
           <ComponentRef Id="moonscript.lua" />
           <ComponentRef Id="keymacro.lua" />
-          <ComponentRef Id="lm_eng.lng" />
-          <ComponentRef Id="lm_sky.lng" />
-          <ComponentRef Id="lm_spa.lng" />
-          <ComponentRef Id="lm_ita.lng" />
           <ComponentRef Id="luamacro.example.ini" />
+          <ComponentRef Id="lm_eng.lng" />
+          <Feature Id="LuaMacro.Slovak" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="lm_sky.lng" />
+          </Feature>
+          <Feature Id="LuaMacro.Spanish" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="lm_spa.lng" />
+          </Feature>
+          <Feature Id="LuaMacro.Italian" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="lm_ita.lng" />
+          </Feature>
           <Feature Id="LuaMacro.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="lm_rus.lng" />
           </Feature>
@@ -654,12 +747,18 @@
           </Feature>
         </Feature>
         <Feature Id="Network" Level="1" Title="!(loc.Feature.Title.Network)" AllowAdvertise="no" Description="!(loc.Feature.Description.Network)">
+          <ComponentRef Id="Network.dll" />
           <ComponentRef Id="NetEng.hlf" />
           <ComponentRef Id="NetEng.lng" />
-          <ComponentRef Id="NetSky.lng" />
-          <ComponentRef Id="NetSpa.lng" />
-          <ComponentRef Id="NetIta.lng" />
-          <ComponentRef Id="Network.dll" />
+          <Feature Id="Network.Slovak" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="NetSky.lng" />
+          </Feature>
+          <Feature Id="Network.Spanish" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="NetSpa.lng" />
+          </Feature>
+          <Feature Id="Network.Italian" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="NetIta.lng" />
+          </Feature>
           <Feature Id="Network.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="NetRus.hlf" />
             <ComponentRef Id="NetRus.lng" />
@@ -674,10 +773,12 @@
           </Feature>
         </Feature>
         <Feature Id="Proclist" Level="1" Title="!(loc.Feature.Title.Proclist)" AllowAdvertise="no" Description="!(loc.Feature.Description.Proclist)">
+          <ComponentRef Id="ProcList.dll" />
           <ComponentRef Id="ProcEng.hlf" />
           <ComponentRef Id="ProcEng.lng" />
-          <ComponentRef Id="ProcList.dll" />
+          <Feature Id="Proclist.Italian" Level="1" Display="hidden" AllowAdvertise="no">
           <ComponentRef Id="ProcIta.lng" />
+          </Feature>
           <Feature Id="Proclist.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="ProcRus.hlf" />
             <ComponentRef Id="ProcRus.lng" />
@@ -692,16 +793,22 @@
           </Feature>
         </Feature>
         <Feature Id="TmpPanel" Level="1" Title="!(loc.Feature.Title.TmpPanel)" AllowAdvertise="no" Description="!(loc.Feature.Description.TmpPanel)">
+          <ComponentRef Id="TmpPanel.dll" />
+          <ComponentRef Id="TmpPanel.ListUTF8.farconfig" />
           <ComponentRef Id="disks.eng.temp" />
           <ComponentRef Id="shortcuts.eng.lua" />
           <ComponentRef Id="shortcuts.eng.temp" />
-          <ComponentRef Id="TmpPanel.ListUTF8.farconfig" />
           <ComponentRef Id="TmpEng.hlf" />
           <ComponentRef Id="TmpEng.lng" />
-          <ComponentRef Id="TmpSky.lng" />
-          <ComponentRef Id="TmpSpa.lng" />
-          <ComponentRef Id="TmpIta.lng" />
-          <ComponentRef Id="TmpPanel.dll" />
+          <Feature Id="TmpPanel.Slovak" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="TmpSky.lng" />
+          </Feature>
+          <Feature Id="TmpPanel.Spanish" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="TmpSpa.lng" />
+          </Feature>
+          <Feature Id="TmpPanel.Italian" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="TmpIta.lng" />
+          </Feature>
           <Feature Id="TmpPanel.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="disks.rus.temp" />
             <ComponentRef Id="shortcuts.rus.lua" />
