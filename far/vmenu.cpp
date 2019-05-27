@@ -155,19 +155,19 @@ void VMenu::ResetCursor()
 //может иметь фокус
 bool VMenu::ItemCanHaveFocus(unsigned long long Flags) const
 {
-	return !(Flags&(LIF_DISABLE|LIF_HIDDEN|LIF_SEPARATOR));
+	return !(Flags & (LIF_DISABLE | LIF_HIDDEN | LIF_FILTERED | LIF_SEPARATOR));
 }
 
 //может быть выбран
 bool VMenu::ItemCanBeEntered(unsigned long long Flags) const
 {
-	return !(Flags&(LIF_DISABLE|LIF_HIDDEN|LIF_GRAYED|LIF_SEPARATOR));
+	return !(Flags & (LIF_DISABLE | LIF_HIDDEN | LIF_FILTERED | LIF_GRAYED | LIF_SEPARATOR));
 }
 
 //видимый
 bool VMenu::ItemIsVisible(unsigned long long Flags) const
 {
-	return !(Flags&(LIF_HIDDEN));
+	return !(Flags & (LIF_HIDDEN | LIF_FILTERED));
 }
 
 bool VMenu::UpdateRequired() const
@@ -594,7 +594,7 @@ void VMenu::ClearCheck(int Position)
 
 void VMenu::RestoreFilteredItems()
 {
-	std::for_each(RANGE(Items, i) { i.Flags &= ~LIF_HIDDEN; });
+	std::for_each(RANGE(Items, i) { i.Flags &= ~LIF_FILTERED; });
 
 	ItemHiddenCount=0;
 
@@ -626,20 +626,20 @@ void VMenu::FilterStringUpdated()
 
 	for_each_cnt(RANGE(Items, CurItem, size_t index)
 	{
-		CurItem.Flags &= ~LIF_HIDDEN;
+		CurItem.Flags &= ~LIF_FILTERED;
 		strName=CurItem.Name;
 		if (CurItem.Flags & LIF_SEPARATOR)
 		{
 			// В предыдущей группе все элементы скрыты, разделитель перед группой - не нужен
 			if (PrevSeparator != -1)
 			{
-				Items[PrevSeparator].Flags |= LIF_HIDDEN;
+				Items[PrevSeparator].Flags |= LIF_FILTERED;
 				ItemHiddenCount++;
 			}
 
 			if (strName.empty() && PrevGroup == -1)
 			{
-				CurItem.Flags |= LIF_HIDDEN;
+				CurItem.Flags |= LIF_FILTERED;
 				ItemHiddenCount++;
 				PrevSeparator = -1;
 			}
@@ -654,7 +654,7 @@ void VMenu::FilterStringUpdated()
 			RemoveHighlights(strName);
 			if(!contains_icase(strName, strFilter))
 			{
-				CurItem.Flags |= LIF_HIDDEN;
+				CurItem.Flags |= LIF_FILTERED;
 				ItemHiddenCount++;
 				if (SelectPos == static_cast<int>(index))
 				{
@@ -685,7 +685,7 @@ void VMenu::FilterStringUpdated()
 	// В предыдущей группе все элементы скрыты, разделитель перед группой - не нужен
 	if (PrevSeparator != -1)
 	{
-		Items[PrevSeparator].Flags |= LIF_HIDDEN;
+		Items[PrevSeparator].Flags |= LIF_FILTERED;
 		ItemHiddenCount++;
 	}
 

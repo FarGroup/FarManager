@@ -3,6 +3,12 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 27.05.2019 14:44:09 +0100 - build 5403
+
+1. Menu Filter was using LIF_HIDDEN flag to hide items.
+   That's fine, except that LIF_HIDDEN is a public flag that can se set by anyone,
+   so turning the filter on and off was spawning sudden items sometimes.
+
 drkns 26.05.2019 20:25:11 +0100 - build 5402
 
 1. Added diagnostic messages for configuration import & export failures.
