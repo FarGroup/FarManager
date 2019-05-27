@@ -1,0 +1,50 @@
+﻿.Language=Polish,Polish (Polski)
+
+"Ok"
+"Anuluj"
+"Błąd"
+"Uwaga"
+
+"Panel tymczasowy"
+" %sPanel tymczasowy [%d] "
+
+"tymczasowy"
+
+"Usuń"
+"Przeł."
+"ZapLis"
+"Idź"
+
+"Uaktualniam zawartość panelu tymczasowego"
+"Wysyłanie plików do panelu tymczasowego"
+
+"Razem plików:"
+"Dostępne panele tymczasowe"
+
+"Panel tymczasowy"
+"Dodaj do menu &Dysków"
+"Dodaj do menu &Wtyczek"
+
+"Use &common panel"
+"&Safe panel mode"
+"&Any elements in panel"
+
+"&Replace files with file list"
+"&Menu from file list"
+"Copy folder c&ontents"
+
+"Tryb pełnego &ekranu"
+
+"Column &types"
+"Column &widths"
+"Status line column t&ypes"
+"Status l&ine column widths"
+
+"File masks for the file &lists:"
+"Command line pre&fix:"
+
+"Nowe ustawienia będą aktywne po restarcie programu Far"
+"Ne&w panel for search results"
+"Zapisz listę plików jako"
+
+"Skopiować zawartość folderu?"
