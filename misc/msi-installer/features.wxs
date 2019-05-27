@@ -278,7 +278,7 @@
             <ComponentRef Id="Brackets.dll" />
             <ComponentRef Id="BrackEng.hlf" />
             <ComponentRef Id="BrackEng.lng" />
-            <Feature Id="Brackets.SLovak" Level="1" Display="hidden" AllowAdvertise="no">
+            <Feature Id="Brackets.Slovak" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="BrackSky.lng" />
             </Feature>
             <Feature Id="Brackets.Spanish" Level="1" Display="hidden" AllowAdvertise="no">
