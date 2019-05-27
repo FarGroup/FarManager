@@ -1,0 +1,34 @@
+﻿.Language=Polish,Polish (Polski)
+.PluginContents=Konwersja wielkości znaków w nazwach plików
+
+@Contents
+$ #Konwersja wielkości znaków w nazwach plików#
+    This command allows to change the case of selected file
+names to any of several available formats.
+
+   Choose the needed case conversion for the #Nazwa# and the #Rozszerzenie#
+correspondingly. If the #Brak# option is selected, the plugin will not process
+the corresponding file name part.
+
+ #Do not process#              The plugin will not process files and
+ #mixed case files#            folders with mixed case names.
+
+ #Przetwarzaj podfoldery#      If the selected file objects include
+                             folders, the plugin will also process
+                             the files and subfolders in the selected
+                             directories.
+
+ #Przetwarzaj nazwy folderów#  If the cursor is positioned on a folder
+                             and the option "#Przetwarzaj podfolderys#" is
+                             turned on, the plugin will also process
+                             the name of that folder and all
+                             subfolders.
+
+ #Tylko bieżące uruchomienie#  Use the options specified in the dialog
+                             only for the current conversion session.
+
+ #Rozdzeielenie słów#          Characters used to delimit words for the
+                             title case conversion.
+                             The "#Resetuj#" button will reset the word
+                             delimiters to the default value: "# _#"
+                             (spacja i podkreślenie).
