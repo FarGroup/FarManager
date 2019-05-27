@@ -24,15 +24,15 @@ i wybierz pozycję EMenu. Możesz zaznaczyć kilka plików lub folderów i skorz
 z menu tak jak w Eksploratorze. Menu kontekstowe dla linii .. (folder nadrzędny)
 pokaże menu dla bieżącego folderu.
     Dla Waszej wygody do wtyczki dołączone jest makro obsługujące trzy skróty
- klawiszowe, aby pokazać menu:
+klawiszowe, aby pokazać menu:
 
  #Apps#       Pokazuje menu tekstowe
  #Shift-Apps# Pokazuje menu graficzne
  #Ctrl-Apps#  Pokazuje menu wyboru pomiędzy menu tekstowym a graficznym
 
-    Aby zainstalować makro należy zaimportować plik Hotkey.farconfig i uruchomić ponownie program FAR.
+    Aby zainstalować makro należy zaimportować plik Hotkey.farconfig i uruchomić ponownie program Far.
 
-    #2) Używając prefix'ów w linii poleceń#
+    #2) Używając przedrostków w linii poleceń#
 
  #rclk:      [pliki]#             Pokazuje menu kontekstowe.
  #rclk_txt:  [pliki]#             Pokazuje tekstowe menu kontekstowe.
@@ -51,20 +51,18 @@ w ich pełne wartości.
 $ #EMenu - okno konfiguracji#
 ^#Pokaż komunikat po wykonaniu#
 
-    Enable this option if you want a message to be shown after the plugin
-has finished working. This message may be needed under Windows 9x where
-problems can arise if you execute some context menu commands in parallel
-to working with Far.
+    Włącz tę opcję, jeżeli chcesz zobaczyć komunikat po zakończeniu pracy przez wtyczkę.
+Komunikat może być wymagany przez Windows 9x, gdzie mogą występować problemy po uruchomieniu
+niektórych poleceń równolegle pracujących z Far.
 
     Domyślna wartość: #wyłączone#.
 
 ^#Pokaż menu graficzne#
 
-    There may be some context menu items that are not just a text strings.
-Such items can't be displayed correctly in Far menu (though you will see them
-and be able to execute). To see the menu as it is shown in explorer you can
-use GUI menu.
-    The option can have one of the following values:
+    Niektóre pozycje z menu kontekstowych nie są samym tekstem - mogą być z elementami graficznymi.
+Takie pozycje nie będą prawidłowo wyświetlane w menu Far (ale będą prawidłowo uruchamiane).
+Aby zobaczyć menu jak w Eksploratorze, można włączyć menu graficzne.
+    Opcja może przyjąć następujące wartości:
 
  #[ ]# Pokaż menu tekstowe
  #[x]# Pokaż menu graficzne
@@ -72,23 +70,22 @@ use GUI menu.
 
     Domyślna wartość: #[?]#.
 
-^#Usuń używając FAR#
+^#Usuń używając Far#
 
-    When this option is enabled the "delete" menu command acts like the F8
-key in Far.
+    Po włączeniu tej opcji, polecenie "Usuń" z menu działa tak jak klawisz F8 w Far.
 
     Domyślna wartość: #wyłączone#.
 
 ^#Wyczyść zaznaczenie po uruchomieniu polecenia#
 
-    When this option is enabled the selection on the panel is cleared
-after exiting the menu if any menu command has been executed.
+    Po włączeniu tej opcji zaznaczenie plików/folderów w wybranym panelu jest czyszczone
+po wykoaniu pozycji z menu.
 
-    Domyślna wartość: #enabled#.
+    Domyślna wartość: #włączone#.
 
 ^#Tryb cichy (nie pokazuj żadnego komunikatu)#
 
-    When this option is enabled plugin never shows any messages.
+    Po włączeniu tej opcji wtyczka nie pokaże żadnego komunikatu.
 
     Domyślna wartość: #wyłączone#.
 
@@ -98,12 +95,12 @@ after exiting the menu if any menu command has been executed.
 displayed in the text menu in brackets next to item.
 
  #( ) Brak#                     Nie pokazuje żadnej dodatkowej informacji.
- #( ) Pokaż pomoc#              Helptext is displayed. Helptext is the text
-                              that Explorer shows in its status bar for
-                              currently selected context menu command.
- #( ) Pokaż polecenie#          Commands are displayed. Useful if you want
-                              to know the command to write a "rclk_cmd:"
-                              prefix command line.
+ #( ) Pokaż pomoc#              Wyświetlana jest pomoc. Wyświetlany jest opis
+                              danej pozycji, jaki Eksplorator wyświetla
+                              na pasku statusu po wybraniu zaznaczonego polecenia.
+ #( ) Pokaż polecenie#          Wyświetlane są polecenia. Użyteczne, jeżeli chcesz
+                              wiedzieć jakie polecenie chcesz wpisać w wierszu
+                              poleceń po przedrostku "rclk_cmd:" lub w makrach.
  #[ ] Ukryj jeżeli takie same#  Hide additional information if it is the
                               same as menu item.
 
