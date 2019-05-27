@@ -649,6 +649,10 @@
           <Feature Id="FileCase.Italian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="CaseIta.lng" />
           </Feature>
+          <Feature Id="FileCase.Polish" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="CasePol.hlf" />
+            <ComponentRef Id="CasePol.lng" />
+          </Feature>
           <Feature Id="FileCase.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="CaseRus.hlf" />
             <ComponentRef Id="CaseRus.lng" />
@@ -687,6 +691,10 @@
           </Feature>
           <Feature Id="HlfViewer.Italian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="HlfViewerIta.lng" />
+          </Feature>
+          <Feature Id="HlfViewer.Polish" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="HlfViewerPol.hlf" />
+            <ComponentRef Id="HlfViewerPol.lng" />
           </Feature>
           <Feature Id="HlfViewer.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="HlfViewerRus.hlf" />
@@ -808,6 +816,11 @@
           </Feature>
           <Feature Id="TmpPanel.Italian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="TmpIta.lng" />
+          </Feature>
+          <Feature Id="TmpPanel.Polish" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="disks.pol.temp" />
+            <ComponentRef Id="shortcuts.pol.lua" />
+            <ComponentRef Id="TmpPol.lng" />
           </Feature>
           <Feature Id="TmpPanel.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="disks.rus.temp" />

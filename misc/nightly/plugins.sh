@@ -61,11 +61,11 @@ bplugin "editcase" "EditCase" "EditCase.dll ECaseEng.hlf ECaseRus.hlf ECasePol.h
 bplugin "emenu" "EMenu" "EMenu.dll EMenuEng.hlf EMenuRus.hlf EMenuPol.hlf EMenuEng.lng EMenuRus.lng EMenuSky.lng EMenuSpa.lng EMenuIta.lng EMenuPol.lng EMenu.map HotkeyClipboard.lua HotkeyProperties.lua Hotkey.lua Hotkey.farconfig" && \
 bplugin "farcmds" "FarCmds" "FarCmds.dll FARCmdsEng.hlf FARCmdsRus.hlf FARCmdsEng.lng FARCmdsRus.lng FARCmdsSky.lng FARCmdsSpa.lng FARCmdsIta.lng FarCmds.map" && \
 bplugin "samefolder" "SameFolder" "SameFolder.dll SameFolderEng.hlf SameFolderRus.hlf SameFolderEng.lng SameFolderRus.lng SameFolderSky.lng SameFolderSpa.lng SameFolderIta.lng SameFolder.map" && \
-bplugin "filecase" "FileCase" "FileCase.dll CaseEng.hlf CaseRus.hlf CaseEng.lng CaseRus.lng CaseSky.lng CaseSpa.lng CaseIta.lng FileCase.map" && \
-bplugin "hlfviewer" "HlfViewer" "HlfViewer.dll HlfViewerEng.hlf HlfViewerRus.hlf HlfViewerEng.lng HlfViewerRus.lng HlfViewerSky.lng HlfViewerSpa.lng HlfViewerIta.lng HlfViewer.map" && \
+bplugin "filecase" "FileCase" "FileCase.dll CaseEng.hlf CaseRus.hlf CasePol.hlf CaseEng.lng CaseRus.lng CaseSky.lng CaseSpa.lng CaseIta.lng CasePol.lng FileCase.map" && \
+bplugin "hlfviewer" "HlfViewer" "HlfViewer.dll HlfViewerEng.hlf HlfViewerRus.hlf HlfViewerPol.hlf HlfViewerEng.lng HlfViewerRus.lng HlfViewerSky.lng HlfViewerSpa.lng HlfViewerIta.lng HlfViewerPol.lng HlfViewer.map" && \
 bplugin "network" "Network" "Network.dll NetEng.hlf NetRus.hlf NetEng.lng NetRus.lng NetSky.lng NetSpa.lng NetIta.lng Network.map" && \
 bplugin "proclist" "ProcList" "ProcList.dll ProcEng.hlf ProcRus.hlf ProcEng.lng ProcRus.lng ProcIta.lng ProcList.map" && \
-bplugin "tmppanel" "TmpPanel" "TmpPanel.dll TmpEng.hlf TmpRus.hlf TmpEng.lng TmpRus.lng TmpSky.lng TmpSpa.lng TmpIta.lng TmpPanel.map shortcuts.eng.lua shortcuts.rus.lua disks.eng.temp disks.rus.temp shortcuts.eng.temp shortcuts.rus.temp TmpPanel.ListUTF8.farconfig" && \
+bplugin "tmppanel" "TmpPanel" "TmpPanel.dll TmpEng.hlf TmpRus.hlf TmpEng.lng TmpRus.lng TmpSky.lng TmpSpa.lng TmpIta.lng TmpPol.lng TmpPanel.map shortcuts.eng.lua shortcuts.rus.lua shortcuts.pol.lua disks.eng.temp disks.rus.temp disks.pol.temp shortcuts.eng.temp shortcuts.rus.temp TmpPanel.ListUTF8.farconfig" && \
 bplugin "arclite" "ArcLite" "7z.dll 7z.sfx 7zCon.sfx 7zS2.sfx 7zS2con.sfx 7zSD.sfx arclite.dll arclite.map arclite_eng.hlf arclite_eng.lng arclite_rus.hlf arclite_rus.lng arclite_spa.lng arclite_ita.lng arclite.xml" && \
 bplugin "luamacro" "LuaMacro" "LuaMacro.dll _globalinfo.lua api.lua luamacro.lua macrotest.lua utils.lua mbrowser.lua lang.lua panelsort.lua winapi.lua farapi.lua moonscript.lua keymacro.lua lm_eng.lng lm_rus.lng lm_sky.lng lm_spa.lng lm_ita.lng LuaMacro.map luamacro.example.ini" \
 ) || exit 1

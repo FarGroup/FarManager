@@ -1136,6 +1136,12 @@
           <Component Id="CaseIta.lng" Guid="$(var.Guid.CaseIta.lng)" Win64="$(var.Win64)">
             <File Id="CaseIta.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FileCase\CaseIta.lng" />
           </Component>
+          <Component Id="CasePol.hlf" Guid="$(var.Guid.CasePol.hlf)" Win64="$(var.Win64)">
+            <File Id="CasePol.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FileCase\CasePol.hlf" />
+          </Component>
+          <Component Id="CasePol.lng" Guid="$(var.Guid.CasePol.lng)" Win64="$(var.Win64)">
+            <File Id="CasePol.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FileCase\CasePol.lng" />
+          </Component>
           <Component Id="changelog_10" Guid="$(var.Guid.changelog_10)" Win64="$(var.Win64)">
             <File Id="changelog_10" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FileCase\changelog" />
           </Component>
@@ -1203,6 +1209,12 @@
           </Component>
           <Component Id="HlfViewerIta.lng" Guid="$(var.Guid.HlfViewerIta.lng)" Win64="$(var.Win64)">
             <File Id="HlfViewerIta.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\HlfViewer\HlfViewerIta.lng" />
+          </Component>
+          <Component Id="HlfViewerPol.hlf" Guid="$(var.Guid.HlfViewerPol.hlf)" Win64="$(var.Win64)">
+            <File Id="HlfViewerPol.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\HlfViewer\HlfViewerPol.hlf" />
+          </Component>
+          <Component Id="HlfViewerPol.lng" Guid="$(var.Guid.HlfViewerPol.lng)" Win64="$(var.Win64)">
+            <File Id="HlfViewerPol.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\HlfViewer\HlfViewerPol.lng" />
           </Component>
         </Directory>
         <Directory Id="LuaMacro" Name="LuaMacro">
@@ -1344,6 +1356,9 @@
           <Component Id="disks.rus.temp" Guid="$(var.Guid.disks.rus.temp)" Win64="$(var.Win64)">
             <File Id="disks.rus.temp" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\disks.rus.temp" />
           </Component>
+          <Component Id="disks.pol.temp" Guid="$(var.Guid.disks.pol.temp)" Win64="$(var.Win64)">
+            <File Id="disks.pol.temp" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\disks.pol.temp" />
+          </Component>
           <Component Id="shortcuts.eng.lua" Guid="$(var.Guid.shortcuts.eng.lua)" Win64="$(var.Win64)">
             <File Id="shortcuts.eng.lua" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\shortcuts.eng.lua" />
           </Component>
@@ -1355,6 +1370,9 @@
           </Component>
           <Component Id="shortcuts.rus.temp" Guid="$(var.Guid.shortcuts.rus.temp)" Win64="$(var.Win64)">
             <File Id="shortcuts.rus.temp" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\shortcuts.rus.temp" />
+          </Component>
+          <Component Id="shortcuts.pol.lua" Guid="$(var.Guid.shortcuts.pol.lua)" Win64="$(var.Win64)">
+            <File Id="shortcuts.pol.lua" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\shortcuts.pol.lua" />
           </Component>
           <Component Id="TmpPanel.ListUTF8.farconfig" Guid="$(var.Guid.TmpPanel.ListUTF8.farconfig)" Win64="$(var.Win64)">
             <File Id="TmpPanel.ListUTF8.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\TmpPanel.ListUTF8.farconfig" />
@@ -1373,6 +1391,9 @@
           </Component>
           <Component Id="TmpIta.lng" Guid="$(var.Guid.TmpIta.lng)" Win64="$(var.Win64)">
             <File Id="TmpIta.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\TmpIta.lng" />
+          </Component>
+          <Component Id="TmpPol.lng" Guid="$(var.Guid.TmpPol.lng)" Win64="$(var.Win64)">
+            <File Id="TmpPol.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\TmpPol.lng" />
           </Component>
           <Component Id="TmpPanel.dll" Guid="$(var.Guid.TmpPanel.dll)" Win64="$(var.Win64)">
             <File Id="TmpPanel.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\TmpPanel.dll" />

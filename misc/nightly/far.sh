@@ -32,9 +32,11 @@ m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix File_id.diz.m4 | unix2dos -m > $OUTDIR/Fi
 dos2unix FarEng.hlf.m4
 dos2unix FarRus.hlf.m4
 dos2unix FarHun.hlf.m4
+dos2unix FarPol.hlf.m4
 gawk -f ./scripts/mkhlf.awk FarEng.hlf.m4 | m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix | unix2dos -m > $OUTDIR/FarEng.hlf
 gawk -f ./scripts/mkhlf.awk FarRus.hlf.m4 | m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix | unix2dos -m > $OUTDIR/FarRus.hlf
 gawk -f ./scripts/mkhlf.awk FarHun.hlf.m4 | m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix | unix2dos -m > $OUTDIR/FarHun.hlf
+gawk -f ./scripts/mkhlf.awk FarPol.hlf.m4 | m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix | unix2dos -m > $OUTDIR/FarPol.hlf
 
 wine tools/lng.generator.exe -nc -oh ${BOOTSTRAPDIR} -ol $OUTDIR ${BOOTSTRAPDIR}farlang.templ
 

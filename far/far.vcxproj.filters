@@ -1141,6 +1141,9 @@
     <CustomBuild Include="farlang.templ.m4">
       <Filter>Dependencies</Filter>
     </CustomBuild>
+    <CustomBuild Include="FarPol.hlf.m4">
+      <Filter>Dependencies</Filter>
+    </CustomBuild>
     <CustomBuild Include="FarRus.hlf.m4">
       <Filter>Dependencies</Filter>
     </CustomBuild>

@@ -623,6 +623,13 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
       <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs>$(OutDir)%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
+    <CustomBuild Include="FarPol.hlf.m4">
+      <FileType>Document</FileType>
+      <Message>Compiling %(Identity)...</Message>
+      <Command>tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=$(PlatformArchitecture) &gt; $(OutDir)%(FileName)</Command>
+      <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs>$(OutDir)%(FileName);%(Outputs)</Outputs>
+    </CustomBuild>
     <CustomBuild Include="$(BootstrapDir)farlang.templ">
       <FileType>Document</FileType>
       <Message>Generating language files based on %(Identity)...</Message>

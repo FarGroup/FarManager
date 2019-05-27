@@ -426,6 +426,7 @@ docs: \
 	"$(OUTDIR)\FarEng.hlf"\
 	"$(OUTDIR)\FarRus.hlf"\
 	"$(OUTDIR)\FarHun.hlf"\
+	"$(OUTDIR)\FarPol.hlf"\
 	"$(OUTDIR)\File_id.diz"\
 	"$(OUTDIR)\Far.exe.example.ini"
 
@@ -537,7 +538,8 @@ $(FARINCLUDE)\farcolor.hpp: $(@F) farversion.m4 tools.m4 vbuild.m4
 
 $(OUTDIR)\FarEng.hlf \
 $(OUTDIR)\FarRus.hlf \
-$(OUTDIR)\FarHun.hlf: $(@F).m4 farversion.m4 tools.m4 vbuild.m4
+$(OUTDIR)\FarHun.hlf \
+$(OUTDIR)\FarPol.hlf: $(@F).m4 farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
 	$(GAWK) -f scripts\mkhlf.awk $(@F).m4 | $(M4) > $@
 
