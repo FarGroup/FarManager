@@ -594,9 +594,16 @@ void VMenu::ClearCheck(int Position)
 
 void VMenu::RestoreFilteredItems()
 {
-	std::for_each(RANGE(Items, i) { i.Flags &= ~LIF_FILTERED; });
+	for (auto& i: Items)
+	{
+		if (i.Flags & LIF_FILTERED)
+		{
+			i.Flags &= ~LIF_FILTERED;
 
-	ItemHiddenCount=0;
+			if (ItemIsVisible(i.Flags))
+				--ItemHiddenCount;
+		}
+	}
 
 	FilterUpdateHeight();
 
@@ -665,20 +672,27 @@ void VMenu::FilterStringUpdated()
 			}
 			else
 			{
-				PrevGroup = static_cast<int>(index);
-				if (LowerVisible == -2)
+				if (ItemIsVisible(CurItem.Flags))
 				{
-					if (ItemCanHaveFocus(CurItem.Flags))
-						UpperVisible = static_cast<int>(index);
+					PrevGroup = static_cast<int>(index);
+					if (LowerVisible == -2)
+					{
+						if (ItemCanHaveFocus(CurItem.Flags))
+							UpperVisible = static_cast<int>(index);
+					}
+					else if (LowerVisible == -1)
+					{
+						if (ItemCanHaveFocus(CurItem.Flags))
+							LowerVisible = static_cast<int>(index);
+					}
+					// Этот разделитель - оставить видимым
+					if (PrevSeparator != -1)
+						PrevSeparator = -1;
 				}
-				else if (LowerVisible == -1)
+				else
 				{
-					if (ItemCanHaveFocus(CurItem.Flags))
-						LowerVisible = static_cast<int>(index);
+					++ItemHiddenCount;
 				}
-				// Этот разделитель - оставить видимым
-				if (PrevSeparator != -1)
-					PrevSeparator = -1;
 			}
 		}
 	});
@@ -969,7 +983,8 @@ long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 					break;
 
 				case 3:
-					RetValue = ItemHiddenCount;
+					// Don't use ItemHiddenCount here - it also includes invisible (LIF_HIDDEN), but non-filtered items
+					RetValue = std::count_if(ALL_CONST_RANGE(Items), [](const MenuItemEx& Item) { return (Item.Flags & LIF_FILTERED) != 0; });
 					break;
 
 				case 4:

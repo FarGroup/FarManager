@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 28.05.2019 23:34:25 +0100 - build 5404
+
+1. Continuation of 5403.
+
 drkns 27.05.2019 14:44:09 +0100 - build 5403
 
 1. Menu Filter was using LIF_HIDDEN flag to hide items.
