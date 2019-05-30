@@ -349,7 +349,7 @@ string VMenu2::GetMenuTitle(bool bottom)
 
 static const FarDialogItem VMenu2DialogItems[]
 {
-	{DI_LISTBOX, 2, 1, 10, 10, 0, nullptr, nullptr, DIF_LISTNOAMPERSAND/*|DIF_LISTNOCLOSE*/, nullptr},
+	{ DI_LISTBOX, 2, 1, 10, 10, {}, {}, {}, DIF_LISTNOAMPERSAND/* | DIF_LISTNOCLOSE*/, {} },
 };
 
 VMenu2::VMenu2(private_tag, int MaxHeight):

@@ -32,6 +32,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "compiler.hpp"
 #include "placement.hpp"
 #include "preprocessor.hpp"
 #include "utility.hpp"
@@ -92,7 +93,7 @@ WARNING_DISABLE_MSC(4583) // no page                                            
 WARNING_POP()
 
 	[[nodiscard]]
-	const T* c_str() const
+	const T* c_str() const noexcept
 	{
 		switch (m_Mode)
 		{
@@ -106,7 +107,7 @@ WARNING_POP()
 			return m_Str.c_str();
 
 		default:
-			throw std::runtime_error("unknown mode"s);
+			UNREACHABLE;
 		}
 	}
 

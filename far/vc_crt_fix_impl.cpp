@@ -45,8 +45,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "disable_warnings_in_std_end.hpp"
 #endif // END FAR_USE_INTERNALS
 
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wmissing-prototypes"
+#endif
+
+
 template<typename T>
-T GetFunctionPointer(const wchar_t* ModuleName, const char* FunctionName, T Replacement)
+static T GetFunctionPointer(const wchar_t* ModuleName, const char* FunctionName, T Replacement)
 {
 	const auto Module = GetModuleHandleW(ModuleName);
 	const auto Address = Module? GetProcAddress(Module, FunctionName) : nullptr;

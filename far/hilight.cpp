@@ -193,8 +193,8 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig& cfg)
 			static const FarColor DefaultColor
 			{
 				FCF_FG_4BIT | FCF_BG_4BIT,
-				colors::opaque(F_BLACK),
-				colors::transparent(F_BLACK)
+				{colors::opaque(F_BLACK)},
+				{colors::transparent(F_BLACK)}
 			};
 
 			cfg.SetValue(Key, j, bytes_view(DefaultColor));
@@ -328,7 +328,7 @@ static const DWORD PalColor[]
 
 static void ApplyBlackOnBlackColors(highlight::element::colors_array& Colors)
 {
-	for (const auto& [Color, Index]: zip(Colors, PalColor))
+	for (const auto [Color, Index]: zip(Colors, PalColor))
 		ApplyBlackOnBlackColor(Color, Index);
 }
 
@@ -340,7 +340,7 @@ static void ApplyColors(highlight::element& DestColors, const highlight::element
 	auto SrcColors = Src;
 	ApplyBlackOnBlackColors(SrcColors.Color);
 
-	for (const auto& [SrcItem, DstItem]: zip(SrcColors.Color, DestColors.Color))
+	for (const auto [SrcItem, DstItem]: zip(SrcColors.Color, DestColors.Color))
 	{
 		DstItem.FileColor = colors::merge(DstItem.FileColor, SrcItem.FileColor);
 		DstItem.MarkColor = colors::merge(DstItem.MarkColor, SrcItem.MarkColor);
@@ -417,7 +417,7 @@ const highlight::element* highlight::configuration::GetHiColor(const FileListIte
 	}
 
 	// Called from FileList::GetShowColor dynamically instead
-	//for (const auto& i: zip(Item.Color, PalColor)) std::apply(ApplyFinalColor, i);
+	//for (const auto i: zip(Item.Color, PalColor)) std::apply(ApplyFinalColor, i);
 
 	//Если символ пометки прозрачный то его как бы и нет вообще.
 	if (item.Mark.Transparent)

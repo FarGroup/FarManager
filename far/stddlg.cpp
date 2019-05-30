@@ -68,12 +68,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 int GetSearchReplaceString(
 	bool IsReplaceMode,
-	const wchar_t *Title,
-	const wchar_t *SubTitle,
+	string_view Title,
+	string_view SubTitle,
 	string& SearchStr,
 	string& ReplaceStr,
-	const wchar_t *TextHistoryName,
-	const wchar_t *ReplaceHistoryName,
+	string_view TextHistoryName,
+	string_view ReplaceHistoryName,
 	bool* pCase,
 	bool* pWholeWords,
 	bool* pReverse,
@@ -86,17 +86,17 @@ int GetSearchReplaceString(
 {
 	int Result = 0;
 
-	if (!TextHistoryName)
-		TextHistoryName = L"SearchText";
+	if (TextHistoryName.empty())
+		TextHistoryName = L"SearchText"sv;
 
-	if (!ReplaceHistoryName)
-		ReplaceHistoryName = L"ReplaceText";
+	if (ReplaceHistoryName.empty())
+		ReplaceHistoryName = L"ReplaceText"sv;
 
-	if (!Title)
-		Title = msg(IsReplaceMode? lng::MEditReplaceTitle : lng::MEditSearchTitle).c_str();
+	if (Title.empty())
+		Title = msg(IsReplaceMode? lng::MEditReplaceTitle : lng::MEditSearchTitle);
 
-	if (!SubTitle)
-		SubTitle = msg(lng::MEditSearchFor).c_str();
+	if (SubTitle.empty())
+		SubTitle = msg(lng::MEditSearchFor);
 
 
 	bool Case=pCase?*pCase:false;
@@ -110,12 +110,12 @@ int GetSearchReplaceString(
 	const auto SelectionLabel = msg(lng::MEditSearchPickSelection).c_str();
 	const auto WordButtonSize = HiStrlen(WordLabel) + 4;
 	const auto SelectionButtonSize = HiStrlen(SelectionLabel) + 4;
-	const auto SelectionButtonX2 = static_cast<intptr_t>(DlgWidth - 4 - 1);
-	const auto SelectionButtonX1 = static_cast<intptr_t>(SelectionButtonX2 - SelectionButtonSize);
-	const auto WordButtonX2 = static_cast<intptr_t>(SelectionButtonX1 - 1);
-	const auto WordButtonX1 = static_cast<intptr_t>(WordButtonX2 - WordButtonSize);
+	const auto SelectionButtonX2 = static_cast<int>(DlgWidth - 4 - 1);
+	const auto SelectionButtonX1 = static_cast<int>(SelectionButtonX2 - SelectionButtonSize);
+	const auto WordButtonX2 = static_cast<int>(SelectionButtonX1 - 1);
+	const auto WordButtonX1 = static_cast<int>(WordButtonX2 - WordButtonSize);
 
-	const auto YCorrection = IsReplaceMode? 0 : 2;
+	const auto YFix = IsReplaceMode? 0 : 2;
 
 	enum item_id
 	{
@@ -138,27 +138,35 @@ int GetSearchReplaceString(
 		dlg_button_cancel,
 	};
 
-	FarDialogItem const ReplaceDlgData[]
+	auto ReplaceDlg = MakeDialogItems(
 	{
-		{ DI_DOUBLEBOX, 3, 1, DlgWidth - 4, 12 - YCorrection, 0, nullptr, nullptr, 0, Title },
-		{ DI_BUTTON, WordButtonX1, 2, WordButtonX2, 2, 0, nullptr, nullptr, DIF_BTNNOCLOSE, WordLabel },
-		{ DI_BUTTON, SelectionButtonX1, 2, SelectionButtonX2, 2, 0, nullptr, nullptr, DIF_BTNNOCLOSE, SelectionLabel },
-		{ DI_TEXT, 5, 2, 0, 2, 0, nullptr, nullptr, 0, SubTitle },
-		{ DI_EDIT, 5, 3, 70, 3, 0, TextHistoryName, nullptr, DIF_FOCUS | DIF_USELASTHISTORY | (*TextHistoryName? DIF_HISTORY : 0), SearchStr.c_str() },
-		{ DI_TEXT, 5, 4, 0, 4, 0, nullptr, nullptr, 0, msg(lng::MEditReplaceWith).c_str() },
-		{ DI_EDIT, 5, 5, 70, 5, 0, ReplaceHistoryName, nullptr, DIF_USELASTHISTORY | (*ReplaceHistoryName? DIF_HISTORY : 0), ReplaceStr.c_str() },
-		{ DI_TEXT, -1, 6 - YCorrection, 0, 6 - YCorrection, 0, nullptr, nullptr, DIF_SEPARATOR, L"" },
-		{ DI_CHECKBOX, 5, 7 - YCorrection, 0, 7 - YCorrection, Case, nullptr, nullptr, 0, msg(lng::MEditSearchCase).c_str() },
-		{ DI_CHECKBOX, 5, 8 - YCorrection, 0, 8 - YCorrection, WholeWords, nullptr, nullptr, 0, msg(lng::MEditSearchWholeWords).c_str() },
-		{ DI_CHECKBOX, 5, 9 - YCorrection, 0, 9 - YCorrection, Reverse, nullptr, nullptr, 0, msg(lng::MEditSearchReverse).c_str() },
-		{ DI_CHECKBOX, 40, 7 - YCorrection, 0, 7 - YCorrection, Regexp, nullptr, nullptr, 0, msg(lng::MEditSearchRegexp).c_str() },
-		{ DI_CHECKBOX, 40, 8 - YCorrection, 0, 8 - YCorrection, PreserveStyle, nullptr, nullptr, 0, msg(lng::MEditSearchPreserveStyle).c_str() },
-		{ DI_TEXT, -1, 10 - YCorrection, 0, 10 - YCorrection, 0, nullptr, nullptr, DIF_SEPARATOR, L"" },
-		{ DI_BUTTON, 0, 11 - YCorrection, 0, 11 - YCorrection, 0, nullptr, nullptr, DIF_DEFAULTBUTTON | DIF_CENTERGROUP, msg(IsReplaceMode? lng::MEditReplaceReplace : lng::MEditSearchSearch).c_str() },
-		{ DI_BUTTON, 0, 11 - YCorrection, 0, 11 - YCorrection, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MEditSearchAll).c_str() },
-		{ DI_BUTTON, 0, 11 - YCorrection, 0, 11 - YCorrection, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MEditSearchCancel).c_str() },
-	};
-	auto ReplaceDlg = MakeDialogItemsEx(ReplaceDlgData);
+		{ DI_DOUBLEBOX, {{3,                 1      }, {DlgWidth-4,        12-YFix}}, DIF_NONE, Title },
+		{ DI_BUTTON,    {{WordButtonX1,      2      }, {WordButtonX2,      2      }}, DIF_BTNNOCLOSE, WordLabel },
+		{ DI_BUTTON,    {{SelectionButtonX1, 2      }, {SelectionButtonX2, 2      }}, DIF_BTNNOCLOSE, SelectionLabel },
+		{ DI_TEXT,      {{5,                 2      }, {0,                 2      }}, DIF_NONE, SubTitle },
+		{ DI_EDIT,      {{5,                 3      }, {70,                3      }}, DIF_FOCUS | DIF_USELASTHISTORY | DIF_HISTORY, SearchStr, },
+		{ DI_TEXT,      {{5,                 4      }, {0,                 4      }}, DIF_NONE, msg(lng::MEditReplaceWith), },
+		{ DI_EDIT,      {{5,                 5      }, {70,                5      }}, DIF_USELASTHISTORY | DIF_HISTORY, ReplaceStr, },
+		{ DI_TEXT,      {{-1,                6-YFix }, {0,                 6-YFix }}, DIF_SEPARATOR, },
+		{ DI_CHECKBOX,  {{5,                 7-YFix }, {0,                 7-YFix }}, DIF_NONE, msg(lng::MEditSearchCase), },
+		{ DI_CHECKBOX,  {{5,                 8-YFix }, {0,                 8-YFix }}, DIF_NONE, msg(lng::MEditSearchWholeWords), },
+		{ DI_CHECKBOX,  {{5,                 9-YFix }, {0,                 9-YFix }}, DIF_NONE, msg(lng::MEditSearchReverse), },
+		{ DI_CHECKBOX,  {{40,                7-YFix }, {0,                 7-YFix }}, DIF_NONE, msg(lng::MEditSearchRegexp), },
+		{ DI_CHECKBOX,  {{40,                8-YFix }, {0,                 8-YFix }}, DIF_NONE, msg(lng::MEditSearchPreserveStyle), },
+		{ DI_TEXT,      {{-1,                10-YFix}, {0,                 10-YFix}}, DIF_SEPARATOR, },
+		{ DI_BUTTON,    {{0,                 11-YFix}, {0,                 11-YFix}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(IsReplaceMode? lng::MEditReplaceReplace : lng::MEditSearchSearch), },
+		{ DI_BUTTON,    {{0,                 11-YFix}, {0,                 11-YFix}}, DIF_CENTERGROUP, msg(lng::MEditSearchAll), },
+		{ DI_BUTTON,    {{0,                 11-YFix}, {0,                 11-YFix}}, DIF_CENTERGROUP, msg(lng::MEditSearchCancel), },
+	});
+
+	ReplaceDlg[dlg_edit_search].strHistory = TextHistoryName;
+	ReplaceDlg[dlg_edit_replace].strHistory = ReplaceHistoryName;
+	ReplaceDlg[dlg_checkbox_case].Selected = Case;
+	ReplaceDlg[dlg_checkbox_words].Selected = WholeWords;
+	ReplaceDlg[dlg_checkbox_reverse].Selected = Reverse;
+	ReplaceDlg[dlg_checkbox_regex].Selected = Regexp;
+	ReplaceDlg[dlg_checkbox_style].Selected = PreserveStyle;
+
 
 	if (IsReplaceMode || HideAll)
 	{
@@ -202,7 +210,7 @@ int GetSearchReplaceString(
 	};
 
 	const auto Dlg = Dialog::create(ReplaceDlg, Handler);
-	Dlg->SetPosition({ -1, -1, DlgWidth, 14 - YCorrection });
+	Dlg->SetPosition({ -1, -1, DlgWidth, 14 - YFix });
 
 	if (!HelpTopic.empty())
 		Dlg->SetHelp(HelpTopic);
@@ -257,18 +265,18 @@ bool GetString(
 	int ExitCode;
 	const auto addCheckBox = Flags&FIB_CHECKBOX && CheckBoxValue && !CheckBoxText.empty();
 	const auto offset = addCheckBox? 2 : 0;
-	FarDialogItem const StrDlgData[]
+
+	auto StrDlg = MakeDialogItems(
 	{
-		{DI_DOUBLEBOX, 3, 1, 72, 4, 0, nullptr, nullptr, 0,                                L""},
-		{DI_TEXT,      5, 2,  0, 2, 0, nullptr, nullptr, DIF_SHOWAMPERSAND,                L""},
-		{DI_EDIT,      5, 3, 70, 3, 0, nullptr, nullptr, DIF_FOCUS|DIF_DEFAULTBUTTON,      L""},
-		{DI_TEXT,     -1, 4,  0, 4, 0, nullptr, nullptr, DIF_SEPARATOR,                    L""},
-		{DI_CHECKBOX,  5, 5,  0, 5, 0, nullptr, nullptr, 0,                                L""},
-		{DI_TEXT,     -1, 6,  0, 6, 0, nullptr, nullptr, DIF_SEPARATOR,                    L""},
-		{DI_BUTTON,    0, 7,  0, 7, 0, nullptr, nullptr, DIF_CENTERGROUP,                  L""},
-		{DI_BUTTON,    0, 7,  0, 7, 0, nullptr, nullptr, DIF_CENTERGROUP,                  L""},
-	};
-	auto StrDlg = MakeDialogItemsEx(StrDlgData);
+		{ DI_DOUBLEBOX, {{3,  1}, {72, 4}}, DIF_NONE,                      },
+		{ DI_TEXT,      {{5,  2}, {0,  2}}, DIF_SHOWAMPERSAND,             },
+		{ DI_EDIT,      {{5,  3}, {70, 3}}, DIF_FOCUS | DIF_DEFAULTBUTTON, },
+		{ DI_TEXT,      {{-1, 4}, {0,  4}}, DIF_SEPARATOR,                 },
+		{ DI_CHECKBOX,  {{5,  5}, {0,  5}}, DIF_NONE,                      },
+		{ DI_TEXT,      {{-1, 6}, {0,  6}}, DIF_SEPARATOR,                 },
+		{ DI_BUTTON,    {{0,  7}, {0,  7}}, DIF_CENTERGROUP,               },
+		{ DI_BUTTON,    {{0,  7}, {0,  7}}, DIF_CENTERGROUP,               },
+	});
 
 	if (addCheckBox)
 	{
@@ -379,7 +387,7 @@ bool GetNameAndPassword(
 	|0                                                                             |
 	|1   +------------------------------- Title -------------------------------+   |
 	|2   | User name                                                           |   |
-	|3   | *******************************************************************|   |
+	|3   | ******************************************************************* |   |
 	|4   | User password                                                       |   |
 	|5   | ******************************************************************* |   |
 	|6   +---------------------------------------------------------------------+   |
@@ -387,18 +395,19 @@ bool GetNameAndPassword(
 	|8   +---------------------------------------------------------------------+   |
 	|9                                                                             |
 	*/
-	FarDialogItem const PassDlgData[]
+	auto PassDlg = MakeDialogItems(
 	{
-		{DI_DOUBLEBOX,  3, 1,72, 8,0,nullptr,nullptr,0,Title.c_str()},
-		{DI_TEXT,       5, 2, 0, 2,0,nullptr,nullptr,0,msg(lng::MNetUserName).c_str()},
-		{DI_EDIT,       5, 3,70, 3,0,L"NetworkUser",nullptr,DIF_FOCUS|DIF_USELASTHISTORY|DIF_HISTORY,(Flags & GNP_USELAST)? strLastName.c_str() : strUserName.c_str()},
-		{DI_TEXT,       5, 4, 0, 4,0,nullptr,nullptr,0,msg(lng::MNetUserPassword).c_str()},
-		{DI_PSWEDIT,    5, 5,70, 5,0,nullptr,nullptr,0,(Flags & GNP_USELAST)? strLastPassword.c_str() : strPassword.c_str()},
-		{DI_TEXT,      -1, 6, 0, 6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,     0, 7, 0, 7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk).c_str()},
-		{DI_BUTTON,     0, 7, 0, 7,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel).c_str()},
-	};
-	auto PassDlg = MakeDialogItemsEx(PassDlgData);
+		{ DI_DOUBLEBOX, {{3,  1}, {72, 8}}, DIF_NONE, Title, },
+		{ DI_TEXT,      {{5,  2}, {0,  2}}, DIF_NONE, msg(lng::MNetUserName), },
+		{ DI_EDIT,      {{5,  3}, {70, 3}}, DIF_FOCUS | DIF_USELASTHISTORY | DIF_HISTORY, (Flags & GNP_USELAST)? strLastName : strUserName, },
+		{ DI_TEXT,      {{5,  4}, {0,  4}}, DIF_NONE, msg(lng::MNetUserPassword), },
+		{ DI_PSWEDIT,   {{5,  5}, {70, 5}}, DIF_NONE, (Flags & GNP_USELAST)? strLastPassword : strPassword, },
+		{ DI_TEXT,      {{-1, 6}, {0,  6}}, DIF_SEPARATOR, },
+		{ DI_BUTTON,    {{0,  7}, {0,  7}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MOk), },
+		{ DI_BUTTON,    {{0,  7}, {0,  7}}, DIF_CENTERGROUP, msg(lng::MCancel), },
+	});
+
+	PassDlg[2].strHistory = L"NetworkUser"sv;
 
 	{
 		const auto Dlg = Dialog::create(PassDlg);

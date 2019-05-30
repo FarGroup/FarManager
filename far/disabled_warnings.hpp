@@ -30,12 +30,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #ifdef _MSC_VER
-// some warnings are not exist in older VC versions, no sense to care about them
+// some warnings do not exist in older VC versions, no need to care about them:
 #pragma warning(disable: 4616) // https://msdn.microsoft.com/en-us/library/t7ab6xtd.aspx #pragma warning : warning number 'number' not a valid compiler warning
 #pragma warning(disable: 4619) // https://msdn.microsoft.com/en-us/library/tacee08d.aspx #pragma warning : there is no warning number 'number'
 
 #ifdef DISABLE_WARNINGS_IN_STD_HEADERS
-// these warnings are triggered in the standard headers ONLY
+// these warnings are triggered in the standard headers only:
 #pragma warning(disable: 4091) // https://msdn.microsoft.com/en-us/library/eehkcz60.aspx 'typedef ': ignored on left of 'type' when no variable is declared
 #pragma warning(disable: 4265) // https://msdn.microsoft.com/en-us/library/wzxffy8c.aspx 'class' : class has virtual functions, but destructor is not virtual
 #pragma warning(disable: 4668) // https://msdn.microsoft.com/en-us/library/4dt9kyhy.aspx 'symbol' is not defined as a preprocessor macro, replacing with '0' for 'directives'
@@ -47,7 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma warning(disable: 4582) // no page                                                'class': constructor is not implicitly called
 #pragma warning(disable: 4583) // no page                                                'class': destructor is not implicitly called
 #else
-// these in the rest of the code as well
+// these in the rest of the code as well:
 #pragma warning(disable: 4061) // https://msdn.microsoft.com/en-us/library/96f5t7fy.aspx enumerator 'identifier' in switch of enum 'enumeration' is not explicitly handled by a case label
 #pragma warning(disable: 4100) // https://msdn.microsoft.com/en-us/library/26kb9fy0.aspx 'identifier' : unreferenced formal parameter
 #pragma warning(disable: 4201) // https://msdn.microsoft.com/en-us/library/c89bw853.aspx nonstandard extension used : nameless struct/union
@@ -86,10 +86,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma warning(disable: 5030) // no page                                                attribute 'attribute' is not recognized
 #pragma warning(disable: 5039) // no page                                                'function': pointer or reference to potentially throwing function passed to extern C function under -EHc. Undefined behavior may occur if this function throws an exception.
 #pragma warning(disable: 5045) // no page                                                Compiler will insert Spectre mitigation for memory load if /Qspectre switch specified
-#pragma warning(disable: 5052) // no page                                                Keyword 'char8_t' was introduced in C++20... (VS2019.1)
+#pragma warning(disable: 5052) // no page                                                Keyword 'char8_t' was introduced in C++20 and requires use of the '/std:c++latest' command-line option
 #endif
 
 #ifdef __clang__
+// https://clang.llvm.org/docs/DiagnosticsReference.html
+
 #pragma clang diagnostic ignored "-Wunknown-warning-option"
 
 // TODO: some of these might be useful
@@ -98,28 +100,22 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma clang diagnostic ignored "-Wconversion"
 #pragma clang diagnostic ignored "-Wcovered-switch-default"
 #pragma clang diagnostic ignored "-Wctad-maybe-unsupported"
-#pragma clang diagnostic ignored "-Wdeprecated-this-capture"
-#pragma clang diagnostic ignored "-Wdisabled-macro-expansion"
 #pragma clang diagnostic ignored "-Wenum-compare"
 #pragma clang diagnostic ignored "-Wexit-time-destructors"
 #pragma clang diagnostic ignored "-Wglobal-constructors"
 #pragma clang diagnostic ignored "-Wgnu-anonymous-struct"
 #pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#pragma clang diagnostic ignored "-Winvalid-token-paste"
 #pragma clang diagnostic ignored "-Wkeyword-macro"
 #pragma clang diagnostic ignored "-Wlanguage-extension-token"
-#pragma clang diagnostic ignored "-Wmicrosoft"
-#pragma clang diagnostic ignored "-Wmissing-braces"
+#pragma clang diagnostic ignored "-Wmicrosoft-enum-value"
 #pragma clang diagnostic ignored "-Wmissing-field-initializers"
 #pragma clang diagnostic ignored "-Wnested-anon-types"
 #pragma clang diagnostic ignored "-Wnonportable-system-include-path"
 #pragma clang diagnostic ignored "-Wold-style-cast"
-#pragma clang diagnostic ignored "-Wrange-loop-analysis"
 #pragma clang diagnostic ignored "-Wreturn-std-move-in-c++11"
 #pragma clang diagnostic ignored "-Wreserved-id-macro"
 #pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
 #pragma clang diagnostic ignored "-Wshadow-field"
-#pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wswitch-enum"
 #pragma clang diagnostic ignored "-Wundefined-func-template"

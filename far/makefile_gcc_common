@@ -78,25 +78,31 @@ CFLAGS += \
 -masm=intel \
 -Wall \
 -Wextra \
+-Wcast-align \
 -Wcast-qual \
--Wformat=2 \
--Wlogical-op \
--Wodr \
--Winvalid-pch \
--Wduplicated-cond \
--Wduplicated-branches \
 -Wdouble-promotion \
+-Wduplicated-branches \
+-Wduplicated-cond \
+-Wformat=2 \
+-Wimplicit-fallthrough=5 \
+-Winvalid-pch \
+-Wlogical-op \
+-Wmissing-declarations \
+-Wodr \
+-Wredundant-decls \
+-Wundef \
 -Wno-unknown-pragmas \
 -Wno-unused-parameter \
 -Wno-missing-field-initializers \
 
 CCFLAGS = $(CFLAGS)\
 -std=gnu++17 \
+-Wctor-dtor-privacy \
+-Wextra-semi \
 -Wnon-virtual-dtor \
 -Woverloaded-virtual \
--Wctor-dtor-privacy \
--Wzero-as-null-pointer-constant \
 -Wsuggest-override \
+-Wzero-as-null-pointer-constant \
 
 LNKFLAGS = -m$(DIRBIT) -static-libgcc -static $(DEBUGLINKFLAGS)
 LNKFLAGS += -Xlinker -Map -Xlinker $(MAP) -Xlinker --tsaware -Xlinker --dynamicbase -Xlinker --nxcompat

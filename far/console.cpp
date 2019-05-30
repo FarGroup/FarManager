@@ -634,7 +634,7 @@ namespace console_detail
 
 			for_submatrix(Buffer, SubRect, [&](const FAR_CHAR_INFO& i)
 			{
-				ConsoleBuffer.emplace_back(CHAR_INFO{ ReplaceControlCharacter(i.Char), colors::FarColorToConsoleColor(i.Attributes) });
+					ConsoleBuffer.emplace_back(CHAR_INFO{ { ReplaceControlCharacter(i.Char) }, colors::FarColorToConsoleColor(i.Attributes) });
 			});
 
 			const COORD BufferSize{ static_cast<SHORT>(SubRect.width()), static_cast<SHORT>(SubRect.height()) };
@@ -1073,7 +1073,7 @@ namespace console_detail
 
 	bool console::ScrollScreenBuffer(const SMALL_RECT& ScrollRectangle, const SMALL_RECT* ClipRectangle, COORD DestinationOrigin, const FAR_CHAR_INFO& Fill) const
 	{
-		const CHAR_INFO SysFill{ Fill.Char, colors::FarColorToConsoleColor(Fill.Attributes) };
+		const CHAR_INFO SysFill{ { Fill.Char }, colors::FarColorToConsoleColor(Fill.Attributes) };
 		return ScrollConsoleScreenBuffer(GetOutputHandle(), &ScrollRectangle, ClipRectangle, DestinationOrigin, &SysFill) != FALSE;
 	}
 

@@ -3346,25 +3346,26 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 
 	if (!Next)
 	{
-		FarDialogItem const SearchDlgData[]
+		auto SearchDlg = MakeDialogItems(
 		{
-			{DI_DOUBLEBOX,3,1,72,11,0,nullptr,nullptr,0,msg(lng::MViewSearchTitle).c_str()},
-			{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(lng::MViewSearchFor).c_str()},
-			{DI_EDIT,5,3,70,3,0,L"SearchText",nullptr,DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY,L""},
-			{DI_FIXEDIT,5,3,70,3,0,nullptr,L"HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH ",DIF_MASKEDIT,L""},
-			{DI_TEXT,-1,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-			{DI_RADIOBUTTON,5,5,0,5,1,nullptr,nullptr,DIF_GROUP,msg(lng::MViewSearchForText).c_str()},
-			{DI_RADIOBUTTON,5,6,0,6,0,nullptr,nullptr,0,msg(lng::MViewSearchForHex).c_str()},
-			{DI_CHECKBOX,40,5,0,5,0,nullptr,nullptr,0,msg(lng::MViewSearchCase).c_str()},
-			{DI_CHECKBOX,40,6,0,6,0,nullptr,nullptr,0,msg(lng::MViewSearchWholeWords).c_str()},
-			{DI_CHECKBOX,40,7,0,7,0,nullptr,nullptr,0,msg(lng::MViewSearchReverse).c_str()},
-			{DI_CHECKBOX,40,8,0,8,0,nullptr,nullptr,DIF_DISABLE,msg(lng::MViewSearchRegexp).c_str()},
-			{DI_TEXT,-1,9,0,9,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-			{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MViewSearchSearch).c_str()},
-			{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MViewSearchCancel).c_str()},
-		};
-		auto SearchDlg = MakeDialogItemsEx(SearchDlgData);
+			{ DI_DOUBLEBOX,   {{3,  1 }, {72, 11}}, DIF_NONE, msg(lng::MViewSearchTitle), },
+			{ DI_TEXT,        {{5,  2 }, {0,  2 }}, DIF_NONE, msg(lng::MViewSearchFor), },
+			{ DI_EDIT,        {{5,  3 }, {70, 3 }}, DIF_FOCUS | DIF_HISTORY | DIF_USELASTHISTORY, },
+			{ DI_FIXEDIT,     {{5,  3 }, {70, 3 }}, DIF_MASKEDIT, },
+			{ DI_TEXT,        {{-1, 4 }, {0,  4 }}, DIF_SEPARATOR, },
+			{ DI_RADIOBUTTON, {{5,  5 }, {0,  5 }}, DIF_GROUP, msg(lng::MViewSearchForText), },
+			{ DI_RADIOBUTTON, {{5,  6 }, {0,  6 }}, DIF_NONE, msg(lng::MViewSearchForHex), },
+			{ DI_CHECKBOX,    {{40, 5 }, {0,  5 }}, DIF_NONE, msg(lng::MViewSearchCase), },
+			{ DI_CHECKBOX,    {{40, 6 }, {0,  6 }}, DIF_NONE, msg(lng::MViewSearchWholeWords), },
+			{ DI_CHECKBOX,    {{40, 7 }, {0,  7 }}, DIF_NONE, msg(lng::MViewSearchReverse), },
+			{ DI_CHECKBOX,    {{40, 8 }, {0,  8 }}, DIF_DISABLE, msg(lng::MViewSearchRegexp), },
+			{ DI_TEXT,        {{-1, 9 }, {0,  9 }}, DIF_SEPARATOR, },
+			{ DI_BUTTON,      {{0,  10}, {0,  10}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MViewSearchSearch), },
+			{ DI_BUTTON,      {{0,  10}, {0,  10}}, DIF_CENTERGROUP, msg(lng::MViewSearchCancel), },
+		});
 
+		SearchDlg[SD_EDIT_TEXT].strHistory = L"SearchText"sv;
+		SearchDlg[SD_EDIT_HEX].strMask = L"HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH "sv;
 		SearchDlg[SD_RADIO_TEXT].Selected=!LastSearchHex;
 		SearchDlg[SD_RADIO_HEX].Selected=LastSearchHex;
 		SearchDlg[SD_CHECKBOX_CASE].Selected=LastSearchCase;

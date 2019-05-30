@@ -718,7 +718,7 @@ TEST_CASE("zip")
 	      std::array Destination { 9, 8, 7, 6, 5 };
 	const std::array Baseline    { 1, 2, 3, 6, 5 };
 
-	for (const auto& [Src, Dst] : zip(Source, Destination))
+	for (const auto [Src, Dst] : zip(Source, Destination))
 	{
 		Dst = Src;
 	}

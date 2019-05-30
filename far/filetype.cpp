@@ -324,17 +324,17 @@ enum EDITTYPERECORD
 	ETR_TEXT_DESCR,
 	ETR_EDIT_DESCR,
 	ETR_SEPARATOR1,
-	ETR_COMBO_EXEC,
+	ETR_CHECK_EXEC,
 	ETR_EDIT_EXEC,
-	ETR_COMBO_ALTEXEC,
+	ETR_CHECK_ALTEXEC,
 	ETR_EDIT_ALTEXEC,
-	ETR_COMBO_VIEW,
+	ETR_CHECK_VIEW,
 	ETR_EDIT_VIEW,
-	ETR_COMBO_ALTVIEW,
+	ETR_CHECK_ALTVIEW,
 	ETR_EDIT_ALTVIEW,
-	ETR_COMBO_EDIT,
+	ETR_CHECK_EDIT,
 	ETR_EDIT_EDIT,
-	ETR_COMBO_ALTEDIT,
+	ETR_CHECK_ALTEDIT,
 	ETR_EDIT_ALTEDIT,
 	ETR_SEPARATOR2,
 	ETR_BUTTON_OK,
@@ -349,12 +349,12 @@ static intptr_t EditTypeRecordDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 
 			switch (Param1)
 			{
-				case ETR_COMBO_EXEC:
-				case ETR_COMBO_ALTEXEC:
-				case ETR_COMBO_VIEW:
-				case ETR_COMBO_ALTVIEW:
-				case ETR_COMBO_EDIT:
-				case ETR_COMBO_ALTEDIT:
+				case ETR_CHECK_EXEC:
+				case ETR_CHECK_ALTEXEC:
+				case ETR_CHECK_VIEW:
+				case ETR_CHECK_ALTVIEW:
+				case ETR_CHECK_EDIT:
+				case ETR_CHECK_ALTEDIT:
 					Dlg->SendMessage(DM_ENABLE,Param1+1,ToPtr(reinterpret_cast<intptr_t>(Param2)==BSTATE_CHECKED));
 					break;
 				default:
@@ -380,31 +380,41 @@ static intptr_t EditTypeRecordDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 static bool EditTypeRecord(unsigned long long EditPos,bool NewRec)
 {
 	const int DlgX=76,DlgY=23;
-	FarDialogItem const EditDlgData[]
+	auto EditDlg = MakeDialogItems(
 	{
-		{DI_DOUBLEBOX,3, 1,DlgX-4,DlgY-2,0,nullptr,nullptr,0,msg(lng::MFileAssocTitle).c_str()},
-		{DI_TEXT,     5, 2, 0, 2,0,nullptr,nullptr,0,msg(lng::MFileAssocMasks).c_str()},
-		{DI_EDIT,     5, 3,DlgX-6, 3,0,L"Masks",nullptr,DIF_FOCUS|DIF_HISTORY,L""},
-		{DI_TEXT,     5, 4, 0, 4,0,nullptr,nullptr,0,msg(lng::MFileAssocDescr).c_str()},
-		{DI_EDIT,     5, 5,DlgX-6, 5,0,nullptr,nullptr,0,L""},
-		{DI_TEXT,     -1, 6, 0, 6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_CHECKBOX, 5, 7, 0, 7,1,nullptr,nullptr,0,msg(lng::MFileAssocExec).c_str()},
-		{DI_EDIT,     9, 8,DlgX-6, 8,0,nullptr,nullptr,DIF_EDITPATH|DIF_EDITPATHEXEC,L""},
-		{DI_CHECKBOX, 5, 9, 0, 9,1,nullptr,nullptr,0,msg(lng::MFileAssocAltExec).c_str()},
-		{DI_EDIT,     9,10,DlgX-6,10,0,nullptr,nullptr,DIF_EDITPATH|DIF_EDITPATHEXEC,L""},
-		{DI_CHECKBOX, 5,11, 0,11,1,nullptr,nullptr,0,msg(lng::MFileAssocView).c_str()},
-		{DI_EDIT,     9,12,DlgX-6,12,0,nullptr,nullptr,DIF_EDITPATH|DIF_EDITPATHEXEC,L""},
-		{DI_CHECKBOX, 5,13, 0,13,1,nullptr,nullptr,0,msg(lng::MFileAssocAltView).c_str()},
-		{DI_EDIT,     9,14,DlgX-6,14,0,nullptr,nullptr,DIF_EDITPATH|DIF_EDITPATHEXEC,L""},
-		{DI_CHECKBOX, 5,15, 0,15,1,nullptr,nullptr,0,msg(lng::MFileAssocEdit).c_str()},
-		{DI_EDIT,     9,16,DlgX-6,16,0,nullptr,nullptr,DIF_EDITPATH|DIF_EDITPATHEXEC,L""},
-		{DI_CHECKBOX, 5,17, 0,17,1,nullptr,nullptr,0,msg(lng::MFileAssocAltEdit).c_str()},
-		{DI_EDIT,     9,18,DlgX-6,18,0,nullptr,nullptr,DIF_EDITPATH|DIF_EDITPATHEXEC,L""},
-		{DI_TEXT,     -1,DlgY-4, 0,DlgY-4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,   0,DlgY-3, 0,DlgY-3,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk).c_str()},
-		{DI_BUTTON,   0,DlgY-3, 0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel).c_str()},
-	};
-	auto EditDlg = MakeDialogItemsEx(EditDlgData);
+		{ DI_DOUBLEBOX, {{3,   1,   }, {DlgX-4, DlgY-2}}, DIF_NONE, msg(lng::MFileAssocTitle), },
+		{ DI_TEXT,      {{5,   2,   }, {0,      2     }}, DIF_NONE, msg(lng::MFileAssocMasks), },
+		{ DI_EDIT,      {{5,   3,   }, {DlgX-6, 3     }}, DIF_FOCUS | DIF_HISTORY, },
+		{ DI_TEXT,      {{5,   4,   }, {0,      4     }}, DIF_NONE, msg(lng::MFileAssocDescr), },
+		{ DI_EDIT,      {{5,   5,   }, {DlgX-6, 5     }}, DIF_NONE, },
+		{ DI_TEXT,      {{-1,  6,   }, {0,      6     }}, DIF_SEPARATOR, },
+		{ DI_CHECKBOX,  {{5,   7,   }, {0,      7     }}, DIF_NONE, msg(lng::MFileAssocExec), },
+		{ DI_EDIT,      {{9,   8,   }, {DlgX-6, 8     }}, DIF_EDITPATH | DIF_EDITPATHEXEC, },
+		{ DI_CHECKBOX,  {{5,   9,   }, {0,      9     }}, DIF_NONE, msg(lng::MFileAssocAltExec), },
+		{ DI_EDIT,      {{9,  10,   }, {DlgX-6, 10    }}, DIF_EDITPATH | DIF_EDITPATHEXEC, },
+		{ DI_CHECKBOX,  {{5,  11,   }, {0,      11    }}, DIF_NONE, msg(lng::MFileAssocView), },
+		{ DI_EDIT,      {{9,  12,   }, {DlgX-6, 12    }}, DIF_EDITPATH | DIF_EDITPATHEXEC, },
+		{ DI_CHECKBOX,  {{5,  13,   }, {0,      13    }}, DIF_NONE, msg(lng::MFileAssocAltView), },
+		{ DI_EDIT,      {{9,  14,   }, {DlgX-6, 14    }}, DIF_EDITPATH | DIF_EDITPATHEXEC, },
+		{ DI_CHECKBOX,  {{5,  15,   }, {0,      15    }}, DIF_NONE, msg(lng::MFileAssocEdit), },
+		{ DI_EDIT,      {{9,  16,   }, {DlgX-6, 16    }}, DIF_EDITPATH | DIF_EDITPATHEXEC, },
+		{ DI_CHECKBOX,  {{5,  17,   }, {0,      17    }}, DIF_NONE, msg(lng::MFileAssocAltEdit), },
+		{ DI_EDIT,      {{9,  18,   }, {DlgX-6, 18    }}, DIF_EDITPATH | DIF_EDITPATHEXEC, },
+		{ DI_TEXT,      {{-1, DlgY-4}, {0,      DlgY-4}}, DIF_SEPARATOR, },
+		{ DI_BUTTON,    {{0,  DlgY-3}, {0,      DlgY-3}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MOk), },
+		{ DI_BUTTON,    {{0,  DlgY-3}, {0,      DlgY-3}}, DIF_CENTERGROUP, msg(lng::MCancel), },
+	});
+
+
+	EditDlg[ETR_EDIT_MASKS].strHistory = L"Masks"sv;
+
+	EditDlg[ETR_CHECK_EXEC].Selected = BSTATE_CHECKED;
+	EditDlg[ETR_CHECK_EXEC].Selected = BSTATE_CHECKED;
+	EditDlg[ETR_CHECK_ALTEXEC].Selected = BSTATE_CHECKED;
+	EditDlg[ETR_CHECK_VIEW].Selected = BSTATE_CHECKED;
+	EditDlg[ETR_CHECK_ALTVIEW].Selected = BSTATE_CHECKED;
+	EditDlg[ETR_CHECK_EDIT].Selected = BSTATE_CHECKED;
+	EditDlg[ETR_CHECK_ALTEDIT].Selected = BSTATE_CHECKED;
 
 	if (!NewRec)
 	{

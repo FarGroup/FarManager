@@ -160,7 +160,7 @@ const RAII_type ANONYMOUS_VARIABLE(scoped_object_)
 
 #define FWD(...) std::forward<decltype(__VA_ARGS__)>(__VA_ARGS__)
 
-#if COMPILER == C_CL // && _MSC_FULL_VER < 192030324
+#if COMPILER(CL) // && _MSC_FULL_VER < 192030324
 // See MSVC bug #540185
 // Note: even though they fixed the initial issue, the fix requires /experimental:newLambdaProcessor,
 // which currently breaks more than it solves (see #578912, #578858, #578868).

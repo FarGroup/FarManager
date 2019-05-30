@@ -575,8 +575,8 @@ enum enumFileFilterConfig
 
 	ID_FF_OK,
 	ID_FF_RESET,
-	ID_FF_CANCEL,
 	ID_FF_MAKETRANSPARENT,
+	ID_FF_CANCEL,
 };
 
 static void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const highlight::element &Colors)
@@ -584,7 +584,7 @@ static void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const
 	const PaletteColors DefaultColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR};
 	int VBufRow = 0;
 
-	for (const auto& [CurColor, pal]: zip(Colors.Color, DefaultColor))
+	for (const auto [CurColor, pal]: zip(Colors.Color, DefaultColor))
 	{
 		auto Color = CurColor.FileColor;
 		const auto BaseColor = colors::PaletteColorToFarColor(pal);
@@ -840,13 +840,6 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 {
 	// Временная маска.
 	filemasks FileMask;
-	// История для маски файлов
-	const wchar_t FilterMasksHistoryName[] = L"FilterMasks";
-	// История для имени фильтра
-	const wchar_t FilterNameHistoryName[] = L"FilterName";
-	// Маски для диалога настройки
-	// Маска для ввода дней для относительной даты
-	const wchar_t DaysMask[] = L"9999";
 	string strDateMask;
 	// Определение параметров даты и времени в системе.
 	wchar_t DateSeparator = locale.date_separator();
@@ -891,90 +884,81 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 		Label = pad_right(msg(LngId), ColumnSize);
 	}
 
-	FarDialogItem const FilterDlgData[]=
+	auto FilterDlg = MakeDialogItems(
 	{
-		{DI_DOUBLEBOX,3,1,76,23,0,nullptr,nullptr,DIF_SHOWAMPERSAND, msg(ColorConfig? lng::MFileHilightTitle : lng::MFileFilterTitle).c_str()},
+		{ DI_DOUBLEBOX,   {{3,  1 }, {76, 23}}, DIF_SHOWAMPERSAND, msg(ColorConfig ? lng::MFileHilightTitle : lng::MFileFilterTitle), },
+		{ DI_TEXT,        {{5,  2 }, {0,  2 }}, DIF_FOCUS, msg(lng::MFileFilterName), },
+		{ DI_EDIT,        {{5,  2 }, {74, 2 }}, DIF_HISTORY, },
+		{ DI_TEXT,        {{-1, 3 }, {0,  3 }}, DIF_SEPARATOR, },
+		{ DI_CHECKBOX,    {{5,  4 }, {0,  4 }}, DIF_AUTOMATION, msg(lng::MFileFilterMatchMask), },
+		{ DI_EDIT,        {{5,  4 }, {74, 4 }}, DIF_HISTORY, },
+		{ DI_TEXT,        {{-1, 5 }, {0,  5 }}, DIF_SEPARATOR, },
+		{ DI_CHECKBOX,    {{5,  6 }, {0,  6 }}, DIF_AUTOMATION, msg(lng::MFileFilterSize), },
+		{ DI_TEXT,        {{7,  7 }, {8,  7 }}, DIF_NONE, msg(lng::MFileFilterSizeFromSign), },
+		{ DI_EDIT,        {{10, 7 }, {20, 7 }}, DIF_NONE, },
+		{ DI_TEXT,        {{7,  8 }, {8,  8 }}, DIF_NONE, msg(lng::MFileFilterSizeToSign), },
+		{ DI_EDIT,        {{10, 8 }, {20, 8 }}, DIF_NONE, },
+		{ DI_CHECKBOX,    {{24, 6 }, {0,  6 }}, DIF_AUTOMATION, msg(lng::MFileFilterDate), },
+		{ DI_COMBOBOX,    {{26, 7 }, {41, 7 }}, DIF_DROPDOWNLIST | DIF_LISTNOAMPERSAND, },
+		{ DI_CHECKBOX,    {{26, 8 }, {0,  8 }}, DIF_NONE, msg(lng::MFileFilterDateRelative), },
+		{ DI_TEXT,        {{48, 7 }, {50, 7 }}, DIF_NONE, msg(lng::MFileFilterDateBeforeSign), },
+		{ DI_FIXEDIT,     {{51, 7 }, {61, 7 }}, DIF_MASKEDIT, },
+		{ DI_FIXEDIT,     {{51, 7 }, {61, 7 }}, DIF_MASKEDIT, },
+		{ DI_FIXEDIT,     {{63, 7 }, {74, 7 }}, DIF_MASKEDIT, },
+		{ DI_TEXT,        {{48, 8 }, {50, 8 }}, DIF_NONE, msg(lng::MFileFilterDateAfterSign), },
+		{ DI_FIXEDIT,     {{51, 8 }, {61, 8 }}, DIF_MASKEDIT, },
+		{ DI_FIXEDIT,     {{51, 8 }, {61, 8 }}, DIF_MASKEDIT, },
+		{ DI_FIXEDIT,     {{63, 8 }, {74, 8 }}, DIF_MASKEDIT, },
+		{ DI_BUTTON,      {{0,  6 }, {0,  6 }}, DIF_BTNNOCLOSE, msg(lng::MFileFilterCurrent), },
+		{ DI_BUTTON,      {{0,  6 }, {74, 6 }}, DIF_BTNNOCLOSE, msg(lng::MFileFilterBlank), },
+		{ DI_TEXT,        {{-1, 9 }, {0,  9 }}, DIF_SEPARATOR, },
+		{ DI_VTEXT,       {{22, 5 }, {22, 9 }}, DIF_BOXCOLOR, VerticalLine },
+		{ DI_CHECKBOX,    {{5,  10}, {0,  10}}, DIF_AUTOMATION, msg(lng::MFileFilterAttr), },
+		{ DI_CHECKBOX,    {{7,  11}, {0,  11}}, DIF_3STATE, msg(lng::MFileFilterAttrR), },
+		{ DI_CHECKBOX,    {{7,  12}, {0,  12}}, DIF_3STATE, msg(lng::MFileFilterAttrA), },
+		{ DI_CHECKBOX,    {{7,  13}, {0,  13}}, DIF_3STATE, msg(lng::MFileFilterAttrH), },
+		{ DI_CHECKBOX,    {{7,  14}, {0,  14}}, DIF_3STATE, msg(lng::MFileFilterAttrS), },
+		{ DI_CHECKBOX,    {{7,  15}, {0,  15}}, DIF_3STATE, msg(lng::MFileFilterAttrC), },
+		{ DI_CHECKBOX,    {{7,  16}, {0,  16}}, DIF_3STATE, msg(lng::MFileFilterAttrE), },
+		{ DI_CHECKBOX,    {{7,  17}, {0,  17}}, DIF_3STATE, msg(lng::MFileFilterAttrNI), },
+		{ DI_CHECKBOX,    {{7,  18}, {0,  18}}, DIF_3STATE, msg(lng::MFileFilterAttrD), },
+		{ DI_CHECKBOX,    {{42, 11}, {0,  11}}, DIF_3STATE, msg(lng::MFileFilterAttrSparse), },
+		{ DI_CHECKBOX,    {{42, 12}, {0,  12}}, DIF_3STATE, msg(lng::MFileFilterAttrT), },
+		{ DI_CHECKBOX,    {{42, 13}, {0,  13}}, DIF_3STATE, msg(lng::MFileFilterAttrOffline), },
+		{ DI_CHECKBOX,    {{42, 14}, {0,  14}}, DIF_3STATE, msg(lng::MFileFilterAttrReparse), },
+		{ DI_CHECKBOX,    {{42, 15}, {0,  15}}, DIF_3STATE, msg(lng::MFileFilterAttrVirtual), },
+		{ DI_CHECKBOX,    {{42, 16}, {0,  16}}, DIF_3STATE, msg(lng::MFileFilterAttrIntegrityStream), },
+		{ DI_CHECKBOX,    {{42, 17}, {0,  17}}, DIF_3STATE, msg(lng::MFileFilterAttrNoScrubData), },
+		{ DI_TEXT,        {{-1, 17}, {0,  17}}, DIF_SEPARATOR, msg(lng::MHighlightColors), },
+		{ DI_TEXT,        {{7,  18}, {0,  18}}, DIF_NONE,  msg(lng::MHighlightMarkChar), },
+		{ DI_FIXEDIT,     {{5,  18}, {5,  18}}, DIF_NONE, },
+		{ DI_CHECKBOX,    {{0,  18}, {0,  18}}, DIF_NONE, msg(lng::MHighlightTransparentMarkChar), },
+		{ DI_BUTTON,      {{5,  19}, {0,  19}}, DIF_BTNNOCLOSE | DIF_NOBRACKETS, NameLabels[0].second, },
+		{ DI_BUTTON,      {{0,  19}, {0,  19}}, DIF_BTNNOCLOSE | DIF_NOBRACKETS, msg(lng::MHighlightMarking1), },
+		{ DI_BUTTON,      {{5,  20}, {0,  20}}, DIF_BTNNOCLOSE | DIF_NOBRACKETS, NameLabels[1].second, },
+		{ DI_BUTTON,      {{0,  20}, {0,  20}}, DIF_BTNNOCLOSE | DIF_NOBRACKETS, msg(lng::MHighlightMarking2), },
+		{ DI_BUTTON,      {{5,  21}, {0,  21}}, DIF_BTNNOCLOSE | DIF_NOBRACKETS, NameLabels[2].second, },
+		{ DI_BUTTON,      {{0,  21}, {0,  21}}, DIF_BTNNOCLOSE | DIF_NOBRACKETS, msg(lng::MHighlightMarking3), },
+		{ DI_BUTTON,      {{5,  22}, {0,  22}}, DIF_BTNNOCLOSE | DIF_NOBRACKETS, NameLabels[3].second, },
+		{ DI_BUTTON,      {{0,  22}, {0,  22}}, DIF_BTNNOCLOSE | DIF_NOBRACKETS, msg(lng::MHighlightMarking4), },
+		{ DI_USERCONTROL, {{57, 19}, {71, 22}}, DIF_NOFOCUS, },
+		{ DI_CHECKBOX,    {{5,  23}, {0,  23}}, DIF_NONE, msg(lng::MHighlightContinueProcessing), },
+		{ DI_TEXT,        {{-1, 19}, {0,  19}}, DIF_SEPARATOR, },
+		{ DI_CHECKBOX,    {{5,  20}, {0,  20}}, DIF_NONE, msg(lng::MFileHardLinksCount), },
+		{ DI_TEXT,        {{-1, 21}, {0,  21}}, DIF_SEPARATOR, },
+		{ DI_BUTTON,      {{0,  22}, {0,  22}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MOk), },
+		{ DI_BUTTON,      {{0,  22}, {0,  22}}, DIF_CENTERGROUP | DIF_BTNNOCLOSE, msg(lng::MFileFilterReset), },
+		{ DI_BUTTON,      {{0,  22}, {0,  22}}, DIF_CENTERGROUP | DIF_BTNNOCLOSE, msg(lng::MFileFilterMakeTransparent), },
+		{ DI_BUTTON,      {{0,  22}, {0,  22}}, DIF_CENTERGROUP, msg(lng::MFileFilterCancel), },
+	});
 
-		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,DIF_FOCUS,msg(lng::MFileFilterName).c_str()},
-		{DI_EDIT,5,2,74,2,0,FilterNameHistoryName,nullptr,DIF_HISTORY,L""},
+	FilterDlg[ID_FF_NAMEEDIT].strHistory = L"FilterName"sv;
+	FilterDlg[ID_FF_MASKEDIT].strHistory = L"FilterMasks"sv;
 
-		{DI_TEXT,-1,3,0,3,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-
-		{DI_CHECKBOX,5,4,0,4,0,nullptr,nullptr,DIF_AUTOMATION,msg(lng::MFileFilterMatchMask).c_str()},
-		{DI_EDIT,5,4,74,4,0,FilterMasksHistoryName,nullptr,DIF_HISTORY,L""},
-
-		{DI_TEXT,-1,5,0,5,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-
-		{DI_CHECKBOX,5,6,0,6,0,nullptr,nullptr,DIF_AUTOMATION,msg(lng::MFileFilterSize).c_str()},
-		{DI_TEXT,7,7,8,7,0,nullptr,nullptr,0,msg(lng::MFileFilterSizeFromSign).c_str()},
-		{DI_EDIT,10,7,20,7,0,nullptr,nullptr,0,L""},
-		{DI_TEXT,7,8,8,8,0,nullptr,nullptr,0,msg(lng::MFileFilterSizeToSign).c_str()},
-		{DI_EDIT,10,8,20,8,0,nullptr,nullptr,0,L""},
-
-		{DI_CHECKBOX,24,6,0,6,0,nullptr,nullptr,DIF_AUTOMATION,msg(lng::MFileFilterDate).c_str()},
-		{DI_COMBOBOX,26,7,41,7,0,nullptr,nullptr,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,L""},
-		{DI_CHECKBOX,26,8,0,8,0,nullptr,nullptr,0,msg(lng::MFileFilterDateRelative).c_str()},
-		{DI_TEXT,48,7,50,7,0,nullptr,nullptr,0,msg(lng::MFileFilterDateBeforeSign).c_str()},
-		{DI_FIXEDIT,51,7,61,7,0,nullptr,strDateMask.c_str(),DIF_MASKEDIT,L""},
-		{DI_FIXEDIT,51,7,61,7,0,nullptr,DaysMask,DIF_MASKEDIT,L""},
-		{DI_FIXEDIT,63,7,74,7,0,nullptr,strTimeMask.c_str(),DIF_MASKEDIT,L""},
-		{DI_TEXT,48,8,50,8,0,nullptr,nullptr,0,msg(lng::MFileFilterDateAfterSign).c_str()},
-		{DI_FIXEDIT,51,8,61,8,0,nullptr,strDateMask.c_str(),DIF_MASKEDIT,L""},
-		{DI_FIXEDIT,51,8,61,8,0,nullptr,DaysMask,DIF_MASKEDIT,L""},
-		{DI_FIXEDIT,63,8,74,8,0,nullptr,strTimeMask.c_str(),DIF_MASKEDIT,L""},
-		{DI_BUTTON,0,6,0,6,0,nullptr,nullptr,DIF_BTNNOCLOSE,msg(lng::MFileFilterCurrent).c_str()},
-		{DI_BUTTON,0,6,74,6,0,nullptr,nullptr,DIF_BTNNOCLOSE,msg(lng::MFileFilterBlank).c_str()},
-
-		{DI_TEXT,-1,9,0,9,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_VTEXT,22,5,22,9,0,nullptr,nullptr,DIF_BOXCOLOR,VerticalLine},
-
-		{DI_CHECKBOX, 5,10,0,10,0,nullptr,nullptr,DIF_AUTOMATION,msg(lng::MFileFilterAttr).c_str()},
-		{DI_CHECKBOX, 7,11,0,11,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrR).c_str()},
-		{DI_CHECKBOX, 7,12,0,12,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrA).c_str()},
-		{DI_CHECKBOX, 7,13,0,13,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrH).c_str()},
-		{DI_CHECKBOX, 7,14,0,14,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrS).c_str()},
-		{DI_CHECKBOX, 7,15,0,15,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrC).c_str()},
-		{DI_CHECKBOX, 7,16,0,16,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrE).c_str()},
-		{DI_CHECKBOX, 7,17,0,17,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrNI).c_str()},
-		{DI_CHECKBOX, 7,18,0,18,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrD).c_str()},
-
-		{DI_CHECKBOX,42,11,0,11,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrSparse).c_str()},
-		{DI_CHECKBOX,42,12,0,12,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrT).c_str()},
-		{DI_CHECKBOX,42,13,0,13,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrOffline).c_str()},
-		{DI_CHECKBOX,42,14,0,14,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrReparse).c_str()},
-		{DI_CHECKBOX,42,15,0,15,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrVirtual).c_str()},
-		{DI_CHECKBOX,42,16,0,16,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrIntegrityStream).c_str()},
-		{DI_CHECKBOX,42,17,0,17,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrNoScrubData).c_str()},
-
-		{DI_TEXT,-1,17,0,17,0,nullptr,nullptr,DIF_SEPARATOR,msg(lng::MHighlightColors).c_str()},
-		{DI_TEXT,7,18,0,18,0,nullptr,nullptr,0,msg(lng::MHighlightMarkChar).c_str()},
-		{DI_FIXEDIT,5,18,5,18,0,nullptr,nullptr,0,L""},
-		{DI_CHECKBOX,0,18,0,18,0,nullptr,nullptr,0,msg(lng::MHighlightTransparentMarkChar).c_str()},
-
-		{DI_BUTTON,5,19,0,19,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,NameLabels[0].second.c_str()},
-		{DI_BUTTON,0,19,0,19,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,msg(lng::MHighlightMarking1).c_str()},
-		{DI_BUTTON,5,20,0,20,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,NameLabels[1].second.c_str()},
-		{DI_BUTTON,0,20,0,20,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,msg(lng::MHighlightMarking2).c_str()},
-		{DI_BUTTON,5,21,0,21,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,NameLabels[2].second.c_str()},
-		{DI_BUTTON,0,21,0,21,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,msg(lng::MHighlightMarking3).c_str()},
-		{DI_BUTTON,5,22,0,22,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,NameLabels[3].second.c_str()},
-		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,msg(lng::MHighlightMarking4).c_str()},
-
-		{DI_USERCONTROL,73-15-1,19,73-2,22,0,nullptr,nullptr,DIF_NOFOCUS,L""},
-		{DI_CHECKBOX,5,23,0,23,0,nullptr,nullptr,0,msg(lng::MHighlightContinueProcessing).c_str()},
-
-		{DI_TEXT,-1,19,0,19,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-
-		{DI_CHECKBOX,5,20,0,20,0,nullptr,nullptr,0,msg(lng::MFileHardLinksCount).c_str()},//добавляем новый чекбокс в панель
-		{DI_TEXT,-1,21,0,21,0,nullptr,nullptr,DIF_SEPARATOR,L""},// и разделитель
-
-		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk).c_str()},
-		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,msg(lng::MFileFilterReset).c_str()},
-		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MFileFilterCancel).c_str()},
-		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,msg(lng::MFileFilterMakeTransparent).c_str()},
-	};
-
-	auto FilterDlg = MakeDialogItemsEx(FilterDlgData);
+	FilterDlg[ID_FF_DATEBEFOREEDIT].strMask = FilterDlg[ID_FF_DATEAFTEREDIT].strMask = strDateMask;
+	FilterDlg[ID_FF_TIMEBEFOREEDIT].strMask = FilterDlg[ID_FF_TIMEAFTEREDIT].strMask = strTimeMask;
+	// Маска для ввода дней для относительной даты
+	FilterDlg[ID_FF_DAYSBEFOREEDIT].strMask = FilterDlg[ID_FF_DAYSAFTEREDIT].strMask = L"9999"sv;
 
 	if (ColorConfig)
 	{

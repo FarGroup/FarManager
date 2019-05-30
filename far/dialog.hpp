@@ -126,13 +126,20 @@ struct DialogItemEx: public FarDialogItem
 bool IsKeyHighlighted(string_view Str, int Key, int Translate, int AmpPos = -1);
 void ItemsToItemsEx(span<const FarDialogItem> Items, span<DialogItemEx> ItemsEx, bool Short = false);
 
-template<size_t N>
-auto MakeDialogItemsEx(const FarDialogItem (&InitData)[N])
+
+struct InitDialogItem
 {
-	std::vector<DialogItemEx> Items(N);
-	ItemsToItemsEx(InitData, Items);
-	return Items;
-}
+	enum FARDIALOGITEMTYPES Type;
+	struct
+	{
+		point TopLeft, BottomRight;
+	}
+	Position;
+	FARDIALOGITEMFLAGS Flags;
+	string_view Data;
+};
+
+std::vector<DialogItemEx> MakeDialogItems(span<const InitDialogItem> Items);
 
 class DlgEdit;
 class Plugin;

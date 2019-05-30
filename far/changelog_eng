@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 31.05.2019 00:09:21 +0100 - build 5405
+
+1. Refactoring, Clang & GCC warnings.
+
 drkns 28.05.2019 23:34:25 +0100 - build 5404
 
 1. Continuation of 5403.

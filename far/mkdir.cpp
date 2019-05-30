@@ -109,23 +109,27 @@ void ShellMakeDir(Panel *SrcPanel)
 	ComboList.Items[2].Text=msg(lng::MMakeFolderLinkSymlink).c_str();
 	ComboList.Items[0].Flags|=LIF_SELECTED;
 
-	FarDialogItem const MkDirDlgData[]
+	auto MkDirDlg = MakeDialogItems(
 	{
-		{DI_DOUBLEBOX,3,1,72,10,0,nullptr,nullptr,0,msg(lng::MMakeFolderTitle).c_str()},
-		{DI_TEXT,     5,2, 0,2,0,nullptr,nullptr,0,msg(lng::MCreateFolder).c_str()},
-		{DI_EDIT,     5,3,70,3,0,L"NewFolder",nullptr,DIF_FOCUS|DIF_EDITEXPAND|DIF_HISTORY|DIF_USELASTHISTORY|DIF_EDITPATH,L""},
-		{DI_TEXT,    -1,4, 0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_TEXT,     5,5, 0,5,0,nullptr,nullptr,0,msg(lng::MMakeFolderLinkType).c_str()},
-		{DI_COMBOBOX,20,5,70,5,0,nullptr,nullptr,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND|DIF_LISTWRAPMODE,L""},
-		{DI_TEXT,     5,6, 0,6,0,nullptr,nullptr,0,msg(lng::MMakeFolderLinkTarget).c_str()},
-		{DI_EDIT,    20,6,70,6,0,L"NewFolderLinkTarget",nullptr,DIF_DISABLE|DIF_EDITEXPAND|DIF_HISTORY|DIF_USELASTHISTORY|DIF_EDITPATH,L""},
-		{DI_CHECKBOX, 5,7, 0,7,Global->Opt->MultiMakeDir,nullptr,nullptr,0,msg(lng::MMultiMakeDir).c_str()},
-		{DI_TEXT,    -1,8, 0,8,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,   0,9, 0,9,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk).c_str()},
-		{DI_BUTTON,   0,9, 0,9,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel).c_str()},
-	};
-	auto MkDirDlg = MakeDialogItemsEx(MkDirDlgData);
+		{DI_DOUBLEBOX, {{3,  1}, {72, 10}}, DIF_NONE, msg(lng::MMakeFolderTitle), },
+		{DI_TEXT,      {{5,  2}, {0,  2 }}, DIF_NONE, msg(lng::MCreateFolder), },
+		{DI_EDIT,      {{5,  3}, {70, 3 }}, DIF_FOCUS | DIF_EDITEXPAND | DIF_HISTORY | DIF_USELASTHISTORY | DIF_EDITPATH, },
+		{DI_TEXT,      {{-1, 4}, {0,  4 }}, DIF_SEPARATOR, },
+		{DI_TEXT,      {{5,  5}, {0,  5 }}, DIF_NONE, msg(lng::MMakeFolderLinkType), },
+		{DI_COMBOBOX,  {{20, 5}, {70, 5 }}, DIF_DROPDOWNLIST | DIF_LISTNOAMPERSAND | DIF_LISTWRAPMODE, },
+		{DI_TEXT,      {{5,  6}, {0,  6 }}, DIF_NONE, msg(lng::MMakeFolderLinkTarget), },
+		{DI_EDIT,      {{20, 6}, {70, 6 }}, DIF_DISABLE | DIF_EDITEXPAND | DIF_HISTORY | DIF_USELASTHISTORY | DIF_EDITPATH, },
+		{DI_CHECKBOX,  {{5,  7}, {0,  7 }}, DIF_NONE, msg(lng::MMultiMakeDir), },
+		{DI_TEXT,      {{-1, 8}, {0,  8 }}, DIF_SEPARATOR, },
+		{DI_BUTTON,    {{0,  9}, {0,  9 }}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MOk), },
+		{DI_BUTTON,    {{0,  9}, {0,  9 }}, DIF_CENTERGROUP, msg(lng::MCancel), },
+	});
+
+	MkDirDlg[MKDIR_EDIT].strHistory = L"NewFolder"sv;
+	MkDirDlg[MKDIR_EDIT_LINKPATH].strHistory = L"NewFolderLinkTarget"sv;
 	MkDirDlg[MKDIR_COMBOBOX_LINKTYPE].ListItems=&ComboList;
+	MkDirDlg[MKDIR_CHECKBOX].Selected = Global->Opt->MultiMakeDir;
+
 	const auto Dlg = Dialog::create(MkDirDlg, MkDirDlgProc);
 	Dlg->SetPosition({ -1, -1, 76, 12 });
 	Dlg->SetHelp(L"MakeFolder"sv);

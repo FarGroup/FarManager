@@ -123,7 +123,7 @@ static void GetSymbols(const std::vector<const void*>& BackTrace, function_ref<v
 	}
 }
 
-#ifdef _MSC_VER
+#if IS_MICROSOFT_SDK()
 extern "C" void** __current_exception();
 extern "C" void** __current_exception_context();
 #else

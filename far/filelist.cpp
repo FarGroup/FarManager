@@ -3947,16 +3947,19 @@ const string& FileList::GetComputerName() const
 long FileList::SelectFiles(int Mode, string_view const Mask)
 {
 	filemasks FileMask; // Класс для работы с масками
-	FarDialogItem const SelectDlgData[]
+
+	auto SelectDlg = MakeDialogItems(
 	{
-		{DI_DOUBLEBOX,3,1,51,5,0,nullptr,nullptr,0,L""},
-		{DI_EDIT,5,2,49,2,0,L"Masks",nullptr,DIF_FOCUS|DIF_HISTORY,L""},
-		{DI_TEXT,-1,3,0,3,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,0,4,0,4,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk).c_str()},
-		{DI_BUTTON,0,4,0,4,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MSelectFilter).c_str()},
-		{DI_BUTTON,0,4,0,4,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel).c_str()},
-	};
-	auto SelectDlg = MakeDialogItemsEx(SelectDlgData);
+		{ DI_DOUBLEBOX, {{3,  1}, {51, 5}}, DIF_NONE, },
+		{ DI_EDIT,      {{5,  2}, {49, 2}}, DIF_FOCUS | DIF_HISTORY, },
+		{ DI_TEXT,      {{-1, 3}, {0,  3}}, DIF_SEPARATOR, },
+		{ DI_BUTTON,    {{0,  4}, {0,  4}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MOk), },
+		{ DI_BUTTON,    {{0,  4}, {0,  4}}, DIF_CENTERGROUP, msg(lng::MSelectFilter), },
+		{ DI_BUTTON,    {{0,  4}, {0,  4}}, DIF_CENTERGROUP, msg(lng::MCancel), },
+	});
+
+	SelectDlg[1].strHistory = L"Masks"sv;
+
 	FileFilter Filter(this, FFT_SELECT);
 	bool bUseFilter = false;
 	static auto strPrevMask = L"*.*"s;

@@ -367,11 +367,11 @@ TEST_CASE("colors.parser")
 	}
 	ValidTests[]
 	{
-		{L"(E)"sv, { FCF_FG_4BIT, 0xE, 0 }},
-		{L"(:F)"sv, { FCF_BG_4BIT, 0, 0xF }},
-		{L"(B:C)"sv, { FCF_FG_4BIT | FCF_BG_4BIT, 0xB, 0xC }},
-		{L"()"sv, {}},
-		{L"(T00CCCC:TE34234)"sv, { 0, 0x00CCCC00, 0x003442E3}},
+		{ L"(E)"sv,               { FCF_FG_4BIT, {0xE}, {0} } },
+		{ L"(:F)"sv,              { FCF_BG_4BIT, {0}, {0xF} } },
+		{ L"(B:C)"sv,             { FCF_FG_4BIT | FCF_BG_4BIT, {0xB}, {0xC} } },
+		{ L"()"sv,                { } },
+		{ L"(T00CCCC:TE34234)"sv, { 0, {0x00CCCC00}, {0x003442E3} } },
 	};
 
 	for (const auto& i: ValidTests)

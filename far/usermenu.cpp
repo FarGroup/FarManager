@@ -958,37 +958,36 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 	if (Continue)
 	{
 		const int DLG_X=76, DLG_Y=SubMenu?10:22;
-		FARDIALOGITEMFLAGS State=SubMenu?DIF_HIDDEN|DIF_DISABLE:DIF_NONE;
-		FarDialogItem const EditDlgData[]
+		const auto State = SubMenu? DIF_HIDDEN | DIF_DISABLE : DIF_NONE;
+
+		auto EditDlg = MakeDialogItems(
 		{
-			{DI_DOUBLEBOX,3,1,DLG_X-4,DLG_Y-2,0,nullptr,nullptr,0,msg(SubMenu? lng::MEditSubmenuTitle : lng::MEditMenuTitle).c_str()},
-			{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(lng::MEditMenuHotKey).c_str()},
-			{DI_FIXEDIT,5,3,7,3,0,nullptr,nullptr,DIF_FOCUS,L""},
-			{DI_TEXT,5,4,0,4,0,nullptr,nullptr,0,msg(lng::MEditMenuLabel).c_str()},
-			{DI_EDIT,5,5,DLG_X-6,5,0,nullptr,nullptr,0,L""},
-
-			{DI_TEXT,-1,6,0,6,0,nullptr,nullptr,DIF_SEPARATOR|State,L""},
-			{DI_TEXT,5,7,0,7,0,nullptr,nullptr,State,msg(lng::MEditMenuCommands).c_str()},
+			{ DI_DOUBLEBOX, {{3,  1      }, {DLG_X-4, DLG_Y-2}}, DIF_NONE, msg(SubMenu? lng::MEditSubmenuTitle : lng::MEditMenuTitle), },
+			{ DI_TEXT,      {{5,  2      }, {0,       2      }}, DIF_NONE, msg(lng::MEditMenuHotKey), },
+			{ DI_FIXEDIT,   {{5,  3      }, {7,       3      }}, DIF_FOCUS, },
+			{ DI_TEXT,      {{5,  4      }, {0,       4      }}, DIF_NONE, msg(lng::MEditMenuLabel), },
+			{ DI_EDIT,      {{5,  5      }, {DLG_X-6, 5      }}, DIF_NONE, },
+			{ DI_TEXT,      {{-1, 6      }, {0,       6      }}, DIF_SEPARATOR | State, },
+			{ DI_TEXT,      {{5,  7      }, {0,       7      }}, State, msg(lng::MEditMenuCommands), },
 #ifdef PROJECT_DI_MEMOEDIT
-			{DI_MEMOEDIT,5, 8,DLG_X-6,17,0,nullptr,nullptr,DIF_EDITPATH,L""},
+			{ DI_MEMOEDIT,  {{5,  8      }, {DLG_X-6, 17     }}, DIF_EDITPATH, },
 #else
-			{DI_EDIT,5, 8,DLG_X-6,8,0,nullptr,nullptr,DIF_EDITPATH|DIF_EDITPATHEXEC|DIF_EDITOR|State,L""},
-			{DI_EDIT,5, 9,DLG_X-6,9,0,nullptr,nullptr,DIF_EDITPATH|DIF_EDITPATHEXEC|DIF_EDITOR|State,L""},
-			{DI_EDIT,5,10,DLG_X-6,10,0,nullptr,nullptr,DIF_EDITPATH|DIF_EDITPATHEXEC|DIF_EDITOR|State,L""},
-			{DI_EDIT,5,11,DLG_X-6,11,0,nullptr,nullptr,DIF_EDITPATH|DIF_EDITPATHEXEC|DIF_EDITOR|State,L""},
-			{DI_EDIT,5,12,DLG_X-6,12,0,nullptr,nullptr,DIF_EDITPATH|DIF_EDITPATHEXEC|DIF_EDITOR|State,L""},
-			{DI_EDIT,5,13,DLG_X-6,13,0,nullptr,nullptr,DIF_EDITPATH|DIF_EDITPATHEXEC|DIF_EDITOR|State,L""},
-			{DI_EDIT,5,14,DLG_X-6,14,0,nullptr,nullptr,DIF_EDITPATH|DIF_EDITPATHEXEC|DIF_EDITOR|State,L""},
-			{DI_EDIT,5,15,DLG_X-6,15,0,nullptr,nullptr,DIF_EDITPATH|DIF_EDITPATHEXEC|DIF_EDITOR|State,L""},
-			{DI_EDIT,5,16,DLG_X-6,16,0,nullptr,nullptr,DIF_EDITPATH|DIF_EDITPATHEXEC|DIF_EDITOR|State,L""},
-			{DI_EDIT,5,17,DLG_X-6,17,0,nullptr,nullptr,DIF_EDITPATH|DIF_EDITPATHEXEC|DIF_EDITOR|State,L""},
+			{ DI_EDIT,      {{5,  8      }, {DLG_X-6, 8      }}, DIF_EDITPATH | DIF_EDITPATHEXEC | DIF_EDITOR | State, },
+			{ DI_EDIT,      {{5,  9      }, {DLG_X-6, 9      }}, DIF_EDITPATH | DIF_EDITPATHEXEC | DIF_EDITOR | State, },
+			{ DI_EDIT,      {{5,  10     }, {DLG_X-6, 10     }}, DIF_EDITPATH | DIF_EDITPATHEXEC | DIF_EDITOR | State, },
+			{ DI_EDIT,      {{5,  11     }, {DLG_X-6, 11     }}, DIF_EDITPATH | DIF_EDITPATHEXEC | DIF_EDITOR | State, },
+			{ DI_EDIT,      {{5,  12     }, {DLG_X-6, 12     }}, DIF_EDITPATH | DIF_EDITPATHEXEC | DIF_EDITOR | State, },
+			{ DI_EDIT,      {{5,  13     }, {DLG_X-6, 13     }}, DIF_EDITPATH | DIF_EDITPATHEXEC | DIF_EDITOR | State, },
+			{ DI_EDIT,      {{5,  14     }, {DLG_X-6, 14     }}, DIF_EDITPATH | DIF_EDITPATHEXEC | DIF_EDITOR | State, },
+			{ DI_EDIT,      {{5,  15     }, {DLG_X-6, 15     }}, DIF_EDITPATH | DIF_EDITPATHEXEC | DIF_EDITOR | State, },
+			{ DI_EDIT,      {{5,  16     }, {DLG_X-6, 16     }}, DIF_EDITPATH | DIF_EDITPATHEXEC | DIF_EDITOR | State, },
+			{ DI_EDIT,      {{5,  17     }, {DLG_X-6, 17     }}, DIF_EDITPATH | DIF_EDITPATHEXEC | DIF_EDITOR | State, },
 #endif
+			{ DI_TEXT,      {{-1, DLG_Y-4}, {0,       DLG_Y-4}}, DIF_SEPARATOR, },
+			{ DI_BUTTON,    {{0,  DLG_Y-3}, {0,       DLG_Y-3}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MOk), },
+			{ DI_BUTTON,    {{0,  DLG_Y-3}, {0,       DLG_Y-3}}, DIF_CENTERGROUP, msg(lng::MCancel), },
+		});
 
-			{DI_TEXT,-1,DLG_Y-4,0,DLG_Y-4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-			{DI_BUTTON,0,DLG_Y-3,0,DLG_Y-3,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk).c_str()},
-			{DI_BUTTON,0,DLG_Y-3,0,DLG_Y-3,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel).c_str()},
-		};
-		auto EditDlg = MakeDialogItemsEx(EditDlgData);
 #ifndef PROJECT_DI_MEMOEDIT
 		enum {DI_EDIT_COUNT=EM_SEPARATOR2-EM_COMMANDS_TEXT-1};
 #endif

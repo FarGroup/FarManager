@@ -540,36 +540,39 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 	// ***********************************************************************
 	// *** Prepare Dialog Controls
 	// ***********************************************************************
-	int DLG_HEIGHT=16, DLG_WIDTH=76;
+	int DlgW = 76, DlgH = 16;
 
 	FARDIALOGITEMFLAGS no_tree = Global->Opt->Tree.TurnOffCompletely ? DIF_HIDDEN|DIF_DISABLE : 0;
 
-	FarDialogItem const CopyDlgData[]
+	auto CopyDlg = MakeDialogItems(
 	{
-		{DI_DOUBLEBOX,   3, 1,DLG_WIDTH-4,DLG_HEIGHT-2,0,nullptr,nullptr,0,msg(lng::MCopyDlgTitle).c_str()},
-		{DI_TEXT,        5, 2, 0, 2,0,nullptr,nullptr,0,L""},
-		{DI_EDIT,        5, 3,70, 3,0,L"Copy",nullptr,DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY|DIF_EDITPATH,L""},
-		{DI_TEXT,       -1, 4, 0, 4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_TEXT,        5, 5, 0, 5,0,nullptr,nullptr,0,msg(lng::MCopySecurity).c_str()},
-		{DI_RADIOBUTTON, 5, 5, 0, 5,0,nullptr,nullptr,DIF_GROUP,msg(lng::MCopySecurityLeave).c_str()},
-		{DI_RADIOBUTTON, 5, 5, 0, 5,0,nullptr,nullptr,0,msg(lng::MCopySecurityCopy).c_str()},
-		{DI_RADIOBUTTON, 5, 5, 0, 5,0,nullptr,nullptr,0,msg(lng::MCopySecurityInherit).c_str()},
-		{DI_TEXT,       -1, 6, 0, 6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_TEXT,        5, 7, 0, 7,0,nullptr,nullptr,0,msg(lng::MCopyIfFileExist).c_str()},
-		{DI_COMBOBOX,   29, 7,70, 7,0,nullptr,nullptr,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND|DIF_LISTWRAPMODE,L""},
-		{DI_CHECKBOX,    5, 8, 0, 8,0,nullptr,nullptr,0,msg(lng::MCopySymLinkContents).c_str()},
-		{DI_CHECKBOX,    5, 9, 0, 9,0,nullptr,nullptr,0,msg(lng::MCopyMultiActions).c_str()},
-		{DI_TEXT,       -1,10, 0,10,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_CHECKBOX,    5,11, 0,11,(int)(m_UseFilter? BSTATE_CHECKED : BSTATE_UNCHECKED), nullptr, nullptr, DIF_AUTOMATION, msg(lng::MCopyUseFilter).c_str()},
-		{DI_TEXT,       -1,12, 0,12,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,      0,13, 0,13,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MCopyDlgCopy).c_str()},
-		{DI_BUTTON,      0,13, 0,13,0,nullptr,nullptr,no_tree|DIF_CENTERGROUP|DIF_BTNNOCLOSE,msg(lng::MCopyDlgTree).c_str()},
-		{DI_BUTTON,      0,13, 0,13,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE|DIF_AUTOMATION|(m_UseFilter? 0 : DIF_DISABLE), msg(lng::MCopySetFilter).c_str()},
-		{DI_BUTTON,      0,13, 0,13,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCopyDlgCancel).c_str()},
-		{DI_TEXT,        5, 2, 0, 2,0,nullptr,nullptr,DIF_SHOWAMPERSAND,L""},
-	};
-	auto CopyDlg = MakeDialogItemsEx(CopyDlgData);
-	CopyDlg[ID_SC_MULTITARGET].Selected=Global->Opt->CMOpt.MultiCopy;
+		{ DI_DOUBLEBOX,    {{3,  1 }, {DlgW - 4, DlgH - 2}}, DIF_NONE, msg(lng::MCopyDlgTitle), },
+		{ DI_TEXT,         {{5,  2 }, {0,  2 }}, DIF_NONE, },
+		{ DI_EDIT,         {{5,  3 }, {70, 3 }}, DIF_FOCUS | DIF_HISTORY | DIF_USELASTHISTORY | DIF_EDITPATH, },
+		{ DI_TEXT,         {{-1, 4 }, {0,  4 }}, DIF_SEPARATOR, },
+		{ DI_TEXT,         {{5,  5 }, {0,  5 }}, DIF_NONE, msg(lng::MCopySecurity), },
+		{ DI_RADIOBUTTON,  {{5,  5 }, {0,  5 }}, DIF_GROUP, msg(lng::MCopySecurityLeave), },
+		{ DI_RADIOBUTTON,  {{5,  5 }, {0,  5 }}, DIF_NONE, msg(lng::MCopySecurityCopy), },
+		{ DI_RADIOBUTTON,  {{5,  5 }, {0,  5 }}, DIF_NONE, msg(lng::MCopySecurityInherit), },
+		{ DI_TEXT,         {{-1, 6 }, {0,  6 }}, DIF_SEPARATOR, },
+		{ DI_TEXT,         {{5,  7 }, {0,  7 }}, DIF_NONE, msg(lng::MCopyIfFileExist), },
+		{ DI_COMBOBOX,     {{29, 7 }, {70, 7 }}, DIF_DROPDOWNLIST | DIF_LISTNOAMPERSAND | DIF_LISTWRAPMODE, },
+		{ DI_CHECKBOX,     {{5,  8 }, {0,  8 }}, DIF_NONE, msg(lng::MCopySymLinkContents), },
+		{ DI_CHECKBOX,     {{5,  9 }, {0,  9 }}, DIF_NONE, msg(lng::MCopyMultiActions), },
+		{ DI_TEXT,         {{-1, 10}, {0,  10}}, DIF_SEPARATOR, },
+		{ DI_CHECKBOX,     {{5,  11}, {0,  11}}, DIF_AUTOMATION, msg(lng::MCopyUseFilter), },
+		{ DI_TEXT,         {{-1, 12}, {0,  12}}, DIF_SEPARATOR, },
+		{ DI_BUTTON,       {{0,  13}, {0,  13}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MCopyDlgCopy), },
+		{ DI_BUTTON,       {{0,  13}, {0,  13}}, DIF_CENTERGROUP | DIF_BTNNOCLOSE | no_tree, msg(lng::MCopyDlgTree), },
+		{ DI_BUTTON,       {{0,  13}, {0,  13}}, DIF_CENTERGROUP | DIF_BTNNOCLOSE | DIF_AUTOMATION | (m_UseFilter ? DIF_NONE : DIF_DISABLE), msg(lng::MCopySetFilter), },
+		{ DI_BUTTON,       {{0,  13}, {0,  13}}, DIF_CENTERGROUP, msg(lng::MCopyDlgCancel), },
+		{ DI_TEXT,         {{5,  2 }, {0,  2 }}, DIF_SHOWAMPERSAND, },
+	});
+
+	CopyDlg[ID_SC_TARGETEDIT].strHistory = L"Copy"sv;
+	CopyDlg[ID_SC_MULTITARGET].Selected = Global->Opt->CMOpt.MultiCopy;
+	CopyDlg[ID_SC_USEFILTER].Selected = m_UseFilter;
+
 	{
 		{
 			const auto& Str = msg(lng::MCopySecurity);
@@ -826,7 +829,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 			CopyDlg[i].Y2-=3;
 		}
 		CopyDlg[ID_SC_TITLE].Y2-=3;
-		DLG_HEIGHT-=3;
+		DlgH-=3;
 	}
 
 	/* $ 15.06.2002 IS
@@ -887,7 +890,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 		const auto Dlg = Dialog::create(CopyDlg, &ShellCopy::CopyDlgProc, this);
 		Dlg->SetHelp(Link? L"HardSymLink"sv : L"CopyFiles"sv);
 		Dlg->SetId(Link?HardSymLinkId:(Move?MoveFilesId:CopyFilesId));
-		Dlg->SetPosition({ -1, -1, DLG_WIDTH, DLG_HEIGHT });
+		Dlg->SetPosition({ -1, -1, DlgW, DlgH });
 		Dlg->SetAutomation(ID_SC_USEFILTER,ID_SC_BTNFILTER,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 //    Dlg->Show();
 		// $ 02.06.2001 IS + Проверим список целей и поднимем тревогу, если он содержит ошибки
@@ -3187,7 +3190,7 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 					break;
 				case WDLG_RENAME:
 				{
-					const auto WFN = reinterpret_cast<file_names_for_overwrite_dialog*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+					const auto WFN = reinterpret_cast<const file_names_for_overwrite_dialog*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 					string strDestName = *WFN->Dest;
 					GenerateName(strDestName, *WFN->DestPath);
 
@@ -3257,30 +3260,30 @@ bool ShellCopy::AskOverwrite(const os::fs::find_data &SrcData,
 {
 	enum
 	{
-		WARN_DLG_HEIGHT=13,
-		WARN_DLG_WIDTH=76,
+		DlgH = 13,
+		DlgW = 76,
 	};
 
 	const auto qDst = QuoteOuterSpace(DestName);
 
-	FarDialogItem WarnCopyDlgData[]=
+	auto WarnCopyDlg = MakeDialogItems(
 	{
-		{DI_DOUBLEBOX,3,1,WARN_DLG_WIDTH-4,WARN_DLG_HEIGHT-2,0,nullptr,nullptr,0,msg(lng::MWarning).c_str()},
-		{DI_TEXT,5,2,WARN_DLG_WIDTH-6,2,0,nullptr,nullptr,DIF_CENTERTEXT,msg(lng::MCopyFileExist).c_str()},
-		{DI_EDIT,5,3,WARN_DLG_WIDTH-6,3,0,nullptr,nullptr,DIF_READONLY,qDst.c_str()},
-		{DI_TEXT,-1,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,5,5,WARN_DLG_WIDTH-6,5,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,L""},
-		{DI_BUTTON,5,6,WARN_DLG_WIDTH-6,6,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,L""},
-		{DI_TEXT,-1,7,0,7,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_CHECKBOX,5,8,0,8,0,nullptr,nullptr,DIF_FOCUS,msg(lng::MCopyRememberChoice).c_str()},
-		{DI_TEXT,-1,9,0,9,0,nullptr,nullptr,DIF_SEPARATOR,L""},
+		{ DI_DOUBLEBOX, {{3,  1 }, {DlgW-4, DlgH-2}}, DIF_NONE, msg(lng::MWarning), },
+		{ DI_TEXT,      {{5,  2 }, {DlgW-6, 2     }}, DIF_CENTERTEXT, msg(lng::MCopyFileExist), },
+		{ DI_EDIT,      {{5,  3 }, {DlgW-6, 3     }}, DIF_READONLY, qDst, },
+		{ DI_TEXT,      {{-1, 4 }, {0,      4     }}, DIF_SEPARATOR, },
+		{ DI_BUTTON,    {{5,  5 }, {DlgW-6, 5     }}, DIF_BTNNOCLOSE | DIF_NOBRACKETS, },
+		{ DI_BUTTON,    {{5,  6 }, {DlgW-6, 6     }}, DIF_BTNNOCLOSE | DIF_NOBRACKETS, },
+		{ DI_TEXT,      {{-1, 7 }, {0,      7     }}, DIF_SEPARATOR, },
+		{ DI_CHECKBOX,  {{5,  8 }, {0,      8     }}, DIF_FOCUS, msg(lng::MCopyRememberChoice), },
+		{ DI_TEXT,      {{-1, 9 }, {0,      9     }}, DIF_SEPARATOR, },
+		{ DI_BUTTON,    {{0,  10}, {0,      10    }}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MCopyOverwrite), },
+		{ DI_BUTTON,    {{0,  10}, {0,      10    }}, DIF_CENTERGROUP, msg(lng::MCopySkipOvr), },
+		{ DI_BUTTON,    {{0,  10}, {0,      10    }}, DIF_CENTERGROUP, msg(lng::MCopyRename), },
+		{ DI_BUTTON,    {{0,  10}, {0,      10    }}, DIF_CENTERGROUP | (AskAppend ? DIF_NONE : (DIF_DISABLE | DIF_HIDDEN)), msg(lng::MCopyAppend), },
+		{ DI_BUTTON,    {{0,  10}, {0,      10    }}, DIF_CENTERGROUP, msg(lng::MCopyCancelOvr), },
+	});
 
-		{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MCopyOverwrite).c_str()},
-		{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCopySkipOvr).c_str()},
-		{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCopyRename).c_str()},
-		{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_CENTERGROUP|(AskAppend?0:(DIF_DISABLE|DIF_HIDDEN)),msg(lng::MCopyAppend).c_str()},
-		{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCopyCancelOvr).c_str()},
-	};
 	os::fs::find_data DestData;
 	int DestDataFilled=FALSE;
 	Append=FALSE;
@@ -3342,18 +3345,16 @@ bool ShellCopy::AskOverwrite(const os::fs::find_data &SrcData,
 
 					string strDateText, strTimeText;
 					ConvertDate(SrcLastWriteTime, strDateText, strTimeText, 8, FALSE, FALSE, TRUE);
-					const auto strSrcFileStr = format(Format, msg(lng::MCopySource), SrcSize, strDateText, strTimeText);
-					ConvertDate(DestData.LastWriteTime, strDateText, strTimeText, 8, FALSE, FALSE, TRUE);
-					const auto strDestFileStr = format(Format, msg(lng::MCopyDest), DestData.FileSize, strDateText, strTimeText);
+					WarnCopyDlg[WDLG_SRCFILEBTN].strData = format(Format, msg(lng::MCopySource), SrcSize, strDateText, strTimeText);
 
-					WarnCopyDlgData[WDLG_SRCFILEBTN].Data = strSrcFileStr.c_str();
-					WarnCopyDlgData[WDLG_DSTFILEBTN].Data = strDestFileStr.c_str();
-					auto WarnCopyDlg = MakeDialogItemsEx(WarnCopyDlgData);
+					ConvertDate(DestData.LastWriteTime, strDateText, strTimeText, 8, FALSE, FALSE, TRUE);
+					WarnCopyDlg[WDLG_DSTFILEBTN].strData = format(Format, msg(lng::MCopyDest), DestData.FileSize, strDateText, strTimeText);
+
 					const auto strFullSrcName = ConvertNameToFull(SrcName);
-					file_names_for_overwrite_dialog WFN = { &strFullSrcName, &strDestName, &strRenamedFilesPath };
+					file_names_for_overwrite_dialog WFN{ &strFullSrcName, &strDestName, &strRenamedFilesPath };
 					const auto WarnDlg = Dialog::create(WarnCopyDlg, &ShellCopy::WarnDlgProc, &WFN);
 					WarnDlg->SetDialogMode(DMODE_WARNINGSTYLE);
-					WarnDlg->SetPosition({ -1, -1, WARN_DLG_WIDTH, WARN_DLG_HEIGHT });
+					WarnDlg->SetPosition({ -1, -1, DlgW, DlgH });
 					WarnDlg->SetHelp(L"CopyAskOverwrite"sv);
 					WarnDlg->SetId(CopyOverwriteId);
 					WarnDlg->Process();
@@ -3440,23 +3441,23 @@ bool ShellCopy::AskOverwrite(const os::fs::find_data &SrcData,
 
 					string strDateText, strTimeText;
 					ConvertDate(SrcData.LastWriteTime, strDateText, strTimeText, 8, FALSE, FALSE, TRUE);
-					const auto strSrcFileStr = format(Format, msg(lng::MCopySource), SrcData.FileSize, strDateText, strTimeText);
+					WarnCopyDlg[WDLG_SRCFILEBTN].strData = format(Format, msg(lng::MCopySource), SrcData.FileSize, strDateText, strTimeText);
+
 					ConvertDate(DestData.LastWriteTime, strDateText, strTimeText, 8, FALSE, FALSE, TRUE);
-					const auto strDestFileStr = format(Format, msg(lng::MCopyDest), DestData.FileSize, strDateText, strTimeText);
-					WarnCopyDlgData[WDLG_SRCFILEBTN].Data = strSrcFileStr.c_str();
-					WarnCopyDlgData[WDLG_DSTFILEBTN].Data = strDestFileStr.c_str();
-					WarnCopyDlgData[WDLG_TEXT].Data = msg(lng::MCopyFileRO).c_str();
-					WarnCopyDlgData[WDLG_OVERWRITE].Data = msg(Append? lng::MCopyAppend : lng::MCopyOverwrite).c_str();
-					WarnCopyDlgData[WDLG_RENAME].Type=DI_TEXT;
-					WarnCopyDlgData[WDLG_RENAME].Data=L"";
-					WarnCopyDlgData[WDLG_APPEND].Type=DI_TEXT;
-					WarnCopyDlgData[WDLG_APPEND].Data=L"";
-					auto WarnCopyDlg = MakeDialogItemsEx(WarnCopyDlgData);
+					WarnCopyDlg[WDLG_DSTFILEBTN].strData = format(Format, msg(lng::MCopyDest), DestData.FileSize, strDateText, strTimeText);
+
+					WarnCopyDlg[WDLG_TEXT].strData = msg(lng::MCopyFileRO);
+					WarnCopyDlg[WDLG_OVERWRITE].strData = msg(Append? lng::MCopyAppend : lng::MCopyOverwrite);
+					WarnCopyDlg[WDLG_RENAME].Type = DI_TEXT;
+					WarnCopyDlg[WDLG_RENAME].strData.clear();
+					WarnCopyDlg[WDLG_APPEND].Type = DI_TEXT;
+					WarnCopyDlg[WDLG_APPEND].strData.clear();
+
 					const auto strSrcName = ConvertNameToFull(SrcData.FileName);
-					file_names_for_overwrite_dialog WFN[] = { &strSrcName, &strDestName };
+					file_names_for_overwrite_dialog WFN{ &strSrcName, &strDestName };
 					const auto WarnDlg = Dialog::create(WarnCopyDlg, &ShellCopy::WarnDlgProc, &WFN);
 					WarnDlg->SetDialogMode(DMODE_WARNINGSTYLE);
-					WarnDlg->SetPosition({ -1, -1, WARN_DLG_WIDTH, WARN_DLG_HEIGHT });
+					WarnDlg->SetPosition({ -1, -1, DlgW, DlgH });
 					WarnDlg->SetHelp(L"CopyFiles"sv);
 					WarnDlg->SetId(CopyReadOnlyId);
 					WarnDlg->Process();

@@ -399,19 +399,22 @@ static void ElevationApproveDlgSync(const EAData& Data)
 	SCOPED_ACTION(auto)(message_manager::instance().suppress());
 
 	enum {DlgX=64,DlgY=12};
-	FarDialogItem const ElevationApproveDlgData[]
+
+	auto ElevationApproveDlg = MakeDialogItems(
 	{
-		{DI_DOUBLEBOX,3,1,DlgX-4,DlgY-2,0,nullptr,nullptr,0,msg(lng::MAccessDenied).c_str()},
-		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(is_admin()? lng::MElevationRequiredPrivileges : lng::MElevationRequired).c_str()},
-		{DI_TEXT,5,3,0,3,0,nullptr,nullptr,0,msg(Data.Why).c_str()},
-		{DI_EDIT,5,4,DlgX-6,4,0,nullptr,nullptr,DIF_READONLY,Data.Object.c_str()},
-		{DI_CHECKBOX,5,6,0,6,1,nullptr,nullptr,0,msg(lng::MElevationDoForAll).c_str()},
-		{DI_CHECKBOX,5,7,0,7,0,nullptr,nullptr,0,msg(lng::MElevationDoNotAskAgainInTheCurrentSession).c_str()},
-		{DI_TEXT,-1,DlgY-4,0,DlgY-4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_SETSHIELD|DIF_CENTERGROUP,msg(lng::MOk).c_str()},
-		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MSkip).c_str()},
-	};
-	auto ElevationApproveDlg = MakeDialogItemsEx(ElevationApproveDlgData);
+		{ DI_DOUBLEBOX, {{3,  1     }, {DlgX-4, DlgY-2}}, DIF_NONE, msg(lng::MAccessDenied), },
+		{ DI_TEXT,      {{5,  2     }, {0,      2     }}, DIF_NONE, msg(is_admin()? lng::MElevationRequiredPrivileges : lng::MElevationRequired), },
+		{ DI_TEXT,      {{5,  3     }, {0,      3     }}, DIF_NONE, msg(Data.Why), },
+		{ DI_EDIT,      {{5,  4     }, {DlgX-6, 4     }}, DIF_READONLY, Data.Object, },
+		{ DI_CHECKBOX,  {{5,  6     }, {0,      6     }}, DIF_NONE, msg(lng::MElevationDoForAll), },
+		{ DI_CHECKBOX,  {{5,  7     }, {0,      7     }}, DIF_FOCUS, msg(lng::MElevationDoNotAskAgainInTheCurrentSession), },
+		{ DI_TEXT,      {{-1, DlgY-4}, {0,      DlgY-4}}, DIF_SEPARATOR, },
+		{ DI_BUTTON,    {{0,  DlgY-3}, {0,      DlgY-3}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON | DIF_SETSHIELD, msg(lng::MOk), },
+		{ DI_BUTTON,    {{0,  DlgY-3}, {0,      DlgY-3}}, DIF_CENTERGROUP, msg(lng::MSkip), },
+	});
+
+	ElevationApproveDlg[AAD_CHECKBOX_DOFORALL].Selected = 1;
+
 	const auto Dlg = Dialog::create(ElevationApproveDlg, ElevationApproveDlgProc);
 	Dlg->SetHelp(L"ElevationDlg"sv);
 	Dlg->SetPosition({ -1, -1, DlgX, DlgY });

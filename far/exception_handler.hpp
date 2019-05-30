@@ -74,11 +74,11 @@ namespace detail
 template<class function, class filter, class handler>
 auto seh_invoke(function&& Callable, filter&& Filter, handler&& Handler)
 {
-#if COMPILER == C_GCC
+#if COMPILER(GCC)
 	// GCC doesn't support these currently
 	return Callable();
 #else
-#if COMPILER == C_CLANG
+#if COMPILER(CLANG)
 	// Workaround for clang "filter expression type should be an integral value" error
 	std::function<DWORD(DWORD, EXCEPTION_POINTERS*)> FilterWrapper = Filter;
 #define Filter FilterWrapper
@@ -95,7 +95,7 @@ auto seh_invoke(function&& Callable, filter&& Filter, handler&& Handler)
 
 	return Handler();
 
-#if COMPILER == C_CLANG
+#if COMPILER(CLANG)
 #undef Filter
 #endif
 #endif

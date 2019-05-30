@@ -404,7 +404,7 @@ bool Plugin::SaveToCache()
 	PlCache->SetDescription(id, strDescription);
 	PlCache->SetAuthor(id, strAuthor);
 
-	for (const auto& [Name, Export]: zip(m_Factory->ExportsNames(), Exports))
+	for (const auto [Name, Export]: zip(m_Factory->ExportsNames(), Exports))
 	{
 		PlCache->SetExportState(id, Name.UName, Export.has_value());
 	}
@@ -414,7 +414,7 @@ bool Plugin::SaveToCache()
 
 void Plugin::InitExports()
 {
-	for (const auto& [Name, Export]: zip(m_Factory->ExportsNames(), Exports))
+	for (const auto [Name, Export]: zip(m_Factory->ExportsNames(), Exports))
 	{
 		if (const auto Address = m_Factory->Function(m_Instance, Name))
 			Export = Address;
@@ -617,7 +617,7 @@ bool Plugin::LoadFromCache(const os::fs::find_data &FindData)
 		strDescription = PlCache->GetDescription(id);
 		strAuthor = PlCache->GetAuthor(id);
 
-		for (const auto& [Name, Export]: zip(m_Factory->ExportsNames(), Exports))
+		for (const auto [Name, Export]: zip(m_Factory->ExportsNames(), Exports))
 		{
 			if (PlCache->GetExportState(id, Name.UName))
 				Export = nullptr;

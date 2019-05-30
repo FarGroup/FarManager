@@ -62,7 +62,7 @@ struct error_state_ex;
 
     Title
       Заголовок диалога.
-      nullptr -> применяется MEditReplaceTitle или MEditSearchTitle в зависимости от параметра IsReplaceMode
+      Если пустая строка, то применяется MEditReplaceTitle или MEditSearchTitle в зависимости от параметра IsReplaceMode
 
     SearchStr
       Строка поиска.
@@ -75,15 +75,11 @@ struct error_state_ex;
 
     TextHistoryName
       Имя истории строки поиска.
-      Если установлено в nullptr, то по умолчанию
-      принимается значение "SearchText"
-      Если установлено в пустую строку, то история вестись не будет
+      Если пустая строка, то принимается значение "SearchText"
 
     ReplaceHistoryName
       Имя истории строки замены.
-      Если установлено в nullptr, то по умолчанию
-      принимается значение "ReplaceText"
-      Если установлено в пустую строку, то история вестись не будет
+      Если пустая строка, то принимается значение "ReplaceText"
 
     Case
       Ссылка на переменную, указывающую на значение опции "Case sensitive"
@@ -105,7 +101,7 @@ struct error_state_ex;
 
     HelpTopic
       Имя темы помощи.
-      Если nullptr или пустая строка - тема помощи не назначается.
+      Если пустая строка - тема помощи не назначается.
 
   Возвращаемое значение:
   0 - пользователь отказался от диалога (Esc)
@@ -115,12 +111,12 @@ struct error_state_ex;
 */
 int GetSearchReplaceString(
 	bool IsReplaceMode,
-	const wchar_t *Title,
-	const wchar_t *SubTitle,
+	string_view Title,
+	string_view SubTitle,
 	string& SearchStr,
 	string& ReplaceStr,
-	const wchar_t *TextHistoryName,
-	const wchar_t *ReplaceHistoryName,
+	string_view TextHistoryName,
+	string_view ReplaceHistoryName,
 	bool* Case,
 	bool* WholeWords,
 	bool* Reverse,

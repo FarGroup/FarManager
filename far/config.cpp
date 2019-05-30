@@ -1082,7 +1082,7 @@ static void ResetViewModes(span<PanelViewSettings> const Modes, int const Index 
 
 	if (Index < 0)
 	{
-		for (const auto& i: zip(InitialModes, Modes))
+		for (const auto i: zip(InitialModes, Modes))
 			std::apply(InitMode, i);
 	}
 	else
@@ -1260,32 +1260,31 @@ void Options::SetFilePanelModes()
 			MD_BUTTON_CANCEL,
 		};
 
-		FarDialogItem const ModeDlgData[]
+		auto ModeDlg = MakeDialogItems(
 		{
-			{DI_DOUBLEBOX, 3, 1,72,17,0,nullptr,nullptr,0,AddNewMode? nullptr : ModeListMenu[CurMode].Name.c_str()},
-			{DI_TEXT,      5, 2, 0, 2,0,nullptr,nullptr,0,msg(lng::MEditPanelModeName).c_str()},
-			{DI_EDIT,      5, 3,70, 3,0,nullptr,nullptr,DIF_FOCUS,L""},
-			{DI_TEXT,      5, 4, 0, 4,0,nullptr,nullptr,0,msg(lng::MEditPanelModeTypes).c_str()},
-			{DI_EDIT,      5, 5,35, 5,0,nullptr,nullptr,0,L""},
-			{DI_TEXT,      5, 6, 0, 6,0,nullptr,nullptr,0,msg(lng::MEditPanelModeWidths).c_str()},
-			{DI_EDIT,      5, 7,35, 7,0,nullptr,nullptr,0,L""},
-			{DI_TEXT,     38, 4, 0, 4,0,nullptr,nullptr,0,msg(lng::MEditPanelModeStatusTypes).c_str()},
-			{DI_EDIT,     38, 5,70, 5,0,nullptr,nullptr,0,L""},
-			{DI_TEXT,     38, 6, 0, 6,0,nullptr,nullptr,0,msg(lng::MEditPanelModeStatusWidths).c_str()},
-			{DI_EDIT,     38, 7,70, 7,0,nullptr,nullptr,0,L""},
-			{DI_TEXT,     -1, 8, 0, 8,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-			{DI_CHECKBOX,  5, 9, 0, 9,0,nullptr,nullptr,0,msg(lng::MEditPanelModeFullscreen).c_str()},
-			{DI_CHECKBOX,  5,10, 0,10,0,nullptr,nullptr,0,msg(lng::MEditPanelModeAlignExtensions).c_str()},
-			{DI_CHECKBOX,  5,11, 0,11,0,nullptr,nullptr,0,msg(lng::MEditPanelModeAlignFolderExtensions).c_str()},
-			{DI_CHECKBOX,  5,12, 0,12,0,nullptr,nullptr,0,msg(lng::MEditPanelModeFoldersUpperCase).c_str()},
-			{DI_CHECKBOX,  5,13, 0,13,0,nullptr,nullptr,0,msg(lng::MEditPanelModeFilesLowerCase).c_str()},
-			{DI_CHECKBOX,  5,14, 0,14,0,nullptr,nullptr,0,msg(lng::MEditPanelModeUpperToLowerCase).c_str()},
-			{DI_TEXT,     -1,15, 0,15,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk).c_str()},
-			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_CENTERGROUP|(ModeNumber < static_cast<int>(predefined_panel_modes_count)? 0 : DIF_DISABLE),msg(lng::MReset).c_str()},
-			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel).c_str()},
-		};
-		auto ModeDlg = MakeDialogItemsEx(ModeDlgData);
+			{ DI_DOUBLEBOX, {{3,  1 }, {72, 17}}, DIF_NONE, AddNewMode? nullptr : ModeListMenu[CurMode].Name, },
+			{ DI_TEXT,      {{5,  2 }, {0,  2 }}, DIF_NONE, msg(lng::MEditPanelModeName), },
+			{ DI_EDIT,      {{5,  3 }, {70, 3 }}, DIF_FOCUS, },
+			{ DI_TEXT,      {{5,  4 }, {0,  4 }}, DIF_NONE, msg(lng::MEditPanelModeTypes), },
+			{ DI_EDIT,      {{5,  5 }, {35, 5 }}, DIF_NONE, },
+			{ DI_TEXT,      {{5,  6 }, {0,  6 }}, DIF_NONE, msg(lng::MEditPanelModeWidths), },
+			{ DI_EDIT,      {{5,  7 }, {35, 7 }}, DIF_NONE, },
+			{ DI_TEXT,      {{38, 4 }, {0,  4 }}, DIF_NONE, msg(lng::MEditPanelModeStatusTypes), },
+			{ DI_EDIT,      {{38, 5 }, {70, 5 }}, DIF_NONE, },
+			{ DI_TEXT,      {{38, 6 }, {0,  6 }}, DIF_NONE, msg(lng::MEditPanelModeStatusWidths), },
+			{ DI_EDIT,      {{38, 7 }, {70, 7 }}, DIF_NONE, },
+			{ DI_TEXT,      {{-1, 8 }, {0,  8 }}, DIF_SEPARATOR, },
+			{ DI_CHECKBOX,  {{5,  9 }, {0,  9 }}, DIF_NONE, msg(lng::MEditPanelModeFullscreen), },
+			{ DI_CHECKBOX,  {{5,  10}, {0,  10}}, DIF_NONE, msg(lng::MEditPanelModeAlignExtensions), },
+			{ DI_CHECKBOX,  {{5,  11}, {0,  11}}, DIF_NONE, msg(lng::MEditPanelModeAlignFolderExtensions), },
+			{ DI_CHECKBOX,  {{5,  12}, {0,  12}}, DIF_NONE, msg(lng::MEditPanelModeFoldersUpperCase), },
+			{ DI_CHECKBOX,  {{5,  13}, {0,  13}}, DIF_NONE, msg(lng::MEditPanelModeFilesLowerCase), },
+			{ DI_CHECKBOX,  {{5,  14}, {0,  14}}, DIF_NONE, msg(lng::MEditPanelModeUpperToLowerCase), },
+			{ DI_TEXT,      {{-1, 15}, {0,  15}}, DIF_SEPARATOR, },
+			{ DI_BUTTON,    {{0,  16}, {0,  16}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MOk), },
+			{ DI_BUTTON,    {{0,  16}, {0,  16}}, DIF_CENTERGROUP | (ModeNumber < static_cast<int>(predefined_panel_modes_count)? DIF_NONE : DIF_DISABLE), msg(lng::MReset), },
+			{ DI_BUTTON,    {{0,  16}, {0,  16}}, DIF_CENTERGROUP, msg(lng::MCancel), },
+		});
 
 		RemoveHighlights(ModeDlg[MD_DOUBLEBOX].strData);
 
@@ -2438,12 +2437,12 @@ bool Options::AdvancedConfig(config_type Mode)
 {
 	auto& CurrentConfig = GetConfig(Mode);
 
-	int DlgWidth = std::max(ScrX-4, 60), DlgHeight = std::max(ScrY-2, 20);
-	FarDialogItem const AdvancedConfigDlgData[]
+	const int DlgWidth = std::max(ScrX-4, 60), DlgHeight = std::max(ScrY-2, 20);
+
+	auto AdvancedConfigDlg = MakeDialogItems(
 	{
-		{DI_LISTBOX,3,1,DlgWidth-4,DlgHeight-2,0,nullptr,nullptr,DIF_NONE,nullptr},
-	};
-	auto AdvancedConfigDlg = MakeDialogItemsEx(AdvancedConfigDlgData);
+		{ DI_LISTBOX, {{3, 1}, {DlgWidth-4, DlgHeight-2}}, },
+	});
 
 	std::vector<FarListItem> items;
 	items.reserve(CurrentConfig.size());

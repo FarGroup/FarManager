@@ -55,7 +55,7 @@ wow;
 
 //-----------------------------------------------------------------------------
 
-#if COMPILER == C_GCC || COMPILER == C_CLANG
+#if COMPILER(GCC) || COMPILER(CLANG)
 extern "C" void wow_restore() __asm__("wow_restore");
 extern "C" PVOID wow_disable() __asm__("wow_disable");
 #endif
@@ -74,7 +74,7 @@ extern "C" PVOID wow_disable()
 
 //-----------------------------------------------------------------------------
 static void
-#if COMPILER == C_GCC || COMPILER == C_CLANG
+#if COMPILER(GCC) || COMPILER(CLANG)
 // Unfortunately GCC doesn't support this attribute on x86
 //__attribute__((naked))
 #else
@@ -218,15 +218,15 @@ static void WINAPI HookProc(PVOID, DWORD dwReason, PVOID)
 	}
 }
 
-#if COMPILER == C_CL || COMPILER == C_INTEL
+#if COMPILER(CL) || COMPILER(INTEL)
 #pragma const_seg(".CRT$XLY")
 #endif
 extern "C" const PIMAGE_TLS_CALLBACK hook_wow64_tlscb
-#if COMPILER == C_GCC || COMPILER == C_CLANG
+#if COMPILER(GCC) || COMPILER(CLANG)
 __attribute__((section(".CRT$XLY")))
 #endif
 = HookProc;
-#if COMPILER == C_CL || COMPILER == C_INTEL
+#if COMPILER(CL) || COMPILER(INTEL)
 #pragma const_seg()
 #endif
 

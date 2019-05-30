@@ -128,19 +128,21 @@ static intptr_t hndOpenEditor(Dialog* Dlg, intptr_t msg, intptr_t param1, void* 
 
 bool dlgOpenEditor(string &strFileName, uintptr_t &codepage)
 {
-	FarDialogItem const EditDlgData[]
+	auto EditDlg = MakeDialogItems(
 	{
-		{DI_DOUBLEBOX,3,1,72,8,0,nullptr,nullptr,0,msg(lng::MEditTitle).c_str()},
-		{DI_TEXT,     5,2, 0,2,0,nullptr,nullptr,0,msg(lng::MEditOpenCreateLabel).c_str()},
-		{DI_EDIT,     5,3,70,3,0,L"NewEdit",nullptr,DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY|DIF_EDITEXPAND|DIF_EDITPATH,L""},
-		{DI_TEXT,    -1,4, 0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_TEXT,     5,5, 0,5,0,nullptr,nullptr,0,msg(lng::MEditCodePage).c_str()},
-		{DI_COMBOBOX,25,5,70,5,0,nullptr,nullptr,DIF_DROPDOWNLIST|DIF_LISTWRAPMODE|DIF_LISTAUTOHIGHLIGHT,L""},
-		{DI_TEXT,    -1,6, 0,6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk).c_str()},
-		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel).c_str()},
-	};
-	auto EditDlg = MakeDialogItemsEx(EditDlgData);
+		{ DI_DOUBLEBOX, {{3,  1}, {72, 8}}, DIF_NONE, msg(lng::MEditTitle), },
+		{ DI_TEXT,      {{5,  2}, {0 , 2}}, DIF_NONE, msg(lng::MEditOpenCreateLabel), },
+		{ DI_EDIT,      {{5,  3}, {70, 3}}, DIF_FOCUS | DIF_HISTORY | DIF_USELASTHISTORY | DIF_EDITEXPAND | DIF_EDITPATH, },
+		{ DI_TEXT,      {{-1, 4}, {0,  4}}, DIF_SEPARATOR, {} },
+		{ DI_TEXT,      {{5,  5}, {0,  5}}, DIF_NONE, msg(lng::MEditCodePage), },
+		{ DI_COMBOBOX,  {{25, 5}, {70, 5}}, DIF_DROPDOWNLIST | DIF_LISTWRAPMODE | DIF_LISTAUTOHIGHLIGHT, },
+		{ DI_TEXT,      {{-1, 6}, {0,  6}}, DIF_SEPARATOR, {} },
+		{ DI_BUTTON,    {{0,  7}, {0,  7}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MOk), },
+		{ DI_BUTTON,    {{0,  7}, {0,  7}}, DIF_CENTERGROUP, msg(lng::MCancel), },
+	});
+
+	EditDlg[ID_OE_FILENAME].strHistory = L"NewEdit"sv;
+
 	const auto Dlg = Dialog::create(EditDlg, hndOpenEditor, &codepage);
 	Dlg->SetPosition({ -1, -1, 76, 10 });
 	Dlg->SetHelp(L"FileOpenCreate"sv);
@@ -273,36 +275,37 @@ static intptr_t hndSaveFileAs(Dialog* Dlg, intptr_t msg, intptr_t param1, void* 
 
 
 
-static bool dlgSaveFileAs(string &strFileName, eol::type& Eol, uintptr_t &codepage,bool &AddSignature)
+static bool dlgSaveFileAs(string &strFileName, eol::type& Eol, uintptr_t &codepage, bool &AddSignature)
 {
-   bool ucp = IsUnicodeOrUtfCodePage(codepage);
+	bool ucp = IsUnicodeOrUtfCodePage(codepage);
 
-	FarDialogItem const EditDlgData[]
+	auto EditDlg = MakeDialogItems(
 	{
-		{DI_DOUBLEBOX,3,1,72,15,0,nullptr,nullptr,0,msg(lng::MEditTitle).c_str()},
-		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(lng::MEditSaveAs).c_str()},
-		{DI_EDIT,5,3,70,3,0,L"NewEdit",nullptr,DIF_FOCUS|DIF_HISTORY|DIF_EDITEXPAND|DIF_EDITPATH,L""},
-		{DI_TEXT,-1,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_TEXT,5,5,0,5,0,nullptr,nullptr,0,msg(lng::MEditCodePage).c_str()},
-		{DI_COMBOBOX,25,5,70,5,0,nullptr,nullptr,DIF_DROPDOWNLIST|DIF_LISTWRAPMODE|DIF_LISTAUTOHIGHLIGHT,L""},
-		{DI_CHECKBOX,5,6,0,6,AddSignature,nullptr,nullptr,ucp ? 0 : DIF_DISABLE,msg(lng::MEditAddSignature).c_str()},
-		{DI_TEXT,-1,7,0,7,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_TEXT,5,8,0,8,0,nullptr,nullptr,0,msg(lng::MEditSaveAsFormatTitle).c_str()},
-		{DI_RADIOBUTTON,5,9,0,9,0,nullptr,nullptr,DIF_GROUP,msg(lng::MEditSaveOriginal).c_str()},
-		{DI_RADIOBUTTON,5,10,0,10,0,nullptr,nullptr,0,msg(lng::MEditSaveDOS).c_str()},
-		{DI_RADIOBUTTON,5,11,0,11,0,nullptr,nullptr,0,msg(lng::MEditSaveUnix).c_str()},
-		{DI_RADIOBUTTON,5,12,0,12,0,nullptr,nullptr,0,msg(lng::MEditSaveMac).c_str()},
-		{DI_TEXT,-1,13,0,13,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,0,14,0,14,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MEditorSave).c_str()},
-		{DI_BUTTON,0,14,0,14,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel).c_str()},
-	};
-	auto EditDlg = MakeDialogItemsEx(EditDlgData);
+		{ DI_DOUBLEBOX,    {{3,  1 }, {72, 15}}, DIF_NONE, msg(lng::MEditTitle), },
+		{ DI_TEXT,         {{5,  2 }, {0,  2 }}, DIF_NONE, msg(lng::MEditSaveAs), },
+		{ DI_EDIT,         {{5,  3 }, {70, 3 }}, DIF_FOCUS | DIF_HISTORY | DIF_EDITEXPAND | DIF_EDITPATH, },
+		{ DI_TEXT,         {{-1, 4 }, {0,  4 }}, DIF_SEPARATOR, },
+		{ DI_TEXT,         {{5,  5 }, {0,  5 }}, DIF_NONE, msg(lng::MEditCodePage), },
+		{ DI_COMBOBOX,     {{25, 5 }, {70, 5 }}, DIF_DROPDOWNLIST | DIF_LISTWRAPMODE | DIF_LISTAUTOHIGHLIGHT, },
+		{ DI_CHECKBOX,     {{5,  6 }, {0,  6 }}, ucp ? DIF_NONE : DIF_DISABLE,msg(lng::MEditAddSignature), },
+		{ DI_TEXT,         {{-1, 7 }, {0,  7 }}, DIF_SEPARATOR, },
+		{ DI_TEXT,         {{5,  8 }, {0,  8 }}, DIF_NONE, msg(lng::MEditSaveAsFormatTitle), },
+		{ DI_RADIOBUTTON,  {{5,  9 }, {0,  9 }}, DIF_GROUP, msg(lng::MEditSaveOriginal), },
+		{ DI_RADIOBUTTON,  {{5,  10}, {0,  10}}, DIF_NONE, msg(lng::MEditSaveDOS), },
+		{ DI_RADIOBUTTON,  {{5,  11}, {0,  11}}, DIF_NONE, msg(lng::MEditSaveUnix), },
+		{ DI_RADIOBUTTON,  {{5,  12}, {0,  12}}, DIF_NONE, msg(lng::MEditSaveMac), },
+		{ DI_TEXT,         {{-1, 13}, {0,  13}}, DIF_SEPARATOR, },
+		{ DI_BUTTON,       {{0,  14}, {0,  14}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MEditorSave), },
+		{ DI_BUTTON,       {{0,  14}, {0,  14}}, DIF_CENTERGROUP, msg(lng::MCancel), },
+	});
+
+	EditDlg[ID_SF_FILENAME].strHistory = L"NewEdit"sv;
 	EditDlg[ID_SF_FILENAME].strData = (/*Flags.Check(FFILEEDIT_SAVETOSAVEAS)?strFullFileName:strFileName*/strFileName);
-	{
-		size_t pos = EditDlg[ID_SF_FILENAME].strData.find(msg(lng::MNewFileName));
-		if (pos != string::npos)
-			EditDlg[ID_SF_FILENAME].strData.resize(pos);
-	}
+	EditDlg[ID_SF_SIGNATURE].Selected = AddSignature;
+
+	if (const auto pos = EditDlg[ID_SF_FILENAME].strData.find(msg(lng::MNewFileName)); pos != string::npos)
+		EditDlg[ID_SF_FILENAME].strData.resize(pos);
+
 	EditDlg[ID_SF_DONOTCHANGE + static_cast<int>(Eol)].Selected = TRUE;
 	const auto Dlg = Dialog::create(EditDlg, hndSaveFileAs, &codepage);
 	Dlg->SetPosition({ -1, -1, 76, 17 });

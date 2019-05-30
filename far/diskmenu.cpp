@@ -282,19 +282,18 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 	10  +------------------------------------------------+
 	11
 	*/
-	FarDialogItem const DCDlgData[]
+	auto DCDlg = MakeDialogItems(
 	{
-		{ DI_DOUBLEBOX, 3, 1, 72, 9, 0, nullptr, nullptr, 0, msg(lng::MChangeDriveDisconnectTitle).c_str() },
-		{ DI_TEXT, 5, 2, 0, 2, 0, nullptr, nullptr, DIF_SHOWAMPERSAND, L"" },
-		{ DI_TEXT, 5, 3, 0, 3, 0, nullptr, nullptr, DIF_SHOWAMPERSAND, L"" },
-		{ DI_TEXT, 5, 4, 0, 4, 0, nullptr, nullptr, DIF_SHOWAMPERSAND, L"" },
-		{ DI_TEXT, -1, 5, 0, 5, 0, nullptr, nullptr, DIF_SEPARATOR, L"" },
-		{ DI_CHECKBOX, 5, 6, 70, 6, 0, nullptr, nullptr, 0, msg(lng::MChangeDriveDisconnectReconnect).c_str() },
-		{ DI_TEXT, -1, 7, 0, 7, 0, nullptr, nullptr, DIF_SEPARATOR, L"" },
-		{ DI_BUTTON, 0, 8, 0, 8, 0, nullptr, nullptr, DIF_FOCUS | DIF_DEFAULTBUTTON | DIF_CENTERGROUP, msg(lng::MYes).c_str() },
-		{ DI_BUTTON, 0, 8, 0, 8, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MCancel).c_str() },
-	};
-	auto DCDlg = MakeDialogItemsEx(DCDlgData);
+		{ DI_DOUBLEBOX, {{3,  1}, {72, 9}}, DIF_NONE, msg(lng::MChangeDriveDisconnectTitle), },
+		{ DI_TEXT,      {{5,  2}, {0,  2}}, DIF_SHOWAMPERSAND, },
+		{ DI_TEXT,      {{5,  3}, {0,  3}}, DIF_SHOWAMPERSAND, },
+		{ DI_TEXT,      {{5,  4}, {0,  4}}, DIF_SHOWAMPERSAND, },
+		{ DI_TEXT,      {{-1, 5}, {0,  5}}, DIF_SEPARATOR, },
+		{ DI_CHECKBOX,  {{5,  6}, {70, 6}}, DIF_FOCUS, msg(lng::MChangeDriveDisconnectReconnect), },
+		{ DI_TEXT,      {{-1, 7}, {0,  7}}, DIF_SEPARATOR, },
+		{ DI_BUTTON,    {{0,  8}, {0,  8}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MYes), },
+		{ DI_BUTTON,    {{0,  8}, {0,  8}}, DIF_CENTERGROUP, msg(lng::MCancel), },
+	});
 
 	DCDlg[1].strData = format(msg(lng::MChangeDriveDisconnectQuestion), Letter);
 	DCDlg[2].strData = format(msg(lng::MChangeDriveDisconnectMapped), Letter);

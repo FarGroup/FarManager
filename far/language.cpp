@@ -519,15 +519,15 @@ TEST_CASE("language.parser")
 	}
 	Tests[]
 	{
-		L"\"Text\""sv,    {},          L"Text"sv,  lng_line_type::text,
-		L"\"Text"sv,      {},          L"Text"sv,  lng_line_type::text,
-		L"//[Label]"sv,   L"Label"sv,  {},         lng_line_type::label,
-		L"//[Lab"sv,      {},          {},         lng_line_type::none,
-		L"foo=\"bar\""sv, L"foo"sv,    L"bar"sv,   lng_line_type::both,
-		L"foo=\"bar"sv,   {},          {},         lng_line_type::none,
-		L"foo=bar"sv,     {},          {},         lng_line_type::none,
-		L"foo="sv,        {},          {},         lng_line_type::none,
-		L"foo"sv,         {},          {},         lng_line_type::none,
+		{ L"\"Text\""sv,    {},          L"Text"sv,  lng_line_type::text,  },
+		{ L"\"Text"sv,      {},          L"Text"sv,  lng_line_type::text,  },
+		{ L"//[Label]"sv,   L"Label"sv,  {},         lng_line_type::label, },
+		{ L"//[Lab"sv,      {},          {},         lng_line_type::none,  },
+		{ L"foo=\"bar\""sv, L"foo"sv,    L"bar"sv,   lng_line_type::both,  },
+		{ L"foo=\"bar"sv,   {},          {},         lng_line_type::none,  },
+		{ L"foo=bar"sv,     {},          {},         lng_line_type::none,  },
+		{ L"foo="sv,        {},          {},         lng_line_type::none,  },
+		{ L"foo"sv,         {},          {},         lng_line_type::none,  },
 	};
 
 	for (const auto& i: Tests)

@@ -54,15 +54,17 @@ WARNING_DISABLE_MSC(4555) // https://msdn.microsoft.com/en-us/library/k64a6he5.a
 WARNING_DISABLE_MSC(4701) // https://msdn.microsoft.com/en-us/library/1wea5zwe.aspx Potentially uninitialized local variable 'name' used
 WARNING_DISABLE_MSC(4703) // https://msdn.microsoft.com/en-us/library/jj851030.aspx Potentially uninitialized local pointer variable 'name' used
 
-WARNING_DISABLE_GCC("-Wpragmas")
 WARNING_DISABLE_GCC("-Warray-bounds")
-WARNING_DISABLE_GCC("-Wcast-qual")
-WARNING_DISABLE_GCC("-Wimplicit-fallthrough")
-WARNING_DISABLE_GCC("-Wunused-but-set-variable")
-WARNING_DISABLE_GCC("-Wunused-value")
 WARNING_DISABLE_GCC("-Wcast-function-type")
-WARNING_DISABLE_GCC("-Wunused-function")
+WARNING_DISABLE_GCC("-Wcast-qual")
 WARNING_DISABLE_GCC("-Wempty-body")
+WARNING_DISABLE_GCC("-Wimplicit-fallthrough")
+WARNING_DISABLE_GCC("-Wmissing-declarations")
+WARNING_DISABLE_GCC("-Wpragmas")
+WARNING_DISABLE_GCC("-Wundef")
+WARNING_DISABLE_GCC("-Wunused-but-set-variable")
+WARNING_DISABLE_GCC("-Wunused-function")
+WARNING_DISABLE_GCC("-Wunused-value")
 #ifdef _DEBUG
 WARNING_DISABLE_GCC("-Wformat=")
 WARNING_DISABLE_GCC("-Wformat-extra-args")

@@ -1262,7 +1262,7 @@ ut labore et dolore magna aliqua.
 
 WARNING_POP()
 
-	for (const auto i: Tests)
+	for (const auto& i: Tests)
 	{
 		bool PureAscii = false;
 		REQUIRE(i.Utf8 == encoding::is_valid_utf8(i.Str, false, PureAscii));

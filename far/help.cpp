@@ -1448,19 +1448,19 @@ bool Help::ProcessKey(const Manager::Key& Key)
 
 				string strTempStr;
 				//int RetCode = GetString(msg(lng::MHelpSearchTitle),msg(lng::MHelpSearchingFor),L"HelpSearch",strLastSearchStr,strLastSearchStr0);
-				int RetCode = GetSearchReplaceString(
+				const int RetCode = GetSearchReplaceString(
 					false,
-					msg(lng::MHelpSearchTitle).c_str(),
-					msg(lng::MHelpSearchingFor).c_str(),
+					msg(lng::MHelpSearchTitle),
+					msg(lng::MHelpSearchingFor),
 					strLastSearchStr0,
 					strTempStr,
-					L"HelpSearch",
+					L"HelpSearch"sv,
 					{},
 					&Case,
 					&WholeWords,
-					nullptr,
+					{},
 					&Regexp,
-					nullptr,
+					{},
 					{},
 					true,
 					&HelpSearchId);

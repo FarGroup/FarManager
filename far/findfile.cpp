@@ -466,7 +466,7 @@ void background_searcher::InitInFileSearch()
 			}
 
 			// Добавляем избранные таблицы символов
-			for (const auto& [Name, Value]: CpEnum)
+			for (const auto [Name, Value]: CpEnum)
 			{
 				if (Value & (hasSelected? CPST_FIND : CPST_FAVORITE))
 				{
@@ -624,28 +624,29 @@ intptr_t FindFiles::AdvancedDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, 
 
 void FindFiles::AdvancedDialog()
 {
-	FarDialogItem const AdvancedDlgData[]
+	auto AdvancedDlg = MakeDialogItems(
 	{
-		{DI_DOUBLEBOX,3,1,52,11,0,nullptr,nullptr,0,msg(lng::MFindFileAdvancedTitle).c_str()},
-		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(lng::MFindFileSearchFirst).c_str()},
-		{DI_EDIT,5,3,50,3,0,nullptr,nullptr,0,Global->Opt->FindOpt.strSearchInFirstSize.c_str()},
-		{DI_TEXT,-1,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_TEXT,5,5, 0, 5,0,nullptr,nullptr,0,msg(lng::MFindAlternateModeTypes).c_str()},
-		{DI_EDIT,5,6,50, 6,0,nullptr,nullptr,0,Global->Opt->FindOpt.strSearchOutFormat.c_str()},
-		{DI_TEXT,5,7, 0, 7,0,nullptr,nullptr,0,msg(lng::MFindAlternateModeWidths).c_str()},
-		{DI_EDIT,5,8,50, 8,0,nullptr,nullptr,0,Global->Opt->FindOpt.strSearchOutFormatWidth.c_str()},
-		{DI_TEXT,-1,9,0,9,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk).c_str()},
-		{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel).c_str()},
-	};
-	auto AdvancedDlg = MakeDialogItemsEx(AdvancedDlgData);
+		{ DI_DOUBLEBOX, {{3,  1 }, {52, 11}}, DIF_NONE, msg(lng::MFindFileAdvancedTitle), },
+		{ DI_TEXT,      {{5,  2 }, {0,  2 }}, DIF_NONE, msg(lng::MFindFileSearchFirst), },
+		{ DI_EDIT,      {{5,  3 }, {50, 3 }}, DIF_NONE, Global->Opt->FindOpt.strSearchInFirstSize, },
+		{ DI_TEXT,      {{-1, 4 }, {0,  4 }}, DIF_SEPARATOR, },
+		{ DI_TEXT,      {{5,  5 }, {0,  5 }}, DIF_NONE, msg(lng::MFindAlternateModeTypes), },
+		{ DI_EDIT,      {{5,  6 }, {50, 6 }}, DIF_NONE, Global->Opt->FindOpt.strSearchOutFormat, },
+		{ DI_TEXT,      {{5,  7 }, {0,  7 }}, DIF_NONE, msg(lng::MFindAlternateModeWidths), },
+		{ DI_EDIT,      {{5,  8 }, {50, 8 }}, DIF_NONE, Global->Opt->FindOpt.strSearchOutFormatWidth, },
+		{ DI_TEXT,      {{-1, 9 }, {0,  9 }}, DIF_SEPARATOR, },
+		{ DI_BUTTON,    {{0,  10}, {0,  10}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MOk), },
+		{ DI_BUTTON,    {{0,  10}, {0,  10}}, DIF_CENTERGROUP, msg(lng::MCancel), },
+	});
+
+
+
 	const auto Dlg = Dialog::create(AdvancedDlg, &FindFiles::AdvancedDlgProc);
 	Dlg->SetHelp(L"FindFileAdvanced"sv);
 	Dlg->SetPosition({ -1, -1, 52 + 4, 13 });
 	Dlg->Process();
-	int ExitCode=Dlg->GetExitCode();
 
-	if (ExitCode==AD_BUTTON_OK)
+	if (Dlg->GetExitCode() == AD_BUTTON_OK)
 	{
 		Global->Opt->FindOpt.strSearchInFirstSize = AdvancedDlg[AD_EDIT_SEARCHFIRST].strData;
 		Global->Opt->SetSearchColumns(AdvancedDlg[AD_EDIT_COLUMNSFORMAT].strData, AdvancedDlg[AD_EDIT_COLUMNSWIDTH].strData);
@@ -2551,21 +2552,22 @@ bool FindFiles::FindFilesProcess()
 
 	int DlgWidth = ScrX + 1 - 2;
 	int DlgHeight = ScrY + 1 - 2;
-	FarDialogItem const FindDlgData[]
+
+	auto FindDlg = MakeDialogItems(
 	{
-		{DI_DOUBLEBOX,3,1,DlgWidth-4,DlgHeight-2,0,nullptr,nullptr,DIF_SHOWAMPERSAND,strTitle.c_str()},
-		{DI_LISTBOX,4,2,DlgWidth-5,DlgHeight-7,0,nullptr,nullptr,DIF_LISTNOBOX|DIF_DISABLE,L""},
-		{DI_TEXT,-1,DlgHeight-6,0,DlgHeight-6,0,nullptr,nullptr,DIF_SEPARATOR2,L""},
-		{DI_TEXT,5,DlgHeight-5,DlgWidth-(strFindStr.empty()?6:12),DlgHeight-5,0,nullptr,nullptr,DIF_SHOWAMPERSAND,L"..."},
-		{DI_TEXT,DlgWidth-9,DlgHeight-5,DlgWidth-6,DlgHeight-5,0,nullptr,nullptr,(strFindStr.empty()?DIF_HIDDEN:0),L""},
-		{DI_TEXT,-1,DlgHeight-4,0,DlgHeight-4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,nullptr,nullptr,DIF_FOCUS|DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MFindNewSearch).c_str()},
-		{DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_DISABLE,msg(lng::MFindGoTo).c_str()},
-		{DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_DISABLE,msg(lng::MFindView).c_str()},
-		{DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_DISABLE,msg(lng::MFindPanel).c_str()},
-		{DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MFindStop).c_str()},
-	};
-	auto FindDlg = MakeDialogItemsEx(FindDlgData);
+		{ DI_DOUBLEBOX, {{3,                    1}, {DlgWidth-4, DlgHeight-2}}, DIF_SHOWAMPERSAND, strTitle, },
+		{ DI_LISTBOX,   {{4,                    2}, {DlgWidth-5, DlgHeight-7}}, DIF_LISTNOBOX|DIF_DISABLE, },
+		{ DI_TEXT,      {{-1,         DlgHeight-6}, {0,          DlgHeight-6}}, DIF_SEPARATOR2, },
+		{ DI_TEXT,      {{5,          DlgHeight-5}, {DlgWidth-(strFindStr.empty()? 6 : 12), DlgHeight-5}}, DIF_SHOWAMPERSAND, L"..."sv },
+		{ DI_TEXT,      {{DlgWidth-9, DlgHeight-5}, {DlgWidth-6, DlgHeight-5}}, (strFindStr.empty() ? DIF_HIDDEN : DIF_NONE), },
+		{ DI_TEXT,      {{-1,         DlgHeight-4}, {0,          DlgHeight-4}}, DIF_SEPARATOR, },
+		{ DI_BUTTON,    {{0,          DlgHeight-3}, {0,          DlgHeight-3}}, DIF_CENTERGROUP | DIF_FOCUS | DIF_DEFAULTBUTTON, msg(lng::MFindNewSearch), },
+		{ DI_BUTTON,    {{0,          DlgHeight-3}, {0,          DlgHeight-3}}, DIF_CENTERGROUP | DIF_DISABLE, msg(lng::MFindGoTo), },
+		{ DI_BUTTON,    {{0,          DlgHeight-3}, {0,          DlgHeight-3}}, DIF_CENTERGROUP | DIF_DISABLE, msg(lng::MFindView), },
+		{ DI_BUTTON,    {{0,          DlgHeight-3}, {0,          DlgHeight-3}}, DIF_CENTERGROUP | DIF_DISABLE, msg(lng::MFindPanel), },
+		{ DI_BUTTON,    {{0,          DlgHeight-3}, {0,          DlgHeight-3}}, DIF_CENTERGROUP, msg(lng::MFindStop), },
+	});
+
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 
 	if (PluginMode)
@@ -2874,42 +2876,46 @@ FindFiles::FindFiles():
 		const auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 		PluginMode = ActivePanel->GetMode() == panel_mode::PLUGIN_PANEL && ActivePanel->IsVisible();
 		PrepareDriveNameStr(strSearchFromRoot);
-		static const wchar_t MasksHistoryName[] = L"Masks", TextHistoryName[] = L"SearchText";
-		static const wchar_t HexMask[]=L"HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH";
 		const wchar_t VSeparator[] = { BoxSymbols[BS_T_H1V1], BoxSymbols[BS_V1], BoxSymbols[BS_V1], BoxSymbols[BS_V1], BoxSymbols[BS_V1], BoxSymbols[BS_B_H1V1], 0 };
-		FarDialogItem const FindAskDlgData[]
+
+		auto FindAskDlg = MakeDialogItems(
 		{
-			{DI_DOUBLEBOX,3,1,76,19,0,nullptr,nullptr,0,msg(lng::MFindFileTitle).c_str()},
-			{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(lng::MFindFileMasks).c_str()},
-			{DI_EDIT,5,3,74,3,0,MasksHistoryName,nullptr,DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY,L""},
-			{DI_TEXT,-1,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-			{DI_TEXT,5,5,0,5,0,nullptr,nullptr,0,L""},
-			{DI_EDIT,5,6,74,6,0,TextHistoryName,nullptr,DIF_HISTORY,L""},
-			{DI_FIXEDIT,5,6,74,6,0,nullptr,HexMask,DIF_MASKEDIT,L""},
-			{DI_TEXT,5,7,0,7,0,nullptr,nullptr,0,L""},
-			{DI_COMBOBOX,5,8,74,8,0,nullptr,nullptr,DIF_DROPDOWNLIST,L""},
-			{DI_TEXT,-1,9,0,9,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-			{DI_CHECKBOX,5,10,0,10,0,nullptr,nullptr,0,msg(lng::MFindFileCase).c_str()},
-			{DI_CHECKBOX,5,11,0,11,0,nullptr,nullptr,0,msg(lng::MFindFileWholeWords).c_str()},
-			{DI_CHECKBOX,5,12,0,12,0,nullptr,nullptr,0,msg(lng::MSearchForHex).c_str()},
-			{DI_CHECKBOX,5,13,0,13,NotContaining,nullptr,nullptr,0,msg(lng::MSearchNotContaining).c_str()},
-			{DI_CHECKBOX,41,10,0,10,0,nullptr,nullptr,0,msg(lng::MFindArchives).c_str()},
-			{DI_CHECKBOX,41,11,0,11,0,nullptr,nullptr,0,msg(lng::MFindFolders).c_str()},
-			{DI_CHECKBOX,41,12,0,12,0,nullptr,nullptr,0,msg(lng::MFindSymLinks).c_str()},
-			{DI_CHECKBOX,41,13,0,13,0,nullptr,nullptr,0,msg(lng::MFindAlternateStreams).c_str()},
-			{DI_TEXT,-1,14,0,14,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-			{DI_VTEXT,39,9,0,9,0,nullptr,nullptr,DIF_BOXCOLOR,VSeparator},
-			{DI_TEXT,5,15,0,15,0,nullptr,nullptr,0,msg(lng::MSearchWhere).c_str()},
-			{DI_COMBOBOX,5,16,36,16,0,nullptr,nullptr,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,L""},
-			{DI_CHECKBOX,41,16,0,16,(int)(UseFilter?BSTATE_CHECKED:BSTATE_UNCHECKED),nullptr,nullptr,DIF_AUTOMATION,msg(lng::MFindUseFilter).c_str()},
-			{DI_TEXT,-1,17,0,17,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-			{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MFindFileFind).c_str()},
-			{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MFindFileDrive).c_str()},
-			{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_AUTOMATION|(UseFilter?0:DIF_DISABLE),msg(lng::MFindFileSetFilter).c_str()},
-			{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MFindFileAdvanced).c_str()},
-			{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel).c_str()},
-		};
-		auto FindAskDlg = MakeDialogItemsEx(FindAskDlgData);
+			{ DI_DOUBLEBOX,   {{3,  1 }, {76, 19}}, DIF_NONE, msg(lng::MFindFileTitle), },
+			{ DI_TEXT,        {{5,  2 }, {0,  2 }}, DIF_NONE, msg(lng::MFindFileMasks), },
+			{ DI_EDIT,        {{5,  3 }, {74, 3 }}, DIF_FOCUS | DIF_HISTORY | DIF_USELASTHISTORY, },
+			{ DI_TEXT,        {{-1, 4 }, {0,  4 }}, DIF_SEPARATOR, },
+			{ DI_TEXT,        {{5,  5 }, {0,  5 }}, DIF_NONE, },
+			{ DI_EDIT,        {{5,  6 }, {74, 6 }}, DIF_HISTORY, },
+			{ DI_FIXEDIT,     {{5,  6 }, {74, 6 }}, DIF_MASKEDIT, },
+			{ DI_TEXT,        {{5,  7 }, {0,  7 }}, DIF_NONE, },
+			{ DI_COMBOBOX,    {{5,  8 }, {74, 8 }}, DIF_DROPDOWNLIST, },
+			{ DI_TEXT,        {{-1, 9 }, {0,  9 }}, DIF_SEPARATOR, },
+			{ DI_CHECKBOX,    {{5,  10}, {0,  10}}, DIF_NONE, msg(lng::MFindFileCase), },
+			{ DI_CHECKBOX,    {{5,  11}, {0,  11}}, DIF_NONE, msg(lng::MFindFileWholeWords), },
+			{ DI_CHECKBOX,    {{5,  12}, {0,  12}}, DIF_NONE, msg(lng::MSearchForHex), },
+			{ DI_CHECKBOX,    {{5,  13}, {0,  13}}, DIF_NONE, msg(lng::MSearchNotContaining), },
+			{ DI_CHECKBOX,    {{41, 10}, {0,  10}}, DIF_NONE, msg(lng::MFindArchives), },
+			{ DI_CHECKBOX,    {{41, 11}, {0,  11}}, DIF_NONE, msg(lng::MFindFolders), },
+			{ DI_CHECKBOX,    {{41, 12}, {0,  12}}, DIF_NONE, msg(lng::MFindSymLinks), },
+			{ DI_CHECKBOX,    {{41, 13}, {0,  13}}, DIF_NONE, msg(lng::MFindAlternateStreams), },
+			{ DI_TEXT,        {{-1, 14}, {0,  14}}, DIF_SEPARATOR, },
+			{ DI_VTEXT,       {{39, 9 }, {0,  9 }}, DIF_BOXCOLOR, VSeparator },
+			{ DI_TEXT,        {{5,  15}, {0,  15}}, DIF_NONE, msg(lng::MSearchWhere), },
+			{ DI_COMBOBOX,    {{5,  16}, {36, 16}}, DIF_DROPDOWNLIST | DIF_LISTNOAMPERSAND, },
+			{ DI_CHECKBOX,    {{41, 16}, {0,  16}}, DIF_AUTOMATION, msg(lng::MFindUseFilter), },
+			{ DI_TEXT,        {{-1, 17}, {0,  17}}, DIF_SEPARATOR, },
+			{ DI_BUTTON,      {{0,  18}, {0,  18}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MFindFileFind), },
+			{ DI_BUTTON,      {{0,  18}, {0,  18}}, DIF_CENTERGROUP, msg(lng::MFindFileDrive), },
+			{ DI_BUTTON,      {{0,  18}, {0,  18}}, DIF_CENTERGROUP | DIF_AUTOMATION | (UseFilter ? 0 : DIF_DISABLE), msg(lng::MFindFileSetFilter), },
+			{ DI_BUTTON,      {{0,  18}, {0,  18}}, DIF_CENTERGROUP, msg(lng::MFindFileAdvanced), },
+			{ DI_BUTTON,      {{0,  18}, {0,  18}}, DIF_CENTERGROUP, msg(lng::MCancel), },
+		});
+
+		FindAskDlg[FAD_EDIT_MASK].strHistory = L"Masks"sv;
+		FindAskDlg[FAD_EDIT_TEXT].strHistory = L"SearchText"sv;
+		FindAskDlg[FAD_EDIT_HEX].strMask = L"HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH"sv;
+		FindAskDlg[FAD_CHECKBOX_NOTCONTAINING].Selected = NotContaining;
+		FindAskDlg[FAD_CHECKBOX_FILTER].Selected = UseFilter;
 
 		if (strFindStr.empty())
 			FindAskDlg[FAD_CHECKBOX_DIRS].Selected=Global->Opt->FindOpt.FindFolders;

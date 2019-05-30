@@ -921,7 +921,7 @@ bool KeyMacro::AddMacro(const GUID& PluginId, const MacroAddMacroV1* Data)
 		Flags,
 		Data->Description,
 		PluginId,
-		Data->Callback,
+		{reinterpret_cast<void*>(Data->Callback)},
 		Data->Id,
 		Priority
 	};
@@ -1166,34 +1166,47 @@ bool KeyMacro::GetMacroSettings(int Key, unsigned long long& Flags, string_view 
 	19 L=================================================================+
 
 	*/
-	FarDialogItem const MacroSettingsDlgData[]
+	auto MacroSettingsDlg = MakeDialogItems(
 	{
-		{DI_DOUBLEBOX,3,1,69,19,0,nullptr,nullptr,0,L""},
-		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(lng::MMacroSequence).c_str()},
-		{DI_EDIT,5,3,67,3,0,L"MacroSequence",nullptr,DIF_FOCUS|DIF_HISTORY,L""},
-		{DI_TEXT,5,4,0,4,0,nullptr,nullptr,0,msg(lng::MMacroDescription).c_str()},
-		{DI_EDIT,5,5,67,5,0,L"MacroDescription",nullptr,DIF_HISTORY,L""},
+		{ DI_DOUBLEBOX, {{3,  1 }, {69, 19}}, DIF_NONE, },
+		{ DI_TEXT,      {{5,  2 }, {0,  2 }}, DIF_NONE, msg(lng::MMacroSequence), },
+		{ DI_EDIT,      {{5,  3 }, {67, 3 }}, DIF_FOCUS | DIF_HISTORY, },
+		{ DI_TEXT,      {{5,  4 }, {0,  4 }}, DIF_NONE, msg(lng::MMacroDescription), },
+		{ DI_EDIT,      {{5,  5 }, {67, 5 }}, DIF_HISTORY, },
+		{ DI_TEXT,      {{-1, 6 }, {0,  6 }}, DIF_SEPARATOR, },
+		{ DI_CHECKBOX,  {{5,  7 }, {0,  7 }}, DIF_NONE, msg(lng::MMacroSettingsEnableOutput), },
+		{ DI_CHECKBOX,  {{5,  8 }, {0,  8 }}, DIF_NONE, msg(lng::MMacroSettingsRunAfterStart), },
+		{ DI_TEXT,      {{-1, 9 }, {0,  9 }}, DIF_SEPARATOR, },
+		{ DI_CHECKBOX,  {{5,  10}, {0,  0 }}, DIF_NONE, msg(lng::MMacroSettingsActivePanel), },
+		{ DI_CHECKBOX,  {{7,  11}, {0,  1 }}, DIF_3STATE | DIF_DISABLE, msg(lng::MMacroSettingsPluginPanel), },
+		{ DI_CHECKBOX,  {{7,  12}, {0,  2 }}, DIF_3STATE | DIF_DISABLE, msg(lng::MMacroSettingsFolders), },
+		{ DI_CHECKBOX,  {{7,  13}, {0,  3 }}, DIF_3STATE | DIF_DISABLE, msg(lng::MMacroSettingsSelectionPresent), },
+		{ DI_CHECKBOX,  {{37, 10}, {0,  0 }}, DIF_NONE, msg(lng::MMacroSettingsPassivePanel), },
+		{ DI_CHECKBOX,  {{39, 11}, {0,  1 }}, DIF_3STATE | DIF_DISABLE, msg(lng::MMacroSettingsPluginPanel), },
+		{ DI_CHECKBOX,  {{39, 12}, {0,  2 }}, DIF_3STATE | DIF_DISABLE, msg(lng::MMacroSettingsFolders), },
+		{ DI_CHECKBOX,  {{39, 13}, {0,  3 }}, DIF_3STATE | DIF_DISABLE, msg(lng::MMacroSettingsSelectionPresent), },
+		{ DI_TEXT,      {{-1, 14}, {0,  4 }}, DIF_SEPARATOR, },
+		{ DI_CHECKBOX,  {{5,  15}, {0,  5 }}, DIF_3STATE, msg(lng::MMacroSettingsCommandLine), },
+		{ DI_CHECKBOX,  {{5,  16}, {0,  6 }}, DIF_3STATE, msg(lng::MMacroSettingsSelectionBlockPresent), },
+		{ DI_TEXT,      {{-1, 17}, {0,  7 }}, DIF_SEPARATOR, },
+		{ DI_BUTTON,    {{0,  18}, {0,  8 }}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MOk), },
+		{ DI_BUTTON,    {{0,  18}, {0,  8 }}, DIF_CENTERGROUP, msg(lng::MCancel), },
+	});
 
-		{DI_TEXT,-1,6,0,6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_CHECKBOX,5,7,0,7,0,nullptr,nullptr,0,msg(lng::MMacroSettingsEnableOutput).c_str()},
-		{DI_CHECKBOX,5,8,0,8,0,nullptr,nullptr,0,msg(lng::MMacroSettingsRunAfterStart).c_str()},
-		{DI_TEXT,-1,9,0,9,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_CHECKBOX,5,10,0,10,0,nullptr,nullptr,0,msg(lng::MMacroSettingsActivePanel).c_str()},
-		{DI_CHECKBOX,7,11,0,11,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsPluginPanel).c_str()},
-		{DI_CHECKBOX,7,12,0,12,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsFolders).c_str()},
-		{DI_CHECKBOX,7,13,0,13,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsSelectionPresent).c_str()},
-		{DI_CHECKBOX,37,10,0,10,0,nullptr,nullptr,0,msg(lng::MMacroSettingsPassivePanel).c_str()},
-		{DI_CHECKBOX,39,11,0,11,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsPluginPanel).c_str()},
-		{DI_CHECKBOX,39,12,0,12,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsFolders).c_str()},
-		{DI_CHECKBOX,39,13,0,13,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsSelectionPresent).c_str()},
-		{DI_TEXT,-1,14,0,14,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_CHECKBOX,5,15,0,15,2,nullptr,nullptr,DIF_3STATE,msg(lng::MMacroSettingsCommandLine).c_str()},
-		{DI_CHECKBOX,5,16,0,16,2,nullptr,nullptr,DIF_3STATE,msg(lng::MMacroSettingsSelectionBlockPresent).c_str()},
-		{DI_TEXT,-1,17,0,17,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk).c_str()},
-		{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel).c_str()},
-	};
-	auto MacroSettingsDlg = MakeDialogItemsEx(MacroSettingsDlgData);
+	MacroSettingsDlg[MS_EDIT_SEQUENCE].strHistory = L"MacroSequence"sv;
+	MacroSettingsDlg[MS_EDIT_DESCR].strHistory = L"MacroDescription"sv;
+
+	MacroSettingsDlg[MS_CHECKBOX_A_PLUGINPANEL].Selected = 2;
+	MacroSettingsDlg[MS_CHECKBOX_A_FOLDERS].Selected = 2;
+	MacroSettingsDlg[MS_CHECKBOX_A_SELECTION].Selected = 2;
+
+	MacroSettingsDlg[MS_CHECKBOX_P_PLUGINPANEL].Selected = 2;
+	MacroSettingsDlg[MS_CHECKBOX_P_FOLDERS].Selected = 2;
+	MacroSettingsDlg[MS_CHECKBOX_P_SELECTION].Selected = 2;
+
+	MacroSettingsDlg[MS_CHECKBOX_CMDLINE].Selected = 2;
+	MacroSettingsDlg[MS_CHECKBOX_SELBLOCK].Selected = 2;
+
 	string strKeyText;
 	KeyToText(Key,strKeyText);
 	MacroSettingsDlg[MS_DOUBLEBOX].strData = format(msg(lng::MMacroSettingsTitle), strKeyText);
@@ -5156,13 +5169,13 @@ int KeyMacro::AssignMacroKey(DWORD &MacroKey, unsigned long long& Flags)
 	  | ________________________ |
 	  +--------------------------+
 	*/
-	FarDialogItem const MacroAssignDlgData[]
+	auto MacroAssignDlg = MakeDialogItems(
 	{
-		{DI_DOUBLEBOX,3,1,30,4,0,nullptr,nullptr,0,msg(lng::MDefineMacroTitle).c_str()},
-		{DI_TEXT,-1,2,0,2,0,nullptr,nullptr,0,msg(lng::MDefineMacro).c_str()},
-		{DI_COMBOBOX,5,3,28,3,0,nullptr,nullptr,DIF_FOCUS|DIF_DEFAULTBUTTON,L""},
-	};
-	auto MacroAssignDlg = MakeDialogItemsEx(MacroAssignDlgData);
+		{DI_DOUBLEBOX, {{3,  1}, {30, 4}}, DIF_NONE, msg(lng::MDefineMacroTitle), },
+		{DI_TEXT,      {{-1, 2}, {0,  2}}, DIF_NONE, msg(lng::MDefineMacro), },
+		{DI_COMBOBOX,  {{5,  3}, {28, 3}}, DIF_FOCUS | DIF_DEFAULTBUTTON, },
+	});
+
 	DlgParam Param={Flags, 0, m_StartMode, 0, false};
 	//_SVS(SysLog(L"StartMode=%d",m_StartMode));
 	Global->IsProcessAssignMacroKey++;

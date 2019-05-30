@@ -101,19 +101,15 @@ enum list_mode
 struct color_item
 {
 	lng LngId;
-	union
-	{
-		size_t SubColorCount;
-		PaletteColors Color;
-	};
-	const color_item* SubColor;
+	PaletteColors Color;
+	span<const color_item> SubColor;
 };
 
-static void SetItemColors(const color_item* Items, size_t Size, COORD Position = {})
+static void SetItemColors(span<const color_item> const Items, COORD Position = {})
 {
 	const auto ItemsMenu = VMenu2::create(msg(lng::MSetColorItemsTitle), {});
 
-	for (const auto& i : span(Items, Size))
+	for (const auto& i: Items)
 	{
 		ItemsMenu->AddItem(msg(i.LngId));
 	}
@@ -126,9 +122,9 @@ static void SetItemColors(const color_item* Items, size_t Size, COORD Position =
 		if (Msg != DN_CLOSE || ItemsCode < 0)
 			return 0;
 
-		if (Items[ItemsCode].SubColor)
+		if (!Items[ItemsCode].SubColor.empty())
 		{
-			SetItemColors(Items[ItemsCode].SubColor, Items[ItemsCode].SubColorCount, Position);
+			SetItemColors(Items[ItemsCode].SubColor, Position);
 		}
 		else
 		{
@@ -249,8 +245,8 @@ void SetColors()
 		{ lng::MSetColorDialogSelectedDefaultButton,                    COL_DIALOGSELECTEDDEFAULTBUTTON },
 		{ lng::MSetColorDialogHighlightedDefaultButton,                 COL_DIALOGHIGHLIGHTDEFAULTBUTTON },
 		{ lng::MSetColorDialogSelectedHighlightedDefaultButton,         COL_DIALOGHIGHLIGHTSELECTEDDEFAULTBUTTON },
-		{ lng::MSetColorDialogListBoxControl,                           std::size(ListItemsNormal), ListItemsNormal },
-		{ lng::MSetColorDialogComboBoxControl,                          std::size(ComboItemsNormal), ComboItemsNormal },
+		{ lng::MSetColorDialogListBoxControl,                           {}, ListItemsNormal },
+		{ lng::MSetColorDialogComboBoxControl,                          {}, ComboItemsNormal },
 	},
 
 	WarnDialogItems[] =
@@ -273,8 +269,8 @@ void SetColors()
 		{ lng::MSetColorDialogSelectedDefaultButton,                    COL_WARNDIALOGSELECTEDDEFAULTBUTTON },
 		{ lng::MSetColorDialogHighlightedDefaultButton,                 COL_WARNDIALOGHIGHLIGHTDEFAULTBUTTON },
 		{ lng::MSetColorDialogSelectedHighlightedDefaultButton,         COL_WARNDIALOGHIGHLIGHTSELECTEDDEFAULTBUTTON },
-		{ lng::MSetColorDialogListBoxControl,                           std::size(ListItemsWarn), ListItemsWarn },
-		{ lng::MSetColorDialogComboBoxControl,                          std::size(ComboItemsWarn), ComboItemsWarn },
+		{ lng::MSetColorDialogListBoxControl,                           {}, ListItemsWarn },
+		{ lng::MSetColorDialogComboBoxControl,                          {}, ComboItemsWarn },
 	},
 
 	MenuItems[] =
@@ -394,12 +390,12 @@ void SetColors()
 
 		GroupsMenu->SetPosition({ 2, 1, 0, 0 });
 		GroupsMenu->SetMenuFlags(VMENU_WRAPMODE);
-		int GroupsCode=GroupsMenu->RunEx([&](int Msg, void *param)
+		const auto GroupsCode=GroupsMenu->RunEx([&](int Msg, void *param)
 		{
 			const auto ItemsCode = reinterpret_cast<intptr_t>(param);
 			if (Msg != DN_CLOSE || ItemsCode < 0 || static_cast<size_t>(ItemsCode) >= std::size(Groups))
 				return 0;
-			SetItemColors(Groups[ItemsCode].Subitems.data(), Groups[ItemsCode].Subitems.size());
+			SetItemColors(Groups[ItemsCode].Subitems);
 			return 1;
 		});
 
@@ -620,65 +616,60 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 bool GetColorDialogInternal(FarColor& Color, bool const bCentered, const FarColor* const BaseColor)
 {
-	const FarDialogItem ColorDlgData[]
+	auto ColorDlg = MakeDialogItems(
 	{
-		{DI_DOUBLEBOX,   3, 1,35,14, 0,nullptr,nullptr,0,msg(lng::MSetColorTitle).c_str()},
-		{DI_SINGLEBOX,   5, 2,18, 7, 0,nullptr,nullptr,0,msg(lng::MSetColorForeground).c_str()},
-		{DI_RADIOBUTTON, 6, 3, 0, 3, 0,nullptr,nullptr,DIF_GROUP|DIF_MOVESELECT,L""},
-		{DI_RADIOBUTTON, 6, 4, 0, 4, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
-		{DI_RADIOBUTTON, 6, 5, 0, 5, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
-		{DI_RADIOBUTTON, 6, 6, 0, 6, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
-		{DI_RADIOBUTTON, 9, 3, 0, 3, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
-		{DI_RADIOBUTTON, 9, 4, 0, 4, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
-		{DI_RADIOBUTTON, 9, 5, 0, 5, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
-		{DI_RADIOBUTTON, 9, 6, 0, 6, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
-		{DI_RADIOBUTTON,12, 3, 0, 3, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
-		{DI_RADIOBUTTON,12, 4, 0, 4, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
-		{DI_RADIOBUTTON,12, 5, 0, 5, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
-		{DI_RADIOBUTTON,12, 6, 0, 6, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
-		{DI_RADIOBUTTON,15, 3, 0, 3, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
-		{DI_RADIOBUTTON,15, 4, 0, 4, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
-		{DI_RADIOBUTTON,15, 5, 0, 5, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
-		{DI_RADIOBUTTON,15, 6, 0, 6, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
-
-		{DI_FIXEDIT,     5, 8,10, 8, 0,nullptr,L"HHHHHH",DIF_MASKEDIT, L""},
-		{DI_BUTTON,     12, 8,18, 8, 0,nullptr,nullptr,0,msg(lng::MSetColorForeRGB).c_str()},
-		{DI_CHECKBOX,    5, 9, 0, 9, 0,nullptr,nullptr,0,msg(lng::MSetColorForeTransparent).c_str()},
-
-		{DI_SINGLEBOX,  20, 2,33, 7, 0,nullptr,nullptr,0,msg(lng::MSetColorBackground).c_str()},
-		{DI_RADIOBUTTON,21, 3, 0, 3, 0,nullptr,nullptr,DIF_GROUP|DIF_MOVESELECT,L""},
-		{DI_RADIOBUTTON,21, 4, 0, 4, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
-		{DI_RADIOBUTTON,21, 5, 0, 5, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
-		{DI_RADIOBUTTON,21, 6, 0, 6, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
-		{DI_RADIOBUTTON,24, 3, 0, 3, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
-		{DI_RADIOBUTTON,24, 4, 0, 4, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
-		{DI_RADIOBUTTON,24, 5, 0, 5, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
-		{DI_RADIOBUTTON,24, 6, 0, 6, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
-		{DI_RADIOBUTTON,27, 3, 0, 3, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
-		{DI_RADIOBUTTON,27, 4, 0, 4, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
-		{DI_RADIOBUTTON,27, 5, 0, 5, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
-		{DI_RADIOBUTTON,27, 6, 0, 6, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
-		{DI_RADIOBUTTON,30, 3, 0, 3, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
-		{DI_RADIOBUTTON,30, 4, 0, 4, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
-		{DI_RADIOBUTTON,30, 5, 0, 5, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
-		{DI_RADIOBUTTON,30, 6, 0, 6, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
-
-		{DI_FIXEDIT,    20, 8,25, 8, 0,nullptr,L"HHHHHH",DIF_MASKEDIT,L""},
-		{DI_BUTTON,     27, 8,33, 8, 0,nullptr,nullptr,0,msg(lng::MSetColorBackRGB).c_str()},
-		{DI_CHECKBOX,   22, 9, 0, 9, 0,nullptr,nullptr,0,msg(lng::MSetColorBackTransparent).c_str()},
-
-		{DI_TEXT,        5, 9, 33, 9,0,nullptr,nullptr,0,msg(lng::MSetColorSample).c_str()},
-		{DI_TEXT,        5,10, 33,10,0,nullptr,nullptr,0,msg(lng::MSetColorSample).c_str()},
-		{DI_TEXT,        5,11, 33,11,0,nullptr,nullptr,0,msg(lng::MSetColorSample).c_str()},
-		{DI_TEXT,       -1,12, 0, 12,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,      0,13, 0, 13,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MSetColorSet).c_str()},
-		{DI_BUTTON,      0,13, 0, 13,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MSetColorCancel).c_str()},
-	};
-
-	auto ColorDlg = MakeDialogItemsEx(ColorDlgData);
+		{ DI_DOUBLEBOX,   {{3,  1 }, {35, 14}}, DIF_NONE, msg(lng::MSetColorTitle), },
+		{ DI_SINGLEBOX,   {{5,  2 }, {18, 7 }}, DIF_NONE, msg(lng::MSetColorForeground), },
+		{ DI_RADIOBUTTON, {{6,  3 }, {0,  3 }}, DIF_MOVESELECT | DIF_GROUP,},
+		{ DI_RADIOBUTTON, {{6,  4 }, {0,  4 }}, DIF_MOVESELECT, },
+		{ DI_RADIOBUTTON, {{6,  5 }, {0,  5 }}, DIF_MOVESELECT, },
+		{ DI_RADIOBUTTON, {{6,  6 }, {0,  6 }}, DIF_MOVESELECT, },
+		{ DI_RADIOBUTTON, {{9,  3 }, {0,  3 }}, DIF_MOVESELECT, },
+		{ DI_RADIOBUTTON, {{9,  4 }, {0,  4 }}, DIF_MOVESELECT, },
+		{ DI_RADIOBUTTON, {{9,  5 }, {0,  5 }}, DIF_MOVESELECT, },
+		{ DI_RADIOBUTTON, {{9,  6 }, {0,  6 }}, DIF_MOVESELECT, },
+		{ DI_RADIOBUTTON, {{12, 3 }, {0,  3 }}, DIF_MOVESELECT, },
+		{ DI_RADIOBUTTON, {{12, 4 }, {0,  4 }}, DIF_MOVESELECT, },
+		{ DI_RADIOBUTTON, {{12, 5 }, {0,  5 }}, DIF_MOVESELECT, },
+		{ DI_RADIOBUTTON, {{12, 6 }, {0,  6 }}, DIF_MOVESELECT, },
+		{ DI_RADIOBUTTON, {{15, 3 }, {0,  3 }}, DIF_MOVESELECT, },
+		{ DI_RADIOBUTTON, {{15, 4 }, {0,  4 }}, DIF_MOVESELECT, },
+		{ DI_RADIOBUTTON, {{15, 5 }, {0,  5 }}, DIF_MOVESELECT, },
+		{ DI_RADIOBUTTON, {{15, 6 }, {0,  6 }}, DIF_MOVESELECT, },
+		{ DI_FIXEDIT,     {{5,  8 }, {10, 8 }}, DIF_MASKEDIT, },
+		{ DI_BUTTON,      {{12, 8 }, {18, 8 }}, DIF_NONE, msg(lng::MSetColorForeRGB), },
+		{ DI_CHECKBOX,    {{5,  9 }, {0,  9 }}, DIF_NONE, msg(lng::MSetColorForeTransparent), },
+		{ DI_SINGLEBOX,   {{20, 2 }, {33, 7 }}, DIF_NONE, msg(lng::MSetColorBackground), },
+		{ DI_RADIOBUTTON, {{21, 3 }, {0,  3 }}, DIF_MOVESELECT | DIF_GROUP, },
+		{ DI_RADIOBUTTON, {{21, 4 }, {0,  4 }}, DIF_MOVESELECT, },
+		{ DI_RADIOBUTTON, {{21, 5 }, {0,  5 }}, DIF_MOVESELECT, },
+		{ DI_RADIOBUTTON, {{21, 6 }, {0,  6 }}, DIF_MOVESELECT, },
+		{ DI_RADIOBUTTON, {{24, 3 }, {0,  3 }}, DIF_MOVESELECT, },
+		{ DI_RADIOBUTTON, {{24, 4 }, {0,  4 }}, DIF_MOVESELECT, },
+		{ DI_RADIOBUTTON, {{24, 5 }, {0,  5 }}, DIF_MOVESELECT, },
+		{ DI_RADIOBUTTON, {{24, 6 }, {0,  6 }}, DIF_MOVESELECT, },
+		{ DI_RADIOBUTTON, {{27, 3 }, {0,  3 }}, DIF_MOVESELECT, },
+		{ DI_RADIOBUTTON, {{27, 4 }, {0,  4 }}, DIF_MOVESELECT, },
+		{ DI_RADIOBUTTON, {{27, 5 }, {0,  5 }}, DIF_MOVESELECT, },
+		{ DI_RADIOBUTTON, {{27, 6 }, {0,  6 }}, DIF_MOVESELECT, },
+		{ DI_RADIOBUTTON, {{30, 3 }, {0,  3 }}, DIF_MOVESELECT, },
+		{ DI_RADIOBUTTON, {{30, 4 }, {0,  4 }}, DIF_MOVESELECT, },
+		{ DI_RADIOBUTTON, {{30, 5 }, {0,  5 }}, DIF_MOVESELECT, },
+		{ DI_RADIOBUTTON, {{30, 6 }, {0,  6 }}, DIF_MOVESELECT, },
+		{ DI_FIXEDIT,     {{20, 8 }, {25, 8 }}, DIF_MASKEDIT, },
+		{ DI_BUTTON,      {{27, 8 }, {33, 8 }}, DIF_NONE, msg(lng::MSetColorBackRGB), },
+		{ DI_CHECKBOX,    {{22, 9 }, {0,  9 }}, DIF_NONE, msg(lng::MSetColorBackTransparent), },
+		{ DI_TEXT,        {{5,  9 }, {33, 9 }}, DIF_NONE, msg(lng::MSetColorSample), },
+		{ DI_TEXT,        {{5,  10}, {33, 10}}, DIF_NONE, msg(lng::MSetColorSample), },
+		{ DI_TEXT,        {{5,  11}, {33, 11}}, DIF_NONE, msg(lng::MSetColorSample), },
+		{ DI_TEXT,        {{-1, 12}, {0,  12}}, DIF_SEPARATOR, },
+		{ DI_BUTTON,      {{0,  13}, {0,  13}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MSetColorSet), },
+		{ DI_BUTTON,      {{0,  13}, {0,  13}}, DIF_CENTERGROUP, msg(lng::MSetColorCancel), },
+	});
 
 	ColorDlg[cd_fg_colorcode].strData = color_code(Color.IsFg4Bit()? colors::ConsoleIndexToTrueColor(Color.ForegroundColor) : Color.ForegroundColor);
 	ColorDlg[cd_bg_colorcode].strData = color_code(Color.IsBg4Bit()? colors::ConsoleIndexToTrueColor(Color.BackgroundColor) : Color.BackgroundColor);
+	ColorDlg[cd_fg_colorcode].strMask = ColorDlg[cd_bg_colorcode].strMask = L"HHHHHH"sv;
 
 	FarColor CurColor[]{ Color, BaseColor? *BaseColor : colors::ConsoleColorToFarColor(F_BLACK | B_BLACK) };
 

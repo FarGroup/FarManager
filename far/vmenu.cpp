@@ -2941,7 +2941,7 @@ std::vector<string> VMenu::AddHotkeys(span<menu_item> const MenuItems)
 		return std::max(Value, i.Name.size());
 	});
 
-	for (const auto& [Item, Str]: zip(MenuItems, Result))
+	for (const auto [Item, Str]: zip(MenuItems, Result))
 	{
 		if (Item.Flags & LIF_SEPARATOR || !Item.AccelKey)
 			continue;

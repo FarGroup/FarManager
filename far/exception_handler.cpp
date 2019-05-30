@@ -275,44 +275,44 @@ static reply ExcDialog(
 
 	const auto MaxSize = (*std::max_element(ALL_CONST_RANGE(Messages), [](string const* const Str1, string const* const Str2) { return Str1->size() < Str2->size(); }))->size();
 	const auto SysArea = 5;
-	const auto Col1X = 5;
-	const auto Col1W = 12;
-	const auto Col2X = Col1X + Col1W + 1;
-	const auto DialogWidth = std::max(80, std::min(ScrX + 1, static_cast<int>(Col2X + MaxSize + SysArea + 1)));
-	const auto Col2W = DialogWidth - Col2X - SysArea - 1;
+	const auto C1X = 5;
+	const auto C1W = 12;
+	const auto C2X = C1X + C1W + 1;
+	const auto DlgW = std::max(80, std::min(ScrX + 1, static_cast<int>(C2X + MaxSize + SysArea + 1)));
+	const auto C2W = DlgW - C2X - SysArea - 1;
 
-	FarDialogItem EditDlgData[]
+	auto EditDlg = MakeDialogItems(
 	{
-		{DI_DOUBLEBOX,3,  1, DialogWidth-4,13, 0, nullptr, nullptr, 0, msg(lng::MExcTrappedException).c_str()},
-		{DI_TEXT, Col1X,  2, Col1X + Col1W, 2, 0, nullptr, nullptr, 0, msg(lng::MExcException).c_str()},
-		{DI_EDIT, Col2X,  2, Col2X + Col2W, 2, 0, nullptr, nullptr, DIF_READONLY | DIF_SELECTONENTRY, Exception.c_str()},
-		{DI_TEXT, Col1X,  3, Col1X + Col1W, 3, 0, nullptr, nullptr, 0, msg(lng::MExcDetails).c_str()},
-		{DI_EDIT, Col2X,  3, Col2X + Col2W, 3, 0, nullptr, nullptr, DIF_READONLY | DIF_SELECTONENTRY, Details.c_str()},
-		{DI_TEXT, Col1X,  4, Col1X + Col1W, 4, 0, nullptr, nullptr, 0, L"errno:"},
-		{DI_EDIT, Col2X,  4, Col2X + Col2W, 4, 0, nullptr, nullptr, DIF_READONLY | DIF_SELECTONENTRY, Errors[0].c_str()},
-		{DI_TEXT, Col1X,  5, Col1X + Col1W, 4, 0, nullptr, nullptr, 0, L"LastError:"},
-		{DI_EDIT, Col2X,  5, Col2X + Col2W, 4, 0, nullptr, nullptr, DIF_READONLY | DIF_SELECTONENTRY, Errors[0].c_str()},
-		{DI_TEXT, Col1X,  6, Col1X + Col1W, 5, 0, nullptr, nullptr, 0, L"NTSTATUS:"},
-		{DI_EDIT, Col2X,  6, Col2X + Col2W, 5, 0, nullptr, nullptr, DIF_READONLY | DIF_SELECTONENTRY, Errors[1].c_str()},
-		{DI_TEXT, Col1X,  7, Col1X + Col1W, 6, 0, nullptr, nullptr, 0, msg(lng::MExcAddress).c_str()},
-		{DI_EDIT, Col2X,  7, Col2X + Col2W, 6, 0, nullptr, nullptr, DIF_READONLY | DIF_SELECTONENTRY, Address.c_str()},
-		{DI_TEXT, Col1X,  8, Col1X + Col1W, 7, 0, nullptr, nullptr, 0, msg(lng::MExcSource).c_str()},
-		{DI_EDIT, Col2X,  8, Col2X + Col2W, 7, 0, nullptr, nullptr, DIF_READONLY | DIF_SELECTONENTRY, Source.c_str()},
-		{DI_TEXT, Col1X,  9, Col1X + Col1W, 8, 0, nullptr, nullptr, 0, msg(lng::MExcFunction).c_str()},
-		{DI_EDIT, Col2X,  9, Col2X + Col2W, 8, 0, nullptr, nullptr, DIF_READONLY | DIF_SELECTONENTRY, FunctionName.c_str()},
-		{DI_TEXT, Col1X, 10, Col1X + Col1W, 9, 0, nullptr, nullptr, 0, msg(lng::MExcModule).c_str()},
-		{DI_EDIT, Col2X, 10, Col2X + Col2W, 9, 0, nullptr, nullptr, DIF_READONLY | DIF_SELECTONENTRY, ModuleName.c_str()},
-		{DI_TEXT,    -1, 11,             0,10, 0, nullptr, nullptr, DIF_SEPARATOR, L""},
-		{DI_BUTTON,   0, 12,             0,11, 0, nullptr, nullptr, DIF_DEFAULTBUTTON | DIF_FOCUS | DIF_CENTERGROUP, msg(PluginModule? lng::MExcUnload : lng::MExcTerminate).c_str()},
-		{DI_BUTTON,   0, 12,             0,11, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MExcStack).c_str()},
-		{DI_BUTTON,   0, 12,             0,11, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MExcMinidump).c_str()},
-		{DI_BUTTON,   0, 12,             0,11, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MIgnore).c_str()},
-	};
-	auto EditDlg = MakeDialogItemsEx(EditDlgData);
+		{ DI_DOUBLEBOX, {{3,   1 }, {DlgW-4,  13}}, DIF_NONE, msg(lng::MExcTrappedException), },
+		{ DI_TEXT,      {{C1X, 2 }, {C1X+C1W, 2 }}, DIF_NONE, msg(lng::MExcException), },
+		{ DI_EDIT,      {{C2X, 2 }, {C2X+C2W, 2 }}, DIF_READONLY | DIF_SELECTONENTRY, Exception, },
+		{ DI_TEXT,      {{C1X, 3 }, {C1X+C1W, 3 }}, DIF_NONE, msg(lng::MExcDetails), },
+		{ DI_EDIT,      {{C2X, 3 }, {C2X+C2W, 3 }}, DIF_READONLY | DIF_SELECTONENTRY, Details, },
+		{ DI_TEXT,      {{C1X, 4 }, {C1X+C1W, 4 }}, DIF_NONE, L"errno:"sv },
+		{ DI_EDIT,      {{C2X, 4 }, {C2X+C2W, 4 }}, DIF_READONLY | DIF_SELECTONENTRY, Errors[0], },
+		{ DI_TEXT,      {{C1X, 5 }, {C1X+C1W, 4 }}, DIF_NONE, L"LastError:"sv },
+		{ DI_EDIT,      {{C2X, 5 }, {C2X+C2W, 4 }}, DIF_READONLY | DIF_SELECTONENTRY, Errors[0], },
+		{ DI_TEXT,      {{C1X, 6 }, {C1X+C1W, 5 }}, DIF_NONE, L"NTSTATUS:"sv },
+		{ DI_EDIT,      {{C2X, 6 }, {C2X+C2W, 5 }}, DIF_READONLY | DIF_SELECTONENTRY, Errors[1], },
+		{ DI_TEXT,      {{C1X, 7 }, {C1X+C1W, 6 }}, DIF_NONE, msg(lng::MExcAddress), },
+		{ DI_EDIT,      {{C2X, 7 }, {C2X+C2W, 6 }}, DIF_READONLY | DIF_SELECTONENTRY, Address, },
+		{ DI_TEXT,      {{C1X, 8 }, {C1X+C1W, 7 }}, DIF_NONE, msg(lng::MExcSource), },
+		{ DI_EDIT,      {{C2X, 8 }, {C2X+C2W, 7 }}, DIF_READONLY | DIF_SELECTONENTRY, Source, },
+		{ DI_TEXT,      {{C1X, 9 }, {C1X+C1W, 8 }}, DIF_NONE, msg(lng::MExcFunction), },
+		{ DI_EDIT,      {{C2X, 9 }, {C2X+C2W, 8 }}, DIF_READONLY | DIF_SELECTONENTRY, FunctionName, },
+		{ DI_TEXT,      {{C1X, 10}, {C1X+C1W, 9 }}, DIF_NONE, msg(lng::MExcModule), },
+		{ DI_EDIT,      {{C2X, 10}, {C2X+C2W, 9 }}, DIF_READONLY | DIF_SELECTONENTRY, ModuleName, },
+		{ DI_TEXT,      {{-1,  11}, {0,       10}}, DIF_SEPARATOR, },
+		{ DI_BUTTON,    {{0,   12}, {0,       11}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(PluginModule ? lng::MExcUnload : lng::MExcTerminate), },
+		{ DI_BUTTON,    {{0,   12}, {0,       11}}, DIF_CENTERGROUP | DIF_FOCUS, msg(lng::MExcStack), },
+		{ DI_BUTTON,    {{0,   12}, {0,       11}}, DIF_CENTERGROUP, msg(lng::MExcMinidump), },
+		{ DI_BUTTON,    {{0,   12}, {0,       11}}, DIF_CENTERGROUP, msg(lng::MIgnore), },
+	});
+
 	auto DlgData = dialog_data_type(&Context, NestedStack);
 	const auto Dlg = Dialog::create(EditDlg, ExcDlgProc, &DlgData);
 	Dlg->SetDialogMode(DMODE_WARNINGSTYLE|DMODE_NOPLUGINS);
-	Dlg->SetPosition({ -1, -1, DialogWidth, 15 });
+	Dlg->SetPosition({ -1, -1, DlgW, 15 });
 	Dlg->Process();
 
 	switch (Dlg->GetExitCode())
@@ -400,7 +400,7 @@ static reply ExcConsole(
 
 	static_assert(std::size(Msg) == std::size(Values));
 
-	for (const auto& [m, v] : zip(Msg, Values))
+	for (const auto [m, v] : zip(Msg, Values))
 	{
 		const auto Label = fit_to_left(string(m), ColumnWidth);
 		std::wcerr << Label << L' ' << v << L'\n';

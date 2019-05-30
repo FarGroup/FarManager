@@ -574,7 +574,7 @@ static void ConvertPanelModeToUnicode(const oldfar::PanelMode& Mode, PanelMode& 
 
 static void ConvertPanelModesToUnicode(range<const oldfar::PanelMode*> Modes, range<PanelMode*> UnicodeModes)
 {
-	for (const auto& [m, u]: zip(Modes, UnicodeModes))
+	for (const auto [m, u]: zip(Modes, UnicodeModes))
 	{
 		ConvertPanelModeToUnicode(m, u);
 	}
@@ -685,7 +685,7 @@ static PluginPanelItem* ConvertAnsiPanelItemsToUnicode(range<oldfar::PluginPanel
 {
 	auto Result = std::make_unique<PluginPanelItem[]>(PanelItemA.size());
 	const span DstSpan(Result.get(), PanelItemA.size());
-	for(const auto& [Src, Dst]: zip(PanelItemA, DstSpan))
+	for(const auto [Src, Dst]: zip(PanelItemA, DstSpan))
 	{
 		Dst.Flags = 0;
 		if (Src.Flags&oldfar::PPIF_PROCESSDESCR)
@@ -913,7 +913,7 @@ static void AnsiVBufToUnicode(CHAR_INFO* VBufA, FAR_CHAR_INFO* VBuf, size_t Size
 	const auto SrcSpan = span(VBufA, Size);
 	auto DstSpan = span(VBuf, Size);
 
-	for (const auto& [Src, Dst]: zip(SrcSpan, DstSpan))
+	for (const auto [Src, Dst]: zip(SrcSpan, DstSpan))
 	{
 		if (NoCvt)
 		{
@@ -1442,7 +1442,7 @@ static int GetEditorCodePageFavA()
 	auto result = -(static_cast<int>(CodePage) + 2);
 	DWORD FavIndex = 2;
 
-	for (const auto& [Name, Value]: codepages::GetFavoritesEnumerator())
+	for (const auto [Name, Value]: codepages::GetFavoritesEnumerator())
 	{
 		if (!(Value & CPST_FAVORITE))
 			continue;
@@ -1490,7 +1490,7 @@ static uintptr_t ConvertCharTableToCodePage(int Command)
 		default:
 			{
 				int FavIndex = 2;
-				for (const auto& [Name, Value]: codepages::GetFavoritesEnumerator())
+				for (const auto [Name, Value]: codepages::GetFavoritesEnumerator())
 				{
 					if (!(Value & CPST_FAVORITE))
 						continue;
@@ -3180,7 +3180,7 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber, int X1, int Y1, int X2, in
 		std::vector<oldfar::FarDialogItem> diA(ItemsSpan.size());
 
 		// to save DIF_SETCOLOR state
-		for (const auto& [a, w]: zip(diA, ItemsSpan))
+		for (const auto [a, w]: zip(diA, ItemsSpan))
 		{
 			a.Flags = w.Flags;
 		}
@@ -3188,7 +3188,7 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber, int X1, int Y1, int X2, in
 		std::vector<FarDialogItem> di(ItemsSpan.size());
 		std::vector<FarList> l(ItemsSpan.size());
 
-		for (const auto& i: zip(ItemsSpan, di, l))
+		for (const auto i: zip(ItemsSpan, di, l))
 		{
 			std::apply(AnsiDialogItemToUnicode, i);
 		}

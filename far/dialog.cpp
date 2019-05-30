@@ -278,7 +278,7 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 
 void ItemsToItemsEx(span<const FarDialogItem> const Items, span<DialogItemEx> const ItemsEx, bool const Short)
 {
-	for (const auto& [Item, ItemEx]: zip(Items, ItemsEx))
+	for (const auto [Item, ItemEx]: zip(Items, ItemsEx))
 	{
 		static_cast<FarDialogItem&>(ItemEx) = Item;
 
@@ -303,6 +303,24 @@ void ItemsToItemsEx(span<const FarDialogItem> const Items, span<DialogItemEx> co
 			ItemEx.ListItems=nullptr;
 		}
 	}
+}
+
+std::vector<DialogItemEx> MakeDialogItems(span<const InitDialogItem> Items)
+{
+	std::vector<DialogItemEx> ItemsEx(Items.size());
+
+	for (const auto [Item, ItemEx]: zip(Items, ItemsEx))
+	{
+		ItemEx.Type = Item.Type;
+		ItemEx.X1 = Item.Position.TopLeft.x;
+		ItemEx.X2 = Item.Position.BottomRight.x;
+		ItemEx.Y1 = Item.Position.TopLeft.y;
+		ItemEx.Y2 = Item.Position.BottomRight.y;
+		ItemEx.Flags = Item.Flags;
+		ItemEx.strData = Item.Data;
+	}
+
+	return ItemsEx;
 }
 
 static intptr_t DefProcFunction(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
@@ -363,9 +381,9 @@ void Dialog::Construct(span<DialogItemEx> const SrcItems)
 	Items.assign(ALL_CONST_RANGE(SrcItems));
 
 	// Items[i].Auto.Owner points to SrcItems, we need to update:
-	for (const auto& [Item, SrcItem]: zip(Items, SrcItems))
+	for (const auto [Item, SrcItem]: zip(Items, SrcItems))
 	{
-		for (const auto& [ItemAuto, SrcItemAuto] : zip(Item.Auto, SrcItem.Auto))
+		for (const auto [ItemAuto, SrcItemAuto] : zip(Item.Auto, SrcItem.Auto))
 		{
 			// TODO: P1091R3
 			const auto SrcItemIterator = std::find_if(ALL_CONST_RANGE(SrcItems), [&SrcItemAuto = SrcItemAuto](const DialogItemEx& i)

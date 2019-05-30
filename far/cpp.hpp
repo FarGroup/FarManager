@@ -47,7 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-#if COMPILER == C_GCC
+#if COMPILER(GCC)
 // These inline implementations in gcc/cwchar are wrong and non-compilable if _CONST_RETURN is defined.
 namespace std
 {
@@ -85,7 +85,7 @@ using std::wmemchr;
 
 #endif
 
-#if COMPILER == C_GCC && !defined(_GLIBCXX_HAS_GTHREADS)
+#if COMPILER(GCC) && !defined(_GLIBCXX_HAS_GTHREADS)
 namespace std::this_thread
 {
 	inline void yield() noexcept
@@ -95,7 +95,7 @@ namespace std::this_thread
 }
 #endif
 
-#if COMPILER == C_GCC
+#if COMPILER(GCC)
 #if _GCC_VER < GCC_VER_(7,2,0)
 // https://gcc.gnu.org/git/?p=gcc.git;a=commit;h=fd847994d5093b888c5cc1ead8625c6c1c03501b
 namespace std

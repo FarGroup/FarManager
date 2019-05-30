@@ -40,83 +40,104 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Naive #ifdef _MSC_VER is a BAD WAY to check for Microsoft compiler:
 // both Intel and Clang preserve this macro.
 
-// Use #if COMPILER == C_%NAME% to check for a specific compiler.
-// Use _MSC_VER only to find out its specific version or to check for Microsoft standard library / Windows SDK
+// Use #if COMPILER(%NAME%) to check for a specific compiler.
+// Use IS_MICROSOFT_SDK() to check for Microsoft standard library / Windows SDK
+// Use _MSC_VER only to find out its specific version.
 
 
 // Known compilers
-#define C_CL          0
-#define C_GCC         1
-#define C_INTEL       2
-#define C_CLANG       3
+#define DETAIL_COMPILER_CL()          0
+#define DETAIL_COMPILER_GCC()         1
+#define DETAIL_COMPILER_INTEL()       2
+#define DETAIL_COMPILER_CLANG()       3
 
 #if defined __GNUC__
-#define COMPILER C_GCC
+#define DETAIL_COMPILER_CURRENT() DETAIL_COMPILER_GCC()
 #elif defined __clang__
-#define COMPILER C_CLANG
+#define DETAIL_COMPILER_CURRENT() DETAIL_COMPILER_CLANG()
 #elif defined __INTEL_COMPILER
-#define COMPILER C_INTEL
+#define DETAIL_COMPILER_CURRENT() DETAIL_COMPILER_INTEL()
 #elif defined _MSC_VER
-#define COMPILER C_CL
+#define DETAIL_COMPILER_CURRENT() DETAIL_COMPILER_CL()
 #else
 #error Unknown compiler
 #endif
 
+#define COMPILER(Name) DETAIL_COMPILER_CURRENT() == DETAIL_COMPILER_##Name()
 
-#if COMPILER == C_GCC || COMPILER == C_CLANG
+#ifdef _MSC_VER
+#define IS_MICROSOFT_SDK() 1
+#else
+#define IS_MICROSOFT_SDK() 0
+#endif
+
+#if COMPILER(GCC) || COMPILER(CLANG)
 #define STR_PRAGMA(x) _Pragma(#x)
 #endif
+
 //----------------------------------------------------------------------------
-#if COMPILER == C_CL || COMPILER == C_INTEL
+#if COMPILER(CL) || COMPILER(INTEL)
 #define PACK_PUSH(n) __pragma(pack(push, n))
 #define PACK_POP() __pragma(pack(pop))
-#elif COMPILER == C_GCC || COMPILER == C_CLANG
+#elif COMPILER(GCC) || COMPILER(CLANG)
 #define PACK_PUSH(n) STR_PRAGMA(pack(push, n))
 #define PACK_POP() STR_PRAGMA(pack(pop))
 #endif
+
 //----------------------------------------------------------------------------
-#if COMPILER == C_CL || COMPILER == C_INTEL
+#if COMPILER(CL) || COMPILER(INTEL)
 #define WARNING_PUSH(...) __pragma(warning(push, __VA_ARGS__))
 #define WARNING_POP() __pragma(warning(pop))
-#elif COMPILER == C_GCC || COMPILER == C_CLANG
+#elif COMPILER(GCC) || COMPILER(CLANG)
 #define WARNING_PUSH(...) STR_PRAGMA(GCC diagnostic push)
 #define WARNING_POP() STR_PRAGMA(GCC diagnostic pop)
 #endif
+
 //----------------------------------------------------------------------------
-#if COMPILER == C_CL || COMPILER == C_INTEL
+#if COMPILER(CL) || COMPILER(INTEL)
 #define WARNING_DISABLE_MSC(id) __pragma(warning(disable: id))
 #else
 #define WARNING_DISABLE_MSC(id)
 #endif
+
 //----------------------------------------------------------------------------
-#if COMPILER == C_GCC || COMPILER == C_CLANG
+#if COMPILER(GCC) || COMPILER(CLANG)
 #define WARNING_DISABLE_GCC(id) STR_PRAGMA(GCC diagnostic ignored id)
 #else
 #define WARNING_DISABLE_GCC(id)
 #endif
+
 //----------------------------------------------------------------------------
-#if COMPILER == C_CLANG
+#if COMPILER(CLANG)
 #define WARNING_DISABLE_CLANG(id) STR_PRAGMA(clang diagnostic ignored id)
 #else
 #define WARNING_DISABLE_CLANG(id)
 #endif
 
-#if COMPILER == C_CL
+//----------------------------------------------------------------------------
+#if COMPILER(CL)
+#define UNREACHABLE __assume(0)
+#else
+#define UNREACHABLE __builtin_unreachable()
+#endif
+
+//----------------------------------------------------------------------------
+#if COMPILER(CL)
 #define COMPILER_NAME L"Microsoft Visual C++"
 #define COMPILER_VERSION_MAJOR (_MSC_FULL_VER / 10000000)
 #define COMPILER_VERSION_MINOR (_MSC_FULL_VER % 10000000 / 100000)
 #define COMPILER_VERSION_PATCH (_MSC_FULL_VER % 100000)
-#elif COMPILER == C_GCC
+#elif COMPILER(GCC)
 #define COMPILER_NAME L"GCC"
 #define COMPILER_VERSION_MAJOR __GNUC__
 #define COMPILER_VERSION_MINOR __GNUC_MINOR__
 #define COMPILER_VERSION_PATCH __GNUC_PATCHLEVEL__
-#elif COMPILER == C_INTEL
+#elif COMPILER(INTEL)
 #define COMPILER_NAME L"Intel C++ Compiler"
 #define COMPILER_VERSION_MAJOR (__INTEL_COMPILER / 100)
 #define COMPILER_VERSION_MINOR (__INTEL_COMPILER % 100)
 #define COMPILER_VERSION_PATCH __INTEL_COMPILER_UPDATE
-#elif COMPILER == C_CLANG
+#elif COMPILER(CLANG)
 #define COMPILER_NAME L"Clang"
 #define COMPILER_VERSION_MAJOR __clang_major__
 #define COMPILER_VERSION_MINOR __clang_minor__
