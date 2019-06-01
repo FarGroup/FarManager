@@ -112,11 +112,11 @@ static void GetSymbols(const std::vector<const void*>& BackTrace, function_ref<v
 				L'!',
 				imports.SymFromAddr(Process, Address, nullptr, Symbol.get())?
 					encoding::ansi::get_chars(Symbol->Name) :
-					L"<unknown> (get the pdb)"s);
+					L"<unknown> (get the pdb)"sv);
 
 			sLocation = imports.SymGetLineFromAddr64(Process, Address, &Displacement, &Line)?
 				format(L"{0}:{1}"sv, encoding::ansi::get_chars(Line.FileName), Line.LineNumber) :
-				L""s;
+				L""sv;
 		}
 
 		Consumer(format(L"0x{0:0{1}X}"sv, Address, MaxAddressSize), std::move(sFunction), std::move(sLocation));

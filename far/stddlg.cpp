@@ -106,8 +106,8 @@ int GetSearchReplaceString(
 	bool PreserveStyle=pPreserveStyle?*pPreserveStyle:false;
 
 	const auto DlgWidth = 76;
-	const auto WordLabel = msg(lng::MEditSearchPickWord).c_str();
-	const auto SelectionLabel = msg(lng::MEditSearchPickSelection).c_str();
+	const auto& WordLabel = msg(lng::MEditSearchPickWord);
+	const auto& SelectionLabel = msg(lng::MEditSearchPickSelection);
 	const auto WordButtonSize = HiStrlen(WordLabel) + 4;
 	const auto SelectionButtonSize = HiStrlen(SelectionLabel) + 4;
 	const auto SelectionButtonX2 = static_cast<int>(DlgWidth - 4 - 1);

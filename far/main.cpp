@@ -325,7 +325,7 @@ static void InitTemplateProfile(string &strTemplatePath)
 {
 	if (strTemplatePath.empty())
 	{
-		strTemplatePath = GetFarIniString(L"General"s, L"TemplateProfile"s, path::join(L"%FARHOME%"sv, L"Default.farconfig"sv));
+		strTemplatePath = GetFarIniString(L"General"sv, L"TemplateProfile"sv, path::join(L"%FARHOME%"sv, L"Default.farconfig"sv));
 	}
 
 	if (!strTemplatePath.empty())
@@ -343,7 +343,7 @@ static void InitTemplateProfile(string &strTemplatePath)
 static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 {
 	if (Global->Opt->ReadOnlyConfig < 0) // do not override 'far /ro', 'far /ro-'
-		Global->Opt->ReadOnlyConfig = GetFarIniInt(L"General"s, L"ReadOnlyConfig"s, 0);
+		Global->Opt->ReadOnlyConfig = GetFarIniInt(L"General"sv, L"ReadOnlyConfig"sv, 0);
 
 	if (!strProfilePath.empty())
 	{
@@ -356,7 +356,7 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 
 	if (strProfilePath.empty())
 	{
-		const auto UseSystemProfiles = GetFarIniInt(L"General"s, L"UseSystemProfiles"s, 1);
+		const auto UseSystemProfiles = GetFarIniInt(L"General"sv, L"UseSystemProfiles"sv, 1);
 		if (UseSystemProfiles)
 		{
 			const auto GetShellProfilePath = [](int Idl)
@@ -376,8 +376,8 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 		}
 		else
 		{
-			const auto strUserProfileDir = GetFarIniString(L"General"s, L"UserProfileDir"s, path::join(L"%FARHOME%"sv, L"Profile"sv));
-			const auto strUserLocalProfileDir = GetFarIniString(L"General"s, L"UserLocalProfileDir"s, strUserProfileDir);
+			const auto strUserProfileDir = GetFarIniString(L"General"sv, L"UserProfileDir"sv, path::join(L"%FARHOME%"sv, L"Profile"sv));
+			const auto strUserLocalProfileDir = GetFarIniString(L"General"sv, L"UserLocalProfileDir"sv, strUserProfileDir);
 			Global->Opt->ProfilePath = ConvertNameToFull(unquote(os::env::expand(strUserProfileDir)));
 			Global->Opt->LocalProfilePath = ConvertNameToFull(unquote(os::env::expand(strUserLocalProfileDir)));
 		}
@@ -611,7 +611,7 @@ static int mainImpl(range<const wchar_t* const*> const Args)
 							if (Arg[1 + Title.size()] == L':')
 								CustomTitle = Arg + 1 + Title.size() + 1;
 							else
-								CustomTitle = L""s;
+								CustomTitle = L""sv;
 						}
 						else if (Iter + 1 != Args.end())
 						{

@@ -163,7 +163,7 @@ static void ShellDeleteMsgImpl(const string& Name, DEL_MODE Mode, ShellDelete::p
 		if (!strWipeProgress.empty())
 			MsgItems.emplace_back(strWipeProgress);
 
-		MsgItems.emplace_back(L"\1"s);
+		MsgItems.emplace_back(L"\x1"sv);
 		MsgItems.emplace_back(copy_progress::FormatCounter(lng::MCopyFilesTotalInfo, lng::MCopyBytesTotalInfo, Files.Value, Files.Total, Files.Total != 0, copy_progress::CanvasWidth() - 5));
 
 		if (!strProgress.empty())
@@ -497,7 +497,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 
 					if (items.size() > mshow && items.size() < SelCount)
 					{
-						items.emplace_back(L"..."s);
+						items.emplace_back(L"..."sv);
 						break;
 					}
 				}

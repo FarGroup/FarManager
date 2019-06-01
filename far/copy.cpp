@@ -781,7 +781,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 			{
 				OpenPanelInfo Info{};
 				DestPanel->GetOpenPanelInfo(&Info);
-				CopyDlg[ID_SC_TARGETEDIT].strData = Info.Format? concat(Info.Format, L':') : L"::"s;
+				CopyDlg[ID_SC_TARGETEDIT].strData = Info.Format? concat(Info.Format, L':') : L"::"sv;
 				strPluginFormat = upper(CopyDlg[ID_SC_TARGETEDIT].strData);
 				break;
 			}

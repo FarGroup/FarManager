@@ -219,7 +219,7 @@ bool PluginManager::RemovePlugin(Plugin *pPlugin)
 		OemPluginsCount--;
 	}
 #endif // NO_WRAPPER
-	SortedPlugins.erase(std::find(SortedPlugins.begin(), SortedPlugins.end(), pPlugin));
+	SortedPlugins.erase(std::find(ALL_CONST_RANGE(SortedPlugins), pPlugin));
 	m_Plugins.erase(pPlugin->Id());
 	return true;
 }

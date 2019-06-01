@@ -281,7 +281,7 @@ void ReloadEnvironment()
 
 	if (os::IsWow64Process())
 	{
-		PreservedVariables.emplace_back(L"PROCESSOR_ARCHITECTURE"sv, L""s); // Incorrect under WOW64
+		PreservedVariables.emplace_back(L"PROCESSOR_ARCHITECTURE"sv, L""sv); // Incorrect under WOW64
 	}
 
 	for (auto& [Name, Value]: PreservedVariables)

@@ -65,6 +65,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.fs.hpp"
 
 // Common:
+#include "common/from_string.hpp"
 #include "common/range.hpp"
 
 // External:
@@ -110,9 +111,7 @@ static int PrepareHotKey(string &strHotKey)
 
 	if (strHotKey.size() > 1 && upper(strHotKey.front()) == L'F')
 	{
-		FuncNum = static_cast<int>(std::wcstoul(strHotKey.c_str() + 1, nullptr, 10));
-
-		if (FuncNum < 1 || FuncNum > 24)
+		if (!from_string(string_view(strHotKey).substr(1), FuncNum) || FuncNum < 1 || FuncNum > 24)
 		{
 			FuncNum = 0;
 			strHotKey.clear();

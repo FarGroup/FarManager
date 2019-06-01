@@ -100,9 +100,9 @@ private:
 	bool IsPositionStandard(UINT position) const;
 	bool IsPositionFavorite(UINT position) const;
 	bool IsPositionNormal(UINT position) const;
-	string FormatCodePageString(uintptr_t CodePage, const string& CodePageName, bool IsCodePageNameCustom) const;
-	void AddCodePage(const string& codePageName, uintptr_t codePage, size_t position, bool enabled, bool checked, bool IsCodePageNameCustom) const;
-	void AddStandardCodePage(const string& codePageName, uintptr_t codePage, int position = -1, bool enabled = true) const;
+	string FormatCodePageString(uintptr_t CodePage, string_view CodePageName, bool IsCodePageNameCustom) const;
+	void AddCodePage(string_view codePageName, uintptr_t codePage, size_t position, bool enabled, bool checked, bool IsCodePageNameCustom) const;
+	void AddStandardCodePage(string_view codePageName, uintptr_t codePage, int position = -1, bool enabled = true) const;
 	void AddSeparator(const string& Label, size_t position = -1) const;
 	size_t size() const;
 	size_t GetCodePageInsertPosition(uintptr_t codePage, size_t start, size_t length);

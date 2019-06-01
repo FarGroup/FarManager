@@ -725,7 +725,7 @@ bool KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 						m_RecCode += L' ';
 
 					if (textKey == L"\""sv)
-						textKey = L"\\\""s;
+						textKey = L"\\\""sv;
 
 					m_RecCode+=textKey;
 				}
@@ -1349,7 +1349,7 @@ DWORD KeyMacro::GetMacroParseError(COORD* ErrPos, string& ErrSrc) const
 	}
 	else
 	{
-		ErrSrc = L"No response from macro plugin"s;
+		ErrSrc = L"No response from macro plugin"sv;
 		ErrPos->Y = ErrPos->X = 0;
 		return MPEC_ERROR;
 	}
@@ -2351,7 +2351,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 							tmpVar=_value;
 						}
 						else
-							tmpVar=L""s;
+							tmpVar = L""sv;
 					}
 					else if (CheckCode == MCODE_F_MENU_GETVALUE)
 					{
@@ -2362,7 +2362,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 							tmpVar=NewStr;
 						}
 						else
-							tmpVar=L""s;
+							tmpVar = L""sv;
 					}
 					else if (CheckCode == MCODE_F_MENU_ITEMSTATUS)
 					{
@@ -2370,10 +2370,10 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					}
 				}
 				else
-					tmpVar=L""s;
+					tmpVar = L""sv;
 			}
 			else
-				tmpVar=L""s;
+				tmpVar = L""sv;
 
 			PassValue(tmpVar,Data);
 			return 0;
@@ -2456,7 +2456,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				if (CheckCode == MCODE_F_MENU_FILTER)
 					tmpVar = -1;
 				else
-					tmpVar = L""s;
+					tmpVar = L""sv;
 			}
 
 			PassValue(tmpVar,Data);
@@ -2868,7 +2868,7 @@ static bool dateFunc(FarMacroCall* Data)
 	auto Params = parseParams(1, Data);
 
 	if (Params[0].isInteger() && !Params[0].asInteger())
-		Params[0]=L""s;
+		Params[0] = L""sv;
 
 	const auto strTStr = MkStrFTime(Params[0].toString());
 	const auto Ret = !strTStr.empty();
@@ -3090,7 +3090,7 @@ static bool menushowFunc(FarMacroCall* Data)
 	TVar& Title(Params[1]);
 
 	if (Title.isUnknown())
-		Title=L""s;
+		Title = L""sv;
 
 	string strTitle=Title.toString();
 	string strBottom;
@@ -3390,7 +3390,7 @@ static bool menushowFunc(FarMacroCall* Data)
 			if(bResultAsIndex)
 				Result=0;
 			else
-				Result=L""s;
+				Result = L""sv;
 		}
 	}
 	PassValue(Result, Data);
@@ -3732,7 +3732,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 					}
 					else
 					{
-						Ret=L""s;
+						Ret = L""sv;
 					}
 
 					InfoID=-1;
@@ -4130,7 +4130,7 @@ static bool clipFunc(FarMacroCall* Data)
 	// принудительно второй параметр ставим AS string
 	if (cmdType != 5 && Val.isInteger() && !Val.asInteger())
 	{
-		Val=L""s;
+		Val = L""sv;
 		Val.toString();
 	}
 
@@ -4562,13 +4562,13 @@ static bool strpadFunc(FarMacroCall* Data)
 	TVar& Src(Params[0]);
 	if (Src.isUnknown())
 	{
-		Src=L""s;
+		Src = L""sv;
 		Src.toString();
 	}
 	int Cnt=(int)Params[1].asInteger();
 	TVar& Fill(Params[2]);
 	if (Fill.isUnknown())
-		Fill=L" "s;
+		Fill = L" "sv;
 	DWORD Op=(DWORD)Params[3].asInteger();
 
 	string strDest=Src.asString();
@@ -4628,7 +4628,7 @@ static bool strwrapFunc(FarMacroCall* Data)
 	const auto& Text = Params[0];
 
 	if (Break.isUnknown())
-		Break = L"\n"s;
+		Break = L"\n"sv;
 
 	PassString(join(wrapped_text(Text.asString(), Width, Break.asString(), Flags == 1), Break.asString()), Data);
 
@@ -4811,7 +4811,7 @@ static bool editorsettitleFunc(FarMacroCall* Data)
 	{
 		if (Title.isInteger() && !Title.asInteger())
 		{
-			Title=L""s;
+			Title = L""sv;
 			Title.toString();
 		}
 		Ret = Global->WindowManager->GetCurrentEditor()->EditorControl(ECTL_SETTITLE, 0, UNSAFE_CSTR(Title.asString()));
@@ -4854,7 +4854,7 @@ static bool editorinsstrFunc(FarMacroCall* Data)
 		{
 			if (S.isUnknown())
 			{
-				S=L""s;
+				S = L""sv;
 				S.toString();
 			}
 
@@ -4880,7 +4880,7 @@ static bool editorsetstrFunc(FarMacroCall* Data)
 		{
 			if (S.isUnknown())
 			{
-				S=L""s;
+				S = L""sv;
 				S.toString();
 			}
 

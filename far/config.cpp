@@ -1592,13 +1592,20 @@ public:
 	{
 	}
 
+	[[nodiscard]]
 	decltype(auto) begin() const { return m_items.begin(); }
+	[[nodiscard]]
 	decltype(auto) end() const { return m_items.end(); }
+	[[nodiscard]]
 	decltype(auto) cbegin() const { return begin(); }
+	[[nodiscard]]
 	decltype(auto) cend() const { return end(); }
+	[[nodiscard]]
 	decltype(auto) size() const { return m_items.size(); }
+	[[nodiscard]]
 	decltype(auto) operator[](size_t i) const { return m_items[i]; }
 
+	[[nodiscard]]
 	GeneralConfig* GetConfig() const { return m_cfg; }
 
 private:
@@ -1608,14 +1615,8 @@ private:
 
 Options::Options():
 	strWordDiv(EdOpt.strWordDiv),
-	KnownIDs(),
-	ReadOnlyConfig(-1),
-	UseExceptionHandler(0),
-	ElevationMode(0),
-	WindowMode(-1),
 	ViewSettings(m_ViewSettings),
-	m_ViewSettings(predefined_panel_modes_count),
-	m_ViewSettingsChanged(false)
+	m_ViewSettings(predefined_panel_modes_count)
 {
 	const auto& TabSizeValidator = option::validator([](long long TabSize)
 	{
@@ -1719,7 +1720,7 @@ void Options::InitConfigsData()
 
 	static_assert(DefaultBoxSymbols.size() == BS_COUNT);
 
-	const auto strDefaultLanguage = GetFarIniString(L"General"s, L"DefaultLanguage"s, L"English"s);
+	const auto strDefaultLanguage = GetFarIniString(L"General"sv, L"DefaultLanguage"sv, L"English"sv);
 
 	static const FARConfigItem RoamingData[]
 	{
@@ -2192,7 +2193,7 @@ void Options::Load(overrides&& Overrides)
 	/* <ПОСТПРОЦЕССЫ> *************************************************** */
 
 	Palette.Load();
-	GlobalUserMenuDir = ConvertNameToFull(os::env::expand(GetFarIniString(L"General"s, L"GlobalUserMenuDir"s, Global->g_strFarPath)));
+	GlobalUserMenuDir = ConvertNameToFull(os::env::expand(GetFarIniString(L"General"sv, L"GlobalUserMenuDir"sv, Global->g_strFarPath)));
 	AddEndSlash(GlobalUserMenuDir);
 
 	if(WindowMode == -1)
@@ -2333,8 +2334,7 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 			const auto record = static_cast<const INPUT_RECORD*>(Param2);
 			if (record->EventType==KEY_EVENT)
 			{
-				int key = InputRecordToKey(record);
-				switch(key)
+				switch (InputRecordToKey(record))
 				{
 				case KEY_SHIFTF1:
 					{
@@ -2747,7 +2747,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		}
 	};
 
-	LISTITEMFLAGS no_tree = Global->Opt->Tree.TurnOffCompletely ? LIF_HIDDEN : 0;
+	const auto no_tree = Global->Opt->Tree.TurnOffCompletely? LIF_HIDDEN : LIF_NONE;
 
 	menu_item LeftMenu[]
 	{
@@ -3241,14 +3241,14 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 	}
 }
 
-string GetFarIniString(const string& AppName, const string& KeyName, const string& Default)
+string GetFarIniString(string_view const AppName, string_view const KeyName, string_view const Default)
 {
 	return os::GetPrivateProfileString(AppName, KeyName, Default, Global->g_strFarINI);
 }
 
-int GetFarIniInt(const string& AppName, const string& KeyName, int Default)
+int GetFarIniInt(string_view const AppName, string_view const KeyName, int Default)
 {
-	return GetPrivateProfileInt(AppName.c_str(), KeyName.c_str(), Default, Global->g_strFarINI.c_str());
+	return GetPrivateProfileInt(null_terminated(AppName).c_str(), null_terminated(KeyName).c_str(), Default, Global->g_strFarINI.c_str());
 }
 
 std::chrono::steady_clock::duration GetRedrawTimeout()

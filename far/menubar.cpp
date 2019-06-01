@@ -50,7 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void MenuBar::DisplayObject()
 {
-	const auto strSpace = L"    "s;
+	const auto strSpace = L"    "sv;
 	auto strMsg = concat(strSpace, msg(lng::MMenuLeftTitle), strSpace, msg(lng::MMenuFilesTitle), strSpace, msg(lng::MMenuCommandsTitle), strSpace, msg(lng::MMenuOptionsTitle), strSpace, msg(lng::MMenuRightTitle));
 	RemoveHighlights(strMsg);
 	GotoXY(m_Where.left, m_Where.top);

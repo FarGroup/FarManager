@@ -300,7 +300,7 @@ void Message::Init(
 		MaxLength = std::max(MaxLength, LenErrStr);
 
 		if (!Strings.empty())
-			Strings.emplace_back(L"\1"s);
+			Strings.emplace_back(L"\x1"sv);
 
 		for (const auto& i : wrapped_text(strErrStr, LenErrStr))
 		{

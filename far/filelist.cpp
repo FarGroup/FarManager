@@ -3998,7 +3998,7 @@ long FileList::SelectFiles(int Mode, string_view const Mask)
 		}
 		else
 		{
-			strMask = L"*."s;
+			strMask = L"*."sv;
 		}
 
 		Mode=(Mode==SELECT_ADDEXT) ? SELECT_ADD:SELECT_REMOVE;
@@ -7047,7 +7047,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 	}
 	else if (m_CachedOpenPanelInfo.Flags & OPIF_ADDDOTS)
 	{
-		strCurName = L".."s;
+		strCurName = L".."sv;
 	}
 
 	if (KeepSelection || PrevSelFileCount>0)
@@ -7279,7 +7279,7 @@ void FileList::ReadSortGroups(bool UpdateFilterCurrentTime)
 void FileList::FillParentPoint(FileListItem& Item, size_t CurFilePos)
 {
 	Item.Attributes = FILE_ATTRIBUTE_DIRECTORY;
-	Item.FileName = L".."s;
+	Item.FileName = L".."sv;
 	Item.SetAlternateFileName(Item.FileName);
 	Item.Position = CurFilePos;
 	Item.UserFlags = PPIF_RESERVED;
@@ -7502,7 +7502,7 @@ void FileList::ShowFileList(bool Fast)
 
 			if (m_Filter && m_Filter->IsEnabledOnPanel())
 			{
-				Text(L"*"s);
+				Text(L"*"sv);
 				NextX1++;
 			}
 		}
@@ -7761,7 +7761,7 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 		string strFreeSize, strTotalSize;
 		auto strFormSize = size2str(TotalFileSize, 6, false, short_mode);
 		if (Global->Opt->ShowPanelFree && (m_PanelMode != panel_mode::PLUGIN_PANEL || (Info.Flags & (OPIF_REALNAMES | OPIF_USEFREESIZE))))
-			strFreeSize = (FreeDiskSize != static_cast<unsigned long long>(-1)) ? size2str(FreeDiskSize, 10, true, short_mode) : L"?"s;
+			strFreeSize = (FreeDiskSize != static_cast<unsigned long long>(-1)) ? size2str(FreeDiskSize, 10, true, short_mode) : L"?"sv;
 
 		if (Global->Opt->ShowPanelTotals)
 		{

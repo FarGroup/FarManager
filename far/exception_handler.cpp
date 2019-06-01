@@ -119,7 +119,7 @@ static void ShowStackTrace(const std::vector<const void*>& Stack, const std::vec
 	if (NestedStack)
 	{
 		Symbols.emplace_back(40, L'-');
-		Symbols.emplace_back(L"Nested stack:"s);
+		Symbols.emplace_back(L"Nested stack:"sv);
 		Symbols.emplace_back(40, L'-');
 
 		tracer::get_symbols(*NestedStack, Consumer);
@@ -608,7 +608,7 @@ static bool ProcessGenericException(
 		break;
 
 	case EXCEPTION_MICROSOFT_CPLUSPLUS:
-		Details = xr->NumberParameters? ExtractObjectType(xr) : L""s;
+		Details = xr->NumberParameters? ExtractObjectType(xr) : L""sv;
 		if (!Message.empty())
 			append(Details, Details.empty()? L""sv : L", "sv, L"what(): "sv, Message);
 		break;

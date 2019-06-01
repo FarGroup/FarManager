@@ -191,7 +191,7 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 				SetSelected = DiskCount + static_cast<int>(index)+1 == Pos;
 		}
 		const auto HotKey = i.getHotKey();
-		i.getItem().Name = concat(HotKey ? concat(L'&', HotKey, L"  "sv) : L"   "s, i.getItem().Name);
+		i.getItem().Name = concat(HotKey? concat(L'&', HotKey, L"  "sv) : L"   "sv, i.getItem().Name);
 		ChDisk.AddItem(i.getItem());
 	});
 

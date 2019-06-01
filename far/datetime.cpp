@@ -230,7 +230,7 @@ string StrFTime(string_view const Format, const tm* Time)
 		// AM или PM
 		// am or pm based on 12-hour clock
 		case L'p':
-			Result += Time->tm_hour / 12? L"PM"s : L"AM"s;
+			Result += Time->tm_hour / 12? L"PM"sv : L"AM"sv;
 			break;
 
 		// Две цифры секунд (00 - 59)

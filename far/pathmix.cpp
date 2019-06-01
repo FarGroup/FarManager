@@ -260,19 +260,20 @@ string_view PointToExt(string_view const Path)
 }
 
 
-static size_t SlashType(const wchar_t *pw, const wchar_t *pe, wchar_t &TypeSlash)
+static size_t SlashType(const wchar_t* Begin, const wchar_t* End, wchar_t &TypeSlash)
 {
-	size_t Len = 0, Slash = 0, BackSlash = 0;
-	while ((pe && pw < pe) || (!pe && *pw))
+	size_t Slash = 0, BackSlash = 0;
+
+	auto Iterator = Begin;
+	for (; End? Iterator != End : *Iterator; ++Iterator)
 	{
-		wchar_t c = *pw++;
+		const auto c = *Iterator;
 		BackSlash += (c == L'\\');
 		Slash += (c == L'/');
-		++Len;
 	}
 
-	TypeSlash = (Slash > BackSlash ? L'/' : L'\\');
-	return Len;
+	TypeSlash = Slash > BackSlash? L'/' : L'\\';
+	return Iterator - Begin;
 }
 
 // Функция работает с обоими видами слешей, также происходит
@@ -301,19 +302,18 @@ bool AddEndSlash(wchar_t *Path)
 
 void AddEndSlash(string &strPath, wchar_t TypeSlash)
 {
-	const auto Path = strPath.c_str();
-	auto len = strPath.size();
 	if (!IsSlash(TypeSlash))
-		SlashType(Path, Path+len, TypeSlash);
+		SlashType(strPath.data(), strPath.data() + strPath.size(), TypeSlash);
 
 	wchar_t LastSlash = L'\0';
-	if (len && IsSlash(Path[len-1]))
-		LastSlash = Path[--len];
+
+	if (!strPath.empty() && IsSlash(strPath.back()))
+		LastSlash = strPath.back();
 
 	if (TypeSlash != LastSlash)
 	{
 		if (LastSlash)
-			strPath[len] = TypeSlash;
+			strPath.back() = TypeSlash;
 		else
 			strPath.push_back(TypeSlash);
 	}
@@ -660,19 +660,69 @@ TEST_CASE("path.PointToExt")
 
 TEST_CASE("path.IsRootPath")
 {
-	REQUIRE(IsRootPath(L"C:"sv));
-	REQUIRE(IsRootPath(L"C:\\"sv));
-	REQUIRE(IsRootPath(L"\\"sv));
-	REQUIRE(!IsRootPath(L"C:\\path"sv));
+	static const struct
+	{
+		bool Result;
+		string_view Input;
+	}
+	Tests[]
+	{
+		{ false,  L""sv },
+		{ false,  L"dir"sv },
+		{ false,  L"dir\\"sv },
+		{ true,  L"\\"sv },
+		{ false, L"\\dir"sv },
+		{ false, L"\\dir\\"sv },
+		{ true,  L"C:"sv },
+		{ false, L"C:dir"sv },
+		{ false, L"C:dir\\"sv },
+		{ true,  L"C:\\"sv },
+		{ false, L"C:\\dir"sv },
+		{ false, L"C:\\dir\\"sv },
+		{ true,  L"\\\\?\\C:"sv },
+		{ true,  L"\\\\?\\C:\\"sv },
+		{ false, L"\\\\?\\C:\\dir"sv },
+		{ false, L"\\\\?\\C:\\dir\\"sv },
+		{ true,  L"\\\\server\\share"sv },
+		{ true,  L"\\\\server\\share\\"sv },
+		{ false, L"\\\\server\\share\\dir"sv },
+		{ false, L"\\\\server\\share\\dir\\"sv },
+		{ true,  L"\\\\?\\UNC\\server\\share"sv },
+		{ true,  L"\\\\?\\UNC\\server\\share\\"sv },
+		{ false, L"\\\\?\\UNC\\server\\share\\dir"sv },
+		{ false, L"\\\\?\\UNC\\server\\share\\dir\\"sv },
+		{ true,  L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv },
+		{ true,  L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv },
+		{ false, L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\dir"sv },
+		{ false, L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\dir\\"sv },
+	};
+
+	for (const auto& Test : Tests)
+	{
+		REQUIRE(Test.Result == IsRootPath(Test.Input));
+	}
 }
 
 TEST_CASE("path.PathStartsWith")
 {
-	REQUIRE(PathStartsWith(L"C:\\path\\file"sv, L"C:\\path"sv));
-	REQUIRE(PathStartsWith(L"C:\\path\\file"sv, L"C:\\path\\"sv));
-	REQUIRE(!PathStartsWith(L"C:\\path\\file"sv, L"C:\\pat"sv));
-	REQUIRE(PathStartsWith(L"\\"sv, L""sv));
-	REQUIRE(!PathStartsWith(L"C:\\path\\file"sv, L""sv));
+	static const struct
+	{
+		bool Result;
+		string_view Path, Prefix;
+	}
+	Tests[]
+	{
+		{ true,  L"C:\\path\\file"sv,   L"C:\\path"sv },
+		{ true,  L"C:\\path\\file"sv,   L"C:\\path\\"sv },
+		{ false, L"C:\\path\\file"sv,   L"C:\\pat"sv },
+		{ true,  L"\\"sv,               L""sv },
+		{ false, L"C:\\path\\file"sv,   L""sv },
+	};
+
+	for (const auto& Test : Tests)
+	{
+		REQUIRE(Test.Result == PathStartsWith(Test.Path, Test.Prefix));
+	}
 }
 
 TEST_CASE("path.CutToParent")
@@ -699,19 +749,19 @@ TEST_CASE("path.CutToParent")
 	TestCases[]
 	{
 		// root directory, shall fail
-		{ L"{0}"sv, L"{0}"sv, false, false},
+		{ L"{0}"sv,                  L"{0}"sv,        false, false},
 
 		// one level, shall return root directory
-		{ L"{0}dir1"sv, L"{0}"sv, true, true },
+		{ L"{0}dir1"sv,              L"{0}"sv,        true,  true },
 
 		// one level without root, shall fail
-		{ L"dir1"sv, L"dir1"sv, false, false },
+		{ L"dir1"sv,                 L"dir1"sv,       false, false },
 
 		// two levels, shall return first level
-		{ L"{0}dir1\\dir2"sv, L"{0}dir1"sv, false, true },
+		{ L"{0}dir1\\dir2"sv,        L"{0}dir1"sv,    false, true },
 
 		// two levels with trailing slash, shall return first level
-		{ L"{0}dir1\\dir2\\"sv, L"{0}dir1"sv, false, true },
+		{ L"{0}dir1\\dir2\\"sv,      L"{0}dir1"sv,    false, true },
 	};
 
 	for (const auto& Root: TestRoots)
@@ -727,6 +777,32 @@ TEST_CASE("path.CutToParent")
 			REQUIRE(Test.ExpectedResult == CutToParent(Path));
 			REQUIRE(Baseline == Path);
 		}
+	}
+}
+
+TEST_CASE("path.AddEndSlash")
+{
+	static const struct
+	{
+		string_view Input, Result;
+	}
+	Tests[]
+	{
+		{ L""sv,           L"\\"sv },
+		{ L"\\"sv,         L"\\"sv },
+		{ L"/"sv,          L"/"sv },
+		{ L"a"sv,          L"a\\"sv },
+		{ L"a\\"sv,        L"a\\"sv },
+		{ L"a\\\\"sv,      L"a\\\\"sv },
+		{ L"a\\b/"sv,      L"a\\b\\"sv },
+		{ L"a\\b/c/d"sv,   L"a\\b/c/d/"sv },
+	};
+
+	for (const auto& Test : Tests)
+	{
+		string Str(Test.Input);
+		AddEndSlash(Str);
+		REQUIRE(Str == Test.Result);
 	}
 }
 #endif

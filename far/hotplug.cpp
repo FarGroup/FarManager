@@ -505,7 +505,7 @@ void ShowHotplugDevices()
 
 				if (ListItem.Name.empty())
 				{
-					ListItem.Name = L"UNKNOWN"s;
+					ListItem.Name = L"UNKNOWN"sv;
 				}
 				HotPlugList->AddItem(ListItem);
 			});

@@ -137,15 +137,15 @@ bool codepages::IsPositionNormal(UINT position) const
 }
 
 // Формируем строку для визуального представления таблицы символов
-string codepages::FormatCodePageString(uintptr_t CodePage, const string& CodePageName, bool IsCodePageNameCustom) const
+string codepages::FormatCodePageString(uintptr_t CodePage, string_view const CodePageName, bool IsCodePageNameCustom) const
 {
 	return static_cast<intptr_t>(CodePage) < 0?
-		CodePageName : // CP_DEFAULT, CP_REDETECT
+		string(CodePageName) : // CP_DEFAULT, CP_REDETECT
 		concat(pad_right(str(CodePage), 5), BoxSymbols[BS_V1], (!IsCodePageNameCustom || CallbackCallSource == CodePagesFill || CallbackCallSource == CodePagesFill2? L' ' : L'*'), CodePageName);
 }
 
 // Добавляем таблицу символов
-void codepages::AddCodePage(const string& codePageName, uintptr_t codePage, size_t position, bool enabled, bool checked, bool IsCodePageNameCustom) const
+void codepages::AddCodePage(string_view codePageName, uintptr_t codePage, size_t position, bool enabled, bool checked, bool IsCodePageNameCustom) const
 {
 	if (CallbackCallSource == CodePagesFill)
 	{
@@ -230,7 +230,7 @@ void codepages::AddCodePage(const string& codePageName, uintptr_t codePage, size
 }
 
 // Добавляем стандартную таблицу символов
-void codepages::AddStandardCodePage(const string& codePageName, uintptr_t codePage, int position, bool enabled) const
+void codepages::AddStandardCodePage(string_view const codePageName, uintptr_t codePage, int position, bool enabled) const
 {
 	bool checked = false;
 
@@ -361,9 +361,9 @@ void codepages::AddCodePages(DWORD codePages)
 	// unicode codepages
 	//
 	AddSeparator(msg(lng::MGetCodePageUnicode));
-	AddStandardCodePage(L"UTF-8"s, CP_UTF8, -1, (codePages & ::UTF8) != 0);
-	AddStandardCodePage(L"UTF-16 (Little endian)"s, CP_UNICODE, -1, (codePages & ::UTF16LE) != 0);
-	AddStandardCodePage(L"UTF-16 (Big endian)"s, CP_REVERSEBOM, -1, (codePages & ::UTF16BE) != 0);
+	AddStandardCodePage(L"UTF-8"sv, CP_UTF8, -1, (codePages & ::UTF8) != 0);
+	AddStandardCodePage(L"UTF-16 (Little endian)"sv, CP_UNICODE, -1, (codePages & ::UTF16LE) != 0);
+	AddStandardCodePage(L"UTF-16 (Big endian)"sv, CP_REVERSEBOM, -1, (codePages & ::UTF16BE) != 0);
 
 	// other codepages
 	//

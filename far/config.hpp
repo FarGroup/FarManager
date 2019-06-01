@@ -124,15 +124,22 @@ class Option
 public:
 	virtual ~Option() = default;
 
+	[[nodiscard]]
 	virtual string toString() const = 0;
+	[[nodiscard]]
 	virtual bool TryParse(const string& value) = 0;
+	[[nodiscard]]
 	virtual string ExInfo() const = 0;
+	[[nodiscard]]
 	virtual string_view GetType() const = 0;
+	[[nodiscard]]
 	virtual bool IsDefault(const std::any& Default) const = 0;
 	virtual void SetDefault(const std::any& Default) = 0;
+	[[nodiscard]]
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) = 0;
 	virtual void Export(FarSettingsItem& To) const = 0;
 
+	[[nodiscard]]
 	bool Changed() const { return m_Value.touched(); }
 
 protected:
@@ -143,6 +150,7 @@ protected:
 	explicit Option(const T& Value): m_Value(Value) {}
 
 	template<class T>
+	[[nodiscard]]
 	const T& GetT() const { return std::any_cast<const T&>(m_Value); }
 
 	template<class T>
@@ -197,12 +205,12 @@ namespace detail
 			void(option::notifier_tag, const base_type&)
 		>;
 
-		auto& operator=(const base_type& Value) { Set(Value); return static_cast<derived&>(*this); }
-
 		void SetCallback(const callback_type& Callback) { m_Callback = Callback; }
 
+		[[nodiscard]]
 		const auto& Get() const { return GetT<base_type>(); }
 		void Set(const base_type& Value) { SetT(Validate(Value)); Notify(); }
+		[[nodiscard]]
 		bool TrySet(const base_type& Value)
 		{
 			if (Validate(Value) != Value)
@@ -214,23 +222,34 @@ namespace detail
 			return true;
 		}
 
+		[[nodiscard]]
 		string ExInfo() const override { return {}; }
 
+		[[nodiscard]]
 		bool IsDefault(const std::any& Default) const override { return Get() == std::any_cast<base_type>(Default); }
 		void SetDefault(const std::any& Default) override { Set(std::any_cast<base_type>(Default)); }
 
+		[[nodiscard]]
 		bool ReceiveValue(const GeneralConfig* Storage, string_view KeyName, string_view ValueName, const std::any& Default) override;
 		void StoreValue(GeneralConfig* Storage, string_view KeyName, string_view ValueName, bool always) const override;
 
 		//operator const base_type&() const { return Get(); }
 
 	protected:
-		OptionImpl(): Option(base_type())
+		OptionImpl():
+			Option(base_type())
 		{
 			static_assert(std::is_base_of_v<OptionImpl, derived>);
 		}
 
+		auto& operator=(const base_type& Value)
+		{
+			Set(Value);
+			return static_cast<derived&>(*this);
+		}
+
 	private:
+		[[nodiscard]]
 		base_type Validate(const base_type& Value) const
 		{
 			return m_Callback?
@@ -254,12 +273,17 @@ public:
 	using impl_type::OptionImpl;
 	using impl_type::operator=;
 
+	[[nodiscard]]
 	string toString() const override { return Get() ? L"true"s : L"false"s; }
+	[[nodiscard]]
 	bool TryParse(const string& value) override;
+	[[nodiscard]]
 	string_view GetType() const override { return L"boolean"sv; }
+	[[nodiscard]]
 	bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	void Export(FarSettingsItem& To) const override;
 
+	[[nodiscard]]
 	operator bool() const { return Get(); }
 };
 
@@ -269,12 +293,17 @@ public:
 	using impl_type::OptionImpl;
 	using impl_type::operator=;
 
+	[[nodiscard]]
 	string toString() const override { const auto v = Get(); return v == BSTATE_CHECKED? L"true"s : v == BSTATE_UNCHECKED? L"false"s : L"other"s; }
+	[[nodiscard]]
 	bool TryParse(const string& value) override;
+	[[nodiscard]]
 	string_view GetType() const override { return L"3-state"sv; }
+	[[nodiscard]]
 	bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	void Export(FarSettingsItem& To) const override;
 
+	[[nodiscard]]
 	operator FARCHECKEDSTATE() const { return static_cast<FARCHECKEDSTATE>(Get()); }
 };
 
@@ -284,10 +313,15 @@ public:
 	using impl_type::OptionImpl;
 	using impl_type::operator=;
 
+	[[nodiscard]]
 	string toString() const override;
+	[[nodiscard]]
 	bool TryParse(const string& value) override;
+	[[nodiscard]]
 	string ExInfo() const override;
+	[[nodiscard]]
 	string_view GetType() const override { return L"integer"sv; }
+	[[nodiscard]]
 	bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	void Export(FarSettingsItem& To) const override;
 
@@ -298,6 +332,7 @@ public:
 	IntOption& operator--(){Set(Get()-1); return *this;}
 	IntOption& operator++(){Set(Get()+1); return *this;}
 
+	[[nodiscard]]
 	operator long long() const { return Get(); }
 };
 
@@ -307,20 +342,30 @@ public:
 	using impl_type::OptionImpl;
 	using impl_type::operator=;
 
+	[[nodiscard]]
 	string toString() const override { return Get(); }
+	[[nodiscard]]
 	bool TryParse(const string& value) override { Set(value); return true; }
+	[[nodiscard]]
 	string_view GetType() const override { return L"string"sv; }
+	[[nodiscard]]
 	bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	void Export(FarSettingsItem& To) const override;
 
 	StringOption& operator+=(const string& Value) {Set(Get()+Value); return *this;}
+	[[nodiscard]]
 	wchar_t operator[] (size_t index) const { return Get()[index]; }
+	[[nodiscard]]
 	const wchar_t* c_str() const { return Get().c_str(); }
 	void clear() { Set({}); }
+	[[nodiscard]]
 	bool empty() const { return Get().empty(); }
+	[[nodiscard]]
 	size_t size() const { return Get().size(); }
 
+	[[nodiscard]]
 	operator const string&() const { return Get(); }
+	[[nodiscard]]
 	operator string_view() const { return Get(); }
 };
 
@@ -431,9 +476,7 @@ public:
 
 	struct CodeXLAT
 	{
-		CodeXLAT(): Layouts(), CurrentLayout() {}
-
-		HKL Layouts[10];
+		HKL Layouts[10]{};
 		StringOption strLayouts;
 		StringOption Rules[3]; // правила:
 		// [0] "если предыдущий символ латинский"
@@ -442,7 +485,7 @@ public:
 		StringOption Table[2]; // [0] non-english буквы, [1] english буквы
 		StringOption strWordDivForXlat;
 		IntOption Flags;
-		mutable int CurrentLayout;
+		mutable int CurrentLayout{};
 	};
 
 	struct EditorOptions
@@ -563,11 +606,14 @@ public:
 
 	struct LoadPluginsOptions
 	{
-		string strCustomPluginsPath;  // путь для поиска плагинов, указанный в /p
+		// путь для поиска плагинов, указанный в /p
+		string strCustomPluginsPath;
 		string strPersonalPluginsPath;
-		bool MainPluginDir; // true - использовать стандартный путь к основным плагинам
-		bool PluginsCacheOnly; // set by '/co' switch, not saved
-		bool PluginsPersonal;
+		// true - использовать стандартный путь к основным плагинам
+		bool MainPluginDir{};
+		// set by '/co' switch, not saved
+		bool PluginsCacheOnly{};
+		bool PluginsPersonal{};
 
 #ifndef NO_WRAPPER
 		BoolOption OEMPluginsSupport;
@@ -648,13 +694,17 @@ public:
 
 	struct MacroOptions
 	{
-		int DisableMacro; // параметры /m или /ma или /m....
+		// параметры /m или /ma или /m....
+		int DisableMacro{};
 		// config
 		StringOption strKeyMacroCtrlDot, strKeyMacroRCtrlDot; // аля KEY_CTRLDOT/KEY_RCTRLDOT
 		StringOption strKeyMacroCtrlShiftDot, strKeyMacroRCtrlShiftDot; // аля KEY_CTRLSHIFTDOT/KEY_RCTRLSHIFTDOT
 		// internal
-		DWORD KeyMacroCtrlDot, KeyMacroRCtrlDot;
-		DWORD KeyMacroCtrlShiftDot, KeyMacroRCtrlShiftDot;
+		DWORD
+			KeyMacroCtrlDot{},
+			KeyMacroRCtrlDot{},
+			KeyMacroCtrlShiftDot{},
+			KeyMacroRCtrlShiftDot{};
 		StringOption strDateFormat; // Для $Date
 		BoolOption ShowPlayIndicator; // показать вывод 'P' во время проигрывания макроса
 	};
@@ -663,7 +713,7 @@ public:
 	{
 		struct GuidOption
 		{
-			GUID Id;
+			GUID Id{};
 			StringOption StrId;
 			string_view Default;
 		};
@@ -925,10 +975,10 @@ public:
 
 	BoolOption SmartFolderMonitor; // def: 0=always monitor panel folder(s), 1=only when FAR has input focus
 
-	int ReadOnlyConfig;
-	int UseExceptionHandler;
-	int ElevationMode;
-	int WindowMode;
+	int ReadOnlyConfig{-1};
+	int UseExceptionHandler{};
+	long long ElevationMode{};
+	int WindowMode{-1};
 	BoolOption WindowModeStickyX;
 	BoolOption WindowModeStickyY;
 
@@ -968,11 +1018,11 @@ private:
 
 	std::vector<farconfig> m_Configs;
 	std::vector<PanelViewSettings> m_ViewSettings;
-	bool m_ViewSettingsChanged;
+	bool m_ViewSettingsChanged{};
 };
 
-string GetFarIniString(const string& AppName, const string& KeyName, const string& Default);
-int GetFarIniInt(const string& AppName, const string& KeyName, int Default);
+string GetFarIniString(string_view AppName, string_view KeyName, string_view Default);
+int GetFarIniInt(string_view AppName, string_view KeyName, int Default);
 
 std::chrono::steady_clock::duration GetRedrawTimeout();
 

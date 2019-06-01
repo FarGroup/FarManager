@@ -1056,13 +1056,13 @@ int FileFilter::ParseAndAddMasks(std::list<std::pair<string, int>>& Extensions, 
 
 	if (DotPos == string::npos)
 	{
-		strMask = L"*."s;
+		strMask = L"*."sv;
 	}
 	else
 	{
 		const auto Ext = string_view(FileName).substr(DotPos);
 		// Если маска содержит разделитель (',' или ';'), то возьмем ее в кавычки
-		strMask = FileName.find_first_of(L",;", DotPos) != string::npos? concat(L"\"*"sv, Ext, L'"') : concat(L'*', Ext);
+		strMask = FileName.find_first_of(L",;"sv, DotPos) != string::npos? concat(L"\"*"sv, Ext, L'"') : concat(L'*', Ext);
 	}
 
 	if (std::any_of(CONST_RANGE(Extensions, i) { return equal_icase(i.first, strMask); }))

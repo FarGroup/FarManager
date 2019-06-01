@@ -247,7 +247,12 @@ public:
 	{
 		if (m_userName.empty())
 		{
-			m_userName = "Software\\Far Manager"s + (Global->strRegUser.empty()? ""s : "\\Users\\"s + encoding::oem::get_bytes(Global->strRegUser)) + "\\Plugins"s;
+			m_userName = "Software\\Far Manager"sv;
+			if (!Global->strRegUser.empty())
+			{
+				m_userName.append("\\Users\\"sv).append(encoding::oem::get_bytes(Global->strRegUser));
+			}
+			m_userName += "\\Plugins"sv;
 		}
 		return m_userName;
 	}

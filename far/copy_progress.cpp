@@ -210,13 +210,13 @@ void copy_progress::CreateBackground()
 	std::vector<string> Items =
 	{
 		msg(m_Move? lng::MCopyMoving :lng::MCopyCopying),
-		L""s, // source name
+		{}, // source name
 		msg(lng::MCopyTo),
-		L""s, // dest path
+		{}, // dest path
 		m_CurrentBar,
-		L"\x1"s + msg(lng::MCopyDlgTotal),
-		L""s, // files [total] <processed>
-		L""s  // bytes [total] <processed>
+		L'\x1' + msg(lng::MCopyDlgTotal),
+		{}, // files [total] <processed>
+		{}  // bytes [total] <processed>
 	};
 
 	// total progress bar
@@ -228,8 +228,8 @@ void copy_progress::CreateBackground()
 	// time & speed
 	if (m_ShowTime)
 	{
-		Items.emplace_back(L"\x1"s);
-		Items.emplace_back(L""s);
+		Items.emplace_back(L"\x1"sv);
+		Items.emplace_back();
 	}
 
 	m_Rect = Message(MSG_LEFTALIGN | MSG_NOFLUSH,

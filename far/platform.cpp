@@ -195,10 +195,10 @@ bool get_locale_value(LCID const LcId, LCTYPE const Id, int& Value)
 	return GetLocaleInfo(LcId, Id | LOCALE_RETURN_NUMBER, reinterpret_cast<wchar_t*>(&Value), sizeof(Value) / sizeof(wchar_t)) != 0;
 }
 
-string GetPrivateProfileString(const string& AppName, const string& KeyName, const string& Default, const string& FileName)
+string GetPrivateProfileString(string_view const AppName, string_view const KeyName, string_view const Default, string_view const FileName)
 {
-	wchar_t_ptr Buffer(NT_MAX_PATH);
-	const auto Size = ::GetPrivateProfileString(AppName.c_str(), KeyName.c_str(), Default.c_str(), Buffer.get(), static_cast<DWORD>(Buffer.size()), FileName.c_str());
+	const wchar_t_ptr Buffer(NT_MAX_PATH);
+	const auto Size = ::GetPrivateProfileString(null_terminated(AppName).c_str(), null_terminated(KeyName).c_str(), null_terminated(Default).c_str(), Buffer.get(), static_cast<DWORD>(Buffer.size()), null_terminated(FileName).c_str());
 	return { Buffer.get(), Size };
 }
 

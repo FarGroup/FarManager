@@ -209,7 +209,7 @@ namespace os
 	void EnableLowFragmentationHeap();
 
 	[[nodiscard]]
-	string GetPrivateProfileString(const string& AppName, const string& KeyName, const string& Default, const string& FileName);
+	string GetPrivateProfileString(string_view AppName, string_view KeyName, string_view Default, string_view FileName);
 
 	bool GetWindowText(HWND Hwnd, string& Text);
 
