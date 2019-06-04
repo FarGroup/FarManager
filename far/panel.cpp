@@ -1082,13 +1082,8 @@ int Panel::ProcessShortcutFolder(int Key,bool ProcTreePanel)
 
 bool Panel::SetPluginDirectory(const string& strDirectory, bool Silent)
 {
-    bool Result = false;
-	if (!strDirectory.empty())
-	{
-		UserDataItem UserData = {}; //????
-		Result = Global->CtrlObject->Plugins->SetDirectory(GetPluginHandle(), strDirectory, Silent?OPM_SILENT:0, &UserData) != 0;
-	}
-
+	UserDataItem UserData = {}; //????
+	bool Result = Global->CtrlObject->Plugins->SetDirectory(GetPluginHandle(), strDirectory, Silent?OPM_SILENT:0, &UserData) != 0;
 	Update(0);
 	Show();
 	return Result;

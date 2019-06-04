@@ -94,7 +94,7 @@ public:
     if (!archive->is_open())
       FAIL(E_ABORT);
     wstring new_dir;
-    if (dir == L"\\")
+    if (dir.empty() || dir == L"\\")
       new_dir.assign(dir);
     else if (dir == L"..")
       new_dir = extract_file_path(current_dir);
@@ -411,7 +411,7 @@ public:
     archives = Archive::open(open_options);
     if (archives->empty())
       throw Error(Far::get_msg(MSG_ERROR_NOT_ARCHIVE), arch_name, __FILE__, __LINE__);
-    
+
     shared_ptr<Archive> archive = (*archives)[0];
     if (archive->password.empty())
       archive->password = options.password;
@@ -444,7 +444,7 @@ public:
     archives = Archive::open(open_options);
     if (archives->empty())
       throw Error(Far::get_msg(MSG_ERROR_NOT_ARCHIVE), arch_name, __FILE__, __LINE__);
-    
+
     shared_ptr<Archive> archive = (*archives)[0];
     if (archive->password.empty())
       archive->password = options.password;
@@ -1054,7 +1054,7 @@ static HANDLE analyse_open(const AnalyseInfo* info, bool from_analyse) {
         list<wstring> name_list = split(upcase(g_options.disabled_formats), L',');
         copy(name_list.cbegin(), name_list.cend(), inserter(disabled_formats, disabled_formats.begin()));
       }
-      
+
       const ArcFormats& arc_formats = ArcAPI::formats();
       ArcTypes::iterator arc_type = options.arc_types.begin();
       while (arc_type != options.arc_types.end()) {
@@ -1072,7 +1072,7 @@ static HANDLE analyse_open(const AnalyseInfo* info, bool from_analyse) {
   }
   else
     options.detect = g_detect_next_time == triTrue;
-  
+
   int password_len;
   options.open_password_len = &password_len;
   for (;;) {
