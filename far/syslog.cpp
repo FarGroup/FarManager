@@ -1983,7 +1983,7 @@ void WIN32_FIND_DATA_Dump(const wchar_t *Title,const WIN32_FIND_DATA &wfd,FILE *
 		fwprintf(fp,L"%*s %s  ftLastAccessTime      =0x%08lX 0x%08lX\n",12,L"",space,wfd.ftLastAccessTime.dwHighDateTime,wfd.ftLastAccessTime.dwLowDateTime);
 		ConvertDate(os::chrono::nt_clock::from_filetime(wfd.ftLastWriteTime), D, T, 8, FALSE, FALSE, TRUE);
 		fwprintf(fp,L"%*s %s  ftLastWriteTime       =0x%08lX 0x%08lX\n",12,L"",space,wfd.ftLastWriteTime.dwHighDateTime,wfd.ftLastWriteTime.dwLowDateTime);
-		ULARGE_INTEGER Number = {wfd.nFileSizeLow, wfd.nFileSizeHigh};
+		ULARGE_INTEGER Number = {{wfd.nFileSizeLow, wfd.nFileSizeHigh}};
 		fwprintf(fp,L"%*s %s  nFileSize             =0x%08lX, 0x%08lX (%I64u)\n",12,L"",space,wfd.nFileSizeHigh,wfd.nFileSizeLow,static_cast<unsigned long long>(Number.QuadPart));
 		fwprintf(fp,L"%*s %s  dwReserved0           =0x%08lX (%lu)\n",12,L"",space,wfd.dwReserved0,wfd.dwReserved0);
 
