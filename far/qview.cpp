@@ -148,7 +148,7 @@ void QuickView::DisplayObject()
 		SetColor(COL_PANELTEXT);
 		GotoXY(m_Where.left + 2, m_Where.top + 2);
 		const auto DisplayName = truncate_path(strCurFileName, std::max(size_t{}, m_Where.width() - 2 - msg(lng::MQuickViewFolder).size() - 5));
-		PrintText(format(LR"({0} "{1}")"sv, msg(lng::MQuickViewFolder), DisplayName));
+		PrintText(format(FSTR(LR"({0} "{1}")"), msg(lng::MQuickViewFolder), DisplayName));
 
 		const auto currAttr = os::fs::get_file_attributes(strCurFileName); // обламывается, если нет доступа
 		if (currAttr != INVALID_FILE_ATTRIBUTES && (currAttr&FILE_ATTRIBUTE_REPARSE_POINT))
@@ -220,7 +220,7 @@ void QuickView::DisplayObject()
 
 				default:
 					TypeName = Global->Opt->ShowUnknownReparsePoint?
-						format(L":{0:0>8X}"sv, ReparseTag) :
+						format(FSTR(L":{0:0>8X}"), ReparseTag) :
 						msg(lng::MQuickViewUnknownReparsePoint);
 					break;
 				}
@@ -234,7 +234,7 @@ void QuickView::DisplayObject()
 			inplace::truncate_path(Target, std::max(size_t{}, m_Where.width() - 2 - TypeName.size() - 5));
 			SetColor(COL_PANELTEXT);
 			GotoXY(m_Where.left + 2, m_Where.top + 3);
-			PrintText(format(LR"({0} "{1}")"sv, TypeName, Target));
+			PrintText(format(FSTR(LR"({0} "{1}")"), TypeName, Target));
 		}
 
 		const auto bytes_suffix = upper(msg(lng::MListBytes));
@@ -283,7 +283,7 @@ void QuickView::DisplayObject()
 			PrintRow(5, lng::MQuickViewFiles, str(Data.FileCount));
 			PrintRow(6, lng::MQuickViewBytes, size2str(Data.FileSize));
 
-			const auto Format = L"{0} ({1}%)"sv;
+			const auto Format = FSTR(L"{0} ({1}%)");
 			PrintRow(7, lng::MQuickViewAllocated, format(Format, size2str(Data.AllocationSize), ToPercent(Data.AllocationSize, Data.FileSize)));
 
 			if (m_DirectoryScanStatus == scan_status::real_ok)

@@ -1,3 +1,7 @@
+drkns 05.06.2019 15:50:39 +0100 - build 5408
+
+1. fmt позволяет проверять формат-строки в compile time, воспользуемся этим.
+
 zg 04.06.2019 11:53:20 +0300 - build 5407
 
 1. 0003713: Несогласованность panel.GetPanelDirectory и panel.SetPanelDirectory.

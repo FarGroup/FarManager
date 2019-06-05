@@ -60,34 +60,22 @@ WARNING_DISABLE_CLANG("-Weverything")
 
 WARNING_POP()
 
-namespace detail
-{
-	char get_incompatible_char(const string_view&);
-	wchar_t get_incompatible_char(const std::string_view&);
-
-	template<typename char_type, typename... args>
-	void check_char_compatibility(const args&...)
-	{
-		static_assert(
-			!std::disjunction_v<
-				std::is_same<args, char_type>...,
-				std::is_convertible<args, const char_type*>...,
-				std::is_convertible<args, std::basic_string_view<char_type>>...,
-				std::is_convertible<args, std::basic_string<char_type>>...
-			>);
-	}
-}
-
 template<typename F, typename... args>
 auto format(F&& Format, args&&... Args)
 {
-	detail::check_char_compatibility<decltype(detail::get_incompatible_char(Format))>(Args...);
 	return fmt::format(FWD(Format), FWD(Args)...);
 }
 
-// use string_view instead of string literals
+// use FSTR or string_view instead of string literals
 template<typename char_type, size_t N, typename... args>
 auto format(const char_type(&Format)[N], args&&...) = delete;
+
+#if 1
+#define FSTR(str) FMT_STRING(str)
+#else
+#define FSTR(str) str ## sv
+#endif
+
 
 template<typename T>
 auto str(T&& Value)
@@ -97,7 +85,7 @@ auto str(T&& Value)
 
 inline auto str(const void* Value)
 {
-	return format(L"0x{0:0{1}X}"sv, reinterpret_cast<uintptr_t>(Value), sizeof(Value) * 2);
+	return format(FSTR(L"0x{0:0{1}X}"), reinterpret_cast<uintptr_t>(Value), sizeof(Value) * 2);
 }
 
 string str(const char*) = delete;

@@ -210,7 +210,7 @@ namespace os::reg
 	string value::get_string() const
 	{
 		if (!is_string_type(m_Type))
-			throw MAKE_FAR_FATAL_EXCEPTION(format(L"Bad value type: {0}, expected REG[_EXPAND|_MULTI]_SZ"sv, m_Type));
+			throw MAKE_FAR_FATAL_EXCEPTION(format(FSTR(L"Bad value type: {0}, expected REG[_EXPAND|_MULTI]_SZ"), m_Type));
 
 		string Result;
 		return m_Key->get(m_Name, Result)? Result : L""s;
@@ -219,7 +219,7 @@ namespace os::reg
 	unsigned int value::get_unsigned() const
 	{
 		if (m_Type != REG_DWORD)
-			throw MAKE_FAR_FATAL_EXCEPTION(format(L"Bad value type: {0}, expected REG_DWORD"sv, m_Type));
+			throw MAKE_FAR_FATAL_EXCEPTION(format(FSTR(L"Bad value type: {0}, expected REG_DWORD"), m_Type));
 
 		unsigned int Result;
 		return m_Key->get(m_Name, Result)? Result : 0;
@@ -228,7 +228,7 @@ namespace os::reg
 	unsigned long long value::get_unsigned_64() const
 	{
 		if (m_Type != REG_QWORD)
-			throw MAKE_FAR_FATAL_EXCEPTION(format(L"Bad value type: {0}, expected REG_QWORD"sv, m_Type));
+			throw MAKE_FAR_FATAL_EXCEPTION(format(FSTR(L"Bad value type: {0}, expected REG_QWORD"), m_Type));
 
 		unsigned long long Result;
 		return m_Key->get(m_Name, Result)? Result : 0;

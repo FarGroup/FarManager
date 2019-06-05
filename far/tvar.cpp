@@ -308,7 +308,7 @@ const string& TVar::asString() const
 		// For doubles fmt::to_wstring adds ".0" even if there's no fractional part
 		// (e.g. 1234.0 to "1234.0"), and it's a feature (see issue #1153).
 		// For historical reasons we prefer the shortest possible representation, hence "g".
-		str = isInteger()? ::str(inum) : format(L"{0:.6g}"sv, dnum);
+		str = isInteger()? ::str(inum) : format(FSTR(L"{0:.6g}"), dnum);
 	}
 	return str;
 }

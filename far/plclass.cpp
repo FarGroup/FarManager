@@ -337,7 +337,7 @@ static void ShowMessageAboutIllegalPluginVersion(const string& plg, const Versio
 {
 	const auto str = [](const VersionInfo& Version)
 	{
-		return format(L"{0}.{1}.{2}.{3}"sv, Version.Major, Version.Minor, Version.Revision, Version.Build);
+		return format(FSTR(L"{0}.{1}.{2}.{3}"), Version.Major, Version.Minor, Version.Revision, Version.Build);
 	};
 
 	Message(MSG_WARNING|MSG_NOPLUGINS,
@@ -443,7 +443,7 @@ void Plugin::SetGuid(const GUID& Guid)
 static string VersionToString(const VersionInfo& PluginVersion)
 {
 	static const string_view Stage[] = { L" Release"sv, L" Alpha"sv, L" Beta"sv, L" RC"sv };
-	auto strVersion = format(L"{0}.{1}.{2} (build {3})"sv, PluginVersion.Major, PluginVersion.Minor, PluginVersion.Revision, PluginVersion.Build);
+	auto strVersion = format(FSTR(L"{0}.{1}.{2} (build {3})"), PluginVersion.Major, PluginVersion.Minor, PluginVersion.Revision, PluginVersion.Build);
 	if(PluginVersion.Stage != VS_RELEASE && static_cast<size_t>(PluginVersion.Stage) < std::size(Stage))
 	{
 		append(strVersion, Stage[PluginVersion.Stage]);

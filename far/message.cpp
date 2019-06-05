@@ -77,7 +77,7 @@ std::array<string, 3> FormatSystemErrors(error_state const* const ErrorState)
 	if (!ErrorState)
 		return {};
 
-	const auto Format = L"0x{0:0>8X} - {1}"sv;
+	const auto Format = FSTR(L"0x{0:0>8X} - {1}");
 
 	return
 	{

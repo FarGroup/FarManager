@@ -148,7 +148,6 @@ namespace string_utils::detail
 
 	inline void append_one(string& Str, wchar_t const Arg, size_t) { Str += Arg; }
 	inline void append_one(string& Str, wchar_t const* const Arg, size_t const Size) { Str.append(Arg, Size); }
-	inline void append_one(string& Str, string const & Arg, size_t) { Str += Arg; }
 	inline void append_one(string& Str, string_view const Arg, size_t) { Str += Arg; }
 
 	template<size_t... I, typename... args>

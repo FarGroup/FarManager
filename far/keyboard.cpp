@@ -1431,12 +1431,12 @@ static bool KeyToTextImpl(int Key0, string& strKeyText, tfkey_to_text ToText, ad
 		if (FKey >= KEY_VK_0xFF_BEGIN && FKey <= KEY_VK_0xFF_END)
 		{
 			AddSeparator(strKeyText);
-			strKeyText += format(L"Spec{0:0>5}"sv, FKey - KEY_VK_0xFF_BEGIN);
+			strKeyText += format(FSTR(L"Spec{0:0>5}"), FKey - KEY_VK_0xFF_BEGIN);
 		}
 		else if (FKey > KEY_VK_0xFF_END && FKey <= KEY_END_FKEY)
 		{
 			AddSeparator(strKeyText);
-			strKeyText += format(L"Oem{0:0>5}"sv, FKey - KEY_FKEY_BEGIN);
+			strKeyText += format(FSTR(L"Oem{0:0>5}"), FKey - KEY_FKEY_BEGIN);
 		}
 		else
 		{

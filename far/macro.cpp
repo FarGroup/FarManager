@@ -3194,7 +3194,7 @@ static bool menushowFunc(FarMacroCall* Data)
 		if (bAutoNumbering && !(bSorting || bPacking) && !(NewItem.Flags & LIF_SEPARATOR))
 		{
 			LineCount++;
-			NewItem.Name = format(L"{0:{1}} - {2}"sv, LineCount, nLeftShift - 3, NewItem.Name);
+			NewItem.Name = format(FSTR(L"{0:{1}} - {2}"), LineCount, nLeftShift - 3, NewItem.Name);
 		}
 		Menu->AddItem(NewItem);
 		CurrentPos=PosLF+1;
@@ -3229,7 +3229,7 @@ static bool menushowFunc(FarMacroCall* Data)
 			if (!(Item.Flags & LIF_SEPARATOR))
 			{
 				LineCount++;
-				Item.Name = format(L"{0:{1}} - {2}"sv, LineCount, nLeftShift - 3, Item.Name);
+				Item.Name = format(FSTR(L"{0:{1}} - {2}"), LineCount, nLeftShift - 3, Item.Name);
 			}
 		}
 	}

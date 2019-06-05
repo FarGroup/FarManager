@@ -137,7 +137,7 @@ string ConvertTemplateTreeName(string_view const strTemplate, string_view const 
 	string Str(strTemplate);
 
 	replace(Str, L"%D"sv, D);
-	replace(Str, L"%SN"sv, format(L"{0:04X}-{1:04X}"sv, HIWORD(SN), LOWORD(SN)));
+	replace(Str, L"%SN"sv, format(FSTR(L"{0:04X}-{1:04X}"), HIWORD(SN), LOWORD(SN)));
 	replace(Str, L"%L"sv, L);
 	replace(Str, L"%SR"sv, SR);
 	replace(Str, L"%SH"sv, SH);
@@ -321,7 +321,7 @@ static bool GetCacheTreeName(const string& Root, string& strName, int CreateDir)
 	}
 
 	std::replace(ALL_RANGE(strRemoteName), L'\\', L'_');
-	strName = format(L"{0}\\{1}.{2:X}.{3}.{4}"sv, strFolderName, strVolumeName, dwVolumeSerialNumber, strFileSystemName, strRemoteName);
+	strName = format(FSTR(L"{0}\\{1}.{2:X}.{3}.{4}"), strFolderName, strVolumeName, dwVolumeSerialNumber, strFileSystemName, strRemoteName);
 	return true;
 }
 

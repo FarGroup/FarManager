@@ -535,7 +535,7 @@ std::pair<string, string> SerialiseViewSettings(const std::vector<column>& Colum
 		case COLUMN_NOEXTENSION:     return L'N';
 		case COLUMN_RIGHTALIGNFORCE: return L'F';
 		case COLUMN_MARK_DYNAMIC:    return L'D';
-		default:                     throw MAKE_FAR_FATAL_EXCEPTION(format(L"Unexpected mode {0}"sv, Mode));
+		default:                     throw MAKE_FAR_FATAL_EXCEPTION(format(FSTR(L"Unexpected mode {0}"), as_underlying_type(Mode)));
 		}
 	};
 
@@ -817,7 +817,7 @@ string FormatStr_Size(
 				default:
 					if (Global->Opt->ShowUnknownReparsePoint)
 					{
-						TypeName = format(L":{0:0>8X}"sv, ReparseTag);
+						TypeName = format(FSTR(L":{0:0>8X}"), ReparseTag);
 					}
 					else
 					{

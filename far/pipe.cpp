@@ -54,7 +54,7 @@ namespace pipe
 			throw MAKE_FAR_EXCEPTION(L"Pipe read error"sv);
 
 		if (BytesRead != DataSize)
-			throw MAKE_FAR_EXCEPTION(format(L"Pipe read error: {0} bytes requested, but {1} bytes read"sv, DataSize, BytesRead));
+			throw MAKE_FAR_EXCEPTION(format(FSTR(L"Pipe read error: {0} bytes requested, but {1} bytes read"), DataSize, BytesRead));
 	}
 
 	static void WritePipe(const os::handle& Pipe, const void* Data, size_t DataSize)
@@ -64,7 +64,7 @@ namespace pipe
 			throw MAKE_FAR_EXCEPTION(L"Pipe write error"sv);
 
 		if (BytesWritten != DataSize)
-			throw MAKE_FAR_EXCEPTION(format(L"Pipe write error: {0} bytes sent, but {1} bytes written"sv, DataSize, BytesWritten));
+			throw MAKE_FAR_EXCEPTION(format(FSTR(L"Pipe write error: {0} bytes sent, but {1} bytes written"), DataSize, BytesWritten));
 	}
 
 	void read(const os::handle& Pipe, void* Data, size_t DataSize)

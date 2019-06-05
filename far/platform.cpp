@@ -81,7 +81,7 @@ namespace os
 				return false;
 
 			default:
-				throw MAKE_FAR_FATAL_EXCEPTION(format(L"WaitForSingleobject returned {0}"sv, Result));
+				throw MAKE_FAR_FATAL_EXCEPTION(format(FSTR(L"WaitForSingleobject returned {0}"), Result));
 			}
 		}
 

@@ -779,25 +779,25 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		switch (locale.date_format())
 		{
 			case 0:
-				DateMask = format(L"99{0}99{0}9999N"sv, DateSeparator);
+				DateMask = format(FSTR(L"99{0}99{0}9999N"), DateSeparator);
 				DateFormat = format(msg(lng::MSetAttrDateTitle1), DateSeparator);
 				DateRanges = {{ { 0, 2 }, { 3, 2 }, { 6, 5 } }};
 				break;
 
 			case 1:
-				DateMask = format(L"99{0}99{0}9999N"sv, DateSeparator);
+				DateMask = format(FSTR(L"99{0}99{0}9999N"), DateSeparator);
 				DateFormat = format(msg(lng::MSetAttrDateTitle2), DateSeparator);
 				DateRanges = {{ { 0, 2 }, { 3, 2 }, { 6, 5 } }};
 				break;
 
 			default:
-				DateMask = format(L"N9999{0}99{0}99"sv, DateSeparator);
+				DateMask = format(FSTR(L"N9999{0}99{0}99"), DateSeparator);
 				DateFormat = format(msg(lng::MSetAttrDateTitle3), DateSeparator);
 				DateRanges = {{ { 0, 5 }, { 6, 2 }, { 9, 2 } }};
 				break;
 		}
 
-		const auto TimeMask = format(L"99{0}99{0}99{1}999"sv, TimeSeparator, DecimalSeparator);
+		const auto TimeMask = format(FSTR(L"99{0}99{0}99{1}999"), TimeSeparator, DecimalSeparator);
 		const time_ranges TimeRanges{{ {0, 2}, {3, 2}, {6, 2}, {9, 3} }};
 
 		AttrDlg[SA_TEXT_TITLEDATE].strData = DateFormat;

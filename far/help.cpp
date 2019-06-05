@@ -117,8 +117,8 @@ public:
 
 static bool OpenURL(const string& URLPath);
 
-static const auto HelpFormatLink = L"<{0}\\>{1}"sv;
-static const auto HelpFormatLinkModule = L"<{0}>{1}"sv;
+static const auto HelpFormatLink = FSTR(L"<{0}\\>{1}");
+static const auto HelpFormatLinkModule = FSTR(L"<{0}>{1}");
 
 class Help :public Modal
 {
@@ -1563,7 +1563,13 @@ bool Help::JumpTopic()
 			const auto EndSlash = IsSlash(Path.back());
 			const auto FullPath = path::join(StackData->strHelpPath, Path);
 			auto Topic = string_view(StackData->strSelTopic).substr(StackData->strSelTopic.find(HelpEndLink, 2) + 1);
-			StackData->strSelTopic = format(EndSlash? HelpFormatLink : HelpFormatLinkModule, ConvertNameToFull(FullPath), Topic);
+
+			const auto SetSelTopic = [&](const auto FormatString)
+			{
+				StackData->strSelTopic = format(FormatString, ConvertNameToFull(FullPath), Topic);
+			};
+
+			EndSlash? SetSelTopic(HelpFormatLink) : SetSelTopic(HelpFormatLinkModule);
 		}
 	}
 

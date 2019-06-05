@@ -889,7 +889,7 @@ void Viewer::ShowHex()
 		if (Y == m_Where.top + 1 && !veof())
 			SecondPos=vtell();
 
-		auto OutStr = format(L"{0:010X}: "sv, vtell());
+		auto OutStr = format(FSTR(L"{0:010X}: "), vtell());
 		int SelStart = static_cast<int>(OutStr.size()), SelEnd = SelStart;
 		long long fpos = vtell();
 
@@ -952,12 +952,12 @@ void Viewer::ShowHex()
 						{
 							swap_bytes(&Char, &Char, sizeof(wchar_t));
 						}
-						OutStr += format(L"{0:04X} "sv, int(Char));
+						OutStr += format(FSTR(L"{0:04X} "), int(Char));
 						TextStr.push_back(Char? Char : ZeroChar());
 					}
 					else if (X == BytesRead - 1) // half character only
 					{
-						const auto GoodHalf = format(L"{0:02X}"sv, int(RawBuffer[X]));
+						const auto GoodHalf = format(FSTR(L"{0:02X}"), int(RawBuffer[X]));
 						const auto BadHalf = L"xx"s;
 						OutStr += (be? GoodHalf : BadHalf) + (be? BadHalf : GoodHalf);
 						OutStr.push_back(L' ');
@@ -1005,7 +1005,7 @@ void Viewer::ShowHex()
 				for (size_t X = 0; X != 16; ++X)
 				{
 					if (X < BytesRead)
-						OutStr += format(L"{0:02X} "sv, int(RawBuffer[X]));
+						OutStr += format(FSTR(L"{0:02X} "), int(RawBuffer[X]));
 					else
 						OutStr.append(3, L' ');
 

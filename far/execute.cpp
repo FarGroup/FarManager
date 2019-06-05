@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "chgprior.hpp"
 #include "cmdline.hpp"
+#include "encoding.hpp"
 #include "imports.hpp"
 #include "interf.hpp"
 #include "message.hpp"
@@ -985,7 +986,23 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, function_ref<void(
 			}
 		}
 
-		ComSpecParams = format(os::env::expand(Global->Opt->Exec.ComspecArguments), Info.Command);
+		try
+		{
+			ComSpecParams = format(os::env::expand(Global->Opt->Exec.ComspecArguments), Info.Command);
+		}
+		catch (fmt::format_error const& e)
+		{
+			// The user entered something weird
+			// TODO: use the default?
+			Message(MSG_WARNING,
+				msg(lng::MError),
+				{
+					concat(L"System.Executor.ComspecArguments: \""sv, Global->Opt->Exec.ComspecArguments, L'"'),
+					encoding::utf8::get_chars(e.what())
+				},
+				{ lng::MOk });
+			return;
+		}
 
 		seInfo.lpFile = strComspec.c_str();
 		seInfo.lpParameters = ComSpecParams.c_str();

@@ -72,10 +72,10 @@ public:
 	{
 		const file_ptr XmlFile(_wfsopen(NTPath(File).c_str(), L"rb", _SH_DENYWR));
 		if (!XmlFile)
-			throw MAKE_FAR_KNOWN_EXCEPTION(format(L"Error opening file {0}: {1}"sv, File, _wcserror(errno)));
+			throw MAKE_FAR_KNOWN_EXCEPTION(format(FSTR(L"Error opening file {0}: {1}"), File, _wcserror(errno)));
 
 		if (const auto LoadResult = m_Document.LoadFile(XmlFile.get()); LoadResult != tinyxml::XML_SUCCESS)
-			throw MAKE_FAR_KNOWN_EXCEPTION(format(L"Error loading document: {0}"sv, encoding::utf8::get_chars(m_Document.ErrorIDToName(LoadResult))));
+			throw MAKE_FAR_KNOWN_EXCEPTION(format(FSTR(L"Error loading document: {0}"), encoding::utf8::get_chars(m_Document.ErrorIDToName(LoadResult))));
 
 		const auto root = m_Document.FirstChildElement(XmlDocumentRootName);
 		SetRoot(root);
@@ -123,10 +123,10 @@ public:
 	{
 		const file_ptr XmlFile(_wfsopen(NTPath(File).c_str(), L"w", _SH_DENYWR));
 		if (!XmlFile)
-			throw MAKE_FAR_KNOWN_EXCEPTION(format(L"Error opening file {0}: {1}"sv, File, _wcserror(errno)));
+			throw MAKE_FAR_KNOWN_EXCEPTION(format(FSTR(L"Error opening file {0}: {1}"), File, _wcserror(errno)));
 
 		if (const auto SaveResult = m_Document.SaveFile(XmlFile.get()); SaveResult != tinyxml::XML_SUCCESS)
-			throw MAKE_FAR_KNOWN_EXCEPTION(format(L"Error saving document: {0}"sv, encoding::utf8::get_chars(m_Document.ErrorIDToName(SaveResult))));
+			throw MAKE_FAR_KNOWN_EXCEPTION(format(FSTR(L"Error saving document: {0}"), encoding::utf8::get_chars(m_Document.ErrorIDToName(SaveResult))));
 	}
 
 private:
@@ -2397,7 +2397,7 @@ void config_provider::Export(const string& File)
 	representation_destination Representation;
 	auto& root = Representation.GetRoot();
 	const auto Version = build::version();
-	root.SetAttribute("version", format("{0}.{1}.{2}"sv, Version.Major, Version.Minor, Version.Build).c_str());
+	root.SetAttribute("version", format(FSTR("{0}.{1}.{2}"), Version.Major, Version.Minor, Version.Build).c_str());
 
 	GeneralCfg()->Export(Representation);
 	LocalGeneralCfg()->Export(Representation);
