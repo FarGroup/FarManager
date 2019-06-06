@@ -2,8 +2,13 @@
 <WixLocalization Culture="ru-ru" Codepage="1251" xmlns="http://schemas.microsoft.com/wix/2006/localization">
 <String Id="Language">1049</String>
 <String Id="Codepage">1251</String>
+
 <String Id="ProductDescription">Менеджер файлов и архивов</String>
 <String Id="LaunchCondition">Для установки [ProductName] требуется минимум Windows 2000 Service Pack 4 с KB816542.</String>
+<String Id="FeaturesDlgReset">&amp;Сброс</String>
+<String Id="ExitDialogLaunchApp">Запустить [ProductName]</String>
+<String Id="ProgressDlgScriptInProgress">Идет подготовка к установке</String>
+
 <String Id="Feature.Title.Far">Far Manager</String>
 <String Id="Feature.Title.Addons">Дополнения</String>
 <String Id="Feature.Description.Addons">Наборы настроек для различных целей (*.reg файлы).</String>
@@ -91,8 +96,6 @@
 <String Id="Feature.Description.FarColorer">Подсветка синтаксиса.</String>
 <String Id="Feature.Title.FARCmds">FarCmds</String>
 <String Id="Feature.Description.FARCmds">Расширенные команды управления Far Manager.</String>
-<String Id="Feature.Title.FARCmds">SameFolder</String>
-<String Id="Feature.Description.SameFolder">Установка такой же папки.</String>
 <String Id="Feature.Title.FileCase">FileCase</String>
 <String Id="Feature.Description.FileCase">Преобразование регистра имен файлов.</String>
 <String Id="Feature.Title.NetBox">NetBox</String>
@@ -107,4 +110,6 @@
 <String Id="Feature.Description.TmpPanel">Временная панель.</String>
 <String Id="Feature.Title.LuaMacro">LuaMacro</String>
 <String Id="Feature.Description.LuaMacro">Макросы на языке Lua.</String>
+<String Id="Feature.Title.SameFolder">SameFolder</String>
+<String Id="Feature.Description.SameFolder">Установка такой же папки.</String>
 </WixLocalization>

@@ -2,8 +2,13 @@
 <WixLocalization Culture="en-us" xmlns="http://schemas.microsoft.com/wix/2006/localization">
 <String Id="Language">1033</String>
 <String Id="Codepage">1252</String>
+
 <String Id="ProductDescription">File and archive manager</String>
 <String Id="LaunchCondition">[ProductName] requires at least Windows 2000 Service Pack 4 with KB816542.</String>
+<String Id="FeaturesDlgReset">Re&amp;set</String>
+<String Id="ExitDialogLaunchApp">Launch [ProductName] now</String>
+<String Id="ProgressDlgScriptInProgress">Compiling execution script</String>
+
 <String Id="Feature.Title.Far">Far Manager</String>
 <String Id="Feature.Title.Addons">Addons</String>
 <String Id="Feature.Description.Addons">Useful registry settings.</String>

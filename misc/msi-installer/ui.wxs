@@ -9,13 +9,6 @@
     <Binary Id="WixUI_Bmp_New" SourceFile="rsrc\new.ico" />
     <Binary Id="WixUI_Bmp_Up" SourceFile="rsrc\up.ico" />
 
-    <CustomAction Id="SetInstallText" Property="InstallText" Value="!(loc.Install)" />
-    <CustomAction Id="SetUpgradeText" Property="InstallText" Value="!(loc.Upgrade)" />
-    <CustomAction Id="SetDowngradeText" Property="InstallText" Value="!(loc.Downgrade)" />
-    <CustomAction Id="SetWelcomeInstallText" Property="WelcomeInstallText" Value="!(loc.WelcomeInstall)" />
-    <CustomAction Id="SetWelcomeUpgradeText" Property="WelcomeInstallText" Value="!(loc.WelcomeUpgrade)" />
-    <CustomAction Id="SetWelcomeDowngradeText" Property="WelcomeInstallText" Value="!(loc.WelcomeDowngrade)" />
-
     <UI Id="WixUI_Mod">
       <TextStyle Id="WixUI_Font_Normal" FaceName="Tahoma" Size="8" />
       <TextStyle Id="WixUI_Font_Bigger" FaceName="Tahoma" Size="10" />
@@ -75,12 +68,6 @@
         <Show Dialog="ExitDialog" OnExit="success" />
         <Show Dialog="FatalError" OnExit="error" />
         <Show Dialog="UserExit" OnExit="cancel" />
-        <Custom Action="SetInstallText" After="FindRelatedProducts">NOT UPGRADE AND NOT DOWNGRADE</Custom>
-        <Custom Action="SetUpgradeText" After="FindRelatedProducts">UPGRADE</Custom>
-        <Custom Action="SetDowngradeText" After="FindRelatedProducts">DOWNGRADE</Custom>
-        <Custom Action="SetWelcomeInstallText" After="FindRelatedProducts">NOT UPGRADE AND NOT DOWNGRADE</Custom>
-        <Custom Action="SetWelcomeUpgradeText" After="FindRelatedProducts">UPGRADE</Custom>
-        <Custom Action="SetWelcomeDowngradeText" After="FindRelatedProducts">DOWNGRADE</Custom>
       </InstallUISequence>
 
       <AdminUISequence>
