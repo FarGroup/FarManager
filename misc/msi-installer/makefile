@@ -84,7 +84,7 @@ $(OUTDIR)\1045: $(OUTDIR)\1033.msi $(OUTDIR)\1045.msi
 $(OUTDIR)\customact.dll: customact.cpp $(VC10CPP) customact.def $(OUTDIR)\customact.res $(VC10OBJ)
 	@echo $@
 	cl $(CPPFLAGS) -EHsc customact.cpp $(VC10CPP) -link $(LINKFLAGS) $(WINSUBSYSTEM) -dll -out:$@ -def:customact.def $(OUTDIR)\customact.res $(VC10OBJ) msi.lib shell32.lib rpcrt4.lib
-	editbin /nologo /subsystem:console,$(OS_VERSION) /osversion:$(OS_VERSION) $(OUTDIR)\customact.dll
+	editbin /nologo /subsystem:console,$(OS_VERSION) /osversion:$(OS_VERSION) $(OUTDIR)\customact.dll > nul
 
 $(OUTDIR)\customact.res: customact.rc $(OUTDIR)\consize.exe
 	@echo $@
@@ -93,7 +93,7 @@ $(OUTDIR)\customact.res: customact.rc $(OUTDIR)\consize.exe
 $(OUTDIR)\consize.exe: consize.cpp
 	@echo $@
 	cl $(CPPFLAGS) -GS- consize.cpp -link $(LINKFLAGS) $(CONSUBSYSTEM) -nodefaultlib -entry:main -out:$@ kernel32.lib
-	editbin /nologo /subsystem:console,$(OS_VERSION) /osversion:$(OS_VERSION) $(OUTDIR)\consize.exe
+	editbin /nologo /subsystem:console,$(OS_VERSION) /osversion:$(OS_VERSION) $(OUTDIR)\consize.exe > nul
 
 $(WIXOBJ): params.mak defines.wxi guids_$(PLATFORM).wxi
 

@@ -11,10 +11,10 @@
       <ComponentRef Id="File_id.diz" />
       <ComponentRef Id="RestoreOldPluginSettings.cmd" />
       <ComponentRef Id="SaveOldPluginSettings.cmd" />
-      <Feature Id="Addons" Level="2" Title="!(loc.Feature.Title.Addons)" AllowAdvertise="no" Description="!(loc.Feature.Description.Addons)">
+      <Feature Id="Addons" Level="1" Title="!(loc.Feature.Title.Addons)" AllowAdvertise="no" Description="!(loc.Feature.Description.Addons)">
         <ComponentRef Id="Descript.ion_1" />
         <ComponentRef Id="README.TXT_1" />
-        <Feature Id="Colors" Level="2" Title="!(loc.Feature.Title.Colors)" AllowAdvertise="no" Description="!(loc.Feature.Description.Colors)">
+        <Feature Id="Colors" Level="1" Title="!(loc.Feature.Title.Colors)" AllowAdvertise="no" Description="!(loc.Feature.Description.Colors)">
           <ComponentRef Id="Descript.ion_3" />
           <ComponentRef Id="black_from_Fonarev.farconfig" />
           <ComponentRef Id="black_from_july.farconfig" />
@@ -45,7 +45,7 @@
           <ComponentRef Id="Rodion_Doroshkevich.farconfig_1" />
           <ComponentRef Id="VaxColors.farconfig_1" />
         </Feature>
-        <Feature Id="Macros" Level="2" Title="!(loc.Feature.Title.Macros)" AllowAdvertise="no" Description="!(loc.Feature.Description.Macros)">
+        <Feature Id="Macros" Level="1" Title="!(loc.Feature.Title.Macros)" AllowAdvertise="no" Description="!(loc.Feature.Description.Macros)">
           <ComponentRef Id="AltMenu.lua" />
           <ComponentRef Id="AltScreens.lua" />
           <ComponentRef Id="AltSearch.lua" />
@@ -94,7 +94,7 @@
           <ComponentRef Id="WheelScreenSwitch.lua" />
           <ComponentRef Id="Editor.ColorWord.moon" />
         </Feature>
-        <Feature Id="SetUp" Level="2" Title="!(loc.Feature.Title.SetUp)" AllowAdvertise="no" Description="!(loc.Feature.Description.SetUp)">
+        <Feature Id="SetUp" Level="1" Title="!(loc.Feature.Title.SetUp)" AllowAdvertise="no" Description="!(loc.Feature.Description.SetUp)">
           <ComponentRef Id="Default165.farconfig" />
           <ComponentRef Id="Descript.ion_7" />
           <ComponentRef Id="Executor.4NT.farconfig" />
@@ -103,11 +103,11 @@
           <ComponentRef Id="WindowsGUI.farconfig" />
           <ComponentRef Id="WindowsGUI.lua" />
         </Feature>
-        <Feature Id="Shell" Level="2" Title="!(loc.Feature.Title.Shell)" AllowAdvertise="no" Description="!(loc.Feature.Description.Shell)">
+        <Feature Id="Shell" Level="1" Title="!(loc.Feature.Title.Shell)" AllowAdvertise="no" Description="!(loc.Feature.Description.Shell)">
           <ComponentRef Id="Descript.ion_8" />
           <ComponentRef Id="FARHere.inf" />
         </Feature>
-        <Feature Id="XLat" Level="2" Title="!(loc.Feature.Title.XLat)" AllowAdvertise="no" Description="!(loc.Feature.Description.XLat)">
+        <Feature Id="XLat" Level="1" Title="!(loc.Feature.Title.XLat)" AllowAdvertise="no" Description="!(loc.Feature.Description.XLat)">
           <ComponentRef Id="Descript.ion_15" />
           <ComponentRef Id="AltR.lua" />
           <ComponentRef Id="Apps.lua_1" />
@@ -117,7 +117,7 @@
           <ComponentRef Id="Qwerty.farconfig" />
         </Feature>
       </Feature>
-      <Feature Id="Changelogs" Level="2" Title="!(loc.Feature.Title.Changelogs)" AllowAdvertise="no" Description="!(loc.Feature.Description.Changelogs)">
+      <Feature Id="Changelogs" Level="1" Title="!(loc.Feature.Title.Changelogs)" AllowAdvertise="no" Description="!(loc.Feature.Description.Changelogs)">
         <ComponentRef Id="changelog" />
         <ComponentRef Id="changelog_eng" />
       </Feature>
@@ -157,32 +157,32 @@
           <ComponentRef Id="FarRus.hlf" />
           <ComponentRef Id="FarRus.lng" />
         </Feature>
-        <Feature Id="Czech" Level="2" Title="!(loc.Feature.Title.Czech)" AllowAdvertise="no">
+        <Feature Id="Czech" Level="1" Title="!(loc.Feature.Title.Czech)" AllowAdvertise="no">
           <ComponentRef Id="FarCze.lng" />
         </Feature>
-        <Feature Id="German" Level="2" Title="!(loc.Feature.Title.German)" AllowAdvertise="no">
+        <Feature Id="German" Level="1" Title="!(loc.Feature.Title.German)" AllowAdvertise="no">
           <ComponentRef Id="FarGer.lng" />
         </Feature>
-        <Feature Id="Hungarian" Level="2" Title="!(loc.Feature.Title.Hungarian)" AllowAdvertise="no">
+        <Feature Id="Hungarian" Level="1" Title="!(loc.Feature.Title.Hungarian)" AllowAdvertise="no">
           <ComponentRef Id="FarHun.hlf" />
           <ComponentRef Id="FarHun.lng" />
         </Feature>
-        <Feature Id="Polish" Level="2" Title="!(loc.Feature.Title.Polish)" AllowAdvertise="no">
+        <Feature Id="Polish" Level="1" Title="!(loc.Feature.Title.Polish)" AllowAdvertise="no">
           <ComponentRef Id="FarPol.lng" />
         </Feature>
-        <Feature Id="Spanish" Level="2" Title="!(loc.Feature.Title.Spanish)" AllowAdvertise="no">
+        <Feature Id="Spanish" Level="1" Title="!(loc.Feature.Title.Spanish)" AllowAdvertise="no">
           <ComponentRef Id="FarSpa.lng" />
         </Feature>
-        <Feature Id="Slovak" Level="2" Title="!(loc.Feature.Title.Slovak)" AllowAdvertise="no">
+        <Feature Id="Slovak" Level="1" Title="!(loc.Feature.Title.Slovak)" AllowAdvertise="no">
           <ComponentRef Id="FarSky.lng" />
         </Feature>
-        <Feature Id="Italian" Level="2" Title="!(loc.Feature.Title.Italian)" AllowAdvertise="no">
+        <Feature Id="Italian" Level="1" Title="!(loc.Feature.Title.Italian)" AllowAdvertise="no">
           <ComponentRef Id="FarIta.lng" />
         </Feature>
-        <Feature Id="Ukrainian" Level="2" Title="!(loc.Feature.Title.Ukrainian)" AllowAdvertise="no">
+        <Feature Id="Ukrainian" Level="1" Title="!(loc.Feature.Title.Ukrainian)" AllowAdvertise="no">
           <ComponentRef Id="FarUkr.lng" />
         </Feature>
-        <Feature Id="Belarusian" Level="2" Title="!(loc.Feature.Title.Belarusian)" AllowAdvertise="no">
+        <Feature Id="Belarusian" Level="1" Title="!(loc.Feature.Title.Belarusian)" AllowAdvertise="no">
           <ComponentRef Id="FarBel.lng" />
         </Feature>
       </Feature>
