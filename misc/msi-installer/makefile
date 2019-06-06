@@ -90,9 +90,9 @@ $(OUTDIR)\customact.res: customact.rc $(OUTDIR)\consize.exe
 	@echo $@
 	rc -nologo -DOUTDIR=$(OUTDIR) -fo$@ customact.rc
 
-$(OUTDIR)\consize.exe: consize.cpp  $(VC10CPP)
+$(OUTDIR)\consize.exe: consize.cpp
 	@echo $@
-	cl $(CPPFLAGS) -GS- consize.cpp $(VC10CPP) -link $(LINKFLAGS) $(CONSUBSYSTEM) -nodefaultlib -entry:main -out:$@ kernel32.lib
+	cl $(CPPFLAGS) -GS- consize.cpp -link $(LINKFLAGS) $(CONSUBSYSTEM) -nodefaultlib -entry:main -out:$@ kernel32.lib
 	editbin /nologo /subsystem:console,$(OS_VERSION) /osversion:$(OS_VERSION) $(OUTDIR)\consize.exe
 
 $(WIXOBJ): params.mak defines.wxi guids_$(PLATFORM).wxi
