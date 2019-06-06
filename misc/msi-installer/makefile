@@ -88,8 +88,14 @@ $(OUTDIR)\1033.msi: $(WIXOBJ) en-us.wxl ui_en-us.wxl $(OUTDIR)\customact.dll
 $(OUTDIR)\1049.msi: $(WIXOBJ) ru-ru.wxl ui_ru-ru.wxl $(OUTDIR)\customact.dll
   light $(LIGHTFLAGS) -cultures:ru-ru -loc ru-ru.wxl -loc ui_ru-ru.wxl -out $@ $(WIXOBJ)
 
+$(OUTDIR)\1045.msi: $(WIXOBJ) pl-pl.wxl ui_en-us.wxl $(OUTDIR)\customact.dll
+  light $(LIGHTFLAGS) -cultures:pl-pl -loc pl-pl.wxl -loc ui_pl-pl.wxl -out $@ $(WIXOBJ)
+
 $(OUTDIR)\1049: $(OUTDIR)\1033.msi $(OUTDIR)\1049.msi
   torch -nologo -t language $(OUTDIR)\1033.msi $(OUTDIR)\1049.msi -out $@
+
+$(OUTDIR)\1045: $(OUTDIR)\1033.msi $(OUTDIR)\1045.msi
+  torch -nologo -t language $(OUTDIR)\1033.msi $(OUTDIR)\1045.msi -out $@
 !endif
 
 $(OUTDIR)\customact.dll: customact.cpp $(VC10CPP) customact.def $(OUTDIR)\customact.res $(VC10OBJ)
