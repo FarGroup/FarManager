@@ -9,7 +9,7 @@ PLATFORM=x86
 !endif
 
 
-CPPFLAGS = -nologo -D_WIN32_WINNT=0x0500 -DUNICODE -D_UNICODE /Zc:threadSafeInit-
+CPPFLAGS = -nologo -D_WIN32_WINNT=0x0500 -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_WARNINGS /Zc:threadSafeInit- /W4
 LINKFLAGS = -nologo -incremental:no -machine:$(PLATFORM)
 CANDLEFLAGS = -nologo -dSourceDir="$(SOURCE_DIR)" -dPlatform=$(PLATFORM) -dVerMajor=$(VER_MAJOR) -dVerMinor=$(VER_MINOR) -dVerBuild=$(VER_BUILD)
 LIGHTFLAGS = -nologo -spdb -sval
@@ -81,19 +81,10 @@ $(OUTDIR)\1045: $(OUTDIR)\1033.msi $(OUTDIR)\1045.msi
 	@echo $@
 	torch -nologo -t language $(OUTDIR)\1033.msi $(OUTDIR)\1045.msi -out $@
 
-$(OUTDIR)\customact.dll: customact.cpp $(VC10CPP) customact.def $(OUTDIR)\customact.res $(VC10OBJ)
+$(OUTDIR)\customact.dll: customact.cpp $(VC10CPP) customact.def $(VC10OBJ)
 	@echo $@
-	cl $(CPPFLAGS) -EHsc customact.cpp $(VC10CPP) -link $(LINKFLAGS) $(WINSUBSYSTEM) -dll -out:$@ -def:customact.def $(OUTDIR)\customact.res $(VC10OBJ) msi.lib shell32.lib rpcrt4.lib
+	cl $(CPPFLAGS) -EHsc customact.cpp $(VC10CPP) -link $(LINKFLAGS) $(WINSUBSYSTEM) -dll -out:$@ -def:customact.def $(VC10OBJ) msi.lib shell32.lib rpcrt4.lib
 	editbin /nologo /subsystem:console,$(OS_VERSION) /osversion:$(OS_VERSION) $(OUTDIR)\customact.dll > nul
-
-$(OUTDIR)\customact.res: customact.rc $(OUTDIR)\consize.exe
-	@echo $@
-	rc -nologo -DOUTDIR=$(OUTDIR) -fo$@ customact.rc
-
-$(OUTDIR)\consize.exe: consize.cpp
-	@echo $@
-	cl $(CPPFLAGS) -GS- consize.cpp -link $(LINKFLAGS) $(CONSUBSYSTEM) -nodefaultlib -entry:main -out:$@ kernel32.lib
-	editbin /nologo /subsystem:console,$(OS_VERSION) /osversion:$(OS_VERSION) $(OUTDIR)\consize.exe > nul
 
 $(WIXOBJ): params.mak defines.wxi guids_$(PLATFORM).wxi
 

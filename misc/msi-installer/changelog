@@ -1,3 +1,8 @@
+drkns 07.06.2019 09:29:03 +0100
+
+1. Simplify the custom actions: instead of doing some black magic to figure out the maximum console window size
+   just set the shortcuts to "maximized" - Far will do the rest.
+
 drkns 06.06.2019 22:51:31 +0100
 
 1. Install all user file components by default.
