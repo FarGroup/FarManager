@@ -122,6 +122,11 @@ struct PanelMenuItem
 	};
 };
 
+static auto EjectFailed(error_state_ex const& ErrorState, wchar_t const Letter)
+{
+	return OperationFailed(ErrorState, os::fs::get_drive(Letter), lng::MError, format(msg(lng::MChangeCouldNotEjectMedia), Letter), false);
+}
+
 static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSelected)
 {
 	std::list<ChDiskPluginItem> MPItems;
@@ -257,14 +262,6 @@ private:
 	wchar_t m_value{L' '};
 };
 
-enum
-{
-	DRIVE_DEL_FAIL,
-	DRIVE_DEL_SUCCESS,
-	DRIVE_DEL_EJECT,
-	DRIVE_DEL_NONE
-};
-
 static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 {
 	/*
@@ -346,7 +343,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 	return ExitCode == 7;
 }
 
-static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
+static bool ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 {
 	const auto DiskLetter = os::fs::get_drive(Drive);
 
@@ -370,13 +367,13 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 					{ lng::MYes, lng::MNo },
 					{}, &SUBSTDisconnectDriveId) != Message::first_button)
 				{
-					return DRIVE_DEL_FAIL;
+					return false;
 				}
 			}
 
 			if (DelSubstDrive(DiskLetter))
 			{
-				return DRIVE_DEL_SUCCESS;
+				return true;
 			}
 
 			const auto ErrorState = error_state::fetch();
@@ -398,12 +395,12 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 				{
 					if (DelSubstDrive(DiskLetter))
 					{
-						return DRIVE_DEL_SUCCESS;
+						return true;
 					}
 				}
 				else
 				{
-					return DRIVE_DEL_FAIL;
+					return false;
 				}
 			}
 			Message(MSG_WARNING, ErrorState,
@@ -413,7 +410,7 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 				},
 				{ lng::MOk },
 				{}, &SUBSTDisconnectDriveError2Id);
-			return DRIVE_DEL_FAIL; // блин. в прошлый раз забыл про это дело...
+			return false;
 		}
 
 	case DRIVE_REMOTE:
@@ -421,7 +418,7 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 		{
 			int UpdateProfile = CONNECT_UPDATE_PROFILE;
 			if (!MessageRemoveConnection(Drive, UpdateProfile))
-				return DRIVE_DEL_FAIL;
+				return false;
 
 			{
 				// <КОСТЫЛЬ>
@@ -435,7 +432,7 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 			}
 
 			if (WNetCancelConnection2(DiskLetter.c_str(), UpdateProfile, FALSE) == NO_ERROR)
-				return DRIVE_DEL_SUCCESS;
+				return true;
 
 			const auto ErrorState = error_state::fetch();
 
@@ -456,12 +453,12 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 				{
 					if (WNetCancelConnection2(DiskLetter.c_str(), UpdateProfile, TRUE) == NO_ERROR)
 					{
-						return DRIVE_DEL_SUCCESS;
+						return true;
 					}
 				}
 				else
 				{
-					return DRIVE_DEL_FAIL;
+					return false;
 				}
 			}
 
@@ -475,7 +472,7 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 					{ lng::MOk },
 					{}, &RemoteDisconnectDriveError2Id);
 			}
-			return DRIVE_DEL_FAIL;
+			return false;
 		}
 
 	case DRIVE_VIRTUAL:
@@ -491,7 +488,7 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 					{ lng::MYes, lng::MNo },
 					{}, &VHDDisconnectDriveId) != Message::first_button)
 				{
-					return DRIVE_DEL_FAIL;
+					return false;
 				}
 			}
 
@@ -503,7 +500,7 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 			{
 				if (os::fs::detach_virtual_disk(strVhdPath, VirtualStorageType))
 				{
-					return DRIVE_DEL_SUCCESS;
+					return true;
 				}
 
 				ErrorState = error_state::fetch();
@@ -520,112 +517,107 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 				},
 				{ lng::MOk },
 				{}, &VHDDisconnectDriveErrorId);
-			return DRIVE_DEL_FAIL;
+			return false;
 		}
 
 	default:
-		return DRIVE_DEL_FAIL;
+		return false;
 	}
 }
 
-static int DisconnectDrive(panel_ptr Owner, const PanelMenuItem *item, VMenu2 &ChDisk)
+static bool DisconnectDrive(panel_ptr Owner, const PanelMenuItem *item, VMenu2 &ChDisk, bool& Cancelled)
 {
-	if ((item->nDriveType == DRIVE_REMOVABLE) || IsDriveTypeCDROM(item->nDriveType))
+	if (item->nDriveType != DRIVE_REMOVABLE && !IsDriveTypeCDROM(item->nDriveType))
+		return ProcessDelDisk(Owner, item->cDrive, item->nDriveType);
+
+	if (item->nDriveType == DRIVE_REMOVABLE && !IsEjectableMedia(item->cDrive))
 	{
-		if ((item->nDriveType == DRIVE_REMOVABLE) && !IsEjectableMedia(item->cDrive))
-			return -1;
+		Cancelled = true;
+		return false;
+	}
 
-		// первая попытка извлечь диск
+	// первая попытка извлечь диск
+	try
+	{
+		EjectVolume(item->cDrive);
+		return true;
+	}
+	catch (const far_exception&)
+	{
+		// запоминаем состояние панелей
+		const auto CMode = Owner->GetMode();
+		const auto AMode = Owner->Parent()->GetAnotherPanel(Owner)->GetMode();
+		const auto TmpCDir = Owner->GetCurDir();
+		const auto TmpADir = Owner->Parent()->GetAnotherPanel(Owner)->GetCurDir();
 
-		if (!EjectVolume(item->cDrive, EJECT_NO_MESSAGE))
+		// "цикл до умопомрачения"
+		for (;;)
 		{
-			// запоминаем состояние панелей
-			const auto CMode = Owner->GetMode();
-			const auto AMode = Owner->Parent()->GetAnotherPanel(Owner)->GetMode();
-			string strTmpCDir(Owner->GetCurDir()), strTmpADir(Owner->Parent()->GetAnotherPanel(Owner)->GetCurDir());
-			// "цикл до умопомрачения"
-			bool DoneEject = false;
-
-			while (!DoneEject)
+			// "освободим диск" - перейдем при необходимости в домашний каталог
+			// TODO: А если домашний каталог - CD? ;-)
+			Owner->IfGoHome(item->cDrive);
+			// очередная попытка извлечения без вывода сообщения
+			try
 			{
-				// "освободим диск" - перейдем при необходимости в домашний каталог
-				// TODO: А если домашний каталог - CD? ;-)
-				Owner->IfGoHome(item->cDrive);
-				// очередная попытка извлечения без вывода сообщения
-				int ResEject = EjectVolume(item->cDrive, EJECT_NO_MESSAGE);
+				EjectVolume(item->cDrive);
+				return true;
+			}
+			catch (const far_exception& e)
+			{
+				// восстановим пути - это избавит нас от левых данных в панели.
+				if (AMode != panel_mode::PLUGIN_PANEL)
+					Owner->Parent()->GetAnotherPanel(Owner)->SetCurDir(TmpADir, false);
 
-				if (!ResEject)
-				{
-					// восстановим пути - это избавит нас от левых данных в панели.
-					if (AMode != panel_mode::PLUGIN_PANEL)
-						Owner->Parent()->GetAnotherPanel(Owner)->SetCurDir(strTmpADir, false);
+				if (CMode != panel_mode::PLUGIN_PANEL)
+					Owner->SetCurDir(TmpCDir, false);
 
-					if (CMode != panel_mode::PLUGIN_PANEL)
-						Owner->SetCurDir(strTmpCDir, false);
-
-					// ... и выведем месаг о...
-					SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
-					const auto ErrorState = error_state::fetch();
-
-					DoneEject = OperationFailed(ErrorState, os::fs::get_drive(item->cDrive), lng::MError, format(msg(lng::MChangeCouldNotEjectMedia), item->cDrive), false) != operation::retry;
-				}
-				else
-					DoneEject = true;
+				if (EjectFailed(e.get_error_state(), item->cDrive) != operation::retry)
+					return false;
 			}
 		}
-		return DRIVE_DEL_NONE;
-	}
-	else
-	{
-		return ProcessDelDisk(Owner, item->cDrive, item->nDriveType);
 	}
 }
 
 static void RemoveHotplugDevice(panel_ptr Owner, const PanelMenuItem *item, VMenu2 &ChDisk)
 {
-	int Code = RemoveHotplugDisk(item->cDrive, EJECT_NOTIFY_AFTERREMOVE);
+	bool Cancelled = false;
+	if (RemoveHotplugDisk(item->cDrive, Global->Opt->Confirm.RemoveHotPlug, Cancelled) || Cancelled)
+		return;
 
-	if (!Code)
+
+	// запоминаем состояние панелей
+	const auto CMode = Owner->GetMode();
+	const auto AMode = Owner->Parent()->GetAnotherPanel(Owner)->GetMode();
+	const auto TmpCDir = Owner->GetCurDir();
+	const auto TmpADir = Owner->Parent()->GetAnotherPanel(Owner)->GetCurDir();
+
+	// "цикл до умопомрачения"
+	for (;;)
 	{
-		// запоминаем состояние панелей
-		const auto CMode = Owner->GetMode();
-		const auto AMode = Owner->Parent()->GetAnotherPanel(Owner)->GetMode();
-		string strTmpCDir(Owner->GetCurDir()), strTmpADir(Owner->Parent()->GetAnotherPanel(Owner)->GetCurDir());
-		// "цикл до умопомрачения"
-		int DoneEject = FALSE;
+		// "освободим диск" - перейдем при необходимости в домашний каталог
+		// TODO: А если домашний каталог - USB? ;-)
+		Owner->IfGoHome(item->cDrive);
+		// очередная попытка извлечения без вывода сообщения
+		if (RemoveHotplugDisk(item->cDrive, false, Cancelled) || Cancelled)
+			return;
 
-		while (!DoneEject)
-		{
-			// "освободим диск" - перейдем при необходимости в домашний каталог
-			// TODO: А если домашний каталог - USB? ;-)
-			Owner->IfGoHome(item->cDrive);
-			// очередная попытка извлечения без вывода сообщения
-			Code = RemoveHotplugDisk(item->cDrive, EJECT_NO_MESSAGE | EJECT_NOTIFY_AFTERREMOVE);
+		const auto ErrorState = error_state::fetch();
 
-			if (!Code)
+		// восстановим пути - это избавит нас от левых данных в панели.
+		if (AMode != panel_mode::PLUGIN_PANEL)
+			Owner->Parent()->GetAnotherPanel(Owner)->SetCurDir(TmpADir, false);
+
+		if (CMode != panel_mode::PLUGIN_PANEL)
+			Owner->SetCurDir(TmpCDir, false);
+
+		if (Message(MSG_WARNING, ErrorState,
+			msg(lng::MError),
 			{
-				// восстановим пути - это избавит нас от левых данных в панели.
-				if (AMode != panel_mode::PLUGIN_PANEL)
-					Owner->Parent()->GetAnotherPanel(Owner)->SetCurDir(strTmpADir, false);
-
-				if (CMode != panel_mode::PLUGIN_PANEL)
-					Owner->SetCurDir(strTmpCDir, false);
-
-				// ... и выведем месаг о...
-				SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
-				const auto ErrorState = error_state::fetch();
-
-				DoneEject = Message(MSG_WARNING, ErrorState,
-					msg(lng::MError),
-					{
-						format(msg(lng::MChangeCouldNotEjectHotPlugMedia), item->cDrive)
-					},
-					{ lng::MHRetry, lng::MHCancel },
-					{}, &EjectHotPlugMediaErrorId) != Message::first_button;
-			}
-			else
-				DoneEject = TRUE;
-		}
+				format(msg(lng::MChangeCouldNotEjectHotPlugMedia), item->cDrive)
+			},
+			{ lng::MHRetry, lng::MHCancel },
+			{}, &EjectHotPlugMediaErrorId) != Message::first_button)
+			return;
 	}
 }
 
@@ -675,6 +667,12 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 	const auto AllDrives = (LogicalDrives | DisconnectedNetworkDrives) & allowed_drives_mask();
 
 	const auto DiskCount = AllDrives.count();
+
+	if (Pos == static_cast<int>(DiskCount))
+	{
+		// Pos points to the separator - this is probably a redraw after a removal of the last disk.
+		--Pos;
+	}
 
 	PanelMenuItem Item, *mitem = nullptr;
 	{ // эта скобка надо, см. M#605
@@ -968,10 +966,28 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			{
 				if (item && !item->bIsPlugin)
 				{
-					if (IsDriveTypeCDROM(item->nDriveType) /* || DriveType == DRIVE_REMOVABLE*/)
+					if (item->nDriveType == DRIVE_REMOVABLE || IsDriveTypeCDROM(item->nDriveType))
 					{
-						SCOPED_ACTION(SaveScreen);
-						EjectVolume(item->cDrive, EJECT_LOAD_MEDIA);
+						for (;;)
+						{
+							Message(0,
+								{},
+								{
+									msg(lng::MChangeWaitingLoadDisk)
+								},
+								{});
+
+							try
+							{
+								LoadVolume(item->cDrive);
+								break;
+							}
+							catch (far_exception const& e)
+							{
+								if (EjectFailed(e.get_error_state(), item->cDrive) != operation::retry)
+									break;
+							}
+						}
 						RetCode = SelPos;
 					}
 				}
@@ -982,14 +998,10 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			{
 				if (item && !item->bIsPlugin)
 				{
-					int Code = DisconnectDrive(Owner, item, *ChDisk);
-					if (Code != DRIVE_DEL_FAIL && Code != DRIVE_DEL_NONE)
+					bool Cancelled = false;
+					if (DisconnectDrive(Owner, item, *ChDisk, Cancelled))
 					{
-						Global->ScrBuf->Lock(); // отменяем всякую прорисовку
-						Global->WindowManager->ResizeAllWindows();
-						Global->WindowManager->PluginCommit(); // коммитим.
-						Global->ScrBuf->Unlock(); // разрешаем прорисовку
-						RetCode = (((DiskCount - SelPos) == 1) && (SelPos > 0) && (Code != DRIVE_DEL_EJECT))?SelPos - 1:SelPos;
+						RetCode = SelPos;
 					}
 				}
 			}
@@ -1185,20 +1197,23 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 		}
 	} // эта скобка надо, см. M#605
 
-	if (mitem && !mitem->bIsPlugin && IsDriveTypeCDROM(mitem->nDriveType))
+	if (mitem && !mitem->bIsPlugin && (mitem->nDriveType == DRIVE_REMOVABLE || IsDriveTypeCDROM(mitem->nDriveType)))
 	{
 		if (!os::fs::IsDiskInDrive(os::fs::get_drive(mitem->cDrive)))
 		{
-			if (!EjectVolume(mitem->cDrive, EJECT_READY | EJECT_NO_MESSAGE))
+			Message(0,
+				{},
+				{
+					msg(lng::MChangeWaitingLoadDisk)
+				},
+				{});
+			try
 			{
-				SCOPED_ACTION(SaveScreen);
-				Message(0,
-					{},
-					{
-						msg(lng::MChangeWaitingLoadDisk)
-					},
-					{});
-				EjectVolume(mitem->cDrive, EJECT_LOAD_MEDIA | EJECT_NO_MESSAGE);
+				LoadVolume(mitem->cDrive);
+			}
+			catch (far_exception const&)
+			{
+				// TODO: Message & retry? It conflicts with the CD rerty dialog.
 			}
 		}
 	}

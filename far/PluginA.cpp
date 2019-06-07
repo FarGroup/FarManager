@@ -3748,17 +3748,8 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 				}
 
 			case oldfar::ACTL_EJECTMEDIA:
-			{
+				return FALSE;
 
-				ActlEjectMedia eject={sizeof(ActlEjectMedia)};
-				if(Param)
-				{
-					const auto ejectA = static_cast<const oldfar::ActlEjectMedia*>(Param);
-					eject.Letter=ejectA->Letter;
-					eject.Flags=ejectA->Flags;
-				}
-				return pluginapi::apiAdvControl(GetPluginGuid(ModuleNumber), ACTL_EJECTMEDIA, 0, &eject);
-			}
 			case oldfar::ACTL_KEYMACRO:
 			{
 				if (!Param) return FALSE;
@@ -4000,9 +3991,6 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 
 				return ret;
 			}
-			case oldfar::ACTL_REMOVEMEDIA:
-			case oldfar::ACTL_GETMEDIATYPE:
-				return FALSE;
 			case oldfar::ACTL_REDRAWALL:
 				return pluginapi::apiAdvControl(GetPluginGuid(ModuleNumber), ACTL_REDRAWALL, 0, nullptr);
 		}

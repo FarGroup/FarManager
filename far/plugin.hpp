@@ -1092,9 +1092,7 @@ enum ADVANCED_CONTROL_COMMANDS
 	ACTL_WAITKEY                    = 2,
 	ACTL_GETCOLOR                   = 3,
 	ACTL_GETARRAYCOLOR              = 4,
-#ifdef FAR_USE_INTERNALS
-	ACTL_EJECTMEDIA                 = 5,
-#endif // END FAR_USE_INTERNALS
+
 	ACTL_GETWINDOWINFO              = 6,
 	ACTL_GETWINDOWCOUNT             = 7,
 	ACTL_SETCURRENTWINDOW           = 8,
@@ -1111,68 +1109,7 @@ enum ADVANCED_CONTROL_COMMANDS
 	ACTL_SETCURSORPOS               = 26,
 	ACTL_PROGRESSNOTIFY             = 27,
 	ACTL_GETWINDOWTYPE              = 28,
-
-#ifdef FAR_USE_INTERNALS
-	ACTL_REMOVEMEDIA,
-	ACTL_GETMEDIATYPE,
-#endif // END FAR_USE_INTERNALS
-
 };
-
-#ifdef FAR_USE_INTERNALS
-typedef unsigned long long FAREJECTMEDIAFLAGS;
-static const FAREJECTMEDIAFLAGS
-	EJECT_NO_MESSAGE                    = 0x0000000000000001ULL,
-	EJECT_LOAD_MEDIA                    = 0x0000000000000002ULL,
-#ifdef FAR_USE_INTERNALS
-	EJECT_NOTIFY_AFTERREMOVE            = 0x0000000000000004ULL,
-	EJECT_READY                         = 0x0000000080000000ULL,
-#endif // END FAR_USE_INTERNALS
-	EJECT_NONE                          = 0;
-
-struct ActlEjectMedia
-{
-	size_t StructSize;
-	DWORD Letter;
-	FAREJECTMEDIAFLAGS Flags;
-};
-#endif // END FAR_USE_INTERNALS
-
-#ifdef FAR_USE_INTERNALS
-enum FARMEDIATYPE
-{
-	FMT_DRIVE_ERROR                =  -1,
-	FMT_DRIVE_UNKNOWN              =  DRIVE_UNKNOWN,
-	FMT_DRIVE_NO_ROOT_DIR          =  DRIVE_NO_ROOT_DIR,
-	FMT_DRIVE_REMOVABLE            =  DRIVE_REMOVABLE,
-	FMT_DRIVE_FIXED                =  DRIVE_FIXED,
-	FMT_DRIVE_REMOTE               =  DRIVE_REMOTE,
-	FMT_DRIVE_CDROM                =  DRIVE_CDROM,
-	FMT_DRIVE_RAMDISK              =  DRIVE_RAMDISK,
-	FMT_DRIVE_SUBSTITUTE           =  15,
-	FMT_DRIVE_REMOTE_NOT_CONNECTED =  16,
-	FMT_DRIVE_CD_RW                =  18,
-	FMT_DRIVE_CD_RWDVD             =  19,
-	FMT_DRIVE_DVD_ROM              =  20,
-	FMT_DRIVE_DVD_RW               =  21,
-	FMT_DRIVE_DVD_RAM              =  22,
-	FMT_DRIVE_USBDRIVE             =  40,
-	FMT_DRIVE_NOT_INIT             = 255,
-};
-
-typedef unsigned long long FARMEDIATYPEFLAGS;
-static const FARMEDIATYPEFLAGS
-	MEDIATYPE_NODETECTCDROM             = 0x0000000080000000ULL,
-	MEDIATYPE_NONE                      = 0;
-
-struct ActlMediaType
-{
-	size_t StructSize;
-	DWORD Letter;
-	FARMEDIATYPEFLAGS Flags;
-};
-#endif // END FAR_USE_INTERNALS
-
 
 enum FAR_MACRO_CONTROL_COMMANDS
 {

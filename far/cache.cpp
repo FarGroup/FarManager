@@ -63,16 +63,15 @@ void CachedRead::AdjustAlignment()
 	Spq.PropertyId = StorageAccessAlignmentProperty;
 
 	STORAGE_ACCESS_ALIGNMENT_DESCRIPTOR Saad;
-	DWORD BytesReturned;
 
-	if (m_File.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &Spq, sizeof(Spq), &Saad, sizeof(Saad), &BytesReturned))
+	if (m_File.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &Spq, sizeof(Spq), &Saad, sizeof(Saad)))
 	{
 		if (Saad.BytesPerPhysicalSector > 512 && Saad.BytesPerPhysicalSector <= 256*1024)
 		{
 			m_Alignment = static_cast<int>(Saad.BytesPerPhysicalSector);
 			BufferSize = 16 * Saad.BytesPerPhysicalSector;
 		}
-		(void)m_File.IoControl(FSCTL_ALLOW_EXTENDED_DASD_IO, nullptr, 0, nullptr, 0, &BytesReturned, nullptr);
+		(void)m_File.IoControl(FSCTL_ALLOW_EXTENDED_DASD_IO, nullptr, 0, nullptr, 0);
 	}
 
 	if (BufferSize > m_Buffer.size())

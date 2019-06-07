@@ -306,8 +306,8 @@ $ #Panelvezérlő parancsok#
   Rendezési csoportok szerint rendez                       #Shift+F11#
   A kijelölt fájlokat előre helyezi                        #Shift+F12#
 
-  ~Mappa gyorsbillentyűt~@FolderShortcuts@ készít                      #Ctrl+Shift+0...9#
-  Gyorsbillentyűvel mappára ugrik                     #JobbCtrl+0...9#
+  ~Mappa gyorsbillentyűt~@FolderShortcuts@ készít                      #Ctrl+Shift+0…9#
+  Gyorsbillentyűvel mappára ugrik                     #JobbCtrl+0…9#
 
     Ha az aktív panel ~gyorsnézet panel~@QViewPanel@, ~fastruktúra panel~@TreePanel@ vagy
     ~info panel~@InfoPanel@, nem az aktív, hanem a passzív panel vált a
@@ -627,9 +627,9 @@ $ #Panelvezérlő parancsok - rendszerparancsok#
     opcióját engedélyeztük, a meghajtók gyökerében a #Ctrl+PgUp#
     lenyomása a hálózati plugint hívja meg, vagy a ~Meghajtók~@DriveDlg@ menüt.
 
-  Gyorsbillentyűt rendel az aktuális mappához       #Ctrl+Shift+0...9#
+  Gyorsbillentyűt rendel az aktuális mappához       #Ctrl+Shift+0…9#
 
-  Mappa gyorsbillentyű használata                     #JobbCtrl+0...9#
+  Mappa gyorsbillentyű használata                     #JobbCtrl+0…9#
 
   ~Fájl attribútumok~@FileAttrDlg@ beállítása                                #Ctrl+A#
   ~Parancs végrehajtása~@ApplyCmd@ a kijelölt fájlokon                    #Ctrl+G#
@@ -883,7 +883,7 @@ megjelenítése.
   * Játékok :-)
   * Helyesírás-ellenőrző funkciók a FAR szövegszerkesztőben.
   * Cserélhető (lemezes) meghajtókhoz katalógus készítése és
-sok más lehetőség...
+sok más lehetőség…
 
     A letölthető pluginekről tájékoztató linkek:
 
@@ -2283,7 +2283,7 @@ a funkcióbillentyűsort
     #Alt+BS, Ctrl+Z#     Visszalép a fájlban az előző pozícióra
     #JobbCtrl+0..9#      0-tól 9-ig könyvjelzőt tesz a pozícióba
     #Ctrl+Shift+0..9#    0-tól 9-ig könyvjelzőt tesz a pozícióba
-    #LeftCtrl+0..9#      A 0...9-es könyvjelzőre ugrik
+    #LeftCtrl+0..9#      A 0…9-es könyvjelzőre ugrik
 
     #Ctrl+Ins, Ctrl+C#   ^<wrap>A keresés találataként kiemelt szöveget
 a vágólapra másolja.
@@ -2473,11 +2473,11 @@ megjelenítése
 le vannak nyomva)
    #Ctrl+Q#                  A következő billentyűkombinációt
 karakterkódként kezeli
-   #JobbCtrl+0...9#          0-tól 9-ig könyvjelzőt tesz az aktuális
+   #JobbCtrl+0…9#            0-tól 9-ig könyvjelzőt tesz az aktuális
 kurzorpozícióba
-   #Ctrl+Shift+0...9#        0-tól 9-ig könyvjelzőt tesz az aktuális
+   #Ctrl+Shift+0…9#          0-tól 9-ig könyvjelzőt tesz az aktuális
 kurzorpozícióba
-   #BalCtrl+0...9#           A 0...9-es könyvjelzőre ugrik
+   #BalCtrl+0…9#             A 0…9-es könyvjelzőre ugrik
    #Shift+Enter#             Beszúrja az aktív panelről az aktuális
 fájlnevet a kurzorpozícióba
    #Ctrl+Shift+Enter#        Beszúrja a passzív panelről az aktuális
@@ -2590,7 +2590,7 @@ végleges tartalmát!
 eredeti állapotában tölti be a lemezről a szerkesztőbe.
 
 @WarnEditorPath
-$ #Figyelem: A szerkesztendő fájl célmappája még nem létezik...#
+$ #Figyelem: A szerkesztendő fájl célmappája még nem létezik…#
     Ezt az üzenetet akkor kapjuk, ha a ~szerkesztőben~@Editor@ megnyitott új
 fájl elérési útvonalaként nem létező mappát adunk meg. Mentés előtt a FAR
 létrehozza a mappát, feltéve, ha az elérési út helyes (például elfogadhatatlan,
@@ -2825,7 +2825,7 @@ megnézett fájlok szöveghelyzetét, vele a kódlapot is (ha "kézzel" választ
 ki), valamint a nézet módját (normál vagy hexadecimális).
 
   #Könyvjelzők mentése#     ^<wrap>Elmenti és visszatölti az utoljára
-megnézett fájlokban a #JobbCtrl+0...9# vagy a #Ctrl+Shift+0...9# leütésével
+megnézett fájlokban a #JobbCtrl+0…9# vagy a #Ctrl+Shift+0…9# leütésével
 elhelyezett könyvjelzőinket.
 
   #Tabulátor mérete#        A tabulátor szóközökben mért hossza.
@@ -2894,7 +2894,7 @@ szerkesztett fájlok szöveghelyzetét és a kódlapot is, ha utóbbit kézzel
 választottuk ki.
 
   #Könyvjelzők mentése#     ^<wrap>Elmenti és visszatölti az utoljára
-szerkesztett fájlokban a #JobbCtrl+0...9# vagy a #Ctrl+Shift+0...9# leütésével
+szerkesztett fájlokban a #JobbCtrl+0…9# vagy a #Ctrl+Shift+0…9# leütésével
 elhelyezett könyvjelzőinket.
 
   #Automatikus behúzás#     ^<wrap>Szöveg beírásánál engedélyezi az
@@ -3020,9 +3020,9 @@ csoportra nem.
 @FolderShortcuts
 $ #Mappa gyorsbillentyűk#
     A mappa gyorsbillentyűkkel a sűrűn használt mappákat egyszerűbben érhetjük
-el, ha a #Ctrl+Shift+0...9# kombináció lenyomásával gyorsbillentyűt rendelünk
+el, ha a #Ctrl+Shift+0…9# kombináció lenyomásával gyorsbillentyűt rendelünk
 az aktív panel aktuális mappájához. A gyorsbillentyűkhöz rendelt mappákra a
-#JobbCtrl+0...9# lenyomásával válthatunk. Ha a gyorsbillentyűket szövegbeviteli
+#JobbCtrl+0…9# lenyomásával válthatunk. Ha a gyorsbillentyűket szövegbeviteli
 sorban használjuk, a FAR beilleszti a sorba a mappa elérési útvonalát.
 
     A ~Parancsok menü~@CmdMenu@ #Mappa gyorsbillentyűk# menüpontjában
@@ -3428,7 +3428,7 @@ FAR, ha azonos nevű fájllal találkozik a célhelyen.
     A legördülő listában a következő lehetőségek közül választhatunk:
 
     #Kérdez#    - ^<wrap>megjeleníti a
-~Figyelem, a fájl már létezik...~@CopyAskOverwrite@ figyelmeztető színű
+~Figyelem, a fájl már létezik…~@CopyAskOverwrite@ figyelmeztető színű
 párbeszédablakot;
     #Felülír#   - a létező fájlt felülírja;
     #Kihagy#    - a létező fájlt nem írja felül;

@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "drivemix.hpp"
 #include "global.hpp"
+#include "eject.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -229,7 +230,7 @@ static bool IsChildDeviceHotplug(DEVINST hDevInst)
 		(Capabilities&CM_DEVCAP_UNIQUEID);
 }
 
-static bool IsDeviceHotplug(DEVINST hDevInst)
+static bool IsDeviceHotplug(DEVINST hDevInst, bool const IncludeSafeToRemove)
 {
 	DWORD Capabilities = 0;
 	if (!GetDeviceProperty(hDevInst, SPDRP_CAPABILITIES, Capabilities))
@@ -243,7 +244,7 @@ static bool IsDeviceHotplug(DEVINST hDevInst)
 	       (Problem != CM_PROB_HELD_FOR_EJECT) && //возможно, надо проверять на наличие проблем вообще
 	       (Problem != CM_PROB_DISABLED) &&
 	       (Capabilities & CM_DEVCAP_REMOVABLE) &&
-	       (!(Capabilities & CM_DEVCAP_SURPRISEREMOVALOK) || IsChildDeviceHotplug(hDevInst)) &&
+	       (IncludeSafeToRemove || !(Capabilities & CM_DEVCAP_SURPRISEREMOVALOK) || IsChildDeviceHotplug(hDevInst)) &&
 	       !(Capabilities & CM_DEVCAP_DOCKDEVICE);
 }
 
@@ -325,7 +326,7 @@ static os::fs::drives_set GetDisksForDevice(DEVINST hDevInst)
 		Only get the drive letter for this device if it is not a hotplug device.
 		If it is a hotplug device then it will have its own subtree that contains its drive letters.
 		*/
-		if (!IsDeviceHotplug(i))
+		if (!IsDeviceHotplug(i, false))
 			Drives |= GetDisksForDevice(i);
 	}
 
@@ -338,33 +339,33 @@ struct DeviceInfo
 	os::fs::drives_set Disks;
 };
 
-static void GetHotplugDevicesInfo(DEVINST hDevInst, std::vector<DeviceInfo>& Info)
+static void GetHotplugDevicesInfo(DEVINST hDevInst, std::vector<DeviceInfo>& Info, bool const IncludeSafeToRemove)
 {
-	if (IsDeviceHotplug(hDevInst))
+	if (IsDeviceHotplug(hDevInst, IncludeSafeToRemove))
 	{
 		Info.emplace_back(DeviceInfo{ hDevInst, GetDisksForDevice(hDevInst) });
 	}
 
 	for (const auto& i: enum_child_devices(hDevInst))
 	{
-		GetHotplugDevicesInfo(i, Info);
+		GetHotplugDevicesInfo(i, Info, IncludeSafeToRemove);
 	}
 }
 
-static auto GetHotplugDevicesInfo()
+static auto GetHotplugDevicesInfo(bool const IncludeSafeToRemove)
 {
 	std::vector<DeviceInfo> Result;
 
 	DEVNODE Root;
 	if (CM_Locate_DevNodeW(&Root, nullptr, CM_LOCATE_DEVNODE_NORMAL) == CR_SUCCESS)
 	{
-		GetHotplugDevicesInfo(Root, Result);
+		GetHotplugDevicesInfo(Root, Result, IncludeSafeToRemove);
 	}
 
 	return Result;
 }
 
-static int RemoveHotplugDevice(const DeviceInfo& Info, DWORD Flags)
+static bool RemoveHotplugDiskDevice(const DeviceInfo& Info, bool const Confirm, bool& Cancelled)
 {
 	string strFriendlyName;
 	if (GetDevicePropertyRecursive(Info.DevInst, SPDRP_FRIENDLYNAME, strFriendlyName))
@@ -374,9 +375,9 @@ static int RemoveHotplugDevice(const DeviceInfo& Info, DWORD Flags)
 	if (GetDevicePropertyRecursive(Info.DevInst, SPDRP_DEVICEDESC, strDescription))
 		inplace::trim(strDescription);
 
-	int MessageResult = 0;
+	int MessageResult = Message::first_button;
 
-	if (!(Flags&EJECT_NO_MESSAGE) && Global->Opt->Confirm.RemoveHotPlug)
+	if (Confirm)
 	{
 		string DisksStr;
 		for (size_t i = 0; i < Info.Disks.size(); ++i)
@@ -407,60 +408,58 @@ static int RemoveHotplugDevice(const DeviceInfo& Info, DWORD Flags)
 			{ lng::MHRemove, lng::MHCancel });
 	}
 
-	int bResult = -1;
-
-	if (MessageResult == 0)
+	if (MessageResult != Message::first_button)
 	{
-		PNP_VETO_TYPE pvtVeto = PNP_VetoTypeUnknown;
-		wchar_t VetoName[MAX_PATH];
-		const auto crResult = CM_Request_Device_Eject(Info.DevInst, &pvtVeto, VetoName, static_cast<ULONG>(std::size(VetoName)), 0);
-		if ((crResult != CR_SUCCESS) || (pvtVeto != PNP_VetoTypeUnknown))   //M$ баг, если есть VetoName, то даже при ошибке возвращается CR_SUCCESS
-		{
-			SetLastError((pvtVeto != PNP_VetoTypeUnknown)?ERROR_DRIVE_LOCKED:ERROR_UNABLE_TO_UNLOAD_MEDIA); // "The disk is in use or locked by another process."
-			bResult = 0;
-		}
-		else
-		{
-			SetLastError(ERROR_SUCCESS);
-			bResult = 1;
-		}
+		Cancelled = true;
+		return false;
 	}
 
-	if (bResult == 1 && (Flags&EJECT_NOTIFY_AFTERREMOVE))
+	PNP_VETO_TYPE pvtVeto = PNP_VetoTypeUnknown;
+	wchar_t VetoName[MAX_PATH];
+
+	const auto crResult = CM_Request_Device_Eject(Info.DevInst, &pvtVeto, VetoName, static_cast<ULONG>(std::size(VetoName)), 0);
+	if (crResult != CR_SUCCESS || pvtVeto != PNP_VetoTypeUnknown)   //M$ баг, если есть VetoName, то даже при ошибке возвращается CR_SUCCESS
 	{
-		Message(0,
-			msg(lng::MChangeHotPlugDisconnectDriveTitle),
-			{
-				msg(lng::MChangeHotPlugNotify1),
-				strDescription,
-				strFriendlyName,
-				msg(lng::MChangeHotPlugNotify2)
-			},
-			{ lng::MOk });
+		SetLastError(pvtVeto == PNP_VetoTypeUnknown? ERROR_UNABLE_TO_UNLOAD_MEDIA : ERROR_DRIVE_LOCKED);
+		return false;
 	}
 
-	return bResult;
+	Message(0,
+		msg(lng::MChangeHotPlugDisconnectDriveTitle),
+		{
+			msg(lng::MChangeHotPlugNotify1),
+			strDescription,
+			strFriendlyName,
+			msg(lng::MChangeHotPlugNotify2)
+		},
+		{ lng::MOk });
+
+	return true;
 }
 
-int RemoveHotplugDisk(wchar_t Disk, DWORD Flags)
+bool RemoveHotplugDisk(wchar_t Disk, bool const Confirm, bool& Cancelled)
 {
-	if (!os::fs::is_standard_drive_letter(Disk))
-		return -1;
-
 	string DevName;
 	if (GetVHDInfo(os::fs::get_drive(Disk), DevName))
 	{
 		// Removing VHD disk as hotplug is a very bad idea.
 		// Currently OS removes the device but doesn't close the file handle, rendering the file completely unavailable until reboot.
 		// So just use the Del key.
-		return -1;
+		Cancelled = true;
+		return false;
 	}
 
-	SCOPED_ACTION(GuardLastError);
-	const auto Info = GetHotplugDevicesInfo();
+	// Some USB drives always have CM_DEVCAP_SURPRISEREMOVALOK flag set
+	const auto Info = GetHotplugDevicesInfo(true);
 	const auto DiskNumber = os::fs::get_drive_number(Disk);
 	const auto ItemIterator = std::find_if(CONST_RANGE(Info, i) {return i.Disks[DiskNumber];});
-	return ItemIterator != Info.cend()? RemoveHotplugDevice(*ItemIterator, Flags) : -1;
+	if (ItemIterator == Info.cend())
+	{
+		Cancelled = true;
+		return false;
+	}
+
+	return RemoveHotplugDiskDevice(*ItemIterator, Confirm, Cancelled);
 }
 
 void ShowHotplugDevices()
@@ -471,7 +470,7 @@ void ShowHotplugDevices()
 	const auto FillMenu = [&]()
 	{
 		HotPlugList->clear();
-		Info = GetHotplugDevicesInfo();
+		Info = GetHotplugDevicesInfo(false);
 
 		if (!Info.empty())
 		{
@@ -553,14 +552,14 @@ void ShowHotplugDevices()
 			{
 				if (!HotPlugList->empty())
 				{
-					int bResult;
 					const auto I = HotPlugList->GetSelectPos();
 
-					if ((bResult=RemoveHotplugDevice(Info[I], EJECT_NOTIFY_AFTERREMOVE)) == 1)
+					bool Cancelled = false;
+					if (RemoveHotplugDiskDevice(Info[I], Global->Opt->Confirm.RemoveHotPlug, Cancelled))
 					{
 						FillMenu();
 					}
-					else if (bResult != -1)
+					else if (!Cancelled)
 					{
 						SetLastError(ERROR_DRIVE_LOCKED); // ... "The disk is in use or locked by another process."
 						const auto ErrorState = error_state::fetch();

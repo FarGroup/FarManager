@@ -2762,8 +2762,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 			DWORD VolFlags;
 			if(os::fs::GetVolumeInformation(strDriveRoot, nullptr, nullptr, nullptr, &VolFlags, nullptr) && VolFlags & FILE_SUPPORTS_SPARSE_FILES)
 			{
-				DWORD Temp;
-				if (DestFile.IoControl(FSCTL_SET_SPARSE, nullptr, 0, nullptr, 0, &Temp))
+				if (DestFile.IoControl(FSCTL_SET_SPARSE, nullptr, 0, nullptr, 0))
 				{
 					CopySparse=true;
 				}

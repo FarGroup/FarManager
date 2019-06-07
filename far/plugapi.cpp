@@ -553,49 +553,6 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			return FALSE;
 		}
 
-		/* $ 14.12.2000 SVS
-			ACTL_EJECTMEDIA - извлечь диск из съемного накопителя
-			Param - указатель на структуру ActlEjectMedia
-			Return - TRUE - успешное извлечение, FALSE - ошибка.
-		*/
-		case ACTL_EJECTMEDIA:
-		{
-			const auto Aem = static_cast<const ActlEjectMedia*>(Param2);
-
-			if (!CheckStructSize(Aem))
-				return FALSE;
-
-			return EjectVolume(static_cast<wchar_t>(Aem->Letter), Aem->Flags);
-
-			/*
-					if(Param)
-					{
-							ActlEjectMedia *aem=(ActlEjectMedia *)Param;
-					char DiskLetter[4]=" :\\";
-					DiskLetter[0]=(char)aem->Letter;
-					int DriveType = FAR_GetDriveType(DiskLetter,nullptr,FALSE); // здесь не определяем тип CD
-
-					if(DriveType == DRIVE_USBDRIVE && RemoveUSBDrive((char)aem->Letter,aem->Flags))
-						return TRUE;
-					if(DriveType == DRIVE_SUBSTITUTE && DelSubstDrive(DiskLetter))
-						return TRUE;
-					if(IsDriveTypeCDROM(DriveType) && EjectVolume((char)aem->Letter,aem->Flags))
-						return TRUE;
-
-					}
-					return FALSE;
-			*/
-		}
-		/*
-			case ACTL_GETMEDIATYPE:
-			{
-					ActlMediaType *amt=(ActlMediaType *)Param;
-				char DiskLetter[4]=" :\\";
-				DiskLetter[0]=(amt)?(char)amt->Letter:0;
-				return FAR_GetDriveType(DiskLetter,nullptr,(amt && !(amt->Flags&MEDIATYPE_NODETECTCDROM)));
-			}
-		*/
-
 		/* $ 05.06.2001 tran
 			новые ACTL_ для работы с окнами */
 		case ACTL_GETWINDOWINFO:

@@ -1008,7 +1008,7 @@ an almost limitless expansion of the features of Far.
   * Calculators with different possibilities.
   * Several games :-)
   * Spell checker functions while editing text in Far editor.
-  * Removable drives catalog preparation and much more...
+  * Removable drives catalog preparation and much more…
 
     As an information source, which can be used to search for specific plugins,
 one can recommend:
@@ -3078,7 +3078,7 @@ behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
 
    #F1#                      Help
    #F2#                      Save file
-   #Shift+F2#                ~Save file as...~@FileSaveAs@
+   #Shift+F2#                ~Save file as…~@FileSaveAs@
    #Shift+F4#                Edit ~new file~@FileOpenCreate@
    #F6#                      Switch to ~viewer~@Viewer@
    #F7#                      ~Search~@EditorSearch@
@@ -3329,7 +3329,7 @@ endian) -- is used. Otherwise, the code page is ~autodetected~@CodePageAuto@.
     #code page#
 
 @FileSaveAs
-$ #Editor: save file as...#
+$ #Editor: save file as…#
     To save edited file with another name press #Shift+F2# and specify
 new name, code page and carriage return symbols format.
 
@@ -5979,7 +5979,7 @@ $ #far:config System.SubstNameRule#
 @System.SubstPluginPrefix
 $ #far:config System.SubstPluginPrefix#
     Параметр "System.SubstPluginPrefix" позволяет управлять подстановкой префиксов плагинов в операциях 
-вставки пути к объекту (Ctrl+F, Ctrl+[...), находящемуся на панели плагина. Если значение равно #true#, то 
+вставки пути к объекту (Ctrl+F, Ctrl+[…), находящемуся на панели плагина. Если значение равно #true#, то 
 Far Manager автоматически добавит в командную строку префикс плагина перед вставляемым путём (кроме панелей, 
 которые указывают на реальные файлы, например, "Временная панель"). Значение #false# не добавляет префиксы.
  
@@ -6266,7 +6266,7 @@ $ #far:config XLat.Flags#
 
     Биты:
        0 - ^<wrap>Автоматическое переключение раскладки клавиатуры после перекодирования
-           ^<wrap>Переключение происходит по кругу: RU->EN->RU->...
+           ^<wrap>Переключение происходит по кругу: RU->EN->RU->…
            ^<wrap>В семействе Windows NT позволяет переключить раскладку клавиатуры на следующую доступную (см. также описание бита 2).
        1 - ^<wrap>При переключении раскладки выдать звуковой сигнал.
        2 - ^<wrap>Использовать предопределённые именованные правила для "двойных" клавиш.

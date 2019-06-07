@@ -157,8 +157,7 @@ static bool SetREPARSE_DATA_BUFFER(const string& Object, REPARSE_DATA_BUFFER* rd
 	const auto SetBuffer = [&](bool ForceElevation)
 	{
 		const os::fs::file fObject(Object, GetDesiredAccessForReparsePointChange(), 0, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT, nullptr, ForceElevation);
-		DWORD dwBytesReturned;
-		return fObject && fObject.IoControl(FSCTL_SET_REPARSE_POINT, rdb, rdb->ReparseDataLength + REPARSE_DATA_BUFFER_HEADER_SIZE, nullptr, 0, &dwBytesReturned);
+		return fObject && fObject.IoControl(FSCTL_SET_REPARSE_POINT, rdb, rdb->ReparseDataLength + REPARSE_DATA_BUFFER_HEADER_SIZE, nullptr, 0);
 	};
 
 	if (SetBuffer(false))
@@ -268,8 +267,7 @@ static bool GetREPARSE_DATA_BUFFER(const string& Object, REPARSE_DATA_BUFFER* rd
 	if (!fObject)
 		return false;
 
-	DWORD dwBytesReturned;
-	return fObject.IoControl(FSCTL_GET_REPARSE_POINT, nullptr, 0, rdb, MAXIMUM_REPARSE_DATA_BUFFER_SIZE, &dwBytesReturned) && IsReparseTagValid(rdb->ReparseTag);
+	return fObject.IoControl(FSCTL_GET_REPARSE_POINT, nullptr, 0, rdb, MAXIMUM_REPARSE_DATA_BUFFER_SIZE) && IsReparseTagValid(rdb->ReparseTag);
 }
 
 bool DeleteReparsePoint(const string& Object)
@@ -282,9 +280,8 @@ bool DeleteReparsePoint(const string& Object)
 	if (!fObject)
 		return false;
 
-	DWORD dwBytes;
 	REPARSE_GUID_DATA_BUFFER rgdb{rdb->ReparseTag};
-	return fObject.IoControl(FSCTL_DELETE_REPARSE_POINT,&rgdb,REPARSE_GUID_DATA_BUFFER_HEADER_SIZE,nullptr,0,&dwBytes);
+	return fObject.IoControl(FSCTL_DELETE_REPARSE_POINT, &rgdb, REPARSE_GUID_DATA_BUFFER_HEADER_SIZE, nullptr, 0);
 }
 
 bool GetReparsePointInfo(const string& Object, string &strDestBuff,LPDWORD ReparseTag)

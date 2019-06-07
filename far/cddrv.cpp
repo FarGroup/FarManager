@@ -151,9 +151,7 @@ static CDROM_DeviceCapabilities getCapsUsingMagic(const os::fs::file& Device)
 	sptwb.Spt.Cdb[4] = 192;
 	sptwb.Spt.CdbLength = 6;
 
-	DWORD returned = 0;
-
-	if (Device.IoControl(IOCTL_SCSI_PASS_THROUGH, &sptwb, sizeof(sptwb), &sptwb, sizeof(sptwb), &returned) && !sptwb.Spt.ScsiStatus)
+	if (Device.IoControl(IOCTL_SCSI_PASS_THROUGH, &sptwb, sizeof(sptwb), &sptwb, sizeof(sptwb)) && !sptwb.Spt.ScsiStatus)
 	{
 		// Notes:
 		// 1. The header of 6-byte MODE commands is 4 bytes long.
@@ -199,9 +197,7 @@ static CDROM_DeviceCapabilities getCapsUsingMagic(const os::fs::file& Device)
 	sptwb.Spt.Cdb[9] = 0x00;
 	sptwb.Spt.CdbLength = 10;
 
-	returned = 0;
-
-	if (Device.IoControl(IOCTL_SCSI_PASS_THROUGH, &sptwb, sizeof(sptwb), &sptwb, sizeof(sptwb), &returned) && !sptwb.Spt.ScsiStatus)
+	if (Device.IoControl(IOCTL_SCSI_PASS_THROUGH, &sptwb, sizeof(sptwb), &sptwb, sizeof(sptwb)) && !sptwb.Spt.ScsiStatus)
 	{
 		const auto* ptr = sptwb.DataBuf;
 		const auto* ptr_end = &sptwb.DataBuf[sDataLength];
@@ -324,12 +320,12 @@ static CDROM_DeviceCapabilities getCapsUsingDeviceProps(const os::fs::file& Devi
 {
 	STORAGE_DESCRIPTOR_HEADER hdr{};
 	STORAGE_PROPERTY_QUERY query{ StorageDeviceProperty, PropertyStandardQuery };
-	DWORD returnedLength;
-	if (!Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &query, sizeof(query), &hdr, sizeof(hdr), &returnedLength) || !hdr.Size)
+
+	if (!Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &query, sizeof(query), &hdr, sizeof(hdr)) || !hdr.Size)
 		return CAPABILITIES_NONE;
 
 	char_ptr_n<os::default_buffer_size> Buffer(hdr.Size);
-	if (!Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &query, sizeof(query), Buffer.get(), static_cast<DWORD>(Buffer.size()), &returnedLength))
+	if (!Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &query, sizeof(query), Buffer.get(), static_cast<DWORD>(Buffer.size())))
 		return CAPABILITIES_NONE;
 
 	const auto devDesc = reinterpret_cast<const STORAGE_DEVICE_DESCRIPTOR*>(Buffer.get());
@@ -426,8 +422,7 @@ UINT FAR_GetDriveType(const string_view RootDir, const DWORD Detect)
 		if (const auto Device = os::fs::file(drive, STANDARD_RIGHTS_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
 		{
 			DISK_GEOMETRY g;
-			DWORD dwOutBytes;
-			if (Device.IoControl(IOCTL_DISK_GET_DRIVE_GEOMETRY, nullptr, 0, &g, sizeof(g), &dwOutBytes, nullptr))
+			if (Device.IoControl(IOCTL_DISK_GET_DRIVE_GEOMETRY, nullptr, 0, &g, sizeof(g)))
 				if (g.MediaType != FixedMedia && g.MediaType != RemovableMedia)
 					DrvType = DRIVE_REMOVABLE;
 		}

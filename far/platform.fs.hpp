@@ -247,7 +247,7 @@ namespace os::fs
 		bool GetInformation(BY_HANDLE_FILE_INFORMATION& info) const;
 
 		[[nodiscard]]
-		bool IoControl(DWORD IoControlCode, void* InBuffer, DWORD InBufferSize, void* OutBuffer, DWORD OutBufferSize, DWORD* BytesReturned, OVERLAPPED* Overlapped = nullptr) const;
+		bool IoControl(DWORD IoControlCode, void* InBuffer, DWORD InBufferSize, void* OutBuffer, DWORD OutBufferSize, DWORD* BytesReturned = nullptr, OVERLAPPED* Overlapped = nullptr) const;
 
 		[[nodiscard]]
 		bool GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed) const;

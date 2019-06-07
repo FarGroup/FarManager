@@ -752,9 +752,7 @@ namespace os::fs
 			return true;
 
 		GET_LENGTH_INFORMATION gli;
-		DWORD BytesReturned;
-
-		if (!IoControl(IOCTL_DISK_GET_LENGTH_INFO, nullptr, 0, &gli, sizeof(gli), &BytesReturned))
+		if (!IoControl(IOCTL_DISK_GET_LENGTH_INFO, nullptr, 0, &gli, sizeof(gli)))
 			return false;
 
 		Size = gli.Length.QuadPart;
@@ -773,6 +771,9 @@ namespace os::fs
 
 	bool file::IoControl(DWORD IoControlCode, void* InBuffer, DWORD InBufferSize, void* OutBuffer, DWORD OutBufferSize, DWORD* BytesReturned, OVERLAPPED* Overlapped) const
 	{
+		DWORD BytesReturnedFallback = 0;
+		if (!BytesReturned)
+			BytesReturned = &BytesReturnedFallback;
 		return ::DeviceIoControl(m_Handle.native_handle(), IoControlCode, InBuffer, InBufferSize, OutBuffer, OutBufferSize, BytesReturned, Overlapped) != FALSE;
 	}
 

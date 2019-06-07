@@ -833,8 +833,6 @@ PACK_PUSH(2)
 		ACTL_GETPLUGINMAXREADDATA = 21,
 		ACTL_GETDIALOGSETTINGS    = 22,
 		ACTL_GETSHORTWINDOWINFO   = 23,
-		ACTL_REMOVEMEDIA          = 24,
-		ACTL_GETMEDIATYPE         = 25,
 		ACTL_REDRAWALL            = 27,
 	};
 
@@ -910,53 +908,6 @@ PACK_PUSH(2)
 		FDS_UPDATEIFDISPLAYED              = 0x00000002,
 		FDS_SETHIDDEN                      = 0x00000004,
 		FDS_UPDATEREADONLY                 = 0x00000008,
-	};
-
-	enum FAREJECTMEDIAFLAGS
-	{
-		EJECT_NO_MESSAGE                    = 0x00000001,
-		EJECT_LOAD_MEDIA                    = 0x00000002,
-		EJECT_NOTIFY_AFTERREMOVE            = 0x00000004,
-		EJECT_READY                         = 0x80000000,
-	};
-
-	struct ActlEjectMedia
-	{
-		DWORD Letter;
-		DWORD Flags;
-	};
-
-	enum FARMEDIATYPE
-	{
-		FMT_DRIVE_ERROR                =  -1,
-		FMT_DRIVE_UNKNOWN              =  DRIVE_UNKNOWN,
-		FMT_DRIVE_NO_ROOT_DIR          =  DRIVE_NO_ROOT_DIR,
-		FMT_DRIVE_REMOVABLE            =  DRIVE_REMOVABLE,
-		FMT_DRIVE_FIXED                =  DRIVE_FIXED,
-		FMT_DRIVE_REMOTE               =  DRIVE_REMOTE,
-		FMT_DRIVE_CDROM                =  DRIVE_CDROM,
-		FMT_DRIVE_RAMDISK              =  DRIVE_RAMDISK,
-		FMT_DRIVE_SUBSTITUTE           =  15,
-		FMT_DRIVE_REMOTE_NOT_CONNECTED =  16,
-		FMT_DRIVE_CD_RW                =  18,
-		FMT_DRIVE_CD_RWDVD             =  19,
-		FMT_DRIVE_DVD_ROM              =  20,
-		FMT_DRIVE_DVD_RW               =  21,
-		FMT_DRIVE_DVD_RAM              =  22,
-		FMT_DRIVE_USBDRIVE             =  40,
-		FMT_DRIVE_NOT_INIT             = 255,
-	};
-
-	enum FARMEDIATYPEFLAGS
-	{
-		MEDIATYPE_NODETECTCDROM             = 0x80000000,
-	};
-
-	struct ActlMediaType
-	{
-		DWORD Letter;
-		DWORD Flags;
-		DWORD Reserved[2];
 	};
 
 	enum FARKEYSEQUENCEFLAGS

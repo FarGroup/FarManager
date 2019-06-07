@@ -45,7 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-int RemoveHotplugDisk(wchar_t Disk, DWORD Flags);
+bool RemoveHotplugDisk(wchar_t Disk, bool Confirm, bool& Cancelled);
 void ShowHotplugDevices();
 
 #endif // HOTPLUG_HPP_0F56E211_1AA9_4160_BFA1_BB366C0244EB
