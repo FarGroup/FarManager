@@ -5,13 +5,13 @@
 
 <String Id="ProductDescription">FAR - Manager plików i archiwów</String>
 <String Id="LaunchCondition">[ProductName] wymaga co najmniej Windows 2000 SP 4 z poprawką KB816542.</String>
-<String Id="FeaturesDlgReset">Re&amp;set</String>
-<String Id="ExitDialogLaunchApp">Launch [ProductName] now</String>
-<String Id="ProgressDlgScriptInProgress">Compiling execution script</String>
+<String Id="FeaturesDlgReset">&amp;Resetuj</String>
+<String Id="ExitDialogLaunchApp">Uruchom teraz [ProductName]</String>
+<String Id="ProgressDlgScriptInProgress">Przygotowuję skrypt instalatora</String>
 
 <String Id="Feature.Title.Far">Far Manager</String>
 <String Id="Feature.Title.Addons">Dodatki</String>
-<String Id="Feature.Description.Addons">Użyteczne ustawienia rejestru.</String>
+<String Id="Feature.Description.Addons">Użyteczne ustawienia programu.</String>
 <String Id="Feature.Title.Archivers">Archiwizatory</String>
 <String Id="Feature.Description.Archivers">Obsługa zewnętrznych archiwizatorów.</String>
 <String Id="Feature.Title.Colors">Kolory</String>
@@ -20,8 +20,8 @@
 <String Id="Feature.Description.Macros">Użyteczne makra.</String>
 <String Id="Feature.Title.SetUp">Ustawienia</String>
 <String Id="Feature.Description.SetUp">Różne ustawienia.</String>
-<String Id="Feature.Title.Shell">Powłoka</String>
-<String Id="Feature.Description.Shell">Instegracja z Windows.</String>
+<String Id="Feature.Title.Shell">Powłoka Windows</String>
+<String Id="Feature.Description.Shell">Integracja z systemem Windows.</String>
 <String Id="Feature.Title.Tables">Tabele</String>
 <String Id="Feature.Description.Tables">Tabele znaków</String>
 <String Id="Feature.Title.XLat">XLat</String>
@@ -95,7 +95,7 @@
 <String Id="Feature.Title.FarColorer">FarColorer</String>
 <String Id="Feature.Description.FarColorer">Kolorowanie składni.</String>
 <String Id="Feature.Title.FARCmds">FarCmds</String>
-<String Id="Feature.Description.FARCmds">Zaawansowanie polecenia.</String>
+<String Id="Feature.Description.FARCmds">Polecenia wpisywane w linii poleceń.</String>
 <String Id="Feature.Title.FileCase">FileCase</String>
 <String Id="Feature.Description.FileCase">Konwersja wielkości znaków w nazwach plików.</String>
 <String Id="Feature.Title.NetBox">NetBox</String>
