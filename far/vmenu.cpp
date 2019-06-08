@@ -69,7 +69,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common.hpp"
 #include "common/function_traits.hpp"
 #include "common/scope_exit.hpp"
-#include "common/zip_view.hpp"
+#include "common/view/zip.hpp"
 
 // External:
 

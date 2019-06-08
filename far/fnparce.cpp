@@ -57,6 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/string_utils.hpp"
+#include "common/view/select.hpp"
 
 // External:
 #include "format.hpp"

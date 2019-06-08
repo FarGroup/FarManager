@@ -122,6 +122,7 @@ struct PanelMenuItem
 	};
 };
 
+[[nodiscard]]
 static auto EjectFailed(error_state_ex const& ErrorState, wchar_t const Letter)
 {
 	return OperationFailed(ErrorState, os::fs::get_drive(Letter), lng::MError, format(msg(lng::MChangeCouldNotEjectMedia), Letter), false);

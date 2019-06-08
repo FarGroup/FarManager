@@ -379,22 +379,6 @@ TEST_CASE("range.dynamic")
 			REQUIRE(*Iterator == i);
 		}
 	}
-
-	{
-		const std::pair<bool, int> Data[]
-		{
-			{ true, 42 },
-			{ false, 33 },
-		};
-
-		const auto Selector = select(Data, [](const auto& i){ return i.second; });
-		auto Iterator = Selector.begin();
-		REQUIRE(*Iterator == 42);
-		++Iterator;
-		REQUIRE(*Iterator == 33);
-		++Iterator;
-		REQUIRE(Iterator == Selector.end());
-	}
 }
 
 //----------------------------------------------------------------------------
@@ -710,9 +694,103 @@ TEST_CASE("utility")
 
 //----------------------------------------------------------------------------
 
-#include "common/zip_view.hpp"
+#include "common/view/select.hpp"
 
-TEST_CASE("zip")
+TEST_CASE("view.select")
+{
+	const auto Test = [](const auto& Data, const auto& Selector)
+	{
+		auto Iterator = std::cbegin(Data);
+
+		for (const auto& i : select(Data, Selector))
+		{
+			REQUIRE(i == Selector(*Iterator));
+			++Iterator;
+		}
+
+		REQUIRE(Iterator == std::cend(Data));
+	};
+
+	{
+		std::pair<bool, int> const Data[]
+		{
+			{ true, 42 },
+			{ false, 33 },
+		};
+
+		Test(Data, [](const auto& i) { return i.second; });
+	}
+
+	{
+		std::vector const Data{ 1, 2, 3, 4, 5 };
+		Test(Data, [](const auto& i) { return i * 2; });
+	}
+
+	{
+		std::vector<int> const Data;
+		Test(Data, [](const auto& i) { return i; });
+	}
+}
+
+//----------------------------------------------------------------------------
+
+#include "common/view/where.hpp"
+
+TEST_CASE("view.where")
+{
+	const auto Test = [](const auto& Data, const auto& Baseline, const auto& Predicate)
+	{
+		auto BaselineIterator = std::cbegin(Baseline);
+
+		for (const auto& i: where(Data, Predicate))
+		{
+			REQUIRE(i == *BaselineIterator);
+			++BaselineIterator;
+		}
+
+		REQUIRE(BaselineIterator == std::cend(Baseline));
+	};
+
+	using ints = std::vector<int>;
+	const auto Even = [](const auto& Item) { return (Item & 1) == 0; };
+	const auto Odd = [](const auto& Item) { return (Item & 1) != 0; };
+
+	Test(
+		ints{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 },
+		ints{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 },
+		[](const auto&) { return true; });
+
+	Test(
+		ints{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 },
+		ints{},
+		[](const auto&) { return false; });
+
+	Test(
+		ints{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 },
+		ints{ 0, 2, 4, 6, 8 },
+		Even);
+
+	Test(
+		ints{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 },
+		ints{ 1, 3, 5, 7, 9 },
+		Odd);
+
+	Test(
+		ints{ 2, 4, 6 },
+		ints{},
+		Odd);
+
+	Test(
+		ints{},
+		ints{},
+		Even);
+}
+
+//----------------------------------------------------------------------------
+
+#include "common/view/zip.hpp"
+
+TEST_CASE("view.zip")
 {
 	const std::array Source      { 1, 2, 3 };
 	      std::array Destination { 9, 8, 7, 6, 5 };

@@ -49,7 +49,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "drivemix.hpp"
 #include "global.hpp"
-#include "eject.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -105,7 +104,7 @@ namespace detail
 	struct devinfo_handle_closer { void operator()(HDEVINFO Handle) const { SetupDiDestroyDeviceInfoList(Handle); } };
 }
 
-class dev_info: noncopyable
+class [[nodiscard]] dev_info: noncopyable
 {
 	using devinfo_handle = os::detail::handle_t<detail::devinfo_handle_closer>;
 
@@ -123,24 +122,29 @@ public:
 		}
 	}
 
+	[[nodiscard]]
 	explicit operator bool() const noexcept { return m_info != nullptr; }
 
+	[[nodiscard]]
 	bool OpenDeviceInfo(SP_DEVINFO_DATA& info_data) const
 	{
 		return SetupDiOpenDeviceInfo(m_info.native_handle(), m_id.c_str(), nullptr, 0, &info_data) != FALSE;
 	}
 
+	[[nodiscard]]
 	bool GetDeviceRegistryProperty(SP_DEVINFO_DATA& info_data, DWORD Property, PDWORD PropertyRegDataType, PBYTE PropertyBuffer, DWORD PropertyBufferSize, PDWORD RequiredSize) const
 	{
 		return SetupDiGetDeviceRegistryProperty(m_info.native_handle(), &info_data, Property, PropertyRegDataType, PropertyBuffer, PropertyBufferSize, RequiredSize) != FALSE;
 	}
 
+	[[nodiscard]]
 	bool EnumDeviceInterfaces(const GUID& InterfaceClassGuid, DWORD MemberIndex, SP_DEVICE_INTERFACE_DATA& DeviceInterfaceData) const
 	{
 		return SetupDiEnumDeviceInterfaces(m_info.native_handle(), nullptr, &InterfaceClassGuid, MemberIndex, &DeviceInterfaceData) != FALSE;
 	}
 
 	template<typename uuid_type, REQUIRES(std::is_convertible_v<uuid_type, UUID>)>
+	[[nodiscard]]
 	auto DeviceInterfacesEnumerator(uuid_type&& InterfaceClassGuid) const
 	{
 		using value_type = SP_DEVICE_INTERFACE_DATA;
@@ -154,6 +158,7 @@ public:
 		});
 	}
 
+	[[nodiscard]]
 	string GetDevicePath(SP_DEVICE_INTERFACE_DATA& DeviceInterfaceData) const
 	{
 		string result;
@@ -177,6 +182,7 @@ private:
 };
 
 template<typename receiver>
+[[nodiscard]]
 static bool GetDevicePropertyImpl(DEVINST hDevInst, const receiver& Receiver)
 {
 	dev_info Info(hDevInst);
@@ -190,6 +196,7 @@ static bool GetDevicePropertyImpl(DEVINST hDevInst, const receiver& Receiver)
 	return Receiver(Info, DeviceInfoData);
 }
 
+[[nodiscard]]
 static bool GetDeviceProperty(DEVINST hDevInst, DWORD Property, DWORD& Value)
 {
 	return GetDevicePropertyImpl(hDevInst, [&](dev_info& Info, SP_DEVINFO_DATA& DeviceInfoData)
@@ -198,6 +205,7 @@ static bool GetDeviceProperty(DEVINST hDevInst, DWORD Property, DWORD& Value)
 	});
 }
 
+[[nodiscard]]
 static bool GetDeviceProperty(DEVINST hDevInst, DWORD Property, string& Value)
 {
 	return GetDevicePropertyImpl(hDevInst, [&](dev_info& Info, SP_DEVINFO_DATA& DeviceInfoData)
@@ -212,12 +220,14 @@ static bool GetDeviceProperty(DEVINST hDevInst, DWORD Property, string& Value)
 	});
 }
 
+[[nodiscard]]
 static bool GetDevicePropertyRecursive(DEVINST hDevInst, DWORD Property, string& Value)
 {
 	DEVINST hDevChild;
 	return GetDeviceProperty(hDevInst, Property, Value) || (CM_Get_Child(&hDevChild, hDevInst, 0) == CR_SUCCESS && GetDeviceProperty(hDevChild, Property, Value));
 }
 
+[[nodiscard]]
 static bool IsChildDeviceHotplug(DEVINST hDevInst)
 {
 	DEVINST hDevChild;
@@ -230,6 +240,7 @@ static bool IsChildDeviceHotplug(DEVINST hDevInst)
 		(Capabilities&CM_DEVCAP_UNIQUEID);
 }
 
+[[nodiscard]]
 static bool IsDeviceHotplug(DEVINST hDevInst, bool const IncludeSafeToRemove)
 {
 	DWORD Capabilities = 0;
@@ -248,6 +259,7 @@ static bool IsDeviceHotplug(DEVINST hDevInst, bool const IncludeSafeToRemove)
 	       !(Capabilities & CM_DEVCAP_DOCKDEVICE);
 }
 
+[[nodiscard]]
 static DWORD DriveMaskFromVolumeName(const string& VolumeName)
 {
 	DWORD Result = 0;
@@ -264,9 +276,10 @@ static DWORD DriveMaskFromVolumeName(const string& VolumeName)
 	return Result;
 }
 
+[[nodiscard]]
 static DWORD GetDriveMaskFromMountPoints(DEVINST hDevInst)
 {
-	dev_info Info(hDevInst);
+	dev_info const Info(hDevInst);
 	if (!Info)
 		return 0;
 
@@ -287,6 +300,7 @@ static DWORD GetDriveMaskFromMountPoints(DEVINST hDevInst)
 	return dwMask;
 }
 
+[[nodiscard]]
 static DWORD GetRelationDrivesMask(DEVINST hDevInst)
 {
 	wchar_t szDeviceID[MAX_DEVICE_ID_LEN];
@@ -313,6 +327,7 @@ static DWORD GetRelationDrivesMask(DEVINST hDevInst)
 	return dwMask;
 }
 
+[[nodiscard]]
 static os::fs::drives_set GetDisksForDevice(DEVINST hDevInst)
 {
 	os::fs::drives_set Drives;
@@ -352,6 +367,7 @@ static void GetHotplugDevicesInfo(DEVINST hDevInst, std::vector<DeviceInfo>& Inf
 	}
 }
 
+[[nodiscard]]
 static auto GetHotplugDevicesInfo(bool const IncludeSafeToRemove)
 {
 	std::vector<DeviceInfo> Result;
@@ -365,6 +381,7 @@ static auto GetHotplugDevicesInfo(bool const IncludeSafeToRemove)
 	return Result;
 }
 
+[[nodiscard]]
 static bool RemoveHotplugDiskDevice(const DeviceInfo& Info, bool const Confirm, bool& Cancelled)
 {
 	string strFriendlyName;
@@ -380,15 +397,15 @@ static bool RemoveHotplugDiskDevice(const DeviceInfo& Info, bool const Confirm, 
 	if (Confirm)
 	{
 		string DisksStr;
+		const auto Separator = L", "sv;
 		for (size_t i = 0; i < Info.Disks.size(); ++i)
 		{
 			if (Info.Disks[i])
-				append(DisksStr, static_cast<wchar_t>(L'A' + i), L":, "sv);
+				append(DisksStr, os::fs::get_drive(i), Separator);
 		}
-
 		// remove trailing ", "
 		if (!DisksStr.empty())
-			DisksStr.resize(DisksStr.size() - 2);
+			DisksStr.resize(DisksStr.size() - Separator.size());
 
 		std::vector<string> MessageItems;
 		MessageItems.reserve(6);
@@ -437,6 +454,7 @@ static bool RemoveHotplugDiskDevice(const DeviceInfo& Info, bool const Confirm, 
 	return true;
 }
 
+[[nodiscard]]
 bool RemoveHotplugDisk(wchar_t Disk, bool const Confirm, bool& Cancelled)
 {
 	string DevName;

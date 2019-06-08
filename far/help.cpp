@@ -68,6 +68,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/algorithm.hpp"
 #include "common/from_string.hpp"
+#include "common/view/select.hpp"
 
 // External:
 #include "format.hpp"

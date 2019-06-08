@@ -62,7 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/bytes_view.hpp"
 #include "common/string_utils.hpp"
-#include "common/zip_view.hpp"
+#include "common/view/zip.hpp"
 
 // External:
 #include "format.hpp"

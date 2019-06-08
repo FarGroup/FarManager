@@ -79,8 +79,4 @@ inline void* ToPtr(intptr_t Value) noexcept
 	return reinterpret_cast<void*>(Value);
 }
 
-#define SIGN_UNICODE    0xFEFF
-#define SIGN_REVERSEBOM 0xFFFE
-#define SIGN_UTF8       0xBFBBEF
-
 #endif // COMMON_HPP_1BD5AB87_3379_4AFE_9F63_DB850DCF72B4

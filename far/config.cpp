@@ -89,7 +89,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/algorithm.hpp"
 #include "common/from_string.hpp"
-#include "common/zip_view.hpp"
+#include "common/view/zip.hpp"
 
 // External:
 #include "format.hpp"

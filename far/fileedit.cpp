@@ -1549,7 +1549,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 		{
 			if (testBOM && IsUnicodeOrUtfCodePage(m_codepage))
 			{
-				if (starts_with(Str.Str, SIGN_UNICODE))
+				if (starts_with(Str.Str, L'\xfeff'))
 				{
 					Str.Str.remove_prefix(1);
 					m_bAddSignature = true;

@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void EjectVolume(wchar_t Letter);
 void LoadVolume(wchar_t Letter);
+[[nodiscard]]
 bool IsEjectableMedia(wchar_t Letter);
 
 #endif // EJECT_HPP_AD63D84D_40CB_40BF_A4A1_E61FE3CE6E6D

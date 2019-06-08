@@ -43,10 +43,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/scope_exit.hpp"
-#include "common/string_utils.hpp"
 
 // External:
-#include "format.hpp"
 
 //----------------------------------------------------------------------------
 
@@ -54,20 +52,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 void EjectVolume(wchar_t Letter)
 {
-	const auto RootName = concat(L"\\\\.\\"sv, Letter, L':');
-
 	bool ReadOnly;
-	DWORD dwAccessFlags;
+	DWORD WriteFlag;
 
-	const auto DriveType = FAR_GetDriveType(string_view(RootName).substr(4));
+	const auto DriveType = FAR_GetDriveType(os::fs::get_drive(Letter));
 	if (DriveType == DRIVE_REMOVABLE)
 	{
-		dwAccessFlags = GENERIC_READ | GENERIC_WRITE;
+		WriteFlag = GENERIC_WRITE;
 		ReadOnly = false;
 	}
 	else if (IsDriveTypeCDROM(DriveType))
 	{
-		dwAccessFlags = GENERIC_READ;
+		WriteFlag = 0;
 		ReadOnly = true;
 	}
 	else
@@ -75,61 +71,66 @@ void EjectVolume(wchar_t Letter)
 		throw MAKE_FAR_EXCEPTION(L"Unknown drive type"sv);
 	}
 
-	os::fs::file Disk;
-	if (!Disk.Open(RootName, dwAccessFlags, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING) && GetLastError() == ERROR_ACCESS_DENIED)
+	os::fs::file File;
+
+	const auto OpenForWrite = [&](string_view const Name, const auto&... Args)
 	{
-		if (!Disk.Open(RootName, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
-			throw MAKE_FAR_EXCEPTION(L"Cannot open disk"sv);
+		if (File.Open(Name, WriteFlag | GENERIC_READ, Args...))
+			return true;
 
+		if (WriteFlag && GetLastError() == ERROR_ACCESS_DENIED && File.Open(Name, GENERIC_READ, Args...))
+			return false;
+
+		throw MAKE_FAR_EXCEPTION(L"Cannot open the disk"sv);
+	};
+
+	if (!OpenForWrite(os::fs::get_unc_drive(Letter), FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
 		ReadOnly = true;
-	}
 
-	if (!Disk.IoControl(FSCTL_LOCK_VOLUME, nullptr, 0, nullptr, 0))
+	if (!File.IoControl(FSCTL_LOCK_VOLUME, nullptr, 0, nullptr, 0))
 		throw MAKE_FAR_EXCEPTION(L"FSCTL_LOCK_VOLUME"sv);
 
-	SCOPE_EXIT{ (void)Disk.IoControl(FSCTL_UNLOCK_VOLUME, nullptr, 0, nullptr, 0); };
+	SCOPE_EXIT{ (void)File.IoControl(FSCTL_UNLOCK_VOLUME, nullptr, 0, nullptr, 0); };
 
 	if (!ReadOnly)
 	{
-		Disk.FlushBuffers();
+		(void)File.FlushBuffers();
 	}
+
 #if 0
 	// TODO: ЭТОТ КУСОК НУЖНО РАСКОММЕНТИТЬ ВМЕСТЕ С ПОДЪЕМОМ ПРОЕКТА ПО USB
 	/*
 	  Это чудо нужно для того, чтобы, скажем, имея картридер на 3 карточки,
 	  дисмоунтить только 1 карточку, а не отключать все устройство!
 	*/
-	if (Disk.IoControl(FSCTL_DISMOUNT_VOLUME, nullptr, 0, nullptr, 0))
+	if (File.IoControl(FSCTL_DISMOUNT_VOLUME, nullptr, 0, nullptr, 0))
 		throw MAKE_FAR_EXCEPTION(L"DismountVolume"sv);
 #endif
 
 	PREVENT_MEDIA_REMOVAL PreventMediaRemoval{};
-	if (!Disk.IoControl(IOCTL_STORAGE_MEDIA_REMOVAL, &PreventMediaRemoval, sizeof(PreventMediaRemoval), nullptr, 0))
+	if (!File.IoControl(IOCTL_STORAGE_MEDIA_REMOVAL, &PreventMediaRemoval, sizeof(PreventMediaRemoval), nullptr, 0))
 		throw MAKE_FAR_EXCEPTION(L"IOCTL_STORAGE_MEDIA_REMOVAL"sv);
 
-	if (!Disk.IoControl(IOCTL_STORAGE_EJECT_MEDIA, nullptr, 0, nullptr, 0))
+	if (!File.IoControl(IOCTL_STORAGE_EJECT_MEDIA, nullptr, 0, nullptr, 0))
 		throw MAKE_FAR_EXCEPTION(L"IOCTL_STORAGE_EJECT_MEDIA"sv);
 }
 
 void LoadVolume(wchar_t const Letter)
 {
-	const auto RootName = concat(L"\\\\.\\"sv, Letter, L':');
-
-	os::fs::file Disk;
-	if (!Disk.Open(RootName, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
+	const os::fs::file File(os::fs::get_unc_drive(Letter), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING);
+	if (!File)
 		throw MAKE_FAR_EXCEPTION(L"Cannot open disk"sv);
 
-	if (!Disk.IoControl(IOCTL_STORAGE_LOAD_MEDIA, nullptr, 0, nullptr, 0))
+	if (!File.IoControl(IOCTL_STORAGE_LOAD_MEDIA, nullptr, 0, nullptr, 0))
 		throw MAKE_FAR_EXCEPTION(L"IOCTL_STORAGE_LOAD_MEDIA"sv);
 }
 
 bool IsEjectableMedia(wchar_t Letter)
 {
-	const string Disk = { L'\\', L'\\', L'.', L'\\', Letter, L':' };
-	const os::fs::file File(Disk, 0, FILE_SHARE_WRITE, nullptr, OPEN_EXISTING);
+	const os::fs::file File(os::fs::get_unc_drive(Letter), 0, FILE_SHARE_WRITE, nullptr, OPEN_EXISTING);
 	if (!File)
 		return false;
 
-	DISK_GEOMETRY dg;
-	return File.IoControl(IOCTL_DISK_GET_DRIVE_GEOMETRY, nullptr, 0, &dg, sizeof(dg)) && dg.MediaType == RemovableMedia;
+	DISK_GEOMETRY DiskGeometry{};
+	return File.IoControl(IOCTL_DISK_GET_DRIVE_GEOMETRY, nullptr, 0, &DiskGeometry, sizeof(DiskGeometry)) && DiskGeometry.MediaType == RemovableMedia;
 }

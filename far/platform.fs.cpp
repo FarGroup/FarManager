@@ -144,6 +144,16 @@ namespace os::fs
 		return { Letter, L':' };
 	}
 
+	string get_drive(size_t const Number)
+	{
+		return { static_cast<wchar_t>(L'A' + Number), L':' };
+	}
+
+	string get_unc_drive(wchar_t Letter)
+	{
+		return { L'\\', L'\\', L'.', L'\\', Letter, L':' };
+	}
+
 	string get_root_directory(wchar_t Letter)
 	{
 		return { Letter, L':', L'\\' };

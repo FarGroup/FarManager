@@ -121,6 +121,12 @@ namespace os::fs
 	string get_drive(wchar_t Letter);
 
 	[[nodiscard]]
+	string get_drive(size_t Number);
+
+	[[nodiscard]]
+	string get_unc_drive(wchar_t Letter);
+
+	[[nodiscard]]
 	string get_root_directory(wchar_t Letter);
 
 	class enum_drives: public enumerator<enum_drives, wchar_t>

@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 08.06.2019 22:27:51 +0100 - build 5410
+
+1. Refactoring.
+
 drkns 07.06.2019 22:46:34 +0100 - build 5409
 
 1. Eject didn't work for some USB sticks.

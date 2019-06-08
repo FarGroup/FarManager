@@ -56,7 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.fs.hpp"
 
 // Common:
-#include "common/zip_view.hpp"
+#include "common/view/zip.hpp"
 
 // External:
 #include "format.hpp"

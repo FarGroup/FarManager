@@ -68,9 +68,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/algorithm.hpp"
 #include "common/function_ref.hpp"
 #include "common/null_iterator.hpp"
-#include "common/range.hpp"
 #include "common/scope_exit.hpp"
-#include "common/zip_view.hpp"
+#include "common/view/select.hpp"
+#include "common/view/zip.hpp"
 
 // External:
 #include "format.hpp"

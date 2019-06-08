@@ -809,13 +809,23 @@ static int wmain_seh(int Argc, const wchar_t* const Argv[])
 	}
 }
 
+//#define DEBUG_TESTS
+
 int main()
 {
 #ifdef ENABLE_TESTS
 	if (contains(string_view(GetCommandLine()), L"/service:test"sv))
 	{
-		return testing_main();
+#ifdef DEBUG_TESTS
+		return 0;
+#else
+		return testing_main(true);
+#endif
 	}
+
+#ifdef DEBUG_TESTS
+	return testing_main(false);
+#endif
 #endif
 
 	return seh_invoke_with_ui(

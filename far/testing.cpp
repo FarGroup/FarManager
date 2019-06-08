@@ -51,11 +51,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-int testing_main()
+int testing_main(bool const IsBuildStep)
 {
 	int Argc;
 	const os::memory::local::ptr Argv(CommandLineToArgvW(GetCommandLine(), &Argc));
 	const auto Data = Argv.get();
+
+	if (!IsBuildStep)
+	{
+		return Catch::Session().run(Argc, Data);
+	}
 
 	std::vector<const wchar_t*> Args;
 	Args.reserve(Argc - 1);

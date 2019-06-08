@@ -74,7 +74,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common.hpp"
 #include "common/algorithm.hpp"
 #include "common/singleton.hpp"
-#include "common/zip_view.hpp"
+#include "common/view/zip.hpp"
 
 // External:
 

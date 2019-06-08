@@ -56,7 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #endif
 
-int testing_main();
+int testing_main(bool IsBuildStep);
 
 #endif
 

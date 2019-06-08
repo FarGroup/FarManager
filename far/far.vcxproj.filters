@@ -30,6 +30,9 @@
     <Filter Include="Header Files\common\2d">
       <UniqueIdentifier>{48d61e8c-4499-4899-935c-29b328d7be2c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\common\view">
+      <UniqueIdentifier>{9ffceef1-367c-4a47-b676-76c5753d73a1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cache.cpp">
@@ -517,6 +520,15 @@
     <ClInclude Include="common\2d\rectangle.hpp">
       <Filter>Header Files\common\2d</Filter>
     </ClInclude>
+    <ClInclude Include="common\view\select.hpp">
+      <Filter>Header Files\common\view</Filter>
+    </ClInclude>
+    <ClInclude Include="common\view\where.hpp">
+      <Filter>Header Files\common\view</Filter>
+    </ClInclude>
+    <ClInclude Include="common\view\zip.hpp">
+      <Filter>Header Files\common\view</Filter>
+    </ClInclude>
     <ClInclude Include="common\algorithm.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
@@ -599,9 +611,6 @@
       <Filter>Header Files\common</Filter>
     </ClInclude>
     <ClInclude Include="common\utility.hpp">
-      <Filter>Header Files\common</Filter>
-    </ClInclude>
-    <ClInclude Include="common\zip_view.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
     <ClInclude Include="components.hpp">

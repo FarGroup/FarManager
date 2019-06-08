@@ -1,9 +1,9 @@
-﻿#ifndef ZIP_VIEW_HPP_92A80223_8204_4A14_AACC_93D632A39884
-#define ZIP_VIEW_HPP_92A80223_8204_4A14_AACC_93D632A39884
+﻿#ifndef ZIP_HPP_92A80223_8204_4A14_AACC_93D632A39884
+#define ZIP_HPP_92A80223_8204_4A14_AACC_93D632A39884
 #pragma once
 
 /*
-zip_view.hpp
+zip.hpp
 */
 /*
 Copyright © 2016 Far Group
@@ -32,7 +32,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "rel_ops.hpp"
+#include "../rel_ops.hpp"
 
 //----------------------------------------------------------------------------
 
@@ -112,45 +112,45 @@ namespace detail
 	{
 		static_assert(std::conjunction_v<std::is_lvalue_reference<args>...>);
 	}
+
+	template<typename... args>
+	class zip_iterator: public rel_ops<zip_iterator<args...>>
+	{
+	public:
+		using iterator_category = typename detail::traits<args...>::iterator_category;
+		using value_type = typename detail::traits<args...>::value_type;
+		using difference_type = typename detail::traits<args...>::difference_type;
+		using pointer = typename detail::traits<args...>::pointer;
+		using reference = typename detail::traits<args...>::reference;
+
+		zip_iterator() = default;
+		explicit zip_iterator(const args&... Args): m_Tuple(Args...) {}
+		auto& operator++() { detail::traits<args...>::unary_for_each(detail::increment{}, m_Tuple); return *this; }
+		auto& operator--() { detail::traits<args...>::unary_for_each(detail::decrement{}, m_Tuple); return *this; }
+
+		// tuple's operators == and < are inappropriate as ranges might be of different length and we want to stop on a shortest one
+		[[nodiscard]]
+		auto operator==(const zip_iterator& rhs) const { return detail::traits<args...>::binary_any_of(std::equal_to<>{}, m_Tuple, rhs.m_Tuple); }
+
+		[[nodiscard]]
+		auto operator<(const zip_iterator& rhs) const { return detail::traits<args...>::binary_all_of(std::less<>{}, m_Tuple, rhs.m_Tuple); }
+
+		[[nodiscard]]
+		auto operator*() const { return detail::traits<args...>::dereference(m_Tuple); }
+
+		[[nodiscard]]
+		auto operator-(const zip_iterator& rhs) const { return std::get<0>(m_Tuple) - std::get<0>(rhs.m_Tuple); }
+
+	private:
+		pointer m_Tuple;
+	};
 }
 
 template<typename... args>
-class zip_iterator: public rel_ops<zip_iterator<args...>>
+class [[nodiscard]] zip
 {
 public:
-	using iterator_category = typename detail::traits<args...>::iterator_category;
-	using value_type = typename detail::traits<args...>::value_type;
-	using difference_type = typename detail::traits<args...>::difference_type;
-	using pointer = typename detail::traits<args...>::pointer;
-	using reference = typename detail::traits<args...>::reference;
-
-	zip_iterator() = default;
-	explicit zip_iterator(const args&... Args): m_Tuple(Args...) {}
-	auto& operator++() { detail::traits<args...>::unary_for_each(detail::increment{}, m_Tuple); return *this; }
-	auto& operator--() { detail::traits<args...>::unary_for_each(detail::decrement{}, m_Tuple); return *this; }
-
-	// tuple's operators == and < are inappropriate as ranges might be of different length and we want to stop on a shortest one
-	[[nodiscard]]
-	auto operator==(const zip_iterator& rhs) const { return detail::traits<args...>::binary_any_of(std::equal_to<>{}, m_Tuple, rhs.m_Tuple); }
-
-	[[nodiscard]]
-	auto operator<(const zip_iterator& rhs) const { return detail::traits<args...>::binary_all_of(std::less<>{}, m_Tuple, rhs.m_Tuple); }
-
-	[[nodiscard]]
-	auto operator*() const { return detail::traits<args...>::dereference(m_Tuple); }
-
-	[[nodiscard]]
-	auto operator-(const zip_iterator& rhs) const { return std::get<0>(m_Tuple) - std::get<0>(rhs.m_Tuple); }
-
-private:
-	pointer m_Tuple;
-};
-
-template<typename... args>
-class[[nodiscard]] zip
-{
-public:
-	using iterator = zip_iterator<decltype(std::begin(std::declval<args>()))...>;
+	using iterator = detail::zip_iterator<decltype(std::begin(std::declval<args>()))...>;
 
 	explicit zip(args&&... Args):
 		m_Begin(std::begin(Args)...),
@@ -159,11 +159,11 @@ public:
 		detail::check(FWD(Args)...);
 	}
 
-	auto begin() const { return m_Begin; }
-	auto end() const { return m_End; }
+	[[nodiscard]] auto begin()  const { return m_Begin; }
+	[[nodiscard]] auto end()    const { return m_End; }
 
-	auto cbegin() const { return begin(); }
-	auto cend() const { return end(); }
+	[[nodiscard]] auto cbegin() const { return begin(); }
+	[[nodiscard]] auto cend()   const { return end(); }
 
 private:
 	iterator m_Begin, m_End;
@@ -172,4 +172,4 @@ private:
 template<typename... args>
 zip(args&&...) -> zip<args...>;
 
-#endif // ZIP_VIEW_HPP_92A80223_8204_4A14_AACC_93D632A39884
+#endif // ZIP_HPP_92A80223_8204_4A14_AACC_93D632A39884
