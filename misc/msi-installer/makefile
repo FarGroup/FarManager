@@ -54,12 +54,15 @@ VC10OBJ = $(OUTDIR)\vc_crt_fix.obj
 VC10CPP = ..\..\plugins\common\vc_crt_fix_impl.cpp
 !endif
 
-$(MSI_NAME): $(OUTDIR) $(OUTDIR)\1033.msi $(OUTDIR)\1045 $(OUTDIR)\1049
-	@echo $@
-	cscript wisubstg.vbs $(OUTDIR)\1033.msi $(OUTDIR)\1045 1045
-	cscript wisubstg.vbs $(OUTDIR)\1033.msi $(OUTDIR)\1049 1049
-	copy /y $(OUTDIR)\1033.msi $(MSI_NAME)
+!ifdef NO_LOCALISED_MSI
+TRANSFORMS =
+!else
+TRANSFORMS = $(OUTDIR)\1045 $(OUTDIR)\1049
+!endif
 
+$(MSI_NAME): $(OUTDIR) $(OUTDIR)\1033.msi $(TRANSFORMS)
+	@echo $@
+	copy /y $(OUTDIR)\1033.msi $(MSI_NAME)
 
 $(OUTDIR)\1033.msi: $(WIXOBJ) en-us.wxl WixUI_en-us.wxl $(OUTDIR)\customact.dll
 	@echo $@
@@ -76,10 +79,12 @@ $(OUTDIR)\1045.msi: $(WIXOBJ) pl-pl.wxl WixUI_pl-pl.wxl $(OUTDIR)\customact.dll
 $(OUTDIR)\1049: $(OUTDIR)\1033.msi $(OUTDIR)\1049.msi
 	@echo $@
 	torch -nologo -t language $(OUTDIR)\1033.msi $(OUTDIR)\1049.msi -out $@
+	wisubstg.vbs $(OUTDIR)\1033.msi $(OUTDIR)\1049 1049
 
 $(OUTDIR)\1045: $(OUTDIR)\1033.msi $(OUTDIR)\1045.msi
 	@echo $@
 	torch -nologo -t language $(OUTDIR)\1033.msi $(OUTDIR)\1045.msi -out $@
+	wisubstg.vbs $(OUTDIR)\1033.msi $(OUTDIR)\1045 1045
 
 $(OUTDIR)\customact.dll: customact.cpp $(VC10CPP) customact.def $(VC10OBJ)
 	@echo $@

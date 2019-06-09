@@ -8,4 +8,4 @@ call %~dp0base_64.bat
 
 genparams c:\src\outfinalnew64 x64
 
-nmake -nologo RELEASE=1
+nmake -nologo RELEASE=1 NO_LOCALISED_MSI=1

@@ -6,4 +6,4 @@ cl -nologo -EHsc -DNIGHTLY genparams.cpp
 
 genparams c:\src\outfinalnew32 x86
 
-nmake -nologo RELEASE=1
+nmake -nologo RELEASE=1 NO_LOCALISED_MSI=1
