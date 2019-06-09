@@ -56,8 +56,8 @@ VC10CPP = ..\..\plugins\common\vc_crt_fix_impl.cpp
 
 $(MSI_NAME): $(OUTDIR) $(OUTDIR)\1033.msi $(OUTDIR)\1045 $(OUTDIR)\1049
 	@echo $@
-	wisubstg.vbs $(OUTDIR)\1033.msi $(OUTDIR)\1045 1045
-	wisubstg.vbs $(OUTDIR)\1033.msi $(OUTDIR)\1049 1049
+	cscript wisubstg.vbs $(OUTDIR)\1033.msi $(OUTDIR)\1045 1045
+	cscript wisubstg.vbs $(OUTDIR)\1033.msi $(OUTDIR)\1049 1049
 	copy /y $(OUTDIR)\1033.msi $(MSI_NAME)
 
 
