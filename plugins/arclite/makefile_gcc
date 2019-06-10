@@ -7,25 +7,33 @@ include project.ini
 USERLIBS = -loleaut32 -lversion -luuid
 include ../makefile_gcc_def_inc
 OUTDIR = $(BASEDIR)
-CCFLAGS += -fexceptions -std=c++17 -I bootstrap -I 7z/h
+BOOTSTRAPDIR=$(OBJDIR)/include/bootstrap/
 
-.PHONY: all dirs copy preproc depfile build clean
+CCFLAGS += -fexceptions -std=c++17 -I $(BOOTSTRAPDIR) -I 7z/h
 
-all: dirs copy preproc depfile
+DEPFILE = $(OBJDIR)/$(MODULE).dep
+
+
+.PHONY: all
+all: dirs copy preproc $(DEPFILE)
 	$(MAKE) -f $(THIS_MAKE) $(MK_FLAGS) build
 
+.PHONY: clean
 clean:
 	@echo cleaning
-	@$(RM) -r $(OBJDIR) bootstrap/* $(OUTDIR)/*
+	@$(RM) -rf $(BOOTSTRAPDIR) $(OBJDIR) $(OUTDIR)
 
+.PHONY: dirs
 dirs:
-	$(MKDIR) bootstrap $(OUTDIR) $(OBJDIR)
+	$(MKDIR) $(OUTDIR) $(OBJDIR) $(BOOTSTRAPDIR)
 
 #------------------------------------------------------------------------------
 SFXDIR = 7z/sfx
 SFXFILES = $(addprefix $(OUTDIR)/,$(notdir $(wildcard $(SFXDIR)/*.sfx)))
+HLFS = $(addprefix $(OUTDIR)/,$(notdir $(wildcard *.hlf)))
 
-copy: $(OUTDIR)/7z.dll $(SFXFILES) $(OUTDIR)/arclite.xml $(OUTDIR)/changelog
+.PHONY: copy
+copy: $(OUTDIR)/7z.dll $(SFXFILES) $(OUTDIR)/arclite.xml $(OUTDIR)/changelog $(HLFS)
 
 ifdef DEBUG_7Z
 ifeq (32,$(DIRBIT))
@@ -53,52 +61,41 @@ $(OUTDIR)/%.sfx: %.sfx
 #------------------------------------------------------------------------------
 TOOL = $(WINE_CMD)$(strip $(call os_name, tools/tool.exe))
 
-HLFS = $(addprefix $(OUTDIR)/$(MODULE)_,eng.hlf rus.hlf)
-MSGS = $(addprefix           bootstrap/,en.msg  ru.msg  es.msg  it.msg pl.msg)
-LNGS = $(addprefix $(OUTDIR)/$(MODULE)_,eng.lng rus.lng spa.lng ita.lng pol.lng)
+MSGS = $(notdir $(wildcard *.msg))
+BOOTSTRAP_MSGS = $(addprefix $(BOOTSTRAPDIR), $(MSGS))
+LNGS = $(patsubst %.msg, $(OUTDIR)/$(MODULE)_%.lng, $(MSGS))
 
-preproc: bootstrap/far.ini bootstrap/version.rc bootstrap/plugin.h bootstrap/msg.h $(HLFS) $(MSGS) #$(LNGS)
+.PHONY: preproc
+preproc: $(BOOTSTRAPDIR)far.ini $(BOOTSTRAPDIR)version.rc $(BOOTSTRAPDIR)plugin.h $(BOOTSTRAPDIR)msg.h $(LNGS)
 
-bootstrap/far.ini: $(COMINC)/plugin.hpp
-	@echo preproc $(@F) && $(TOOL) farver $(call os_name,$^ $@)
+$(BOOTSTRAPDIR)far.ini: $(COMINC)/plugin.hpp
+	@echo Preprocessing $(@F)
+	$(TOOL) farver $(call os_name,$^ $@)
 
-bootstrap/version.rc: project.ini bootstrap/far.ini version.rc
-	@echo preproc $(@F) && $(TOOL) preproc $(call os_name,$^ $@)
+$(BOOTSTRAPDIR)version.rc: project.ini $(BOOTSTRAPDIR)far.ini version.rc
+	@echo Preprocessing $(@F)
+	$(TOOL) preproc $(call os_name,$^ $@)
 
-bootstrap/plugin.h: project.ini bootstrap/far.ini plugin_h.h
-	@echo preproc $(@F) && $(TOOL) preproc $(call os_name,$^ $@)
+$(BOOTSTRAPDIR)plugin.h: project.ini $(BOOTSTRAPDIR)far.ini plugin_h.h
+	@echo Preprocessing $(@F)
+	$(TOOL) preproc $(call os_name,$^ $@)
 
-bootstrap/en.msg: project.ini en.msg
-	@echo preproc $(@F) && $(TOOL) preproc $(call os_name,$^ $@)
+$(BOOTSTRAPDIR)%.msg: project.ini %.msg
+	@echo Preprocessing $(@F)
+	$(TOOL) preproc $(call os_name,$^ $@)
 
-bootstrap/ru.msg: project.ini ru.msg
-	@echo preproc $(@F) && $(TOOL) preproc $(call os_name,$^ $@)
+$(BOOTSTRAPDIR)msg.h $(LNGS): $(BOOTSTRAP_MSGS)
+	@echo Generating language files
+	$(TOOL) msgc -in $(call os_name,$(BOOTSTRAP_MSGS)) -out $(call os_name, $(BOOTSTRAPDIR)msg.h $(LNGS))
 
-bootstrap/es.msg: project.ini es.msg
-	@echo preproc $(@F) && $(TOOL) preproc $(call os_name,$^ $@)
-
-bootstrap/it.msg: project.ini it.msg
-	@echo preproc $(@F) && $(TOOL) preproc $(call os_name,$^ $@)
-
-bootstrap/pl.msg: project.ini pl.msg
-	@echo preproc $(@F) && $(TOOL) preproc $(call os_name,$^ $@)
-
-bootstrap/msg.h: $(MSGS)
-	@echo Compiling message files
-	$(TOOL) msgc -in $(call os_name,$(MSGS)) -out $(call os_name,bootstrap/msg.h $(LNGS))
-
-$(OUTDIR)/$(MODULE)_eng.hlf: project.ini en.hlf
-	@echo preproc $(@F) && $(TOOL) preproc $(call os_name,$^ $@)
-
-$(OUTDIR)/$(MODULE)_rus.hlf: project.ini ru.hlf
-	@echo preproc $(@F) && $(TOOL) preproc $(call os_name,$^ $@)
+$(OUTDIR)/%.hlf: %.hlf
+	@$(CP) $< $(OUTDIR)
 
 #------------------------------------------------------------------------------
-DEPFILE = $(OBJDIR)/$(MODULE).dep
 
-depfile:
+$(DEPFILE):
 	@echo Rebuilding dependencies
-	$(TOOL) gendep -gcc $(call os_name,-I7z/h -I$(COMINC) bootstrap) > $(DEPFILE)
+	$(TOOL) gendep -gcc $(call os_name,-I7z/h -I$(COMINC) $(BOOTSTRAPDIR)) > $@
 
 ifeq ($(MAKECMDGOALS),build)
  include $(DEPFILE)
@@ -108,6 +105,7 @@ endif
 DLLFULLNAME := $(OUTDIR)/$(MODULE).$(EXT) # MODULE=arclite NAME=ArcLite
 MAPFULLNAME = $(patsubst %.$(EXT),%.map,$(DLLFULLNAME))
 
+.PHONY: build
 build: $(DLLFULLNAME)
 
 SRCS = $(wildcard *.cpp)
@@ -117,7 +115,7 @@ RCFLAGS = -I$(COMINC)
 ifeq (64,$(DIRBIT))
 RCFLAGS += -Dx64
 endif
-$(OBJDIR)/version.rc.o: bootstrap/version.rc
+$(OBJDIR)/version.rc.o: $(BOOTSTRAPDIR)version.rc
 	@echo Compiling resource file
 	$(WINDRES) -i $< $(RCFLAGS) -o $@
 
@@ -134,6 +132,3 @@ $(OBJDIR)/headers.gch: headers.cpp headers.hpp
 $(DLLFULLNAME): $(OBJS) plugin.gcc.def
 	@echo linking $@
 	$(CXX) -o $@ plugin.gcc.def $(OBJS) $(LNKFLAGS) -Wl,--kill-at -shared -Xlinker -Map=$(MAPFULLNAME)
-
-#------------------------------------------------------------------------------
-#END

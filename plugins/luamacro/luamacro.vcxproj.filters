@@ -50,6 +50,9 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
+    <CustomBuild Include="lm_bel.lng">
+      <Filter>Language Files</Filter>
+    </CustomBuild>
     <CustomBuild Include="lm_eng.lng">
       <Filter>Language Files</Filter>
     </CustomBuild>

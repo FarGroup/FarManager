@@ -189,6 +189,9 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
+    <CustomBuild Include="FtpBel.lng">
+      <Filter>Language Files</Filter>
+    </CustomBuild>
     <CustomBuild Include="FtpEng.lng">
       <Filter>Language Files</Filter>
     </CustomBuild>

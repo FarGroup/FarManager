@@ -1,3 +1,4 @@
+.SILENT:
 !include project.ini
 
 !include ../makefile_vc_base
@@ -42,8 +43,9 @@ CPPFLAGS=$(CPPFLAGS) /Zi
 
 OUTDIR = $(OUTDIR).$(BITS)W.vc$(VisualStudioVersion)
 OBJDIR = $(OUTDIR)\obj
+BOOTSTRAPDIR=$(OBJDIR)/include/bootstrap/
 
-INCLUDES = -Ibootstrap -I7z\h -I$(FARSDK)
+INCLUDES = -I$(BOOTSTRAPDIR) -I7z\h -I$(FARSDK)
 CPPFLAGS = $(CPPFLAGS) -Fo$(OBJDIR)\ /Fd$(OUTDIR)\$(MODULE).pdb $(INCLUDES) $(DEFINES) $(USERCPP)
 RCFLAGS = $(RCFLAGS) $(INCLUDES) $(DEFINES)
 ASFLAGS = -Fo$(OBJDIR)\ $(ASFLAGS)
@@ -56,16 +58,41 @@ CPPFLAGS=$(CPPFLAGS) /arch:IA32
 CPPFLAGS = $(CPPFLAGS) /Zc:threadSafeInit- /std:c++latest
 !endif
 
-OBJS = $(OBJDIR)\archive.obj $(OBJDIR)\plugin.obj $(OBJDIR)\ui.obj $(OBJDIR)\extract.obj $(OBJDIR)\open.obj \
-  $(OBJDIR)\update.obj $(OBJDIR)\delete.obj $(OBJDIR)\options.obj $(OBJDIR)\msearch.obj $(OBJDIR)\attr.obj \
-  $(OBJDIR)\test.obj $(OBJDIR)\common.obj $(OBJDIR)\sfx.obj $(OBJDIR)\cmdline.obj $(OBJDIR)\rsrc.obj \
-  $(OBJDIR)\farutils.obj $(OBJDIR)\pathutils.obj $(OBJDIR)\strutils.obj $(OBJDIR)\sysutils.obj \
-  $(OBJDIR)\Patch7zCP.obj $(OBJDIR)\SimpleXML.obj
+OBJS = \
+	$(OBJDIR)\archive.obj \
+	$(OBJDIR)\plugin.obj \
+	$(OBJDIR)\ui.obj \
+	$(OBJDIR)\extract.obj \
+	$(OBJDIR)\open.obj \
+	$(OBJDIR)\update.obj \
+	$(OBJDIR)\delete.obj \
+	$(OBJDIR)\options.obj \
+	$(OBJDIR)\msearch.obj \
+	$(OBJDIR)\attr.obj \
+	$(OBJDIR)\test.obj \
+	$(OBJDIR)\common.obj \
+	$(OBJDIR)\sfx.obj \
+	$(OBJDIR)\cmdline.obj \
+	$(OBJDIR)\rsrc.obj \
+	$(OBJDIR)\farutils.obj \
+	$(OBJDIR)\pathutils.obj \
+	$(OBJDIR)\strutils.obj \
+	$(OBJDIR)\sysutils.obj \
+	$(OBJDIR)\Patch7zCP.obj \
+	$(OBJDIR)\SimpleXML.obj \
 !if "$(BITS)" == "32"
-OBJS = $(OBJS) $(OBJDIR)\vc_crt_fix.obj $(OBJDIR)\vc_crt_fix_impl.obj
+	$(OBJDIR)\vc_crt_fix.obj \
+	$(OBJDIR)\vc_crt_fix_impl.obj \
 !endif
 
-LIBS = user32.lib advapi32.lib ole32.lib oleaut32.lib version.lib
+
+LIBS = \
+	user32.lib \
+	advapi32.lib \
+	ole32.lib \
+	oleaut32.lib \
+	version.lib \
+
 
 !ifdef DEBUG_7Z
 !if "$(BITS)" == "32"
@@ -77,10 +104,46 @@ _7Z = 7z\src\CPP\7zip\Bundles\Format7zF\x64\Debug\7z.dll
 _7Z = 7z\dll\final.$(DIRBIT)W.vc\7z.dll
 !endif
 
-SFX = $(OUTDIR)\7z.sfx $(OUTDIR)\7zCon.sfx $(OUTDIR)\7zS2.sfx $(OUTDIR)\7zS2con.sfx $(OUTDIR)\7zSD.sfx
-LNG = $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng $(OUTDIR)\$(MODULE)_spa.lng $(OUTDIR)\$(MODULE)_ita.lng $(OUTDIR)\$(MODULE)_pol.lng
-HLF = $(OUTDIR)\$(MODULE)_eng.hlf $(OUTDIR)\$(MODULE)_rus.hlf
-FILES = $(OUTDIR)\$(MODULE).dll $(LNG) $(HLF) $(OUTDIR)\7z.dll $(SFX) $(OUTDIR)\arclite.xml $(OUTDIR)\changelog
+SFX = \
+	$(OUTDIR)\7z.sfx \
+	$(OUTDIR)\7zCon.sfx \
+	$(OUTDIR)\7zS2.sfx \
+	$(OUTDIR)\7zS2con.sfx \
+	$(OUTDIR)\7zSD.sfx \
+
+
+LNGS = \
+	$(OUTDIR)\$(MODULE)_eng.lng \
+	$(OUTDIR)\$(MODULE)_rus.lng \
+	$(OUTDIR)\$(MODULE)_spa.lng \
+	$(OUTDIR)\$(MODULE)_ita.lng \
+	$(OUTDIR)\$(MODULE)_pol.lng \
+	$(OUTDIR)\$(MODULE)_bel.lng \
+
+
+HLFS = \
+	$(OUTDIR)\$(MODULE)_eng.hlf \
+	$(OUTDIR)\$(MODULE)_rus.hlf \
+
+
+FILES = \
+	$(OUTDIR)\$(MODULE).dll \
+	$(LNGS) \
+	$(HLFS) \
+	$(OUTDIR)\7z.dll \
+	$(SFX) \
+	$(OUTDIR)\arclite.xml \
+	$(OUTDIR)\changelog \
+
+
+BOOTSTRAP_MSGS = \
+	$(BOOTSTRAPDIR)eng.msg \
+	$(BOOTSTRAPDIR)rus.msg \
+	$(BOOTSTRAPDIR)spa.msg \
+	$(BOOTSTRAPDIR)ita.msg \
+	$(BOOTSTRAPDIR)pol.msg \
+	$(BOOTSTRAPDIR)bel.msg \
+
 
 !ifdef INSTALL
 INSTALL=$(INSTALL)\$(NAME)
@@ -89,9 +152,10 @@ target = install_project
 target = build_project
 !endif
 
-project: dirs depfile instmak bootstrap\far.ini
+all: dirs $(OBJDIR)\dep.mak $(OBJDIR)\install.mak $(BOOTSTRAPDIR)far.ini
   $(MAKE) -nologo -f makefile_vc -$(MAKEFLAGS) $(target) VisualStudioVersion=$(VisualStudioVersion) BUILD=1
 
+.PHONY: build_project
 build_project: $(FILES)
 
 $(OUTDIR)\$(MODULE).dll: plugin.def $(OBJS) $(OBJDIR)\headers.pch $(OBJDIR)\version.res project.ini
@@ -105,48 +169,39 @@ $(OBJS): $(OBJDIR)\headers.pch
   $(CPP) $(CPPFLAGS) -Yuheaders.hpp -FIheaders.hpp -Fp$(OBJDIR)\headers.pch $<
 
 $(OBJDIR)\headers.pch: headers.cpp headers.hpp
+  @echo Making precompiled headers
   $(CPP) $(CPPFLAGS) headers.cpp -Ycheaders.hpp -Fp$(OBJDIR)\headers.pch
 
-depfile: $(OUTDIR) bootstrap\msg.h bootstrap\plugin.h
-  $(TOOL) gendep $(INCLUDES) > $(OBJDIR)\dep.mak
+$(OBJDIR)\dep.mak: $(BOOTSTRAPDIR)msg.h $(BOOTSTRAPDIR)plugin.h
+  @echo Generating $@
+  $(TOOL) gendep $(INCLUDES) > $@
 
-instmak: $(OUTDIR)
-  $(TOOL) geninst $(FILES) $(OUTDIR)\$(MODULE).map $(OUTDIR)\$(MODULE).pdb > $(OBJDIR)\install.mak
+$(OBJDIR)\install.mak:
+  @echo Generating $@
+  $(TOOL) geninst $(FILES) $(OUTDIR)\$(MODULE).map $(OUTDIR)\$(MODULE).pdb > $@
 
-bootstrap\msg.h $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng $(OUTDIR)\$(MODULE)_spa.lng $(OUTDIR)\$(MODULE)_ita.lng: $(OUTDIR) bootstrap\en.msg bootstrap\ru.msg bootstrap\es.msg bootstrap\it.msg bootstrap\pl.msg
-  $(TOOL) msgc -in bootstrap\en.msg bootstrap\ru.msg bootstrap\es.msg bootstrap\it.msg bootstrap\pl.msg -out bootstrap\msg.h $(OUTDIR)\$(MODULE)_eng.lng $(OUTDIR)\$(MODULE)_rus.lng $(OUTDIR)\$(MODULE)_spa.lng $(OUTDIR)\$(MODULE)_ita.lng $(OUTDIR)\$(MODULE)_pol.lng
+$(BOOTSTRAPDIR)msg.h $(LNGS): $(BOOTSTRAP_MSGS)
+  @echo Generating language files
+  $(TOOL) msgc -in $(BOOTSTRAP_MSGS) -out $(BOOTSTRAPDIR)msg.h $(LNGS)
 
-$(OBJDIR)\version.res: bootstrap\version.rc
+$(OBJDIR)\version.res: $(BOOTSTRAPDIR)version.rc
   $(RC) $(RCFLAGS) -fo$@ $**
 
 PREPROC = $(TOOL) preproc $** $@
 
-bootstrap\version.rc: project.ini bootstrap\far.ini version.rc
+$(BOOTSTRAPDIR)version.rc: project.ini $(BOOTSTRAPDIR)far.ini version.rc
+  @echo Preprocessing $(@F)
   $(PREPROC)
 
-bootstrap\en.msg: project.ini en.msg
+$(BOOTSTRAP_MSGS): project.ini $(@F)
+  @echo Preprocessing $(@F)
   $(PREPROC)
 
-bootstrap\ru.msg: project.ini ru.msg
-  $(PREPROC)
+.hlf{$(OUTDIR)}.hlf:
+  $(COPY)
 
-bootstrap\es.msg: project.ini es.msg
-  $(PREPROC)
-
-bootstrap\it.msg: project.ini it.msg
-  $(PREPROC)
-
-bootstrap\pl.msg: project.ini pl.msg
-  $(PREPROC)
-
-$(OUTDIR)\$(MODULE)_eng.hlf: project.ini en.hlf
-  $(PREPROC)
-
-$(OUTDIR)\$(MODULE)_rus.hlf: project.ini ru.hlf
-  $(PREPROC)
-
-bootstrap\plugin.h: project.ini bootstrap\far.ini plugin_h.h
-  $(TOOL) preproc project.ini bootstrap\far.ini plugin_h.h $@
+$(BOOTSTRAPDIR)plugin.h: project.ini $(BOOTSTRAPDIR)far.ini plugin_h.h
+  $(TOOL) preproc project.ini $(BOOTSTRAPDIR)far.ini plugin_h.h $@
 
 COPY = copy /y $** $@
 
@@ -162,9 +217,9 @@ $(OUTDIR)\7z.dll: $(_7Z)
 {7z\sfx}.sfx{$(OUTDIR)}.sfx:
   $(COPY)
 
-.SUFFIXES: .sfx
+.SUFFIXES: .hlf .sfx
 
-bootstrap\far.ini: $(FARSDK)\plugin.hpp
+$(BOOTSTRAPDIR)far.ini: $(FARSDK)\plugin.hpp
   $(TOOL) farver $(FARSDK)\plugin.hpp $@
 
 $(OBJDIR)\vc_crt_fix.obj: ..\common\vc_crt_fix.asm
@@ -173,21 +228,23 @@ $(OBJDIR)\vc_crt_fix.obj: ..\common\vc_crt_fix.asm
 $(OBJDIR)\vc_crt_fix_impl.obj: ..\common\vc_crt_fix_impl.cpp
   $(CPP) $(CPPFLAGS) ..\common\vc_crt_fix_impl.cpp
 
-dirs $(OUTDIR):
-  if not exist bootstrap mkdir bootstrap
-  if not exist $(OUTDIR) mkdir $(OUTDIR)
-  if not exist $(OBJDIR) mkdir $(OBJDIR)
+.PHONY: dirs
+dirs:
+  if not exist "$(OUTDIR)" mkdir "$(OUTDIR)"
+  if not exist "$(OBJDIR)" mkdir "$(OBJDIR)"
+  if not exist "$(BOOTSTRAPDIR)" mkdir "$(BOOTSTRAPDIR)"
 
 !ifdef BUILD
 !include $(OBJDIR)\dep.mak
 !ifdef INSTALL
+.PHONY: install_project
 !include $(OBJDIR)\install.mak
 !endif
 !endif
 
+.PHONY: clean
 clean:
-  if exist $(OBJDIR)\* del /q $(OBJDIR)\*
-  if exist $(OUTDIR)\* del /q $(OUTDIR)\*
-  if exist bootstrap\* del /q bootstrap\*
-
-.PHONY: project dirs build_project install_project depfile instmak clean
+  @echo Cleaning
+  if exist "$(BOOTSTRAPDIR)" rd /s /q "$(BOOTSTRAPDIR)"
+  if exist "$(OBJDIR)" rd /s /q "$(OBJDIR)"
+  if exist "$(OUTDIR)" rd /s /q "$(OUTDIR)"

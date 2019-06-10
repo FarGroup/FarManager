@@ -66,6 +66,9 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
+    <CustomBuild Include="MacroBel.lng">
+      <Filter>Language Files</Filter>
+    </CustomBuild>
     <CustomBuild Include="MacroEng.lng">
       <Filter>Language Files</Filter>
     </CustomBuild>

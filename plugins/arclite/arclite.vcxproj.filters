@@ -133,25 +133,28 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <None Include="arclite_eng.hlf">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="arclite_rus.hlf">
+      <Filter>Resource Files</Filter>
+    </None>
     <None Include="changelog">
       <Filter>arclite.xml</Filter>
     </None>
     <None Include="changelog">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="en.hlf">
+    <None Include="bel.msg">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="en.msg">
+    <None Include="eng.msg">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="es.msg">
+    <None Include="ita.msg">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="it.msg">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="pl.msg">
+    <None Include="pol.msg">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="makefile_vc">
@@ -163,10 +166,10 @@
     <None Include="project.ini">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="ru.hlf">
+    <None Include="rus.msg">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="ru.msg">
+    <None Include="spa.msg">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\common\vc_crt_fix.asm">

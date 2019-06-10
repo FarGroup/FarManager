@@ -8,7 +8,7 @@ perfthread.cpp \
 Plist.cpp \
 Pmix.cpp \
 wmi.cpp
-DOCS = ProcEng.hlf ProcRus.hlf ProcEng.lng ProcRus.lng ProcIta.lng changelog
+DOCS = ProcEng.hlf ProcRus.hlf ProcEng.lng ProcRus.lng ProcIta.lng ProcBel.lng changelog
 
 USERCPP = -I ./WMI
 USERLIBS = -lversion -lmpr -lole32 -loleaut32

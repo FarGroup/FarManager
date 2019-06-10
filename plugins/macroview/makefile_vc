@@ -2,7 +2,7 @@
 
 NAME = MacroView
 LINK_OBJS = $(OBJDIR)\MacroView.obj
-DOCS = MacroEng.hlf MacroRus.hlf MacroEng.lng MacroRus.lng changelog
+DOCS = MacroEng.hlf MacroRus.hlf MacroEng.lng MacroRus.lng MacroBel.lng changelog
 
 !include ..\makefile_vc_def_inc
 

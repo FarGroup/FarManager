@@ -1,4 +1,4 @@
-.Language=Belarussian,Belarussian (Беларуская)
+﻿.Language=Belarussian,Belarussian (Беларуская)
 
 lang = be
 plugin.name = <(NAME)>

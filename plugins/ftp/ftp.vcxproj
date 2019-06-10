@@ -144,6 +144,11 @@
 
   <ItemGroup>
     <None Include="FarFtp.vc.def" />
+    <CustomBuild Include="FtpBel.lng">
+      <Message>Converting %(Identity)</Message>
+      <Command>copy /y "%(Identity)" "$(OutDir)"</Command>
+      <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
+    </CustomBuild>
     <CustomBuild Include="FtpEng.lng">
       <Message>Converting %(Identity)</Message>
       <Command>copy /y "%(Identity)" "$(OutDir)"</Command>

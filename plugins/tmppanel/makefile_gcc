@@ -3,7 +3,29 @@ SRCS = TmpPanel.cpp \
 TmpCfg.cpp \
 TmpClass.cpp \
 TmpMix.cpp
-DOCS = TmpEng.hlf TmpRus.hlf TmpEng.lng TmpRus.lng TmpSky.lng TmpSpa.lng TmpIta.lng TmpPol.lng shortcuts.eng.lua shortcuts.rus.lua shortcuts.pol.lua disks.eng.temp disks.rus.temp disks.pol.temp shortcuts.eng.temp shortcuts.rus.temp TmpPanel.ListUTF8.farconfig changelog
+DOCS = \
+	TmpEng.hlf \
+	TmpRus.hlf \
+	TmpEng.lng \
+	TmpRus.lng \
+	TmpSky.lng \
+	TmpSpa.lng \
+	TmpIta.lng \
+	TmpPol.lng \
+	TmpBel.lng \
+	shortcuts.eng.lua \
+	shortcuts.rus.lua \
+	shortcuts.pol.lua \
+	shortcuts.bel.lua \
+	disks.eng.temp \
+	disks.rus.temp \
+	disks.pol.temp \
+	disks.bel.temp \
+	shortcuts.eng.temp \
+	shortcuts.rus.temp \
+	shortcuts.bel.temp \
+	TmpPanel.ListUTF8.farconfig \
+	changelog
 
 include ../../far/makefile_gcc_common
 

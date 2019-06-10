@@ -10,7 +10,7 @@ Plugin.cpp
 
 USERLIBS= -luuid
 
-DOCS = EMenuEng.hlf EMenuRus.hlf EMenuPol.hlf EMenuEng.lng EMenuRus.lng EMenuSky.lng EMenuSpa.lng EMenuIta.lng EMenuPol.lng Hotkey.lua HotkeyClipboard.lua HotkeyProperties.lua changelog
+DOCS = EMenuEng.hlf EMenuRus.hlf EMenuPol.hlf EMenuEng.lng EMenuRus.lng EMenuSky.lng EMenuSpa.lng EMenuIta.lng EMenuPol.lng EMenuBel.lng Hotkey.lua HotkeyClipboard.lua HotkeyProperties.lua changelog
 
 include ../../far/makefile_gcc_common
 

@@ -297,6 +297,20 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="MacroViewW.vc.def" />
+    <CustomBuild Include="MacroBel.lng">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy %(Identity) $(OutDir)</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Identity);%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) $(OutDir)</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy %(Identity) $(OutDir)</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Identity);%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Copying %(Identity)</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) $(OutDir)</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
+    </CustomBuild>
     <CustomBuild Include="MacroEng.lng">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Copying %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy %(Identity) $(OutDir)</Command>

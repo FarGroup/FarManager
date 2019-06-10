@@ -144,6 +144,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="$(ProjectName).vc.def" />
+    <CustomBuild Include="arcbel.lng">
+      <Message>Converting %(Identity)</Message>
+      <Command>copy /y "%(Identity)" "$(OutDir)"</Command>
+      <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
+    </CustomBuild>
     <CustomBuild Include="arceng.lng">
       <Message>Converting %(Identity)</Message>
       <Command>copy /y "%(Identity)" "$(OutDir)"</Command>
