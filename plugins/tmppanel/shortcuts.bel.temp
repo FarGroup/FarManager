@@ -1,0 +1,9 @@
+|&D: Працоўны стол|%HOMEDRIVE%%HOMEPATH%\Desktop
+|&M: Мае дакументы|%HOMEDRIVE%%HOMEPATH%\My documents
+|&F: Пераважнае|%USERPROFILE%\Favorites
+|&P: Program Files|%ProgramFiles%
+|-|
+|&N: Сеткавае асяроддзе|%HOMEDRIVE%%HOMEPATH%\NetHood
+|&S: Агульныя дакументы|%ALLUSERSPROFILE%\Documents
+|-|
+|&T: %USERNAME%\Temp|%TEMP%
