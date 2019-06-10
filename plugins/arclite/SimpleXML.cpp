@@ -17,8 +17,8 @@ static const char *texts[] =
 };
 static const char *err_text(parseRet ret)
 {
-  static_assert(static_cast<size_t>(parseRet::COUNT) == _countof(texts), "parseRet mismatch");
-  return texts[static_cast<size_t>(ret)];
+	static_assert(static_cast<size_t>(parseRet::COUNT) == _countof(texts), "parseRet mismatch");
+	return texts[static_cast<size_t>(ret)];
 }
 #endif
 
@@ -31,9 +31,9 @@ static const auto doctype_begin = "<!DOCTYPE"_v;
 class ParseException
 {
 public:
-  parseRet   ret;
-  const char *ps;
-  explicit ParseException(parseRet _Ret, const char *_Pos) : ret(_Ret), ps(_Pos) {}
+	parseRet   ret;
+	const char *ps;
+	explicit ParseException(parseRet _Ret, const char *_Pos) : ret(_Ret), ps(_Pos) {}
 };
 
 class View : public str_view

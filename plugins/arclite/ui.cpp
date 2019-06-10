@@ -1343,8 +1343,8 @@ public:
       unsigned other_format_index = 0;
       bool found = false;
       for (const auto& t : other_formats) {
-        if (t == options.arc_type) {
-          other_format_index = static_cast<unsigned>(other_formats.size()) - 1;
+        if (!found && t == options.arc_type) {
+          other_format_index = static_cast<unsigned>(other_format_names.size());
           found = true;
         }
         other_format_names.push_back(arc_formats.at(t).name);
