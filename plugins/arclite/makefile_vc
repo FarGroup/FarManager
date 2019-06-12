@@ -43,7 +43,7 @@ CPPFLAGS=$(CPPFLAGS) /Zi
 
 OUTDIR = $(OUTDIR).$(BITS)W.vc$(VisualStudioVersion)
 OBJDIR = $(OUTDIR)\obj
-BOOTSTRAPDIR=$(OBJDIR)/include/bootstrap/
+BOOTSTRAPDIR=$(OBJDIR)\include\bootstrap\\
 
 INCLUDES = -I$(BOOTSTRAPDIR) -I7z\h -I$(FARSDK)
 CPPFLAGS = $(CPPFLAGS) -Fo$(OBJDIR)\ /Fd$(OUTDIR)\$(MODULE).pdb $(INCLUDES) $(DEFINES) $(USERCPP)
