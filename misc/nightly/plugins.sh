@@ -66,7 +66,7 @@ bplugin "hlfviewer" "HlfViewer" "HlfViewer.dll HlfViewerEng.hlf HlfViewerRus.hlf
 bplugin "network" "Network" "Network.dll NetEng.hlf NetRus.hlf NetEng.lng NetRus.lng NetSky.lng NetSpa.lng NetIta.lng NetBel.lng Network.map" && \
 bplugin "proclist" "ProcList" "ProcList.dll ProcEng.hlf ProcRus.hlf ProcEng.lng ProcRus.lng ProcIta.lng ProcBel.lng ProcList.map" && \
 bplugin "tmppanel" "TmpPanel" "TmpPanel.dll TmpEng.hlf TmpRus.hlf TmpEng.lng TmpRus.lng TmpSky.lng TmpSpa.lng TmpIta.lng TmpPol.lng TmpBel.lng TmpPanel.map shortcuts.eng.lua shortcuts.rus.lua shortcuts.pol.lua shortcuts.bel.lua disks.eng.temp disks.rus.temp disks.pol.temp disks.bel.temp shortcuts.eng.temp shortcuts.rus.temp shortcuts.bel.temp TmpPanel.ListUTF8.farconfig" && \
-bplugin "arclite" "ArcLite" "7z.dll 7z.sfx 7zCon.sfx 7zS2.sfx 7zS2con.sfx 7zSD.sfx arclite.dll arclite.map arclite_eng.hlf arclite_eng.lng arclite_rus.hlf arclite_rus.lng arclite_spa.lng arclite_ita.lng arclite_pol.lng arclite.xml" && \
+bplugin "arclite" "ArcLite" "7z.dll 7z.sfx 7zCon.sfx 7zS2.sfx 7zS2con.sfx 7zSD.sfx arclite.dll arclite.map arclite_eng.hlf arclite_eng.lng arclite_rus.hlf arclite_rus.lng arclite_spa.lng arclite_ita.lng arclite_pol.lng arclite_bel.lng arclite.xml" && \
 bplugin "luamacro" "LuaMacro" "LuaMacro.dll _globalinfo.lua api.lua luamacro.lua macrotest.lua utils.lua mbrowser.lua lang.lua panelsort.lua winapi.lua farapi.lua moonscript.lua keymacro.lua lm_eng.lng lm_rus.lng lm_sky.lng lm_spa.lng lm_ita.lng lm_bel.lng LuaMacro.map luamacro.example.ini" \
 ) || exit 1
 
