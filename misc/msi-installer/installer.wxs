@@ -3,7 +3,7 @@
 <?include guids_$(var.Platform).wxi ?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Product Id="*" Language="!(loc.Language)" Codepage="UTF-8" Name="$(var.Product)" Version="$(var.Version)" Manufacturer="$(var.Manufacturer)" UpgradeCode="$(var.Guid.UpgradeCode)">
-    <Package Id="*" Platform="$(var.Platform)" Languages="1033,1045,1049" Compressed="yes" Manufacturer="$(var.Manufacturer)" Description="$(var.Product) $(var.Version)" InstallerVersion="200" SummaryCodepage="!(loc.Codepage)" />
+    <Package Id="*" Platform="$(var.Platform)" Languages="$(var.Languages)" Compressed="yes" Manufacturer="$(var.Manufacturer)" Description="$(var.Product) $(var.Version)" InstallerVersion="200" SummaryCodepage="!(loc.Codepage)" />
     <Property Id="MACHINEINSTALLDIR">
       <RegistrySearch Id="InstallDir" Root="HKLM" Key="Software\$(var.RegKey)" Name="$(var.InstallDirParam)" Type="directory" Win64="$(var.Win64)" />
     </Property>

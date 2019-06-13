@@ -8,10 +8,17 @@ PLATFORM=x64
 PLATFORM=x86
 !endif
 
+!ifdef NO_LOCALISED_MSI
+TRANSFORMS =
+LANGUAGES=1033
+!else
+TRANSFORMS = $(OUTDIR)\1045 $(OUTDIR)\1049
+LANGUAGES=1033,1045,1049
+!endif
 
 CPPFLAGS = -nologo -D_WIN32_WINNT=0x0500 -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_WARNINGS /Zc:threadSafeInit- /W4
 LINKFLAGS = -nologo -incremental:no -machine:$(PLATFORM)
-CANDLEFLAGS = -nologo -dSourceDir="$(SOURCE_DIR)" -dPlatform=$(PLATFORM) -dVerMajor=$(VER_MAJOR) -dVerMinor=$(VER_MINOR) -dVerBuild=$(VER_BUILD)
+CANDLEFLAGS = -nologo -dSourceDir="$(SOURCE_DIR)" -dPlatform=$(PLATFORM) -dVerMajor=$(VER_MAJOR) -dVerMinor=$(VER_MINOR) -dVerBuild=$(VER_BUILD) -dLanguages=$(LANGUAGES)
 LIGHTFLAGS = -nologo -spdb -sval
 ASFLAGS = -nologo -c
 
@@ -52,12 +59,6 @@ MSI_NAME = $(OUTDIR)\far.msi
 !if "$(PLATFORM)" == "x86"
 VC10OBJ = $(OUTDIR)\vc_crt_fix.obj
 VC10CPP = ..\..\plugins\common\vc_crt_fix_impl.cpp
-!endif
-
-!ifdef NO_LOCALISED_MSI
-TRANSFORMS =
-!else
-TRANSFORMS = $(OUTDIR)\1045 $(OUTDIR)\1049
 !endif
 
 $(MSI_NAME): $(OUTDIR) $(OUTDIR)\1033.msi $(TRANSFORMS)
