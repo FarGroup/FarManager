@@ -71,6 +71,7 @@ public:
 	bool delete_file(const string& Object);
 	bool copy_file(const string& From, const string& To, LPPROGRESS_ROUTINE ProgressRoutine, void* Data, BOOL* Cancel, DWORD Flags);
 	bool move_file(const string& From, const string& To, DWORD Flags);
+	bool replace_file(const string& To, const string& From, const string& Backup, DWORD Flags);
 	DWORD get_file_attributes(const string& Object);
 	bool set_file_attributes(const string& Object, DWORD FileAttributes);
 	bool create_hard_link(const string& Object, const string& Target, SECURITY_ATTRIBUTES* SecurityAttributes);

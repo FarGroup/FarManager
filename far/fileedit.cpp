@@ -440,7 +440,6 @@ void FileEditor::Init(
 	m_editor->SetCodePage(m_codepage);
 	*AttrStr=0;
 	m_FileAttributes=INVALID_FILE_ATTRIBUTES;
-	FileAttributesModified=false;
 	SetTitle(Title);
 	// $ 17.08.2001 KM - Добавлено для поиска по AltF7. При редактировании найденного файла из архива для клавиши F2 сделать вызов ShiftF2.
 	m_Flags.Change(FFILEEDIT_SAVETOSAVEAS, BlankFileName != 0);
@@ -1742,9 +1741,9 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 	}
 
 	int NewFile=TRUE;
-	FileAttributesModified=false;
 
-	if ((m_FileAttributes = os::fs::get_file_attributes(Name)) != INVALID_FILE_ATTRIBUTES)
+	m_FileAttributes = os::fs::get_file_attributes(Name);
+	if (m_FileAttributes != INVALID_FILE_ATTRIBUTES)
 	{
 		// Проверка времени модификации...
 		if (!m_Flags.Check(FFILEEDIT_SAVEWQUESTIONS))
@@ -1787,7 +1786,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 		if (m_FileAttributes & FILE_ATTRIBUTE_READONLY)
 		{
 			//BUGBUG
-			const int AskOverwrite = Message(MSG_WARNING,
+			if (Message(MSG_WARNING,
 				msg(lng::MEditTitle),
 				{
 					Name,
@@ -1795,19 +1794,10 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 					msg(lng::MEditOvr)
 				},
 				{ lng::MYes, lng::MNo },
-				{}, &EditorSavedROId);
-
-			if (AskOverwrite)
+				{}, &EditorSavedROId) != Message::first_button)
 				return SAVEFILE_CANCEL;
 
-			os::fs::set_file_attributes(Name, m_FileAttributes & ~FILE_ATTRIBUTE_READONLY); // сняты атрибуты
-			FileAttributesModified=true;
-		}
-
-		if (m_FileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))
-		{
-			os::fs::set_file_attributes(Name, FILE_ATTRIBUTE_NORMAL);
-			FileAttributesModified=true;
+			os::fs::set_file_attributes(Name, m_FileAttributes & ~FILE_ATTRIBUTE_READONLY);
 		}
 	}
 	else
@@ -1929,67 +1919,82 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 
 	try
 	{
-		os::fs::file EditFile(Name, m_Flags.Check(FFILEEDIT_NEW)? FILE_WRITE_DATA : GENERIC_WRITE, FILE_SHARE_READ, nullptr, m_Flags.Check(FFILEEDIT_NEW)? CREATE_NEW : TRUNCATE_EXISTING, FILE_ATTRIBUTE_ARCHIVE | FILE_FLAG_SEQUENTIAL_SCAN);
-		// Don't use CreationDisposition=CREATE_ALWAYS here - it's kills alternate streams
-		if(!EditFile)
+		const auto IsStream = contains(PointToName(Name), L':');
+		const auto IsFileExists = !IsStream && m_FileAttributes != INVALID_FILE_ATTRIBUTES;
+		const auto OutFileName = IsFileExists? MakeTemp({}, false) : Name;
+
 		{
-			throw MAKE_FAR_EXCEPTION(L"Can't open file"sv);
-		}
+			os::fs::file EditFile(OutFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, IsStream? CREATE_ALWAYS : CREATE_NEW);
+			if (!EditFile)
+				throw MAKE_FAR_EXCEPTION(L"Can't open file"sv);
 
-		m_editor->UndoSavePos=m_editor->UndoPos;
-		m_editor->m_Flags.Clear(Editor::FEDITOR_UNDOSAVEPOSLOST);
+			m_editor->UndoSavePos = m_editor->UndoPos;
+			m_editor->m_Flags.Clear(Editor::FEDITOR_UNDOSAVEPOSLOST);
 
-		SetCursorType(false, 0);
-		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<Editor::EditorPreRedrawItem>());
+			SetCursorType(false, 0);
+			SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<Editor::EditorPreRedrawItem>());
 
-		if (!bSaveAs)
-			AddSignature=m_bAddSignature;
+			if (!bSaveAs)
+				AddSignature = m_bAddSignature;
 
-		const time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+			const time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 
-		os::fs::filebuf StreamBuffer(EditFile, std::ios::out);
-		std::ostream Stream(&StreamBuffer);
-		Stream.exceptions(Stream.badbit | Stream.failbit);
-		encoding::writer Writer(Stream, codepage, AddSignature);
+			os::fs::filebuf StreamBuffer(EditFile, std::ios::out);
+			std::ostream Stream(&StreamBuffer);
+			Stream.exceptions(Stream.badbit | Stream.failbit);
+			encoding::writer Writer(Stream, codepage, AddSignature);
 
-		size_t LineNumber = -1;
+			size_t LineNumber = -1;
 
-		std::vector<char> Buffer;
+			std::vector<char> Buffer;
 
-		for (auto& Line : m_editor->Lines)
-		{
-			++LineNumber;
-
-			if (TimeCheck)
+			for (auto& Line : m_editor->Lines)
 			{
-				Editor::EditorShowMsg(msg(lng::MEditTitle), msg(lng::MEditSaving), Name, LineNumber * 100 / m_editor->Lines.size());
+				++LineNumber;
+
+				if (TimeCheck)
+				{
+					Editor::EditorShowMsg(msg(lng::MEditTitle), msg(lng::MEditSaving), Name, LineNumber * 100 / m_editor->Lines.size());
+				}
+
+				const auto& SaveStr = Line.GetString();
+				auto LineEol = Line.GetEOL();
+
+				if (Eol != eol::type::none && LineEol != eol::type::none)
+				{
+					LineEol = m_editor->GlobalEOL;
+					Line.SetEOL(LineEol);
+				}
+
+				Writer.write(SaveStr);
+				Writer.write(eol::str(LineEol));
 			}
 
-			const auto& SaveStr = Line.GetString();
-			auto LineEol = Line.GetEOL();
-
-			if (Eol != eol::type::none && LineEol != eol::type::none)
-			{
-				LineEol = m_editor->GlobalEOL;
-				Line.SetEOL(LineEol);
-			}
-
-			Writer.write(SaveStr);
-			Writer.write(eol::str(LineEol));
+			Stream.flush();
 		}
 
-		Stream.flush();
-		EditFile.SetEnd();
+		if (IsFileExists)
+		{
+			if (!os::fs::replace_file(Name, OutFileName, Global->Opt->EdOpt.CreateBackups? Name + L".bak"sv : L""sv, REPLACEFILE_IGNORE_MERGE_ERRORS | REPLACEFILE_IGNORE_ACL_ERRORS))
+				throw MAKE_FAR_EXCEPTION(L"Can't replace the file"sv);
+		}
+
+		if (m_FileAttributes == INVALID_FILE_ATTRIBUTES)
+		{
+			m_FileAttributes = FILE_ATTRIBUTE_ARCHIVE;
+		}
+		else
+		{
+			m_FileAttributes |= FILE_ATTRIBUTE_ARCHIVE;
+		}
+
+		// No error checking - non-critical (TODO: log)
+		os::fs::set_file_attributes(Name, m_FileAttributes);
 	}
 	catch (const far_exception& e)
 	{
 		RetCode = SAVEFILE_ERROR;
 		ErrorState = e.get_error_state();
-	}
-
-	if (m_FileAttributes!=INVALID_FILE_ATTRIBUTES && FileAttributesModified)
-	{
-		os::fs::set_file_attributes(Name, m_FileAttributes | FILE_ATTRIBUTE_ARCHIVE);
 	}
 
 	// BUGBUG check result

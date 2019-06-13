@@ -22858,19 +22858,6 @@ MCannotUpdateDiz
 "Не вдалося оновити описи файлів"
 "Не атрымалася абнавіць апісанні файлаў"
 
-MCannotUpdateRODiz
-"Файл описаний защищён от записи"
-"The description file is read only"
-"Popisový soubor má atribut ""Jen pro čtení"""
-"Die Beschreibungsdatei ist schreibgeschützt."
-"A megjegyzésfájl csak olvasható"
-"Opis jest plikiem tylko do odczytu"
-"El archivo descripción es de sólo-lectura"
-"Súbor popisov je len na čítanie"
-"File Delle Descrizioni Di Sola Lettura"
-"Файл описів захищено від запису"
-"Файл апісання абаронены на запіс"
-
 MCfgDizTitle
 l:
 "Описания файлов"
@@ -30118,6 +30105,19 @@ upd:"to move this object:"
 "Per Spostare Questo Oggetto:"
 "для переміщення цього об'єкта:"
 "для пераносу гэтага аб'екту:"
+
+MElevationRequiredReplace
+"для замещения этого объекта:"
+"to replace this object:"
+upd:"nahrazení tohoto objektu:"
+upd:"um dieses Objekt zu ersetzen:"
+upd:"to replace this object:"
+upd:"to replace this object:"
+upd:"para reemplazar este objeto:"
+upd:"nahradenie tohto objektu:"
+upd:"Per Sostituire Questo Oggetto:"
+"для заміщення цього об'єкта:"
+upd:"для замены гэтага аб'екту:"
 
 MElevationRequiredGetAttributes
 "для получения атрибутов этого объекта:"

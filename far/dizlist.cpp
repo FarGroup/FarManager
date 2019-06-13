@@ -47,12 +47,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception.hpp"
 #include "datetime.hpp"
 #include "global.hpp"
+#include "mix.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
 
 // Common:
 #include "common/enum_tokens.hpp"
+#include "common/scope_exit.hpp"
 
 // External:
 #include "format.hpp"
@@ -284,9 +286,10 @@ bool DizList::Erase(const string& Name,const string& ShortName)
 bool DizList::Flush(const string& Path,const string* DizName)
 {
 	if (!m_Modified)
-	{
 		return true;
-	}
+
+	SCOPE_SUCCESS{ m_Modified = false; };
+
 
 	if (DizName)
 	{
@@ -306,82 +309,76 @@ bool DizList::Flush(const string& Path,const string* DizName)
 			return false;
 	}
 
-	DWORD FileAttr=os::fs::get_file_attributes(m_DizFileName);
+	auto FileAttr = os::fs::get_file_attributes(m_DizFileName);
 
-	if (FileAttr != INVALID_FILE_ATTRIBUTES)
+	if (FileAttr != INVALID_FILE_ATTRIBUTES && FileAttr & FILE_ATTRIBUTE_READONLY)
 	{
-		if (FileAttr&FILE_ATTRIBUTE_READONLY)
-		{
-			if(Global->Opt->Diz.ROUpdate)
-			{
-				if(os::fs::set_file_attributes(m_DizFileName,FileAttr))
-				{
-					FileAttr^=FILE_ATTRIBUTE_READONLY;
-				}
-			}
-		}
-
-		if(!(FileAttr&FILE_ATTRIBUTE_READONLY))
-		{
-			os::fs::set_file_attributes(m_DizFileName,FILE_ATTRIBUTE_ARCHIVE);
-		}
-		else
-		{
+		if (!Global->Opt->Diz.ROUpdate &&
 			Message(MSG_WARNING,
 				msg(lng::MError),
 				{
-					msg(lng::MCannotUpdateDiz),
-					msg(lng::MCannotUpdateRODiz)
+					m_DizFileName,
+					msg(lng::MEditRO),
+					msg(lng::MEditOvr)
 				},
-				{ lng::MOk });
+				{ lng::MYes, lng::MNo }) != Message::first_button)
 			return false;
-		}
+
+		os::fs::set_file_attributes(m_DizFileName, FileAttr & ~FILE_ATTRIBUTE_READONLY);
 	}
 
 	try
 	{
-		if (!m_OrderForWrite.empty())
+		if (m_OrderForWrite.empty())
 		{
-			if(const auto DizFile = os::fs::file(m_DizFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, FileAttr == INVALID_FILE_ATTRIBUTES? CREATE_NEW : TRUNCATE_EXISTING))
-			{
-				os::fs::filebuf StreamBuffer(DizFile, std::ios::out);
-				std::ostream Stream(&StreamBuffer);
-				Stream.exceptions(Stream.badbit | Stream.failbit);
-				encoding::writer Writer(Stream, Global->Opt->Diz.SaveInUTF? CP_UTF8 : Global->Opt->Diz.AnsiByDefault? CP_ACP : CP_OEMCP);
-				const auto Eol = eol::str(eol::type::win);
+			if (!os::fs::delete_file(m_DizFileName))
+				throw MAKE_FAR_EXCEPTION(L"Can't delete file"sv);
 
-				for (const auto& i_ptr : m_OrderForWrite)
+			return true;
+		}
+
+		const auto IsFileExists = FileAttr != INVALID_FILE_ATTRIBUTES;
+		const auto OutFileName = IsFileExists? MakeTemp({}, false) : m_DizFileName;
+
+		{
+			const auto DizFile = os::fs::file(OutFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_NEW);
+			if (!DizFile)
+				throw MAKE_FAR_EXCEPTION(L"Can't create a temporary file"sv);
+
+			os::fs::filebuf StreamBuffer(DizFile, std::ios::out);
+			std::ostream Stream(&StreamBuffer);
+			Stream.exceptions(Stream.badbit | Stream.failbit);
+			encoding::writer Writer(Stream, Global->Opt->Diz.SaveInUTF? CP_UTF8 : Global->Opt->Diz.AnsiByDefault? CP_ACP : CP_OEMCP);
+			const auto Eol = eol::str(eol::type::win);
+
+			for (const auto& i_ptr : m_OrderForWrite)
+			{
+				const auto& [Name, Lines] = *i_ptr;
+				Writer.write(quote_space(Name));
+				for (const auto& Description : Lines)
 				{
-					const auto& [Name, Lines] = *i_ptr;
-					Writer.write(quote_space(Name));
-					for (const auto& Description : Lines)
-					{
-						Writer.write(Description);
-						Writer.write(Eol);
-					}
+					Writer.write(Description);
+					Writer.write(Eol);
 				}
-
-				Stream.flush();
-			}
-			else
-			{
-				throw MAKE_FAR_EXCEPTION(L"Can't open file"sv);
 			}
 
-			if (FileAttr == INVALID_FILE_ATTRIBUTES)
-			{
-				FileAttr = FILE_ATTRIBUTE_ARCHIVE | (Global->Opt->Diz.SetHidden? FILE_ATTRIBUTE_HIDDEN : 0);
-			}
-			// No error checking - non-critical (TODO: log)
-			os::fs::set_file_attributes(m_DizFileName, FileAttr);
+			Stream.flush();
+		}
+
+		if (IsFileExists)
+		{
+			if (!os::fs::replace_file(m_DizFileName, OutFileName, {}, REPLACEFILE_IGNORE_MERGE_ERRORS | REPLACEFILE_IGNORE_ACL_ERRORS))
+				throw MAKE_FAR_EXCEPTION(L"Can't replace the file"sv);
+
+			FileAttr |= FILE_ATTRIBUTE_ARCHIVE;
 		}
 		else
 		{
-			if (!os::fs::delete_file(m_DizFileName))
-			{
-				throw MAKE_FAR_EXCEPTION(L"Can't delete file"sv);
-			}
+			FileAttr = FILE_ATTRIBUTE_ARCHIVE | (Global->Opt->Diz.SetHidden ? FILE_ATTRIBUTE_HIDDEN : 0);
 		}
+
+		// No error checking - non-critical (TODO: log)
+		os::fs::set_file_attributes(m_DizFileName, FileAttr);
 	}
 	catch (const far_exception& e)
 	{

@@ -78,6 +78,7 @@ enum ELEVATION_COMMAND: int
 	C_FUNCTION_DELETEFILE,
 	C_FUNCTION_COPYFILE,
 	C_FUNCTION_MOVEFILE,
+	C_FUNCTION_REPLACEFILE,
 	C_FUNCTION_GETFILEATTRIBUTES,
 	C_FUNCTION_SETFILEATTRIBUTES,
 	C_FUNCTION_CREATEHARDLINK,
@@ -580,6 +581,22 @@ bool elevation::move_file(const string& From, const string& To, DWORD Flags)
 		});
 }
 
+bool elevation::replace_file(const string& To, const string& From, const string& Backup, DWORD Flags)
+{
+	return execute(lng::MElevationRequiredReplace, To,
+		false,
+		[&]
+		{
+			return os::fs::low::replace_file(To.c_str(), From.c_str(), Backup.c_str(), Flags);
+		},
+		[&]
+		{
+			Write(C_FUNCTION_REPLACEFILE, To, From, Backup, Flags);
+			return RetrieveLastErrorAndResult<bool>();
+		});
+}
+
+
 DWORD elevation::get_file_attributes(const string& Object)
 {
 	return execute(lng::MElevationRequiredGetAttributes, Object,
@@ -944,6 +961,18 @@ private:
 		Write(error_state::fetch(), Result);
 	}
 
+	void ReplaceFileHandler() const
+	{
+		const auto To = Read<string>();
+		const auto From = Read<string>();
+		const auto Backup = Read<string>();
+		const auto Flags = Read<DWORD>();
+
+		const auto Result = os::fs::low::replace_file(To.c_str(), From.c_str(), Backup.c_str(), Flags);
+
+		Write(error_state::fetch(), Result);
+	}
+
 	void GetFileAttributesHandler() const
 	{
 		const auto Object = Read<string>();
@@ -1111,6 +1140,7 @@ private:
 			&elevated::DeleteFileHandler,
 			&elevated::CopyFileHandler,
 			&elevated::MoveFileHandler,
+			&elevated::ReplaceFileHandler,
 			&elevated::GetFileAttributesHandler,
 			&elevated::SetFileAttributesHandler,
 			&elevated::CreateHardLinkHandler,

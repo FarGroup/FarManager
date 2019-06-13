@@ -1395,6 +1395,15 @@ namespace os::fs
 			return (Flags? ::MoveFileEx(ExistingFileName, NewFileName, Flags) : ::MoveFile(ExistingFileName, NewFileName)) != FALSE;
 		}
 
+		bool replace_file(const wchar_t* ReplacedFileName, const wchar_t* ReplacementFileName, const wchar_t* BackupFileName, DWORD ReplaceFlags)
+		{
+			static bool IgnoreAclErrorsSupported = IsWindowsVistaOrGreater();
+			if (!IgnoreAclErrorsSupported)
+				ReplaceFlags &= ~REPLACEFILE_IGNORE_ACL_ERRORS;
+
+			return ::ReplaceFile(ReplacedFileName, ReplacementFileName, EmptyToNull(BackupFileName), ReplaceFlags, nullptr, nullptr) != FALSE;
+		}
+
 		bool detach_virtual_disk(const wchar_t* Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType)
 		{
 			handle Handle;
@@ -1694,6 +1703,20 @@ namespace os::fs
 
 		return false;
 	}
+
+	bool replace_file(string_view ReplacedFileName, string_view ReplacementFileName, string_view BackupFileName, DWORD Flags)
+	{
+		const NTPath To(ReplacedFileName), From(ReplacementFileName), Backup(BackupFileName);
+
+		if (low::replace_file(To.c_str(), From.c_str(), Backup.c_str(), Flags))
+			return true;
+
+		if (ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
+			return elevation::instance().replace_file(To, From, Backup, Flags);
+
+		return false;
+	}
+
 
 	DWORD get_file_attributes(const string_view FileName)
 	{

@@ -49,7 +49,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "fnparce.hpp"
 #include "pathmix.hpp"
-#include "strmix.hpp"
 #include "panelmix.hpp"
 #include "filestr.hpp"
 #include "interf.hpp"
@@ -67,6 +66,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/from_string.hpp"
 #include "common/range.hpp"
+#include "common/scope_exit.hpp"
 
 // External:
 
@@ -258,63 +258,67 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 	if (!m_MenuModified)
 		return;
 
-	const auto FileAttr = os::fs::get_file_attributes(MenuFileName);
-
-	if (FileAttr != INVALID_FILE_ATTRIBUTES)
-	{
-		if (FileAttr & FILE_ATTRIBUTE_READONLY)
-		{
-			if (Message(MSG_WARNING,
-				msg(lng::MUserMenuTitle),
-				{
-					string(LocalMenuFileName),
-					msg(lng::MEditRO),
-					msg(lng::MEditOvr)
-				},
-				{ lng::MYes, lng::MNo }) == Message::first_button)
-
-				os::fs::set_file_attributes(MenuFileName,FileAttr & ~FILE_ATTRIBUTE_READONLY);
-		}
-
-		if (FileAttr & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))
-			os::fs::set_file_attributes(MenuFileName,FILE_ATTRIBUTE_NORMAL);
-	}
+	SCOPE_SUCCESS{ m_MenuModified = false; };
 
 	const auto SerialisedMenu = SerializeMenu(m_Menu);
 
+	auto FileAttr = os::fs::get_file_attributes(MenuFileName);
+
+	if (FileAttr != INVALID_FILE_ATTRIBUTES && FileAttr & FILE_ATTRIBUTE_READONLY)
+	{
+		if (Message(MSG_WARNING,
+			msg(lng::MUserMenuTitle),
+			{
+				MenuFileName,
+				msg(lng::MEditRO),
+				msg(lng::MEditOvr)
+			},
+			{ lng::MYes, lng::MNo }) != Message::first_button)
+			return;
+
+		os::fs::set_file_attributes(MenuFileName, FileAttr & ~FILE_ATTRIBUTE_READONLY);
+	}
+
 	try
 	{
-		if (!SerialisedMenu.empty())
+		if (SerialisedMenu.empty())
 		{
-			// Don't use CreationDisposition=CREATE_ALWAYS here - it kills alternate streams
-			if (const auto MenuFile = os::fs::file(MenuFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, FileAttr == INVALID_FILE_ATTRIBUTES? CREATE_NEW : TRUNCATE_EXISTING))
-			{
-				os::fs::filebuf StreamBuffer(MenuFile, std::ios::out);
-				std::ostream Stream(&StreamBuffer);
-				Stream.exceptions(Stream.badbit | Stream.failbit);
-				encoding::writer Writer(Stream, m_MenuCP);
-				Writer.write(SerialisedMenu);
-				Stream.flush();
-			}
-			else
-			{
-				throw MAKE_FAR_EXCEPTION(L"Can't open file"sv);
-			}
+			if (!os::fs::delete_file(MenuFileName))
+				throw MAKE_FAR_EXCEPTION(L"Can't delete file"sv);
 
-			if (FileAttr != INVALID_FILE_ATTRIBUTES)
-			{
-				// No error checking - non-critical (TODO: log)
-				os::fs::set_file_attributes(MenuFileName, FileAttr);
-			}
+			return;
+		}
+
+		const auto IsFileExists = FileAttr != INVALID_FILE_ATTRIBUTES;
+		const auto OutFileName = IsFileExists? MakeTemp({}, false) : MenuFileName;
+
+		{
+			const auto MenuFile = os::fs::file(OutFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_NEW);
+			if (!MenuFile)
+				throw MAKE_FAR_EXCEPTION(L"Can't open file"sv);
+
+			os::fs::filebuf StreamBuffer(MenuFile, std::ios::out);
+			std::ostream Stream(&StreamBuffer);
+			Stream.exceptions(Stream.badbit | Stream.failbit);
+			encoding::writer Writer(Stream, m_MenuCP);
+			Writer.write(SerialisedMenu);
+			Stream.flush();
+		}
+
+		if (IsFileExists)
+		{
+			if (!os::fs::replace_file(MenuFileName, OutFileName, {}, REPLACEFILE_IGNORE_MERGE_ERRORS | REPLACEFILE_IGNORE_ACL_ERRORS))
+				throw MAKE_FAR_EXCEPTION(L"Can't replace the file"sv);
+
+			FileAttr |= FILE_ATTRIBUTE_ARCHIVE;
 		}
 		else
 		{
-			// если файл FarMenu.ini пуст, то удалим его
-			if (!os::fs::delete_file(MenuFileName))
-			{
-				throw MAKE_FAR_EXCEPTION(L"Can't delete file"sv);
-			}
+			FileAttr = FILE_ATTRIBUTE_ARCHIVE;
 		}
+
+		// No error checking - non-critical (TODO: log)
+		os::fs::set_file_attributes(MenuFileName, FileAttr);
 	}
 	catch (const far_exception& e)
 	{

@@ -436,6 +436,9 @@ namespace os::fs
 		bool move_file(const wchar_t* ExistingFileName, const wchar_t* NewFileName, DWORD Flags);
 
 		[[nodiscard]]
+		bool replace_file(const wchar_t* ReplacedFileName, const wchar_t* ReplacementFileName, const wchar_t* BackupFileName, DWORD ReplaceFlags);
+
+		[[nodiscard]]
 		bool detach_virtual_disk(const wchar_t* Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType);
 
 		[[nodiscard]]
@@ -476,6 +479,9 @@ namespace os::fs
 
 	[[nodiscard]]
 	bool move_file(string_view ExistingFileName, string_view NewFileName, DWORD Flags = 0);
+
+	[[nodiscard]]
+	bool replace_file(string_view ReplacedFileName, string_view ReplacementFileName, string_view BackupFileName, DWORD Flags = 0);
 
 	[[nodiscard]]
 	DWORD get_file_attributes(string_view FileName);

@@ -3,6 +3,16 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 13.06.2019 01:49:25 +0100 - build 5411
+
+1. Based on 0003712: Far crashes when saving a file and the file content is lost:
+   we indeed use not the safest possible way to save files.
+   Now in Editor (and also when saving descriptions and user menu) we write into a new file
+   and then replace the old one with it using ReplaceFileW.
+
+2. Since ReplaceFileW allows to create backups with truly indescribable ease, let's use it:
+   If Editor.CreateBackups is enabled in far:config - Editor will create .bak files when saving.
+
 drkns 08.06.2019 22:27:51 +0100 - build 5410
 
 1. Refactoring.

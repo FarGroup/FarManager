@@ -70,7 +70,7 @@ private:
 	enum class menu_mode: int;
 
 	menu_mode m_MenuMode;
-	bool m_MenuModified;
+	mutable bool m_MenuModified;
 	bool m_ItemChanged;
 	uintptr_t m_MenuCP;
 	menu_container m_Menu;

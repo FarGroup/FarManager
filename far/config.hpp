@@ -522,6 +522,7 @@ public:
 		BoolOption KeepEOL;
 		BoolOption AddUnicodeBOM;
 		BoolOption NewFileUnixEOL;
+		BoolOption CreateBackups;
 	};
 
 	struct ViewerOptions
