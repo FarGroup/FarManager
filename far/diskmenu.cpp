@@ -669,7 +669,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 	const auto DiskCount = AllDrives.count();
 
-	if (Pos == static_cast<int>(DiskCount))
+	if (!FirstCall && Pos == static_cast<int>(DiskCount))
 	{
 		// Pos points to the separator - this is probably a redraw after a removal of the last disk.
 		--Pos;

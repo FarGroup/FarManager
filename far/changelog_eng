@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 13.06.2019 10:40:47 +0100 - build 5412
+
+1. Correction of 5409.
+
 drkns 13.06.2019 01:49:25 +0100 - build 5411
 
 1. Based on 0003712: Far crashes when saving a file and the file content is lost:
