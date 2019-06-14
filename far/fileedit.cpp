@@ -77,6 +77,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "cvtname.hpp"
 #include "global.hpp"
+#include "flink.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -1920,11 +1921,13 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 	try
 	{
 		const auto IsStream = contains(PointToName(Name), L':');
-		const auto IsFileExists = !IsStream && m_FileAttributes != INVALID_FILE_ATTRIBUTES;
-		const auto OutFileName = IsFileExists? MakeTemp({}, false) : Name;
+		const auto IsFileExists = m_FileAttributes != INVALID_FILE_ATTRIBUTES;
+		const auto IsHardLink = IsFileExists && !IsStream && GetNumberOfLinks(Name) > 1;
+		const auto SaveSafely = IsFileExists && !IsHardLink && !IsStream;
+		const auto OutFileName = SaveSafely? MakeTempInSameDir(Name) : Name;
 
 		{
-			os::fs::file EditFile(OutFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, IsStream? CREATE_ALWAYS : CREATE_NEW);
+			os::fs::file EditFile(OutFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, SaveSafely? CREATE_NEW : TRUNCATE_EXISTING);
 			if (!EditFile)
 				throw MAKE_FAR_EXCEPTION(L"Can't open file"sv);
 
@@ -1971,9 +1974,10 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 			}
 
 			Stream.flush();
+			EditFile.SetEnd();
 		}
 
-		if (IsFileExists)
+		if (SaveSafely)
 		{
 			if (!os::fs::replace_file(Name, OutFileName, Global->Opt->EdOpt.CreateBackups? Name + L".bak"sv : L""sv, REPLACEFILE_IGNORE_MERGE_ERRORS | REPLACEFILE_IGNORE_ACL_ERRORS))
 				throw MAKE_FAR_EXCEPTION(L"Can't replace the file"sv);

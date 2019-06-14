@@ -58,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgGuid.hpp"
 #include "global.hpp"
 #include "delete.hpp"
+#include "flink.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -290,10 +291,12 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 		}
 
 		const auto IsFileExists = FileAttr != INVALID_FILE_ATTRIBUTES;
-		const auto OutFileName = IsFileExists? MakeTemp({}, false) : MenuFileName;
+		const auto IsHardLink = IsFileExists && GetNumberOfLinks(MenuFileName) > 1;
+		const auto SaveSafely = IsFileExists && !IsHardLink;
+		const auto OutFileName = SaveSafely? MakeTempInSameDir(MenuFileName) : MenuFileName;
 
 		{
-			const auto MenuFile = os::fs::file(OutFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_NEW);
+			auto MenuFile = os::fs::file(OutFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, SaveSafely? CREATE_NEW : TRUNCATE_EXISTING);
 			if (!MenuFile)
 				throw MAKE_FAR_EXCEPTION(L"Can't open file"sv);
 
@@ -303,9 +306,10 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 			encoding::writer Writer(Stream, m_MenuCP);
 			Writer.write(SerialisedMenu);
 			Stream.flush();
+			MenuFile.SetEnd();
 		}
 
-		if (IsFileExists)
+		if (SaveSafely)
 		{
 			if (!os::fs::replace_file(MenuFileName, OutFileName, {}, REPLACEFILE_IGNORE_MERGE_ERRORS | REPLACEFILE_IGNORE_ACL_ERRORS))
 				throw MAKE_FAR_EXCEPTION(L"Can't replace the file"sv);

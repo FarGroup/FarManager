@@ -72,6 +72,7 @@ T FromPercent(int Percent, T Base)
 };
 
 string MakeTemp(string_view Prefix = {}, bool WithTempPath = true, string_view UserTempPath = {});
+string MakeTempInSameDir(string_view FileName);
 
 void PluginPanelItemToFindDataEx(const PluginPanelItem& Src, os::fs::find_data& Dest);
 

@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 14.06.2019 17:10:17 +0100 - build 5413
+
+1. Continuation of 5411:
+   - Take into account that the user can insidiously change the current directory after opening Editor.
+   - Save hardlinks directly to not break them.
+
+2. As it turned out, updating descriptions in ANSI plugins (e.g. Multiarc) never worked.
+
 drkns 13.06.2019 10:40:47 +0100 - build 5412
 
 1. Correction of 5409.

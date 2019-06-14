@@ -686,17 +686,21 @@ static void WINAPI FreeUserData(void* UserData, const FarPanelItemFreeInfo*)
 	delete[] static_cast<char*>(UserData);
 }
 
-static PluginPanelItem* ConvertAnsiPanelItemsToUnicode(range<oldfar::PluginPanelItem*> const PanelItemA)
+static const std::pair<oldfar::PLUGINPANELITEMFLAGS, PLUGINPANELITEMFLAGS> PluginPanelItemFlagsMap[]
+{
+	OLDFAR_TO_FAR_MAP(PPIF_PROCESSDESCR),
+	OLDFAR_TO_FAR_MAP(PPIF_SELECTED),
+	// PPIF_USERDATA is handled manually
+};
+
+static PluginPanelItem* ConvertAnsiPanelItemsToUnicode(span<const oldfar::PluginPanelItem> const PanelItemA)
 {
 	auto Result = std::make_unique<PluginPanelItem[]>(PanelItemA.size());
 	const span DstSpan(Result.get(), PanelItemA.size());
 	for(const auto [Src, Dst]: zip(PanelItemA, DstSpan))
 	{
 		Dst.Flags = 0;
-		if (Src.Flags&oldfar::PPIF_PROCESSDESCR)
-			Dst.Flags |= PPIF_PROCESSDESCR;
-		if (Src.Flags&oldfar::PPIF_SELECTED)
-			Dst.Flags |= PPIF_SELECTED;
+		FirstFlagsToSecond(Src.Flags, Dst.Flags, PluginPanelItemFlagsMap);
 
 		Dst.NumberOfLinks = Src.NumberOfLinks;
 
@@ -739,11 +743,7 @@ static void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::Plu
 {
 	PanelItemA.Flags = 0;
 
-	if (PanelItem.Flags&PPIF_PROCESSDESCR)
-		PanelItemA.Flags |= oldfar::PPIF_PROCESSDESCR;
-
-	if (PanelItem.Flags&PPIF_SELECTED)
-		PanelItemA.Flags |= oldfar::PPIF_SELECTED;
+	SecondFlagsToFirst(PanelItem.Flags, PanelItemA.Flags, PluginPanelItemFlagsMap);
 
 	if (PanelItem.UserData.FreeData == FreeUserData)
 		PanelItemA.Flags |= oldfar::PPIF_USERDATA;
@@ -4752,6 +4752,14 @@ static void* TranslateResult(void* hResult)
 	return hResult;
 }
 
+static void UpdatePluginPanelItemFlags(const oldfar::PluginPanelItem* From, PluginPanelItem* To, size_t Size)
+{
+	for (size_t i = 0; i != Size; ++i)
+	{
+		FirstFlagsToSecond(From[i].Flags, To[i].Flags, PluginPanelItemFlagsMap);
+	}
+}
+
 // TODO: PluginA class shouldn't be derived from Plugin.
 // All exports should be provided by oem_plugin_factory.
 class PluginA: public Plugin
@@ -5192,6 +5200,7 @@ private:
 			int OpMode = 0;
 			SecondFlagsToFirst(Info->OpMode, OpMode, OperationModesMap);
 			ExecuteFunction(es, Info->hPanel, PanelItemA, static_cast<int>(Info->ItemsNumber), Info->Move, DestA, OpMode);
+			UpdatePluginPanelItemFlags(PanelItemA, Info->PanelItem, Info->ItemsNumber);
 			static wchar_t DestW[oldfar::NM];
 			encoding::oem::get_chars(DestA, DestW);
 			Info->DestPath = DestW;
@@ -5209,6 +5218,7 @@ private:
 			int OpMode = 0;
 			SecondFlagsToFirst(Info->OpMode, OpMode, OperationModesMap);
 			ExecuteFunction(es, Info->hPanel, PanelItemA, static_cast<int>(Info->ItemsNumber), Info->Move, OpMode);
+			UpdatePluginPanelItemFlags(PanelItemA, Info->PanelItem, Info->ItemsNumber);
 			FreePanelItemA(PanelItemA, Info->ItemsNumber);
 		}
 		return es;
@@ -5223,6 +5233,7 @@ private:
 			int OpMode = 0;
 			SecondFlagsToFirst(Info->OpMode, OpMode, OperationModesMap);
 			ExecuteFunction(es, Info->hPanel, PanelItemA, static_cast<int>(Info->ItemsNumber), OpMode);
+			UpdatePluginPanelItemFlags(PanelItemA, Info->PanelItem, Info->ItemsNumber);
 			FreePanelItemA(PanelItemA, Info->ItemsNumber);
 		}
 		return es;

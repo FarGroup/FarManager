@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "global.hpp"
 #include "mix.hpp"
+#include "flink.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -337,11 +338,15 @@ bool DizList::Flush(const string& Path,const string* DizName)
 			return true;
 		}
 
+
 		const auto IsFileExists = FileAttr != INVALID_FILE_ATTRIBUTES;
-		const auto OutFileName = IsFileExists? MakeTemp({}, false) : m_DizFileName;
+		const auto IsHardLink = IsFileExists && GetNumberOfLinks(m_DizFileName) > 1;
+		const auto SaveSafely = IsFileExists && !IsHardLink;
+		const auto OutFileName = SaveSafely? MakeTempInSameDir(m_DizFileName) : m_DizFileName;
 
 		{
-			const auto DizFile = os::fs::file(OutFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_NEW);
+			auto DizFile = os::fs::file(OutFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, SaveSafely? CREATE_NEW : TRUNCATE_EXISTING);
+
 			if (!DizFile)
 				throw MAKE_FAR_EXCEPTION(L"Can't create a temporary file"sv);
 
@@ -363,9 +368,10 @@ bool DizList::Flush(const string& Path,const string* DizName)
 			}
 
 			Stream.flush();
+			DizFile.SetEnd();
 		}
 
-		if (IsFileExists)
+		if (SaveSafely)
 		{
 			if (!os::fs::replace_file(m_DizFileName, OutFileName, {}, REPLACEFILE_IGNORE_MERGE_ERRORS | REPLACEFILE_IGNORE_ACL_ERRORS))
 				throw MAKE_FAR_EXCEPTION(L"Can't replace the file"sv);

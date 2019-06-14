@@ -114,6 +114,11 @@ string MakeTemp(string_view Prefix, bool const WithTempPath, string_view const U
 	}
 }
 
+string MakeTempInSameDir(string_view FileName)
+{
+	return MakeTemp({}, false, CutToParent(FileName)? FileName : L"."sv);
+}
+
 void PluginPanelItemToFindDataEx(const PluginPanelItem& Src, os::fs::find_data& Dest)
 {
 	Dest = {};
