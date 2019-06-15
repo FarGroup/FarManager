@@ -2003,7 +2003,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 			if ((Flags&FCOPY_COPYSECURITY) && !GetSecurity(Src,sd))
 				return COPY_CANCEL;
-			SECURITY_ATTRIBUTES SecAttr = {sizeof(SecAttr), sd.get(), FALSE};
+			SECURITY_ATTRIBUTES SecAttr = {sizeof(SecAttr), Flags & FCOPY_COPYSECURITY? sd.get() : nullptr, FALSE};
 			if (RPT!=RP_SYMLINKFILE && SrcData.Attributes&FILE_ATTRIBUTE_DIRECTORY)
 			{
 				while (!os::fs::create_directory(

@@ -1922,12 +1922,12 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 	{
 		const auto IsStream = contains(PointToName(Name), L':');
 		const auto IsFileExists = m_FileAttributes != INVALID_FILE_ATTRIBUTES;
-		const auto IsHardLink = IsFileExists && !IsStream && GetNumberOfLinks(Name) > 1;
+		const auto IsHardLink = IsFileExists && GetNumberOfLinks(Name) > 1;
 		const auto SaveSafely = IsFileExists && !IsHardLink && !IsStream;
 		const auto OutFileName = SaveSafely? MakeTempInSameDir(Name) : Name;
 
 		{
-			os::fs::file EditFile(OutFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, SaveSafely? CREATE_NEW : TRUNCATE_EXISTING);
+			os::fs::file EditFile(OutFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, IsFileExists && !SaveSafely? TRUNCATE_EXISTING : CREATE_NEW);
 			if (!EditFile)
 				throw MAKE_FAR_EXCEPTION(L"Can't open file"sv);
 

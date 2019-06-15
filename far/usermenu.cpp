@@ -296,7 +296,7 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 		const auto OutFileName = SaveSafely? MakeTempInSameDir(MenuFileName) : MenuFileName;
 
 		{
-			auto MenuFile = os::fs::file(OutFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, SaveSafely? CREATE_NEW : TRUNCATE_EXISTING);
+			auto MenuFile = os::fs::file(OutFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, IsFileExists && !SaveSafely? TRUNCATE_EXISTING : CREATE_NEW);
 			if (!MenuFile)
 				throw MAKE_FAR_EXCEPTION(L"Can't open file"sv);
 
