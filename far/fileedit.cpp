@@ -1923,7 +1923,8 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 		const auto IsStream = contains(PointToName(Name), L':');
 		const auto IsFileExists = m_FileAttributes != INVALID_FILE_ATTRIBUTES;
 		const auto IsHardLink = IsFileExists && GetNumberOfLinks(Name) > 1;
-		const auto SaveSafely = IsFileExists && !IsHardLink && !IsStream;
+		const auto IsSymLink = IsFileExists && (m_FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT);
+		const auto SaveSafely = IsFileExists && !IsHardLink && !IsSymLink && !IsStream;
 		const auto OutFileName = SaveSafely? MakeTempInSameDir(Name) : Name;
 
 		{

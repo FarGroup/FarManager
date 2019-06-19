@@ -341,7 +341,8 @@ bool DizList::Flush(const string& Path,const string* DizName)
 
 		const auto IsFileExists = FileAttr != INVALID_FILE_ATTRIBUTES;
 		const auto IsHardLink = IsFileExists && GetNumberOfLinks(m_DizFileName) > 1;
-		const auto SaveSafely = IsFileExists && !IsHardLink;
+		const auto IsSymLink = IsFileExists && (FileAttr & FILE_ATTRIBUTE_REPARSE_POINT);
+		const auto SaveSafely = IsFileExists && !IsHardLink && !IsSymLink;
 		const auto OutFileName = SaveSafely? MakeTempInSameDir(m_DizFileName) : m_DizFileName;
 
 		{
