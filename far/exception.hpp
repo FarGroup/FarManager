@@ -78,11 +78,11 @@ namespace detail
 	class far_base_exception
 	{
 	public:
-		const auto& get_message() const noexcept { return m_ErrorState.What; }
-		const auto& get_full_message() const noexcept { return m_FullMessage; }
-		const auto& get_error_state() const noexcept { return m_ErrorState; }
-		const auto& get_function() const noexcept { return m_Function; }
-		const auto& get_location() const noexcept { return m_Location; }
+		[[nodiscard]] const auto& message() const noexcept { return m_ErrorState.What; }
+		[[nodiscard]] const auto& full_message() const noexcept { return m_FullMessage; }
+		[[nodiscard]] const auto& error_state() const noexcept { return m_ErrorState; }
+		[[nodiscard]] const auto& function() const noexcept { return m_Function; }
+		[[nodiscard]] const auto& location() const noexcept { return m_Location; }
 
 	protected:
 		far_base_exception(const char* Function, const char* File, int Line, string_view Message);
@@ -104,7 +104,7 @@ namespace detail
 		{}
 
 	private:
-		std::string convert_message() const;
+		[[nodiscard]] std::string convert_message() const;
 	};
 
 	class attach_debugger

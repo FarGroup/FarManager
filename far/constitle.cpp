@@ -113,7 +113,7 @@ static os::critical_section TitleCS;
 
 void ConsoleTitle::SetFarTitle(string_view const Title, bool Flush)
 {
-	SCOPED_ACTION(os::critical_section_lock)(TitleCS);
+	SCOPED_ACTION(std::lock_guard)(TitleCS);
 
 	FarTitle() = Title;
 	Global->ScrBuf->SetTitle(UserTitle().empty()? FarTitle() + GetFarTitleAddons() : UserTitle());

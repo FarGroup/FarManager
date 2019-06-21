@@ -127,21 +127,27 @@ static void GetSymbols(const std::vector<const void*>& BackTrace, function_ref<v
 extern "C" void** __current_exception();
 extern "C" void** __current_exception_context();
 #else
-static EXCEPTION_RECORD DummyRecord;
-static CONTEXT DummyContext;
+static void** __current_exception()
+{
+	static EXCEPTION_RECORD DummyRecord{};
+	static void* DummyRecordPtr = &DummyRecord;
+	return &DummyRecordPtr;
+}
+
+static void** __current_exception_context()
+{
+	static CONTEXT DummyContext{};
+	static void* DummyContextPtr = &DummyContext;
+	return &DummyContextPtr;
+}
 #endif
 
 EXCEPTION_POINTERS tracer::get_pointers()
 {
 	return
 	{
-#ifdef _MSC_VER
 		static_cast<EXCEPTION_RECORD*>(*__current_exception()),
 		static_cast<CONTEXT*>(*__current_exception_context())
-#else
-		&DummyRecord,
-		&DummyContext
-#endif
 	};
 }
 
@@ -179,7 +185,7 @@ void tracer::sym_initialise()
 
 	string Path;
 	if (!os::fs::GetModuleFileName(nullptr, nullptr, Path))
-		throw MAKE_FAR_FATAL_EXCEPTION(L"GetModuleFileName failed");
+		throw MAKE_FAR_FATAL_EXCEPTION(L"GetModuleFileName failed"sv);
 
 	CutToParent(Path);
 	const auto SymbolSearchPath = encoding::ansi::get_bytes(Path);

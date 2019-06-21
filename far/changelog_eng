@@ -3,6 +3,20 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 21.06.2019 20:40:14 +0100 - build 5416
+
+1. Support FILE_ATTRIBUTE_PINNED and FILE_ATTRIBUTE_UNPINNED attributes.
+
+2. Move attributes in filters & highlight/sorting groups dialogs to a separate dialog - it's not possible to squeeze more into the main one.
+
+3. UI for names of highlight/sorting groups.
+
+4. Show no more than 3 checked and 3 unchecked attributes in filters & highlight/sorting groups menus for the same reason.
+
+5. Fix minor bugs in dialogs.
+
+6. Refactoring.
+
 drkns 19.06.2019 20:18:11 +0100 - build 5415
 
 1. And again.

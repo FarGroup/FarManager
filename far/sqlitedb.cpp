@@ -409,7 +409,6 @@ SQLiteDb::database_ptr SQLiteDb::Open(string_view const Path, busy_handler BusyH
 {
 	const auto MemDb = Path == memory_db_name();
 	m_DbExists = !MemDb && os::fs::is_file(Path);
-	const std::pair<busy_handler, void*> HandlerWithParam{ BusyHandler, this };
 
 	if (!Global->Opt->ReadOnlyConfig || MemDb)
 	{
@@ -419,7 +418,7 @@ SQLiteDb::database_ptr SQLiteDb::Open(string_view const Path, busy_handler BusyH
 
 	m_Path = memory_db_name();
 	return m_DbExists?
-		implementation::try_copy_db_to_memory(Path, HandlerWithParam, WAL) :
+		implementation::try_copy_db_to_memory(Path, { BusyHandler, this }, WAL) :
 		implementation::open(memory_db_name(), {});
 }
 

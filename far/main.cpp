@@ -791,7 +791,7 @@ static int wmain_seh(int Argc, const wchar_t* const Argv[])
 	}
 	catch (const std::exception& e)
 	{
-		if (ProcessStdException(e, L"wmain"sv))
+		if (ProcessStdException(e, L"wmain_seh"sv))
 			std::terminate();
 
 		unhandled_exception_filter::dismiss();
@@ -800,7 +800,7 @@ static int wmain_seh(int Argc, const wchar_t* const Argv[])
 	}
 	catch (...)
 	{
-		if (ProcessUnknownException(L"mainImpl"sv))
+		if (ProcessUnknownException(L"wmain_seh"sv))
 			std::terminate();
 
 		unhandled_exception_filter::dismiss();

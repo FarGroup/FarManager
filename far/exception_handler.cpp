@@ -290,23 +290,23 @@ static reply ExcDialog(
 		{ DI_EDIT,      {{C2X, 3 }, {C2X+C2W, 3 }}, DIF_READONLY | DIF_SELECTONENTRY, Details, },
 		{ DI_TEXT,      {{C1X, 4 }, {C1X+C1W, 4 }}, DIF_NONE, L"errno:"sv },
 		{ DI_EDIT,      {{C2X, 4 }, {C2X+C2W, 4 }}, DIF_READONLY | DIF_SELECTONENTRY, Errors[0], },
-		{ DI_TEXT,      {{C1X, 5 }, {C1X+C1W, 4 }}, DIF_NONE, L"LastError:"sv },
-		{ DI_EDIT,      {{C2X, 5 }, {C2X+C2W, 4 }}, DIF_READONLY | DIF_SELECTONENTRY, Errors[0], },
-		{ DI_TEXT,      {{C1X, 6 }, {C1X+C1W, 5 }}, DIF_NONE, L"NTSTATUS:"sv },
-		{ DI_EDIT,      {{C2X, 6 }, {C2X+C2W, 5 }}, DIF_READONLY | DIF_SELECTONENTRY, Errors[1], },
-		{ DI_TEXT,      {{C1X, 7 }, {C1X+C1W, 6 }}, DIF_NONE, msg(lng::MExcAddress), },
-		{ DI_EDIT,      {{C2X, 7 }, {C2X+C2W, 6 }}, DIF_READONLY | DIF_SELECTONENTRY, Address, },
-		{ DI_TEXT,      {{C1X, 8 }, {C1X+C1W, 7 }}, DIF_NONE, msg(lng::MExcSource), },
-		{ DI_EDIT,      {{C2X, 8 }, {C2X+C2W, 7 }}, DIF_READONLY | DIF_SELECTONENTRY, Source, },
-		{ DI_TEXT,      {{C1X, 9 }, {C1X+C1W, 8 }}, DIF_NONE, msg(lng::MExcFunction), },
-		{ DI_EDIT,      {{C2X, 9 }, {C2X+C2W, 8 }}, DIF_READONLY | DIF_SELECTONENTRY, FunctionName, },
-		{ DI_TEXT,      {{C1X, 10}, {C1X+C1W, 9 }}, DIF_NONE, msg(lng::MExcModule), },
-		{ DI_EDIT,      {{C2X, 10}, {C2X+C2W, 9 }}, DIF_READONLY | DIF_SELECTONENTRY, ModuleName, },
-		{ DI_TEXT,      {{-1,  11}, {0,       10}}, DIF_SEPARATOR, },
-		{ DI_BUTTON,    {{0,   12}, {0,       11}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(PluginModule ? lng::MExcUnload : lng::MExcTerminate), },
-		{ DI_BUTTON,    {{0,   12}, {0,       11}}, DIF_CENTERGROUP | DIF_FOCUS, msg(lng::MExcStack), },
-		{ DI_BUTTON,    {{0,   12}, {0,       11}}, DIF_CENTERGROUP, msg(lng::MExcMinidump), },
-		{ DI_BUTTON,    {{0,   12}, {0,       11}}, DIF_CENTERGROUP, msg(lng::MIgnore), },
+		{ DI_TEXT,      {{C1X, 5 }, {C1X+C1W, 5 }}, DIF_NONE, L"LastError:"sv },
+		{ DI_EDIT,      {{C2X, 5 }, {C2X+C2W, 5 }}, DIF_READONLY | DIF_SELECTONENTRY, Errors[0], },
+		{ DI_TEXT,      {{C1X, 6 }, {C1X+C1W, 6 }}, DIF_NONE, L"NTSTATUS:"sv },
+		{ DI_EDIT,      {{C2X, 6 }, {C2X+C2W, 6 }}, DIF_READONLY | DIF_SELECTONENTRY, Errors[1], },
+		{ DI_TEXT,      {{C1X, 7 }, {C1X+C1W, 7 }}, DIF_NONE, msg(lng::MExcAddress), },
+		{ DI_EDIT,      {{C2X, 7 }, {C2X+C2W, 7 }}, DIF_READONLY | DIF_SELECTONENTRY, Address, },
+		{ DI_TEXT,      {{C1X, 8 }, {C1X+C1W, 8 }}, DIF_NONE, msg(lng::MExcSource), },
+		{ DI_EDIT,      {{C2X, 8 }, {C2X+C2W, 8 }}, DIF_READONLY | DIF_SELECTONENTRY, Source, },
+		{ DI_TEXT,      {{C1X, 9 }, {C1X+C1W, 9 }}, DIF_NONE, msg(lng::MExcFunction), },
+		{ DI_EDIT,      {{C2X, 9 }, {C2X+C2W, 9 }}, DIF_READONLY | DIF_SELECTONENTRY, FunctionName, },
+		{ DI_TEXT,      {{C1X, 10}, {C1X+C1W, 10}}, DIF_NONE, msg(lng::MExcModule), },
+		{ DI_EDIT,      {{C2X, 10}, {C2X+C2W, 10}}, DIF_READONLY | DIF_SELECTONENTRY, ModuleName, },
+		{ DI_TEXT,      {{-1,  11}, {0,       11}}, DIF_SEPARATOR, },
+		{ DI_BUTTON,    {{0,   12}, {0,       12}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(PluginModule ? lng::MExcUnload : lng::MExcTerminate), },
+		{ DI_BUTTON,    {{0,   12}, {0,       12}}, DIF_CENTERGROUP | DIF_FOCUS, msg(lng::MExcStack), },
+		{ DI_BUTTON,    {{0,   12}, {0,       12}}, DIF_CENTERGROUP, msg(lng::MExcMinidump), },
+		{ DI_BUTTON,    {{0,   12}, {0,       12}}, DIF_CENTERGROUP, msg(lng::MIgnore), },
 	});
 
 	auto DlgData = dialog_data_type(&Context, NestedStack);
@@ -618,16 +618,7 @@ static bool ProcessGenericException(
 		break;
 	}
 
-	reply MsgCode;
-
-	if (Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown())
-	{
-		MsgCode = ExcDialog(strFileName, Exception, Details, Context, Function, Location, PluginModule, ErrorState, NestedStack);
-	}
-	else
-	{
-		MsgCode = ExcConsole(strFileName, Exception, Details, Context, Function, Location, PluginModule, ErrorState, NestedStack);
-	}
+	const auto MsgCode = (Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown()? ExcDialog : ExcConsole)(strFileName, Exception, Details, Context, Function, Location, PluginModule, ErrorState, NestedStack);
 
 	switch (MsgCode)
 	{
@@ -654,7 +645,7 @@ static string extract_nested_messages(const std::exception& Exception, bool Top 
 	// far_exception.what() returns additional information (function, file and line).
 	// We don't need it on top level because it's extracted separately
 	if (const auto FarException = Top? dynamic_cast<const detail::far_base_exception*>(&Exception) : nullptr)
-		Result = FarException->get_message();
+		Result = FarException->message();
 	else
 		Result = encoding::utf8::get_chars(Exception.what());
 
@@ -699,7 +690,7 @@ bool ProcessStdException(const std::exception& e, string_view const Function, co
 			NestedStack = &Stack;
 		}
 
-		return ProcessGenericException(Context, FarException->get_function(), FarException->get_location(), Module, Message, &FarException->get_error_state(), NestedStack);
+		return ProcessGenericException(Context, FarException->function(), FarException->location(), Module, Message, &FarException->error_state(), NestedStack);
 	}
 
 	return ProcessGenericException(Context, Function, {}, Module, encoding::utf8::get_chars(e.what()));

@@ -297,7 +297,7 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 		const auto OutFileName = SaveSafely? MakeTempInSameDir(MenuFileName) : MenuFileName;
 
 		{
-			auto MenuFile = os::fs::file(OutFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, IsFileExists && !SaveSafely? TRUNCATE_EXISTING : CREATE_NEW);
+			os::fs::file MenuFile(OutFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, IsFileExists && !SaveSafely? TRUNCATE_EXISTING : CREATE_NEW);
 			if (!MenuFile)
 				throw MAKE_FAR_EXCEPTION(L"Can't open file"sv);
 
@@ -327,11 +327,10 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 	}
 	catch (const far_exception& e)
 	{
-		Message(MSG_WARNING, e.get_error_state(),
+		Message(MSG_WARNING, e.error_state(),
 			msg(lng::MError),
 			{
-				msg(lng::MEditMenuError),
-				e.get_message()
+				msg(lng::MEditMenuError)
 			},
 			{ lng::MOk });
 	}
@@ -866,25 +865,23 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 			if (Param1==EM_BUTTON_OK)
 			{
 				BOOL Result=TRUE;
-				const auto HotKey = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EM_HOTKEY_EDIT, nullptr));
-				const auto Label = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EM_LABEL_EDIT, nullptr));
+				const string_view HotKey = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EM_HOTKEY_EDIT, nullptr));
+				const string_view Label = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EM_LABEL_EDIT, nullptr));
 				int FocusPos=-1;
 
 				if (HotKey != L"--"sv)
 				{
-					if (!*Label)
+					if (Label.empty())
 					{
 						FocusPos=EM_LABEL_EDIT;
 					}
-					else if (wcslen(HotKey)>1)
+					else if (HotKey.size() > 1)
 					{
 						FocusPos=EM_HOTKEY_EDIT;
 
-						if (upper(*HotKey)==L'F')
+						if (upper(HotKey.front()) == L'F')
 						{
-							int FuncNum = static_cast<int>(std::wcstol(HotKey + 1, nullptr, 10));
-
-							if (FuncNum > 0 && FuncNum < 25)
+							if (in_range(1, from_string<int>(HotKey.substr(1)), 24))
 								FocusPos=-1;
 						}
 					}
@@ -895,7 +892,7 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 					Message(MSG_WARNING,
 						msg(lng::MUserMenuTitle),
 						{
-							msg(*Label? lng::MUserMenuInvalidInputHotKey : lng::MUserMenuInvalidInputLabel)
+							msg(Label.empty()? lng::MUserMenuInvalidInputLabel : lng::MUserMenuInvalidInputHotKey)
 						},
 						{ lng::MOk });
 					Dlg->SendMessage(DM_SETFOCUS, FocusPos, nullptr);

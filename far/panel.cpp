@@ -481,11 +481,10 @@ bool Panel::MakeListFile(string& ListFileName, bool ShortNames, string_view cons
 	catch (const far_exception& e)
 	{
 		os::fs::delete_file(ListFileName);
-		Message(MSG_WARNING, e.get_error_state(),
+		Message(MSG_WARNING, e.error_state(),
 			msg(lng::MError),
 			{
-				msg(lng::MCannotCreateListFile),
-				e.get_message()
+				msg(lng::MCannotCreateListFile)
 			},
 			{ lng::MOk });
 		return false;

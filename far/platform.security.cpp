@@ -59,7 +59,7 @@ namespace
 		static std::unordered_map<string, value_type> s_Cache;
 		static os::critical_section s_CS;
 
-		SCOPED_ACTION(os::critical_section_lock)(s_CS);
+		SCOPED_ACTION(std::lock_guard)(s_CS);
 
 		const auto [Iterator, IsEmplaced] = s_Cache.try_emplace(Name);
 

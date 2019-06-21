@@ -171,7 +171,7 @@ T elevation::RetrieveLastErrorAndResult() const
 template<typename T, typename F1, typename F2>
 auto elevation::execute(lng Why, const string& Object, T Fallback, const F1& PrivilegedHander, const F2& ElevatedHandler)
 {
-	SCOPED_ACTION(os::critical_section_lock)(m_CS);
+	SCOPED_ACTION(std::lock_guard)(m_CS);
 	if (!ElevationApproveDlg(Why, Object))
 		return Fallback;
 

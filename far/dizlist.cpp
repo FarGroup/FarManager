@@ -346,8 +346,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		const auto OutFileName = SaveSafely? MakeTempInSameDir(m_DizFileName) : m_DizFileName;
 
 		{
-			auto DizFile = os::fs::file(OutFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, IsFileExists && !SaveSafely? TRUNCATE_EXISTING : CREATE_NEW);
-
+			os::fs::file DizFile(OutFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, IsFileExists && !SaveSafely? TRUNCATE_EXISTING : CREATE_NEW);
 			if (!DizFile)
 				throw MAKE_FAR_EXCEPTION(L"Can't create a temporary file"sv);
 
@@ -389,11 +388,10 @@ bool DizList::Flush(const string& Path,const string* DizName)
 	}
 	catch (const far_exception& e)
 	{
-		Message(MSG_WARNING, e.get_error_state(),
+		Message(MSG_WARNING, e.error_state(),
 			msg(lng::MError),
 			{
-				msg(lng::MCannotUpdateDiz),
-				e.get_message()
+				msg(lng::MCannotUpdateDiz)
 			},
 			{ lng::MOk });
 		return false;

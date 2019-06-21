@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/enumerator.hpp"
+#include "common/noncopyable.hpp"
 #include "common/type_traits.hpp"
 
 // External:

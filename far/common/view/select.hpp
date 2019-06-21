@@ -44,7 +44,7 @@ namespace detail
 	public:
 		using iterator_category = typename std::iterator_traits<T>::iterator_category;
 		using difference_type = std::ptrdiff_t;
-		using reference = std::invoke_result_t<accessor, typename std::iterator_traits<T>::value_type>;
+		using reference = std::invoke_result_t<accessor, typename std::iterator_traits<T>::reference>;
 		using value_type = std::remove_reference_t<reference>;
 		using pointer = value_type*;
 

@@ -3140,12 +3140,12 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 							far_language::instance().load(Global->g_strFarPath, InterfaceLanguage, static_cast<int>(lng::MNewFileName + 1));
 							strLanguage = InterfaceLanguage;
 						}
-						catch (const far_exception& e)
+						catch (const far_known_exception& e)
 						{
 							Message(MSG_WARNING,
 								msg(lng::MError),
 								{
-									e.get_message()
+									e.message()
 								},
 								{ lng::MOk });
 						}

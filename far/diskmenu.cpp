@@ -572,7 +572,7 @@ static bool DisconnectDrive(panel_ptr Owner, const PanelMenuItem *item, VMenu2 &
 				if (CMode != panel_mode::PLUGIN_PANEL)
 					Owner->SetCurDir(TmpCDir, false);
 
-				if (EjectFailed(e.get_error_state(), item->cDrive) != operation::retry)
+				if (EjectFailed(e.error_state(), item->cDrive) != operation::retry)
 					return false;
 			}
 		}
@@ -985,7 +985,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 							}
 							catch (far_exception const& e)
 							{
-								if (EjectFailed(e.get_error_state(), item->cDrive) != operation::retry)
+								if (EjectFailed(e.error_state(), item->cDrive) != operation::retry)
 									break;
 							}
 						}

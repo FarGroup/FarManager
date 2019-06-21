@@ -645,9 +645,9 @@ void codepages::EditCodePageName()
 		{ DI_DOUBLEBOX, {{3,  1}, {50, 5}}, DIF_NONE, msg(lng::MGetCodePageEditCodePageName), },
 		{ DI_EDIT,      {{5,  2}, {48, 2}}, DIF_FOCUS | DIF_HISTORY, CodePageName, },
 		{ DI_TEXT,      {{-1, 3}, {0,  3}}, DIF_SEPARATOR, },
-		{ DI_BUTTON,    {{0,  4}, {0,  3}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MOk), },
-		{ DI_BUTTON,    {{0,  4}, {0,  3}}, DIF_CENTERGROUP, msg(lng::MCancel), },
-		{ DI_BUTTON,    {{0,  4}, {0,  3}}, DIF_CENTERGROUP, msg(lng::MGetCodePageResetCodePageName), }
+		{ DI_BUTTON,    {{0,  4}, {0,  4}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MOk), },
+		{ DI_BUTTON,    {{0,  4}, {0,  4}}, DIF_CENTERGROUP, msg(lng::MCancel), },
+		{ DI_BUTTON,    {{0,  4}, {0,  4}}, DIF_CENTERGROUP, msg(lng::MGetCodePageResetCodePageName), }
 	});
 
 	EditDialog[1].strHistory = L"CodePageName"sv;

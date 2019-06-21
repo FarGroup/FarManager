@@ -123,7 +123,7 @@ public:
 
 	void Init()
 	{
-		SCOPED_ACTION(os::critical_section_lock)(DataCS);
+		SCOPED_ACTION(std::lock_guard)(DataCS);
 		FindFileArcItem = nullptr;
 		Percent=0;
 		FindList.clear();
@@ -134,13 +134,13 @@ public:
 
 	FindFiles::ArcListItem* GetFindFileArcItem() const
 	{
-		SCOPED_ACTION(os::critical_section_lock)(DataCS);
+		SCOPED_ACTION(std::lock_guard)(DataCS);
 		return FindFileArcItem;
 	}
 
 	void SetFindFileArcItem(FindFiles::ArcListItem* Value)
 	{
-		SCOPED_ACTION(os::critical_section_lock)(DataCS);
+		SCOPED_ACTION(std::lock_guard)(DataCS);
 		FindFileArcItem = Value;
 	}
 
@@ -148,31 +148,31 @@ public:
 
 	void SetPercent(int Value)
 	{
-		SCOPED_ACTION(os::critical_section_lock)(DataCS);
+		SCOPED_ACTION(std::lock_guard)(DataCS);
 		Percent = Value;
 	}
 
 	size_t GetFindListCount() const
 	{
-		SCOPED_ACTION(os::critical_section_lock)(DataCS);
+		SCOPED_ACTION(std::lock_guard)(DataCS);
 		return FindList.size();
 	}
 
 	string GetFindMessage() const
 	{
-		SCOPED_ACTION(os::critical_section_lock)(DataCS);
+		SCOPED_ACTION(std::lock_guard)(DataCS);
 		return strFindMessage;
 	}
 
 	void SetFindMessage(const string& From)
 	{
-		SCOPED_ACTION(os::critical_section_lock)(DataCS);
+		SCOPED_ACTION(std::lock_guard)(DataCS);
 		strFindMessage=From;
 	}
 
 	void ClearAllLists()
 	{
-		SCOPED_ACTION(os::critical_section_lock)(DataCS);
+		SCOPED_ACTION(std::lock_guard)(DataCS);
 		FindFileArcItem = nullptr;
 
 		if (!FindList.empty())
@@ -189,7 +189,7 @@ public:
 
 	FindFiles::ArcListItem& AddArcListItem(const string& ArcName, plugin_panel* hPlugin, unsigned long long dwFlags, const string& RootPath)
 	{
-		SCOPED_ACTION(os::critical_section_lock)(DataCS);
+		SCOPED_ACTION(std::lock_guard)(DataCS);
 
 		FindFiles::ArcListItem NewItem;
 		NewItem.strArcName = ArcName;
@@ -203,7 +203,7 @@ public:
 
 	FindListItem& AddFindListItem(const os::fs::find_data& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData)
 	{
-		SCOPED_ACTION(os::critical_section_lock)(DataCS);
+		SCOPED_ACTION(std::lock_guard)(DataCS);
 
 		FindListItem NewItem;
 		NewItem.FindData = FindData;
@@ -216,7 +216,7 @@ public:
 	template <typename Visitor>
 	void ForEachFindItem(const Visitor& visitor) const
 	{
-		SCOPED_ACTION(os::critical_section_lock)(DataCS);
+		SCOPED_ACTION(std::lock_guard)(DataCS);
 		for (const auto& i: FindList)
 			visitor(i);
 	}
@@ -224,7 +224,7 @@ public:
 	template <typename Visitor>
 	void ForEachFindItem(const Visitor& visitor)
 	{
-		SCOPED_ACTION(os::critical_section_lock)(DataCS);
+		SCOPED_ACTION(std::lock_guard)(DataCS);
 		for (auto& i: FindList)
 			visitor(i);
 	}
@@ -571,14 +571,14 @@ void FindFiles::SetPluginDirectory(string_view const DirName, const plugin_panel
 				size_t FileCount=0;
 				PluginPanelItem *PanelData=nullptr;
 
-				SCOPED_ACTION(os::critical_section_lock)(PluginCS);
+				SCOPED_ACTION(std::lock_guard)(PluginCS);
 				if (Global->CtrlObject->Plugins->GetFindData(hPlugin,&PanelData,&FileCount,OPM_SILENT))
 					Global->CtrlObject->Plugins->FreeFindData(hPlugin,PanelData,FileCount,true);
 			}
 
 			DeleteEndSlash(Dir);
 
-			SCOPED_ACTION(os::critical_section_lock)(PluginCS);
+			SCOPED_ACTION(std::lock_guard)(PluginCS);
 			Global->CtrlObject->Plugins->SetDirectory(hPlugin, Dir.empty()? L"\\"s : string(Dir), OPM_SILENT, Dir.empty()? nullptr : UserData);
 		}
 
@@ -935,7 +935,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 bool FindFiles::GetPluginFile(ArcListItem const* const ArcItem, const os::fs::find_data& FindData, const string& DestPath, string &strResultName, const UserDataItem* const UserData)
 {
-	SCOPED_ACTION(os::critical_section_lock)(PluginCS);
+	SCOPED_ACTION(std::lock_guard)(PluginCS);
 	_ALGO(CleverSysLog clv(L"FindFiles::GetPluginFile()"));
 	OpenPanelInfo Info;
 
@@ -1589,7 +1589,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 							{
 								const auto SavePluginsOutput = std::exchange(Global->DisablePluginsOutput, true);
 								{
-									SCOPED_ACTION(os::critical_section_lock)(PluginCS);
+									SCOPED_ACTION(std::lock_guard)(PluginCS);
 									PluginPanelPtr = Global->CtrlObject->Plugins->OpenFilePlugin(&strFindArcName, OPM_NONE, OFP_SEARCH);
 									FindItem->Arc->hPlugin = PluginPanelPtr.get();
 								}
@@ -1609,7 +1609,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 							if (PluginPanelPtr)
 							{
-								SCOPED_ACTION(os::critical_section_lock)(PluginCS);
+								SCOPED_ACTION(std::lock_guard)(PluginCS);
 								Global->CtrlObject->Plugins->ClosePanel(std::move(PluginPanelPtr));
 								FindItem->Arc->hPlugin = nullptr;
 							}
@@ -2690,7 +2690,7 @@ bool FindFiles::FindFilesProcess()
 				});
 
 				{
-					SCOPED_ACTION(os::critical_section_lock)(PluginCS);
+					SCOPED_ACTION(std::lock_guard)(PluginCS);
 					if (auto hNewPlugin = Global->CtrlObject->Plugins->OpenFindListPlugin(PanelItems.data(), PanelItems.size()))
 					{
 						const auto NewPanel = Global->CtrlObject->Cp()->ChangePanel(Global->CtrlObject->Cp()->ActivePanel(), panel_type::FILE_PANEL, TRUE, TRUE);
@@ -2732,7 +2732,7 @@ bool FindFiles::FindFilesProcess()
 					{
 						OpenPanelInfo Info;
 						{
-							SCOPED_ACTION(os::critical_section_lock)(PluginCS);
+							SCOPED_ACTION(std::lock_guard)(PluginCS);
 							Global->CtrlObject->Plugins->GetOpenPanelInfo(FindExitItem->Arc->hPlugin, &Info);
 
 							if (SearchMode == FINDAREA_ROOT ||

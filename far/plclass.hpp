@@ -245,15 +245,6 @@ namespace detail
 		EXPORTS_ENUM id;
 		intptr_t Result;
 	};
-
-	template<typename function, typename... args>
-	void ExecuteFunctionImpl(ExecuteStruct& es, const function& Function, args&&... Args)
-	{
-		if constexpr (std::is_void_v<std::invoke_result_t<function, args...>>)
-			Function(FWD(Args)...);
-		else
-			es = Function(FWD(Args)...);
-	}
 }
 
 class Plugin: noncopyable
@@ -346,8 +337,11 @@ protected:
 			id = ExportId;
 			Result = FallbackValue;
 		}
+
 		using export_id = std::integral_constant<EXPORTS_ENUM, ExportId>;
 		using native = std::integral_constant<bool, Native>;
+
+		using detail::ExecuteStruct::operator=;
 	};
 
 	template<typename T, class... args>
@@ -363,7 +357,14 @@ protected:
 
 		try
 		{
-			detail::ExecuteFunctionImpl(es, reinterpret_cast<prototype_t<T::export_id::value, T::native::value>>(*Exports[T::export_id::value]), FWD(Args)...);
+			using function_type = prototype_t<T::export_id::value, T::native::value>;
+			const auto Function = reinterpret_cast<function_type>(*Exports[T::export_id::value]);
+
+			if constexpr (std::is_void_v<std::invoke_result_t<function_type, args...>>)
+				Function(FWD(Args)...);
+			else
+				es = Function(FWD(Args)...);
+
 			rethrow_if(GlobalExceptionPtr());
 			m_Factory->ProcessError(m_Factory->ExportsNames()[T::export_id::value].UName);
 		}

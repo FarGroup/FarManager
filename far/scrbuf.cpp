@@ -94,7 +94,7 @@ void ScreenBuf::DebugDump() const
 
 void ScreenBuf::AllocBuf(size_t rows, size_t cols)
 {
-	SCOPED_ACTION(os::critical_section_lock)(CS);
+	SCOPED_ACTION(std::lock_guard)(CS);
 
 	if (rows == Buf.height() && cols == Buf.width())
 		return;
@@ -107,7 +107,7 @@ void ScreenBuf::AllocBuf(size_t rows, size_t cols)
 */
 void ScreenBuf::FillBuf()
 {
-	SCOPED_ACTION(os::critical_section_lock)(CS);
+	SCOPED_ACTION(std::lock_guard)(CS);
 
 	SMALL_RECT ReadRegion={0, 0, static_cast<SHORT>(Buf.width() - 1), static_cast<SHORT>(Buf.height() - 1)};
 	console.ReadOutput(Buf, ReadRegion);
@@ -121,7 +121,7 @@ void ScreenBuf::FillBuf()
 */
 void ScreenBuf::Write(int X, int Y, span<const FAR_CHAR_INFO> Text)
 {
-	SCOPED_ACTION(os::critical_section_lock)(CS);
+	SCOPED_ACTION(std::lock_guard)(CS);
 
 	if (X<0)
 	{
@@ -156,7 +156,7 @@ void ScreenBuf::Write(int X, int Y, span<const FAR_CHAR_INFO> Text)
 */
 void ScreenBuf::Read(rectangle Where, matrix<FAR_CHAR_INFO>& Dest)
 {
-	SCOPED_ACTION(os::critical_section_lock)(CS);
+	SCOPED_ACTION(std::lock_guard)(CS);
 
 	fix_coordinates(Where);
 
@@ -175,7 +175,7 @@ void ScreenBuf::ApplyShadow(rectangle Where)
 	if (!is_visible(Where))
 		return;
 
-	SCOPED_ACTION(os::critical_section_lock)(CS);
+	SCOPED_ACTION(std::lock_guard)(CS);
 
 	fix_coordinates(Where);
 
@@ -210,7 +210,7 @@ void ScreenBuf::ApplyColor(rectangle Where, const FarColor& Color, bool Preserve
 	if (!is_visible(Where))
 		return;
 
-	SCOPED_ACTION(os::critical_section_lock)(CS);
+	SCOPED_ACTION(std::lock_guard)(CS);
 
 	fix_coordinates(Where);
 
@@ -247,7 +247,7 @@ void ScreenBuf::ApplyColor(rectangle Where, const FarColor& Color, const FarColo
 	if (!is_visible(Where))
 		return;
 
-	SCOPED_ACTION(os::critical_section_lock)(CS);
+	SCOPED_ACTION(std::lock_guard)(CS);
 
 	fix_coordinates(Where);
 
@@ -278,7 +278,7 @@ void ScreenBuf::FillRect(rectangle Where, const FAR_CHAR_INFO& Info)
 	if (!is_visible(Where))
 		return;
 
-	SCOPED_ACTION(os::critical_section_lock)(CS);
+	SCOPED_ACTION(std::lock_guard)(CS);
 
 	fix_coordinates(Where);
 
@@ -301,7 +301,7 @@ void ScreenBuf::FillRect(rectangle Where, const FAR_CHAR_INFO& Info)
 */
 void ScreenBuf::Flush(flush_type FlushType)
 {
-	SCOPED_ACTION(os::critical_section_lock)(CS);
+	SCOPED_ACTION(std::lock_guard)(CS);
 
 	if (FlushType & flush_type::title && !SBFlags.Check(SBFLAGS_FLUSHEDTITLE))
 	{
@@ -523,7 +523,7 @@ void ScreenBuf::SetLockCount(int Count)
 
 void ScreenBuf::MoveCursor(point const Point)
 {
-	SCOPED_ACTION(os::critical_section_lock)(CS);
+	SCOPED_ACTION(std::lock_guard)(CS);
 
 	if (!is_visible({ m_CurPos.x, m_CurPos.y, m_CurPos.x, m_CurPos.x }))
 	{
@@ -593,7 +593,7 @@ void ScreenBuf::RestoreElevationChar()
 //  проскроллировать буфер на одну строку вверх.
 void ScreenBuf::Scroll(size_t Count)
 {
-	SCOPED_ACTION(os::critical_section_lock)(CS);
+	SCOPED_ACTION(std::lock_guard)(CS);
 
 	const FAR_CHAR_INFO Fill{ L' ', colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN) };
 

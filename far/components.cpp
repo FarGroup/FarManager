@@ -34,11 +34,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "components.hpp"
 
 // Internal:
-#include "common/function_traits.hpp"
 
 // Platform:
 
 // Common:
+#include "common/function_traits.hpp"
+#include "common/preprocessor.hpp"
 
 // External:
 

@@ -265,16 +265,14 @@ template<class T>
 [[nodiscard]]
 auto make_irange(T i_begin, T i_end)
 {
-	using iterator = i_iterator<T>;
-	return range<iterator>(iterator(i_begin), iterator(i_end));
+	return range(i_iterator(i_begin), i_iterator(i_end));
 }
 
 template<class T>
 [[nodiscard]]
 auto make_irange(T i_end)
 {
-	using iterator = i_iterator<T>;
-	return range<iterator>(iterator(0), iterator(i_end));
+	return range(i_iterator(0), i_iterator(i_end));
 }
 
 #endif // RANGE_HPP_3B87674F_96D1_487D_B83E_43E43EFBA4D3

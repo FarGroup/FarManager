@@ -243,7 +243,7 @@ public:
 
 	std::unique_ptr<Plugin> CreatePlugin(const string& filename) override;
 
-	const std::string& getUserName()
+	const std::string& PluginsRootKey()
 	{
 		if (m_userName.empty())
 		{
@@ -278,36 +278,53 @@ static int IsSlashA(int x) { return x=='\\' || x=='/'; }
 
 static unsigned char LowerToUpper[256];
 static unsigned char UpperToLower[256];
-static unsigned char IsUpperOrLower[256];
+static unsigned char UpperOrLower[256];
 
-static bool LocalUpperInit()
+enum char_case: char
+{
+	case_none,
+	case_lower,
+	case_upper,
+};
+
+static void LocalUpperInit()
 {
 	static const auto InitOnce = []
 	{
-		for (size_t I=0; I<std::size(LowerToUpper); I++)
-		{
-			char CvtStr[]={static_cast<char>(I), L'\0'}, ReverseCvtStr[2];
-			LowerToUpper[I]=UpperToLower[I]=static_cast<char>(I);
-			OemToCharA(CvtStr,CvtStr);
-			CharToOemA(CvtStr,ReverseCvtStr);
-			IsUpperOrLower[I]=0;
+		const auto to_oem   = [](char Char) { CharToOemBuffA(&Char, &Char, 1); return Char; };
+		const auto to_ansi  = [](char Char) { OemToCharBuffA(&Char, &Char, 1); return Char; };
+		const auto to_upper = [](char Char) { CharUpperBuffA(&Char, 1); return Char; };
+		const auto to_lower = [](char Char) { CharLowerBuffA(&Char, 1); return Char; };
 
-			if (IsCharAlphaA(CvtStr[0]) && ReverseCvtStr[0]==static_cast<char>(I))
+		for (size_t I = 0; I != std::size(LowerToUpper); ++I)
+		{
+			const auto Char = to_ansi(char(I));
+
+			if (IsCharAlphaA(Char) && to_oem(Char) == char(I))
 			{
-				IsUpperOrLower[I]=IsCharLowerA(CvtStr[0])?1:(IsCharUpperA(CvtStr[0])?2:0);
-				CharUpperA(CvtStr);
-				CharToOemA(CvtStr,CvtStr);
-				LowerToUpper[I]=CvtStr[0];
-				CvtStr[0]=static_cast<char>(I);
-				OemToCharA(CvtStr,CvtStr);
-				CharLowerA(CvtStr);
-				CharToOemA(CvtStr,CvtStr);
-				UpperToLower[I]=CvtStr[0];
+				if (IsCharLowerA(Char))
+				{
+					UpperOrLower[I] = case_lower;
+					LowerToUpper[I] = to_oem(to_upper(Char));
+					UpperToLower[I] = char(I);
+					continue;
+				}
+
+				if (IsCharUpperA(Char))
+				{
+					UpperOrLower[I] = case_upper;
+					LowerToUpper[I] = char(I);
+					UpperToLower[I] = to_oem(to_lower(Char));
+					continue;
+				}
 			}
+
+			UpperOrLower[I] = case_none;
+			LowerToUpper[I] = UpperToLower[I] = char(I);
 		}
 		return true;
 	}();
-	return InitOnce;
+	(void)InitOnce;
 }
 
 using comparer = int(*)(const void*, const void*);
@@ -421,24 +438,24 @@ static char *UnicodeToAnsi(const wchar_t* UnicodeString)
 	return UnicodeToAnsiBin(UnicodeString, CP_OEMCP);
 }
 
-static wchar_t **AnsiArrayToUnicode(const char* const* lpaszAnsiString, size_t iCount)
+static wchar_t** AnsiArrayToUnicode(const char* const* AnsiString, size_t Count)
 {
-	if (!lpaszAnsiString || !iCount)
+	if (!AnsiString || !Count)
 		return nullptr;
 
-	auto Result = std::make_unique<wchar_t*[]>(iCount);
-	std::transform(lpaszAnsiString, lpaszAnsiString + iCount, Result.get(), AnsiToUnicode);
+	auto Result = std::make_unique<wchar_t*[]>(Count);
+	std::transform(AnsiString, AnsiString + Count, Result.get(), AnsiToUnicode);
 	return Result.release();
 }
 
-static wchar_t **AnsiArrayToUnicodeMagic(const char* const* lpaszAnsiString, size_t iCount)
+static wchar_t **AnsiArrayToUnicodeMagic(const char* const* AnsiString, size_t Count)
 {
-	if (!lpaszAnsiString || !iCount)
+	if (!AnsiString || !Count)
 		return nullptr;
 
-	auto Result = std::make_unique<wchar_t*[]>(iCount + 1);
-	Result[0] = static_cast<wchar_t*>(ToPtr(iCount));
-	std::transform(lpaszAnsiString, lpaszAnsiString + iCount, Result.get() + 1, AnsiToUnicode);
+	auto Result = std::make_unique<wchar_t*[]>(Count + 1);
+	Result[0] = static_cast<wchar_t*>(ToPtr(Count));
+	std::transform(AnsiString, AnsiString + Count, Result.get() + 1, AnsiToUnicode);
 	return Result.release() + 1;
 }
 
@@ -1557,13 +1574,13 @@ static void* WINAPI bsearch(const void *key, const void *base, size_t nelem, siz
 static int WINAPI LocalIslower(unsigned Ch) noexcept
 {
 	// noexcept
-	return Ch < 256 && IsUpperOrLower[Ch] == 1;
+	return Ch < 256 && UpperOrLower[Ch] == case_lower;
 }
 
 static int WINAPI LocalIsupper(unsigned Ch) noexcept
 {
 	// noexcept
-	return Ch < 256 && IsUpperOrLower[Ch] == 2;
+	return Ch < 256 && UpperOrLower[Ch] == case_upper;
 }
 
 static int WINAPI LocalIsalpha(unsigned Ch) noexcept
@@ -4956,7 +4973,7 @@ private:
 			InfoCopy.ModuleNumber = reinterpret_cast<intptr_t>(this);
 			InfoCopy.FSF = &FsfCopy;
 			encoding::oem::get_bytes(ModuleName().c_str(), InfoCopy.ModuleName);
-			InfoCopy.RootKey = static_cast<oem_plugin_factory*>(m_Factory)->getUserName().c_str();
+			InfoCopy.RootKey = static_cast<oem_plugin_factory*>(m_Factory)->PluginsRootKey().c_str();
 
 			if (Global->strRegUser.empty())
 				os::env::del(L"FARUSER"sv);
@@ -5791,5 +5808,67 @@ std::unique_ptr<Plugin> oem_plugin_factory::CreatePlugin(const string& filename)
 }
 
 #undef OLDFAR_TO_FAR_MAP
+
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("plugin.ansi.tables")
+{
+	LocalUpperInit();
+
+	static const struct
+	{
+		char Input;
+		char Case;
+		char Upper;
+		char Lower;
+	}
+	Tests[]
+	{
+		{ 'a', case_lower, 'A', 'a' },
+		{ 'A', case_upper, 'A', 'a' },
+		{ 'z', case_lower, 'Z', 'z' },
+		{ 'Z', case_upper, 'Z', 'z' },
+		{ '0', case_none,  '0', '0' },
+		{ '9', case_none,  '9', '9' },
+		{ ' ', case_none,  ' ', ' ' },
+		{   0, case_none,    0,   0 },
+	};
+
+	for (const auto& Test: Tests)
+	{
+		REQUIRE(UpperOrLower[Test.Input] == Test.Case);
+		REQUIRE(LowerToUpper[Test.Input] == Test.Upper);
+		REQUIRE(UpperToLower[Test.Input] == Test.Lower);
+	}
+}
+
+TEST_CASE("plugin.ansi.strcmp")
+{
+	LocalUpperInit();
+
+	static const struct
+	{
+		const char* Str1, * Str2;
+		int Result;
+	}
+	Tests[]
+	{
+		{ "",        "",   0 },
+		{ "abc",  "def",  -1 },
+		{ "def",  "abc",   1 },
+		{ "abc",  "abc",   0 },
+		{ "abc",  "abcd", -1 },
+		{ "abcd", "abc",   1 },
+	};
+
+	for (const auto& Test: Tests)
+	{
+		REQUIRE(LocalStricmp(Test.Str1, Test.Str2) == Test.Result);
+	}
+}
+
+#endif
 
 #endif // NO_WRAPPER

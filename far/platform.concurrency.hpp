@@ -77,9 +77,6 @@ namespace os::concurrency
 		CRITICAL_SECTION m_Object;
 	};
 
-	using critical_section_lock = std::lock_guard<critical_section>;
-
-
 	class thread: public handle
 	{
 	public:
@@ -234,33 +231,33 @@ namespace os::concurrency
 		[[nodiscard]]
 		bool empty() const
 		{
-			SCOPED_ACTION(critical_section_lock)(m_QueueCS);
+			SCOPED_ACTION(std::lock_guard)(m_QueueCS);
 			return m_Queue.empty();
 		}
 
 		void push(const T& item)
 		{
-			SCOPED_ACTION(critical_section_lock)(m_QueueCS);
+			SCOPED_ACTION(std::lock_guard)(m_QueueCS);
 			m_Queue.push(item);
 		}
 
 		template<typename... args>
 		void emplace(args&&... Args)
 		{
-			SCOPED_ACTION(critical_section_lock)(m_QueueCS);
+			SCOPED_ACTION(std::lock_guard)(m_QueueCS);
 			m_Queue.emplace(FWD(Args)...);
 		}
 
 		void push(T&& item)
 		{
-			SCOPED_ACTION(critical_section_lock)(m_QueueCS);
+			SCOPED_ACTION(std::lock_guard)(m_QueueCS);
 			m_Queue.push(FWD(item));
 		}
 
 		[[nodiscard]]
 		bool try_pop(T& To)
 		{
-			SCOPED_ACTION(critical_section_lock)(m_QueueCS);
+			SCOPED_ACTION(std::lock_guard)(m_QueueCS);
 
 			if (m_Queue.empty())
 				return false;
@@ -273,13 +270,13 @@ namespace os::concurrency
 		[[nodiscard]]
 		auto size() const
 		{
-			SCOPED_ACTION(critical_section_lock)(m_QueueCS);
+			SCOPED_ACTION(std::lock_guard)(m_QueueCS);
 			return m_Queue.size();
 		}
 
 		void clear()
 		{
-			SCOPED_ACTION(critical_section_lock)(m_QueueCS);
+			SCOPED_ACTION(std::lock_guard)(m_QueueCS);
 			clear_and_shrink(m_Queue);
 		}
 
@@ -305,12 +302,6 @@ namespace os::concurrency
 
 		multi_waiter();
 
-		template<typename T>
-		multi_waiter(T Begin, T End)
-		{
-			std::for_each(Begin, End, [this](const auto& i){ this->add(i); });
-		}
-
 		void add(const handle& Object);
 		void add(HANDLE handle);
 		DWORD wait(mode Mode, std::chrono::milliseconds Timeout) const;
@@ -326,7 +317,6 @@ namespace os
 {
 	using concurrency::make_name;
 	using concurrency::critical_section;
-	using concurrency::critical_section_lock;
 	using concurrency::thread;
 	using concurrency::mutex;
 	using concurrency::shared_mutex;

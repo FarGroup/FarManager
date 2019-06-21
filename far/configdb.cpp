@@ -81,7 +81,7 @@ public:
 		SetRoot(root);
 	}
 
-	auto GetRoot() const { return m_Root; }
+	auto Root() const { return m_Root; }
 
 	void SetRoot(tinyxml::XMLHandle Root) { m_Root = Root; }
 	void SetRoot(tinyxml::XMLElement* const Root) { m_Root = tinyxml::XMLHandle{ Root }; }
@@ -115,7 +115,7 @@ public:
 		SetRoot(*root);
 	}
 
-	auto& GetRoot() const { return *m_Root; }
+	auto& Root() const { return *m_Root; }
 
 	void SetRoot(tinyxml::XMLElement& Root) { m_Root = &Root; }
 
@@ -275,9 +275,9 @@ private:
 
 	void Export(representation_destination& Representation) const override
 	{
-		auto& root = CreateChild(Representation.GetRoot(), GetKeyName());
+		auto& root = CreateChild(Representation.Root(), GetKeyName());
 
-		auto stmtEnumAllValues = create_stmt("SELECT key, name, value FROM general_config ORDER BY key, name;"sv);
+		const auto stmtEnumAllValues = create_stmt("SELECT key, name, value FROM general_config ORDER BY key, name;"sv);
 
 		while (stmtEnumAllValues.Step())
 		{
@@ -311,7 +311,7 @@ private:
 	void Import(const representation_source& Representation) override
 	{
 		SCOPED_ACTION(auto)(ScopedTransaction());
-		for(const auto& e: xml_enum(Representation.GetRoot().FirstChildElement(GetKeyName()), "setting"))
+		for(const auto& e: xml_enum(Representation.Root().FirstChildElement(GetKeyName()), "setting"))
 		{
 			const auto key = e->Attribute("key");
 			const auto name = e->Attribute("name");
@@ -622,13 +622,13 @@ private:
 
 	void Export(representation_destination& Representation) const override
 	{
-		Export(Representation, root_key, CreateChild(Representation.GetRoot(), "hierarchicalconfig"));
+		Export(Representation, root_key, CreateChild(Representation.Root(), "hierarchicalconfig"));
 	}
 
 	void Import(const representation_source& Representation) override
 	{
 		SCOPED_ACTION(auto)(ScopedTransaction());
-		for (const auto& e: xml_enum(Representation.GetRoot().FirstChildElement("hierarchicalconfig"), "key"))
+		for (const auto& e: xml_enum(Representation.Root().FirstChildElement("hierarchicalconfig"), "key"))
 		{
 			Import(root_key, *e);
 		}
@@ -877,9 +877,9 @@ private:
 
 	void Export(representation_destination& Representation) const override
 	{
-		auto& root = CreateChild(Representation.GetRoot(), "colors");
+		auto& root = CreateChild(Representation.Root(), "colors");
 
-		auto stmtEnumAllValues = create_stmt("SELECT name, value FROM colors ORDER BY name;"sv);
+		const auto stmtEnumAllValues = create_stmt("SELECT name, value FROM colors ORDER BY name;"sv);
 
 		while (stmtEnumAllValues.Step())
 		{
@@ -896,7 +896,7 @@ private:
 	void Import(const representation_source& Representation) override
 	{
 		SCOPED_ACTION(auto)(ScopedTransaction());
-		for (const auto& e: xml_enum(Representation.GetRoot().FirstChildElement("colors"), "object"))
+		for (const auto& e: xml_enum(Representation.Root().FirstChildElement("colors"), "object"))
 		{
 			const auto name = e->Attribute("name");
 			const auto background = e->Attribute("background");
@@ -1090,9 +1090,9 @@ private:
 
 	void Export(representation_destination& Representation) const override
 	{
-		auto& root = CreateChild(Representation.GetRoot(), "associations");
+		auto& root = CreateChild(Representation.Root(), "associations");
 
-		auto stmtEnumAllTypes = create_stmt("SELECT id, mask, description FROM filetypes ORDER BY weight;"sv);
+		const auto stmtEnumAllTypes = create_stmt("SELECT id, mask, description FROM filetypes ORDER BY weight;"sv);
 		auto stmtEnumCommandsPerFiletype = create_stmt("SELECT type, enabled, command FROM commands WHERE ft_id=?1 ORDER BY type;"sv);
 
 		while (stmtEnumAllTypes.Step())
@@ -1117,7 +1117,7 @@ private:
 
 	void Import(const representation_source& Representation) override
 	{
-		auto base = Representation.GetRoot().FirstChildElement("associations");
+		auto base = Representation.Root().FirstChildElement("associations");
 		if (!base.ToElement())
 			return;
 
@@ -1568,7 +1568,7 @@ private:
 
 	void Export(representation_destination& Representation) const override
 	{
-		auto& root = CreateChild(Representation.GetRoot(), "pluginhotkeys");
+		auto& root = CreateChild(Representation.Root(), "pluginhotkeys");
 
 		auto stmtEnumAllPluginKeys = create_stmt("SELECT pluginkey FROM pluginhotkeys GROUP BY pluginkey;"sv);
 		auto stmtEnumAllHotkeysPerKey = create_stmt("SELECT menuguid, type, hotkey FROM pluginhotkeys WHERE pluginkey=$1;"sv);
@@ -1608,7 +1608,7 @@ private:
 	void Import(const representation_source& Representation) override
 	{
 		SCOPED_ACTION(auto)(ScopedTransaction());
-		for (const auto& e: xml_enum(Representation.GetRoot().FirstChildElement("pluginhotkeys"), "plugin"))
+		for (const auto& e: xml_enum(Representation.Root().FirstChildElement("pluginhotkeys"), "plugin"))
 		{
 			const auto key = e->Attribute("key");
 
@@ -2188,9 +2188,9 @@ void config_provider::TryImportDatabase(representable* p, const char* NodeName, 
 		m_TemplateSource = std::make_unique<representation_source>(Global->Opt->TemplateProfilePath);
 	}
 
-	if (m_TemplateSource && m_TemplateSource->GetRoot().ToNode())
+	if (m_TemplateSource && m_TemplateSource->Root().ToNode())
 	{
-		auto root = m_TemplateSource->GetRoot();
+		auto root = m_TemplateSource->Root();
 
 		if (!NodeName)
 		{
@@ -2252,7 +2252,7 @@ std::unique_ptr<T> config_provider::CreateWithFallback(string_view const Name)
 	catch (const far_sqlite_exception& e1)
 	{
 		Report(concat(Name, L':'));
-		Report(concat(L"  "sv, e1.get_message()));
+		Report(concat(L"  "sv, e1.message()));
 		if (Global->Opt->ReadOnlyConfig || !os::fs::move_file(Name, Name + L".bad"sv, MOVEFILE_REPLACE_EXISTING))
 		{
 			Report(L"  - database is opened in memory"sv);
@@ -2267,7 +2267,7 @@ std::unique_ptr<T> config_provider::CreateWithFallback(string_view const Name)
 		}
 		catch (const far_sqlite_exception& e2)
 		{
-			Report(concat(L"  "sv, e2.get_message()));
+			Report(concat(L"  "sv, e2.message()));
 			Report(L"  - database is opened in memory"sv);
 			return std::make_unique<T>(SQLiteDb::memory_db_name());
 		}
@@ -2395,7 +2395,7 @@ config_provider::~config_provider()
 void config_provider::Export(const string& File)
 {
 	representation_destination Representation;
-	auto& root = Representation.GetRoot();
+	auto& root = Representation.Root();
 	const auto Version = build::version();
 	root.SetAttribute("version", format(FSTR("{0}.{1}.{2}"), Version.Major, Version.Minor, Version.Build).c_str());
 
@@ -2452,7 +2452,7 @@ void config_provider::Import(const string& Filename)
 {
 	representation_source Representation(Filename);
 
-	auto root = Representation.GetRoot();
+	auto root = Representation.Root();
 
 	GeneralCfg()->Import(Representation);
 	LocalGeneralCfg()->Import(Representation);

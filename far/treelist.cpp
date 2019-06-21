@@ -767,7 +767,7 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 		}
 		catch (const far_exception& e)
 		{
-			ErrorState = e.get_error_state();
+			ErrorState = e.error_state();
 		}
 
 		TreeFile.SetEnd();

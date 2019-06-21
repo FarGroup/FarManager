@@ -719,6 +719,17 @@ TEST_CASE("view.select")
 		};
 
 		Test(Data, [](const auto& i) { return i.second; });
+
+		std::vector DataCopy(std::cbegin(Data), std::cend(Data));
+		for (auto& i: select(DataCopy, [](auto& i) -> auto& { return i.second; }))
+		{
+			i *= 2;
+		}
+
+		for (size_t i = 0; i != std::size(Data); ++i)
+		{
+			REQUIRE(DataCopy[i].second == Data[i].second * 2);
+		}
 	}
 
 	{

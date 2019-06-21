@@ -241,7 +241,7 @@ void PrintFiles(FileList* SrcPanel)
 			}
 			catch (const far_exception& e)
 			{
-				if (Message(MSG_WARNING, e.get_error_state(),
+				if (Message(MSG_WARNING, e.error_state(),
 					msg(lng::MPrintTitle),
 					{
 						msg(lng::MCannotPrint),
@@ -254,7 +254,7 @@ void PrintFiles(FileList* SrcPanel)
 	}
 	catch (const far_exception& e)
 	{
-		Message(MSG_WARNING, e.get_error_state(),
+		Message(MSG_WARNING, e.error_state(),
 			msg(lng::MPrintTitle),
 			{},
 			{ lng::MOk });

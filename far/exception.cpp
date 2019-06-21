@@ -89,7 +89,7 @@ namespace detail
 
 	std::string far_std_exception::convert_message() const
 	{
-		return encoding::utf8::get_bytes(get_full_message());
+		return encoding::utf8::get_bytes(full_message());
 	}
 
 	attach_debugger::attach_debugger()

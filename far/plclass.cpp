@@ -159,7 +159,7 @@ plugin_factory::plugin_factory(PluginManager* owner):
 
 bool native_plugin_factory::IsPlugin(const string& filename) const
 {
-	if (!CmpName(L"*.dll"sv, filename, false))
+	if (!ends_with_icase(filename, L".dll"sv))
 		return false;
 
 	const auto ModuleFile = os::fs::create_file(filename, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
@@ -220,48 +220,48 @@ bool native_plugin_factory::IsPlugin2(const void* Module) const
 {
 	return seh_invoke_no_ui([&]
 	{
-		const auto pDOSHeader = static_cast<const IMAGE_DOS_HEADER*>(Module);
-		if (pDOSHeader->e_magic != IMAGE_DOS_SIGNATURE)
+		const auto& DOSHeader = *static_cast<const IMAGE_DOS_HEADER*>(Module);
+		if (DOSHeader.e_magic != IMAGE_DOS_SIGNATURE)
 			return false;
 
-		const auto pPEHeader = static_cast<const IMAGE_NT_HEADERS*>(static_cast<const void*>(static_cast<const char*>(Module) + pDOSHeader->e_lfanew));
+		const auto& PEHeader = *static_cast<const IMAGE_NT_HEADERS*>(static_cast<const void*>(static_cast<const char*>(Module) + DOSHeader.e_lfanew));
 
-		if (pPEHeader->Signature != IMAGE_NT_SIGNATURE)
+		if (PEHeader.Signature != IMAGE_NT_SIGNATURE)
 			return false;
 
-		if (!(pPEHeader->FileHeader.Characteristics & IMAGE_FILE_DLL))
+		if (!(PEHeader.FileHeader.Characteristics & IMAGE_FILE_DLL))
 			return false;
 
 		static const auto FarMachineType = []
 		{
-			const auto FarModule = GetModuleHandle(nullptr);
-			return reinterpret_cast<const IMAGE_NT_HEADERS*>(reinterpret_cast<const char*>(FarModule) + reinterpret_cast<const IMAGE_DOS_HEADER*>(FarModule)->e_lfanew)->FileHeader.Machine;
+			const void* FarModule = GetModuleHandle(nullptr);
+			return reinterpret_cast<const IMAGE_NT_HEADERS*>(static_cast<const char*>(FarModule) + static_cast<const IMAGE_DOS_HEADER*>(FarModule)->e_lfanew)->FileHeader.Machine;
 		}();
 
-		if (pPEHeader->FileHeader.Machine != FarMachineType)
+		if (PEHeader.FileHeader.Machine != FarMachineType)
 			return false;
 
-		const auto dwExportAddr = pPEHeader->OptionalHeader.DataDirectory[0].VirtualAddress;
+		const auto ExportAddr = PEHeader.OptionalHeader.DataDirectory[0].VirtualAddress;
 
-		if (!dwExportAddr)
+		if (!ExportAddr)
 			return false;
 
-		for (const auto& Section: span(IMAGE_FIRST_SECTION(pPEHeader), pPEHeader->FileHeader.NumberOfSections))
+		for (const auto& Section: span(IMAGE_FIRST_SECTION(&PEHeader), PEHeader.FileHeader.NumberOfSections))
 		{
-			if ((Section.VirtualAddress == dwExportAddr) ||
-				((Section.VirtualAddress <= dwExportAddr) && ((Section.Misc.VirtualSize + Section.VirtualAddress) > dwExportAddr)))
+			if ((Section.VirtualAddress == ExportAddr) ||
+				((Section.VirtualAddress <= ExportAddr) && ((Section.Misc.VirtualSize + Section.VirtualAddress) > ExportAddr)))
 			{
-				const auto GetAddress = [&](size_t Offset)
+				const auto GetAddress = [&](size_t Offset) -> const void*
 				{
 					return static_cast<const char*>(Module) + Section.PointerToRawData - Section.VirtualAddress + Offset;
 				};
 
-				const auto pExportDir = reinterpret_cast<const IMAGE_EXPORT_DIRECTORY*>(GetAddress(dwExportAddr));
-				const auto pNames = reinterpret_cast<const DWORD*>(GetAddress(pExportDir->AddressOfNames));
+				const auto& ExportDir = *static_cast<const IMAGE_EXPORT_DIRECTORY*>(GetAddress(ExportAddr));
+				const auto Names = span(static_cast<const DWORD*>(GetAddress(ExportDir.AddressOfNames)), ExportDir.NumberOfNames);
 
-				if (std::any_of(pNames, pNames + pExportDir->NumberOfNames, [&](DWORD NameOffset)
+				if (std::any_of(ALL_CONST_RANGE(Names), [&](DWORD NameOffset)
 				{
-					return FindExport(GetAddress(NameOffset));
+					return FindExport(static_cast<const char*>(GetAddress(NameOffset)));
 				}))
 				{
 					return true;
