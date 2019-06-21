@@ -1,4 +1,8 @@
-﻿shmuel 18.04.2019 10:00:19 +0200 - build 690
+﻿shmuel 21.06.2019 22:02:33 +0200 - build 691
+
+1. LuaFAR: minor refactoring.
+
+shmuel 18.04.2019 10:00:19 +0200 - build 690
 
 1. Уточнение обработки OPEN_FINDLIST.
 

@@ -6,17 +6,12 @@
 #include "ustring.h"
 #include "compat52.h"
 
-#define TRANSFORM_REF(L,h)   ((char*)(L)+(h))
-#define UNTRANSFORM_REF(L,h) (int)((char*)(h)-(char*)(L))
-
 extern int bit64_push(lua_State *L, INT64 v);
-extern int bit64_pushuserdata(lua_State *L, INT64 v);
 extern int bit64_getvalue(lua_State *L, int pos, INT64 *target);
 extern void PutFlagsToTable(lua_State *L, const char* key, UINT64 flags);
 extern UINT64 GetFlagCombination(lua_State *L, int pos, int *success);
 extern UINT64 GetFlagsFromTable(lua_State *L, int pos, const char* key);
 
-extern const char* VirtualKeyStrings[256];
 extern void LF_Error(lua_State *L, const wchar_t* aMsg);
 extern void PushInputRecord(lua_State *L, const INPUT_RECORD* ir);
 extern void FillInputRecord(lua_State *L, int pos, INPUT_RECORD *ir);
@@ -92,7 +87,7 @@ int GetExportFunction(lua_State* L, const char* FuncName)
 		if(lua_isfunction(L,-1))
 			return lua_remove(L,-2), 1;
 
-		return lua_pop(L,2), 0;
+		lua_pop(L,1);
 	}
 	return lua_pop(L,1), 0;
 }
@@ -129,7 +124,8 @@ int pcall_msg(lua_State* L, int narg, int nret)
 
 void PushPluginTable(lua_State* L, HANDLE hPlugin)
 {
-	lua_rawgeti(L, LUA_REGISTRYINDEX, UNTRANSFORM_REF(L,hPlugin));
+	lua_pushlightuserdata(L, hPlugin);
+	lua_rawget(L, LUA_REGISTRYINDEX);
 }
 
 void PushPluginObject(lua_State* L, HANDLE hPlugin)
@@ -521,13 +517,16 @@ static BOOL CheckReloadDefaultScript(lua_State *L)
 // -- the function pops the object and returns the reference;
 static HANDLE RegisterObject(lua_State* L)
 {
-	int ref;
-	lua_newtable(L);               //+2: Obj,Tbl
-	lua_pushvalue(L,-2);           //+3: Obj,Tbl,Obj
-	lua_setfield(L,-2,KEY_OBJECT); //+2: Obj,Tbl
-	ref = luaL_ref(L, LUA_REGISTRYINDEX); //+1: Obj
-	lua_pop(L,1);                  //+0
-	return TRANSFORM_REF(L,ref);
+	void *ptr;
+	lua_newtable(L);                  //+2: Obj,Tbl
+	lua_pushvalue(L,-2);              //+3: Obj,Tbl,Obj
+	lua_setfield(L,-2,KEY_OBJECT);    //+2: Obj,Tbl
+	ptr = (void*)lua_topointer(L,-1); //+2
+	lua_pushlightuserdata(L, ptr);    //+3
+	lua_pushvalue(L,-2);              //+4
+	lua_rawset(L, LUA_REGISTRYINDEX); //+2
+	lua_pop(L,2);                     //+0
+	return ptr;
 }
 
 static void PushAnalyseInfo(lua_State* L, const struct AnalyseInfo *Info)
@@ -973,9 +972,10 @@ void LF_ClosePanel(lua_State* L, const struct ClosePanelInfo *Info)
 		PushPluginPair(L, Info->hPanel);        //+3: Func,Pair
 		pcall_msg(L, 2, 0);
 	}
-
 	DestroyCollector(L, Info->hPanel, COLLECTOR_OPI);
-	luaL_unref(L, LUA_REGISTRYINDEX, UNTRANSFORM_REF(L,Info->hPanel));
+	lua_pushlightuserdata(L, Info->hPanel);
+	lua_pushnil(L);
+	lua_rawset(L, LUA_REGISTRYINDEX);
 }
 
 intptr_t LF_Compare(lua_State* L, const struct CompareInfo *Info)

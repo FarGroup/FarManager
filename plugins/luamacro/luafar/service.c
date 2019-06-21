@@ -20,7 +20,6 @@
 typedef struct PluginStartupInfo PSInfo;
 
 extern int bit64_push(lua_State *L, INT64 v);
-extern int bit64_pushuserdata(lua_State *L, INT64 v);
 extern int bit64_getvalue(lua_State *L, int pos, INT64 *target);
 
 extern int luaopen_bit64(lua_State *L);
@@ -189,12 +188,6 @@ static TSynchroData* CreateSynchroData(TTimerData *td, int action, int data)
 	SD->regAction = action;
 	SD->data = data;
 	return SD;
-}
-
-static int IsFarSpring(lua_State *L)
-{
-	TPluginData *pd = GetPluginData(L);
-	return pd->Info->Private != NULL; // FIXME
 }
 
 HANDLE OptHandle(lua_State *L)
@@ -6147,13 +6140,10 @@ static int luaopen_far(lua_State *L)
 	lua_setfield(L, LUA_REGISTRYINDEX, FAR_VIRTUALKEYS);
 	luaL_register(L, "far", far_funcs);
 
-	if(IsFarSpring(L))
-	{
-		lua_pushcfunction(L, far_MacroCallFar);
-		lua_setfield(L, -2, "MacroCallFar");
-		lua_pushcfunction(L, far_FarMacroCallToLua);
-		lua_setfield(L, -2, "FarMacroCallToLua");
-	}
+	lua_pushcfunction(L, far_MacroCallFar);
+	lua_setfield(L, -2, "MacroCallFar");
+	lua_pushcfunction(L, far_FarMacroCallToLua);
+	lua_setfield(L, -2, "FarMacroCallToLua");
 
 	push_flags_table(L);
 	lua_pushvalue(L, -1);
