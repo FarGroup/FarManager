@@ -1011,27 +1011,30 @@ lv=3
 dt=Text
 nm=AddExitHandler
 ctime=3732331676
-mtime=3732332270
+mtime=3770399831
 <article>
-#_mf.AddExitHandler (handler)
+#_mf.AddExitHandler (handler [, ...])
 #_
 #_**Parameters:**
 #_  handler:  function
+#_  ...    :  arbitrary number of sdditional values
 #_
 #_**Returns:**
-#_  nothing
+#_  values passed in ... (if any)
 #_
 #_**Description:**
 #_  1. This function adds a handler that will be called at the end
-#_     of the macro execution.
+#_     of the macro execution. All values specified in ... (if any)
+#_     will be passed as arguments to the handler.
 #_  2. The handler will be called both in the case of normal macro
 #_     completion and in the case of error completion.
 #_  3. If multiple handlers were added during macro execution then they
 #_     will be called in the order reverse to the order of their adding.
 #_
 #_**Usage example:**
-#_  local fp = assert(io.open("some file.txt"))
-#_  mf.AddExitHandler(function() fp:close() end)
+#_  local fp = mf.AddExitHandler(
+#_      function(p) if p then p:close() end; end,
+#_      io.open("some file.txt") )
 #_  -- *use fp; return from multiple places; do not care about closing fp*
 #_
 #_**See also:**

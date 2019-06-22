@@ -1,4 +1,8 @@
-﻿shmuel 21.06.2019 22:02:33 +0200 - build 691
+﻿shmuel 22.06.2019 21:04:56 +0200 - build 692
+
+1. M#3670: mf.AddExitHandler: возвращаемое значение и дополнительные параметры
+
+shmuel 21.06.2019 22:02:33 +0200 - build 691
 
 1. LuaFAR: minor refactoring.
 

@@ -285,7 +285,8 @@ local function GetInputFromMacro()
         Import.RestoreMacroChar()
       end
       for k = #macro,1,-1 do -- exit handlers
-        macro[k]()
+        local tbl = macro[k]
+        tbl.func(unpack(tbl, 1, tbl.n))
       end
     elseif r1 == MPRT_PLUGINCALL then
       KeyMacro.CallPlugin(r2, true)
@@ -413,11 +414,12 @@ function KeyMacro.CallPlugin (Params, AsyncCall)
   return Result
 end
 
-function KeyMacro.AddExitHandler (func)
+function KeyMacro.AddExitHandler (func, ...)
   if type(func) == "function" then
     local TopMacro = GetTopMacro()
     if TopMacro then
-      TopMacro[#TopMacro+1] = func
+      TopMacro[#TopMacro+1] = { n=select("#", ...); func=func; ... }
+      return ...
     end
   end
 end
