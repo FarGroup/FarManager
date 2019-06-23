@@ -635,7 +635,7 @@ static void PR_ShellSetFileAttributesMsg()
 bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
-	short DlgX=74,DlgY=25;
+	short DlgX=74,DlgY=26;
 
 	const auto C1 = 5;
 	const auto C2 = C1 + (DlgX - 10) / 2;

@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 23.06.2019 22:35:33 +0100 - build 5417
+
+1. Correction of 5416.
+
 drkns 21.06.2019 20:40:14 +0100 - build 5416
 
 1. Support FILE_ATTRIBUTE_PINNED and FILE_ATTRIBUTE_UNPINNED attributes.

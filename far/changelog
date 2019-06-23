@@ -1,3 +1,7 @@
+drkns 23.06.2019 22:35:33 +0100 - build 5417
+
+1. Уточнение 5416.
+
 drkns 21.06.2019 20:40:14 +0100 - build 5416
 
 1. Поддержка атрибутов FILE_ATTRIBUTE_PINNED и FILE_ATTRIBUTE_UNPINNED.
