@@ -5,6 +5,8 @@ Temporary panel main plugin code
 
 */
 
+#include <memory>
+
 #include "plugin.hpp"
 #include <shellapi.h>
 #include <PluginSettings.hpp>
@@ -411,7 +413,12 @@ HANDLE WINAPI OpenW(const struct OpenInfo *Info)
 
 	if (Info->OpenFrom==OPEN_COMMANDLINE)
 	{
-		wchar_t *argv=(wchar_t *)(((OpenCommandLineInfo*)Info->Data)->CommandLine); //BUGBUG
+		const auto CommandLine = reinterpret_cast<const OpenCommandLineInfo*>(Info->Data)->CommandLine;
+		const auto CommandLineSize = wcslen(CommandLine);
+		const auto Buffer = std::make_unique<wchar_t[]>(CommandLineSize + 1);
+		auto argv = Buffer.get();
+		wcscpy(argv, CommandLine);
+
 		#define OPT_COUNT 5
 		static const wchar_t ParamsStr[OPT_COUNT][8]=
 		{
@@ -423,14 +430,14 @@ HANDLE WINAPI OpenW(const struct OpenInfo *Info)
 			&Opt.MenuForFilelist,&Opt.FullScreenPanel
 		};
 
-		while (argv && *argv==L' ')
+		while (*argv==L' ')
 			argv++;
 
 		while (lstrlen(argv)>1 && (*argv==L'+' || *argv==L'-'))
 		{
 			int k=0;
 
-			while (argv && *argv!=L' ' && *argv!=L'<')
+			while (*argv && *argv!=L' ' && *argv!=L'<')
 			{
 				k++;
 				argv++;
@@ -447,13 +454,13 @@ HANDLE WINAPI OpenW(const struct OpenInfo *Info)
 			if (*(TMP+1)>=L'0' && *(TMP+1)<=L'9')
 				CurrentCommonPanel=*(TMP+1)-L'0';
 
-			while (argv && *argv==L' ')
+			while (*argv==L' ')
 				argv++;
 		}
 
 		FSF.Trim(argv);
 
-		if (lstrlen(argv))
+		if (*argv)
 		{
 			if (*argv==L'<')
 			{
