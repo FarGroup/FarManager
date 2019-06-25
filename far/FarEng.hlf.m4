@@ -549,11 +549,11 @@ $ #Panel control commands - service commands#
 
   Show ~user menu~@UserMenu@                                                  #F2#
 
-  View                                   #Ctrl+Shift+F3, Numpad5, F3#
+  View                                    #Ctrl+Shift+F3, Numpad5, F3#
 
     If pressed on a file, #Numpad5# and #F3# invoke ~internal~@Viewer@,
 external or ~associated~@FileAssoc@ viewer, depending upon the file type and
-~external viewer settings~@ViewerSettings@.
+~Viewer settings~@ViewerSettings@.
     #Ctrl+Shift+F3# always calls internal viewer ignoring file associations.
     If pressed on a folder, calculates and shows the size of selected folders.
 
@@ -594,7 +594,7 @@ folder before moving, terminate the name with a backslash.
   Internal/external viewer                                    #Alt+F3#
 
     If the internal viewer is used by default, invokes the external viewer
-specified in the ~settings~@ViewerSettings@ or the ~associated viewer program~@FileAssoc@
+specified in the ~Viewer settings~@ViewerSettings@ or the ~associated viewer program~@FileAssoc@
 for the file type. If the external viewer is used by default, invokes the
 internal viewer.
 
@@ -630,7 +630,7 @@ screen height between 25 and 50 lines. See ~Interface.AltF9~@Interface.AltF9@ fo
 
   Perform ~find folder~@FindFolder@ command                                #Alt+F10#
 
-  Display ~view and edit history~@HistoryViews@                              #Alt+F11#
+  Display ~file view and edit history~@HistoryViews@                         #Alt+F11#
 
   Display ~folders history~@HistoryFolders@                                    #Alt+F12#
 
@@ -670,7 +670,8 @@ Pressing #Shift+Enter# on "#..#" opens the current directory in the Explorer.
 
   Change to the root folder                                   #Ctrl+\\#
 
-  Change folder, enter an archive (also an SFX archive)     #Ctrl+[Shift+]PgDn#
+  Change folder, enter an archive                  #Ctrl+[Shift+]PgDn#
+  (including an SFX archive)
 
     If the cursor points to a directory, pressing #Ctrl+PgDn# changes to that
 directory. If the cursor points to a file, then, depending on the file type,
@@ -1437,7 +1438,7 @@ $ #Menus: commands menu#
    #Find folder#          Search for a folder in the folders
                         tree. See ~Find folder~@FindFolder@ for more info.
 
-   #File view history#    Display files ~view and edit history~@HistoryViews@.
+   #File view history#    Display ~file view and edit history~@HistoryViews@.
 
    #Folders history#      Display folders ~changing history~@HistoryFolders@.
 
@@ -1523,9 +1524,9 @@ $ #Menus: options menu#
    #files#                 files displayed in the ~Info panel~@InfoPanel@ as folder
                          descriptions.
 
-   #Viewer settings#       External and internal ~viewer settings~@ViewerSettings@.
+   #Viewer settings#       External and internal ~Viewer settings~@ViewerSettings@.
 
-   #Editor settings#       External and internal ~editor settings~@EditorSettings@.
+   #Editor settings#       External and internal ~Editor settings~@EditorSettings@.
 
    #Code pages#            Shows the ~Code pages~@CodePagesMenu@ menu.
 
@@ -1844,13 +1845,13 @@ actions.
    View                          #F3, Alt+F3, Numpad5, Ctrl+Shift+F3#
 
     #F3#, #Alt+F3# or #Numpad5# invokes ~internal~@Viewer@, external or ~associated ~@FileAssoc@ viewer,
-depending on file type and ~viewer settings~@ViewerSettings@.
+depending on file type and ~Viewer settings~@ViewerSettings@.
     #Ctrl+Shift+F3# always invokes internal viewer regardless of file associations.
 
    Edit                                    #F4, Alt+F4, Ctrl+Shift+F4#
 
     #F4# or #Alt+F4# invokes ~internal~@Editor@, external or ~associated~@FileAssoc@ editor,
-depending on file type and ~editor settings~@EditorSettings@.
+depending on file type and ~Editor settings~@EditorSettings@.
     #Ctrl+Shift+F4# always invokes internal editor regardless of file associations.
 
     Viewing and editing is supported for plugin emulated file systems. Note, that saving editor
@@ -2419,7 +2420,7 @@ so this option is disabled by default and directories are always monitored.
 Folders history list can be activated by #Alt+F12#.
 
   #Save view and edit history#
-  Forces saving ~history of viewed and edited~@HistoryViews@ files before exit and restoring it after
+  Forces saving ~file view and edit history~@HistoryViews@ before exit and restoring it after
 starting Far. View and edit history list can be activated by #Alt+F11#.
 
   #Use Windows registered types#
@@ -2846,7 +2847,7 @@ see also ~Interface.AltF9~@Interface.AltF9@
     #Numpad5,F3,F10,Esc# Quit viewer
     #Ctrl+F10#           Jump to the current file on the active file panel
     #F11#                Open ~Plugin commands~@Plugins@ menu
-    #Alt+F11#            Display view and edit ~history~@HistoryViews@
+    #Alt+F11#            Display ~file view and edit history~@HistoryViews@
     #Gray +#             View the next file on the active file panel
     #Gray -#             View the previous file on the active file panel
     #Ctrl+O#             Show user screen
@@ -2884,9 +2885,9 @@ a feature of the Windows operating system.
 
     3. ^<wrap>The maximum number of columns displayed in the #text#
 ~view mode~@ViewerMode@ can be configured in the
-~settings~@ViewerSettings@ dialog. The range is between 100 to 100,000,
+~Viewer settings~@ViewerSettings@ dialog. The range is between 100 to 100,000,
 the default is 10,000. Lines longer than the maximum will be split into
-several lines even if word wrap mode is turned off.
+several screen rows even if word wrap mode is turned off.
 
     4. ^<wrap>Far starts ~searching~@ViewerSearch@ (#F7#) from the
 beginning of the currently visible area.
@@ -2895,64 +2896,161 @@ beginning of the currently visible area.
 process (conf. Linux “tail”), go to the end of the file (press the #End#
 key).
 
+
 @ViewerMode
 $ #Viewer: view modes#
-    В программе просмотра предусмотрено три режима отображения содержимого просматриваемого файла: 
-#Текст#, #Код# и #Дамп#. При открытии файла, если включено сохранение режима просмотра
-и открываемый файл в истории есть - выбирается последний использованный режим.
-В противном случае, если включена ~опция~@ViewerSettings@ #Автовыбор дамп режима просмотра#
-и Far считает файл бинарным - выбирается режим #дамп#, иначе - #текст#.
+    The viewer can render the content of the file in three modes:
+#text#, #hex#, and #dump#. Current mode is indicated with a character
+on the first (status) line of the window, to the left of the current
+code page number:
+      #t# - text,
+      #h# - hex,
+      #d# - dump.
 
-    Режим просмотра можно изменить вручную клавишами:
+    When a file is opened, if #Save view mode# option in the
+~Viewer settings~@ViewerSettings@ dialog is on and the file exists
+in ~File view and edit history~@HistoryViews@, the last used view mode
+is selected.
 
-    #F4# - переключение между режимом #Код# и последним из использованных #Текст# или #Дамп#
-    #Shift+F4# - будет отображено меню для выбора одного из трех режимов
-    #F2# - для режима #Текст# меняет режим переноса, режим #Дамп# переключается в #Текст#,
-режим #Код# переключается в #Дамп# или #Текст# (#F4# и #F2# переключают в разные режимы). 
+      Otherwise, if #Detect dump view mode# option in the
+~Viewer settings~@ViewerSettings@ dialog is on and Far considers the
+file binary, the #dump# mode is selected.
 
-    Текущий режим отображается одной буквой в первой строке окна, перед значением
-текущей кодовой страницы: #t# - Текст, #h# - Код, #d# - Дамп. 
+      Otherwise, the #text# mode is selected.
 
-    Режим #Текст#
+    The view mode can be changed manually with the following keys:
 
-    В режиме #Текст# Far отображает содержимое файла, интерпретируя последовательность байтов
-как строки символов в текущей кодировке (кодировки не только однобайтовые). Непечатаемые символы
-или символы, для которых нет отображения в текущем шрифте/кодировке, будут отображены как знаки
-вопроса, либо как знак "пустой прямоугольник", либо как знак "маленький вопросительный знак в
-прямоугольнике", либо не будут отображены - это зависит от выбора шрифта окна Far. Строки
-переводятся после нахождения признака окончания текстовой строки.
-    Для просмотра длинных строк, выходящих за границу окна, можно клавишей #F2#
-включить/выключить режим переноса.
-    Если перенос разрешен, строки принудительно переводятся (сворачиваются) при достижении правой
-границы экрана. Можно разрешить/запретить перенос внутри слова #Shift+F2#.
-    Если перенос отключен и строка не помещается на экране, то отображается только часть строки
-и у правой границы окна просмотра другим цветом рисуется знак #»# (если включена настройка
-#Показывать стрелки сдвига#). Клавишами #Right#/#Ctrl+Right# можно сдвигать начало отображаемой
-части строк вправо на 1/20 символов (#Left#/#Ctrl+Left# влево). Если строки отображаются не с
-первого символа, у левой границы окна просмотра рисуется знак #«# (настраивается).
-Максимальная длина строки просмотра ограничена: #Максимальная ширина строки# в диалоге
-~настроек~@ViewerSettings@. Более длинные строки разбиваются на несколько, даже если они
-не содержат символов перевода строки.
+      #Shift+F4# ^<wrap>Opens the #View mode# menu. If #text# or #dump#
+mode is selected, it becomes the #base# mode; selecting #hex# mode
+switches the current mode but does not change the base mode.
 
-    Режим #Дамп#
+      #F4#       ^<wrap>Switches #text# or #dump# mode to #hex#, and
+#hex# mode to the base (#text# or #dump#) mode most recently selected
+in the #View mode# menu.
 
-    В режиме #Дамп# Far отображает содержимое файла с текущей позиции, интерпретируя каждый байт
-(для кодовых страниц UTF-16 - каждые два байта, UTF-8 символы переменной длины) как отображаемый
-символ в текущей кодировке. При достижении края окна следующий символ отображается с начала новой
-строки. Переводы строк и управляющие коды отображаются как обычные печатные символы.
-    В режиме #Дамп# нет понятия строки, клавиши горизонтального перемещения работают не так
-как в режиме #Текст# (а почти как в режиме #Код#). Клавиши #Left#/#Right# игнорируются,
-а клавиши #Ctrl+Left#/#Ctrl+Right# начало отображаемой в окне части файла на 1 символ (не 1 байт!).
-Таким образом, отображаемые символы как бы "перетекают" через края окна отображения.
+      #F2#       ^<wrap>In the #text# mode toggles line wrap/unwrap,
+switches #dump# mode to #text#, and switches #hex# mode to the opposite
+of the base mode (#dump# or #text#) most recently selected in the
+#View mode# menu. Note: #F4# and #F2# switch #hex# mode to different
+modes.
 
-    Режим #Код# (Hex / 16-ричные коды)
+    #Text# mode
 
-    В режиме #Код# Far отображает содержимое файла аналогично шестнадцатеричным редакторам:
-в строке указывается шестнадцатеричное смещение каждых 16 байт от начала файла, их 16-ричные
-коды и отображение в виде символов. Для кодировок UTF-16: 8 16-ричных слов и 8 символов.
-Для кодировки UTF-8 многобайтные символы дополняются знаками '»'.
-#Ctrl+Left#/#Ctrl+Right# (в отличии от режима #Дамп#) сдвигают начало отображаемой части файла
-всегда на 1 байт, многобайтные символы могут 'разрезаться' на части.
+    In the #text# mode, viewer renders file content interpreting byte
+sequences as character strings using the encoding defined by the current
+code page. (Note that some encodings can use more than one byte
+to represent a character.) Byte sequences invalid in the current
+encoding and characters for which there are no glyphs in the console
+window font are displayed as question marks, or empty rectangles,
+or small question marks in a rectangle, or blanks. The representation
+depends on the console window font.
+
+    Text lines are broken at any conventional line delimiter, U+000A
+U+000D (Dos/Windows format), U+000A (Unix format), or U+000D (Mac
+format).
+
+    Long text lines which do not fit into the window can be either
+truncated or wrapped over multiple screen rows. The #F2# key switches
+between #wrap# and #truncate# modes. In #wrap# mode, #Shift+F2# key
+combination controls whether the lines can be broken inside a word.
+
+    In #truncate# mode, the text can be scrolled horizontally within the
+window. The #Right# key scrolls the text one column to the left; the
+#Left# key scrolls one column to the right (think of moving the window
+over the file content). The #Ctrl+Right# and #Ctrl+Left# key
+combinations scroll 20 columns at a time. If #Show scrolling arrows#
+in the ~Viewer settings~@ViewerSettings@ dialog is on, the truncated
+lines are indicated with the symbols #«# and #»# at the corresponding
+edge of the window. The symbols are displayed in a different color.
+
+    The maximum length of text lines is limited to the #Maximum line width#
+defined in the ~Viewer settings~@ViewerSettings@ dialog. Longer lines
+are split into several screen rows even in #truncate# mode.
+
+    #Dump# mode
+
+    In the #dump# mode, viewer renders file content character by character
+without regard of line breaks or control codes which are treated
+as ordinary characters. The characters are displayed on screen rows from
+left to right. After reaching the end of the row, the next character
+is displayed in the leftmost position of the next row.
+
+      NOTE: Strictly speaking, text is rendered by code units, not by
+characters. The size of a code unit depends on the encoding defined
+by the current code page; it is one byte for single-byte encodings
+(e.g., all ANSI code pages) and UTF-8, and two bytes for UTF-16 and
+UTF-16BE encodings. For example:
+
+      Code page 1252 (ANSI - Latin I): each byte is displayed in its
+own screen position.
+
+      Code page 65001 (UTF-8): the character is displayed in the
+position corresponding to the leading byte of the UTF-8 sequence, and
+the positions of continuation bytes are filled with the #›# symbols
+(code point U+203A).
+
+      Code page 1200 (UTF-16): each screen position represents two
+consecutive bytes starting at an even offset in the file.
+
+    In the #dump# mode, there is no notion of a text line. Instead
+of horizontal scrolling (cf. #text# #truncate# mode), the text
+is shifted one character at a time. The #Ctrl+Right# key combination
+shifts all characters to the left; the first character on a row becomes
+the last on the previous row. The #Ctrl+Left# key combination shifts all
+characters to the right moving the last character of a row to the first
+positions of the next row. The text “flows” from row to row. The #Right#
+and #Left# keys are ignored.
+
+    #Hex# mode (hexadecimal codes)
+
+    In the #hex# mode, viewer renders file content 16 bytes per screen
+row, with the hexadecimal offset of the first byte of each row at the
+left, followed by the hexadecimal representation of the bytes, followed
+by the character representation.
+
+    The rendition depends on the encoding defined by the current code
+page. For single-byte encodings (e.g., all ANSI code pages), the bytes
+on each row are represented by 16 double-digit hex values followed by 16
+characters. For UTF-8 encoding, the bytes are represented the same way,
+while the characters are displayed at the positions of the leading bytes
+of the UTF-8 sequences with the positions of continuation bytes being
+filled with the #›# symbols (code point U+203A). For UTF-16(BE)
+encodings, the eight consecutive pairs of bytes (code units) are
+represented by four-digits hex values followed by eight characters. For
+example:
+
+      Code page 1252 (ANSI - Latin I)
+
+@-
+0000000000: 54 68 65 20 71 75 69 63 │ 6B 20 62 72 6F 77 6E 20  The quick brown
+0000000010: 66 6F 78 20 6A 75 6D 70 │ 73 20 6F 76 65 72 20 74  fox jumps over t
+0000000020: 68 65 20 6C 61 7A 79 20 │ 64 6F 67 27 73 20 62 61  he lazy dog's ba
+0000000030: 63 6B 2E 0D 0A          │                          ck.♪◙
+@+
+
+      Code page 65001 (UTF-8)
+
+@-
+0000000035: D0 92 20 D1 87 D0 B0 D1 │ 89 D0 B0 D1 85 20 D1 8E  В› ч›а›щ›а›х› ю›
+0000000045: D0 B3 D0 B0 20 D0 B6 D0 │ B8 D0 BB 2D D0 B1 D1 8B  г›а› ж›и›л›-б›ы›
+0000000055: D0 BB 20 D1 86 D0 B8 D1 │ 82 D1 80 D1 83 D1 81 2C  л› ц›и›т›р›у›с›,
+@+
+
+      Code page 1200 (UTF-16)
+
+@-
+00000000A2: 043D 043E 0020 0444 │ 0430 043B 044C 0448  но фальш
+00000000B2: 0438 0432 044B 0439 │ 0020 044D 043A 0437  ивый экз
+00000000C2: 0435 043C 043F 043B │ 044F 0440 002C 0020  емпляр,
+00000000D2: 0434 0430 002E 000D │ 000A                 да.♪◙
+@+
+
+    The #Ctrl+Right# key combination shifts all bytes to the left; the
+first byte on a row becomes the last on the previous row. The
+#Ctrl+Left# key combination shifts all bytes to the right moving the
+last byte of a row to the first positions of the next row. Unlike
+in #dump# mode, the content is shifted by a byte, not by a character.
+The #Right# and #Left# keys are ignored.
 
 
 @ViewerGotoPos
@@ -3092,7 +3190,7 @@ behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
    #Shift+F10#               Save and quit
    #Ctrl+F10#                Position to the current file
    #F11#                     Call "~Plugin commands~@Plugins@" menu
-   #Alt+F11#                 Display ~edit history~@HistoryViews@
+   #Alt+F11#                 Display ~file view and edit history~@HistoryViews@
    #Alt+BS, Ctrl+Z#          Undo
    #Ctrl+Shift+Z#            Redo
    #Ctrl+L#                  Disable edited text modification
@@ -3697,72 +3795,82 @@ Windows Server 2012.
 
 @ViewerSettings
 $ #Settings dialog: viewer#
-    This dialog allows to change the default external or
-~internal viewer~@Viewer@ settings.
+    This dialog allows to change the settings of the internal
+and external ~viewer~@Viewer@.
 
-    External viewer
+@=
+^#Viewer#
+@=
+  #Use external viewer#     Start external viewer on #F3# key
+  #for F3 instead of#       and internal viewer on #Alt+F3#
+  #Alt+F3#                  key combination.
 
-  #Use for F3#              Run external viewer using #F3#.
-
-  #Use for Alt+F3#          Run external viewer using #Alt+F3#.
-
-  #Viewer command#          Command to execute external viewer.
+  #Viewer command#          Command to launch the external viewer.
                           Use ~special symbols~@MetaSymbols@ to specify the
                           name of the file to view.
 
-    Internal viewer
-
+@=
+^#Internal viewer#
+@=
   #Persistent selection#    Do not remove block selection after
                           moving the cursor.
 
-  #Show arrows#             Show scrolling arrows in viewer if the text
-                          doesn't fit in the window horizontally.
-
-  #Save file position#      Save and restore positions in the recently
-                          viewed files. This option also forces
-                          restoring of code page, if the page
-                          was manually selected by user, and the file
-                          viewing mode (normal/hex).
-
-  #Save bookmarks#          Save and restore bookmarks (current
-                          positions) in recently viewed files
-                          (created with #RightCtrl+0..9# or
-                          #Ctrl+Shift+0..9#)
-
-  #Save file code page#     Save and restore selected file code page.
-                          This is automatically enabled if #Save file position#
-                          is enabled, as file position depends on its encoding.
-
-  #Save wrap mode#          Save and restore file Wrap/WordWrap mode.
-
-  #Search dialog#           Always returns focus to search text field in
+  #Search dialog#           Always returns focus to the search text field in
   #auto-focus#              the ~Viewer~@Viewer@ search dialog.
 
-  #Visible '\0'#            Shows visible character instead of space for '\0' character.
-                          Character can be set in ~far:config~@FarConfig@ #Viewer.ZeroChar#
+  #Tab size#                Number of spaces per single tab position.
 
-  #Tab size#                Number of spaces in a tab character.
+  #Show scrolling arrows#   Show scrolling arrows at the edges of the viewer
+                          window if the text does not fit horizontally.
 
-  #Show scrollbar#          Show scrollbar in internal viewer. This
+  #Visible '\0'#            Show a printable character instead of space for
+                          the character '\0'. The character to diplay can be
+                          set in ~far:config~@FarConfig@ #Viewer.ZeroChar#.
+
+  #Show scrollbar#          Show scrollbar in the internal viewer. This
                           option can also be switched by pressing
                           #Ctrl+S# in the internal viewer.
+@=
+  #Save file position#      Save and restore positions in the recently
+                          viewed files. This option also saves and restores
+                          the code page (if it was selected manually) and
+                          ~view mode~@ViewerMode@.
+
+  #Save file code page#     Save and restore the code page selected for a file.
+                          This is automatically enabled if #Save file position#
+                          is enabled, as file position depends on the encoding.
+
+  #Save bookmarks#          Save and restore bookmarks in the recently viewed
+                          files. (Bookmarks can be created with #RightCtrl+0..9#
+                          or #Ctrl+Shift+0..9# key combinations.)
 
   #Maximum line width#      Maximum number of columns for text mode viewer.
-                          Min=100, Max=100000, Default=10000.
+                          Min=100, Max=100,000, Default=10,000.
+
+  #Save view mode#          Save and restore ~view modes~@ViewerMode@
+                          of recently viewed files.
+
+  #Save wrap mode#          Save and restore #wrap# and #word wrap# ~modes~@ViewerMode@
+                          of recently viewed files.
+
+  #Detect dump view mode#   If this option is on and Far considers the file binary,
+                          the #dump# ~mode~@ViewerMode@ is selected automatically
+                          at the first view. Otherwise, the #text# mode is selected.
 
   #Autodetect#              ~Autodetect~@CodePageAuto@ the code page of
   #code page#               the file being viewed.
 
-  #Default code page#       Select the default code page.
+  #Default code page#       Allows to select the default code page.
+@=
 
-    If the external viewer is assigned to #F3# key, it will be executed only if
+    If the external viewer is assigned to #F3# key, it will be launched only if
 the ~associated~@FileAssoc@ viewer for the current file type is not defined.
 
-    Modifications of settings in this dialog do not affect previously opened
-internal viewer windows.
+    Changing of settings does not affect currently opened internal
+viewer windows.
 
     The settings dialog can also be invoked from the ~internal viewer~@Viewer@
-by pressing #Alt+Shift+F9#. The changes will come into force immediately but
+by pressing #Alt+Shift+F9#. The changes will come into effect immediately but
 will affect only the current session.
 
 
