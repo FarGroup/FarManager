@@ -426,7 +426,7 @@ public:
     spacer(2);
     oa_ask_ctrl_id = radio_button(Far::get_msg(MSG_EXTRACT_DLG_OA_ASK), options.overwrite == oaAsk);
     spacer(2);
-    oa_overwrite_ctrl_id = radio_button(Far::get_msg(MSG_EXTRACT_DLG_OA_OVERWRITE), options.overwrite == oaOverwrite);
+    oa_overwrite_ctrl_id = radio_button(Far::get_msg(MSG_EXTRACT_DLG_OA_OVERWRITE), options.overwrite == oaOverwrite || options.overwrite == oaOverwriteCase);
     spacer(2);
     oa_skip_ctrl_id = radio_button(Far::get_msg(MSG_EXTRACT_DLG_OA_SKIP), options.overwrite == oaSkip);
     new_line();
@@ -1436,7 +1436,7 @@ public:
       spacer(2);
       oa_ask_ctrl_id = radio_button(Far::get_msg(MSG_UPDATE_DLG_OA_ASK), options.overwrite == oaAsk);
       spacer(2);
-      oa_overwrite_ctrl_id = radio_button(Far::get_msg(MSG_UPDATE_DLG_OA_OVERWRITE), options.overwrite == oaOverwrite);
+      oa_overwrite_ctrl_id = radio_button(Far::get_msg(MSG_UPDATE_DLG_OA_OVERWRITE), options.overwrite == oaOverwrite || options.overwrite == oaOverwriteCase);
       spacer(2);
       oa_skip_ctrl_id = radio_button(Far::get_msg(MSG_UPDATE_DLG_OA_SKIP), options.overwrite == oaSkip);
       new_line();

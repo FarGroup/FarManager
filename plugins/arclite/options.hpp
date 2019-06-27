@@ -66,11 +66,13 @@ struct Options {
   uintptr_t ansiCP;
   unsigned correct_name_mode;
   bool qs_by_default;
+  bool strict_case;
 
   struct LoadedFromXML {
     bool max_check_size{};
     bool correct_name_mode{};
     bool qs_by_default{};
+    bool strict_case{};
   } loaded_from_xml;
 
   vector<ExternalCodec> codecs;

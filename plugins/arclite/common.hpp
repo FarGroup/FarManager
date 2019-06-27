@@ -88,7 +88,7 @@ public:
 
 void retry_or_ignore_error(const Error& error, bool& ignore, bool& ignore_errors, ErrorLog& error_log, ProgressMonitor& progress, bool can_retry, bool can_ignore);
 
-enum OverwriteAction { oaAsk, oaOverwrite, oaSkip, oaRename, oaAppend };
+enum OverwriteAction { oaAsk, oaOverwrite, oaSkip, oaRename, oaAppend, oaOverwriteCase };
 
 struct OpenOptions {
   wstring arc_path;

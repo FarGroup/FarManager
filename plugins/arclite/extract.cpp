@@ -175,7 +175,7 @@ private:
       file_path = auto_rename(current_rec.file_path);
     else
       file_path = current_rec.file_path;
-    if (current_rec.overwrite == oaOverwrite || current_rec.overwrite == oaAppend)
+    if (current_rec.overwrite == oaOverwrite || current_rec.overwrite == oaOverwriteCase || current_rec.overwrite == oaAppend)
       File::set_attr_nt(file_path, FILE_ATTRIBUTE_NORMAL);
     RETRY_OR_IGNORE_BEGIN
     const DWORD access = FILE_WRITE_DATA | FILE_WRITE_ATTRIBUTES;
@@ -184,7 +184,8 @@ private:
     if (current_rec.overwrite == oaAppend) {
       file.open(file_path, access, shares, OPEN_EXISTING, attrib);
     } else {
-      if (!file.open_nt(file_path, access, shares, CREATE_ALWAYS, attrib)) {
+      bool opened = current_rec.overwrite != oaOverwriteCase && file.open_nt(file_path, access, shares, CREATE_ALWAYS, attrib);
+      if (!opened) {
         File::delete_file_nt(file_path); // sometimes can help
         file.open(file_path, access, shares, CREATE_ALWAYS, attrib);
       }
@@ -444,6 +445,11 @@ public:
         OverwriteOptions ov_options;
         if (!overwrite_dialog(file_path, src_ov_info, dst_ov_info, odkExtract, ov_options))
           return E_ABORT;
+        if (g_options.strict_case && ov_options.action == oaOverwrite) {
+			 auto dst_len = wcslen(dst_file_info.cFileName);
+			 if (file_path.size() > dst_len && file_path.substr(file_path.size()-dst_len) != dst_file_info.cFileName)
+            ov_options.action = oaOverwriteCase;
+        }
         overwrite = ov_options.action;
         if (ov_options.all)
           *overwrite_action = ov_options.action;

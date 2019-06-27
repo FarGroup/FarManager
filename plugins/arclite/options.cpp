@@ -16,6 +16,7 @@ static const auto default_v = "Options"_v;
 static const auto max_check_size_v = "max_check_size"_v;
 static const auto correct_name_mode_v = "correct_name_mode"_v;
 static const auto qs_by_default_v = "qs_by_default"_v;
+static const auto strict_case_v = "strict_case"_v;
 
 static const auto range_v = "range"_v;
 static const auto std_v = "std"_v;
@@ -100,6 +101,9 @@ public:
       } else if (name == qs_by_default_v) {
         options.qs_by_default = value == true_v;
         options.loaded_from_xml.qs_by_default = true;
+      } else if (name == strict_case_v) {
+        options.strict_case = value == true_v;
+        options.loaded_from_xml.strict_case = true;
       } else if (name == correct_name_mode_v) {
         parse_uints(value, &options.correct_name_mode);
         options.loaded_from_xml.correct_name_mode = true;
@@ -245,7 +249,8 @@ Options::Options():
   oemCP(0),
   ansiCP(0),
   correct_name_mode(0x12),
-  qs_by_default(false)
+  qs_by_default(false),
+  strict_case(true)
 {}
 
 void load_sfx_options(OptionsKey& key, SfxOptions& sfx_options) {
@@ -302,7 +307,7 @@ void Options::load() {
   Options def_options;
   load_arclite_xml(*this);
 #define GET_VALUE(name, type) name = key.get_##type(L###name, def_options.name)
-#define GET_VALUE_XML(name, type) if (loaded_from_xml.name) name=def_options.name; else GET_VALUE(name, type)
+#define GET_VALUE_XML(name, type) if (!loaded_from_xml.name) GET_VALUE(name, type)
   GET_VALUE(handle_create, bool);
   GET_VALUE(handle_commands, bool);
   GET_VALUE(plugin_prefix, str);
@@ -348,6 +353,7 @@ void Options::load() {
   GET_VALUE(ansiCP, int);
   GET_VALUE_XML(correct_name_mode, int);
   GET_VALUE_XML(qs_by_default, bool);
+  GET_VALUE_XML(strict_case, bool);
 #undef GET_VALUE
 #undef GET_VALUE_XML
 };
@@ -405,6 +411,7 @@ void Options::save() const {
   }
   SET_VALUE_XML(correct_name_mode, int);
   SET_VALUE_XML(qs_by_default, bool);
+  SET_VALUE_XML(strict_case, bool);
 #undef SET_VALUE
 #undef SET_VALUE_XML
 }
