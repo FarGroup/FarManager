@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Internal:
 #include "panelfwd.hpp"
+#include "panelctype.hpp"
 
 // Platform:
 #include "platform.chrono.hpp"
@@ -56,12 +57,12 @@ bool MakePath(const panel_ptr& SrcPanel, bool FilePath, bool RealName, bool Shor
 bool MakePathForUI(DWORD Key, string &strPathName);
 
 string FormatStr_Attribute(DWORD FileAttributes, size_t Width);
-string FormatStr_DateTime(os::chrono::time_point FileTime, int ColumnType, unsigned long long Flags, int Width);
+string FormatStr_DateTime(os::chrono::time_point FileTime, column_type ColumnType, unsigned long long Flags, int Width);
 string FormatStr_Size(long long Size, const string& strName,
-	DWORD FileAttributes, DWORD ShowFolderSize, DWORD ReparseTag, int ColumnType,
+	DWORD FileAttributes, DWORD ShowFolderSize, DWORD ReparseTag, column_type ColumnType,
 	unsigned long long Flags, int Width, string_view CurDir = {});
 std::vector<column> DeserialiseViewSettings(const string& ColumnTitles, const string& ColumnWidths);
 std::pair<string, string> SerialiseViewSettings(const std::vector<column>& Columns);
-int GetDefaultWidth(unsigned long long Type);
+int GetDefaultWidth(const column& Column);
 
 #endif // PANELMIX_HPP_AF7AAF02_56C0_4E41_B1D9_D1F1A5B4025D

@@ -187,7 +187,10 @@ void FreePluginPanelItemDescriptionOwnerAndColumns(const PluginPanelItem & Data)
 
 void FreePluginPanelItemsNames(const std::vector<PluginPanelItem>& Items)
 {
-	std::for_each(ALL_CONST_RANGE(Items), FreePluginPanelItemNames);
+	for (const auto& i: Items)
+	{
+		FreePluginPanelItemNames(i);
+	}
 }
 
 plugin_item_list::~plugin_item_list()

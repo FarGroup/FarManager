@@ -272,8 +272,7 @@ static size_t get_bytes_impl(uintptr_t const Codepage, string_view const Str, sp
 			const auto Size = std::min(Str.size() * sizeof(wchar_t), Buffer.size());
 			if (Codepage == CP_UNICODE)
 			{
-				if (Size) // paranoid gcc null checks are paranoid
-					memcpy(Buffer.data(), Str.data(), Size);
+				copy_memory(Str.data(), Buffer.data(), Size);
 			}
 			else
 				swap_bytes(Str.data(), Buffer.data(), Size);
@@ -357,8 +356,7 @@ static size_t get_chars_impl(uintptr_t const Codepage, std::string_view Str, spa
 		return Utf7::get_chars(Str, Buffer, nullptr);
 
 	case CP_UNICODE:
-		if (!Buffer.empty()) // paranoid gcc null checks are paranoid
-			memcpy(Buffer.data(), Str.data(), std::min(Str.size(), Buffer.size() * sizeof(wchar_t)));
+		copy_memory(Str.data(), Buffer.data(), std::min(Str.size(), Buffer.size() * sizeof(wchar_t)));
 		return Str.size() / sizeof(wchar_t);
 
 	case CP_REVERSEBOM:

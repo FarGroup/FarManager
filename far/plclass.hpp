@@ -176,10 +176,10 @@ public:
 
 	const auto& Id() const { return m_Id; }
 	auto Owner() const { return m_owner; }
-	const auto& ExportsNames() const { return m_ExportsNames; }
+	auto ExportsNames() const { return m_ExportsNames; }
 
 protected:
-	range<const export_name*> m_ExportsNames;
+	span<const export_name> m_ExportsNames;
 	PluginManager* const m_owner;
 	UUID m_Id{};
 };
@@ -404,8 +404,8 @@ protected:
 	plugin_factory* m_Factory;
 	plugin_factory::plugin_module_ptr m_Instance;
 	std::unique_ptr<language> PluginLang;
-	size_t Activity;
-	bool bPendingRemove;
+	size_t Activity{};
+	bool bPendingRemove{};
 
 private:
 	friend class PluginManager;

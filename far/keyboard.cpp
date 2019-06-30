@@ -338,9 +338,9 @@ void InitKeysArray()
 		{
 			KeyState[VK_SHIFT]=j*0x80;
 
-			std::for_each(CONST_RANGE(Layout(), i)
+			for (const auto& i: Layout())
 			{
-				for (int VK=0; VK<256; VK++)
+				for (int VK = 0; VK != 256; ++VK)
 				{
 					wchar_t idx;
 					if (ToUnicodeEx(VK, 0, KeyState, &idx, 1, 0, i) > 0)
@@ -349,7 +349,7 @@ void InitKeysArray()
 							KeyToVKey[idx] = VK + j * 0x100;
 					}
 				}
-			});
+			}
 		}
 
 		//VKeyToASCII - используется вместе с KeyToVKey чтоб подменить нац. символ на US-ASCII
@@ -1072,11 +1072,10 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 		KeyMacro::SetMacroConst(constMsLastCtrlState,CtrlState);
 
 		// Для NumPad!
-		if ((CalcKey&(KEY_CTRL|KEY_SHIFT|KEY_ALT|KEY_RCTRL|KEY_RALT)) == KEY_SHIFT &&
-		        (CalcKey&KEY_MASKF) >= KEY_NUMPAD0 && (CalcKey&KEY_MASKF) <= KEY_NUMPAD9)
-			IntKeyState.LeftShiftPressed = IntKeyState.RightShiftPressed = true;
-		else
-			IntKeyState.LeftShiftPressed = IntKeyState.RightShiftPressed = (CtrlState & SHIFT_PRESSED) != 0;
+		IntKeyState.LeftShiftPressed = IntKeyState.RightShiftPressed =
+			((CalcKey & (KEY_CTRL | KEY_SHIFT | KEY_ALT | KEY_RCTRL | KEY_RALT)) == KEY_SHIFT && (CalcKey & KEY_MASKF) >= KEY_NUMPAD0 && (CalcKey & KEY_MASKF) <= KEY_NUMPAD9)?
+			true :
+			(CtrlState & SHIFT_PRESSED) != 0;
 
 		struct KeysData
 		{
@@ -1087,19 +1086,27 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 		}
 		const Keys[]
 		{
-			{KEY_SHIFT,VK_SHIFT,MODIF_SHIFT,false},
-			{KEY_ALT,VK_MENU,MODIF_ALT,false},
-			{KEY_RALT,VK_MENU,MODIF_RALT,true},
-			{KEY_CTRL,VK_CONTROL,MODIF_CTRL,false},
-			{KEY_RCTRL,VK_CONTROL,MODIF_RCTRL,true}
+			{ KEY_SHIFT,     VK_SHIFT,       MODIF_SHIFT,      false,    },
+			{ KEY_ALT,       VK_MENU,        MODIF_ALT,        false,    },
+			{ KEY_RALT,      VK_MENU,        MODIF_RALT,       true,     },
+			{ KEY_CTRL,      VK_CONTROL,     MODIF_CTRL,       false,    },
+			{ KEY_RCTRL,     VK_CONTROL,     MODIF_RCTRL,      true,     },
 		};
-		std::for_each(ALL_CONST_RANGE(Keys), [&CalcKey](const KeysData& A){if (CalcKey == A.FarKey && !PressedLast.Check(A.Modif)) CalcKey=KEY_NONE;});
+
+		if (std::any_of(ALL_CONST_RANGE(Keys), [&CalcKey](const KeysData& A){ return CalcKey == A.FarKey && !PressedLast.Check(A.Modif); }))
+			CalcKey = KEY_NONE;
+
 		const size_t AllModif = KEY_CTRL | KEY_ALT | KEY_SHIFT | KEY_RCTRL | KEY_RALT;
 		if ((CalcKey&AllModif) && !(CalcKey&~AllModif) && !PressedLast.Check(MODIF_SHIFT | MODIF_ALT | MODIF_RALT | MODIF_CTRL | MODIF_RCTRL)) CalcKey=KEY_NONE;
 		PressedLast.ClearAll();
+
 		if (rec->Event.KeyEvent.bKeyDown)
 		{
-			std::for_each(ALL_CONST_RANGE(Keys), [KeyCode, CtrlState](const KeysData& A){if (KeyCode == A.VkKey && (!A.Enhanced || CtrlState&ENHANCED_KEY)) PressedLast.Set(A.Modif);});
+			for (const auto& A: Keys)
+			{
+				if (KeyCode == A.VkKey && (!A.Enhanced || CtrlState & ENHANCED_KEY))
+					PressedLast.Set(A.Modif);
+			}
 		}
 
 		Panel::EndDrag();
@@ -1668,11 +1675,12 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 				{']','}'},{';',':'},{'\'','"'},{',','<'},{'.','>'},
 				{'/','?'}
 			};
-			std::for_each(ALL_CONST_RANGE(Keys), [&FKey](const KeysData& A){if (FKey == A.FarKey) FKey=A.Char;});
+
 			const auto ItemIterator = std::find_if(CONST_RANGE(Keys, Item)
 			{
 				return Item.FarKey == FKey;
 			});
+
 			if (ItemIterator != std::cend(Keys))
 			{
 				FKey = ItemIterator->Char;

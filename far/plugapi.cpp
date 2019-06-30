@@ -518,7 +518,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		case ACTL_GETARRAYCOLOR:
 			if (Param1 && Param2)
 			{
-				Global->Opt->Palette.CopyTo(static_cast<FarColor*>(Param2), Param1);
+				Global->Opt->Palette.CopyTo({ static_cast<FarColor*>(Param2), static_cast<size_t>(Param1) });
 			}
 			return Global->Opt->Palette.size();
 
@@ -532,13 +532,13 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		*/
 		case ACTL_SETARRAYCOLOR:
 		{
-			const auto Pal = static_cast<FarSetColors*>(Param2);
+			const auto Pal = static_cast<const FarSetColors*>(Param2);
 			if (CheckStructSize(Pal))
 			{
 
 				if (Pal->Colors && Pal->StartIndex+Pal->ColorsCount <= Global->Opt->Palette.size())
 				{
-					Global->Opt->Palette.Set(Pal->StartIndex, Pal->Colors, Pal->ColorsCount);
+					Global->Opt->Palette.Set(Pal->StartIndex, { Pal->Colors, Pal->ColorsCount });
 					if (Pal->Flags&FSETCLR_REDRAW)
 					{
 						Global->ScrBuf->Lock(); // отменяем всякую прорисовку
@@ -1166,7 +1166,7 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned long l
 		if (Flags & FMSG_ALLINONE)
 		{
 			std::vector<string> Strings;
-			for (const auto& i : enum_tokens(reinterpret_cast<const wchar_t*>(Items), L"\n"sv))
+			for (const auto& i: enum_tokens(reinterpret_cast<const wchar_t*>(Items), L"\n"sv))
 			{
 				Strings.emplace_back(i);
 			}
@@ -1460,9 +1460,9 @@ namespace magic
 	}
 
 	template<typename T>
-	static auto CastRawDataToVector(T* RawItems, size_t Size)
+	static auto CastRawDataToVector(span<T> const RawItems)
 	{
-		auto Items = reinterpret_cast<std::vector<T>*>(RawItems[Size].Reserved[0]);
+		auto Items = reinterpret_cast<std::vector<T>*>(RawItems.data()[RawItems.size()].Reserved[0]);
 		Items->pop_back(); // not needed anymore
 		return std::unique_ptr<std::vector<T>>(Items);
 	}
@@ -1565,7 +1565,7 @@ void WINAPI apiFreeDirList(PluginPanelItem *PanelItems, size_t ItemsNumber) noex
 {
 	try
 	{
-		const auto Items = magic::CastRawDataToVector(PanelItems, ItemsNumber);
+		const auto Items = magic::CastRawDataToVector(span{ PanelItems, ItemsNumber });
 		FreePluginPanelItemsNames(*Items);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
@@ -1575,7 +1575,7 @@ void WINAPI apiFreePluginDirList(HANDLE hPlugin, PluginPanelItem *PanelItems, si
 {
 	try
 	{
-		const auto Items = magic::CastRawDataToVector(PanelItems, ItemsNumber);
+		const auto Items = magic::CastRawDataToVector(span{ PanelItems, ItemsNumber });
 		FreePluginDirList(hPlugin, *Items);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
@@ -1914,7 +1914,7 @@ void WINAPI apiUpperBuf(wchar_t *Buf, intptr_t Length) noexcept
 {
 	try
 	{
-		inplace::upper(Buf, Length);
+		inplace::upper({ Buf, static_cast<size_t>(Length) });
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 }
@@ -1923,7 +1923,7 @@ void WINAPI apiLowerBuf(wchar_t *Buf, intptr_t Length) noexcept
 {
 	try
 	{
-		inplace::lower(Buf, Length);
+		inplace::lower({ Buf, static_cast<size_t>(Length) });
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 }
@@ -2194,15 +2194,15 @@ BOOL WINAPI apiCopyToClipboard(enum FARCLIPBOARD_TYPE Type, const wchar_t *Data)
 	return FALSE;
 }
 
-static size_t apiPasteFromClipboardEx(bool Type, wchar_t *Data, size_t Size)
+static size_t apiPasteFromClipboardEx(bool Type, span<wchar_t> Data)
 {
 	string str;
 	if(Type? GetClipboardVText(str) : GetClipboardText(str))
 	{
-		if(Data && Size)
+		if(!Data.empty())
 		{
-			Size = std::min(Size, str.size() + 1);
-			std::copy_n(str.data(), Size, Data);
+			const auto Size = std::min(Data.size(), str.size() + 1);
+			std::copy_n(str.data(), Size, Data.data());
 		}
 		return str.size() + 1;
 	}
@@ -2226,11 +2226,11 @@ size_t WINAPI apiPasteFromClipboard(enum FARCLIPBOARD_TYPE Type, wchar_t *Data, 
 		}
 		[[fallthrough]];
 		case FCT_ANY:
-			size = apiPasteFromClipboardEx(false, Data, Length);
+			size = apiPasteFromClipboardEx(false, { Data, Length });
 			break;
 
 		case FCT_COLUMN:
-			size = apiPasteFromClipboardEx(true, Data, Length);
+			size = apiPasteFromClipboardEx(true, { Data, Length });
 			break;
 		}
 		return size;
@@ -2659,15 +2659,15 @@ size_t WINAPI apiFormatFileSize(unsigned long long Size, intptr_t Width, FARFORM
 	{
 		static const std::pair<unsigned long long, unsigned long long> FlagsPair[] =
 		{
-			{FFFS_COMMAS,         COLUMN_GROUPDIGITS},    // Вставлять разделитель между тысячами
-			{FFFS_THOUSAND,       COLUMN_THOUSAND},       // Вместо делителя 1024 использовать делитель 1000
-			{FFFS_FLOATSIZE,      COLUMN_FLOATSIZE},      // Показывать размер в виде десятичной дроби, используя наиболее подходящую единицу измерения, например 0,97 К, 1,44 М, 53,2 Г.
-			{FFFS_ECONOMIC,       COLUMN_ECONOMIC},       // Экономичный режим, не показывать пробел перед суффиксом размера файла (т.е. 0.97K)
-			{FFFS_MINSIZEINDEX,   COLUMN_USE_UNIT},       // Минимально допустимая единица измерения при форматировании
-			{FFFS_SHOWBYTESINDEX, COLUMN_SHOWUNIT},       // Показывать суффиксы B,K,M,G,T,P,E
+			{ FFFS_COMMAS,         COLFLAGS_GROUPDIGITS     },    // Вставлять разделитель между тысячами
+			{ FFFS_THOUSAND,       COLFLAGS_THOUSAND        },    // Вместо делителя 1024 использовать делитель 1000
+			{ FFFS_FLOATSIZE,      COLFLAGS_FLOATSIZE       },    // Показывать размер в виде десятичной дроби, используя наиболее подходящую единицу измерения, например 0,97 К, 1,44 М, 53,2 Г.
+			{ FFFS_ECONOMIC,       COLFLAGS_ECONOMIC        },    // Экономичный режим, не показывать пробел перед суффиксом размера файла (т.е. 0.97K)
+			{ FFFS_MINSIZEINDEX,   COLFLAGS_USE_MULTIPLIER  },    // Минимально допустимая единица измерения при форматировании
+			{ FFFS_SHOWBYTESINDEX, COLFLAGS_SHOW_MULTIPLIER },    // Показывать суффиксы B,K,M,G,T,P,E
 		};
 
-		const auto strDestStr = FileSizeToStr(Size, Width, std::accumulate(ALL_CONST_RANGE(FlagsPair), Flags & COLUMN_UNIT_MASK, [Flags](auto FinalFlags, const auto& i)
+		const auto strDestStr = FileSizeToStr(Size, Width, std::accumulate(ALL_CONST_RANGE(FlagsPair), Flags & COLFLAGS_MULTIPLIER_MASK, [Flags](auto FinalFlags, const auto& i)
 		{
 			return FinalFlags | ((Flags & i.first) ? i.second : 0);
 		}));

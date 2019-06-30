@@ -71,6 +71,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common.hpp"
 #include "common/enum_tokens.hpp"
+#include "common/view/enumerate.hpp"
 
 // External:
 #include "format.hpp"
@@ -115,18 +116,20 @@ InfoList::InfoList(private_tag, window_ptr Owner):
 	m_Type = panel_type::INFO_PANEL;
 	if (Global->Opt->InfoPanel.strShowStatusInfo.empty())
 	{
-		std::for_each(RANGE(SectionState, i)
+		for (auto& i: SectionState)
 		{
-			i.Show=true;
-		});
+			i.Show = true;
+		}
 	}
 	else
 	{
-		size_t strShowStatusInfoLen = Global->Opt->InfoPanel.strShowStatusInfo.size();
-		for_each_cnt(RANGE(SectionState, i, size_t index)
+		const auto ShowStatusInfoLen = Global->Opt->InfoPanel.strShowStatusInfo.size();
+		for (const auto& [i, index]: enumerate(SectionState))
 		{
-			i.Show = index < strShowStatusInfoLen?Global->Opt->InfoPanel.strShowStatusInfo[index] == L'1':true;
-		});
+			i.Show = index < ShowStatusInfoLen?
+				Global->Opt->InfoPanel.strShowStatusInfo[index] == L'1' :
+				true;
+		}
 	}
 
 	if (!LastMode)
@@ -385,7 +388,7 @@ void InfoList::DisplayObject()
 		}
 		else
 		{
-			str = FileSizeToStr(Size, 16, COLUMN_FLOATSIZE | COLUMN_SHOWUNIT);
+			str = FileSizeToStr(Size, 16, COLFLAGS_FLOATSIZE | COLFLAGS_SHOW_MULTIPLIER);
 			if (str.back() != bytes_suffix[0])
 				str += bytes_suffix;
 		}
@@ -616,10 +619,10 @@ void InfoList::SelectShowMode()
 		{ msg(lng::MMenuInfoShowModePower), 0 },
 	};
 
-	for_each_cnt(CONST_RANGE(SectionState, i, size_t index)
+	for (const auto& [i, index]: enumerate(SectionState))
 	{
 		ShowModeMenuItem[index].SetCustomCheck(i.Show? L'+' : L'-');
-	});
+	}
 
 	if (!Global->Opt->InfoPanel.ShowPowerStatus)
 	{
@@ -688,10 +691,11 @@ void InfoList::SelectShowMode()
 		break;
 	}
 	Global->Opt->InfoPanel.strShowStatusInfo.clear();
-	std::for_each(RANGE(SectionState, i)
+
+	for (auto& i: SectionState)
 	{
 		Global->Opt->InfoPanel.strShowStatusInfo += i.Show? L"1"s : L"0"s;
-	});
+	}
 
 	Redraw();
 }

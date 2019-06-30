@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
+#include "common/view/enumerate.hpp"
 
 // External:
 
@@ -389,8 +390,8 @@ vmenu2_ptr VMenu2::create(const string& Title, span<const menu_item> Data, int M
 
 	VMenu2Ptr->SendMessage(DM_LISTSET, 0, &fl);
 
-	for(size_t i=0; i != Data.size(); ++i)
-		VMenu2Ptr->at(i).AccelKey = Data[i].AccelKey;
+	for (const auto& [Item, Index]: enumerate(Data))
+		VMenu2Ptr->at(Index).AccelKey = Item.AccelKey;
 
 	// BUGBUG
 	VMenu2Ptr->Dialog::SetPosition({ -1, -1, 20, 20 });

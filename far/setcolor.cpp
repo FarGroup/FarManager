@@ -64,14 +64,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-static void GetColor(PaletteColors PaletteIndex)
+static void ChangeColor(PaletteColors PaletteIndex)
 {
 	auto NewColor = Global->Opt->Palette[PaletteIndex];
 
 	if (!console.GetColorDialog(NewColor))
 		return;
 
-	Global->Opt->Palette.Set(PaletteIndex, &NewColor, 1);
+	Global->Opt->Palette.Set(PaletteIndex, { &NewColor, 1 });
 	Global->ScrBuf->Lock(); // отменяем всякую прорисовку
 	Global->CtrlObject->Cp()->LeftPanel()->Update(UPDATE_KEEP_SELECTION);
 	Global->CtrlObject->Cp()->LeftPanel()->Redraw();
@@ -128,7 +128,7 @@ static void SetItemColors(span<const color_item> const Items, COORD Position = {
 		}
 		else
 		{
-			GetColor(Items[ItemsCode].Color);
+			ChangeColor(Items[ItemsCode].Color);
 		}
 
 		return 1;

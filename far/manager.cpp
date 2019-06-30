@@ -407,7 +407,7 @@ window_ptr Manager::WindowMenu()
 
 		{
 			string Type, Name;
-			for (const auto& i : GetSortedWindows())
+			for (const auto& i: GetSortedWindows())
 			{
 				i->GetTypeAndName(Type, Name);
 				Data.emplace_back(std::move(Type), std::move(Name), i);
@@ -1209,7 +1209,11 @@ void Manager::ImmediateHide()
 void Manager::ResizeAllWindows()
 {
 	Global->ScrBuf->Lock();
-	std::for_each(ALL_CONST_RANGE(m_windows), std::mem_fn(&window::ResizeConsole));
+
+	for (const auto& i: m_windows)
+	{
+		i->ResizeConsole();
+	}
 
 	RefreshAll();
 	Global->ScrBuf->Unlock();
@@ -1217,12 +1221,18 @@ void Manager::ResizeAllWindows()
 
 void Manager::InitKeyBar() const
 {
-	std::for_each(ALL_CONST_RANGE(m_windows), std::mem_fn(&window::InitKeyBar));
+	for (const auto& i: m_windows)
+	{
+		i->InitKeyBar();
+	}
 }
 
 void Manager::UpdateMacroArea() const
 {
-	if (GetCurrentWindow()) Global->CtrlObject->Macro.SetArea(GetCurrentWindow()->GetMacroArea());
+	if (GetCurrentWindow())
+	{
+		Global->CtrlObject->Macro.SetArea(GetCurrentWindow()->GetMacroArea());
+	}
 }
 
 Manager::sorted_windows Manager::GetSortedWindows() const

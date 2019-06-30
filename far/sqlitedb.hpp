@@ -182,7 +182,7 @@ protected:
 		});
 	}
 
-	void Exec(range<const std::string_view*> Commands) const;
+	void Exec(span<std::string_view const> Commands) const;
 	void SetWALJournalingMode() const;
 	void EnableForeignKeysConstraints() const;
 

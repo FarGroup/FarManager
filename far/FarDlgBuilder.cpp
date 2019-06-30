@@ -708,7 +708,7 @@ void DialogBuilder::AddOKCancel(lng OKMessageId, lng CancelMessageId)
 	base::AddOKCancel(static_cast<int>(OKMessageId), static_cast<int>(CancelMessageId));
 }
 
-void DialogBuilder::AddButtons(range<const lng*> const Buttons, size_t const OkIndex, size_t const CancelIndex)
+void DialogBuilder::AddButtons(span<const lng> const Buttons, size_t const OkIndex, size_t const CancelIndex)
 {
 	base::AddButtons(static_cast<int>(Buttons.size()), reinterpret_cast<const int*>(Buttons.data()), static_cast<int>(OkIndex), static_cast<int>(CancelIndex));
 }

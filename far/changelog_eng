@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 30.06.2019 12:38:34 +0100 - build 5417
+
+1. Refactoring.
+
 MZK 29.06.2019 00:15:09 -0700
 
 1. Revised @ViewerSettings and @ViewerMode help pages, both English and Russian

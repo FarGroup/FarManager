@@ -74,10 +74,10 @@ KeyBar::KeyBar(window_ptr Owner):
 	ShiftState(),
 	CustomLabelsReaded(false)
 {
-	std::for_each(RANGE(Items, i)
+	for (auto& i: Items)
 	{
 		i.resize(KEY_COUNT);
-	});
+	}
 
 	_OT(SysLog(L"[%p] KeyBar::KeyBar()", this));
 }
@@ -168,31 +168,32 @@ void KeyBar::DisplayObject()
 
 void KeyBar::ClearKeyTitles(bool Custom)
 {
-	const auto ItemPtr = Custom? &keybar_item::second : &keybar_item::first;
-	std::for_each(RANGE(Items, i)
+	const auto ItemGetter = Custom? &keybar_item::second : &keybar_item::first;
+
+	for (auto& i: Items)
 	{
-		std::for_each(RANGE(i, j)
+		for (auto& j: i)
 		{
-			std::invoke(ItemPtr, j).clear();
-		});
-	});
+			std::invoke(ItemGetter, j).clear();
+		}
+	}
 }
 
 void KeyBar::SetLabels(lng StartIndex)
 {
-	bool no_tree = Global->Opt->Tree.TurnOffCompletely;
+	const bool no_tree = Global->Opt->Tree.TurnOffCompletely;
 
-	std::for_each(RANGE(Items, Group)
+	for (auto& Group: Items)
 	{
-		std::for_each(RANGE(Group, i)
+		for (auto& i: Group)
 		{
 			if (no_tree && (StartIndex == lng::MAltF10 || StartIndex == lng::MInfoAltF10 || StartIndex == lng::MQViewAltF10))
 				i.first.clear();
 			else
 				i.first = msg(StartIndex);
 			StartIndex++;
-		});
-	});
+		}
+	}
 }
 
 static int FnGroup(DWORD ControlState)

@@ -317,7 +317,7 @@ size_t codepages::GetCodePageInsertPosition(uintptr_t codePage, size_t start, si
 		}
 	};
 
-	const auto iRange = make_irange(start, start + length);
+	const auto iRange = irange(start, start + length);
 	return *std::find_if(CONST_RANGE(iRange, i) { return GetCodePage(i) >= codePage; });
 }
 

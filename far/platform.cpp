@@ -399,7 +399,7 @@ string GuidToStr(const GUID& Guid)
 		throw std::bad_alloc{};
 
 	SCOPE_EXIT{ RpcStringFree(&Str); };
-	return upper(reinterpret_cast<const wchar_t*>(Str));
+	return upper(string_view{ reinterpret_cast<const wchar_t*>(Str) });
 }
 
 bool StrToGuid(string_view const Value, GUID& Guid)

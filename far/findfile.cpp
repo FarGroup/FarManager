@@ -177,10 +177,11 @@ public:
 
 		if (!FindList.empty())
 		{
-			std::for_each(CONST_RANGE(FindList, i)
+			for (const auto& i: FindList)
 			{
 				FreePluginPanelItemUserData(i.Arc? i.Arc->hPlugin : nullptr, i.UserData);
-			});
+			}
+
 			FindList.clear();
 		}
 
@@ -466,7 +467,7 @@ void background_searcher::InitInFileSearch()
 			}
 
 			// Добавляем избранные таблицы символов
-			for (const auto [Name, Value]: CpEnum)
+			for (const auto& [Name, Value]: CpEnum)
 			{
 				if (Value & (hasSelected? CPST_FIND : CPST_FAVORITE))
 				{
@@ -483,10 +484,10 @@ void background_searcher::InitInFileSearch()
 			m_Autodetection = CodePage == CP_DEFAULT;
 		}
 
-		std::for_each(RANGE(m_CodePages, i)
+		for (auto& i: m_CodePages)
 		{
 			i.initialize();
-		});
+		}
 	}
 	else
 	{
@@ -1905,54 +1906,53 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const os::fs::
 
 	for (auto& i: Global->Opt->FindOpt.OutColumns)
 	{
-		int CurColumnType = static_cast<int>(i.type & 0xFF);
 		int Width = i.width;
 		if (!Width)
 		{
-			Width = GetDefaultWidth(i.type);
+			Width = GetDefaultWidth(i);
 		}
 
-		switch (CurColumnType)
+		switch (i.type)
 		{
-			case DIZ_COLUMN:
-			case OWNER_COLUMN:
+			case column_type::description:
+			case column_type::owner:
 			{
 				// пропускаем, не реализовано
 				break;
 			}
-			case NAME_COLUMN:
+			case column_type::name:
 			{
 				// даже если указали, пропускаем, т.к. поле имени обязательное и идет в конце.
 				break;
 			}
 
-			case ATTR_COLUMN:
+			case column_type::attributes:
 			{
 				append(MenuText, FormatStr_Attribute(FindData.Attributes, Width), BoxSymbols[BS_V1]);
 				break;
 			}
-			case NUMSTREAMS_COLUMN:
-			case STREAMSSIZE_COLUMN:
-			case SIZE_COLUMN:
-			case PACKED_COLUMN:
-			case NUMLINK_COLUMN:
+			case column_type::streams_number:
+			case column_type::streams_size:
+			case column_type::size:
+			case column_type::size_compressed:
+			case column_type::links_number:
 			{
 				unsigned long long StreamsSize = 0;
 				DWORD StreamsCount=0;
 
 				if (Arc)
 				{
-					if (CurColumnType == NUMSTREAMS_COLUMN || CurColumnType == STREAMSSIZE_COLUMN)
+					if (i.type == column_type::streams_number || i.type == column_type::streams_size)
 						EnumStreams(FindData.FileName,StreamsSize,StreamsCount);
-					else if(CurColumnType == NUMLINK_COLUMN)
+					else if(i.type == column_type::links_number)
 						StreamsCount=GetNumberOfLinks(FindData.FileName);
 				}
 
-				const auto SizeToDisplay = (CurColumnType == SIZE_COLUMN)
+				const auto SizeToDisplay = (i.type == column_type::size)
 					? FindData.FileSize
-					: (CurColumnType == PACKED_COLUMN)
+					: (i.type == column_type::size_compressed)
 					? FindData.AllocationSize
-					: (CurColumnType == STREAMSSIZE_COLUMN)
+					: (i.type == column_type::streams_size)
 					? StreamsSize
 					: StreamsCount; // ???
 
@@ -1962,42 +1962,42 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const os::fs::
 								FindData.Attributes,
 								0,
 								FindData.ReparseTag,
-								(CurColumnType == NUMSTREAMS_COLUMN || CurColumnType == NUMLINK_COLUMN)?STREAMSSIZE_COLUMN:CurColumnType,
-								i.type,
+								(i.type == column_type::streams_number || i.type == column_type::links_number)? column_type::streams_size : i.type,
+								i.type_flags,
 								Width), BoxSymbols[BS_V1]);
 				break;
 			}
 
-			case DATE_COLUMN:
-			case TIME_COLUMN:
-			case WDATE_COLUMN:
-			case ADATE_COLUMN:
-			case CDATE_COLUMN:
-			case CHDATE_COLUMN:
+			case column_type::date:
+			case column_type::time:
+			case column_type::date_write:
+			case column_type::date_access:
+			case column_type::date_creation:
+			case column_type::date_change:
 			{
 				const os::chrono::time_point* FileTime;
-				switch (CurColumnType)
+				switch (i.type)
 				{
-					case CDATE_COLUMN:
+					case column_type::date_creation:
 						FileTime = &FindData.CreationTime;
 						break;
-					case ADATE_COLUMN:
+					case column_type::date_access:
 						FileTime = &FindData.LastAccessTime;
 						break;
-					case CHDATE_COLUMN:
+					case column_type::date_change:
 						FileTime = &FindData.ChangeTime;
 						break;
-					case DATE_COLUMN:
-					case TIME_COLUMN:
-					case WDATE_COLUMN:
 					default:
 						FileTime = &FindData.LastWriteTime;
 						break;
 				}
 
-				append(MenuText, FormatStr_DateTime(*FileTime, CurColumnType, i.type, Width), BoxSymbols[BS_V1]);
+				append(MenuText, FormatStr_DateTime(*FileTime, i.type, i.type_flags, Width), BoxSymbols[BS_V1]);
 				break;
 			}
+
+		default:
+			break;
 		}
 	}
 

@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/algorithm.hpp"
 #include "common/string_utils.hpp"
+#include "common/view/enumerate.hpp"
 
 // External:
 
@@ -201,21 +202,21 @@ namespace detail
 
 				const LCID CurLCID = MAKELCID(MAKELANGID(Language, SUBLANG_DEFAULT), SORT_DEFAULT);
 
-				for_each_cnt(RANGE(Names.Months, i, size_t index)
+				for (const auto& [i, index]: enumerate(Names.Months))
 				{
 					// BUGBUG check result
 					(void)os::get_locale_value(CurLCID, LCTYPE(LOCALE_SMONTHNAME1 + index), i.Full);
 					// BUGBUG check result
 					(void)os::get_locale_value(CurLCID, LCTYPE(LOCALE_SABBREVMONTHNAME1 + index), i.Short);
-				});
+				}
 
-				for_each_cnt(RANGE(Names.Weekdays, i, size_t index)
+				for (const auto& [i, index]: enumerate(Names.Weekdays))
 				{
 					// BUGBUG check result
 					(void)os::get_locale_value(CurLCID, DayIndexes[index], i.Full);
 					// BUGBUG check result
 					(void)os::get_locale_value(CurLCID, ShortDayIndexes[index], i.Short);
-				});
+				}
 			};
 
 			InitNames(LANG_NEUTRAL, m_LocalNames);

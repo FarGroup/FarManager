@@ -946,7 +946,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 									ListItems.resize(DfsStorages.size());
 									Links.resize(DfsStorages.size());
 
-									for (const auto [Link, Item, Storage]: zip(Links, ListItems, DfsStorages))
+									for (const auto& [Link, Item, Storage]: zip(Links, ListItems, DfsStorages))
 									{
 										Link = concat(L"\\\\"sv, Storage.ServerName, L'\\', Storage.ShareName);
 										Item.Text = Link.c_str();
@@ -1089,10 +1089,10 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 			if (DlgParam.Plugin || os::fs::get_find_data(SingleSelFileName, SingleSelFindData))
 			{
-				std::for_each(CONST_RANGE(Dates, i)
+				for (const auto& i: Dates)
 				{
 					ConvertDate(*i.TimeValue, AttrDlg[i.DateId].strData, AttrDlg[i.TimeId].strData, 12, FALSE, FALSE, 2);
-				});
+				}
 			}
 
 			string strComputerName;
@@ -1134,7 +1134,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				const auto strComputerName = ExtractComputerName(SrcPanel->GetCurDir());
 
 				bool CheckOwner=true;
-				for (const auto& i : SrcPanel->enum_selected())
+				for (const auto& i: SrcPanel->enum_selected())
 				{
 					if (!FolderPresent && (i.Attributes & FILE_ATTRIBUTE_DIRECTORY))
 					{
@@ -1288,10 +1288,10 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 				const SETATTRDLG Times[] = {SA_EDIT_WTIME, SA_EDIT_CTIME, SA_EDIT_ATIME, SA_EDIT_XTIME};
 
-				std::for_each(CONST_RANGE(Times, i)
+				for (const auto& i: Times)
 				{
 					AttrDlg[i].strData[8] = locale.time_separator();
-				});
+				}
 
 				SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<AttrPreRedrawItem>());
 				ShellSetFileAttributesMsg(SelCount==1? SingleSelFileName : string{});

@@ -492,7 +492,7 @@ void ShowHotplugDevices()
 
 		if (!Info.empty())
 		{
-			std::for_each(CONST_RANGE(Info, i)
+			for (const auto& i: Info)
 			{
 				MenuItemEx ListItem;
 				string strDescription;
@@ -525,7 +525,7 @@ void ShowHotplugDevices()
 					ListItem.Name = L"UNKNOWN"sv;
 				}
 				HotPlugList->AddItem(ListItem);
-			});
+			}
 		}
 	};
 

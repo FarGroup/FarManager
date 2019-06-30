@@ -118,7 +118,7 @@ namespace os::security
 		block_ptr<TOKEN_PRIVILEGES> NewState(sizeof(TOKEN_PRIVILEGES) + sizeof(LUID_AND_ATTRIBUTES) * (Names.size() - 1));
 		NewState->PrivilegeCount = 0;
 
-		for (const auto& i : Names)
+		for (const auto& i: Names)
 		{
 			LUID_AND_ATTRIBUTES laa = { {}, SE_PRIVILEGE_ENABLED };
 			if (lookup_privilege_value(i, laa.Luid))

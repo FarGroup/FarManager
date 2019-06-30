@@ -84,7 +84,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.fs.hpp"
 
 // Common:
-
+#include "common/view/enumerate.hpp"
 // External:
 #include "format.hpp"
 
@@ -2429,7 +2429,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				size_t size;
 				if(Editor::InitSessionBookmarksForPlugin(ebm, m_editor->m_SavePos.size(), size))
 				{
-					for_each_cnt(CONST_RANGE(m_editor->m_SavePos, i, size_t index)
+					for (const auto& [i, index]: enumerate(m_editor->m_SavePos))
 					{
 						if (ebm->Line)
 						{
@@ -2447,7 +2447,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 						{
 							ebm->LeftPos[index] = i.LeftPos;
 						}
-					});
+					}
 				}
 				return size;
 			}

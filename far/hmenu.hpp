@@ -53,7 +53,7 @@ struct HMenuData
 {
 	string_view Name;
 	string_view SubMenuHelp;
-	range<menu_item*> SubMenu;
+	span<menu_item> SubMenu;
 	bool Selected;
 	int XPos;
 };
@@ -92,7 +92,7 @@ private:
 	bool TestMouse(const MOUSE_EVENT_RECORD *MouseEvent) const;
 	void UpdateSelectPos();
 
-	range<HMenuData*> Item;
+	span<HMenuData> Item;
 	size_t SelectPos;
 	int m_VExitCode;
 	bool m_SubmenuOpened;

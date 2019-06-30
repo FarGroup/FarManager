@@ -524,7 +524,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 		if (bHilite || (mshow > 1 && SelCount > 1))
 			Builder.AddSeparator();
 
-		std::for_each(RANGE(items, i)
+		for (auto& i: items)
 		{
 			inplace::truncate_center(i, ScrX+1-6*2);
 			const auto dx = Builder.AddText(i.c_str());
@@ -533,7 +533,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 			end_hilite = index;
 			if (!start_hilite)
 				start_hilite = index;
-		});
+		}
 
 		Builder.AddOKCancel(mDBttn, lng::MCancel);
 		Builder.SetId(Wipe ? DeleteWipeId : (Global->Opt->DeleteToRecycleBin ? DeleteRecycleId : DeleteFileFolderId));

@@ -87,11 +87,11 @@ FileFilterParams::FileFilterParams()
 {
 	SetMask(true, L"*"sv);
 
-	std::for_each(RANGE(FHighlight.Colors.Color, i)
+	for (auto& i: FHighlight.Colors.Color)
 	{
 		colors::make_opaque(i.FileColor.ForegroundColor);
 		colors::make_opaque(i.MarkColor.ForegroundColor);
-	});
+	}
 
 	FHighlight.SortGroup=DEFAULT_SORT_GROUP;
 }
@@ -601,7 +601,7 @@ static void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const
 	const auto RowSize = 15;
 
 	int VBufRow = 0;
-	for (const auto [ColorRef, Index]: zip(Colors.Color, ColorIndices))
+	for (const auto& [ColorRef, Index]: zip(Colors.Color, ColorIndices))
 	{
 		auto BakedColor = ColorRef;
 		highlight::configuration::ApplyFinalColor(BakedColor, Index);
@@ -623,7 +623,7 @@ static void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const
 		const auto FileArea = span(Iterator, CurrentRow.end() - 1);
 		const auto Str = fit_to_left(msg(lng::MHighlightExample), FileArea.size());
 
-		for (const auto [Cell, Char] : zip(FileArea, Str))
+		for (const auto& [Cell, Char] : zip(FileArea, Str))
 		{
 			Cell.Char = Char;
 			Cell.Attributes = BakedColor.FileColor;

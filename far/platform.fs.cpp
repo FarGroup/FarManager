@@ -918,7 +918,7 @@ namespace os::fs
 			return true;
 
 		// try to convert NT path (\Device\HarddiskVolume1) to drive letter
-		for (const auto& i : enum_drives(get_logical_drives()))
+		for (const auto& i: enum_drives(get_logical_drives()))
 		{
 			const auto Device = fs::get_drive(i);
 			if (const auto Len = MatchNtPathRoot(NtPath, Device))
@@ -1056,7 +1056,7 @@ namespace os::fs
 			if ((!QueryResult && GetLastError() != ERROR_MORE_DATA) || !BytesReturned)
 				break;
 
-			for (const auto& i : span(Ranges, BytesReturned / sizeof(*Ranges)))
+			for (const auto& i: span(Ranges, BytesReturned / sizeof(*Ranges)))
 			{
 				m_AllocSize += i.Length.QuadPart;
 				for (unsigned long long j = i.FileOffset.QuadPart, RangeEndOffset = i.FileOffset.QuadPart + i.Length.QuadPart; j < RangeEndOffset; j += m_ChunkSize)
@@ -1869,7 +1869,7 @@ namespace os::fs
 		security_descriptor Result(default_buffer_size);
 		NTPath NtObject(Object);
 		// BUGBUG check result
-		(void)os::detail::ApiDynamicReceiver(Result, [&](range<SECURITY_DESCRIPTOR*> Buffer)
+		(void)os::detail::ApiDynamicReceiver(Result, [&](span<SECURITY_DESCRIPTOR> Buffer)
 		{
 			DWORD LengthNeeded = 0;
 			if (!::GetFileSecurity(NtObject.c_str(), RequestedInformation, Buffer.data(), static_cast<DWORD>(Buffer.size()), &LengthNeeded))
@@ -1880,7 +1880,7 @@ namespace os::fs
 		{
 			return ReturnedSize > AllocatedSize;
 		},
-		[](range<const SECURITY_DESCRIPTOR*>)
+		[](span<const SECURITY_DESCRIPTOR>)
 		{});
 
 		return Result;

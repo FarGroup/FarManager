@@ -37,12 +37,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-class bytes_view: public range<const char*>
+class bytes_view: public span<char const>
 {
 public:
-	bytes_view(const void* Data, size_t Size):
-		range<const char*>(static_cast<const char*>(Data), static_cast<const char*>(Data) + Size)
+	template<typename T>
+	bytes_view(T const* const Data, size_t const Size):
+		span<char const>(static_cast<char const*>(static_cast<void const*>(Data)), Size)
 	{
+		static_assert(std::disjunction_v<std::is_void<T>, std::is_trivially_copyable<T>>);
 	}
 
 	template<typename T>
@@ -53,7 +55,7 @@ public:
 	}
 };
 
-class bytes: public base<range<char*>>
+class bytes: public base<span<char>>
 {
 public:
 	NONCOPYABLE(bytes);
@@ -78,17 +80,20 @@ public:
 
 	template<typename T>
 	[[nodiscard]]
-	static bytes reference(T& Object)
+	static bytes reference(T* const Data, size_t const Size)
 	{
 		static_assert(std::is_trivially_copyable_v<T>);
 
 		bytes Bytes;
-		static_cast<base_type&>(Bytes) =
-		{
-			static_cast<char*>(static_cast<void*>(&Object)),
-			static_cast<char*>(static_cast<void*>(&Object)) + sizeof(Object)
-		};
+		static_cast<base_type&>(Bytes) = { static_cast<char*>(static_cast<void*>(Data)), Size };
 		return Bytes;
+	}
+
+	template<typename T>
+	[[nodiscard]]
+	static bytes reference(T& Object)
+	{
+		return reference(&Object, sizeof(Object));
 	}
 
 	bytes& operator=(const bytes_view& rhs)

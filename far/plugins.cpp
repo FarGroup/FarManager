@@ -77,6 +77,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/enum_tokens.hpp"
 #include "common/scope_exit.hpp"
+#include "common/view/zip.hpp"
 
 // External:
 
@@ -151,7 +152,7 @@ PluginManager::~PluginManager()
 {
 	Plugin *Luamacro=nullptr; // обеспечить выгрузку данного плагина последним.
 
-	std::for_each(CONST_RANGE(SortedPlugins, i)
+	for (const auto& i: SortedPlugins)
 	{
 		if (!Luamacro && i->Id() == Global->Opt->KnownIDs.Luamacro.Id)
 		{
@@ -161,7 +162,7 @@ PluginManager::~PluginManager()
 		{
 			i->Unload(true);
 		}
-	});
+	}
 
 	if (Luamacro)
 	{
@@ -808,11 +809,12 @@ int PluginManager::ProcessEditorEvent(int Event, void *Param, const Editor* Edit
 		Info.EditorID = EditorInstance->GetId();
 
 		SCOPED_ACTION(auto)(Container->GetPinner());
-		std::for_each(CONST_RANGE(SortedPlugins, i)
+
+		for (const auto& i: SortedPlugins)
 		{
 			if (i->has(iProcessEditorEvent))
 				nResult = i->ProcessEditorEvent(&Info);
-		});
+		}
 	}
 
 	return nResult;
@@ -830,13 +832,14 @@ int PluginManager::ProcessSubscribedEditorEvent(int Event, void *Param, const Ed
 		Info.EditorID = EditorInstance->GetId();
 
 		SCOPED_ACTION(auto)(Container->GetPinner());
-		std::for_each(CONST_RANGE(SortedPlugins, i)
+
+		for (const auto& i: SortedPlugins)
 		{
 			if (i->has(iProcessEditorEvent) && PluginIds.count(i->Id()))
 			{
 				nResult = i->ProcessEditorEvent(&Info);
 			}
-		});
+		}
 	}
 
 	return nResult;
@@ -854,11 +857,12 @@ int PluginManager::ProcessViewerEvent(int Event, void *Param, const Viewer* View
 		Info.ViewerID = ViewerInstance->GetId();
 
 		SCOPED_ACTION(auto)(Container->GetPinner());
-		std::for_each(CONST_RANGE(SortedPlugins, i)
+
+		for (const auto& i: SortedPlugins)
 		{
 			if (i->has(iProcessViewerEvent))
 				nResult = i->ProcessViewerEvent(&Info);
-		});
+		}
 	}
 	return nResult;
 }
@@ -914,10 +918,10 @@ void PluginManager::FreeFindData(const plugin_panel* hPlugin, PluginPanelItem *P
 {
 	if (FreeUserData)
 	{
-		std::for_each(PanelItem, PanelItem + ItemsNumber, [&hPlugin](const PluginPanelItem& i)
+		for (const auto& i: span(PanelItem, ItemsNumber))
 		{
 			FreePluginPanelItemUserData(const_cast<plugin_panel*>(hPlugin), i.UserData);
-		});
+		}
 	}
 
 	FreeFindDataInfo Info = {sizeof(Info)};
@@ -1143,7 +1147,7 @@ void PluginManager::ConfigureCurrent(Plugin *pPlugin, const GUID& Guid)
 			Global->CtrlObject->Cp()->RightPanel(),
 		};
 
-		std::for_each(CONST_RANGE(Panels, i)
+		for (const auto& i: Panels)
 		{
 			if (i->GetMode() == panel_mode::PLUGIN_PANEL)
 			{
@@ -1151,7 +1155,8 @@ void PluginManager::ConfigureCurrent(Plugin *pPlugin, const GUID& Guid)
 				i->SetViewMode(i->GetViewMode());
 				i->Redraw();
 			}
-		});
+		}
+
 		pPlugin->SaveToCache();
 	}
 }
@@ -1839,7 +1844,11 @@ int PluginManager::UseFarCommand(const plugin_panel* const hPlugin, int const Co
 
 void PluginManager::ReloadLanguage() const
 {
-	std::for_each(ALL_CONST_RANGE(SortedPlugins), std::mem_fn(&Plugin::CloseLang));
+	for (const auto& i: SortedPlugins)
+	{
+		i->CloseLang();
+	}
+
 	ConfigProvider().PlCacheCfg()->DiscardCache();
 }
 
@@ -1847,7 +1856,10 @@ void PluginManager::LoadIfCacheAbsent() const
 {
 	if (ConfigProvider().PlCacheCfg()->IsCacheEmpty())
 	{
-		std::for_each(ALL_CONST_RANGE(SortedPlugins), std::mem_fn(&Plugin::Load));
+		for (const auto& i: SortedPlugins)
+		{
+			i->Load();
+		}
 	}
 }
 
@@ -2276,18 +2288,19 @@ void PluginManager::GetContentData(
 ) const
 {
 	const NTPath FilePath(Name);
-	size_t Count = ColNames.size();
-	std::for_each(CONST_RANGE(Plugins, i)
+	const auto Count = ColNames.size();
+
+	for (const auto& i: Plugins)
 	{
 		GetContentDataInfo GetInfo{ sizeof(GetContentDataInfo), FilePath.c_str(), Count, ColNames.data(), ColValues.data() };
 		ColValues.assign(ColValues.size(), nullptr);
 
 		if (i->GetContentData(&GetInfo) && GetInfo.Values)
 		{
-			for (size_t k=0; k<Count; k++)
+			for (const auto& [ColName, Value]: zip(ColNames, span(GetInfo.Values, Count)))
 			{
-				if (GetInfo.Values[k])
-					ContentData[ColNames[k]] += GetInfo.Values[k];
+				if (Value)
+					ContentData[ColName] += Value;
 			}
 
 			if (i->has(iFreeContentData))
@@ -2295,7 +2308,7 @@ void PluginManager::GetContentData(
 				i->FreeContentData(&GetInfo);
 			}
 		}
-	});
+	}
 }
 
 const GUID& PluginManager::GetGUID(const plugin_panel* hPlugin)

@@ -38,7 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
-#include "common/algorithm.hpp"
 #include "common/range.hpp"
 #include "common/string_utils.hpp"
 
@@ -161,39 +160,22 @@ static auto PreserveStyleTokenize(const string_view strStr, size_t From, size_t 
 {
 	auto Tokens = InternalPreserveStyleTokenize(strStr, From, Length);
 
-	std::for_each(RANGE(Tokens, i)
+	for (auto& i: Tokens)
 	{
 		i.TypeMask = GetPeserveCaseStyleMask(i.Token);
-	});
+	}
 
 	return Tokens;
 }
 
 static void ToPreserveStyleType(string& strStr, PreserveStyleType type)
 {
-	std::function<void(size_t)> Handler;
-
 	switch (type)
 	{
-	case UPPERCASE_ALL:
-		Handler = [&strStr](size_t I) { strStr[I] = upper(strStr[I]); };
-		break;
-	case LOWERCASE_ALL:
-		Handler = [&strStr](size_t I) { strStr[I] = lower(strStr[I]); };
-		break;
-	case UPPERCASE_FIRST:
-		Handler = [&strStr](size_t I) { strStr[I] = I? lower(strStr[I]) : upper(strStr[I]); };
-		break;
-	case UNKNOWN:
-		break;
-	}
-
-	if (Handler)
-	{
-		for_each_cnt(RANGE(strStr, i, size_t index)
-		{
-			Handler(index);
-		});
+	case UPPERCASE_ALL:     return inplace::upper(strStr);
+	case LOWERCASE_ALL:     return inplace::lower(strStr);
+	case UPPERCASE_FIRST:   return (void)inplace::upper(strStr, 0, 1), inplace::lower(strStr, 1);
+	case UNKNOWN:           return;
 	}
 }
 
@@ -397,25 +379,27 @@ bool PreserveStyleReplaceString(
 				if (ReplaceStrTokens.size() == SourceTokens.size())
 				{
 					int CommonTypeMask = -1;
-					std::for_each(CONST_RANGE(SourceTokens, i)
+
+					for (const auto& i: SourceTokens)
 					{
 						if (CommonTypeMask == -1)
 							CommonTypeMask = i.TypeMask;
 						else
 							CommonTypeMask &= i.TypeMask;
-					});
+					}
 
 					PreserveStyleType CommonType = ChoosePreserveStyleType(CommonTypeMask);
 					if (CommonTypeMask != -1 && CommonType == UNKNOWN)
 						CommonTypeMask = -1;
 
 					auto SourceI = SourceTokens.cbegin();
-					std::for_each(RANGE(ReplaceStrTokens, i)
+
+					for (auto& i: ReplaceStrTokens)
 					{
 						ToPreserveStyleType(i.Token, CommonTypeMask != -1 ? CommonType : ChoosePreserveStyleType(SourceI->TypeMask));
 						i.PrependChar = SourceI->PrependChar;
 						++SourceI;
-					});
+					}
 				}
 				else
 				{
@@ -454,12 +438,13 @@ bool PreserveStyleReplaceString(
 				}
 
 				ReplaceStr.clear();
-				std::for_each(CONST_RANGE(ReplaceStrTokens, i)
+
+				for (const auto& i: ReplaceStrTokens)
 				{
 					if (i.PrependChar)
 						ReplaceStr += i.PrependChar;
 					ReplaceStr += i.Token;
-				});
+				}
 
 				CurPos = I;
 				SearchLength = static_cast<int>(Idx-I);

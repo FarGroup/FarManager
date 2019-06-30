@@ -270,7 +270,7 @@ void Message::Init(
 
 	MaxLength = std::min(MaxLength, MAX_MESSAGE_WIDTH);
 
-	for (const auto& i : Strings)
+	for (const auto& i: Strings)
 	{
 		append(strClipText, i, Eol);
 	}
@@ -303,7 +303,7 @@ void Message::Init(
 		if (!Strings.empty())
 			Strings.emplace_back(L"\x1"sv);
 
-		for (const auto& i : wrapped_text(strErrStr, LenErrStr))
+		for (const auto& i: wrapped_text(strErrStr, LenErrStr))
 		{
 			Strings.emplace_back(i);
 		}

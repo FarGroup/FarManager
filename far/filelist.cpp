@@ -166,10 +166,10 @@ static void FileListToSortingPanelItem(const FileListItem *arr, int index, Sorti
 	pi.Position=fi.Position;                        //! CHANGED
 	pi.SortGroup=fi.SortGroup - DEFAULT_SORT_GROUP; //! CHANGED
 
-	pi.NumberOfLinks = fi.IsNumberOfLinksRead() || FileListPtr->IsColumnDisplayed(NUMLINK_COLUMN)?fi.NumberOfLinks(FileListPtr) : 0;
-	pi.Owner = fi.IsOwnerRead() || FileListPtr->IsColumnDisplayed(OWNER_COLUMN)? EmptyToNull(fi.Owner(FileListPtr)) : nullptr;
-	pi.NumberOfStreams = fi.IsNumberOfStreamsRead() || FileListPtr->IsColumnDisplayed(NUMSTREAMS_COLUMN)? fi.NumberOfStreams(FileListPtr) : 0;
-	pi.StreamsSize = fi.IsStreamsSizeRead() || FileListPtr->IsColumnDisplayed(STREAMSSIZE_COLUMN)? fi.StreamsSize(FileListPtr) : 0;
+	pi.NumberOfLinks = fi.IsNumberOfLinksRead() || FileListPtr->IsColumnDisplayed(column_type::links_number)?fi.NumberOfLinks(FileListPtr) : 0;
+	pi.Owner = fi.IsOwnerRead() || FileListPtr->IsColumnDisplayed(column_type::owner)? EmptyToNull(fi.Owner(FileListPtr)) : nullptr;
+	pi.NumberOfStreams = fi.IsNumberOfStreamsRead() || FileListPtr->IsColumnDisplayed(column_type::streams_number)? fi.NumberOfStreams(FileListPtr) : 0;
+	pi.StreamsSize = fi.IsStreamsSizeRead() || FileListPtr->IsColumnDisplayed(column_type::streams_size)? fi.StreamsSize(FileListPtr) : 0;
 }
 
 struct CustomSort
@@ -435,7 +435,7 @@ FileList::~FileList()
 
 void FileList::list_data::clear()
 {
-	std::for_each(CONST_RANGE(Items, i)
+	for (const auto& i: Items)
 	{
 		if (m_Plugin)
 		{
@@ -443,8 +443,9 @@ void FileList::list_data::clear()
 			if (i.DeleteDiz)
 				delete[] i.DizText;
 		}
+
 		DeleteRawArray(span(i.CustomColumnData, i.CustomColumnNumber));
-	});
+	}
 
 	Items.clear();
 	m_Plugin = nullptr;
@@ -938,7 +939,7 @@ long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 
 			const auto ApplyToList = [&](const auto& Selector)
 			{
-				for (const auto& i : enum_tokens_with_quotes(mps->Item, L"\r\n"sv))
+				for (const auto& i: enum_tokens_with_quotes(mps->Item, L"\r\n"sv))
 				{
 					if (i.empty())
 						continue;
@@ -991,10 +992,12 @@ long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 					{
 						case 0: // выделить все?
 							SaveSelection();
-							std::for_each(RANGE(m_ListData, i)
+
+							for (auto& i: m_ListData)
 							{
 								Select(i, true);
-							});
+							}
+
 							Result=GetRealSelCount();
 							break;
 
@@ -1024,10 +1027,12 @@ long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 					{
 						case 0: // инвертировать все?
 							SaveSelection();
-							std::for_each(RANGE(m_ListData, i)
+
+							for (auto& i: m_ListData)
 							{
 								Select(i, !i.Selected);
-							});
+							}
+
 							Result=GetRealSelCount();
 							break;
 
@@ -1262,11 +1267,12 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 		case KEY_SHIFTADD:
 			SaveSelection();
-			std::for_each(RANGE(m_ListData, i)
+
+			for (auto& i: m_ListData)
 			{
 				if (!(i.Attributes & FILE_ATTRIBUTE_DIRECTORY) || Global->Opt->SelectFolders)
 					Select(i, true);
-			});
+			}
 
 			if (SelectedFirst)
 				SortFileList(true);
@@ -1936,11 +1942,12 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 								{
 									NamesList EditList;
 
-									std::for_each(CONST_RANGE(m_ListData, i)
+									for (const auto& i: m_ListData)
 									{
 										if (!(i.Attributes & FILE_ATTRIBUTE_DIRECTORY))
 											EditList.AddName(i.FileName);
-									});
+									}
+
 									EditList.SetCurName(strFileName);
 									ShellEditor->SetNamesList(EditList);
 								}
@@ -1999,11 +2006,12 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 								if (!PluginMode)
 								{
-									std::for_each(CONST_RANGE(m_ListData, i)
+									for (const auto& i: m_ListData)
 									{
 										if (!(i.Attributes & FILE_ATTRIBUTE_DIRECTORY))
 											ViewList.AddName(i.FileName);
-									});
+									}
+
 									ViewList.SetCurName(strFileName);
 								}
 
@@ -3311,20 +3319,20 @@ void FileList::SetViewMode(int Mode)
 		Mode=VIEW_0;
 
 	bool CurFullScreen=IsFullScreen();
-	bool OldOwner=IsColumnDisplayed(OWNER_COLUMN);
-	bool OldPacked=IsColumnDisplayed(PACKED_COLUMN);
-	bool OldNumLink=IsColumnDisplayed(NUMLINK_COLUMN);
-	bool OldNumStreams=IsColumnDisplayed(NUMSTREAMS_COLUMN);
-	bool OldStreamsSize=IsColumnDisplayed(STREAMSSIZE_COLUMN);
-	bool OldDiz=IsColumnDisplayed(DIZ_COLUMN);
+	bool OldOwner=IsColumnDisplayed(column_type::owner);
+	bool OldPacked=IsColumnDisplayed(column_type::size_compressed);
+	bool OldNumLink=IsColumnDisplayed(column_type::links_number);
+	bool OldNumStreams=IsColumnDisplayed(column_type::streams_number);
+	bool OldStreamsSize=IsColumnDisplayed(column_type::streams_size);
+	bool OldDiz=IsColumnDisplayed(column_type::description);
 	PrepareViewSettings(Mode);
-	bool NewOwner=IsColumnDisplayed(OWNER_COLUMN);
-	bool NewPacked=IsColumnDisplayed(PACKED_COLUMN);
-	bool NewNumLink=IsColumnDisplayed(NUMLINK_COLUMN);
-	bool NewNumStreams=IsColumnDisplayed(NUMSTREAMS_COLUMN);
-	bool NewStreamsSize=IsColumnDisplayed(STREAMSSIZE_COLUMN);
-	bool NewDiz=IsColumnDisplayed(DIZ_COLUMN);
-	bool NewAccessTime=IsColumnDisplayed(ADATE_COLUMN);
+	bool NewOwner=IsColumnDisplayed(column_type::owner);
+	bool NewPacked=IsColumnDisplayed(column_type::size_compressed);
+	bool NewNumLink=IsColumnDisplayed(column_type::links_number);
+	bool NewNumStreams=IsColumnDisplayed(column_type::streams_number);
+	bool NewStreamsSize=IsColumnDisplayed(column_type::streams_size);
+	bool NewDiz=IsColumnDisplayed(column_type::description);
+	bool NewAccessTime=IsColumnDisplayed(column_type::date_access);
 	DWORD FileSystemFlags = 0;
 	if (NewPacked && os::fs::GetVolumeInformation(GetPathRoot(m_CurDir), nullptr, nullptr, nullptr, &FileSystemFlags, nullptr))
 		if (!(FileSystemFlags&FILE_FILE_COMPRESSION))
@@ -3335,7 +3343,7 @@ void FileList::SetViewMode(int Mode)
 	         (!OldNumLink && NewNumLink) ||
 	         (!OldNumStreams && NewNumStreams) ||
 	         (!OldStreamsSize && NewStreamsSize) ||
-	         IsColumnDisplayed(CUSTOM_COLUMN0) ||
+	         IsColumnDisplayed(column_type::custom_0) ||
 	         (AccessTimeUpdateRequired && NewAccessTime)))
 		Update(UPDATE_KEEP_SELECTION);
 
@@ -3662,9 +3670,9 @@ bool FileList::GetPlainString(string& Dest, int ListPos) const
 		{
 			int ColumnType=static_cast<int>(ColumnTypes[K] & 0xff);
 			int ColumnWidth=ColumnWidths[K];
-			if (ColumnType>=CUSTOM_COLUMN0 && ColumnType<=CUSTOM_COLUMN_MAX)
+			if (ColumnType>=custom_0 && ColumnType<=CUSTOM_COLUMN_MAX)
 			{
-				size_t ColumnNumber=ColumnType-CUSTOM_COLUMN0;
+				size_t ColumnNumber=ColumnType-custom_0;
 				const wchar_t *ColumnData=nullptr;
 
 				if (ColumnNumber<m_ListData[ListPos].CustomColumnNumber)
@@ -3680,13 +3688,13 @@ bool FileList::GetPlainString(string& Dest, int ListPos) const
 			{
 				switch (ColumnType)
 				{
-					case NAME_COLUMN:
+					case column_type::name:
 					{
 						unsigned long long ViewFlags=ColumnTypes[K];
 						const wchar_t *NamePtr = m_ShowShortNames && !m_ListData[ListPos].strShortName.empty() ? m_ListData[ListPos].strShortName:m_ListData[ListPos].FileName;
 
 						string strNameCopy;
-						if (!(m_ListData[ListPos].Attributes & FILE_ATTRIBUTE_DIRECTORY) && (ViewFlags & COLUMN_NOEXTENSION))
+						if (!(m_ListData[ListPos].Attributes & FILE_ATTRIBUTE_DIRECTORY) && (ViewFlags & COLFLAGS_NOEXTENSION))
 						{
 							const wchar_t *ExtPtr = PointToExt(NamePtr);
 							if (ExtPtr)
@@ -3698,7 +3706,7 @@ bool FileList::GetPlainString(string& Dest, int ListPos) const
 
 						const wchar_t *NameCopy = NamePtr;
 
-						if (ViewFlags & COLUMN_NAMEONLY)
+						if (ViewFlags & COLFLAGS_NAMEONLY)
 						{
 							//BUGBUG!!!
 							// !!! НЕ УВЕРЕН, но то, что отображается пустое
@@ -3710,7 +3718,7 @@ bool FileList::GetPlainString(string& Dest, int ListPos) const
 						break;
 					}
 
-					case EXTENSION_COLUMN:
+					case column_type::extension:
 					{
 						const wchar_t *ExtPtr = nullptr;
 						if (!(m_ListData[ListPos].Attributes & FILE_ATTRIBUTE_DIRECTORY))
@@ -3724,13 +3732,13 @@ bool FileList::GetPlainString(string& Dest, int ListPos) const
 						break;
 					}
 
-					case SIZE_COLUMN:
-					case PACKED_COLUMN:
-					case STREAMSSIZE_COLUMN:
+					case column_type::size:
+					case column_type::size_compressed:
+					case column_type::streams_size:
 					{
-						const auto SizeToDisplay = (ColumnType == PACKED_COLUMN)
+						const auto SizeToDisplay = (ColumnType == size_compressed)
 							? m_ListData[ListPos].AllocationSize
-							: (ColumnType == STREAMSSIZE_COLUMN)
+							: (ColumnType == streams_size)
 							? m_ListData[ListPos].StreamsSize()
 							: m_ListData[ListPos].FileSize;
 
@@ -3747,29 +3755,29 @@ bool FileList::GetPlainString(string& Dest, int ListPos) const
 						break;
 					}
 
-					case DATE_COLUMN:
-					case TIME_COLUMN:
-					case WDATE_COLUMN:
-					case CDATE_COLUMN:
-					case ADATE_COLUMN:
-					case CHDATE_COLUMN:
+					case column_type::date:
+					case column_type::time:
+					case column_type::date_write:
+					case column_type::date_creation:
+					case column_type::date_access:
+					case column_type::date_change:
 					{
 						time_point* FileTime;
 
 						switch (ColumnType)
 						{
-							case CDATE_COLUMN:
+							case date_creation:
 								FileTime=&m_ListData[ListPos].CreationTime;
 								break;
-							case ADATE_COLUMN:
+							case date_access:
 								FileTime=&m_ListData[ListPos].AccessTime;
 								break;
-							case CHDATE_COLUMN:
+							case date_change:
 								FileTime=&m_ListData[ListPos].ChangeTime;
 								break;
-							case DATE_COLUMN:
-							case TIME_COLUMN:
-							case WDATE_COLUMN:
+							case date:
+							case time:
+							case date_write:
 							default:
 								FileTime=&m_ListData[ListPos].WriteTime;
 								break;
@@ -3779,31 +3787,31 @@ bool FileList::GetPlainString(string& Dest, int ListPos) const
 						break;
 					}
 
-					case ATTR_COLUMN:
+					case column_type::attributes:
 					{
 						Dest += FormatStr_Attribute(m_ListData[ListPos].Attributes,ColumnWidth);
 						break;
 					}
 
-					case DIZ_COLUMN:
+					case column_type::description:
 					{
 						Dest += NullToEmpty(m_ListData[ListPos].DizText?);
 						break;
 					}
 
-					case OWNER_COLUMN:
+					case column_type::owner:
 					{
 						Dest += m_ListData[ListPos].strOwner;
 						break;
 					}
 
-					case NUMLINK_COLUMN:
+					case column_type::links_number:
 					{
 						Dest += str(m_ListData[ListPos].NumberOfLinks);
 						break;
 					}
 
-					case NUMSTREAMS_COLUMN:
+					case column_type::streams_number:
 					{
 						Dest += str(m_ListData[ListPos].NumberOfStreams);
 						break;
@@ -4096,7 +4104,7 @@ long FileList::SelectFiles(int Mode, string_view const Mask)
 
 	if (bUseFilter || FileMask.Set(strMask, FMF_SILENT)) // Скомпилируем маски файлов и работаем
 	{                                                // дальше в зависимости от успеха компиляции
-		std::for_each(RANGE(m_ListData, i)
+		for (auto& i: m_ListData)
 		{
 			int Match=FALSE;
 
@@ -4139,7 +4147,7 @@ long FileList::SelectFiles(int Mode, string_view const Mask)
 					workCount++;
 				}
 			}
-		});
+		}
 	}
 
 	if (SelectedFirst)
@@ -4217,19 +4225,17 @@ void FileList::CompareDir()
 	ClearSelection();
 	Another->ClearSelection();
 
-	// помечаем ВСЕ, кроме каталогов на активной панели
-	std::for_each(RANGE(m_ListData, i)
+	for (auto& i: m_ListData)
 	{
 		if (!(i.Attributes & FILE_ATTRIBUTE_DIRECTORY))
 			Select(i, true);
-	});
+	}
 
-	// помечаем ВСЕ, кроме каталогов на пассивной панели
-	std::for_each(RANGE(Another->m_ListData, i)
+	for (auto& i: Another->m_ListData)
 	{
 		if (!(i.Attributes & FILE_ATTRIBUTE_DIRECTORY))
 			Another->Select(i, true);
-	});
+	}
 
 	int CompareFatTime=FALSE;
 
@@ -4473,10 +4479,10 @@ size_t FileList::GetFileCount() const
 
 void FileList::ClearSelection()
 {
-	std::for_each(RANGE(m_ListData, i)
+	for (auto& i: m_ListData)
 	{
 		Select(i, false);
-	});
+	}
 
 	if (SelectedFirst)
 		SortFileList(true);
@@ -4485,19 +4491,19 @@ void FileList::ClearSelection()
 
 void FileList::SaveSelection()
 {
-	std::for_each(RANGE(m_ListData, i)
+	for (auto& i: m_ListData)
 	{
 		i.PrevSelected = i.Selected;
-	});
+	}
 }
 
 
 void FileList::RestoreSelection()
 {
-	std::for_each(RANGE(m_ListData, i)
+	for (auto& i: m_ListData)
 	{
 		Select(i, std::exchange(i.PrevSelected, i.Selected));
-	});
+	}
 
 	if (SelectedFirst)
 		SortFileList(true);
@@ -5713,7 +5719,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel, const std::vector<PluginPanel
 
 		bool DizPresent = false;
 
-		std::for_each(CONST_RANGE(ItemList, i)
+		for (const auto& i: ItemList)
 		{
 			if (i.Flags & PPIF_PROCESSDESCR)
 			{
@@ -5732,7 +5738,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel, const std::vector<PluginPanel
 				if (Code)
 					DizPresent = true;
 			}
-		});
+		}
 
 		if (DizPresent)
 		{
@@ -5790,7 +5796,7 @@ void FileList::PluginGetFiles(const string& DestPath, bool Move)
 					DizList DestDiz;
 					bool DizFound = false;
 
-					std::for_each(RANGE(ItemList.items(), i)
+					for (auto& i: ItemList.items())
 					{
 						if (i.Flags & PPIF_PROCESSDESCR)
 						{
@@ -5803,7 +5809,8 @@ void FileList::PluginGetFiles(const string& DestPath, bool Move)
 							}
 							CopyDiz(i.FileName, i.AlternateFileName, i.FileName, i.FileName, &DestDiz);
 						}
-					});
+					}
+
 					DestDiz.Flush(NewDestPath);
 				}
 
@@ -5918,7 +5925,7 @@ void FileList::PluginHostGetFiles()
 
 	auto ExitLoop = false;
 	std::unordered_set<Plugin*> UsedPlugins;
-	for (const auto& i : Enumerator)
+	for (const auto& i: Enumerator)
 	{
 		if (ExitLoop)
 			break;
@@ -5996,7 +6003,8 @@ void FileList::PluginPutFilesToNew()
 		*/
 		const FileListItem *PtrLastPos = nullptr;
 		int n = 0;
-		std::for_each(CONST_RANGE(m_ListData, i)
+
+		for (const auto& i: m_ListData)
 		{
 			if (!(i.Attributes & FILE_ATTRIBUTE_DIRECTORY) && (!PtrLastPos || PtrLastPos->CreationTime < i.CreationTime))
 			{
@@ -6004,7 +6012,7 @@ void FileList::PluginPutFilesToNew()
 				PtrLastPos = &i;
 			}
 			++n;
-		});
+		}
 
 		if (PtrLastPos)
 		{
@@ -6641,7 +6649,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 		{
 			for (const auto& Column: *ColumnsContainer)
 			{
-				if ((Column.type & 0xff) == CUSTOM_COLUMN0)
+				if (Column.type == column_type::custom_0)
 				{
 					if (ColumnsSet.emplace(Column.title).second)
 					{
@@ -6761,7 +6769,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 		m_ListData.emplace_back(std::move(NewItem));
 	}
 
-	if (IsColumnDisplayed(DIZ_COLUMN))
+	if (IsColumnDisplayed(column_type::description))
 		ReadDiz();
 
 	if (AnotherPanel->GetMode() == panel_mode::PLUGIN_PANEL)
@@ -6927,7 +6935,7 @@ static struct search_list_less
 }
 SearchListLess;
 
-void FileList::MoveSelection(FileList::list_data& From, FileList::list_data& To)
+void FileList::MoveSelection(list_data& From, list_data& To)
 {
 	m_SelFileCount=0;
 	m_SelDirCount = 0;
@@ -6937,7 +6945,7 @@ void FileList::MoveSelection(FileList::list_data& From, FileList::list_data& To)
 
 	std::sort(From.begin(), From.end(), SearchListLess);
 
-	std::for_each(RANGE(To, i)
+	for (auto& i: To)
 	{
 		const auto OldItem = std::lower_bound(ALL_CONST_RANGE(From), i, SearchListLess);
 		if (OldItem != From.end())
@@ -6955,7 +6963,7 @@ void FileList::MoveSelection(FileList::list_data& From, FileList::list_data& To)
 				i.PrevSelected = OldItem->PrevSelected;
 			}
 		}
-	});
+	}
 }
 
 void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
@@ -7132,7 +7140,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 
 	/* $ 25.02.2001 VVM
 	    ! Не считывать повторно список файлов с панели плагина */
-	if (IsColumnDisplayed(DIZ_COLUMN))
+	if (IsColumnDisplayed(column_type::description))
 		ReadDiz({ PanelData, PluginFileCount });
 
 	CorrectPosition();
@@ -7268,10 +7276,10 @@ void FileList::ReadSortGroups(bool UpdateFilterCurrentTime)
 
 		SortGroupsRead = true;
 
-		std::for_each(RANGE(m_ListData, i)
+		for (auto& i: m_ListData)
 		{
 			i.SortGroup = Global->CtrlObject->HiFiles->GetGroup(i, this);
-		});
+		}
 	}
 }
 
@@ -7350,56 +7358,25 @@ void FileList::ShowFileList(bool Fast)
 		{
 			lng IDMessage = lng::MColumnUnknown;
 
-			switch (m_ViewSettings.PanelColumns[I].type & 0xff)
+			switch (m_ViewSettings.PanelColumns[I].type)
 			{
-				case NAME_COLUMN:
-					IDMessage = lng::MColumnName;
-					break;
-				case EXTENSION_COLUMN:
-					IDMessage = lng::MColumnExtension;
-					break;
-				case SIZE_COLUMN:
-					IDMessage = lng::MColumnSize;
-					break;
-				case PACKED_COLUMN:
-					IDMessage = lng::MColumnAlocatedSize;
-					break;
-				case DATE_COLUMN:
-					IDMessage = lng::MColumnDate;
-					break;
-				case TIME_COLUMN:
-					IDMessage = lng::MColumnTime;
-					break;
-				case WDATE_COLUMN:
-					IDMessage = lng::MColumnWrited;
-					break;
-				case CDATE_COLUMN:
-					IDMessage = lng::MColumnCreated;
-					break;
-				case ADATE_COLUMN:
-					IDMessage = lng::MColumnAccessed;
-					break;
-				case CHDATE_COLUMN:
-					IDMessage = lng::MColumnChanged;
-					break;
-				case ATTR_COLUMN:
-					IDMessage = lng::MColumnAttr;
-					break;
-				case DIZ_COLUMN:
-					IDMessage = lng::MColumnDescription;
-					break;
-				case OWNER_COLUMN:
-					IDMessage = lng::MColumnOwner;
-					break;
-				case NUMLINK_COLUMN:
-					IDMessage = lng::MColumnMumLinks;
-					break;
-				case NUMSTREAMS_COLUMN:
-					IDMessage = lng::MColumnNumStreams;
-					break;
-				case STREAMSSIZE_COLUMN:
-					IDMessage = lng::MColumnStreamsSize;
-					break;
+				case column_type::name:               IDMessage = lng::MColumnName;            break;
+				case column_type::extension:          IDMessage = lng::MColumnExtension;       break;
+				case column_type::size:               IDMessage = lng::MColumnSize;            break;
+				case column_type::size_compressed:    IDMessage = lng::MColumnAlocatedSize;    break;
+				case column_type::date:               IDMessage = lng::MColumnDate;            break;
+				case column_type::time:               IDMessage = lng::MColumnTime;            break;
+				case column_type::date_write:         IDMessage = lng::MColumnWrited;          break;
+				case column_type::date_creation:      IDMessage = lng::MColumnCreated;         break;
+				case column_type::date_access:        IDMessage = lng::MColumnAccessed;        break;
+				case column_type::date_change:        IDMessage = lng::MColumnChanged;         break;
+				case column_type::attributes:         IDMessage = lng::MColumnAttr;            break;
+				case column_type::description:        IDMessage = lng::MColumnDescription;     break;
+				case column_type::owner:              IDMessage = lng::MColumnOwner;           break;
+				case column_type::links_number:       IDMessage = lng::MColumnMumLinks;        break;
+				case column_type::streams_number:     IDMessage = lng::MColumnNumStreams;      break;
+				case column_type::streams_size:       IDMessage = lng::MColumnStreamsSize;     break;
+				default: break;
 			}
 
 			strTitle = IDMessage == lng::MColumnUnknown && !m_ViewSettings.PanelColumns[I].title.empty()? m_ViewSettings.PanelColumns[I].title : msg(IDMessage);
@@ -7699,14 +7676,14 @@ static string size2str(ULONGLONG Size, int width, bool FloatStyle, bool short_mo
 
 	if (FloatStyle) // float style
 	{
-		return trim(FileSizeToStr(Size, width, COLUMN_FLOATSIZE | COLUMN_SHOWUNIT));
+		return trim(FileSizeToStr(Size, width, COLFLAGS_FLOATSIZE | COLFLAGS_SHOW_MULTIPLIER));
 	}
 
 	auto Str = str(Size);
 	if (static_cast<int>(Str.size()) <= width)
 		return Str;
 
-	return trim(FileSizeToStr(Size, width, COLUMN_SHOWUNIT));
+	return trim(FileSizeToStr(Size, width, COLFLAGS_SHOW_MULTIPLIER));
 }
 
 void FileList::ShowSelectedSize()
@@ -7822,7 +7799,7 @@ bool FileList::ConvertName(const string_view SrcName, string& strDest, const int
 
 	const auto SrcLength = static_cast<int>(SrcName.size());
 
-	if ((RightAlign & COLUMN_RIGHTALIGNFORCE) || (RightAlign && (SrcLength>MaxLength)))
+	if ((RightAlign & COLFLAGS_RIGHTALIGNFORCE) || (RightAlign && (SrcLength>MaxLength)))
 	{
 		if (SrcLength>MaxLength)
 		{
@@ -7891,21 +7868,20 @@ void FileList::PrepareViewSettings(int ViewMode)
 			}
 			else if (m_CachedOpenPanelInfo.PanelModesArray[ViewMode].Flags&PMFLAGS_DETAILEDSTATUS)
 			{
-				m_ViewSettings.StatusColumns.resize(4);
-				m_ViewSettings.StatusColumns[0].type = COLUMN_RIGHTALIGN|NAME_COLUMN;
-				m_ViewSettings.StatusColumns[1].type = SIZE_COLUMN;
-				m_ViewSettings.StatusColumns[2].type = DATE_COLUMN;
-				m_ViewSettings.StatusColumns[3].type = TIME_COLUMN;
-				m_ViewSettings.StatusColumns[0].width = 0;
-				m_ViewSettings.StatusColumns[1].width = 8;
-				m_ViewSettings.StatusColumns[2].width = 0;
-				m_ViewSettings.StatusColumns[3].width = 5;
+				m_ViewSettings.StatusColumns =
+				{
+					{ column_type::name, COLFLAGS_RIGHTALIGN, 0, },
+					{ column_type::size, 0,                 8, },
+					{ column_type::date, 0,                 0, },
+					{ column_type::time, 0,                 5, },
+				};
 			}
 			else
 			{
-				m_ViewSettings.StatusColumns.resize(1);
-				m_ViewSettings.StatusColumns[0].type = COLUMN_RIGHTALIGN|NAME_COLUMN;
-				m_ViewSettings.StatusColumns[0].width = 0;
+				m_ViewSettings.StatusColumns =
+				{
+					{ column_type::name, COLFLAGS_RIGHTALIGN, 0, },
+				};
 			}
 
 			if (m_CachedOpenPanelInfo.PanelModesArray[ViewMode].Flags&PMFLAGS_FULLSCREEN)
@@ -7923,17 +7899,18 @@ void FileList::PrepareViewSettings(int ViewMode)
 		}
 		else
 		{
-			std::for_each(RANGE(m_ViewSettings.PanelColumns, i)
+			for (auto& i: m_ViewSettings.PanelColumns)
 			{
-				if ((i.type & 0xff) == NAME_COLUMN)
+				if (i.type == column_type::name)
 				{
 					if (m_CachedOpenPanelInfo.Flags & OPIF_SHOWNAMESONLY)
-						i.type |= COLUMN_NAMEONLY;
+						i.type_flags |= COLFLAGS_NAMEONLY;
 
 					if (m_CachedOpenPanelInfo.Flags & OPIF_SHOWRIGHTALIGNNAMES)
-						i.type |= COLUMN_RIGHTALIGN;
+						i.type_flags |= COLFLAGS_RIGHTALIGN;
 				}
-			});
+			}
+
 			if (m_CachedOpenPanelInfo.Flags & OPIF_SHOWPRESERVECASE)
 				m_ViewSettings.Flags&=~(PVS_FOLDERUPPERCASE|PVS_FILELOWERCASE|PVS_FILEUPPERTOLOWERCASE);
 		}
@@ -7971,7 +7948,7 @@ void FileList::PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen
 		if (!i.width)
 		{
 			i.width_type = col_width::fixed; //manage all zero-width columns in same way
-			i.width = GetDefaultWidth(i.type);
+			i.width = GetDefaultWidth(i);
 		}
 
 		if (!i.width)
@@ -8043,14 +8020,14 @@ void FileList::PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen
 
 	for (;;)
 	{
-		int LastColumn = static_cast<int>(Columns.size() - 1);
+		const auto LastColumn = static_cast<int>(Columns.size() - 1);
 		TotalWidth=LastColumn-EmptyColumns;
 
-		std::for_each(CONST_RANGE(Columns, i)
+		for (const auto& i: Columns)
 		{
 			if (i.width > 0)
 				TotalWidth += i.width;
-		});
+		}
 
 		if (TotalWidth<=PanelTextWidth)
 			break;
@@ -8084,7 +8061,7 @@ bool CanMakeStripes(const std::vector<column>& Columns, int StripeStride)
 	for (auto Stripe = FirstStripeEnd; Stripe != Columns.cend(); Stripe += StripeStride)
 	{
 		if (!std::equal(FirstStripeBegin, FirstStripeEnd, Stripe,
-			[](const auto& a, const auto& b) { return (a.type & 0xFF) == (b.type & 0xFF); }))
+			[](const column& a, const column& b) { return a.type == b.type; }))
 		{
 			return false;
 		}
@@ -8097,7 +8074,7 @@ bool CanMakeStripes(const std::vector<column>& Columns, int StripeStride)
 
 void FileList::PrepareStripes(const std::vector<column>& Columns)
 {
-	int ColumnsSize = static_cast<int>(Columns.size());
+	const auto ColumnsSize = static_cast<int>(Columns.size());
 
 	for (int StripeStride = 1; StripeStride <= ColumnsSize / 2; StripeStride++)
 	{
@@ -8173,7 +8150,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 			int CurX=WhereX();
 			int CurY=WhereY();
 			int ShowDivider=TRUE;
-			int ColumnType=static_cast<int>(Columns[K].type & 0xff);
+			const auto ColumnType = Columns[K].type;
 			int ColumnWidth=Columns[K].width;
 
 			if (ColumnWidth<0)
@@ -8201,9 +8178,9 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 				if (!ShowStatus)
 					SetShowColor(ListPos);
 
-				if (ColumnType >= CUSTOM_COLUMN0 && ColumnType <= CUSTOM_COLUMN_MAX)
+				if (ColumnType >= column_type::custom_0 && ColumnType <= column_type::custom_max)
 				{
-					size_t ColumnNumber = ColumnType - CUSTOM_COLUMN0;
+					size_t ColumnNumber = static_cast<size_t>(ColumnType) - static_cast<size_t>(column_type::custom_0);
 					const wchar_t *ColumnData = nullptr;
 
 					if (ColumnNumber<m_ListData[ListPos].CustomColumnNumber)
@@ -8241,14 +8218,14 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 				{
 					switch (ColumnType)
 					{
-						case NAME_COLUMN:
+						case column_type::name:
 						{
 							int Width=ColumnWidth;
-							unsigned long long ViewFlags=Columns[K].type;
+							const auto ViewFlags = Columns[K].type_flags;
 
-							if ((ViewFlags & COLUMN_MARK) && Width>2)
+							if ((ViewFlags & COLFLAGS_MARK) && Width>2)
 							{
-								const auto Mark = m_ListData[ListPos].Selected? L"\x221A "sv : ViewFlags & COLUMN_MARK_DYNAMIC ? L""sv : L"  "sv;
+								const auto Mark = m_ListData[ListPos].Selected? L"\x221A "sv : ViewFlags & COLFLAGS_MARK_DYNAMIC ? L""sv : L"  "sv;
 								Text(Mark);
 								Width -= static_cast<int>(Mark.size());
 							}
@@ -8266,7 +8243,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 							string_view Name = m_ListData[ListPos].AlternateOrNormal(m_ShowShortNames);
 
-							if (!(m_ListData[ListPos].Attributes & FILE_ATTRIBUTE_DIRECTORY) && (ViewFlags & COLUMN_NOEXTENSION))
+							if (!(m_ListData[ListPos].Attributes & FILE_ATTRIBUTE_DIRECTORY) && (ViewFlags & COLFLAGS_NOEXTENSION))
 							{
 								const auto ExtPtr = PointToExt(Name);
 								if (!ExtPtr.empty())
@@ -8277,7 +8254,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 							const auto NameCopy = Name;
 
-							if (ViewFlags & COLUMN_NAMEONLY)
+							if (ViewFlags & COLFLAGS_NAMEONLY)
 							{
 								//BUGBUG!!!
 								// !!! НЕ УВЕРЕН, но то, что отображается пустое
@@ -8286,7 +8263,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 							}
 
 							int CurLeftPos=0;
-							unsigned long long RightAlign=(ViewFlags & (COLUMN_RIGHTALIGN|COLUMN_RIGHTALIGNFORCE));
+							unsigned long long RightAlign=(ViewFlags & (COLFLAGS_RIGHTALIGN|COLFLAGS_RIGHTALIGNFORCE));
 							int LeftBracket=FALSE,RightBracket=FALSE;
 
 							if (!ShowStatus && LeftPos)
@@ -8315,7 +8292,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 										else
 										{
 											RightBracket=TRUE;
-											LeftBracket=(ViewFlags & COLUMN_RIGHTALIGNFORCE)==COLUMN_RIGHTALIGNFORCE;
+											LeftBracket=(ViewFlags & COLFLAGS_RIGHTALIGNFORCE)==COLFLAGS_RIGHTALIGNFORCE;
 										}
 
 										Name.remove_prefix(Length + CurRightPos - Width);
@@ -8387,7 +8364,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 							}
 						}
 						break;
-						case EXTENSION_COLUMN:
+						case column_type::extension:
 						{
 							string_view ExtPtr;
 							if (!(m_ListData[ListPos].Attributes & FILE_ATTRIBUTE_DIRECTORY))
@@ -8398,8 +8375,8 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 							if (!ExtPtr.empty())
 								ExtPtr.remove_prefix(1);
 
-							unsigned long long ViewFlags=Columns[K].type;
-							Text((ViewFlags & COLUMN_RIGHTALIGN? fit_to_right : fit_to_left)(string(ExtPtr), ColumnWidth));
+							const auto ViewFlags = Columns[K].type_flags;
+							Text((ViewFlags & COLFLAGS_RIGHTALIGN? fit_to_right : fit_to_left)(string(ExtPtr), ColumnWidth));
 
 							if (!ShowStatus && static_cast<int>(ExtPtr.size()) > ColumnWidth)
 							{
@@ -8420,13 +8397,13 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 							break;
 						}
 
-						case SIZE_COLUMN:
-						case PACKED_COLUMN:
-						case STREAMSSIZE_COLUMN:
+						case column_type::size:
+						case column_type::size_compressed:
+						case column_type::streams_size:
 						{
-							const auto SizeToDisplay = (ColumnType == PACKED_COLUMN)
+							const auto SizeToDisplay = (ColumnType == column_type::size_compressed)
 								? m_ListData[ListPos].AllocationSize
-								: (ColumnType == STREAMSSIZE_COLUMN)
+								: (ColumnType == column_type::streams_size)
 									? m_ListData[ListPos].StreamsSize(this)
 									: m_ListData[ListPos].FileSize;
 
@@ -8437,51 +8414,51 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								m_ListData[ListPos].ShowFolderSize,
 								m_ListData[ListPos].ReparseTag,
 								ColumnType,
-								Columns[K].type,
+								Columns[K].type_flags,
 								ColumnWidth,
 								m_CurDir));
 							break;
 						}
 
-						case DATE_COLUMN:
-						case TIME_COLUMN:
-						case WDATE_COLUMN:
-						case CDATE_COLUMN:
-						case ADATE_COLUMN:
-						case CHDATE_COLUMN:
+						case column_type::date:
+						case column_type::time:
+						case column_type::date_write:
+						case column_type::date_creation:
+						case column_type::date_access:
+						case column_type::date_change:
 						{
 							os::chrono::time_point* FileTime;
 
 							switch (ColumnType)
 							{
-								case CDATE_COLUMN:
+								case column_type::date_creation:
 									FileTime=&m_ListData[ListPos].CreationTime;
 									break;
-								case ADATE_COLUMN:
+								case column_type::date_access:
 									FileTime=&m_ListData[ListPos].LastAccessTime;
 									break;
-								case CHDATE_COLUMN:
+								case column_type::date_change:
 									FileTime=&m_ListData[ListPos].ChangeTime;
 									break;
-								case DATE_COLUMN:
-								case TIME_COLUMN:
-								case WDATE_COLUMN:
+								case column_type::date:
+								case column_type::time:
+								case column_type::date_write:
 								default:
 									FileTime=&m_ListData[ListPos].LastWriteTime;
 									break;
 							}
 
-							Text(FormatStr_DateTime(*FileTime, ColumnType, Columns[K].type, ColumnWidth));
+							Text(FormatStr_DateTime(*FileTime, ColumnType, Columns[K].type_flags, ColumnWidth));
 							break;
 						}
 
-						case ATTR_COLUMN:
+						case column_type::attributes:
 						{
 							Text(FormatStr_Attribute(m_ListData[ListPos].Attributes,ColumnWidth));
 							break;
 						}
 
-						case DIZ_COLUMN:
+						case column_type::description:
 						{
 							int CurLeftPos=0;
 
@@ -8504,12 +8481,12 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 							break;
 						}
 
-						case OWNER_COLUMN:
+						case column_type::owner:
 						{
 							const auto& Owner = m_ListData[ListPos].Owner(this);
 							size_t Offset = 0;
 
-							if (!(Columns[K].type & COLUMN_FULLOWNER) && m_PanelMode != panel_mode::PLUGIN_PANEL)
+							if (!(Columns[K].type_flags & COLFLAGS_FULLOWNER) && m_PanelMode != panel_mode::PLUGIN_PANEL)
 							{
 								const auto SlashPos = FindSlash(Owner);
 								if (SlashPos != string::npos)
@@ -8538,20 +8515,22 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 							break;
 						}
 
-						case NUMLINK_COLUMN:
+						case column_type::links_number:
 						{
 							const auto Value = m_ListData[ListPos].NumberOfLinks(this);
 							Text(fit_to_right(Value == FileListItem::values::unknown(Value)? L"?"s : str(Value), ColumnWidth));
 							break;
 						}
 
-						case NUMSTREAMS_COLUMN:
+						case column_type::streams_number:
 						{
 							const auto Value = m_ListData[ListPos].NumberOfStreams(this);
 							Text(fit_to_right(Value == FileListItem::values::unknown(Value)? L"?"s : str(Value), ColumnWidth));
 							break;
 						}
 
+						default:
+							break;
 					}
 				}
 			}
@@ -8628,7 +8607,7 @@ bool FileList::IsModeFullScreen(int Mode)
 
 bool FileList::IsDizDisplayed() const
 {
-	return IsColumnDisplayed(DIZ_COLUMN);
+	return IsColumnDisplayed(column_type::description);
 }
 
 bool FileList::IsColumnDisplayed(function_ref<bool(const column&)> const Compare) const
@@ -8637,9 +8616,9 @@ bool FileList::IsColumnDisplayed(function_ref<bool(const column&)> const Compare
 		std::any_of(ALL_CONST_RANGE(m_ViewSettings.StatusColumns), Compare);
 }
 
-bool FileList::IsColumnDisplayed(int Type) const
+bool FileList::IsColumnDisplayed(column_type Type) const
 {
-	return IsColumnDisplayed([&Type](const column& i) {return static_cast<int>(i.type & 0xff) == Type;});
+	return IsColumnDisplayed([&Type](const column& i) { return i.type == Type; });
 }
 
 int FileList::GetColumnsCount() const

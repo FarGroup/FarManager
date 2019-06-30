@@ -153,13 +153,13 @@ void FileFilter::FilterEdit()
 	FilterList->SetMenuFlags(/*VMENU_SHOWAMPERSAND|*/VMENU_WRAPMODE);
 	FilterList->SetId(FiltersMenuId);
 
-	std::for_each(RANGE(FilterData(), i)
+	for (auto& i: FilterData())
 	{
 		MenuItemEx ListItem(MenuString(&i));
 		if (const auto Check = GetCheck(i))
 			ListItem.SetCustomCheck(Check);
 		FilterList->AddItem(ListItem);
-	});
+	}
 
 	if (m_FilterType != FFT_CUSTOM)
 	{
@@ -1041,9 +1041,14 @@ void FileFilter::SwapPanelFlags(FileFilterParams& CurFilterData)
 void FileFilter::SwapFilter()
 {
 	Changed = true;
-	std::for_each(ALL_RANGE(FilterData()), SwapPanelFlags);
+
+	for (auto& i: FilterData())
+		SwapPanelFlags(i);
+
 	SwapPanelFlags(*FoldersFilter);
-	std::for_each(ALL_RANGE(TempFilterData()), SwapPanelFlags);
+
+	for (auto& i: TempFilterData())
+		SwapPanelFlags(i);
 }
 
 int FileFilter::ParseAndAddMasks(std::list<std::pair<string, int>>& Extensions, const string& FileName, DWORD FileAttr, int Check)

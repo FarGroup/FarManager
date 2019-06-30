@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
+#include "common/range.hpp"
 
 // External:
 
@@ -97,10 +98,12 @@ bool message_manager::dispatch()
 	{
 		SCOPED_ACTION(std::shared_lock<mutex_type>)(m_RWLock);
 		const auto RelevantListeners = m_Handlers.equal_range(EventData.first);
-		std::for_each(RelevantListeners.first, RelevantListeners.second, [&](const handlers_map::value_type& i)
+
+		for (const auto& i: range(RelevantListeners.first, RelevantListeners.second))
 		{
 			std::invoke(*i.second, EventData.second);
-		});
+		}
+
 		Result = Result || RelevantListeners.first != RelevantListeners.second;
 	}
 	m_Window->Check();

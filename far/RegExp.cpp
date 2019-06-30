@@ -987,7 +987,7 @@ int RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int src
 					if (len > 0)
 					{
 						const auto Name = new wchar_t[len + 1];
-						memcpy(Name, src + i, len*sizeof(wchar_t));
+						std::memcpy(Name, src + i, len*sizeof(wchar_t));
 						Name[len] = 0;
 						if (!h.Matches.count(Name))
 						{
@@ -1190,7 +1190,7 @@ int RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int src
 							if (len > 0)
 							{
 								const auto Name = new wchar_t[len + 1];
-								memcpy(Name, src + i, len*sizeof(wchar_t));
+								std::memcpy(Name, src + i, len*sizeof(wchar_t));
 								Name[len] = 0;
 								op->nbracket.name = Name;
 							}

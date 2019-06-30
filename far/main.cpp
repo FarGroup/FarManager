@@ -412,7 +412,7 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 	}
 }
 
-static bool ProcessServiceModes(range<const wchar_t* const*> const Args, int& ServiceResult)
+static bool ProcessServiceModes(span<const wchar_t* const> const Args, int& ServiceResult)
 {
 	const auto isArg = [](const wchar_t* Arg, string_view const Name)
 	{
@@ -462,7 +462,7 @@ static void UpdateErrorMode()
 	os::set_error_mode(Global->ErrorMode);
 }
 
-static int mainImpl(range<const wchar_t* const*> const Args)
+static int mainImpl(span<const wchar_t* const> const Args)
 {
 	setlocale(LC_ALL, "");
 

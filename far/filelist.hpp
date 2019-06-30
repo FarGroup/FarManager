@@ -183,7 +183,7 @@ public:
 	string_view GetDescription(const string& Name, const string& ShortName, long long FileSize) const;
 	void CopyDiz(const string& Name, const string& ShortName, const string& DestName, const string& DestShortName, DizList *DestDiz) override;
 	bool IsDizDisplayed() const override;
-	bool IsColumnDisplayed(int Type) const override;
+	bool IsColumnDisplayed(column_type Type) const override;
 	int GetColumnsCount() const override;
 	void SetReturnCurrentFile(bool Mode) override;
 	void GetOpenPanelInfo(OpenPanelInfo *Info) const override;

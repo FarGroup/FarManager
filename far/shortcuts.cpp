@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/rel_ops.hpp"
 #include "common/string_utils.hpp"
+#include "common/view/enumerate.hpp"
 
 // External:
 #include "format.hpp"
@@ -164,7 +165,7 @@ void Shortcuts::Save()
 	if (!Key)
 		return;
 
-	for_each_cnt(CONST_RANGE(m_Items, Item, size_t Index)
+	for (const auto& [Item, Index]: enumerate(m_Items))
 	{
 		const auto sIndex = str(Index);
 
@@ -185,7 +186,7 @@ void Shortcuts::Save()
 		{
 			Cfg->SetValue(Key, PluginDataName + sIndex, Item.PluginData);
 		}
-	});
+	}
 }
 
 static string MakeName(const Shortcuts::shortcut& Item)

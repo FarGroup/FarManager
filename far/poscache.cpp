@@ -43,7 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
-#include "common/algorithm.hpp"
+#include "common/view/enumerate.hpp"
 
 // External:
 
@@ -80,11 +80,11 @@ bool FilePositionCache::AddPosition(const string& Name, const EditorPosCache& po
 
 	if (Global->Opt->EdOpt.SaveShortPos)
 	{
-		for_each_cnt(CONST_RANGE(poscache.bm, i, size_t index)
+		for (const auto& [i, index]: enumerate(poscache.bm))
 		{
 			if (i.Line != POS_NONE)
 				ConfigProvider().HistoryCfg()->SetEditorBookmark(id, index, i.Line, i.LinePos, i.ScreenLine, i.LeftPos);
-		});
+		}
 	}
 
 	return true;
@@ -111,10 +111,10 @@ bool FilePositionCache::GetPosition(const string& Name, EditorPosCache& poscache
 		if (!Global->Opt->EdOpt.SaveShortPos)
 			return true;
 
-		for_each_cnt(RANGE(poscache.bm, i, size_t index)
+		for (const auto& [i, index]: enumerate(poscache.bm))
 		{
 			ConfigProvider().HistoryCfg()->GetEditorBookmark(id, index, &i.Line, &i.LinePos, &i.ScreenLine, &i.LeftPos);
-		});
+		}
 
 		return true;
 	}
@@ -144,11 +144,11 @@ bool FilePositionCache::AddPosition(const string& Name, const ViewerPosCache& po
 	{
 		if (vo.SaveShortPos)
 		{
-			for_each_cnt(CONST_RANGE(poscache.bm, i, size_t index)
+			for (const auto& [i, index]: enumerate(poscache.bm))
 			{
 				if (i.FilePos != POS_NONE)
 					ConfigProvider().HistoryCfg()->SetViewerBookmark(id, index, i.FilePos, i.LeftPos);
-			});
+			}
 		}
 		ret = true;
 	}
@@ -177,10 +177,10 @@ bool FilePositionCache::GetPosition(const string& Name, ViewerPosCache& poscache
 		if (!Global->Opt->ViOpt.SaveShortPos)
 			return true;
 
-		for_each_cnt(RANGE(poscache.bm, i, size_t index)
+		for (const auto& [i, index]: enumerate(poscache.bm))
 		{
 			ConfigProvider().HistoryCfg()->GetViewerBookmark(id, index, &i.FilePos, &i.LeftPos);
-		});
+		}
 
 		return true;
 	}

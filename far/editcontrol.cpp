@@ -374,7 +374,7 @@ static bool EnumEnvironment(VMenu2& Menu, const string_view strStart, const stri
 	const os::env::provider::strings EnvStrings;
 	for (const auto& i: enum_substrings(EnvStrings.data()))
 	{
-		auto Name = split_name_value(i).first;
+		const auto Name = split_name_value(i).first;
 		if (Name.empty()) // =C: etc.
 			continue;
 
@@ -420,7 +420,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 				auto Items = pHistory->GetAllSimilar(Str);
 				if (!Items.empty())
 				{
-					for (auto& [Name, Id, IsLocked] : Items)
+					for (auto& [Name, Id, IsLocked]: Items)
 					{
 						MenuItemEx Item;
 						// Preserve the case of the already entered part
@@ -434,19 +434,19 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 			}
 			else if (pList)
 			{
-				std::for_each(pList->Items, pList->Items + pList->ItemsNumber, [&](const FarListItem& i)
+				for (const auto& i: span(pList->Items, pList->ItemsNumber))
 				{
-					if (starts_with_icase(i.Text, Str) && i.Text != Str.data())
+					if (i.Text == Str.data() || !starts_with_icase(i.Text, Str))
+						continue;
+
+					MenuItemEx Item;
+					// Preserve the case of the already entered part
+					if (Global->Opt->AutoComplete.AppendCompletion)
 					{
-						MenuItemEx Item;
-						// Preserve the case of the already entered part
-						if (Global->Opt->AutoComplete.AppendCompletion)
-						{
-							Item.ComplexUserData = cmp_user_data{ Str + (i.Text + Str.size()) };
-						}
-						ComplMenu->AddItem(i.Text);
+						Item.ComplexUserData = cmp_user_data{ Str + (i.Text + Str.size()) };
 					}
-				});
+					ComplMenu->AddItem(i.Text);
+				}
 			}
 
 			string Prefix;

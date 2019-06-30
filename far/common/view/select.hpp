@@ -32,6 +32,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "../keep_alive.hpp"
 #include "../rel_ops.hpp"
 
 //----------------------------------------------------------------------------
@@ -48,7 +49,7 @@ namespace detail
 		using value_type = std::remove_reference_t<reference>;
 		using pointer = value_type*;
 
-		explicit select_iterator(const T& Value, const accessor& Accessor):
+		explicit select_iterator(const T& Value, accessor& Accessor):
 			m_Value(Value),
 			m_Accessor(&Accessor)
 		{
@@ -85,7 +86,7 @@ namespace detail
 
 	private:
 		T m_Value;
-		accessor const* m_Accessor;
+		accessor* m_Accessor;
 	};
 }
 
@@ -95,20 +96,22 @@ class select
 public:
 	select(container_ref Container, accessor_ref Accessor):
 		m_Container(FWD(Container)),
-		m_Accessor(FWD(Accessor))
+		m_Accessor{FWD(Accessor)}
 	{
 	}
 
-	[[nodiscard]] auto begin()        { return detail::select_iterator(std::begin(this->m_Container), this->m_Accessor); }
-	[[nodiscard]] auto end()          { return detail::select_iterator(std::end(this->m_Container), this->m_Accessor); }
-	[[nodiscard]] auto begin()  const { return detail::select_iterator(std::begin(this->m_Container), this->m_Accessor); }
-	[[nodiscard]] auto end()    const { return detail::select_iterator(std::end(this->m_Container), this->m_Accessor); }
-	[[nodiscard]] auto cbegin() const { return detail::select_iterator(std::begin(this->m_Container), this->m_Accessor); }
-	[[nodiscard]] auto cend()   const { return detail::select_iterator(std::end(this->m_Container), this->m_Accessor); }
+	[[nodiscard]] auto begin()        { return detail::select_iterator(std::begin(this->m_Container), this->m_Accessor.value); }
+	[[nodiscard]] auto end()          { return detail::select_iterator(std::end(this->m_Container), this->m_Accessor.value); }
+	[[nodiscard]] auto begin()  const { return detail::select_iterator(std::begin(this->m_Container), this->m_Accessor.value); }
+	[[nodiscard]] auto end()    const { return detail::select_iterator(std::end(this->m_Container), this->m_Accessor.value); }
+	[[nodiscard]] auto cbegin() const { return detail::select_iterator(std::begin(this->m_Container), this->m_Accessor.value); }
+	[[nodiscard]] auto cend()   const { return detail::select_iterator(std::end(this->m_Container), this->m_Accessor.value); }
 
 private:
 	container m_Container;
-	accessor m_Accessor;
+	// "All problems in computer science can be solved by another level of indirection"
+	// This class can hold both values and references, but the language doesn't allow mutable references.
+	mutable struct accessor_wrapper { accessor value; } m_Accessor;
 };
 
 template<typename container, typename accessor>

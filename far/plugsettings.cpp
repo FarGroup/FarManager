@@ -63,7 +63,9 @@ const wchar_t* AbstractSettings::Add(const string& String)
 
 const void* AbstractSettings::Add(const void* Data, size_t Size)
 {
-	return memcpy(Allocate(Size), Data, Size);
+	const auto Dest = Allocate(Size);
+	copy_memory(Data, Dest, Size);
+	return Dest;
 }
 
 void* AbstractSettings::Allocate(size_t Size)

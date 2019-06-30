@@ -83,9 +83,12 @@ public:
 	static void DeleteFavorite(uintptr_t cp);
 	static auto GetFavoritesEnumerator()
 	{
-		return select(ConfigProvider().GeneralCfg()->ValuesEnumerator<long long>(FavoriteCodePagesKey()), [](const auto& i)
+		return select(ConfigProvider().GeneralCfg()->ValuesEnumerator<long long>(FavoriteCodePagesKey()),
+			[t = std::pair<unsigned long, long long>{}](const auto& i) mutable -> auto&
 		{
-			return std::pair(std::stoul(i.first), i.second);
+			// All this magic is to keep reference semantics to make analysers happy.
+			t = { std::stoul(i.first), i.second };
+			return t;
 		});
 	}
 

@@ -261,7 +261,7 @@ static void add_pathext(string& Masks)
 	if (contains_icase(Masks, PathExtName))
 	{
 		string FarPathExt;
-		for (const auto& i : enum_tokens_with_quotes(os::env::get(L"PATHEXT"sv), L";"sv))
+		for (const auto& i: enum_tokens_with_quotes(os::env::get(L"PATHEXT"sv), L";"sv))
 		{
 			if (i.empty())
 				continue;
@@ -386,17 +386,17 @@ TEST_CASE("masks")
 	}
 	Tests[]
 	{
-		{ L".."sv, L"."sv, false },
-		{ L".."sv, L".."sv, true },
-		{ L"*.ext"sv, L"file.ext"sv, true },
-		{ L"*.ex*"sv, L"file.ext"sv, true },
-		{ L"*.e?t"sv, L"file.est"sv, true },
-		{ L"*.ext"sv, L"file.bin"sv, false },
+		{ L".."sv,          L"."sv,              false },
+		{ L".."sv,          L".."sv,             true  },
+		{ L"*.ext"sv,       L"file.ext"sv,       true  },
+		{ L"*.ex*"sv,       L"file.ext"sv,       true  },
+		{ L"*.e?t"sv,       L"file.est"sv,       true  },
+		{ L"*.ext"sv,       L"file.bin"sv,       false },
 	};
 
 	filemasks Masks;
 
-	for (const auto &i: Tests)
+	for (const auto& i: Tests)
 	{
 		REQUIRE(Masks.Set(i.Mask, FMF_SILENT));
 		REQUIRE(i.Match == Masks.Compare(i.Test));

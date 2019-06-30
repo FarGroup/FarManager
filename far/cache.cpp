@@ -127,7 +127,7 @@ bool CachedRead::Read(void* Data, size_t DataSize, size_t* BytesRead)
 			Result = true;
 
 			const auto Actual = std::min(m_BytesLeft, DataSize);
-			memcpy(Data, &m_Buffer[m_ReadSize - m_BytesLeft], Actual);
+			copy_memory(&m_Buffer[m_ReadSize - m_BytesLeft], Data, Actual);
 			Data = static_cast<char*>(Data) + Actual;
 			m_BytesLeft -= Actual;
 			m_File.SetPointer(Actual, &m_LastPtr, FILE_CURRENT);

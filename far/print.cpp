@@ -63,7 +63,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-static void AddToPrintersMenu(VMenu2 *PrinterList, range<const PRINTER_INFO_4W*> Printers)
+static void AddToPrintersMenu(VMenu2 *PrinterList, span<PRINTER_INFO_4W const> Printers)
 {
 	// Получаем принтер по умолчанию
 	string strDefaultPrinter;
@@ -109,16 +109,34 @@ void PrintFiles(FileList* SrcPanel)
 		if (DirsCount == SelCount)
 			return;
 
-		DWORD Needed = 0, Returned;
-		EnumPrinters(PRINTER_ENUM_LOCAL | PRINTER_ENUM_CONNECTIONS, nullptr, 4, nullptr, 0, &Needed, &Returned);
+		block_ptr<PRINTER_INFO_4W, os::default_buffer_size> pi(os::default_buffer_size);
 
-		if (!Needed)
-			return;
+		DWORD Needed = 0, PrintersCount = 0;
 
-		block_ptr<PRINTER_INFO_4W> pi(Needed);
+		for (;;)
+		{
+			if (EnumPrinters(
+				PRINTER_ENUM_LOCAL | PRINTER_ENUM_CONNECTIONS,
+				nullptr,
+				4,
+				static_cast<BYTE*>(static_cast<void*>(pi.get())),
+				static_cast<DWORD>(pi.size()),
+				&Needed,
+				&PrintersCount
+			))
+				break;
 
-		if (!EnumPrinters(PRINTER_ENUM_LOCAL | PRINTER_ENUM_CONNECTIONS, nullptr, 4, reinterpret_cast<BYTE*>(pi.get()), Needed, &Needed, &Returned))
+			if (Needed > pi.size())
+			{
+				pi.reset(Needed);
+				continue;
+			}
+
 			throw MAKE_FAR_EXCEPTION(msg(lng::MCannotEnumeratePrinters));
+		}
+
+		if (!PrintersCount)
+			return;
 
 		string strPrinterName;
 
@@ -140,13 +158,12 @@ void PrintFiles(FileList* SrcPanel)
 			const auto PrinterList = VMenu2::create(strTitle, {}, ScrY - 4);
 			PrinterList->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
 			PrinterList->SetPosition({ -1, -1, 0, 0 });
-			AddToPrintersMenu(PrinterList.get(), { pi.get(), Returned });
+			AddToPrintersMenu(PrinterList.get(), { pi.get(), PrintersCount });
 
 			if (PrinterList->Run() < 0)
 				return;
 
-		if (const auto NamePtr = PrinterList->GetComplexUserDataPtr<string>())
-				strPrinterName = *NamePtr;
+			strPrinterName = *PrinterList->GetComplexUserDataPtr<string>();
 		}
 
 		os::printer_handle Printer;
@@ -172,7 +189,7 @@ void PrintFiles(FileList* SrcPanel)
 		const auto hPlugin = SrcPanel->GetPluginHandle();
 		const auto PluginMode = SrcPanel->GetMode() == panel_mode::PLUGIN_PANEL && !Global->CtrlObject->Plugins->UseFarCommand(hPlugin, PLUGIN_FARGETFILE);
 
-		for (const auto& i : SrcPanel->enum_selected())
+		for (const auto& i: SrcPanel->enum_selected())
 		{
 			if (i.Attributes & FILE_ATTRIBUTE_DIRECTORY)
 				continue;

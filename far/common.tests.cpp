@@ -191,15 +191,17 @@ TEST_CASE("from_string")
 
 #include "common/keep_alive.hpp"
 
+template<typename type>
+static void TestKeepAlive()
+{
+	static_assert(std::is_same_v<decltype(keep_alive(std::declval<type>())), keep_alive<type>>);
+}
+
 TEST_CASE("keep_alive")
 {
-#define TEST_KEEPALIVE(type) static_assert(std::is_same_v<decltype(keep_alive(std::declval<type>())), keep_alive<type>>)
-
-	TEST_KEEPALIVE(int);
-	TEST_KEEPALIVE(int&);
-	TEST_KEEPALIVE(const int&);
-
-#undef TEST_KEEPALIVE
+	TestKeepAlive<int>();
+	TestKeepAlive<int&>();
+	TestKeepAlive<const int&>();
 
 	SUCCEED();
 }
@@ -372,12 +374,16 @@ TEST_CASE("range.dynamic")
 	}
 
 	{
-		const auto IRange = make_irange(5);
-		auto Iterator = IRange.begin();
-		for (int i = 0; i != 5; ++i, ++Iterator)
+		const auto Begin = 3, End = 7;
+		const irange Range(Begin, End);
+		auto Iterator = Range.begin();
+
+		for (auto i = Begin; i != End; ++i, ++Iterator)
 		{
 			REQUIRE(*Iterator == i);
 		}
+
+		REQUIRE(Iterator == Range.cend());
 	}
 }
 
@@ -692,6 +698,33 @@ TEST_CASE("utility")
 	REQUIRE(*Ptr5 == 5);
 }
 
+TEST_CASE("utility.copy_memory")
+{
+	char Buffer[] = "12345";
+	copy_memory("ABCDE", Buffer, 3);
+	REQUIRE(Buffer == "ABC45"sv);
+	copy_memory(static_cast<char const*>(nullptr), Buffer, 0);
+	REQUIRE(Buffer == "ABC45"sv);
+}
+
+//----------------------------------------------------------------------------
+
+#include "common/view/enumerate.hpp"
+
+TEST_CASE("view.enumerate")
+{
+	size_t Index = 0;
+	for (const auto& [Item, i]: enumerate(std::vector{ 'A', 'B', 'C' }))
+	{
+		REQUIRE(Item == 'A' + Index);
+		REQUIRE(i == Index);
+
+		++Index;
+	}
+
+	REQUIRE(Index == 3u);
+}
+
 //----------------------------------------------------------------------------
 
 #include "common/view/select.hpp"
@@ -702,7 +735,7 @@ TEST_CASE("view.select")
 	{
 		auto Iterator = std::cbegin(Data);
 
-		for (const auto& i : select(Data, Selector))
+		for (const auto i: select(Data, Selector))
 		{
 			REQUIRE(i == Selector(*Iterator));
 			++Iterator;
@@ -803,15 +836,29 @@ TEST_CASE("view.where")
 
 TEST_CASE("view.zip")
 {
-	const std::array Source      { 1, 2, 3 };
-	      std::array Destination { 9, 8, 7, 6, 5 };
-	const std::array Baseline    { 1, 2, 3, 6, 5 };
-
-	for (const auto [Src, Dst] : zip(Source, Destination))
 	{
-		Dst = Src;
+		const std::array Source      { 1, 2, 3 };
+		      std::array Destination { 9, 8, 7, 6, 5 };
+		const std::array Baseline    { 1, 2, 3, 6, 5 };
+
+		for (const auto& [Src, Dst] : zip(Source, Destination))
+		{
+			Dst = Src;
+		}
+
+		REQUIRE(Destination == Baseline);
 	}
 
-	REQUIRE(Destination == Baseline);
+	{
+		int Index = 0;
+		for (const auto& [i, l]: zip(std::vector{ 1, 2, 3 }, std::list{ 'A', 'B', 'C' }))
+		{
+			REQUIRE(i == 1 + Index);
+			REQUIRE(l == 'A' + Index);
+			++Index;
+		}
+
+		REQUIRE(Index == 3);
+	}
 }
 #endif

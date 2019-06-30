@@ -278,7 +278,7 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 
 void ItemsToItemsEx(span<const FarDialogItem> const Items, span<DialogItemEx> const ItemsEx, bool const Short)
 {
-	for (const auto [Item, ItemEx]: zip(Items, ItemsEx))
+	for (const auto& [Item, ItemEx]: zip(Items, ItemsEx))
 	{
 		static_cast<FarDialogItem&>(ItemEx) = Item;
 
@@ -309,7 +309,7 @@ std::vector<DialogItemEx> MakeDialogItems(span<const InitDialogItem> Items)
 {
 	std::vector<DialogItemEx> ItemsEx(Items.size());
 
-	for (const auto [Item, ItemEx]: zip(Items, ItemsEx))
+	for (const auto& [Item, ItemEx]: zip(Items, ItemsEx))
 	{
 		ItemEx.Type = Item.Type;
 		ItemEx.X1 = Item.Position.TopLeft.x;
@@ -381,9 +381,9 @@ void Dialog::Construct(span<DialogItemEx> const SrcItems)
 	Items.assign(ALL_CONST_RANGE(SrcItems));
 
 	// Items[i].Auto.Owner points to SrcItems, we need to update:
-	for (const auto [Item, SrcItem]: zip(Items, SrcItems))
+	for (const auto& [Item, SrcItem]: zip(Items, SrcItems))
 	{
-		for (const auto [ItemAuto, SrcItemAuto] : zip(Item.Auto, SrcItem.Auto))
+		for (const auto& [ItemAuto, SrcItemAuto]: zip(Item.Auto, SrcItem.Auto))
 		{
 			// TODO: P1091R3
 			const auto SrcItemIterator = std::find_if(ALL_CONST_RANGE(SrcItems), [&SrcItemAuto = SrcItemAuto](const DialogItemEx& i)
@@ -1256,7 +1256,7 @@ void Dialog::DeleteDialogObjects()
 {
 	_DIALOG(CleverSysLog CL(L"Dialog::DeleteDialogObjects()"));
 
-	std::for_each(RANGE(Items, i)
+	for (auto& i: Items)
 	{
 		switch (i.Type)
 		{
@@ -1282,14 +1282,14 @@ void Dialog::DeleteDialogObjects()
 
 		if (i.Flags&DIF_AUTOMATION)
 			i.Auto.clear();
-	});
+	}
 }
 
 
 
 void Dialog::GetDialogObjectsExpandData()
 {
-	std::for_each(RANGE(Items, i)
+	for (auto& i: Items)
 	{
 		switch (i.Type)
 		{
@@ -1333,7 +1333,7 @@ void Dialog::GetDialogObjectsExpandData()
 			default:
 				break;
 		}
-	});
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1343,9 +1343,9 @@ void Dialog::GetDialogObjectsExpandData()
 */
 void Dialog::GetDialogObjectsData()
 {
-	std::for_each(RANGE(Items, i)
+	for (auto& i: Items)
 	{
-		FARDIALOGITEMFLAGS IFlags = i.Flags;
+		const auto IFlags = i.Flags;
 
 		switch (i.Type)
 		{
@@ -1367,7 +1367,7 @@ void Dialog::GetDialogObjectsData()
 					if (m_ExitCode >=0 &&
 					        (IFlags & DIF_HISTORY) &&
 					        !(IFlags & DIF_MANUALADDHISTORY) && // при мануале не добавляем
-							!i.strHistory.empty() &&
+					        !i.strHistory.empty() &&
 					        Global->Opt->Dialogs.EditHistory)
 					{
 						AddToEditHistory(&i, strData);
@@ -1440,7 +1440,7 @@ void Dialog::GetDialogObjectsData()
 		}
 
 #endif
-	});
+	}
 }
 
 // Функция формирования и запроса цветов.
@@ -2141,7 +2141,7 @@ void Dialog::ShowDialog(size_t ID)
 
 	// КОСТЫЛЬ!
 	// но работает ;-)
-	std::for_each(CONST_RANGE(Items, i)
+	for (const auto& i: Items)
 	{
 		if (i.ListPtr && GetDropDownOpened() && i.ListPtr->IsVisible())
 		{
@@ -2153,7 +2153,7 @@ void Dialog::ShowDialog(size_t ID)
 				i.ListPtr->Show();
 			}
 		}
-	});
+	}
 
 	DialogMode.Set(DMODE_SHOW); // диалог на экране!
 
@@ -2807,14 +2807,14 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 			else
 			{
 				size_t MinDist=1000, Pos = 0, MinPos=0;
-				std::for_each(CONST_RANGE(Items, i)
+				for (const auto &i :Items)
 				{
 					if (Pos != m_FocusPos &&
 					        (IsEdit(i.Type) ||
 					         i.Type==DI_RADIOBUTTON) &&
 					         i.Y1==Items[m_FocusPos].Y1)
 					{
-						int Dist = i.X1-Items[m_FocusPos].X1;
+						const auto Dist = i.X1-Items[m_FocusPos].X1;
 
 						if (((LocalKey()==KEY_LEFT||LocalKey()==KEY_SHIFTNUMPAD4) && Dist<0) || ((LocalKey()==KEY_RIGHT||LocalKey()==KEY_SHIFTNUMPAD6) && Dist>0))
 						{
@@ -2826,7 +2826,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 						}
 					}
 					++Pos;
-				});
+				}
 
 				if (MinDist<1000)
 				{
@@ -3838,10 +3838,10 @@ void Dialog::ChangeFocus2(size_t SetFocusPos)
 		if (FocusPosNeed != -1 && CanGetFocus(Items[FocusPosNeed].Type))
 			SetFocusPos=FocusPosNeed;
 
-		std::for_each(RANGE(Items, i)
+		for (auto& i: Items)
 		{
-			i.Flags&=~DIF_FOCUS;
-		});
+			i.Flags &= ~DIF_FOCUS;
+		}
 
 		Items[SetFocusPos].Flags|=DIF_FOCUS;
 
@@ -4181,19 +4181,15 @@ void Dialog::AdjustEditPos(int dx, int dy)
 		return;
 
 
-	std::for_each(CONST_RANGE(Items, i)
+	for (auto& i: Items)
 	{
-		FARDIALOGITEMTYPES Type = i.Type;
+		const auto Type = i.Type;
 
-		if ((i.ObjPtr  && IsEdit(Type)) ||
-		        (i.ListPtr && Type == DI_LISTBOX))
+		if ((i.ObjPtr  && IsEdit(Type)) || (i.ListPtr && Type == DI_LISTBOX))
 		{
-			ScreenObject *DialogScrObject;
-
-			if (Type == DI_LISTBOX)
-				DialogScrObject = i.ListPtr.get();
-			else
-				DialogScrObject = static_cast<ScreenObject*>(i.ObjPtr);
+			const auto DialogScrObject = Type == DI_LISTBOX?
+				i.ListPtr.get() :
+				static_cast<ScreenObject*>(i.ObjPtr);
 
 			auto Rect = DialogScrObject->GetPosition();
 			Rect.left += dx;
@@ -4202,7 +4198,7 @@ void Dialog::AdjustEditPos(int dx, int dy)
 			Rect.bottom += dy;
 			DialogScrObject->SetPosition(Rect);
 		}
-	});
+	}
 
 	ProcessCenterGroup();
 }
@@ -5398,13 +5394,13 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			{
 				const auto iParam = reinterpret_cast<intptr_t>(Param2) % 3;
 
-				std::for_each(RANGE(CurItem->Auto, i)
+				for (const auto& i: CurItem->Auto)
 				{
-					FARDIALOGITEMFLAGS NewFlags = i.Owner->Flags;
-					i.Owner->Flags=(NewFlags&(~i.Flags[iParam][1]))|i.Flags[iParam][0];
+					const auto NewFlags = i.Owner->Flags;
+					i.Owner->Flags = (NewFlags & (~i.Flags[iParam][1])) | i.Flags[iParam][0];
 					// здесь намеренно в обработчик не посылаются эвенты об изменении
 					// состояния...
-				});
+				}
 			}
 
 			return Ret;
@@ -5457,13 +5453,13 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 					if ((CurItem->Flags&DIF_AUTOMATION) && !CurItem->Auto.empty())
 					{
 						State%=3;
-						std::for_each(RANGE(CurItem->Auto, i)
+						for (const auto& i: CurItem->Auto)
 						{
-							FARDIALOGITEMFLAGS NewFlags = i.Owner->Flags;
-							i.Owner->Flags=(NewFlags&(~i.Flags[State][1]))|i.Flags[State][0];
+							const auto NewFlags = i.Owner->Flags;
+							i.Owner->Flags = (NewFlags & (~i.Flags[State][1])) | i.Flags[State][0];
 							// здесь намеренно в обработчик не посылаются эвенты об изменении
 							// состояния...
-						});
+						}
 						Param1=-1;
 					}
 

@@ -78,71 +78,72 @@ static const wchar_t StarSymbol[]=
 
 static void ShowSaver(int Step, function_ref<void(star&)> const Fill)
 {
-	std::for_each(RANGE(Star, i)
+	for (auto& i: Star)
 	{
-		if (i.Type!=STAR_NONE && !(Step % i.Speed))
-		{
-			SetColor(F_LIGHTCYAN|B_BLACK);
-			GotoXY(i.X/100, i.Y/100);
-			Text(L' ');
-			int dx = i.X/100 - ScrX/2;
-			i.X += dx*10+((dx<0) ? -1:1);
-			int dy = i.Y/100-ScrY/2;
-			i.Y+=dy*10+((dy<0) ? -1:1);
+		if (i.Type == STAR_NONE || Step % i.Speed)
+			continue;
 
-			if (i.X<0 || i.X/100>ScrX || i.Y<0 || i.Y/100>ScrY)
-				i.Type=STAR_NONE;
+		SetColor(F_LIGHTCYAN|B_BLACK);
+		GotoXY(i.X/100, i.Y/100);
+		Text(L' ');
+		int dx = i.X/100 - ScrX/2;
+		i.X += dx*10+((dx<0) ? -1:1);
+		int dy = i.Y/100-ScrY/2;
+		i.Y+=dy*10+((dy<0) ? -1:1);
+
+		if (i.X<0 || i.X/100>ScrX || i.Y<0 || i.Y/100>ScrY)
+		{
+			i.Type=STAR_NONE;
+			continue;
+		}
+
+		SetColor(i.Color|B_BLACK);
+		GotoXY(i.X/100, i.Y/100);
+
+		if (abs(dx)>3*ScrX/8 || abs(dy)>3*ScrY/8)
+		{
+			if (i.Type==STAR_PLANET)
+			{
+				SetColor(i.Color|FOREGROUND_INTENSITY|B_BLACK);
+				Text(StarSymbol[0]);
+			}
 			else
 			{
-				SetColor(i.Color|B_BLACK);
-				GotoXY(i.X/100, i.Y/100);
-
-				if (abs(dx)>3*ScrX/8 || abs(dy)>3*ScrY/8)
-				{
-					if (i.Type==STAR_PLANET)
-					{
-						SetColor(i.Color|FOREGROUND_INTENSITY|B_BLACK);
-						Text(StarSymbol[0]);
-					}
-					else
-					{
-						SetColor(F_WHITE|B_BLACK);
-						Text(StarSymbol[1]);
-					}
-				}
-				else if (abs(dx)>ScrX/7 || abs(dy)>ScrY/7)
-				{
-					if (i.Type==STAR_PLANET)
-					{
-						SetColor(i.Color|FOREGROUND_INTENSITY|B_BLACK);
-						Text(StarSymbol[1]);
-					}
-					else
-					{
-						if (abs(dx)>ScrX/4 || abs(dy)>ScrY/4)
-							SetColor(F_LIGHTCYAN|B_BLACK);
-						else
-							SetColor(F_CYAN|B_BLACK);
-
-						Text(StarSymbol[2]);
-					}
-				}
-				else
-				{
-					if (i.Type==STAR_PLANET)
-					{
-						SetColor(i.Color|B_BLACK);
-						Text(StarSymbol[3]);
-					}
-					else
-					{
-						SetColor(F_CYAN|B_BLACK);
-						Text(StarSymbol[4]);
-					}
-				}
+				SetColor(F_WHITE|B_BLACK);
+				Text(StarSymbol[1]);
 			}
 		}
-	});
+		else if (abs(dx)>ScrX/7 || abs(dy)>ScrY/7)
+		{
+			if (i.Type==STAR_PLANET)
+			{
+				SetColor(i.Color|FOREGROUND_INTENSITY|B_BLACK);
+				Text(StarSymbol[1]);
+			}
+			else
+			{
+				if (abs(dx)>ScrX/4 || abs(dy)>ScrY/4)
+					SetColor(F_LIGHTCYAN|B_BLACK);
+				else
+					SetColor(F_CYAN|B_BLACK);
+
+				Text(StarSymbol[2]);
+			}
+		}
+		else
+		{
+			if (i.Type==STAR_PLANET)
+			{
+				SetColor(i.Color|B_BLACK);
+				Text(StarSymbol[3]);
+			}
+			else
+			{
+				SetColor(F_CYAN|B_BLACK);
+				Text(StarSymbol[4]);
+			}
+		}
+	}
 
 	const auto NotStar = std::find_if(RANGE(Star, i) { return i.Type == STAR_NONE; });
 	if (NotStar != Star.end())
@@ -182,11 +183,11 @@ int ScreenSaver()
 
 		SetScreen({ 0, 0, ScrX, ScrY }, L' ', colors::ConsoleColorToFarColor(F_LIGHTGRAY | B_BLACK));
 
-		std::for_each(RANGE(Star, i)
+		for (auto& i: Star)
 		{
 			i.Type=STAR_NONE;
 			i.Color=0;
-		});
+		}
 
 		int Step=0;
 

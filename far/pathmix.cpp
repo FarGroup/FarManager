@@ -129,10 +129,11 @@ root_type ParsePath(const string_view Path, size_t* const DirectoryOffset, bool*
 	static bool REInit = false;
 	if(!REInit)
 	{
-		std::for_each(RANGE(PathTypes, i)
+		for (auto& i: PathTypes)
 		{
 			i.re.assign(i.REStr, std::regex::icase | std::regex::optimize);
-		});
+		}
+
 		REInit = true;
 	}
 

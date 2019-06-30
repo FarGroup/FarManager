@@ -352,19 +352,19 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 
 	const size_t Width = std::abs(WidthWithSign);
 	const bool LeftAlign = WidthWithSign < 0;
-	const bool UseGroupDigits = (ViewFlags & COLUMN_GROUPDIGITS) != 0;
-	const bool UseFloatSize = (ViewFlags & COLUMN_FLOATSIZE) != 0;
-	const bool UseCompact = (ViewFlags & COLUMN_ECONOMIC) != 0;
-	const bool UseUnit = (ViewFlags & COLUMN_USE_UNIT) != 0;
-	const bool ShowUnit = (ViewFlags & COLUMN_SHOWUNIT) != 0;
-	const bool UseBinaryUnit = (ViewFlags & COLUMN_THOUSAND) == 0;
-	const size_t MinUnit = (ViewFlags & COLUMN_UNIT_MASK) + 1;
+	const bool UseGroupDigits = (ViewFlags & COLFLAGS_GROUPDIGITS) != 0;
+	const bool UseFloatSize = (ViewFlags & COLFLAGS_FLOATSIZE) != 0;
+	const bool UseCompact = (ViewFlags & COLFLAGS_ECONOMIC) != 0;
+	const bool UseUnit = (ViewFlags & COLFLAGS_USE_MULTIPLIER) != 0;
+	const bool ShowUnit = (ViewFlags & COLFLAGS_SHOW_MULTIPLIER) != 0;
+	const bool UseBinaryUnit = (ViewFlags & COLFLAGS_THOUSAND) == 0;
+	const size_t MinUnit = (ViewFlags & COLFLAGS_MULTIPLIER_MASK) + 1;
 
 	static std::pair const
 		BinaryDivider(1024, std::log(1024)),
 		DecimalDivider(1000, std::log(1000));
 
-	const auto& Divider = ViewFlags & COLUMN_THOUSAND? DecimalDivider : BinaryDivider;
+	const auto& Divider = ViewFlags & COLFLAGS_THOUSAND? DecimalDivider : BinaryDivider;
 
 	const auto FormatSize = [&](string&& StrSize, size_t UnitIndex)
 	{
@@ -956,8 +956,7 @@ static S BlobToHexStringT(const void* Blob, size_t Size, C Separator)
 
 	Hex.reserve(Size * (Separator? 3 : 2));
 
-	const auto CharBlob = static_cast<const char*>(Blob);
-	std::for_each(CharBlob, CharBlob + Size, [&](char i)
+	for (const auto& i: span(static_cast<const char*>(Blob), Size))
 	{
 		Hex.push_back(IntToHex((i & 0xF0) >> 4));
 		Hex.push_back(IntToHex(i & 0x0F));
@@ -965,7 +964,8 @@ static S BlobToHexStringT(const void* Blob, size_t Size, C Separator)
 		{
 			Hex.push_back(Separator);
 		}
-	});
+	}
+
 	if (Separator && !Hex.empty())
 	{
 		Hex.pop_back();
@@ -1110,7 +1110,7 @@ TEST_CASE("ReplaceStrings")
 	};
 
 	string Src;
-	for (const auto& i : Tests)
+	for (const auto& i: Tests)
 	{
 		Src = i.Src;
 		ReplaceStrings(Src, i.Find, i.Replace, true);

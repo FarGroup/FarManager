@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 #include "scrobj.hpp"
 #include "panelfwd.hpp"
+#include "panelctype.hpp"
 
 // Platform:
 #include "platform.fwd.hpp"
@@ -57,7 +58,8 @@ struct OpenPanelInfo;
 
 struct column
 {
-	unsigned long long type;
+	column_type type;
+	int type_flags;
 	int width;
 	int width_type;
 	string title;
@@ -178,7 +180,7 @@ public:
 	virtual void FlushDiz() {}
 	virtual void CopyDiz(const string& Name,const string& ShortName,const string& DestName, const string& DestShortName,DizList *DestDiz) {}
 	virtual bool IsDizDisplayed() const { return false; }
-	virtual bool IsColumnDisplayed(int Type) const {return false;}
+	virtual bool IsColumnDisplayed(column_type Type) const {return false;}
 	virtual int GetColumnsCount() const { return 1;}
 	virtual void SetReturnCurrentFile(bool Mode) {}
 	virtual void QViewDelTempName() {}

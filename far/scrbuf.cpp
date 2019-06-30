@@ -463,10 +463,11 @@ void ScreenBuf::Flush(flush_type FlushType)
 
 			if (Changes)
 			{
-				std::for_each(CONST_RANGE(WriteList, i)
+				for (const auto& i: WriteList)
 				{
 					console.WriteOutput(Buf, { i.Left, i.Top }, i);
-				});
+				}
+
 				console.Commit();
 				Shadow = Buf;
 			}

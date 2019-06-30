@@ -748,9 +748,9 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		Global->CtrlObject->CmdLine()->LockUpdatePanel(true);
 
 		// Цикл исполнения команд меню (CommandX)
-		std::for_each(CONST_RANGE((*CurrentMenuItem)->Commands, str)
+		for (const auto& str: (*CurrentMenuItem)->Commands)
 		{
-			string strCommand = str;
+			auto strCommand = str;
 
 			if (!((starts_with_icase(strCommand, L"REM"sv) && (strCommand.size() == 3 || std::iswblank(strCommand[3]))) || starts_with_icase(strCommand, L"::"sv)))
 			{
@@ -795,7 +795,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 					}
 				}
 			} // strCommand != "REM"
-		});
+		}
 
 		Global->CtrlObject->CmdLine()->LockUpdatePanel(false);
 

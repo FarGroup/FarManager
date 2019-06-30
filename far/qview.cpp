@@ -246,7 +246,7 @@ void QuickView::DisplayObject()
 			}
 			else
 			{
-				const auto str = trim(FileSizeToStr(Size, 10, COLUMN_FLOATSIZE | COLUMN_SHOWUNIT));
+				const auto str = trim(FileSizeToStr(Size, 10, COLFLAGS_FLOATSIZE | COLFLAGS_SHOW_MULTIPLIER));
 				return str.back() == bytes_suffix[0]? str : str + bytes_suffix;
 			}
 		};

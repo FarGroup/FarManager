@@ -675,7 +675,7 @@ void ManagerClass_Dump(const wchar_t *Title,FILE *fp)
 		string Type,Name;
 		fwprintf(fp,L"**** Queue modal windows ***\nwindows count=%zu\n",Man->m_windows.size());
 
-		std::for_each(CONST_RANGE(Man->m_windows, i)
+		for (const auto& i: Man->m_windows)
 		{
 			if (i)
 			{
@@ -684,7 +684,7 @@ void ManagerClass_Dump(const wchar_t *Title,FILE *fp)
 			}
 			else
 				fwprintf(fp,L"\twindow nullptr\n");
-		});
+		}
 
 		fwprintf(fp,L"**** Detail... ***\n");
 
@@ -1301,7 +1301,7 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(V_MENUINFOID),               // Menu.Info.Id
 	};
 
-	for (const auto& i : MCODE)
+	for (const auto& i: MCODE)
 	{
 		if (i.Val == OpCode)
 		{
@@ -2036,69 +2036,6 @@ void WIN32_FIND_DATA_Dump(const wchar_t *Title,const WIN32_FIND_DATA &wfd,FILE *
 		fwprintf(fp,L"%*s %s  dwReserved1           =0x%08lX (%lu)\n",12,L"",space,wfd.dwReserved1,wfd.dwReserved1);
 		fwprintf(fp,L"%*s %s  cFileName             =\"%s\"\n",12,L"",space,wfd.cFileName);
 		fwprintf(fp,L"%*s %s  cAlternateFileName    =\"%s\"\n",12,L"",space,wfd.cAlternateFileName);
-		fwprintf(fp,L"%*s %s  }\n",12,L"",space);
-		fflush(fp);
-	}
-
-	if (InternalLog)
-		CloseSysLog();
-
-#endif
-}
-
-void PanelViewSettings_Dump(const wchar_t *Title,const PanelViewSettings &ViewSettings,FILE *fp)
-{
-#if defined(SYSLOG)
-
-	if (!IsLogON())
-		return;
-
-	int InternalLog = !fp;
-	const wchar_t *space=MakeSpace();
-
-	if (InternalLog)
-	{
-		OpenSysLog();
-		fp=PrintBaner(L"PanelViewSettings", Title);
-	}
-
-	if (fp)
-	{
-		size_t I;
-		fwprintf(fp,L"%*s %s  PanelViewSettings{\n",12,L"",space);
-		fwprintf(fp,L"%*s %s  ColumnType           = [",12,L"",space);
-
-		for (I=0; I < ViewSettings.PanelColumns.size()-1; ++I)
-			fwprintf(fp,L"%I64u, ",ViewSettings.PanelColumns[I].type);
-
-		fwprintf(fp,L"%I64u]\n",ViewSettings.PanelColumns[I].type);
-		fwprintf(fp,L"%*s %s  ColumnWidth          = [",12,L"",space);
-
-		for (I=0; I < ViewSettings.PanelColumns.size()-1; ++I)
-			fwprintf(fp,L"%d, ",ViewSettings.PanelColumns[I].width);
-
-		fwprintf(fp,L"%d]\n",ViewSettings.PanelColumns[I].width);
-		fwprintf(fp,L"%*s %s  ColumnCount          = %zu\n",12,L"",space,ViewSettings.PanelColumns.size());
-		fwprintf(fp,L"%*s %s  StatusColumnType     = [",12,L"",space);
-
-		for (I=0; I < ViewSettings.StatusColumns.size()-1; ++I)
-			fwprintf(fp,L"%08I64X, ",ViewSettings.StatusColumns[I].type);
-
-		fwprintf(fp,L"%08I64X]\n",ViewSettings.StatusColumns[I].type);
-		fwprintf(fp,L"%*s %s  StatusColumnWidth    = [",12,L"",space);
-
-		for (I=0; I < ViewSettings.StatusColumns.size()-1; ++I)
-			fwprintf(fp,L"%d, ",ViewSettings.StatusColumns[I].width);
-
-		fwprintf(fp,L"%d]\n",ViewSettings.StatusColumns[I].width);
-		fwprintf(fp,L"%*s %s  StatusColumnCount    = %zu\n",12,L"",space,ViewSettings.PanelColumns.size());
-
-		fwprintf(fp,L"%*s %s  FullScreen           = %d\n",12,L"",space,(ViewSettings.Flags&PVS_FULLSCREEN)?1:0);
-		fwprintf(fp,L"%*s %s  AlignExtensions      = %d\n",12,L"",space,(ViewSettings.Flags&PVS_ALIGNEXTENSIONS)?1:0);
-		fwprintf(fp,L"%*s %s  FolderAlignExtensions= %d\n",12,L"",space,(ViewSettings.Flags&PVS_FOLDERALIGNEXTENSIONS)?1:0);
-		fwprintf(fp,L"%*s %s  FolderUpperCase      = %d\n",12,L"",space,(ViewSettings.Flags&PVS_FOLDERUPPERCASE)?1:0);
-		fwprintf(fp,L"%*s %s  FileLowerCase        = %d\n",12,L"",space,(ViewSettings.Flags&PVS_FILELOWERCASE)?1:0);
-		fwprintf(fp,L"%*s %s  FileUpperToLowerCase = %d\n",12,L"",space,(ViewSettings.Flags&PVS_FILEUPPERTOLOWERCASE)?1:0);
 		fwprintf(fp,L"%*s %s  }\n",12,L"",space);
 		fflush(fp);
 	}

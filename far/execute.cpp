@@ -481,7 +481,7 @@ static string GetShellActionForType(string_view const TypeName, string& KeyName)
 	if (Key.get({}, Action) && !Action.empty())
 	{
 		// Need to clarify if we need to support quotes here
-		for (const auto& i : enum_tokens_with_quotes(Action, L","sv))
+		for (const auto& i: enum_tokens_with_quotes(Action, L","sv))
 		{
 			if (!i.empty() && TryAction(i))
 				return string(i);
@@ -498,7 +498,7 @@ static string GetShellActionForType(string_view const TypeName, string& KeyName)
 			return string(OpenAction);
 
 		// ... а теперь все остальное, если "open" нету
-		for (const auto& i : os::reg::enum_key(Key))
+		for (const auto& i: os::reg::enum_key(Key))
 		{
 			if (TryAction(i))
 				return string(i);

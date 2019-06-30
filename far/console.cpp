@@ -337,7 +337,7 @@ namespace console_detail
 
 	static void AdjustMouseEvents(INPUT_RECORD* Buffer, size_t Length, short Delta, short MaxX)
 	{
-		for (auto& i : span(Buffer, Length))
+		for (auto& i: span(Buffer, Length))
 		{
 			if (i.EventType == MOUSE_EVENT)
 			{
@@ -385,7 +385,7 @@ namespace console_detail
 		{
 			const auto Delta = GetDelta();
 
-			for (auto& i : span(Buffer, Length))
+			for (auto& i: span(Buffer, Length))
 			{
 				if (i.EventType == MOUSE_EVENT)
 				{
@@ -457,49 +457,51 @@ namespace console_detail
 		return true;
 	}
 
-	static const int vt_color_map[]
+	// NT is RGB, VT is BGR
+	static int rgb_to_bgr(int const RGB)
 	{
-		0, // black
-		4, // blue
-		2, // green
-		6, // cyan
-		1, // red
-		5, // magenta
-		3, // yellow
-		7, // white
-	};
+		return (RGB & 0b100) >> 2 | (RGB & 0b010) | (RGB & 0b001) << 2;
+	}
 
 	static wchar_t vt_color_index(COLORREF Color)
 	{
-		const auto NtIndex = colors::color_value(Color) & ~FOREGROUND_INTENSITY;
-		return L'0' + vt_color_map[NtIndex & 7]; // Yes, some people do not understand that console index has limits
+		return L'0' + rgb_to_bgr(Color);
 	}
+
+	static const struct
+	{
+		string_view Normal, Intense, TrueColour;
+		COLORREF FarColor::* Color;
+		FARCOLORFLAGS Flags;
+	}
+	ColorsMapping[]
+	{
+		{ L"3"sv,  L"9"sv, L"38"sv, &FarColor::ForegroundColor, FCF_FG_4BIT },
+		{ L"4"sv, L"10"sv, L"48"sv, &FarColor::BackgroundColor, FCF_BG_4BIT },
+	};
 
 	static void make_vt_attributes(const FarColor& Attributes, string& Str, std::optional<FarColor> const& LastColor)
 	{
 		append(Str, L"\033["sv);
 
-		if (Attributes.IsFg4Bit())
+		for (const auto& i: ColorsMapping)
 		{
-			append(Str, Attributes.ForegroundColor & FOREGROUND_INTENSITY? L'9' : L'3', vt_color_index(Attributes.ForegroundColor));
-		}
-		else
-		{
-			const auto& c = Attributes.ForegroundRGBA;
-			Str += format(FSTR(L"38;2;{0};{1};{2}"), c.r, c.g, c.b);
+			const auto ColorPart = std::invoke(i.Color, Attributes);
+
+			if (Attributes.Flags & i.Flags)
+			{
+				append(Str, ColorPart & FOREGROUND_INTENSITY? i.Intense : i.Normal, vt_color_index(ColorPart));
+			}
+			else
+			{
+				const union { COLORREF Color; rgba RGBA; } Value { ColorPart };
+				Str += format(FSTR(L"{0};2;{1};{2};{3}"), i.TrueColour, Value.RGBA.r, Value.RGBA.g, Value.RGBA.b);
+			}
+
+			Str += L';';
 		}
 
-		Str += L';';
-
-		if (Attributes.IsBg4Bit())
-		{
-			append(Str, Attributes.BackgroundColor & FOREGROUND_INTENSITY? L"10"sv : L"4"sv, vt_color_index(Attributes.BackgroundColor));
-		}
-		else
-		{
-			const auto& c = Attributes.BackgroundRGBA;
-			Str += format(FSTR(L"48;2;{0};{1};{2}"), c.r, c.g, c.b);
-		}
+		Str.pop_back();
 
 		if (Attributes.Flags & FCF_FG_UNDERLINE)
 		{
@@ -634,7 +636,7 @@ namespace console_detail
 
 			for_submatrix(Buffer, SubRect, [&](const FAR_CHAR_INFO& i)
 			{
-					ConsoleBuffer.emplace_back(CHAR_INFO{ { ReplaceControlCharacter(i.Char) }, colors::FarColorToConsoleColor(i.Attributes) });
+				ConsoleBuffer.emplace_back(CHAR_INFO{ { ReplaceControlCharacter(i.Char) }, colors::FarColorToConsoleColor(i.Attributes) });
 			});
 
 			const COORD BufferSize{ static_cast<SHORT>(SubRect.width()), static_cast<SHORT>(SubRect.height()) };

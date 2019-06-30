@@ -464,8 +464,8 @@ void SetFarConsoleMode(bool SetsActiveBuffer)
 	{
 		VirtualTerminalAttempted = true;
 
-		bool ResultOut = ChangeConsoleMode(console.GetOutputHandle(), OutputMode);
-		bool ResultErr = ChangeConsoleMode(console.GetErrorHandle(), OutputMode);
+		const auto ResultOut = ChangeConsoleMode(console.GetOutputHandle(), OutputMode);
+		const auto ResultErr = ChangeConsoleMode(console.GetErrorHandle(), OutputMode);
 
 		VirtualTerminalSupported = ResultOut || ResultErr;
 	}
@@ -547,7 +547,7 @@ void ChangeVideoMode(bool Maximize)
 
 void ChangeVideoMode(int NumLines,int NumColumns)
 {
-	short xSize = NumColumns, ySize = NumLines;
+	const short xSize = NumColumns, ySize = NumLines;
 
 	COORD Size;
 	console.GetSize(Size);
@@ -557,7 +557,7 @@ void ChangeVideoMode(int NumLines,int NumColumns)
 	srWindowRect.Bottom = ySize-1;
 	srWindowRect.Left = srWindowRect.Top = 0;
 
-	COORD coordScreen = {xSize, ySize};
+	const COORD coordScreen = {xSize, ySize};
 
 	if (xSize>Size.X || ySize > Size.Y)
 	{
@@ -1126,15 +1126,15 @@ string make_progressbar(size_t Size, size_t Percent, bool ShowPercent, bool Prop
 	return Str;
 }
 
-size_t HiStrlen(const string& str)
+size_t HiStrlen(string_view const str)
 {
 	/*
 			&&      = '&'
 			&&&     = '&'
-                       ^H
+			           ^H
 			&&&&    = '&&'
 			&&&&&   = '&&'
-                       ^H
+			           ^H
 			&&&&&&  = '&&&'
 	*/
 
@@ -1176,10 +1176,10 @@ int HiFindRealPos(const string& str, int Pos, bool ShowAmp)
 	/*
 			&&      = '&'
 			&&&     = '&'
-                       ^H
+			           ^H
 			&&&&    = '&&'
 			&&&&&   = '&&'
-                       ^H
+			           ^H
 			&&&&&&  = '&&&'
 	*/
 
@@ -1398,3 +1398,42 @@ bool ConsoleYesNo(string_view const Message)
 		}
 	}
 }
+
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("interf.histrlen")
+{
+	static const struct
+	{
+		string_view Input;
+		size_t Size;
+	}
+	Tests[]
+	{
+		{ L""sv,         0 },
+		{ L"1"sv,        1 },
+		{ L"&"sv,        0 },
+		{ L"1&2"sv,      2 },
+		{ L"&1"sv,       1 },
+		{ L"1&"sv,       1 },
+		{ L"&1&"sv,      2 },
+		{ L"&1&2"sv,     3 },
+		{ L"&&"sv,       1 },
+		{ L"1&&"sv,      2 },
+		{ L"&&1"sv,      2 },
+		{ L"1&&2"sv,     3 },
+		{ L"&&&"sv,      1 },
+		{ L"&&&1"sv,     2 },
+		{ L"1&&&"sv,     2 },
+		{ L"1&&&2"sv,    3 },
+		{ L"&1&&&2"sv,   4 },
+	};
+
+	for (const auto& Test: Tests)
+	{
+		REQUIRE(HiStrlen(Test.Input) == Test.Size);
+	}
+}
+#endif

@@ -107,7 +107,7 @@ private:
 void PrepareUnitStr();
 
 [[nodiscard]]
-string FileSizeToStr(unsigned long long Size, int Width = -1, unsigned long long ViewFlags = COLUMN_GROUPDIGITS);
+string FileSizeToStr(unsigned long long Size, int Width = -1, unsigned long long ViewFlags = COLFLAGS_GROUPDIGITS);
 
 [[nodiscard]]
 bool CheckFileSizeStringFormat(const string& FileSizeStr);

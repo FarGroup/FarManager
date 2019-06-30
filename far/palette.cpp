@@ -43,7 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
-#include "common/algorithm.hpp"
+#include "common/view/enumerate.hpp"
 
 // External:
 #include "format.hpp"
@@ -235,18 +235,16 @@ void palette::ResetToBlack()
 	Reset(true);
 }
 
-void palette::Set(size_t StartOffset, FarColor* Value, size_t Count)
+void palette::Set(size_t StartOffset, span<FarColor> Values)
 {
-	std::copy_n(Value, Count, CurrentPalette.begin() + StartOffset);
+	std::copy(ALL_CONST_RANGE(Values), CurrentPalette.begin() + StartOffset);
 	PaletteChanged = true;
 }
 
-void palette::CopyTo(FarColor* Destination, size_t Size) const
+void palette::CopyTo(span<FarColor> const Destination) const
 {
-	if (Size < CurrentPalette.size())
-		return;
-
-	std::copy(ALL_CONST_RANGE(CurrentPalette), Destination);
+	const auto Size = std::min(CurrentPalette.size(), Destination.size());
+	std::copy_n(CurrentPalette.begin(), Size, Destination.begin());
 }
 
 static palette::custom_colors CustomColors;
@@ -258,10 +256,10 @@ static string CustomLabel(size_t Index)
 
 void palette::Load()
 {
-	for_each_cnt(RANGE(CurrentPalette, i, size_t index)
+	for (const auto& [i, index]: enumerate(CurrentPalette))
 	{
 		ConfigProvider().ColorsCfg()->GetValue(Init[index].Name, i);
-	});
+	}
 
 	for (size_t i = 0; i != std::size(CustomColors); ++i)
 	{
@@ -284,10 +282,10 @@ void palette::Save(bool always)
 
 	if (PaletteChanged)
 	{
-		for_each_cnt(CONST_RANGE(CurrentPalette, i, size_t index)
+		for (const auto& [i, index]: enumerate(CurrentPalette))
 		{
 			ConfigProvider().ColorsCfg()->SetValue(Init[index].Name, i);
-		});
+		}
 		PaletteChanged = false;
 	}
 

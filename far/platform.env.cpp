@@ -179,3 +179,31 @@ namespace os::env
 		return !PathExt.empty()? PathExt : L".COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC"s;
 	}
 }
+
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("platform.env")
+{
+	const auto Name = L"FAR_TEST_ENV_NAME"sv;
+	const auto Value = L"VALUE"sv;
+
+	string Str;
+
+	REQUIRE(os::env::set(Name, Value));
+	REQUIRE(os::env::get(Name, Str));
+	REQUIRE(Str == Value);
+
+	REQUIRE(os::env::expand(concat(L"PRE_%"sv, Name, L"%_POST"sv)) == concat(L"PRE_"sv, Value, L"_POST"sv));
+
+	REQUIRE(os::env::set(Name, {}));
+	REQUIRE(os::env::get(Name, Str));
+	REQUIRE(Str.empty());
+
+	REQUIRE(os::env::del(Name));
+	REQUIRE(!os::env::get(Name, Str));
+
+	REQUIRE(!os::env::get_pathext().empty());
+}
+#endif

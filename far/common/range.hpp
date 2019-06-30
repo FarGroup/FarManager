@@ -33,14 +33,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "preprocessor.hpp"
-#include "keep_alive.hpp"
 #include "rel_ops.hpp"
 #include "type_traits.hpp"
 
 //----------------------------------------------------------------------------
 
 template<typename iterator_type, typename const_iterator_type = iterator_type>
-class range
+class [[nodiscard]] range
 {
 public:
 	using iterator = iterator_type;
@@ -135,7 +134,13 @@ public:
 	}
 
 	[[nodiscard]]
-	constexpr auto data() const { return &(*this)[0]; }
+	constexpr auto data() const
+	{
+		if constexpr (std::is_pointer_v<iterator>)
+			return m_Begin;
+		else
+			return &(*this)[0];
+	}
 
 	[[nodiscard]]
 	constexpr size_t size() const { return m_End - m_Begin; }
@@ -183,7 +188,7 @@ range(const std::initializer_list<value_type>&) -> range<const value_type*>;
 
 
 template<class span_value_type>
-class span: public range<span_value_type*, span_value_type const*>
+class [[nodiscard]] span: public range<span_value_type*, span_value_type const*>
 {
 public:
 	constexpr span() = default;
@@ -223,7 +228,7 @@ span(const std::initializer_list<value_type>&) -> span<const value_type>;
 
 
 template<class T>
-class i_iterator: public rel_ops<i_iterator<T>>
+class [[nodiscard]] i_iterator: public rel_ops<i_iterator<T>>
 {
 public:
 	using iterator_category = std::random_access_iterator_tag;
@@ -232,6 +237,7 @@ public:
 	using pointer = T*;
 	using reference = T&;
 
+	i_iterator() = default;
 	explicit i_iterator(const T& value): m_value(value) {}
 
 	[[nodiscard]]
@@ -246,9 +252,13 @@ public:
 	auto& operator+=(size_t n) { m_value += n; return *this; }
 	auto& operator-=(size_t n) { m_value -= n; return *this; }
 
+	[[nodiscard]]
 	auto operator+(size_t n) const { return i_iterator(m_value + n); }
+
+	[[nodiscard]]
 	auto operator-(size_t n) const { return i_iterator(m_value - n); }
 
+	[[nodiscard]]
 	auto operator-(const i_iterator& rhs) const { return m_value - rhs.m_value; }
 
 	[[nodiscard]]
@@ -258,21 +268,22 @@ public:
 	auto operator<(const i_iterator& rhs) const { return m_value < rhs.m_value; }
 
 private:
-	T m_value;
+	T m_value{};
 };
 
-template<class T>
-[[nodiscard]]
-auto make_irange(T i_begin, T i_end)
+template<class T, REQUIRES(std::is_integral_v<T>)>
+class [[nodiscard]] irange: public range<i_iterator<T>>
 {
-	return range(i_iterator(i_begin), i_iterator(i_end));
-}
+public:
+	irange(T Begin, T End):
+		range<i_iterator<T>>(i_iterator{Begin}, i_iterator{End})
+	{
+	}
 
-template<class T>
-[[nodiscard]]
-auto make_irange(T i_end)
-{
-	return range(i_iterator(0), i_iterator(i_end));
-}
+	explicit irange(T End):
+		range<i_iterator<T>>(i_iterator{T{}}, i_iterator{End})
+	{
+	}
+};
 
 #endif // RANGE_HPP_3B87674F_96D1_487D_B83E_43E43EFBA4D3

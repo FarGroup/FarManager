@@ -267,7 +267,7 @@ namespace os::concurrency
 
 #include "testing.hpp"
 
-TEST_CASE("thread.forwarding")
+TEST_CASE("platform.thread.forwarding")
 {
 	{
 		os::thread Thread(&os::thread::join, [Ptr = std::make_unique<int>(33)](auto&&){}, std::make_unique<int>(42));

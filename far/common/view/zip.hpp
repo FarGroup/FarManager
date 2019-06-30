@@ -32,14 +32,15 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "../keep_alive.hpp"
 #include "../rel_ops.hpp"
 
 //----------------------------------------------------------------------------
 
 namespace detail
 {
-	struct increment { template<typename T> auto operator()(T& Object) const { return ++Object; } };
-	struct decrement { template<typename T> auto operator()(T& Object) const { return --Object; } };
+	struct increment { template<typename T> void operator()(T& Object) const { ++Object; } };
+	struct decrement { template<typename T> void operator()(T& Object) const { --Object; } };
 
 	template<typename... args>
 	struct traits
@@ -108,55 +109,62 @@ namespace detail
 	};
 
 	template<typename... args>
-	void check(args&&... Args)
-	{
-		static_assert(std::conjunction_v<std::is_lvalue_reference<args>...>);
-	}
-
-	template<typename... args>
 	class zip_iterator: public rel_ops<zip_iterator<args...>>
 	{
 	public:
-		using iterator_category = typename detail::traits<args...>::iterator_category;
-		using value_type = typename detail::traits<args...>::value_type;
-		using difference_type = typename detail::traits<args...>::difference_type;
-		using pointer = typename detail::traits<args...>::pointer;
-		using reference = typename detail::traits<args...>::reference;
+		using iterator_category = typename traits<args...>::iterator_category;
+		using value_type        = typename traits<args...>::value_type;
+		using difference_type   = typename traits<args...>::difference_type;
+		using pointer           = typename traits<args...>::pointer;
+		using reference         = typename traits<args...>::reference;
 
 		zip_iterator() = default;
-		explicit zip_iterator(const args&... Args): m_Tuple(Args...) {}
-		auto& operator++() { detail::traits<args...>::unary_for_each(detail::increment{}, m_Tuple); return *this; }
-		auto& operator--() { detail::traits<args...>::unary_for_each(detail::decrement{}, m_Tuple); return *this; }
+		explicit zip_iterator(args&&... Args): m_Tuple(Args...) {}
+		auto& operator++() { traits<args...>::unary_for_each(increment{}, m_Tuple); return *this; }
+		auto& operator--() { traits<args...>::unary_for_each(decrement{}, m_Tuple); return *this; }
 
 		// tuple's operators == and < are inappropriate as ranges might be of different length and we want to stop on a shortest one
 		[[nodiscard]]
-		auto operator==(const zip_iterator& rhs) const { return detail::traits<args...>::binary_any_of(std::equal_to<>{}, m_Tuple, rhs.m_Tuple); }
+		auto operator==(const zip_iterator& rhs) const { return traits<args...>::binary_any_of(std::equal_to<>{}, m_Tuple, rhs.m_Tuple); }
 
 		[[nodiscard]]
-		auto operator<(const zip_iterator& rhs) const { return detail::traits<args...>::binary_all_of(std::less<>{}, m_Tuple, rhs.m_Tuple); }
+		auto operator<(const zip_iterator& rhs) const { return traits<args...>::binary_all_of(std::less<>{}, m_Tuple, rhs.m_Tuple); }
 
 		[[nodiscard]]
-		auto operator*() const { return detail::traits<args...>::dereference(m_Tuple); }
+		auto& operator*() const
+		{
+			// Q: Why not just return by value?
+			// A: We can, and everyone usually does that. However, returning by value makes analysers mad:
+			//    first they suggest to remove '&' from "for (const auto& i: ...)" because "the range does not return a reference",
+			//    and then "this creates a copy in each iteration; consider making this a reference".
+
+			// A tuple of references is not assignable, hence the trick with optional.
+			m_Value.emplace(traits<args...>::dereference(m_Tuple));
+			return *m_Value;
+		}
 
 		[[nodiscard]]
 		auto operator-(const zip_iterator& rhs) const { return std::get<0>(m_Tuple) - std::get<0>(rhs.m_Tuple); }
 
 	private:
 		pointer m_Tuple;
+		mutable std::optional<value_type> m_Value;
 	};
 }
 
-template<typename... args>
+// the size_t is a workaround for GCC
+template<size_t, typename... args>
 class [[nodiscard]] zip
 {
 public:
 	using iterator = detail::zip_iterator<decltype(std::begin(std::declval<args>()))...>;
 
-	explicit zip(args&&... Args):
-		m_Begin(std::begin(Args)...),
-		m_End(std::end(Args)...)
+	template<typename... args_ref>
+	explicit zip(args_ref&&... ArgsRef):
+		m_Args(FWD(ArgsRef)...),
+		m_Begin(std::apply([](auto&&... Args) { return iterator(std::begin(Args)...); }, m_Args)),
+		m_End(std::apply([](auto&&... Args) { return iterator(std::end(Args)...); }, m_Args))
 	{
-		detail::check(FWD(Args)...);
 	}
 
 	[[nodiscard]] auto begin()  const { return m_Begin; }
@@ -166,10 +174,11 @@ public:
 	[[nodiscard]] auto cend()   const { return end(); }
 
 private:
+	std::tuple<args...> m_Args;
 	iterator m_Begin, m_End;
 };
 
 template<typename... args>
-zip(args&&...) -> zip<args...>;
+zip(args&&... Args) -> zip<sizeof...(args), keep_alive_type<decltype(Args)>...>;
 
 #endif // ZIP_HPP_92A80223_8204_4A14_AACC_93D632A39884

@@ -128,7 +128,7 @@ private:
 template<class T>
 void DeleteRawArray(span<T> Data)
 {
-	for (const auto& i : Data)
+	for (const auto& i: Data)
 	{
 		delete[] i;
 	}

@@ -62,6 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/bytes_view.hpp"
 #include "common/string_utils.hpp"
+#include "common/view/enumerate.hpp"
 #include "common/view/zip.hpp"
 
 // External:
@@ -163,10 +164,9 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig& cfg)
 		{ L"<temp>"sv, 0,                        MakeFarColor(F_BROWN),        MakeFarColor(F_BROWN) },
 	};
 
-	size_t Index = 0;
-	for (auto& i: DefaultHighlighting)
+	for (const auto& [i, Index]: enumerate(DefaultHighlighting))
 	{
-		const auto Key = cfg.CreateKey(root, names::Group + str(Index++));
+		const auto Key = cfg.CreateKey(root, names::Group + str(Index));
 		if (!Key)
 			break;
 
@@ -218,11 +218,10 @@ static FileFilterParams LoadFilter(/*const*/ HierarchicalConfig& cfg, const Hier
 
 	highlight::element Colors{};
 
-	for (auto& i: Colors.Color)
+	for (const auto& [Color, Index]: enumerate(Colors.Color))
 	{
-		const auto Offset = &i - Colors.Color.data();
-		cfg.GetValue(key, names::file_color(Offset), bytes::reference(i.FileColor));
-		cfg.GetValue(key, names::mark_color(Offset), bytes::reference(i.MarkColor));
+		cfg.GetValue(key, names::file_color(Index), bytes::reference(Color.FileColor));
+		cfg.GetValue(key, names::mark_color(Index), bytes::reference(Color.MarkColor));
 	}
 
 	unsigned long long MarkChar;
@@ -285,13 +284,13 @@ void highlight::configuration::ClearData()
 
 static void ApplyDefaultStartingColors(highlight::element& Colors)
 {
-	std::for_each(RANGE(Colors.Color, i)
+	for (auto& i: Colors.Color)
 	{
 		colors::make_opaque(i.FileColor.ForegroundColor);
 		colors::make_transparent(i.FileColor.BackgroundColor);
 		colors::make_opaque(i.MarkColor.ForegroundColor);
 		colors::make_transparent(i.MarkColor.BackgroundColor);
-	});
+	}
 
 	Colors.Mark.Transparent = true;
 	Colors.Mark.Char = 0;
@@ -328,7 +327,7 @@ static const DWORD PalColor[]
 
 static void ApplyBlackOnBlackColors(highlight::element::colors_array& Colors)
 {
-	for (const auto [Color, Index]: zip(Colors, PalColor))
+	for (const auto& [Color, Index]: zip(Colors, PalColor))
 		ApplyBlackOnBlackColor(Color, Index);
 }
 
@@ -340,7 +339,7 @@ static void ApplyColors(highlight::element& DestColors, const highlight::element
 	auto SrcColors = Src;
 	ApplyBlackOnBlackColors(SrcColors.Color);
 
-	for (const auto [SrcItem, DstItem]: zip(SrcColors.Color, DestColors.Color))
+	for (const auto& [SrcItem, DstItem]: zip(SrcColors.Color, DestColors.Color))
 	{
 		DstItem.FileColor = colors::merge(DstItem.FileColor, SrcItem.FileColor);
 		DstItem.MarkColor = colors::merge(DstItem.MarkColor, SrcItem.MarkColor);
@@ -417,7 +416,7 @@ const highlight::element* highlight::configuration::GetHiColor(const FileListIte
 	}
 
 	// Called from FileList::GetShowColor dynamically instead
-	//for (const auto i: zip(Item.Color, PalColor)) std::apply(ApplyFinalColor, i);
+	//for (const auto& i: zip(Item.Color, PalColor)) std::apply(ApplyFinalColor, i);
 
 	//Если символ пометки прозрачный то его как бы и нет вообще.
 	if (item.Mark.Transparent)
@@ -451,12 +450,12 @@ void highlight::configuration::FillMenu(VMenu2 *HiMenu,int MenuPos)
 		{ FirstCount + UpperCount + LowerCount, FirstCount + UpperCount + LowerCount + LastCount, {} }
 	};
 
-	std::for_each(CONST_RANGE(Data, i)
+	for (const auto& i: Data)
 	{
-		std::for_each(HiData.cbegin() + i.from, HiData.cbegin() + i.to, [&](const auto& Item)
+		for (const auto& Item: range(HiData.cbegin() + i.from, HiData.cbegin() + i.to))
 		{
 			HiMenu->AddItem(MenuString(&Item, true));
-		});
+		}
 
 		HiMenu->AddItem(MenuItemEx());
 
@@ -466,7 +465,7 @@ void highlight::configuration::FillMenu(VMenu2 *HiMenu,int MenuPos)
 			HiMenuItem.Flags|=LIF_SEPARATOR;
 			HiMenu->AddItem(HiMenuItem);
 		}
-	});
+	}
 
 	HiMenu->SetSelectPos(MenuPos,1);
 }
@@ -536,8 +535,13 @@ void highlight::configuration::UpdateHighlighting(bool RefreshMasks)
 	Global->ScrBuf->Lock(); // отменяем всякую прорисовку
 	ProcessGroups();
 
-	if(RefreshMasks)
-		std::for_each(ALL_RANGE(HiData), std::mem_fn(&FileFilterParams::RefreshMask));
+	if (RefreshMasks)
+	{
+		for (auto& i: HiData)
+		{
+			i.RefreshMask();
+		}
+	}
 
 	//WindowManager->RefreshWindow(); // рефрешим
 	Global->CtrlObject->Cp()->LeftPanel()->Update(UPDATE_KEEP_SELECTION);
@@ -550,7 +554,7 @@ void highlight::configuration::UpdateHighlighting(bool RefreshMasks)
 void highlight::configuration::HiEdit(int MenuPos)
 {
 	const auto HiMenu = VMenu2::create(msg(lng::MHighlightTitle), {}, ScrY - 4);
-	HiMenu->SetHelp(L"HighlightList");
+	HiMenu->SetHelp(L"HighlightList"sv);
 	HiMenu->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
 	HiMenu->SetPosition({ -1, -1, 0, 0 });
 	HiMenu->SetBottomTitle(msg(lng::MHighlightBottom));
@@ -785,11 +789,10 @@ static void SaveFilter(HierarchicalConfig& cfg, const HierarchicalConfig::key& k
 
 	const auto Colors = CurHiData->GetColors();
 
-	for (const auto& i: Colors.Color)
+	for (const auto& [Color, Index]: enumerate(Colors.Color))
 	{
-		const auto Offset = &i - Colors.Color.data();
-		cfg.SetValue(key, names::file_color(Offset), bytes_view(i.FileColor));
-		cfg.SetValue(key, names::mark_color(Offset), bytes_view(i.MarkColor));
+		cfg.SetValue(key, names::file_color(Index), bytes_view(Color.FileColor));
+		cfg.SetValue(key, names::mark_color(Index), bytes_view(Color.MarkColor));
 	}
 
 	cfg.SetValue(key, names::MarkChar, MAKELONG(Colors.Mark.Char, MAKEWORD(Colors.Mark.Transparent? 0xff : 0, 0)));

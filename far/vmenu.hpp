@@ -181,7 +181,7 @@ class VMenu: public SimpleModal
 {
 	struct private_tag {};
 public:
-	static vmenu_ptr create(string Title, range<const menu_item*> Data, int MaxHeight = 0, DWORD Flags = 0, dialog_ptr ParentDialog = nullptr);
+	static vmenu_ptr create(string Title, span<menu_item const> Data, int MaxHeight = 0, DWORD Flags = 0, dialog_ptr ParentDialog = nullptr);
 
 	VMenu(private_tag, string Title, int MaxHeight, dialog_ptr ParentDialog);
 	~VMenu() override;
@@ -291,7 +291,7 @@ public:
 	static std::vector<string> AddHotkeys(span<menu_item> MenuItems);
 
 private:
-	void init(range<const menu_item*> Data, DWORD Flags);
+	void init(span<menu_item const> Data, DWORD Flags);
 
 	void DisplayObject() override;
 

@@ -97,34 +97,34 @@ wchar_t lower(wchar_t Char)
 	return Char;
 }
 
-void inplace::upper(wchar_t *Str, size_t Size)
+void inplace::upper(span<wchar_t> const Str)
 {
-	CharUpperBuff(Str, static_cast<DWORD>(Size));
+	CharUpperBuff(Str.data(), static_cast<DWORD>(Str.size()));
 }
 
-void inplace::lower(wchar_t *Str, size_t Size)
+void inplace::lower(span<wchar_t> const Str)
 {
-	CharLowerBuff(Str, static_cast<DWORD>(Size));
+	CharLowerBuff(Str.data(), static_cast<DWORD>(Str.size()));
 }
 
 void inplace::upper(wchar_t* Str)
 {
-	upper(Str, wcslen(Str));
+	upper({ Str, wcslen(Str) });
 }
 
 void inplace::lower(wchar_t* Str)
 {
-	lower(Str, wcslen(Str));
+	lower({ Str, wcslen(Str) });
 }
 
 void inplace::upper(string& Str, size_t Pos, size_t Count)
 {
-	upper(&Str[Pos], Count == string::npos? Str.size() - Pos : Count);
+	upper({ &Str[Pos], Count == string::npos? Str.size() - Pos : Count });
 }
 
 void inplace::lower(string& Str, size_t Pos, size_t Count)
 {
-	lower(&Str[Pos], Count == string::npos? Str.size() - Pos : Count);
+	lower({ &Str[Pos], Count == string::npos? Str.size() - Pos : Count });
 }
 
 string upper(string Str)
@@ -139,12 +139,22 @@ string lower(string Str)
 	return Str;
 }
 
+string upper(string_view const Str)
+{
+	return upper(string(Str));
+}
+
+string lower(string_view const Str)
+{
+	return lower(string(Str));
+}
+
 size_t hash_icase_t::operator()(wchar_t const Char) const
 {
 	return make_hash(upper(Char));
 }
 
-size_t hash_icase_t::operator()(const string& Str) const
+size_t hash_icase_t::operator()(string_view const Str) const
 {
 	return make_hash(upper(Str));
 }
@@ -201,3 +211,58 @@ bool contains_icase(const string_view Str, wchar_t const What)
 {
 	return find_icase(Str, What) != Str.npos;
 }
+
+
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("string.utils")
+{
+	for (const auto& i: GetSpaces())
+	{
+		REQUIRE(iswspace(i));
+	}
+
+	for (const auto& i: GetEols())
+	{
+		REQUIRE(IsEol(i));
+	}
+}
+
+TEST_CASE("string.utils.hash")
+{
+	const hash_icase_t hash;
+	REQUIRE(hash(L'A') == hash(L'a'));
+	REQUIRE(hash(L"fooBAR"sv) == hash(L"FOObar"sv));
+}
+
+TEST_CASE("string.utils.icase")
+{
+	const auto npos = string_view::npos;
+
+	static const struct
+	{
+		string_view Str, Token;
+		size_t Pos;
+	}
+	Tests[]
+	{
+		{ L""sv,                 L""sv,             npos, },
+		{ L""sv,                 L"abc"sv,          npos, },
+		{ L"foobar"sv,           L""sv,             0,    },
+		{ L"foobar"sv,           L"FOOBAR"sv,       0,    },
+		{ L"foobar"sv,           L"foobar1"sv,      npos, },
+		{ L"foobar"sv,           L"foo"sv,          0,    },
+		{ L"foobar"sv,           L"FOO"sv,          0,    },
+		{ L"foobar"sv,           L"OoB"sv,          1,    },
+		{ L"foobar"sv,           L"BaR"sv,          3,    },
+	};
+
+	for (const auto& Test: Tests)
+	{
+		REQUIRE(find_icase(Test.Str, Test.Token) == Test.Pos);
+		REQUIRE(contains_icase(Test.Str, Test.Token) == (Test.Pos != npos));
+	}
+}
+#endif

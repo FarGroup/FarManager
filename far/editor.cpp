@@ -71,6 +71,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/bytes_view.hpp"
 #include "common/scope_exit.hpp"
+#include "common/view/enumerate.hpp"
 
 // External:
 #include "format.hpp"
@@ -2976,12 +2977,12 @@ Editor::numbered_iterator Editor::DeleteString(numbered_iterator DelPtr, bool De
 
 	AddUndoData(UNDO_DELSTR, DelPtr->GetString(), DelPtr->GetEOL(), DelPtr.Number(), 0);
 
-	std::for_each(RANGE(m_SavePos, i)
+	for (auto& i: m_SavePos)
 	{
 		//FIXME: it would be better to add the bookmarks for deleted line to UndoData
 		if (i.Line != POS_NONE && DelPtr.Number() < i.Line)
 			--i.Line;
-	});
+	}
 
 	if (!SessionBookmarks.empty())
 	{
@@ -3040,19 +3041,19 @@ void Editor::InsertString()
 	size_t CurPos=m_it_CurLine->GetCurPos();
 	m_it_CurLine->GetSelection(SelStart,SelEnd);
 
-	std::for_each(RANGE(m_SavePos, i)
+	for (auto& i: m_SavePos)
 	{
 		if (i.Line != POS_NONE && (m_it_CurLine.Number() < i.Line || (m_it_CurLine.Number() == i.Line && !CurPos)))
 			++i.Line;
-	});
+	}
 
 	if (!SessionBookmarks.empty())
 	{
-		std::for_each(RANGE(SessionBookmarks, i)
+		for (auto& i: SessionBookmarks)
 		{
 			if (m_it_CurLine.Number() < static_cast<int>(i.Line) || (m_it_CurLine.Number() == static_cast<int>(i.Line) && !CurPos))
 				i.Line++;
-		});
+		}
 	}
 
 	int IndentPos=0;
@@ -6271,7 +6272,7 @@ size_t Editor::GetSessionBookmarks(EditorBookmarks *Param)
 			if (Param->Line || Param->Cursor || Param->LeftPos || Param->ScreenLine)
 			{
 				Result = SessionBookmarks.size();
-				for_each_cnt(CONST_RANGE(SessionBookmarks, i, size_t index)
+				for (const auto& [i, index]: enumerate(SessionBookmarks))
 				{
 					if (Param->Line)
 						Param->Line[index] = i.Line;
@@ -6284,7 +6285,7 @@ size_t Editor::GetSessionBookmarks(EditorBookmarks *Param)
 
 					if (Param->ScreenLine)
 						Param->ScreenLine[index] = i.ScreenLine;
-				});
+				}
 			}
 			else
 				Result = 0;
@@ -6625,7 +6626,8 @@ void Editor::SetConvertTabs(int NewMode)
 	{
 		EdOpt.ExpandTabs=NewMode;
 		int Pos=0;
-		std::for_each(RANGE(Lines, i)
+
+		for (auto& i: Lines)
 		{
 			if (NewMode == EXPAND_ALLTABS)
 			{
@@ -6635,7 +6637,7 @@ void Editor::SetConvertTabs(int NewMode)
 				}
 			}
 			++Pos;
-		});
+		}
 	}
 }
 
@@ -6644,10 +6646,11 @@ void Editor::SetDelRemovesBlocks(bool NewMode)
 	if (NewMode!=EdOpt.DelRemovesBlocks)
 	{
 		EdOpt.DelRemovesBlocks=NewMode;
-		std::for_each(RANGE(Lines, i)
+
+		for (auto& i: Lines)
 		{
 			i.SetDelRemovesBlocks(NewMode);
-		});
+		}
 	}
 }
 
@@ -6656,10 +6659,11 @@ void Editor::SetShowWhiteSpace(int NewMode)
 	if (NewMode!=EdOpt.ShowWhiteSpace)
 	{
 		EdOpt.ShowWhiteSpace=NewMode;
-		std::for_each(RANGE(Lines, i)
+
+		for (auto& i: Lines)
 		{
 			i.SetShowWhiteSpace(NewMode);
-		});
+		}
 	}
 }
 
@@ -6668,10 +6672,11 @@ void Editor::SetPersistentBlocks(bool NewMode)
 	if (NewMode!=EdOpt.PersistentBlocks)
 	{
 		EdOpt.PersistentBlocks=NewMode;
-		std::for_each(RANGE(Lines, i)
+
+		for (auto& i: Lines)
 		{
 			i.SetPersistentBlocks(NewMode);
-		});
+		}
 	}
 }
 
@@ -6681,10 +6686,11 @@ void Editor::SetCursorBeyondEOL(bool NewMode)
 	if (NewMode!=EdOpt.CursorBeyondEOL)
 	{
 		EdOpt.CursorBeyondEOL=NewMode;
-		std::for_each(RANGE(Lines, i)
+
+		for (auto& i: Lines)
 		{
 			i.SetEditBeyondEnd(NewMode);
-		});
+		}
 	}
 
 	/* $ 16.10.2001 SKV
@@ -7177,9 +7183,10 @@ bool Editor::IsLastLine(const iterator& Line) const
 
 void Editor::AutoDeleteColors()
 {
-	std::for_each(CONST_RANGE(m_AutoDeletedColors, i)
+	for (const auto& i: m_AutoDeletedColors)
 	{
 		i->DeleteColor([](const ColorItem& Item){ return (Item.Flags & ECF_AUTODELETE) != 0; });
-	});
+	}
+
 	m_AutoDeletedColors.clear();
 }

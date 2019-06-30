@@ -1235,14 +1235,15 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 			DestDiz.Flush(strDestDizPath);
 		}
 	}
-	std::for_each(CONST_RANGE(m_CreatedFolders, ii)
+
+	for (const auto& CreatedFolder: m_CreatedFolders)
 	{
-		if (auto File = os::fs::file(ii.FullName, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
+		if (const auto File = os::fs::file(CreatedFolder.FullName, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
 		{
-			File.SetTime(&ii.CreationTime, &ii.LastAccessTime, &ii.LastWriteTime, nullptr);
-			File.Close();
+			File.SetTime(&CreatedFolder.CreationTime, &CreatedFolder.LastAccessTime, &CreatedFolder.LastWriteTime, nullptr);
 		}
-	});
+		// TODO: else log
+	}
 
 
 #if 1

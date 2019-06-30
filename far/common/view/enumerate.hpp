@@ -1,15 +1,12 @@
-﻿#ifndef PALETTE_HPP_8CFE8272_39B6_4198_9046_E94FEAD9832C
-#define PALETTE_HPP_8CFE8272_39B6_4198_9046_E94FEAD9832C
+﻿#ifndef ENUMERATE_HPP_E49903DD_C3ED_4C17_B101_A68582FB7E8C
+#define ENUMERATE_HPP_E49903DD_C3ED_4C17_B101_A68582FB7E8C
 #pragma once
 
 /*
-palette.hpp
-
-Таблица цветов
+enumerate.hpp
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright © 2019 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -35,42 +32,15 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// Internal:
-
-// Platform:
-
-// Common:
-#include "common/noncopyable.hpp"
-#include "common/range.hpp"
-
-// External:
+#include "../range.hpp"
+#include "zip.hpp"
 
 //----------------------------------------------------------------------------
 
-struct FarColor;
-
-class palette: noncopyable
+template<typename container>
+auto enumerate(container&& Container)
 {
-public:
-	palette();
-	void Load();
-	void Save(bool always);
-	void ResetToDefault();
-	void ResetToBlack();
-	void Set(size_t StartOffset, span<FarColor> Values);
-	void CopyTo(span<FarColor> Destination) const;
-	const FarColor& operator[](size_t Index) const {return CurrentPalette[Index];}
-	size_t size() const {return CurrentPalette.size();}
+	return zip(FWD(Container), irange(std::numeric_limits<size_t>::max()));
+}
 
-	using custom_colors = std::array<COLORREF, 16>;
-	custom_colors GetCustomColors() const;
-	void SetCustomColors(const custom_colors& Colors);
-
-private:
-	void Reset(bool Black);
-	std::vector<FarColor> CurrentPalette;
-	bool PaletteChanged{};
-	bool CustomColorsChanged{};
-};
-
-#endif // PALETTE_HPP_8CFE8272_39B6_4198_9046_E94FEAD9832C
+#endif // ENUMERATE_HPP_E49903DD_C3ED_4C17_B101_A68582FB7E8C

@@ -201,7 +201,7 @@ public:
 
 	void AddOKCancel();
 	void AddOKCancel(lng OKMessageId, lng CancelMessageId);
-	void AddButtons(range<const lng*> Buttons, size_t OkIndex, size_t CancelIndex);
+	void AddButtons(span<const lng> Buttons, size_t OkIndex, size_t CancelIndex);
 	void AddOK();
 
 	void SetDialogMode(DWORD Flags);

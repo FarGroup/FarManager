@@ -34,6 +34,18 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Internal:
+
+// Platform:
+
+// Common:
+#include "common/range.hpp"
+
+// External:
+
+//----------------------------------------------------------------------------
+
+
 [[nodiscard]]
 inline bool IsEol(wchar_t x) { return x == L'\r' || x == L'\n'; }
 
@@ -61,8 +73,8 @@ bool is_lower(wchar_t Char);
 
 namespace inplace
 {
-	void upper(wchar_t* Str, size_t Size);
-	void lower(wchar_t* Str, size_t Size);
+	void upper(span<wchar_t> Str);
+	void lower(span<wchar_t> Str);
 
 	void upper(wchar_t* Str);
 	void lower(wchar_t* Str);
@@ -81,13 +93,18 @@ string upper(string Str);
 [[nodiscard]]
 string lower(string Str);
 
+[[nodiscard]]
+string upper(string_view Str);
+[[nodiscard]]
+string lower(string_view Str);
+
 struct [[nodiscard]] hash_icase_t
 {
 	[[nodiscard]]
 	size_t operator()(wchar_t Char) const;
 
 	[[nodiscard]]
-	size_t operator()(const string& Str) const;
+	size_t operator()(string_view Str) const;
 };
 
 struct [[nodiscard]] equal_icase_t

@@ -71,6 +71,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.fs.hpp"
 
 // Common:
+#include "common/view/enumerate.hpp"
 
 // External:
 #include "format.hpp"
@@ -187,7 +188,7 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 	ChDiskItem.Flags |= LIF_SEPARATOR;
 	ChDisk.AddItem(ChDiskItem);
 
-	for_each_cnt(RANGE(MPItems, i, size_t index)
+	for (const auto& [i, index]: enumerate(MPItems))
 	{
 		if (Pos > DiskCount && !SetSelected)
 		{
@@ -199,7 +200,7 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 		const auto HotKey = i.getHotKey();
 		i.getItem().Name = concat(HotKey? concat(L'&', HotKey, L"  "sv) : L"   "sv, i.getItem().Name);
 		ChDisk.AddItem(i.getItem());
-	});
+	}
 
 	return MPItems.size();
 }
@@ -797,9 +798,9 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 					{
 						const auto SizeFlags = DriveMode & DRIVE_SHOW_SIZE?
 							//размер как минимум в мегабайтах
-							COLUMN_GROUPDIGITS | COLUMN_UNIT_M :
+							COLFLAGS_GROUPDIGITS | COLFLAGS_MULTIPLIER_M :
 							//размер с точкой и для 0 добавляем букву размера (B)
-							COLUMN_FLOATSIZE | COLUMN_SHOWUNIT;
+							COLFLAGS_FLOATSIZE | COLFLAGS_SHOW_MULTIPLIER;
 
 						const auto FormatSize = [SizeFlags](unsigned long long const Size)
 						{
@@ -837,7 +838,8 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 		int MenuLine = 0;
 
 		bool SetSelected = false;
-		std::for_each(CONST_RANGE(Items, i)
+
+		for (const auto& i: Items)
 		{
 			MenuItemEx ChDiskItem;
 			const auto DiskNumber = os::fs::get_drive_number(i.Letter[1]);
@@ -895,7 +897,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			ChDisk->AddItem(ChDiskItem);
 
 			MenuLine++;
-		});
+		}
 
 		size_t PluginMenuItemsCount = 0;
 

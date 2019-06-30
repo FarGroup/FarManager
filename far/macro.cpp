@@ -4989,11 +4989,11 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 			KEY_CTRLDOWN,KEY_ENTER,KEY_NUMENTER,KEY_ESC,KEY_F1,KEY_CTRLF5,
 		};
 
-		std::for_each(CONST_RANGE(PreDefKeyMain, i)
+		for (const auto& i: PreDefKeyMain)
 		{
 			KeyToText(i, strKeyText);
 			Dlg->SendMessage(DM_LISTADDSTR, 2, UNSAFE_CSTR(strKeyText));
-		});
+		}
 
 		static const DWORD PreDefKey[]=
 		{
@@ -5009,16 +5009,16 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 			0,KEY_CTRL,KEY_SHIFT,KEY_ALT,KEY_CTRLSHIFT,KEY_CTRLALT,KEY_ALTSHIFT,
 		};
 
-		std::for_each(CONST_RANGE(PreDefKey, i)
+		for (const auto& i: PreDefKey)
 		{
 			Dlg->SendMessage(DM_LISTADDSTR, 2, const_cast<wchar_t*>(L"\1"));
 
-			std::for_each(CONST_RANGE(PreDefModKey, j)
+			for (const auto& j: PreDefModKey)
 			{
 				KeyToText(i | j, strKeyText);
 				Dlg->SendMessage(DM_LISTADDSTR, 2, UNSAFE_CSTR(strKeyText));
-			});
-		});
+			}
+		}
 
 		Dlg->SendMessage(DM_SETTEXTPTR,2,nullptr);
 		// </Клавиши, которые нельзя ввести в диалоге назначения>

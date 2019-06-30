@@ -69,6 +69,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common.hpp"
 #include "common/function_traits.hpp"
 #include "common/scope_exit.hpp"
+#include "common/view/enumerate.hpp"
 #include "common/view/zip.hpp"
 
 // External:
@@ -95,7 +96,7 @@ VMenu::VMenu(private_tag, string Title, int MaxHeight, dialog_ptr ParentDialog):
 	m_BoxType(DOUBLE_BOX),
 	PrevCursorVisible(),
 	PrevCursorSize(),
-	ParentDialog(std::move(ParentDialog)),
+	ParentDialog(ParentDialog),
 	DialogItemID(),
 	bFilterEnabled(false),
 	bFilterLocked(false),
@@ -108,14 +109,14 @@ VMenu::VMenu(private_tag, string Title, int MaxHeight, dialog_ptr ParentDialog):
 {
 }
 
-vmenu_ptr VMenu::create(string Title, range<const menu_item*> Data, int MaxHeight, DWORD Flags, dialog_ptr ParentDialog)
+vmenu_ptr VMenu::create(string Title, span<menu_item const> const Data, int MaxHeight, DWORD Flags, dialog_ptr ParentDialog)
 {
 	auto VmenuPtr = std::make_shared<VMenu>(private_tag(), std::move(Title), MaxHeight, ParentDialog);
 	VmenuPtr->init(Data, Flags);
 	return VmenuPtr;
 }
 
-void VMenu::init(range<const menu_item*> Data, DWORD Flags)
+void VMenu::init(span<menu_item const> const Data, DWORD Flags)
 {
 	SaveScr=nullptr;
 	SetMenuFlags(Flags | VMENU_MOUSEREACTION | VMENU_UPDATEREQUIRED);
@@ -234,10 +235,10 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 	if (Items.empty())
 		return -1;
 
-	std::for_each(RANGE(Items, i)
+	for (auto& i: Items)
 	{
-		i.Flags&=~LIF_SELECTED;
-	});
+		i.Flags &= ~LIF_SELECTED;
+	}
 
 	for (int Pass=0, I=0;;I++)
 	{
@@ -407,10 +408,10 @@ int VMenu::AddItem(const FarList *List)
 {
 	if (List && List->Items)
 	{
-		std::for_each(List->Items, List->Items + List->ItemsNumber, [this](const FarListItem& Item)
+		for (const auto& Item: span(List->Items, List->ItemsNumber))
 		{
 			AddItem(FarList2MenuItem(Item));
-		});
+		}
 	}
 
 	return static_cast<int>(Items.size());
@@ -622,16 +623,16 @@ void VMenu::FilterStringUpdated()
 	if (SelectPos > 0)
 	{
 		// Определить, в верхней или нижней части расположен курсор
-		int TopVisible = GetVisualPos(TopPos);
-		int SelectedVisible = GetVisualPos(SelectPos);
-		int BottomVisible = (TopVisible+MaxHeight > GetShowItemCount()) ? (TopVisible+MaxHeight-1) : (GetShowItemCount()-1);
+		const auto TopVisible = GetVisualPos(TopPos);
+		const auto SelectedVisible = GetVisualPos(SelectPos);
+		const auto BottomVisible = (TopVisible+MaxHeight > GetShowItemCount()) ? (TopVisible+MaxHeight-1) : (GetShowItemCount()-1);
 		if (SelectedVisible >= ((TopVisible+BottomVisible)>>1))
 			bBottomMode = true;
 	}
 
 	ItemHiddenCount=0;
 
-	for_each_cnt(RANGE(Items, CurItem, size_t index)
+	for (const auto& [CurItem, index]: enumerate(Items))
 	{
 		CurItem.Flags &= ~LIF_FILTERED;
 		strName=CurItem.Name;
@@ -695,7 +696,8 @@ void VMenu::FilterStringUpdated()
 				}
 			}
 		}
-	});
+	}
+
 	// В предыдущей группе все элементы скрыты, разделитель перед группой - не нужен
 	if (PrevSeparator != -1)
 	{
@@ -1275,17 +1277,20 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 		{
 			if (LocalKey == KEY_ALTHOME || LocalKey == KEY_RALTHOME || LocalKey == (KEY_ALT|KEY_NUMPAD7) || LocalKey == (KEY_RALT|KEY_NUMPAD7))
 			{
-				std::for_each(RANGE(Items, i) { i.ShowPos=0; });
+				for (auto& i: Items)
+				{
+					i.ShowPos = 0;
+				}
 			}
 			else
 			{
 
-				std::for_each(RANGE(Items, i)
+				for (auto& i: Items)
 				{
 					const auto Len = CheckFlags(VMENU_SHOWAMPERSAND)? i.Name.size() : HiStrlen(i.Name);
 					if (Len >= MaxLineWidth)
 						i.ShowPos = static_cast<int>(Len - MaxLineWidth);
-				});
+				}
 			}
 
 			ShowMenu(true);
@@ -2030,10 +2035,10 @@ void VMenu::ShowMenu(bool IsParent)
 	bool HasSubMenus = ItemSubMenusCount > 0;
 
 	//BUGBUG, this must be optimized
-	std::for_each(CONST_RANGE(Items, i)
+	for (const auto& i: Items)
 	{
 		MaxItemLength = std::max(MaxItemLength, CheckFlags(VMENU_SHOWAMPERSAND)? i.Name.size() : HiStrlen(i.Name));
-	});
+	}
 
 	MaxLineWidth = m_Where.width();
 
@@ -2941,7 +2946,7 @@ std::vector<string> VMenu::AddHotkeys(span<menu_item> const MenuItems)
 		return std::max(Value, i.Name.size());
 	});
 
-	for (const auto [Item, Str]: zip(MenuItems, Result))
+	for (const auto& [Item, Str]: zip(MenuItems, Result))
 	{
 		if (Item.Flags & LIF_SEPARATOR || !Item.AccelKey)
 			continue;

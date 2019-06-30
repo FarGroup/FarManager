@@ -2433,7 +2433,7 @@ void Viewer::Up( int nlines, bool adjust )
 
 			if ( ch_size <= 1 )
 			{
-				const auto BufferReader = [&](range<char*> Buffer)
+				const auto BufferReader = [&](span<char> Buffer)
 				{
 					size_t nread = 0;
 					Reader.Read(Buffer.data(), buff_size, &nread);
@@ -4170,7 +4170,7 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 			const auto Info=static_cast<ViewerInfo*>(Param2);
 			if (CheckStructSize(Info))
 			{
-				memset(&Info->ViewerID,0,Info->StructSize-sizeof(Info->StructSize));
+				std::memset(&Info->ViewerID,0,Info->StructSize-sizeof(Info->StructSize));
 				Info->ViewerID = ViewerID;
 				Info->WindowSizeX=ObjWidth();
 				Info->WindowSizeY = m_Where.height();

@@ -345,7 +345,7 @@ static void ScanPluginDir(plugin_panel* hDirListPlugin, OPERATION_MODES OpMode, 
 			PushPluginDirItem(PluginDirList, &i, PluginSearchPath, Data);
 	}
 
-	for (const auto& i : span(PanelData, ItemCount))
+	for (const auto& i: span(PanelData, ItemCount))
 	{
 		if (StopSearch)
 			break;
@@ -453,12 +453,12 @@ bool GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, c
 
 void FreePluginDirList(HANDLE hPlugin, std::vector<PluginPanelItem>& Items)
 {
-	std::for_each(RANGE(Items, i)
+	for (const auto& i: Items)
 	{
 		FreePluginPanelItemNames(i);
 		FreePluginPanelItemUserData(hPlugin, i.UserData);
 		FreePluginPanelItemDescriptionOwnerAndColumns(i);
-	});
+	}
 
 	Items.clear();
 }

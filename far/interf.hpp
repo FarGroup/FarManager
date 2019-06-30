@@ -222,7 +222,7 @@ string make_progressbar(size_t Size, size_t Percent, bool ShowPercent, bool Prop
 
 void fix_coordinates(rectangle& Where);
 
-size_t HiStrlen(const string& Str);
+size_t HiStrlen(string_view Str);
 int HiFindRealPos(const string& Str, int Pos, bool ShowAmp);
 int HiFindNextVisualPos(const string& Str, int Pos, int Direct);
 string HiText2Str(const string& Str);

@@ -265,7 +265,7 @@ void Options::TreeSettings()
 
 	Builder.AddCheckbox(lng::MConfigTreeAutoChange, Tree.AutoChangeFolder);
 
-	auto TemplateEdit = Builder.AddIntEditField(Tree.MinTreeCount, 3);
+	const auto TemplateEdit = Builder.AddIntEditField(Tree.MinTreeCount, 3);
 	Builder.AddTextBefore(TemplateEdit, lng::MConfigTreeLabelMinFolder);
 
 #if defined(TREEFILE_PROJECT)
@@ -918,17 +918,17 @@ static void ResetViewModes(span<PanelViewSettings> const Modes, int const Index 
 		std::initializer_list<column> PanelColumns, StatusColumns;
 		unsigned long long Flags;
 	}
-	InitialModes[] =
+	InitialModes[]
 	{
 		// Alternative full
 		{
 			{
-				{NAME_COLUMN | COLUMN_MARK},
-				{SIZE_COLUMN | COLUMN_GROUPDIGITS, 10},
-				{DATE_COLUMN},
+				{ column_type::name,             COLFLAGS_MARK,        0,  },
+				{ column_type::size,             COLFLAGS_GROUPDIGITS, 10, },
+				{ column_type::date,             COLFLAGS_NONE,        0,  },
 			},
 			{
-				{NAME_COLUMN | COLUMN_RIGHTALIGN},
+				{ column_type::name,             COLFLAGS_RIGHTALIGN,  0,  },
 			},
 			PVS_ALIGNEXTENSIONS,
 		},
@@ -936,15 +936,15 @@ static void ResetViewModes(span<PanelViewSettings> const Modes, int const Index 
 		// Brief
 		{
 			{
-				{NAME_COLUMN},
-				{NAME_COLUMN},
-				{NAME_COLUMN},
+				{ column_type::name,             COLFLAGS_NONE,        0,  },
+				{ column_type::name,             COLFLAGS_NONE,        0,  },
+				{ column_type::name,             COLFLAGS_NONE,        0,  },
 			},
 			{
-				{NAME_COLUMN | COLUMN_RIGHTALIGN},
-				{SIZE_COLUMN, 6},
-				{DATE_COLUMN},
-				{TIME_COLUMN, 5},
+				{ column_type::name,             COLFLAGS_RIGHTALIGN,  0,  },
+				{ column_type::size,             COLFLAGS_NONE,        6,  },
+				{ column_type::date,             COLFLAGS_NONE,        0,  },
+				{ column_type::time,             COLFLAGS_NONE,        5,  },
 			},
 			PVS_ALIGNEXTENSIONS,
 		},
@@ -952,14 +952,14 @@ static void ResetViewModes(span<PanelViewSettings> const Modes, int const Index 
 		// Medium
 		{
 			{
-				{NAME_COLUMN},
-				{NAME_COLUMN},
+				{ column_type::name,             COLFLAGS_NONE,        0,  },
+				{ column_type::name,             COLFLAGS_NONE,        0,  },
 			},
 			{
-				{NAME_COLUMN | COLUMN_RIGHTALIGN},
-				{SIZE_COLUMN, 6},
-				{DATE_COLUMN},
-				{TIME_COLUMN, 5},
+				{ column_type::name,             COLFLAGS_RIGHTALIGN,  0,  },
+				{ column_type::size,             COLFLAGS_NONE,        6,  },
+				{ column_type::date,             COLFLAGS_NONE,        0,  },
+				{ column_type::time,             COLFLAGS_NONE,        5,  },
 			},
 			PVS_NONE,
 		},
@@ -967,13 +967,13 @@ static void ResetViewModes(span<PanelViewSettings> const Modes, int const Index 
 		// Full
 		{
 			{
-				{NAME_COLUMN},
-				{SIZE_COLUMN, 6},
-				{DATE_COLUMN},
-				{TIME_COLUMN, 5},
+				{ column_type::name,             COLFLAGS_NONE,        0,  },
+				{ column_type::size,             COLFLAGS_NONE,        6,  },
+				{ column_type::date,             COLFLAGS_NONE,        0,  },
+				{ column_type::time,             COLFLAGS_NONE,        5,  },
 			},
 			{
-				{NAME_COLUMN | COLUMN_RIGHTALIGN},
+				{ column_type::name,             COLFLAGS_RIGHTALIGN,  0,  },
 			},
 			PVS_ALIGNEXTENSIONS,
 		},
@@ -981,14 +981,14 @@ static void ResetViewModes(span<PanelViewSettings> const Modes, int const Index 
 		// Wide
 		{
 			{
-				{NAME_COLUMN},
-				{SIZE_COLUMN, 6},
+				{ column_type::name,             COLFLAGS_NONE,        0,  },
+				{ column_type::size,             COLFLAGS_NONE,        6,  },
 			},
 			{
-				{NAME_COLUMN | COLUMN_RIGHTALIGN},
-				{SIZE_COLUMN, 6},
-				{DATE_COLUMN},
-				{TIME_COLUMN, 5},
+				{ column_type::name,             COLFLAGS_RIGHTALIGN,  0,  },
+				{ column_type::size,             COLFLAGS_NONE,        6,  },
+				{ column_type::date,             COLFLAGS_NONE,        0,  },
+				{ column_type::time,             COLFLAGS_NONE,        5,  },
 			},
 			PVS_NONE
 		},
@@ -996,31 +996,31 @@ static void ResetViewModes(span<PanelViewSettings> const Modes, int const Index 
 		// Detailed
 		{
 			{
-				{NAME_COLUMN},
-				{SIZE_COLUMN, 6},
-				{PACKED_COLUMN, 6},
-				{WDATE_COLUMN, 14},
-				{CDATE_COLUMN, 14},
-				{ADATE_COLUMN, 14},
-				{ATTR_COLUMN},
+				{ column_type::name,             COLFLAGS_NONE,        0,  },
+				{ column_type::size,             COLFLAGS_NONE,        6,  },
+				{ column_type::size_compressed,  COLFLAGS_NONE,        6,  },
+				{ column_type::date_write,       COLFLAGS_NONE,        14, },
+				{ column_type::date_creation,    COLFLAGS_NONE,        14, },
+				{ column_type::date_access,      COLFLAGS_NONE,        14, },
+				{ column_type::attributes,       COLFLAGS_NONE,        0,  },
 			},
 			{
-				{NAME_COLUMN | COLUMN_RIGHTALIGN},
+				{ column_type::name,             COLFLAGS_RIGHTALIGN,  0,  },
 			},
-			PVS_ALIGNEXTENSIONS|PVS_FULLSCREEN,
+			PVS_ALIGNEXTENSIONS | PVS_FULLSCREEN,
 		},
 
 		// Descriptions
 		{
 			{
-				{NAME_COLUMN, 40, col_width::percent},
-				{DIZ_COLUMN},
+				{ column_type::name,             COLFLAGS_NONE,        40, col_width::percent, },
+				{ column_type::description,      COLFLAGS_NONE,        0,  },
 			},
 			{
-				{NAME_COLUMN | COLUMN_RIGHTALIGN},
-				{SIZE_COLUMN, 6},
-				{DATE_COLUMN},
-				{TIME_COLUMN, 5},
+				{ column_type::name,             COLFLAGS_RIGHTALIGN,  0,  },
+				{ column_type::size,             COLFLAGS_NONE,        6,  },
+				{ column_type::date,             COLFLAGS_NONE,        0,  },
+				{ column_type::time,             COLFLAGS_NONE,        5,  },
 			},
 			PVS_ALIGNEXTENSIONS,
 		},
@@ -1028,28 +1028,28 @@ static void ResetViewModes(span<PanelViewSettings> const Modes, int const Index 
 		// Long descriptions
 		{
 			{
-				{NAME_COLUMN},
-				{SIZE_COLUMN, 6},
-				{DIZ_COLUMN, 70, col_width::percent},
+				{ column_type::name,             COLFLAGS_NONE,        0,  },
+				{ column_type::size,             COLFLAGS_NONE,        6,  },
+				{ column_type::description,      COLFLAGS_NONE,        70, col_width::percent, },
 			},
 			{
-				{NAME_COLUMN | COLUMN_RIGHTALIGN},
+				{ column_type::name,             COLFLAGS_RIGHTALIGN,  0,  },
 			},
-			PVS_ALIGNEXTENSIONS|PVS_FULLSCREEN,
+			PVS_ALIGNEXTENSIONS | PVS_FULLSCREEN,
 		},
 
 		// File owners
 		{
 			{
-				{NAME_COLUMN},
-				{SIZE_COLUMN, 6},
-				{OWNER_COLUMN, 15},
+				{ column_type::name,             COLFLAGS_NONE,        0,  },
+				{ column_type::size,             COLFLAGS_NONE,        6,  },
+				{ column_type::owner,            COLFLAGS_NONE,        15, },
 			},
 			{
-				{NAME_COLUMN | COLUMN_RIGHTALIGN},
-				{SIZE_COLUMN, 6},
-				{DATE_COLUMN},
-				{TIME_COLUMN, 15},
+				{ column_type::name,             COLFLAGS_RIGHTALIGN,  0,  },
+				{ column_type::size,             COLFLAGS_NONE,        6   },
+				{ column_type::date,             COLFLAGS_NONE,        0,  },
+				{ column_type::time,             COLFLAGS_NONE,        15, },
 			},
 			PVS_ALIGNEXTENSIONS,
 		},
@@ -1057,15 +1057,15 @@ static void ResetViewModes(span<PanelViewSettings> const Modes, int const Index 
 		// File links
 		{
 			{
-				{NAME_COLUMN},
-				{SIZE_COLUMN, 6},
-				{NUMLINK_COLUMN, 3},
+				{ column_type::name,             COLFLAGS_NONE,        0,  },
+				{ column_type::size,             COLFLAGS_NONE,        6,  },
+				{ column_type::links_number,     COLFLAGS_NONE,        3,  },
 			},
 			{
-				{NAME_COLUMN | COLUMN_RIGHTALIGN},
-				{SIZE_COLUMN, 6},
-				{DATE_COLUMN},
-				{TIME_COLUMN, 5},
+				{ column_type::name,             COLFLAGS_RIGHTALIGN,  0,  },
+				{ column_type::size,             COLFLAGS_NONE,        6,  },
+				{ column_type::date,             COLFLAGS_NONE,        0,  },
+				{ column_type::time,             COLFLAGS_NONE,        5,  },
 			},
 			PVS_ALIGNEXTENSIONS,
 		},
@@ -1082,7 +1082,7 @@ static void ResetViewModes(span<PanelViewSettings> const Modes, int const Index 
 
 	if (Index < 0)
 	{
-		for (const auto i: zip(InitialModes, Modes))
+		for (const auto& i: zip(InitialModes, Modes))
 			std::apply(InitMode, i);
 	}
 	else
@@ -2442,7 +2442,7 @@ bool Options::AdvancedConfig(config_type Mode)
 
 	auto AdvancedConfigDlg = MakeDialogItems(
 	{
-		{ DI_LISTBOX, {{3, 1}, {DlgWidth-4, DlgHeight-2}}, },
+		{ DI_LISTBOX, {{3, 1}, {DlgWidth-4, DlgHeight-2}}, DIF_NONE, L"far:config"sv },
 	});
 
 	std::vector<FarListItem> items;
@@ -2537,10 +2537,10 @@ void Options::ReadPanelModes()
 		for (size_t i = 0; ; ++i)
 		{
 			PanelViewSettings NewSettings;
-			if (ReadMode(NewSettings, i))
-				m_ViewSettings.emplace_back(std::move(NewSettings));
-			else
+			if (!ReadMode(NewSettings, i))
 				break;
+
+			m_ViewSettings.emplace_back(std::move(NewSettings));
 		}
 	}
 

@@ -207,4 +207,17 @@ struct [[nodiscard]] overload: args...
 
 template<typename... args> overload(args&&...) -> overload<args...>;
 
+
+template<typename src_type, typename dst_type>
+void copy_memory(const src_type* Source, dst_type* Dest, size_t const Size)
+{
+	static_assert(std::conjunction_v<
+		std::disjunction<std::is_void<src_type>, std::is_trivially_copyable<src_type>>,
+		std::disjunction<std::is_void<dst_type>, std::is_trivially_copyable<dst_type>>
+	>);
+
+	if (Size) // paranoid gcc null checks are paranoid
+		std::memcpy(Dest, Source, Size);
+}
+
 #endif // UTILITY_HPP_D8E934C7_BF30_4CEB_B80C_6E508DF7A1BC

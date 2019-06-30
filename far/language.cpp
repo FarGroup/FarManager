@@ -355,7 +355,7 @@ static void LoadCustomStrings(const string& FileName, std::unordered_map<string,
 
 	string SavedLabel;
 
-	for (const auto& i : enum_file_lines(CustomFile, CustomFileCodepage))
+	for (const auto& i: enum_file_lines(CustomFile, CustomFileCodepage))
 	{
 		string_view Label, Text;
 		switch (parse_lng_line(trim(i.Str), true, Label, Text))

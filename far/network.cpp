@@ -82,7 +82,7 @@ os::fs::drives_set GetSavedNetworkDrives()
 	{
 		DWORD Size = 1;
 		BufferSize = 16 * 1024;
-		memset(netResource.get(), 0, BufferSize);
+		std::memset(netResource.get(), 0, BufferSize);
 		const auto Result = WNetEnumResource(hEnum, &Size, netResource.get(), &BufferSize);
 
 		if (Result != NO_ERROR || !Size || !netResource->lpLocalName)

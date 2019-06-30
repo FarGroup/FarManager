@@ -400,7 +400,7 @@ static reply ExcConsole(
 
 	static_assert(std::size(Msg) == std::size(Values));
 
-	for (const auto [m, v] : zip(Msg, Values))
+	for (const auto& [m, v]: zip(Msg, Values))
 	{
 		const auto Label = fit_to_left(string(m), ColumnWidth);
 		std::wcerr << Label << L' ' << v << L'\n';

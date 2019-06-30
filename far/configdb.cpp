@@ -1570,7 +1570,7 @@ private:
 	{
 		auto& root = CreateChild(Representation.Root(), "pluginhotkeys");
 
-		auto stmtEnumAllPluginKeys = create_stmt("SELECT pluginkey FROM pluginhotkeys GROUP BY pluginkey;"sv);
+		const auto stmtEnumAllPluginKeys = create_stmt("SELECT pluginkey FROM pluginhotkeys GROUP BY pluginkey;"sv);
 		auto stmtEnumAllHotkeysPerKey = create_stmt("SELECT menuguid, type, hotkey FROM pluginhotkeys WHERE pluginkey=$1;"sv);
 
 		while (stmtEnumAllPluginKeys.Step())

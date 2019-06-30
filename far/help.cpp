@@ -2085,7 +2085,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 	{
 		case HIDX_PLUGINS:
 		{
-			std::for_each(CONST_RANGE(*Global->CtrlObject->Plugins, i)
+			for (const auto& i: *Global->CtrlObject->Plugins)
 			{
 				auto strPath = i->ModuleName();
 				CutToSlash(strPath);
@@ -2106,7 +2106,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 						AddLine(strHelpLine);
 					}
 				}
-			});
+			}
 
 			break;
 		}
