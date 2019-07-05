@@ -182,6 +182,10 @@ mappákból töltődnek be.
   #/ma#   ^<wrap>A "Futtatás a FAR indítása után" opciójú makrók nem
 indulnak el a FAR-ral.
           ^<wrap>
+
+  #/s <profilepath> [<localprofilepath>]#
+  Custom location for Far configuration files - overrides Far.exe.ini.
+
   #/u <felhasználónév>#  Lehetővé teszi, hogy a felhasználóknak saját
 FAR beállításaik legyenek.
 
@@ -201,8 +205,35 @@ az előző példánál maradva a "dir" parancsot elhagyjuk), akkor a FAR a
 végtelenségig fog várakozni a bemenő adatfolyam végére. Ezt a hibát a FAR
 egy későbbi verziójában a szerzők valószínűleg ki fogják javítani.
 
-  #/w#
-  Stretch to console window instead of console buffer.
+  #/w[-]#
+  Stretch to console window instead of console buffer or vice versa.
+
+  #/t templateprofile#
+  Location of Far template configuration file - overrides Far.exe.ini.
+
+  #/title[:<title>]#
+  If <title> is given, use it as the window title; otherwise inherit
+  the console window's title. The dynamically changing value of the 
+  default title can be reused via the "%Default" placeholder.
+
+  #/clearcache [profilepath [localprofilepath]]#
+  Clear plugins cache.
+
+  #/export <out.farconfig> [profilepath [localprofilepath]]#
+  Export settings to file out.farconfig.
+
+  #/import <in.farconfig> [profilepath [localprofilepath]]#
+  Import settings from file in.farconfig.
+
+  #/ro#
+  Let's you work without writing any changes to Far configuration.
+Overrides Far.exe.ini.
+
+  #/ro-#
+  Normal (Read-Write) mode of Far configuration - overrides Far.exe.ini.
+
+  #/set:<parameter>=<value>#
+  Override the configuration parameter, see ~far:config~@FarConfig@ for details.
 
     A parancssorban megadható legfeljebb két olyan elérési út, ami mappára,
 fájlra vagy tömörített fájlra mutat. Az első elérési út az aktív, a második a
