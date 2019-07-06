@@ -104,6 +104,16 @@ static string& FarTitle()
 	return strFarTitle;
 }
 
+static string CookTitle(string_view const NewTitle)
+{
+	if (UserTitle().empty())
+		return NewTitle + GetFarTitleAddons();
+
+	auto CustomizedTitle = UserTitle();
+	replace_icase(CustomizedTitle, L"%Default"sv, NewTitle);
+	return CustomizedTitle;
+}
+
 void ConsoleTitle::SetUserTitle(string_view const Title)
 {
 	UserTitle() = Title;
@@ -116,7 +126,7 @@ void ConsoleTitle::SetFarTitle(string_view const Title, bool Flush)
 	SCOPED_ACTION(std::lock_guard)(TitleCS);
 
 	FarTitle() = Title;
-	Global->ScrBuf->SetTitle(UserTitle().empty()? FarTitle() + GetFarTitleAddons() : UserTitle());
+	Global->ScrBuf->SetTitle(CookTitle(Title));
 	if (Flush)
 	{
 		Global->ScrBuf->Flush(flush_type::title);

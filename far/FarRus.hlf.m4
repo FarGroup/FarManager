@@ -254,7 +254,8 @@ $ # Far: параметры командной строки#
 
   #/title[:<valuestring>]#
   Если указана <valuestring>, то использовать её как заголовок окна;
-  иначе, наследовать заголовок окна консоли.
+  иначе наследовать заголовок окна консоли. The dynamically changing value of the 
+  default title can be reused via the "%Default" placeholder.
 
   #/clearcache [profilepath [localprofilepath]]#
   Очистить кэш плагинов и завершить работу.
