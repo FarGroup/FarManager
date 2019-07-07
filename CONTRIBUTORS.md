@@ -112,6 +112,7 @@
 * Jesko Huettenhain
 * Andrzej Rudnik
 * Dzmitry Kosko
+* Szabolcs Szász
  
 > And special thanks to all of our community members!  
 > You are not less important than the people mentioned here.
