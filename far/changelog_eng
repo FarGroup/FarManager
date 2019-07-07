@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+MZK 07.07.2019 16:21:47 -0700
+
+1. Translated the @ElevationDlg help page into English.
+
+2. Fixed description of the /title command line switch.
+
+3. Minor corrections in help files.
+
 lunakid 05.07.2019 12:27:39 +0100 - build 5419
 
 1. GitHub #157: Allow reusing the original title via %Default in -title

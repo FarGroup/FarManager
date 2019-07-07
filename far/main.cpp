@@ -128,9 +128,10 @@ static void show_help()
 		L" -t <path>\n"
 		L"      Location of Far template configuration file - overrides Far.exe.ini.\n"
 		L" -title[:<title>]\n"
-		L"      If <title> is given, use it as the window title; otherwise inherit\n"
-		L"      the console window's title. The dynamically changing value of the \n"
-		L"      default title can be reused via the \"%Default\" placeholder.\n"
+		L"      If <title> string is provided, use it as the window title; otherwise\n"
+		L"      inherit the console window's title. Macro \"%Default\" in the custom\n"
+		L"      title string will be replaced with the standard context-dependent\n"
+		L"      Far windows title.\n"
 #ifndef NO_WRAPPER
 		L" -u <username>\n"
 		L"      Allows to have separate registry settings for different users.\n"
