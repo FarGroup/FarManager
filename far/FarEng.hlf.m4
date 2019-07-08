@@ -184,7 +184,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 @CmdLine
-$ # Far: command line switches#
+$ #Far: command line switches#
   The following switches can be used in the command line:
 
   #/e[<line>[:<pos>]] <filename>#
@@ -247,9 +247,10 @@ in the input stream until you press Ctrl+Break.
   Location of Far template configuration file - overrides Far.exe.ini.
 
   #/title[:<title>]#
-  If <title> is given, use it as the window title; otherwise inherit
-  the console window's title. The dynamically changing value of the 
-  default title can be reused via the "%Default" placeholder.
+  If <title> string is provided, use it as the window title; otherwise
+inherit the console window's title. Macro #%Default# in the custom title
+string will be replaced with the standard context-dependent Far windows
+title.
 
   #/clearcache [profilepath [localprofilepath]]#
   Clear plugins cache.
@@ -713,7 +714,7 @@ $ #Deleting and wiping files and folders#
 
     Remarks:
 
-    1. ^<wrap>In accordance to ~System Settings~@SystemSettings@ the hotkeys #F8# and
+    1. ^<wrap>In accordance to ~System settings~@SystemSettings@ the hotkeys #F8# and
 #Shift+F8# do or do not move the deleted files to the Recycle Bin. The
 #Shift+Del# hotkey always deletes, skipping the Recycle Bin.
 
@@ -1283,7 +1284,7 @@ real files size, including files slack (sum of the unused cluster parts).
     For folders, the total size value may not match the actual value:
 
     1. ^<wrap>If the folder or its subfolders contain symbolic links and the option
-"Scan symbolic links" in the ~System parameters dialog~@SystemSettings@ is
+"Scan symbolic links" in the ~System settings~@SystemSettings@ dialog is
 enabled.
 
     2. ^<wrap>If the folder or its subfolders contain multiple hard links to the same
@@ -1482,25 +1483,15 @@ $ #Menus: commands menu#
 
 @OptMenu
 $ #Menus: options menu#
-   #System settings#       Shows ~system settings~@SystemSettings@ dialog.
+   #System settings#       Shows ~System settings~@SystemSettings@ dialog.
 
-   #Panel settings#        Shows ~panel settings~@PanelSettings@ dialog.
+   #Panel settings#        Shows ~Panel settings~@PanelSettings@ dialog.
 
    #Tree settings#         Shows ~Tree settings~@TreeSettings@ dialog.
                          Available only if ~Panel.Tree.TurnOffCompletely~@Panel.Tree.TurnOffCompletely@
                          parameter in ~far:config~@FarConfig@ is set to “false.”
 
-   #Interface settings#    Shows ~interface settings~@InterfSettings@ dialog.
-
-   #Dialog settings#       Shows ~dialog settings~@DialogSettings@ dialog.
-
-   #Menu settings#         Shows ~menu settings~@VMenuSettings@ dialog.
-
-   #Command line settings# Shows ~command line settings~@CmdlineSettings@ dialog.
-
-   #AutoComplete settings# Shows ~auto complete settings~@AutoCompleteSettings@.
-   
-   #InfoPanel settings#    Shows ~info panel settings~@InfoPanelSettings@.
+   #Interface settings#    Shows ~Interface settings~@InterfSettings@ dialog.
 
    #Languages#             Select main and help language.
                          Use "Save setup" to save selected languages.
@@ -1508,16 +1499,25 @@ $ #Menus: options menu#
    #Plugins#               Configure ~plugins~@Plugins@.
    #configuration#
 
-   #Plugin manager#        Shows ~plugin manager settings~@PluginsManagerSettings@.
+   #Plugin manager#        Shows ~Plugin manager settings~@PluginsManagerSettings@ dialog.
    #settings#
 
-   #File group mask#       Shows ~file group mask settings~@MaskGroupsSettings@.
-   #settings#
+   #Dialog settings#       Shows ~Dialog settings~@DialogSettings@ dialog.
+
+   #Menu settings#         Shows ~Menu settings~@VMenuSettings@ dialog.
+
+   #Command line settings# Shows ~Command line settings~@CmdlineSettings@ dialog.
+
+   #AutoComplete settings# Shows ~AutoComplete settings~@AutoCompleteSettings@ dialog.
+   
+   #InfoPanel settings#    Shows ~InfoPanel settings~@InfoPanelSettings@ dialog.
+
+   #Groups of file masks#  Shows ~Groups of file masks~@MaskGroupsSettings@ dialog.
 
    #Confirmations#         Shows dialog to turn on or off ~confirmations~@ConfirmDlg@
                          of some operations.
 
-   #File panel modes#      ~Customize file panel view modes~@PanelViewModes@ settings.
+   #File panel modes#      Shows ~Edit panel modes~@PanelViewModes@ dialog.
 
    #File descriptions#     ~File descriptions~@FileDiz@ list names and update mode.
 
@@ -1525,20 +1525,19 @@ $ #Menus: options menu#
    #files#                 files displayed in the ~Info panel~@InfoPanel@ as folder
                          descriptions.
 
-   #Viewer settings#       External and internal ~Viewer settings~@ViewerSettings@.
+   #Viewer settings#       External and internal ~Viewer~@ViewerSettings@ setting.
 
-   #Editor settings#       External and internal ~Editor settings~@EditorSettings@.
+   #Editor settings#       External and internal ~Editor~@EditorSettings@ settings.
 
    #Code pages#            Shows the ~Code pages~@CodePagesMenu@ menu.
-
 
    #Colors#                Allows to select colors for different
                          interface items, to change the entire Far
                          colors palette to black and white or to set
                          the colors to default.
 
-   #Files highlighting#    Change ~files highlighting and sort groups~@Highlight@
-   #and sort groups#       settings.
+   #Files highlighting#    Shows ~Files highlighting~@Highlight@ and sort groups
+   #and sort groups#       dialog.
 
    #Save setup#            Save current configuration, colors and
                          screen layout.
@@ -2021,7 +2020,7 @@ available:
 can press #Ctrl+E# or #Ctrl+X# respectively.
 
     If you want to save the commands history after exiting Far, use the
-respective option in the ~system settings dialog~@SystemSettings@.
+respective option in the ~System settings~@SystemSettings@ dialog.
 
     Locked items will not be deleted when clearing the history.
 
@@ -2058,7 +2057,7 @@ they are selected. You can use #Shift+Enter# to select an item without changing
 its position.
 
     If you want to save the view and edit history after exiting Far, use the
-respective option in the ~system settings dialog~@SystemSettings@.
+respective option in the ~System settings~@SystemSettings@ dialog.
 
   Remarks:
 
@@ -2097,7 +2096,7 @@ are selected. You can use #Shift+Enter# to select an item without changing its
 position.
 
     If you want to save the folders history after exiting Far, use the
-respective option in the ~system settings dialog~@SystemSettings@.
+respective option in the ~System settings~@SystemSettings@ dialog.
 
   Remarks:
 
@@ -2230,9 +2229,9 @@ desired association from the menu.
 
     #Ctrl+Down#  - move association down
 
-    If no execute command is associated with file and
+    If no execute command is associated with the file and
 #Use Windows registered types# option in ~System settings~@SystemSettings@
-is on, Far tries to use Windows association to execute this file type;
+dialog is on, Far tries to use Windows association to execute this file type;
 
     See also: common ~menu~@MenuCmd@ keyboard commands.
 
@@ -2269,7 +2268,7 @@ command.
 
   1. ^<wrap>If no execute command is associated with file and
 #Use Windows registered types# option in ~System settings~@SystemSettings@
-is on, Far tries to use Windows association to execute this file type;
+dialog is on, Far tries to use Windows association to execute this file type;
 
   2. ^<wrap>Operating system ~commands~@OSCommands@ "IF EXIST" and "IF DEFINED"
 allow to configure "smarter" associations - if you have specified several
@@ -2450,7 +2449,8 @@ Far allows to retry the operation using the privileged account.
     ^<wrap>allow requesting rights for operations that do not change the state of the file system (e.g. reading files or listing directories).
 
     #use additional privileges#
-    ^<wrap>Try to ignore Access Control List if possible.
+    ^<wrap>attempt accessing all files bypassing Access Control Lists.
+    Use caution when resorting to this option.
 
   #Sorting collation#
   ^<wrap>Allows to choose and configure the sorting collation.
@@ -3247,6 +3247,7 @@ text. This mode may be useful when editing program source code. Some
 examples are below. Note how the style of the replaced strings
 is preserved in each case.
 
+@-
     ┌────────────────┬────────────────────┬──────────────────────┐
     │ Find / Replace │ Before             │ After                │
     ├────────────────┼────────────────────┼──────────────────────┤
@@ -3257,6 +3258,7 @@ is preserved in each case.
     │ PersonLogin    │ DEFAULT_USER_NAME  │ DEFAULT_PERSON_LOGIN │
     │                │ default-User-name  │ default-Person-login │
     └────────────────┴────────────────────┴──────────────────────┘
+@+
 
     #More formally.#
 
@@ -3267,6 +3269,7 @@ characters are #underscore “_”#, #hyphen “-”#, and #dot “.”#. All to
 must be divided with the same separator. If the parse is ambiguous, the
 entire string is treated as a single token. For example:
 
+@-
     ┌──────────────────────┬──────────────────────┬──────────────┐
     │ Search Pattern       │ Tokens               │ Comments     │
     ├──────────────────────┼──────────────────────┼──────────────┤
@@ -3283,6 +3286,7 @@ entire string is treated as a single token. For example:
     │ A..B                 │ A..B                 │ Adjacent     │
     │                      │                      │ separators   │
     └──────────────────────┴──────────────────────┴──────────────┘
+@+
 
     The parse also defines the common separator type and the style of
 each token. There are three token styles: #Title#case, #lower#case, and
@@ -3308,6 +3312,7 @@ After the transformation, the replace tokens are joined with the
 separator of the parse of the found string. The result is used as the
 replace string. Some examples:
 
+@-
     ┌────────────────┬────────────────────┬──────────────────────┐
     │ Find / Replace │ Before             │ After                │
     ├────────────────┼────────────────────┼──────────────────────┤
@@ -3323,6 +3328,7 @@ replace string. Some examples:
     │                │ aa.B.C             │ xxx.Yy.Zz            │
     │                │ Aa.B.c             │ Xxx.Yy.zz            │
     └────────────────┴────────────────────┴──────────────────────┘
+@+
 
     If the found string and the replace pattern have different number
 of tokens, the first token is processed separately from the rest of the
@@ -3334,6 +3340,7 @@ previous case, the replace tokens are joined with the separator of the
 parse of the found string and the result is used as the replace string.
 Examples:
 
+@-
     ┌────────────────┬────────────────────┬──────────────────────┐
     │ Find / Replace │ Before             │ After                │
     ├────────────────┼────────────────────┼──────────────────────┤
@@ -3346,6 +3353,7 @@ Examples:
     │  /             │ a-b-c              │ aa-bb-cc-dd          │
     │ aa.Bb.cc.DD    │ A.B.c              │ Aa.Bb.cc.DD          │
     └────────────────┴────────────────────┴──────────────────────┘
+@+
 
     In the special case when the found string consists of a single token
 but the replace string has several tokens, the first replace token
@@ -3356,6 +3364,7 @@ is the style of the (single) found token and the separator is empty.
 Again, the transformed replace tokens are joined and used as the replace
 string. More examples:
 
+@-
     ┌────────────────┬────────────────────┬──────────────────────┐
     │ Find / Replace │ Before             │ After                │
     ├────────────────┼────────────────────┼──────────────────────┤
@@ -3366,17 +3375,21 @@ string. More examples:
     │                │ 0_ijk_9            │ 0_mno_Pqr_Stu_9      │
     │                │ >ijk<              │ >mnopqrstu<          │
     └────────────────┴────────────────────┴──────────────────────┘
+@+
 
     If the search pattern is not found according to the rules above but
 found as an ordinary string, and both the found string and the replace
 string start with letters, the case of the first letter of the replace
 string is changed to that of the found string. For example:
 
+@-
     ┌────────────────┬────────────────────┬──────────────────────┐
     │ Find / Replace │ Before             │ After                │
     ├────────────────┼────────────────────┼──────────────────────┤
     │ ab.cd / wx-yz  │ #A#b.cD              │ #W#x-yz                │
     └────────────────┴────────────────────┴──────────────────────┘
+@+
+
 
 @FindAllMenu
 $ #Editor: All matching entries menu#
@@ -4704,7 +4717,7 @@ streams are used by Windows Explorer to store additional file properties
 (summary). FAT/FAT32 file systems do not support streams.
 
     To copy a file completely (together with all its streams), turn on the
-option "#Use system copy routine#" in the ~system settings~@SystemSettings@
+option "#Use system copy routine#" in the ~System settings~@SystemSettings@
 dialog.
 
     If you are copying a file with multiple streams to a volume with a file
@@ -5044,23 +5057,27 @@ sequence in regular expression. #$0# means the whole found sequence.
 
 
 @ElevationDlg
-$ #Запрос привилегий администратора#
-    Во время выполнения разнообразных операций с файловой системой у текущего
-пользователя может не хватать прав. В этом случае Far Manager пытается повторить 
-попытку от имени администратора (повысить права текущего пользователя).
+$ #Request administrative rights#
+    The current user may not have enough rights for certain file system
+operations. In this case Far asks permission to retry the operation with
+the elevated (administrative) rights.
 
-    Доступны опции:
+    Available options:
 
-    #Выполнить это действие для всех текущих объектов#
-    Не задавать вопросов о повышении прав для текущей файловой операции.
+    #Do this for all current objects#
+    Do not ask for elevated rights during the current file system
+operation.
 
-    #Больше не спрашивать в текущей сессии#
-    В текущем сеансе Far Manager будет самостоятельно повышать привилегии без запроса пользователя.
+    #Do not ask again in the current session#
+    During the current session Far will elevate rights without asking
+the user.
 
-    См. также опцию #Запрос прав администратора# в ~Системных параметрах~@SystemSettings@.
+    See also #Request administrator rights# option in the
+~System settings~@SystemSettings@ dialog.
+
 
 @KeyMacro
-$ #Macro command #
+$ #Macro commands#
     By default macros are loaded from files with #.lua# and #.moon# extensions residing in folder
 #%FARPROFILE%\\Macros\\scripts#. See more details in #%FARHOME%\\Encyclopedia\\macroapi_manual.en.chm#.
 
