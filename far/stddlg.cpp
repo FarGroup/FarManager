@@ -891,5 +891,5 @@ int RetryAbort(std::vector<string>&& Messages)
 	for (const auto& i: Messages)
 		std::wcerr << i << L'\n';
 
-	return ConsoleYesNo(L"Retry"sv);
+	return ConsoleYesNo(L"Retry"sv, false);
 }

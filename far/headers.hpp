@@ -87,6 +87,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <climits>
 #include <cmath>
 #include <cstdint>
+#include <cstdlib>
 #include <ctime>
 #include <cwchar>
 #include <cwctype>

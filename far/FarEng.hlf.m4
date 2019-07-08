@@ -187,88 +187,84 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 $ #Far: command line switches#
   The following switches can be used in the command line:
 
-  #/e[<line>[:<pos>]] <filename>#
-  Edit the specified file. After /e you can optionally specify editor start line
+  #-e[<line>[:<pos>]] <filename>#
+  Edit the specified file. After -e you can optionally specify editor start line
 and line position.
-  For example: far /e70:2 readme.
+  For example: far -e70:2 readme.
 
-  #/p[<path>]#
+  #-p[<path>]#
   Search for "main" plugins in the folder given in <path>.
   Several search paths can be specified, separated by ';'.
 
-  Example: #far /p%USERPROFILE%\\Far\\Plugins#
+  Example: #far -p%USERPROFILE%\\Far\\Plugins#
 
-  #/co#
+  #-co#
   Forces Far to load plugins from cache only. Plugins are loaded faster this way,
-but new or changed plugins are not discovered. Should be used ONLY with a stable
+but new or changed plugins are not discovered. Should be used #only# with a stable
 list of plugins. After adding, replacing or deleting a plugin Far should be loaded
 without this switch. If the cache is empty, no plugins will be loaded.
 
-  Remarks about switches /p and /co:
+  Remarks about switches -p and -co:
 
-  - ^<wrap>if /p is empty, then Far will be loaded with no plugins;
-  - ^<wrap>if /p is given with a <path>, then only plugins from <path> will be loaded;
-  - ^<wrap>if only the /co switch is given and plugins cache is not empty, then plugins
+  - ^<wrap>if -p is empty, then Far will be loaded with no plugins;
+  - ^<wrap>if -p is given with a <path>, then only plugins from <path> will be loaded;
+  - ^<wrap>if only the -co switch is given and plugins cache is not empty, then plugins
 will be loaded from cache;
-  - ^<wrap>/co is ignored, if /p is given;
-  - ^<wrap>if /p and /co are not given, then plugins will be loaded from the 'Plugins'
+  - ^<wrap>-co is ignored, if -p is given;
+  - ^<wrap>if -p and -co are not given, then plugins will be loaded from the 'Plugins'
 folder, which is in the same folder as Far.exe, and the 'Plugins' folder, which is in the
 user profile folder (#%APPDATA%\\Far Manager\\Profile# by default).
 
-  #/m#
+  #-m#
   Far will not load macros when started.
 
-  #/ma#
+  #-ma#
   Macros with the "Run after Far start" option set will not be run when Far is started.
 
-  #/s <profilepath> [<localprofilepath>]#
-  Custom location for Far configuration files - overrides Far.exe.ini.
+  #-s <profilepath> [<localprofilepath>]#
+  Custom location for Far configuration files (overrides the ini file).
 
-  #/u <username>#
+  #-u <username>#
   Allows to have separate registry settings for different users.
   Affects only 1.x Far Manager plugins
-  For example: far /u guest
+  For example: far -u guest
 
   Far Manager will set the ~environment variable~@FAREnv@ "FARUSER" to the value <username>.
 
-  #/v <filename>#
+  #-v <filename>#
   View the specified file. If <filename> is `#-#', data is read from the stdin.
 
-  For example, "dir|far /v -" will view dir command output.
+  For example, "dir|far -v -" will view dir command output.
 
   If the input stream is empty when using '-' (for example, you have not specified
 the "dir" command in the provided example), Far will wait for the end of data
 in the input stream until you press Ctrl+Break.
 
-  #/w[-]#
+  #-w[-]#
   Stretch to console window instead of console buffer or vice versa.
 
-  #/t templateprofile#
-  Location of Far template configuration file - overrides Far.exe.ini.
+  #-t templateprofile#
+  Location of Far template configuration file (overrides the ini file).
 
-  #/title[:<title>]#
+  #-title[:<title>]#
   If <title> string is provided, use it as the window title; otherwise
 inherit the console window's title. Macro #%Default# in the custom title
-string will be replaced with the standard context-dependent Far windows
+string will be replaced with the standard context-dependent Far window's
 title.
 
-  #/clearcache [profilepath [localprofilepath]]#
+  #-clearcache [profilepath [localprofilepath]]#
   Clear plugins cache.
 
-  #/export <out.farconfig> [profilepath [localprofilepath]]#
+  #-export <out.farconfig> [profilepath [localprofilepath]]#
   Export settings to file out.farconfig.
 
-  #/import <in.farconfig> [profilepath [localprofilepath]]#
+  #-import <in.farconfig> [profilepath [localprofilepath]]#
   Import settings from file in.farconfig.
 
-  #/ro#
-  Let's you work without writing any changes to Far configuration.
-Overrides Far.exe.ini.
+  #-ro[-]#
+  Read-only or normal config mode (overrides the ini file).
 
-  #/ro-#
-  Normal (Read-Write) mode of Far configuration - overrides Far.exe.ini.
-
-  #/set:<parameter>=<value>#
+  #-set:<parameter>=<value>#
   Override the configuration parameter, see ~far:config~@FarConfig@ for details.
 
   It is possible to specify at most two paths (to folders, files or archives) or

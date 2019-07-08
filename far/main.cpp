@@ -96,6 +96,7 @@ global *Global = nullptr;
 static void show_help()
 {
 	static const auto HelpMsg =
+		L"\n"
 		L"Usage: far [switches] [apath [ppath]]\n\n"
 		L"where\n"
 		L"  apath - path to a folder (or a file or an archive or command with prefix)\n"
@@ -120,18 +121,18 @@ static void show_help()
 		L" -ma  Do not execute auto run macros.\n"
 		L" -p[<path>]\n"
 		L"      Search for \"common\" plugins in the directory, specified by <path>.\n"
-		L" -ro[-] Read-Only or Normal config mode.\n"
+		L" -ro[-] Read-only or normal config mode (overrides the ini file).\n"
 		L" -s <profilepath> [<localprofilepath>]\n"
-		L"      Custom location for Far configuration files - overrides Far.exe.ini.\n"
+		L"      Custom location for Far configuration files (overrides the ini file).\n"
 		L" -set:<parameter>=<value>\n"
 		L"      Override the configuration parameter, see far:config for details.\n"
 		L" -t <path>\n"
-		L"      Location of Far template configuration file - overrides Far.exe.ini.\n"
+		L"      Location of Far template configuration file (overrides the ini file).\n"
 		L" -title[:<title>]\n"
 		L"      If <title> string is provided, use it as the window title; otherwise\n"
 		L"      inherit the console window's title. Macro \"%Default\" in the custom\n"
 		L"      title string will be replaced with the standard context-dependent\n"
-		L"      Far windows title.\n"
+		L"      Far window's title.\n"
 #ifndef NO_WRAPPER
 		L" -u <username>\n"
 		L"      Allows to have separate registry settings for different users.\n"
@@ -762,19 +763,36 @@ static int mainImpl(span<const wchar_t* const> const Args)
 	catch (const std::exception& e)
 	{
 		if (ProcessStdException(e, L"mainImpl"sv))
-			std::terminate();
+			std::_Exit(EXIT_FAILURE);
 		throw;
 	}
 	catch (...)
 	{
 		if (ProcessUnknownException(L"mainImpl"sv))
-			std::terminate();
+			std::_Exit(EXIT_FAILURE);
 		throw;
 	}
 }
 
+//#define DEBUG_TESTS
+
 static int wmain_seh(int Argc, const wchar_t* const Argv[])
 {
+#ifdef ENABLE_TESTS
+	if (Argc > 1 && Argv[1] == L"/service:test"sv)
+	{
+#ifdef DEBUG_TESTS
+		return 0;
+#else
+		return testing_main(true, Argc, Argv);
+#endif
+	}
+
+#ifdef DEBUG_TESTS
+	return testing_main(false, Argc, Argv);
+#endif
+#endif
+
 #if defined(SYSLOG)
 	atexit(PrintSysLogStat);
 #endif
@@ -794,7 +812,7 @@ static int wmain_seh(int Argc, const wchar_t* const Argv[])
 	catch (const std::exception& e)
 	{
 		if (ProcessStdException(e, L"wmain_seh"sv))
-			std::terminate();
+			std::_Exit(EXIT_FAILURE);
 
 		unhandled_exception_filter::dismiss();
 		RestoreGPFaultUI();
@@ -803,7 +821,7 @@ static int wmain_seh(int Argc, const wchar_t* const Argv[])
 	catch (...)
 	{
 		if (ProcessUnknownException(L"wmain_seh"sv))
-			std::terminate();
+			std::_Exit(EXIT_FAILURE);
 
 		unhandled_exception_filter::dismiss();
 		RestoreGPFaultUI();
@@ -811,25 +829,8 @@ static int wmain_seh(int Argc, const wchar_t* const Argv[])
 	}
 }
 
-//#define DEBUG_TESTS
-
 int main()
 {
-#ifdef ENABLE_TESTS
-	if (contains(string_view(GetCommandLine()), L"/service:test"sv))
-	{
-#ifdef DEBUG_TESTS
-		return 0;
-#else
-		return testing_main(true);
-#endif
-	}
-
-#ifdef DEBUG_TESTS
-	return testing_main(false);
-#endif
-#endif
-
 	return seh_invoke_with_ui(
 	[]
 	{
@@ -840,7 +841,7 @@ int main()
 	},
 	[]() -> int
 	{
-		std::terminate();
+		std::_Exit(EXIT_FAILURE);
 	},
 	L"main"sv);
 }

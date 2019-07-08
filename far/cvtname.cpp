@@ -236,7 +236,7 @@ static string TryConvertVolumeGuidToDrivePath(string_view const Path, const stri
 			{
 				for(const auto& i: enum_substrings(VolumePathNames.c_str()))
 				{
-					if (!AbsPath.empty() && starts_with_icase(AbsPath, i))
+					if (starts_with_icase(AbsPath, i))
 						return string(i);
 
 					if (IsRootPath(i))

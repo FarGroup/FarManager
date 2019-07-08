@@ -98,7 +98,7 @@ public:
 	};
 
 private:
-	elevation();
+	elevation() = default;
 
 	template<typename T>
 	T Read() const;
@@ -123,16 +123,16 @@ private:
 
 	void progress_routine(LPPROGRESS_ROUTINE ProgressRoutine) const;
 
-	std::atomic_ulong m_Suppressions;
+	std::atomic_ulong m_Suppressions{};
 	os::handle m_Pipe;
 	os::handle m_Process;
 	os::handle m_Job;
 
-	bool m_IsApproved;
-	bool m_AskApprove;
-	bool m_Elevation;
-	bool m_DontAskAgain;
-	int m_Recurse;
+	bool m_IsApproved{};
+	bool m_AskApprove{true};
+	bool m_Elevation{};
+	bool m_DontAskAgain{};
+	int m_Recurse{};
 	os::critical_section m_CS;
 	string m_PipeName;
 };

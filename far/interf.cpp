@@ -1368,8 +1368,15 @@ COORD GetNonMaximisedBufferSize()
 	return NonMaximisedBufferSize();
 }
 
-bool ConsoleYesNo(string_view const Message)
+bool ConsoleYesNo(string_view const Message, bool const Default)
 {
+	{
+		// The output can be redirected
+		DWORD Mode;
+		if (!console.GetMode(console.GetOutputHandle(), Mode))
+			return Default;
+	}
+
 	if (InitialConsoleMode)
 	{
 		ChangeConsoleMode(console.GetInputHandle(), InitialConsoleMode->Input);

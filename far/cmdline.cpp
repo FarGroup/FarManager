@@ -976,6 +976,17 @@ static bool ProcessFarCommands(const string& Command, function_ref<void(bool)> c
 	return false;
 }
 
+static void ProcessEcho(execute_info& Info)
+{
+	if (!starts_with(Info.Command, L'@'))
+		return;
+
+	Info.Echo = false;
+	if (Info.DisplayCommand.empty())
+		Info.DisplayCommand = Info.Command;
+	Info.Command.erase(0, Info.Command.find_first_not_of(L"@"sv));
+}
+
 void CommandLine::ExecString(execute_info& Info)
 {
 	bool Silent = false;
@@ -1033,17 +1044,25 @@ void CommandLine::ExecString(execute_info& Info)
 
 	if (Info.ExecMode != execute_info::exec_mode::direct && Info.SourceMode != execute_info::source_mode::known)
 	{
-		if (Info.Command[0] == L'@')
+		ProcessEcho(Info);
+		if (starts_with(Info.Command, L'@'))
 		{
 			Info.Echo = false;
 			if (Info.DisplayCommand.empty())
 				Info.DisplayCommand = Info.Command;
-			Info.Command.erase(0, 1);
+			Info.Command.erase(0, Info.Command.find_first_not_of(L"@"sv));
 		}
 
 		ExpandOSAliases(Info.Command);
 
 		if (!ExtractIfExistCommand(Info.Command))
+		{
+			Activator(false);
+			return;
+		}
+
+		ProcessEcho(Info);
+		if (Info.Command.empty())
 		{
 			Activator(false);
 			return;

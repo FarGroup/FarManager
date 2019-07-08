@@ -95,15 +95,9 @@ enum ELEVATION_COMMAND: int
 
 static const auto ElevationArgument = L"/service:elevation"sv;
 
-static auto CreateBackupRestorePrivilege() { return privilege({SE_BACKUP_NAME, SE_RESTORE_NAME}); }
-
-elevation::elevation():
-	m_IsApproved(false),
-	m_AskApprove(true),
-	m_Elevation(false),
-	m_DontAskAgain(false),
-	m_Recurse(0)
+static privilege CreateBackupRestorePrivilege()
 {
+	return { SE_BACKUP_NAME, SE_RESTORE_NAME };
 }
 
 elevation::~elevation()
@@ -273,7 +267,7 @@ static os::handle create_elevated_process(const string& Parameters)
 
 static bool connect_pipe_to_process(const os::handle& Process, const os::handle& Pipe)
 {
-	os::event AEvent(os::event::type::automatic, os::event::state::nonsignaled);
+	os::event const AEvent(os::event::type::automatic, os::event::state::nonsignaled);
 	OVERLAPPED Overlapped;
 	AEvent.associate(Overlapped);
 	if (!ConnectNamedPipe(Pipe.native_handle(), &Overlapped))
@@ -378,6 +372,7 @@ static intptr_t ElevationApproveDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 			}
 		}
 		break;
+
 	default:
 		break;
 	}
@@ -462,7 +457,7 @@ bool elevation::ElevationApproveDlg(lng Why, const string& Object)
 		if(!Global->IsMainThread())
 		{
 			os::event SyncEvent(os::event::type::automatic, os::event::state::nonsignaled);
-			listener Listener([&SyncEvent](const std::any& Payload)
+			listener const Listener([&SyncEvent](const std::any& Payload)
 			{
 				ElevationApproveDlgSync(*std::any_cast<EAData*>(Payload));
 				SyncEvent.set();

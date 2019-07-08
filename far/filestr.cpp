@@ -296,7 +296,7 @@ static bool GetUnicodeCpUsingBOM(const os::fs::file& File, uintptr_t& Codepage)
 	if (!File.Read(Buffer, std::size(Buffer), BytesRead))
 		return false;
 
-	std::string_view Signature(Buffer, std::size(Buffer));
+	std::string_view const Signature(Buffer, std::size(Buffer));
 
 	if (BytesRead >= 2)
 	{
@@ -393,7 +393,7 @@ static bool GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage,
 
 	// TODO: configurable
 	const size_t Size = 32768;
-	char_ptr Buffer(Size);
+	char_ptr const Buffer(Size);
 	size_t ReadSize = 0;
 
 	const auto ReadResult = File.Read(Buffer.get(), Size, ReadSize);

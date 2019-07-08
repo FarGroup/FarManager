@@ -42,7 +42,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "components.hpp"
 
 // Platform:
-#include "platform.memory.hpp"
 
 // Common:
 
@@ -51,21 +50,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-int testing_main(bool const IsBuildStep)
+int testing_main(bool const IsBuildStep, int const Argc, wchar_t const* const Argv[])
 {
-	int Argc;
-	const os::memory::local::ptr Argv(CommandLineToArgvW(GetCommandLine(), &Argc));
-	const auto Data = Argv.get();
-
 	if (!IsBuildStep)
 	{
-		return Catch::Session().run(Argc, Data);
+		return Catch::Session().run(Argc, Argv);
 	}
 
 	std::vector<const wchar_t*> Args;
 	Args.reserve(Argc - 1);
-	Args.push_back(*Data);
-	Args.insert(Args.end(), &Data[2], &Data[Argc]);
+	Args.push_back(*Argv);
+	Args.insert(Args.end(), Argv + 2, Argv + Argc);
 
 	return Catch::Session().run(Argc - 1, Args.data());
 }

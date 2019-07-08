@@ -5017,98 +5017,101 @@ private:
 		CheckScreenLock();
 
 		AnsiExecuteStruct<iOpen> es;
+		if (Global->ProcessException || !Load() || !has(es))
+			return TranslateResult(es);
 
-		if (Load() && has(es) && !Global->ProcessException)
+		std::unique_ptr<char[]> Buffer;
+		intptr_t Ptr = 0;
+
+		int OpenFromA = oldfar::OPEN_PLUGINSMENU;
+
+		oldfar::OpenDlgPluginData DlgData{};
+
+		switch (Info->OpenFrom)
 		{
-			std::unique_ptr<char[]> Buffer;
-			intptr_t Ptr = 0;
+		case OPEN_COMMANDLINE:
+			OpenFromA = oldfar::OPEN_COMMANDLINE;
+			if (Info->Data)
+			{
+				Buffer.reset(UnicodeToAnsi(reinterpret_cast<const OpenCommandLineInfo*>(Info->Data)->CommandLine));
+				Ptr = reinterpret_cast<intptr_t>(Buffer.get());
+			}
+			break;
 
-			int OpenFromA = oldfar::OPEN_PLUGINSMENU;
+		case OPEN_SHORTCUT:
+			OpenFromA = oldfar::OPEN_SHORTCUT;
+			if (Info->Data)
+			{
+				const auto SInfo = reinterpret_cast<const OpenShortcutInfo*>(Info->Data);
+				const auto shortcutdata = SInfo->ShortcutData ? SInfo->ShortcutData : SInfo->HostFile;
+				Buffer.reset(UnicodeToAnsi(shortcutdata));
+				Ptr = reinterpret_cast<intptr_t>(Buffer.get());
+			}
+			break;
 
-			oldfar::OpenDlgPluginData DlgData{};
-
+		case OPEN_LEFTDISKMENU:
+		case OPEN_RIGHTDISKMENU:
+		case OPEN_PLUGINSMENU:
+		case OPEN_FINDLIST:
+		case OPEN_EDITOR:
+		case OPEN_VIEWER:
 			switch (Info->OpenFrom)
 			{
-			case OPEN_COMMANDLINE:
-				OpenFromA = oldfar::OPEN_COMMANDLINE;
-				if (Info->Data)
-				{
-					Buffer.reset(UnicodeToAnsi(reinterpret_cast<const OpenCommandLineInfo*>(Info->Data)->CommandLine));
-					Ptr = reinterpret_cast<intptr_t>(Buffer.get());
-				}
-				break;
-
-			case OPEN_SHORTCUT:
-				OpenFromA = oldfar::OPEN_SHORTCUT;
-				if (Info->Data)
-				{
-					const auto SInfo = reinterpret_cast<const OpenShortcutInfo*>(Info->Data);
-					const auto shortcutdata = SInfo->ShortcutData ? SInfo->ShortcutData : SInfo->HostFile;
-					Buffer.reset(UnicodeToAnsi(shortcutdata));
-					Ptr = reinterpret_cast<intptr_t>(Buffer.get());
-				}
-				break;
-
 			case OPEN_LEFTDISKMENU:
 			case OPEN_RIGHTDISKMENU:
+				OpenFromA = oldfar::OPEN_DISKMENU;
+				break;
+
 			case OPEN_PLUGINSMENU:
+				OpenFromA = oldfar::OPEN_PLUGINSMENU;
+				break;
+
 			case OPEN_FINDLIST:
+				OpenFromA = oldfar::OPEN_FINDLIST;
+				break;
+
 			case OPEN_EDITOR:
+				OpenFromA = oldfar::OPEN_EDITOR;
+				break;
+
 			case OPEN_VIEWER:
-				switch (Info->OpenFrom)
-				{
-				case OPEN_LEFTDISKMENU:
-				case OPEN_RIGHTDISKMENU:
-					OpenFromA = oldfar::OPEN_DISKMENU;
-					break;
-				case OPEN_PLUGINSMENU:
-					OpenFromA = oldfar::OPEN_PLUGINSMENU;
-					break;
-				case OPEN_FINDLIST:
-					OpenFromA = oldfar::OPEN_FINDLIST;
-					break;
-				case OPEN_EDITOR:
-					OpenFromA = oldfar::OPEN_EDITOR;
-					break;
-				case OPEN_VIEWER:
-					OpenFromA = oldfar::OPEN_VIEWER;
-					break;
-				default:
-					break;
-				}
-				Ptr = Info->Guid->Data1;
-				break;
-
-			case OPEN_FROMMACRO:
-				OpenFromA = oldfar::OPEN_FROMMACRO | Global->CtrlObject->Macro.GetArea();
-				Buffer.reset(UnicodeToAnsi(reinterpret_cast<OpenMacroInfo*>(Info->Data)->Count ? reinterpret_cast<OpenMacroInfo*>(Info->Data)->Values[0].String : L""));
-				Ptr = reinterpret_cast<intptr_t>(Buffer.get());
-				break;
-
-			case OPEN_DIALOG:
-				OpenFromA = oldfar::OPEN_DIALOG;
-				DlgData.ItemNumber = Info->Guid->Data1;
-				DlgData.hDlg = reinterpret_cast<OpenDlgPluginData*>(Info->Data)->hDlg;
-				Ptr = reinterpret_cast<intptr_t>(&DlgData);
+				OpenFromA = oldfar::OPEN_VIEWER;
 				break;
 
 			default:
 				break;
 			}
+			Ptr = Info->Guid->Data1;
+			break;
 
-			ExecuteFunction(es, OpenFromA, Ptr);
+		case OPEN_FROMMACRO:
+			OpenFromA = oldfar::OPEN_FROMMACRO | Global->CtrlObject->Macro.GetArea();
+			Buffer.reset(UnicodeToAnsi(reinterpret_cast<OpenMacroInfo*>(Info->Data)->Count ? reinterpret_cast<OpenMacroInfo*>(Info->Data)->Values[0].String : L""));
+			Ptr = reinterpret_cast<intptr_t>(Buffer.get());
+			break;
+
+		case OPEN_DIALOG:
+			OpenFromA = oldfar::OPEN_DIALOG;
+			DlgData.ItemNumber = Info->Guid->Data1;
+			DlgData.hDlg = reinterpret_cast<OpenDlgPluginData*>(Info->Data)->hDlg;
+			Ptr = reinterpret_cast<intptr_t>(&DlgData);
+			break;
+
+		default:
+			break;
 		}
 
+		ExecuteFunction(es, OpenFromA, Ptr);
 		return TranslateResult(es);
 	}
 
 	void ClosePanel(ClosePanelInfo* Info) override
 	{
 		AnsiExecuteStruct<iClosePanel> es;
-		if (has(es) && !Global->ProcessException)
-		{
-			ExecuteFunction(es, Info->hPanel);
-		}
+		if (Global->ProcessException || !has(es))
+			return;
+
+		ExecuteFunction(es, Info->hPanel);
 		FreeOpenPanelInfo();
 	}
 
@@ -5117,19 +5120,17 @@ private:
 		*pi = {};
 
 		AnsiExecuteStruct<iGetPluginInfo> es;
-		if (has(es) && !Global->ProcessException)
-		{
-			oldfar::PluginInfo InfoA = { sizeof(InfoA) };
-			ExecuteFunction(es, &InfoA);
+		if (Global->ProcessException || !has(es))
+			return false;
 
-			if (!bPendingRemove)
-			{
-				ConvertPluginInfo(InfoA, pi);
-				return true;
-			}
-		}
+		oldfar::PluginInfo InfoA{ sizeof(InfoA) };
+		ExecuteFunction(es, &InfoA);
 
-		return false;
+		if (bPendingRemove)
+			return false;
+
+		ConvertPluginInfo(InfoA, pi);
+		return true;
 	}
 
 	void GetOpenPanelInfo(OpenPanelInfo *Info) override
@@ -5137,32 +5138,32 @@ private:
 		Info->StructSize = sizeof(OpenPanelInfo);
 
 		AnsiExecuteStruct<iGetOpenPanelInfo> es;
-		if (has(es) && !Global->ProcessException)
-		{
-			oldfar::OpenPanelInfo InfoA = {};
-			ExecuteFunction(es, Info->hPanel, &InfoA);
-			ConvertOpenPanelInfo(InfoA, Info);
-		}
+		if (Global->ProcessException || !has(es))
+			return;
+
+		oldfar::OpenPanelInfo InfoA{};
+		ExecuteFunction(es, Info->hPanel, &InfoA);
+		ConvertOpenPanelInfo(InfoA, Info);
 	}
 
 	int GetFindData(GetFindDataInfo* Info) override
 	{
 		AnsiExecuteStruct<iGetFindData> es;
-		if (has(es) && !Global->ProcessException)
+		if (Global->ProcessException || !has(es))
+			return es;
+
+		pFDPanelItemA = nullptr;
+		int ItemsNumber = 0;
+
+		int OpMode = 0;
+		SecondFlagsToFirst(Info->OpMode, OpMode, OperationModesMap);
+
+		ExecuteFunction(es, Info->hPanel, &pFDPanelItemA, &ItemsNumber, OpMode);
+
+		Info->ItemsNumber = ItemsNumber;
+		if (es && ItemsNumber)
 		{
-			pFDPanelItemA = nullptr;
-			int ItemsNumber = 0;
-
-			int OpMode = 0;
-			SecondFlagsToFirst(Info->OpMode, OpMode, OperationModesMap);
-
-			ExecuteFunction(es, Info->hPanel, &pFDPanelItemA, &ItemsNumber, OpMode);
-
-			Info->ItemsNumber = ItemsNumber;
-			if (es && ItemsNumber)
-			{
-				Info->PanelItem = ConvertAnsiPanelItemsToUnicode({ pFDPanelItemA, static_cast<size_t>(ItemsNumber) });
-			}
+			Info->PanelItem = ConvertAnsiPanelItemsToUnicode({ pFDPanelItemA, static_cast<size_t>(ItemsNumber) });
 		}
 		return es;
 	}
@@ -5172,30 +5173,30 @@ private:
 		FreeUnicodePanelItem(Info->PanelItem, Info->ItemsNumber);
 
 		AnsiExecuteStruct<iFreeFindData> es;
-		if (has(es) && !Global->ProcessException && pFDPanelItemA)
-		{
-			ExecuteFunction(es, Info->hPanel, pFDPanelItemA, static_cast<int>(Info->ItemsNumber));
-			pFDPanelItemA = nullptr;
-		}
+		if (Global->ProcessException || !has(es) || !pFDPanelItemA)
+			return;
+
+		ExecuteFunction(es, Info->hPanel, pFDPanelItemA, static_cast<int>(Info->ItemsNumber));
+		pFDPanelItemA = nullptr;
 	}
 
 	int GetVirtualFindData(GetVirtualFindDataInfo* Info) override
 	{
 		AnsiExecuteStruct<iGetVirtualFindData> es;
-		if (has(es) && !Global->ProcessException)
-		{
-			pVFDPanelItemA = nullptr;
-			string_view const Path = Info->Path;
-			char_ptr_n<os::default_buffer_size> PathA(Path.size() + 1);
-			encoding::oem::get_bytes(Path, { PathA.get(), PathA.size() });
-			int ItemsNumber = 0;
-			ExecuteFunction(es, Info->hPanel, &pVFDPanelItemA, &ItemsNumber, PathA.get());
-			Info->ItemsNumber = ItemsNumber;
+		if (Global->ProcessException || !has(es))
+			return es;
 
-			if (es && ItemsNumber)
-			{
-				Info->PanelItem = ConvertAnsiPanelItemsToUnicode({ pVFDPanelItemA, static_cast<size_t>(ItemsNumber) });
-			}
+		pVFDPanelItemA = nullptr;
+		string_view const Path = Info->Path;
+		char_ptr_n<os::default_buffer_size> const PathA(Path.size() + 1);
+		encoding::oem::get_bytes(Path, { PathA.get(), PathA.size() });
+		int ItemsNumber = 0;
+		ExecuteFunction(es, Info->hPanel, &pVFDPanelItemA, &ItemsNumber, PathA.get());
+		Info->ItemsNumber = ItemsNumber;
+
+		if (es && ItemsNumber)
+		{
+			Info->PanelItem = ConvertAnsiPanelItemsToUnicode({ pVFDPanelItemA, static_cast<size_t>(ItemsNumber) });
 		}
 
 		return es;
@@ -5206,199 +5207,199 @@ private:
 		FreeUnicodePanelItem(Info->PanelItem, Info->ItemsNumber);
 
 		AnsiExecuteStruct<iFreeVirtualFindData> es;
-		if (has(es) && !Global->ProcessException && pVFDPanelItemA)
-		{
-			ExecuteFunction(es, Info->hPanel, pVFDPanelItemA, static_cast<int>(Info->ItemsNumber));
-			pVFDPanelItemA = nullptr;
-		}
+		if (Global->ProcessException || !has(es) || !pVFDPanelItemA)
+			return;
+
+		ExecuteFunction(es, Info->hPanel, pVFDPanelItemA, static_cast<int>(Info->ItemsNumber));
+		pVFDPanelItemA = nullptr;
 	}
 
 	int SetDirectory(SetDirectoryInfo* Info) override
 	{
 		AnsiExecuteStruct<iSetDirectory> es;
-		if (has(es) && !Global->ProcessException)
-		{
-			std::unique_ptr<char[]> DirA(UnicodeToAnsi(Info->Dir));
-			int OpMode = 0;
-			SecondFlagsToFirst(Info->OpMode, OpMode, OperationModesMap);
-			ExecuteFunction(es, Info->hPanel, DirA.get(), OpMode);
-		}
+		if (Global->ProcessException || !has(es))
+			return es;
+
+		std::unique_ptr<char[]> const DirA(UnicodeToAnsi(Info->Dir));
+		int OpMode = 0;
+		SecondFlagsToFirst(Info->OpMode, OpMode, OperationModesMap);
+		ExecuteFunction(es, Info->hPanel, DirA.get(), OpMode);
 		return es;
 	}
 
 	int GetFiles(GetFilesInfo* Info) override
 	{
 		AnsiExecuteStruct<iGetFiles> es(-1);
-		if (has(es) && !Global->ProcessException)
-		{
-			const auto PanelItemA = ConvertPanelItemsArrayToAnsi(Info->PanelItem, Info->ItemsNumber);
-			char DestA[oldfar::NM];
-			encoding::oem::get_bytes(Info->DestPath, DestA);
-			int OpMode = 0;
-			SecondFlagsToFirst(Info->OpMode, OpMode, OperationModesMap);
-			ExecuteFunction(es, Info->hPanel, PanelItemA, static_cast<int>(Info->ItemsNumber), Info->Move, DestA, OpMode);
-			UpdatePluginPanelItemFlags(PanelItemA, Info->PanelItem, Info->ItemsNumber);
-			static wchar_t DestW[oldfar::NM];
-			encoding::oem::get_chars(DestA, DestW);
-			Info->DestPath = DestW;
-			FreePanelItemA({ PanelItemA, Info->ItemsNumber });
-		}
+		if (Global->ProcessException || !has(es))
+			return es;
+
+		const auto PanelItemA = ConvertPanelItemsArrayToAnsi(Info->PanelItem, Info->ItemsNumber);
+		char DestA[oldfar::NM];
+		encoding::oem::get_bytes(Info->DestPath, DestA);
+		int OpMode = 0;
+		SecondFlagsToFirst(Info->OpMode, OpMode, OperationModesMap);
+		ExecuteFunction(es, Info->hPanel, PanelItemA, static_cast<int>(Info->ItemsNumber), Info->Move, DestA, OpMode);
+		UpdatePluginPanelItemFlags(PanelItemA, Info->PanelItem, Info->ItemsNumber);
+		static wchar_t DestW[oldfar::NM];
+		encoding::oem::get_chars(DestA, DestW);
+		Info->DestPath = DestW;
+		FreePanelItemA({ PanelItemA, Info->ItemsNumber });
 		return es;
 	}
 
 	int PutFiles(PutFilesInfo* Info) override
 	{
 		AnsiExecuteStruct<iPutFiles> es(-1);
-		if (has(es) && !Global->ProcessException)
-		{
-			const auto PanelItemA = ConvertPanelItemsArrayToAnsi(Info->PanelItem, Info->ItemsNumber);
-			int OpMode = 0;
-			SecondFlagsToFirst(Info->OpMode, OpMode, OperationModesMap);
-			ExecuteFunction(es, Info->hPanel, PanelItemA, static_cast<int>(Info->ItemsNumber), Info->Move, OpMode);
-			UpdatePluginPanelItemFlags(PanelItemA, Info->PanelItem, Info->ItemsNumber);
-			FreePanelItemA({ PanelItemA, Info->ItemsNumber });
-		}
+		if (Global->ProcessException || !has(es))
+			return es;
+
+		const auto PanelItemA = ConvertPanelItemsArrayToAnsi(Info->PanelItem, Info->ItemsNumber);
+		int OpMode = 0;
+		SecondFlagsToFirst(Info->OpMode, OpMode, OperationModesMap);
+		ExecuteFunction(es, Info->hPanel, PanelItemA, static_cast<int>(Info->ItemsNumber), Info->Move, OpMode);
+		UpdatePluginPanelItemFlags(PanelItemA, Info->PanelItem, Info->ItemsNumber);
+		FreePanelItemA({ PanelItemA, Info->ItemsNumber });
 		return es;
 	}
 
 	int DeleteFiles(DeleteFilesInfo* Info) override
 	{
 		AnsiExecuteStruct<iDeleteFiles> es;
-		if (has(es) && !Global->ProcessException)
-		{
-			const auto PanelItemA = ConvertPanelItemsArrayToAnsi(Info->PanelItem, Info->ItemsNumber);
-			int OpMode = 0;
-			SecondFlagsToFirst(Info->OpMode, OpMode, OperationModesMap);
-			ExecuteFunction(es, Info->hPanel, PanelItemA, static_cast<int>(Info->ItemsNumber), OpMode);
-			UpdatePluginPanelItemFlags(PanelItemA, Info->PanelItem, Info->ItemsNumber);
-			FreePanelItemA({ PanelItemA, Info->ItemsNumber });
-		}
+		if (Global->ProcessException || !has(es))
+			return es;
+
+		const auto PanelItemA = ConvertPanelItemsArrayToAnsi(Info->PanelItem, Info->ItemsNumber);
+		int OpMode = 0;
+		SecondFlagsToFirst(Info->OpMode, OpMode, OperationModesMap);
+		ExecuteFunction(es, Info->hPanel, PanelItemA, static_cast<int>(Info->ItemsNumber), OpMode);
+		UpdatePluginPanelItemFlags(PanelItemA, Info->PanelItem, Info->ItemsNumber);
+		FreePanelItemA({ PanelItemA, Info->ItemsNumber });
 		return es;
 	}
 
 	int MakeDirectory(MakeDirectoryInfo* Info) override
 	{
 		AnsiExecuteStruct<iMakeDirectory> es(-1);
-		if (has(es) && !Global->ProcessException)
-		{
-			char NameA[oldfar::NM];
-			encoding::oem::get_bytes(Info->Name, NameA);
-			int OpMode = 0;
-			SecondFlagsToFirst(Info->OpMode, OpMode, OperationModesMap);
-			ExecuteFunction(es, Info->hPanel, NameA, OpMode);
-			static wchar_t NameW[oldfar::NM];
-			encoding::oem::get_chars(NameA, NameW);
-			Info->Name = NameW;
-		}
+		if (Global->ProcessException || !has(es))
+			return es;
+
+		char NameA[oldfar::NM];
+		encoding::oem::get_bytes(Info->Name, NameA);
+		int OpMode = 0;
+		SecondFlagsToFirst(Info->OpMode, OpMode, OperationModesMap);
+		ExecuteFunction(es, Info->hPanel, NameA, OpMode);
+		static wchar_t NameW[oldfar::NM];
+		encoding::oem::get_chars(NameA, NameW);
+		Info->Name = NameW;
 		return es;
 	}
 
 	int ProcessHostFile(ProcessHostFileInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessHostFile> es;
-		if (has(es) && !Global->ProcessException)
-		{
-			const auto PanelItemA = ConvertPanelItemsArrayToAnsi(Info->PanelItem, Info->ItemsNumber);
-			int OpMode = 0;
-			SecondFlagsToFirst(Info->OpMode, OpMode, OperationModesMap);
-			ExecuteFunction(es, Info->hPanel, PanelItemA, static_cast<int>(Info->ItemsNumber), OpMode);
-			FreePanelItemA({ PanelItemA, Info->ItemsNumber });
-		}
+		if (Global->ProcessException || !has(es))
+			return es;
+
+		const auto PanelItemA = ConvertPanelItemsArrayToAnsi(Info->PanelItem, Info->ItemsNumber);
+		int OpMode = 0;
+		SecondFlagsToFirst(Info->OpMode, OpMode, OperationModesMap);
+		ExecuteFunction(es, Info->hPanel, PanelItemA, static_cast<int>(Info->ItemsNumber), OpMode);
+		FreePanelItemA({ PanelItemA, Info->ItemsNumber });
 		return es;
 	}
 
 	int SetFindList(SetFindListInfo* Info) override
 	{
 		AnsiExecuteStruct<iSetFindList> es;
-		if (has(es) && !Global->ProcessException)
-		{
-			const auto PanelItemA = ConvertPanelItemsArrayToAnsi(Info->PanelItem, Info->ItemsNumber);
-			ExecuteFunction(es, Info->hPanel, PanelItemA, static_cast<int>(Info->ItemsNumber));
-			FreePanelItemA({ PanelItemA, Info->ItemsNumber });
-		}
+		if (Global->ProcessException || !has(es))
+			return es;
+
+		const auto PanelItemA = ConvertPanelItemsArrayToAnsi(Info->PanelItem, Info->ItemsNumber);
+		ExecuteFunction(es, Info->hPanel, PanelItemA, static_cast<int>(Info->ItemsNumber));
+		FreePanelItemA({ PanelItemA, Info->ItemsNumber });
 		return es;
 	}
 
 	int Configure(ConfigureInfo* Info) override
 	{
 		AnsiExecuteStruct<iConfigure> es;
-		if (Load() && has(es) && !Global->ProcessException)
-		{
-			ExecuteFunction(es, Info->Guid->Data1);
-		}
+		if (Global->ProcessException || !Load() || !has(es))
+			return es;
+
+		ExecuteFunction(es, Info->Guid->Data1);
 		return es;
 	}
 
 	void ExitFAR(ExitInfo*) override
 	{
 		AnsiExecuteStruct<iExitFAR> es;
-		if (has(es) && !Global->ProcessException)
-		{
-			// ExitInfo ignored for ansi plugins
-			ExecuteFunction(es);
-		}
+		if (Global->ProcessException || !has(es))
+			return;
+
+		// ExitInfo ignored for ansi plugins
+		ExecuteFunction(es);
 	}
 
 	int ProcessPanelInput(ProcessPanelInputInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessPanelInput> es;
-		if (has(es) && !Global->ProcessException)
-		{
-			int VirtKey;
-			int dwControlState;
+		if (Global->ProcessException || !has(es))
+			return es;
 
-			bool Prepocess = (Info->Rec.EventType & 0x4000) != 0;
-			Info->Rec.EventType &= ~0x4000;
+		int VirtKey;
+		int dwControlState;
 
-			//BUGBUG: здесь можно проще.
-			TranslateKeyToVK(InputRecordToKey(&Info->Rec), VirtKey, dwControlState);
-			if (dwControlState&PKF_RALT)
-				dwControlState = (dwControlState & (~PKF_RALT)) | PKF_ALT;
-			if (dwControlState&PKF_RCONTROL)
-				dwControlState = (dwControlState & (~PKF_RCONTROL)) | PKF_CONTROL;
+		const auto Prepocess = (Info->Rec.EventType & 0x4000) != 0;
+		Info->Rec.EventType &= ~0x4000;
 
-			ExecuteFunction(es, Info->hPanel, VirtKey | (Prepocess ? PKF_PREPROCESS : 0), dwControlState);
-		}
+		//BUGBUG: здесь можно проще.
+		TranslateKeyToVK(InputRecordToKey(&Info->Rec), VirtKey, dwControlState);
+		if (dwControlState & PKF_RALT)
+			dwControlState = (dwControlState & (~PKF_RALT)) | PKF_ALT;
+		if (dwControlState & PKF_RCONTROL)
+			dwControlState = (dwControlState & (~PKF_RCONTROL)) | PKF_CONTROL;
+
+		ExecuteFunction(es, Info->hPanel, VirtKey | (Prepocess ? PKF_PREPROCESS : 0), dwControlState);
 		return es;
 	}
 
 	int ProcessPanelEvent(ProcessPanelEventInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessPanelEvent> es;
-		if (has(es) && !Global->ProcessException)
+		if (Global->ProcessException || !has(es))
+			return es;
+
+		auto Param = Info->Param;
+		std::unique_ptr<char[]> ParamA;
+
+		if (Info->Param && (Info->Event == FE_COMMAND || Info->Event == FE_CHANGEVIEWMODE))
 		{
-			auto Param = Info->Param;
-			std::unique_ptr<char[]> ParamA;
-
-			if (Info->Param && (Info->Event == FE_COMMAND || Info->Event == FE_CHANGEVIEWMODE))
-			{
-				ParamA.reset(UnicodeToAnsi(static_cast<const wchar_t*>(Info->Param)));
-				Param = ParamA.get();
-			}
-
-			ExecuteFunction(es, Info->hPanel, Info->Event, Param);
+			ParamA.reset(UnicodeToAnsi(static_cast<const wchar_t*>(Info->Param)));
+			Param = ParamA.get();
 		}
+
+		ExecuteFunction(es, Info->hPanel, Info->Event, Param);
 		return es;
 	}
 
 	int ProcessEditorEvent(ProcessEditorEventInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessEditorEvent> es;
-		if (Load() && has(es) && !Global->ProcessException)
+		if (Global->ProcessException || !Load() || !has(es))
+			return es;
+
+		switch (Info->Event)
 		{
-			switch (Info->Event)
-			{
-			case EE_CLOSE:
-			case EE_GOTFOCUS:
-			case EE_KILLFOCUS:
-				Info->Param = &Info->EditorID;
-				[[fallthrough]];
+		case EE_CLOSE:
+		case EE_GOTFOCUS:
+		case EE_KILLFOCUS:
+			Info->Param = &Info->EditorID;
+			[[fallthrough]];
 		case EE_READ:
-			case EE_SAVE:
-			case EE_REDRAW:
-				ExecuteFunction(es, Info->Event, Info->Param);
-				break;
-			}
+		case EE_SAVE:
+		case EE_REDRAW:
+			ExecuteFunction(es, Info->Event, Info->Param);
+			break;
 		}
 		return es;
 	}
@@ -5406,51 +5407,51 @@ private:
 	int Compare(CompareInfo* Info) override
 	{
 		AnsiExecuteStruct<iCompare> es(-2);
-		if (has(es) && !Global->ProcessException)
-		{
-			const auto Item1A = ConvertPanelItemsArrayToAnsi(Info->Item1, 1);
-			const auto Item2A = ConvertPanelItemsArrayToAnsi(Info->Item2, 1);
-			ExecuteFunction(es, Info->hPanel, Item1A, Item2A, Info->Mode);
-			FreePanelItemA({ Item1A, 1 });
-			FreePanelItemA({ Item2A, 1 });
-		}
+		if (Global->ProcessException || !has(es))
+			return es;
+
+		const auto Item1A = ConvertPanelItemsArrayToAnsi(Info->Item1, 1);
+		const auto Item2A = ConvertPanelItemsArrayToAnsi(Info->Item2, 1);
+		ExecuteFunction(es, Info->hPanel, Item1A, Item2A, Info->Mode);
+		FreePanelItemA({ Item1A, 1 });
+		FreePanelItemA({ Item2A, 1 });
 		return es;
 	}
 
 	int ProcessEditorInput(ProcessEditorInputInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessEditorInput> es;
-		if (Load() && has(es) && !Global->ProcessException)
+		if (Global->ProcessException || !Load() || !has(es))
+			return es;
+
+		const INPUT_RECORD *Ptr = &Info->Rec;
+		INPUT_RECORD OemRecord;
+		if (Ptr->EventType == KEY_EVENT)
 		{
-			const INPUT_RECORD *Ptr = &Info->Rec;
-			INPUT_RECORD OemRecord;
-			if (Ptr->EventType == KEY_EVENT)
-			{
-				OemRecord = Info->Rec;
-				CharToOemBuff(&Info->Rec.Event.KeyEvent.uChar.UnicodeChar, &OemRecord.Event.KeyEvent.uChar.AsciiChar, 1);
-				Ptr = &OemRecord;
-			}
-			ExecuteFunction(es, Ptr);
+			OemRecord = Info->Rec;
+			CharToOemBuff(&Info->Rec.Event.KeyEvent.uChar.UnicodeChar, &OemRecord.Event.KeyEvent.uChar.AsciiChar, 1);
+			Ptr = &OemRecord;
 		}
+		ExecuteFunction(es, Ptr);
 		return es;
 	}
 
 	int ProcessViewerEvent(ProcessViewerEventInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessViewerEvent> es;
-		if (Load() && has(es) && !Global->ProcessException)
+		if (Global->ProcessException || !Load() || !has(es))
+			return es;
+
+		switch (Info->Event)
 		{
-			switch (Info->Event)
-			{
-			case VE_CLOSE:
-			case VE_GOTFOCUS:
-			case VE_KILLFOCUS:
-				Info->Param = &Info->ViewerID;
-				[[fallthrough]];
-			case VE_READ:
-				ExecuteFunction(es, Info->Event, Info->Param);
-				break;
-			}
+		case VE_CLOSE:
+		case VE_GOTFOCUS:
+		case VE_KILLFOCUS:
+			Info->Param = &Info->ViewerID;
+			[[fallthrough]];
+		case VE_READ:
+			ExecuteFunction(es, Info->Event, Info->Param);
+			break;
 		}
 		return es;
 	}
@@ -5458,10 +5459,10 @@ private:
 	int ProcessDialogEvent(ProcessDialogEventInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessDialogEvent> es;
-		if (Load() && has(es) && !Global->ProcessException)
-		{
-			ExecuteFunction(es, Info->Event, Info->Param);
-		}
+		if (Global->ProcessException || !Load() || !has(es))
+			return es;
+
+		ExecuteFunction(es, Info->Event, Info->Param);
 		return es;
 	}
 
@@ -5501,26 +5502,22 @@ private:
 	void* OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int) override
 	{
 		AnsiExecuteStruct<iOpenFilePlugin> es;
-		if (Load() && has(es) && !Global->ProcessException)
-		{
-			std::unique_ptr<char[]> NameA(UnicodeToAnsi(Name));
-			ExecuteFunction(es, NameA.get(), Data, static_cast<int>(DataSize));
-		}
+		if (Global->ProcessException || !Load() || !has(es))
+			return es;
+
+		std::unique_ptr<char[]> const NameA(UnicodeToAnsi(Name));
+		ExecuteFunction(es, NameA.get(), Data, static_cast<int>(DataSize));
 		return TranslateResult(es);
 	}
 
 	bool CheckMinFarVersion() override
 	{
 		AnsiExecuteStruct<iGetMinFarVersion> es;
-		if (has(es) && !Global->ProcessException)
-		{
-			ExecuteFunction(es);
-			if (bPendingRemove)
-			{
-				return false;
-			}
-		}
-		return true;
+		if (Global->ProcessException || !has(es))
+			return false;
+
+		ExecuteFunction(es);
+		return !bPendingRemove;
 	}
 
 	bool IsOemPlugin() const override

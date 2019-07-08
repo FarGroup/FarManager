@@ -242,6 +242,7 @@ namespace detail
 		auto& operator=(HANDLE value) { Result = reinterpret_cast<intptr_t>(value); return *this; }
 		operator intptr_t() const { return Result; }
 		operator void*() const { return ToPtr(Result); }
+		operator bool() const { return Result != 0; }
 		EXPORTS_ENUM id;
 		intptr_t Result;
 	};
@@ -318,7 +319,7 @@ public:
 	bool CheckWorkFlags(DWORD flags) const { return WorkFlags.Check(flags); }
 
 	bool Load();
-	int Unload(bool bExitFAR = false);
+	bool Unload(bool bExitFAR = false);
 	bool LoadData();
 	bool LoadFromCache(const os::fs::find_data &FindData);
 	bool SaveToCache();

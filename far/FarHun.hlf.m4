@@ -144,60 +144,60 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 $ # FAR: a FAR parancssori kapcsolói#
   A FAR a következő parancssori kapcsolókkal indítható:
 
-  #/e[<sor>[:<pozíció>]] <fájlnév>#  A megadott fájlt szerkesztésre
-nyitja meg. A /e után megadható, hogy melyik sor hányadik karakterhelyére
+  #-e[<sor>[:<pozíció>]] <fájlnév>#  A megadott fájlt szerkesztésre
+nyitja meg. A -e után megadható, hogy melyik sor hányadik karakterhelyére
 álljon a kurzor.
 
-          Például: far /e70:2 readme.
+          Például: far -e70:2 readme.
 
-  #/p[<path>]#  A "fő" plugineket a <path>-ben megadott elérési út
+  #-p[<path>]#  A "fő" plugineket a <path>-ben megadott elérési út
           ^<wrap>mappáiban keresi. Több keresési útvonal is megadható,
 ";"-vel elválasztva.
 
-          Példa: #far /p%USERPROFILE%\\Far\\Plugins#
+          Példa: #far -p%USERPROFILE%\\Far\\Plugins#
 
-  #/co#   ^<wrap>A FAR pluginjei csak a gyorsítótárból töltődhetnek be.
+  #-co#   ^<wrap>A FAR pluginjei csak a gyorsítótárból töltődhetnek be.
 Bár így a betöltésük gyorsabb, az új vagy megváltozott plugineket a FAR nem
-érzékeli. CSAK állandó pluginek esetén használjuk! Pluginek hozzáadása,
+érzékeli. #Csak# állandó pluginek esetén használjuk! Pluginek hozzáadása,
 cseréje vagy törlése után a FAR-t a kapcsoló nélkül kell elindítani. Ha a
 gyorsítótár üres, nem töltődik be plugin.
 
-          Megjegyzések a /p és /co kapcsolókhoz:
+          Megjegyzések a -p és -co kapcsolókhoz:
 
-        - ^<wrap>ha a /p után nincs érték, a FAR pluginek nélkül
+        - ^<wrap>ha a -p után nincs érték, a FAR pluginek nélkül
 fog elindulni;
-        - ha /p-nek adtunk <path> értéket, csak a megadott útvonalról
+        - ha -p-nek adtunk <path> értéket, csak a megadott útvonalról
 töltődnek be pluginek;
-        - ha csak a /co kapcsolóval indítjuk és a plugin gyorsítótár
+        - ha csak a -co kapcsolóval indítjuk és a plugin gyorsítótár
 nem üres, a gyorsítótárból töltődnek be a pluginek;
-        - a /co kapcsolót a FAR figyelmen kívül hagyja, ha /p is áll
+        - a -co kapcsolót a FAR figyelmen kívül hagyja, ha -p is áll
 mellette;
-        - ha sem a /p, sem a /co kapcsoló nem szerepel a parancssorban,
+        - ha sem a -p, sem a -co kapcsoló nem szerepel a parancssorban,
 akkor a pluginek csak az alapértelmezett plugin mappából, valamint a
 ~saját pluginek elérési útvonala~@SystemSettings@ által meghatározott
 mappákból töltődnek be.
 
-  #/m#    ^<wrap>A FAR induláskor nem tölti be a registryből a makróit.
+  #-m#    ^<wrap>A FAR induláskor nem tölti be a registryből a makróit.
 
-  #/ma#   ^<wrap>A "Futtatás a FAR indítása után" opciójú makrók nem
+  #-ma#   ^<wrap>A "Futtatás a FAR indítása után" opciójú makrók nem
 indulnak el a FAR-ral.
           ^<wrap>
 
-  #/s <profilepath> [<localprofilepath>]#
-  Custom location for Far configuration files - overrides Far.exe.ini.
+  #-s <profilepath> [<localprofilepath>]#
+  Custom location for Far configuration files (overrides the ini file).
 
-  #/u <felhasználónév>#  Lehetővé teszi, hogy a felhasználóknak saját
+  #-u <felhasználónév>#  Lehetővé teszi, hogy a felhasználóknak saját
 FAR beállításaik legyenek.
 
-          Például: far /u guest
+          Például: far -u guest
 
         ^<wrap>A FAR Manager a "FARUSER" ~környezeti változónak~@FAREnv@
 a <felhasználónév> értéket adja.
         ^<wrap>
-  #/v <fájlnév>#  Megnézi a megadott fájlt. Ha a <fájlnév> #-#, akkor az
+  #-v <fájlnév>#  Megnézi a megadott fájlt. Ha a <fájlnév> #-#, akkor az
 stdin adatát olvassa ki.
 
-        ^<wrap>Például a "dir|far /v -" a dir parancs kimenetét fogja
+        ^<wrap>Például a "dir|far -v -" a dir parancs kimenetét fogja
 kiolvasni.
 
         ^<wrap>Ha a bemenő adatfolyam üres, amikor a fájlnév "-" (ha
@@ -205,34 +205,31 @@ az előző példánál maradva a "dir" parancsot elhagyjuk), akkor a FAR a
 végtelenségig fog várakozni a bemenő adatfolyam végére. Ezt a hibát a FAR
 egy későbbi verziójában a szerzők valószínűleg ki fogják javítani.
 
-  #/w[-]#
+  #-w[-]#
   Stretch to console window instead of console buffer or vice versa.
 
-  #/t templateprofile#
-  Location of Far template configuration file - overrides Far.exe.ini.
+  #-t templateprofile#
+  Location of Far template configuration file (overrides the ini file).
 
-  #/title[:<title>]#
-  If <title> is given, use it as the window title; otherwise inherit
-  the console window's title. The dynamically changing value of the 
-  default title can be reused via the "%Default" placeholder.
+  #-title[:<title>]#
+  If <title> string is provided, use it as the window title; otherwise
+inherit the console window's title. Macro #%Default# in the custom title
+string will be replaced with the standard context-dependent Far window's
+title.
 
-  #/clearcache [profilepath [localprofilepath]]#
+  #-clearcache [profilepath [localprofilepath]]#
   Clear plugins cache.
 
-  #/export <out.farconfig> [profilepath [localprofilepath]]#
+  #-export <out.farconfig> [profilepath [localprofilepath]]#
   Export settings to file out.farconfig.
 
-  #/import <in.farconfig> [profilepath [localprofilepath]]#
+  #-import <in.farconfig> [profilepath [localprofilepath]]#
   Import settings from file in.farconfig.
 
-  #/ro#
-  Let's you work without writing any changes to Far configuration.
-Overrides Far.exe.ini.
+  #-ro[-]#
+  Read-only or normal config mode (overrides the ini file).
 
-  #/ro-#
-  Normal (Read-Write) mode of Far configuration - overrides Far.exe.ini.
-
-  #/set:<parameter>=<value>#
+  #-set:<parameter>=<value>#
   Override the configuration parameter, see ~far:config~@FarConfig@ for details.
 
     A parancssorban megadható legfeljebb két olyan elérési út, ami mappára,

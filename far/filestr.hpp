@@ -87,6 +87,6 @@ private:
 };
 
 // If the file contains a BOM this function will advance the file pointer by the BOM size (either 2 or 3)
-uintptr_t GetFileCodepage(const os::fs::file& File, uintptr_t DefautCodepage, bool* SignatureFound = nullptr, bool UseHeuristics = true);
+uintptr_t GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage, bool* SignatureFound = nullptr, bool UseHeuristics = true);
 
 #endif // FILESTR_HPP_1B6BCA12_AFF9_4C80_A59C_B4B92B21F83F

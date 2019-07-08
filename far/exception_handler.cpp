@@ -409,7 +409,7 @@ static reply ExcConsole(
 	ShowStackTrace(tracer::get(*Context.pointers(), Context.thread_handle()), NestedStack);
 	std::wcerr << std::endl;
 
-	return ConsoleYesNo(L"Terminate the process"sv)? reply_handle : reply_ignore;
+	return ConsoleYesNo(L"Terminate the process"sv, true)? reply_handle : reply_ignore;
 }
 
 template<size_t... I>
@@ -711,7 +711,7 @@ static LONG WINAPI FarUnhandledExceptionFilter(EXCEPTION_POINTERS* const Pointer
 	const detail::exception_context Context(Pointers->ExceptionRecord->ExceptionCode, *Pointers, os::OpenCurrentThread(), GetCurrentThreadId());
 	if (ProcessGenericException(Context, L"FarUnhandledExceptionFilter"sv, {}, {}, {}))
 	{
-		std::terminate();
+		std::_Exit(EXIT_FAILURE);
 	}
 	RestoreGPFaultUI();
 	return EXCEPTION_CONTINUE_SEARCH;
@@ -774,7 +774,7 @@ namespace detail
 		if (StackOverflowHappened)
 		{
 			if (!_resetstkoflw())
-				std::terminate();
+				std::_Exit(EXIT_FAILURE);
 
 			StackOverflowHappened = false;
 		}

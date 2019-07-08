@@ -1228,7 +1228,7 @@ static string_view PrepareOSIfExist(string_view const CmdLine, predicate IsExist
 
 	auto Command = CmdLine;
 
-	while (Command.front() == L'@')
+	while (starts_with(Command, L'@'))
 		Command.remove_prefix(1);
 
 	const auto skip_spaces = [](string_view& Str)
@@ -1315,7 +1315,7 @@ bool ExtractIfExistCommand(string& strCommandText)
 	if (Cmd.size() == strCommandText.size())
 		return true; // Something went wrong, continue as is
 
-	const auto Pos = strCommandText.front() == L'@'? strCommandText.find_first_not_of(L'@', 1) : 0;
+	const auto Pos = strCommandText.find_first_not_of(L'@');
 	strCommandText.erase(Pos, strCommandText.size() - Cmd.size() - Pos);
 
 	return true;
