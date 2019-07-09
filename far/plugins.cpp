@@ -329,7 +329,7 @@ bool PluginManager::IsPluginUnloaded(const Plugin* pPlugin) const
 	return contains(UnloadedPlugins, pPlugin);
 }
 
-int PluginManager::UnloadPluginExternal(Plugin* pPlugin)
+bool PluginManager::UnloadPluginExternal(Plugin* pPlugin)
 {
 	//BUGBUG нужны проверки на легальность выгрузки
 	if(pPlugin->Active())
@@ -338,7 +338,7 @@ int PluginManager::UnloadPluginExternal(Plugin* pPlugin)
 		{
 			UnloadedPlugins.emplace_back(pPlugin);
 		}
-		return TRUE;
+		return true;
 	}
 
 	UnloadedPlugins.remove(pPlugin);
@@ -783,18 +783,28 @@ void PluginManager::ClosePanel(std::unique_ptr<plugin_panel>&& hPlugin)
 }
 
 
-int PluginManager::ProcessEditorInput(const INPUT_RECORD *Rec) const
+intptr_t PluginManager::ProcessEditorInput(const INPUT_RECORD *Rec) const
 {
 	ProcessEditorInputInfo Info={sizeof(Info)};
 	Info.Rec=*Rec;
 
-	return std::any_of(CONST_RANGE(SortedPlugins, i) {return i->has(iProcessEditorInput) && i->ProcessEditorInput(&Info);});
+	for (const auto& i: SortedPlugins)
+	{
+		if (!i->has(iProcessEditorInput))
+			continue;
+
+		if (const auto Result = i->ProcessEditorInput(&Info))
+		{
+			return Result;
+		}
+	}
+
+	return 0;
 }
 
 
-int PluginManager::ProcessEditorEvent(int Event, void *Param, const Editor* EditorInstance) const
+intptr_t PluginManager::ProcessEditorEvent(int Event, void *Param, const Editor* EditorInstance) const
 {
-	int nResult = 0;
 	if (const auto Container = EditorInstance->GetOwner())
 	{
 		if (Event == EE_REDRAW)
@@ -812,18 +822,20 @@ int PluginManager::ProcessEditorEvent(int Event, void *Param, const Editor* Edit
 
 		for (const auto& i: SortedPlugins)
 		{
-			if (i->has(iProcessEditorEvent))
-				nResult = i->ProcessEditorEvent(&Info);
+			if (!i->has(iProcessEditorEvent))
+				continue;
+
+			// The return value is currently ignored
+			i->ProcessEditorEvent(&Info);
 		}
 	}
 
-	return nResult;
+	return 0;
 }
 
 
-int PluginManager::ProcessSubscribedEditorEvent(int Event, void *Param, const Editor* EditorInstance, const std::unordered_set<UUID>& PluginIds) const
+intptr_t PluginManager::ProcessSubscribedEditorEvent(int Event, void *Param, const Editor* EditorInstance, const std::unordered_set<UUID>& PluginIds) const
 {
-	int nResult = 0;
 	if (const auto Container = EditorInstance->GetOwner())
 	{
 		ProcessEditorEventInfo Info = {sizeof(Info)};
@@ -835,20 +847,20 @@ int PluginManager::ProcessSubscribedEditorEvent(int Event, void *Param, const Ed
 
 		for (const auto& i: SortedPlugins)
 		{
-			if (i->has(iProcessEditorEvent) && PluginIds.count(i->Id()))
-			{
-				nResult = i->ProcessEditorEvent(&Info);
-			}
+			if (!i->has(iProcessEditorEvent) || !PluginIds.count(i->Id()))
+				continue;
+
+			// The return value is currently ignored
+			i->ProcessEditorEvent(&Info);
 		}
 	}
 
-	return nResult;
+	return 0;
 }
 
 
-int PluginManager::ProcessViewerEvent(int Event, void *Param, const Viewer* ViewerInstance) const
+intptr_t PluginManager::ProcessViewerEvent(int Event, void *Param, const Viewer* ViewerInstance) const
 {
-	int nResult = 0;
 	if (const auto Container = ViewerInstance->GetOwner())
 	{
 		ProcessViewerEventInfo Info = {sizeof(Info)};
@@ -860,56 +872,71 @@ int PluginManager::ProcessViewerEvent(int Event, void *Param, const Viewer* View
 
 		for (const auto& i: SortedPlugins)
 		{
-			if (i->has(iProcessViewerEvent))
-				nResult = i->ProcessViewerEvent(&Info);
+			if (!i->has(iProcessViewerEvent))
+				continue;
+
+			// The return value is currently ignored
+			i->ProcessViewerEvent(&Info);
 		}
 	}
-	return nResult;
+
+	return 0;
 }
 
-int PluginManager::ProcessDialogEvent(int Event, FarDialogEvent *Param) const
+intptr_t PluginManager::ProcessDialogEvent(int Event, FarDialogEvent *Param) const
 {
 	ProcessDialogEventInfo Info = {sizeof(Info)};
 	Info.Event = Event;
 	Info.Param = Param;
 
-	return std::any_of(CONST_RANGE(SortedPlugins, i) {return i->has(iProcessDialogEvent) && i->ProcessDialogEvent(&Info);});
-}
-
-int PluginManager::ProcessConsoleInput(ProcessConsoleInputInfo *Info) const
-{
-	int nResult = 0;
-
 	for (const auto& i: SortedPlugins)
 	{
-		if (i->has(iProcessConsoleInput))
+		if (!i->has(iProcessDialogEvent))
+			continue;
+
+		if (const auto Result = i->ProcessDialogEvent(&Info))
 		{
-			int n = i->ProcessConsoleInput(Info);
-			if (n == 1)
-			{
-				nResult = 1;
-				break;
-			}
-			else if (n == 2)
-			{
-				nResult = 2;
-			}
+			return Result;
 		}
 	}
 
-	return nResult;
+	return 0;
+}
+
+intptr_t PluginManager::ProcessConsoleInput(ProcessConsoleInputInfo *Info) const
+{
+	bool InputChanged = false;
+
+	for (const auto& i: SortedPlugins)
+	{
+		if (!i->has(iProcessConsoleInput))
+			continue;
+
+		const auto Result = i->ProcessConsoleInput(Info);
+		if (Result == 1)
+		{
+			return Result;
+		}
+		else if (Result == 2)
+		{
+			InputChanged = true;
+		}
+	}
+
+	return InputChanged? 2 : 0;
 }
 
 
-int PluginManager::GetFindData(const plugin_panel* hPlugin, PluginPanelItem **pPanelData, size_t *pItemsNumber, int OpMode)
+intptr_t PluginManager::GetFindData(const plugin_panel* hPlugin, PluginPanelItem **pPanelData, size_t *pItemsNumber, int OpMode)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	GetFindDataInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
 	Info.OpMode = OpMode;
-	int Result = hPlugin->plugin()->GetFindData(&Info);
+	const auto Result = hPlugin->plugin()->GetFindData(&Info);
 	*pPanelData = Info.PanelItem;
 	*pItemsNumber = Info.ItemsNumber;
+
 	return Result;
 }
 
@@ -932,7 +959,7 @@ void PluginManager::FreeFindData(const plugin_panel* hPlugin, PluginPanelItem *P
 }
 
 
-int PluginManager::GetVirtualFindData(const plugin_panel* hPlugin, PluginPanelItem **pPanelData, size_t *pItemsNumber, const string& Path)
+intptr_t PluginManager::GetVirtualFindData(const plugin_panel* hPlugin, PluginPanelItem **pPanelData, size_t *pItemsNumber, const string& Path)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	*pItemsNumber=0;
@@ -943,6 +970,7 @@ int PluginManager::GetVirtualFindData(const plugin_panel* hPlugin, PluginPanelIt
 	const auto Result = hPlugin->plugin()->GetVirtualFindData(&Info);
 	*pPanelData = Info.PanelItem;
 	*pItemsNumber = Info.ItemsNumber;
+
 	return Result;
 }
 
@@ -953,11 +981,12 @@ void PluginManager::FreeVirtualFindData(const plugin_panel* hPlugin, PluginPanel
 	Info.hPanel = hPlugin->panel();
 	Info.PanelItem = PanelItem;
 	Info.ItemsNumber = ItemsNumber;
+
 	return hPlugin->plugin()->FreeVirtualFindData(&Info);
 }
 
 
-int PluginManager::SetDirectory(const plugin_panel* hPlugin, const string& Dir, int OpMode, const UserDataItem *UserData)
+intptr_t PluginManager::SetDirectory(const plugin_panel* hPlugin, const string& Dir, int OpMode, const UserDataItem *UserData)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	SetDirectoryInfo Info = {sizeof(Info)};
@@ -968,6 +997,7 @@ int PluginManager::SetDirectory(const plugin_panel* hPlugin, const string& Dir, 
 	{
 		Info.UserData = *UserData;
 	}
+
 	return hPlugin->plugin()->SetDirectory(&Info);
 }
 
@@ -1005,11 +1035,12 @@ bool PluginManager::GetFile(const plugin_panel* hPlugin, PluginPanelItem *PanelI
 			os::fs::delete_file(Result); //BUGBUG
 		}
 	}
+
 	return Found;
 }
 
 
-int PluginManager::DeleteFiles(const plugin_panel* hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, int OpMode)
+intptr_t PluginManager::DeleteFiles(const plugin_panel* hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, int OpMode)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	DeleteFilesInfo Info = {sizeof(Info)};
@@ -1017,25 +1048,26 @@ int PluginManager::DeleteFiles(const plugin_panel* hPlugin, PluginPanelItem *Pan
 	Info.PanelItem = PanelItem;
 	Info.ItemsNumber = ItemsNumber;
 	Info.OpMode = OpMode;
-	int Code = hPlugin->plugin()->DeleteFiles(&Info);
-	return Code;
+
+	return hPlugin->plugin()->DeleteFiles(&Info);
 }
 
 
-int PluginManager::MakeDirectory(const plugin_panel* hPlugin, const wchar_t **Name, int OpMode)
+intptr_t PluginManager::MakeDirectory(const plugin_panel* hPlugin, const wchar_t **Name, int OpMode)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	MakeDirectoryInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
 	Info.Name = *Name;
 	Info.OpMode = OpMode;
-	int Code = hPlugin->plugin()->MakeDirectory(&Info);
+	const auto Result = hPlugin->plugin()->MakeDirectory(&Info);
 	*Name = Info.Name;
-	return Code;
+
+	return Result;
 }
 
 
-int PluginManager::ProcessHostFile(const plugin_panel* hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, int OpMode)
+intptr_t PluginManager::ProcessHostFile(const plugin_panel* hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, int OpMode)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	ProcessHostFileInfo Info = {sizeof(Info)};
@@ -1043,12 +1075,12 @@ int PluginManager::ProcessHostFile(const plugin_panel* hPlugin, PluginPanelItem 
 	Info.PanelItem = PanelItem;
 	Info.ItemsNumber = ItemsNumber;
 	Info.OpMode = OpMode;
-	int Code = hPlugin->plugin()->ProcessHostFile(&Info);
-	return Code;
+
+	return hPlugin->plugin()->ProcessHostFile(&Info);
 }
 
 
-int PluginManager::GetFiles(const plugin_panel* hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, bool Move, const wchar_t **DestPath, int OpMode)
+intptr_t PluginManager::GetFiles(const plugin_panel* hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, bool Move, const wchar_t **DestPath, int OpMode)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 
@@ -1060,13 +1092,13 @@ int PluginManager::GetFiles(const plugin_panel* hPlugin, PluginPanelItem *PanelI
 	Info.DestPath = *DestPath;
 	Info.OpMode = OpMode;
 
-	int Result = hPlugin->plugin()->GetFiles(&Info);
+	const auto Result = hPlugin->plugin()->GetFiles(&Info);
 	*DestPath = Info.DestPath;
 	return Result;
 }
 
 
-int PluginManager::PutFiles(const plugin_panel* hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, bool Move, int OpMode)
+intptr_t PluginManager::PutFiles(const plugin_panel* hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, bool Move, int OpMode)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	static string strCurrentDirectory;
@@ -1078,8 +1110,8 @@ int PluginManager::PutFiles(const plugin_panel* hPlugin, PluginPanelItem *PanelI
 	Info.Move = Move;
 	Info.SrcPath = strCurrentDirectory.c_str();
 	Info.OpMode = OpMode;
-	const auto Result = hPlugin->plugin()->PutFiles(&Info);
-	return Result;
+
+	return hPlugin->plugin()->PutFiles(&Info);
 }
 
 void PluginManager::GetOpenPanelInfo(const plugin_panel* hPlugin, OpenPanelInfo *Info)
@@ -1098,7 +1130,7 @@ void PluginManager::GetOpenPanelInfo(const plugin_panel* hPlugin, OpenPanelInfo 
 }
 
 
-int PluginManager::ProcessKey(const plugin_panel* hPlugin,const INPUT_RECORD *Rec, bool Pred)
+intptr_t PluginManager::ProcessKey(const plugin_panel* hPlugin,const INPUT_RECORD *Rec, bool Pred)
 {
 	ProcessPanelInputInfo Info={sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
@@ -1112,7 +1144,7 @@ int PluginManager::ProcessKey(const plugin_panel* hPlugin,const INPUT_RECORD *Re
 }
 
 
-int PluginManager::ProcessEvent(const plugin_panel* hPlugin, int Event, void *Param)
+intptr_t PluginManager::ProcessEvent(const plugin_panel* hPlugin, int Event, void *Param)
 {
 	ProcessPanelEventInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
@@ -1123,7 +1155,7 @@ int PluginManager::ProcessEvent(const plugin_panel* hPlugin, int Event, void *Pa
 }
 
 
-int PluginManager::Compare(const plugin_panel* hPlugin, const PluginPanelItem *Item1, const PluginPanelItem *Item2, unsigned int Mode)
+intptr_t PluginManager::Compare(const plugin_panel* hPlugin, const PluginPanelItem *Item1, const PluginPanelItem *Item2, unsigned int Mode)
 {
 	CompareInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();

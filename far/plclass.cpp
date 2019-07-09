@@ -801,7 +801,7 @@ void* Plugin::Open(OpenInfo* Info)
 	return es;
 }
 
-int Plugin::SetFindList(SetFindListInfo* Info)
+intptr_t Plugin::SetFindList(SetFindListInfo* Info)
 {
 	ExecuteStruct<iSetFindList> es;
 	if (Global->ProcessException || !has(es))
@@ -812,7 +812,7 @@ int Plugin::SetFindList(SetFindListInfo* Info)
 	return es;
 }
 
-int Plugin::ProcessEditorInput(ProcessEditorInputInfo* Info)
+intptr_t Plugin::ProcessEditorInput(ProcessEditorInputInfo* Info)
 {
 	ExecuteStruct<iProcessEditorInput> es;
 	if (Global->ProcessException || !Load() || !has(es))
@@ -823,7 +823,7 @@ int Plugin::ProcessEditorInput(ProcessEditorInputInfo* Info)
 	return es;
 }
 
-int Plugin::ProcessEditorEvent(ProcessEditorEventInfo* Info)
+intptr_t Plugin::ProcessEditorEvent(ProcessEditorEventInfo* Info)
 {
 	ExecuteStruct<iProcessEditorEvent> es;
 	if (Global->ProcessException || !Load() || !has(es))
@@ -834,7 +834,7 @@ int Plugin::ProcessEditorEvent(ProcessEditorEventInfo* Info)
 	return es;
 }
 
-int Plugin::ProcessViewerEvent(ProcessViewerEventInfo* Info)
+intptr_t Plugin::ProcessViewerEvent(ProcessViewerEventInfo* Info)
 {
 	ExecuteStruct<iProcessViewerEvent> es;
 	if (Global->ProcessException || !Load() || !has(es))
@@ -845,7 +845,7 @@ int Plugin::ProcessViewerEvent(ProcessViewerEventInfo* Info)
 	return es;
 }
 
-int Plugin::ProcessDialogEvent(ProcessDialogEventInfo* Info)
+intptr_t Plugin::ProcessDialogEvent(ProcessDialogEventInfo* Info)
 {
 	ExecuteStruct<iProcessDialogEvent> es;
 	if (Global->ProcessException || !Load() || !has(es))
@@ -856,7 +856,7 @@ int Plugin::ProcessDialogEvent(ProcessDialogEventInfo* Info)
 	return es;
 }
 
-int Plugin::ProcessSynchroEvent(ProcessSynchroEventInfo* Info)
+intptr_t Plugin::ProcessSynchroEvent(ProcessSynchroEventInfo* Info)
 {
 	ExecuteStruct<iProcessSynchroEvent> es;
 	if (Global->ProcessException || !Load() || !has(es))
@@ -867,7 +867,7 @@ int Plugin::ProcessSynchroEvent(ProcessSynchroEventInfo* Info)
 	return es;
 }
 
-int Plugin::ProcessConsoleInput(ProcessConsoleInputInfo *Info)
+intptr_t Plugin::ProcessConsoleInput(ProcessConsoleInputInfo *Info)
 {
 	ExecuteStruct<iProcessConsoleInput> es;
 	if (Global->ProcessException || !Load() || !has(es))
@@ -878,7 +878,7 @@ int Plugin::ProcessConsoleInput(ProcessConsoleInputInfo *Info)
 	return es;
 }
 
-int Plugin::GetVirtualFindData(GetVirtualFindDataInfo* Info)
+intptr_t Plugin::GetVirtualFindData(GetVirtualFindDataInfo* Info)
 {
 	ExecuteStruct<iGetVirtualFindData> es;
 	if (Global->ProcessException || !has(es))
@@ -899,7 +899,7 @@ void Plugin::FreeVirtualFindData(FreeFindDataInfo* Info)
 	ExecuteFunction(es, Info);
 }
 
-int Plugin::GetFiles(GetFilesInfo* Info)
+intptr_t Plugin::GetFiles(GetFilesInfo* Info)
 {
 	ExecuteStruct<iGetFiles> es(-1);
 	if (Global->ProcessException || !has(es))
@@ -910,7 +910,7 @@ int Plugin::GetFiles(GetFilesInfo* Info)
 	return es;
 }
 
-int Plugin::PutFiles(PutFilesInfo* Info)
+intptr_t Plugin::PutFiles(PutFilesInfo* Info)
 {
 	ExecuteStruct<iPutFiles> es(-1);
 	if (Global->ProcessException || !has(es))
@@ -921,7 +921,7 @@ int Plugin::PutFiles(PutFilesInfo* Info)
 	return es;
 }
 
-int Plugin::DeleteFiles(DeleteFilesInfo* Info)
+intptr_t Plugin::DeleteFiles(DeleteFilesInfo* Info)
 {
 	ExecuteStruct<iDeleteFiles> es;
 	if (Global->ProcessException || !has(es))
@@ -932,7 +932,7 @@ int Plugin::DeleteFiles(DeleteFilesInfo* Info)
 	return es;
 }
 
-int Plugin::MakeDirectory(MakeDirectoryInfo* Info)
+intptr_t Plugin::MakeDirectory(MakeDirectoryInfo* Info)
 {
 	ExecuteStruct<iMakeDirectory> es(-1);
 	if (Global->ProcessException || !has(es))
@@ -943,7 +943,7 @@ int Plugin::MakeDirectory(MakeDirectoryInfo* Info)
 	return es;
 }
 
-int Plugin::ProcessHostFile(ProcessHostFileInfo* Info)
+intptr_t Plugin::ProcessHostFile(ProcessHostFileInfo* Info)
 {
 	ExecuteStruct<iProcessHostFile> es;
 	if (Global->ProcessException || !has(es))
@@ -954,7 +954,7 @@ int Plugin::ProcessHostFile(ProcessHostFileInfo* Info)
 	return es;
 }
 
-int Plugin::ProcessPanelEvent(ProcessPanelEventInfo* Info)
+intptr_t Plugin::ProcessPanelEvent(ProcessPanelEventInfo* Info)
 {
 	ExecuteStruct<iProcessPanelEvent> es;
 	if (Global->ProcessException || !has(es))
@@ -965,7 +965,7 @@ int Plugin::ProcessPanelEvent(ProcessPanelEventInfo* Info)
 	return es;
 }
 
-int Plugin::Compare(CompareInfo* Info)
+intptr_t Plugin::Compare(CompareInfo* Info)
 {
 	ExecuteStruct<iCompare> es(-2);
 	if (Global->ProcessException || !has(es))
@@ -976,7 +976,7 @@ int Plugin::Compare(CompareInfo* Info)
 	return es;
 }
 
-int Plugin::GetFindData(GetFindDataInfo* Info)
+intptr_t Plugin::GetFindData(GetFindDataInfo* Info)
 {
 	ExecuteStruct<iGetFindData> es;
 	if (Global->ProcessException || !has(es))
@@ -997,7 +997,7 @@ void Plugin::FreeFindData(FreeFindDataInfo* Info)
 	ExecuteFunction(es, Info);
 }
 
-int Plugin::ProcessPanelInput(ProcessPanelInputInfo* Info)
+intptr_t Plugin::ProcessPanelInput(ProcessPanelInputInfo* Info)
 {
 	ExecuteStruct<iProcessPanelInput> es;
 	if (Global->ProcessException || !has(es))
@@ -1020,7 +1020,7 @@ void Plugin::ClosePanel(ClosePanelInfo* Info)
 }
 
 
-int Plugin::SetDirectory(SetDirectoryInfo* Info)
+intptr_t Plugin::SetDirectory(SetDirectoryInfo* Info)
 {
 	ExecuteStruct<iSetDirectory> es;
 	if (Global->ProcessException || !has(es))
@@ -1042,7 +1042,7 @@ void Plugin::GetOpenPanelInfo(OpenPanelInfo* Info)
 }
 
 
-int Plugin::Configure(ConfigureInfo* Info)
+intptr_t Plugin::Configure(ConfigureInfo* Info)
 {
 	ExecuteStruct<iConfigure> es;
 	if (Global->ProcessException || !Load() || !has(es))
@@ -1065,7 +1065,7 @@ bool Plugin::GetPluginInfo(PluginInfo* Info)
 	return !bPendingRemove;
 }
 
-int Plugin::GetContentFields(GetContentFieldsInfo *Info)
+intptr_t Plugin::GetContentFields(GetContentFieldsInfo *Info)
 {
 	ExecuteStruct<iGetContentFields> es;
 	if (Global->ProcessException || !Load() || !has(es))
@@ -1076,7 +1076,7 @@ int Plugin::GetContentFields(GetContentFieldsInfo *Info)
 	return es;
 }
 
-int Plugin::GetContentData(GetContentDataInfo *Info)
+intptr_t Plugin::GetContentData(GetContentDataInfo *Info)
 {
 	ExecuteStruct<iGetContentData> es;
 	if (Global->ProcessException || !Load() || !has(es))

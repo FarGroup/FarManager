@@ -5146,7 +5146,7 @@ private:
 		ConvertOpenPanelInfo(InfoA, Info);
 	}
 
-	int GetFindData(GetFindDataInfo* Info) override
+	intptr_t GetFindData(GetFindDataInfo* Info) override
 	{
 		AnsiExecuteStruct<iGetFindData> es;
 		if (Global->ProcessException || !has(es))
@@ -5180,7 +5180,7 @@ private:
 		pFDPanelItemA = nullptr;
 	}
 
-	int GetVirtualFindData(GetVirtualFindDataInfo* Info) override
+	intptr_t GetVirtualFindData(GetVirtualFindDataInfo* Info) override
 	{
 		AnsiExecuteStruct<iGetVirtualFindData> es;
 		if (Global->ProcessException || !has(es))
@@ -5214,7 +5214,7 @@ private:
 		pVFDPanelItemA = nullptr;
 	}
 
-	int SetDirectory(SetDirectoryInfo* Info) override
+	intptr_t SetDirectory(SetDirectoryInfo* Info) override
 	{
 		AnsiExecuteStruct<iSetDirectory> es;
 		if (Global->ProcessException || !has(es))
@@ -5227,7 +5227,7 @@ private:
 		return es;
 	}
 
-	int GetFiles(GetFilesInfo* Info) override
+	intptr_t GetFiles(GetFilesInfo* Info) override
 	{
 		AnsiExecuteStruct<iGetFiles> es(-1);
 		if (Global->ProcessException || !has(es))
@@ -5247,7 +5247,7 @@ private:
 		return es;
 	}
 
-	int PutFiles(PutFilesInfo* Info) override
+	intptr_t PutFiles(PutFilesInfo* Info) override
 	{
 		AnsiExecuteStruct<iPutFiles> es(-1);
 		if (Global->ProcessException || !has(es))
@@ -5262,7 +5262,7 @@ private:
 		return es;
 	}
 
-	int DeleteFiles(DeleteFilesInfo* Info) override
+	intptr_t DeleteFiles(DeleteFilesInfo* Info) override
 	{
 		AnsiExecuteStruct<iDeleteFiles> es;
 		if (Global->ProcessException || !has(es))
@@ -5277,7 +5277,7 @@ private:
 		return es;
 	}
 
-	int MakeDirectory(MakeDirectoryInfo* Info) override
+	intptr_t MakeDirectory(MakeDirectoryInfo* Info) override
 	{
 		AnsiExecuteStruct<iMakeDirectory> es(-1);
 		if (Global->ProcessException || !has(es))
@@ -5294,7 +5294,7 @@ private:
 		return es;
 	}
 
-	int ProcessHostFile(ProcessHostFileInfo* Info) override
+	intptr_t ProcessHostFile(ProcessHostFileInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessHostFile> es;
 		if (Global->ProcessException || !has(es))
@@ -5308,7 +5308,7 @@ private:
 		return es;
 	}
 
-	int SetFindList(SetFindListInfo* Info) override
+	intptr_t SetFindList(SetFindListInfo* Info) override
 	{
 		AnsiExecuteStruct<iSetFindList> es;
 		if (Global->ProcessException || !has(es))
@@ -5320,7 +5320,7 @@ private:
 		return es;
 	}
 
-	int Configure(ConfigureInfo* Info) override
+	intptr_t Configure(ConfigureInfo* Info) override
 	{
 		AnsiExecuteStruct<iConfigure> es;
 		if (Global->ProcessException || !Load() || !has(es))
@@ -5340,7 +5340,7 @@ private:
 		ExecuteFunction(es);
 	}
 
-	int ProcessPanelInput(ProcessPanelInputInfo* Info) override
+	intptr_t ProcessPanelInput(ProcessPanelInputInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessPanelInput> es;
 		if (Global->ProcessException || !has(es))
@@ -5363,7 +5363,7 @@ private:
 		return es;
 	}
 
-	int ProcessPanelEvent(ProcessPanelEventInfo* Info) override
+	intptr_t ProcessPanelEvent(ProcessPanelEventInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessPanelEvent> es;
 		if (Global->ProcessException || !has(es))
@@ -5382,7 +5382,7 @@ private:
 		return es;
 	}
 
-	int ProcessEditorEvent(ProcessEditorEventInfo* Info) override
+	intptr_t ProcessEditorEvent(ProcessEditorEventInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessEditorEvent> es;
 		if (Global->ProcessException || !Load() || !has(es))
@@ -5404,7 +5404,7 @@ private:
 		return es;
 	}
 
-	int Compare(CompareInfo* Info) override
+	intptr_t Compare(CompareInfo* Info) override
 	{
 		AnsiExecuteStruct<iCompare> es(-2);
 		if (Global->ProcessException || !has(es))
@@ -5418,7 +5418,7 @@ private:
 		return es;
 	}
 
-	int ProcessEditorInput(ProcessEditorInputInfo* Info) override
+	intptr_t ProcessEditorInput(ProcessEditorInputInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessEditorInput> es;
 		if (Global->ProcessException || !Load() || !has(es))
@@ -5436,7 +5436,7 @@ private:
 		return es;
 	}
 
-	int ProcessViewerEvent(ProcessViewerEventInfo* Info) override
+	intptr_t ProcessViewerEvent(ProcessViewerEventInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessViewerEvent> es;
 		if (Global->ProcessException || !Load() || !has(es))
@@ -5456,7 +5456,7 @@ private:
 		return es;
 	}
 
-	int ProcessDialogEvent(ProcessDialogEventInfo* Info) override
+	intptr_t ProcessDialogEvent(ProcessDialogEventInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessDialogEvent> es;
 		if (Global->ProcessException || !Load() || !has(es))
@@ -5466,12 +5466,12 @@ private:
 		return es;
 	}
 
-	int ProcessSynchroEvent(ProcessSynchroEventInfo*) override
+	intptr_t ProcessSynchroEvent(ProcessSynchroEventInfo*) override
 	{
 		return 0;
 	}
 
-	int ProcessConsoleInput(ProcessConsoleInputInfo*) override
+	intptr_t ProcessConsoleInput(ProcessConsoleInputInfo*) override
 	{
 		return 0;
 	}
@@ -5485,12 +5485,12 @@ private:
 	{
 	}
 
-	int GetContentFields(GetContentFieldsInfo*) override
+	intptr_t GetContentFields(GetContentFieldsInfo*) override
 	{
 		return 0;
 	}
 
-	int GetContentData(GetContentDataInfo*) override
+	intptr_t GetContentData(GetContentDataInfo*) override
 	{
 		return 0;
 	}
