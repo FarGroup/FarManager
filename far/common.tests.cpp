@@ -716,7 +716,7 @@ TEST_CASE("view.enumerate")
 	size_t Index = 0;
 	for (const auto& [Item, i]: enumerate(std::vector{ 'A', 'B', 'C' }))
 	{
-		REQUIRE(Item == 'A' + Index);
+		REQUIRE(Item == static_cast<char>('A' + Index));
 		REQUIRE(i == Index);
 
 		++Index;

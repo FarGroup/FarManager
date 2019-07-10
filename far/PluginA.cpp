@@ -5514,7 +5514,7 @@ private:
 	{
 		AnsiExecuteStruct<iGetMinFarVersion> es;
 		if (Global->ProcessException || !has(es))
-			return false;
+			return true;
 
 		ExecuteFunction(es);
 		return !bPendingRemove;
