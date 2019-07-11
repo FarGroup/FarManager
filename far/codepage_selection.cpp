@@ -346,17 +346,34 @@ void codepages::AddCodePages(DWORD codePages)
 		return concat(SystemName, L" - "sv, Name);
 	};
 
-	// system codepages
-	//
-	AddSeparator(msg(lng::MGetCodePageSystem));
-
 	{
+		// system codepages
+		//
 		const auto AnsiCp = encoding::codepage::ansi();
-		AddStandardCodePage(GetSystemCodepageName(AnsiCp, L"ANSI"sv), AnsiCp, -1, (codePages & ::ANSI) != 0);
+
+		bool SeparatorAdded = false;
+		const auto AddSeparatorIfNeeded = [&]
+		{
+			if (SeparatorAdded)
+				return;
+
+			AddSeparator(msg(lng::MGetCodePageSystem));
+			SeparatorAdded = true;
+		};
+
+		// Windows 10-specific madness
+		if (AnsiCp != CP_UTF8)
+		{
+			AddSeparatorIfNeeded();
+			AddStandardCodePage(GetSystemCodepageName(AnsiCp, L"ANSI"sv), AnsiCp, -1, (codePages & ::ANSI) != 0);
+		}
 
 		const auto OemCp = encoding::codepage::oem();
-		if (OemCp != AnsiCp)
+		if (OemCp != AnsiCp && OemCp != CP_UTF8)
+		{
+			AddSeparatorIfNeeded();
 			AddStandardCodePage(GetSystemCodepageName(OemCp, L"OEM"sv), OemCp, -1, (codePages & ::OEM) != 0);
+		}
 	}
 	// unicode codepages
 	//

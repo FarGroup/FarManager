@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 11.07.2019 01:13:31 +0100 - build 5423
+
+1. In code pages menu, take into account that in Windows 10 ANSI and OEM can be UTF-8.
+
+2. Panel.Tree.TurnOffCompletely option does not suppress keybar labels anymore.
+
+3. Clarification of *.lng.custom loading order.
+
 drkns 10.07.2019 07:52:22 +0100 - build 5422
 
 1. Continuation of 5420.

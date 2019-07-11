@@ -181,16 +181,11 @@ void KeyBar::ClearKeyTitles(bool Custom)
 
 void KeyBar::SetLabels(lng StartIndex)
 {
-	const bool no_tree = Global->Opt->Tree.TurnOffCompletely;
-
 	for (auto& Group: Items)
 	{
 		for (auto& i: Group)
 		{
-			if (no_tree && (StartIndex == lng::MAltF10 || StartIndex == lng::MInfoAltF10 || StartIndex == lng::MQViewAltF10))
-				i.first.clear();
-			else
-				i.first = msg(StartIndex);
+			i.first = msg(StartIndex);
 			StartIndex++;
 		}
 	}

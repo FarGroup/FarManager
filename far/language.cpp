@@ -404,8 +404,10 @@ void language::load(const string& Path, const string& Language, int CountNeed)
 	const auto CustomLngInSameDir = Data->m_FileName + L".custom"sv;
 	const auto CustomLngInProfileDir = concat(Global->Opt->ProfilePath, L'\\', ExtractFileName(CustomLngInSameDir));
 
-	LoadCustomStrings(CustomLngInSameDir, CustomStrings);
+	// LoadCustomStrings uses map.emplace (does not overwrite existing entires) so the high priority location should come first.
+	// If for whatever reason it will use insert_or_assign one day - change the order here.
 	LoadCustomStrings(CustomLngInProfileDir, CustomStrings);
+	LoadCustomStrings(CustomLngInSameDir, CustomStrings);
 
 	const auto LoadLabels = !CustomStrings.empty();
 
