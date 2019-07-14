@@ -533,17 +533,7 @@ void InfoList::DisplayObject()
 				if (SecondsCount == BATTERY_LIFE_UNKNOWN)
 					return string(msg(lng::MInfoPowerStatusUnknown));
 
-				string Days, Time;
-				const std::chrono::seconds Seconds(SecondsCount);
-				ConvertDuration(Seconds, Days, Time);
-				if (Days != L"0"sv)
-				{
-					const auto Hours = str(std::chrono::duration_cast<std::chrono::hours>(Seconds).count());
-					Time = Hours + Time.substr(2);
-				}
-
-				// drop msec
-				return Time.substr(0, Time.size() - 4);
+				return ConvertDurationToHMS(std::chrono::seconds{SecondsCount});
 			};
 
 			GotoXY(m_Where.left + 2, CurY++);

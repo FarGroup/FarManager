@@ -3344,10 +3344,10 @@ bool ShellCopy::AskOverwrite(const os::fs::find_data &SrcData,
 					}
 
 					string strDateText, strTimeText;
-					ConvertDate(SrcLastWriteTime, strDateText, strTimeText, 8, FALSE, FALSE, TRUE);
+					ConvertDate(SrcLastWriteTime, strDateText, strTimeText, 8, 1);
 					WarnCopyDlg[WDLG_SRCFILEBTN].strData = format(Format, msg(lng::MCopySource), SrcSize, strDateText, strTimeText);
 
-					ConvertDate(DestData.LastWriteTime, strDateText, strTimeText, 8, FALSE, FALSE, TRUE);
+					ConvertDate(DestData.LastWriteTime, strDateText, strTimeText, 8, 1);
 					WarnCopyDlg[WDLG_DSTFILEBTN].strData = format(Format, msg(lng::MCopyDest), DestData.FileSize, strDateText, strTimeText);
 
 					const auto strFullSrcName = ConvertNameToFull(SrcName);
@@ -3440,10 +3440,10 @@ bool ShellCopy::AskOverwrite(const os::fs::find_data &SrcData,
 					}
 
 					string strDateText, strTimeText;
-					ConvertDate(SrcData.LastWriteTime, strDateText, strTimeText, 8, FALSE, FALSE, TRUE);
+					ConvertDate(SrcData.LastWriteTime, strDateText, strTimeText, 8, 1);
 					WarnCopyDlg[WDLG_SRCFILEBTN].strData = format(Format, msg(lng::MCopySource), SrcData.FileSize, strDateText, strTimeText);
 
-					ConvertDate(DestData.LastWriteTime, strDateText, strTimeText, 8, FALSE, FALSE, TRUE);
+					ConvertDate(DestData.LastWriteTime, strDateText, strTimeText, 8, 1);
 					WarnCopyDlg[WDLG_DSTFILEBTN].strData = format(Format, msg(lng::MCopyDest), DestData.FileSize, strDateText, strTimeText);
 
 					WarnCopyDlg[WDLG_TEXT].strData = msg(lng::MCopyFileRO);

@@ -425,11 +425,10 @@ os::chrono::duration ParseDuration(const string& Date, const string& Time, const
 	ParseDateComponents(Time, TimeRanges, TimeN, 0);
 
 	using namespace std::chrono;
-	using namespace chrono;
-	return days(DateN[0]) + hours(TimeN[0]) + minutes(TimeN[1]) + seconds(TimeN[2]) + milliseconds(TimeN[3]);
+	return chrono::days(DateN[0]) + hours(TimeN[0]) + minutes(TimeN[1]) + seconds(TimeN[2]) + milliseconds(TimeN[3]);
 }
 
-void ConvertDate(os::chrono::time_point Point, string& strDateText, string& strTimeText, int TimeLength, int Brief, int TextMonth, int FullYear)
+void ConvertDate(os::chrono::time_point const Point, string& strDateText, string& strTimeText, int const TimeLength, int const FullYear, bool const Brief, bool const TextMonth)
 {
 	// Epoch => empty
 	if (!Point.time_since_epoch().count())
@@ -532,21 +531,38 @@ void ConvertDate(os::chrono::time_point Point, string& strDateText, string& strT
 	}
 }
 
-void ConvertDuration(os::chrono::duration Duration, string& strDaysText, string& strTimeText)
+std::tuple<string, string> ConvertDuration(os::chrono::duration Duration)
 {
 	using namespace std::chrono;
-	using namespace chrono;
 
-	const auto Result = split_duration<days, hours, minutes, seconds, milliseconds>(Duration);
+	const auto Result = split_duration<chrono::days, hours, minutes, seconds, milliseconds>(Duration);
 
-	strDaysText = str(Result.get<days>().count());
-	strTimeText = format(FSTR(L"{0:02}{4}{1:02}{4}{2:02}{5}{3:03}"),
+	return
+	{
+		str(Result.get<chrono::days>().count()),
+		format(FSTR(L"{0:02}{4}{1:02}{4}{2:02}{5}{3:03}"),
+			Result.get<hours>().count(),
+			Result.get<minutes>().count(),
+			Result.get<seconds>().count(),
+			Result.get<milliseconds>().count(),
+			locale.time_separator(),
+			locale.decimal_separator()
+		)
+	};
+}
+
+string ConvertDurationToHMS(os::chrono::duration Duration)
+{
+	using namespace std::chrono;
+
+	const auto Result = split_duration<hours, minutes, seconds, milliseconds>(Duration);
+
+	return format(FSTR(L"{0:02}{3}{1:02}{3}{2:02}"),
 		Result.get<hours>().count(),
 		Result.get<minutes>().count(),
 		Result.get<seconds>().count(),
-		Result.get<milliseconds>().count(),
-		locale.time_separator(),
-		locale.decimal_separator());
+		locale.time_separator()
+	);
 }
 
 bool Utc2Local(os::chrono::time_point UtcTime, SYSTEMTIME& LocalTime)

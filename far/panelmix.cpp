@@ -663,7 +663,7 @@ string FormatStr_DateTime(os::chrono::time_point FileTime, column_type const Col
 
 	string strDateStr,strTimeStr;
 
-	ConvertDate(FileTime,strDateStr,strTimeStr,ColumnWidth,Brief,TextMonth,FullYear);
+	ConvertDate(FileTime, strDateStr, strTimeStr, ColumnWidth, FullYear, Brief, TextMonth);
 
 	string strOutStr;
 	switch(ColumnType)

@@ -54,6 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu.hpp"
 #include "vmenu2.hpp"
 #include "global.hpp"
+#include "FarDlgBuilder.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -170,9 +171,14 @@ history_return_type History::Select(VMenu2& HistoryMenu, int Height, Dialog cons
 
 history_return_type History::ProcessMenu(string& strStr, GUID* const Guid, string* const pstrFile, string* const pstrData, string_view const Title, VMenu2& HistoryMenu, int const Height, history_record_type& Type, const Dialog* const Dlg)
 {
-	unsigned long long SelectedRecord = 0;
-	string strSelectedRecordName,strSelectedRecordGuid,strSelectedRecordFile,strSelectedRecordData;
-	history_record_type SelectedRecordType = HR_DEFAULT;
+	struct
+	{
+		unsigned long long id = 0;
+		string name, guid, file, data;
+		history_record_type type = HR_DEFAULT;
+	}
+	SelectedRecord;
+
 	FarListPos Pos={sizeof(FarListPos)};
 	int MenuExitCode=-1;
 	history_return_type RetCode = HRT_ENTER;
@@ -236,7 +242,7 @@ history_return_type History::ProcessMenu(string& strStr, GUID* const Guid, strin
 					MenuItemEx Separator;
 					Separator.Flags = LIF_SEPARATOR;
 					string strTime;
-					ConvertDate(i.Time, Separator.Name, strTime, 5, FALSE, FALSE, TRUE);
+					ConvertDate(i.Time, Separator.Name, strTime, 5, 1);
 					HistoryMenu.AddItem(Separator);
 				}
 				strRecord += i.Name;
@@ -379,15 +385,35 @@ history_return_type History::ProcessMenu(string& strStr, GUID* const Guid, strin
 				case KEY_F3:
 				case KEY_F4:
 				case KEY_NUMPAD5:  case KEY_SHIFTNUMPAD5:
-				{
-					if (m_TypeHistory != HISTORYTYPE_VIEW)
+					switch (m_TypeHistory)
+					{
+					case HISTORYTYPE_VIEW:
+						HistoryMenu.Close(Pos.SelectPos);
+						Done = true;
+						RetCode = (Key == KEY_F4? HRT_F4 : HRT_F3);
 						break;
 
-					HistoryMenu.Close(Pos.SelectPos);
-					Done=true;
-					RetCode=(Key==KEY_F4? HRT_F4 : HRT_F3);
+					case HISTORYTYPE_CMD:
+						if (Key == KEY_F3 && CurrentRecord)
+						{
+							string Data;
+
+							if (HistoryCfgRef()->Get(CurrentRecord, {}, {}, {}, {}, &Data))
+							{
+								DialogBuilder Builder(lng::MHistoryInfoTitle);
+								Builder.AddText(lng::MHistoryInfoFolder);
+								Builder.AddConstEditField(Data, std::max(20, std::min(static_cast<int>(Data.size()), ScrX - 5 * 2)));
+								Builder.AddOK();
+								Builder.ShowDialog();
+							}
+						}
+						break;
+
+					default:
+						break;
+					}
 					break;
-				}
+
 				// $ 09.04.2001 SVS - Фича - копирование из истории строки в Clipboard
 				case KEY_CTRLC:
 				case KEY_RCTRLC:
@@ -396,9 +422,9 @@ history_return_type History::ProcessMenu(string& strStr, GUID* const Guid, strin
 				{
 					if (CurrentRecord)
 					{
-						string strName;
-						if (HistoryCfgRef()->Get(CurrentRecord, strName))
-							SetClipboardText(strName);
+						string Name;
+						if (HistoryCfgRef()->Get(CurrentRecord, &Name))
+							SetClipboardText(Name);
 					}
 
 					break;
@@ -466,26 +492,26 @@ history_return_type History::ProcessMenu(string& strStr, GUID* const Guid, strin
 
 		if (MenuExitCode >= 0)
 		{
-			SelectedRecord = *HistoryMenu.GetComplexUserDataPtr<unsigned long long>(MenuExitCode);
+			SelectedRecord.id = *HistoryMenu.GetComplexUserDataPtr<unsigned long long>(MenuExitCode);
 
-			if (!SelectedRecord)
+			if (!SelectedRecord.id)
 				return HRT_CANCEL;
 
-			if (!HistoryCfgRef()->Get(SelectedRecord, strSelectedRecordName, SelectedRecordType, strSelectedRecordGuid, strSelectedRecordFile, strSelectedRecordData))
+			if (!HistoryCfgRef()->Get(SelectedRecord.id, &SelectedRecord.name, &SelectedRecord.type, &SelectedRecord.guid, &SelectedRecord.file, &SelectedRecord.data))
 				return HRT_CANCEL;
 
-			if (SelectedRecordType != HR_EXTERNAL && SelectedRecordType != HR_EXTERNAL_WAIT
-				&& RetCode != HRT_CTRLENTER && ((m_TypeHistory == HISTORYTYPE_FOLDER && strSelectedRecordGuid.empty()) || m_TypeHistory == HISTORYTYPE_VIEW) && !os::fs::exists(strSelectedRecordName))
+			if (SelectedRecord.type != HR_EXTERNAL && SelectedRecord.type != HR_EXTERNAL_WAIT
+				&& RetCode != HRT_CTRLENTER && ((m_TypeHistory == HISTORYTYPE_FOLDER && SelectedRecord.guid.empty()) || m_TypeHistory == HISTORYTYPE_VIEW) && !os::fs::exists(SelectedRecord.name))
 			{
 				SetLastError(ERROR_FILE_NOT_FOUND);
 				const auto ErrorState = error_state::fetch();
 
-				if (SelectedRecordType == HR_EDITOR && m_TypeHistory == HISTORYTYPE_VIEW) // Edit? тогда спросим и если надо создадим
+				if (SelectedRecord.type == HR_EDITOR && m_TypeHistory == HISTORYTYPE_VIEW) // Edit? тогда спросим и если надо создадим
 				{
 					if (Message(MSG_WARNING, ErrorState,
 						Title,
 						{
-							strSelectedRecordName,
+							SelectedRecord.name,
 							msg(lng::MViewHistoryIsCreate)
 						},
 						{ lng::MHYes, lng::MHNo }) == Message::first_button)
@@ -496,7 +522,7 @@ history_return_type History::ProcessMenu(string& strStr, GUID* const Guid, strin
 					Message(MSG_WARNING, ErrorState,
 						Title,
 						{
-							strSelectedRecordName
+							SelectedRecord.name
 						},
 						{ lng::MOk });
 				}
@@ -508,21 +534,27 @@ history_return_type History::ProcessMenu(string& strStr, GUID* const Guid, strin
 		}
 	}
 
-	if (MenuExitCode < 0 || !SelectedRecord)
+	if (MenuExitCode < 0 || !SelectedRecord.id)
 		return HRT_CANCEL;
 
 	if (m_KeepSelectedPos)
 	{
-		m_CurrentItem = SelectedRecord;
+		m_CurrentItem = SelectedRecord.id;
 	}
 
-	strStr = strSelectedRecordName;
+	strStr = SelectedRecord.name;
+
 	if(Guid)
 	{
-		if(!StrToGuid(strSelectedRecordGuid,*Guid)) *Guid = FarGuid;
+		if(!StrToGuid(SelectedRecord.guid, *Guid))
+			*Guid = FarGuid;
 	}
-	if(pstrFile) *pstrFile = strSelectedRecordFile;
-	if(pstrData) *pstrData = strSelectedRecordData;
+
+	if(pstrFile)
+		*pstrFile = SelectedRecord.file;
+
+	if(pstrData)
+		*pstrData = SelectedRecord.data;
 
 	switch(RetCode)
 	{
@@ -534,7 +566,7 @@ history_return_type History::ProcessMenu(string& strStr, GUID* const Guid, strin
 	case HRT_CTRLENTER:
 	case HRT_CTRLSHIFTENTER:
 	case HRT_CTRLALTENTER:
-		Type = SelectedRecordType;
+		Type = SelectedRecord.type;
 		break;
 
 	case HRT_F3:
@@ -544,11 +576,12 @@ history_return_type History::ProcessMenu(string& strStr, GUID* const Guid, strin
 
 	case HRT_F4:
 		Type = HR_EDITOR;
-		if (SelectedRecordType == HR_EDITOR_RO)
+		if (SelectedRecord.type == HR_EDITOR_RO)
 			Type = HR_EDITOR_RO;
 		RetCode = HRT_ENTER;
 		break;
 	}
+
 	return RetCode;
 }
 

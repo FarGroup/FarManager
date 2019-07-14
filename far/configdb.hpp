@@ -359,8 +359,7 @@ public:
 	virtual bool DeleteAndAddAsync(unsigned long long DeleteId, unsigned int TypeHistory, string_view HistoryName, string_view Name, int Type, bool Lock, string_view Guid, string_view File, string_view Data) = 0;
 	virtual void DeleteOldUnlocked(unsigned int TypeHistory, string_view HistoryName, int DaysToKeep, int MinimumEntries) = 0;
 	virtual bool GetNewest(unsigned int TypeHistory, string_view HistoryName, string &strName) = 0;
-	virtual bool Get(unsigned long long id, string &strName) = 0;
-	virtual bool Get(unsigned long long id, string &strName, history_record_type& Type, string &strGuid, string &strFile, string &strData) = 0;
+	virtual bool Get(unsigned long long id, string* Name = {}, history_record_type* Type = {}, string* Guid = {}, string* File = {}, string* Data = {}) = 0;
 	virtual DWORD Count(unsigned int TypeHistory, string_view HistoryName) = 0;
 	virtual void FlipLock(unsigned long long id) = 0;
 	virtual bool IsLocked(unsigned long long id) = 0;

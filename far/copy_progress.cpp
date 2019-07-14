@@ -84,18 +84,11 @@ size_t copy_progress::CanvasWidth()
 
 static string GetTimeText(std::chrono::seconds Seconds)
 {
-	string Days, Time;
-	ConvertDuration(Seconds, Days, Time);
-	if (Days != L"0"sv)
-	{
-		// BUGBUG copy time > 4.166 days (100 hrs) will not be displayed correctly
-		const auto Hours = str(std::min(std::chrono::duration_cast<std::chrono::hours>(Seconds), 99h).count());
-		Time[0] = Hours[0];
-		Time[1] = Hours[1];
-	}
+	// BUGBUG copy time > 4.166 days (100 hrs) will not be displayed correctly
+	if (Seconds > 100h)
+		Seconds = 99h + Seconds % 1h;
 
-	// drop msec
-	return Time.substr(0, Time.size() - 4);
+	return ConvertDurationToHMS(Seconds);
 }
 
 void copy_progress::UpdateAllBytesInfo(unsigned long long FileSize)

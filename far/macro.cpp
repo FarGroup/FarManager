@@ -4446,15 +4446,15 @@ static bool panelitemFunc(FarMacroCall* Data)
 				PassNumber((long)filelistItem->Attributes, Data);
 				return false;
 			case 3:  // CreationTime
-				ConvertDate(filelistItem->CreationTime,strDate,strTime,8,FALSE,FALSE,TRUE);
+				ConvertDate(filelistItem->CreationTime, strDate, strTime, 8, 1);
 				Ret = concat(strDate, L' ', strTime);
 				break;
 			case 4:  // AccessTime
-				ConvertDate(filelistItem->LastAccessTime, strDate, strTime, 8, FALSE, FALSE, TRUE);
+				ConvertDate(filelistItem->LastAccessTime, strDate, strTime, 8, 1);
 				Ret = concat(strDate, L' ', strTime);
 				break;
 			case 5:  // WriteTime
-				ConvertDate(filelistItem->LastWriteTime, strDate, strTime, 8, FALSE, FALSE, TRUE);
+				ConvertDate(filelistItem->LastWriteTime, strDate, strTime, 8, 1);
 				Ret = concat(strDate, L' ', strTime);
 				break;
 			case 6:  // FileSize
@@ -4500,7 +4500,7 @@ static bool panelitemFunc(FarMacroCall* Data)
 				PassInteger(filelistItem->StreamsSize(fileList.get()), Data);
 				return false;
 			case 20:  // ChangeTime
-				ConvertDate(filelistItem->ChangeTime,strDate,strTime,8,FALSE,FALSE,TRUE);
+				ConvertDate(filelistItem->ChangeTime, strDate, strTime, 8, 1);
 				Ret = concat(strDate, L' ', strTime);
 				break;
 			case 21:  // ChangeTime

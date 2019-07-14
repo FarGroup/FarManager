@@ -706,7 +706,7 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 
 				if (Param1==ID_FF_CURRENT)
 				{
-					ConvertDate(os::chrono::nt_clock::now(), strDate, strTime, 12, FALSE, FALSE, 2);
+					ConvertDate(os::chrono::nt_clock::now(), strDate, strTime, 12, 2);
 				}
 				else
 				{
@@ -1058,13 +1058,13 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	const auto ProcessDuration = [&](auto Duration, auto DateId, auto TimeId)
 	{
 		FilterDlg[ID_FF_DATERELATIVE].Selected = BSTATE_CHECKED;
-		ConvertDuration(Duration, FilterDlg[DateId].strData, FilterDlg[TimeId].strData);
+		std::tie(FilterDlg[DateId].strData, FilterDlg[TimeId].strData) = ConvertDuration(Duration);
 	};
 
 	const auto ProcessPoint = [&](auto Point, auto DateId, auto TimeId)
 	{
 		FilterDlg[ID_FF_DATERELATIVE].Selected = BSTATE_UNCHECKED;
-		ConvertDate(Point, FilterDlg[DateId].strData, FilterDlg[TimeId].strData, 12, FALSE, FALSE, 2);
+		ConvertDate(Point, FilterDlg[DateId].strData, FilterDlg[TimeId].strData, 12, 2);
 	};
 
 	Dates.visit(overload

@@ -136,7 +136,6 @@ intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 						const auto FieldsWidth = std::max(80 - SysArea, std::min(static_cast<int>(MaxStr), ScrX - SysArea));
 
 						DialogBuilder Builder(lng::MError);
-						Builder.StartColumns();
 						Builder.AddText(L"errno:");
 						Builder.AddConstEditField(Errors[0], FieldsWidth);
 						Builder.AddText(L"LastError:");

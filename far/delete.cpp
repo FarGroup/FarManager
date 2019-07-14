@@ -519,7 +519,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 		if (tText.empty())
 			tText = msg(mDText);
 
-		Builder.AddText(tText.c_str())->Flags = DIF_CENTERTEXT;
+		Builder.AddText(tText)->Flags = DIF_CENTERTEXT;
 
 		if (bHilite || (mshow > 1 && SelCount > 1))
 			Builder.AddSeparator();
@@ -527,7 +527,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 		for (auto& i: items)
 		{
 			inplace::truncate_center(i, ScrX+1-6*2);
-			const auto dx = Builder.AddText(i.c_str());
+			const auto dx = Builder.AddText(i);
 			dx->Flags = (SelCount <= 1 || mshow <= 1 ? DIF_CENTERTEXT : 0) | DIF_SHOWAMPERSAND;
 			size_t index = Builder.GetLastID();
 			end_hilite = index;

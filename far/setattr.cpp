@@ -472,7 +472,7 @@ static intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 					os::chrono::nt_clock::now() :
 					*static_cast<const os::chrono::time_point*>(Param2);
 
-				ConvertDate(Point,strDate,strTime,12,FALSE,FALSE,2);
+				ConvertDate(Point, strDate, strTime, 12, 2);
 			}
 
 			// Глянем на место, где был клик
@@ -837,6 +837,20 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			{ SA_CHECKBOX_UNPINNED,                     FILE_ATTRIBUTE_UNPINNED,              },
 		};
 
+		static const struct
+		{
+			SETATTRDLG DateId;
+			SETATTRDLG TimeId;
+			os::chrono::time_point os::fs::find_data::* TimeAccessor;
+		}
+		TimeMap[]
+		{
+			{SA_EDIT_WDATE, SA_EDIT_WTIME, &os::fs::find_data::LastWriteTime  },
+			{SA_EDIT_CDATE, SA_EDIT_CTIME, &os::fs::find_data::CreationTime   },
+			{SA_EDIT_ADATE, SA_EDIT_ATIME, &os::fs::find_data::LastAccessTime },
+			{SA_EDIT_XDATE, SA_EDIT_XTIME, &os::fs::find_data::ChangeTime     },
+		};
+
 		if (SelCount==1)
 		{
 			if (SingleSelFileAttr & FILE_ATTRIBUTE_DIRECTORY)
@@ -864,10 +878,10 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				{
 					if (DlgParam.Plugin || os::fs::get_find_data(SingleSelFileName, SingleSelFindData))
 					{
-						ConvertDate(SingleSelFindData.LastWriteTime, AttrDlg[SA_EDIT_WDATE].strData,AttrDlg[SA_EDIT_WTIME].strData,12,FALSE,FALSE,2);
-						ConvertDate(SingleSelFindData.CreationTime,  AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData,12,FALSE,FALSE,2);
-						ConvertDate(SingleSelFindData.LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData,12,FALSE,FALSE,2);
-						ConvertDate(SingleSelFindData.ChangeTime,    AttrDlg[SA_EDIT_XDATE].strData,AttrDlg[SA_EDIT_XTIME].strData,12,FALSE,FALSE,2);
+						for (const auto& i: TimeMap)
+						{
+							ConvertDate(std::invoke(i.TimeAccessor, SingleSelFindData), AttrDlg[i.DateId].strData, AttrDlg[i.TimeId].strData, 12, 2);
+						}
 					}
 
 					if (SingleSelFileAttr != INVALID_FILE_ATTRIBUTES)
@@ -1073,25 +1087,11 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				}
 			}
 
-			const struct DateTimeId
-			{
-				SETATTRDLG DateId;
-				SETATTRDLG TimeId;
-				os::chrono::time_point* TimeValue;
-			}
-			Dates[] =
-			{
-				{SA_EDIT_WDATE, SA_EDIT_WTIME, &SingleSelFindData.LastWriteTime},
-				{SA_EDIT_CDATE, SA_EDIT_CTIME, &SingleSelFindData.CreationTime},
-				{SA_EDIT_ADATE, SA_EDIT_ATIME, &SingleSelFindData.LastAccessTime},
-				{SA_EDIT_XDATE, SA_EDIT_XTIME, &SingleSelFindData.ChangeTime},
-			};
-
 			if (DlgParam.Plugin || os::fs::get_find_data(SingleSelFileName, SingleSelFindData))
 			{
-				for (const auto& i: Dates)
+				for (const auto& i: TimeMap)
 				{
-					ConvertDate(*i.TimeValue, AttrDlg[i.DateId].strData, AttrDlg[i.TimeId].strData, 12, FALSE, FALSE, 2);
+					ConvertDate(std::invoke(i.TimeAccessor, SingleSelFindData), AttrDlg[i.DateId].strData, AttrDlg[i.TimeId].strData, 12, 2);
 				}
 			}
 

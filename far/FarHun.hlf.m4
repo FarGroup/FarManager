@@ -1619,6 +1619,8 @@ $ #Parancs előzmények#
   A kiválasztott parancsot a vágólapra másolja,                #Ctrl+C#
     a lista legördítve marad                            vagy #Ctrl+Ins#
 
+  Show additional information                                      #F3#
+
     Ha az előző vagy a következő parancsot közvetlenül a
   parancssorból szeretnénk meghívni, használjuk a #Ctrl+E# vagy
   a #Ctrl+X# billentyűket.

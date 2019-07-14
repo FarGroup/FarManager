@@ -1687,6 +1687,32 @@ l:
 "Історія команд"
 "Гісторыя"
 
+MHistoryInfoTitle
+"Информация"
+"Information"
+"Informace"
+"Informationen"
+"Információk"
+"Informacja"
+"Información"
+"Informácie"
+"Informazioni"
+"Інформація"
+"Даведка"
+
+MHistoryInfoFolder
+"Папка:"
+"Folder:"
+"Adresář:"
+"Verzeichnis:"
+"Mappa:"
+"Folder:"
+"Directorio:"
+"Priečinok:"
+"Cartella:"
+"Папка:"
+"Каталог:"
+
 MFolderHistoryTitle
 "История папок"
 "Folders history"

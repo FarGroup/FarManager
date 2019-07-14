@@ -3,6 +3,12 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 14.07.2019 14:41:42 +0100 - build 5425
+
+1. F3 in Command History shows where the command was executed from.
+
+2. Refactoring.
+
 drkns 11.07.2019 01:13:31 +0100 - build 5423
 
 1. In code pages menu, take into account that in Windows 10 ANSI and OEM can be UTF-8.

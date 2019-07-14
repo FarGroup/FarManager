@@ -173,6 +173,12 @@ public:
 		return base_type::AddText(static_cast<int>(LabelId));
 	}
 
+	// BUGBUG
+	decltype(auto) AddText(const string& Label)
+	{
+		return base_type::AddText(Label.c_str());
+	}
+
 	decltype(auto) AddTextBefore(DialogItemEx* RelativeTo, lng LabelId)
 	{
 		return base_type::AddTextBefore(RelativeTo, static_cast<int>(LabelId));

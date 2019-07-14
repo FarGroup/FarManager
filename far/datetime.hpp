@@ -60,8 +60,22 @@ using time_ranges = std::array<std::pair<size_t, size_t>, 4>;
 void ParseDateComponents(string_view Src, span<const std::pair<size_t, size_t>> Ranges, span<WORD> Dst, WORD Default = date_none);
 os::chrono::time_point ParseDate(const string& Date, const string& Time, int DateFormat, const date_ranges& DateRanges, const time_ranges& TimeRanges);
 os::chrono::duration ParseDuration(const string& Date, const string& Time, const time_ranges& TimeRanges);
-void ConvertDate(os::chrono::time_point Point, string& strDateText, string& StrTimeText, int TimeLength, int Brief = FALSE, int TextMonth = FALSE, int FullYear = 0);
-void ConvertDuration(os::chrono::duration Duration, string& strDaysText, string& strTimeText);
+
+/*
+FullYear:
+0: Century only, 2 figures with leading zeros
+1: Full, 4 or 5 figures
+2: A special case: 4 or 5 figures with a leading or trailing space (depending on the locale).
+   For various fixed-with edit fields (attributes, filters etc.).
+
+   Windows supports years 1601 through 30827.
+*/
+void ConvertDate(os::chrono::time_point Point, string& strDateText, string& strTimeText, int TimeLength, int FullYear, bool Brief = false, bool TextMonth = false);
+
+// (days, time)
+std::tuple<string, string> ConvertDuration(os::chrono::duration Duration);
+
+string ConvertDurationToHMS(os::chrono::duration Duration);
 
 string StrFTime(string_view Format, const tm* Time);
 string MkStrFTime(string_view Format = {});

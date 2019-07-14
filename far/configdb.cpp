@@ -1944,29 +1944,31 @@ private:
 		return true;
 	}
 
-	bool Get(unsigned long long id, string& Name) override
+	bool Get(unsigned long long id, string* const Name = {}, history_record_type* const Type = {}, string* const Guid = {}, string* const File = {}, string* const Data = {}) override
 	{
 		WaitAllAsync();
-		const auto Stmt = AutoStatement(stmtGetName);
+
+		const auto StmtId = (Type || Guid || File || Data)? stmtGetNameAndType : stmtGetName;
+
+		const auto Stmt = AutoStatement(StmtId);
 		if (!Stmt->Bind(id).Step())
 			return false;
 
-		Name = Stmt->GetColText(0);
-		return true;
-	}
+		if (Name)
+			*Name = Stmt->GetColText(0);
 
-	bool Get(unsigned long long id, string& Name, history_record_type& Type, string &strGuid, string &strFile, string &strData) override
-	{
-		WaitAllAsync();
-		const auto Stmt = AutoStatement(stmtGetNameAndType);
-		if (!Stmt->Bind(id).Step())
-			return false;
+		if (Type)
+			*Type = static_cast<history_record_type>(Stmt->GetColInt(1));
 
-		Name = Stmt->GetColText(0);
-		Type = static_cast<history_record_type>(Stmt->GetColInt(1));
-		strGuid = Stmt->GetColText(2);
-		strFile = Stmt->GetColText(3);
-		strData = Stmt->GetColText(4);
+		if (Guid)
+			*Guid = Stmt->GetColText(2);
+
+		if (File)
+			*File = Stmt->GetColText(3);
+
+		if (Data)
+			*Data = Stmt->GetColText(4);
+
 		return true;
 	}
 
@@ -2014,7 +2016,7 @@ private:
 
 	unsigned long long GetPrev(const unsigned int TypeHistory, const string_view HistoryName, const unsigned long long id, string& Name) override
 	{
-		return GetPrevImpl(TypeHistory, HistoryName, id, Name, [&]() { return Get(id, Name)? id : 0; });
+		return GetPrevImpl(TypeHistory, HistoryName, id, Name, [&]() { return Get(id, &Name)? id : 0; });
 	}
 
 	unsigned long long CyclicGetPrev(const unsigned int TypeHistory, const string_view HistoryName, const unsigned long long id, string& Name) override

@@ -75,11 +75,12 @@ TEST_CASE("chrono")
 {
 	using namespace std::chrono;
 
-	const auto Duration = 17h + 63min + 71s + 3117ms;
+	const auto Duration = 47h + 63min + 71s + 3117ms;
 
 	{
-		const auto Result = split_duration<hours, minutes, seconds, milliseconds>(Duration);
-		REQUIRE(Result.get<hours>() == 18h);
+		const auto Result = split_duration<chrono::days, hours, minutes, seconds, milliseconds>(Duration);
+		REQUIRE(Result.get<chrono::days>() == chrono::days{2});
+		REQUIRE(Result.get<hours>() == 0h);
 		REQUIRE(Result.get<minutes>() == 4min);
 		REQUIRE(Result.get<seconds>() == 14s);
 		REQUIRE(Result.get<milliseconds>() == 117ms);
@@ -87,12 +88,12 @@ TEST_CASE("chrono")
 
 	{
 		const auto Result = split_duration<hours>(Duration);
-		REQUIRE(Result.get<hours>() == 18h);
+		REQUIRE(Result.get<hours>() == 48h);
 	}
 
 	{
 		const auto Result = split_duration<seconds>(Duration);
-		REQUIRE(Result.get<seconds>() == 65054s);
+		REQUIRE(Result.get<seconds>() == 173054s);
 	}
 }
 

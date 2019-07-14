@@ -1407,7 +1407,7 @@ struct FARConfigItem
 	bool Edit(bool Hex) const
 	{
 		DialogBuilder Builder;
-		Builder.AddText(concat(KeyName, L'.', ValName, L" ("sv, Value->GetType(), L"):"sv).c_str());
+		Builder.AddText(concat(KeyName, L'.', ValName, L" ("sv, Value->GetType(), L"):"sv));
 		int Result = 0;
 		if (!Value->Edit(&Builder, 40, Hex))
 		{

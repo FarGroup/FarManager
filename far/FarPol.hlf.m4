@@ -2015,6 +2015,8 @@ available:
   Copy the text of the current command to the clipboard        #Ctrl+C#
   without closing the list                                or #Ctrl+Ins#
 
+  Show additional information                                      #F3#
+
     To go to the previous or next command directly from the command line, you
 can press #Ctrl+E# or #Ctrl+X# respectively.
 
