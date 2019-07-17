@@ -243,6 +243,18 @@ public:
 		return std::any_cast<T>(GetListItemComplexUserData(ListId, ItemId));
 	}
 
+	class suppress_redraw
+	{
+	public:
+		NONCOPYABLE(suppress_redraw);
+
+		explicit suppress_redraw(Dialog* Dlg);
+		~suppress_redraw();
+
+	private:
+		Dialog* m_Dlg;
+	};
+
 protected:
 	size_t InitDialogObjects(size_t ID = (size_t)-1);
 

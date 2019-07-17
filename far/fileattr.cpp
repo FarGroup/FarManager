@@ -40,272 +40,179 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fileowner.hpp"
 #include "exception.hpp"
 #include "stddlg.hpp"
+#include "lasterror.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
 
 // Common:
+#include "common/function_ref.hpp"
 #include "common/scope_exit.hpp"
 
 // External:
 
 //----------------------------------------------------------------------------
 
-int ESetFileAttributes(const string& Name, DWORD Attr, bool SkipErrors)
+static auto retrievable_ui_operation(function_ref<bool()> const Action, string const& Name, lng const ErrorDescription, bool& SkipErrors)
 {
-	if (Attr&FILE_ATTRIBUTE_DIRECTORY && Attr&FILE_ATTRIBUTE_TEMPORARY)
-		Attr&=~FILE_ATTRIBUTE_TEMPORARY;
-
-	while (!os::fs::set_file_attributes(Name,Attr))
+	while (!Action())
 	{
 		const auto ErrorState = error_state::fetch();
 
-		switch (SkipErrors? OperationFailed(ErrorState, Name, lng::MError, msg(lng::MSetAttrCannotFor)) : operation::skip)
+		switch (SkipErrors? operation::skip_all : OperationFailed(ErrorState, Name, lng::MError, msg(ErrorDescription)))
 		{
 		case operation::retry:
 			break;
-		case operation::skip:
-			return SETATTR_RET_SKIP;
+
 		case operation::skip_all:
-			return SETATTR_RET_SKIPALL;
+			SkipErrors = true;
+			[[fallthrough]];
+		case operation::skip:
+			return setattr_result::skip;
+
 		case operation::cancel:
-			return SETATTR_RET_ERROR;
+			return setattr_result::cancel;
 		}
 	}
 
-	return SETATTR_RET_OK;
+	return setattr_result::ok;
 }
 
-static bool SetFileCompression(const string& Name,int State)
+static auto without_ro(string_view const Name, DWORD const Attributes, function_ref<bool()> const Action)
+{
+	// FILE_ATTRIBUTE_SYSTEM prevents encryption
+	const auto Mask = FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_SYSTEM;
+
+	return [=]
+	{
+		if ((Attributes & Mask) && !os::fs::set_file_attributes(Name, Attributes & ~Mask))
+			return false;
+
+		SCOPE_EXIT
+		{
+			GuardLastError Gle;
+			if (Attributes & Mask)
+				os::fs::set_file_attributes(Name, Attributes);
+		};
+
+		return Action();
+	};
+}
+
+setattr_result ESetFileAttributes(const string& Name, DWORD Attributes, bool& SkipErrors)
+{
+	if ((Attributes & FILE_ATTRIBUTE_DIRECTORY) && (Attributes & FILE_ATTRIBUTE_TEMPORARY))
+		Attributes &= ~FILE_ATTRIBUTE_TEMPORARY;
+
+	return retrievable_ui_operation([&]{ return os::fs::set_file_attributes(Name, Attributes); }, Name, lng::MSetAttrCannotFor, SkipErrors);
+}
+
+static bool set_file_compression(string const& Name, bool const State)
 {
 	const os::fs::file File(Name, FILE_READ_DATA | FILE_WRITE_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
 	if (!File)
 		return false;
 
-	USHORT NewState=State? COMPRESSION_FORMAT_DEFAULT : COMPRESSION_FORMAT_NONE;
+	USHORT NewState = State? COMPRESSION_FORMAT_DEFAULT : COMPRESSION_FORMAT_NONE;
 	return File.IoControl(FSCTL_SET_COMPRESSION, &NewState, sizeof(NewState), nullptr, 0);
 }
 
-
-int ESetFileCompression(const string& Name, int State, DWORD FileAttr, bool SkipErrors)
+setattr_result ESetFileCompression(const string& Name, bool const State, DWORD const CurrentAttributes, bool& SkipErrors)
 {
-	if (((FileAttr & FILE_ATTRIBUTE_COMPRESSED)!=0) == State)
-		return SETATTR_RET_OK;
+	if (!!(CurrentAttributes & FILE_ATTRIBUTE_COMPRESSED) == State)
+		return setattr_result::ok;
 
-	if (FileAttr & (FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM))
-		os::fs::set_file_attributes(Name,FileAttr & ~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM));
-
-	SCOPE_EXIT
+	const auto Implementation = [&]
 	{
-		if (FileAttr & (FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_SYSTEM))
-			os::fs::set_file_attributes(Name, FileAttr);
+		if (State && (CurrentAttributes & FILE_ATTRIBUTE_ENCRYPTED) && !os::fs::set_file_encryption(Name, false))
+			return false;
+
+		return set_file_compression(Name, State);
 	};
 
-	// Drop Encryption
-	if ((FileAttr & FILE_ATTRIBUTE_ENCRYPTED) && State)
-		// BUGBUG check result
-		(void)os::fs::set_file_encryption(Name, false);
+	return retrievable_ui_operation(
+		without_ro(Name, CurrentAttributes, Implementation),
+		Name, lng::MSetAttrCompressedCannotFor, SkipErrors);
+}
 
-	while (!SetFileCompression(Name,State))
+setattr_result ESetFileEncryption(string const& Name, bool const State, DWORD const CurrentAttributes, bool& SkipErrors)
+{
+	if (!!(CurrentAttributes & FILE_ATTRIBUTE_ENCRYPTED) == State)
+		return setattr_result::ok;
+
+	const auto Implementation = [&]
 	{
-		const auto ErrorState = error_state::fetch();
+		return os::fs::set_file_encryption(Name, State);
+	};
 
-		switch(SkipErrors? OperationFailed(ErrorState, Name, lng::MError, msg(lng::MSetAttrCompressedCannotFor)) : operation::skip)
-		{
-		case operation::retry:
-			break;
-		case operation::skip:
-			return SETATTR_RET_SKIP;
-		case operation::skip_all:
-			return SETATTR_RET_SKIPALL;
-		case operation::cancel:
-			return SETATTR_RET_ERROR;
-		}
-	}
-
-	return SETATTR_RET_OK;
+	return retrievable_ui_operation(
+		without_ro(Name, CurrentAttributes, Implementation),
+		Name, lng::MSetAttrEncryptedCannotFor, SkipErrors);
 }
 
 
-int ESetFileEncryption(const string& Name, bool State, DWORD FileAttr, bool SkipErrors, int Silent)
-{
-	if (((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0) == State)
-		return SETATTR_RET_OK;
-
-	if (FileAttr & (FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM))
-		os::fs::set_file_attributes(Name,FileAttr & ~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM));
-
-	SCOPE_EXIT
-	{
-		if (FileAttr & (FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_SYSTEM))
-		os::fs::set_file_attributes(Name, FileAttr);
-	};
-
-	while (!os::fs::set_file_encryption(Name, State))
-	{
-		if (Silent)
-			return SETATTR_RET_ERROR;
-
-		const auto ErrorState = error_state::fetch();
-
-		switch (SkipErrors? OperationFailed(ErrorState, Name, lng::MError, msg(lng::MSetAttrEncryptedCannotFor)) : operation::skip)
-		{
-		case operation::retry:
-			break;
-		case operation::skip:
-			return SETATTR_RET_SKIP;
-		case operation::skip_all:
-			return SETATTR_RET_SKIPALL;
-		case operation::cancel:
-			return SETATTR_RET_ERROR;
-		}
-	}
-
-	return SETATTR_RET_OK;
-}
-
-
-int ESetFileTime(const string& Name, const os::chrono::time_point* LastWriteTime, const os::chrono::time_point* CreationTime, const os::chrono::time_point* LastAccessTime, const os::chrono::time_point* ChangeTime, DWORD FileAttr, bool SkipErrors)
+setattr_result ESetFileTime(
+	const string& Name,
+	os::chrono::time_point const* const LastWriteTime,
+	os::chrono::time_point const* const CreationTime,
+	os::chrono::time_point const* const LastAccessTime,
+	os::chrono::time_point const* const ChangeTime,
+	DWORD const CurrentAttributes,
+	bool& SkipErrors)
 {
 	if (!LastWriteTime && !CreationTime && !LastAccessTime && !ChangeTime)
-		return SETATTR_RET_OK;
+		return setattr_result::ok;
 
-	for(;;)
+	const auto Implementation = [&]
 	{
-		if (FileAttr & FILE_ATTRIBUTE_READONLY)
-			os::fs::set_file_attributes(Name,FileAttr & ~FILE_ATTRIBUTE_READONLY);
+		const auto File = os::fs::file(Name, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT);
+		if (!File)
+			return false;
 
-		bool SetTime=false;
-		DWORD LastError;
-		if (auto File = os::fs::file(Name, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
-		{
-			SetTime = File.SetTime(CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
-			LastError=GetLastError();
-			File.Close();
+		return File.SetTime(CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
+	};
 
-			if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) && LastError==ERROR_NOT_SUPPORTED)   // FIX: Mantis#223
-			{
-				if (GetDriveType(GetPathRoot(Name).c_str()) == DRIVE_REMOTE)
-					break;
-			}
-		}
-		else
-		{
-			LastError = GetLastError();
-		}
-
-		if (FileAttr & FILE_ATTRIBUTE_READONLY)
-			os::fs::set_file_attributes(Name,FileAttr);
-
-		SetLastError(LastError);
-		const auto ErrorState = error_state::fetch();
-
-		if (SetTime)
-			break;
-
-		switch (SkipErrors? OperationFailed(ErrorState, Name, lng::MError, msg(lng::MSetAttrTimeCannotFor)) : operation::skip)
-		{
-		case operation::retry:
-			break;
-		case operation::skip:
-			return SETATTR_RET_SKIP;
-		case operation::skip_all:
-			return SETATTR_RET_SKIPALL;
-		case operation::cancel:
-			return SETATTR_RET_ERROR;
-		}
-	}
-
-	return SETATTR_RET_OK;
+	return retrievable_ui_operation(
+		without_ro(Name, CurrentAttributes, Implementation),
+		Name, lng::MSetAttrTimeCannotFor, SkipErrors);
 }
 
-static bool SetFileSparse(const string& Name,bool State)
+static bool set_file_sparse(string const& Name, bool const State)
 {
 	const os::fs::file File(Name, FILE_WRITE_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING);
 	if (!File)
 		return false;
 
-	FILE_SET_SPARSE_BUFFER sb={static_cast<BOOLEAN>(State)};
-	return File.IoControl(FSCTL_SET_SPARSE, &sb, sizeof(sb), nullptr, 0);
+	FILE_SET_SPARSE_BUFFER Buffer{ State };
+	return File.IoControl(FSCTL_SET_SPARSE, &Buffer, sizeof(Buffer), nullptr, 0);
 }
 
-int ESetFileSparse(const string& Name, bool State, DWORD FileAttr, bool SkipErrors)
+setattr_result ESetFileSparse(const string& Name, bool const State, DWORD const CurrentAttributes, bool& SkipErrors)
 {
-	if (((FileAttr & FILE_ATTRIBUTE_SPARSE_FILE) != 0) == State || FileAttr & FILE_ATTRIBUTE_DIRECTORY)
-		return SETATTR_RET_OK;
+	if ((CurrentAttributes & FILE_ATTRIBUTE_DIRECTORY) || !!(CurrentAttributes & FILE_ATTRIBUTE_SPARSE_FILE) == State)
+		return setattr_result::ok;
 
-	if (FileAttr&(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM))
-		os::fs::set_file_attributes(Name,FileAttr&~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM));
-
-	SCOPE_EXIT
+	const auto Implementation = [&]
 	{
-		if (FileAttr & (FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_SYSTEM))
-		os::fs::set_file_attributes(Name, FileAttr);
+		return set_file_sparse(Name, State);
 	};
 
-	while (!SetFileSparse(Name,State))
-	{
-		const auto ErrorState = error_state::fetch();
-
-		switch (SkipErrors? OperationFailed(ErrorState, Name, lng::MError, msg(lng::MSetAttrSparseCannotFor)) : operation::skip)
-		{
-		case operation::retry:
-			break;
-		case operation::skip:
-			return SETATTR_RET_SKIP;
-		case operation::skip_all:
-			return SETATTR_RET_SKIPALL;
-		case operation::cancel:
-			return SETATTR_RET_ERROR;
-		}
-	}
-
-	return SETATTR_RET_OK;
+	return retrievable_ui_operation(
+		without_ro(Name, CurrentAttributes, Implementation),
+		Name, lng::MSetAttrSparseCannotFor, SkipErrors);
 }
 
-int ESetFileOwner(const string& Name, const string& Owner, bool SkipErrors)
+setattr_result ESetFileOwner(const string& Name, const string& Owner, bool& SkipErrors)
 {
-	while (!SetFileOwner(Name, Owner))
-	{
-		const auto ErrorState = error_state::fetch();
-
-		switch (SkipErrors? OperationFailed(ErrorState, Name, lng::MError, msg(lng::MSetAttrOwnerCannotFor)) : operation::skip)
-		{
-		case operation::retry:
-			break;
-		case operation::skip:
-			return SETATTR_RET_SKIP;
-		case operation::skip_all:
-			return SETATTR_RET_SKIPALL;
-		case operation::cancel:
-			return SETATTR_RET_ERROR;
-		}
-	}
-	return SETATTR_RET_OK;
+	return retrievable_ui_operation([&]{ return SetFileOwner(Name, Owner); }, Name, lng::MSetAttrOwnerCannotFor, SkipErrors);
 }
 
-int EDeleteReparsePoint(const string& Name, DWORD FileAttr, bool SkipErrors)
+setattr_result EDeleteReparsePoint(const string& Name, DWORD const CurrentAttributes, bool& SkipErrors)
 {
-	if (!(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
-		return SETATTR_RET_OK;
+	if (!(CurrentAttributes & FILE_ATTRIBUTE_REPARSE_POINT))
+		return setattr_result::ok;
 
-	while (!DeleteReparsePoint(Name))
-	{
-		const auto ErrorState = error_state::fetch();
-
-		switch (SkipErrors? OperationFailed(ErrorState, Name, lng::MError, msg(lng::MSetAttrCannotFor)) : operation::skip)
-		{
-		case operation::retry:
-			break;
-		case operation::skip:
-			return SETATTR_RET_SKIP;
-		case operation::skip_all:
-			return SETATTR_RET_SKIPALL;
-		case operation::cancel:
-			return SETATTR_RET_ERROR;
-		}
-	}
-	return SETATTR_RET_OK;
+	return retrievable_ui_operation([&]{ return DeleteReparsePoint(Name); }, Name, lng::MSetAttrReparsePointCannotFor, SkipErrors);
 }
 
 void enum_attributes(function_ref<bool(DWORD, wchar_t)> const Pred)

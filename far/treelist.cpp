@@ -1733,7 +1733,7 @@ size_t TreeList::GetSelCount() const
 	return 1;
 }
 
-bool TreeList::GetSelName(string *strName, DWORD &FileAttr, string *strShortName, os::fs::find_data *fd)
+bool TreeList::GetSelName(string *strName, string *strShortName, os::fs::find_data *fd)
 {
 	if (!strName)
 	{
@@ -1748,7 +1748,9 @@ bool TreeList::GetSelName(string *strName, DWORD &FileAttr, string *strShortName
 		if (strShortName )
 			*strShortName = *strName;
 
-		FileAttr=FILE_ATTRIBUTE_DIRECTORY;
+		if (fd)
+			fd->Attributes = FILE_ATTRIBUTE_DIRECTORY;
+
 		m_GetSelPosition++;
 		return true;
 	}

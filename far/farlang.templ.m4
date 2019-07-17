@@ -4640,19 +4640,6 @@ l:
 "Помилка створення папки"
 "Немагчыма стварыць каталог"
 
-MCopyCannotChangeFolderAttr
-"Невозможно установить атрибуты для папки"
-"Failed to set folder attributes"
-"Nastavení atributů adresáře selhalo"
-"Fehler beim Setzen der Ordnerattribute"
-"A mappa attribútumok beállítása sikertelen"
-"Nie udało się ustawić atrybutów folderu"
-"Error al poner atributos en directorio"
-"Nepodarilo sa nastaviť atribúty priečinka"
-"Impossibile Impostare Gli Attributi"
-"Неможливо встановити атрибути для папки"
-"Немагчыма надаць атрыбуты да каталогу"
-
 MCopyCannotRenameFolder
 "Невозможно переименовать папку"
 "Cannot rename the folder"
@@ -18692,19 +18679,6 @@ MSetAttrOwner
 "Власник:"
 "Уладальнік:"
 
-MSetAttrOwnerMultiple
-"(несколько значений)"
-"(multiple values)"
-"(více hodnot)"
-"(mehrere Bedeutungen)"
-upd:"(multiple values)"
-"(wiele wartości)"
-"(valores múltiples)"
-"(viacero hodnôt)"
-"(valori multipli)"
-"(декілька значень)"
-"(некалькі значэнняў)"
-
 MSetAttrModification
 "Время последней за&писи:"
 "Last &write time:"
@@ -18966,6 +18940,19 @@ upd:"Cannot set owner for"
 "Non Posso Settare Il Proprietario Per"
 "Не вдалося встановити власника для"
 "Немагчыма усталяваць уладальника для"
+
+MSetAttrReparsePointCannotFor
+"Не удалось удалить точку повторного анализа для"
+"Cannot remove reparse point for"
+upd:"Cannot remove reparse point for"
+upd:"Cannot remove reparse point for"
+upd:"Cannot remove reparse point for"
+upd:"Cannot remove reparse point for"
+upd:"Cannot remove reparse point for"
+upd:"Cannot remove reparse point for"
+upd:"Cannot remove reparse point for"
+"Не вдалося видалити точку повторного аналізу для"
+upd:"Cannot remove reparse point for"
 
 
 MSetColorPanel

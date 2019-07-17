@@ -189,7 +189,7 @@ public:
 	void GetOpenPanelInfo(OpenPanelInfo *Info) const override;
 	void SetPluginMode(std::unique_ptr<plugin_panel>&& hPlugin, const string& PluginFile, bool SendOnFocus = false) override;
 	size_t GetSelCount() const override;
-	bool GetSelName(string *strName, DWORD &FileAttr, string *strShortName = nullptr, os::fs::find_data *fde = nullptr) override;
+	bool GetSelName(string *strName, string *strShortName = nullptr, os::fs::find_data *fde = nullptr) override;
 	void ClearLastGetSelection() override;
 	plugin_panel* GetPluginHandle() const override;
 	size_t GetRealSelCount() const override;

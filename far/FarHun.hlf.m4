@@ -3236,6 +3236,10 @@ Titkosított)
        #I#         - Nem (tartalom)indexelt
        #O#         - Offline
        #V#         - Virtuális
+       #G#         - Integrity stream
+       #N#         - No scrub data
+       #P#         - Pinned
+       #U#         - Unpinned
 
     Az attribútumok megjelenítési sorrendje: RSHALCTIOV. A "Ritkított"
 attribútum csak fájlokra vonatkozhat és az "L" helyén jelenik meg. A

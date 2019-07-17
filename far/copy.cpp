@@ -120,7 +120,6 @@ enum COPY_FLAGS
 	FCOPY_VOLMOUNT                = 8_bit, // операция монтирования тома
 	FCOPY_STREAMSKIP              = 9_bit, // потоки
 	FCOPY_STREAMALL               = 10_bit, // потоки
-	FCOPY_SKIPSETATTRFLD          = 11_bit, // больше не пытаться ставить атрибуты для каталогов - когда нажали Skip All
 	FCOPY_COPYSYMLINKCONTENTS     = 12_bit, // Копировать содержимое символических ссылок?
 	FCOPY_COPYPARENTSECURITY      = 13_bit, // Накладывать родительские права, в случае если мы не копируем права доступа
 	FCOPY_LEAVESECURITY           = 14_bit, // Move: [?] Ничего не делать с правами доступа
@@ -2042,99 +2041,11 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				if (IsDriveTypeCDROM(SrcDriveType) && (SetAttr & FILE_ATTRIBUTE_READONLY))
 					SetAttr&=~FILE_ATTRIBUTE_READONLY;
 
-				if ((SetAttr & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY)
+				if (!ShellSetAttr(strDestPath, SetAttr))
 				{
-					// не будем выставлять компрессию, если мылимся в каталог
-					// с выставленным FILE_ATTRIBUTE_ENCRYPTED (а он уже будет выставлен после CreateDirectory)
-					// т.с. пропускаем лишний ход.
-					if (os::fs::file_status(strDestPath).check(FILE_ATTRIBUTE_ENCRYPTED))
-						SetAttr&=~FILE_ATTRIBUTE_COMPRESSED;
-
-					if (SetAttr&FILE_ATTRIBUTE_COMPRESSED)
-					{
-						for (;;)
-						{
-							int MsgCode=ESetFileCompression(strDestPath,1,0, SkipErrors);
-
-							if (MsgCode == SETATTR_RET_ERROR)
-							{
-								continue;
-							}
-							else if (MsgCode == SETATTR_RET_OK)
-							{
-								break;
-							}
-							else if (MsgCode == SETATTR_RET_SKIP)
-							{
-								break;
-							}
-							else if (MsgCode == SETATTR_RET_SKIPALL)
-							{
-								Flags|=FCOPY_SKIPSETATTRFLD;
-								SkipErrors = true;
-								break;
-							}
-							else
-							{
-								return COPY_CANCEL;
-							}
-						}
-					}
-
-					while (!ShellSetAttr(strDestPath,SetAttr))
-					{
-						const auto ErrorState = error_state::fetch();
-
-						const auto MsgCode = OperationFailed(ErrorState, strDestPath, lng::MError, msg(lng::MCopyCannotChangeFolderAttr));
-						if (MsgCode == operation::retry)
-						{
-							continue;
-						}
-						else if (MsgCode == operation::skip)
-						{
-							break;
-						}
-						else if (MsgCode == operation::skip_all)
-						{
-							Flags|=FCOPY_SKIPSETATTRFLD;
-							break;
-						}
-						else // Cancel
-						{
-							// BUGBUG check result
-							(void)os::fs::remove_directory(strDestPath);
-							return COPY_CANCEL;
-						}
-
-					}
-				}
-				else if (!(Flags & FCOPY_SKIPSETATTRFLD) && ((SetAttr & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY))
-				{
-					while (!ShellSetAttr(strDestPath,SetAttr))
-					{
-						const auto ErrorState = error_state::fetch();
-						const auto MsgCode = OperationFailed(ErrorState, strDestPath, lng::MError, msg(lng::MCopyCannotChangeFolderAttr));
-
-						if (MsgCode == operation::retry)
-						{
-							continue;
-						}
-						else if (MsgCode == operation::skip)
-						{
-							break;
-						}
-						else if (MsgCode == operation::skip_all)
-						{
-							Flags |= FCOPY_SKIPSETATTRFLD;
-							break;
-						}
-						else // Cancel
-						{
-							// BUGBUG check result
-							(void)os::fs::remove_directory(strDestPath);
-							return COPY_CANCEL;
-						}
-					}
+					// BUGBUG check result
+					(void)os::fs::remove_directory(strDestPath);
+					return COPY_CANCEL;
 				}
 			}
 
@@ -3762,61 +3673,34 @@ bool ShellCopy::CalcTotalSize() const
 */
 bool ShellCopy::ShellSetAttr(const string& Dest, DWORD Attr)
 {
-	int GetInfoSuccess = FALSE;
 	DWORD FileSystemFlagsDst=0;
-	if ((Attr & (FILE_ATTRIBUTE_COMPRESSED | FILE_ATTRIBUTE_ENCRYPTED)) != 0)
+	if ((Attr & (FILE_ATTRIBUTE_COMPRESSED | FILE_ATTRIBUTE_ENCRYPTED)) && os::fs::GetVolumeInformation(GetPathRoot(Dest), nullptr, nullptr, nullptr, &FileSystemFlagsDst, nullptr))
 	{
-		auto strRoot = GetPathRoot(Dest);
-		//if (!os::fs::exists(strRoot))
-		//{
-		//	return false;
-		//}
-
-		GetInfoSuccess = os::fs::GetVolumeInformation(strRoot, nullptr, nullptr, nullptr, &FileSystemFlagsDst, nullptr);
-		if (GetInfoSuccess)
+		if (!(FileSystemFlagsDst & FILE_FILE_COMPRESSION))
 		{
-			if (!(FileSystemFlagsDst & FILE_FILE_COMPRESSION))
-			{
-				Attr &= ~FILE_ATTRIBUTE_COMPRESSED;
-			}
-			if (!(FileSystemFlagsDst & FILE_SUPPORTS_ENCRYPTION))
-			{
-				Attr &= ~FILE_ATTRIBUTE_ENCRYPTED;
-			}
+			Attr &= ~FILE_ATTRIBUTE_COMPRESSED;
+		}
+		if (!(FileSystemFlagsDst & FILE_SUPPORTS_ENCRYPTION))
+		{
+			Attr &= ~FILE_ATTRIBUTE_ENCRYPTED;
 		}
 	}
 
-	if (!os::fs::set_file_attributes(Dest,Attr))
-	{
+	if (ESetFileAttributes(Dest, Attr & ~(FILE_ATTRIBUTE_COMPRESSED | FILE_ATTRIBUTE_ENCRYPTED), SkipErrors) == setattr_result::cancel)
 		return false;
-	}
 
-	if ((Attr&FILE_ATTRIBUTE_COMPRESSED) && !(Attr&FILE_ATTRIBUTE_ENCRYPTED))
+	if (Attr & FILE_ATTRIBUTE_COMPRESSED)
 	{
-		switch (ESetFileCompression(Dest, 1, Attr&(~FILE_ATTRIBUTE_COMPRESSED), SkipErrors))
-		{
-		case SETATTR_RET_ERROR:
+		if (ESetFileCompression(Dest, true, Attr& ~FILE_ATTRIBUTE_COMPRESSED, SkipErrors) == setattr_result::cancel)
 			return false;
-
-		case SETATTR_RET_SKIPALL:
-			SkipErrors = true;
-			break;
-		}
 	}
 
 	// При копировании/переносе выставляем FILE_ATTRIBUTE_ENCRYPTED
 	// для каталога, если он есть
-	if (GetInfoSuccess && FileSystemFlagsDst&FILE_SUPPORTS_ENCRYPTION && Attr&FILE_ATTRIBUTE_ENCRYPTED && Attr&FILE_ATTRIBUTE_DIRECTORY)
+	if (Attr & FILE_ATTRIBUTE_ENCRYPTED && Attr & FILE_ATTRIBUTE_DIRECTORY)
 	{
-		switch(ESetFileEncryption(Dest, true, 0, SkipErrors))
-		{
-		case SETATTR_RET_ERROR:
+		if (ESetFileEncryption(Dest, true, Attr & ~FILE_ATTRIBUTE_ENCRYPTED, SkipErrors) == setattr_result::cancel)
 			return false;
-
-		case SETATTR_RET_SKIPALL:
-			SkipErrors = true;
-			break;
-		}
 	}
 
 	return true;

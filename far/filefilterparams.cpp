@@ -638,7 +638,7 @@ static void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const
 
 static void FilterDlgRelativeDateItemsUpdate(Dialog* Dlg, bool bClear)
 {
-	Dlg->SendMessage(DM_ENABLEREDRAW, FALSE, nullptr);
+	SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
 
 	if (Dlg->SendMessage(DM_GETCHECK, ID_FF_DATERELATIVE, nullptr))
 	{
@@ -666,8 +666,6 @@ static void FilterDlgRelativeDateItemsUpdate(Dialog* Dlg, bool bClear)
 		Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_TIMEBEFOREEDIT,nullptr);
 		Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_DAYSBEFOREEDIT,nullptr);
 	}
-
-	Dlg->SendMessage(DM_ENABLEREDRAW, TRUE, nullptr);
 }
 
 static bool AttributesDialog(span<attribute_map> const Attributes)
@@ -714,24 +712,32 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 					strTime.clear();
 				}
 
-				Dlg->SendMessage(DM_ENABLEREDRAW, FALSE, nullptr);
+				SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
+
 				const auto relative = Dlg->SendMessage(DM_GETCHECK, ID_FF_DATERELATIVE, nullptr) != 0;
 				const auto db = relative? ID_FF_DAYSBEFOREEDIT : ID_FF_DATEBEFOREEDIT;
 				const auto da = relative? ID_FF_DAYSAFTEREDIT  : ID_FF_DATEAFTEREDIT;
+
 				Dlg->SendMessage(DM_SETTEXTPTR,da, UNSAFE_CSTR(strDate));
+				Dlg->SendMessage(DM_EDITUNCHANGEDFLAG, da, nullptr);
 				Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_TIMEAFTEREDIT, UNSAFE_CSTR(strTime));
+				Dlg->SendMessage(DM_EDITUNCHANGEDFLAG, ID_FF_TIMEAFTEREDIT, nullptr);
+
 				Dlg->SendMessage(DM_SETTEXTPTR,db, UNSAFE_CSTR(strDate));
+				Dlg->SendMessage(DM_EDITUNCHANGEDFLAG, db, nullptr);
 				Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_TIMEBEFOREEDIT, UNSAFE_CSTR(strTime));
-				Dlg->SendMessage(DM_SETFOCUS, da, nullptr);
-				COORD r;
-				r.X=r.Y=0;
-				Dlg->SendMessage(DM_SETCURSORPOS,da,&r);
-				Dlg->SendMessage(DM_ENABLEREDRAW, TRUE, nullptr);
+				Dlg->SendMessage(DM_EDITUNCHANGEDFLAG, ID_FF_TIMEBEFOREEDIT, nullptr);
+
+				Dlg->SendMessage(DM_SETFOCUS, db, nullptr);
+
+				COORD r{};
+				Dlg->SendMessage(DM_SETCURSORPOS,db,&r);
 				break;
 			}
 			else if (Param1==ID_FF_RESET)
 			{
-				Dlg->SendMessage(DM_ENABLEREDRAW, FALSE, nullptr);
+				SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
+
 				const auto Context = reinterpret_cast<const context*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 				Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_MASKEDIT,const_cast<wchar_t*>(L"*"));
 				Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_SIZEFROMEDIT,nullptr);
@@ -753,7 +759,7 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 				Dlg->SendMessage(DM_SETCHECK,ID_FF_DATERELATIVE,ToPtr(BSTATE_UNCHECKED));
 				FilterDlgRelativeDateItemsUpdate(Dlg, true);
 				Dlg->SendMessage(DM_SETCHECK,ID_FF_CHECKBOX_ATTRIBUTES, ToPtr(Context->Colors? BSTATE_UNCHECKED : BSTATE_CHECKED));
-				Dlg->SendMessage(DM_ENABLEREDRAW, TRUE, nullptr);
+
 				break;
 			}
 			else if (Param1==ID_FF_MAKETRANSPARENT)

@@ -60,36 +60,6 @@ class PluginsCacheConfig;
 
 std::exception_ptr& GlobalExceptionPtr();
 
-namespace detail
-{
-	template<typename callable, typename fallback>
-	auto invoke_and_store_exception(callable&& Callable, fallback&& Fallback)
-	{
-		try
-		{
-			return Callable();
-		}
-		CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
-		return Fallback();
-	}
-}
-
-template<typename callable>
-auto invoke_and_store_exception(callable&& Callable)
-{
-	return detail::invoke_and_store_exception(FWD(Callable), [] {});
-}
-
-template<typename callable, typename fallback>
-auto invoke_and_store_exception(fallback Result, callable&& Callable)
-{
-	using result_type = std::common_type_t<std::invoke_result_t<callable>, fallback>;
-	return detail::invoke_and_store_exception(
-		FWD(Callable),
-		[&]() -> result_type { return Result; }
-	);
-}
-
 enum EXPORTS_ENUM
 {
 	iGetGlobalInfo,

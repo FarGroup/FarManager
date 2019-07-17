@@ -3840,7 +3840,7 @@ size_t FileList::GetRealSelCount() const
 }
 
 
-bool FileList::GetSelName(string* strName, DWORD& FileAttr, string* strShortName, os::fs::find_data* fd)
+bool FileList::GetSelName(string* strName, string* strShortName, os::fs::find_data* fd)
 {
 	if (!strName)
 	{
@@ -3855,8 +3855,6 @@ bool FileList::GetSelName(string* strName, DWORD& FileAttr, string* strShortName
 
 		if (strShortName)
 			*strShortName = Src.AlternateFileName();
-
-		FileAttr = Src.Attributes;
 
 		if (fd)
 			*fd = Src;

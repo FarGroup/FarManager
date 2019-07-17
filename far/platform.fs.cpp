@@ -758,11 +758,9 @@ namespace os::fs
 
 	bool file::GetSize(unsigned long long& Size) const
 	{
-		if (::GetFileSizeEx(m_Handle.native_handle(), reinterpret_cast<PLARGE_INTEGER>(&Size)))
-			return true;
-
 		GET_LENGTH_INFORMATION gli;
-		if (!IoControl(IOCTL_DISK_GET_LENGTH_INFO, nullptr, 0, &gli, sizeof(gli)))
+
+		if (!::GetFileSizeEx(m_Handle.native_handle(), &gli.Length) && !IoControl(IOCTL_DISK_GET_LENGTH_INFO, nullptr, 0, &gli, sizeof(gli)))
 			return false;
 
 		Size = gli.Length.QuadPart;

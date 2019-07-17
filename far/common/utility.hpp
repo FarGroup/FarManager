@@ -151,24 +151,38 @@ constexpr auto operator ""_bit(unsigned long long const Number)
 	return bit(Number);
 }
 
-template<typename value_type, typename bits_type>
-constexpr void bit_set(value_type& Value, bits_type Bits)
+namespace flags
 {
-	Value |= Bits;
-}
+	template<typename value_type, typename flags_type>
+	constexpr bool check_any(const value_type& Value, flags_type Bits)
+	{
+		return (Value & Bits) != 0;
+	}
 
-template<typename value_type, typename bits_type>
-constexpr void bit_clear(value_type& Value, bits_type Bits)
-{
-	Value &= ~static_cast<value_type>(Bits);
-}
+	template<typename value_type, typename flags_type>
+	constexpr bool check_all(const value_type& Value, flags_type Bits)
+	{
+		return (Value & Bits) == Bits;
+	}
 
-template<typename value_type, typename bits_type>
-constexpr void bit_change(value_type& Value, bits_type Bits, bool Set)
-{
-	Set? bit_set(Value, Bits) : bit_clear(Value, Bits);
-}
+	template<typename value_type, typename flags_type>
+	constexpr void set(value_type& Value, flags_type Bits)
+	{
+		Value |= Bits;
+	}
 
+	template<typename value_type, typename flags_type>
+	constexpr void clear(value_type& Value, flags_type Bits)
+	{
+		Value &= ~static_cast<value_type>(Bits);
+	}
+
+	template<typename value_type, typename flags_type>
+	constexpr void change(value_type& Value, flags_type Bits, bool Set)
+	{
+		Set? bit_set(Value, Bits) : bit_clear(Value, Bits);
+	}
+}
 
 [[nodiscard]]
 constexpr size_t aligned_size(size_t Size, size_t Alignment = MEMORY_ALLOCATION_ALIGNMENT)

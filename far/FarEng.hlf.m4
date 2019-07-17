@@ -1787,6 +1787,8 @@ The following column types are supported:
        #V#         - Virtual
        #G#         - Integrity stream
        #N#         - No scrub data
+       #P#         - Pinned
+       #U#         - Unpinned
 
     #Column widths# - allows to change column widths in the search results
 output. If the width equals 0, the default value is used.
@@ -4276,6 +4278,8 @@ the file panel will be displayed in multicolumn form.
        #V#         - Virtual
        #G#         - Integrity stream
        #N#         - No scrub data
+       #P#         - Pinned
+       #U#         - Unpinned
 
     By default the size of the attributes column is 6 characters. To display
 the additional attributes it is necessary to manually increase the size of

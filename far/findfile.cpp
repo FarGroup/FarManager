@@ -774,7 +774,8 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 				case FAD_CHECKBOX_HEX:
 				{
-					Dlg->SendMessage(DM_ENABLEREDRAW, FALSE, nullptr);
+					SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
+
 					const auto Src = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, Param2 ? FAD_EDIT_TEXT : FAD_EDIT_HEX, nullptr));
 					const auto strDataStr = ConvertHexString(Src, CodePage, !Param2);
 					Dlg->SendMessage(DM_SETTEXTPTR,Param2?FAD_EDIT_HEX:FAD_EDIT_TEXT, UNSAFE_CSTR(strDataStr));
@@ -793,8 +794,6 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 						int UnchangeFlag=(int)Dlg->SendMessage(DM_EDITUNCHANGEDFLAG,FAD_EDIT_TEXT,ToPtr(-1));
 						Dlg->SendMessage(DM_EDITUNCHANGEDFLAG,FAD_EDIT_HEX,ToPtr(UnchangeFlag));
 					}
-
-					Dlg->SendMessage(DM_ENABLEREDRAW, TRUE, nullptr);
 				}
 				break;
 			}
@@ -1403,14 +1402,14 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 	if(!Recurse && !Finalized && m_Searcher->Stopped() && m_Messages.empty())
 	{
+		SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
+
 		Finalized=true;
 		const auto strMessage = format(msg(lng::MFindDone), m_FileCount, m_DirCount);
-		Dlg->SendMessage(DM_ENABLEREDRAW, FALSE, nullptr);
 		Dlg->SendMessage( DM_SETTEXTPTR, FD_SEPARATOR1, nullptr);
 		Dlg->SendMessage( DM_SETTEXTPTR, FD_TEXT_STATUS, UNSAFE_CSTR(strMessage));
 		Dlg->SendMessage( DM_SETTEXTPTR, FD_TEXT_STATUS_PERCENTS, nullptr);
 		Dlg->SendMessage( DM_SETTEXTPTR, FD_BUTTON_STOP, const_cast<wchar_t*>(msg(lng::MFindCancel).c_str()));
-		Dlg->SendMessage(DM_ENABLEREDRAW, TRUE, nullptr);
 		ConsoleTitle::SetFarTitle(strMessage);
 		TB.reset();
 	}
@@ -1720,6 +1719,8 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 	case DN_RESIZECONSOLE:
 		{
+			SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
+
 			const auto pCoord = static_cast<PCOORD>(Param2);
 			SMALL_RECT DlgRect;
 			Dlg->SendMessage( DM_GETDLGRECT, 0, &DlgRect);
@@ -1727,7 +1728,6 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			int DlgHeight=DlgRect.Bottom-DlgRect.Top+1;
 			int IncX = pCoord->X - DlgWidth - 2;
 			int IncY = pCoord->Y - DlgHeight - 2;
-			Dlg->SendMessage(DM_ENABLEREDRAW, FALSE, nullptr);
 
 			if ((IncX > 0) || (IncY > 0))
 			{
@@ -1780,7 +1780,6 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				Dlg->SendMessage( DM_RESIZEDIALOG, 0, pCoord);
 			}
 
-			Dlg->SendMessage(DM_ENABLEREDRAW, TRUE, nullptr);
 			return TRUE;
 		}
 
@@ -2170,9 +2169,10 @@ void background_searcher::DoScanTree(const string& strRoot)
 		Global->Opt->FindOpt.FindSymLinks
 	);
 
-	DWORD FileAttr;
 	if (SearchMode==FINDAREA_SELECTED)
-		Global->CtrlObject->Cp()->ActivePanel()->GetSelName(nullptr,FileAttr);
+		Global->CtrlObject->Cp()->ActivePanel()->GetSelName(nullptr);
+
+	os::fs::find_data FindData;
 
 	while (!Stopped())
 	{
@@ -2181,10 +2181,10 @@ void background_searcher::DoScanTree(const string& strRoot)
 		if (SearchMode==FINDAREA_SELECTED)
 		{
 			string strSelName;
-			if (!Global->CtrlObject->Cp()->ActivePanel()->GetSelName(&strSelName,FileAttr))
+			if (!Global->CtrlObject->Cp()->ActivePanel()->GetSelName(&strSelName, nullptr, &FindData))
 				break;
 
-			if (!(FileAttr & FILE_ATTRIBUTE_DIRECTORY) || IsParentDirectory(strSelName))
+			if (!(FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY) || IsParentDirectory(strSelName))
 				continue;
 
 			strCurRoot = path::join(strRoot, strSelName);
@@ -2196,7 +2196,7 @@ void background_searcher::DoScanTree(const string& strRoot)
 
 		ScTree.SetFindPath(strCurRoot, L"*"sv);
 		m_Owner->itd->SetFindMessage(strCurRoot);
-		os::fs::find_data FindData;
+
 		string strFullName;
 
 		while (!Stopped() && ScTree.GetNextName(FindData, strFullName))

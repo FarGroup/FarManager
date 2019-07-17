@@ -80,8 +80,8 @@ string ConvertDurationToHMS(os::chrono::duration Duration);
 string StrFTime(string_view Format, const tm* Time);
 string MkStrFTime(string_view Format = {});
 
-bool Utc2Local(os::chrono::time_point UtcTime, SYSTEMTIME& LocalTime);
-bool Local2Utc(const SYSTEMTIME& LocalTime, os::chrono::time_point& UtcTime);
+bool utc_to_local(os::chrono::time_point UtcTime, SYSTEMTIME& LocalTime);
+bool local_to_utc(const SYSTEMTIME& LocalTime, os::chrono::time_point& UtcTime);
 
 class time_check: noncopyable
 {

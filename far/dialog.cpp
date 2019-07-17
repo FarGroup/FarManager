@@ -928,6 +928,9 @@ size_t Dialog::InitDialogObjects(size_t ID)
 						ItemFlags&=~DIF_MASKEDIT;
 					}
 				}
+
+				if (!DialogMode.Check(DMODE_OBJECTS_INITED))
+					SetUnchanged = true;
 			}
 			else
 
@@ -6166,4 +6169,15 @@ void Dialog::SetDeleting()
 void Dialog::ShowConsoleTitle()
 {
 	ConsoleTitle::SetFarTitle(DialogMode.Check(DMODE_KEEPCONSOLETITLE)? m_ConsoleTitle : GetTitle());
+}
+
+Dialog::suppress_redraw::suppress_redraw(Dialog* Dlg):
+	m_Dlg(Dlg)
+{
+	m_Dlg->SendMessage(DM_ENABLEREDRAW, 0, nullptr);
+}
+
+Dialog::suppress_redraw::~suppress_redraw()
+{
+	m_Dlg->SendMessage(DM_ENABLEREDRAW, 1, nullptr);
 }

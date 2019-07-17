@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 15.07.2019 23:59:59 +0100 - build 5426
+
+1. Removed a horrible pile of copypasted code from setattr & fileattr. Consequences are possible.
+
+2. The "unchanged text" state didn't work properly in fixed width edit controls.
+
+3. Refactoring.
+
 drkns 14.07.2019 14:41:42 +0100 - build 5425
 
 1. F3 in Command History shows where the command was executed from.

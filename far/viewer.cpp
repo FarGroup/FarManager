@@ -2619,12 +2619,11 @@ intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 				need_focus = true;
 				if ( Param1 != cradio)
 				{
-					bool new_hex = (Param1 == SD_RADIO_HEX);
+					SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
 
-					Dlg->SendMessage(DM_ENABLEREDRAW, FALSE, nullptr);
-
-					int sd_dst = new_hex ? SD_EDIT_HEX : SD_EDIT_TEXT;
-					int sd_src = new_hex ? SD_EDIT_TEXT : SD_EDIT_HEX;
+					const auto new_hex = Param1 == SD_RADIO_HEX;
+					const auto sd_dst = new_hex? SD_EDIT_HEX : SD_EDIT_TEXT;
+					const auto sd_src = new_hex? SD_EDIT_TEXT : SD_EDIT_HEX;
 
 					EditorSetPosition esp={sizeof(EditorSetPosition)};
 					esp.CurPos = -1;
@@ -2654,7 +2653,6 @@ intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 						Dlg->SendMessage(DM_EDITUNCHANGEDFLAG, sd_dst, ToPtr(changed));
 					}
 
-					Dlg->SendMessage(DM_ENABLEREDRAW, TRUE, nullptr);
 					Data->hex_mode = new_hex;
 					if (!Data->edit_autofocus)
 						return TRUE;

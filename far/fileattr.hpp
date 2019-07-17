@@ -47,21 +47,20 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-enum SETATTR_RET_CODES
+enum class setattr_result
 {
-	SETATTR_RET_ERROR,
-	SETATTR_RET_OK,
-	SETATTR_RET_SKIP,
-	SETATTR_RET_SKIPALL,
+	ok,
+	skip,
+	cancel
 };
 
-[[nodiscard]] int ESetFileAttributes(const string& Name, DWORD Attr, bool SkipErrors);
-[[nodiscard]] int ESetFileCompression(const string& Name, int State, DWORD FileAttr, bool SkipErrors);
-[[nodiscard]] int ESetFileEncryption(const string& Name, bool State, DWORD FileAttr, bool SkipErrors, int Silent = 0);
-[[nodiscard]] int ESetFileSparse(const string& Name, bool State, DWORD FileAttr, bool SkipErrors);
-[[nodiscard]] int ESetFileTime(const string& Name, const os::chrono::time_point* LastWriteTime, const os::chrono::time_point* CreationTime, const os::chrono::time_point* LastAccessTime, const os::chrono::time_point* ChangeTime, DWORD FileAttr, bool SkipErrors);
-[[nodiscard]] int ESetFileOwner(const string& Name, const string& Owner, bool SkipErrors);
-[[nodiscard]] int EDeleteReparsePoint(const string& Name, DWORD FileAttr, bool SkipErrors);
+[[nodiscard]] setattr_result ESetFileAttributes(const string& Name, DWORD Attributes, bool& SkipErrors);
+[[nodiscard]] setattr_result ESetFileCompression(const string& Name, bool State, DWORD CurrentAttributes, bool& SkipErrors);
+[[nodiscard]] setattr_result ESetFileEncryption(const string& Name, bool State, DWORD CurrentAttributes, bool& SkipErrors);
+[[nodiscard]] setattr_result ESetFileSparse(const string& Name, bool State, DWORD CurrentAttributes, bool& SkipErrors);
+[[nodiscard]] setattr_result ESetFileTime(const string& Name, const os::chrono::time_point* LastWriteTime, const os::chrono::time_point* CreationTime, const os::chrono::time_point* LastAccessTime, const os::chrono::time_point* ChangeTime, DWORD CurrentAttributes, bool& SkipErrors);
+[[nodiscard]] setattr_result ESetFileOwner(const string& Name, const string& Owner, bool& SkipErrors);
+[[nodiscard]] setattr_result EDeleteReparsePoint(const string& Name, DWORD CurrentAttributes, bool& SkipErrors);
 
 void enum_attributes(function_ref<bool(DWORD, wchar_t)> Pred);
 

@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common.hpp"
 #include "common/bytes_view.hpp"
+#include "common/function_ref.hpp"
 #include "common/string_utils.hpp"
 
 // External:
@@ -114,8 +115,7 @@ namespace
 		throw_exception(GetLastErrorCode(Db), GetDatabaseName(Db), GetLastErrorString(Db));
 	}
 
-	template<typename callable>
-	void invoke(sqlite::sqlite3* Db, const callable& Callable)
+	void invoke(sqlite::sqlite3* Db, function_ref<bool()> const Callable)
 	{
 		SCOPED_ACTION(lock)(Db);
 

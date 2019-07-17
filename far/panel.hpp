@@ -197,7 +197,7 @@ public:
 	virtual const string& GetCurDir() const;
 	virtual size_t GetSelCount() const { return 0; }
 	virtual size_t GetRealSelCount() const {return 0;}
-	virtual bool GetSelName(string *strName, DWORD &FileAttr, string *ShortName = nullptr, os::fs::find_data *fd = nullptr) { return false; }
+	virtual bool GetSelName(string *strName, string *ShortName = nullptr, os::fs::find_data *fd = nullptr) { return false; }
 	virtual void ClearLastGetSelection() {}
 	virtual bool GetCurName(string &strName, string &strShortName) const;
 	virtual bool GetCurBaseName(string &strName, string &strShortName) const;
@@ -280,22 +280,19 @@ public:
 		using value_type = os::fs::find_data;
 		return make_inline_enumerator<value_type>([this](const bool Reset, value_type& Value)
 		{
-			DWORD Attributes;
-
 			if (Reset)
-				GetSelName(nullptr, Attributes);
+				GetSelName(nullptr);
 
 			string Name;
-			return GetSelName(&Name, Attributes, nullptr, &Value);
+			return GetSelName(&Name, nullptr, &Value);
 		});
 	}
 
 	bool get_first_selected(os::fs::find_data& Value)
 	{
-		DWORD Attributes;
-		GetSelName(nullptr, Attributes);
+		GetSelName(nullptr);
 		string Name;
-		return GetSelName(&Name, Attributes, nullptr, &Value);
+		return GetSelName(&Name, nullptr, &Value);
 	}
 
 protected:

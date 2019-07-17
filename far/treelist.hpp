@@ -127,7 +127,7 @@ private:
 	void OnFocusChange(bool Get) override;
 	void UpdateKeyBar() override;
 	int GetCurrentPos() const override;
-	bool GetSelName(string *strName, DWORD &FileAttr, string *ShortName = nullptr, os::fs::find_data *fd = nullptr) override;
+	bool GetSelName(string *strName, string *ShortName = nullptr, os::fs::find_data *fd = nullptr) override;
 	void DisplayObject() override;
 	size_t GetSelCount() const override;
 

@@ -2363,8 +2363,10 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 				case KEY_CTRLH:
 				case KEY_RCTRLH:
 					{
+						SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
+
 						static bool HideUnchanged = true;
-						Dlg->SendMessage(DM_ENABLEREDRAW, 0, nullptr);
+
 						FarListInfo ListInfo = {sizeof(ListInfo)};
 						Dlg->SendMessage(DM_LISTINFO, Param1, &ListInfo);
 						for(int i = 0; i < static_cast<int>(ListInfo.ItemsNumber); ++i)
@@ -2395,7 +2397,6 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 							}
 						}
 						HideUnchanged = !HideUnchanged;
-						Dlg->SendMessage(DM_ENABLEREDRAW, 1, nullptr);
 					}
 					break;
 				}
@@ -2414,14 +2415,14 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 			{
 				if (CurrentItem->Edit(Param1 != 0))
 				{
-					Dlg->SendMessage(DM_ENABLEREDRAW, 0, nullptr);
+					SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
+
 					FarListUpdate flu = { sizeof(flu), ListInfo.SelectPos };
 					auto& ConfigStrings = *reinterpret_cast<std::vector<string>*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 					flu.Item = CurrentItem->MakeListItem(ConfigStrings[ListInfo.SelectPos]);
 					Dlg->SendMessage(DM_LISTUPDATE, 0, &flu);
 					FarListPos flp = { sizeof(flp), ListInfo.SelectPos, ListInfo.TopPos };
 					Dlg->SendMessage(DM_LISTSETCURPOS, 0, &flp);
-					Dlg->SendMessage(DM_ENABLEREDRAW, 1, nullptr);
 				}
 			}
 			return FALSE;

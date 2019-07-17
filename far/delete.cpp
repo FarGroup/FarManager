@@ -609,17 +609,16 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 		}
 
 		os::fs::find_data SelFindData;
-		SrcPanel->GetSelName(nullptr, SingleSelData.Attributes);
+		SrcPanel->GetSelName(nullptr);
 		const time_check TimeCheck(time_check::mode::immediate, GetRedrawTimeout());
 		bool cannot_recycle_try_delete_folder = false;
 
 		string strSelName;
 		string strSelShortName;
-		DWORD FileAttr = 0;
 
 		// BUGBUGBUG
 		// TODO: enumerator
-		while (!Cancel && (cannot_recycle_try_delete_folder || SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName, &SelFindData)))
+		while (!Cancel && (cannot_recycle_try_delete_folder || SrcPanel->GetSelName(&strSelName, &strSelShortName, &SelFindData)))
 		{
 			if (strSelName.empty() || IsRelativeRoot(strSelName) || IsRootPath(strSelName))
 				continue;
@@ -635,7 +634,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 				ShellDeleteMsg(strSelName, Wipe?DEL_WIPE:DEL_DEL, { ProcessedItems, Total.Items }, 0);
 			}
 
-			if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
+			if (SelFindData.Attributes & FILE_ATTRIBUTE_DIRECTORY)
 			{
 				const auto DirSymLink = os::fs::is_directory_symbolic_link(SelFindData);
 
@@ -813,7 +812,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 
 				if (!Cancel)
 				{
-					if (FileAttr & FILE_ATTRIBUTE_READONLY)
+					if (SelFindData.Attributes & FILE_ATTRIBUTE_READONLY)
 						os::fs::set_file_attributes(strSelName,FILE_ATTRIBUTE_NORMAL);
 
 					// нефига здесь выделываться, а надо учесть, что удаление
@@ -846,7 +845,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 			}
 			else
 			{
-				int AskCode=AskDeleteReadOnly(strSelName,FileAttr,Wipe);
+				int AskCode=AskDeleteReadOnly(strSelName, SelFindData.Attributes, Wipe);
 
 				if (AskCode==DELETE_CANCEL)
 					break;
@@ -1110,6 +1109,7 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 		ScTree.SetFindPath(Name, L"*"sv, 0);
 
 		bool MessageShown = false;
+		bool SkipErrors = false;
 
 		while (ScTree.GetNextName(FindData,strFullName2))
 		{
@@ -1135,7 +1135,7 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 					}
 				}
 				// BUGBUG, check result
-				(void)EDeleteReparsePoint(strFullName2, FindData.Attributes, false);
+				(void)EDeleteReparsePoint(strFullName2, FindData.Attributes, SkipErrors);
 			}
 		}
 	}

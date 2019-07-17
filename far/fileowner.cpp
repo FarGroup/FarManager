@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common.hpp"
+#include "common/function_ref.hpp"
 #include "common/function_traits.hpp"
 #include "common/string_utils.hpp"
 
@@ -179,8 +180,7 @@ static bool SidToNameCached(PSID Sid, string& Name, const string& Computer)
 	return false;
 }
 
-// TODO: elevation
-bool GetFileOwner(const string& Computer, const string& Name, string& strOwner)
+static bool ProcessFileOwner(const string& Name, function_ref<bool(PSID)> const Callable)
 {
 	const auto SecurityDescriptor = os::fs::get_file_security(Name, OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION);
 	if (!SecurityDescriptor)
@@ -194,7 +194,25 @@ bool GetFileOwner(const string& Computer, const string& Name, string& strOwner)
 	if (!IsValidSid(pOwner))
 		return false;
 
-	return SidToNameCached(pOwner, strOwner, Computer);
+	return Callable(pOwner);
+}
+
+static bool IsOwned(const string& Name, PSID const Owner)
+{
+	return ProcessFileOwner(Name, [&](PSID const Sid)
+	{
+		return EqualSid(Sid, Owner);
+	});
+}
+
+
+// TODO: elevation
+bool GetFileOwner(const string& Computer, const string& Name, string& strOwner)
+{
+	return ProcessFileOwner(Name, [&](PSID const Sid)
+	{
+		return SidToNameCached(Sid, strOwner, Computer);
+	});
 }
 
 static sid get_sid(const string& Name)
@@ -234,6 +252,9 @@ bool SetOwnerInternal(const string& Object, const string& Owner)
 	const auto Sid = get_sid(Owner);
 	if (!Sid)
 		return false;
+
+	if (IsOwned(Object, Sid.get()))
+		return true;
 
 	SCOPED_ACTION(os::security::privilege){ SE_TAKE_OWNERSHIP_NAME, SE_RESTORE_NAME };
 

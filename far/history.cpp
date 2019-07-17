@@ -233,7 +233,7 @@ history_return_type History::ProcessMenu(string& strStr, GUID* const Guid, strin
 				}
 
 				SYSTEMTIME SavedTime;
-				Utc2Local(i.Time, SavedTime);
+				utc_to_local(i.Time, SavedTime);
 				if(LastDay != SavedTime.wDay || LastMonth != SavedTime.wMonth || LastYear != SavedTime.wYear)
 				{
 					LastDay = SavedTime.wDay;

@@ -411,7 +411,7 @@ os::chrono::time_point ParseDate(const string& Date, const string& Time, int Dat
 	st.wMilliseconds = TimeN[3];
 
 	os::chrono::time_point Point;
-	Local2Utc(st, Point);
+	local_to_utc(st, Point);
 	return Point;
 }
 
@@ -446,7 +446,7 @@ void ConvertDate(os::chrono::time_point const Point, string& strDateText, string
 	const auto CurDateFormat = Brief && DateFormat == 2? 0 : DateFormat;
 
 	SYSTEMTIME st;
-	if (!Utc2Local(Point, st))
+	if (!utc_to_local(Point, st))
 		return;
 
 	auto Letter = L""sv;
@@ -565,7 +565,7 @@ string ConvertDurationToHMS(os::chrono::duration Duration)
 	);
 }
 
-bool Utc2Local(os::chrono::time_point UtcTime, SYSTEMTIME& LocalTime)
+bool utc_to_local(os::chrono::time_point UtcTime, SYSTEMTIME& LocalTime)
 {
 	const auto FileTime = os::chrono::nt_clock::to_filetime(UtcTime);
 	SYSTEMTIME SystemTime;
@@ -574,9 +574,17 @@ bool Utc2Local(os::chrono::time_point UtcTime, SYSTEMTIME& LocalTime)
 
 static bool local_to_utc(const SYSTEMTIME &lst, SYSTEMTIME &ust)
 {
-	if (imports.TzSpecificLocalTimeToSystemTime)
+	if (imports.TzSpecificLocalTimeToSystemTime && imports.TzSpecificLocalTimeToSystemTime(nullptr, &lst, &ust))
+		return true;
+
+	TIME_ZONE_INFORMATION Tz;
+	if (GetTimeZoneInformation(&Tz) != TIME_ZONE_ID_INVALID)
 	{
-		return imports.TzSpecificLocalTimeToSystemTime(nullptr, &lst, &ust) != FALSE;
+		Tz.Bias = -Tz.Bias;
+		Tz.StandardBias = -Tz.StandardBias;
+		Tz.DaylightBias = -Tz.DaylightBias;
+		if (SystemTimeToTzSpecificLocalTime(&Tz, &lst, &ust))
+			return true;
 	}
 
 	std::tm ltm
@@ -592,28 +600,27 @@ static bool local_to_utc(const SYSTEMTIME &lst, SYSTEMTIME &ust)
 		-1
 	};
 
-	const auto gtim = mktime(&ltm);
-	if (gtim == static_cast<time_t>(-1))
-		return false;
-
-	if (const auto ptm = gmtime(&gtim))
+	if (const auto gtim = std::mktime(&ltm); gtim != static_cast<time_t>(-1))
 	{
-		ust.wYear   = ptm->tm_year + 1900;
-		ust.wMonth  = ptm->tm_mon + 1;
-		ust.wDay    = ptm->tm_mday;
-		ust.wHour   = ptm->tm_hour;
-		ust.wMinute = ptm->tm_min;
-		ust.wSecond = ptm->tm_sec;
-		ust.wDayOfWeek = ptm->tm_wday;
-		ust.wMilliseconds = lst.wMilliseconds;
-		return true;
+		if (const auto ptm = std::gmtime(&gtim))
+		{
+			ust.wYear = ptm->tm_year + 1900;
+			ust.wMonth = ptm->tm_mon + 1;
+			ust.wDay = ptm->tm_mday;
+			ust.wHour = ptm->tm_hour;
+			ust.wMinute = ptm->tm_min;
+			ust.wSecond = ptm->tm_sec;
+			ust.wDayOfWeek = ptm->tm_wday;
+			ust.wMilliseconds = lst.wMilliseconds;
+			return true;
+		}
 	}
 
 	FILETIME lft, uft;
 	return SystemTimeToFileTime(&lst, &lft) && LocalFileTimeToFileTime(&lft, &uft) && FileTimeToSystemTime(&uft, &ust);
 }
 
-bool Local2Utc(const SYSTEMTIME& LocalTime, os::chrono::time_point& UtcTime)
+bool local_to_utc(const SYSTEMTIME& LocalTime, os::chrono::time_point& UtcTime)
 {
 	SYSTEMTIME SystemUtcTime;
 	if (!local_to_utc(LocalTime, SystemUtcTime))
