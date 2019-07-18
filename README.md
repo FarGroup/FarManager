@@ -1,3 +1,5 @@
+![Logo](https://raw.githubusercontent.com/FarGroup/FarManager/master/far/Far.ico)
+
 ### Far Manager
 https://www.farmanager.com
 
@@ -22,6 +24,7 @@ The functionality of Far Manager is greatly extended by external DLL modules —
 
 
 #### Support forum
+https://enforum.farmanager.com/  
 https://forum.farmanager.com/
 
 #### Bug tracker
