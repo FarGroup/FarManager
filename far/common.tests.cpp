@@ -261,7 +261,7 @@ TEST_CASE("null_iterator")
 {
 	const auto Ptr = L"12345";
 	const null_iterator Iterator(Ptr);
-	const size_t Count = std::count_if(Iterator, Iterator.end(), [](wchar_t){ return true; });
+	const size_t Count = std::distance(Iterator, Iterator.end());
 	REQUIRE(Count == wcslen(Ptr));
 }
 

@@ -78,7 +78,7 @@ private:
 	unsigned long long GetBytesDone() const { return m_Bytes.Copied + m_Bytes.Skipped; }
 
 	std::chrono::steady_clock::time_point m_CopyStartTime;
-	IndeterminateTaskbar m_TB;
+	taskbar::indeterminate m_TB;
 	wakeful m_Wakeful;
 	small_rectangle m_Rect;
 

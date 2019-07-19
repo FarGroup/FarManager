@@ -178,6 +178,19 @@ namespace console_detail
 
 		class stream_buffers_overrider;
 		std::unique_ptr<stream_buffers_overrider> m_StreamBuffersOverrider;
+
+		class temporary_stream_buffers_overrider
+		{
+		public:
+			temporary_stream_buffers_overrider();
+			~temporary_stream_buffers_overrider();
+
+		private:
+			std::unique_ptr<stream_buffers_overrider> m_StreamBuffersOverrider;
+		};
+
+	public:
+		static std::unique_ptr<temporary_stream_buffers_overrider> create_temporary_stream_buffers_overrider();
 	};
 }
 

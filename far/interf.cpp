@@ -1121,7 +1121,7 @@ string make_progressbar(size_t Size, size_t Percent, bool ShowPercent, bool Prop
 	}
 	if (PropagateToTasbkar)
 	{
-		taskbar::instance().SetProgressValue(Percent, 100);
+		taskbar::instance().set_value(Percent, 100);
 	}
 	return Str;
 }

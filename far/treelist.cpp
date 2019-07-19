@@ -820,7 +820,7 @@ bool TreeList::ReadTree()
 	ScTree.SetFindPath(m_Root, L"*"sv, 0);
 	LastScrX = ScrX;
 	LastScrY = ScrY;
-	SCOPED_ACTION(IndeterminateTaskbar);
+	SCOPED_ACTION(taskbar::indeterminate);
 	SCOPED_ACTION(wakeful);
 	while (ScTree.GetNextName(fdata,strFullName))
 	{

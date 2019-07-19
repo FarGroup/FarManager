@@ -573,7 +573,7 @@ bool AbortMessage()
 		return true;
 	}
 
-	SCOPED_ACTION(TaskbarPause);
+	SCOPED_ACTION(taskbar::state)(TBPF_PAUSED);
 	const auto Result = Message(MSG_WARNING | MSG_KILLSAVESCREEN,
 		msg(lng::MKeyESCWasPressed),
 		{

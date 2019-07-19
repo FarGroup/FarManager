@@ -143,13 +143,12 @@ static void ShowStackTrace(const std::vector<const void*>& Stack, const std::vec
 	}
 }
 
-static bool write_minidump(const detail::exception_context& Context)
+static bool write_minidump(const detail::exception_context& Context, string_view const Path)
 {
 	if (!imports.MiniDumpWriteDump)
 		return false;
 
-	// TODO: subdirectory && timestamp
-	const os::fs::file DumpFile(path::join(Global->Opt->LocalProfilePath, L"Far.mdmp"sv), GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS);
+	const os::fs::file DumpFile(Path, GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS);
 	if (!DumpFile)
 		return false;
 
@@ -211,7 +210,33 @@ static intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2
 				return FALSE;
 
 			case ed_button_minidump:
-				write_minidump(*ExceptionContext);
+				{
+					// TODO: subdirectory && timestamp
+					auto Path = path::join(Global->Opt->LocalProfilePath, L"Far.mdmp"sv);
+
+					if (write_minidump(*ExceptionContext, Path))
+					{
+						Message(0,
+							msg(lng::MExcMinidump),
+							{
+								msg(lng::MExcMinidumpSuccess),
+								std::move(Path)
+							},
+							{ lng::MOk });
+					}
+					else
+					{
+						const auto ErrorState = error_state::fetch();
+						Message(MSG_WARNING, error_state::fetch(),
+							msg(lng::MError),
+							{
+								msg(lng::MEditCannotSave),
+								std::move(Path)
+							},
+							{ lng::MOk });
+					}
+
+				}
 				return FALSE;
 			}
 		}

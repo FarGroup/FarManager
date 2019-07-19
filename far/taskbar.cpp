@@ -44,36 +44,35 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-taskbar::taskbar():
-	m_State(TBPF_NOPROGRESS)
+taskbar::taskbar()
 {
 	CoCreateInstance(CLSID_TaskbarList, nullptr, CLSCTX_INPROC_SERVER, IID_ITaskbarList3, IID_PPV_ARGS_Helper(&ptr_setter(m_TaskbarList)));
 }
 
-void taskbar::SetProgressState(TBPFLAG tbpFlags)
+void taskbar::set_state(TBPFLAG const State)
 {
 	if (!m_TaskbarList)
 		return;
 
-	m_State=tbpFlags;
-	m_TaskbarList->SetProgressState(console.GetWindow(),tbpFlags);
+	m_State = State;
+	m_TaskbarList->SetProgressState(console.GetWindow(), m_State);
 }
 
-void taskbar::SetProgressValue(unsigned long long Completed, unsigned long long Total)
+void taskbar::set_value(unsigned long long const Completed, unsigned long long const Total)
 {
 	if (!m_TaskbarList)
 		return;
 
-	m_State=TBPF_NORMAL;
-	m_TaskbarList->SetProgressValue(console.GetWindow(),Completed,Total);
+	m_State = TBPF_NORMAL;
+	m_TaskbarList->SetProgressValue(console.GetWindow(), Completed, Total);
 }
 
-TBPFLAG taskbar::GetProgressState() const
+TBPFLAG taskbar::last_state() const
 {
 	return m_State;
 }
 
-void taskbar::Flash()
+void taskbar::flash()
 {
 	const auto ConsoleWindow = console.GetWindow();
 	WINDOWINFO WindowInfo{ sizeof(WindowInfo)};
@@ -89,23 +88,50 @@ void taskbar::Flash()
 }
 
 
-IndeterminateTaskbar::IndeterminateTaskbar(bool EndFlash):
-	EndFlash(EndFlash)
+taskbar::indeterminate::indeterminate(bool const EndFlash):
+	m_EndFlash(EndFlash)
 {
-	if (taskbar::instance().GetProgressState()!=TBPF_INDETERMINATE)
+	auto& Taskbar = instance();
+
+	if (Taskbar.last_state() != TBPF_INDETERMINATE)
 	{
-		taskbar::instance().SetProgressState(TBPF_INDETERMINATE);
+		Taskbar.set_state(TBPF_INDETERMINATE);
 	}
 }
 
-IndeterminateTaskbar::~IndeterminateTaskbar()
+taskbar::indeterminate::~indeterminate()
 {
-	if (taskbar::instance().GetProgressState()!=TBPF_NOPROGRESS)
+	auto& Taskbar = instance();
+
+	if (Taskbar.last_state() != TBPF_NOPROGRESS)
 	{
-		taskbar::instance().SetProgressState(TBPF_NOPROGRESS);
+		Taskbar.set_state(TBPF_NOPROGRESS);
 	}
-	if(EndFlash)
+
+	if(m_EndFlash)
 	{
-		taskbar::instance().Flash();
+		Taskbar.flash();
 	}
+}
+
+taskbar::state::state(TBPFLAG const State):
+	m_PreviousState(instance().last_state())
+{
+	if (m_PreviousState == State)
+		return;
+
+	auto& Taskbar = instance();
+
+	if (m_PreviousState == TBPF_INDETERMINATE || m_PreviousState == TBPF_NOPROGRESS)
+	{
+		Taskbar.set_value(1, 1);
+	}
+
+	Taskbar.set_state(State);
+	Taskbar.flash();
+}
+
+taskbar::state::~state()
+{
+	instance().set_state(m_PreviousState);
 }

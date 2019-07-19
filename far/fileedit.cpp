@@ -1432,7 +1432,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 	// TODO: indentation
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<Editor::EditorPreRedrawItem>());
-	SCOPED_ACTION(IndeterminateTaskbar);
+	SCOPED_ACTION(taskbar::indeterminate);
 	SCOPED_ACTION(wakeful);
 
 	EditorPosCache pc;
@@ -1698,7 +1698,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 	if (m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE) && !m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED) && !bSaveAs)
 		return SAVEFILE_SUCCESS;
 
-	SCOPED_ACTION(IndeterminateTaskbar);
+	SCOPED_ACTION(taskbar::indeterminate);
 	SCOPED_ACTION(wakeful);
 
 	if (Ask)

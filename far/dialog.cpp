@@ -4236,10 +4236,10 @@ void Dialog::Process()
 	PrevMouseRecord = {};
 	ClearDone();
 	InitDialog();
-	std::optional<TaskbarError> TBE;
+	std::optional<taskbar::state> TBE;
 	if (DialogMode.Check(DMODE_WARNINGSTYLE))
 	{
-		TBE.emplace();
+		TBE.emplace(TBPF_ERROR);
 	}
 
 	if (m_ExitCode == -1)

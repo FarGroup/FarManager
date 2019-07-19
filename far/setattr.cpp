@@ -1229,7 +1229,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 						SrcPanel->GetSelName(nullptr);
 					}
 
-					SCOPED_ACTION(IndeterminateTaskbar);
+					SCOPED_ACTION(taskbar::indeterminate);
 					SCOPED_ACTION(wakeful);
 
 					const time_check TimeCheck(time_check::mode::immediate, GetRedrawTimeout());

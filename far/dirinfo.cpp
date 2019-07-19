@@ -120,7 +120,7 @@ static void PR_DrawGetDirInfoMsg()
 int GetDirInfo(const string& DirName, DirInfoData& Data, FileFilter *Filter, dirinfo_callback const Callback, DWORD Flags)
 {
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<DirInfoPreRedrawItem>());
-	SCOPED_ACTION(IndeterminateTaskbar)(false);
+	SCOPED_ACTION(taskbar::indeterminate)(false);
 	SCOPED_ACTION(wakeful);
 
 	ScanTree ScTree(false, true, (Flags & GETDIRINFO_SCANSYMLINKDEF? (DWORD)-1 : (Flags & GETDIRINFO_SCANSYMLINK)));

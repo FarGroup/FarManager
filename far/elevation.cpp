@@ -309,7 +309,7 @@ bool elevation::Initialize()
 			return false;
 	}
 
-	SCOPED_ACTION(IndeterminateTaskbar);
+	SCOPED_ACTION(taskbar::indeterminate);
 	DisconnectNamedPipe(m_Pipe.native_handle());
 
 	const auto Param = concat(ElevationArgument, L' ', m_PipeName, L' ', str(GetCurrentProcessId()), L' ', (Global->Opt->ElevationMode & ELEVATION_USE_PRIVILEGES)? L'1' : L'0');
@@ -451,7 +451,7 @@ bool elevation::ElevationApproveDlg(lng Why, const string& Object)
 	{
 		++m_Recurse;
 		SCOPED_ACTION(GuardLastError);
-		SCOPED_ACTION(TaskbarPause);
+		SCOPED_ACTION(taskbar::state)(TBPF_PAUSED);
 		EAData Data(Object, Why, m_AskApprove, m_IsApproved, m_DontAskAgain);
 
 		if(!Global->IsMainThread())

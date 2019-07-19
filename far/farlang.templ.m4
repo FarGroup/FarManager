@@ -24058,6 +24058,20 @@ upd:"Minidump"
 "Мінідамп"
 "Мінідамп"
 
+MExcMinidumpSuccess
+"Минидамп сохранён в"
+"Minidump saved to"
+upd:"Minidump saved to"
+upd:"Minidump saved to"
+upd:"Minidump saved to"
+upd:"Minidump saved to"
+upd:"Minidump saved to"
+upd:"Minidump saved to"
+upd:"Minidump saved to"
+"Мінідамп збережено в"
+upd:"Мінідамп захаваны ў"
+
+
 MNetUserName
 l:
 "Имя пользователя"

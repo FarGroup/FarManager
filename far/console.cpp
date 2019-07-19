@@ -1162,6 +1162,18 @@ namespace console_detail
 	{
 		return SetConsoleCursorPosition(GetOutputHandle(), Position) != FALSE;
 	}
+
+	console::temporary_stream_buffers_overrider::temporary_stream_buffers_overrider():
+		m_StreamBuffersOverrider(std::make_unique<stream_buffers_overrider>())
+	{
+	}
+
+	console::temporary_stream_buffers_overrider::~temporary_stream_buffers_overrider() = default;
+
+	std::unique_ptr<console::temporary_stream_buffers_overrider> console::create_temporary_stream_buffers_overrider()
+	{
+		return std::make_unique<temporary_stream_buffers_overrider>();
+	}
 }
 
 NIFTY_DEFINE(console_detail::console, console);

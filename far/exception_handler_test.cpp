@@ -122,6 +122,19 @@ namespace tests
 		rethrow_if(Ptr);
 	}
 
+	static void cpp_memory_leak()
+	{
+		const auto Str1 = "We're walking in the air"sv;
+		std::copy(ALL_CONST_RANGE(Str1), new char[Str1.size()]);
+
+		const auto Str2 = L"We're floating in the moonlit sky"sv;
+		std::copy(ALL_CONST_RANGE(Str2), new wchar_t[Str2.size()]);
+
+		*new int = 42;
+
+		Global->WindowManager->ExitMainLoop(FALSE);
+	}
+
 	static void access_violation_read()
 	{
 		volatile const int* InvalidAddress = nullptr;
@@ -258,6 +271,7 @@ static bool ExceptionTestHook(Manager::Key key)
 		{ tests::cpp_std_bad_alloc,        L"C++ std::bad_alloc"sv },
 		{ tests::cpp_unknown,              L"C++ unknown exception"sv },
 		{ tests::cpp_unknown_nested,       L"C++ unknown exception (nested)"sv },
+		{ tests::cpp_memory_leak,          L"C++ memory leak"sv },
 		{ tests::access_violation_read,    L"Access Violation (Read)"sv },
 		{ tests::access_violation_write,   L"Access Violation (Write)"sv },
 		{ tests::access_violation_execute, L"Access Violation (Execute)"sv },

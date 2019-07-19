@@ -51,56 +51,44 @@ class taskbar: public singleton<taskbar>
 	IMPLEMENTS_SINGLETON;
 
 public:
-	TBPFLAG GetProgressState() const;
-	void SetProgressState(TBPFLAG tbpFlags);
-	void SetProgressValue(unsigned long long Completed, unsigned long long Total);
-	static void Flash();
+	[[nodiscard]]
+	TBPFLAG last_state() const;
+	void set_state(TBPFLAG State);
+	void set_value(unsigned long long Completed, unsigned long long Total);
+	static void flash();
+
+	class indeterminate;
+	class state;
 
 private:
 	taskbar();
 
 	os::com::ptr<ITaskbarList3> m_TaskbarList;
-	TBPFLAG m_State;
+	TBPFLAG m_State{ TBPF_NOPROGRESS };
 };
 
-class IndeterminateTaskbar: noncopyable
+class taskbar::indeterminate
 {
 public:
-	explicit IndeterminateTaskbar(bool EndFlash = true);
-	~IndeterminateTaskbar();
+	NONCOPYABLE(indeterminate);
+
+	explicit indeterminate(bool EndFlash = true);
+	~indeterminate();
 
 private:
-	bool EndFlash;
+	bool m_EndFlash;
 };
 
-template<TBPFLAG T>
-class taskbar_state: noncopyable
+class taskbar::state
 {
 public:
-	taskbar_state():
-		m_PreviousState(taskbar::instance().GetProgressState())
-	{
-		if (m_PreviousState != TBPF_ERROR && m_PreviousState != TBPF_PAUSED)
-		{
-			if (m_PreviousState == TBPF_INDETERMINATE || m_PreviousState == TBPF_NOPROGRESS)
-			{
-				taskbar::instance().SetProgressValue(1, 1);
-			}
-			taskbar::instance().SetProgressState(T);
-			taskbar::instance().Flash();
-		}
-	}
+	NONCOPYABLE(state);
 
-	~taskbar_state()
-	{
-		taskbar::instance().SetProgressState(m_PreviousState);
-	}
+	explicit state(TBPFLAG State);
+	~state();
 
 private:
 	TBPFLAG m_PreviousState;
 };
-
-using TaskbarPause = taskbar_state<TBPF_PAUSED>;
-using TaskbarError = taskbar_state<TBPF_ERROR>;
 
 #endif // TASKBAR_HPP_2522B9DF_D677_4AA9_8777_B5A1F588D4C1

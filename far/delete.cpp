@@ -561,7 +561,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 
 	{
 		ConsoleTitle::SetFarTitle(msg(lng::MDeletingTitle));
-		SCOPED_ACTION(IndeterminateTaskbar);
+		SCOPED_ACTION(taskbar::indeterminate);
 		SCOPED_ACTION(wakeful);
 		bool Cancel=false;
 		SetCursorType(false, 0);

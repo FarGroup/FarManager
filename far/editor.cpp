@@ -3511,7 +3511,7 @@ bool Editor::Search(bool Next)
 
 		const time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 		int StartLine = m_it_CurLine.Number();
-		SCOPED_ACTION(IndeterminateTaskbar);
+		SCOPED_ACTION(taskbar::indeterminate);
 		SCOPED_ACTION(wakeful);
 		int LastCheckedLine = -1;
 
@@ -3532,7 +3532,7 @@ bool Editor::Search(bool Next)
 				const auto Total = FindAllReferences? Lines.size() : ReverseSearch? StartLine : Lines.size() - StartLine;
 				const auto Current = abs(CurPtr.Number() - StartLine);
 				EditorShowMsg(msg(lng::MEditSearchTitle), msg(lng::MEditSearchingFor), QuotedStr, Total > 0? Current * 100 / Total : 100);
-				taskbar::instance().SetProgressValue(Current,Total);
+				taskbar::instance().set_value(Current,Total);
 			}
 
 			auto strReplaceStrCurrent = ReplaceMode? strReplaceStr : L""s;

@@ -406,3 +406,56 @@ bool StrToGuid(string_view const Value, GUID& Guid)
 {
 	return UuidFromString(reinterpret_cast<RPC_WSTR>(const_cast<wchar_t*>(null_terminated(Value).c_str())), &Guid) == RPC_S_OK;
 }
+
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("platform.string.receiver")
+{
+	const auto api_function = [](size_t const EmulatedSize, wchar_t* const Buffer, size_t const BufferSize)
+	{
+		string Data;
+		Data.resize(EmulatedSize);
+		std::iota(ALL_RANGE(Data), L'\1');
+
+		if (BufferSize < Data.size() + 1)
+			return Data.size() + 1;
+
+		*std::copy(ALL_CONST_RANGE(Data), Buffer) = L'\0';
+
+		return Data.size();
+	};
+
+	const auto validate = [](string const& Data)
+	{
+		for (size_t i = 0, size = Data.size(); i != size; ++i)
+		{
+			if (Data[i] != i + 1)
+				return false;
+		}
+
+		return true;
+	};
+
+	static size_t const Tests[]
+	{
+		0,
+		1,
+		42,
+		os::default_buffer_size - 1,
+		os::default_buffer_size,
+		os::default_buffer_size + 1,
+		420,
+	};
+
+	for (const auto& i: Tests)
+	{
+		string Data;
+		REQUIRE((i != 0) == os::detail::ApiDynamicStringReceiver(Data, [&](span<wchar_t> const Buffer)
+		{
+			return api_function(i, Buffer.data(), Buffer.size());
+		}));
+	}
+}
+#endif

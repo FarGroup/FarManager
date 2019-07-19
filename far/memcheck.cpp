@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "encoding.hpp"
 #include "exception.hpp"
+#include "console.hpp"
 
 // Platform:
 #include "platform.concurrency.hpp"
@@ -261,62 +262,70 @@ static void DebugDeallocator(void* block, allocation_type type)
 	}
 }
 
-static string FindStr(const void* Data, size_t Size)
+static string printable_string(string Str)
 {
-	const auto ABegin = static_cast<const char*>(Data), AEnd = ABegin + Size - 1;
-
-	if (std::all_of(ABegin, AEnd, [](char c){ return c > ' ' || std::isspace(c); }))
+	for (auto& i: Str)
 	{
-		return encoding::ansi::get_chars({ ABegin, static_cast<size_t>(AEnd - ABegin) });
+		if (!std::iswprint(i))
+			i = L'.';
 	}
 
-	const auto WBegin = static_cast<const wchar_t*>(Data), WEnd = WBegin + Size / sizeof(wchar_t) - 1;
+	return Str;
+}
 
-	if (std::all_of(WBegin, WEnd, [](wchar_t c){ return c > L' ' || std::iswspace(c); }))
-	{
-		return { WBegin, WEnd };
-	}
+static string printable_wide_string(void const* const Data, size_t const Size)
+{
+	return printable_string({ static_cast<const wchar_t*>(Data), Size / sizeof(wchar_t) });
+}
 
-	return {};
+static string printable_ansi_string(void const* const Data, size_t const Size)
+{
+	return printable_string(encoding::ansi::get_chars({ static_cast<const char*>(Data), Size }));
 }
 
 void checker::summary() const
 {
+	if (!m_CallNewDeleteVector && !m_CallNewDeleteScalar && !m_AllocatedMemoryBlocks && !m_AllocatedMemorySize)
+		return;
+
+	// Q: Why?
+	// A: The same reason we owerride stream buffers everywhere else: the default one is shite - it goes through FILE* and breaks wide characters.
+	//    At this point the regular overrider is already dead so we need to revive it once more:
+	SCOPED_ACTION(auto)(console_detail::console::create_temporary_stream_buffers_overrider());
+
 	const auto Print = [](const string& Str)
 	{
 		std::wcerr << Str;
 		OutputDebugString(Str.c_str());
 	};
 
-	if (m_CallNewDeleteVector || m_CallNewDeleteScalar || m_AllocatedMemoryBlocks || m_AllocatedMemorySize)
+	auto Message = L"Memory leaks detected:\n"s;
+
+	if (m_CallNewDeleteVector)
+		Message += format(FSTR(L"  delete[]:   {0}\n"), m_CallNewDeleteVector);
+	if (m_CallNewDeleteScalar)
+		Message += format(FSTR(L"  delete:     {0}\n"), m_CallNewDeleteScalar);
+	if (m_AllocatedMemoryBlocks)
+		Message += format(FSTR(L"Total blocks: {0}\n"), m_AllocatedMemoryBlocks);
+	if (m_AllocatedMemorySize)
+		Message += format(FSTR(L"Total bytes:  {0} payload, {1} overhead\n"), m_AllocatedMemorySize - m_AllocatedMemoryBlocks * (sizeof(MEMINFO) + sizeof(EndMarker)), m_AllocatedMemoryBlocks * sizeof(MEMINFO));
+
+	append(Message, L"\nNot freed blocks:\n"sv);
+
+	Print(Message);
+	Message.clear();
+
+	for(auto i = FirstMemBlock.next; i; i = i->next)
 	{
-		auto Message = L"Memory leaks detected:\n"s;
-
-		if (m_CallNewDeleteVector)
-			Message += format(FSTR(L"  delete[]:   {0}\n"), m_CallNewDeleteVector);
-		if (m_CallNewDeleteScalar)
-			Message += format(FSTR(L"  delete:     {0}\n"), m_CallNewDeleteScalar);
-		if (m_AllocatedMemoryBlocks)
-			Message += format(FSTR(L"Total blocks: {0}\n"), m_AllocatedMemoryBlocks);
-		if (m_AllocatedMemorySize)
-			Message += format(FSTR(L"Total bytes:  {0} payload, {1} overhead\n"), m_AllocatedMemorySize - m_AllocatedMemoryBlocks * (sizeof(MEMINFO) + sizeof(EndMarker)), m_AllocatedMemoryBlocks * sizeof(MEMINFO));
-
-		append(Message, L"\nNot freed blocks:\n"sv);
+		const auto BlockSize = i->Size - sizeof(MEMINFO) - sizeof(EndMarker);
+		const auto UserAddress = ToUser(i);
+		const size_t Width = 80 - 7 - 1;
+		Message = concat(str(UserAddress), L", "sv, encoding::ansi::get_chars(FormatLine(i->File, i->Line, i->Function, i->AllocationType, BlockSize)),
+			L"\nData: "sv, BlobToHexWString(UserAddress, std::min(BlockSize, Width / 3), L' '),
+			L"\nAnsi: "sv, printable_ansi_string(UserAddress, std::min(BlockSize, Width)),
+			L"\nWide: "sv, printable_wide_string(UserAddress, std::min(BlockSize, Width * sizeof(wchar_t))), L"\n\n"sv);
 
 		Print(Message);
-		Message.clear();
-
-		for(auto i = FirstMemBlock.next; i; i = i->next)
-		{
-			const auto BlockSize = i->Size - sizeof(MEMINFO) - sizeof(EndMarker);
-			const auto UserAddress = ToUser(i);
-			const size_t Width = 16;
-			Message = concat(str(UserAddress), L", "sv, encoding::ansi::get_chars(FormatLine(i->File, i->Line, i->Function, i->AllocationType, BlockSize)),
-				L"\nData: "sv, BlobToHexWString(UserAddress, std::min(BlockSize, Width), L' '),
-				L"\nText: "sv, FindStr(UserAddress, std::min(BlockSize, Width * 3)), L'\n');
-
-			Print(Message);
-		}
 	}
 }
 

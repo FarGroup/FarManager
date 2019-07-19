@@ -422,9 +422,9 @@ SQLiteDb::database_ptr SQLiteDb::Open(string_view const Path, busy_handler BusyH
 		implementation::open(memory_db_name(), {});
 }
 
-void SQLiteDb::Exec(span<std::string_view const> const Command) const
+void SQLiteDb::Exec(span<std::string_view const> const Commands) const
 {
-	for (const auto& i: Command)
+	for (const auto& i: Commands)
 	{
 		create_stmt(i, false).Execute();
 	}

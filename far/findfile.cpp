@@ -352,7 +352,8 @@ private:
 	bool LookForString(const string& Name);
 	bool IsFileIncluded(PluginPanelItem* FileItem, string_view FullName, DWORD FileAttr, const string& strDisplayName);
 	void DoPrepareFileList();
-	void DoPreparePluginList(bool Internal);
+	void DoPreparePluginListImpl();
+	void DoPreparePluginList();
 	void ArchiveSearch(const string& ArcName);
 	void DoScanTree(const string& strRoot);
 	void ScanPluginTree(plugin_panel* hPlugin, unsigned long long Flags, int& RecurseLevel);
@@ -395,7 +396,7 @@ private:
 	std::optional<searcher<string::const_iterator>> CaseSensitiveSearcher;
 	std::optional<searcher<string::const_iterator, hash_icase_t, equal_icase_t>> CaseInsensitiveSearcher;
 	std::optional<searcher<const char*>> HexSearcher;
-	std::optional<IndeterminateTaskbar> m_TaskbarProgress{ std::in_place };
+	std::optional<taskbar::indeterminate> m_TaskbarProgress{ std::in_place };
 };
 
 struct background_searcher::CodePageInfo
@@ -2150,7 +2151,7 @@ void background_searcher::ArchiveSearch(const string& ArcName)
 			// Запомним пути поиска в плагине, они могут измениться.
 			const auto strSaveSearchPath = strPluginSearchPath;
 			m_Owner->m_Messages.emplace(FindFiles::push);
-			DoPreparePluginList(true);
+			DoPreparePluginListImpl();
 			strPluginSearchPath = strSaveSearchPath;
 			{
 				SCOPED_ACTION(auto)(m_Owner->ScopedLock());
@@ -2460,11 +2461,9 @@ void background_searcher::DoPrepareFileList()
 	{
 		DoScanTree(i);
 	}
-
-	m_Owner->itd->SetPercent(0);
 }
 
-void background_searcher::DoPreparePluginList(bool Internal)
+void background_searcher::DoPreparePluginListImpl()
 {
 	const auto ArcItem = m_Owner->itd->GetFindFileArcItem();
 	OpenPanelInfo Info;
@@ -2493,13 +2492,11 @@ void background_searcher::DoPreparePluginList(bool Internal)
 		SCOPED_ACTION(auto)(m_Owner->ScopedLock());
 		Global->CtrlObject->Plugins->SetDirectory(ArcItem->hPlugin,strSaveDir,OPM_FIND,&Info.UserData);
 	}
+}
 
-	if (!Internal)
-	{
-		m_Owner->itd->SetPercent(0);
-		// BUGBUG, better way to stop searcher?
-		Stop();
-	}
+void background_searcher::DoPreparePluginList()
+{
+	DoPreparePluginListImpl();
 }
 
 struct THREADPARAM
@@ -2515,15 +2512,16 @@ void background_searcher::Search()
 		{
 			SCOPED_ACTION(wakeful);
 			InitInFileSearch();
-			m_PluginMode? DoPreparePluginList(false) : DoPrepareFileList();
+			m_PluginMode? DoPreparePluginList() : DoPrepareFileList();
 			ReleaseInFileSearch();
 		}
 		CATCH_AND_SAVE_EXCEPTION_TO(m_ExceptionPtr)
 		m_IsRegularException = true;
 	});
 
-	m_Finished = true;
+	m_Owner->itd->SetPercent(0);
 	m_TaskbarProgress.reset();
+	m_Finished = true;
 }
 
 bool FindFiles::FindFilesProcess()

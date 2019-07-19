@@ -151,7 +151,7 @@ public:
 		matrix<FAR_CHAR_INFO> BufferBlock(Rows, ScrX + 1);
 		Global->ScrBuf->Read({ Region.Left, Region.Top, Region.Right, Region.Bottom }, BufferBlock);
 
-		return std::any_of(ALL_CONST_RANGE(BufferBlock.vector()), [](const FAR_CHAR_INFO& i) { return !std::iswspace(i.Char); });
+		return !std::all_of(ALL_CONST_RANGE(BufferBlock.vector()), [](const FAR_CHAR_INFO& i) { return i.Char == L' '; });
 	}
 
 	void DoEpilogue(bool Scroll) override

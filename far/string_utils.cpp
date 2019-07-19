@@ -221,7 +221,7 @@ TEST_CASE("string.utils")
 {
 	for (const auto& i: GetSpaces())
 	{
-		REQUIRE(iswspace(i));
+		REQUIRE(std::isblank(i));
 	}
 
 	for (const auto& i: GetEols())

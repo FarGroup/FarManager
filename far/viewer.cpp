@@ -3518,7 +3518,7 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 
 	sd.CurPos = LastSelectPos;
 	{
-		SCOPED_ACTION(IndeterminateTaskbar);
+		SCOPED_ACTION(taskbar::indeterminate);
 		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<ViewerPreRedrawItem>());
 		SetCursorType(false, 0);
 

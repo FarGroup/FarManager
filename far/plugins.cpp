@@ -395,7 +395,7 @@ void PluginManager::LoadPlugins()
 	if (!AnyPluginsPossible)
 		return;
 
-	SCOPED_ACTION(IndeterminateTaskbar)(false);
+	SCOPED_ACTION(taskbar::indeterminate)(false);
 
 	EnsureLuaCpuCompatibility();
 
