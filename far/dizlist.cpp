@@ -146,7 +146,7 @@ void DizList::Read(const string& Path, const string* DizName)
 				}
 				else
 				{
-					DescBegin = NameEnd = std::find(NameBegin, DizText.cend(), L' ');
+					DescBegin = NameEnd = std::find_if(NameBegin, DizText.cend(), std::iswspace);
 				}
 
 				// Insert unconditionally
