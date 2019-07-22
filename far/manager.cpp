@@ -1152,7 +1152,8 @@ void Manager::RefreshAllCommit()
 {
 	if (!m_windows.empty())
 	{
-		const auto PtrCopy = m_windows.front();
+		const auto ItemIterator = std::find_if(CONST_RANGE(m_windows, i) { return windowtype_dialog == i->GetType() && FindFileResultId == std::static_pointer_cast<Dialog>(i)->GetId(); });
+		const auto PtrCopy = (ItemIterator == m_windows.cend()) ? m_windows.front() : *ItemIterator;
 		RefreshCommit(PtrCopy);
 	}
 }
