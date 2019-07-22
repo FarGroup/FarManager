@@ -63,7 +63,6 @@ enum FINDAREA
 class Dialog;
 class plugin_panel;
 struct THREADPARAM;
-class IndeterminateTaskbar;
 class InterThreadData;
 class filemasks;
 class FileFilter;
@@ -100,7 +99,7 @@ public:
 
 	struct AddMenuData
 	{
-		type2 m_Type{};
+		type2 m_Type{ data };
 		FindFiles* m_Owner{};
 		Dialog* m_Dlg{};
 		string m_FullName;
@@ -112,7 +111,6 @@ public:
 		AddMenuData() = default;
 		explicit AddMenuData(type2 Type): m_Type(Type) {}
 		AddMenuData(string FullName, os::fs::find_data FindData, void* Data, FARPANELITEMFREECALLBACK FreeData, ArcListItem* Arc):
-			m_Type(data),
 			m_FullName(std::move(FullName)),
 			m_FindData(std::move(FindData)),
 			m_Data(Data),
@@ -164,7 +162,6 @@ private:
 	string strFindStr;
 	std::unique_ptr<filemasks> FileMaskForFindFile;
 	std::unique_ptr<FileFilter> Filter;
-	std::unique_ptr<IndeterminateTaskbar> TB;
 
 	std::unique_ptr<delayed_deleter> m_DelayedDeleter;
 

@@ -209,7 +209,7 @@ public:
 		FindListItem NewItem;
 		NewItem.FindData = FindData;
 		NewItem.Arc = nullptr;
-		NewItem.UserData = {};
+		NewItem.UserData = {Data, FreeData};
 		FindList.emplace_back(NewItem);
 		return FindList.back();
 	}
@@ -335,9 +335,9 @@ public:
 	void Search();
 	void Pause() const { PauseEvent.reset(); }
 	void Resume() const { PauseEvent.set(); }
-	void Stop() const;
+	void Stop() const { StopEvent.set(); }
 	bool Stopped() const { return StopEvent.is_signaled(); }
-
+	bool Finished() const { return m_Finished; }
 
 	auto ExceptionPtr() const { return m_ExceptionPtr; }
 	auto IsRegularException() const { return m_IsRegularException; }
@@ -384,6 +384,7 @@ private:
 
 	os::event PauseEvent;
 	os::event StopEvent;
+	std::atomic_bool m_Finished{};
 
 	std::exception_ptr m_ExceptionPtr;
 	bool m_IsRegularException{};
@@ -394,6 +395,7 @@ private:
 	std::optional<searcher<string::const_iterator>> CaseSensitiveSearcher;
 	std::optional<searcher<string::const_iterator, hash_icase_t, equal_icase_t>> CaseInsensitiveSearcher;
 	std::optional<searcher<const char*>> HexSearcher;
+	std::optional<IndeterminateTaskbar> m_TaskbarProgress{ std::in_place };
 };
 
 struct background_searcher::CodePageInfo
@@ -1344,6 +1346,18 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				const time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 				while (!m_Messages.empty() && 0 == EventsCount)
 				{
+					if (m_Searcher->Stopped())
+					{
+						// The user has decided to stop the search so they must be satisfied with the results already.
+						// No need to process the rest of the messages
+
+						AddMenuData Data;
+						while (m_Messages.try_pop(Data))
+						{
+							FreePluginPanelItemUserData(Data.m_Arc? Data.m_Arc->hPlugin : nullptr, { Data.m_Data, Data.m_FreeData });
+						}
+					}
+
 					if (TimeCheck)
 					{
 						Global->WindowManager->CallbackWindow([](){ auto f = Global->WindowManager->GetCurrentWindow(); if (windowtype_dialog == f->GetType()) std::static_pointer_cast<Dialog>(f)->SendMessage(DN_ENTERIDLE, 0, nullptr); });
@@ -1362,7 +1376,10 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 	if(m_TimeCheck && !Finalized && !Recurse)
 	{
-		if (!m_Searcher->Stopped())
+		++Recurse;
+		SCOPE_EXIT{ --Recurse; };
+
+		if (!m_Searcher->Finished())
 		{
 			const auto strDataStr = format(msg(lng::MFindFound), m_FileCount, m_DirCount);
 			Dlg->SendMessage(DM_SETTEXTPTR,FD_SEPARATOR1, UNSAFE_CSTR(strDataStr));
@@ -1400,18 +1417,17 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 		}
 	}
 
-	if(!Recurse && !Finalized && m_Searcher->Stopped() && m_Messages.empty())
+	if(!Recurse && !Finalized && m_Searcher->Finished() && m_Messages.empty())
 	{
-		SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
+		Finalized = true;
 
-		Finalized=true;
+		SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
 		const auto strMessage = format(msg(lng::MFindDone), m_FileCount, m_DirCount);
 		Dlg->SendMessage( DM_SETTEXTPTR, FD_SEPARATOR1, nullptr);
 		Dlg->SendMessage( DM_SETTEXTPTR, FD_TEXT_STATUS, UNSAFE_CSTR(strMessage));
 		Dlg->SendMessage( DM_SETTEXTPTR, FD_TEXT_STATUS_PERCENTS, nullptr);
 		Dlg->SendMessage( DM_SETTEXTPTR, FD_BUTTON_STOP, const_cast<wchar_t*>(msg(lng::MFindCancel).c_str()));
 		ConsoleTitle::SetFarTitle(strMessage);
-		TB.reset();
 	}
 
 	switch (Msg)
@@ -1444,7 +1460,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			case KEY_ESC:
 			case KEY_F10:
 				{
-					if (!m_Searcher->Stopped())
+					if (!m_Searcher->Finished())
 					{
 						m_Searcher->Pause();
 						bool LocalRes=true;
@@ -1662,12 +1678,8 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				return FALSE;
 
 			case FD_BUTTON_STOP:
-				if(!m_Searcher->Stopped())
-				{
-					m_Searcher->Stop();
-					return TRUE;
-				}
-				return FALSE;
+				m_Searcher->Stop();
+				return TRUE;
 
 			case FD_BUTTON_VIEW:
 				{
@@ -1687,7 +1699,6 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					return TRUE;
 				}
 				FindExitItem = *ListBox->GetComplexUserDataPtr<FindListItem*>();
-				TB.reset();
 				return FALSE;
 
 			default:
@@ -2047,9 +2058,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const os::fs::
 				strPathName = strArcPathName;
 			}
 		}
-		FindListItem& FindItem = itd->AddFindListItem(FindData,Data,nullptr);
-		// Сбросим данные в FindData. Они там от файла
-		FindItem.FindData = {};
+		FindListItem& FindItem = itd->AddFindListItem({}, {}, {});
 		// Используем LastDirName, т.к. PathName уже может быть искажена
 		FindItem.FindData.FileName = m_LastDirName;
 		// Used=0 - Имя не попадёт во временную панель.
@@ -2453,8 +2462,6 @@ void background_searcher::DoPrepareFileList()
 	}
 
 	m_Owner->itd->SetPercent(0);
-	// BUGBUG, better way to stop the searcher?
-	Stop();
 }
 
 void background_searcher::DoPreparePluginList(bool Internal)
@@ -2514,11 +2521,9 @@ void background_searcher::Search()
 		CATCH_AND_SAVE_EXCEPTION_TO(m_ExceptionPtr)
 		m_IsRegularException = true;
 	});
-}
 
-void background_searcher::Stop() const
-{
-	StopEvent.set();
+	m_Finished = true;
+	m_TaskbarProgress.reset();
 }
 
 bool FindFiles::FindFilesProcess()
@@ -2601,10 +2606,6 @@ bool FindFiles::FindFilesProcess()
 	Dlg->SetId(FindFileResultId);
 
 	m_ResultsDialogPtr = Dlg.get();
-
-		TB = std::make_unique<IndeterminateTaskbar>();
-
-		m_Messages.clear();
 
 		{
 			background_searcher BC(this, strFindStr, SearchMode, CodePage, ConvertFileSizeString(Global->Opt->FindOpt.strSearchInFirstSize), CmpCase, WholeWords, SearchInArchives, SearchHex, NotContaining, UseFilter, PluginMode);
@@ -2871,7 +2872,6 @@ FindFiles::FindFiles():
 		SearchFromChanged=false;
 		FindPositionChanged=false;
 		Finalized=false;
-		TB.reset();
 		itd->ClearAllLists();
 		const auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 		PluginMode = ActivePanel->GetMode() == panel_mode::PLUGIN_PANEL && ActivePanel->IsVisible();
