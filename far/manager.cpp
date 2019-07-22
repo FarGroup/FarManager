@@ -1053,7 +1053,7 @@ void Manager::RefreshCommit(const window_ptr& Param)
 		m_windows_changed.pop_back();
 	};
 
-	for (const auto& i: range(std::next(m_windows.begin(), Param->HasSaveScreen()?0:WindowIndex), m_windows.end()))
+	for (const auto& i: range(std::next(m_windows.begin(), (Param->HasSaveScreen() && !IsFindFileResult())?0:WindowIndex), m_windows.end()))
 	{
 		i->Refresh();
 		if (m_windows_changed[ChangedIndex - 1]) //ой, всё!
@@ -1152,7 +1152,7 @@ void Manager::RefreshAllCommit()
 {
 	if (!m_windows.empty())
 	{
-		const auto ItemIterator = std::find_if(CONST_RANGE(m_windows, i) { return windowtype_dialog == i->GetType() && FindFileResultId == std::static_pointer_cast<Dialog>(i)->GetId(); });
+		const auto ItemIterator = FindFileResult();
 		const auto PtrCopy = (ItemIterator == m_windows.cend()) ? m_windows.front() : *ItemIterator;
 		RefreshCommit(PtrCopy);
 	}
@@ -1270,4 +1270,14 @@ FileEditor* Manager::GetCurrentEditor() const
 	{
 		return std::dynamic_pointer_cast<FileEditor>(Window).get();
 	}));
+}
+
+const Manager::windows::const_iterator Manager::FindFileResult()
+{
+	return std::find_if(CONST_RANGE(m_windows, i) { return windowtype_dialog == i->GetType() && FindFileResultId == std::static_pointer_cast<Dialog>(i)->GetId(); });
+}
+
+bool Manager::IsFindFileResult()
+{
+	return m_windows.cend() != FindFileResult();
 }
