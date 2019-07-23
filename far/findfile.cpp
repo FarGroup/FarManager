@@ -1679,8 +1679,15 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				return FALSE;
 
 			case FD_BUTTON_STOP:
-				m_Searcher->Stop();
-				return TRUE;
+				// As Stop
+				if (!m_Searcher->Finished())
+				{
+					m_Searcher->Stop();
+					return TRUE;
+
+				}
+				// As Cancel
+				return FALSE;
 
 			case FD_BUTTON_VIEW:
 				{
