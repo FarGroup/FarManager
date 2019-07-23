@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 23.07.2019 19:23:43 +0100 - build 5433
+
+1. VK_DECIMAL is not always the same as '.'.
+
 drkns 23.07.2019 07:20:01 +0100 - build 5432
 
 1. Correction of 5429.

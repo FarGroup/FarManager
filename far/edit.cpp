@@ -552,28 +552,23 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 	switch (LocalKey)
 	{
 		case KEY_ADD:
-			LocalKey=L'+';
-			break;
 		case KEY_SUBTRACT:
-			LocalKey=L'-';
-			break;
 		case KEY_MULTIPLY:
-			LocalKey=L'*';
-			break;
 		case KEY_DIVIDE:
-			LocalKey=L'/';
-			break;
 		case KEY_DECIMAL:
-			LocalKey=L'.';
+			LocalKey = Key.Event().Event.KeyEvent.uChar.UnicodeChar;
 			break;
+
 		case KEY_CTRLC:
 		case KEY_RCTRLC:
 			LocalKey=KEY_CTRLINS;
 			break;
+
 		case KEY_CTRLV:
 		case KEY_RCTRLV:
 			LocalKey=KEY_SHIFTINS;
 			break;
+
 		case KEY_CTRLX:
 		case KEY_RCTRLX:
 			LocalKey=KEY_SHIFTDEL;
