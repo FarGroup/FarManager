@@ -737,6 +737,33 @@ static int win_IsProcess64bit(lua_State *L)
 	return 1;
 }
 
+int win_WriteConsole(lua_State *L)
+{
+	int narg = lua_gettop(L);
+	HANDLE h_out = GetStdHandle(STD_OUTPUT_HANDLE);
+	if (h_out==INVALID_HANDLE_VALUE)
+		return SysErrorReturn(L);
+	if (h_out==NULL)
+		return 0;
+	for (int i=0; i<narg; i++)
+	{
+		size_t nCharsToWrite;
+		DWORD nCharsWritten;
+		lua_getglobal(L, "tostring"); //narg+1
+		if (!lua_isfunction(L, -1))
+			return 0;
+		lua_pushvalue(L, i+1); //narg+2
+		if (lua_pcall(L, 1, 1, 0) || lua_type(L, -1) != LUA_TSTRING) //narg+1
+			return 0;
+		check_utf8_string(L, -1, &nCharsToWrite); //narg+1
+		if (!WriteConsoleW(h_out, (const void*)lua_touserdata(L,-1), nCharsToWrite, &nCharsWritten, NULL))
+			return SysErrorReturn(L);
+		lua_pop(L, 1); //narg
+	}
+	lua_pushboolean(L, 1);
+	return 1;
+}
+
 const luaL_Reg win_funcs[] =
 {
 	{"CompareString",       win_CompareString},
@@ -766,6 +793,7 @@ const luaL_Reg win_funcs[] =
 	{"ShellExecute",        win_ShellExecute},
 	{"SystemTimeToFileTime",win_SystemTimeToFileTime},
 	{"wcscmp",              win_wcscmp},
+	{"WriteConsole",        win_WriteConsole},
 
 	{NULL, NULL}
 };
