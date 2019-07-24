@@ -92,7 +92,7 @@ lv=1
 dt=Text
 nm=Unicode support
 ctime=3480525243
-mtime=3631634304
+mtime=3773163338
 <article>
 #_<markdown>
 #_
@@ -140,6 +140,7 @@ mtime=3631634304
 #_* [`win.ShellExecute`](428.html)
 #_* [`win.SHGetFolderPath`](440.html)
 #_* [`win.system`](508.html)
+#_* [`win.WriteConsole`](534.html)
 #_
 </article>
 </node>
@@ -10530,6 +10531,40 @@ mtime=3528778037
 #_
 #_**Windows API used:**
 #_  WideCharToMultiByte
+#_
+</article>
+</node>
+<node>
+id=534
+lv=3
+dt=Text
+nm=win.WriteConsole
+ctime=3773163263
+mtime=3773173415
+<article>
+#_result = win.WriteConsole (...)
+#_
+#_**Parameters:**
+#_  ...   : arbitrary number of arguments of any Lua type;
+#_          strings must be in UTF-8 encoding;
+#_
+#_**Returns:**
+#_  result  : either *true* (success)
+#_            or *nil* [, <error_message>]
+#_
+#_**Description:**
+#_  1. The function writes its arguments to the console.
+#_  2. No delimiter is inserted between the arguments (do it yourself).
+#_  3. When using this function in LuaFAR plugins place its calls
+#_     in a code block wrapped in
+#_     `panel.GetUserScreen`() ... `panel.SetUserScreen`().
+#_
+#_**Windows API used:**
+#_  GetStdHandle, WriteConsoleW
+#_
+#_@@@
+#_[panel.GetUserScreen]: 228.html
+#_[panel.SetUserScreen]: 15.html
 #_
 </article>
 </node>
