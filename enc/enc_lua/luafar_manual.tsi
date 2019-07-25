@@ -10540,7 +10540,7 @@ lv=3
 dt=Text
 nm=win.WriteConsole
 ctime=3773163263
-mtime=3773173415
+mtime=3773238203
 <article>
 #_result = win.WriteConsole (...)
 #_
@@ -10555,7 +10555,7 @@ mtime=3773173415
 #_**Description:**
 #_  1. The function writes its arguments to the console.
 #_  2. No delimiter is inserted between the arguments (do it yourself).
-#_  3. When using this function in LuaFAR plugins place its calls
+#_  3. When using this function in LuaFAR plugins and macros place its calls
 #_     in a code block wrapped in
 #_     `panel.GetUserScreen`() ... `panel.SetUserScreen`().
 #_
