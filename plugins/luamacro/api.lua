@@ -589,6 +589,15 @@ function mf.mload (key, name, location)
   end
   return val, err
 end
+
+function mf.printconsole(...)
+  local narg = select("#", ...)
+  panel.GetUserScreen()
+  for i=1,narg do
+    win.WriteConsole(select(i, ...), i<narg and "\t" or "")
+  end
+  panel.SetUserScreen()
+end
 --------------------------------------------------------------------------------
 
 _G.band, _G.bnot, _G.bor, _G.bxor, _G.lshift, _G.rshift =

@@ -1,4 +1,8 @@
-﻿shmuel 24.07.2019 20:52:16 +0200 - build 693
+﻿shmuel 25.07.2019 21:47:31 +0200 - build 694
+
+1. Added function mf.printconsole().
+
+shmuel 24.07.2019 20:52:16 +0200 - build 693
 
 1. M#3548: LuaFAR: функция юникодного вывода в консоль
    --> added function win.WriteConsole().
