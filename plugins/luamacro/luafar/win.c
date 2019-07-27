@@ -756,7 +756,7 @@ int win_WriteConsole(lua_State *L)
 		if (lua_pcall(L, 1, 1, 0) || lua_type(L, -1) != LUA_TSTRING) //narg+1
 			return 0;
 		check_utf8_string(L, -1, &nCharsToWrite); //narg+1
-		if (!WriteConsoleW(h_out, (const void*)lua_touserdata(L,-1), nCharsToWrite, &nCharsWritten, NULL))
+		if (!WriteConsoleW(h_out, (const void*)lua_touserdata(L,-1), (DWORD)nCharsToWrite, &nCharsWritten, NULL))
 			return SysErrorReturn(L);
 		lua_pop(L, 1); //narg
 	}
