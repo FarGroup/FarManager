@@ -66,14 +66,14 @@ mkdir -p Include
 dos2unix farcolor.hpp
 dos2unix plugin.hpp
 dos2unix DlgBuilder.hpp
-M4CMD -DINPUT=farcolor.hpp headers.m4 | unix2dos > Include/farcolor.hpp
-M4CMD -DINPUT=plugin.hpp headers.m4 | unix2dos > Include/plugin.hpp
-M4CMD -DINPUT=DlgBuilder.hpp headers.m4 | unix2dos > Include/DlgBuilder.hpp
+$M4CMD -DINPUT=farcolor.hpp headers.m4 | unix2dos > Include/farcolor.hpp
+$M4CMD -DINPUT=plugin.hpp headers.m4 | unix2dos > Include/plugin.hpp
+$M4CMD -DINPUT=DlgBuilder.hpp headers.m4 | unix2dos > Include/DlgBuilder.hpp
 
 dos2unix PluginW.pas
 dos2unix FarColorW.pas
-M4CMD -DINPUT=PluginW.pas headers.m4 | unix2dos > Include/PluginW.pas
-M4CMD -DINPUT=FarColorW.pas headers.m4 | unix2dos > Include/FarColorW.pas
+$M4CMD -DINPUT=PluginW.pas headers.m4 | unix2dos > Include/PluginW.pas
+$M4CMD -DINPUT=FarColorW.pas headers.m4 | unix2dos > Include/FarColorW.pas
 
 unix2dos -m changelog
 unix2dos -m changelog_eng
