@@ -1,6 +1,6 @@
 #!/bin/bash
 
-M4CMD="m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix -DBUILD_TYPE=VS_RELEASE"
+M4CMD="m4 -P -DHOSTTYPE=Unix -DBUILD_TYPE=VS_RELEASE"
 
 function buildfar2 {
 
@@ -24,23 +24,25 @@ mkdir -p ${BOOTSTRAPDIR}
 
 ls *.cpp *.hpp *.c *.rc | gawk -f ./scripts/mkdep.awk - | unix2dos > ${BOOTSTRAPDIR}far.vc.dep
 
-$M4CMD farlang.templ.m4 > ${BOOTSTRAPDIR}farlang.templ
-$M4CMD far.rc.inc.m4 > ${BOOTSTRAPDIR}far.rc.inc
-$M4CMD Far.exe.manifest.m4 > ${BOOTSTRAPDIR}Far.exe.manifest
-$M4CMD farversion.inc.m4 > ${BOOTSTRAPDIR}farversion.inc
+M4CMDP=$M4CMD -DFARBIT=$DIRBIT
+
+$M4CMDP farlang.templ.m4 > ${BOOTSTRAPDIR}farlang.templ
+$M4CMDP far.rc.inc.m4 > ${BOOTSTRAPDIR}far.rc.inc
+$M4CMDP Far.exe.manifest.m4 > ${BOOTSTRAPDIR}Far.exe.manifest
+$M4CMDP farversion.inc.m4 > ${BOOTSTRAPDIR}farversion.inc
 pushd ../far.git/far
-$M4CMD copyright.inc.m4 > ../../far/${BOOTSTRAPDIR}copyright.inc
+$M4CMDP copyright.inc.m4 > ../../far/${BOOTSTRAPDIR}copyright.inc
 popd
-$M4CMD File_id.diz.m4 | unix2dos -m > $OUTDIR/File_id.diz
+$M4CMDP File_id.diz.m4 | unix2dos -m > $OUTDIR/File_id.diz
 
 dos2unix FarEng.hlf.m4
 dos2unix FarRus.hlf.m4
 dos2unix FarHun.hlf.m4
 dos2unix FarPol.hlf.m4
-gawk -f ./scripts/mkhlf.awk FarEng.hlf.m4 | $M4CMD | unix2dos -m > $OUTDIR/FarEng.hlf
-gawk -f ./scripts/mkhlf.awk FarRus.hlf.m4 | $M4CMD | unix2dos -m > $OUTDIR/FarRus.hlf
-gawk -f ./scripts/mkhlf.awk FarHun.hlf.m4 | $M4CMD | unix2dos -m > $OUTDIR/FarHun.hlf
-gawk -f ./scripts/mkhlf.awk FarPol.hlf.m4 | $M4CMD | unix2dos -m > $OUTDIR/FarPol.hlf
+gawk -f ./scripts/mkhlf.awk FarEng.hlf.m4 | $M4CMDP | unix2dos -m > $OUTDIR/FarEng.hlf
+gawk -f ./scripts/mkhlf.awk FarRus.hlf.m4 | $M4CMDP | unix2dos -m > $OUTDIR/FarRus.hlf
+gawk -f ./scripts/mkhlf.awk FarHun.hlf.m4 | $M4CMDP | unix2dos -m > $OUTDIR/FarHun.hlf
+gawk -f ./scripts/mkhlf.awk FarPol.hlf.m4 | $M4CMDP | unix2dos -m > $OUTDIR/FarPol.hlf
 
 wine tools/lng.generator.exe -nc -oh ${BOOTSTRAPDIR} -ol $OUTDIR ${BOOTSTRAPDIR}farlang.templ
 

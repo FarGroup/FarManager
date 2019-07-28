@@ -97,6 +97,13 @@ void ScanTree::SetFindPath(string_view const Path, string_view const Mask, const
 
 	Flags.Set((Flags.Flags()&0x0000FFFF)|(NewScanFlags&0xFFFF0000));
 
+	os::fs::find_data FindData;
+	if (os::fs::get_find_data(Item.RealPath, FindData) && os::fs::is_directory_symbolic_link(FindData))
+	{
+		Item.Flags.Set(FSCANTREE_INSIDEJUNCTION);
+		Flags.Set(FSCANTREE_INSIDEJUNCTION);
+	}
+
 	ScanItems.emplace_back(std::move(Item));
 }
 
