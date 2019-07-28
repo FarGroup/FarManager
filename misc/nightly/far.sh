@@ -24,7 +24,7 @@ mkdir -p ${BOOTSTRAPDIR}
 
 ls *.cpp *.hpp *.c *.rc | gawk -f ./scripts/mkdep.awk - | unix2dos > ${BOOTSTRAPDIR}far.vc.dep
 
-M4CMDP=$M4CMD -DFARBIT=$DIRBIT
+M4CMDP="$M4CMD -DFARBIT=$DIRBIT"
 
 $M4CMDP farlang.templ.m4 > ${BOOTSTRAPDIR}farlang.templ
 $M4CMDP far.rc.inc.m4 > ${BOOTSTRAPDIR}far.rc.inc
