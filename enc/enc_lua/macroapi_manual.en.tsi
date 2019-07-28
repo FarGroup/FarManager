@@ -871,7 +871,7 @@ lv=2
 dt=Text
 nm=mf
 ctime=3553243522
-mtime=3732331643
+mtime=3773253576
 <article>
 #_**Properties:** none.
 #_
@@ -888,22 +888,22 @@ mtime=3732331643
 #_  clip               msgbox
 #_  date               `postmacro`
 #_  env                print
-#_  `eval`               prompt
-#_  `exit`               replace
-#_  fattr              rindex
-#_  fexist             size2str
-#_  float              sleep
-#_  flock              string
-#_  fmatch             strpad
-#_  fsplit             strwrap
-#_  `GetMacroCopy`       substr
-#_  iif                testfolder
-#_  index              trim
-#_  int                ucase
-#_  itoa               `usermenu`
-#_  key                waitkey
-#_  `Keys`               xlat
-#_  lcase
+#_  `eval`               `printconsole`
+#_  `exit`               prompt  
+#_  fattr              replace 
+#_  fexist             rindex    
+#_  float              size2str  
+#_  flock              sleep     
+#_  fmatch             string    
+#_  fsplit             strpad    
+#_  `GetMacroCopy`       strwrap   
+#_  iif                substr  
+#_  index              testfolder
+#_  int                trim      
+#_  itoa               ucase     
+#_  key                `usermenu`
+#_  `Keys`               waitkey   
+#_  lcase              xlat    
 #_
 #_@@@
 #_[acall]: 91.html
@@ -917,7 +917,7 @@ mtime=3732331643
 #_[postmacro]: 85.html
 #_[usermenu]: 69.html
 #_[AddExitHandler]: 100.html
-#_
+#_[printconsole]: 101.html
 #_
 #_{abs}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#abs
 #_{akey}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#akey
@@ -1234,6 +1234,30 @@ mtime=3600496919
 #_**Description:**
 #_  The function places a new macro in a queue for execution.
 #_  When the execution begins *func* is called with arguments *...*
+#_
+</article>
+</node>
+<node>
+id=101
+lv=3
+dt=Text
+nm=printconsole
+ctime=3773253055
+mtime=3773253639
+<article>
+#_mf.printconsole (...)
+#_
+#_**Parameters:**
+#_  ...:     0 or more Lua values
+#_
+#_**Returns:**
+#_  nothing
+#_
+#_**Description:**
+#_  - The function prints its arguments to the console.
+#_  - It inserts a tab character between the arguments.
+#_  - There is no need to call *panel.GetUserScreen()* / *panel.SetUserScreen()*
+#_    as that is done internally.
 #_
 </article>
 </node>

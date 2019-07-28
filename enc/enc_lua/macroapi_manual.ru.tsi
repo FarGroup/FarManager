@@ -865,7 +865,7 @@ lv=2
 dt=Text
 nm=mf
 ctime=3553243522
-mtime=3732331605
+mtime=3773253725
 <article>
 #_**Свойства:** нет.
 #_
@@ -882,22 +882,22 @@ mtime=3732331605
 #_  clip               msgbox
 #_  date               `postmacro`
 #_  env                print
-#_  `eval`               prompt
-#_  `exit`               replace
-#_  fattr              rindex
-#_  fexist             size2str
-#_  float              sleep
-#_  flock              string
-#_  fmatch             strpad
-#_  fsplit             strwrap
-#_  `GetMacroCopy`       substr
-#_  iif                testfolder
-#_  index              trim
-#_  int                ucase
-#_  itoa               `usermenu`
-#_  key                waitkey
-#_  `Keys`               xlat
-#_  lcase
+#_  `eval`               `printconsole`
+#_  `exit`               prompt  
+#_  fattr              replace 
+#_  fexist             rindex    
+#_  float              size2str  
+#_  flock              sleep     
+#_  fmatch             string    
+#_  fsplit             strpad    
+#_  `GetMacroCopy`       strwrap   
+#_  iif                substr  
+#_  index              testfolder
+#_  int                trim      
+#_  itoa               ucase     
+#_  key                `usermenu`
+#_  `Keys`               waitkey   
+#_  lcase              xlat    
 #_
 #_@@@
 #_[acall]: 91.html
@@ -911,7 +911,7 @@ mtime=3732331605
 #_[postmacro]: 85.html
 #_[usermenu]: 69.html
 #_[AddExitHandler]: 100.html
-#_
+#_[printconsole]: 101.html
 #_
 #_{abs}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#abs
 #_{akey}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#akey
@@ -1225,6 +1225,30 @@ mtime=3599212421
 #_**Описание:**
 #_  Функция помещает новый макрос в очередь для исполнения. При исполнении макроса
 #_  будет вызвана функция *func*, которой будут переданы аргументы *...*
+#_
+</article>
+</node>
+<node>
+id=101
+lv=3
+dt=Text
+nm=printconsole
+ctime=3773253769
+mtime=3773253988
+<article>
+#_mf.printconsole (...)
+#_
+#_**Параметры:**
+#_  ...:     0 или более величин Lua
+#_
+#_**Возвращает:**
+#_  ничего
+#_
+#_**Описание:**
+#_  - Функция выводит ("печатает") свои аргументы в консоль.
+#_  - Она вставляет символ табуляции между аргументами.
+#_  - Нет необходимости вызывать *panel.GetUserScreen()* / *panel.SetUserScreen()*,
+#_    так как функция делает это сама.
 #_
 </article>
 </node>
