@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/enum_substrings.hpp"
 
 // External:
+#include "format.hpp"
 
 //----------------------------------------------------------------------------
 
@@ -310,4 +311,24 @@ void ReloadEnvironment()
 	{
 		os::env::set(Name, Value);
 	}
+}
+
+string version_to_string(const VersionInfo& PluginVersion)
+{
+	static const string_view Stage[]
+	{
+		L"Release"sv,
+		L"Alpha"sv,
+		L"Beta"sv,
+		L"RC"sv,
+		L"Special"sv,
+		L"Private"sv
+	};
+
+	auto strVersion = format(FSTR(L"{0}.{1}.{2}.{3}"), PluginVersion.Major, PluginVersion.Minor, PluginVersion.Revision, PluginVersion.Build);
+	if (PluginVersion.Stage != VS_RELEASE && static_cast<size_t>(PluginVersion.Stage) < std::size(Stage))
+	{
+		append(strVersion, L" ("sv, Stage[PluginVersion.Stage], L')');
+	}
+	return strVersion;
 }

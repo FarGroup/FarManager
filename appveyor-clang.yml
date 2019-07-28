@@ -39,6 +39,7 @@ environment:
 build_script:
   #build Far
   - cd far
+  - set FARMANAGER_BUILD_TYPE=VS_RELEASE
   - nmake CLANG=1 %ADD_MAKE% /f makefile_vc
   - cd ..
   #build Plugins

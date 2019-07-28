@@ -70,17 +70,16 @@ cd far
 #### farversion.m4
 
 1. This file contains information used to generate Far version:
-   * `BUILDTYPE`, a string that defines the build type:
-      - '' (an empty string) - release version
-      - `alpha` - alpha version
-      - `beta` - beta version
-      - `RC` - release candidate
-      - `AnythingElse` - intended for Far versions which code has not been
+   * `SPECIAL_VERSION`, a string that, if set, marks the build as special.
+      - Intended for Far versions which code has not been
         committed yet to the repository so we and the users will not be confused.  
-        Far version will look something like that:  
-        `FarVersion alpha AnythingElse based on build BuildNumber`
-   * `MAJOR` - major Far version (i.e. 3).
-   * `MINOR` - minor Far version (i.e. 0).
+      - If not set, the build type will be defined by FARMANAGER_BUILD_TYPE environment 
+        variable. If the variable is not set, the build type will be Private.
+        For the supported build types see VERSION_STAGE enumeration in plugin.hpp.
+   * `VERSION_MAJOR` - major Far version (e.g. 3).
+   * `VERSION_MINOR` - minor Far version (e.g. 0).
+   * `VERSION_REVISION` - Far version revision (e.g. 0).
+   * `VERSION_BUILD` - set in `vbuild.m4` file.
 
 
 #### vbuild.m4

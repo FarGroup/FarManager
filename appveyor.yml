@@ -93,6 +93,7 @@ build_script:
   - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars%bit%.bat"
   #build far
   - cd far 
+  - set FARMANAGER_BUILD_TYPE=VS_RELEASE
   - nmake /f makefile_vc %ADD_MAKE%
   - nmake /f makefile_vc install INSTALLDIR=..\ci\%configuration%.%platform% %ADD_MAKE%
   - update_headers.bat nocommit

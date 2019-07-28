@@ -142,7 +142,7 @@ public:
 	virtual void ProcessError(string_view Function) const {}
 	virtual bool IsExternal() const { return false; }
 	virtual string Title() const { return {}; }
-	virtual string VersionString() const { return {}; }
+	virtual VersionInfo version() const { return {}; }
 
 	const auto& Id() const { return m_Id; }
 	auto Owner() const { return m_owner; }
@@ -279,9 +279,8 @@ public:
 	const string& Title() const { return strTitle; }
 	const string& Description() const { return strDescription; }
 	const string& Author() const { return strAuthor; }
-	const VersionInfo& Version() const { return m_PluginVersion; }
+	const VersionInfo& version() const { return m_PluginVersion; }
 	const VersionInfo& MinFarVersion() const { return m_MinFarVersion; }
-	const string& VersionString() const { return m_VersionString; }
 	const GUID& Id() const { return m_Guid; }
 	bool IsPendingRemove() const { return bPendingRemove; }
 	const wchar_t* Msg(intptr_t Id) const;
@@ -402,8 +401,6 @@ private:
 
 	VersionInfo m_MinFarVersion{};
 	VersionInfo m_PluginVersion{};
-
-	string m_VersionString;
 
 	GUID m_Guid;
 	string m_strGuid;

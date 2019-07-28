@@ -227,7 +227,7 @@ static intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2
 					else
 					{
 						const auto ErrorState = error_state::fetch();
-						Message(MSG_WARNING, error_state::fetch(),
+						Message(MSG_WARNING, ErrorState,
 							msg(lng::MError),
 							{
 								msg(lng::MEditCannotSave),

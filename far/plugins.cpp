@@ -1628,7 +1628,7 @@ void PluginManager::ShowPluginInfo(Plugin *pPlugin, const GUID& Guid)
 	Builder.AddText(lng::MPluginAuthor);
 	Builder.AddConstEditField(pPlugin->Author(), Width);
 	Builder.AddText(lng::MPluginVersion);
-	Builder.AddConstEditField(pPlugin->VersionString(), Width);
+	Builder.AddConstEditField(version_to_string(pPlugin->version()), Width);
 	Builder.AddText(lng::MPluginModulePath);
 	Builder.AddConstEditField(pPlugin->ModuleName(), Width);
 	Builder.AddText(lng::MPluginGUID);
@@ -1799,7 +1799,7 @@ size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformat
 
 	pInfo->GInfo->StructSize = sizeof(GlobalInfo);
 	pInfo->GInfo->Guid = pPlugin->Id();
-	pInfo->GInfo->Version = pPlugin->Version();
+	pInfo->GInfo->Version = pPlugin->version();
 	pInfo->GInfo->MinFarVersion = pPlugin->MinFarVersion();
 	pInfo->GInfo->Title = StrToBuf(pPlugin->strTitle, Buffer, Rest, Size);
 	pInfo->GInfo->Description = StrToBuf(pPlugin->strDescription, Buffer, Rest, Size);

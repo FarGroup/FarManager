@@ -53,6 +53,7 @@
     <TargetOsVersion Condition="'$(Platform)'=='x64'">5.2</TargetOsVersion>
     <NewOptions Condition="'$(VisualStudioVersion)'=='15.0'"></NewOptions>
     <NewOptions Condition="'$(VisualStudioVersion)'&gt;='16.0'"></NewOptions>
+    <M4Cmd>tools\m4.exe -P -DFARBIT=$(PlatformArchitecture) -DBUILD_TYPE=%25FARMANAGER_BUILD_TYPE%25</M4Cmd>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <LinkIncremental>false</LinkIncremental>
@@ -544,19 +545,19 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
   <ItemGroup>
     <CustomBuild Include="DlgBuilder.hpp">
       <Message>Transforming %(Identity) to redistributable form...</Message>
-      <Command>tools\m4 -P -DFARBIT=$(PlatformArchitecture) -DINPUT=%(Identity) headers.m4 &gt; Include\DlgBuilder.hpp</Command>
+      <Command>$(M4Cmd) -DINPUT=%(Identity) headers.m4 &gt; Include\DlgBuilder.hpp</Command>
       <AdditionalInputs>headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs>Include\%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="farcolor.hpp">
       <Message>Transforming %(Identity) to redistributable form...</Message>
-      <Command>tools\m4 -P -DFARBIT=$(PlatformArchitecture) -DINPUT=%(Identity) headers.m4 &gt; Include\farcolor.hpp</Command>
+      <Command>$(M4Cmd) -DINPUT=%(Identity) headers.m4 &gt; Include\farcolor.hpp</Command>
       <AdditionalInputs>headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs>Include\%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="plugin.hpp">
       <Message>Transforming %(Identity) to redistributable form...</Message>
-      <Command>tools\m4 -P -DFARBIT=$(PlatformArchitecture) -DINPUT=%(Identity) headers.m4 &gt; Include\plugin.hpp</Command>
+      <Command>$(M4Cmd) -DINPUT=%(Identity) headers.m4 &gt; Include\plugin.hpp</Command>
       <AdditionalInputs>headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs>Include\%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
@@ -566,70 +567,70 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <CustomBuild Include="copyright.inc.m4">
       <FileType>Document</FileType>
       <Message>Compiling %(Identity)...</Message>
-      <Command>tools\m4 -P -DFARBIT=$(PlatformArchitecture) %(Identity) &gt; $(BootstrapDir)%(FileName)</Command>
+      <Command>$(M4Cmd) %(Identity) &gt; $(BootstrapDir)%(FileName)</Command>
       <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs>$(BootstrapDir)%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="Far.exe.manifest.m4">
       <FileType>Document</FileType>
       <Message>Compiling %(Identity)...</Message>
-      <Command>tools\m4 -P -DFARBIT=$(PlatformArchitecture) %(Identity) &gt; $(BootstrapDir)%(FileName)</Command>
+      <Command>$(M4Cmd) %(Identity) &gt; $(BootstrapDir)%(FileName)</Command>
       <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs>$(BootstrapDir)%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="far.rc.inc.m4">
       <FileType>Document</FileType>
       <Message>Compiling %(Identity)...</Message>
-      <Command>tools\m4 -P -DFARBIT=$(PlatformArchitecture) %(Identity) &gt; $(BootstrapDir)%(FileName)</Command>
+      <Command>$(M4Cmd) %(Identity) &gt; $(BootstrapDir)%(FileName)</Command>
       <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs>$(BootstrapDir)%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="farlang.templ.m4">
       <FileType>Document</FileType>
       <Message>Compiling %(Identity)...</Message>
-      <Command>tools\m4 -P -DFARBIT=$(PlatformArchitecture) %(Identity) &gt; $(BootstrapDir)%(FileName)</Command>
+      <Command>$(M4Cmd) %(Identity) &gt; $(BootstrapDir)%(FileName)</Command>
       <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs>$(BootstrapDir)%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="farversion.inc.m4">
       <FileType>Document</FileType>
       <Message>Compiling %(Identity)...</Message>
-      <Command>tools\m4 -P -DFARBIT=$(PlatformArchitecture) %(Identity) &gt; $(BootstrapDir)%(FileName)</Command>
+      <Command>$(M4Cmd) %(Identity) &gt; $(BootstrapDir)%(FileName)</Command>
       <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs>$(BootstrapDir)%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="File_id.diz.m4">
       <FileType>Document</FileType>
       <Message>Compiling %(Identity)...</Message>
-      <Command>tools\m4 -P -DFARBIT=$(PlatformArchitecture) %(Identity) &gt; $(OutDir)%(FileName)</Command>
+      <Command>$(M4Cmd) %(Identity) &gt; $(OutDir)%(FileName)</Command>
       <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs>$(OutDir)%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="FarEng.hlf.m4">
       <FileType>Document</FileType>
       <Message>Compiling %(Identity)...</Message>
-      <Command>tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=$(PlatformArchitecture) &gt; $(OutDir)%(FileName)</Command>
+      <Command>tools\gawk -f scripts\mkhlf.awk %(Identity) | $(M4Cmd) &gt; $(OutDir)%(FileName)</Command>
       <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs>$(OutDir)%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="FarRus.hlf.m4">
       <FileType>Document</FileType>
       <Message>Compiling %(Identity)...</Message>
-      <Command>tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=$(PlatformArchitecture) &gt; $(OutDir)%(FileName)</Command>
+      <Command>tools\gawk -f scripts\mkhlf.awk %(Identity) | $(M4Cmd) &gt; $(OutDir)%(FileName)</Command>
       <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs>$(OutDir)%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="FarHun.hlf.m4">
       <FileType>Document</FileType>
       <Message>Compiling %(Identity)...</Message>
-      <Command>tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=$(PlatformArchitecture) &gt; $(OutDir)%(FileName)</Command>
+      <Command>tools\gawk -f scripts\mkhlf.awk %(Identity) | $(M4Cmd) &gt; $(OutDir)%(FileName)</Command>
       <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs>$(OutDir)%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="FarPol.hlf.m4">
       <FileType>Document</FileType>
       <Message>Compiling %(Identity)...</Message>
-      <Command>tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=$(PlatformArchitecture) &gt; $(OutDir)%(FileName)</Command>
+      <Command>tools\gawk -f scripts\mkhlf.awk %(Identity) | $(M4Cmd) &gt; $(OutDir)%(FileName)</Command>
       <AdditionalInputs>farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs>$(OutDir)%(FileName);%(Outputs)</Outputs>
     </CustomBuild>

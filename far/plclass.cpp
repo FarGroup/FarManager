@@ -438,17 +438,6 @@ void Plugin::SetGuid(const GUID& Guid)
 	m_strGuid = GuidToStr(m_Guid);
 }
 
-static string VersionToString(const VersionInfo& PluginVersion)
-{
-	static const string_view Stage[] = { L" Release"sv, L" Alpha"sv, L" Beta"sv, L" RC"sv };
-	auto strVersion = format(FSTR(L"{0}.{1}.{2} (build {3})"), PluginVersion.Major, PluginVersion.Minor, PluginVersion.Revision, PluginVersion.Build);
-	if(PluginVersion.Stage != VS_RELEASE && static_cast<size_t>(PluginVersion.Stage) < std::size(Stage))
-	{
-		append(strVersion, Stage[PluginVersion.Stage]);
-	}
-	return strVersion;
-}
-
 bool Plugin::LoadData()
 {
 	if (WorkFlags.Check(PIWF_DONTLOADAGAIN))
@@ -504,7 +493,6 @@ bool Plugin::LoadData()
 	{
 		m_MinFarVersion = Info.MinFarVersion;
 		m_PluginVersion = Info.Version;
-		m_VersionString = VersionToString(m_PluginVersion);
 		strTitle = Info.Title;
 		strDescription = Info.Description;
 		strAuthor = Info.Author;
@@ -607,8 +595,6 @@ bool Plugin::LoadFromCache(const os::fs::find_data &FindData)
 	{
 		m_PluginVersion = {};
 	}
-
-	m_VersionString = VersionToString(m_PluginVersion);
 
 	m_strGuid = PlCache->GetGuid(id);
 	SetGuid(StrToGuid(m_strGuid,m_Guid)?m_Guid:FarGuid);
@@ -1145,7 +1131,7 @@ public:
 			m_Success = CheckFarVersion(Info.MinFarVersion);
 			if (m_Success)
 			{
-				m_VersionString = VersionToString(Info.Version);
+				m_Version = Info.Version;
 				m_Title = Info.Title;
 				m_Id = Info.Guid;
 			}
@@ -1230,9 +1216,9 @@ public:
 		return m_Title;
 	}
 
-	string VersionString() const override
+	VersionInfo version() const override
 	{
-		return m_VersionString;
+		return m_Version;
 	}
 
 private:
@@ -1267,7 +1253,7 @@ private:
 	}
 	m_Imports;
 	string m_Title;
-	string m_VersionString;
+	VersionInfo m_Version;
 	bool m_Success;
 };
 

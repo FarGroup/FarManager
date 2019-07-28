@@ -3,6 +3,16 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 28.07.2019 01:27:05 +0100 - build 5434
+
+1. SCM revision in far:about.
+
+2. Manually built versions are marked as Private by default.
+
+3. Other clarifications of displaying versions in the UI.
+
+4. Refactoring.
+
 drkns 23.07.2019 19:23:43 +0100 - build 5433
 
 1. VK_DECIMAL is not always the same as '.'.

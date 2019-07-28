@@ -51,6 +51,7 @@ namespace build
 {
 	string_view version_string();
 	string_view copyright();
+	string_view scm_revision();
 	VersionInfo version();
 }
 

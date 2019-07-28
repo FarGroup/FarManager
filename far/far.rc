@@ -4,19 +4,36 @@
 
 #include "res.hpp"
 
+#include "bootstrap/far.rc.inc"
+
+
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 FAR_ICON ICON "Far.ico"
 FAR_ICON_A ICON "FarA.ico"
 
 VS_VERSION_INFO VERSIONINFO
 FILEFLAGSMASK   VS_FFI_FILEFLAGSMASK
-#ifdef _DEBUG
-FILEFLAGS       VS_FF_DEBUG | VS_FF_PRERELEASE
-#endif
-FILEOS          VOS_NT_WINDOWS32
-FILETYPE        VFT_APP
+FILEFLAGS 0
 
-#include "bootstrap/far.rc.inc"
+#ifdef _DEBUG
+| VS_FF_PRERELEASE | VS_FF_DEBUG
+#endif
+
+#if RC_PRERELEASE
+| VS_FF_PRERELEASE
+#endif
+
+#if RC_SPECIAL
+| VS_FF_SPECIALBUILD
+#endif
+
+#if RC_PRIVATE
+| VS_FF_PRIVATEBUILD
+#endif
+
+FILEOS VOS_NT_WINDOWS32
+FILETYPE VFT_APP
+
 
 FILEVERSION RC_MAJOR, RC_MINOR, RC_BUILD, RC_REVISION
 PRODUCTVERSION RC_MAJOR, RC_MINOR, RC_BUILD, RC_REVISION
@@ -33,6 +50,13 @@ PRODUCTVERSION RC_MAJOR, RC_MINOR, RC_BUILD, RC_REVISION
 			VALUE "OriginalFilename", "Far.exe"
 			VALUE "ProductName", "Far Manager"
 			VALUE "ProductVersion", RC_FULLVERSION
+#if RC_SPECIAL
+			VALUE "SpecialBuild", RC_SPECIAL_STRING
+#endif
+
+#if RC_PRIVATE
+			VALUE "PrivateBuild", "Unofficial private build"
+#endif
 		}
 	}
 	BLOCK "VarFileInfo"

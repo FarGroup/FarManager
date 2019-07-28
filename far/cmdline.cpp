@@ -914,6 +914,8 @@ static bool ProcessFarCommands(const string& Command, function_ref<void(bool)> c
 
 	if (equal_icase(Command, L"far:about"sv))
 	{
+		ConsoleActivatior(true);
+
 		const auto CompilerInfo = []
 		{
 			return
@@ -925,50 +927,51 @@ static bool ProcessFarCommands(const string& Command, function_ref<void(bool)> c
 				;
 		};
 
-		auto strOut = concat(
-			L'\n', build::version_string(), L'\n', build::copyright(), L'\n',
-			L"\nCompiler:\n"sv, format(FSTR(L"{0}, version {1}.{2}.{3}{4}"), COMPILER_NAME, COMPILER_VERSION_MAJOR, COMPILER_VERSION_MINOR, COMPILER_VERSION_PATCH, CompilerInfo()), L'\n'
-		);
+		std::wcout
+			<< L'\n' << build::version_string() << L'\n' << build::copyright() << L'\n'
+			<< L"\nCompiler:\n"sv << format(FSTR(L"{0}, version {1}.{2}.{3}{4}"), COMPILER_NAME, COMPILER_VERSION_MAJOR, COMPILER_VERSION_MINOR, COMPILER_VERSION_PATCH, CompilerInfo()) << L'\n';
 
-		const auto& ComponentsInfo = components::GetComponentsInfo();
-		if (!ComponentsInfo.empty())
+		if (const auto Revision = build::scm_revision(); !Revision.empty())
 		{
-			append(strOut, L"\nLibraries:\n"sv);
+			std::wcout << L"\nSCM revision:\n"sv << Revision << L'\n';
+		}
+
+		if (const auto& ComponentsInfo = components::GetComponentsInfo(); !ComponentsInfo.empty())
+		{
+			std::wcout << L"\nLibraries:\n"sv;
 
 			for (const auto& [Name, Version]: ComponentsInfo)
 			{
-				strOut += Name;
+				std::wcout << Name;
 				if (!Version.empty())
 				{
-					append(strOut, L", version "sv, Version);
+					std::wcout << L", version "sv << Version;
 				}
-				strOut += L'\n';
+				std::wcout << L'\n';
 			}
 		}
 
-		const auto& Factories = Global->CtrlObject->Plugins->Factories();
-		if (std::any_of(ALL_CONST_RANGE(Factories), [](const auto& i) { return i->IsExternal(); }))
+		if (const auto& Factories = Global->CtrlObject->Plugins->Factories(); std::any_of(ALL_CONST_RANGE(Factories), [](const auto& i) { return i->IsExternal(); }))
 		{
-			append(strOut, L"\nPlugin adapters:\n"sv);
+			std::wcout << L"\nPlugin adapters:\n"sv;
 			for (const auto& i: Factories)
 			{
 				if (i->IsExternal())
-					append(strOut, i->Title(), L", version "sv, i->VersionString(), L'\n');
+					std::wcout << i->Title() << L", version "sv << version_to_string(i->version()) << L'\n';
 			}
 		}
 
 		if (Global->CtrlObject->Plugins->size())
 		{
-			append(strOut, L"\nPlugins:\n"sv);
+			std::wcout << L"\nPlugins:\n"sv;
 
 			for (const auto& i: *Global->CtrlObject->Plugins)
 			{
-				append(strOut, i->Title(), L", version "sv, i->VersionString(), L'\n');
+				std::wcout << i->Title() << L", version "sv << version_to_string(i->version()) << L'\n';
 			}
 		}
 
-		ConsoleActivatior(true);
-		std::wcout << strOut << std::flush;
+		std::wcout << std::flush;
 
 		return true;
 	}
@@ -1149,26 +1152,19 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 			if (std::find_first_of(ALL_CONST_RANGE(SetParams), ALL_CONST_RANGE(CharsToFind)) != SetParams.cend())
 				return false;
 
-			string strOut;
 			const auto UnquotedSetParams = unquote(string(SetParams));
 
+			ConsoleActivatior(true);
+
+			const os::env::provider::strings EnvStrings;
+			for (const auto& i: enum_substrings(EnvStrings.data()))
 			{
-				const os::env::provider::strings EnvStrings;
-				const auto EnvStringsPtr = EnvStrings.data();
-				for (const auto& i: enum_substrings(EnvStringsPtr))
+				if (starts_with_icase(i, UnquotedSetParams))
 				{
-					if (starts_with_icase(i, UnquotedSetParams))
-					{
-						append(strOut, i, L'\n');
-					}
+					std::wcout << i << L'\n';
 				}
 			}
-
-			if (!strOut.empty())
-			{
-				ConsoleActivatior(true);
-				std::wcout << strOut << std::flush;
-			}
+			std::wcout << std::flush;
 
 			return true;
 		}

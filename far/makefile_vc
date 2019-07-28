@@ -87,7 +87,7 @@ FARINCLUDE=Include
 
 LINK=link.exe
 ULINK=ulink.exe
-M4=tools\m4 -P -DFARBIT=$(DIRBIT)
+M4=tools\m4 -P -DFARBIT=$(DIRBIT) -DBUILD_TYPE=$(FARMANAGER_BUILD_TYPE)
 GAWK=tools\gawk
 
 INTDIR=$(OUTDIR)/obj

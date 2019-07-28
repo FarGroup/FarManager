@@ -5,7 +5,7 @@
 
 @Contents
 $^#Fájl- és archívumkezelő program#
-`$^#'FULLVERSIONNOBRACES`#'
+`$^#'FULLVERSION`#'
 $^#Copyright © 1996-2000 Eugene Roshal#
 `$^#Copyright © 2000-'COPYRIGHTYEAR` Far Group#'
 $^(help file last translated for build 882)

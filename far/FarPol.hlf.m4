@@ -46,7 +46,7 @@
 
 @Contents
 $^#File and archive manager#
-`$^#'FULLVERSIONNOBRACES`#'
+`$^#'FULLVERSION`#'
 $^#Copyright © 1996-2000 Eugene Roshal#
 `$^#Copyright ©' COPYRIGHTYEARS `Far Group#'
 
