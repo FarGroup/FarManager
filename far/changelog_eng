@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 28.07.2019 19:35:59 +0100 - build 5436
+
+1. Forum: Long <title> strings in !?<title>?<init>! don't fit into the dialog.
+
 drkns 28.07.2019 14:41:29 +0100 - build 5435
 
 1. Moving a symlink with [x] Copy contents of symbolic links or over a network could suddenly delete files in the folder it was pointing to.

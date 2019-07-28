@@ -548,6 +548,9 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 {
 	// TODO: use DialogBuilder
 
+	// TODO: Dynamic?
+	const int DlgWidth = 76;
+
 	std::vector<DialogItemEx> DlgData;
 	DlgData.reserve(30);
 
@@ -564,7 +567,7 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 		Item.Type = DI_DOUBLEBOX;
 		Item.X1 = 3;
 		Item.Y1 = 1;
-		Item.X2 = 72;
+		Item.X2 = DlgWidth - 4;
 		Item.strData = DlgTitle;
 		DlgData.emplace_back(Item);
 	}
@@ -593,6 +596,7 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 			Item.Type = DI_TEXT;
 			Item.X1 = 5;
 			Item.Y1 = Item.Y2 = DlgData.size() + 1;
+			Item.X2 = DlgWidth - 6;
 			DlgData.emplace_back(Item);
 		}
 
@@ -600,7 +604,7 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 			DialogItemEx Item;
 			Item.Type = DI_EDIT;
 			Item.X1 = 5;
-			Item.X2 = 70;
+			Item.X2 = DlgWidth - 6;
 			Item.Y1 = Item.Y2 = DlgData.size() + 1;
 			Item.Flags = DIF_HISTORY | DIF_USELASTHISTORY;
 			Item.strHistory = concat(L"UserVar"sv, str((DlgData.size() - 1) / 2));
@@ -624,15 +628,19 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 				}
 			}
 
+			auto& LatelItem = DlgData[DlgData.size() - 2];
+
 			if (!Strings.Title.Sub.empty())
 			{
 				// Something between '(' and ')'
-				DlgData[DlgData.size() - 2].strData = os::env::expand(concat(Strings.Title.prefix(), ProcessMetasymbols(Strings.Title.Sub, SubstData), Strings.Title.suffix()));
+				LatelItem.strData = os::env::expand(concat(Strings.Title.prefix(), ProcessMetasymbols(Strings.Title.Sub, SubstData), Strings.Title.suffix()));
 			}
 			else
 			{
-				DlgData[DlgData.size() - 2].strData = os::env::expand(Strings.Title.All);
+				LatelItem.strData = os::env::expand(Strings.Title.All);
 			}
+
+			inplace::truncate_right(LatelItem.strData, LatelItem.X2 - LatelItem.X1 + 1);
 		}
 
 		if (!Strings.Text.All.empty())
@@ -684,7 +692,7 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 	int ExitCode;
 	{
 		const auto Dlg = Dialog::create(DlgData);
-		Dlg->SetPosition({ -1, -1, 76, static_cast<int>(DlgData.size() + 2) });
+		Dlg->SetPosition({ -1, -1, DlgWidth, static_cast<int>(DlgData.size() + 2) });
 		Dlg->SetId(UserMenuUserInputId);
 		Dlg->Process();
 		ExitCode=Dlg->GetExitCode();
