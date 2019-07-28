@@ -6,7 +6,7 @@
 /*
 plugin.hpp
 
-Plugin API for Far Manager 3.0 build 5400
+Plugin API for Far Manager 3.0 build 5435
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -44,7 +44,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 5400
+#define FARMANAGERVERSION_BUILD 5435
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -670,12 +670,12 @@ struct FarKey
 
 typedef unsigned long long MENUITEMFLAGS;
 static const MENUITEMFLAGS
-	MIF_SELECTED   = 0x000000000010000ULL,
-	MIF_CHECKED    = 0x000000000020000ULL,
-	MIF_SEPARATOR  = 0x000000000040000ULL,
-	MIF_DISABLE    = 0x000000000080000ULL,
-	MIF_GRAYED     = 0x000000000100000ULL,
-	MIF_HIDDEN     = 0x000000000200000ULL,
+	MIF_SELECTED   = 0x0000000000010000ULL,
+	MIF_CHECKED    = 0x0000000000020000ULL,
+	MIF_SEPARATOR  = 0x0000000000040000ULL,
+	MIF_DISABLE    = 0x0000000000080000ULL,
+	MIF_GRAYED     = 0x0000000000100000ULL,
+	MIF_HIDDEN     = 0x0000000000200000ULL,
 	MIF_NONE       = 0;
 
 struct FarMenuItem
@@ -1038,6 +1038,7 @@ enum ADVANCED_CONTROL_COMMANDS
 	ACTL_WAITKEY                    = 2,
 	ACTL_GETCOLOR                   = 3,
 	ACTL_GETARRAYCOLOR              = 4,
+
 	ACTL_GETWINDOWINFO              = 6,
 	ACTL_GETWINDOWCOUNT             = 7,
 	ACTL_SETCURRENTWINDOW           = 8,
@@ -1054,12 +1055,7 @@ enum ADVANCED_CONTROL_COMMANDS
 	ACTL_SETCURSORPOS               = 26,
 	ACTL_PROGRESSNOTIFY             = 27,
 	ACTL_GETWINDOWTYPE              = 28,
-
-
 };
-
-
-
 
 enum FAR_MACRO_CONTROL_COMMANDS
 {
@@ -2340,6 +2336,8 @@ enum VERSION_STAGE
 	VS_ALPHA                        = 1,
 	VS_BETA                         = 2,
 	VS_RC                           = 3,
+	VS_SPECIAL                      = 4,
+	VS_PRIVATE                      = 5,
 };
 
 struct VersionInfo
