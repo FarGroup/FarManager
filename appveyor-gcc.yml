@@ -19,7 +19,7 @@ shallow_clone: true
 clone_depth: 1
 
 install:
-  - cd far && for /f "tokens=1,2,4 delims=," %%i in ('tools\m4 -P farversion.inc.m4') do appveyor UpdateBuild -Version %%i.%%j.%%k.%APPVEYOR_BUILD_NUMBER% && cd ..
+  - cd far && for /f "tokens=1,2,4 delims=, " %%i in ('tools\m4 -P farversion.inc.m4') do appveyor UpdateBuild -Version %%i.%%j.%%k.%APPVEYOR_BUILD_NUMBER% && cd ..
   #- appveyor-retry choco install mingw
   #- set Path=C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin;%Path%
   - set Path=C:\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin;%Path%
