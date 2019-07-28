@@ -1,5 +1,7 @@
 #!/bin/bash
 
+M4CMD="m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix -DBUILD_TYPE=VS_RELEASE"
+
 function buildfar2 {
 
 OUTDIR=Release.$1.vc
@@ -22,15 +24,13 @@ mkdir -p ${BOOTSTRAPDIR}
 
 ls *.cpp *.hpp *.c *.rc | gawk -f ./scripts/mkdep.awk - | unix2dos > ${BOOTSTRAPDIR}far.vc.dep
 
-M4CMD= m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix -DBUILD_TYPE=VS_RELEASE
-
-
 $M4CMD farlang.templ.m4 > ${BOOTSTRAPDIR}farlang.templ
 $M4CMD far.rc.inc.m4 > ${BOOTSTRAPDIR}far.rc.inc
 $M4CMD Far.exe.manifest.m4 > ${BOOTSTRAPDIR}Far.exe.manifest
 $M4CMD farversion.inc.m4 > ${BOOTSTRAPDIR}farversion.inc
-$M4CMD copyright.inc.m4 > ${BOOTSTRAPDIR}copyright.inc
-
+pushd ../far.git/far
+$M4CMD copyright.inc.m4 > ../../far/${BOOTSTRAPDIR}copyright.inc
+popd
 $M4CMD File_id.diz.m4 | unix2dos -m > $OUTDIR/File_id.diz
 
 dos2unix FarEng.hlf.m4
@@ -66,14 +66,14 @@ mkdir -p Include
 dos2unix farcolor.hpp
 dos2unix plugin.hpp
 dos2unix DlgBuilder.hpp
-m4 -P -DFARBIT=32 -DHOSTTYPE=Unix -DINPUT=farcolor.hpp headers.m4 | unix2dos > Include/farcolor.hpp
-m4 -P -DFARBIT=32 -DHOSTTYPE=Unix -DINPUT=plugin.hpp headers.m4 | unix2dos > Include/plugin.hpp
-m4 -P -DFARBIT=32 -DHOSTTYPE=Unix -DINPUT=DlgBuilder.hpp headers.m4 | unix2dos > Include/DlgBuilder.hpp
+M4CMD -DINPUT=farcolor.hpp headers.m4 | unix2dos > Include/farcolor.hpp
+M4CMD -DINPUT=plugin.hpp headers.m4 | unix2dos > Include/plugin.hpp
+M4CMD -DINPUT=DlgBuilder.hpp headers.m4 | unix2dos > Include/DlgBuilder.hpp
 
 dos2unix PluginW.pas
 dos2unix FarColorW.pas
-m4 -P -DFARBIT=32 -DHOSTTYPE=Unix -DINPUT=PluginW.pas headers.m4 | unix2dos > Include/PluginW.pas
-m4 -P -DFARBIT=32 -DHOSTTYPE=Unix -DINPUT=FarColorW.pas headers.m4 | unix2dos > Include/FarColorW.pas
+M4CMD -DINPUT=PluginW.pas headers.m4 | unix2dos > Include/PluginW.pas
+M4CMD -DINPUT=FarColorW.pas headers.m4 | unix2dos > Include/FarColorW.pas
 
 unix2dos -m changelog
 unix2dos -m changelog_eng
