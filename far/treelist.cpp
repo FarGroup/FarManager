@@ -800,7 +800,7 @@ bool TreeList::ReadTree()
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<TreePreRedrawItem>());
-	ScanTree ScTree(false);
+	ScanTree ScTree(false, true, -1, false);
 	os::fs::find_data fdata;
 	string strFullName;
 	FlushCache();
@@ -817,7 +817,7 @@ bool TreeList::ReadTree()
 	auto AscAbort = false;
 	TreeStartTime = std::chrono::steady_clock::now();
 	SCOPED_ACTION(RefreshWindowManager)(ScrX, ScrY);
-	ScTree.SetFindPath(m_Root, L"*"sv, 0);
+	ScTree.SetFindPath(m_Root, L"*"sv);
 	LastScrX = ScrX;
 	LastScrY = ScrY;
 	SCOPED_ACTION(taskbar::indeterminate);
@@ -1833,12 +1833,12 @@ void TreeList::ReadSubTree(const string& Path)
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<TreePreRedrawItem>());
-	ScanTree ScTree(false);
+	ScanTree ScTree(false, true, -1, false);
 
 	const auto strDirName = ConvertNameToFull(Path);
 	AddTreeName(strDirName);
 	auto AscAbort = false;
-	ScTree.SetFindPath(strDirName, L"*"sv, 0);
+	ScTree.SetFindPath(strDirName, L"*"sv);
 	LastScrX = ScrX;
 	LastScrY = ScrY;
 

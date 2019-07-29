@@ -549,6 +549,9 @@ namespace os::fs
 	bool detach_virtual_disk(string_view Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType);
 
 	[[nodiscard]]
+	bool is_directory_reparse_point(DWORD Attributes);
+
+	[[nodiscard]]
 	bool is_directory_symbolic_link(const find_data& Data);
 
 	[[nodiscard]]

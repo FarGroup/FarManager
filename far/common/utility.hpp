@@ -162,7 +162,7 @@ namespace flags
 	template<typename value_type, typename flags_type>
 	constexpr bool check_all(const value_type& Value, flags_type Bits)
 	{
-		return (Value & Bits) == Bits;
+		return static_cast<flags_type>(Value & Bits) == Bits;
 	}
 
 	template<typename value_type, typename flags_type>

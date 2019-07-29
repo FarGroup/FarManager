@@ -6148,7 +6148,7 @@ $ #far:config System.CopySecurityOptions#
 
     Примечание:
 
-    Параметр "System.CopySecurityOptions" не влияет на создание связей (Alt+F6). В этом случае 
+    Параметр "System.CopySecurityOptions" не влияет на создание ссылок (Alt+F6). В этом случае 
 права всегда копируются.
 
     Изменение этого параметра возможно через ~far:config~@FarConfig@

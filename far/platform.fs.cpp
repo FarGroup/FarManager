@@ -2031,10 +2031,14 @@ namespace os::fs
 		return false;
 	}
 
+	bool is_directory_reparse_point(DWORD const Attributes)
+	{
+		return Attributes != INVALID_FILE_ATTRIBUTES && flags::check_all(Attributes, FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_REPARSE_POINT);
+	}
+
 	bool is_directory_symbolic_link(const find_data& Data)
 	{
-		const auto Attributes = FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_REPARSE_POINT;
-		return (Data.Attributes & Attributes) == Attributes && (Data.ReparseTag == IO_REPARSE_TAG_MOUNT_POINT || Data.ReparseTag == IO_REPARSE_TAG_SYMLINK);
+		return is_directory_reparse_point(Data.Attributes) && (Data.ReparseTag == IO_REPARSE_TAG_MOUNT_POINT || Data.ReparseTag == IO_REPARSE_TAG_SYMLINK);
 	}
 
 	bool can_create_file(string_view const Name)

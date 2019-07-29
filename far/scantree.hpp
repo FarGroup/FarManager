@@ -51,36 +51,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-enum
-{
-	// эту фигню может ставить плагин (младшие 8 бит)
-	FSCANTREE_RETUPDIR         = 0_bit,  // = FRS_RETUPDIR
-	// FSCANTREE_RETUPDIR causes GetNextName() to return every directory twice:
-	// 1. when scanning its parent directory 2. after directory scan is finished
-	FSCANTREE_RECUR            = 1_bit,  // = FRS_RECUR
-	FSCANTREE_SCANSYMLINK      = 2_bit,  // = FRS_SCANSYMLINK
-
-	// в младшем слове старшие 8 бита служебные!
-	FSCANTREE_SECONDPASS       = 13_bit, // то, что раньше было было SecondPass[]
-	FSCANTREE_SECONDDIRNAME    = 14_bit, // set when FSCANTREE_RETUPDIR is enabled and directory scan is finished
-	FSCANTREE_INSIDEJUNCTION   = 15_bit, // - мы внутри симлинка?
-
-	// здесь те флаги, которые могут выставляться в 3-м параметре SetFindPath()
-	FSCANTREE_FILESFIRST       = 16_bit, // Сканирование каталога за два прохода. Сначала файлы, затем каталоги
-};
-
 class ScanTree: noncopyable
 {
 public:
-	explicit ScanTree(bool RetUpDir, bool Recurse=true, int ScanJunction=-1);
+	explicit ScanTree(bool RetUpDir, bool Recurse=true, int ScanJunction=-1, bool FilesFirst = true);
 	~ScanTree();
 
 	// 3-й параметр - флаги из старшего слова
-	void SetFindPath(string_view Path, string_view Mask, DWORD NewScanFlags = FSCANTREE_FILESFIRST);
+	void SetFindPath(string_view Path, string_view Mask);
 	bool GetNextName(os::fs::find_data& fdata, string &strFullName);
 	void SkipDir();
-	int IsDirSearchDone() const {return Flags.Check(FSCANTREE_SECONDDIRNAME);}
-	int InsideJunction() const {return Flags.Check(FSCANTREE_INSIDEJUNCTION);}
+	bool IsDirSearchDone() const;
+	bool InsideReparsePoint() const;
 
 	struct scantree_item;
 

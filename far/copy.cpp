@@ -1629,7 +1629,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 				KeepPathPos=(int)strSubName.size();
 
 			int NeedRename = !(os::fs::is_directory_symbolic_link(SrcData) && (Flags&FCOPY_COPYSYMLINKCONTENTS) && (Flags&FCOPY_MOVE));
-			ScTree.SetFindPath(strSubName, L"*"sv ,FSCANTREE_FILESFIRST);
+			ScTree.SetFindPath(strSubName, L"*"sv);
 
 			while (ScTree.GetNextName(SrcData,strFullName))
 			{
@@ -1707,56 +1707,43 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 					CP->UpdateAllBytesInfo(SrcData.FileSize);
 				}
 
-				if (SubCopyCode==COPY_SUCCESS)
+				// здесь нужны проверка на InsideReparsePoint, иначе
+				// при мувинге будет удаление файла, что крайне неправильно!
+				if (SubCopyCode == COPY_SUCCESS && Flags & FCOPY_MOVE && !ScTree.InsideReparsePoint())
 				{
-					if (Flags&FCOPY_MOVE)
+					if (SrcData.Attributes & FILE_ATTRIBUTE_DIRECTORY)
 					{
-						if (SrcData.Attributes & FILE_ATTRIBUTE_DIRECTORY)
+						if (ScTree.IsDirSearchDone() || (os::fs::is_directory_symbolic_link(SrcData) && !(Flags & FCOPY_COPYSYMLINKCONTENTS)))
 						{
-							if (ScTree.IsDirSearchDone() ||
-								      (os::fs::is_directory_symbolic_link(SrcData) && !(Flags&FCOPY_COPYSYMLINKCONTENTS)))
-							{
-								if (SrcData.Attributes & FILE_ATTRIBUTE_READONLY)
-									os::fs::set_file_attributes(strFullName,FILE_ATTRIBUTE_NORMAL);
-
-								if (os::fs::remove_directory(strFullName))
-									TreeList::DelTreeName(strFullName);
-							}
-						}
-						// здесь нужны проверка на FSCANTREE_INSIDEJUNCTION, иначе
-						// при мувинге будет удаление файла, что крайне неправильно!
-						else if (!ScTree.InsideJunction())
-						{
-							if (DeleteAfterMove(strFullName,SrcData.Attributes)==COPY_CANCEL)
+							if (DeleteAfterMove(strFullName, SrcData.Attributes) == COPY_CANCEL)
 								return COPY_CANCEL;
+
+							TreeList::DelTreeName(strFullName);
 						}
+					}
+					else if (DeleteAfterMove(strFullName, SrcData.Attributes) == COPY_CANCEL)
+					{
+						return COPY_CANCEL;
 					}
 				}
 			}
-
-			if ((Flags&FCOPY_MOVE) && CopyCode==COPY_SUCCESS)
-			{
-				if (i.Attributes & FILE_ATTRIBUTE_READONLY)
-					os::fs::set_file_attributes(i.FileName,FILE_ATTRIBUTE_NORMAL);
-
-				if (os::fs::remove_directory(i.FileName))
-				{
-					TreeList::DelTreeName(i.FileName);
-
-					if (!strDestDizPath.empty())
-						SrcPanel->DeleteDiz(i.FileName, i.AlternateFileName());
-				}
-			}
 		}
-		else if ((Flags&FCOPY_MOVE) && CopyCode==COPY_SUCCESS)
-		{
-			int DeleteCode;
 
-			if ((DeleteCode = DeleteAfterMove(i.FileName, i.Attributes)) == COPY_CANCEL)
+		if ((Flags & FCOPY_MOVE) && CopyCode == COPY_SUCCESS)
+		{
+			const auto DeleteCode = DeleteAfterMove(i.FileName, i.Attributes);
+
+			if (DeleteCode == COPY_CANCEL)
 				return COPY_CANCEL;
 
-			if (DeleteCode==COPY_SUCCESS && !strDestDizPath.empty())
-				SrcPanel->DeleteDiz(i.FileName, i.AlternateFileName());
+			if (DeleteCode == COPY_SUCCESS)
+			{
+				if ((SrcData.Attributes & FILE_ATTRIBUTE_DIRECTORY))
+					TreeList::DelTreeName(i.FileName);
+
+				if (!strDestDizPath.empty())
+					SrcPanel->DeleteDiz(i.FileName, i.AlternateFileName());
+			}
 		}
 
 		if ((!(Flags&FCOPY_CURRENTONLY)) && (Flags&FCOPY_COPYLASTTIME))
@@ -3526,7 +3513,7 @@ bool ShellCopy::SetRecursiveSecurity(const string& FileName,const os::fs::securi
 	if (os::fs::is_directory(FileName))
 	{
 		ScanTree ScTree(true, true, Flags & FCOPY_COPYSYMLINKCONTENTS);
-		ScTree.SetFindPath(FileName, L"*"sv, FSCANTREE_FILESFIRST);
+		ScTree.SetFindPath(FileName, L"*"sv);
 
 		string strFullName;
 		os::fs::find_data SrcData;
