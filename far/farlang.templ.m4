@@ -4088,6 +4088,19 @@ MCopySecurity
 "П&рава доступу:"
 "П&равы доступа:"
 
+MCopySecurityDefault
+"По умол&чанию"
+"Defau&lt"
+"Vých&ozí"
+"A&utomat."
+"Ala&pért."
+"Do&myślne"
+"Por defecto"
+"Vých&odiskové"
+"Defaul&t"
+"За замов&чуванням"
+"Прадвызна&чана"
+
 MCopySecurityCopy
 "Копироват&ь"
 "Co&py"
@@ -4113,19 +4126,6 @@ MCopySecurityInherit
 "&Eredita"
 "Нас&лідувати"
 "Спа&дкаваць"
-
-MCopySecurityLeave
-"По умол&чанию"
-"Defau&lt"
-"Vých&ozí"
-"A&utomat."
-"Ala&pért."
-"Do&myślne"
-"Por defecto"
-"Vých&odiskové"
-"Defaul&t"
-"За замов&чуванням"
-"Прадвызна&чана"
 
 MCopyIfFileExist
 "Уже су&ществующие файлы:"

@@ -65,6 +65,13 @@ public:
 	~ShellCopy();
 	DWORD CopyProgressRoutine(unsigned long long TotalFileSize, unsigned long long TotalBytesTransferred, unsigned long long StreamSize, unsigned long long StreamBytesTransferred, DWORD StreamNumber, DWORD CallbackReason, HANDLE SourceFile, HANDLE DestinationFile);
 
+	enum class security
+	{
+		do_nothing,
+		copy,
+		inherit,
+	};
+
 private:
 	COPY_CODES CopyFileTree(const string&  Dest);
 	COPY_CODES ShellCopyOneFile(const string& Src, const os::fs::find_data &SrcData, string &strDest, int KeepPathPos, int Rename);
@@ -75,7 +82,7 @@ private:
 	bool AskOverwrite(const os::fs::find_data &SrcData,const string& SrcName,const string& DestName, DWORD DestAttr,int SameName,int Rename,int AskAppend, int &Append,string &strNewName,int &RetCode);
 	bool GetSecurity(const string& FileName, os::fs::security_descriptor& sd);
 	bool SetSecurity(const string& FileName, const os::fs::security_descriptor& sd);
-	bool SetRecursiveSecurity(const string& FileName,const os::fs::security_descriptor& sd);
+	bool ResetSecurityRecursively(const string& FileName);
 	bool CalcTotalSize() const;
 	bool ShellSetAttr(const string& Dest,DWORD Attr);
 	void SetDestDizPath(const string& DestPath);
@@ -124,7 +131,8 @@ private:
 	ReparsePointTypes RPT;
 	string strPluginFormat;
 	int AltF10;
-	int m_CopySecurity;
+
+	security m_CopySecurity{ security::do_nothing };
 	size_t SelCount;
 	bool FolderPresent;
 	bool FilesPresent;

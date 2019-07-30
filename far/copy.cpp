@@ -116,31 +116,35 @@ enum COPY_FLAGS
 	FCOPY_LINK                    = 4_bit, // создание линков
 	FCOPY_MOVE                    = 5_bit, // перенос/переименование
 	FCOPY_DIZREAD                 = 6_bit, //
-	FCOPY_COPYSECURITY            = 7_bit, // [x] Copy access rights
 	FCOPY_VOLMOUNT                = 8_bit, // операция монтирования тома
 	FCOPY_STREAMSKIP              = 9_bit, // потоки
 	FCOPY_STREAMALL               = 10_bit, // потоки
 	FCOPY_COPYSYMLINKCONTENTS     = 12_bit, // Копировать содержимое символических ссылок?
-	FCOPY_COPYPARENTSECURITY      = 13_bit, // Накладывать родительские права, в случае если мы не копируем права доступа
-	FCOPY_LEAVESECURITY           = 14_bit, // Move: [?] Ничего не делать с правами доступа
 	FCOPY_DECRYPTED_DESTINATION   = 15_bit, // для криптованных файлов - расшифровывать...
 	FCOPY_USESYSTEMCOPY           = 16_bit, // использовать системную функцию копирования
 	FCOPY_COPYLASTTIME            = 17_bit, // При копировании в несколько каталогов устанавливается для последнего.
 	FCOPY_UPDATEPPANEL            = 18_bit, // необходимо обновить пассивную панель
 };
 
-enum COPYSECURITYOPTIONS
+static const struct
 {
-	CSO_MOVE_SETCOPYSECURITY       = 0_bit,          // Move: по умолчанию выставлять опцию "Copy access rights"?
-	CSO_MOVE_SETINHERITSECURITY    = 0_bit | 1_bit, // Move: по умолчанию выставлять опцию "Inherit access rights"?
-	CSO_MOVE_SESSIONSECURITY       = 2_bit,          // Move: сохранять состояние "access rights" внутри сессии?
-	CSO_COPY_SETCOPYSECURITY       = 3_bit,          // Copy: по умолчанию выставлять опцию "Copy access rights"?
-	CSO_COPY_SETINHERITSECURITY    = 3_bit | 4_bit, // Copy: по умолчанию выставлять опцию "Inherit access rights"?
-	CSO_COPY_SESSIONSECURITY       = 5_bit,          // Copy: сохранять состояние "access rights" внутри сессии?
+	int CopyFlag;    // по умолчанию выставлять опцию "Copy access rights"?
+	int InheritFlag; // по умолчанию выставлять опцию "Inherit access rights"?
+	int SaveFlag;    // сохранять состояние "access rights" внутри сессии?
+	mutable std::optional<ShellCopy::security> SavedState;
+}
+SecurityMove
+{
+	0_bit,
+	0_bit | 1_bit,
+	2_bit,
+},
+SecurityCopy
+{
+	3_bit,
+	3_bit | 4_bit,
+	5_bit,
 };
-
-static int CopySecurityCopy=-1;
-static int CopySecurityMove=-1;
 
 static bool ZoomedState, IconicState;
 
@@ -152,10 +156,10 @@ enum enumShellCopy
 	ID_SC_TARGETTITLE,
 	ID_SC_TARGETEDIT,
 	ID_SC_SEPARATOR1,
-	ID_SC_ACTITLE,
-	ID_SC_ACLEAVE,
-	ID_SC_ACCOPY,
-	ID_SC_ACINHERIT,
+	ID_SC_SECURITY_TITLE,
+	ID_SC_SECURITY_DEFAULT,
+	ID_SC_SECURITY_COPY,
+	ID_SC_SECURITY_INHERIT,
 	ID_SC_SEPARATOR2,
 	ID_SC_COMBOTEXT,
 	ID_SC_COMBO,
@@ -221,26 +225,6 @@ static bool CheckNulOrCon(string_view Src)
 	return (starts_with_icase(Src, L"nul"sv) || starts_with_icase(Src, L"con"sv)) && (Src.size() == 3 || (Src.size() > 3 && IsSlash(Src[3])));
 }
 
-static string GetParentFolder(const string& Src)
-{
-	auto Result = ConvertNameToReal(Src);
-	CutToSlash(Result, true);
-	return Result;
-}
-
-static int CmpFullPath(const string& Src, const string& Dest)
-{
-	const auto ToFull = [](const string& in)
-	{
-		auto out = GetParentFolder(in);
-		DeleteEndSlash(out);
-		// избавимся от коротких имен
-		return ConvertNameToReal(out);
-	};
-
-	return equal_icase(ToFull(Src), ToFull(Dest));
-}
-
 static void GenerateName(string &strName, const string& Path)
 {
 	if (!Path.empty())
@@ -266,6 +250,22 @@ static void CheckAndUpdateConsole()
 		ZoomedState = !ZoomedState;
 		ChangeVideoMode(ZoomedState != FALSE);
 	}
+}
+
+static bool ResetSecurity(const string& FileName)
+{
+	ACL EmptyAcl{};
+	if (!InitializeAcl(&EmptyAcl, sizeof(EmptyAcl), ACL_REVISION))
+		return false;
+
+	return SetNamedSecurityInfo(
+		UNSAFE_CSTR(NTPath(FileName)),
+		SE_FILE_OBJECT,
+		DACL_SECURITY_INFORMATION | UNPROTECTED_DACL_SECURITY_INFORMATION,
+		nullptr,
+		nullptr,
+		&EmptyAcl,
+		nullptr) == ERROR_SUCCESS;
 }
 
 enum
@@ -500,7 +500,6 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 	SelectedFolderNameLength(),
 	RPT(RP_EXACTCOPY),
 	AltF10(),
-	m_CopySecurity(),
 	SelCount(SrcPanel->GetSelCount()),
 	FolderPresent(),
 	FilesPresent(),
@@ -550,7 +549,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 		{ DI_EDIT,         {{5,  3 }, {70, 3 }}, DIF_FOCUS | DIF_HISTORY | DIF_USELASTHISTORY | DIF_EDITPATH, },
 		{ DI_TEXT,         {{-1, 4 }, {0,  4 }}, DIF_SEPARATOR, },
 		{ DI_TEXT,         {{5,  5 }, {0,  5 }}, DIF_NONE, msg(lng::MCopySecurity), },
-		{ DI_RADIOBUTTON,  {{5,  5 }, {0,  5 }}, DIF_GROUP, msg(lng::MCopySecurityLeave), },
+		{ DI_RADIOBUTTON,  {{5,  5 }, {0,  5 }}, DIF_GROUP, msg(lng::MCopySecurityDefault), },
 		{ DI_RADIOBUTTON,  {{5,  5 }, {0,  5 }}, DIF_NONE, msg(lng::MCopySecurityCopy), },
 		{ DI_RADIOBUTTON,  {{5,  5 }, {0,  5 }}, DIF_NONE, msg(lng::MCopySecurityInherit), },
 		{ DI_TEXT,         {{-1, 6 }, {0,  6 }}, DIF_SEPARATOR, },
@@ -575,15 +574,15 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 	{
 		{
 			const auto& Str = msg(lng::MCopySecurity);
-			CopyDlg[ID_SC_ACLEAVE].X1 = CopyDlg[ID_SC_ACTITLE].X1 + Str.size() - (contains(Str, L'&')? 1 : 0) + 1;
+			CopyDlg[ID_SC_SECURITY_DEFAULT].X1 = CopyDlg[ID_SC_SECURITY_TITLE].X1 + Str.size() - (contains(Str, L'&')? 1 : 0) + 1;
 		}
 		{
-			const auto& Str = msg(lng::MCopySecurityLeave);
-			CopyDlg[ID_SC_ACCOPY].X1 = CopyDlg[ID_SC_ACLEAVE].X1 + Str.size() - (contains(Str, L'&')? 1 : 0) + 5;
+			const auto& Str = msg(lng::MCopySecurityDefault);
+			CopyDlg[ID_SC_SECURITY_COPY].X1 = CopyDlg[ID_SC_SECURITY_DEFAULT].X1 + Str.size() - (contains(Str, L'&')? 1 : 0) + 5;
 		}
 		{
 			const auto& Str = msg(lng::MCopySecurityCopy);
-			CopyDlg[ID_SC_ACINHERIT].X1 = CopyDlg[ID_SC_ACCOPY].X1 + Str.size() - (contains(Str, L'&')? 1 : 0) + 5;
+			CopyDlg[ID_SC_SECURITY_INHERIT].X1 = CopyDlg[ID_SC_SECURITY_COPY].X1 + Str.size() - (contains(Str, L'&')? 1 : 0) + 5;
 		}
 	}
 
@@ -592,70 +591,45 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 		CopyDlg[ID_SC_COMBOTEXT].strData=msg(lng::MLinkType);
 		CopyDlg[ID_SC_COPYSYMLINK].Selected=0;
 		CopyDlg[ID_SC_COPYSYMLINK].Flags|=DIF_DISABLE|DIF_HIDDEN;
-		m_CopySecurity=1;
-	}
-	else if (Move) // секция про перенос
-	{
-		CopyDlg[ID_SC_MULTITARGET].Selected = 0;
-		CopyDlg[ID_SC_MULTITARGET].Flags |= DIF_DISABLE;
-
-		//   2 - Default
-		//   1 - Copy access rights
-		//   0 - Inherit access rights
-		m_CopySecurity=2;
-
-		// ставить опцию "Inherit access rights"?
-		// CSO_MOVE_SETINHERITSECURITY - двухбитный флаг
-		if ((Global->Opt->CMOpt.CopySecurityOptions&CSO_MOVE_SETINHERITSECURITY) == CSO_MOVE_SETINHERITSECURITY)
-			m_CopySecurity=0;
-		else if (Global->Opt->CMOpt.CopySecurityOptions&CSO_MOVE_SETCOPYSECURITY)
-			m_CopySecurity=1;
-
-		// хотели сессионное запоминание?
-		if (CopySecurityMove != -1 && (Global->Opt->CMOpt.CopySecurityOptions&CSO_MOVE_SESSIONSECURITY))
-			m_CopySecurity=CopySecurityMove;
-		else
-			CopySecurityMove=m_CopySecurity;
-	}
-	else // секция про копирование
-	{
-		//   2 - Default
-		//   1 - Copy access rights
-		//   0 - Inherit access rights
-		m_CopySecurity=2;
-
-		// ставить опцию "Inherit access rights"?
-		// CSO_COPY_SETINHERITSECURITY - двухбитный флаг
-		if ((Global->Opt->CMOpt.CopySecurityOptions&CSO_COPY_SETINHERITSECURITY) == CSO_COPY_SETINHERITSECURITY)
-			m_CopySecurity=0;
-		else if (Global->Opt->CMOpt.CopySecurityOptions&CSO_COPY_SETCOPYSECURITY)
-			m_CopySecurity=1;
-
-		// хотели сессионное запоминание?
-		if (CopySecurityCopy != -1 && Global->Opt->CMOpt.CopySecurityOptions&CSO_COPY_SESSIONSECURITY)
-			m_CopySecurity=CopySecurityCopy;
-		else
-			CopySecurityCopy=m_CopySecurity;
-	}
-
-	// вот теперь выставляем
-	if (m_CopySecurity)
-	{
-		if (m_CopySecurity == 1)
-		{
-			Flags|=FCOPY_COPYSECURITY;
-			CopyDlg[ID_SC_ACCOPY].Selected=1;
-		}
-		else
-		{
-			Flags|=FCOPY_LEAVESECURITY;
-			CopyDlg[ID_SC_ACLEAVE].Selected=1;
-		}
 	}
 	else
 	{
-		Flags&=~(FCOPY_COPYSECURITY|FCOPY_LEAVESECURITY);
-		CopyDlg[ID_SC_ACINHERIT].Selected=1;
+		if (Move) // секция про перенос
+		{
+			CopyDlg[ID_SC_MULTITARGET].Selected = 0;
+			CopyDlg[ID_SC_MULTITARGET].Flags |= DIF_DISABLE;
+		}
+
+		auto& CurrentState = Move? SecurityMove : SecurityCopy;
+
+		// ставить опцию "Inherit access rights"?
+		// двухбитный флаг
+		if ((Global->Opt->CMOpt.CopySecurityOptions & CurrentState.InheritFlag) == CurrentState.InheritFlag)
+			m_CopySecurity = security::inherit;
+		else if (Global->Opt->CMOpt.CopySecurityOptions & CurrentState.CopyFlag)
+			m_CopySecurity = security::copy;
+
+		// хотели сессионное запоминание?
+		if (CurrentState.SavedState && (Global->Opt->CMOpt.CopySecurityOptions & CurrentState.SaveFlag))
+			m_CopySecurity = *CurrentState.SavedState;
+		else
+			CurrentState.SavedState = m_CopySecurity;
+	}
+
+	// вот теперь выставляем
+	switch (m_CopySecurity)
+	{
+	case security::do_nothing:
+		CopyDlg[ID_SC_SECURITY_DEFAULT].Selected = 1;
+		break;
+
+	case security::copy:
+		CopyDlg[ID_SC_SECURITY_COPY].Selected = 1;
+		break;
+
+	case security::inherit:
+		CopyDlg[ID_SC_SECURITY_INHERIT].Selected = 1;
+		break;
 	}
 
 	string strCopyStr;
@@ -811,11 +785,11 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 	if (Link) // рулесы по поводу линков (предварительные!)
 	{
 		// задисаблим опцию про копирование права.
-		CopyDlg[ID_SC_ACTITLE].Flags|=DIF_DISABLE|DIF_HIDDEN;
-		CopyDlg[ID_SC_ACCOPY].Flags|=DIF_DISABLE|DIF_HIDDEN;
-		CopyDlg[ID_SC_ACINHERIT].Flags|=DIF_DISABLE|DIF_HIDDEN;
-		CopyDlg[ID_SC_ACLEAVE].Flags|=DIF_DISABLE|DIF_HIDDEN;
-		CopyDlg[ID_SC_SEPARATOR2].Flags|=DIF_HIDDEN;
+		CopyDlg[ID_SC_SECURITY_TITLE].Flags   |= DIF_HIDDEN | DIF_DISABLE;
+		CopyDlg[ID_SC_SECURITY_DEFAULT].Flags |= DIF_HIDDEN | DIF_DISABLE;
+		CopyDlg[ID_SC_SECURITY_COPY].Flags    |= DIF_HIDDEN | DIF_DISABLE;
+		CopyDlg[ID_SC_SECURITY_INHERIT].Flags |= DIF_HIDDEN | DIF_DISABLE;
+		CopyDlg[ID_SC_SEPARATOR2].Flags       |= DIF_HIDDEN;
 
 		for(int i=ID_SC_SEPARATOR2;i<=ID_SC_COMBO;i++)
 		{
@@ -970,19 +944,17 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 	// ***********************************************************************
 	// *** Стадия подготовки данных после диалога
 	// ***********************************************************************
-	Flags&=~FCOPY_COPYPARENTSECURITY;
-
-	if (CopyDlg[ID_SC_ACCOPY].Selected)
+	if (CopyDlg[ID_SC_SECURITY_COPY].Selected)
 	{
-		Flags|=FCOPY_COPYSECURITY;
+		m_CopySecurity = security::copy;
 	}
-	else if (CopyDlg[ID_SC_ACINHERIT].Selected)
+	else if (CopyDlg[ID_SC_SECURITY_INHERIT].Selected)
 	{
-		Flags&=~(FCOPY_COPYSECURITY|FCOPY_LEAVESECURITY);
+		m_CopySecurity = security::inherit;
 	}
 	else
 	{
-		Flags|=FCOPY_LEAVESECURITY;
+		m_CopySecurity = security::do_nothing;
 	}
 
 	if (Global->Opt->CMOpt.UseSystemCopy)
@@ -990,18 +962,10 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 	else
 		Flags&=~FCOPY_USESYSTEMCOPY;
 
-	if (!(Flags&(FCOPY_COPYSECURITY|FCOPY_LEAVESECURITY)))
-		Flags|=FCOPY_COPYPARENTSECURITY;
-
-	m_CopySecurity=Flags&FCOPY_COPYSECURITY?1:(Flags&FCOPY_LEAVESECURITY?2:0);
-
 	// в любом случае сохраняем сессионное запоминание (не для Link, т.к. для Link временное состояние - "ВСЕГДА!")
 	if (!Link)
 	{
-		if (Move)
-			CopySecurityMove=m_CopySecurity;
-		else
-			CopySecurityCopy=m_CopySecurity;
+		(Move? SecurityMove : SecurityCopy).SavedState = m_CopySecurity;
 	}
 
 	if (Link)
@@ -1859,8 +1823,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 	CP->SetNames(Src, strDestPath);
 	CP->SetProgressValue(0,0);
 
-	int IsSetSecuty=FALSE;
-
 	if (!(Flags&FCOPY_COPYTONUL))
 	{
 		// проверка очередного монстрика на потоки
@@ -1913,33 +1875,44 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 			if (Rename)
 			{
-				auto strSrcFullName = ConvertNameToFull(Src);
-				os::fs::security_descriptor sd;
-
-				// для Move нам необходимо узнать каталог родитель, чтобы получить его секьюрити
-				if (!(Flags&(FCOPY_COPYSECURITY|FCOPY_LEAVESECURITY)))
-				{
-					IsSetSecuty=FALSE;
-
-					if (CmpFullPath(Src,strDest)) // в пределах одного каталога ничего не меняем
-						IsSetSecuty=FALSE;
-					else if (!os::fs::exists(strDest)) // если каталога нет...
-					{
-						// ...получаем секьюрити родителя
-						if (GetSecurity(GetParentFolder(strDest), sd))
-							IsSetSecuty=TRUE;
-					}
-					else if (GetSecurity(strDest,sd)) // иначе получаем секьюрити Dest`а
-						IsSetSecuty=TRUE;
-				}
+				const auto strSrcFullName = ConvertNameToFull(Src);
 
 				// Пытаемся переименовать, пока не отменят
 				for (;;)
 				{
 					if (os::fs::move_file(Src, strDestPath))
+						break;
+
+					const auto ErrorState = error_state::fetch();
+					switch (OperationFailed(ErrorState, Src, lng::MError, msg(lng::MCopyCannotRenameFolder), true, false))
 					{
-						if (IsSetSecuty)// && !strcmp(DestFSName,"NTFS"))
-							SetRecursiveSecurity(strDestPath,sd);
+					case operation::retry:
+						continue;
+
+					case operation::skip:
+					{
+						os::fs::security_descriptor tmpsd;
+						const auto CopySecurity = m_CopySecurity == security::copy && GetSecurity(Src, tmpsd);
+						SECURITY_ATTRIBUTES TmpSecAttr{ sizeof(TmpSecAttr), CopySecurity ? tmpsd.get() : nullptr, FALSE };
+
+						for (;;)
+						{
+							if (os::fs::create_directory(strDestPath, CopySecurity? &TmpSecAttr : nullptr))
+								break;
+
+							const auto CreateDirectoryErrorState = error_state::fetch();
+							switch (OperationFailed(CreateDirectoryErrorState, strDestPath, lng::MError, msg(lng::MCopyCannotCreateFolder), true, false))
+							{
+							case operation::retry:
+								continue;
+
+							case operation::skip:
+								return COPY_SKIPPED;
+
+							default:
+								return COPY_CANCEL;
+							}
+						}
 
 						const auto NamePart = PointToName(strDestPath);
 						if (NamePart.size() == strDestPath.size())
@@ -1947,57 +1920,42 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 						else
 							strCopiedName = NamePart;
 
-						TreeList::RenTreeName(strSrcFullName, ConvertNameToFull(strDest));
-						return SameName? COPY_SKIPPED : COPY_SUCCESS_MOVE;
+						TreeList::AddTreeName(strDestPath);
+						return COPY_SUCCESS;
 					}
-					else
-					{
-						const auto ErrorState = error_state::fetch();
-						switch (OperationFailed(ErrorState, Src, lng::MError, msg(lng::MCopyCannotRenameFolder), true, false))
-						{
-							case operation::retry:
-								continue;
 
-							case operation::skip:
-							{
-								int CopySecurity = Flags&FCOPY_COPYSECURITY;
-								os::fs::security_descriptor tmpsd;
+					default:
+						return COPY_CANCEL;
+					}
+				}
 
-								if (CopySecurity && !GetSecurity(Src,tmpsd))
-									CopySecurity = FALSE;
-								SECURITY_ATTRIBUTES TmpSecAttr  ={sizeof(TmpSecAttr), tmpsd.get(), FALSE};
-								if (os::fs::create_directory(strDestPath, CopySecurity? &TmpSecAttr : nullptr))
-								{
-									const auto NamePart = PointToName(strDestPath);
-									if (NamePart.size() == strDestPath.size())
-										strRenamedName = strDestPath;
-									else
-										strCopiedName = NamePart;
 
-									TreeList::AddTreeName(strDestPath);
-									return COPY_SUCCESS;
-								}
-							}
-							[[fallthrough]];
-							default:
-								return COPY_CANCEL;
-						} /* switch */
-					} /* else */
-				} /* while */
-			} // if (Rename)
+				if (m_CopySecurity == security::inherit)
+					ResetSecurityRecursively(strDestPath);
+
+				const auto NamePart = PointToName(strDestPath);
+				if (NamePart.size() == strDestPath.size())
+					strRenamedName = strDestPath;
+				else
+					strCopiedName = NamePart;
+
+				TreeList::RenTreeName(strSrcFullName, ConvertNameToFull(strDest));
+				return SameName? COPY_SKIPPED : COPY_SUCCESS_MOVE;
+			}
 
 			os::fs::security_descriptor sd;
 
-			if ((Flags&FCOPY_COPYSECURITY) && !GetSecurity(Src,sd))
+			if (m_CopySecurity == security::copy && !GetSecurity(Src, sd))
 				return COPY_CANCEL;
-			SECURITY_ATTRIBUTES SecAttr = {sizeof(SecAttr), Flags & FCOPY_COPYSECURITY? sd.get() : nullptr, FALSE};
+
+			SECURITY_ATTRIBUTES SecAttr = {sizeof(SecAttr), m_CopySecurity == security::copy? sd.get() : nullptr, FALSE};
 			if (RPT!=RP_SYMLINKFILE && SrcData.Attributes&FILE_ATTRIBUTE_DIRECTORY)
 			{
 				while (!os::fs::create_directory(
 					// CreateDirectoryEx preserves reparse points,
 					// so we shouldn't use template when copying with content
 					os::fs::is_directory_symbolic_link(SrcData) && (Flags & FCOPY_COPYSYMLINKCONTENTS)? L""s : Src,
-					strDestPath, Flags & FCOPY_COPYSECURITY? &SecAttr : nullptr))
+					strDestPath, m_CopySecurity == security::copy? &SecAttr : nullptr))
 				{
 					const auto ErrorState = error_state::fetch();
 					const int MsgCode = Message(MSG_WARNING, ErrorState,
@@ -2146,24 +2104,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					if (NWFS_Attr)
 						os::fs::set_file_attributes(strSrcFullName,SrcData.Attributes&(~FILE_ATTRIBUTE_READONLY));
 
-					os::fs::security_descriptor sd;
-					IsSetSecuty=FALSE;
-
-					// для Move нам необходимо узнать каталог родитель, чтобы получить его секьюрити
-					if (!(Flags&(FCOPY_COPYSECURITY|FCOPY_LEAVESECURITY)))
-					{
-						if (CmpFullPath(Src,strDest)) // в пределах одного каталога ничего не меняем
-							IsSetSecuty=FALSE;
-						else if (!os::fs::exists(strDest)) // если каталога нет...
-						{
-							// ...получаем секьюрити родителя
-							if (GetSecurity(GetParentFolder(strDest), sd))
-								IsSetSecuty=TRUE;
-						}
-						else if (GetSecurity(strDest, sd)) // иначе получаем секьюрити Dest`а
-							IsSetSecuty=TRUE;
-					}
-
 					if (strDestFSName == L"NWFS"sv)
 						FileMoved = os::fs::move_file(strSrcFullName, strDestPath);
 					else
@@ -2181,8 +2121,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					}
 					else
 					{
-						if (IsSetSecuty)
-							SetSecurity(strDestPath, sd);
+						if (m_CopySecurity == security::inherit)
+							ResetSecurity(strDestPath);
 					}
 
 					if (NWFS_Attr)
@@ -2604,7 +2544,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 	}
 
 	os::fs::security_descriptor sd;
-	if ((Flags&FCOPY_COPYSECURITY) && !GetSecurity(SrcName,sd))
+	if (m_CopySecurity == security::copy && !GetSecurity(SrcName, sd))
 		return COPY_CANCEL;
 
 	int OpenMode=FILE_SHARE_READ;
@@ -2639,14 +2579,20 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 		//if (DestAttr!=INVALID_FILE_ATTRIBUTES && !Append) //вот это портит копирование поверх хардлинков
 		//api::DeleteFile(DestName);
 		SECURITY_ATTRIBUTES SecAttr = {sizeof(SecAttr)};
-		if (Flags & FCOPY_COPYSECURITY)
+		if (m_CopySecurity == security::copy)
 			SecAttr.lpSecurityDescriptor = sd.get();
 
 		flags_attrs = SrcData.Attributes&(~((Flags&(FCOPY_DECRYPTED_DESTINATION))?FILE_ATTRIBUTE_ENCRYPTED|FILE_FLAG_SEQUENTIAL_SCAN:FILE_FLAG_SEQUENTIAL_SCAN));
-		bool DstOpened = DestFile.Open(strDestName, GENERIC_WRITE, FILE_SHARE_READ, (Flags&FCOPY_COPYSECURITY) ? &SecAttr:nullptr, (Append ? OPEN_EXISTING:CREATE_ALWAYS), flags_attrs);
-		Flags&=~FCOPY_DECRYPTED_DESTINATION;
 
-		if (!DstOpened)
+		Flags &= ~FCOPY_DECRYPTED_DESTINATION;
+
+		if (!DestFile.Open(
+			strDestName,
+			GENERIC_WRITE,
+			FILE_SHARE_READ,
+			m_CopySecurity == security::copy? &SecAttr : nullptr,
+			Append? OPEN_EXISTING : CREATE_ALWAYS,
+			flags_attrs))
 		{
 			_LOGCOPYR(DWORD LastError=GetLastError();)
 			SrcFile.Close();
@@ -3442,7 +3388,7 @@ bool ShellCopy::SetSecurity(const string& FileName, const os::fs::security_descr
 {
 	for (;;)
 	{
-		if (os::fs::set_file_security(NTPath(FileName), DACL_SECURITY_INFORMATION, sd))
+ 		if (os::fs::set_file_security(NTPath(FileName), DACL_SECURITY_INFORMATION, sd))
 			return true;
 
 		if (SkipSecurityErrors)
@@ -3505,9 +3451,9 @@ static bool ShellCopySecuryMsg(const copy_progress* CP, const string& Name)
 }
 
 
-bool ShellCopy::SetRecursiveSecurity(const string& FileName,const os::fs::security_descriptor& sd)
+bool ShellCopy::ResetSecurityRecursively(const string& FileName)
 {
-	if (!SetSecurity(FileName, sd))
+	if (!ResetSecurity(FileName))
 		return false;
 
 	if (os::fs::is_directory(FileName))
@@ -3522,7 +3468,7 @@ bool ShellCopy::SetRecursiveSecurity(const string& FileName,const os::fs::securi
 			if (!ShellCopySecuryMsg(CP.get(), strFullName))
 				break;
 
-			if (!SetSecurity(strFullName, sd))
+			if (!ResetSecurity(strFullName))
 			{
 				return false;
 			}
@@ -3536,7 +3482,7 @@ int ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,cons
 {
 	os::fs::security_descriptor sd;
 
-	if ((Flags&FCOPY_COPYSECURITY) && !GetSecurity(SrcName, sd))
+	if (m_CopySecurity == security::copy && !GetSecurity(SrcName, sd))
 		return COPY_CANCEL;
 
 	CP->SetNames(SrcName,DestName);
@@ -3575,7 +3521,7 @@ int ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,cons
 
 	Flags&=~FCOPY_DECRYPTED_DESTINATION;
 
-	if ((Flags&FCOPY_COPYSECURITY) && !SetSecurity(DestName, sd))
+	if (m_CopySecurity == security::copy && !SetSecurity(DestName, sd))
 		return COPY_CANCEL;
 
 	return COPY_SUCCESS;

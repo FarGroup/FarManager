@@ -3,6 +3,12 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 31.07.2019 00:47:04 +0100 - build 5438
+
+1. Copy option "Inherit access rights" was inadequate: copying the access rights from the parent folder is not "inheriting" in any way. And it has always been like that.
+
+2. Everything else there related to access rights was inadequate as well.
+
 drkns 29.07.2019 22:50:07 +0100 - build 5437
 
 1. Continuation of 5435.

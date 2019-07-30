@@ -456,6 +456,8 @@ TEST_CASE("platform.string.receiver")
 		{
 			return api_function(i, Buffer.data(), Buffer.size());
 		}));
+
+		REQUIRE(validate(Data));
 	}
 }
 #endif
