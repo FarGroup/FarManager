@@ -638,22 +638,29 @@ void VMenu::FilterStringUpdated()
 		strName=CurItem.Name;
 		if (CurItem.Flags & LIF_SEPARATOR)
 		{
-			// В предыдущей группе все элементы скрыты, разделитель перед группой - не нужен
-			if (PrevSeparator != -1)
+			if (ItemIsVisible(CurItem.Flags))
 			{
-				Items[PrevSeparator].Flags |= LIF_FILTERED;
-				ItemHiddenCount++;
-			}
+				// В предыдущей группе все элементы скрыты, разделитель перед группой - не нужен
+				if (PrevSeparator != -1)
+				{
+					Items[PrevSeparator].Flags |= LIF_FILTERED;
+					ItemHiddenCount++;
+				}
 
-			if (strName.empty() && PrevGroup == -1)
-			{
-				CurItem.Flags |= LIF_FILTERED;
-				ItemHiddenCount++;
-				PrevSeparator = -1;
+				if (strName.empty() && PrevGroup == -1)
+				{
+					CurItem.Flags |= LIF_FILTERED;
+					ItemHiddenCount++;
+					PrevSeparator = -1;
+				}
+				else
+				{
+					PrevSeparator = static_cast<int>(index);
+				}
 			}
 			else
 			{
-				PrevSeparator = static_cast<int>(index);
+				++ItemHiddenCount;
 			}
 		}
 		else
@@ -2129,7 +2136,7 @@ void VMenu::ShowMenu(bool IsParent)
 			VisualTopPos=0;
 	}
 
-	VisualTopPos = std::min(VisualTopPos, GetShowItemCount() - (m_Where.height() - 2 - (m_BoxType == NO_BOX? 2 : 0)));
+	VisualTopPos = std::min(VisualTopPos, GetShowItemCount() - (m_Where.height() - 2 - (m_BoxType == NO_BOX ? 2 : 0)));
 
 	if (VisualSelectPos > VisualTopPos + (m_Where.height() - 1 - (m_BoxType == NO_BOX? 0 : 2)))
 	{
