@@ -252,22 +252,6 @@ static void CheckAndUpdateConsole()
 	}
 }
 
-static bool ResetSecurity(const string& FileName)
-{
-	ACL EmptyAcl{};
-	if (!InitializeAcl(&EmptyAcl, sizeof(EmptyAcl), ACL_REVISION))
-		return false;
-
-	return SetNamedSecurityInfo(
-		UNSAFE_CSTR(NTPath(FileName)),
-		SE_FILE_OBJECT,
-		DACL_SECURITY_INFORMATION | UNPROTECTED_DACL_SECURITY_INFORMATION,
-		nullptr,
-		nullptr,
-		&EmptyAcl,
-		nullptr) == ERROR_SUCCESS;
-}
-
 enum
 {
 	DM_CALLTREE = DM_USER+1,
@@ -1892,12 +1876,14 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					case operation::skip:
 					{
 						os::fs::security_descriptor tmpsd;
-						const auto CopySecurity = m_CopySecurity == security::copy && GetSecurity(Src, tmpsd);
-						SECURITY_ATTRIBUTES TmpSecAttr{ sizeof(TmpSecAttr), CopySecurity ? tmpsd.get() : nullptr, FALSE };
+						if (m_CopySecurity == security::copy && !GetSecurity(Src, tmpsd))
+							return COPY_CANCEL;
+
+						SECURITY_ATTRIBUTES TmpSecAttr{ sizeof(TmpSecAttr), m_CopySecurity == security::copy? tmpsd.get() : nullptr, FALSE };
 
 						for (;;)
 						{
-							if (os::fs::create_directory(strDestPath, CopySecurity? &TmpSecAttr : nullptr))
+							if (os::fs::create_directory(strDestPath, m_CopySecurity == security::copy? &TmpSecAttr : nullptr))
 								break;
 
 							const auto CreateDirectoryErrorState = error_state::fetch();
@@ -1930,8 +1916,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				}
 
 
-				if (m_CopySecurity == security::inherit)
-					ResetSecurityRecursively(strDestPath);
+				if (m_CopySecurity == security::inherit && !ResetSecurityRecursively(strDestPath))
+					return COPY_CANCEL;
 
 				const auto NamePart = PointToName(strDestPath);
 				if (NamePart.size() == strDestPath.size())
@@ -2121,8 +2107,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					}
 					else
 					{
-						if (m_CopySecurity == security::inherit)
-							ResetSecurity(strDestPath);
+						if (m_CopySecurity == security::inherit && !ResetSecurity(strDestPath))
+							return COPY_CANCEL;
 					}
 
 					if (NWFS_Attr)
@@ -3450,6 +3436,47 @@ static bool ShellCopySecuryMsg(const copy_progress* CP, const string& Name)
 	return true;
 }
 
+bool ShellCopy::ResetSecurity(const string& FileName)
+{
+	ACL EmptyAcl{};
+	if (!InitializeAcl(&EmptyAcl, sizeof(EmptyAcl), ACL_REVISION))
+		return false;
+
+	for (;;)
+	{
+		if (SetNamedSecurityInfo(
+			UNSAFE_CSTR(NTPath(FileName)),
+			SE_FILE_OBJECT,
+			DACL_SECURITY_INFORMATION | UNPROTECTED_DACL_SECURITY_INFORMATION,
+			nullptr,
+			nullptr,
+			&EmptyAcl,
+			nullptr
+		) == ERROR_SUCCESS)
+			return true;
+
+		if (SkipSecurityErrors)
+			return true;
+
+		const auto ErrorState = error_state::fetch();
+
+		switch (OperationFailed(ErrorState, FileName, lng::MError, msg(lng::MCannotSetSecurity)))
+		{
+		case operation::retry:
+			continue;
+
+		case operation::skip:
+			return true;
+
+		case operation::skip_all:
+			SkipSecurityErrors = true;
+			return true;
+
+		default:
+			return false;
+		}
+	}
+}
 
 bool ShellCopy::ResetSecurityRecursively(const string& FileName)
 {
