@@ -69,7 +69,7 @@ os::fs::drives_set allowed_drives_mask()
 {
 	return Global->Opt->Policies.ShowHiddenDrives?
 		os::fs::drives_set{}.set() :
-		os::security::allowed_drives_mask();
+		os::fs::allowed_drives_mask();
 }
 
 os::fs::drives_set os::fs::get_logical_drives()

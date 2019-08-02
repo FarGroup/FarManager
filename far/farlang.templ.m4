@@ -30133,19 +30133,6 @@ upd:"to process this object:"
 "для обробки цього об'єкта:"
 "для апрацоўкі гэтага аб'екту:"
 
-MElevationRequiredCreate
-"для открытия этого объекта:"
-"to open this object:"
-"otevření tohoto objektu:"
-"um dieses Objekt zu öffnen:"
-upd:"to open this object:"
-upd:"to open this object:"
-"para abrir este objeto:"
-"otvorenie tohto objektu:"
-"Per Aprire Questo Oggetto:"
-"для відкриття цього об'єкта:"
-"для адчынення гэтага аб'екту:"
-
 MElevationRequiredDelete
 "для удаления этого объекта:"
 "to delete this object:"

@@ -68,7 +68,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace os::security;
 
-static const int CallbackMagic= 0xCA11BAC6;
+static const int CallbackMagic = 0xCA11BAC6;
 
 enum ELEVATION_COMMAND: int
 {
@@ -89,6 +89,9 @@ enum ELEVATION_COMMAND: int
 	C_FUNCTION_SETENCRYPTION,
 	C_FUNCTION_DETACHVIRTUALDISK,
 	C_FUNCTION_GETDISKFREESPACE,
+	C_FUNCTION_GETFILESECURITY,
+	C_FUNCTION_SETFILESECURITY,
+	C_FUNCTION_RESETFILESECURITY,
 
 	C_COMMANDS_COUNT
 };
@@ -98,6 +101,122 @@ static const auto ElevationArgument = L"/service:elevation"sv;
 static privilege CreateBackupRestorePrivilege()
 {
 	return { SE_BACKUP_NAME, SE_RESTORE_NAME };
+}
+
+template<typename T, REQUIRES(!std::is_pointer_v<T>)>
+static void WritePipe(const os::handle& Pipe, const T& Data)
+{
+	return pipe::write(Pipe, Data);
+}
+
+template<typename T, REQUIRES(!std::is_pointer_v<T>)>
+static void ReadPipe(const os::handle& Pipe, T& Data)
+{
+	pipe::read(Pipe, Data);
+}
+
+class security_attributes_wrapper
+{
+public:
+	security_attributes_wrapper() = default;
+
+	void set_attributes(const SECURITY_ATTRIBUTES& Attributes)
+	{
+		m_Attributes = Attributes;
+		m_Engaged = true;
+	}
+
+	void set_descriptor(os::security::descriptor&& Descriptor)
+	{
+		m_Descriptor = std::move(Descriptor);
+	}
+
+	SECURITY_ATTRIBUTES* operator()() const
+	{
+		if (!m_Engaged)
+			return nullptr;
+
+		m_Attributes.lpSecurityDescriptor = m_Descriptor? m_Descriptor.get() : nullptr;
+		return &m_Attributes;
+	}
+
+private:
+	os::security::descriptor m_Descriptor;
+	mutable SECURITY_ATTRIBUTES m_Attributes{};
+	bool m_Engaged{};
+};
+
+static void WritePipe(const os::handle& Pipe, os::security::descriptor const& Data)
+{
+	const auto Size = Data.size();
+	pipe::write(Pipe, Size);
+
+	if (!Size)
+		return;
+
+	pipe::write(Pipe, Data.get(), Size);
+}
+
+static void WritePipe(const os::handle& Pipe, SECURITY_DESCRIPTOR* Data)
+{
+	size_t const Size = GetSecurityDescriptorLength(Data);
+	pipe::write(Pipe, Size);
+
+	if (!Size)
+		return;
+
+	pipe::write(Pipe, Data, Size);
+}
+
+static void WritePipe(const os::handle& Pipe, SECURITY_ATTRIBUTES* Data)
+{
+	if (!Data)
+	{
+		pipe::write(Pipe, size_t{});
+		return;
+	}
+	else
+	{
+		pipe::write(Pipe, sizeof(*Data));
+	}
+
+	pipe::write(Pipe, Data, sizeof(*Data));
+
+	if (Data->lpSecurityDescriptor)
+		WritePipe(Pipe, static_cast<SECURITY_DESCRIPTOR*>(Data->lpSecurityDescriptor));
+}
+
+static void ReadPipe(const os::handle& Pipe, os::security::descriptor& Data)
+{
+	size_t Size;
+	pipe::read(Pipe, Size);
+
+	if (!Size)
+		return;
+
+	Data.reset(Size);
+	pipe::read(Pipe, Data.get(), Size);
+}
+
+static void ReadPipe(const os::handle& Pipe, security_attributes_wrapper& Data)
+{
+	size_t DataSize;
+	pipe::read(Pipe, DataSize);
+
+	if (!DataSize)
+		return;
+
+	SECURITY_ATTRIBUTES Attributes;
+	pipe::read(Pipe, &Attributes, DataSize);
+	Data.set_attributes(Attributes);
+
+	if (!Attributes.lpSecurityDescriptor)
+		return;
+
+	os::security::descriptor Descriptor;
+	ReadPipe(Pipe, Descriptor);
+
+	Data.set_descriptor(std::move(Descriptor));
 }
 
 elevation::~elevation()
@@ -138,14 +257,14 @@ template<typename T>
 T elevation::Read() const
 {
 	T Data;
-	pipe::read(m_Pipe, Data);
+	ReadPipe(m_Pipe, Data);
 	return Data;
 }
 
 template<typename... args>
 void elevation::Write(const args&... Args) const
 {
-	(..., pipe::write(m_Pipe, Args));
+	(..., WritePipe(m_Pipe, Args));
 }
 
 void elevation::RetrieveLastError() const
@@ -201,11 +320,10 @@ auto elevation::execute(lng Why, const string& Object, T Fallback, const F1& Pri
 static os::handle create_named_pipe(const string& Name)
 {
 	SID_IDENTIFIER_AUTHORITY NtAuthority = SECURITY_NT_AUTHORITY;
-	const auto pSD = os::memory::local::alloc<SECURITY_DESCRIPTOR>(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH);
-	if (!pSD)
-		return nullptr;
 
-	if (!InitializeSecurityDescriptor(pSD.get(), SECURITY_DESCRIPTOR_REVISION))
+	SECURITY_DESCRIPTOR SD;
+
+	if (!InitializeSecurityDescriptor(&SD, SECURITY_DESCRIPTOR_REVISION))
 		return nullptr;
 
 	const auto AdminSID = os::security::make_sid(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
@@ -225,10 +343,10 @@ static os::handle create_named_pipe(const string& Name)
 	if (SetEntriesInAcl(1, &ea, nullptr, &ptr_setter(pACL)) != ERROR_SUCCESS)
 		return nullptr;
 
-	if (!SetSecurityDescriptorDacl(pSD.get(), TRUE, pACL.get(), FALSE))
+	if (!SetSecurityDescriptorDacl(&SD, TRUE, pACL.get(), FALSE))
 		return nullptr;
 
-	SECURITY_ATTRIBUTES sa{ sizeof(SECURITY_ATTRIBUTES), pSD.get(), FALSE };
+	SECURITY_ATTRIBUTES sa{ sizeof(sa), &SD };
 	return os::handle(CreateNamedPipe(concat(L"\\\\.\\pipe\\"sv, Name).c_str(), PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT, 1, 0, 0, 0, &sa));
 }
 
@@ -476,7 +594,7 @@ bool elevation::ElevationApproveDlg(lng Why, const string& Object)
 
 bool elevation::create_directory(const string& TemplateObject, const string& Object, SECURITY_ATTRIBUTES* Attributes)
 {
-	return execute(lng::MElevationRequiredCreate, Object,
+	return execute(lng::MElevationRequiredOpen, Object,
 		false,
 		[&]
 		{
@@ -484,8 +602,7 @@ bool elevation::create_directory(const string& TemplateObject, const string& Obj
 		},
 		[&]
 		{
-			Write(C_FUNCTION_CREATEDIRECTORY, TemplateObject, Object);
-			// BUGBUG: SecurityAttributes ignored
+			Write(C_FUNCTION_CREATEDIRECTORY, TemplateObject, Object, Attributes);
 			return RetrieveLastErrorAndResult<bool>();
 		});
 }
@@ -632,8 +749,7 @@ bool elevation::create_hard_link(const string& Object, const string& Target, SEC
 		},
 		[&]
 		{
-			Write(C_FUNCTION_CREATEHARDLINK, Object, Target);
-			// BUGBUG: SecurityAttributes ignored.
+			Write(C_FUNCTION_CREATEHARDLINK, Object, Target, SecurityAttributes);
 			return RetrieveLastErrorAndResult<bool>();
 		});
 }
@@ -712,8 +828,8 @@ HANDLE elevation::create_file(const string& Object, DWORD DesiredAccess, DWORD S
 		},
 		[&]
 		{
-			Write(C_FUNCTION_CREATEFILE, Object, DesiredAccess, ShareMode, CreationDistribution, FlagsAndAttributes);
-			// BUGBUG: SecurityAttributes & TemplateFile ignored
+			Write(C_FUNCTION_CREATEFILE, Object, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes);
+			// BUGBUG: TemplateFile ignored
 			return ToPtr(RetrieveLastErrorAndResult<intptr_t>());
 		});
 }
@@ -735,7 +851,7 @@ bool elevation::set_file_encryption(const string& Object, bool Encrypt)
 
 bool elevation::detach_virtual_disk(const string& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType)
 {
-	return execute(lng::MElevationRequiredCreate, Object,
+	return execute(lng::MElevationRequiredOpen, Object,
 		false,
 		[&]
 		{
@@ -778,6 +894,53 @@ bool elevation::get_disk_free_space(const string& Object, unsigned long long* Fr
 		});
 }
 
+os::security::descriptor elevation::get_file_security(string const& Object, SECURITY_INFORMATION const RequestedInformation)
+{
+	return execute(lng::MElevationRequiredOpen, Object,
+		os::security::descriptor{},
+		[&]
+		{
+			return os::fs::low::get_file_security(Object.c_str(), RequestedInformation);
+		},
+		[&]
+		{
+			Write(C_FUNCTION_GETFILESECURITY, Object, RequestedInformation);
+			return RetrieveLastErrorAndResult<os::security::descriptor>();
+		});
+}
+
+bool elevation::set_file_security(string const& Object, SECURITY_INFORMATION const RequestedInformation, os::security::descriptor const& Descriptor)
+{
+	return execute(lng::MElevationRequiredProcess, Object,
+		false,
+		[&]
+		{
+			return os::fs::low::set_file_security(Object.c_str(), RequestedInformation, Descriptor.get());
+		},
+		[&]
+		{
+
+			Write(C_FUNCTION_SETFILESECURITY, Object, RequestedInformation);
+			pipe::write(m_Pipe, Descriptor.get(), Descriptor.size());
+			return RetrieveLastErrorAndResult<bool>();
+		});
+}
+
+bool elevation::reset_file_security(string const& Object)
+{
+	return execute(lng::MElevationRequiredProcess, Object,
+		false,
+		[&]
+		{
+			return os::fs::low::reset_file_security(Object.c_str());
+		},
+		[&]
+		{
+			Write(C_FUNCTION_RESETFILESECURITY, Object);
+			return RetrieveLastErrorAndResult<bool>();
+		});
+}
+
 elevation::suppress::suppress():
 	m_owner(Global? &instance() : nullptr)
 {
@@ -800,12 +963,12 @@ bool ElevationRequired(ELEVATION_MODE Mode, bool UseNtStatus)
 	if(UseNtStatus && imports.RtlGetLastNtStatus)
 	{
 		const auto LastNtStatus = os::GetLastNtStatus();
-		return LastNtStatus == STATUS_ACCESS_DENIED || LastNtStatus == STATUS_PRIVILEGE_NOT_HELD;
+		return LastNtStatus == STATUS_ACCESS_DENIED || LastNtStatus == STATUS_PRIVILEGE_NOT_HELD || LastNtStatus == STATUS_INVALID_OWNER;
 	}
 
 	// RtlGetLastNtStatus not implemented in w2k.
 	const auto LastWin32Error = GetLastError();
-	return LastWin32Error == ERROR_ACCESS_DENIED || LastWin32Error == ERROR_PRIVILEGE_NOT_HELD;
+	return LastWin32Error == ERROR_ACCESS_DENIED || LastWin32Error == ERROR_PRIVILEGE_NOT_HELD || LastWin32Error == ERROR_INVALID_OWNER;
 }
 
 class elevated:noncopyable
@@ -884,14 +1047,14 @@ private:
 	T Read() const
 	{
 		T Data;
-		pipe::read(m_Pipe, Data);
+		ReadPipe(m_Pipe, Data);
 		return Data;
 	}
 
 	template<typename... args>
 	void Write(const args&... Args) const
 	{
-		(..., pipe::write(m_Pipe, Args));
+		(..., WritePipe(m_Pipe, Args));
 	}
 
 	void ExitHandler() const
@@ -903,9 +1066,8 @@ private:
 	{
 		const auto TemplateObject = Read<string>();
 		const auto Object = Read<string>();
-		// BUGBUG, SecurityAttributes ignored
-
-		const auto Result = os::fs::low::create_directory(TemplateObject.c_str(), Object.c_str(), nullptr);
+		const auto SecurityAttributes = Read<security_attributes_wrapper>();
+		const auto Result = os::fs::low::create_directory(TemplateObject.c_str(), Object.c_str(), SecurityAttributes());
 
 		Write(error_state::fetch(), Result);
 	}
@@ -991,9 +1153,9 @@ private:
 	{
 		const auto Object = Read<string>();
 		const auto Target = Read<string>();
-		// BUGBUG: SecurityAttributes ignored.
+		const auto SecurityAttributes = Read<security_attributes_wrapper>();
 
-		const auto Result = os::fs::low::create_hard_link(Object.c_str(), Target.c_str(), nullptr);
+		const auto Result = os::fs::low::create_hard_link(Object.c_str(), Target.c_str(), SecurityAttributes());
 
 		Write(error_state::fetch(), Result);
 	}
@@ -1038,12 +1200,13 @@ private:
 		const auto Object = Read<string>();
 		const auto DesiredAccess = Read<DWORD>();
 		const auto ShareMode = Read<DWORD>();
+		const auto SecurityAttributes = Read<security_attributes_wrapper>();
 		const auto CreationDistribution = Read<DWORD>();
 		const auto FlagsAndAttributes = Read<DWORD>();
-		// BUGBUG: SecurityAttributes, TemplateFile ignored
+		// BUGBUG: TemplateFile ignored
 
 		auto Duplicate = INVALID_HANDLE_VALUE;
-		if (const auto Handle = os::fs::create_file(Object, DesiredAccess, ShareMode, nullptr, CreationDistribution, FlagsAndAttributes, nullptr))
+		if (const auto Handle = os::fs::create_file(Object, DesiredAccess, ShareMode, SecurityAttributes(), CreationDistribution, FlagsAndAttributes, nullptr))
 		{
 			if (const auto ParentProcess = os::handle(OpenProcess(PROCESS_DUP_HANDLE, FALSE, m_ParentPid)))
 			{
@@ -1087,6 +1250,38 @@ private:
 		{
 			Write(FreeBytesAvailableToCaller, TotalNumberOfBytes, TotalNumberOfFreeBytes);
 		}
+	}
+
+	void GetFileSecurityHandler() const
+	{
+		const auto Object = Read<string>();
+		const auto SecurityInformation = Read<SECURITY_INFORMATION>();
+
+		const auto Result = os::fs::low::get_file_security(Object.c_str(), SecurityInformation);
+
+		Write(error_state::fetch(), Result);
+	}
+
+	void SetFileSecurityHandler() const
+	{
+		const auto Object = Read<string>();
+		const auto SecurityInformation = Read<SECURITY_INFORMATION>();
+		const auto Size = Read<size_t>();
+		const os::security::descriptor SecurityDescriptor(Size);
+		pipe::read(m_Pipe, SecurityDescriptor.get(), Size);
+
+		const auto Result = os::fs::low::set_file_security(Object.c_str(), SecurityInformation, SecurityDescriptor.get());
+
+		Write(error_state::fetch(), Result);
+	}
+
+	void ResetFileSecurityHandler() const
+	{
+		const auto Object = Read<string>();
+
+		const auto Result = os::fs::low::reset_file_security(Object.c_str());
+
+		Write(error_state::fetch(), Result);
 	}
 
 	static DWORD CALLBACK CopyProgressRoutineWrapper(LARGE_INTEGER TotalFileSize, LARGE_INTEGER TotalBytesTransferred, LARGE_INTEGER StreamSize, LARGE_INTEGER StreamBytesTransferred, DWORD StreamNumber, DWORD CallbackReason, HANDLE SourceFile,HANDLE DestinationFile, LPVOID Data)
@@ -1146,6 +1341,9 @@ private:
 			&elevated::SetEncryptionHandler,
 			&elevated::DetachVirtualDiskHandler,
 			&elevated::GetDiskFreeSpaceHandler,
+			&elevated::GetFileSecurityHandler,
+			&elevated::SetFileSecurityHandler,
+			&elevated::ResetFileSecurityHandler,
 		};
 
 		static_assert(Handlers.size() == C_COMMANDS_COUNT);

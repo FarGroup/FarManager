@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 #include "platform.hpp"
 #include "platform.chrono.hpp"
+#include "platform.security.hpp"
 
 // Common:
 #include "common/enumerator.hpp"
@@ -446,6 +447,15 @@ namespace os::fs
 
 		[[nodiscard]]
 		bool set_file_encryption(const wchar_t* FileName, bool Encrypt);
+
+		[[nodiscard]]
+		security::descriptor get_file_security(string const& Object, SECURITY_INFORMATION RequestedInformation);
+
+		[[nodiscard]]
+		bool set_file_security(const wchar_t* Object, SECURITY_INFORMATION RequestedInformation, SECURITY_DESCRIPTOR* SecurityDescriptor);
+
+		[[nodiscard]]
+		bool reset_file_security(const wchar_t* Object);
 	}
 
 	[[nodiscard]]
@@ -516,10 +526,13 @@ namespace os::fs
 	bool GetModuleFileName(HANDLE hProcess, HMODULE hModule, string& strFileName);
 
 	[[nodiscard]]
-	security_descriptor get_file_security(string_view Object, SECURITY_INFORMATION RequestedInformation);
+	security::descriptor get_file_security(string_view Object, SECURITY_INFORMATION RequestedInformation);
 
 	[[nodiscard]]
-	bool set_file_security(string_view Object, SECURITY_INFORMATION RequestedInformation, const security_descriptor& SecurityDescriptor);
+	bool set_file_security(string_view Object, SECURITY_INFORMATION RequestedInformation, const security::descriptor& SecurityDescriptor);
+
+	[[nodiscard]]
+	bool reset_security(string_view Object);
 
 	[[nodiscard]]
 	bool get_disk_size(string_view Path, unsigned long long* TotalSize, unsigned long long* TotalFree, unsigned long long* UserFree);
@@ -560,6 +573,9 @@ namespace os::fs
 
 	[[nodiscard]]
 	bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD Flags);
+
+	[[nodiscard]]
+	drives_set allowed_drives_mask();
 }
 
 #endif // PLATFORM_FS_HPP_1094D8B6_7681_46C8_9C08_C5253376E988

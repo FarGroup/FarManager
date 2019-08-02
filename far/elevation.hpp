@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Platform:
 #include "platform.concurrency.hpp"
+#include "platform.security.hpp"
 
 // Common:
 #include "common/singleton.hpp"
@@ -84,6 +85,10 @@ public:
 	bool set_file_encryption(const string& Object, bool Encrypt);
 	bool detach_virtual_disk(const string& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType);
 	bool get_disk_free_space(const string& Object, unsigned long long* FreeBytesAvailableToCaller, unsigned long long* TotalNumberOfBytes, unsigned long long* TotalNumberOfFreeBytes);
+
+	os::security::descriptor get_file_security(string const& Object, SECURITY_INFORMATION RequestedInformation);
+	bool set_file_security(string const& Object, SECURITY_INFORMATION RequestedInformation, os::security::descriptor const& Descriptor);
+	bool reset_file_security(string const& Object);
 
 	class suppress
 	{

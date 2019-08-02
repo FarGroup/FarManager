@@ -259,12 +259,8 @@ bool SetOwnerInternal(const string& Object, const string& Owner)
 	SCOPED_ACTION(os::security::privilege){ SE_TAKE_OWNERSHIP_NAME, SE_RESTORE_NAME };
 
 	const auto Result = SetNamedSecurityInfo(const_cast<LPWSTR>(Object.c_str()), SE_FILE_OBJECT, OWNER_SECURITY_INFORMATION, Sid.get(), nullptr, nullptr, nullptr);
-	if(Result != ERROR_SUCCESS)
-	{
-		SetLastError(Result);
-		return false;
-	}
-	return true;
+	SetLastError(Result);
+	return Result == ERROR_SUCCESS;
 }
 
 bool SetFileOwner(const string& Object, const string& Owner)

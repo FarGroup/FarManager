@@ -2405,7 +2405,6 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 		break;
 
 	case DN_CLOSE:
-		// 0 == "OK", 1 == "Reset"
 		if (Param1 == 0 || Param1 == 1)
 		{
 			FarListInfo ListInfo = {sizeof(ListInfo)};

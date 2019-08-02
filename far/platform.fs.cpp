@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Platform:
 #include "platform.hpp"
+#include "platform.reg.hpp"
 
 // Common:
 #include "common/algorithm.hpp"
@@ -1446,6 +1447,48 @@ namespace os::fs
 		{
 			return (Encrypt? ::EncryptFile(FileName) : ::DecryptFile(FileName, 0)) != FALSE;
 		}
+
+		security::descriptor get_file_security(string const& Object, SECURITY_INFORMATION RequestedInformation)
+		{
+			security::descriptor Result(default_buffer_size);
+
+			if (!os::detail::ApiDynamicReceiver(Result,
+				[&](span<SECURITY_DESCRIPTOR> Buffer)
+				{
+					DWORD LengthNeeded = 0;
+					if (!::GetFileSecurity(Object.c_str(), RequestedInformation, Buffer.data(), static_cast<DWORD>(Buffer.size()), &LengthNeeded))
+						return static_cast<size_t>(LengthNeeded);
+					return Buffer.size();
+				},
+				[](size_t ReturnedSize, size_t AllocatedSize)
+				{
+					return ReturnedSize > AllocatedSize;
+				},
+					[](span<const SECURITY_DESCRIPTOR>)
+				{}
+			))
+			{
+				Result.reset();
+			}
+
+			return Result;
+		}
+
+		bool set_file_security(const wchar_t* Object, SECURITY_INFORMATION RequestedInformation, SECURITY_DESCRIPTOR* SecurityDescriptor)
+		{
+			return ::SetFileSecurity(Object, RequestedInformation, SecurityDescriptor) != FALSE;
+		}
+
+		bool reset_file_security(const wchar_t* Object)
+		{
+			ACL EmptyAcl{};
+			if (!InitializeAcl(&EmptyAcl, sizeof(EmptyAcl), ACL_REVISION))
+				return false;
+
+			const auto Result = SetNamedSecurityInfo(const_cast<wchar_t*>(Object), SE_FILE_OBJECT, DACL_SECURITY_INFORMATION | UNPROTECTED_DACL_SECURITY_INFORMATION, nullptr, nullptr, &EmptyAcl, nullptr);
+			SetLastError(Result);
+			return Result != ERROR_SUCCESS;
+		}
 	}
 
 	//-------------------------------------------------------------------------
@@ -1862,31 +1905,42 @@ namespace os::fs
 		});
 	}
 
-	security_descriptor get_file_security(const string_view Object, const SECURITY_INFORMATION RequestedInformation)
+	security::descriptor get_file_security(const string_view Object, const SECURITY_INFORMATION RequestedInformation)
 	{
-		security_descriptor Result(default_buffer_size);
-		NTPath NtObject(Object);
-		// BUGBUG check result
-		(void)os::detail::ApiDynamicReceiver(Result, [&](span<SECURITY_DESCRIPTOR> Buffer)
-		{
-			DWORD LengthNeeded = 0;
-			if (!::GetFileSecurity(NtObject.c_str(), RequestedInformation, Buffer.data(), static_cast<DWORD>(Buffer.size()), &LengthNeeded))
-				return static_cast<size_t>(LengthNeeded);
-			return Buffer.size();
-		},
-		[](size_t ReturnedSize, size_t AllocatedSize)
-		{
-			return ReturnedSize > AllocatedSize;
-		},
-		[](span<const SECURITY_DESCRIPTOR>)
-		{});
+		NTPath const NtObject(Object);
 
-		return Result;
+		if (auto Result = low::get_file_security(NtObject, RequestedInformation))
+			return Result;
+
+		if (ElevationRequired(ELEVATION_READ_REQUEST))
+			return elevation::instance().get_file_security(NtObject, RequestedInformation);
+
+		return {};
 	}
 
-	bool set_file_security(const string_view Object, const SECURITY_INFORMATION RequestedInformation, const security_descriptor& SecurityDescriptor)
+	bool set_file_security(const string_view Object, const SECURITY_INFORMATION RequestedInformation, const security::descriptor& SecurityDescriptor)
 	{
-		return ::SetFileSecurity(NTPath(Object).c_str(), RequestedInformation, SecurityDescriptor.get()) != FALSE;
+		NTPath const NtObject(Object);
+
+		if (low::set_file_security(NtObject.c_str(), RequestedInformation, SecurityDescriptor.get()))
+			return true;
+
+		if (ElevationRequired(ELEVATION_MODIFY_REQUEST))
+			return elevation::instance().set_file_security(NtObject, RequestedInformation, SecurityDescriptor);
+
+		return false;
+	}
+
+	bool reset_file_security(string const& Object)
+	{
+		NTPath const NtObject(Object);
+		if (low::reset_file_security(NtObject.c_str()))
+			return true;
+
+		if (ElevationRequired(ELEVATION_MODIFY_REQUEST))
+			return elevation::instance().reset_file_security(NtObject);
+
+		return false;
 	}
 
 	bool get_disk_size(const string_view Path, unsigned long long* const TotalSize, unsigned long long* const TotalFree, unsigned long long* const UserFree)
@@ -2072,5 +2126,23 @@ namespace os::fs
 		}();
 
 		return imports.CreateSymbolicLinkW(Object.c_str(), Target.c_str(), dwFlags | unpriv_flag) != FALSE;
+	}
+
+	drives_set allowed_drives_mask()
+	{
+		// It's good enough to read it once.
+		static const auto AllowedDrivesMask = []
+		{
+			for (const auto& i: { &os::reg::key::local_machine, &os::reg::key::current_user })
+			{
+				unsigned NoDrives;
+				if (i->get(L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer"sv, L"NoDrives"sv, NoDrives))
+					return ~NoDrives;
+			}
+
+			return ~0u;
+		}();
+
+		return AllowedDrivesMask;
 	}
 }

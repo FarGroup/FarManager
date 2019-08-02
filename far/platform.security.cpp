@@ -36,8 +36,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lasterror.hpp"
 
 // Platform:
+#include "platform.hpp"
 #include "platform.concurrency.hpp"
-#include "platform.reg.hpp"
+#include "platform.memory.hpp"
 
 // Common:
 
@@ -183,23 +184,5 @@ namespace os::security
 		}
 
 		return true;
-	}
-
-	fs::drives_set allowed_drives_mask()
-	{
-		// It's good enough to read it once.
-		static const auto AllowedDrivesMask = []
-		{
-			for (const auto& i: { &os::reg::key::local_machine, &os::reg::key::current_user })
-			{
-				unsigned NoDrives;
-				if (i->get(L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer"sv, L"NoDrives"sv, NoDrives))
-					return ~NoDrives;
-			}
-
-			return ~0u;
-		}();
-
-		return AllowedDrivesMask;
 	}
 }

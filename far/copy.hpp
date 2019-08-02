@@ -80,8 +80,8 @@ private:
 	int ShellSystemCopy(const string& SrcName,const string& DestName,const os::fs::find_data &SrcData);
 	int DeleteAfterMove(const string& Name,DWORD Attr);
 	bool AskOverwrite(const os::fs::find_data &SrcData,const string& SrcName,const string& DestName, DWORD DestAttr,int SameName,int Rename,int AskAppend, int &Append,string &strNewName,int &RetCode);
-	bool GetSecurity(const string& FileName, os::fs::security_descriptor& sd);
-	bool SetSecurity(const string& FileName, const os::fs::security_descriptor& sd);
+	bool GetSecurity(const string& FileName, os::security::descriptor& sd);
+	bool SetSecurity(const string& FileName, const os::security::descriptor& sd);
 	bool ResetSecurity(const string& FileName);
 	bool ResetSecurityRecursively(const string& FileName);
 	bool CalcTotalSize() const;

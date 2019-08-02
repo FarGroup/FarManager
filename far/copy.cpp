@@ -1875,15 +1875,15 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 					case operation::skip:
 					{
-						os::fs::security_descriptor tmpsd;
+						os::security::descriptor tmpsd;
 						if (m_CopySecurity == security::copy && !GetSecurity(Src, tmpsd))
 							return COPY_CANCEL;
 
-						SECURITY_ATTRIBUTES TmpSecAttr{ sizeof(TmpSecAttr), m_CopySecurity == security::copy? tmpsd.get() : nullptr, FALSE };
+						SECURITY_ATTRIBUTES TmpSecAttr{ sizeof(TmpSecAttr), tmpsd? tmpsd.get() : nullptr };
 
 						for (;;)
 						{
-							if (os::fs::create_directory(strDestPath, m_CopySecurity == security::copy? &TmpSecAttr : nullptr))
+							if (os::fs::create_directory(strDestPath, tmpsd? &TmpSecAttr : nullptr))
 								break;
 
 							const auto CreateDirectoryErrorState = error_state::fetch();
@@ -1929,19 +1929,20 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				return SameName? COPY_SKIPPED : COPY_SUCCESS_MOVE;
 			}
 
-			os::fs::security_descriptor sd;
+			os::security::descriptor sd;
 
 			if (m_CopySecurity == security::copy && !GetSecurity(Src, sd))
 				return COPY_CANCEL;
 
-			SECURITY_ATTRIBUTES SecAttr = {sizeof(SecAttr), m_CopySecurity == security::copy? sd.get() : nullptr, FALSE};
+			SECURITY_ATTRIBUTES SecAttr = { sizeof(SecAttr), sd? sd.get() : nullptr };
 			if (RPT!=RP_SYMLINKFILE && SrcData.Attributes&FILE_ATTRIBUTE_DIRECTORY)
 			{
 				while (!os::fs::create_directory(
 					// CreateDirectoryEx preserves reparse points,
 					// so we shouldn't use template when copying with content
 					os::fs::is_directory_symbolic_link(SrcData) && (Flags & FCOPY_COPYSYMLINKCONTENTS)? L""s : Src,
-					strDestPath, m_CopySecurity == security::copy? &SecAttr : nullptr))
+					strDestPath,
+					sd? &SecAttr : nullptr))
 				{
 					const auto ErrorState = error_state::fetch();
 					const int MsgCode = Message(MSG_WARNING, ErrorState,
@@ -2529,7 +2530,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 		}
 	}
 
-	os::fs::security_descriptor sd;
+	os::security::descriptor sd;
 	if (m_CopySecurity == security::copy && !GetSecurity(SrcName, sd))
 		return COPY_CANCEL;
 
@@ -2564,9 +2565,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 	{
 		//if (DestAttr!=INVALID_FILE_ATTRIBUTES && !Append) //вот это портит копирование поверх хардлинков
 		//api::DeleteFile(DestName);
-		SECURITY_ATTRIBUTES SecAttr = {sizeof(SecAttr)};
-		if (m_CopySecurity == security::copy)
-			SecAttr.lpSecurityDescriptor = sd.get();
+		SECURITY_ATTRIBUTES SecAttr = { sizeof(SecAttr), sd? sd.get() : nullptr };
 
 		flags_attrs = SrcData.Attributes&(~((Flags&(FCOPY_DECRYPTED_DESTINATION))?FILE_ATTRIBUTE_ENCRYPTED|FILE_FLAG_SEQUENTIAL_SCAN:FILE_FLAG_SEQUENTIAL_SCAN));
 
@@ -2576,7 +2575,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 			strDestName,
 			GENERIC_WRITE,
 			FILE_SHARE_READ,
-			m_CopySecurity == security::copy? &SecAttr : nullptr,
+			sd? &SecAttr : nullptr,
 			Append? OPEN_EXISTING : CREATE_ALWAYS,
 			flags_attrs))
 		{
@@ -3339,11 +3338,11 @@ bool ShellCopy::AskOverwrite(const os::fs::find_data &SrcData,
 
 
 
-bool ShellCopy::GetSecurity(const string& FileName, os::fs::security_descriptor& sd)
+bool ShellCopy::GetSecurity(const string& FileName, os::security::descriptor& sd)
 {
 	for (;;)
 	{
-		sd = os::fs::get_file_security(NTPath(FileName), DACL_SECURITY_INFORMATION);
+		sd = os::fs::get_file_security(FileName, DACL_SECURITY_INFORMATION);
 		if (sd)
 			return true;
 
@@ -3370,11 +3369,11 @@ bool ShellCopy::GetSecurity(const string& FileName, os::fs::security_descriptor&
 	}
 }
 
-bool ShellCopy::SetSecurity(const string& FileName, const os::fs::security_descriptor& sd)
+bool ShellCopy::SetSecurity(const string& FileName, const os::security::descriptor& sd)
 {
 	for (;;)
 	{
- 		if (os::fs::set_file_security(NTPath(FileName), DACL_SECURITY_INFORMATION, sd))
+ 		if (os::fs::set_file_security(FileName, DACL_SECURITY_INFORMATION, sd))
 			return true;
 
 		if (SkipSecurityErrors)
@@ -3507,7 +3506,7 @@ bool ShellCopy::ResetSecurityRecursively(const string& FileName)
 
 int ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,const os::fs::find_data &SrcData)
 {
-	os::fs::security_descriptor sd;
+	os::security::descriptor sd;
 
 	if (m_CopySecurity == security::copy && !GetSecurity(SrcName, sd))
 		return COPY_CANCEL;
@@ -3548,7 +3547,7 @@ int ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,cons
 
 	Flags&=~FCOPY_DECRYPTED_DESTINATION;
 
-	if (m_CopySecurity == security::copy && !SetSecurity(DestName, sd))
+	if (sd && !SetSecurity(DestName, sd))
 		return COPY_CANCEL;
 
 	return COPY_SUCCESS;

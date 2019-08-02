@@ -37,10 +37,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 
 // Platform:
-#include "platform.fs.hpp"
 
 // Common:
 #include "common/range.hpp"
+#include "common/smart_ptr.hpp"
 
 // External:
 
@@ -86,8 +86,7 @@ namespace os::security
 		bool m_Changed{};
 	};
 
-	[[nodiscard]]
-	fs::drives_set allowed_drives_mask();
+	using descriptor = block_ptr<SECURITY_DESCRIPTOR, 512>;
 }
 
 #endif // PLATFORM_SECURITY_HPP_08ED45C7_0FD0_43D5_8838_F9B6F8EFD31C
