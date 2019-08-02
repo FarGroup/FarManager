@@ -58,10 +58,10 @@ struct OpenPanelInfo;
 
 struct column
 {
-	column_type type;
-	int type_flags;
-	int width;
-	int width_type;
+	column_type type{ column_type::name };
+	int type_flags{};
+	int width{};
+	int width_type{};
 	string title;
 };
 

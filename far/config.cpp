@@ -1262,7 +1262,7 @@ void Options::SetFilePanelModes()
 
 		auto ModeDlg = MakeDialogItems(
 		{
-			{ DI_DOUBLEBOX, {{3,  1 }, {72, 17}}, DIF_NONE, AddNewMode? nullptr : ModeListMenu[CurMode].Name, },
+			{ DI_DOUBLEBOX, {{3,  1 }, {72, 17}}, DIF_NONE, AddNewMode ? L""sv : ModeListMenu[CurMode].Name, },
 			{ DI_TEXT,      {{5,  2 }, {0,  2 }}, DIF_NONE, msg(lng::MEditPanelModeName), },
 			{ DI_EDIT,      {{5,  3 }, {70, 3 }}, DIF_FOCUS, },
 			{ DI_TEXT,      {{5,  4 }, {0,  4 }}, DIF_NONE, msg(lng::MEditPanelModeTypes), },

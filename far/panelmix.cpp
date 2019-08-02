@@ -473,9 +473,7 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 
 	if (Columns.empty())
 	{
-		column NewColumn;
-		NewColumn.type = column_type::name;
-		Columns.emplace_back(NewColumn);
+		Columns.emplace_back();
 	}
 
 	return Columns;
