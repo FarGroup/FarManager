@@ -66,6 +66,7 @@ local AddedMenuItems
 local AddedPrefixes
 local IdSet
 local LoadedPanelModules
+local ContentColumns
 
 package.nounload = {lpeg=true}
 local initial_modules = {}
@@ -267,6 +268,27 @@ end
 
 local function export_ProcessConsoleInput (Rec, Flags)
   return EV_Handler(Events.consoleinput, nil, Rec, Flags)
+end
+
+local function export_GetContentFields (colnames)
+  for _,m in ipairs(ContentColumns) do
+    if m.GetContentFields(colnames) then return true end
+  end
+end
+
+local function export_GetContentData (filename, colnames)
+  local tOut = {}
+  for _,m in ipairs(ContentColumns) do
+    if m.filemask==nil or CheckFileName(m.filemask, filename) then
+      local data = m.GetContentData(filename, colnames)
+      if type(data) == "table" then
+        for i in ipairs(colnames) do
+          tOut[i] = tOut[i] or (type(data[i])=="string" and data[i])
+        end
+      end
+    end
+  end
+  return tOut
 end
 
 local ExpandKey do -- измеренное время исполнения на ключе "CtrlAltShiftF12" = ??? (Lua); 2.3uS (LuaJIT);
@@ -551,6 +573,16 @@ local function AddPanelModule (srctable, FileName)
   end
 end
 
+local function AddContentColumns (srctable, FileName)
+  if    type(srctable) == "table"
+    and type(srctable.GetContentFields) == "function"
+    and type(srctable.GetContentData) == "function"
+  then
+     if type(srctable.filemask)~="string" then srctable.filemask=nil; end
+     table.insert(ContentColumns, srctable)
+  end
+end
+
 local function EnumMacros (strArea, resetEnum)
   local area = strArea:lower()
   if Areas[area] then
@@ -652,6 +684,8 @@ local function LoadMacros (unload, paths)
   export.ProcessEditorInput = nil
   export.ProcessViewerEvent = nil
   export.ProcessConsoleInput = nil
+  export.GetContentFields = nil
+  export.GetContentData = nil
 
   local allAreas = band(MacroCallFar(MCODE_F_GETOPTIONS),0x3) == 0
   local numerrors=0
@@ -663,6 +697,7 @@ local function LoadMacros (unload, paths)
   AddedPrefixes = { [1]="" }
   IdSet = {}
   LoadedPanelModules = {}
+  ContentColumns = {}
   if Shared.panelsort then Shared.panelsort.DeleteSortModes() end
 
   local AreaNames = allAreas and AllAreaNames or SomeAreaNames
@@ -708,8 +743,8 @@ local function LoadMacros (unload, paths)
 
     local moonscript = require "moonscript"
 
-    local FuncList1 = {"Macro",  "Event",  "MenuItem",  "CommandLine",  "PanelModule"}
-    local FuncList2 = {"NoMacro","NoEvent","NoMenuItem","NoCommandLine","NoPanelModule"}
+    local FuncList1 = {"Macro",  "Event",  "MenuItem",  "CommandLine",  "PanelModule",  "ContentColumns"}
+    local FuncList2 = {"NoMacro","NoEvent","NoMenuItem","NoCommandLine","NoPanelModule","NoContentColumns"}
 
     local function LoadRegularFile (FindData, FullPath, macroinit)
       if FindData.FileAttributes:find("d") then return end
@@ -724,11 +759,12 @@ local function LoadMacros (unload, paths)
         return
       end
       local env = {
-        Macro       = function(t) return not not AddRegularMacro(t,FullPath) end;
-        Event       = function(t) return not not AddEvent(t,FullPath) end;
-        MenuItem    = function(t) return AddMenuItem(t,FullPath) end;
-        CommandLine = function(t) return AddPrefixes(t,FullPath) end;
-        PanelModule = function(t) return AddPanelModule(t,FullPath) end;
+        Macro          = function(t) return not not AddRegularMacro(t,FullPath) end;
+        Event          = function(t) return not not AddEvent(t,FullPath) end;
+        MenuItem       = function(t) return AddMenuItem(t,FullPath) end;
+        CommandLine    = function(t) return AddPrefixes(t,FullPath) end;
+        PanelModule    = function(t) return AddPanelModule(t,FullPath) end;
+        ContentColumns = function(t) return AddContentColumns(t,FullPath) end;
       }
       for _,name in ipairs(FuncList2) do env[name]=DummyFunc; end
       setmetatable(env,gmeta)
@@ -812,6 +848,10 @@ local function LoadMacros (unload, paths)
     export.ProcessEditorInput = Events.editorinput[1] and export_ProcessEditorInput
     export.ProcessViewerEvent = Events.viewerevent[1] and export_ProcessViewerEvent
     export.ProcessConsoleInput = Events.consoleinput[1] and export_ProcessConsoleInput
+    if ContentColumns[1] then
+      export.GetContentFields = export_GetContentFields
+      export.GetContentData   = export_GetContentData
+    end
 
     LoadMacrosDone = true
   end

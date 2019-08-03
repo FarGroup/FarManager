@@ -487,6 +487,88 @@ mtime=3732100057
 </article>
 </node>
 <node>
+id=102
+lv=2
+dt=Text
+nm=Content columns
+ctime=3774010006
+mtime=3774015625
+<article>
+#_<markdown>
+#_
+#_To add support for content columns the function `ContentColumns` is used.
+#_It requires one argument - a table:
+#_
+#_```
+#_ContentColumns {
+#_  filemask         = "*.txt";                                 -- string (optional field)
+#_  GetContentFields = function(colnames) ...... end;           -- function
+#_  GetContentData   = function(filename, colnames) ...... end; -- function
+#_}
+#_```
+#_
+#_**Notes:**
+#_
+#_- The optional field `filemask` determines which files should be processed.
+#_Its default value is `"*"` (all files).
+#_- The meanings of `GetContentFields` and `GetContentData` fields are the same
+#_as for exported functions `export.GetContentFields` and `export.GetContentData`
+#_(see their descriptions in LuaFAR manual).
+#_
+#_
+</article>
+</node>
+<node>
+id=103
+lv=3
+dt=Text
+nm=Demo example
+ctime=3774010083
+mtime=3774015502
+<article>
+#_<markdown>
+#_```
+#_-- A content columns example.
+#_-- For this example to work a file panel mode should have a column type
+#_-- named either <text> or <c0>.
+#_
+#_if ({ far.AdvControl("ACTL_GETFARMANAGERVERSION", true) })[4] < 5442 then return end
+#_
+#_local col_set = { -- lower case keys
+#_  text=1, c0=1
+#_}
+#_
+#_ContentColumns {
+#_  filemask = "*.txt,*.lua,*.c,*.h,*.cpp";
+#_
+#_  GetContentFields = function(colnames)
+#_    for _,v in ipairs(colnames) do
+#_      if col_set[v:lower()] then return true end
+#_    end
+#_  end;
+#_
+#_  -- display text at the file beginning
+#_  GetContentData = function(filename, colnames)
+#_    local fp = io.open(filename)
+#_    if fp then
+#_      local s = fp:read(512)
+#_      fp:close()
+#_      if s then
+#_        local out = {}
+#_        s = s:gsub("%s+", " "):match("[%w_].*")
+#_        for k,v in ipairs(colnames) do
+#_          if col_set[v:lower()] then out[k]=s end
+#_        end
+#_        return out
+#_      end
+#_    end
+#_  end;
+#_}
+#_```
+#_
+</article>
+</node>
+<node>
 id=77
 lv=2
 dt=Text

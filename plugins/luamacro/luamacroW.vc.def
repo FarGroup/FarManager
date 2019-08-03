@@ -28,3 +28,6 @@ EXPORTS
     PutFilesW
     SetDirectoryW
     SetFindListW
+    GetContentFieldsW
+    GetContentDataW
+    FreeContentDataW
