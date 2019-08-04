@@ -99,6 +99,7 @@ void ControlObject::Init(int DirCount)
 	Global->WindowManager->PluginCommit();
 	Plugins->LoadPlugins();
 	Global->ScrBuf->SetTitle(strOldTitle);
+	Macro.LoadMacros(true);
 
 	FPanels->LeftPanel()->Update(0);
 	FPanels->RightPanel()->Update(0);
@@ -107,7 +108,6 @@ void ControlObject::Init(int DirCount)
 
 	FarChDir(FPanels->ActivePanel()->GetCurDir());
 
-	Macro.LoadMacros(true);
 	FPanels->LeftPanel()->SetCustomSortMode(Global->Opt->LeftPanel.SortMode, SO_KEEPCURRENT);
 	FPanels->RightPanel()->SetCustomSortMode(Global->Opt->RightPanel.SortMode, SO_KEEPCURRENT);
 	Global->WindowManager->SwitchToPanels();  // otherwise panels are empty

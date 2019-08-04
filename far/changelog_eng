@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 04.08.2019 03:04:52 +0200 - build 5443
+
+1. Load macros before the first panels update in order to immediately show content-columns defined in macro-files.
+
 drkns 02.08.2019 20:14:49 +0100 - build 5442
 
 1. Forum: F9 -> Options -> File panel modes -> Ins -> crash.
