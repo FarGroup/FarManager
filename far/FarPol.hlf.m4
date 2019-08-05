@@ -295,6 +295,8 @@ $ #Skróty klawiszowe#
 
  ~Menu control commands~@MenuCmd@
 
+ ~Screen grabber~@Grabber@
+
  ~Common controls~@MiscCmd@
 
  ~Polecenia specjalne~@SpecCmd@
@@ -721,10 +723,8 @@ $ #Error: Cannot execute#
 external command, operable program or batch file.
 
 
-@MiscCmd
-$ #Common control commands#
- #Screen grabber#
-
+@Grabber
+$ #Screen grabber#
  Screen grabber                                             #Alt+Ins#
 
  Screen grabber allows to select and copy to the clipboard any screen area.
@@ -741,7 +741,10 @@ selected text to the clipboard, #Ctrl+<Gray +># appends it to the clipboard cont
  #Ctrl+U# - deselect block.
  #Ctrl+Shift+Left# and #Ctrl+Shift+Right# - extend or shrink selection by 10 characters left or right.
  #Ctrl+Shift+Up# and #Ctrl+Shift+Down# - extend or shrink selection by 5 lines up or down.
+ 
 
+@MiscCmd
+$ #Common control commands#
  #Keyboard macros#
 
  Record a ~keyboard macro~@KeyMacro@                                   #Ctrl+<.>#

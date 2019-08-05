@@ -358,7 +358,7 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 	switch (LocalKey)
 	{
 		case KEY_F1:
-			help::show(L"MiscCmd"sv);
+			help::show(L"Grabber"sv);
 			break;
 
 		case KEY_CTRLU:

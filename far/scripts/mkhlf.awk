@@ -41,7 +41,7 @@ topicFound == 1 && NF > 1{
 }
 
 $0 == "<%INDEX%>" {
-  print "   ~" Contents "~@Contents@"
+  print " ~" Contents "~@Contents@"
   if(index(toupper(FILENAME),"FARENG.HLF.M4") > 0) {print ""}
 
   n=asorti(atopic,topic2)
@@ -54,7 +54,7 @@ $0 == "<%INDEX%>" {
       ch=substr(topic2[i],1,1)
       print ""
     }
-    print "   ~" ltrim(topic2[i])
+    print " ~" ltrim(topic2[i])
   }
 }
 

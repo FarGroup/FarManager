@@ -302,9 +302,11 @@ $ #Billentyűparancsok#
 
  ~Egér: görgő támogatása~@MsWheel@
 
- ~Egyebek~@MiscCmd@
+ ~Menu control commands~@MenuCmd@
 
- ~Common controls~@MiscCmd@
+ ~Képernyőgrabber~@Grabber@
+
+ ~Egyebek~@MiscCmd@
 
  ~Special commands~@SpecCmd@
 
@@ -741,11 +743,8 @@ $ #Hiba: nem végrehajtható#
  A program, amit megpróbáltunk futtatni, nem értelmezhető sem belső, sem
 külső parancsként, sem futtatható programként, sem batch fájlként.
 
-
-@MiscCmd
-$ #Panelvezérlő parancsok - egyebek#
- #Képernyőgrabber#
-
+@Grabber
+$ #Képernyőgrabber#
  Képernyőgrabber                                            #Alt+Ins#
 
  A képernyőgrabberrel bármelyik képernyőterület kijelölhető és a vágólapra másolható.
@@ -764,6 +763,9 @@ vágólap aktuális tartalmához.
  #Ctrl+Shift+Left# and #Ctrl+Shift+Right# - extend or shrink selection by 10 characters left or right.
  #Ctrl+Shift+Up# and #Ctrl+Shift+Down# - extend or shrink selection by 5 lines up or down.
 
+
+@MiscCmd
+$ #Panelvezérlő parancsok - egyebek#
  #Keyboard macros#
 
  ~Makró~@KeyMacro@ rögzítése                                           #Ctrl+<.>#
@@ -3919,7 +3921,7 @@ helyettesít, de a korábbi tabulátorokat nem konvertálja.
  #Minden tabulátorból#   A szöveg megnyitásakor automatikusan
  #szóközök#              minden tabulátort szóközzé alakít.
 
- #Maradó blokkok#          ^<wrap>Nem veszi le a blokkokról a kijelölést,
+ #Maradó blokkok#          ^<wrap>Nem veszi le a blokkokról a
 ha megmozdítjuk a kurzort.
 
  #A Del törli#             Ha van kijelölt blokk, a #Del# nem a
