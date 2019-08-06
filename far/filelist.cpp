@@ -333,6 +333,8 @@ const string& FileListItem::Owner(const FileList* Owner) const
 	{
 		if (Owner->GetMode() == panel_mode::NORMAL_PANEL)
 		{
+			SCOPED_ACTION(elevation::suppress);
+
 			if (!GetFileOwner(Owner->GetComputerName(), GetItemFullName(*this, Owner), m_Owner))
 			{
 				// One try is enough

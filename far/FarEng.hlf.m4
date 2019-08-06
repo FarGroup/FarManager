@@ -2926,9 +2926,7 @@ characters. For UTF-8 encoding, the bytes are represented the same way,
 while the characters are displayed at the positions of the leading bytes
 of the UTF-8 sequences with the positions of continuation bytes being
 filled with the #›# symbols (code point U+203A). For UTF-16(BE)
-encodings, the eight consecutive pairs of bytes (code units) are
-represented by four-digits hex values followed by eight characters. For
-example:
+encodings the hex values are followed by eight characters. For example:
 
  Code page 1252 (ANSI - Latin I)
 
@@ -2950,10 +2948,10 @@ example:
  Code page 1200 (UTF-16)
 
 @-
- \1b00000000A2: 043D 043E 0020 0444 │ 0430 043B 044C 0448  но фальш\-
- \1b00000000B2: 0438 0432 044B 0439 │ 0020 044D 043A 0437  ивый экз\-
- \1b00000000C2: 0435 043C 043F 043B │ 044F 0440 002C 0020  емпляр, \-
- \1b00000000D2: 0434 0430 002E 000D │ 000A                 да.♪◙   \-
+ \1b00000000A2: 3D 04 3E 04 20 00 44 04 │ 30 04 3B 04 4C 04 48 04  но фальш\-
+ \1b00000000B2: 38 04 32 04 4B 04 39 04 │ 20 00 4D 04 3A 04 37 04  ивый экз\-
+ \1b00000000C2: 35 04 3C 04 3F 04 3B 04 │ 4F 04 40 04 2C 00 20 00  емпляр, \-
+ \1b00000000D2: 34 04 30 04 2E 00 0D 00 │ 0A 00                    да.♪◙   \-
 @+
 
  The #Ctrl+Right# key combination shifts all bytes to the left; the

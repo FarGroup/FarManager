@@ -711,7 +711,7 @@ int Viewer::getCharSize() const
 {
 	if (CP_UTF8 == m_Codepage)
 		return -1;
-	else if (CP_UNICODE == m_Codepage || CP_REVERSEBOM == m_Codepage)
+	else if (IsUnicodeCodePage(m_Codepage))
 		return +2;
 	else
 		return m_Codepage == MB.GetCP()? -static_cast<int>(MB.GetSize()) : +1;
@@ -719,10 +719,7 @@ int Viewer::getCharSize() const
 
 static int getChSize( UINT cp )
 {
-	if ( CP_UNICODE == cp || CP_REVERSEBOM == cp )
-		return +2;
-	else
-		return +1;
+	return IsUnicodeCodePage(cp)? 2 : 1;
 }
 
 int Viewer::GetModeDependentCharSize() const
@@ -739,7 +736,7 @@ int Viewer::txt_dump(std::string_view const Str, size_t ClientWidth, string& Out
 {
 	OutStr.clear();
 
-	if (m_Codepage == CP_UNICODE || m_Codepage == CP_REVERSEBOM)
+	if (IsUnicodeCodePage(m_Codepage))
 	{
 		OutStr.assign(reinterpret_cast<const wchar_t*>(Str.data()), Str.size() / sizeof(wchar_t));
 		if (m_Codepage == CP_REVERSEBOM)
@@ -918,102 +915,41 @@ void Viewer::ShowHex()
 		}
 		else
 		{
-			if (IsUnicodeCodePage(m_Codepage))
+			if ( SelectSize >= 0 )
 			{
-				const int be = m_Codepage == CP_REVERSEBOM ? 1 : 0;
-				for (size_t X = 0; X != 16; X += 2)
+				if (SelectPos >= fpos && SelectPos < fpos+16)
 				{
-					if (SelectSize >= 0 && (SelectPos == fpos || SelectPos == fpos+1))
-					{
-						const auto half = SelectPos != fpos;
-						bSelStartFound = true;
-						SelStart = static_cast<int>(OutStr.size()) + (half ? 1 + be : 0);
-						if (!SelectSize)
-							SelStart += (half ? be : 0) - 1;
-					}
-					if (SelectSize >= 0 && (fpos == SelectPos+SelectSize-1 || fpos+1 == SelectPos+SelectSize-1))
-					{
-						const auto half = fpos == SelectPos + SelectSize - 1;
-						bSelEndFound = true;
-						SelEnd = static_cast<int>(OutStr.size()) + 3 - (half ? 1 + be : 0);
-						if (!SelectSize)
-							SelEnd = SelStart;
-					}
-					else if ( SelectSize == 0 && (SelectPos == fpos || SelectPos == fpos+1) )
-					{
-						bSelEndFound = true;
-						SelEnd = SelStart;
-					}
-
-					if (X < BytesRead - 1) // full character
-					{
-						auto Char = *reinterpret_cast<wchar_t*>(RawBuffer + X);
-						if (be)
-						{
-							swap_bytes(&Char, &Char, sizeof(wchar_t));
-						}
-						OutStr += format(FSTR(L"{0:04X} "), int(Char));
-						TextStr.push_back(Char? Char : ZeroChar());
-					}
-					else if (X == BytesRead - 1) // half character only
-					{
-						const auto GoodHalf = format(FSTR(L"{0:02X}"), int(RawBuffer[X]));
-						const auto BadHalf = L"xx"s;
-						OutStr += (be? GoodHalf : BadHalf) + (be? BadHalf : GoodHalf);
-						OutStr.push_back(L' ');
-						TextStr.push_back(Utf::REPLACE_CHAR);
-					}
-					else // no character
-					{
-						OutStr.append(5, L' ');
-						TextStr.push_back(L' ');
-					}
-
-					if (X == 3*2)
-					{
-						OutStr += BorderLine;
-					}
-					fpos += 2;
+					const auto off = static_cast<int>(SelectPos - fpos);
+					bSelStartFound = true;
+					SelStart = static_cast<int>(OutStr.size() + 3 * off + (off < 8? 0 : BorderLine.size()));
+					if (!SelectSize)
+						--SelStart;
+				}
+				const auto selectEnd = SelectPos + SelectSize - 1;
+				if (selectEnd >= fpos && selectEnd < fpos+16)
+				{
+					const auto off = static_cast<int>(selectEnd - fpos);
+					bSelEndFound = true;
+					SelEnd = SelectSize? static_cast<int>(OutStr.size() + 3 * off + (off < 8? 0 : BorderLine.size()) + 1) : SelStart;
+				}
+				else if ( SelectSize == 0 && SelectPos == fpos )
+				{
+					bSelEndFound = true;
+					SelEnd = SelStart;
 				}
 			}
-			else
+
+			for (size_t X = 0; X != 16; ++X)
 			{
-				if ( SelectSize >= 0 )
-				{
-					if (SelectPos >= fpos && SelectPos < fpos+16)
-					{
-						const auto off = static_cast<int>(SelectPos - fpos);
-						bSelStartFound = true;
-						SelStart = static_cast<int>(OutStr.size() + 3 * off + (off < 8? 0 : BorderLine.size()));
-						if (!SelectSize)
-							--SelStart;
-					}
-					const auto selectEnd = SelectPos + SelectSize - 1;
-					if (selectEnd >= fpos && selectEnd < fpos+16)
-					{
-						const auto off = static_cast<int>(selectEnd - fpos);
-						bSelEndFound = true;
-						SelEnd = SelectSize? static_cast<int>(OutStr.size() + 3 * off + (off < 8? 0 : BorderLine.size()) + 1) : SelStart;
-					}
-					else if ( SelectSize == 0 && SelectPos == fpos )
-					{
-						bSelEndFound = true;
-						SelEnd = SelStart;
-					}
-				}
+				if (X < BytesRead)
+					OutStr += format(FSTR(L"{0:02X} "), int(RawBuffer[X]));
+				else
+					OutStr.append(3, L' ');
 
-				for (size_t X = 0; X != 16; ++X)
-				{
-					if (X < BytesRead)
-						OutStr += format(FSTR(L"{0:02X} "), int(RawBuffer[X]));
-					else
-						OutStr.append(3, L' ');
-
-					if (X == 7)
-						OutStr += BorderLine;
-				}
-				tail = txt_dump({ RawBuffer, BytesRead }, 16, TextStr, ZeroChar(), tail);
+				if (X == 7)
+					OutStr += BorderLine;
 			}
+			tail = txt_dump({ RawBuffer, BytesRead }, 16, TextStr, ZeroChar(), tail);
 		}
 
 		if ((SelEnd <= SelStart) && bSelStartFound && bSelEndFound && SelectSize > 0 )
@@ -1035,7 +971,7 @@ void Viewer::ShowHex()
 		{
 			SetColor(COL_VIEWERSELECTEDTEXT);
 			GotoXY(static_cast<int>(static_cast<long long>(m_Where.left) + SelStart - HexLeftPos), Y);
-			Text(cut_right(OutStr.substr(SelStart), SelEnd - SelStart + 1));
+			Text(cut_right(string_view(OutStr).substr(SelStart), SelEnd - SelStart + 1));
 		}
 	}
 }
@@ -1373,29 +1309,16 @@ long long Viewer::XYfilepos(int col, int row)
 		break;
 
 	case VMT_HEX:
-		if (csz < 2)
-		{
-		//0000000000: 32 30 2E 30 31 2E 32 30 | 31 35 20 31 30 3A 33 39  20.01.2015 10:39
-			if      (col < 11) col = 0;
-			else if (col < 35) col = (col-11)/3;
-			else if (col < 37) col = 8;
-			else if (col < 61) col = 8 + (col-37)/3;
-			else if (col < 63) col = 0;
-			else if (col < 79) col = col-63;
-			else               col = 16;
-		}
-		else
-		{
-		//0000000020: 0031 002E 0030 0022 | 0020 0065 006E 0063  1.0" enc
-			if      (col < 11) col = 0;
-			else if (col < 31) col = (col-11)/5;
-			else if (col < 33) col = 4;
-			else if (col < 53) col = 4 + (col-33)/5;
-			else if (col < 55) col = 0;
-			else if (col < 63) col = col-55;
-			else               col = 8;
-		}
-		pos = FilePos + 16*row + csz*col;
+		//0000000000: 32 30 2E 30 31 2E 32 30 | 31 35 20 31 30 3A 33 39  20.01.2015 10:39 - 1-byte
+		//0000000020: 31 00 2E 00 30 00 22 00 | 20 00 65 00 6E 00 63 00  1.0" enc         - 2-byte
+		if      (col < 11) col = 0;
+		else if (col < 35) col = (col-11)/3;
+		else if (col < 37) col = 8;
+		else if (col < 61) col = 8 + (col-37)/3;
+		else if (col < 63) col = 0;
+		else if (col < 63 + 16 / csz) col = (col-63) * csz;
+		else               col = 16;
+		pos = FilePos + 16*row + col / csz * csz;
 		break;
 
 	case VMT_TEXT:
@@ -3857,20 +3780,23 @@ bool Viewer::vgetc(wchar_t *pCh)
 
 	switch (m_Codepage)
 	{
-		case CP_REVERSEBOM:
-			if (vgetc_ib == vgetc_cb-1)
-				*pCh = Utf::REPLACE_CHAR;
-			else
-				*pCh = (wchar_t)((vgetc_buffer[vgetc_ib] << 8) | vgetc_buffer[vgetc_ib+1]);
-			vgetc_ib += 2;
-		break;
 		case CP_UNICODE:
-			if (vgetc_ib == vgetc_cb-1)
+		case CP_REVERSEBOM:
+			if (vgetc_ib == vgetc_cb - 1)
+			{
 				*pCh = Utf::REPLACE_CHAR;
+			}
 			else
-				*pCh = (wchar_t)((vgetc_buffer[vgetc_ib+1] << 8) | vgetc_buffer[vgetc_ib]);
+			{
+				const auto Reverse = m_Codepage == CP_REVERSEBOM;
+				const auto Ch1 = vgetc_buffer[vgetc_ib + Reverse];
+				const auto Ch2 = vgetc_buffer[vgetc_ib + !Reverse];
+				*pCh = MAKEWORD(Ch1, Ch2);
+			}
+
 			vgetc_ib += 2;
-		break;
+			break;
+
 		case CP_UTF8:
 		{
 			wchar_t w[2];
