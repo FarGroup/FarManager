@@ -47,8 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception.hpp"
 #include "datetime.hpp"
 #include "global.hpp"
-#include "mix.hpp"
-#include "flink.hpp"
+#include "file_io.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -338,22 +337,10 @@ bool DizList::Flush(const string& Path,const string* DizName)
 			return true;
 		}
 
-
-		const auto IsFileExists = FileAttr != INVALID_FILE_ATTRIBUTES;
-		const auto IsHardLink = IsFileExists && GetNumberOfLinks(m_DizFileName) > 1;
-		const auto IsSymLink = IsFileExists && (FileAttr & FILE_ATTRIBUTE_REPARSE_POINT);
-		const auto SaveSafely = IsFileExists && !IsHardLink && !IsSymLink;
-		const auto OutFileName = SaveSafely? MakeTempInSameDir(m_DizFileName) : m_DizFileName;
-
+		save_file_with_replace(m_DizFileName, FileAttr, Global->Opt->Diz.SetHidden? FILE_ATTRIBUTE_HIDDEN : 0, false, [&](std::ostream& Stream)
 		{
-			os::fs::file DizFile(OutFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, IsFileExists && !SaveSafely? TRUNCATE_EXISTING : CREATE_NEW);
-			if (!DizFile)
-				throw MAKE_FAR_EXCEPTION(L"Can't create a temporary file"sv);
-
-			os::fs::filebuf StreamBuffer(DizFile, std::ios::out);
-			std::ostream Stream(&StreamBuffer);
-			Stream.exceptions(Stream.badbit | Stream.failbit);
 			encoding::writer Writer(Stream, Global->Opt->Diz.SaveInUTF? CP_UTF8 : Global->Opt->Diz.AnsiByDefault? CP_ACP : CP_OEMCP);
+
 			const auto Eol = eol::str(eol::type::win);
 
 			for (const auto& i_ptr : m_OrderForWrite)
@@ -366,25 +353,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 					Writer.write(Eol);
 				}
 			}
-
-			Stream.flush();
-			DizFile.SetEnd();
-		}
-
-		if (SaveSafely)
-		{
-			if (!os::fs::replace_file(m_DizFileName, OutFileName, {}, REPLACEFILE_IGNORE_MERGE_ERRORS | REPLACEFILE_IGNORE_ACL_ERRORS))
-				throw MAKE_FAR_EXCEPTION(L"Can't replace the file"sv);
-
-			FileAttr |= FILE_ATTRIBUTE_ARCHIVE;
-		}
-		else
-		{
-			FileAttr = FILE_ATTRIBUTE_ARCHIVE | (Global->Opt->Diz.SetHidden ? FILE_ATTRIBUTE_HIDDEN : 0);
-		}
-
-		// No error checking - non-critical (TODO: log)
-		os::fs::set_file_attributes(m_DizFileName, FileAttr);
+		});
 	}
 	catch (const far_exception& e)
 	{

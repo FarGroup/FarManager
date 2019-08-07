@@ -58,7 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgGuid.hpp"
 #include "global.hpp"
 #include "delete.hpp"
-#include "flink.hpp"
+#include "file_io.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -290,40 +290,11 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 			return;
 		}
 
-		const auto IsFileExists = FileAttr != INVALID_FILE_ATTRIBUTES;
-		const auto IsHardLink = IsFileExists && GetNumberOfLinks(MenuFileName) > 1;
-		const auto IsSymLink = IsFileExists && (FileAttr & FILE_ATTRIBUTE_REPARSE_POINT);
-		const auto SaveSafely = IsFileExists && !IsHardLink && !IsSymLink;
-		const auto OutFileName = SaveSafely? MakeTempInSameDir(MenuFileName) : MenuFileName;
-
+		save_file_with_replace(MenuFileName, FileAttr, 0, false, [&](std::ostream& Stream)
 		{
-			os::fs::file MenuFile(OutFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, IsFileExists && !SaveSafely? TRUNCATE_EXISTING : CREATE_NEW);
-			if (!MenuFile)
-				throw MAKE_FAR_EXCEPTION(L"Can't open file"sv);
-
-			os::fs::filebuf StreamBuffer(MenuFile, std::ios::out);
-			std::ostream Stream(&StreamBuffer);
-			Stream.exceptions(Stream.badbit | Stream.failbit);
 			encoding::writer Writer(Stream, m_MenuCP);
 			Writer.write(SerialisedMenu);
-			Stream.flush();
-			MenuFile.SetEnd();
-		}
-
-		if (SaveSafely)
-		{
-			if (!os::fs::replace_file(MenuFileName, OutFileName, {}, REPLACEFILE_IGNORE_MERGE_ERRORS | REPLACEFILE_IGNORE_ACL_ERRORS))
-				throw MAKE_FAR_EXCEPTION(L"Can't replace the file"sv);
-
-			FileAttr |= FILE_ATTRIBUTE_ARCHIVE;
-		}
-		else
-		{
-			FileAttr = FILE_ATTRIBUTE_ARCHIVE;
-		}
-
-		// No error checking - non-critical (TODO: log)
-		os::fs::set_file_attributes(MenuFileName, FileAttr);
+		});
 	}
 	catch (const far_exception& e)
 	{

@@ -209,6 +209,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="FarDlgBuilder.cpp" />
     <ClCompile Include="farversion.cpp" />
     <ClCompile Include="fastfind.cpp" />
+    <ClCompile Include="file_io.cpp" />
     <ClCompile Include="fileattr.cpp" />
     <ClCompile Include="fileedit.cpp" />
     <ClCompile Include="filefilter.cpp" />
@@ -420,6 +421,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="FarGuid.hpp" />
     <ClInclude Include="farversion.hpp" />
     <ClInclude Include="fastfind.hpp" />
+    <ClInclude Include="file_io.hpp" />
     <ClInclude Include="fileattr.hpp" />
     <ClInclude Include="fileedit.hpp" />
     <ClInclude Include="filefilter.hpp" />

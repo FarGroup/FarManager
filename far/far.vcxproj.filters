@@ -161,6 +161,9 @@
     <ClCompile Include="fastfind.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="file_io.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="fileattr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -740,6 +743,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="fastfind.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="file_io.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="fileattr.hpp">

@@ -77,7 +77,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "cvtname.hpp"
 #include "global.hpp"
-#include "flink.hpp"
+#include "file_io.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -1920,18 +1920,8 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 
 	try
 	{
-		const auto IsStream = contains(PointToName(Name), L':');
-		const auto IsFileExists = m_FileAttributes != INVALID_FILE_ATTRIBUTES;
-		const auto IsHardLink = IsFileExists && GetNumberOfLinks(Name) > 1;
-		const auto IsSymLink = IsFileExists && (m_FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT);
-		const auto SaveSafely = IsFileExists && !IsHardLink && !IsSymLink && !IsStream;
-		const auto OutFileName = SaveSafely? MakeTempInSameDir(Name) : Name;
-
+		save_file_with_replace(Name, m_FileAttributes, 0, Global->Opt->EdOpt.CreateBackups, [&](std::ostream& Stream)
 		{
-			os::fs::file EditFile(OutFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, IsFileExists && !SaveSafely? TRUNCATE_EXISTING : CREATE_NEW);
-			if (!EditFile)
-				throw MAKE_FAR_EXCEPTION(L"Can't open file"sv);
-
 			m_editor->UndoSavePos = m_editor->UndoPos;
 			m_editor->m_Flags.Clear(Editor::FEDITOR_UNDOSAVEPOSLOST);
 
@@ -1943,9 +1933,6 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 
 			const time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 
-			os::fs::filebuf StreamBuffer(EditFile, std::ios::out);
-			std::ostream Stream(&StreamBuffer);
-			Stream.exceptions(Stream.badbit | Stream.failbit);
 			encoding::writer Writer(Stream, codepage, AddSignature);
 
 			size_t LineNumber = -1;
@@ -1973,28 +1960,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 				Writer.write(SaveStr);
 				Writer.write(eol::str(LineEol));
 			}
-
-			Stream.flush();
-			EditFile.SetEnd();
-		}
-
-		if (SaveSafely)
-		{
-			if (!os::fs::replace_file(Name, OutFileName, Global->Opt->EdOpt.CreateBackups? Name + L".bak"sv : L""sv, REPLACEFILE_IGNORE_MERGE_ERRORS | REPLACEFILE_IGNORE_ACL_ERRORS))
-				throw MAKE_FAR_EXCEPTION(L"Can't replace the file"sv);
-		}
-
-		if (m_FileAttributes == INVALID_FILE_ATTRIBUTES)
-		{
-			m_FileAttributes = FILE_ATTRIBUTE_ARCHIVE;
-		}
-		else
-		{
-			m_FileAttributes |= FILE_ATTRIBUTE_ARCHIVE;
-		}
-
-		// No error checking - non-critical (TODO: log)
-		os::fs::set_file_attributes(Name, m_FileAttributes);
+		});
 	}
 	catch (const far_exception& e)
 	{

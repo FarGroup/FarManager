@@ -2557,7 +2557,6 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 
 	os::fs::file DestFile;
 	unsigned long long AppendPos=0;
-	DWORD flags_attrs=0;
 
 	bool CopySparse=false;
 
@@ -2567,7 +2566,8 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 		//api::DeleteFile(DestName);
 		SECURITY_ATTRIBUTES SecAttr = { sizeof(SecAttr), sd? sd.get() : nullptr };
 
-		flags_attrs = SrcData.Attributes&(~((Flags&(FCOPY_DECRYPTED_DESTINATION))?FILE_ATTRIBUTE_ENCRYPTED|FILE_FLAG_SEQUENTIAL_SCAN:FILE_FLAG_SEQUENTIAL_SCAN));
+		const auto attrs = SrcData.Attributes & ~(Flags & FCOPY_DECRYPTED_DESTINATION? FILE_ATTRIBUTE_ENCRYPTED : 0);
+		const auto IsSystemEncrypted = flags::check_all(attrs, FILE_ATTRIBUTE_SYSTEM | FILE_ATTRIBUTE_ENCRYPTED);
 
 		Flags &= ~FCOPY_DECRYPTED_DESTINATION;
 
@@ -2577,13 +2577,16 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 			FILE_SHARE_READ,
 			sd? &SecAttr : nullptr,
 			Append? OPEN_EXISTING : CREATE_ALWAYS,
-			flags_attrs))
+			(attrs & ~(IsSystemEncrypted? FILE_ATTRIBUTE_SYSTEM : 0)) | FILE_FLAG_SEQUENTIAL_SCAN))
 		{
 			_LOGCOPYR(DWORD LastError=GetLastError();)
 			SrcFile.Close();
 			_LOGCOPYR(SysLog(L"return COPY_FAILURE -> %d CreateFile=-1, LastError=%d (0x%08X)",__LINE__,LastError,LastError));
 			return COPY_FAILURE;
 		}
+
+		if (IsSystemEncrypted)
+			os::fs::set_file_attributes(strDestName, attrs);
 
 		const auto strDriveRoot = GetPathRoot(strDestName);
 
@@ -2903,7 +2906,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 		{
 			if (FAR_GetDriveType(GetPathRoot(strDestName), 0) == DRIVE_REMOTE)
 			{
-				if (DestFile.Open(strDestName,GENERIC_WRITE,FILE_SHARE_READ,nullptr,OPEN_EXISTING,flags_attrs))
+				if (DestFile.Open(strDestName,GENERIC_WRITE,FILE_SHARE_READ,nullptr,OPEN_EXISTING))
 				{
 					DestFile.SetTime(nullptr, nullptr, &SrcData.LastWriteTime, nullptr);
 					DestFile.Close();
