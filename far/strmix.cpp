@@ -358,7 +358,7 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 	const bool UseUnit = (ViewFlags & COLFLAGS_USE_MULTIPLIER) != 0;
 	const bool ShowUnit = (ViewFlags & COLFLAGS_SHOW_MULTIPLIER) != 0;
 	const bool UseBinaryUnit = (ViewFlags & COLFLAGS_THOUSAND) == 0;
-	const size_t MinUnit = (ViewFlags & COLFLAGS_MULTIPLIER_MASK) + 1;
+	const size_t MinUnit = (ViewFlags & COLFLAGS_MULTIPLIER_MASK & ~COLFLAGS_USE_MULTIPLIER) + 1;
 
 	static std::pair const
 		BinaryDivider(1024, std::log(1024)),
