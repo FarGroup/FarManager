@@ -263,7 +263,7 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 
 	const auto SerialisedMenu = SerializeMenu(m_Menu);
 
-	auto FileAttr = os::fs::get_file_attributes(MenuFileName);
+	const auto FileAttr = os::fs::get_file_attributes(MenuFileName);
 
 	if (FileAttr != INVALID_FILE_ATTRIBUTES && FileAttr & FILE_ATTRIBUTE_READONLY)
 	{

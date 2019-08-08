@@ -858,12 +858,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 						if (!KnownReparsePoint)
 						{
-							if (ReparseTag == IO_REPARSE_TAG_DEDUP)
-							{
-								KnownReparsePoint = true;
-								strLinkName = msg(lng::MListDEDUP);
-							}
-							else if (ReparseTag == IO_REPARSE_TAG_DFS)
+							if (ReparseTag == IO_REPARSE_TAG_DFS)
 							{
 								const auto path = path::join(SrcPanel->GetCurDir(), SingleSelFileName);
 								os::netapi::ptr<DFS_INFO_3> DfsInfo;
@@ -929,7 +924,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				}
 
 				if (!KnownReparsePoint)
-					strLinkName=msg(lng::MSetAttrUnknownJunction);
+					strLinkName=msg(lng::MSetAttrUnknownReparsePoint);
 
 				AttrDlg[SA_TEXT_SYMLINK].Flags &= ~DIF_HIDDEN;
 				AttrDlg[SA_TEXT_SYMLINK].strData = msg(ID_Msg);
@@ -945,7 +940,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			// обработка случая "несколько хардлинков"
 			if (!(SingleSelFindData.Attributes & FILE_ATTRIBUTE_DIRECTORY))
 			{
-				if ((NameList.ItemsNumber = GetNumberOfLinks(SingleSelFileName)) > 1)
+				if (const auto Hardlinks = GetNumberOfLinks(SingleSelFileName); Hardlinks && *Hardlinks > 1)
 				{
 					AttrDlg[SA_TEXT_NAME].Flags|=DIF_HIDDEN;
 					AttrDlg[SA_COMBO_HARDLINK].Flags&=~DIF_HIDDEN;
@@ -953,6 +948,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					auto strRoot = GetPathRoot(SingleSelFileName);
 					DeleteEndSlash(strRoot);
 
+					NameList.ItemsNumber = *Hardlinks;
 					Links.reserve(NameList.ItemsNumber);
 					for (const auto& i: os::fs::enum_names(SingleSelFileName))
 					{

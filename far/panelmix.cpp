@@ -727,7 +727,7 @@ string FormatStr_Size(
 			{
 				switch(ReparseTag)
 				{
-				// 0xA0000003L = Directory Junction or Volume Mount Point
+				// Directory Junction or Volume Mount Point
 				case IO_REPARSE_TAG_MOUNT_POINT:
 					{
 						lng ID_Msg = lng::MListJunction;
@@ -747,57 +747,11 @@ string FormatStr_Size(
 						TypeName=msg(ID_Msg);
 					}
 					break;
-				// 0xA000000CL = Directory or File Symbolic Link
-				case IO_REPARSE_TAG_SYMLINK:
-					TypeName = msg(lng::MListSymlink);
-					break;
-				// 0x8000000AL = Distributed File System
-				case IO_REPARSE_TAG_DFS:
-					TypeName = msg(lng::MListDFS);
-					break;
-				// 0x80000012L = Distributed File System Replication
-				case IO_REPARSE_TAG_DFSR:
-					TypeName = msg(lng::MListDFSR);
-					break;
-				// 0xC0000004L = Hierarchical Storage Management
-				case IO_REPARSE_TAG_HSM:
-					TypeName = msg(lng::MListHSM);
-					break;
-				// 0x80000006L = Hierarchical Storage Management2
-				case IO_REPARSE_TAG_HSM2:
-					TypeName = msg(lng::MListHSM2);
-					break;
-				// 0x80000007L = Single Instance Storage
-				case IO_REPARSE_TAG_SIS:
-					TypeName = msg(lng::MListSIS);
-					break;
-				// 0x80000008L = Windows Imaging Format
-				case IO_REPARSE_TAG_WIM:
-					TypeName = msg(lng::MListWIM);
-					break;
-				// 0x80000009L = Cluster Shared Volumes
-				case IO_REPARSE_TAG_CSV:
-					TypeName = msg(lng::MListCSV);
-					break;
-				case IO_REPARSE_TAG_DEDUP:
-					TypeName = msg(lng::MListDEDUP);
-					break;
-				case IO_REPARSE_TAG_NFS:
-					TypeName = msg(lng::MListNFS);
-					break;
-				case IO_REPARSE_TAG_FILE_PLACEHOLDER:
-					TypeName = msg(lng::MListPlaceholder);
-					break;
-					// 0x????????L = anything else
+
 				default:
-					if (Global->Opt->ShowUnknownReparsePoint)
-					{
-						TypeName = format(FSTR(L":{0:0>8X}"), ReparseTag);
-					}
-					else
-					{
+					if (!reparse_tag_to_string(ReparseTag, TypeName) && !Global->Opt->ShowUnknownReparsePoint)
 						TypeName = msg(lng::MListUnknownReparsePoint);
-					}
+					break;
 				}
 			}
 			else if (dir)

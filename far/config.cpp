@@ -1776,6 +1776,7 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeyEditor,                 L"FileSizeLimit"sv,                 EdOpt.FileSizeLimit, 0},
 		{FSSF_PRIVATE,           NKeyEditor,                 L"KeepEditorEOL"sv,                 EdOpt.KeepEOL, true},
 		{FSSF_PRIVATE,           NKeyEditor,                 L"NewFileUnixEOL"sv,                EdOpt.NewFileUnixEOL, false},
+		{FSSF_PRIVATE,           NKeyEditor,                 L"SaveSafely"sv,                    EdOpt.SaveSafely, true},
 		{FSSF_PRIVATE,           NKeyEditor,                 L"CreateBackups"sv,                 EdOpt.CreateBackups, false},
 		{FSSF_PRIVATE,           NKeyEditor,                 L"PersistentBlocks"sv,              EdOpt.PersistentBlocks, false},
 		{FSSF_PRIVATE,           NKeyEditor,                 L"ReadOnlyLock"sv,                  EdOpt.ReadOnlyLock, 0},

@@ -47,17 +47,167 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE 2
 #endif
 
+
+#ifndef IO_REPARSE_TAG_DRIVE_EXTENDER
+#define IO_REPARSE_TAG_DRIVE_EXTENDER           (0x80000005L)
+#endif
+
+#ifndef IO_REPARSE_TAG_FILTER_MANAGER
+#define IO_REPARSE_TAG_FILTER_MANAGER           (0x8000000BL)
+#endif
+
+#ifndef IO_REPARSE_TAG_IIS_CACHE
+#define IO_REPARSE_TAG_IIS_CACHE                (0xA0000010L)
+#endif
+
+#ifndef IO_REPARSE_TAG_APPXSTRM
+#define IO_REPARSE_TAG_APPXSTRM                 (0xC0000014L)
+#endif
+
+#ifndef IO_REPARSE_TAG_DFM
+#define IO_REPARSE_TAG_DFM                      (0x80000016L)
+#endif
+
 #ifndef IO_REPARSE_TAG_DEDUP
-#define IO_REPARSE_TAG_DEDUP 0x80000013L
+#define IO_REPARSE_TAG_DEDUP                    (0x80000013L)
 #endif
 
 #ifndef IO_REPARSE_TAG_NFS
-#define IO_REPARSE_TAG_NFS 0x80000014L
+#define IO_REPARSE_TAG_NFS                      (0x80000014L)
 #endif
 
 #ifndef IO_REPARSE_TAG_FILE_PLACEHOLDER
-#define IO_REPARSE_TAG_FILE_PLACEHOLDER 0x80000015L
+#define IO_REPARSE_TAG_FILE_PLACEHOLDER         (0x80000015L)
 #endif
+
+#ifndef IO_REPARSE_TAG_WOF
+#define IO_REPARSE_TAG_WOF                      (0x80000017L)
+#endif
+
+#ifndef IO_REPARSE_TAG_WCI
+#define IO_REPARSE_TAG_WCI                      (0x80000018L)
+#endif
+
+#ifndef IO_REPARSE_TAG_WCI_1
+#define IO_REPARSE_TAG_WCI_1                    (0x90001018L)
+#endif
+
+#ifndef IO_REPARSE_TAG_GLOBAL_REPARSE
+#define IO_REPARSE_TAG_GLOBAL_REPARSE           (0xA0000019L)
+#endif
+
+#ifndef IO_REPARSE_TAG_CLOUD
+#define IO_REPARSE_TAG_CLOUD                    (0x9000001AL)
+#endif
+
+#ifndef IO_REPARSE_TAG_CLOUD_1
+#define IO_REPARSE_TAG_CLOUD_1                  (0x9000101AL)
+#endif
+
+#ifndef IO_REPARSE_TAG_CLOUD_2
+#define IO_REPARSE_TAG_CLOUD_2                  (0x9000201AL)
+#endif
+
+#ifndef IO_REPARSE_TAG_CLOUD_3
+#define IO_REPARSE_TAG_CLOUD_3                  (0x9000301AL)
+#endif
+
+#ifndef IO_REPARSE_TAG_CLOUD_4
+#define IO_REPARSE_TAG_CLOUD_4                  (0x9000401AL)
+#endif
+
+#ifndef IO_REPARSE_TAG_CLOUD_5
+#define IO_REPARSE_TAG_CLOUD_5                  (0x9000501AL)
+#endif
+
+#ifndef IO_REPARSE_TAG_CLOUD_6
+#define IO_REPARSE_TAG_CLOUD_6                  (0x9000601AL)
+#endif
+
+#ifndef IO_REPARSE_TAG_CLOUD_7
+#define IO_REPARSE_TAG_CLOUD_7                  (0x9000701AL)
+#endif
+
+#ifndef IO_REPARSE_TAG_CLOUD_8
+#define IO_REPARSE_TAG_CLOUD_8                  (0x9000801AL)
+#endif
+
+#ifndef IO_REPARSE_TAG_CLOUD_9
+#define IO_REPARSE_TAG_CLOUD_9                  (0x9000901AL)
+#endif
+
+#ifndef IO_REPARSE_TAG_CLOUD_A
+#define IO_REPARSE_TAG_CLOUD_A                  (0x9000A01AL)
+#endif
+
+#ifndef IO_REPARSE_TAG_CLOUD_B
+#define IO_REPARSE_TAG_CLOUD_B                  (0x9000B01AL)
+#endif
+
+#ifndef IO_REPARSE_TAG_CLOUD_C
+#define IO_REPARSE_TAG_CLOUD_C                  (0x9000C01AL)
+#endif
+
+#ifndef IO_REPARSE_TAG_CLOUD_D
+#define IO_REPARSE_TAG_CLOUD_D                  (0x9000D01AL)
+#endif
+
+#ifndef IO_REPARSE_TAG_CLOUD_E
+#define IO_REPARSE_TAG_CLOUD_E                  (0x9000E01AL)
+#endif
+
+#ifndef IO_REPARSE_TAG_CLOUD_F
+#define IO_REPARSE_TAG_CLOUD_F                  (0x9000F01AL)
+#endif
+
+#ifndef IO_REPARSE_TAG_APPEXECLINK
+#define IO_REPARSE_TAG_APPEXECLINK              (0x8000001BL)
+#endif
+
+#ifndef IO_REPARSE_TAG_PROJFS
+#define IO_REPARSE_TAG_PROJFS                   (0x9000001CL)
+#endif
+
+#ifndef IO_REPARSE_TAG_STORAGE_SYNC
+#define IO_REPARSE_TAG_STORAGE_SYNC             (0x8000001EL)
+#endif
+
+#ifndef IO_REPARSE_TAG_WCI_TOMBSTONE
+#define IO_REPARSE_TAG_WCI_TOMBSTONE            (0xA000001FL)
+#endif
+
+#ifndef IO_REPARSE_TAG_UNHANDLED
+#define IO_REPARSE_TAG_UNHANDLED                (0x80000020L)
+#endif
+
+#ifndef IO_REPARSE_TAG_ONEDRIVE
+#define IO_REPARSE_TAG_ONEDRIVE                 (0x80000021L)
+#endif
+
+#ifndef IO_REPARSE_TAG_PROJFS_TOMBSTONE
+#define IO_REPARSE_TAG_PROJFS_TOMBSTONE         (0xA0000022L)
+#endif
+
+#ifndef IO_REPARSE_TAG_AF_UNIX
+#define IO_REPARSE_TAG_AF_UNIX                  (0x80000023L)
+#endif
+
+#ifndef IO_REPARSE_TAG_LX_SYMLINK
+#define IO_REPARSE_TAG_LX_SYMLINK               (0xA000001DL)
+#endif
+
+#ifndef IO_REPARSE_TAG_LX_FIFO
+#define IO_REPARSE_TAG_LX_FIFO                  (0x80000024L)
+#endif
+
+#ifndef IO_REPARSE_TAG_LX_CHR
+#define IO_REPARSE_TAG_LX_CHR                   (0x80000025L)
+#endif
+
+#ifndef IO_REPARSE_TAG_LX_BLK
+#define IO_REPARSE_TAG_LX_BLK                   (0x80000026L)
+#endif
+
 
 #ifndef FILE_ATTRIBUTE_INTEGRITY_STREAM
 #define FILE_ATTRIBUTE_INTEGRITY_STREAM 0x8000

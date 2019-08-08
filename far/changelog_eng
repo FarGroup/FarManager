@@ -3,6 +3,16 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 08.08.2019 19:39:35 +0100 - build 5448
+
+1. 0003717: #5411 should be optional
+
+2. 0003730: Incorrect access rights after saving a file.
+
+3. Support for a plethora of new reparse tags.
+
+4. A little black magic for VS2019 build to work in Win2k.
+
 drkns 07.08.2019 22:16:22 +0100 - build 5447
 
 1. Correction of 5418.

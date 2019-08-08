@@ -33,8 +33,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "file_io.hpp"
 
 // Internal:
+#include "config.hpp"
 #include "exception.hpp"
 #include "flink.hpp"
+#include "global.hpp"
 #include "mix.hpp"
 #include "pathmix.hpp"
 
@@ -48,40 +50,73 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-void save_file_with_replace(string const& FileName, DWORD& FileAttributes, DWORD const ExtraAttributes, bool const CreateBackup, function_ref<void(std::ostream& Sream)> const Handler)
+void save_file_with_replace(string const& FileName, DWORD const FileAttributes, DWORD const ExtraAttributes, bool const CreateBackup, function_ref<void(std::ostream& Sream)> const Handler)
 {
-	const auto IsStream = contains(PointToName(FileName), L':');
 	const auto IsFileExists = FileAttributes != INVALID_FILE_ATTRIBUTES;
-	const auto IsHardLink = IsFileExists && GetNumberOfLinks(FileName) > 1;
-	const auto IsSymLink = IsFileExists && (FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT);
-	const auto SaveSafely = IsFileExists && !IsHardLink && !IsSymLink && !IsStream;
-	const auto OutFileName = SaveSafely? MakeTempInSameDir(FileName) : FileName;
+
+	const auto UseTemporaryFile = IsFileExists && [&]
+	{
+		if (!Global->Opt->EdOpt.SaveSafely)
+			return false;
+
+		// ReplaceFileW doesn't work with streams
+		if (contains(PointToName(FileName), L':'))
+			return false;
+
+		// ReplaceFileW doesn't work with symlinks
+		if (FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
+			return false;
+
+		// We don't want to break hardlinks
+		if (const auto Hardlinks = GetNumberOfLinks(FileName); Hardlinks && *Hardlinks > 1)
+			return false;
+
+		return true;
+	}();
+
+	const auto OutFileName = UseTemporaryFile? MakeTempInSameDir(FileName) : FileName;
 	const auto NewAttributes = (IsFileExists? FileAttributes : 0) | FILE_ATTRIBUTE_ARCHIVE | ExtraAttributes;
 
+	std::optional<os::security::descriptor> SecurityDescriptor;
+	SECURITY_ATTRIBUTES SecurityAttributes{};
+
+	if (UseTemporaryFile)
 	{
-		// No FILE_ATTRIBUTE_SYSTEM at this point to avoid potential conflicts with FILE_ATTRIBUTE_ENCRYPTED.
-		// We will set it later.
-		os::fs::file DizFile(OutFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, IsFileExists && !SaveSafely? TRUNCATE_EXISTING : CREATE_NEW, NewAttributes & ~FILE_ATTRIBUTE_SYSTEM);
-		if (!DizFile)
+		// ReplaceFileW handles DAC, but just in case if it can't for whatever reason:
+		SecurityDescriptor = os::fs::get_file_security(FileName, DACL_SECURITY_INFORMATION);
+		if (SecurityDescriptor)
+			SecurityAttributes.lpSecurityDescriptor = SecurityDescriptor->get();
+	}
+
+	{
+		os::fs::file OutFile(
+			OutFileName,
+			GENERIC_WRITE,
+			FILE_SHARE_READ,
+			SecurityDescriptor? &SecurityAttributes : nullptr,
+			IsFileExists && !UseTemporaryFile? TRUNCATE_EXISTING : CREATE_NEW,
+			// No FILE_ATTRIBUTE_SYSTEM at this point to avoid potential conflicts with FILE_ATTRIBUTE_ENCRYPTED. We will set it later.
+			NewAttributes & ~FILE_ATTRIBUTE_SYSTEM);
+
+		if (!OutFile)
 			throw MAKE_FAR_EXCEPTION(L"Can't create a temporary file"sv);
 
-		os::fs::filebuf StreamBuffer(DizFile, std::ios::out);
+		os::fs::filebuf StreamBuffer(OutFile, std::ios::out);
 		std::ostream Stream(&StreamBuffer);
 		Stream.exceptions(Stream.badbit | Stream.failbit);
 
 		Handler(Stream);
 
 		Stream.flush();
-		DizFile.SetEnd();
+		OutFile.SetEnd();
 	}
 
-	if (SaveSafely)
+	if (UseTemporaryFile)
 	{
 		if (!os::fs::replace_file(FileName, OutFileName, CreateBackup? FileName + L".bak"sv : L""sv, REPLACEFILE_IGNORE_MERGE_ERRORS | REPLACEFILE_IGNORE_ACL_ERRORS))
 			throw MAKE_FAR_EXCEPTION(L"Can't replace the file"sv);
 	}
 
 	// No error checking - non-critical (TODO: log)
-	if (os::fs::set_file_attributes(FileName, NewAttributes))
-		FileAttributes = NewAttributes;
+	os::fs::set_file_attributes(FileName, NewAttributes);
 }

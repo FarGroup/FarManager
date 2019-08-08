@@ -1743,8 +1743,8 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 
 	int NewFile=TRUE;
 
-	m_FileAttributes = os::fs::get_file_attributes(Name);
-	if (m_FileAttributes != INVALID_FILE_ATTRIBUTES)
+	const auto FileAttr = os::fs::get_file_attributes(Name);
+	if (FileAttr != INVALID_FILE_ATTRIBUTES)
 	{
 		// Проверка времени модификации...
 		if (!m_Flags.Check(FFILEEDIT_SAVEWQUESTIONS))
@@ -1784,7 +1784,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 		m_Flags.Clear(FFILEEDIT_SAVEWQUESTIONS);
 		NewFile=FALSE;
 
-		if (m_FileAttributes & FILE_ATTRIBUTE_READONLY)
+		if (FileAttr & FILE_ATTRIBUTE_READONLY)
 		{
 			//BUGBUG
 			if (Message(MSG_WARNING,
@@ -1798,7 +1798,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 				{}, &EditorSavedROId) != Message::first_button)
 				return SAVEFILE_CANCEL;
 
-			os::fs::set_file_attributes(Name, m_FileAttributes & ~FILE_ATTRIBUTE_READONLY);
+			os::fs::set_file_attributes(Name, FileAttr & ~FILE_ATTRIBUTE_READONLY);
 		}
 	}
 	else
@@ -1920,7 +1920,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 
 	try
 	{
-		save_file_with_replace(Name, m_FileAttributes, 0, Global->Opt->EdOpt.CreateBackups, [&](std::ostream& Stream)
+		save_file_with_replace(Name, FileAttr, 0, Global->Opt->EdOpt.CreateBackups, [&](std::ostream& Stream)
 		{
 			m_editor->UndoSavePos = m_editor->UndoPos;
 			m_editor->m_Flags.Clear(Editor::FEDITOR_UNDOSAVEPOSLOST);

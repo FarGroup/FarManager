@@ -309,7 +309,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 			return false;
 	}
 
-	auto FileAttr = os::fs::get_file_attributes(m_DizFileName);
+	const auto FileAttr = os::fs::get_file_attributes(m_DizFileName);
 
 	if (FileAttr != INVALID_FILE_ATTRIBUTES && FileAttr & FILE_ATTRIBUTE_READONLY)
 	{

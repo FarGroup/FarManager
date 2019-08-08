@@ -328,16 +328,15 @@ bool GetReparsePointInfo(const string& Object, string &strDestBuff,LPDWORD Repar
 	}
 }
 
-int GetNumberOfLinks(const string& Name, bool negative_if_error)
+std::optional<size_t> GetNumberOfLinks(const string& Name)
 {
-	const auto DefaultNumberOfLinks = negative_if_error ? -1 : +1;
 	const os::fs::file File(Name, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT);
 	if (!File)
-		return DefaultNumberOfLinks;
+		return {};
 
 	BY_HANDLE_FILE_INFORMATION bhfi;
 	if (!File.GetInformation(bhfi))
-		return DefaultNumberOfLinks;
+		return {};
 
 	return bhfi.nNumberOfLinks;
 }
@@ -361,12 +360,12 @@ bool MkHardLink(const string& ExistingName,const string& NewName, bool Silent)
 	return false;
 }
 
-bool EnumStreams(const string& FileName, unsigned long long& StreamsSize, DWORD& StreamsCount)
+bool EnumStreams(const string& FileName, unsigned long long& StreamsSize, size_t& StreamsCount)
 {
 	bool Result=false;
 
 	unsigned long long Size = 0;
-	DWORD Count = 0;
+	size_t Count = 0;
 
 	for (const auto& i: os::fs::enum_streams(FileName))
 	{
@@ -699,4 +698,72 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 	}
 
 	return 2;
+}
+
+static string reparse_tag_to_string(DWORD ReparseTag)
+{
+	switch (ReparseTag)
+	{
+	case IO_REPARSE_TAG_MOUNT_POINT:                 return msg(lng::MListJunction);
+	case IO_REPARSE_TAG_SYMLINK:                     return msg(lng::MListSymlink);
+	case IO_REPARSE_TAG_HSM:                         return L"HSM"s;
+	case IO_REPARSE_TAG_HSM2:                        return L"HSM2"s;
+	case IO_REPARSE_TAG_SIS:                         return L"SIS"s;
+	case IO_REPARSE_TAG_WIM:                         return L"WIM"s;
+	case IO_REPARSE_TAG_CSV:                         return L"CSV"s;
+	case IO_REPARSE_TAG_DFS:                         return L"DFS"s;
+	case IO_REPARSE_TAG_DFSR:                        return L"DFSR"s;
+	case IO_REPARSE_TAG_DEDUP:                       return L"DEDUP"s;
+	case IO_REPARSE_TAG_NFS:                         return L"NFS"s;
+	case IO_REPARSE_TAG_FILE_PLACEHOLDER:            return L"FILE PLACEHOLDER"s;
+	case IO_REPARSE_TAG_WOF:                         return L"WOF"s;
+	case IO_REPARSE_TAG_WCI:                         return L"WCI"s;
+	case IO_REPARSE_TAG_WCI_1:                       return L"WCI 1"s;
+	case IO_REPARSE_TAG_GLOBAL_REPARSE:              return L"GLOBAL_REPARSE"s;
+	case IO_REPARSE_TAG_CLOUD:                       return L"CLOUD"s;
+	case IO_REPARSE_TAG_CLOUD_1:                     return L"CLOUD 1"s;
+	case IO_REPARSE_TAG_CLOUD_2:                     return L"CLOUD 2"s;
+	case IO_REPARSE_TAG_CLOUD_3:                     return L"CLOUD 3"s;
+	case IO_REPARSE_TAG_CLOUD_4:                     return L"CLOUD 4"s;
+	case IO_REPARSE_TAG_CLOUD_5:                     return L"CLOUD 5"s;
+	case IO_REPARSE_TAG_CLOUD_6:                     return L"CLOUD 6"s;
+	case IO_REPARSE_TAG_CLOUD_7:                     return L"CLOUD 7"s;
+	case IO_REPARSE_TAG_CLOUD_8:                     return L"CLOUD 8"s;
+	case IO_REPARSE_TAG_CLOUD_9:                     return L"CLOUD 9"s;
+	case IO_REPARSE_TAG_CLOUD_A:                     return L"CLOUD A"s;
+	case IO_REPARSE_TAG_CLOUD_B:                     return L"CLOUD B"s;
+	case IO_REPARSE_TAG_CLOUD_C:                     return L"CLOUD C"s;
+	case IO_REPARSE_TAG_CLOUD_D:                     return L"CLOUD D"s;
+	case IO_REPARSE_TAG_CLOUD_E:                     return L"CLOUD E"s;
+	case IO_REPARSE_TAG_CLOUD_F:                     return L"CLOUD F"s;
+	case IO_REPARSE_TAG_APPEXECLINK:                 return L"APPEXECLINK"s;
+	case IO_REPARSE_TAG_PROJFS:                      return L"PROJFS"s;
+	case IO_REPARSE_TAG_STORAGE_SYNC:                return L"STORAGE SYNC"s;
+	case IO_REPARSE_TAG_WCI_TOMBSTONE:               return L"WCI TOMBSTONE"s;
+	case IO_REPARSE_TAG_UNHANDLED:                   return L"UNHANDLED"s;
+	case IO_REPARSE_TAG_ONEDRIVE:                    return L"ONEDRIVE"s;
+	case IO_REPARSE_TAG_PROJFS_TOMBSTONE:            return L"PROJFS TOMBSTONE"s;
+	case IO_REPARSE_TAG_AF_UNIX:                     return L"AF UNIX"s;
+	case IO_REPARSE_TAG_LX_SYMLINK:                  return L"LX SYMLINK"s;
+	case IO_REPARSE_TAG_LX_FIFO:                     return L"LX FIFO"s;
+	case IO_REPARSE_TAG_LX_CHR:                      return L"LX CHR"s;
+	case IO_REPARSE_TAG_LX_BLK:                      return L"LX BLK"s;
+	case IO_REPARSE_TAG_DRIVE_EXTENDER:              return L"DRIVE EXTENDER"s;
+	case IO_REPARSE_TAG_FILTER_MANAGER:              return L"FILTER MANAGER"s;
+	case IO_REPARSE_TAG_IIS_CACHE:                   return L"IIS CACHE"s;
+	case IO_REPARSE_TAG_APPXSTRM:                    return L"APPXSTRM"s;
+	case IO_REPARSE_TAG_DFM:                         return L"DFM"s;
+	default:                                         return {};
+	}
+}
+
+bool reparse_tag_to_string(DWORD ReparseTag, string& Str)
+{
+	Str = reparse_tag_to_string(ReparseTag);
+
+	if (!Str.empty())
+		return true;
+
+	Str = format(FSTR(L":{0:0>8X}"), ReparseTag);
+	return false;
 }

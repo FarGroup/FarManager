@@ -147,8 +147,8 @@ void QuickView::DisplayObject()
 	{
 		SetColor(COL_PANELTEXT);
 		GotoXY(m_Where.left + 2, m_Where.top + 2);
-		const auto DisplayName = truncate_path(strCurFileName, std::max(size_t{}, m_Where.width() - 2 - msg(lng::MQuickViewFolder).size() - 5));
-		PrintText(format(FSTR(LR"({0} "{1}")"), msg(lng::MQuickViewFolder), DisplayName));
+		const auto DisplayName = truncate_path(strCurFileName, std::max(size_t{}, m_Where.width() - 2 - msg(lng::MListFolder).size() - 5));
+		PrintText(format(FSTR(LR"({0} "{1}")"), msg(lng::MListFolder), DisplayName));
 
 		const auto currAttr = os::fs::get_file_attributes(strCurFileName); // обламывается, если нет доступа
 		if (currAttr != INVALID_FILE_ATTRIBUTES && (currAttr&FILE_ATTRIBUTE_REPARSE_POINT))
@@ -161,67 +161,22 @@ void QuickView::DisplayObject()
 				NormalizeSymlinkName(Target);
 				switch(ReparseTag)
 				{
-				// 0xA0000003L = Directory Junction or Volume Mount Point
+				// Directory Junction or Volume Mount Point
 				case IO_REPARSE_TAG_MOUNT_POINT:
 					{
-						auto ID_Msg = lng::MQuickViewJunction;
+						auto ID_Msg = lng::MListJunction;
 						bool Root;
 						if(ParsePath(Target, nullptr, &Root) == root_type::volume && Root)
 						{
-							ID_Msg = lng::MQuickViewVolMount;
+							ID_Msg = lng::MListVolMount;
 						}
 						TypeName = msg(ID_Msg);
 					}
 					break;
 
-				case IO_REPARSE_TAG_SYMLINK:
-					TypeName = msg(lng::MQuickViewSymlink);
-					break;
-
-				case IO_REPARSE_TAG_DFS:
-					TypeName = msg(lng::MQuickViewDFS);
-					break;
-
-				case IO_REPARSE_TAG_DFSR:
-					TypeName = msg(lng::MQuickViewDFSR);
-					break;
-
-				case IO_REPARSE_TAG_HSM:
-					TypeName = msg(lng::MQuickViewHSM);
-					break;
-
-				case IO_REPARSE_TAG_HSM2:
-					TypeName = msg(lng::MQuickViewHSM2);
-					break;
-
-				case IO_REPARSE_TAG_SIS:
-					TypeName = msg(lng::MQuickViewSIS);
-					break;
-
-				case IO_REPARSE_TAG_WIM:
-					TypeName = msg(lng::MQuickViewWIM);
-					break;
-
-				case IO_REPARSE_TAG_CSV:
-					TypeName = msg(lng::MQuickViewCSV);
-					break;
-
-				case IO_REPARSE_TAG_DEDUP:
-					TypeName = msg(lng::MQuickViewDEDUP);
-					break;
-
-				case IO_REPARSE_TAG_NFS:
-					TypeName = msg(lng::MQuickViewNFS);
-					break;
-
-				case IO_REPARSE_TAG_FILE_PLACEHOLDER:
-					TypeName = msg(lng::MQuickViewPlaceholder);
-					break;
-
 				default:
-					TypeName = Global->Opt->ShowUnknownReparsePoint?
-						format(FSTR(L":{0:0>8X}"), ReparseTag) :
-						msg(lng::MQuickViewUnknownReparsePoint);
+					if (!reparse_tag_to_string(ReparseTag, TypeName) && !Global->Opt->ShowUnknownReparsePoint)
+						TypeName = msg(lng::MQuickViewUnknownReparsePoint);
 					break;
 				}
 			}

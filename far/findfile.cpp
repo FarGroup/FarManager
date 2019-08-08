@@ -1955,15 +1955,18 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const os::fs::
 			case column_type::size_compressed:
 			case column_type::links_number:
 			{
-				unsigned long long StreamsSize = 0;
-				DWORD StreamsCount=0;
+				unsigned long long Size = 0;
+				size_t Count = 0;
 
 				if (Arc)
 				{
 					if (i.type == column_type::streams_number || i.type == column_type::streams_size)
-						EnumStreams(FindData.FileName,StreamsSize,StreamsCount);
-					else if(i.type == column_type::links_number)
-						StreamsCount=GetNumberOfLinks(FindData.FileName);
+						EnumStreams(FindData.FileName, Size, Count);
+					else if (i.type == column_type::links_number)
+					{
+						const auto Hardlinks = GetNumberOfLinks(FindData.FileName);
+						Count = Hardlinks? *Hardlinks : 1;
+					}
 				}
 
 				const auto SizeToDisplay = (i.type == column_type::size)
@@ -1971,8 +1974,8 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const os::fs::
 					: (i.type == column_type::size_compressed)
 					? FindData.AllocationSize
 					: (i.type == column_type::streams_size)
-					? StreamsSize
-					: StreamsCount; // ???
+					? Size
+					: Count; // ???
 
 				append(MenuText, FormatStr_Size(
 								SizeToDisplay,

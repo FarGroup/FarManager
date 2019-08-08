@@ -2153,7 +2153,8 @@ size_t WINAPI apiGetNumberOfLinks(const wchar_t* Name) noexcept
 {
 	try
 	{
-		return GetNumberOfLinks(Name);
+		const auto Hardlinks = GetNumberOfLinks(Name);
+		return Hardlinks? *Hardlinks : 1;
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return 0;

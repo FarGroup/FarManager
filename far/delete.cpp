@@ -931,7 +931,7 @@ DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, progress 
 			{
 				MsgCode=SkipWipeMode;
 			}
-			else if (GetNumberOfLinks(strFullName)>1)
+			else if (const auto Hardlinks = GetNumberOfLinks(strFullName); Hardlinks && *Hardlinks > 1)
 			{
 				/*
 				                            Файл

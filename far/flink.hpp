@@ -58,7 +58,7 @@ enum ReparsePointTypes: int
 
 bool MkHardLink(const string& ExistingName,const string& NewName, bool Silent = false);
 
-int GetNumberOfLinks(const string& Name, bool negative_if_error=false);
+std::optional<size_t> GetNumberOfLinks(const string& Name);
 bool CreateVolumeMountPoint(const string& TargetVolume, const string& Object);
 
 bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointTypes Type=RP_JUNCTION);
@@ -79,12 +79,14 @@ string GetPathRoot(string_view Path);
 //typedef BOOL (WINAPI *ENUMFILESTREAMS)(int Idx,const WCHAR *StreamName,const WIN32_STREAM_ID *sid);
 //int WINAPI EnumNTFSStreams(const char *FileName,ENUMFILESTREAMS fpEnum, long long* SizeStreams);
 
-bool EnumStreams(const string& FileName, unsigned long long& StreamsSize,DWORD &StreamsCount);
+bool EnumStreams(const string& FileName, unsigned long long& StreamsSize, size_t& StreamsCount);
 
 bool DuplicateReparsePoint(const string& Src,const string& Dst);
 
 void NormalizeSymlinkName(string &strLinkName);
 
 int MkSymLink(const string& Target,const string& LinkName, ReparsePointTypes LinkType, bool Silent=false, bool HoldTarget=false);
+
+bool reparse_tag_to_string(DWORD ReparseTag, string& Str);
 
 #endif // FLINK_HPP_76B08BB3_29AE_4BCA_B01B_C600603A2996

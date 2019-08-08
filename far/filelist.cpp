@@ -268,8 +268,8 @@ DWORD FileListItem::NumberOfLinks(const FileList* Owner) const
 		else
 		{
 			SCOPED_ACTION(elevation::suppress);
-			auto Value = GetNumberOfLinks(GetItemFullName(*this, Owner), true);
-			m_NumberOfLinks = Value < 0 ? values::unknown(m_NumberOfLinks) : Value;
+			const auto Hardlinks = GetNumberOfLinks(GetItemFullName(*this, Owner));
+			m_NumberOfLinks = Hardlinks? *Hardlinks : values::unknown(m_NumberOfLinks);
 		}
 	}
 	return m_NumberOfLinks;
@@ -286,7 +286,13 @@ static void GetStreamsCountAndSize(const FileList* Owner, const FileListItem& It
 	{
 		SCOPED_ACTION(elevation::suppress);
 
-		if (!EnumStreams(GetItemFullName(Item, Owner), StreamsSize, NumberOfStreams))
+		size_t StreamsCount = 0;
+		if (EnumStreams(GetItemFullName(Item, Owner), StreamsSize, StreamsCount))
+		{
+			static_assert(std::is_same_v<decltype(NumberOfStreams), DWORD&>);
+			NumberOfStreams = static_cast<DWORD>(StreamsCount);
+		}
+		else
 		{
 			StreamsSize = FileListItem::values::unknown(StreamsSize);
 			NumberOfStreams = FileListItem::values::unknown(NumberOfStreams);

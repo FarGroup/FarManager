@@ -248,7 +248,14 @@ bool FileFilterParams::FileInFilter(const os::fs::find_data& Object, os::chrono:
 		Object.Attributes,
 	};
 
-	return FileInFilter(FilterObject, CurrentTime, [&](){ return FullName? GetNumberOfLinks(*FullName) : 1; });
+	return FileInFilter(FilterObject, CurrentTime, [&]
+	{
+		if (!FullName)
+			return size_t{1};
+
+		const auto Hardlinks = GetNumberOfLinks(*FullName);
+		return Hardlinks? *Hardlinks : 1;
+	});
 }
 
 bool FileFilterParams::FileInFilter(const PluginPanelItem& Object, os::chrono::time_point CurrentTime) const
