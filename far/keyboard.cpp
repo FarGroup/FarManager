@@ -700,14 +700,6 @@ static DWORD ProcessBufferSizeEvent(COORD Size)
 		SaveNonMaximisedBufferSize(Size);
 	}
 
-	// BUGBUG If initial mode was fullscreen - first transition will not be detected
-	static auto StoredConsoleFullscreen = false;
-
-	DWORD DisplayMode = 0;
-	const auto CurrentConsoleFullscreen = IsWindows10OrGreater() && console.GetDisplayMode(DisplayMode) && DisplayMode & CONSOLE_FULLSCREEN;
-	const auto TransitionFromFullScreen = StoredConsoleFullscreen && !CurrentConsoleFullscreen;
-	StoredConsoleFullscreen = CurrentConsoleFullscreen;
-
 	int PScrX = ScrX;
 	int PScrY = ScrY;
 
@@ -716,7 +708,8 @@ static DWORD ProcessBufferSizeEvent(COORD Size)
 	PrevScrX = PScrX;
 	PrevScrY = PScrY;
 
-	AdjustConsoleScreenBufferSize(TransitionFromFullScreen);
+	AdjustConsoleScreenBufferSize();
+	console.ResetViewportPosition();
 
 	if (Global->WindowManager)
 	{

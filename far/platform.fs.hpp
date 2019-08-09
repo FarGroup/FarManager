@@ -532,7 +532,7 @@ namespace os::fs
 	bool set_file_security(string_view Object, SECURITY_INFORMATION RequestedInformation, const security::descriptor& SecurityDescriptor);
 
 	[[nodiscard]]
-	bool reset_security(string_view Object);
+	bool reset_file_security(string_view Object);
 
 	[[nodiscard]]
 	bool get_disk_size(string_view Path, unsigned long long* TotalSize, unsigned long long* TotalFree, unsigned long long* UserFree);

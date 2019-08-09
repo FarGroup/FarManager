@@ -318,8 +318,8 @@ void InitConsole()
 
 		if(Global->Opt->WindowMode)
 		{
+			AdjustConsoleScreenBufferSize();
 			console.ResetViewportPosition();
-			AdjustConsoleScreenBufferSize(false);
 		}
 		else
 		{
@@ -1284,13 +1284,13 @@ bool IsConsoleFullscreen()
 
 void fix_coordinates(rectangle& Where)
 {
-	Where.left = std::	clamp(Where.left, 0, static_cast<int>(ScrX));
+	Where.left = std::clamp(Where.left, 0, static_cast<int>(ScrX));
 	Where.top = std::clamp(Where.top, 0, static_cast<int>(ScrY));
 	Where.right = std::clamp(Where.right, 0, static_cast<int>(ScrX));
 	Where.bottom = std::clamp(Where.bottom, 0, static_cast<int>(ScrY));
 }
 
-void AdjustConsoleScreenBufferSize(bool TransitionFromFullScreen)
+void AdjustConsoleScreenBufferSize()
 {
 	if (!Global->Opt->WindowMode)
 		return;
@@ -1317,34 +1317,7 @@ void AdjustConsoleScreenBufferSize(bool TransitionFromFullScreen)
 		}
 	}
 
-	if (TransitionFromFullScreen)
-	{
-		// Exiting fullscreen in Windows 10 is broken:
-		// They try to fit the window with scrollbars into the old size (without scrollbars),
-		// thus reducing the window dimensions by (scrollbar_size / console_character_size).
-		// This doesn't happen with regular maximize/restore though.
-		// Windows gets better and better every day.
-
-		CONSOLE_FONT_INFO FontInfo;
-		if (GetCurrentConsoleFont(console.GetOutputHandle(), FALSE, &FontInfo))
-		{
-			const auto FixX = Round(static_cast<SHORT>(GetSystemMetrics(SM_CXVSCROLL)), FontInfo.dwFontSize.X);
-			const auto FixY = Round(static_cast<SHORT>(GetSystemMetrics(SM_CYHSCROLL)), FontInfo.dwFontSize.Y);
-
-			Size.X += FixX;
-			Size.Y += FixY;
-
-			SMALL_RECT WindowRect;
-			if (console.GetWindowRect(WindowRect))
-			{
-				WindowRect.Right += FixX;
-				WindowRect.Bottom += FixY;
-				console.SetWindowRect(WindowRect);
-			}
-		}
-	}
-
-	SetConsoleScreenBufferSize(console.GetOutputHandle(), Size);
+	console.SetScreenBufferSize(Size);
 }
 
 static COORD& NonMaximisedBufferSize()

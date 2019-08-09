@@ -3440,21 +3440,9 @@ static bool ShellCopySecuryMsg(const copy_progress* CP, const string& Name)
 
 bool ShellCopy::ResetSecurity(const string& FileName)
 {
-	ACL EmptyAcl{};
-	if (!InitializeAcl(&EmptyAcl, sizeof(EmptyAcl), ACL_REVISION))
-		return false;
-
 	for (;;)
 	{
-		if (SetNamedSecurityInfo(
-			UNSAFE_CSTR(NTPath(FileName)),
-			SE_FILE_OBJECT,
-			DACL_SECURITY_INFORMATION | UNPROTECTED_DACL_SECURITY_INFORMATION,
-			nullptr,
-			nullptr,
-			&EmptyAcl,
-			nullptr
-		) == ERROR_SUCCESS)
+		if (os::fs::reset_file_security(FileName))
 			return true;
 
 		if (SkipSecurityErrors)

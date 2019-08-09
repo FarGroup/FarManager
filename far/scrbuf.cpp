@@ -598,7 +598,7 @@ void ScreenBuf::Scroll(size_t Count)
 
 	const FAR_CHAR_INFO Fill{ L' ', colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN) };
 
-	if (Global->Opt->WindowMode)
+	if (Global->Opt->WindowMode && console.IsScrollbackPresent())
 	{
 		SMALL_RECT Region = { 0, 0, ScrX, static_cast<SHORT>(Count - 1) };
 

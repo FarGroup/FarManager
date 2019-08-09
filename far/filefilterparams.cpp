@@ -232,7 +232,7 @@ bool FileFilterParams::FileInFilter(const FileListItem& Object, const FileList* 
 		Object.Attributes,
 	};
 
-	return FileInFilter(FilterObject, CurrentTime, [&](){ return Object.NumberOfLinks(Owner); });
+	return FileInFilter(FilterObject, CurrentTime, [&]{ return Object.NumberOfLinks(Owner); });
 }
 
 bool FileFilterParams::FileInFilter(const os::fs::find_data& Object, os::chrono::time_point CurrentTime,const string* FullName) const
@@ -251,10 +251,10 @@ bool FileFilterParams::FileInFilter(const os::fs::find_data& Object, os::chrono:
 	return FileInFilter(FilterObject, CurrentTime, [&]
 	{
 		if (!FullName)
-			return size_t{1};
+			return DWORD{1};
 
 		const auto Hardlinks = GetNumberOfLinks(*FullName);
-		return Hardlinks? *Hardlinks : 1;
+		return Hardlinks? static_cast<DWORD>(*Hardlinks) : 1;
 	});
 }
 

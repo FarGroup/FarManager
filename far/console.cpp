@@ -216,7 +216,7 @@ namespace console_detail
 	bool console::SetSize(COORD Size) const
 	{
 		if (!sWindowMode)
-			return SetConsoleScreenBufferSize(GetOutputHandle(), Size) != FALSE;
+			return SetScreenBufferSize(Size);
 
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
 		GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);
@@ -229,7 +229,7 @@ namespace console_detail
 		{
 			WindowCoord.X = std::max(WindowCoord.X, csbi.dwSize.X);
 			WindowCoord.Y = std::max(WindowCoord.Y, csbi.dwSize.Y);
-			SetConsoleScreenBufferSize(GetOutputHandle(), WindowCoord);
+			SetScreenBufferSize(WindowCoord);
 
 			if (WindowCoord.X > csbi.dwSize.X)
 			{
@@ -241,6 +241,24 @@ namespace console_detail
 		}
 
 		return SetWindowRect(csbi.srWindow);
+	}
+
+	bool console::SetScreenBufferSize(COORD Size) const
+	{
+		// This abominable workaround is for another Windows 10 bug, see https://github.com/microsoft/terminal/issues/2366
+		COORD CursorPosition;
+		if (GetCursorRealPosition(CursorPosition))
+		{
+			CursorPosition =
+			{
+				std::min(CursorPosition.X, static_cast<SHORT>(Size.X - 1)),
+				std::min(CursorPosition.Y, static_cast<SHORT>(Size.Y - 1)),
+			};
+
+			SetConsoleCursorPosition(GetOutputHandle(), CursorPosition);
+		}
+
+		return SetConsoleScreenBufferSize(GetOutputHandle(), Size) != FALSE;
 	}
 
 	bool console::GetWindowRect(SMALL_RECT& ConsoleWindow) const
@@ -1055,7 +1073,10 @@ namespace console_detail
 	bool console::ResetViewportPosition() const
 	{
 		COORD Size;
-		return GetSize(Size) && SetCursorPosition({0, static_cast<SHORT>(Size.Y - 1) });
+		return
+			GetSize(Size) &&
+			SetCursorPosition({}) &&
+			SetCursorPosition({0, static_cast<SHORT>(Size.Y - 1) });
 	}
 
 	bool console::GetColorDialog(FarColor& Color, bool const Centered, const FarColor* const BaseColor) const
@@ -1125,6 +1146,11 @@ namespace console_detail
 
 		const auto RealY = Position.y + (sWindowMode? ::GetDelta(csbi) : 0);
 		return in_range(csbi.srWindow.Top, RealY, csbi.srWindow.Bottom);
+	}
+
+	bool console::IsScrollbackPresent() const
+	{
+		return GetDelta() != 0;
 	}
 
 	bool console::GetPalette(std::array<COLORREF, 16>& Palette) const

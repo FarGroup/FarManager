@@ -549,14 +549,35 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 {
 	auto LocalKey = Key();
 	const auto Mask = GetInputMask();
+
+	const auto CharOrPredefined = [&](wchar_t const Predefined)
+	{
+		if (const auto Char = Key.Event().Event.KeyEvent.uChar.UnicodeChar)
+			return Char;
+
+		return Predefined;
+	};
+
 	switch (LocalKey)
 	{
 		case KEY_ADD:
+			LocalKey = CharOrPredefined(L'+');
+			break;
+
 		case KEY_SUBTRACT:
+			LocalKey = CharOrPredefined(L'-');
+			break;
+
 		case KEY_MULTIPLY:
+			LocalKey = CharOrPredefined(L'*');
+			break;
+
 		case KEY_DIVIDE:
+			LocalKey = CharOrPredefined(L'/');
+			break;
+
 		case KEY_DECIMAL:
-			LocalKey = Key.Event().Event.KeyEvent.uChar.UnicodeChar;
+			LocalKey = CharOrPredefined(L'.');
 			break;
 
 		case KEY_CTRLC:

@@ -269,7 +269,8 @@ DWORD FileListItem::NumberOfLinks(const FileList* Owner) const
 		{
 			SCOPED_ACTION(elevation::suppress);
 			const auto Hardlinks = GetNumberOfLinks(GetItemFullName(*this, Owner));
-			m_NumberOfLinks = Hardlinks? *Hardlinks : values::unknown(m_NumberOfLinks);
+			static_assert(std::is_same_v<decltype(m_NumberOfLinks), DWORD>);
+			m_NumberOfLinks = Hardlinks? static_cast<DWORD>(*Hardlinks) : values::unknown(m_NumberOfLinks);
 		}
 	}
 	return m_NumberOfLinks;

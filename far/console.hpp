@@ -79,6 +79,8 @@ namespace console_detail
 		bool GetSize(COORD& Size) const;
 		bool SetSize(COORD Size) const;
 
+		bool SetScreenBufferSize(COORD Size) const;
+
 		bool GetWindowRect(SMALL_RECT& ConsoleWindow) const;
 		bool SetWindowRect(const SMALL_RECT& ConsoleWindow) const;
 
@@ -157,6 +159,7 @@ namespace console_detail
 		bool IsViewportVisible() const;
 		bool IsViewportShifted() const;
 		bool IsPositionVisible(point Position) const;
+		bool IsScrollbackPresent() const;
 
 		bool GetPalette(std::array<COLORREF, 16>& Palette) const;
 

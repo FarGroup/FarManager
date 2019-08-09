@@ -234,7 +234,7 @@ bool IsConsoleSizeChanged();
 void SaveNonMaximisedBufferSize(const COORD& Size);
 COORD GetNonMaximisedBufferSize();
 
-void AdjustConsoleScreenBufferSize(bool TransitionFromFullScreen);
+void AdjustConsoleScreenBufferSize();
 
 class consoleicons: public singleton<consoleicons>
 {

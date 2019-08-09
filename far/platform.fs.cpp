@@ -1931,7 +1931,7 @@ namespace os::fs
 		return false;
 	}
 
-	bool reset_file_security(string const& Object)
+	bool reset_file_security(string_view const Object)
 	{
 		NTPath const NtObject(Object);
 		if (low::reset_file_security(NtObject.c_str()))
