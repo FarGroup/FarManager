@@ -82,11 +82,13 @@
     <Manifest>
       <GenerateCategoryTags>false</GenerateCategoryTags>
     </Manifest>
-    <PostBuildEvent>
-      <Command>@for %%s in (_globalinfo.lua api.lua farapi.lua lang.lua luamacro.lua macrotest.lua mbrowser.lua panelsort.lua utils.lua winapi.lua moonscript.lua keymacro.lua lm_eng.lng lm_rus.lng lm_sky.lng lm_spa.lng lm_ita.lng lm_bel.lng luamacro.example.ini) do @copy /y %%s $(OutDir) 1&gt;nul</Command>
+    <PostBuildEvent Condition="'$(Platform)'=='Win32'">
+      <Command>editbin /nologo /subsystem:console,5.0 /osversion:5.0 $(OutDir)$(TargetName)$(TargetExt) &gt; nul</Command>
+      <Message>Fixing subsystem version 5.0</Message>
     </PostBuildEvent>
-    <PostBuildEvent>
-      <Message>copy .lua scripts</Message>
+    <PostBuildEvent Condition="'$(Platform)'=='x64'">
+      <Command>editbin /nologo /subsystem:console,5.2 /osversion:5.2 $(OutDir)$(TargetName)$(TargetExt) &gt; nul</Command>
+      <Message>Fixing subsystem version 5.2</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
 
@@ -131,10 +133,6 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
-    <PostBuildEvent>
-      <Command>editbin /nologo /subsystem:console,5.0 /osversion:5.0 $(OutDir)$(TargetName)$(TargetExt) &gt; nul</Command>
-      <Message>Fixing subsystem version</Message>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
 
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -142,7 +140,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>EXPORT_OPEN;EXPORT_PROCESSEDITOREVENT;EXPORT_PROCESSEDITORINPUT;EXPORT_PROCESSCONSOLEINPUT;EXPORT_PROCESSVIEWEREVENT;EXPORT_PROCESSDIALOGEVENT;EXPORT_CONFIGURE;EXPORT_ANALYSE;EXPORT_CLOSEPANEL;EXPORT_COMPARE;EXPORT_DELETEFILES;EXPORT_GETFILES;EXPORT_GETFINDDATA;EXPORT_GETOPENPANELINFO;EXPORT_MAKEDIRECTORY;EXPORT_PROCESSHOSTFILE;EXPORT_PROCESSPANELEVENT;EXPORT_PROCESSPANELINPUT;EXPORT_PUTFILES;EXPORT_SETDIRECTORY;EXPORT_SETFINDLIST;EXPORT_GETCONTENTDATA;RUN_LUAFAR_INIT;WIN32;NDEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <DebugInformationFormat>None</DebugInformationFormat>
     </ClCompile>
@@ -152,10 +150,6 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
-    <PostBuildEvent>
-      <Command>editbin /nologo /subsystem:console,5.2 /osversion:5.2 $(OutDir)$(TargetName)$(TargetExt) &gt; nul</Command>
-      <Message>Fixing subsystem version</Message>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
 
   <ItemGroup>
@@ -186,11 +180,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="luamacroW.vc.def" />
-    <CustomBuild Include="lm_bel.lng">
-      <Message>Copying %(Identity)</Message>
-      <Command>copy %(Identity) $(OutDir)</Command>
-      <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
-    </CustomBuild>
     <CustomBuild Include="lm_eng.lng">
       <Message>Copying %(Identity)</Message>
       <Command>copy %(Identity) $(OutDir)</Command>
@@ -212,6 +201,76 @@
       <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="lm_ita.lng">
+      <Message>Copying %(Identity)</Message>
+      <Command>copy %(Identity) $(OutDir)</Command>
+      <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="lm_bel.lng">
+      <Message>Copying %(Identity)</Message>
+      <Command>copy %(Identity) $(OutDir)</Command>
+      <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="_globalinfo.lua">
+      <Message>Copying %(Identity)</Message>
+      <Command>copy %(Identity) $(OutDir)</Command>
+      <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="api.lua">
+      <Message>Copying %(Identity)</Message>
+      <Command>copy %(Identity) $(OutDir)</Command>
+      <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="farapi.lua">
+      <Message>Copying %(Identity)</Message>
+      <Command>copy %(Identity) $(OutDir)</Command>
+      <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="lang.lua">
+      <Message>Copying %(Identity)</Message>
+      <Command>copy %(Identity) $(OutDir)</Command>
+      <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="luamacro.lua">
+      <Message>Copying %(Identity)</Message>
+      <Command>copy %(Identity) $(OutDir)</Command>
+      <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="macrotest.lua">
+      <Message>Copying %(Identity)</Message>
+      <Command>copy %(Identity) $(OutDir)</Command>
+      <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="mbrowser.lua">
+      <Message>Copying %(Identity)</Message>
+      <Command>copy %(Identity) $(OutDir)</Command>
+      <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="panelsort.lua">
+      <Message>Copying %(Identity)</Message>
+      <Command>copy %(Identity) $(OutDir)</Command>
+      <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="utils.lua">
+      <Message>Copying %(Identity)</Message>
+      <Command>copy %(Identity) $(OutDir)</Command>
+      <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="winapi.lua">
+      <Message>Copying %(Identity)</Message>
+      <Command>copy %(Identity) $(OutDir)</Command>
+      <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="moonscript.lua">
+      <Message>Copying %(Identity)</Message>
+      <Command>copy %(Identity) $(OutDir)</Command>
+      <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="keymacro.lua">
+      <Message>Copying %(Identity)</Message>
+      <Command>copy %(Identity) $(OutDir)</Command>
+      <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="luamacro.example.ini">
       <Message>Copying %(Identity)</Message>
       <Command>copy %(Identity) $(OutDir)</Command>
       <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
