@@ -604,7 +604,7 @@ void GenerateWINDOW_BUFFER_SIZE_EVENT()
 {
 	INPUT_RECORD Rec{ WINDOW_BUFFER_SIZE_EVENT };
 	size_t Writes;
-	console.WriteInput(&Rec, 1, Writes);
+	console.WriteInput({ &Rec, 1 }, Writes);
 }
 
 void UpdateScreenSize()

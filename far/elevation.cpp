@@ -900,7 +900,7 @@ os::security::descriptor elevation::get_file_security(string const& Object, SECU
 		os::security::descriptor{},
 		[&]
 		{
-			return os::fs::low::get_file_security(Object.c_str(), RequestedInformation);
+			return os::fs::low::get_file_security(Object, RequestedInformation);
 		},
 		[&]
 		{

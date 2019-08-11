@@ -132,7 +132,6 @@ enum class panel_sort
 	BY_STREAMSSIZE,
 	BY_FULLNAME,
 	BY_CHTIME,
-	BY_CUSTOMDATA,
 
 	COUNT
 };

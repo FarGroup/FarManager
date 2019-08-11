@@ -63,7 +63,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-static void AddToPrintersMenu(VMenu2 *PrinterList, span<PRINTER_INFO_4W const> Printers)
+static void AddToPrintersMenu(VMenu2 *PrinterList, span<PRINTER_INFO_4W const> const Printers)
 {
 	// Получаем принтер по умолчанию
 	string strDefaultPrinter;
@@ -78,7 +78,7 @@ static void AddToPrintersMenu(VMenu2 *PrinterList, span<PRINTER_INFO_4W const> P
 	{
 		MenuItemEx Item(printer.pPrinterName);
 
-		if (strDefaultPrinter == printer.pPrinterName)
+		if (!bDefaultPrinterFound && printer.pPrinterName == strDefaultPrinter)
 		{
 			bDefaultPrinterFound = true;
 			Item.SetCheck();

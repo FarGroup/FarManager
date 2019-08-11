@@ -376,7 +376,7 @@ private:
 
 		Name = Stmt->GetColText(0);
 		Value = std::invoke(Getter, Stmt, 1);
-		Stmt.release();
+		(void)Stmt.release();
 		return true;
 	}
 
@@ -590,7 +590,7 @@ private:
 			return false;
 
 		Name = Stmt->GetColText(0);
-		Stmt.release();
+		(void)Stmt.release();
 		return true;
 	}
 
@@ -611,7 +611,7 @@ private:
 
 		Name = Stmt->GetColText(0);
 		Type = static_cast<int>(Stmt->GetColType(1));
-		Stmt.release();
+		(void)Stmt.release();
 		return true;
 	}
 
@@ -986,7 +986,7 @@ private:
 
 		*id = Stmt->GetColInt64(0);
 		strMask = Stmt->GetColText(1);
-		Stmt.release();
+		(void)Stmt.release();
 		return true;
 	}
 
@@ -1007,7 +1007,7 @@ private:
 
 		*id = Stmt->GetColInt64(0);
 		strMask = Stmt->GetColText(1);
-		Stmt.release();
+		(void)Stmt.release();
 		return true;
 	}
 
@@ -1428,7 +1428,7 @@ private:
 			return false;
 
 		CacheName = Stmt->GetColText(0);
-		Stmt.release();
+		(void)Stmt.release();
 		return true;
 	}
 
@@ -1874,7 +1874,7 @@ private:
 		strGuid = Stmt->GetColText(5);
 		strFile = Stmt->GetColText(6);
 		strData = Stmt->GetColText(7);
-		Stmt.release();
+		(void)Stmt.release();
 		return true;
 	}
 
@@ -1924,7 +1924,7 @@ private:
 			return false;
 
 		strHistoryName = Stmt->GetColText(0);
-		Stmt.release();
+		(void)Stmt.release();
 		return true;
 	}
 

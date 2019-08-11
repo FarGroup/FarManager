@@ -318,7 +318,8 @@ size_t codepages::GetCodePageInsertPosition(uintptr_t codePage, size_t start, si
 	};
 
 	const auto iRange = irange(start, start + length);
-	return *std::find_if(CONST_RANGE(iRange, i) { return GetCodePage(i) >= codePage; });
+	const auto Pos = std::find_if(CONST_RANGE(iRange, i) { return GetCodePage(i) >= codePage; });
+	return Pos != iRange.cend()? *Pos : start + length;
 }
 
 // Добавляем все необходимые таблицы символов

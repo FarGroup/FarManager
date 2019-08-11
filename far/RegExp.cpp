@@ -1682,6 +1682,7 @@ int RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int src
 					continue;
 				}
 			}
+			[[fallthrough]];
 			default:
 			{
 				op->op=options&OP_IGNORECASE?opSymbolIgnoreCase:opSymbol;

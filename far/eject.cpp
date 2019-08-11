@@ -97,15 +97,16 @@ void EjectVolume(wchar_t Letter)
 		(void)File.FlushBuffers();
 	}
 
-#if 0
-	// TODO: ЭТОТ КУСОК НУЖНО РАСКОММЕНТИТЬ ВМЕСТЕ С ПОДЪЕМОМ ПРОЕКТА ПО USB
-	/*
-	  Это чудо нужно для того, чтобы, скажем, имея картридер на 3 карточки,
-	  дисмоунтить только 1 карточку, а не отключать все устройство!
-	*/
-	if (File.IoControl(FSCTL_DISMOUNT_VOLUME, nullptr, 0, nullptr, 0))
-		throw MAKE_FAR_EXCEPTION(L"DismountVolume"sv);
-#endif
+	if constexpr (false)
+	{
+		// TODO: ЭТОТ КУСОК НУЖНО РАСКОММЕНТИТЬ ВМЕСТЕ С ПОДЪЕМОМ ПРОЕКТА ПО USB
+		/*
+		  Это чудо нужно для того, чтобы, скажем, имея картридер на 3 карточки,
+		  дисмоунтить только 1 карточку, а не отключать все устройство!
+		*/
+		if (File.IoControl(FSCTL_DISMOUNT_VOLUME, nullptr, 0, nullptr, 0))
+			throw MAKE_FAR_EXCEPTION(L"DismountVolume"sv);
+	}
 
 	PREVENT_MEDIA_REMOVAL PreventMediaRemoval{};
 	if (!File.IoControl(IOCTL_STORAGE_MEDIA_REMOVAL, &PreventMediaRemoval, sizeof(PreventMediaRemoval), nullptr, 0))

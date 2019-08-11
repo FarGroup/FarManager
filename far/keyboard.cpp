@@ -660,7 +660,7 @@ static void DropConsoleInputEvent()
 {
 	INPUT_RECORD rec;
 	size_t ReadCount;
-	console.ReadInput(&rec, 1, ReadCount);
+	console.ReadInput({ &rec, 1 }, ReadCount);
 }
 
 static void UpdateIntKeyState(DWORD CtrlState)
@@ -883,7 +883,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 		}
 
 		size_t ReadCount;
-		if (console.PeekInput(rec, 1, ReadCount) && ReadCount)
+		if (console.PeekInput({ rec, 1 }, ReadCount) && ReadCount)
 		{
 			//check for flock
 			if (rec->EventType==KEY_EVENT && !rec->Event.KeyEvent.wVirtualScanCode && (rec->Event.KeyEvent.wVirtualKeyCode==VK_NUMLOCK||rec->Event.KeyEvent.wVirtualKeyCode==VK_CAPITAL||rec->Event.KeyEvent.wVirtualKeyCode==VK_SCROLL))
@@ -1030,7 +1030,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 
 	{
 		size_t ReadCount;
-		console.ReadInput(rec, 1, ReadCount);
+		console.ReadInput({ rec, 1 }, ReadCount);
 	}
 
 	if (EnableShowTime)
@@ -1158,7 +1158,7 @@ DWORD PeekInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 	}
 	else
 	{
-		console.PeekInput(rec, 1, ReadCount);
+		console.PeekInput({ rec, 1 }, ReadCount);
 	}
 
 	if (!ReadCount)

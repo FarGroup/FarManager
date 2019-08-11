@@ -536,7 +536,7 @@ void PluginsStackItem_Dump(const wchar_t *Title,const PluginsListItem *ListItems
 			DEF_SORTMODE_(BY_SIZE),   DEF_SORTMODE_(BY_DIZ),   DEF_SORTMODE_(BY_OWNER),
 			DEF_SORTMODE_(BY_COMPRESSEDSIZE),DEF_SORTMODE_(BY_NUMLINKS),
 			DEF_SORTMODE_(BY_NUMSTREAMS),DEF_SORTMODE_(BY_STREAMSSIZE),
-			DEF_SORTMODE_(BY_FULLNAME),DEF_SORTMODE_(BY_CUSTOMDATA)
+			DEF_SORTMODE_(BY_FULLNAME)
 		};
 		static_assert(std::size(__SORT) == static_cast<size_t>(panel_sort::COUNT));
 
@@ -558,7 +558,7 @@ void PluginsStackItem_Dump(const wchar_t *Title,const PluginsListItem *ListItems
 				         (ListItems[I].m_Modified?L"True ":L"False"),
 				         ListItems[I].m_PrevViewMode,
 				         static_cast<int>(ListItems[I].m_PrevSortMode),
-				         (ListItems[I].m_PrevSortMode < panel_sort::BY_CUSTOMDATA? __SORT[static_cast<int>(ListItems[I].m_PrevSortMode)].Name : L"<Unknown>"),
+				         (ListItems[I].m_PrevSortMode < panel_sort::COUNT? __SORT[static_cast<int>(ListItems[I].m_PrevSortMode)].Name : L"<Unknown>"),
 				         ListItems[I].m_PrevSortOrder,
 				         ListItems[I].m_PrevDirectoriesFirst,
 				         ListItems[I].m_HostFile.c_str());
@@ -1785,7 +1785,7 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
 	{
 		std::vector<INPUT_RECORD> TmpRec(ReadCount2);
 		size_t ReadCount3;
-		console.PeekInput(TmpRec.data(), TmpRec.size(), ReadCount3);
+		console.PeekInput(TmpRec, ReadCount3);
 
 		for (DWORD I=0; I < ReadCount3; ++I)
 		{

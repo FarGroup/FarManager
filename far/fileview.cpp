@@ -319,7 +319,7 @@ bool FileViewer::ProcessKey(const Manager::Key& Key)
 			*/
 		case KEY_SHIFTF4:
 		{
-			if (!Global->Opt->OnlyEditorViewerUsed)
+			if (!Global->OnlyEditorViewerUsed)
 				Global->CtrlObject->Cp()->ActivePanel()->ProcessKey(Key);
 
 			return true;

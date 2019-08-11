@@ -192,11 +192,10 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 	{
 		if (Pos > DiskCount && !SetSelected)
 		{
-			i.getItem().SetSelect(DiskCount + static_cast<int>(index)+1 == Pos);
-
-			if (!SetSelected)
-				SetSelected = DiskCount + static_cast<int>(index)+1 == Pos;
+			SetSelected = DiskCount + static_cast<int>(index) + 1 == Pos;
+			i.getItem().SetSelect(SetSelected);
 		}
+
 		const auto HotKey = i.getHotKey();
 		i.getItem().Name = concat(HotKey? concat(L'&', HotKey, L"  "sv) : L"   "sv, i.getItem().Name);
 		ChDisk.AddItem(i.getItem());

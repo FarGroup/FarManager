@@ -43,6 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/2d/matrix.hpp"
 #include "common/2d/point.hpp"
 #include "common/nifty_counter.hpp"
+#include "common/range.hpp"
 
 // External:
 
@@ -103,9 +104,9 @@ namespace console_detail
 		bool GetMode(HANDLE ConsoleHandle, DWORD& Mode) const;
 		bool SetMode(HANDLE ConsoleHandle, DWORD Mode) const;
 
-		bool PeekInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsRead) const;
-		bool ReadInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsRead) const;
-		bool WriteInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsWritten) const;
+		bool PeekInput(span<INPUT_RECORD> Buffer, size_t& NumberOfEventsRead) const;
+		bool ReadInput(span<INPUT_RECORD> Buffer, size_t& NumberOfEventsRead) const;
+		bool WriteInput(span<INPUT_RECORD> Buffer, size_t& NumberOfEventsWritten) const;
 		bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, const SMALL_RECT& ReadRegion) const;
 		bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, const SMALL_RECT& ReadRegion) const { return ReadOutput(Buffer, {}, ReadRegion); }
 		bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, const SMALL_RECT& WriteRegion) const;

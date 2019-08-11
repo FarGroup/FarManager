@@ -121,9 +121,9 @@ struct subst_data
 
 	delayed_deleter* ListNames{};
 	string CmdDir;
-	bool PreserveLFN;
-	bool PassivePanel;
-	bool EscapeAmpersands;
+	bool PreserveLFN{};
+	bool PassivePanel{};
+	bool EscapeAmpersands{};
 };
 
 

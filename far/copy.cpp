@@ -113,17 +113,16 @@ enum COPY_FLAGS
 	FCOPY_COPYTONUL               = 0_bit, // Признак копирования в NUL
 	FCOPY_CURRENTONLY             = 1_bit, // Только текущий?
 	FCOPY_ONLYNEWERFILES          = 2_bit, // Copy only newer files
-	FCOPY_LINK                    = 4_bit, // создание линков
-	FCOPY_MOVE                    = 5_bit, // перенос/переименование
-	FCOPY_DIZREAD                 = 6_bit, //
-	FCOPY_VOLMOUNT                = 8_bit, // операция монтирования тома
-	FCOPY_STREAMSKIP              = 9_bit, // потоки
-	FCOPY_STREAMALL               = 10_bit, // потоки
-	FCOPY_COPYSYMLINKCONTENTS     = 12_bit, // Копировать содержимое символических ссылок?
-	FCOPY_DECRYPTED_DESTINATION   = 15_bit, // для криптованных файлов - расшифровывать...
-	FCOPY_USESYSTEMCOPY           = 16_bit, // использовать системную функцию копирования
-	FCOPY_COPYLASTTIME            = 17_bit, // При копировании в несколько каталогов устанавливается для последнего.
-	FCOPY_UPDATEPPANEL            = 18_bit, // необходимо обновить пассивную панель
+	FCOPY_LINK                    = 3_bit, // создание линков
+	FCOPY_MOVE                    = 4_bit, // перенос/переименование
+	FCOPY_DIZREAD                 = 5_bit, //
+	FCOPY_VOLMOUNT                = 6_bit, // операция монтирования тома
+	FCOPY_STREAMSKIPALL           = 7_bit, // потоки
+	FCOPY_COPYSYMLINKCONTENTS     = 8_bit, // Копировать содержимое символических ссылок?
+	FCOPY_DECRYPTED_DESTINATION   = 9_bit, // для криптованных файлов - расшифровывать...
+	FCOPY_USESYSTEMCOPY           = 10_bit, // использовать системную функцию копирования
+	FCOPY_COPYLASTTIME            = 11_bit, // При копировании в несколько каталогов устанавливается для последнего.
+	FCOPY_UPDATEPPANEL            = 12_bit, // необходимо обновить пассивную панель
 };
 
 static const struct
@@ -829,7 +828,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 			ComboList.Items=CopyModeItems;
 			ComboList.Items[CM_ASK].Text = msg(lng::MCopyAsk).c_str();
 			ComboList.Items[CM_OVERWRITE].Text = msg(lng::MCopyOverwrite).c_str();
-			ComboList.Items[CM_SKIP].Text = msg(lng::MCopySkipOvr).c_str();
+			ComboList.Items[CM_SKIP].Text = msg(lng::MCopySkip).c_str();
 			ComboList.Items[CM_RENAME].Text = msg(lng::MCopyRename).c_str();
 			ComboList.Items[CM_APPEND].Text = msg(lng::MCopyAppend).c_str();
 			ComboList.Items[CM_ONLYNEWER].Text = msg(lng::MCopyOnlyNewerFiles).c_str();
@@ -1263,7 +1262,6 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 
 	SetCursorType(false, 0);
 
-	//Flags &= ~(FCOPY_STREAMSKIP|FCOPY_STREAMALL); // unused now...
 	DWORD Flags0 = Flags;
 
 	bool first = true;
@@ -1809,15 +1807,10 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 	if (!(Flags&FCOPY_COPYTONUL))
 	{
-		// проверка очередного монстрика на потоки
-		switch (CheckStreams(Src,strDestPath))
+		if constexpr (false)
 		{
-			case COPY_SKIPPED:
-				return COPY_SKIPPED;
-			case COPY_CANCEL:
+			if (!CheckStreams(Src, strDestPath))
 				return COPY_CANCEL;
-			default:
-				break;
 		}
 
 		bool dir = (SrcData.Attributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
@@ -2325,50 +2318,41 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 	}
 }
 
-
-// проверка очередного монстрика на потоки
-COPY_CODES ShellCopy::CheckStreams(const string& Src,const string& DestPath)
+// TODO: Copy them?
+bool ShellCopy::CheckStreams(const string& Src, const string& DestPath)
 {
+	if (Flags & FCOPY_STREAMSKIPALL)
+		return true;
 
-#if 0
-	int AscStreams=(Flags&FCOPY_STREAMSKIP)?2:((Flags&FCOPY_STREAMALL)?0:1);
+	if (Flags & FCOPY_USESYSTEMCOPY)
+		return true;
 
-	if (!(Flags&FCOPY_USESYSTEMCOPY) && AscStreams)
-	{
-		int CountStreams=EnumNTFSStreams(Src,nullptr,nullptr);
+	const auto StreamsEnumerator = os::fs::enum_streams(Src);
 
-		if (CountStreams > 1 ||
-		        (CountStreams >= 1 && (GetFileAttributes(Src)&FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY))
+	if (!std::any_of(ALL_CONST_RANGE(StreamsEnumerator), [](WIN32_FIND_STREAM_DATA const& i){ return !starts_with(i.cStreamName, L"::"sv); }))
+		return true;
+
+	switch (Message(MSG_WARNING, msg(lng::MWarning),
 		{
-			if (AscStreams == 2)
-			{
-				return COPY_NEXT);
-			}
+			msg(lng::MCopyStream1),
+			msg(lng::MCopyStream2), // TODO: lng::MCopyStream3
+			msg(lng::MCopyStream4),
+		},
+		{
+			lng::MCopySkip, lng::MCopySkipAll, lng::MCopyCancel
+		},
+		L"WarnCopyStream"sv))
+	{
+	case Message::first_button:
+		return true;
 
-			SetMessageHelp("WarnCopyStream");
-			//char SrcFullName[NM];
-			//ConvertNameToFull(Src,SrcFullName, sizeof(SrcFullName));
-			//TruncPathStr(SrcFullName,ScrX-16);
-			int MsgCode=Message(MSG_WARNING,5,msg(lng::MWarning),
-			                    msg(lng::MCopyStream1),
-			                    msg(CanCreateHardLinks(DestPath, nullptr)? lng::MCopyStream2 : lng::MCopyStream3),
-			                    msg(lng::MCopyStream4),"\1",//SrcFullName,"\1",
-			                    msg(lng::MCopyResume),msg(lng::MCopyOverwriteAll),msg(lng::MCopySkipOvr),msg(lng::MCopySkipAllOvr),msg(lng::MCopyCancelOvr));
+	case Message::second_button:
+		Flags |= FCOPY_STREAMSKIPALL;
+		return true;
 
-			switch (MsgCode)
-			{
-				case 0: break;
-				case 1: Flags|=FCOPY_STREAMALL; break;
-				case 2: return COPY_NEXT);
-				case 3: Flags|=FCOPY_STREAMSKIP; return COPY_NEXT);
-				default:
-					return COPY_CANCEL;
-			}
-		}
+	default:
+		return false;
 	}
-
-#endif
-	return COPY_SUCCESS;
 }
 
 int ShellCopy::DeleteAfterMove(const string& Name,DWORD Attr)
@@ -2391,7 +2375,7 @@ int ShellCopy::DeleteAfterMove(const string& Name,DWORD Attr)
 					FullName,
 					msg(lng::MCopyAskDelete),
 				},
-				{ lng::MCopyDeleteRO, lng::MCopyDeleteAllRO, lng::MCopySkipRO, lng::MCopySkipAllRO, lng::MCopyCancelRO });
+				{ lng::MCopyDeleteRO, lng::MCopyDeleteAllRO, lng::MCopySkip, lng::MCopySkipAll, lng::MCopyCancel });
 
 		switch (MsgCode)
 		{
@@ -3110,10 +3094,10 @@ bool ShellCopy::AskOverwrite(const os::fs::find_data &SrcData,
 		{ DI_CHECKBOX,  {{5,  8 }, {0,      8     }}, DIF_FOCUS, msg(lng::MCopyRememberChoice), },
 		{ DI_TEXT,      {{-1, 9 }, {0,      9     }}, DIF_SEPARATOR, },
 		{ DI_BUTTON,    {{0,  10}, {0,      10    }}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MCopyOverwrite), },
-		{ DI_BUTTON,    {{0,  10}, {0,      10    }}, DIF_CENTERGROUP, msg(lng::MCopySkipOvr), },
+		{ DI_BUTTON,    {{0,  10}, {0,      10    }}, DIF_CENTERGROUP, msg(lng::MCopySkip), },
 		{ DI_BUTTON,    {{0,  10}, {0,      10    }}, DIF_CENTERGROUP, msg(lng::MCopyRename), },
 		{ DI_BUTTON,    {{0,  10}, {0,      10    }}, DIF_CENTERGROUP | (AskAppend ? DIF_NONE : (DIF_DISABLE | DIF_HIDDEN)), msg(lng::MCopyAppend), },
-		{ DI_BUTTON,    {{0,  10}, {0,      10    }}, DIF_CENTERGROUP, msg(lng::MCopyCancelOvr), },
+		{ DI_BUTTON,    {{0,  10}, {0,      10    }}, DIF_CENTERGROUP, msg(lng::MCopyCancel), },
 	});
 
 	os::fs::find_data DestData;

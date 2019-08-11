@@ -107,16 +107,27 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/rel_ops.hpp"
 #include "common/scope_exit.hpp"
 #include "common/string_utils.hpp"
+#include "common/utility.hpp"
 
 // External:
 #include "format.hpp"
 
 //----------------------------------------------------------------------------
 
-static int CompareTime(os::chrono::time_point First, os::chrono::time_point Second)
+static auto compare_time(os::chrono::time_point First, os::chrono::time_point Second)
 {
-	return First == Second? 0 : First < Second? -1 : 1;
-};
+	return as_signed((First - Second).count());
+}
+
+static auto compare_fat_time(os::chrono::time_point First, os::chrono::time_point Second)
+{
+	constexpr auto FatPrecision = std::chrono::duration_cast<os::chrono::duration>(2s).count();
+
+	const auto Difference = compare_time(First, Second);
+
+	return as_unsigned(std::abs(Difference)) < FatPrecision? 0 : Difference;
+}
+
 
 enum SELECT_MODES
 {
@@ -594,7 +605,7 @@ public:
 
 		const auto CompareTime = [&a, &b](const os::chrono::time_point FileListItem::*time)
 		{
-			return ::CompareTime(std::invoke(time, a), std::invoke(time, b));
+			return compare_time(std::invoke(time, a), std::invoke(time, b));
 		};
 
 		const auto GetExt = [SortFolderExt = SortFolderExt](const FileListItem& i)
@@ -719,24 +730,6 @@ public:
 			UseReverseNameSort = true;
 			if (const auto Result = string_sort::compare(a.FileName, b.FileName))
 				return Result < 0;
-			break;
-
-		case panel_sort::BY_CUSTOMDATA:
-#if 0
-			if (a.strCustomData.empty())
-			{
-				if (b.strCustomData.empty())
-					break;
-				else
-					return false;
-			}
-
-			if (b.strCustomData.empty())
-				return true;
-
-			if (const auto Result = string_sort::compare(a.strCustomData, b.strCustomData))
-					return Result < 0;
-#endif
 			break;
 
 		case panel_sort::COUNT:
@@ -3429,7 +3422,6 @@ void FileList::SetSortMode(panel_sort Mode, bool KeepOrder)
 				true,  // BY_STREAMSSIZE,
 				false, // BY_FULLNAME,
 				true,  // BY_CHTIME,
-				false  // BY_CUSTOMDATA,
 			};
 			static_assert(std::size(InvertByDefault) == static_cast<size_t>(panel_sort::COUNT));
 
@@ -4244,33 +4236,35 @@ void FileList::CompareDir()
 			Another->Select(i, true);
 	}
 
-	int CompareFatTime=FALSE;
+	bool UseFatTime = false;
 
 	if (m_PanelMode == panel_mode::PLUGIN_PANEL)
 	{
 		Global->CtrlObject->Plugins->GetOpenPanelInfo(GetPluginHandle(), &m_CachedOpenPanelInfo);
 
 		if (m_CachedOpenPanelInfo.Flags & OPIF_COMPAREFATTIME)
-			CompareFatTime=TRUE;
+			UseFatTime = true;
 
 	}
 
-	if (Another->m_PanelMode == panel_mode::PLUGIN_PANEL && !CompareFatTime)
+	if (Another->m_PanelMode == panel_mode::PLUGIN_PANEL && !UseFatTime)
 	{
 		Global->CtrlObject->Plugins->GetOpenPanelInfo(Another->GetPluginHandle(), &m_CachedOpenPanelInfo);
 
 		if (m_CachedOpenPanelInfo.Flags & OPIF_COMPAREFATTIME)
-			CompareFatTime=TRUE;
+			UseFatTime = true;
 
 	}
 
 	if (m_PanelMode == panel_mode::NORMAL_PANEL && Another->m_PanelMode == panel_mode::NORMAL_PANEL)
 	{
-		string strFileSystemName1, strFileSystemName2;
-		CompareFatTime =
-			os::fs::GetVolumeInformation(GetPathRoot(m_CurDir), nullptr, nullptr, nullptr, nullptr, &strFileSystemName1) &&
-			os::fs::GetVolumeInformation(GetPathRoot(Another->m_CurDir), nullptr, nullptr, nullptr, nullptr, &strFileSystemName2) &&
-			!equal_icase(strFileSystemName1, strFileSystemName2);
+		const auto is_fat = [](string_view const Path)
+		{
+			string FileSystemName;
+			return os::fs::GetVolumeInformation(GetPathRoot(Path), nullptr, nullptr, nullptr, nullptr, &FileSystemName) && contains_icase(FileSystemName, L"FAT"sv);
+		};
+
+		UseFatTime = is_fat(m_CurDir) || is_fat(Another->m_CurDir);
 	}
 
 	// теперь начнем цикл по снятию выделений
@@ -4288,35 +4282,15 @@ void FileList::CompareDir()
 
 			if (equal_icase(PointToName(i.FileName), PointToName(j.FileName)))
 			{
-				int Cmp=0;
-				if (CompareFatTime)
-				{
-					WORD DosDate,DosTime,AnotherDosDate,AnotherDosTime;
-					const auto iTime = os::chrono::nt_clock::to_filetime(i.LastWriteTime);
-					const auto jTime = os::chrono::nt_clock::to_filetime(j.LastWriteTime);
-					FileTimeToDosDateTime(&iTime, &DosDate, &DosTime);
-					FileTimeToDosDateTime(&jTime, &AnotherDosDate, &AnotherDosTime);
-					DWORD FullDosTime = MAKELONG(DosTime, DosDate);
-					DWORD AnotherFullDosTime = MAKELONG(AnotherDosTime, AnotherDosDate);
-					int D=FullDosTime-AnotherFullDosTime;
-
-					if (D>=-1 && D<=1)
-						Cmp=0;
-					else
-						Cmp=(FullDosTime<AnotherFullDosTime) ? -1:1;
-				}
-				else
-				{
-					Cmp = CompareTime(i.LastWriteTime, j.LastWriteTime);
-				}
+				const auto Cmp = (UseFatTime? compare_fat_time : compare_time)(i.LastWriteTime, j.LastWriteTime);
 
 				if (!Cmp && (i.FileSize != j.FileSize))
 					continue;
 
-				if (Cmp < 1 && i.Selected)
+				if (Cmp <= 0 && i.Selected)
 					Select(i, false);
 
-				if (Cmp > -1 && j.Selected)
+				if (Cmp >= 0 && j.Selected)
 					Another->Select(j, false);
 
 				if (Another->m_PanelMode != panel_mode::PLUGIN_PANEL)
@@ -4549,22 +4523,21 @@ void FileList::SelectSortMode()
 {
 	const menu_item InitSortMenuModes[]
 	{
-		{ msg(lng::MMenuSortByName), LIF_SELECTED, KEY_CTRLF3 },
-		{ msg(lng::MMenuSortByExt), 0, KEY_CTRLF4 },
-		{ msg(lng::MMenuSortByWrite), 0, KEY_CTRLF5 },
-		{ msg(lng::MMenuSortBySize), 0, KEY_CTRLF6 },
-		{ msg(lng::MMenuUnsorted), 0, KEY_CTRLF7 },
-		{ msg(lng::MMenuSortByCreation), 0, KEY_CTRLF8 },
-		{ msg(lng::MMenuSortByAccess), 0, KEY_CTRLF9 },
-		{ msg(lng::MMenuSortByChange), 0, 0 },
-		{ msg(lng::MMenuSortByDiz), 0, KEY_CTRLF10 },
-		{ msg(lng::MMenuSortByOwner), 0, KEY_CTRLF11 },
-		{ msg(lng::MMenuSortByAllocatedSize), 0, 0 },
-		{ msg(lng::MMenuSortByNumLinks), 0, 0 },
-		{ msg(lng::MMenuSortByNumStreams), 0, 0 },
-		{ msg(lng::MMenuSortByStreamsSize), 0, 0 },
-		{ msg(lng::MMenuSortByFullName), 0, 0 },
-		{ msg(lng::MMenuSortByCustomData), 0, 0 },
+		{ msg(lng::MMenuSortByName),              LIF_SELECTED,    KEY_CTRLF3,      },
+		{ msg(lng::MMenuSortByExt),               0,               KEY_CTRLF4,      },
+		{ msg(lng::MMenuSortByWrite),             0,               KEY_CTRLF5,      },
+		{ msg(lng::MMenuSortBySize),              0,               KEY_CTRLF6,      },
+		{ msg(lng::MMenuUnsorted),                0,               KEY_CTRLF7,      },
+		{ msg(lng::MMenuSortByCreation),          0,               KEY_CTRLF8,      },
+		{ msg(lng::MMenuSortByAccess),            0,               KEY_CTRLF9,      },
+		{ msg(lng::MMenuSortByChange),            0,               0,               },
+		{ msg(lng::MMenuSortByDiz),               0,               KEY_CTRLF10,     },
+		{ msg(lng::MMenuSortByOwner),             0,               KEY_CTRLF11,     },
+		{ msg(lng::MMenuSortByAllocatedSize),     0,               0,               },
+		{ msg(lng::MMenuSortByNumLinks),          0,               0,               },
+		{ msg(lng::MMenuSortByNumStreams),        0,               0,               },
+		{ msg(lng::MMenuSortByStreamsSize),       0,               0,               },
+		{ msg(lng::MMenuSortByFullName),          0,               0,               },
 	};
 	static_assert(std::size(InitSortMenuModes) == static_cast<size_t>(panel_sort::COUNT));
 
@@ -4614,7 +4587,6 @@ void FileList::SelectSortMode()
 		panel_sort::BY_NUMSTREAMS,
 		panel_sort::BY_STREAMSSIZE,
 		panel_sort::BY_FULLNAME,
-		panel_sort::BY_CUSTOMDATA
 	};
 	static_assert(std::size(SortModes) == static_cast<size_t>(panel_sort::COUNT));
 
@@ -7463,7 +7435,6 @@ void FileList::ShowFileList(bool Fast)
 				{panel_sort::BY_NUMSTREAMS,           lng::MMenuSortByNumStreams},
 				{panel_sort::BY_STREAMSSIZE,          lng::MMenuSortByStreamsSize},
 				{panel_sort::BY_FULLNAME,             lng::MMenuSortByFullName},
-				{panel_sort::BY_CUSTOMDATA,           lng::MMenuSortByCustomData},
 			};
 			static_assert(std::size(ModeNames) == static_cast<size_t>(panel_sort::COUNT));
 

@@ -667,7 +667,6 @@ std::any* Dialog::GetListItemComplexUserData(size_t ListId, size_t ItemId)
 */
 size_t Dialog::InitDialogObjects(size_t ID)
 {
-	size_t I;
 	FARDIALOGITEMTYPES Type;
 	size_t InitItemCount;
 	unsigned long long ItemFlags;
@@ -694,7 +693,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 		m_FocusPos = (size_t)-1; // будем искать сначала!
 
 	// предварительный цикл по поводу кнопок
-	for (I=ID; I < InitItemCount; I++)
+	for (size_t I = ID; I != InitItemCount; ++I)
 	{
 		ItemFlags=Items[I].Flags;
 		Type=Items[I].Type;
@@ -772,7 +771,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 	// а теперь все сначала и по полной программе...
 	ProcessCenterGroup(); // сначала отцентрируем
 
-	for (I=ID; I < InitItemCount; I++)
+	for (size_t I = ID; I != InitItemCount; ++I)
 	{
 		Type=Items[I].Type;
 		ItemFlags=Items[I].Flags;
@@ -1391,7 +1390,7 @@ void Dialog::GetDialogObjectsData()
 
 					if ((IFlags&DIF_EDITEXPAND) && i.Type != DI_PSWEDIT && i.Type != DI_FIXEDIT)
 					{
-						strData = os::env::expand_strings(strData);
+						strData = os::env::expand(strData);
 						//как бы грязный хак, нам нужно обновить строку чтоб отдавалась правильная строка
 						//для различных DM_* после закрытия диалога, но ни в коем случае нельзя чтоб
 						//высылался DN_EDITCHANGE для этого изменения, ибо диалог уже закрыт.
@@ -1421,7 +1420,6 @@ void Dialog::GetDialogObjectsData()
 		}
 
 #if 0
-
 		if ((i->Type == DI_COMBOBOX || i->Type == DI_LISTBOX) && i->ListPtr && i->ListItems && DlgProc == DefDlgProc)
 		{
 			int ListPos=i->ListPtr->GetSelectPos();
@@ -1660,10 +1658,11 @@ void Dialog::ShowDialog(size_t ID)
 
 		if (m_FocusPos != ID)
 		{
-			if (Items[m_FocusPos].Type == DI_USERCONTROL && Items[m_FocusPos].UCData->CursorPos.X != -1 && Items[m_FocusPos].UCData->CursorPos.Y != -1)
+			const auto& FocusedItem = Items[m_FocusPos];
+			if (FocusedItem.Type == DI_USERCONTROL && FocusedItem.UCData->CursorPos.X != -1 && FocusedItem.UCData->CursorPos.Y != -1)
 			{
-				CursorVisible=Items[m_FocusPos].UCData->CursorVisible;
-				CursorSize=Items[m_FocusPos].UCData->CursorSize;
+				CursorVisible = FocusedItem.UCData->CursorVisible;
+				CursorSize = FocusedItem.UCData->CursorSize;
 			}
 		}
 

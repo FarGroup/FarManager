@@ -77,7 +77,7 @@ void save_file_with_replace(string const& FileName, DWORD const FileAttributes, 
 	const auto OutFileName = UseTemporaryFile? MakeTempInSameDir(FileName) : FileName;
 	const auto NewAttributes = (IsFileExists? FileAttributes : 0) | FILE_ATTRIBUTE_ARCHIVE | ExtraAttributes;
 
-	std::optional<os::security::descriptor> SecurityDescriptor;
+	os::security::descriptor SecurityDescriptor;
 	SECURITY_ATTRIBUTES SecurityAttributes{};
 
 	if (UseTemporaryFile)
@@ -85,7 +85,7 @@ void save_file_with_replace(string const& FileName, DWORD const FileAttributes, 
 		// ReplaceFileW handles DAC, but just in case if it can't for whatever reason:
 		SecurityDescriptor = os::fs::get_file_security(FileName, DACL_SECURITY_INFORMATION);
 		if (SecurityDescriptor)
-			SecurityAttributes.lpSecurityDescriptor = SecurityDescriptor->get();
+			SecurityAttributes.lpSecurityDescriptor = SecurityDescriptor.get();
 	}
 
 	{

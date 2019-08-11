@@ -1074,22 +1074,20 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, function_ref<void(
 					//Тут нельзя делать WaitForMultipleObjects из за бага в Win7 при работе в телнет
 					while (!Process.is_signaled(100ms))
 					{
-						if (WaitForSingleObject(hInput, 100)==WAIT_OBJECT_0 && console.PeekInput(ir, 256, rd) && rd)
+						if (WaitForSingleObject(hInput, 100)==WAIT_OBJECT_0 && console.PeekInput(ir, rd) && rd)
 						{
 							int stop=0;
 
-							for (DWORD i=0; i<rd; i++)
+							for (const auto& i: span(ir, rd))
 							{
-								const auto pir = &ir[i];
-
-								if (pir->EventType==KEY_EVENT)
+								if (i.EventType==KEY_EVENT)
 								{
-									const auto dwControlKeyState = pir->Event.KeyEvent.dwControlKeyState;
+									const auto dwControlKeyState = i.Event.KeyEvent.dwControlKeyState;
 									const auto bAlt = (dwControlKeyState & LEFT_ALT_PRESSED) || (dwControlKeyState & RIGHT_ALT_PRESSED);
 									const auto bCtrl = (dwControlKeyState & LEFT_CTRL_PRESSED) || (dwControlKeyState & RIGHT_CTRL_PRESSED);
 									const auto bShift = (dwControlKeyState & SHIFT_PRESSED)!=0;
 
-									if (vkey==pir->Event.KeyEvent.wVirtualKeyCode &&
+									if (vkey == i.Event.KeyEvent.wVirtualKeyCode &&
 									        (alt ?bAlt:!bAlt) &&
 									        (ctrl ?bCtrl:!bCtrl) &&
 									        (shift ?bShift:!bShift))
@@ -1098,7 +1096,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, function_ref<void(
 
 										consoleicons::instance().restorePreviousIcons();
 
-										console.ReadInput(ir, 256, rd);
+										console.ReadInput(ir, rd);
 										/*
 										  Не будем вызывать CloseConsole, потому, что она поменяет
 										  ConsoleMode на тот, что был до запуска Far'а,

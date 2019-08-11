@@ -165,7 +165,7 @@ static string SerializeMenu(const UserMenu::menu_container& Menu)
 	return Result;
 }
 
-static void ParseMenu(UserMenu::menu_container& Menu, range<enum_file_lines::iterator> FileStrings, bool OldFormat)
+static void ParseMenu(UserMenu::menu_container& Menu, range<enum_file_lines::iterator> const FileStrings, bool OldFormat)
 {
 	UserMenu::menu_container::value_type *MenuItem = nullptr;
 

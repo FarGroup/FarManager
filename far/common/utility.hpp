@@ -127,6 +127,13 @@ void hash_range(size_t& Seed, iterator First, iterator Last)
 
 template<typename T>
 [[nodiscard]]
+constexpr auto as_signed(T Value)
+{
+	return static_cast<std::make_signed_t<T>>(Value);
+}
+
+template<typename T>
+[[nodiscard]]
 constexpr auto as_unsigned(T Value)
 {
 	return static_cast<std::make_unsigned_t<T>>(Value);

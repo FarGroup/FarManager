@@ -353,9 +353,9 @@ namespace console_detail
 		return SetConsoleMode(ConsoleHandle, Mode) != FALSE;
 	}
 
-	static void AdjustMouseEvents(INPUT_RECORD* Buffer, size_t Length, short Delta, short MaxX)
+	static void AdjustMouseEvents(span<INPUT_RECORD> const Buffer, short Delta, short MaxX)
 	{
-		for (auto& i: span(Buffer, Length))
+		for (auto& i: Buffer)
 		{
 			if (i.EventType == MOUSE_EVENT)
 			{
@@ -365,24 +365,24 @@ namespace console_detail
 		}
 	}
 
-	bool console::PeekInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsRead) const
+	bool console::PeekInput(span<INPUT_RECORD> const Buffer, size_t& NumberOfEventsRead) const
 	{
 		DWORD dwNumberOfEventsRead = 0;
-		bool Result = PeekConsoleInput(GetInputHandle(), Buffer, static_cast<DWORD>(Length), &dwNumberOfEventsRead) != FALSE;
+		bool Result = PeekConsoleInput(GetInputHandle(), Buffer.data(), static_cast<DWORD>(Buffer.size()), &dwNumberOfEventsRead) != FALSE;
 		NumberOfEventsRead = dwNumberOfEventsRead;
 		if (sWindowMode)
 		{
 			COORD Size = {};
 			GetSize(Size);
-			AdjustMouseEvents(Buffer, NumberOfEventsRead, GetDelta(), Size.X - 1);
+			AdjustMouseEvents({Buffer.data(), NumberOfEventsRead}, GetDelta(), Size.X - 1);
 		}
 		return Result;
 	}
 
-	bool console::ReadInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsRead) const
+	bool console::ReadInput(span<INPUT_RECORD> const Buffer, size_t& NumberOfEventsRead) const
 	{
 		DWORD dwNumberOfEventsRead = 0;
-		if (!ReadConsoleInput(GetInputHandle(), Buffer, static_cast<DWORD>(Length), &dwNumberOfEventsRead))
+		if (!ReadConsoleInput(GetInputHandle(), Buffer.data(), static_cast<DWORD>(Buffer.size()), &dwNumberOfEventsRead))
 			return false;
 
 		NumberOfEventsRead = dwNumberOfEventsRead;
@@ -391,19 +391,19 @@ namespace console_detail
 		{
 			COORD Size = {};
 			GetSize(Size);
-			AdjustMouseEvents(Buffer, NumberOfEventsRead, GetDelta(), Size.X - 1);
+			AdjustMouseEvents({Buffer.data(), NumberOfEventsRead}, GetDelta(), Size.X - 1);
 		}
 
 		return true;
 	}
 
-	bool console::WriteInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsWritten) const
+	bool console::WriteInput(span<INPUT_RECORD> const Buffer, size_t& NumberOfEventsWritten) const
 	{
 		if (sWindowMode)
 		{
 			const auto Delta = GetDelta();
 
-			for (auto& i: span(Buffer, Length))
+			for (auto& i: Buffer)
 			{
 				if (i.EventType == MOUSE_EVENT)
 				{
@@ -412,7 +412,7 @@ namespace console_detail
 			}
 		}
 		DWORD dwNumberOfEventsWritten = 0;
-		bool Result = WriteConsoleInput(GetInputHandle(), Buffer, static_cast<DWORD>(Length), &dwNumberOfEventsWritten) != FALSE;
+		bool Result = WriteConsoleInput(GetInputHandle(), Buffer.data(), static_cast<DWORD>(Buffer.size()), &dwNumberOfEventsWritten) != FALSE;
 		NumberOfEventsWritten = dwNumberOfEventsWritten;
 		return Result;
 	}
@@ -627,23 +627,25 @@ namespace console_detail
 
 		static bool WriteOutputNTImplDebug(CHAR_INFO* const Buffer, COORD const BufferSize, SMALL_RECT& WriteRegion)
 		{
-#if 0
-			assert(BufferSize.X == WriteRegion.Right - WriteRegion.Left + 1);
-			assert(BufferSize.Y == WriteRegion.Bottom - WriteRegion.Top + 1);
-
-
-			for (auto&i: span(Buffer, BufferSize.X * BufferSize.Y))
+			if constexpr (false)
 			{
-				i.Attributes = (i.Attributes & FCF_RAWATTR_MASK) | LOBYTE(~i.Attributes);
+				assert(BufferSize.X == WriteRegion.Right - WriteRegion.Left + 1);
+				assert(BufferSize.Y == WriteRegion.Bottom - WriteRegion.Top + 1);
+
+
+				for (auto&i: span(Buffer, BufferSize.X * BufferSize.Y))
+				{
+					i.Attributes = (i.Attributes & FCF_RAWATTR_MASK) | LOBYTE(~i.Attributes);
+				}
+
+				auto WriteRegionCopy = WriteRegion;
+				WriteOutputNTImpl(Buffer, BufferSize, WriteRegionCopy);
+				Sleep(50);
+
+				for (auto&i: span(Buffer, BufferSize.X * BufferSize.Y))
+					i.Attributes = (i.Attributes & FCF_RAWATTR_MASK) | LOBYTE(~i.Attributes);
 			}
 
-			auto WriteRegionCopy = WriteRegion;
-			WriteOutputNTImpl(Buffer, BufferSize, WriteRegionCopy);
-			Sleep(50);
-
-			for (auto&i: span(Buffer, BufferSize.X * BufferSize.Y))
-				i.Attributes = (i.Attributes & FCF_RAWATTR_MASK) | LOBYTE(~i.Attributes);
-#endif
 			return WriteOutputNTImpl(Buffer, BufferSize, WriteRegion) != FALSE;
 		}
 

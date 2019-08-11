@@ -4880,27 +4880,27 @@ MCannotCopyFileToItself2
 MCopyStream1
 l:
 "Исходный файл содержит более одного потока данных,"
-"The source file contains more than one data stream."
-"Zdrojový soubor obsahuje více než jeden datový proud."
-"Die Quelldatei enthält mehr als einen Datenstream"
+"The source file contains more than one data stream,"
+"Zdrojový soubor obsahuje více než jeden datový proud,"
+"Die Quelldatei enthält mehr als einen Datenstream,"
 "A forrásfájl több stream-et tartalmaz,"
-"Plik źródłowy zawiera więcej niż jeden strumień danych."
-"El archivo origen contiene más de un flujo de datos."
-"Zdrojový súbor obsahuje viac než jeden dátový prúd."
-"Origine Contiene Più Di Un Data Stream."
+"Plik źródłowy zawiera więcej niż jeden strumień danych,"
+"El archivo origen contiene más de un flujo de datos,"
+"Zdrojový súbor obsahuje viac než jeden dátový prúd,"
+"Origine Contiene Più Di Un Data Stream,"
 "Початковий файл містить більш ніж один потік даних,"
 "Зыходны файл змяшчае больш адной струмені дадзеных,"
 
 MCopyStream2
 "но вы не используете системную функцию копирования."
-"but since you do not use a system copy routine."
-"protože nepoužíváte systémovou kopírovací rutinu."
+"but you're not using the system copy routine."
+"ale nepoužíváte systémovou kopírovací rutinu."
 "aber Sie verwenden derzeit nicht die systemeigene Kopierroutine."
 "de nem a rendszer másolórutinját használja."
-"ale ze względu na rezygnację z systemowej procedury kopiowania."
-"pero desde que usted no usa la rutina de copia del sistema."
-"lebo nepoužívate systémovú kopírovaciu rutinu."
-"Ma Poichè Non Usate Le Procedure Di Copia Del Sistema"
+"ale nie korzystasz z systemowej procedury kopiowania."
+"pero no estás utilizando la rutina de copia del sistema."
+"ale nepoužívate systémovú kopírovaciu rutinu."
+"Ma Non Stai Usando Una Procedure Di Copia Del Sistema."
 "але ви не використовуєте системну функцію копіювання."
 "але вы не ўжываеце сістэмнае капіяванне."
 
@@ -4913,13 +4913,13 @@ MCopyStream3
 "ale napęd docelowy nie obsługuje tej funkcji."
 "pero el volumen de destino no soporta esta opción."
 "lebo cieľová jednotka nepodporuje túto funkciu."
-"Ma Il Disco Di Destinazione Non Supporta Queste Funzioni"
+"Ma Il Disco Di Destinazione Non Supporta Queste Funzioni."
 "але том призначення не підтримує цю можливість."
 "але дыск прызначэння не падтрымлівае гэтай магчымасці."
 
 MCopyStream4
 "Часть сведений не будет сохранена."
-"Some data will not be preserved as a result."
+"Some data will not be preserved."
 "To bude mít za následek, že některá data nebudou uchována."
 "Ein Teil der Daten bleiben daher nicht erhalten."
 "Az adatok egy része el fog veszni."
@@ -5023,19 +5023,6 @@ MCopyOverwrite
 "За&мість"
 "За&мест"
 
-MCopySkipOvr
-"&Пропустить"
-"&Skip"
-"Přes&kočit"
-"Über&spr."
-"&Kihagy"
-"&Omiń"
-"Sa&ltar"
-"Pres&kočiť"
-"&Salta"
-"&Пропустити"
-"&Прапусціць"
-
 MCopyAppend
 "&Добавить"
 "A&ppend"
@@ -5049,19 +5036,6 @@ MCopyAppend
 "&Додати"
 "&Дадаць"
 
-MCopyResume
-"Возоб&новить"
-"&Resume"
-"Po&kračovat"
-"&Weiter"
-"Fol&ytat"
-"Ponó&w"
-"&Resumir"
-"Pok&račovať"
-"&Riprendi"
-"Від&новити"
-"Працяг&нуць"
-
 MCopyRename
 "&Имя"
 "R&ename"
@@ -5074,19 +5048,6 @@ upd:"R&ename"
 "&Rinomina"
 "Ім'я"
 "Пер&аназваць"
-
-MCopyCancelOvr
-"&Отменить"
-"&Cancel"
-"&Storno"
-"Ab&bruch"
-"&Mégsem"
-"&Anuluj"
-"&Cancelar"
-"&Zrušiť"
-"&Annulla"
-"&Скасувати"
-"&Адмена"
 
 MCopyRememberChoice
 "&Запомнить выбор"
@@ -5179,45 +5140,6 @@ MCopyDeleteAllRO
 "&Tutti"
 "&Все"
 "&Усе"
-
-MCopySkipRO
-"&Пропустить"
-"&Skip"
-"Přes&kočit"
-"Über&springen"
-"&Kihagyja"
-"&Omiń"
-"Sa&ltar"
-"Pres&kočiť"
-"&Salta"
-"&Пропустити"
-"&Прапусціць"
-
-MCopySkipAllRO
-"П&ропустить все"
-"S&kip all"
-"Př&eskočit vše"
-"A&lle überspringen"
-"Mind&et"
-"O&miń wszystkie"
-"Saltar to&dos"
-"Pr&eskočiť všetky"
-"Sa&lta Tutti"
-"П&ропустити все"
-"П&рапусціць усе"
-
-MCopyCancelRO
-"&Отменить"
-"&Cancel"
-"&Storno"
-"Ab&bruch"
-"&Mégsem"
-"&Anuluj"
-"&Cancelar"
-"&Storno"
-"&Annulla"
-"&Скасувати"
-"&Адмяніць"
 
 MCannotCopy
 l:
@@ -16793,19 +16715,6 @@ upd:"&Full name"
 "Nome &Completo"
 "Повне ім'я"
 "&Поўнае імя"
-
-MMenuSortByCustomData
-"Пользовательские данные"
-"Cus&tom data"
-"U&živatelských dat"
-"Benützerdaten"
-upd:"Cus&tom data"
-"Własne ustawieni&a"
-"Datos opcionales"
-"U&žívateľských dát"
-"Dati Definiti Dall'&Utente"
-"Дані користувача"
-"Дадзеныя карыс&тальніка"
 
 MMenuSortUseGroups
 "Использовать &группы сортировки"

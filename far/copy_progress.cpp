@@ -57,24 +57,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern std::chrono::steady_clock::duration WaitUserTime;
 
 copy_progress::copy_progress(bool Move, bool Total, bool Time):
-	m_Rect(),
 	m_CurrentBarSize(CanvasWidth()),
-	m_CurrentPercent(0),
+	m_CurrentBar(make_progressbar(m_CurrentBarSize, 0, false, false)),
 	m_TotalBarSize(CanvasWidth()),
-	m_TotalPercent(0),
+	m_TotalBar(make_progressbar(m_TotalBarSize, 0, false, false)),
 	m_Move(Move),
 	m_Total(Total),
 	m_ShowTime(Time),
-	m_IsCancelled(false),
 	m_Color(colors::PaletteColorToFarColor(COL_DIALOGTEXT)),
 	m_TimeCheck(time_check::mode::immediate, GetRedrawTimeout()),
 	m_SpeedUpdateCheck(time_check::mode::immediate, 3s),
-	m_SecurityTimeCheck(time_check::mode::immediate, GetRedrawTimeout()),
-	m_Files(),
-	m_Bytes()
+	m_SecurityTimeCheck(time_check::mode::immediate, GetRedrawTimeout())
 {
-	m_CurrentBar = make_progressbar(m_CurrentBarSize, 0, false, false);
-	m_TotalBar = make_progressbar(m_TotalBarSize, 0, false, false);
 }
 
 size_t copy_progress::CanvasWidth()

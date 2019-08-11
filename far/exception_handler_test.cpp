@@ -251,7 +251,7 @@ namespace tests
 	}
 }
 
-static bool ExceptionTestHook(Manager::Key key)
+static bool ExceptionTestHook(Manager::Key const& key)
 {
 	if (
 		key() != KEY_CTRLALTAPPS &&

@@ -80,20 +80,20 @@ private:
 	std::chrono::steady_clock::time_point m_CopyStartTime;
 	taskbar::indeterminate m_TB;
 	wakeful m_Wakeful;
-	small_rectangle m_Rect;
+	small_rectangle m_Rect{};
 
-	string m_CurrentBar;
 	size_t m_CurrentBarSize;
-	int m_CurrentPercent;
+	int m_CurrentPercent{};
+	string m_CurrentBar;
 
-	string m_TotalBar;
 	size_t m_TotalBarSize;
-	int m_TotalPercent;
+	int m_TotalPercent{};
+	string m_TotalBar;
 
 	bool m_Move;
 	bool m_Total;
 	bool m_ShowTime;
-	bool m_IsCancelled;
+	bool m_IsCancelled{};
 	FarColor m_Color;
 	time_check m_TimeCheck;
 	time_check m_SpeedUpdateCheck;
@@ -103,7 +103,7 @@ private:
 	string m_TimeLeft;
 	string m_Speed;
 	string m_FilesCopied;
-	std::chrono::steady_clock::duration m_CalcTime;
+	std::chrono::steady_clock::duration m_CalcTime{};
 
 	// BUGBUG
 public:
@@ -114,7 +114,7 @@ public:
 		size_t Copied;
 		size_t Total;
 	}
-	m_Files;
+	m_Files{};
 
 	struct
 	{
@@ -123,7 +123,7 @@ public:
 		unsigned long long Skipped;
 		unsigned long long CurrCopied;
 	}
-	m_Bytes;
+	m_Bytes{};
 };
 
 #endif // COPY_PROGRESS_HPP_3D1EAAD8_8353_459C_8826_33AAAE06D01F

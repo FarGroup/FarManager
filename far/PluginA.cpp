@@ -591,7 +591,7 @@ static void ConvertPanelModeToUnicode(const oldfar::PanelMode& Mode, PanelMode& 
 		(Mode.CaseConversion? PMFLAGS_CASECONVERSION : 0);
 }
 
-static void ConvertPanelModesToUnicode(span<const oldfar::PanelMode> Modes, span<PanelMode> UnicodeModes)
+static void ConvertPanelModesToUnicode(span<const oldfar::PanelMode> const Modes, span<PanelMode> const UnicodeModes)
 {
 	for (const auto& [m, u]: zip(Modes, UnicodeModes))
 	{

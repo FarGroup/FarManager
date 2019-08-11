@@ -83,17 +83,18 @@ static void* ToUser(MEMINFO* address) { return address + 1; }
 
 static void CheckChain()
 {
-#if 0
-	auto p = &FirstMemBlock;
+	if constexpr (false)
+	{
+		auto p = &FirstMemBlock;
 
-	while(p->next)
-		p = p->next;
-	assert(p==LastMemBlock);
+		while (p->next)
+			p = p->next;
+		assert(p == LastMemBlock);
 
-	while(p->prev)
-		p = p->prev;
-	assert(p==&FirstMemBlock);
-#endif
+		while (p->prev)
+			p = p->prev;
+		assert(p == &FirstMemBlock);
+	}
 }
 
 static const int EndMarker = 0xDEADBEEF;
