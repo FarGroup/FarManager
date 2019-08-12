@@ -656,6 +656,10 @@
           <Feature Id="SameFolder.Belarusian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="SameFolderBel.lng" />
           </Feature>
+          <Feature Id="SameFolder.Polish" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="SameFolderPol.hlf" />
+            <ComponentRef Id="SameFolderPol.lng" />
+          </Feature>
           <Feature Id="SameFolder.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="SameFolderRus.hlf" />
             <ComponentRef Id="SameFolderRus.lng" />

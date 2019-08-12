@@ -365,6 +365,8 @@
 <?define Guid.SameFolderSpa.lng = "F317160A-D553-4E89-956A-F88392EC251E" ?>
 <?define Guid.SameFolderIta.lng = "25CCC3A1-99E4-410D-AEF9-0E72E6EC4075" ?>
 <?define Guid.SameFolderBel.lng = "F6EB4E4A-B9CA-4C51-BD55-6C3B002CF310" ?>
+<?define Guid.SameFolderPol.hlf = "125F36CA-127C-43F9-9B1E-3E8C7E49EBAC" ?>
+<?define Guid.SameFolderPol.lng = "23D8AD67-CD81-430F-A7EA-A57D373CB62B" ?>
 
 <?define Guid.CaseEng.hlf = "A097C155-2906-4B4E-858A-910D948F84D5" ?>
 <?define Guid.CaseEng.lng = "901A4175-A4DB-46D4-ADF8-DECE89BFDD31" ?>

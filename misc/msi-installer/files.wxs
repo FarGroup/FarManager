@@ -1146,6 +1146,12 @@
           <Component Id="SameFolderBel.lng" Guid="$(var.Guid.SameFolderBel.lng)" Win64="$(var.Win64)">
             <File Id="SameFolderBel.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\SameFolder\SameFolderBel.lng" />
           </Component>
+          <Component Id="SameFolderPol.hlf" Guid="$(var.Guid.SameFolderPol.hlf)" Win64="$(var.Win64)">
+            <File Id="SameFolderPol.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\SameFolder\SameFolderPol.hlf" />
+          </Component>
+          <Component Id="SameFolderPol.lng" Guid="$(var.Guid.SameFolderPol.lng)" Win64="$(var.Win64)">
+            <File Id="SameFolderPol.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\SameFolder\SameFolderPol.lng" />
+          </Component>
         </Directory>
         <Directory Id="FileCase" Name="FileCase">
           <Component Id="CaseEng.hlf" Guid="$(var.Guid.CaseEng.hlf)" Win64="$(var.Win64)">

@@ -60,7 +60,7 @@ bplugin "drawline" "DrawLine" "DrawLine.dll DrawEng.hlf DrawRus.hlf DrawPol.hlf 
 bplugin "editcase" "EditCase" "EditCase.dll ECaseEng.hlf ECaseRus.hlf ECasePol.hlf ECaseEng.lng ECaseRus.lng ECaseSky.lng ECaseSpa.lng ECaseIta.lng ECasePol.lng ECaseBel.lng EditCase.map" && \
 bplugin "emenu" "EMenu" "EMenu.dll EMenuEng.hlf EMenuRus.hlf EMenuPol.hlf EMenuEng.lng EMenuRus.lng EMenuSky.lng EMenuSpa.lng EMenuIta.lng EMenuPol.lng EMenuBel.lng EMenu.map HotkeyClipboard.lua HotkeyProperties.lua Hotkey.lua Hotkey.farconfig" && \
 bplugin "farcmds" "FarCmds" "FarCmds.dll FARCmdsEng.hlf FARCmdsRus.hlf FARCmdsEng.lng FARCmdsRus.lng FARCmdsSky.lng FARCmdsSpa.lng FARCmdsIta.lng FARCmdsBel.lng FarCmds.map" && \
-bplugin "samefolder" "SameFolder" "SameFolder.dll SameFolderEng.hlf SameFolderRus.hlf SameFolderEng.lng SameFolderRus.lng SameFolderSky.lng SameFolderSpa.lng SameFolderIta.lng SameFolderBel.lng SameFolder.map" && \
+bplugin "samefolder" "SameFolder" "SameFolder.dll SameFolderEng.hlf SameFolderRus.hlf SameFolderPol.hlf SameFolderEng.lng SameFolderRus.lng SameFolderSky.lng SameFolderSpa.lng SameFolderIta.lng SameFolderPol.lng SameFolderBel.lng SameFolder.map" && \
 bplugin "filecase" "FileCase" "FileCase.dll CaseEng.hlf CaseRus.hlf CasePol.hlf CaseEng.lng CaseRus.lng CaseSky.lng CaseSpa.lng CaseIta.lng CasePol.lng CaseBel.lng FileCase.map" && \
 bplugin "hlfviewer" "HlfViewer" "HlfViewer.dll HlfViewerEng.hlf HlfViewerRus.hlf HlfViewerPol.hlf HlfViewerEng.lng HlfViewerRus.lng HlfViewerSky.lng HlfViewerSpa.lng HlfViewerIta.lng HlfViewerPol.lng HlfViewerBel.lng HlfViewer.map" && \
 bplugin "network" "Network" "Network.dll NetEng.hlf NetRus.hlf NetEng.lng NetRus.lng NetSky.lng NetSpa.lng NetIta.lng NetBel.lng Network.map" && \
