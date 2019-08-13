@@ -2608,8 +2608,10 @@ feature is disabled while a macro is being recorded or executed.
  This option allows to set the default Far command ~line prompt~@CommandPrompt@.
 
  #Use home dir#
- Эта опция позволяет задавать папку, куда произойдёт переход командой ~CD ~~~@OSCommands@.
-Пустое значение пути также отключает функцию.
+ This option specifies the target folder of ~CD ~~~@OSCommands@ command.
+If the string is empty, #CD ~~# will attempt to change the current path
+to real “~~” directory (and fail if this is impossible, e.g., because
+the directory does not exist).
 
 
 @AutoCompleteSettings
@@ -5085,9 +5087,9 @@ run inside the current console then only the keys pressed
 before the execution and after completion of that program
 will be saved.
 
- #Примечание#: На время записи макроса все остальные макросы
-отключаются. Таким образом, нельзя записать "многоступенчатый"
-макрос, вызывающий ранее записанные макропоследовательности.
+ #Note#: During macro recording, all other macros are disabled. Thus,
+it is impossible to create a “multilevel” macro which would call
+previously recorded macros.
 
  #Finish recording the macro command#
  To finish a macro recording there are special key
@@ -5485,67 +5487,70 @@ list.
 
 @Help.ActivateURL
 $ #far:config Help.ActivateURL#
- Параметр позволяет управлять активацией URL ссылок в HLF-файлах:
+ This numeric parameter controls whether Far will open (activate) URL
+links in help files:
 
- 0 - отключить активацию.
- 1 - активация включена.
- 2 - активация включена, но выдавать предупреждающее сообщение.
+ 0 - ^<wrap>URL links are not opened.
+ 1 - URL links are opened.
+ 2 - URL links are opened after user’s confirmation.
 
- По умолчанию значение = 1 (разрешено).
+ Default value: 1 (links are opened).
 
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @Confirmations.EscTwiceToInterrupt
 $ #far:config Confirmations.EscTwiceToInterrupt#
- Параметр позволяет менять поведение при нажатии Esc в диалоге подтверждения прерывания операции.
+ This numeric parameter controls the behavior of #Esc# key in the
+confirmation dialog for cancelling an operation.
 
- Может быть одним из следующих значений:
+ 0 - ^<wrap>#Esc# key closes the dialog and continues the operation.
+ 1 - #Esc# key closes the dialog and cancels the operation.
 
- 0 - ^<wrap>Нажатие кнопки ESC закрывает сообщение и продолжает выполнение операции.
- 1 - ^<wrap>Нажатие кнопки ESC закрывает сообщение и прерывает выполнение операции
+ Default value: 0 (close the dialog and continue operation).
 
- По умолчанию значение = 0 (закрыть сообщение и продолжить выполнение операции).
-
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @System.AllCtrlAltShiftRule
 $ #far:config System.AllCtrlAltShiftRule#
- Параметр задаёт поведение комбинации Ctrl+Alt+Shift для временного гашения объектов интерфейса.
+ This numeric parameter controls which user interface objects can be
+temporarily hidden with #Ctrl+Alt+Shift# key combination. Each bit
+corresponds to a certain object type.
 
- Номера битов:
- 0 - Панели.
- 1 - Редактор.
- 2 - Внутренняя программа просмотра.
- 3 - Окно подсказки.
- 4 - Диалоги.
+ Bit numbers:
+ 0 - Panels;
+ 1 - Editor;
+ 2 - Viewer;
+ 3 - Help window;
+ 4 - Dialogs and menus.
 
- Если бит установлен, гашение разрешено.
+ If a bit is set, objects of the corresponding type can be hidden.
 
- По умолчанию разрешено гашение всех объектов.
+ By default, all objects can be hidden.
 
- See also ~System.CASRule~@System.CASRule@
+ See also ~System.CASRule~@System.CASRule@.
 
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @System.CASRule
 $ #far:config System.CASRule#
- Параметр позволяет отключать комбинацию Ctrl+Alt+Shift для временного гашения объектов интерфейса.
- Различаются комбинации левого и правого Ctrl+Alt+Shift.
+ This numeric parameter allows to disable #Ctrl+Alt+Shift# key
+combination for temporary hiding user interface objects. Individual
+bits control the behavior of left and right key combinations.
 
- Номера битов:
- 0 - левая комбинация Ctrl+Alt+Shift.
- 1 - правая комбинация Ctrl+Alt+Shift.
+ Bit numbers:
+ 0 - Left #Ctrl+Alt+Shift# key combination;
+ 1 - Right #Ctrl+Alt+Shift# key combination.
 
- Если бит установлен, срабатывает гашение экрана.
+ If a bit is set, corresponding key combination hides interface objects.
 
- По умолчанию разрешены обе комбинации.
+ By default, both key combinations are enabled.
 
- See also ~System.AllCtrlAltShiftRule~@System.AllCtrlAltShiftRule@
+ See also ~System.AllCtrlAltShiftRule~@System.AllCtrlAltShiftRule@.
 
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @Panel.ShellRightLeftArrowsRule
