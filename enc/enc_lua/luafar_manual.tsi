@@ -5405,6 +5405,32 @@ mtime=3615036414
 </article>
 </node>
 <node>
+id=535
+lv=2
+dt=Text
+nm=panel.BeginSelection
+ctime=3774941211
+mtime=3774941407
+<article>
+#_result = panel.BeginSelection (handle, whatpanel)
+#_
+#_**Parameters:**
+#_  handle:       panel handle, or nil
+#_  whatpanel:    1=active_panel, 0=inactive_panel
+#_
+#_**Returns:**
+#_  result: boolean
+#_
+#_**Far API used:**
+#_  PanelControl, FCTL_BEGINSELECTION
+#_
+#_@@@
+#_{fctl_beginselection}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_BEGINSELECTION
+#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
+#_
+</article>
+</node>
+<node>
 id=145
 lv=2
 dt=Text
@@ -5482,6 +5508,32 @@ mtime=3571802942
 #_
 #_@@@
 #_{fctl_closepanel}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_CLOSEPANEL
+#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
+#_
+</article>
+</node>
+<node>
+id=536
+lv=2
+dt=Text
+nm=panel.EndSelection
+ctime=3774941226
+mtime=3774941499
+<article>
+#_result = panel.EndSelection (handle, whatpanel)
+#_
+#_**Parameters:**
+#_  handle:       panel handle, or nil
+#_  whatpanel:    1=active_panel, 0=inactive_panel
+#_
+#_**Returns:**
+#_  result: boolean
+#_
+#_**Far API used:**
+#_  PanelControl, FCTL_ENDSELECTION
+#_
+#_@@@
+#_{fctl_endselection}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_ENDSELECTION
 #_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
 #_
 </article>

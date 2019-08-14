@@ -2487,6 +2487,18 @@ static int panel_ClearSelection(lua_State *L)
 	return ChangePanelSelection(L, FALSE);
 }
 
+static int panel_BeginSelection(lua_State *L)
+{
+	intptr_t res = GetPluginData(L)->Info->PanelControl(OptHandle2(L), FCTL_BEGINSELECTION, 0, 0);
+	return lua_pushboolean(L, (int)res), 1;
+}
+
+static int panel_EndSelection(lua_State *L)
+{
+	intptr_t res = GetPluginData(L)->Info->PanelControl(OptHandle2(L), FCTL_ENDSELECTION, 0, 0);
+	return lua_pushboolean(L, (int)res), 1;
+}
+
 // CtrlSetUserScreen (handle, scrolltype)
 //   handle:       FALSE=INVALID_HANDLE_VALUE, TRUE=lua_State*
 static int panel_SetUserScreen(lua_State *L)
@@ -5985,10 +5997,11 @@ const luaL_Reg viewer_funcs[] =
 
 const luaL_Reg panel_funcs[] =
 {
-//{"Control",             far_Control}, // done as multiple functions
+	{"BeginSelection",      panel_BeginSelection},
 	{"CheckPanelsExist",    panel_CheckPanelsExist},
 	{"ClearSelection",      panel_ClearSelection},
 	{"ClosePanel",          panel_ClosePanel},
+	{"EndSelection",        panel_EndSelection},
 	{"GetCmdLine",          panel_GetCmdLine},
 	{"GetCmdLinePos",       panel_GetCmdLinePos},
 	{"GetCmdLineSelection", panel_GetCmdLineSelection},
