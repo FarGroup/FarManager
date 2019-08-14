@@ -70,6 +70,7 @@ local t_winapi = {
   "FROM_LEFT_2ND_BUTTON_PRESSED", "FROM_LEFT_3RD_BUTTON_PRESSED",
   "FROM_LEFT_4TH_BUTTON_PRESSED", "MOUSE_MOVED", "DOUBLE_CLICK", "MOUSE_WHEELED",
   "KEY_WOW64_32KEY", "KEY_WOW64_64KEY",
+  "TBPF_NOPROGRESS", "TBPF_INDETERMINATE", "TBPF_NORMAL", "TBPF_ERROR", "TBPF_PAUSED",
 }
 
 
@@ -79,6 +80,8 @@ local file_top = [[
 
 #include <lua.h>
 #include <plugin.hpp>
+
+enum { TBPF_NOPROGRESS=0, TBPF_INDETERMINATE=1, TBPF_NORMAL=2, TBPF_ERROR=4, TBPF_PAUSED=8, };
 
 extern int bit64_push(lua_State *L, __int64 v);
 ]]
