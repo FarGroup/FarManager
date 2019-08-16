@@ -2444,10 +2444,8 @@ static int ChangePanelSelection(lua_State *L, BOOL op_set)
 	        (pi.PanelType != PTYPE_FILEPANEL))
 		return lua_pushboolean(L,0), 1;
 
-	//---------------------------------------------------------------------------
 	numItems = op_set ? pi.ItemsNumber : pi.SelectedItemsNumber;
 	command  = op_set ? FCTL_SETSELECTION : FCTL_CLEARSELECTION;
-	Info->PanelControl(handle, FCTL_BEGINSELECTION, 0, 0);
 
 	if(itemindex >= 0 && itemindex < numItems)
 		Info->PanelControl(handle, command, itemindex, (void*)state);
@@ -2472,8 +2470,6 @@ static int ChangePanelSelection(lua_State *L, BOOL op_set)
 		}
 	}
 
-	Info->PanelControl(handle, FCTL_ENDSELECTION, 0, 0);
-	//---------------------------------------------------------------------------
 	return lua_pushboolean(L,1), 1;
 }
 
