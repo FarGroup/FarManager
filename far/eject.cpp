@@ -97,7 +97,7 @@ void EjectVolume(wchar_t Letter)
 		(void)File.FlushBuffers();
 	}
 
-	if constexpr (false)
+	if constexpr ((false))
 	{
 		// TODO: ЭТОТ КУСОК НУЖНО РАСКОММЕНТИТЬ ВМЕСТЕ С ПОДЪЕМОМ ПРОЕКТА ПО USB
 		/*

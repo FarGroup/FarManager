@@ -1807,7 +1807,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 	if (!(Flags&FCOPY_COPYTONUL))
 	{
-		if constexpr (false)
+		if constexpr ((false))
 		{
 			if (!CheckStreams(Src, strDestPath))
 				return COPY_CANCEL;

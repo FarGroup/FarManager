@@ -1,4 +1,5 @@
-﻿/*
+﻿// validator: no-self-include
+/*
 hook_wow64.cpp
 */
 /*
@@ -28,61 +29,72 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#if (defined(_MSC_VER) || defined(__GNUC__)) && !defined(_WIN64)
-#include "disable_warnings_in_std_begin.hpp"
-#include <windows.h>
-#include "disable_warnings_in_std_end.hpp"
+#if !defined(_WIN64)
 
+// Internal:
+
+// Platform:
+
+// Common:
 #include "common/compiler.hpp"
 
-WARNING_DISABLE_GCC("-Wcast-qual")
+// External:
 
-//-----------------------------------------------------------------------------
-static thread_local PVOID saveval;
+//----------------------------------------------------------------------------
 
-using DISABLE = decltype(&Wow64DisableWow64FsRedirection);
-using REVERT = decltype(&Wow64RevertWow64FsRedirection);
+static thread_local void* SavedState;
 
-static const volatile struct WOW
+static const volatile struct wow
 {
-	static BOOL WINAPI e_disable(PVOID*) { return FALSE; }
-	static BOOL WINAPI e_revert(PVOID) { return FALSE; }
+	static BOOL WINAPI e_disable(PVOID*) noexcept { return FALSE; }
+	static BOOL WINAPI e_revert(PVOID) noexcept { return FALSE; }
 
-	DISABLE disable { e_disable };
-	REVERT revert { e_revert };
+	decltype(&Wow64DisableWow64FsRedirection) disable;
+	decltype(&Wow64RevertWow64FsRedirection) revert;
 }
-wow;
+Wow
+{
+	&wow::e_disable,
+	&wow::e_revert,
+};
 
-//-----------------------------------------------------------------------------
+static_assert(std::is_pod_v<wow>);
+
 
 #if COMPILER(GCC) || COMPILER(CLANG)
 extern "C" void wow_restore() __asm__("wow_restore");
-extern "C" PVOID wow_disable() __asm__("wow_disable");
+extern "C" void* wow_disable() __asm__("wow_disable");
 #endif
+
 
 extern "C" void wow_restore()
 {
-	wow.revert(saveval);
+	Wow.revert(SavedState);
 }
 
-extern "C" PVOID wow_disable()
+
+extern "C" void* wow_disable()
 {
-	PVOID p;
-	wow.disable(&p);
+	void* p;
+	Wow.disable(&p);
 	return p;
 }
 
-//-----------------------------------------------------------------------------
+
 static void
-#if COMPILER(GCC) || COMPILER(CLANG)
-// Unfortunately GCC doesn't support this attribute on x86
-//__attribute__((naked))
+#if COMPILER(GCC)
+// Unfortunately GCC doesn't support this attribute on x86 until v8
+#if _GCC_VER >= GCC_VER_(8, 0, 0)
+__attribute__((naked))
+#endif
+#elif COMPILER(CLANG)
+__attribute__((naked))
 #else
 __declspec(naked)
 #endif
-hook_ldr()
+hook_ldr() noexcept
 {
-#ifdef __GNUC__
+#if COMPILER(GCC)
 #define ASM_BLOCK_BEGIN __asm__(
 #define ASM_BLOCK_END );
 #define ASM(...) #__VA_ARGS__"\n"
@@ -119,92 +131,113 @@ hook_ldr()
 #undef ASM
 }
 
-//-----------------------------------------------------------------------------
-static void init_hook()
+
+template<auto Function>
+static auto GetProcAddress(HMODULE const Module, const char* const Name) noexcept
 {
-	DWORD p;
-	static const wchar_t
-		k32_w[] = L"kernel32",
-		ntd_w[] = L"ntdll";
+	return reinterpret_cast<decltype(Function)>(reinterpret_cast<void*>(GetProcAddress(Module, Name)));
+}
 
-	static const char
-		dis_c[] = "Wow64DisableWow64FsRedirection",
-		rev_c[] = "Wow64RevertWow64FsRedirection",
-		wow_c[] = "IsWow64Process",
-		ldr_c[] = "LdrLoadDll";
 
-	WOW rwow;
-	BOOL b=FALSE;
+template<typename callable>
+static bool unprotected(void* const Address, DWORD const Size, const callable& Callable) noexcept
+{
+	// don't use WriteProcessMemory here - BUG in 2003x64 32bit kernel32.dll :(
 
-	using ISWOW = decltype(&IsWow64Process);
+	DWORD Protection;
+	if (!VirtualProtect(Address, Size, PAGE_EXECUTE_READWRITE, &Protection))
+		return false;
 
-	ISWOW IsWow = nullptr;
+	Callable();
 
-PACK_PUSH(1)
-	struct
+	return VirtualProtect(Address, Size, Protection, &Protection);
+}
+
+
+static void init_hook() noexcept
+{
+	const auto Kernel32 = GetModuleHandleW(L"kernel32");
+	if (!Kernel32)
+		return;
+
+	BOOL IsWowValue;
+	const auto IsWow = GetProcAddress<IsWow64Process>(Kernel32, "IsWow64Process");
+	if (!IsWow || !IsWow(GetCurrentProcess(), &IsWowValue) || !IsWowValue)
+		return;
+
+	const auto Disable = GetProcAddress<Wow64DisableWow64FsRedirection>(Kernel32, "Wow64DisableWow64FsRedirection");
+	if (!Disable)
+		return;
+
+	const auto Revert = GetProcAddress<Wow64RevertWow64FsRedirection>(Kernel32, "Wow64RevertWow64FsRedirection");
+	if (!Revert)
+		return;
+
+	const auto Ntdll = GetModuleHandleW(L"ntdll");
+	if (!Ntdll)
+		return;
+
+	const union
 	{
-		BYTE  cod { 0xE8 };
-		DWORD off { static_cast<DWORD>(reinterpret_cast<uintptr_t>(reinterpret_cast<char*>(hook_ldr) - sizeof(*this))) };
-	}
-	data;
-PACK_POP()
-
-union
-	{
-		HMODULE h;
 		FARPROC f;
-		LPVOID  p;
-		DWORD   d;
-	} ur;
+		DWORD* pd;
+		BYTE* pb;
+		DWORD d;
+	}
+	ur
+	{
+		GetProcAddress(Ntdll, "LdrLoadDll")
+	};
 
-	if ((ur.h = GetModuleHandleW(k32_w)) == nullptr
-	        || (IsWow = reinterpret_cast<ISWOW>(reinterpret_cast<void*>(GetProcAddress(ur.h, wow_c)))) == nullptr
-	        || !(IsWow(GetCurrentProcess(), &b) && b)
-	        || (rwow.disable = reinterpret_cast<DISABLE>(reinterpret_cast<void*>(GetProcAddress(ur.h, dis_c)))) == nullptr
-	        || (rwow.revert = reinterpret_cast<REVERT>(reinterpret_cast<void*>(GetProcAddress(ur.h, rev_c)))) == nullptr
-	        || (ur.h = GetModuleHandleW(ntd_w)) == nullptr
-	        || (ur.f = GetProcAddress(ur.h, ldr_c)) == nullptr) return;
+	if (!ur.f)
+		return;
 
-	if (*static_cast<LPBYTE>(ur.p) != 0x68     // push m32
-		&& (*static_cast<LPDWORD>(ur.p) != 0x8B55FF8B || static_cast<LPBYTE>(ur.p)[4] != 0xEC))
+	if (ur.pb[0] != 0x68     // push m32
+		&& (ur.pd[0] != 0x8B55FF8B || ur.pb[4] != 0xEC))
 			return;
 
 	// (Win2008-R2) mov edi, edi; push ebp; mov ebp, esp
 	{
-		auto loff = *reinterpret_cast<LPDWORD>(static_cast<LPBYTE>(ur.p) + 1);
-		auto p_loff = reinterpret_cast<LPBYTE>(&hook_ldr) + HOOK_PUSH_OFFSET;
+		auto loff = *reinterpret_cast<DWORD const*>(ur.pb + 1);
+		const auto p_loff = reinterpret_cast<BYTE*>(&hook_ldr) + HOOK_PUSH_OFFSET;
 
-		if (loff != *reinterpret_cast<LPDWORD>(p_loff))  // 0x240 in non vista, 0x244 in vista/2008
+		if (loff != *reinterpret_cast<DWORD const*>(p_loff))  // 0x240 in non vista, 0x244 in vista/2008
 		{
-			// don't use WriteProcessMemory here - BUG in 2003x64 32bit kernel32.dll :(
-			if (!VirtualProtect(p_loff-1, 1+sizeof(loff), PAGE_EXECUTE_READWRITE, &p))
-				return;
-
-			if (*static_cast<LPBYTE>(ur.p) != 0x68)  // Win7r2 (not push .... => mov edi,edi)
+			if (!unprotected(p_loff - 1, sizeof(loff) + 1, [&]
 			{
-				static_cast<LPBYTE>(p_loff)[-1] = 0x90;  // nop
-				loff = 0xE5895590;  // nop; push ebp; mov ebp, esp
-			}
+				if (ur.pb[0] != 0x68)   // Win7r2 (not push .... => mov edi,edi)
+				{
+					p_loff[-1] = 0x90;  // nop
+					loff = 0xE5895590;  // nop; push ebp; mov ebp, esp
+				}
 
-			*reinterpret_cast<LPDWORD>(p_loff) = loff;
-			VirtualProtect(p_loff-1, 1+sizeof(loff), p, reinterpret_cast<LPDWORD>(&p_loff));
+				*reinterpret_cast<DWORD*>(p_loff) = loff;
+			}))
+				return;
 		}
 	}
-	data.off -= ur.d;
 
-	if (!WriteProcessMemory(GetCurrentProcess(), ur.p, &data, sizeof(data), &data.off)
-	        || data.off != sizeof(data)) return;
+	PACK_PUSH(1)
+	const struct
+	{
+		BYTE  cod;
+		DWORD off;
+	}
+	Data
+	{
+		0xE8,
+		static_cast<DWORD>(reinterpret_cast<uintptr_t>(reinterpret_cast<char*>(hook_ldr))) - sizeof(Data) - ur.d
+	};
+	PACK_POP()
 
-	// don't use WriteProcessMemory here - BUG in 2003x64 32bit kernel32.dll :(
-	if (!VirtualProtect(const_cast<WOW*>(&wow), sizeof(wow), PAGE_EXECUTE_READWRITE, &data.off))
+	if (!unprotected(ur.pb, sizeof(Data), [&]{ memcpy(ur.pb, &Data, sizeof(Data)); }))
 		return;
 
-	const_cast<WOW&>(wow) = rwow;
-	VirtualProtect(const_cast<WOW*>(&wow), sizeof(wow), data.off, &p);
+	unprotected(const_cast<wow*>(&Wow), sizeof(Wow), [&]{ const_cast<wow&>(Wow) = { Disable, Revert };});
 }
 
-//-----------------------------------------------------------------------------
-static void WINAPI HookProc(PVOID, DWORD dwReason, PVOID)
+
+static void WINAPI HookProc(void*, DWORD dwReason, void*) noexcept
 {
 	switch (dwReason)
 	{
@@ -212,11 +245,16 @@ static void WINAPI HookProc(PVOID, DWORD dwReason, PVOID)
 		init_hook();
 		[[fallthrough]];
 	case DLL_THREAD_ATTACH:
-		saveval = wow_disable();
+		SavedState = wow_disable();
+		break;
+
 	default:
 		break;
 	}
 }
+
+WARNING_PUSH()
+WARNING_DISABLE_CLANG("-Wmissing-variable-declarations")
 
 #if COMPILER(CL) || COMPILER(INTEL)
 #pragma const_seg(".CRT$XLY")
@@ -229,6 +267,8 @@ __attribute__((section(".CRT$XLY")))
 #if COMPILER(CL) || COMPILER(INTEL)
 #pragma const_seg()
 #endif
+
+WARNING_POP()
 
 // for ulink
 #pragma comment(linker, "/include:_hook_wow64_tlscb")

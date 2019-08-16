@@ -3,6 +3,16 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 16.08.2019 23:06:24 +0100 - build 5451
+
+1. Crash when importing malformed xml.
+
+2. Fix GCC 7 build. Broken for a long time and no one said a word, time to stop supporting it?
+
+3. Clang warnings.
+
+4. Compile hook_wow64.cpp as everything else and modernise it a little.
+
 MZK 12.08.2019 22:51:26 -0700
 
 1. Translated several far:config help pages into English.

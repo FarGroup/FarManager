@@ -1,4 +1,5 @@
-﻿/*
+﻿// validator: no-self-include
+/*
 common.tests.cpp
 
 Tests for common library

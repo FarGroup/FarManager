@@ -83,7 +83,7 @@ static void* ToUser(MEMINFO* address) { return address + 1; }
 
 static void CheckChain()
 {
-	if constexpr (false)
+	if constexpr ((false))
 	{
 		auto p = &FirstMemBlock;
 

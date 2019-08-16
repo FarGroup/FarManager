@@ -464,7 +464,7 @@ protected:
 
 	virtual bytes DeserializeBlob(const char* Type, const char* Value, const tinyxml::XMLElement& e) const
 	{
-		return HexStringToBlob(Value);
+		return Value? HexStringToBlob(Value) : bytes{};
 	}
 
 private:
@@ -706,17 +706,20 @@ private:
 
 			const auto Name = encoding::utf8::get_chars(name);
 
-			if (value && !strcmp(type, "qword"))
+			if (!strcmp(type, "qword"))
 			{
-				SetValue(Key, Name, strtoull(value, nullptr, 16));
+				if (value)
+					SetValue(Key, Name, strtoull(value, nullptr, 16));
 			}
-			else if (value && !strcmp(type, "text"))
+			else if (!strcmp(type, "text"))
 			{
-				SetValue(Key, Name, encoding::utf8::get_chars(value));
+				if (value)
+					SetValue(Key, Name, encoding::utf8::get_chars(value));
 			}
 			else if (value && !strcmp(type, "hex"))
 			{
-				SetValue(Key, Name, HexStringToBlob(value));
+				if (value)
+					SetValue(Key, Name, HexStringToBlob(value));
 			}
 			else
 			{

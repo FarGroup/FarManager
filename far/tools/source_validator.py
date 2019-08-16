@@ -145,16 +145,22 @@ def check(filename):
 		LineNumber += 1
 
 		if CheckSelfInclude and extension in [".cpp"]:
-			include = "#include "
-			if content[LineNumber].startswith(include):
-				incName, incExt = os.path.splitext(content[LineNumber][len(include):].strip('"'))
-				if name != incName or extension != incExt.replace('h', 'c'):
-					Raise("#Corresponding header must be included first")
-				LineNumber += 1
+			if content[LineNumber] != "// Self:":
+				Raise("No self comment")
+			LineNumber += 1
 
-				if LineNumber < len(content) and content[LineNumber] != "":
-					Raise("No empty line")
-				LineNumber += 1
+			include = "#include "
+			if not content[LineNumber].startswith(include):
+				Raise("No include")
+
+			incName, incExt = os.path.splitext(content[LineNumber][len(include):].strip('"'))
+			if name != incName or extension != incExt.replace('h', 'c'):
+				Raise("Corresponding header must be included first")
+			LineNumber += 1
+
+			if LineNumber < len(content) and content[LineNumber] != "":
+				Raise("No empty line")
+			LineNumber += 1
 
 		for i, line in enumerate(content):
 			if line.endswith(' ') or line.endswith('\t'):

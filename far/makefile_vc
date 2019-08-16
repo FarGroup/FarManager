@@ -469,9 +469,6 @@ $(PCH_FILE): headers.cpp headers.hpp
 	@echo Making precompiled headers
 	$(CPP) $(CPPFLAGS) headers.cpp /Yc"headers.hpp" /Fp"$(PCH_FILE)"
 
-$(INTDIR)\hook_wow64.obj: hook_wow64.cpp
-	$(CPP) $(CPPFLAGS) hook_wow64.cpp
-
 $(INTDIR)\vc_crt_fix_impl.obj: vc_crt_fix_impl.cpp
 	$(CPP) $(CPPFLAGS) /Zc:threadSafeInit- vc_crt_fix_impl.cpp
 

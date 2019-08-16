@@ -627,7 +627,7 @@ namespace console_detail
 
 		static bool WriteOutputNTImplDebug(CHAR_INFO* const Buffer, COORD const BufferSize, SMALL_RECT& WriteRegion)
 		{
-			if constexpr (false)
+			if constexpr ((false))
 			{
 				assert(BufferSize.X == WriteRegion.Right - WriteRegion.Left + 1);
 				assert(BufferSize.Y == WriteRegion.Bottom - WriteRegion.Top + 1);

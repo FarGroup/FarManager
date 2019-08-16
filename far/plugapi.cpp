@@ -1565,7 +1565,7 @@ void WINAPI apiFreeDirList(PluginPanelItem *PanelItems, size_t ItemsNumber) noex
 {
 	try
 	{
-		const auto Items = magic::CastRawDataToVector(span{ PanelItems, ItemsNumber });
+		const auto Items = magic::CastRawDataToVector(span<PluginPanelItem>{ PanelItems, ItemsNumber }); // GCC 7 CTAD fail
 		FreePluginPanelItemsNames(*Items);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
@@ -1575,7 +1575,7 @@ void WINAPI apiFreePluginDirList(HANDLE hPlugin, PluginPanelItem *PanelItems, si
 {
 	try
 	{
-		const auto Items = magic::CastRawDataToVector(span{ PanelItems, ItemsNumber });
+		const auto Items = magic::CastRawDataToVector(span<PluginPanelItem>{ PanelItems, ItemsNumber }); // GCC 7 CTAD fail
 		FreePluginDirList(hPlugin, *Items);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())

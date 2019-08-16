@@ -52,6 +52,7 @@ WARNING_DISABLE_MSC(4702) // https://msdn.microsoft.com/en-us/library/c26da40e.a
 
 WARNING_DISABLE_GCC("-Wctor-dtor-privacy")
 WARNING_DISABLE_GCC("-Wmaybe-uninitialized")
+WARNING_DISABLE_GCC("-Wduplicated-branches")
 
 WARNING_DISABLE_CLANG("-Weverything")
 

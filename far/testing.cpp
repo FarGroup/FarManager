@@ -1,4 +1,5 @@
-﻿/*
+﻿// validator: no-self-include
+/*
 testing.cpp
 
 Testing framework wrapper
