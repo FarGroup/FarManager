@@ -739,13 +739,13 @@ static int win_IsProcess64bit(lua_State *L)
 
 int win_WriteConsole(lua_State *L)
 {
-	int narg = lua_gettop(L);
+	int i, narg = lua_gettop(L);
 	HANDLE h_out = GetStdHandle(STD_OUTPUT_HANDLE);
 	if (h_out==INVALID_HANDLE_VALUE)
 		return SysErrorReturn(L);
 	if (h_out==NULL)
 		return 0;
-	for (int i=0; i<narg; i++)
+	for (i=0; i<narg; i++)
 	{
 		size_t nCharsToWrite;
 		DWORD nCharsWritten;
