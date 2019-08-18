@@ -1117,6 +1117,9 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 		{ FILE_ATTRIBUTE_NO_SCRUB_DATA,                lng::MFileFilterAttrNoScrubData,        },
 		{ FILE_ATTRIBUTE_PINNED,                       lng::MFileFilterAttrPinned,             },
 		{ FILE_ATTRIBUTE_UNPINNED,                     lng::MFileFilterAttrUnpinned,           },
+		{ FILE_ATTRIBUTE_RECALL_ON_OPEN,               lng::MFileFilterAttrRecallOnOpen,       },
+		{ FILE_ATTRIBUTE_RECALL_ON_DATA_ACCESS,        lng::MFileFilterAttrRecallOnDataAccess, },
+		{ FILE_ATTRIBUTE_STRICTLY_SEQUENTIAL,          lng::MFileFilterAttrStrictlySequential, },
 	};
 
 	DWORD AttrSet, AttrClear;

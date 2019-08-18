@@ -236,6 +236,9 @@ void enum_attributes(function_ref<bool(DWORD, wchar_t)> const Pred)
 		{ L'N', FILE_ATTRIBUTE_NO_SCRUB_DATA },
 		{ L'P', FILE_ATTRIBUTE_PINNED },
 		{ L'U', FILE_ATTRIBUTE_UNPINNED },
+		{ L'‼', FILE_ATTRIBUTE_RECALL_ON_OPEN },
+		{ L'!', FILE_ATTRIBUTE_RECALL_ON_DATA_ACCESS },
+		{ L'⁞', FILE_ATTRIBUTE_STRICTLY_SEQUENTIAL },
 	};
 
 	for (const auto& [Letter, Attr]: AttrMap)

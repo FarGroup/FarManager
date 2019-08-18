@@ -103,7 +103,10 @@ enum SETATTRDLG
 	SA_CHECKBOX_NO_SCRUB_DATA,
 	SA_CHECKBOX_PINNED,
 	SA_CHECKBOX_UNPINNED,
-	SA_ATTR_LAST = SA_CHECKBOX_UNPINNED,
+	SA_CHECKBOX_RECALL_ON_OPEN,
+	SA_CHECKBOX_RECALL_ON_DATA_ACCESS,
+	SA_CHECKBOX_STRICTLY_SEQUENTIAL,
+	SA_ATTR_LAST = SA_CHECKBOX_STRICTLY_SEQUENTIAL,
 	SA_SEPARATOR2,
 	SA_TEXT_TITLEDATE,
 	SA_TEXT_TITLETIME,
@@ -163,7 +166,13 @@ AttributeMap[]
 	{ SA_CHECKBOX_NO_SCRUB_DATA,                FILE_ATTRIBUTE_NO_SCRUB_DATA,         },
 	{ SA_CHECKBOX_PINNED,                       FILE_ATTRIBUTE_PINNED,                },
 	{ SA_CHECKBOX_UNPINNED,                     FILE_ATTRIBUTE_UNPINNED,              },
+	{ SA_CHECKBOX_RECALL_ON_OPEN,               FILE_ATTRIBUTE_RECALL_ON_OPEN,        },
+	{ SA_CHECKBOX_RECALL_ON_DATA_ACCESS,        FILE_ATTRIBUTE_RECALL_ON_DATA_ACCESS, },
+	{ SA_CHECKBOX_STRICTLY_SEQUENTIAL,          FILE_ATTRIBUTE_STRICTLY_SEQUENTIAL,   },
+
 };
+
+static_assert(SA_ATTR_LAST - SA_ATTR_FIRST + 1 == std::size(AttributeMap));
 
 static const struct time_map
 {
@@ -602,11 +611,11 @@ static bool process_single_file(
 bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
-	short DlgX=74,DlgY=26;
+	short DlgX=74,DlgY=28;
 
 	const auto C1 = 5;
 	const auto C2 = C1 + (DlgX - 10) / 2;
-	const auto AR = 12;
+	const auto AR = 14;
 
 	auto AttrDlg = MakeDialogItems(
 	{
@@ -618,6 +627,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		{ DI_EDIT,      {{18,      3     }, {DlgX-6,  3     }}, DIF_HIDDEN | DIF_EDITPATH, },
 		{ DI_COMBOBOX,  {{18,      3     }, {DlgX-6,  3     }}, DIF_SHOWAMPERSAND | DIF_DROPDOWNLIST | DIF_LISTWRAPMODE | DIF_HIDDEN, },
 		{ DI_TEXT,      {{-1,      4     }, {0,       4     }}, DIF_SEPARATOR, },
+
 		{ DI_CHECKBOX,  {{C1,      5     }, {0,       5     }}, DIF_FOCUS | DIF_3STATE, msg(lng::MSetAttrRO), },
 		{ DI_CHECKBOX,  {{C1,      6     }, {0,       6     }}, DIF_3STATE, msg(lng::MSetAttrArchive), },
 		{ DI_CHECKBOX,  {{C1,      7     }, {0,       7     }}, DIF_3STATE, msg(lng::MSetAttrHidden), },
@@ -626,14 +636,19 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		{ DI_CHECKBOX,  {{C1,      10    }, {0,       10    }}, DIF_3STATE, msg(lng::MSetAttrEncrypted), },
 		{ DI_CHECKBOX,  {{C1,      11    }, {0,       11    }}, DIF_3STATE, msg(lng::MSetAttrNotIndexed), },
 		{ DI_CHECKBOX,  {{C1,      12    }, {0,       12    }}, DIF_3STATE, msg(lng::MSetAttrSparse), },
-		{ DI_CHECKBOX,  {{C2,      5     }, {0,       5     }}, DIF_3STATE, msg(lng::MSetAttrTemp), },
-		{ DI_CHECKBOX,  {{C2,      6     }, {0,       6     }}, DIF_3STATE, msg(lng::MSetAttrOffline), },
-		{ DI_CHECKBOX,  {{C2,      7     }, {0,       7     }}, DIF_3STATE, msg(lng::MSetAttrReparsePoint), },
-		{ DI_CHECKBOX,  {{C2,      8     }, {0,       8     }}, DIF_3STATE | DIF_DISABLE, msg(lng::MSetAttrVirtual), },
-		{ DI_CHECKBOX,  {{C2,      9     }, {0,       9     }}, DIF_3STATE, msg(lng::MSetAttrIntegrityStream), },
-		{ DI_CHECKBOX,  {{C2,      10    }, {0,       10    }}, DIF_3STATE, msg(lng::MSetAttrNoScrubData), },
-		{ DI_CHECKBOX,  {{C2,      11    }, {0,       11    }}, DIF_3STATE, msg(lng::MSetAttrPinned), },
-		{ DI_CHECKBOX,  {{C2,      12    }, {0,       12    }}, DIF_3STATE, msg(lng::MSetAttrUnpinned), },
+		{ DI_CHECKBOX,  {{C1,      13    }, {0,       13    }}, DIF_3STATE, msg(lng::MSetAttrTemp), },
+		{ DI_CHECKBOX,  {{C1,      14    }, {0,       14    }}, DIF_3STATE, msg(lng::MSetAttrOffline), },
+
+		{ DI_CHECKBOX,  {{C2,      5     }, {0,       5     }}, DIF_3STATE, msg(lng::MSetAttrReparsePoint), },
+		{ DI_CHECKBOX,  {{C2,      6     }, {0,       6     }}, DIF_3STATE | DIF_DISABLE, msg(lng::MSetAttrVirtual), },
+		{ DI_CHECKBOX,  {{C2,      7     }, {0,       7     }}, DIF_3STATE, msg(lng::MSetAttrIntegrityStream), },
+		{ DI_CHECKBOX,  {{C2,      8     }, {0,       8     }}, DIF_3STATE, msg(lng::MSetAttrNoScrubData), },
+		{ DI_CHECKBOX,  {{C2,      9     }, {0,       9     }}, DIF_3STATE, msg(lng::MSetAttrPinned), },
+		{ DI_CHECKBOX,  {{C2,      10    }, {0,       10    }}, DIF_3STATE, msg(lng::MSetAttrUnpinned), },
+		{ DI_CHECKBOX,  {{C2,      11    }, {0,       11    }}, DIF_3STATE, msg(lng::MSetAttrRecallOnOpen), },
+		{ DI_CHECKBOX,  {{C2,      12    }, {0,       12    }}, DIF_3STATE, msg(lng::MSetAttrRecallOnDataAccess), },
+		{ DI_CHECKBOX,  {{C2,      13    }, {0,       13    }}, DIF_3STATE, msg(lng::MSetAttrStrictlySequential), },
+
 		{ DI_TEXT,      {{-1,      AR+1  }, {0,       AR+1  }}, DIF_SEPARATOR, },
 		{ DI_TEXT,      {{DlgX-29, AR+2  }, {0,       AR+2  }}, DIF_NONE, },
 		{ DI_TEXT,      {{DlgX-17, AR+2  }, {0,       AR+2  }}, DIF_NONE, },
