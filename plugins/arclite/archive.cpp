@@ -926,7 +926,7 @@ DWORD Archive::get_attr(UInt32 index) const {
     return FILE_ATTRIBUTE_DIRECTORY;
   
   if (in_arc->GetProperty(index, kpidAttrib, prop.ref()) == S_OK && prop.is_uint())
-    attr = static_cast<DWORD>(prop.get_uint());
+    attr = get_posix_and_nt_attributes(static_cast<DWORD>(prop.get_uint())).second;
 
   if (file_list[index].is_dir)
     attr |= FILE_ATTRIBUTE_DIRECTORY;

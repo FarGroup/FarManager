@@ -747,3 +747,16 @@ wstring search_path(const wstring& file_name) {
   CHECK(size < path.size());
   return wstring(path.data(), size);
 }
+
+std::pair<DWORD, DWORD> get_posix_and_nt_attributes(DWORD const RawAttributes)
+{
+	// some programs store posix attributes in high 16 bits.
+	// p7zip - stores additional 0x8000 flag marker.
+	// macos - stores additional 0x4000 flag marker.
+	// info-zip - no additional marker.
+
+	if (RawAttributes & 0xF0000000)
+		return { RawAttributes >> 16, RawAttributes & 0x3FFF };
+
+	return { 0, RawAttributes };
+}

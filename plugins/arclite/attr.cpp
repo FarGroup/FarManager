@@ -143,19 +143,7 @@ wstring format_attrib_prop(const PropVariant& prop)
   if (!prop.is_uint())
     return wstring();
 
-  // some programs store posix attributes in high 16 bits.
-  // p7zip - stores additional 0x8000 flag marker.
-  // macos - stores additional 0x4000 flag marker.
-  // info-zip - no additional marker.
-
-  unsigned val = static_cast<unsigned>(prop.get_uint());
-  bool isPosix = ((val & 0xF0000000) != 0);
-
-  unsigned posix = 0;
-  if (isPosix) {
-    posix = val >> 16;
-    val &= (unsigned)0x3FFF;
-  }
+  auto [posix, val] = get_posix_and_nt_attributes(static_cast<DWORD>(prop.get_uint()));
 
   wchar_t attr[kNumWinAtrribFlags];
   size_t na = 0;
@@ -178,7 +166,7 @@ wstring format_attrib_prop(const PropVariant& prop)
     res += uint_to_hex_str(val, 8);
   }
 
-  if (isPosix) {
+  if (posix) {
     if (!res.empty())
       res += L' ';
     PropVariant p((UInt32)posix);
