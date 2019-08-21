@@ -134,15 +134,18 @@ static const struct
 }
 SecurityMove
 {
-	0_bit,
-	0_bit | 1_bit,
-	2_bit,
+	// These static_casts are redundant and only to suppress a spurious warning C4838 in VS2017.
+	// See https://github.com/FarGroup/FarManager/issues/166
+	// TODO: remove once we drop support for VS2017.
+	static_cast<int>(0_bit),
+	static_cast<int>(0_bit | 1_bit),
+	static_cast<int>(2_bit),
 },
 SecurityCopy
 {
-	3_bit,
-	3_bit | 4_bit,
-	5_bit,
+	static_cast<int>(3_bit),
+	static_cast<int>(3_bit | 4_bit),
+	static_cast<int>(5_bit),
 };
 
 static bool ZoomedState, IconicState;
