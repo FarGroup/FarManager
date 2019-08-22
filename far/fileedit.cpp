@@ -1316,7 +1316,7 @@ bool FileEditor::SetCodePageEx(uintptr_t cp)
 	}
 	else if (cp == CP_REDETECT)
 	{
-		const auto EditFile = os::fs::file(strFileName, FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING);
+		const os::fs::file EditFile(strFileName, FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING);
 		const auto DefaultCodepage = GetDefaultCodePage();
 		cp = EditFile? GetFileCodepage(EditFile, DefaultCodepage) : DefaultCodepage;
 	}

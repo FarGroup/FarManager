@@ -194,8 +194,7 @@ public:
 		int Optimize();
 
 		/*! Try to match string with regular expression
-		    \param textstart - start of string to match
-		    \param textend - point to symbol after last symbols of the string.
+		    \param text - string to match
 		    \param match - array of SMatch structures that receive brackets positions.
 		    \param matchcount - in/out parameter that indicate number of items in
 		    match array on input, and number of brackets on output.
@@ -203,30 +202,22 @@ public:
 		    \return 1 on success, 0 if match failed.
 		    \sa SMatch
 		*/
-		int Match(const wchar_t* textstart, const wchar_t* textend, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch = nullptr) const;
-		/*! Same as Match(const char* textstart,const char* textend,...), but for ASCIIZ string.
-		    textend calculated automatically.
-		*/
-		int Match(const wchar_t* textstart, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch = nullptr) const;
+		int Match(string_view text, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch = nullptr) const;
 		/*! Advanced version of match. Can be used for multiple matches
 		    on one string (to imitate /g modifier of perl regexp
 		*/
-		int MatchEx(const wchar_t* datastart, const wchar_t* textstart, const wchar_t* textend, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch = nullptr) const;
+		int MatchEx(string_view text, size_t From, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch = nullptr) const;
 		/*! Try to find substring that will match regexp.
 		    Parameters and return value are the same as for Match.
 		    It is highly recommended to call Optimize before Search.
 		*/
-		int Search(const wchar_t* textstart, const wchar_t* textend, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch = nullptr) const;
-		/*! Same as Search with specified textend, but for ASCIIZ strings only.
-		    textend calculated automatically.
-		*/
-		int Search(const wchar_t* textstart, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch = nullptr) const;
+		int Search(string_view text, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch = nullptr) const;
 		/*! Advanced version of search. Can be used for multiple searches
 		    on one string (to imitate /g modifier of perl regexp
 		*/
-		int SearchEx(const wchar_t* datastart, const wchar_t* textstart, const wchar_t* textend, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch = nullptr) const;
+		int SearchEx(string_view text, size_t From, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch = nullptr) const;
 
-		bool Search(const string& Str) const;
+		bool Search(string_view Str) const;
 
 		/*! Get last error
 		    \return code of the last error

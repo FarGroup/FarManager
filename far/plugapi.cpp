@@ -2552,13 +2552,13 @@ intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Com
 		case RECTL_MATCHEX:
 		{
 			const auto data = static_cast<RegExpSearch*>(Param2);
-			return re->MatchEx(data->Text, data->Text + data->Position, data->Text + data->Length, data->Match, data->Count);
+			return re->MatchEx({ data->Text, static_cast<size_t>(data->Length) }, data->Position, data->Match, data->Count);
 		}
 
 		case RECTL_SEARCHEX:
 		{
 			const auto data = static_cast<RegExpSearch*>(Param2);
-			return re->SearchEx(data->Text, data->Text + data->Position, data->Text + data->Length, data->Match, data->Count);
+			return re->SearchEx({ data->Text, static_cast<size_t>(data->Length) }, data->Position, data->Match, data->Count);
 		}
 
 		case RECTL_BRACKETSCOUNT:

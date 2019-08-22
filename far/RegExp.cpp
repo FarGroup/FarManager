@@ -3384,8 +3384,11 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 	return 1;
 }
 
-int RegExp::Match(const wchar_t* textstart, const wchar_t* textend, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch) const
+int RegExp::Match(string_view const text, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch) const
 {
+	const auto textstart = text.data();
+	const auto textend = text.data() + text.size();
+
 	const wchar_t* const start = textstart;
 	const wchar_t* tempend=textend;
 
@@ -3415,8 +3418,12 @@ int RegExp::Match(const wchar_t* textstart, const wchar_t* textend, RegExpMatch*
 	return res;
 }
 
-int RegExp::MatchEx(const wchar_t* datastart, const wchar_t* textstart, const wchar_t* textend, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch) const
+int RegExp::MatchEx(string_view const text, size_t const From, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch) const
 {
+	const auto datastart = text.data();
+	const auto textstart = text.data() + From;
+	const auto textend = text.data() + text.size();
+
 	if (havefirst && !first[(wchar_t)*textstart])return 0;
 
 	const wchar_t* tempend=textend;
@@ -3444,12 +3451,6 @@ int RegExp::MatchEx(const wchar_t* datastart, const wchar_t* textstart, const wc
 	}
 
 	return res;
-}
-
-int RegExp::Match(const wchar_t* textstart, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch) const
-{
-	const wchar_t* textend = textstart + wcslen(textstart);
-	return Match(textstart,textend,match,matchcount, hmatch);
 }
 
 int RegExp::Optimize()
@@ -3710,14 +3711,11 @@ int RegExp::Optimize()
 	return 1;
 }
 
-int RegExp::Search(const wchar_t* textstart, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch) const
+int RegExp::Search(string_view const text, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch) const
 {
-	const wchar_t* textend = textstart + wcslen(textstart);
-	return Search(textstart, textend, match, matchcount, hmatch);
-}
+	const auto textstart = text.data();
+	const auto textend = text.data() + text.size();
 
-int RegExp::Search(const wchar_t* textstart, const wchar_t* textend, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch) const
-{
 	const wchar_t* const start = textstart;
 	const wchar_t* str=start;
 	const wchar_t* tempend=textend;
@@ -3794,8 +3792,12 @@ int RegExp::Search(const wchar_t* textstart, const wchar_t* textend, RegExpMatch
 	return res;
 }
 
-int RegExp::SearchEx(const wchar_t* datastart, const wchar_t* textstart, const wchar_t* textend, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch) const
+int RegExp::SearchEx(string_view const text, size_t const From, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch) const
 {
+	const auto datastart = text.data();
+	const auto textstart = text.data() + From;
+	const auto textend = text.data() + text.size();
+
 	const wchar_t* const start = datastart;
 	const wchar_t* str=textstart;
 	const wchar_t* tempend=textend;
@@ -3872,11 +3874,11 @@ int RegExp::SearchEx(const wchar_t* datastart, const wchar_t* textstart, const w
 	return res;
 }
 
-bool RegExp::Search(const string& Str) const
+bool RegExp::Search(string_view const Str) const
 {
 	RegExpMatch Match;
 	intptr_t Count = 1;
-	return Search(Str.data(), Str.data() + Str.size(), &Match, Count) != 0;
+	return Search(Str, &Match, Count) != 0;
 }
 
 void RegExp::TrimTail(const wchar_t* const start, const wchar_t*& strend) const

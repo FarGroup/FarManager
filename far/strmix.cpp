@@ -770,7 +770,7 @@ namespace
 
 		if (!Reverse)
 		{
-			if (re.SearchEx(Source.data(), Source.data() + Position, Source.data() + Source.size(), pm, n, hm))
+			if (re.SearchEx(Source, Position, pm, n, hm))
 			{
 				ReplaceStr = ReplaceBrackets(Source, ReplaceStr, pm, n, hm, CurPos, SearchLength);
 				return true;
@@ -786,7 +786,7 @@ namespace
 
 		for (;;)
 		{
-			if (!re.SearchEx(Source.data(), Source.data() + pos, Source.data() + Source.size(), pm + half, n, hm))
+			if (!re.SearchEx(Source, pos, pm + half, n, hm))
 			{
 				ReMatchErrorMessage(re);
 				break;

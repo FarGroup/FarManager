@@ -608,7 +608,7 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 		else
 		{
 			if (Global->Opt->ShowCheckingFile)
-				ConsoleTitle::SetFarTitle(concat(msg(lng::MCheckingFileInPlugin), L" - ["sv, PointToName(i->ModuleName()), L"]..."sv), true);
+				ConsoleTitle::SetFarTitle(concat(msg(lng::MCheckingFileInPlugin), L" - ["sv, PointToName(i->ModuleName()), L"]…"sv), true);
 
 			const auto hPlugin = i->OpenFilePlugin(Name? Name->c_str() : nullptr, (BYTE*)Info.Buffer, Info.BufferSize, OpMode);
 			if (!hPlugin)

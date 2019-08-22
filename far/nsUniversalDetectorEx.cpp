@@ -101,26 +101,26 @@ namespace
 
 static const auto& CpMap()
 {
-	static const std::unordered_map<std::string, uintptr_t> sCpMap =
+	static const std::unordered_map<std::string_view, uintptr_t> sCpMap =
 	{
-		{ "UTF16-LE", CP_UNICODE },
-		{ "UTF16-BE", CP_REVERSEBOM },
-		//{ "UTF-8", CP_UTF8 }, // unreliable
-		{ "windows-1250", 1250 },
-		{ "windows-1251", 1251 },
-		{ "windows-1252", 1252 },
-		{ "windows-1253", 1253 },
-		{ "windows-1255", 1255 },
-		{ "IBM855", 855 },
-		{ "IBM866", 866 },
-		{ "KOI8-R", 20866 },
-		{ "x-mac-hebrew", 10005 },
-		{ "x-mac-cyrillic", /*10007*/ 1251 }, //Оно слишком похоже на 1251 и детектор, бывает, путает
-		{ "ISO-8859-2", 28592 },
-		{ "ISO-8859-5", 28595 },
-		{ "ISO-8859-7", 28597 },
-		{ "ISO-8859-8", 28598 },
-		{ "ISO-8859-8-I", 38598 },
+		{ "UTF16-LE"sv, CP_UNICODE },
+		{ "UTF16-BE"sv, CP_REVERSEBOM },
+		//{ "UTF-8"sv, CP_UTF8 }, // unreliable
+		{ "windows-1250"sv, 1250 },
+		{ "windows-1251"sv, 1251 },
+		{ "windows-1252"sv, 1252 },
+		{ "windows-1253"sv, 1253 },
+		{ "windows-1255"sv, 1255 },
+		{ "IBM855"sv, 855 },
+		{ "IBM866"sv, 866 },
+		{ "KOI8-R"sv, 20866 },
+		{ "x-mac-hebrew"sv, 10005 },
+		{ "x-mac-cyrillic"sv, /*10007*/ 1251 }, //Оно слишком похоже на 1251 и детектор, бывает, путает
+		{ "ISO-8859-2"sv, 28592 },
+		{ "ISO-8859-5"sv, 28595 },
+		{ "ISO-8859-7"sv, 28597 },
+		{ "ISO-8859-8"sv, 28598 },
+		{ "ISO-8859-8-I"sv, 38598 },
 
 		/*
 		and the rest:

@@ -1,70 +1,186 @@
 <?xml version="1.0" encoding="utf-8"?>
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
 
-  <Type Name="range&lt;*&gt;">
-      <DisplayString>{m_Begin,[m_End - m_Begin]}</DisplayString>
-      <Expand>
-          <Item Name="[size]" ExcludeView="simple">m_End - m_Begin</Item>
-          <ArrayItems>
-              <Size>m_End - m_Begin</Size>
-              <ValuePointer>m_Begin</ValuePointer>
-          </ArrayItems>
-      </Expand>
-  </Type>
+	<!-- Override the default visualiser - it doesn't have StringView node :( -->
+	<Type Name="std::basic_string_view&lt;*,*&gt;">
+		<Intrinsic Name="size" Expression="_Mysize" />
+		<Intrinsic Name="data" Expression="_Mydata" />
+		<DisplayString>{data(),[size()]na}</DisplayString>
+		<StringView>data(),[size()]na</StringView>
+		<Expand>
+			<Item Name="[size]" ExcludeView="simple">size()</Item>
+			<ArrayItems>
+				<Size>size()</Size>
+				<ValuePointer>data()</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
 
-  <Type Name="span&lt;*&gt;">
-      <DisplayString>{m_Begin,[m_End - m_Begin]}</DisplayString>
-      <Expand>
-          <Item Name="[size]" ExcludeView="simple">m_End - m_Begin</Item>
-          <ArrayItems>
-              <Size>m_End - m_Begin</Size>
-              <ValuePointer>m_Begin</ValuePointer>
-          </ArrayItems>
-      </Expand>
-  </Type>
+	<Type Name="range&lt;*&gt;">
+		<DisplayString>{m_Begin,[m_End - m_Begin]na}</DisplayString>
+		<Expand>
+			<Item Name="[size]" ExcludeView="simple">m_End - m_Begin</Item>
+			<ArrayItems>
+				<Size>m_End - m_Begin</Size>
+				<ValuePointer>m_Begin</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
 
-  <Type Name="monitored&lt;*&gt;">
-      <DisplayString>{m_Value}</DisplayString>
-      <StringView>m_Value</StringView>
-      <Expand>
-          <ExpandedItem>m_Value</ExpandedItem>
-          <Item Name="[touched]" ExcludeView="simple">m_Touched</Item>
-      </Expand>
-  </Type>
+	<Type Name="span&lt;*&gt;">
+		<DisplayString>{m_Begin,[m_End - m_Begin]na}</DisplayString>
+		<Expand>
+			<Item Name="[size]" ExcludeView="simple">m_End - m_Begin</Item>
+			<ArrayItems>
+				<Size>m_End - m_Begin</Size>
+				<ValuePointer>m_Begin</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
 
-  <Type Name="detail::OptionImpl&lt;*&gt;">
-      <DisplayString>{m_Value}</DisplayString>
-      <StringView>m_Value</StringView>
-      <Expand>
-          <ExpandedItem>m_Value</ExpandedItem>
-          <Item Name="[validator]" ExcludeView="simple">m_Validator</Item>
-      </Expand>
-  </Type>
+	<Type Name="rectangle_t&lt;*&gt;">
+		<DisplayString>[{left} {top} {right} {bottom}]</DisplayString>
+		<Expand>
+			<Item Name="left">left</Item>
+			<Item Name="top">top</Item>
+			<Item Name="right">right</Item>
+			<Item Name="bottom">bottom</Item>
+			<Item Name="width()" ExcludeView="simple">right - left + 1</Item>
+			<Item Name="height()" ExcludeView="simple">bottom - top + 1</Item>
+		</Expand>
+	</Type>
 
-  <Type Name="movable&lt;*&gt;">
-    <DisplayString>{m_Value}</DisplayString>
-    <StringView>m_Value</StringView>
-  </Type>
+	<Type Name="monitored&lt;*&gt;">
+		<DisplayString>{m_Value} [touched={m_Touched}]</DisplayString>
+		<StringView>m_Value</StringView>
+		<Expand>
+			<ExpandedItem>m_Value</ExpandedItem>
+			<Item Name="[touched]" ExcludeView="simple">m_Touched</Item>
+		</Expand>
+	</Type>
 
-  <Type Name="os::detail::handle_t&lt;*&gt;">
-      <DisplayString Condition="_Mypair._Myval2 == 0">empty</DisplayString>
-      <DisplayString>{_Mypair._Myval2}</DisplayString>
-  </Type>
+	<Type Name="detail::OptionImpl&lt;*,*&gt;">
+		<DisplayString>{m_Value}</DisplayString>
+		<StringView>m_Value</StringView>
+		<Expand>
+			<ExpandedItem>m_Value</ExpandedItem>
+			<Item Name="[callback]" ExcludeView="simple">m_Callback</Item>
+		</Expand>
+	</Type>
 
-  <Type Name="error_state">
-      <DisplayString>{{Win32Error={Win32Error,h} NtError={NtError,h}}}</DisplayString>
-      <Expand>
-          <Item Name="Win32Error" ExcludeView="simple">Win32Error,hr</Item>
-          <Item Name="NtError" ExcludeView="simple">NtError,hr</Item>
-      </Expand>
-  </Type>
+	<Type Name="movable&lt;*&gt;">
+		<DisplayString>{m_Value}</DisplayString>
+		<StringView>m_Value</StringView>
+	</Type>
 
-  <Type Name="error_state_ex">
-      <DisplayString>{{{(*(error_state*)this)} What={What}}}</DisplayString>
-      <Expand>
-          <ExpandedItem>(*(error_state*)this)</ExpandedItem>
-          <Item Name="What" ExcludeView="simple">What</Item>
-      </Expand>
-  </Type>
+	<Type Name="os::detail::handle_t&lt;*&gt;">
+		<Intrinsic Name="get" Expression="_Mypair._Myval2" />
+		<DisplayString Condition="!get()">empty</DisplayString>
+		<DisplayString>{get()}</DisplayString>
+	</Type>
+
+	<Type Name="array_ptr&lt;*,*&gt;">
+		<Intrinsic Name="dynamic" Expression="m_Size &gt; $T2"/>
+		<Intrinsic Name="empty" Expression="!m_Size"/>
+		<Intrinsic Name="ptr" Expression="empty()? nullptr : dynamic()? ($T1*)m_DynamicBuffer._Mypair._Myval2 : ($T1*)&amp;m_StaticBuffer"/>
+		<DisplayString Condition="empty()">empty</DisplayString>
+		<DisplayString Condition="!empty()">size={m_Size}, dynamic={dynamic()}</DisplayString>
+		<Expand>
+			<Item Name="[size]">m_Size</Item>
+			<Item Name="[dynamic]">dynamic()</Item>
+			<ArrayItems Condition="!empty()">
+				<Size>m_Size</Size>
+				<ValuePointer>ptr()</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+
+	<Type Name="block_ptr&lt;*,*&gt;">
+		<Expand>
+			<Synthetic Name="[Buffer]">
+				<DisplayString>{(array_ptr&lt;char,$T2&gt;&amp;)*this}</DisplayString>
+				<Expand>
+					<ExpandedItem>(array_ptr&lt;char,$T2&gt;&amp;)*this</ExpandedItem>
+				</Expand>
+			</Synthetic>
+			<ExpandedItem Condition="!empty()">($T1*)ptr()</ExpandedItem>
+		</Expand>
+	</Type>
+
+	<Type Name="error_state">
+		<DisplayString>{{Win32Error={Win32Error,h} NtError={NtError,h}}}</DisplayString>
+		<Expand>
+			<Item Name="Win32Error">Win32Error,hr</Item>
+			<Item Name="NtError">NtError,hr</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="error_state_ex">
+		<DisplayString>{{{(*(error_state*)this)} What={What}}}</DisplayString>
+		<Expand>
+			<ExpandedItem>(*(error_state*)this)</ExpandedItem>
+			<Item Name="What">What</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="rgba">
+		<DisplayString>{short(r)} {short(g)} {short(b)} {short(a)}</DisplayString>
+	</Type>
+
+	<Type Name="FarColor">
+		<Expand>
+			<Synthetic Name="Foreground">
+				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) == 0">{ForegroundRGBA}</DisplayString>
+				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) != 0 &amp;&amp; (ForegroundColor &amp; 0xf) == 0">black</DisplayString>
+				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) != 0 &amp;&amp; (ForegroundColor &amp; 0xf) == 1">navy</DisplayString>
+				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) != 0 &amp;&amp; (ForegroundColor &amp; 0xf) == 2">green</DisplayString>
+				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) != 0 &amp;&amp; (ForegroundColor &amp; 0xf) == 3">teal</DisplayString>
+				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) != 0 &amp;&amp; (ForegroundColor &amp; 0xf) == 4">maroon</DisplayString>
+				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) != 0 &amp;&amp; (ForegroundColor &amp; 0xf) == 5">purple</DisplayString>
+				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) != 0 &amp;&amp; (ForegroundColor &amp; 0xf) == 6">olive</DisplayString>
+				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) != 0 &amp;&amp; (ForegroundColor &amp; 0xf) == 7">silver</DisplayString>
+				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) != 0 &amp;&amp; (ForegroundColor &amp; 0xf) == 8">gray</DisplayString>
+				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) != 0 &amp;&amp; (ForegroundColor &amp; 0xf) == 9">blue</DisplayString>
+				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) != 0 &amp;&amp; (ForegroundColor &amp; 0xf) == 10">lime</DisplayString>
+				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) != 0 &amp;&amp; (ForegroundColor &amp; 0xf) == 11">aqua</DisplayString>
+				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) != 0 &amp;&amp; (ForegroundColor &amp; 0xf) == 12">red</DisplayString>
+				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) != 0 &amp;&amp; (ForegroundColor &amp; 0xf) == 13">fuchsia</DisplayString>
+				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) != 0 &amp;&amp; (ForegroundColor &amp; 0xf) == 14">yellow</DisplayString>
+				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) != 0 &amp;&amp; (ForegroundColor &amp; 0xf) == 15">white</DisplayString>
+			</Synthetic>
+			<Synthetic Name="Background">
+				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) == 0">{BackgroundRGBA}</DisplayString>
+				<DisplayString Condition="(Flags &amp; FCF_BG_4BIT) != 0 &amp;&amp; (BackgroundColor &amp; 0xf) == 0">black</DisplayString>
+				<DisplayString Condition="(Flags &amp; FCF_BG_4BIT) != 0 &amp;&amp; (BackgroundColor &amp; 0xf) == 1">navy</DisplayString>
+				<DisplayString Condition="(Flags &amp; FCF_BG_4BIT) != 0 &amp;&amp; (BackgroundColor &amp; 0xf) == 2">green</DisplayString>
+				<DisplayString Condition="(Flags &amp; FCF_BG_4BIT) != 0 &amp;&amp; (BackgroundColor &amp; 0xf) == 3">teal</DisplayString>
+				<DisplayString Condition="(Flags &amp; FCF_BG_4BIT) != 0 &amp;&amp; (BackgroundColor &amp; 0xf) == 4">maroon</DisplayString>
+				<DisplayString Condition="(Flags &amp; FCF_BG_4BIT) != 0 &amp;&amp; (BackgroundColor &amp; 0xf) == 5">purple</DisplayString>
+				<DisplayString Condition="(Flags &amp; FCF_BG_4BIT) != 0 &amp;&amp; (BackgroundColor &amp; 0xf) == 6">olive</DisplayString>
+				<DisplayString Condition="(Flags &amp; FCF_BG_4BIT) != 0 &amp;&amp; (BackgroundColor &amp; 0xf) == 7">silver</DisplayString>
+				<DisplayString Condition="(Flags &amp; FCF_BG_4BIT) != 0 &amp;&amp; (BackgroundColor &amp; 0xf) == 8">gray</DisplayString>
+				<DisplayString Condition="(Flags &amp; FCF_BG_4BIT) != 0 &amp;&amp; (BackgroundColor &amp; 0xf) == 9">blue</DisplayString>
+				<DisplayString Condition="(Flags &amp; FCF_BG_4BIT) != 0 &amp;&amp; (BackgroundColor &amp; 0xf) == 10">lime</DisplayString>
+				<DisplayString Condition="(Flags &amp; FCF_BG_4BIT) != 0 &amp;&amp; (BackgroundColor &amp; 0xf) == 11">aqua</DisplayString>
+				<DisplayString Condition="(Flags &amp; FCF_BG_4BIT) != 0 &amp;&amp; (BackgroundColor &amp; 0xf) == 12">red</DisplayString>
+				<DisplayString Condition="(Flags &amp; FCF_BG_4BIT) != 0 &amp;&amp; (BackgroundColor &amp; 0xf) == 13">fuchsia</DisplayString>
+				<DisplayString Condition="(Flags &amp; FCF_BG_4BIT) != 0 &amp;&amp; (BackgroundColor &amp; 0xf) == 14">yellow</DisplayString>
+				<DisplayString Condition="(Flags &amp; FCF_BG_4BIT) != 0 &amp;&amp; (BackgroundColor &amp; 0xf) == 15">white</DisplayString>
+			</Synthetic>
+			<Synthetic Name="Flags">
+				<DisplayString>{Flags,h}</DisplayString>
+				<Expand>
+					<Item Name="bold">bool(Flags &amp; FCF_FG_BOLD)</Item>
+					<Item Name="italic">bool(Flags &amp; FCF_FG_ITALIC)</Item>
+					<Item Name="underline">bool(Flags &amp; FCF_FG_UNDERLINE)</Item>
+				</Expand>
+			</Synthetic>
+		</Expand>
+	</Type>
+
+	<Type Name="FAR_CHAR_INFO">
+		<DisplayString>{Char}</DisplayString>
+	</Type>
+
 
 </AutoVisualizer>

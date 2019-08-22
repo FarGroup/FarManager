@@ -365,7 +365,7 @@ bool filemasks::masks::operator==(const string_view FileName) const
 	}
 
 	intptr_t i = m_Match.size();
-	return m_Regex->Search(FileName.data(), FileName.data() + FileName.size(), m_Match.data(), i) != 0; // BUGBUG
+	return m_Regex->Search(FileName, m_Match.data(), i) != 0; // BUGBUG
 }
 
 bool filemasks::masks::empty() const

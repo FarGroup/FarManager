@@ -3122,7 +3122,7 @@ SEARCHER_RESULT Viewer::search_regex_forward(search_data* sd)
 
 		intptr_t n = sd->RexMatchCount;
 		RegExpMatch *m = sd->RexMatch.data();
-		if (!sd->pRex->SearchEx(line, line + off, line + nw, m, n))  // doesn't match
+		if (!sd->pRex->SearchEx({ line, static_cast<size_t>(nw) }, off, m, n))  // doesn't match
 		{
 			ReMatchErrorMessage(*sd->pRex);
 			break;
@@ -3190,7 +3190,7 @@ SEARCHER_RESULT Viewer::search_regex_backward(search_data* sd)
 
 		intptr_t n = sd->RexMatchCount;
 		RegExpMatch *m = sd->RexMatch.data();
-		if (!sd->pRex->SearchEx(line, line + off, line + nw, m, n))
+		if (!sd->pRex->SearchEx({ line, static_cast<size_t>(nw) }, off, m, n))
 		{
 			ReMatchErrorMessage(*sd->pRex);
 			break;

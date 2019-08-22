@@ -165,7 +165,7 @@ setattr_result ESetFileTime(
 
 	const auto Implementation = [&]
 	{
-		const auto File = os::fs::file(Name, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT);
+		const os::fs::file File(Name, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT);
 		if (!File)
 			return false;
 

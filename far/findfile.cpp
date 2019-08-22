@@ -2571,7 +2571,7 @@ bool FindFiles::FindFilesProcess()
 		{ DI_DOUBLEBOX, {{3,                    1}, {DlgWidth-4, DlgHeight-2}}, DIF_SHOWAMPERSAND, strTitle, },
 		{ DI_LISTBOX,   {{4,                    2}, {DlgWidth-5, DlgHeight-7}}, DIF_LISTNOBOX|DIF_DISABLE, },
 		{ DI_TEXT,      {{-1,         DlgHeight-6}, {0,          DlgHeight-6}}, DIF_SEPARATOR2, },
-		{ DI_TEXT,      {{5,          DlgHeight-5}, {DlgWidth-(strFindStr.empty()? 6 : 12), DlgHeight-5}}, DIF_SHOWAMPERSAND, L"..."sv },
+		{ DI_TEXT,      {{5,          DlgHeight-5}, {DlgWidth-(strFindStr.empty()? 6 : 12), DlgHeight-5}}, DIF_SHOWAMPERSAND, L"…"sv },
 		{ DI_TEXT,      {{DlgWidth-9, DlgHeight-5}, {DlgWidth-6, DlgHeight-5}}, (strFindStr.empty() ? DIF_HIDDEN : DIF_NONE), },
 		{ DI_TEXT,      {{-1,         DlgHeight-4}, {0,          DlgHeight-4}}, DIF_SEPARATOR, },
 		{ DI_BUTTON,    {{0,          DlgHeight-3}, {0,          DlgHeight-3}}, DIF_CENTERGROUP | DIF_FOCUS | DIF_DEFAULTBUTTON, msg(lng::MFindNewSearch), },

@@ -497,7 +497,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 
 					if (items.size() > mshow && items.size() < SelCount)
 					{
-						items.emplace_back(L"..."sv);
+						items.emplace_back(L"…"sv);
 						break;
 					}
 				}

@@ -227,7 +227,7 @@ void PrintFiles(FileList* SrcPanel)
 
 			try
 			{
-				const auto SrcFile = os::fs::file(FileName, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING);
+				const os::fs::file SrcFile(FileName, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING);
 				if (!SrcFile)
 					throw MAKE_FAR_EXCEPTION(L"Cannot open file"sv);
 

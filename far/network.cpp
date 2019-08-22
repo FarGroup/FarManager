@@ -75,22 +75,30 @@ os::fs::drives_set GetSavedNetworkDrives()
 
 	os::fs::drives_set Drives;
 
-	DWORD BufferSize = 16 * 1024;
-	block_ptr<NETRESOURCE> netResource(BufferSize);
+	block_ptr<NETRESOURCE> Buffer(16 * 1024);
 
 	for (;;)
 	{
-		DWORD Size = 1;
-		BufferSize = 16 * 1024;
-		std::memset(netResource.get(), 0, BufferSize);
-		const auto Result = WNetEnumResource(hEnum, &Size, netResource.get(), &BufferSize);
+		DWORD Count = -1;
+		auto BufferSize = static_cast<DWORD>(Buffer.size());
+		const auto Result = WNetEnumResource(hEnum, &Count, Buffer.get(), &BufferSize);
 
-		if (Result != NO_ERROR || !Size || !netResource->lpLocalName)
+		if (Result == ERROR_MORE_DATA)
+		{
+			Buffer.reset(BufferSize);
+			continue;
+		}
+
+		if (Result != NO_ERROR || !Count)
 			break;
 
-		if (os::fs::is_standard_drive_letter(netResource->lpLocalName[0]) && netResource->lpLocalName[1] == L':')
+		for (const auto& i: span(Buffer.get(), Count))
 		{
-			Drives.set(os::fs::get_drive_number(netResource->lpLocalName[0]));
+			const auto Name = i.lpLocalName;
+			if (os::fs::is_standard_drive_letter(Name[0]) && Name[1] == L':')
+			{
+				Drives.set(os::fs::get_drive_number(Name[0]));
+			}
 		}
 	}
 
