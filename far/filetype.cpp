@@ -486,8 +486,6 @@ static bool DeleteTypeRecord(unsigned long long DeletePos)
 
 void EditFileTypes()
 {
-	SCOPED_ACTION(auto)(ConfigProvider().AssocConfig()->ScopedTransaction());
-
 	int MenuPos=0;
 	const auto TypesMenu = VMenu2::create(msg(lng::MAssocTitle), {}, ScrY - 4);
 	TypesMenu->SetHelp(L"FileAssoc"sv);
