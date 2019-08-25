@@ -677,7 +677,7 @@ static void FilterDlgRelativeDateItemsUpdate(Dialog* Dlg, bool bClear)
 
 static bool AttributesDialog(span<attribute_map> const Attributes)
 {
-	DialogBuilder Builder(lng::MFileFilterAttr);
+	DialogBuilder Builder(lng::MSetAttrTitle);
 
 	for (auto& i: Attributes)
 		Builder.AddCheckbox(i.Name, &i.State, 0, true);
@@ -711,7 +711,7 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 
 				if (Param1==ID_FF_CURRENT)
 				{
-					ConvertDate(os::chrono::nt_clock::now(), strDate, strTime, 12, 2);
+					ConvertDate(os::chrono::nt_clock::now(), strDate, strTime, 17, 2);
 				}
 				else
 				{
@@ -907,8 +907,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	}
 
 	// Маска времени
-	const auto strTimeMask = format(FSTR(L"99{0}99{0}99{1}999"), TimeSeparator, DecimalSeparator);
-	const time_ranges TimeRanges{{ {0, 2}, {3, 2}, {6, 2}, {9, 3} }};
+	const auto strTimeMask = format(FSTR(L"99{0}99{0}99{1}999+9999"), TimeSeparator, DecimalSeparator);
 	const wchar_t VerticalLine[] = {BoxSymbols[BS_T_H1V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_B_H1V1],0};
 
 	std::pair<lng, string> NameLabels[] =
@@ -941,16 +940,16 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 		{ DI_TEXT,        {{7,  8 }, {8,  8 }}, DIF_NONE, msg(lng::MFileFilterSizeToSign), },
 		{ DI_EDIT,        {{10, 8 }, {20, 8 }}, DIF_NONE, },
 		{ DI_CHECKBOX,    {{24, 6 }, {0,  6 }}, DIF_AUTOMATION, msg(lng::MFileFilterDate), },
-		{ DI_COMBOBOX,    {{26, 7 }, {41, 7 }}, DIF_DROPDOWNLIST | DIF_LISTNOAMPERSAND, },
-		{ DI_CHECKBOX,    {{26, 8 }, {0,  8 }}, DIF_NONE, msg(lng::MFileFilterDateRelative), },
-		{ DI_TEXT,        {{48, 7 }, {50, 7 }}, DIF_NONE, msg(lng::MFileFilterDateBeforeSign), },
-		{ DI_FIXEDIT,     {{51, 7 }, {61, 7 }}, DIF_MASKEDIT, },
-		{ DI_FIXEDIT,     {{51, 7 }, {61, 7 }}, DIF_MASKEDIT, },
-		{ DI_FIXEDIT,     {{63, 7 }, {74, 7 }}, DIF_MASKEDIT, },
-		{ DI_TEXT,        {{48, 8 }, {50, 8 }}, DIF_NONE, msg(lng::MFileFilterDateAfterSign), },
-		{ DI_FIXEDIT,     {{51, 8 }, {61, 8 }}, DIF_MASKEDIT, },
-		{ DI_FIXEDIT,     {{51, 8 }, {61, 8 }}, DIF_MASKEDIT, },
-		{ DI_FIXEDIT,     {{63, 8 }, {74, 8 }}, DIF_MASKEDIT, },
+		{ DI_COMBOBOX,    {{24, 7 }, {40, 7 }}, DIF_DROPDOWNLIST | DIF_LISTNOAMPERSAND, },
+		{ DI_CHECKBOX,    {{24, 8 }, {0,  8 }}, DIF_NONE, msg(lng::MFileFilterDateRelative), },
+		{ DI_TEXT,        {{43, 7 }, {45, 7 }}, DIF_NONE, msg(lng::MFileFilterDateBeforeSign), },
+		{ DI_FIXEDIT,     {{46, 7 }, {56, 7 }}, DIF_MASKEDIT, },
+		{ DI_FIXEDIT,     {{46, 7 }, {56, 7 }}, DIF_MASKEDIT, },
+		{ DI_FIXEDIT,     {{58, 7 }, {74, 7 }}, DIF_MASKEDIT, },
+		{ DI_TEXT,        {{43, 8 }, {45, 8 }}, DIF_NONE, msg(lng::MFileFilterDateAfterSign), },
+		{ DI_FIXEDIT,     {{46, 8 }, {56, 8 }}, DIF_MASKEDIT, },
+		{ DI_FIXEDIT,     {{46, 8 }, {56, 8 }}, DIF_MASKEDIT, },
+		{ DI_FIXEDIT,     {{58, 8 }, {74, 8 }}, DIF_MASKEDIT, },
 		{ DI_BUTTON,      {{0,  6 }, {0,  6 }}, DIF_BTNNOCLOSE, msg(lng::MFileFilterCurrent), },
 		{ DI_BUTTON,      {{0,  6 }, {74, 6 }}, DIF_BTNNOCLOSE, msg(lng::MFileFilterBlank), },
 		{ DI_TEXT,        {{-1, 9 }, {0,  9 }}, DIF_SEPARATOR, },
@@ -1077,7 +1076,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	const auto ProcessPoint = [&](auto Point, auto DateId, auto TimeId)
 	{
 		FilterDlg[ID_FF_DATERELATIVE].Selected = BSTATE_UNCHECKED;
-		ConvertDate(Point, FilterDlg[DateId].strData, FilterDlg[TimeId].strData, 12, 2);
+		ConvertDate(Point, FilterDlg[DateId].strData, FilterDlg[TimeId].strData, 17, 2);
 	};
 
 	Dates.visit(overload
@@ -1100,16 +1099,16 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 
 	attribute_map AttributeMapping[]
 	{
-		{ FILE_ATTRIBUTE_READONLY,                     lng::MFileFilterAttrR,                  },
-		{ FILE_ATTRIBUTE_ARCHIVE,                      lng::MFileFilterAttrA,                  },
-		{ FILE_ATTRIBUTE_HIDDEN,                       lng::MFileFilterAttrH,                  },
-		{ FILE_ATTRIBUTE_SYSTEM,                       lng::MFileFilterAttrS,                  },
-		{ FILE_ATTRIBUTE_COMPRESSED,                   lng::MFileFilterAttrC,                  },
-		{ FILE_ATTRIBUTE_ENCRYPTED,                    lng::MFileFilterAttrE,                  },
-		{ FILE_ATTRIBUTE_NOT_CONTENT_INDEXED,          lng::MFileFilterAttrNI,                 },
-		{ FILE_ATTRIBUTE_DIRECTORY,                    lng::MFileFilterAttrD,                  },
+		{ FILE_ATTRIBUTE_READONLY,                     lng::MFileFilterAttrReadOnly,           },
+		{ FILE_ATTRIBUTE_ARCHIVE,                      lng::MFileFilterAttrArcive,             },
+		{ FILE_ATTRIBUTE_HIDDEN,                       lng::MFileFilterAttrHidden,             },
+		{ FILE_ATTRIBUTE_SYSTEM,                       lng::MFileFilterAttrSystem,             },
+		{ FILE_ATTRIBUTE_COMPRESSED,                   lng::MFileFilterAttrCompressed,         },
+		{ FILE_ATTRIBUTE_ENCRYPTED,                    lng::MFileFilterAttrEncrypted,          },
+		{ FILE_ATTRIBUTE_NOT_CONTENT_INDEXED,          lng::MFileFilterAttrNotIndexed,         },
+		{ FILE_ATTRIBUTE_DIRECTORY,                    lng::MFileFilterAttrDirectory,          },
 		{ FILE_ATTRIBUTE_SPARSE_FILE,                  lng::MFileFilterAttrSparse,             },
-		{ FILE_ATTRIBUTE_TEMPORARY,                    lng::MFileFilterAttrT,                  },
+		{ FILE_ATTRIBUTE_TEMPORARY,                    lng::MFileFilterAttrTemporary,          },
 		{ FILE_ATTRIBUTE_OFFLINE,                      lng::MFileFilterAttrOffline,            },
 		{ FILE_ATTRIBUTE_REPARSE_POINT,                lng::MFileFilterAttrReparse,            },
 		{ FILE_ATTRIBUTE_VIRTUAL,                      lng::MFileFilterAttrVirtual,            },
@@ -1192,13 +1191,13 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 			const auto NewDates = IsRelative?
 				filter_dates
 				(
-					ParseDuration(FilterDlg[ID_FF_DAYSAFTEREDIT].strData, FilterDlg[ID_FF_TIMEAFTEREDIT].strData, TimeRanges),
-					ParseDuration(FilterDlg[ID_FF_DAYSBEFOREEDIT].strData, FilterDlg[ID_FF_TIMEBEFOREEDIT].strData, TimeRanges)
+					ParseDuration(FilterDlg[ID_FF_DAYSAFTEREDIT].strData, FilterDlg[ID_FF_TIMEAFTEREDIT].strData, DefaultTimeRanges),
+					ParseDuration(FilterDlg[ID_FF_DAYSBEFOREEDIT].strData, FilterDlg[ID_FF_TIMEBEFOREEDIT].strData, DefaultTimeRanges)
 				) :
 				filter_dates
 				(
-					ParseDate(FilterDlg[ID_FF_DATEAFTEREDIT].strData, FilterDlg[ID_FF_TIMEAFTEREDIT].strData, DateFormat, DateRanges, TimeRanges),
-					ParseDate(FilterDlg[ID_FF_DATEBEFOREEDIT].strData, FilterDlg[ID_FF_TIMEBEFOREEDIT].strData, DateFormat, DateRanges, TimeRanges)
+					ParseTimePoint(FilterDlg[ID_FF_DATEAFTEREDIT].strData, FilterDlg[ID_FF_TIMEAFTEREDIT].strData, DateFormat, DateRanges, DefaultTimeRanges),
+					ParseTimePoint(FilterDlg[ID_FF_DATEBEFOREEDIT].strData, FilterDlg[ID_FF_TIMEBEFOREEDIT].strData, DateFormat, DateRanges, DefaultTimeRanges)
 				);
 
 			FF->SetDate(FilterDlg[ID_FF_MATCHDATE].Selected != 0, static_cast<enumFDateType>(FilterDlg[ID_FF_DATETYPE].ListPos), NewDates);

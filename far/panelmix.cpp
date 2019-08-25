@@ -600,6 +600,9 @@ string FormatStr_Attribute(DWORD FileAttributes, size_t Width)
 {
 	string OutStr;
 
+	if (!FileAttributes)
+		FileAttributes = FILE_ATTRIBUTE_NORMAL;
+
 	enum_attributes([&](DWORD Attribute, wchar_t Character)
 	{
 		if (FileAttributes & Attribute)

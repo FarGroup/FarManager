@@ -1739,21 +1739,22 @@ The following column types are supported:
 
  File attributes are denoted as follows:
 
+ #N# - Attributes not set
  #R# - Read only
- #A# - Archive
  #H# - Hidden
  #S# - System
- #C# - Compressed
- #E# - Encrypted
- #I# - Not content indexed
  #D# - Directory
- #$# - Sparse
+ #A# - Archive
  #T# - Temporary
- #O# - Offline
+ #$# - Sparse
  #L# - Reparse point
- #V# - Virtual
- #G# - Integrity stream
- #N# - No scrub data
+ #C# - Compressed
+ #O# - Offline
+ #I# - Not content indexed
+ #E# - Encrypted
+ #V# - Integrity stream
+ #?# - Virtual
+ #X# - No scrub data
  #P# - Pinned
  #U# - Unpinned
 
@@ -4179,21 +4180,22 @@ the file panel will be displayed in multicolumn form.
 
  File attributes are denoted as follows:
 
+ #N# - Attributes not set
  #R# - Read only
- #A# - Archive
  #H# - Hidden
  #S# - System
- #C# - Compressed
- #E# - Encrypted
- #I# - Not content indexed
  #D# - Directory
- #$# - Sparse
+ #A# - Archive
  #T# - Temporary
- #O# - Offline
+ #$# - Sparse
  #L# - Reparse point
- #V# - Virtual
- #G# - Integrity stream
- #N# - No scrub data
+ #C# - Compressed
+ #O# - Offline
+ #I# - Not content indexed
+ #E# - Encrypted
+ #V# - Integrity stream
+ #?# - Virtual
+ #X# - No scrub data
  #P# - Pinned
  #U# - Unpinned
 

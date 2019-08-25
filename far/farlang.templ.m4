@@ -18041,7 +18041,7 @@ MSetAttrUnknownReparsePoint
 "(нема даних)"
 "(няма дадзеных)"
 
-MSetAttrRO
+MSetAttrReadOnly
 "&Только для чтения"
 "&Read only"
 "&Pouze pro čtení"
@@ -18145,7 +18145,7 @@ upd:"Reserve"
 "Розріджений"
 "Разрэджаны"
 
-MSetAttrTemp
+MSetAttrTemporary
 "Временный"
 "Temporary"
 "Dočasný"
@@ -18287,6 +18287,19 @@ upd:"Strictly sequential"
 upd:"Strictly sequential"
 upd:"Strictly sequential"
 upd:"Strictly sequential"
+
+MSetAttrAdvanced
+"До&полнительно"
+"Advance&d"
+"Pokr&očilé"
+"Er&weitert"
+"Ha&ladó"
+"&Zaawansowane"
+"Avan&zado"
+"Pokr&očilé"
+"A&vanzate"
+"До&датково"
+"Да&даткова"
 
 MSetAttrSubfolders
 "Обрабатывать &вложенные папки"
@@ -18459,17 +18472,17 @@ upd:"ÉÉÉÉÉ{0}HH{0}NN"
 "ГГГГГ{0}ММ{0}ДД"
 
 MSetAttrTimeTitle
-"чч{0}мм{0}сс{1}мс"
-"hh{0}mm{0}ss{1}ms"
-"hh{0}mm{0}ss{1}ms"
-upd:"hh{0}mm{0}ss{1}ms"
-upd:"óó{0}pp{0}mm{1}ms"
-"gg{0}mm{0}ss{1}ms"
-"hh{0}mm{0}ss{1}ms"
-"hh{0}mm{0}ss{1}ms"
-"hh{0}mm{0}ss{1}ms"
-"гг{0}хх{0}сс{1}мс"
-"чч{0}мм{0}сс{1}мс"
+"чч{0}мм{0}сс{1}мс +такт"
+"hh{0}mm{0}ss{1}ms +tick"
+upd:"hh{0}mm{0}ss{1}ms +tick"
+upd:"hh{0}mm{0}ss{1}ms +tick"
+upd:"óó{0}pp{0}mm{1}ms +tick"
+upd:"gg{0}mm{0}ss{1}ms +tick"
+upd:"hh{0}mm{0}ss{1}ms +tick"
+upd:"hh{0}mm{0}ss{1}ms +tick"
+upd:"hh{0}mm{0}ss{1}ms +tick"
+upd:"гг{0}хх{0}сс{1}мс +такт"
+"чч{0}мм{0}сс{1}мс +такт"
 
 MSetAttrSystemDialog
 "Системные &свойства"
@@ -29442,7 +29455,7 @@ MFileFilterAttr
 "Атрибут&и"
 "Атр&ыбуты"
 
-MFileFilterAttrR
+MFileFilterAttrReadOnly
 "&Только для чтения"
 "&Read only"
 "Jen pro čt&ení"
@@ -29455,7 +29468,7 @@ MFileFilterAttrR
 "&Лише для читання"
 "&Толькі для чытання"
 
-MFileFilterAttrA
+MFileFilterAttrArcive
 "&Архивный"
 "&Archive"
 "Arc&hivovat"
@@ -29468,7 +29481,7 @@ MFileFilterAttrA
 "&Архівний"
 "З&апакаваны"
 
-MFileFilterAttrH
+MFileFilterAttrHidden
 "&Скрытый"
 "&Hidden"
 "Skry&tý"
@@ -29481,7 +29494,7 @@ MFileFilterAttrH
 "&Прихований"
 "Зхаван&ы"
 
-MFileFilterAttrS
+MFileFilterAttrSystem
 "С&истемный"
 "&System"
 "Systémo&vý"
@@ -29494,7 +29507,7 @@ MFileFilterAttrS
 "С&истемний"
 "С&істэмны"
 
-MFileFilterAttrC
+MFileFilterAttrCompressed
 "С&жатый"
 "&Compressed"
 "Kompri&movaný"
@@ -29507,7 +29520,7 @@ MFileFilterAttrC
 "Стиснутий"
 "З&ціснуты"
 
-MFileFilterAttrE
+MFileFilterAttrEncrypted
 "&Зашифрованный"
 "&Encrypted"
 "Ši&frovaný"
@@ -29520,7 +29533,7 @@ MFileFilterAttrE
 "&Зашифрований"
 "Та&йнапісны"
 
-MFileFilterAttrD
+MFileFilterAttrDirectory
 "&Каталог"
 "&Directory"
 "Adr&esář"
@@ -29533,7 +29546,7 @@ MFileFilterAttrD
 "&Каталог"
 "&Каталог"
 
-MFileFilterAttrNI
+MFileFilterAttrNotIndexed
 "&Неиндексируемый"
 "Not &indexed"
 "Neinde&xovaný"
@@ -29559,7 +29572,7 @@ MFileFilterAttrSparse
 "&Розріджений"
 "Разрэджаны"
 
-MFileFilterAttrT
+MFileFilterAttrTemporary
 "&Временный"
 "Temporar&y"
 "Doča&sný"

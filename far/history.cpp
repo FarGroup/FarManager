@@ -242,7 +242,7 @@ history_return_type History::ProcessMenu(string& strStr, GUID* const Guid, strin
 					MenuItemEx Separator;
 					Separator.Flags = LIF_SEPARATOR;
 					string strTime;
-					ConvertDate(i.Time, Separator.Name, strTime, 5, 1);
+					ConvertDate(i.Time, Separator.Name, strTime, 8, 1);
 					HistoryMenu.AddItem(Separator);
 				}
 				strRecord += i.Name;

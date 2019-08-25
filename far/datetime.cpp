@@ -354,24 +354,24 @@ string MkStrFTime(string_view const Format)
 	return StrFTime(Format.empty()? Global->Opt->Macro.strDateFormat : Format, std::localtime(&Time));
 }
 
-void ParseDateComponents(string_view const Src, span<const std::pair<size_t, size_t>> const Ranges, span<WORD> const Dst, WORD const Default)
+void ParseTimeComponents(string_view const Src, span<const std::pair<size_t, size_t>> const Ranges, span<time_component> const Dst, time_component const Default)
 {
 	assert(Dst.size() == Ranges.size());
 	std::transform(ALL_CONST_RANGE(Ranges), Dst.begin(), [Src, Default](const auto& i)
 	{
 		const auto Part = trim(Src.substr(i.first, i.second));
-		return Part.empty()? Default : from_string<WORD>(Part);
+		return Part.empty()? Default : from_string<time_component>(Part);
 	});
 }
 
-os::chrono::time_point ParseDate(const string& Date, const string& Time, int DateFormat, const date_ranges& DateRanges, const time_ranges& TimeRanges)
+os::chrono::time_point ParseTimePoint(const string& Date, const string& Time, int DateFormat, const date_ranges& DateRanges, const time_ranges& TimeRanges)
 {
-	WORD DateN[3];
-	ParseDateComponents(Date, DateRanges, DateN);
-	WORD TimeN[4];
-	ParseDateComponents(Time, TimeRanges, TimeN, 0);
+	time_component DateN[3];
+	ParseTimeComponents(Date, DateRanges, DateN);
+	time_component TimeN[5];
+	ParseTimeComponents(Time, TimeRanges, TimeN, 0);
 
-	if (DateN[0] == date_none || DateN[1] == date_none || DateN[2] == date_none)
+	if (DateN[0] == time_none || DateN[1] == time_none || DateN[2] == time_none)
 	{
 		// Пользователь оставил дату пустой, значит обнулим дату и время.
 		return {};
@@ -412,26 +412,25 @@ os::chrono::time_point ParseDate(const string& Date, const string& Time, int Dat
 
 	os::chrono::time_point Point;
 	local_to_utc(st, Point);
-	return Point;
+	return Point + os::chrono::duration(TimeN[4]);
 }
 
 os::chrono::duration ParseDuration(const string& Date, const string& Time, const time_ranges& TimeRanges)
 {
-	WORD DateN[1];
+	time_component DateN[1];
 	const std::pair<size_t, size_t> DateRange[]{ { 0, Date.size() } };
-	ParseDateComponents(Date, DateRange, DateN, 0);
+	ParseTimeComponents(Date, DateRange, DateN, 0);
 
-	WORD TimeN[4];
-	ParseDateComponents(Time, TimeRanges, TimeN, 0);
+	time_component TimeN[5];
+	ParseTimeComponents(Time, TimeRanges, TimeN, 0);
 
 	using namespace std::chrono;
-	return chrono::days(DateN[0]) + hours(TimeN[0]) + minutes(TimeN[1]) + seconds(TimeN[2]) + milliseconds(TimeN[3]);
+	return chrono::days(DateN[0]) + hours(TimeN[0]) + minutes(TimeN[1]) + seconds(TimeN[2]) + milliseconds(TimeN[3]) + os::chrono::duration(TimeN[4]);
 }
 
 void ConvertDate(os::chrono::time_point const Point, string& strDateText, string& strTimeText, int const TimeLength, int const FullYear, bool const Brief, bool const TextMonth)
 {
-	// Epoch => empty
-	if (!Point.time_since_epoch().count())
+	if (Point == os::chrono::time_point{})
 	{
 		strDateText.clear();
 		strTimeText.clear();
@@ -468,8 +467,18 @@ void ConvertDate(os::chrono::time_point const Point, string& strDateText, string
 	}
 	else
 	{
-		strTimeText = cut_right(format(FSTR(L"{0:02}{1}{2:02}{1}{3:02}{4}{5:03}"),
-			st.wHour, TimeSeparator, st.wMinute, st.wSecond, DecimalSeparator, st.wMilliseconds), TimeLength);
+		strTimeText = cut_right(
+			format(
+				FSTR(L"{0:02}{1}{2:02}{1}{3:02}{4}{5:03}+{6:04}"),
+				st.wHour,
+				TimeSeparator,
+				st.wMinute,
+				st.wSecond,
+				DecimalSeparator,
+				st.wMilliseconds,
+				(Point.time_since_epoch() % 1ms).count()
+			),
+			TimeLength);
 	}
 
 	const auto Year = FullYear? st.wYear : st.wYear % 100;
@@ -526,7 +535,8 @@ void ConvertDate(os::chrono::time_point const Point, string& strDateText, string
 	{
 		strDateText.resize(TextMonth? 6 : 5);
 
-		if (get_local_time().wYear != st.wYear)
+		SYSTEMTIME Now;
+		if (utc_to_local(os::chrono::nt_clock::now(), Now) && Now.wYear != st.wYear)
 			strTimeText = format(FSTR(L"{0:5}"), st.wYear);
 	}
 }
@@ -540,11 +550,12 @@ std::tuple<string, string> ConvertDuration(os::chrono::duration Duration)
 	return
 	{
 		str(Result.get<chrono::days>().count()),
-		format(FSTR(L"{0:02}{4}{1:02}{4}{2:02}{5}{3:03}"),
+		format(FSTR(L"{0:02}{5}{1:02}{5}{2:02}{6}{3:03}+{4:04}"),
 			Result.get<hours>().count(),
 			Result.get<minutes>().count(),
 			Result.get<seconds>().count(),
 			Result.get<milliseconds>().count(),
+			(Duration % 1ms).count(),
 			locale.time_separator(),
 			locale.decimal_separator()
 		)

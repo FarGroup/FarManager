@@ -48,17 +48,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-inline auto get_local_time() { SYSTEMTIME Time; GetLocalTime(&Time); return Time; }
-inline auto get_utc_time() { SYSTEMTIME Time; GetSystemTime(&Time); return Time; }
-
 DWORD ConvertYearToFull(DWORD ShortYear);
 
-enum { date_none = std::numeric_limits<WORD>::max() };
+using time_component = unsigned int;
+enum { time_none = std::numeric_limits<time_component>::max() };
 using date_ranges = std::array<std::pair<size_t, size_t>, 3>;
-using time_ranges = std::array<std::pair<size_t, size_t>, 4>;
+using time_ranges = std::array<std::pair<size_t, size_t>, 5>;
+inline constexpr time_ranges DefaultTimeRanges{{ {0, 2}, { 3, 2 }, { 6, 2 }, { 9, 3 }, { 13, 4 }}};
 
-void ParseDateComponents(string_view Src, span<const std::pair<size_t, size_t>> Ranges, span<WORD> Dst, WORD Default = date_none);
-os::chrono::time_point ParseDate(const string& Date, const string& Time, int DateFormat, const date_ranges& DateRanges, const time_ranges& TimeRanges);
+void ParseTimeComponents(string_view Src, span<const std::pair<size_t, size_t>> Ranges, span<time_component> Dst, time_component Default = time_none);
+os::chrono::time_point ParseTimePoint(const string& Date, const string& Time, int DateFormat, const date_ranges& DateRanges, const time_ranges& TimeRanges);
 os::chrono::duration ParseDuration(const string& Date, const string& Time, const time_ranges& TimeRanges);
 
 /*

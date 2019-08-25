@@ -151,6 +151,13 @@ static const wchar_t *MakeSpace()
 	return Buf;
 }
 
+static auto get_local_time()
+{
+	SYSTEMTIME Time;
+	GetLocalTime(&Time);
+	return Time;
+}
+
 static wchar_t *PrintTime(wchar_t *timebuf,size_t size)
 {
 	const auto st = get_local_time();

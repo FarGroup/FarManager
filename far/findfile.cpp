@@ -2545,6 +2545,7 @@ bool FindFiles::FindFilesProcess()
 	m_FileCount = 0;
 	m_DirCount = 0;
 	m_LastFoundNumber = 0;
+	m_LastDirName.clear();
 
 	if (!strFindMask.empty())
 	{

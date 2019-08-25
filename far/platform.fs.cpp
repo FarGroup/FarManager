@@ -1303,6 +1303,11 @@ namespace os::fs
 		return is_file(file_status(Object));
 	}
 
+	bool is_file(DWORD const Attributes)
+	{
+		return Attributes != INVALID_FILE_ATTRIBUTES && !flags::check_any(Attributes, FILE_ATTRIBUTE_DIRECTORY);
+	}
+
 	bool is_directory(file_status Status)
 	{
 		return Status.check(FILE_ATTRIBUTE_DIRECTORY);
@@ -1311,6 +1316,11 @@ namespace os::fs
 	bool is_directory(const string_view Object)
 	{
 		return is_directory(file_status(Object));
+	}
+
+	bool is_directory(DWORD const Attributes)
+	{
+		return Attributes != INVALID_FILE_ATTRIBUTES && flags::check_any(Attributes, FILE_ATTRIBUTE_DIRECTORY);
 	}
 
 	bool is_not_empty_directory(const string& Object)

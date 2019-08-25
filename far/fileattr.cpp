@@ -217,28 +217,30 @@ setattr_result EDeleteReparsePoint(const string& Name, DWORD const CurrentAttrib
 
 void enum_attributes(function_ref<bool(DWORD, wchar_t)> const Pred)
 {
+	// The order and the symbols are (mostly) the same as in Windows UI
 	static const std::pair<wchar_t, DWORD> AttrMap[]
 	{
+		{ L'N', FILE_ATTRIBUTE_NORMAL },
 		{ L'R', FILE_ATTRIBUTE_READONLY },
-		{ L'A', FILE_ATTRIBUTE_ARCHIVE },
 		{ L'H', FILE_ATTRIBUTE_HIDDEN },
 		{ L'S', FILE_ATTRIBUTE_SYSTEM },
-		{ L'C', FILE_ATTRIBUTE_COMPRESSED },
-		{ L'E', FILE_ATTRIBUTE_ENCRYPTED },
-		{ L'I', FILE_ATTRIBUTE_NOT_CONTENT_INDEXED },
 		{ L'D', FILE_ATTRIBUTE_DIRECTORY },
-		{ L'$', FILE_ATTRIBUTE_SPARSE_FILE },
+		{ L'A', FILE_ATTRIBUTE_ARCHIVE },
 		{ L'T', FILE_ATTRIBUTE_TEMPORARY },
-		{ L'O', FILE_ATTRIBUTE_OFFLINE },
+		{ L'$', FILE_ATTRIBUTE_SPARSE_FILE },           // Used to be 'P' in Windows prior 10, which repurposed 'P' for 'Pinned'
 		{ L'L', FILE_ATTRIBUTE_REPARSE_POINT },
-		{ L'V', FILE_ATTRIBUTE_VIRTUAL },
-		{ L'G', FILE_ATTRIBUTE_INTEGRITY_STREAM },
-		{ L'N', FILE_ATTRIBUTE_NO_SCRUB_DATA },
+		{ L'C', FILE_ATTRIBUTE_COMPRESSED },
+		{ L'O', FILE_ATTRIBUTE_OFFLINE },
+		{ L'I', FILE_ATTRIBUTE_NOT_CONTENT_INDEXED },
+		{ L'E', FILE_ATTRIBUTE_ENCRYPTED },
+		{ L'V', FILE_ATTRIBUTE_INTEGRITY_STREAM },
+		{ L'?', FILE_ATTRIBUTE_VIRTUAL },               // Unknown symbol
+		{ L'X', FILE_ATTRIBUTE_NO_SCRUB_DATA },
 		{ L'P', FILE_ATTRIBUTE_PINNED },
 		{ L'U', FILE_ATTRIBUTE_UNPINNED },
-		{ L'‼', FILE_ATTRIBUTE_RECALL_ON_OPEN },
-		{ L'!', FILE_ATTRIBUTE_RECALL_ON_DATA_ACCESS },
-		{ L'⁞', FILE_ATTRIBUTE_STRICTLY_SEQUENTIAL },
+		{ L'‼', FILE_ATTRIBUTE_RECALL_ON_OPEN },        // Unknown symbol
+		{ L'!', FILE_ATTRIBUTE_RECALL_ON_DATA_ACCESS }, // Unknown symbol
+		{ L'B', FILE_ATTRIBUTE_STRICTLY_SEQUENTIAL },   // "SMR Blob" in attrib.exe
 	};
 
 	for (const auto& [Letter, Attr]: AttrMap)

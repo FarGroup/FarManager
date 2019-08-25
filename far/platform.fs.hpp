@@ -373,10 +373,16 @@ namespace os::fs
 	bool is_file(string_view Object);
 
 	[[nodiscard]]
+	bool is_file(DWORD Attributes);
+
+	[[nodiscard]]
 	bool is_directory(file_status Status);
 
 	[[nodiscard]]
 	bool is_directory(string_view Object);
+
+	[[nodiscard]]
+	bool is_directory(DWORD Attributes);
 
 	[[nodiscard]]
 	bool is_not_empty_directory(const string& Object);

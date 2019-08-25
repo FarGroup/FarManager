@@ -3,6 +3,25 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 25.08.2019 22:22:22 +0100 - build 5455
+
+1. It is known that time in Windows is measured in 100-ns intervals.
+   In Attributes dialog all times were rounded to milliseconds, including those that weren't touched.
+   From information security perspective this is an obvious footprint, so now the dialog exposes everything till the last tick.
+   Same for filters and panels.
+
+2. Rarely used attributes moved into a separate dialog.
+
+3. Other cnahges in Attributes dialog:
+   - Removed more copy-pasted code.
+   - Unified the logic of attributes, dates and owners processing when switching "Process subfolders" and during the initial dialog population.
+
+4. Attribute letters and their order are more or less in sync with Windows.
+
+5. Forum: the folder of a first found file is not visible in a repeated search.
+
+6. More types in far.natvis.
+
 MZK 24.08.2019 21:04:41 -0700
 
 1. Translated more far:config help pages into English.

@@ -1789,21 +1789,22 @@ The following column types are supported:
 
  File attributes are denoted as follows:
 
- #R# - Read only
- #A# - Archive
- #H# - Hidden
- #S# - System
- #C# - Compressed
- #E# - Encrypted
- #I# - Not content indexed
+ #N# - Attributes not set
+ #R# - Read only (Csak olvasható)
+ #H# - Hidden (Rejtett)
+ #S# - System (Rendszer)
  #D# - Directory
- #$# - Sparse
- #T# - Temporary
+ #A# - Archive (Archiv)
+ #T# - Temporary (Átmeneti)
+ #$# - Sparse (Ritkított)
+ #L# - Mappa csomópont vagy szimbolikus link
+ #C# - Compressed (Tömörített)
  #O# - Offline
- #L# - Reparse point
- #V# - Virtual
- #G# - Integrity stream
- #N# - No scrub data
+ #I# - Nem (tartalom)indexelt
+ #E# - Encrypted (Titkosított)
+ #V# - Integrity stream
+ #?# - Virtuális
+ #X# - No scrub data
  #P# - Pinned
  #U# - Unpinned
 
@@ -4265,21 +4266,22 @@ többoszlopos formában jelenik meg.
 
  Az attribútumok betűjeleinek jelentése:
 
+ #N# - Attributes not set
  #R# - Read only (Csak olvasható)
- #A# - Archive (Archiv)
  #H# - Hidden (Rejtett)
  #S# - System (Rendszer)
- #C# - Compressed (Tömörített)
- #E# - Encrypted (Titkosított)
- #I# - Nem (tartalom)indexelt
  #D# - Directory
- #$# - Sparse (Ritkított)
+ #A# - Archive (Archiv)
  #T# - Temporary (Átmeneti)
- #O# - Offline
+ #$# - Sparse (Ritkított)
  #L# - Mappa csomópont vagy szimbolikus link
- #V# - Virtuális
- #G# - Integrity stream
- #N# - No scrub data
+ #C# - Compressed (Tömörített)
+ #O# - Offline
+ #I# - Nem (tartalom)indexelt
+ #E# - Encrypted (Titkosított)
+ #V# - Integrity stream
+ #?# - Virtuális
+ #X# - No scrub data
  #P# - Pinned
  #U# - Unpinned
 
