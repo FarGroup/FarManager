@@ -5636,75 +5636,87 @@ bits control the behavior of left and right key combinations.
 
 @Panel.ShellRightLeftArrowsRule
 $ #far:config Panel.ShellRightLeftArrowsRule#
- Параметр позволяет управлять поведением стрелок влево/вправо (как на основной, так и на дополнительной клавиатуре).
+ This Boolean parameter controls the behavior of left and right arrow
+keys, both on main keyboard and numeric keypad.
 
- Значения:
- 0 - ^<wrap>поведение как у 1.70: если командная строка непустая, то клавиши
-Left/Right и Num4/Num6 действуют по-разному в зависимости от
-режима панели: если имена файлов отображаются в несколько колонок
-(по умолчанию режимы 2 и 3), то команды вправо/влево применяются
-к панели (как и при пустой командной строке); а если имена файлов
-отображаются в одну колонку (по умолчанию все остальные режимы),
-то команды вправо/влево применяются к командной строке.
- 1 - ^<wrap>клавиши Left/Right и Num4/Num6 при включённой панели всегда
-применяются только к ней, независимо от содержимого командной
-строки и режима панели.
+ False - ^<wrap>As in Far 1.70. If command line is not empty, the
+behavior of #Left#, #Right#, #Numpad4#, and #Numpad6# keys depends
+on the ~panel view mode~@PanelViewModes@.
+         - ^<wrap>If file names are displayed in multiple stripes (panel
+modes 2 and 3 by default), then the keys move panel cursor, just like
+with empty command line.
+         - ^<wrap>If file names are displayed in a single stripe (all
+other panel modes by default), the keys control the command line caret.
+ True  - ^<wrap>When the panel is on, the #Left#, #Right#, #Numpad4#,
+and #Numpad6# keys always move panel cursor, even if the command line
+is not empty. The behavior does not depend on the current panel mode.
 
- Примечание: в командной строке есть CtrlD/CtrlS.
+ Note: The #Ctrl+D# and #Ctrl+S# keys always move command line caret.
 
- По умолчанию значение = 0.
+ Default value: False (traditional behavior).
 
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @Panel.Layout.ScrollbarMenu
-$ #far:config Panel.ShellRightLeftArrowsRule#
- Параметр разрешает показ полосы прокрутки в меню, если пунктов больше, чем высота меню. Если значение =0, то Far не будет отображать полосу прокрутки.
+$ #far:config Panel.Layout.ScrollbarMenu#
+ This Boolean parameter enables menu scrollbar when there are more menu
+items than can fit vertically.
 
- По умолчанию значение = 1 (отображать полосу прокрутки).
+ False - ^<wrap>Never show menu scrollbar.
+ True  - Show menu scrollbar if needed.
 
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ Default value: True (show menu scrollbar if needed).
+
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @Panel.CtrlFRule
 $ #far:config Panel.CtrlFRule#
- Параметр задаёт поведение Ctrl+F.
+ This Boolean parameter controls the behavior of #Ctrl+F# key
+combination in the ~command line~@CmdLineCmd@.
 
- Если = 0, то название файла помещается в командную строку как есть,
-иначе - с учётом отображения на панелях (т.е. может приводиться к
-нижнему регистру или к короткому имени).
+ False - ^<wrap>The file name is inserted into the command line as it is
+recorded in the file system.
+ True  - The file name is inserted as it appears on the file panel,
+possibly in lowercase or using the short name.
 
- По умолчанию значение = 0.
+ Default value: False (insert as is).
 
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @Panel.CtrlAltShiftRule
 $ #far:config Panel.CtrlAltShiftRule#
- Параметр задаёт поведение комбинации Ctrl+Alt+Shift для временного гашения панелей:
+ This numeric parameter controls the behavior of #Ctrl+Alt+Shift# key
+combination for temporary hiding file panels.
 
- 0 - гасить только панели (подобно Ctrl+O).
- 1 - гасить панели и командную строку.
- 2 - гасить панели, командную строку и KeyBar.
+ 0 - ^<wrap>Hide panels only (like #Ctrl+O# key combination).
+ 1 - Hide panels and command line.
+ 2 - Hide panels, command line, and functional key bar at the bottom
+line.
 
- По умолчанию действует правило 0.
+ Default value: 0 (hide panels only).
 
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @Panel.RightClickRule
 $ #far:config Panel.RightClickRule#
- Параметр задаёт поведение правой кнопки мыши для случая, если нажали кнопку на пустой колонке панели:
+ This numeric parameter controls the behavior of #right mouse click#
+on an empty stripe of file panel.
 
- 0 - ^<wrap>позиционирование и пометка последнего файла в предыдущей колонке.
- 1 - ^<wrap>в предыдущей колонке файл позиционируется без пометки (аналогично нажатию левой кнопки мыши).
- 2 - ^<wrap>не изменять позицию и не помечать файл (по умолчанию).
+ 0 - ^<wrap>Move panel cursor to the last file in the previous stripe
+and select the file.
+ 1 - Move panel cursor to the last file in the previous stripe without
+selecting the file (like the #left mouse click#).
+ 2 - Do not move panel cursor or select any file.
 
- В любом случае - если колонка не пуста, то происходит пометка файла.
+ Note: If the stripe is not empty the last file is always selected.
 
- По умолчанию значение = 2.
+ Default value: 2 (do nothing).
 
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @System.ExcludeCmdHistory
