@@ -18481,7 +18481,7 @@ upd:"gg{0}mm{0}ss{1}ms +tick"
 upd:"hh{0}mm{0}ss{1}ms +tick"
 upd:"hh{0}mm{0}ss{1}ms +tick"
 upd:"hh{0}mm{0}ss{1}ms +tick"
-upd:"гг{0}хх{0}сс{1}мс +такт"
+"гг{0}хх{0}сс{1}мс +такт"
 "чч{0}мм{0}сс{1}мс +такт"
 
 MSetAttrSystemDialog

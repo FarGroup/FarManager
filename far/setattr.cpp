@@ -732,7 +732,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		{ DI_COMBOBOX,  {{18,      3     }, {DlgX-6,  3     }}, DIF_SHOWAMPERSAND | DIF_DROPDOWNLIST | DIF_LISTWRAPMODE | DIF_HIDDEN, },
 		{ DI_TEXT,      {{-1,      4     }, {0,       4     }}, DIF_SEPARATOR, },
 
-		{ DI_CHECKBOX,  {{C1,      5     }, {0,       5     }}, DIF_FOCUS | DIF_3STATE, msg(AttributeMap[SA_CHECKBOX_READONLY - SA_ATTR_FIRST].LngId), },
+		{ DI_CHECKBOX,  {{C1,      5     }, {0,       5     }}, DIF_FOCUS, msg(AttributeMap[SA_CHECKBOX_READONLY - SA_ATTR_FIRST].LngId), },
 		{ DI_CHECKBOX,  {{C1,      6     }, {0,       6     }}, DIF_NONE, msg(AttributeMap[SA_CHECKBOX_ARCHIVE - SA_ATTR_FIRST].LngId), },
 		{ DI_CHECKBOX,  {{C1,      7     }, {0,       7     }}, DIF_NONE, msg(AttributeMap[SA_CHECKBOX_HIDDEN - SA_ATTR_FIRST].LngId), },
 		{ DI_CHECKBOX,  {{C1,      8     }, {0,       8     }}, DIF_NONE, msg(AttributeMap[SA_CHECKBOX_SYSTEM - SA_ATTR_FIRST].LngId), },
@@ -1190,7 +1190,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			auto& DlgItem = AttrDlg[i];
 			const auto& State = DlgParam.Attributes[i - SA_ATTR_FIRST];
 
-			DlgItem.Flags = State.Flags;
+			DlgItem.Flags |= State.Flags;
 			DlgItem.Selected = State.CurrentValue;
 		}
 
