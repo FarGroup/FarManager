@@ -955,7 +955,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 		{ DI_TEXT,        {{-1, 9 }, {0,  9 }}, DIF_SEPARATOR, },
 		{ DI_VTEXT,       {{22, 5 }, {22, 9 }}, DIF_BOXCOLOR, VerticalLine },
 		{ DI_CHECKBOX,    {{5,  10}, {0,  10}}, DIF_AUTOMATION, msg(lng::MFileFilterAttr)},
-		{ DI_BUTTON,      {{5,  10}, {0,  10}}, DIF_AUTOMATION | DIF_BTNNOCLOSE, L"..."sv, },
+		{ DI_BUTTON,      {{5,  10}, {0,  10}}, DIF_AUTOMATION | DIF_BTNNOCLOSE, msg(lng::MFileFilterAttrChoose), },
 		{ DI_CHECKBOX,    {{41, 10}, {0,  10}}, DIF_NONE, msg(lng::MFileHardLinksCount), },
 
 		{ DI_TEXT,        {{-1, 12}, {0,  12}}, DIF_SEPARATOR, msg(lng::MHighlightColors), },

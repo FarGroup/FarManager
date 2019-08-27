@@ -17978,7 +17978,7 @@ MSetAttrHardLinks
 
 MSetAttrJunction
 "Связь:"
-"Junction:"
+"&Junction:"
 "Křížení:"
 "Knotenpunkte:"
 "Сsomópont:"
@@ -18134,7 +18134,7 @@ MSetAttrNotIndexed
 
 MSetAttrSparse
 "Разреженный"
-"Sparse"
+"&Sparse"
 "Rozptýlený"
 upd:"Reserve"
 "Ritk&ított"
@@ -18147,7 +18147,7 @@ upd:"Reserve"
 
 MSetAttrTemporary
 "Временный"
-"Temporary"
+"&Temporary"
 "Dočasný"
 "Temporär"
 "&Átmeneti"
@@ -18160,7 +18160,7 @@ MSetAttrTemporary
 
 MSetAttrOffline
 "Автономный"
-"Offline"
+"&Offline"
 "Offline"
 "Offline"
 "O&ffline"
@@ -18173,7 +18173,7 @@ MSetAttrOffline
 
 MSetAttrReparsePoint
 "Точка повторного анализа"
-"Reparse point"
+"&Reparse point"
 "Reparse point"
 "Analysepunkt"
 upd:"Reparse point"
@@ -18186,7 +18186,7 @@ upd:"Reparse point"
 
 MSetAttrVirtual
 "Виртуальный"
-"Virtual"
+"&Virtual"
 "Virtuální"
 "Virtuell"
 "&Virtuális"
@@ -18199,7 +18199,7 @@ MSetAttrVirtual
 
 MSetAttrIntegrityStream
 "Поток целостности"
-"Integrity stream"
+"&Integrity stream"
 upd:"Integrity stream"
 "Integrität"
 upd:"Integrity stream"
@@ -18212,7 +18212,7 @@ upd:"Integrity stream"
 
 MSetAttrNoScrubData
 "Нет данных очистки"
-"No scrub data"
+"&No scrub data"
 upd:"No scrub data"
 "Keine Datenbereinigung"
 upd:"No scrub data"
@@ -18225,7 +18225,7 @@ upd:"No scrub data"
 
 MSetAttrPinned
 "Закреплённый"
-"Pinned"
+"&Pinned"
 upd:"Pinned"
 upd:"Pinned"
 upd:"Pinned"
@@ -18238,7 +18238,7 @@ upd:"Pinned"
 
 MSetAttrUnpinned
 "Откреплённый"
-"Unpinned"
+"&Unpinned"
 upd:"Unpinned"
 upd:"Unpinned"
 upd:"Unpinned"
@@ -18251,7 +18251,7 @@ upd:"Unpinned"
 
 MSetAttrRecallOnOpen
 upd:"Recall on open"
-"Recall on open"
+"R&ecall on open"
 upd:"Recall on open"
 upd:"Recall on open"
 upd:"Recall on open"
@@ -18264,7 +18264,7 @@ upd:"Recall on open"
 
 MSetAttrRecallOnDataAccess
 upd:"Recall on data access"
-"Recall on data access"
+"Rec&all on data access"
 upd:"Recall on data access"
 upd:"Recall on data access"
 upd:"Recall on data access"
@@ -18277,7 +18277,7 @@ upd:"Recall on data access"
 
 MSetAttrStrictlySequential
 upd:"Strictly sequential"
-"Strictly sequential"
+"Strictly se&quential"
 upd:"Strictly sequential"
 upd:"Strictly sequential"
 upd:"Strictly sequential"
@@ -18288,18 +18288,18 @@ upd:"Strictly sequential"
 upd:"Strictly sequential"
 upd:"Strictly sequential"
 
-MSetAttrAdvanced
-"До&полнительно"
-"Advance&d"
-"Pokr&očilé"
-"Er&weitert"
-"Ha&ladó"
-"&Zaawansowane"
-"Avan&zado"
-"Pokr&očilé"
-"A&vanzate"
-"До&датково"
-"Да&даткова"
+MSetAttrMore
+"Ещё"
+"More"
+"Více"
+"Mehr"
+"Továbbiak"
+"Więcej"
+"Más"
+"Viac"
+"Altro"
+"Ще"
+"Больш"
 
 MSetAttrSubfolders
 "Обрабатывать &вложенные папки"
@@ -18316,7 +18316,7 @@ MSetAttrSubfolders
 
 MSetAttrOwner
 "Владелец:"
-"Owner:"
+"Owner&:"
 "Vlastník:"
 "Besitzer:"
 "Tulajdonos:"
@@ -29301,7 +29301,7 @@ MFileFilterSizeToSign
 
 MFileHardLinksCount
 "Болee одной жёсткой ссылки"
-"Has more than one hardlink"
+"Has more than &one hardlink"
 "Má více než jeden pevný link"
 "Mehr als ein harder Link"
 upd:"Has more than one hardlink"
@@ -29314,7 +29314,7 @@ upd:"Has more than one hardlink"
 
 MFileFilterDate
 "&Дата/Время:"
-"Da&te/Time:"
+"Date&/Time:"
 "Dat&um/Čas:"
 "Da&tum/Zeit:"
 "&Dátum/Idő:"
@@ -29455,6 +29455,19 @@ MFileFilterAttr
 "Атрибут&и"
 "Атр&ыбуты"
 
+MFileFilterAttrChoose
+"&..."
+"&..."
+"&..."
+"&..."
+"&..."
+"&..."
+"&..."
+"&..."
+"&..."
+"&..."
+"&..."
+
 MFileFilterAttrReadOnly
 "&Только для чтения"
 "&Read only"
@@ -29587,7 +29600,7 @@ MFileFilterAttrTemporary
 
 MFileFilterAttrReparse
 "Точка повторного анализа"
-"Reparse point"
+"Reparse poin&t"
 "Reparse point"
 "Analysepunkt"
 upd:"Reparse point"
@@ -29626,7 +29639,7 @@ MFileFilterAttrVirtual
 
 MFileFilterAttrIntegrityStream
 "Поток целостности"
-"Integrity stream"
+"Inte&grity stream"
 upd:"Integrity stream"
 "Integrität"
 upd:"Integrity stream"
@@ -29639,7 +29652,7 @@ upd:"Integrity stream"
 
 MFileFilterAttrNoScrubData
 "Нет данных очистки"
-"No scrub data"
+"No scru&b data"
 upd:"No scrub data"
 "Keine Datenbereinigung"
 upd:"No scrub data"
@@ -29652,7 +29665,7 @@ upd:"No scrub data"
 
 MFileFilterAttrPinned
 "Закреплённый"
-"Pinned"
+"Pi&nned"
 upd:"Pinned"
 upd:"Pinned"
 upd:"Pinned"
@@ -29665,7 +29678,7 @@ upd:"Pinned"
 
 MFileFilterAttrUnpinned
 "Откреплённый"
-"Unpinned"
+"&Unpinned"
 upd:"Unpinned"
 upd:"Unpinned"
 upd:"Unpinned"
@@ -29678,7 +29691,7 @@ upd:"Unpinned"
 
 MFileFilterAttrRecallOnOpen
 upd:"Recall on open"
-"Recall on open"
+"Recal&l on open"
 upd:"Recall on open"
 upd:"Recall on open"
 upd:"Recall on open"
@@ -29691,7 +29704,7 @@ upd:"Recall on open"
 
 MFileFilterAttrRecallOnDataAccess
 upd:"Recall on data access"
-"Recall on data access"
+"Recall &on data access"
 upd:"Recall on data access"
 upd:"Recall on data access"
 upd:"Recall on data access"
@@ -29704,7 +29717,7 @@ upd:"Recall on data access"
 
 MFileFilterAttrStrictlySequential
 upd:"Strictly sequential"
-"Strictly sequential"
+"Strictly se&quential"
 upd:"Strictly sequential"
 upd:"Strictly sequential"
 upd:"Strictly sequential"
@@ -29717,7 +29730,7 @@ upd:"Strictly sequential"
 
 MFileFilterReset
 "Очистит&ь"
-"Reset"
+"&Reset"
 "Reset"
 "Rücksetzen"
 "Reset"
@@ -29727,6 +29740,19 @@ MFileFilterReset
 "&Resetta"
 "Очистит&и"
 "Зкінуц&ь"
+
+MFileFilterMakeTransparent
+"Выставить прозрачность"
+"Make &transparent"
+"Zprůhlednit"
+"Transparent"
+"Legyen átlátszó"
+"Ustaw jako przezroczysty"
+"Hacer transparente"
+"Spriehľadniť"
+"Traspar&ente"
+"Виставити прозорість"
+"Усталяваць празрыстасць"
 
 MFileFilterCancel
 "Отмена"
@@ -29740,19 +29766,6 @@ MFileFilterCancel
 "&Annulla"
 "Скасув."
 "Адмяніць"
-
-MFileFilterMakeTransparent
-"Выставить прозрачность"
-"Make transparent"
-"Zprůhlednit"
-"Transparent"
-"Legyen átlátszó"
-"Ustaw jako przezroczysty"
-"Hacer transparente"
-"Spriehľadniť"
-"Traspar&ente"
-"Виставити прозорість"
-"Усталяваць празрыстасць"
 
 MBadFileSizeFormat
 "Неправильно заполнено поле размера"

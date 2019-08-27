@@ -740,7 +740,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		{ DI_CHECKBOX,  {{C2,      5     }, {0,       5     }}, DIF_NONE, msg(AttributeMap[SA_CHECKBOX_COMPRESSED - SA_ATTR_FIRST].LngId), },
 		{ DI_CHECKBOX,  {{C2,      6     }, {0,       6     }}, DIF_NONE, msg(AttributeMap[SA_CHECKBOX_ENCRYPTED - SA_ATTR_FIRST].LngId), },
 		{ DI_CHECKBOX,  {{C2,      7     }, {0,       7     }}, DIF_NONE, msg(AttributeMap[SA_CHECKBOX_NOTINDEXED - SA_ATTR_FIRST].LngId), },
-		{ DI_BUTTON,    {{C2,      8     }, {0,       8     }}, DIF_NONE, msg(lng::MSetAttrAdvanced), },
+		{ DI_BUTTON,    {{C2,      8     }, {0,       8     }}, DIF_NONE, msg(lng::MSetAttrMore), },
 
 		{ DI_TEXT,      {{-1,      AR+1  }, {0,       AR+1  }}, DIF_SEPARATOR, },
 		{ DI_TEXT,      {{DlgX-34, AR+2  }, {0,       AR+2  }}, DIF_NONE, },
