@@ -18290,7 +18290,7 @@ upd:"Strictly sequential"
 
 MSetAttrMore
 "Ещё"
-"More"
+"&More"
 "Více"
 "Mehr"
 "Továbbiak"
@@ -29274,6 +29274,7 @@ MFileFilterSize
 "Пам&ер:"
 
 MFileFilterSizeFromSign
+l:// up to 4 characters
 ">="
 ">="
 ">="
@@ -29287,6 +29288,7 @@ MFileFilterSizeFromSign
 ">="
 
 MFileFilterSizeToSign
+l:// up to 4 characters
 "<="
 "<="
 "<="
@@ -29391,6 +29393,7 @@ MFileFilterDateRelative
 "Адносна&я"
 
 MFileFilterDateAfterSign
+l:// up to 4 characters
 ">="
 ">="
 ">="
@@ -29399,11 +29402,12 @@ MFileFilterDateAfterSign
 ">="
 ">="
 ">="
-"Do&po:"
+">="
 ">="
 ">="
 
 MFileFilterDateBeforeSign
+l:// up to 4 characters
 "<="
 "<="
 "<="
@@ -29412,7 +29416,7 @@ MFileFilterDateBeforeSign
 "<="
 "<="
 "<="
-"&Prima:"
+"<="
 "<="
 "<="
 
