@@ -488,7 +488,9 @@ static bool EditListItem(const std::list<Shortcuts::shortcut>& List, VMenu2& Men
 template<size_t... I>
 static auto make_shortcuts(std::index_sequence<I...>)
 {
-	return std::array{ Shortcuts(I)... };
+	// Q: Why not just use CTAD?
+	// A: To make Coverity and its compiler happy: 'Internal error #2688: assertion failed at: "edg/src/overload.c", line 27123'
+	return std::array<Shortcuts, sizeof...(I)>{ Shortcuts(I)... };
 }
 
 int Shortcuts::Configure()

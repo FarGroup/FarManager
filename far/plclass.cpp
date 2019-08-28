@@ -1116,8 +1116,7 @@ public:
 	NONCOPYABLE(custom_plugin_factory);
 	custom_plugin_factory(PluginManager* Owner, const string& Filename):
 		plugin_factory(Owner),
-		m_Imports(Filename),
-		m_Success(false)
+		m_Imports(Filename)
 	{
 		GlobalInfo Info = { sizeof(Info) };
 
@@ -1253,8 +1252,8 @@ private:
 	}
 	m_Imports;
 	string m_Title;
-	VersionInfo m_Version;
-	bool m_Success;
+	VersionInfo m_Version{};
+	bool m_Success{};
 };
 
 plugin_factory_ptr CreateCustomPluginFactory(PluginManager* Owner, const string& Filename)

@@ -378,8 +378,8 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 		return;
 
 	os::fs::find_data SingleSelData;
-
-	SrcPanel->get_first_selected(SingleSelData);
+	if (!SrcPanel->get_first_selected(SingleSelData))
+		return;
 
 	if (Global->Opt->DeleteToRecycleBin && FAR_GetDriveType(GetPathRoot(ConvertNameToFull(SingleSelData.FileName))) != DRIVE_FIXED)
 		Global->Opt->DeleteToRecycleBin = false;

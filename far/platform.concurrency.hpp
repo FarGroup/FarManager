@@ -231,33 +231,33 @@ namespace os::concurrency
 		[[nodiscard]]
 		bool empty() const
 		{
-			SCOPED_ACTION(std::lock_guard)(m_QueueCS);
+			SCOPED_ACTION(guard_t)(m_QueueCS);
 			return m_Queue.empty();
 		}
 
 		void push(const T& item)
 		{
-			SCOPED_ACTION(std::lock_guard)(m_QueueCS);
+			SCOPED_ACTION(guard_t)(m_QueueCS);
 			m_Queue.push(item);
 		}
 
 		template<typename... args>
 		void emplace(args&&... Args)
 		{
-			SCOPED_ACTION(std::lock_guard)(m_QueueCS);
+			SCOPED_ACTION(guard_t)(m_QueueCS);
 			m_Queue.emplace(FWD(Args)...);
 		}
 
 		void push(T&& item)
 		{
-			SCOPED_ACTION(std::lock_guard)(m_QueueCS);
+			SCOPED_ACTION(guard_t)(m_QueueCS);
 			m_Queue.push(FWD(item));
 		}
 
 		[[nodiscard]]
 		bool try_pop(T& To)
 		{
-			SCOPED_ACTION(std::lock_guard)(m_QueueCS);
+			SCOPED_ACTION(guard_t)(m_QueueCS);
 
 			if (m_Queue.empty())
 				return false;
@@ -270,13 +270,13 @@ namespace os::concurrency
 		[[nodiscard]]
 		auto size() const
 		{
-			SCOPED_ACTION(std::lock_guard)(m_QueueCS);
+			SCOPED_ACTION(guard_t)(m_QueueCS);
 			return m_Queue.size();
 		}
 
 		void clear()
 		{
-			SCOPED_ACTION(std::lock_guard)(m_QueueCS);
+			SCOPED_ACTION(guard_t)(m_QueueCS);
 			clear_and_shrink(m_Queue);
 		}
 
@@ -284,6 +284,10 @@ namespace os::concurrency
 		auto scoped_lock() { return make_raii_wrapper(this, &synced_queue::lock, &synced_queue::unlock); }
 
 	private:
+		// Q: Why not just use CTAD?
+		// A: To make Coverity and its compiler happy: 'Internal error #2688: assertion failed at: "edg/src/overload.c", line 27123'
+		using guard_t = std::lock_guard<critical_section>;
+
 		void lock() { return m_QueueCS.lock(); }
 		void unlock() { return m_QueueCS.unlock(); }
 

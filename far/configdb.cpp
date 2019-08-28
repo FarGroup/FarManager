@@ -1631,14 +1631,20 @@ private:
 				if (!stype || !guid || !StrToGuid(encoding::utf8::get_chars(guid), Guid))
 					continue;
 
-				const auto Hotkey = encoding::utf8::get_chars(hotkey);
+				const auto ProcessHotkey = [&](hotkey_type const Type)
+				{
+					if (hotkey && *hotkey)
+						SetHotkey(Key, Guid, Type, encoding::utf8::get_chars(hotkey));
+					else
+						DelHotkey(Key, Guid, Type);
+				};
 
-				if (!strcmp(stype,"drive"))
-					SetHotkey(Key, Guid, hotkey_type::drive_menu, Hotkey);
-				else if (!strcmp(stype,"config"))
-					SetHotkey(Key, Guid, hotkey_type::config_menu, Hotkey);
+				if (!strcmp(stype, "drive"))
+					ProcessHotkey(hotkey_type::drive_menu);
+				else if (!strcmp(stype, "config"))
+					ProcessHotkey(hotkey_type::config_menu);
 				else if (!strcmp(stype, "plugins"))
-					SetHotkey(Key, Guid, hotkey_type::plugins_menu, Hotkey);
+					ProcessHotkey(hotkey_type::plugins_menu);
 			}
 
 		}

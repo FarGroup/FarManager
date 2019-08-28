@@ -1890,7 +1890,9 @@ void PluginManager::LoadIfCacheAbsent() const
 	{
 		for (const auto& i: SortedPlugins)
 		{
-			i->Load();
+			// Return values shall not be ignored :)
+			if (!i->Load())
+				continue;
 		}
 	}
 }

@@ -612,7 +612,7 @@ static bool construct_time(
 
 	SYSTEMTIME st{};
 
-	const auto set_or_inherit = [&](WORD SYSTEMTIME::* const Field, WORD const New)
+	const auto set_or_inherit = [&](WORD SYSTEMTIME::* const Field, time_component const New)
 	{
 		std::invoke(Field, st) = New != time_none? New : std::invoke(Field, ost);
 	};
