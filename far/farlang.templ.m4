@@ -1886,7 +1886,7 @@ MConfigScanJunction
 
 MConfigSmartFolderMonitor
 "Обновление панелей только если Far активен"
-"Update panels only when Far is active"
+"&Update panels only when Far is active"
 upd:"Update panels only when Far is active"
 "Aktualisierung der Panels ist möglich, nur wenn Far aktiv ist"
 upd:"Update panels only when Far is active"
@@ -1899,7 +1899,7 @@ upd:"Update panels only when Far is active"
 
 MConfigSaveHistory
 "Сохранять &историю команд"
-"Save commands &history"
+"Save &commands &history"
 "Ukládat historii &příkazů"
 "&Befehlshistorie speichern"
 "Parancs elő&zmények mentése"
@@ -1938,7 +1938,7 @@ MConfigSaveViewHistory
 
 MConfigRegisteredTypes
 "Использовать стандартные &типы файлов"
-"Use Windows &registered types"
+"Use Windows re&gistered types"
 "Používat typy souborů regi&strované ve Windows"
 "&Registrierte Windows-Dateitypen verwenden"
 "&Windows reg. fájltípusok használata"
@@ -1951,7 +1951,7 @@ MConfigRegisteredTypes
 
 MConfigUpdateEnvironment
 "Автообновл&ение переменных окружения"
-"Automatic update of environment variables"
+"Automatic update of &environment variables"
 "Automaticky aktualizovat proměnné prostředí"
 "Automatische Updates für Umgebungsvariablen"
 upd:"Automatic update of environment variables"
@@ -1976,47 +1976,47 @@ upd:"request administrator rights:"
 "Запыт патрэб адміністратара:"
 
 MConfigElevationModify
-"д&ля изменения"
-"for modification"
-"na úpravy"
-"für Bearbeitung"
-upd:"for modification"
-"do modyfikacji"
-"para modificación"
-"na úpravy"
+"Д&ля изменения"
+"For &modification"
+"Na úpravy"
+"Für Bearbeitung"
+upd:"For modification"
+"Do modyfikacji"
+"Para modificación"
+"Na úpravy"
 "Per La Modifica"
-"д&ля змінення"
-"д&ля зменаў"
+"Д&ля змінення"
+"Д&ля зменаў"
 
 MConfigElevationRead
-"для &чтения"
-"for read"
-"na čtení"
-"für Lesen"
-upd:"for read"
-"do odczytu"
-"para lectura"
-"na čítanie"
+"Для &чтения"
+"For &reading"
+"Na čtení"
+"Für Lesen"
+upd:"For reading"
+"Do odczytu"
+"Para lectura"
+"Na čítanie"
 "Per La Lettura"
-"для &читання"
-"для &чытання"
+"Для &читання"
+"Для &чытання"
 
 MConfigElevationUsePrivileges
-"исп&ользовать дополнительные привилегии"
-"use additional privileges"
-"použít další privilegia"
-"für Nutzung zusätzlicher Vorrechten"
-upd:"use additional privileges"
-"użyj dodatkowych uprawnień"
-"usar privilegios adicionales"
-"použiť ďalšie privilégiá"
+"Исп&ользовать дополнительные привилегии"
+"Use additional &privileges"
+"Použít další privilegia"
+"Für Nutzung zusätzlicher Vorrechten"
+upd:"Use additional privileges"
+"Użyj dodatkowych uprawnień"
+"Usar privilegios adicionales"
+"Použiť ďalšie privilégiá"
 "Usa Permessi Aggiuntivi"
 "Вик&ористовувати додаткові привілеї"
-"ужываць дадатк&овыя прывілеі"
+"Ужываць дадатк&овыя прывілеі"
 
 MConfigSortingCollation
 "Сортировочное сравнение:"
-"Sorting collation:"
+"Sorti&ng collation:"
 upd:"Sorting collation:"
 upd:"Sorting collation:"
 upd:"Sorting collation:"
@@ -2317,7 +2317,7 @@ MConfigSelectFolders
 
 MConfigRightClickSelect
 "Правый клик помечает файлы"
-"Right click selects files"
+"Right clic&k selects files"
 upd:"Right click selects files"
 "Durch den Klick mit der rechten Maustaste wird die Datei ausgewählt"
 upd:"Right click selects files"
@@ -2369,7 +2369,7 @@ MConfigAutoUpdateLimit
 
 MConfigAutoUpdateLimit2
 "если объектов больше"
-"if object count exceeds"
+"if ob&ject count exceeds"
 "pokud počet objektů překročí"
 "wenn mehr Objekte als"
 "ha több elem van, mint:"
@@ -2499,7 +2499,7 @@ MConfigShowSortMode
 
 MConfigShowDotsInRoot
 "Показывать \"..\" в корневых каталогах"
-"Show \"..\" in root folders"
+"Show \"&..\" in root folders"
 "Zobrazovat \"..\" v kořenových adresářích"
 "In Wurzelverzeichnis \"..\" zeigen"
 upd:"Show \"..\" in root folders"
@@ -2604,7 +2604,7 @@ MConfigSaver
 
 MConfigSaverMinutes
 "минут"
-"minutes"
+"mi&nutes"
 "minut"
 "Minuten"
 "perc tétlenség után"
@@ -2663,7 +2663,7 @@ MConfigPgUpChangeDisk
 "Użyj Ctrl+Pg&Up do zmiany napędu"
 "Usar Ctrl+Pg&Up para cambiar unidad"
 "Použiť Ctrl+Pg&Up na zmenu disku"
-"Usa [CTRL-Pag&Su] Per Cambiare Unità"
+"Usa [CTRL+Pag&Su] Per Cambiare Unità"
 "Використовувати Ctrl+PgUp для вибору диска"
 "Ужываць Ctrl+PgUp для змены д&ыска"
 
@@ -2696,7 +2696,7 @@ upd:"ClearType-friendly redraw (can be slow)"
 
 MConfigSetConsoleIcon
 "Выставлять иконку консоли"
-"Set console icon"
+"Set console &icon"
 upd:"Set console icon"
 "Konsole anzeigen"
 upd:"Set console icon"
@@ -2709,7 +2709,7 @@ upd:"Set console icon"
 
 MConfigSetAdminConsoleIcon
 "Альтернативная для администратора"
-"Alternate for Administrator"
+"Alternate for &Administrator"
 upd:"Alternate for Administrator"
 "Alternatives Konsolezeichen für Administrator"
 upd:"Alternate for Administrator"
@@ -2841,7 +2841,7 @@ upd:"Menu settings"
 
 MConfigVMenuLBtnClick
 "Клик левой кнопки мыши вне меню"
-"Left mouse click outside a menu"
+"&Left mouse click outside a menu"
 "Kliknutí levým tlačítkem myši mimo menu"
 "den Klick mit der linken Maustaste ausserhalb des Menüs"
 upd:"Left mouse click outside a menu"
@@ -2854,7 +2854,7 @@ upd:"Left mouse click outside a menu"
 
 MConfigVMenuRBtnClick
 "Клик правой кнопки мыши вне меню"
-"Right mouse click outside a menu"
+"&Right mouse click outside a menu"
 "Kliknutí pravým tlačítkem myši mimo menu"
 "den Klick mit der rechten Maustaste ausserhalb des Menüs"
 upd:"Right mouse click outside a menu"
@@ -2867,7 +2867,7 @@ upd:"Right mouse click outside a menu"
 
 MConfigVMenuMBtnClick
 "Клик средней кнопки мыши вне меню"
-"Middle mouse click outside a menu"
+"&Middle mouse click outside a menu"
 "Kliknutí prostředním tlačítkem myši mimo menu"
 "den Klick der mittlere Maustaste ausserhalb des Menüs"
 upd:"Middle mouse click outside a menu"
@@ -3433,17 +3433,17 @@ l:
 "Праграма прагляду"
 
 MViewConfigExternalF3
-"Запускать вне&шнюю программу просмотра по F3 вместо Alt+F3"
-"Use e&xternal viewer for F3 instead of Alt+F3"
-"Použít externí prohlížeč u F3 místo Alt+F3"
-upd:"Use external viewer for F3 instead of Alt+F3"
-"Alt+F3 helyett F3 indítja a külső nézőkét"
-"Użyj zewnętrznego podglądu pod klawiszem F3 zamiast Alt+F3"
-"Usar visor externo con F3 en lugar de Alt+F3"
-"Použiť externý zobrazovač pre F3 namiesto Alt+F3"
-"Usa Visualizzatore Esterno [F3] Invece Di [Alt-F3]"
-"Запускати зовнішню програму перегляду по F3 замість Alt+F3"
-"Зне&шняя праграма прагляду па F3 замест Alt+F3"
+"Запускать внешнюю программу просмотра по F&3 вместо Alt+F3"
+"Use external viewer for F&3 instead of Alt+F3"
+"Použít externí prohlížeč u F&3 místo Alt+F3"
+upd:"Use external viewer for F&3 instead of Alt+F3"
+"Alt+F3 helyett F&3 indítja a külső nézőkét"
+"Użyj zewnętrznego podglądu pod klawiszem F&3 zamiast Alt+F3"
+"Usar visor externo con F&3 en lugar de Alt+F3"
+"Použiť externý zobrazovač pre F&3 namiesto Alt+F3"
+"Usa Visualizzatore Esterno F&3 Invece Di Alt+F3"
+"Запускати зовнішню програму перегляду по F&3 замість Alt+F3"
+"Знешняя праграма прагляду па F&3 замест Alt+F3"
 
 MViewConfigExternalCommand
 "&Команда просмотра:"
@@ -3682,17 +3682,17 @@ l:
 "Праграма змены"
 
 MEditConfigEditorF4
-"Запускать внешний редактор по F4 вместо Alt+F4"
-"Use external editor for F4 instead of Alt+F4"
-"Použít externí editor u F4 místo Alt+F4"
-upd:"Use external editor for F4 instead of Alt+F4"
-"Alt+F4 helyett F4 indítja a külső szerkesztőt"
-"Użyj zewnętrznego edytora pod klawiszem F4 zamiast Alt+F4"
-"Usar editor externo con F4 en lugar de Alt+F4"
-"Použiť externý editor pre F4 namiesto Alt+F4"
-"Usa Editor Esterno Per F4 Invece Di Alt+F4"
-"Запускати зовнішній редактор по F4 замість Alt+F4"
-"Зне&шняя праграма змены па F4 замест Alt+F4"
+"Запускать внешний редактор по F&4 вместо Alt+F4"
+"Use external editor for F&4 instead of Alt+F4"
+"Použít externí editor u F&4 místo Alt+F4"
+upd:"Use external editor for F&4 instead of Alt+F4"
+"Alt+F4 helyett F&4 indítja a külső szerkesztőt"
+"Użyj zewnętrznego edytora pod klawiszem F&4 zamiast Alt+F4"
+"Usar editor externo con F&4 en lugar de Alt+F4"
+"Použiť externý editor pre F&4 namiesto Alt+F4"
+"Usa Editor Esterno Per F&4 Invece Di Alt+F4"
+"Запускати зовнішній редактор по F&4 замість Alt+F4"
+"Знешняя праграма змены па F&4 замест Alt+F4"
 
 MEditConfigEditorCommand
 "&Команда редактирования:"
@@ -6642,7 +6642,7 @@ MEditFindAllMenuFooter
 "F1, F5, Ctrl+Enter, Ctrl+Up/Down, Add"
 "F1, F5, Ctrl+Enter, Ctrl+Up/Down, Añadir"
 "F1, F5, Ctrl+Enter, Ctrl+Up/Down, Add"
-"Aggiungi [F1] [F5] [CTRL-INVIO] [CTRL-Up/Down]"
+"Aggiungi [F1] [F5] [CTRL+INVIO] [CTRL+Up/Down]"
 "F1, F5, Ctrl+Enter, Ctrl+Up/Down, Add"
 "F1, F5, Ctrl+Enter, Ctrl+Up/Down, Add"
 
@@ -9909,7 +9909,7 @@ upd:"You can reload file using custom code page (ShiftF4)"
 "Możesz przeładować plik, używając innej strony kodowej (ShiftF4)"
 "Usted puede recargar el archivo usando página de códigos a elección (ShiftF4)"
 "Môžete znova načítať súbor s užívateľskou tabuľkou znakov (ShiftF4)"
-"Puoi Ricaricare Il File Usando Una Tabella Personale [SHIFT-F4]"
+"Puoi Ricaricare Il File Usando Una Tabella Personale [SHIFT+F4]"
 "Можна перечитати файл, вказавши потрібну кодову сторінку (Shift+F4)"
 "Магчыма перапрачытаць файл, калі ўжыць патрэбную кадыроўку (ShiftF4)"
 
@@ -10633,7 +10633,7 @@ MFileAssocAltExec
 "Polecenie (po naciśnięciu &Ctrl+PgDn):"
 "Ejecutar comando (usado por Ctrl+PgDn):"
 "V&ykonať príkaz (platí pre Ctrl+PgDn):"
-"Comando E&segui   [CTRL-PGGIU]:"
+"Comando E&segui   [CTRL+PGGIU]:"
 "Коман&да, що виконується по Ctrl+PgDn:"
 "Каман&да, якая выконваецца па Ctrl+PgDn:"
 
@@ -10659,7 +10659,7 @@ MFileAssocAltView
 "Podg&ląd (po naciśnięciu Alt+F3):"
 "Comando de visor (usado por Alt+F3):"
 "Príkaz Z&obraz (platí pre Alt+F3):"
-"Comando &Visualizza   [ALT-F3]:"
+"Comando &Visualizza   [ALT+F3]:"
 "Команда перегляду, що в&иконується по Alt+F3:"
 "Каманда прагляду, якая в&конваецца на Alt+F3:"
 
@@ -10685,7 +10685,7 @@ MFileAssocAltEdit
 "E&dycja  (po naciśnięciu Alt+F4):"
 "Comando de editor (usado por Alt+F4):"
 "Príkaz Upra&v (platí pre Alt+F4):"
-"Comando &Modifica     [ALT-F4]:"
+"Comando &Modifica     [Alt+F4]:"
 "Команда редагуванн&я, що виконується по Alt+F4:"
 "Камандна змен&ы, якая выконваецца па Alt+F4:"
 
@@ -13379,7 +13379,7 @@ MFilterBottom
 "+,-,Spacja,I,X,BS,Shift+BS,Ins,Del,F4,F5,Ctrl+Up,Ctrl+Dn"
 "+,-,Espacio,I,X,BS,Shift+BS,Ins,Del,F4,F5,Ctrl+Up,Ctrl+Dn"
 "+,-,Medzera,I,X,BS,Shift+BS,Ins,Del,F4,F5,Ctrl+Up,Ctrl+Dn"
-"[+] [-] [Spazio] [I] [X] [BS] [INS] [DEL] [F4] [F5] [Ctrl-Su] [Ctrl-Giu]"
+"[+] [-] [Spazio] [I] [X] [BS] [INS] [DEL] [F4] [F5] [Ctrl+Su] [Ctrl+Giu]"
 "+,-,Пробіл,I,X,BS,Shift+BS,Ins,Del,F4,F5,Ctrl+Up,Ctrl+Dn"
 "+,-,Прагал,I,X,BS,Shift+BS,Ins,Del,F4,F5,Ctrl+Up,Ctrl+Dn"
 
@@ -14126,7 +14126,7 @@ MGetCodePageBottomTitle
 "Ctrl+H, Del, Ins, F4"
 "Ctrl+H, Del, Ins, F4"
 "Ctrl+H, Del, Ins, F4"
-"[Ctrl-H] [Canc] [Ins] [F4]"
+"[Ctrl+H] [Canc] [Ins] [F4]"
 "Ctrl+H, Del, Ins, F4"
 "Ctrl+H, Del, Ins, F4"
 
@@ -14139,7 +14139,7 @@ MGetCodePageBottomShortTitle
 "Ctrl+H, Del, F4"
 "Ctrl+H, Del, F4"
 "Ctrl+H, Del, F4"
-"[Ctrl-H] [Canc] [F4]"
+"[Ctrl+H] [Canc] [F4]"
 "Ctrl+H, Del, F4"
 "Ctrl+H, Del, F4"
 
@@ -14192,7 +14192,7 @@ MHighlightBottom
 "Ins,Del,F4,F5,Ctrl+Up,Ctrl+Down"
 "Ins,Del,F4,F5,Ctrl+Up,Ctrl+Down"
 "Ins,Del,F4,F5,Ctrl+Nahor,Ctrl+Nadol"
-"[INS] [DEL] [F4] [F5] [Ctrl-Giu] [Ctrl-Su]"
+"[INS] [DEL] [F4] [F5] [Ctrl+Giu] [Ctrl+Su]"
 "Ins,Del,F4,F5,Ctrl+Up,Ctrl+Down"
 "Ins,Del,F4,F5,Ctrl+Up,Ctrl+Down"
 
@@ -16196,7 +16196,7 @@ MMenuPluginsConfig
 
 MMenuPluginsManagerSettings
 "Параметры менеджера плагинов"
-"Plugins manager settings"
+"Plugins manage&r settings"
 "Nastavení správce modulů"
 "Konfiguration des Plugins-Managers"
 upd:"Plugins manager settings"
@@ -16248,7 +16248,7 @@ upd:"Command line settings"
 
 MMenuAutoCompleteSettings
 "На&стройки автозавершения"
-"AutoComplete settings"
+"Au&toComplete settings"
 "Nastavení AutoComplete"
 "Einstellungen der Autovervollständigung"
 upd:"AutoComplete settings"
@@ -16274,7 +16274,7 @@ upd:"Inf&oPanel settings"
 
 MMenuMaskGroups
 "Группы масок файлов"
-"Groups of file masks"
+"Groups of file mas&ks"
 "Skupiny masek souborů"
 "Gruppe der Datenmasken"
 upd:"Groups of file masks"
@@ -16738,7 +16738,7 @@ MMenuSortSelectedFirst
 "Zazna&czone najpierw"
 "Mostrar seleccionados primero"
 "Najprv zobraziť vy&brané"
-"Prima I Selezionati [Shift-F1&2]"
+"Prima I Selezionati [Shift+F1&2]"
 "Позначені &файли вперед"
 "Адзначаныя &файлы першапачаткова"
 
@@ -16764,7 +16764,7 @@ MMaskGroupBottom
 "Edycja: Ins, Del, F4, F7, Ctrl+R"
 "Editar: Ins, Del, F4, F7, Ctrl+R"
 "Upraviť: Ins, Del, F4, F7, Ctrl+R"
-"Edita: [INS] [DEL] [F4] [F7] [Ctrl-R]"
+"Edita: [INS] [DEL] [F4] [F7] [Ctrl+R]"
 "Редагування: Ins, Del, F4, F7, Ctrl+R"
 "Змена: Ins, Del, F4, F7, Ctrl+R"
 
@@ -17328,7 +17328,7 @@ MHotPlugListBottom
 "Edycja: Del,Ctrl+R"
 "Editar: Del,Ctrl+R"
 "Edit: Del,Ctrl+R"
-"Edita: [Canc] [Ctrl-R]"
+"Edita: [Canc] [Ctrl+R]"
 "Редагування: Del,Ctrl+R"
 "Змена: Del,Ctrl+R"
 
@@ -17603,7 +17603,7 @@ MChangeDriveMenuFooter
 "Del,Shift+Del,F3,F4,F9"
 "Del,Shift+Del,F3,F4,F9"
 "Del,Shift+Del,F3,F4,F9"
-"[Canc] [Shift-Canc] [F3] [F4] [F9]"
+"[Canc] [Shift+Canc] [F3] [F4] [F9]"
 "Del,Shift+Del,F3,F4,F9"
 "Del,Shift+Del,F3,F4,F9"
 
@@ -17710,7 +17710,7 @@ MProcessListBottom
 "Edycja: Del,Ctrl+R,F2"
 "Editar: Del,Ctrl+R,F2"
 "Upraviť: Del,Ctrl+R,F2"
-"Edita: [Canc] [Ctrl-R] [F2]"
+"Edita: [Canc] [Ctrl+R] [F2]"
 "Редагування: Del,Ctrl+R,F2"
 "Змена: Del,Ctrl+R,F2"
 
@@ -21878,7 +21878,7 @@ MMainMenuBottomTitle
 "Edycja: Del,Ins,F4,Alt+F4"
 "Editar: Del,Ins,F4,Alt+F4"
 "Upraviť: Del,Ins,F4,Alt+F4"
-"Edita: [DEL] [INS] [F4] [ALT-F4]"
+"Edita: [DEL] [INS] [F4] [ALT+F4]"
 "Редагування: Del,Ins,F4,Alt+F4"
 "Змена: Del,Ins,F4,Alt+F4"
 
@@ -29275,35 +29275,35 @@ MFileFilterSize
 
 MFileFilterSizeFromSign
 l:// up to 4 characters
-">="
-">="
-">="
-">="
-">="
-">="
-">="
-">="
-"=&>"
-">="
-">="
+">&="
+">&="
+">&="
+">&="
+">&="
+">&="
+">&="
+">&="
+">&="
+">&="
+">&="
 
 MFileFilterSizeToSign
 l:// up to 4 characters
-"<="
-"<="
-"<="
-"<="
-"<="
-"<="
-"<="
-"<="
 "&<="
-"<="
-"<="
+"&<="
+"&<="
+"&<="
+"&<="
+"&<="
+"&<="
+"&<="
+"&<="
+"&<="
+"&<="
 
 MFileHardLinksCount
 "Болee одной жёсткой ссылки"
-"Has more than &one hardlink"
+"Has more than &one hardlin&k"
 "Má více než jeden pevný link"
 "Mehr als ein harder Link"
 upd:"Has more than one hardlink"
@@ -29402,7 +29402,7 @@ l:// up to 4 characters
 ">="
 ">="
 ">="
-">="
+"Do&po:"
 ">="
 ">="
 
@@ -29416,7 +29416,7 @@ l:// up to 4 characters
 "<="
 "<="
 "<="
-"<="
+"&Prima:"
 "<="
 "<="
 
