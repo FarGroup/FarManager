@@ -506,13 +506,6 @@ function export.Configure (guid)
   if items[guid] then items[guid].action() end
 end
 
--- For backward compatibility only - add function cfind:
--- same as find, but offsets are in characters rather than bytes
-local function AddCfindFunction()
-  utf8.cfind = utf8.find
-  unicode.utf8.cfind = utf8.find
-end
-
 local function Init()
   Shared = {
     ErrMsg            = ErrMsg,
@@ -575,7 +568,6 @@ local function Init()
 
   utils.FixInitialModules()
   utils.InitMacroSystem()
-  AddCfindFunction()
   local macros = win.GetEnv("farprofile").."\\Macros\\"
   local modules = macros .. "modules\\"
   package.path = modules.."?.lua;"..modules.."?\\init.lua;"..package.path
