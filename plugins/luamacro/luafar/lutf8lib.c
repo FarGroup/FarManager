@@ -148,7 +148,7 @@ static int find_in_range(range_table *t, size_t size, unsigned ch) {
   end = size;
 
   while (begin < end) {
-    int mid = (begin + end) / 2;
+    size_t mid = (begin + end) / 2;
     if (t[mid].last < ch)
       begin = mid + 1;
     else if (t[mid].first > ch)
@@ -167,7 +167,7 @@ static int convert_char(conv_table *t, size_t size, unsigned ch) {
   end = size;
 
   while (begin < end) {
-    int mid = (begin + end) / 2;
+    size_t mid = (begin + end) / 2;
     if (t[mid].last < ch)
       begin = mid + 1;
     else if (t[mid].first > ch)
@@ -267,7 +267,7 @@ static lua_Integer byterelat(lua_Integer pos, size_t len) {
 static int u_posrange(const char **ps, const char **pe,
     lua_Integer posi, lua_Integer posj) {
   const char *s = *ps, *e = *pe;
-  *ps = utf8_index(s, e, posi);
+  *ps = utf8_index(s, e, (int)posi);
   if (posj >= 0) {
     while (s < e && posj-- > 0)
       s = utf8_next(s, e);
@@ -320,7 +320,7 @@ static int Lutf8_reverse(lua_State *L) {
 static int convert(lua_State *L, unsigned (*conv)(unsigned)) {
   int t = lua_type(L, 1);
   if (t == LUA_TNUMBER)
-    lua_pushinteger(L, conv(lua_tointeger(L, 1)));
+    lua_pushinteger(L, conv((unsigned)lua_tointeger(L, 1)));
   else if (t != LUA_TSTRING)
     return luaL_error(L, "number/string expected, got %s", luaL_typename(L, 1));
   else {
@@ -351,12 +351,12 @@ static int Lutf8_fold(lua_State *L)
 { return convert(L, utf8_tofold); }
 
 static int Lutf8_byte(lua_State *L) {
-  size_t n = 0;
+  int n = 0;
   const char *e, *s = check_utf8(L, 1, &e);
   lua_Integer posi = luaL_optinteger(L, 2, 1);
   lua_Integer posj = luaL_optinteger(L, 3, posi);
   if (u_posrange(&s, &e, posi, posj)) {
-    luaL_checkstack(L, e-s, "string slice too long");
+    luaL_checkstack(L, (int)(e-s), "string slice too long");
     while (s < e) {
       unsigned ch;
       s += utf8_decode(s, e, &ch);
@@ -572,11 +572,11 @@ static int Lutf8_codes(lua_State *L) {
 static int Lutf8_width(lua_State *L) {
   int t = lua_type(L, 1);
   int ambi_is_single = !lua_toboolean(L, 2);
-  int default_width = luaL_optinteger(L, 3, 0);
+  int default_width = (int)luaL_optinteger(L, 3, 0);
   if (t == LUA_TNUMBER) {
-    size_t chwidth = utf8_width(lua_tointeger(L, 1), ambi_is_single);
+    int chwidth = utf8_width((unsigned)lua_tointeger(L, 1), ambi_is_single);
     if (chwidth == 0) chwidth = default_width;
-    lua_pushinteger(L, (lua_Integer)chwidth);
+    lua_pushinteger(L, chwidth);
   }
   else if (t != LUA_TSTRING)
     return luaL_error(L, "number/string expected, got %s", luaL_typename(L, 1));
@@ -597,13 +597,13 @@ static int Lutf8_width(lua_State *L) {
 
 static int Lutf8_widthindex(lua_State *L) {
   const char *e, *s = check_utf8(L, 1, &e);
-  int width = luaL_checkinteger(L, 2);
+  int width = (int)luaL_checkinteger(L, 2);
   int ambi_is_single = !lua_toboolean(L, 3);
-  int default_width = luaL_optinteger(L, 4, 0);
+  int default_width = (int)luaL_optinteger(L, 4, 0);
   size_t idx = 1;
   while (s < e) {
     unsigned ch;
-    size_t chwidth;
+    int chwidth;
     s += utf8_decode(s, e, &ch);
     chwidth = utf8_width(ch, ambi_is_single);
     if (chwidth == 0) chwidth = default_width;
@@ -1066,7 +1066,7 @@ static int find_aux (lua_State *L, int find) {
     return 1;
   }
   if (idx < 0) idx += utf8_length(s, es) + 1;
-  init = utf8_index(s, es, idx);
+  init = utf8_index(s, es, (int)idx);
   /* explicit request or no special characters? */
   if (find && (lua_toboolean(L, 4) || nospecials(p, ep))) {
     /* do a plain search */

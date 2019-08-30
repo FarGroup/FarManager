@@ -6298,6 +6298,8 @@ void LF_InitLuaState1(lua_State *L, lua_CFunction aOpenLibs)
 		lua_getfield(L, -2, *cp);
 		lua_setfield(L, -2, *cp);
 	}
+	lua_getfield(L, -1, "find");  //+4
+	lua_setfield(L, -2, "cfind"); //+3 --> add for backward compatibility; don't document/advertize it
 	lua_pop(L, 3);
 
 #if LUA_VERSION_NUM == 501

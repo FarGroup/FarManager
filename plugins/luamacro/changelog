@@ -1,4 +1,10 @@
-﻿shmuel 30.08.2019 15:37:22 +0200 - build 700
+﻿shmuel 30.08.2019 23:00:22 +0200 - build 701
+
+1. LuaFAR: make utf8.cfind=utf8.find for backward compatibility.
+
+2. LuaFAR: handle x64 warnings in lutf8lib.c.
+
+shmuel 30.08.2019 15:37:22 +0200 - build 700
 
 1. Remove unicode.utf8.cfind function. It is not needed when utf8.find is available.
 
