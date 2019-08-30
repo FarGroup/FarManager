@@ -181,6 +181,7 @@
     <ClCompile Include="luafar\service.c" />
     <ClCompile Include="luafar\slnudata.c" />
     <ClCompile Include="luafar\slnunico.c" />
+    <ClCompile Include="luafar\lutf8lib.c" />
     <ClCompile Include="luafar\uliolib51.c" />
     <ClCompile Include="luafar\uloadlib51.c" />
     <ClCompile Include="luafar\ustring.c" />
@@ -190,6 +191,7 @@
   <ItemGroup>
     <ClInclude Include="luafar\luafar.h" />
     <ClInclude Include="luafar\reg.h" />
+    <ClInclude Include="luafar\unidata.h" />
     <ClInclude Include="luafar\ustring.h" />
     <ClInclude Include="luafar\util.h" />
     <ClInclude Include="luafar\version.h" />

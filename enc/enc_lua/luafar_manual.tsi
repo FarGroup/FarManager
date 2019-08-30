@@ -92,7 +92,7 @@ lv=1
 dt=Text
 nm=Unicode support
 ctime=3480525243
-mtime=3773163338
+mtime=3776336770
 <article>
 #_<markdown>
 #_
@@ -106,9 +106,9 @@ mtime=3773163338
 #_### Calling functions on strings with colon syntax
 #_
 #_LuaFAR modifies the `__index` field of the strings metatable
-#_to point to `unicode.utf8` table of [Selene Unicode](250.html)
+#_to point to `utf8` table of [utf8](537.html)
 #_library, rather than to `string` table.<br>
-#_That means `("abc"):match("b")` is equivalent to `unicode.utf8.match("abc", "b")`
+#_That means `("abc"):match("b")` is equivalent to `utf8.match("abc", "b")`
 #_rather than to `string.match("abc", "b")`.<br>
 #_Operator # is not affected by this change.
 #_
@@ -11273,6 +11273,193 @@ mtime=3579944916
 </article>
 </node>
 <node>
+id=537
+lv=1
+dt=Text
+nm=luautf8
+ctime=3776336119
+mtime=3776336176
+<article>
+#_<markdown>
+#_
+#_UTF-8 module for Lua 5.x
+#_========================
+#_
+#_This module adds UTF-8 support to Lua.
+#_
+#_It use data extracted from
+#_[Unicode Character Database](http://www.unicode.org/reports/tr44/),
+#_and tested on Lua 5.2.3, Lua 5.3.0 and LuaJIT.
+#_
+#_parseucd.lua is a pure Lua script generate unidata.h, to support convert
+#_characters and check characters' category.
+#_
+#_It mainly used to compatible with Lua's own string module, it passed all
+#_string and pattern matching test in lua test suite[2].
+#_
+#_It also add some useful routines against UTF-8 features, some like:
+#_- a convenient interface to escape Unicode sequence in string. 
+#_- string insert/remove, since UTF-8 substring extract may expensive.
+#_- calculate Unicode width, useful when implement e.g. console emulator.
+#_- a useful interface to translate Unicode offset and byte offset.
+#_
+#_Note that to avoid conflict with the Lua5.3's buitin library 'utf8',
+#_this library produce a file like lua-utf8.dll or lua-utf8.so. so use
+#_it like this:
+#_
+#_```lua
+#_local utf8 = require 'lua-utf8'
+#_```
+#_
+#_in your codes :-(
+#_
+#_[2]: http://www.lua.org/tests/5.2/
+#_
+#_
+#_LuaRocks Installation
+#_---------------------
+#_`luarocks install luautf8`
+#_
+#_It's now full-compatible with Lua5.3's utf8 library, so replace this
+#_file (and headers) with lua5.3 source's lutf8lib.c is also okay.
+#_
+#_Usage
+#_-----
+#_
+#_Many routines are same as Lua's string module:
+#_- `utf8.byte`
+#_- `utf8.char`
+#_- `utf8.find`
+#_- `utf8.gmatch`
+#_- `utf8.gsub`
+#_- `utf8.len`
+#_- `utf8.lower`
+#_- `utf8.match`
+#_- `utf8.reverse`
+#_- `utf8.sub`
+#_- `utf8.upper`
+#_
+#_The document of these functions can be find in Lua manual[3].
+#_
+#_[3]: http://www.lua.org/manual/5.2/manual.html#6.4
+#_
+#_
+#_Some routines in string module needn't support Unicode:
+#_- `string.dump`
+#_- `string.format`
+#_- `string.rep`
+#_
+#_They are NOT in utf8 module.
+#_
+#_Some routines are the compatible for Lua 5.3's basic UTF-8 support
+#_library:
+#_- `utf8.offset`
+#_- `utf8.codepoint`
+#_- `utf8.codes`
+#_
+#_See Lua5.3's manual to get usage.
+#_
+#_Some routines are new, with some Unicode-spec functions:
+#_
+#_###utf8.escape(str) -> utf8 string
+#_escape a str to UTF-8 format string. It support several escape format:
+#_
+#_%ddd - which ddd is a decimal number at any length:
+#_       change Unicode code point to UTF-8 format.
+#_%{ddd} - same as %nnn but has bracket around.
+#_%uddd - same as %ddd, u stands Unicode
+#_%u{ddd} - same as %{ddd}
+#_%xhhh - hexadigit version of %ddd
+#_%x{hhh} same as %xhhh.
+#_%? - '?' stands for any other character: escape this character.
+#_
+#_####Examples:
+#_```
+#_local u = utf8.escape
+#_print(u"%123%u123%{123}%u{123}%xABC%x{ABC}")
+#_print(u"%%123%?%d%%u")
+#_```
+#_
+#_###utf8.charpos(s[[, charpos], offset]) -> charpos, code point
+#_convert UTF-8 position to byte offset.
+#_if only offset is given, return byte offset of this UTF-8 char index.
+#_if charpos and offset is given, a new charpos will calculate, by
+#_add/subtract UTF-8 char offset to current charpos.
+#_in all case, it return a new char position, and code point (a number) at
+#_this position.
+#_
+#_###utf8.next(s[, charpos[, offset]]) -> charpos, code point
+#_iterate though the UTF-8 string s.
+#_If only s is given, it can used as a iterator:
+#_```lua
+#_for pos, code in utf8.next, "utf8-string" do
+#_   -- ...
+#_end
+#_```
+#_if only charpos is given, return the next byte offset of in string.
+#_if charpos and offset is given, a new charpos will calculate, by
+#_add/subtract UTF-8 char offset to current charpos.
+#_in all case, it return a new char position (in bytes), and code point
+#_(a number) at this position.
+#_
+#_###utf8.insert(s[, idx], substring) -> new_string
+#_insert a substring to s. If idx is given, insert substring before char at
+#_this index, otherwise substring will concat to s. idx can be negative.
+#_
+#_
+#_###utf8.remove(s[, start[, stop]]) -> new_string
+#_delete a substring in s. If neither start nor stop is given, delete the
+#_last UTF-8 char in s, otherwise delete char from start to end of s. if
+#_stop is given, delete char from start to stop (include start and stop).
+#_start and stop can be negative.
+#_
+#_
+#_###utf8.width(s[, ambi_is_double[, default_width]]) -> width
+#_calculate the width of UTF-8 string s. if ambi_is_double is given, the
+#_ambiguous width character's width is 2, otherwise it's 1.
+#_fullwidth/doublewidth character's width is 2, and other character's width
+#_is 1.
+#_if default_width is given, it will be the width of unprintable character,
+#_used display a non-character mark for these characters.
+#_if s is a code point, return the width of this code point.
+#_
+#_
+#_###utf8.widthindex(s, location[, ambi_is_double[, default_width]]) -> idx, offset, width
+#_return the character index at given location in string s. this is a
+#_reverse operation of utf8.width().
+#_this function return a index of location, and a offset in in UTF-8
+#_encoding. e.g. if cursor is at the second column (middle) of the wide
+#_char, offset will be 2. the width of character at idx is returned, also.
+#_
+#_
+#_###utf8.title(s) -> new_string
+#_###utf8.fold(s) -> new_string
+#_convert UTF-8 string s to title-case, or folded case used to compare by
+#_ignore case.
+#_if s is a number, it's treat as a code point and return a convert code
+#_point (number). utf8.lower/utf8.upper has the same extension.
+#_
+#_
+#_###utf8.ncasecmp(a, b) -> [-1,0,1]
+#_compare a and b without case, -1 means a < b, 0 means a == b and 1 means a > b.
+#_
+#_
+#_Improvement needed
+#_------------------
+#_
+#_- add Lua 5.3 spec test-suite.
+#_- more test case.
+#_- grapheme-compose support, and affect in utf8.reverse and utf8.width
+#_- Unicode normalize algorithm implement.
+#_
+#_
+#_License
+#_-------
+#_It use same license with Lua: http://www.lua.org/license.html
+#_
+</article>
+</node>
+<node>
 id=524
 lv=0
 dt=Text
@@ -12581,5 +12768,36 @@ mtime=3607435737
 #_    THE SOFTWARE.
 #_    */
 #_
+</article>
+</node>
+<node>
+id=538
+lv=1
+dt=Text
+nm=luautf8
+ctime=3776336382
+mtime=3776336416
+<article>
+#_MIT License
+#_
+#_Copyright (c) 2018 Xavier Wang
+#_
+#_Permission is hereby granted, free of charge, to any person obtaining a copy
+#_of this software and associated documentation files (the "Software"), to deal
+#_in the Software without restriction, including without limitation the rights
+#_to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#_copies of the Software, and to permit persons to whom the Software is
+#_furnished to do so, subject to the following conditions:
+#_
+#_The above copyright notice and this permission notice shall be included in all
+#_copies or substantial portions of the Software.
+#_
+#_THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#_IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#_FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#_AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#_LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#_OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+#_SOFTWARE.
 </article>
 </node>

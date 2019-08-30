@@ -2473,22 +2473,6 @@ mtime=3607111396
 </article>
 </node>
 <node>
-id=64
-lv=2
-dt=Text
-nm=unicode.utf8.cfind
-ctime=3559410790
-mtime=3559414983
-<article>
-#_<markdown>
-#_
-#_Ёта функци€ аналогична `unicode.utf8.find`, кроме того, что она принимает входное
-#_смещение и возвращает выходные смещени€ в **символах**, а не в **байтах**.
-#_(»сключением €вл€ютс€ "position captures", которые всЄ же возвращаютс€ в байтах).
-#_
-</article>
-</node>
-<node>
 id=84
 lv=2
 dt=Text

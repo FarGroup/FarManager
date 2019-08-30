@@ -27,6 +27,7 @@ extern int luaopen_regex(lua_State*);
 extern int luaopen_usercontrol(lua_State*);
 extern int luaopen_uio(lua_State *L);
 extern int luaopen_unicode(lua_State *L);
+extern int luaopen_utf8(lua_State *L);
 extern int luaopen_upackage(lua_State *L);
 extern int luaopen_win(lua_State *L);
 
@@ -6255,6 +6256,7 @@ static const luaL_Reg lualibs[] =
 	//-------------------------------------------------
 	{"bit64",         luaopen_bit64},
 	{"unicode",       luaopen_unicode},
+	{"utf8",          luaopen_utf8},
 	{"win",           luaopen_win},
 	{NULL, NULL}
 };
@@ -6262,6 +6264,8 @@ static const luaL_Reg lualibs[] =
 void LF_InitLuaState1(lua_State *L, lua_CFunction aOpenLibs)
 {
 	const luaL_Reg *lib;
+	const char* funcs_to_copy[] = {"dump","format","rep","utf8valid",NULL};
+	const char** cp;
 
 	FP_PROTECT();
 
@@ -6278,12 +6282,22 @@ void LF_InitLuaState1(lua_State *L, lua_CFunction aOpenLibs)
 #endif
 	}
 
-	// getmetatable("").__index = unicode.utf8
+	// getmetatable("").__index = utf8
 	lua_pushliteral(L, "");
 	lua_getmetatable(L, -1);
-	lua_getglobal(L, "unicode");
-	lua_getfield(L, -1, "utf8");
-	lua_setfield(L, -3, "__index");
+	lua_getglobal(L, "utf8");
+	lua_setfield(L, -2, "__index");
+	lua_pop(L, 2);
+
+	// copy some missing functions (utf8.somefunc = unicode.utf8.somefunc)
+	lua_getglobal(L, "unicode"); //+1
+	lua_getfield(L, -1, "utf8"); //+2
+	lua_getglobal(L, "utf8");    //+3
+	for (cp=funcs_to_copy; *cp; cp++)
+	{
+		lua_getfield(L, -2, *cp);
+		lua_setfield(L, -2, *cp);
+	}
 	lua_pop(L, 3);
 
 #if LUA_VERSION_NUM == 501

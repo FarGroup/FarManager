@@ -2482,20 +2482,6 @@ mtime=3607111386
 </article>
 </node>
 <node>
-id=64
-lv=2
-dt=Text
-nm=unicode.utf8.cfind
-ctime=3559410790
-mtime=3600589290
-<article>
-#_<markdown>
-#_
-#_This function is similar to `unicode.utf8.find`, except that it treats the input offset and returns the output offset in characters rather than bytes. "Positional captures" are still returned in bytes.
-#_
-</article>
-</node>
-<node>
 id=84
 lv=2
 dt=Text

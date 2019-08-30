@@ -19,6 +19,7 @@ luafar/lusercontrol.c \
 luafar/reg.c \
 luafar/service.c \
 luafar/slnunico.c \
+luafar/lutf8lib.c \
 luafar/uliolib$(LUAVER).c \
 luafar/uloadlib$(LUAVER).c \
 luafar/ustring.c \

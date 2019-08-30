@@ -32,6 +32,7 @@ $(OBJDIR)\reg.obj \
 $(OBJDIR)\service.obj \
 $(OBJDIR)\slnudata.obj \
 $(OBJDIR)\slnunico.obj \
+$(OBJDIR)\lutf8lib.obj \
 $(OBJDIR)\uliolib51.obj \
 $(OBJDIR)\uloadlib51.obj \
 $(OBJDIR)\ustring.obj \
