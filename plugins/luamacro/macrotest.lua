@@ -1774,17 +1774,8 @@ local function test_coroutine()
   end
 end
 
-local function test_cfind()
-  assert(type(("").cfind) == "function")
-  assert(("").cfind == unicode.utf8.cfind)
-  local from, to, c1, c2 = ("абвгд"):cfind("(г)(д)", 4)
-  assert(from==4 and to==5 and c1=="г" and c2=="д")
-  assert(nil == ("абвгд"):cfind("(г)(д)", 5))
-end
-
 function MT.test_misc()
   test_coroutine()
-  test_cfind()
 end
 
 function MT.test_all()
