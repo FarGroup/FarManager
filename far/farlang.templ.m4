@@ -1899,7 +1899,7 @@ upd:"Update panels only when Far is active"
 
 MConfigSaveHistory
 "Сохранять &историю команд"
-"Save &commands &history"
+"Save commands &history"
 "Ukládat historii &příkazů"
 "&Befehlshistorie speichern"
 "Parancs elő&zmények mentése"
@@ -2068,7 +2068,7 @@ upd:"linguistic"
 
 MConfigSortingDigitsAsNumbers
 "Трактовать цифры как числа"
-"Treat digits as numbers"
+"Treat digits &as numbers"
 upd:"Treat digits as numbers"
 upd:"Treat digits as numbers"
 upd:"Treat digits as numbers"
@@ -2669,7 +2669,7 @@ MConfigPgUpChangeDisk
 
 MConfigUseVirtualTerminalForRendering
 "Использовать Virtual Terminal для рендеринга"
-"Use Virtual Terminal for rendering"
+"Use &Virtual Terminal for rendering"
 upd:"Use Virtual Terminal for rendering"
 upd:"Use Virtual Terminal for rendering"
 upd:"Use Virtual Terminal for rendering"
@@ -4494,7 +4494,7 @@ MCMLTargetTO
 
 MCMLTargetIN
 "&в"
-"in"
+"&in"
 "&v"
 upd:"&in"
 upd:"&in"
@@ -13620,7 +13620,7 @@ MFindSymLinks
 
 MFindAlternateStreams
 "Искать в альтернативных потоках"
-"Search in alternate streams"
+"Search in a&lternate streams"
 upd:"Search in alternate streams"
 "In alternativen Stream suchen"
 upd:"Search in alternate streams"
@@ -13646,7 +13646,7 @@ MSearchForHex
 
 MSearchNotContaining
 "Не содержащих"
-"Not containing"
+"&Not containing"
 upd:"Not containing"
 "Nicht enthalten"
 upd:"Not containing"
@@ -15320,7 +15320,7 @@ MCreateFolder
 
 MMakeFolderLinkType
 "Тип ссылки:"
-"Link type:"
+"&Link type:"
 "Typ linku:"
 "Linktyp:"
 "Link típusa:"
@@ -15333,7 +15333,7 @@ MMakeFolderLinkType
 
 MMakeFolderLinkNone
 "Нет"
-"None"
+"&none"
 "Žádný"
 "Nein"
 upd:"None"
@@ -15346,7 +15346,7 @@ upd:"None"
 
 MMakeFolderLinkJunction
 "связь каталогов"
-"directory junction"
+"directory &junction"
 "křížení adresářů"
 "Ordnerknotenpunkt"
 "Mappa csomópont"
@@ -15359,7 +15359,7 @@ MMakeFolderLinkJunction
 
 MMakeFolderLinkSymlink
 "символическая ссылка"
-"symbolic link"
+"symbolic &link"
 "symbolický link"
 "Symbolischer Link"
 "Szimbolikus link"
@@ -15372,7 +15372,7 @@ MMakeFolderLinkSymlink
 
 MMakeFolderLinkTarget
 "Цель:"
-"Target:"
+"&Target:"
 "Cíl:"
 "Ziel:"
 upd:"Target:"
@@ -17479,7 +17479,7 @@ upd:"Show disk &label"
 
 MChangeDriveShowLabelUseShell
 "Использовать имя оболочки"
-"Use shell name"
+"Use shell na&me"
 upd:"Use shell name"
 upd:"Use shell name"
 upd:"Use shell name"
@@ -17518,7 +17518,7 @@ upd:"Show &size"
 
 MChangeDriveShowSizeFloat
 "Показывать ра&змер в виде десятичной дроби"
-"Show size as a decimal fraction"
+"Show si&ze as a decimal fraction"
 upd:"Show size as a decimal fraction"
 upd:"Show size as a decimal fraction"
 upd:"Show size as a decimal fraction"
@@ -17557,7 +17557,7 @@ upd:"Show &plugins"
 
 MChangeDriveSortPluginsByHotkey
 "Сортировать плагины по горячей клавише"
-"Sort plugins by hotkey"
+"Sort plugins by &hotkey"
 "Řadit moduly podle zkratky"
 "Plugins mit dem Hotkey sortieren"
 upd:"Sort plugins by hotkey"
@@ -20263,7 +20263,7 @@ upd:"Desconectar disco s&ustituido"
 
 MSetConfirmDetachVHD
 "Отсоедиение виртуального диска"
-"Detach virtual disk"
+"Detach &virtual disk"
 "Odpojení virtuálního disku"
 "Trennung von virtuelle Laufwerke"
 upd:"Detach virtual disk"
@@ -22665,17 +22665,17 @@ upd:"Dateien standardmäßig mit Windows-Kod&ierung öffnen"
 "Уж&ыць прадвызначаную кадыроўку ANSI"
 
 MCfgDizSaveInUTF
-"Сохранять в UTF8"
-"Save in UTF8"
-"Uložit v UTF8"
-"In UTF8 speichern"
-upd:"Save in UTF8"
-"Zapisz w UTF8"
-"Guardar en UTF8"
-"Uložiť v UTF8"
-"Salva In &UTF8"
-"Зберігати в UTF8"
-"Захоўваць у UTF8"
+"Сохранять в UTF-&8"
+"Save in UTF-&8"
+"Uložit v UTF-&8"
+"In UTF-&8 speichern"
+upd:"Save in UTF-&8"
+"Zapisz w UTF-&8"
+"Guardar en UTF-&8"
+"Uložiť v UTF-&8"
+"Salva In UTF-&8"
+"Зберігати в UTF-&8"
+"Захоўваць у UTF-&8"
 
 MReadingTitleFiles
 l:
@@ -23144,7 +23144,7 @@ MMacroCommonDeleteKey
 
 MMacroSequence
 "Последовательность:"
-"Sequence:"
+"Se&quence:"
 "Posloupnost:"
 "Sequenz:"
 "Szekvencia:"
@@ -23157,7 +23157,7 @@ MMacroSequence
 
 MMacroDescription
 "Описание:"
-"Description:"
+"&Description:"
 "Popis:"
 "Beschreibung:"
 "Megjegyzés:"
@@ -23196,7 +23196,7 @@ MMacroDeleteKey2
 
 MMacroEditKey
 "Изменить"
-"Change"
+"Chan&ge"
 "Změnit"
 "Verändern"
 upd:"Change"
@@ -23656,7 +23656,7 @@ upd:"Module:"
 
 MExcTerminate
 "Завершить Far"
-"Terminate Far"
+"&Terminate Far"
 "Ukončit Far"
 "Far beenden"
 upd:"Terminate Far"
@@ -23669,7 +23669,7 @@ upd:"Terminate Far"
 
 MExcUnload
 "Выгрузить плагин"
-"Unload plugin"
+"&Unload plugin"
 "Ukončit modul"
 upd:"Unload plugin"
 upd:"Unload plugin"
@@ -23682,7 +23682,7 @@ upd:"Unload plugin"
 
 MExcStack
 "Стек"
-"Stack"
+"&Stack"
 upd:"Stack"
 upd:"Stack"
 upd:"Stack"
@@ -23695,7 +23695,7 @@ upd:"Stack"
 
 MExcMinidump
 "Минидамп"
-"Minidump"
+"&Minidump"
 upd:"Minidump"
 upd:"Minidump"
 upd:"Minidump"
@@ -29303,7 +29303,7 @@ l:// up to 4 characters
 
 MFileHardLinksCount
 "Болee одной жёсткой ссылки"
-"Has more than &one hardlin&k"
+"Has more than one hardlin&k"
 "Má více než jeden pevný link"
 "Mehr als ein harder Link"
 upd:"Has more than one hardlink"
