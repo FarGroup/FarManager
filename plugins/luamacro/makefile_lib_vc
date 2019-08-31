@@ -30,7 +30,6 @@ $(OBJDIR)\luamacro.obj \
 $(OBJDIR)\lusercontrol.obj \
 $(OBJDIR)\reg.obj \
 $(OBJDIR)\service.obj \
-$(OBJDIR)\slnudata.obj \
 $(OBJDIR)\slnunico.obj \
 $(OBJDIR)\lutf8lib.obj \
 $(OBJDIR)\uliolib51.obj \

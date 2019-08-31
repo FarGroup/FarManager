@@ -179,7 +179,6 @@
     <ClCompile Include="luafar\lusercontrol.c" />
     <ClCompile Include="luafar\reg.c" />
     <ClCompile Include="luafar\service.c" />
-    <ClCompile Include="luafar\slnudata.c" />
     <ClCompile Include="luafar\slnunico.c" />
     <ClCompile Include="luafar\lutf8lib.c" />
     <ClCompile Include="luafar\uliolib51.c" />

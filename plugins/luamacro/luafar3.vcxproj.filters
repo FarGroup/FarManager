@@ -45,9 +45,6 @@
     <ClCompile Include="luafar\service.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="luafar\slnudata.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="luafar\slnunico.c">
       <Filter>Source Files</Filter>
     </ClCompile>
