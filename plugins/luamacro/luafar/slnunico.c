@@ -1,9 +1,4 @@
 /*
-  Porting to Lua 5.2 and bug fixes: (C) Shmuel Zeigerman, 2010.
-  MIT license.
-*/
-
-/*
 *	Selene Unicode/UTF-8
 *	This additions
 *	Copyright (c) 2005 Malete Partner, Berlin, partner@malete.org
@@ -62,25 +57,6 @@ terms specified in this license.
 (end of Tcl license terms)
 */
 
-/*
-According to http://ietf.org/rfc/rfc3629.txt we support up to 4-byte
-(21 bit) sequences encoding the UTF-16 reachable 0-0x10FFFF.
-Any byte not part of a 2-4 byte sequence in that range decodes to itself.
-Ill formed (non-shortest) "C0 80" will be decoded as two code points C0 and 80,
-not code point 0; see security considerations in the RFC.
-However, UTF-16 surrogates (D800-DFFF) are accepted.
-
-See http://www.unicode.org/reports/tr29/#Grapheme_Cluster_Boundaries
-for default grapheme clusters.
-Lazy westerners we are (and lacking the Hangul_Syllable_Type data),
-we care for base char + Grapheme_Extend, but not for Hangul syllable sequences.
-
-For http://unicode.org/Public/UNIDATA/UCD.html#Grapheme_Extend
-we use Mn (NON_SPACING_MARK) + Me (ENCLOSING_MARK),
-ignoring the 18 mostly south asian Other_Grapheme_Extend (16 Mc, 2 Cf) from
-http://www.unicode.org/Public/UNIDATA/PropList.txt
-*/
-
 /* Contains code from:
 Quylthulg Copyright (C) 2009 Kein-Hong Man <keinhong@gmail.com>
 
@@ -109,9 +85,6 @@ THE SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 
-#define lstrlib_c
-#define LUA_LIB
-
 #include "lua.h"
 #include "lauxlib.h"
 #include "lualib.h"
@@ -134,19 +107,6 @@ THE SOFTWARE.
 #define LUA_INTFRM_T            long
 
 #endif
-
-#ifndef SLN_UNICODENAME /* unless set it luaconf */
-# define SLN_UNICODENAME "unicode"
-#endif
-
-enum   /* operation modes */
-{
-	MODE_ASCII, /* single byte 7bit */
-	MODE_LATIN, /* single byte 8859-1 */
-	MODE_UTF8,	/* UTF-8 by code points */
-	MODE_GRAPH	/* UTF-8 by grapheme clusters */
-};
-
 
 /* macro to `unsign' a character */
 #define uchar(c)				((unsigned char)(c))
@@ -247,10 +207,8 @@ static int str_dump(lua_State *L)
 }
 
 
-
 #define L_ESC		'%'
 #define SPECIALS	"^$*+?.([%-"
-
 
 /* }====================================================== */
 
@@ -489,49 +447,18 @@ static int utf8_valid(lua_State *L)
 
 static const luaL_Reg uniclib[] =
 {
-	{"dump", str_dump},
-	{"format", str_format},
-	{"rep", str_rep},
+	{"dump",      str_dump},
+	{"format",    str_format},
+	{"rep",       str_rep},
 	{"utf8valid", utf8_valid},
 	{NULL, NULL}
 };
 
 /*
-** Register separate library
-*/
-static void register_lib(lua_State *L, int mode, const char *name)
-{
-#if LUA_VERSION_NUM == 501
-	lua_newtable(L);
-	lua_pushinteger(L, mode);
-	lua_setfield(L, -2, "mode");
-	lua_replace(L, LUA_ENVIRONINDEX);
-	luaL_register(L, name, uniclib);
-#elif LUA_VERSION_NUM == 502
-	lua_createtable(L, 0, 16);
-	lua_pushvalue(L, -1);
-	lua_setfield(L, -3, name + sizeof(SLN_UNICODENAME));
-	lua_pushinteger(L, mode);
-	luaL_setfuncs(L, uniclib, 1);
-#endif
-	lua_pop(L, 1);
-}
-
-/*
-** Open string library
+** Open library
 */
 LUALIB_API int luaopen_unicode(lua_State *L)
 {
-	/* register unicode itself so require("unicode") works */
-#if LUA_VERSION_NUM == 501
-	luaL_register(L, SLN_UNICODENAME,
-	              uniclib + (sizeof uniclib/sizeof uniclib[0] - 1)); /* empty func list */
-#else
-	lua_createtable(L, 0, 0);
-	lua_pushvalue(L, -1);
-	lua_setglobal(L, SLN_UNICODENAME);
-	luaL_setfuncs(L, uniclib + (sizeof uniclib/sizeof uniclib[0] - 1), 0); /* empty func list */
-#endif
-	register_lib(L, MODE_UTF8, SLN_UNICODENAME ".utf8");
-	return 1;
+	luaL_register(L, "utf8", uniclib);
+	return 0;
 }

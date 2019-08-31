@@ -6264,8 +6264,6 @@ static const luaL_Reg lualibs[] =
 void LF_InitLuaState1(lua_State *L, lua_CFunction aOpenLibs)
 {
 	const luaL_Reg *lib;
-	const char* funcs_to_copy[] = {"dump","format","rep","utf8valid",NULL};
-	const char** cp;
 
 	FP_PROTECT();
 
@@ -6289,18 +6287,17 @@ void LF_InitLuaState1(lua_State *L, lua_CFunction aOpenLibs)
 	lua_setfield(L, -2, "__index");
 	lua_pop(L, 2);
 
-	// copy some missing functions (utf8.somefunc = unicode.utf8.somefunc)
-	lua_getglobal(L, "unicode"); //+1
-	lua_getfield(L, -1, "utf8"); //+2
-	lua_getglobal(L, "utf8");    //+3
-	for (cp=funcs_to_copy; *cp; cp++)
-	{
-		lua_getfield(L, -2, *cp);
-		lua_setfield(L, -2, *cp);
-	}
-	lua_getfield(L, -1, "find");  //+4
-	lua_setfield(L, -2, "cfind"); //+3 --> add for backward compatibility; don't document/advertize it
-	lua_pop(L, 3);
+	// unicode.utf8 = utf8 (for backward compatibility;)
+	lua_newtable(L);
+	lua_getglobal(L, "utf8");
+	lua_setfield(L, -2, "utf8");
+	lua_setglobal(L, "unicode");
+
+	// utf8.cfind = utf8.find (for backward compatibility;)
+	lua_getglobal(L, "utf8");
+	lua_getfield(L, -1, "find");
+	lua_setfield(L, -2, "cfind");
+	lua_pop(L, 1);
 
 #if LUA_VERSION_NUM == 501
 	if (IsLuaJIT())
