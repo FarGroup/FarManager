@@ -11342,11 +11342,14 @@ lv=2
 dt=Text
 nm=utf8.dump
 ctime=3776451293
-mtime=3776451825
+mtime=3776486873
 <article>
 #_**Note:**
-#_  This is an added function, not present in the original **luautf8** library.
-#_  See *string.dump* for reference.
+#_  This is an added function, not present in the original luautf8 library.
+#_  See `string.dump` for reference.
+#_
+#_@@@
+#_[string.dump]: http://www.lua.org/manual/5.1/manual.html#pdf-string.dump
 #_
 </article>
 </node>
@@ -11356,11 +11359,14 @@ lv=2
 dt=Text
 nm=utf8.format
 ctime=3776451312
-mtime=3776451835
+mtime=3776486954
 <article>
 #_**Note:**
-#_  This is an added function, not present in the original **luautf8** library.
-#_  See *string.format* for reference.
+#_  This is an added function, not present in the original luautf8 library.
+#_  See `string.format` for reference.
+#_
+#_@@@
+#_[string.format]: http://www.lua.org/manual/5.1/manual.html#pdf-string.format
 #_
 </article>
 </node>
@@ -11368,13 +11374,16 @@ mtime=3776451835
 id=540
 lv=2
 dt=Text
-nm=utf8.reverse
+nm=utf8.rep
 ctime=3776451304
-mtime=3776451843
+mtime=3776487967
 <article>
 #_**Note:**
-#_  This is an added function, not present in the original **luautf8** library.
-#_  See *string.reverse* for reference.
+#_  This is an added function, not present in the original luautf8 library.
+#_  See `string.rep` for reference.
+#_
+#_@@@
+#_[string.rep]: http://www.lua.org/manual/5.1/manual.html#pdf-string.rep
 #_
 </article>
 </node>
