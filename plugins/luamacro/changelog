@@ -20,7 +20,7 @@ shmuel 30.08.2019 14:36:46 +0200 - build 699
 
 1. LuaFAR: add "luautf8" library (https://github.com/starwing/luautf8).
    - The library can be directly accessed via "utf8" global variable.
-   - This libary becomes the default when calling string functions with colon syntax, e.g. var:match().
+   - This library becomes the default when calling string functions with colon syntax, e.g. var:match().
    - A few missing functions are copied to utf8 from unicode.utf8: dump, format, rep, utf8valid.
 
 shmuel 16.08.2019 17:25:50 +0200 - build 698
