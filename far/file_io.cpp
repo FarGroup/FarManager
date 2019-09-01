@@ -78,7 +78,7 @@ void save_file_with_replace(string const& FileName, DWORD const FileAttributes, 
 	const auto NewAttributes = (IsFileExists? FileAttributes : 0) | FILE_ATTRIBUTE_ARCHIVE | ExtraAttributes;
 
 	os::security::descriptor SecurityDescriptor;
-	SECURITY_ATTRIBUTES SecurityAttributes{};
+	SECURITY_ATTRIBUTES SecurityAttributes{sizeof(SecurityAttributes)};
 
 	if (UseTemporaryFile)
 	{

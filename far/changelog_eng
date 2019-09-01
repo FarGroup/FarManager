@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 01.09.2019 20:26:46 +0100 - build 5462
+
+1. Correction of 5448.2.
+
+zg 01.09.2019 13:53:23 +0300 - build 5461
+
+1. visual artefacts in search results dialog.
+
 drkns 01.09.2019 11:23:07 +0100 - build 5460
 
 1. GCC 9.2.
