@@ -151,7 +151,7 @@ protected:
 
 	template<class T>
 	[[nodiscard]]
-	const T& GetT() const { return std::any_cast<const T&>(m_Value); }
+	const T& GetT() const { return std::any_cast<const T&>(m_Value.value().value); }
 
 	template<class T>
 	void SetT(const T& NewValue) { if (GetT<T>() != NewValue) m_Value = NewValue; }
@@ -164,7 +164,26 @@ private:
 
 	void MakeUnchanged() { m_Value.forget(); }
 
-	monitored<std::any> m_Value;
+	// Workaround for https://gcc.gnu.org/bugzilla/show_bug.cgi?id=91630
+	struct any
+	{
+		std::any value;
+
+		template<typename T>
+		any(T&& Value):
+			value(FWD(Value))
+		{
+		}
+
+
+		template<typename T>
+		auto& operator=(T&& Value)
+		{
+			value = FWD(Value);
+		}
+	};
+
+	monitored<any> m_Value;
 };
 
 namespace option

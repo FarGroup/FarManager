@@ -279,7 +279,7 @@ static void set_dates_and_times(Dialog* const Dlg, const time_map& TimeMapEntry,
 
 static void AdvancedAttributesDialog(SetAttrDlgParam* const DlgParam)
 {
-	DialogBuilder Builder(lng::MSetAttrTitle, {}, [DlgParam](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2) -> intptr_t
+	DialogBuilder Builder(lng::MSetAttrTitle, {}, [](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2) -> intptr_t
 	{
 		switch (Msg)
 		{
