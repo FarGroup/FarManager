@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 02.09.2019 21:09:11 +0100 - build 5463
+
+1. Initialise COM as multithreaded, it seems to be more correct in our case.
+
+2. Continuation of 5457.
+
+3. Titles for far:config dialog.
+
 drkns 01.09.2019 20:26:46 +0100 - build 5462
 
 1. Correction of 5448.2.

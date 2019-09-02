@@ -1169,9 +1169,9 @@ bool KeyMacro::GetMacroSettings(int Key, unsigned long long& Flags, string_view 
 	auto MacroSettingsDlg = MakeDialogItems(
 	{
 		{ DI_DOUBLEBOX, {{3,  1 }, {69, 19}}, DIF_NONE, },
-		{ DI_TEXT,      {{5,  2 }, {0,  2 }}, DIF_NONE, msg(lng::MMacroSequence), },
+		{ DI_TEXT,      {{5,  2 }, {0,  2 }}, DIF_NONE, msg(lng::MMacroSettingsSequence), },
 		{ DI_EDIT,      {{5,  3 }, {67, 3 }}, DIF_FOCUS | DIF_HISTORY, },
-		{ DI_TEXT,      {{5,  4 }, {0,  4 }}, DIF_NONE, msg(lng::MMacroDescription), },
+		{ DI_TEXT,      {{5,  4 }, {0,  4 }}, DIF_NONE, msg(lng::MMacroSettingsDescription), },
 		{ DI_EDIT,      {{5,  5 }, {67, 5 }}, DIF_HISTORY, },
 		{ DI_TEXT,      {{-1, 6 }, {0,  6 }}, DIF_SEPARATOR, },
 		{ DI_CHECKBOX,  {{5,  7 }, {0,  7 }}, DIF_NONE, msg(lng::MMacroSettingsEnableOutput), },

@@ -3982,6 +3982,32 @@ upd:"Default code page:"
 "Кодова сторін&ка за замовчуванням:"
 "Прадвызначаная кад&ыроўка:"
 
+MConfigEditor
+"Редактор конфигурации"
+"Configuration editor"
+upd:"Configuration editor"
+upd:"Configuration editor"
+upd:"Configuration editor"
+upd:"Configuration editor"
+upd:"Configuration editor"
+upd:"Configuration editor"
+upd:"Configuration editor"
+"Редактор конфігурації"
+"Рэдактар налад"
+
+MConfigEditorHelp
+"Enter, F4, Shift+F4, Ctrl+H, Shift+F1"
+"Enter, F4, Shift+F4, Ctrl+H, Shift+F1"
+upd:"Enter, F4, Shift+F4, Ctrl+H, Shift+F1"
+upd:"Enter, F4, Shift+F4, Ctrl+H, Shift+F1"
+upd:"Enter, F4, Shift+F4, Ctrl+H, Shift+F1"
+upd:"Enter, F4, Shift+F4, Ctrl+H, Shift+F1"
+upd:"Enter, F4, Shift+F4, Ctrl+H, Shift+F1"
+upd:"Enter, F4, Shift+F4, Ctrl+H, Shift+F1"
+upd:"Enter, F4, Shift+F4, Ctrl+H, Shift+F1"
+"Enter, F4, Shift+F4, Ctrl+H, Shift+F1"
+"Enter, F4, Shift+F4, Ctrl+H, Shift+F1"
+
 MSaveSetupTitle
 l:
 "Конфигурация"
@@ -23144,7 +23170,7 @@ MMacroCommonDeleteKey
 
 MMacroSequence
 "Последовательность:"
-"Se&quence:"
+"Sequence:"
 "Posloupnost:"
 "Sequenz:"
 "Szekvencia:"
@@ -23154,19 +23180,6 @@ MMacroSequence
 "Sequenza:"
 "Послідовність:"
 "Паслядоўнасць:"
-
-MMacroDescription
-"Описание:"
-"&Description:"
-"Popis:"
-"Beschreibung:"
-"Megjegyzés:"
-"Opis:"
-"Descripción:"
-"Popis:"
-"Descrizione"
-"Опис:"
-"Апісанне:"
 
 MMacroReDefinedKey2
 "Переопределить?"
@@ -23220,6 +23233,32 @@ l:
 "Configurazione Macro Per '{0}'"
 "Параметри макрокоманди для '{0}'"
 "Налады каманды макрасу для '{0}'"
+
+MMacroSettingsSequence
+"Последовательность:"
+"Se&quence:"
+"Posloupnost:"
+"Sequenz:"
+"Szekvencia:"
+"Sekwencja:"
+"Secuencia:"
+"Postupnosť:"
+"Sequenza:"
+"Послідовність:"
+"Паслядоўнасць:"
+
+MMacroSettingsDescription
+"Описание:"
+"&Description:"
+"Popis:"
+"Beschreibung:"
+"Megjegyzés:"
+"Opis:"
+"Descripción:"
+"Popis:"
+"Descrizione"
+"Опис:"
+"Апісанне:"
 
 MMacroSettingsEnableOutput
 "Разрешить во время &выполнения вывод на экран"

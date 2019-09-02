@@ -2319,11 +2319,22 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 	switch (Msg)
 	{
 	case DN_INITDIALOG:
-		Dlg->SendMessage(DM_LISTSORT, 0, nullptr);
+		{
+			SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
+
+			FarListTitles Titles{ sizeof(Titles) };
+			Titles.Title = msg(lng::MConfigEditor).c_str();
+			Titles.Bottom = msg(lng::MConfigEditorHelp).c_str();
+			Dlg->SendMessage(DM_LISTSETTITLES, 0, &Titles);
+
+			Dlg->SendMessage(DM_LISTSORT, 0, nullptr);
+		}
 		break;
 
 	case DN_RESIZECONSOLE:
 		{
+			SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
+
 			COORD Size{ static_cast<SHORT>(std::max(ScrX - 4, 60)), static_cast<SHORT>(std::max(ScrY - 2, 20)) };
 			Dlg->SendMessage(DM_RESIZEDIALOG, 0, &Size);
 			SMALL_RECT ListPos{ 3, 1, static_cast<SHORT>(Size.X - 4), static_cast<SHORT>(Size.Y - 2) };

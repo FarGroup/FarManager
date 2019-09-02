@@ -73,7 +73,7 @@ GAWK = $(strip $(call os_name, $(TOOLS_PREFIX)gawk))
 LGEN = $(WINE_CMD)$(strip $(call os_name, $(TOOLSDIR)lng.generator.exe))
 
 DEFINES = -D UNICODE -D _UNICODE
-CFLAGS = -m$(DIRBIT) $(DEBUGFLAGS) -fdiagnostics-show-option -pipe -funsigned-char $(DEFINES)
+CFLAGS = -m$(DIRBIT) $(DEBUGFLAGS) -fno-common -fdiagnostics-show-option -pipe -funsigned-char $(DEFINES)
 CFLAGS += \
 -masm=intel \
 -Wall \
