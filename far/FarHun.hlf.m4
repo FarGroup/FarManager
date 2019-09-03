@@ -2357,14 +2357,13 @@ akkor #program.exe !.!# helyett #program.exe "!.!"# kifejezést kell írni.
     #U# - use UTF-8 code page;
     #W# - use UTF-16 (Little endian) code page.
 
-    ^<wrap>Például a #!@@AFQ!# azt jelenti, hogy "fájlnév a kijelölt fájlok
-neveinek listájával, ANSI kódolással, teljes elérési útvonalakkal,
-fájlnevek idézőjelben".
+    ^<wrap>For example, #!@@AFQ!# denotes "name of file containing the list of
+selected file names, in ANSI encoding, with full pathnames, each enclosed in quotes".
 
     ^<wrap>The following modifiers can be used with the special symbols #!&# and #!&~~#:
     #Q# - enclose names in quotes.
 
-    ^<wrap>For example, #!&Q# means the list of selected file names in quotes.
+    ^<wrap>For example, #!&Q# denotes the list of selected file names, each enclosed in quotes.
 
  3. ^<wrap>Ha összetett hivatkozást adtunk meg, a !@@! és !$! metakarakter
 eredeti alakjában jelenik meg a menüben. Ezeket a Far a parancs

@@ -2285,13 +2285,13 @@ enclosed in quotes, you should specify #program.exe "!.!"# and not
     #U# - use UTF-8 code page;
     #W# - use UTF-16 (Little endian) code page.
 
-    ^<wrap>For example, #!@@AFQ!# means "name of file with the list of
-selected file names, in ANSI encoding, include full pathnames, in quotes".
+    ^<wrap>For example, #!@@AFQ!# denotes "name of file containing the list of
+selected file names, in ANSI encoding, with full pathnames, each enclosed in quotes".
 
     ^<wrap>The following modifiers can be used with the special symbols #!&# and #!&~~#:
     #Q# - enclose names in quotes.
 
-    ^<wrap>For example, #!&Q# means the list of selected file names in quotes.
+    ^<wrap>For example, #!&Q# denotes the list of selected file names, each enclosed in quotes.
 
  3. ^<wrap>When there are multiple associations specified, the meta-characters !@@!
 and !$! are shown in the menu as is. Those characters are translated when the command is executed.
