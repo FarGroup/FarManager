@@ -21,8 +21,9 @@ extern "C" {
 typedef intptr_t PLUGINDATAFLAGS;
 static const PLUGINDATAFLAGS
 	PDF_DIALOGEVENTDRAWENABLE = 0x00000001,
-	PDF_PROCESSINGERROR       = 0x00000002;
-	
+	PDF_PROCESSINGERROR       = 0x00000002,
+	PDF_FULL_TIME_RESOLUTION  = 0x00000004;
+
 typedef struct
 {
 	struct PluginStartupInfo *Info;

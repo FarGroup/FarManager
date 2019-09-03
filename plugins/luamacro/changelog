@@ -1,4 +1,12 @@
-﻿shmuel 31.08.2019 22:10:18 +0200 - build 703
+﻿shmuel 03.09.2019 13:44:25 +0200 - build 704
+
+1. LuaFAR:
+   New function far.FileTimeResolution(). This function can set current resolution of time values
+   to either 1ms or 100ns. The resolution affects several functions (they are listed in the manual).
+   The idea is to move gradually from 1ms to 100ns time resolution while not breaking the existing
+   LuaFAR plugins.
+
+shmuel 31.08.2019 22:10:18 +0200 - build 703
 
 1. LuaFAR: refactoring.
 

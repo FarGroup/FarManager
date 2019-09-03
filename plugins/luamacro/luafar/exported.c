@@ -435,6 +435,7 @@ BOOL RunDefaultScript(lua_State* L, int ForFirstTime)
 	const char *name = "<boot";
 	const wchar_t *ModuleName = GetPluginData(L)->Info->ModuleName;
 	const wchar_t delims[] = L".-";
+
 	// First: try to load the default script embedded into the plugin.
 	lua_getglobal(L, "package");
 	lua_getfield(L, -1, "preload");

@@ -2,6 +2,7 @@
 #include "reg.h"
 #include "util.h"
 #include "ustring.h"
+#include "luafar.h"
 #include "compat52.h"
 
 extern const char* VirtualKeyStrings[256];
@@ -436,7 +437,10 @@ static int win_FileTimeToSystemTime(lua_State *L)
 {
 	FILETIME ft;
 	SYSTEMTIME st;
-	long long llFileTime = 10000 * (long long) luaL_checknumber(L, 1);
+	long long llFileTime = (long long) luaL_checknumber(L, 1);
+	if (! (GetPluginData(L)->Flags & PDF_FULL_TIME_RESOLUTION))
+		llFileTime *= 10000;
+
 	ft.dwLowDateTime = llFileTime & 0xFFFFFFFF;
 	ft.dwHighDateTime = llFileTime >> 32;
 
@@ -473,7 +477,10 @@ static int win_SystemTimeToFileTime(lua_State *L)
 static int win_FileTimeToLocalFileTime(lua_State *L)
 {
 	FILETIME ft, local_ft;
-	long long llFileTime = 10000 * (long long) luaL_checknumber(L, 1);
+	long long llFileTime = (long long) luaL_checknumber(L, 1);
+	if (! (GetPluginData(L)->Flags & PDF_FULL_TIME_RESOLUTION))
+		llFileTime *= 10000;
+
 	ft.dwLowDateTime = llFileTime & 0xFFFFFFFF;
 	ft.dwHighDateTime = llFileTime >> 32;
 

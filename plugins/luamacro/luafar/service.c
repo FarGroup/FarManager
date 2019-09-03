@@ -20,6 +20,7 @@
 typedef struct PluginStartupInfo PSInfo;
 
 extern int bit64_push(lua_State *L, INT64 v);
+extern int bit64_pushuserdata(lua_State *L, INT64 v);
 extern int bit64_getvalue(lua_State *L, int pos, INT64 *target);
 
 extern int luaopen_bit64(lua_State *L);
@@ -4941,8 +4942,10 @@ static int far_CPluginStartupInfo(lua_State *L)
 void pushFileTime(lua_State *L, const FILETIME *ft)
 {
 	long long llFileTime = ft->dwLowDateTime + 0x100000000LL * ft->dwHighDateTime;
-	llFileTime /= 10000;
-	lua_pushnumber(L, (double)llFileTime);
+	if (! (GetPluginData(L)->Flags & PDF_FULL_TIME_RESOLUTION))
+		lua_pushnumber(L, (double)(llFileTime / 10000));
+	else
+		bit64_pushuserdata(L, llFileTime);
 }
 
 static int far_MakeMenuItems(lua_State *L)
@@ -5890,6 +5893,19 @@ static int far_RunDefaultScript(lua_State *L)
 	return 1;
 }
 
+static int far_FileTimeResolution(lua_State *L)
+{
+	lua_Integer op = luaL_optinteger(L, 1, 0);
+	TPluginData *pd = GetPluginData(L);
+	int ret = (pd->Flags & PDF_FULL_TIME_RESOLUTION) ? 2:1;
+  if (op == 1)
+		pd->Flags &= ~PDF_FULL_TIME_RESOLUTION;
+	else if (op == 2)
+		pd->Flags |= PDF_FULL_TIME_RESOLUTION;
+	lua_pushinteger(L, ret);
+	return 1;
+}
+
 const luaL_Reg timer_methods[] =
 {
 	{"__gc",                timer_gc},
@@ -6109,6 +6125,7 @@ const luaL_Reg far_funcs[] =
 	{"RunDefaultScript",    far_RunDefaultScript},
 	{"Show",                far_Show},
 	{"Timer",               far_Timer},
+	{"FileTimeResolution",  far_FileTimeResolution},
 
 	{NULL, NULL}
 };

@@ -2353,7 +2353,7 @@ mtime=3666088780
 id=151
 lv=1
 dt=Text
-nm=Other functions
+nm=Other export functions
 <article>
 </article>
 </node>
@@ -7502,7 +7502,7 @@ mtime=3754138496
 #_        Param:    string
 #_        PluginId: string (GUID)
 #_        File:     string
-#_        Time:     number (number of milliseconds elapsed since January 1, 1601)
+#_        Time:     number (number of time ticks elapsed since January 1, 1601)
 #_        Lock:     boolean
 #_
 #_**Far API used:**
@@ -8759,6 +8759,46 @@ mtime=3526661259
 </article>
 </node>
 <node>
+id=544
+lv=2
+dt=Text
+nm=far.FileTimeResolution
+ctime=3776673964
+mtime=3776679296
+<article>
+#_result = far.FileTimeResolution ([operation])
+#_
+#_**Parameters:**
+#_  operation: 0=query resolution; 1=set 1ms resolution; 2=set 100ns resolution;
+#_             The default is 0.
+#_
+#_**Returns:**
+#_  result: previous value of resolution (1 for 1ms resolution; 2 for 100ns resolution)
+#_
+#_**Description:**
+#_  There are 2 file time resolutions in LuaFAR: 1ms and 100ns.
+#_  At any given moment one of those resolutions is current.
+#_  The current resolution affects functions that get or set file times:
+#_    - all functions dealing with `tPluginPanelItem`
+#_      (fields: LastWriteTime, LastAccessTime, CreationTime, ChangeTime)
+#_    - `win.FileTimeToLocalFileTime`
+#_    - `win.FileTimeToSystemTime`
+#_    - `win.GetSystemTimeAsFileTime`
+#_    - `win.SystemTimeToFileTime`
+#_    - `obj:Enum` (field: Time) in settings control
+#_
+#_@@@
+#_[tPluginPanelItem]:              85.html
+#_[win.FileTimeToLocalFileTime]:  462.html
+#_[win.FileTimeToSystemTime]:     215.html
+#_[win.GetSystemTimeAsFileTime]:  217.html
+#_[win.SystemTimeToFileTime]:     216.html
+#_[obj:Enum]:                     418.html
+#_
+#_
+</article>
+</node>
+<node>
 id=280
 lv=2
 dt=Text
@@ -9441,15 +9481,15 @@ id=85
 lv=2
 dt=Text
 nm=tPluginPanelItem
-mtime=3749451868
+mtime=3776679713
 <article>
 #_<markdown>
 #_**`tPluginPanelItem`** is a table with the following predefined fields:
 #_
-#_      LastWriteTime:      number
-#_      LastAccessTime:     number
-#_      CreationTime:       number
-#_      ChangeTime:         number
+#_      LastWriteTime:      number or bit64-userdata
+#_      LastAccessTime:     number or bit64-userdata
+#_      CreationTime:       number or bit64-userdata
+#_      ChangeTime:         number or bit64-userdata
 #_
 #_      FileSize:           number
 #_      AllocationSize:     number
@@ -9489,7 +9529,7 @@ mtime=3749451868
 #_          v - virtual
 #_
 #_1. **`LastWriteTime`**, **`LastAccessTime`**, **`CreationTime`**
-#_and **`ChangeTime`** are values measured in number of milliseconds
+#_and **`ChangeTime`** are values measured in number of time ticks
 #_elapsed since January 1, 1601.
 #_
 #_
@@ -10641,10 +10681,10 @@ mtime=3602448763
 #_local_ftime = win.FileTimeToLocalFileTime (ftime)
 #_
 #_**Parameters:**
-#_  ftime       : number (number of milliseconds since January 1, 1601)
+#_  ftime       : number (number of time ticks since January 1, 1601)
 #_
 #_**Returns:**
-#_  local_ftime : number (number of milliseconds since January 1, 1601)
+#_  local_ftime : number (number of time ticks since January 1, 1601)
 #_
 #_**Windows API used:**
 #_  FileTimeToLocalFileTime
@@ -10662,7 +10702,7 @@ mtime=3602448840
 #_result = win.FileTimeToSystemTime (ftime)
 #_
 #_**Parameters:**
-#_  ftime :  number (number of milliseconds since January 1, 1601)
+#_  ftime :  number (number of time ticks since January 1, 1601)
 #_
 #_**Returns:**
 #_  result : table `tSystemTime`, or nil
@@ -10691,7 +10731,7 @@ mtime=3602279052
 #_  result: number
 #_
 #_**Description:**
-#_  The system time is expressed as number of milliseconds since January 1, 1601.
+#_  The system time is expressed as number of time ticks since January 1, 1601.
 #_
 #_**Windows API used:**
 #_  GetSystemTimeAsFileTime
@@ -10713,7 +10753,7 @@ mtime=3602449161
 #_
 #_**Returns:**
 #_  result  : number, or nil
-#_            (number of milliseconds since January 1, 1601)
+#_            (number of time ticks since January 1, 1601)
 #_
 #_**Windows API used:**
 #_  SystemTimeToFileTime
