@@ -438,8 +438,8 @@ bool Panel::MakeListFile(string& ListFileName, bool ShortNames, string_view cons
 				strFileName = path::join(ShortNames ? ConvertNameToShort(m_CurDir) : m_CurDir, strFileName); //BUGBUG ?
 			}
 
-			if (contains(Modifers, L'Q')) // 'Q' - заключать имена с пробелами в кавычки;
-				inplace::quote_space(strFileName);
+			if (contains(Modifers, L'Q')) // 'Q' - заключать имена в кавычки;
+				inplace::quote(strFileName);
 
 			if (contains(Modifers, L'S')) // 'S' - использовать '/' вместо '\' в путях файлов;
 			{

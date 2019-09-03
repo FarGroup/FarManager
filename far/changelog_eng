@@ -3,6 +3,12 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 03.09.2019 01:01:01 +0100 - build 5464
+
+1. Experimental:
+   - Metasymbols "!&" and "!&~" support "Q" modifier - "enclose names in quotes".
+   - "Q" modifier in "!@!" and "!$!" now adds quotes unconditionally.
+
 drkns 02.09.2019 21:09:11 +0100 - build 5463
 
 1. Initialise COM as multithreaded, it seems to be more correct in our case.

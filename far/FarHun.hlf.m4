@@ -2350,7 +2350,7 @@ gondoskodni. Például ha egy program idézőjelek közé tett fájlmaszkot igé
 akkor #program.exe !.!# helyett #program.exe "!.!"# kifejezést kell írni.
 
  2. ^<wrap>A !@@! és !$! szimbólummal a következő módosítók használhatók:
-    #Q# - a szóközöket tartalmazó neveket idézőjelek közé teszi;
+    #Q# - a neveket idézőjelek közé teszi;
     #S# - elérési utaknál '/' jelet használ '\\'-helyett;
     #F# - teljes elérési utat használ;
     #A# - ANSI kódolást használ.
@@ -2358,8 +2358,13 @@ akkor #program.exe !.!# helyett #program.exe "!.!"# kifejezést kell írni.
     #W# - use UTF-16 (Little endian) code page.
 
     ^<wrap>Például a #!@@AFQ!# azt jelenti, hogy "fájlnév a kijelölt fájlok
-neveinek listájával, ANSI kódolással, teljes elérési útvonalakkal, szóközt
-tartalmazó fájlnevek idézőjelben".
+neveinek listájával, ANSI kódolással, teljes elérési útvonalakkal,
+fájlnevek idézőjelben".
+
+    ^<wrap>The following modifiers can be used with the special symbols #!&# and #!&~~#:
+    #Q# - enclose names in quotes.
+
+    ^<wrap>For example, #!&Q# means the list of selected file names in quotes.
 
  3. ^<wrap>Ha összetett hivatkozást adtunk meg, a !@@! és !$! metakarakter
 eredeti alakjában jelenik meg a menüben. Ezeket a Far a parancs

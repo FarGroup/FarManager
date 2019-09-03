@@ -2255,15 +2255,13 @@ executing command. <title> and <init> - title and initial text of edit control.
 grep !?Find in (!.!):?! |Far.exe -v -.
 
  #!###
- "!##" modifier specified before a file association
-symbol forces it (and all the following characters)
+ "!##" prefix forces all subsequent special symbols
 to refer to the passive panel (see note 4).
 For example, !##!.! denotes the name of the current
 file on the passive panel.
 
  #!^#
- "!^" modifier specified before a file association
-symbol forces it (and all the following characters)
+ "!^" prefix forces all subsequent special symbols
 to refer to the active panel (see note 4).
 For example, !^!.! denotes a current file name on
 the active panel, !##!\\!^!.! - a file on the passive
@@ -2279,22 +2277,26 @@ example, if a program used in the associations requires a file name to be
 enclosed in quotes, you should specify #program.exe "!.!"# and not
 #program.exe !.!#.
 
- 2. ^<wrap>The following modifiers can be used with the associations #!@@!# and #!$!#:
-    #Q# - enclose names containing spaces in quotes;
+ 2. ^<wrap>The following modifiers can be used with the special symbols #!@@!# and #!$!#:
+    #Q# - enclose names in quotes;
     #S# - use '/' instead of '\\' in pathnames;
     #F# - use full pathnames;
     #A# - use ANSI code page;
     #U# - use UTF-8 code page;
     #W# - use UTF-16 (Little endian) code page.
 
-    ^<wrap>For example, the association #!@@AFQ!# means "name of file with the list of
-selected file names, in ANSI encoding, include full pathnames, names with
-spaces will be in quotes".
+    ^<wrap>For example, #!@@AFQ!# means "name of file with the list of
+selected file names, in ANSI encoding, include full pathnames, in quotes".
+
+    ^<wrap>The following modifiers can be used with the special symbols #!&# and #!&~~#:
+    #Q# - enclose names in quotes.
+
+    ^<wrap>For example, #!&Q# means the list of selected file names in quotes.
 
  3. ^<wrap>When there are multiple associations specified, the meta-characters !@@!
 and !$! are shown in the menu as is. Those characters are translated when the command is executed.
 
- 4. ^<wrap>The prefixes "!##" and "!^" work as toggles for associations. The effect
+ 4. ^<wrap>The prefixes "!##" and "!^" work as toggles. The effect
 of these prefixes continues up to the next similar prefix. For example:
 
     if exist !##!\\!^!.! diff -c -p !##!\\!^!.! !\\!.!

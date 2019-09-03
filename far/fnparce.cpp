@@ -355,17 +355,26 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 		return Tail;
 	}
 
-	const auto CollectNames = [&SubstData, &append_with_escape](string& Str, auto const Selector)
+	const auto CollectNames = [&SubstData, &append_with_escape](string& Str, bool const Quote, auto const Selector)
 	{
-		append_with_escape(Str, join(select(SubstData.Default().Panel->enum_selected(), Selector), L" "sv));
+		append_with_escape(
+			Str,
+			join(
+				select(
+					SubstData.Default().Panel->enum_selected(),
+					[&](os::fs::find_data const& i) { return (Quote? quote : quote_space)(std::invoke(Selector, i)); }),
+					L" "sv
+			)
+		);
 	};
 
 	if (const auto Tail = tokens::skip(CurStr, tokens::short_list))
 	{
 		if (!starts_with(Tail, L'?'))
 		{
-			CollectNames(Out, &os::fs::find_data::AlternateFileName);
-			return Tail;
+			const auto Quote = starts_with(Tail, L'Q');
+			CollectNames(Out, Quote, &os::fs::find_data::AlternateFileName);
+			return string_view(Tail).substr(Quote? 1 : 0);
 		}
 	}
 
@@ -373,12 +382,9 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 	{
 		if (!starts_with(Tail, L'?'))
 		{
-			CollectNames(Out, [](const os::fs::find_data& Data)
-			{
-				return quote_space(Data.FileName);
-			});
-
-			return Tail;
+			const auto Quote = starts_with(Tail, L'Q');
+			CollectNames(Out, Quote, &os::fs::find_data::FileName);
+			return string_view(Tail).substr(Quote? 1 : 0);
 		}
 	}
 
