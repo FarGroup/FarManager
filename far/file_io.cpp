@@ -89,14 +89,23 @@ void save_file_with_replace(string const& FileName, DWORD const FileAttributes, 
 	}
 
 	{
-		os::fs::file OutFile(
-			OutFileName,
-			GENERIC_WRITE,
-			FILE_SHARE_READ,
-			SecurityDescriptor? &SecurityAttributes : nullptr,
-			IsFileExists && !UseTemporaryFile? TRUNCATE_EXISTING : CREATE_NEW,
-			// No FILE_ATTRIBUTE_SYSTEM at this point to avoid potential conflicts with FILE_ATTRIBUTE_ENCRYPTED. We will set it later.
-			NewAttributes & ~FILE_ATTRIBUTE_SYSTEM);
+		const auto create_file = [&](SECURITY_ATTRIBUTES* const Security, int const CreationDistribution)
+		{
+			return os::fs::file(
+				OutFileName,
+				GENERIC_WRITE,
+				FILE_SHARE_READ,
+				Security,
+				IsFileExists && !UseTemporaryFile? TRUNCATE_EXISTING : CreationDistribution,
+				// No FILE_ATTRIBUTE_SYSTEM at this point to avoid potential conflicts with FILE_ATTRIBUTE_ENCRYPTED. We will set it later.
+				NewAttributes & ~FILE_ATTRIBUTE_SYSTEM);
+		};
+
+		auto OutFile = create_file(SecurityDescriptor? &SecurityAttributes : nullptr, CREATE_NEW);
+
+		// M#0003736 Samba shares can be weird
+		if (!OutFile && GetLastError() == ERROR_INVALID_PARAMETER)
+			OutFile = create_file(nullptr, CREATE_ALWAYS);
 
 		if (!OutFile)
 			throw MAKE_FAR_EXCEPTION(L"Can't create a temporary file"sv);

@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 03.09.2019 23:19:24 +0100 - build 5465
+
+1. 0003736: Can't update file descriptions on a network drive.
+
 drkns 03.09.2019 01:01:01 +0100 - build 5464
 
 1. Experimental:
