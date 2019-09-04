@@ -848,7 +848,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 		CopyDlg[ID_SC_COMBO].ListItems=&ComboList;
 		const auto Dlg = Dialog::create(CopyDlg, &ShellCopy::CopyDlgProc, this);
 		Dlg->SetHelp(Link? L"HardSymLink"sv : L"CopyFiles"sv);
-		Dlg->SetId(Link?HardSymLinkId:(Move?MoveFilesId:CopyFilesId));
+		Dlg->SetId(Link?HardSymLinkId:(Move?(CurrentOnly?MoveCurrentOnlyFileId:MoveFilesId):(CurrentOnly?CopyCurrentOnlyFileId:CopyFilesId)));
 		Dlg->SetPosition({ -1, -1, DlgW, DlgH });
 		Dlg->SetAutomation(ID_SC_USEFILTER,ID_SC_BTNFILTER,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 //    Dlg->Show();
