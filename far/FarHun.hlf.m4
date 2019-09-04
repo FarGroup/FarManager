@@ -926,7 +926,7 @@ viewer and editor accordingly are shown.
 
  Each item of plugin commands menu can be assigned a hotkey with #F4#, this
 possibility is widely used in ~key macros~@KeyMacro@. The assigned hotkey is
-displayed left to the item. The #A# symbol in leftmost menu column means that
+displayed left to the item. The #A# character in the leftmost menu column means that
 the corresponding plugin is written for Far 1.7x and it does not support all
 possibilities available in Far 3 (these are, in particular, Unicode characters
 in filenames and in editor).
@@ -973,7 +973,7 @@ a kijelölt plugin súgójának fő témaköre jelenik meg.
  A #Plugin beállítások# menüben az #F4#-gyel gyorsbillentyűt rendelhetünk
 a menü elemeihez, így később ~makrókkal~@KeyMacro@ hívhatjuk
 meg őket.The assigned hotkey is
-displayed left to the item. The #A# symbol in leftmost menu column means that
+displayed left to the item. The #A# character in the leftmost menu column means that
 the corresponding plugin is written for Far 1.7x and it does not support all
 possibilities available in Far 3 (these are, in particular, Unicode characters
 in filenames and in editor).
@@ -1972,7 +1972,7 @@ attribútummal rendelkezik, de nincs egyetlen kizáró attribútuma sem:
 
 A #Tömörített#, #Titkosított#, #Nem indexelt#, #Ritkított#, #Átmeneti# és #Offline# attribútum csak NTFS fájlrendszerű
 lemezeken létezik. A #Virtuális# attribútumot csak a Windows Vista/2008 operációs rendszerek használják.
-The #Integrity stream# and #No scrub data# attributes only supported on ReFS voumes starting from Windows Server 2012.
+The #Integrity stream# and #No scrub data# attributes are supported only on ReFS volumes starting from Windows Server 2012.
 
 
  #Has more than one hardlink#
@@ -2361,7 +2361,8 @@ akkor #program.exe !.!# helyett #program.exe "!.!"# kifejezést kell írni.
 selected file names, in ANSI encoding, with full pathnames, each enclosed in quotes".
 
     ^<wrap>The following modifiers can be used with the special symbols #!&# and #!&~~#:
-    #Q# - enclose names in quotes.
+    #Q# - enclose each name in quotes. This is the default, if no modifier is specified.
+    #q# - do not enclose names in quotes (as it was before build 5466).
 
     ^<wrap>For example, #!&Q# denotes the list of selected file names, each enclosed in quotes.
 
@@ -2690,7 +2691,7 @@ feature is disabled while a macro is being recorded or executed.
  #Use home dir#
  This option specifies the target folder of ~CD ~~~@OSCommands@ command.
 If the string is empty, #CD ~~# will attempt to change the current path
-to real “~~” directory (and fail if this is impossible, e.g., because
+to real “~~” directory (and fail if this is impossible, e.g. because
 the directory does not exist).
 
 
@@ -2743,7 +2744,7 @@ jeleníthet meg.
  $+ - the depth of the folders stack
  $##nn - ^<wrap>max promt width, given in percents relative to the width of the window
  $@@xx - ^<wrap>"Administrator", if Far Manager is running as administrator.
-xx is a placeholder for two symbols that will surround the "Administrator" word.
+xx is a placeholder for two characters that will surround the "Administrator" word.
 For example, #$@@{}$s$p$g# will be shown as "{Administrator} C:\>"
 
  Alapértelmezett a #$p$g# formátum - az aktuális meghajtó és az elérési útvonal (#C:\>#).
@@ -2761,24 +2762,24 @@ az aktuális meghajtó betűjelét és az elérési utat tartalmazza (ehhez a
 current ~PUSHD~@OSCommands@ directory stack depth, one character per each
 saved path.
 
- Prompt elements can be highlighted with #colours#.
+ Prompt elements can be highlighted with #colors#.
 
  Format:
  #([[T]FFFFFFFF][:[T]BBBBBBBB])#, where:
 
   #FFFFFFFF#
-  Foreground colour in aarrggbb format or index in the console palette.
+  Foreground color in aarrggbb format or index in the console palette.
 
   #BBBBBBBB#
-  Background colour in aarrggbb format or index in the console palette.
+  Background color in aarrggbb format or index in the console palette.
 
   #T#
-  "TrueColour" flag. If absent, value is treated as the console palette index (0-F):
+  "TrueColor" flag. If absent, value is treated as the console palette index (0-F):
 
   \00 \11 \22 \33 \44 \55 \66 \77 \88 \99 \AA \BB \CC \DD \EE \FF \-
   0123456789ABCDEF
 
- If foreground or background colour is omitted, the corresponding default value will be used.
+ If foreground or background color is omitted, the corresponding default value will be used.
 
  Examples:
 
@@ -2788,7 +2789,7 @@ saved path.
  #()#                \07 Default text on default background          \-
  #(T00CCCC:TE34234)# \(T00CCCC:TE34234) Robin egg blue text on Vermilion background \-
 
- The specified colour will be active till the end of the prompt or the next colour entry.
+ The specified color will be active till the end of the prompt or the next color entry.
 
  Example:
 
@@ -2952,8 +2953,8 @@ window. The #Right# key scrolls the text one column to the left; the
 over the file content). The #Ctrl+Right# and #Ctrl+Left# key
 combinations scroll 20 columns at a time. If #Show scrolling arrows#
 in the ~Viewer settings~@ViewerSettings@ dialog is on, the truncated
-lines are indicated with the symbols #«# and #»# at the corresponding
-edge of the window. The symbols are displayed in a different color.
+lines are indicated with the #«# and #»# characters at the corresponding
+edge of the window. The characters are displayed in a different color.
 
  The maximum length of text lines is limited to the #Maximum line width#
 defined in the ~Viewer settings~@ViewerSettings@ dialog. Longer lines
@@ -2970,7 +2971,7 @@ is displayed in the leftmost position of the next row.
  NOTE: Strictly speaking, text is rendered by code units, not by
 characters. The size of a code unit depends on the encoding defined
 by the current code page; it is one byte for single-byte encodings
-(e.g., all ANSI code pages) and UTF-8, and two bytes for UTF-16 and
+(e.g. all ANSI code pages) and UTF-8, and two bytes for UTF-16 and
 UTF-16BE encodings. For example:
 
  Code page 1252 (ANSI - Latin I): each byte is displayed in its
@@ -2978,7 +2979,7 @@ own screen position.
 
  Code page 65001 (UTF-8): the character is displayed in the
 position corresponding to the leading byte of the UTF-8 sequence, and
-the positions of continuation bytes are filled with the #›# symbols
+the positions of continuation bytes are filled with the #›# characters
 (code point U+203A).
 
  Code page 1200 (UTF-16): each screen position represents two
@@ -3001,12 +3002,12 @@ left, followed by the hexadecimal representation of the bytes, followed
 by the character representation.
 
  The rendition depends on the encoding defined by the current code
-page. For single-byte encodings (e.g., all ANSI code pages), the bytes
+page. For single-byte encodings (e.g. all ANSI code pages), the bytes
 on each row are represented by 16 double-digit hex values followed by 16
 characters. For UTF-8 encoding, the bytes are represented the same way,
 while the characters are displayed at the positions of the leading bytes
 of the UTF-8 sequences with the positions of continuation bytes being
-filled with the #›# symbols (code point U+203A). For UTF-16(BE)
+filled with the #›# characters (code point U+203A). For UTF-16(BE)
 encodings the hex values are followed by eight characters. For example:
 
  Code page 1252 (ANSI - Latin I)
@@ -3568,7 +3569,7 @@ $ #Code pages menu#
  #F4#
  Opens the ~Rename the code page~@EditCodePageNameDlg@ dialog. Only #Favorites# and
 #Other# code pages can be renamed. The renamed code pages are indicated
-with the #*# symbol.
+with the #*# character.
 
  See also common ~menu keyboard commands~@MenuCmd@.
 
@@ -3660,7 +3661,7 @@ párbeszédablakát.
  A #Shift+F1# pluginen lenyomva meghívja a plugin helyzetérzékeny
 súgóját (ha a súgófájl létezik).
 
- The #A# symbol in leftmost menu column means that the corresponding plugin is
+ The #A# character in the leftmost menu column means that the corresponding plugin is
 written for Far 1.7x and it does not support all possibilities available in
 Far 3 (these are, in particular, Unicode characters in filenames and in editor).
 
@@ -3815,7 +3816,7 @@ legalább egy maszknak (kikapcsolt maszkelemzésnél a fájlnév nem számít);
  A Tömörített, Titkosított, Nem indexelt, Ritkított és Átmeneti
 attribútumok, valamint a szimbolikus linkek csak NTFS fájlrendszerben
 értelmezettek.  The #Integrity stream# and
-#No scrub data# attributes only supported on ReFS voumes starting from
+#No scrub data# attributes are supported only on ReFS volumes starting from
 Windows Server 2012.
 
 
@@ -4033,7 +4034,7 @@ az "Offline" attribútum csak NTFS fájlrendszerű meghajtókon használható.
 A "Virtuális" attribútum csak Windows Vista/2008 alatt használható. A
 "Tömörített" (C) és a "Titkosított" (E) attribútum kizárja egymást: vagy
 az egyik, vagy a másik adható meg. You cannot clear the #Sparse# attribute in Windows 2000/XP/2003. The
-#Integrity stream# and #No scrub data# attributes only supported on ReFS voumes starting from
+#Integrity stream# and #No scrub data# attributes are supported only on ReFS volumes starting from
 Windows Server 2012.
 
  ~Mappa linkek~@HardSymLink@ esetében a párbeszédablak az eredeti mappa
@@ -4236,10 +4237,10 @@ files will be listed on a single stripe.
               C - ^<wrap>rendezett fájlméret formátum;
               T - ^<wrap>use decimal units instead of binary,
 i.e., to calculate kilobytes, the size will be divided by 1000 instead
-of by 1024; in this mode unit symbol is shown in lower case, e.g., #k#,
+of by 1024; in this mode unit character is shown in lower case, e.g. #k#,
 #m#, #g# instead of #K#, #M#, #G#;
               F - ^<wrap>show size as a decimal fraction with
-no more than three digits before decimal point, e.g., 999 bytes will
+no more than three digits before decimal point, e.g. 999 bytes will
 be shown as #999#, while 1024 bytes as #1.00 K#; note that the behavior
 depends on whether the #T# modifier is used;
               E - ^<wrap>takarékos mód, nincs szóköz a fájlméret
@@ -4881,53 +4882,53 @@ $ #Regular expressions#
 
  #Options#:
  #i# - ignore character case;
- #s# - ^<wrap>consider the whole text as one line, '.' matches any character;
- #m# - ^<wrap>consider the whole text as multiple lines. ^ and $ match the
+ #s# - ^<wrap>consider the whole text as one line, ‘.’ matches any character;
+ #m# - ^<wrap>consider the whole text as multiple lines. ‘#^#’ and ‘#$#’ match the
 beginning and the end of any "inner" string;
- #x# - ^<wrap>ignore space characters (unscreened ones, i.e. without backslash before).
+ #x# - ^<wrap>ignore space characters (unescaped ones, i.e. without backslash before).
 This is useful to outline the complex expressions.
 
  #regexp# - the sequence of characters and metacharacters. The characters are
-letters and digits, any other symbol becomes character when screened, i.e.
-prepended the backslash #\#.
+letters and digits, any other character is used verbatim when escaped, i.e.
+prepended by the backslash ‘#\#’.
 
- Pay attention that all slashes and backslashes in regular expression must
-be prepended with the symbol #\# to differ from other special symbols or with
+ Pay attention that all slashes and backslashes in a regular expression must
+be escaped (prepended by the ‘#\#’ character) to be treated literally
+rather than escape other characters themselves or mark
 the end of expression. An example: the string "big\white/scary" looks in the
 form of regular expression like "big\\\\white\/scary".
 
  #Metacharacters#
 
- #\#  - ^<wrap>the next symbol is treated as itself, not a metacharacter
- #^#  - ^<wrap>the beginning of string
- #$#  - ^<wrap>the end of string
- #|#  - ^<wrap>the alternative. Either expression before or after #|# has to match.
+ #\#  - ^<wrap>the next character is treated verbatim, not a metacharacter;
+ #^#  - ^<wrap>the beginning of string;
+ #$#  - ^<wrap>the end of string;
+ #|#  - ^<wrap>the alternative. Either expression before or after ‘#|#’ has to match.
       Example: "\d+\w+|Hello\d+" means "(\d+\w+)|(Hello\d+)", not "\d+(\w+|H)ello\d+".
  #()# - ^<wrap>grouping - it is used for references or when replacing matched text.
- #[]# - ^<wrap>character class - the metacharacter which matches any symbol
-or range of symbols enumerated in #[]#. Ranges are defined as [a-z].
+ #[]# - ^<wrap>character class - the metacharacter which matches any character
+or range of characters enumerated in #[]#. Ranges are defined as [a-z].
 Metacharacters are not taken into account in character classes. If the first
-symbol in class is #^# then this is a negative class. If the character #^# has
-to be added to class, then it either must not to be at first place or it must
-be prepended with #\#.
+character inside the brackets is ‘#^#’ then this is a negative class. If the ‘#^#’ character itself
+needs to be added to a class, then it must be either not the first one or escaped by a ‘#\#’.
 
  Except grouping, the parentheses are used for the following operations:
  #(?:pattern)#  - ^<wrap>usual grouping, but it does not get a number.
  #(?=pattern)#  - ^<wrap>the forward lookup. The matching continues from
 the same place, but only if the pattern in these parentheses has matched. For
-example, #\w+(?=\s)# matches the word followed by space symbol, and the space
+example, #\w+(?=\s)# matches the word followed by space character, and the space
 is not included into the search result.
  #(?!pattern)#  - ^<wrap>the negation of forward lookup. The matching
 continues from the same place if the pattern does not match. For example,
 #foo(?!bar)# matches any "foo" without following "bar". Remember that this
 expression has zero size, which means that #a(?!b)d# matches #ad# because #a#
-is followed by the symbol, which is not #b# (but #d#), and #d# follows the
+is followed by the character which is not #b# (but #d#), and #d# follows the
 zero-size expression.
  #(?<=pattern)# - ^<wrap>the backward lookup. Unfortunately, the pattern must have fixed length.
  #(?<!pattern)# - ^<wrap>the negation of backward lookup. The same restriction.
 
- #(?{name}pattern)# - brackets with a name. The name can be empty (in such case you cannot refer to this brackets) or must
-contain word symbols (\w) and spaces (\s).
+ #(?{name}pattern)# - group with a name. The name can be empty (in such case you
+cannot refer to this group) or must contain only word characters (#\w#) and spaces (#\s#).
 
 
  #Quantifiers#
@@ -4951,27 +4952,27 @@ contain word symbols (\w) and spaces (\s).
 
  #"Greedy" and "not greedy" quantifiers#
 
- Greedy quantifier captures as much symbols as possible, and only if
+ Greedy quantifier captures as many characters as possible, and only if
 further match fails, it "returns" the captured string (the rollback
 happens, which is rather expensive).
  When expression "A.*Z" is matched to string
 "AZXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", #.*# captures the whole string, and then
-rolls back symbol by symbol until it finds Z. On the opposite, if the expression
+rolls back character by character until it finds Z. On the opposite, if the expression
 is "A.*?Z" then Z is found at once. Not greedy quantifier is also known as
-#minimizing#, it captures minimal possible quantity of symbols, and only if
+#minimizing#, it captures as few characters as possible, and only if
 further match fails it captures more.
 
- #Special symbols#
+ #Special characters#
 
- Non-letter and non-digit symbol can be prepended by '#\#' in most cases,
+ Non-letter and non-digit character can be prepended by ‘#\#’ in most cases,
 but in case of letters and digits this must be done with care because this is
-the way the special symbols are written:
+the way the special characters are written:
 
- #.#    - ^<wrap>any symbol except carriage return. If there is “s” among
-the options then this can be any symbol.
+ #.#    - ^<wrap>any character except carriage return. If there is “#s#” among
+the options then dot matches any character.
  #\t#   - tab (0x09)
- #\n#   - new line (lf, 0x0a)
- #\r#   - carriage return (cr, 0x0d)
+ #\n#   - new line (LF, 0x0a)
+ #\r#   - carriage return (CR, 0x0d)
  #\f#   - form feed (0x0c)
  #\a#   - bell (0x07)
  #\e#   - escape (0x1b)
@@ -4979,33 +4980,32 @@ the options then this can be any symbol.
  #\Q#   - ^<wrap>the beginning of metacharacters quoting - the whole quoted
 text is treated as text itself, not the regular expression
  #\E#   - the end of metacharacters quoting
- #\w#   - letter, digit or '_'.
+ #\w#   - letter, digit or underscore (‘_’).
  #\W#   - not \w
- #\s#   - space symbol (tab/space/lf/cr).
+ #\s#   - space character (tab/space/LF/CR).
  #\S#   - not \s
  #\d#   - digit
  #\D#   - not digit
  #\i#   - letter
  #\I#   - not letter
- #\l#   - lower case symbol
- #\L#   - not lower case symbol
- #\u#   - upper case symbol
- #\U#   - not upper case symbol
- #\b#   - ^<wrap>the word margin - means that to the left or right from the
-current position there is a word symbol, and to the right or left,
-accordingly, there is non-word symbol
+ #\l#   - lower case character
+ #\L#   - not lower case character
+ #\u#   - upper case character
+ #\U#   - not upper case character
+ #\b#   - ^<wrap>the word boundary - means that there is a word character to either left or right
+ from the current position, and to the right or left, accordingly, there is a non-word character.
  #\B#   - not \b
  #\A#   - the beginning of the text, disregard the option “m”
  #\Z#   - the end of the text, disregard the option “m”
- #\O#   - ^<wrap>the no-return point. If the matching has passed by this symbol,
+ #\O#   - ^<wrap>the no-return point. If the matching has passed by this character,
 it won't roll back and and will return "no match". It can be used in complex expressions
-after mandatory fragment with quantifier. This special symbol can be used when
+after mandatory fragment with quantifier. This special character can be used when
 big amounts of data are processed.
         Example:
         /.*?name\O=(['"])(.*?)\1\O.*?value\O=(['"])(.*?)\3/
         ^<wrap>Strings containing "name=", but not containing "value=", are processed (in fact, skipped) faster.
 
- #\NN#  - ^<wrap>reference to earlier matched parentheses . NN is a positive integer.
+ #\NN#  - ^<wrap>reference to earlier matched parentheses. NN is a positive integer.
 Each parentheses except (?:pattern), (?=pattern), (?!pattern), (?<=pattern), (?<!pattern) and (?{name}pattern)
 have a number (in the order of appearance).
         Example:
@@ -5527,7 +5527,7 @@ $ #Configuration editor#
  Most options can be changed from the ~Options menu~@OptMenu@, however some options are available only here or using configuration import.
 The options are displayed in a list with three fields per item: the name in the SectionName.ParamName format (for example, Editor.TabSize),
 the type (boolean, 3-state, integer, string), and the value (for the integer type, hexadecimal and symbolic representations additionally displayed).
-If current value of an option is other than the default, the option is marked with the '*' symbol to the left of the name.
+If current value of an option is other than the default, the option is marked with the ‘*’ character to the left of the name.
 
  Besides the list navigation keys, the following key combinations are supported:
 
@@ -5549,7 +5549,7 @@ If current value of an option is other than the default, the option is marked wi
 $ #far:config Codepages.NoAutoDetectCP#
  This string parameter defines the code pages which will be excluded
 from Universal Codepage Detector (UCD) autodetect. Sometimes, especially
-on small files, UCD annoyingly choses wrong code pages.
+on small files, UCD annoyingly chooses wrong code pages.
 
  The default value is empty string #""#. In this case all code pages
 detectable by UCD (about 20, much less than there is usually available
@@ -5589,7 +5589,7 @@ links in help files:
 @Confirmations.EscTwiceToInterrupt
 $ #far:config Confirmations.EscTwiceToInterrupt#
  This numeric parameter controls the behavior of #Esc# key in the
-confirmation dialog for cancelling an operation.
+confirmation dialog for canceling an operation.
 
  0 - ^<wrap>#Esc# key closes the dialog and continues the operation.
  1 - #Esc# key closes the dialog and cancels the operation.
@@ -5790,7 +5790,7 @@ $ #far:config System.Executor.ExcludeCmds#
  Параметр позволяет задавать набор команд которые будут сразу передаваться
 в %comspec% для выполнения, поиск в PATH и т.п. не будет произведён.
 
- Разделитель команд - символ ';'. Например, если "System.Executor.ExcludeCmds" задан списком "DATE;ECHO",
+ Разделитель команд - символ ‘;’. Например, если "System.Executor.ExcludeCmds" задан списком "DATE;ECHO",
 то при вводе 'date' будет исполнена внутренняя команда CMD.EXE/COMMAND.COM. Для исполнения внешней команды
 "date.exe" необходимо точно написать её название. В тоже время, если "date.exe" доступно в %PATH% и из списка
 "ExcludeCmds" убрать "DATE", то внутренняя команда ком.процессора никогда не будет исполнена.
@@ -5965,7 +5965,7 @@ $ #far:config Editor.CharCodeBase#
 
  0 - восьмеричное значение (6 символов с ведущим нулём)
  1 - десятеричное значение (5 символов)
- 2 - шестнадцатеричное значение (4 символа под цифру + символ ''h')
+ 2 - шестнадцатеричное значение (4 символа под цифру + символ ‘h’)
 
  По умолчанию значение = 1 (десятеричное значение).
 
@@ -6279,7 +6279,7 @@ $ #far:config System.CopyTimeRule#
 - показывать информацию везде или отключить режим отображения.
 
  Примеры:
- 1 - ^<wrap>показывать информацию только при копировании в NUL
+ 1 - ^<wrap>показывать информацию только при копировании в NUL.
  2 - ^<wrap>показывать информацию при обычных операциях копирования.
  3 - ^<wrap>всегда показывать информацию о времени и скорости.
 
@@ -6373,13 +6373,13 @@ $ #far:config Macros.ShowPlayIndicator#
  Параметр "Macros.ShowPlayIndicator" позволяет включать или отключать отображение в левом верхнем углу экрана символа '\2FP\-'
 во время воспроизведения макропоследовательности.
 
-  false - ^<wrap>Символ не отображается
+ false - ^<wrap>Символ не отображается
 
-  true  - ^<wrap>Символ отображается
+ true  - ^<wrap>Символ отображается
 
-  По умолчанию значение = true
+ По умолчанию значение = true
 
-  Изменение этого параметра возможно через ~far:config~@FarConfig@
+ Изменение этого параметра возможно через ~far:config~@FarConfig@
 
 
 @Viewer.SearchWrapStop
@@ -6400,7 +6400,7 @@ $ #far:config Viewer.SearchWrapStop#
 
 @XLat.Layouts
 $ #far:config XLat.Layouts#
- Параметр "XLat.Layouts" позволяет задавать номера раскладок клавиатуры (через ';'), которые будут переключаться,
+ Параметр "XLat.Layouts" позволяет задавать номера раскладок клавиатуры (через ‘;’), которые будут переключаться,
 независимо от количества установленных в системе раскладок.
 
  Например, "04090409;04190419" (или "0409;0419").
@@ -6466,7 +6466,7 @@ $ #far:config Interface.DelShowSelected#
 
  Interface.DelHighlightSelected -- bool, default = true.
 
- true -- выделяем случай, когда список удаляемых объектов отличаеся от объекта под курсором.
+ true -- выделяем случай, когда список удаляемых объектов отличается от объекта под курсором.
 
  Interface.DelShowSelected -- int, default = 10.
  При множественном удалении показываем имена удаляемых объектов. Не более чем заданное число,
