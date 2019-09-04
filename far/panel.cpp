@@ -60,9 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cvtname.hpp"
 #include "pathmix.hpp"
 #include "global.hpp"
-#include "message.hpp"
 #include "fastfind.hpp"
-#include "eol.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -407,88 +405,6 @@ bool Panel::SetCurPath()
 	}
 
 	return true;
-}
-
-bool Panel::MakeListFile(string& ListFileName, bool ShortNames, string_view const Modifers)
-{
-	uintptr_t CodePage = CP_OEMCP;
-
-	if (!Modifers.empty())
-	{
-		if (contains(Modifers, L'A')) // ANSI
-		{
-			CodePage = CP_ACP;
-		}
-		else if (contains(Modifers, L'U')) // UTF8
-		{
-			CodePage = CP_UTF8;
-		}
-		else if (contains(Modifers, L'W')) // UTF16LE
-		{
-			CodePage = CP_UNICODE;
-		}
-	}
-
-	const auto transform = [&](string& strFileName)
-	{
-		if (!Modifers.empty())
-		{
-			if (contains(Modifers, L'F') && PointToName(strFileName).size() == strFileName.size()) // 'F' - использовать полный путь; //BUGBUG ?
-			{
-				strFileName = path::join(ShortNames ? ConvertNameToShort(m_CurDir) : m_CurDir, strFileName); //BUGBUG ?
-			}
-
-			if (contains(Modifers, L'Q')) // 'Q' - заключать имена в кавычки;
-				inplace::quote(strFileName);
-
-			if (contains(Modifers, L'S')) // 'S' - использовать '/' вместо '\' в путях файлов;
-			{
-				ReplaceBackslashToSlash(strFileName);
-			}
-		}
-	};
-
-	try
-	{
-		ListFileName = MakeTemp();
-		if (const auto ListFile = os::fs::file(ListFileName, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, CREATE_ALWAYS))
-		{
-			os::fs::filebuf StreamBuffer(ListFile, std::ios::out);
-			std::ostream Stream(&StreamBuffer);
-			Stream.exceptions(Stream.badbit | Stream.failbit);
-			encoding::writer Writer(Stream, CodePage);
-			const auto Eol = eol::str(eol::system());
-
-			for (const auto& i: enum_selected())
-			{
-				auto Name = ShortNames? i.AlternateFileName() : i.FileName;
-
-				transform(Name);
-
-				Writer.write(Name);
-				Writer.write(Eol);
-			}
-
-			Stream.flush();
-		}
-		else
-		{
-			throw MAKE_FAR_EXCEPTION(msg(lng::MCannotCreateListTemp));
-		}
-
-		return true;
-	}
-	catch (const far_exception& e)
-	{
-		os::fs::delete_file(ListFileName);
-		Message(MSG_WARNING, e.error_state(),
-			msg(lng::MError),
-			{
-				msg(lng::MCannotCreateListFile)
-			},
-			{ lng::MOk });
-		return false;
-	}
 }
 
 void Panel::Hide()

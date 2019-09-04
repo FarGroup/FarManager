@@ -50,6 +50,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "filelist.hpp"
 #include "delete.hpp"
+#include "message.hpp"
+#include "eol.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -285,6 +287,89 @@ static size_t SkipInputToken(string_view const Str, subst_strings* const Strings
 	return tokens::input.size() + TitleSize + TextSize;
 }
 
+static bool MakeListFile(panel_ptr const& Panel, string& ListFileName, bool const ShortNames, string_view const Modifers)
+{
+	uintptr_t CodePage = CP_OEMCP;
+
+	if (!Modifers.empty())
+	{
+		if (contains(Modifers, L'A')) // ANSI
+		{
+			CodePage = CP_ACP;
+		}
+		else if (contains(Modifers, L'U')) // UTF8
+		{
+			CodePage = CP_UTF8;
+		}
+		else if (contains(Modifers, L'W')) // UTF16LE
+		{
+			CodePage = CP_UNICODE;
+		}
+	}
+
+	const auto transform = [&](string& strFileName)
+	{
+		if (!Modifers.empty())
+		{
+			if (contains(Modifers, L'F') && PointToName(strFileName).size() == strFileName.size()) // 'F' - использовать полный путь; //BUGBUG?
+			{
+				const auto CurDir = Panel->GetCurDir();
+				strFileName = path::join(ShortNames? ConvertNameToShort(CurDir) : CurDir, strFileName); //BUGBUG?
+			}
+
+			if (contains(Modifers, L'Q')) // 'Q' - заключать имена в кавычки;
+				inplace::quote(strFileName);
+
+			if (contains(Modifers, L'S')) // 'S' - использовать '/' вместо '\' в путях файлов;
+			{
+				ReplaceBackslashToSlash(strFileName);
+			}
+		}
+	};
+
+	try
+	{
+		ListFileName = MakeTemp();
+		if (const auto ListFile = os::fs::file(ListFileName, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, CREATE_ALWAYS))
+		{
+			os::fs::filebuf StreamBuffer(ListFile, std::ios::out);
+			std::ostream Stream(&StreamBuffer);
+			Stream.exceptions(Stream.badbit | Stream.failbit);
+			encoding::writer Writer(Stream, CodePage);
+			const auto Eol = eol::str(eol::system());
+
+			for (const auto& i: Panel->enum_selected())
+			{
+				auto Name = ShortNames? i.AlternateFileName() : i.FileName;
+
+				transform(Name);
+
+				Writer.write(Name);
+				Writer.write(Eol);
+			}
+
+			Stream.flush();
+		}
+		else
+		{
+			throw MAKE_FAR_EXCEPTION(msg(lng::MCannotCreateListTemp));
+		}
+
+		return true;
+	}
+	catch (const far_exception& e)
+	{
+		os::fs::delete_file(ListFileName);
+		Message(MSG_WARNING, e.error_state(),
+			msg(lng::MError),
+			{
+				msg(lng::MCannotCreateListFile)
+			},
+			{ lng::MOk });
+		return false;
+	}
+}
+
 static string_view ProcessMetasymbol(string_view const CurStr, subst_data& SubstData, string& Out)
 {
 	const auto append_with_escape = [EscapeAmpersands = SubstData.EscapeAmpersands](string& Destination, string_view const Str)
@@ -355,8 +440,13 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 		return Tail;
 	}
 
-	const auto CollectNames = [&SubstData, &append_with_escape](string& Str, bool const Quote, auto const Selector)
+	const auto CollectNames = [&SubstData, &append_with_escape](string_view const Tail, string& Str, auto const Selector)
 	{
+		const auto ExplicitQuote = starts_with(Tail, L'Q');
+		const auto ExplicitNoQuote = starts_with(Tail, L'q');
+
+		const auto Quote = ExplicitQuote || !ExplicitNoQuote;
+
 		append_with_escape(
 			Str,
 			join(
@@ -366,15 +456,15 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 					L" "sv
 			)
 		);
+
+		return Tail.substr(ExplicitQuote || ExplicitNoQuote? 1 : 0);
 	};
 
 	if (const auto Tail = tokens::skip(CurStr, tokens::short_list))
 	{
 		if (!starts_with(Tail, L'?'))
 		{
-			const auto Quote = starts_with(Tail, L'Q');
-			CollectNames(Out, Quote, &os::fs::find_data::AlternateFileName);
-			return string_view(Tail).substr(Quote? 1 : 0);
+			return CollectNames(Tail, Out, &os::fs::find_data::AlternateFileName);
 		}
 	}
 
@@ -382,9 +472,7 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 	{
 		if (!starts_with(Tail, L'?'))
 		{
-			const auto Quote = starts_with(Tail, L'Q');
-			CollectNames(Out, Quote, &os::fs::find_data::FileName);
-			return string_view(Tail).substr(Quote? 1 : 0);
+			return CollectNames(Tail, Out, &os::fs::find_data::FileName);
 		}
 	}
 
@@ -399,7 +487,7 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 		if (Data.ListNames)
 		{
 			string Str;
-			if (Data.Default().Panel->MakeListFile(Str, Short, Modifiers))
+			if (MakeListFile(Data.Default().Panel, Str, Short, Modifiers))
 			{
 				if (Short)
 					Str = ConvertNameToShort(Str);

@@ -3,6 +3,12 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 04.09.2019 22:10:32 +0100 - build 5466
+
+1. Continuation of 5464: in "!&" and "!&~" quoting is now on by defaut and can be disabled with 'q' modifier.
+
+2. Minor refactoring.
+
 drkns 03.09.2019 23:19:24 +0100 - build 5465
 
 1. 0003736: Can't update file descriptions on a network drive.

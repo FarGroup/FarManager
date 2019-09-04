@@ -262,7 +262,6 @@ public:
 	bool IsMouseInClientArea(const MOUSE_EVENT_RECORD *MouseEvent) const;
 	panel_type GetType() const {return m_Type;}
 	void SetUpdateMode(int Mode) {m_EnableUpdate=Mode;}
-	bool MakeListFile(string& ListFileName, bool ShortNames, string_view Modifers);
 	bool SetCurPath();
 	bool NeedUpdatePanel(const Panel *AnotherPanel) const;
 	bool IsFullScreen() const { return (m_ViewSettings.Flags & PVS_FULLSCREEN) != 0; }
