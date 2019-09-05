@@ -441,7 +441,15 @@ intptr_t LUAPLUG GetContentFieldsW(const struct GetContentFieldsInfo *Info)
 
 intptr_t LUAPLUG GetContentDataW(struct GetContentDataInfo *Info)
 {
-	EXP_INTPTR(Info, LF_GetContentData)
+	static int nest = 0; //prevent stack overflow on message/error box display
+	intptr_t ret = 0;
+	if (0==nest++ && IS_PLUGIN_READY(G))
+	{
+		ret = LF_GetContentData(G.LS, Info);
+		LEAVE_CS(G);
+	}
+	nest--;
+	return ret;
 }
 
 void LUAPLUG FreeContentDataW(const struct GetContentDataInfo *Info)

@@ -1,4 +1,8 @@
-﻿shmuel 03.09.2019 13:44:25 +0200 - build 704
+﻿shmuel 05.09.2019 03:23:04 +0200 - build 705
+
+1. Generic plugin: prevent stack overflow in GetContentDataW calls due to error/message box.
+
+shmuel 03.09.2019 13:44:25 +0200 - build 704
 
 1. LuaFAR:
    New function far.FileTimeResolution(). This function can set current resolution of time values
