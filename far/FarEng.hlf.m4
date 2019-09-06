@@ -5644,62 +5644,67 @@ selecting the file (like the #left mouse click#).
 
 @System.ExcludeCmdHistory
 $ #far:config System.ExcludeCmdHistory#
- Параметр позволяет определять, какие типы команд не будут помещаться в историю.
-Проверка идёт по битовой маске. Если бит установлен, данный тип команд в историю не помещается.
+ This numeric parameter suppresses saving commands of certain categories
+to the history. If a bit in the parameter’s value is set, commands
+of the corresponding category will not be saved.
 
- Номера битов:
+ Bit numbers and corresponding command categories:
+ 0 - ^<wrap>Windows file type associations;
+ 1 - Far ~file associations~@FileAssoc@;
+ 2 - Executable files under cursor on ~file panel~@FuncCmd@;
+ 3 - Commands entered on ~command line~@CmdLineCmd@.
 
- 0 - не помещать в историю команды ассоциаций Windows
- 1 - не помещать в историю команды ассоциаций Far
- 2 - не помещать в историю команды запуска с панели
- 3 - не помещать в историю команды запуска из командной строки
+ Default value: 0 (save commands of all categories).
 
- По умолчанию значение = 0 (помещать в историю все команды).
-
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @System.Executor.RestoreCP
 $ #far:config System.Executor.RestoreCP#
- Параметр позволяет управлять восстановлением кодовой страницы после запуска и отработки внешних
-программ в окне Far Manager.
+ This Boolean parameter controls whether Far will restore console code
+page after the execution of an external program has completed. Some
+programs change console code page during execution and do not restore
+it before exiting. Use this parameter to compensate for this behavior.
 
- Некоторые программы изменяют кодовую страницу консольного окна и после
-своей обработки не восстанавливают предыдущее значение. Может быть одним из следующих значений:
+ False - ^<wrap>Leave it as is; do not restore console code page.
+ True  - Restore console code page after an external program exited.
 
- 0 - "оставить всё как есть" (не восстанавливать значение)
- 1 - восстанавливать предыдущее значение кодовой страницы
+ Default value: True (restore console code page).
 
- По умолчанию значение = 1 (восстанавливать значение).
+ See also #CHCP# ~Operating system~@OSCommands@ command.
 
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @System.Executor.UseAppPath
 $ #far:config System.Executor.UseAppPath#
- При запуске на исполнение содержимого командной строки Far ищет
-исполняемый модуль по  следующей логике (попеременно подставляя расширения, перечисленные в переменной окружения  %PATHEXT%):
+ This Boolean parameter controls whether Far will look up #App Paths#
+Windows registry key when it searches for an executable module.
 
- 1. Текущий каталог
- 2. Каталоги, которые перечислены в переменной окружения %PATH%
- 3. Windows 95: Системный каталог Windows (SYSTEM).
-    Windows NT: 32-битный системный каталог Windows (SYSTEM32)
- 4. Windows NT: 16-битный системный каталог Windows (SYSTEM)
- 5. Каталог Windows.
+ When Far executes a command entered on the command line, it searches
+executable module in the following places in this order (using file
+name extensions defined by the #PATHEXT# environment variable):
 
- Если параметр "System.Executor.UseAppPath" равен 1, то дополнительно производится поиск исполняемых модулей в реестре:
+ 1. ^<wrap>Current directory;
+ 2. Directories listed on the #PATH# environment variable;
+ 3. Windows 95: Windows system directory (SYSTEM);
+    Windows NT: 32-bit Windows system directory (SYSTEM32);
+ 4. Windows NT: 16-bit Windows system directory (SYSTEM);
+ 5. The Windows directory.
 
- 6. Содержимое ветки реестра:
-    [HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\App Paths]
- 7. Содержимое ветки реестра:
-    [HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\App Paths]
+ If this parameter is True, Far will also look up subkeys of the
+following Windows registry keys:
 
- Независимо от состояния этого параметра, модуль, прописанный в "App Paths", будет запущен проводником, если для запуска
-используется комбинация Shift+Enter.
+ 6. #HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\App Paths#;
+ 7. #HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\App Paths#.
 
- По умолчанию значение = 1 (проверять ветки реестра)
+ Default value: True (look up Windows registry).
 
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ Note: If the command line is executed with #Shift+Enter# key
+combination, Far launches Windows Explorer to execute the command.
+Windows Explorer always looks up #App Paths# registry key.
+
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @System.Executor.ExcludeCmds

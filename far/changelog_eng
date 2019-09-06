@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+MZK 05.09.2019 22:12:53 -0700
+
+1. Translated more far:config help pages into English.
+
+zg 05.09.2019 00:41:46 +0300 - build 5467
+
+1. separate GUIDs for the dialogs to copy/move the file under cursor.
+
 drkns 04.09.2019 22:10:32 +0100 - build 5466
 
 1. Continuation of 5464: in "!&" and "!&~" quoting is now on by defaut and can be disabled with 'q' modifier.
