@@ -3,6 +3,13 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 06.09.2019 20:22:44 +0100 - build 5467
+
+1. Forum: Search in viewer: [x] Whole words doesn't work if [x] Case sensitive is set.
+   Actually the issue was much deeper and wider.
+
+2. Forum: error setting file access rights.
+
 MZK 05.09.2019 22:12:53 -0700
 
 1. Translated more far:config help pages into English.

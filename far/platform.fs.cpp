@@ -1497,7 +1497,7 @@ namespace os::fs
 
 			const auto Result = SetNamedSecurityInfo(const_cast<wchar_t*>(Object), SE_FILE_OBJECT, DACL_SECURITY_INFORMATION | UNPROTECTED_DACL_SECURITY_INFORMATION, nullptr, nullptr, &EmptyAcl, nullptr);
 			SetLastError(Result);
-			return Result != ERROR_SUCCESS;
+			return Result == ERROR_SUCCESS;
 		}
 	}
 
