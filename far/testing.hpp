@@ -46,6 +46,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #undef new
 #endif
 
+WARNING_PUSH()
+
 WARNING_DISABLE_CLANG("-Weverything")
 
 #include "thirdparty/catch2/catch.hpp"
