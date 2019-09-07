@@ -54,7 +54,7 @@ namespace os::chrono
 		using duration = std::chrono::duration<rep, period>;
 		using time_point = std::chrono::time_point<nt_clock>;
 
-		static constexpr bool is_steady = false;
+		static inline constexpr bool is_steady = false;
 
 		[[nodiscard]]
 		static time_point now() noexcept;

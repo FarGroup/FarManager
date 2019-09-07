@@ -19,6 +19,7 @@
 #include <cstdarg>
 #include <cstddef>  // for std::ptrdiff_t
 #include <cstring>  // for std::memmove
+#include <cwchar>
 #if !defined(FMT_STATIC_THOUSANDS_SEPARATOR)
 #  include <locale>
 #endif
@@ -63,8 +64,7 @@ inline fmt::internal::null<> strerror_s(char*, std::size_t, ...) {
 }
 
 FMT_BEGIN_NAMESPACE
-
-namespace {
+namespace internal {
 
 #ifndef _MSC_VER
 #  define FMT_SNPRINTF snprintf
@@ -79,13 +79,7 @@ inline int fmt_snprintf(char* buffer, size_t size, const char* format, ...) {
 #  define FMT_SNPRINTF fmt_snprintf
 #endif  // _MSC_VER
 
-#if defined(_WIN32) && defined(__MINGW32__) && !defined(__NO_ISOCEXT)
-#  define FMT_SWPRINTF snwprintf
-#else
-#  define FMT_SWPRINTF swprintf
-#endif  // defined(_WIN32) && defined(__MINGW32__) && !defined(__NO_ISOCEXT)
-
-typedef void (*FormatFunc)(internal::buffer<char>&, int, string_view);
+using format_func = void (*)(internal::buffer<char>&, int, string_view);
 
 // Portable thread-safe version of strerror.
 // Sets buffer to point to a string describing the error code.
@@ -96,9 +90,9 @@ typedef void (*FormatFunc)(internal::buffer<char>&, int, string_view);
 //   ERANGE - buffer is not large enough to store the error message
 //   other  - failure
 // Buffer should be at least of size 1.
-int safe_strerror(int error_code, char*& buffer,
-                  std::size_t buffer_size) FMT_NOEXCEPT {
-  FMT_ASSERT(buffer != FMT_NULL && buffer_size != 0, "invalid buffer");
+FMT_FUNC int safe_strerror(int error_code, char*& buffer,
+                           std::size_t buffer_size) FMT_NOEXCEPT {
+  FMT_ASSERT(buffer != nullptr && buffer_size != 0, "invalid buffer");
 
   class dispatcher {
    private:
@@ -154,8 +148,8 @@ int safe_strerror(int error_code, char*& buffer,
   return dispatcher(error_code, buffer, buffer_size).run();
 }
 
-void format_error_code(internal::buffer<char>& out, int error_code,
-                       string_view message) FMT_NOEXCEPT {
+FMT_FUNC void format_error_code(internal::buffer<char>& out, int error_code,
+                                string_view message) FMT_NOEXCEPT {
   // Report error code making sure that the output fits into
   // inline_buffer_size to avoid dynamic memory allocation and potential
   // bad_alloc.
@@ -164,14 +158,13 @@ void format_error_code(internal::buffer<char>& out, int error_code,
   static const char ERROR_STR[] = "error ";
   // Subtract 2 to account for terminating null characters in SEP and ERROR_STR.
   std::size_t error_code_size = sizeof(SEP) + sizeof(ERROR_STR) - 2;
-  typedef internal::int_traits<int>::main_type main_type;
-  main_type abs_value = static_cast<main_type>(error_code);
+  auto abs_value = static_cast<uint32_or_64_or_128_t<int>>(error_code);
   if (internal::is_negative(error_code)) {
     abs_value = 0 - abs_value;
     ++error_code_size;
   }
   error_code_size += internal::to_unsigned(internal::count_digits(abs_value));
-  writer w(out);
+  internal::writer w(out);
   if (message.size() <= inline_buffer_size - error_code_size) {
     w.write(message);
     w.write(SEP);
@@ -181,33 +174,24 @@ void format_error_code(internal::buffer<char>& out, int error_code,
   assert(out.size() <= inline_buffer_size);
 }
 
-// try an fwrite, FMT_THROW on failure
-void fwrite_fully(const void* ptr, size_t size, size_t count, FILE* stream) {
+// A wrapper around fwrite that throws on error.
+FMT_FUNC void fwrite_fully(const void* ptr, size_t size, size_t count,
+                           FILE* stream) {
   size_t written = std::fwrite(ptr, size, count, stream);
   if (written < count) {
     FMT_THROW(system_error(errno, "cannot write to file"));
   }
 }
 
-void report_error(FormatFunc func, int error_code,
-                  string_view message) FMT_NOEXCEPT {
+FMT_FUNC void report_error(format_func func, int error_code,
+                           string_view message) FMT_NOEXCEPT {
   memory_buffer full_message;
   func(full_message, error_code, message);
-  // Use Writer::data instead of Writer::c_str to avoid potential memory
-  // allocation.
-  fwrite_fully(full_message.data(), 1, full_message.size(), stderr);
+  // Don't use fwrite_fully because the latter may throw.
+  (void)std::fwrite(full_message.data(), full_message.size(), 1, stderr);
   std::fputc('\n', stderr);
 }
-}  // namespace
-
-FMT_FUNC size_t internal::count_code_points(basic_string_view<char8_t> s) {
-  const char8_t* data = s.data();
-  size_t num_code_points = 0;
-  for (size_t i = 0, size = s.size(); i != size; ++i) {
-    if ((data[i] & 0xc0) != 0x80) ++num_code_points;
-  }
-  return num_code_points;
-}
+}  // namespace internal
 
 #if !defined(FMT_STATIC_THOUSANDS_SEPARATOR)
 namespace internal {
@@ -223,8 +207,12 @@ template <typename Locale> Locale locale_ref::get() const {
 }
 
 template <typename Char> FMT_FUNC Char thousands_sep_impl(locale_ref loc) {
-  return std::use_facet<std::numpunct<Char> >(loc.get<std::locale>())
+  return std::use_facet<std::numpunct<Char>>(loc.get<std::locale>())
       .thousands_sep();
+}
+template <typename Char> FMT_FUNC Char decimal_point_impl(locale_ref loc) {
+  return std::use_facet<std::numpunct<Char>>(loc.get<std::locale>())
+      .decimal_point();
 }
 }  // namespace internal
 #else
@@ -232,7 +220,14 @@ template <typename Char>
 FMT_FUNC Char internal::thousands_sep_impl(locale_ref) {
   return FMT_STATIC_THOUSANDS_SEPARATOR;
 }
+template <typename Char>
+FMT_FUNC Char internal::decimal_point_impl(locale_ref) {
+  return '.';
+}
 #endif
+
+FMT_API FMT_FUNC format_error::~format_error() FMT_NOEXCEPT {}
+FMT_API FMT_FUNC system_error::~system_error() FMT_NOEXCEPT {}
 
 FMT_FUNC void system_error::init(int err_code, string_view format_str,
                                  format_args args) {
@@ -245,7 +240,7 @@ FMT_FUNC void system_error::init(int err_code, string_view format_str,
 
 namespace internal {
 
-template <> FMT_FUNC int count_digits<4>(internal::uintptr_t n) {
+template <> FMT_FUNC int count_digits<4>(internal::fallback_uintptr n) {
   // Assume little endian; pointer formatting is implementation-defined anyway.
   int i = static_cast<int>(sizeof(void*)) - 1;
   while (i > 0 && n.value[i] == 0) --i;
@@ -256,12 +251,19 @@ template <> FMT_FUNC int count_digits<4>(internal::uintptr_t n) {
 template <typename T>
 int format_float(char* buf, std::size_t size, const char* format, int precision,
                  T value) {
-  return precision < 0 ? FMT_SNPRINTF(buf, size, format, value)
-                       : FMT_SNPRINTF(buf, size, format, precision, value);
+#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+  if (precision > 100000)
+    throw std::runtime_error(
+        "fuzz mode - avoid large allocation inside snprintf");
+#endif
+  // Suppress the warning about nonliteral format string.
+  auto snprintf_ptr = FMT_SNPRINTF;
+  return precision < 0 ? snprintf_ptr(buf, size, format, value)
+                       : snprintf_ptr(buf, size, format, precision, value);
 }
 
 template <typename T>
-const char basic_data<T>::DIGITS[] =
+const char basic_data<T>::digits[] =
     "0001020304050607080910111213141516171819"
     "2021222324252627282930313233343536373839"
     "4041424344454647484950515253545556575859"
@@ -269,7 +271,7 @@ const char basic_data<T>::DIGITS[] =
     "8081828384858687888990919293949596979899";
 
 template <typename T>
-const char basic_data<T>::HEX_DIGITS[] = "0123456789abcdef";
+const char basic_data<T>::hex_digits[] = "0123456789abcdef";
 
 #define FMT_POWERS_OF_10(factor)                                             \
   factor * 10, factor * 100, factor * 1000, factor * 10000, factor * 100000, \
@@ -277,23 +279,23 @@ const char basic_data<T>::HEX_DIGITS[] = "0123456789abcdef";
       factor * 1000000000
 
 template <typename T>
-const uint64_t basic_data<T>::POWERS_OF_10_64[] = {
+const uint64_t basic_data<T>::powers_of_10_64[] = {
     1, FMT_POWERS_OF_10(1), FMT_POWERS_OF_10(1000000000ull),
     10000000000000000000ull};
 
 template <typename T>
-const uint32_t basic_data<T>::ZERO_OR_POWERS_OF_10_32[] = {0,
+const uint32_t basic_data<T>::zero_or_powers_of_10_32[] = {0,
                                                            FMT_POWERS_OF_10(1)};
 
 template <typename T>
-const uint64_t basic_data<T>::ZERO_OR_POWERS_OF_10_64[] = {
+const uint64_t basic_data<T>::zero_or_powers_of_10_64[] = {
     0, FMT_POWERS_OF_10(1), FMT_POWERS_OF_10(1000000000ull),
     10000000000000000000ull};
 
 // Normalized 64-bit significands of pow(10, k), for k = -348, -340, ..., 340.
 // These are generated by support/compute-powers.py.
 template <typename T>
-const uint64_t basic_data<T>::POW10_SIGNIFICANDS[] = {
+const uint64_t basic_data<T>::pow10_significands[] = {
     0xfa8fd5a0081c0288, 0xbaaee17fa23ebf76, 0x8b16fb203055ac76,
     0xcf42894a5dce35ea, 0x9a6bb0aa55653b2d, 0xe61acf033d1a45df,
     0xab70fe17c79ac6ca, 0xff77b1fcbebcdc4f, 0xbe5691ef416bd60c,
@@ -328,7 +330,7 @@ const uint64_t basic_data<T>::POW10_SIGNIFICANDS[] = {
 // Binary exponents of pow(10, k), for k = -348, -340, ..., 340, corresponding
 // to significands above.
 template <typename T>
-const int16_t basic_data<T>::POW10_EXPONENTS[] = {
+const int16_t basic_data<T>::pow10_exponents[] = {
     -1220, -1193, -1166, -1140, -1113, -1087, -1060, -1034, -1007, -980, -954,
     -927,  -901,  -874,  -847,  -821,  -794,  -768,  -741,  -715,  -688, -661,
     -635,  -608,  -582,  -555,  -529,  -502,  -475,  -449,  -422,  -396, -369,
@@ -339,11 +341,11 @@ const int16_t basic_data<T>::POW10_EXPONENTS[] = {
     827,   853,   880,   907,   933,   960,   986,   1013,  1039,  1066};
 
 template <typename T>
-const char basic_data<T>::FOREGROUND_COLOR[] = "\x1b[38;2;";
+const char basic_data<T>::foreground_color[] = "\x1b[38;2;";
 template <typename T>
-const char basic_data<T>::BACKGROUND_COLOR[] = "\x1b[48;2;";
-template <typename T> const char basic_data<T>::RESET_COLOR[] = "\x1b[0m";
-template <typename T> const wchar_t basic_data<T>::WRESET_COLOR[] = L"\x1b[0m";
+const char basic_data<T>::background_color[] = "\x1b[48;2;";
+template <typename T> const char basic_data<T>::reset_color[] = "\x1b[0m";
+template <typename T> const wchar_t basic_data<T>::wreset_color[] = L"\x1b[0m";
 
 template <typename T> struct bits {
   static FMT_CONSTEXPR_DECL const int value =
@@ -353,7 +355,7 @@ template <typename T> struct bits {
 // A handmade floating-point number f * pow(2, e).
 class fp {
  private:
-  typedef uint64_t significand_type;
+  using significand_type = uint64_t;
 
   // All sizes are in bits.
   // Subtract 1 to account for an implicit most significant bit in the
@@ -377,7 +379,7 @@ class fp {
   // errors on platforms where double is not IEEE754.
   template <typename Double> explicit fp(Double d) {
     // Assume double is in the format [sign][exponent][significand].
-    typedef std::numeric_limits<Double> limits;
+    using limits = std::numeric_limits<Double>;
     const int exponent_size =
         bits<Double>::value - double_significand_size - 1;  // -1 for sign
     const uint64_t significand_mask = implicit_bit - 1;
@@ -461,7 +463,7 @@ FMT_FUNC fp get_cached_power(int min_exponent, int& pow10_exponent) {
   const int dec_exp_step = 8;
   index = (index - first_dec_exp - 1) / dec_exp_step + 1;
   pow10_exponent = first_dec_exp + index * dec_exp_step;
-  return fp(data::POW10_SIGNIFICANDS[index], data::POW10_EXPONENTS[index]);
+  return fp(data::pow10_significands[index], data::pow10_exponents[index]);
 }
 
 enum round_direction { unknown, up, down };
@@ -511,7 +513,7 @@ digits::result grisu_gen_digits(fp value, uint64_t error, int& exp,
   uint64_t fractional = value.f & (one.f - 1);
   exp = count_digits(integral);  // kappa in Grisu.
   // Divide by 10 to prevent overflow.
-  auto result = handler.on_start(data::POWERS_OF_10_64[exp - 1] << -one.e,
+  auto result = handler.on_start(data::powers_of_10_64[exp - 1] << -one.e,
                                  value.f / 10, error * 10, exp);
   if (result != digits::more) return result;
   // Generate digits for the integral part. This can produce up to 10 digits.
@@ -567,7 +569,7 @@ digits::result grisu_gen_digits(fp value, uint64_t error, int& exp,
     uint64_t remainder =
         (static_cast<uint64_t>(integral) << -one.e) + fractional;
     result = handler.on_digit(static_cast<char>('0' + digit),
-                              data::POWERS_OF_10_64[exp] << -one.e, remainder,
+                              data::powers_of_10_64[exp] << -one.e, remainder,
                               error, exp, true);
     if (result != digits::more) return result;
   } while (exp > 0);
@@ -602,6 +604,7 @@ struct fixed_handler {
     // Check if precision is satisfied just by leading zeros, e.g.
     // format("{:.2f}", 0.001) gives "0.00" without generating any digits.
     if (precision > 0) return digits::more;
+    if (precision < 0) return digits::done;
     auto dir = get_round_direction(divisor, remainder, error);
     if (dir == unknown) return digits::error;
     buf[size++] = dir == up ? '1' : '0';
@@ -647,30 +650,31 @@ template <int GRISU_VERSION> struct grisu_shortest_handler {
     return digits::more;
   }
 
-  // This implements Grisu3's round_weed.
+  // Decrement the generated number approaching value from above.
+  void round(uint64_t d, uint64_t divisor, uint64_t& remainder,
+             uint64_t error) {
+    while (
+        remainder < d && error - remainder >= divisor &&
+        (remainder + divisor < d || d - remainder >= remainder + divisor - d)) {
+      --buf[size - 1];
+      remainder += divisor;
+    }
+  }
+
+  // Implements Grisu's round_weed.
   digits::result on_digit(char digit, uint64_t divisor, uint64_t remainder,
                           uint64_t error, int exp, bool integral) {
     buf[size++] = digit;
     if (remainder >= error) return digits::more;
     if (GRISU_VERSION != 3) {
-      uint64_t d = integral ? diff : diff * data::POWERS_OF_10_64[-exp];
-      while (remainder < d && error - remainder >= divisor &&
-             (remainder + divisor < d ||
-              d - remainder > remainder + divisor - d)) {
-        --buf[size - 1];
-        remainder += divisor;
-      }
+      uint64_t d = integral ? diff : diff * data::powers_of_10_64[-exp];
+      round(d, divisor, remainder, error);
       return digits::done;
     }
-    uint64_t unit = integral ? 1 : data::POWERS_OF_10_64[-exp];
-    uint64_t up = diff + unit;  // wp_Wup
-    while (remainder < up && error - remainder >= divisor &&
-           (remainder + divisor < up ||
-            up - remainder > remainder + divisor - up)) {
-      --buf[size - 1];
-      remainder += divisor;
-    }
-    uint64_t down = diff - unit;  // wp_Wdown
+    uint64_t unit = integral ? 1 : data::powers_of_10_64[-exp];
+    uint64_t up = (diff - 1) * unit;  // wp_Wup
+    round(up, divisor, remainder, error);
+    uint64_t down = (diff + 1) * unit;  // wp_Wdown
     if (remainder < down && error - remainder >= divisor &&
         (remainder + divisor < down ||
          down - remainder > remainder + divisor - down)) {
@@ -682,18 +686,19 @@ template <int GRISU_VERSION> struct grisu_shortest_handler {
   }
 };
 
-template <typename Double, FMT_ENABLE_IF_T(sizeof(Double) == sizeof(uint64_t))>
-FMT_FUNC bool grisu_format(Double value, buffer<char>& buf, int precision,
-                           unsigned options, int& exp) {
+template <typename Double,
+          enable_if_t<(sizeof(Double) == sizeof(uint64_t)), int>>
+FMT_API bool grisu_format(Double value, buffer<char>& buf, int precision,
+                          unsigned options, int& exp) {
   FMT_ASSERT(value >= 0, "value is negative");
   bool fixed = (options & grisu_options::fixed) != 0;
   if (value <= 0) {  // <= instead of == to silence a warning.
-    if (precision < 0 || !fixed) {
+    if (precision <= 0 || !fixed) {
       exp = 0;
       buf.push_back('0');
     } else {
       exp = -precision;
-      buf.resize(precision);
+      buf.resize(to_unsigned(precision));
       std::uninitialized_fill_n(buf.data(), precision, '0');
     }
     return true;
@@ -748,8 +753,8 @@ FMT_FUNC bool grisu_format(Double value, buffer<char>& buf, int precision,
 }
 
 template <typename Double>
-void sprintf_format(Double value, internal::buffer<char>& buf,
-                    core_format_specs spec) {
+char* sprintf_format(Double value, internal::buffer<char>& buf,
+                     sprintf_specs specs) {
   // Buffer capacity must be non-zero, otherwise MSVC's vsnprintf_s will fail.
   FMT_ASSERT(buf.capacity() != 0, "empty buffer");
 
@@ -758,18 +763,18 @@ void sprintf_format(Double value, internal::buffer<char>& buf,
   char format[max_format_size];
   char* format_ptr = format;
   *format_ptr++ = '%';
-  if (spec.has(HASH_FLAG) || !spec.type) *format_ptr++ = '#';
-  if (spec.precision >= 0) {
+  if (specs.alt || !specs.type) *format_ptr++ = '#';
+  if (specs.precision >= 0) {
     *format_ptr++ = '.';
     *format_ptr++ = '*';
   }
   if (std::is_same<Double, long double>::value) *format_ptr++ = 'L';
 
-  char type = spec.type;
+  char type = specs.type;
 
   if (type == '%')
     type = 'f';
-  else if (type == 0)
+  else if (type == 0 || type == 'n')
     type = 'g';
 #if FMT_MSC_VER
   if (type == 'F') {
@@ -781,32 +786,34 @@ void sprintf_format(Double value, internal::buffer<char>& buf,
   *format_ptr = '\0';
 
   // Format using snprintf.
-  char* start = FMT_NULL;
+  char* start = nullptr;
+  char* decimal_point_pos = nullptr;
   for (;;) {
     std::size_t buffer_size = buf.capacity();
     start = &buf[0];
     int result =
-        format_float(start, buffer_size, format, spec.precision, value);
+        format_float(start, buffer_size, format, specs.precision, value);
     if (result >= 0) {
       unsigned n = internal::to_unsigned(result);
       if (n < buf.capacity()) {
         // Find the decimal point.
         auto p = buf.data(), end = p + n;
         if (*p == '+' || *p == '-') ++p;
-        if (spec.type == 'a' || spec.type == 'A') p += 2;  // Skip "0x".
-        while (p < end && *p >= '0' && *p <= '9') ++p;
-        if (p < end && *p != 'e' && *p != 'E') {
-          if (*p != '.') *p = '.';
-          if (!spec.type) {
-            // Keep only one trailing zero after the decimal point.
-            ++p;
-            if (*p == '0') ++p;
-            while (p != end && *p >= '1' && *p <= '9') ++p;
-            char* where = p;
-            while (p != end && *p == '0') ++p;
-            if (p == end || *p < '0' || *p > '9') {
-              if (p != end) std::memmove(where, p, to_unsigned(end - p));
-              n -= static_cast<unsigned>(p - where);
+        if (specs.type != 'a' && specs.type != 'A') {
+          while (p < end && *p >= '0' && *p <= '9') ++p;
+          if (p < end && *p != 'e' && *p != 'E') {
+            decimal_point_pos = p;
+            if (!specs.type) {
+              // Keep only one trailing zero after the decimal point.
+              ++p;
+              if (*p == '0') ++p;
+              while (p != end && *p >= '1' && *p <= '9') ++p;
+              char* where = p;
+              while (p != end && *p == '0') ++p;
+              if (p == end || *p < '0' || *p > '9') {
+                if (p != end) std::memmove(where, p, to_unsigned(end - p));
+                n -= static_cast<unsigned>(p - where);
+              }
             }
           }
         }
@@ -820,6 +827,7 @@ void sprintf_format(Double value, internal::buffer<char>& buf,
       buf.reserve(buf.capacity() + 1);
     }
   }
+  return decimal_point_pos;
 }
 }  // namespace internal
 
@@ -838,7 +846,7 @@ FMT_FUNC internal::utf8_to_utf16::utf8_to_utf16(string_view s) {
   }
 
   int length = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, s.data(),
-                                   s_size, FMT_NULL, 0);
+                                   s_size, nullptr, 0);
   if (length == 0) FMT_THROW(windows_error(GetLastError(), ERROR_MSG));
   buffer_.resize(length + 1);
   length = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, s.data(), s_size,
@@ -864,12 +872,12 @@ FMT_FUNC int internal::utf16_to_utf8::convert(wstring_view s) {
     return 0;
   }
 
-  int length = WideCharToMultiByte(CP_UTF8, 0, s.data(), s_size, FMT_NULL, 0,
-                                   FMT_NULL, FMT_NULL);
+  int length = WideCharToMultiByte(CP_UTF8, 0, s.data(), s_size, nullptr, 0,
+                                   nullptr, nullptr);
   if (length == 0) return GetLastError();
   buffer_.resize(length + 1);
   length = WideCharToMultiByte(CP_UTF8, 0, s.data(), s_size, &buffer_[0],
-                               length, FMT_NULL, FMT_NULL);
+                               length, nullptr, nullptr);
   if (length == 0) return GetLastError();
   buffer_[length] = 0;
   return 0;
@@ -893,13 +901,13 @@ FMT_FUNC void internal::format_windows_error(internal::buffer<char>& out,
     for (;;) {
       wchar_t* system_message = &buf[0];
       int result = FormatMessageW(
-          FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, FMT_NULL,
+          FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
           error_code, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), system_message,
-          static_cast<uint32_t>(buf.size()), FMT_NULL);
+          static_cast<uint32_t>(buf.size()), nullptr);
       if (result != 0) {
         utf16_to_utf8 utf8_message;
         if (utf8_message.convert(system_message) == ERROR_SUCCESS) {
-          writer w(out);
+          internal::writer w(out);
           w.write(message);
           w.write(": ");
           w.write(utf8_message);
@@ -925,9 +933,10 @@ FMT_FUNC void format_system_error(internal::buffer<char>& out, int error_code,
     buf.resize(inline_buffer_size);
     for (;;) {
       char* system_message = &buf[0];
-      int result = safe_strerror(error_code, system_message, buf.size());
+      int result =
+          internal::safe_strerror(error_code, system_message, buf.size());
       if (result == 0) {
-        writer w(out);
+        internal::writer w(out);
         w.write(message);
         w.write(": ");
         w.write(system_message);
@@ -961,14 +970,17 @@ FMT_FUNC void report_windows_error(int error_code,
 FMT_FUNC void vprint(std::FILE* f, string_view format_str, format_args args) {
   memory_buffer buffer;
   internal::vformat_to(buffer, format_str,
-                       basic_format_args<buffer_context<char>::type>(args));
-  fwrite_fully(buffer.data(), 1, buffer.size(), f);
+                       basic_format_args<buffer_context<char>>(args));
+  internal::fwrite_fully(buffer.data(), 1, buffer.size(), f);
 }
 
 FMT_FUNC void vprint(std::FILE* f, wstring_view format_str, wformat_args args) {
   wmemory_buffer buffer;
   internal::vformat_to(buffer, format_str, args);
-  fwrite_fully(buffer.data(), sizeof(wchar_t), buffer.size(), f);
+  buffer.push_back(L'\0');
+  if (std::fputws(buffer.data(), f) == -1) {
+    FMT_THROW(system_error(errno, "cannot write to file"));
+  }
 }
 
 FMT_FUNC void vprint(string_view format_str, format_args args) {

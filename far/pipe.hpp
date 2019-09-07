@@ -51,12 +51,15 @@ namespace pipe
 	namespace detail
 	{
 		template<typename T>
-		constexpr bool supported_type = !std::is_pointer_v<T> && std::is_trivially_copyable_v<T>;
+		inline constexpr bool is_supported_type = std::conjunction_v<
+			std::negation<std::is_pointer<T>>,
+			std::is_trivially_copyable<T>
+		>;
 	}
 
 	void read(const os::handle& Pipe, void* Data, size_t DataSize);
 
-	template<typename T, REQUIRES(detail::supported_type<T>)>
+	template<typename T, REQUIRES(detail::is_supported_type<T>)>
 	void read(const os::handle& Pipe, T& Data)
 	{
 		read(Pipe, &Data, sizeof(Data));
@@ -66,7 +69,7 @@ namespace pipe
 
 	void write(const os::handle& Pipe, const void* Data, size_t DataSize);
 
-	template<typename T, REQUIRES(detail::supported_type<T>)>
+	template<typename T, REQUIRES(detail::is_supported_type<T>)>
 	void write(const os::handle& Pipe, const T& Data)
 	{
 		write(Pipe, &Data, sizeof(Data));

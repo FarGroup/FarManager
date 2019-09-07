@@ -197,9 +197,10 @@ namespace detail
 	using char_type = std::remove_const_t<std::remove_pointer_t<raw_string_type>>;
 
 	template<typename raw_string_type>
-	inline constexpr bool is_supported_type =
-		std::is_pointer_v<raw_string_type> &&
-		is_one_of_v<char_type<raw_string_type>, wchar_t, char>;
+	inline constexpr bool is_supported_type = std::conjunction_v<
+		std::is_pointer<raw_string_type>,
+		is_one_of<char_type<raw_string_type>, wchar_t, char>
+	>;
 }
 
 template<typename raw_string_type, REQUIRES(detail::is_supported_type<raw_string_type>)>

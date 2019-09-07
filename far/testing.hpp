@@ -46,7 +46,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #undef new
 #endif
 
+WARNING_DISABLE_CLANG("-Weverything")
+
 #include "thirdparty/catch2/catch.hpp"
+
+WARNING_POP()
 
 #ifdef MEMCHECK
 #pragma pop_macro("new")

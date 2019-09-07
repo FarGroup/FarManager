@@ -47,14 +47,14 @@ template <template<typename...> typename operation, typename... args>
 using is_detected = typename detail::is_detected<void, operation, args...>::type;
 
 template<template<typename...> typename operation, typename... args>
-constexpr bool is_detected_v = is_detected<operation, args...>::value;
+inline constexpr bool is_detected_v = is_detected<operation, args...>::value;
 
 
 template<typename type, typename... args>
 using is_one_of = std::disjunction<std::is_same<type, args>...>;
 
 template<typename type, typename... args>
-constexpr bool is_one_of_v = is_one_of<type, args...>::value;
+inline constexpr bool is_one_of_v = is_one_of<type, args...>::value;
 
 namespace detail
 {
@@ -74,13 +74,13 @@ template<class type>
 using is_range = std::conjunction<is_detected<detail::try_begin, type>, is_detected<detail::try_end, type>>;
 
 template<class type>
-constexpr bool is_range_v = is_range<type>::value;
+inline constexpr bool is_range_v = is_range<type>::value;
 
 template<class type>
 using is_span = std::conjunction<is_detected<detail::try_data, type>, is_detected<detail::try_size, type>>;
 
 template<class type>
-constexpr bool is_span_v = is_span<type>::value;
+inline constexpr bool is_span_v = is_span<type>::value;
 
 
 #endif // TYPE_TRAITS_HPP_CC9B8497_9AF0_4882_A470_81FF9CBF6D7C

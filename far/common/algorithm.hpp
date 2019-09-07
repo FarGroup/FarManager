@@ -164,7 +164,7 @@ namespace detail
 	using try_emplace_hint = decltype(std::declval<T&>().emplace_hint(std::declval<T&>().end(), *std::declval<T&>().begin()));
 
 	template<class T>
-	constexpr bool has_emplace_hint_v = is_detected_v<try_emplace_hint, T>;
+	inline constexpr bool has_emplace_hint_v = is_detected_v<try_emplace_hint, T>;
 }
 
 // Unified container emplace
@@ -185,7 +185,7 @@ namespace detail
 	using try_find = decltype(std::declval<T&>().find(std::declval<typename T::key_type&>()));
 
 	template<class T>
-	constexpr bool has_find_v = is_detected_v<try_find, T>;
+	inline constexpr bool has_find_v = is_detected_v<try_find, T>;
 }
 
 template<typename container, typename element, REQUIRES(is_range_v<container>)>

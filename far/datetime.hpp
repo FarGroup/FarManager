@@ -51,7 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 DWORD ConvertYearToFull(DWORD ShortYear);
 
 using time_component = unsigned int;
-inline constexpr auto time_none = std::numeric_limits<time_component>::max();
+constexpr auto time_none = std::numeric_limits<time_component>::max();
 using date_ranges = std::array<std::pair<size_t, size_t>, 3>;
 using time_ranges = std::array<std::pair<size_t, size_t>, 5>;
 inline constexpr time_ranges DefaultTimeRanges{{ {0, 2}, { 3, 2 }, { 6, 2 }, { 9, 3 }, { 13, 4 }}};

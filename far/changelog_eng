@@ -3,6 +3,16 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 07.09.2019 15:06:49 +0100 - build 5469
+
+1. fmt 6.0.0.
+
+2. tinyxml2 7.1.0.
+
+3. Catch2 2.9.2.
+
+2. A few minor changes.
+
 drkns 06.09.2019 20:22:44 +0100 - build 5468
 
 1. Forum: Search in viewer: [x] Whole words doesn't work if [x] Case sensitive is set.
