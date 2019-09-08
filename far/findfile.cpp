@@ -1868,7 +1868,7 @@ void FindFiles::OpenFile(const string& strSearchFileName, int openKey, const Fin
 			if (FindItem->Arc && !(FindItem->Arc->Flags & OPIF_REALNAMES))
 				ShellViewer->SetSaveToSaveAs(true);
 
-			Global->WindowManager->ExecuteModal(ShellViewer);
+			if (ShellViewer->GetExitCode()) Global->WindowManager->ExecuteModal(ShellViewer);
 			// заставляем рефрешится экран
 			Global->WindowManager->ResizeAllWindows();
 		}
@@ -1881,8 +1881,7 @@ void FindFiles::OpenFile(const string& strSearchFileName, int openKey, const Fin
 			if (FindItem->Arc && !(FindItem->Arc->Flags & OPIF_REALNAMES))
 				ShellEditor->SetSaveToSaveAs(true);
 
-			const auto editorExitCode = ShellEditor->GetExitCode();
-			if (editorExitCode != XC_OPEN_ERROR && editorExitCode != XC_LOADING_INTERRUPTED)
+			if (-1 == ShellEditor->GetExitCode())
 			{
 				Global->WindowManager->ExecuteModal(ShellEditor);
 				// заставляем рефрешится экран

@@ -2983,7 +2983,7 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 					&List,
 					false);
 
-				Global->WindowManager->ExecuteModal(Viewer);
+				if (Viewer->GetExitCode()) Global->WindowManager->ExecuteModal(Viewer);
 				Global->WindowManager->ResizeAllWindows();
 			}
 		}

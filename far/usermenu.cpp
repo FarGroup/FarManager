@@ -645,7 +645,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 					SaveMenu(MenuFileName);
 					{
 						const auto ShellEditor = FileEditor::create(MenuFileName, m_MenuCP, FFILEEDIT_DISABLEHISTORY, -1, -1, nullptr);
-						Global->WindowManager->ExecuteModal(ShellEditor);
+						if (-1 == ShellEditor->GetExitCode()) Global->WindowManager->ExecuteModal(ShellEditor);
 						if (!ShellEditor->IsFileChanged())
 							break;
 					}
