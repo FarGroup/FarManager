@@ -666,15 +666,16 @@ void Options::CmdlineSettings()
 	Builder.AddCheckbox(lng::MConfigCmdlineEditBlock, CmdLine.EditBlock);
 	Builder.AddCheckbox(lng::MConfigCmdlineDelRemovesBlocks, CmdLine.DelRemovesBlocks);
 	Builder.AddCheckbox(lng::MConfigCmdlineAutoComplete, CmdLine.AutoComplete);
+
 	DialogItemEx *UsePromptFormat = Builder.AddCheckbox(lng::MConfigCmdlineUsePromptFormat, CmdLine.UsePromptFormat);
 	DialogItemEx *PromptFormat = Builder.AddEditField(CmdLine.strPromptFormat, 33);
 	PromptFormat->Indent(4);
 	Builder.LinkFlags(UsePromptFormat, PromptFormat, DIF_DISABLE);
 
-	UsePromptFormat = Builder.AddCheckbox(lng::MConfigCmdlineUseHomeDir, Exec.UseHomeDir);
-	PromptFormat = Builder.AddEditField(Exec.strHomeDir, 33);
-	PromptFormat->Indent(4);
-	Builder.LinkFlags(UsePromptFormat, PromptFormat, DIF_DISABLE);
+	DialogItemEx *UseHomeDir = Builder.AddCheckbox(lng::MConfigCmdlineUseHomeDir, Exec.UseHomeDir);
+	DialogItemEx *HomeDir = Builder.AddEditField(Exec.strHomeDir, 33);
+	HomeDir->Indent(4);
+	Builder.LinkFlags(UseHomeDir, HomeDir, DIF_DISABLE);
 
 	Builder.AddOKCancel();
 
