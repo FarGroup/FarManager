@@ -2411,7 +2411,10 @@ int ShellCopy::DeleteAfterMove(const string& Name,DWORD Attr)
 		{
 			const auto ErrorState = error_state::fetch();
 
-			MsgCode = OperationFailed(ErrorState, FullName, lng::MError, msg(lng::MCannotDeleteFile));
+			if (m_UseFilter && (Attr & FILE_ATTRIBUTE_DIRECTORY) && ErrorState.Win32Error == ERROR_DIR_NOT_EMPTY)
+				MsgCode = operation::skip;
+			else
+				MsgCode = OperationFailed(ErrorState, FullName, lng::MError, msg(lng::MCannotDeleteFile));
 		}
 
 		switch (MsgCode)

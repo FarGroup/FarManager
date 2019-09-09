@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 09.09.2019 19:18:40 +0100 - build 5471
+
+1. Correction of 5437.
+
 drkns 07.09.2019 15:06:49 +0100 - build 5469
 
 1. fmt 6.0.0.
