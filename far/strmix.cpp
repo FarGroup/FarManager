@@ -116,17 +116,8 @@ wchar_t* InsertQuote(wchar_t *Str)
 wchar_t* QuoteSpace(wchar_t *Str)
 {
 	if (Global->Opt->strQuotedSymbols.Get().find_first_of(Str) != string::npos)
-	{
 		InsertQuote(Str);
 
-		// forward slash can't harm the quotation mark, but consistency is preferable
-		const auto Size = wcslen(Str);
-		if (IsSlash(Str[Size - 2]))
-		{
-			using std::swap;
-			swap(Str[Size - 2], Str[Size - 1]);
-		}
-	}
 	return Str;
 }
 
@@ -145,15 +136,8 @@ string InsertRegexpQuote(string strStr)
 string &QuoteSpace(string &strStr)
 {
 	if (strStr.find_first_of(Global->Opt->strQuotedSymbols.Get()) != string::npos)
-	{
 		inplace::quote(strStr);
 
-		// forward slash can't harm the quotation mark, but consistency is preferable
-		if (IsSlash(*(strStr.end() - 2)))
-		{
-			std::iter_swap(strStr.end() - 2, strStr.end() - 1);
-		}
-	}
 	return strStr;
 }
 

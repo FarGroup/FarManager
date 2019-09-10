@@ -1422,7 +1422,6 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 				}
 				else
 				{
-					bool add_slash = false;
 					assert(m_CurFile < static_cast<int>(m_ListData.size()));
 					const auto& Current = m_ListData[m_CurFile];
 
@@ -1434,8 +1433,6 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 							strFileName.clear();
 						else
 							strFileName.resize(1); // "."
-
-						add_slash = (LocalKey & 0xFFFF) != (KEY_CTRLF & 0xFFFF);
 
 						if (!(LocalKey==KEY_CTRLALTF || LocalKey==KEY_RCTRLRALTF || LocalKey==KEY_CTRLRALTF || LocalKey==KEY_RCTRLALTF))
 							LocalKey = KEY_CTRLF;
@@ -1476,9 +1473,6 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 							strFileName.insert(0, strFullName);
 						}
 					}
-
-					if (add_slash)
-						AddEndSlash(strFileName);
 
 					// добавим первый префикс!
 					if (m_PanelMode == panel_mode::PLUGIN_PANEL && Global->Opt->SubstPluginPrefix && !(LocalKey == KEY_CTRLENTER || LocalKey == KEY_RCTRLENTER || LocalKey == KEY_CTRLNUMENTER || LocalKey == KEY_RCTRLNUMENTER || LocalKey == KEY_CTRLJ || LocalKey == KEY_RCTRLJ))
