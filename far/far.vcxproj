@@ -651,7 +651,11 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
       <FileType>Document</FileType>
     </CopyFileToFolders>
     <None Include="Far.ico" />
-    <None Include="FarA.ico" />
+    <None Include="Far.black.ico" />
+    <None Include="Far.hack.ico" />
+    <None Include="Far.mono.ico" />
+    <None Include="Far.msg.ico" />
+    <None Include="Far.red.ico" />
     <None Include="farversion.m4" />
     <None Include="headers.m4" />
     <None Include="vbuild.m4" />

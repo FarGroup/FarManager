@@ -164,7 +164,7 @@ const RAII_type ANONYMOUS_VARIABLE(scoped_object_)
 // See MSVC bug #540185
 // Note: even though they fixed the initial issue, the fix requires /experimental:newLambdaProcessor,
 // which currently breaks more than it solves (see #578912, #578858, #578868).
-// It seems that for VS this will remain disabled int the foreseeable future.
+// It seems that for VS this will remain disabled in the foreseeable future.
 #define NOEXCEPT_NOEXCEPT(...)
 #else
 #define NOEXCEPT_NOEXCEPT(...) noexcept(noexcept(__VA_ARGS__))

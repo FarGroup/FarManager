@@ -499,7 +499,7 @@ $(INTDIR)\vc_crt_fix_ulink.obj: vc_crt_fix_ulink.cpp
 .asm{$(INTDIR)}.obj:
 	$(MASM) /nologo /c $(MASM_DEFINES) /Fo$@ $<
 
-$(RES_FILE): far.rc $(BOOTSTRAPDIR)far.rc.inc $(BOOTSTRAPDIR)Far.exe.manifest Far.ico FarA.ico
+$(RES_FILE): far.rc $(BOOTSTRAPDIR)far.rc.inc $(BOOTSTRAPDIR)Far.exe.manifest Far.ico Far.red.ico Far.black.ico Far.hack.ico Far.mono.ico Far.msg.ico
 	@echo Compiling resource file
 	$(RC) $(RFLAGS) far.rc
 

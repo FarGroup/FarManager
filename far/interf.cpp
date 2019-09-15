@@ -86,7 +86,7 @@ void consoleicons::setFarIcons()
 
 	if (!m_Loaded)
 	{
-		const int IconId = (Global->Opt->SetAdminIcon && os::security::is_admin())? FAR_ICON_A : FAR_ICON;
+		const int IconId = (Global->Opt->SetAdminIcon && os::security::is_admin())? FAR_ICON_RED : FAR_ICON;
 
 		m_Large.Icon = load_icon(IconId, m_Large.IsBig);
 		m_Small.Icon = load_icon(IconId, m_Small.IsBig);

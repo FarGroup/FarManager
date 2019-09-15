@@ -1116,7 +1116,19 @@
     <None Include="Far.ico">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="FarA.ico">
+    <None Include="Far.black.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Far.hack.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Far.mono.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Far.msg.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Far.red.ico">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="farversion.m4">
