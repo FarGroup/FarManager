@@ -2177,15 +2177,18 @@ void VMenu::ShowMenu(bool IsParent)
 
 				auto strTmpStr = MakeLine(SepWidth, m_BoxType == NO_BOX? line_type::h1_to_none : (m_BoxType == SINGLE_BOX || m_BoxType == SHORT_SINGLE_BOX? line_type::h1_to_v1 : line_type::h1_to_v2));
 
-				if (!CheckFlags(VMENU_NOMERGEBORDER) && I>0 && I<static_cast<int>(Items.size()-1) && SepWidth>3)
+				if (!CheckFlags(VMENU_NOMERGEBORDER) && SepWidth > 3)
 				{
 					for (size_t J = 0; J < strTmpStr.size() - 3; ++J)
 					{
-						int PCorrection = !CheckFlags(VMENU_SHOWAMPERSAND) && Items[I - 1].Name.find(L'&') < J;
-						int NCorrection = !CheckFlags(VMENU_SHOWAMPERSAND) && Items[I + 1].Name.find(L'&') < J;
+						const auto AnyPrev = I > 0;
+						const auto AnyNext = I < static_cast<int>(Items.size() - 1);
 
-						wchar_t PrevItem = (Items[I-1].Name.size() > J + PCorrection) ? Items[I-1].Name[J+PCorrection] : 0;
-						wchar_t NextItem = (Items[I+1].Name.size() > J + NCorrection) ? Items[I+1].Name[J+NCorrection] : 0;
+						int PCorrection = AnyPrev && !CheckFlags(VMENU_SHOWAMPERSAND) && Items[I - 1].Name.find(L'&') < J;
+						int NCorrection = AnyNext && !CheckFlags(VMENU_SHOWAMPERSAND) && Items[I + 1].Name.find(L'&') < J;
+
+						wchar_t PrevItem = (AnyPrev && Items[I - 1].Name.size() > J + PCorrection)? Items[I - 1].Name[J + PCorrection] : 0;
+						wchar_t NextItem = (AnyNext && Items[I + 1].Name.size() > J + NCorrection)? Items[I + 1].Name[J + NCorrection] : 0;
 
 						if (!PrevItem && !NextItem)
 							break;

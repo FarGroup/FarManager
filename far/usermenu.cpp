@@ -523,7 +523,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		/* $ 24.07.2000 VVM + При показе главного меню в заголовок добавляет тип - FAR/Registry */
 
 		const auto UserMenu = VMenu2::create(Title, {}, ScrY - 4);
-		UserMenu->SetMenuFlags(VMENU_WRAPMODE);
+		UserMenu->SetMenuFlags(VMENU_WRAPMODE | VMENU_NOMERGEBORDER);
 		UserMenu->SetHelp(L"UserMenu"sv);
 		UserMenu->SetPosition({ -1, -1, 0, 0 });
 		UserMenu->SetBottomTitle(msg(lng::MMainMenuBottomTitle));

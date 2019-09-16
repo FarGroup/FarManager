@@ -795,6 +795,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 				ListPtr->ChangeFlags(VMENU_SHOWNOBOX, (ItemFlags&DIF_LISTNOBOX)!=0);
 				ListPtr->ChangeFlags(VMENU_WRAPMODE, (ItemFlags&DIF_LISTWRAPMODE)!=0);
 				ListPtr->ChangeFlags(VMENU_AUTOHIGHLIGHT, (ItemFlags&DIF_LISTAUTOHIGHLIGHT)!=0);
+				ListPtr->ChangeFlags(VMENU_NOMERGEBORDER, (ItemFlags& DIF_LISTNOMERGEBORDER) != 0);
 
 				if (ItemFlags&DIF_LISTAUTOHIGHLIGHT)
 					ListPtr->AssignHighlights(FALSE);

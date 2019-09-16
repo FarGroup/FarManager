@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 16.09.2019 22:31:11 +0100 - build 5474
+
+1. Correction of menu separators rendering.
+
 drkns 15.09.2019 13:47:00 +0100 - build 5473
 
 1. Vector representation of Far.ico (16, 24, 32, 48).

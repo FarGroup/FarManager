@@ -433,6 +433,8 @@ void VMenu2::SetMenuFlags(DWORD Flags)
 		fdi.Flags|=DIF_LISTAUTOHIGHLIGHT;
 	if(Flags&VMENU_SHOWNOBOX)
 		fdi.Flags|=DIF_LISTNOBOX;
+	if (Flags&VMENU_NOMERGEBORDER)
+		fdi.Flags|=DIF_LISTNOMERGEBORDER;
 
 	ListBox().SetMenuFlags(Flags & (VMENU_REVERSEHIGHLIGHT | VMENU_LISTSINGLEBOX));
 
