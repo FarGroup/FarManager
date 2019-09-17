@@ -1115,7 +1115,7 @@ namespace console_detail
 				{},
 				{
 					Rect.Left,
-					Rect.Top - static_cast<SHORT>(NumLines)
+					static_cast<SHORT>(Rect.Top - NumLines)
 				},
 				Fill);
 		};
