@@ -55,6 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgGuid.hpp"
 #include "elevation.hpp"
 #include "filefilter.hpp"
+#include "lockscrn.hpp"
 #include "global.hpp"
 
 // Platform:
@@ -532,7 +533,8 @@ int highlight::configuration::MenuPosToRealPos(int MenuPos, int*& Count, bool In
 
 void highlight::configuration::UpdateHighlighting(bool RefreshMasks)
 {
-	Global->ScrBuf->Lock(); // отменяем всякую прорисовку
+	SCOPED_ACTION(LockScreen);
+
 	ProcessGroups();
 
 	if (RefreshMasks)
@@ -548,7 +550,6 @@ void highlight::configuration::UpdateHighlighting(bool RefreshMasks)
 	Global->CtrlObject->Cp()->LeftPanel()->Redraw();
 	Global->CtrlObject->Cp()->RightPanel()->Update(UPDATE_KEEP_SELECTION);
 	Global->CtrlObject->Cp()->RightPanel()->Redraw();
-	Global->ScrBuf->Unlock(); // разрешаем прорисовку
 }
 
 void highlight::configuration::HiEdit(int MenuPos)

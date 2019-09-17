@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 17.09.2019 22:46:48 +0100 - build 5475
+
+1. Incorrect console text scrolling & restoring if the buffer is wider than the window.
+
 drkns 16.09.2019 22:31:11 +0100 - build 5474
 
 1. Correction of menu separators rendering.

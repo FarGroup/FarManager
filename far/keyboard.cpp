@@ -849,7 +849,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 	const auto EnableShowTime = Global->Opt->Clock && (Global->IsPanelsActive() || (Global->CtrlObject && Global->CtrlObject->Macro.GetArea() == MACROAREA_SEARCH));
 
 	if (EnableShowTime)
-		ShowTimeInBackground();
+		ShowTime();
 
 	Global->ScrBuf->Flush();
 
@@ -912,7 +912,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 			const auto CurTime = std::chrono::steady_clock::now();
 
 			if (EnableShowTime)
-				ShowTimeInBackground();
+				ShowTime();
 
 			if (Global->IsPanelsActive())
 			{
@@ -1034,7 +1034,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 	}
 
 	if (EnableShowTime)
-		ShowTimeInBackground();
+		ShowTime();
 
 	if (rec->EventType == FOCUS_EVENT)
 	{

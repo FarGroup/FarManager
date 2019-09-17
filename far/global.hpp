@@ -74,7 +74,6 @@ public:
 	bool GlobalSearchCase;
 	bool GlobalSearchWholeWords; // значение "Whole words" для поиска
 	bool GlobalSearchReverse;
-	bool ScreenSaverActive;
 	std::atomic_ulong SuppressClock{};
 	std::atomic_ulong SuppressIndicators{};
 	bool CloseFAR, CloseFARMenu, AllowCancelExit;

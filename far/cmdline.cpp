@@ -1013,7 +1013,7 @@ void CommandLine::ExecString(execute_info& Info)
 			}
 		}
 		if (Global->Opt->Clock)
-			ShowTimeInBackground();
+			ShowTime();
 
 		if (!Silent)
 		{

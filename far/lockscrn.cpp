@@ -55,5 +55,4 @@ LockScreen::LockScreen()
 LockScreen::~LockScreen()
 {
 	Global->ScrBuf->Unlock();
-	Global->ScrBuf->Flush();
 }

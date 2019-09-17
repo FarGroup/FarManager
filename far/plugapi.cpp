@@ -58,7 +58,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "keyboard.hpp"
 #include "message.hpp"
-#include "eject.hpp"
 #include "filefilter.hpp"
 #include "fileowner.hpp"
 #include "stddlg.hpp"
@@ -87,6 +86,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "desktop.hpp"
 #include "string_sort.hpp"
 #include "global.hpp"
+#include "lockscrn.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -541,10 +541,10 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 					Global->Opt->Palette.Set(Pal->StartIndex, { Pal->Colors, Pal->ColorsCount });
 					if (Pal->Flags&FSETCLR_REDRAW)
 					{
-						Global->ScrBuf->Lock(); // отменяем всякую прорисовку
+						SCOPED_ACTION(LockScreen);
+
 						Global->WindowManager->ResizeAllWindows();
 						Global->WindowManager->PluginCommit(); // коммитим.
-						Global->ScrBuf->Unlock(); // разрешаем прорисовку
 					}
 
 					return TRUE;

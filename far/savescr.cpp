@@ -176,8 +176,8 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 	{
 		std::pair<SMALL_RECT, bool> WindowRect;
 		WindowRect.second = console.GetWindowRect(WindowRect.first);
-		const auto IsExtraTop = WindowRect.second && !(WindowRect.first.Top == 0 && WindowRect.first.Bottom == ScrY);
-		const auto IsExtraRight = WindowRect.second && !(WindowRect.first.Left == 0 && WindowRect.first.Right == ScrX);
+		const auto IsExtraTop = WindowRect.second && !(WindowRect.first.Top == 0 && WindowRect.first.Bottom == OriginalHeight);
+		const auto IsExtraRight = WindowRect.second && !(WindowRect.first.Left == 0 && WindowRect.first.Right == OriginalWidth);
 
 		if (DesiredHeight != OriginalHeight)
 		{

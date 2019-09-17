@@ -1108,9 +1108,42 @@ namespace console_detail
 		if (!GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi))
 			return false;
 
-		const SMALL_RECT ScrollRectangle{ 0, 0, static_cast<SHORT>(csbi.dwSize.X - 1), static_cast<SHORT>(csbi.dwSize.Y - (ScrY + 1) - 1) };
-		const COORD DestinationOigin{ 0, static_cast<SHORT>(-static_cast<SHORT>(NumLines)) };
-		return ScrollScreenBuffer(ScrollRectangle, nullptr, DestinationOigin, Fill) != FALSE;
+		const auto Scroll = [&](const SMALL_RECT& Rect)
+		{
+			return ScrollScreenBuffer(
+				Rect,
+				{},
+				{
+					Rect.Left,
+					Rect.Top - static_cast<SHORT>(NumLines)
+				},
+				Fill);
+		};
+
+
+		const SMALL_RECT TopRectangle
+		{
+			0,
+			0,
+			static_cast<SHORT>(csbi.dwSize.X - 1),
+			static_cast<SHORT>(csbi.dwSize.Y - 1 - (ScrY + 1))
+		};
+
+		if (!Scroll(TopRectangle))
+			return false;
+
+		const SMALL_RECT RightRectangle
+		{
+			static_cast<SHORT>(ScrX + 1),
+			static_cast<SHORT>(TopRectangle.Bottom + 1),
+			static_cast<SHORT>(csbi.dwSize.X - 1),
+			static_cast<SHORT>(csbi.dwSize.Y - 1)
+		};
+
+		if (!Scroll(RightRectangle))
+			return false;
+
+		return true;
 	}
 
 	bool console::IsViewportVisible() const

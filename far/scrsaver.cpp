@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/function_ref.hpp"
+#include "common/scope_exit.hpp"
 
 // External:
 
@@ -154,8 +155,19 @@ static void ShowSaver(int Step, function_ref<void(star&)> const Fill)
 
 int ScreenSaver()
 {
-	if (Global->ScreenSaverActive)
+	static bool ScreenSaverActive = false;
+
+	if (ScreenSaverActive)
 		return 1;
+
+	ScreenSaverActive = true;
+	++Global->SuppressClock;
+
+	SCOPE_EXIT
+	{
+		--Global->SuppressClock;
+		ScreenSaverActive = false;
+	};
 
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_IDLE);
 
@@ -174,7 +186,6 @@ int ScreenSaver()
 		console.ResetPosition();
 	}
 
-	Global->ScreenSaverActive = true;
 	CONSOLE_CURSOR_INFO CursorInfo;
 	console.GetCursorInfo(CursorInfo);
 	{
@@ -215,7 +226,6 @@ int ScreenSaver()
 		}
 	}
 	SetCursorType(CursorInfo.bVisible!=FALSE, CursorInfo.dwSize);
-	Global->ScreenSaverActive = false;
 	FlushInputBuffer();
 	Global->StartIdleTime = std::chrono::steady_clock::now();
 	return 1;

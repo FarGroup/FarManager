@@ -62,6 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fileedit.hpp"
 #include "scrsaver.hpp"
 #include "global.hpp"
+#include "lockscrn.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -1070,7 +1071,7 @@ void Manager::RefreshCommit(const window_ptr& Param)
 			(Global->IsPanelsActive() && Global->Opt->Clock)
 		)
 		{
-			ShowTimeInBackground();
+			ShowTime();
 		}
 	}
 }
@@ -1211,7 +1212,7 @@ void Manager::ImmediateHide()
 
 void Manager::ResizeAllWindows()
 {
-	Global->ScrBuf->Lock();
+	SCOPED_ACTION(LockScreen);
 
 	for (const auto& i: m_windows)
 	{
@@ -1219,7 +1220,6 @@ void Manager::ResizeAllWindows()
 	}
 
 	RefreshAll();
-	Global->ScrBuf->Unlock();
 }
 
 void Manager::InitKeyBar() const

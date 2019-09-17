@@ -629,15 +629,9 @@ void UpdateScreenSize()
 	Global->ScrBuf->AllocBuf(NewSize.Y, NewSize.X);
 }
 
-void ShowTimeInBackground()
-{
-	if (!Global->SuppressClock)
-		ShowTime();
-}
-
 void ShowTime()
 {
-	if (Global->ScreenSaverActive)
+	if (Global->SuppressClock)
 		return;
 
 	Global->CurrentTime.update();

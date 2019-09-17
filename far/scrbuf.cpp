@@ -354,7 +354,7 @@ void ScreenBuf::Flush(flush_type FlushType)
 		{
 			if (Global->IsPanelsActive() && Global->Opt->Clock)
 			{
-				ShowTimeInBackground();
+				ShowTime();
 			}
 
 			std::vector<SMALL_RECT>WriteList;

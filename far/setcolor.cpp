@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "global.hpp"
 #include "strmix.hpp"
+#include "lockscrn.hpp"
 
 // Platform:
 
@@ -72,19 +73,22 @@ static void ChangeColor(PaletteColors PaletteIndex)
 		return;
 
 	Global->Opt->Palette.Set(PaletteIndex, { &NewColor, 1 });
-	Global->ScrBuf->Lock(); // отменяем всякую прорисовку
-	Global->CtrlObject->Cp()->LeftPanel()->Update(UPDATE_KEEP_SELECTION);
-	Global->CtrlObject->Cp()->LeftPanel()->Redraw();
-	Global->CtrlObject->Cp()->RightPanel()->Update(UPDATE_KEEP_SELECTION);
-	Global->CtrlObject->Cp()->RightPanel()->Redraw();
 
-	Global->WindowManager->ResizeAllWindows(); // рефрешим
-	Global->WindowManager->PluginCommit(); // коммитим.
+	{
+		SCOPED_ACTION(LockScreen);
 
-	if (Global->Opt->Clock)
-		ShowTimeInBackground();
+		Global->CtrlObject->Cp()->LeftPanel()->Update(UPDATE_KEEP_SELECTION);
+		Global->CtrlObject->Cp()->LeftPanel()->Redraw();
+		Global->CtrlObject->Cp()->RightPanel()->Update(UPDATE_KEEP_SELECTION);
+		Global->CtrlObject->Cp()->RightPanel()->Redraw();
 
-	Global->ScrBuf->Unlock(); // разрешаем прорисовку
+		Global->WindowManager->ResizeAllWindows(); // рефрешим
+		Global->WindowManager->PluginCommit(); // коммитим.
+
+		if (Global->Opt->Clock)
+			ShowTime();
+	}
+
 	Global->WindowManager->PluginCommit(); // коммитим.
 }
 

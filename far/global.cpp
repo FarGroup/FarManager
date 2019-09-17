@@ -71,7 +71,6 @@ global::global():
 	GlobalSearchCase=false;
 	GlobalSearchWholeWords=false; // значение "Whole words" для поиска
 	GlobalSearchReverse=false;
-	ScreenSaverActive = false;
 	CloseFAR = false;
 	CloseFARMenu = false;
 	AllowCancelExit = true;
