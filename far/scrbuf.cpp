@@ -598,19 +598,27 @@ void ScreenBuf::Scroll(size_t Count)
 
 	const FAR_CHAR_INFO Fill{ L' ', colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN) };
 
-	if (Global->Opt->WindowMode && console.IsScrollbackPresent())
+	if (Global->Opt->WindowMode)
 	{
-		SMALL_RECT Region = { 0, 0, ScrX, static_cast<SHORT>(Count - 1) };
+		if (console.IsScrollbackPresent())
+		{
+			SMALL_RECT Region = { 0, 0, ScrX, static_cast<SHORT>(Count - 1) };
 
-		// TODO: matrix_view to avoid copying
-		matrix<FAR_CHAR_INFO> BufferBlock(Count, ScrX + 1);
-		Read({ Region.Left, Region.Top, Region.Right, Region.Bottom }, BufferBlock);
+			// TODO: matrix_view to avoid copying
+			matrix<FAR_CHAR_INFO> BufferBlock(Count, ScrX + 1);
+			Read({ Region.Left, Region.Top, Region.Right, Region.Bottom }, BufferBlock);
 
-		console.ScrollNonClientArea(Count, Fill);
+			console.ScrollNonClientArea(Count, Fill);
 
-		Region.Top = static_cast<SHORT>(-static_cast<SHORT>(Count));
-		Region.Bottom = -1;
-		console.WriteOutput(BufferBlock, Region);
+			Region.Top = static_cast<SHORT>(-static_cast<SHORT>(Count));
+			Region.Bottom = -1;
+			console.WriteOutput(BufferBlock, Region);
+		}
+		else
+		{
+			// Even if there's no scrollback there might be the right area
+			console.ScrollNonClientArea(Count, Fill);
+		}
 	}
 
 	if (Count && Count < Buf.height())

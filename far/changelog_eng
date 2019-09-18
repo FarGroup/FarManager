@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 18.09.2019 08:15:51 +0100 - build 5476
+
+1. Continuation of 5475.
+
 drkns 17.09.2019 22:46:48 +0100 - build 5475
 
 1. Incorrect console text scrolling & restoring if the buffer is wider than the window.

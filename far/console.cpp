@@ -1129,7 +1129,7 @@ namespace console_detail
 			static_cast<SHORT>(csbi.dwSize.Y - 1 - (ScrY + 1))
 		};
 
-		if (!Scroll(TopRectangle))
+		if (TopRectangle.Bottom >= TopRectangle.Top && !Scroll(TopRectangle))
 			return false;
 
 		const SMALL_RECT RightRectangle
@@ -1140,7 +1140,7 @@ namespace console_detail
 			static_cast<SHORT>(csbi.dwSize.Y - 1)
 		};
 
-		if (!Scroll(RightRectangle))
+		if (RightRectangle.Right >= RightRectangle.Left && !Scroll(RightRectangle))
 			return false;
 
 		return true;
