@@ -22,8 +22,8 @@ CriticalSection& GetExportSync()
   return sync;
 }
 
-wstring get_system_message(HRESULT hr, DWORD lang_id) {
-  wostringstream st;
+std::wstring get_system_message(HRESULT hr, DWORD lang_id) {
+  std::wostringstream st;
   wchar_t* sys_msg;
   DWORD len = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, hr, lang_id, reinterpret_cast<LPWSTR>(&sys_msg), 0, nullptr);
   if (!len && lang_id && GetLastError() == ERROR_RESOURCE_LANG_NOT_FOUND)
@@ -39,7 +39,7 @@ wstring get_system_message(HRESULT hr, DWORD lang_id) {
     }
   }
   if (len) {
-    wstring message;
+    std::wstring message;
     try {
       message = sys_msg;
     }
@@ -48,18 +48,18 @@ wstring get_system_message(HRESULT hr, DWORD lang_id) {
       throw;
     }
     LocalFree(static_cast<HLOCAL>(sys_msg));
-    st << strip(message) << L" (0x" << hex << uppercase << setw(8) << setfill(L'0') << hr << L")";
+    st << strip(message) << L" (0x" << std::hex << std::uppercase << std::setw(8) << std::setfill(L'0') << hr << L")";
   }
   else {
-    st << L"HRESULT: 0x" << hex << uppercase << setw(8) << setfill(L'0') << hr;
+    st << L"HRESULT: 0x" << std::hex << std::uppercase << std::setw(8) << std::setfill(L'0') << hr;
   }
   return st.str();
 }
 
-wstring get_console_title() {
+std::wstring get_console_title() {
   Buffer<wchar_t> buf(10000);
   DWORD size = GetConsoleTitleW(buf.data(), static_cast<DWORD>(buf.size()));
-  return wstring(buf.data(), size);
+  return std::wstring(buf.data(), size);
 }
 
 bool wait_for_single_object(HANDLE handle, DWORD timeout) {
@@ -73,29 +73,29 @@ bool wait_for_single_object(HANDLE handle, DWORD timeout) {
     FAIL(E_FAIL);
 }
 
-wstring ansi_to_unicode(const string& str, unsigned code_page) {
+std::wstring ansi_to_unicode(const std::string& str, unsigned code_page) {
   unsigned str_size = static_cast<unsigned>(str.size());
   if (str_size == 0)
-    return wstring();
+    return std::wstring();
   int size = MultiByteToWideChar(code_page, 0, str.data(), str_size, nullptr, 0);
   Buffer<wchar_t> out(size);
   size = MultiByteToWideChar(code_page, 0, str.data(), str_size, out.data(), size);
   CHECK_SYS(size);
-  return wstring(out.data(), size);
+  return std::wstring(out.data(), size);
 }
 
-string unicode_to_ansi(const wstring& str, unsigned code_page) {
+std::string unicode_to_ansi(const std::wstring& str, unsigned code_page) {
   unsigned str_size = static_cast<unsigned>(str.size());
   if (str_size == 0)
-    return string();
+    return std::string();
   int size = WideCharToMultiByte(code_page, 0, str.data(), str_size, nullptr, 0, nullptr, nullptr);
   Buffer<char> out(size);
   size = WideCharToMultiByte(code_page, 0, str.data(), str_size, out.data(), size, nullptr, nullptr);
   CHECK_SYS(size);
-  return string(out.data(), size);
+  return std::string(out.data(), size);
 }
 
-wstring expand_env_vars(const wstring& str) {
+std::wstring expand_env_vars(const std::wstring& str) {
   Buffer<wchar_t> buf(MAX_PATH);
   unsigned size = ExpandEnvironmentStringsW(str.c_str(), buf.data(), static_cast<DWORD>(buf.size()));
   if (size > buf.size()) {
@@ -103,10 +103,10 @@ wstring expand_env_vars(const wstring& str) {
     size = ExpandEnvironmentStringsW(str.c_str(), buf.data(), static_cast<DWORD>(buf.size()));
   }
   CHECK_SYS(size);
-  return wstring(buf.data(), size - 1);
+  return std::wstring(buf.data(), size - 1);
 }
 
-wstring get_full_path_name(const wstring& path) {
+std::wstring get_full_path_name(const std::wstring& path) {
   Buffer<wchar_t> buf(MAX_PATH);
   DWORD size = GetFullPathNameW(path.c_str(), static_cast<DWORD>(buf.size()), buf.data(), nullptr);
   if (size > buf.size()) {
@@ -114,10 +114,10 @@ wstring get_full_path_name(const wstring& path) {
     size = GetFullPathNameW(path.c_str(), static_cast<DWORD>(buf.size()), buf.data(), nullptr);
   }
   CHECK_SYS(size);
-  return wstring(buf.data(), size);
+  return std::wstring(buf.data(), size);
 }
 
-wstring get_current_directory() {
+std::wstring get_current_directory() {
   Buffer<wchar_t> buf(MAX_PATH);
   DWORD size = GetCurrentDirectoryW(static_cast<DWORD>(buf.size()), buf.data());
   if (size > buf.size()) {
@@ -125,7 +125,7 @@ wstring get_current_directory() {
     size = GetCurrentDirectoryW(static_cast<DWORD>(buf.size()), buf.data());
   }
   CHECK_SYS(size);
-  return wstring(buf.data(), size);
+  return std::wstring(buf.data(), size);
 }
 
 
@@ -138,15 +138,15 @@ File::~File() NOEXCEPT {
   close();
 }
 
-File::File(const wstring& file_path, DWORD desired_access, DWORD share_mode, DWORD creation_disposition, DWORD flags_and_attributes): h_file(INVALID_HANDLE_VALUE) {
+File::File(const std::wstring& file_path, DWORD desired_access, DWORD share_mode, DWORD creation_disposition, DWORD flags_and_attributes): h_file(INVALID_HANDLE_VALUE) {
   open(file_path, desired_access, share_mode, creation_disposition, flags_and_attributes);
 }
 
-void File::open(const wstring& file_path, DWORD desired_access, DWORD share_mode, DWORD creation_disposition, DWORD flags_and_attributes) {
+void File::open(const std::wstring& file_path, DWORD desired_access, DWORD share_mode, DWORD creation_disposition, DWORD flags_and_attributes) {
   CHECK_FILE(open_nt(file_path, desired_access, share_mode, creation_disposition, flags_and_attributes));
 }
 
-bool File::open_nt(const wstring& file_path, DWORD desired_access, DWORD share_mode, DWORD creation_disposition, DWORD flags_and_attributes) NOEXCEPT {
+bool File::open_nt(const std::wstring& file_path, DWORD desired_access, DWORD share_mode, DWORD creation_disposition, DWORD flags_and_attributes) NOEXCEPT {
   close();
   this->file_path = file_path;
   const auto system_functions = Far::get_system_functions();
@@ -167,13 +167,13 @@ void File::close() NOEXCEPT {
   }
 }
 
-UInt64 File::size() {
-  UInt64 file_size;
+uint64_t File::size() {
+  uint64_t file_size;
   CHECK_FILE(size_nt(file_size));
   return file_size;
 }
 
-bool File::size_nt(UInt64& file_size) NOEXCEPT {
+bool File::size_nt(uint64_t& file_size) NOEXCEPT {
   LARGE_INTEGER fs;
   if (GetFileSizeEx(h_file, &fs)) {
     file_size = fs.QuadPart;
@@ -223,13 +223,13 @@ bool File::set_time_nt(const FILETIME& ctime, const FILETIME& atime, const FILET
   return SetFileTime(h_file, &ctime, &atime, &mtime) != 0;
 };
 
-UInt64 File::set_pos(Int64 offset, DWORD method) {
-  UInt64 new_pos;
+uint64_t File::set_pos(int64_t offset, DWORD method) {
+  uint64_t new_pos;
   CHECK_FILE(set_pos_nt(offset, method, &new_pos));
   return new_pos;
 }
 
-bool File::set_pos_nt(Int64 offset, DWORD method, UInt64* new_pos) NOEXCEPT {
+bool File::set_pos_nt(int64_t offset, DWORD method, uint64_t* new_pos) NOEXCEPT {
   LARGE_INTEGER distance_to_move, new_file_pointer;
   distance_to_move.QuadPart = offset;
   if (!SetFilePointerEx(h_file, distance_to_move, &new_file_pointer, method))
@@ -257,23 +257,23 @@ bool File::get_info_nt(BY_HANDLE_FILE_INFORMATION& info) NOEXCEPT {
   return GetFileInformationByHandle(h_file, &info) != 0;
 }
 
-bool File::exists(const wstring& file_path) NOEXCEPT {
+bool File::exists(const std::wstring& file_path) NOEXCEPT {
   return attributes(file_path) != INVALID_FILE_ATTRIBUTES;
 }
 
-DWORD File::attributes(const wstring& file_path) NOEXCEPT {
+DWORD File::attributes(const std::wstring& file_path) NOEXCEPT {
   const auto system_functions = Far::get_system_functions();
   if (system_functions)
-    return system_functions->GetFileAttributes(long_path_norm(file_path).c_str()); 
+    return system_functions->GetFileAttributes(long_path_norm(file_path).c_str());
   else
     return GetFileAttributesW(long_path_norm(file_path).c_str());
 }
 
-void File::set_attr(const wstring& file_path, DWORD attr) {
+void File::set_attr(const std::wstring& file_path, DWORD attr) {
   CHECK_FILE(set_attr_nt(file_path, attr));
 }
 
-bool File::set_attr_nt(const wstring& file_path, DWORD attr) NOEXCEPT {
+bool File::set_attr_nt(const std::wstring& file_path, DWORD attr) NOEXCEPT {
   const auto system_functions = Far::get_system_functions();
   if (system_functions)
     return system_functions->SetFileAttributes(long_path_norm(file_path).c_str(), attr) != 0;
@@ -281,11 +281,11 @@ bool File::set_attr_nt(const wstring& file_path, DWORD attr) NOEXCEPT {
     return SetFileAttributesW(long_path_norm(file_path).c_str(), attr) != 0;
 }
 
-void File::delete_file(const wstring& file_path) {
+void File::delete_file(const std::wstring& file_path) {
   CHECK_FILE(delete_file_nt(file_path));
 }
 
-bool File::delete_file_nt(const wstring& file_path) NOEXCEPT {
+bool File::delete_file_nt(const std::wstring& file_path) NOEXCEPT {
   const auto system_functions = Far::get_system_functions();
   if (system_functions)
     return system_functions->DeleteFile(long_path_norm(file_path).c_str()) != 0;
@@ -293,11 +293,11 @@ bool File::delete_file_nt(const wstring& file_path) NOEXCEPT {
     return DeleteFileW(long_path_norm(file_path).c_str()) != 0;
 }
 
-void File::create_dir(const wstring& file_path) {
+void File::create_dir(const std::wstring& file_path) {
   CHECK_FILE(create_dir_nt(file_path));
 }
 
-bool File::create_dir_nt(const wstring& file_path) NOEXCEPT {
+bool File::create_dir_nt(const std::wstring& file_path) NOEXCEPT {
   const auto system_functions = Far::get_system_functions();
   if (system_functions)
     return system_functions->CreateDirectory(long_path_norm(file_path).c_str(), nullptr) != 0;
@@ -305,11 +305,11 @@ bool File::create_dir_nt(const wstring& file_path) NOEXCEPT {
     return CreateDirectoryW(long_path_norm(file_path).c_str(), nullptr) != 0;
 }
 
-void File::remove_dir(const wstring& file_path) {
+void File::remove_dir(const std::wstring& file_path) {
   CHECK_FILE(remove_dir_nt(file_path));
 }
 
-bool File::remove_dir_nt(const wstring& file_path) NOEXCEPT {
+bool File::remove_dir_nt(const std::wstring& file_path) NOEXCEPT {
   const auto system_functions = Far::get_system_functions();
   if (system_functions)
     return system_functions->RemoveDirectory(long_path_norm(file_path).c_str()) != 0;
@@ -317,11 +317,11 @@ bool File::remove_dir_nt(const wstring& file_path) NOEXCEPT {
     return RemoveDirectoryW(long_path_norm(file_path).c_str()) != 0;
 }
 
-void File::move_file(const wstring& file_path, const wstring& new_path, DWORD flags) {
+void File::move_file(const std::wstring& file_path, const std::wstring& new_path, DWORD flags) {
   CHECK_FILE(move_file_nt(file_path, new_path, flags));
 }
 
-bool File::move_file_nt(const wstring& file_path, const wstring& new_path, DWORD flags) NOEXCEPT {
+bool File::move_file_nt(const std::wstring& file_path, const std::wstring& new_path, DWORD flags) NOEXCEPT {
   const auto system_functions = Far::get_system_functions();
   if (system_functions)
     return system_functions->MoveFileEx(long_path_norm(file_path).c_str(), long_path_norm(new_path).c_str(), flags) != 0;
@@ -329,13 +329,13 @@ bool File::move_file_nt(const wstring& file_path, const wstring& new_path, DWORD
     return MoveFileExW(long_path_norm(file_path).c_str(), long_path_norm(new_path).c_str(), flags) != 0;
 }
 
-FindData File::get_find_data(const wstring& file_path) {
+FindData File::get_find_data(const std::wstring& file_path) {
   FindData find_data;
   CHECK_FILE(get_find_data_nt(file_path, find_data));
   return find_data;
 }
 
-bool File::get_find_data_nt(const wstring& file_path, FindData& find_data) NOEXCEPT {
+bool File::get_find_data_nt(const std::wstring& file_path, FindData& find_data) NOEXCEPT {
   HANDLE h_find = FindFirstFileW(long_path_norm(file_path).c_str(), &find_data);
   if (h_find != INVALID_HANDLE_VALUE) {
     FindClose(h_find);
@@ -424,13 +424,13 @@ bool Key::query_int_nt(unsigned& value, const wchar_t* name) NOEXCEPT {
   return true;
 }
 
-wstring Key::query_str(const wchar_t* name) {
-  wstring value;
+std::wstring Key::query_str(const wchar_t* name) {
+  std::wstring value;
   CHECK_SYS(query_str_nt(value, name));
   return value;
 }
 
-bool Key::query_str_nt(wstring& value, const wchar_t* name) NOEXCEPT {
+bool Key::query_str_nt(std::wstring& value, const wchar_t* name) NOEXCEPT {
   DWORD type = REG_SZ;
   DWORD data_size;
   LONG res = RegQueryValueExW(h_key, name, nullptr, &type, nullptr, &data_size);
@@ -500,11 +500,11 @@ bool Key::set_int_nt(const wchar_t* name, unsigned value) NOEXCEPT {
   return true;
 }
 
-void Key::set_str(const wchar_t* name, const wstring& value) {
+void Key::set_str(const wchar_t* name, const std::wstring& value) {
   CHECK_SYS(set_str_nt(name, value));
 }
 
-bool Key::set_str_nt(const wchar_t* name, const wstring& value) NOEXCEPT {
+bool Key::set_str_nt(const wchar_t* name, const std::wstring& value) NOEXCEPT {
   LONG res = RegSetValueExW(h_key, name, 0, REG_SZ, reinterpret_cast<LPBYTE>(const_cast<wchar_t*>(value.c_str())), (static_cast<DWORD>(value.size()) + 1) * sizeof(wchar_t));
   if (res != ERROR_SUCCESS) {
     SetLastError(res);
@@ -539,13 +539,13 @@ bool Key::delete_value_nt(const wchar_t* name) NOEXCEPT {
   return true;
 }
 
-vector<wstring> Key::enum_sub_keys() {
-  vector<wstring> names;
+std::vector<std::wstring> Key::enum_sub_keys() {
+  std::vector<std::wstring> names;
   CHECK_SYS(enum_sub_keys_nt(names));
   return names;
 }
 
-bool Key::enum_sub_keys_nt(vector<wstring>& names) NOEXCEPT {
+bool Key::enum_sub_keys_nt(std::vector<std::wstring>& names) NOEXCEPT {
   DWORD index = 0;
   const unsigned c_key_name_size = 256;
   Buffer<wchar_t> name(c_key_name_size);
@@ -562,7 +562,7 @@ bool Key::enum_sub_keys_nt(vector<wstring>& names) NOEXCEPT {
       SetLastError(res);
       return false;
     }
-    names.push_back(wstring(name.data(), name_size));
+    names.push_back(std::wstring(name.data(), name_size));
     index++;
   }
   return true;
@@ -581,7 +581,7 @@ bool Key::delete_sub_key_nt(const wchar_t* name) NOEXCEPT {
   return true;
 }
 
-FileEnum::FileEnum(const wstring& file_mask) NOEXCEPT : file_mask(file_mask), h_find(INVALID_HANDLE_VALUE) {
+FileEnum::FileEnum(const std::wstring& file_mask) NOEXCEPT : file_mask(file_mask), h_find(INVALID_HANDLE_VALUE) {
   n_far_items = -1;
 }
 
@@ -617,8 +617,8 @@ int FileEnum::far_emum_cb(const PluginPanelItem& item)
   fdata.nFileSizeLow = static_cast<DWORD>(item.FileSize & 0xFFFFFFFF);
   fdata.dwReserved0 = static_cast<DWORD>(item.Reserved[0]);
   fdata.dwReserved1 = static_cast<DWORD>(item.Reserved[1]);
-  wcscpy(fdata.cAlternateFileName, null_to_empty(item.AlternateFileName));
-  wcsncpy(fdata.cFileName, null_to_empty(item.FileName), sizeof(fdata.cFileName)/sizeof(fdata.cFileName[0]));
+  std::wcscpy(fdata.cAlternateFileName, null_to_empty(item.AlternateFileName));
+  std::wcsncpy(fdata.cFileName, null_to_empty(item.FileName), sizeof(fdata.cFileName)/sizeof(fdata.cFileName[0]));
 
   ++n_far_items;
   return TRUE;
@@ -637,10 +637,10 @@ bool FileEnum::next_nt(bool& more) NOEXCEPT {
       }
       else {
         if ((h_find = FindFirstFileW(long_path(file_mask).c_str(), &find_data)) == INVALID_HANDLE_VALUE) {
-          if (GetLastError() == ERROR_ACCESS_DENIED) { // 
+          if (GetLastError() == ERROR_ACCESS_DENIED) { //
             auto dir = extract_file_path(file_mask);   // M$ FindFirst/NextFile doesn't work for junction/symlink folder.
             auto msk = extract_file_name(file_mask);   // Try to use FarRecursiveSearch in such case.
-            if (!dir.empty() && !msk.empty()) {        // 
+            if (!dir.empty() && !msk.empty()) {        //
               auto attr = File::attributes(dir);       //
 #ifndef TOOLS_TOOL
               if (attr != INVALID_FILE_ATTRIBUTES && (attr & FILE_ATTRIBUTE_DIRECTORY) && (attr & FILE_ATTRIBUTE_REPARSE_POINT)) {
@@ -670,9 +670,9 @@ bool FileEnum::next_nt(bool& more) NOEXCEPT {
         continue;
     }
     auto mask_dot_pos = file_mask.find_last_of(L'.'); // avoid found "name.ext_" using mask "*.ext"
-    if (mask_dot_pos != wstring::npos && file_mask.find_first_of(L'*', mask_dot_pos) == wstring::npos) {
-      const auto last_dot_in_fname = wcsrchr(find_data.cFileName, L'.');
-      if (nullptr != last_dot_in_fname && wcslen(last_dot_in_fname) > file_mask.size() - mask_dot_pos)
+    if (mask_dot_pos != std::wstring::npos && file_mask.find_first_of(L'*', mask_dot_pos) == std::wstring::npos) {
+      const auto last_dot_in_fname = std::wcsrchr(find_data.cFileName, L'.');
+      if (nullptr != last_dot_in_fname && std::wcslen(last_dot_in_fname) > file_mask.size() - mask_dot_pos)
         continue;
     }
     more = true;
@@ -680,20 +680,20 @@ bool FileEnum::next_nt(bool& more) NOEXCEPT {
   }
 }
 
-DirList::DirList(const wstring& dir_path) NOEXCEPT : FileEnum(add_trailing_slash(dir_path) + L'*') {
+DirList::DirList(const std::wstring& dir_path) NOEXCEPT : FileEnum(add_trailing_slash(dir_path) + L'*') {
 }
 
-wstring get_temp_path() {
+std::wstring get_temp_path() {
   Buffer<wchar_t> buf(MAX_PATH);
   DWORD len = GetTempPathW(static_cast<DWORD>(buf.size()), buf.data());
   CHECK(len <= buf.size());
   CHECK_SYS(len);
-  return wstring(buf.data(), len);
+  return std::wstring(buf.data(), len);
 }
 
 TempFile::TempFile() {
   Buffer<wchar_t> buf(MAX_PATH);
-  wstring temp_path = get_temp_path();
+  std::wstring temp_path = get_temp_path();
   CHECK_SYS(GetTempFileNameW(temp_path.c_str(), L"", 0, buf.data()));
   path.assign(buf.data());
 }
@@ -702,27 +702,27 @@ TempFile::~TempFile() {
   DeleteFileW(path.c_str());
 }
 
-wstring format_file_time(const FILETIME& file_time) {
+std::wstring format_file_time(const FILETIME& file_time) {
   FILETIME local_ft;
   CHECK_SYS(FileTimeToLocalFileTime(&file_time, &local_ft));
   SYSTEMTIME st;
   CHECK_SYS(FileTimeToSystemTime(&local_ft, &st));
   Buffer<wchar_t> buf(1024);
   CHECK_SYS(GetDateFormatW(LOCALE_USER_DEFAULT, DATE_SHORTDATE, &st, nullptr, buf.data(), static_cast<int>(buf.size())));
-  wstring date_str = buf.data();
+  std::wstring date_str = buf.data();
   CHECK_SYS(GetTimeFormatW(LOCALE_USER_DEFAULT, 0, &st, nullptr, buf.data(), static_cast<int>(buf.size())));
-  wstring time_str = buf.data();
+  std::wstring time_str = buf.data();
   return date_str + L' ' + time_str;
 }
 
-wstring upcase(const wstring& str) {
+std::wstring upcase(const std::wstring& str) {
   Buffer<wchar_t> up_str(str.size());
-  wmemcpy(up_str.data(), str.data(), str.size());
+  std::wmemcpy(up_str.data(), str.data(), str.size());
   CharUpperBuffW(up_str.data(), static_cast<DWORD>(up_str.size()));
-  return wstring(up_str.data(), up_str.size());
+  return std::wstring(up_str.data(), up_str.size());
 }
 
-wstring create_guid() {
+std::wstring create_guid() {
   GUID guid;
   CHECK_COM(CoCreateGuid(&guid));
   wchar_t guid_str[50];
@@ -735,7 +735,7 @@ void enable_lfh() {
   HeapSetInformation(reinterpret_cast<HANDLE>(_get_heap_handle()), HeapCompatibilityInformation, &heap_info, sizeof(heap_info));
 }
 
-wstring search_path(const wstring& file_name) {
+std::wstring search_path(const std::wstring& file_name) {
   Buffer<wchar_t> path(MAX_PATH);
   wchar_t* name_ptr;
   DWORD size = SearchPathW(nullptr, file_name.c_str(), nullptr, static_cast<DWORD>(path.size()), path.data(), &name_ptr);
@@ -745,7 +745,7 @@ wstring search_path(const wstring& file_name) {
   }
   CHECK_SYS(size);
   CHECK(size < path.size());
-  return wstring(path.data(), size);
+  return std::wstring(path.data(), size);
 }
 
 std::pair<DWORD, DWORD> get_posix_and_nt_attributes(DWORD const RawAttributes)

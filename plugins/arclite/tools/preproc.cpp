@@ -1,8 +1,8 @@
-void search_and_replace(wstring& text, const wstring& name, const wstring& value) {
+void search_and_replace(std::wstring& text, const std::wstring& name, const std::wstring& value) {
   size_t pos = 0;
   while (true) {
     pos = text.find(name, pos);
-    if (pos == wstring::npos) break;
+    if (pos == std::wstring::npos) break;
     text.replace(pos, name.size(), value);
     pos += value.size();
   }
@@ -11,11 +11,11 @@ void search_and_replace(wstring& text, const wstring& name, const wstring& value
 const wchar_t* prefix = L"<(";
 const wchar_t* suffix = L")>";
 
-void preproc(const deque<wstring>& params) {
+void preproc(const std::deque<std::wstring>& params) {
   if (params.size() < 3)
     FAIL_MSG(L"Usage: preproc ini_file ... in_file out_file");
   unsigned code_page;
-  wstring text = load_file(params[params.size() - 2], &code_page);
+  std::wstring text = load_file(params[params.size() - 2], &code_page);
   for (unsigned i = 0; i < params.size() - 2; ++i) {
     Ini::File ini_file;
     ini_file.parse(load_file(params[i]));

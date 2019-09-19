@@ -10,11 +10,11 @@
 #include "options.hpp"
 #include <algorithm>
 
-wstring get_error_dlg_title() {
+std::wstring get_error_dlg_title() {
   return Far::get_msg(MSG_PLUGIN_NAME);
 }
 
-ProgressMonitor::ProgressMonitor(const wstring& progress_title, bool progress_known, bool lazy) :
+ProgressMonitor::ProgressMonitor(const std::wstring& progress_title, bool progress_known, bool lazy) :
   h_scr(nullptr),
   paused(false),
   low_priority(false),
@@ -40,7 +40,7 @@ ProgressMonitor::~ProgressMonitor() {
 
 void ProgressMonitor::display() {
   do_update_ui();
-  wstring title;
+  std::wstring title;
   if (progress_known) {
     title += L"{" + int_to_str(percent_done) + L"%} ";
   }
@@ -158,12 +158,12 @@ const wchar_t** get_suffixes(int start) {
   , 0,                  MSG_SUFFIX_SIZE_KB,  MSG_SUFFIX_SIZE_MB,  MSG_SUFFIX_SIZE_GB,  MSG_SUFFIX_SIZE_TB
   , MSG_SUFFIX_SPEED_B, MSG_SUFFIX_SPEED_KB, MSG_SUFFIX_SPEED_MB, MSG_SUFFIX_SPEED_GB, MSG_SUFFIX_SPEED_TB
   };
-  static wstring       msg_texts[1 + 5 + 5];
+  static std::wstring       msg_texts[1 + 5 + 5];
   static const wchar_t* suffixes[1 + 5 + 5];
 
   if (Far::get_msg(msg_ids[0]) != msg_texts[0]) {
     for (int i = 0; i < 1 + 5 + 5; ++i)
-      suffixes[i] = (msg_texts[i] = msg_ids[i] ? Far::get_msg(msg_ids[i]) : wstring()).c_str();
+      suffixes[i] = (msg_texts[i] = msg_ids[i] ? Far::get_msg(msg_ids[i]) : std::wstring()).c_str();
   }
 
   return suffixes + start;
@@ -178,8 +178,8 @@ private:
     c_client_xs = 60
   };
 
-  wstring arc_path;
-  wstring& password;
+  std::wstring arc_path;
+  std::wstring& password;
 
   int password_ctrl_id;
   int ok_ctrl_id;
@@ -193,7 +193,7 @@ private:
   }
 
 public:
-  PasswordDialog(wstring& password, const wstring& arc_path) :
+  PasswordDialog(std::wstring& password, const std::wstring& arc_path) :
     Far::Dialog(Far::get_msg(MSG_PASSWORD_TITLE), &c_password_dialog_guid, c_client_xs),
     arc_path(arc_path),
     password(password)
@@ -218,7 +218,7 @@ public:
   }
 };
 
-bool password_dialog(wstring& password, const wstring& arc_path) {
+bool password_dialog(std::wstring& password, const std::wstring& arc_path) {
   return PasswordDialog(password, arc_path).show();
 }
 
@@ -229,7 +229,7 @@ private:
     c_client_xs = 60
   };
 
-  wstring file_path;
+  std::wstring file_path;
   OverwriteFileInfo src_file_info;
   OverwriteFileInfo dst_file_info;
   OverwriteDialogKind kind;
@@ -260,7 +260,7 @@ private:
   }
 
 public:
-  OverwriteDialog(const wstring& file_path, const OverwriteFileInfo& src_file_info, const OverwriteFileInfo& dst_file_info, OverwriteDialogKind kind, OverwriteOptions& options):
+  OverwriteDialog(const std::wstring& file_path, const OverwriteFileInfo& src_file_info, const OverwriteFileInfo& dst_file_info, OverwriteDialogKind kind, OverwriteOptions& options):
     Far::Dialog(Far::get_msg(MSG_OVERWRITE_DLG_TITLE), &c_overwrite_dialog_guid, c_client_xs, nullptr, FDLG_WARNING),
     file_path(file_path),
     src_file_info(src_file_info),
@@ -277,12 +277,12 @@ public:
     separator();
     new_line();
 
-    wstring src_label = Far::get_msg(MSG_OVERWRITE_DLG_SOURCE);
-    wstring dst_label = Far::get_msg(MSG_OVERWRITE_DLG_DESTINATION);
-    uintptr_t label_pad = max(src_label.size(), dst_label.size()) + 1;
-    wstring src_size = uint_to_str(src_file_info.size);
-    wstring dst_size = uint_to_str(dst_file_info.size);
-    uintptr_t size_pad = label_pad + max(src_size.size(), dst_size.size()) + 1;
+    std::wstring src_label = Far::get_msg(MSG_OVERWRITE_DLG_SOURCE);
+    std::wstring dst_label = Far::get_msg(MSG_OVERWRITE_DLG_DESTINATION);
+    uintptr_t label_pad = std::max(src_label.size(), dst_label.size()) + 1;
+    std::wstring src_size = uint_to_str(src_file_info.size);
+    std::wstring dst_size = uint_to_str(dst_file_info.size);
+    uintptr_t size_pad = label_pad + std::max(src_size.size(), dst_size.size()) + 1;
 
     label(src_label);
     pad(label_pad);
@@ -335,7 +335,7 @@ public:
   }
 };
 
-bool overwrite_dialog(const wstring& file_path, const OverwriteFileInfo& src_file_info, const OverwriteFileInfo& dst_file_info, OverwriteDialogKind kind, OverwriteOptions& options) {
+bool overwrite_dialog(const std::wstring& file_path, const OverwriteFileInfo& src_file_info, const OverwriteFileInfo& dst_file_info, OverwriteDialogKind kind, OverwriteOptions& options) {
   return OverwriteDialog(file_path, src_file_info, dst_file_info, kind, options).show();
 }
 
@@ -365,7 +365,7 @@ private:
   int save_params_ctrl_id;
 
   void read_controls(ExtractOptions& options) {
-    auto dst = search_and_replace(strip(get_text(dst_dir_ctrl_id)), L"\"", wstring());
+    auto dst = search_and_replace(strip(get_text(dst_dir_ctrl_id)), L"\"", std::wstring());
     bool expand_env = add_trailing_slash(options.dst_dir) != add_trailing_slash(dst);
     options.dst_dir = expand_env ? expand_env_vars(dst) : dst;
     options.ignore_errors = get_check(ignore_errors_ctrl_id);
@@ -471,14 +471,14 @@ void retry_or_ignore_error(const Error& error, bool& ignore, bool& ignore_errors
     throw error;
   ignore = ignore_errors;
   if (!ignore) {
-    wostringstream st;
+    std::wostringstream st;
     st << Far::get_msg(MSG_PLUGIN_NAME) << L'\n';
     if (error.code != E_MESSAGE) {
-      wstring sys_msg = get_system_message(error.code, Far::get_lang_id());
+      std::wstring sys_msg = get_system_message(error.code, Far::get_lang_id());
       if (!sys_msg.empty())
         st << word_wrap(sys_msg, Far::get_optimal_msg_width()) << L'\n';
     }
-    for (list<wstring>::const_iterator msg = error.messages.begin(); msg != error.messages.end(); msg++) {
+    for (std::list<std::wstring>::const_iterator msg = error.messages.begin(); msg != error.messages.end(); msg++) {
       st << word_wrap(*msg, Far::get_optimal_msg_width()) << L'\n';
     }
     st << extract_file_name(widen(error.file)) << L':' << error.line << L'\n';
@@ -515,7 +515,7 @@ void retry_or_ignore_error(const Error& error, bool& ignore, bool& ignore_errors
 }
 
 void show_error_log(const ErrorLog& error_log) {
-  wstring msg;
+  std::wstring msg;
   msg += Far::get_msg(MSG_LOG_TITLE) + L'\n';
   msg += Far::get_msg(MSG_LOG_INFO) + L'\n';
   msg += Far::get_msg(MSG_LOG_CLOSE) + L'\n';
@@ -527,17 +527,17 @@ void show_error_log(const ErrorLog& error_log) {
 
   const wchar_t sig = 0xFEFF;
   file.write(&sig, sizeof(sig));
-  wstring line;
+  std::wstring line;
   for (ErrorLog::const_iterator error = error_log.begin(); error != error_log.end(); error++) {
     line.clear();
     if (error->code != E_MESSAGE && error->code != S_FALSE) {
-      wstring sys_msg = get_system_message(error->code, Far::get_lang_id());
+      std::wstring sys_msg = get_system_message(error->code, Far::get_lang_id());
       if (!sys_msg.empty())
         line.append(sys_msg).append(1, L'\n');
     }
     for (const auto& o : error->objects)
        line.append(o).append(1, L'\n');
-    wstring indent;
+    std::wstring indent;
     if (!error->messages.empty() && (!error->objects.empty() || !error->warnings.empty())) {
        line.append(Far::get_msg(MSG_KPID_ERRORFLAGS)).append(L":\n");
        indent = L"  ";
@@ -667,7 +667,7 @@ const CompressionMethod c_methods[] = {
   { MSG_COMPRESSION_METHOD_PPMD, c_method_ppmd },
 };
 
-static bool is_SWFu(const wstring& fname)
+static bool is_SWFu(const std::wstring& fname)
 {
   bool unpacked_swf = false;
   File file;
@@ -692,9 +692,9 @@ private:
 
   bool new_arc;
   bool multifile;
-  wstring default_arc_name;
-  vector<ArcType> main_formats;
-  vector<ArcType> other_formats;
+  std::wstring default_arc_name;
+  std::vector<ArcType> main_formats;
+  std::vector<ArcType> other_formats;
   UpdateOptions& options;
   UpdateProfiles& profiles;
 
@@ -731,12 +731,12 @@ private:
   int cancel_ctrl_id;
   int save_params_ctrl_id;
 
-  wstring old_ext;
+  std::wstring old_ext;
   ArcType arc_type;
   unsigned level;
 
-  wstring get_default_ext() const {
-    wstring ext;
+  std::wstring get_default_ext() const {
+    std::wstring ext;
     bool create_sfx = get_check(create_sfx_ctrl_id);
     bool enable_volumes = get_check(enable_volumes_ctrl_id);
     if (ArcAPI::formats().count(arc_type))
@@ -751,20 +751,20 @@ private:
   bool change_extension() {
     assert(new_arc);
 
-    wstring new_ext = get_default_ext();
+    std::wstring new_ext = get_default_ext();
 
     if (old_ext.empty() || new_ext.empty())
       return false;
 
-    wstring arc_path = get_text(arc_path_ctrl_id);
-    wstring file_name = extract_file_name(strip(unquote(strip(arc_path))));
+    std::wstring arc_path = get_text(arc_path_ctrl_id);
+    std::wstring file_name = extract_file_name(strip(unquote(strip(arc_path))));
     size_t pos = file_name.find_last_of(L'.');
-    if (pos == wstring::npos || pos == 0)
+    if (pos == std::wstring::npos || pos == 0)
       return false;
-    wstring ext = file_name.substr(pos);
+    std::wstring ext = file_name.substr(pos);
     if (_wcsicmp(ext.c_str(), c_sfx_ext) == 0 || _wcsicmp(ext.c_str(), c_volume_ext) == 0) {
       pos = file_name.find_last_of(L'.', pos - 1);
-      if (pos != wstring::npos && pos != 0)
+      if (pos != std::wstring::npos && pos != 0)
         ext = file_name.substr(pos);
     }
     if (_wcsicmp(old_ext.c_str(), ext.c_str()) != 0)
@@ -793,14 +793,14 @@ private:
           return true;
         }
         auto ndel = search.size();
-        while (pos+ndel < options.levels.size() && wcschr(L"0123456789", options.levels[pos+ndel])) ++ndel;
+        while (pos+ndel < options.levels.size() && std::wcschr(L"0123456789", options.levels[pos+ndel])) ++ndel;
         if (pos+ndel < options.levels.size() && options.levels[pos+ndel] == L';') ++ndel;
         if (pos > 0 && pos + ndel >= options.levels.size() && options.levels[pos-1] == L';') { --pos; ++ndel; }
          options.levels.erase(pos, ndel);
         break;
       }
       pos = options.levels.find(L';', pos+1);
-      if (pos == wstring::npos)
+      if (pos == std::wstring::npos)
         break;
       ++pos;
     }
@@ -886,12 +886,12 @@ private:
     enable(move_files_ctrl_id, !get_check(enable_filter_ctrl_id));
   }
 
-  wstring eval_arc_path() {
-    wstring arc_path = expand_env_vars(search_and_replace(expand_macros(strip(get_text(arc_path_ctrl_id))), L"\"", wstring()));
+  std::wstring eval_arc_path() {
+    std::wstring arc_path = expand_env_vars(search_and_replace(expand_macros(strip(get_text(arc_path_ctrl_id))), L"\"", std::wstring()));
     if (arc_path.empty() || arc_path.back() == L'\\')
       arc_path += default_arc_name + get_default_ext();
     if (get_check(append_ext_ctrl_id)) {
-      wstring ext = get_default_ext();
+      std::wstring ext = get_default_ext();
       if (ext.size() > arc_path.size() || upcase(arc_path.substr(arc_path.size() - ext.size())) != upcase(ext))
         arc_path += ext;
     }
@@ -960,7 +960,7 @@ private:
       }
       else {
         options.password = get_text(password_ctrl_id);
-        wstring password_verify = get_text(password_verify_ctrl_id);
+        std::wstring password_verify = get_text(password_verify_ctrl_id);
         if (options.password != password_verify) {
           FAIL_MSG(Far::get_msg(MSG_UPDATE_DLG_PASSWORDS_DONT_MATCH));
         }
@@ -1035,11 +1035,11 @@ private:
     }
     set_list_pos(level_ctrl_id, level_sel);
 
-    wstring method = options.method.empty() && options.arc_type == c_7z ? c_methods[0].value : options.method;
+    std::wstring method = options.method.empty() && options.arc_type == c_7z ? c_methods[0].value : options.method;
     unsigned method_sel = 0;
     const auto& codecs = ArcAPI::codecs();
     for (unsigned i = 0; i < ARRAYSIZE(c_methods)+codecs.size(); ++i) {
-      wstring method_name = i < ARRAYSIZE(c_methods) ? c_methods[i].value : codecs[i-ARRAYSIZE(c_methods)].Name;
+      std::wstring method_name = i < ARRAYSIZE(c_methods) ? c_methods[i].value : codecs[i-ARRAYSIZE(c_methods)].Name;
       if (method == method_name) {
         method_sel = i;
         break;
@@ -1071,7 +1071,7 @@ private:
 
   void populate_profile_list() {
     DisableEvents de(*this);
-    vector<FarListItem> fl_items;
+    std::vector<FarListItem> fl_items;
     FarListItem fl_item{};
     for (unsigned i = 0; i < profiles.size(); i++) {
       fl_item.Text = profiles[i].name.c_str();
@@ -1148,7 +1148,7 @@ private:
       }
     }
     else if (new_arc && msg == DN_BTNCLICK && param1 == save_profile_ctrl_id) {
-      wstring name;
+      std::wstring name;
       UpdateOptions options;
       read_controls(options);
       unsigned profile_idx = profiles.find_by_options(options);
@@ -1177,7 +1177,7 @@ private:
       }
     }
     else if (new_arc && msg == DN_BTNCLICK && param1 == arc_path_eval_ctrl_id) {
-      Far::info_dlg(c_arc_path_eval_dialog_guid, wstring(), word_wrap(eval_arc_path(), Far::get_optimal_msg_width()));
+      Far::info_dlg(c_arc_path_eval_dialog_guid, std::wstring(), word_wrap(eval_arc_path(), Far::get_optimal_msg_width()));
       set_focus(arc_path_ctrl_id);
     }
     else if (msg == DN_BTNCLICK && param1 == enable_filter_ctrl_id) {
@@ -1274,15 +1274,15 @@ public:
       if (ArcAPI::formats().count(options.arc_type))
         old_ext = ArcAPI::formats().at(options.arc_type).default_extension();
 
-      vector<wstring> profile_names;
+      std::vector<std::wstring> profile_names;
       profile_names.reserve(profiles.size());
       unsigned profile_idx = static_cast<unsigned>(profiles.size());
-      for_each(profiles.begin(), profiles.end(), [&] (const UpdateProfile& profile) {
+      std::for_each(profiles.begin(), profiles.end(), [&] (const UpdateProfile& profile) {
         profile_names.push_back(profile.name);
         if (profile.options == options)
           profile_idx = static_cast<unsigned>(profile_names.size()) - 1;
       });
-      profile_names.push_back(wstring());
+      profile_names.push_back(std::wstring());
       label(Far::get_msg(MSG_UPDATE_DLG_PROFILE));
       profile_ctrl_id = combo_box(profile_names, profile_idx, 30, DIF_DROPDOWNLIST);
       spacer(1);
@@ -1326,7 +1326,7 @@ public:
         if (arc_iter->second.updatable && (!multifile || !ArcAPI::is_single_file_format(arc_iter->first))) {
           if (!multifile && arc_iter->first == c_SWFc && !is_SWFu(options.arc_path))
             continue;
-          if (find(main_formats.begin(), main_formats.end(), arc_iter->first) == main_formats.end()) {
+          if (std::find(main_formats.begin(), main_formats.end(), arc_iter->first) == main_formats.end()) {
             other_formats.push_back(arc_iter->first);
           }
         }
@@ -1339,7 +1339,7 @@ public:
         else
           return _wcsicmp(a_format.name.c_str(), b_format.name.c_str()) < 0;
       });
-      vector<wstring> other_format_names;
+      std::vector<std::wstring> other_format_names;
       unsigned other_format_index = 0;
       bool found = false;
       for (const auto& t : other_formats) {
@@ -1360,7 +1360,7 @@ public:
     }
 
     label(Far::get_msg(MSG_UPDATE_DLG_LEVEL));
-    vector<wstring> level_names;
+    std::vector<std::wstring> level_names;
     unsigned level_sel = 0;
     for (unsigned i = 0; i < ARRAYSIZE(c_levels); i++) {
       level_names.push_back(Far::get_msg(c_levels[i].name_id));
@@ -1371,12 +1371,12 @@ public:
     spacer(2);
 
     label(Far::get_msg(MSG_UPDATE_DLG_METHOD));
-    wstring method = options.method.empty() && options.arc_type == c_7z ? c_methods[0].value : options.method;
-    vector<wstring> method_names;
+    std::wstring method = options.method.empty() && options.arc_type == c_7z ? c_methods[0].value : options.method;
+    std::vector<std::wstring> method_names;
     const auto& codecs = ArcAPI::codecs();
     unsigned method_sel = 0;
     for (unsigned i = 0; i < ARRAYSIZE(c_methods) + ArcAPI::Count7zCodecs(); ++i) {
-      wstring method_name = i < ARRAYSIZE(c_methods) ? c_methods[i].value : codecs[i - ARRAYSIZE(c_methods)].Name;
+      std::wstring method_name = i < ARRAYSIZE(c_methods) ? c_methods[i].value : codecs[i - ARRAYSIZE(c_methods)].Name;
       if (method == method_name)
         method_sel = i;
       if (i < ARRAYSIZE(c_methods))
@@ -1474,16 +1474,16 @@ bool update_dialog(bool new_arc, bool multifile, UpdateOptions& options, UpdateP
 class MultiSelectDialog: public Far::Dialog {
 private:
   bool read_only;
-  wstring items_str;
-  wstring& selected_str;
+  std::wstring items_str;
+  std::wstring& selected_str;
 
-  vector<wstring> items;
+  std::vector<std::wstring> items;
   int first_item_ctrl_id;
 
   int ok_ctrl_id;
   int cancel_ctrl_id;
 
-  vector<size_t> estimate_column_widths(const vector<wstring>& items) {
+  std::vector<size_t> estimate_column_widths(const std::vector<std::wstring>& items) {
     SMALL_RECT console_rect;
     double window_ratio;
     if (Far::adv_control(ACTL_GETFARRECT, 0, &console_rect)) {
@@ -1492,10 +1492,10 @@ private:
     else {
       window_ratio = 80 / 25;
     }
-    double window_ratio_diff = numeric_limits<double>::max();
-    vector<size_t> prev_col_widths;
+    double window_ratio_diff = std::numeric_limits<double>::max();
+    std::vector<size_t> prev_col_widths;
     for (unsigned num_cols = 1; num_cols <= items.size(); ++num_cols) {
-      vector<size_t> col_widths(num_cols, 0);
+      std::vector<size_t> col_widths(num_cols, 0);
       for (size_t i = 0; i < items.size(); ++i) {
         size_t col_index = i % num_cols;
         if (col_widths[col_index] < items[i].size())
@@ -1540,7 +1540,7 @@ private:
   }
 
 public:
-  MultiSelectDialog(const wstring& title, const wstring& items_str, wstring& selected_str) :
+  MultiSelectDialog(const std::wstring& title, const std::wstring& items_str, std::wstring& selected_str) :
     Far::Dialog(title, &c_multi_select_dialog_guid, 1),
     read_only(false),
     items_str(items_str),
@@ -1549,23 +1549,23 @@ public:
 
   bool show() {
     struct ItemCompare {
-      bool operator()(const wstring& a, const wstring& b) const {
+      bool operator()(const std::wstring& a, const std::wstring& b) const {
         return upcase(a) < upcase(b);
       }
     };
 
-    set<wstring, ItemCompare> selected_items;
+    std::set<std::wstring, ItemCompare> selected_items;
     if (!read_only) {
-      list<wstring> split_selected_str = split(selected_str, L',');
+      std::list<std::wstring> split_selected_str = split(selected_str, L',');
       selected_items.insert(split_selected_str.cbegin(), split_selected_str.cend());
     }
 
-    list<wstring> split_items_str = split(items_str, L',');
+    std::list<std::wstring> split_items_str = split(items_str, L',');
     items.assign(split_items_str.cbegin(), split_items_str.cend());
-    sort(items.begin(), items.end(), ItemCompare());
+    std::sort(items.begin(), items.end(), ItemCompare());
     if (items.empty())
       return false;
-    vector<size_t> col_widths = estimate_column_widths(items);
+    std::vector<size_t> col_widths = estimate_column_widths(items);
     first_item_ctrl_id = -1;
     for (unsigned i = 0; i < items.size(); ++i) {
       unsigned col_index = i % col_widths.size();
@@ -1604,15 +1604,15 @@ public:
 class FormatLibraryInfoDialog: public Far::Dialog {
 private:
 
-  map<intptr_t, size_t> format_btn_map;
-  map<intptr_t, size_t> mask_btn_map;
+  std::map<intptr_t, size_t> format_btn_map;
+  std::map<intptr_t, size_t> mask_btn_map;
 
-  wstring get_masks(size_t lib_index) {
-    wstring masks;
+  std::wstring get_masks(size_t lib_index) {
+    std::wstring masks;
     for (auto format_iter = ArcAPI::formats().cbegin(); format_iter != ArcAPI::formats().cend(); ++format_iter) {
       const ArcFormat& format = format_iter->second;
       if ((size_t)format.lib_index == lib_index) {
-        for_each(format.extension_list.cbegin(), format.extension_list.cend(), [&] (const wstring& ext) {
+        std::for_each(format.extension_list.cbegin(), format.extension_list.cend(), [&] (const std::wstring& ext) {
           masks += L"*" + ext + L",";
         });
       }
@@ -1622,8 +1622,8 @@ private:
     return masks;
   }
 
-  wstring get_formats(size_t lib_index) {
-    wstring formats;
+  std::wstring get_formats(size_t lib_index) {
+    std::wstring formats;
     for (auto format_iter = ArcAPI::formats().cbegin(); format_iter != ArcAPI::formats().cend(); ++format_iter) {
       const ArcFormat& format = format_iter->second;
       if ((size_t)format.lib_index == lib_index) {
@@ -1658,7 +1658,7 @@ private:
       }
     }
     else if (msg == DN_BTNCLICK) {
-      wstring unused;
+      std::wstring unused;
       auto lib_iter = format_btn_map.find(param1);
       if (lib_iter != format_btn_map.end()) {
         MultiSelectDialog(Far::get_msg(MSG_SETTINGS_DLG_LIB_FORMATS), get_formats(lib_iter->second),unused).show();
@@ -1710,10 +1710,10 @@ public:
   }
 };
 
-static size_t llen(const wstring& label, int add)
+static size_t llen(const std::wstring& label, int add)
 {
   size_t len = label.length() + add;
-  if (label.find(L'&') != wstring::npos)
+  if (label.find(L'&') != std::wstring::npos)
     --len;
   return len;
 }
@@ -1786,7 +1786,7 @@ private:
       enable(edit_include_masks_ctrl_id, param2 != 0);
     }
     else if (msg == DN_BTNCLICK && param1 == edit_include_masks_ctrl_id) {
-      wstring include_masks = get_text(include_masks_ctrl_id);
+      std::wstring include_masks = get_text(include_masks_ctrl_id);
       if (MultiSelectDialog(Far::get_msg(MSG_SETTINGS_DLG_USE_INCLUDE_MASKS), include_masks, include_masks).show()) {
         set_text(include_masks_ctrl_id, include_masks);
         set_focus(include_masks_ctrl_id);
@@ -1800,7 +1800,7 @@ private:
       enable(edit_exclude_masks_ctrl_id, param2 != 0);
     }
     else if (msg == DN_BTNCLICK && param1 == edit_exclude_masks_ctrl_id) {
-      wstring exclude_masks = get_text(exclude_masks_ctrl_id);
+      std::wstring exclude_masks = get_text(exclude_masks_ctrl_id);
       if (MultiSelectDialog(Far::get_msg(MSG_SETTINGS_DLG_USE_EXCLUDE_MASKS), exclude_masks, exclude_masks).show()) {
         set_text(exclude_masks_ctrl_id, exclude_masks);
         set_focus(exclude_masks_ctrl_id);
@@ -1820,7 +1820,7 @@ private:
       enable(edit_enabled_formats_ctrl_id, param2 != 0);
     }
     else if (msg == DN_BTNCLICK && param1 == edit_enabled_formats_ctrl_id) {
-      wstring enabled_formats = get_text(enabled_formats_ctrl_id);
+      std::wstring enabled_formats = get_text(enabled_formats_ctrl_id);
       if (MultiSelectDialog(Far::get_msg(MSG_SETTINGS_DLG_USE_ENABLED_FORMATS), get_available_formats(), enabled_formats).show()) {
         set_text(enabled_formats_ctrl_id, enabled_formats);
         set_focus(enabled_formats_ctrl_id);
@@ -1831,7 +1831,7 @@ private:
       enable(edit_disabled_formats_ctrl_id, param2 != 0);
     }
     else if (msg == DN_BTNCLICK && param1 == edit_disabled_formats_ctrl_id) {
-      wstring disabled_formats = get_text(disabled_formats_ctrl_id);
+      std::wstring disabled_formats = get_text(disabled_formats_ctrl_id);
       if (MultiSelectDialog(Far::get_msg(MSG_SETTINGS_DLG_USE_DISABLED_FORMATS), get_available_formats(), disabled_formats).show()) {
         set_text(disabled_formats_ctrl_id, disabled_formats);
         set_focus(disabled_formats_ctrl_id);
@@ -1845,9 +1845,9 @@ private:
 
   void generate_masks() {
     const ArcFormats& arc_formats = ArcAPI::formats();
-    wstring masks;
-    for_each(arc_formats.begin(), arc_formats.end(), [&] (const pair<const ArcType, ArcFormat>& arc_type_format) {
-      for_each(arc_type_format.second.extension_list.cbegin(), arc_type_format.second.extension_list.cend(), [&] (const wstring& ext) {
+    std::wstring masks;
+    std::for_each(arc_formats.begin(), arc_formats.end(), [&] (const std::pair<const ArcType, ArcFormat>& arc_type_format) {
+      std::for_each(arc_type_format.second.extension_list.cbegin(), arc_type_format.second.extension_list.cend(), [&] (const std::wstring& ext) {
         masks += L"*" + ext + L",";
       });
     });
@@ -1860,18 +1860,18 @@ private:
     set_text(include_masks_ctrl_id, Options().include_masks);
   }
 
-  wstring get_available_formats() {
+  std::wstring get_available_formats() {
     const ArcFormats& arc_formats = ArcAPI::formats();
-    vector<wstring> format_list;
+    std::vector<std::wstring> format_list;
     format_list.reserve(arc_formats.size());
-    for_each(arc_formats.begin(), arc_formats.end(), [&] (const pair<const ArcType, ArcFormat>& arc_type_format) {
+    std::for_each(arc_formats.begin(), arc_formats.end(), [&] (const std::pair<const ArcType, ArcFormat>& arc_type_format) {
       format_list.push_back(arc_type_format.second.name);
     });
-    sort(format_list.begin(), format_list.end(), [] (const wstring& a, const wstring& b) -> bool {
+    std::sort(format_list.begin(), format_list.end(), [] (const std::wstring& a, const std::wstring& b) -> bool {
       return upcase(a) < upcase(b);
     });
-    wstring formats;
-    for_each(format_list.begin(), format_list.end(), [&] (const wstring& format_name) {
+    std::wstring formats;
+    std::for_each(format_list.begin(), format_list.end(), [&] (const std::wstring& format_name) {
       if (!formats.empty())
         formats += L',';
       formats += format_name;
@@ -1884,9 +1884,9 @@ public:
   }
 
   bool show() {
-    wstring box1 = Far::get_msg(MSG_SETTINGS_DLG_HANDLE_CREATE);
-    wstring box2 = Far::get_msg(MSG_SETTINGS_DLG_HANDLE_COMMANDS);
-    wstring box3 = Far::get_msg(MSG_SETTINGS_DLG_OWN_PANEL_VIEW_MODE);
+    std::wstring box1 = Far::get_msg(MSG_SETTINGS_DLG_HANDLE_CREATE);
+    std::wstring box2 = Far::get_msg(MSG_SETTINGS_DLG_HANDLE_COMMANDS);
+    std::wstring box3 = Far::get_msg(MSG_SETTINGS_DLG_OWN_PANEL_VIEW_MODE);
     handle_create_ctrl_id = check_box(box1, settings.handle_create);
     new_line();
     handle_commands_ctrl_id = check_box(box2, settings.handle_commands);
@@ -1895,18 +1895,18 @@ public:
     new_line();
     separator();
     new_line();
-    wstring label1 = Far::get_msg(MSG_SETTINGS_DLG_OEM_CODEPAGE);
-    wstring label2 = Far::get_msg(MSG_SETTINGS_DLG_ANSI_CODEPAGE);
-    wstring label3 = Far::get_msg(MSG_SETTINGS_DLG_SAVE_CODEPAGE);
+    std::wstring label1 = Far::get_msg(MSG_SETTINGS_DLG_OEM_CODEPAGE);
+    std::wstring label2 = Far::get_msg(MSG_SETTINGS_DLG_ANSI_CODEPAGE);
+    std::wstring label3 = Far::get_msg(MSG_SETTINGS_DLG_SAVE_CODEPAGE);
     label(label1);
-    wstring tmp1 = settings.oemCP ? uint_to_str(settings.oemCP) : wstring();
+    std::wstring tmp1 = settings.oemCP ? uint_to_str(settings.oemCP) : std::wstring();
     oemCP_ctrl_id = edit_box(tmp1, 5);
     auto total = llen(label1,5) + llen(label2,5) + llen(label3,4);
     auto width = std::max(std::max(std::max(std::max(llen(box1,4), llen(box2,4)), llen(box3,4)), total+2), size_t(c_client_xs));
     auto space = (width - total) / 2;
     pad(llen(label1,5) + space);
     label(label2);
-    wstring tmp2 = settings.ansiCP ? uint_to_str(settings.ansiCP) : wstring();
+    std::wstring tmp2 = settings.ansiCP ? uint_to_str(settings.ansiCP) : std::wstring();
     ansiCP_ctrl_id = edit_box(tmp2, 5);
     pad(width - llen(label3,4));
     saveCPs_ctrl_id = check_box(label3, settings.saveCP);
@@ -2016,7 +2016,7 @@ public:
   void show() {
     unsigned max_name_len = 0;
     unsigned max_value_len = 0;
-    for_each(attr_list.begin(), attr_list.end(), [&] (const Attr& attr) {
+    std::for_each(attr_list.begin(), attr_list.end(), [&] (const Attr& attr) {
       if (attr.name.size() > max_name_len)
         max_name_len = static_cast<unsigned>(attr.name.size());
       if (attr.value.size() > max_value_len)
@@ -2032,7 +2032,7 @@ public:
 
     set_width(max_name_len + 1 + max_value_len);
 
-    for_each(attr_list.begin(), attr_list.end(), [&] (const Attr& attr) {
+    std::for_each(attr_list.begin(), attr_list.end(), [&] (const Attr& attr) {
       label(attr.name, max_name_len);
       spacer(1);
       edit_box(attr.value, max_value_len, DIF_READONLY);

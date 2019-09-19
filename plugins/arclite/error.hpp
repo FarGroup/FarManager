@@ -4,9 +4,9 @@
 
 struct Error {
   HRESULT code;
-  list<wstring> objects;
-  list<wstring> messages;
-  list<wstring> warnings;
+  std::list<std::wstring> objects;
+  std::list<std::wstring> messages;
+  std::list<std::wstring> warnings;
   const char* file;
   int line;
 
@@ -15,23 +15,23 @@ struct Error {
   Error(HRESULT code, const char* file, int line)
   : code(code), file(file), line(line)
   {}
-  Error(HRESULT code, const wstring& message, const char* file, int line)
+  Error(HRESULT code, const std::wstring& message, const char* file, int line)
   : code(code), messages{message}, file(file), line(line)
   {}
-  Error(const wstring& message, const char* file, int line)
+  Error(const std::wstring& message, const char* file, int line)
   : code(E_MESSAGE), messages{message}, file(file), line(line)
   {}
-  Error(const wstring& message1, const wstring& message2, const char* file, int line)
+  Error(const std::wstring& message1, const std::wstring& message2, const char* file, int line)
   : code(E_MESSAGE), messages{message1, message2}, file(file), line(line)
   {}
   Error(const std::exception& e)
   : code(E_MESSAGE), file(__FILE__), line(__LINE__)
   {
-    string message(string(typeid(e).name()) + ": " + e.what());
-    messages.push_back(wstring(message.begin(), message.end()));
+    std::string message(std::string(typeid(e).name()) + ": " + e.what());
+    messages.push_back(std::wstring(message.begin(), message.end()));
   }
 
-  void SetResults(list<wstring>&& errs, list<wstring>&& wrns) {
+  void SetResults(std::list<std::wstring>&& errs, std::list<std::wstring>&& wrns) {
     messages = errs; warnings = wrns;
     code = messages.empty() ? (warnings.empty() ? NO_ERROR : S_FALSE) : E_MESSAGE;
   }

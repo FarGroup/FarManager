@@ -3,7 +3,7 @@
 const wchar_t** get_size_suffixes();
 const wchar_t** get_speed_suffixes();
 
-bool password_dialog(wstring& password, const wstring& arc_path);
+bool password_dialog(std::wstring& password, const std::wstring& arc_path);
 
 struct OverwriteOptions {
   OverwriteAction action;
@@ -18,7 +18,7 @@ enum OverwriteDialogKind {
   odkExtract,
   odkUpdate,
 };
-bool overwrite_dialog(const wstring& file_path, const OverwriteFileInfo& src_file_info, const OverwriteFileInfo& dst_file_info, OverwriteDialogKind kind, OverwriteOptions& options);
+bool overwrite_dialog(const std::wstring& file_path, const OverwriteFileInfo& src_file_info, const OverwriteFileInfo& dst_file_info, OverwriteDialogKind kind, OverwriteOptions& options);
 
 bool extract_dialog(ExtractOptions& options);
 
@@ -31,14 +31,14 @@ struct PluginSettings {
   bool handle_commands;
   bool own_panel_view_mode;
   bool use_include_masks;
-  wstring include_masks;
+  std::wstring include_masks;
   bool use_exclude_masks;
-  wstring exclude_masks;
+  std::wstring exclude_masks;
   bool pgdn_masks;
   bool use_enabled_formats;
-  wstring enabled_formats;
+  std::wstring enabled_formats;
   bool use_disabled_formats;
-  wstring disabled_formats;
+  std::wstring disabled_formats;
   bool pgdn_formats;
   bool saveCP;
   UINT oemCP;

@@ -3,7 +3,7 @@
 
 namespace Ini {
 
-wstring File::get(const wstring& section_name, const wstring& key_name) {
+std::wstring File::get(const std::wstring& section_name, const std::wstring& key_name) {
   const_iterator section_pos = find(section_name);
   CHECK(section_pos != end());
   const Section& section = section_pos->second;
@@ -12,18 +12,18 @@ wstring File::get(const wstring& section_name, const wstring& key_name) {
   return key_pos->second;
 }
 
-void File::parse(const wstring& text) {
+void File::parse(const std::wstring& text) {
   clear();
-  wstring section_name;
+  std::wstring section_name;
   Section section;
   size_t begin_pos = 0;
   while (begin_pos < text.size()) {
     size_t end_pos = text.find(L'\n', begin_pos);
-    if (end_pos == wstring::npos)
+    if (end_pos == std::wstring::npos)
       end_pos = text.size();
     else
       end_pos++;
-    wstring line = strip(text.substr(begin_pos, end_pos - begin_pos));
+    std::wstring line = strip(text.substr(begin_pos, end_pos - begin_pos));
     if ((line.size() > 2) && (line[0] == L'[') && (line[line.size() - 1] == L']')) {
       // section header
       if (!section.empty()) {
@@ -37,10 +37,10 @@ void File::parse(const wstring& text) {
     }
     else {
       size_t delim_pos = line.find(L'=');
-      if (delim_pos != wstring::npos) {
+      if (delim_pos != std::wstring::npos) {
         // name = value pair
-        wstring name = strip(line.substr(0, delim_pos));
-        wstring value = strip(line.substr(delim_pos + 1, line.size() - delim_pos - 1));
+        std::wstring name = strip(line.substr(0, delim_pos));
+        std::wstring value = strip(line.substr(delim_pos + 1, line.size() - delim_pos - 1));
         // remove quotes if needed
         if ((value.size() >= 2) && (value[0] == L'"') && (value[value.size() - 1] == L'"'))
           value = value.substr(1, value.size() - 2);

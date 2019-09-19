@@ -5,7 +5,8 @@
 #include <vector>
 #include <map>
 #include <iterator>
-using namespace std;
+
+using namespace std::literals;
 
 #include <initguid.h>
 #include "CPP/7zip/Archive/IArchive.h"

@@ -9,9 +9,9 @@
 class ArchiveTester: public IArchiveExtractCallback, public ICryptoGetTextPassword, public ComBase, public ProgressMonitor {
 private:
   UInt32 src_dir_index;
-  shared_ptr<Archive> archive;
+  std::shared_ptr<Archive> archive;
 
-  wstring file_path;
+  std::wstring file_path;
   UInt64 completed;
   UInt64 total;
   virtual void do_update_ui() {
@@ -25,15 +25,15 @@ private:
     else
       speed = al_round(static_cast<double>(completed) / time_elapsed() * ticks_per_sec());
 
-    wostringstream st;
+    std::wostringstream st;
     st << fit_str(file_path, c_width) << L'\n';
-    st << setw(7) << format_data_size(completed, get_size_suffixes()) << L" / " << format_data_size(total, get_size_suffixes()) << L" @ " << setw(9) << format_data_size(speed, get_speed_suffixes()) << L'\n';
+    st << std::setw(7) << format_data_size(completed, get_size_suffixes()) << L" / " << format_data_size(total, get_size_suffixes()) << L" @ " << std::setw(9) << format_data_size(speed, get_speed_suffixes()) << L'\n';
     st << Far::get_progress_bar_str(c_width, percent_done, 100) << L'\n';
     progress_text = st.str();
   }
 
 public:
-  ArchiveTester(UInt32 src_dir_index, shared_ptr<Archive> archive): ProgressMonitor(Far::get_msg(MSG_PROGRESS_TEST)), src_dir_index(src_dir_index), archive(archive), completed(0), total(0) {
+  ArchiveTester(UInt32 src_dir_index, std::shared_ptr<Archive> archive): ProgressMonitor(Far::get_msg(MSG_PROGRESS_TEST)), src_dir_index(src_dir_index), archive(archive), completed(0), total(0) {
   }
 
   UNKNOWN_IMPL_BEGIN
@@ -113,11 +113,11 @@ public:
   }
 };
 
-void Archive::prepare_test(UInt32 file_index, list<UInt32>& indices) {
+void Archive::prepare_test(UInt32 file_index, std::list<UInt32>& indices) {
   const ArcFileInfo& file_info = file_list[file_index];
   if (file_info.is_dir) {
     FileIndexRange dir_list = get_dir_list(file_index);
-    for_each(dir_list.first, dir_list.second, [&] (UInt32 file_index) {
+    std::for_each(dir_list.first, dir_list.second, [&] (UInt32 file_index) {
       prepare_test(file_index, indices);
     });
   }
@@ -126,18 +126,18 @@ void Archive::prepare_test(UInt32 file_index, list<UInt32>& indices) {
   }
 }
 
-void Archive::test(UInt32 src_dir_index, const vector<UInt32>& src_indices) {
+void Archive::test(UInt32 src_dir_index, const std::vector<UInt32>& src_indices) {
   DisableSleepMode dsm;
 
-  list<UInt32> file_indices;
+  std::list<UInt32> file_indices;
   for (unsigned i = 0; i < src_indices.size(); i++) {
     prepare_test(src_indices[i], file_indices);
   }
 
-  vector<UInt32> indices;
+  std::vector<UInt32> indices;
   indices.reserve(file_indices.size());
-  copy(file_indices.begin(), file_indices.end(), back_insert_iterator<vector<UInt32>>(indices));
-  sort(indices.begin(), indices.end());
+  std::copy(file_indices.begin(), file_indices.end(), std::back_insert_iterator<std::vector<UInt32>>(indices));
+  std::sort(indices.begin(), indices.end());
 
   ComObject<IArchiveExtractCallback> tester(new ArchiveTester(src_dir_index, shared_from_this()));
   COM_ERROR_CHECK(in_arc->Extract(indices.data(), static_cast<UInt32>(indices.size()), 1, tester));

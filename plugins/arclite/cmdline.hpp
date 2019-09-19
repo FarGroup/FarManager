@@ -14,13 +14,13 @@ enum CommandType {
 
 struct CommandArgs {
   CommandType cmd;
-  vector<wstring> args;
+  std::vector<std::wstring> args;
 };
 
-CommandArgs parse_command(const wstring& cmd_text);
+CommandArgs parse_command(const std::wstring& cmd_text);
 CommandArgs parse_plugin_call(const OpenMacroInfo *omi);
 
-list<wstring> parse_listfile(const wstring& str);
+std::list<std::wstring> parse_listfile(const std::wstring& str);
 
 struct OpenCommand {
   OpenOptions options;
@@ -35,29 +35,29 @@ struct UpdateCommand {
   bool solid_defined;
   bool encrypt_defined;
   UpdateOptions options;
-  vector<wstring> files;
-  vector<wstring> listfiles;
+  std::vector<std::wstring> files;
+  std::vector<std::wstring> listfiles;
 };
 
 UpdateCommand parse_update_command(const CommandArgs& args);
 
 struct ExtractCommand {
   ExtractOptions options;
-  vector<wstring> arc_list;
+  std::vector<std::wstring> arc_list;
 };
 
 ExtractCommand parse_extract_command(const CommandArgs& args);
 
 struct ExtractItemsCommand {
   ExtractOptions options;
-  wstring       archname;
-  vector<wstring>  items;
+  std::wstring       archname;
+  std::vector<std::wstring>  items;
 };
 
 ExtractItemsCommand parse_extractitems_command(const CommandArgs& args);
 
 struct TestCommand {
-  vector<wstring> arc_list;
+  std::vector<std::wstring> arc_list;
 };
 
 TestCommand parse_test_command(const CommandArgs& args);

@@ -17,7 +17,7 @@ ExtractOptions::ExtractOptions():
   open_dir(triFalse) {
 }
 
-wstring get_progress_bar_str(unsigned width, unsigned percent1, unsigned percent2) {
+std::wstring get_progress_bar_str(unsigned width, unsigned percent1, unsigned percent2) {
   const wchar_t c_pb_black = 9608;
   const wchar_t c_pb_gray = 9619;
   const wchar_t c_pb_white = 9617;
@@ -32,7 +32,7 @@ wstring get_progress_bar_str(unsigned width, unsigned percent1, unsigned percent
   else
     len2 = 0;
   unsigned len3 = width - (len1 + len2);
-  wstring result;
+  std::wstring result;
   result.append(len1, c_pb_black);
   result.append(len2, c_pb_gray);
   result.append(len3, c_pb_white);
@@ -41,14 +41,14 @@ wstring get_progress_bar_str(unsigned width, unsigned percent1, unsigned percent
 
 class ExtractProgress: public ProgressMonitor {
 private:
-  wstring arc_path;
+  std::wstring arc_path;
   UInt64 extract_completed;
   UInt64 extract_total;
-  wstring extract_file_path;
+  std::wstring extract_file_path;
   UInt64 cache_stored;
   UInt64 cache_written;
   UInt64 cache_total;
-  wstring cache_file_path;
+  std::wstring cache_file_path;
 
   virtual void do_update_ui() {
     const unsigned c_width = 60;
@@ -67,11 +67,11 @@ private:
     unsigned cache_stored_percent = calc_percent(cache_stored, cache_total);
     unsigned cache_written_percent = calc_percent(cache_written, cache_total);
 
-    wostringstream st;
+    std::wostringstream st;
     st << fit_str(arc_path, c_width) << L'\n';
     st << L"\x1\n";
     st << fit_str(extract_file_path, c_width) << L'\n';
-    st << setw(7) << format_data_size(extract_completed, get_size_suffixes()) << L" / " << format_data_size(extract_total, get_size_suffixes()) << L" @ " << setw(9) << format_data_size(extract_speed, get_speed_suffixes()) << L'\n';
+    st << std::setw(7) << format_data_size(extract_completed, get_size_suffixes()) << L" / " << format_data_size(extract_total, get_size_suffixes()) << L" @ " << std::setw(9) << format_data_size(extract_speed, get_speed_suffixes()) << L'\n';
     st << Far::get_progress_bar_str(c_width, percent_done, 100) << L'\n';
     st << L"\x1\n";
     st << fit_str(cache_file_path, c_width) << L'\n';
@@ -81,7 +81,7 @@ private:
   }
 
 public:
-  ExtractProgress(const wstring& arc_path):
+  ExtractProgress(const std::wstring& arc_path):
     ProgressMonitor(Far::get_msg(MSG_PROGRESS_EXTRACT)),
     arc_path(arc_path),
     extract_completed(0),
@@ -91,7 +91,7 @@ public:
     cache_total(0) {
   }
 
-  void update_extract_file(const wstring& file_path) {
+  void update_extract_file(const std::wstring& file_path) {
     CriticalSectionLock lock(GetSync());
     extract_file_path = file_path;
     update_ui();
@@ -105,7 +105,7 @@ public:
     extract_completed = size;
     update_ui();
   }
-  void update_cache_file(const wstring& file_path) {
+  void update_cache_file(const std::wstring& file_path) {
     CriticalSectionLock lock(GetSync());
     cache_file_path = file_path;
     update_ui();
@@ -137,26 +137,26 @@ private:
   static const size_t c_max_cache_size = 100 * 1024 * 1024;
 
   struct CacheRecord {
-    wstring file_path;
+    std::wstring file_path;
     UInt32 file_id;
     OverwriteAction overwrite;
     size_t buffer_pos;
     size_t buffer_size;
   };
 
-  shared_ptr<Archive> archive;
+  std::shared_ptr<Archive> archive;
   unsigned char* buffer;
   size_t buffer_size;
   size_t commit_size;
   size_t buffer_pos;
-  list<CacheRecord> cache_records;
+  std::list<CacheRecord> cache_records;
   File file;
   CacheRecord current_rec;
   bool continue_file;
   bool error_state;
-  shared_ptr<bool> ignore_errors;
-  shared_ptr<ErrorLog> error_log;
-  shared_ptr<ExtractProgress> progress;
+  std::shared_ptr<bool> ignore_errors;
+  std::shared_ptr<ErrorLog> error_log;
+  std::shared_ptr<ExtractProgress> progress;
 
   size_t get_max_cache_size() const {
     MEMORYSTATUS mem_st;
@@ -170,7 +170,7 @@ private:
   }
   // create new file
   void create_file() {
-    wstring file_path;
+    std::wstring file_path;
     if (current_rec.overwrite == oaRename)
       file_path = auto_rename(current_rec.file_path);
     else
@@ -249,7 +249,7 @@ private:
     }
   }
   void write() {
-    for_each(cache_records.begin(), cache_records.end(), [&] (const CacheRecord& rec) {
+    std::for_each(cache_records.begin(), cache_records.end(), [&] (const CacheRecord& rec) {
       if (continue_file) {
         continue_file = false;
         current_rec = rec;
@@ -286,13 +286,13 @@ private:
       CHECK_SYS(VirtualAlloc(buffer + commit_size, new_size - commit_size, MEM_COMMIT, PAGE_READWRITE));
       commit_size = new_size;
     }
-    memcpy(buffer + buffer_pos, data, size);
+    std::memcpy(buffer + buffer_pos, data, size);
     rec.buffer_size += size;
     buffer_pos += size;
     progress->update_cache_stored(size);
   }
 public:
-  FileWriteCache(shared_ptr<Archive> archive, shared_ptr<bool> ignore_errors, shared_ptr<ErrorLog> error_log, shared_ptr<ExtractProgress> progress): archive(archive), buffer_size(get_max_cache_size()), commit_size(0), buffer_pos(0), continue_file(false), error_state(false), ignore_errors(ignore_errors), error_log(error_log), progress(progress) {
+  FileWriteCache(std::shared_ptr<Archive> archive, std::shared_ptr<bool> ignore_errors, std::shared_ptr<ErrorLog> error_log, std::shared_ptr<ExtractProgress> progress): archive(archive), buffer_size(get_max_cache_size()), commit_size(0), buffer_pos(0), continue_file(false), error_state(false), ignore_errors(ignore_errors), error_log(error_log), progress(progress) {
     progress->set_cache_total(buffer_size);
     buffer = reinterpret_cast<unsigned char*>(VirtualAlloc(nullptr, buffer_size, MEM_RESERVE, PAGE_NOACCESS));
     CHECK_SYS(buffer);
@@ -304,7 +304,7 @@ public:
       File::delete_file_nt(current_rec.file_path);
     }
   }
-  void store_file(const wstring& file_path, UInt32 file_id, OverwriteAction overwrite_action) {
+  void store_file(const std::wstring& file_path, UInt32 file_id, OverwriteAction overwrite_action) {
     CacheRecord rec;
     rec.file_path = file_path;
     rec.file_id = file_id;
@@ -329,10 +329,10 @@ public:
 
 class CachedFileExtractStream: public ISequentialOutStream, public ComBase {
 private:
-  shared_ptr<FileWriteCache> cache;
+  std::shared_ptr<FileWriteCache> cache;
 
 public:
-  CachedFileExtractStream(shared_ptr<FileWriteCache> cache): cache(cache) {
+  CachedFileExtractStream(std::shared_ptr<FileWriteCache> cache): cache(cache) {
   }
 
   UNKNOWN_IMPL_BEGIN
@@ -354,29 +354,29 @@ public:
 
 class ArchiveExtractor: public IArchiveExtractCallback, public ICryptoGetTextPassword, public ComBase {
 private:
-  wstring file_path;
+  std::wstring file_path;
   ArcFileInfo file_info;
   UInt32 src_dir_index;
-  wstring dst_dir;
-  shared_ptr<Archive> archive;
-  shared_ptr<OverwriteAction> overwrite_action;
-  shared_ptr<bool> ignore_errors;
-  shared_ptr<ErrorLog> error_log;
-  shared_ptr<FileWriteCache> cache;
-  shared_ptr<ExtractProgress> progress;
-  shared_ptr<set<UInt32>> skipped_indices;
+  std::wstring dst_dir;
+  std::shared_ptr<Archive> archive;
+  std::shared_ptr<OverwriteAction> overwrite_action;
+  std::shared_ptr<bool> ignore_errors;
+  std::shared_ptr<ErrorLog> error_log;
+  std::shared_ptr<FileWriteCache> cache;
+  std::shared_ptr<ExtractProgress> progress;
+  std::shared_ptr<std::set<UInt32>> skipped_indices;
 
 public:
   ArchiveExtractor(
     UInt32 src_dir_index,
-    const wstring& dst_dir,
-    shared_ptr<Archive> archive,
-    shared_ptr<OverwriteAction> overwrite_action,
-    shared_ptr<bool> ignore_errors,
-    shared_ptr<ErrorLog> error_log,
-    shared_ptr<FileWriteCache> cache,
-    shared_ptr<ExtractProgress> progress,
-    shared_ptr<set<UInt32>> skipped_indices):
+    const std::wstring& dst_dir,
+    std::shared_ptr<Archive> archive,
+    std::shared_ptr<OverwriteAction> overwrite_action,
+    std::shared_ptr<bool> ignore_errors,
+    std::shared_ptr<ErrorLog> error_log,
+    std::shared_ptr<FileWriteCache> cache,
+    std::shared_ptr<ExtractProgress> progress,
+    std::shared_ptr<std::set<UInt32>> skipped_indices):
       src_dir_index(src_dir_index),
       dst_dir(dst_dir),
       archive(archive),
@@ -446,7 +446,7 @@ public:
         if (!overwrite_dialog(file_path, src_ov_info, dst_ov_info, odkExtract, ov_options))
           return E_ABORT;
         if (g_options.strict_case && ov_options.action == oaOverwrite) {
-			 auto dst_len = wcslen(dst_file_info.cFileName);
+			 auto dst_len = std::wcslen(dst_file_info.cFileName);
 			 if (file_path.size() > dst_len && file_path.substr(file_path.size()-dst_len) != dst_file_info.cFileName)
             ov_options.action = oaOverwriteCase;
         }
@@ -554,7 +554,7 @@ public:
   }
 };
 
-void Archive::prepare_dst_dir(const wstring& path) {
+void Archive::prepare_dst_dir(const std::wstring& path) {
   if (!is_root_path(path)) {
     prepare_dst_dir(extract_file_path(path));
     File::create_dir_nt(path);
@@ -564,30 +564,30 @@ void Archive::prepare_dst_dir(const wstring& path) {
 class PrepareExtract: public ProgressMonitor {
 private:
   Archive& archive;
-  list<UInt32>& indices;
+  std::list<UInt32>& indices;
   bool& ignore_errors;
   ErrorLog& error_log;
-  const wstring* file_path;
+  const std::wstring* file_path;
 
   virtual void do_update_ui() {
     const unsigned c_width = 60;
-    wostringstream st;
-    st << left << setw(c_width) << fit_str(*file_path, c_width) << L'\n';
+    std::wostringstream st;
+    st << std::left << std::setw(c_width) << fit_str(*file_path, c_width) << L'\n';
     progress_text = st.str();
   }
 
-  void update_progress(const wstring& file_path) {
+  void update_progress(const std::wstring& file_path) {
     CriticalSectionLock lock(GetSync());
     this->file_path = &file_path;
     update_ui();
   }
 
-  void prepare_extract(const FileIndexRange& index_range, const wstring& parent_dir) {
+  void prepare_extract(const FileIndexRange& index_range, const std::wstring& parent_dir) {
     const auto cmode = static_cast<int>(g_options.correct_name_mode);
-    for_each(index_range.first, index_range.second, [&] (UInt32 file_index) {
+    std::for_each(index_range.first, index_range.second, [&] (UInt32 file_index) {
       const ArcFileInfo& file_info = archive.file_list[file_index];
       if (file_info.is_dir) {
-        wstring dir_path = add_trailing_slash(parent_dir) + correct_filename(file_info.name, cmode, file_info.is_altstream);
+        std::wstring dir_path = add_trailing_slash(parent_dir) + correct_filename(file_info.name, cmode, file_info.is_altstream);
         update_progress(dir_path);
 
         RETRY_OR_IGNORE_BEGIN
@@ -610,7 +610,7 @@ private:
   }
 
 public:
-  PrepareExtract(const FileIndexRange& index_range, const wstring& parent_dir, Archive& archive, list<UInt32>& indices, bool& ignore_errors, ErrorLog& error_log): ProgressMonitor(Far::get_msg(MSG_PROGRESS_CREATE_DIRS), false), archive(archive), indices(indices), ignore_errors(ignore_errors), error_log(error_log) {
+  PrepareExtract(const FileIndexRange& index_range, const std::wstring& parent_dir, Archive& archive, std::list<UInt32>& indices, bool& ignore_errors, ErrorLog& error_log): ProgressMonitor(Far::get_msg(MSG_PROGRESS_CREATE_DIRS), false), archive(archive), indices(indices), ignore_errors(ignore_errors), error_log(error_log) {
     prepare_extract(index_range, parent_dir);
   }
 };
@@ -621,26 +621,26 @@ private:
   Archive& archive;
   bool& ignore_errors;
   ErrorLog& error_log;
-  const wstring* file_path;
+  const std::wstring* file_path;
 
   virtual void do_update_ui() {
     const unsigned c_width = 60;
-    wostringstream st;
-    st << left << setw(c_width) << fit_str(*file_path, c_width) << L'\n';
+    std::wostringstream st;
+    st << std::left << std::setw(c_width) << fit_str(*file_path, c_width) << L'\n';
     progress_text = st.str();
   }
 
-  void update_progress(const wstring& file_path) {
+  void update_progress(const std::wstring& file_path) {
     CriticalSectionLock lock(GetSync());
     this->file_path = &file_path;
     update_ui();
   }
 
-  void set_dir_attr(const FileIndexRange& index_range, const wstring& parent_dir) {
+  void set_dir_attr(const FileIndexRange& index_range, const std::wstring& parent_dir) {
     const auto cmode = static_cast<int>(g_options.correct_name_mode);
     for_each (index_range.first, index_range.second, [&] (UInt32 file_index) {
       const ArcFileInfo& file_info = archive.file_list[file_index];
-      wstring file_path = add_trailing_slash(parent_dir) + correct_filename(file_info.name, cmode, file_info.is_altstream);
+      std::wstring file_path = add_trailing_slash(parent_dir) + correct_filename(file_info.name, cmode, file_info.is_altstream);
       update_progress(file_path);
       if (file_info.is_dir) {
         FileIndexRange dir_list = archive.get_dir_list(file_index);
@@ -663,33 +663,33 @@ private:
   }
 
 public:
-  SetDirAttr(const FileIndexRange& index_range, const wstring& parent_dir, Archive& archive, bool& ignore_errors, ErrorLog& error_log): ProgressMonitor(Far::get_msg(MSG_PROGRESS_SET_ATTR), false), archive(archive), ignore_errors(ignore_errors), error_log(error_log) {
+  SetDirAttr(const FileIndexRange& index_range, const std::wstring& parent_dir, Archive& archive, bool& ignore_errors, ErrorLog& error_log): ProgressMonitor(Far::get_msg(MSG_PROGRESS_SET_ATTR), false), archive(archive), ignore_errors(ignore_errors), error_log(error_log) {
     set_dir_attr(index_range, parent_dir);
   }
 };
 
 
-void Archive::extract(UInt32 src_dir_index, const vector<UInt32>& src_indices, const ExtractOptions& options, shared_ptr<ErrorLog> error_log, vector<UInt32>* extracted_indices) {
+void Archive::extract(UInt32 src_dir_index, const std::vector<UInt32>& src_indices, const ExtractOptions& options, std::shared_ptr<ErrorLog> error_log, std::vector<UInt32>* extracted_indices) {
   DisableSleepMode dsm;
 
-  shared_ptr<bool> ignore_errors(new bool(options.ignore_errors));
-  shared_ptr<OverwriteAction> overwrite_action(new OverwriteAction(options.overwrite));
+  std::shared_ptr<bool> ignore_errors(new bool(options.ignore_errors));
+  std::shared_ptr<OverwriteAction> overwrite_action(new OverwriteAction(options.overwrite));
 
   prepare_dst_dir(options.dst_dir);
 
-  list<UInt32> file_indices;
+  std::list<UInt32> file_indices;
   PrepareExtract(FileIndexRange(src_indices.begin(), src_indices.end()), options.dst_dir, *this, file_indices, *ignore_errors, *error_log);
 
-  vector<UInt32> indices;
+  std::vector<UInt32> indices;
   indices.reserve(file_indices.size());
-  copy(file_indices.begin(), file_indices.end(), back_insert_iterator<vector<UInt32>>(indices));
-  sort(indices.begin(), indices.end());
+  std::copy(file_indices.begin(), file_indices.end(), std::back_insert_iterator<std::vector<UInt32>>(indices));
+  std::sort(indices.begin(), indices.end());
 
-  shared_ptr<ExtractProgress> progress(new ExtractProgress(arc_path));
-  shared_ptr<FileWriteCache> cache(new FileWriteCache(shared_from_this(), ignore_errors, error_log, progress));
-  shared_ptr<set<UInt32>> skipped_indices;
+  std::shared_ptr<ExtractProgress> progress(new ExtractProgress(arc_path));
+  std::shared_ptr<FileWriteCache> cache(new FileWriteCache(shared_from_this(), ignore_errors, error_log, progress));
+  std::shared_ptr<std::set<UInt32>> skipped_indices;
   if (extracted_indices)
-    skipped_indices.reset(new set<UInt32>());
+    skipped_indices.reset(new std::set<UInt32>());
   ComObject<IArchiveExtractCallback> extractor(new ArchiveExtractor(src_dir_index, options.dst_dir, shared_from_this(), overwrite_action, ignore_errors, error_log, cache, progress, skipped_indices));
   COM_ERROR_CHECK(in_arc->Extract(indices.data(), static_cast<UInt32>(indices.size()), 0, extractor));
   cache->finalize();
@@ -698,18 +698,18 @@ void Archive::extract(UInt32 src_dir_index, const vector<UInt32>& src_indices, c
   SetDirAttr(FileIndexRange(src_indices.begin(), src_indices.end()), options.dst_dir, *this, *ignore_errors, *error_log);
 
   if (extracted_indices) {
-    vector<UInt32> sorted_src_indices(src_indices);
-    sort(sorted_src_indices.begin(), sorted_src_indices.end());
+    std::vector<UInt32> sorted_src_indices(src_indices);
+    std::sort(sorted_src_indices.begin(), sorted_src_indices.end());
     extracted_indices->clear();
     extracted_indices->reserve(src_indices.size());
-    set_difference(sorted_src_indices.begin(), sorted_src_indices.end(), skipped_indices->begin(), skipped_indices->end(), back_inserter(*extracted_indices));
+    std::set_difference(sorted_src_indices.begin(), sorted_src_indices.end(), skipped_indices->begin(), skipped_indices->end(), back_inserter(*extracted_indices));
     extracted_indices->shrink_to_fit();
   }
 }
 
 void Archive::delete_archive() {
   File::delete_file_nt(arc_path);
-  for_each(volume_names.begin(), volume_names.end(), [&] (const wstring& volume_name) {
+  std::for_each(volume_names.begin(), volume_names.end(), [&] (const std::wstring& volume_name) {
     File::delete_file_nt(add_trailing_slash(arc_dir()) + volume_name);
   });
 }

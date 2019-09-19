@@ -21,11 +21,11 @@ extern const wchar_t* c_method_copy;   // pseudo method
 
 extern const wchar_t* c_method_lzma;   // standard 7z methods
 extern const wchar_t* c_method_lzma2;  //
-extern const wchar_t* c_method_ppmd;   // 
+extern const wchar_t* c_method_ppmd;   //
 
 extern const UInt64 c_min_volume_size;
 
-extern const wchar_t* c_sfx_ext; 
+extern const wchar_t* c_sfx_ext;
 extern const wchar_t* c_volume_ext;
 
 struct ICompressCodecsInfo;
@@ -33,7 +33,7 @@ struct ICompressCodecsInfo;
 struct ArcLib {
   HMODULE h_module;
   UInt64 version;
-  wstring module_path;
+  std::wstring module_path;
   Func_CreateObject CreateObject;
   Func_GetNumberOfMethods GetNumberOfMethods;
   Func_GetMethodProperty GetMethodProperty;
@@ -49,22 +49,22 @@ struct ArcLib {
   HRESULT get_prop(UInt32 index, PROPID prop_id, PROPVARIANT* prop) const;
   HRESULT get_bool_prop(UInt32 index, PROPID prop_id, bool& value) const;
   HRESULT get_uint_prop(UInt32 index, PROPID prop_id, UInt32& value) const;
-  HRESULT get_string_prop(UInt32 index, PROPID prop_id, wstring& value) const;
+  HRESULT get_string_prop(UInt32 index, PROPID prop_id, std::wstring& value) const;
   HRESULT get_bytes_prop(UInt32 index, PROPID prop_id, ByteVector& value) const;
 };
 
 struct ArcFormat {
-  wstring name;
+  std::wstring name;
   bool updatable;
-  list<wstring> extension_list;
-  map<wstring, wstring> nested_ext_mapping;
-  wstring default_extension() const;
+  std::list<std::wstring> extension_list;
+  std::map<std::wstring, std::wstring> nested_ext_mapping;
+  std::wstring default_extension() const;
 
   UInt32 Flags;
   bool NewInterface;
 
   UInt32 SignatureOffset;
-  vector<ByteVector> Signatures;
+  std::vector<ByteVector> Signatures;
 
   int lib_index;
   UInt32 FormatIndex;
@@ -89,7 +89,7 @@ struct ArcFormat {
   ArcFormat() : updatable(false), Flags(0), NewInterface(false), lib_index(-1), FormatIndex(0), IsArc(nullptr) {}
 };
 
-typedef vector<ArcLib> ArcLibs;
+typedef std::vector<ArcLib> ArcLibs;
 
 struct CDllCodecInfo {
   unsigned LibIndex;
@@ -99,34 +99,34 @@ struct CDllCodecInfo {
   bool DecoderIsAssigned;
   CLSID Encoder;
   CLSID Decoder;
-  wstring Name;
+  std::wstring Name;
 };
-typedef vector<CDllCodecInfo> ArcCodecs;
+typedef std::vector<CDllCodecInfo> ArcCodecs;
 
 struct CDllHasherInfo
 {
   unsigned LibIndex;
   UInt32 HasherIndex;
 };
-typedef vector<CDllHasherInfo> ArcHashers;
+typedef std::vector<CDllHasherInfo> ArcHashers;
 
-class ArcFormats: public map<ArcType, ArcFormat> {
+class ArcFormats: public std::map<ArcType, ArcFormat> {
 public:
   ArcTypes get_arc_types() const;
-  ArcTypes find_by_name(const wstring& name) const;
-  ArcTypes find_by_ext(const wstring& ext) const;
+  ArcTypes find_by_name(const std::wstring& name) const;
+  ArcTypes find_by_ext(const std::wstring& ext) const;
 };
 
 struct SfxModule {
-  wstring path;
-  wstring description() const;
+  std::wstring path;
+  std::wstring description() const;
   bool all_codecs() const;
   bool install_config() const;
 };
 
-class SfxModules: public vector<SfxModule> {
+class SfxModules: public std::vector<SfxModule> {
 public:
-  uintptr_t find_by_name(const wstring& name) const;
+  uintptr_t find_by_name(const std::wstring& name) const;
 };
 
 class MyCompressCodecsInfo;
@@ -144,9 +144,9 @@ private:
   static ArcAPI* arc_api;
   ArcAPI() { n_base_format_libs = n_format_libs = n_7z_codecs = 0; }
   ~ArcAPI();
-  void load_libs(const wstring& path);
-  void load_codecs(const wstring& path);
-  void find_sfx_modules(const wstring& path);
+  void load_libs(const std::wstring& path);
+  void load_codecs(const std::wstring& path);
+  void find_sfx_modules(const std::wstring& path);
   void load();
   static ArcAPI* get();
 public:
@@ -180,18 +180,18 @@ public:
 
 struct ArcFileInfo {
   UInt32 parent;
-  wstring name;
+  std::wstring name;
   bool is_dir;
   bool is_altstream;
   bool operator<(const ArcFileInfo& file_info) const;
 };
-typedef vector<ArcFileInfo> FileList;
+typedef std::vector<ArcFileInfo> FileList;
 
 const UInt32 c_root_index = -1;
 const UInt32 c_dup_index = -2;
 
-typedef vector<UInt32> FileIndex;
-typedef pair<FileIndex::const_iterator, FileIndex::const_iterator> FileIndexRange;
+typedef std::vector<UInt32> FileIndex;
+typedef std::pair<FileIndex::const_iterator, FileIndex::const_iterator> FileIndexRange;
 
 struct ArcEntry {
   ArcType type;
@@ -199,44 +199,44 @@ struct ArcEntry {
   ArcEntry(const ArcType& type, size_t sig_pos): type(type), sig_pos(sig_pos) {}
 };
 
-typedef list<ArcEntry> ArcEntries;
+typedef std::list<ArcEntry> ArcEntries;
 
-class ArcChain: public list<ArcEntry> {
+class ArcChain: public std::list<ArcEntry> {
 public:
-  wstring to_string() const;
+  std::wstring to_string() const;
 };
 
 class Archive;
-typedef vector<shared_ptr<Archive>> Archives;
+typedef std::vector<std::shared_ptr<Archive>> Archives;
 
-class Archive: public enable_shared_from_this<Archive> {
+class Archive: public std::enable_shared_from_this<Archive> {
   // open
 private:
   ComObject<IInArchive> in_arc;
   UInt32 error_flags, warning_flags;
-  wstring error_text, warning_text;
+  std::wstring error_text, warning_text;
   IInStream *base_stream;
   bool open(IInStream* in_stream, const ArcType& type);
   UInt64 get_physize();
   UInt64 archive_filesize();
   UInt64 get_skip_header(IInStream *stream, const ArcType& type);
-  static ArcEntries detect(Byte *buffer, UInt32 size, bool eof, const wstring& file_ext, const ArcTypes& arc_types, IInStream *stream);
+  static ArcEntries detect(Byte *buffer, UInt32 size, bool eof, const std::wstring& file_ext, const ArcTypes& arc_types, IInStream *stream);
   static void open(const OpenOptions& options, Archives& archives);
 public:
-  shared_ptr<Archive> parent;
+  std::shared_ptr<Archive> parent;
   static unsigned max_check_size;
-  wstring arc_path;
+  std::wstring arc_path;
   FindData arc_info;
-  set<wstring> volume_names;
+  std::set<std::wstring> volume_names;
   ArcChain arc_chain;
-  wstring arc_dir() const {
+  std::wstring arc_dir() const {
     return extract_file_path(arc_path);
   }
-  wstring arc_name() const {
-    wstring name = extract_file_name(arc_path);
+  std::wstring arc_name() const {
+    std::wstring name = extract_file_name(arc_path);
     return name.empty() ? arc_path : name;
   }
-  static unique_ptr<Archives> open(const OpenOptions& options);
+  static std::unique_ptr<Archives> open(const OpenOptions& options);
   void close();
   void reopen();
   bool is_open() const {
@@ -257,10 +257,10 @@ public:
   FileList file_list;
   FileIndex file_list_index;
   void make_index();
-  UInt32 find_dir(const wstring& dir);
+  UInt32 find_dir(const std::wstring& dir);
   FileIndexRange get_dir_list(UInt32 dir_index);
   bool get_stream(UInt32 index, IInStream** stream);
-  wstring get_path(UInt32 index);
+  std::wstring get_path(UInt32 index);
   FindData get_file_info(UInt32 index);
   bool get_main_file(UInt32& index) const;
   DWORD get_attr(UInt32 index) const;
@@ -274,43 +274,43 @@ public:
   bool get_isaltstream(UInt32 index) const;
 
   void read_open_results();
-  list<wstring> get_open_errors() const;
-  list<wstring> get_open_warnings() const;
+  std::list<std::wstring> get_open_errors() const;
+  std::list<std::wstring> get_open_warnings() const;
 
   // extract
 private:
-  wstring get_default_name() const;
-  void prepare_dst_dir(const wstring& path);
-  void prepare_test(UInt32 file_index, list<UInt32>& indices);
+  std::wstring get_default_name() const;
+  void prepare_dst_dir(const std::wstring& path);
+  void prepare_test(UInt32 file_index, std::list<UInt32>& indices);
 public:
-  void extract(UInt32 src_dir_index, const vector<UInt32>& src_indices, const ExtractOptions& options, shared_ptr<ErrorLog> error_log, vector<UInt32>* extracted_indices = nullptr);
-  void test(UInt32 src_dir_index, const vector<UInt32>& src_indices);
+  void extract(UInt32 src_dir_index, const std::vector<UInt32>& src_indices, const ExtractOptions& options, std::shared_ptr<ErrorLog> error_log, std::vector<UInt32>* extracted_indices = nullptr);
+  void test(UInt32 src_dir_index, const std::vector<UInt32>& src_indices);
   void delete_archive();
 
   // create & update archive
 private:
-  wstring get_temp_file_name() const;
+  std::wstring get_temp_file_name() const;
   void set_properties(IOutArchive* out_arc, const UpdateOptions& options);
 public:
   unsigned level;
-  wstring method;
+  std::wstring method;
   bool solid;
   bool encrypted;
-  wstring password;
+  std::wstring password;
   int open_password;
   bool update_props_defined;
   bool has_crc;
   void load_update_props();
 public:
-  void create(const wstring& src_dir, const vector<wstring>& file_names, const UpdateOptions& options, shared_ptr<ErrorLog> error_log);
-  void update(const wstring& src_dir, const vector<wstring>& file_names, const wstring& dst_dir, const UpdateOptions& options, shared_ptr<ErrorLog> error_log);
-  void create_dir(const wstring& dir_name, const wstring& dst_dir);
+  void create(const std::wstring& src_dir, const std::vector<std::wstring>& file_names, const UpdateOptions& options, std::shared_ptr<ErrorLog> error_log);
+  void update(const std::wstring& src_dir, const std::vector<std::wstring>& file_names, const std::wstring& dst_dir, const UpdateOptions& options, std::shared_ptr<ErrorLog> error_log);
+  void create_dir(const std::wstring& dir_name, const std::wstring& dst_dir);
 
   // delete files in archive
 private:
-  void enum_deleted_indices(UInt32 file_index, vector<UInt32>& indices);
+  void enum_deleted_indices(UInt32 file_index, std::vector<UInt32>& indices);
 public:
-  void delete_files(const vector<UInt32>& src_indices);
+  void delete_files(const std::vector<UInt32>& src_indices);
 
   // attributes
 private:

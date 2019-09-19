@@ -141,7 +141,7 @@ public:
   PropVariant(const PropVariant& var) {
     CHECK_COM(PropVariantCopy(this, &var));
   }
-  PropVariant(const wstring& val) {
+  PropVariant(const std::wstring& val) {
     vt = VT_BSTR;
     bstrVal = SysAllocStringLen(val.data(), static_cast<UINT>(val.size()));
     if (bstrVal == nullptr) {
@@ -151,7 +151,7 @@ public:
   }
   PropVariant(const wchar_t* val) {
     vt = VT_BSTR;
-    bstrVal = SysAllocStringLen(val, static_cast<UINT>(wcslen(val)));
+    bstrVal = SysAllocStringLen(val, static_cast<UINT>(std::wcslen(val)));
     if (bstrVal == nullptr) {
       vt = VT_ERROR;
       FAIL(E_OUTOFMEMORY);
@@ -179,7 +179,7 @@ public:
     CHECK_COM(PropVariantCopy(this, &var));
     return *this;
   }
-  PropVariant& operator=(const wstring& val) {
+  PropVariant& operator=(const std::wstring& val) {
     clear();
     vt = VT_BSTR;
     bstrVal = SysAllocStringLen(val.data(), static_cast<UINT>(val.size()));
@@ -192,7 +192,7 @@ public:
   PropVariant& operator=(const wchar_t* val) {
     clear();
     vt = VT_BSTR;
-    bstrVal = SysAllocStringLen(val, static_cast<UINT>(wcslen(val)));
+    bstrVal = SysAllocStringLen(val, static_cast<UINT>(std::wcslen(val)));
     if (bstrVal == nullptr) {
       vt = VT_ERROR;
       FAIL(E_OUTOFMEMORY);
@@ -327,12 +327,12 @@ public:
       FAIL(E_INVALIDARG);
     }
   }
-  wstring get_str() const {
+  std::wstring get_str() const {
     switch (vt) {
     case VT_BSTR:
-      return wstring(bstrVal, SysStringLen(bstrVal));
+      return std::wstring(bstrVal, SysStringLen(bstrVal));
     case VT_LPWSTR:
-      return wstring(pwszVal);
+      return std::wstring(pwszVal);
     default:
       FAIL(E_INVALIDARG);
     }
@@ -390,7 +390,7 @@ public:
     if (bstr == nullptr)
       FAIL(E_OUTOFMEMORY);
   }
-  BStr(const wstring& str) {
+  BStr(const std::wstring& str) {
     bstr = SysAllocStringLen(str.data(), static_cast<UINT>(str.size()));
     if (bstr == nullptr)
       FAIL(E_OUTOFMEMORY);
@@ -406,7 +406,7 @@ public:
       FAIL(E_OUTOFMEMORY);
     return *this;
   }
-  BStr& operator=(const wstring& str) {
+  BStr& operator=(const std::wstring& str) {
     if (!SysReAllocStringLen(&bstr, str.data(), static_cast<UINT>(str.size())))
       FAIL(E_OUTOFMEMORY);
     return *this;

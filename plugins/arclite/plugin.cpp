@@ -11,21 +11,21 @@
 #include "options.hpp"
 #include "cmdline.hpp"
 
-wstring g_plugin_prefix;
+std::wstring g_plugin_prefix;
 TriState g_detect_next_time = triUndef;
 
-void attach_sfx_module(const wstring& file_path, const SfxOptions& sfx_options);
+void attach_sfx_module(const std::wstring& file_path, const SfxOptions& sfx_options);
 
 class Plugin {
 private:
-  shared_ptr<Archive> archive;
+  std::shared_ptr<Archive> archive;
 
-  wstring current_dir;
-  wstring extract_dir;
-  wstring created_dir;
-  wstring host_file;
-  wstring panel_title;
-  vector<InfoPanelLine> info_lines;
+  std::wstring current_dir;
+  std::wstring extract_dir;
+  std::wstring created_dir;
+  std::wstring host_file;
+  std::wstring panel_title;
+  std::vector<InfoPanelLine> info_lines;
   bool real_archive_file;
   bool need_close_panel;
 
@@ -50,7 +50,7 @@ public:
         FAIL(E_ABORT);
     }
 
-    unique_ptr<Plugin> plugin(new Plugin(real_file));
+    std::unique_ptr<Plugin> plugin(new Plugin(real_file));
     plugin->archive = archives[format_idx];
     return plugin.release();
   }
@@ -80,7 +80,7 @@ public:
     info_lines.clear();
     info_lines.reserve(archive->arc_attr.size() + 1);
     InfoPanelLine ipl;
-    for_each(archive->arc_attr.begin(), archive->arc_attr.end(), [&] (const Attr& attr) {
+    std::for_each(archive->arc_attr.begin(), archive->arc_attr.end(), [&] (const Attr& attr) {
       ipl.Text = attr.name.c_str();
       ipl.Data = attr.value.c_str();
       ipl.Flags = 0;
@@ -90,10 +90,10 @@ public:
     opi->InfoLinesNumber = static_cast<int>(info_lines.size());
   }
 
-  void set_dir(const wstring& dir) {
+  void set_dir(const std::wstring& dir) {
     if (!archive->is_open())
       FAIL(E_ABORT);
-    wstring new_dir;
+    std::wstring new_dir;
     if (dir.empty() || dir == L"\\")
       new_dir.assign(dir);
     else if (dir == L"..")
@@ -116,10 +116,10 @@ public:
     UInt32 dir_index = archive->find_dir(current_dir);
     FileIndexRange dir_list = archive->get_dir_list(dir_index);
     size_t size = dir_list.second - dir_list.first;
-    unique_ptr<PluginPanelItem[]> items(new PluginPanelItem[size]);
+    std::unique_ptr<PluginPanelItem[]> items(new PluginPanelItem[size]);
     memset(items.get(), 0, size * sizeof(PluginPanelItem));
     unsigned idx = 0;
-    for_each(dir_list.first, dir_list.second, [&] (UInt32 file_index) {
+    std::for_each(dir_list.first, dir_list.second, [&] (UInt32 file_index) {
       const ArcFileInfo& file_info = archive->file_list[file_index];
       const DWORD c_valid_attributes = FILE_ATTRIBUTE_ARCHIVE | FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_SYSTEM;
       items[idx].FileAttributes = archive->get_attr(file_index) & c_valid_attributes;
@@ -137,9 +137,9 @@ public:
     *items_number = size;
   }
 
-  static wstring get_separate_dir_path(const wstring& dst_dir, const wstring& arc_name) {
-    wstring final_dir = add_trailing_slash(dst_dir) + arc_name;
-    wstring ext = extract_file_ext(final_dir);
+  static std::wstring get_separate_dir_path(const std::wstring& dst_dir, const std::wstring& arc_name) {
+    std::wstring final_dir = add_trailing_slash(dst_dir) + arc_name;
+    std::wstring ext = extract_file_ext(final_dir);
     final_dir.erase(final_dir.size() - ext.size(), ext.size());
     final_dir = auto_rename(final_dir);
     return final_dir;
@@ -151,11 +151,11 @@ public:
     virtual size_t size() const = 0;
   };
 
-  void extract(const PluginPanelItemAccessor& panel_items, wstring& dst_dir, bool move, OPERATION_MODES op_mode) {
+  void extract(const PluginPanelItemAccessor& panel_items, std::wstring& dst_dir, bool move, OPERATION_MODES op_mode) {
     if (panel_items.size() == 0)
       return;
     bool single_item = panel_items.size() == 1;
-    if (single_item && wcscmp(panel_items.get(0)->FileName, L"..") == 0)
+    if (single_item && std::wcscmp(panel_items.get(0)->FileName, L"..") == 0)
       return;
     ExtractOptions options;
     static ExtractOptions batch_options;
@@ -212,14 +212,14 @@ public:
 
     UInt32 src_dir_index = archive->find_dir(current_dir);
 
-    vector<UInt32> indices;
+    std::vector<UInt32> indices;
     indices.reserve(panel_items.size());
     for (size_t i = 0; i < panel_items.size(); i++) {
       indices.push_back(static_cast<UInt32>(reinterpret_cast<size_t>(panel_items.get(i)->UserData.Data)));
     }
 
-    shared_ptr<ErrorLog> error_log(new ErrorLog());
-    vector<UInt32> extracted_indices;
+    std::shared_ptr<ErrorLog> error_log(new ErrorLog());
+    std::vector<UInt32> extracted_indices;
     archive->extract(src_dir_index, indices, options, error_log, options.move_files == triTrue ? &extracted_indices : nullptr);
 
     if (!error_log->empty() && show_dialog) {
@@ -295,12 +295,12 @@ public:
     extract(pp_items, dst, false, 0);
   }
 
-  static void extract(const vector<wstring>& arc_list, ExtractOptions options) {
-    wstring dst_dir = options.dst_dir;
-    wstring dst_file_name;
-    shared_ptr<ErrorLog> error_log(new ErrorLog());
+  static void extract(const std::vector<std::wstring>& arc_list, ExtractOptions options) {
+    std::wstring dst_dir = options.dst_dir;
+    std::wstring dst_file_name;
+    std::shared_ptr<ErrorLog> error_log(new ErrorLog());
     for (unsigned i = 0; i < arc_list.size(); i++) {
-      unique_ptr<Archives> archives;
+      std::unique_ptr<Archives> archives;
       try {
         OpenOptions open_options;
         open_options.arc_path = arc_list[i];
@@ -318,7 +318,7 @@ public:
         continue;
       }
 
-      shared_ptr<Archive> archive = (*archives)[0];
+      std::shared_ptr<Archive> archive = (*archives)[0];
       if (archive->password.empty())
         archive->password = options.password;
       archive->make_index();
@@ -330,9 +330,9 @@ public:
         dst_file_name = archive->file_list[*dir_list.first].name;
       }
 
-      vector<UInt32> indices;
+      std::vector<UInt32> indices;
       indices.reserve(num_items);
-      for_each(dir_list.first, dir_list.second, [&] (UInt32 file_index) {
+      std::for_each(dir_list.first, dir_list.second, [&] (UInt32 file_index) {
         indices.push_back(file_index);
       });
 
@@ -368,7 +368,7 @@ public:
     }
   }
 
-  static void bulk_extract(const vector<wstring>& arc_list) {
+  static void bulk_extract(const std::vector<std::wstring>& arc_list) {
     ExtractOptions options;
     PanelInfo panel_info;
     if (Far::get_panel_info(PANEL_PASSIVE, panel_info) && Far::is_real_file_panel(panel_info))
@@ -391,9 +391,9 @@ public:
   }
 
   static void cmdline_extract(const ExtractCommand& cmd) {
-    vector<wstring> arc_list;
+    std::vector<std::wstring> arc_list;
     arc_list.reserve(cmd.arc_list.size());
-    for_each(cmd.arc_list.begin(), cmd.arc_list.end(), [&] (const wstring& arc_name) {
+    std::for_each(cmd.arc_list.begin(), cmd.arc_list.end(), [&] (const std::wstring& arc_name) {
       arc_list.push_back(Far::get_absolute_path(arc_name));
     });
     ExtractOptions options = cmd.options;
@@ -401,8 +401,8 @@ public:
     extract(arc_list, options);
   }
 
-  static void delete_items(const wstring& arch_name, const ExtractOptions& options, const vector<wstring>& items) {
-    unique_ptr<Archives> archives;
+  static void delete_items(const std::wstring& arch_name, const ExtractOptions& options, const std::vector<std::wstring>& items) {
+    std::unique_ptr<Archives> archives;
     OpenOptions open_options;
     open_options.arc_path = arch_name;
     open_options.detect = false;
@@ -412,12 +412,12 @@ public:
     if (archives->empty())
       throw Error(Far::get_msg(MSG_ERROR_NOT_ARCHIVE), arch_name, __FILE__, __LINE__);
 
-    shared_ptr<Archive> archive = (*archives)[0];
+    std::shared_ptr<Archive> archive = (*archives)[0];
     if (archive->password.empty())
       archive->password = options.password;
     archive->make_index();
     auto nf = static_cast<UInt32>(archive->file_list.size());
-    vector<UInt32> matched_indices;
+    std::vector<UInt32> matched_indices;
     for (UInt32 j = 0; j < nf; ++j) {
       auto file_path = archive->get_path(j);
       for (const auto& n : items) {
@@ -434,8 +434,8 @@ public:
     return;
   }
 
-  static void extract_items(const wstring& arch_name, const ExtractOptions& options, const vector<wstring>& items) {
-    unique_ptr<Archives> archives;
+  static void extract_items(const std::wstring& arch_name, const ExtractOptions& options, const std::vector<std::wstring>& items) {
+    std::unique_ptr<Archives> archives;
     OpenOptions open_options;
     open_options.arc_path = arch_name;
     open_options.detect = false;
@@ -445,12 +445,12 @@ public:
     if (archives->empty())
       throw Error(Far::get_msg(MSG_ERROR_NOT_ARCHIVE), arch_name, __FILE__, __LINE__);
 
-    shared_ptr<Archive> archive = (*archives)[0];
+    std::shared_ptr<Archive> archive = (*archives)[0];
     if (archive->password.empty())
       archive->password = options.password;
     archive->make_index();
     auto nf = static_cast<UInt32>(archive->file_list.size());
-    vector<UInt32> matched_indices;
+    std::vector<UInt32> matched_indices;
     for (UInt32 j = 0; j < nf; ++j) {
       auto file_path = archive->get_path(j);
       for (const auto& n : items) {
@@ -461,13 +461,13 @@ public:
       }
     }
     if (!matched_indices.empty()) {
-      sort(matched_indices.begin(), matched_indices.end(), [&](const auto&a, const auto& b) { // group by parent
+        std::sort(matched_indices.begin(), matched_indices.end(), [&](const auto&a, const auto& b) { // group by parent
         return static_cast<Int32>(archive->file_list[a].parent) < static_cast<Int32>(archive->file_list[a].parent);
       });
-      shared_ptr<ErrorLog> error_log(new ErrorLog());
+      std::shared_ptr<ErrorLog> error_log(new ErrorLog());
       size_t im = 0, nm = matched_indices.size();
       while (im < nm) {
-        vector<UInt32> indices;
+        std::vector<UInt32> indices;
         auto parent = archive->file_list[matched_indices[im]].parent;
         while (im < nm && archive->file_list[matched_indices[im]].parent == parent)
           indices.push_back(matched_indices[im++]);
@@ -507,7 +507,7 @@ public:
     err.SetResults(archive->get_open_errors(), archive->get_open_warnings());
 
     UInt32 src_dir_index = archive->find_dir(current_dir);
-    vector<UInt32> indices;
+    std::vector<UInt32> indices;
     indices.reserve(items_number);
     for (int i = 0; i < items_number; i++) {
       indices.push_back(static_cast<UInt32>(reinterpret_cast<size_t>(panel_items[i].UserData.Data)));
@@ -530,10 +530,10 @@ public:
     Far::info_dlg(c_test_ok_dialog_guid, Far::get_msg(MSG_PLUGIN_NAME), Far::get_msg(MSG_TEST_OK));
   }
 
-  static void bulk_test(const vector<wstring>& arc_list) {
-    shared_ptr<ErrorLog> error_log(new ErrorLog());
+  static void bulk_test(const std::vector<std::wstring>& arc_list) {
+    std::shared_ptr<ErrorLog> error_log(new ErrorLog());
     for (unsigned i = 0; i < arc_list.size(); i++) {
-      unique_ptr<Archives> archives;
+      std::unique_ptr<Archives> archives;
       Error err;
       err.objects = { arc_list[i] };
       try {
@@ -553,15 +553,15 @@ public:
         continue;
       }
 
-      shared_ptr<Archive> archive = (*archives)[0];
+      std::shared_ptr<Archive> archive = (*archives)[0];
       archive->read_open_results();
       err.SetResults(archive->get_open_errors(), archive->get_open_warnings());
       archive->make_index();
 
       FileIndexRange dir_list = archive->get_dir_list(c_root_index);
-      vector<UInt32> indices;
+      std::vector<UInt32> indices;
       indices.reserve(dir_list.second - dir_list.first);
-      for_each(dir_list.first, dir_list.second, [&] (UInt32 file_index) {
+      std::for_each(dir_list.first, dir_list.second, [&] (UInt32 file_index) {
         indices.push_back(file_index);
       });
 
@@ -587,16 +587,16 @@ public:
   }
 
   static void cmdline_test(const TestCommand& cmd) {
-    vector<wstring> arc_list;
+    std::vector<std::wstring> arc_list;
     arc_list.reserve(cmd.arc_list.size());
-    for_each(cmd.arc_list.begin(), cmd.arc_list.end(), [&] (const wstring& arc_name) {
+    std::for_each(cmd.arc_list.begin(), cmd.arc_list.end(), [&] (const std::wstring& arc_name) {
       arc_list.push_back(Far::get_absolute_path(arc_name));
     });
     Plugin::bulk_test(arc_list);
   }
 
   void put_files(const PluginPanelItem* panel_items, intptr_t items_number, int move, const wchar_t* src_path, OPERATION_MODES op_mode) {
-    if (items_number == 1 && wcscmp(panel_items[0].FileName, L"..") == 0)
+    if (items_number == 1 && std::wcscmp(panel_items[0].FileName, L"..") == 0)
       return;
     UpdateOptions options;
     bool new_arc = !archive->is_open();
@@ -611,7 +611,7 @@ public:
         else
            options.arc_path = extract_file_name(src_path);
       else
-        options.arc_path = add_trailing_slash(src_path) + (is_root_path(src_path) ? wstring(L"_") : extract_file_name(src_path));
+        options.arc_path = add_trailing_slash(src_path) + (is_root_path(src_path) ? std::wstring(L"_") : extract_file_name(src_path));
 
       ArcTypes arc_types = ArcAPI::formats().find_by_name(g_options.update_arc_format_name);
       options.arc_type = arc_types.empty() ? c_7z : arc_types.front();
@@ -685,17 +685,17 @@ public:
     }
 
     bool all_path_abs = true;
-    wstring common_src_path(src_path);
-    vector<wstring> file_names;
+    std::wstring common_src_path(src_path);
+    std::vector<std::wstring> file_names;
     file_names.reserve(items_number);
     for (int i = 0; i < items_number; i++) {
       file_names.push_back(panel_items[i].FileName);
       all_path_abs = all_path_abs && is_absolute_path(file_names.back());
     }
     if (all_path_abs) {
-      wstring common_start = add_trailing_slash(upcase(src_path));
+      std::wstring common_start = add_trailing_slash(upcase(src_path));
       for (int i = 0; i < items_number; i++) {
-        wstring upcase_name = upcase(file_names[i]);
+        std::wstring upcase_name = upcase(file_names[i]);
         while (common_start.size() > 1 && !substr_match(upcase_name, 0, common_start.c_str())) {
           size_t next_slash = common_start.size() - 1;
           while (next_slash > 0 && !is_slash(common_start[next_slash-1])) { --next_slash; }
@@ -718,7 +718,7 @@ public:
       }
     }
 
-    shared_ptr<ErrorLog> error_log(new ErrorLog());
+    std::shared_ptr<ErrorLog> error_log(new ErrorLog());
     if (new_arc)
       archive->create(common_src_path, file_names, options, error_log);
     else
@@ -745,9 +745,9 @@ public:
       FAIL(E_ABORT);
     if (!Far::is_real_file_panel(panel_info))
       FAIL(E_ABORT);
-    vector<wstring> file_list;
+    std::vector<std::wstring> file_list;
     file_list.reserve(panel_info.SelectedItemsNumber);
-    wstring src_path = Far::get_panel_dir(PANEL_ACTIVE);
+    std::wstring src_path = Far::get_panel_dir(PANEL_ACTIVE);
     bool multifile = false;
     for (size_t i = 0; i < panel_info.SelectedItemsNumber; i++) {
       Far::PanelItem panel_item = Far::get_selected_panel_item(PANEL_ACTIVE, i);
@@ -798,8 +798,8 @@ public:
         FAIL(E_ABORT);
     }
 
-    shared_ptr<ErrorLog> error_log(new ErrorLog());
-    shared_ptr<Archive>(new Archive())->create(src_path, file_list, options, error_log);
+    std::shared_ptr<ErrorLog> error_log(new ErrorLog());
+    std::shared_ptr<Archive>(new Archive())->create(src_path, file_list, options, error_log);
 
     if (!error_log->empty()) {
       show_error_log(*error_log);
@@ -818,18 +818,18 @@ public:
     UpdateOptions options = cmd.options;
     options.arc_path = Far::get_absolute_path(options.arc_path);
 
-    vector<wstring> files;
+    std::vector<std::wstring> files;
     files.reserve(cmd.files.size());
-    for_each(cmd.files.begin(), cmd.files.end(), [&] (const wstring& file) {
+    std::for_each(cmd.files.begin(), cmd.files.end(), [&] (const std::wstring& file) {
       files.push_back(Far::get_absolute_path(file));
     });
 
     // load listfiles
-    for_each(cmd.listfiles.begin(), cmd.listfiles.end(), [&] (const wstring& listfile) {
-      wstring str = load_file(Far::get_absolute_path(listfile));
-      std::list<wstring> fl = parse_listfile(str);
+    std::for_each(cmd.listfiles.begin(), cmd.listfiles.end(), [&] (const std::wstring& listfile) {
+      std::wstring str = load_file(Far::get_absolute_path(listfile));
+      std::list<std::wstring> fl = parse_listfile(str);
       files.reserve(files.size() + fl.size());
-      for_each(fl.begin(), fl.end(), [&] (const wstring& file) {
+      std::for_each(fl.begin(), fl.end(), [&] (const std::wstring& file) {
         files.push_back(Far::get_absolute_path(file));
       });
     });
@@ -838,10 +838,10 @@ public:
       FAIL(E_ABORT);
 
     // common source directory
-    wstring src_path = extract_file_path(Far::get_absolute_path(files.front()));
-    wstring src_path_upcase = upcase(src_path);
-    wstring full_path;
-    for_each(files.begin(), files.end(), [&] (const wstring& file) {
+    std::wstring src_path = extract_file_path(Far::get_absolute_path(files.front()));
+    std::wstring src_path_upcase = upcase(src_path);
+    std::wstring full_path;
+    std::for_each(files.begin(), files.end(), [&] (const std::wstring& file) {
       while (!substr_match(upcase(file), 0, src_path_upcase.c_str())) {
         if (is_root_path(src_path))
           src_path.clear();
@@ -854,16 +854,16 @@ public:
     // relative paths
     if (!src_path.empty()) {
       size_t size = src_path.size() + (src_path.back() == L'\\' ? 0 : 1);
-      for_each(files.begin(), files.end(), [&] (wstring& file) {
+      std::for_each(files.begin(), files.end(), [&] (std::wstring& file) {
         file.erase(0, size);
       });
     }
 
     CHECK(get_app_option(FSSF_SYSTEM, c_copy_opened_files_option, options.open_shared));
 
-    shared_ptr<ErrorLog> error_log(new ErrorLog());
+    std::shared_ptr<ErrorLog> error_log(new ErrorLog());
     if (cmd.new_arc) {
-      shared_ptr<Archive>(new Archive())->create(src_path, files, options, error_log);
+      std::shared_ptr<Archive>(new Archive())->create(src_path, files, options, error_log);
 
       if (upcase(Far::get_panel_dir(PANEL_ACTIVE)) == upcase(extract_file_path(options.arc_path)))
         Far::panel_go_to_file(PANEL_ACTIVE, options.arc_path);
@@ -876,11 +876,11 @@ public:
       open_options.detect = false;
       open_options.password = options.password;
       open_options.arc_types = ArcAPI::formats().get_arc_types();
-      unique_ptr<Archives> archives(Archive::open(open_options));
+      std::unique_ptr<Archives> archives(Archive::open(open_options));
       if (archives->empty())
         throw Error(Far::get_msg(MSG_ERROR_NOT_ARCHIVE), options.arc_path, __FILE__, __LINE__);
 
-      shared_ptr<Archive> archive = (*archives)[0];
+      std::shared_ptr<Archive> archive = (*archives)[0];
       if (!archive->updatable())
         throw Error(Far::get_msg(MSG_ERROR_NOT_UPDATABLE), options.arc_path, __FILE__, __LINE__);
 
@@ -899,12 +899,12 @@ public:
         options.password = archive->password;
       }
 
-      archive->update(src_path, files, wstring(), options, error_log);
+      archive->update(src_path, files, std::wstring(), options, error_log);
     }
   }
 
   void delete_files(const PluginPanelItem* panel_items, intptr_t items_number, OPERATION_MODES op_mode) {
-    if (items_number == 1 && wcscmp(panel_items[0].FileName, L"..") == 0) return;
+    if (items_number == 1 && std::wcscmp(panel_items[0].FileName, L"..") == 0) return;
 
     if (!archive->updatable()) {
       FAIL_MSG(Far::get_msg(MSG_ERROR_NOT_UPDATABLE));
@@ -919,7 +919,7 @@ public:
         FAIL(E_ABORT);
     }
 
-    vector<UInt32> indices;
+    std::vector<UInt32> indices;
     indices.reserve(items_number);
     for (int i = 0; i < items_number; i++) {
       indices.push_back(static_cast<UInt32>(reinterpret_cast<size_t>(panel_items[i].UserData.Data)));
@@ -976,7 +976,7 @@ public:
     }
   }
 
-  static void convert_to_sfx(const vector<wstring>& file_list) {
+  static void convert_to_sfx(const std::vector<std::wstring>& file_list) {
     SfxOptions sfx_options = g_options.update_sfx_options;
     if (!sfx_options_dialog(sfx_options, g_profiles))
       FAIL(E_ABORT);
@@ -1044,21 +1044,21 @@ static HANDLE analyse_open(const AnalyseInfo* info, bool from_analyse) {
         FAIL(E_INVALIDARG);
     }
     if ((g_options.use_enabled_formats || g_options.use_disabled_formats) && (pgdn ? g_options.pgdn_formats : true)) {
-      set<wstring> enabled_formats;
+      std::set<std::wstring> enabled_formats;
       if (g_options.use_enabled_formats) {
-        list<wstring> name_list = split(upcase(g_options.enabled_formats), L',');
+        std::list<std::wstring> name_list = split(upcase(g_options.enabled_formats), L',');
         copy(name_list.cbegin(), name_list.cend(), inserter(enabled_formats, enabled_formats.begin()));
       }
-      set<wstring> disabled_formats;
+	  std::set<std::wstring> disabled_formats;
       if (g_options.use_disabled_formats) {
-        list<wstring> name_list = split(upcase(g_options.disabled_formats), L',');
-        copy(name_list.cbegin(), name_list.cend(), inserter(disabled_formats, disabled_formats.begin()));
+        std::list<std::wstring> name_list = split(upcase(g_options.disabled_formats), L',');
+        copy(name_list.cbegin(), name_list.cend(), std::inserter(disabled_formats, disabled_formats.begin()));
       }
 
       const ArcFormats& arc_formats = ArcAPI::formats();
       ArcTypes::iterator arc_type = options.arc_types.begin();
       while (arc_type != options.arc_types.end()) {
-        wstring arc_name = upcase(arc_formats.at(*arc_type).name);
+        std::wstring arc_name = upcase(arc_formats.at(*arc_type).name);
         if (g_options.use_enabled_formats && enabled_formats.count(arc_name) == 0)
           arc_type = options.arc_types.erase(arc_type);
         else if (g_options.use_disabled_formats && disabled_formats.count(arc_name) != 0)
@@ -1077,7 +1077,7 @@ static HANDLE analyse_open(const AnalyseInfo* info, bool from_analyse) {
   options.open_password_len = &password_len;
   for (;;) {
     password_len = from_analyse ? -'A' : 0;
-    unique_ptr<Archives> archives(Archive::open(options));
+    std::unique_ptr<Archives> archives(Archive::open(options));
     if (!archives->empty())
       return archives.release();
     if (from_analyse || password_len <= 0)
@@ -1158,13 +1158,13 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
         return nullptr;
       if (!Far::is_real_file_panel(panel_info))
         return nullptr;
-      vector<wstring> file_list;
+      std::vector<std::wstring> file_list;
       file_list.reserve(panel_info.SelectedItemsNumber);
-      wstring dir = Far::get_panel_dir(PANEL_ACTIVE);
+      std::wstring dir = Far::get_panel_dir(PANEL_ACTIVE);
       for (size_t i = 0; i < panel_info.SelectedItemsNumber; i++) {
         Far::PanelItem panel_item = Far::get_selected_panel_item(PANEL_ACTIVE, i);
         if ((panel_item.file_attributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
-          wstring file_path = add_trailing_slash(dir) + panel_item.file_name;
+          std::wstring file_path = add_trailing_slash(dir) + panel_item.file_name;
           file_list.push_back(file_path);
         }
       }
@@ -1251,7 +1251,7 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
     delayed_analyse_open = oai->Handle == INVALID_HANDLE_VALUE;
     auto handle = delayed_analyse_open ? analyse_open(oai->Info, false) : oai->Handle;
     delayed_analyse_open = false;
-    unique_ptr<Archives> archives(static_cast<Archives*>(handle));
+    std::unique_ptr<Archives> archives(static_cast<Archives*>(handle));
     bool real_panel = true;
     PanelInfo panel_info;
     if (Far::get_panel_info(PANEL_ACTIVE, panel_info) && !Far::is_real_file_panel(panel_info))

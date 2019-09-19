@@ -1,6 +1,6 @@
 #pragma once
 
-extern wstring get_error_dlg_title();
+extern std::wstring get_error_dlg_title();
 
 #define FAR_ERROR_HANDLER_BEGIN \
   try { \
@@ -31,35 +31,35 @@ extern wstring get_error_dlg_title();
 namespace Far {
 
 void init(const PluginStartupInfo* psi);
-wstring get_plugin_module_path();
+std::wstring get_plugin_module_path();
 
 const wchar_t* msg_ptr(int id);
-wstring get_msg(int id);
+std::wstring get_msg(int id);
 
 unsigned get_optimal_msg_width();
-intptr_t message(const GUID& id, const wstring& msg, int button_cnt = 0, FARMESSAGEFLAGS flags = 0);
+intptr_t message(const GUID& id, const std::wstring& msg, int button_cnt = 0, FARMESSAGEFLAGS flags = 0);
 
-class MenuItems: public vector<wstring> {
+class MenuItems: public std::vector<std::wstring> {
 public:
-  unsigned add(const wstring& item);
+  unsigned add(const std::wstring& item);
 };
-intptr_t menu(const GUID& id, const wstring& title, const MenuItems& items, const wchar_t* help = NULL);
+intptr_t menu(const GUID& id, const std::wstring& title, const MenuItems& items, const wchar_t* help = NULL);
 
-wstring get_progress_bar_str(unsigned width, UInt64 completed, UInt64 total);
+std::wstring get_progress_bar_str(unsigned width, uint64_t completed, uint64_t total);
 void set_progress_state(TBPFLAG state);
-void set_progress_value(UInt64 completed, UInt64 total);
+void set_progress_value(uint64_t completed, uint64_t total);
 void progress_notify();
 
 void call_user_apc(void* param);
-bool post_macro(const wstring& macro);
+bool post_macro(const std::wstring& macro);
 void quit();
 
 HANDLE save_screen();
 void restore_screen(HANDLE h_scr);
 void flush_screen();
 
-intptr_t viewer(const wstring& file_name, const wstring& title, VIEWER_FLAGS flags = 0);
-intptr_t editor(const wstring& file_name, const wstring& title, EDITOR_FLAGS flags = 0);
+intptr_t viewer(const std::wstring& file_name, const std::wstring& title, VIEWER_FLAGS flags = 0);
+intptr_t editor(const std::wstring& file_name, const std::wstring& title, EDITOR_FLAGS flags = 0);
 
 void update_panel(HANDLE h_panel, bool keep_selection);
 void set_view_mode(HANDLE h_panel, unsigned view_mode);
@@ -69,7 +69,7 @@ void set_directories_first(HANDLE h_panel, bool first);
 
 bool get_panel_info(HANDLE h_panel, PanelInfo& panel_info);
 bool is_real_file_panel(const PanelInfo& panel_info);
-wstring get_panel_dir(HANDLE h_panel);
+std::wstring get_panel_dir(HANDLE h_panel);
 
 void get_panel_item(HANDLE h_panel, FILE_CONTROL_COMMANDS command, size_t index, Buffer<unsigned char>& buf);
 struct PanelItem {
@@ -77,19 +77,19 @@ struct PanelItem {
   FILETIME creation_time;
   FILETIME last_access_time;
   FILETIME last_write_time;
-  UInt64 file_size;
-  UInt64 pack_size;
-  wstring file_name;
-  wstring alt_file_name;
+  uint64_t file_size;
+  uint64_t pack_size;
+  std::wstring file_name;
+  std::wstring alt_file_name;
   void* user_data;
 };
 PanelItem get_current_panel_item(HANDLE h_panel);
 PanelItem get_panel_item(HANDLE h_panel, size_t index);
 PanelItem get_selected_panel_item(HANDLE h_panel, size_t index);
 
-void error_dlg(const wstring& title, const Error& e);
-void info_dlg(const GUID& id, const wstring& title, const wstring& msg);
-bool input_dlg(const GUID& id, const wstring& title, const wstring& msg, wstring& text, INPUTBOXFLAGS flags = 0);
+void error_dlg(const std::wstring& title, const Error& e);
+void info_dlg(const GUID& id, const std::wstring& title, const std::wstring& msg);
+bool input_dlg(const GUID& id, const std::wstring& title, const std::wstring& msg, std::wstring& text, INPUTBOXFLAGS flags = 0);
 
 #define AUTO_SIZE ((intptr_t)-1)
 const unsigned c_x_frame = 5;
@@ -119,13 +119,13 @@ private:
   size_t y;
   const wchar_t* help;
   FARDIALOGFLAGS flags;
-  vector<wstring> values;
-  vector<DialogItem> items;
+  std::vector<std::wstring> values;
+  std::vector<DialogItem> items;
   HANDLE h_dlg;
   const GUID* guid;
-  unsigned new_value(const wstring& text);
+  unsigned new_value(const std::wstring& text);
   const wchar_t* get_value(unsigned idx) const;
-  void frame(const wstring& text);
+  void frame(const std::wstring& text);
   void calc_frame_size();
   unsigned new_item(const DialogItem& di);
   static intptr_t WINAPI internal_dialog_proc(HANDLE h_dlg, intptr_t msg, intptr_t param1, void* param2);
@@ -145,7 +145,7 @@ protected:
       dlg.events_enabled = events_enabled;
     }
   };
-  size_t get_label_len(const wstring& str, FARDIALOGITEMFLAGS flags);
+  size_t get_label_len(const std::wstring& str, FARDIALOGITEMFLAGS flags);
   intptr_t default_dialog_proc(intptr_t msg, intptr_t param1, void* param2);
   virtual intptr_t dialog_proc(intptr_t msg, intptr_t param1, void* param2) {
     return default_dialog_proc(msg, param1, param2);
@@ -155,41 +155,41 @@ protected:
   }
   intptr_t send_message(intptr_t msg, intptr_t param1, void* param2 = nullptr);
 public:
-  Dialog(const wstring& title,const GUID* guid,unsigned width=60,const wchar_t* help=nullptr,FARDIALOGFLAGS flags=0);
+  Dialog(const std::wstring& title,const GUID* guid,unsigned width=60,const wchar_t* help=nullptr,FARDIALOGFLAGS flags=0);
   // create different controls
   void new_line();
   void reset_line();
   void spacer(size_t size);
   void pad(size_t pos);
   unsigned separator();
-  unsigned separator(const wstring& text);
-  unsigned label(const wstring& text, size_t boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
-  unsigned edit_box(const wstring& text, size_t boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
-  unsigned mask_edit_box(const wstring& text, const wstring& mask, size_t boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
-  unsigned history_edit_box(const wstring& text, const wstring& history_name, size_t boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
-  unsigned fix_edit_box(const wstring& text, size_t boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
-  unsigned pwd_edit_box(const wstring& text, size_t boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
-  unsigned button(const wstring& text, FARDIALOGITEMFLAGS flags = 0);
-  unsigned def_button(const wstring& text, FARDIALOGITEMFLAGS flags = 0) {
+  unsigned separator(const std::wstring& text);
+  unsigned label(const std::wstring& text, size_t boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
+  unsigned edit_box(const std::wstring& text, size_t boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
+  unsigned mask_edit_box(const std::wstring& text, const std::wstring& mask, size_t boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
+  unsigned history_edit_box(const std::wstring& text, const std::wstring& history_name, size_t boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
+  unsigned fix_edit_box(const std::wstring& text, size_t boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
+  unsigned pwd_edit_box(const std::wstring& text, size_t boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
+  unsigned button(const std::wstring& text, FARDIALOGITEMFLAGS flags = 0);
+  unsigned def_button(const std::wstring& text, FARDIALOGITEMFLAGS flags = 0) {
     return button(text, flags | DIF_DEFAULTBUTTON);
   }
-  unsigned check_box(const wstring& text, int value, FARDIALOGITEMFLAGS flags = 0);
-  unsigned check_box(const wstring& text, bool value, FARDIALOGITEMFLAGS flags = 0) {
+  unsigned check_box(const std::wstring& text, int value, FARDIALOGITEMFLAGS flags = 0);
+  unsigned check_box(const std::wstring& text, bool value, FARDIALOGITEMFLAGS flags = 0) {
     return check_box(text, value ? BSTATE_CHECKED : BSTATE_UNCHECKED, flags);
   }
-  unsigned check_box3(const wstring& text, bool value, bool value_defined, FARDIALOGITEMFLAGS flags = 0) {
+  unsigned check_box3(const std::wstring& text, bool value, bool value_defined, FARDIALOGITEMFLAGS flags = 0) {
     return check_box(text, value_defined ? (value ? BSTATE_CHECKED : BSTATE_UNCHECKED) : BSTATE_3STATE, flags | DIF_3STATE);
   }
-  unsigned check_box3(const wstring& text, TriState value, FARDIALOGITEMFLAGS flags = 0) {
+  unsigned check_box3(const std::wstring& text, TriState value, FARDIALOGITEMFLAGS flags = 0) {
     return check_box(text, value == triUndef ? BSTATE_3STATE : value == triTrue ? BSTATE_CHECKED : BSTATE_UNCHECKED, flags | DIF_3STATE);
   }
-  unsigned radio_button(const wstring& text, bool value, FARDIALOGITEMFLAGS flags = 0);
-  unsigned combo_box(const vector<wstring>& items, size_t sel_idx, size_t boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
+  unsigned radio_button(const std::wstring& text, bool value, FARDIALOGITEMFLAGS flags = 0);
+  unsigned combo_box(const std::vector<std::wstring>& items, size_t sel_idx, size_t boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
   // display dialog
   intptr_t show();
   // utilities to set/get control values
-  wstring get_text(unsigned ctrl_id) const;
-  void set_text(unsigned ctrl_id, const wstring& text);
+  std::wstring get_text(unsigned ctrl_id) const;
+  void set_text(unsigned ctrl_id, const std::wstring& text);
   bool get_check(unsigned ctrl_id) const;
   void set_check(unsigned ctrl_id, bool check = true);
   TriState get_check3(unsigned ctrl_id) const;
@@ -207,7 +207,7 @@ private:
 public:
   Regex();
   ~Regex();
-  size_t search(const wstring& expr, const wstring& text);
+  size_t search(const std::wstring& expr, const std::wstring& text);
 };
 
 class Selection {
@@ -232,16 +232,16 @@ public:
   bool match(const PluginPanelItem& panel_item);
 };
 
-wstring get_absolute_path(const wstring& rel_path);
+std::wstring get_absolute_path(const std::wstring& rel_path);
 INT_PTR control(HANDLE h_panel, FILE_CONTROL_COMMANDS command, int param1 = 0, void* param2 = nullptr);
 INT_PTR adv_control(ADVANCED_CONTROL_COMMANDS command, int param1 = 0, void* param2 = nullptr);
-bool match_masks(const wstring& file_name, const wstring& masks);
+bool match_masks(const std::wstring& file_name, const std::wstring& masks);
 bool get_color(PaletteColors color_id, FarColor& color);
-bool panel_go_to_dir(HANDLE h_panel, const wstring& dir);
-bool panel_go_to_file(HANDLE h_panel, const wstring& file_path);
+bool panel_go_to_dir(HANDLE h_panel, const std::wstring& dir);
+bool panel_go_to_file(HANDLE h_panel, const std::wstring& file_path);
 DWORD get_lang_id();
-void close_panel(HANDLE h_panel, const wstring& dir);
-void open_help(const wstring& topic);
+void close_panel(HANDLE h_panel, const std::wstring& dir);
+void open_help(const std::wstring& topic);
 
 class Settings {
 private:
@@ -253,16 +253,16 @@ public:
   Settings();
   ~Settings();
   bool create(bool app_settings = false);
-  bool set_dir(const wstring& path);
-  bool list_dir(vector<wstring>& result);
-  bool set(const wchar_t* name, UInt64 value);
-  bool set(const wchar_t* name, const wstring& value);
+  bool set_dir(const std::wstring& path);
+  bool list_dir(std::vector<std::wstring>& result);
+  bool set(const wchar_t* name, uint64_t value);
+  bool set(const wchar_t* name, const std::wstring& value);
   bool set(const wchar_t* name, const void* value, size_t value_size);
-  bool get(const wchar_t* name, UInt64& value);
-  bool get(const wchar_t* name, wstring& value);
+  bool get(const wchar_t* name, uint64_t& value);
+  bool get(const wchar_t* name, std::wstring& value);
   bool get(const wchar_t* name, ByteVector& value);
-  bool get(size_t root, const wchar_t* name, UInt64& value);
-  bool get(size_t root, const wchar_t* name, wstring& value);
+  bool get(size_t root, const wchar_t* name, uint64_t& value);
+  bool get(size_t root, const wchar_t* name, std::wstring& value);
   bool get(size_t root, const wchar_t* name, ByteVector& value);
   bool del(const wchar_t* name);
   bool del_dir(const wchar_t* name);

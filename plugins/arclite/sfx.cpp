@@ -9,7 +9,7 @@
 
 class AttachSfxModuleProgress: public ProgressMonitor {
 private:
-  wstring file_path;
+  std::wstring file_path;
   UInt64 completed;
   UInt64 total;
 
@@ -18,14 +18,14 @@ private:
 
     percent_done = calc_percent(completed, total);
 
-    wostringstream st;
+    std::wostringstream st;
     st << fit_str(file_path, c_width) << L'\n';
     st << Far::get_progress_bar_str(c_width, percent_done, 100) << L'\n';
     progress_text = st.str();
   }
 
 public:
-  AttachSfxModuleProgress(const wstring& file_path): ProgressMonitor(Far::get_msg(MSG_PROGRESS_SFX_CONVERT)), file_path(file_path), completed(0), total(0) {
+  AttachSfxModuleProgress(const std::wstring& file_path): ProgressMonitor(Far::get_msg(MSG_PROGRESS_SFX_CONVERT)), file_path(file_path), completed(0), total(0) {
   }
 
   void set_total(UInt64 size) {
@@ -37,11 +37,11 @@ public:
   }
 };
 
-void replace_icon(const wstring& pe_path, const wstring& ico_path);
-void replace_ver_info(const wstring& pe_path, const SfxVersionInfo& ver_info);
+void replace_icon(const std::wstring& pe_path, const std::wstring& ico_path);
+void replace_ver_info(const std::wstring& pe_path, const SfxVersionInfo& ver_info);
 
 ByteVector generate_install_config(const SfxInstallConfig& config) {
-  wstring text;
+  std::wstring text;
   text += L";!@Install@!UTF-8!\n";
   if (!config.title.empty())
     text += L"Title=\"" + config.title + L"\"\n";
@@ -58,14 +58,14 @@ ByteVector generate_install_config(const SfxInstallConfig& config) {
   if (!config.execute_parameters.empty())
     text += L"ExecuteParameters=\"" + config.execute_parameters + L"\"\n";
   text += L";!@InstallEnd@!\n";
-  string utf8_text = unicode_to_ansi(text, CP_UTF8);
+  std::string utf8_text = unicode_to_ansi(text, CP_UTF8);
   return ByteVector(utf8_text.begin(), utf8_text.end());
 }
 
-void create_sfx_module(const wstring& file_path, const SfxOptions& sfx_options) {
+void create_sfx_module(const std::wstring& file_path, const SfxOptions& sfx_options) {
   uintptr_t sfx_id = ArcAPI::sfx().find_by_name(sfx_options.name);
   CHECK(sfx_id < ArcAPI::sfx().size());
-  wstring sfx_path = ArcAPI::sfx()[sfx_id].path;
+  std::wstring sfx_path = ArcAPI::sfx()[sfx_id].path;
 
   File file;
   file.open(file_path, FILE_WRITE_DATA, FILE_SHARE_READ, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL);
@@ -92,7 +92,7 @@ void create_sfx_module(const wstring& file_path, const SfxOptions& sfx_options) 
   }
 }
 
-void attach_sfx_module(const wstring& file_path, const SfxOptions& sfx_options) {
+void attach_sfx_module(const std::wstring& file_path, const SfxOptions& sfx_options) {
   AttachSfxModuleProgress progress(file_path);
 
   {
@@ -100,7 +100,7 @@ void attach_sfx_module(const wstring& file_path, const SfxOptions& sfx_options) 
     options.arc_path = file_path;
     options.detect = false;
     options.arc_types.push_back(c_7z);
-    unique_ptr<Archives> archives(Archive::open(options));
+    std::unique_ptr<Archives> archives(Archive::open(options));
     if (archives->empty())
       FAIL_MSG(Far::get_msg(MSG_ERROR_SFX_CONVERT));
     if (!archives->front()->is_pure_7z())
@@ -109,7 +109,7 @@ void attach_sfx_module(const wstring& file_path, const SfxOptions& sfx_options) 
 
   FindData file_data = File::get_find_data(file_path);
   progress.set_total(file_data.size());
-  wstring dst_path = file_path + c_sfx_ext;
+  std::wstring dst_path = file_path + c_sfx_ext;
   try {
     create_sfx_module(dst_path, sfx_options);
 
@@ -138,11 +138,11 @@ void attach_sfx_module(const wstring& file_path, const SfxOptions& sfx_options) 
 
 
 struct SfxProfile {
-  wstring name;
+  std::wstring name;
   SfxOptions options;
 };
 
-typedef vector<SfxProfile> SfxProfiles;
+typedef std::vector<SfxProfile> SfxProfiles;
 
 class SfxOptionsDialog: public Far::Dialog {
 private:
@@ -340,7 +340,7 @@ private:
 
 public:
   SfxOptionsDialog(SfxOptions& options, const UpdateProfiles& update_profiles): Far::Dialog(Far::get_msg(MSG_SFX_OPTIONS_DLG_TITLE), &c_sfx_options_dialog_guid, c_client_xs, L"SfxOptions"), options(options) {
-    for_each(update_profiles.cbegin(), update_profiles.cend(), [&] (const UpdateProfile& update_profile) {
+    std::for_each(update_profiles.cbegin(), update_profiles.cend(), [&] (const UpdateProfile& update_profile) {
       if (update_profile.options.create_sfx) {
         SfxProfile sfx_profile;
         sfx_profile.name = update_profile.name;
@@ -352,29 +352,29 @@ public:
 
   bool show() {
     label(Far::get_msg(MSG_SFX_OPTIONS_DLG_PROFILE));
-    vector<wstring> profile_names;
+    std::vector<std::wstring> profile_names;
     profile_names.reserve(profiles.size());
     for (unsigned i = 0; i < profiles.size(); i++) {
       profile_names.push_back(profiles[i].name);
     }
-    profile_names.push_back(wstring());
+    profile_names.push_back(std::wstring());
     profile_ctrl_id = combo_box(profile_names, profiles.size(), 30, DIF_DROPDOWNLIST);
     new_line();
     separator();
     new_line();
 
     label(Far::get_msg(MSG_SFX_OPTIONS_DLG_MODULE));
-    vector<wstring> module_names;
+    std::vector<std::wstring> module_names;
     const SfxModules& sfx_modules = ArcAPI::sfx();
     module_names.reserve(sfx_modules.size() + 1);
     size_t name_width = 0;
-    for_each(sfx_modules.begin(), sfx_modules.end(), [&] (const SfxModule& sfx_module) {
-      wstring name = sfx_module.description();
+    std::for_each(sfx_modules.begin(), sfx_modules.end(), [&] (const SfxModule& sfx_module) {
+      std::wstring name = sfx_module.description();
       module_names.push_back(name);
       if (name_width < name.size())
         name_width = name.size();
     });
-    module_names.push_back(wstring());
+    module_names.push_back(std::wstring());
     module_ctrl_id = combo_box(module_names, sfx_modules.find_by_name(options.name), name_width + 6, DIF_DROPDOWNLIST);
     new_line();
 
@@ -386,7 +386,7 @@ public:
     new_line();
 
     size_t label_len = 0;
-    vector<wstring> labels;
+    std::vector<std::wstring> labels;
     labels.push_back(Far::get_msg(MSG_SFX_OPTIONS_DLG_VER_INFO_PRODUCT_NAME));
     labels.push_back(Far::get_msg(MSG_SFX_OPTIONS_DLG_VER_INFO_VERSION));
     labels.push_back(Far::get_msg(MSG_SFX_OPTIONS_DLG_VER_INFO_COMPANY_NAME));
@@ -397,7 +397,7 @@ public:
       if (label_len < labels[i].size())
         label_len = labels[i].size();
     label_len += 2;
-    vector<wstring>::const_iterator label_text = labels.cbegin();
+    std::vector<std::wstring>::const_iterator label_text = labels.cbegin();
     replace_version_ctrl_id = check_box(Far::get_msg(MSG_SFX_OPTIONS_DLG_REPLACE_VERSION), options.replace_version);
     new_line();
     spacer(2);
@@ -467,7 +467,7 @@ public:
       value = triFalse;
     else
       value = triUndef;
-    install_config_progress_ctrl_id = check_box3(wstring(), value);
+    install_config_progress_ctrl_id = check_box3(std::wstring(), value);
     new_line();
     spacer(2);
     label(*label_text++);

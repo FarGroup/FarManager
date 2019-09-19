@@ -125,7 +125,7 @@ public:
   PropVariant(const PROPVARIANT& var) {
     CHECK_COM(PropVariantCopy(this, &var));
   }
-  PropVariant(const wstring& val) {
+  PropVariant(const std::wstring& val) {
     vt = VT_BSTR;
     bstrVal = SysAllocStringLen(val.data(), static_cast<UINT>(val.size()));
     if (bstrVal == nullptr) {
@@ -176,7 +176,7 @@ public:
     CHECK_COM(PropVariantCopy(this, &var));
     return *this;
   }
-  PropVariant& operator=(const wstring& val) {
+  PropVariant& operator=(const std::wstring& val) {
     clear();
     vt = VT_BSTR;
     bstrVal = SysAllocStringLen(val.data(), static_cast<UINT>(val.size()));
@@ -343,12 +343,12 @@ public:
       FAIL(E_INVALIDARG);
     }
   }
-  wstring get_str() const {
+  std::wstring get_str() const {
     switch (vt) {
     case VT_BSTR:
-      return wstring(bstrVal, SysStringLen(bstrVal));
+      return std::wstring(bstrVal, SysStringLen(bstrVal));
     case VT_LPWSTR:
-      return wstring(pwszVal);
+      return std::wstring(pwszVal);
     default:
       FAIL(E_INVALIDARG);
     }
@@ -369,11 +369,11 @@ public:
       FAIL(E_INVALIDARG);
     }
   }
-  vector<unsigned char> get_binary() const {
+  std::vector<unsigned char> get_binary() const {
     if (vt != VT_BSTR)
       FAIL(E_INVALIDARG);
     unsigned char* data = reinterpret_cast<unsigned char*>(bstrVal);
-    return vector<unsigned char>(data, data + SysStringByteLen(bstrVal));
+    return std::vector<unsigned char>(data, data + SysStringByteLen(bstrVal));
   }
 
 };
@@ -393,7 +393,7 @@ private:
     if (bstr == nullptr)
       FAIL(E_OUTOFMEMORY);
   }
-  void alloc(const wstring& str) {
+  void alloc(const std::wstring& str) {
     bstr = SysAllocStringLen(str.data(), static_cast<UINT>(str.size()));
     if (bstr == nullptr)
       FAIL(E_OUTOFMEMORY);
@@ -408,7 +408,7 @@ private:
     if (!SysReAllocStringLen(&bstr, str.bstr, SysStringLen(str.bstr)))
       FAIL(E_OUTOFMEMORY);
   }
-  void realloc(const wstring& str) {
+  void realloc(const std::wstring& str) {
     if (!SysReAllocStringLen(&bstr, str.data(), static_cast<UINT>(str.size())))
       FAIL(E_OUTOFMEMORY);
   }
@@ -441,7 +441,7 @@ public:
   BStr(const BStr& str) {
     alloc(str);
   }
-  BStr(const wstring& str) {
+  BStr(const std::wstring& str) {
     alloc(str);
   }
   BStr(const wchar_t* str) {
@@ -458,7 +458,7 @@ public:
       alloc(str);
     return *this;
   }
-  BStr& operator=(const wstring& str) {
+  BStr& operator=(const std::wstring& str) {
     if (bstr)
       realloc(str);
     else
@@ -478,7 +478,7 @@ public:
 
 // stream reader/writer (read comments in IStream.h for explanation)
 
-const UInt32 c_max_chunk_size = 1024 * 1024; // max. number of bytes to read/write at a time 
+const UInt32 c_max_chunk_size = 1024 * 1024; // max. number of bytes to read/write at a time
 
 inline UInt32 read_stream(ISequentialInStream* stream, void* data, UInt32 size) {
   UInt32 pos = 0;

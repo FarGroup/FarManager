@@ -20,4 +20,4 @@ struct SigData {
   SigData(const ByteVector& sig, const ArcFormat& fmt) : signature(sig), format(fmt) {}
 };
 
-vector<StrPos> msearch(unsigned char* data, size_t size, const vector<SigData>& str_list, bool eof);
+std::vector<StrPos> msearch(unsigned char* data, size_t size, const std::vector<SigData>& str_list, bool eof);

@@ -8,42 +8,42 @@ enum TriState {
   triUndef,
 };
 
-typedef vector<unsigned char> ByteVector;
+typedef std::vector<unsigned char> ByteVector;
 
-bool substr_match(const wstring& str, wstring::size_type pos, wstring::const_pointer mstr);
-wstring word_wrap(const wstring& str, wstring::size_type wrap_bound);
-wstring fit_str(const wstring& str, wstring::size_type size);
-wstring center(const wstring& str, unsigned width);
-string strip(const string& str);
-wstring strip(const wstring& str);
-int str_to_int(const string& str);
-int str_to_int(const wstring& str);
-wstring int_to_str(int val);
-UInt64 str_to_uint(const wstring& str);
-wstring uint_to_str(UInt64 val);
-wstring widen(const string& str);
-list<wstring> split(const wstring& str, wchar_t sep);
-wstring combine(const list<wstring>& lst, wchar_t sep);
-wstring format_data_size(UInt64 value, const wchar_t* suffixes[5]);
+bool substr_match(const std::wstring& str, std::wstring::size_type pos, std::wstring::const_pointer mstr);
+std::wstring word_wrap(const std::wstring& str, std::wstring::size_type wrap_bound);
+std::wstring fit_str(const std::wstring& str, std::wstring::size_type size);
+std::wstring center(const std::wstring& str, unsigned width);
+std::string strip(const std::string& str);
+std::wstring strip(const std::wstring& str);
+int str_to_int(const std::string& str);
+int str_to_int(const std::wstring& str);
+std::wstring int_to_str(int val);
+uint64_t str_to_uint(const std::wstring& str);
+std::wstring uint_to_str(uint64_t val);
+std::wstring widen(const std::string& str);
+std::list<std::wstring> split(const std::wstring& str, wchar_t sep);
+std::wstring combine(const std::list<std::wstring>& lst, wchar_t sep);
+std::wstring format_data_size(uint64_t value, const wchar_t* suffixes[5]);
 bool is_slash(wchar_t c);
-wstring unquote(const wstring& str);
-wstring search_and_replace(const wstring& str, const wstring& search_str, const wstring& replace_str);
+std::wstring unquote(const std::wstring& str);
+std::wstring search_and_replace(const std::wstring& str, const std::wstring& search_str, const std::wstring& replace_str);
 
-wstring long_path(const wstring& path);
-wstring long_path_norm(const wstring& path);
+std::wstring long_path(const std::wstring& path);
+std::wstring long_path_norm(const std::wstring& path);
 
-wstring add_trailing_slash(const wstring& path);
-wstring del_trailing_slash(const wstring& path);
+std::wstring add_trailing_slash(const std::wstring& path);
+std::wstring del_trailing_slash(const std::wstring& path);
 
-wstring extract_path_root(const wstring& path);
-wstring extract_file_name(const wstring& path);
-wstring extract_file_path(const wstring& path);
-wstring extract_file_ext(const wstring& path);
-bool is_root_path(const wstring& path);
-bool is_unc_path(const wstring& path);
-bool is_absolute_path(const wstring& path);
-wstring remove_path_root(const wstring& path);
-wstring correct_filename(const wstring& name, int mode, bool alt_stream);
+std::wstring extract_path_root(const std::wstring& path);
+std::wstring extract_file_name(const std::wstring& path);
+std::wstring extract_file_path(const std::wstring& path);
+std::wstring extract_file_ext(const std::wstring& path);
+bool is_root_path(const std::wstring& path);
+bool is_unc_path(const std::wstring& path);
+bool is_absolute_path(const std::wstring& path);
+std::wstring remove_path_root(const std::wstring& path);
+std::wstring correct_filename(const std::wstring& name, int mode, bool alt_stream);
 
 template<class T>
 inline const T* null_to_empty(const T* Str) { static const T empty = T(); return Str? Str : &empty; }

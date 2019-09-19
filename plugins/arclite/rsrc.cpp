@@ -6,7 +6,7 @@
 
 class RsrcId {
 private:
-  wstring name;
+  std::wstring name;
   WORD id;
   void set(LPCTSTR name_id) {
     if (IS_INTRESOURCE(name_id)) {
@@ -45,7 +45,7 @@ struct IconImage {
   ByteVector bitmap;
 };
 
-typedef list<IconImage> IconFile;
+typedef std::list<IconImage> IconFile;
 
 #pragma pack(push)
 #pragma pack(1)
@@ -67,7 +67,7 @@ struct IconFileEntry {
 };
 #pragma pack(pop)
 
-IconFile load_icon_file(const wstring& file_path) {
+IconFile load_icon_file(const std::wstring& file_path) {
   IconFile icon;
   File file(file_path, FILE_READ_DATA, FILE_SHARE_READ, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
   IconFileHeader header;
@@ -104,7 +104,7 @@ struct IconImageRsrc {
 struct IconRsrc {
   RsrcId id;
   WORD lang_id;
-  list<IconImageRsrc> images;
+  std::list<IconImageRsrc> images;
 };
 
 #pragma pack(push)
@@ -162,7 +162,7 @@ IconRsrc load_icon_rsrc(HMODULE h_module, LPCTSTR name, WORD lang_id) {
 
 BOOL CALLBACK enum_names_proc(HMODULE h_module, LPCTSTR type, LPTSTR name, LONG_PTR param) {
   try {
-    list<RsrcId>* result = reinterpret_cast<list<RsrcId>*>(param);
+    std::list<RsrcId>* result = reinterpret_cast<std::list<RsrcId>*>(param);
     result->push_back(name);
     return TRUE;
   }
@@ -171,15 +171,15 @@ BOOL CALLBACK enum_names_proc(HMODULE h_module, LPCTSTR type, LPTSTR name, LONG_
   }
 }
 
-list<RsrcId> enum_rsrc_names(HMODULE h_module, LPCTSTR type) {
-  list<RsrcId> result;
+std::list<RsrcId> enum_rsrc_names(HMODULE h_module, LPCTSTR type) {
+  std::list<RsrcId> result;
   EnumResourceNames(h_module, type, enum_names_proc, reinterpret_cast<LONG_PTR>(&result));
   return result;
 }
 
 BOOL CALLBACK enum_langs_proc(HMODULE h_module, LPCTSTR type, LPCTSTR name, WORD language, LONG_PTR param) {
   try {
-    list<WORD>* result = reinterpret_cast<list<WORD>*>(param);
+    std::list<WORD>* result = reinterpret_cast<std::list<WORD>*>(param);
     result->push_back(language);
     return TRUE;
   }
@@ -188,8 +188,8 @@ BOOL CALLBACK enum_langs_proc(HMODULE h_module, LPCTSTR type, LPCTSTR name, WORD
   }
 }
 
-list<WORD> enum_rsrc_langs(HMODULE h_module, LPCTSTR type, LPCTSTR name) {
-  list<WORD> result;
+std::list<WORD> enum_rsrc_langs(HMODULE h_module, LPCTSTR type, LPCTSTR name) {
+  std::list<WORD> result;
   EnumResourceLanguages(h_module, type, name, enum_langs_proc, reinterpret_cast<LONG_PTR>(&result));
   return result;
 }
@@ -198,7 +198,7 @@ class RsrcModule {
 private:
   HMODULE h_module;
 public:
-  RsrcModule(const wstring& file_path) {
+  RsrcModule(const std::wstring& file_path) {
     h_module = LoadLibraryEx(file_path.c_str(), nullptr, LOAD_LIBRARY_AS_DATAFILE);
     CHECK_SYS(h_module);
   }
@@ -220,7 +220,7 @@ class ResourceUpdate {
 private:
   HANDLE handle;
 public:
-  ResourceUpdate(const wstring& file_path) {
+  ResourceUpdate(const std::wstring& file_path) {
     handle = BeginUpdateResource(file_path.c_str(), FALSE);
     CHECK_SYS(handle);
   }
@@ -238,13 +238,13 @@ public:
   }
 };
 
-void replace_icon(const wstring& pe_path, const wstring& ico_path) {
-  list<IconRsrc> icons;
+void replace_icon(const std::wstring& pe_path, const std::wstring& ico_path) {
+  std::list<IconRsrc> icons;
   RsrcModule module(pe_path);
-  list<RsrcId> group_ids = enum_rsrc_names(module.handle(), RT_GROUP_ICON);
-  for_each(group_ids.cbegin(), group_ids.cend(), [&] (const RsrcId& id) {
-    list<WORD> lang_ids = enum_rsrc_langs(module.handle(), RT_GROUP_ICON, id);
-    for_each(lang_ids.cbegin(), lang_ids.cend(), [&] (WORD lang_id) {
+  std::list<RsrcId> group_ids = enum_rsrc_names(module.handle(), RT_GROUP_ICON);
+  std::for_each(group_ids.cbegin(), group_ids.cend(), [&] (const RsrcId& id) {
+    std::list<WORD> lang_ids = enum_rsrc_langs(module.handle(), RT_GROUP_ICON, id);
+    std::for_each(lang_ids.cbegin(), lang_ids.cend(), [&] (WORD lang_id) {
       icons.push_back(load_icon_rsrc(module.handle(), id, lang_id));
     });
   });
@@ -252,7 +252,7 @@ void replace_icon(const wstring& pe_path, const wstring& ico_path) {
 
   ResourceUpdate rupdate(pe_path);
   // delete existing icons
-  for_each(icons.cbegin(), icons.cend(), [&] (const IconRsrc& icon) {
+  std::for_each(icons.cbegin(), icons.cend(), [&] (const IconRsrc& icon) {
     for_each (icon.images.cbegin(), icon.images.cend(), [&] (const IconImageRsrc& image) {
       rupdate.update(RT_ICON, MAKEINTRESOURCE(image.id), image.lang_id, nullptr, 0);
     });
@@ -267,7 +267,7 @@ void replace_icon(const wstring& pe_path, const wstring& ico_path) {
   IconFile icon_file = load_icon_file(ico_path);
   IconRsrc icon_rsrc;
   icon_rsrc.lang_id = lang_id;
-  for_each(icon_file.cbegin(), icon_file.cend(), [&] (const IconImage& image) {
+  std::for_each(icon_file.cbegin(), icon_file.cend(), [&] (const IconImage& image) {
     IconImageRsrc image_rsrc;
     image_rsrc.lang_id = lang_id;
     image_rsrc.image = image;
@@ -286,19 +286,19 @@ void replace_icon(const wstring& pe_path, const wstring& ico_path) {
   // renumber resource ids
   WORD icon_id = 1;
   WORD image_id = 1;
-  for_each(icons.begin(), icons.end(), [&] (IconRsrc& icon) {
+  std::for_each(icons.begin(), icons.end(), [&] (IconRsrc& icon) {
     if (icon.id.is_int()) {
       icon.id = MAKEINTRESOURCE(icon_id);
       icon_id++;
     }
-    for_each(icon.images.begin(), icon.images.end(), [&] (IconImageRsrc& image) {
+    std::for_each(icon.images.begin(), icon.images.end(), [&] (IconImageRsrc& image) {
       image.id = image_id;
       image_id++;
     });
   });
 
   // write new icons
-  for_each(icons.cbegin(), icons.cend(), [&] (const IconRsrc& icon) {
+  std::for_each(icons.cbegin(), icons.cend(), [&] (const IconRsrc& icon) {
     Buffer<unsigned char> buf(sizeof(IconGroupHeader) + icon.images.size() * sizeof(IconGroupEntry));
     IconGroupHeader* header = reinterpret_cast<IconGroupHeader*>(buf.data());
     header->reserved = 0;
@@ -342,9 +342,9 @@ public:
     encode(d);
   }
   void encode_string(const wchar_t* d) {
-    encode_string(d, wcslen(d));
+    encode_string(d, std::wcslen(d));
   }
-  void encode_string(const wstring& d) {
+  void encode_string(const std::wstring& d) {
     encode_string(d.c_str(), d.size());
   }
   void pad() {
@@ -363,11 +363,11 @@ struct IdLang {
   WORD lang_id;
 };
 
-void replace_ver_info(const wstring& pe_path, const SfxVersionInfo& ver_info) {
+void replace_ver_info(const std::wstring& pe_path, const SfxVersionInfo& ver_info) {
   // numeric version
-  list<wstring> ver_parts = split(ver_info.version, L'.');
+  std::list<std::wstring> ver_parts = split(ver_info.version, L'.');
   DWORD ver_hi = 0, ver_lo = 0;
-  list<wstring>::const_iterator ver_part = ver_parts.cbegin();
+  std::list<std::wstring>::const_iterator ver_part = ver_parts.cbegin();
   if (ver_part != ver_parts.end()) {
     ver_hi |= (str_to_int(*ver_part) & 0xFFFF) << 16;
     ver_part++;
@@ -386,12 +386,12 @@ void replace_ver_info(const wstring& pe_path, const SfxVersionInfo& ver_info) {
   }
 
   // existing version info list
-  list<IdLang> vi_list;
+  std::list<IdLang> vi_list;
   RsrcModule module(pe_path);
-  list<RsrcId> ids = enum_rsrc_names(module.handle(), RT_VERSION);
-  for_each(ids.begin(), ids.end(), [&] (const RsrcId& id) {
-    list<WORD> lang_ids = enum_rsrc_langs(module.handle(), RT_VERSION, id);
-    for_each(lang_ids.begin(), lang_ids.end(), [&] (WORD lang_id) {
+  std::list<RsrcId> ids = enum_rsrc_names(module.handle(), RT_VERSION);
+  std::for_each(ids.begin(), ids.end(), [&] (const RsrcId& id) {
+    std::list<WORD> lang_ids = enum_rsrc_langs(module.handle(), RT_VERSION, id);
+    std::for_each(lang_ids.begin(), lang_ids.end(), [&] (WORD lang_id) {
       IdLang id_lang;
       id_lang.id = id;
       id_lang.lang_id = lang_id;
@@ -448,12 +448,12 @@ void replace_ver_info(const wstring& pe_path, const SfxVersionInfo& ver_info) {
   e.encode_WORD(0); // StringTable
   e.encode_WORD(0);
   e.encode_WORD(1);
-  wostringstream st;
-  st << hex << setw(4) << setfill(L'0') << lang_id << L"04b0";
+  std::wostringstream st;
+  st << std::hex << std::setw(4) << std::setfill(L'0') << lang_id << L"04b0";
   e.encode_string(st.str());
   e.pad();
 
-  map<wstring, wstring> strings;
+  std::map<std::wstring, std::wstring> strings;
   strings[L"Comments"] = ver_info.comments;
   strings[L"CompanyName"] = ver_info.company_name;
   strings[L"FileDescription"] = ver_info.file_description;
@@ -462,7 +462,7 @@ void replace_ver_info(const wstring& pe_path, const SfxVersionInfo& ver_info) {
   strings[L"ProductName"] = ver_info.product_name;
   strings[L"ProductVersion"] = ver_info.version;
 
-  for_each(strings.cbegin(), strings.cend(), [&] (const pair<wstring, wstring>& str) {
+  std::for_each(strings.cbegin(), strings.cend(), [&] (const std::pair<std::wstring, std::wstring>& str) {
     size_t string_pos = e.size();
     e.encode_WORD(0); // String
     e.encode_WORD(static_cast<WORD>(str.second.size() + 1));
@@ -501,7 +501,7 @@ void replace_ver_info(const wstring& pe_path, const SfxVersionInfo& ver_info) {
 
   // wrire resource
   ResourceUpdate rupdate(pe_path);
-  for_each(vi_list.cbegin(), vi_list.cend(), [&] (const IdLang& id_lang) {
+  std::for_each(vi_list.cbegin(), vi_list.cend(), [&] (const IdLang& id_lang) {
     rupdate.update(RT_VERSION, id_lang.id, id_lang.lang_id, nullptr, 0);
   });
   rupdate.update(RT_VERSION, ver_id, lang_id, e.data(), static_cast<DWORD>(e.size()));

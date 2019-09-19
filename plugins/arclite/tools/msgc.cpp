@@ -1,6 +1,6 @@
 struct MsgPair {
-  wstring id;
-  wstring phrase;
+  std::wstring id;
+  std::wstring phrase;
   bool operator==(const MsgPair& lp) const {
     return id == lp.id;
   }
@@ -10,21 +10,21 @@ struct MsgPair {
 };
 
 struct MsgFile {
-  deque<MsgPair> msg_list;
-  wstring lang_tag;
+  std::deque<MsgPair> msg_list;
+  std::wstring lang_tag;
   unsigned code_page;
 };
 
 #define CHECK_PARSE(code) if (!(code)) FAIL_MSG(L"Parse error at " + file_path + L":" + int_to_str(line_cnt + 1))
-MsgFile load_msg_file(const wstring& file_path) {
+MsgFile load_msg_file(const std::wstring& file_path) {
   MsgFile msg_file;
-  wstring text = load_file(file_path, &msg_file.code_page);
+  std::wstring text = load_file(file_path, &msg_file.code_page);
   MsgPair mp;
   unsigned line_cnt = 0;
   size_t pos_start = 0;
   while (pos_start < text.size()) {
     size_t pos_end = text.find(L'\n', pos_start);
-    if (pos_end == string::npos) pos_end = text.size();
+    if (pos_end == std::wstring::npos) pos_end = text.size();
     if (text[pos_start] == L'#') {
       // skip comment
     }
@@ -33,7 +33,7 @@ MsgFile load_msg_file(const wstring& file_path) {
     }
     else {
       size_t pos_sep = text.find(L'=', pos_start);
-      CHECK_PARSE((pos_sep != string::npos) && (pos_sep <= pos_end));
+      CHECK_PARSE((pos_sep != std::wstring::npos) && (pos_sep <= pos_end));
       mp.id = strip(text.substr(pos_start, pos_sep - pos_start));
       if (line_cnt == 0) {
         // first line must be language tag
@@ -70,12 +70,12 @@ MsgFile load_msg_file(const wstring& file_path) {
 #undef CHECK_PARSE
 
 struct FileNamePair {
-  wstring in;
-  wstring out;
+  std::wstring in;
+  std::wstring out;
 };
 
 #define CHECK_CMD(code) if (!(code)) FAIL_MSG(L"Usage: msgc -in msg_file [msg_file2 ...] -out header_file lng_file [lng_file2 ...]")
-void parse_cmd_line(const deque<wstring>& params, deque<FileNamePair>& files, wstring& header_file) {
+void parse_cmd_line(const std::deque<std::wstring>& params, std::deque<FileNamePair>& files, std::wstring& header_file) {
   CHECK_CMD(params.size());
   unsigned idx = 0;
   CHECK_CMD(params[idx] == L"-in");
@@ -101,12 +101,12 @@ void parse_cmd_line(const deque<wstring>& params, deque<FileNamePair>& files, ws
 }
 #undef CHECK_CMD
 
-void msgc(const deque<wstring>& params) {
-  deque<FileNamePair> files;
-  wstring header_file;
+void msgc(const std::deque<std::wstring>& params) {
+  std::deque<FileNamePair> files;
+  std::wstring header_file;
   parse_cmd_line(params, files, header_file);
   // load message files
-  deque<MsgFile> msgs;
+  std::deque<MsgFile> msgs;
   for (unsigned i = 0; i < files.size(); i++) {
     msgs.push_back(load_msg_file(files[i].in));
     if (i) {
@@ -114,13 +114,13 @@ void msgc(const deque<wstring>& params) {
     }
   }
   // create header file
-  wstring header_data;
+  std::wstring header_data;
   for (unsigned i = 0; i < msgs[0].msg_list.size(); i++) {
     header_data.append(L"#define " + msgs[0].msg_list[i].id + L" " + int_to_str(i) + L"\n");
   }
   save_file(header_file, header_data, CP_ACP);
   // create Far language files
-  wstring lng_data;
+  std::wstring lng_data;
   for (unsigned i = 0; i < msgs.size(); i++) {
     lng_data = msgs[i].lang_tag + L'\n';
     for (unsigned j = 0; j < msgs[i].msg_list.size(); j++) {

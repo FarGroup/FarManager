@@ -1,29 +1,29 @@
 ﻿#include "utils.hpp"
 
-wstring long_path(const wstring& path) {
+std::wstring long_path(const std::wstring& path) {
   if (substr_match(path, 0, L"\\\\")) {
     if (substr_match(path, 2, L"?\\") || substr_match(path, 2, L".\\")) {
       return path;
     }
     else {
-      return wstring(path).replace(0, 1, L"\\\\?\\UNC");
+      return std::wstring(path).replace(0, 1, L"\\\\?\\UNC");
     }
   }
   else {
-    return wstring(path).insert(0, L"\\\\?\\");
+    return std::wstring(path).insert(0, L"\\\\?\\");
   }
 }
 
-wstring long_path_norm(const wstring& path) {
+std::wstring long_path_norm(const std::wstring& path) {
   auto nt_path = long_path(path);
   auto p = nt_path.find(L'/');
-  while (p != wstring::npos) {
+  while (p != std::wstring::npos) {
     nt_path[p] = L'\\'; p = nt_path.find(L'/', p+1);
   }
   return nt_path;
 }
 
-wstring add_trailing_slash(const wstring& path) {
+std::wstring add_trailing_slash(const std::wstring& path) {
   if ((path.size() == 0) || (path[path.size() - 1] == L'\\')) {
     return path;
   }
@@ -32,7 +32,7 @@ wstring add_trailing_slash(const wstring& path) {
   }
 }
 
-wstring del_trailing_slash(const wstring& path) {
+std::wstring del_trailing_slash(const std::wstring& path) {
   if ((path.size() < 2) || (path[path.size() - 1] != L'\\')) {
     return path;
   }
@@ -41,7 +41,7 @@ wstring del_trailing_slash(const wstring& path) {
   }
 }
 
-void locate_path_root(const wstring& path, size_t& path_root_len, bool& is_unc_path) {
+void locate_path_root(const std::wstring& path, size_t& path_root_len, bool& is_unc_path) {
   unsigned prefix_len = 0;
   is_unc_path = false;
   if (substr_match(path, 0, L"\\\\")) {
@@ -61,13 +61,13 @@ void locate_path_root(const wstring& path, size_t& path_root_len, bool& is_unc_p
     path_root_len = 0;
   }
   else {
-    wstring::size_type p = path.find(L'\\', prefix_len);
-    if (p == wstring::npos) {
+    std::wstring::size_type p = path.find(L'\\', prefix_len);
+    if (p == std::wstring::npos) {
       p = path.size();
     }
     if (is_unc_path) {
       p = path.find(L'\\', p + 1);
-      if (p == wstring::npos) {
+      if (p == std::wstring::npos) {
         p = path.size();
       }
     }
@@ -75,19 +75,19 @@ void locate_path_root(const wstring& path, size_t& path_root_len, bool& is_unc_p
   }
 }
 
-wstring extract_path_root(const wstring& path) {
+std::wstring extract_path_root(const std::wstring& path) {
   size_t path_root_len;
   bool is_unc_path;
   locate_path_root(path, path_root_len, is_unc_path);
   if (path_root_len)
     return path.substr(0, path_root_len).append(1, L'\\');
   else
-    return wstring();
+    return std::wstring();
 }
 
-wstring extract_file_name(const wstring& path) {
+std::wstring extract_file_name(const std::wstring& path) {
   size_t pos = path.rfind(L'\\');
-  if (pos == wstring::npos) {
+  if (pos == std::wstring::npos) {
     pos = 0;
   }
   else {
@@ -97,14 +97,14 @@ wstring extract_file_name(const wstring& path) {
   bool is_unc_path;
   locate_path_root(path, path_root_len, is_unc_path);
   if ((pos <= path_root_len) && (path_root_len != 0))
-    return wstring();
+    return std::wstring();
   else
     return path.substr(pos);
 }
 
-wstring extract_file_path(const wstring& path) {
+std::wstring extract_file_path(const std::wstring& path) {
   size_t pos = path.rfind(L'\\');
-  if (pos == wstring::npos) {
+  if (pos == std::wstring::npos) {
     pos = 0;
   }
   size_t path_root_len;
@@ -116,56 +116,56 @@ wstring extract_file_path(const wstring& path) {
     return path.substr(0, pos);
 }
 
-wstring extract_file_ext(const wstring& path) {
+std::wstring extract_file_ext(const std::wstring& path) {
   size_t ext_pos = path.rfind(L'.');
-  if (ext_pos == wstring::npos) {
-    return wstring();
+  if (ext_pos == std::wstring::npos) {
+    return std::wstring();
   }
   size_t name_pos = path.rfind(L'\\');
-  if (name_pos == wstring::npos) {
+  if (name_pos == std::wstring::npos) {
     name_pos = 0;
   }
   else {
     name_pos++;
   }
   if (ext_pos <= name_pos)
-    return wstring();
+    return std::wstring();
   size_t path_root_len;
   bool is_unc_path;
   locate_path_root(path, path_root_len, is_unc_path);
   if ((ext_pos <= path_root_len) && (path_root_len != 0))
-    return wstring();
+    return std::wstring();
   else
     return path.substr(ext_pos);
 }
 
-bool is_root_path(const wstring& path) {
+bool is_root_path(const std::wstring& path) {
   size_t path_root_len;
   bool is_unc_path;
   locate_path_root(path, path_root_len, is_unc_path);
   return (path.size() == path_root_len) || ((path.size() == path_root_len + 1) && (path[path.size() - 1] == L'\\'));
 }
 
-bool is_unc_path(const wstring& path) {
+bool is_unc_path(const std::wstring& path) {
   size_t path_root_len;
   bool is_unc_path;
   locate_path_root(path, path_root_len, is_unc_path);
   return is_unc_path;
 }
 
-bool is_absolute_path(const wstring& path) {
+bool is_absolute_path(const std::wstring& path) {
   size_t path_root_len;
   bool is_unc_path;
   locate_path_root(path, path_root_len, is_unc_path);
   if (path_root_len == 0)
     return false;
-  wstring::size_type p1 = path_root_len;
+  std::wstring::size_type p1 = path_root_len;
   while (p1 != path.size()) {
     p1 += 1;
-    wstring::size_type p2 = path.find(L'\\', p1);
-    if (p2 == wstring::npos)
+    std::wstring::size_type p2 = path.find(L'\\', p1);
+    if (p2 == std::wstring::npos)
       p2 = path.size();
-    wstring::size_type sz = p2 - p1;
+    std::wstring::size_type sz = p2 - p1;
     if (sz == 1 && path[p1] == L'.')
       return false;
     if (sz == 2 && path[p1] == L'.' && path[p1 + 1] == L'.')
@@ -175,7 +175,7 @@ bool is_absolute_path(const wstring& path) {
   return true;
 }
 
-wstring remove_path_root(const wstring& path) {
+std::wstring remove_path_root(const std::wstring& path) {
   size_t path_root_len;
   bool is_unc_path;
   locate_path_root(path, path_root_len, is_unc_path);
@@ -275,7 +275,7 @@ static const wchar_t control_chars[32 - 1] =
 static const wchar_t* reserved_names[] =
 { L"CON", L"PRN", L"AUX", L"NUL", L"COM9", L"LPT9" };
 
-static bool is_matched(const wstring& name, const wchar_t *res)
+static bool is_matched(const std::wstring& name, const wchar_t *res)
 {
   size_t i = 0, len = name.size();
   while (i < len)
@@ -309,7 +309,7 @@ static bool is_matched(const wstring& name, const wchar_t *res)
   return true;
 }
 
-static bool is_reserved_name(const wstring& name)
+static bool is_reserved_name(const std::wstring& name)
 {
   for (const auto& res : reserved_names)
   {
@@ -321,7 +321,7 @@ static bool is_reserved_name(const wstring& name)
 
 //-----------------------------------------------------------------------------
 
-wstring correct_filename(const wstring& orig_name, int mode, bool alt_stream)
+std::wstring correct_filename(const std::wstring& orig_name, int mode, bool alt_stream)
 {
   bool correct_empty = (mode & 0x10) != 0;
   bool remove_final_dotsp = (mode & 0x20) != 0;

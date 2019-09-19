@@ -73,7 +73,7 @@ HRESULT ArcLib::get_uint_prop(UInt32 index, PROPID prop_id, UInt32& value) const
   return S_OK;
 }
 
-HRESULT ArcLib::get_string_prop(UInt32 index, PROPID prop_id, wstring& value) const {
+HRESULT ArcLib::get_string_prop(UInt32 index, PROPID prop_id, std::wstring& value) const {
   PropVariant prop;
   HRESULT res = get_prop(index, prop_id, prop.ref());
   if (res != S_OK)
@@ -100,9 +100,9 @@ HRESULT ArcLib::get_bytes_prop(UInt32 index, PROPID prop_id, ByteVector& value) 
 }
 
 
-wstring ArcFormat::default_extension() const {
+std::wstring ArcFormat::default_extension() const {
   if (extension_list.empty())
-    return wstring();
+    return std::wstring();
   else
     return extension_list.front();
 }
@@ -115,9 +115,9 @@ ArcTypes ArcFormats::get_arc_types() const {
   return types;
 }
 
-ArcTypes ArcFormats::find_by_name(const wstring& name) const {
+ArcTypes ArcFormats::find_by_name(const std::wstring& name) const {
   ArcTypes types;
-  wstring uc_name = upcase(name);
+  std::wstring uc_name = upcase(name);
   for (const_iterator fmt = begin(); fmt != end(); fmt++) {
     if (upcase(fmt->second.name) == uc_name)
       types.push_back(fmt->first);
@@ -125,11 +125,11 @@ ArcTypes ArcFormats::find_by_name(const wstring& name) const {
   return types;
 }
 
-ArcTypes ArcFormats::find_by_ext(const wstring& ext) const {
+ArcTypes ArcFormats::find_by_ext(const std::wstring& ext) const {
   ArcTypes types;
   if (ext.empty())
     return types;
-  wstring uc_ext = upcase(ext);
+  std::wstring uc_ext = upcase(ext);
   for (const_iterator fmt = begin(); fmt != end(); fmt++) {
     for (auto ext_iter = fmt->second.extension_list.cbegin(); ext_iter != fmt->second.extension_list.cend(); ext_iter++) {
       if (upcase(*ext_iter) == uc_ext) {
@@ -142,7 +142,7 @@ ArcTypes ArcFormats::find_by_ext(const wstring& ext) const {
 }
 
 
-uintptr_t SfxModules::find_by_name(const wstring& name) const {
+uintptr_t SfxModules::find_by_name(const std::wstring& name) const {
   for (const_iterator sfx_module = begin(); sfx_module != end(); sfx_module++) {
     if (upcase(extract_file_name(sfx_module->path)) == upcase(name))
       return distance(begin(), sfx_module);
@@ -151,9 +151,9 @@ uintptr_t SfxModules::find_by_name(const wstring& name) const {
 }
 
 
-wstring ArcChain::to_string() const {
-  wstring result;
-  for_each(begin(), end(), [&] (const ArcEntry& arc) {
+std::wstring ArcChain::to_string() const {
+  std::wstring result;
+  std::for_each(begin(), end(), [&] (const ArcEntry& arc) {
     if (!result.empty())
       result += L"\x2192";
     result += ArcAPI::formats().at(arc.type).name;
@@ -326,9 +326,9 @@ ArcAPI* ArcAPI::get() {
   return arc_api;
 }
 
-void ArcAPI::load_libs(const wstring& path) {
+void ArcAPI::load_libs(const std::wstring& path) {
   FileEnum file_enum(path);
-  wstring dir = extract_file_path(path);
+  std::wstring dir = extract_file_path(path);
   bool more;
   while (file_enum.next_nt(more) && more) {
     ArcLib arc_lib;
@@ -361,7 +361,7 @@ void ArcAPI::load_libs(const wstring& path) {
   }
 }
 
-void ArcAPI::load_codecs(const wstring& path) {
+void ArcAPI::load_codecs(const std::wstring& path) {
   if (n_base_format_libs <= 0)
     return;
 
@@ -404,7 +404,7 @@ void ArcAPI::load_codecs(const wstring& path) {
   }
 
   FileEnum codecs_enum(path);
-  wstring dir = extract_file_path(path);
+  std::wstring dir = extract_file_path(path);
   bool more;
   while (codecs_enum.next_nt(more) && more && !codecs_enum.data().is_dir()) {
     ArcLib arc_lib;
@@ -442,7 +442,7 @@ void ArcAPI::load_codecs(const wstring& path) {
 
   n_7z_codecs = 0;
   if (arc_codecs.size() > 0) {
-    sort(arc_codecs.begin(), arc_codecs.end(), [&](const auto&a, const auto& b) {
+    std::sort(arc_codecs.begin(), arc_codecs.end(), [&](const auto&a, const auto& b) {
       bool a_is_zip = (a.CodecId & 0xffffff00U) == 0x040100;
       bool b_is_zip = (b.CodecId & 0xffffff00U) == 0x040100;
       if (a_is_zip != b_is_zip)
@@ -483,7 +483,7 @@ const SfxModuleInfo c_known_sfx_modules[] = {
   { L"7zS2con.sfx", MSG_SFX_DESCR_7ZS2CON, false, false },
 };
 
-const SfxModuleInfo* find(const wstring& path) {
+const SfxModuleInfo* find(const std::wstring& path) {
   unsigned i = 0;
   for (; i < ARRAYSIZE(c_known_sfx_modules) && upcase(extract_file_name(path)) != upcase(c_known_sfx_modules[i].module_name); i++);
   if (i < ARRAYSIZE(c_known_sfx_modules))
@@ -492,7 +492,7 @@ const SfxModuleInfo* find(const wstring& path) {
     return nullptr;
 }
 
-wstring SfxModule::description() const {
+std::wstring SfxModule::description() const {
   const SfxModuleInfo* info = find(path);
   return info ? Far::get_msg(info->descr_id) : Far::get_msg(MSG_SFX_DESCR_UNKNOWN) + L" [" + extract_file_name(path) + L"]";
 }
@@ -507,9 +507,9 @@ bool SfxModule::install_config() const {
   return info ? info->install_config : true;
 }
 
-void ArcAPI::find_sfx_modules(const wstring& path) {
+void ArcAPI::find_sfx_modules(const std::wstring& path) {
   FileEnum file_enum(path);
-  wstring dir = extract_file_path(path);
+  std::wstring dir = extract_file_path(path);
   bool more;
   while (file_enum.next_nt(more) && more) {
     SfxModule sfx_module;
@@ -521,14 +521,14 @@ void ArcAPI::find_sfx_modules(const wstring& path) {
     size_t sz;
     if (!file.read_nt(buffer.data(), buffer.size(), sz))
       continue;
-    string sig(buffer.data(), sz);
+    std::string sig(buffer.data(), sz);
     if (sig != "MZ")
       continue;
     sfx_modules.push_back(sfx_module);
   }
 }
 
-static bool ParseSignatures(const Byte *data, size_t size, vector<ByteVector> &signatures)
+static bool ParseSignatures(const Byte *data, size_t size, std::vector<ByteVector> &signatures)
 {
   signatures.clear();
   while (size > 0)
@@ -552,7 +552,7 @@ void ArcAPI::load() {
   load_libs(dll_path + L"*.dll");
   find_sfx_modules(dll_path + L"*.sfx");
   if (arc_libs.empty() || sfx_modules.empty()) {
-    wstring _7zip_path;
+    std::wstring _7zip_path;
     Key _7zip_key;
     _7zip_key.open_nt(HKEY_CURRENT_USER, L"Software\\7-Zip", KEY_QUERY_VALUE, false) && _7zip_key.query_str_nt(_7zip_path, L"Path");
     if (_7zip_path.empty())
@@ -568,7 +568,7 @@ void ArcAPI::load() {
     }
   }
   if (arc_libs.empty()) {
-    wstring _7z_dll_path;
+    std::wstring _7z_dll_path;
     IGNORE_ERRORS(_7z_dll_path = search_path(L"7z.dll"));
     if (!_7z_dll_path.empty()) {
       load_libs(_7z_dll_path);
@@ -606,12 +606,12 @@ void ArcAPI::load() {
       if (arc_lib.get_bool_prop(idx, NArchive::NHandlerPropID::kUpdate, format.updatable) != S_OK)
         format.updatable = false;
 
-      wstring extension_list_str;
+      std::wstring extension_list_str;
       arc_lib.get_string_prop(idx, NArchive::NHandlerPropID::kExtension, extension_list_str);
       format.extension_list = split(extension_list_str, L' ');
-      wstring add_extension_list_str;
+      std::wstring add_extension_list_str;
       arc_lib.get_string_prop(idx, NArchive::NHandlerPropID::kAddExtension, add_extension_list_str);
-      std::list<wstring> add_extension_list = split(add_extension_list_str, L' ');
+      std::list<std::wstring> add_extension_list = split(add_extension_list_str, L' ');
       auto add_ext_iter = add_extension_list.cbegin();
       for (auto ext_iter = format.extension_list.begin(); ext_iter != format.extension_list.end(); ++ext_iter) {
         ext_iter->insert(0, 1, L'.');
@@ -675,9 +675,9 @@ void ArcAPI::free() {
 }
 
 
-wstring Archive::get_default_name() const {
-  wstring name = arc_name();
-  wstring ext = extract_file_ext(name);
+std::wstring Archive::get_default_name() const {
+  std::wstring name = arc_name();
+  std::wstring ext = extract_file_ext(name);
   name.erase(name.size() - ext.size(), ext.size());
   if (arc_chain.empty())
     return name;
@@ -686,7 +686,7 @@ wstring Archive::get_default_name() const {
   auto nested_ext_iter = nested_ext_mapping.find(upcase(ext));
   if (nested_ext_iter == nested_ext_mapping.end())
     return name;
-  const wstring& nested_ext = nested_ext_iter->second;
+  const std::wstring& nested_ext = nested_ext_iter->second;
   ext = extract_file_ext(name);
   if (upcase(nested_ext) == upcase(ext))
     return name;
@@ -694,7 +694,7 @@ wstring Archive::get_default_name() const {
   return name;
 }
 
-wstring Archive::get_temp_file_name() const {
+std::wstring Archive::get_temp_file_name() const {
   GUID guid;
   CHECK_COM(CoCreateGuid(&guid));
   wchar_t guid_str[50];
@@ -723,7 +723,7 @@ void Archive::make_index() {
   struct DirInfo {
     UInt32 index;
     UInt32 parent;
-    wstring name;
+    std::wstring name;
     bool operator<(const DirInfo& dir_info) const {
       if (parent == dir_info.parent)
         return lstrcmpiW(name.c_str(), dir_info.name.c_str()) < 0;
@@ -731,14 +731,14 @@ void Archive::make_index() {
         return parent < dir_info.parent;
     }
   };
-  typedef set<DirInfo> DirList;
-  map<UInt32, unsigned> dir_index_map;
+  typedef std::set<DirInfo> DirList;
+  std::map<UInt32, unsigned> dir_index_map;
   DirList dir_list;
 
   DirInfo dir_info;
   UInt32 dir_index = 0;
   ArcFileInfo file_info;
-  wstring path;
+  std::wstring path;
   PropVariant prop;
   for (UInt32 i = 0; i < num_indices; i++) {
     // is directory?
@@ -758,7 +758,7 @@ void Archive::make_index() {
 
     // split path into individual directories and put them into DirList
     dir_info.parent = c_root_index;
-    stack<UInt32> dir_parents;
+    std::stack<UInt32> dir_parents;
     size_t begin_pos = 0;
     while (begin_pos < name_pos) {
       dir_info.index = dir_index;
@@ -776,7 +776,7 @@ void Archive::make_index() {
         }
         else if(dir_info.name != L".")
         {
-          pair<DirList::iterator, bool> ins_pos = dir_list.insert(dir_info);
+          std::pair<DirList::iterator, bool> ins_pos = dir_list.insert(dir_info);
           if (ins_pos.second)
             dir_index++;
           dir_parents.push(dir_info.parent);
@@ -791,7 +791,7 @@ void Archive::make_index() {
       dir_info.index = dir_index;
       dir_info.parent = file_info.parent;
       dir_info.name = file_info.name;
-      pair<DirList::iterator, bool> ins_pos = dir_list.insert(dir_info);
+      std::pair<DirList::iterator, bool> ins_pos = dir_list.insert(dir_info);
       if (ins_pos.second) {
         dir_index++;
         dir_index_map[dir_info.index] = i;
@@ -810,7 +810,7 @@ void Archive::make_index() {
   // add directories that not present in archive index
   file_list.reserve(file_list.size() + dir_list.size() - dir_index_map.size());
   dir_index = num_indices;
-  for_each(dir_list.begin(), dir_list.end(), [&] (const DirInfo& dir_info) {
+  std::for_each(dir_list.begin(), dir_list.end(), [&] (const DirInfo& dir_info) {
     if (dir_index_map.count(dir_info.index) == 0) {
       dir_index_map[dir_info.index] = dir_index;
       file_info.parent = dir_info.parent;
@@ -823,7 +823,7 @@ void Archive::make_index() {
   });
 
   // fix parent references
-  for_each(file_list.begin(), file_list.end(), [&] (ArcFileInfo& file_info) {
+  std::for_each(file_list.begin(), file_list.end(), [&] (ArcFileInfo& file_info) {
     if (file_info.parent != c_root_index && file_info.parent != c_dup_index)
       file_info.parent = dir_index_map[file_info.parent];
   });
@@ -834,14 +834,14 @@ void Archive::make_index() {
   for (UInt32 i = 0; i < file_list.size(); i++) {
     file_list_index.push_back(i);
   }
-  sort(file_list_index.begin(), file_list_index.end(), [&] (UInt32 left, UInt32 right) -> bool {
+  std::sort(file_list_index.begin(), file_list_index.end(), [&] (UInt32 left, UInt32 right) -> bool {
     return file_list[left] < file_list[right];
   });
 
   load_arc_attr();
 }
 
-UInt32 Archive::find_dir(const wstring& path) {
+UInt32 Archive::find_dir(const std::wstring& path) {
   if (file_list.empty())
     make_index();
 
@@ -854,7 +854,7 @@ UInt32 Archive::find_dir(const wstring& path) {
     while (end_pos < path.size() && !is_slash(path[end_pos])) end_pos++;
     if (end_pos != begin_pos) {
       dir_info.name.assign(path.data() + begin_pos, end_pos - begin_pos);
-      FileIndexRange fi_range = equal_range(file_list_index.begin(), file_list_index.end(), -1, [&] (UInt32 left, UInt32 right) -> bool {
+      FileIndexRange fi_range = std::equal_range(file_list_index.begin(), file_list_index.end(), -1, [&] (UInt32 left, UInt32 right) -> bool {
         const ArcFileInfo& fi_left = left == (UInt32)-1 ? dir_info : file_list[left];
         const ArcFileInfo& fi_right = right == (UInt32)-1 ? dir_info : file_list[right];
         return fi_left < fi_right;
@@ -874,7 +874,7 @@ FileIndexRange Archive::get_dir_list(UInt32 dir_index) {
 
   ArcFileInfo file_info;
   file_info.parent = dir_index;
-  FileIndexRange index_range = equal_range(file_list_index.begin(), file_list_index.end(), -1, [&] (UInt32 left, UInt32 right) -> bool {
+  FileIndexRange index_range = std::equal_range(file_list_index.begin(), file_list_index.end(), -1, [&] (UInt32 left, UInt32 right) -> bool {
     const ArcFileInfo& fi_left = left == (UInt32)-1 ? file_info : file_list[left];
     const ArcFileInfo& fi_right = right == (UInt32)-1 ? file_info : file_list[right];
     return fi_left.parent < fi_right.parent;
@@ -883,11 +883,11 @@ FileIndexRange Archive::get_dir_list(UInt32 dir_index) {
   return index_range;
 }
 
-wstring Archive::get_path(UInt32 index) {
+std::wstring Archive::get_path(UInt32 index) {
   if (file_list.empty())
     make_index();
 
-  wstring file_path = file_list[index].name;
+  std::wstring file_path = file_list[index].name;
   UInt32 parent = file_list[index].parent;
   while (parent != c_root_index) {
     file_path.insert(0, 1, L'\\').insert(0, file_list[parent].name);
@@ -901,7 +901,7 @@ FindData Archive::get_file_info(UInt32 index) {
     make_index();
 
   FindData file_info{};
-  wcscpy(file_info.cFileName, file_list[index].name.c_str());
+  std::wcscpy(file_info.cFileName, file_list[index].name.c_str());
   file_info.dwFileAttributes = get_attr(index);
   file_info.set_size(get_size(index));
   file_info.ftCreationTime = get_ctime(index);
@@ -924,7 +924,7 @@ DWORD Archive::get_attr(UInt32 index) const {
 
   if (index >= num_indices)
     return FILE_ATTRIBUTE_DIRECTORY;
-  
+
   if (in_arc->GetProperty(index, kpidAttrib, prop.ref()) == S_OK && prop.is_uint())
     attr = get_posix_and_nt_attributes(static_cast<DWORD>(prop.get_uint())).second;
 
@@ -1051,9 +1051,9 @@ void Archive::read_open_results()
   }
 }
 
-static list<wstring> flags2texts(UInt32 flags)
+static std::list<std::wstring> flags2texts(UInt32 flags)
 {
-  list<wstring> texts;
+  std::list<std::wstring> texts;
   if (flags != 0) {
     if ((flags & kpv_ErrorFlags_IsNotArc) == kpv_ErrorFlags_IsNotArc) { // 1
       texts.push_back(Far::get_msg(MSG_ERROR_EXTRACT_IS_NOT_ARCHIVE));
@@ -1109,14 +1109,14 @@ static list<wstring> flags2texts(UInt32 flags)
   return texts;
 }
 
-list<wstring> Archive::get_open_errors() const {
+std::list<std::wstring> Archive::get_open_errors() const {
   auto errors = flags2texts(error_flags);
   if (!error_text.empty())
     errors.emplace_back(error_text);
   return errors;
 }
 
-list<wstring> Archive::get_open_warnings() const {
+std::list<std::wstring> Archive::get_open_warnings() const {
   auto warnings = flags2texts(warning_flags);
   if (!warning_text.empty())
     warnings.emplace_back(warning_text);

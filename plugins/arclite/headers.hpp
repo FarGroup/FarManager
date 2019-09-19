@@ -25,7 +25,9 @@
 #include <limits>
 #include <numeric>
 #include <cmath>
-using namespace std;
+#include <cstring>
+
+using namespace std::literals;
 
 #define INITGUID
 #include <basetyps.h>

@@ -77,7 +77,7 @@ private:
     }
   }
 public:
-  ArchiveOpenStream(const wstring& file_path) {
+  ArchiveOpenStream(const std::wstring& file_path) {
     open(file_path, FILE_READ_DATA | FILE_READ_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
     check_device_file();
     cached_header = nullptr;
@@ -118,7 +118,7 @@ public:
       if (size_read > size)
         size_read = size;
       device_pos += size_read;
-      memcpy(data, alligned_buffer + aligned_offset, size_read);
+      std::memcpy(data, alligned_buffer + aligned_offset, size_read);
     }
     else {
       size_read = 0;
@@ -126,8 +126,8 @@ public:
         auto cur_pos = set_pos(0, FILE_CURRENT);
         if (cur_pos < cached_size) {
           UInt32 off = static_cast<UInt32>(cur_pos);
-          UInt32 siz = min(size, cached_size - off);
-          memcpy(data, cached_header + off, siz);
+          UInt32 siz = std::min(size, cached_size - off);
+          std::memcpy(data, cached_header + off, siz);
           size -= (size_read = siz);
           data = static_cast<void *>(static_cast<Byte *>(data)+siz);
           set_pos(static_cast<Int64>(siz), FILE_CURRENT);
@@ -171,10 +171,10 @@ public:
 
   FindData get_info() {
     FindData file_info{};
-    wstring file_name = extract_file_name(path());
+    std::wstring file_name = extract_file_name(path());
     if (file_name.empty())
       file_name = path();
-    wcscpy(file_info.cFileName, file_name.c_str());
+    std::wcscpy(file_info.cFileName, file_name.c_str());
     BY_HANDLE_FILE_INFORMATION fi;
     if (get_info_nt(fi)) {
       file_info.dwFileAttributes = fi.dwFileAttributes;
@@ -191,7 +191,7 @@ public:
 
 class ArchiveOpener: public IArchiveOpenCallback, public IArchiveOpenVolumeCallback, public ICryptoGetTextPassword, public ComBase, public ProgressMonitor {
 private:
-  shared_ptr<Archive> archive;
+  std::shared_ptr<Archive> archive;
   FindData volume_file_info;
 
   UInt64 total_files;
@@ -201,7 +201,7 @@ private:
 
   virtual void do_update_ui() {
     const unsigned c_width = 60;
-    wostringstream st;
+    std::wostringstream st;
     st << fit_str(volume_file_info.cFileName, c_width) << L'\n';
     st << completed_files << L" / " << total_files << L'\n';
     st << Far::get_progress_bar_str(c_width, completed_files, total_files) << L'\n';
@@ -217,7 +217,7 @@ private:
   }
 
 public:
-  ArchiveOpener(shared_ptr<Archive> archive): ProgressMonitor(Far::get_msg(MSG_PROGRESS_OPEN)), archive(archive), volume_file_info(archive->arc_info), total_files(0), total_bytes(0), completed_files(0), completed_bytes(0) {
+  ArchiveOpener(std::shared_ptr<Archive> archive): ProgressMonitor(Far::get_msg(MSG_PROGRESS_OPEN)), archive(archive), volume_file_info(archive->arc_info), total_files(0), total_bytes(0), completed_files(0), completed_bytes(0) {
   }
 
   UNKNOWN_IMPL_BEGIN
@@ -269,7 +269,7 @@ public:
 
   STDMETHODIMP GetStream(const wchar_t *name, IInStream **inStream) {
     COM_ERROR_HANDLER_BEGIN
-    wstring file_path = add_trailing_slash(archive->arc_dir()) + name;
+    std::wstring file_path = add_trailing_slash(archive->arc_dir()) + name;
     FindData find_data;
     if (!File::get_find_data_nt(file_path, find_data))
       return S_FALSE;
@@ -366,9 +366,9 @@ bool Archive::open(IInStream* stream, const ArcType& type) {
   return res == S_OK;
 }
 
-void prioritize(list<ArcEntry>& arc_entries, const ArcType& first, const ArcType& second) {
-  list<ArcEntry>::iterator iter = arc_entries.end();
-  for (list<ArcEntry>::iterator arc_entry = arc_entries.begin(); arc_entry != arc_entries.end(); arc_entry++) {
+void prioritize(std::list<ArcEntry>& arc_entries, const ArcType& first, const ArcType& second) {
+  std::list<ArcEntry>::iterator iter = arc_entries.end();
+  for (std::list<ArcEntry>::iterator arc_entry = arc_entries.begin(); arc_entry != arc_entries.end(); arc_entry++) {
     if (arc_entry->type == second) {
       iter = arc_entry;
     }
@@ -394,7 +394,7 @@ static bool accepted_signature(
 {
   if (!pos
    || sig.signature.size() != sizeof(zip_LOCAL_sig)
-   || !equal(zip_LOCAL_sig, zip_LOCAL_sig+ sizeof(zip_LOCAL_sig), buffer+pos)
+   || !std::equal(zip_LOCAL_sig, zip_LOCAL_sig+ sizeof(zip_LOCAL_sig), buffer+pos)
   ) return true;
   if (eof_i < 0)
     return false;
@@ -411,7 +411,7 @@ static bool accepted_signature(
     tail = { (const char*)buffer + pos, size - pos };
   }
   else {
-    buf = make_unique<Byte[]>(check_size);
+    buf = std::make_unique<Byte[]>(check_size);
     pos = 0;
     buffer = buf.get();
     UInt64 cur_pos;
@@ -426,7 +426,7 @@ static bool accepted_signature(
   }
   if (!tail.empty()) {
     auto eocd = tail.rfind(zip_EOCD_sig);
-    if (eocd != string_view::npos) {
+    if (eocd != std::string_view::npos) {
       pos += eocd + zip_EOCD_sig.size();
       if (buffer[pos] != 0 || buffer[pos + 1] != 0) // This disk (aka Volume) number
         return false;
@@ -436,27 +436,27 @@ static bool accepted_signature(
 }
 
 ArcEntries Archive::detect(
-  Byte *buffer, UInt32 size, bool eof, const wstring& file_ext, const ArcTypes& arc_types, IInStream *stream)
+  Byte *buffer, UInt32 size, bool eof, const std::wstring& file_ext, const ArcTypes& arc_types, IInStream *stream)
 {
   ArcEntries arc_entries;
-  set<ArcType> found_types;
+  std::set<ArcType> found_types;
 
   // 1. find formats by signature
   //
-  vector<SigData> signatures;
+  std::vector<SigData> signatures;
   signatures.reserve(2 * arc_types.size());
-  for_each(arc_types.begin(), arc_types.end(), [&] (const ArcType& arc_type) {
+  std::for_each(arc_types.begin(), arc_types.end(), [&] (const ArcType& arc_type) {
     const auto& format = ArcAPI::formats().at(arc_type);
     if (format.ClassID != c_dmg) {
-      for_each(format.Signatures.begin(), format.Signatures.end(), [&](const ByteVector& signature) {
+      std::for_each(format.Signatures.begin(), format.Signatures.end(), [&](const ByteVector& signature) {
         signatures.emplace_back(SigData(signature, format));
       });
     }
   });
-  vector<StrPos> sig_positions = msearch(buffer, size, signatures, eof);
+  std::vector<StrPos> sig_positions = msearch(buffer, size, signatures, eof);
 
   int eof_i = eof ? 1 : 0;
-  for_each(sig_positions.begin(), sig_positions.end(), [&] (const StrPos& sig_pos) {
+  std::for_each(sig_positions.begin(), sig_positions.end(), [&] (const StrPos& sig_pos) {
     const auto& signature = signatures[sig_pos.idx];
     const auto& format = signature.format;
     if (accepted_signature(sig_pos.pos, signature, buffer, size, stream, eof_i)) {
@@ -471,8 +471,8 @@ ArcEntries Archive::detect(
   // 2. find formats by file extension
   //
   ArcTypes types_by_ext = ArcAPI::formats().find_by_ext(file_ext);
-  for_each(types_by_ext.begin(), types_by_ext.end(), [&] (const ArcType& arc_type) {
-    if (found_types.count(arc_type) == 0 && find(arc_types.begin(), arc_types.end(), arc_type) != arc_types.end()) {
+  std::for_each(types_by_ext.begin(), types_by_ext.end(), [&] (const ArcType& arc_type) {
+    if (found_types.count(arc_type) == 0 && std::find(arc_types.begin(), arc_types.end(), arc_type) != arc_types.end()) {
       found_types.insert(arc_type);
       arc_entries.push_front(ArcEntry(arc_type, 0));
     }
@@ -480,7 +480,7 @@ ArcEntries Archive::detect(
 
   // 3. all other formats
   //
-  for_each(arc_types.begin(), arc_types.end(), [&] (const ArcType& arc_type) {
+  std::for_each(arc_types.begin(), arc_types.end(), [&] (const ArcType& arc_type) {
     if (found_types.count(arc_type) == 0) {
       arc_entries.push_back(ArcEntry(arc_type, 0));
     }
@@ -575,7 +575,7 @@ void Archive::open(const OpenOptions& options, Archives& archives) {
   ArcEntries arc_entries = detect(buffer.data(), size, size < max_check_size, extract_file_ext(arc_info.cFileName), options.arc_types, stream);
 
   for (ArcEntries::const_iterator arc_entry = arc_entries.cbegin(); arc_entry != arc_entries.cend(); ++arc_entry) {
-    shared_ptr<Archive> archive(new Archive());
+    std::shared_ptr<Archive> archive(new Archive());
     if (options.open_password_len && *options.open_password_len == -'A')
       archive->open_password = *options.open_password_len;
     archive->arc_path = options.arc_path;
@@ -632,8 +632,8 @@ void Archive::open(const OpenOptions& options, Archives& archives) {
     stream_impl->CacheHeader(nullptr, 0);
 }
 
-unique_ptr<Archives> Archive::open(const OpenOptions& options) {
-  unique_ptr<Archives> archives(new Archives());
+std::unique_ptr<Archives> Archive::open(const OpenOptions& options) {
+  std::unique_ptr<Archives> archives(new Archives());
   open(options, *archives);
   if (!options.detect && !archives->empty())
     archives->erase(archives->begin(), archives->end() - 1);

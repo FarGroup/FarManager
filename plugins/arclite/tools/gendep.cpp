@@ -3,7 +3,7 @@ const wchar_t* c_ext_list[] = {
 };
 
 bool is_valid_ext(const wchar_t* file_name) {
-  const wchar_t* ext = wcsrchr(file_name, L'.');
+  const wchar_t* ext = std::wcsrchr(file_name, L'.');
   if (ext) ext++;
   else ext = L"";
   for (unsigned i = 0; i < ARRAYSIZE(c_ext_list); i++) {
@@ -15,7 +15,7 @@ bool is_valid_ext(const wchar_t* file_name) {
 
 class Parser {
 private:
-  const wstring& text;
+  const std::wstring& text;
   size_t pos;
   bool is_one_of(wchar_t ch, const wchar_t* char_set) {
     const wchar_t* c = char_set;
@@ -26,7 +26,7 @@ private:
     return pos == text.size();
   }
 public:
-  Parser(const wstring& text, size_t pos): text(text), pos(pos) {
+  Parser(const std::wstring& text, size_t pos): text(text), pos(pos) {
   }
   void ws() {
     while (!end() && is_one_of(text[pos], L" \t"))
@@ -44,15 +44,15 @@ public:
     }
     return *str == 0;
   }
-  wstring extract(const wchar_t* end_chars) {
+  std::wstring extract(const wchar_t* end_chars) {
     size_t start = pos;
     while (!end() && !is_one_of(text[pos], end_chars))
       pos++;
-    return wstring(text.data() + start, pos - start);
+    return std::wstring(text.data() + start, pos - start);
   }
 };
 
-bool is_include_directive(const wstring& text, size_t pos, wstring& file_name) {
+bool is_include_directive(const std::wstring& text, size_t pos, std::wstring& file_name) {
   Parser parser(text, pos);
   parser.ws();
   if (!parser.ch(L'#')) return false;
@@ -65,72 +65,72 @@ bool is_include_directive(const wstring& text, size_t pos, wstring& file_name) {
   return true;
 }
 
-bool file_exists(const wstring& file_path) {
+bool file_exists(const std::wstring& file_path) {
   return GetFileAttributesW(long_path(get_full_path_name(file_path)).c_str()) != INVALID_FILE_ATTRIBUTES;
 }
 
-void fix_slashes(wstring& path) {
+void fix_slashes(std::wstring& path) {
   for (size_t i = 0; i < path.size(); i++) {
     if (path[i] == L'/') path[i] = L'\\';
   }
 }
-void fix_slashes_gcc(wstring& path) {
+void fix_slashes_gcc(std::wstring& path) {
   for (size_t i = 0; i < path.size(); i++) {
     if (path[i] == L'\\') path[i] = L'/';
   }
 }
 
-list<wstring> get_include_file_list(const wstring& file_path, const list<wstring>& include_dirs) {
-  list<wstring> file_list;
-  wstring text = load_file(file_path);
-  wstring inc_file;
+std::list<std::wstring> get_include_file_list(const std::wstring& file_path, const std::list<std::wstring>& include_dirs) {
+  std::list<std::wstring> file_list;
+  std::wstring text = load_file(file_path);
+  std::wstring inc_file;
   size_t pos = 0;
   while (true) {
     if (is_include_directive(text, pos, inc_file)) {
       fix_slashes(inc_file);
-      wstring inc_path = add_trailing_slash(extract_file_path(file_path)) + inc_file;
+      std::wstring inc_path = add_trailing_slash(extract_file_path(file_path)) + inc_file;
       bool found = file_exists(inc_path);
-      for (list<wstring>::const_iterator inc_dir = include_dirs.begin(); !found && inc_dir != include_dirs.end(); inc_dir++) {
+      for (std::list<std::wstring>::const_iterator inc_dir = include_dirs.begin(); !found && inc_dir != include_dirs.end(); inc_dir++) {
         inc_path = add_trailing_slash(*inc_dir) + inc_file;
         found = file_exists(inc_path);
       }
       if (found) file_list.push_back(inc_path);
     }
     pos = text.find(L'\n', pos);
-    if (pos == wstring::npos) break;
+    if (pos == std::wstring::npos) break;
     else pos++;
   }
   return file_list;
 }
 
-void process_file(wstring& output, set<wstring>& file_set, const wstring& file_path, const list<wstring>& include_dirs) {
+void process_file(std::wstring& output, std::set<std::wstring>& file_set, const std::wstring& file_path, const std::list<std::wstring>& include_dirs) {
   if (file_set.count(file_path)) return;
   file_set.insert(file_path);
-  list<wstring> include_files = get_include_file_list(file_path, include_dirs);
+  std::list<std::wstring> include_files = get_include_file_list(file_path, include_dirs);
   if (!include_files.empty()) {
     output.append(file_path).append(1, L':');
-    for (list<wstring>::const_iterator inc_file = include_files.begin(); inc_file != include_files.end(); inc_file++) {
+    for (std::list<std::wstring>::const_iterator inc_file = include_files.begin(); inc_file != include_files.end(); inc_file++) {
       output.append(1, L' ').append(*inc_file);
     }
     output.append(1, L'\n');
   }
-  for (list<wstring>::const_iterator inc_file = include_files.begin(); inc_file != include_files.end(); inc_file++) {
+  for (std::list<std::wstring>::const_iterator inc_file = include_files.begin(); inc_file != include_files.end(); inc_file++) {
     process_file(output, file_set, *inc_file, include_dirs);
   }
 }
 
 #define CHECK_CMD(code) if (!(code)) FAIL_MSG(L"Usage: gendep [-I<include> | <source_dir> ...]")
-void parse_cmd_line(const deque<wstring>& params, list<wstring>& source_dirs, list<wstring>& include_dirs) {
-  source_dirs.assign(1, wstring());
+void parse_cmd_line(const std::deque<std::wstring>& params, std::list<std::wstring>& source_dirs, std::list<std::wstring>& include_dirs) {
+  source_dirs.assign(1, std::wstring());
   for (auto param = params.cbegin(); param != params.cend(); ++param) {
     if (substr_match(*param, 0, L"-I")) {
-      wstring inc_dir = param->substr(2);
+      std::wstring inc_dir = param->substr(2);
       CHECK_CMD(!inc_dir.empty());
       fix_slashes(inc_dir);
       include_dirs.push_back(inc_dir);
     }
     else {
-      wstring src_dir = *param;
+      std::wstring src_dir = *param;
       fix_slashes(src_dir);
       source_dirs.push_back(src_dir);
     }
@@ -138,14 +138,14 @@ void parse_cmd_line(const deque<wstring>& params, list<wstring>& source_dirs, li
 }
 #undef CHECK_CMD
 
-void gendep(deque<wstring>& params) { // [-gcc] Other_options
+void gendep(std::deque<std::wstring>& params) { // [-gcc] Other_options
   bool gcc = false;
   if (!params.empty() && params.front() == L"-gcc") { gcc = true; params.pop_front(); }
-  list<wstring> source_dirs, include_dirs;
+  std::list<std::wstring> source_dirs, include_dirs;
   parse_cmd_line(params, source_dirs, include_dirs);
-  wstring output;
-  set<wstring> file_set;
-  for (list<wstring>::const_iterator src_dir = source_dirs.begin(); src_dir != source_dirs.end(); src_dir++) {
+  std::wstring output;
+  std::set<std::wstring> file_set;
+  for (std::list<std::wstring>::const_iterator src_dir = source_dirs.begin(); src_dir != source_dirs.end(); src_dir++) {
     DirList dir_list(get_full_path_name(src_dir->empty() ? L"." : *src_dir));
     while (dir_list.next()) {
       if (!dir_list.data().is_dir() && is_valid_ext(dir_list.data().cFileName)) {
@@ -154,5 +154,5 @@ void gendep(deque<wstring>& params) { // [-gcc] Other_options
     }
   }
   if (gcc) fix_slashes_gcc(output);
-  cout << unicode_to_ansi(output, CP_ACP);
+  std::cout << unicode_to_ansi(output, CP_ACP);
 }

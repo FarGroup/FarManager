@@ -6,9 +6,9 @@
 #include "options.hpp"
 #include "SimpleXML.hpp"
 
-using namespace SimpleXML;
 using Rt = SimpleXML::cbRet;
 using Sv = SimpleXML::str_view;
+using SimpleXML::operator ""_v;
 
 static const auto codecs_v = "Codecs.7z"_v;
 static const auto default_v = "Options"_v;
@@ -24,11 +24,11 @@ static const auto bcj_v = "bcj"_v;
 static const auto adv_v = "adv"_v;
 static const auto true_v = "true"_v;
 
-static wstring utf8_to_wstring(const Sv view) {
+static std::wstring utf8_to_wstring(const Sv view) {
   auto nw = MultiByteToWideChar(CP_UTF8, 0, view.data(), static_cast<int>(view.size()), nullptr, 0);
   if (nw <= 0)
-    return wstring();
-  wstring ret;
+    return std::wstring();
+  std::wstring ret;
   ret.resize(static_cast<size_t>(nw));
   MultiByteToWideChar(CP_UTF8, 0, view.data(), static_cast<int>(view.size()), &ret.front(), nw);
   return ret;
@@ -62,7 +62,7 @@ private:
 public:
   ~xml_parser() {}
   xml_parser(Options& opt) : options(opt) {}
-  
+
   Rt OnTag(int top, const Sv *path, const Sv& /*attrs*/) const override {
     if (top == 2 && path[1] == codecs_v) {
       codec.reset(); codec.name = utf8_to_wstring(path[2]);
@@ -111,8 +111,8 @@ public:
     }
     return Rt::Continue;
   }
-  
-  bool parse(const wstring& xml_name) {
+
+  bool parse(const std::wstring& xml_name) {
     File file;
     if (!file.open_nt(xml_name, FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE, OPEN_EXISTING, 0))
       return false;
@@ -160,8 +160,8 @@ public:
       return def_value;
   }
 
-  wstring get_str(const wchar_t* name, const wstring& def_value) {
-    wstring value;
+  std::wstring get_str(const wchar_t* name, const std::wstring& def_value) {
+    std::wstring value;
     if (get(name, value))
       return value;
     else
@@ -190,7 +190,7 @@ public:
       set(name, value ? 1 : 0);
   }
 
-  void set_str(const wchar_t* name, const wstring& value, const wstring& def_value) {
+  void set_str(const wchar_t* name, const std::wstring& value, const std::wstring& def_value) {
     if (value == def_value)
       del(name);
     else
@@ -421,7 +421,7 @@ UpdateProfiles g_profiles;
 
 const wchar_t c_profiles_key_name[] = L"profiles";
 
-wstring get_profile_key_name(const wstring& name) {
+std::wstring get_profile_key_name(const std::wstring& name) {
   return add_trailing_slash(c_profiles_key_name) + name;
 }
 
@@ -460,7 +460,7 @@ void UpdateProfiles::load() {
   OptionsKey key;
   key.create();
   key.set_dir(c_profiles_key_name);
-  vector<wstring> profile_names;
+  std::vector<std::wstring> profile_names;
   key.list_dir(profile_names);
   ProfileOptions def_profile_options;
   for (unsigned i = 0; i < profile_names.size(); i++) {
@@ -492,13 +492,13 @@ void UpdateProfiles::save() const {
   OptionsKey key;
   key.create();
   key.set_dir(c_profiles_key_name);
-  vector<wstring> profile_names;
+  std::vector<std::wstring> profile_names;
   key.list_dir(profile_names);
   for (unsigned i = 0; i < profile_names.size(); i++) {
     key.del_dir(profile_names[i].c_str());
   }
   ProfileOptions def_profile_options;
-  for_each(cbegin(), cend(), [&] (const UpdateProfile& profile) {
+  std::for_each(cbegin(), cend(), [&] (const UpdateProfile& profile) {
     key.set_dir(get_profile_key_name(profile.name));
 #define SET_VALUE(name, type) key.set_##type(L###name, profile.options.name, def_profile_options.name)
     SET_VALUE(arc_type, binary);
@@ -519,7 +519,7 @@ void UpdateProfiles::save() const {
   });
 }
 
-unsigned UpdateProfiles::find_by_name(const wstring& name) {
+unsigned UpdateProfiles::find_by_name(const std::wstring& name) {
   unsigned idx = 0;
   for (idx = 0; idx < size() && upcase(at(idx).name) != upcase(name); idx++);
   return idx;
@@ -537,7 +537,7 @@ void UpdateProfiles::sort_by_name() {
   });
 }
 
-void UpdateProfiles::update(const wstring& name, const UpdateOptions& options) {
+void UpdateProfiles::update(const std::wstring& name, const UpdateOptions& options) {
   unsigned name_idx = find_by_name(name);
   unsigned options_idx = find_by_options(options);
   if (name_idx < size() && options_idx < size()) {

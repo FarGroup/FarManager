@@ -21,7 +21,7 @@ private:
   StateElement* data;
 public:
   StateMatrix(size_t max_states) {
-    assert(max_states <= numeric_limits<State>::max());
+    assert(max_states <= std::numeric_limits<State>::max());
     data = new StateElement[max_states * c_alphabet_size];
     memset(data, 0, max_states * c_alphabet_size * sizeof(StateElement));
   }
@@ -36,7 +36,7 @@ public:
   }
 };
 
-StateMatrix* create_state_matrix(const vector<SigData>& str_list) {
+StateMatrix* create_state_matrix(const std::vector<SigData>& str_list) {
   size_t max_states = 0;
   for (unsigned i = 0; i < str_list.size(); i++) {
     max_states += str_list[i].signature.size();
@@ -64,14 +64,14 @@ StateMatrix* create_state_matrix(const vector<SigData>& str_list) {
   return matrix;
 }
 
-vector<StrPos> msearch(unsigned char* data, size_t size, const vector<SigData>& str_list, bool eof) {
+std::vector<StrPos> msearch(unsigned char* data, size_t size, const std::vector<SigData>& str_list, bool eof) {
   static bool uniq_by_type = false;
-  vector<StrPos> result;
+  std::vector<StrPos> result;
   if (str_list.empty())
     return result;
   result.reserve(str_list.size());
-  unique_ptr<StateMatrix> matrix(create_state_matrix(str_list));
-  vector<bool> found(str_list.size(), false);
+  std::unique_ptr<StateMatrix> matrix(create_state_matrix(str_list));
+  std::vector<bool> found(str_list.size(), false);
   for (size_t i = 0; i < size; i++) {
     State state = 0;
     for (size_t j = i; j < size; j++) {
@@ -94,7 +94,7 @@ vector<StrPos> msearch(unsigned char* data, size_t size, const vector<SigData>& 
         break;
     }
   }
-  sort(result.begin(), result.end());
+  std::sort(result.begin(), result.end());
   result.shrink_to_fit();
   return result;
 }
