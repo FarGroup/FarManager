@@ -530,6 +530,21 @@ local function serialize (o)
   return s and "return "..s or tableSerialize(o)
 end
 
+function deserialize (str)
+  checkarg(str, 1, "string")
+  local chunk, err = loadstring(str)
+  if chunk==nil then return nil,err end
+
+  setfenv(chunk, { bit64={new=bit64.new}; setmetatable=setmetatable; })
+  local ok, result = pcall(chunk)
+  if not ok then return nil,result end
+
+  return result,nil
+end
+
+mf.serialize = serialize
+mf.deserialize = deserialize
+
 function mf.mdelete (key, name, location)
   checkarg(key, 1, "string")
   checkarg(name, 2, "string")
@@ -569,14 +584,7 @@ function mf.mload (key, name, location)
     if subkey then
       local chunk = obj:Get(subkey, name, F.FST_DATA)
       if chunk then
-        val, err = loadstring(chunk)
-        if val then
-          setfenv(val, { bit64=bit64; setmetatable=setmetatable; })
-          ok, val = pcall(val)
-          if not ok then
-            val, err = nil, val
-          end
-        end
+        val, err = deserialize(chunk)
       else
         err = "method Get() failed"
       end

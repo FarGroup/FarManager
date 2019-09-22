@@ -385,7 +385,7 @@ local function test_mf_msave()
   local Key = "macrotest"
 
   -- test supported types, except tables
-  local v1, v2, v3, v4, v5, v6 = nil, false, true, -5.67, "foo", bit64.new("-123")
+  local v1, v2, v3, v4, v5, v6 = nil, false, true, -5.67, "foo", bit64.new("0x1234567843218765")
   mf.msave(Key, "name1", v1)
   mf.msave(Key, "name2", v2)
   mf.msave(Key, "name3", v3)

@@ -1,4 +1,8 @@
-﻿shmuel 05.09.2019 03:23:04 +0200 - build 705
+﻿shmuel 22.09.2019 10:55:23 +0200 - build 706
+
+1. Add functions mf.serialize, mf.deserialize.
+
+shmuel 05.09.2019 03:23:04 +0200 - build 705
 
 1. Generic plugin: prevent stack overflow in GetContentDataW calls due to error/message box.
 
