@@ -3,6 +3,12 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+MZK 23.09.2019 19:41:13 -0700 - build 5477
+
+1. Translated more far:config help pages into English and started cleaning up eng/TechInfo.txt.
+
+2. Cosmetic change to Options::CmdlineSettings().
+
 drkns 18.09.2019 08:15:51 +0100 - build 5476
 
 1. Continuation of 5475.

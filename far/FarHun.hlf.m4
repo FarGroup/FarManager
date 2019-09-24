@@ -2692,7 +2692,8 @@ feature is disabled while a macro is being recorded or executed.
  This option specifies the target folder of ~CD ~~~@OSCommands@ command.
 If the string is empty, #CD ~~# will attempt to change the current path
 to real “~~” directory (and fail if this is impossible, e.g. because
-the directory does not exist).
+the directory does not exist). Default value is string “%FARHOME%” which
+denotes Far home directory.
 
 
 @AutoCompleteSettings
@@ -5577,8 +5578,8 @@ $ #far:config Help.ActivateURL#
  This numeric parameter controls whether Far will open (activate) URL
 links in help files:
 
- 0 - ^<wrap>URL links are not opened.
- 1 - URL links are opened.
+ 0 - ^<wrap>URL links are not opened;
+ 1 - URL links are opened;
  2 - URL links are opened after user’s confirmation.
 
  Default value: 1 (links are opened).
@@ -5588,13 +5589,13 @@ links in help files:
 
 @Confirmations.EscTwiceToInterrupt
 $ #far:config Confirmations.EscTwiceToInterrupt#
- This numeric parameter controls the behavior of #Esc# key in the
+ This Boolean parameter controls the behavior of #Esc# key in the
 confirmation dialog for canceling an operation.
 
- 0 - ^<wrap>#Esc# key closes the dialog and continues the operation.
- 1 - #Esc# key closes the dialog and cancels the operation.
+ False - ^<wrap>#Esc# key closes the dialog and continues the operation;
+ True  - #Esc# key closes the dialog and cancels the operation.
 
- Default value: 0 (close the dialog and continue operation).
+ Default value: False (close the dialog and continue operation).
 
  This parameter can be changed via ~far:config~@FarConfig@ only.
 
@@ -5669,7 +5670,7 @@ $ #far:config Panel.Layout.ScrollbarMenu#
  This Boolean parameter enables menu scrollbar when there are more menu
 items than can fit vertically.
 
- False - ^<wrap>Never show menu scrollbar.
+ False - ^<wrap>Never show menu scrollbar;
  True  - Show menu scrollbar if needed.
 
  Default value: True (show menu scrollbar if needed).
@@ -5683,7 +5684,7 @@ $ #far:config Panel.CtrlFRule#
 combination in the ~command line~@CmdLineCmd@.
 
  False - ^<wrap>The file name is inserted into the command line as it is
-recorded in the file system.
+recorded in the file system;
  True  - The file name is inserted as it appears on the file panel,
 possibly in lowercase or using the short name.
 
@@ -5697,8 +5698,8 @@ $ #far:config Panel.CtrlAltShiftRule#
  This numeric parameter controls the behavior of #Ctrl+Alt+Shift# key
 combination for temporary hiding file panels.
 
- 0 - ^<wrap>Hide panels only (like #Ctrl+O# key combination).
- 1 - Hide panels and command line.
+ 0 - ^<wrap>Hide panels only (like #Ctrl+O# key combination);
+ 1 - Hide panels and command line;
  2 - Hide panels, command line, and functional key bar at the bottom
 line.
 
@@ -5713,9 +5714,9 @@ $ #far:config Panel.RightClickRule#
 on an empty stripe of file panel.
 
  0 - ^<wrap>Move panel cursor to the last file in the previous stripe
-and select the file.
+and select the file;
  1 - Move panel cursor to the last file in the previous stripe without
-selecting the file (like the #left mouse click#).
+selecting the file (like the #left mouse click#);
  2 - Do not move panel cursor or select any file.
 
  Note: If the stripe is not empty the last file is always selected.
@@ -5749,7 +5750,7 @@ page after the execution of an external program has completed. Some
 programs change console code page during execution and do not restore
 it before exiting. Use this parameter to compensate for this behavior.
 
- False - ^<wrap>Leave it as is; do not restore console code page.
+ False - ^<wrap>Leave it as is; do not restore console code page;
  True  - Restore console code page after an external program exited.
 
  Default value: True (restore console code page).
@@ -5792,95 +5793,99 @@ Windows Explorer always looks up #App Paths# registry key.
 
 @System.Executor.ExcludeCmds
 $ #far:config System.Executor.ExcludeCmds#
- Параметр позволяет задавать набор команд которые будут сразу передаваться
-в %comspec% для выполнения, поиск в PATH и т.п. не будет произведён.
+ This string parameter defines commands which will be directly passed
+for execution to the operating system command processor (specified
+by the #ComSpec# environment variable), without searching the current
+directory, directories listed on the #PATH# environment variable,
+or any other predefined places.
 
- Разделитель команд - символ ‘;’. Например, если "System.Executor.ExcludeCmds" задан списком "DATE;ECHO",
-то при вводе 'date' будет исполнена внутренняя команда CMD.EXE/COMMAND.COM. Для исполнения внешней команды
-"date.exe" необходимо точно написать её название. В тоже время, если "date.exe" доступно в %PATH% и из списка
-"ExcludeCmds" убрать "DATE", то внутренняя команда ком.процессора никогда не будет исполнена.
+ The commands are separated by semicolon (#;#). Environment variables
+surrounded by the percent sign (#%#) will be substituted.
 
- Готовые настройки для CMD.EXE, COMMAND.COM и TCCLE.EXE (известный ранее как 4NT.EXE) находятся в каталоге Addons\\SetUp, файлы "Executor.???.farconfig".
+ For example, if the value of this parameter is “DATE;ECHO” and “date”
+is entered on the command line, the internal command processor’s #DATE#
+command will be executed. To execute an external program “date.exe”,
+type the file name verbatim, including extension. However, if “DATE”
+is not listed in this parameter and the program “date.exe” exists
+in one of the #PATH# directories, the internal command processor’s
+command can never be executed.
 
- Команды "CLS", "REM", "CD" и "CHDIR" Far обрабатывает самостоятельно. Эти команды не включены в "Executor.???.farconfig".
+ Ready-made settings for CMD.EXE, COMMAND.COM, and other well-known
+command processors can be found in the
+#Addons\SetUp\Executor.*.farconfig# files.
 
- Команды "IF", "CHCP" и "SET" Far обрабатывает с ограниченной функциональностью - если синтаксис
-отличается от приведённого в разделе "~Команды операционной системы~@OSCommands@", то команда
-передаётся на дальнейшую обработку ком.процессору.
+ Note: Far executes some ~operating system~@OSCommands@ commands
+internally, without invoking operating system command processor. These
+commands are not included in #Executor.*.farconfig# files. Some other
+OS commands Far executes with the limited functionality. If the syntax
+does not match exactly that specified in the
+~Operating system commands~@OSCommands@ help topic, the command will
+be passed for execution to the command processor.
 
- По умолчанию список "ExcludeCmds" пуст.
+ Default value: empty string #""#.
 
- В параметре можно использовать переменные среды.
-
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @System.Executor.ComspecArguments
 $ #far:config System.Executor.ComspecArguments#
+ This string parameter defines the arguments which Far will use to
+invoke the operating system command processor (specified by the
+#ComSpec# environment variable).
 
- Arguments for command processor. #{0}# is a placeholder for the entire executing command.
- If your processor uses different keys or quotes you can change them here.
+ The #{0}# placeholder will be replaced with the text of the command.
+This parameter is handy with non-standard command processors requiring
+unusual command line options or quoting.
 
- Default value: #/S /C "{0}"# (compatible with cmd.exe)
+ Default value: #/S /C "{0}"# (compatible with CMD.EXE).
 
  This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @System.Executor.FullTitle
 $ #far:config System.Executor.FullTitle#
- Параметр позволяет задавать вид заголовка консоли при запуске файла на исполнение.
+ This Boolean parameter specifies the format of the console window title
+while an external command is being executed.
 
- Может быть одним из следующих значений:
+ False - ^<wrap>Console title contains the text entered on the command line;
+ True  - Console title contains full path to the executable file.
 
- 0 - в заголовке консоли отображается то, что вводил пользователь.
- 1 - в заголовке консоли отображается полный путь к исполняемому файлу.
+ Default value: False (the entered text).
 
- По умолчанию значение = 0 (то, что вводил пользователь).
-
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @Interface.FormatNumberSeparators
 $ #far:config Interface.FormatNumberSeparators#
- Параметр позволяет определять символы, используемые в качестве разделителей групп разрядов и целой/дробной части чисел.
- Первый символ - разделитель групп разрядов.
- Второй символ - разделитель целой и дробной части.
+ This string parameter allows to override digit grouping symbol and
+decimal symbol in OS regional settings.
 
- По умолчанию значение - "" (использовать региональные настройки ОС).
+ First symbol  - ^<wrap>digit grouping symbol;
+ Second symbol - decimal separator symbol.
 
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ Default value: empty string #""# (use OS regional settings).
 
-
-@System.Executor.~
-$ #far:config System.Executor.~~#
- Параметр позволяет менять путь к домашней папке для команды "~CD ~~~@OSCommands@".
-
- По умолчанию значение = "%FARHOME%".
-
- См. также ~System.Executor.UseHomeDir~@System.Executor.UseHomeDir@
-
- Значение также можно поменять в диалоге ~Настройка командной строки~@CmdlineSettings@.
-
-
-@System.Executor.UseHomeDir
-$ #far:config System.Executor.UseHomeDir#
- Параметр позволяет включать или отключать переход к домашней папке командой "~CD ~~~@OSCommands@".
-
- По умолчанию значение = True.
-
- Значение также можно поменять в диалоге ~Настройка командной строки~@CmdlineSettings@.
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @System.CmdHistoryRule
 $ #far:config System.CmdHistoryRule#
- Параметр задаёт поведение выбора истории команд в командной строке, если после Ctrl+E/Ctrl+X нажали Esc:
+ This Boolean parameter defines whether the current position
+in ~commands history~@History@ will change if #Esc# is pressed after
+#Ctrl+E# or #Ctrl+X# key combinations.
 
- 0 - Изменять положение в History.
- 1 - Не изменять положение в History.
+ False - ^<wrap>The current command in the history will remain the one
+recalled with #Ctrl+E# / #Ctrl+X#.
+ True  - The current command in the history will be reset to the latest
+(newest) command.
 
- По умолчанию действует правило 0.
+ Note: The order of the commands in the history does not change in any
+case.
 
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ Default value: False (change the current position in the commands
+history).
+
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @System.ConsoleDetachKey
