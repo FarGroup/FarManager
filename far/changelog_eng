@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 24.09.2019 19:31:14 +0100 - build 5478
+
+1. Correction of 5225 - UTF-8 detection doesn't work in some cases.
+
 MZK 23.09.2019 19:41:13 -0700 - build 5477
 
 1. Translated more far:config help pages into English and started cleaning up eng/TechInfo.txt.
@@ -34,7 +38,7 @@ drkns 10.09.2019 19:06:31 +0100 - build 5472
    0003198: Incorrect current folder path insertion
    0003200: Inconsistent behaviour of Ctrl+F on a regular folder and on ".."
    0003211: Redundant "\" when inserting a path from a panel
-   0003700: Ctrl+enter in panel resurns bad path: backslash out of qoutes
+   0003700: Ctrl+enter in panel returns bad path: backslash out of quotes
    ...and probably more.
    As the number of reports suggests, inserting the slash after the quotation mark wasn't a good idea.
    However, inserting it before is not a good idea either (see #0003011), so now it's not inserted anywhere at all.

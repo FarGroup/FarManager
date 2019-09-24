@@ -349,9 +349,7 @@ namespace os::fs
 			{
 				if (Handle->Buffer2)
 				{
-					Handle->BufferBase.reset();
-					using std::swap;
-					swap(Handle->BufferBase, Handle->Buffer2);
+					Handle->BufferBase = std::move(Handle->Buffer2);
 					DirectoryInfo = reinterpret_cast<const FILE_ID_BOTH_DIR_INFORMATION*>(Handle->BufferBase.get());
 				}
 				else

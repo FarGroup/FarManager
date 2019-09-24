@@ -1168,12 +1168,13 @@ bool encoding::is_valid_utf8(std::string_view const Str, bool const PartialConte
 
 		Ascii = false;
 
-		const auto Bits = (c & 0b01111000) >> 3;
-		if (Bits & 1)
+		const auto Bits = (c & 0b01110000) >> 4;
+
+		ContinuationBytes = LookupTable[Bits];
+		if (!ContinuationBytes)
 			return false;
 
-		ContinuationBytes = LookupTable[Bits >> 1];
-		if (!ContinuationBytes)
+		if (c & bit(7 - 1 - ContinuationBytes))
 			return false;
 
 		NextMin = Min;
@@ -1243,7 +1244,7 @@ consectetur adipiscing elit,
 sed do eiusmod tempor incididunt
 ut labore et dolore magna aliqua.
 )"sv },
-
+		{ true,  false, u8"φ"sv},
 		{ false, false, "\x80"sv },
 		{ false, false, "\xFF"sv },
 		{ false, false, "\xC0"sv },
