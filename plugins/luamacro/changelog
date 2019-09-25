@@ -1,4 +1,8 @@
-﻿shmuel 22.09.2019 10:55:23 +0200 - build 706
+﻿shmuel 25.09.2019 10:17:41 +0200 - build 707
+
+1. LuaFAR: fix require('luafar3') that was broken since build 699.
+
+shmuel 22.09.2019 10:55:23 +0200 - build 706
 
 1. Add functions mf.serialize, mf.deserialize.
 

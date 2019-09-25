@@ -6353,6 +6353,7 @@ static const luaL_Reg lualibs_extra[] =
 {
 	{"bit64",         luaopen_bit64},
 	{"unicode",       luaopen_unicode},
+	{"utf8",          luaopen_utf8},
 	{"win",           luaopen_win},
 	{NULL, NULL}
 };
@@ -6371,13 +6372,12 @@ static void LoadExtraLibraries(lua_State *L)
 		lua_call(L, 1, 0);
 	}
 
-	// getmetatable("").__index = unicode.utf8
+	// getmetatable("").__index = utf8
 	lua_pushliteral(L, "");
 	lua_getmetatable(L, -1);
-	lua_getglobal(L, "unicode");
-	lua_getfield(L, -1, "utf8");
-	lua_setfield(L, -3, "__index");
-	lua_pop(L, 3);
+	lua_getglobal(L, "utf8");
+	lua_setfield(L, -2, "__index");
+	lua_pop(L, 2);
 }
 
 static void* CustomAllocator(void *ud, void *ptr, size_t osize, size_t nsize)
@@ -6471,11 +6471,16 @@ void LF_GetLuafarAPI (LuafarAPI* target)
 
 __declspec(dllexport) int luaopen_luafar3 (lua_State *L)
 {
-	int OK;
+	int InsideFarManager = 0;
 	lua_getglobal(L, "far");
-	OK = lua_isnil(L, -1);
+	if (lua_istable(L, -1))
+	{
+		lua_getfield(L, -1, "ConvertPath");
+		InsideFarManager = lua_isfunction(L, -1);
+		lua_pop(L, 1);
+	}
 	lua_pop(L, 1);
-	if (OK) /* prevent loading from within Far Manager */
-		LoadExtraLibraries(L);  /* open libraries */
+	if (! InsideFarManager)
+		LoadExtraLibraries(L);
 	return 0;
 }
