@@ -336,9 +336,10 @@ void DeleteEndSlash(string &Path)
 	Path.resize(Path.rend() - std::find_if_not(Path.rbegin(), Path.rend(), IsSlash));
 }
 
-void DeleteEndSlash(string_view& Path)
+string_view DeleteEndSlash(string_view Path)
 {
 	Path.remove_suffix(std::find_if_not(Path.rbegin(), Path.rend(), IsSlash) - Path.rbegin());
+	return Path;
 }
 
 bool CutToSlash(string &strStr, bool bInclude)
@@ -460,8 +461,7 @@ bool IsRootPath(const string_view Path)
 
 bool PathStartsWith(const string_view Path, const string_view Start)
 {
-	auto PathPart = Start;
-	DeleteEndSlash(PathPart);
+	const auto PathPart = DeleteEndSlash(Start);
 	return starts_with(Path, PathPart) && (Path.size() == PathPart.size() || IsSlash(Path[PathPart.size()]));
 }
 

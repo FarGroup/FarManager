@@ -2553,11 +2553,11 @@ static bool substrFunc(FarMacroCall* Data)
 	return Ret;
 }
 
-static bool SplitPath(string_view const FullPath, string& Dest, int Flags)
+static void SplitPath(string_view const FullPath, string& Dest, int Flags)
 {
 	size_t DirOffset = 0;
 	const auto RootType = ParsePath(FullPath, &DirOffset);
-	const auto Root = FullPath.substr(0, RootType == root_type::unknown? 0 : DirOffset - 1);
+	const auto Root = DeleteEndSlash(FullPath.substr(0, RootType == root_type::unknown? 0 : DirOffset));
 	auto Path = FullPath.substr(Root.size());
 	auto Name = PointToName(Path);
 	Path.remove_suffix(Name.size());
@@ -2579,8 +2579,6 @@ static bool SplitPath(string_view const FullPath, string& Dest, int Flags)
 		if (Flags & Flag)
 			append(Dest, Part);
 	}
-
-	return true;
 }
 
 // S=fsplit(S,N)
@@ -2589,10 +2587,10 @@ static bool fsplitFunc(FarMacroCall* Data)
 	auto Params = parseParams(2, Data);
 
 	string strPath;
-	const auto Ret = SplitPath(Params[0].toString(), strPath, Params[1].asInteger());
+	SplitPath(Params[0].toString(), strPath, Params[1].asInteger());
 
 	PassString(strPath, Data);
-	return Ret;
+	return true;
 }
 
 // N=atoi(S[,radix])
@@ -5189,3 +5187,67 @@ int KeyMacro::AssignMacroKey(DWORD &MacroKey, unsigned long long& Flags)
 	Flags = Param.Flags;
 	return Param.Changed ? 2 : 1;
 }
+
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("macro.splitpath")
+{
+	enum splitpath_flags
+	{
+		sp_root = 0_bit,
+		sp_path = 1_bit,
+		sp_name = 2_bit,
+		sp_ext  = 3_bit,
+	};
+
+	static const struct
+	{
+		string_view FullPath;
+		string_view Root, Path, Name, Ext;
+	}
+	Tests[]
+	{
+		{ L"C:"sv,                                L"C:"sv,                L""sv,         L""sv,     L""sv,     },
+		{ L"C:\\"sv,                              L"C:"sv,                L"\\"sv,       L""sv,     L""sv,     },
+		{ L"C:\\path"sv,                          L"C:"sv,                L"\\"sv,       L"path"sv, L""sv,     },
+		{ L"C:\\.ext"sv,                          L"C:"sv,                L"\\"sv,       L""sv,     L".ext"sv, },
+		{ L"C:\\path.ext"sv,                      L"C:"sv,                L"\\"sv,       L"path"sv, L".ext"sv, },
+		{ L"C:\\path\\file"sv,                    L"C:"sv,                L"\\path\\"sv, L"file"sv, L""sv,     },
+		{ L"C:\\path\\.ext"sv,                    L"C:"sv,                L"\\path\\"sv, L""sv,     L".ext"sv, },
+		{ L"C:\\path\\file.ext"sv,                L"C:"sv,                L"\\path\\"sv, L"file"sv, L".ext"sv, },
+
+		{ L"\\\\server\\share"sv,                 L"\\\\server\\share"sv, L""sv,         L""sv,     L""sv,     },
+		{ L"\\\\server\\share\\"sv,               L"\\\\server\\share"sv, L"\\"sv,       L""sv,     L""sv,     },
+		{ L"\\\\server\\share\\path"sv,           L"\\\\server\\share"sv, L"\\"sv,       L"path"sv, L""sv,     },
+		{ L"\\\\server\\share\\.ext"sv,           L"\\\\server\\share"sv, L"\\"sv,       L""sv,     L".ext"sv, },
+		{ L"\\\\server\\share\\path.ext"sv,       L"\\\\server\\share"sv, L"\\"sv,       L"path"sv, L".ext"sv, },
+		{ L"\\\\server\\share\\path\\file"sv,     L"\\\\server\\share"sv, L"\\path\\"sv, L"file"sv, L""sv,     },
+		{ L"\\\\server\\share\\path\\.ext"sv,     L"\\\\server\\share"sv, L"\\path\\"sv, L""sv,     L".ext"sv, },
+		{ L"\\\\server\\share\\path\\file.ext"sv, L"\\\\server\\share"sv, L"\\path\\"sv, L"file"sv, L".ext"sv, },
+	};
+
+	for (const auto& i: Tests)
+	{
+		for (int Flags = 1; Flags != 0b1111; ++Flags)
+		{
+			string Expected;
+
+			if (Flags & sp_root)
+				Expected += i.Root;
+			if (Flags & sp_path)
+				Expected += i.Path;
+			if (Flags & sp_name)
+				Expected += i.Name;
+			if (Flags & sp_ext)
+				Expected += i.Ext;
+
+			string Actual;
+			SplitPath(i.FullPath, Actual, Flags);
+
+			REQUIRE(Expected == Actual);
+		}
+	}
+}
+#endif

@@ -1244,7 +1244,7 @@ consectetur adipiscing elit,
 sed do eiusmod tempor incididunt
 ut labore et dolore magna aliqua.
 )"sv },
-		{ true,  false, u8"φ"sv},
+		{ true,  false, u8"φ"sv },
 		{ false, false, "\x80"sv },
 		{ false, false, "\xFF"sv },
 		{ false, false, "\xC0"sv },

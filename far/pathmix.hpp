@@ -167,8 +167,11 @@ bool IsPluginPrefixPath(const string &Path);
 bool CutToSlash(string &strStr, bool bInclude = false); // BUGBUG, deprecated. Use CutToParent.
 bool CutToParent(string_view& Str);
 bool CutToParent(string& Str);
+[[nodiscard]]
 string_view PointToName(string_view Path);
+[[nodiscard]]
 string_view PointToFolderNameIfFolder(string_view Path);
+[[nodiscard]]
 string_view PointToExt(string_view Path);
 
 void AddEndSlash(string &strPath, wchar_t TypeSlash);
@@ -177,12 +180,15 @@ bool AddEndSlash(wchar_t *Path, wchar_t TypeSlash);
 bool AddEndSlash(wchar_t *Path);
 void DeleteEndSlash(wchar_t* Path);
 void DeleteEndSlash(string& Path);
-void DeleteEndSlash(string_view& Path);
+[[nodiscard]]
+string_view DeleteEndSlash(string_view Path);
 inline void ReplaceSlashToBackslash(string &strStr) { std::replace(ALL_RANGE(strStr), L'/', L'\\'); }
 inline void ReplaceBackslashToSlash(string &strStr) { std::replace(ALL_RANGE(strStr), L'\\', L'/'); }
 
 bool ContainsSlash(string_view Str);
+[[nodiscard]]
 size_t FindSlash(string_view Str);
+[[nodiscard]]
 size_t FindLastSlash(string_view Str);
 
 bool IsParentDirectory(string_view Str);
