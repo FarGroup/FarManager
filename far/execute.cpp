@@ -77,6 +77,11 @@ enum class image_type
 	graphical,
 };
 
+static string short_name_if_too_long(string LongName)
+{
+	return LongName.size() >= MAX_PATH - 1? ConvertNameToShort(LongName) : LongName;
+}
+
 static bool GetImageType(const string& FileName, image_type& ImageType)
 {
 	const os::fs::file ModuleFile(FileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
@@ -909,11 +914,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, function_ref<void(
 
 	SHELLEXECUTEINFO seInfo={sizeof(seInfo)};
 
-	auto strCurDir = os::fs::GetCurrentDirectory();
-	if (strCurDir.size() >= MAX_PATH - 1)
-	{
-		strCurDir = ConvertNameToShort(strCurDir);
-	}
+	const auto strCurDir = short_name_if_too_long(os::fs::GetCurrentDirectory());
 
 	seInfo.lpDirectory = strCurDir.c_str();
 	seInfo.nShow = SW_SHOWNORMAL;
@@ -962,7 +963,9 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, function_ref<void(
 
 	if (Info.ExecMode == execute_info::exec_mode::direct)
 	{
+		strNewCmdStr = short_name_if_too_long(strNewCmdStr);
 		seInfo.lpFile = strNewCmdStr.c_str();
+
 		if(!strNewCmdPar.empty())
 		{
 			seInfo.lpParameters = strNewCmdPar.c_str();
@@ -1023,13 +1026,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, function_ref<void(
 		std::optional<os::fs::process_current_directory_guard> Guard;
 		if (os::fs::file_status(strCurDir).check(FILE_ATTRIBUTE_REPARSE_POINT))
 		{
-			auto RealDir = ConvertNameToReal(strCurDir);
-			if (RealDir.size() >= MAX_PATH - 1)
-			{
-				RealDir = ConvertNameToShort(RealDir);
-			}
-
-			Guard.emplace(RealDir);
+			Guard.emplace(short_name_if_too_long(ConvertNameToReal(strCurDir)));
 		}
 
 		Result = ShellExecuteEx(&seInfo) != FALSE;

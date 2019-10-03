@@ -567,7 +567,7 @@ void FindFiles::SetPluginDirectory(string_view const DirName, const plugin_panel
 
 		if (NamePtr.size() != DirName.size())
 		{
-			auto Dir = DirName.substr(0, DirName.size() - NamePtr.size());
+			const auto Dir = DeleteEndSlash(DirName.substr(0, DirName.size() - NamePtr.size()));
 
 			// force plugin to update its file list (that can be empty at this time)
 			// if not done SetDirectory may fail
@@ -579,8 +579,6 @@ void FindFiles::SetPluginDirectory(string_view const DirName, const plugin_panel
 				if (Global->CtrlObject->Plugins->GetFindData(hPlugin,&PanelData,&FileCount,OPM_SILENT))
 					Global->CtrlObject->Plugins->FreeFindData(hPlugin,PanelData,FileCount,true);
 			}
-
-			DeleteEndSlash(Dir);
 
 			SCOPED_ACTION(std::lock_guard)(PluginCS);
 			Global->CtrlObject->Plugins->SetDirectory(hPlugin, Dir.empty()? L"\\"s : string(Dir), OPM_SILENT, Dir.empty()? nullptr : UserData);

@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 03.10.2019 19:42:28 +0100 - build 5480
+
+1. 0003742: Far incorrectly (?) passes names longer than 259 symbols to other programs.
+
 drkns 02.10.2019 18:22:31 +0100 - build 5479
 
 1. Forum: lua:=mf.fsplit("\\\\SERVER\\share",1) doesn't work after 5211.
