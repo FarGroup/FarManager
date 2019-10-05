@@ -97,6 +97,7 @@ CFLAGS += \
 
 CCFLAGS = $(CFLAGS)\
 -std=gnu++17 \
+-Werror=old-style-cast \
 -Wctor-dtor-privacy \
 #-Wextra-semi \
 -Wnon-virtual-dtor \

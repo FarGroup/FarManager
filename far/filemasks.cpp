@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/enum_tokens.hpp"
+#include "common/preprocessor.hpp"
 
 // External:
 
@@ -58,17 +59,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static const wchar_t ExcludeMaskSeparator = L'|';
 static const wchar_t RE_start = L'/', RE_end = L'/';
 
-static auto SkipSeparators(const string::const_iterator& Iterator, const string::const_iterator& End)
+static auto SkipSeparators(string::const_iterator const Iterator, string::const_iterator const End)
 {
 	return std::find_if_not(Iterator, End, [](wchar_t c) { return c == L' ' || c == L',' || c == L';'; });
 }
 
-static auto SkipMasks(const string::const_iterator& Iterator, const string::const_iterator& End)
+static auto SkipMasks(string::const_iterator const Iterator, string::const_iterator const End)
 {
 	return std::find_if(Iterator, End, [](wchar_t c) { return c == RE_start || c == ExcludeMaskSeparator; });
 }
 
-static auto SkipRE(string::const_iterator Iterator, const string::const_iterator& End)
+static auto SkipRE(string::const_iterator Iterator, string::const_iterator const End)
 {
 	if (*Iterator != RE_start)
 	{
@@ -94,9 +95,13 @@ public:
 	bool empty() const;
 
 private:
-	std::vector<string> m_Masks;
-	std::unique_ptr<RegExp> m_Regex;
-	mutable std::vector<RegExpMatch> m_Match;
+	struct regex_data
+	{
+		RegExp Regex;
+		mutable std::vector<RegExpMatch> Match;
+	};
+
+	std::variant<std::vector<string>, regex_data> m_Masks;
 };
 
 filemasks::filemasks() = default;
@@ -157,7 +162,7 @@ bool filemasks::Set(string_view const Masks, DWORD Flags)
 				Result = m.assign(string(ptr, nextpos), Flags);
 				if (Result)
 				{
-					DestContainer->emplace_back(std::move(m));
+					DestContainer->push_back(std::move(m));
 					ptr = nextpos;
 				}
 				else
@@ -192,7 +197,7 @@ bool filemasks::Set(string_view const Masks, DWORD Flags)
 			masks m;
 			Result = m.assign(std::move(SimpleMasksInclude), Flags);
 			if (Result)
-				Include.emplace_back(std::move(m));
+				Include.push_back(std::move(m));
 		}
 
 		if (Result && !SimpleMasksExclude.empty())
@@ -200,7 +205,7 @@ bool filemasks::Set(string_view const Masks, DWORD Flags)
 			masks m;
 			Result = m.assign(std::move(SimpleMasksExclude), Flags);
 			if (Result)
-				Exclude.emplace_back(std::move(m));
+				Exclude.push_back(std::move(m));
 		}
 
 		if (Result && Include.empty() && !Exclude.empty())
@@ -208,7 +213,7 @@ bool filemasks::Set(string_view const Masks, DWORD Flags)
 			masks m;
 			Result = m.assign(L"*"s, Flags);
 			if (Result)
-				Include.emplace_back(std::move(m));
+				Include.push_back(std::move(m));
 		}
 
 		Result = !empty();
@@ -234,15 +239,15 @@ void filemasks::clear()
 
 // Путь к файлу в FileName НЕ игнорируется
 
-bool filemasks::Compare(const string_view FileName) const
+bool filemasks::Compare(const string_view Name) const
 {
-	return contains(Include, FileName) && !contains(Exclude, FileName);
+	return contains(Include, Name) && !contains(Exclude, Name);
 }
 
 bool filemasks::empty() const
 {
-	return std::all_of(ALL_CONST_RANGE(Include), std::mem_fn(&masks::empty)) &&
-	       std::all_of(ALL_CONST_RANGE(Exclude), std::mem_fn(&masks::empty));
+	return std::all_of(ALL_CONST_RANGE(Include), LIFT_MF(empty)) &&
+	       std::all_of(ALL_CONST_RANGE(Exclude), LIFT_MF(empty));
 }
 
 void filemasks::ErrorMessage()
@@ -308,12 +313,11 @@ private:
 
 bool filemasks::masks::assign(string&& Masks, DWORD Flags)
 {
-	m_Masks.clear();
-	m_Regex.reset();
-	m_Match.clear();
-
 	if (Masks[0] != RE_start)
 	{
+		m_Masks.emplace<0>();
+		auto& MasksData = std::get<0>(m_Masks);
+
 		add_pathext(Masks);
 
 		for (const auto& Mask: enum_tokens_with_quotes_t<with_brackets, with_trim>(Masks, L",;"sv))
@@ -323,35 +327,36 @@ bool filemasks::masks::assign(string&& Masks, DWORD Flags)
 
 			if (Mask == L"*.*"sv)
 			{
-				m_Masks.emplace_back(1, L'*');
+				MasksData.emplace_back(1, L'*');
 			}
 			else if (contains(Mask, L"**"sv))
 			{
 				string NewMask(Mask);
 				remove_duplicates(NewMask, L'*');
-				m_Masks.emplace_back(std::move(NewMask));
+				MasksData.emplace_back(std::move(NewMask));
 			}
 			else
 			{
-				m_Masks.emplace_back(Mask);
+				MasksData.emplace_back(Mask);
 			}
 		}
 
-		return !m_Masks.empty();
+		return !MasksData.empty();
 	}
 
-	m_Regex = std::make_unique<RegExp>();
+	m_Masks.emplace<1>();
+	auto& RegexData = std::get<1>(m_Masks);
 
-	if (!m_Regex->Compile(Masks.c_str(), OP_PERLSTYLE | OP_OPTIMIZE))
+	if (!RegexData.Regex.Compile(Masks, OP_PERLSTYLE | OP_OPTIMIZE))
 	{
 		if (!(Flags & FMF_SILENT))
 		{
-			ReCompileErrorMessage(*m_Regex, Masks);
+			ReCompileErrorMessage(RegexData.Regex, Masks);
 		}
 		return false;
 	}
 
-	m_Match.resize(m_Regex->GetBracketsCount());
+	RegexData.Match.resize(RegexData.Regex.GetBracketsCount());
 	return true;
 }
 
@@ -359,18 +364,31 @@ bool filemasks::masks::assign(string&& Masks, DWORD Flags)
 
 bool filemasks::masks::operator==(const string_view FileName) const
 {
-	if (!m_Regex)
-	{
-		return std::any_of(CONST_RANGE(m_Masks, i) { return CmpName(i, FileName, false); });
-	}
-
-	intptr_t i = m_Match.size();
-	return m_Regex->Search(FileName, m_Match.data(), i) != 0; // BUGBUG
+	return std::visit(overload(
+		[&](const std::vector<string>& Data)
+		{
+			return std::any_of(CONST_RANGE(Data, i) { return CmpName(i, FileName, false); });
+		},
+		[&](const regex_data& Data)
+		{
+			intptr_t i = Data.Match.size();
+			return Data.Regex.Search(FileName, Data.Match.data(), i) != 0; // BUGBUG
+		}
+	), m_Masks);
 }
 
 bool filemasks::masks::empty() const
 {
-	return m_Regex? m_Match.empty() : m_Masks.empty();
+	return std::visit(overload(
+		[](const std::vector<string>& Data)
+		{
+			return Data.empty();
+		},
+		[](const regex_data& Data)
+		{
+			return Data.Match.empty();
+		}
+	), m_Masks);
 }
 
 #ifdef ENABLE_TESTS

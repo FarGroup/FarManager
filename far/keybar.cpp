@@ -94,7 +94,7 @@ void KeyBar::DisplayObject()
 	if (KeyWidth<8)
 		KeyWidth=8;
 
-	int LabelWidth=KeyWidth-2;
+	const auto LabelWidth = KeyWidth - 2;
 
 	for (size_t i=0; i<KEY_COUNT; i++)
 	{
@@ -157,7 +157,7 @@ void KeyBar::DisplayObject()
 		}
 	}
 
-	int Width = m_Where.right - WhereX() + 1;
+	const auto Width = m_Where.right - WhereX() + 1;
 
 	if (Width>0)
 	{
@@ -300,7 +300,7 @@ bool KeyBar::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (KeyWidth<8)
 		KeyWidth=8;
 
-	int X = MouseEvent->dwMousePosition.X - m_Where.left;
+	const auto X = MouseEvent->dwMousePosition.X - m_Where.left;
 
 	if (X<KeyWidth*9)
 		Key=X/KeyWidth;
@@ -373,18 +373,19 @@ size_t KeyBar::Change(const KeyBarTitles *Kbt)
 	{
 		for (const auto& i: span(Kbt->Labels, Kbt->CountLabels))
 		{
-			DWORD Pos = i.Key.VirtualKeyCode - VK_F1;
+			const auto Pos = i.Key.VirtualKeyCode - VK_F1;
 			if (Pos < KEY_COUNT)
 			{
-				DWORD Shift = 0, Flags = i.Key.ControlKeyState;
+				DWORD Shift = 0;
+				const auto Flags = i.Key.ControlKeyState;
 				if (Flags & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED)) Shift |= KEY_CTRL;
 				if (Flags & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED)) Shift |= KEY_ALT;
 				if (Flags & SHIFT_PRESSED) Shift |= KEY_SHIFT;
 
-				int group = FnGroup(Shift);
-				if (group >= 0)
+				const auto Group = FnGroup(Shift);
+				if (Group >= 0)
 				{
-					Items[group][Pos].first = NullToEmpty(i.Text);
+					Items[Group][Pos].first = NullToEmpty(i.Text);
 					++Result;
 				}
 			}

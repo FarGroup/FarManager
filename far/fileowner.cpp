@@ -207,11 +207,11 @@ static bool IsOwned(const string& Name, PSID const Owner)
 
 
 // TODO: elevation
-bool GetFileOwner(const string& Computer, const string& Name, string& strOwner)
+bool GetFileOwner(const string& Computer, const string& Object, string& Owner)
 {
-	return ProcessFileOwner(Name, [&](PSID const Sid)
+	return ProcessFileOwner(Object, [&](PSID const Sid)
 	{
-		return SidToNameCached(Sid, strOwner, Computer);
+		return SidToNameCached(Sid, Owner, Computer);
 	});
 }
 
@@ -258,7 +258,7 @@ bool SetOwnerInternal(const string& Object, const string& Owner)
 
 	SCOPED_ACTION(os::security::privilege){ SE_TAKE_OWNERSHIP_NAME, SE_RESTORE_NAME };
 
-	const auto Result = SetNamedSecurityInfo(const_cast<LPWSTR>(Object.c_str()), SE_FILE_OBJECT, OWNER_SECURITY_INFORMATION, Sid.get(), nullptr, nullptr, nullptr);
+	const auto Result = SetNamedSecurityInfo(const_cast<wchar_t*>(Object.c_str()), SE_FILE_OBJECT, OWNER_SECURITY_INFORMATION, Sid.get(), nullptr, nullptr, nullptr);
 	SetLastError(Result);
 	return Result == ERROR_SUCCESS;
 }

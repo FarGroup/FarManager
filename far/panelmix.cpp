@@ -647,7 +647,7 @@ string FormatStr_DateTime(os::chrono::time_point FileTime, column_type const Col
 		{
 			if (!Brief)
 			{
-				int CmpWidth=ColumnWidth-(TextMonth? 1: 0);
+				const auto CmpWidth = ColumnWidth - (TextMonth? 1 : 0);
 
 				if (CmpWidth==15 || CmpWidth==16 || CmpWidth==18 || CmpWidth==19 || CmpWidth>21)
 					FullYear = true;
@@ -694,7 +694,7 @@ string FormatStr_Size(
 {
 	string strResult;
 
-	bool Streams = (ColumnType == column_type::streams_size);
+	const auto Streams = ColumnType == column_type::streams_size;
 
 	if (ShowFolderSize==2)
 	{
@@ -702,9 +702,9 @@ string FormatStr_Size(
 		strResult += L'~';
 	}
 
-	bool dir = (0 != (FileAttributes & FILE_ATTRIBUTE_DIRECTORY));
-	bool rpt = (0 != (FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT));
-	bool have_size = !dir && (!rpt || ReparseTag==IO_REPARSE_TAG_DEDUP || Size > 0);
+	const auto dir = (0 != (FileAttributes & FILE_ATTRIBUTE_DIRECTORY));
+	const auto rpt = (0 != (FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT));
+	const auto have_size = !dir && (!rpt || ReparseTag==IO_REPARSE_TAG_DEDUP || Size > 0);
 
 	if (!Streams && !have_size && !ShowFolderSize)
 	{

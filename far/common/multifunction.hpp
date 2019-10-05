@@ -51,7 +51,7 @@ namespace detail
 	{
 		using icallable_base<signatures...>::operator();
 
-		virtual ~icallable_base() = default;
+		~icallable_base() override = default;
 		virtual result_type operator()(args&&...) const = 0;
 	};
 

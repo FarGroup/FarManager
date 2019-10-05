@@ -324,7 +324,7 @@ static CDROM_DeviceCapabilities getCapsUsingDeviceProps(const os::fs::file& Devi
 	if (!Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &query, sizeof(query), &hdr, sizeof(hdr)) || !hdr.Size)
 		return CAPABILITIES_NONE;
 
-	char_ptr_n<os::default_buffer_size> Buffer(hdr.Size);
+	const char_ptr_n<os::default_buffer_size> Buffer(hdr.Size);
 	if (!Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &query, sizeof(query), Buffer.get(), static_cast<DWORD>(Buffer.size())))
 		return CAPABILITIES_NONE;
 

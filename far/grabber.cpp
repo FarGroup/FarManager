@@ -233,10 +233,10 @@ void Grabber::DisplayObject()
 
 				if (m_StreamSelection)
 				{
-					bool ToUp = GArea.Begin.y < GArea.End.y;
-					bool ToDown = !ToUp;
-					bool FirstLine = Y == FromY;
-					bool LastLine = Y == ToY;
+					const auto ToUp = GArea.Begin.y < GArea.End.y;
+					const auto ToDown = !ToUp;
+					const auto FirstLine = Y == FromY;
+					const auto LastLine = Y == ToY;
 
 					if (ToDown)
 					{

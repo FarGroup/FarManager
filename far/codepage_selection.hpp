@@ -73,7 +73,7 @@ public:
 	~codepages();
 
 	bool SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool ViewOnly, bool bShowAutoDetect);
-	UINT FillCodePagesList(Dialog* Dlg, UINT controlId, uintptr_t codePage, bool allowAuto, bool allowAll, bool allowDefault, bool allowChecked, bool bViewOnly);
+	size_t FillCodePagesList(Dialog* Dlg, size_t controlId, uintptr_t codePage, bool allowAuto, bool allowAll, bool allowDefault, bool allowChecked, bool bViewOnly);
 	void FillCodePagesList(std::vector<FarDialogBuilderListItem2> &List, bool allowAuto, bool allowAll, bool allowDefault, bool allowChecked, bool bViewOnly);
 
 	static bool IsCodePageSupported(uintptr_t CodePage, size_t MaxCharSize = size_t(-1));
@@ -100,9 +100,9 @@ private:
 	static void FormatCodePageName(uintptr_t CodePage, string& CodePageName, bool &IsCodePageNameCustom);
 	size_t GetMenuItemCodePage(size_t Position = -1) const;
 	size_t GetListItemCodePage(size_t Position) const;
-	bool IsPositionStandard(UINT position) const;
-	bool IsPositionFavorite(UINT position) const;
-	bool IsPositionNormal(UINT position) const;
+	bool IsPositionStandard(size_t position) const;
+	bool IsPositionFavorite(size_t position) const;
+	bool IsPositionNormal(size_t position) const;
 	string FormatCodePageString(uintptr_t CodePage, string_view CodePageName, bool IsCodePageNameCustom) const;
 	void AddCodePage(string_view codePageName, uintptr_t codePage, size_t position, bool enabled, bool checked, bool IsCodePageNameCustom) const;
 	void AddStandardCodePage(string_view codePageName, uintptr_t codePage, int position = -1, bool enabled = true) const;
@@ -118,7 +118,7 @@ private:
 	static string_view FavoriteCodePagesKey();
 
 	Dialog* dialog;
-	UINT control;
+	size_t control;
 	std::vector<FarDialogBuilderListItem2> *DialogBuilderList;
 	vmenu2_ptr CodePagesMenu;
 	uintptr_t currentCodePage;

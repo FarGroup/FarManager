@@ -43,7 +43,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dirmix.hpp"
 #include "strmix.hpp"
 #include "FarGuid.hpp"
-#include "processname.hpp"
 #include "lang.hpp"
 #include "language.hpp"
 #include "configdb.hpp"
@@ -216,6 +215,15 @@ bool native_plugin_factory::FindExport(const std::string_view ExportName) const
 	return ExportName == m_ExportsNames[iGetGlobalInfo].AName;
 }
 
+static auto image_first_section(const IMAGE_NT_HEADERS& Header)
+{
+WARNING_PUSH()
+WARNING_DISABLE_GCC("-Wold-style-cast")
+WARNING_DISABLE_CLANG("-Wold-style-cast")
+	return IMAGE_FIRST_SECTION(&Header);
+WARNING_POP()
+}
+
 bool native_plugin_factory::IsPlugin2(const void* Module) const
 {
 	return seh_invoke_no_ui([&]
@@ -246,7 +254,7 @@ bool native_plugin_factory::IsPlugin2(const void* Module) const
 		if (!ExportAddr)
 			return false;
 
-		for (const auto& Section: span(IMAGE_FIRST_SECTION(&PEHeader), PEHeader.FileHeader.NumberOfSections))
+		for (const auto& Section: span(image_first_section(PEHeader), PEHeader.FileHeader.NumberOfSections))
 		{
 			if ((Section.VirtualAddress == ExportAddr) ||
 				((Section.VirtualAddress <= ExportAddr) && ((Section.Misc.VirtualSize + Section.VirtualAddress) > ExportAddr)))

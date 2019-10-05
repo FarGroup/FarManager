@@ -332,3 +332,31 @@ string version_to_string(const VersionInfo& PluginVersion)
 	}
 	return strVersion;
 }
+
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("version_to_string")
+{
+	static const struct
+	{
+		VersionInfo Src;
+		string_view Result;
+	}
+	Tests[]
+	{
+		{ { 0,  1,  2,  3,  VS_RELEASE },    L"0.1.2.3"sv,               },
+		{ { 4,  5,  6,  7,  VS_ALPHA   },    L"4.5.6.7 (Alpha)"sv,       },
+		{ { 8,  9,  10, 11, VS_BETA    },    L"8.9.10.11 (Beta)"sv,      },
+		{ { 12, 13, 14, 15, VS_RC      },    L"12.13.14.15 (RC)"sv,      },
+		{ { 16, 17, 18, 19, VS_SPECIAL },    L"16.17.18.19 (Special)"sv, },
+		{ { 20, 21, 22, 23, VS_PRIVATE },    L"20.21.22.23 (Private)"sv, },
+	};
+
+	for (const auto& i: Tests)
+	{
+		REQUIRE(version_to_string(i.Src) == i.Result);
+	}
+}
+#endif

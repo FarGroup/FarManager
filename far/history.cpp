@@ -101,7 +101,7 @@ void History::AddToHistory(const string& Str, history_record_type const Type, co
 	if (!m_EnableAdd || SaveForbid)
 		return;
 
-	if (Global->CtrlObject->Macro.IsExecuting() && Global->CtrlObject->Macro.IsHistoryDisabled((int)m_TypeHistory))
+	if (Global->CtrlObject->Macro.IsExecuting() && Global->CtrlObject->Macro.IsHistoryDisabled(static_cast<int>(m_TypeHistory)))
 		return;
 
 	if (m_TypeHistory!=HISTORYTYPE_DIALOG && (m_TypeHistory!=HISTORYTYPE_FOLDER || !Guid || *Guid == FarGuid) && Str.empty())
@@ -148,7 +148,7 @@ bool History::ReadLastItem(const string& HistoryName, string &strStr) const
 
 history_return_type History::Select(const string& Title, string_view const HelpTopic, string &strStr, history_record_type &Type, GUID* Guid, string *File, string *Data)
 {
-	int Height=ScrY-8;
+	const auto Height = ScrY - 8;
 	const auto HistoryMenu = VMenu2::create(Title, {}, Height);
 	HistoryMenu->SetMenuFlags(VMENU_WRAPMODE);
 	HistoryMenu->SetHelp(HelpTopic);
@@ -169,7 +169,7 @@ history_return_type History::Select(VMenu2& HistoryMenu, int Height, Dialog cons
 	return ProcessMenu(strStr, {}, {}, {}, {}, HistoryMenu, Height, Type, Dlg);
 }
 
-history_return_type History::ProcessMenu(string& strStr, GUID* const Guid, string* const pstrFile, string* const pstrData, string_view const Title, VMenu2& HistoryMenu, int const Height, history_record_type& Type, const Dialog* const Dlg)
+history_return_type History::ProcessMenu(string& strStr, GUID* const Guid, string* const File, string* const Data, string_view const Title, VMenu2& HistoryMenu, int const Height, history_record_type& Type, const Dialog* const Dlg)
 {
 	struct
 	{
@@ -396,13 +396,13 @@ history_return_type History::ProcessMenu(string& strStr, GUID* const Guid, strin
 					case HISTORYTYPE_CMD:
 						if (Key == KEY_F3 && CurrentRecord)
 						{
-							string Data;
+							string HistoryData;
 
-							if (HistoryCfgRef()->Get(CurrentRecord, {}, {}, {}, {}, &Data))
+							if (HistoryCfgRef()->Get(CurrentRecord, {}, {}, {}, {}, &HistoryData))
 							{
 								DialogBuilder Builder(lng::MHistoryInfoTitle);
 								Builder.AddText(lng::MHistoryInfoFolder);
-								Builder.AddConstEditField(Data, std::max(20, std::min(static_cast<int>(Data.size()), ScrX - 5 * 2)));
+								Builder.AddConstEditField(HistoryData, std::max(20, std::min(static_cast<int>(HistoryData.size()), ScrX - 5 * 2)));
 								Builder.AddOK();
 								Builder.ShowDialog();
 							}
@@ -550,11 +550,11 @@ history_return_type History::ProcessMenu(string& strStr, GUID* const Guid, strin
 			*Guid = FarGuid;
 	}
 
-	if(pstrFile)
-		*pstrFile = SelectedRecord.file;
+	if(File)
+		*File = SelectedRecord.file;
 
-	if(pstrData)
-		*pstrData = SelectedRecord.data;
+	if(Data)
+		*Data = SelectedRecord.data;
 
 	switch(RetCode)
 	{
@@ -603,7 +603,7 @@ string History::GetNext()
 
 bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 {
-	int Length=(int)strStr.size();
+	auto Length=static_cast<int>(strStr.size());
 
 	if (LastCmdPartLength!=-1 && LastCmdPartLength<Length)
 		Length=LastCmdPartLength;

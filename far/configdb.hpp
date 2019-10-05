@@ -464,7 +464,7 @@ private:
 	template<class T> void ImportDatabase(T* Database, const char* ImportNodeName, bool IsPlugin);
 	template<class T> std::unique_ptr<T> CreateWithFallback(string_view Name);
 	template<class T> std::unique_ptr<T> CreateDatabase(string_view Name, bool Local);
-	template<class T> HierarchicalConfigUniquePtr CreateHierarchicalConfig(dbcheck DbId, string_view DbName, const char* ImportNodeName, bool IsLocal = false, bool IsPlugin = false, bool UseFallback = true);
+	template<class T> HierarchicalConfigUniquePtr CreateHierarchicalConfig(dbcheck DbId, string_view DbName, const char* ImportNodeName, bool Local = false, bool IsPlugin = false, bool UseFallback = true);
 	void Import(const string& File);
 	void Export(const string& File);
 	void TryImportDatabase(representable* p, const char* NodeName = nullptr, bool IsPlugin = false);

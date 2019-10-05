@@ -87,9 +87,9 @@ static void ShowSaver(int Step, function_ref<void(star&)> const Fill)
 		SetColor(F_LIGHTCYAN|B_BLACK);
 		GotoXY(i.X/100, i.Y/100);
 		Text(L' ');
-		int dx = i.X/100 - ScrX/2;
+		const auto dx = i.X / 100 - ScrX / 2;
 		i.X += dx*10+((dx<0) ? -1:1);
-		int dy = i.Y/100-ScrY/2;
+		const auto dy = i.Y / 100 - ScrY / 2;
 		i.Y+=dy*10+((dy<0) ? -1:1);
 
 		if (i.X<0 || i.X/100>ScrX || i.Y<0 || i.Y/100>ScrY)

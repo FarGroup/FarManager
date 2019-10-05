@@ -51,7 +51,7 @@ class Modal: public window
 {
 protected:
 	Modal() = default;
-	~Modal() = default;
+	~Modal() override = default;
 };
 
 class SimpleModal: public Modal

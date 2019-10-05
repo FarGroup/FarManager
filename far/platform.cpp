@@ -133,7 +133,7 @@ bool WNetGetConnection(const string_view LocalName, string &RemoteName)
 	// Deliberately initialised with empty string to fix that.
 	Buffer[0] = L'\0';
 	auto Size = static_cast<DWORD>(Buffer.size());
-	null_terminated C_LocalName(LocalName);
+	const null_terminated C_LocalName(LocalName);
 	auto Result = ::WNetGetConnection(C_LocalName.c_str(), Buffer.get(), &Size);
 
 	while (Result == ERROR_MORE_DATA)

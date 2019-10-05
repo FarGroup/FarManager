@@ -64,7 +64,7 @@ public:
 	bool IsDirSearchDone() const;
 	bool InsideReparsePoint() const;
 
-	struct scantree_item;
+	class scantree_item;
 
 private:
 	BitFlags Flags;

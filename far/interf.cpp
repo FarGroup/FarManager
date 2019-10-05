@@ -375,7 +375,8 @@ void CloseConsole()
 
 	COORD CursorPos = {};
 	console.GetCursorPosition(CursorPos);
-	SHORT Height = InitWindowRect.Bottom-InitWindowRect.Top, Width = InitWindowRect.Right-InitWindowRect.Left;
+	const auto Height = InitWindowRect.Bottom-InitWindowRect.Top;
+	const auto Width = InitWindowRect.Right-InitWindowRect.Left;
 	if (CursorPos.Y > InitWindowRect.Bottom || CursorPos.Y < InitWindowRect.Top)
 		InitWindowRect.Top = std::max(0, CursorPos.Y-Height);
 	if (CursorPos.X > InitWindowRect.Right || CursorPos.X < InitWindowRect.Left)
@@ -647,7 +648,7 @@ void ShowTime()
 			Global->ScrBuf->FillRect({ CurrentClockPos, 0, CurrentClockPos + static_cast<int>(Global->LastShownTimeSize), 0 }, Char[0][0]);
 		}
 		GotoXY(static_cast<int>(ScrX + 1 - Global->CurrentTime.size()), 0);
-		int ModType=CurrentWindow->GetType();
+		const auto ModType = CurrentWindow->GetType();
 		SetColor(ModType==windowtype_viewer?COL_VIEWERCLOCK:(ModType==windowtype_editor?COL_EDITORCLOCK:COL_CLOCK));
 		Text(Global->CurrentTime.get());
 		Global->LastShownTimeSize = Global->CurrentTime.size();
@@ -686,10 +687,10 @@ point GetCursorPos()
 
 void SetCursorType(bool Visible, DWORD Size)
 {
-	if (Size == (DWORD)-1 || !Visible)
+	if (Size == static_cast<DWORD>(-1) || !Visible)
 	{
 		const size_t index = IsConsoleFullscreen()? 1 : 0;
-		Size = Global->Opt->CursorSize[index] ? (int)Global->Opt->CursorSize[index] : InitialCursorInfo.dwSize;
+		Size = Global->Opt->CursorSize[index]? static_cast<int>(Global->Opt->CursorSize[index]) : InitialCursorInfo.dwSize;
 	}
 	Global->ScrBuf->SetCursorType(Visible, Size);
 }
@@ -832,26 +833,26 @@ string HiText2Str(const string& Str)
 }
 
 // removes single '&', turns '&&' into '&'
-void RemoveHighlights(string &strStr)
+void RemoveHighlights(string& Str)
 {
 	const auto Target = L'&';
-	size_t pos = strStr.find(Target);
+	auto pos = Str.find(Target);
 	if (pos != string::npos)
 	{
-		size_t pos1 = pos;
-		size_t len = strStr.size();
+		auto pos1 = pos;
+		const auto len = Str.size();
 		while (pos < len)
 		{
 			++pos;
-			if (pos < len && strStr[pos] == Target)
+			if (pos < len && Str[pos] == Target)
 			{
-				strStr[pos1++] = Target;
+				Str[pos1++] = Target;
 				++pos;
 			}
-			while (pos < len && strStr[pos] != Target)
-				strStr[pos1++] = strStr[pos++];
+			while (pos < len && Str[pos] != Target)
+				Str[pos1++] = Str[pos++];
 		}
-		strStr.resize(pos1);
+		Str.resize(pos1);
 	}
 }
 
@@ -1120,7 +1121,7 @@ string make_progressbar(size_t Size, size_t Percent, bool ShowPercent, bool Prop
 	return Str;
 }
 
-size_t HiStrlen(string_view const str)
+size_t HiStrlen(string_view const Str)
 {
 	/*
 			&&      = '&'
@@ -1135,13 +1136,13 @@ size_t HiStrlen(string_view const str)
 	size_t Length = 0;
 	bool Hi = false;
 
-	for (size_t i = 0, size = str.size(); i != size; ++i)
+	for (size_t i = 0, size = Str.size(); i != size; ++i)
 	{
-		if (str[i] == L'&')
+		if (Str[i] == L'&')
 		{
-			auto AmpEnd = str.find_first_not_of(L'&', i);
+			auto AmpEnd = Str.find_first_not_of(L'&', i);
 			if (AmpEnd == string::npos)
-				AmpEnd = str.size();
+				AmpEnd = Str.size();
 			const auto Count = AmpEnd - i;
 			i = AmpEnd - 1;
 
@@ -1165,7 +1166,7 @@ size_t HiStrlen(string_view const str)
 
 }
 
-int HiFindRealPos(const string& str, int Pos, bool ShowAmp)
+int HiFindRealPos(const string& Str, int Pos, bool ShowAmp)
 {
 	/*
 			&&      = '&'
@@ -1183,28 +1184,38 @@ int HiFindRealPos(const string& str, int Pos, bool ShowAmp)
 	}
 
 	int RealPos = 0;
-
 	int VisPos = 0;
 
-	auto Str = str.c_str();
-
-	while (VisPos < Pos && *Str)
+	for (auto i = Str.cbegin(); i != Str.cend() && VisPos != Pos; ++i)
 	{
-		if (*Str == L'&')
+		if (*i == L'&')
 		{
-			Str++;
-			RealPos++;
+			++i;
+			++RealPos;
 
-			if (*Str == L'&' && *(Str+1) == L'&' && *(Str+2) != L'&')
+			if (i == Str.cend())
+				break;
+
+			if (*i == L'&')
 			{
-				Str++;
-				RealPos++;
+				const auto Next1 = std::next(i);
+				if (Next1 != Str.cend() && *Next1 == L'&')
+				{
+					const auto Next2 = std::next(Next1);
+					if (Next2 == Str.cend() || *Next2 != L'&')
+					{
+						++i;
+						++RealPos;
+					}
+				}
+
+				if (i == Str.cend())
+					break;
 			}
 		}
 
-		Str++;
-		VisPos++;
-		RealPos++;
+		++VisPos;
+		++RealPos;
 	}
 
 	return RealPos;
@@ -1405,9 +1416,9 @@ TEST_CASE("interf.histrlen")
 		{ L"&1&&&2"sv,   4 },
 	};
 
-	for (const auto& Test: Tests)
+	for (const auto& i: Tests)
 	{
-		REQUIRE(HiStrlen(Test.Input) == Test.Size);
+		REQUIRE(HiStrlen(i.Input) == i.Size);
 	}
 }
 #endif

@@ -358,7 +358,7 @@ void InitKeysArray()
 		//VK -> символы с кодом меньше 0x80, т.е. только US-ASCII символы
 		for (WCHAR i=1; i < 0x80; i++)
 		{
-			auto x = KeyToVKey[i];
+			const auto x = KeyToVKey[i];
 
 			if (x && !VKeyToASCII[x])
 				VKeyToASCII[x]=upper(i);
@@ -382,7 +382,7 @@ int KeyToKeyLayout(int Key)
 {
 	_KEYMACRO(CleverSysLog Clev(L"KeyToKeyLayout()"));
 	_KEYMACRO(SysLog(L"Param: Key=%08X",Key));
-	int VK = KeyToVKey[Key&0xFFFF];
+	const auto VK = KeyToVKey[Key&0xFFFF];
 
 	if (VK && VKeyToASCII[VK])
 		return VKeyToASCII[VK];
@@ -396,7 +396,7 @@ int KeyToKeyLayout(int Key)
 */
 int SetFLockState(UINT vkKey, int State)
 {
-	UINT ExKey=(vkKey==VK_CAPITAL?0:KEYEVENTF_EXTENDEDKEY);
+	const auto ExKey = (vkKey == VK_CAPITAL? 0 : KEYEVENTF_EXTENDEDKEY);
 
 	switch (vkKey)
 	{
@@ -408,7 +408,7 @@ int SetFLockState(UINT vkKey, int State)
 			return -1;
 	}
 
-	short oldState=GetKeyState(vkKey);
+	const auto oldState = GetKeyState(vkKey);
 
 	if (State >= 0)
 	{
@@ -419,17 +419,17 @@ int SetFLockState(UINT vkKey, int State)
 		}
 	}
 
-	return (int)(WORD)oldState;
+	return oldState;
 }
 
-unsigned int InputRecordToKey(const INPUT_RECORD *r)
+unsigned int InputRecordToKey(const INPUT_RECORD* Rec)
 {
-	if (r)
+	if (Rec)
 	{
-		INPUT_RECORD Rec=*r; // НАДО!, т.к. внутри CalcKeyCode
+		auto RecCopy = *Rec; // НАДО!, т.к. внутри CalcKeyCode
 		//   структура INPUT_RECORD модифицируется!
 
-		return ShieldCalcKeyCode(&Rec, false);
+		return ShieldCalcKeyCode(&RecCopy, false);
 	}
 
 	return KEY_NONE;
@@ -573,8 +573,8 @@ static auto KeyMsClickToButtonState(DWORD Key)
 	}
 }
 
-static bool was_repeat = false;
-static WORD last_pressed_keycode = (WORD)-1;
+static auto was_repeat = false;
+static auto last_pressed_keycode = static_cast<WORD>(-1);
 
 bool IsRepeatedKey()
 {
@@ -700,8 +700,8 @@ static DWORD ProcessBufferSizeEvent(COORD Size)
 		SaveNonMaximisedBufferSize(Size);
 	}
 
-	int PScrX = ScrX;
-	int PScrY = ScrY;
+	const auto PScrX = ScrX;
+	const auto PScrY = ScrY;
 
 	UpdateScreenSize();
 
@@ -890,7 +890,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 			{
 				DropConsoleInputEvent();
 				was_repeat = false;
-				last_pressed_keycode = (WORD)-1;
+				last_pressed_keycode = static_cast<WORD>(-1);
 				continue;
 			}
 			break;
@@ -972,7 +972,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 		if (!rec->Event.KeyEvent.bKeyDown)
 		{
 			was_repeat = false;
-			last_pressed_keycode = (WORD)-1;
+			last_pressed_keycode = static_cast<WORD>(-1);
 		}
 		else
 		{
@@ -993,12 +993,12 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 			rec->Event.KeyEvent.dwControlKeyState |= RIGHT_ALT_PRESSED;
 		}
 
-		DWORD CtrlState=rec->Event.KeyEvent.dwControlKeyState;
+		const auto CtrlState = rec->Event.KeyEvent.dwControlKeyState;
 
 		if (Global->CtrlObject && Global->CtrlObject->Macro.IsRecording())
 		{
 			static WORD PrevVKKeyCode=0; // NumLock+Cursor
-			WORD PrevVKKeyCode2=PrevVKKeyCode;
+			const auto PrevVKKeyCode2 = PrevVKKeyCode;
 			PrevVKKeyCode=rec->Event.KeyEvent.wVirtualKeyCode;
 
 			// Для Shift-Enter в диалоге назначения вылазил Shift после отпускания клавиш.
@@ -1017,7 +1017,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 	else
 	{
 		was_repeat = false;
-		last_pressed_keycode = (WORD)-1;
+		last_pressed_keycode = static_cast<WORD>(-1);
 	}
 
 	IntKeyState.ReturnAltValue = false;
@@ -1057,8 +1057,8 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 
 	if (rec->EventType==KEY_EVENT)
 	{
-		DWORD CtrlState=rec->Event.KeyEvent.dwControlKeyState;
-		DWORD KeyCode=rec->Event.KeyEvent.wVirtualKeyCode;
+		const auto CtrlState = rec->Event.KeyEvent.dwControlKeyState;
+		const auto KeyCode = rec->Event.KeyEvent.wVirtualKeyCode;
 
 		UpdateIntKeyState(CtrlState);
 
@@ -1186,7 +1186,7 @@ DWORD WaitKey(DWORD KeyWait,DWORD delayMS,bool ExcludeMacro)
 			Key=GetInputRecord(&rec,ExcludeMacro,true);
 		}
 
-		if (KeyWait == (DWORD)-1)
+		if (KeyWait == static_cast<DWORD>(-1))
 		{
 			if ((Key&~KEY_CTRLMASK) < KEY_END_FKEY || IsInternalKeyReal(Key&~KEY_CTRLMASK))
 				break;
@@ -1401,7 +1401,7 @@ int KeyNameToKey(string_view Name)
 		}
 	}
 
-	return (!Key || !Name.empty())? -1: (int)Key;
+	return (!Key || !Name.empty())? -1: static_cast<int>(Key);
 }
 
 bool InputRecordToText(const INPUT_RECORD *Rec, string &strKeyText)
@@ -1416,7 +1416,8 @@ static bool KeyToTextImpl(int Key0, string& strKeyText, tfkey_to_text ToText, ad
 	if (Key0 == -1)
 		return false;
 
-	DWORD Key=(DWORD)Key0, FKey=(DWORD)Key0&0xFFFFFF;
+	const auto Key = static_cast<DWORD>(Key0);
+	auto FKey = static_cast<DWORD>(Key0) & 0xFFFFFF;
 
 	strKeyText = GetShiftKeyName(Key, ToText, AddSeparator);
 
@@ -1451,19 +1452,19 @@ static bool KeyToTextImpl(int Key0, string& strKeyText, tfkey_to_text ToText, ad
 			else
 #endif
 			{
-				FKey=upper((wchar_t)(Key&0xFFFF));
+				FKey=upper(static_cast<wchar_t>(Key & 0xFFFF));
 
 				wchar_t KeyText[2]={};
 
 				if (FKey >= L'A' && FKey <= L'Z')
 				{
 					if (Key&(KEY_RCTRL|KEY_CTRL|KEY_RALT|KEY_ALT)) // ??? а если есть другие модификаторы ???
-						KeyText[0]=(wchar_t)FKey; // для клавиш с модификаторами подставляем "латиницу" в верхнем регистре
+						KeyText[0] = static_cast<wchar_t>(FKey); // для клавиш с модификаторами подставляем "латиницу" в верхнем регистре
 					else
-						KeyText[0]=(wchar_t)(Key&0xFFFF);
+						KeyText[0] = static_cast<wchar_t>(Key & 0xFFFF);
 				}
 				else
-					KeyText[0]=(wchar_t)(Key&0xFFFF);
+					KeyText[0] = static_cast<wchar_t>(Key & 0xFFFF);
 
 				AddSeparator(strKeyText);
 				strKeyText += KeyText;
@@ -1503,7 +1504,7 @@ bool KeyToLocalizedText(int Key, string &strKeyText)
 	);
 }
 
-int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
+int TranslateKeyToVK(int Key, int& VirtKey, int& ControlState, INPUT_RECORD* Rec)
 {
 	_KEYMACRO(CleverSysLog Clev(L"TranslateKeyToVK()"));
 	_KEYMACRO(SysLog(L"Param: Key=%08X",Key));
@@ -1734,7 +1735,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 						EventFlags|=MOUSE_WHEELED;
 						break;
 					case KEY_MSWHEEL_DOWN:
-						ButtonState=MAKELONG(0,(WORD)(short)-120);
+						ButtonState = MAKELONG(0, static_cast<WORD>(static_cast<short>(-120)));
 						EventFlags|=MOUSE_WHEELED;
 						break;
 					case KEY_MSWHEEL_RIGHT:
@@ -1742,7 +1743,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 						EventFlags|=MOUSE_HWHEELED;
 						break;
 					case KEY_MSWHEEL_LEFT:
-						ButtonState=MAKELONG(0,(WORD)(short)-120);
+						ButtonState = MAKELONG(0, static_cast<WORD>(static_cast<short>(-120)));
 						EventFlags|=MOUSE_HWHEELED;
 						break;
 

@@ -221,11 +221,11 @@ public:
 	void clear();
 	int DeleteItem(int ID, int Count = 1);
 	int AddItem(MenuItemEx&& NewItem, int PosAdd = 0x7FFFFFFF);
-	int AddItem(const FarList *NewItem);
+	int AddItem(const FarList *List);
 	int AddItem(const wchar_t *NewStrItem);
 	int InsertItem(const FarListInsert *NewItem);
 	bool UpdateItem(const FarListUpdate *NewItem);
-	int FindItem(const FarListFind *FindItem);
+	int FindItem(const FarListFind *FItem);
 	int FindItem(int StartIndex, const string& Pattern, unsigned long long Flags = 0);
 	void RestoreFilteredItems();
 	void FilterStringUpdated();
@@ -287,7 +287,7 @@ public:
 		SetMenuFlags(VMENU_UPDATEREQUIRED);
 	}
 
-	static FarListItem *MenuItem2FarList(const MenuItemEx *ListItem, FarListItem *Item);
+	static FarListItem *MenuItem2FarList(const MenuItemEx *MItem, FarListItem *FItem);
 	static std::vector<string> AddHotkeys(span<menu_item> MenuItems);
 
 private:
@@ -299,8 +299,8 @@ private:
 	void DrawTitles() const;
 	int GetItemPosition(int Position) const;
 	bool CheckKeyHiOrAcc(DWORD Key,int Type,int Translate,bool ChangePos,int& NewPos);
-	int CheckHighlights(wchar_t Chr,int StartPos=0);
-	wchar_t GetHighlights(const MenuItemEx *_item) const;
+	int CheckHighlights(wchar_t CheckSymbol,int StartPos=0);
+	wchar_t GetHighlights(const MenuItemEx *Item) const;
 	bool ShiftItemShowPos(int Pos,int Direct);
 	bool ItemCanHaveFocus(unsigned long long Flags) const;
 	bool ItemCanBeEntered(unsigned long long Flags) const;

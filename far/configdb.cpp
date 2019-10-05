@@ -2444,24 +2444,19 @@ void config_provider::Export(const string& File)
 	return Representation.Save(File);
 }
 
-void config_provider::ServiceMode(const string& Filename)
+void config_provider::ServiceMode(const string& File)
 {
 	switch (m_Mode)
 	{
-	case mode::m_import:
-		return Import(Filename);
-
-	case mode::m_export:
-		return Export(Filename);
-
-	default:
-		throw MAKE_FAR_FATAL_EXCEPTION(L"Unexpected service mode"sv);
+	case mode::m_import: return Import(File);
+	case mode::m_export: return Export(File);
+	default: UNREACHABLE;
 	}
 }
 
-void config_provider::Import(const string& Filename)
+void config_provider::Import(const string& File)
 {
-	representation_source Representation(Filename);
+	representation_source Representation(File);
 
 	auto root = Representation.Root();
 

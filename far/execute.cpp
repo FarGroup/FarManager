@@ -382,7 +382,7 @@ static bool PartCmdLine(const string& CmdStr, string& strNewCmdStr, string& strN
 		if (Re.Pattern != Condition)
 		{
 			Re.Re = std::make_unique<RegExp>();
-			if (!Re.Re->Compile(Condition.c_str(), OP_OPTIMIZE))
+			if (!Re.Re->Compile(Condition, OP_OPTIMIZE))
 			{
 				Re.Re.reset();
 			}
@@ -619,7 +619,7 @@ bool GetShellType(const string_view Ext, string& strType, const ASSOCIATIONTYPE 
 			return true;
 		}
 
-		os::reg::key CRKey, UserKey;
+		os::reg::key UserKey;
 		string strFoundValue;
 
 		if (aType == AT_FILEEXTENSION)
@@ -634,8 +634,9 @@ bool GetShellType(const string_view Ext, string& strType, const ASSOCIATIONTYPE 
 			}
 		}
 
+		os::reg::key CRKey;
 		// Смотрим дефолтный обработчик расширения в HKEY_CLASSES_ROOT
-		if (strType.empty() && (CRKey = os::reg::key::open(os::reg::key::classes_root, Ext, KEY_QUERY_VALUE)))
+		if (strType.empty() && ((CRKey = os::reg::key::open(os::reg::key::classes_root, Ext, KEY_QUERY_VALUE))))
 		{
 			if (CRKey.get({}, strFoundValue) && IsProperProgID(strFoundValue))
 			{
@@ -714,7 +715,7 @@ static bool GetAssociatedImageType(string_view const FileName, image_type& Image
 
 static bool GetProtocolType(string_view const Str, image_type& ImageType)
 {
-	auto Unquoted = unquote(string(Str));
+	const auto Unquoted = unquote(string(Str));
 	const auto SemicolonPos = Unquoted.find(L':');
 	if (!SemicolonPos || SemicolonPos == 1 || SemicolonPos == Str.npos)
 		return false;
@@ -1341,7 +1342,7 @@ bool ExpandOSAliases(string& strStr)
 		return false;
 
 	auto ExeName = PointToName(Global->g_strFarModuleName);
-	wchar_t_ptr Buffer(4096);
+	const wchar_t_ptr Buffer(4096);
 	int ret = console.GetAlias(strNewCmdStr, Buffer.get(), Buffer.size() * sizeof(wchar_t), ExeName);
 
 	if (!ret)

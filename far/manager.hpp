@@ -85,7 +85,7 @@ public:
 
 	// Эти функции можно безопасно вызывать практически из любого места кода
 	// они как бы накапливают информацию о том, что нужно будет сделать с окнами при следующем вызове Commit()
-	void InsertWindow(const window_ptr& NewWindow);
+	void InsertWindow(const window_ptr& Inserted);
 	void DeleteWindow(const window_ptr& Deleted = nullptr);
 	void ActivateWindow(const window_ptr& Activated);
 	void RefreshWindow(const window_ptr& Refreshed = nullptr);
@@ -120,7 +120,7 @@ public:
 	void ProcessMainLoop();
 	void ExitMainLoop(int Ask);
 	bool ProcessKey(Key key);
-	bool ProcessMouse(const MOUSE_EVENT_RECORD *me) const;
+	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) const;
 	void PluginsMenu() const; // вызываем меню по F11
 	void SwitchToPanels();
 	window_ptr GetCurrentWindow() const { return m_windows.empty() ? nullptr : m_windows.back(); }
@@ -192,7 +192,7 @@ private:
 
 	using windows = std::vector<window_ptr>;
 	void* GetCurrent(function_ref<void*(window_ptr const&)> Check) const;
-	const windows::const_iterator FindFileResult();
+	windows::const_iterator FindFileResult();
 	windows m_windows;
 	size_t m_NonModalSize;
 	bool EndLoop;            // Признак выхода из цикла

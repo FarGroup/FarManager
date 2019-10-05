@@ -99,7 +99,7 @@ public:
 	void GoToFile(string_view FileName);
 	bool ChangePanelViewMode(panel_ptr Current, int Mode, bool RefreshWindow);
 	void SetActivePanel(panel_ptr p) { return SetActivePanel(p.get()); }
-	void SetActivePanel(Panel* p);
+	void SetActivePanel(Panel* ToBeActive);
 
 	KeyBar& GetKeybar() const { return *m_windowKeyBar; }
 	CommandLine* GetCmdLine() const;
@@ -107,7 +107,7 @@ public:
 private:
 
 	void Init(int DirCount);
-	void SetPassivePanelInternal(panel_ptr ToBePassive);
+	static void SetPassivePanelInternal(panel_ptr ToBePassive);
 	void SetActivePanelInternal(panel_ptr ToBeActive);
 
 	panel_ptr CreatePanel(panel_type Type);

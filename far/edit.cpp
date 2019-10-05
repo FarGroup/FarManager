@@ -121,16 +121,16 @@ void Edit::DisplayObject()
 	{
 		if (m_Flags.Check(FEDITLINE_OVERTYPE))
 		{
-			int NewCursorSize=IsConsoleFullscreen()?
-			                  (Global->Opt->CursorSize[3]?(int)Global->Opt->CursorSize[3]:99):
-			                  (Global->Opt->CursorSize[2]?(int)Global->Opt->CursorSize[2]:99);
+			const auto NewCursorSize = IsConsoleFullscreen()?
+			                  (Global->Opt->CursorSize[3]? static_cast<int>(Global->Opt->CursorSize[3]) : 99):
+			                  (Global->Opt->CursorSize[2]? static_cast<int>(Global->Opt->CursorSize[2]) : 99);
 			::SetCursorType(true, GetCursorSize() == -1?NewCursorSize:GetCursorSize());
 		}
 		else
 {
-			int NewCursorSize=IsConsoleFullscreen()?
-			                  (Global->Opt->CursorSize[1]?(int)Global->Opt->CursorSize[1]:10):
-			                  (Global->Opt->CursorSize[0]?(int)Global->Opt->CursorSize[0]:10);
+			const auto NewCursorSize = IsConsoleFullscreen()?
+			                  (Global->Opt->CursorSize[1]? static_cast<int>(Global->Opt->CursorSize[1]) : 10):
+			                  (Global->Opt->CursorSize[0]? static_cast<int>(Global->Opt->CursorSize[0]) : 10);
 			::SetCursorType(true, GetCursorSize() == -1?NewCursorSize:GetCursorSize());
 		}
 	}
@@ -459,7 +459,7 @@ long long Edit::VMProcess(int OpCode, void* vParam, long long iParam)
 			return GetLineCursorPos()+1;
 		case MCODE_F_EDITOR_SEL:
 		{
-			int Action=(int)((intptr_t)vParam);
+			const auto Action = static_cast<int>(reinterpret_cast<intptr_t>(vParam));
 			if (Action) m_Flags.Clear(FEDITLINE_CLEARFLAG);
 
 			switch (Action)
@@ -1823,7 +1823,7 @@ bool Edit::ReplaceTabs()
 	while ((TabPtr = std::find(m_Str.begin() + Pos, m_Str.end(), L'\t')) != m_Str.end())
 	{
 		changed=true;
-		Pos=(int)(TabPtr - m_Str.begin());
+		Pos = static_cast<int>(TabPtr - m_Str.begin());
 		const auto S = static_cast<int>(GetTabSize() - (Pos % GetTabSize()));
 
 		if (m_SelStart!=-1)

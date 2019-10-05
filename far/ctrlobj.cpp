@@ -158,7 +158,7 @@ void ControlObject::ShowCopyright(DWORD Flags)
 		COORD Size, CursorPosition;
 		console.GetSize(Size);
 		console.GetCursorPosition(CursorPosition);
-		int FreeSpace=Size.Y-CursorPosition.Y-1;
+		const auto FreeSpace = Size.Y - CursorPosition.Y - 1;
 
 		if (FreeSpace<5)
 			ScrollScreen(5-FreeSpace);

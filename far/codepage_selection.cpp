@@ -119,21 +119,21 @@ size_t codepages::GetListItemCodePage(size_t Position) const
 }
 
 // Проверяем попадает или нет позиция в диапазон стандартных кодовых страниц (правильность работы для разделителей не гарантируется)
-bool codepages::IsPositionStandard(UINT position) const
+bool codepages::IsPositionStandard(size_t position) const
 {
-	return position <= (UINT)CodePagesMenu->size() - favoriteCodePages - (favoriteCodePages?1:0) - normalCodePages - (normalCodePages?1:0);
+	return position <= CodePagesMenu->size() - favoriteCodePages - (favoriteCodePages?1:0) - normalCodePages - (normalCodePages?1:0);
 }
 
 // Проверяем попадает или нет позиция в диапазон избранных кодовых страниц (правильность работы для разделителей не гарантируется)
-bool codepages::IsPositionFavorite(UINT position) const
+bool codepages::IsPositionFavorite(size_t position) const
 {
 	return !IsPositionStandard(position) && !IsPositionNormal(position);
 }
 
 // Проверяем попадает или нет позиция в диапазон обыкновенных кодовых страниц (правильность работы для разделителей не гарантируется)
-bool codepages::IsPositionNormal(UINT position) const
+bool codepages::IsPositionNormal(size_t position) const
 {
-	return position >= static_cast<UINT>(CodePagesMenu->size() - normalCodePages);
+	return position >= CodePagesMenu->size() - normalCodePages;
 }
 
 // Формируем строку для визуального представления таблицы символов
@@ -281,7 +281,7 @@ void codepages::AddSeparator(const string& Label, size_t position) const
 	}
 	else
 	{
-		MenuItemEx item(Label, MIF_SEPARATOR);
+		const MenuItemEx item(Label, MIF_SEPARATOR);
 
 		if (position == size_t(-1))
 			CodePagesMenu->AddItem(item);
@@ -387,7 +387,7 @@ void codepages::AddCodePages(DWORD codePages)
 	//
 	for (const auto& i: InstalledCodepages())
 	{
-		UINT cp = i.first;
+		const auto cp = i.first;
 		if (IsStandardCodePage(cp))
 			continue;
 
@@ -442,13 +442,13 @@ void codepages::SetFavorite(bool State)
 	if (Global->Opt->CPMenuMode && State)
 		return;
 
-	UINT itemPosition = CodePagesMenu->GetSelectPos();
-	uintptr_t codePage = GetMenuItemCodePage();
+	const auto itemPosition = CodePagesMenu->GetSelectPos();
+	const auto codePage = GetMenuItemCodePage();
 
 	if ((State && IsPositionNormal(itemPosition)) || (!State && IsPositionFavorite(itemPosition)))
 	{
 		// Получаем текущее состояние флага в реестре
-		long long selectType = GetFavorite(codePage);
+		const auto selectType = GetFavorite(codePage);
 
 		// Удаляем/добавляем в реестре информацию о выбранной кодовой странице
 		if (State)
@@ -539,7 +539,7 @@ void codepages::SetFavorite(bool State)
 // Заполняем меню выбора таблиц символов
 void codepages::FillCodePagesVMenu(bool bShowUnicode, bool bViewOnly, bool bShowAutoDetect)
 {
-	uintptr_t codePage = currentCodePage;
+	const auto codePage = currentCodePage;
 
 	if (CodePagesMenu->GetSelectPos() != -1 && static_cast<size_t>(CodePagesMenu->GetSelectPos()) < CodePagesMenu->size() - normalCodePages)
 		currentCodePage = GetMenuItemCodePage();
@@ -614,8 +614,8 @@ intptr_t codepages::EditDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 		if (Param1 == EDITCP_OK || Param1 == EDITCP_RESET)
 		{
 			string strCodePageName;
-			uintptr_t CodePage = GetMenuItemCodePage();
-			string strCodePage = str(CodePage);
+			const auto CodePage = GetMenuItemCodePage();
+			const auto strCodePage = str(CodePage);
 
 			if (Param1 == EDITCP_OK)
 			{
@@ -634,7 +634,7 @@ intptr_t codepages::EditDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 				bool IsCodePageNameCustom = false;
 				FormatCodePageName(CodePage, CodepageName, IsCodePageNameCustom);
 				// Обновляем имя кодовой страницы
-				int Position = CodePagesMenu->GetSelectPos();
+				const auto Position = CodePagesMenu->GetSelectPos();
 				CodePagesMenu->DeleteItem(Position);
 				MenuItemEx NewItem(FormatCodePageString(CodePage, CodepageName, IsCodePageNameCustom));
 				NewItem.SimpleUserData = CodePage;
@@ -649,7 +649,7 @@ intptr_t codepages::EditDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 // Вызов редактора имени кодовой страницы
 void codepages::EditCodePageName()
 {
-	UINT Position = CodePagesMenu->GetSelectPos();
+	const auto Position = CodePagesMenu->GetSelectPos();
 	if (IsPositionStandard(Position))
 		return;
 	string CodePageName = CodePagesMenu->at(Position).Name;
@@ -676,7 +676,7 @@ void codepages::EditCodePageName()
 	Dlg->Process();
 }
 
-bool codepages::SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bViewOnly, bool bShowAutoDetect)
+bool codepages::SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool ViewOnly, bool bShowAutoDetect)
 {
 	bool Result = false;
 	CallbackCallSource = CodePageSelect;
@@ -688,11 +688,11 @@ bool codepages::SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bVie
 	CodePagesMenu->SetHelp(L"CodePagesMenu"sv);
 	CodePagesMenu->SetId(CodePagesMenuId);
 	// Добавляем таблицы символов
-	FillCodePagesVMenu(bShowUnicode, bViewOnly, bShowAutoDetect);
+	FillCodePagesVMenu(bShowUnicode, ViewOnly, bShowAutoDetect);
 	// Показываем меню
 
 	// Цикл обработки сообщений меню
-	intptr_t r = CodePagesMenu->Run([&](const Manager::Key& RawKey)
+	const auto r = CodePagesMenu->Run([&](const Manager::Key& RawKey)
 	{
 		const auto ReadKey = RawKey();
 		int KeyProcessed = 1;
@@ -703,7 +703,7 @@ bool codepages::SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bVie
 		case KEY_RCTRLH:
 			Global->Opt->CPMenuMode = !Global->Opt->CPMenuMode;
 			CodePagesMenu->SetBottomTitle(msg(Global->Opt->CPMenuMode? lng::MGetCodePageBottomShortTitle : lng::MGetCodePageBottomTitle));
-			FillCodePagesVMenu(bShowUnicode, bViewOnly, bShowAutoDetect);
+			FillCodePagesVMenu(bShowUnicode, ViewOnly, bShowAutoDetect);
 			break;
 			// Обработка удаления таблицы символов из списка выбранных
 		case KEY_DEL:
@@ -756,7 +756,7 @@ void codepages::FillCodePagesList(std::vector<FarDialogBuilderListItem2> &List, 
 
 
 // Заполняем список таблицами символов
-UINT codepages::FillCodePagesList(Dialog* Dlg, UINT controlId, uintptr_t codePage, bool allowAuto, bool allowAll, bool allowDefault, bool allowChecked, bool bViewOnly)
+size_t codepages::FillCodePagesList(Dialog* Dlg, size_t controlId, uintptr_t codePage, bool allowAuto, bool allowAll, bool allowDefault, bool allowChecked, bool bViewOnly)
 {
 	CallbackCallSource = CodePagesFill;
 	// Устанавливаем переменные для доступа из каллбака

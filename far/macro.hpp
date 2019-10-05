@@ -87,7 +87,7 @@ public:
 	static bool AddMacro(const GUID& PluginId,const MacroAddMacroV1* Data);
 	static bool DelMacro(const GUID& PluginId,void* Id);
 	static bool ExecuteString(MacroExecuteString *Data);
-	static bool GetMacroKeyInfo(const string& strArea,int Pos,string &strKeyName,string &strDescription);
+	static bool GetMacroKeyInfo(const string& StrArea,int Pos,string &strKeyName,string &strDescription);
 	static bool IsOutputDisabled();
 	static bool IsExecuting() { return GetExecutingState() != MACROSTATE_NOMACRO; }
 	static bool IsHistoryDisabled(int TypeHistory);
@@ -95,18 +95,18 @@ public:
 	static void RunStartMacro();
 	static bool SaveMacros(bool always);
 	static void SetMacroConst(int ConstIndex, long long Value);
-	static bool PostNewMacro(const wchar_t* Sequence, FARKEYMACROFLAGS Flags, DWORD AKey = 0);
+	static bool PostNewMacro(const wchar_t* Sequence, FARKEYMACROFLAGS InputFlags, DWORD AKey = 0);
 
-	intptr_t CallFar(intptr_t OpCode, FarMacroCall* Data);
+	intptr_t CallFar(intptr_t CheckCode, FarMacroCall* Data);
 	bool CheckWaitKeyFunc() const;
 	int  GetState() const;
 	int  GetKey();
-	DWORD GetMacroParseError(COORD* ErrPos, string& ErrSrc) const;
+	static DWORD GetMacroParseError(COORD* ErrPos, string& ErrSrc);
 	FARMACROAREA GetArea() const { return m_Area; }
 	string_view GetStringToPrint() const { return m_StringToPrint; }
 	bool IsRecording() const { return m_Recording != MACROSTATE_NOMACRO; }
 	bool LoadMacros(bool FromFar, bool InitedRAM=true, const FarMacroLoad *Data=nullptr);
-	bool ParseMacroString(const wchar_t* Sequence,FARKEYMACROFLAGS Flags,bool skipFile);
+	bool ParseMacroString(const wchar_t* Sequence,FARKEYMACROFLAGS Flags,bool skipFile) const;
 	int  PeekKey() const;
 	bool ProcessEvent(const FAR_INPUT_RECORD *Rec);
 	void SetArea(FARMACROAREA Area) { m_Area=Area; }

@@ -187,28 +187,28 @@ int WINAPIV apiSscanf(const wchar_t* Src, const wchar_t* Format, ...) noexcept
 	return vswscanf(Src, Format, argptr);
 }
 
-wchar_t *WINAPI apiItoa(int value, wchar_t *string, int radix) noexcept
+wchar_t *WINAPI apiItoa(int value, wchar_t *Str, int radix) noexcept
 {
 	// noexcept
-	return _itow(value,string,radix);
+	return _itow(value,Str,radix);
 }
 
-wchar_t *WINAPI apiItoa64(long long value, wchar_t *string, int radix) noexcept
+wchar_t *WINAPI apiItoa64(long long value, wchar_t *Str, int radix) noexcept
 {
 	// noexcept
-	return _i64tow(value, string, radix);
+	return _i64tow(value, Str, radix);
 }
 
-int WINAPI apiAtoi(const wchar_t *s) noexcept
+int WINAPI apiAtoi(const wchar_t *Str) noexcept
 {
 	// noexcept
-	return static_cast<int>(std::wcstol(s, nullptr, 10));
+	return static_cast<int>(std::wcstol(Str, nullptr, 10));
 }
 
-long long WINAPI apiAtoi64(const wchar_t *s) noexcept
+long long WINAPI apiAtoi64(const wchar_t *Str) noexcept
 {
 	// noexcept
-	return std::wcstoll(s, nullptr, 10);
+	return std::wcstoll(Str, nullptr, 10);
 }
 
 void WINAPI apiQsort(void *base, size_t nelem, size_t width, cfunctions::comparer fcmp, void *user) noexcept
@@ -2712,7 +2712,7 @@ void WINAPI apiRecursiveSearch(const wchar_t *InitDir, const wchar_t *Mask, FRSU
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 }
 
-size_t WINAPI apiMkTemp(wchar_t *Dest, size_t DestSize, const wchar_t *Prefix) noexcept
+size_t WINAPI apiMkTemp(wchar_t* Dest, size_t DestSize, const wchar_t *Prefix) noexcept
 {
 	try
 	{

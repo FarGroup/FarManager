@@ -259,10 +259,10 @@ TEST_CASE("string.utils.icase")
 		{ L"foobar"sv,           L"BaR"sv,          3,    },
 	};
 
-	for (const auto& Test: Tests)
+	for (const auto& i: Tests)
 	{
-		REQUIRE(find_icase(Test.Str, Test.Token) == Test.Pos);
-		REQUIRE(contains_icase(Test.Str, Test.Token) == (Test.Pos != npos));
+		REQUIRE(find_icase(i.Str, i.Token) == i.Pos);
+		REQUIRE(contains_icase(i.Str, i.Token) == (i.Pos != npos));
 	}
 }
 #endif

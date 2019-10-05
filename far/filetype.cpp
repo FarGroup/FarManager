@@ -497,7 +497,7 @@ void EditFileTypes()
 	for (;;)
 	{
 		int NumLine = FillFileTypesMenu(TypesMenu.get(), MenuPos);
-		int ExitCode=TypesMenu->Run([&](const Manager::Key& RawKey)
+		const auto ExitCode = TypesMenu->Run([&](const Manager::Key& RawKey)
 		{
 			const auto Key=RawKey();
 			MenuPos=TypesMenu->GetSelectPos();
@@ -552,7 +552,7 @@ void EditFileTypes()
 					if (!((Key==KEY_CTRLUP || Key==KEY_RCTRLUP) && !MenuPos) &&
 						!((Key == KEY_CTRLDOWN || Key == KEY_RCTRLDOWN) && MenuPos == static_cast<int>(TypesMenu->size() - 1)))
 					{
-						int NewMenuPos=MenuPos+((Key==KEY_CTRLUP || Key==KEY_RCTRLUP)?-1:+1);
+						const auto NewMenuPos = MenuPos + ((Key == KEY_CTRLUP || Key == KEY_RCTRLUP) ? -1 : +1);
 						if (const auto IdPtr = TypesMenu->GetComplexUserDataPtr<unsigned long long>(MenuPos))
 						{
 							if (const auto IdPtr2 = TypesMenu->GetComplexUserDataPtr<unsigned long long>(NewMenuPos))

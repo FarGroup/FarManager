@@ -276,7 +276,7 @@ void Panel::DragMessage(int X,int Y,int Move)
 		{
 			MsgX=0;
 			inplace::truncate_right(strDragMsg, ScrX);
-			Length=(int)strDragMsg.size();
+			Length = static_cast<int>(strDragMsg.size());
 		}
 	}
 
@@ -296,9 +296,9 @@ const string& Panel::GetCurDir() const
 }
 
 
-bool Panel::SetCurDir(const string& CurDir,bool ClosePanel,bool /*IsUpdated*/)
+bool Panel::SetCurDir(const string& NewDir, bool ClosePanel, bool /*IsUpdated*/)
 {
-	InitCurDir(CurDir);
+	InitCurDir(NewDir);
 	return true;
 }
 
@@ -569,7 +569,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 		case FCTL_CLOSEPANEL:
 			if (m_PanelMode == panel_mode::PLUGIN_PANEL)
 			{
-				string folder=NullToEmpty((const wchar_t *)Param2);
+				string folder = NullToEmpty(static_cast<const wchar_t*>(Param2));
 				SetCurDir(folder,true);
 				if (folder.empty())
 					Update(UPDATE_KEEP_SELECTION);
@@ -580,7 +580,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 
 		case FCTL_GETPANELINFO:
 		{
-			PanelInfo *Info=(PanelInfo *)Param2;
+			const auto Info = static_cast<PanelInfo*>(Param2);
 
 			if(!CheckStructSize(Info))
 				break;
@@ -629,7 +629,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 
 			if (GetType() == panel_type::FILE_PANEL)
 			{
-				FileList *DestFilePanel=(FileList *)this;
+				const auto DestFilePanel = static_cast<FileList*>(this);
 
 				if (Info->Flags&PFLAGS_PLUGIN)
 				{
@@ -719,9 +719,9 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			}
 
 			if (Param1&&Param2)
-				xwcsncpy((wchar_t*)Param2, strTemp.c_str(), Param1);
+				xwcsncpy(static_cast<wchar_t*>(Param2), strTemp.c_str(), Param1);
 
-			Result=(int)strTemp.size()+1;
+			Result = static_cast<int>(strTemp.size()) + 1;
 			break;
 		}
 		case FCTL_GETPANELDIRECTORY:
@@ -762,21 +762,21 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			if (GetType() == panel_type::FILE_PANEL)
 			{
 				string strColumnTypes,strColumnWidths;
-				((FileList *)this)->PluginGetColumnTypesAndWidths(strColumnTypes,strColumnWidths);
+				static_cast<FileList*>(this)->PluginGetColumnTypesAndWidths(strColumnTypes, strColumnWidths);
 
 				if (Command==FCTL_GETCOLUMNTYPES)
 				{
 					if (Param1&&Param2)
-						xwcsncpy((wchar_t*)Param2,strColumnTypes.c_str(),Param1);
+						xwcsncpy(static_cast<wchar_t*>(Param2), strColumnTypes.c_str(), Param1);
 
-					Result=(int)strColumnTypes.size()+1;
+					Result = static_cast<int>(strColumnTypes.size()) + 1;
 				}
 				else
 				{
 					if (Param1&&Param2)
-						xwcsncpy((wchar_t*)Param2,strColumnWidths.c_str(),Param1);
+						xwcsncpy(static_cast<wchar_t*>(Param2), strColumnWidths.c_str(), Param1);
 
-					Result=(int)strColumnWidths.size()+1;
+					Result = static_cast<int>(strColumnWidths.size()) + 1;
 				}
 			}
 			break;
@@ -811,7 +811,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 		{
 			if (GetType() == panel_type::FILE_PANEL)
 			{
-				((FileList *)this)->PluginBeginSelection();
+				static_cast<FileList*>(this)->PluginBeginSelection();
 				Result=TRUE;
 			}
 			break;
@@ -821,7 +821,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 		{
 			if (GetType() == panel_type::FILE_PANEL)
 			{
-				((FileList *)this)->PluginSetSelection(Param1, Param2 != nullptr);
+				static_cast<FileList*>(this)->PluginSetSelection(Param1, Param2 != nullptr);
 				Result=TRUE;
 			}
 			break;
@@ -841,7 +841,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 		{
 			if (GetType() == panel_type::FILE_PANEL)
 			{
-				((FileList *)this)->PluginEndSelection();
+				static_cast<FileList*>(this)->PluginEndSelection();
 				Result=TRUE;
 			}
 			break;
@@ -922,26 +922,27 @@ bool Panel::NeedUpdatePanel(const Panel *AnotherPanel) const
 	return (!Global->Opt->AutoUpdateLimit || static_cast<unsigned>(GetFileCount()) <= static_cast<unsigned>(Global->Opt->AutoUpdateLimit)) && equal_icase(AnotherPanel->m_CurDir, m_CurDir);
 }
 
-bool Panel::GetShortcutInfo(ShortcutInfo& ShortcutInfo) const
+bool Panel::GetShortcutInfo(ShortcutInfo& Info) const
 {
 	bool result=true;
 	if (m_PanelMode == panel_mode::PLUGIN_PANEL)
 	{
 		const auto ph = GetPluginHandle();
-		ShortcutInfo.PluginGuid = ph->plugin()->Id();
-		OpenPanelInfo Info;
-		Global->CtrlObject->Plugins->GetOpenPanelInfo(ph, &Info);
-		ShortcutInfo.PluginFile = NullToEmpty(Info.HostFile);
-		ShortcutInfo.ShortcutFolder = NullToEmpty(Info.CurDir);
-		ShortcutInfo.PluginData = NullToEmpty(Info.ShortcutData);
-		if(!(Info.Flags&OPIF_SHORTCUT)) result=false;
+		Info.PluginGuid = ph->plugin()->Id();
+		OpenPanelInfo OpInfo;
+		Global->CtrlObject->Plugins->GetOpenPanelInfo(ph, &OpInfo);
+		Info.PluginFile = NullToEmpty(OpInfo.HostFile);
+		Info.ShortcutFolder = NullToEmpty(OpInfo.CurDir);
+		Info.PluginData = NullToEmpty(OpInfo.ShortcutData);
+		if(!(OpInfo.Flags&OPIF_SHORTCUT))
+			result = false;
 	}
 	else
 	{
-		ShortcutInfo.PluginGuid=FarGuid;
-		ShortcutInfo.PluginFile.clear();
-		ShortcutInfo.PluginData.clear();
-		ShortcutInfo.ShortcutFolder = m_CurDir;
+		Info.PluginGuid=FarGuid;
+		Info.PluginFile.clear();
+		Info.PluginData.clear();
+		Info.ShortcutFolder = m_CurDir;
 	}
 	return result;
 }
@@ -998,7 +999,7 @@ int Panel::ProcessShortcutFolder(int Key,bool ProcTreePanel)
 bool Panel::SetPluginDirectory(const string& strDirectory, bool Silent)
 {
 	UserDataItem UserData = {}; //????
-	bool Result = Global->CtrlObject->Plugins->SetDirectory(GetPluginHandle(), strDirectory, Silent?OPM_SILENT:0, &UserData) != 0;
+	const auto Result = Global->CtrlObject->Plugins->SetDirectory(GetPluginHandle(), strDirectory, Silent?OPM_SILENT:0, &UserData) != 0;
 	Update(0);
 	Show();
 	return Result;
@@ -1031,7 +1032,7 @@ bool Panel::ExecShortcutFolder(string strShortcutFolder, const GUID& PluginGuid,
 		}
 	}
 
-	bool CheckFullScreen=SrcPanel->IsFullScreen();
+	const auto CheckFullScreen = SrcPanel->IsFullScreen();
 
 	if (PluginGuid != FarGuid)
 	{

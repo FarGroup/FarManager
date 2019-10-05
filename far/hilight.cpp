@@ -433,7 +433,7 @@ int highlight::configuration::GetGroup(const FileListItem& Object, const FileLis
 	return It != End? It->GetSortGroup() : DEFAULT_SORT_GROUP;
 }
 
-void highlight::configuration::FillMenu(VMenu2 *HiMenu,int MenuPos)
+void highlight::configuration::FillMenu(VMenu2 *HiMenu,int MenuPos) const
 {
 	HiMenu->clear();
 

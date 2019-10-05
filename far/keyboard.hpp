@@ -105,7 +105,7 @@ int KeyToKeyLayout(int Key);
 // возвращает: 1 - LeftPressed, 2 - Right Pressed, 3 - Middle Pressed, 0 - none
 DWORD IsMouseButtonPressed();
 bool while_mouse_button_pressed(function_ref<bool()> Action);
-int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *rec=nullptr);
+int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec=nullptr);
 int KeyNameToKey(string_view Name);
 bool InputRecordToText(const INPUT_RECORD *Rec, string &strKeyText);
 bool KeyToText(int Key, string &strKeyText);
@@ -120,7 +120,7 @@ DWORD PeekInputRecord(INPUT_RECORD *rec,bool ExcludeMacro=true);
 bool IsRepeatedKey();
 unsigned int ShieldCalcKeyCode(const INPUT_RECORD* rec, bool RealKey, bool* NotMacros = nullptr);
 unsigned int CalcKeyCode(const INPUT_RECORD* rec, bool RealKey, bool* NotMacros = nullptr);
-DWORD WaitKey(DWORD KeyWait=(DWORD)-1,DWORD delayMS=0,bool ExcludeMacro=true);
+DWORD WaitKey(DWORD KeyWait = static_cast<DWORD>(-1), DWORD delayMS = 0, bool ExcludeMacro = true);
 int SetFLockState(UINT vkKey, int State);
 bool WriteInput(int Key);
 int IsNavKey(DWORD Key);

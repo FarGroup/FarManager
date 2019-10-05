@@ -149,7 +149,7 @@ namespace os::fs
 		IMPLEMENTS_ENUMERATOR(enum_files);
 
 	public:
-		explicit enum_files(string_view Object, bool ScanSymLink = true);
+		explicit enum_files(string_view Object, bool ScanSymlink = true);
 
 	private:
 		bool get(bool Reset, find_data& Value) const;
@@ -502,7 +502,7 @@ namespace os::fs
 	[[nodiscard]]
 	DWORD get_file_attributes(string_view FileName);
 
-	bool set_file_attributes(string_view FileName, DWORD FileAttributes);
+	bool set_file_attributes(string_view FileName, DWORD Attributes);
 
 	[[nodiscard]]
 	bool GetLongPathName(const string& ShortPath, string& LongPath);
@@ -511,7 +511,7 @@ namespace os::fs
 	bool GetShortPathName(const string& LongPath, string& ShortPath);
 
 	[[nodiscard]]
-	bool GetVolumeInformation(const string& RootPathName, string *pVolumeName, DWORD* VolumeSerialNumber, DWORD* MaximumComponentLength, DWORD* FileSystemFlags, string* FileSystemName);
+	bool GetVolumeInformation(const string& RootPathName, string *VolumeName, DWORD* VolumeSerialNumber, DWORD* MaximumComponentLength, DWORD* FileSystemFlags, string* FileSystemName);
 
 	[[nodiscard]]
 	bool GetVolumeNameForVolumeMountPoint(const string& VolumeMountPoint, string& VolumeName);

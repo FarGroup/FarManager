@@ -312,7 +312,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 			const auto& record = *static_cast<const INPUT_RECORD*>(Param2);
 			if (record.EventType==KEY_EVENT)
 			{
-				int key = InputRecordToKey(&record);
+				const auto key = InputRecordToKey(&record);
 				if (!Global->Opt->Tree.TurnOffCompletely)
 				{
 					if (key == KEY_ALTF10 || key == KEY_RALTF10 || key == KEY_F10 || key == KEY_SHIFTF10)
@@ -345,7 +345,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 		case DN_LISTHOTKEY:
 			if(Param1==ID_SC_COMBO)
 			{
-				auto Index = reinterpret_cast<intptr_t>(Param2);
+				const auto Index = reinterpret_cast<intptr_t>(Param2);
 				if (Index == CM_ASKRO)
 				{
 					Dlg->SendMessage(DM_SWITCHRO, 0, nullptr);
@@ -1575,7 +1575,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 			auto strSubName = i.FileName + L'\\';
 
 			if (DestAttr==INVALID_FILE_ATTRIBUTES)
-				KeepPathPos=(int)strSubName.size();
+				KeepPathPos = static_cast<int>(strSubName.size());
 
 			int NeedRename = !(os::fs::is_directory_symbolic_link(SrcData) && (Flags&FCOPY_COPYSYMLINKCONTENTS) && (Flags&FCOPY_MOVE));
 			ScTree.SetFindPath(strSubName, L"*"sv);
@@ -1780,7 +1780,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 		if (!SameName)
 		{
-			int Length=(int)strDestPath.size();
+			const auto Length = strDestPath.size();
 
 			if (!IsSlash(strDestPath[Length-1]) && strDestPath[Length-1]!=L':')
 				strDestPath += L'\\';
@@ -2037,7 +2037,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 			if (!AskOverwrite(SrcData,Src,strDestPath,DestAttr,SameName,Rename,((Flags&FCOPY_LINK)?0:1),Append,strNewName,RetCode))
 			{
-				return (COPY_CODES)RetCode;
+				return static_cast<COPY_CODES>(RetCode);
 			}
 
 			if (RetCode==COPY_RETRY)
@@ -2203,7 +2203,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					if (DestAttr!=INVALID_FILE_ATTRIBUTES && Append)
 						os::fs::set_file_attributes(strDestPath,DestAttr);
 
-					return (COPY_CODES)CopyCode;
+					return static_cast<COPY_CODES>(CopyCode);
 				}
 
 				if (DestAttr!=INVALID_FILE_ATTRIBUTES && Append)
@@ -2304,7 +2304,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			string strNewName;
 
 			if (!AskOverwrite(SrcData,Src,strDestPath,DestAttr,SameName,Rename,((Flags&FCOPY_LINK)?0:1),Append,strNewName,RetCode))
-				return (COPY_CODES)RetCode;
+				return static_cast<COPY_CODES>(RetCode);
 
 			if (RetCode==COPY_RETRY)
 			{
@@ -3058,7 +3058,7 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 			const auto record = static_cast<const INPUT_RECORD*>(Param2);
 			if (record->EventType==KEY_EVENT)
 			{
-				int key = InputRecordToKey(record);
+				const auto key = InputRecordToKey(record);
 				if ((Param1==WDLG_SRCFILEBTN || Param1==WDLG_DSTFILEBTN) && key==KEY_F3)
 				{
 					Dlg->SendMessage(DM_OPENVIEWER, Param1, nullptr);
@@ -3534,7 +3534,7 @@ int ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,cons
 	return COPY_SUCCESS;
 }
 
-DWORD ShellCopy::CopyProgressRoutine(unsigned long long TotalFileSize, unsigned long long TotalBytesTransferred, unsigned long long StreamSize, unsigned long long StreamBytesTransferred, DWORD dwStreamNumber, DWORD dwCallbackReason, HANDLE hSourceFile, HANDLE hDestinationFile)
+DWORD ShellCopy::CopyProgressRoutine(unsigned long long TotalFileSize, unsigned long long TotalBytesTransferred, unsigned long long StreamSize, unsigned long long StreamBytesTransferred, DWORD StreamNumber, DWORD dwCallbackReason, HANDLE hSourceFile, HANDLE hDestinationFile)
 {
 	// // _LOGCOPYR(CleverSysLog clv(L"CopyProgressRoutine"));
 	// // _LOGCOPYR(SysLog(L"dwStreamNumber=%d",dwStreamNumber));
@@ -3546,7 +3546,7 @@ DWORD ShellCopy::CopyProgressRoutine(unsigned long long TotalFileSize, unsigned 
 
 	CheckAndUpdateConsole();
 	//fix total size
-	if (dwStreamNumber == 1 && hSourceFile != m_FileHandleForStreamSizeFix)
+	if (StreamNumber == 1 && hSourceFile != m_FileHandleForStreamSizeFix)
 	{
 		CP->m_Bytes.Total -= StreamSize;
 		CP->m_Bytes.Total += TotalFileSize;

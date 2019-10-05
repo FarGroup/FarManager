@@ -186,7 +186,7 @@ bool IsPluginPrefixPath(const string& Path) //Max:
 	if (Path.empty() || Path[0] == L'\\')
 		return false;
 
-	size_t pos = Path.find(L':');
+	const auto pos = Path.find(L':');
 
 	if (pos == string::npos || !pos)
 		return false;
@@ -471,21 +471,21 @@ bool PathStartsWith(const string_view Path, const string_view Start)
 
 TEST_CASE("path.join")
 {
-	REQUIRE(path::join(L"foo"sv, L""sv) == L"foo\\"sv);
-	REQUIRE(path::join(L"foo"sv, L"\\"sv) == L"foo\\"sv);
-	REQUIRE(path::join(L""sv, L""sv) == L""sv);
-	REQUIRE(path::join(L""sv, L"\\"sv) == L""sv);
-	REQUIRE(path::join(L""sv, L"foo"sv) == L"foo"sv);
-	REQUIRE(path::join(L"\\foo"sv, L""sv) == L"\\foo\\"sv);
-	REQUIRE(path::join(L"\\foo"sv, L"\\"sv) == L"\\foo\\"sv);
-	REQUIRE(path::join(L"\\"sv, L"foo\\"sv) == L"foo"sv);
-	REQUIRE(path::join(L"foo"sv, L"bar"sv) == L"foo\\bar"sv);
-	REQUIRE(path::join(L"\\foo"sv, L"bar\\"sv) == L"\\foo\\bar"sv);
-	REQUIRE(path::join(L"foo\\"sv, L"bar"sv) == L"foo\\bar"sv);
-	REQUIRE(path::join(L"foo\\"sv, L"\\bar"sv) == L"foo\\bar"sv);
-	REQUIRE(path::join(L"foo\\"sv, L'\\', L"\\bar"sv) == L"foo\\bar"sv);
-	REQUIRE(path::join(L"foo\\"sv, L""sv, L"\\bar"sv) == L"foo\\bar"sv);
-	REQUIRE(path::join(L"\\\\foo\\\\"sv, L"\\\\bar\\"sv) == L"\\\\foo\\bar"sv);
+	REQUIRE(path::join(L"foo"sv, L""sv)                         == L"foo\\"sv);
+	REQUIRE(path::join(L"foo"sv, L"\\"sv)                       == L"foo\\"sv);
+	REQUIRE(path::join(L""sv, L""sv)                            == L""sv);
+	REQUIRE(path::join(L""sv, L"\\"sv)                          == L""sv);
+	REQUIRE(path::join(L""sv, L"foo"sv)                         == L"foo"sv);
+	REQUIRE(path::join(L"\\foo"sv, L""sv)                       == L"\\foo\\"sv);
+	REQUIRE(path::join(L"\\foo"sv, L"\\"sv)                     == L"\\foo\\"sv);
+	REQUIRE(path::join(L"\\"sv, L"foo\\"sv)                     == L"foo"sv);
+	REQUIRE(path::join(L"foo"sv, L"bar"sv)                      == L"foo\\bar"sv);
+	REQUIRE(path::join(L"\\foo"sv, L"bar\\"sv)                  == L"\\foo\\bar"sv);
+	REQUIRE(path::join(L"foo\\"sv, L"bar"sv)                    == L"foo\\bar"sv);
+	REQUIRE(path::join(L"foo\\"sv, L"\\bar"sv)                  == L"foo\\bar"sv);
+	REQUIRE(path::join(L"foo\\"sv, L'\\', L"\\bar"sv)           == L"foo\\bar"sv);
+	REQUIRE(path::join(L"foo\\"sv, L""sv, L"\\bar"sv)           == L"foo\\bar"sv);
+	REQUIRE(path::join(L"\\\\foo\\\\"sv, L"\\\\bar\\"sv)        == L"\\\\foo\\bar"sv);
 }
 
 TEST_CASE("path.ExtractPathRoot")
@@ -496,29 +496,29 @@ TEST_CASE("path.ExtractPathRoot")
 	}
 	Tests[]
 	{
-		{L""sv, L""sv},
-		{L"\\"sv, L""sv},
-		{L"file"sv, L""sv},
-		{L"path\\file"sv, L""sv},
-		{L"C:"sv, L"C:\\"sv},
-		{L"C:\\"sv, L"C:\\"sv},
-		{L"C:\\path\\file"sv, L"C:\\"sv},
-		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"sv, L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv},
-		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv, L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv},
-		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file"sv, L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv},
-		{L"\\\\server\\share"sv, L"\\\\server\\share\\"sv},
-		{L"\\\\server\\share\\"sv, L"\\\\server\\share\\"sv},
-		{L"\\\\server\\share\\path\\file"sv, L"\\\\server\\share\\"sv},
-		{L"\\\\1.2.3.4\\share\\path\\file"sv, L"\\\\1.2.3.4\\share\\"sv},
-		{L"\\\\?\\UNC\\server\\share"sv, L"\\\\?\\UNC\\server\\share\\"sv},
-		{L"\\\\?\\UNC\\server\\share\\"sv, L"\\\\?\\UNC\\server\\share\\"sv},
-		{L"\\\\?\\UNC\\server\\share\\path\\file"sv, L"\\\\?\\UNC\\server\\share\\"sv},
-		{L"\\\\?\\UNC\\1.2.3.4\\share\\path\\file"sv, L"\\\\?\\UNC\\1.2.3.4\\share\\"sv},
+		{L""sv,                                                                    L""sv},
+		{L"\\"sv,                                                                  L""sv},
+		{L"file"sv,                                                                L""sv},
+		{L"path\\file"sv,                                                          L""sv},
+		{L"C:"sv,                                                                  L"C:\\"sv},
+		{L"C:\\"sv,                                                                L"C:\\"sv},
+		{L"C:\\path\\file"sv,                                                      L"C:\\"sv},
+		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"sv,                 L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv},
+		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv,               L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv},
+		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file"sv,     L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv},
+		{L"\\\\server\\share"sv,                                                   L"\\\\server\\share\\"sv},
+		{L"\\\\server\\share\\"sv,                                                 L"\\\\server\\share\\"sv},
+		{L"\\\\server\\share\\path\\file"sv,                                       L"\\\\server\\share\\"sv},
+		{L"\\\\1.2.3.4\\share\\path\\file"sv,                                      L"\\\\1.2.3.4\\share\\"sv},
+		{L"\\\\?\\UNC\\server\\share"sv,                                           L"\\\\?\\UNC\\server\\share\\"sv},
+		{L"\\\\?\\UNC\\server\\share\\"sv,                                         L"\\\\?\\UNC\\server\\share\\"sv},
+		{L"\\\\?\\UNC\\server\\share\\path\\file"sv,                               L"\\\\?\\UNC\\server\\share\\"sv},
+		{L"\\\\?\\UNC\\1.2.3.4\\share\\path\\file"sv,                              L"\\\\?\\UNC\\1.2.3.4\\share\\"sv},
 	};
 
-	for (const auto& Test : Tests)
+	for (const auto& i: Tests)
 	{
-		REQUIRE(Test.Result == ExtractPathRoot(Test.Input));
+		REQUIRE(i.Result == ExtractPathRoot(i.Input));
 	}
 }
 
@@ -530,33 +530,33 @@ TEST_CASE("path.ExtractFilePath")
 	}
 	Tests[]
 	{
-		{L""sv, L""sv},
-		{L"\\"sv, L""sv},
-		{L"\\file"sv, L""sv},
-		{L"file"sv, L""sv},
-		{L"path\\"sv, L"path"sv},
-		{L"path\\file"sv, L"path"sv},
-		{L"C:"sv, L"C:\\"sv},
-		{L"C:\\"sv, L"C:\\"sv},
-		{L"C:\\file"sv, L"C:\\"sv},
-		{L"C:\\path\\file"sv, L"C:\\path"sv},
-		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"sv, L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv},
-		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv, L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv},
-		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\file"sv, L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv},
-		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file"sv, L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path"sv},
-		{L"\\\\server\\share"sv, L"\\\\server\\share\\"sv},
-		{L"\\\\server\\share\\"sv, L"\\\\server\\share\\"sv},
-		{L"\\\\server\\share\\file"sv, L"\\\\server\\share\\"sv},
-		{L"\\\\server\\share\\path\\file"sv, L"\\\\server\\share\\path"sv},
-		{L"\\\\?\\UNC\\server\\share"sv, L"\\\\?\\UNC\\server\\share\\"sv},
-		{L"\\\\?\\UNC\\server\\share\\"sv, L"\\\\?\\UNC\\server\\share\\"sv},
-		{L"\\\\?\\UNC\\server\\share\\file"sv, L"\\\\?\\UNC\\server\\share\\"sv},
-		{L"\\\\?\\UNC\\server\\share\\path\\file"sv, L"\\\\?\\UNC\\server\\share\\path"sv},
+		{L""sv,                                                                    L""sv},
+		{L"\\"sv,                                                                  L""sv},
+		{L"\\file"sv,                                                              L""sv},
+		{L"file"sv,                                                                L""sv},
+		{L"path\\"sv,                                                              L"path"sv},
+		{L"path\\file"sv,                                                          L"path"sv},
+		{L"C:"sv,                                                                  L"C:\\"sv},
+		{L"C:\\"sv,                                                                L"C:\\"sv},
+		{L"C:\\file"sv,                                                            L"C:\\"sv},
+		{L"C:\\path\\file"sv,                                                      L"C:\\path"sv},
+		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"sv,                 L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv},
+		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv,               L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv},
+		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\file"sv,           L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv},
+		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file"sv,     L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path"sv},
+		{L"\\\\server\\share"sv,                                                   L"\\\\server\\share\\"sv},
+		{L"\\\\server\\share\\"sv,                                                 L"\\\\server\\share\\"sv},
+		{L"\\\\server\\share\\file"sv,                                             L"\\\\server\\share\\"sv},
+		{L"\\\\server\\share\\path\\file"sv,                                       L"\\\\server\\share\\path"sv},
+		{L"\\\\?\\UNC\\server\\share"sv,                                           L"\\\\?\\UNC\\server\\share\\"sv},
+		{L"\\\\?\\UNC\\server\\share\\"sv,                                         L"\\\\?\\UNC\\server\\share\\"sv},
+		{L"\\\\?\\UNC\\server\\share\\file"sv,                                     L"\\\\?\\UNC\\server\\share\\"sv},
+		{L"\\\\?\\UNC\\server\\share\\path\\file"sv,                               L"\\\\?\\UNC\\server\\share\\path"sv},
 	};
 
-	for (const auto& Test : Tests)
+	for (const auto& i: Tests)
 	{
-		REQUIRE(Test.Result == ExtractFilePath(Test.Input));
+		REQUIRE(i.Result == ExtractFilePath(i.Input));
 	}
 }
 
@@ -568,33 +568,33 @@ TEST_CASE("path.ExtractFileName")
 	}
 	Tests[]
 	{
-		{L""sv, L""sv},
-		{L"\\"sv, L""sv},
-		{L"\\file"sv, L"file"sv},
-		{L"file"sv, L"file"sv},
-		{L"path\\"sv, L""sv},
-		{L"path\\file"sv, L"file"sv},
-		{L"C:"sv, L""sv},
-		{L"C:\\"sv, L""sv},
-		{L"C:\\file"sv, L"file"sv},
-		{L"C:\\path\\file"sv, L"file"sv},
-		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"sv, L""sv},
-		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv, L""sv},
-		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\file"sv, L"file"sv},
-		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file"sv, L"file"sv},
-		{L"\\\\server\\share"sv, L""sv},
-		{L"\\\\server\\share\\"sv, L""sv},
-		{L"\\\\server\\share\\file"sv, L"file"sv},
-		{L"\\\\server\\share\\path\\file"sv, L"file"sv},
-		{L"\\\\?\\UNC\\server\\share"sv, L""sv},
-		{L"\\\\?\\UNC\\server\\share\\"sv, L""sv},
-		{L"\\\\?\\UNC\\server\\share\\file"sv, L"file"sv},
-		{L"\\\\?\\UNC\\server\\share\\path\\file"sv, L"file"sv},
+		{L""sv,                                                                    L""sv},
+		{L"\\"sv,                                                                  L""sv},
+		{L"\\file"sv,                                                              L"file"sv},
+		{L"file"sv,                                                                L"file"sv},
+		{L"path\\"sv,                                                              L""sv},
+		{L"path\\file"sv,                                                          L"file"sv},
+		{L"C:"sv,                                                                  L""sv},
+		{L"C:\\"sv,                                                                L""sv},
+		{L"C:\\file"sv,                                                            L"file"sv},
+		{L"C:\\path\\file"sv,                                                      L"file"sv},
+		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"sv,                 L""sv},
+		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv,               L""sv},
+		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\file"sv,           L"file"sv},
+		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file"sv,     L"file"sv},
+		{L"\\\\server\\share"sv,                                                   L""sv},
+		{L"\\\\server\\share\\"sv,                                                 L""sv},
+		{L"\\\\server\\share\\file"sv,                                             L"file"sv},
+		{L"\\\\server\\share\\path\\file"sv,                                       L"file"sv},
+		{L"\\\\?\\UNC\\server\\share"sv,                                           L""sv},
+		{L"\\\\?\\UNC\\server\\share\\"sv,                                         L""sv},
+		{L"\\\\?\\UNC\\server\\share\\file"sv,                                     L"file"sv},
+		{L"\\\\?\\UNC\\server\\share\\path\\file"sv,                               L"file"sv},
 	};
 
-	for (const auto& Test : Tests)
+	for (const auto& i: Tests)
 	{
-		REQUIRE(Test.Result == ExtractFileName(Test.Input));
+		REQUIRE(i.Result == ExtractFileName(i.Input));
 	}
 }
 
@@ -606,33 +606,33 @@ TEST_CASE("path.PointToName")
 	}
 	Tests[]
 	{
-		{L""sv, L""sv},
-		{L"\\"sv, L""sv},
-		{L"\\file"sv, L"file"sv},
-		{L"file"sv, L"file"sv},
-		{L"path\\"sv, L""sv},
-		{L"path\\file"sv, L"file"sv},
-		// {L"C:"sv, L""sv},
-		{L"C:\\"sv, L""sv},
-		{L"C:\\file"sv, L"file"sv},
-		{L"C:\\path\\file"sv, L"file"sv},
-		// {L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"sv, L""sv},
-		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv, L""sv},
-		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\file"sv, L"file"sv},
-		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file"sv, L"file"sv},
-		// {L"\\\\server\\share"sv, L""sv},
-		{L"\\\\server\\share\\"sv, L""sv},
-		{L"\\\\server\\share\\file"sv, L"file"sv},
-		{L"\\\\server\\share\\path\\file"sv, L"file"sv},
-		// {L"\\\\?\\UNC\\server\\share"sv, L""sv},
-		{L"\\\\?\\UNC\\server\\share\\"sv, L""sv},
-		{L"\\\\?\\UNC\\server\\share\\file"sv, L"file"sv},
-		{L"\\\\?\\UNC\\server\\share\\path\\file"sv, L"file"sv},
+		{L""sv,                                                                    L""sv},
+		{L"\\"sv,                                                                  L""sv},
+		{L"\\file"sv,                                                              L"file"sv},
+		{L"file"sv,                                                                L"file"sv},
+		{L"path\\"sv,                                                              L""sv},
+		{L"path\\file"sv,                                                          L"file"sv},
+		// {L"C:"sv,                                                                  L""sv},
+		{L"C:\\"sv,                                                                L""sv},
+		{L"C:\\file"sv,                                                            L"file"sv},
+		{L"C:\\path\\file"sv,                                                      L"file"sv},
+		// {L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"sv,                 L""sv},
+		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv,               L""sv},
+		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\file"sv,           L"file"sv},
+		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file"sv,     L"file"sv},
+		// {L"\\\\server\\share"sv,                                                   L""sv},
+		{L"\\\\server\\share\\"sv,                                                 L""sv},
+		{L"\\\\server\\share\\file"sv,                                             L"file"sv},
+		{L"\\\\server\\share\\path\\file"sv,                                       L"file"sv},
+		// {L"\\\\?\\UNC\\server\\share"sv,                                           L""sv},
+		{L"\\\\?\\UNC\\server\\share\\"sv,                                         L""sv},
+		{L"\\\\?\\UNC\\server\\share\\file"sv,                                     L"file"sv},
+		{L"\\\\?\\UNC\\server\\share\\path\\file"sv,                               L"file"sv},
 	};
 
-	for (const auto& Test : Tests)
+	for (const auto& i: Tests)
 	{
-		REQUIRE(Test.Result == PointToName(Test.Input));
+		REQUIRE(i.Result == PointToName(i.Input));
 	}
 }
 
@@ -644,18 +644,18 @@ TEST_CASE("path.PointToExt")
 	}
 	Tests[]
 	{
-		{L""sv, L""sv},
-		{L"file"sv, L""sv},
-		{L"path\\file"sv, L""sv},
-		{L"file.ext"sv, L".ext"sv},
-		{L"path\\file.ext"sv, L".ext"sv},
-		{L"file.ext1.ext2"sv, L".ext2"sv},
-		{L"path\\file.ext1.ext2"sv, L".ext2"sv},
+		{ L""sv,                              L""sv      },
+		{ L"file"sv,                          L""sv      },
+		{ L"path\\file"sv,                    L""sv      },
+		{ L"file.ext"sv,                      L".ext"sv  },
+		{ L"path\\file.ext"sv,                L".ext"sv  },
+		{ L"file.ext1.ext2"sv,                L".ext2"sv },
+		{ L"path\\file.ext1.ext2"sv,          L".ext2"sv },
 	};
 
-	for (const auto& Test : Tests)
+	for (const auto& i: Tests)
 	{
-		REQUIRE(Test.Result == PointToExt(Test.Input));
+		REQUIRE(i.Result == PointToExt(i.Input));
 	}
 }
 
@@ -671,36 +671,36 @@ TEST_CASE("path.IsRootPath")
 		{ false,  L""sv },
 		{ false,  L"dir"sv },
 		{ false,  L"dir\\"sv },
-		{ true,  L"\\"sv },
-		{ false, L"\\dir"sv },
-		{ false, L"\\dir\\"sv },
-		{ true,  L"C:"sv },
-		{ false, L"C:dir"sv },
-		{ false, L"C:dir\\"sv },
-		{ true,  L"C:\\"sv },
-		{ false, L"C:\\dir"sv },
-		{ false, L"C:\\dir\\"sv },
-		{ true,  L"\\\\?\\C:"sv },
-		{ true,  L"\\\\?\\C:\\"sv },
-		{ false, L"\\\\?\\C:\\dir"sv },
-		{ false, L"\\\\?\\C:\\dir\\"sv },
-		{ true,  L"\\\\server\\share"sv },
-		{ true,  L"\\\\server\\share\\"sv },
-		{ false, L"\\\\server\\share\\dir"sv },
-		{ false, L"\\\\server\\share\\dir\\"sv },
-		{ true,  L"\\\\?\\UNC\\server\\share"sv },
-		{ true,  L"\\\\?\\UNC\\server\\share\\"sv },
-		{ false, L"\\\\?\\UNC\\server\\share\\dir"sv },
-		{ false, L"\\\\?\\UNC\\server\\share\\dir\\"sv },
-		{ true,  L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv },
-		{ true,  L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv },
-		{ false, L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\dir"sv },
-		{ false, L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\dir\\"sv },
+		{ true,   L"\\"sv },
+		{ false,  L"\\dir"sv },
+		{ false,  L"\\dir\\"sv },
+		{ true,   L"C:"sv },
+		{ false,  L"C:dir"sv },
+		{ false,  L"C:dir\\"sv },
+		{ true,   L"C:\\"sv },
+		{ false,  L"C:\\dir"sv },
+		{ false,  L"C:\\dir\\"sv },
+		{ true,   L"\\\\?\\C:"sv },
+		{ true,   L"\\\\?\\C:\\"sv },
+		{ false,  L"\\\\?\\C:\\dir"sv },
+		{ false,  L"\\\\?\\C:\\dir\\"sv },
+		{ true,   L"\\\\server\\share"sv },
+		{ true,   L"\\\\server\\share\\"sv },
+		{ false,  L"\\\\server\\share\\dir"sv },
+		{ false,  L"\\\\server\\share\\dir\\"sv },
+		{ true,   L"\\\\?\\UNC\\server\\share"sv },
+		{ true,   L"\\\\?\\UNC\\server\\share\\"sv },
+		{ false,  L"\\\\?\\UNC\\server\\share\\dir"sv },
+		{ false,  L"\\\\?\\UNC\\server\\share\\dir\\"sv },
+		{ true,   L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv },
+		{ true,   L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv },
+		{ false,  L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\dir"sv },
+		{ false,  L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\dir\\"sv },
 	};
 
-	for (const auto& Test : Tests)
+	for (const auto& i: Tests)
 	{
-		REQUIRE(Test.Result == IsRootPath(Test.Input));
+		REQUIRE(i.Result == IsRootPath(i.Input));
 	}
 }
 
@@ -720,9 +720,9 @@ TEST_CASE("path.PathStartsWith")
 		{ false, L"C:\\path\\file"sv,   L""sv },
 	};
 
-	for (const auto& Test : Tests)
+	for (const auto& i: Tests)
 	{
-		REQUIRE(Test.Result == PathStartsWith(Test.Path, Test.Prefix));
+		REQUIRE(i.Result == PathStartsWith(i.Path, i.Prefix));
 	}
 }
 
@@ -799,11 +799,11 @@ TEST_CASE("path.AddEndSlash")
 		{ L"a\\b/c/d"sv,   L"a\\b/c/d/"sv },
 	};
 
-	for (const auto& Test : Tests)
+	for (const auto& i: Tests)
 	{
-		string Str(Test.Input);
+		string Str(i.Input);
 		AddEndSlash(Str);
-		REQUIRE(Str == Test.Result);
+		REQUIRE(Str == i.Result);
 	}
 }
 #endif

@@ -328,7 +328,7 @@ RFLAGS=/nologo /l 0x409 /fo"$(RES_FILE)" $(ADDINCLUDE) /d $(USEDEBUG)
 
 !ifdef CLANG
 CPP = clang-cl
-CPPFLAGS = $(CPPFLAGS) -Qunused-arguments
+CPPFLAGS = $(CPPFLAGS) -Qunused-arguments -Werror=old-style-cast
 NOBATCH=1
 NO_RELEASE_LTCG=1
 OUTDIR=$(OUTDIR).clang

@@ -233,7 +233,7 @@ class DialogBuilderBase
 					intptr_t Width = Item.X2 - Item.X1 + 1;
 					// стрелка history занимает дополнительное место, но раньше она рисовалась поверх рамки???
 					if (Item.Flags & DIF_HISTORY)
-						Width++;
+						++Width;
 					return Width;
 				}
 

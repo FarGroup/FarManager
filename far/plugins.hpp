@@ -139,13 +139,13 @@ public:
 
 	// API functions
 	std::unique_ptr<plugin_panel> Open(Plugin *pPlugin,int OpenFrom,const GUID& Guid,intptr_t Item) const;
-	std::unique_ptr<plugin_panel> OpenFilePlugin(const string* Name, OPERATION_MODES OpMode, OPENFILEPLUGINTYPE Type, bool* StopProcessing = nullptr);
+	std::unique_ptr<plugin_panel> OpenFilePlugin(const string* Name, OPERATION_MODES OpMode, OPENFILEPLUGINTYPE Type, bool* StopProcessingPtr = nullptr);
 	std::unique_ptr<plugin_panel> OpenFindListPlugin(const PluginPanelItem *PanelItem,size_t ItemsNumber);
 	static void ClosePanel(std::unique_ptr<plugin_panel>&& hPlugin);
 	static void GetOpenPanelInfo(const plugin_panel* hPlugin, OpenPanelInfo *Info);
-	static intptr_t GetFindData(const plugin_panel* hPlugin,PluginPanelItem **pPanelItem,size_t *pItemsNumber,int OpMode);
+	static intptr_t GetFindData(const plugin_panel* hPlugin,PluginPanelItem **PanelItems,size_t *ItemsNumber,int OpMode);
 	static void FreeFindData(const plugin_panel* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool FreeUserData);
-	static intptr_t GetVirtualFindData(const plugin_panel* hPlugin,PluginPanelItem **pPanelItem,size_t *pItemsNumber,const string& Path);
+	static intptr_t GetVirtualFindData(const plugin_panel* hPlugin,PluginPanelItem **PanelItems,size_t *ItemsNumber,const string& Path);
 	static void FreeVirtualFindData(const plugin_panel* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber);
 	static intptr_t SetDirectory(const plugin_panel* hPlugin, const string& Dir, int OpMode, const UserDataItem* UserData = nullptr);
 	static bool GetFile(const plugin_panel* hPlugin,PluginPanelItem *PanelItem,const string& DestPath,string &strResultName,int OpMode);
@@ -167,7 +167,7 @@ public:
 	std::vector<Plugin*> GetContentPlugins(const std::vector<const wchar_t*>& ColNames) const;
 	void GetContentData(const std::vector<Plugin*>& Plugins, const string& FilePath, const std::vector<const wchar_t*>& Names, std::vector<const wchar_t*>& Values, std::unordered_map<string,string>& ContentData) const;
 	Plugin* LoadPluginExternal(const string& ModuleName, bool LoadToMem);
-	bool UnloadPluginExternal(Plugin* hPlugin);
+	bool UnloadPluginExternal(Plugin* pPlugin);
 	bool IsPluginUnloaded(const Plugin* pPlugin) const;
 	void LoadPlugins();
 
@@ -213,8 +213,8 @@ public:
 	bool ProcessCommandLine(const string& Command);
 	size_t GetPluginInformation(Plugin *pPlugin, FarGetPluginInformation *pInfo, size_t BufferSize);
 	// $ .09.2000 SVS - Функция CallPlugin - найти плагин по ID и запустить OpenFrom = OPEN_*
-	bool CallPlugin(const GUID& SysID,int OpenFrom, void *Data, void **Ret=nullptr);
-	bool CallPluginItem(const GUID& Guid, CallPluginInfo *Data);
+	bool CallPlugin(const GUID& SysID,int OpenFrom, void *Data, void **Ret=nullptr) const;
+	bool CallPluginItem(const GUID& Guid, CallPluginInfo *Data) const;
 	void RefreshPluginsList();
 	const auto& Factories() const { return PluginFactories; }
 
@@ -229,7 +229,7 @@ private:
 
 	void LoadFactories();
 	void LoadIfCacheAbsent() const;
-	Plugin* LoadPlugin(const string& ModuleName, const os::fs::find_data &FindData, bool LoadToMem);
+	Plugin* LoadPlugin(const string& FileName, const os::fs::find_data &FindData, bool LoadToMem);
 	Plugin* AddPlugin(std::unique_ptr<Plugin>&& pPlugin);
 	bool RemovePlugin(Plugin *pPlugin);
 	int UnloadPlugin(Plugin *pPlugin, int From);

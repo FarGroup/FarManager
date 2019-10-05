@@ -124,7 +124,7 @@ intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 			const auto record = static_cast<const INPUT_RECORD *>(Param2);
 			if (record->EventType==KEY_EVENT)
 			{
-				int key = InputRecordToKey(record);
+				const auto key = InputRecordToKey(record);
 				switch(key)
 				{
 				case KEY_F3:

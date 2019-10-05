@@ -147,8 +147,8 @@ public:
 	void StopFSWatcher() override;
 	void SortFileList(bool KeepPosition) override;
 	void SetViewMode(int ViewMode) override;
-	void SetSortMode(panel_sort SortMode, bool KeepOrder = false) override;
-	void SetCustomSortMode(int SortMode, sort_order Order = SO_AUTO, bool InvertByDefault = false) override;
+	void SetSortMode(panel_sort Mode, bool KeepOrder = false) override;
+	void SetCustomSortMode(int Mode, sort_order Order = SO_AUTO, bool InvertByDefault = false) override;
 	void ChangeSortOrder(bool Reverse) override;
 	void ChangeDirectoriesFirst(bool Mode) override;
 	void OnSortingChange() override;
@@ -187,9 +187,9 @@ public:
 	int GetColumnsCount() const override;
 	void SetReturnCurrentFile(bool Mode) override;
 	void GetOpenPanelInfo(OpenPanelInfo *Info) const override;
-	void SetPluginMode(std::unique_ptr<plugin_panel>&& hPlugin, const string& PluginFile, bool SendOnFocus = false) override;
+	void SetPluginMode(std::unique_ptr<plugin_panel>&& PluginPanel, const string& PluginFile, bool SendOnFocus = false) override;
 	size_t GetSelCount() const override;
-	bool GetSelName(string *strName, string *strShortName = nullptr, os::fs::find_data *fde = nullptr) override;
+	bool GetSelName(string *strName, string *strShortName = nullptr, os::fs::find_data *fd = nullptr) override;
 	void ClearLastGetSelection() override;
 	plugin_panel* GetPluginHandle() const override;
 	size_t GetRealSelCount() const override;
@@ -221,7 +221,7 @@ public:
 
 	size_t FileListToPluginItem2(const FileListItem& fi, FarGetPluginPanelItem* pi) const;
 	static bool FileNameToPluginItem(const string& Name, class PluginPanelItemHolder& pi);
-	void FileListToPluginItem(const FileListItem& fi, PluginPanelItemHolder& pi) const;
+	void FileListToPluginItem(const FileListItem& fi, PluginPanelItemHolder& Holder) const;
 	static bool IsModeFullScreen(int Mode);
 
 	struct PrevDataItem;
@@ -256,12 +256,12 @@ private:
 	FarColor GetShowColor(int Position, bool FileColor = true) const;
 	void ShowSelectedSize();
 	void ShowTotalSize(const OpenPanelInfo &Info);
-	bool ConvertName(string_view SrcName, string &strDest, int MaxLength, unsigned long long RightAlign, int ShowStatus, DWORD dwFileAttr) const;
+	bool ConvertName(string_view SrcName, string &strDest, int MaxLength, unsigned long long RightAlign, int ShowStatus, DWORD FileAttr) const;
 	void Select(FileListItem& SelItem, bool Selection);
 	long SelectFiles(int Mode, string_view Mask = {});
 	void ProcessEnter(bool EnableExec, bool SeparateWindow, bool EnableAssoc, bool RunAs, OPENFILEPLUGINTYPE Type);
 	// ChangeDir возвращает false, eсли не смогла выставить заданный путь
-	bool ChangeDir(string_view NewDir, bool IsParent, bool ResolvePath, bool IsUpdated, const UserDataItem* DataItem, OPENFILEPLUGINTYPE Type);
+	bool ChangeDir(string_view NewDir, bool IsParent, bool ResolvePath, bool IsUpdated, const UserDataItem* DataItem, OPENFILEPLUGINTYPE OfpType);
 	bool ChangeDir(string_view NewDir, bool IsParent);
 	void CountDirSize(bool IsRealNames);
 	void ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, int DrawMessage);
@@ -279,11 +279,11 @@ private:
 	plugin_item_list CreatePluginItemList();
 	std::unique_ptr<plugin_panel> OpenPluginForFile(const string& FileName, DWORD FileAttr, OPENFILEPLUGINTYPE Type, bool* StopProcessing = nullptr);
 	void PreparePanelView();
-	void PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen);
+	void PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen) const;
 	void PrepareStripes(const std::vector<column>& Columns);
 	void PrepareViewSettings(int ViewMode);
 	void PluginDelete();
-	void PutDizToPlugin(FileList *DestPanel, const std::vector<PluginPanelItem>& ItemList, bool Delete, bool Move, DizList *SrcDiz);
+	void PutDizToPlugin(FileList *DestPanel, const std::vector<PluginPanelItem>& ItemList, bool Delete, bool Move, DizList *SrcDiz) const;
 	void PluginGetFiles(const string& DestPath, bool Move);
 	void PluginToPluginFiles(bool Move);
 	void PluginHostGetFiles();

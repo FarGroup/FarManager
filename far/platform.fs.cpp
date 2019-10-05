@@ -786,7 +786,7 @@ namespace os::fs
 
 	bool file::GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed) const
 	{
-		DWORD Result = imports.GetStorageDependencyInformation(m_Handle.native_handle(), Flags, StorageDependencyInfoSize, StorageDependencyInfo, SizeUsed);
+		const auto Result = imports.GetStorageDependencyInformation(m_Handle.native_handle(), Flags, StorageDependencyInfoSize, StorageDependencyInfo, SizeUsed);
 		SetLastError(Result);
 		return Result == ERROR_SUCCESS;
 	}
@@ -798,7 +798,7 @@ namespace os::fs
 		UNICODE_STRING NameString;
 		if (!FileName.empty())
 		{
-			NameString.Buffer = const_cast<LPWSTR>(FileName.data());
+			NameString.Buffer = const_cast<wchar_t*>(FileName.data());
 			NameString.Length = static_cast<USHORT>(FileName.size() * sizeof(WCHAR));
 			NameString.MaximumLength = NameString.Length;
 			pNameString = &NameString;
@@ -881,7 +881,7 @@ namespace os::fs
 		SCOPE_EXIT{ imports.NtClose(hSymLink); };
 
 		const auto BufSize = 32767;
-		wchar_t_ptr Buffer(BufSize);
+		const wchar_t_ptr Buffer(BufSize);
 		UNICODE_STRING LinkTarget{ 0, static_cast<USHORT>(BufSize * sizeof(wchar_t)), Buffer.get() };
 
 		if (imports.NtQuerySymbolicLinkObject(hSymLink, &LinkTarget, nullptr) != STATUS_SUCCESS)
@@ -1608,7 +1608,7 @@ namespace os::fs
 
 	bool remove_directory(const string_view DirName)
 	{
-		NTPath strNtName(DirName);
+		const NTPath strNtName(DirName);
 		if (low::remove_directory(strNtName.c_str()))
 			return true;
 
@@ -1670,7 +1670,7 @@ namespace os::fs
 
 	bool delete_file(const string_view FileName)
 	{
-		NTPath strNtName(FileName);
+		const NTPath strNtName(FileName);
 
 		if (low::delete_file(strNtName.c_str()))
 			return true;
@@ -1692,7 +1692,9 @@ namespace os::fs
 
 	bool copy_file(const string_view ExistingFileName, const string_view NewFileName, const LPPROGRESS_ROUTINE ProgressRoutine, void* const Data, BOOL* const Cancel, const DWORD CopyFlags)
 	{
-		NTPath strFrom(ExistingFileName), strTo(NewFileName);
+		const NTPath strFrom(ExistingFileName);
+		NTPath strTo(NewFileName);
+
 		if (IsSlash(strTo.back()))
 		{
 			append(strTo, PointToName(strFrom));
@@ -1719,15 +1721,17 @@ namespace os::fs
 		return false;
 	}
 
-	bool move_file(const string_view ExistingFileName, const string_view NewFileName, const DWORD dwFlags)
+	bool move_file(const string_view ExistingFileName, const string_view NewFileName, const DWORD Flags)
 	{
-		NTPath strFrom(ExistingFileName), strTo(NewFileName);
+		const NTPath strFrom(ExistingFileName);
+		NTPath strTo(NewFileName);
+
 		if (IsSlash(strTo.back()))
 		{
 			append(strTo, PointToName(strFrom));
 		}
 
-		if (low::move_file(strFrom.c_str(), strTo.c_str(), dwFlags))
+		if (low::move_file(strFrom.c_str(), strTo.c_str(), Flags))
 			return true;
 
 		if (STATUS_STOPPED_ON_SYMLINK == GetLastNtStatus() && ERROR_STOPPED_ON_SYMLINK != GetLastError())
@@ -1747,7 +1751,7 @@ namespace os::fs
 				gle.dismiss();
 				return false;
 			}
-			return elevation::instance().move_file(strFrom, strTo, dwFlags);
+			return elevation::instance().move_file(strFrom, strTo, Flags);
 		}
 
 		return false;
@@ -1769,7 +1773,7 @@ namespace os::fs
 
 	DWORD get_file_attributes(const string_view FileName)
 	{
-		NTPath NtName(FileName);
+		const NTPath NtName(FileName);
 
 		const auto Result = low::get_file_attributes(NtName.c_str());
 		if (Result != INVALID_FILE_ATTRIBUTES)
@@ -1783,7 +1787,7 @@ namespace os::fs
 
 	bool set_file_attributes(const string_view FileName, const DWORD Attributes)
 	{
-		NTPath NtName(FileName);
+		const NTPath NtName(FileName);
 
 		if (low::set_file_attributes(NtName.c_str(), Attributes))
 			return true;
@@ -2005,7 +2009,7 @@ namespace os::fs
 		if (FindData.Attributes & FILE_ATTRIBUTE_REPARSE_POINT)
 		{
 			string strTmp;
-			DWORD ReparseTag{};
+			const DWORD ReparseTag{};
 			if (GetReparsePointInfo(FileName, strTmp, &FindData.ReparseTag))
 				FindData.ReparseTag = ReparseTag;
 		}
@@ -2054,22 +2058,22 @@ namespace os::fs
 		return false;
 	}
 
-	bool CreateSymbolicLink(const string& SymlinkFileName, const string& TargetFileName, DWORD dwFlags)
+	bool CreateSymbolicLink(const string& SymlinkFileName, const string& TargetFileName, DWORD Flags)
 	{
-		NTPath NtSymlinkFileName(SymlinkFileName);
+		const NTPath NtSymlinkFileName(SymlinkFileName);
 
-		if (CreateSymbolicLinkInternal(NtSymlinkFileName, TargetFileName, dwFlags))
+		if (CreateSymbolicLinkInternal(NtSymlinkFileName, TargetFileName, Flags))
 			return true;
 
 		if (ElevationRequired(ELEVATION_MODIFY_REQUEST))
-			return elevation::instance().fCreateSymbolicLink(NtSymlinkFileName, TargetFileName, dwFlags);
+			return elevation::instance().fCreateSymbolicLink(NtSymlinkFileName, TargetFileName, Flags);
 
 		return false;
 	}
 
 	bool set_file_encryption(const string_view FileName, const bool Encrypt)
 	{
-		NTPath NtName(FileName);
+		const NTPath NtName(FileName);
 
 		if (low::set_file_encryption(NtName.c_str(), Encrypt))
 			return true;
@@ -2082,7 +2086,7 @@ namespace os::fs
 
 	bool detach_virtual_disk(const string_view Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType)
 	{
-		NTPath NtObject(Object);
+		const NTPath NtObject(Object);
 
 		if (low::detach_virtual_disk(NtObject.c_str(), VirtualStorageType))
 			return true;
@@ -2109,10 +2113,10 @@ namespace os::fs
 	}
 
 
-	bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD dwFlags)
+	bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD Flags)
 	{
 		if (!imports.CreateSymbolicLinkW)
-			return CreateReparsePoint(Target, Object, dwFlags&SYMBOLIC_LINK_FLAG_DIRECTORY ? RP_SYMLINKDIR : RP_SYMLINKFILE);
+			return CreateReparsePoint(Target, Object, Flags & SYMBOLIC_LINK_FLAG_DIRECTORY? RP_SYMLINKDIR : RP_SYMLINKFILE);
 
 		static const DWORD unpriv_flag = []
 		{
@@ -2133,7 +2137,7 @@ namespace os::fs
 			return 0;
 		}();
 
-		return imports.CreateSymbolicLinkW(Object.c_str(), Target.c_str(), dwFlags | unpriv_flag) != FALSE;
+		return imports.CreateSymbolicLinkW(Object.c_str(), Target.c_str(), Flags | unpriv_flag) != FALSE;
 	}
 
 	drives_set allowed_drives_mask()

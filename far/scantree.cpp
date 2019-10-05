@@ -71,7 +71,7 @@ enum tree_item_flags
 };
 
 
-struct ScanTree::scantree_item
+class ScanTree::scantree_item
 {
 public:
 	NONCOPYABLE(scantree_item);

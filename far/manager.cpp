@@ -152,7 +152,7 @@ static bool CASHook(const Manager::Key& key)
 					const auto currentWindow = Global->WindowManager->GetCurrentWindow();
 					if (currentWindow->CanFastHide())
 					{
-						int isPanelFocus=currentWindow->GetType() == windowtype_panels;
+						const auto isPanelFocus = currentWindow->GetType() == windowtype_panels;
 
 						if (isPanelFocus)
 						{
@@ -608,7 +608,7 @@ void Manager::ProcessMainLoop()
 	{
 		// Mantis#0000073: Не работает автоскролинг в QView
 		INPUT_RECORD rec;
-		int Key=GetInputRecord(&rec);
+		const auto Key = GetInputRecord(&rec);
 
 		if (EndLoop)
 			return;
@@ -710,7 +710,7 @@ bool Manager::ProcessKey(Key key)
 
 				case KEY_F11:
 				{
-					int WindowType = Global->WindowManager->GetCurrentWindow()->GetType();
+					const auto WindowType = Global->WindowManager->GetCurrentWindow()->GetType();
 					static int reentry=0;
 					if(!reentry && (WindowType == windowtype_dialog || WindowType == windowtype_menu))
 					{
@@ -741,8 +741,8 @@ bool Manager::ProcessKey(Key key)
 					*/
 					if (Global->CtrlObject->Macro.IsExecuting())
 					{
-						int PScrX=ScrX;
-						int PScrY=ScrY;
+						const auto PScrX = ScrX;
+						const auto PScrY = ScrY;
 						os::chrono::sleep_for(1ms);
 						UpdateScreenSize();
 
@@ -811,7 +811,7 @@ static bool FilterMouseMoveNoise(const MOUSE_EVENT_RECORD* MouseEvent)
 	return true;
 }
 
-bool Manager::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) const
+bool Manager::ProcessMouse(const MOUSE_EVENT_RECORD* MouseEvent) const
 {
 	auto ret = false;
 
@@ -920,7 +920,7 @@ void Manager::InsertCommit(const window_ptr& Param)
 	_MANAGER(SysLog(L"InsertedWindow=%p",Param));
 	if (Param && AddWindow(Param))
 	{
-		auto CurrentWindow = GetCurrentWindow();
+		const auto CurrentWindow = GetCurrentWindow();
 		m_windows.insert(m_windows.begin()+m_NonModalSize,Param);
 		WindowsChanged();
 		++m_NonModalSize;
@@ -949,11 +949,11 @@ void Manager::DeleteCommit(const window_ptr& Param)
 		return;
 	}
 
-	auto CurrentWindow = GetCurrentWindow();
+	const auto CurrentWindow = GetCurrentWindow();
 	if (CurrentWindow == Param) DeactivateCommit(Param);
 	Param->OnDestroy();
 
-	int WindowIndex=IndexOf(Param);
+	const auto WindowIndex=IndexOf(Param);
 	assert(-1!=WindowIndex);
 
 	if (-1!=WindowIndex)
@@ -1012,7 +1012,7 @@ void Manager::ActivateCommit(const window_ptr& Param)
 
 void Manager::DoActivation(const window_ptr& Old, const window_ptr& New)
 {
-	int WindowIndex=IndexOf(New);
+	const auto WindowIndex = IndexOf(New);
 
 	assert(WindowIndex >= 0);
 	if (static_cast<size_t>(WindowIndex) < m_NonModalSize)
@@ -1093,7 +1093,7 @@ void Manager::ExecuteCommit(const window_ptr& Param)
 
 	if (Param && AddWindow(Param))
 	{
-		auto CurrentWindow = GetCurrentWindow();
+		const auto CurrentWindow = GetCurrentWindow();
 		m_windows.emplace_back(Param);
 		WindowsChanged();
 		DoActivation(CurrentWindow, Param);
@@ -1102,7 +1102,7 @@ void Manager::ExecuteCommit(const window_ptr& Param)
 
 void Manager::ReplaceCommit(const window_ptr& Old, const window_ptr& New)
 {
-	int WindowIndex = IndexOf(Old);
+	const auto WindowIndex = IndexOf(Old);
 
 	if (-1 != WindowIndex)
 	{
@@ -1120,7 +1120,7 @@ void Manager::ModalDesktopCommit(const window_ptr& Param)
 {
 	if (m_DesktopModalled++ == 0)
 	{
-		auto Old = GetCurrentWindow();
+		const auto Old = GetCurrentWindow();
 		assert(Old != Param);
 		assert(IndexOf(Param) >= 0);
 		const auto Position = m_windows.begin() + IndexOf(Param);
@@ -1135,14 +1135,14 @@ void Manager::UnModalDesktopCommit(const window_ptr& Param)
 {
 	if (--m_DesktopModalled == 0)
 	{
-		auto Old = GetCurrentWindow();
+		const auto Old = GetCurrentWindow();
 		assert(IndexOf(Param) >= 0);
 		assert(static_cast<size_t>(IndexOf(Param)) >= m_NonModalSize);
 		const auto Position = m_windows.begin() + IndexOf(Param);
 		std::rotate(m_windows.begin(), Position, Position + 1);
 		WindowsChanged();
 		++m_NonModalSize;
-		auto New = GetCurrentWindow();
+		const auto New = GetCurrentWindow();
 		if (Old != New)
 		{
 			DoActivation(Old, New);
@@ -1274,7 +1274,7 @@ FileEditor* Manager::GetCurrentEditor() const
 	}));
 }
 
-const Manager::windows::const_iterator Manager::FindFileResult()
+Manager::windows::const_iterator Manager::FindFileResult()
 {
 	return std::find_if(CONST_RANGE(m_windows, i) { return windowtype_dialog == i->GetType() && FindFileResultId == std::static_pointer_cast<Dialog>(i)->GetId(); });
 }

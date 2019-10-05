@@ -189,7 +189,7 @@ public:
 
 	bool IsPlugin(const string& filename) const override;
 	plugin_module_ptr Create(const string& filename) override;
-	bool Destroy(plugin_module_ptr& module) override;
+	bool Destroy(plugin_module_ptr& instance) override;
 	function_address Function(const plugin_module_ptr& Instance, const export_name& Name) override;
 
 private:

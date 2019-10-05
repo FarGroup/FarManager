@@ -379,7 +379,7 @@ static void LoadCustomStrings(const string& FileName, std::unordered_map<string,
 	}
 }
 
-void language::load(const string& Path, const string& Language, int CountNeed)
+void language::load(const string& Path, const string& Language, int CountNeed) const
 {
 	SCOPED_ACTION(GuardLastError);
 

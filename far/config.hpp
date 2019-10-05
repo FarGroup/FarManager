@@ -143,8 +143,8 @@ public:
 	bool Changed() const { return m_Value.touched(); }
 
 protected:
-	Option(const Option&) = default;
-	Option& operator=(const Option&) = default;
+	COPY_CONSTRUCTIBLE(Option);
+	COPY_ASSIGNABLE_DEFAULT(Option);
 
 	template<class T>
 	explicit Option(const T& Value): m_Value(Value) {}

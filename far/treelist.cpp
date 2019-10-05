@@ -586,10 +586,10 @@ void TreeList::Update(int Mode)
 
 	m_Flags.Clear(FTREELIST_UPDATEREQUIRED);
 	GetRoot();
-	size_t LastTreeCount = m_ListData.size();
+	const auto LastTreeCount = m_ListData.size();
 	int RetFromReadTree=TRUE;
 	m_Flags.Clear(FTREELIST_TREEISPREPARED);
-	int TreeFilePresent=ReadTreeFile();
+	const auto TreeFilePresent = ReadTreeFile();
 
 	if (!TreeFilePresent)
 		RetFromReadTree=ReadTree();
@@ -914,7 +914,7 @@ panel_ptr TreeList::GetRootPanel()
 void TreeList::SyncDir()
 {
 	const auto AnotherPanel = GetRootPanel();
-	string strPanelDir(AnotherPanel->GetCurDir());
+	const auto strPanelDir = AnotherPanel->GetCurDir();
 
 	if (!strPanelDir.empty())
 	{
@@ -944,7 +944,7 @@ bool TreeList::FillLastData()
 	FOR_RANGE(Range, i)
 	{
 		const auto Pos = i->strName.rfind(L'\\');
-		const auto PathLength = Pos != string::npos? (int)Pos+1 : 0;
+		const auto PathLength = Pos != string::npos? static_cast<int>(Pos) + 1 : 0;
 		const auto Depth = i->Depth = CountSlash(i->strName, RootLength);
 
 		if (!Depth)
@@ -1144,11 +1144,11 @@ bool TreeList::ProcessKey(const Manager::Key& Key)
 				if (ToPlugin)
 				{
 					PluginPanelItemHolder Item;
-					int ItemNumber=1;
+					const auto ItemNumber = 1;
 					const auto hAnotherPlugin = AnotherPanel->GetPluginHandle();
 					if (FileList::FileNameToPluginItem(m_ListData[m_CurFile].strName, Item))
 					{
-						int PutCode = Global->CtrlObject->Plugins->PutFiles(hAnotherPlugin, &Item.Item, ItemNumber, Move != 0, 0);
+						const auto PutCode = Global->CtrlObject->Plugins->PutFiles(hAnotherPlugin, &Item.Item, ItemNumber, Move != 0, 0);
 
 						if (PutCode == 1 || PutCode == 2)
 							AnotherPanel->SetPluginModified();
@@ -1195,7 +1195,7 @@ bool TreeList::ProcessKey(const Manager::Key& Key)
 		{
 			if (SetCurPath())
 			{
-				bool SaveOpt=Global->Opt->DeleteToRecycleBin;
+				const auto SaveOpt = Global->Opt->DeleteToRecycleBin;
 
 				if (LocalKey==KEY_SHIFTDEL||LocalKey==KEY_SHIFTNUMDEL||LocalKey==KEY_SHIFTDECIMAL)
 					Global->Opt->DeleteToRecycleBin = false;
@@ -1217,21 +1217,21 @@ bool TreeList::ProcessKey(const Manager::Key& Key)
 		case(KEY_MSWHEEL_UP | KEY_ALT):
 		case(KEY_MSWHEEL_UP | KEY_RALT):
 		{
-			Scroll(LocalKey & (KEY_ALT|KEY_RALT)?-1:(int)-Global->Opt->MsWheelDelta);
+			Scroll(LocalKey & (KEY_ALT | KEY_RALT)? -1 : static_cast<int>(-Global->Opt->MsWheelDelta));
 			return true;
 		}
 		case KEY_MSWHEEL_DOWN:
 		case(KEY_MSWHEEL_DOWN | KEY_ALT):
 		case(KEY_MSWHEEL_DOWN | KEY_RALT):
 		{
-			Scroll(LocalKey & (KEY_ALT|KEY_RALT)?1:(int)Global->Opt->MsWheelDelta);
+			Scroll(LocalKey& (KEY_ALT | KEY_RALT)? 1 : static_cast<int>(Global->Opt->MsWheelDelta));
 			return true;
 		}
 		case KEY_MSWHEEL_LEFT:
 		case(KEY_MSWHEEL_LEFT | KEY_ALT):
 		case(KEY_MSWHEEL_LEFT | KEY_RALT):
 		{
-			int Roll = LocalKey & (KEY_ALT|KEY_RALT)?1:(int)Global->Opt->MsHWheelDelta;
+			const auto Roll = LocalKey & (KEY_ALT | KEY_RALT)? 1 : static_cast<int>(Global->Opt->MsHWheelDelta);
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(Manager::Key(KEY_LEFT));
@@ -1242,7 +1242,7 @@ bool TreeList::ProcessKey(const Manager::Key& Key)
 		case(KEY_MSWHEEL_RIGHT | KEY_ALT):
 		case(KEY_MSWHEEL_RIGHT | KEY_RALT):
 		{
-			int Roll = LocalKey & (KEY_ALT|KEY_RALT)?1:(int)Global->Opt->MsHWheelDelta;
+			const auto Roll = LocalKey & (KEY_ALT | KEY_RALT)? 1 : static_cast<int>(Global->Opt->MsHWheelDelta);
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(Manager::Key(KEY_RIGHT));
@@ -1580,7 +1580,7 @@ bool TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		         !MouseEvent->dwEventFlags) ||
 		        (OldFile!=m_CurFile && Global->Opt->Tree.AutoChangeFolder && !m_ModalMode))
 		{
-			DWORD control=MouseEvent->dwControlKeyState&(SHIFT_PRESSED|LEFT_ALT_PRESSED|LEFT_CTRL_PRESSED|RIGHT_ALT_PRESSED|RIGHT_CTRL_PRESSED);
+			const auto control = MouseEvent->dwControlKeyState & (SHIFT_PRESSED | LEFT_ALT_PRESSED | LEFT_CTRL_PRESSED | RIGHT_ALT_PRESSED | RIGHT_CTRL_PRESSED);
 
 			//вызовем EMenu если он есть
 			if (!Global->Opt->RightClickSelect && MouseEvent->dwButtonState == RIGHTMOST_BUTTON_PRESSED && (control == 0 || control == SHIFT_PRESSED) && Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Emenu.Id))
@@ -1733,9 +1733,9 @@ size_t TreeList::GetSelCount() const
 	return 1;
 }
 
-bool TreeList::GetSelName(string *strName, string *strShortName, os::fs::find_data *fd)
+bool TreeList::GetSelName(string *Name, string *ShortName, os::fs::find_data *fd)
 {
-	if (!strName)
+	if (!Name)
 	{
 		m_GetSelPosition=0;
 		return true;
@@ -1743,10 +1743,10 @@ bool TreeList::GetSelName(string *strName, string *strShortName, os::fs::find_da
 
 	if (!m_GetSelPosition)
 	{
-		*strName = GetCurDir();
+		*Name = GetCurDir();
 
-		if (strShortName )
-			*strShortName = *strName;
+		if (ShortName )
+			*ShortName = *Name;
 
 		if (fd)
 			fd->Attributes = FILE_ATTRIBUTE_DIRECTORY;
@@ -1804,25 +1804,25 @@ void TreeList::DelTreeName(const string_view Name)
 	TreeCache().remove(NamePart);
 }
 
-void TreeList::RenTreeName(const string& strSrcName,const string& strDestName)
+void TreeList::RenTreeName(const string& SrcName, const string& DestName)
 {
 	if (Global->Opt->Tree.TurnOffCompletely)
 		return;
 
-	const auto strSrcRoot = ExtractPathRoot(ConvertNameToFull(strSrcName));
-	const auto strDestRoot = ExtractPathRoot(ConvertNameToFull(strDestName));
+	const auto strSrcRoot = ExtractPathRoot(ConvertNameToFull(SrcName));
+	const auto strDestRoot = ExtractPathRoot(ConvertNameToFull(DestName));
 
 	if (!equal_icase(strSrcRoot, strDestRoot))
 	{
-		DelTreeName(strSrcName);
-		ReadSubTree(strSrcName);
+		DelTreeName(SrcName);
+		ReadSubTree(SrcName);
 	}
 
-	const auto SrcName = string_view(strSrcName).substr(strSrcRoot.size() - 1);
-	const auto DestName = string_view(strDestName).substr(strDestRoot.size() - 1);
+	const auto SrcNamePart = string_view(SrcName).substr(strSrcRoot.size() - 1);
+	const auto DestNamePart = string_view(DestName).substr(strDestRoot.size() - 1);
 	ReadCache(strSrcRoot);
 
-	TreeCache().rename(SrcName, DestName);
+	TreeCache().rename(SrcNamePart, DestNamePart);
 }
 
 void TreeList::ReadSubTree(const string& Path)
@@ -1882,7 +1882,7 @@ void TreeList::ReadCache(const string& TreeRoot)
 	if (!TreeCache().empty())
 		FlushCache();
 
-	auto TreeFile = OpenCacheableTreeFile(TreeRoot, strTreeName, false);
+	const auto TreeFile = OpenCacheableTreeFile(TreeRoot, strTreeName, false);
 	if (!TreeFile)
 	{
 		ClearCache();

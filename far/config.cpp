@@ -2725,7 +2725,7 @@ static void SetLeftRightMenuChecks(menu_item* pMenu, bool bLeft)
 	{
 	case panel_type::FILE_PANEL:
 		{
-			int MenuLine = pPanel->GetViewMode();
+			const auto MenuLine = pPanel->GetViewMode();
 
 			if (MenuLine <= MENU_LEFT_ALTERNATIVEVIEW)
 			{

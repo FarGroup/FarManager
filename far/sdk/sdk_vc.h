@@ -83,11 +83,11 @@ REPARSE_DATA_BUFFER,*PREPARSE_DATA_BUFFER;
 #define IsReparseTagValid(_tag) (!((_tag)&~IO_REPARSE_TAG_VALID_VALUES)&&((_tag)>IO_REPARSE_TAG_RESERVED_RANGE))
 #endif
 
-const OBJECT_INFORMATION_CLASS ObjectNameInformation=(OBJECT_INFORMATION_CLASS)1;
+inline constexpr auto ObjectNameInformation               = static_cast<OBJECT_INFORMATION_CLASS>(1);
 
-const FILE_INFORMATION_CLASS FileBothDirectoryInformation=(FILE_INFORMATION_CLASS)3;
-const FILE_INFORMATION_CLASS FileBasicInformation=(FILE_INFORMATION_CLASS)4;
-const FILE_INFORMATION_CLASS FileStreamInformation=(FILE_INFORMATION_CLASS)22;
-const FILE_INFORMATION_CLASS FileIdBothDirectoryInformation=(FILE_INFORMATION_CLASS)37;
+inline constexpr auto FileBothDirectoryInformation        = static_cast<FILE_INFORMATION_CLASS>(3);
+inline constexpr auto FileBasicInformation                = static_cast<FILE_INFORMATION_CLASS>(4);
+inline constexpr auto FileStreamInformation               = static_cast<FILE_INFORMATION_CLASS>(22);
+inline constexpr auto FileIdBothDirectoryInformation      = static_cast<FILE_INFORMATION_CLASS>(37);
 
 #endif // SDK_VC_H_47CB8DA7_19E2_4E69_96EA_CF89EFAD00D7

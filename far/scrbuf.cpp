@@ -109,7 +109,7 @@ void ScreenBuf::FillBuf()
 {
 	SCOPED_ACTION(std::lock_guard)(CS);
 
-	SMALL_RECT ReadRegion={0, 0, static_cast<SHORT>(Buf.width() - 1), static_cast<SHORT>(Buf.height() - 1)};
+	const SMALL_RECT ReadRegion={0, 0, static_cast<SHORT>(Buf.width() - 1), static_cast<SHORT>(Buf.height() - 1)};
 	console.ReadOutput(Buf, ReadRegion);
 	Shadow = Buf;
 	COORD CursorPosition;
@@ -624,7 +624,7 @@ void ScreenBuf::Scroll(size_t Count)
 	if (Count && Count < Buf.height())
 	{
 		auto& RawBuf = Buf.vector();
-		size_t size = RawBuf.size();
+		const auto size = RawBuf.size();
 		RawBuf.erase(RawBuf.begin(), RawBuf.begin() + Count * Buf.width());
 		RawBuf.resize(size, Fill);
 

@@ -107,7 +107,7 @@ private:
 void PrepareUnitStr();
 
 [[nodiscard]]
-string FileSizeToStr(unsigned long long Size, int Width = -1, unsigned long long ViewFlags = COLFLAGS_GROUPDIGITS);
+string FileSizeToStr(unsigned long long FileSize, int WidthWithSign = -1, unsigned long long ViewFlags = COLFLAGS_GROUPDIGITS);
 
 [[nodiscard]]
 bool CheckFileSizeStringFormat(const string& FileSizeStr);
@@ -122,7 +122,7 @@ string GroupDigits(unsigned long long Value);
 inline bool IsWordDiv(const string& WordDiv, wchar_t Chr) { return !Chr || contains(WordDiv, Chr); }
 
 [[nodiscard]]
-bool FindWordInString(const string& Str, size_t CurPos, size_t& Begin, size_t& End, const string& WordDiv);
+bool FindWordInString(const string& Str, size_t CurPos, size_t& Begin, size_t& End, const string& WordDiv0);
 
 namespace legacy
 {
@@ -150,7 +150,7 @@ string truncate_center(string Str, size_t MaxLength);
 string truncate_path(string Str, size_t MaxLength);
 
 [[nodiscard]]
-bool IsCaseMixed(string_view strStr);
+bool IsCaseMixed(string_view Str);
 
 [[nodiscard]]
 bool SearchString(

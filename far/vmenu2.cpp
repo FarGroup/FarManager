@@ -113,7 +113,7 @@ intptr_t VMenu2::VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void*
 	case DN_CLOSE:
 		if(!ForceClosing && !Param1 && GetItemFlags() & (LIF_GRAYED|LIF_DISABLE))
 			return false;
-		if(Call(Msg, (void*)(Param1<0 ? Param1 : GetSelectPos())))
+		if(Call(Msg, reinterpret_cast<void*>(Param1 < 0? Param1 : GetSelectPos())))
 			return false;
 		break;
 
@@ -163,7 +163,7 @@ intptr_t VMenu2::VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void*
 		if(!cancel)
 		{
 			INPUT_RECORD ReadRec={WINDOW_BUFFER_SIZE_EVENT};
-			ReadRec.Event.WindowBufferSizeEvent.dwSize=*(COORD*)Param2;
+			ReadRec.Event.WindowBufferSizeEvent.dwSize = *static_cast<COORD*>(Param2);
 			if(Call(DN_INPUT, &ReadRec))
 				return false;
 			else
@@ -190,7 +190,7 @@ int VMenu2::Call(int Msg, void *param)
 		return 0;
 
 	++InsideCall;
-	int r=mfn(Msg, param);
+	const auto r = mfn(Msg, param);
 
 	bool Visible;
 	DWORD Size;
@@ -403,7 +403,7 @@ vmenu2_ptr VMenu2::create(const string& Title, span<const menu_item> const Data,
 void VMenu2::SetTitle(const string& Title)
 {
 	FarListTitles titles={sizeof(FarListTitles)};
-	string t=GetMenuTitle(true);
+	const auto t = GetMenuTitle(true);
 	titles.Bottom=t.c_str();
 	titles.Title=Title.c_str();
 	SendMessage(DM_LISTSETTITLES, 0, &titles);
@@ -412,7 +412,7 @@ void VMenu2::SetTitle(const string& Title)
 void VMenu2::SetBottomTitle(const string& Title)
 {
 	FarListTitles titles={sizeof(FarListTitles)};
-	string t=GetMenuTitle();
+	const auto t = GetMenuTitle();
 	titles.Bottom=Title.c_str();
 	titles.Title=t.c_str();
 	SendMessage(DM_LISTSETTITLES, 0, &titles);
@@ -464,7 +464,7 @@ int VMenu2::AddItem(const MenuItemEx& NewItem, int PosAdd)
 {
 	// BUGBUG
 
-	int n = static_cast<int>(size());
+	const auto n = static_cast<int>(size());
 	if(PosAdd<0)
 		PosAdd=0;
 	if(PosAdd>n)
@@ -486,13 +486,13 @@ int VMenu2::AddItem(const MenuItemEx& NewItem, int PosAdd)
 }
 int VMenu2::AddItem(const FarList *NewItem)
 {
-	int r=SendMessage(DM_LISTADD, 0, const_cast<FarList*>(NewItem));
+	const auto r = SendMessage(DM_LISTADD, 0, const_cast<FarList*>(NewItem));
 	Resize();
 	return r;
 }
 int VMenu2::AddItem(const string& NewStrItem)
 {
-	int r=SendMessage(DM_LISTADDSTR, 0, UNSAFE_CSTR(NewStrItem));
+	const auto r = SendMessage(DM_LISTADDSTR, 0, UNSAFE_CSTR(NewStrItem));
 	Resize();
 	return r;
 }
@@ -528,12 +528,12 @@ int VMenu2::SetSelectPos(int Pos, int Direct)
 
 int VMenu2::GetCheck(int Position)
 {
-	LISTITEMFLAGS Flags=GetItemFlags(Position);
+	const auto Flags = GetItemFlags(Position);
 
 	if ((Flags & LIF_SEPARATOR) || !(Flags & LIF_CHECKED))
 		return 0;
 
-	int Checked = Flags & 0xFFFF;
+	const auto Checked = Flags & 0xFFFF;
 
 	return Checked ? Checked : 1;
 }

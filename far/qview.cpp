@@ -396,7 +396,7 @@ void QuickView::ShowFile(string_view const FileName, const UserDataItem* const U
 	if (UserData)
 		CurUserData = *UserData;
 
-	size_t pos = strCurFileName.rfind(L'.');
+	const auto pos = strCurFileName.rfind(L'.');
 	if (pos != string::npos)
 	{
 		string strValue;

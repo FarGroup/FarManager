@@ -130,10 +130,10 @@ public:
 
 private:
 	string &PrepareDriveNameStr(string &strSearchFromRoot) const;
-	void AdvancedDialog();
+	void AdvancedDialog() const;
 	intptr_t MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	intptr_t FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
-	void OpenFile(const string& strSearchFileName, int key, const FindListItem* FindItem, Dialog* Dlg) const;
+	void OpenFile(const string& strSearchFileName, int OpenKey, const FindListItem* FindItem, Dialog* Dlg) const;
 	bool FindFilesProcess();
 	void ProcessMessage(const AddMenuData& Data);
 	void SetPluginDirectory(string_view DirName, const plugin_panel* hPlugin, bool UpdatePanel, const UserDataItem *UserData);

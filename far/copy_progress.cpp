@@ -174,7 +174,7 @@ void copy_progress::SetProgressValue(unsigned long long CompletedSize, unsigned 
 {
 	SetCurrentProgress(CompletedSize, TotalSize);
 
-	auto BytesDone = GetBytesDone();
+	const auto BytesDone = GetBytesDone();
 
 	if (m_Total)
 	{
@@ -183,7 +183,7 @@ void copy_progress::SetProgressValue(unsigned long long CompletedSize, unsigned 
 
 	if (m_ShowTime)
 	{
-		auto SizeToGo = (m_Bytes.Total > BytesDone) ? (m_Bytes.Total - BytesDone) : 0;
+		const auto SizeToGo = (m_Bytes.Total > BytesDone) ? (m_Bytes.Total - BytesDone) : 0;
 		UpdateTime(BytesDone, SizeToGo);
 	}
 

@@ -92,7 +92,7 @@ public:
 	void SetNamesList(NamesList& List);
 	int  ViewerControl(int Command, intptr_t Param1, void *Param2);
 	void SetHostFileViewer(FileViewer *Viewer) {HostFileViewer=Viewer;}
-	void GoTo(bool ShowDlg = true, long long NewPos = 0, unsigned long long Flags = 0);
+	void GoTo(bool ShowDlg = true, long long Offset = 0, unsigned long long Flags = 0);
 	void GetSelectedParam(long long &Pos, long long &Length, DWORD &Flags) const;
 	void SelectText(const long long &MatchPos,const long long &SearchLength, DWORD Flags=0x1);
 	bool GetShowScrollbar() const { return ViOpt.ShowScrollbar; }
@@ -112,7 +112,7 @@ private:
 
 	bool process_key(const Manager::Key& Key);
 	void ShowPage(int nMode);
-	void Up(int n, bool adjust);
+	void Up(int nlines, bool adjust);
 	void CacheLine(long long start, int length, bool have_eol);
 	int CacheFindUp(long long start);
 	void ShowHex();
@@ -144,7 +144,7 @@ private:
 	int vread(wchar_t *Buf, int Count, wchar_t *Buf2 = nullptr);
 	bool vseek(long long Offset, int Whence);
 	long long vtell() const;
-	bool vgetc(wchar_t *ch);
+	bool vgetc(wchar_t *pCh);
 	bool veof() const;
 	wchar_t vgetc_prev();
 	void SetFileSize();
@@ -153,7 +153,7 @@ private:
 	void SavePosition();
 	intptr_t ViewerSearchDlgProc(Dialog* Dlg, intptr_t Msg,intptr_t Param1,void* Param2);
 	int getCharSize() const;
-	int txt_dump(std::string_view Str, size_t width, string& outstr, wchar_t zch, int tail) const;
+	int txt_dump(std::string_view Str, size_t ClientWidth, string& OutStr, wchar_t ZeroChar, int tail) const;
 
 	static uintptr_t GetDefaultCodePage();
 

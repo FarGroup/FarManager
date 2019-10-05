@@ -541,12 +541,12 @@ bool FilePanels::ProcessKey(const Manager::Key& Key)
 			process_default = true;
 			if (ActivePanel()->IsVisible())
 			{
-				auto atype = ActivePanel()->GetType();
-				bool active_redraw = (atype == panel_type::FILE_PANEL || atype == panel_type::INFO_PANEL || atype == panel_type::QVIEW_PANEL);
+				const auto atype = ActivePanel()->GetType();
+				const auto active_redraw = (atype == panel_type::FILE_PANEL || atype == panel_type::INFO_PANEL || atype == panel_type::QVIEW_PANEL);
 				bool passive_redraw = false;
 				if (PassivePanel()->IsVisible())
 				{
-					auto ptype = PassivePanel()->GetType();
+					const auto ptype = PassivePanel()->GetType();
 					passive_redraw = (ptype == panel_type::FILE_PANEL || ptype == panel_type::INFO_PANEL || ptype == panel_type::QVIEW_PANEL);
 				}
 				if (active_redraw || passive_redraw)
@@ -565,9 +565,9 @@ bool FilePanels::ProcessKey(const Manager::Key& Key)
 		case KEY_RCTRLO:
 		{
 			{
-				int LeftVisible = LeftPanel()->IsVisible();
-				int RightVisible = RightPanel()->IsVisible();
-				int HideState=!LeftVisible && !RightVisible;
+				const auto LeftVisible = LeftPanel()->IsVisible();
+				const auto RightVisible = RightPanel()->IsVisible();
+				const auto HideState = !LeftVisible && !RightVisible;
 
 				if (!HideState)
 				{
@@ -828,7 +828,7 @@ bool FilePanels::ProcessKey(const Manager::Key& Key)
 
 bool FilePanels::ChangePanelViewMode(panel_ptr Current, int Mode, bool RefreshWindow)
 {
-	if (Current && Mode >= VIEW_0 && Mode < (int)Global->Opt->ViewSettings.size())
+	if (Current && Mode >= VIEW_0 && static_cast<size_t>(Mode) < Global->Opt->ViewSettings.size())
 	{
 		Current->SetViewMode(Mode);
 		Current = ChangePanelToFilled(Current, panel_type::FILE_PANEL);
@@ -911,15 +911,15 @@ panel_ptr FilePanels::ChangePanel(panel_ptr Current, panel_type NewType, int Cre
 
 	bool UsedLastPanel = false;
 
-	int OldViewMode=Current->GetPrevViewMode();
-	bool OldFullScreen=Current->IsFullScreen();
-	const auto OldSortMode=Current->GetPrevSortMode();
-	bool OldSortOrder=Current->GetPrevSortOrder();
-	bool OldSortGroups=Current->GetSortGroups();
-	bool OldShowShortNames=Current->GetShowShortNamesMode();
-	bool OldFocus = Current->IsFocused();
-	bool OldSelectedFirst=Current->GetSelectedFirstMode();
-	bool OldDirectoriesFirst=Current->GetPrevDirectoriesFirst();
+	const auto OldViewMode = Current->GetPrevViewMode();
+	const auto OldFullScreen = Current->IsFullScreen();
+	const auto OldSortMode = Current->GetPrevSortMode();
+	const auto OldSortOrder = Current->GetPrevSortOrder();
+	const auto OldSortGroups = Current->GetSortGroups();
+	const auto OldShowShortNames = Current->GetShowShortNamesMode();
+	const auto OldFocus = Current->IsFocused();
+	const auto OldSelectedFirst = Current->GetSelectedFirstMode();
+	const auto OldDirectoriesFirst = Current->GetPrevDirectoriesFirst();
 	const auto LeftPosition = (Current == LeftPanel());
 
 	auto& LastFilePanel = m_Panels[LeftPosition? panel_left : panel_right].m_LastFilePanel;

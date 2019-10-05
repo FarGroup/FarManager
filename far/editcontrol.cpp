@@ -64,7 +64,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/algorithm.hpp"
 #include "common/enum_tokens.hpp"
 #include "common/enum_substrings.hpp"
-#include "common/scope_exit.hpp"
 
 // External:
 
@@ -130,7 +129,7 @@ void EditControl::Changed(bool DelBlock)
 
 void EditControl::SetMenuPos(VMenu2& menu)
 {
-	int MaxHeight = std::min(Global->Opt->Dialogs.CBoxMaxHeight.Get(), static_cast<long long>(menu.size())) + 1;
+	const int MaxHeight = std::min(Global->Opt->Dialogs.CBoxMaxHeight.Get(), static_cast<long long>(menu.size())) + 1;
 
 	const auto NewX2 = std::max(std::min(ScrX - 2, static_cast<int>(m_Where.right)), m_Where.left + 20);
 
@@ -528,14 +527,14 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 				::GetCursorType(Visible, Size);
 				ComplMenu->Key(KEY_NONE);
 				bool IsChanged = false;
-				int ExitCode=ComplMenu->Run([&](const Manager::Key& RawKey)
+				const auto ExitCode = ComplMenu->Run([&](const Manager::Key& RawKey)
 				{
 					auto MenuKey = RawKey();
 					::SetCursorType(Visible, Size);
 
 					if(!Global->Opt->AutoComplete.ModalList)
 					{
-						int CurPos=ComplMenu->GetSelectPos();
+						const auto CurPos = ComplMenu->GetSelectPos();
 						if(CurPos>=0 && (PrevPos!=CurPos || IsChanged))
 						{
 							PrevPos=CurPos;
@@ -742,7 +741,7 @@ void EditControl::AutoComplete(bool Manual,bool DelBlock)
 		struct FAR_INPUT_RECORD irec = { static_cast<DWORD>(Key()), Key.Event() };
 		if(!Global->CtrlObject->Macro.ProcessEvent(&irec))
 			m_ParentProcessKey(Key);
-		int CurWindowType = Global->WindowManager->GetCurrentWindow()->GetType();
+		const auto CurWindowType = Global->WindowManager->GetCurrentWindow()->GetType();
 		if (CurWindowType == windowtype_dialog || CurWindowType == windowtype_panels)
 		{
 			Show();

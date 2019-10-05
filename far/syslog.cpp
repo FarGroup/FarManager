@@ -886,20 +886,6 @@ string __EE_ToName(int Command)
 #endif
 }
 
-string __EEREDRAW_ToName(int Command)
-{
-#if defined(SYSLOG)
-#define DEF_EEREDRAW_(m) { (DWORD)(intptr_t)EEREDRAW_##m , L###m }
-	__XXX_Name EEREDRAW[]=
-	{
-		DEF_EEREDRAW_(ALL),
-	};
-	return _XXX_ToName(Command,L"EEREDRAW",EEREDRAW,std::size(EEREDRAW));
-#else
-	return {};
-#endif
-}
-
 string __ESPT_ToName(int Command)
 {
 #if defined(SYSLOG_KEYMACRO) || defined(SYSLOG_ECTL)
@@ -1718,7 +1704,7 @@ string __INPUT_RECORD_Dump(const INPUT_RECORD *rec)
 		case KEY_EVENT:
 		case 0:
 		{
-			WORD AsciiChar = (WORD)(BYTE)rec->Event.KeyEvent.uChar.AsciiChar;
+			const auto AsciiChar = static_cast<WORD>(static_cast<BYTE>(rec->Event.KeyEvent.uChar.AsciiChar));
 			Records = str_printf(
 			    L"%s: %s, %d, Vk=%s, Scan=0x%04X uChar=[U='%c' (0x%04X): A='%C' (0x%02X)] Ctrl=0x%08X (%c%c%c%c%c - %c%c%c%c)",
 			    (rec->EventType==KEY_EVENT?L"KEY_EVENT_RECORD":L"(internal, macro)_KEY_EVENT"),

@@ -388,7 +388,7 @@ bool PreserveStyleReplaceString(
 							CommonTypeMask &= i.TypeMask;
 					}
 
-					PreserveStyleType CommonType = ChoosePreserveStyleType(CommonTypeMask);
+					const auto CommonType = ChoosePreserveStyleType(CommonTypeMask);
 					if (CommonTypeMask != -1 && CommonType == UNKNOWN)
 						CommonTypeMask = -1;
 

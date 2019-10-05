@@ -173,7 +173,7 @@ static TypeString checkTypeString(const string& TestStr)
 						}
 
 						isExpSign=true;
-						wchar_t ch3=*ptrTestStr++;
+						const auto ch3 = *ptrTestStr++;
 
 						if (!std::iswdigit(ch3))   // за знаком идет число?
 						{

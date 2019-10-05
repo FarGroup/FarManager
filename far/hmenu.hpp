@@ -87,13 +87,13 @@ private:
 	void ShowMenu();
 	bool ProcessCurrentSubMenu();
 	bool ProcessPositioningKey(unsigned LocalKey);
-	wchar_t GetHighlights(const HMenuData& Item) const;
+	static wchar_t GetHighlights(const HMenuData& Item);
 	size_t CheckHighlights(WORD CheckSymbol, int StartPos = 0) const;
 	bool TestMouse(const MOUSE_EVENT_RECORD *MouseEvent) const;
 	void UpdateSelectPos();
 
-	span<HMenuData> Item;
-	size_t SelectPos;
+	span<HMenuData> m_Item;
+	size_t m_SelectPos;
 	int m_VExitCode;
 	bool m_SubmenuOpened;
 };

@@ -73,7 +73,7 @@ private:
 	Viewer* GetById(int ID) override;
 
 	bool ShowDirDescription(int YPos);
-	bool ShowPluginDescription(int YPos);
+	bool ShowPluginDescription(int YPos) const;
 	void PrintText(string_view Str) const;
 	void PrintText(lng MsgID) const;
 	void PrintInfo(const string& Str) const;

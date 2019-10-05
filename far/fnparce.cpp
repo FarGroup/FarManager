@@ -258,7 +258,7 @@ static size_t SkipInputToken(string_view const Str, subst_strings* const Strings
 	if (!cTail)
 		return 0;
 
-	string_view Tail(cTail);
+	const string_view Tail(cTail);
 
 	auto Range = Tail;
 
@@ -823,7 +823,7 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 
 */
 bool SubstFileName(
-	string &strStr,                  // результирующая строка
+	string &Str,                  // результирующая строка
 	const subst_context& Context,
 	delayed_deleter* ListNames,
 	bool* PreserveLongName,
@@ -844,7 +844,7 @@ bool SubstFileName(
 	  нужно будет либо убрать эту проверку либо изменить условие (последнее
 	  предпочтительнее!)
 	*/
-	if (!contains(strStr, L'!'))
+	if (!contains(Str, L'!'))
 		return true;
 
 	subst_data SubstData;
@@ -854,10 +854,10 @@ bool SubstFileName(
 	SubstData.ListNames = ListNames;
 	SubstData.CmdDir = CmdLineDir.empty()? Global->CtrlObject->CmdLine()->GetCurDir() : CmdLineDir;
 
-	const auto GetNameOnly = [](string_view Str)
+	const auto GetNameOnly = [](string_view WithExt)
 	{
-		Str.remove_suffix(PointToExt(Str).size());
-		return Str;
+		WithExt.remove_suffix(PointToExt(WithExt).size());
+		return WithExt;
 	};
 
 	// Предварительно получим некоторые "константы" :-)
@@ -879,9 +879,9 @@ bool SubstFileName(
 	SubstData.PassivePanel = false; // первоначально речь идет про активную панель!
 	SubstData.EscapeAmpersands = EscapeAmpersands;
 
-	strStr = ProcessMetasymbols(strStr, SubstData);
+	Str = ProcessMetasymbols(Str, SubstData);
 
-	const auto Result = IgnoreInput || InputVariablesDialog(strStr, SubstData, DlgTitle.empty()? DlgTitle : os::env::expand(DlgTitle));
+	const auto Result = IgnoreInput || InputVariablesDialog(Str, SubstData, DlgTitle.empty()? DlgTitle : os::env::expand(DlgTitle));
 
 	if (PreserveLongName)
 		*PreserveLongName = SubstData.PreserveLFN;

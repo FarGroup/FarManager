@@ -216,7 +216,7 @@ static bool SortFileList(CustomSort* cs, wchar_t* indicator)
 
 static bool CanSort(int SortMode)
 {
-	FarMacroValue values[] = {(double)SortMode};
+	FarMacroValue values[] = {static_cast<double>(SortMode)};
 	FarMacroCall fmc = {sizeof(FarMacroCall),std::size(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info = {MCT_CANPANELSORT,&fmc};
 	void *ptr;
@@ -2258,20 +2258,20 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 		case KEY_MSWHEEL_UP:
 		case KEY_MSWHEEL_UP | KEY_ALT:
 		case KEY_MSWHEEL_UP | KEY_RALT:
-			Scroll(LocalKey & (KEY_ALT|KEY_RALT)?-1:(int)-Global->Opt->MsWheelDelta);
+			Scroll(LocalKey & (KEY_ALT | KEY_RALT)? -1 : static_cast<int>(-Global->Opt->MsWheelDelta));
 			return true;
 
 		case KEY_MSWHEEL_DOWN:
 		case KEY_MSWHEEL_DOWN | KEY_ALT:
 		case KEY_MSWHEEL_DOWN | KEY_RALT:
-			Scroll(LocalKey & (KEY_ALT|KEY_RALT)?1:(int)Global->Opt->MsWheelDelta);
+			Scroll(LocalKey & (KEY_ALT | KEY_RALT)? 1 : static_cast<int>(Global->Opt->MsWheelDelta));
 			return true;
 
 		case KEY_MSWHEEL_LEFT:
 		case KEY_MSWHEEL_LEFT | KEY_ALT:
 		case KEY_MSWHEEL_LEFT | KEY_RALT:
 		{
-			int Roll = LocalKey & (KEY_ALT|KEY_RALT)?1:(int)Global->Opt->MsHWheelDelta;
+			int Roll = LocalKey & (KEY_ALT | KEY_RALT)? 1 : static_cast<int>(Global->Opt->MsHWheelDelta);
 			for (int i=0; i<Roll; i++)
 				ProcessKey(Manager::Key(KEY_LEFT));
 			return true;
@@ -2281,7 +2281,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 		case KEY_MSWHEEL_RIGHT | KEY_ALT:
 		case KEY_MSWHEEL_RIGHT | KEY_RALT:
 		{
-			int Roll = LocalKey & (KEY_ALT|KEY_RALT)?1:(int)Global->Opt->MsHWheelDelta;
+			int Roll = LocalKey & (KEY_ALT | KEY_RALT)? 1 : static_cast<int>(Global->Opt->MsHWheelDelta);
 			for (int i=0; i<Roll; i++)
 				ProcessKey(Manager::Key(KEY_RIGHT));
 			return true;
@@ -2775,9 +2775,9 @@ bool FileList::SetCurDir(const string& NewDir,bool ClosePanel,bool IsUpdated)
 	{
 		if (ClosePanel)
 		{
-			bool CheckFullScreen=IsFullScreen();
+			const auto CheckFullScreen = IsFullScreen();
 			Global->CtrlObject->Plugins->GetOpenPanelInfo(GetPluginHandle(), &m_CachedOpenPanelInfo);
-			string strInfoHostFile=NullToEmpty(m_CachedOpenPanelInfo.HostFile);
+			const string strInfoHostFile = NullToEmpty(m_CachedOpenPanelInfo.HostFile);
 
 			for (;;)
 			{
@@ -2816,7 +2816,7 @@ bool FileList::SetCurDir(const string& NewDir,bool ClosePanel,bool IsUpdated)
 	return false;
 }
 
-bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePath,bool IsUpdated, const UserDataItem* DataItem, OPENFILEPLUGINTYPE ofp_type)
+bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePath,bool IsUpdated, const UserDataItem* DataItem, OPENFILEPLUGINTYPE OfpType)
 {
 	if (m_PanelMode != panel_mode::PLUGIN_PANEL && !IsAbsolutePath(NewDir) && !equal_icase(os::fs::GetCurrentDirectory(), m_CurDir))
 		FarChDir(m_CurDir);
@@ -2909,7 +2909,7 @@ bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePa
 		else
 		{
 			strFindDir = strInfoCurDir;
-			auto opmode = static_cast<int>(ofp_type == OFP_ALTERNATIVE ? OPM_PGDN : OPM_NONE);
+			auto opmode = static_cast<int>(OfpType == OFP_ALTERNATIVE ? OPM_PGDN : OPM_NONE);
 
 			SetDirectorySuccess = Global->CtrlObject->Plugins->SetDirectory(GetPluginHandle(), strSetDir, opmode, DataItem) != FALSE;
 		}
@@ -3137,9 +3137,7 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				FlushInputBuffer(); // !!!
 				INPUT_RECORD rec;
 				ProcessKeyToInputRecord(VK_RETURN,IntKeyState.ShiftPressed()? PKF_SHIFT:0,&rec);
-				int ProcessCode = Global->CtrlObject->Plugins->ProcessKey(GetPluginHandle(), &rec, false);
-
-				if (ProcessCode)
+				if (Global->CtrlObject->Plugins->ProcessKey(GetPluginHandle(), &rec, false))
 					return true;
 			}
 
@@ -3314,21 +3312,22 @@ void FileList::SetViewMode(int Mode)
 	if (static_cast<size_t>(Mode) >= Global->Opt->ViewSettings.size())
 		Mode=VIEW_0;
 
-	bool CurFullScreen=IsFullScreen();
-	bool OldOwner=IsColumnDisplayed(column_type::owner);
-	bool OldPacked=IsColumnDisplayed(column_type::size_compressed);
-	bool OldNumLink=IsColumnDisplayed(column_type::links_number);
-	bool OldNumStreams=IsColumnDisplayed(column_type::streams_number);
-	bool OldStreamsSize=IsColumnDisplayed(column_type::streams_size);
-	bool OldDiz=IsColumnDisplayed(column_type::description);
+	const auto CurFullScreen = IsFullScreen();
+	const auto OldOwner = IsColumnDisplayed(column_type::owner);
+	const auto OldPacked = IsColumnDisplayed(column_type::size_compressed);
+	const auto OldNumLink = IsColumnDisplayed(column_type::links_number);
+	const auto OldNumStreams = IsColumnDisplayed(column_type::streams_number);
+	const auto OldStreamsSize = IsColumnDisplayed(column_type::streams_size);
+	const auto OldDiz = IsColumnDisplayed(column_type::description);
 	PrepareViewSettings(Mode);
-	bool NewOwner=IsColumnDisplayed(column_type::owner);
-	bool NewPacked=IsColumnDisplayed(column_type::size_compressed);
-	bool NewNumLink=IsColumnDisplayed(column_type::links_number);
-	bool NewNumStreams=IsColumnDisplayed(column_type::streams_number);
-	bool NewStreamsSize=IsColumnDisplayed(column_type::streams_size);
-	bool NewDiz=IsColumnDisplayed(column_type::description);
-	bool NewAccessTime=IsColumnDisplayed(column_type::date_access);
+	const auto NewOwner = IsColumnDisplayed(column_type::owner);
+	auto NewPacked = IsColumnDisplayed(column_type::size_compressed);
+	const auto NewNumLink = IsColumnDisplayed(column_type::links_number);
+	const auto NewNumStreams = IsColumnDisplayed(column_type::streams_number);
+	const auto NewStreamsSize = IsColumnDisplayed(column_type::streams_size);
+	const auto NewDiz = IsColumnDisplayed(column_type::description);
+	const auto NewAccessTime = IsColumnDisplayed(column_type::date_access);
+
 	DWORD FileSystemFlags = 0;
 	if (NewPacked && os::fs::GetVolumeInformation(GetPathRoot(m_CurDir), nullptr, nullptr, nullptr, &FileSystemFlags, nullptr))
 		if (!(FileSystemFlags&FILE_FILE_COMPRESSION))
@@ -3520,7 +3519,7 @@ long FileList::FindNext(int StartPos, const string& Name)
 
 bool FileList::IsSelected(const string& Name)
 {
-	long Pos=FindFile(Name);
+	const long Pos = FindFile(Name);
 	return Pos!=-1 && (m_ListData[Pos].Selected || (!m_SelFileCount && Pos==m_CurFile));
 }
 
@@ -4679,7 +4678,7 @@ void FileList::SelectSortMode()
 	}
 
 	// predefined sort modes
-	if (SortCode<(int)std::size(SortModes))
+	if (static_cast<size_t>(SortCode) < std::size(SortModes))
 	{
 		bool KeepOrder = false;
 
@@ -4692,14 +4691,14 @@ void FileList::SelectSortMode()
 		SetSortMode(SortModes[SortCode], KeepOrder);
 	}
 	// custom sort modes
-	else if (SortCode>=(int)std::size(SortModes) + 1 && SortCode<(int)(std::size(SortModes) + 1 + extra - 1))
+	else if (static_cast<size_t>(SortCode) >= std::size(SortModes) + 1 && static_cast<size_t>(SortCode) < std::size(SortModes) + 1 + extra - 1)
 	{
 		const auto index = 3*(SortCode-std::size(SortModes)-1);
-		int mode = (int)mpr->Values[index].Double;
+		const auto mode = static_cast<int>(mpr->Values[index].Double);
 
 		if (custom_sort::CanSort(mode))
 		{
-			bool InvertByDefault = mpr->Values[index+1].Boolean != 0;
+			const auto InvertByDefault = mpr->Values[index+1].Boolean != 0;
 			sort_order Order = SO_AUTO;
 
 			if (!InvertPressed)
@@ -5071,7 +5070,7 @@ plugin_panel* FileList::OpenFilePlugin(const string& FileName, int PushPrev, OPE
 
 	auto hNewPlugin = OpenPluginForFile(FileName, 0, Type, StopProcessing);
 
-	auto hNewPluginRawCopy = hNewPlugin.get();
+	const auto hNewPluginRawCopy = hNewPlugin.get();
 
 	if (hNewPlugin)
 	{
@@ -5080,7 +5079,7 @@ plugin_panel* FileList::OpenFilePlugin(const string& FileName, int PushPrev, OPE
 			PrevDataList.emplace_back(FileName, std::move(m_ListData), m_CurTopFile);
 		}
 
-		bool WasFullscreen = IsFullScreen();
+		const auto WasFullscreen = IsFullScreen();
 		SetPluginMode(std::move(hNewPlugin), FileName);  // SendOnFocus??? true???
 		m_PanelMode = panel_mode::PLUGIN_PANEL;
 		UpperFolderTopFile=m_CurTopFile;
@@ -5153,7 +5152,7 @@ void FileList::ProcessCopyKeys(int Key)
 								if (m_CachedOpenPanelInfo.HostFile && *m_CachedOpenPanelInfo.HostFile)
 								{
 									strDestPath = PointToName(m_CachedOpenPanelInfo.HostFile);
-									size_t pos = strDestPath.rfind(L'.');
+									const auto pos = strDestPath.rfind(L'.');
 									if (pos != string::npos)
 										strDestPath.resize(pos);
 								}
@@ -5421,7 +5420,7 @@ void FileList::PopPrevData(const string& DefaultName,bool Closed,bool UsePrev,bo
 	}
 	if (Position)
 	{
-		long Pos=FindFile(PointToName(strName));
+		const auto Pos = FindFile(PointToName(strName));
 
 		if (Pos!=-1)
 			m_CurFile=Pos;
@@ -5618,8 +5617,8 @@ plugin_item_list FileList::CreatePluginItemList()
 	if (m_ListData.empty())
 		return ItemList;
 
-	long SaveSelPosition=GetSelPosition;
-	long OldLastSelPosition=LastSelPosition;
+	const auto SaveSelPosition = GetSelPosition;
+	const auto OldLastSelPosition = LastSelPosition;
 
 	ItemList.reserve(m_SelFileCount+1);
 
@@ -5670,7 +5669,7 @@ void FileList::PluginDelete()
 }
 
 
-void FileList::PutDizToPlugin(FileList *DestPanel, const std::vector<PluginPanelItem>& ItemList, bool Delete, bool Move, DizList *SrcDiz)
+void FileList::PutDizToPlugin(FileList *DestPanel, const std::vector<PluginPanelItem>& ItemList, bool Delete, bool Move, DizList *SrcDiz) const
 {
 	_ALGO(CleverSysLog clv(L"FileList::PutDizToPlugin()"));
 
@@ -5821,7 +5820,7 @@ void FileList::PluginToPluginFiles(bool Move)
 
 	SaveSelection();
 	auto strTempDir = MakeTemp();
-	string OriginalTempDir = strTempDir;
+	const auto OriginalTempDir = strTempDir;
 	// BUGBUG check result
 	(void)os::fs::create_directory(strTempDir);
 
@@ -5891,7 +5890,7 @@ void FileList::PluginHostGetFiles()
 	{
 		strDestPath = PointToName(Data.FileName);
 		// SVS: А зачем здесь велся поиск точки с начала?
-		size_t pos = strDestPath.rfind(L'.');
+		const auto pos = strDestPath.rfind(L'.');
 		if (pos != string::npos)
 			strDestPath.resize(pos);
 	}
@@ -5963,7 +5962,7 @@ void FileList::PluginPutFilesToNew()
 		Если PluginPutFilesToAnother вернула число, отличное от 2, то нужно
 		попробовать установить курсор на созданный файл.
 	*/
-	int rc = PluginPutFilesToAnother(false, TmpPanel);
+	const auto rc = PluginPutFilesToAnother(false, TmpPanel);
 
 	if (rc != 2 && m_ListData.size() == PrevFileCount+1)
 	{
@@ -6103,7 +6102,7 @@ void FileList::ProcessHostFile()
 		}
 		else
 		{
-			size_t SCount=GetRealSelCount();
+			const auto SCount = GetRealSelCount();
 
 			if (SCount > 0)
 			{
@@ -6262,7 +6261,8 @@ size_t FileList::PluginGetSelectedPanelItem(int ItemNumber,FarGetPluginPanelItem
 		{
 			if (ItemNumber<CacheSelIndex) CacheSelIndex=-1;
 
-			int CurSel=CacheSelIndex,StartValue=CacheSelIndex>=0?CacheSelPos+1:0;
+			int CurSel = CacheSelIndex;
+			const int StartValue = CacheSelIndex >= 0? CacheSelPos + 1 : 0;
 
 			for (size_t i=StartValue; i<m_ListData.size(); i++)
 			{
@@ -6313,7 +6313,8 @@ void FileList::PluginClearSelection(int SelectedItemNumber)
 			CacheSelClearIndex=-1;
 		}
 
-		int CurSel=CacheSelClearIndex,StartValue=CacheSelClearIndex>=0?CacheSelClearPos+1:0;
+		int CurSel = CacheSelClearIndex;
+		const auto StartValue = CacheSelClearIndex >= 0? CacheSelClearPos + 1 : 0;
 
 		for (size_t i=StartValue; i < m_ListData.size(); i++)
 		{
@@ -7901,7 +7902,7 @@ void FileList::PreparePanelView()
 }
 
 
-void FileList::PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen)
+void FileList::PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen) const
 {
 	int ZeroLengthCount = 0;
 	int EmptyColumns = 0;
@@ -7948,7 +7949,7 @@ void FileList::PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen
 
 	if (TotalPercentCount>0)
 	{
-		int ExtraPercentWidth=(TotalPercentWidth>100 || !ZeroLengthCount)?ExtraWidth:ExtraWidth*TotalPercentWidth/100;
+		const auto ExtraPercentWidth = (TotalPercentWidth > 100 || !ZeroLengthCount) ? ExtraWidth : ExtraWidth * TotalPercentWidth / 100;
 		int TempWidth=0;
 
 		for (auto& i: Columns)
@@ -8620,7 +8621,7 @@ void FileList::MoveSelection(direction Direction)
 		return;
 
 	assert(m_CurFile < static_cast<int>(m_ListData.size()));
-	auto CurPtr = &m_ListData[m_CurFile];
+	const auto CurPtr = &m_ListData[m_CurFile];
 
 	if (ShiftSelection==-1)
 	{

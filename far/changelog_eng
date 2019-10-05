@@ -3,6 +3,16 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 05.10.2019 23:31:53 +0100 - build 5481
+
+1. Refactoring.
+
+2. More const.
+
+3. More tests.
+
+4. Warnings.
+
 drkns 03.10.2019 19:42:28 +0100 - build 5480
 
 1. 0003742: Far incorrectly (?) passes names longer than 259 symbols to other programs.

@@ -205,7 +205,7 @@ bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointT
 
 						if (ObjectCreated)
 						{
-							block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
+							const block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
 
 							rdb->ReparseTag=IO_REPARSE_TAG_SYMLINK;
 							const auto& strPrintName = Target;
@@ -238,7 +238,7 @@ bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointT
 			{
 				const auto strPrintName = ConvertNameToFull(Target);
 				const auto strSubstituteName = KernelPath(NTPath(strPrintName));
-				block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
+				const block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
 				rdb->ReparseTag=IO_REPARSE_TAG_MOUNT_POINT;
 
 				if (FillREPARSE_DATA_BUFFER(rdb.get(), strPrintName, strSubstituteName))
@@ -272,7 +272,7 @@ static bool GetREPARSE_DATA_BUFFER(const string& Object, REPARSE_DATA_BUFFER* rd
 
 bool DeleteReparsePoint(const string& Object)
 {
-	block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
+	const block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
 	if (!GetREPARSE_DATA_BUFFER(Object, rdb.get()))
 		return false;
 
@@ -284,9 +284,9 @@ bool DeleteReparsePoint(const string& Object)
 	return fObject.IoControl(FSCTL_DELETE_REPARSE_POINT, &rgdb, REPARSE_GUID_DATA_BUFFER_HEADER_SIZE, nullptr, 0);
 }
 
-bool GetReparsePointInfo(const string& Object, string &strDestBuff,LPDWORD ReparseTag)
+bool GetReparsePointInfo(const string& Object, string& DestBuffer, LPDWORD ReparseTag)
 {
-	block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
+	const block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
 	if (!GetREPARSE_DATA_BUFFER(Object, rdb.get()))
 		return false;
 
@@ -311,7 +311,7 @@ bool GetReparsePointInfo(const string& Object, string &strDestBuff,LPDWORD Repar
 		if (!NameLength)
 			return false;
 
-		strDestBuff.assign(PathBuffer, NameLength);
+		DestBuffer.assign(PathBuffer, NameLength);
 		return true;
 	};
 
@@ -470,7 +470,7 @@ string GetPathRoot(string_view const Path)
 
 bool ModifyReparsePoint(const string& Object,const string& NewData)
 {
-	block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
+	const block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
 	if (!GetREPARSE_DATA_BUFFER(Object, rdb.get()))
 		return false;
 
@@ -520,7 +520,7 @@ bool ModifyReparsePoint(const string& Object,const string& NewData)
 
 bool DuplicateReparsePoint(const string& Src,const string& Dst)
 {
-	block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
+	const block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
 	return GetREPARSE_DATA_BUFFER(Src, rdb.get()) && SetREPARSE_DATA_BUFFER(Dst, rdb.get());
 }
 

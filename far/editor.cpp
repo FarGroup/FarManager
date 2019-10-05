@@ -3494,7 +3494,7 @@ bool Editor::Search(bool Next)
 			QuotedStr = strSlash;
 
 			// Q: что важнее: опция диалога или опция RegExp`а?
-			if (!re.Compile(strSlash.c_str(), OP_PERLSTYLE | OP_OPTIMIZE | (Case? 0 : OP_IGNORECASE)))
+			if (!re.Compile(strSlash, OP_PERLSTYLE | OP_OPTIMIZE | (Case? 0 : OP_IGNORECASE)))
 			{
 				ReCompileErrorMessage(re, strSlash);
 				return false; //BUGBUG
@@ -5767,7 +5767,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		// TODO: Если DI_MEMOEDIT не будет юзать раскраску, то должно выполняется в FileEditor::EditorControl(), в диалоге - нафиг ненать
 		case ECTL_GETCOLOR:
 		{
-			EditorColor *col=(EditorColor *)Param2;
+			const auto col = static_cast<EditorColor*>(Param2);
 			if (CheckStructSize(col))
 			{
 				const auto CurPtr = GetStringByNumber(col->StringNumber);
@@ -5828,7 +5828,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		*/
 		case ECTL_SETPARAM:
 		{
-			EditorSetParameter *espar=(EditorSetParameter *)Param2;
+			const auto espar = static_cast<const EditorSetParameter*>(Param2);
 			if (CheckStructSize(espar))
 			{
 				int rc=TRUE;
@@ -5843,7 +5843,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 						if (espar->wszParam && espar->Size)
 							xwcsncpy(espar->wszParam,EdOpt.strWordDiv.c_str(), espar->Size);
 
-						rc=(int)EdOpt.strWordDiv.Get().size()+1;
+						rc = static_cast<int>(EdOpt.strWordDiv.Get().size()) + 1;
 						break;
 					case ESPT_SETWORDDIV:
 						_ECTLLOG(SysLog(L"  wszParam    =[%s]",espar->wszParam));
@@ -6075,7 +6075,7 @@ bool Editor::RestoreSessionBookmark()
 {
 	NewSessionPos = false;
 	//only if the cursor is elsewhere
-	if (!SessionBookmarks.empty() && ((int)SessionPos->Line != m_it_CurLine.Number() || (int)SessionPos->Cursor != m_it_CurLine->GetCurPos()))
+	if (!SessionBookmarks.empty() && (static_cast<int>(SessionPos->Line) != m_it_CurLine.Number() || static_cast<int>(SessionPos->Cursor) != m_it_CurLine->GetCurPos()))
 	{
 		GoToLine(SessionPos->Line);
 		m_it_CurLine->SetCurPos(SessionPos->Cursor);
@@ -6158,7 +6158,7 @@ bool Editor::BackSessionBookmark()
 			NewSessionPos = false;
 			// ... if current bookmark is last and current_position != bookmark_position
 			// save current position as new bookmark
-			if (std::next(SessionPos) == SessionBookmarks.end() && ((int)SessionPos->Line != m_it_CurLine.Number() || (int)SessionPos->Cursor != m_it_CurLine->GetCurPos()))
+			if (std::next(SessionPos) == SessionBookmarks.end() && (static_cast<int>(SessionPos->Line) != m_it_CurLine.Number() || static_cast<int>(SessionPos->Cursor) != m_it_CurLine->GetCurPos()))
 				AddSessionBookmark(false);
 		}
 

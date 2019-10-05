@@ -64,8 +64,6 @@ string __ECTL_ToName(int Command);
 #define _ECTL_ToName(K) __ECTL_ToName(K).c_str()
 string __EE_ToName(int Command);
 #define _EE_ToName(K) __EE_ToName(K).c_str()
-string __EEREDRAW_ToName(int Command);
-#define _EEREDRAW_ToName(K) __EEREDRAW_ToName(K).c_str()
 string __ESPT_ToName(int Command);
 #define _ESPT_ToName(K) __ESPT_ToName(K).c_str()
 string __VE_ToName(int Command);

@@ -77,8 +77,8 @@ public:
 	bool SetVText(string_view Str);
 	bool SetHDROP(string_view NamesData, bool bMoved);
 
-	bool GetText(string& data) const;
-	bool GetVText(string& data) const;
+	bool GetText(string& Data) const;
+	bool GetVText(string& Data) const;
 
 protected:
 	enum class clipboard_format;

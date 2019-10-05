@@ -63,8 +63,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
 HMenu::HMenu(private_tag, HMenuData *Item,size_t ItemCount):
-	Item(Item, Item + ItemCount),
-	SelectPos(),
+	m_Item(Item, Item + ItemCount),
+	m_SelectPos(),
 	m_VExitCode(-1),
 	m_SubmenuOpened()
 {
@@ -100,7 +100,7 @@ void HMenu::ShowMenu()
 {
 	GotoXY(m_Where.left + 2, m_Where.top);
 
-	for (auto& i: Item)
+	for (auto& i: m_Item)
 	{
 		i.XPos = WhereX();
 
@@ -112,12 +112,12 @@ void HMenu::ShowMenu()
 
 void HMenu::UpdateSelectPos()
 {
-	SelectPos = 0;
+	m_SelectPos = 0;
 
-	const auto Selected = std::find_if(Item.begin(), Item.end(), [](const auto& i) { return i.Selected; });
-	if (Selected != Item.end())
+	const auto Selected = std::find_if(m_Item.begin(), m_Item.end(), [](const auto& i) { return i.Selected; });
+	if (Selected != m_Item.end())
 	{
-		SelectPos = Selected - Item.begin();
+		m_SelectPos = Selected - m_Item.begin();
 	}
 }
 
@@ -128,17 +128,17 @@ long long HMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 	switch (OpCode)
 	{
 		case MCODE_C_EMPTY:
-			return Item.empty();
+			return m_Item.empty();
 		case MCODE_C_EOF:
-			return SelectPos == Item.size() - 1;
+			return m_SelectPos == m_Item.size() - 1;
 		case MCODE_C_BOF:
-			return !SelectPos;
+			return !m_SelectPos;
 		case MCODE_C_SELECTED:
-			return !Item.empty();
+			return !m_Item.empty();
 		case MCODE_V_ITEMCOUNT:
-			return Item.size();
+			return m_Item.size();
 		case MCODE_V_CURPOS:
-			return SelectPos+1;
+			return m_SelectPos+1;
 		case MCODE_F_MENU_CHECKHOTKEY:
 		{
 			return CheckHighlights(*static_cast<const wchar_t *>(vParam), static_cast<int>(iParam))+1;
@@ -147,18 +147,18 @@ long long HMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 		case MCODE_F_MENU_GETVALUE: // S=Menu.GetValue([N])
 		{
 			if (iParam == -1)
-				iParam=SelectPos;
+				iParam=m_SelectPos;
 
-			if (static_cast<size_t>(iParam) < Item.size())
+			if (static_cast<size_t>(iParam) < m_Item.size())
 			{
 				if (OpCode == MCODE_F_MENU_GETVALUE)
 				{
-					*static_cast<string*>(vParam) = Item[static_cast<size_t>(iParam)].Name;
+					*static_cast<string*>(vParam) = m_Item[static_cast<size_t>(iParam)].Name;
 					return 1;
 				}
 				else
 				{
-					return GetHighlights(Item[static_cast<size_t>(iParam)]);
+					return GetHighlights(m_Item[static_cast<size_t>(iParam)]);
 				}
 			}
 
@@ -169,12 +169,12 @@ long long HMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 			long long RetValue = -1;
 
 			if (iParam == -1)
-				iParam=SelectPos;
+				iParam=m_SelectPos;
 
-			if (static_cast<size_t>(iParam) < Item.size())
+			if (static_cast<size_t>(iParam) < m_Item.size())
 			{
 				RetValue=0;
-				if (Item[static_cast<size_t>(iParam)].Selected)
+				if (m_Item[static_cast<size_t>(iParam)].Selected)
 					RetValue |= 1;
 			}
 
@@ -182,7 +182,7 @@ long long HMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 		}
 		case MCODE_V_MENU_VALUE: // Menu.Value
 		{
-			*static_cast<string*>(vParam) = Item[SelectPos].Name;
+			*static_cast<string*>(vParam) = m_Item[m_SelectPos].Name;
 			return 1;
 		}
 	}
@@ -196,24 +196,24 @@ bool HMenu::ProcessPositioningKey(unsigned LocalKey)
 	switch (LocalKey)
 	{
 	case KEY_TAB:
-		Item[SelectPos].Selected = false;
+		m_Item[m_SelectPos].Selected = false;
 		/* Кусок для "некрайних" меню - прыжок к меню пассивной панели */
-		if (SelectPos && SelectPos != Item.size() - 1)
+		if (m_SelectPos && m_SelectPos != m_Item.size() - 1)
 		{
 			if (Global->CtrlObject->Cp()->IsRightActive())
-				SelectPos = 0;
+				m_SelectPos = 0;
 			else
-				SelectPos = Item.size() - 1;
+				m_SelectPos = m_Item.size() - 1;
 		}
 		else
 		{
-			if (!SelectPos)
-				SelectPos = Item.size() - 1;
+			if (!m_SelectPos)
+				m_SelectPos = m_Item.size() - 1;
 			else
-				SelectPos = 0;
+				m_SelectPos = 0;
 		}
 
-		Item[SelectPos].Selected = true;
+		m_Item[m_SelectPos].Selected = true;
 		break;
 
 	case KEY_HOME:
@@ -226,9 +226,9 @@ bool HMenu::ProcessPositioningKey(unsigned LocalKey)
 	case KEY_RCTRLNUMPAD7:
 	case KEY_CTRLNUMPAD9:
 	case KEY_RCTRLNUMPAD9:
-		Item[SelectPos].Selected = false;
-		Item[0].Selected = true;
-		SelectPos = 0;
+		m_Item[m_SelectPos].Selected = false;
+		m_Item[0].Selected = true;
+		m_SelectPos = 0;
 		break;
 
 	case KEY_END:
@@ -241,31 +241,31 @@ bool HMenu::ProcessPositioningKey(unsigned LocalKey)
 	case KEY_RCTRLNUMPAD1:
 	case KEY_CTRLNUMPAD3:
 	case KEY_RCTRLNUMPAD3:
-		Item[SelectPos].Selected = false;
-		Item[Item.size() - 1].Selected = true;
-		SelectPos = Item.size() - 1;
+		m_Item[m_SelectPos].Selected = false;
+		m_Item[m_Item.size() - 1].Selected = true;
+		m_SelectPos = m_Item.size() - 1;
 		break;
 
 	case KEY_LEFT:
 	case KEY_NUMPAD4:
 	case KEY_MSWHEEL_LEFT:
-		Item[SelectPos].Selected = false;
-		if (!SelectPos)
-			SelectPos = Item.size() - 1;
+		m_Item[m_SelectPos].Selected = false;
+		if (!m_SelectPos)
+			m_SelectPos = m_Item.size() - 1;
 		else
-			--SelectPos;
-		Item[SelectPos].Selected = true;
+			--m_SelectPos;
+		m_Item[m_SelectPos].Selected = true;
 		break;
 
 	case KEY_RIGHT:
 	case KEY_NUMPAD6:
 	case KEY_MSWHEEL_RIGHT:
-		Item[SelectPos].Selected = false;
-		if (SelectPos == Item.size() - 1)
-			SelectPos = 0;
+		m_Item[m_SelectPos].Selected = false;
+		if (m_SelectPos == m_Item.size() - 1)
+			m_SelectPos = 0;
 		else
-			++SelectPos;
-		Item[SelectPos].Selected = true;
+			++m_SelectPos;
+		m_Item[m_SelectPos].Selected = true;
 		break;
 
 	default:
@@ -316,23 +316,23 @@ bool HMenu::ProcessKey(const Manager::Key& Key)
 	default:
 		const auto FindHighlightedKey = [&](bool Translate)
 		{
-			return std::find_if(Item.begin(), Item.end(), [&](const auto& Element)
+			return std::find_if(m_Item.begin(), m_Item.end(), [&](const auto& Element)
 			{
 				return IsKeyHighlighted(Element.Name, LocalKey, Translate);
 			});
 		};
 
 		auto Iterator = FindHighlightedKey(false);
-		if (Iterator == Item.end())
+		if (Iterator == m_Item.end())
 		{
 			Iterator = FindHighlightedKey(true);
-			if (Iterator == Item.end())
+			if (Iterator == m_Item.end())
 				return false;
 		}
 
-		Item[SelectPos].Selected = false;
+		m_Item[m_SelectPos].Selected = false;
 		Iterator->Selected = true;
-		SelectPos = Iterator - Item.begin();
+		m_SelectPos = Iterator - m_Item.begin();
 		ShowMenu();
 		ProcessCurrentSubMenu();
 		return true;
@@ -343,10 +343,10 @@ bool HMenu::ProcessKey(const Manager::Key& Key)
 
 bool HMenu::TestMouse(const MOUSE_EVENT_RECORD *MouseEvent) const
 {
-	int MsX=MouseEvent->dwMousePosition.X;
-	int MsY=MouseEvent->dwMousePosition.Y;
+	const auto MsX = MouseEvent->dwMousePosition.X;
+	const auto MsY = MouseEvent->dwMousePosition.Y;
 
-	return MsY != m_Where.top || ((!SelectPos || MsX >= Item[SelectPos].XPos) && (SelectPos == Item.size() - 1 || MsX<Item[SelectPos + 1].XPos));
+	return MsY != m_Where.top || ((!m_SelectPos || MsX >= m_Item[m_SelectPos].XPos) && (m_SelectPos == m_Item.size() - 1 || MsX < m_Item[m_SelectPos + 1].XPos));
 }
 
 bool HMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
@@ -355,15 +355,15 @@ bool HMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	if (m_Where.contains(MouseEvent->dwMousePosition))
 	{
-		const auto SubmenuIterator = std::find_if(REVERSE_RANGE(Item, i) { return MouseEvent->dwMousePosition.X >= i.XPos; });
-		const size_t NewPos = std::distance(SubmenuIterator, Item.rend()) - 1;
+		const auto SubmenuIterator = std::find_if(REVERSE_RANGE(m_Item, i) { return MouseEvent->dwMousePosition.X >= i.XPos; });
+		const size_t NewPos = std::distance(SubmenuIterator, m_Item.rend()) - 1;
 
-		if (m_SubmenuOpened && SelectPos == NewPos)
+		if (m_SubmenuOpened && m_SelectPos == NewPos)
 			return false;
 
-		Item[SelectPos].Selected = false;
+		m_Item[m_SelectPos].Selected = false;
 		SubmenuIterator->Selected = true;
-		SelectPos = NewPos;
+		m_SelectPos = NewPos;
 		ShowMenu();
 		ProcessCurrentSubMenu();
 	}
@@ -386,7 +386,7 @@ bool HMenu::ProcessCurrentSubMenu()
 	{
 		UpdateSelectPos();
 
-		if (Item[SelectPos].SubMenu.empty())
+		if (m_Item[m_SelectPos].SubMenu.empty())
 			return false;
 
 		bool SendKey = false, SendMouse = false;
@@ -397,11 +397,11 @@ bool HMenu::ProcessCurrentSubMenu()
 			m_SubmenuOpened = true;
 			SCOPE_EXIT{ m_SubmenuOpened = false; };
 
-			const auto SubMenu = VMenu2::create({}, Item[SelectPos].SubMenu);
+			const auto SubMenu = VMenu2::create({}, m_Item[m_SelectPos].SubMenu);
 			SubMenu->SetBoxType(SHORT_DOUBLE_BOX);
 			SubMenu->SetMenuFlags(VMENU_WRAPMODE);
-			SubMenu->SetHelp(Item[SelectPos].SubMenuHelp);
-			SubMenu->SetPosition({ Item[SelectPos].XPos, m_Where.top + 1, 0, 0 });
+			SubMenu->SetHelp(m_Item[m_SelectPos].SubMenuHelp);
+			SubMenu->SetPosition({ m_Item[m_SelectPos].XPos, m_Where.top + 1, 0, 0 });
 			SubMenu->SetMacroMode(MACROAREA_MAINMENU);
 
 			m_VExitCode = SubMenu->RunEx([&](int Msg, void *param)
@@ -410,7 +410,7 @@ bool HMenu::ProcessCurrentSubMenu()
 					return 0;
 
 				auto& rec = *static_cast<INPUT_RECORD*>(param);
-				int Key = InputRecordToKey(&rec);
+				const auto Key = InputRecordToKey(&rec);
 
 				if (Key == KEY_CONSOLE_BUFFER_RESIZE)
 				{
@@ -448,7 +448,7 @@ bool HMenu::ProcessCurrentSubMenu()
 
 			if (m_VExitCode != -1)
 			{
-				Close(static_cast<int>(SelectPos));
+				Close(static_cast<int>(m_SelectPos));
 				return true;
 			}
 		}
@@ -472,16 +472,16 @@ void HMenu::ResizeConsole()
 	SetPosition({ 0, 0, ScrX, 0 });
 }
 
-wchar_t HMenu::GetHighlights(const HMenuData& MenuItem) const
+wchar_t HMenu::GetHighlights(const HMenuData& Item)
 {
-	const auto Pos = MenuItem.Name.find(L'&');
-	if (Pos == MenuItem.Name.npos)
+	const auto Pos = Item.Name.find(L'&');
+	if (Pos == Item.Name.npos)
 		return 0;
 
-	if (Pos + 1 == MenuItem.Name.size())
+	if (Pos + 1 == Item.Name.size())
 		return 0;
 
-	return MenuItem.Name[Pos + 1];
+	return Item.Name[Pos + 1];
 }
 
 size_t HMenu::CheckHighlights(WORD CheckSymbol, int StartPos) const
@@ -489,9 +489,9 @@ size_t HMenu::CheckHighlights(WORD CheckSymbol, int StartPos) const
 	if (StartPos < 0)
 		StartPos=0;
 
-	for (size_t I = StartPos; I < Item.size(); I++)
+	for (size_t I = StartPos; I < m_Item.size(); I++)
 	{
-		wchar_t Ch=GetHighlights(Item[I]);
+		const auto Ch = GetHighlights(m_Item[I]);
 
 		if (Ch)
 		{

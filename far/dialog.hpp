@@ -256,7 +256,7 @@ public:
 	};
 
 protected:
-	size_t InitDialogObjects(size_t ID = (size_t)-1);
+	size_t InitDialogObjects(size_t ID = static_cast<size_t>(-1));
 
 private:
 	friend class History;
@@ -275,14 +275,14 @@ private:
 	int LenStrItem(size_t ID, const string& Str) const;
 	int LenStrItem(size_t ID);
 	int LenStrItem(const DialogItemEx& Item);
-	void ShowDialog(size_t ID=(size_t)-1);  //    ID=-1 - отрисовать весь диалог
+	void ShowDialog(size_t ID=static_cast<size_t>(-1));  //    ID=-1 - отрисовать весь диалог
 	intptr_t CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITEMTYPES Type, bool Focus, bool Default,FARDIALOGITEMFLAGS Flags);
 	/* $ 28.07.2000 SVS
 		+ Изменяет фокус ввода между двумя элементами.
 		    Вынесен отдельно для того, чтобы обработать DMSG_KILLFOCUS & DMSG_SETFOCUS
 	*/
 	void ChangeFocus2(size_t SetFocusPos);
-	size_t ChangeFocus(size_t FocusPos, int Step, bool SkipGroup) const;
+	size_t ChangeFocus(size_t CurFocusPos, int Step, bool SkipGroup) const;
 	bool SelectFromEditHistory(const DialogItemEx *CurItem, DlgEdit *EditLine, const string& HistoryName);
 	int SelectFromComboBox(DialogItemEx *CurItem,DlgEdit*EditLine);
 	bool AddToEditHistory(const DialogItemEx* CurItem, const string& AddStr) const;
@@ -293,7 +293,7 @@ private:
 	void CheckDialogCoord();
 	bool GetItemRect(size_t I,SMALL_RECT& Rect);
 	bool SetItemRect(size_t ID, const SMALL_RECT& Rect);
-	bool SetItemRect(DialogItemEx& item, const SMALL_RECT& Rect);
+	bool SetItemRect(DialogItemEx& Item, const SMALL_RECT& Rect);
 	void SetDropDownOpened(int Status) { DropDownOpened=Status; }
 	void ProcessCenterGroup();
 	size_t ProcessRadioButton(size_t CurRB, bool UncheckAll);

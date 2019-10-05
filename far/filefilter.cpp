@@ -265,12 +265,12 @@ void FileFilter::FilterEdit()
 			case KEY_SPACE:
 			case KEY_BS:
 			{
-				int SelPos=FilterList->GetSelectPos();
+				const auto SelPos = FilterList->GetSelectPos();
 
 				if (SelPos<0)
 					break;
 
-				int Check=FilterList->GetCheck(SelPos);
+				const auto Check = FilterList->GetCheck(SelPos);
 				int NewCheck;
 
 				if (Key==KEY_BS)
@@ -297,11 +297,11 @@ void FileFilter::FilterEdit()
 			}
 			case KEY_F4:
 			{
-				int SelPos=FilterList->GetSelectPos();
+				const auto SelPos = FilterList->GetSelectPos();
 				if (SelPos<0)
 					break;
 
-				if (SelPos<(int)FilterData().size())
+				if (static_cast<size_t>(SelPos) < FilterData().size())
 				{
 					if (FileFilterConfig(&FilterData()[SelPos]))
 					{
@@ -316,7 +316,7 @@ void FileFilter::FilterEdit()
 						NeedUpdate = true;
 					}
 				}
-				else if (SelPos>(int)FilterData().size())
+				else
 				{
 					Message(MSG_WARNING,
 						msg(lng::MFilterTitle),
@@ -344,7 +344,7 @@ void FileFilter::FilterEdit()
 
 				if (Key==KEY_F5)
 				{
-					size_t ListPos = pos;
+					const size_t ListPos = pos;
 					if (ListPos < FilterData().size())
 					{
 						NewFilter = FilterData()[ListPos].Clone();
@@ -387,11 +387,11 @@ void FileFilter::FilterEdit()
 			case KEY_NUMDEL:
 			case KEY_DEL:
 			{
-				int SelPos=FilterList->GetSelectPos();
+				const auto SelPos = FilterList->GetSelectPos();
 				if (SelPos<0)
 					break;
 
-				if (SelPos<(int)FilterData().size())
+				if (static_cast<size_t>(SelPos) < FilterData().size())
 				{
 					if (Message(0,
 						msg(lng::MFilterTitle),
@@ -407,7 +407,7 @@ void FileFilter::FilterEdit()
 						NeedUpdate = true;
 					}
 				}
-				else if (SelPos>(int)FilterData().size())
+				else
 				{
 					Message(MSG_WARNING,
 						msg(lng::MFilterTitle),
@@ -424,14 +424,14 @@ void FileFilter::FilterEdit()
 			case KEY_CTRLDOWN:
 			case KEY_RCTRLDOWN:
 			{
-				int SelPos=FilterList->GetSelectPos();
+				const auto SelPos = FilterList->GetSelectPos();
 				if (SelPos<0)
 					break;
 
-				if (SelPos<(int)FilterData().size() && !((Key == KEY_CTRLUP || Key == KEY_RCTRLUP) && !SelPos) &&
-					!((Key == KEY_CTRLDOWN || Key == KEY_RCTRLDOWN) && SelPos == (int)(FilterData().size() - 1)))
+				if (static_cast<size_t>(SelPos) < FilterData().size() && !((Key == KEY_CTRLUP || Key == KEY_RCTRLUP) && !SelPos) &&
+					!((Key == KEY_CTRLDOWN || Key == KEY_RCTRLDOWN) && static_cast<size_t>(SelPos) == FilterData().size() - 1))
 				{
-					int NewPos = SelPos + ((Key == KEY_CTRLDOWN || Key == KEY_RCTRLDOWN) ? 1 : -1);
+					const auto NewPos = SelPos + ((Key == KEY_CTRLDOWN || Key == KEY_RCTRLDOWN) ? 1 : -1);
 					using std::swap;
 					swap(FilterList->at(SelPos), FilterList->at(NewPos));
 					swap(FilterData()[NewPos], FilterData()[SelPos]);
@@ -542,7 +542,7 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList) const
 
 						for (int n = FFFT_FIRST; n < FFFT_COUNT; n++)
 						{
-							if (n != FFFT && CurFilterData->GetFlags((enumFileFilterFlagsType)n))
+							if (n != FFFT && CurFilterData->GetFlags(static_cast<enumFileFilterFlagsType>(n)))
 							{
 								bCheckedNowhere = false;
 								break;
@@ -754,7 +754,7 @@ FileFilterParams FileFilter::LoadFilter(/*const*/ HierarchicalConfig& cfg, unsig
 {
 	FileFilterParams Item;
 
-	HierarchicalConfig::key Key(KeyId);
+	const HierarchicalConfig::key Key(KeyId);
 
 	Item.SetTitle(cfg.GetValue<string>(Key, names::Title));
 

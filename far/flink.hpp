@@ -65,7 +65,7 @@ bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointT
 bool DeleteReparsePoint(const string& Object);
 bool ModifyReparsePoint(const string& Object,const string& NewData);
 
-bool GetReparsePointInfo(const string& Object, string &szDestBuff,LPDWORD lpReparseTag=nullptr);
+bool GetReparsePointInfo(const string& Object, string &DestBuffer,LPDWORD ReparseTag=nullptr);
 
 bool GetSubstName(int DriveType,const string& DeviceName,string &strTargetPath);
 bool GetVHDInfo(const string& DeviceName, string &strVolumePath, VIRTUAL_STORAGE_TYPE* StorageType = nullptr);

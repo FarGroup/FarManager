@@ -61,7 +61,7 @@ public:
 
 private:
 	void ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName);
-	bool DeleteMenuRecord(menu_container& Menu, const menu_container::iterator& MenuItem);
+	bool DeleteMenuRecord(menu_container& Menu, const menu_container::iterator& MenuItem) const;
 	bool EditMenu(menu_container& Menu, menu_container::iterator* MenuItem, bool Create);
 	int ProcessSingleMenu(menu_container& Menu, int MenuPos, menu_container& MenuRoot, const string& MenuFileName, const string& Title);
 	void SaveMenu(const string& MenuFileName) const;

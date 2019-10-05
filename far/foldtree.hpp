@@ -77,13 +77,13 @@ private:
 	void DrawEdit() const;
 	void SetCoords();
 
-	std::shared_ptr<TreeList> Tree;
-	std::unique_ptr<EditControl> FindEdit;
-	int ModalMode;
-	bool IsFullScreen;
-	int IsStandalone;
-	string strNewFolder;
-	string strLastName;
+	std::shared_ptr<TreeList> m_Tree;
+	std::unique_ptr<EditControl> m_FindEdit;
+	int m_ModalMode;
+	bool m_IsFullScreen;
+	int m_IsStandalone;
+	string m_NewFolder;
+	string m_LastName;
 };
 
 #endif // FOLDTREE_HPP_B257EC6E_953F_44BB_9F98_D55AEB1D584A

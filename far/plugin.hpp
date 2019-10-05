@@ -68,12 +68,17 @@ struct FAR_INPUT_RECORD
 };
 #endif // END FAR_USE_INTERNALS
 
+#ifdef FAR_USE_INTERNALS
+#define CP_UNICODE    static_cast<uintptr_t>(1200)
+#define CP_REVERSEBOM static_cast<uintptr_t>(1201)
+#define CP_DEFAULT    static_cast<uintptr_t>(-1)
+#define CP_REDETECT   static_cast<uintptr_t>(-2)
+#define CP_ALL        static_cast<uintptr_t>(-3)
+#else // ELSE FAR_USE_INTERNALS
 #define CP_UNICODE    ((uintptr_t)1200)
 #define CP_REVERSEBOM ((uintptr_t)1201)
 #define CP_DEFAULT    ((uintptr_t)-1)
 #define CP_REDETECT   ((uintptr_t)-2)
-#ifdef FAR_USE_INTERNALS
-#define CP_ALL        ((uintptr_t)-3)
 #endif // END FAR_USE_INTERNALS
 
 typedef unsigned long long FARCOLORFLAGS;
@@ -925,10 +930,17 @@ struct FarPanelDirectory
 	const wchar_t* File;
 };
 
+#ifdef FAR_USE_INTERNALS
+#define PANEL_NONE    reinterpret_cast<HANDLE>(static_cast<intptr_t>(-1))
+#define PANEL_ACTIVE  reinterpret_cast<HANDLE>(static_cast<intptr_t>(-1))
+#define PANEL_PASSIVE reinterpret_cast<HANDLE>(static_cast<intptr_t>(-2))
+#define PANEL_STOP    reinterpret_cast<HANDLE>(static_cast<intptr_t>(-1))
+#else // ELSE FAR_USE_INTERNALS
 #define PANEL_NONE    ((HANDLE)(-1))
 #define PANEL_ACTIVE  ((HANDLE)(-1))
 #define PANEL_PASSIVE ((HANDLE)(-2))
-#define PANEL_STOP ((HANDLE)(-1))
+#define PANEL_STOP    ((HANDLE)(-1))
+#endif // END FAR_USE_INTERNALS
 
 enum FILE_CONTROL_COMMANDS
 {

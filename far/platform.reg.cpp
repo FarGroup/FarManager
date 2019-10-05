@@ -161,7 +161,7 @@ namespace os::reg
 			return false;
 
 		Value = 0;
-		auto ValueBytes = bytes::reference(Value);
+		const auto ValueBytes = bytes::reference(Value);
 		std::copy_n(Buffer.cbegin(), std::min(Buffer.size(), ValueBytes.size()), ValueBytes.begin());
 		return true;
 	}
@@ -174,7 +174,7 @@ namespace os::reg
 			return false;
 
 		Value = 0;
-		auto ValueBytes = bytes::reference(Value);
+		const auto ValueBytes = bytes::reference(Value);
 		std::copy_n(Buffer.cbegin(), std::min(Buffer.size(), ValueBytes.size()), ValueBytes.begin());
 		return true;
 	}

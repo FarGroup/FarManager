@@ -186,7 +186,7 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 			{
 				if (IsExtraTop)
 				{
-					SMALL_RECT ReadRegion = { 0, 0, static_cast<SHORT>(DesiredWidth - 1), static_cast<SHORT>(DesiredHeight - OriginalHeight - 1) };
+					const SMALL_RECT ReadRegion = { 0, 0, static_cast<SHORT>(DesiredWidth - 1), static_cast<SHORT>(DesiredHeight - OriginalHeight - 1) };
 					if (console.ReadOutput(Tmp, ReadRegion))
 					{
 						for (size_t i = 0; i != Tmp.height(); ++i)
@@ -215,7 +215,7 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 			{
 				if (IsExtraRight)
 				{
-					SMALL_RECT ReadRegion = { static_cast<SHORT>(OriginalWidth), 0, static_cast<SHORT>(DesiredWidth - 1), static_cast<SHORT>(DesiredHeight - 1) };
+					const SMALL_RECT ReadRegion = { static_cast<SHORT>(OriginalWidth), 0, static_cast<SHORT>(DesiredWidth - 1), static_cast<SHORT>(DesiredHeight - 1) };
 					console.ReadOutput(Tmp, ReadRegion);
 					for (size_t i = 0; i != NewBuf.height(); ++i)
 					{

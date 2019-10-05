@@ -48,7 +48,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
 #include "fileedit.hpp"
-#include "refreshwindowmanager.hpp"
 #include "plugapi.hpp"
 #include "taskbar.hpp"
 #include "pathmix.hpp"
@@ -63,7 +62,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "manager.hpp"
 #include "lang.hpp"
-#include "desktop.hpp"
 #include "PluginA.hpp"
 #include "string_sort.hpp"
 #include "cvtname.hpp"
@@ -301,13 +299,13 @@ int PluginManager::UnloadPlugin(Plugin *pPlugin, int From)
 			}
 		}
 
-		bool bPanelPlugin = pPlugin->IsPanelPlugin();
+		const auto IsPanelPlugin = pPlugin->IsPanelPlugin();
 
 		nResult = pPlugin->Unload(true);
 
 		pPlugin->WorkFlags.Set(PIWF_DONTLOADAGAIN);
 
-		if (bPanelPlugin /*&& bUpdatePanels*/)
+		if (IsPanelPlugin)
 		{
 			Global->CtrlObject->Cp()->ActivePanel()->SetCurDir(L"."s, true);
 			const auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
@@ -610,7 +608,7 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 			if (Global->Opt->ShowCheckingFile)
 				ConsoleTitle::SetFarTitle(concat(msg(lng::MCheckingFileInPlugin), L" - ["sv, PointToName(i->ModuleName()), L"]…"sv), true);
 
-			const auto hPlugin = i->OpenFilePlugin(Name? Name->c_str() : nullptr, (BYTE*)Info.Buffer, Info.BufferSize, OpMode);
+			const auto hPlugin = i->OpenFilePlugin(Name? Name->c_str() : nullptr, static_cast<BYTE*>(Info.Buffer), Info.BufferSize, OpMode);
 			if (!hPlugin)
 				continue;
 
@@ -927,15 +925,15 @@ intptr_t PluginManager::ProcessConsoleInput(ProcessConsoleInputInfo *Info) const
 }
 
 
-intptr_t PluginManager::GetFindData(const plugin_panel* hPlugin, PluginPanelItem **pPanelData, size_t *pItemsNumber, int OpMode)
+intptr_t PluginManager::GetFindData(const plugin_panel* hPlugin, PluginPanelItem** PanelItems, size_t* ItemsNumber, int OpMode)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	GetFindDataInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
 	Info.OpMode = OpMode;
 	const auto Result = hPlugin->plugin()->GetFindData(&Info);
-	*pPanelData = Info.PanelItem;
-	*pItemsNumber = Info.ItemsNumber;
+	*PanelItems = Info.PanelItem;
+	*ItemsNumber = Info.ItemsNumber;
 
 	return Result;
 }
@@ -959,17 +957,17 @@ void PluginManager::FreeFindData(const plugin_panel* hPlugin, PluginPanelItem *P
 }
 
 
-intptr_t PluginManager::GetVirtualFindData(const plugin_panel* hPlugin, PluginPanelItem **pPanelData, size_t *pItemsNumber, const string& Path)
+intptr_t PluginManager::GetVirtualFindData(const plugin_panel* hPlugin, PluginPanelItem** PanelItems, size_t* ItemsNumber, const string& Path)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
-	*pItemsNumber=0;
+	*ItemsNumber=0;
 
 	GetVirtualFindDataInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
 	Info.Path = Path.c_str();
 	const auto Result = hPlugin->plugin()->GetVirtualFindData(&Info);
-	*pPanelData = Info.PanelItem;
-	*pItemsNumber = Info.ItemsNumber;
+	*PanelItems = Info.PanelItem;
+	*ItemsNumber = Info.ItemsNumber;
 
 	return Result;
 }
@@ -1291,7 +1289,7 @@ void PluginManager::Configure(int StartPos)
 		PluginList->Run([&](const Manager::Key& RawKey)
 		{
 			const auto Key=RawKey();
-			int SelPos=PluginList->GetSelectPos();
+			const auto SelPos=PluginList->GetSelectPos();
 			const auto item = PluginList->GetComplexUserDataPtr<PluginMenuItemData>(SelPos);
 			int KeyProcessed = 1;
 
@@ -1319,7 +1317,7 @@ void PluginManager::Configure(int StartPos)
 				case KEY_F4:
 					if (item)
 					{
-						int nOffset = HotKeysPresent?3:0;
+						const auto nOffset = HotKeysPresent? 3 : 0;
 						if (SetHotKeyDialog(item->pPlugin, item->Guid, hotkey_type::config_menu, trim(string_view(PluginList->current().Name).substr(nOffset))))
 						{
 							NeedUpdateItems = true;
@@ -1455,7 +1453,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 			PluginList->Run([&](const Manager::Key& RawKey)
 			{
 				const auto Key=RawKey();
-				int SelPos=PluginList->GetSelectPos();
+				const auto SelPos = PluginList->GetSelectPos();
 				const auto ItemPtr = PluginList->GetComplexUserDataPtr<PluginMenuItemData>(SelPos);
 				int KeyProcessed = 1;
 
@@ -1477,7 +1475,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 					case KEY_F4:
 						if (ItemPtr)
 						{
-							int nOffset = HotKeysPresent?3:0;
+							const auto nOffset = HotKeysPresent? 3 : 0;
 							if (SetHotKeyDialog(ItemPtr->pPlugin, ItemPtr->Guid, hotkey_type::plugins_menu, trim(string_view(PluginList->current().Name).substr(nOffset))))
 							{
 								NeedUpdateItems = true;
@@ -1550,8 +1548,8 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 	else if (Dialog)
 	{
 		OpenCode=OPEN_DIALOG;
-		pd.hDlg=(HANDLE)Global->WindowManager->GetCurrentWindow().get();
-		Item=(intptr_t)&pd;
+		pd.hDlg = static_cast<HANDLE>(Global->WindowManager->GetCurrentWindow().get());
+		Item = reinterpret_cast<intptr_t>(&pd);
 	}
 
 	auto hPlugin = Open(item.pPlugin, OpenCode, item.Guid, Item);
@@ -1607,7 +1605,7 @@ void PluginManager::ShowPluginInfo(Plugin *pPlugin, const GUID& Guid)
 	string strPluginPrefix;
 	if (pPlugin->CheckWorkFlags(PIWF_CACHED))
 	{
-		unsigned long long id = ConfigProvider().PlCacheCfg()->GetCacheID(pPlugin->CacheName());
+		const auto id = ConfigProvider().PlCacheCfg()->GetCacheID(pPlugin->CacheName());
 		strPluginPrefix = ConfigProvider().PlCacheCfg()->GetCommandPrefix(id);
 	}
 	else
@@ -1920,7 +1918,7 @@ bool PluginManager::ProcessCommandLine(const string& Command)
 
 		if (i->CheckWorkFlags(PIWF_CACHED))
 		{
-			unsigned long long id = ConfigProvider().PlCacheCfg()->GetCacheID(i->CacheName());
+			const auto id = ConfigProvider().PlCacheCfg()->GetCacheID(i->CacheName());
 			PluginPrefixes = ConfigProvider().PlCacheCfg()->GetCommandPrefix(id);
 			PluginFlags = ConfigProvider().PlCacheCfg()->GetFlags(id);
 		}
@@ -1996,7 +1994,7 @@ bool PluginManager::ProcessCommandLine(const string& Command)
   Функция CallPlugin - найти плагин по ID и запустить
   в зачаточном состоянии!
 */
-bool PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,void **Ret)
+bool PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,void **Ret) const
 {
 	if (const auto Dlg = std::dynamic_pointer_cast<Dialog>(Global->WindowManager->GetCurrentWindow()))
 	{
@@ -2073,7 +2071,7 @@ bool PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,void *
 }
 
 // поддержка макрофункций plugin.call, plugin.cmd, plugin.config и т.п
-bool PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data)
+bool PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data) const
 {
 	auto Result = false;
 
@@ -2239,9 +2237,9 @@ bool PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data)
 	case CPT_CMDLINE:
 		{
 			ActivePanel=Global->CtrlObject->Cp()->ActivePanel();
-			string command=Data->Command; // Нужна копия строки
+			const string command = Data->Command; // Нужна копия строки
 			OpenCommandLineInfo info{ sizeof(OpenCommandLineInfo), command.c_str() };
-			hPlugin=Open(Data->pPlugin,OPEN_COMMANDLINE,FarGuid,(intptr_t)&info);
+			hPlugin = Open(Data->pPlugin, OPEN_COMMANDLINE, FarGuid, reinterpret_cast<intptr_t>(&info));
 			Result = true;
 		}
 		break;

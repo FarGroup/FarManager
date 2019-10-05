@@ -224,8 +224,8 @@ size_t MultibyteCodepageDecoder::GetChar(std::string_view const Str, wchar_t& Ch
 		return 0;
 	}
 
-	char b1 = Str[0];
-	char lmask = len_mask[b1];
+	const auto b1 = Str[0];
+	const auto lmask = len_mask[b1];
 	if (!lmask)
 		return 0;
 
@@ -244,7 +244,7 @@ size_t MultibyteCodepageDecoder::GetChar(std::string_view const Str, wchar_t& Ch
 		return 0;
 	}
 
-	UINT16 b2 = b1 | (Str[1] << 8);
+	const uint16_t b2 = b1 | (Str[1] << 8);
 	if (!m2[b2])
 	{
 		return 0;
@@ -565,7 +565,7 @@ static size_t Utf7_GetChar(std::string_view::const_iterator const Iterator, std:
 
 	if (!u.s.base64)
 	{
-		if (c != (BYTE)'+')
+		if (c != static_cast<BYTE>('+'))
 		{
 			*Buffer = static_cast<wchar_t>(c);
 			return BytesConsumed;
@@ -584,7 +584,7 @@ static size_t Utf7_GetChar(std::string_view::const_iterator const Iterator, std:
 			return BytesConsumed;
 		}
 
-		if (c == (BYTE)'-')
+		if (c == static_cast<BYTE>('-'))
 		{
 			*Buffer = L'+';
 			return BytesConsumed;
@@ -601,7 +601,7 @@ static size_t Utf7_GetChar(std::string_view::const_iterator const Iterator, std:
 		u.s.carry_count = 0;
 	}
 
-	int a = 2 - u.s.carry_count / 4;
+	const auto a = 2 - u.s.carry_count / 4;
 	if (BytesConsumed + a > DataSize)
 	{
 		ConversionError = true;
@@ -625,7 +625,7 @@ static size_t Utf7_GetChar(std::string_view::const_iterator const Iterator, std:
 	}
 	if (a < 2)
 	{
-		*Buffer = static_cast<wchar_t>((u.s.carry_bits << 12) | ((BYTE)m[0] << 6) | (BYTE)m[1]);
+		*Buffer = static_cast<wchar_t>((u.s.carry_bits << 12) | (static_cast<BYTE>(m[0]) << 6) | static_cast<BYTE>(m[1]));
 		u.s.carry_count = 0;
 	}
 	else
@@ -646,18 +646,18 @@ static size_t Utf7_GetChar(std::string_view::const_iterator const Iterator, std:
 			ConversionError = true;
 			return BytesConsumed;
 		}
-		unsigned m18 = ((BYTE)m[0] << 12) | ((BYTE)m[1] << 6) | ((BYTE)m[2]);
+		const unsigned m18 = (static_cast<BYTE>(m[0]) << 12) | (static_cast<BYTE>(m[1]) << 6) | static_cast<BYTE>(m[2]);
 
 		if (u.s.carry_count == 0)
 		{
 			*Buffer = static_cast<wchar_t>(m18 >> 2);
-			u.s.carry_bits = (BYTE)(m18 & 0x03);
+			u.s.carry_bits = static_cast<BYTE>(m18 & 0x03);
 			u.s.carry_count = 2;
 		}
 		else
 		{
 			*Buffer = static_cast<wchar_t>((u.s.carry_bits << 14) | (m18 >> 4));
-			u.s.carry_bits = (BYTE)(m18 & 0x07);
+			u.s.carry_bits = static_cast<BYTE>(m18 & 0x07);
 			u.s.carry_count = 4;
 		}
 	}

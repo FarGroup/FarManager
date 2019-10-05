@@ -238,7 +238,7 @@ void copy_memory(const src_type* Source, dst_type* Dest, size_t const Size)
 	>);
 
 	if (Size) // paranoid gcc null checks are paranoid
-		std::memcpy(Dest, Source, Size);
+		std::memmove(Dest, Source, Size);
 }
 
 #endif // UTILITY_HPP_D8E934C7_BF30_4CEB_B80C_6E508DF7A1BC

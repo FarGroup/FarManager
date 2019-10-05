@@ -900,7 +900,7 @@ void InfoList::PrintText(lng MsgID) const
 }
 
 
-void InfoList::PrintInfo(const string& str) const
+void InfoList::PrintInfo(const string& Str) const
 {
 	if (WhereY() > m_Where.bottom - 1)
 		return;
@@ -910,7 +910,7 @@ void InfoList::PrintInfo(const string& str) const
 	if (MaxLength<0)
 		MaxLength=0;
 
-	const auto strStr = truncate_left(str, MaxLength);
+	const auto strStr = truncate_left(Str, MaxLength);
 	const auto Length=static_cast<int>(strStr.size());
 	const auto NewX = m_Where.right - Length - 1;
 
@@ -962,7 +962,7 @@ bool InfoList::ShowDirDescription(int YPos)
 }
 
 
-bool InfoList::ShowPluginDescription(int YPos)
+bool InfoList::ShowPluginDescription(int YPos) const
 {
 	const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 

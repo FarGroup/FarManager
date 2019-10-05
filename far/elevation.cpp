@@ -337,7 +337,7 @@ static os::handle create_named_pipe(const string& Name)
 	ea.grfInheritance = NO_INHERITANCE;
 	ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
 	ea.Trustee.TrusteeType = TRUSTEE_IS_WELL_KNOWN_GROUP;
-	ea.Trustee.ptstrName = static_cast<LPWSTR>(AdminSID.get());
+	ea.Trustee.ptstrName = static_cast<wchar_t*>(AdminSID.get());
 
 	os::memory::local::ptr<ACL> pACL;
 	if (SetEntriesInAcl(1, &ea, nullptr, &ptr_setter(pACL)) != ERROR_SUCCESS)

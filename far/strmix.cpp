@@ -293,14 +293,14 @@ string truncate_path(string Str, size_t const MaxLength)
 	return Str;
 }
 
-bool IsCaseMixed(const string_view strSrc)
+bool IsCaseMixed(const string_view Str)
 {
-	const auto AlphaBegin = std::find_if(ALL_CONST_RANGE(strSrc), is_alpha);
-	if (AlphaBegin == strSrc.cend())
+	const auto AlphaBegin = std::find_if(ALL_CONST_RANGE(Str), is_alpha);
+	if (AlphaBegin == Str.cend())
 		return false;
 
 	const auto Case = is_lower(*AlphaBegin);
-	return std::any_of(AlphaBegin, strSrc.cend(), [Case](wchar_t c){ return is_alpha(c) && is_lower(c) != Case; });
+	return std::any_of(AlphaBegin, Str.cend(), [Case](wchar_t c){ return is_alpha(c) && is_lower(c) != Case; });
 }
 
 /* FileSizeToStr()
@@ -431,7 +431,7 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 
 	while ((UseUnit && UnitIndex < MinUnit) || (Width && Str.size() > MaxNumberWidth))
 	{
-		if (unsigned long long SizeInUnits = std::round(FileSize / std::pow(Divider.first, UnitIndex + 1)))
+		if (const unsigned long long SizeInUnits = std::round(FileSize / std::pow(Divider.first, UnitIndex + 1)))
 		{
 			++UnitIndex;
 			Str = ToStr(SizeInUnits);

@@ -486,8 +486,8 @@ static void FillUserMenu(VMenu2& FarUserMenu, UserMenu::menu_container& Menu, in
 			strLabel = os::env::expand(strLabel);
 			string strHotKey = MenuItem->strHotKey;
 			FuncNum = PrepareHotKey(strHotKey);
-			bool have_hotkey = !strHotKey.empty();
-			int Offset = have_hotkey && strHotKey.front() == L'&'? 5 : 4;
+			const auto have_hotkey = !strHotKey.empty();
+			const auto Offset = have_hotkey && strHotKey.front() == L'&'? 5 : 4;
 			strHotKey.resize(Offset, L' ');
 			FarUserMenuItem.Name = concat(have_hotkey && !FuncNum? L"&"sv : L""sv, strHotKey, strLabel);
 
@@ -500,7 +500,7 @@ static void FillUserMenu(VMenu2& FarUserMenu, UserMenu::menu_container& Menu, in
 		}
 
 		FarUserMenuItem.ComplexUserData = MenuItem;
-		int ItemPos=FarUserMenu.AddItem(FarUserMenuItem);
+		const auto ItemPos = FarUserMenu.AddItem(FarUserMenuItem);
 
 		if (FuncNum>0)
 		{
@@ -598,11 +598,11 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 				case KEY_SHIFTF4:
 				case KEY_NUMPAD0:
 				{
-					bool bNew = Key == KEY_INS || Key == KEY_NUMPAD0;
-					if (!bNew && !CurrentMenuItem)
+					const auto IsNew = Key == KEY_INS || Key == KEY_NUMPAD0;
+					if (!IsNew && !CurrentMenuItem)
 						break;
 
-					EditMenu(Menu, CurrentMenuItem, bNew);
+					EditMenu(Menu, CurrentMenuItem, IsNew);
 					FillUserMenu(*UserMenu, Menu, MenuPos, FuncPos, Context);
 					break;
 				}
@@ -615,7 +615,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 
 					if (CurrentMenuItem)
 					{
-						int Pos=UserMenu->GetSelectPos();
+						const auto Pos = UserMenu->GetSelectPos();
 						if (!((Key == KEY_CTRLUP || Key == KEY_RCTRLUP) && !Pos) && !((Key == KEY_CTRLDOWN || Key == KEY_RCTRLDOWN) && Pos == static_cast<int>(UserMenu->size() - 1)))
 						{
 							m_MenuModified = true;
@@ -1051,7 +1051,7 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 	return Result;
 }
 
-bool UserMenu::DeleteMenuRecord(std::list<UserMenuItem>& Menu, const std::list<UserMenuItem>::iterator& MenuItem)
+bool UserMenu::DeleteMenuRecord(std::list<UserMenuItem>& Menu, const std::list<UserMenuItem>::iterator& MenuItem) const
 {
 	if (Message(MSG_WARNING,
 		msg(lng::MUserMenuTitle),

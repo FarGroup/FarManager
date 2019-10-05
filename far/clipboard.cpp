@@ -323,7 +323,7 @@ bool clipboard::SetVText(const string_view Str)
 	if (!FarVerticalBlock)
 		return false;
 
-	if (!SetData(FarVerticalBlock, nullptr))
+	if (!SetData(FarVerticalBlock, os::memory::global::copy(0)))
 		return false;
 
 	// 'Borland IDE Block Type'
@@ -332,7 +332,7 @@ bool clipboard::SetVText(const string_view Str)
 
 	// 'MSDEVColumnSelect'
 	// return value is ignored - non-critical feature
-	SetData(RegisterFormat(clipboard_format::ms_dev_column_select), nullptr);
+	SetData(RegisterFormat(clipboard_format::ms_dev_column_select), os::memory::global::copy(0));
 
 	return true;
 }
@@ -428,7 +428,7 @@ bool clipboard::GetHDROPAsText(string& data) const
 	return true;
 }
 
-bool clipboard::GetVText(string& data) const
+bool clipboard::GetVText(string& Data) const
 {
 	const auto IsBorlandVerticalBlock = [this]
 	{
@@ -444,7 +444,7 @@ bool clipboard::GetVText(string& data) const
 	    IsFormatAvailable(RegisterFormat(clipboard_format::ms_dev_column_select)) ||
 	    IsBorlandVerticalBlock())
 	{
-		return GetText(data);
+		return GetText(Data);
 	}
 
 	const auto hClipData = GetData(RegisterFormat(clipboard_format::vertical_block_oem));
@@ -455,7 +455,7 @@ bool clipboard::GetVText(string& data) const
 	if (!OemData)
 		return false;
 
-	data = encoding::oem::get_chars(OemData.get());
+	Data = encoding::oem::get_chars(OemData.get());
 	return true;
 }
 
@@ -511,3 +511,60 @@ bool CopyData(const clipboard_accessor& From, const clipboard_accessor& To)
 
 	return false;
 }
+
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("clipboard.stream")
+{
+	const auto Baseline = L"\0 Comfortably Numb \0"sv;
+	string Str;
+
+	const auto Mode = default_clipboard_mode::get();
+
+	const std::array Types
+	{
+		std::pair{SetClipboardText, GetClipboardText},
+		std::pair{SetClipboardVText, GetClipboardVText},
+	};
+
+	for (const auto i: { clipboard_mode::system, clipboard_mode::internal })
+	{
+		default_clipboard_mode::set(i);
+
+		for (const auto& [Set, Get]: Types)
+		{
+			REQUIRE(Set(Baseline));
+			REQUIRE(Get(Str));
+			REQUIRE(Str == Baseline);
+
+			REQUIRE(ClearClipboard());
+			REQUIRE(!Get(Str));
+		}
+	}
+
+	default_clipboard_mode::set(Mode);
+}
+
+TEST_CASE("clipboard.accessors")
+{
+	const auto Baseline = L"\0 Hey Macarena \0"sv;
+	string Str;
+
+	const clipboard_accessor
+		ClipSystem(clipboard_mode::system),
+		ClipInternal(clipboard_mode::internal);
+
+	REQUIRE(ClipSystem->Open());
+	REQUIRE(ClipSystem->SetText(Baseline));
+	REQUIRE(ClipInternal->Open());
+	REQUIRE(CopyData(ClipSystem, ClipInternal));
+	REQUIRE(ClipSystem->Clear());
+	REQUIRE(ClipSystem->Close());
+	REQUIRE(ClipInternal->GetText(Str));
+	REQUIRE(ClipInternal->Clear());
+	REQUIRE(ClipInternal->Close());
+	REQUIRE(Str == Baseline);
+}
+#endif

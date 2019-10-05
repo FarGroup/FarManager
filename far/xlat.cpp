@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/enum_tokens.hpp"
 #include "common/from_string.hpp"
+#include "common/preprocessor.hpp"
 #include "common/view/zip.hpp"
 
 // External:
@@ -68,8 +69,8 @@ void xlat_initialize()
 	std::vector<HKL> Layouts;
 
 	// Инициализация XLat для русской раскладки qwerty<->йцукен
-	if (std::any_of(ALL_CONST_RANGE(XLat.Table), std::mem_fn(&StringOption::empty)) ||
-	    std::any_of(ALL_CONST_RANGE(XLat.Rules), std::mem_fn(&StringOption::empty)))
+	if (std::any_of(ALL_CONST_RANGE(XLat.Table), LIFT_MF(empty)) ||
+	    std::any_of(ALL_CONST_RANGE(XLat.Rules), LIFT_MF(empty)))
 	{
 		if (const auto Count = GetKeyboardLayoutList(0, nullptr))
 		{
@@ -114,7 +115,7 @@ void xlat_initialize()
 				continue;
 			}
 
-			XLat.Layouts[I] = (HKL)(intptr_t)(HIWORD(res)? res : MAKELONG(res, res));
+			XLat.Layouts[I] = reinterpret_cast<HKL>(static_cast<intptr_t>(HIWORD(res)? res : MAKELONG(res, res)));
 			++I;
 
 			if (I >= std::size(XLat.Layouts))
@@ -136,7 +137,7 @@ void Xlat(wchar_t *Line, int StartPos, int EndPos, unsigned long long Flags)
 	if (!Line || !*Line)
 		return;
 
-	int Length = static_cast<int>(wcslen(Line));
+	const auto Length = static_cast<int>(wcslen(Line));
 	EndPos=std::min(EndPos,Length);
 	StartPos=std::max(StartPos,0);
 
@@ -146,7 +147,7 @@ void Xlat(wchar_t *Line, int StartPos, int EndPos, unsigned long long Flags)
 	if (XLat.Table[0].empty() || XLat.Table[1].empty())
 		return;
 
-	size_t MinLenTable=std::min(XLat.Table[0].size(),XLat.Table[1].size());
+	const auto MinLenTable = std::min(XLat.Table[0].size(), XLat.Table[1].size());
 	string strLayoutName;
 	bool ProcessLayoutName=false;
 	StringOption RulesNamed;
@@ -189,7 +190,7 @@ void Xlat(wchar_t *Line, int StartPos, int EndPos, unsigned long long Flags)
 	for (int j=StartPos; j < EndPos; j++)
 	{
 		wchar_t Chr = Line[j];
-		wchar_t ChrOld = Line[j];
+		const auto ChrOld = Line[j];
 		// ChrOld - пред символ
 		int IsChange=0;
 
@@ -295,14 +296,14 @@ void Xlat(wchar_t *Line, int StartPos, int EndPos, unsigned long long Flags)
 
 			if (XLat.Layouts[0])
 			{
-				if (++XLat.CurrentLayout >= (int)std::size(XLat.Layouts) || !XLat.Layouts[XLat.CurrentLayout])
+				if (++XLat.CurrentLayout >= static_cast<int>(std::size(XLat.Layouts)) || !XLat.Layouts[XLat.CurrentLayout])
 					XLat.CurrentLayout = 0;
 
 				if (XLat.Layouts[XLat.CurrentLayout])
 					Next = XLat.Layouts[XLat.CurrentLayout];
 			}
 
-			PostMessage(hWnd,WM_INPUTLANGCHANGEREQUEST, Next?0:INPUTLANGCHANGE_FORWARD, (LPARAM)Next);
+			PostMessage(hWnd,WM_INPUTLANGCHANGEREQUEST, Next?0:INPUTLANGCHANGE_FORWARD, reinterpret_cast<LPARAM>(Next));
 
 			if (Flags & XLAT_SWITCHKEYBBEEP)
 				MessageBeep(0);

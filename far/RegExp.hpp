@@ -42,7 +42,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
-#include "common/noncopyable.hpp"
 
 // External:
 
@@ -115,15 +114,14 @@ struct MatchHash
 Expressions must be Compile'ed first,
 and than Match string or Search for matching fragment.
 */
-class RegExp:noncopyable
+class RegExp
 {
 public:
 	struct REOpCode;
 	struct UniSet;
 	struct StateStackItem;
 
-public:
-	private:
+private:
 		// code
 		std::vector<REOpCode> code;
 		char slashChar;
@@ -152,12 +150,12 @@ public:
 		std::wstring resrc;
 #endif
 
-		int CalcLength(const wchar_t* src,int srclength);
+		int CalcLength(string_view src);
 		int InnerCompile(const wchar_t* start, const wchar_t* src, int srclength, int options);
 
-		int InnerMatch(const wchar_t* start, const wchar_t* str, const wchar_t* end, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch, std::vector<StateStackItem>& stack) const;
+		int InnerMatch(const wchar_t* start, const wchar_t* str, const wchar_t* strend, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch, std::vector<StateStackItem>& stack) const;
 
-		void TrimTail(const wchar_t* start, const wchar_t*& end) const;
+		void TrimTail(const wchar_t* start, const wchar_t*& strend) const;
 
 		// BUGBUG not thread safe!
 		// TODO: split to compile errors (stateful) and match errors (stateless)
@@ -169,6 +167,9 @@ public:
 		//! Default constructor.
 		RegExp();
 		~RegExp();
+
+		RegExp(RegExp&&) noexcept;
+		RegExp& operator=(RegExp&&) = delete;
 
 		/*! Compile regular expression
 		    Generate internal op-codes of expression.
@@ -185,7 +186,7 @@ public:
 		    \sa ErrorPosition
 		    \sa options
 		*/
-		int Compile(const wchar_t* src,int options=OP_PERLSTYLE|OP_OPTIMIZE);
+		int Compile(string_view src, int options=OP_PERLSTYLE|OP_OPTIMIZE);
 
 		/*! Try to optimize regular expression
 		    Significally speedup Search mode in some cases.

@@ -58,8 +58,10 @@ WARNING_DISABLE_GCC("-Wimplicit-fallthrough")
 WARNING_DISABLE_GCC("-Wpragmas")
 WARNING_DISABLE_GCC("-Wsuggest-override")
 WARNING_DISABLE_GCC("-Wzero-as-null-pointer-constant")
+WARNING_DISABLE_GCC("-Wold-style-cast")
 
 WARNING_DISABLE_CLANG("-Weverything")
+WARNING_DISABLE_CLANG("-Wold-style-cast")
 
 #ifdef MEMCHECK
 #pragma push_macro("new")

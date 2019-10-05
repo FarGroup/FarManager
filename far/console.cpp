@@ -858,7 +858,11 @@ namespace console_detail
 
 	bool console::GetAlias(string_view const Source, wchar_t* TargetBuffer, size_t TargetBufferLength, string_view const ExeName) const
 	{
-		return GetConsoleAlias(const_cast<LPWSTR>(null_terminated(Source).c_str()), TargetBuffer, static_cast<DWORD>(TargetBufferLength), const_cast<LPWSTR>(null_terminated(ExeName).c_str())) != 0;
+		return GetConsoleAlias(
+			const_cast<wchar_t*>(null_terminated(Source).c_str()),
+			TargetBuffer,
+			static_cast<DWORD>(TargetBufferLength),
+			const_cast<wchar_t*>(null_terminated(ExeName).c_str())) != 0;
 	}
 
 	std::unordered_map<string, std::unordered_map<string, string>> console::GetAllAliases() const

@@ -71,7 +71,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "lang.hpp"
 #include "filestr.hpp"
-#include "exitcode.hpp"
 #include "panelctype.hpp"
 #include "filetype.hpp"
 #include "diskmenu.hpp"
@@ -624,7 +623,7 @@ intptr_t FindFiles::AdvancedDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, 
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-void FindFiles::AdvancedDialog()
+void FindFiles::AdvancedDialog() const
 {
 	auto AdvancedDlg = MakeDialogItems(
 	{
@@ -640,8 +639,6 @@ void FindFiles::AdvancedDialog()
 		{ DI_BUTTON,    {{0,  10}, {0,  10}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MOk), },
 		{ DI_BUTTON,    {{0,  10}, {0,  10}}, DIF_CENTERGROUP, msg(lng::MCancel), },
 	});
-
-
 
 	const auto Dlg = Dialog::create(AdvancedDlg, &FindFiles::AdvancedDlgProc);
 	Dlg->SetHelp(L"FindFileAdvanced"sv);
@@ -690,7 +687,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			Dlg->SendMessage(DM_LISTSETTITLES,FAD_COMBOBOX_CP,&Titles);
 			// Установка запомненных ранее параметров
 			CodePage = Global->Opt->FindCodePage;
-			favoriteCodePages = codepages::instance().FillCodePagesList(Dlg, FAD_COMBOBOX_CP, CodePage, true, true, false, true, false);
+			favoriteCodePages = static_cast<int>(codepages::instance().FillCodePagesList(Dlg, FAD_COMBOBOX_CP, CodePage, true, true, false, true, false));
 			SetAllCpTitle();
 
 			// Текущее значение в списке выбора кодовых страниц в общем случае может не совпадать с CodePage,
@@ -708,7 +705,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			{
 				case FAD_BUTTON_FIND:
 				{
-					string Mask((LPCWSTR)Dlg->SendMessage(DM_GETCONSTTEXTPTR, FAD_EDIT_MASK, nullptr));
+					string Mask(reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, FAD_EDIT_MASK, nullptr)));
 
 					if (Mask.empty())
 						Mask = L"*"sv;
@@ -792,7 +789,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 					if (!strDataStr.empty())
 					{
-						int UnchangeFlag=(int)Dlg->SendMessage(DM_EDITUNCHANGEDFLAG,FAD_EDIT_TEXT,ToPtr(-1));
+						const auto UnchangeFlag = static_cast<int>(Dlg->SendMessage(DM_EDITUNCHANGEDFLAG, FAD_EDIT_TEXT, ToPtr(-1)));
 						Dlg->SendMessage(DM_EDITUNCHANGEDFLAG,FAD_EDIT_HEX,ToPtr(UnchangeFlag));
 					}
 				}
@@ -978,7 +975,7 @@ bool background_searcher::LookForString(const string& Name)
 	const auto findStringCount = strFindStr.size();
 
 	// Открываем файл
-	os::fs::file File(Name, FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
+	const os::fs::file File(Name, FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
 	if(!File)
 	{
 		return false;
@@ -1359,7 +1356,12 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 					if (TimeCheck)
 					{
-						Global->WindowManager->CallbackWindow([](){ auto f = Global->WindowManager->GetCurrentWindow(); if (windowtype_dialog == f->GetType()) std::static_pointer_cast<Dialog>(f)->SendMessage(DN_ENTERIDLE, 0, nullptr); });
+						Global->WindowManager->CallbackWindow([]()
+						{
+							const auto f = Global->WindowManager->GetCurrentWindow();
+							if (windowtype_dialog == f->GetType())
+								std::static_pointer_cast<Dialog>(f)->SendMessage(DN_ENTERIDLE, 0, nullptr);
+						});
 						break;
 					}
 					AddMenuData Data;
@@ -1807,14 +1809,14 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-void FindFiles::OpenFile(const string& strSearchFileName, int openKey, const FindListItem* FindItem, Dialog* Dlg) const
+void FindFiles::OpenFile(const string& strSearchFileName, int OpenKey, const FindListItem* FindItem, Dialog* Dlg) const
 {
 	if (!os::fs::exists(strSearchFileName))
 		return;
 
 	auto openMode = FILETYPE_VIEW;
 	auto shouldForceInternal = false;
-	const auto isKnownKey = GetFiletypeOpenMode(openKey, openMode, shouldForceInternal);
+	const auto isKnownKey = GetFiletypeOpenMode(OpenKey, openMode, shouldForceInternal);
 
 	assert(isKnownKey); // ensure all possible keys are handled
 

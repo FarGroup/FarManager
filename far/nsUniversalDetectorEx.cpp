@@ -56,8 +56,10 @@ WARNING_DISABLE_GCC("-Wnon-virtual-dtor")
 WARNING_DISABLE_GCC("-Wsuggest-override")
 WARNING_DISABLE_GCC("-Wdouble-promotion")
 WARNING_DISABLE_GCC("-Wuseless-cast")
+WARNING_DISABLE_GCC("-Wold-style-cast")
 
 WARNING_DISABLE_CLANG("-Weverything")
+WARNING_DISABLE_CLANG("-Wold-style-cast")
 
 #include "thirdparty/ucd/nscore.h"
 #include "thirdparty/ucd/nsError.h"

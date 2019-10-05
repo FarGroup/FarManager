@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/function_ref.hpp"
 #include "common/movable.hpp"
+#include "common/string_utils.hpp"
 
 // External:
 
@@ -503,9 +504,11 @@ RegExp::RegExp():
 }
 
 RegExp::~RegExp() = default;
+RegExp::RegExp(RegExp&&) noexcept = default;
 
-int RegExp::CalcLength(const wchar_t* src,int srclength)
+int RegExp::CalcLength(string_view src)
 {
+	const auto srclength = static_cast<int>(src.size());
 	int length=3;//global brackets
 	int brackets[MAXDEPTH];
 	int count=0;
@@ -556,7 +559,7 @@ int RegExp::CalcLength(const wchar_t* src,int srclength)
 					return SetError(errSyntax, i);
 
 				i++;
-				int save2 = i;
+				const auto save2 = i;
 
 				while (i < srclength && (ISWORD(src[i]) || ISSPACE(src[i])) && src[i] != L'}')
 					i++;
@@ -660,7 +663,7 @@ int RegExp::CalcLength(const wchar_t* src,int srclength)
 	return length;
 }
 
-int RegExp::Compile(const wchar_t* src,int options)
+int RegExp::Compile(string_view const src, int options)
 {
 	if (options&OP_CPPMODE)
 	{
@@ -677,56 +680,39 @@ int RegExp::Compile(const wchar_t* src,int options)
 
 	code.clear();
 
-	int srclength;
+	string_view Regex;
 
 	if (options&OP_PERLSTYLE)
 	{
-		if (src[0]!=slashChar)return SetError(errSyntax,0);
+		if (!starts_with(src, slashChar))
+			return SetError(errSyntax, 0);
 
-		srcstart=1;
-		srclength=1;
+		const auto End = src.rfind(slashChar);
+		if (End == 0)
+			return SetError(errSyntax, static_cast<int>(src.size()));
 
-		while (src[srclength] && src[srclength]!=slashChar)
+		Regex = src.substr(1, End - 1);
+		const auto Options = src.substr(End + 1);
+		for (auto i = Options.cbegin(); i != Options.cend(); ++i)
 		{
-			if (src[srclength]==backslashChar && src[srclength+1])
-			{
-				srclength++;
-			}
-
-			srclength++;
-		}
-
-		if (!src[srclength])
-		{
-			return SetError(errSyntax, srclength);
-		}
-
-		int i=srclength+1;
-		srclength--;
-
-		while (src[i])
-		{
-			switch (src[i])
+			switch (*i)
 			{
 				case 'i':options|=OP_IGNORECASE; break;
 				case 's':options|=OP_SINGLELINE; break;
 				case 'm':options|=OP_MULTILINE; break;
 				case 'x':options|=OP_XTENDEDSYNTAX; break;
 				case 'o':options|=OP_OPTIMIZE; break;
-				default:return SetError(errOptions,i);
+				default:return SetError(errOptions,i - Options.cbegin());
 			}
-
-			i++;
 		}
 	}
 	else
 	{
-		srcstart = 0;
-		srclength=(int)wcslen(src);
+		Regex = src;
 	}
 
 	ignorecase=options&OP_IGNORECASE?1:0;
-	int relength=CalcLength(src+srcstart,srclength);
+	const auto relength = CalcLength(Regex);
 
 	if (!relength)
 	{
@@ -735,7 +721,7 @@ int RegExp::Compile(const wchar_t* src,int options)
 
 	code.resize(relength);
 
-	int result = InnerCompile(src, src + srcstart, srclength, options);
+	const auto result = InnerCompile(src.data(), Regex.data(), static_cast<int>(Regex.size()), options);
 
 	if (!result)
 	{
@@ -798,7 +784,7 @@ static int CalcPatternLength(const RegExp::REOpCode* from, const RegExp::REOpCod
 			case opNamedBracket:
 			case opOpenBracket:
 			{
-				int l=CalcPatternLength(from + 1, from->bracket.pairindex - 1);
+				const auto l = CalcPatternLength(from + 1, from->bracket.pairindex - 1);
 
 				if (l==-1)return -1;
 
@@ -845,7 +831,7 @@ static int CalcPatternLength(const RegExp::REOpCode* from, const RegExp::REOpCod
 			{
 				if (from->range.min!=from->range.max)return -1;
 
-				int l=CalcPatternLength(from + 1,from->bracket.pairindex - 1);
+				const auto l = CalcPatternLength(from + 1,from->bracket.pairindex - 1);
 
 				if (l==-1)return -1;
 
@@ -901,7 +887,6 @@ int RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int src
 	MatchHash h;
 	RegExpMatch m = {};
 	int pos=1;
-	REOpCode* op;//=code;
 	brackets[0]=code.data();
 #ifdef RE_DEBUG
 	resrc = L'(';
@@ -911,7 +896,7 @@ int RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int src
 
 	for (int i=0; i<srclength; i++)
 	{
-		op = code.data() + pos;
+		auto op = &code[pos];
 		pos++;
 #ifdef RE_DEBUG
 		op->srcpos=i+1;
@@ -935,7 +920,7 @@ int RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int src
 			{
 				op->op=opSymbol;
 				op->symbol=backslashChar;
-				op=code.data()+pos;
+				op = &code[pos];
 				pos++;
 				op->op=ignorecase?opSymbolIgnoreCase:opSymbol;
 				op->symbol=ignorecase?TOLOWER(src[i]):src[i];
@@ -1699,7 +1684,7 @@ int RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int src
 		}//switch(src[i])
 	}//for()
 
-	op = code.data() + pos;
+	auto op = &code[pos];
 	pos++;
 	brdepth--;
 
@@ -1715,7 +1700,7 @@ int RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int src
 #ifdef RE_DEBUG
 	op->srcpos=i;
 #endif
-	op = code.data() + pos;
+	op = &code[pos];
 	//pos++;
 	op->op=opRegExpEnd;
 #ifdef RE_DEBUG
@@ -1753,28 +1738,28 @@ static const RegExp::StateStackItem& FindStateByPos(const std::vector<RegExp::St
 	return *std::find_if(ALL_CONST_REVERSE_RANGE(stack), [&](const auto& i){ return i.pos == pos && i.op == op; });
 }
 
-int RegExp::StrCmp(const wchar_t*& str, const wchar_t* _st, const wchar_t* ed) const
+int RegExp::StrCmp(const wchar_t*& str, const wchar_t* start, const wchar_t* end) const
 {
 	const wchar_t* save=str;
 
 	if (ignorecase)
 	{
-		while (_st<ed)
+		while (start<end)
 		{
-			if (TOLOWER(*str)!=TOLOWER(*_st)) {str=save; return 0;}
+			if (TOLOWER(*str)!=TOLOWER(*start)) {str=save; return 0;}
 
 			str++;
-			_st++;
+			start++;
 		}
 	}
 	else
 	{
-		while (_st<ed)
+		while (start<end)
 		{
-			if (*str!=*_st) {str=save; return 0;}
+			if (*str!=*start) {str=save; return 0;}
 
 			str++;
-			_st++;
+			start++;
 		}
 	}
 
@@ -2318,7 +2303,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 										        bhMatch,
 										        op->range.bracket.index,
 										        match[op->range.bracket.index].start,
-										        (int)(str-start)
+										        static_cast<int>(str - start)
 										    )
 										)
 										{
@@ -2525,7 +2510,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 								}
 								else
 								{
-									st.max-=(int)(strend-str);
+									st.max -= static_cast<int>(strend - str);
 									str=strend;
 								}
 							}
@@ -3402,7 +3387,7 @@ int RegExp::Match(string_view const text, RegExpMatch* match, intptr_t& matchcou
 
 	std::vector<StateStackItem> stack;
 
-	int res=InnerMatch(start, start, tempend, match, matchcount, hmatch, stack);
+	const auto res = InnerMatch(start, start, tempend, match, matchcount, hmatch, stack);
 
 	if (res==1)
 	{
@@ -3424,7 +3409,8 @@ int RegExp::MatchEx(string_view const text, size_t const From, RegExpMatch* matc
 	const auto textstart = text.data() + From;
 	const auto textend = text.data() + text.size();
 
-	if (havefirst && !first[(wchar_t)*textstart])return 0;
+	if (havefirst && !first[static_cast<wchar_t>(*textstart)])
+		return 0;
 
 	const wchar_t* tempend=textend;
 
@@ -3437,7 +3423,7 @@ int RegExp::MatchEx(string_view const text, size_t const From, RegExpMatch* matc
 
 	std::vector<StateStackItem> stack;
 
-	int res = InnerMatch(start, textstart, tempend, match, matchcount, hmatch, stack);
+	const auto res = InnerMatch(start, textstart, tempend, match, matchcount, hmatch, stack);
 
 	if (res==1)
 	{
@@ -4016,7 +4002,7 @@ void RegExp::TrimTail(const wchar_t* const start, const wchar_t*& strend) const
 TEST_CASE("regex")
 {
 	RegExp re;
-	REQUIRE(re.Compile(L"/a*?ca/") == 1);
+	REQUIRE(re.Compile(L"/a*?ca/"sv) == 1);
 
 	RegExpMatch m = { -1, -1 };
 	intptr_t n = 1;

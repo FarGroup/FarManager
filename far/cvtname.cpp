@@ -297,8 +297,7 @@ size_t GetMountPointLen(string_view const abs_path, string_view const drive_root
 		return 0;
 	}
 
-	string mount_point = TryConvertVolumeGuidToDrivePath(vol_guid, abs_path);
-	return mount_point.size();
+	return TryConvertVolumeGuidToDrivePath(vol_guid, abs_path).size();
 }
 
 /*
@@ -466,7 +465,7 @@ void PrepareDiskPath(string &strPath, bool CheckFullPath)
 		if (strPath.size() > 1 && (strPath[1]==L':' || (IsSlash(strPath[0]) && IsSlash(strPath[1]))))
 		{
 			ReplaceSlashToBackslash(strPath);
-			bool DoubleSlash = strPath[1]==L'\\';
+			const auto DoubleSlash = strPath[1] == L'\\';
 			remove_duplicates(strPath, L'\\');
 			if(DoubleSlash)
 			{
@@ -484,7 +483,7 @@ void PrepareDiskPath(string &strPath, bool CheckFullPath)
 					DirOffset = 4;
 				}
 
-				size_t StartPos = DirOffset;
+				const auto StartPos = DirOffset;
 
 				if (StartPos < strPath.size())
 				{

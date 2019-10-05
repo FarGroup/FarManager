@@ -65,7 +65,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void CreatePluginStartupInfo(PluginStartupInfo *PSI, FarStandardFunctions *FSF);
 
-#define EXCEPTION_MICROSOFT_CPLUSPLUS ((NTSTATUS)0xE06D7363)
+constexpr inline NTSTATUS EXCEPTION_MICROSOFT_CPLUSPLUS = 0xE06D7363;
 
 enum exception_dialog
 {
@@ -811,9 +811,9 @@ namespace detail
 		_controlfp(Enable? 0 : _MCW_EM, _MCW_EM);
 	}
 
-	std::exception_ptr MakeSehExceptionPtr(DWORD const Code, EXCEPTION_POINTERS* const Info, bool const ResumeThread)
+	std::exception_ptr MakeSehExceptionPtr(DWORD const Code, EXCEPTION_POINTERS* const Pointers, bool const ResumeThread)
 	{
-		return std::make_exception_ptr(seh_exception(Code, *Info, os::OpenCurrentThread(), GetCurrentThreadId(), ResumeThread));
+		return std::make_exception_ptr(seh_exception(Code, *Pointers, os::OpenCurrentThread(), GetCurrentThreadId(), ResumeThread));
 	}
 }
 

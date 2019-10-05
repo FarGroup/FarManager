@@ -123,7 +123,7 @@ namespace highlight
 		void InitHighlightFiles(/*const*/ HierarchicalConfig& cfg);
 		void ClearData();
 		int  MenuPosToRealPos(int MenuPos, int*& Count, bool Insert = false);
-		void FillMenu(VMenu2 *HiMenu, int MenuPos);
+		void FillMenu(VMenu2 *HiMenu, int MenuPos) const;
 		void ProcessGroups();
 
 		struct element_hash

@@ -98,14 +98,14 @@ public:
 	   поведение SetTempViewName такое же, как и раньше)
 	*/
 	void SetTempViewName(const string& Name, bool DeleteFolder = true);
-	void SetEnableF6(int AEnable) { DisableEdit = !AEnable; InitKeyBar(); }
+	void SetEnableF6(int AEnable) { m_DisableEdit = !AEnable; InitKeyBar(); }
 	/* $ 17.08.2001 KM
 		Добавлено для поиска по AltF7. При редактировании найденного файла из
 		архива для клавиши F2 сделать вызов ShiftF2.
 	*/
-	void SetSaveToSaveAs(bool ToSaveAs) { SaveToSaveAs=ToSaveAs; InitKeyBar(); }
+	void SetSaveToSaveAs(bool ToSaveAs) { m_SaveToSaveAs=ToSaveAs; InitKeyBar(); }
 	int  ViewerControl(int Command, intptr_t Param1, void *Param2) const;
-	bool IsFullScreen() const {return FullScreen;}
+	bool IsFullScreen() const {return m_FullScreen;}
 	long long GetViewFileSize() const;
 	long long GetViewFilePos() const;
 	void ShowStatus() const;
@@ -129,16 +129,16 @@ private:
 		window_ptr Update = nullptr);
 
 	std::unique_ptr<Viewer> m_View;
-	int RedrawTitle;
-	bool F3KeyOnly;
+	int m_RedrawTitle;
+	bool m_F3KeyOnly;
 	bool m_bClosing;
-	bool FullScreen;
-	int DisableEdit;
-	int DisableHistory;
+	bool m_FullScreen;
+	int m_DisableEdit;
+	int m_DisableHistory;
 	string m_Name;
-	bool SaveToSaveAs;
-	int delete_on_close;
-	string str_title;
+	bool m_SaveToSaveAs;
+	int m_DeleteOnClose;
+	string m_StrTitle;
 };
 
 #endif // FILEVIEW_HPP_BC5E36F0_1E01_45AE_A121_A8D6EED6A14C

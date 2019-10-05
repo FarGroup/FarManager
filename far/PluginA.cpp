@@ -1423,7 +1423,7 @@ static long long GetSetting(FARSETTINGS_SUBFOLDERS Root, const wchar_t* Name)
 {
 	long long result = 0;
 	FarSettingsCreate settings = { sizeof(FarSettingsCreate), FarGuid, INVALID_HANDLE_VALUE };
-	HANDLE Settings = pluginapi::apiSettingsControl(INVALID_HANDLE_VALUE, SCTL_CREATE, 0, &settings)? settings.Handle : nullptr;
+	const auto Settings = pluginapi::apiSettingsControl(INVALID_HANDLE_VALUE, SCTL_CREATE, 0, &settings)? settings.Handle : nullptr;
 	if (Settings)
 	{
 		FarSettingsItem item = { sizeof(FarSettingsItem), static_cast<size_t>(Root), Name, FST_UNKNOWN, {} };
@@ -1966,7 +1966,7 @@ static int WINAPI ProcessNameA(const char *Param1, char *Param2, DWORD Flags) no
 	{
 		const auto strP1 = encoding::oem::get_chars(Param1), strP2 = encoding::oem::get_chars(Param2);
 		const auto size = static_cast<int>(strP1.size() + strP2.size() + oldfar::NM) + 1; //а хрен ещё как угадать скока там этот Param2 для PN_GENERATENAME
-		wchar_t_ptr_n<os::default_buffer_size> p(size);
+		const wchar_t_ptr_n<os::default_buffer_size> p(size);
 		*std::copy(ALL_CONST_RANGE(strP2), p.get()) = L'\0';
 
 		auto newFlags = PN_NONE;
@@ -2252,7 +2252,7 @@ static int WINAPI FarInputBoxA(const char *Title, const char *Prompt, const char
 		auto NewFlags = FIB_NONE;
 		FirstFlagsToSecond(Flags, NewFlags, FlagsMap);
 
-		wchar_t_ptr_n<256> Buffer(DestLength);
+		const wchar_t_ptr_n<256> Buffer(DestLength);
 
 		const auto ret = pluginapi::apiInputBox(&FarGuid, &FarGuid,
 			Title? encoding::oem::get_chars(Title).c_str() : nullptr,
@@ -2449,7 +2449,7 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber, int X, int Y, int MaxHeight,
 					FarKey NewItem;
 					NewItem.VirtualKeyCode = i & 0xffff;
 					NewItem.ControlKeyState = 0;
-					DWORD ItemFlags = i >> 16;
+					const auto ItemFlags = i >> 16;
 					if (ItemFlags & oldfar::PKF_CONTROL) NewItem.ControlKeyState |= LEFT_CTRL_PRESSED;
 					if (ItemFlags & oldfar::PKF_ALT) NewItem.ControlKeyState |= LEFT_ALT_PRESSED;
 					if (ItemFlags & oldfar::PKF_SHIFT) NewItem.ControlKeyState |= SHIFT_PRESSED;
@@ -2515,7 +2515,7 @@ static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, v
 {
 	try
 	{
-		FarDialogEvent e = {sizeof(FarDialogEvent), hDlg, NewMsg, Param1, Param2};
+		const FarDialogEvent e = {sizeof(FarDialogEvent), hDlg, NewMsg, Param1, Param2};
 
 		OriginalEvents().push(e);
 		SCOPE_EXIT{ OriginalEvents().pop(); };
@@ -2588,7 +2588,7 @@ static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, v
 				Msg=oldfar::DN_DRAWDLGITEM;
 				const auto di = static_cast<FarDialogItem*>(Param2);
 				const auto FarDiA = UnicodeDialogItemToAnsi(*di, hDlg, Param1);
-				intptr_t ret = CurrentDlgProc(hDlg, Msg, Param1, FarDiA);
+				const auto ret = CurrentDlgProc(hDlg, Msg, Param1, FarDiA);
 				if (ret && (di->Type==DI_USERCONTROL) && (di->VBuf))
 				{
 					AnsiVBufToUnicode(FarDiA->VBuf, di->VBuf, GetAnsiVBufSize(*FarDiA),(FarDiA->Flags&oldfar::DIF_NOTCVTUSERCONTROL)==oldfar::DIF_NOTCVTUSERCONTROL);
@@ -2603,7 +2603,7 @@ static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, v
 			case DN_GOTFOCUS:  Msg=oldfar::DN_GOTFOCUS; break;
 			case DN_HELP:
 			{
-				std::unique_ptr<char[]> HelpTopicA(UnicodeToAnsi(static_cast<const wchar_t*>(Param2)));
+				const std::unique_ptr<char[]> HelpTopicA(UnicodeToAnsi(static_cast<const wchar_t*>(Param2)));
 				auto ret = CurrentDlgProc(hDlg, oldfar::DN_HELP, Param1, HelpTopicA.get());
 				if (ret && ret != reinterpret_cast<intptr_t>(Param2)) // changed
 				{
@@ -4512,7 +4512,7 @@ static int WINAPI FarViewerControlA(int Command, void* Param) noexcept
 
 				if (const size_t FileNameSize = pluginapi::apiViewerControl(-1, VCTL_GETFILENAME, 0, nullptr))
 				{
-					wchar_t_ptr_n<os::default_buffer_size> FileName(FileNameSize);
+					const wchar_t_ptr_n<os::default_buffer_size> FileName(FileNameSize);
 					pluginapi::apiViewerControl(-1,VCTL_GETFILENAME,FileNameSize,FileName.get());
 					static std::unique_ptr<char[]> filename;
 					filename.reset(UnicodeToAnsi(FileName.get()));
@@ -4742,7 +4742,7 @@ static void CheckScreenLock()
 
 static bool SendKeyToPluginHook(const Manager::Key& key)
 {
-	DWORD KeyM = (key()&(~KEY_CTRLMASK));
+	const auto KeyM = key() & ~KEY_CTRLMASK;
 
 	if (!((KeyM >= KEY_MACRO_BASE && KeyM <= KEY_MACRO_ENDBASE) || (KeyM >= KEY_OP_BASE && KeyM <= KEY_OP_ENDBASE))) // пропустим макро-коды
 	{
@@ -5857,11 +5857,11 @@ TEST_CASE("plugin.ansi.tables")
 		{   0, case_none,    0,   0 },
 	};
 
-	for (const auto& Test: Tests)
+	for (const auto& i: Tests)
 	{
-		REQUIRE(UpperOrLower[static_cast<size_t>(Test.Input)] == Test.Case);
-		REQUIRE(LowerToUpper[static_cast<size_t>(Test.Input)] == Test.Upper);
-		REQUIRE(UpperToLower[static_cast<size_t>(Test.Input)] == Test.Lower);
+		REQUIRE(UpperOrLower[static_cast<size_t>(i.Input)] == i.Case);
+		REQUIRE(LowerToUpper[static_cast<size_t>(i.Input)] == i.Upper);
+		REQUIRE(UpperToLower[static_cast<size_t>(i.Input)] == i.Lower);
 	}
 }
 
@@ -5884,9 +5884,9 @@ TEST_CASE("plugin.ansi.strcmp")
 		{ "abcd", "abc",   1 },
 	};
 
-	for (const auto& Test: Tests)
+	for (const auto& i: Tests)
 	{
-		REQUIRE(LocalStricmp(Test.Str1, Test.Str2) == Test.Result);
+		REQUIRE(LocalStricmp(i.Str1, i.Str2) == i.Result);
 	}
 }
 

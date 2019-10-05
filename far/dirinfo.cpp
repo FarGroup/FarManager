@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 #include "keys.hpp"
 #include "scantree.hpp"
-#include "savescr.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "ctrlobj.hpp"
 #include "filefilter.hpp"
@@ -123,7 +122,7 @@ int GetDirInfo(const string& DirName, DirInfoData& Data, FileFilter *Filter, dir
 	SCOPED_ACTION(taskbar::indeterminate)(false);
 	SCOPED_ACTION(wakeful);
 
-	ScanTree ScTree(false, true, (Flags & GETDIRINFO_SCANSYMLINKDEF? (DWORD)-1 : (Flags & GETDIRINFO_SCANSYMLINK)));
+	ScanTree ScTree(false, true, (Flags & GETDIRINFO_SCANSYMLINKDEF? static_cast<DWORD>(-1) : (Flags & GETDIRINFO_SCANSYMLINK)));
 	SetCursorType(false, 0);
 	/* $ 20.03.2002 DJ
 	   для . - покажем имя родительского каталога
@@ -464,7 +463,7 @@ void FreePluginDirList(HANDLE hPlugin, std::vector<PluginPanelItem>& Items)
 }
 
 bool GetPluginDirInfo(
-	const plugin_panel* ph,
+	const plugin_panel* hPlugin,
 	const string& DirName,
 	const UserDataItem* const UserData,
 	BasicDirInfoData& Data,
@@ -475,7 +474,7 @@ bool GetPluginDirInfo(
 
 	std::vector<PluginPanelItem> PanelItems;
 	// Must be cleared unconditionally: GetPluginDirList can fill it partially and return false
-	SCOPE_EXIT{ FreePluginDirList(ph->panel(), PanelItems); };
+	SCOPE_EXIT{ FreePluginDirList(hPlugin->panel(), PanelItems); };
 
-	return GetPluginDirListImpl(ph->plugin(), ph->panel(), DirName, UserData, PanelItems, Data, Callback); //intptr_t - BUGBUG
+	return GetPluginDirListImpl(hPlugin->plugin(), hPlugin->panel(), DirName, UserData, PanelItems, Data, Callback); //intptr_t - BUGBUG
 }
