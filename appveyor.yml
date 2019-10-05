@@ -190,6 +190,7 @@ artifacts:
     name: Far Manager PDBs
 
 deploy:
+  tag: ci/v$(appveyor_build_version)
   release: v$(appveyor_build_version)
   description: 'Far Manager $(appveyor_build_version) - $(APPVEYOR_REPO_COMMIT)'
   provider: GitHub
