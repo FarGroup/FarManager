@@ -3686,7 +3686,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 		auto& DlgItem = Dlg->GetAllItem();
 		bool CallDialog=true;
 
-		if (Index == static_cast<unsigned>(-1))
+		if (Index == static_cast<size_t>(-1))
 		{
 			SMALL_RECT Rect;
 

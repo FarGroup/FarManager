@@ -518,7 +518,7 @@ int RegExp::CalcLength(string_view src)
 
 	for (int i=0; i<srclength; i++,length++)
 	{
-		if (inquote && src[i]!=backslashChar && src[i+1] != L'E')
+		if (inquote && src[i]!=backslashChar && (i + 1 == srclength || src[i+1] != L'E'))
 		{
 			continue;
 		}
@@ -526,6 +526,8 @@ int RegExp::CalcLength(string_view src)
 		if (src[i]==backslashChar)
 		{
 			i++;
+			if (i == srclength)
+				continue;
 
 			if (src[i] == L'Q')inquote=1;
 
@@ -534,11 +536,11 @@ int RegExp::CalcLength(string_view src)
 			if (src[i] == L'x')
 			{
 				i++;
-				if(isxdigit(src[i]))
+				if(i != srclength && isxdigit(src[i]))
 				{
 					for(int j=1,k=i;j<4;j++)
 					{
-						if(isxdigit(src[k+j]))
+						if(k + j != srclength && isxdigit(src[k+j]))
 						{
 							i++;
 						}
@@ -555,7 +557,7 @@ int RegExp::CalcLength(string_view src)
 			{
 				i++;
 
-				if (src[i] != L'{')
+				if (i == srclength || src[i] != L'{')
 					return SetError(errSyntax, i);
 
 				i++;
@@ -582,11 +584,11 @@ int RegExp::CalcLength(string_view src)
 				if (count >= MAXDEPTH)
 					return SetError(errMaxDepth, i);
 
-				if (src[i+1]==L'?')
+				if (i + 1 != srclength && src[i + 1]==L'?')
 				{
 					i+=2;
 
-					if (src[i] == L'{')
+					if (i != srclength && src[i] == L'{')
 					{
 						save = i;
 						i++;
@@ -635,7 +637,7 @@ int RegExp::CalcLength(string_view src)
 						return SetError(errBrackets,save);
 				}
 
-				if (src[i+1] == '?')
+				if (i + 1 != srclength && src[i + 1] == '?')
 					++i;
 
 				break;
