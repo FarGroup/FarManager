@@ -368,28 +368,37 @@ void KeyBar::RedrawIfChanged()
 
 size_t KeyBar::Change(const KeyBarTitles *Kbt)
 {
-	size_t Result = 0;
-	if (Kbt)
-	{
-		for (const auto& i: span(Kbt->Labels, Kbt->CountLabels))
-		{
-			const auto Pos = i.Key.VirtualKeyCode - VK_F1;
-			if (Pos < KEY_COUNT)
-			{
-				DWORD Shift = 0;
-				const auto Flags = i.Key.ControlKeyState;
-				if (Flags & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED)) Shift |= KEY_CTRL;
-				if (Flags & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED)) Shift |= KEY_ALT;
-				if (Flags & SHIFT_PRESSED) Shift |= KEY_SHIFT;
+	if (!Kbt)
+		return 0;
 
-				const auto Group = FnGroup(Shift);
-				if (Group >= 0)
-				{
-					Items[Group][Pos].first = NullToEmpty(i.Text);
-					++Result;
-				}
-			}
-		}
+	size_t Result = 0;
+
+	for (const auto& i: span(Kbt->Labels, Kbt->CountLabels))
+	{
+		if (i.Key.VirtualKeyCode < VK_F1 || i.Key.VirtualKeyCode > VK_F1 + KEY_COUNT)
+			continue;
+
+		const auto Pos = i.Key.VirtualKeyCode - VK_F1;
+
+		DWORD Shift = 0;
+		const auto Flags = i.Key.ControlKeyState;
+
+		if (Flags & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED))
+			Shift |= KEY_CTRL;
+
+		if (Flags & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED))
+			Shift |= KEY_ALT;
+
+		if (Flags & SHIFT_PRESSED)
+			Shift |= KEY_SHIFT;
+
+		const auto Group = FnGroup(Shift);
+		if (Group < 0)
+			continue;
+
+		Items[Group][Pos].first = NullToEmpty(i.Text);
+		++Result;
 	}
+
 	return Result;
 }
