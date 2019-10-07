@@ -468,7 +468,6 @@ private:
 	void Import(const string& File);
 	void Export(const string& File);
 	void TryImportDatabase(representable* p, const char* NodeName = nullptr, bool IsPlugin = false);
-	void CheckDatabase(class SQLiteDb const* pDb);
 
 	struct implementation
 	{

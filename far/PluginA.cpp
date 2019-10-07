@@ -1485,7 +1485,7 @@ static void MultiByteRecode(UINT nCPin, UINT nCPout, span<char> const Buffer)
 	{
 		encoding::get_bytes(nCPout, encoding::get_chars(nCPin, { Buffer.data(), Buffer.size() }), Buffer);
 	}
-};
+}
 
 static uintptr_t ConvertCharTableToCodePage(int Command)
 {

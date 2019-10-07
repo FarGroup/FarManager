@@ -55,7 +55,7 @@ struct file_line
 };
 
 // TODO: rename
-class enum_file_lines : public enumerator<enum_file_lines, file_line>
+class [[nodiscard]] enum_file_lines : public enumerator<enum_file_lines, file_line>
 {
 	IMPLEMENTS_ENUMERATOR(enum_file_lines);
 
@@ -64,6 +64,7 @@ public:
 	bool conversion_error() const { return m_ConversionError; }
 
 private:
+	[[nodiscard]]
 	bool get(bool Reset, file_line& Value) const;
 
 	bool GetString(string_view& Str, eol::type& Eol) const;

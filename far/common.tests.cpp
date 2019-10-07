@@ -412,7 +412,7 @@ namespace
 		}
 
 		REQUIRE(IsTriggered == MustBeTriggered);
-	};
+	}
 
 	template<scope_exit::scope_type type>
 	static void test_scope(bool OnFail, bool OnSuccess)

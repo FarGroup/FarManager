@@ -140,7 +140,7 @@ public:
 	void SetMacroSelectionStart(int Value) { MacroSelectionStart = Value; }
 	int GetLineCursorPos() const { return CursorPos; }
 	void SetLineCursorPos(int Value) { CursorPos = Value; }
-	bool IsLastLine(const Edit* line) const;
+	bool IsLastLine(const Edit* Line) const;
 	void AutoDeleteColors();
 	int GetId() const { return EditorID; }
 
@@ -249,7 +249,7 @@ private:
 	void ClearSessionBookmarks();
 	// Remove a particular session bookmark. Adjusts SessionPos if deleting the current bookmark
 	bool DeleteSessionBookmark(bookmark_list::iterator sb_delete);
-	bool MoveSessionBookmarkToUndoList(bookmark_list::iterator sb_delete);
+	bool MoveSessionBookmarkToUndoList(bookmark_list::iterator sb_move);
 	// Restore the current session bookmark
 	bool RestoreSessionBookmark();
 	// Add current cursor pos to session bookmarks, after the current bookmark, and adjust SessionPos to it

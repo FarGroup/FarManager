@@ -58,7 +58,7 @@ namespace Instance##_nifty_objects\
 	Initialiser;\
 }\
 \
-extern Type& Instance;
+extern Type& Instance
 
 
 #define NIFTY_DEFINE(Type, Instance)\

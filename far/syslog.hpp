@@ -106,7 +106,7 @@ extern "C"
 	void WINAPIV FarSysLog(const wchar_t *ModuleName, int Level, const wchar_t *fmt, ...);
 	void WINAPI FarSysLogDump(const wchar_t *ModuleName,DWORD StartAddress,LPBYTE Buf,int SizeBuf);
 	void WINAPI FarSysLog_INPUT_RECORD_Dump(const wchar_t *ModuleName, const INPUT_RECORD *rec);
-};
+}
 #endif
 
 #if defined(_DEBUG) && defined(SYSLOG)

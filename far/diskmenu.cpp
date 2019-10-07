@@ -645,7 +645,7 @@ static bool GetShellName(const string& Path, string& Name)
 	if (StrRet.uType != STRRET_WSTR)
 		return false;
 
-	os::com::memory<wchar_t*> Str(StrRet.pOleStr);
+	const os::com::memory<wchar_t*> Str(StrRet.pOleStr);
 	Name = Str.get();
 	return true;
 }
@@ -935,7 +935,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				NeedRefresh = false;
 			}
 
-			int SelPos = ChDisk->GetSelectPos();
+			const auto SelPos = ChDisk->GetSelectPos();
 			const auto item = ChDisk->GetComplexUserDataPtr<PanelMenuItem>();
 
 			int KeyProcessed = 1;

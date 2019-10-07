@@ -1114,7 +1114,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 				}
 
 				if (!CP)
-					CP = std::make_unique<copy_progress>(Move != 0, ShowTotalCopySize, ShowCopyTime);
+					CP = std::make_unique<copy_progress>(Move, ShowTotalCopySize, ShowCopyTime);
 
 				CP->m_Bytes.CurrCopied = 0;
 

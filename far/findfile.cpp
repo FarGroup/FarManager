@@ -345,9 +345,6 @@ private:
 	void InitInFileSearch();
 	void ReleaseInFileSearch();
 
-	template<typename char_type, typename searcher>
-	int FindStringBMH(const char_type* searchBuffer, size_t searchBufferCount, const searcher& Searcher) const;
-
 	bool LookForString(const string& Name);
 	bool IsFileIncluded(PluginPanelItem* FileItem, string_view FullName, DWORD FileAttr, const string& strDisplayName);
 	void DoPrepareFileList();
@@ -571,12 +568,11 @@ void FindFiles::SetPluginDirectory(string_view const DirName, const plugin_panel
 			// force plugin to update its file list (that can be empty at this time)
 			// if not done SetDirectory may fail
 			{
-				size_t FileCount=0;
-				PluginPanelItem *PanelData=nullptr;
+				span<PluginPanelItem> PanelData;
 
 				SCOPED_ACTION(std::lock_guard)(PluginCS);
-				if (Global->CtrlObject->Plugins->GetFindData(hPlugin,&PanelData,&FileCount,OPM_SILENT))
-					Global->CtrlObject->Plugins->FreeFindData(hPlugin,PanelData,FileCount,true);
+				if (Global->CtrlObject->Plugins->GetFindData(hPlugin, PanelData, OPM_SILENT))
+					Global->CtrlObject->Plugins->FreeFindData(hPlugin, PanelData, true);
 			}
 
 			SCOPED_ACTION(std::lock_guard)(PluginCS);
@@ -944,24 +940,22 @@ bool FindFiles::GetPluginFile(ArcListItem const* const ArcItem, const os::fs::fi
 	SetPluginDirectory(FindData.FileName,ArcItem->hPlugin,false,UserData);
 	const auto FileNameToFind = PointToName(FindData.FileName);
 	const auto FileNameToFindShort = FindData.HasAlternateFileName()? PointToName(FindData.AlternateFileName()) : string_view{};
-	PluginPanelItem *Items;
-	size_t ItemsNumber;
+	span<PluginPanelItem> Items;
 	bool nResult=false;
 
-	if (Global->CtrlObject->Plugins->GetFindData(ArcItem->hPlugin, &Items, &ItemsNumber, OPM_SILENT))
+	if (Global->CtrlObject->Plugins->GetFindData(ArcItem->hPlugin, Items, OPM_SILENT))
 	{
-		const auto End = Items + ItemsNumber;
-		const auto It = std::find_if(Items, End, [&](const auto& Item)
+		const auto It = std::find_if(ALL_CONST_RANGE(Items), [&](const auto& Item)
 		{
 			return FileNameToFind == NullToEmpty(Item.FileName) && FileNameToFindShort == NullToEmpty(Item.AlternateFileName);
 		});
 
-		if (It != End)
+		if (It != Items.cend())
 		{
 			nResult = Global->CtrlObject->Plugins->GetFile(ArcItem->hPlugin, &*It, DestPath, strResultName, OPM_SILENT) != 0;
 		}
 
-		Global->CtrlObject->Plugins->FreeFindData(ArcItem->hPlugin, Items, ItemsNumber, true);
+		Global->CtrlObject->Plugins->FreeFindData(ArcItem->hPlugin, Items, true);
 	}
 
 	Global->CtrlObject->Plugins->SetDirectory(ArcItem->hPlugin, L"\\"s, OPM_SILENT);
@@ -2283,14 +2277,13 @@ void background_searcher::DoScanTree(const string& strRoot)
 
 void background_searcher::ScanPluginTree(plugin_panel* hPlugin, unsigned long long Flags, int& RecurseLevel)
 {
-	PluginPanelItem *PanelData=nullptr;
-	size_t ItemCount=0;
+	span<PluginPanelItem> PanelData;
 	bool GetFindDataResult=false;
 
 	if(!Stopped())
 	{
 		SCOPED_ACTION(auto)(m_Owner->ScopedLock());
-		GetFindDataResult = Global->CtrlObject->Plugins->GetFindData(hPlugin, &PanelData, &ItemCount, OPM_FIND) != FALSE;
+		GetFindDataResult = Global->CtrlObject->Plugins->GetFindData(hPlugin, PanelData, OPM_FIND) != FALSE;
 	}
 
 	if (!GetFindDataResult)
@@ -2302,7 +2295,7 @@ void background_searcher::ScanPluginTree(plugin_panel* hPlugin, unsigned long lo
 
 	if (SearchMode!=FINDAREA_SELECTED || RecurseLevel!=1)
 	{
-		for (auto& CurPanelItem: span(PanelData, ItemCount))
+		for (auto& CurPanelItem: PanelData)
 		{
 			if (Stopped())
 				break;
@@ -2342,7 +2335,7 @@ void background_searcher::ScanPluginTree(plugin_panel* hPlugin, unsigned long lo
 
 		auto ParentPointSeen = (PanelInfo.Flags & OPIF_ADDDOTS) != 0;
 
-		for (const auto& CurPanelItem: span(PanelData, ItemCount))
+		for (const auto& CurPanelItem: PanelData)
 		{
 			if (Stopped())
 				break;
@@ -2400,7 +2393,7 @@ void background_searcher::ScanPluginTree(plugin_panel* hPlugin, unsigned long lo
 
 	{
 		SCOPED_ACTION(auto)(m_Owner->ScopedLock());
-		Global->CtrlObject->Plugins->FreeFindData(hPlugin, PanelData, ItemCount, true);
+		Global->CtrlObject->Plugins->FreeFindData(hPlugin, PanelData, true);
 	}
 	RecurseLevel--;
 }
@@ -2700,7 +2693,7 @@ bool FindFiles::FindFilesProcess()
 
 				{
 					SCOPED_ACTION(std::lock_guard)(PluginCS);
-					if (auto hNewPlugin = Global->CtrlObject->Plugins->OpenFindListPlugin(PanelItems.data(), PanelItems.size()))
+					if (auto hNewPlugin = Global->CtrlObject->Plugins->OpenFindListPlugin(PanelItems))
 					{
 						const auto NewPanel = Global->CtrlObject->Cp()->ChangePanel(Global->CtrlObject->Cp()->ActivePanel(), panel_type::FILE_PANEL, TRUE, TRUE);
 						NewPanel->SetPluginMode(std::move(hNewPlugin), {}, true);

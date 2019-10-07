@@ -282,7 +282,7 @@ SetAutocomplete::SetAutocomplete(CommandLine* cedit, bool NewState):
 SetAutocomplete::~SetAutocomplete()
 {
 	edit->SetAutocomplete(OldState);
-};
+}
 
 void ReloadEnvironment()
 {

@@ -347,10 +347,9 @@ bool Viewer::OpenFile(const string& Name,int warning)
 
 	if ((vo.SavePos || vo.SaveShortPos || vo.SaveCodepage || vo.SaveViewMode || vo.SaveWrapMode) && !ReadStdin)
 	{
-		string strCacheName = strPluginData.empty() ? strFileName : strPluginData + PointToName(strFileName);
+		const auto strCacheName = strPluginData.empty()? strFileName : strPluginData + PointToName(strFileName);
 		ViewerPosCache poscache;
-		bool found = FilePositionCache::GetPosition(strCacheName, poscache);
-		if (found)
+		if (FilePositionCache::GetPosition(strCacheName, poscache))
 		{
 			if (vo.SavePos)
 			{
@@ -3614,7 +3613,7 @@ void Viewer::SetFilePos(long long Pos)
 {
 	FilePos=Pos;
 	AdjustFilePos();
-};
+}
 
 void Viewer::SetPluginData(string_view const PluginData)
 {

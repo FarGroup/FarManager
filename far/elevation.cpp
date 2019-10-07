@@ -995,7 +995,7 @@ public:
 
 		{
 			// basic security checks
-			ULONG ServerProcessId;
+			ULONG ServerProcessId = 0;
 			if (imports.GetNamedPipeServerProcessId && (!imports.GetNamedPipeServerProcessId(m_Pipe.native_handle(), &ServerProcessId) || ServerProcessId != PID))
 				return GetLastError();
 

@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "eol.hpp"
 
 // Platform:
+#include "platform.chrono.hpp"
 
 // Common:
 #include "common/enum_substrings.hpp"
@@ -91,11 +92,21 @@ public:
 		if (m_Opened)
 			return false;
 
-		if (!OpenClipboard(console.GetWindow()))
-			return false;
+		// Clipboard is a shared resource
+		const size_t Attempts = 5;
 
-		m_Opened = true;
-		return true;
+		for (size_t i = 0; i != Attempts; ++i)
+		{
+			if (OpenClipboard(console.GetWindow()))
+			{
+				m_Opened = true;
+				return true;
+			}
+
+			os::chrono::sleep_for((i + 1)  * 50ms);
+		}
+
+		return false;
 	}
 
 	bool Close() override

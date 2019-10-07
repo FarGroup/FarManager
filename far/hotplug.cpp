@@ -74,7 +74,7 @@ A device is considered a HotPlug device if the following are TRUE:
 
 namespace
 {
-	class enum_child_devices: public enumerator<enum_child_devices, DEVINST>
+	class [[nodiscard]] enum_child_devices: public enumerator<enum_child_devices, DEVINST>
 	{
 		IMPLEMENTS_ENUMERATOR(enum_child_devices);
 
@@ -85,6 +85,7 @@ namespace
 		}
 
 	private:
+		[[nodiscard]]
 		bool get(bool Reset, DEVINST& Value) const
 		{
 			if ((Reset? CM_Get_Child(&m_Current, m_Root, 0) : CM_Get_Sibling(&m_Current, m_Current, 0)) != CR_SUCCESS)

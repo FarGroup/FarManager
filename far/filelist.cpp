@@ -224,7 +224,7 @@ static bool CanSort(int SortMode)
 	return Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Luamacro.Id, OPEN_LUAMACRO, &info, &ptr) && ptr;
 }
 
-};
+}
 
 struct FileList::PluginsListItem
 {
@@ -1967,7 +1967,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 							if (FileNameToPluginItem(strTempName, PanelItem))
 							{
-								const auto PutCode = Global->CtrlObject->Plugins->PutFiles(GetPluginHandle(), &PanelItem.Item, 1, false, OPM_EDIT);
+								const auto PutCode = Global->CtrlObject->Plugins->PutFiles(GetPluginHandle(), { &PanelItem.Item, 1 }, false, OPM_EDIT);
 
 								if (PutCode==1 || PutCode==2)
 									SetPluginModified();
@@ -2756,7 +2756,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 				PluginPanelItemHolder PanelItem;
 				if (FileNameToPluginItem(strFileName, PanelItem))
 				{
-					int PutCode = Global->CtrlObject->Plugins->PutFiles(GetPluginHandle(), &PanelItem.Item, 1, false, OPM_EDIT);
+					int PutCode = Global->CtrlObject->Plugins->PutFiles(GetPluginHandle(), { &PanelItem.Item, 1 }, false, OPM_EDIT);
 					if (PutCode == 1 || PutCode == 2)
 						SetPluginModified();
 				}
@@ -3162,7 +3162,7 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			*/
 			if ((MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) && !empty)
 			{
-				DWORD control = MouseEvent->dwControlKeyState&(SHIFT_PRESSED|LEFT_ALT_PRESSED|LEFT_CTRL_PRESSED|RIGHT_ALT_PRESSED|RIGHT_CTRL_PRESSED);
+				const DWORD control = MouseEvent->dwControlKeyState&(SHIFT_PRESSED|LEFT_ALT_PRESSED|LEFT_CTRL_PRESSED|RIGHT_ALT_PRESSED|RIGHT_CTRL_PRESSED);
 
 				//вызовем EMenu если он есть
 				if (!Global->Opt->RightClickSelect && MouseEvent->dwButtonState == RIGHTMOST_BUTTON_PRESSED)
@@ -5350,13 +5350,13 @@ bool FileList::PopPlugin(int EnableRestoreViewMode)
 
 			if (FileNameToPluginItem(CurPlugin->m_HostFile, PanelItem))
 			{
-				Global->CtrlObject->Plugins->PutFiles(GetPluginHandle(), &PanelItem.Item, 1, false, 0);
+				Global->CtrlObject->Plugins->PutFiles(GetPluginHandle(), { &PanelItem.Item, 1 }, false, 0);
 			}
 			else
 			{
 				PluginPanelItem Item{};
 				Item.FileName = PointToName(CurPlugin->m_HostFile).data();
-				Global->CtrlObject->Plugins->DeleteFiles(GetPluginHandle(), &Item, 1, 0);
+				Global->CtrlObject->Plugins->DeleteFiles(GetPluginHandle(), { &Item, 1 }, 0);
 			}
 
 			FarChDir(strSaveDir);
@@ -5654,7 +5654,7 @@ void FileList::PluginDelete()
 			return;
 
 		const auto Item = GetPluginItem();
-		if (Global->CtrlObject->Plugins->DeleteFiles(Item.lock()->m_Plugin.get(), ItemList.data(), ItemList.size(), 0) && !Item.expired())
+		if (Global->CtrlObject->Plugins->DeleteFiles(Item.lock()->m_Plugin.get(), ItemList, 0) && !Item.expired())
 		{
 			SetPluginModified();
 			PutDizToPlugin(this, ItemList.items(), true, false, nullptr);
@@ -5727,13 +5727,13 @@ void FileList::PutDizToPlugin(FileList *DestPanel, const std::vector<PluginPanel
 				PluginPanelItemHolder PanelItem;
 				if (FileNameToPluginItem(strDizName, PanelItem))
 				{
-					Global->CtrlObject->Plugins->PutFiles(DestPanel->GetPluginHandle(), &PanelItem.Item, 1, false, OPM_SILENT | OPM_DESCR);
+					Global->CtrlObject->Plugins->PutFiles(DestPanel->GetPluginHandle(), { &PanelItem.Item, 1 }, false, OPM_SILENT | OPM_DESCR);
 				}
 				else if (Delete)
 				{
 					PluginPanelItem pi={};
 					pi.FileName = DestPanel->strPluginDizName.c_str();
-					Global->CtrlObject->Plugins->DeleteFiles(DestPanel->GetPluginHandle(),&pi,1,OPM_SILENT);
+					Global->CtrlObject->Plugins->DeleteFiles(DestPanel->GetPluginHandle(), { &pi,1 }, OPM_SILENT);
 				}
 
 				FarChDir(strSaveDir);
@@ -5756,7 +5756,7 @@ void FileList::PluginGetFiles(const string& DestPath, bool Move)
 
 		auto DestPathPtr = DestPath.c_str();
 		const auto Item = GetPluginItem();
-		const auto GetCode = Global->CtrlObject->Plugins->GetFiles(Item.lock()->m_Plugin.get(), ItemList.data(), ItemList.size(), Move, &DestPathPtr, 0);
+		const auto GetCode = Global->CtrlObject->Plugins->GetFiles(Item.lock()->m_Plugin.get(), ItemList, Move, &DestPathPtr, 0);
 
 		if (!Item.expired())
 		{
@@ -5830,14 +5830,14 @@ void FileList::PluginToPluginFiles(bool Move)
 			return;
 
 		auto TempDir=strTempDir.c_str();
-		int PutCode = Global->CtrlObject->Plugins->GetFiles(GetPluginHandle(), ItemList.data(), ItemList.size(), false, &TempDir, OPM_SILENT);
+		int PutCode = Global->CtrlObject->Plugins->GetFiles(GetPluginHandle(), ItemList, false, &TempDir, OPM_SILENT);
 		strTempDir=TempDir;
 
 		if (PutCode==1 || PutCode==2)
 		{
 			const auto strSaveDir = os::fs::GetCurrentDirectory();
 			FarChDir(strTempDir);
-			PutCode = Global->CtrlObject->Plugins->PutFiles(AnotherFilePanel->GetPluginHandle(), ItemList.data(), ItemList.size(), false, 0);
+			PutCode = Global->CtrlObject->Plugins->PutFiles(AnotherFilePanel->GetPluginHandle(), ItemList, false, 0);
 
 			if (PutCode==1 || PutCode==2)
 			{
@@ -5847,7 +5847,7 @@ void FileList::PluginToPluginFiles(bool Move)
 				AnotherFilePanel->SetPluginModified();
 				PutDizToPlugin(AnotherFilePanel.get(), ItemList.items(), false, false, &Diz);
 
-				if (Move && Global->CtrlObject->Plugins->DeleteFiles(GetPluginHandle(), ItemList.data(), ItemList.size(), OPM_SILENT))
+				if (Move && Global->CtrlObject->Plugins->DeleteFiles(GetPluginHandle(), ItemList, OPM_SILENT))
 				{
 					SetPluginModified();
 					PutDizToPlugin(this, ItemList.items(), true, false, nullptr);
@@ -5910,15 +5910,14 @@ void FileList::PluginHostGetFiles()
 			if (contains(UsedPlugins, hCurPlugin->plugin()))
 				OpMode|=OPM_SILENT;
 
-			PluginPanelItem *ItemList;
-			size_t ItemNumber;
+			span<PluginPanelItem> Items;
 			_ALGO(SysLog(L"call Plugins.GetFindData()"));
 
-			if (Global->CtrlObject->Plugins->GetFindData(hCurPlugin.get(), &ItemList, &ItemNumber, OpMode))
+			if (Global->CtrlObject->Plugins->GetFindData(hCurPlugin.get(), Items, OpMode))
 			{
 				_ALGO(SysLog(L"call Plugins.GetFiles()"));
 				auto DestPath = strDestPath.c_str();
-				ExitLoop = Global->CtrlObject->Plugins->GetFiles(hCurPlugin.get(), ItemList, ItemNumber, false, &DestPath, OpMode) != 1;
+				ExitLoop = Global->CtrlObject->Plugins->GetFiles(hCurPlugin.get(), Items, false, &DestPath, OpMode) != 1;
 				strDestPath=DestPath;
 
 				if (!ExitLoop)
@@ -5928,7 +5927,7 @@ void FileList::PluginHostGetFiles()
 				}
 
 				_ALGO(SysLog(L"call Plugins.FreeFindData()"));
-				Global->CtrlObject->Plugins->FreeFindData(hCurPlugin.get(), ItemList, ItemNumber, true);
+				Global->CtrlObject->Plugins->FreeFindData(hCurPlugin.get(), Items, true);
 				UsedPlugins.emplace(hCurPlugin->plugin());
 			}
 
@@ -6021,7 +6020,7 @@ int FileList::PluginPutFilesToAnother(bool Move, panel_ptr AnotherPanel)
 
 		SetCurPath();
 		_ALGO(SysLog(L"call Plugins.PutFiles"));
-		PutCode=Global->CtrlObject->Plugins->PutFiles(AnotherFilePanel->GetPluginHandle(), ItemList.data(), ItemList.size(), Move!=0, 0);
+		PutCode = Global->CtrlObject->Plugins->PutFiles(AnotherFilePanel->GetPluginHandle(), ItemList, Move, 0);
 
 		if (PutCode==1 || PutCode==2)
 		{
@@ -6084,7 +6083,7 @@ void FileList::ProcessHostFile()
 				_ALGO(SysLog(L"call CreatePluginItemList"));
 				auto ItemList = CreatePluginItemList();
 				_ALGO(SysLog(L"call Plugins.ProcessHostFile"));
-				Done = Global->CtrlObject->Plugins->ProcessHostFile(GetPluginHandle(), ItemList.data(), ItemList.size(), 0);
+				Done = Global->CtrlObject->Plugins->ProcessHostFile(GetPluginHandle(), ItemList, 0);
 
 				if (Done)
 					SetPluginModified();
@@ -6158,16 +6157,15 @@ int FileList::ProcessOneHostFile(const FileListItem* Item)
 	if (!hNewPlugin)
 		return Done;
 
-	PluginPanelItem *ItemList;
-	size_t ItemNumber;
+	span<PluginPanelItem> Items;
 	_ALGO(SysLog(L"call Plugins.GetFindData"));
 
-	if (Global->CtrlObject->Plugins->GetFindData(hNewPlugin.get(), &ItemList, &ItemNumber, OPM_TOPLEVEL))
+	if (Global->CtrlObject->Plugins->GetFindData(hNewPlugin.get(), Items, OPM_TOPLEVEL))
 	{
 		_ALGO(SysLog(L"call Plugins.ProcessHostFile"));
-		Done = Global->CtrlObject->Plugins->ProcessHostFile(hNewPlugin.get(), ItemList, ItemNumber, OPM_TOPLEVEL);
+		Done = Global->CtrlObject->Plugins->ProcessHostFile(hNewPlugin.get(), Items, OPM_TOPLEVEL);
 		_ALGO(SysLog(L"call Plugins.FreeFindData"));
-		Global->CtrlObject->Plugins->FreeFindData(hNewPlugin.get(), ItemList, ItemNumber, true);
+		Global->CtrlObject->Plugins->FreeFindData(hNewPlugin.get(), Items, true);
 	}
 
 	_ALGO(SysLog(L"call Plugins.ClosePanel"));
@@ -6749,23 +6747,21 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	if (AnotherPanel->GetMode() == panel_mode::PLUGIN_PANEL)
 	{
 		const auto hAnotherPlugin = AnotherPanel->GetPluginHandle();
-		PluginPanelItem *PanelData=nullptr;
 		string strPath(m_CurDir);
 		AddEndSlash(strPath);
-		size_t PanelCount=0;
-
-		if (Global->CtrlObject->Plugins->GetVirtualFindData(hAnotherPlugin,&PanelData,&PanelCount,strPath))
+		span<PluginPanelItem> PanelData;
+		if (Global->CtrlObject->Plugins->GetVirtualFindData(hAnotherPlugin, PanelData, strPath))
 		{
 			const auto OldSize = m_ListData.size();
 			auto Position = OldSize - 1;
-			m_ListData.reserve(m_ListData.size() + PanelCount);
+			m_ListData.reserve(m_ListData.size() + PanelData.size());
 
 			OpenPanelInfo AnotherPanelInfo{};
 			Global->CtrlObject->Plugins->GetOpenPanelInfo(hAnotherPlugin, &AnotherPanelInfo);
 
 			auto ParentPointSeen = AnotherPanelInfo.Flags & OPIF_ADDDOTS? true : false;
 
-			for (const auto& i: span(PanelData, PanelCount))
+			for (const auto& i: PanelData)
 			{
 				FileListItem Item{ i };
 				Item.Position = Position++;
@@ -6786,7 +6782,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 				TotalFileSize += i.FileSize;
 			}
 
-			Global->CtrlObject->Plugins->FreeVirtualFindData(hAnotherPlugin,PanelData,PanelCount);
+			Global->CtrlObject->Plugins->FreeVirtualFindData(hAnotherPlugin, PanelData);
 		}
 	}
 
@@ -6974,14 +6970,13 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 			FreeDiskSize = m_CachedOpenPanelInfo.FreeSize;
 	}
 
-	PluginPanelItem *PanelData=nullptr;
-	size_t PluginFileCount;
+	span<PluginPanelItem> PanelData;
 
 	int result = FALSE;
 	{
 		++m_InsideGetFindData;
 		SCOPE_EXIT { --m_InsideGetFindData; };
-		result = Global->CtrlObject->Plugins->GetFindData(Item.lock()->m_Plugin.get(), &PanelData, &PluginFileCount, 0);
+		result = Global->CtrlObject->Plugins->GetFindData(Item.lock()->m_Plugin.get(), PanelData, 0);
 	}
 	if (Item.expired())
 	{
@@ -7047,7 +7042,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 	Global->CtrlObject->HiFiles->UpdateCurrentTime();
 	bool UseFilter=m_Filter->IsEnabledOnPanel();
 
-	m_ListData.reserve(PluginFileCount + ((m_CachedOpenPanelInfo.Flags & OPIF_ADDDOTS)? 1 : 0));
+	m_ListData.reserve(PanelData.size() + ((m_CachedOpenPanelInfo.Flags & OPIF_ADDDOTS)? 1 : 0));
 
 	struct
 	{
@@ -7077,35 +7072,36 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 		ParentPoint.TryToFind = false;
 	}
 
-	for (size_t i = 0; i < PluginFileCount; i++)
+	size_t Position = 0;
+	for (const auto& PanelItem: PanelData)
 	{
 		if (UseFilter && !(m_CachedOpenPanelInfo.Flags & OPIF_DISABLEFILTER))
 		{
 			//if (!(CurPanelData->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-			if (!m_Filter->FileInFilter(PanelData[i]))
+			if (!m_Filter->FileInFilter(PanelItem))
 				continue;
 		}
 
-		if (!Global->Opt->ShowHidden && (PanelData[i].FileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM)))
+		if (!Global->Opt->ShowHidden && (PanelItem.FileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM)))
 			continue;
 
-		FileListItem NewItem(PanelData[i]);
-		NewItem.Position = i;
+		FileListItem NewItem(PanelItem);
+		NewItem.Position = Position++;
 
 		NewItem.SortGroup = (m_CachedOpenPanelInfo.Flags & OPIF_DISABLESORTGROUPS)? DEFAULT_SORT_GROUP : Global->CtrlObject->HiFiles->GetGroup(NewItem, this);
 
 		m_ListData.emplace_back(std::move(NewItem));
 
-		if (ParentPoint.TryToFind && !ParentPoint.Item && IsParentDirectory(PanelData[i]))
+		if (ParentPoint.TryToFind && !ParentPoint.Item && IsParentDirectory(PanelItem))
 		{
 			// We reserve capacity so no reallocation will happen and pointer will stay valid.
 			ParentPoint.Item = &m_ListData.back();
-			FillParentPoint(*ParentPoint.Item, i);
+			FillParentPoint(*ParentPoint.Item, 0);
 		}
 		else
 		{
-			PanelData[i].FileAttributes & FILE_ATTRIBUTE_DIRECTORY? ++m_TotalDirCount : ++m_TotalFileCount;
-			TotalFileSize += PanelData[i].FileSize;
+			PanelItem.FileAttributes & FILE_ATTRIBUTE_DIRECTORY? ++m_TotalDirCount : ++m_TotalFileCount;
+			TotalFileSize += PanelItem.FileSize;
 		}
 	}
 
@@ -7115,10 +7111,10 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 	/* $ 25.02.2001 VVM
 	    ! Не считывать повторно список файлов с панели плагина */
 	if (IsColumnDisplayed(column_type::description))
-		ReadDiz({ PanelData, PluginFileCount });
+		ReadDiz(PanelData);
 
 	CorrectPosition();
-	Global->CtrlObject->Plugins->FreeFindData(Item.lock()->m_Plugin.get(), PanelData, PluginFileCount, false);
+	Global->CtrlObject->Plugins->FreeFindData(Item.lock()->m_Plugin.get(), PanelData, false);
 
 	string strLastSel, strGetSel;
 
@@ -7168,9 +7164,6 @@ void FileList::ReadDiz(span<PluginPanelItem> const Items)
 	}
 	else
 	{
-		PluginPanelItem *PanelData=nullptr;
-		size_t PluginFileCount=0;
-
 		Global->CtrlObject->Plugins->GetOpenPanelInfo(GetPluginHandle(), &m_CachedOpenPanelInfo);
 
 		if (!m_CachedOpenPanelInfo.DescrFilesNumber)
@@ -7178,34 +7171,31 @@ void FileList::ReadDiz(span<PluginPanelItem> const Items)
 
 		int GetCode=TRUE;
 
+		span<PluginPanelItem> PanelData;
+
 		if (Items.empty())
 		{
-			GetCode = Global->CtrlObject->Plugins->GetFindData(GetPluginHandle(), &PanelData, &PluginFileCount, 0);
+			GetCode = Global->CtrlObject->Plugins->GetFindData(GetPluginHandle(), PanelData, 0);
 		}
 		else
 		{
-			PanelData = Items.data();
-			PluginFileCount = Items.size();
+			PanelData = Items;
 		}
 
 		if (GetCode)
 		{
 			for (size_t I=0; I<m_CachedOpenPanelInfo.DescrFilesNumber; I++)
 			{
-				PluginPanelItem *CurPanelData=PanelData;
-
-				for (size_t J=0; J < PluginFileCount; J++, CurPanelData++)
+				for (auto& CurPanelData: PanelData)
 				{
-					string strFileName = CurPanelData->FileName;
-
-					if (equal_icase(strFileName, m_CachedOpenPanelInfo.DescrFiles[I]))
+					if (equal_icase(CurPanelData.FileName, m_CachedOpenPanelInfo.DescrFiles[I]))
 					{
 						const auto strTempDir = MakeTemp();
 
 						if (os::fs::create_directory(strTempDir))
 						{
 							string strDizName;
-							if (Global->CtrlObject->Plugins->GetFile(GetPluginHandle(), CurPanelData, strTempDir, strDizName, OPM_SILENT | OPM_VIEW | OPM_QUICKVIEW | OPM_DESCR))
+							if (Global->CtrlObject->Plugins->GetFile(GetPluginHandle(), &CurPanelData, strTempDir, strDizName, OPM_SILENT | OPM_VIEW | OPM_QUICKVIEW | OPM_DESCR))
 							{
 								strPluginDizName = m_CachedOpenPanelInfo.DescrFiles[I];
 								Diz.Read({}, &strDizName);
@@ -7223,7 +7213,7 @@ void FileList::ReadDiz(span<PluginPanelItem> const Items)
 			}
 
 			if (Items.empty())
-				Global->CtrlObject->Plugins->FreeFindData(GetPluginHandle(), PanelData, PluginFileCount, true);
+				Global->CtrlObject->Plugins->FreeFindData(GetPluginHandle(), PanelData, true);
 		}
 	}
 

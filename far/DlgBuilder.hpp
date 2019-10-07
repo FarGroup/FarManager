@@ -265,7 +265,8 @@ class DialogBuilderBase
 					m_DialogItems[i].X2 = Title->X2;
 				}
 				else if (m_DialogItems[i].Type == DI_TEXT && (m_DialogItems[i].Flags & DIF_CENTERTEXT))
-				{//BUGBUG: two columns items are not supported
+				{
+					//BUGBUG: two columns items are not supported
 					m_DialogItems[i].X2 = m_DialogItems[i].X1 + MaxWidth - 1;
 				}
 
@@ -287,13 +288,13 @@ class DialogBuilderBase
 			{
 				if (m_DialogItems [i].X1 == SECOND_COLUMN) continue;
 				intptr_t Width = ItemWidth(m_DialogItems [i]);
-				intptr_t Indent = m_DialogItems [i].X1 - 5;
+				const intptr_t Indent = m_DialogItems [i].X1 - 5;
 				Width += Indent;
 
 				if (MaxWidth < Width)
 					MaxWidth = Width;
 			}
-			intptr_t ColumnsWidth = 2*m_ColumnMinWidth+1;
+			const intptr_t ColumnsWidth = 2*m_ColumnMinWidth+1;
 			if (MaxWidth < ColumnsWidth)
 				return ColumnsWidth;
 			return MaxWidth;
@@ -329,7 +330,7 @@ class DialogBuilderBase
 
 		int GetItemID(T *Item) const
 		{
-			int Index = static_cast<int>(Item - m_DialogItems);
+			const int Index = static_cast<int>(Item - m_DialogItems);
 			if (Index >= 0 && Index < m_DialogItemsCount)
 				return Index;
 			return -1;
@@ -558,7 +559,7 @@ class DialogBuilderBase
 		{
 			for(int i=m_ColumnStartIndex; i<m_DialogItemsCount; i++)
 			{
-				intptr_t Width = ItemWidth(m_DialogItems [i]);
+				const intptr_t Width = ItemWidth(m_DialogItems [i]);
 				if (Width > m_ColumnMinWidth)
 					m_ColumnMinWidth = Width;
 				if (i >= m_ColumnBreakIndex)
@@ -682,7 +683,7 @@ class DialogBuilderBase
 
 		bool ShowDialog()
 		{
-			intptr_t Result = ShowDialogEx();
+			const intptr_t Result = ShowDialogEx();
 			return Result >= 0 && (m_CancelButtonID < 0 || Result + m_FirstButtonID != m_CancelButtonID);
 		}
 
@@ -717,7 +718,7 @@ public:
 
 	void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
 	{
-		int Selected = static_cast<int>(Info.SendDlgMessage(*DialogHandle, DM_GETCHECK, ID, nullptr));
+		const int Selected = static_cast<int>(Info.SendDlgMessage(*DialogHandle, DM_GETCHECK, ID, nullptr));
 		if (!Mask)
 		{
 			*Value = Selected;
@@ -784,7 +785,7 @@ public:
 	{
 		memset(Buffer, 0, sizeof(Buffer));
 		aInfo.FSF->sprintf(Buffer, L"%u", *aValue);
-		int MaskWidth = Width < 31 ? Width : 31;
+		const int MaskWidth = Width < 31 ? Width : 31;
 		for(int i=1; i<MaskWidth; i++)
 			Mask[i] = L'9';
 		Mask[0] = L'#';
@@ -822,7 +823,7 @@ public:
 	{
 		memset(Buffer, 0, sizeof(Buffer));
 		aInfo.FSF->sprintf(Buffer, L"%u", *aValue);
-		int MaskWidth = Width < 31 ? Width : 31;
+		const int MaskWidth = Width < 31 ? Width : 31;
 		for(int i=1; i<MaskWidth; i++)
 			Mask[i] = L'9';
 		Mask[0] = L'#';
@@ -920,8 +921,8 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 
 		intptr_t DoShowDialog() override
 		{
-			intptr_t Width = m_DialogItems[0].X2+4;
-			intptr_t Height = m_DialogItems[0].Y2+2;
+			const intptr_t Width = m_DialogItems[0].X2+4;
+			const intptr_t Height = m_DialogItems[0].Y2+2;
 			DialogHandle = Info.DialogInit(&PluginId, &Id, -1, -1, Width, Height, HelpTopic, m_DialogItems, m_DialogItemsCount, 0, Flags, DlgProc, UserParam);
 			return Info.DialogRun(DialogHandle);
 		}

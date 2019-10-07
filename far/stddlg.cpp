@@ -487,7 +487,7 @@ static size_t enumerate_rm_processes(const string& Filename, DWORD& Reasons, fun
 		return 0;
 
 	DWORD RmGetListResult;
-	UINT ProceccInfoSizeNeeded;
+	UINT ProceccInfoSizeNeeded = 0;
 	UINT ProcessInfoSize = 1;
 	std::vector<RM_PROCESS_INFO> ProcessInfos(ProcessInfoSize);
 	while ((RmGetListResult = imports.RmGetList(Session, &ProceccInfoSizeNeeded, &ProcessInfoSize, ProcessInfos.data(), &Reasons)) == ERROR_MORE_DATA)
@@ -734,7 +734,7 @@ static string GetReErrorString(int code)
 	default:
 		return L"Unknown error"s;
 	}
-};
+}
 
 void ReCompileErrorMessage(const RegExp& re, const string& str)
 {

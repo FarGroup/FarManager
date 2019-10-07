@@ -206,6 +206,7 @@ Init[]=
 	{L"WarnDialog.DefaultButton.Highlight.Selected"sv, F_YELLOW|B_LIGHTGRAY,   F_WHITE|B_BLACK,       }, // COL_WARNDIALOGHIGHLIGHTSELECTEDDEFAULTBUTTON,
 };
 
+static_assert(std::size(Init) == COL_LASTPALETTECOLOR);
 
 palette::palette():
 	CurrentPalette(std::size(Init))

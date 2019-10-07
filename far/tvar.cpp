@@ -298,7 +298,7 @@ double TVar::toDouble()
 	dnum = asDouble();
 	vType = Type::Double;
 	return dnum;
-};
+}
 
 const string& TVar::asString() const
 {

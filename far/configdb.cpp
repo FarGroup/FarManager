@@ -137,7 +137,7 @@ private:
 namespace
 {
 
-class xml_enum: noncopyable, public enumerator<xml_enum, const tinyxml::XMLElement*>
+class [[nodiscard]] xml_enum: noncopyable, public enumerator<xml_enum, const tinyxml::XMLElement*>
 {
 	IMPLEMENTS_ENUMERATOR(xml_enum);
 
@@ -154,6 +154,7 @@ public:
 	}
 
 private:
+	[[nodiscard]]
 	bool get(bool Reset, value_type& value) const
 	{
 		value = !Reset? value->NextSiblingElement(m_name) :
@@ -716,7 +717,7 @@ private:
 				if (value)
 					SetValue(Key, Name, encoding::utf8::get_chars(value));
 			}
-			else if (value && !strcmp(type, "hex"))
+			else if (!strcmp(type, "hex"))
 			{
 				if (value)
 					SetValue(Key, Name, HexStringToBlob(value));

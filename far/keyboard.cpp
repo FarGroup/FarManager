@@ -1983,7 +1983,7 @@ static int GetMappedCharacter(int VKey)
 
 	default: return 0;
 	}
-};
+}
 
 static int GetNumpadKey(const int KeyCode, const int CtrlState, const int Modif)
 {
@@ -2046,7 +2046,7 @@ static int GetNumpadKey(const int KeyCode, const int CtrlState, const int Modif)
 	}
 
 	return Modif | Mapping.FarCodeNumpad;
-};
+}
 
 static int GetMouseKey(const MOUSE_EVENT_RECORD& MouseEvent)
 {

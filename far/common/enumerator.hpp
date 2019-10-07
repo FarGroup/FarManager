@@ -149,7 +149,7 @@ private:
 #define IMPLEMENTS_ENUMERATOR(type) friend typename type::enumerator_type
 
 template<typename value_type, typename callable, typename finaliser>
-class inline_enumerator: public enumerator<inline_enumerator<value_type, callable, finaliser>, value_type>
+class [[nodiscard]] inline_enumerator: public enumerator<inline_enumerator<value_type, callable, finaliser>, value_type>
 {
 	IMPLEMENTS_ENUMERATOR(inline_enumerator);
 

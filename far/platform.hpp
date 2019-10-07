@@ -331,7 +331,7 @@ namespace os
 					NetApiBufferFree(Ptr);
 				}
 			};
-		};
+		}
 
 		template<class T>
 		using ptr = std::unique_ptr<T, detail::deleter<T>>;

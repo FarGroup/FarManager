@@ -321,8 +321,7 @@ static void ScanPluginDir(plugin_panel* hDirListPlugin, OPERATION_MODES OpMode, 
 {
 	Callback(BaseDir, Data.DirCount + Data.FileCount, Data.FileSize);
 
-	PluginPanelItem *PanelData=nullptr;
-	size_t ItemCount=0;
+	span<PluginPanelItem> PanelData;
 
 	if (CheckForEscSilent())
 	{
@@ -330,12 +329,12 @@ static void ScanPluginDir(plugin_panel* hDirListPlugin, OPERATION_MODES OpMode, 
 			StopSearch = true;
 	}
 
-	if (StopSearch || !Global->CtrlObject->Plugins->GetFindData(hDirListPlugin,&PanelData,&ItemCount,OPM_FIND|OpMode))
+	if (StopSearch || !Global->CtrlObject->Plugins->GetFindData(hDirListPlugin, PanelData, OPM_FIND | OpMode))
 		return;
 
-	PluginDirList.reserve(PluginDirList.size() + ItemCount);
+	PluginDirList.reserve(PluginDirList.size() + PanelData.size());
 
-	for (const auto& i: span(PanelData, ItemCount))
+	for (const auto& i: PanelData)
 	{
 		if (StopSearch)
 			break;
@@ -344,7 +343,7 @@ static void ScanPluginDir(plugin_panel* hDirListPlugin, OPERATION_MODES OpMode, 
 			PushPluginDirItem(PluginDirList, &i, PluginSearchPath, Data);
 	}
 
-	for (const auto& i: span(PanelData, ItemCount))
+	for (const auto& i: PanelData)
 	{
 		if (StopSearch)
 			break;
@@ -371,7 +370,7 @@ static void ScanPluginDir(plugin_panel* hDirListPlugin, OPERATION_MODES OpMode, 
 		}
 	}
 
-	Global->CtrlObject->Plugins->FreeFindData(hDirListPlugin,PanelData,ItemCount,true);
+	Global->CtrlObject->Plugins->FreeFindData(hDirListPlugin, PanelData, true);
 }
 
 static bool GetPluginDirListImpl(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, const UserDataItem* const UserData, std::vector<PluginPanelItem>& Items, BasicDirInfoData& Data, dirinfo_callback const Callback)
@@ -428,12 +427,11 @@ static bool GetPluginDirListImpl(Plugin* PluginNumber, HANDLE hPlugin, const str
 
 				if (!equal_icase(strPrevDir, NullToEmpty(NewInfo.CurDir)))
 				{
-					PluginPanelItem *PanelData=nullptr;
-					size_t ItemCount=0;
+					span<PluginPanelItem> PanelData;
 
-					if (Global->CtrlObject->Plugins->GetFindData(hDirListPlugin,&PanelData,&ItemCount,OPM_SILENT|OpMode))
+					if (Global->CtrlObject->Plugins->GetFindData(hDirListPlugin, PanelData, OPM_SILENT | OpMode))
 					{
-						Global->CtrlObject->Plugins->FreeFindData(hDirListPlugin,PanelData,ItemCount,true);
+						Global->CtrlObject->Plugins->FreeFindData(hDirListPlugin, PanelData, true);
 					}
 
 					Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,strPrevDir,OPM_SILENT|OpMode,&Info.UserData);

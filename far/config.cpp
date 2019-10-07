@@ -155,12 +155,12 @@ static const auto
 static size_t DisplayModeToReal(size_t Mode)
 {
 	return Mode < predefined_panel_modes_count? (Mode == 9? 0 : Mode + 1) : Mode - 1;
-};
+}
 
 static size_t RealModeToDisplay(size_t Mode)
 {
 	return Mode < predefined_panel_modes_count? (Mode == 0? 9 : Mode - 1) : Mode + 1;
-};
+}
 
 void Options::SystemSettings()
 {

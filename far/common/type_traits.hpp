@@ -60,7 +60,7 @@ namespace detail
 {
 #define DETAIL_TRY_(What) \
 	template<typename type> \
-	using try_ ## What = decltype(std::What(std::declval<type&>()));
+	using try_ ## What = decltype(std::What(std::declval<type&>()))
 
 	DETAIL_TRY_(begin);
 	DETAIL_TRY_(end);

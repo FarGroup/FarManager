@@ -1144,11 +1144,10 @@ bool TreeList::ProcessKey(const Manager::Key& Key)
 				if (ToPlugin)
 				{
 					PluginPanelItemHolder Item;
-					const auto ItemNumber = 1;
 					const auto hAnotherPlugin = AnotherPanel->GetPluginHandle();
 					if (FileList::FileNameToPluginItem(m_ListData[m_CurFile].strName, Item))
 					{
-						const auto PutCode = Global->CtrlObject->Plugins->PutFiles(hAnotherPlugin, &Item.Item, ItemNumber, Move != 0, 0);
+						const auto PutCode = Global->CtrlObject->Plugins->PutFiles(hAnotherPlugin, { &Item.Item, 1 }, Move, 0);
 
 						if (PutCode == 1 || PutCode == 2)
 							AnotherPanel->SetPluginModified();

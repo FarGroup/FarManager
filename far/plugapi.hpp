@@ -142,7 +142,7 @@ namespace pluginapi
 	BOOL     WINAPI apiCreateDirectory(const wchar_t *PathName, LPSECURITY_ATTRIBUTES SecurityAttributes) noexcept;
 	//luamacro
 	intptr_t WINAPI apiCallFar(intptr_t CheckCode, FarMacroCall* Data) noexcept;
-};
+}
 
 void CreatePluginStartupInfo(PluginStartupInfo* PSI, FarStandardFunctions* FSF);
 

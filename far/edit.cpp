@@ -108,7 +108,7 @@ void Edit::DisplayObject()
 	}
 
 	//   Вычисление нового положения курсора в строке с учётом Mask.
-	int Value=(GetPrevCurPos()>m_CurPos)?-1:1;
+	const auto Value = GetPrevCurPos() > m_CurPos? -1 : 1;
 	m_CurPos=GetNextCursorPos(m_CurPos,Value);
 	FastShow();
 
@@ -216,7 +216,7 @@ void Edit::FastShow(const Edit::ShowInfo* Info)
 			m_CurPos=GetMaxLength()>0 ? (GetMaxLength()-1):0;
 	}
 
-	int TabCurPos=GetTabCurPos();
+	const auto TabCurPos = GetTabCurPos();
 
 	/* $ 31.07.2001 KM
 	  ! Для комбобокса сделаем отображение строки
@@ -252,7 +252,7 @@ void Edit::FastShow(const Edit::ShowInfo* Info)
 	OutStrTmp.reserve(EditLength);
 
 	SetLineCursorPos(TabCurPos);
-	int RealLeftPos=TabPosToReal(LeftPos);
+	const auto RealLeftPos = TabPosToReal(LeftPos);
 
 	if (m_Str.size() > RealLeftPos)
 	{
@@ -353,7 +353,7 @@ void Edit::FastShow(const Edit::ShowInfo* Info)
 
 			Text(OutStr);
 			SetColor(GetNormalColor());
-			size_t BlankLength=EditLength-OutStr.size();
+			const auto BlankLength = EditLength - OutStr.size();
 
 			if (BlankLength > 0)
 			{
@@ -897,7 +897,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_OP_SELWORD:
 		{
-			int OldCurPos=m_CurPos;
+			const auto OldCurPos=m_CurPos;
 			PrevSelStart=m_SelStart;
 			PrevSelEnd=m_SelEnd;
 #if defined(MOUSEKEY)
@@ -940,7 +940,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 				SCOPED_ACTION(auto)(CallbackSuppressor());
 				if (!Mask.empty())
 				{
-					int MaskLen = static_cast<int>(Mask.size());
+					const auto MaskLen = static_cast<int>(Mask.size());
 					int ptr = m_CurPos;
 
 					while (ptr < MaskLen)
@@ -1261,7 +1261,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 		case KEY_SHIFTTAB:
 		{
 			SetPrevCurPos(m_CurPos);
-			int Pos = GetLineCursorPos();
+			const auto Pos = GetLineCursorPos();
 			SetLineCursorPos(Pos-((Pos-1) % GetTabSize()+1));
 
 			if (GetLineCursorPos()<0) SetLineCursorPos(0); //CursorPos=0,TabSize=1 case
@@ -1293,7 +1293,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 
 			if (InsertKey(LocalKey))
 			{
-				int CurWindowType = Global->WindowManager->GetCurrentWindow()->GetType();
+				const auto CurWindowType = Global->WindowManager->GetCurrentWindow()->GetType();
 				if (CurWindowType == windowtype_dialog || CurWindowType == windowtype_panels)
 				{
 					Show();
@@ -1312,7 +1312,7 @@ bool Edit::ProcessCtrlQ()
 	INPUT_RECORD rec;
 	for (;;)
 	{
-		DWORD Key=GetInputRecord(&rec);
+		const auto Key = GetInputRecord(&rec);
 
 		if (Key!=KEY_NONE && Key!=KEY_IDLE && rec.Event.KeyEvent.uChar.AsciiChar)
 			break;
@@ -1339,7 +1339,7 @@ bool Edit::InsertKey(int Key)
 	if (Key==KEY_TAB && m_Flags.Check(FEDITLINE_OVERTYPE))
 	{
 		SetPrevCurPos(m_CurPos);
-		int Pos = GetLineCursorPos();
+		const auto Pos = GetLineCursorPos();
 		SetLineCursorPos(static_cast<int>(Pos + (GetTabSize() - (Pos % GetTabSize()))));
 		SetTabCurPos(GetLineCursorPos());
 		return true;
@@ -1348,7 +1348,7 @@ bool Edit::InsertKey(int Key)
 	const auto Mask = GetInputMask();
 	if (!Mask.empty())
 	{
-		int MaskLen = static_cast<int>(Mask.size());
+		const auto MaskLen = static_cast<int>(Mask.size());
 
 		if (m_CurPos<MaskLen)
 		{
@@ -1585,7 +1585,7 @@ string Edit::GetSelString() const
 
 void Edit::AppendString(const string_view Str)
 {
-	int LastPos = m_CurPos;
+	const auto LastPos = m_CurPos;
 	m_CurPos = GetLength();
 	InsertString(Str);
 	m_CurPos = LastPos;
@@ -2021,7 +2021,7 @@ void Edit::AdjustMarkBlock()
 	bool mark = false;
 	if (m_SelStart >= 0)
 	{
-		int end = m_SelEnd > m_Str.size() || m_SelEnd == -1 ? m_Str.size() : m_SelEnd;
+		const auto end = m_SelEnd > m_Str.size() || m_SelEnd == -1? m_Str.size() : m_SelEnd;
 		mark = end > m_SelStart && (m_CurPos==m_SelStart || m_CurPos==end);
 	}
 	m_Flags.Change(FEDITLINE_MARKINGBLOCK, mark);
@@ -2043,7 +2043,7 @@ void Edit::AdjustPersistentMark()
 	if (!persistent)
 		return;
 
-	int end = m_SelEnd > m_Str.size() || m_SelEnd == -1? m_Str.size() : m_SelEnd;
+	const auto end = m_SelEnd > m_Str.size() || m_SelEnd == -1? m_Str.size() : m_SelEnd;
 	if (end > m_SelStart && (m_CurPos==m_SelStart || m_CurPos==end))
 		m_Flags.Set(FEDITLINE_MARKINGBLOCK);
 }
@@ -2138,7 +2138,7 @@ void Edit::ApplyColor(const FarColor& SelColor, int XPos, int FocusedLeftPos)
 		if (CurItem.StartPos > CurItem.EndPos)
 			continue;
 
-		int Width = ObjWidth();
+		const auto Width = ObjWidth();
 
 		int Length = CurItem.EndPos-CurItem.StartPos+1;
 
@@ -2310,7 +2310,8 @@ void Edit::Xlat(bool All)
 		   Обрабатываем только то слово, на котором стоит курсор, или то слово, что
 		   находится левее позиции курсора на 1 символ
 		*/
-		int start = m_CurPos, StrSize = m_Str.size();
+		int start = m_CurPos;
+		const auto StrSize = m_Str.size();
 		bool DoXlat=true;
 
 		if (IsWordDiv(Global->Opt->XLat.strWordDivForXlat,m_Str[start]))

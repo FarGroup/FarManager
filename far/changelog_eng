@@ -3,6 +3,16 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 07.10.2019 22:24:49 +0100 - build 5485
+
+1. Refactoring.
+
+2. Warnings.
+
+svs 07.10.2019 15:28:54 +0300 - build 5484
+
+1. SQLite 3.30.0
+
 drkns 06.10.2019 10:09:55 +0100 - build 5483
 
 1. Continuation of 5481 - odd bugs.

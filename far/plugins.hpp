@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/function_traits.hpp"
+#include "common/range.hpp"
 #include "common/smart_ptr.hpp"
 
 // External:
@@ -140,20 +141,20 @@ public:
 	// API functions
 	std::unique_ptr<plugin_panel> Open(Plugin *pPlugin,int OpenFrom,const GUID& Guid,intptr_t Item) const;
 	std::unique_ptr<plugin_panel> OpenFilePlugin(const string* Name, OPERATION_MODES OpMode, OPENFILEPLUGINTYPE Type, bool* StopProcessingPtr = nullptr);
-	std::unique_ptr<plugin_panel> OpenFindListPlugin(const PluginPanelItem *PanelItem,size_t ItemsNumber);
+	std::unique_ptr<plugin_panel> OpenFindListPlugin(span<const PluginPanelItem> PanelItems);
 	static void ClosePanel(std::unique_ptr<plugin_panel>&& hPlugin);
 	static void GetOpenPanelInfo(const plugin_panel* hPlugin, OpenPanelInfo *Info);
-	static intptr_t GetFindData(const plugin_panel* hPlugin,PluginPanelItem **PanelItems,size_t *ItemsNumber,int OpMode);
-	static void FreeFindData(const plugin_panel* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool FreeUserData);
-	static intptr_t GetVirtualFindData(const plugin_panel* hPlugin,PluginPanelItem **PanelItems,size_t *ItemsNumber,const string& Path);
-	static void FreeVirtualFindData(const plugin_panel* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber);
+	static intptr_t GetFindData(const plugin_panel* hPlugin, span<PluginPanelItem>& PanelItems, int OpMode);
+	static void FreeFindData(const plugin_panel* hPlugin, span<PluginPanelItem>, bool FreeUserData);
+	static intptr_t GetVirtualFindData(const plugin_panel* hPlugin, span<PluginPanelItem>& PanelItems, const string& Path);
+	static void FreeVirtualFindData(const plugin_panel* hPlugin, span<PluginPanelItem> PanelItems);
 	static intptr_t SetDirectory(const plugin_panel* hPlugin, const string& Dir, int OpMode, const UserDataItem* UserData = nullptr);
 	static bool GetFile(const plugin_panel* hPlugin,PluginPanelItem *PanelItem,const string& DestPath,string &strResultName,int OpMode);
-	static intptr_t GetFiles(const plugin_panel* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool Move,const wchar_t **DestPath,int OpMode);
-	static intptr_t PutFiles(const plugin_panel* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool Move,int OpMode);
-	static intptr_t DeleteFiles(const plugin_panel* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,int OpMode);
+	static intptr_t GetFiles(const plugin_panel* hPlugin, span<PluginPanelItem> PanelItems, bool Move, const wchar_t** DestPath, int OpMode);
+	static intptr_t PutFiles(const plugin_panel* hPlugin, span<PluginPanelItem> PanelItems, bool Move, int OpMode);
+	static intptr_t DeleteFiles(const plugin_panel* hPlugin, span<PluginPanelItem> PanelItems, int OpMode);
 	static intptr_t MakeDirectory(const plugin_panel* hPlugin,const wchar_t **Name,int OpMode);
-	static intptr_t ProcessHostFile(const plugin_panel* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,int OpMode);
+	static intptr_t ProcessHostFile(const plugin_panel* hPlugin, span<PluginPanelItem> PanelItems, int OpMode);
 	static intptr_t ProcessKey(const plugin_panel* hPlugin,const INPUT_RECORD *Rec,bool Pred);
 	static intptr_t ProcessEvent(const plugin_panel* hPlugin,int Event,void *Param);
 	static intptr_t Compare(const plugin_panel* hPlugin,const PluginPanelItem *Item1,const PluginPanelItem *Item2,unsigned int Mode);

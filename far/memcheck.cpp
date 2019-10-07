@@ -252,7 +252,7 @@ static void* DebugAllocator(size_t size, bool Noexcept, allocation_type type, co
 	}
 }
 
-static void DebugDeallocator(void* block, allocation_type type)
+static void DebugDeallocator(void* block, allocation_type type) noexcept
 {
 	if (const auto Info = block? ToReal(block) : nullptr)
 	{
@@ -330,7 +330,7 @@ void checker::summary() const
 	}
 }
 
-};
+}
 
 void* operator new(size_t size)
 {

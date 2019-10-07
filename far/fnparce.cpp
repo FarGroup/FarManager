@@ -249,7 +249,7 @@ static int ProcessBrackets(string_view const Str, wchar_t const EndMark, bracket
 	}
 
 	return 0;
-};
+}
 
 static size_t SkipInputToken(string_view const Str, subst_strings* const Strings = nullptr)
 {

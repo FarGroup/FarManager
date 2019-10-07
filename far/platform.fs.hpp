@@ -130,7 +130,7 @@ namespace os::fs
 	[[nodiscard]]
 	string get_root_directory(wchar_t Letter);
 
-	class enum_drives: public enumerator<enum_drives, wchar_t>
+	class [[nodiscard]] enum_drives: public enumerator<enum_drives, wchar_t>
 	{
 		IMPLEMENTS_ENUMERATOR(enum_drives);
 
@@ -138,13 +138,14 @@ namespace os::fs
 		explicit enum_drives(drives_set Drives);
 
 	private:
+		[[nodiscard]]
 		bool get(bool Reset, wchar_t& Value) const;
 
 		drives_set m_Drives;
 		mutable size_t m_CurrentIndex{};
 	};
 
-	class enum_files: public enumerator<enum_files, find_data>
+	class [[nodiscard]] enum_files: public enumerator<enum_files, find_data>
 	{
 		IMPLEMENTS_ENUMERATOR(enum_files);
 
@@ -152,6 +153,7 @@ namespace os::fs
 		explicit enum_files(string_view Object, bool ScanSymlink = true);
 
 	private:
+		[[nodiscard]]
 		bool get(bool Reset, find_data& Value) const;
 
 		string m_Object;
@@ -159,7 +161,7 @@ namespace os::fs
 		mutable find_file_handle m_Handle;
 	};
 
-	class enum_names: public enumerator<enum_names, string>
+	class [[nodiscard]] enum_names: public enumerator<enum_names, string>
 	{
 		IMPLEMENTS_ENUMERATOR(enum_names);
 
@@ -167,13 +169,14 @@ namespace os::fs
 		explicit enum_names(string_view Object);
 
 	private:
+		[[nodiscard]]
 		bool get(bool Reset, string& Value) const;
 
 		string m_Object;
 		mutable find_handle m_Handle;
 	};
 
-	class enum_streams: public enumerator<enum_streams, WIN32_FIND_STREAM_DATA>
+	class [[nodiscard]] enum_streams: public enumerator<enum_streams, WIN32_FIND_STREAM_DATA>
 	{
 		IMPLEMENTS_ENUMERATOR(enum_streams);
 
@@ -181,13 +184,14 @@ namespace os::fs
 		explicit enum_streams(string_view Object);
 
 	private:
+		[[nodiscard]]
 		bool get(bool Reset, WIN32_FIND_STREAM_DATA& Value) const;
 
 		string m_Object;
 		mutable find_file_handle m_Handle;
 	};
 
-	class enum_volumes: public enumerator<enum_volumes, string>
+	class [[nodiscard]] enum_volumes: public enumerator<enum_volumes, string>
 	{
 		IMPLEMENTS_ENUMERATOR(enum_volumes);
 
@@ -195,6 +199,7 @@ namespace os::fs
 		enum_volumes();
 
 	private:
+		[[nodiscard]]
 		bool get(bool Reset, string& Value) const;
 
 		string m_Object;

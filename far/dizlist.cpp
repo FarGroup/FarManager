@@ -85,7 +85,7 @@ static void PR_ReadingMsg()
 			msg(lng::MReadingDiz)
 		},
 		{});
-};
+}
 
 void DizList::Read(const string& Path, const string* DizName)
 {

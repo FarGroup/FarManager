@@ -84,7 +84,7 @@ Panel::Panel(window_ptr Owner):
 	_OT(SysLog(L"[%p] Panel::Panel()", this));
 	SrcDragPanel=nullptr;
 	DragX=DragY=-1;
-};
+}
 
 
 Panel::~Panel()
@@ -98,7 +98,7 @@ void Panel::SetViewMode(int ViewMode)
 {
 	m_PrevViewMode=ViewMode;
 	m_ViewMode=ViewMode;
-};
+}
 
 
 void Panel::ChangeDirToCurrent()

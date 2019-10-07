@@ -694,7 +694,7 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 	return std::make_unique<plugin_panel>(std::move(*PluginIterator));
 }
 
-std::unique_ptr<plugin_panel> PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, size_t ItemsNumber)
+std::unique_ptr<plugin_panel> PluginManager::OpenFindListPlugin(span<const PluginPanelItem> const PanelItems)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 
@@ -762,8 +762,8 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFindListPlugin(const PluginPane
 
 	SetFindListInfo Info{ sizeof(Info) };
 	Info.hPanel = PluginIterator->panel();
-	Info.PanelItem = PanelItem;
-	Info.ItemsNumber = ItemsNumber;
+	Info.PanelItem = PanelItems.data();
+	Info.ItemsNumber = PanelItems.size();
 
 	if (!PluginIterator->plugin()->SetFindList(&Info))
 		return nullptr;
@@ -925,25 +925,24 @@ intptr_t PluginManager::ProcessConsoleInput(ProcessConsoleInputInfo *Info) const
 }
 
 
-intptr_t PluginManager::GetFindData(const plugin_panel* hPlugin, PluginPanelItem** PanelItems, size_t* ItemsNumber, int OpMode)
+intptr_t PluginManager::GetFindData(const plugin_panel* hPlugin, span<PluginPanelItem>& PanelItems, int OpMode)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	GetFindDataInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
 	Info.OpMode = OpMode;
 	const auto Result = hPlugin->plugin()->GetFindData(&Info);
-	*PanelItems = Info.PanelItem;
-	*ItemsNumber = Info.ItemsNumber;
+	PanelItems = { Info.PanelItem, Info.ItemsNumber };
 
 	return Result;
 }
 
 
-void PluginManager::FreeFindData(const plugin_panel* hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, bool FreeUserData)
+void PluginManager::FreeFindData(const plugin_panel* hPlugin, span<PluginPanelItem> const PanelItems, bool FreeUserData)
 {
 	if (FreeUserData)
 	{
-		for (const auto& i: span(PanelItem, ItemsNumber))
+		for (const auto& i: PanelItems)
 		{
 			FreePluginPanelItemUserData(const_cast<plugin_panel*>(hPlugin), i.UserData);
 		}
@@ -951,34 +950,32 @@ void PluginManager::FreeFindData(const plugin_panel* hPlugin, PluginPanelItem *P
 
 	FreeFindDataInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
-	Info.PanelItem = PanelItem;
-	Info.ItemsNumber = ItemsNumber;
+	Info.PanelItem = PanelItems.data();
+	Info.ItemsNumber = PanelItems.size();
 	hPlugin->plugin()->FreeFindData(&Info);
 }
 
 
-intptr_t PluginManager::GetVirtualFindData(const plugin_panel* hPlugin, PluginPanelItem** PanelItems, size_t* ItemsNumber, const string& Path)
+intptr_t PluginManager::GetVirtualFindData(const plugin_panel* hPlugin, span<PluginPanelItem>& PanelItems, const string& Path)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
-	*ItemsNumber=0;
 
 	GetVirtualFindDataInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
 	Info.Path = Path.c_str();
 	const auto Result = hPlugin->plugin()->GetVirtualFindData(&Info);
-	*PanelItems = Info.PanelItem;
-	*ItemsNumber = Info.ItemsNumber;
+	PanelItems = { Info.PanelItem, Info.ItemsNumber };
 
 	return Result;
 }
 
 
-void PluginManager::FreeVirtualFindData(const plugin_panel* hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber)
+void PluginManager::FreeVirtualFindData(const plugin_panel* hPlugin, span<PluginPanelItem> const PanelItems)
 {
 	FreeFindDataInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
-	Info.PanelItem = PanelItem;
-	Info.ItemsNumber = ItemsNumber;
+	Info.PanelItem = PanelItems.data();
+	Info.ItemsNumber = PanelItems.size();
 
 	return hPlugin->plugin()->FreeVirtualFindData(&Info);
 }
@@ -1038,13 +1035,13 @@ bool PluginManager::GetFile(const plugin_panel* hPlugin, PluginPanelItem *PanelI
 }
 
 
-intptr_t PluginManager::DeleteFiles(const plugin_panel* hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, int OpMode)
+intptr_t PluginManager::DeleteFiles(const plugin_panel* hPlugin, span<PluginPanelItem> const PanelItems, int OpMode)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	DeleteFilesInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
-	Info.PanelItem = PanelItem;
-	Info.ItemsNumber = ItemsNumber;
+	Info.PanelItem = PanelItems.data();
+	Info.ItemsNumber = PanelItems.size();
 	Info.OpMode = OpMode;
 
 	return hPlugin->plugin()->DeleteFiles(&Info);
@@ -1065,27 +1062,27 @@ intptr_t PluginManager::MakeDirectory(const plugin_panel* hPlugin, const wchar_t
 }
 
 
-intptr_t PluginManager::ProcessHostFile(const plugin_panel* hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, int OpMode)
+intptr_t PluginManager::ProcessHostFile(const plugin_panel* hPlugin, span<PluginPanelItem> const PanelItems, int OpMode)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	ProcessHostFileInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
-	Info.PanelItem = PanelItem;
-	Info.ItemsNumber = ItemsNumber;
+	Info.PanelItem = PanelItems.data();
+	Info.ItemsNumber = PanelItems.size();
 	Info.OpMode = OpMode;
 
 	return hPlugin->plugin()->ProcessHostFile(&Info);
 }
 
 
-intptr_t PluginManager::GetFiles(const plugin_panel* hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, bool Move, const wchar_t **DestPath, int OpMode)
+intptr_t PluginManager::GetFiles(const plugin_panel* hPlugin, span<PluginPanelItem> const PanelItems, bool Move, const wchar_t **DestPath, int OpMode)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 
 	GetFilesInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
-	Info.PanelItem = PanelItem;
-	Info.ItemsNumber = ItemsNumber;
+	Info.PanelItem = PanelItems.data();
+	Info.ItemsNumber = PanelItems.size();
 	Info.Move = Move;
 	Info.DestPath = *DestPath;
 	Info.OpMode = OpMode;
@@ -1096,15 +1093,15 @@ intptr_t PluginManager::GetFiles(const plugin_panel* hPlugin, PluginPanelItem *P
 }
 
 
-intptr_t PluginManager::PutFiles(const plugin_panel* hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, bool Move, int OpMode)
+intptr_t PluginManager::PutFiles(const plugin_panel* hPlugin, span<PluginPanelItem> const PanelItems, bool Move, int OpMode)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	static string strCurrentDirectory;
 	strCurrentDirectory = os::fs::GetCurrentDirectory();
 	PutFilesInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
-	Info.PanelItem = PanelItem;
-	Info.ItemsNumber = ItemsNumber;
+	Info.PanelItem = PanelItems.data();
+	Info.ItemsNumber = PanelItems.size();
 	Info.Move = Move;
 	Info.SrcPath = strCurrentDirectory.c_str();
 	Info.OpMode = OpMode;

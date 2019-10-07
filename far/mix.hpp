@@ -69,7 +69,7 @@ T FromPercent(int Percent, T Base)
 	return std::numeric_limits<T>::max() / Percent > Base?
 		Base * Percent / 100 :
 		Base / 100 * Percent;
-};
+}
 
 string MakeTemp(string_view Prefix = {}, bool WithTempPath = true, string_view UserTempPath = {});
 string MakeTempInSameDir(string_view FileName);

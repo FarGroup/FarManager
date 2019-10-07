@@ -94,6 +94,7 @@ public:
 	explicit wrapped_text(string&& Str, size_t Width, string_view Break = L"\n"sv, bool BreakWords = true);
 
 private:
+	[[nodiscard]]
 	bool get(bool Reset, string_view& Value) const;
 
 	string m_StrBuffer;

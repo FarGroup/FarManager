@@ -91,7 +91,7 @@ WARNING_DISABLE_CLANG("-Wold-style-cast")
 #include "thirdparty/ucd/nsUTF8Prober.cpp"
 
 WARNING_POP()
-};
+}
 
 namespace
 {

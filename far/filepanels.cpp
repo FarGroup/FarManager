@@ -965,12 +965,15 @@ panel_ptr FilePanels::ChangePanel(panel_ptr Current, panel_type NewType, int Cre
 
 	if (!CreateNew && NewType == panel_type::FILE_PANEL && LastFilePanel)
 	{
-		const auto LastRect = LastFilePanel->GetPosition();
-
 		if (LastFilePanel->IsFullScreen())
+		{
+			const auto LastRect = LastFilePanel->GetPosition();
 			LastFilePanel->SetPosition({ LastRect.left, Rect.top, LastRect.right, Rect.bottom });
+		}
 		else
+		{
 			LastFilePanel->SetPosition(Rect);
+		}
 
 		NewPanel = std::move(LastFilePanel);
 

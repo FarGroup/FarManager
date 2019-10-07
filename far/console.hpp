@@ -107,9 +107,9 @@ namespace console_detail
 		bool PeekInput(span<INPUT_RECORD> Buffer, size_t& NumberOfEventsRead) const;
 		bool ReadInput(span<INPUT_RECORD> Buffer, size_t& NumberOfEventsRead) const;
 		bool WriteInput(span<INPUT_RECORD> Buffer, size_t& NumberOfEventsWritten) const;
-		bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, const SMALL_RECT& ReadRegion) const;
+		bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, const SMALL_RECT& ReadRegionRelative) const;
 		bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, const SMALL_RECT& ReadRegion) const { return ReadOutput(Buffer, {}, ReadRegion); }
-		bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, const SMALL_RECT& WriteRegion) const;
+		bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, const SMALL_RECT& WriteRegionRelative) const;
 		bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, const SMALL_RECT& WriteRegion) const { return WriteOutput(Buffer, {}, WriteRegion); }
 		bool Read(std::vector<wchar_t>& Buffer, size_t& Size) const;
 		bool Write(string_view Str) const;

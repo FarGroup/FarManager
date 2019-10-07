@@ -59,7 +59,7 @@ namespace os::memory
 			{
 				void operator()(const void* MemoryBlock) const;
 			};
-		};
+		}
 
 		using ptr = std::unique_ptr<std::remove_pointer_t<HGLOBAL>, detail::deleter>;
 
@@ -112,7 +112,7 @@ namespace os::memory
 			{
 				void operator()(const void* MemoryBlock) const;
 			};
-		};
+		}
 
 		template<class T>
 		class ptr: public base<std::unique_ptr<T, detail::deleter>>

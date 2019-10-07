@@ -68,7 +68,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static HICON load_icon(int IconId, bool Big)
 {
 	return static_cast<HICON>(LoadImage(GetModuleHandle(nullptr), MAKEINTRESOURCE(IconId), IMAGE_ICON, GetSystemMetrics(Big? SM_CXICON : SM_CXSMICON), GetSystemMetrics(Big? SM_CYICON : SM_CYSMICON), LR_SHARED));
-};
+}
 
 static HICON set_icon(HWND Wnd, bool Big, HICON Icon)
 {
@@ -154,7 +154,7 @@ static os::event& CancelIoInProgress()
 static unsigned int CancelSynchronousIoWrapper(void* Thread)
 {
 	// TODO: SEH guard, try/catch, exception_ptr
-	unsigned int Result = imports.CancelSynchronousIo(Thread);
+	const auto Result = imports.CancelSynchronousIo(Thread);
 	CancelIoInProgress().reset();
 	return Result;
 }
@@ -709,8 +709,7 @@ void GetCursorType(bool& Visible, DWORD& Size)
 
 void MoveRealCursor(int X,int Y)
 {
-	COORD C={static_cast<SHORT>(X),static_cast<SHORT>(Y)};
-	console.SetCursorPosition(C);
+	console.SetCursorPosition({ static_cast<SHORT>(X),static_cast<SHORT>(Y) });
 }
 
 

@@ -63,18 +63,21 @@ namespace components
 		component* m_next;
 	};
 
-	class components_list:public enumerator<components_list, component::get_info>
+	class [[nodiscard]] components_list: public enumerator<components_list, component::get_info>
 	{
 		IMPLEMENTS_ENUMERATOR(components_list);
 
 	public:
 		void add(component* item);
+		[[nodiscard]]
 		bool empty() const { return list != nullptr; }
+		[[nodiscard]]
 		size_t size() const { return m_size; }
 
 	private:
 		friend components_list& GetComponentsList();
 
+		[[nodiscard]]
 		bool get(bool Reset, value_type& value) const;
 
 		components_list() = default;

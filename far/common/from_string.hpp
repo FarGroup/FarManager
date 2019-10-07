@@ -67,7 +67,7 @@ namespace detail
 
 		auto& Errno = errno; // Nonzero cost, pay it once
 
-		null_terminated Data(Str);
+		const null_terminated Data(Str);
 		const auto Ptr = Data.c_str();
 		auto EndPtr = const_cast<wchar_t*>(Ptr);
 

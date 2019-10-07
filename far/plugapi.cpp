@@ -154,7 +154,7 @@ namespace cfunctions
 		qsort_param = user_param;
 		return std::qsort(base, nel, width, qsort_comparer_wrapper);
 	}
-};
+}
 
 namespace pluginapi
 {

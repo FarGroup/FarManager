@@ -136,7 +136,7 @@ namespace os::reg
 		const key* m_Key{};
 	};
 
-	class enum_key: noncopyable, public enumerator<enum_key, string>
+	class [[nodiscard]] enum_key: noncopyable, public enumerator<enum_key, string>
 	{
 		IMPLEMENTS_ENUMERATOR(enum_key);
 
@@ -153,7 +153,7 @@ namespace os::reg
 		mutable size_t m_Index{};
 	};
 
-	class enum_value: noncopyable, public enumerator<enum_value, value>
+	class [[nodiscard]] enum_value: noncopyable, public enumerator<enum_value, value>
 	{
 		IMPLEMENTS_ENUMERATOR(enum_value);
 

@@ -618,7 +618,6 @@ void VMenu::FilterStringUpdated()
 	int PrevSeparator = -1, PrevGroup = -1;
 	int UpperVisible = -1, LowerVisible = -2;
 	bool bBottomMode = false;
-	string strName;
 
 	if (SelectPos > 0)
 	{
@@ -635,7 +634,7 @@ void VMenu::FilterStringUpdated()
 	for (const auto& [CurItem, index]: enumerate(Items))
 	{
 		CurItem.Flags &= ~LIF_FILTERED;
-		strName=CurItem.Name;
+
 		if (CurItem.Flags & LIF_SEPARATOR)
 		{
 			if (ItemIsVisible(CurItem.Flags))
@@ -647,7 +646,7 @@ void VMenu::FilterStringUpdated()
 					ItemHiddenCount++;
 				}
 
-				if (strName.empty() && PrevGroup == -1)
+				if (CurItem.Name.empty() && PrevGroup == -1)
 				{
 					CurItem.Flags |= LIF_FILTERED;
 					ItemHiddenCount++;
@@ -665,9 +664,9 @@ void VMenu::FilterStringUpdated()
 		}
 		else
 		{
-			inplace::trim(strName);
-			RemoveHighlights(strName);
-			if(!contains_icase(strName, strFilter))
+			auto Text = trim(CurItem.Name);
+			RemoveHighlights(Text);
+			if(!contains_icase(Text, strFilter))
 			{
 				CurItem.Flags |= LIF_FILTERED;
 				ItemHiddenCount++;

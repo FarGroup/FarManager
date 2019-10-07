@@ -368,7 +368,7 @@ namespace console_detail
 	bool console::PeekInput(span<INPUT_RECORD> const Buffer, size_t& NumberOfEventsRead) const
 	{
 		DWORD dwNumberOfEventsRead = 0;
-		bool Result = PeekConsoleInput(GetInputHandle(), Buffer.data(), static_cast<DWORD>(Buffer.size()), &dwNumberOfEventsRead) != FALSE;
+		const auto Result = PeekConsoleInput(GetInputHandle(), Buffer.data(), static_cast<DWORD>(Buffer.size()), &dwNumberOfEventsRead) != FALSE;
 		NumberOfEventsRead = dwNumberOfEventsRead;
 		if (sWindowMode)
 		{
@@ -412,7 +412,7 @@ namespace console_detail
 			}
 		}
 		DWORD dwNumberOfEventsWritten = 0;
-		bool Result = WriteConsoleInput(GetInputHandle(), Buffer.data(), static_cast<DWORD>(Buffer.size()), &dwNumberOfEventsWritten) != FALSE;
+		const auto Result = WriteConsoleInput(GetInputHandle(), Buffer.data(), static_cast<DWORD>(Buffer.size()), &dwNumberOfEventsWritten) != FALSE;
 		NumberOfEventsWritten = dwNumberOfEventsWritten;
 		return Result;
 	}
@@ -952,15 +952,15 @@ namespace console_detail
 
 		if (Mode&CR_TOP)
 		{
-			DWORD TopSize = csbi.dwSize.X*csbi.srWindow.Top;
-			COORD TopCoord = {};
+			const DWORD TopSize = csbi.dwSize.X * csbi.srWindow.Top;
+			const COORD TopCoord = {};
 			FillConsoleOutputCharacter(GetOutputHandle(), L' ', TopSize, TopCoord, &CharsWritten);
 			FillConsoleOutputAttribute(GetOutputHandle(), ConColor, TopSize, TopCoord, &CharsWritten);
 		}
 
 		if (Mode&CR_RIGHT)
 		{
-			DWORD RightSize = csbi.dwSize.X - csbi.srWindow.Right;
+			const DWORD RightSize = csbi.dwSize.X - csbi.srWindow.Right;
 			COORD RightCoord = { csbi.srWindow.Right, ::GetDelta(csbi) };
 			for (; RightCoord.Y < csbi.dwSize.Y; RightCoord.Y++)
 			{
