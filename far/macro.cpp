@@ -1895,7 +1895,10 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_PPANEL_UNCPATH: // PPanel.UNCPath
 		{
 			string Filename;
-			MakePath(CheckCode == MCODE_V_APANEL_UNCPATH? Global->CtrlObject->Cp()->ActivePanel() : Global->CtrlObject->Cp()->PassivePanel(), false, true, false, Filename);
+			if (MakePath(CheckCode == MCODE_V_APANEL_UNCPATH? Global->CtrlObject->Cp()->ActivePanel() : Global->CtrlObject->Cp()->PassivePanel(), false, true, false, Filename))
+			{
+				DeleteEndSlash(Filename);
+			}
 			return PassString(Filename, Data);
 		}
 

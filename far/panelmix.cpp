@@ -212,6 +212,8 @@ bool MakePath(const panel_ptr& SrcPanel, bool FilePath, bool RealName, bool Shor
 				strPathName += NullToEmpty(Info.CurDir);
 			}
 		}
+
+		AddEndSlash(strPathName);
 	}
 
 	return true;
