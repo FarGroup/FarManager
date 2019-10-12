@@ -2,7 +2,7 @@
 
 #include "compat52.h"
 
-#if LUA_VERSION_NUM == 502
+#if LUA_VERSION_NUM >= 502
 
 void luaL_register(lua_State *L, const char *libname, const luaL_Reg *l)
 {
@@ -23,4 +23,4 @@ int luaL_typerror(lua_State *L, int narg, const char *tname)
 	return luaL_argerror(L, narg, msg);
 }
 
-#endif /* #if LUA_VERSION_NUM == 502 */
+#endif /* #if LUA_VERSION_NUM >= 502 */

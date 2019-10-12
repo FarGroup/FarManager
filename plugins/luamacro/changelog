@@ -1,4 +1,8 @@
-﻿shmuel 25.09.2019 10:17:41 +0200 - build 707
+﻿shmuel 12.10.2019 13:45:55 +0200 - build 708
+
+1. LuaFAR: cosmetic changes.
+
+shmuel 25.09.2019 10:17:41 +0200 - build 707
 
 1. LuaFAR: fix require('luafar3') that was broken since build 699.
 
