@@ -114,6 +114,7 @@
 * Dzmitry Kosko
 * Szabolcs Szász
 * HamRusTal
+* Michal Zobec
  
 > And special thanks to all of our community members!  
 > You are not less important than the people mentioned here.
