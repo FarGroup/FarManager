@@ -3611,70 +3611,76 @@ int PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Param2)
 intptr_t ProcessDNResult(lua_State *L, intptr_t Msg, void *Param2)
 {
 	intptr_t ret = 0;
-	if(Msg == DN_CTLCOLORDLGLIST || Msg == DN_CTLCOLORDLGITEM)
+	switch(Msg)
 	{
-		if((ret = lua_istable(L,-1)) != 0)
-		{
-			struct FarDialogItemColors* fdic = (struct FarDialogItemColors*) Param2;
-			int i;
-			size_t len = lua_objlen(L, -1);
-
-			if(len > fdic->ColorsCount) len = fdic->ColorsCount;
-
-			for(i = 0; i < (int)len; i++)
+		case DN_CTLCOLORDLGLIST:
+		case DN_CTLCOLORDLGITEM:
+			if((ret = lua_istable(L,-1)) != 0)
 			{
-				lua_rawgeti(L, -1, i+1);
-				GetFarColor(L, -1, &fdic->Colors[i]);
-				lua_pop(L, 1);
-			}
-		}
-	}
-	else if(Msg == DN_CTLCOLORDIALOG)
-	{
-		ret = GetFarColor(L, -1, (struct FarColor*)Param2);
-	}
-	else if(Msg == DN_HELP)
-	{
-		if((ret = (intptr_t)utf8_to_utf16(L, -1, NULL)) != 0)
-		{
-			lua_getfield(L, LUA_REGISTRYINDEX, FAR_DN_STORAGE);
-			lua_pushvalue(L, -2);                // keep stack balanced
-			lua_setfield(L, -2, "helpstring");   // protect from garbage collector
-			lua_pop(L, 1);
-		}
-	}
-	else if(Msg == DN_GETVALUE)
-	{
-		if((ret = lua_istable(L,-1)) != 0)
-		{
-			struct FarMacroValue tempValue;
-			struct FarGetValue *fgv = (struct FarGetValue*) Param2;
-			lua_getfield(L, -1, "Value");
-			ConvertLuaValue(L, -1, &tempValue);
-			if (tempValue.Type == fgv->Value.Type)
-			{
-				fgv->Value = tempValue;
-				if (fgv->Value.Type == FMVT_STRING)
+				struct FarDialogItemColors* fdic = (struct FarDialogItemColors*) Param2;
+				int i;
+				size_t len = lua_objlen(L, -1);
+
+				if(len > fdic->ColorsCount) len = fdic->ColorsCount;
+
+				for(i = 0; i < (int)len; i++)
 				{
-					lua_getfield(L, LUA_REGISTRYINDEX, FAR_DN_STORAGE);
-					lua_pushvalue(L, -2);                   // keep stack balanced
-					lua_setfield(L, -2, "getvaluestring");  // protect from garbage collector
+					lua_rawgeti(L, -1, i+1);
+					GetFarColor(L, -1, &fdic->Colors[i]);
 					lua_pop(L, 1);
 				}
 			}
-			else if (tempValue.Type==FMVT_DOUBLE && fgv->Value.Type==FMVT_INTEGER)
-				fgv->Value.Value.Integer = (__int64)tempValue.Value.Double;
-			else
-				ret = 0;
+			break;
 
-			lua_pop(L, 1);
-		}
+		case DN_CTLCOLORDIALOG:
+			ret = GetFarColor(L, -1, (struct FarColor*)Param2);
+			break;
+
+		case DN_HELP:
+			if((ret = (intptr_t)utf8_to_utf16(L, -1, NULL)) != 0)
+			{
+				lua_getfield(L, LUA_REGISTRYINDEX, FAR_DN_STORAGE);
+				lua_pushvalue(L, -2);                // keep stack balanced
+				lua_setfield(L, -2, "helpstring");   // protect from garbage collector
+				lua_pop(L, 1);
+			}
+			break;
+
+		case DN_GETVALUE:
+			if((ret = lua_istable(L,-1)) != 0)
+			{
+				struct FarMacroValue tempValue;
+				struct FarGetValue *fgv = (struct FarGetValue*) Param2;
+				lua_getfield(L, -1, "Value");
+				ConvertLuaValue(L, -1, &tempValue);
+				if (tempValue.Type == fgv->Value.Type)
+				{
+					fgv->Value = tempValue;
+					if (fgv->Value.Type == FMVT_STRING)
+					{
+						lua_getfield(L, LUA_REGISTRYINDEX, FAR_DN_STORAGE);
+						lua_pushvalue(L, -2);                   // keep stack balanced
+						lua_setfield(L, -2, "getvaluestring");  // protect from garbage collector
+						lua_pop(L, 1);
+					}
+				}
+				else if (tempValue.Type==FMVT_DOUBLE && fgv->Value.Type==FMVT_INTEGER)
+					fgv->Value.Value.Integer = (__int64)tempValue.Value.Double;
+				else
+					ret = 0;
+
+				lua_pop(L, 1);
+			}
+			break;
+
+		case DN_KILLFOCUS:
+			ret = lua_tointeger(L, -1) - 1;
+			break;
+
+		default:
+			ret = lua_isnumber(L, -1) ? lua_tointeger(L, -1) : (lua_Integer)lua_toboolean(L, -1);
+			break;
 	}
-	else if(lua_isnumber(L, -1))
-		ret = lua_tointeger(L, -1);
-	else
-		ret = lua_toboolean(L, -1);
-
 	return ret;
 }
 
@@ -5898,7 +5904,7 @@ static int far_FileTimeResolution(lua_State *L)
 	lua_Integer op = luaL_optinteger(L, 1, 0);
 	TPluginData *pd = GetPluginData(L);
 	int ret = (pd->Flags & PDF_FULL_TIME_RESOLUTION) ? 2:1;
-  if (op == 1)
+	if (op == 1)
 		pd->Flags &= ~PDF_FULL_TIME_RESOLUTION;
 	else if (op == 2)
 		pd->Flags |= PDF_FULL_TIME_RESOLUTION;

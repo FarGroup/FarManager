@@ -1,4 +1,8 @@
-﻿shmuel 12.10.2019 13:45:55 +0200 - build 708
+﻿shmuel 17.10.2019 08:28:50 +0200 - build 709
+
+1. LuaFAR: make return value of DN_KILLFOCUS 1-based and refactor function ProcessDNResult().
+
+shmuel 12.10.2019 13:45:55 +0200 - build 708
 
 1. LuaFAR: cosmetic changes.
 
