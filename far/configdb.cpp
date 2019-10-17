@@ -1761,7 +1761,7 @@ private:
 
 	void AddInternal(unsigned int TypeHistory, const string& HistoryName, const string &Name, int Type, bool Lock, const string &strGuid, const string &strFile, const string &strData) const
 	{
-		ExecuteStatement(stmtAdd, TypeHistory, HistoryName, Type, Lock, Name, os::chrono::nt_clock::now().time_since_epoch().count(), strGuid, strFile, strData);
+		ExecuteStatement(stmtAdd, TypeHistory, HistoryName, Type, Lock, Name, os::chrono::nt_clock::to_int64(os::chrono::nt_clock::now()), strGuid, strFile, strData);
 	}
 
 	void DeleteInternal(unsigned long long id) const
@@ -1880,7 +1880,7 @@ private:
 		Name = Stmt->GetColText(1);
 		Type = static_cast<history_record_type>(Stmt->GetColInt(2));
 		Lock = Stmt->GetColInt(3) != 0;
-		Time = os::chrono::time_point(os::chrono::duration(Stmt->GetColInt64(4)));
+		Time = os::chrono::nt_clock::from_int64(Stmt->GetColInt64(4));
 		strGuid = Stmt->GetColText(5);
 		strFile = Stmt->GetColText(6);
 		strData = Stmt->GetColText(7);
@@ -1918,7 +1918,7 @@ private:
 	{
 		WaitAllAsync();
 
-		const auto older = (os::chrono::nt_clock::now() - chrono::days(DaysToKeep)).time_since_epoch().count();
+		const auto older = os::chrono::nt_clock::to_int64(os::chrono::nt_clock::now() - chrono::days(DaysToKeep));
 		ExecuteStatement(stmtDeleteOldUnlocked, TypeHistory, HistoryName, older, MinimumEntries);
 	}
 
@@ -2037,7 +2037,7 @@ private:
 	unsigned long long SetEditorPos(const string_view Name, const int Line, const int LinePos, const int ScreenLine, const int LeftPos, const uintptr_t CodePage) override
 	{
 		WaitCommitAsync();
-		ExecuteStatement(stmtSetEditorPos, Name, os::chrono::nt_clock::now().time_since_epoch().count(), Line, LinePos, ScreenLine, LeftPos, CodePage);
+		ExecuteStatement(stmtSetEditorPos, Name, os::chrono::nt_clock::to_int64(os::chrono::nt_clock::now()), Line, LinePos, ScreenLine, LeftPos, CodePage);
 		return LastInsertRowID();
 	}
 
@@ -2079,7 +2079,7 @@ private:
 	unsigned long long SetViewerPos(const string_view Name, const long long FilePos, const long long LeftPos, const int Hex_Wrap, uintptr_t const CodePage) override
 	{
 		WaitCommitAsync();
-		ExecuteStatement(stmtSetViewerPos, Name, os::chrono::nt_clock::now().time_since_epoch().count(), FilePos, LeftPos, Hex_Wrap, CodePage);
+		ExecuteStatement(stmtSetViewerPos, Name, os::chrono::nt_clock::to_int64(os::chrono::nt_clock::now()), FilePos, LeftPos, Hex_Wrap, CodePage);
 		return LastInsertRowID();
 	}
 
@@ -2119,7 +2119,7 @@ private:
 	void DeleteOldPositions(int DaysToKeep, int MinimumEntries) override
 	{
 		WaitCommitAsync();
-		const auto older = (os::chrono::nt_clock::now() - chrono::days(DaysToKeep)).time_since_epoch().count();
+		const auto older = os::chrono::nt_clock::to_int64(os::chrono::nt_clock::now() - chrono::days(DaysToKeep));
 		ExecuteStatement(stmtDeleteOldEditor, older, MinimumEntries);
 		ExecuteStatement(stmtDeleteOldViewer, older, MinimumEntries);
 	}

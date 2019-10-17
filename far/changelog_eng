@@ -3,6 +3,12 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 17.10.2019 20:02:51 +0100 - build 5488
+
+1. Refactoring.
+
+2. When displaying the UI '\x9b' character is replaced with '\x203a', because '\x9b' is CSI.
+
 drkns 11.10.2019 13:47:00 +0100 - build 5486
 
 1. Revert of 5472, 4523, 4521 - Ctrl+Enter, Ctrl+[ and friends add a backslash to paths again.

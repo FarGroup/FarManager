@@ -79,6 +79,16 @@ namespace os::chrono
 		return time_point(duration(static_cast<unsigned long long>(Time.dwHighDateTime) << 32 | Time.dwLowDateTime));
 	}
 
+	time_point nt_clock::from_int64(int64_t Time) noexcept
+	{
+		return os::chrono::time_point(os::chrono::duration(Time));
+	}
+
+	int64_t nt_clock::to_int64(const time_point& Time) noexcept
+	{
+		return Time.time_since_epoch().count();
+	}
+
 	void sleep_for(std::chrono::milliseconds Duration)
 	{
 		Sleep(static_cast<DWORD>(Duration.count()));

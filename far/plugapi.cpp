@@ -1720,7 +1720,6 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 			Flags&=~EF_NONMODAL;
 		}
 
-		int editorExitCode;
 		int ExitCode = EEC_OPEN_ERROR;
 		string strTitle(NullToEmpty(Title));
 
@@ -1736,15 +1735,14 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 				{ static_cast<int>(X1), static_cast<int>(Y1), static_cast<int>(X2), static_cast<int>(Y2) },
 				DeleteOnClose, nullptr, OpMode))
 			{
-				editorExitCode = Editor->GetExitCode();
+				const auto editorExitCode = Editor->GetExitCode();
 
 				// добавочка - проверка кода возврата (почему возникает XC_OPEN_ERROR - см. код FileEditor::Init())
 				if (editorExitCode == XC_OPEN_ERROR || editorExitCode == XC_LOADING_INTERRUPTED)
 				{
 					return editorExitCode == XC_OPEN_ERROR ? EEC_OPEN_ERROR : EEC_LOADING_INTERRUPTED;
 				}
-
-				if (editorExitCode == XC_EXISTS)
+				else if (editorExitCode == XC_EXISTS)
 				{
 					if (Global->GlobalSaveScrPtr)
 						Global->GlobalSaveScrPtr->Discard();
@@ -1794,7 +1792,8 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 				StartLine, StartChar, &strTitle,
 				{ static_cast<int>(X1), static_cast<int>(Y1), static_cast<int>(X2), static_cast<int>(Y2) },
 				DeleteOnClose, nullptr, OpMode);
-			editorExitCode = Editor->GetExitCode();
+
+			const auto editorExitCode = Editor->GetExitCode();
 
 			// выполним предпроверку (ошибки разные могут быть)
 			switch (editorExitCode)
@@ -1811,10 +1810,10 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 					/* $ 15.05.2002 SKV
 					  Зафиксируем вход и выход в/из модального редактора.
 					  */
-					if (-1 == editorExitCode) Global->WindowManager->ExecuteModal(Editor);
-					editorExitCode = Editor->GetExitCode();
+					if (-1 == editorExitCode)
+						Global->WindowManager->ExecuteModal(Editor);
 
-					if (editorExitCode)
+					if (Editor->GetExitCode())
 					{
 #if 0
 

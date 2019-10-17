@@ -234,10 +234,10 @@ namespace os::fs
 	static void DirectoryInfoToFindData(const FILE_ID_BOTH_DIR_INFORMATION& DirectoryInfo, find_data& FindData, bool IsExtended)
 	{
 		FindData.Attributes = DirectoryInfo.FileAttributes;
-		FindData.CreationTime = os::chrono::time_point(os::chrono::duration(DirectoryInfo.CreationTime.QuadPart));
-		FindData.LastAccessTime = os::chrono::time_point(os::chrono::duration(DirectoryInfo.LastAccessTime.QuadPart));
-		FindData.LastWriteTime = os::chrono::time_point(os::chrono::duration(DirectoryInfo.LastWriteTime.QuadPart));
-		FindData.ChangeTime = os::chrono::time_point(os::chrono::duration(DirectoryInfo.ChangeTime.QuadPart));
+		FindData.CreationTime = os::chrono::nt_clock::from_int64(DirectoryInfo.CreationTime.QuadPart);
+		FindData.LastAccessTime = os::chrono::nt_clock::from_int64(DirectoryInfo.LastAccessTime.QuadPart);
+		FindData.LastWriteTime = os::chrono::nt_clock::from_int64(DirectoryInfo.LastWriteTime.QuadPart);
+		FindData.ChangeTime = os::chrono::nt_clock::from_int64(DirectoryInfo.ChangeTime.QuadPart);
 		FindData.FileSize = DirectoryInfo.EndOfFile.QuadPart;
 		FindData.AllocationSize = DirectoryInfo.AllocationSize.QuadPart;
 		FindData.ReparseTag = FindData.Attributes&FILE_ATTRIBUTE_REPARSE_POINT? DirectoryInfo.EaSize : 0;
@@ -718,16 +718,16 @@ namespace os::fs
 			return false;
 
 		if (CreationTime)
-			*CreationTime = os::chrono::time_point(os::chrono::duration(fbi.CreationTime.QuadPart));
+			*CreationTime = os::chrono::nt_clock::from_int64(fbi.CreationTime.QuadPart);
 
 		if (LastAccessTime)
-			*LastAccessTime = os::chrono::time_point(os::chrono::duration(fbi.LastAccessTime.QuadPart));
+			*LastAccessTime = os::chrono::nt_clock::from_int64(fbi.LastAccessTime.QuadPart);
 
 		if (LastWriteTime)
-			*LastWriteTime = os::chrono::time_point(os::chrono::duration(fbi.LastWriteTime.QuadPart));
+			*LastWriteTime = os::chrono::nt_clock::from_int64(fbi.LastWriteTime.QuadPart);
 
 		if (ChangeTime)
-			*ChangeTime = os::chrono::time_point(os::chrono::duration(fbi.ChangeTime.QuadPart));
+			*ChangeTime = os::chrono::nt_clock::from_int64(fbi.ChangeTime.QuadPart);
 
 		return true;
 	}
@@ -737,16 +737,16 @@ namespace os::fs
 		FILE_BASIC_INFORMATION fbi{};
 
 		if (CreationTime)
-			fbi.CreationTime.QuadPart = CreationTime->time_since_epoch().count();
+			fbi.CreationTime.QuadPart = os::chrono::nt_clock::to_int64(*CreationTime);
 
 		if (LastAccessTime)
-			fbi.LastAccessTime.QuadPart = LastAccessTime->time_since_epoch().count();
+			fbi.LastAccessTime.QuadPart = os::chrono::nt_clock::to_int64(*LastAccessTime);
 
 		if (LastWriteTime)
-			fbi.LastWriteTime.QuadPart = LastWriteTime->time_since_epoch().count();
+			fbi.LastWriteTime.QuadPart = os::chrono::nt_clock::to_int64(*LastWriteTime);
 
 		if (ChangeTime)
-			fbi.ChangeTime.QuadPart = ChangeTime->time_since_epoch().count();
+			fbi.ChangeTime.QuadPart = os::chrono::nt_clock::to_int64(*ChangeTime);
 
 		IO_STATUS_BLOCK IoStatusBlock;
 		const auto Status = imports.NtSetInformationFile(m_Handle.native_handle(), &IoStatusBlock, &fbi, sizeof fbi, FileBasicInformation);
@@ -830,7 +830,10 @@ namespace os::fs
 
 	static bool GetObjectName(HANDLE hFile, string& ObjectName)
 	{
-		block_ptr<OBJECT_NAME_INFORMATION> oni(NT_MAX_PATH);
+		// https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/content/ntifs/nf-ntifs-obquerynamestring
+		// A reasonable size for the buffer to accommodate most object names is 1024 bytes.
+		const auto ReasonableSize = 1024;
+		block_ptr<OBJECT_NAME_INFORMATION, ReasonableSize> oni(ReasonableSize);
 		ULONG ReturnLength;
 
 		const auto QueryObject = [&]

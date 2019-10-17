@@ -70,6 +70,12 @@ namespace os::chrono
 
 		[[nodiscard]]
 		static time_point from_filetime(FILETIME Time) noexcept;
+
+		[[nodiscard]]
+		static time_point from_int64(int64_t Time) noexcept;
+
+		[[nodiscard]]
+		static int64_t to_int64(const time_point& Time) noexcept;
 	};
 
 	using duration = nt_clock::duration;

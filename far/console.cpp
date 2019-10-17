@@ -98,6 +98,7 @@ static wchar_t ReplaceControlCharacter(wchar_t const Char)
 	case 0x1e: return L'\x25b2'; // ▲ black up - pointing triangle
 	case 0x1f: return L'\x25bc'; // ▼ black down - pointing triangle
 	case 0x7f: return L'\x2302'; // ⌂ house
+	case 0x9b: return L'\x203a'; // › single right-pointing angle quotation mark
 
 	default: return Char;
 	}
@@ -500,7 +501,7 @@ namespace console_detail
 
 	static void make_vt_attributes(const FarColor& Attributes, string& Str, std::optional<FarColor> const& LastColor)
 	{
-		append(Str, L"\033["sv);
+		append(Str, L"\x9b"sv);
 
 		for (const auto& i: ColorsMapping)
 		{
@@ -610,12 +611,12 @@ namespace console_detail
 			for (short i = SubRect.top; i <= SubRect.bottom; ++i)
 			{
 				if (i != SubRect.top)
-					Str += format(FSTR(L"\033[{0};{1}H"), CursorPosition.Y + 1 + (i - SubRect.top), CursorPosition.X + 1);
+					Str += format(FSTR(L"\x9b""{0};{1}H"), CursorPosition.Y + 1 + (i - SubRect.top), CursorPosition.X + 1);
 
 				make_vt_sequence(span(Buffer[i].data() + SubRect.left, SubRect.width()), Str, LastColor);
 			}
 
-			append(Str, L"\033[0m"sv);
+			append(Str, L"\x9b""0m"sv);
 
 			return ::console.Write(Str);
 		}

@@ -197,9 +197,15 @@ bool get_locale_value(LCID const LcId, LCTYPE const Id, int& Value)
 
 string GetPrivateProfileString(string_view const AppName, string_view const KeyName, string_view const Default, string_view const FileName)
 {
-	const wchar_t_ptr Buffer(NT_MAX_PATH);
-	const auto Size = ::GetPrivateProfileString(null_terminated(AppName).c_str(), null_terminated(KeyName).c_str(), null_terminated(Default).c_str(), Buffer.get(), static_cast<DWORD>(Buffer.size()), null_terminated(FileName).c_str());
-	return { Buffer.get(), Size };
+	string Value;
+
+	(void)detail::ApiDynamicStringReceiver(Value, [&](span<wchar_t> const Buffer)
+	{
+		const auto Size = ::GetPrivateProfileString(null_terminated(AppName).c_str(), null_terminated(KeyName).c_str(), null_terminated(Default).c_str(), Buffer.data(), static_cast<DWORD>(Buffer.size()), null_terminated(FileName).c_str());
+		return Size == Buffer.size() - 1? Buffer.size() * 2 : Size;
+	});
+
+	return Value;
 }
 
 bool GetWindowText(HWND Hwnd, string& Text)

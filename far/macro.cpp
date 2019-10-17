@@ -4483,13 +4483,13 @@ static bool panelitemFunc(FarMacroCall* Data)
 				PassNumber(filelistItem->Position, Data);
 				return false;
 			case 15:  // CreationTime
-				PassInteger(filelistItem->CreationTime.time_since_epoch().count(), Data);
+				PassInteger(os::chrono::nt_clock::to_int64(filelistItem->CreationTime), Data);
 				return false;
 			case 16:  // AccessTime
-				PassInteger(filelistItem->LastAccessTime.time_since_epoch().count(), Data);
+				PassInteger(os::chrono::nt_clock::to_int64(filelistItem->LastAccessTime), Data);
 				return false;
 			case 17:  // WriteTime
-				PassInteger(filelistItem->LastWriteTime.time_since_epoch().count(), Data);
+				PassInteger(os::chrono::nt_clock::to_int64(filelistItem->LastWriteTime), Data);
 				return false;
 			case 18: // NumberOfStreams
 				PassNumber(filelistItem->NumberOfStreams(fileList.get()), Data);
@@ -4502,7 +4502,7 @@ static bool panelitemFunc(FarMacroCall* Data)
 				Ret = concat(strDate, L' ', strTime);
 				break;
 			case 21:  // ChangeTime
-				PassInteger(filelistItem->ChangeTime.time_since_epoch().count(), Data);
+				PassInteger(os::chrono::nt_clock::to_int64(filelistItem->ChangeTime), Data);
 				return false;
 			case 22:  // ContentData (was: CustomData)
 				//Ret=TVar(filelistItem->ContentData.size() ? filelistItem->ContentData[0] : L"");
