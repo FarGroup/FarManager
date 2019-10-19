@@ -354,15 +354,88 @@ namespace console_detail
 		return SetConsoleMode(ConsoleHandle, Mode) != FALSE;
 	}
 
+	static bool is_new_console()
+	{
+		if (!IsWindows10OrGreater())
+			return false;
+
+		const auto Handle = ::console.GetOutputHandle();
+
+		DWORD CurrentMode;
+		if (!::console.GetMode(Handle, CurrentMode))
+			return false;
+
+		if (CurrentMode & ENABLE_VIRTUAL_TERMINAL_PROCESSING)
+			return true;
+
+		if (!::console.SetMode(Handle, CurrentMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING))
+			return false;
+
+		::console.SetMode(Handle, CurrentMode);
+		return true;
+	}
+
+	static bool get_current_console_font(HANDLE OutputHandle, CONSOLE_FONT_INFO& FontInfo)
+	{
+		if (!GetCurrentConsoleFont(OutputHandle, FALSE, &FontInfo))
+			return false;
+
+		// in XP FontInfo.dwFontSize contains something else than the size in pixels.
+		FontInfo.dwFontSize = GetConsoleFontSize(OutputHandle, FontInfo.nFont);
+		return true;
+	}
+
+	// Workaround for a bug in the classic console: mouse position is screen-based
+	static void fix_wheel_coordinates(MOUSE_EVENT_RECORD& Record)
+	{
+		if (!(Record.dwEventFlags & (MOUSE_WHEELED | MOUSE_HWHEELED)))
+			return;
+
+		static const auto IsNewConsole = is_new_console();
+		if (IsNewConsole)
+			return;
+
+		// Note: using the current mouse position rather than what's in the wheel event
+		POINT CursorPos;
+		if (!GetCursorPos(&CursorPos))
+			return;
+
+		const auto WindowHandle = ::console.GetWindow();
+
+		auto RelativePos = CursorPos;
+		if (!ScreenToClient(WindowHandle, &RelativePos))
+			return;
+
+		const auto OutputHandle = ::console.GetOutputHandle();
+
+		CONSOLE_FONT_INFO FontInfo;
+		if (!get_current_console_font(OutputHandle, FontInfo))
+			return;
+
+		CONSOLE_SCREEN_BUFFER_INFO Csbi;
+		if (!GetConsoleScreenBufferInfo(OutputHandle, &Csbi))
+			return;
+
+		const auto Set = [&](auto Coord, auto Point, auto SmallRect)
+		{
+			Record.dwMousePosition.*Coord = std::clamp(Csbi.srWindow.*SmallRect + static_cast<int>(RelativePos.*Point) / FontInfo.dwFontSize.*Coord, 0, Csbi.dwSize.*Coord - 1);
+		};
+
+		Set(&COORD::X, &POINT::x, &SMALL_RECT::Left);
+		Set(&COORD::Y, &POINT::y, &SMALL_RECT::Top);
+	}
+
 	static void AdjustMouseEvents(span<INPUT_RECORD> const Buffer, short Delta, short MaxX)
 	{
 		for (auto& i: Buffer)
 		{
-			if (i.EventType == MOUSE_EVENT)
-			{
-				i.Event.MouseEvent.dwMousePosition.Y = std::max(0, i.Event.MouseEvent.dwMousePosition.Y - Delta);
-				i.Event.MouseEvent.dwMousePosition.X = std::min(i.Event.MouseEvent.dwMousePosition.X, MaxX);
-			}
+			if (i.EventType != MOUSE_EVENT)
+				continue;
+
+			fix_wheel_coordinates(i.Event.MouseEvent);
+
+			i.Event.MouseEvent.dwMousePosition.Y = std::max(0, i.Event.MouseEvent.dwMousePosition.Y - Delta);
+			i.Event.MouseEvent.dwMousePosition.X = std::min(i.Event.MouseEvent.dwMousePosition.X, MaxX);
 		}
 	}
 
@@ -926,10 +999,8 @@ namespace console_detail
 		if (csbi.dwSize.Y > Result.Y)
 		{
 			CONSOLE_FONT_INFO FontInfo;
-			if (GetCurrentConsoleFont(GetOutputHandle(), FALSE, &FontInfo))
+			if (get_current_console_font(GetOutputHandle(), FontInfo))
 			{
-				// in XP FontInfo.dwFontSize contains something else than size in pixels.
-				FontInfo.dwFontSize = GetConsoleFontSize(GetOutputHandle(), FontInfo.nFont);
 				Result.X -= Round(static_cast<SHORT>(GetSystemMetrics(SM_CXVSCROLL)), FontInfo.dwFontSize.X);
 			}
 		}
