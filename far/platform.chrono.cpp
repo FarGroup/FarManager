@@ -55,7 +55,7 @@ namespace os::chrono
 
 	static nt_clock::duration posix_shift()
 	{
-		return 11644473600s;
+		return 3234576h;
 	}
 
 	time_t nt_clock::to_time_t(const time_point& Time) noexcept
@@ -70,13 +70,13 @@ namespace os::chrono
 
 	FILETIME nt_clock::to_filetime(const time_point& Time) noexcept
 	{
-		const auto Count = Time.time_since_epoch().count();
+		const auto Count = to_int64(Time);
 		return { static_cast<DWORD>(Count), static_cast<DWORD>(Count >> 32) };
 	}
 
 	time_point nt_clock::from_filetime(FILETIME Time) noexcept
 	{
-		return time_point(duration(static_cast<unsigned long long>(Time.dwHighDateTime) << 32 | Time.dwLowDateTime));
+		return from_int64(static_cast<unsigned long long>(Time.dwHighDateTime) << 32 | Time.dwLowDateTime);
 	}
 
 	time_point nt_clock::from_int64(int64_t Time) noexcept

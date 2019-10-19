@@ -375,7 +375,7 @@ size_t KeyBar::Change(const KeyBarTitles *Kbt)
 
 	for (const auto& i: span(Kbt->Labels, Kbt->CountLabels))
 	{
-		if (i.Key.VirtualKeyCode < VK_F1 || i.Key.VirtualKeyCode > VK_F1 + KEY_COUNT)
+		if (i.Key.VirtualKeyCode < VK_F1 || i.Key.VirtualKeyCode >= VK_F1 + KEY_COUNT)
 			continue;
 
 		const auto Pos = i.Key.VirtualKeyCode - VK_F1;
