@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 19.10.2019 18:22:32 +0200 - build 5490
+
+1. Panel.Item(X,Idx,8) and Panel.Item(X,Idx,10) given invalid Idx returned 0 now they return false.
+
 drkns 19.10.2019 14:36:42 +0100 - build 5489
 
 1. Continuation of 5481 once more.

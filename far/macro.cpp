@@ -4410,6 +4410,7 @@ static bool panelitemFunc(FarMacroCall* Data)
 
 	int Index = static_cast<int>(P1.toInteger()) - 1;
 	int TypeInfo = static_cast<int>(P2.toInteger());
+	bool RetFalse = false;
 
 	if (const auto Tree = std::dynamic_pointer_cast<TreeList>(SelPanel))
 	{
@@ -4430,7 +4431,10 @@ static bool panelitemFunc(FarMacroCall* Data)
 		const auto filelistItem = fileList->GetItem(Index);
 
 		if (!filelistItem)
+		{
+			RetFalse = (TypeInfo==8 || TypeInfo==10); // Selected or SortGroup
 			TypeInfo=-1;
+		}
 
 		switch (TypeInfo)
 		{
@@ -4514,7 +4518,10 @@ static bool panelitemFunc(FarMacroCall* Data)
 		}
 	}
 
-	PassValue(Ret, Data);
+	if (RetFalse)
+		PassBoolean(0, Data);
+	else
+		PassValue(Ret, Data);
 	return false;
 }
 
