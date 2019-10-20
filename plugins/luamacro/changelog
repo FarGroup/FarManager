@@ -1,4 +1,8 @@
-﻿shmuel 17.10.2019 08:28:50 +0200 - build 709
+﻿shmuel 20.10.2019 13:08:07 +0200 - build 710
+
+1. Panel.Item(X,Idx,8) and Panel.Item(X,Idx,10) given invalid Idx returned 0 now they return false.
+
+shmuel 17.10.2019 08:28:50 +0200 - build 709
 
 1. LuaFAR: make return value of DN_KILLFOCUS 1-based and refactor function ProcessDNResult().
 

@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 20.10.2019 13:03:24 +0200 - build 5492
+
+1. Revert 5490: this change will be done in plugin LuaMacro.
+
 drkns 20.10.2019 00:07:00 +0100 - build 5491
 
 1. Workaround for incorrect mouse coordinates when wheels are moved.
@@ -1478,7 +1482,7 @@ zg 05.06.2018 12:47:24 +0300 - build 5226
 
 drkns 03.06.2018 10:21:52 +0100 - build 5225
 
-1. Naive logic "if the file contains ASCII only then open it with default codepage" would not take 
+1. Naive logic "if the file contains ASCII only then open it with default codepage" would not take
    into account that user could set the default codepage to UTF-16.
    Also, simplify the codepage guessing logic.
 
@@ -1644,8 +1648,8 @@ drkns 25.04.2018 20:44:36 +0100 - build 5197
 
 drkns 24.04.2018 23:29:12 +0100 - build 5196
 
-1. Because of introduction string_view::data() without terminating zero in C++17 
-   and potential bugs while replacing string to string_view where \0 is important, 
+1. Because of introduction string_view::data() without terminating zero in C++17
+   and potential bugs while replacing string to string_view where \0 is important,
    use string::c_str() instead string::data() where it is justified.
 
    A rule of thumb: if string::size() is used somewhere nearby then data() is ok, else use c_str().
@@ -4579,7 +4583,7 @@ w17 24.03.2016 16:14:28 +0300 - build 4595
 w17 24.03.2016 14:55:56 +0300 - build 4594
 
 1. Continuation of 4590.
-   Configuration if size display mode: Panel.Info.ShowBytes (default=false); switch with Ctrl-S. 
+   Configuration if size display mode: Panel.Info.ShowBytes (default=false); switch with Ctrl-S.
 
 drkns 24.03.2016 02:05:31 +0200 - build 4593
 
@@ -4961,7 +4965,7 @@ w17 27.01.2016 23:06:51 +0300 - build 4522
 w17 26.01.2016 14:09:42 +0300 - build 4521
 
 1. M#3011: Ctrl+Enter works wrong for ".." for case if path have spaces
-   "D:\Path Name\" --> "D:\Path Name"\ 
+   "D:\Path Name\" --> "D:\Path Name"\
 
 drkns 26.01.2016 09:43:57 +0200 - build 4520
 
@@ -5556,10 +5560,10 @@ svs 07.09.2015 16:06:23 +0300 - build 4414
 
     SelectDialogId                   = {29C03C36-9C50-4F78-AB99-F5DC1A9C67CD}  --> Dlg.Id
     Set file selection dialog (Add)
-    
+
     UnSelectDialogId                 = {34614DDB-2A22-4EA9-BD4A-2DC075643F1B}  --> Dlg.Id
     Clear file selection dialog (Subtract)
-    
+
     SUBSTDisconnectDriveError1Id     = {FF18299E-1881-42FA-AF7E-AC05D99F269C}  --> Dlg.Id
     SUBSTDisconnectDriveError2Id     = {43B0FFC2-70BE-4289-91E6-FE9A3D54311B}  --> Dlg.Id
     SUBST volumes removal error dialogs
@@ -5612,7 +5616,7 @@ drkns 14.08.2015 22:33:52 +0200 - build 4407
 
 zg 31.07.2015 15:36:58 +0200 - build 4406
 
-1. forum: when i search for files (any mask), choose one not in current folder, 
+1. forum: when i search for files (any mask), choose one not in current folder,
    press F4 and Ctrl-F10 in opened editor, the panels are shown.
 
 svs 30.07.2015 00:03:25 +0300 - build 4405
@@ -5859,7 +5863,7 @@ zg 22.04.2015 21:26:13 +0200 - build 4353
 
 zg 22.04.2015 14:23:46 +0200 - build 4352
 
-1. correction of 4337: FAR responds to modifiers release. 
+1. correction of 4337: FAR responds to modifiers release.
 
 drkns 15.04.2015 22:47:32 +0200 - build 4351
 
@@ -6230,7 +6234,7 @@ svs 14.02.2015 10:29:41 +0300 - build 4269
 
 w17 13.02.2015 16:24:23 +0300 - build 4268
 
-1. M#2540: Viewer Search always starts from the beginning of the file 
+1. M#2540: Viewer Search always starts from the beginning of the file
 
 2. Default Viewer.PersistentBlocks = true
 
@@ -7229,7 +7233,7 @@ zg 18.08.2014 20:22:56 +0200 - build 4058
 
 zg 18.08.2014 19:26:05 +0200 - build 4057
 
-1. correction of 4053: when an incorrect (missing in the name) character is typed after a few correct characters 
+1. correction of 4053: when an incorrect (missing in the name) character is typed after a few correct characters
    then the fast search line is cleared.
 
 zg 17.08.2014 23:36:15 +0200 - build 4056
@@ -7437,7 +7441,7 @@ svs 21.07.2014 11:49:01 +0400 - build 4013
      Param1 - buffer size in characters, allocated by the plugin for the data.
      Param2 points to a buffer allocated by the plugin for the editor caption.
      The function returns required buffer size in characters, including trailing zero.
-     If Param2 = NULL, or Param1 is less than the required size, the function just returns the required size. 
+     If Param2 = NULL, or Param1 is less than the required size, the function just returns the required size.
 
 zg 20.07.2014 23:32:48 +0200 - build 4012
 
