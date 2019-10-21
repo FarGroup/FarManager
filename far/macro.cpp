@@ -4468,7 +4468,7 @@ static bool panelitemFunc(FarMacroCall* Data)
 				PassNumber(filelistItem->NumberOfLinks(fileList.get()), Data);
 				return false;
 			case 10:  // SortGroup
-				PassBoolean(filelistItem->SortGroup, Data);
+				PassNumber(filelistItem->SortGroup, Data);
 				return false;
 			case 11:  // DizText
 				Ret=TVar(filelistItem->DizText);

@@ -3,6 +3,11 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 21.10.2019 11:29:48 +0200 - build 5493
+
+1. Panel.Item(X,Idx,10) - property 'SortGroup' - returns again a number rather than a boolean.
+   Returning a boolean was a bug.
+
 shmuel 20.10.2019 13:03:24 +0200 - build 5492
 
 1. Revert 5490: this change will be done in plugin LuaMacro.

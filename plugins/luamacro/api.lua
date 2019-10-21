@@ -384,7 +384,7 @@ Panel = {
   FExist    = function(...) return MacroCallFar(0x80C24, ...) end,
   Item      = function(a,b,c)
     local r = MacroCallFar(0x80C28,a,b,c)
-    if (c==8 or c==10) and r==0 then r=false end -- 8:Selected; 10:SortGroup; boolean properties
+    if c==8 and r==0 then r=false end -- 8:Selected; boolean property
     return r
   end,
   Select    = function(...) return MacroCallFar(0x80C27, ...) end,
