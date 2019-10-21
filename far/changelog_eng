@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+MZK 04.11.2019 23:29:26 -0800
+
+1. Translated more far:config help pages into English; cleaning up eng/TechInfo.txt.
+
 shmuel 31.10.2019 19:29:22 +0200 - build 5503
 
 1. Refactoring.
