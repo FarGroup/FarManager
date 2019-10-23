@@ -4323,7 +4323,7 @@ void Editor::UnmarkBlock()
 	}
 
 	Unselect();
-	Refresh();
+	if (!m_InEERedraw) Refresh();
 }
 
 /* $ 07.03.2002 IS
