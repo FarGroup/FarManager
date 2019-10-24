@@ -23693,6 +23693,32 @@ upd:"Module:"
 "Модуль:"
 "Модуль:"
 
+MExcFarVersion
+"Версия:"
+"Version:"
+"Verze:"
+upd:"Version:"
+upd:"Version:"
+"Wersja:"
+"Versión:"
+"Verzia:"
+"Versione:"
+"Версія:"
+"Версія:"
+
+MExcOSVersion
+"ОС:"
+"OS:"
+upd:"OS:"
+upd:"OS:"
+upd:"OS:"
+upd:"OS:"
+upd:"OS:"
+upd:"OS:"
+upd:"OS:"
+"ОС:"
+"ОС:"
+
 MExcTerminate
 "Завершить Far"
 "&Terminate Far"

@@ -109,6 +109,7 @@ public: const unique_function_pointer<name_##NAME, imports::stub_##NAME> NAME{m_
 	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, NtClose, HANDLE Handle);
 	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, RtlGetLastNtStatus);
 	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, RtlNtStatusToDosError, NTSTATUS Status);
+	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, RtlGetVersion, PRTL_OSVERSIONINFOW VersionInformation);
 	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, BOOLEAN, RtlAcquireResourceExclusive, PRTL_RESOURCE Res, BOOLEAN WaitForAccess);
 	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, BOOLEAN, RtlAcquireResourceShared, PRTL_RESOURCE Res, BOOLEAN WaitForAccess);
 	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, void, RtlInitializeResource, PRTL_RESOURCE Res);

@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "tracer.hpp"
 #include "pathmix.hpp"
 #include "global.hpp"
+#include "farversion.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -154,6 +155,37 @@ static bool write_minidump(const detail::exception_context& Context, string_view
 
 	MINIDUMP_EXCEPTION_INFORMATION Mei = { Context.thread_id(), Context.pointers() };
 	return imports.MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), DumpFile.get().native_handle(), MiniDumpWithFullMemory, &Mei, nullptr, nullptr) != FALSE;
+}
+
+static bool get_os_version(OSVERSIONINFOEX& Info)
+{
+	const auto InfoPtr = static_cast<OSVERSIONINFO*>(static_cast<void*>(&Info));
+
+	if (imports.RtlGetVersion && imports.RtlGetVersion(InfoPtr) == STATUS_SUCCESS)
+		return true;
+
+WARNING_PUSH()
+WARNING_DISABLE_MSC(4996) // 'GetVersionExW': was declared deprecated. So helpful. :(
+	return GetVersionEx(InfoPtr) != FALSE;
+WARNING_POP()
+}
+
+static string os_version()
+{
+	OSVERSIONINFOEX Info{ sizeof(Info) };
+	if (!get_os_version(Info))
+		return L"Unknown"s;
+
+	return format(FSTR(L"{0}.{1}.{2}.{3}.{4}.{5}.{6}.{7}"),
+		Info.dwMajorVersion,
+		Info.dwMinorVersion,
+		Info.dwBuildNumber,
+		Info.dwPlatformId,
+		Info.wServicePackMajor,
+		Info.wServicePackMinor,
+		Info.wSuiteMask,
+		Info.wProductType
+	);
 }
 
 using dialog_data_type = std::pair<const detail::exception_context*, const std::vector<const void*>*>;
@@ -263,7 +295,7 @@ static reply ExcDialog(
 	string_view const Function,
 	string_view const Location,
 	Plugin const* const PluginModule,
-	error_state const* const ErrorState,
+	error_state const& ErrorState,
 	std::vector<const void*> const* const NestedStack
 )
 {
@@ -285,20 +317,25 @@ static reply ExcDialog(
 
 	const auto Errors = FormatSystemErrors(ErrorState);
 
-	const string* Messages[]
+	const auto Version = version_to_string(build::version());
+	const auto OsVersion = os_version();
+
+	const string_view Messages[]
 	{
-		&Exception,
-		&Details,
-		&Errors[0],
-		&Errors[1],
-		&Errors[2],
-		&Address,
-		&Source,
-		&FunctionName,
-		&ModuleName,
+		Exception,
+		Details,
+		Errors[0],
+		Errors[1],
+		Errors[2],
+		Address,
+		Source,
+		FunctionName,
+		ModuleName,
+		Version,
+		OsVersion,
 	};
 
-	const auto MaxSize = (*std::max_element(ALL_CONST_RANGE(Messages), [](string const* const Str1, string const* const Str2) { return Str1->size() < Str2->size(); }))->size();
+	const auto MaxSize = (*std::max_element(ALL_CONST_RANGE(Messages), [](string_view const Str1, string_view const Str2) { return Str1.size() < Str2.size(); })).size();
 	const auto SysArea = 5;
 	const auto C1X = 5;
 	const auto C1W = 12;
@@ -306,9 +343,11 @@ static reply ExcDialog(
 	const auto DlgW = std::max(80, std::min(ScrX + 1, static_cast<int>(C2X + MaxSize + SysArea + 1)));
 	const auto C2W = DlgW - C2X - SysArea - 1;
 
+	const auto DY = 17;
+
 	auto EditDlg = MakeDialogItems(
 	{
-		{ DI_DOUBLEBOX, {{3,   1 }, {DlgW-4,  13}}, DIF_NONE, msg(lng::MExcTrappedException), },
+		{ DI_DOUBLEBOX, {{3,   1 }, {DlgW-4,DY-2}}, DIF_NONE, msg(lng::MExcTrappedException), },
 		{ DI_TEXT,      {{C1X, 2 }, {C1X+C1W, 2 }}, DIF_NONE, msg(lng::MExcException), },
 		{ DI_EDIT,      {{C2X, 2 }, {C2X+C2W, 2 }}, DIF_READONLY | DIF_SELECTONENTRY, Exception, },
 		{ DI_TEXT,      {{C1X, 3 }, {C1X+C1W, 3 }}, DIF_NONE, msg(lng::MExcDetails), },
@@ -316,9 +355,9 @@ static reply ExcDialog(
 		{ DI_TEXT,      {{C1X, 4 }, {C1X+C1W, 4 }}, DIF_NONE, L"errno:"sv },
 		{ DI_EDIT,      {{C2X, 4 }, {C2X+C2W, 4 }}, DIF_READONLY | DIF_SELECTONENTRY, Errors[0], },
 		{ DI_TEXT,      {{C1X, 5 }, {C1X+C1W, 5 }}, DIF_NONE, L"LastError:"sv },
-		{ DI_EDIT,      {{C2X, 5 }, {C2X+C2W, 5 }}, DIF_READONLY | DIF_SELECTONENTRY, Errors[0], },
+		{ DI_EDIT,      {{C2X, 5 }, {C2X+C2W, 5 }}, DIF_READONLY | DIF_SELECTONENTRY, Errors[1], },
 		{ DI_TEXT,      {{C1X, 6 }, {C1X+C1W, 6 }}, DIF_NONE, L"NTSTATUS:"sv },
-		{ DI_EDIT,      {{C2X, 6 }, {C2X+C2W, 6 }}, DIF_READONLY | DIF_SELECTONENTRY, Errors[1], },
+		{ DI_EDIT,      {{C2X, 6 }, {C2X+C2W, 6 }}, DIF_READONLY | DIF_SELECTONENTRY, Errors[2], },
 		{ DI_TEXT,      {{C1X, 7 }, {C1X+C1W, 7 }}, DIF_NONE, msg(lng::MExcAddress), },
 		{ DI_EDIT,      {{C2X, 7 }, {C2X+C2W, 7 }}, DIF_READONLY | DIF_SELECTONENTRY, Address, },
 		{ DI_TEXT,      {{C1X, 8 }, {C1X+C1W, 8 }}, DIF_NONE, msg(lng::MExcSource), },
@@ -327,17 +366,21 @@ static reply ExcDialog(
 		{ DI_EDIT,      {{C2X, 9 }, {C2X+C2W, 9 }}, DIF_READONLY | DIF_SELECTONENTRY, FunctionName, },
 		{ DI_TEXT,      {{C1X, 10}, {C1X+C1W, 10}}, DIF_NONE, msg(lng::MExcModule), },
 		{ DI_EDIT,      {{C2X, 10}, {C2X+C2W, 10}}, DIF_READONLY | DIF_SELECTONENTRY, ModuleName, },
-		{ DI_TEXT,      {{-1,  11}, {0,       11}}, DIF_SEPARATOR, },
-		{ DI_BUTTON,    {{0,   12}, {0,       12}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(PluginModule ? lng::MExcUnload : lng::MExcTerminate), },
-		{ DI_BUTTON,    {{0,   12}, {0,       12}}, DIF_CENTERGROUP | DIF_FOCUS, msg(lng::MExcStack), },
-		{ DI_BUTTON,    {{0,   12}, {0,       12}}, DIF_CENTERGROUP, msg(lng::MExcMinidump), },
-		{ DI_BUTTON,    {{0,   12}, {0,       12}}, DIF_CENTERGROUP, msg(lng::MIgnore), },
+		{ DI_TEXT,      {{C1X, 11}, {C1X+C1W, 11}}, DIF_NONE, msg(lng::MExcFarVersion), },
+		{ DI_EDIT,      {{C2X, 11}, {C2X+C2W, 11}}, DIF_READONLY | DIF_SELECTONENTRY, Version, },
+		{ DI_TEXT,      {{C1X, 12}, {C1X+C1W, 12}}, DIF_NONE, msg(lng::MExcOSVersion), },
+		{ DI_EDIT,      {{C2X, 12}, {C2X+C2W, 12}}, DIF_READONLY | DIF_SELECTONENTRY, OsVersion, },
+		{ DI_TEXT,      {{-1,DY-4}, {0,     DY-4}}, DIF_SEPARATOR, },
+		{ DI_BUTTON,    {{0, DY-3}, {0,     DY-3}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(PluginModule ? lng::MExcUnload : lng::MExcTerminate), },
+		{ DI_BUTTON,    {{0, DY-3}, {0,     DY-3}}, DIF_CENTERGROUP | DIF_FOCUS, msg(lng::MExcStack), },
+		{ DI_BUTTON,    {{0, DY-3}, {0,     DY-3}}, DIF_CENTERGROUP, msg(lng::MExcMinidump), },
+		{ DI_BUTTON,    {{0, DY-3}, {0,     DY-3}}, DIF_CENTERGROUP, msg(lng::MIgnore), },
 	});
 
 	auto DlgData = dialog_data_type(&Context, NestedStack);
 	const auto Dlg = Dialog::create(EditDlg, ExcDlgProc, &DlgData);
 	Dlg->SetDialogMode(DMODE_WARNINGSTYLE|DMODE_NOPLUGINS);
-	Dlg->SetPosition({ -1, -1, DlgW, 15 });
+	Dlg->SetPosition({ -1, -1, DlgW, DY });
 	Dlg->Process();
 
 	switch (Dlg->GetExitCode())
@@ -359,7 +402,7 @@ static reply ExcConsole(
 	string_view const Function,
 	string_view const Location,
 	Plugin const* const Module,
-	error_state const* const ErrorState,
+	error_state const& ErrorState,
 	std::vector<const void*> const* const NestedStack
 )
 {
@@ -374,7 +417,7 @@ static reply ExcConsole(
 	if (Source.empty())
 		Source = Location;
 
-	std::array<string_view, 9> Msg;
+	std::array<string_view, 11> Msg;
 	if (far_language::instance().is_loaded())
 	{
 		Msg =
@@ -388,6 +431,8 @@ static reply ExcConsole(
 			msg(lng::MExcSource),
 			msg(lng::MExcFunction),
 			msg(lng::MExcModule),
+			msg(lng::MExcFarVersion),
+			msg(lng::MExcOSVersion),
 		};
 	}
 	else
@@ -403,12 +448,17 @@ static reply ExcConsole(
 			L"Source:   "sv,
 			L"Function: "sv,
 			L"Module:   "sv,
+			L"Version:  "sv,
+			L"OS:       "sv,
 		};
 	}
 
 	const auto ColumnWidth = std::max_element(ALL_CONST_RANGE(Msg), [](string_view const Str1, string_view const Str2){ return Str1.size() < Str2.size(); })->size();
 
 	const auto Errors = FormatSystemErrors(ErrorState);
+
+	const auto Version = version_to_string(build::version());
+	const auto OsVersion = os_version();
 
 	const string_view Values[] =
 	{
@@ -421,6 +471,8 @@ static reply ExcConsole(
 		Source,
 		Function,
 		ModuleName,
+		Version,
+		OsVersion,
 	};
 
 	static_assert(std::size(Msg) == std::size(Values));
@@ -534,7 +586,7 @@ static bool ProcessGenericException(
 	string_view const Location,
 	Plugin const* const PluginModule,
 	string_view const Message,
-	error_state const* const ErrorState = nullptr,
+	error_state const& ErrorState = error_state::fetch(),
 	std::vector<const void*> const* const NestedStack = nullptr
 )
 {
@@ -715,7 +767,7 @@ bool ProcessStdException(const std::exception& e, string_view const Function, co
 			NestedStack = &Stack;
 		}
 
-		return ProcessGenericException(Context, FarException->function(), FarException->location(), Module, Message, &FarException->error_state(), NestedStack);
+		return ProcessGenericException(Context, FarException->function(), FarException->location(), Module, Message, FarException->error_state(), NestedStack);
 	}
 
 	return ProcessGenericException(Context, Function, {}, Module, encoding::utf8::get_chars(e.what()));

@@ -101,6 +101,12 @@ NTSTATUS NTAPI imports::stub_RtlNtStatusToDosError(NTSTATUS Status)
 	return STATUS_NOT_IMPLEMENTED;
 }
 
+NTSTATUS NTAPI imports::stub_RtlGetVersion(PRTL_OSVERSIONINFOW VersionInformation)
+{
+	// TODO: log
+	return STATUS_NOT_IMPLEMENTED;
+}
+
 BOOLEAN NTAPI imports::stub_RtlAcquireResourceExclusive(PRTL_RESOURCE Res, BOOLEAN WaitForAccess)
 {
 	// TODO: log

@@ -72,18 +72,15 @@ string GetErrorString(const error_state_ex& ErrorState)
 	return Str + (UseNtMessages? ErrorState.NtErrorStr() : ErrorState.Win32ErrorStr());
 }
 
-std::array<string, 3> FormatSystemErrors(error_state const* const ErrorState)
+std::array<string, 3> FormatSystemErrors(error_state const& ErrorState)
 {
-	if (!ErrorState)
-		return {};
-
 	const auto Format = FSTR(L"0x{0:0>8X} - {1}");
 
 	return
 	{
-		format(Format, as_unsigned(ErrorState->Errno), ErrorState->ErrnoStr()),
-		format(Format, as_unsigned(ErrorState->Win32Error), ErrorState->Win32ErrorStr()),
-		format(Format, as_unsigned(ErrorState->NtError), ErrorState->NtErrorStr())
+		format(Format, as_unsigned(ErrorState.Errno), ErrorState.ErrnoStr()),
+		format(Format, as_unsigned(ErrorState.Win32Error), ErrorState.Win32ErrorStr()),
+		format(Format, as_unsigned(ErrorState.NtError), ErrorState.NtErrorStr())
 	};
 }
 
@@ -130,7 +127,7 @@ intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 				case KEY_F3:
 					if(IsErrorType)
 					{
-						const auto Errors = FormatSystemErrors(&m_ErrorState);
+						const auto Errors = FormatSystemErrors(m_ErrorState);
 						const auto MaxStr = std::max(Errors[0].size(), Errors[1].size());
 						const auto SysArea = 5 * 2;
 						const auto FieldsWidth = std::max(80 - SysArea, std::min(static_cast<int>(MaxStr), ScrX - SysArea));

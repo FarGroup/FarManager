@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 24.10.2019 02:04:06 +0100 - build 5495
+
+1. Show Far and OS versions in the exception dialog.
+
+zg 23.10.2019 22:20:01 +0300 - build 5494
+
+1. after 5024 the Mouse2002 plugin hang on a mouse selection. workaround.
+
 shmuel 21.10.2019 11:29:48 +0200 - build 5493
 
 1. Panel.Item(X,Idx,10) - property 'SortGroup' - returns again a number rather than a boolean.

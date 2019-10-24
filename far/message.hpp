@@ -144,6 +144,6 @@ bool AbortMessage();
 
 string GetErrorString(const error_state_ex& ErrorState);
 
-std::array<string, 3> FormatSystemErrors(error_state const* ErrorState);
+std::array<string, 3> FormatSystemErrors(error_state const& ErrorState);
 
 #endif // MESSAGE_HPP_640AC104_875B_41AE_8EF5_8A99913A6896
