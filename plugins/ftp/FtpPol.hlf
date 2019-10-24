@@ -1,0 +1,1658 @@
+﻿.Language=Polish,Polish (Polski)
+.PluginContents=Klient FTP
+.Options CtrlColorChar=\
+
+@Contents
+
+  The FAR FTP client plugin implements operations with FTP servers and files on them just as if they were located on
+local disks. The plugin supports copying, moving, deleting files and folders; creating folders; viewing and editing
+files.
+
+  When you first open the plugin, you see the ~hosts panel~@FTPNames@ - a list of #host records#. A host record contains
+the address of an FTP server and any additional information that is needed to connect - user name, password and so on.
+
+  To connect to a server, you can either press #Enter# on an existing host record, or press #Shift-F4# to
+~edit~@FTPConnect@ a new host record.
+
+  In ~connected state~@FTPConnected@, you can browse the files on the FTP server and perform any desired operations on
+them.
+
+  It is also possible to connect to a server from the ~command line~@FTPCmdline@. The plugin supports the following host
+name format:
+
+     #[ftp://][użytownik[:hasło]@@]serwer[:port][/folder]#
+
+  The detailed description of the format is provided in the ~URL syntax~@FTPURL@ section.
+
+  The plugin ~configuration dialog~@Config@ contains the most frequently used plugin settings, default settings for new
+host records and some technical connection settings. Other, rarely used or non-standard plugin and connection settings
+can be configured directly through the system registry. The description of those settings can be found in the
+TechInfo.reg and FtpCmds.txt files in the plugin folder (Far\\Plugins\\FTP).
+
+  Besides that, the layout of the ~copy progress dialog~@CopyDialog@ can be fully customized through the registry. The
+copy progress dialog layout configuration is described ~here~@CopyDialogFMT@.
+
+@FTPCmd
+$#Okno pobierania lub wysyłania#
+@-
+^ \70╔═══════════════════════════ \79<operation>\70 ═════════════════════════╗\-
+^ \70║ Pobierz zaznaczone pliki do                                     ║\-
+^ \70║ \79<cel>__________________________________________________________\70║\-
+^ \70║ Załącz tylko pliki:                                             ║\-
+^ \70║ \79<załączone>____________________________________________________\70║\-
+^ \70║ Wyklucz pliki:                                                  ║\-
+^ \70║ \79<wykluczone>___________________________________________________\70║\-
+^ \70╟─────────────────────────────────────────────────────────────────╢\-
+^ \70║ [ ] \79Tryb ASCII\70                     \79Domyślna akcja zastąp.  \70     ║\-
+^ \70║ [ ] \79Nie skanuj folderów\70             () Zapytaj                 ║\-
+^ \70║ [ ] \79Zaznacz pliki z listy\70           ( ) Zastąp wszystko         ║\-
+^ \70║                                     ( ) Omiń wszystko           ║\-
+^ \70║                                     ( ) Wznów wszystko          ║\-
+^ \70╟─────────────────────────────────────────────────────────────────╢\-
+^ \70║                   [ \79<Potwierdź>\70 ]  [ \79Anuluj\70 ]                   ║\-
+^ \70╚═════════════════════════════════════════════════════════════════╝\-
+@+
+ #<operacja>#
+   Dialog title.
+   Describes copy files direction.
+
+ #<cel>#
+   Directory, file or device to copy files to.
+
+ #<załączone>#
+   A pattern for files to be copied.
+   Only files that match this pattern will be copied. If the pattern is blank, it is ignored.
+In this case the selected action will be applied to all files.
+
+ #<wykluczone>#
+   A pattern for files to be excluded from the copy operation.
+   Only files that do NOT match the pattern will be used in the copy operation.
+   Exclude pattern is ignored if this field is blank.
+   If exclude pattern is not specified, the current operation will process the files that match the #include pattern# only.
+
+ #ASCII mode#
+   Use ASCII transfer mode.
+
+ #Do not scan directories#
+   Do not scan directories before copying.
+
+ #Select files from list#
+   Scan directories and files selected for copying and show a list of files for manual selection to process using
+~File selection menu~@FTPFilesList@
+
+ #Default overwrite action#
+   You can set a default action for the plugin when files with the same name are encountered in the target directory.
+   The default (old-style) action is to ask for user's confirmation.
+
+ #<confirm>#
+   Press this button to confirm and start the action.
+
+ #Cancel#
+   Press this button to cancel all changes and cancel the operation.
+
+@FTPFilesList
+$ #FTP select file menu#
+  Use this menu to select the files to be used in the current operation.
+  This menu contains a hierarchy of scanned files.
+
+  Usually the menu looks like:
+
+@-
+^ \1E                                                              \-
+^ \1E \3F╔════════════ List of files to process (788/1) ════════════╗\1E \-
+^ \1E \3F║√ Directory                                     │ 888 │ 2 ║\1E \-
+^ \1E \3F║√   File.Ext                                    │ 788 │   ║\1E \-
+^ \1E \3F║√   Some Other Directory                        │ 100 │ 1 ║\1E \-
+^ \1E \3F║√     Other File.Ext                            │ 100 │   ║\1E \-
+^ \1E \3F╚══ INS - toggle selection, ENTER - confirm, ESC - cancel ═╝\1E \-
+^ \1E                                                              \-
+@+
+
+where you can see:
+
+  #Header#
+  The number and Full size of files to be copied.
+
+  #Body#
+  List of files and directories ready to be copied by the plugin.
+  The items checked with #√# mark will be copied, all others will be skipped.
+
+  The size of an element and the number of sub-elements can be found in the two rightmost columns.
+  Directories have a full size and a full number of all files they contain in these columns.
+  Files do not have number of sub-elements.
+
+  #Footer#
+  Footer contains help text and describes main keys you can use to manipulate the menu contents.
+
+The full list of possible keys is:
+
+  #Insert# -- toggle selection mark of an item ON and OFF.
+  Toggling mark on directory will toggle marks on all its contents.
+
+  #Enter#  -- confirm changes.
+  Confirm changes and ask the plugin to execute the process for items that were left selected in the menu.
+
+  #ESC#
+  Reset file list and cancel the operation.
+
+  #F2#
+  Save list of selected files to a file on another panel. File list parameters may be corrected in ~file list dialog~@FTPSaveList@.
+
+
+@CopyDialog
+$ #FTP copy progress dialog#
+  Copy progress dialog is being drawn on the screen to indicate upload or download progress.
+  You can fully ~customize~@CopyDialogFMT@ copy dialog.
+
+The plugin default style of copy progress dialog is:
+
+@-
+^ \70╔═══════════════════════════ <\79title\70> ═════════════════════════════╗\-
+^ \70║ <\79source file\70>                                                   ║\-
+^ \70║   to:                                                           ║\-
+^ \70║ <\79destination file\70>                                              ║\-
+^ \70╟───────────────────────────<\79number\70>──────────────────────────────╢\-
+^ \70║    Elapsed  <\79file copied\70>  <\79time1\70>      <\79cps1\70>      <\79cps2\70>      ║\-
+^ \70║      Total   <\79file size\70>   <\79time2\70> <\79time of completion\70>         ║\-
+^ \70║ <\79Pc1\70>-[░░░░░░░░░░░░░░░░<\79file progress\70>░░░░░░░░░░░░░░░░░░░░░░░]- ║\-
+^ \70╟───────────────────────────<\79number1\70>─────────────────────────────╢\-
+^ \70║    Elapsed       <\79copied\70>  <\79TTime1\70>              <\79Total cps\70>    ║\-
+^ \70║      Total        <\79size\70>   <\79TTime2\70> <\79TTime of completion\70>       ║\-
+^ \70║ <\79Pc2\70>-[░░░░░░░░░░░░░░░░<\79total progress\70>░░░░░░░░░░░░░░░░░░░░░░]- ║\-
+^ \70║ <\79Pc3\70>-[░░░░░<\79count progress\70>░░░░░]-[░░░░░<\79skip progress\70>░░░░░]- ║\-
+^ \70╚═════════════════════════════════════════════════════════════════╝\-
+@+
+
+Dialog items are highlighted.
+
+Items description:
+
+  #title#
+  Dialog title indicates the current action (upload or download) and the auto-retry number (if any).
+  After plugin attempts to auto-retry any operation during copy action, the number of auto-retries is displayed in the title.
+
+  #source file#
+  Name of the source file currently being processed by the plugin.
+  If you download file(s), this is the file from FTP server; if your upload file(s), this is the target file name on
+your local disk.
+
+  #destination file#
+  Name of the source file currently being processed by plugin.
+  If you download file(s), this is the file from your local disk; if your upload file(s), this is the target file name
+on FTP server.
+
+  #number#
+  Number of successfully copied files.
+
+  #file copied#
+  Number of already copied bytes of file currently being processed.
+
+  #time1#
+  Time elapsed since current file processing began.
+
+  #cps1#
+  Total speed of current file copying.
+  Note that this value may differ from #average speed# and from #total speed#.
+
+  #cps2#
+  Average speed for last 3 seconds of current file copying process.
+
+  #file size#
+  Size of file currently being processed.
+
+  #time2#
+  Calculated total time for current file copying process.
+
+  #time of completion#
+  Date and time of current file copying completion.
+
+  #Pc1#
+  Percents indicating progress of current file copying.
+
+  #file progress#
+  The gauge indicating progress of current file copying.
+
+  #number1#
+  Total number of files plugin has to process.
+
+  #copied#
+  Total number of bytes already copied by the plugin.
+
+  #TTime1#
+  Total time elapsed from plugin job start.
+
+  #Total cps#
+  Total speed of process for the whole amount of already processed data.
+
+  #size#
+  Total size of all files plugin has to process.
+
+  #TTime2#
+  Calculated total time to copy all files.
+
+  #TTime of completion#
+  Date and time of the whole process completion.
+
+  #Pc2#
+  Percents indicating total progress of data copying.
+
+  #total progress#
+  The gauge indicating total progress of data copying.
+
+  #Pc3#
+  Percents indicating number of successfully copied files.
+
+  #count progress#
+  The gauge indicating number of successfully copied files.
+
+  #skip progress#
+  The gauge indicating number of skipped files.
+
+@CopyDialogFMT
+$ #Customization of FTP copy progress dialog#
+
+  FTP plugin allows you to fully customize ~copy progress dialog~@CopyDialog@ indicating progress of manual files upload
+and download.
+
+  Copy dialog is the set of lines with text and values fields.
+  ~Special format~@CopyDialogVALS@ is used to describe how and where the plugin must place data values.
+
+  In order to customize the dialog, you need to enter a new lines set. There is no way to enter this information using
+configuration dialogs. You have to create a text registry file with copy dialog description,
+and import it into the Windows registry.
+
+  Plugin uses separate dialogs for every FAR language you use.
+  You must create a dialog for each language you use with national text labels and place it to the national subkeys.
+
+  Copy dialog description must reside at:
+    #HKCU\\Software\\Far\\Plugins\\FTP\\CopyDialog#
+  registry key.
+  This key must contain a subkey with the same name as in the second line of national plugin LNG file you wish to
+associate it with.
+
+  For example, the second line in English language file (FtpEng.lng) contains text "English" (with '#"#' characters), so
+if you wish the plugin to use your dialog with this language, you must place the dialog data into the
+    #HKCU\\Software\\Far\\Plugins\\FTP\\CopyDialog\\English#
+  subkey.
+
+  As for Russian language, plugin contains text "Russian" in the second line of language file, so you need to place
+the dialog data to:
+    #HKCU\\Software\\Far\\Plugins\\FTP\\CopyDialog\\Russian#
+  subkey.
+
+  You can use #CopyDlg.reg# describing default copy progress dialog as a sample to create your own dialogs.
+
+  Plugin loads dialog data from the registry and parses it every time you manually start a copy process.
+  It means that changes you make in the registry are used next time the copy process starts.
+
+  Note: If you are using specific user to work with FAR, you must place dialog data into key for the user you use.
+  For example if you start FAR like:
+    #far /u MyUser#
+  and FAR uses settings for user "MyUser", you need to enter dialog data for the English language into:
+    #HKCU\\Software\\Far\\Users\\MyUser\\Plugins\\FTP\\CopyDialog\\English#
+  registry subkey.
+
+@CopyDialogVALS
+$ #Format of values used in copy progress dialog#
+
+  Registry key containing copy progress dialog data must contain a value named "#Count#" indicating the number of
+lines you use in the progress dialog, and one value for each line of the dialog named "#Line<number>#", where #<number>#
+is the number of line from #0# to #Count-1#.
+
+  For example, if you use 3 lines, you must have 4 values under the registry key:
+    Count=3
+    Line0=""
+    Line1=""
+    Line2=""
+  Each line contains some text and #formatted# description of values you wish to show in the progress dialog.
+
+  Line format looks like C printf format string and, as in printf format, uses two rules:
+  #1.# non-format symbols will be shown exactly as they were entered.
+
+  #2.# format symbols determine the start of the field only.
+  It means that the width of a value is determined only by the format specifies, not by the width of the format symbol text.
+  For example, the format symbol #%20SVal%# defines a 20-characters value, but #%2AnotherValue%# symbol defines only
+2-characters value regardless of the size of "AnotherValue" word itself.
+
+  #Format symbols#
+
+  Format symbols must be enclosed with '#%#' symbols and have the following format:
+    #%[+|-]<width><name>%#
+  where:
+    #<width># -- width of the value in a dialog.
+
+    #<name>#  -- name of the value.
+
+    #+,-#     -- sign symbols indicating alignment.
+    The "#+#" sign indicates right alignment and the "#-#" sign indicates left alignment.
+
+  The #<width># and the #<name># parts of symbol must exist.
+  The alignment part is optional with default value "right aligned".
+  The value always takes #<width># characters in a dialog.
+  If #<width># is less than the real length of the value, it will be truncated, and one of the overflow symbols ( or )
+will be drawn to indicate that value does not fit into the specified width.
+  If the real value's length is less than the specified width, the value will be aligned to specified width with spaces.
+
+  #Indicating syntax errors#
+    If you make a mistake in symbol syntax, plugin draws a special text starting at the wrong symbol position to
+indicate type of error.
+
+    #<bigSize># - specified size of the value exceeds maximum size of one line in copy dialog.
+    #<noCmd>#   - symbol does not contain value name part.
+    #<noSize>#  - symbol does not contain size part.
+    #<badCmd>#  - symbol contains unknown value name.
+
+  #Symbol samples#
+
+  %+7Symbol%
+    Correct syntax, describes a symbol with name "Symbol", taking
+    7-characters in copy progress dialog, right aligned.
+    If value "Symbol" is "1.5", then "    1.5" will be drawn.
+
+  %10Right%
+    Correct syntax, describes a symbol with name "Right", taking
+    10-characters in copy progress dialog, left aligned.
+    If value "Right" is "text", then "text      " will be drawn.
+
+  %-5RightAlign
+    Incorrect, does not contain closing #%# symbol.
+
+  %Value%
+    Incorrect, does not contain symbol width part.
+
+  #Special symbols#
+
+  #1.# You can specify any character by its code using #%\\<number>%# symbol, where #<number># is the decimal character code.
+     For example, "%\\32%" is equal to " " (space).
+
+  #2.# To enter a standalone #%# character you may duplicate it in a string.
+     For example, "text%%other" string will be shown as "text%other".
+
+  You can use special FAR symbols to create a horizontal dialog delimiter.
+  To create a dialog delimiter, start a line from symbol with code #1# (single line delimiter) or from symbol with code
+#2# (double line delimiter).
+  The text following this symbol will be placed on delimiter and centered in dialog.
+  See default dialog sample for details.
+
+  #Names of values#
+    SrcPathname        - source file pathname;
+    SrcPath            - source file path;
+    SrcName            - source file name;
+    DestPathname       - target file pathname;
+    DestPath           - target file path;
+    DestName           - target file name;
+    CurSize            - processed part of the current file;
+    CurESize,CurFSize  - full size of the current file;
+    CurRSize           - remaining part of the current file;
+    CurTime            - time elapsed from start of processing
+                         of the current file;
+    CurFTime           - full time to process the current file;
+    CurRTime           - remaining time to process the current
+                         file;
+    CurETime           - end time of the current file processing.
+                         Format: HH:MM:SS;
+    CurEDate           - end date of the current file processing.
+                         Format: DD-MMM-YYYY;
+    TotSize            - total processed size;
+    TotESize,TotFSize  - full size of all files;
+    TotRSize           - remaining size of all files not processed
+                         by the plugin;
+    TotTime            - time from start of the whole copy process;
+    TotFTime           - full time to process all files;
+    TotRTime           - remaining time to process all files;
+    TotETime           - end time of all files' processing;
+    TotEDate           - end date of all files' processing;
+
+    CurCPS             - transfer speed for the current file;
+    CPS                - average transfer speed for the current file;
+    TotCPS             - transfer speed for all transferred data;
+
+    Pg,Progress        - progress bar for the current file;
+    FPg,FProgress      - progress bar for the whole process;
+
+    Pc,Percent         - percentage of the current file.
+                         Format: 99.9%;
+    FPc,FPercent       - percentage of the whole process.
+                         Format: 99.9%;
+
+    Cn                 - number of files transferred;
+    CnSkip             - number of files skipped;
+    CnR                - number of files remaining to process;
+    CnF                - total number of files to be processed
+                         by the plugin;
+    CurPc              - percent of files already processed;
+    SkipPc             - percent of files skipped;
+    CurPg              - progress of files already processed;
+    SkipPg             - progress of files skipped;
+
+  #Additional information#
+
+  Parameters that in some way duplicate parameters mentioned above, but have some differences in interpretation,
+displaying and representation of information.
+
+  #1.# Speed of copying
+
+  CurCPS4, CPS4, TotCPS4
+
+  Unlike CurCPS, CurCPS4 shows its value without fractional part. Displaying in kilobyte units begins from 10000, and in
+Megabyte units - from 10000000. This way is chosen in order to retain clearness: such displaying as "1K" or "3K" will
+say nothing in case of slow connection.
+
+  Below are the results of representation depending on CPS value (commas are to make values' perception be more convenient):
+
+             CPS value interval │  Representation
+     ───────────────────────────┼───────────────
+                0-9,999         │   "0"-"9999"
+           10,000-9,999,999     │ "10K"-"9999K"
+       10,000,000-9,999,999,999 │ "10M"-"9999M";
+
+  Unlike "Pc" and "FPc", values "IPc" and "IFPc" use a "99%" format to draw percent values.
+
+
+  #Dialog sample#
+  Plugin uses the following lines (without quote characters) to create the default copy progress dialog:
+
+ "%-64SrcPathname%"
+ "  to:"
+ "%-64DestPathname%"
+ "%\\1%%3Cn% "
+ "   Elapsed %+14CurSize%  %8CurTime%   %8CurCPS%    %8CPS%"
+ "     Total %+14CurFSize%  %8CurFTime% <%8CurETime% %11CurEDate%>"
+ "%5Percent%-[%55Progress%]-"
+ "%\\1%%3CnF% "
+ "   Elapsed %+14TotSize%  %8TotTime%               %8TotCps%"
+ "     Total %+14TotFSize%  %8TotFTime% <%8TotETime% %11TotEDate%>"
+ "%5FPercent%-[%55FProgress%]-"
+ "%5CurPc%-[%26CurPg%]-[%26SkipPg%]-"
+
+@FTPURL
+$ #Server URL syntax recognized by the FTP plugin#
+
+   The FTP plugin recognizes the following URL syntax:
+
+    #[ftp://][user[:password]@@]hostname[:port][/folder]#
+    #[http://][user[:password]@@]hostname[:port][/folder]#
+
+   The URL parts between #[# and #]# symbols are optional.
+
+   The fields have the following meaning:
+    #ftp://#
+    #http://#   - standard URL prefixes;
+    #user#      - user name to login to the server;
+    #password#  - user password;
+    #hostname#  - name or IP address of the host to connect;
+    #port#      - the port on which the FTP server is listening;
+    #folder#    - directory to change to after the plugin connects
+                to the server;
+
+  The only required field is the "hostname" field. If the plugin cannot extract the hostname from the URL, the creation
+or editing of the host data will fail.
+
+   Remember:
+    - the fields from the ~FTP server record~@FTPConnect@ always
+      take precedence over the parts of the URL;
+    - if you do not want other users of the computer to see the
+      passwords for the FTP servers you work with, do not specify
+      them as parts of the URL. Enter them directly in the host
+      record.
+
+  The #User name# and #password# fields can contain any characters you can enter in FAR fields. The plugin uses the
+rightmost separator characters (#@@# and #:#) existing in the entered URL to split out the name and password data. Thus,
+there is no way to specify the password containing the ":" character as part of the URL.
+
+    ────────────────────────────────────────────────────────────────
+    For example, the URL:
+      #user@@domain:my:best@@cat@@ftp.host.com#
+    ──────────────────────────────────────┬─────────────────────────
+ will be splitted to the following parts  │ but #NOT# as you may expect
+    ────────┬─────────────────────────────┼─────────────────────────
+        User│ #user@@domain:my#              │ #user@@domain#
+    Password│ #best@@cat#                    │ #my:best@@cat#
+        Host│ #ftp.host.com#                │ #ftp.host.com#
+
+  To solve this problem, enter the password into the password field
+separately.
+
+  Here are some samples of Urls you can enter:
+ ═════════╤═════════════╤═════════════════╤═══════════════╤════════
+ URL      │User         │Password         │Host           │Directory
+ ═════════╧═════════════╧═════════════════╧═══════════════╧════════
+ The latest versions of the FTP plugin:
+    #JouriWarez:WareZ@@194.226.246.49/Popa/Far#
+ ─────────┬─────────────┬─────────────────┬───────────────┬────────
+          │JouriWarez   │WareZ            │194.226.246.49 │/Popa/Far
+ ─────────┴─────────────┴─────────────────┴───────────────┴────────
+ A sample AOL user site:
+    #GregoryV:Gregory@@AOL.com@@ftp.aol.com#
+ ─────────┬─────────────┬─────────────────┬───────────────┬────────
+          │GregoryV     │Gregory@@AOL.com  │ftp.aol.com    │/
+ ─────────┴─────────────┴─────────────────┴───────────────┴────────
+ Anonymous access to the Microsoft site:
+    #:Gregory@@AOL.com@@www.microsoft.com#
+ ─────────┬─────────────┬─────────────────┬───────────────┬────────
+          │Anonymous    │Gregory@@AOL.com  │ftp.aol.com    │/
+ ═════════╧═════════════╧═════════════════╧═══════════════╧════════
+
+@FTPCmdline
+$ #Using the FTP plugin command line#
+
+  You can call the FTP plugin from the FAR command line using the prefix "#ftp:#".
+
+  To call the plugin and connect to a server, simply type the ~URL~@FTPURL@ of the server and prefix it with #ftp://#.
+  For example, type in FAR command prompt:
+    #ftp://ftp.cdrom.com#
+  to call the plugin and ask it to connect to the "ftp.cdrom.com" server using the "anonymous" user and the default
+password set in the ~plugin configuration~@Config@.
+
+  You can type fully specified Urls.
+
+  The plugin will use default values set in the #plugin configuration# dialog for all ~host fields~@FTPConnect@ which
+cannot be extracted from the URL address.
+
+  The plugin prefix only allows you to connect to servers. There is no way to open the ~hosts panel~@FTPNames@ from the
+command line.
+
+@FTPUtils
+$ #FTP utilities menu#
+  Utilities menu is accessible only when the plugin is in ~connected state~@FTPConnected@, and usually looks like:
+
+@-
+ \1E                                                \-
+ \1E \3F╔═══════════════ FTP Utilities ══════════════╗\1E \-
+ \1E \3F║\0F Hosts parameters...                        \3F║\1E \-
+ \1E \3F║  Close connection and switch to hosts mode ║\1E \-
+ \1E \3F║  View directory contents                   ║\1E \-
+ \1E \3F║  View FTP command log                      ║\1E \-
+ \1E \3F╟────────────────────────────────────────────╢\1E \-
+ \1E \3F║  View log file                             ║\1E \-
+ \1E \3F║  Add to saved sites                        ║\1E \-
+ \1E \3F║  Show process queue...                     ║\1E \-
+ \1E \3F╚════════════════════════════════════════════╝\1E \-
+ \1E                                                \-
+@+
+
+  This menu is split into two parts: the top one is available only when the plugin is in the connected state.
+The bottom part contains items available in any plugin state.
+
+  The more detailed description of menu items follows:
+
+  #Hosts parameters#
+  Displays a dialog containing current connection parameters; allows to change parameters.
+  These parameters do not affect parameters used to establish a connection; they are dismissed when the current
+  connection is closed.
+
+  #Close connection and switch to hosts mode#
+  Closes the current connection and switches the plugin to the hosts mode.
+
+  #View directory contents#
+  Shows listing of the current directory as it was received from the server.
+  This information can be used to find errors in the plugin's parser.
+  If you think that plugin parses context of the listing incorrectly, or you have found parser errors, please send the
+following information to the ~current developer~@Contents@:
+    - directory listing received by plugin;
+    - list of files as you think it #must# look like;
+    - name of server software you connect to;
+
+  #View FTP command log#
+  Shows last CMD window contents in full form of CMD window.
+
+  #View log file#
+  Depending on #configuration# you have set, the plugin logs all actions to a file.
+  With this command, you can easily view the log file being currently used.
+  If you find errors in the plugin, please send the following information to the ~current developer~@Contents@:
+    - error description;
+    - list of actions to reproduce the error;
+    - the plugin log file;
+
+  #Add to saved sites# or #Remove from saved sites#
+  Adds or removes the current plugin to the list of active plugins for quick access.
+
+  If you add the plugin to this list, it will add a special entry to the disk menu.
+  If the plugin is in the connected state, the entry contains: name of the currently
+connected user, server name and path on the server. If the plugin is in the hosts mode,
+the entry contains a host path.
+
+  You can quickly switch between plugins from this list.
+  This feature is very useful if you connect to a server and wish to use it in the nearest future but need to open
+something else on the panel currently used by the plugin.
+  For example: you connect to a site and need to compare two folders on you hard disk.
+  Now you can add the plugin to quick list, open folders to compare, execute compare operations and, after they are
+  finished, switch back to the saved plugin by selecting it from the disk menu without need to reconnect and change
+  directories.
+
+  To remove any entry:
+    1. Select an entry from the disk menu;
+    2. Select #Remove from saved sites# from Utilities menu;
+
+  Note:
+    1. This feature is available only if you turn "Add to Disks menu" ON in the plugin ~configuration~@Config@ dialog;
+    2. The plugin allows to save a limited number of connections (currently 10);
+    3. The plugin does not save the list of opened connections so it is not available after you exit the current FAR copy;
+    4. The plugin does not use the connection while it is in the list, so if server removes you by timeout,
+you need to restore the connection.
+
+   #Show process queue#
+   Displays a list of assigned tasks for the current plugin instance.
+   NOTE: task list is associated with the current plugin instance, not with the current connection.
+   I.e. if you switch to the hosts mode, or establish a connection to a server, the task list remains unchanged.
+   If you close the plugin, or open another plugin instance on the same panel, the task list will be lost.
+   The plugin checks the task list before exiting, and you'll see a warning if the list still contains tasks.
+   Use one of the following methods to quit the server to avoid ambiguity in task list state:
+     1. run a command from the command line, or
+     2. choose "Close connection" from menu, or
+     3. change to the upper directory level from the root directory on a server;
+   Any of these methods guarantee that a new plugin instance will not be loaded, and the task
+   list will remain unchanged.
+
+@FTPConnected
+$ #Working with the plugin in connected state#
+  After you have selected a server to connect to and the plugin has established the connection successfully, you can
+start browsing the file system of the FTP server and perform various operations with files.
+
+ #Information#
+  While the plugin is working, it shows various information to indicate the currently operation, its progress
+or the plugin state.
+
+  The plugin asks questions only if it cannot continue the execution of an operation in the current connection state
+(for example, when the connection is terminated while the plugin is downloading a file).
+
+ #FTP command log window#
+  The main location where the plugin displays all available information is the #command log# window.
+
+  If you disable using this window for the currently connected server, the plugin will only show brief progress
+information on the screen (looking like the old plugin versions). The full command log window will be shown only if an
+error occurs and your interaction is required.
+
+   The command log window can be shown or hidden at any time using the
+~FTP Utils~@FTPUtils@ menu.
+
+ #Additional information#
+  Sometimes the plugin needs to display some additional information or provide a notification on its state.
+  Depending on the ~configuration settings~@Config@, this information will be shown in the upper left corner of the FAR
+console screen, in the caption of the FAR window or in both places.
+
+  Additional information shown by plugin may be of two types:
+
+      1. Idle or waiting state.
+  Information about the plugin state when it's waiting for something (a reply from the server, for example).
+
+      2. Progress information in "quiet" mode.
+  Information that needs to be shown in the command log window, but can't be shown there for some reason.
+
+  For example, when you download a file from FTP, the plugin shows a progress window with information about downloaded
+and remaining data size. But when the download is a part of a complex operation such as viewing a file, the plugin has
+to minimize the display output. Therefore, it will display the progress information in the same way as the waiting state
+information.
+
+ #Operations#
+  You can type any standard FTP command in FAR command line. The plugin will directly send it to the server to which it
+is connected and show the server response in the command log window.
+  It is possible to execute only commands that do not require data transfer, such as "SIZE", "CD", etc. Commands that
+require a data connection, like "LIST" or "STOR", cannot be executed from the command line. However, all such commands
+can be performed as standard FAR operations like viewing or copying files, so there is no reason to execute them from
+the command line.
+
+  Any FTP server operation can be interrupted by pressing Esc. Depending on the settings in the plugin configuration,
+the plugin will either ask you to confirm the interruption, or terminate the operation immediately.
+
+  You may use the "Find file" command to search for files on an FTP server. The "File attributes" command (#Ctrl-A#)
+allows to change the file access mode, if this operation is supported by the server.
+
+ #Keyboard shortcuts#
+    #Shift-F1#
+  Shows the ~Utilities menu~@FTPUtils@.
+  All actions from this menu apply to the current connection only, and do not affect the settings stored in the host
+record.
+
+    #Alt-F6#
+  Save the information about the currently connected host.
+  This command will create a host record with the connection settings equal to the current connection settings and the
+initial directory equal to the current directory on the server.
+  The newly created host will be accessible the next time you switch to the hosts panel.
+
+    #Shift-F7#
+   Changes the character table used for translating file names and descriptions.
+  The best way to select the proper character table is to select "#Autodetect#" from the tables menu.
+The plugin will try to determine the best character table for the file names in the currently displayed directory.
+  In any case, the plugin is able to use a character table only if it is correctly installed in FAR.
+
+ #Panel modes#
+
+   In connected state the plugin uses two self-defined panel modes:
+
+    #9# Access mode.
+   Displays the name of the file, its size and unix-style access mode columns.
+
+    #8# Owner mode.
+   Displays the name of the file, its size and unix-style owner columns.
+
+  Additional information can be correctly displayed only if it is provided by the FTP server in the standard Unix
+format.
+
+@FTPNames
+$ #Managing host names#
+
+  Host records are organized in the form of a file panel.
+  You can create virtual folders to group host records.
+
+  You can use the following keyboard shortcuts in the hosts panel:
+
+  #Shift-F4#
+  Create a new host record in the current virtual folder.
+  The plugin shows the ~host configuration dialog~@FTPConnect@
+asking you to enter the host parameters.
+
+  #F4#
+  Edit the parameters of the currently selected host record. To edit the parameters, the same ~host configuration
+dialog~@FTPConnect@ is used.
+  To save the changes in the host record, select the #OK# button after editing.
+  To apply the changes only for a single connection, select the #Connect# button.
+
+  #F4#
+  If the cursor is on a virtual folder, a dialog is shown allowing you to change the name and the description of the folder.
+
+  #F5#,#F6#
+  Copy or move currently selected hosts and folders to another panel.
+  It is possible to copy hosts from one virtual folder to another or to your hard disk.
+
+  To copy hosts #between folders#, open the FTP plugin on both panels, select the source folder on one panel and the
+destination folder on the other panel.
+  Select desired hosts and folders, press #F5#, check and confirm the destination.
+
+  To copy hosts #to your hard disk#, open the plugin on one panel and the destination directory of your disk on the
+other panel.
+  Select desired hosts and folders, press #F5#, check and confirm the destination.
+
+  Note that when you copy a virtual folder to the hard disk, it is created as a regular folder. Thus, the descriptions
+of virtual folders are not copied.
+
+  It means that if you copy a virtual folder to the disk, and would like to copy it back to the FTP plugin panel, the
+description which was assigned to the source folder will be lost.
+
+  #F8#
+  Delete selected hosts and folders.
+
+  #Shift+F6#
+  Rename a virtual directory or change its description.
+
+  #Ctrl+F#
+  Copy the address of the currently selected server record in full ~URL~@FTPURL@ form to the FAR command line.
+
+  #Ctrl-Enter#
+  Copy the server name of the currently selected server record to the FAR command line.
+
+  The following panel modes are available on the hosts panel and can be activated by pressing #LeftCtrl-number#:
+
+  #1# Raw hosts mode.
+  Hosts are displayed in a single column and look exactly as they are used by FAR itself.
+
+  #2# Detailed mode.
+  Hosts are displayed in four columns: host name, home directory, user name, description.
+  This is the default mode for plugin.
+
+  #3# Compatible mode.
+  Hosts area displayed in two columns: host name and description.
+  This mode is fully compatible with the mode used by the FTP client before FAR 1.7x version.
+
+@FTPConnect
+$ #Host configuration dialog#
+  Each host record consists of the mandatory host name field, optional fields for entering username, password and host
+description and a set of connection options.
+
+  Normally the host configuration dialog looks like:
+@-
+^\70                                                                   \-
+^\70  ╔═══════════════════════ Edit FTP address ════════════════════╗  \-
+^\70  ║ ftp://user:password@@host:port/dir                           ║  \-
+^\70  ║ \79___________________________________________________________\70║  \-
+^\70  ╟─────────────────────────────────────────────────────────────╢  \-
+^\70  ║ User       : \79______________________________________________\70║  \-
+^\70  ║ Password   : \79______________________________________________\70 ║  \-
+^\70  ║ Description: \79______________________________________________\70 ║  \-
+^\70  ╟─────────────────────────────────────────────────────────────╢  \-
+^\70  ║ [ ] \79Ask password every time\70 [ ] \79FTP command log window\70      ║  \-
+^\70  ║ [ ] \79ASCII mode\70              [ ] \79Custom LIST command\70         ║  \-
+^\70  ║ [ ] \79Passive mode\70                \79________________\70            ║  \-
+^\70  ║ [x] \79Use firewall\70            I/O buffer size: \79______________\70 ║  \-
+^\70  ║ [x] \79Decode commands text\70    [ ~Extended options~@FTPExtHost@ ]            ║  \-
+^\70  ╟─────────────────────────────────────────────────────────────╢  \-
+^\70  ║      [ \79Select table\70 ]  [ \79Server type\70 ]  [ \79Connect\70 ]         ║  \-
+^\70  ║                   [ \79Save\70 ]  [ \79Cancel\70 ]                      ║  \-
+^\70  ╚═════════════════════════════════════════════════════════════╝  \-
+^\70                                                                   \-
+@+
+  All the fields you can change or edit are highlighted.
+
+  Below is the description of the dialog fields you can change:
+
+▒▒▒▒▒▒ Edit fields ▒▒▒▒▒▒
+ #URL#
+   Address ~understood~@FTPURL@ by the FTP plugin.
+   The URL #may# contain: user name, user password, connection port and start directory.
+   The URL #must# contain: the address of the server to connect.
+   URL parts have #lower# priority than dialog fields.
+
+ #User#
+  The name of the user sent to the server during authorization.
+  When you first create a host record, you may fill only the #URL# field. If you leave the #User# field blank, the
+plugin automatically fills it with the information from the URL when you confirm host changes.
+  The #User# field has a higher priority than the URL part specifying the user name, so changes in the URL user name
+part #will not# take effect until the #User# dialog field is blank!
+  In other words, the plugin always uses data from the #User# field if it is not empty.
+
+ #Password#
+  User password sent to the server during authorization.
+  This field uses the same rules as the #User# field.
+
+ #Description#
+  Description of the host record. This field is only for your convenience, and you can enter arbitrary text here.
+
+ #Custom LIST command#
+  Command sent by the plugin to the server to retrieve the list of files in a directory if the #Custom LIST command#
+checkbox is checked.
+
+ #I/O buffer size#
+  The size of the buffer used by the plugin for sending and receiving data when working with this server.
+  This value can be configured separately for each server and depends on connection speed, software and available
+bandwidth of both the client and the server machine.
+  The optimum value for this parameter can be achieved by experimenting. Usually bigger values increase transfer speed
+on fast (DSL, LAN) connections.
+  You can use #M# and #K# characters to specify the multiplier for the value. "M" is interpreted as 1,000,000, and "K"
+as 1,000.
+  If a multiplier is used, you can also specify fractional digits in the value.
+  For example, #1.4K# will be interpreted as #1.4*1000#, and the I/O buffer size will be set to #1400# bytes.
+  Additional information on configuring the buffer size is given in the file #Notes.txt# in the plugin directory.
+
+
+▒▒▒▒▒▒ Options ▒▒▒▒▒▒
+ #Ask password every time#
+  When this option is turned #ON#, the plugin shows a dialog prompting for the user name and password at every
+connection. By default, the dialog is filled with the values of the #User# and #Password# fields from the host record.
+
+ #FTP command log window#
+  When this option is turned #ON#, the plugin shows a window displaying all the commands it executes. If this option is
+off, only summary information on the connection progress is displayed.
+  This option is useful on very slow connections or with non-standard or partially implemented servers to monitor
+"what's going on" on the fly.
+  This option can be also switched through the ~FTP Utils~@FTPUtils@ menu.
+
+ #ASCII mode#
+  Allows to choose between ASCII or BINARY mode for transferring files.
+  When this option is turned #ON#, the plugin uses ASCII transfer mode.
+  Keep in mind that binary files may be corrupted if they are transferred in ASCII mode.
+  This option can be also switched through the ~FTP Utils~@FTPUtils@ menu.
+
+ #Passive mode#
+  Switches "passive" FTP client mode.
+  The client mode determines how FTP data connections are established. In normal mode plugin asks the server to establish TCP connection with local
+machine, and in passive mode the plugin establishes the data connection by itself. Normal mode can fail to work on some networks using NAT, firewall or
+any other technology witch limits the ability to accept incoming TCP connections. Some FTP servers have limitations on passive mode access.
+  This option can be also switched through the ~FTP Utils~@FTPUtils@ menu.
+
+ #Custom LIST command#
+  Enables the use of a custom LIST command for retrieving the list of files in a folder.
+  Some servers produce a wrong (non-standard) or incomplete directory listing when answering on the standard LIST ftp
+command. However, some other servers break the connection if you use the extended command. Thus, there is no way to
+automatically determine which command should be used to receive the full directory listing, so you have a possibility
+to specify the correct command for your server manually if the default command does not work.
+  This option can be switched on the fly using #FTPUtils# menu.
+  Additional information on using this command is given in the file #Notes.txt# in the plugin directory.
+
+ #Use firewall#
+  Switches the use of the firewall specified in the global ~plugin configuration~@Config@.
+  A firewall is only used to establish the connection, so this option can not be switched on the fly after the
+connection is established.
+
+ #Decode commands text#
+  Switches the decoding of file names in the listing received from a server.
+  If this option is ON, the plugin will decode file names using the selected character tables, otherwise it
+will process names as they were received from a server.
+
+▒▒▒▒▒▒ Buttons ▒▒▒▒▒▒
+ #Select table#
+  Displays a menu from which you can select the default character table used to translate directory listings received
+from the server to the OEM code page.
+  The list of displayed character tables is the list of tables already installed in FAR. Additional character tables can
+be found in the "Addons\\Tables" subdirectory of the FAR installation folder.
+
+ #Server type#
+  Plugin will show a menu which looks like:
+@-
+^ \3F╔═══════════════════════════ Tables ═══════════════════════════╗\-
+^ \3F║\0F  \0EA\0Futodetect                                                  \3F║\-
+^ \3F╟──────────────────────────────────────────────────────────────╢\-
+^ \3F║  \3EU\3Fnix    │ Classic unix listing                              ║\-
+^ \3F║  \3EW\3Findows │ DIR-like listing                                  ║\-
+^ \3F║  \3EV\3FMS     │ VMS system                                        ║\-
+^ \3F║  \3EE\3FPLF    │ Comma delimited files list                        ║\-
+^ \3F║  \3EC\3FMS     │ CMS plain files list                              ║\-
+^ \3F║  \3EP\3Flain   │ Plain files and directories list                  ║\-
+^ \3F║  \3EO\3FS/2    │ OS/2 native format                                ║\-
+^ \3F ║  \3EK\3Fomut   │ File listing generated by some commutation servers║\-
+^ \3F╚══════════════════════════════════════════════════════════════╝\-
+@+
+  from which you can select the parse method for a directory listing.
+  The list of types is generated by the FTP sub-plugin "ftpDirList.fll" and can be customized using the sub-plugin sources.
+
+ #Connect#
+  Does not save changes. Establishes a connection according to the parameters currently specified in the dialog.
+
+ #Save#
+  Confirms changes and saves the host record.
+
+ #Cancel#
+  Cancels any changes and closes the edit dialog.
+
+@Config
+$ #FTP client configuration#
+
+  In this dialog you may change global public configuration options.
+
+  This is a set of frequently used options, and it contains options for newly created host entries, global plugin
+options and some plugin preferences and technical parameters for connections.
+
+  Technical options and low-level tuning options can be found in "techinfo" and "FtpCmds" files in the plugin directory.
+
+  Dialog of options accessible from FAR configuration menu looks like:
+
+@-
+^\70╔════════════════════════ FTP client ══════════════════════════════╗\-
+^\70║[x] \79Add to Disks menu\70. Item: \302  \70  [x] \79Keepalive packet every\70 \3060  \70s║\-
+^\70║[ ] \79Add to Plugins menu\70           [x] \79Timeout retry count:\70   \300   \70 ║\-
+^\70║\302  \70 \79Hosts panel mode\70              [x] \79Long operation beep:\70 >=\3030  \70s║\-
+^\70║[x] \79Read descriptions\70             \79Server reply timeout\70 (s)   \3030  \70 ║\-
+^\70║[ ] \79Update descriptions\70           [x] \79Digits grouping symbol:\70  \30. \70 ║\-
+^\70║[ ] \79Upload upper in lowercase\70     [x] \79FTP command log window\70      ║\-
+^\70║[x] \79Show upload options dialog\70    \79Log window size:\70    \3070   \70x \3020   \70║\-
+^\70║[ ] \79Default button is 'Resume'\70    \79I/O buffer size:\70    \30781.25K     \70║\-
+^\70║[x] \79Confirm abort\70                 \79Alert text\70          [ Color ]   ║\-
+^\70║[x] \79Idle header\70 [ \70Color\70 ] () 1.\79Screen\70( ) 2.\79Caption\70 ( ) 3.\79Both\70    ║\-
+^\70╟──────────────────────────────────────────────────────────────────╢\-
+^\70║Description file names (comma delimited):                         ║\-
+^\70║\3000_index.txt,0index,0index.txt__________________________________\70  ║\-
+^\70║Default password                   Log file       Max size: \300___\70 K║\-
+^\70║\30************___________________\70   \30farftp.log____________________\70  ║\-
+^\70║Firewall:port                    [x] \79Log directory contents\70       ║\-
+^\70║\30_______________________________\70   [ ] \79Passive mode\70                ║\-
+^\70╟──────────────────────────────────────────────────────────────────╢\-
+^\70║                        [ OK ]  [ Cancel ]                        ║\-
+^\70╚══════════════════════════════════════════════════════════════════╝\-
+@+
+ All the fields you can change or edit are highlighted.
+
+ Below is the list of dialog properties which you can change (from left to right and from top to bottom):
+
+ #Add to Disks menu#
+   If option is #ON#, plugin is added to FAR disks menu displayed by #Alt+Fx# hotkey.
+
+ #Item#
+  Preferred digit of the plugin item in the Disks menu.
+  FAR automatically reassigns the number if more than one plugin wishes to use the same digit, so you must specify
+an unique value, or get ready to find the unexpected number in menu.
+   Set value to zero to tell FAR that it must auto assign the first available digit.
+
+ #Keep alive#
+   If this value is #ON#, plugin keeps connection alive by polling server with PWD command every "alive period".
+   This polling action will be executed only when plugin is in connected state and plugin panel is shown.
+   If plugin panel is hidden by viewer or editor, alive command #is not# executed.
+
+ #Keep alive every#
+   Period in seconds to execute the "alive" command.
+   Every time plugin receives an IDLE message from FAR (once per second on the average), it decrements idle timeout.
+   When timeout reaches zero, the plugin will perform "alive" command together with drawing specific idle message.
+   Any FTP action resets timeout to its default (full) value.
+
+ #Add to Plugins menu#
+   If this option is turned #ON#, plugin is shown in FAR plugins menu (accessible by F11 key).
+
+ #Timeout retry#
+  If this option is turned #ON#, the plugin will automatically repeat the last executed action, if connection is
+aborted by timeout error.
+   #Note#: this option affects only timeout errors.
+   If plugin gets any non-timeout error, it will stop and ask for user's confirmation as usual.
+   If the auto-retry counter is nonzero, it will be displayed in the caption of the copy progress dialog.
+
+ #Timeout retry count#
+  Number of auto retries.
+  If #Timeout retry count# is turned #ON#, and value is set to nonzero, plugin attempts to retry the last failed operation
+not more than #value# times.
+   In other words, plugin increments retry counter every time it attempts to restore connection after timeout error.
+   When retry counter reaches zero, plugin shows error dialog as usual.
+   #Note#: timeout counter is reset every time a single operation is complete.
+   E.g.: if you download three files, retry counter will be set to default value for each file.
+
+ #Hosts panel mode#
+   The default column number for plugin in hosts mode.
+  Every time you change plugin mode, the plugin remembers it and restores next time hosts panel is opened #only# if this
+value is set to #-1#.
+   If the value is set to any valid column mode (0..9), plugin uses the specified mode instead of last used one.
+   #Note#: Numbers mean exactly pressed keys - value number 0 means column type activated by pressing Ctrl+0;
+value number 1 means column type activated by pressing Ctrl+1; and so on.
+
+ #Long operation beep#
+   If this option is turned #ON#, the plugin produces a notification sound every time a long operation finishes.
+   Long operation is the operation which takes more time than the specified timeout.
+
+ #Read descriptions#
+   If this option is turned #ON#, the plugin will read description file every time it reads the contents of a new directory.
+
+ #Confirm abort#
+   If this option is turned #ON#, the plugin asks for a confirmation to terminate operations.
+   If this option is turned #OFF#, the plugin terminates the current operation immediately after ESC is pressed.
+
+ #Update descriptions#
+   If this option is turned #ON#, plugin uploads changed description file back to the server when descriptions change.
+
+ #Digits grouping symbol#
+   Delimit thousands digits with specified character in the copy progress dialog.
+   E.g.: "#3000#" will be shown as "#3.000#", if delimiter is set to '#.#'.
+   You can left character field blank to assign a user locale thousand separator character.
+
+ #Upload upper in lowercase#
+   If this value is #ON#, plugin will convert all uppercase filenames to lowercase during upload.
+   E.g., file "FILE.EXT" will be uploaded with name "file.ext".
+
+ #FTP command log window#
+   The default option of #FTP command log window# for the newly created host entries.
+
+ #Show upload options dialog#
+  If this option is turned #ON#, plugin shows additional upload dialog, where you can select or confirm target upload
+server directory.
+
+ #W#,#H#
+   Desired width and height of "Ext CMD window".
+   If these values exceed physical size of FAR console screen, the console size will be used.
+
+ #'Resume' default button#
+  If this option is turned #ON#, and the server supports resuming, the "Resume" button will be the default button in
+the download "Overwrite\\Resume" dialog.
+   If this option is turned #OFF#, "Overwrite" will be the default.
+
+ #I/O Buffer size#
+   The default option of #I/O buffer size# for newly created host entries.
+   You can use a #M# and #K# characters to specify multiplier for value. "M" is interpreted as 1.000.000 and "K" as a thousand.
+  In case of using a multiplier you can set this value with fractional digits. For example, using #1.4K# will be interpreted
+as #1.4*1000# and I/O buffer value will be set to #1400# bytes.
+
+ #Server reply timeout#
+   Time to wait for server reply timeout in seconds.
+   Plugin will not wait for server reply for more than #value#.
+  While plugin is waiting for a server reply, it draws an "idle" message at the upper left corner of FAR console screen
+with information of how many seconds it's already waiting for.
+
+ #Alert text#
+  The color of progress text drawn on FAR console screen, when plugin needs to show work information but called from
+complex operation such as "File view" or "Find a file".
+
+ #Idle header#
+   If this value is turned #OFF#, plugin does not draw any "idle" text at all.
+   #Note#: This option will not affect "work" text. Only "idle" text will be affected.
+
+ Idle #Color#
+  The color of "idle" text drawn on FAR console screen.
+  Idle text is the additional information needed to be shown by some operation, such as a progress of waiting
+for a server to respond.
+
+ #Screen#,#Caption#,#Both#
+   The placement of "idle" and "work" text.
+   You can choose to draw it in the upper left corner of FAR console screen, in FAR window caption or in both places.
+
+ #Description file names#
+  List of description files delimited with "#,#".
+  When #Read descriptions# option is turned #ON#, and plugin reads directory listing, it looks for the first file that
+matches one of the names from this list.
+   If such file is found in the FTP listing, plugin tries to download it and to read descriptions from it.
+   If this file is not found, or downloading fails, descriptions will not be shown.
+
+ #Default password#
+   The default password used for #anonymous# connections.
+
+ #Passive mode#
+  Toggles default value for "passive mode" option in newly created hosts.
+  The passive FTP mode determines how data connections are established. When plugin uses passive mode, it asks server to
+establish connection with plugin; in "active" mode plugin establishes data connection itself.
+  Because of "passive" type of connection, it may not work correctly on some firewalled and NAT-ed networks.
+  This option can be toggled on the fly using ~FTPUtils~@FTPUtils@ menu.
+
+ #Firewall#
+   The firewall address and firewall port to use to connect to FTP server.
+
+ #Log file#
+  Name of the file to write the FTP plugin activity log to.
+  The log file can have an absolute (starting from drive letter name) path, or a relative name.
+  If the relative name is used, the base directory to create a full filename is the directory where the plugin is placed.
+
+  If you reach an FTP plugin error, or you think plugin acts wrong, please send the following information to the
+~current developer~@Contents@:
+     - description of the error;
+     - list of actions needed to reproduce the error;
+     - this log file;
+
+ #Max size#
+  The maximum size the plugin log file can reach.
+  When file reaches the specified size, it is truncated to zero.
+  Set a zero value to indicate unlimited FTP log file.
+
+ #Log directory contents#
+  If this option is turned #ON#, plugin writes directory listing received from a server to the log file.
+  This option is used only if "log filename" is specified.
+  If you have problems reading directory listing, please turn this option #ON#. Without it the log file will be
+useless for developer.
+
+ #OK#
+   Confirms changes and set new global plugin options you have entered.
+
+ #Cancel#
+   Cancels any changes and closes a dialog.
+
+@FTPSaveList
+$ #Files list creation dialog#
+
+  In this dialog you may set parameters of files list generation.
+  Dialog looks like:
+@-
+ \70                                                           \-
+ \70  ╔════════════════════ Files list ════════════════════╗   \-
+ \70  ║Save file list to:                                  ║   \-
+ \70  ║\30___________________________________________________\70║   \-
+ \70  ╟────────────────────────────────────────────────────╢   \-
+ \70  ║() \79Urls list\70               ( ) \79Directory groups\70    ║   \-
+ \70  ║( ) \79Files tree\70                                      ║   \-
+ \70  ╟────────────────────────────────────────────────────╢   \-
+ \70  ║[x] \79Add prefix\70                                      ║   \-
+ \70  ║[x] \79Add password and user\70                           ║   \-
+ \70  ║[x] \79Quote urls\70                                      ║   \-
+ \70  ║[x] \79Add files sizes\70     Size at bound \30___\70           ║   \-
+ \70  ╟────────────────────────────────────────────────────╢   \-
+ \70  ║                [ \79Save\70 ]  [ \79Cancel\70 ]                ║   \-
+ \70  ╚════════════════════════════════════════════════════╝   \-
+ \70                                                           \-
+@+
+
+ All the fields you can change or edit are highlighted.
+ Below is the list of dialog properties which you can change (from left to right and from top to bottom):
+
+ #Save file list to#
+   Full path and name of files list to be generated.
+
+ #Urls list#
+   Generate a linear list of full-qualified urls to all files in list. Directories does not includes in this list. Plugin
+does not output file size in this mode.
+
+ #Directory groups#
+   Generate a list similar to windows INI file format. Group header will contain full-qualified url to ftp directory and
+group items will contains files in this directory. Note: plugin does not sort items scanned, so directory groups may be
+listed in this list more then once.
+
+ #Files tree#
+   Generate a space-indented list of selected files and directories. Directory names starting with '/' character and does
+not contains size field.
+
+ #Add prefix#
+   Add #ftp://# or #http://# prefix to all qualified parts of list.
+
+ #Add password and user#
+   Add current password and user name to all qualified parts of list.
+
+ #Quote urls#
+   Quote urls contains characters need to be quoted.
+
+ #Add files sizes
+   Write size information for each file. Note: this option not used in "Urls list" mode.
+
+ #Size at bound#
+   Column where size information will start. Size field always right-alignment.
+
+ #Save#
+   Confirms changes and write list of selected files to file in chosen format.
+
+ #Cancel#
+   Cancels any changes and closes a dialog.
+
+@CloseQueryReject
+$ #FTP plugin close warning#
+  Some tasks from the task queue were not completed.
+  If you close the plugin, all incomplete tasks will be lost.
+  Because of certain limitations imposed by FAR internal architecture, you can not return to the plugin instance once it it closed.
+  The only way to save the queue is to move the plugin to the background connections.
+
+@FTPQueue
+$ #FTP queue menu#
+  Task queue menu.
+  This menu allows you to add, delete or change tasks to upload or download files via FTP.
+  The queue can be edited. You can also add new tasks and/or run the whole list of tasks regardless of the current plugin state.
+
+  In other words, to download a particular file from a server, you do not need to connect to this server, neither open
+the plugin panel.
+  If the plugin panel is closed, you can simply run the full URL from the command line. The plugin will add a task to the queue,
+allowing you to edit and execute it.
+  If the panel is open, you need to open tasks menu and add a new task.
+
+  The queue can contain tasks not connected with each other in any way.
+  In other words, there are no limitations on the task order, or the server properties.
+  The plugin executes all tasks in order, establishing a connection to a server if necessary.
+  The only limitation: you need to specify the source file name (file name and server path for downloading,
+file name and local path for uploading).
+
+  #Note:# the tasks you place to the queue can not be "file move" tasks. Plugin can only copy files.
+
+  Use the following keys to control tasks in the queue:
+
+  #Del#
+  Removes the task uder the cursor.
+
+  #Ins#
+  Adds a new task to the queue.
+  The plugin will display the task edit dialog; the task will be added only if you input all required parameters.
+  When you add a new task, special parameters such as connection method, buffer size etc. are filled out automatically.
+  If the plugin is in the connected state, the current connection parameters will be used; if the plugin is in the
+hosts mode, global plugin configuration parameters will be used.
+
+  #F4#
+  Edit task parameters.
+  A task edit dialog will be displayed.
+
+  #Return# or #Enter#
+  Excute queue.
+  All tasks in the queue will be executed regardless of the result of the previous task run.
+  It is not currently possible to skip tasks or execute a part of a specific task only.
+  If you do not want to execute certain tasks, remove them from the queue before it is executed.
+
+@FTPQueueItemEdit
+$ #FTP queue item editor#
+@-
+ \70                                                                   \-
+ \70 ╔══════════════════════════ Объект очереди ═════════════════════╗ \-
+ \70 ║ Copy from:                                                    ║ \-
+ \70 ║ \30                                                             \70║ \-
+ \70 ║ to:                                                           ║ \-
+ \70 ║ \30                                                             \70║ \-
+ \70 ║ File name:                                                    ║ \-
+ \70 ║ \30                                                             \70║ \-
+ \70 ╟───────────────────────────────────────────────────────────────╢ \-
+ \70 ║ [ ] Download                                                  ║ \-
+ \70 ╟───────────────────────────────────────────────────────────────╢ \-
+ \70 ║         [ Host ]    [ OK ]    [ Cancel ]    [ Error ]         ║ \-
+ \70 ╚═══════════════════════════════════════════════════════════════╝ \-
+ \70                                                                   \-
+@+
+
+  Use this dialog to add a new task to the queue, or edit the parameters of already existing task.
+
+  Dialog objects:
+
+  #Source directory#
+  Specifies the path to copy the file from.
+  This field contains local path for the upload task; or server path (without name and connection parameters) for the download task.
+
+  Note: plugin automatically processes data from this field, so you do not need to input the connection parameters,
+name and directory manually. It is sufficient to input the full URL of the file into this field, and close the dialog
+with the confirmation. The plugin will extract all URL parts and fill out all necessary fields automatically.
+  In other words, to add a file download task, just create a new task, input full file URL to this field, and press Enter.
+
+  #Target directory#
+  Specifies the directory to place the file to.
+  If you leave this field blank, the plugin will use the path from the opposite panel (the path will be taken
+at the time the task runs).
+  Note: if you leave this field blank, the task can be sucessfully completed only if the following conditions
+are met at the time the task runs:
+
+  1. the opposite panel is available
+  2. the opposite panel displays real physical disk and not one of the panel plugins
+
+  #File name#
+  Name of the file to be copied from the source directory to the target directory.
+
+  #Download#
+  Specifies task direction.
+  If the option is checked, the file will be downloaded.
+
+  #Host#
+  Press this button to display connection parameters dialog. These parameters will be used to process the current task.
+  Note: each task has its own unique connection parameters.
+  If the plugin detects that the next task has another connection parameters, it will reconnect using these new parameters.
+  If the parameters are identical or do not require a new connection to be established, the plugin will use the existing connection.
+
+  #OK#
+  Confirms changes and closes the dialog.
+  Note: if some parameters are incorrect, or the provided info is insufficient, the plugin will show this dialog once more.
+
+  #Cancel#
+  Cancel changes and close the dialog.
+  If this dialog was used to add a new task, this task will not be added to the queue.
+
+  #Error#
+  Displays an error occured while processing a task.
+  This button is available only if the task was not completed successfully due to some error (or was cancelled)
+
+@FTPProcessQueue
+$ #Process queue options#
+@-
+ \70                                                                 \-
+ \70 ╔════════════════════════ Queue object ═══════════════════════╗ \-
+ \70 ║                                                             ║ \-
+ \70 ║ [ ] Restore plugin state after completion                   ║ \-
+ \70 ║ [x] Remove completed items                                  ║ \-
+ \70 ║                                                             ║ \-
+ \70 ║ [ ] Save as default                                         ║ \-
+ \70 ╟─────────────────────────────────────────────────────────────╢ \-
+ \70 ║                    [  OK  ]  [ Cancel ]                     ║ \-
+ \70 ║                                                             ║ \-
+ \70 ╚═════════════════════════════════════════════════════════════╝ \-
+ \70                                                                 \-
+@+
+
+  This dialog allows you to specify task queue parameters.
+
+  #Restore state#
+  If this option is enabled, the plugin will try to restore its state after completing all tasks (even if some of them
+  produced errors). If the plugin is in the connected state, it will try to connect to the current server and
+  change to the current directory; otherwise, it will return to the hosts mode.
+  If this option is disabled, the plugin will not try to change its state after completing all tasks from the queue,
+  and will remain in the last achieved state.
+
+  #Remove completed items#
+  If this option is enabled, the successfully completed task will be removed from the queue.
+  Otherwise, the task will remain unchanged.
+
+  #Save as default#
+  Saves all options from this dialog and substitutes saved values next time the task queue runs.
+
+  #OK#
+  Accepts the dialog and executes task queue.
+
+  #Cancel#
+  Closes dialog and cancels task queue.
+
+@FTPCommandLineHelp
+$ #FTP plugin command line commands#
+
+ Plugin may execute commands you type in command line.
+ Commands may be interpreted differently depending on the current plugin state.
+ #Notes#:
+  1. Commands may start with the standard plugin prefix.
+     Original prefix is "ftp:".
+     If command starts with the prefix, it will be removed from the command string before executing a command.
+  2. Plugin always removes leading and trailing spaces before executing a command.
+  3. To instruct the plugin to execute a command instead of sending it to a server, precede your command with a prefix.
+  4. Commands are case insensitive.
+
+ There are three plugin state:
+  - plugin is not loaded: current panel is in the file mode or used by another plugin.
+    We will call this mode #Not loaded# mode.
+
+  - plugin is loaded in hosts mode: current panel is used by FTP client but it is not connected to ftp.
+    We will call this mode #Hosts# mode.
+
+  - plugin is loaded and is in ftp: current panel is used by FTP client and it is connected to any ftp.
+    We will call this mode #Ftp# mode.
+
+ Some of the commands can be run in any plugin state, so there are four different command types.
+
+ ────────────────────────────────────────────────────────────────────────────
+ Plugin commands suitable for any state
+ ────────────────────────────────────────────────────────────────────────────
+
+  Command: #HELP# | #?#
+ Synopsis: Displays this help screen.
+    Notes: If called in "Not loaded" state, it loads the plugin and sets it to hosts mode.
+           To use "HELP" form in the "Ftp" plugin mode, you must precede it with the plugin prefix.
+
+  Command: #QADD <Url> | <File>#
+ Synopsis: Adds URL or file to the queue.
+    Notes: The plugin displays dialog with queue item options where you can change parameters.
+
+  Command: #XADD <Url> | <File>#
+ Synopsis: Adds URL or file to queue and executes queue.
+    Notes: The plugin displays dialog with queue item options where you can change parameters and, additionally,
+a dialog with queue processing parameters.
+
+  Command: #Q#
+ Synopsis: Display current queue.
+
+  Command: #QX#
+ Synopsis: Execute current queue.
+
+ ────────────────────────────────────────────────────────────────────────────
+ Plugin commands for Not loaded mode
+ ────────────────────────────────────────────────────────────────────────────
+  Command: (empty)
+ Synopsis: Opens plugin in hosts mode and sets directory to the last used hosts directory.
+
+  Command: #.# (single dot)
+ Synopsis: Opens plugin in hosts mode and sets directory to root.
+
+  Command: #<directory name>#
+ Synopsis: Opens plugin in hosts mode and sets directory to the directory with given name.
+    Notes: The directory name can not contain the following characters: ":./\\", otherwise it will be interpreted as a server URL to connect to.
+
+  Command: #<url>/#
+ Synopsis: Opens plugin and tries to connect to the specified server.
+    Notes: The URL must end with '/' character to be interpreted as a directory on the server.
+
+  Command: #<file-url>#
+ Synopsis: Adds given item to the queue and executes it.
+    Notes: 1. The URL must not ends with '/' character to be interpreted as a name of the file.
+           2. If you cancel the dialog with queue item parameters, the plugin will treat given URL as an ftp directory.
+           3. If you cancel the queue parameters dialog, the plugin will clear the queue and switch to a hosts mode.
+
+ ────────────────────────────────────────────────────────────────────────────
+ Plugin commands for Hosts mode
+ ────────────────────────────────────────────────────────────────────────────
+  Command: #QUIT# | #EXIT#
+ Synopsis: Closes plugin and returns to the directory from which the plugin was called.
+
+  Command: #[CD] <directory name>#
+ Synopsis: Changes directory to the specified one. The prefix text #CD# is optional.
+
+  Command: #<url>#
+ Synopsis: Connects to the specified server.
+    Notes: The URL must start with the ftp client or "http://" prefix.
+
+ ────────────────────────────────────────────────────────────────────────────
+ Plugin commands for FTP mode
+ ────────────────────────────────────────────────────────────────────────────
+  Command: #TOHOSTS#
+ Synopsis: Closes current connection and switches the plugin to a hosts mode.
+
+  Command: #DIRFILE <file path name>#
+ Synopsis: Loads file list for the current directory from an external file.
+           This command is useful to test the listing parser of the plugin (see detailed description for such usage in "dirlist.txt" file).
+
+  Command: #DIRFILE#
+ Synopsis: Cancels the usage of an external listing file and displays original ftp directory contents.
+
+  Command: #CD <directory name>#
+ Synopsis: Changes directory to the specified one. The prefix text #CD# must exist.
+
+  Command: #CMD <command>#
+ Synopsis: Execute hi-level ftp ~commands~@FTPCommands@.
+
+  Command: #<text>#
+ Synopsis: Any text which is not a command and does not start with the plugin prefix will be sent to the currently connected server.
+
+@WarnOldFmt
+$ #Old host format warning#
+  The plugin has detected that you are trying to save a record in an obsolete format.
+  The old (obsolete) format saves the full URL of the server as a name of the parameters' group.
+
+  This leads to the following two limitations:
+    1. impossible to store more than one record with the same server URL;
+    2. operating system imposes certain limitations on symbols allowable in the name of a key;
+
+  On the other hand, old plugin versions can't handle new records format correctly.
+
+  Choose #Overwrite# to remove an old record and overwrite it using the new format,
+  or #Cancel# to cancel the save operation.
+
+  #Note:# Plugin can save data only in the format which is native to the current plugin version.
+
+@FTPExtGlobal
+$ #Extended global options#
+
+ #Dup FF in commands#
+   Default: OFF
+   If value is set duplicate all FF characters sent to server.
+
+ #UnDup FF from PWD#
+   Default: OFF
+   If value is set plugin will replace FF characters pair by single one.
+
+ #Show view/edit progress#
+   Default: OFF
+   If value is set display full progress dialog even on silent operations (before and after view or edit file).
+
+ #Use connection backup#
+   Default: ON
+   If this variable is set to nonzero value plugin allow you to use ftp lists (accessible through Utilities menu).
+   If value is OFF plugin will not use connections list.
+
+ #Send command line commands#
+   Default: TRUE
+   This value is default for "Process command line" setting for new hosts entries.
+
+ #Do not show window on error#
+   Default: FALSE
+   If this value set to TRUE (nonzero) plugin will not show error in expanded CMD window
+
+ #Ask login at login fail#
+   Default: TRUE
+   If TRUE plugin will ask user for name and password after login fail.
+
+ #Auto anonymous#
+   Default: TRUE
+   Automatically fill user name with "anonymous" if name field left blank.
+
+ #Close connection on \"..\"#
+   Default: TRUE
+   If set plugin closes server connection and back to hosts mode if you go up at the topmost directory level (f.i. by selecting ".." panel entry).
+
+@FTPCommands
+$ #Hi-level ftp commands available in plugin#
+
+ Hi-level FTP commands can be entered in connected state using #CMD# command line command (See command ~line commands~@FTPCommandLineHelp@).
+ Each command in the list contains command name (case insensitive) and optional parameter (or several parameters) delimited with one or more spaces.
+
+ ~Syntax description
+ Parameters can be mandatory (enclosed with symbols '<' and '>') and optional (enclosed with symbols '[' and ']').
+ The text "..." is used then command can accept any number of parameters.
+
+ ~Rules used to interpret command string
+ - You can use quotation (enclose with '"' characters) to combine several parameters in the single one or include spaces into parameters.
+ - The tab character (symbol with code 0x7 or \\t) is interpreted as space character and need to be quoted as regular space.
+ - To specify any character as regular you can use mask it with '\'.
+   For instance, text "text\ string" will be interpreted as "text string".
+
+ ~Commands list
+
+  #ascii#
+  #image#
+  #binary#
+    Switch transfers in different modes.
+
+  #disconnect#
+  #close#
+    Terminates current connection and switch to hosts mode.
+
+  #quit#
+  #bye#
+    Finish current plugin work and close plugin panel.
+
+  #cd <path>#
+    Change directory.
+
+  #cdup#
+    Change directory to upper level. Analog of "cd .." command.
+
+  #ls [<path>]#
+  #dir [<path>]#
+  #nlist [<path>]#
+    Get files listing.
+
+  #size <file>#
+    Get size of file.
+
+  #send <local> [<remote>]#
+  #put <local> [<remote>]#
+    Upload <local> file to the server. If remote name omitted the name of local and current directory will be used.
+
+  #append <local> [<remote>]#
+    Resume uploading local file to remote file starting from remote file size.
+
+  #recv <remote> [<local>]#
+  #get <remote> [<local>]#
+    Download file from ftp. If local file name ommited the name of remote file will be used.
+
+  #reget <remote> [<local>]#
+    Resume downloading <remote> to <local> file starting from <local> file size.
+
+  #newer <remote> [<local>]#
+    Download only new files.
+    Unrealized!
+
+  #mkdir <dir>#
+    Create directory.
+
+  #modtime <file>#
+    Get last modification time of <file>.
+
+  #open <site> [<port> [<user> [<pwd>]]]#
+    Close current connection and connect to different server using specified connection parameters, but all other settings used from current connection.
+
+  #proxy <command> [<cmd params>]#
+    Execute command in proxy mode. Temporarily switch to use proxy, execute specified command and switch proxy usage OFF back. Meanfull only if proxy not used.
+
+  #sendport#
+    Switch. Toggles sending PORT command before any data connection.
+
+  #pwd#
+    Display current ftp directory
+
+  #rhelp [<command>]#
+    Request help on server commands
+
+  #rename <old name> <new name>#
+    Rename <old file> to <new name>. Can be used with directories.
+
+  #reset#
+   Read one server reply string.
+
+  #restart <restart point>#
+    Set restart offset.
+
+  #delete <file>#
+    Delete <file>
+
+  #rmdir <dirname>#
+    Delete directory.
+
+  #site <command> [...]#
+    Execute site-specified command.
+
+  #system (exec SYST command)#
+    Execute command on remote side (server specific).
+
+  #user <user> [<pwd>] [<account command>]#
+    Change current user account (server specific).
+
+  #chmod <file> <mode>#
+    Change <file> access mode to <mode>.
+
+  #umask <umask>#
+    Sets default upload files mask to <umask>
+
+  #account [...]#
+    Set server account properties (server specific).
+
+  #runique#
+  #sunique#
+  #rstatus [<command>]#
+  #quote <command> [...]#
+  #idle <time>#
+    Nieznane
+
+@FTPQ  ueueAddItem
+$ #Dodawanie elementów do kolejki ftp#
+
+@FTPExtHost
+$ #Rozszerzone opcje hosta#
