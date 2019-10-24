@@ -1,0 +1,53 @@
+﻿.Language=Polish,Polish (Polski)
+.PluginContents=Zaawansowane porównywanie
+
+@Contents
+$ #Zaawansowane porównywanie#
+    Wtyczka jest podobna do polecenia FAR "Porównaj foldery",
+ale dodatkowo można ustawić dodatkowe opcje porównywania:
+
+#Przetwarzaj:#
+
+  #podfoldery#               Compare files in subfolders.
+                           Cannot be used for plugin panels.
+
+  #maximum folder depth#     Don't compare folders of bigger depth
+                           than specified.
+
+  #selected items only#      Compare selected files/folders only.
+                           This option is ignored for panels with
+                           no selected items (the whole panel
+                           contents will be compared in that case).
+
+#Porównaj:#
+
+  #czas#                     Compare file modification time.
+                           Unlike the internal FAR command, this
+                           option will mark files on both panels,
+                           not the newer files only.
+
+  #różnica dwóch sekund#     Compare with two seconds precision.
+                           Otherwise complete file time, including
+                           milliseconds, will be compared.
+
+  #ignore possible time#     Ignore file time difference that is an
+  #zone differences#         exact multiple of 15 minutes (i.e. half
+                           an hour, 2 hours and 15 minutes, 12 hours).
+                           Maximum ignored difference is 26 hours.
+
+  #wielkość#                 Porównuje wielkość pliku.
+
+  #zawartość#                Porównuje wielkość pliku.
+                           Nie może być uzyte dla porównania paneli.
+
+  #ignore differences in#    Ignore differences in new line
+  #new line characters#      characters (i.e. when comparing Unix and
+                           Windows files).
+
+  #ignore whitespace#        Ignore whitespace when comparing file
+                           contents (ignores spaces, tabs and new line
+                           characters).
+
+
+  #Display a message if no#  Display a message if all compared
+  #differences were found#   items seem to be identical.
