@@ -1,0 +1,24 @@
+﻿.Language=Polish,Polish (Polski)
+
+"Polecenia FAR"
+
+"Separator polecenia/obiektu"
+
+"&Ukryj zewnętrzne wyjście polecenia"
+"&Pokaż zewnętrzne wyjście polecenia"
+"D&uplicate Intercepted output to screen"
+
+"Intercept &both stdout and stderr"
+"Intercept std&out only"
+"Intercept std&err only"
+"Intercept stdout &and stderr separately"
+"Podgląd/edycja p&ustych plików"
+
+"Edytuj &nowe pliki"
+
+"&Wielkość odczytu danych"
+"<stdout>:"
+"<stderr>:"
+
+"&OK"
+"Anuluj"
