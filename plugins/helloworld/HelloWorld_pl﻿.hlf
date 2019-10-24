@@ -1,0 +1,23 @@
+﻿.Language=Polish,Polish (Polski)
+.PluginContents=Witaj świecie!
+
+@Contents
+$ #Witaj świecie!#
+  Ta wtyczka jest przeznaczona dla tych programistów, którzy stawiają pierwsze kroki
+w programowaniu wtyczek.
+
+  To już tradycja - każde środowisko programowania zaczyna od prostego programu "Witaj świecie".
+Podobnie działa ta wtyczka.
+
+  Wtyczka jest napisana w języku C.
+
+  Podstawowe warunki to:
+
+   "...It would be desired to see a source code, which when executed
+   shows on the screen the dialog box with the text and OK button.
+   Would be better in C. Whether I want too much? Well, I don't know
+   C++ and do not want to learn it. And, as far as I have understood,
+   plugins.hpp can be used with the C compiler..."
+
+
+  I tak rodzi się historia :-)
