@@ -76,6 +76,8 @@ enum
 	MKDIR_SEPARATOR2,
 	MKDIR_OK,
 	MKDIR_CANCEL,
+
+	MKDIR_COUNT
 };
 
 static intptr_t MkDirDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
@@ -109,7 +111,7 @@ void ShellMakeDir(Panel *SrcPanel)
 	ComboList.Items[2].Text=msg(lng::MMakeFolderLinkSymlink).c_str();
 	ComboList.Items[0].Flags|=LIF_SELECTED;
 
-	auto MkDirDlg = MakeDialogItems(
+	auto MkDirDlg = MakeDialogItems<MKDIR_COUNT>(
 	{
 		{DI_DOUBLEBOX, {{3,  1}, {72, 10}}, DIF_NONE, msg(lng::MMakeFolderTitle), },
 		{DI_TEXT,      {{5,  2}, {0,  2 }}, DIF_NONE, msg(lng::MCreateFolder), },

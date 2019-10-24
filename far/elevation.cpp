@@ -473,6 +473,8 @@ enum ELEVATIONAPPROVEDLGITEM
 	AAD_SEPARATOR,
 	AAD_BUTTON_OK,
 	AAD_BUTTON_SKIP,
+
+	AAD_COUNT,
 };
 
 static intptr_t ElevationApproveDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
@@ -514,7 +516,7 @@ static void ElevationApproveDlgSync(const EAData& Data)
 
 	enum {DlgX=64,DlgY=12};
 
-	auto ElevationApproveDlg = MakeDialogItems(
+	auto ElevationApproveDlg = MakeDialogItems<AAD_COUNT>(
 	{
 		{ DI_DOUBLEBOX, {{3,  1     }, {DlgX-4, DlgY-2}}, DIF_NONE, msg(lng::MAccessDenied), },
 		{ DI_TEXT,      {{5,  2     }, {0,      2     }}, DIF_NONE, msg(is_admin()? lng::MElevationRequiredPrivileges : lng::MElevationRequired), },

@@ -620,7 +620,7 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 bool GetColorDialogInternal(FarColor& Color, bool const bCentered, const FarColor* const BaseColor)
 {
-	auto ColorDlg = MakeDialogItems(
+	auto ColorDlg = MakeDialogItems<cd_count>(
 	{
 		{ DI_DOUBLEBOX,   {{3,  1 }, {35, 14}}, DIF_NONE, msg(lng::MSetColorTitle), },
 		{ DI_SINGLEBOX,   {{5,  2 }, {18, 7 }}, DIF_NONE, msg(lng::MSetColorForeground), },

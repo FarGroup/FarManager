@@ -604,6 +604,8 @@ enum EditCodePagesDialogControls
 	EDITCP_OK,
 	EDITCP_CANCEL,
 	EDITCP_RESET,
+
+	EDITCP_COUNT
 };
 
 // Каллбак для диалога редактирования имени кодовой страницы
@@ -658,7 +660,7 @@ void codepages::EditCodePageName()
 		return;
 	CodePageName.erase(0, BoxPosition + 2);
 
-	auto EditDialog = MakeDialogItems(
+	auto EditDialog = MakeDialogItems<EDITCP_COUNT>(
 	{
 		{ DI_DOUBLEBOX, {{3,  1}, {50, 5}}, DIF_NONE, msg(lng::MGetCodePageEditCodePageName), },
 		{ DI_EDIT,      {{5,  2}, {48, 2}}, DIF_FOCUS | DIF_HISTORY, CodePageName, },
@@ -668,7 +670,7 @@ void codepages::EditCodePageName()
 		{ DI_BUTTON,    {{0,  4}, {0,  4}}, DIF_CENTERGROUP, msg(lng::MGetCodePageResetCodePageName), }
 	});
 
-	EditDialog[1].strHistory = L"CodePageName"sv;
+	EditDialog[EDITCP_EDIT].strHistory = L"CodePageName"sv;
 
 	const auto Dlg = Dialog::create(EditDialog, &codepages::EditDialogProc, this);
 	Dlg->SetPosition({ -1, -1, 54, 7 });

@@ -816,6 +816,8 @@ enum EditMenuItems
 	EM_SEPARATOR2,
 	EM_BUTTON_OK,
 	EM_BUTTON_CANCEL,
+
+	EM_COUNT
 };
 
 intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
@@ -936,7 +938,7 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 		const int DLG_X=76, DLG_Y=SubMenu?10:22;
 		const auto State = SubMenu? DIF_HIDDEN | DIF_DISABLE : DIF_NONE;
 
-		auto EditDlg = MakeDialogItems(
+		auto EditDlg = MakeDialogItems<EM_COUNT>(
 		{
 			{ DI_DOUBLEBOX, {{3,  1      }, {DLG_X-4, DLG_Y-2}}, DIF_NONE, msg(SubMenu? lng::MEditSubmenuTitle : lng::MEditMenuTitle), },
 			{ DI_TEXT,      {{5,  2      }, {0,       2      }}, DIF_NONE, msg(lng::MEditMenuHotKey), },

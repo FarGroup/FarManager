@@ -1259,9 +1259,11 @@ void Options::SetFilePanelModes()
 			MD_BUTTON_OK,
 			MD_BUTTON_RESET,
 			MD_BUTTON_CANCEL,
+
+			MD_COUNT
 		};
 
-		auto ModeDlg = MakeDialogItems(
+		auto ModeDlg = MakeDialogItems<MD_COUNT>(
 		{
 			{ DI_DOUBLEBOX, {{3,  1 }, {72, 17}}, DIF_NONE, AddNewMode ? L""sv : ModeListMenu[CurMode].Name, },
 			{ DI_TEXT,      {{5,  2 }, {0,  2 }}, DIF_NONE, msg(lng::MEditPanelModeName), },
@@ -2308,6 +2310,13 @@ void Options::Save(bool Manual)
 	Global->CtrlObject->Macro.SaveMacros(Manual);
 }
 
+enum
+{
+	ac_item_listbox,
+
+	ac_count
+};
+
 intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
 	const auto GetConfigItem = [Dlg](int Index)
@@ -2315,6 +2324,28 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 		return Index == -1 ?
 			nullptr : // Everything is filtered out
 			reinterpret_cast<const FARConfigItem*>(Dlg->GetListItemSimpleUserData(0, Index));
+	};
+
+	const auto EditItem = [&](bool Hex = false)
+	{
+		FarListInfo ListInfo{ sizeof(ListInfo) };
+		Dlg->SendMessage(DM_LISTINFO, ac_item_listbox, &ListInfo);
+
+		const auto CurrentItem = GetConfigItem(ListInfo.SelectPos);
+		if (!CurrentItem)
+			return;
+
+		if (!CurrentItem->Edit(Hex))
+			return;
+
+		SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
+
+		auto& ConfigStrings = *reinterpret_cast<std::vector<string>*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+		FarListUpdate flu{ sizeof(flu), ListInfo.SelectPos, CurrentItem->MakeListItem(ConfigStrings[ListInfo.SelectPos]) };
+		Dlg->SendMessage(DM_LISTUPDATE, ac_item_listbox, &flu);
+
+		FarListPos flp{ sizeof(flp), ListInfo.SelectPos, ListInfo.TopPos };
+		Dlg->SendMessage(DM_LISTSETCURPOS, ac_item_listbox, &flp);
 	};
 
 	switch (Msg)
@@ -2326,9 +2357,9 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 			FarListTitles Titles{ sizeof(Titles) };
 			Titles.Title = msg(lng::MConfigEditor).c_str();
 			Titles.Bottom = msg(lng::MConfigEditorHelp).c_str();
-			Dlg->SendMessage(DM_LISTSETTITLES, 0, &Titles);
+			Dlg->SendMessage(DM_LISTSETTITLES, ac_item_listbox, &Titles);
 
-			Dlg->SendMessage(DM_LISTSORT, 0, nullptr);
+			Dlg->SendMessage(DM_LISTSORT, ac_item_listbox, nullptr);
 		}
 		break;
 
@@ -2339,14 +2370,14 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 			COORD Size{ static_cast<SHORT>(std::max(ScrX - 4, 60)), static_cast<SHORT>(std::max(ScrY - 2, 20)) };
 			Dlg->SendMessage(DM_RESIZEDIALOG, 0, &Size);
 			SMALL_RECT ListPos{ 3, 1, static_cast<SHORT>(Size.X - 4), static_cast<SHORT>(Size.Y - 2) };
-			Dlg->SendMessage(DM_SETITEMPOSITION, 0, &ListPos);
+			Dlg->SendMessage(DM_SETITEMPOSITION, ac_item_listbox, &ListPos);
 		}
 		break;
 
 	case DN_CONTROLINPUT:
 		{
 			const auto record = static_cast<const INPUT_RECORD*>(Param2);
-			if (record->EventType==KEY_EVENT)
+			if (Param1 == ac_item_listbox && record->EventType==KEY_EVENT)
 			{
 				switch (InputRecordToKey(record))
 				{
@@ -2366,11 +2397,11 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 					break;
 
 				case KEY_F4:
-					Dlg->SendMessage(DM_CLOSE, 0, nullptr);
+					EditItem();
 					break;
 
 				case KEY_SHIFTF4:
-					Dlg->SendMessage(DM_CLOSE, 1, nullptr);
+					EditItem(true);
 					break;
 
 				case KEY_CTRLH:
@@ -2385,7 +2416,7 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 						for(int i = 0; i < static_cast<int>(ListInfo.ItemsNumber); ++i)
 						{
 							FarListGetItem Item={sizeof(FarListGetItem), i};
-							Dlg->SendMessage(DM_LISTGETITEM, 0, &Item);
+							Dlg->SendMessage(DM_LISTGETITEM, Param1, &Item);
 							bool NeedUpdate = false;
 							if(HideUnchanged)
 							{
@@ -2406,7 +2437,7 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 							if(NeedUpdate)
 							{
 								FarListUpdate UpdatedItem={sizeof(FarListGetItem), i, Item.Item};
-								Dlg->SendMessage(DM_LISTUPDATE, 0, &UpdatedItem);
+								Dlg->SendMessage(DM_LISTUPDATE, Param1, &UpdatedItem);
 							}
 						}
 						HideUnchanged = !HideUnchanged;
@@ -2418,28 +2449,13 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 		break;
 
 	case DN_CLOSE:
-		if (Param1 == 0 || Param1 == 1)
+		if (Param1 == ac_item_listbox)
 		{
-			FarListInfo ListInfo = {sizeof(ListInfo)};
-			Dlg->SendMessage(DM_LISTINFO, 0, &ListInfo);
-
-			if (const auto CurrentItem = GetConfigItem(ListInfo.SelectPos))
-			{
-				if (CurrentItem->Edit(Param1 != 0))
-				{
-					SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
-
-					FarListUpdate flu = { sizeof(flu), ListInfo.SelectPos };
-					auto& ConfigStrings = *reinterpret_cast<std::vector<string>*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
-					flu.Item = CurrentItem->MakeListItem(ConfigStrings[ListInfo.SelectPos]);
-					Dlg->SendMessage(DM_LISTUPDATE, 0, &flu);
-					FarListPos flp = { sizeof(flp), ListInfo.SelectPos, ListInfo.TopPos };
-					Dlg->SendMessage(DM_LISTSETCURPOS, 0, &flp);
-				}
-			}
+			EditItem(false);
 			return FALSE;
 		}
 		break;
+
 	default:
 		break;
 	}
@@ -2453,7 +2469,7 @@ bool Options::AdvancedConfig(config_type Mode)
 
 	const int DlgWidth = std::max(ScrX-4, 60), DlgHeight = std::max(ScrY-2, 20);
 
-	auto AdvancedConfigDlg = MakeDialogItems(
+	auto AdvancedConfigDlg = MakeDialogItems<ac_count>(
 	{
 		{ DI_LISTBOX, {{3, 1}, {DlgWidth-4, DlgHeight-2}}, DIF_NONE, L"far:config"sv },
 	});
@@ -2466,7 +2482,7 @@ bool Options::AdvancedConfig(config_type Mode)
 
 	FarList Items={sizeof(FarList), items.size(), items.data()};
 
-	AdvancedConfigDlg[0].ListItems = &Items;
+	AdvancedConfigDlg[ac_item_listbox].ListItems = &Items;
 
 	const auto Dlg = Dialog::create(AdvancedConfigDlg, &Options::AdvancedConfigDlgProc, &Strings);
 	Dlg->SetHelp(L"FarConfig"sv);

@@ -141,6 +141,13 @@ struct InitDialogItem
 
 std::vector<DialogItemEx> MakeDialogItems(span<const InitDialogItem> Items);
 
+template<size_t Size, size_t N>
+std::vector<DialogItemEx> MakeDialogItems(InitDialogItem const (&Items)[N])
+{
+	return MakeDialogItems(Items);
+}
+
+
 class DlgEdit;
 class Plugin;
 class Dialog;

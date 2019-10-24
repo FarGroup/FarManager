@@ -89,6 +89,10 @@ enum exception_dialog
 	ed_edit_function,
 	ed_text_module,
 	ed_edit_module,
+	ed_text_far_version,
+	ed_edit_far_version,
+	ed_text_os_version,
+	ed_edit_os_version,
 	ed_separator,
 	ed_button_terminate,
 	ed_button_stack,
@@ -96,7 +100,9 @@ enum exception_dialog
 	ed_button_ignore,
 
 	ed_first_button = ed_button_terminate,
-	ed_last_button = ed_button_ignore
+	ed_last_button = ed_button_ignore,
+
+	ed_items_count
 };
 
 static void ShowStackTrace(const std::vector<const void*>& Stack, const std::vector<const void*>* NestedStack)
@@ -345,7 +351,7 @@ static reply ExcDialog(
 
 	const auto DY = 17;
 
-	auto EditDlg = MakeDialogItems(
+	auto EditDlg = MakeDialogItems<ed_items_count>(
 	{
 		{ DI_DOUBLEBOX, {{3,   1 }, {DlgW-4,DY-2}}, DIF_NONE, msg(lng::MExcTrappedException), },
 		{ DI_TEXT,      {{C1X, 2 }, {C1X+C1W, 2 }}, DIF_NONE, msg(lng::MExcException), },

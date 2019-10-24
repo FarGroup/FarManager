@@ -1,4 +1,4 @@
-﻿/*
+/*
 macro.cpp
 
 Макросы
@@ -1100,6 +1100,8 @@ enum MACROSETTINGSDLG
 	MS_SEPARATOR4,
 	MS_BUTTON_OK,
 	MS_BUTTON_CANCEL,
+
+	MS_COUNT
 };
 
 intptr_t KeyMacro::ParamMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
@@ -1145,28 +1147,27 @@ bool KeyMacro::GetMacroSettings(int Key, unsigned long long& Flags, string_view 
 	/*
 	          1         2         3         4         5         6
 	   3456789012345678901234567890123456789012345678901234567890123456789
-	 1 г=========== Параметры макрокоманды для 'CtrlP' ==================¬
-	 2 | Последовательность:                                             |
-	 3 | _______________________________________________________________ |
-	 4 | Описание:                                                       |
-	 5 | _______________________________________________________________ |
-	 6 |-----------------------------------------------------------------|
-	 7 | [ ] Разрешить во время выполнения вывод на экран                |
-	 8 | [ ] Выполнять после запуска FAR                                 |
-	 9 |-----------------------------------------------------------------|
-	10 | [ ] Активная панель             [ ] Пассивная панель            |
-	11 |   [?] На панели плагина           [?] На панели плагина         |
-	12 |   [?] Выполнять для папок         [?] Выполнять для папок       |
-	13 |   [?] Отмечены файлы              [?] Отмечены файлы            |
-	14 |-----------------------------------------------------------------|
-	15 | [?] Пустая командная строка                                     |
-	16 | [?] Отмечен блок                                                |
-	17 |-----------------------------------------------------------------|
-	18 |               [ Продолжить ]  [ Отменить ]                      |
-	19 L=================================================================+
-
+	 1 ╔══════════════════ Macro settings for 'CtrlP' ═══════════════════╗
+	 2 ║ Sequence:                                                       ║
+	 3 ║ _______________________________________________________________↓║
+	 4 ║ Description:                                                    ║
+	 5 ║ _______________________________________________________________↓║
+	 6 ╟─────────────────────────────────────────────────────────────────╢
+	 7 ║ [ ] Allow screen output while executing macro                   ║
+	 8 ║ [ ] Execute after Far start                                     ║
+	 9 ╟─────────────────────────────────────────────────────────────────╢
+	10 ║ [ ] Active panel                [ ] Passive panel               ║
+	11 ║   [?] Plugin panel                [?] Plugin panel              ║
+	12 ║   [?] Execute for folders         [?] Execute for folders       ║
+	13 ║   [?] Selection present           [?] Selection present         ║
+	14 ╟─────────────────────────────────────────────────────────────────╢
+	15 ║ [?] Empty command line                                          ║
+	16 ║ [?] Selection block present                                     ║
+	17 ╟─────────────────────────────────────────────────────────────────╢
+	18 ║                        { OK } [ Cancel ]                        ║
+	19 ╚═════════════════════════════════════════════════════════════════╝
 	*/
-	auto MacroSettingsDlg = MakeDialogItems(
+	auto MacroSettingsDlg = MakeDialogItems<MS_COUNT>(
 	{
 		{ DI_DOUBLEBOX, {{3,  1 }, {69, 19}}, DIF_NONE, },
 		{ DI_TEXT,      {{5,  2 }, {0,  2 }}, DIF_NONE, msg(lng::MMacroSettingsSequence), },
@@ -5162,12 +5163,24 @@ M1:
 int KeyMacro::AssignMacroKey(DWORD &MacroKey, unsigned long long& Flags)
 {
 	/*
-	  +------ Define macro ------+
-	  | Press the desired key    |
-	  | ________________________ |
-	  +--------------------------+
+	          1         2         3
+	   3456789012345678901234567890
+	 1 ╔══════ Define macro ══════╗
+	 2 ║  Press the desired key   ║
+	 3 ║ ________________________↓║
+	 4 ╚══════════════════════════╝
 	*/
-	auto MacroAssignDlg = MakeDialogItems(
+
+	enum
+	{
+		mad_doublebox,
+		mad_text,
+		mad_combobox,
+
+		mad_count
+	};
+
+	auto MacroAssignDlg = MakeDialogItems<mad_count>(
 	{
 		{DI_DOUBLEBOX, {{3,  1}, {30, 4}}, DIF_NONE, msg(lng::MDefineMacroTitle), },
 		{DI_TEXT,      {{-1, 2}, {0,  2}}, DIF_NONE, msg(lng::MDefineMacro), },
@@ -5183,7 +5196,7 @@ int KeyMacro::AssignMacroKey(DWORD &MacroKey, unsigned long long& Flags)
 	Dlg->Process();
 	Global->IsProcessAssignMacroKey--;
 
-	if (Dlg->GetExitCode() == -1)
+	if (Dlg->GetExitCode() != mad_combobox)
 		return 0;
 
 	MacroKey = Param.Key;

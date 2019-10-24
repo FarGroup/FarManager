@@ -101,6 +101,8 @@ enum enumOpenEditor
 	ID_OE_SEPARATOR2,
 	ID_OE_OK,
 	ID_OE_CANCEL,
+
+	ID_OE_COUNT
 };
 
 
@@ -129,7 +131,7 @@ static intptr_t hndOpenEditor(Dialog* Dlg, intptr_t msg, intptr_t param1, void* 
 
 bool dlgOpenEditor(string &strFileName, uintptr_t &codepage)
 {
-	auto EditDlg = MakeDialogItems(
+	auto EditDlg = MakeDialogItems<ID_OE_COUNT>(
 	{
 		{ DI_DOUBLEBOX, {{3,  1}, {72, 8}}, DIF_NONE, msg(lng::MEditTitle), },
 		{ DI_TEXT,      {{5,  2}, {0 , 2}}, DIF_NONE, msg(lng::MEditOpenCreateLabel), },
@@ -204,6 +206,8 @@ enum enumSaveFileAs
 	ID_SF_SEPARATOR3,
 	ID_SF_OK,
 	ID_SF_CANCEL,
+
+	ID_SF_COUNT
 };
 
 static intptr_t hndSaveFileAs(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
@@ -272,7 +276,7 @@ static bool dlgSaveFileAs(string &strFileName, eol::type& Eol, uintptr_t &codepa
 {
 	const auto ucp = IsUnicodeOrUtfCodePage(codepage);
 
-	auto EditDlg = MakeDialogItems(
+	auto EditDlg = MakeDialogItems<ID_SF_COUNT>(
 	{
 		{ DI_DOUBLEBOX,    {{3,  1 }, {72, 15}}, DIF_NONE, msg(lng::MEditTitle), },
 		{ DI_TEXT,         {{5,  2 }, {0,  2 }}, DIF_NONE, msg(lng::MEditSaveAs), },

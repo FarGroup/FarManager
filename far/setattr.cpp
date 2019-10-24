@@ -125,6 +125,8 @@ enum SETATTRDLG
 	SA_BUTTON_SET,
 	SA_BUTTON_SYSTEMDLG,
 	SA_BUTTON_CANCEL,
+
+	SA_COUNT
 };
 
 constexpr size_t main_attributes_count = SA_ATTR_LAST - SA_ATTR_FIRST + 1;
@@ -721,7 +723,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 	const auto C2 = C1 + (DlgX - 10) / 2;
 	const auto AR = 8;
 
-	auto AttrDlg = MakeDialogItems(
+	auto AttrDlg = MakeDialogItems<SA_COUNT>(
 	{
 		{ DI_DOUBLEBOX, {{ 3,      1     }, {DlgX-4,  DlgY-2}}, DIF_NONE, msg(lng::MSetAttrTitle), },
 		{ DI_TEXT,      {{-1,      2     }, {0,       2     }}, DIF_NONE, msg(lng::MSetAttrFor), },

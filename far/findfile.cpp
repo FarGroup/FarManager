@@ -252,6 +252,8 @@ enum ADVANCEDDLG
 	AD_SEPARATOR2,
 	AD_BUTTON_OK,
 	AD_BUTTON_CANCEL,
+
+	AD_COUNT
 };
 
 enum FINDASKDLG
@@ -285,6 +287,8 @@ enum FINDASKDLG
 	FAD_BUTTON_FILTER,
 	FAD_BUTTON_ADVANCED,
 	FAD_BUTTON_CANCEL,
+
+	FAD_COUNT
 };
 
 enum FINDASKDLGCOMBO
@@ -621,7 +625,7 @@ intptr_t FindFiles::AdvancedDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, 
 
 void FindFiles::AdvancedDialog() const
 {
-	auto AdvancedDlg = MakeDialogItems(
+	auto AdvancedDlg = MakeDialogItems<AD_COUNT>(
 	{
 		{ DI_DOUBLEBOX, {{3,  1 }, {52, 11}}, DIF_NONE, msg(lng::MFindFileAdvancedTitle), },
 		{ DI_TEXT,      {{5,  2 }, {0,  2 }}, DIF_NONE, msg(lng::MFindFileSearchFirst), },
@@ -2559,7 +2563,7 @@ bool FindFiles::FindFilesProcess()
 	int DlgWidth = ScrX + 1 - 2;
 	int DlgHeight = ScrY + 1 - 2;
 
-	auto FindDlg = MakeDialogItems(
+	auto FindDlg = MakeDialogItems<FAD_COUNT>(
 	{
 		{ DI_DOUBLEBOX, {{3,                    1}, {DlgWidth-4, DlgHeight-2}}, DIF_SHOWAMPERSAND, strTitle, },
 		{ DI_LISTBOX,   {{4,                    2}, {DlgWidth-5, DlgHeight-7}}, DIF_LISTNOBOX|DIF_DISABLE, },
@@ -2879,7 +2883,7 @@ FindFiles::FindFiles():
 		PrepareDriveNameStr(strSearchFromRoot);
 		const wchar_t VSeparator[] = { BoxSymbols[BS_T_H1V1], BoxSymbols[BS_V1], BoxSymbols[BS_V1], BoxSymbols[BS_V1], BoxSymbols[BS_V1], BoxSymbols[BS_B_H1V1], 0 };
 
-		auto FindAskDlg = MakeDialogItems(
+		auto FindAskDlg = MakeDialogItems<FAD_COUNT>(
 		{
 			{ DI_DOUBLEBOX,   {{3,  1 }, {76, 19}}, DIF_NONE, msg(lng::MFindFileTitle), },
 			{ DI_TEXT,        {{5,  2 }, {0,  2 }}, DIF_NONE, msg(lng::MFindFileMasks), },

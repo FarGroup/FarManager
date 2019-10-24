@@ -3952,9 +3952,19 @@ const string& FileList::GetComputerName() const
 
 long FileList::SelectFiles(int Mode, string_view const Mask)
 {
-	filemasks FileMask; // Класс для работы с масками
+	enum
+	{
+		sf_doublebox,
+		sf_edit,
+		sf_separator,
+		sf_button_ok,
+		sf_button_filter,
+		sf_button_cancel,
 
-	auto SelectDlg = MakeDialogItems(
+		sf_count
+	};
+
+	auto SelectDlg = MakeDialogItems<sf_count>(
 	{
 		{ DI_DOUBLEBOX, {{3,  1}, {51, 5}}, DIF_NONE, },
 		{ DI_EDIT,      {{5,  2}, {49, 2}}, DIF_FOCUS | DIF_HISTORY, },
@@ -3964,7 +3974,7 @@ long FileList::SelectFiles(int Mode, string_view const Mask)
 		{ DI_BUTTON,    {{0,  4}, {0,  4}}, DIF_CENTERGROUP, msg(lng::MCancel), },
 	});
 
-	SelectDlg[1].strHistory = L"Masks"sv;
+	SelectDlg[sf_edit].strHistory = L"Masks"sv;
 
 	FileFilter Filter(this, FFT_SELECT);
 	bool bUseFilter = false;
@@ -3981,6 +3991,8 @@ long FileList::SelectFiles(int Mode, string_view const Mask)
 
 	if (m_CurFile >= static_cast<int>(m_ListData.size()))
 		return 0;
+
+	filemasks FileMask; // Класс для работы с масками
 
 	int RawSelection=FALSE;
 
@@ -4028,12 +4040,8 @@ long FileList::SelectFiles(int Mode, string_view const Mask)
 		{
 			if (Mode==SELECT_ADD || Mode==SELECT_REMOVE)
 			{
-				SelectDlg[1].strData = strPrevMask;
-
-				if (Mode==SELECT_ADD)
-					SelectDlg[0].strData = msg(lng::MSelectTitle);
-				else
-					SelectDlg[0].strData = msg(lng::MUnselectTitle);
+				SelectDlg[sf_edit].strData = strPrevMask;
+				SelectDlg[sf_doublebox].strData = msg(Mode == SELECT_ADD? lng::MSelectTitle : lng::MUnselectTitle);
 
 				{
 					const auto Dlg = Dialog::create(SelectDlg);
@@ -4046,7 +4054,7 @@ long FileList::SelectFiles(int Mode, string_view const Mask)
 						Dlg->ClearDone();
 						Dlg->Process();
 
-						if (Dlg->GetExitCode() == 4)
+						if (Dlg->GetExitCode() == sf_button_filter)
 						{
 							Filter.FilterEdit();
 							//Рефреш текущему времени для фильтра сразу после выхода из диалога
@@ -4055,10 +4063,10 @@ long FileList::SelectFiles(int Mode, string_view const Mask)
 							break;
 						}
 
-						if (Dlg->GetExitCode()!=3)
+						if (Dlg->GetExitCode() != sf_button_ok)
 							return 0;
 
-						strMask = SelectDlg[1].strData;
+						strMask = SelectDlg[sf_edit].strData;
 
 						if (FileMask.Set(strMask)) // Проверим вводимые пользователем маски на ошибки
 						{
@@ -4087,9 +4095,7 @@ long FileList::SelectFiles(int Mode, string_view const Mask)
 		{
 			if (i == L']' || i == L'[')
 			{
-				strMask += L'[';
-				strMask += i;
-				strMask += L']';
+				append(strMask, L'[', i, L']');
 			}
 			else
 			{

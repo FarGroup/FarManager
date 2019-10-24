@@ -339,6 +339,8 @@ enum EDITTYPERECORD
 	ETR_SEPARATOR2,
 	ETR_BUTTON_OK,
 	ETR_BUTTON_CANCEL,
+
+	ETR_COUNT
 };
 
 static intptr_t EditTypeRecordDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
@@ -380,7 +382,8 @@ static intptr_t EditTypeRecordDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 static bool EditTypeRecord(unsigned long long EditPos,bool NewRec)
 {
 	const int DlgX=76,DlgY=23;
-	auto EditDlg = MakeDialogItems(
+
+	auto EditDlg = MakeDialogItems<ETR_COUNT>(
 	{
 		{ DI_DOUBLEBOX, {{3,   1,   }, {DlgX-4, DlgY-2}}, DIF_NONE, msg(lng::MFileAssocTitle), },
 		{ DI_TEXT,      {{5,   2,   }, {0,      2     }}, DIF_NONE, msg(lng::MFileAssocMasks), },
@@ -404,7 +407,6 @@ static bool EditTypeRecord(unsigned long long EditPos,bool NewRec)
 		{ DI_BUTTON,    {{0,  DlgY-3}, {0,      DlgY-3}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MOk), },
 		{ DI_BUTTON,    {{0,  DlgY-3}, {0,      DlgY-3}}, DIF_CENTERGROUP, msg(lng::MCancel), },
 	});
-
 
 	EditDlg[ETR_EDIT_MASKS].strHistory = L"Masks"sv;
 

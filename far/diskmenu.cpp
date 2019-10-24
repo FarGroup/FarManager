@@ -266,21 +266,35 @@ private:
 static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 {
 	/*
-	0         1         2         3         4         5         6         7
-	0123456789012345678901234567890123456789012345678901234567890123456789012345
-	0
-	1   +-------- Отключение сетевого устройства --------+
-	2   | Вы хотите удалить соединение с устройством C:? |
-	3   | На устройство %c: отображен каталог            |
-	4   | \\host\share                                   |
-	6   +------------------------------------------------+
-	7   | [ ] Восстанавливать при входе в систему        |
-	8   +------------------------------------------------+
-	9   |              [ Да ]   [ Отмена ]               |
-	10  +------------------------------------------------+
-	11
+	          1         2         3         4         5
+	   345678901234567890123456789012345678901234567890
+	 1 ╔══════════ Disconnect network drive ══════════╗
+	 2 ║ Do you want to disconnect from the drive Z:? ║
+	 3 ║ The drive Z: is mapped to:                   ║
+	 4 ║ \\host\share                                 ║
+	 6 ╟──────────────────────────────────────────────╢
+	 7 ║ [ ] Reconnect at logon                       ║
+	 8 ╟──────────────────────────────────────────────╢
+	 9 ║              { Yes } [ Cancel ]              ║
+	10 ╚══════════════════════════════════════════════╝
 	*/
-	auto DCDlg = MakeDialogItems(
+
+	enum
+	{
+		rc_doublebox,
+		rc_text_1,
+		rc_text_2,
+		rc_text_3,
+		rc_separator_1,
+		rc_checkbox,
+		rc_separator_2,
+		rc_button_yes,
+		rc_button_cancel,
+
+		rc_count
+	};
+
+	auto DCDlg = MakeDialogItems<rc_count>(
 	{
 		{ DI_DOUBLEBOX, {{3,  1}, {72, 9}}, DIF_NONE, msg(lng::MChangeDriveDisconnectTitle), },
 		{ DI_TEXT,      {{5,  2}, {0,  2}}, DIF_SHOWAMPERSAND, },
@@ -293,16 +307,16 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 		{ DI_BUTTON,    {{0,  8}, {0,  8}}, DIF_CENTERGROUP, msg(lng::MCancel), },
 	});
 
-	DCDlg[1].strData = format(msg(lng::MChangeDriveDisconnectQuestion), Letter);
-	DCDlg[2].strData = format(msg(lng::MChangeDriveDisconnectMapped), Letter);
+	DCDlg[rc_text_1].strData = format(msg(lng::MChangeDriveDisconnectQuestion), Letter);
+	DCDlg[rc_text_2].strData = format(msg(lng::MChangeDriveDisconnectMapped), Letter);
 
-	const auto Len = std::max({ DCDlg[0].strData.size(), DCDlg[1].strData.size(), DCDlg[2].strData.size(), DCDlg[5].strData.size() });
+	const auto Len = std::max({ DCDlg[rc_doublebox].strData.size(), DCDlg[rc_text_1].strData.size(), DCDlg[rc_text_1].strData.size(), DCDlg[rc_checkbox].strData.size() });
 
 	{
 		string strMsgText;
 		// TODO: check result
 		DriveLocalToRemoteName(DRIVE_REMOTE, Letter, strMsgText);
-		DCDlg[3].strData = truncate_path(std::move(strMsgText), Len);
+		DCDlg[rc_text_3].strData = truncate_path(std::move(strMsgText), Len);
 	}
 
 	// проверяем - это было постоянное соединение или нет?
@@ -312,23 +326,23 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 	bool IsPersistent = true;
 	if (os::reg::key::open(os::reg::key::current_user, concat(L"Network\\"sv, Letter), KEY_QUERY_VALUE))
 	{
-		DCDlg[5].Selected = Global->Opt->ChangeDriveDisconnectMode;
+		DCDlg[rc_checkbox].Selected = Global->Opt->ChangeDriveDisconnectMode;
 	}
 	else
 	{
-		DCDlg[5].Flags |= DIF_DISABLE;
-		DCDlg[5].Selected = 0;
+		DCDlg[rc_checkbox].Flags |= DIF_DISABLE;
+		DCDlg[rc_checkbox].Selected = 0;
 		IsPersistent = false;
 	}
 
 	// скорректируем размеры диалога - для дизайнУ
-	DCDlg[0].X2 = DCDlg[0].X1 + Len + 3;
-	int ExitCode = 7;
+	DCDlg[rc_doublebox].X2 = DCDlg[rc_doublebox].X1 + Len + 3;
+	int ExitCode = rc_button_yes;
 
 	if (Global->Opt->Confirm.RemoveConnection)
 	{
 		const auto Dlg = Dialog::create(DCDlg);
-		Dlg->SetPosition({ -1, -1, static_cast<int>(DCDlg[0].X2 + 4), 11 });
+		Dlg->SetPosition({ -1, -1, static_cast<int>(DCDlg[rc_doublebox].X2 + 4), 11 });
 		Dlg->SetHelp(L"DisconnectDrive"sv);
 		Dlg->SetId(DisconnectDriveId);
 		Dlg->SetDialogMode(DMODE_WARNINGSTYLE);
@@ -336,12 +350,12 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 		ExitCode = Dlg->GetExitCode();
 	}
 
-	UpdateProfile = DCDlg[5].Selected?0:CONNECT_UPDATE_PROFILE;
+	UpdateProfile = DCDlg[rc_checkbox].Selected? 0 : CONNECT_UPDATE_PROFILE;
 
 	if (IsPersistent)
-		Global->Opt->ChangeDriveDisconnectMode = DCDlg[5].Selected == BSTATE_CHECKED;
+		Global->Opt->ChangeDriveDisconnectMode = DCDlg[rc_checkbox].Selected == BSTATE_CHECKED;
 
-	return ExitCode == 7;
+	return ExitCode == rc_button_yes;
 }
 
 static bool ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)

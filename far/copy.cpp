@@ -174,6 +174,8 @@ enum enumShellCopy
 	ID_SC_BTNTREE,
 	ID_SC_BTNFILTER,
 	ID_SC_BTNCANCEL,
+
+	ID_SC_COUNT
 };
 
 enum CopyMode
@@ -528,7 +530,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 
 	FARDIALOGITEMFLAGS no_tree = Global->Opt->Tree.TurnOffCompletely ? DIF_HIDDEN|DIF_DISABLE : 0;
 
-	auto CopyDlg = MakeDialogItems(
+	auto CopyDlg = MakeDialogItems<ID_SC_COUNT>(
 	{
 		{ DI_DOUBLEBOX,    {{3,  1 }, {DlgW - 4, DlgH - 2}}, DIF_NONE, msg(lng::MCopyDlgTitle), },
 		{ DI_TEXT,         {{5,  2 }, {0,  2 }}, DIF_NONE, },
@@ -550,7 +552,6 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 		{ DI_BUTTON,       {{0,  13}, {0,  13}}, DIF_CENTERGROUP | DIF_BTNNOCLOSE | no_tree, msg(lng::MCopyDlgTree), },
 		{ DI_BUTTON,       {{0,  13}, {0,  13}}, DIF_CENTERGROUP | DIF_BTNNOCLOSE | DIF_AUTOMATION | (m_UseFilter ? DIF_NONE : DIF_DISABLE), msg(lng::MCopySetFilter), },
 		{ DI_BUTTON,       {{0,  13}, {0,  13}}, DIF_CENTERGROUP, msg(lng::MCopyDlgCancel), },
-		{ DI_TEXT,         {{5,  2 }, {0,  2 }}, DIF_SHOWAMPERSAND, },
 	});
 
 	CopyDlg[ID_SC_TARGETEDIT].strHistory = L"Copy"sv;
@@ -2945,6 +2946,8 @@ enum WarnDlgItems
 	WDLG_RENAME,
 	WDLG_APPEND,
 	WDLG_CANCEL,
+
+	WDLG_COUNT
 };
 
 enum
@@ -3088,7 +3091,7 @@ bool ShellCopy::AskOverwrite(const os::fs::find_data &SrcData,
 
 	const auto qDst = QuoteOuterSpace(DestName);
 
-	auto WarnCopyDlg = MakeDialogItems(
+	auto WarnCopyDlg = MakeDialogItems<WDLG_COUNT>(
 	{
 		{ DI_DOUBLEBOX, {{3,  1 }, {DlgW-4, DlgH-2}}, DIF_NONE, msg(lng::MWarning), },
 		{ DI_TEXT,      {{5,  2 }, {DlgW-6, 2     }}, DIF_CENTERTEXT, msg(lng::MCopyFileExist), },

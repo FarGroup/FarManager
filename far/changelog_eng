@@ -3,6 +3,12 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 24.10.2019 11:12:59 +0100 - build 5496
+
+1. Correction of 5495.
+
+2. Minor refactoring to avoid such issues in future.
+
 drkns 24.10.2019 02:04:06 +0100 - build 5495
 
 1. Show Far and OS versions in the exception dialog.

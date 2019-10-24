@@ -587,6 +587,8 @@ enum enumFileFilterConfig
 	ID_FF_RESET,
 	ID_FF_MAKETRANSPARENT,
 	ID_FF_CANCEL,
+
+	ID_FF_COUNT
 };
 
 struct attribute_map
@@ -925,7 +927,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 		Label = pad_right(msg(LngId), ColumnSize);
 	}
 
-	auto FilterDlg = MakeDialogItems(
+	auto FilterDlg = MakeDialogItems<ID_FF_COUNT>(
 	{
 		{ DI_DOUBLEBOX,   {{3,  1 }, {76, 22}}, DIF_SHOWAMPERSAND, msg(ColorConfig? lng::MFileHilightTitle : lng::MFileFilterTitle), },
 		{ DI_TEXT,        {{5,  2 }, {0,  2 }}, DIF_FOCUS, msg(lng::MFileFilterName), },

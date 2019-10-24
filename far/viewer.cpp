@@ -2485,6 +2485,8 @@ enum SEARCHDLG
 	SD_SEPARATOR2,
 	SD_BUTTON_OK,
 	SD_BUTTON_CANCEL,
+
+	SD_COUNT
 };
 
 enum
@@ -3275,7 +3277,7 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 
 	if (!Next)
 	{
-		auto SearchDlg = MakeDialogItems(
+		auto SearchDlg = MakeDialogItems<SD_COUNT>(
 		{
 			{ DI_DOUBLEBOX,   {{3,  1 }, {72, 11}}, DIF_NONE, msg(lng::MViewSearchTitle), },
 			{ DI_TEXT,        {{5,  2 }, {0,  2 }}, DIF_NONE, msg(lng::MViewSearchFor), },

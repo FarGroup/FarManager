@@ -137,9 +137,11 @@ int GetSearchReplaceString(
 		dlg_button_action,
 		dlg_button_all,
 		dlg_button_cancel,
+
+		dlg_count
 	};
 
-	auto ReplaceDlg = MakeDialogItems(
+	auto ReplaceDlg = MakeDialogItems<dlg_count>(
 	{
 		{ DI_DOUBLEBOX, {{3,                 1      }, {DlgWidth-4,        12-YFix}}, DIF_NONE, Title },
 		{ DI_BUTTON,    {{WordButtonX1,      2      }, {WordButtonX2,      2      }}, DIF_BTNNOCLOSE, WordLabel },
@@ -267,7 +269,21 @@ bool GetString(
 	const auto addCheckBox = Flags&FIB_CHECKBOX && CheckBoxValue && !CheckBoxText.empty();
 	const auto offset = addCheckBox? 2 : 0;
 
-	auto StrDlg = MakeDialogItems(
+	enum
+	{
+		gs_doublebox,
+		gs_text,
+		gs_edit,
+		gs_separator_1,
+		gs_checkbox,
+		gs_separator_2,
+		gs_button_1,
+		gs_button_2,
+
+		gs_count
+	};
+
+	auto StrDlg = MakeDialogItems<gs_count>(
 	{
 		{ DI_DOUBLEBOX, {{3,  1}, {72, 4}}, DIF_NONE,                      },
 		{ DI_TEXT,      {{5,  2}, {0,  2}}, DIF_SHOWAMPERSAND,             },
@@ -282,61 +298,61 @@ bool GetString(
 	if (addCheckBox)
 	{
 		Substract-=2;
-		StrDlg[0].Y2+=2;
-		StrDlg[4].Selected = *CheckBoxValue != 0;
-		StrDlg[4].strData = CheckBoxText;
+		StrDlg[gs_doublebox].Y2 += 2;
+		StrDlg[gs_checkbox].Selected = *CheckBoxValue != 0;
+		StrDlg[gs_checkbox].strData = CheckBoxText;
 	}
 
 	if (Flags&FIB_BUTTONS)
 	{
 		Substract-=3;
-		StrDlg[0].Y2+=2;
-		StrDlg[2].Flags&=~DIF_DEFAULTBUTTON;
-		StrDlg[5+offset].Y1=StrDlg[4+offset].Y1=5+offset;
-		StrDlg[4+offset].Type=StrDlg[5+offset].Type=DI_BUTTON;
-		StrDlg[4+offset].Flags=StrDlg[5+offset].Flags=DIF_CENTERGROUP;
-		StrDlg[4+offset].Flags|=DIF_DEFAULTBUTTON;
-		StrDlg[4+offset].strData = msg(lng::MOk);
-		StrDlg[5+offset].strData = msg(lng::MCancel);
+		StrDlg[gs_doublebox].Y2 += 2;
+		StrDlg[gs_edit].Flags &= ~DIF_DEFAULTBUTTON;
+		StrDlg[gs_separator_2 + offset].Y1 = StrDlg[gs_checkbox + offset].Y1 = 5 + offset;
+		StrDlg[gs_checkbox + offset].Type = StrDlg[gs_separator_2 + offset].Type = DI_BUTTON;
+		StrDlg[gs_checkbox + offset].Flags = StrDlg[gs_separator_2 + offset].Flags = DIF_CENTERGROUP;
+		StrDlg[gs_checkbox + offset].Flags |= DIF_DEFAULTBUTTON;
+		StrDlg[gs_checkbox + offset].strData = msg(lng::MOk);
+		StrDlg[gs_separator_2 + offset].strData = msg(lng::MCancel);
 	}
 
 	if (Flags&FIB_EXPANDENV)
 	{
-		StrDlg[2].Flags|=DIF_EDITEXPAND;
+		StrDlg[gs_edit].Flags |= DIF_EDITEXPAND;
 	}
 
 	if (Flags&FIB_EDITPATH)
 	{
-		StrDlg[2].Flags|=DIF_EDITPATH;
+		StrDlg[gs_edit].Flags |= DIF_EDITPATH;
 	}
 
 	if (Flags&FIB_EDITPATHEXEC)
 	{
-		StrDlg[2].Flags|=DIF_EDITPATHEXEC;
+		StrDlg[gs_edit].Flags |= DIF_EDITPATHEXEC;
 	}
 
 	if (!HistoryName.empty())
 	{
-		StrDlg[2].strHistory = HistoryName;
-		StrDlg[2].Flags|=DIF_HISTORY|(Flags&FIB_NOUSELASTHISTORY?0:DIF_USELASTHISTORY);
+		StrDlg[gs_edit].strHistory = HistoryName;
+		StrDlg[gs_edit].Flags |= DIF_HISTORY | (Flags & FIB_NOUSELASTHISTORY ? 0 : DIF_USELASTHISTORY);
 	}
 
 	if (Flags&FIB_PASSWORD)
-		StrDlg[2].Type=DI_PSWEDIT;
+		StrDlg[gs_edit].Type = DI_PSWEDIT;
 
 	if (!Title.empty())
-		StrDlg[0].strData = Title;
+		StrDlg[gs_doublebox].strData = Title;
 
 	if (!Prompt.empty())
 	{
-		StrDlg[1].strData = truncate_right(string(Prompt), 66);
+		StrDlg[gs_text].strData = truncate_right(string(Prompt), 66);
 
 		if (Flags&FIB_NOAMPERSAND)
-			StrDlg[1].Flags&=~DIF_SHOWAMPERSAND;
+			StrDlg[gs_text].Flags &= ~DIF_SHOWAMPERSAND;
 	}
 
 	if (!SrcText.empty())
-		StrDlg[2].strData = SrcText;
+		StrDlg[gs_edit].strData = SrcText;
 
 	{
 		const auto Dlg = Dialog::create(span(StrDlg.data(), StrDlg.size() - Substract));
@@ -353,15 +369,15 @@ bool GetString(
 		ExitCode=Dlg->GetExitCode();
 	}
 
-	if (ExitCode == 2 || ExitCode == 4 || (addCheckBox && ExitCode == 6))
+	if (ExitCode == gs_edit || ExitCode == gs_checkbox || (addCheckBox && ExitCode == gs_button_1))
 	{
-		if (!(Flags&FIB_ENABLEEMPTY) && StrDlg[2].strData.empty())
+		if (!(Flags&FIB_ENABLEEMPTY) && StrDlg[gs_edit].strData.empty())
 			return false;
 
-		strDestText = StrDlg[2].strData;
+		strDestText = StrDlg[gs_edit].strData;
 
 		if (addCheckBox)
-			*CheckBoxValue=StrDlg[4].Selected;
+			*CheckBoxValue = StrDlg[gs_checkbox].Selected;
 
 		return true;
 	}
@@ -383,20 +399,33 @@ bool GetNameAndPassword(
 	static string strLastName, strLastPassword;
 	int ExitCode;
 	/*
-	  0         1         2         3         4         5         6         7
-	  0123456789012345678901234567890123456789012345678901234567890123456789012345
-	|0                                                                             |
-	|1   +------------------------------- Title -------------------------------+   |
-	|2   | User name                                                           |   |
-	|3   | ******************************************************************* |   |
-	|4   | User password                                                       |   |
-	|5   | ******************************************************************* |   |
-	|6   +---------------------------------------------------------------------+   |
-	|7   |                         [ Ok ]   [ Cancel ]                         |   |
-	|8   +---------------------------------------------------------------------+   |
-	|9                                                                             |
+	          1         2         3         4         5         6         7
+	   3456789012345678901234567890123456789012345678901234567890123456789012
+	 1 ╔══════════════════════════════ Title ═══════════════════════════════╗
+	 2 ║ User name                                                          ║
+	 3 ║ __________________________________________________________________↓║
+	 4 ║ User password                                                      ║
+	 5 ║ __________________________________________________________________ ║
+	 6 ╟────────────────────────────────────────────────────────────────────╢
+	 7 ║                         { OK } [ Cancel ]                          ║
+	 8 ╚════════════════════════════════════════════════════════════════════╝
 	*/
-	auto PassDlg = MakeDialogItems(
+
+	enum
+	{
+		pd_doublebox,
+		pd_text_user,
+		pd_edit_user,
+		pd_text_password,
+		pd_edit_password,
+		pd_separator,
+		pd_button_ok,
+		pd_button_cancel,
+
+		pd_count
+	};
+
+	auto PassDlg = MakeDialogItems<pd_count>(
 	{
 		{ DI_DOUBLEBOX, {{3,  1}, {72, 8}}, DIF_NONE, Title, },
 		{ DI_TEXT,      {{5,  2}, {0,  2}}, DIF_NONE, msg(lng::MNetUserName), },
@@ -408,7 +437,7 @@ bool GetNameAndPassword(
 		{ DI_BUTTON,    {{0,  7}, {0,  7}}, DIF_CENTERGROUP, msg(lng::MCancel), },
 	});
 
-	PassDlg[2].strHistory = L"NetworkUser"sv;
+	PassDlg[pd_edit_user].strHistory = L"NetworkUser"sv;
 
 	{
 		const auto Dlg = Dialog::create(PassDlg);
@@ -422,13 +451,13 @@ bool GetNameAndPassword(
 		ExitCode=Dlg->GetExitCode();
 	}
 
-	if (ExitCode!=6)
+	if (ExitCode != pd_button_ok)
 		return false;
 
 	// запоминаем всегда.
-	strUserName = PassDlg[2].strData;
+	strUserName = PassDlg[pd_edit_user].strData;
 	strLastName = strUserName;
-	strPassword = PassDlg[4].strData;
+	strPassword = PassDlg[pd_edit_password].strData;
 	strLastPassword = strPassword;
 	return true;
 }
