@@ -2,7 +2,7 @@
 
 NAME = Compare
 LINK_OBJS = $(OBJDIR)\Compare.obj
-DOCS = CmpEng.hlf CmpRus.hlf CompEng.lng CompRus.lng CompSky.lng CompSpa.lng CompIta.lng CompPol.lng CompBel.lng AdvCompare.CompareBufferSize.farconfig changelog
+DOCS = CmpEng.hlf CmpRus.hlf CmpPol.hlf CompEng.lng CompRus.lng CompSky.lng CompSpa.lng CompIta.lng CompPol.lng CompBel.lng AdvCompare.CompareBufferSize.farconfig changelog
 
 !include ..\makefile_vc_def_inc
 

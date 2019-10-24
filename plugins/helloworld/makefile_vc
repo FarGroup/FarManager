@@ -2,7 +2,7 @@
 
 NAME = HelloWorld
 LINK_OBJS = $(OBJDIR)\HelloWorld.obj
-DOCS = HelloWorld_en.hlf HelloWorld_ru.hlf HelloWorld_en.lng HelloWorld_ru.lng HelloWorld_be.lng changelog
+DOCS = HelloWorld_en.hlf HelloWorld_ru.hlf HelloWorld_pl.hlf HelloWorld_en.lng HelloWorld_ru.lng HelloWorld_be.lng HelloWorld_pl.lng changelog
 
 !include ..\makefile_vc_def_inc
 

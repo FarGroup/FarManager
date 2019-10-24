@@ -6,6 +6,7 @@ TmpMix.cpp
 DOCS = \
 	TmpEng.hlf \
 	TmpRus.hlf \
+	TmpPol.hlf \
 	TmpEng.lng \
 	TmpRus.lng \
 	TmpSky.lng \

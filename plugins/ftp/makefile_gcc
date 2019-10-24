@@ -7,7 +7,7 @@ SRCS = AskOver.cpp Cfg.cpp CmdLine.cpp cnDownload.cpp cnInit.cpp \
        FTPConnect.cpp FtpDlg.cpp FTPHost.cpp fUtils.cpp GetOpenInfo.cpp HGet.cpp \
        HPut.cpp JM.cpp Key.cpp MakeDir.cpp Mem.cpp Mix.cpp Plugin.cpp Queque.cpp \
        SetDir.cpp Shortcut.cpp sock.cpp Url.cpp
-DOCS = FtpEng.hlf FtpRus.hlf FtpEng.lng FtpRus.lng FtpIta.lng FtpBel.lng TechInfo.reg TechInfo_rus.reg FtpCmds.txt FtpCmds_rus.txt Notes.txt Notes_rus.txt changelog
+DOCS = FtpEng.hlf FtpRus.hlf FtpPol.hlf FtpEng.lng FtpRus.lng FtpIta.lng FtpBel.lng FtpPol.lng TechInfo.reg TechInfo_rus.reg FtpCmds.txt FtpCmds_rus.txt Notes.txt Notes_rus.txt changelog
 
 USERCPP = -I ./FStdLib -D__NOMEM__=1 -D__USEASSERT__=1 -Wno-unknown-pragmas -Wno-switch -Wno-missing-braces -Wno-parentheses
 

@@ -210,6 +210,11 @@
       <Command>copy %(Identity) $(OutDir)</Command>
       <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
+    <CustomBuild Include="lm_pol.lng">
+      <Message>Copying %(Identity)</Message>
+      <Command>copy %(Identity) $(OutDir)</Command>
+      <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
+    </CustomBuild>
     <CustomBuild Include="_globalinfo.lua">
       <Message>Copying %(Identity)</Message>
       <Command>copy %(Identity) $(OutDir)</Command>

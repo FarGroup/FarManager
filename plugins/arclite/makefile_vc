@@ -124,6 +124,7 @@ LNGS = \
 HLFS = \
 	$(OUTDIR)\$(MODULE)_eng.hlf \
 	$(OUTDIR)\$(MODULE)_rus.hlf \
+	$(OUTDIR)\$(MODULE)_pol.hlf \
 
 
 FILES = \

@@ -142,6 +142,7 @@
     <None Include="arclite.xml" />
     <None Include="arclite_eng.hlf" />
     <None Include="arclite_rus.hlf" />
+    <None Include="arclite_pol.hlf" />
     <None Include="changelog" />
     <None Include="bel.msg" />
     <None Include="eng.msg" />

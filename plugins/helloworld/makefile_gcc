@@ -1,6 +1,6 @@
 NAME = HelloWorld
 SRCS = HelloWorld.cpp
-DOCS = HelloWorld_en.hlf HelloWorld_ru.hlf HelloWorld_en.lng HelloWorld_ru.lng HelloWorld_be.lng changelog
+DOCS = HelloWorld_en.hlf HelloWorld_ru.hlf HelloWorld_pl.hlf HelloWorld_en.lng HelloWorld_ru.lng HelloWorld_be.lng HelloWorld_pl.lng changelog
 
 include ../../far/makefile_gcc_common
 

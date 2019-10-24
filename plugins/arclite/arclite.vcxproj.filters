@@ -139,6 +139,9 @@
     <None Include="arclite_rus.hlf">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="arclite_pol.hlf">
+      <Filter>Resource Files</Filter>
+    </None>
     <None Include="changelog">
       <Filter>arclite.xml</Filter>
     </None>

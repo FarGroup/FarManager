@@ -1,6 +1,6 @@
 NAME = Brackets
 SRCS = Brackets.cpp
-DOCS = BrackEng.hlf BrackRus.hlf BrackEng.lng BrackRus.lng BrackSky.lng BrackSpa.lng BrackIta.lng BrackPol.lng BrackBel.lng Brackets.lua changelog
+DOCS = BrackEng.hlf BrackRus.hlf BrackPol.hlf BrackEng.lng BrackRus.lng BrackSky.lng BrackSpa.lng BrackIta.lng BrackPol.lng BrackBel.lng Brackets.lua changelog
 
 include ../../far/makefile_gcc_common
 

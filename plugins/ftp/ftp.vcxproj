@@ -169,7 +169,17 @@
       <Command>copy /y "%(Identity)" "$(OutDir)"</Command>
       <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
+    <CustomBuild Include="FtpPol.hlf">
+      <Message>Converting %(Identity)</Message>
+      <Command>copy /y "%(Identity)" "$(OutDir)"</Command>
+      <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
+    </CustomBuild>
     <CustomBuild Include="FtpIta.lng">
+      <Message>Converting %(Identity)</Message>
+      <Command>copy /y "%(Identity)" "$(OutDir)"</Command>
+      <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="FtpPol.lng">
       <Message>Converting %(Identity)</Message>
       <Command>copy /y "%(Identity)" "$(OutDir)"</Command>
       <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>

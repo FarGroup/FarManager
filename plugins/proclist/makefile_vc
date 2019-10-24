@@ -10,7 +10,7 @@ $(OBJDIR)\Plist.obj \
 $(OBJDIR)\Pmix.obj \
 $(OBJDIR)\WMI.obj \
 $(OBJDIR)\Proclist.obj
-DOCS = ProcEng.hlf ProcRus.hlf ProcEng.lng ProcRus.lng ProcIta.lng ProcBel.lng changelog
+DOCS = ProcEng.hlf ProcRus.hlf ProcPol.hlf ProcEng.lng ProcRus.lng ProcIta.lng ProcBel.lng ProcPol.lng changelog
 
 USERCPP = /I".\WMI" -D"_WIN32_DCOM"
 

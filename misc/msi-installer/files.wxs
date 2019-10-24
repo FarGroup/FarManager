@@ -530,6 +530,9 @@
           <Component Id="arclite_ita.lng" Guid="$(var.Guid.arclite_ita.lng)" Win64="$(var.Win64)">
             <File Id="arclite_ita.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ArcLite\arclite_ita.lng" />
           </Component>
+          <Component Id="arclite_pol.hlf" Guid="$(var.Guid.arclite_pol.hlf)" Win64="$(var.Win64)">
+            <File Id="arclite_pol.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ArcLite\arclite_pol.hlf" />
+          </Component>
           <Component Id="arclite_pol.lng" Guid="$(var.Guid.arclite_pol.lng)" Win64="$(var.Win64)">
             <File Id="arclite_pol.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ArcLite\arclite_pol.lng" />
           </Component>
@@ -616,6 +619,9 @@
           <Component Id="BrackIta.lng" Guid="$(var.Guid.BrackIta.lng)" Win64="$(var.Win64)">
             <File Id="BrackIta.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackIta.lng" />
           </Component>
+          <Component Id="BrackPol.hlf" Guid="$(var.Guid.BrackPol.hlf)" Win64="$(var.Win64)">
+            <File Id="BrackPol.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackPol.hlf" />
+          </Component>
           <Component Id="BrackPol.lng" Guid="$(var.Guid.BrackPol.lng)" Win64="$(var.Win64)">
             <File Id="BrackPol.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackPol.lng" />
           </Component>
@@ -635,6 +641,9 @@
           </Component>
           <Component Id="CmpRus.hlf" Guid="$(var.Guid.CmpRus.hlf)" Win64="$(var.Win64)">
             <File Id="CmpRus.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Compare\CmpRus.hlf" />
+          </Component>
+          <Component Id="CmpPol.hlf" Guid="$(var.Guid.CmpPol.hlf)" Win64="$(var.Win64)">
+            <File Id="CmpPol.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Compare\CmpPol.hlf" />
           </Component>
           <Component Id="Compare.dll" Guid="$(var.Guid.Compare.dll)" Win64="$(var.Win64)">
             <File Id="Compare.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Compare\Compare.dll" />
@@ -1109,6 +1118,12 @@
           <Component Id="FARCmdsBel.lng" Guid="$(var.Guid.FARCmdsBel.lng)" Win64="$(var.Win64)">
             <File Id="FARCmdsBel.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarCmds\FARCmdsBel.lng" />
           </Component>
+          <Component Id="FARCmdsPol.hlf" Guid="$(var.Guid.FARCmdsPol.hlf)" Win64="$(var.Win64)">
+            <File Id="FARCmdsPol.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarCmds\FARCmdsPol.hlf" />
+          </Component>
+          <Component Id="FARCmdsPol.lng" Guid="$(var.Guid.FARCmdsPol.lng)" Win64="$(var.Win64)">
+            <File Id="FARCmdsPol.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarCmds\FARCmdsPol.lng" />
+          </Component>
         </Directory>
         <Directory Id="SameFolder" Name="SameFolder">
           <Component Id="changelog_20" Guid="$(var.Guid.changelog_20)" Win64="$(var.Win64)">
@@ -1323,6 +1338,9 @@
           <Component Id="lm_bel.lng" Guid="$(var.Guid.lm_bel.lng)" Win64="$(var.Win64)">
             <File Id="lm_bel.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\lm_bel.lng" />
           </Component>
+          <Component Id="lm_pol.lng" Guid="$(var.Guid.lm_pol.lng)" Win64="$(var.Win64)">
+            <File Id="lm_pol.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\lm_pol.lng" />
+          </Component>
           <Component Id="luamacro.example.ini" Guid="$(var.Guid.luamacro.example.ini)" Win64="$(var.Win64)">
             <File Id="luamacro.example.ini" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\luamacro.example.ini" />
           </Component>
@@ -1399,6 +1417,12 @@
           <Component Id="ProcBel.lng" Guid="$(var.Guid.ProcBel.lng)" Win64="$(var.Win64)">
             <File Id="ProcBel.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ProcList\ProcBel.lng" />
           </Component>
+          <Component Id="ProcPol.hlf" Guid="$(var.Guid.ProcPol.hlf)" Win64="$(var.Win64)">
+            <File Id="ProcPol.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ProcList\ProcPol.hlf" />
+          </Component>
+          <Component Id="ProcPol.lng" Guid="$(var.Guid.ProcPol.lng)" Win64="$(var.Win64)">
+            <File Id="ProcPol.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ProcList\ProcPol.lng" />
+          </Component>
         </Directory>
         <Directory Id="TmpPanel" Name="TmpPanel">
           <Component Id="changelog_17" Guid="$(var.Guid.changelog_17)" Win64="$(var.Win64)">
@@ -1454,6 +1478,9 @@
           </Component>
           <Component Id="TmpIta.lng" Guid="$(var.Guid.TmpIta.lng)" Win64="$(var.Win64)">
             <File Id="TmpIta.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\TmpIta.lng" />
+          </Component>
+          <Component Id="TmpPol.hlf" Guid="$(var.Guid.TmpPol.hlf)" Win64="$(var.Win64)">
+            <File Id="TmpPol.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\TmpPol.hlf" />
           </Component>
           <Component Id="TmpPol.lng" Guid="$(var.Guid.TmpPol.lng)" Win64="$(var.Win64)">
             <File Id="TmpPol.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\TmpPol.lng" />
