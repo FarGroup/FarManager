@@ -1,0 +1,257 @@
+﻿.Language=Polish,Polish (Polski)
+.PluginContents=Panel tymczasowy
+
+@Contents
+$ #Panel tymczasowy#
+    Panel tymczasowy jest podobny do panelu plików i jest zaprojektowany
+aby ułatwić grupowanie plików z różnych folderów i przetwarzać je,
+tak jakby były jedną grupą.
+
+   ~Praca z panelem tymczasowym~@TempPanel@
+   ~Konfiguracja panelu~@Config@
+   ~Praca z listą plików~@List@
+   ~Składnia linii poleceń~@CMD@
+
+@TempPanel
+$ #Praca z panelem tymczasowym#
+   Aby dodać pliki do panelu tymczasowe należy wykonać jedną z poniższych
+operacji:
+
+  - skopiować pliki lub foldery z panelu plików lub drzewa do panelu
+    tymczasowego;
+
+  - otworzyć ~listę plików~@List@ poprzez wciśnięcie na niej klawisza Enter
+    lub Ctrl-PgDn lub wpisując jej nazwę w ~linii poleceń~@CMD@;
+
+  - send the list of the files found by the ~Find files~@:FindFile@ command
+    to the temporary panel. In order to do this, you should click
+    the "#Panel#" button in the dialog with the list of found files.
+
+   Files being put to the temporary panel are not copied physically,
+only references to them are created. All operations that you perform
+on the temporary panel are applied to the real files at their actual
+locations. For example, if you delete a file on the temporary panel,
+the file is actually deleted from the disk.
+
+   To remove selected file names from the temporary
+panel without deleting actual files, you can press #F7#.
+
+   Press #Ctrl-PgUp# to close the temporary panel and go to the file
+under the cursor.
+
+   #Alt-Shift-F3# on an element:
+
+   - if folder - shows its contents in the passive panel.
+   - if file - positions the cursor on this file in the
+     passive panel.
+
+   If the option #"Use common panel"# in the plugin ~configuration~@Config@
+dialog is enabled, the plugin creates 10 temporary panel instances, and
+each of them contains a separate file list. To switch between panels,
+you can use a menu (#Alt-Shift-F12#) or hotkeys for immediate switching
+(#Alt-Shift-0# to #Alt-Shift-9#).
+
+   To save the current contents of the panel to a list file, you
+can use the hotkey #Alt-Shift-F2#.
+
+
+ ~Zawartość~@Contents@
+
+@Config
+$ #Panel tymczasowy: Konfiguracja#
+   In this dialog you may change the following options:
+
+ #Add to disks menu#
+   Enables adding the "Temporary" item to the disks menu.
+
+ #Disks menu hotkey#
+   Hotkey for the temporary panel item in the disks menu.
+You can enter a value from 1 to 9 or leave this field empty if
+you prefer the hotkey to be assigned automatically.
+
+ #Add to plugins menu#
+   Enables adding the "Temporary" item to the plugins menu.
+
+ #Use common panel#
+   When enabled, a common temporary panel is created and its contents is
+stored even after closing the panel. When this option is not enabled,
+each new temporary panel will be created empty.
+   If the option #"Use common panel"# is enabled, 10 instances of
+the temporary panel are created. You can switch between them by pressing
+#Alt-Shift-F12# (to show a menu) or hotkeys from #Alt-Shift-0# to
+#Alt-Shift-9# (to switch to a panel directly).
+
+ #Safe panel mode# : ~+safe~@CMD@
+   In the safe panel mode, all operations on panel elements (copying,
+moving, deleting etc.) are disabled. The only available operations are:
+
+   - changing to a directory;
+   - copying elements that are not real files/paths to the command
+     line (if the option #"Any elements in panel"# is enabled).
+
+   The safe mode is marked in the panel title with the (R) character.
+
+ #Any elements in panel# : ~+any~@CMD@
+   If this option is enabled, the plugin will not check for path
+validity before putting an element to a panel.
+   It becomes possible to use panel elements like:
+   #ftp:#
+   #ftp:my_favorite_ftp#
+   #reg:HKEY_CURRENT_USER\Software#
+   #copy d:\work\tmppanel d:\work\tmppanel\backup /y#
+   #format a:#
+   and so on.
+
+   For example, it is possible to use this option to sort the lines
+in a text file:
+   #tmp:+any +full <type filename.ext#
+   Then you press #Ctrl-F3# in the panel to sort the lines, and then
+#Ctrl-Gray* Ctrl-Ins# to copy the lines to the Windows clipboard, or
+#Alt-Shift-F2# to save the lines to a file.
+
+   When #Enter# is pressed on an element that is not a real file name,
+its text will be copied to the FAR command line.
+
+ #Copy folders contents#
+   When copying folders to the temporary panel, controls whether
+files are also copied to the panel. If set to the undefined state
+(#[?]#), a prompt is shown when folders are copied to the panel.
+
+ #Replace files with file list# : ~+replace~@CMD@
+   If this option is checked, then, when doing a file list operation,
+the names in the file list will replace the file names already in the
+panel. Otherwise the filenames will be added to the existing ones.
+
+ #Menu from file list# : ~+menu~@CMD@
+   When a list file is opened, its contents will not be put to a panel,
+but instead shown in a menu. Pressing #Enter# on a menu item either
+jumps to the corresponding directory (if one exists), or copies the
+item text to the FAR command line. The menu caption is equal to the
+list file without an extension.
+   Each line in the list file can start with #|<string>|#. In this
+case, the part of the line between the first and the second delimiter
+(#|#) will be shown in the menu, and the part after the second
+delimiter will be executed when the item is selected.
+
+   #|-|# is a separator and will be shown as a horizontal line in
+the menu.
+
+   Przykład zawartości pliku: #shortcuts.temp#
+   #|&A: wyjmowalny|A:#
+   #|&C: stały|C:#
+   #|&D: stały|D:#
+   #|-|#
+   #|&M: Muzyka|D:\Music#
+   #|&M: Narzędzia|D:\Tools#
+   #|&M: Pulpit|%HOMEDRIVE%%HOMEPATH%\Desktop#
+   #|-|#
+   #|&1: Tymczasowyy|tmp:#
+   #|&2: Far Navigator|ftp:#
+   #|&3: Sieć|net:#
+   #|&8: Rejestr|reg:#
+
+ #New panel for search results#
+   This option works when #"Use common panel"# is enabled and allows
+to put the search results (Alt-F7 -> Panel) to a free temporary panel.
+This allows to save the results of multiple search operations and work
+with them at the same time.
+
+ #Column types#    #Status line column types#
+ #Column widths#   #Status line column widths#
+ #[ ] Full screen mode# : ~+full~@CMD@
+   These options allow to change the mode of displaying elements in the
+panel.
+   See the ~FAR help~@:PanelViewModes@ for details.
+
+ #File masks for the file lists#
+   ~Masks~@:FileMasks@ for the files that should be interpreted as
+~file lists~@List@.
+
+ #Przedrostek linii poleceń#
+   Specifies the prefix for opening the temporary panel from the command
+line and for ~file list operations~@List@.
+
+
+ ~Zawartość~@Contents@
+
+@List
+$ #Panel tymczasowy: Lista plików#
+   The temporary panel can read a list of filenames from a list file.
+
+   Each line in the list file must contain
+     - either an existing file or directory (C:\Windows)
+     - or a drive letter (C:)
+     - or the name of a network resource (\\Server\Music)
+
+   If the option #"Any elements in panel#" in the
+~configuration dialog~@Config@ is not enabled, lines not matching any
+of the conditions mentioned above are not added to the panel. If the
+option is enabled, the list file can contain arbitrary lines - all of
+them will be shown in the panel.
+
+   Names of files and directories in the list file can contain
+environment variables (%WINDIR%\System).
+
+   List file example:
+     #c:#
+     #d:#
+     #d:\Gry\Quake3#
+     #\\server\c$#
+     #\\server\music#
+     #%ProgramFiles%#
+     #%HOMEDRIVE%%HOMEPATH%\Desktop#
+   If the option "Any elements in panel" is enabled, the list file
+can also contain such lines:
+     #ftp:#
+     #ftp:ftp.cdrom.com#
+     #reg:HKEY_CURRENT_USER\Software#
+     #dir#
+
+   There are two ways to process the list file:
+
+   a) Press #Enter# or #Ctrl-PgDn# when the cursor is on such a file.
+      The file must match one of the file masks for file lists specified
+in the configuration dialog, and it must be in the OEM codepage.
+
+   b) Enter #tmp:"list file name"# in the ~command line~@CMD@.
+      If the list file name does not contain a path, the plugin will
+attempt to locate it in the following directories and in the following
+sequence:
+      1. The current directory
+      2. In the plugin directory.
+      3. In #%FARHOME%#.
+      4. The directories that are listed in the #%PATH%# environment variable.
+
+   The command line prefix used for file list operations (in the examples
+given above - #tmp:#) can be set in the configuration dialog.
+
+
+ ~Zawartość~@Contents@
+
+@CMD
+$^#Panel tymczasowy: Linia poleceń#
+ Składnia linii poleceń:
+   #<przedrostek>:[<opcje>] [<lista_plików>]# , where:
+
+   #<przedrostek># - przedrostek wtyczki, ustawiany w
+                ~oknie konfiguracji~@Config@ (domyślny to #tmp#)
+
+   #<opcje>#    - zero or more of the options listed above, separated
+                with at least a single space (the options are not
+                case-sensitive)
+
+   #+0..+9#        - switch to a panel with the specified index
+   #+ansi#         - the filelist is in the ANSI codepage
+   #+full# / #-full# - fullscreen/normal panel mode
+   #+safe# / #-safe# - safe/normal panel mode
+   #+any#  / #-any#  - any elements/existing paths in the list file
+   #+menu# / #-menu# - menu/panel from file list
+   #+replace# / #-replace# - replace/add panel items
+
+   #<lista_plików>#  - the ~list file~@List@ from which the temporary
+panel will read its list of elements
+
+   See ~Panel tymczasowy: Konfiguracja~@Config@ for a more in depth
+explanation of command line switches.
+
+ ~Zawartość~@Contents@
