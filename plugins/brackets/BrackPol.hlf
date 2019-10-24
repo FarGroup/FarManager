@@ -1,0 +1,156 @@
+﻿.Language=Polish,Polish (Polski)
+.PluginContents=Dopasowanie nawiasów
+.Options CtrlStartPosChar=^<wrap>
+
+@Contents
+$ #Dopasowanie nawiasów#
+  Ta wtycznka pozwala na:
+
+  - znalezienie pasującego nawiasu;
+  - zaznaczenie tekstu zapisanego w nawiasach.
+
+  Wtyczka działa w trzech przypadkach:
+
+  #1. Wewnątrz '()', '{}', '[]', '<>', '«»' i znaki cudzysłowów#
+     To jest prosty przypadek - gdy kursor jest wewnątrz nawiasów,
+     to jest pozycjonowany na pasujący nawias. Dla znaku cudzysłowa
+     jest jeszcze niezbędne określenie kierunku - naprzód czy wstecz.
+
+  #2. Uncommon '()', '{}', '[]', '<>' i '«»'#
+     This case is when the cursor stands on the next character after
+     the bracket. The plugin also positions the cursor to the
+     matching bracket. Handling of this case can be disabled in the
+     configuration dialog.
+
+  #3. Podwójne nawiasy#
+     Ten przypadek pozwa obsłużyć (na przykład) blok komentarzy
+     w języku C/C++: '/*' i '*/'. Kursor będzie umieszczony na znaku
+     pasującym do wskazanego nawiasu.
+
+
+  ~Konfiguracja~@Config@
+  ~Szukaj/zaznacz~@Find@
+  ~Szukaj cudzysłowów~@Direct@
+  ~Używanie wtyczki w makrach~@MacroCallPlugin@
+
+
+@Find
+$ #Dopasowanie nawiasów - Szukaj/zaznacz#
+
+  #Szukaj#     - jeżeli pasujący nawias zostanie znaleziony, to
+               kursor będzie umieszczony na tym nawiasie.
+
+  #Zaznacz#     - jeżeli pasujący nawias zostanie znaleziony, to
+               kursor będzie umieszczony na tym nawiasie, a tekst
+               pomiędzy nawiasami (także znaki nawiasów) zostanie
+               zaznaczony.
+
+  ~Zawartość~@Contents@
+  ~Konfiguruj~@Config@
+
+@Direct
+$ #Dopasowanie nawiasów - Szukaj cudzysłowów#
+  Jeżeli pasujące nawiasy lub znaki cudzysłowów mają te same znaki,
+wtyczka musi wiedzieć w jakim kierunku pliku ma ich szukać:
+
+  #Naprzód#    - szuka pasującego znaku od bieżącej pozycji kursora
+               do końca tekstu.
+
+  #Wstecz#     - szuka pasującego znaku od bieżącej pozycji kursora
+               do początku tekstu.
+
+
+  ~Zawartość~@Contents@
+  ~Konfiguruj~@Config@
+
+@Config
+$ #Dopasowanie nawiasów - Konfiguracja#
+  Jeżeli nie lubisz domyślnych ustawień wtyczki, możesz je zmienić.
+
+  #>Zasady#
+  Zasady kontrolowania zachowania wtyczki w specyficznych sytuacjach:
+
+   #Ignoruj nawiasy#         Jeżeli opcja jest włączona, wtyczka nie
+   #w cudzysłowach#          szuka znaków nawiasów, które są umieszczone
+                           w cudzysłowach: #'#{#'#.
+                           Znak cudzysłowia jest także konfigurowalny.
+
+   #Nie przeskakuj,#         Jeżeli opcja jest wyłączona, wtyczka
+   #jeżeli poza#             szuka pasującego nawiasu także, gdy kursor
+   #nawiasem#                znajduje się na kolejnym znaku za nawiasem.
+                           Jeżeli opcja jest włączona, wtyczka uruchamia
+                           szukanie tylko wtedy gdy kursor jest dokładnie
+                           na znaku nawiasu.
+
+   #Priorytet - podwójne#    Jeżeli opcja jest włączona, wtyczka najpierw
+   #nawiasy#                 używa reguł dla pojedynczych nawiasów
+                           (np. jeżeli kursor jest na pierwszym znaku
+                           w '#<%#', wtyczka próbuje znaleźć jako pasujący
+                           znak '#>#'. Jeżeli opcja jest wyłączona, wtyczka
+                           spróbuje znaleźć znak '#%>#'.
+
+   #Przejdź do nawiasu#      Gdy zaznaczamy blok pomiędzy nawiasami, ustawia
+   #przy zaznaczaniu#        kursor na znalezionym nawiasie.
+
+   #Dźwięk po znalezieniu#   Wywołuje sygnał dźwiękowy po znalezieniu nawiasu.
+
+
+  #>Definicje#
+  Ta sekcja pozwala zmienić niektóre podstawowaThis section allows to change some basic constants of the plugin:
+
+   #Single brackets#      Definition of single brackets.
+                        Contains a sequence of two-character pairs.
+                        The first character is the opening bracket,
+                        the second - the closing bracket. There
+                        can be at most 10 pairs. The first and second
+                        characters can be the same (for example,
+                        #""# or #''#).
+
+   #Double brackets#      Definition of double brackets.
+                        Contains a sequence of four-character groups.
+                        The first two characters are the opening
+                        bracket, the second - the closing bracket.
+                        There can be at most 10 groups.
+
+   #Quotation marks#      Quotation mark characters for the rule
+                        "Ignore brackets in quotation marks".
+                        Contains a sequence of two-character pairs.
+                        The first character is the opening quotation
+                        mark, the second - the closing mark. There
+                        can be at most 10 pairs. Note: the quotation
+                        marks are not used directly for bracket
+                        matching.
+
+
+  ~Zawartość~@Contents@
+
+@MacroCallPlugin
+$ #Używanie wtyczki w makrach#
+    ^<wrap>Плагин можно вызывать из макросов, используя макрофункцию Plugin.Call.
+    ^<wrap>Format wywołania:
+
+       #Plugin.Call("B66C436D-E657-419C-86D3-6834B9ACF3D2",<Parametr>)#
+
+    ^<wrap>gdzie:
+       #B66C436D-E657-419C-86D3-6834B9ACF3D2#
+          identyfikator wtyczki
+
+       #<Parametr>#
+          ^<wrap>строковое или числовое значение, обозначающее действие:
+
+          SearchFwd  0 - искать парную скобку вперед
+          SearchBack 1 - искать парную скобку назад
+          SelectFwd  2 - выделить блок между парными скобками вперед
+          SelectBack 3 - выделить блок между парными скобками назад
+          Config     4 - показать диалог конфигурации
+
+          ^<wrap>Jeśli <Parametr> вне указанного выше диапазона - плагин завершает свою работу.
+          ^<wrap>Jeśli <Parametr> не указан, то будет выведено меню действий.
+
+          ^<wrap>Различие между "вперед" и "назад" актуально только для кавычек.
+
+    ^<wrap>Przykład: искать парную скобку назад:
+
+       Plugin.Call("B66C436D-E657-419C-86D3-6834B9ACF3D2",1)
+
+  ~Zawartość~@Contents@
