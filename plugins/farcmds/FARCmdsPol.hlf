@@ -1,0 +1,388 @@
+﻿.Language=Polish,Polish (Polski)
+.PluginContents=Polecenia FAR
+.Options CtrlStartPosChar=^<wrap>
+
+@Contents
+$^#Polecenia FAR#
+   Wtyczka Polecenia FAR (FARCmds) provides a number of additional commands available
+in command line via prefixes.
+
+   Dodatkowo, polecenia mogą być używane w ~Menu użytkownia~@:UserMenu@,
+w ~powiązaniach plików~@:FileAssoc@, oraz w oknie dialogowym ~Zastosuj polecenie~@:ApplyCmd@ (#Ctrl-G#)
+
+
+  #Command Line Syntax#
+
+   #polecenie:#[#opcje#] #obiekt#
+
+   #polecenie# - jedno z poniższych:
+             ~view~@View@     - podgląd
+             ~edit~@Edit@     - edytor
+             ~goto~@Goto@     - przeskocz do pliku lub folderu
+             ~clip~@Clip@     - umieść dane w schowku
+             ~whereis~@WhereIs@  - znajdź i przeskocz do obiektu
+             ~link~@Link@     - utwórz link
+             ~run~@Run@      - wykonaj polecenie
+             ~load~@Load@     - załaduj wtyczkę
+             ~unload~@Unload@   - wyładuj wtyczkę
+
+   #opcje# - ^<wrap>optional parameters, see corresponding commands descriptions.
+
+   #obiekt#  - ^<wrap>jeden z poniższych:
+             #nazwapliku# - ^<wrap>name of the file to be viewed, edited or jumped to.
+             #ścieżka#     - ^<wrap>file or directory path to jump to.
+             #<polecenie# - ^<wrap>~intercept output~@Direction@ of operation system command. Symbol #<# is obligatory.
+
+
+   Zobacz także: ~Konfiguracja poleceń FAR~@Config@ | ~Uwagi~@Remark@
+
+@Load
+$ #Polecenie Load#
+   The #load# command allows to load plugins manually.
+
+   - Plugin path can be provided as a command argument:
+
+      #load:DLL_module_name#
+
+   - or picked from provided "#filename#":
+
+      #load: <filename#
+
+
+   Zobacz także: ~unload~@Unload@ | ~Uwagi~@Remark@ | ~Zawartość~@Contents@
+
+@Unload
+$ #Polecenie Unload#
+   The #unload# command allows to unload plugins manually.
+
+   - Plugin path can be provided as a command argument:
+
+      #unload:DLL_module_name#
+
+   - or picked from provided "#filename#":
+
+      #unload: <filename#
+
+   Plugin GUID can also be used instead of DLL path.
+
+
+   Zobacz także ~load~@Load@ | ~Uwagi~@Remark@ | ~Zawartość~@Contents@
+
+@Clip
+$^#Polecenie Clip#
+   The #clip# command puts data into the Windows clipboard.
+The data can be the contents of a file or the output of a program.
+The clipboard will contain all the data up to the character with the
+code #0x00#.
+Размер помещаемых данных можно задавать в диалоге конфигурации плагина. По
+умолчанию - 1 MB.
+
+   #clip:nazwa_pliku#
+
+   Передаваемые команде данные нулевого размера очищают буфер обмена.
+
+   Zobacz także: ~Przekierowanie wyjścia~@Direction@ | ~Uwagi~@Remark@ | ~Zawartość~@Contents@
+
+@Run
+$ #Polecenie Run#
+   The #run# command executes an operating system #command# redirecting
+its output to the specified file #"filename"#. Output can also be displayed
+on the screen or hidden from the user using ~Output Redirection~@Direction@ modifiers.
+
+   #run:filename<command#
+
+
+   Zobacz także: ~Przekierowanie wyjścia~@Direction@ | ~Uwagi~@Remark@ | ~Zawartość~@Contents@
+
+
+@View
+$^#Polecenie View#
+   The #view# command opens the file "#filename#" in the FAR
+built-in ~viewer~@:Viewer@:
+
+   #view:filename#
+
+
+   See also: ~edit~@Edit@ | ~Output Redirection~@Direction@ | ~Notes~@Remark@ | ~Contents~@Contents@
+
+@Edit
+$^#Polecenie Edit#
+   The #edit# command opens the file "#filename#" for editing
+in the FAR built-in ~editor~@:Editor@.
+
+      #edit:filename#
+
+   If the file "#filename#" does not exist, it will be created.
+   If the newly created file is not changed before leaving the editor, it will
+be deleted (same behaviour as #Shift-F4#).
+
+   При открытии файла можно сразу перейти в заданную позицию. Для этого в квадратных скобках
+надо указать нужную строку и колонку (любую компоненту можно не указывать, по умолчнию одна будет равна 1).
+Квадратные скобки обязательны!
+
+      #edit:[строка] имяфайла#
+
+      #edit:[строка,колонка] имяфайла#
+
+      #edit:[,колонка] имяфайла#
+
+   В качестве строки и колонки допускается указывать переменные среды, содержащие числа.
+Например, переменная среды Line равна 10. В этом случае произойдёт позиционирование курсора
+на 10 строку (позиция в строке 1) в файле "File.txt":
+
+   edit:[%Line%,] File.txt
+
+   If the filename contains square brackets (for example: "[1].txt"), then for
+the correct opening of the file in the editor you must provide at least one delimiter
+(e.g. a space) before the filename, or enclose it in quotation marks:
+
+   edit: [1].txt
+   edit:"[1].txt"
+
+
+   Zobacz także: ~view~@View@ | ~Output Redirection~@Direction@ | ~Notes~@Remark@ | ~Contents~@Contents@
+
+@Goto
+$^#Polecenie Goto#
+   The #goto# command jumps to a file or a folder. The path can be
+   specified in two ways:
+
+   1. Directly as a parameter of the command
+
+      #goto:path#
+
+   2. The path is taken from the file "#filename#"
+
+      #goto: <filename#
+
+   If the parameter "#path#" specifies a folder and is terminated with
+a backslash ('#\#'), the plugin jumps to the specified folder. If the
+path to the folder is not terminated with a backslash, the cursor on the
+panels is positioned to the specified folder.
+
+   Если файл "#имяфайла#" является ярлыком Windows, то плагин переходит
+к объекту, на который ссылается lnk-файл.
+
+   When panels are turned off, the cursor is not positioned on the requested object,
+only the switching to the required folder occurs.
+
+   Плагин осуществляет переход как указано, не пытаясь найти файловый объект.
+
+   Zobacz także: ~whereis~@WhereIs@ | ~Notes~@Remark@ | ~Contents~@Contents@
+
+@Link
+$ #Polecenie Link#
+
+   The #link# command creates ~links~@:HardSymLink@ to files and folders.
+It also allows to mount local disks on file system.
+
+
+   #link:#[#/msg#] [#/n#] [#/s#] #source destination#
+
+   Depending on the type of source are those types of links:
+
+     #file#   : #hard link# is created
+     #folder# : #junction# is created
+     #drive#  : ^<wrap>drive is mounted (#volume mount point# is created)
+"drive" should be a sequence "#drive_letter:\#", e.g. "#C:\#"
+
+   Switch #/msg# turns on the output of error messages
+
+   Switch #/n# disables automatic update of panels after creation of link
+
+   Switch #/s# allows to make symbolic links (#symlinks#).
+   It's possible to create a file symlink (instead of a hardlink)
+or a folder symlink (instead of folder junction).
+   The switch is relevant to Windows Vista or higher.
+Ignored when mounting drives.
+
+   Mounted drives (or volume mount points) is a Windows 2000/XP feature,
+that allows to display specified disks as folders. Example:
+
+   #link: E:\ C:\cdrom#
+
+    After this command the folder C:\cdrom will display the contents of drive E:
+
+
+   Zobacz także: ~Remarks~@Remark@ | ~Zawartość~@Contents@
+
+@WhereIs
+$ #Polecenie WhereIs#
+   The #whereis# command locates the given object and jumps to it if the search was
+successful.
+
+   #whereis:object#
+
+   Второй способ - имя объекта поиска берётся из заданного файла "#имяфайла#"
+
+      #whereis: <имяфайла#
+
+   The search is performed in the following order:
+
+   1. Current folder
+   2. The directory pointed to by the environment variable %FARHOME%
+   3. Folders in the system environment variable #PATH#
+   4. Windows 95: Windows' system folder (SYSTEM)
+      Windows NT: 32 bit Windows' system folder (SYSTEM32)
+   5. Windows NT: 16 bit Windows' system folder (SYSTEM)
+   6. Windows folder.
+   7. Contents of the registry key:
+      #HKCU\Software\Microsoft\Windows\CurrentVersion\App Paths#
+   8. Contents of the registry key:
+      #HKLM\Software\Microsoft\Windows\CurrentVersion\App Paths#
+
+   Плагин пытается найти файловый объект сначала как указано, а затем производит
+поиск объекта с расширениями из списка переменной среды PATHEXT.
+
+   When panels are turned off, the cursor is not positioned on the requested object,
+only the switching to the required folder occurs.
+
+
+   See also: ~goto~@Goto@ | ~Notes~@Remark@ | ~Contents~@Contents@
+
+@Direction
+$ #Przekierowanie wyjścia#
+   The plugin can redirect the output of the specified #"<command"# or #"<<command"#.
+
+    #command# - #[#stream#][#mode#][#|path|#]#command#.
+
+    #stream# - controls which output stream(s) to redirect.
+             #1# - redirect only standard output stream #stdout#.
+             #2# - redirect only standard output stream #stderr#.
+             #*# - redirect #stderr# and #stdout# as one stream.
+             #?# - redirect #stderr# and #stdout# as different streams.
+                 ^<wrap>For commands ~view~@View@ and ~edit~@Edit@ the streams will be opened
+in separate windows. For other commands same behavior as #*#.
+
+             ^<wrap>Default value of this parameter can be defined in ~config~@Config@.
+
+    #mode#   - ^<wrap>controls direct console output (not via standard streams)
+             #># - ^<wrap>ignore the console output of the program
+and display only message about its execution.
+             #<# - ^<wrap>save console output and make it available
+for viewing with #Ctrl-O#.
+             #+# - ^<wrap>same as #<#, but displays on the screen redirected output
+of the program along with console output.
+
+             ^<wrap>Default value of this parameter can be defined in ~config~@Config@.
+             ^<wrap>Параметр #mode# можно указывать только после #stream#.
+
+    #|path|# - ^<wrap>command can be executed in the folder different from the
+current one. To do this specify the path (enclosed in pipes '#|#')
+             For example: #edit:<|%TEMP%|dir#
+
+   Program output can be opened in viewer: #~view~@View@:<command#
+     or in editor:                         #~edit~@Edit@:<command#
+     or can be placed into clipboard:      #~clip~@Clip@:<command#
+     or saved to a user-defined file:      #~run~@Run@:filename<command#
+
+
+  #Notes:#
+
+   1. ^<wrap>The entire string after the symbol '#<#' and optional modifiers
+is sent to the command processor (%COMSPEC%)
+
+   2. ^<wrap>Program output is placed in a temporary file, which is deleted automatically when FAR Manager
+doesn't need it.
+
+   3. ^<wrap>Some programs do not use standard output stream(s), but
+print directly to the console. To store console output
+and make it available for viewing with #Ctrl-O#
+use modifiers '#<#' and '#+#'. To ignore it - use '#>#'
+      ^<wrap>You can change default behavior in the ~configuration~@Config@.
+
+   4. ^<wrap>If the #stream# parameter equals #1# or #2# then the start of the
+command text must be separated from it by some symbol.
+
+   5. ^<wrap>Если #command# указан без пути, то плагин пытается найти исполняемй
+модуль, как это делает команда ~whereis~@WhereIs@.
+
+
+  #Examples:#
+
+   Execute the command "#command#" and redirect its output to the editor:
+     #edit:<command#
+
+   Possible cases with the parameter #stream#=#1#:
+     #edit:<1 command#
+     #edit:<1"command"#
+     #edit:<1+command#
+     #edit:<1|%TEMP%|command#
+
+
+   See also: ~Notes~@Remark@ | ~Contents~@Contents@
+
+@Remark
+$^#Notes#
+
+   1. ^<wrap>It is possible to enclose parameters #filename#, #path# and #command# in quotes.
+
+   2. You can use environment variables.
+
+   3. If you make a syntax error, the help will pop up.
+
+   4. ^<wrap>You can use console aliases as #command# (Console aliases - macros defined by command DOSKEY)
+
+
+   See also: ~Contents~@Contents@
+
+@Config
+$^#Configuring FAR Commands#
+
+ #External commands screen output# Control program screen ~output~@Direction@:
+
+   #Hide external command#       Hides program output. Only a message
+   #output#                      with the size of intercepted output
+                               will be displayed. Same as using #<>#
+                               instead of #<#.
+
+   #Keep external command#       Saves the text output by programs
+   #output#                      directly to the console for viewing
+                               by #Ctrl-O#.
+                               Same as using #<<# instead of #<#.
+
+   #Duplicate intercepted#       Saves for viewing by #Ctrl-O# both the
+   #output to screen#            direct console output and intercepted
+                               output.
+                               Same as using #<+# instead of #<#.
+
+
+ #Intercepting output#           Controlling of program ~output~@Direction@
+                               interception:
+
+   #Intercept both#              Intercept standard output stream
+   #stdout and stderr#           #stdout# and standard error stream
+                               #stderr# as one stream.
+                               Same as using #<*# instead of #<#.
+
+
+   #Intercept stdout only#       ^<wrap>Intercept only #stdout# (standard output stream).
+                               Same as using #<1# instead of #<#.
+
+   #Intercept stderr only#       ^<wrap>Intercept only #stderr# (standard errors stream).
+                               Same as using #<2# instead of #<#.
+
+
+   #Intercept stdout and #       Intercept stdout and #stderr#
+   #stderr separately#           separately. It has sense only in
+                               commands #view:<# and #edit:<#.
+                               In other cases same as #<*#.
+                               Can't be used with #<+#.
+                               Same as using  #<?# instead of #<#.
+
+   #View/edit empty files#       With this options off, zero sized
+                               files will not be opened for viewing
+                               or editing.
+
+ #Other#
+
+   #Edit new files#              Allows to open the editor with non
+                               existing files.
+
+   #The size of read data#       ^<wrap>Позволяет задавать максимальный размер
+считываемых из файла данных в командах ~clip~@clip@, ~goto~@goto@ и ~whereis~@whereis@.
+                               По умолчанию - 1048576 (1 MB).
+                               Максимальное значение - 4294967295 (4 GB-1).
+                               Пустое значение или 0 заменяется на 1048576 (1 MB).
+
+   Zobacz także: ~Contents~@Contents@
