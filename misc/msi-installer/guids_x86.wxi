@@ -30,6 +30,7 @@
 <?define Guid.FarHun.hlf = "1CA3A568-3B6D-4388-B951-DFC58D9A03AA" ?>
 <?define Guid.FarHun.lng = "9C451634-FC53-44B0-BC67-FB76BB0C423C" ?>
 <?define Guid.FarPol.lng = "318A19F6-0395-4216-99C5-AD295995580F" ?>
+<?define Guid.FarPol.hlf = "97742C2D-8CA3-4DFA-B731-765F7B2983B9" ?>
 <?define Guid.FarSpa.lng = "81FE4693-D830-449A-B8F8-E6838DF2EC5C" ?>
 <?define Guid.FarSky.lng = "B6EF97C0-B7DC-41EC-A007-588FCFEA279E" ?>
 <?define Guid.FarIta.lng = "DB032F9C-8EE6-4D88-95D8-42606AEEAB6A" ?>
