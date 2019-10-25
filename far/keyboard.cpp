@@ -1904,7 +1904,7 @@ bool IsModifKey(DWORD Key)
 	return Key && (Key&(KEY_CTRL|KEY_ALT|KEY_SHIFT|KEY_RCTRL|KEY_RALT)) == Key;
 }
 
-unsigned int ShieldCalcKeyCode(const INPUT_RECORD* rec, bool RealKey, bool* NotMacros)
+unsigned int ShieldCalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros)
 {
 	const auto SavedIntKeyState = IntKeyState; // нада! ибо CalcKeyCode "портит"... (Mantis#0001760)
 	IntKeyState = {};
@@ -2077,7 +2077,7 @@ static int GetMouseKey(const MOUSE_EVENT_RECORD& MouseEvent)
 	return 0;
 }
 
-unsigned int CalcKeyCode(const INPUT_RECORD* rec, bool RealKey, bool* NotMacros)
+unsigned int CalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros)
 {
 	_SVS(CleverSysLog Clev(L"CalcKeyCode"));
 	_SVS(SysLog(L"CalcKeyCode -> %s| RealKey=%d  *NotMacros=%d",_INPUT_RECORD_Dump(rec),RealKey,(NotMacros?*NotMacros:0)));
@@ -2170,15 +2170,17 @@ unsigned int CalcKeyCode(const INPUT_RECORD* rec, bool RealKey, bool* NotMacros)
 
 					if (rec->Event.KeyEvent.uChar.UnicodeChar)
 					{
-						// BUGBUG: в Windows 7 Event.KeyEvent.uChar.UnicodeChar _всегда_ заполнен, но далеко не всегда тем, чем надо.
-						// условно считаем, что если интервал между нажатиями не превышает 50 мс, то это сгенерированная при D&D или вставке комбинация,
-						// иначе - ручной ввод.
+						// BUGBUG: Since Windows 7 Event.KeyEvent.uChar.UnicodeChar is always populated, but not always properly.
+						// We can't really recognise Drag&Drop (where it's correct) and Alt+Numpad (where it isn't - see https://github.com/microsoft/terminal/issues/3323 for details).
+						// Let's assume that if the interval between the events is less than 50 ms - it's probably D&D and manual input otherwise.
 						if (!TimeCheck)
 						{
 							AltValue=rec->Event.KeyEvent.uChar.UnicodeChar;
 						}
 					}
 
+					// Reconstruct the broken UnicodeChar. See https://github.com/microsoft/terminal/issues/3323 for details.
+					rec->Event.KeyEvent.uChar.UnicodeChar = AltValue;
 					return AltValue;
 				}
 				return Modif|((CtrlState&ENHANCED_KEY)?KEY_RALT:KEY_ALT);

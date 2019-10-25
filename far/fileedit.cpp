@@ -2596,7 +2596,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		{
 			if (Param2)
 			{
-				const auto& rec = *static_cast<const INPUT_RECORD*>(Param2);
+				auto& rec = *static_cast<INPUT_RECORD*>(Param2);
 
 				if (ProcessEditorInput(rec))
 					return TRUE;
