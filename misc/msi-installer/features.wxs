@@ -171,6 +171,7 @@
         </Feature>
         <Feature Id="Polish" Level="1" Title="!(loc.Feature.Title.Polish)" AllowAdvertise="no">
           <ComponentRef Id="FarPol.lng" />
+          <ComponentRef Id="FarPol.hlf" />
         </Feature>
         <Feature Id="Russian" Level="1" Title="!(loc.Feature.Title.Russian)" AllowAdvertise="no">
           <ComponentRef Id="FarRus.hlf" />
