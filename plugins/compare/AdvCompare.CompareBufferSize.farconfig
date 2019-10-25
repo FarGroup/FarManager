@@ -27,4 +27,11 @@
    change the size of the compare buffer (in bytes) of the Advanced Compare
    plugin.
    The default value is 32768 bytes.
+
+   [HKEY_CURRENT_USER\Software\Far Manager\Plugins\AdvCompare]
+   "CompareBufferSize":REG_DWORD
+   Klucz "Plugins/AdvCompare/CompareBufferSize" jest typu DWORD i pozwala
+   zmienić wielkość bufora porównywania (w bajtach) we wtyczce Zaawansowane
+   porównywanie.
+   Domyślna wartość to 32768 bajtów.
 -->
