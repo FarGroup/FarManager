@@ -63,6 +63,9 @@
       <Component Id="FarHun.lng" Guid="$(var.Guid.FarHun.lng)" Win64="$(var.Win64)">
         <File Id="FarHun.lng" KeyPath="yes" Source="$(var.SourceDir)\FarHun.lng" />
       </Component>
+      <Component Id="FarPol.hlf" Guid="$(var.Guid.FarPol.hlf)" Win64="$(var.Win64)">
+        <File Id="FarPol.hlf" KeyPath="yes" Source="$(var.SourceDir)\FarPol.hlf" />
+      </Component>
       <Component Id="FarPol.lng" Guid="$(var.Guid.FarPol.lng)" Win64="$(var.Win64)">
         <File Id="FarPol.lng" KeyPath="yes" Source="$(var.SourceDir)\FarPol.lng" />
       </Component>
