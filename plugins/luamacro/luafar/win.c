@@ -803,6 +803,8 @@ int win_IsWinVersion(lua_State *L)
 			lua_pushboolean(L, IsWindows10OrGreater());
 		else if (!stricmp("Server", str))
 			lua_pushboolean(L, IsWindowsServer());
+		else
+			luaL_argerror(L, 1, "invalid argument value");
 	}
 	else if (lua_type(L,1) == LUA_TNUMBER)
 	{

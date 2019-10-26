@@ -1,4 +1,8 @@
-﻿shmuel 26.10.2019 17:01:59 +0200 - build 712
+﻿shmuel 26.10.2019 21:11:29 +0200 - build 713
+
+1. LuaFAR: a fix in win.IsWinVersion().
+
+shmuel 26.10.2019 17:01:59 +0200 - build 712
 
 1. LuaFAR: added function win.IsWinVersion().
 
