@@ -1,4 +1,8 @@
-﻿shmuel 21.10.2019 11:43:16 +0200 - build 711
+﻿shmuel 26.10.2019 17:01:59 +0200 - build 712
+
+1. LuaFAR: added function win.IsWinVersion().
+
+shmuel 21.10.2019 11:43:16 +0200 - build 711
 
 1. Panel.Item(X,Idx,10) - property 'SortGroup' - returns again a number rather than a boolean.
    Returning a boolean was a bug.

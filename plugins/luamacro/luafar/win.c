@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <VersionHelpers.h>
 #include "reg.h"
 #include "util.h"
 #include "ustring.h"
@@ -771,6 +772,51 @@ int win_WriteConsole(lua_State *L)
 	return 1;
 }
 
+int win_IsWinVersion(lua_State *L)
+{
+	if (lua_type(L,1) == LUA_TSTRING)
+	{
+		const char *str = lua_tostring(L,1);
+		if (!stricmp("XP", str))
+			lua_pushboolean(L, IsWindowsXPOrGreater());
+		else if (!stricmp("XPSP1", str))
+			lua_pushboolean(L, IsWindowsXPSP1OrGreater());
+		else if (!stricmp("XPSP2", str))
+			lua_pushboolean(L, IsWindowsXPSP2OrGreater());
+		else if (!stricmp("XPSP3", str))
+			lua_pushboolean(L, IsWindowsXPSP3OrGreater());
+		else if (!stricmp("Vista", str))
+			lua_pushboolean(L, IsWindowsVistaOrGreater());
+		else if (!stricmp("VistaSP1", str))
+			lua_pushboolean(L, IsWindowsVistaSP1OrGreater());
+		else if (!stricmp("VistaSP2", str))
+			lua_pushboolean(L, IsWindowsVistaSP2OrGreater());
+		else if (!stricmp("W7", str))
+			lua_pushboolean(L, IsWindows7OrGreater());
+		else if (!stricmp("W7SP1", str))
+			lua_pushboolean(L, IsWindows7SP1OrGreater());
+		else if (!stricmp("W8", str))
+			lua_pushboolean(L, IsWindows8OrGreater());
+		else if (!stricmp("W8.1", str))
+			lua_pushboolean(L, IsWindows8Point1OrGreater());
+		else if (!stricmp("W10", str))
+			lua_pushboolean(L, IsWindows10OrGreater());
+		else if (!stricmp("Server", str))
+			lua_pushboolean(L, IsWindowsServer());
+	}
+	else if (lua_type(L,1) == LUA_TNUMBER)
+	{
+		WORD major = (WORD)luaL_checkinteger(L,1);
+		WORD minor = (WORD)luaL_checkinteger(L,2);
+		WORD servpack = (WORD)luaL_checkinteger(L,3);
+		lua_pushboolean(L, IsWindowsVersionOrGreater(major, minor, servpack));
+	}
+	else
+		luaL_argerror(L, 1, "must be string or integer");
+
+	return 1;
+}
+
 const luaL_Reg win_funcs[] =
 {
 	{"CompareString",       win_CompareString},
@@ -783,6 +829,7 @@ const luaL_Reg win_funcs[] =
 	{"EnumRegValue",        win_EnumRegValue},
 	{"ExtractKey",          win_ExtractKey},
 	{"ExtractKeyEx",        win_ExtractKeyEx},
+	{"IsWinVersion",        win_IsWinVersion},
 	{"FileTimeToLocalFileTime", win_FileTimeToLocalFileTime},
 	{"FileTimeToSystemTime",win_FileTimeToSystemTime},
 	{"GetConsoleScreenBufferInfo", win_GetConsoleScreenBufferInfo},

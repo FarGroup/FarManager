@@ -11023,6 +11023,37 @@ mtime=3710673277
 </article>
 </node>
 <node>
+id=545
+lv=3
+dt=Text
+nm=win.IsWinVersion
+ctime=3781269609
+mtime=3781270633
+<article>
+#_result = win.IsWinVersion (strVersion)
+#_  or
+#_result = win.IsWinVersion (major, minor, servpack)
+#_
+#_**Parameters:**
+#_  strVersion: either of "XP", "XPSP1", "XPSP2", "XPSP3", "Vista", "VistaSP1",
+#_              "VistaSP2", "W7", "W7SP1", "W8", "W8.1", "W10", "Server".
+#_              This parameter is case insensitive.
+#_
+#_  major:      integer
+#_  minor:      integer
+#_  servpack:   integer
+#_
+#_**Returns:**
+#_  result: boolean
+#_
+#_**Description:**
+#_  This function checks the current Windows version and returns true
+#_  if it is equal or greater than the version specified by the given argument(s).
+#_  If the argument is "Server" then the version is not checked.
+#_
+</article>
+</node>
+<node>
 id=507
 lv=3
 dt=Text
