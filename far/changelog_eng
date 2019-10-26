@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 26.10.2019 14:40:42 +0100 - build 5498
+
+1. Refactoring.
+
 drkns 25.10.2019 18:08:44 +0100 - build 5497
 
 1. Continuation of 1053.2 - apply the workaround to the initial INPUT_RECORD as well - it might fall into plugins' hands.

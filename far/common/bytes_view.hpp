@@ -53,6 +53,12 @@ public:
 	{
 		static_assert(std::is_trivially_copyable_v<T>);
 	}
+
+	[[nodiscard]]
+	operator std::string_view() const
+	{
+		return { data(), size() };
+	}
 };
 
 class bytes: public base<span<char>>
@@ -114,6 +120,12 @@ public:
 
 	[[nodiscard]]
 	operator bytes_view() const
+	{
+		return { data(), size() };
+	}
+
+	[[nodiscard]]
+	operator std::string_view() const
 	{
 		return { data(), size() };
 	}

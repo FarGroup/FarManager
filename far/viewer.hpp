@@ -272,11 +272,36 @@ private:
 	}
 	vString;
 
-	char vgetc_buffer[64];
-	bool vgetc_ready;
-	int  vgetc_cb;
-	int  vgetc_ib;
-	wchar_t vgetc_composite;
+	class vgetc_cache
+	{
+	public:
+		char* begin() { return m_Iterator; }
+		char* end() { return m_End; }
+		const char* begin() const { return m_Iterator; }
+		const char* end() const { return m_End; }
+		const char* cbegin() const { return m_Iterator; }
+		const char* cend() const { return m_End; }
+
+		void clear() { m_End = m_Iterator = m_Buffer; }
+		bool ready() const { return m_End != m_Buffer; }
+		char top() const { return *m_Iterator; }
+		char pop() { return *m_Iterator++; }
+		void pop(size_t Count) { m_Iterator += Count; }
+		size_t size() const { return m_End - m_Iterator; }
+		bool empty() const { return m_Iterator == m_End; }
+		size_t free_size() const { return std::end(m_Buffer) - m_End; }
+		void compact();
+
+	private:
+		char m_Buffer[64];
+
+	public: // BUGBUG
+		char* m_Iterator{ m_Buffer };
+		char* m_End{ m_Buffer };
+	}
+	VgetcCache;
+
+	wchar_t vgetc_composite{};
 
 	std::vector<wchar_t> ReadBuffer;
 	F8CP f8cps;

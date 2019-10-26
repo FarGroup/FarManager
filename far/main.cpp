@@ -321,7 +321,7 @@ static int MainProcess(
 		Global->ScrBuf->ResetLockCount();
 		Global->ScrBuf->Flush();
 
-		return 0;
+		return EXIT_SUCCESS;
 }
 
 static void InitTemplateProfile(string &strTemplatePath)
@@ -654,7 +654,7 @@ static int mainImpl(span<const wchar_t* const> const Args)
 				case L'H':
 					ControlObject::ShowCopyright(1);
 					show_help();
-					return 0;
+					return EXIT_SUCCESS;
 
 #ifdef DIRECT_RT
 				case L'D':
@@ -782,7 +782,7 @@ static int wmain_seh(int Argc, const wchar_t* const Argv[])
 	if (Argc > 1 && Argv[1] == L"/service:test"sv)
 	{
 #ifdef DEBUG_TESTS
-		return 0;
+		return EXIT_SUCCESS;
 #else
 		return testing_main(true, Argc, Argv);
 #endif
@@ -807,7 +807,7 @@ static int wmain_seh(int Argc, const wchar_t* const Argv[])
 	catch (const far_known_exception& e)
 	{
 		std::wcerr << e.what() << std::endl;
-		return 1;
+		return EXIT_FAILURE;
 	}
 	catch (const std::exception& e)
 	{
