@@ -1,0 +1,76 @@
+﻿.Language=Polish,Polish (Polski)
+
+"&Ok"
+"&Anuluj"
+"Błąd"
+"&Tak"
+
+"Przeglądrka sieciowa"
+
+"network"
+
+"Mapuj"
+"MapujDo"
+"TMap"
+"TMapTo"
+"Odłącz"
+"Usuń"
+"PodRęcz"
+
+"Proszę czekać"
+"Skanuowanie sieci..."
+
+"Nie można przeglądać sieci"
+"Nie można połączyć \"%.40s\" do %s"
+"Nazwa dysku ma już zapamiętane połączenie"
+
+"Jeżeli nie zamkniesz otwartych plików, możesz utracić ich zawartość."
+"Na pewno chcesz odłączyć urządzenie?"
+"Nie można odłączyć od %s"
+
+"Brak wolnych liter dysków"
+
+"&Użytkownik"
+"&Hasło"
+
+"Na stałe połącz z"
+"Tymczasowo połącz z"
+"F6 - tymczasowo"
+"F6 - na stałe"
+
+"Net"
+"Nazwa sieciowa"
+"*:"
+"Komentarz"
+
+"Przeglądarka sieci"
+"Dodaj do menu &dysków"
+"Dodaj do menu &wtyczek"
+"&Skrót menu dysków ('1'-'9'). Pozostaw pusty, dla automatycznego"
+"Pokaż sieć &lokalną"
+"Udziały"
+"Pokaż &pełną nazwę udziału"
+"Udziały ukryte"
+"&Nigdy nie pokazuj"
+"Pokaż jako &ukryte"
+"Z&awsze pokazuj"
+"Pokaż &drukarki"
+"Show \"&..\" in the providers"
+"Przeglądaj do &Ulubionych, jeżeli możliwe"
+"Check resource &reachability"
+
+"Rozłącz dysk sieciowy"
+"Chcesz rozłączyć się z dyskiem %s?"
+"Dysk %s jest zamapowany do "
+"Podłącz po zalo&gowaniu"
+
+"Rozłącz dysk sieciowy\nDysk %s jest zamapowany do wielu liter dysków\nKtórą z nich chcesz rozłączyć?\n"
+
+"Ulubione"
+"Ulubione foldery"
+
+"&Pamiętaj hasło"
+
+"Usuń z ulubionych"
+"Usuń \"%s\" z ulubionych"
+"Usuń %d pozycji z ulubionych"
