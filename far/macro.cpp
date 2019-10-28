@@ -1397,7 +1397,7 @@ static bool modFunc(FarMacroCall*);
 static bool msgBoxFunc(FarMacroCall*);
 static bool panelfattrFunc(FarMacroCall*);
 static bool panelfexistFunc(FarMacroCall*);
-static bool panelitemFunc(FarMacroCall*);
+static int  panelitemFunc(FarMacroCall*);
 static bool panelselectFunc(FarMacroCall*);
 static bool panelsetposFunc(FarMacroCall*);
 static bool panelsetposidxFunc(FarMacroCall*);
@@ -1424,7 +1424,7 @@ static int PassString(const wchar_t *str, FarMacroCall* Data)
 {
 	if (Data->Callback)
 	{
-		FarMacroValue val = str;
+		FarMacroValue val = NullToEmpty(str);
 		Data->Callback(Data->CallbackData, &val, 1);
 	}
 	return 1;
@@ -4384,30 +4384,23 @@ static bool replaceFunc(FarMacroCall* Data)
 }
 
 // V=Panel.Item(typePanel,Index,TypeInfo)
-static bool panelitemFunc(FarMacroCall* Data)
+static int panelitemFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams(3, Data);
 	auto& P2(Params[2]);
 	auto& P1(Params[1]);
 	int typePanel = static_cast<int>(Params[0].asInteger());
-	TVar Ret(0ll);
 
 	//const auto CurrentWindow=WindowManager->GetCurrentWindow();
 
 	const auto SelPanel = TypeToPanel(typePanel);
 	if (!SelPanel)
-	{
-		PassValue(Ret, Data);
-		return false;
-	}
+		return 0;
 
 	const auto PanelType = SelPanel->GetType(); //FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL
 
 	if (!(PanelType == panel_type::FILE_PANEL || PanelType == panel_type::TREE_PANEL))
-	{
-		PassValue(Ret, Data);
-		return false;
-	}
+		return 0;
 
 	int Index = static_cast<int>(P1.toInteger()) - 1;
 	int TypeInfo = static_cast<int>(P2.toInteger());
@@ -4416,10 +4409,7 @@ static bool panelitemFunc(FarMacroCall* Data)
 	{
 		const auto treeItem = Tree->GetItem(Index);
 		if (treeItem && !TypeInfo)
-		{
-			PassString(treeItem->strName, Data);
-			return true;
-		}
+			return PassString(treeItem->strName, Data);
 	}
 	else if (const auto fileList = std::dynamic_pointer_cast<FileList>(SelPanel))
 	{
@@ -4431,92 +4421,67 @@ static bool panelitemFunc(FarMacroCall* Data)
 		const auto filelistItem = fileList->GetItem(Index);
 
 		if (!filelistItem)
-			TypeInfo=-1;
+			return 0;
 
 		switch (TypeInfo)
 		{
 			case 0:  // Name
-				Ret=TVar(filelistItem->FileName);
-				break;
+				return PassString(filelistItem->FileName, Data);
 			case 1:  // ShortName
-				Ret=TVar(filelistItem->AlternateFileName());
-				break;
+				return PassString(filelistItem->AlternateFileName(), Data);
 			case 2:  // FileAttr
-				PassNumber(static_cast<long>(filelistItem->Attributes), Data);
-				return false;
+				return PassNumber(static_cast<long>(filelistItem->Attributes), Data);
 			case 3:  // CreationTime
 				ConvertDate(filelistItem->CreationTime, strDate, strTime, 8, 1);
-				Ret = concat(strDate, L' ', strTime);
-				break;
+				return PassString(concat(strDate, L' ', strTime), Data);
 			case 4:  // AccessTime
 				ConvertDate(filelistItem->LastAccessTime, strDate, strTime, 8, 1);
-				Ret = concat(strDate, L' ', strTime);
-				break;
+				return PassString(concat(strDate, L' ', strTime), Data);
 			case 5:  // WriteTime
 				ConvertDate(filelistItem->LastWriteTime, strDate, strTime, 8, 1);
-				Ret = concat(strDate, L' ', strTime);
-				break;
+				return PassString(concat(strDate, L' ', strTime), Data);
 			case 6:  // FileSize
-				PassInteger(filelistItem->FileSize, Data);
-				return false;
+				return PassInteger(filelistItem->FileSize, Data);
 			case 7:  // AllocationSize
-				PassInteger(filelistItem->AllocationSize, Data);
-				return false;
+				return PassInteger(filelistItem->AllocationSize, Data);
 			case 8:  // Selected
-				PassBoolean(filelistItem->Selected, Data);
-				return false;
+				return PassBoolean(filelistItem->Selected, Data);
 			case 9:  // NumberOfLinks
-				PassNumber(filelistItem->NumberOfLinks(fileList.get()), Data);
-				return false;
+				return PassNumber(filelistItem->NumberOfLinks(fileList.get()), Data);
 			case 10:  // SortGroup
-				PassNumber(filelistItem->SortGroup, Data);
-				return false;
+				return PassNumber(filelistItem->SortGroup, Data);
 			case 11:  // DizText
-				Ret=TVar(filelistItem->DizText);
-				break;
+				return PassString(filelistItem->DizText, Data);
 			case 12:  // Owner
-				Ret = TVar(filelistItem->Owner(fileList.get()));
-				break;
+				return PassString(filelistItem->Owner(fileList.get()), Data);
 			case 13:  // CRC32
-				PassNumber(filelistItem->CRC32, Data);
-				return false;
+				return PassNumber(filelistItem->CRC32, Data);
 			case 14:  // Position
-				PassNumber(filelistItem->Position, Data);
-				return false;
+				return PassNumber(filelistItem->Position, Data);
 			case 15:  // CreationTime
-				PassInteger(os::chrono::nt_clock::to_int64(filelistItem->CreationTime), Data);
-				return false;
+				return PassInteger(os::chrono::nt_clock::to_int64(filelistItem->CreationTime), Data);
 			case 16:  // AccessTime
-				PassInteger(os::chrono::nt_clock::to_int64(filelistItem->LastAccessTime), Data);
-				return false;
+				return PassInteger(os::chrono::nt_clock::to_int64(filelistItem->LastAccessTime), Data);
 			case 17:  // WriteTime
-				PassInteger(os::chrono::nt_clock::to_int64(filelistItem->LastWriteTime), Data);
-				return false;
+				return PassInteger(os::chrono::nt_clock::to_int64(filelistItem->LastWriteTime), Data);
 			case 18: // NumberOfStreams
-				PassNumber(filelistItem->NumberOfStreams(fileList.get()), Data);
-				return false;
+				return PassNumber(filelistItem->NumberOfStreams(fileList.get()), Data);
 			case 19: // StreamsSize
-				PassInteger(filelistItem->StreamsSize(fileList.get()), Data);
-				return false;
+				return PassInteger(filelistItem->StreamsSize(fileList.get()), Data);
 			case 20:  // ChangeTime
 				ConvertDate(filelistItem->ChangeTime, strDate, strTime, 8, 1);
-				Ret = concat(strDate, L' ', strTime);
-				break;
+				return PassString(concat(strDate, L' ', strTime), Data);
 			case 21:  // ChangeTime
-				PassInteger(os::chrono::nt_clock::to_int64(filelistItem->ChangeTime), Data);
-				return false;
+				return PassInteger(os::chrono::nt_clock::to_int64(filelistItem->ChangeTime), Data);
 			case 22:  // ContentData (was: CustomData)
 				//Ret=TVar(filelistItem->ContentData.size() ? filelistItem->ContentData[0] : L"");
-				Ret=TVar(L"");
-				break;
+				return PassString(L"", Data);
 			case 23:  // ReparseTag
-				PassNumber(filelistItem->ReparseTag, Data);
-				return false;
+				return PassNumber(filelistItem->ReparseTag, Data);
 		}
 	}
 
-	PassValue(Ret, Data);
-	return false;
+	return 0;
 }
 
 // N=len(V)
