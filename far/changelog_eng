@@ -3,6 +3,11 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 28.10.2019 20:59:35 +0200 - build 5499
+
+1. As this case is not mentioned in the docs MacroAddMacro::SequenceText is allowed
+   to be an empty string. An empty string is a valid script.
+
 drkns 26.10.2019 14:40:42 +0100 - build 5498
 
 1. Refactoring.
