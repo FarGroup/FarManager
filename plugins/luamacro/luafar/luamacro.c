@@ -168,14 +168,16 @@ typedef struct
 {
 	lua_State *L;
 	int ret_avail;
+	int error;
 } mcfc_data;
 
 static void WINAPI MacroCallFarCallback(void *Data, struct FarMacroValue *Val, size_t Count)
 {
 	mcfc_data *cbdata = (mcfc_data*)Data;
 	(void) Count;
-	if(cbdata->ret_avail > 0)
+	if (!cbdata->error && cbdata->ret_avail > 0)
 	{
+		cbdata->error = (Val->Type == FMVT_ERROR);
 		--cbdata->ret_avail;
 		PushFarMacroValue(cbdata->L, Val);
 	}
@@ -187,7 +189,7 @@ int far_MacroCallFar(lua_State *L)
 	struct FarMacroValue args[MAXARG];
 	struct FarMacroCall fmc;
 	int idx, ret, pushed;
-	mcfc_data cbdata = { L, MAXRET };
+	mcfc_data cbdata = { L, MAXRET, 0 };
 	TPluginData *pd = GetPluginData(L);
 	struct MacroPrivateInfo *privateInfo = (struct MacroPrivateInfo*)pd->Info->Private;
 	int opcode = (int)luaL_checkinteger(L, 1);
@@ -217,6 +219,8 @@ int far_MacroCallFar(lua_State *L)
 	pushed = MAXRET - cbdata.ret_avail;
 	if (fmc.Values != args)
 		free(fmc.Values);
+	if (cbdata.error)
+		return luaL_error(L, lua_tostring(L, -1));
 	return pushed ? pushed : (lua_pushnumber(L, ret), 1);
 }
 

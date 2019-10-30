@@ -1261,6 +1261,7 @@ enum FARMACROVARTYPE
 	FMVT_NIL                    = 7,
 	FMVT_ARRAY                  = 8,
 	FMVT_PANEL                  = 9,
+	FMVT_ERROR                  = 10,
 };
 
 struct FarMacroValue

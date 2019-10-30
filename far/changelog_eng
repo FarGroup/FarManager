@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 30.10.2019 22:24:15 +0200 - build 5502
+
+1. M#3748: Panel.Item: return value when given incorrect parameters
+
 shmuel 30.10.2019 14:47:08 +0200 - build 5501
 
 1. Keyboard macros could not be deleted or edited after 5496.

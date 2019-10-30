@@ -1191,7 +1191,7 @@ local function test_Panel_Item()
     assert(IsNumOrInt(Panel.Item(pt,0,19)))
     assert(type(Panel.Item(pt,0,20)) =="string")
     assert(IsNumOrInt(Panel.Item(pt,0,21)))
-    assert(type(Panel.Item(pt,0,22)) =="string")
+    assert(not pcall(Panel.Item,pt,0,22))
     assert(type(Panel.Item(pt,0,23)) =="number")
   end
 end

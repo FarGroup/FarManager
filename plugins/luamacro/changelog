@@ -1,4 +1,8 @@
-﻿shmuel 26.10.2019 21:11:29 +0200 - build 713
+﻿shmuel 30.10.2019 22:19:18 +0200 - build 714
+
+1. Support throwing Lua errors from macro-API code in Far.exe (starting from build 5502).
+
+shmuel 26.10.2019 21:11:29 +0200 - build 713
 
 1. LuaFAR: a fix in win.IsWinVersion().
 

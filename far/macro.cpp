@@ -1422,11 +1422,8 @@ static bool pluginexistFunc(FarMacroCall*);
 
 static int PassString(const wchar_t *str, FarMacroCall* Data)
 {
-	if (Data->Callback)
-	{
-		FarMacroValue val = NullToEmpty(str);
-		Data->Callback(Data->CallbackData, &val, 1);
-	}
+	FarMacroValue val = NullToEmpty(str);
+	Data->Callback(Data->CallbackData, &val, 1);
 	return 1;
 }
 
@@ -1435,54 +1432,50 @@ static int PassString(const string& str, FarMacroCall* Data)
 	return PassString(str.c_str(), Data);
 }
 
+static int PassError(const wchar_t *str, FarMacroCall* Data)
+{
+	FarMacroValue val = NullToEmpty(str);
+	val.Type = FMVT_ERROR;
+	Data->Callback(Data->CallbackData, &val, 1);
+	return 1;
+}
+
 static int PassNumber(double dbl, FarMacroCall* Data)
 {
-	if (Data->Callback)
-	{
-		FarMacroValue val = dbl;
-		Data->Callback(Data->CallbackData, &val, 1);
-	}
+	FarMacroValue val = dbl;
+	Data->Callback(Data->CallbackData, &val, 1);
 	return 1;
 }
 
 static int PassInteger(long long Int, FarMacroCall* Data)
 {
-	if (Data->Callback)
-	{
-		FarMacroValue val = Int;
-		Data->Callback(Data->CallbackData, &val, 1);
-	}
+	FarMacroValue val = Int;
+	Data->Callback(Data->CallbackData, &val, 1);
 	return 1;
 }
 
 static int PassBoolean(int b, FarMacroCall* Data)
 {
-	if (Data->Callback)
-	{
-		FarMacroValue val = (b != 0);
-		Data->Callback(Data->CallbackData, &val, 1);
-	}
+	FarMacroValue val = (b != 0);
+	Data->Callback(Data->CallbackData, &val, 1);
 	return 1;
 }
 
 static int PassValue(const TVar& Var, FarMacroCall* Data)
 {
-	if (Data->Callback)
-	{
-		FarMacroValue val;
-		double dd;
+	FarMacroValue val;
+	double dd;
 
-		if (Var.isDouble())
-			val = Var.asDouble();
-		else if (Var.isString())
-			val = Var.asString();
-		else if (ToDouble(Var.asInteger(), &dd))
-			val = dd;
-		else
-			val = Var.asInteger();
+	if (Var.isDouble())
+		val = Var.asDouble();
+	else if (Var.isString())
+		val = Var.asString();
+	else if (ToDouble(Var.asInteger(), &dd))
+		val = dd;
+	else
+		val = Var.asInteger();
 
-		Data->Callback(Data->CallbackData, &val, 1);
-	}
+	Data->Callback(Data->CallbackData, &val, 1);
 	return 1;
 }
 
@@ -4395,12 +4388,12 @@ static int panelitemFunc(FarMacroCall* Data)
 
 	const auto SelPanel = TypeToPanel(typePanel);
 	if (!SelPanel)
-		return 0;
+		return PassError(L"No panel selected", Data);
 
 	const auto PanelType = SelPanel->GetType(); //FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL
 
 	if (!(PanelType == panel_type::FILE_PANEL || PanelType == panel_type::TREE_PANEL))
-		return 0;
+		return PassError(L"Unsupported panel type", Data);
 
 	int Index = static_cast<int>(P1.toInteger()) - 1;
 	int TypeInfo = static_cast<int>(P2.toInteger());
@@ -4421,7 +4414,7 @@ static int panelitemFunc(FarMacroCall* Data)
 		const auto filelistItem = fileList->GetItem(Index);
 
 		if (!filelistItem)
-			return 0;
+			return PassError(L"No list item found at specified index", Data);
 
 		switch (TypeInfo)
 		{
@@ -4475,13 +4468,13 @@ static int panelitemFunc(FarMacroCall* Data)
 				return PassInteger(os::chrono::nt_clock::to_int64(filelistItem->ChangeTime), Data);
 			case 22:  // ContentData (was: CustomData)
 				//Ret=TVar(filelistItem->ContentData.size() ? filelistItem->ContentData[0] : L"");
-				return PassString(L"", Data);
+				break;
 			case 23:  // ReparseTag
 				return PassNumber(filelistItem->ReparseTag, Data);
 		}
 	}
 
-	return 0;
+	return PassError(L"Operation not supported", Data);
 }
 
 // N=len(V)

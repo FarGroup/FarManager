@@ -741,24 +741,39 @@ void LF_GetOpenPanelInfo(lua_State* L, struct OpenPanelInfo *aInfo)
 
 void PushFarMacroValue(lua_State* L, const struct FarMacroValue* val)
 {
-	if (val->Type == FMVT_INTEGER)      bit64_push(L, val->Value.Integer);
-	else if (val->Type == FMVT_DOUBLE)  lua_pushnumber(L, val->Value.Double);
-	else if (val->Type == FMVT_STRING)  push_utf8_string(L, val->Value.String, -1);
-	else if (val->Type == FMVT_BOOLEAN) lua_pushboolean(L, (int)val->Value.Boolean);
-	else if (val->Type == FMVT_POINTER || val->Type == FMVT_PANEL) lua_pushlightuserdata(L, val->Value.Pointer);
-	else if (val->Type == FMVT_BINARY)
+	switch(val->Type)
 	{
-		lua_createtable(L,1,0);
-		lua_pushlstring(L, (char*)val->Value.Binary.Data, val->Value.Binary.Size);
-		lua_rawseti(L,-2,1);
+		case FMVT_INTEGER:
+			bit64_push(L, val->Value.Integer);
+			break;
+		case FMVT_DOUBLE:
+			lua_pushnumber(L, val->Value.Double);
+			break;
+		case FMVT_STRING:
+		case FMVT_ERROR:
+			push_utf8_string(L, val->Value.String, -1);
+			break;
+		case FMVT_BOOLEAN:
+			lua_pushboolean(L, (int)val->Value.Boolean);
+			break;
+		case FMVT_POINTER:
+		case FMVT_PANEL:
+			lua_pushlightuserdata(L, val->Value.Pointer);
+			break;
+		case FMVT_BINARY:
+			lua_createtable(L,1,0);
+			lua_pushlstring(L, (char*)val->Value.Binary.Data, val->Value.Binary.Size);
+			lua_rawseti(L,-2,1);
+			break;
+		case FMVT_ARRAY:
+			PackMacroValues(L, val->Value.Array.Count, val->Value.Array.Values); // recursion
+			lua_pushliteral(L, "array");
+			lua_setfield(L, -2, "type");
+			break;
+		default:
+			lua_pushnil(L);
+			break;
 	}
-	else if (val->Type == FMVT_ARRAY)
-	{
-		PackMacroValues(L, val->Value.Array.Count, val->Value.Array.Values); // recursion
-		lua_pushliteral(L, "array");
-		lua_setfield(L, -2, "type");
-	}
-	else lua_pushnil(L);
 }
 
 void PackMacroValues(lua_State* L, size_t Count, const struct FarMacroValue* Values)
