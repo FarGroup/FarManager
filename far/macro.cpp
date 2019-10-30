@@ -5161,7 +5161,7 @@ int KeyMacro::AssignMacroKey(DWORD &MacroKey, unsigned long long& Flags)
 	Dlg->Process();
 	Global->IsProcessAssignMacroKey--;
 
-	if (Dlg->GetExitCode() != mad_combobox)
+	if (Dlg->GetExitCode() < 0)
 		return 0;
 
 	MacroKey = Param.Key;

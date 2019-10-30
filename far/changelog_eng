@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 30.10.2019 14:47:08 +0200 - build 5501
+
+1. Keyboard macros could not be deleted or edited after 5496.
+
 shmuel 28.10.2019 23:30:53 +0200 - build 5500
 
 1. Refactoring.
