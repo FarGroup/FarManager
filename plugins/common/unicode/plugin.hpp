@@ -6,7 +6,7 @@
 /*
 plugin.hpp
 
-Plugin API for Far Manager 3.0 build 5435
+Plugin API for Far Manager 3.0 build 5502
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -44,8 +44,8 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 5435
-#define FARMANAGERVERSION_STAGE VS_RELEASE
+#define FARMANAGERVERSION_BUILD 5502
+#define FARMANAGERVERSION_STAGE VS_PRIVATE
 
 #ifndef RC_INVOKED
 
@@ -880,7 +880,7 @@ struct FarPanelDirectory
 #define PANEL_NONE    ((HANDLE)(-1))
 #define PANEL_ACTIVE  ((HANDLE)(-1))
 #define PANEL_PASSIVE ((HANDLE)(-2))
-#define PANEL_STOP ((HANDLE)(-1))
+#define PANEL_STOP    ((HANDLE)(-1))
 
 enum FILE_CONTROL_COMMANDS
 {
@@ -1175,6 +1175,7 @@ enum FARMACROVARTYPE
 	FMVT_NIL                    = 7,
 	FMVT_ARRAY                  = 8,
 	FMVT_PANEL                  = 9,
+	FMVT_ERROR                  = 10,
 };
 
 struct FarMacroValue
@@ -2898,7 +2899,7 @@ extern "C"
 	void     WINAPI FreeContentDataW(const struct GetContentDataInfo *Info);
 
 #ifdef __cplusplus
-};
+}
 #endif
 
 #endif /* RC_INVOKED */

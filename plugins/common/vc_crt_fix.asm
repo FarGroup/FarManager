@@ -58,6 +58,7 @@ HOOK RtlFirstEntrySList                     ,  4, :dword
 HOOK QueryDepthSList                        ,  4, :dword
 HOOK GetNumaHighestNodeNumber               ,  4, :dword
 HOOK GetLogicalProcessorInformation         ,  8, :dword, :dword
+HOOK SetThreadStackGuarantee                ,  4, :dword
 endif
 
 end
