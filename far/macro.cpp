@@ -1356,112 +1356,129 @@ DWORD KeyMacro::GetMacroParseError(COORD* ErrPos, string& ErrSrc)
 	}
 }
 
-static bool absFunc(FarMacroCall*);
-static bool ascFunc(FarMacroCall*);
-static bool atoiFunc(FarMacroCall*);
-static bool beepFunc(FarMacroCall*);
-static bool chrFunc(FarMacroCall*);
-static bool clipFunc(FarMacroCall*);
-static bool dateFunc(FarMacroCall*);
-static bool dlggetvalueFunc(FarMacroCall*);
-static bool dlgsetfocusFunc(FarMacroCall*);
-static bool editordellineFunc(FarMacroCall*);
-static bool editorinsstrFunc(FarMacroCall*);
-static bool editorposFunc(FarMacroCall*);
-static bool editorselFunc(FarMacroCall*);
-static bool editorsetFunc(FarMacroCall*);
-static bool editorsetstrFunc(FarMacroCall*);
-static bool editorsettitleFunc(FarMacroCall*);
-static bool editorundoFunc(FarMacroCall*);
-static bool environFunc(FarMacroCall*);
-static bool farcfggetFunc(FarMacroCall*);
-static bool fargetconfigFunc(FarMacroCall*);
-static bool fattrFunc(FarMacroCall*);
-static bool fexistFunc(FarMacroCall*);
-static bool floatFunc(FarMacroCall*);
-static bool flockFunc(FarMacroCall*);
-static bool fmatchFunc(FarMacroCall*);
-static bool fsplitFunc(FarMacroCall*);
-static bool indexFunc(FarMacroCall*);
-static bool intFunc(FarMacroCall*);
-static bool itowFunc(FarMacroCall*);
-static bool kbdLayoutFunc(FarMacroCall*);
-static bool keybarshowFunc(FarMacroCall*);
-static bool keyFunc(FarMacroCall*);
-static bool lcaseFunc(FarMacroCall*);
-static bool lenFunc(FarMacroCall*);
-static bool maxFunc(FarMacroCall*);
-static bool menushowFunc(FarMacroCall*);
-static bool minFunc(FarMacroCall*);
-static bool modFunc(FarMacroCall*);
-static bool msgBoxFunc(FarMacroCall*);
-static bool panelfattrFunc(FarMacroCall*);
-static bool panelfexistFunc(FarMacroCall*);
-static int  panelitemFunc(FarMacroCall*);
-static bool panelselectFunc(FarMacroCall*);
-static bool panelsetposFunc(FarMacroCall*);
-static bool panelsetposidxFunc(FarMacroCall*);
-static bool promptFunc(FarMacroCall*);
-static bool replaceFunc(FarMacroCall*);
-static bool rindexFunc(FarMacroCall*);
-static bool size2strFunc(FarMacroCall*);
-static bool sleepFunc(FarMacroCall*);
-static bool stringFunc(FarMacroCall*);
-static bool strwrapFunc(FarMacroCall*);
-static bool strpadFunc(FarMacroCall*);
-static bool substrFunc(FarMacroCall*);
-static bool testfolderFunc(FarMacroCall*);
-static bool trimFunc(FarMacroCall*);
-static bool ucaseFunc(FarMacroCall*);
-static bool waitkeyFunc(FarMacroCall*);
-static bool windowscrollFunc(FarMacroCall*);
-static bool xlatFunc(FarMacroCall*);
-static bool pluginloadFunc(FarMacroCall*);
-static bool pluginunloadFunc(FarMacroCall*);
-static bool pluginexistFunc(FarMacroCall*);
+class FarMacroApi
+{
+	FarMacroCall* mData;
+	int fattrFuncImpl(int Type);
 
-static int PassString(const wchar_t *str, FarMacroCall* Data)
+public:
+	FarMacroApi(FarMacroCall* Data) : mData(Data) {}
+
+	int PassBoolean(int b);
+	int PassError(const wchar_t *str);
+	int PassInteger(long long Int);
+	int PassNumber(double dbl);
+	int PassString(const wchar_t *str);
+	int PassString(const string& str);
+	int PassValue(const TVar& Var);
+
+	int absFunc();
+	int ascFunc();
+	int atoiFunc();
+	int beepFunc();
+	int chrFunc();
+	int clipFunc();
+	int dateFunc();
+	int dlggetvalueFunc();
+	int dlgsetfocusFunc();
+	int editordellineFunc();
+	int editorinsstrFunc();
+	int editorposFunc();
+	int editorselFunc();
+	int editorsetFunc();
+	int editorsetstrFunc();
+	int editorsettitleFunc();
+	int editorundoFunc();
+	int environFunc();
+	int farcfggetFunc();
+	int fargetconfigFunc();
+	int fattrFunc();
+	int fexistFunc();
+	int floatFunc();
+	int flockFunc();
+	int fmatchFunc();
+	int fsplitFunc();
+	int indexFunc();
+	int intFunc();
+	int itowFunc();
+	int kbdLayoutFunc();
+	int keyFunc();
+	int keybarshowFunc();
+	int lcaseFunc();
+	int lenFunc();
+	int maxFunc();
+	int menushowFunc();
+	int minFunc();
+	int modFunc();
+	int msgBoxFunc();
+	int panelfattrFunc();
+	int panelfexistFunc();
+	int panelitemFunc();
+	int panelselectFunc();
+	int panelsetposFunc();
+	int panelsetposidxFunc();
+	int pluginexistFunc();
+	int pluginloadFunc();
+	int pluginunloadFunc();
+	int promptFunc();
+	int replaceFunc();
+	int rindexFunc();
+	int size2strFunc();
+	int sleepFunc();
+	int stringFunc();
+	int strpadFunc();
+	int strwrapFunc();
+	int substrFunc();
+	int testfolderFunc();
+	int trimFunc();
+	int ucaseFunc();
+	int waitkeyFunc();
+	int windowscrollFunc();
+	int xlatFunc();
+};
+
+int FarMacroApi::PassString(const wchar_t *str)
 {
 	FarMacroValue val = NullToEmpty(str);
-	Data->Callback(Data->CallbackData, &val, 1);
+	mData->Callback(mData->CallbackData, &val, 1);
 	return 1;
 }
 
-static int PassString(const string& str, FarMacroCall* Data)
+int FarMacroApi::PassString(const string& str)
 {
-	return PassString(str.c_str(), Data);
+	return PassString(str.c_str());
 }
 
-static int PassError(const wchar_t *str, FarMacroCall* Data)
+int FarMacroApi::PassError(const wchar_t *str)
 {
 	FarMacroValue val = NullToEmpty(str);
 	val.Type = FMVT_ERROR;
-	Data->Callback(Data->CallbackData, &val, 1);
+	mData->Callback(mData->CallbackData, &val, 1);
 	return 1;
 }
 
-static int PassNumber(double dbl, FarMacroCall* Data)
+int FarMacroApi::PassNumber(double dbl)
 {
 	FarMacroValue val = dbl;
-	Data->Callback(Data->CallbackData, &val, 1);
+	mData->Callback(mData->CallbackData, &val, 1);
 	return 1;
 }
 
-static int PassInteger(long long Int, FarMacroCall* Data)
+int FarMacroApi::PassInteger(long long Int)
 {
 	FarMacroValue val = Int;
-	Data->Callback(Data->CallbackData, &val, 1);
+	mData->Callback(mData->CallbackData, &val, 1);
 	return 1;
 }
 
-static int PassBoolean(int b, FarMacroCall* Data)
+int FarMacroApi::PassBoolean(int b)
 {
 	FarMacroValue val = (b != 0);
-	Data->Callback(Data->CallbackData, &val, 1);
+	mData->Callback(mData->CallbackData, &val, 1);
 	return 1;
 }
 
-static int PassValue(const TVar& Var, FarMacroCall* Data)
+int FarMacroApi::PassValue(const TVar& Var)
 {
 	FarMacroValue val;
 	double dd;
@@ -1475,7 +1492,7 @@ static int PassValue(const TVar& Var, FarMacroCall* Data)
 	else
 		val = Var.asInteger();
 
-	Data->Callback(Data->CallbackData, &val, 1);
+	mData->Callback(mData->CallbackData, &val, 1);
 	return 1;
 }
 
@@ -1513,11 +1530,12 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 {
 	intptr_t ret=0;
 	DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
+	FarMacroApi api(Data);
 
 	// проверка на область
 	if (CheckCode == 0)
 	{
-		return PassNumber (Global->WindowManager->GetCurrentWindow()->GetMacroArea(), Data);
+		return api.PassNumber (Global->WindowManager->GetCurrentWindow()->GetMacroArea());
 	}
 
 	const auto ActivePanel = Global->CtrlObject->Cp() ? Global->CtrlObject->Cp()->ActivePanel() : nullptr;
@@ -1527,12 +1545,12 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 	switch (CheckCode)
 	{
-		case MCODE_C_MSX:             return PassNumber(msValues[constMsX], Data);
-		case MCODE_C_MSY:             return PassNumber(msValues[constMsY], Data);
-		case MCODE_C_MSBUTTON:        return PassNumber(msValues[constMsButton], Data);
-		case MCODE_C_MSCTRLSTATE:     return PassNumber(msValues[constMsCtrlState], Data);
-		case MCODE_C_MSEVENTFLAGS:    return PassNumber(msValues[constMsEventFlags], Data);
-		case MCODE_C_MSLASTCTRLSTATE: return PassNumber(msValues[constMsLastCtrlState], Data);
+		case MCODE_C_MSX:             return api.PassNumber(msValues[constMsX]);
+		case MCODE_C_MSY:             return api.PassNumber(msValues[constMsY]);
+		case MCODE_C_MSBUTTON:        return api.PassNumber(msValues[constMsButton]);
+		case MCODE_C_MSCTRLSTATE:     return api.PassNumber(msValues[constMsCtrlState]);
+		case MCODE_C_MSEVENTFLAGS:    return api.PassNumber(msValues[constMsEventFlags]);
+		case MCODE_C_MSLASTCTRLSTATE: return api.PassNumber(msValues[constMsLastCtrlState]);
 
 		case MCODE_V_FAR_WIDTH:
 			return ScrX + 1;
@@ -1541,22 +1559,22 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			return ScrY + 1;
 
 		case MCODE_V_FAR_TITLE:
-			return PassString(console.GetTitle(), Data);
+			return api.PassString(console.GetTitle());
 
 		case MCODE_V_FAR_PID:
-			return PassNumber(GetCurrentProcessId(), Data);
+			return api.PassNumber(GetCurrentProcessId());
 
 		case MCODE_V_FAR_UPTIME:
-			return PassNumber(std::chrono::duration_cast<std::chrono::milliseconds>(Global->FarUpTime()).count(), Data);
+			return api.PassNumber(std::chrono::duration_cast<std::chrono::milliseconds>(Global->FarUpTime()).count());
 
 		case MCODE_V_MACRO_AREA:
-			return PassNumber(GetArea(), Data);
+			return api.PassNumber(GetArea());
 
 		case MCODE_C_FULLSCREENMODE: // Fullscreen?
-			return PassBoolean(IsConsoleFullscreen(), Data);
+			return api.PassBoolean(IsConsoleFullscreen());
 
 		case MCODE_C_ISUSERADMIN: // IsUserAdmin?
-			return PassBoolean(os::security::is_admin(), Data);
+			return api.PassBoolean(os::security::is_admin());
 
 		case MCODE_V_DRVSHOWPOS: // Drv.ShowPos
 			return Global->Macro_DskShowPosType;
@@ -1569,7 +1587,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_C_CMDLINE_EMPTY:            // CmdLine.Empty
 		case MCODE_C_CMDLINE_SELECTED:         // CmdLine.Selected
 		{
-			return PassBoolean(Global->CtrlObject->CmdLine() && Global->CtrlObject->CmdLine()->VMProcess(CheckCode), Data);
+			return api.PassBoolean(Global->CtrlObject->CmdLine() && Global->CtrlObject->CmdLine()->VMProcess(CheckCode));
 		}
 
 		case MCODE_V_CMDLINE_ITEMCOUNT:        // CmdLine.ItemCount
@@ -1583,14 +1601,14 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			string Value;
 			if (Global->CtrlObject->CmdLine())
 				Value = Global->CtrlObject->CmdLine()->GetString();
-			return PassString(Value, Data);
+			return api.PassString(Value);
 		}
 
 		case MCODE_C_APANEL_ROOT:  // APanel.Root
 		case MCODE_C_PPANEL_ROOT:  // PPanel.Root
 		{
 			const auto SelPanel = (CheckCode == MCODE_C_APANEL_ROOT)?ActivePanel:PassivePanel;
-			return PassBoolean((SelPanel ? SelPanel->VMProcess(MCODE_C_ROOTFOLDER) ? 1:0:0), Data);
+			return api.PassBoolean((SelPanel ? SelPanel->VMProcess(MCODE_C_ROOTFOLDER) ? 1:0:0));
 		}
 
 		case MCODE_C_APANEL_BOF:
@@ -1601,7 +1619,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			const auto SelPanel = (CheckCode == MCODE_C_APANEL_BOF || CheckCode == MCODE_C_APANEL_EOF)?ActivePanel:PassivePanel;
 			if (SelPanel)
 				ret=SelPanel->VMProcess(CheckCode==MCODE_C_APANEL_BOF || CheckCode==MCODE_C_PPANEL_BOF?MCODE_C_BOF:MCODE_C_EOF)?1:0;
-			return PassBoolean(ret, Data);
+			return api.PassBoolean(ret);
 		}
 
 		case MCODE_C_SELECTED:    // Selected?
@@ -1617,7 +1635,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				else
 					CurSelected = static_cast<int>(CurrentWindow->VMProcess(CheckCode));
 
-				return PassBoolean(CurSelected, Data);
+				return api.PassBoolean(CurSelected);
 			}
 			else
 			{
@@ -1626,7 +1644,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					ret=f->VMProcess(CheckCode);
 				}
 			}
-			return PassBoolean(ret, Data);
+			return api.PassBoolean(ret);
 		}
 
 		case MCODE_C_EMPTY:   // Empty
@@ -1650,7 +1668,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				}
 			}
 
-			return PassBoolean(ret, Data);
+			return api.PassBoolean(ret);
 		}
 
 		case MCODE_V_DLGITEMCOUNT: // Dlg->ItemCount
@@ -1672,10 +1690,10 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					CurrentWindow = std::static_pointer_cast<VMenu>(CurrentWindow)->GetDialog();
 			}
 			if (!CurrentWindow || CurrentWindow->GetType()!=windowtype_dialog)
-				return (CheckCode==MCODE_V_DLGINFOID || CheckCode==MCODE_V_DLGINFOOWNER) ? PassString(L"", Data) : 0;
+				return (CheckCode==MCODE_V_DLGINFOID || CheckCode==MCODE_V_DLGINFOOWNER) ? api.PassString(L"") : 0;
 
 			if (CheckCode==MCODE_V_DLGINFOID || CheckCode==MCODE_V_DLGINFOOWNER)
-				return PassString(reinterpret_cast<const wchar_t*>(static_cast<intptr_t>(CurrentWindow->VMProcess(CheckCode))), Data);
+				return api.PassString(reinterpret_cast<const wchar_t*>(static_cast<intptr_t>(CurrentWindow->VMProcess(CheckCode))));
 			else
 				return CurrentWindow->VMProcess(CheckCode);
 		}
@@ -1684,7 +1702,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_C_PPANEL_VISIBLE:  // PPanel.Visible
 		{
 			const auto SelPanel = CheckCode == MCODE_C_APANEL_VISIBLE?ActivePanel:PassivePanel;
-			return PassBoolean(SelPanel && SelPanel->IsVisible(), Data);
+			return api.PassBoolean(SelPanel && SelPanel->IsVisible());
 		}
 
 		case MCODE_C_APANEL_ISEMPTY: // APanel.Empty
@@ -1698,42 +1716,42 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				size_t GetFileCount=SelPanel->GetFileCount();
 				ret = !GetFileCount || (GetFileCount == 1 && IsParentDirectory(Filename));
 			}
-			return PassBoolean(ret, Data);
+			return api.PassBoolean(ret);
 		}
 
 		case MCODE_C_APANEL_FILTER:
 		case MCODE_C_PPANEL_FILTER:
 		{
 			const auto SelPanel = (CheckCode == MCODE_C_APANEL_FILTER)?ActivePanel:PassivePanel;
-			return PassBoolean(SelPanel && SelPanel->VMProcess(MCODE_C_APANEL_FILTER), Data);
+			return api.PassBoolean(SelPanel && SelPanel->VMProcess(MCODE_C_APANEL_FILTER));
 		}
 
 		case MCODE_C_APANEL_LFN:
 		case MCODE_C_PPANEL_LFN:
 		{
 			const auto SelPanel = CheckCode == MCODE_C_APANEL_LFN ? ActivePanel : PassivePanel;
-			return PassBoolean(SelPanel && !SelPanel->GetShowShortNamesMode(), Data);
+			return api.PassBoolean(SelPanel && !SelPanel->GetShowShortNamesMode());
 		}
 
 		case MCODE_C_APANEL_LEFT: // APanel.Left
 		case MCODE_C_PPANEL_LEFT: // PPanel.Left
 		{
 			const auto SelPanel = CheckCode == MCODE_C_APANEL_LEFT ? ActivePanel : PassivePanel;
-			return PassBoolean(SelPanel && SelPanel==Global->CtrlObject->Cp()->LeftPanel(), Data);
+			return api.PassBoolean(SelPanel && SelPanel==Global->CtrlObject->Cp()->LeftPanel());
 		}
 
 		case MCODE_C_APANEL_FILEPANEL: // APanel.FilePanel
 		case MCODE_C_PPANEL_FILEPANEL: // PPanel.FilePanel
 		{
 			const auto SelPanel = CheckCode == MCODE_C_APANEL_FILEPANEL ? ActivePanel : PassivePanel;
-			return PassBoolean(SelPanel && SelPanel->GetType() == panel_type::FILE_PANEL, Data);
+			return api.PassBoolean(SelPanel && SelPanel->GetType() == panel_type::FILE_PANEL);
 		}
 
 		case MCODE_C_APANEL_PLUGIN: // APanel.Plugin
 		case MCODE_C_PPANEL_PLUGIN: // PPanel.Plugin
 		{
 			const auto SelPanel = CheckCode == MCODE_C_APANEL_PLUGIN?ActivePanel:PassivePanel;
-			return PassBoolean(SelPanel && SelPanel->GetMode() == panel_mode::PLUGIN_PANEL, Data);
+			return api.PassBoolean(SelPanel && SelPanel->GetMode() == panel_mode::PLUGIN_PANEL);
 		}
 
 		case MCODE_C_APANEL_FOLDER: // APanel.Folder
@@ -1748,14 +1766,14 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				if (FileAttr != INVALID_FILE_ATTRIBUTES)
 					ret=(FileAttr&FILE_ATTRIBUTE_DIRECTORY)?1:0;
 			}
-			return PassBoolean(ret, Data);
+			return api.PassBoolean(ret);
 		}
 
 		case MCODE_C_APANEL_SELECTED: // APanel.Selected
 		case MCODE_C_PPANEL_SELECTED: // PPanel.Selected
 		{
 			const auto SelPanel = CheckCode == MCODE_C_APANEL_SELECTED?ActivePanel:PassivePanel;
-			return PassBoolean(SelPanel && SelPanel->GetRealSelCount() > 0, Data);
+			return api.PassBoolean(SelPanel && SelPanel->GetRealSelCount() > 0);
 		}
 
 		case MCODE_V_APANEL_CURRENT: // APanel.Current
@@ -1767,7 +1785,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			{
 				SelPanel->GetFileName(Filename, SelPanel->GetCurrentPos(), FileAttr);
 			}
-			return PassString(Filename, Data);
+			return api.PassString(Filename);
 		}
 
 		case MCODE_V_APANEL_SELCOUNT: // APanel.SelCount
@@ -1828,15 +1846,15 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 							return Info.Flags;
 						case MCODE_V_APANEL_HOSTFILE:
 						case MCODE_V_PPANEL_HOSTFILE:
-							return PassString(Info.HostFile, Data);
+							return api.PassString(Info.HostFile);
 						case MCODE_V_APANEL_FORMAT:
 						case MCODE_V_PPANEL_FORMAT:
-							return PassString(Info.Format, Data);
+							return api.PassString(Info.Format);
 					}
 				}
 			}
 
-			return ptr ? PassString(ptr, Data) : 0;
+			return ptr ? api.PassString(ptr) : 0;
 		}
 
 		case MCODE_V_APANEL_PREFIX:           // APanel.Prefix
@@ -1850,7 +1868,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				if (SelPanel->VMProcess(MCODE_V_APANEL_PREFIX,&PInfo))
 					ptr = PInfo.CommandPrefix;
 			}
-			return PassString(ptr, Data);
+			return api.PassString(ptr);
 		}
 
 		case MCODE_V_APANEL_PATH0:           // APanel.Path0
@@ -1861,7 +1879,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			{
 				Filename = SelPanel->GetCurDir();
 			}
-			return PassString(Filename, Data);
+			return api.PassString(Filename);
 		}
 
 		case MCODE_V_APANEL_PATH: // APanel.Path
@@ -1882,7 +1900,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 				DeleteEndSlash(Filename); // - чтобы у корня диска было C:, тогда можно писать так: APanel.Path + "\\file"
 			}
-			return PassString(Filename, Data);
+			return api.PassString(Filename);
 		}
 
 		case MCODE_V_APANEL_UNCPATH: // APanel.UNCPath
@@ -1893,7 +1911,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			{
 				DeleteEndSlash(Filename);
 			}
-			return PassString(Filename, Data);
+			return api.PassString(Filename);
 		}
 
 		//FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL
@@ -1953,7 +1971,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				}
 			}
 			inplace::trim(Filename);
-			return PassString(Filename, Data);
+			return api.PassString(Filename);
 		}
 
 		case MCODE_V_HEIGHT:  // Height - высота текущего объекта
@@ -1975,7 +1993,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			if (CheckCode==MCODE_V_MENUINFOID && CurrentWindow && CurrentWindow->GetType()==windowtype_menu)
 			{
-				return PassString(reinterpret_cast<const wchar_t*>(static_cast<intptr_t>(CurrentWindow->VMProcess(MCODE_V_DLGINFOID))), Data);
+				return api.PassString(reinterpret_cast<const wchar_t*>(static_cast<intptr_t>(CurrentWindow->VMProcess(MCODE_V_DLGINFOID))));
 			}
 
 			if (IsMenuArea(CurArea) || CurArea == MACROAREA_DIALOG)
@@ -1990,17 +2008,17 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 							if (f->VMProcess(CheckCode, &Value))
 							{
 								Value = trim(HiText2Str(Value));
-								return PassString(Value, Data);
+								return api.PassString(Value);
 							}
 							break;
 
 						case MCODE_V_MENUINFOID:
-							return PassString(reinterpret_cast<const wchar_t*>(static_cast<intptr_t>(f->VMProcess(CheckCode))), Data);
+							return api.PassString(reinterpret_cast<const wchar_t*>(static_cast<intptr_t>(f->VMProcess(CheckCode))));
 					}
 				}
 			}
 
-			return PassString(nullptr, Data);
+			return api.PassString(nullptr);
 		}
 
 		case MCODE_V_ITEMCOUNT: // ItemCount - число элементов в текущем объекте
@@ -2029,14 +2047,14 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					{
 						string Type, Filename;
 						Global->WindowManager->GetCurrentEditor()->GetTypeAndName(Type, Filename);
-						return PassString(Filename, Data);
+						return api.PassString(Filename);
 					}
 
 				case MCODE_V_EDITORSELVALUE:
 					{
 						string Value;
 						Global->WindowManager->GetCurrentEditor()->VMProcess(CheckCode, &Value);
-						return PassString(Value, Data);
+						return api.PassString(Value);
 					}
 
 				default:
@@ -2044,7 +2062,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				}
 			}
 
-			return CheckCode == MCODE_V_EDITORSELVALUE? PassString(L"", Data) : 0;
+			return CheckCode == MCODE_V_EDITORSELVALUE? api.PassString(L"") : 0;
 		}
 
 		case MCODE_V_HELPFILENAME:  // Help.FileName
@@ -2056,7 +2074,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			{
 				CurrentWindow->VMProcess(CheckCode, &Value, 0);
 			}
-			return PassString(Value, Data);
+			return api.PassString(Value);
 		}
 
 		case MCODE_V_VIEWERFILENAME: // Viewer.FileName
@@ -2066,87 +2084,87 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 							Global->WindowManager->GetCurrentViewer() && Global->WindowManager->GetCurrentViewer()->IsVisible())
 			{
 				if (CheckCode == MCODE_V_VIEWERFILENAME)
-					return PassString(Global->WindowManager->GetCurrentViewer()->GetFileName(), Data);
+					return api.PassString(Global->WindowManager->GetCurrentViewer()->GetFileName());
 				else
-					return PassNumber(Global->WindowManager->GetCurrentViewer()->VMProcess(MCODE_V_VIEWERSTATE), Data);
+					return api.PassNumber(Global->WindowManager->GetCurrentViewer()->VMProcess(MCODE_V_VIEWERSTATE));
 			}
 
-			return CheckCode == MCODE_V_VIEWERFILENAME? PassString(L"", Data) : 0;
+			return CheckCode == MCODE_V_VIEWERFILENAME? api.PassString(L"") : 0;
 		}
 
 		// =========================================================================
 		// Functions
 		// =========================================================================
 
-		case MCODE_F_ABS:             return absFunc(Data);
-		case MCODE_F_ASC:             return ascFunc(Data);
-		case MCODE_F_ATOI:            return atoiFunc(Data);
-		case MCODE_F_BEEP:            return beepFunc(Data);
-		case MCODE_F_CHR:             return chrFunc(Data);
-		case MCODE_F_CLIP:            return clipFunc(Data);
-		case MCODE_F_DATE:            return dateFunc(Data);
-		case MCODE_F_DLG_GETVALUE:    return dlggetvalueFunc(Data);
-		case MCODE_F_DLG_SETFOCUS:    return dlgsetfocusFunc(Data);
-		case MCODE_F_EDITOR_DELLINE:  return editordellineFunc(Data);
-		case MCODE_F_EDITOR_INSSTR:   return editorinsstrFunc(Data);
+		case MCODE_F_ABS:             return api.absFunc();
+		case MCODE_F_ASC:             return api.ascFunc();
+		case MCODE_F_ATOI:            return api.atoiFunc();
+		case MCODE_F_BEEP:            return api.beepFunc();
+		case MCODE_F_CHR:             return api.chrFunc();
+		case MCODE_F_CLIP:            return api.clipFunc();
+		case MCODE_F_DATE:            return api.dateFunc();
+		case MCODE_F_DLG_GETVALUE:    return api.dlggetvalueFunc();
+		case MCODE_F_DLG_SETFOCUS:    return api.dlgsetfocusFunc();
+		case MCODE_F_EDITOR_DELLINE:  return api.editordellineFunc();
+		case MCODE_F_EDITOR_INSSTR:   return api.editorinsstrFunc();
 		case MCODE_F_EDITOR_POS:
 		{
 			SCOPED_ACTION(LockOutput)(IsTopMacroOutputDisabled());
-			return editorposFunc(Data);
+			return api.editorposFunc();
 		}
-		case MCODE_F_EDITOR_SEL:      return editorselFunc(Data);
-		case MCODE_F_EDITOR_SET:      return editorsetFunc(Data);
-		case MCODE_F_EDITOR_SETSTR:   return editorsetstrFunc(Data);
-		case MCODE_F_EDITOR_SETTITLE: return editorsettitleFunc(Data);
-		case MCODE_F_EDITOR_UNDO:     return editorundoFunc(Data);
-		case MCODE_F_ENVIRON:         return environFunc(Data);
-		case MCODE_F_FAR_CFG_GET:     return farcfggetFunc(Data);
-		case MCODE_F_FAR_GETCONFIG:   return fargetconfigFunc(Data);
-		case MCODE_F_FATTR:           return fattrFunc(Data);
-		case MCODE_F_FEXIST:          return fexistFunc(Data);
-		case MCODE_F_FLOAT:           return floatFunc(Data);
-		case MCODE_F_FLOCK:           return flockFunc(Data);
-		case MCODE_F_FMATCH:          return fmatchFunc(Data);
-		case MCODE_F_FSPLIT:          return fsplitFunc(Data);
-		case MCODE_F_INDEX:           return indexFunc(Data);
-		case MCODE_F_INT:             return intFunc(Data);
-		case MCODE_F_ITOA:            return itowFunc(Data);
-		case MCODE_F_KBDLAYOUT:       return kbdLayoutFunc(Data);
-		case MCODE_F_KEY:             return keyFunc(Data);
-		case MCODE_F_KEYBAR_SHOW:     return keybarshowFunc(Data);
-		case MCODE_F_LCASE:           return lcaseFunc(Data);
-		case MCODE_F_LEN:             return lenFunc(Data);
-		case MCODE_F_MAX:             return maxFunc(Data);
-		case MCODE_F_MENU_SHOW:       return menushowFunc(Data);
-		case MCODE_F_MIN:             return minFunc(Data);
-		case MCODE_F_MOD:             return modFunc(Data);
-		case MCODE_F_MSGBOX:          return msgBoxFunc(Data);
-		case MCODE_F_PANEL_FATTR:     return panelfattrFunc(Data);
-		case MCODE_F_PANEL_FEXIST:    return panelfexistFunc(Data);
-		case MCODE_F_PANELITEM:       return panelitemFunc(Data);
-		case MCODE_F_PANEL_SELECT:    return panelselectFunc(Data);
-		case MCODE_F_PANEL_SETPOS:    return panelsetposFunc(Data);
-		case MCODE_F_PANEL_SETPOSIDX: return panelsetposidxFunc(Data);
-		case MCODE_F_PLUGIN_EXIST:    return pluginexistFunc(Data);
-		case MCODE_F_PLUGIN_LOAD:     return pluginloadFunc(Data);
-		case MCODE_F_PLUGIN_UNLOAD:   return pluginunloadFunc(Data);
-		case MCODE_F_REPLACE:         return replaceFunc(Data);
-		case MCODE_F_RINDEX:          return rindexFunc(Data);
-		case MCODE_F_SIZE2STR:        return size2strFunc(Data);
-		case MCODE_F_SLEEP:           return sleepFunc(Data);
-		case MCODE_F_STRING:          return stringFunc(Data);
-		case MCODE_F_STRPAD:          return strpadFunc(Data);
-		case MCODE_F_STRWRAP:         return strwrapFunc(Data);
-		case MCODE_F_SUBSTR:          return substrFunc(Data);
-		case MCODE_F_TESTFOLDER:      return testfolderFunc(Data);
-		case MCODE_F_TRIM:            return trimFunc(Data);
-		case MCODE_F_UCASE:           return ucaseFunc(Data);
+		case MCODE_F_EDITOR_SEL:      return api.editorselFunc();
+		case MCODE_F_EDITOR_SET:      return api.editorsetFunc();
+		case MCODE_F_EDITOR_SETSTR:   return api.editorsetstrFunc();
+		case MCODE_F_EDITOR_SETTITLE: return api.editorsettitleFunc();
+		case MCODE_F_EDITOR_UNDO:     return api.editorundoFunc();
+		case MCODE_F_ENVIRON:         return api.environFunc();
+		case MCODE_F_FAR_CFG_GET:     return api.farcfggetFunc();
+		case MCODE_F_FAR_GETCONFIG:   return api.fargetconfigFunc();
+		case MCODE_F_FATTR:           return api.fattrFunc();
+		case MCODE_F_FEXIST:          return api.fexistFunc();
+		case MCODE_F_FLOAT:           return api.floatFunc();
+		case MCODE_F_FLOCK:           return api.flockFunc();
+		case MCODE_F_FMATCH:          return api.fmatchFunc();
+		case MCODE_F_FSPLIT:          return api.fsplitFunc();
+		case MCODE_F_INDEX:           return api.indexFunc();
+		case MCODE_F_INT:             return api.intFunc();
+		case MCODE_F_ITOA:            return api.itowFunc();
+		case MCODE_F_KBDLAYOUT:       return api.kbdLayoutFunc();
+		case MCODE_F_KEY:             return api.keyFunc();
+		case MCODE_F_KEYBAR_SHOW:     return api.keybarshowFunc();
+		case MCODE_F_LCASE:           return api.lcaseFunc();
+		case MCODE_F_LEN:             return api.lenFunc();
+		case MCODE_F_MAX:             return api.maxFunc();
+		case MCODE_F_MENU_SHOW:       return api.menushowFunc();
+		case MCODE_F_MIN:             return api.minFunc();
+		case MCODE_F_MOD:             return api.modFunc();
+		case MCODE_F_MSGBOX:          return api.msgBoxFunc();
+		case MCODE_F_PANEL_FATTR:     return api.panelfattrFunc();
+		case MCODE_F_PANEL_FEXIST:    return api.panelfexistFunc();
+		case MCODE_F_PANELITEM:       return api.panelitemFunc();
+		case MCODE_F_PANEL_SELECT:    return api.panelselectFunc();
+		case MCODE_F_PANEL_SETPOS:    return api.panelsetposFunc();
+		case MCODE_F_PANEL_SETPOSIDX: return api.panelsetposidxFunc();
+		case MCODE_F_PLUGIN_EXIST:    return api.pluginexistFunc();
+		case MCODE_F_PLUGIN_LOAD:     return api.pluginloadFunc();
+		case MCODE_F_PLUGIN_UNLOAD:   return api.pluginunloadFunc();
+		case MCODE_F_REPLACE:         return api.replaceFunc();
+		case MCODE_F_RINDEX:          return api.rindexFunc();
+		case MCODE_F_SIZE2STR:        return api.size2strFunc();
+		case MCODE_F_SLEEP:           return api.sleepFunc();
+		case MCODE_F_STRING:          return api.stringFunc();
+		case MCODE_F_STRPAD:          return api.strpadFunc();
+		case MCODE_F_STRWRAP:         return api.strwrapFunc();
+		case MCODE_F_SUBSTR:          return api.substrFunc();
+		case MCODE_F_TESTFOLDER:      return api.testfolderFunc();
+		case MCODE_F_TRIM:            return api.trimFunc();
+		case MCODE_F_UCASE:           return api.ucaseFunc();
 		case MCODE_F_WAITKEY:
 		{
 			SCOPED_ACTION(LockOutput)(IsTopMacroOutputDisabled());
 
 			++m_WaitKey;
-			bool result=waitkeyFunc(Data);
+			bool result=api.waitkeyFunc();
 			--m_WaitKey;
 
 			return result;
@@ -2178,17 +2196,17 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 						Data->Callback(Data->CallbackData, &Result, 1);
 					}
 					else
-						PassBoolean(ResultCallPlugin != nullptr, Data);
+						api.PassBoolean(ResultCallPlugin != nullptr);
 
 					return 0;
 				}
 			}
-			PassBoolean(false, Data);
+			api.PassBoolean(false);
 			return 0;
 
-		case MCODE_F_WINDOW_SCROLL:   return windowscrollFunc(Data);
-		case MCODE_F_XLAT:            return xlatFunc(Data);
-		case MCODE_F_PROMPT:          return promptFunc(Data);
+		case MCODE_F_WINDOW_SCROLL:   return api.windowscrollFunc();
+		case MCODE_F_XLAT:            return api.xlatFunc();
+		case MCODE_F_PROMPT:          return api.promptFunc();
 
 		case MCODE_F_CHECKALL:
 		{
@@ -2201,7 +2219,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				const auto CallbackId = (Data->Count >= 4 && Data->Values[3].Type == FMVT_POINTER)? Data->Values[3].Pointer : nullptr;
 				Result = CheckAll(Area, Flags) && (!Callback || Callback(CallbackId, AKMFLAGS_NONE));
 			}
-			PassBoolean(Result, Data);
+			api.PassBoolean(Result);
 			return 0;
 		}
 
@@ -2211,7 +2229,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			if (Global->Opt->Macro.DisableMacro&MDOL_ALL)       Options |= 0x4;
 			if (Global->Opt->Macro.DisableMacro&MDOL_AUTOSTART) Options |= 0x8;
 			if (Global->Opt->ReadOnlyConfig)                    Options |= 0x10;
-			PassNumber(Options, Data);
+			api.PassNumber(Options);
 			break;
 		}
 
@@ -2257,17 +2275,17 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					case 2: Global->ScrBuf->Lock(); break;
 					case 3: Global->ScrBuf->Unlock(); break;
 					case 4: Global->ScrBuf->ResetLockCount(); break;
-					case 5: PassNumber(Global->ScrBuf->GetLockCount(), Data); break;
+					case 5: api.PassNumber(Global->ScrBuf->GetLockCount()); break;
 					case 6: if (Data->Count > 1) Global->ScrBuf->SetLockCount(Data->Values[1].Double); break;
-					case 7: PassBoolean(default_clipboard_mode::get() == clipboard_mode::internal, Data); break;
+					case 7: api.PassBoolean(default_clipboard_mode::get() == clipboard_mode::internal); break;
 					case 8: if (Data->Count > 1) default_clipboard_mode::set(Data->Values[1].Boolean != 0? clipboard_mode::internal: clipboard_mode::system); break;
-					case 9: if (Data->Count > 1) PassNumber(KeyNameToKey(Data->Values[1].String), Data); break;
+					case 9: if (Data->Count > 1) api.PassNumber(KeyNameToKey(Data->Values[1].String)); break;
 					case 10:
 						if (Data->Count > 1)
 						{
 							string text;
 							KeyToText(Data->Values[1].Double, text);
-							PassString(text, Data);
+							api.PassString(text);
 						}
 						break;
 				}
@@ -2284,13 +2302,13 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				const auto Descr = Data->Values[3].String;
 				if (GetMacroSettings(Key, Flags, Src, Descr))
 				{
-					PassNumber(static_cast<double>(Flags), Data);
-					PassString(m_RecCode, Data);
-					PassString(m_RecDescription, Data);
+					api.PassNumber(static_cast<double>(Flags));
+					api.PassString(m_RecCode);
+					api.PassString(m_RecDescription);
 					return 0;
 				}
 			}
-			PassBoolean(false, Data);
+			api.PassBoolean(false);
 			break;
 
 		case MCODE_F_BM_ADD:              // N=BM.Add()
@@ -2369,7 +2387,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			else
 				tmpVar = L""sv;
 
-			PassValue(tmpVar,Data);
+			api.PassValue(tmpVar);
 			return 0;
 		}
 
@@ -2403,7 +2421,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				}
 			}
 
-			PassNumber(Result,Data);
+			api.PassNumber(Result);
 			return 0;
 		}
 
@@ -2453,7 +2471,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					tmpVar = L""sv;
 			}
 
-			PassValue(tmpVar,Data);
+			api.PassValue(tmpVar);
 			return success;
 		}
 	}
@@ -2463,27 +2481,27 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 /* ------------------------------------------------------------------- */
 // S=trim(S[,N])
-static bool trimFunc(FarMacroCall* Data)
+int FarMacroApi::trimFunc()
 {
-	auto Params = parseParams(2, Data);
+	auto Params = parseParams(2, mData);
 	const auto mode = static_cast<int>(Params[1].asInteger());
 	auto p = Params[0].toString();
-	bool Ret=true;
+	int Ret=1;
 
 	switch (mode)
 	{
 	case 0: inplace::trim(p); break;
 	case 1: inplace::trim_left(p); break;
 	case 2: inplace::trim_right(p); break;
-	default: Ret = false;
+	default: Ret = 0;
 	}
 
-	PassString(p, Data);
+	PassString(p);
 	return Ret;
 }
 
 // S=substr(S,start[,length])
-static bool substrFunc(FarMacroCall* Data)
+int FarMacroApi::substrFunc()
 {
 	/*
 		TODO: http://bugs.farmanager.com/view.php?id=1480
@@ -2497,8 +2515,8 @@ static bool substrFunc(FarMacroCall* Data)
 				если length = 0
 				если ...
 	*/
-	auto Params = parseParams(3, Data);
-	bool Ret=false;
+	auto Params = parseParams(3, mData);
+	int Ret=0;
 
 	int  start = static_cast<int>(Params[1].asInteger());
 	auto& p = Params[0].toString();
@@ -2539,12 +2557,12 @@ static bool substrFunc(FarMacroCall* Data)
 
 	if (!length)
 	{
-		PassString(L"", Data);
+		PassString(L"");
 	}
 	else
 	{
-		Ret=true;
-		PassString(p.substr(start, length), Data);
+		Ret=1;
+		PassString(p.substr(start, length));
 	}
 
 	return Ret;
@@ -2579,32 +2597,32 @@ static void SplitPath(string_view const FullPath, string& Dest, int Flags)
 }
 
 // S=fsplit(S,N)
-static bool fsplitFunc(FarMacroCall* Data)
+int FarMacroApi::fsplitFunc()
 {
-	auto Params = parseParams(2, Data);
+	auto Params = parseParams(2, mData);
 
 	string strPath;
 	SplitPath(Params[0].toString(), strPath, Params[1].asInteger());
 
-	PassString(strPath, Data);
-	return true;
+	PassString(strPath);
+	return 1;
 }
 
 // N=atoi(S[,radix])
-static bool atoiFunc(FarMacroCall* Data)
+int FarMacroApi::atoiFunc()
 {
-	auto Params = parseParams(2, Data);
+	auto Params = parseParams(2, mData);
 	long long Value = 0;
 	const auto Ret = from_string(Params[0].toString(), Value, nullptr, static_cast<int>(Params[1].toInteger()));
-	PassInteger(Value, Data);
+	PassInteger(Value);
 	return Ret;
 }
 
 // N=Window.Scroll(Lines[,Axis])
-static bool windowscrollFunc(FarMacroCall* Data)
+int FarMacroApi::windowscrollFunc()
 {
-	auto Params = parseParams(2, Data);
-	bool Ret=false;
+	auto Params = parseParams(2, mData);
+	int Ret=0;
 
 	if (Global->Opt->WindowMode)
 	{
@@ -2617,19 +2635,19 @@ static bool windowscrollFunc(FarMacroCall* Data)
 
 		if (console.ScrollWindow(Lines, Columns))
 		{
-			Ret=true;
+			Ret=1;
 		}
 	}
 
-	PassBoolean(Ret, Data);
+	PassBoolean(Ret);
 	return Ret;
 }
 
 // S=itoa(N[,radix])
-static bool itowFunc(FarMacroCall* Data)
+int FarMacroApi::itowFunc()
 {
-	auto Params = parseParams(2, Data);
-	bool Ret=false;
+	auto Params = parseParams(2, mData);
+	int Ret=0;
 
 	if (Params[0].isInteger() || Params[0].isDouble())
 	{
@@ -2639,34 +2657,34 @@ static bool itowFunc(FarMacroCall* Data)
 		if (!Radix)
 			Radix=10;
 
-		Ret=true;
+		Ret=1;
 		Params[0]=TVar(_i64tow(Params[0].toInteger(),value,Radix));
 	}
 
-	PassValue(Params[0], Data);
+	PassValue(Params[0]);
 	return Ret;
 }
 
 // os::chrono::sleep_for(Nms)
-static bool sleepFunc(FarMacroCall* Data)
+int FarMacroApi::sleepFunc()
 {
-	const auto Params = parseParams(1, Data);
+	const auto Params = parseParams(1, mData);
 	const auto Period = Params[0].asInteger();
 
 	if (Period > 0)
 	{
 		os::chrono::sleep_for(std::chrono::milliseconds(Period));
-		PassNumber(1, Data);
-		return true;
+		PassNumber(1);
+		return 1;
 	}
 
-	PassNumber(0, Data);
-	return false;
+	PassNumber(0);
+	return 0;
 }
 
 
 // N=KeyBar.Show([N])
-static bool keybarshowFunc(FarMacroCall* Data)
+int FarMacroApi::keybarshowFunc()
 {
 	/*
 	Mode:
@@ -2677,18 +2695,18 @@ static bool keybarshowFunc(FarMacroCall* Data)
 		3 - swap
 		ret: prev mode or -1 - KeyBar not found
     */
-	auto Params = parseParams(1, Data);
+	auto Params = parseParams(1, mData);
 	const auto f = Global->WindowManager->GetCurrentWindow();
 
-	PassNumber(f?f->VMProcess(MCODE_F_KEYBAR_SHOW,nullptr,Params[0].asInteger())-1:-1, Data);
+	PassNumber(f?f->VMProcess(MCODE_F_KEYBAR_SHOW,nullptr,Params[0].asInteger())-1:-1);
 	return f != nullptr;
 }
 
 
 // S=key(V)
-static bool keyFunc(FarMacroCall* Data)
+int FarMacroApi::keyFunc()
 {
-	auto Params = parseParams(1, Data);
+	auto Params = parseParams(1, mData);
 	string strKeyText;
 
 	if (Params[0].isInteger() || Params[0].isDouble())
@@ -2705,14 +2723,14 @@ static bool keyFunc(FarMacroCall* Data)
 			strKeyText=Params[0].asString();
 	}
 
-	PassString(strKeyText, Data);
+	PassString(strKeyText);
 	return !strKeyText.empty();
 }
 
 // V=waitkey([N,[T]])
-static bool waitkeyFunc(FarMacroCall* Data)
+int FarMacroApi::waitkeyFunc()
 {
-	auto Params = parseParams(2, Data);
+	auto Params = parseParams(2, mData);
 	const auto Type = static_cast<long>(Params[1].asInteger());
 	const auto Period = static_cast<long>(Params[0].asInteger());
 	auto Key = WaitKey(static_cast<DWORD>(-1), Period);
@@ -2725,37 +2743,37 @@ static bool waitkeyFunc(FarMacroCall* Data)
 			if (!KeyToText(Key,strKeyText))
 				strKeyText.clear();
 
-		PassString(strKeyText, Data);
+		PassString(strKeyText);
 		return !strKeyText.empty();
 	}
 
 	if (Key == KEY_NONE)
 		Key=-1;
 
-	PassNumber(Key, Data);
+	PassNumber(Key);
 	return Key != static_cast<DWORD>(-1);
 }
 
 // n=min(n1,n2)
-static bool minFunc(FarMacroCall* Data)
+int FarMacroApi::minFunc()
 {
-	auto Params = parseParams(2, Data);
-	PassValue(std::min(Params[0], Params[1]), Data);
-	return true;
+	auto Params = parseParams(2, mData);
+	PassValue(std::min(Params[0], Params[1]));
+	return 1;
 }
 
 // n=max(n1,n2)
-static bool maxFunc(FarMacroCall* Data)
+int FarMacroApi::maxFunc()
 {
-	auto Params = parseParams(2, Data);
-	PassValue(std::max(Params[0], Params[1]), Data);
-	return true;
+	auto Params = parseParams(2, mData);
+	PassValue(std::max(Params[0], Params[1]));
+	return 1;
 }
 
 // n=mod(n1,n2)
-static bool modFunc(FarMacroCall* Data)
+int FarMacroApi::modFunc()
 {
-	auto Params = parseParams(2, Data);
+	auto Params = parseParams(2, mData);
 
 	const auto NumeratorType = Params[0].ParseType();
 	const auto DenominatorType = Params[1].ParseType();
@@ -2809,14 +2827,14 @@ static bool modFunc(FarMacroCall* Data)
 		break;
 	}
 
-	PassValue(Result, Data);
+	PassValue(Result);
 	return !Result.isUnknown();
 }
 
 // N=index(S1,S2[,Mode])
-static bool indexFunc(FarMacroCall* Data)
+int FarMacroApi::indexFunc()
 {
-	auto Params = parseParams(3, Data);
+	auto Params = parseParams(3, mData);
 	const auto& s = Params[0].toString();
 	const auto& p = Params[1].toString();
 
@@ -2825,14 +2843,14 @@ static bool indexFunc(FarMacroCall* Data)
 
 	const auto i = Params[2].asInteger()? StrStr(s, p) : StrStrI(s, p);
 	const auto Position = i != s.cend() ? i - s.cbegin() : -1;
-	PassNumber(Position, Data);
+	PassNumber(Position);
 	return Position != -1;
 }
 
 // S=rindex(S1,S2[,Mode])
-static bool rindexFunc(FarMacroCall* Data)
+int FarMacroApi::rindexFunc()
 {
-	auto Params = parseParams(3, Data);
+	auto Params = parseParams(3, mData);
 	const auto& s = Params[0].toString();
 	const auto& p = Params[1].toString();
 
@@ -2841,30 +2859,30 @@ static bool rindexFunc(FarMacroCall* Data)
 
 	const auto i = Params[2].asInteger()? RevStrStr(s, p) : RevStrStrI(s, p);
 	const auto Position = i != s.cend()? i - s.cbegin() : -1;
-	PassNumber(Position, Data);
+	PassNumber(Position);
 	return Position != -1;
 }
 
 // S=Size2Str(Size,Flags[,Width])
-static bool size2strFunc(FarMacroCall* Data)
+int FarMacroApi::size2strFunc()
 {
-	const auto Params = parseParams(3, Data);
+	const auto Params = parseParams(3, mData);
 	const auto Width = static_cast<int>(Params[2].asInteger());
-	PassString(FileSizeToStr(Params[0].asInteger(), Width, Params[1].asInteger()), Data);
-	return true;
+	PassString(FileSizeToStr(Params[0].asInteger(), Width, Params[1].asInteger()));
+	return 1;
 }
 
 // S=date([S])
-static bool dateFunc(FarMacroCall* Data)
+int FarMacroApi::dateFunc()
 {
-	auto Params = parseParams(1, Data);
+	auto Params = parseParams(1, mData);
 
 	if (Params[0].isInteger() && !Params[0].asInteger())
 		Params[0] = L""sv;
 
 	const auto strTStr = MkStrFTime(Params[0].toString());
 	const auto Ret = !strTStr.empty();
-	PassString(strTStr, Data);
+	PassString(strTStr);
 	return Ret;
 }
 
@@ -2875,19 +2893,19 @@ static bool dateFunc(FarMacroCall* Data)
 		XLAT_SWITCHKEYBBEEP    = 2
 		XLAT_USEKEYBLAYOUTNAME = 4
 */
-static bool xlatFunc(FarMacroCall* Data)
+int FarMacroApi::xlatFunc()
 {
-	auto Params = parseParams(2, Data);
+	auto Params = parseParams(2, mData);
 	auto StrParam = Params[0].toString();
 	Xlat(StrParam.data(), 0, static_cast<int>(StrParam.size()), Params[1].asInteger());
-	PassString(StrParam, Data);
-	return true;
+	PassString(StrParam);
+	return 1;
 }
 
 // N=beep([N])
-static bool beepFunc(FarMacroCall* Data)
+int FarMacroApi::beepFunc()
 {
-	auto Params = parseParams(1, Data);
+	auto Params = parseParams(1, mData);
 	/*
 		MB_ICONASTERISK = 0x00000040
 			Звук Звездочка
@@ -2919,7 +2937,7 @@ static bool beepFunc(FarMacroCall* Data)
 		);
 	*/
 
-	PassBoolean(Ret, Data);
+	PassBoolean(Ret);
 	return Ret;
 }
 
@@ -2935,12 +2953,12 @@ Res=kbdLayout([N])
 Возвращает предыдущую раскладку (для N=0 текущую)
 */
 // N=kbdLayout([N])
-static bool kbdLayoutFunc(FarMacroCall* Data)
+int FarMacroApi::kbdLayoutFunc()
 {
-	auto Params = parseParams(1, Data);
+	auto Params = parseParams(1, mData);
 	const auto dwLayout = static_cast<DWORD>(Params[0].asInteger());
 
-	auto Ret = true;
+	int Ret = 1;
 	HKL RetLayout = nullptr;
 
 	string LayoutName;
@@ -2976,21 +2994,21 @@ static bool kbdLayoutFunc(FarMacroCall* Data)
 		Ret = PostMessage(hWnd, WM_INPUTLANGCHANGEREQUEST, wParam, reinterpret_cast<LPARAM>(Layout)) != FALSE;
 	}
 
-	PassNumber(Ret? reinterpret_cast<intptr_t>(RetLayout) : 0, Data);
+	PassNumber(Ret? reinterpret_cast<intptr_t>(RetLayout) : 0);
 
 	return Ret;
 }
 
 // S=prompt(["Title"[,"Prompt"[,flags[, "Src"[, "History"]]]]])
-static bool promptFunc(FarMacroCall* Data)
+int FarMacroApi::promptFunc()
 {
-	auto Params = parseParams(5, Data);
+	auto Params = parseParams(5, mData);
 	auto& ValHistory(Params[4]);
 	auto& ValSrc(Params[3]);
 	const auto Flags = static_cast<DWORD>(Params[2].asInteger());
 	auto& ValPrompt(Params[1]);
 	auto& ValTitle(Params[0]);
-	bool Ret=false;
+	int Ret=0;
 
 	string_view title;
 	if (!(ValTitle.isInteger() && ValTitle.asInteger() == 0))
@@ -3017,11 +3035,11 @@ static bool promptFunc(FarMacroCall* Data)
 
 	if (GetString(title, prompt, history, src, strDest, {}, (Flags&~FIB_CHECKBOX) | FIB_ENABLEEMPTY))
 	{
-		PassString(strDest,Data);
-		Ret=true;
+		PassString(strDest);
+		Ret=1;
 	}
 	else
-		PassBoolean(0,Data);
+		PassBoolean(0);
 
 	SetHistoryDisableMask(oldHistoryDisable);
 
@@ -3029,9 +3047,9 @@ static bool promptFunc(FarMacroCall* Data)
 }
 
 // N=msgbox(["Title"[,"Text"[,flags]]])
-static bool msgBoxFunc(FarMacroCall* Data)
+int FarMacroApi::msgBoxFunc()
 {
-	auto Params = parseParams(3, Data);
+	auto Params = parseParams(3, mData);
 
 	auto& ValT = Params[0];
 	string_view title;
@@ -3054,8 +3072,8 @@ static bool msgBoxFunc(FarMacroCall* Data)
 	//_KEYMACRO(SysLog(L"text='%s'",text));
 	const auto TempBuf = concat(title, L'\n', text);
 	const auto Result = pluginapi::apiMessageFn(&FarGuid, &FarGuid, Flags, nullptr, reinterpret_cast<const wchar_t* const*>(TempBuf.c_str()), 0, 0) + 1;
-	PassNumber(Result, Data);
-	return true;
+	PassNumber(Result);
+	return 1;
 }
 
 //S=Menu.Show(Items[,Title[,Flags[,FindOrFilter[,X[,Y]]]]])
@@ -3072,9 +3090,9 @@ static bool msgBoxFunc(FarMacroCall* Data)
 //0x200 - автоматическая нумерация строк
 //0x400 - однократное выполнение цикла меню
 //0x800 -
-static bool menushowFunc(FarMacroCall* Data)
+int FarMacroApi::menushowFunc()
 {
-	auto Params = parseParams(6, Data);
+	auto Params = parseParams(6, mData);
 	auto& VY(Params[5]);
 	auto& VX(Params[4]);
 	auto& VFindOrFilter(Params[3]);
@@ -3385,18 +3403,18 @@ static bool menushowFunc(FarMacroCall* Data)
 				Result = L""sv;
 		}
 	}
-	PassValue(Result, Data);
-	return true;
+	PassValue(Result);
+	return 1;
 }
 
 // S=Env(S[,Mode[,Value]])
-static bool environFunc(FarMacroCall* Data)
+int FarMacroApi::environFunc()
 {
-	auto Params = parseParams(3, Data);
+	auto Params = parseParams(3, mData);
 	auto& Value(Params[2]);
 	auto& Mode(Params[1]);
 	auto& S(Params[0]);
-	bool Ret=false;
+	int Ret=0;
 	string strEnv;
 
 
@@ -3413,14 +3431,14 @@ static bool environFunc(FarMacroCall* Data)
 			os::env::set(S.toString(), Value.toString());
 	}
 
-	PassString(strEnv, Data);
+	PassString(strEnv);
 	return Ret;
 }
 
 // V=Panel.Select(panelType,Action[,Mode[,Items]])
-static bool panelselectFunc(FarMacroCall* Data)
+int FarMacroApi::panelselectFunc()
 {
-	auto Params = parseParams(4, Data);
+	auto Params = parseParams(4, mData);
 	auto& ValItems(Params[3]);
 	const auto Mode = static_cast<int>(Params[2].asInteger());
 	const auto Action = static_cast<int>(Params[1].asInteger());
@@ -3456,29 +3474,29 @@ static bool panelselectFunc(FarMacroCall* Data)
 		Result=SelPanel->VMProcess(MCODE_F_PANEL_SELECT,&mps,0);
 	}
 
-	PassNumber(Result, Data);
+	PassNumber(Result);
 	return Result != -1;
 }
 
-static bool fattrFuncImpl(int Type, FarMacroCall* Data)
+int FarMacroApi::fattrFuncImpl(int Type)
 {
-	bool Ret=false;
+	int Ret=0;
 	DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
 	long Pos=-1;
 
 	if (!Type || Type == 2) // не панели: fattr(0) & fexist(2)
 	{
-		auto Params = parseParams(1, Data);
+		auto Params = parseParams(1, mData);
 		auto& Str(Params[0]);
 		os::fs::find_data FindData;
 		// BUGBUG check result
 		(void)os::fs::get_find_data(Str.toString(), FindData);
 		FileAttr=FindData.Attributes;
-		Ret=true;
+		Ret=1;
 	}
 	else // panel.fattr(1) & panel.fexist(3)
 	{
-		auto Params = parseParams(2, Data);
+		auto Params = parseParams(2, mData);
 		auto& S(Params[1]);
 		const auto typePanel = static_cast<int>(Params[0].asInteger());
 		const auto& Str = S.toString();
@@ -3494,46 +3512,46 @@ static bool fattrFuncImpl(int Type, FarMacroCall* Data)
 			{
 				string strFileName;
 				SelPanel->GetFileName(strFileName,Pos,FileAttr);
-				Ret=true;
+				Ret=1;
 			}
 		}
 	}
 
 	if (Type == 2) // fexist(2)
 	{
-		PassBoolean(FileAttr!=INVALID_FILE_ATTRIBUTES, Data);
-		return true;
+		PassBoolean(FileAttr!=INVALID_FILE_ATTRIBUTES);
+		return 1;
 	}
 
 	if (Type == 3) // panel.fexist(3)
 		FileAttr=static_cast<DWORD>(Pos)+1;
 
-	PassNumber(static_cast<long>(FileAttr), Data);
+	PassNumber(static_cast<long>(FileAttr));
 	return Ret;
 }
 
 // N=fattr(S)
-static bool fattrFunc(FarMacroCall* Data)
+int FarMacroApi::fattrFunc()
 {
-	return fattrFuncImpl(0, Data);
+	return fattrFuncImpl(0);
 }
 
 // N=fexist(S)
-static bool fexistFunc(FarMacroCall* Data)
+int FarMacroApi::fexistFunc()
 {
-	return fattrFuncImpl(2, Data);
+	return fattrFuncImpl(2);
 }
 
 // N=panel.fattr(S)
-static bool panelfattrFunc(FarMacroCall* Data)
+int FarMacroApi::panelfattrFunc()
 {
-	return fattrFuncImpl(1, Data);
+	return fattrFuncImpl(1);
 }
 
 // N=panel.fexist(S)
-static bool panelfexistFunc(FarMacroCall* Data)
+int FarMacroApi::panelfexistFunc()
 {
-	return fattrFuncImpl(3, Data);
+	return fattrFuncImpl(3);
 }
 
 // N=FLock(Nkey,NState)
@@ -3549,9 +3567,9 @@ static bool panelfexistFunc(FarMacroCall* Data)
      1 on
      2 flip
 */
-static bool flockFunc(FarMacroCall* Data)
+int FarMacroApi::flockFunc()
 {
-	auto Params = parseParams(2, Data);
+	auto Params = parseParams(2, mData);
 	int Ret = -1;
 	const auto stateFLock = static_cast<int>(Params[1].asInteger());
 	auto vkKey = static_cast<UINT>(Params[0].asInteger());
@@ -3575,14 +3593,14 @@ static bool flockFunc(FarMacroCall* Data)
 	if (vkKey)
 		Ret=SetFLockState(vkKey,stateFLock);
 
-	PassNumber(Ret,Data);
+	PassNumber(Ret);
 	return Ret != -1;
 }
 
 // N=Dlg->SetFocus([ID])
-static bool dlgsetfocusFunc(FarMacroCall* Data)
+int FarMacroApi::dlgsetfocusFunc()
 {
-	auto Params = parseParams(1, Data);
+	auto Params = parseParams(1, mData);
 	TVar Ret(-1);
 	const auto Index = static_cast<unsigned>(Params[0].asInteger()) - 1;
 
@@ -3598,70 +3616,70 @@ static bool dlgsetfocusFunc(FarMacroCall* Data)
 			}
 		}
 	}
-	PassValue(Ret, Data);
+	PassValue(Ret);
 	return Ret.asInteger() != -1; // ?? <= 0 ??
 }
 
 // V=Far.Cfg.Get(Key,Name)
-static bool farcfggetFunc(FarMacroCall* Data)
+int FarMacroApi::farcfggetFunc()
 {
-	auto Params = parseParams(2, Data);
+	auto Params = parseParams(2, mData);
 	auto& Name(Params[1]);
 	auto& Key(Params[0]);
 
 	const auto option = Global->Opt->GetConfigValue(Key.asString(), Name.asString());
-	option ? PassString(option->toString(), Data) : PassBoolean(0, Data);
+	option ? PassString(option->toString()) : PassBoolean(0);
 	return option != nullptr;
 }
 
 // V=Far.GetConfig(Key,Name)
-static bool fargetconfigFunc(FarMacroCall* Data)
+int FarMacroApi::fargetconfigFunc()
 {
-	if (Data->Count >= 2 && Data->Values[0].Type==FMVT_STRING && Data->Values[1].Type==FMVT_STRING)
+	if (mData->Count >= 2 && mData->Values[0].Type==FMVT_STRING && mData->Values[1].Type==FMVT_STRING)
 	{
-		if (const auto option = Global->Opt->GetConfigValue(Data->Values[0].String, Data->Values[1].String))
+		if (const auto option = Global->Opt->GetConfigValue(mData->Values[0].String, mData->Values[1].String))
 		{
 			if (const auto Opt = dynamic_cast<const BoolOption*>(option))
 			{
-				PassNumber(1,Data);
-				PassBoolean(Opt->Get(), Data);
-				return true;
+				PassNumber(1);
+				PassBoolean(Opt->Get());
+				return 1;
 			}
 
 			if (const auto Opt = dynamic_cast<const Bool3Option*>(option))
 			{
-				PassNumber(2,Data);
-				PassNumber(static_cast<double>(Opt->Get()), Data);
-				return true;
+				PassNumber(2);
+				PassNumber(static_cast<double>(Opt->Get()));
+				return 1;
 			}
 
 			if (const auto Opt = dynamic_cast<const IntOption*>(option))
 			{
 				double d;
-				PassNumber(3,Data);
+				PassNumber(3);
 				if (ToDouble(Opt->Get(),&d))
-					PassNumber(d, Data);
+					PassNumber(d);
 				else
-					PassInteger(Opt->Get(), Data);
-				return true;
+					PassInteger(Opt->Get());
+				return 1;
 			}
 
 			if (const auto Opt = dynamic_cast<const StringOption*>(option))
 			{
-				PassNumber(4,Data);
-				PassString(Opt->Get(), Data);
-				return true;
+				PassNumber(4);
+				PassString(Opt->Get());
+				return 1;
 			}
 		}
 	}
-	PassBoolean(0,Data);
-	return false;
+	PassBoolean(0);
+	return 0;
 }
 
 // V=Dlg->GetValue([Pos[,InfoID]])
-static bool dlggetvalueFunc(FarMacroCall* Data)
+int FarMacroApi::dlggetvalueFunc()
 {
-	auto Params = parseParams(2, Data);
+	auto Params = parseParams(2, mData);
 	TVar Ret(-1);
 
 	if (Global->CtrlObject->Macro.GetArea()==MACROAREA_DIALOG)
@@ -3849,15 +3867,15 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 		}
 	}
 
-	PassValue(Ret, Data);
+	PassValue(Ret);
 	return Ret.asInteger() != -1;
 }
 
 // N=Editor.Pos(Op,What[,Where])
 // Op: 0 - get, 1 - set
-static bool editorposFunc(FarMacroCall* Data)
+int FarMacroApi::editorposFunc()
 {
-	auto Params = parseParams(3, Data);
+	auto Params = parseParams(3, mData);
 	TVar Ret(-1);
 	int Where = static_cast<int>(Params[2].asInteger());
 	int What = static_cast<int>(Params[1].asInteger());
@@ -3963,14 +3981,14 @@ static bool editorposFunc(FarMacroCall* Data)
 		}
 	}
 
-	PassValue(Ret, Data);
+	PassValue(Ret);
 	return Ret.asInteger() != -1;
 }
 
 // OldVar=Editor.Set(Idx,Value)
-static bool editorsetFunc(FarMacroCall* Data)
+int FarMacroApi::editorsetFunc()
 {
-	auto Params = parseParams(2, Data);
+	auto Params = parseParams(2, mData);
 	TVar Ret(-1);
 	auto& Value(Params[1]);
 	int Index = static_cast<int>(Params[0].asInteger());
@@ -3979,7 +3997,7 @@ static bool editorsetFunc(FarMacroCall* Data)
 	{
 		long long longState = -1L;
 
-		if (Data->Count > 1)
+		if (mData->Count > 1)
 		{
 			if (Index != 12)
 				longState = Value.toInteger();
@@ -4108,14 +4126,14 @@ static bool editorsetFunc(FarMacroCall* Data)
 		}
 	}
 
-	PassValue(Ret, Data);
+	PassValue(Ret);
 	return Ret.asInteger() == -1;
 }
 
 // V=Clip(N[,V])
-static bool clipFunc(FarMacroCall* Data)
+int FarMacroApi::clipFunc()
 {
-	auto Params = parseParams(2, Data);
+	auto Params = parseParams(2, mData);
 	auto& Val(Params[1]);
 	const auto cmdType = static_cast<int>(Params[0].asInteger());
 
@@ -4132,10 +4150,10 @@ static bool clipFunc(FarMacroCall* Data)
 		{
 			string ClipText;
 			if (!GetClipboardText(ClipText))
-				return false;
+				return 0;
 
-			PassString(ClipText, Data);
-			return true;
+			PassString(ClipText);
+			return 1;
 		}
 
 	case 1: // Put "S" into Clipboard
@@ -4152,11 +4170,11 @@ static bool clipFunc(FarMacroCall* Data)
 		{
 			clipboard_accessor Clip;
 			if (!Clip->Open())
-				return false;
+				return 0;
 
 			string CopyData;
 			if (!Clip->GetText(CopyData))
-				return false;
+				return 0;
 
 			return Clip->SetText(CopyData + Val.asString());
 		}
@@ -4194,21 +4212,21 @@ static bool clipFunc(FarMacroCall* Data)
 				break;
 			}
 
-			PassNumber(PreviousMode == clipboard_mode::internal? 2 : 1, Data);
-			return true;
+			PassNumber(PreviousMode == clipboard_mode::internal? 2 : 1);
+			return 1;
 		}
 	}
 
-	return false;
+	return 0;
 }
 
 
 // N=Panel.SetPosIdx(panelType,Idx[,InSelection])
 /*
 */
-static bool panelsetposidxFunc(FarMacroCall* Data)
+int FarMacroApi::panelsetposidxFunc()
 {
-	auto Params = parseParams(3, Data);
+	auto Params = parseParams(3, mData);
 	const auto InSelection = static_cast<int>(Params[2].asInteger());
 	long idxItem = static_cast<long>(Params[1].asInteger());
 	const auto typePanel = static_cast<int>(Params[0].asInteger());
@@ -4310,14 +4328,14 @@ static bool panelsetposidxFunc(FarMacroCall* Data)
 		}
 	}
 
-	PassNumber(Ret, Data);
+	PassNumber(Ret);
 	return Ret != 0;
 }
 
 // N=Panel.SetPos(panelType,fileName)
-static bool panelsetposFunc(FarMacroCall* Data)
+int FarMacroApi::panelsetposFunc()
 {
-	auto Params = parseParams(2, Data);
+	auto Params = parseParams(2, mData);
 	auto& Val(Params[1]);
 	const auto typePanel = static_cast<int>(Params[0].asInteger());
 	const auto& fileName=Val.asString();
@@ -4345,7 +4363,7 @@ static bool panelsetposFunc(FarMacroCall* Data)
 		}
 	}
 
-	PassNumber(Ret, Data);
+	PassNumber(Ret);
 	return Ret != 0;
 }
 
@@ -4362,9 +4380,9 @@ Mode:
 
 */
 
-static bool replaceFunc(FarMacroCall* Data)
+int FarMacroApi::replaceFunc()
 {
-	const auto Params = parseParams(5, Data);
+	const auto Params = parseParams(5, mData);
 	auto Src = Params[0].asString();
 	const auto& Find = Params[1].asString();
 	const auto& Repl = Params[2].asString();
@@ -4372,14 +4390,14 @@ static bool replaceFunc(FarMacroCall* Data)
 	const auto IgnoreCase = !Params[4].asInteger();
 
 	ReplaceStrings(Src, Find, Repl, IgnoreCase, Count <= 0 ? string::npos : static_cast<size_t>(Count));
-	PassString(Src, Data);
-	return true;
+	PassString(Src);
+	return 1;
 }
 
 // V=Panel.Item(typePanel,Index,TypeInfo)
-static int panelitemFunc(FarMacroCall* Data)
+int FarMacroApi::panelitemFunc()
 {
-	auto Params = parseParams(3, Data);
+	auto Params = parseParams(3, mData);
 	auto& P2(Params[2]);
 	auto& P1(Params[1]);
 	int typePanel = static_cast<int>(Params[0].asInteger());
@@ -4388,12 +4406,12 @@ static int panelitemFunc(FarMacroCall* Data)
 
 	const auto SelPanel = TypeToPanel(typePanel);
 	if (!SelPanel)
-		return PassError(L"No panel selected", Data);
+		return PassError(L"No panel selected");
 
 	const auto PanelType = SelPanel->GetType(); //FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL
 
 	if (!(PanelType == panel_type::FILE_PANEL || PanelType == panel_type::TREE_PANEL))
-		return PassError(L"Unsupported panel type", Data);
+		return PassError(L"Unsupported panel type");
 
 	int Index = static_cast<int>(P1.toInteger()) - 1;
 	int TypeInfo = static_cast<int>(P2.toInteger());
@@ -4402,7 +4420,7 @@ static int panelitemFunc(FarMacroCall* Data)
 	{
 		const auto treeItem = Tree->GetItem(Index);
 		if (treeItem && !TypeInfo)
-			return PassString(treeItem->strName, Data);
+			return PassString(treeItem->strName);
 	}
 	else if (const auto fileList = std::dynamic_pointer_cast<FileList>(SelPanel))
 	{
@@ -4414,108 +4432,108 @@ static int panelitemFunc(FarMacroCall* Data)
 		const auto filelistItem = fileList->GetItem(Index);
 
 		if (!filelistItem)
-			return PassError(L"No list item found at specified index", Data);
+			return PassError(L"No list item found at specified index");
 
 		switch (TypeInfo)
 		{
 			case 0:  // Name
-				return PassString(filelistItem->FileName, Data);
+				return PassString(filelistItem->FileName);
 			case 1:  // ShortName
-				return PassString(filelistItem->AlternateFileName(), Data);
+				return PassString(filelistItem->AlternateFileName());
 			case 2:  // FileAttr
-				return PassNumber(static_cast<long>(filelistItem->Attributes), Data);
+				return PassNumber(static_cast<long>(filelistItem->Attributes));
 			case 3:  // CreationTime
 				ConvertDate(filelistItem->CreationTime, strDate, strTime, 8, 1);
-				return PassString(concat(strDate, L' ', strTime), Data);
+				return PassString(concat(strDate, L' ', strTime));
 			case 4:  // AccessTime
 				ConvertDate(filelistItem->LastAccessTime, strDate, strTime, 8, 1);
-				return PassString(concat(strDate, L' ', strTime), Data);
+				return PassString(concat(strDate, L' ', strTime));
 			case 5:  // WriteTime
 				ConvertDate(filelistItem->LastWriteTime, strDate, strTime, 8, 1);
-				return PassString(concat(strDate, L' ', strTime), Data);
+				return PassString(concat(strDate, L' ', strTime));
 			case 6:  // FileSize
-				return PassInteger(filelistItem->FileSize, Data);
+				return PassInteger(filelistItem->FileSize);
 			case 7:  // AllocationSize
-				return PassInteger(filelistItem->AllocationSize, Data);
+				return PassInteger(filelistItem->AllocationSize);
 			case 8:  // Selected
-				return PassBoolean(filelistItem->Selected, Data);
+				return PassBoolean(filelistItem->Selected);
 			case 9:  // NumberOfLinks
-				return PassNumber(filelistItem->NumberOfLinks(fileList.get()), Data);
+				return PassNumber(filelistItem->NumberOfLinks(fileList.get()));
 			case 10:  // SortGroup
-				return PassNumber(filelistItem->SortGroup, Data);
+				return PassNumber(filelistItem->SortGroup);
 			case 11:  // DizText
-				return PassString(filelistItem->DizText, Data);
+				return PassString(filelistItem->DizText);
 			case 12:  // Owner
-				return PassString(filelistItem->Owner(fileList.get()), Data);
+				return PassString(filelistItem->Owner(fileList.get()));
 			case 13:  // CRC32
-				return PassNumber(filelistItem->CRC32, Data);
+				return PassNumber(filelistItem->CRC32);
 			case 14:  // Position
-				return PassNumber(filelistItem->Position, Data);
+				return PassNumber(filelistItem->Position);
 			case 15:  // CreationTime
-				return PassInteger(os::chrono::nt_clock::to_int64(filelistItem->CreationTime), Data);
+				return PassInteger(os::chrono::nt_clock::to_int64(filelistItem->CreationTime));
 			case 16:  // AccessTime
-				return PassInteger(os::chrono::nt_clock::to_int64(filelistItem->LastAccessTime), Data);
+				return PassInteger(os::chrono::nt_clock::to_int64(filelistItem->LastAccessTime));
 			case 17:  // WriteTime
-				return PassInteger(os::chrono::nt_clock::to_int64(filelistItem->LastWriteTime), Data);
+				return PassInteger(os::chrono::nt_clock::to_int64(filelistItem->LastWriteTime));
 			case 18: // NumberOfStreams
-				return PassNumber(filelistItem->NumberOfStreams(fileList.get()), Data);
+				return PassNumber(filelistItem->NumberOfStreams(fileList.get()));
 			case 19: // StreamsSize
-				return PassInteger(filelistItem->StreamsSize(fileList.get()), Data);
+				return PassInteger(filelistItem->StreamsSize(fileList.get()));
 			case 20:  // ChangeTime
 				ConvertDate(filelistItem->ChangeTime, strDate, strTime, 8, 1);
-				return PassString(concat(strDate, L' ', strTime), Data);
+				return PassString(concat(strDate, L' ', strTime));
 			case 21:  // ChangeTime
-				return PassInteger(os::chrono::nt_clock::to_int64(filelistItem->ChangeTime), Data);
+				return PassInteger(os::chrono::nt_clock::to_int64(filelistItem->ChangeTime));
 			case 22:  // ContentData (was: CustomData)
 				//Ret=TVar(filelistItem->ContentData.size() ? filelistItem->ContentData[0] : L"");
 				break;
 			case 23:  // ReparseTag
-				return PassNumber(filelistItem->ReparseTag, Data);
+				return PassNumber(filelistItem->ReparseTag);
 		}
 	}
 
-	return PassError(L"Operation not supported", Data);
+	return PassError(L"Operation not supported");
 }
 
 // N=len(V)
-static bool lenFunc(FarMacroCall* Data)
+int FarMacroApi::lenFunc()
 {
-	auto Params = parseParams(1, Data);
-	PassNumber(Params[0].toString().size(), Data);
-	return true;
+	auto Params = parseParams(1, mData);
+	PassNumber(Params[0].toString().size());
+	return 1;
 }
 
-static bool ucaseFunc(FarMacroCall* Data)
+int FarMacroApi::ucaseFunc()
 {
-	auto Params = parseParams(1, Data);
+	auto Params = parseParams(1, mData);
 	auto& Val(Params[0]);
 	Val = upper(Val.toString());
-	PassValue(Val, Data);
-	return true;
+	PassValue(Val);
+	return 1;
 }
 
-static bool lcaseFunc(FarMacroCall* Data)
+int FarMacroApi::lcaseFunc()
 {
-	auto Params = parseParams(1, Data);
+	auto Params = parseParams(1, mData);
 	auto& Val(Params[0]);
 	Val = lower(Val.toString());
-	PassValue(Val, Data);
-	return true;
+	PassValue(Val);
+	return 1;
 }
 
-static bool stringFunc(FarMacroCall* Data)
+int FarMacroApi::stringFunc()
 {
-	auto Params = parseParams(1, Data);
+	auto Params = parseParams(1, mData);
 	auto& Val(Params[0]);
 	Val.toString();
-	PassValue(Val, Data);
-	return true;
+	PassValue(Val);
+	return 1;
 }
 
 // S=StrPad(Src,Cnt[,Fill[,Op]])
-static bool strpadFunc(FarMacroCall* Data)
+int FarMacroApi::strpadFunc()
 {
-	auto Params = parseParams(4, Data);
+	auto Params = parseParams(4, mData);
 	auto& Src(Params[0]);
 	if (Src.isUnknown())
 	{
@@ -4571,14 +4589,14 @@ static bool strpadFunc(FarMacroCall* Data)
 		}
 	}
 
-	PassString(strDest, Data);
-	return true;
+	PassString(strDest);
+	return 1;
 }
 
 // S=StrWrap(Text,Width[,Break[,Flags]])
-static bool strwrapFunc(FarMacroCall* Data)
+int FarMacroApi::strwrapFunc()
 {
-	auto Params = parseParams(4, Data);
+	auto Params = parseParams(4, mData);
 	const auto Flags=static_cast<DWORD>(Params[3].asInteger());
 	auto& Break = Params[2];
 	const size_t Width = Params[1].asInteger();
@@ -4587,32 +4605,32 @@ static bool strwrapFunc(FarMacroCall* Data)
 	if (Break.isUnknown())
 		Break = L"\n"sv;
 
-	PassString(join(wrapped_text(Text.asString(), Width, Break.asString(), Flags == 1), Break.asString()), Data);
+	PassString(join(wrapped_text(Text.asString(), Width, Break.asString(), Flags == 1), Break.asString()));
 
-	return true;
+	return 1;
 }
 
-static bool intFunc(FarMacroCall* Data)
+int FarMacroApi::intFunc()
 {
-	auto Params = parseParams(1, Data);
+	auto Params = parseParams(1, mData);
 	auto& Val(Params[0]);
 	Val.toInteger();
-	PassInteger(Val.asInteger(), Data);
-	return true;
+	PassInteger(Val.asInteger());
+	return 1;
 }
 
-static bool floatFunc(FarMacroCall* Data)
+int FarMacroApi::floatFunc()
 {
-	auto Params = parseParams(1, Data);
+	auto Params = parseParams(1, mData);
 	auto& Val(Params[0]);
 	Val.toDouble();
-	PassValue(Val, Data);
-	return true;
+	PassValue(Val);
+	return 1;
 }
 
-static bool absFunc(FarMacroCall* Data)
+int FarMacroApi::absFunc()
 {
-	auto Params = parseParams(1, Data);
+	auto Params = parseParams(1, mData);
 
 	TVar Result;
 
@@ -4640,26 +4658,26 @@ static bool absFunc(FarMacroCall* Data)
 		break;
 	}
 
-	PassValue(Result, Data);
+	PassValue(Result);
 	return !Result.isUnknown();
 }
 
-static bool ascFunc(FarMacroCall* Data)
+int FarMacroApi::ascFunc()
 {
-	auto Params = parseParams(1, Data);
+	auto Params = parseParams(1, mData);
 	auto& tmpVar(Params[0]);
 
 	if (tmpVar.isString() && !tmpVar.asString().empty())
-		PassNumber(static_cast<DWORD>(tmpVar.asString().front()), Data);
+		PassNumber(static_cast<DWORD>(tmpVar.asString().front()));
 	else
-		PassValue(tmpVar, Data);
+		PassValue(tmpVar);
 
-	return true;
+	return 1;
 }
 
-static bool chrFunc(FarMacroCall* Data)
+int FarMacroApi::chrFunc()
 {
-	auto Params = parseParams(1, Data);
+	auto Params = parseParams(1, mData);
 	TVar tmpVar(Params[0]);
 
 	if (tmpVar.isNumber())
@@ -4668,27 +4686,27 @@ static bool chrFunc(FarMacroCall* Data)
 		tmpVar = tmp;
 	}
 
-	PassValue(tmpVar, Data);
-	return true;
+	PassValue(tmpVar);
+	return 1;
 }
 
 // N=FMatch(S,Mask)
-static bool fmatchFunc(FarMacroCall* Data)
+int FarMacroApi::fmatchFunc()
 {
-	auto Params = parseParams(2, Data);
+	auto Params = parseParams(2, mData);
 	auto& Mask(Params[1]);
 	auto& S(Params[0]);
 	filemasks FileMask;
 
 	if (FileMask.Set(Mask.toString(), FMF_SILENT))
-		PassNumber(FileMask.Compare(S.toString()), Data);
+		PassNumber(FileMask.Compare(S.toString()));
 	else
-		PassNumber(-1, Data);
-	return true;
+		PassNumber(-1);
+	return 1;
 }
 
 // V=Editor.Sel(Action[,Opt])
-static bool editorselFunc(FarMacroCall* Data)
+int FarMacroApi::editorselFunc()
 {
 	/*
 	 MCODE_F_EDITOR_SEL
@@ -4718,7 +4736,7 @@ static bool editorselFunc(FarMacroCall* Data)
 	              Opt: ignore
 	              return 1
 	*/
-	auto Params = parseParams(2, Data);
+	auto Params = parseParams(2, mData);
 	TVar Ret(0ll);
 	auto& Opts(Params[1]);
 	auto& Action(Params[0]);
@@ -4735,14 +4753,14 @@ static bool editorselFunc(FarMacroCall* Data)
 			Ret=CurrentWindow->VMProcess(MCODE_F_EDITOR_SEL,ToPtr(Action.toInteger()),Opts.asInteger());
 	}
 
-	PassValue(Ret, Data);
+	PassValue(Ret);
 	return Ret.asInteger() == 1;
 }
 
 // V=Editor.Undo(Action)
-static bool editorundoFunc(FarMacroCall* Data)
+int FarMacroApi::editorundoFunc()
 {
-	auto Params = parseParams(1, Data);
+	auto Params = parseParams(1, mData);
 	TVar Ret(0ll);
 	auto& Action(Params[0]);
 
@@ -4753,14 +4771,14 @@ static bool editorundoFunc(FarMacroCall* Data)
 		Ret = Global->WindowManager->GetCurrentEditor()->EditorControl(ECTL_UNDOREDO,0,&eur);
 	}
 
-	PassValue(Ret, Data);
+	PassValue(Ret);
 	return Ret.asInteger()!=0;
 }
 
 // N=Editor.SetTitle([Title])
-static bool editorsettitleFunc(FarMacroCall* Data)
+int FarMacroApi::editorsettitleFunc()
 {
-	auto Params = parseParams(1, Data);
+	auto Params = parseParams(1, mData);
 	TVar Ret(0ll);
 	auto& Title(Params[0]);
 
@@ -4774,14 +4792,14 @@ static bool editorsettitleFunc(FarMacroCall* Data)
 		Ret = Global->WindowManager->GetCurrentEditor()->EditorControl(ECTL_SETTITLE, 0, UNSAFE_CSTR(Title.asString()));
 	}
 
-	PassValue(Ret, Data);
+	PassValue(Ret);
 	return Ret.asInteger()!=0;
 }
 
 // N=Editor.DelLine([Line])
-static bool editordellineFunc(FarMacroCall* Data)
+int FarMacroApi::editordellineFunc()
 {
-	auto Params = parseParams(1, Data);
+	auto Params = parseParams(1, mData);
 	TVar Ret(0ll);
 	auto& Line(Params[0]);
 
@@ -4793,14 +4811,14 @@ static bool editordellineFunc(FarMacroCall* Data)
 		}
 	}
 
-	PassValue(Ret, Data);
+	PassValue(Ret);
 	return Ret.asInteger()!=0;
 }
 
 // N=Editor.InsStr([S[,Line]])
-static bool editorinsstrFunc(FarMacroCall* Data)
+int FarMacroApi::editorinsstrFunc()
 {
-	auto Params = parseParams(2, Data);
+	auto Params = parseParams(2, mData);
 	TVar Ret(0ll);
 	auto& S(Params[0]);
 	auto& Line(Params[1]);
@@ -4819,14 +4837,14 @@ static bool editorinsstrFunc(FarMacroCall* Data)
 		}
 	}
 
-	PassValue(Ret, Data);
+	PassValue(Ret);
 	return Ret.asInteger()!=0;
 }
 
 // N=Editor.SetStr([S[,Line]])
-static bool editorsetstrFunc(FarMacroCall* Data)
+int FarMacroApi::editorsetstrFunc()
 {
-	auto Params = parseParams(2, Data);
+	auto Params = parseParams(2, mData);
 	TVar Ret(0ll);
 	auto& S(Params[0]);
 	auto& Line(Params[1]);
@@ -4845,46 +4863,46 @@ static bool editorsetstrFunc(FarMacroCall* Data)
 		}
 	}
 
-	PassValue(Ret, Data);
+	PassValue(Ret);
 	return Ret.asInteger()!=0;
 }
 
 // N=Plugin.Exist(Guid)
-static bool pluginexistFunc(FarMacroCall* Data)
+int FarMacroApi::pluginexistFunc()
 {
-	bool Ret = false;
-	if (Data->Count>0 && Data->Values[0].Type==FMVT_STRING)
+	int Ret = 0;
+	if (mData->Count>0 && mData->Values[0].Type==FMVT_STRING)
 	{
 		GUID guid;
-		Ret = StrToGuid(Data->Values[0].String,guid) && Global->CtrlObject->Plugins->FindPlugin(guid);
+		Ret = StrToGuid(mData->Values[0].String,guid) && Global->CtrlObject->Plugins->FindPlugin(guid);
 	}
-	PassBoolean(Ret, Data);
+	PassBoolean(Ret);
 	return Ret;
 }
 
 // N=Plugin.Load(DllPath[,ForceLoad])
-static bool pluginloadFunc(FarMacroCall* Data)
+int FarMacroApi::pluginloadFunc()
 {
-	auto Params = parseParams(2, Data);
+	auto Params = parseParams(2, mData);
 	auto& ForceLoad(Params[1]);
 	const auto& DllPath = Params[0].asString();
 	const TVar Ret(pluginapi::apiPluginsControl(nullptr, !ForceLoad.asInteger()?PCTL_LOADPLUGIN:PCTL_FORCEDLOADPLUGIN, 0, UNSAFE_CSTR(DllPath)));
-	PassValue(Ret, Data);
+	PassValue(Ret);
 	return Ret.asInteger()!=0;
 }
 
 // N=Plugin.UnLoad(DllPath)
-static bool pluginunloadFunc(FarMacroCall* Data)
+int FarMacroApi::pluginunloadFunc()
 {
 	int Ret=0;
-	if (Data->Count>0 && Data->Values[0].Type==FMVT_STRING)
+	if (mData->Count>0 && mData->Values[0].Type==FMVT_STRING)
 	{
-		if (const auto p = Global->CtrlObject->Plugins->FindPlugin(Data->Values[0].String))
+		if (const auto p = Global->CtrlObject->Plugins->FindPlugin(mData->Values[0].String))
 		{
 			Ret = static_cast<int>(pluginapi::apiPluginsControl(p, PCTL_UNLOADPLUGIN, 0, nullptr));
 		}
 	}
-	PassNumber(Ret, Data);
+	PassNumber(Ret);
 	return Ret!=0;
 }
 
@@ -4898,9 +4916,9 @@ TSTFLD_EMPTY      (0) - пусто
 TSTFLD_NOTACCESS (-1) - нет доступа
 TSTFLD_ERROR     (-2) - ошибка (кривые параметры или не хватило памяти для выделения промежуточных буферов)
 */
-static bool testfolderFunc(FarMacroCall* Data)
+int FarMacroApi::testfolderFunc()
 {
-	auto Params = parseParams(1, Data);
+	auto Params = parseParams(1, mData);
 	auto& tmpVar(Params[0]);
 	long long Ret=TSTFLD_ERROR;
 
@@ -4910,7 +4928,7 @@ static bool testfolderFunc(FarMacroCall* Data)
 		Ret = static_cast<long long>(TestFolder(tmpVar.asString()));
 	}
 
-	PassNumber(Ret, Data);
+	PassNumber(Ret);
 	return Ret != 0;
 }
 
