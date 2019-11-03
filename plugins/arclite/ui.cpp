@@ -551,6 +551,7 @@ void show_error_log(const ErrorLog& error_log) {
     line.append(1, L'\n');
     file.write(line.data(), static_cast<unsigned>(line.size()) * sizeof(wchar_t));
   }
+  file.close();
 
   Far::viewer(temp_file.get_path(), Far::get_msg(MSG_LOG_TITLE), VF_DISABLEHISTORY | VF_ENABLE_F6);
 }
