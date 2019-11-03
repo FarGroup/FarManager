@@ -22,28 +22,28 @@ zaznaczenie plików i wciśnięcie #F5#.
 	Rozpakowanie wielu archiwów przez zaznaczenie ich i wybranie #Rozpakuj archiwa#
 z menu wtyczek (#F11#).
 
-	Extraction process can be interrupted by pressing #Escape#, set to low priority by
-pressing #B# and paused by pressing #P#.
+	Proces rozpakowania można przerwać poprzez wciśnięcie #Escape#, ustawić niski priorytet wciskając
+#B# lub wstrzymać (pauza) wciskając #P#.
 
-	"Extract files" dialog allows you to specify extract path and parameters.
+	Okno "Rozpakuj pliki" umożliwia wprowadzenie ścieżki docelowej i dodatkowych parametrów.
 
-	#Ignore errors# - Do not interrupt extraction when errors occur, just skip faulty files.
-Error log will be shown after extraction process is complete.
+	#Ignoruj błędy# - Nie przerywa rozpakowania po wystąpieniu błędów, omija uszkodzone pliki.
+Dziennik błędów zostanie pokazany na ekranie po zakończeniu rozpakowania archiwum.
 
-	#When destination file exists# - Action to perform when extracting file already exists on disk:
-ask user, overwrite, skip file, automatically rename or append to existing file.
+	#Jeżeli docelowy istnieje# - Akcja do wykonania gdy rozpakowywany plik już istnieje na dysku:
+zapytaj użytkownika, zastąp, omiń, automatycznie zmień nazwę lub dołącz do istniejącego pliku.
 
-	#Delete files after extraction# - Delete files from archive after successful extraction.
+	#Usuń pliki z archiwum po rozpakowaniu# - Usuwa pliki z archiwum po pomyślnym rozpakowaniu.
  
-	#Password# - Specify password for encrypted files.
-If left blank password will be requested automatically when required.
+	#Hasło# - Podaj hasło dla zaszyfrowanych plików.
+Jeżeli pole zostanie puste, program automatycznie zapyta o hasło w razie potrzeby.
 
 	#Extract archive into separate directory# - Create a subdirectory inside target directory
 and extract archive into it. If option value is undefined then subdirectory is created only when
 unpacking entire archive and archive's root directory contains more than one element.
 
-	#Delete archive after extraction# - Delete archive file (including all volumes) from disk
-after successful extraction.
+	#Usuń archiwum po rozpakowaniu# - Usuwa plik archiwum (także wszystkie woluminy) z dysku po poprawnie
+zakończonym rozpakowaniu.
 
 @Update
 $ #Tworzenie i aktualizacja archiwów#
@@ -163,37 +163,37 @@ with Ctrl-PgDn.
 $ #Format przedrostków w linii poleceń#
 
 	#Otwórz archiwum#
-	arc:[-d] [-t:<arc_type>] [-p:<password>] <archive>
-	-t = archive type (7z, zip, etc.)
-	-d = detect all available formats and show selection menu
-	-p = specify password for encrypted archive
-	<archive> = archive file name
+	arc:[-d] [-t:<typ_arch>] [-p:<hasło>] <archiwum>
+	-t = typ archiwum (7z, zip, itp.)
+	-d = wykrywa wszystkie dostępne format i pokazuje menu wyboru
+	-p = użyj hasła do zakodowania archiwum
+	<archiwum> = nazwa pliku archiwum
 
-	#Create or update archive#
-	arc:c [-pr:name] [-t:<arc_type>] [-l:<level>] [-m:<method>] [-s[:(y|n)]] [-p:<password>] [-eh[:(y|n)]] [-sfx[:<module>]] [-v:<volume_size>]
-[-mf[:(y|n)]] [-ie[:(y|n)]] [-adv:<advanced>] <archive> (<file> | @@<filelist>) ...
-	arc:u [-l:<level>] [-m:<method>] [-s[:(y|n)]] [-p:<password>] [-eh[:(y|n)]]
-[-mf[:(y|n)]] [-ie[:(y|n)]] [-o[:(o|s)]] [-adv:<advanced>] <archive> (<file> | @@<filelist>) ...
-	-pr = profile name (other parameters overwrite profile settings)
-	-t = archive type (7z, zip, etc.)
-	-l = compression level (0|1|3|5|7|9)
-	-m = compression method (lzma|lzma2|ppmd)
-	-s = solid archive
-	-p = encrypt archive with password
-	-eh = encrypt archive header (file names)
-	-sfx = create self-extracting archive using specified SFX module (7z.sfx by default)
-	-v = split archive into multiple volumes (example: -v:700M)
-	-mf = delete files after successful archival
-	-ie = ignore errors (skip files with errors)
-	-o = overwrite existing files (o = overwrite, s = skip)
-	-adv = advanced settings (see 7-Zip documentation for -m switch)
-	<archive> = archive file name
-	<file> ... = list of files to archive (masks are allowed)
-	@@<filelist> ... = files containing lists of files to archive
+	#Tworzenie lub aktualizacja archiwum#
+	arc:c [-pr:nazwa] [-t:<typ_arch>] [-l:<poziom>] [-m:<metoda>] [-s[:(y|n)]] [-p:<hasło>] [-eh[:(y|n)]] [-sfx[:<moduł>]] [-v:<wielk_woluminu>]
+[-mf[:(y|n)]] [-ie[:(y|n)]] [-adv:<zaawansowane>] <archiwum> (<plik> | @@<lista_plików>) ...
+	arc:u [-l:<poziom>] [-m:<metoda>] [-s[:(y|n)]] [-p:<hasło>] [-eh[:(y|n)]]
+[-mf[:(y|n)]] [-ie[:(y|n)]] [-o[:(o|s)]] [-adv:<zaawansowane>] <archiwum> (<plik> | @@<lista_plików>) ...
+	-pr = nazwa profilue (inne parametry zastępują ustawienia profilu)
+	-t = typ archiwum (7z, zip, itp.)
+	-l = poziom kompresji (0|1|3|5|7|9)
+	-m = metoda kompresji (lzma|lzma2|ppmd)
+	-s = archiwum solidne
+	-p = zakoduj archiwum za pomocą hasła
+	-eh = zakoduj nagłówki archiwum (nazwy spakowanych plików)
+	-sfx = utwórz archiwum samo-rozpakowujące się, używając modułu SFX (domyślnie: 7z.sfx)
+	-v = podziel archiwa na wiele woluminów (przykład: -v:700M)
+	-mf = usuń pliki po poprawnych utworzeniu archiwum
+	-ie = ignoruj błędy (omiń pliki z błędami)
+	-o = zastąp istniejące pliki (o = zastąp, s = pomiń)
+	-adv = ustawienia zaawansowane (zobacz dokumentację programu 7-Zip, dla przełącznika -m)
+	<archiwum> = nazwa pliku archiwum
+	<plik> ... = lista plików do archwiwizacji (maski są dozwolone)
+	@@<lista_plików> ... = pliki zawierające listę plików do archiwizacji (po jednym w każdej linii)
 
-	#Extract archive#
-	arc:x [-ie[:(y|n)]] [-o[:(o|s|r|a)]] [-mf[:(y|n)]] [-p:<password>] [-sd[:(a|y|n)]] [-da[:(y|n)]] <archive> ... <path>
-	-ie = ignore errors (skip files with errors)
+	#Rozpakowanie archiwów#
+	arc:x [-ie[:(y|n)]] [-o[:(o|s|r|a)]] [-mf[:(y|n)]] [-p:<hasło>] [-sd[:(a|y|n)]] [-da[:(y|n)]] <archiwum> ... <ścieżka>
+	-ie = ignoruj błędy (omiń błędne pliki)
 	-o = overwrite existing files (o = overwrite, s = skip, r = rename, a = append)
 	-mf = delete files from archive after successful extraction
 	-p = specify password for encrypted archive
