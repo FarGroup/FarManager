@@ -25,26 +25,26 @@
 "Dodaj do menu &Dysków"
 "Dodaj do menu &Wtyczek"
 
-"Use &common panel"
-"&Safe panel mode"
-"&Any elements in panel"
+"&Użyj stałego panelu"
+"&Bezpieczny tryb panelu"
+"D&owolne elementy w panelu"
 
-"&Replace files with file list"
-"&Menu from file list"
-"Copy folder c&ontents"
+"&Zastąp pliki listą plików"
+"&Menu z listy plików"
+"&Kopiuj zawartość folderów"
 
 "Tryb pełnego &ekranu"
 
-"Column &types"
-"Column &widths"
-"Status line column t&ypes"
-"Status l&ine column widths"
+"&Typy kolumn"
+"&Szerokości kolumn"
+"L&inia statusu typów kolumn"
+"Linia statusu szero&kości kolumn"
 
-"File masks for the file &lists:"
-"Command line pre&fix:"
+"M&aska plików dla listy plików:"
+"Przedrostek &linii poleceń:"
 
 "Nowe ustawienia będą aktywne po restarcie programu Far"
-"Ne&w panel for search results"
+"&Nowy panel dla wyników wyszukiwania"
 "Zapisz listę plików jako"
 
 "Skopiować zawartość folderu?"
