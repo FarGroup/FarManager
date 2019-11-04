@@ -831,6 +831,10 @@
             <ComponentRef Id="NetRus.hlf" />
             <ComponentRef Id="NetRus.lng" />
           </Feature>
+          <Feature Id="Network.Polish" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="NetPol.hlf" />
+            <ComponentRef Id="NetPol.lng" />
+          </Feature>
 <?if $(var.Platform) = x86 ?>
           <Feature Id="Network.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="Network.map" />
