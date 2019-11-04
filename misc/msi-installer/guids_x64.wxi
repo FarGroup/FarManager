@@ -413,6 +413,8 @@
 <?define Guid.changelog_15 = "D0F89E68-A0CF-447F-B009-D8F0AA200C95" ?>
 <?define Guid.NetEng.hlf = "E12DC3DC-D72A-4386-876A-893A25C48BCE" ?>
 <?define Guid.NetEng.lng = "2D45BB5A-5C3B-42CA-8F17-92A0D337588B" ?>
+<?define Guid.NetPol.hlf = "68E6402E-CEC6-402C-9118-350FF2130B1C" ?>
+<?define Guid.NetPol.lng = "F791E023-2537-4F0C-8C1F-BBFF69B2732F" ?>
 <?define Guid.NetRus.hlf = "565E06F2-8C50-4591-A04D-06C609C0B0FE" ?>
 <?define Guid.NetRus.lng = "8FC03912-B398-4140-9356-6974F617974E" ?>
 <?define Guid.NetSky.lng = "1B5F2B82-5C46-492B-BDFE-79C045BD8516" ?>
