@@ -94,23 +94,6 @@ the main help file, that is actual for the current Far Manager version.
    The  parameter  can  be  changed   in   the   configuration   dialog   -
    Options|Interface settings
 
-1.2.8.(TechInfo #27)
-~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far Manager\System]
-   "ConsoleDetachKey":REG_SZ
-   The key "System/ConsoleDetachKey" of REG_SZ type allows to  specify  the
-   key combination that can be used to detach the Far Manager console  from
-   a non-interactive process running in it.
-   If a long-running process (for example, archiving)  was  run  in  a  Far
-   console, and for some reasons this very instance of Far  is  needed  (an
-   editor in the background) or it is undesirable to run a new instance  of
-   Far, pressing this key combination will create a  new  console  for  Far
-   where it will continue running as if the process has already ended,  and
-   the process will continue working in the old console.
-   For example, the value of "ConsoleDetachKey" equal to "CtrlAltX" assigns
-   the shortcut Ctrl-Alt-X to the detach function.
-   The default value is "CtrlAltTab".
-
 1.2.9.(TechInfo #29)
 ~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far Manager\System]
@@ -161,15 +144,6 @@ the main help file, that is actual for the current Far Manager version.
    These parameters are used under Windows Vista and above.
    The default values are 1.
 
-1.2.12.(TechInfo #34)
-~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far Manager\System]
-   "QuotedSymbols":REG_SZ
-   The key "System/QuotedSymbols" of REG_SZ type allows to specify the  set
-   of characters  that  will  cause  Far  to  quote  filenames  when  those
-   characters are present in them. You may specify up to 32 characters.
-   The default value is " &()[]{}^=;!'+,`".
-
 1.2.13.(TechInfo #36)
 ~~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far Manager\System]
@@ -202,20 +176,6 @@ the main help file, that is actual for the current Far Manager version.
    the Temporary panel).
    If the value is equal to 0, Far does not prepend prefixes.
    The default value is 0.
-
-1.2.19.(TechInfo #50)
-~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far Manager\System]
-   "QuotedName":REG_DWORD
-   File or folder names, containing characters specified in rule  34,  will
-   be quoted when inserted into the editor/command line or the clipboard.
-   The key "System/QuotedName" of DWORD type controls this behaviour.
-   Bits:
-     0 - if set then file or folder names will be quoted inserted into
-         the editor/command line.
-     1 - if set then file or folder names will be quoted inserted into
-         the clipboard.
-   The default value = 0xFFFFFFFF (quote file or folders names).
 
 1.2.23.(TechInfo #63)
 ~~~~~~~~~~~~~~~~~~~~~
@@ -343,40 +303,11 @@ the main help file, that is actual for the current Far Manager version.
      "CursorSize3"=99
      "CursorSize4"=99
 
-1.5.3.(TechInfo #38)
-~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far Manager\Interface]
-   "AltF9":REG_DWORD
-   The key "Interface/AltF9" of DWORD type allows to  select  the  mode  of
-   handling the  Alt-F9  combination  (Change  the  console  size)  in  the
-   windowed mode:
-     1 - use advanced mode - the Far Manager window will switch from
-         its current size to the maximum possible size of a console
-         window and back. The font size of the console window will not
-         change.
-     0 - use the mode compatible with Far 1.65 and earlier, that is,
-         switching between 25/50 lines.
-   This parameter has effect only in the windowed mode of Far Manager.
-   By default the rule is on (1) for the Windows NT family.
-   For Windows 9x family the rule is off (0)  by  default  and  it  is  not
-   recommended to turn it on as it causes considerable  visual  distortions
-   (while changing console size) and there it no possibility  to  save  the
-   size of the console window between sessions of Far Manager.
-
 
 
 ======================
   1.7. Dialog.
 ======================
-
-
-1.7.2.(TechInfo #61)
-~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far Manager\Dialog]
-   "CBoxMaxHeight":REG_DWORD
-   The key "Dialog/CBoxMaxHeight"  of  DWORD  type  specifies  the  maximum
-   height for dialog history lists.
-   The default value is 8.
 
 
 
@@ -393,17 +324,6 @@ the main help file, that is actual for the current Far Manager version.
    Ctrl-Right functions and for the "whole words" search.
    Maximum 255 characters.
    Default ~!%^&*()+|{}:"<>?`-=\[];',./
-
-1.8.1.(TechInfo #13)
-~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far Manager\Editor]
-   "BSLikeDel":REG_DWORD
-   The "Editor/BSLikeDel" key of the  DWORD  type  allows  to  control  the
-   effect of the BackSpace key when a vertical block  is  selected  in  the
-   editor. If this value is nonzero, the  BackSpace  deletes  the  vertical
-   block like the DEL key.
-   By default this value is equal to 1 (BS deletes  the  selected  vertical
-   block).
 
 1.8.3.(TechInfo #19)
 ~~~~~~~~~~~~~~~~~~~~
@@ -432,18 +352,6 @@ the main help file, that is actual for the current Far Manager version.
    the file. The value 0 disables the size checking and the warning.
    The default value is 0 (unlimited size).
 
-1.8.5.(TechInfo #32)
-~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far Manager\Editor]
-   "CharCodeBase":REG_DWORD
-   The key  "Editor/CharCodeBase"  of  DWORD  type  allows  to  change  the
-   representation of the current character code in the editor status line.
-   Can have one of the following values:
-     0 - octal value (3 characters with leading zeros)
-     1 - decimal value (3 characters with leading spaces)
-     2 - hexadecimal value (2 digits + the character 'h')
-   The default value is 1 - decimal value.
-
 1.8.6.(TechInfo #44)
 ~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far Manager\Editor]
@@ -454,24 +362,6 @@ the main help file, that is actual for the current Far Manager version.
    64 up to 2147483645. If the  value  falls  out  of  that  range,  it  is
    considered to equal 64.
    Default value is 2048.
-
-1.8.7.(TechInfo #67)
-~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far Manager\Editor]
-   "AllowEmptySpaceAfterEof":REG_DWORD
-   The end of the file in the editor is always at the bottom of the screen,
-   if there are more lines  in  the  file  than  in  on  the  screen.  When
-   scrolling down (e.g. using Ctrl-Down) the scrolling stops when the  last
-   line is shown.
-   The value  "Editor/AllowEmptySpaceAfterEof"  of  type  DWORD  allows  to
-   change this behaviour.
-   Can have one of the following values:
-   0 - stop scrolling if the last line is at the bottom of the screen.
-   1 - continue scrolling but:
-       a) it is still impossible to position the cursor beyond the end of
-          file
-       b) scrolling using Ctrl-Down will scroll the text up to the cursor
-   Default value is = 0.
 
 
 

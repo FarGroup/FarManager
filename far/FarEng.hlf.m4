@@ -5807,140 +5807,150 @@ history).
 
 @System.ConsoleDetachKey
 $ #far:config System.ConsoleDetachKey#
- Параметр позволяет задавать сочетание клавиш для отделения консоли Far Manager от не интерактивного процесса, запущенного в ней.
+ This string parameter specifies key combination to detach Far console
+from a non-interactive process running in it.
 
- Если в консоли Far'а был запущен длительный процесс, например архивация, и по тем или иным причинам именно
-эта копия Far Manager нужна (редактор в фоне), или нежелательно запускать новый Far, то если у вас установлена
-эта опция, можно создать новую консоль для Far, где он продолжит  работу как если бы запущенный процесс уже
-завершился, а сам процесс продолжит работу в старой консоли.
+ If a long-running process is using Far console, press this key
+combination to create a new Far console where Far will continue running
+as if the process has already ended, while leaving the old console
+to the process.
 
- Например, значение "System.ConsoleDetachKey" равное "CtrlAltX" назначает процессу разделения сочетание клавиш Ctrl+Alt+X.
+ This feature can come handy if, for example, an archiver process
+started from the Far command line is taking more time than you
+expected, and you want to continue editing a file opened in background
+Editor, or simply do not want to launch a new Far instance.
 
- По умолчанию значение = "CtrlShiftTab"
+ Default value: #"CtrlShiftTab"# (the #Ctrl+Shift+Tab# key combination
+detaches Far console).
 
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @System.QuotedSymbols
 $ #far:config System.QuotedSymbols#
- Параметр позволяет задавать набор символов, присутствие которых в именах файлов/папок заставит Far Manager заключать такие имена в кавычки.
+ This string parameter defines special characters that require quoting
+of file and folder names. If a name contains one of these characters,
+Far will surround it with double quotes when inserting into the command
+line or editor, or copying to the clipboard.
 
- По умолчанию значение = " &()[]{}^=;!'+,`" и символ с кодом 0xA0.
+ Default value: #" &()[]{}^=;!'+,` "#. The first symbol is
+~Space (U+0020)~@https://en.wikipedia.org/wiki/Space_(punctuation)@;
+the last symbol is ~Non-breaking space (U+00A0)~@https://en.wikipedia.org/wiki/Non-breaking_space@.
 
- See also ~System.QuotedName~@System.QuotedName@
+ See also ~System.QuotedName~@System.QuotedName@.
 
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @System.QuotedName
 $ #far:config System.QuotedName#
- Имена файлов/папок (содержащие символы, перечисленные в правиле 34) при
-вставке в редактор/командную строку или в буфер обмена заключаются в кавычки.
+ This numeric parameter controls whether Far will surround with double
+quotes file and folder names containing special characters (see
+~System.QuotedSymbols~@System.QuotedSymbols@ parameter). Individual
+bits control the behavior in different contexts.
 
- Параметр "System.QuotedName" управляет этим поведением:
+Bit numbers:
+ 0 - ^<wrap>Quote names when inserting into the command line or editor;
+ 1 - Quote names when copying to the clipboard.
 
- Биты:
- 0 - ^<wrap>если установлен, то заключать имена файлов/папок в кавычки при вставке в редактор или командную строку;
- 1 - ^<wrap>если установлен, то заключать имена файлов/папок в кавычки при запоминании в буфере обмена.
+ Default value: 1 (quote when inserting into the command line or editor).
 
- По умолчанию установлен нулевой бит.
-
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @Interface.AltF9
 $ #far:config Interface.AltF9#
- Параметр позволяет выбрать механизм работы комбинации Alt+F9 (Изменение размера экрана) в оконном режиме:
+ This Boolean parameter controls the behavior of the #Alt+F9# key
+combination (toggle the size of the Far console window).
 
-  1 - ^<wrap>использовать усовершенствованный механизм - окно Far Manager
-будет переключаться с нормального на максимально доступный размер
-консольного окна и обратно. Размер шрифта консольного окна
-меняться не будет.
-  0 - ^<wrap>использовать механизм, совместимый с Far версии 1.65 и
-ниже, т.е. переключение 25/50 линий.
+ False - ^<wrap>Toggle Far window height between 25 and 50 lines; set
+window width to 80 columns;
+ True  - Maximize Far window or restore it to normal size.
 
- Данный параметр влияет только на оконный режим работы Far Manager.
+ Default value: True (maximize / restore).
 
- По умолчанию значение = 1
+ Note: This parameter affects the behavior only in windowed mode.
 
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @Dialog.CBoxMaxHeight
 $ #far:config Dialog.CBoxMaxHeight#
- Параметр задаёт максимальную высоту открываемого списка истории в диалогах.
+ This numeric parameter specifies the maximum height of history list
+in dialogs.
 
- По умолчанию значение = 8
+ Default value: 8.
 
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @Editor.UndoDataSize
 $ #far:config Editor.UndoDataSize#
- Параметр позволяет ограничить количество памяти, используемой для операций отмены действий в редакторе.
+ This numeric parameter limits the size of undo memory buffer in Editor.
 
- По умолчанию значение = 104857600 (100MB).
+ Default value: 104857600 (100MB).
 
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @Editor.CharCodeBase
 $ #far:config Editor.CharCodeBase#
- Параметр позволяет менять представление кода символа под курсором в статусной строке в редакторе.
+ This numeric parameter defines how the code of the character under the
+cursor is represented on Editor’s status line.
 
- Может принимать следующие значения:
+ 0 - Octal value (6 digits with the leading zero);
+ 1 - Decimal value (up to 5 digits);
+ 2 - Hexadecimal value (4 digits followed by the character ‘h’).
 
- 0 - восьмеричное значение (6 символов с ведущим нулём)
- 1 - десятеричное значение (5 символов)
- 2 - шестнадцатеричное значение (4 символа под цифру + символ ‘h’)
+ Default value: 1 (decimal).
 
- По умолчанию значение = 1 (десятеричное значение).
-
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @Editor.BSLikeDel
 $ #far:config Editor.BSLikeDel#
- Параметр позволяет управлять поведением клавиши BackSpace в редакторе, когда выделен вертикальный блок.
+ This Boolean parameter defines the behavior of the #BackSpace# key when
+a vertical block is selected in Editor.
 
- Если значение отлично от 0, то BS удаляет вертикальный блок подобно клавише Del.
+ False - ^<wrap>Deletes the character to the left of the cursor; keeps
+the (vertical) selection;
+ True  - Deletes the selected vertical block, like the #Del# key does.
 
- По умолчанию значение = 1 (BS удаляет помеченный вертикальный блок).
+ Default value: True (deletes the selection).
 
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @Editor.AllowEmptySpaceAfterEof
 $ #far:config Editor.AllowEmptySpaceAfterEof#
- Окончание файла в редакторе всегда находится внизу экрана, если строк в файле больше чем строк экрана.
-При построчном скроллировании вниз (например, с помощью Ctrl+Down), скроллирование прекращается, когда
-показывается последняя строка.
+ This Boolean parameter defines whether scrolling down in Editor (e.g.,
+with the #Ctrl+Down# key combination) can leave empty space at the
+bottom of the window.
 
- Параметр "Editor.AllowEmptySpaceAfterEof" позволяет изменить такое поведение редактора.
+ False - ^<wrap>Stop scrolling when the last line of the file appears
+at the bottom of the window;
+ True  - Continue scrolling until the last line of the file reaches the
+cursor leaving empty space under the cursor.
 
- Может принимать следующие значения:
+ Default value: False (stop scrolling).
 
- 0 - прекратить скроллинг, если последняя строка внизу экрана
- 1 - продолжать скроллинг, при этом:
-     a) поместить курсор за пределы файла по прежнему нельзя
-     b) скроллинг с помощью Ctrl+Down сдвинет текст до курсора
-
- По умолчанию значение = 0 (прекратить скроллинг).
-
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @Interface.RedrawTimeout
 $ #far:config Interface.RedrawTimeout#
- Параметр  "Interface.RedrawTimeout" позволяет контролировать время обновления (в мс)
-сообщения в процессе копирования файлов, применения прав доступа после перемещения файлов или папок,
-удаления и поиска файлов, сканирование файловой системы.
+ This numeric parameter specifies the refresh time (in milliseconds)
+of the progress dialog displayed during various long-running
+operations, such as copying, moving, deleting and searching files and
+folders, applying access rights after moving files and folders,
+scanning the file system.
 
- Чем больше значение "Interface.RedrawTimeout", тем реже выводится информацию о процессе и тем быстрее проходит этот самый процесс.
+ The larger the value, the less frequently the information about the
+operation is displayed, the faster the operation itself is performed.
 
- По умолчанию значение = 200 мс.
+ Default value: 200 ms.
 
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @TitleFormat
