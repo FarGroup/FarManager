@@ -54,7 +54,7 @@ enum:class lng:int
 
 
 MYes
-`l://Version: 'MAJOR`.'MINOR` build 'BUILD
+`l://Version: 'VERSION_MAJOR`.'VERSION_MINOR`.'VERSION_REVISION`.'VERSION_BUILD`
 l:
 "Да"
 "Yes"
