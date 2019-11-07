@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 07.11.2019 12:15:11 +0200 - build 5504
+
+1. API-function Menu() - added flags for control of visibility and appearance of menu borders.
+
 MZK 04.11.2019 23:29:26 -0800
 
 1. Translated more far:config help pages into English; cleaning up eng/TechInfo.txt.
