@@ -1,19 +1,20 @@
 ﻿.Language=Polish,Polish (Polski)
-.PluginContents=Przeglądarka sieciowa
+.PluginContents=Przeglądarka sieci
 
 @Contents
 $ #Wtyczka - przeglądarka sieci.#
-    Using the network browser you can navigate through a network,
-go to mapped and unmapped network disks, map and unmap them.
-Press #F5# to map selected disks to the next available letters
-or #F6# to choose letters manually. #Shift-F5# and #Shift-F6#
-work the same as #F5# and #F6#, but create temporary connections.
-It is possible to toggle the connection type in the drive letter
-selection menu shown when #F6# or #Shift-F6# is pressed.
-Use #F8# to ~discard existing mapping~@DisconnectDrive@ for selected disks.
+    Używając wtyczki "Przeglądarka sieci" można poruszać się w zasobach
+sieciowych, przechodzić do zamapowanych i nie zamapowanych dysków sieciowych,
+mapować i odmapować je.
+Wciśnij #F5#, aby zamapować wybrany zasób na dowolną wolną literę dysku
+lub #F6#, aby wybrać literę dysku. #Shift-F5# i #Shift-F6# działają tak samo
+jak #F5# i #F6#, ale tworzą połączenia tymczasowe.
+Istnieje możliwość przełączenia typu połączenia po najechaniu na wybraną literę
+w menu dysków i wciśnięciu #F6# lub #Shift-F6#.
+Użyj klawisza #F8#, aby ~odłączyć mapowany dysk~@DisconnectDrive@.
 
-    You can open the network browser from the disks menu,
-the plugins menu or by entering a command in the command line:
+    Możesz otworzyć przeglądarkę sieci z menu dysków,
+wtyczkę można też uruchomić z linii poleceń:
 
     #net:#
   lub
@@ -39,15 +40,15 @@ specifying login information explicitly use F4 key.
 
 @Config
 $ #Konfiguracja przeglądarki sieci#
-  In this dialog you may change the following options:
+  W tym dialogu można zmieniać następujące opcje:
 
  #Dodaj do menu dysków#
 
-  Enables adding "Network" item to the disks menu.
+  Dodaje "Sieć" do listy w menu wyboru dysków.
 
  #Dodaj do menu wtyczek#
 
-  Enables adding "Network" item to the plugins menu.
+  Dodaje "Sieć" do listy w menu wyboru wtyczek.
 
  #Выводить ".." в списке провайдеров#
 
