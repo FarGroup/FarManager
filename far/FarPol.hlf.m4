@@ -52,7 +52,7 @@ $^#File and archive manager#
 $^#Copyright © 1996-2000 Eugene Roshal#
 `$^#Copyright © 2000-'COPYRIGHTYEAR` Far Group#'
  UWAGA: Plik pomocy w trakcie tłumaczenia
- ~Indeks pliku pomocy~@Index@
+ ~Indeks pomocy~@Index@
  ~Jak używac pomocy~@Help@
 
  ~O programie FAR~@About@
@@ -117,45 +117,46 @@ $^#Copyright © 1996-2000 Eugene Roshal#
 
 @Help
 $ #Far: jak używać pomocy#
- Help screens can have reference items on them that lead to another help
-screen. Also, the main page has the "~Help Index~@Index@", which lists all the
-topics available in the help file and in some cases helps to find the needed
-information faster.
+ Ekrany pomocy mogą zawierać elementy referencyjne, które prowadzą do innych
+ekranów pomocy. Dodatkowo, na stronie głównej dostępy jest "~Indeks pomocy~@Index@",
+który zawiera listę wszystkich tematów dostępnych w pliku pomocy, a w niektórych
+przypadkach pozwala szybciej znaleźć szukaną informację.
 
- You can use #Tab# and #Shift+Tab# keys to move the cursor from one
-reference item to another, then press #Enter# to go to a help screen describing
-that item. With the mouse, you can click a reference to go to the help screen
-about that item.
+ Możesz użyć klawiszy #Tab# i #Shift+Tab#, aby przesunąć kursor z jednego elementu
+referencyjnego na inny, a następnie wcisnąć #Enter# aby przejść do ekranu pomocy
+opisującego ten element. Za pomocą myszy można kliknąć odnośnik, aby przejść
+do ekranu pomocy dla tego elementu.
 
- If text does not completely fit in the help window, a scroll bar is
-displayed. In such case #cursor keys# can be used to scroll text.
+ Jeżeli tekst pomocy nie mieści się w oknie, wyświetlany jest pasek przewijania.
+W takich przypadkach #klawisze kursora# służą do przewijania tekstu.
 
  Możesz wciśnąć #Alt+F1# lub #BS# aby powrócić do poprzedniego ekranu pomocy
 i #Shift+F1# aby zobaczyć pełną zawartość pomocy.
 
  Wciśnij #Shift+F2# aby otworzyć pomoc dla ~wtyczek~@Plugins@.
 
- Press #F7# to search for text in the current help file. Search results
-will be displayed as links to relevant topics.
+ Wciśnij #F7# aby wyszukać tekst w bieżącym pliku pomocy. Wyniki wyszukiwania będą
+wyświetlone jako odnośniki do odpowiednich tematów.
 
- #Help# is shown by default in a reduced windows, you can maximize it by
-pressing #F5# "#Zoom#", pressing #F5# again will restore the window to the
-previous size.
+ #Pomoc# jest pokazywana domyślnie w zmniejszonym oknie, ale może je zmaksymalizować
+wciskając #F5# lub #Powiększ#, i ponownie wcisnąć #F5# aby przywrócić okno
+do poprzedniej wielkości.
 
 
 @About
 $ #Far: o programie#
- #Far# is a text mode file and archive manager for Windows. It supports
-#long file names# and provides a wide set of file and folder operations.
+ #Far# jest menedżerem plików i archiwów dla Windows, działającym w trybie tekstowym.
+Wspiera długie nazwy plików i umożliwia wykonywanie wielu operacji na plikach
+i folderach.
 
- #Far# is #freeware# and #open source# software distributed under the
-revised BSD ~license~@License@.
+ #Far# jest #bezpłatny# i rozpowszechniany jako program #open source#
+na zmodyfikowane ~licencji~@License@ BSD.
 
- #Far# does transparent #archive# processing. Files in the archive are
-handled similarly as in a folder: when you operate with the archive, Far
-transforms your commands into the corresponding external archiver calls.
+ #Far# wykonuje transparentne przetwarzanie #archiwów#. Pliki w archiwach
+są obsługiwane podobnie jak w folderach: kiedy operujemy na archiwach, Far przetwarza
+polecenia na odpowiednie funkcje zewnętrznego archiwizera.
 
- #Far# offers a number of service functions as well.
+ #Far# oferuje nieograniczoną liczbę funkcji.
 
 
 @License
@@ -188,19 +189,19 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 @CmdLine
-$ #Far: command line switches#
- The following switches can be used in the command line:
+$ #Far: przełączniki linii poleceń#
+ W linii poleceń mogą być użyte następujące przełączniki:
 
- #-e[<line>[:<pos>]] <filename>#
- Edit the specified file. After -e you can optionally specify editor start line
-and line position.
- For example: far -e70:2 readme.
+ #-e[<linia>[:<poz>]] <nazwa_pliku>#
+ Edituj wskazany plik. Po -e można opcjonalnie podać numer linii i pozycję w linii
+od której edytor ma rozpocząć pracę.
+ Przykład: far -e70:2 czytaj_to.
 
- #-p[<path>]#
- Search for "main" plugins in the folder given in <path>.
- Several search paths can be specified, separated by ‘;’.
+ #-p[<ścieżka>]#
+ Szuka "głównego" folderu wtyczek w ścieżce podanej w parametrze
+ Można podać kilka ścieżek, rozdzielając je średnikami ‘;’.
 
- Example: #far -p%USERPROFILE%\\Far\\Plugins#
+ Przykład: #far -p%USERPROFILE%\\Far\\Plugins#
 
  #-co#
  Forces Far to load plugins from cache only. Plugins are loaded faster this way,
@@ -208,40 +209,39 @@ but new or changed plugins are not discovered. Should be used #only# with a stab
 list of plugins. After adding, replacing or deleting a plugin Far should be loaded
 without this switch. If the cache is empty, no plugins will be loaded.
 
- Remarks about switches -p and -co:
- - ^<wrap>if -p is empty, then Far will be loaded with no plugins;
+ Uwagi dotyczące przełączników -p i -co:
+ - ^<wrap>jeżeli -p jest pusty, Far nie załaduje żadnych wtyczek;
  - ^<wrap>if -p is given with a <path>, then only plugins from <path> will be loaded;
  - ^<wrap>if only the -co switch is given and plugins cache is not empty, then plugins
 will be loaded from cache;
- - ^<wrap>-co is ignored, if -p is given;
+ - ^<wrap>-co jest ignorowane, jeżeli podano -p;
  - ^<wrap>if -p and -co are not given, then plugins will be loaded from the 'Plugins'
 folder, which is in the same folder as Far.exe, and the 'Plugins' folder, which is in the
 user profile folder (#%APPDATA%\\Far Manager\\Profile# by default).
 
  #-m#
- Far will not load macros when started.
+ Far nie będzie wczytywał makr podczas uruchamiania.
 
  #-ma#
- Macros with the "Run after Far start" option set will not be run when Far is started.
+ Makra z opcją "Uruchom po starcie Far" nie będą uruchamiane po uruchomieniu programu.
 
- #-s <profilepath> [<localprofilepath>]#
- Custom location for Far configuration files (overrides the ini file).
+ #-s <ścieżka_profilu> [<lokalna_ścieżka_profilu>]#
+ Położenie pliów konfiguracyjnych programu, ustalone przez użytkownika (zastępuje ustawienia z pliku ini).
 
- #-u <username>#
- Allows to have separate registry settings for different users.
- Affects only 1.x Far Manager plugins
- For example: far -u guest
+ #-u <użytkownik>#
+ Pozwala rozdzielić ustawienia rejestru dla różnych użytkowników.
+ Działa tylko dla wtyczek Far 1.x.
+ Przykład: far -u gosc
 
- Far Manager will set the ~environment variable~@FAREnv@ "FARUSER" to the value <username>.
+ Far Manager może ustawić ~zmienną systemową~@FAREnv@ "FARUSER" na wartość <użytkownik>.
 
- #-v <filename>#
- View the specified file. If <filename> is `#-#', data is read from the stdin.
+ #-v <nazwa_pliku>#
+ Włącza podgląd podanego pliku. Jeżeli <nazwa_pliku> to `#-#', program odczytuje dane ze strumienia stdin.
 
- For example, "dir|far -v -" will view dir command output.
+ Przykład: "dir|far -v -" wyświetli wyjście polecenia dir.
 
- If the input stream is empty when using ‘-’ (for example, you have not specified
-the "dir" command in the provided example), Far will wait for the end of data
-in the input stream until you press Ctrl+Break.
+ Jeżeli przy użyciu ‘-’ strumień wejściowy jest pusty (np. kiedy nie podano polecenia dir, jak na przykładzie),
+ Far będzie czekał na koniec strumienia danych dopóki nie zostaną wciśnięte Ctrl+Break.
 
  #-w[-]#
  Stretch to console window instead of console buffer or vice versa.
