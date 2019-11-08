@@ -102,8 +102,8 @@
 <String Id="Feature.Description.NetBox">Klient SCP/SFTP/FTP/FTPS/WebDAV.</String>
 <String Id="Feature.Title.HlfViewer">HlfViewer</String>
 <String Id="Feature.Description.HlfViewer">Przeglądarka pomocy (*.hlf).</String>
-<String Id="Feature.Title.Network">Sieć</String>
-<String Id="Feature.Description.Network">Przeglądarka sieci.</String>
+<String Id="Feature.Title.Network">Przeglądarka sieci</String>
+<String Id="Feature.Description.Network">Przeglądarka sieci lokalnej.</String>
 <String Id="Feature.Title.Proclist">ProcList</String>
 <String Id="Feature.Description.Proclist">Zarządzanie procesami Windows.</String>
 <String Id="Feature.Title.TmpPanel">TmpPanel</String>

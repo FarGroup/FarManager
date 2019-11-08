@@ -855,6 +855,15 @@ intptr_t WINAPI apiMenuFn(
 
 			FarMenu->SetTitle(NullToEmpty(Title));
 
+			int BoxType = DOUBLE_BOX;
+			if (Flags & FMENU_SHOWNOBOX)
+				BoxType = NO_BOX;
+			else if (Flags & FMENU_SHOWSHORTBOX)
+				BoxType = (Flags & FMENU_SHOWSINGLEBOX) ? SHORT_SINGLE_BOX : SHORT_DOUBLE_BOX;
+			else if (Flags & FMENU_SHOWSINGLEBOX)
+				BoxType = SINGLE_BOX;
+			FarMenu->SetBoxType(BoxType);
+
 			ExitCode=FarMenu->RunEx([&](int Msg, void *param)
 			{
 				if (Msg!=DN_INPUT || !BreakKeys)
