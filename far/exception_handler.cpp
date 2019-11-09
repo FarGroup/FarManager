@@ -172,6 +172,7 @@ static bool get_os_version(OSVERSIONINFOEX& Info)
 
 WARNING_PUSH()
 WARNING_DISABLE_MSC(4996) // 'GetVersionExW': was declared deprecated. So helpful. :(
+WARNING_DISABLE_CLANG("-Wdeprecated-declarations")
 	return GetVersionEx(InfoPtr) != FALSE;
 WARNING_POP()
 }

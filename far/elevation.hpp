@@ -78,7 +78,7 @@ public:
 	bool create_hard_link(const string& Object, const string& Target, SECURITY_ATTRIBUTES* SecurityAttributes);
 
 	bool fCreateSymbolicLink(const string& Object, const string& Target, DWORD Flags);
-	int fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct);
+	bool fMoveToRecycleBin(string_view Object);
 	bool fSetOwner(const string& Object, const string& Owner);
 
 	HANDLE create_file(const string& Object, DWORD DesiredAccess, DWORD ShareMode, SECURITY_ATTRIBUTES* SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile);
@@ -120,11 +120,11 @@ private:
 	T RetrieveLastErrorAndResult() const;
 
 	bool Initialize();
-	bool ElevationApproveDlg(lng Why, const string& Object);
+	bool ElevationApproveDlg(lng Why, string_view Object);
 	void TerminateChildProcess() const;
 
 	template<typename T, typename F1, typename F2>
-	auto execute(lng Why, const string& Object, T Fallback, const F1& PrivilegedHander, const F2& ElevatedHandler);
+	auto execute(lng Why, string_view Object, T Fallback, const F1& PrivilegedHander, const F2& ElevatedHandler);
 
 	void progress_routine(LPPROGRESS_ROUTINE ProgressRoutine) const;
 

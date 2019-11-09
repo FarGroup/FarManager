@@ -2876,7 +2876,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 
 	if (!(Flags&FCOPY_COPYTONUL))
 	{
-		DestFile.SetTime(nullptr, nullptr, &SrcData.LastWriteTime, nullptr);
+		DestFile.SetTime(&SrcData.CreationTime, &SrcData.LastAccessTime, &SrcData.LastWriteTime, nullptr);
 
 		if (CopySparse)
 		{
@@ -2897,9 +2897,9 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 		{
 			if (FAR_GetDriveType(GetPathRoot(strDestName), 0) == DRIVE_REMOTE)
 			{
-				if (DestFile.Open(strDestName,GENERIC_WRITE,FILE_SHARE_READ,nullptr,OPEN_EXISTING))
+				if (DestFile.Open(strDestName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
 				{
-					DestFile.SetTime(nullptr, nullptr, &SrcData.LastWriteTime, nullptr);
+					DestFile.SetTime(&SrcData.CreationTime, &SrcData.LastAccessTime, &SrcData.LastWriteTime, nullptr);
 					DestFile.Close();
 				}
 			}

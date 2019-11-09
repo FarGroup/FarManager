@@ -428,7 +428,8 @@ bool GetSubstName(int DriveType,const string& DeviceName, string &strTargetPath)
 
 bool GetVHDInfo(const string& DeviceName, string &strVolumePath, VIRTUAL_STORAGE_TYPE* StorageType)
 {
-	const os::fs::file Device(DeviceName, FILE_READ_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING);
+	const auto IsDosDevice = DeviceName.size() == 2 && ends_with(DeviceName, L':');
+	const os::fs::file Device(IsDosDevice? os::fs::get_unc_drive(DeviceName.front()) : DeviceName, FILE_READ_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING);
 	if (!Device)
 		return false;
 

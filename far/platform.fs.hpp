@@ -467,6 +467,9 @@ namespace os::fs
 
 		[[nodiscard]]
 		bool reset_file_security(const wchar_t* Object);
+
+		[[nodiscard]]
+		bool move_to_recycle_bin(string_view Object);
 	}
 
 	[[nodiscard]]
@@ -544,6 +547,9 @@ namespace os::fs
 
 	[[nodiscard]]
 	bool reset_file_security(string_view Object);
+
+	[[nodiscard]]
+	bool move_to_recycle_bin(string_view Object);
 
 	[[nodiscard]]
 	bool get_disk_size(string_view Path, unsigned long long* TotalSize, unsigned long long* TotalFree, unsigned long long* UserFree);
