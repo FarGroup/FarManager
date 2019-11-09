@@ -5,7 +5,7 @@ NetClass.cpp \
 NetCommon.cpp \
 NetFavorites.cpp \
 NetMix.cpp
-DOCS = NetEng.hlf NetRus.hlf NetEng.lng NetRus.lng NetSky.lng NetSpa.lng NetIta.lng NetBel.lng changelog
+DOCS = NetEng.hlf NetRus.hlf NetPol.hlf NetEng.lng NetRus.lng NetSky.lng NetSpa.lng NetIta.lng NetBel.lng NetPol.lng changelog
 
 NEEDDEFLIB=1
 USERLIBS = -lmpr -lnetapi32

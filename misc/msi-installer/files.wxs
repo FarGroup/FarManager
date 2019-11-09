@@ -1381,6 +1381,12 @@
           <Component Id="NetBel.lng" Guid="$(var.Guid.NetBel.lng)" Win64="$(var.Win64)">
             <File Id="NetBel.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Network\NetBel.lng" />
           </Component>
+          <Component Id="NetPol.hlf" Guid="$(var.Guid.NetPol.hlf)" Win64="$(var.Win64)">
+            <File Id="NetPol.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Network\NetPol.hlf" />
+          </Component>
+          <Component Id="NetPol.lng" Guid="$(var.Guid.NetPol.lng)" Win64="$(var.Win64)">
+            <File Id="NetPol.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Network\NetPol.lng" />
+          </Component>
           <Component Id="Network.dll" Guid="$(var.Guid.Network.dll)" Win64="$(var.Win64)">
             <File Id="Network.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Network\Network.dll" />
           </Component>
