@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 09.11.2019 15:06:08 +0200 - build 5505
+
+1. API-function Menu() - added flag FMENU_NODRAWSHADOW.
+
 shmuel 07.11.2019 12:15:11 +0200 - build 5504
 
 1. API-function Menu() - added flags for control of visibility and appearance of menu borders.
