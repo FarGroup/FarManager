@@ -2164,7 +2164,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			SCOPED_ACTION(LockOutput)(IsTopMacroOutputDisabled());
 
 			++m_WaitKey;
-			bool result=api.waitkeyFunc();
+			bool result=api.waitkeyFunc()!=0;
 			--m_WaitKey;
 
 			return result;
