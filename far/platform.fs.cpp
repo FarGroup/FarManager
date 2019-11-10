@@ -88,7 +88,12 @@ namespace
 	{
 		switch (SHError)
 		{
-		case 0:       return ERROR_SUCCESS;
+		// https://docs.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shfileoperationw
+		// To examine the nonzero values for troubleshooting purposes, they largely map to those defined in Winerror.h.
+		// However, several of its possible return values are based on pre-Win32 error codes, which in some cases
+		// overlap the later Winerror.h values without matching their meaning. Those particular values are detailed here,
+		// and for these specific values only these meanings should be accepted over the Winerror.h codes.
+
 		case 0x71:    return ERROR_ALREADY_EXISTS;    // DE_SAMEFILE            The source and destination files are the same file.
 		case 0x72:    return ERROR_INVALID_PARAMETER; // DE_MANYSRC1DEST        Multiple file paths were specified in the source buffer, but only one destination file path.
 		case 0x73:    return ERROR_NOT_SAME_DEVICE;   // DE_DIFFDIR             Rename operation was specified but the destination path is a different directory. Use the move operation instead.
@@ -114,7 +119,7 @@ namespace
 		case 0x402:   return ERROR_PATH_NOT_FOUND;    //                        An unknown error occurred. This is typically due to an invalid path in the source or destination. This error does not occur on Windows Vista and later.
 		case 0x10000: return ERROR_GEN_FAILURE;       // ERRORONDEST            An unspecified error occurred on the destination.
 		case 0x10074: return ERROR_INVALID_PARAMETER; // DE_ROOTDIR|ERRORONDEST Destination is a root directory and cannot be renamed.
-		default:      return ERROR_GEN_FAILURE;
+		default:      return SHError;
 		}
 	}
 }
