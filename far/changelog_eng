@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 10.11.2019 10:18:04 +0000 - build 5507
+
+1. Continuation of 5506 for [x] Use system copy routine.
+
 drkns 09.11.2019 21:25:47 +0000 - build 5506
 
 1. File copying preserves creation and access times. Unconditionally for now. Shout if you need an option.
