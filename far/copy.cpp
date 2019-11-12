@@ -2876,7 +2876,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 
 	if (!(Flags&FCOPY_COPYTONUL))
 	{
-		DestFile.SetTime(nullptr, nullptr, &SrcData.LastWriteTime, nullptr);
+		DestFile.SetTime(&SrcData.CreationTime, &SrcData.LastAccessTime, &SrcData.LastWriteTime, nullptr);
 
 		if (CopySparse)
 		{
@@ -2893,13 +2893,13 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 		// TODO: ЗДЕСЯ СТАВИТЬ Compressed???
 		Flags&=~FCOPY_DECRYPTED_DESTINATION;
 
-		if (!IsWindowsVistaOrGreater() && IsWindowsServer()) // WS2003-Share SetFileTime BUG
+		if (!IsWindowsVistaOrGreater() && IsWindowsServer()) // M#1607 WS2003-Share SetFileTime BUG
 		{
 			if (FAR_GetDriveType(GetPathRoot(strDestName), 0) == DRIVE_REMOTE)
 			{
-				if (DestFile.Open(strDestName,GENERIC_WRITE,FILE_SHARE_READ,nullptr,OPEN_EXISTING))
+				if (DestFile.Open(strDestName, FILE_WRITE_ATTRIBUTES, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
 				{
-					DestFile.SetTime(nullptr, nullptr, &SrcData.LastWriteTime, nullptr);
+					DestFile.SetTime(&SrcData.CreationTime, &SrcData.LastAccessTime, &SrcData.LastWriteTime, nullptr);
 					DestFile.Close();
 				}
 			}
@@ -3533,6 +3533,11 @@ int ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,cons
 
 	if (sd && !SetSecurity(DestName, sd))
 		return COPY_CANCEL;
+
+	if (const auto DestFile = os::fs::file(DestName, FILE_WRITE_ATTRIBUTES, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
+	{
+		DestFile.SetTime(&SrcData.CreationTime, &SrcData.LastAccessTime, &SrcData.LastWriteTime, nullptr);
+	}
 
 	return COPY_SUCCESS;
 }

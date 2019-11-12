@@ -126,7 +126,7 @@ struct PanelMenuItem
 [[nodiscard]]
 static auto EjectFailed(error_state_ex const& ErrorState, wchar_t const Letter)
 {
-	return OperationFailed(ErrorState, os::fs::get_drive(Letter), lng::MError, format(msg(lng::MChangeCouldNotEjectMedia), Letter), false);
+	return OperationFailed(ErrorState, os::fs::get_unc_drive(Letter), lng::MError, format(msg(lng::MChangeCouldNotEjectMedia), Letter), false);
 }
 
 static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSelected)
@@ -741,7 +741,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				{
 					NewItem.DriveType = DRIVE_SUBSTITUTE;
 				}
-				else if (DriveCanBeVirtual(NewItem.DriveType) && GetVHDInfo(LocalName, NewItem.Path))
+				else if (DriveCanBeVirtual(NewItem.DriveType) && GetVHDInfo(os::fs::get_unc_drive(i), NewItem.Path))
 				{
 					NewItem.DriveType = DRIVE_VIRTUAL;
 				}

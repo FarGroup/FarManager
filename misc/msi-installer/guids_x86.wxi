@@ -29,8 +29,8 @@
 <?define Guid.FarGer.lng = "23336532-3EF9-44D4-8AC8-FE38AAC4CA91" ?>
 <?define Guid.FarHun.hlf = "1CA3A568-3B6D-4388-B951-DFC58D9A03AA" ?>
 <?define Guid.FarHun.lng = "9C451634-FC53-44B0-BC67-FB76BB0C423C" ?>
-<?define Guid.FarPol.lng = "318A19F6-0395-4216-99C5-AD295995580F" ?>
 <?define Guid.FarPol.hlf = "97742C2D-8CA3-4DFA-B731-765F7B2983B9" ?>
+<?define Guid.FarPol.lng = "318A19F6-0395-4216-99C5-AD295995580F" ?>
 <?define Guid.FarSpa.lng = "81FE4693-D830-449A-B8F8-E6838DF2EC5C" ?>
 <?define Guid.FarSky.lng = "B6EF97C0-B7DC-41EC-A007-588FCFEA279E" ?>
 <?define Guid.FarIta.lng = "DB032F9C-8EE6-4D88-95D8-42606AEEAB6A" ?>
@@ -413,14 +413,14 @@
 <?define Guid.changelog_15 = "28BD38F6-ED39-4252-8A46-C716F907BC16" ?>
 <?define Guid.NetEng.hlf = "D0EACCE4-F5E2-4BD0-A962-7936FADE0E77" ?>
 <?define Guid.NetEng.lng = "F00538B4-4232-4325-8C4F-ED8C74CD989A" ?>
-<?define Guid.NetPol.hlf = "074A3D65-B0EA-49D1-801E-F652B4CC571F" ?>
-<?define Guid.NetPol.lng = "9741D26B-4BB0-4D06-988B-12960E70DFB5" ?>
 <?define Guid.NetRus.hlf = "8D895051-50E4-46D3-A713-D9B39C74F931" ?>
 <?define Guid.NetRus.lng = "4DCC38FF-687D-4C14-A8BC-1287C9DA9B7F" ?>
 <?define Guid.NetSky.lng = "F513FF9B-B93D-4E0F-A5C0-FABBD08AEF4D" ?>
 <?define Guid.NetSpa.lng = "7C4D1441-D5DF-47E0-AC6D-9E090828AD25" ?>
 <?define Guid.NetIta.lng = "562871E8-82D9-4969-8CCA-68DC959B4651" ?>
 <?define Guid.NetBel.lng = "716BD013-38AD-4F2B-B4D6-D90EA3F6B1E3" ?>
+<?define Guid.NetPol.hlf = "074A3D65-B0EA-49D1-801E-F652B4CC571F" ?>
+<?define Guid.NetPol.lng = "9741D26B-4BB0-4D06-988B-12960E70DFB5" ?>
 <?define Guid.Network.dll = "125A201F-8F3B-46F2-9B72-75FD22349512" ?>
 <?define Guid.Network.map = "AD375C42-464B-45DF-A853-D74CFF46054C" ?>
 

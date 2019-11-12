@@ -459,7 +459,7 @@ static bool RemoveHotplugDiskDevice(const DeviceInfo& Info, bool const Confirm, 
 bool RemoveHotplugDisk(wchar_t Disk, bool const Confirm, bool& Cancelled)
 {
 	string DevName;
-	if (GetVHDInfo(os::fs::get_drive(Disk), DevName))
+	if (GetVHDInfo(os::fs::get_unc_drive(Disk), DevName))
 	{
 		// Removing VHD disk as hotplug is a very bad idea.
 		// Currently OS removes the device but doesn't close the file handle, rendering the file completely unavailable until reboot.

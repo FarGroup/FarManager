@@ -83,6 +83,45 @@ namespace
 	{
 		using os::fs::find_handle::find_handle;
 	};
+
+	static DWORD SHErrorToWinError(DWORD const SHError)
+	{
+		switch (SHError)
+		{
+		// https://docs.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shfileoperationw
+		// To examine the nonzero values for troubleshooting purposes, they largely map to those defined in Winerror.h.
+		// However, several of its possible return values are based on pre-Win32 error codes, which in some cases
+		// overlap the later Winerror.h values without matching their meaning. Those particular values are detailed here,
+		// and for these specific values only these meanings should be accepted over the Winerror.h codes.
+
+		case 0x71:    return ERROR_ALREADY_EXISTS;    // DE_SAMEFILE            The source and destination files are the same file.
+		case 0x72:    return ERROR_INVALID_PARAMETER; // DE_MANYSRC1DEST        Multiple file paths were specified in the source buffer, but only one destination file path.
+		case 0x73:    return ERROR_NOT_SAME_DEVICE;   // DE_DIFFDIR             Rename operation was specified but the destination path is a different directory. Use the move operation instead.
+		case 0x74:    return ERROR_INVALID_PARAMETER; // DE_ROOTDIR             The source is a root directory, which cannot be moved or renamed.
+		case 0x75:    return ERROR_CANCELLED;         // DE_OPCANCELLED         The operation was canceled by the user, or silently canceled if the appropriate flags were supplied to SHFileOperation.
+		case 0x76:    return ERROR_BAD_PATHNAME;      // DE_DESTSUBTREE         The destination is a subtree of the source.
+		case 0x78:    return ERROR_ACCESS_DENIED;     // DE_ACCESSDENIEDSRC     Security settings denied access to the source.
+		case 0x79:    return ERROR_BUFFER_OVERFLOW;   // DE_PATHTOODEEP         The source or destination path exceeded or would exceed MAX_PATH.
+		case 0x7A:    return ERROR_INVALID_PARAMETER; // DE_MANYDEST            The operation involved multiple destination paths, which can fail in the case of a move operation.
+		case 0x7C:    return ERROR_BAD_PATHNAME;      // DE_INVALIDFILES        The path in the source or destination or both was invalid.
+		case 0x7D:    return ERROR_INVALID_PARAMETER; // DE_DESTSAMETREE        The source and destination have the same parent folder.
+		case 0x7E:    return ERROR_ALREADY_EXISTS;    // DE_FLDDESTISFILE       The destination path is an existing file.
+		case 0x80:    return ERROR_ALREADY_EXISTS;    // DE_FILEDESTISFLD       The destination path is an existing folder.
+		case 0x81:    return ERROR_BUFFER_OVERFLOW;   // DE_FILENAMETOOLONG     The name of the file exceeds MAX_PATH.
+		case 0x82:    return ERROR_WRITE_FAULT;       // DE_DEST_IS_CDROM       The destination is a read-only CD-ROM, possibly unformatted.
+		case 0x83:    return ERROR_WRITE_FAULT;       // DE_DEST_IS_DVD         The destination is a read-only DVD, possibly unformatted.
+		case 0x84:    return ERROR_WRITE_FAULT;       // DE_DEST_IS_CDRECORD    The destination is a writable CD-ROM, possibly unformatted.
+		case 0x85:    return ERROR_DISK_FULL;         // DE_FILE_TOO_LARGE      The file involved in the operation is too large for the destination media or file system.
+		case 0x86:    return ERROR_READ_FAULT;        // DE_SRC_IS_CDROM        The source is a read-only CD-ROM, possibly unformatted.
+		case 0x87:    return ERROR_READ_FAULT;        // DE_SRC_IS_DVD          The source is a read-only DVD, possibly unformatted.
+		case 0x88:    return ERROR_READ_FAULT;        // DE_SRC_IS_CDRECORD     The source is a writable CD-ROM, possibly unformatted.
+		case 0xB7:    return ERROR_BUFFER_OVERFLOW;   // DE_ERROR_MAX           MAX_PATH was exceeded during the operation.
+		case 0x402:   return ERROR_PATH_NOT_FOUND;    //                        An unknown error occurred. This is typically due to an invalid path in the source or destination. This error does not occur on Windows Vista and later.
+		case 0x10000: return ERROR_GEN_FAILURE;       // ERRORONDEST            An unspecified error occurred on the destination.
+		case 0x10074: return ERROR_INVALID_PARAMETER; // DE_ROOTDIR|ERRORONDEST Destination is a root directory and cannot be renamed.
+		default:      return SHError;
+		}
+	}
 }
 
 namespace os::fs
@@ -1500,6 +1539,19 @@ namespace os::fs
 			SetLastError(Result);
 			return Result == ERROR_SUCCESS;
 		}
+
+		bool move_to_recycle_bin(string_view const Object)
+		{
+			const auto ObjectsArray = Object + L"\0"sv;
+			SHFILEOPSTRUCT fop{};
+			fop.wFunc = FO_DELETE;
+			fop.pFrom = ObjectsArray.c_str();
+			fop.fFlags = FOF_NO_UI | FOF_ALLOWUNDO;
+
+			auto Result = SHErrorToWinError(SHFileOperation(&fop));
+			SetLastError(Result);
+			return Result == ERROR_SUCCESS && !fop.fAnyOperationsAborted;
+		}
 	}
 
 	//-------------------------------------------------------------------------
@@ -1954,6 +2006,17 @@ namespace os::fs
 
 		if (ElevationRequired(ELEVATION_MODIFY_REQUEST))
 			return elevation::instance().reset_file_security(NtObject);
+
+		return false;
+	}
+
+	bool move_to_recycle_bin(string_view const Object)
+	{
+		if (os::fs::low::move_to_recycle_bin(Object))
+			return true;
+
+		if (ElevationRequired(ELEVATION_MODIFY_REQUEST, false)) // ShellAPI doesn't set LastNtStatus
+			return elevation::instance().fMoveToRecycleBin(Object);
 
 		return false;
 	}

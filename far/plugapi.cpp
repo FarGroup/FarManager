@@ -863,6 +863,8 @@ intptr_t WINAPI apiMenuFn(
 			else if (Flags & FMENU_SHOWSINGLEBOX)
 				BoxType = SINGLE_BOX;
 			FarMenu->SetBoxType(BoxType);
+			if (Flags & FMENU_NODRAWSHADOW)
+				FarMenu->SetDialogMode(DMODE_NODRAWSHADOW);
 
 			ExitCode=FarMenu->RunEx([&](int Msg, void *param)
 			{

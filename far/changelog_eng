@@ -3,6 +3,26 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 10.11.2019 16:42:35 +0000 - build 5508
+
+1. Correction of 5506.
+
+drkns 10.11.2019 10:18:04 +0000 - build 5507
+
+1. Continuation of 5506 for [x] Use system copy routine.
+
+drkns 09.11.2019 21:25:47 +0000 - build 5506
+
+1. File copying preserves creation and access times. Unconditionally for now. Shout if you need an option.
+
+2. Detach of virtual disks didn't work in some cases.
+
+3. Refactoring.
+
+shmuel 09.11.2019 15:06:08 +0200 - build 5505
+
+1. API-function Menu() - added flag FMENU_NODRAWSHADOW.
+
 shmuel 07.11.2019 12:15:11 +0200 - build 5504
 
 1. API-function Menu() - added flags for control of visibility and appearance of menu borders.

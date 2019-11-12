@@ -282,7 +282,7 @@ T elevation::RetrieveLastErrorAndResult() const
 }
 
 template<typename T, typename F1, typename F2>
-auto elevation::execute(lng Why, const string& Object, T Fallback, const F1& PrivilegedHander, const F2& ElevatedHandler)
+auto elevation::execute(lng Why, string_view const Object, T Fallback, const F1& PrivilegedHander, const F2& ElevatedHandler)
 {
 	SCOPED_ACTION(std::lock_guard)(m_CS);
 	if (!ElevationApproveDlg(Why, Object))
@@ -501,12 +501,12 @@ static intptr_t ElevationApproveDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 
 struct EAData: noncopyable
 {
-	const string& Object;
+	string_view Object;
 	lng Why;
 	bool& AskApprove;
 	bool& IsApproved;
 	bool& DontAskAgain;
-	EAData(const string& Object, lng Why, bool& AskApprove, bool& IsApproved, bool& DontAskAgain):
+	EAData(string_view const Object, lng Why, bool& AskApprove, bool& IsApproved, bool& DontAskAgain):
 		Object(Object), Why(Why), AskApprove(AskApprove), IsApproved(IsApproved), DontAskAgain(DontAskAgain){}
 };
 
@@ -550,7 +550,7 @@ static void ElevationApproveDlgSync(const EAData& Data)
 	Data.DontAskAgain = ElevationApproveDlg[AAD_CHECKBOX_DONTASKAGAIN].Selected == BSTATE_CHECKED;
 }
 
-bool elevation::ElevationApproveDlg(lng Why, const string& Object)
+bool elevation::ElevationApproveDlg(lng const Why, string_view const Object)
 {
 	if (m_Suppressions)
 		return false;
@@ -771,37 +771,18 @@ bool elevation::fCreateSymbolicLink(const string& Object, const string& Target, 
 		});
 }
 
-static size_t string_array_length(const wchar_t* const Str)
+bool elevation::fMoveToRecycleBin(string_view const Object)
 {
-	for (auto i = Str;;)
-	{
-		i += wcslen(i) + 1;
-		if (!*i)
-			return i + 1 - Str;
-	}
-}
-
-int elevation::fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
-{
-	static const auto DE_ACCESSDENIEDSRC = 0x78;
-	return execute(lng::MElevationRequiredRecycle, FileOpStruct.pFrom,
-		DE_ACCESSDENIEDSRC,
+	return execute(lng::MElevationRequiredRecycle, Object,
+		false,
 		[&]
 		{
-			return SHFileOperation(&FileOpStruct);
+			return os::fs::low::move_to_recycle_bin(Object);
 		},
 		[&]
 		{
-			Write(
-				C_FUNCTION_MOVETORECYCLEBIN,
-				FileOpStruct,
-				string_view{ FileOpStruct.pFrom, string_array_length(FileOpStruct.pFrom) },
-				string_view{ FileOpStruct.pTo, FileOpStruct.pTo? string_array_length(FileOpStruct.pTo) : 0 }
-			);
-
-			Read(FileOpStruct.fAnyOperationsAborted);
-			// achtung! no "last error" here
-			return Read<int>();
+			Write(C_FUNCTION_MOVETORECYCLEBIN, Object);
+			return RetrieveLastErrorAndResult<bool>();
 		});
 }
 
@@ -1175,16 +1156,11 @@ private:
 
 	void MoveToRecycleBinHandler() const
 	{
-		auto Struct = Read<SHFILEOPSTRUCT>();
-		const auto From = Read<string>();
-		const auto To = Read<string>();
+		const auto Object = Read<string>();
 
-		Struct.pFrom = From.c_str();
-		Struct.pTo = To.c_str();
+		const auto Result = os::fs::low::move_to_recycle_bin(Object);
 
-		const auto Result = SHFileOperation(&Struct);
-
-		Write(Struct.fAnyOperationsAborted, Result);
+		Write(error_state::fetch(), Result);
 	}
 
 	void SetOwnerHandler() const
