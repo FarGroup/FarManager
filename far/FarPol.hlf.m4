@@ -193,7 +193,7 @@ $ #Far: przełączniki linii poleceń#
  W linii poleceń mogą być użyte następujące przełączniki:
 
  #-e[<linia>[:<poz>]] <nazwa_pliku>#
- Edituj wskazany plik. Po -e można opcjonalnie podać numer linii i pozycję w linii
+ Edytuj wskazany plik. Po -e można opcjonalnie podać numer linii i pozycję w linii
 od której edytor ma rozpocząć pracę.
  Przykład: far -e70:2 czytaj_to.
 
@@ -203,21 +203,23 @@ od której edytor ma rozpocząć pracę.
 
  Przykład: #far -p%USERPROFILE%\\Far\\Plugins#
 
- #-co#
- Forces Far to load plugins from cache only. Plugins are loaded faster this way,
-but new or changed plugins are not discovered. Should be used #only# with a stable
-list of plugins. After adding, replacing or deleting a plugin Far should be loaded
-without this switch. If the cache is empty, no plugins will be loaded.
+  #-co#
+ Wymusza na programie Far wczytanie wtyczek z folderu cache. Wtyczki są dzięki
+temu wczytywane szybciej, ale nowe lub zaktualizowane wtyczki nie będą rozpoznane.
+Opcja powinna być używana #tylko# dla stabilnej listy wtyczek. Po dodaniu,
+zastąpieniu lub usunięciu wtyczki opcja ta nie powinna być użyta. Jeżeli cache
+jest pusty, żadna wtyczka nie zostanie wczytana.
 
  Uwagi dotyczące przełączników -p i -co:
  - ^<wrap>jeżeli -p jest pusty, Far nie załaduje żadnych wtyczek;
- - ^<wrap>if -p is given with a <path>, then only plugins from <path> will be loaded;
- - ^<wrap>if only the -co switch is given and plugins cache is not empty, then plugins
-will be loaded from cache;
+ - ^<wrap>jeżeli -p jest podany ze <ścieżką>, to wczytane zostaną tylko wtyczki
+ze <ścieżki>;
+ - ^<wrap>jeżeli podany jest tylko -co i cache wtyczek nie jest pusty, to wtyczki
+zostaną załadowane z cache;;
  - ^<wrap>-co jest ignorowane, jeżeli podano -p;
- - ^<wrap>if -p and -co are not given, then plugins will be loaded from the 'Plugins'
-folder, which is in the same folder as Far.exe, and the 'Plugins' folder, which is in the
-user profile folder (#%APPDATA%\\Far Manager\\Profile# by default).
+ - ^<wrap>jeżeli nie podano -p i -co, wtyczki zostaną załadowane z folderu
+'Plugins', który znajduje się w tym samym folderze co plik Far.exe oraz z folderu
+'Plugins' zapisanego w profilu użytkownika (domyślnie: #%APPDATA%\\Far Manager\\Profile#).
 
  #-m#
  Far nie będzie wczytywał makr podczas uruchamiania.
@@ -244,83 +246,82 @@ user profile folder (#%APPDATA%\\Far Manager\\Profile# by default).
  Far będzie czekał na koniec strumienia danych dopóki nie zostaną wciśnięte Ctrl+Break.
 
  #-w[-]#
- Stretch to console window instead of console buffer or vice versa.
+ Rozciąga do okna konsoli zamiast do bufora konsoli, lub na odwrót.
 
- #-t templateprofile#
- Location of Far template configuration file (overrides the ini file).
+ #-t szbalon_profilu#
+ Położenie pliku konfiguracyjnego szablonu Far (nadpisuje ustawienia z pliku ini).
 
- #-title[:<title>]#
- If <title> string is provided, use it as the window title; otherwise
-inherit the console window's title. Macro #%Default# in the custom title
-string will be replaced with the standard context-dependent Far window's
-title.
+ #-title[:<tytuł>]#
+ Jeżeli podano <tytuł>, będzie on używany jako tytułu okna; w innym przypadku
+będzie to tytuł okna konsoli. Makro #%Default%# w tytule użytkownika zostanie
+zastąpione standardowym tekstem okna Far, zależnym od kontekstu programu.
 
- #-clearcache [profilepath [localprofilepath]]#
- Clear plugins cache.
+ #-clearcache [ścieżka_profilu [lokalna_ścieżka_profilu]]#
+ Czyści cache wtyczek.
 
- #-export <out.farconfig> [profilepath [localprofilepath]]#
- Export settings to file out.farconfig.
+ #-export <plik.farconfig> [ścieżka_profilu [lokalna_ścieżka_profilu]]#
+ Eksportuje ustawienia do pliku plik.farconfig.
 
- #-import <in.farconfig> [profilepath [localprofilepath]]#
- Import settings from file in.farconfig.
+ #-import <plik.farconfig> [ścieżka_profilu [lokalna_ścieżka_profilu]]#
+ Importuje ustawienia z pliku plik.farconfig.
 
  #-ro[-]#
- Read-only or normal config mode (overrides the ini file).
+ Tryb tylko-do-odczytu lub normalny tryb pracy (nadpisuje ustawienia z pliku ini).
 
- #-set:<parameter>=<value>#
- Override the configuration parameter, see ~far:config~@FarConfig@ for details.
+ #-set:<parametr>=<wartość>#
+ Nadpisuje parametr konfiguracyjny, zobacz szczegóły w ~far:config~@Konfiguracji FAR@.
 
- It is possible to specify at most two paths (to folders, files or archives) or
-two commands with plugin prefix in the command line. The first path applies to the
-active panel, the second path - to the passive one:
- - ^<wrap>if a folder or archive is specified, Far will show its contents;
- - ^<wrap>if a file is specified, Far will change to the folder where it
-resides and place the cursor on the file, if it exists;
- - ^<wrap>when prefixes specified (simultaneous use with common paths allowed)
-passive command executes first (passive panel activates temporary).
-Single letter prefixes A-Z or conflicted with disk letter will be ignored.
- Example: far arc:c:\\Far20.7z "lua:msgbox('Far Manager','Successfully started')"
+ Istnieje możliwość podania maksymalnie dwóch ścieżek (do folderów, plików lub archiwów)
+lub dwóch poleceń z przedrostkami wtyczek w linii poleceń. Pierwsza ścieżka dotyczy
+panelu aktywnego, druga - panelu pasywnego:
+ - ^<wrap>jeżeli podano folder lub archiwum, Far pokaże jego zawartość;
+ - ^<wrap>jeżeli podano plik, Far przejdzie do foldera gdzie plik jest umieszczony,
+i podświetli plik, jeżeli ten istnieje;
+ - ^<wrap>jeżeli podano przedtostek (dozwolnone jest korzystanie ze wspólnych ścieżek)
+polecenie z pasywnego okna zostanie wykonane pierwsze (tymczasowa aktywacja panelu pasywnego).
+Pojedyncze litery przedrostów A-Z lub błedy liter dysków będą ignorowane.
+ Przykład: far arc:c:\\Far20.7z "lua:msgbox('Far Manager','Pomyślnie uruchomiony')"
 
 
 @KeyRef
 $ #Skróty klawiszowe#
 
- ~Panel control~@PanelCmd@
+ ~Polecenia kontroli panelu~@PanelCmd@
 
- ~Command line~@CmdLineCmd@
+ ~Linia poleceń~@CmdLineCmd@
 
- ~File management and service commands~@FuncCmd@
+ ~Zarządzanie plikami i polecenia serwisowe~@FuncCmd@
 
- ~Mouse: wheel support~@MsWheel@
+ ~Mysz: obsługa rolki~@MsWheel@
 
- ~Menu control commands~@MenuCmd@
+ ~Polecenia kontroli menu~@MenuCmd@
 
- ~Screen grabber~@Grabber@
+ ~Zrzuty ekranu~@Grabber@
 
- ~Common controls~@MiscCmd@
+ ~Sterowanie ogólne~@MiscCmd@
 
  ~Polecenia specjalne~@SpecCmd@
 
 
 @MenuCmd
-$ #Menu control commands#
- #Common menu and drop-down list commands#
+$ #Polecenia kontroli menu#
+ #Ułatwienia w standardowym menu i listach rozwijanych#
 
- Filter menu or list items                          #Ctrl+Alt+F,RAlt#
- Lock filter                                             #Ctrl+Alt+L#
+ Menu filtra lub pozycje listy                      #Ctrl+Alt+F,RAlt#
+ Zablokuj filtr                                          #Ctrl+Alt+L#
 
- See also the list of ~macro keys~@KeyMacroMenuList@, available in the menus.
+ Zobacz także listę ~klawiszy makro~@KeyMacroMenuList@, dostępnych w menu.
 
 
 @PanelCmd
-$ #Panel control commands#
- #Common panel commands#
+$ #Polecenia kontroli panelu#
+ #Standardowe polecenia w panelu#
 
  Zmień aktywny panel                                            #Tab#
  Zamień panele                                               #Ctrl+U#
  Odśwież panel                                               #Ctrl+R#
  Przełącz panel informacyjny                                 #Ctrl+L#
- Przełącz panel ~szybkiego podglądu~@QViewPanel@                            #Ctrl+Q#
+ Przełącz panel ~szybkiego podglądu~@QViewPanel@                          #Ctrl+Q#
  Przełącz panel ~drzewa~@TreePanel@                                       #Ctrl+T#
  Ukryj/pokaż oba panele                                      #Ctrl+O#
  Tymczasowo ukryj oba panele                         #Ctrl+Alt+Shift#
@@ -328,270 +329,264 @@ $ #Panel control commands#
  Uktyj/pokaż nieaktywny panel                                #Ctrl+P#
  Ukryj/pokaż lewy panel                                     #Ctrl+F1#
  Ukryj/pokaż prawy panel                                    #Ctrl+F2#
- Change panels height                             #Ctrl+Up,Ctrl+Down#
- Change current panel height          #Ctrl+Shift+Up,Ctrl+Shift+Down#
- Change panels width                           #Ctrl+Left,Ctrl+Right#
- (when the command line is empty)
- Restore default panels width                          #Ctrl+Numpad5#
- Restore default panels height                     #Ctrl+Alt+Numpad5#
- Show/Hide functional key bar at the bottom line.            #Ctrl+B#
- Toggle total and free size show mode                  #Ctrl+Shift+S#
- in bytes (if possible) or with size suffices K/M/G/T
+ Zmień wysokość panelu                           #Ctrl+Góra,Ctrl+Dół#
+ Zmień wysokość bieżącego panelu     #Ctrl+Shift+Góra,Ctrl+Shift+Dół#
+ Zmień szerokość panelu                        #Ctrl+Lewo,Ctrl+Prawo#
+ (tylko gdy linia poleceń jest pusta)
+ Przywróć domyślną szerokość paneli                    #Ctrl+Numpad5#
+ Przywróć domyślną wysokość paneli                 #Ctrl+Alt+Numpad5#
+ Pokaż/Ukryj pasek skrótów w dolnej linii                    #Ctrl+B#
+ Przełącz tryb całkowitej i wolnej wielkości           #Ctrl+Shift+S#
+ w bajtach (jeżeli możliwe) lub w wielokrotnościach K/M/G/T
 
- #File panel commands#
+ #Polecenie panelu plików#
 
- ~Select/deselect file~@SelectFiles@                        #Ins, Shift+Cursor keys#
-                                                 #Right mouse button#
- Select group                                                #Gray +#
- Deselect group                                              #Gray -#
- Invert selection                                            #Gray *#
- Select files with the same extension as the          #Ctrl+<Gray +>#
- current file
- Deselect files with the same extension as the        #Ctrl+<Gray ->#
- current file
- Invert selection including folders                   #Ctrl+<Gray *>#
- (ignore command line state)
- Select files with the same name as the current file   #Alt+<Gray +>#
- Deselect files with the same name as the current      #Alt+<Gray ->#
- file
- Select all files                                    #Shift+<Gray +>#
- Deselect all files                                  #Shift+<Gray ->#
- Restore previous selection                                  #Ctrl+M#
+ ~Zaznacz/odznacz plik~@SelectFiles@                        #Ins, Shift+Klawisze kursora#
+                                                #Prawy klawisz myszy#
+ Zaznacz grupę                                              #Szary +#
+ Odznacz grupę                                              #Szary -#
+ Odwróć zaznaczenie                                         #Szary *#
+ Zaznacz pliki o tym samym rozszerzeniu              #Ctrl+<Szary +>#
+ jak bieżący plik
+ Odznacz pliki o tym samym rozszerzeniu              #Ctrl+<Szary ->#
+ jak bieżący plik
+ Odwróć selekcję włączając foldery                   #Ctrl+<Szary *>#
+ (ignoruj stan linii poleceń)
+ Zaznacz pliki o tej samej nazwie jak bieżący plik    #Alt+<Szary +>#
+ Odznacz pliki o tej samej nazwie jak bieżący plik    #Alt+<Szary ->#
+ Zaznacz wszystkie pliki                            #Shift+<Szary +>#
+ Odznacz wszystkie pliki                            #Shift+<Szary ->#
+ Przywróć poprzednie zaznaczenie                             #Ctrl+M#
 
- Scroll long names and descriptions              #Alt+Left,Alt+Right#
+ Przewiń długie nazwy i opisyptions              #Alt+Lewo,Alt+Prawo#
                                                    #Alt+Home,Alt+End#
 
- Set brief view mode                                     #LeftCtrl+1#
- Set medium view mode                                    #LeftCtrl+2#
- Set full view mode                                      #LeftCtrl+3#
- Set wide view mode                                      #LeftCtrl+4#
- Set detailed view mode                                  #LeftCtrl+5#
- Set descriptions view mode                              #LeftCtrl+6#
- Set long descriptions view mode                         #LeftCtrl+7#
- Set file owners view mode                               #LeftCtrl+8#
- Set file links view mode                                #LeftCtrl+9#
- Set alternative full view mode                          #LeftCtrl+0#
+ Ustaw wąski widok panelu                                #LewyCtrl+1#
+ Ustaw średni widok panelu                               #LewyCtrl+2#
+ Ustaw pełny widok panelu                                #LewyCtrl+3#
+ Ustaw szeroki widok panelu                              #LewyCtrl+4#
+ Ustaw szczegółowy widok panelu                          #LewyCtrl+5#
+ Ustaw widok panelu z opisami plików                     #LewyCtrl+6#
+ Ustaw szeroki widoka panelu z opisami plików            #LewyCtrl+7#
+ Ustaw widok panelu z właścicielami plików               #LewyCtrl+8#
+ Ustaw widok panelu z odnośnikami do linków              #LewyCtrl+9#
+ Alternatywny widok pełnego widoku panelu                #LewyCtrl+0#
 
- Toggle hidden and system files displaying                   #Ctrl+H#
- Toggle long/short file names view mode                      #Ctrl+N#
+ Przełącz wyświetlanie plików ukrytych i systemowych         #Ctrl+H#
+ Przełącz wyświetlanie długich/krótkich nazw plików          #Ctrl+N#
 
- Hide/Show left panel                                       #Ctrl+F1#
- Hide/Show right panel                                      #Ctrl+F2#
+ Pokaż/ukryj lewy panel                                     #Ctrl+F1#
+ Pokaż/ukryj prawy panel                                    #Ctrl+F2#
 
- Sort files in the active panel by name                     #Ctrl+F3#
- Sort files in the active panel by extension                #Ctrl+F4#
- Sort files in the active panel by last write time          #Ctrl+F5#
- Sort files in the active panel by size                     #Ctrl+F6#
- Keep files in the active panel unsorted                    #Ctrl+F7#
- Sort files in the active panel by creation time            #Ctrl+F8#
- Sort files in the active panel by access time              #Ctrl+F9#
- Sort files in the active panel by description             #Ctrl+F10#
- Sort files in the active panel by file owner              #Ctrl+F11#
- Display ~sort modes~@PanelCmdSort@ menu                                   #Ctrl+F12#
- Use group sorting                                        #Shift+F11#
- Show selected files first                                #Shift+F12#
+ Sortuj pliki w aktwywnym panelu wg nazw                    #Ctrl+F3#
+ Sortuj pliki w aktwywnym panelu wg rozszerzenia            #Ctrl+F4#
+ Sortuj pliki w aktwywnym panelu wg czasu ostatniego zapisu #Ctrl+F5#
+ Sortuj pliki w aktwywnym panelu wg wielkości               #Ctrl+F6#
+ Pozostaw pliki w aktywnym panelu bez sortowania            #Ctrl+F7#
+ Sortuj pliki w aktwywnym panelu wg daty utworzenia         #Ctrl+F8#
+ Sortuj pliki w aktwywnym panelu wg daty dostępu            #Ctrl+F9#
+ Sortuj pliki w aktwywnym panelu wg opisu                  #Ctrl+F10#
+ Sortuj pliki w aktwywnym panelu wg właściciela pliku      #Ctrl+F11#
+ Wyświetl menu ~sposobów sortowania~@PanelCmdSort@         #Ctrl+F12#
+ Użyj grup sortowania                                     #Shift+F11#
+ Pokaż najpierw zaznaczone pliki                          #Shift+F12#
 
- Create a ~folder shortcut~@FolderShortcuts@                            #Ctrl+Shift+0…9#
- Jump to a folder shortcut                            #RightCtrl+0…9#
+ Utwórz ~skrót do folderu~@FolderShortcuts@                             #Ctrl+Shift+0…9#
+ Skocz do skrótu folderu                              #PrawyCtrl+0…9#
 
- If the active panel is a ~quick view panel~@QViewPanel@, a ~tree panel~@TreePanel@ or
-an ~information panel~@InfoPanel@, the directory is changed not on the
-active, but on the passive panel.
+ Jeżeli aktywny panel jest w trybie ~szybkiego podglądu~@QViewPanel@, ~panelu drzewa~@TreePanel@
+lub w ~panelu informacyjnym~@InfoPanel@, foldery będą zmieniane nie w aktywnym,
+lecz w pasywnym oknie panelu.
 
- Copy the names of selected files to the clipboard         #Ctrl+Ins#
- (if the command line is empty)
- Copy the files to clipboard                                 #Ctrl+C#
- (ignore command line state)
- Copy the names of selected files to the clipboard   #Ctrl+Shift+Ins#
- (ignore command line state)
- Copy full names of selected files to the clipboard   #Alt+Shift+Ins#
- (ignore command line state)
- Copy network (UNC) names of selected files to the     #Ctrl+Alt+Ins#
- clipboard (ignore command line state)
+ Kopiuj nazwę zaznaczonych plików do schowka               #Ctrl+Ins#
+ (jeżeli linia poleceń jest pusta)
+ Kopiuj pliki do schowka                                     #Ctrl+C#
+ (ignoruje stan linii poleceń)
+ Kopiuje nazwy zaznaczonych plików do schowka        #Ctrl+Shift+Ins#
+ (ignoruje stan linii poleceń)
+ Kopiuje pełne nazwy zaznaczonych plików do schowka   #Alt+Shift+Ins#
+ (ignoruje stan linii poleceń)
+ Kopiuje nazwy sieciowe (UNC) zaznaczonych plików      #Ctrl+Alt+Ins#
+ do schowka (ignoruje stan linii poleceń)
 
- Files, copied from the panels, can be pasted to other applications, e.g. Explorer.
+ Pliki, skopiowane z paneli, mogą być kopiowane do innej aplikacji, np. MS Edge.
 
- See also the list of ~macro keys~@KeyMacroShellList@, available in the panels.
+ Zobacz także listę ~klawiszy makro~@KeyMacroShellList@, dostępnych w panelach.
 
- Notes:
+ Uwaga:
 
- 1. ^<wrap>If "Allow reverse sort modes" option in ~Panel settings~@PanelSettings@
-dialog is enabled, pressing the same sort key second time toggles the sort direction
-from ascending to descending and vice versa;
+ 1. ^<wrap>Jeżeli opcja "Włącz możliwość odwrotnego sortowania" w ~Ustawieniach panelu~@PanelSettings@
+jest włączona, wciskając ten sam skrót trybu sortowania zmieniamy kierunek sortowania
+z rosnącego na malejący lub odwrotnie;
 
- 2. ^<wrap>If #Alt+Left# and #Alt+Right# combinations, used to scroll long names
-and descriptions, work only with non-numpad #Left# and #Right# keys. This is due to
-the fact that when #Alt# is pressed, numpad cursor keys are used to enter characters
-via their decimal codes.
+ 2. ^<wrap>Kombinacja #Alt+Lewo# i #Alt+Prawo#, używana do przesuwania długich nazw plików i opisów,
+nie działa tylko z klawiszami z klawiatury numerycznej. Przyczyną jest fakt, że po wciśnięciu
+"Alt" klawisze numeryczne są używane do wprowadzania znaków przez kody dziesiętne.
 
- 3. ^<wrap>The key combination #Ctrl+Alt+Ins# puts the following text into the clipboard:
-    - ^<wrap>for network drives: the network (UNC) name of the file object;
-    - ^<wrap>for local drives: the local name of the file taking into account
-~symbolic links~@HardSymLink@.
+ 3. ^<wrap>Kombinacja klawiszy #Ctrl+Alt+Ins# kopiuje zaznaczony tekst do schowka:
+    - ^<wrap>dla dysków sieciowych: nazwa pliku sieciowego (UNC);
+    - ^<wrap>dla dysków lokalnych: lokalna nazwa pliku pobierana jest do ~linku symbolicznego~@HardSymLink@.
 
- 4. ^<wrap>If #Ctrl+Ins#, #Alt+Shift+Ins# or #Ctrl+Alt+Ins# is pressed when the cursor
-is on the file "#..#", the name of the current folder is copied.
+ 4. ^<wrap>Jeżeli wciśnięto #Ctrl+Ins#, #Alt+Shift+Ins# lub #Ctrl+Alt+Ins# gdy kursor
+znajduje się na pliku "#..#", kopiowana jest nazwa bieżącego folderu.
 
 
 @PanelCmdSort
-$ #Sort modes#
- The sort modes menu is called by #Ctrl+F12# and applies to the currently
-active panel. The following sort modes are available:
+$ #Tryby sortowania#
+ Menu sposobów sortowania wywołać można przez #Ctrl+F12# i ma zastosowanie w bieżącym
+(aktywnym) panelu. Dostępne są następujące możliwości sortowania:
 
- Sort files by name                                         #Ctrl+F3#
- Sort files by extension                                    #Ctrl+F4#
- Sort files by last write time                              #Ctrl+F5#
- Sort files by size                                         #Ctrl+F6#
- Keep files unsorted                                        #Ctrl+F7#
- Sort files by creation time                                #Ctrl+F8#
- Sort files by access time                                  #Ctrl+F9#
- Sort files by description                                 #Ctrl+F10#
- Sort files by file owner                                  #Ctrl+F11#
+ Sortuj pliki wg nazwy                                      #Ctrl+F3#
+ Sortuj pliki wg rozszerzenia                               #Ctrl+F4#
+ Sortuj pliki wg czasu ostatniego zapisu                    #Ctrl+F5#
+ Sortuj pliki wg wielkości                                  #Ctrl+F6#
+ Pokaż pliki bez sortowania                                 #Ctrl+F7#
+ Sortuj pliki wg daty utworzenia                            #Ctrl+F8#
+ Sortuj pliki wg daty dostępu                               #Ctrl+F9#
+ Sortuj pliki wg opisution                                 #Ctrl+F10#
+ Sortuj pliki wg właściciela pliku                         #Ctrl+F11#
 
- The #+# key sets the sorting order to be direct.
- The #-# key sets the sorting order to be reversed.
- The #*# key changes the sorting order to be reversed.
+ Klawisz #+# ustawia sortowanie rosnące.
+ Klawisz #-# ustawia sortowanie malejące.
+ Klawisz #*# zmienia kierunek sortowania na odwrotny.
 
- Use group sorting                                        #Shift+F11#
- Show selected files first                                #Shift+F12#
+ Użyj sortowania grup                                     #Shift+F11#
+ Pokaż najpierw zaznaczone pliki                          #Shift+F12#
 
- See also: common ~menu~@MenuCmd@ keyboard commands.
+ Zobacz takżej: ogólne polecenia ~menu~@MenuCmd@.
 
 
 @FastFind
-$ #Fast find in panels#
- To locate a file quickly, you can use the #fast find# operation and enter
-the starting characters of the file name. In order to use that, hold down the
-#Alt# (or #Alt+Shift#) keys and start typing the name of the needed file, until
-the cursor is positioned to it.
+$ #Szybkie szukanie w panelach#
+ Aby szybko zlokalizować plik, możesz użyć operacji #szybkie szukanie# i rozpocząć
+szukanie wg nazwy pliku. Aby to wykonać przytrzymaj klawisz #Alt# (lub #Alt+Shift#)
+i zacznij wpisywać nazwę poszukiwanego pliku, dopóki kursor nie podświetli tego pliku.
 
- By pressing #Ctrl+Enter#, you can cycle through the files matching the part
-of the filename that you have already entered. #Ctrl+Shift+Enter# allows to
-cycle backwards.
+ Wciskając #Ctrl+Enter#, możesz przejść do następnego pliku o nazwie pasującej
+do wprowadzonego tekstu. #Ctrl+Shift+Enter# szuka pliku wstecz.
 
- Besides the filename characters, you can also use the wildcard characters
-‘*’ and ‘?’.
+ Oprócz normalnych znaków, można użyć znaków masek ‘*’ i ‘?’.
 
- Insertion of text, pasted from clipboard (#Ctrl+V# or #Shift+Ins#), to the
-fast find dialog will continue as long as there is a match found.
+ Wstawienie tekstu ze schowka (#Ctrl+V# or #Shift+Ins#) do okna szybkiego szukania
+rozpocznie szukanie wklejonej nazwy pliku.
 
- It is possible to use the transliteration function while entering text in
-the search field. If used the entered text will be transliterated and a new
-match corresponding to the new text will be searched. See ~XLat.Flags~@XLat.Flags@ on how
-to set the hotkey for the transliteration.
+ Istnieje możliwość użycia funkcji transliteracji podczas wprowadzania tekstu
+do pola wyszukiwania. Jeżeli wprowadzony tekst będzie transliterowany, to będzie
+wyszukiwany jako nowy tekst. Zobacz flagę ~XLat.Flags~@XLat.Flags@ jak ustawić
+klawisz skrótu dla transliteracji.
 
- See also the list of ~macro keys~@KeyMacroSearchList@, available in fast find.
+ Zobacz także listę ~klawiszy makro~@KeyMacroSearchList@, dostępnych w szybkim szukaniu.
 
 
 @CmdLineCmd
-$ #Command line commands#
- #Common command line commands#
+$ #Ułatwienia w linii poleceń#
+ #Standardowe skróty w linii poleceń#
 
- Character left                                         #Left,Ctrl+S#
- Character right                                       #Right,Ctrl+D#
- Word left                                                #Ctrl+Left#
- Word right                                              #Ctrl+Right#
- Start of line                                            #Ctrl+Home#
- End of line                                               #Ctrl+End#
- Delete char                                                    #Del#
- Delete char left                                                #BS#
- Delete to end of line                                       #Ctrl+K#
- Delete word left                                           #Ctrl+BS#
- Delete word right                                         #Ctrl+Del#
- Copy to clipboard                                         #Ctrl+Ins#
- Paste from clipboard                                     #Shift+Ins#
- Previous command                                            #Ctrl+E#
- Next command                                                #Ctrl+X#
- Clear command line                                          #Ctrl+Y#
+ Przejdź o znak w lewo                                  #Lewo,Ctrl+S#
+ Przejdź o znak w prawo                                #Prawo,Ctrl+D#
+ Słowo w lewo                                             #Ctrl+Lewo#
+ Słowo w prawo                                           #Ctrl+Prawo#
+ Początek linii                                           #Ctrl+Home#
+ Koniec linii                                              #Ctrl+End#
+ Usuń znak                                                      #Del#
+ Usuń znak po lewej                                              #BS#
+ Usuń do końca linii                                         #Ctrl+K#
+ Usuń słowo po lewej                                        #Ctrl+BS#
+ Usuń słowo po prawej                                      #Ctrl+Del#
+ Kopiuj do schowka                                         #Ctrl+Ins#
+ Wklej ze schowka                                         #Shift+Ins#
+ Poprzednie polecenie                                        #Ctrl+E#
+ Następne polecenie                                          #Ctrl+X#
+ Wyczyść linię poleceń                                       #Ctrl+Y#
 
- #Insertion commands#
+ #Polecenia wstawiania#
 
- Insert current file name from the active panel   #Ctrl+J,Ctrl+Enter#
+ Wstaw nazwę bieżącego pliku z aktywnego panelu   #Ctrl+J,Ctrl+Enter#
 
- In the ~fast find~@FastFind@ mode, #Ctrl+Enter# does not insert a
-file name, but instead cycles the files matching the
-file mask entered in the fast find box.
+ W trybie ~szybkiego szukania~@FastFind@, #Ctrl+Enter# nie wstawia nazwy pliku,
+ale przeskakuje do następnego pliku o nazwie pasującej do wprowadzonego tekstu.
 
- Insert current file name from the passive panel   #Ctrl+Shift+Enter#
- Insert full file name from the active panel                 #Ctrl+F#
- Insert full file name from the passive panel                #Ctrl+;#
- Insert network (UNC) file name from the active panel    #Ctrl+Alt+F#
- Insert network (UNC) file name from the passive panel   #Ctrl+Alt+;#
+ Wstaw bieżącą nazwę pliku z panelu pasywnego      #Ctrl+Shift+Enter#
+ Wstaw pełną ścieżkę do pliku z aktywnego panelu             #Ctrl+F#
+ Wstaw pełną ścieżkę do pliku z panelu pasywnego             #Ctrl+;#
+ Wstaw sieciową nazwę pliku (UNC) z aktywnego panelu     #Ctrl+Alt+F#
+ Wstaw sieciową nazwę pliku (UNC) z pasywnego panelu     #Ctrl+Alt+;#
 
- Insert path from the left panel                             #Ctrl+[#
- Insert path from the right panel                            #Ctrl+]#
- Insert network (UNC) path from the left panel           #Ctrl+Alt+[#
- Insert network (UNC) path from the right panel          #Ctrl+Alt+]#
+ Wstaw ścieżkę z lewego panelu                               #Ctrl+[#
+ Wstaw ścieżkę z prawego panelu                              #Ctrl+]#
+ Wstaw ścieżkę sieciową (UNC) z lewego panelu            #Ctrl+Alt+[#
+ Wstaw ścieżkę sieciową (UNC) z prawego panelu           #Ctrl+Alt+]#
 
- Insert path from the active panel                     #Ctrl+Shift+[#
- Insert path from the passive panel                    #Ctrl+Shift+]#
- Insert network (UNC) path from the active panel        #Alt+Shift+[#
- Insert network (UNC) path from the passive panel       #Alt+Shift+]#
+ Wstaw scieżkę z aktywnego panelu                      #Ctrl+Shift+[#
+ Wstaw scieżkę z pasywnego panelu                      #Ctrl+Shift+]#
+ Wstaw ścieżkę sieciową (UNC) z aktywnego panelu        #Alt+Shift+[#
+ Wstaw ścieżkę sieciową (UNC) z pasywnego panelu        #Alt+Shift+]#
 
- Notes:
+ Uwaga:
 
- 1. ^<wrap>If the command line is empty, #Ctrl+Ins# copies selected file names
-from a panel to the clipboard like #Ctrl+Shift+Ins# (see ~Panel control commands~@PanelCmd@);
+ 1. ^<wrap>Jeżeli linia poleceń jest pusta, #Ctrl+Ins# kopiuje nazwy zaznaczony plików
+z panelu do schowka jak #Ctrl+Shift+Ins# (zobacz ~Polecenia kontroli panelu~@PanelCmd@);
 
- 2. ^<wrap>#Ctrl+End# pressed at the end of the command line, replaces its current contents
-with a command from ~history~@History@ beginning with the characters that are in the command line,
-if such a command exists. You can press #Ctrl+End# again to go to the next such command.
+ 2. ^<wrap>#Ctrl+End# wciśnięte na końcu linii poleceń, zamienia jego aktualną zawartość
+poleceniem z ~historii~@History@ rozpoczynając od znaków wprowadzonych do linii poleceń,
+jeżeli takie polecenie było wprowadzone. Kolejne wciśnięcie #Ctrl+End# przejdzie do kolejnego
+takiego polecenia.
 
- 3. ^<wrap>Most of the described above commands are valid for all edit strings including edit
-controls in dialogs and internal editor.
+ 3. ^<wrap>Większość wyżej opisanych wyżej poleceń jest dostępna dla wszystkich pól edycji
+włączając pola edycji w oknach dialogowych i wewnętrznym edytorze.
 
- 4. ^<wrap>#Alt+Shift+Left#, #Alt+Shift+Right#, #Alt+Shift+Home# and #Alt+Shift+End# select
-the block in the command line also when the panels are on.
+ 4. ^<wrap>#Alt+Shift+Lewo#, #Alt+Shift+Prawo#, #Alt+Shift+Home# i #Alt+Shift+End# zaznaczają
+blok w linii poleceń także gdy panele są włączone.
 
- 5. ^<wrap>For local drives, the commands to insert the network (UNC) name of a file object
-insert the local name of the file with ~symbolic links~@HardSymLink@ expanded.
+ 5. ^<wrap>Dla lokalnych dysków, polecenie wstawienia nazwy sieciowej pliku (UNC) wstawiania
+lokalną nazwę pliku z rozwiniętym ~linkiem symbolicznym~@HardSymLink@.
 
 
 @FuncCmd
-$ #Panel control commands - service commands#
- Context help                                                    #F1#
+$ #Polecenia panelu kontrolnego - polecenia serwisowe#
+ Pomoc kontekstowa                                               #F1#
 
- Show ~user menu~@UserMenu@                                                  #F2#
+ Pokaż ~menu użytkownika~@UserMenu@                                          #F2#
 
- View                                    #Ctrl+Shift+F3, Numpad5, F3#
- If pressed on a file, #Numpad5# and #F3# invoke ~internal~@Viewer@,
-external or ~associated~@FileAssoc@ viewer, depending upon the file type and
-~Viewer settings~@ViewerSettings@.
-#Ctrl+Shift+F3# always calls internal viewer ignoring file associations.
- If pressed on a folder, calculates and shows the size of selected folders.
+ Podgląd                                 #Ctrl+Shift+F3, Numpad5, F3#
+ Naciśnięcie na pliku klawisza #Numpad5# lub #F3# wywołuje ~wewnętrzny~@Viewer@,
+ zewnętrzny lub ~powiązany~@FileAssoc@ podgląd, zależny od typu pliku
+ i ~ustawień podglądu~@ViewerSettings@.
+ #Ctrl+Shift+F3# zawsze wywołuje wewnętrzny podgląd, ignorując powiązania plików.
+ Jeżeli naciśnięty na folderze, oblicza i pokazuje wielkość folderu
 
- Edit                                             #Ctrl+Shift+F4, F4#
- #F4# invokes ~internal~@Editor@, external or ~associated~@FileAssoc@
-editor, depending upon the file type and ~external editor settings~@EditorSettings@.
-#Ctrl+Shift+F4# always calls internal editor ignoring file associations.
-#F4# and #Ctrl+Shift+F4# for directories invoke the change file
-~attributes~@FileAttrDlg@ dialog.
+ Edycja                                           #Ctrl+Shift+F4, F4#
+ #F4# wywołuje ~wewętrzny~@Editor@, zewnętrzny lub ~powiązany~@FileAssoc@
+edytor, zależnie od ustawienia typu pliku oraz ~ustawień zewnętrznego edytora~@EditorSettings@.
+#Ctrl+Shift+F4# zawsze wywołuje wewnętrzny edytor, ignorując powiązania plików.
+#F4# i #Ctrl+Shift+F4# naciśnięte na folderach pozwalają na zmianę
+~atrybutów~@FileAttrDlg@ tych folderów.
 
- ~Copy~@CopyFiles@                                                            #F5#
- Copies files and folders. If you wish to create the destination folder
-before copying, terminate the name with a backslash.
+ ~Kopiuj~@CopyFiles@                                                           #F5#
+ Kopiuje pliki i foldery. Jeżeli chcesz utworzyć folder docelowy przed kopiowaniem,
+zakończ nazwę pliku znakiem backslash.
 
- ~Rename or move~@CopyFiles@                                                  #F6#
- Moves or renames files and folders. If you wish to create the destination
-folder before moving, terminate the name with a backslash.
+ ~Zmień nazwę lub przenieś~@CopyFiles@                                        #F6#
+ Przenosi lub zmienia nazwę plików i folderów. Jeżeli chcesz utworzyć folder
+docelowy przed przeniesieniem, zakończ nazwę pliku znakiem backslash.
 
- ~Create new folder~@MakeFolder@                                               #F7#
+ ~Utwórz nowy folder~@MakeFolder@                                              #F7#
 
- ~Delete~@DeleteFile@                                     #Shift+Del, Shift+F8, F8#
+ ~Usuń~@DeleteFile@                                       #Shift+Del, Shift+F8, F8#
 
- ~Wipe~@DeleteFile@                                                       #Alt+Del#
+ ~Wymaż~@DeleteFile@                                                      #Alt+Del#
 
- Show ~menus~@Menus@ bar                                                  #F9#
+ Pokaż ~pasek menu~@Menus@                                                #F9#
 
- Quit Far                                                       #F10#
+ Wyjdź z programu                                               #F10#
 
- Show ~plugin~@Plugins@ commands                                           #F11#
+ Pokaż polecenia ~wtyczek~@Plugins@                                        #F11#
 
- Change the current drive for left panel                     #Alt+F1#
+ Zmień bieżący dysk dla lewego panelu                        #Alt+F1#
 
- Change the current drive for right panel                    #Alt+F2#
+ Zmień bieżący dysk dla prawego panelu                       #Alt+F2#
 
- Internal/external viewer                                    #Alt+F3#
+ Wewnętrzny/zewnętrzny podgląd                               #Alt+F3#
  If the internal viewer is used by default, invokes the external viewer
 specified in the ~Viewer settings~@ViewerSettings@ or the ~associated viewer program~@FileAssoc@
 for the file type. If the external viewer is used by default, invokes the
