@@ -701,6 +701,7 @@ public:
 		BoolOption CopyOpened;            // копировать открытые на запись файлы
 		BoolOption CopyShowTotal;         // показать общий индикатор копирования
 		BoolOption MultiCopy;             // "разрешить мультикопирование/перемещение/создание связей"
+		BoolOption PreserveTimestamps;
 		IntOption CopySecurityOptions; // для операции Move - что делать с опцией "Copy access rights"
 		IntOption CopyTimeRule;          // $ 30.01.2001 VVM  Показывает время копирования,оставшееся время и среднюю скорость
 		IntOption BufferSize;

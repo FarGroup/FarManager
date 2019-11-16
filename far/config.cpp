@@ -1936,6 +1936,7 @@ void Options::InitConfigsData()
 		{FSSF_SYSTEM,            NKeySystem,                 L"CopyOpened"sv,                    CMOpt.CopyOpened, true},
 		{FSSF_PRIVATE,           NKeySystem,                 L"CopyTimeRule"sv,                  CMOpt.CopyTimeRule, 3},
 		{FSSF_PRIVATE,           NKeySystem,                 L"CopySecurityOptions"sv,           CMOpt.CopySecurityOptions, 0},
+		{FSSF_PRIVATE,           NKeySystem,                 L"CopyPreserveTimestamps"sv,        CMOpt.PreserveTimestamps, false},
 		{FSSF_SYSTEM,            NKeySystem,                 L"DeleteToRecycleBin"sv,            DeleteToRecycleBin, true},
 		{FSSF_PRIVATE,           NKeySystem,                 L"DelThreadPriority"sv,             DelThreadPriority, THREAD_PRIORITY_NORMAL},
 		{FSSF_PRIVATE,           NKeySystem,                 L"DriveDisconnectMode"sv,           ChangeDriveDisconnectMode, true},

@@ -125,6 +125,12 @@ enum COPY_FLAGS
 	FCOPY_UPDATEPPANEL            = 12_bit, // необходимо обновить пассивную панель
 };
 
+template<typename times_type>
+static bool set_file_time(const os::fs::file& File, const times_type& Times)
+{
+	return File.SetTime(&Times.CreationTime, &Times.LastAccessTime, &Times.LastWriteTime, &Times.ChangeTime);
+}
+
 static const struct
 {
 	int CopyFlag;    // по умолчанию выставлять опцию "Copy access rights"?
@@ -165,6 +171,7 @@ enum enumShellCopy
 	ID_SC_SEPARATOR2,
 	ID_SC_COMBOTEXT,
 	ID_SC_COMBO,
+	IS_SC_PRESERVETIMESTAMPS,
 	ID_SC_COPYSYMLINK,
 	ID_SC_MULTITARGET,
 	ID_SC_SEPARATOR3,
@@ -526,7 +533,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 	// ***********************************************************************
 	// *** Prepare Dialog Controls
 	// ***********************************************************************
-	int DlgW = 76, DlgH = 16;
+	int DlgW = 76, DlgH = 17;
 
 	FARDIALOGITEMFLAGS no_tree = Global->Opt->Tree.TurnOffCompletely ? DIF_HIDDEN|DIF_DISABLE : 0;
 
@@ -543,18 +550,20 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 		{ DI_TEXT,         {{-1, 6 }, {0,  6 }}, DIF_SEPARATOR, },
 		{ DI_TEXT,         {{5,  7 }, {0,  7 }}, DIF_NONE, msg(lng::MCopyIfFileExist), },
 		{ DI_COMBOBOX,     {{29, 7 }, {70, 7 }}, DIF_DROPDOWNLIST | DIF_LISTNOAMPERSAND | DIF_LISTWRAPMODE, },
-		{ DI_CHECKBOX,     {{5,  8 }, {0,  8 }}, DIF_NONE, msg(lng::MCopySymLinkContents), },
-		{ DI_CHECKBOX,     {{5,  9 }, {0,  9 }}, DIF_NONE, msg(lng::MCopyMultiActions), },
-		{ DI_TEXT,         {{-1, 10}, {0,  10}}, DIF_SEPARATOR, },
-		{ DI_CHECKBOX,     {{5,  11}, {0,  11}}, DIF_AUTOMATION, msg(lng::MCopyUseFilter), },
-		{ DI_TEXT,         {{-1, 12}, {0,  12}}, DIF_SEPARATOR, },
-		{ DI_BUTTON,       {{0,  13}, {0,  13}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MCopyDlgCopy), },
-		{ DI_BUTTON,       {{0,  13}, {0,  13}}, DIF_CENTERGROUP | DIF_BTNNOCLOSE | no_tree, msg(lng::MCopyDlgTree), },
-		{ DI_BUTTON,       {{0,  13}, {0,  13}}, DIF_CENTERGROUP | DIF_BTNNOCLOSE | DIF_AUTOMATION | (m_UseFilter ? DIF_NONE : DIF_DISABLE), msg(lng::MCopySetFilter), },
-		{ DI_BUTTON,       {{0,  13}, {0,  13}}, DIF_CENTERGROUP, msg(lng::MCopyDlgCancel), },
+		{ DI_CHECKBOX,     {{5,  8 }, {0,  8 }}, DIF_NONE, msg(lng::MCopyPreserveTimestamps), },
+		{ DI_CHECKBOX,     {{5,  9 }, {0,  9 }}, DIF_NONE, msg(lng::MCopySymLinkContents), },
+		{ DI_CHECKBOX,     {{5,  10}, {0,  10}}, DIF_NONE, msg(lng::MCopyMultiActions), },
+		{ DI_TEXT,         {{-1, 11}, {0,  11}}, DIF_SEPARATOR, },
+		{ DI_CHECKBOX,     {{5,  12}, {0,  12}}, DIF_AUTOMATION, msg(lng::MCopyUseFilter), },
+		{ DI_TEXT,         {{-1, 13}, {0,  13}}, DIF_SEPARATOR, },
+		{ DI_BUTTON,       {{0,  14}, {0,  14}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MCopyDlgCopy), },
+		{ DI_BUTTON,       {{0,  14}, {0,  14}}, DIF_CENTERGROUP | DIF_BTNNOCLOSE | no_tree, msg(lng::MCopyDlgTree), },
+		{ DI_BUTTON,       {{0,  14}, {0,  14}}, DIF_CENTERGROUP | DIF_BTNNOCLOSE | DIF_AUTOMATION | (m_UseFilter ? DIF_NONE : DIF_DISABLE), msg(lng::MCopySetFilter), },
+		{ DI_BUTTON,       {{0,  14}, {0,  14}}, DIF_CENTERGROUP, msg(lng::MCopyDlgCancel), },
 	});
 
 	CopyDlg[ID_SC_TARGETEDIT].strHistory = L"Copy"sv;
+	CopyDlg[IS_SC_PRESERVETIMESTAMPS].Selected = Global->Opt->CMOpt.PreserveTimestamps;
 	CopyDlg[ID_SC_MULTITARGET].Selected = Global->Opt->CMOpt.MultiCopy;
 	CopyDlg[ID_SC_USEFILTER].Selected = m_UseFilter;
 
@@ -875,6 +884,8 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 				if (tmp != DestPanel->GetCurDir())
 					strCopyDlgValue = os::env::expand(strCopyDlgValue);
 
+				Global->Opt->CMOpt.PreserveTimestamps = CopyDlg[IS_SC_PRESERVETIMESTAMPS].Selected == BSTATE_CHECKED;
+
 				if(!Move)
 				{
 					Global->Opt->CMOpt.MultiCopy=CopyDlg[ID_SC_MULTITARGET].Selected == BSTATE_CHECKED;
@@ -1186,13 +1197,16 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 		}
 	}
 
-	for (const auto& CreatedFolder: m_CreatedFolders)
+	if (Global->Opt->CMOpt.PreserveTimestamps)
 	{
-		if (const auto File = os::fs::file(CreatedFolder.FullName, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
+		for (const auto& CreatedFolder : m_CreatedFolders)
 		{
-			File.SetTime(&CreatedFolder.CreationTime, &CreatedFolder.LastAccessTime, &CreatedFolder.LastWriteTime, nullptr);
+			if (const auto File = os::fs::file(CreatedFolder.FullName, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
+			{
+				set_file_time(File, CreatedFolder);
+			}
+			// TODO: else log
 		}
-		// TODO: else log
 	}
 
 
@@ -1963,7 +1977,9 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 						return COPY_CANCEL;
 					}
 				}
-				m_CreatedFolders.emplace_back(strDestPath, SrcData.CreationTime, SrcData.LastAccessTime, SrcData.LastWriteTime);
+
+				if (Global->Opt->CMOpt.PreserveTimestamps)
+					m_CreatedFolders.emplace_back(strDestPath, SrcData);
 
 				DWORD SetAttr=SrcData.Attributes;
 
@@ -2876,7 +2892,8 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 
 	if (!(Flags&FCOPY_COPYTONUL))
 	{
-		DestFile.SetTime(&SrcData.CreationTime, &SrcData.LastAccessTime, &SrcData.LastWriteTime, nullptr);
+		if (Global->Opt->CMOpt.PreserveTimestamps)
+			set_file_time(DestFile, SrcData);
 
 		if (CopySparse)
 		{
@@ -2899,7 +2916,9 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 			{
 				if (DestFile.Open(strDestName, FILE_WRITE_ATTRIBUTES, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
 				{
-					DestFile.SetTime(&SrcData.CreationTime, &SrcData.LastAccessTime, &SrcData.LastWriteTime, nullptr);
+					if (Global->Opt->CMOpt.PreserveTimestamps)
+						set_file_time(DestFile, SrcData);
+
 					DestFile.Close();
 				}
 			}
@@ -3534,9 +3553,12 @@ int ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,cons
 	if (sd && !SetSecurity(DestName, sd))
 		return COPY_CANCEL;
 
-	if (const auto DestFile = os::fs::file(DestName, FILE_WRITE_ATTRIBUTES, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
+	if (Global->Opt->CMOpt.PreserveTimestamps)
 	{
-		DestFile.SetTime(&SrcData.CreationTime, &SrcData.LastAccessTime, &SrcData.LastWriteTime, nullptr);
+		if (const auto DestFile = os::fs::file(DestName, FILE_WRITE_ATTRIBUTES, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
+		{
+			set_file_time(DestFile, SrcData);
+		}
 	}
 
 	return COPY_SUCCESS;
@@ -3652,4 +3674,13 @@ bool ShellCopy::ShellSetAttr(const string& Dest, DWORD Attr)
 	}
 
 	return true;
+}
+
+ShellCopy::created_folders::created_folders(const string& FullName, const os::fs::find_data& FindData):
+	FullName(FullName),
+	CreationTime(FindData.CreationTime),
+	LastAccessTime(FindData.LastAccessTime),
+	LastWriteTime(FindData.LastWriteTime),
+	ChangeTime(FindData.ChangeTime)
+{
 }

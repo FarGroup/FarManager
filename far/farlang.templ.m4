@@ -4283,6 +4283,19 @@ MLinkTypeSymlinkDirectory
 "символічне посилання (папка)"
 "сімвалічны с&пасылак (каталог)"
 
+MCopyPreserveTimestamps
+"Сохрянять метки времени"
+"Preserve timestamps"
+upd:"Preserve timestamps"
+upd:"Preserve timestamps"
+upd:"Preserve timestamps"
+upd:"Preserve timestamps"
+upd:"Preserve timestamps"
+upd:"Preserve timestamps"
+upd:"Preserve timestamps"
+"Зберігати позначки часу"
+"Захаваць меткі часу"
+
 MCopySymLinkContents
 "Копировать содерж&имое символических ссылок"
 "Cop&y contents of symbolic links"

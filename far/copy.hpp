@@ -92,13 +92,14 @@ private:
 
 	struct created_folders
 	{
-		created_folders(const string& FullName, const os::chrono::time_point& CreationTime, const os::chrono::time_point& LastAccessTime, const os::chrono::time_point& LastWriteTime):
-			FullName(FullName), CreationTime(CreationTime), LastAccessTime(LastAccessTime), LastWriteTime(LastWriteTime)
-		{}
+		created_folders(const string& FullName, const os::fs::find_data& FindData);
+
 		string FullName;
-		os::chrono::time_point CreationTime;
-		os::chrono::time_point LastAccessTime;
-		os::chrono::time_point LastWriteTime;
+		os::chrono::time_point
+			CreationTime,
+			LastAccessTime,
+			LastWriteTime,
+			ChangeTime;
 	};
 
 	std::unique_ptr<copy_progress> CP;
