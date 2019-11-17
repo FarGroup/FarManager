@@ -203,7 +203,7 @@ od której edytor ma rozpocząć pracę.
 
  Przykład: #far -p%USERPROFILE%\\Far\\Plugins#
 
-  #-co#
+ #-co#
  Wymusza na programie Far wczytanie wtyczek z folderu cache. Wtyczki są dzięki
 temu wczytywane szybciej, ale nowe lub zaktualizowane wtyczki nie będą rozpoznane.
 Opcja powinna być używana #tylko# dla stabilnej listy wtyczek. Po dodaniu,
@@ -228,7 +228,8 @@ zostaną załadowane z cache;;
  Makra z opcją "Uruchom po starcie Far" nie będą uruchamiane po uruchomieniu programu.
 
  #-s <ścieżka_profilu> [<lokalna_ścieżka_profilu>]#
- Położenie pliów konfiguracyjnych programu, ustalone przez użytkownika (zastępuje ustawienia z pliku ini).
+ Położenie plików konfiguracyjnych programu, ustalone przez użytkownika (nadpisuje
+ustawienia z pliku ini).
 
  #-u <użytkownik>#
  Pozwala rozdzielić ustawienia rejestru dla różnych użytkowników.
@@ -238,17 +239,19 @@ zostaną załadowane z cache;;
  Far Manager może ustawić ~zmienną systemową~@FAREnv@ "FARUSER" na wartość <użytkownik>.
 
  #-v <nazwa_pliku>#
- Włącza podgląd podanego pliku. Jeżeli <nazwa_pliku> to `#-#', program odczytuje dane ze strumienia stdin.
+ Włącza podgląd podanego pliku. Jeżeli <nazwa_pliku> to `#-#', program odczytuje
+dane ze strumienia stdin.
 
  Przykład: "dir|far -v -" wyświetli wyjście polecenia dir.
 
- Jeżeli przy użyciu ‘-’ strumień wejściowy jest pusty (np. kiedy nie podano polecenia dir, jak na przykładzie),
+ Jeżeli przy użyciu ‘-’ strumień wejściowy jest pusty (np. kiedy nie podano polecenia
+dir, jak w przykładzie),
  Far będzie czekał na koniec strumienia danych dopóki nie zostaną wciśnięte Ctrl+Break.
 
  #-w[-]#
  Rozciąga do okna konsoli zamiast do bufora konsoli, lub na odwrót.
 
- #-t szbalon_profilu#
+ #-t szablon_profilu#
  Położenie pliku konfiguracyjnego szablonu Far (nadpisuje ustawienia z pliku ini).
 
  #-title[:<tytuł>]#
@@ -277,9 +280,9 @@ panelu aktywnego, druga - panelu pasywnego:
  - ^<wrap>jeżeli podano folder lub archiwum, Far pokaże jego zawartość;
  - ^<wrap>jeżeli podano plik, Far przejdzie do foldera gdzie plik jest umieszczony,
 i podświetli plik, jeżeli ten istnieje;
- - ^<wrap>jeżeli podano przedtostek (dozwolnone jest korzystanie ze wspólnych ścieżek)
+ - ^<wrap>jeżeli podano przedrostek (dozwolnone jest korzystanie ze wspólnych ścieżek)
 polecenie z pasywnego okna zostanie wykonane pierwsze (tymczasowa aktywacja panelu pasywnego).
-Pojedyncze litery przedrostów A-Z lub błedy liter dysków będą ignorowane.
+Pojedyncze litery przedrostów A-Z lub błędy liter dysków będą ignorowane.
  Przykład: far arc:c:\\Far20.7z "lua:msgbox('Far Manager','Pomyślnie uruchomiony')"
 
 
@@ -326,7 +329,7 @@ $ #Polecenia kontroli panelu#
  Ukryj/pokaż oba panele                                      #Ctrl+O#
  Tymczasowo ukryj oba panele                         #Ctrl+Alt+Shift#
  (tylko na czas wciśnięcia tych klawiszy)
- Uktyj/pokaż nieaktywny panel                                #Ctrl+P#
+ Ukryj/pokaż nieaktywny panel                                #Ctrl+P#
  Ukryj/pokaż lewy panel                                     #Ctrl+F1#
  Ukryj/pokaż prawy panel                                    #Ctrl+F2#
  Zmień wysokość panelu                           #Ctrl+Góra,Ctrl+Dół#
@@ -358,7 +361,7 @@ $ #Polecenia kontroli panelu#
  Odznacz wszystkie pliki                            #Shift+<Szary ->#
  Przywróć poprzednie zaznaczenie                             #Ctrl+M#
 
- Przewiń długie nazwy i opisyptions              #Alt+Lewo,Alt+Prawo#
+ Przewiń długie nazwy i opisy                    #Alt+Lewo,Alt+Prawo#
                                                    #Alt+Home,Alt+End#
 
  Ustaw wąski widok panelu                                #LewyCtrl+1#
@@ -367,7 +370,7 @@ $ #Polecenia kontroli panelu#
  Ustaw szeroki widok panelu                              #LewyCtrl+4#
  Ustaw szczegółowy widok panelu                          #LewyCtrl+5#
  Ustaw widok panelu z opisami plików                     #LewyCtrl+6#
- Ustaw szeroki widoka panelu z opisami plików            #LewyCtrl+7#
+ Ustaw szeroki widok panelu z opisami plików             #LewyCtrl+7#
  Ustaw widok panelu z właścicielami plików               #LewyCtrl+8#
  Ustaw widok panelu z odnośnikami do linków              #LewyCtrl+9#
  Alternatywny widok pełnego widoku panelu                #LewyCtrl+0#
@@ -378,15 +381,15 @@ $ #Polecenia kontroli panelu#
  Pokaż/ukryj lewy panel                                     #Ctrl+F1#
  Pokaż/ukryj prawy panel                                    #Ctrl+F2#
 
- Sortuj pliki w aktwywnym panelu wg nazw                    #Ctrl+F3#
- Sortuj pliki w aktwywnym panelu wg rozszerzenia            #Ctrl+F4#
- Sortuj pliki w aktwywnym panelu wg czasu ostatniego zapisu #Ctrl+F5#
- Sortuj pliki w aktwywnym panelu wg wielkości               #Ctrl+F6#
+ Sortuj pliki w aktywnym panelu wg nazw                     #Ctrl+F3#
+ Sortuj pliki w aktywnym panelu wg rozszerzenia             #Ctrl+F4#
+ Sortuj pliki w aktywnym panelu wg czasu ostatniego zapisu  #Ctrl+F5#
+ Sortuj pliki w aktywnym panelu wg wielkości                #Ctrl+F6#
  Pozostaw pliki w aktywnym panelu bez sortowania            #Ctrl+F7#
- Sortuj pliki w aktwywnym panelu wg daty utworzenia         #Ctrl+F8#
- Sortuj pliki w aktwywnym panelu wg daty dostępu            #Ctrl+F9#
- Sortuj pliki w aktwywnym panelu wg opisu                  #Ctrl+F10#
- Sortuj pliki w aktwywnym panelu wg właściciela pliku      #Ctrl+F11#
+ Sortuj pliki w aktywnym panelu wg daty utworzenia          #Ctrl+F8#
+ Sortuj pliki w aktywnym panelu wg daty dostępu             #Ctrl+F9#
+ Sortuj pliki w aktywnym panelu wg opisu                   #Ctrl+F10#
+ Sortuj pliki w aktywnym panelu wg właściciela pliku       #Ctrl+F11#
  Wyświetl menu ~sposobów sortowania~@PanelCmdSort@         #Ctrl+F12#
  Użyj grup sortowania                                     #Shift+F11#
  Pokaż najpierw zaznaczone pliki                          #Shift+F12#
@@ -443,7 +446,7 @@ $ #Tryby sortowania#
  Pokaż pliki bez sortowania                                 #Ctrl+F7#
  Sortuj pliki wg daty utworzenia                            #Ctrl+F8#
  Sortuj pliki wg daty dostępu                               #Ctrl+F9#
- Sortuj pliki wg opisution                                 #Ctrl+F10#
+ Sortuj pliki wg opisu                                     #Ctrl+F10#
  Sortuj pliki wg właściciela pliku                         #Ctrl+F11#
 
  Klawisz #+# ustawia sortowanie rosnące.
@@ -453,7 +456,7 @@ $ #Tryby sortowania#
  Użyj sortowania grup                                     #Shift+F11#
  Pokaż najpierw zaznaczone pliki                          #Shift+F12#
 
- Zobacz takżej: ogólne polecenia ~menu~@MenuCmd@.
+ Zobacz także: ogólne polecenia ~menu~@MenuCmd@.
 
 
 @FastFind
@@ -517,8 +520,8 @@ ale przeskakuje do następnego pliku o nazwie pasującej do wprowadzonego tekstu
  Wstaw ścieżkę sieciową (UNC) z lewego panelu            #Ctrl+Alt+[#
  Wstaw ścieżkę sieciową (UNC) z prawego panelu           #Ctrl+Alt+]#
 
- Wstaw scieżkę z aktywnego panelu                      #Ctrl+Shift+[#
- Wstaw scieżkę z pasywnego panelu                      #Ctrl+Shift+]#
+ Wstaw ścieżkę z aktywnego panelu                      #Ctrl+Shift+[#
+ Wstaw ścieżkę z pasywnego panelu                      #Ctrl+Shift+]#
  Wstaw ścieżkę sieciową (UNC) z aktywnego panelu        #Alt+Shift+[#
  Wstaw ścieżkę sieciową (UNC) z pasywnego panelu        #Alt+Shift+]#
 
@@ -550,13 +553,13 @@ $ #Polecenia panelu kontrolnego - polecenia serwisowe#
 
  Podgląd                                 #Ctrl+Shift+F3, Numpad5, F3#
  Naciśnięcie na pliku klawisza #Numpad5# lub #F3# wywołuje ~wewnętrzny~@Viewer@,
- zewnętrzny lub ~powiązany~@FileAssoc@ podgląd, zależny od typu pliku
- i ~ustawień podglądu~@ViewerSettings@.
- #Ctrl+Shift+F3# zawsze wywołuje wewnętrzny podgląd, ignorując powiązania plików.
- Jeżeli naciśnięty na folderze, oblicza i pokazuje wielkość folderu
+zewnętrzny lub ~powiązany~@FileAssoc@ podgląd, zależny od typu pliku
+i ~ustawień podglądu~@ViewerSettings@.
+#Ctrl+Shift+F3# zawsze wywołuje wewnętrzny podgląd, ignorując powiązania plików.
+Jeżeli naciśnięty na folderze, oblicza i pokazuje wielkość folderu
 
  Edycja                                           #Ctrl+Shift+F4, F4#
- #F4# wywołuje ~wewętrzny~@Editor@, zewnętrzny lub ~powiązany~@FileAssoc@
+ #F4# wywołuje ~wewnętrzny~@Editor@, zewnętrzny lub ~powiązany~@FileAssoc@
 edytor, zależnie od ustawienia typu pliku oraz ~ustawień zewnętrznego edytora~@EditorSettings@.
 #Ctrl+Shift+F4# zawsze wywołuje wewnętrzny edytor, ignorując powiązania plików.
 #F4# i #Ctrl+Shift+F4# naciśnięte na folderach pozwalają na zmianę
@@ -587,223 +590,224 @@ docelowy przed przeniesieniem, zakończ nazwę pliku znakiem backslash.
  Zmień bieżący dysk dla prawego panelu                       #Alt+F2#
 
  Wewnętrzny/zewnętrzny podgląd                               #Alt+F3#
- If the internal viewer is used by default, invokes the external viewer
-specified in the ~Viewer settings~@ViewerSettings@ or the ~associated viewer program~@FileAssoc@
-for the file type. If the external viewer is used by default, invokes the
-internal viewer.
+ Jeżeli domyślnie używany jest wewnętrzny podgląd, można zamiast niego wywołać przeglądarkę
+zewnętrzną ustawioną w ~Ustawieniach podglądu~@ViewerSettings@ lub ~powiązaną przeglądarkę~@FileAssoc@
+dla danego typu pliku. Jeżeli zewnętrzna przeglądarka jest używana jako domyślna, wywołana
+zostanie przeglądarka wewnętrzna.
 
- Internal/external editor                                    #Alt+F4#
- If the internal editor is used by default, invokes the external editor
-specified in the ~settings~@EditorSettings@ or the ~associated editor program~@FileAssoc@
-for the file type. If the external editor is used by default, invokes the
-internal editor.
+ Wewnętrzny/zewnętrzny edytor                                #Alt+F4#
+ Jeżeli domyślnie używany jest wewnętrzny edytor, można zamiast niego wywołać edytor zewnętrzny
+podany w ~Ustawieniach edytora~@EditorSettings@ lub ~powiązany edytor~~@FileAssoc@
+dla danego typu pliku. Jeżeli zewnętrzny edytor jest używany jako domyślny, wywołany zostanie
+edytor wewnętrzny.
 
- Print files                                                 #Alt+F5#
- If the "Print Manager" plugin is installed then the printing of
-the selected files will be carried out using that plugin,
-otherwise by using internal facilities.
+ Drukuj pliki                                                #Alt+F5#
+ Jeżeli zainstalowana jest wtyczka "Menedżer drukowania", wtedy drukowanie przejmie ta wtyczka.
+W innym przypadku będzie użyta wewnętrzna funkcja.
 
- Create ~file links~@HardSymLink@ (NTFS only)                               #Alt+F6#
- Using hard file links you can have several different file names referring
-to the same data.
+ Utwórz ~link do pliku~@HardSymLink@ (tylko NTFS)                           #Alt+F6#
+ Używanie sztywnych plików do pliku pozwala używać kilku różnych nazw plików
+odnoszących się do tych samych danych.
 
- Perform ~find file~@FindFile@ command                                   #Alt+F7#
+ Wykonuje polecenie ~Znajdź plik~@FindFile@                              #Alt+F7#
 
- Display ~commands history~@History@                                    #Alt+F8#
+ Wyświetl ~historię poleceń~@History@                                   #Alt+F8#
 
- Toggles the size of the Far console window                  #Alt+F9#
- In the windowed mode, toggles between the current size and the maximum
-possible size of a console window. In the fullscreen mode, #Alt+F9# toggles the
-screen height between 25 and 50 lines. See ~Interface.AltF9~@Interface.AltF9@ for details.
+ Przełącza wielkość okna konsoli Far window                  #Alt+F9#
+ W trybie okien, przełącza pomiędzy bieżącą wielkością a maksymalną możliwą
+wielkością okna konsoli. W trybie pełnego ekranu #Alt+F9# przełącza
+wysokość ekranu pomiędzy 25 a 50 liniami. Dalsze szczegóły w ~Interface.AltF9~@Interface.AltF9@.
 
- Configure ~plugins~@Plugins@.                                    #Alt+Shift+F9#
+ Konfiguracja ~wtyczek~@Plugins@.                                 #Alt+Shift+F9#
 
- Perform ~find folder~@FindFolder@ command                                #Alt+F10#
+ Wywołuje polecenie ~znajdź folder~@FindFolder@                           #Alt+F10#
 
- Display ~file view and edit history~@HistoryViews@                         #Alt+F11#
+ Wyświetl ~historię podglądu i edycji plików~@HistoryViews@                 #Alt+F11#
 
- Display ~folders history~@HistoryFolders@                                    #Alt+F12#
+ Wyświetl ~historię folderów~@HistoryFolders@                                 #Alt+F12#
 
- Add files to archive                                      #Shift+F1#
- Extract files from archive                                #Shift+F2#
- Perform archive managing commands                         #Shift+F3#
+ Dodaj pliki do archiwum                                   #Shift+F1#
+ Rozpakuj pliki z archiwum                                 #Shift+F2#
+ Wykonaj polecenia zarządzania archiwum                    #Shift+F3#
 
- Edit ~new file~@FileOpenCreate@                                             #Shift+F4#
- When a new file is opened, the same code page is used as in the last opened
-editor. If the editor is opened for the first time in the current Far session,
-the default code page is used.
+ Edytuj ~nowy plik~@FileOpenCreate@                                          #Shift+F4#
+ Gdy otwierany jest nowy plik, używana jest taka sama strona kodowa jak w ostatnio
+otwartym pliku do edycji. Jeżeli edytor jest użyty pierwszy raz w tej sesji Far,
+używana jest domyślna strona kodowa.
 
- Copy file under cursor                                    #Shift+F5#
- Rename or move file under cursor                          #Shift+F6#
- For folders: if the specified path (absolute or relative) points to an
-existing folder, the source folder is moved inside that folder. Otherwise the
-folder is renamed/moved to the new path.
- E.g. when moving #c:\folder1\# to #d:\folder2\#:
- - ^<wrap>if #d:\folder2\# exists, contents of #c:\folder1\# is
-moved into #d:\folder2\folder1\#;
- - ^<wrap>otherwise contents of #c:\folder1\# is moved into the
-newly created #d:\folder2\#.
+ Kopiuj podświetlony plik                                  #Shift+F5#
+ Zmień nazwę lub przenieś podświetlony plik                #Shift+F6#
+ Dla folderów: jeżeli podana ścieżka (bezwzględna lub względna) wskazuje na istniejący
+folder, to folder źródłowy zostanie przeniesiony do wewnątrz tego folderu. W innym
+przypadku folder zostanie przeniesiony/zostanie zmieniona nazwa, do podanej ścieżki.
+ Np. przy przenoszeniu #c:\folder1\# do #d:\folder2\#:
+ - ^<wrap>jeżeli #d:\folder2\# istnieje, to zawartość #c:\folder1\# będzie przeniesiona
+do folderu #d:\folder2\folder1\#;
+ - ^<wrap>w innym przypadku zawartość #c:\folder1\# zostanie przeniesiona do nowo utworzonego
+folderu #d:\folder2\#.
 
- ~Delete file~@DeleteFile@ under cursor                                  #Shift+F8#
+ ~Usuń~@DeleteFile@ podświetlony plik                                    #Shift+F8#
 
- Save configuration                                        #Shift+F9#
+ Zapisz konfigurację                                       #Shift+F9#
 
- Selects last executed menu item                          #Shift+F10#
+ Wybierz ostatnio wykonaną pozycję z menu                 #Shift+F10#
 
- Execute, change folder, enter to an archive                  #Enter#
- Execute in the separate window                         #Shift+Enter#
- Execute as administrator                            #Ctrl+Alt+Enter#
+ Uruchom, zmień folder, wejdź do archiwum                     #Enter#
+ Uruchom w osobnym oknie                                #Shift+Enter#
+ Uruchom jako administrator                          #Ctrl+Alt+Enter#
 
- Pressing #Shift+Enter# on a directory invokes the Windows Explorer and
-shows the selected directory. To show a root directory in the Explorer, you
-should press #Shift+Enter# on the required drive in the ~Change drive menu~@DriveDlg@.
-Pressing #Shift+Enter# on "#..#" opens the current directory in the Explorer.
+ Wciskając #Shift+Enter# na folderze, wywołujemy Eksploratora Windows z wybranym
+folderem. Aby otworzyć w Eksploratorze główny folder dysku, należy wcisnąć
+#Shift+Enter# na wybranym dysku w menu ~Zmień dysk~@DriveDlg@.
+Wciśnięcie #Shift+Enter# na "#..#" otwiera w Eksploratorze bieżący folder.
 
- Change to the root folder                                   #Ctrl+\\#
+ Przejdź do folderu głównego                                 #Ctrl+\\#
 
- Change folder, enter an archive                  #Ctrl+[Shift+]PgDn#
- (including an SFX archive)
- If the cursor points to a directory, pressing #Ctrl+PgDn# changes to that
-directory. If the cursor points to a file, then, depending on the file type,
-an ~associated command~@FileAssoc@ is executed or the archive is opened.
-#Ctrl+Shift+PgDn# always opens the archive, regardless of the associated
-command configuration.
+ Zmień folder, wejdź do archiwum                  #Ctrl+[Shift+]PgDn#
+ (także do archiwum SFX)
+ Jeżeli kursor wskasuje folder, wciśnięcie #Ctrl+PgDn# powoduje wejście do tego
+folderu. Jeżeli kursor wskazuje plik, wtedy - zależnie od typu pliku,
+wywoływane jest ~powiązane polecenie~@FileAssoc@ lub otwierane jest archiwum.
+#Ctrl+Shift+PgDn# zawsze otwiera archiwum, niezależnie od powiązanego polecenia.
 
- Change to the parent folder                              #Ctrl+PgUp#
- The behavior in root folders depends on "Use Ctrl+PgUp to change drive~@InterfSettings@" option.
+ Przejdź do folderu nadrzędnego                           #Ctrl+PgUp#
+ Zachowanie w folderach głównych zależy od opcji "Użyj Ctrl+PgUp aby zmienić dysk~@InterfSettings@".
 
- Create shortcut to the current folder              #Ctrl+Shift+0…9#
+ Utwórz skrót do bieżącego folderu                  #Ctrl+Shift+0…9#
 
- Use folder shortcut                                 #RightCtrl+0…9#
+ Użyj skrótu do folderu                              #RightCtrl+0…9#
 
- Set ~file attributes~@FileAttrDlg@                                         #Ctrl+A#
+ Ustaw ~atrybuty pliku~@FileAttrDlg@                                        #Ctrl+A#
 
- ~Apply command~@ApplyCmd@ to selected files                             #Ctrl+G#
+ ~Zastosuj polecenie~@ApplyCmd@ do zaznaczonych plików                   #Ctrl+G#
 
- ~Describe~@FileDiz@ selected files                                     #Ctrl+Z#
+ ~Opis~@FileDiz@ zaznaczone pliki                                       #Ctrl+Z#
 
 
 @DeleteFile
-$ #Deleting and wiping files and folders#
- The following hotkeys are used to delete or wipe out files and folders:
+$ #Usuwanie i czyszczenie plików i folderów#
+ Następujące skróty klawiszowe są używane do usunięcia lub wymazania plików i folderów:
 
  #F8#
- If any files or folders are selected in the panel then the selected group will be deleted, otherwise
-the object currently under cursor will be deleted.
+ Jeżeli zaznaczone są pliki lub foldery, zostanie usunięta zaznaczona grupa.
+W innym przypadku usunięte będą tylko podświetlone pliki lub foldery.
 
  #Shift+F8#
- Delete only the file under cursor (with no regard to selection in the panel).
+ Usuwa tylko podświetlony plik (nie uwzględnia zaznaczenia w panelu).
 
  #Shift+Del#
- Delete selected objects, skipping the Recycle Bin.
+ Usuwa zaznaczone obiekty, omijając Kosz.
 
  #Alt+Del#
- Wipe out files and folders.
+ Wymazuje pliki i foldery.
 
 
- Remarks:
+ Uwagi:
 
- 1. ^<wrap>In accordance to ~System settings~@SystemSettings@ the hotkeys #F8# and
-#Shift+F8# do or do not move the deleted files to the Recycle Bin. The
-#Shift+Del# hotkey always deletes, skipping the Recycle Bin.
+ 1. ^<wrap>Zależnie od ~Ustawień systemowych~@SystemSettings@ klawisze #F8#
+i #Shift+F8# usuwają (lub nie) pliki do Kosza. Klawisze #Shift+Del# zawsze usuwają,
+omijając Kosz.
 
  2. ^<wrap>Before file deletion its data is overwritten with zeros (you can
 specify other overwrite characters - see ~System.WipeSymbol~@System.WipeSymbol@), after which the file
 is truncated to a zero sized file, renamed to a temporary name and then deleted.
+ 2. ^<wrap>Przed usunięcie pliku, dane są zastępowane zerami (możesz wybrać inne wartości - zobacz
+~System.WipeSymbol~@System.WipeSymbol@), po czym wielkość pliku jest ustawiana na zero znaków, nazwa
+zmieniana na tymczasową i wtedy jest usuwany.
 
 
 @ErrCannotExecute
-$ #Error: Cannot execute#
- The program you tries to execute is not recognized as an internal or
-external command, operable program or batch file.
-
+$ #Błąd: Nie mogę wykonać#
+ Program próbuje wykonać wewnętrzne lub zewnetrzne polecenie,
+uruchomienie programu lub plik wsadowy.
 
 @Grabber
-$ #Screen grabber#
- Screen grabber                                             #Alt+Ins#
+$ #Zrzut ekranu#
+ Zrzut ekranu                                               #Alt+Ins#
 
- Screen grabber allows to select and copy to the clipboard any screen area.
+ Zrzut ekranu pozwala na zaznaczenie i skopiowanie do schowka dowolnego fragmentu okna.
 
- To switch between stream and block selection mode use the #Space# key.
- To move the cursor use #arrow# keys or click the #left mouse button#.
- To select text use #Shift+arrow# keys or drag the mouse while holding the #left mouse button#.
- To extend or shrink selected area use #Alt+Shift+arrow# keys.
- To move selected area use #Alt+arrow# keys.
- #Enter#, #Ctrl+Ins#, #right mouse button# or #doubleclick# copy
-selected text to the clipboard, #Ctrl+<Gray +># appends it to the clipboard contents.
- #Esc# leaves the grabbing mode.
- #Ctrl+A# - select whole screen.
- #Ctrl+U# - deselect block.
- #Ctrl+Shift+Left# and #Ctrl+Shift+Right# - extend or shrink selection by 10 characters left or right.
- #Ctrl+Shift+Up# and #Ctrl+Shift+Down# - extend or shrink selection by 5 lines up or down.
+ Aby przełączyć pomiędzy zaznaczeniem ciągu i bloku należy wcisnąć klawisz #Spacja#.
+ Aby przesunąć kursor użyj #strzałek# lub kliknij #lewym klawiszem myszy#.
+ Aby zaznaczyć tekst użyj klawiszy #Shift+strzałka# lub przeciągnij kursor myszy trzymając
+wciśnięty #lewy klawisz myszy#.
+ Aby rozszerzyć lub zmniejszyć zaznaczony obszat użyj klawiszy #Alt+Shitf+strzałka#.
+ Aby przenieść zaznaczenie użyj klawiszy #Alt+strzałka#.
+ #Enter#, #Ctrl+Ins#, #prawy klawisz myszy# lub #podwójne kliknięcie# kopiują
+zaznaczony tekst do schowka, #Ctrl+<Szary +># dołączają tekst do zawartości schowka.
+ #Esc# opuszcza tryb zaznaczania.
+ #Ctrl+A# - zaznacze cały ekran.
+ #Ctrl+U# - odznacza blok.
+ #Ctrl+Shift+Lewo# i #Ctrl+Shift+prawo# - rozszerzają lub zmniejszają zaznaczenie o 10 znaków w lewo lub prawo.
+ #Ctrl+Shift+Góra# i #Ctrl+Shift+Dół# - rozszerzają lub zmniejszają zaznaczenie o 5 linii w górę lub w dół.
 
 
 @MiscCmd
-$ #Common control commands#
- #Keyboard macros#
+$ #Polecenia sterowania programem#
+ #Makra klawiatury#
 
- Record a ~keyboard macro~@KeyMacro@                                   #Ctrl+<.>#
+ Nagraj ~makro klawiatury~@KeyMacro@                                   #Ctrl+<.>#
 
- #Menus and dropdown lists#
+ #Menu i listy rozwijane#
 
- Enable/disable filtering mode                     #RAlt, Ctrl+Alt+F#
- Lock/unlock filter                                      #Ctrl+Alt+L#
+ Włącz/wyłącz tryb filtrowania                     #RAlt, Ctrl+Alt+F#
+ Zablokuj/odblokuj filtr                                 #Ctrl+Alt+L#
 
- When in filter mode, you can filter the displayed items by entering
-text.
+ W trybie filtrowania, można filtrować wyświetlane pozycje wpisując tekst.
 
- #Dialogs#
+ #Okna dialogowe#
 
- History in dialog edit controls                 #Ctrl+Up, Ctrl+Down#
+ Historia w polach edycji                       #Ctrl+Góra, Ctrl+Dół#
 
- In dialog edit control history you can use #Enter# to copy the current item
-to the edit control and #Ins# to mark or unmark an item. Marked items are not
-pushed out of history by new items, so you can mark frequently used strings so
-that you will always have them in the history.
+ W polach edycji można użyć #Enter#, aby skopiować bieżącą pozycję do pola edycji
+oraz #Ins# aby zaznaczyć/odznaczyć pozycję. Zaznaczone pozycji nie są usuwane
+z historii, więc można zaznaczać często używane teksty i koszystać z nich póżniej,
+ponieważ będą zapisane w historii.
 
- Clear history in dialog edit controls                          #Del#
+ Wyczyść historię z pola edycji okna dialogowego                #Del#
 
- Delete the current item in a dialog edit line history    #Shift+Del#
- (if it is not locked)
+ Usuń bieżącą pozycję z historii pola edycji              #Shift+Del#
+ (jeżeli nie jest zablokowane)
 
- Set the dialog focus to the default element                   #PgDn#
+ Przekocz na domyślny element okna dialogowego                 #PgDn#
 
- The following combinations are valid for all edit controls except the
-command line, including dialogs and the ~internal editor~@Editor@.
+ Poniższe kombinacje klawiszy są dostępne dla wszystkich pól edycji
+za wyjątkiem linii poleceń, włączając okna dialogowe i ~wewnętrzny edytor~@Editor@.
 
- Insert a file name under cursor to dialog              #Shift+Enter#
+ Wstaw podświetloną nazwę pliku/folderu                 #Shift+Enter#
 
- Insert a file name from passive panel to dialog   #Ctrl+Shift+Enter#
+ Wstaw nazwę pliku/folderu z pasywnego panelu      #Ctrl+Shift+Enter#
 
- Pressing #Ctrl+Enter# in dialogs executes the default action (pushes the
-default button or does another similar thing).
+ Wciśnięcie #Ctrl+Enter# w oknie dialogowym uruchamia domyślne działanie
+(wciśnięcie domyślnego przycisku lub podobne polecenie).
 
- In dialogs, when the current control is a check box:
+ W oknach dialogowych, gdy bieżącym polem jest pole wyboru: 
 
- - turn on (#[x]#)                                             #Gray +#
- - turn off (#[ ]#)                                            #Gray -#
- - change to undefined (#[?]#)                                 #Gray *#
-   (for three-state checkboxes)
+ - włącz (#[x]#)                                              #Szary +#
+ - wyłącz (#[ ]#)                                             #Szary -#
+ - zmień na nieoznaczone (#[?]#)                              #Szara *#
+   (dla pól trójstnowych)
 
- You can move a dialog (window) by dragging it with mouse or by pressing #Ctrl+F5# and using #arrow# keys.
+ Możesz przenieść okno dialogowe przeciągając myszą lub wiskając #Ctrl+F5# i używając klawiszy #strzałek#.
 
- #Left clicking# outside the dialog works the same as pressing #Esc#.
+ #Lewe kliknięcie# poza oknem dialogowym działa jak wciśnięcie #Esc#.
 
- #Right clicking# outside the dialog works the same as pressing #Enter#.
+ #Prawe kliknięcie# poza oknem dialogowym działa jak wciśnięcie #Enter#.
 
- #Mouse#
+ #Mysz#
 
- Clicking the #middle mouse button# in the ~panels~@PanelCmd@ has the same
-effect as pressing the #Enter# key with the same modifiers (#Ctrl#, #Alt#,
-#Shift#). If the ~command line~@CmdLineCmd@ is not empty, its contents will be executed.
+ Kliknięcie #środkowym klawiszem myszy# w ~panelu~@PanelCmd@ daje ten sam efekt
+jak wciśnięcie klawisza #Enter#. Także z klawiszami modyfikującymi polecenie
+(#Ctrl#, #Alt#, #Shift#). Jeżeli ~linia poleceń~@CmdLineCmd@ nie jest pusta,
+jej zawartość zostanie wykonana.
 
- Far Manager also supports the ~mouse wheel~@MsWheel@.
+ Far Manager wspiera także obsługę ~rolki myszy~@MsWheel@.
 
 
 @SpecCmd
-$ #Special commands#
- ~Version information~@FarAbout@
- ~Configuration editor~@FarConfig@
+$ #Polecenia specjalne#
+ ~Informacja o wersji~@FarAbout@
+ ~Edytor konfiguracji~@FarConfig@
 
 
 @MsWheel
