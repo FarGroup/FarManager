@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 18.11.2019 22:58:30 +0000 - build 5510
+
+1. Forum: Del doesn't work in Autocomplete
+
 drkns 16.11.2019 19:18:17 +0000 - build 5509
 
 1. Add "[ ] Preserve timestamps" option to Copy dialog.

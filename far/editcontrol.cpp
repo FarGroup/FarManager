@@ -577,8 +577,8 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 								{
 									ComplMenu->Close(-1);
 								}
-								Show();
 							}
+							Show();
 							return 1;
 						}
 						else
