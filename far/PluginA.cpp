@@ -412,6 +412,16 @@ static wchar_t *AnsiToUnicode(const char* AnsiString)
 	return AnsiString? AnsiToUnicodeBin(AnsiString, CP_OEMCP) : nullptr;
 }
 
+static void UnicodeToAnsiBin(string_view const UnicodeString, char* AnsiString, uintptr_t CodePage = CP_OEMCP)
+{
+	if (!UnicodeString.empty())
+	{
+		*AnsiString = 0;
+		// BUGBUG, error checking
+		encoding::get_bytes(CodePage, UnicodeString, { AnsiString, UnicodeString.size() });
+	}
+}
+
 static char *UnicodeToAnsiBin(string_view const UnicodeString, uintptr_t CodePage = CP_OEMCP)
 {
 	/* $ 06.01.2008 TS
@@ -420,13 +430,7 @@ static char *UnicodeToAnsiBin(string_view const UnicodeString, uintptr_t CodePag
 	а не на завершающий ноль (например в EditorGetString.StringText).
 	*/
 	auto Result = std::make_unique<char[]>(UnicodeString.size() + 1);
-
-	if (!UnicodeString.empty())
-	{
-		// BUGBUG, error checking
-		encoding::get_bytes(CodePage, UnicodeString, { Result.get(), UnicodeString.size() });
-	}
-
+	UnicodeToAnsiBin(UnicodeString, Result.get(), CodePage);
 	return Result.release();
 }
 
@@ -5429,7 +5433,7 @@ private:
 		if (Ptr->EventType == KEY_EVENT)
 		{
 			OemRecord = Info->Rec;
-			CharToOemBuff(&Info->Rec.Event.KeyEvent.uChar.UnicodeChar, &OemRecord.Event.KeyEvent.uChar.AsciiChar, 1);
+			UnicodeToAnsiBin({ &Info->Rec.Event.KeyEvent.uChar.UnicodeChar, 1 }, &OemRecord.Event.KeyEvent.uChar.AsciiChar);
 			Ptr = &OemRecord;
 		}
 		ExecuteFunction(es, Ptr);

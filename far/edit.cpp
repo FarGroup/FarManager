@@ -1118,6 +1118,9 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 						while (j < MaskLen && !CheckCharMask(Mask[j]))
 							j++;
 
+						if (!CharInMask(m_Str[i + 1], Mask[j]))
+							break;
+
 						m_Str[j]=m_Str[i+1];
 						j++;
 					}
@@ -1291,7 +1294,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 				DeleteBlock();
 			}
 
-			if (InsertKey(LocalKey))
+			if (InsertKey(static_cast<wchar_t>(LocalKey)))
 			{
 				const auto CurWindowType = Global->WindowManager->GetCurrentWindow()->GetType();
 				if (CurWindowType == windowtype_dialog || CurWindowType == windowtype_panels)
@@ -1314,7 +1317,7 @@ bool Edit::ProcessCtrlQ()
 	{
 		const auto Key = GetInputRecord(&rec);
 
-		if (Key!=KEY_NONE && Key!=KEY_IDLE && rec.Event.KeyEvent.uChar.AsciiChar)
+		if (Key!=KEY_NONE && Key!=KEY_IDLE && rec.Event.KeyEvent.uChar.UnicodeChar)
 			break;
 
 		if (Key==KEY_CONSOLE_BUFFER_RESIZE)
@@ -1326,10 +1329,10 @@ bool Edit::ProcessCtrlQ()
 		}
 	}
 
-	return InsertKey(rec.Event.KeyEvent.uChar.AsciiChar);
+	return InsertKey(rec.Event.KeyEvent.uChar.UnicodeChar);
 }
 
-bool Edit::InsertKey(int Key)
+bool Edit::InsertKey(wchar_t const Key)
 {
 	bool changed=false;
 
@@ -1352,7 +1355,7 @@ bool Edit::InsertKey(int Key)
 
 		if (m_CurPos<MaskLen)
 		{
-			if (KeyMatchedMask(Key, Mask))
+			if (CharInMask(Key, Mask[m_CurPos]))
 			{
 				if (!m_Flags.Check(FEDITLINE_OVERTYPE))
 				{
@@ -1535,7 +1538,7 @@ void Edit::SetString(string_view Str, bool const KeepSelection)
 			{
 				int goLoop=FALSE;
 
-				if (KeyMatchedMask(Str[j], Mask))
+				if (CharInMask(Str[j], Mask[m_CurPos]))
 					InsertKey(Str[j]);
 				else
 					goLoop=TRUE;
@@ -1631,7 +1634,7 @@ void Edit::InsertString(string_view Str)
 				{
 					int goLoop=FALSE;
 
-					if (j < Str.size() && KeyMatchedMask(Str[j], Mask))
+					if (j < Str.size() && CharInMask(Str[j], Mask[m_CurPos]))
 					{
 						InsertKey(Str[j]);
 						//_SVS(SysLog(L"InsertString ==> InsertKey(Str[%d]='%c');",j,Str[j]));
@@ -2339,28 +2342,15 @@ void Edit::Xlat(bool All)
 	}
 }
 
-/* $ 15.11.2000 KM
-   Проверяет: попадает ли символ в разрешённый
-   диапазон символов, пропускаемых маской
-*/
-int Edit::KeyMatchedMask(int Key, const string& Mask) const
+bool Edit::CharInMask(wchar_t const Char, wchar_t const Mask)
 {
-	int Inserted=FALSE;
-
-	if (Mask[m_CurPos]==EDMASK_ANY)
-		Inserted=TRUE;
-	else if (Mask[m_CurPos] == EDMASK_DSS && (std::iswdigit(Key) || Key == L' ' || Key == L'-'))
-		Inserted=TRUE;
-	else if (Mask[m_CurPos] == EDMASK_DIGITS && (std::iswdigit(Key) || Key == L' '))
-		Inserted=TRUE;
-	else if (Mask[m_CurPos] == EDMASK_DIGIT && (std::iswdigit(Key)))
-		Inserted=TRUE;
-	else if (Mask[m_CurPos]==EDMASK_ALPHA && is_alpha(Key))
-		Inserted=TRUE;
-	else if (Mask[m_CurPos] == EDMASK_HEX && std::iswxdigit(Key))
-		Inserted=TRUE;
-
-	return Inserted;
+	return
+		(Mask == EDMASK_ANY) ||
+		(Mask == EDMASK_DSS && (std::iswdigit(Char) || Char == L' ' || Char == L'-')) ||
+		(Mask == EDMASK_DIGITS && (std::iswdigit(Char) || Char == L' ')) ||
+		(Mask == EDMASK_DIGIT && (std::iswdigit(Char))) ||
+		(Mask == EDMASK_ALPHA && is_alpha(Char)) ||
+		(Mask == EDMASK_HEX && std::iswxdigit(Char));
 }
 
 int Edit::CheckCharMask(wchar_t Chr)

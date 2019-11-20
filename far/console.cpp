@@ -799,7 +799,7 @@ namespace console_detail
 		return (IsVT? implementation::WriteOutputVT : implementation::WriteOutputNT)(Buffer, SubRect, WriteRegion);
 	}
 
-	bool console::Read(std::vector<wchar_t>& Buffer, size_t& Size) const
+	bool console::Read(string& Buffer, size_t& Size) const
 	{
 		const auto InputHandle = GetInputHandle();
 
@@ -1317,7 +1317,7 @@ NIFTY_DEFINE(console_detail::console, console);
 
 enum
 {
-	BufferSize = 10240
+	BufferSize = 8192
 };
 
 class consolebuf : public std::wstreambuf
@@ -1326,8 +1326,8 @@ public:
 	NONCOPYABLE(consolebuf);
 
 	consolebuf():
-		m_InBuffer(BufferSize),
-		m_OutBuffer(BufferSize)
+		m_InBuffer(BufferSize, {}),
+		m_OutBuffer(BufferSize, {})
 	{
 		setg(m_InBuffer.data(), m_InBuffer.data() + m_InBuffer.size(), m_InBuffer.data() + m_InBuffer.size());
 		setp(m_OutBuffer.data(), m_OutBuffer.data() + m_OutBuffer.size());
@@ -1396,7 +1396,7 @@ private:
 		return console.Write(Str);
 	}
 
-	std::vector<wchar_t> m_InBuffer, m_OutBuffer;
+	string m_InBuffer, m_OutBuffer;
 	std::optional<FarColor> m_Colour;
 };
 

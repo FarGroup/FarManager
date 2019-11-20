@@ -1704,7 +1704,7 @@ string __INPUT_RECORD_Dump(const INPUT_RECORD *rec)
 		case KEY_EVENT:
 		case 0:
 		{
-			const auto AsciiChar = static_cast<WORD>(static_cast<BYTE>(rec->Event.KeyEvent.uChar.AsciiChar));
+			const auto Char = rec->Event.KeyEvent.uChar.UnicodeChar;
 			Records = str_printf(
 			    L"%s: %s, %d, Vk=%s, Scan=0x%04X uChar=[U='%c' (0x%04X): A='%C' (0x%02X)] Ctrl=0x%08X (%c%c%c%c%c - %c%c%c%c)",
 			    (rec->EventType==KEY_EVENT?L"KEY_EVENT_RECORD":L"(internal, macro)_KEY_EVENT"),
@@ -1714,8 +1714,8 @@ string __INPUT_RECORD_Dump(const INPUT_RECORD *rec)
 			    rec->Event.KeyEvent.wVirtualScanCode,
 			    ((rec->Event.KeyEvent.uChar.UnicodeChar && !(rec->Event.KeyEvent.uChar.UnicodeChar == L'\t' || IsEol(rec->Event.KeyEvent.uChar.UnicodeChar)))?rec->Event.KeyEvent.uChar.UnicodeChar:L' '),
 			    rec->Event.KeyEvent.uChar.UnicodeChar,
-			    ((AsciiChar && AsciiChar != '\t' && !IsEol(AsciiChar))? AsciiChar : ' '),
-			    AsciiChar,
+			    ((Char && Char != L'\t' && !IsEol(Char))? Char : ' '),
+			    Char,
 			    rec->Event.KeyEvent.dwControlKeyState,
 			    (rec->Event.KeyEvent.dwControlKeyState&LEFT_CTRL_PRESSED?L'C':L'c'),
 			    (rec->Event.KeyEvent.dwControlKeyState&LEFT_ALT_PRESSED?L'A':L'a'),

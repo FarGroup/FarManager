@@ -244,11 +244,11 @@ private:
 	virtual int GetLineCursorPos() const;
 	virtual void SetLineCursorPos(int Value);
 
-	bool InsertKey(int Key);
+	bool InsertKey(wchar_t Key);
 	bool RecurseProcessKey(int Key);
 	void ApplyColor(const FarColor& SelColor, int XPos, int FocusedLeftPos);
 	int GetNextCursorPos(int Position,int Where) const;
-	int KeyMatchedMask(int Key, const string& Mask) const;
+	static bool CharInMask(wchar_t Char, wchar_t Mask);
 	bool ProcessCtrlQ();
 	bool ProcessInsPath(unsigned int Key,int PrevSelStart=-1,int PrevSelEnd=0);
 	int RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos) const;
