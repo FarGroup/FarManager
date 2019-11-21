@@ -1109,7 +1109,6 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 	int N;
 	const auto IsEmptyCmdline = Parent()->GetCmdLine()->GetString().empty();
-//	const auto IsCmdlineSelection = Parent()->GetCmdLine()->IsSelection();
 
 	if (IsVisible())
 	{
