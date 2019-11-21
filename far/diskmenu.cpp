@@ -230,6 +230,7 @@ static void ConfigureChangeDriveMode()
 	Builder.AddCheckbox(lng::MChangeDriveShowRemovableDrive, DriveMode, DRIVE_SHOW_REMOVABLE);
 	Builder.AddCheckbox(lng::MChangeDriveShowCD, DriveMode, DRIVE_SHOW_CDROM);
 	Builder.AddCheckbox(lng::MChangeDriveShowNetworkDrive, DriveMode, DRIVE_SHOW_REMOTE);
+	Builder.AddCheckbox(lng::MChangeDriveShowVirtualDisk, DriveMode, DRIVE_SHOW_VIRTUAL);
 
 	Builder.AddOKCancel();
 	if (Builder.ShowDialog())
@@ -741,7 +742,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				{
 					NewItem.DriveType = DRIVE_SUBSTITUTE;
 				}
-				else if (DriveCanBeVirtual(NewItem.DriveType) && GetVHDInfo(os::fs::get_unc_drive(i), NewItem.Path))
+				else if ((DriveMode & DRIVE_SHOW_VIRTUAL) && DriveCanBeVirtual(NewItem.DriveType) && GetVHDInfo(os::fs::get_unc_drive(i), NewItem.Path))
 				{
 					NewItem.DriveType = DRIVE_VIRTUAL;
 				}

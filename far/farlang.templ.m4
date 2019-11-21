@@ -17633,6 +17633,19 @@ upd:"Show ne&twork drive parameters"
 "Показувати параметри мережевих дисків"
 "Адлюстроўваць налады се&ткавых дыскаў"
 
+MChangeDriveShowVirtualDisk
+"Определять виртуальные диски"
+"Detect virtual disks"
+upd:"Detect virtual disks"
+upd:"Detect virtual disks"
+upd:"Detect virtual disks"
+upd:"Detect virtual disks"
+upd:"Detect virtual disks"
+upd:"Detect virtual disks"
+upd:"Detect virtual disks"
+"Визначати віртуальні диски"
+"Вызначаць віртуальныя дыскі"
+
 MChangeDriveMenuFooter
 "Del,Shift+Del,F3,F4,F9"
 "Del,Shift+Del,F3,F4,F9"

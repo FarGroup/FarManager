@@ -1714,7 +1714,7 @@ string __INPUT_RECORD_Dump(const INPUT_RECORD *rec)
 			    rec->Event.KeyEvent.wVirtualScanCode,
 			    ((rec->Event.KeyEvent.uChar.UnicodeChar && !(rec->Event.KeyEvent.uChar.UnicodeChar == L'\t' || IsEol(rec->Event.KeyEvent.uChar.UnicodeChar)))?rec->Event.KeyEvent.uChar.UnicodeChar:L' '),
 			    rec->Event.KeyEvent.uChar.UnicodeChar,
-			    ((Char && Char != L'\t' && !IsEol(Char))? Char : ' '),
+			    ((Char && Char != L'\t' && !IsEol(Char))? Char : L' '),
 			    Char,
 			    rec->Event.KeyEvent.dwControlKeyState,
 			    (rec->Event.KeyEvent.dwControlKeyState&LEFT_CTRL_PRESSED?L'C':L'c'),

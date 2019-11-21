@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 21.11.2019 20:56:02 +0000 - build 5512
+
+1. M#0003470: Option "[ ] Detect virtual disks" for Disks menu.
+
 drkns 20.11.2019 00:55:00 +0000 - build 5511
 
 1. Continuation of 1771.2 or 9 years later: second attempt to fix Backspace/Del madness in DIF_MASKEDIT.

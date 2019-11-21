@@ -3647,6 +3647,9 @@ HD DVD-RW, Blue-ray Disk-ROM, Blue-ray Disk-RW.
 on the #Show size# option.
  Key combination in #Change drive# menu: #Ctrl+9#.
 
+ #Detect virtual disks#
+ Detect virtual disks (VHD, VHDX). This could wake up sleeping hard drives.
+
 
 @DisconnectDrive
 $ #Disconnect network drive#
