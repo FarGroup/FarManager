@@ -371,6 +371,19 @@ bool clipboard::SetHDROP(const string_view NamesData, const bool bMoved)
 	if (!Clear() || !SetData(CF_HDROP, std::move(Memory)))
 		return false;
 
+	 string TextData;
+	 const auto Eol = eol::str(eol::system());
+	 for (const wchar_t & c : NamesData)
+		{
+		 if (c!=L'\0') TextData+=c; else TextData+=Eol;
+                 //TextData+=((c!=L'\0')?c:Eol);  // hate c++
+		}
+         auto hData = os::memory::global::copy(string_view(TextData));
+	 if (hData)
+	 	{
+	 	SetData(CF_UNICODETEXT, std::move(hData));
+	 	}
+
 	if (!bMoved)
 		return true;
 
