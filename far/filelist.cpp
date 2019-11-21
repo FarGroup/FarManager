@@ -1368,11 +1368,9 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			CopyFiles();
 			return true;
 
-
+#if 0
 		case KEY_CTRLX: // hdrop cut !!!NEED KEY!!!
-		case KEY_RCTRLX: 
-#if 0   
-  
+		case KEY_RCTRLX:
 			CopyFiles(true);
 			return true;
 #endif
