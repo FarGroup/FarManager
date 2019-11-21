@@ -1109,6 +1109,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 	int N;
 	const auto IsEmptyCmdline = Parent()->GetCmdLine()->GetString().empty();
+//	const auto IsCmdlineSelection = Parent()->GetCmdLine()->IsSelection();
 
 	if (IsVisible())
 	{
@@ -1361,12 +1362,17 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 		case KEY_CTRLC: // hdrop  copy
 		case KEY_RCTRLC:
+			// Копировать hdrop только если нечего не выбрано в командой строке
+			if (Parent()->GetCmdLine()->IsSelection()) 
+				return false;
 			CopyFiles();
 			return true;
 
-#if 0
+
 		case KEY_CTRLX: // hdrop cut !!!NEED KEY!!!
-		case KEY_RCTRLX:
+		case KEY_RCTRLX: 
+#if 0   
+  
 			CopyFiles(true);
 			return true;
 #endif
