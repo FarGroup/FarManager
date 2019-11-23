@@ -1,4 +1,9 @@
-﻿shmuel 30.10.2019 22:19:18 +0200 - build 714
+﻿shmuel 23.11.2019 19:16:02 +0200 - build 715
+
+1. LuaFAR: far.RecursiveSearch():
+   Extend syntax of "Mask" parameter to optionally include file attributes after >> delimiter.
+
+shmuel 30.10.2019 22:19:18 +0200 - build 714
 
 1. Support throwing Lua errors from macro-API code in Far.exe (starting from build 5502).
 

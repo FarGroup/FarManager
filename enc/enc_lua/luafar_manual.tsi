@@ -8229,13 +8229,13 @@ id=211
 lv=2
 dt=Text
 nm=far.RecursiveSearch
-mtime=3617913893
+mtime=3783699265
 <article>
 #_far.RecursiveSearch (InitDir, Mask, UserFunc [, Flags [, ...]])
 #_
 #_**Parameters:**
 #_  InitDir:  string
-#_  Mask:     string
+#_  Mask:     string (can include attributes - see note below)
 #_  UserFunc: function
 #_  Flags:    flags
 #_  ...:      additional arguments, any Lua values
@@ -8254,11 +8254,19 @@ mtime=3617913893
 #_  If the 1-st return value of *UserFunc* is neither *false* nor *nil* then the search
 #_  is stopped.
 #_
+#_**Note:**
+#_  The 2-nd parameter (Mask) can include file attributes following the mask itself
+#_  after a >> delimiter. The attribute characters are described in `this` article.
+#_  - A small letter means the attribute must be present.
+#_  - A large letter means the attribute must not be present.
+#_  **Example:** `*`|`*`.txt>>rA
+#_
 #_**Far API used:**
 #_  FarRecursiveSearch
 #_
 #_@@@
 #_[tPluginPanelItem]: 85.html
+#_[this]: 85.html
 #_
 #_{farrecursivesearch}: http://api.farmanager.com/ru/fsf/farrecursivesearch.html
 #_

@@ -53,6 +53,7 @@ int  DecodeAttributes(const char* str);
 void PushAttrString(lua_State *L, int attr);
 void PutAttrToTable(lua_State *L, int attr);
 int  SetAttr(lua_State *L, const wchar_t* fname, unsigned attr);
+void SetAttrWords(const wchar_t* str, DWORD* incl, DWORD* excl);
 
 #ifdef __cplusplus
 }

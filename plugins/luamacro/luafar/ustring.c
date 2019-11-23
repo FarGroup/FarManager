@@ -628,6 +628,43 @@ int DecodeAttributes(const char* str)
 	return attr;
 }
 
+void SetAttrWords(const wchar_t* str, DWORD* incl, DWORD* excl)
+{
+	*incl=0; *excl=0;
+	for (; *str; str++) {
+		wchar_t c = *str;
+		if      (c == L'a')  *incl |= FILE_ATTRIBUTE_ARCHIVE;
+		else if (c == L'c')  *incl |= FILE_ATTRIBUTE_COMPRESSED;
+		else if (c == L'd')  *incl |= FILE_ATTRIBUTE_DIRECTORY;
+		else if (c == L'e')  *incl |= FILE_ATTRIBUTE_REPARSE_POINT;
+		else if (c == L'h')  *incl |= FILE_ATTRIBUTE_HIDDEN;
+		else if (c == L'i')  *incl |= FILE_ATTRIBUTE_NOT_CONTENT_INDEXED;
+		else if (c == L'n')  *incl |= FILE_ATTRIBUTE_ENCRYPTED;
+		else if (c == L'o')  *incl |= FILE_ATTRIBUTE_OFFLINE;
+		else if (c == L'p')  *incl |= FILE_ATTRIBUTE_SPARSE_FILE;
+		else if (c == L'r')  *incl |= FILE_ATTRIBUTE_READONLY;
+		else if (c == L's')  *incl |= FILE_ATTRIBUTE_SYSTEM;
+		else if (c == L't')  *incl |= FILE_ATTRIBUTE_TEMPORARY;
+		else if (c == L'u')  *incl |= FILE_ATTRIBUTE_NO_SCRUB_DATA;
+		else if (c == L'v')  *incl |= FILE_ATTRIBUTE_VIRTUAL;
+
+		else if (c == L'A')  *excl |= FILE_ATTRIBUTE_ARCHIVE;
+		else if (c == L'C')  *excl |= FILE_ATTRIBUTE_COMPRESSED;
+		else if (c == L'D')  *excl |= FILE_ATTRIBUTE_DIRECTORY;
+		else if (c == L'E')  *excl |= FILE_ATTRIBUTE_REPARSE_POINT;
+		else if (c == L'H')  *excl |= FILE_ATTRIBUTE_HIDDEN;
+		else if (c == L'I')  *excl |= FILE_ATTRIBUTE_NOT_CONTENT_INDEXED;
+		else if (c == L'N')  *excl |= FILE_ATTRIBUTE_ENCRYPTED;
+		else if (c == L'O')  *excl |= FILE_ATTRIBUTE_OFFLINE;
+		else if (c == L'P')  *excl |= FILE_ATTRIBUTE_SPARSE_FILE;
+		else if (c == L'R')  *excl |= FILE_ATTRIBUTE_READONLY;
+		else if (c == L'S')  *excl |= FILE_ATTRIBUTE_SYSTEM;
+		else if (c == L'T')  *excl |= FILE_ATTRIBUTE_TEMPORARY;
+		else if (c == L'U')  *excl |= FILE_ATTRIBUTE_NO_SCRUB_DATA;
+		else if (c == L'V')  *excl |= FILE_ATTRIBUTE_VIRTUAL;
+	}
+}
+
 // for reusing code
 int SetAttr(lua_State *L, const wchar_t* fname, unsigned attr)
 {

@@ -4447,6 +4447,8 @@ typedef struct
 	lua_State *L;
 	int nparams;
 	int err;
+	DWORD attr_incl;
+	DWORD attr_excl;
 } FrsData;
 
 static int WINAPI FrsUserFunc(const struct PluginPanelItem *FData, const wchar_t *FullName,
@@ -4455,6 +4457,10 @@ static int WINAPI FrsUserFunc(const struct PluginPanelItem *FData, const wchar_t
 	FrsData *Data = (FrsData*)Param;
 	lua_State *L = Data->L;
 	int i, nret = lua_gettop(L);
+
+	if ((FData->FileAttributes & Data->attr_excl) != 0 || (FData->FileAttributes & Data->attr_incl) != Data->attr_incl)
+		return TRUE; // attributes mismatch
+
 	lua_pushvalue(L, 3); // push the Lua function
 	PushPanelItem(L, FData);
 	push_utf8_string(L, FullName, -1);
@@ -4475,10 +4481,17 @@ static int WINAPI FrsUserFunc(const struct PluginPanelItem *FData, const wchar_t
 static int far_RecursiveSearch(lua_State *L)
 {
 	UINT64 Flags;
-	FrsData Data = { L, 0, 0 };
+	FrsData Data = { L,0,0,0,0 };
 	const wchar_t *InitDir = check_utf8_string(L, 1, NULL);
-	const wchar_t *Mask = check_utf8_string(L, 2, NULL);
+	wchar_t *Mask = check_utf8_string(L, 2, NULL);
+	wchar_t *MaskEnd;
+
 	luaL_checktype(L, 3, LUA_TFUNCTION);
+	if ((MaskEnd=wcsstr(Mask, L">>")) != NULL)
+	{
+		*MaskEnd = 0;
+		SetAttrWords(MaskEnd+2, &Data.attr_incl, &Data.attr_excl);
+	}
 	Flags = OptFlags(L, 4, 0);
 	if (lua_gettop(L) == 3)
 		lua_pushnil(L);
