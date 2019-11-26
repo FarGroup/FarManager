@@ -3,6 +3,12 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 26.11.2019 21:09:23 +0000 - build 5513
+
+1. Copying files from panels to clipboard reassigned to Ctrl+Shift+C. Ctrl+C goes into the command line as before.
+
+2. Added cutting files from panels to clipboard via Ctrl+Shift+X.
+
 drkns 21.11.2019 20:56:02 +0000 - build 5512
 
 1. M#0003470: Option "[ ] Detect virtual disks" for Disks menu.

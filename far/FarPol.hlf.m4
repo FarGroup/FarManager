@@ -401,18 +401,26 @@ $ #Polecenia kontroli panelu#
 lub w ~panelu informacyjnym~@InfoPanel@, foldery będą zmieniane nie w aktywnym,
 lecz w pasywnym oknie panelu.
 
- Kopiuj nazwę zaznaczonych plików do schowka               #Ctrl+Ins#
- (jeżeli linia poleceń jest pusta)
- Kopiuj pliki do schowka                                     #Ctrl+C#
- (ignoruje stan linii poleceń)
- Kopiuje nazwy zaznaczonych plików do schowka        #Ctrl+Shift+Ins#
- (ignoruje stan linii poleceń)
- Kopiuje pełne nazwy zaznaczonych plików do schowka   #Alt+Shift+Ins#
- (ignoruje stan linii poleceń)
- Kopiuje nazwy sieciowe (UNC) zaznaczonych plików      #Ctrl+Alt+Ins#
- do schowka (ignoruje stan linii poleceń)
+ #Ctrl+Ins#
+ Kopiuj nazwę zaznaczonych plików do schowka (jeżeli linia poleceń jest pusta).
 
- Pliki, skopiowane z paneli, mogą być kopiowane do innej aplikacji, np. MS Edge.
+ #Ctrl+Shift+Ins#
+ Kopiuje nazwy zaznaczonych plików do schowka.
+
+ #Alt+Shift+Ins#
+ Kopiuje pełne nazwy zaznaczonych plików do schowka.
+
+ #Ctrl+Alt+Ins#
+ Kopiuje real nazwy zaznaczonych plików do schowka.
+
+
+ #Ctrl+Shift+C#
+ Kopiuj pliki do schowka.
+
+ #Ctrl+Shift+X#
+ Cut the selected files to clipboard.
+
+ Pliki, skopiowane lub cięcie z paneli, mogą być kopiowane do innej aplikacji, np. Explorer.
 
  Zobacz także listę ~klawiszy makro~@KeyMacroShellList@, dostępnych w panelach.
 

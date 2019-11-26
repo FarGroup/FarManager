@@ -1359,17 +1359,16 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			);
 			return true;
 
-		case KEY_CTRLC: // hdrop  copy
-		case KEY_RCTRLC:
-			CopyFiles();
+		case KEY_CTRLSHIFTC: // hdrop copy
+		case KEY_RCTRLSHIFTC:
+			CopyFiles(false);
 			return true;
 
-#if 0
-		case KEY_CTRLX: // hdrop cut !!!NEED KEY!!!
-		case KEY_RCTRLX:
+		case KEY_CTRLSHIFTX: // hdrop cut
+		case KEY_RCTRLSHIFTX:
 			CopyFiles(true);
 			return true;
-#endif
+
 			/* $ 14.02.2001 VVM
 			  + Ctrl: вставляет имя файла с пассивной панели.
 			  + CtrlAlt: вставляет UNC-имя файла с пассивной панели */

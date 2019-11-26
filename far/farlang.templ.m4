@@ -4284,7 +4284,7 @@ MLinkTypeSymlinkDirectory
 "сімвалічны с&пасылак (каталог)"
 
 MCopyPreserveTimestamps
-"Сохрянять метки времени"
+"Сохранять метки времени"
 "Preserve timestamps"
 upd:"Preserve timestamps"
 upd:"Preserve timestamps"

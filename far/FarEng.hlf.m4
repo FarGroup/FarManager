@@ -397,18 +397,26 @@ $ #Panel control commands#
 an ~information panel~@InfoPanel@, the directory is changed not on the
 active, but on the passive panel.
 
- Copy the names of selected files to the clipboard         #Ctrl+Ins#
- (if the command line is empty)
- Copy the files to clipboard                                 #Ctrl+C#
- (ignore command line state)
- Copy the names of selected files to the clipboard   #Ctrl+Shift+Ins#
- (ignore command line state)
- Copy full names of selected files to the clipboard   #Alt+Shift+Ins#
- (ignore command line state)
- Copy network (UNC) names of selected files to the     #Ctrl+Alt+Ins#
- clipboard (ignore command line state)
+ #Ctrl+Ins#
+ Copy names of the selected files to clipboard (if the command line is empty).
 
- Files, copied from the panels, can be pasted to other applications, e.g. Explorer.
+ #Ctrl+Shift+Ins#
+ Copy names of the selected files to clipboard.
+
+ #Alt+Shift+Ins#
+ Copy full names of selected files to clipboard.
+
+ #Ctrl+Alt+Ins#
+ Copy real names of selected files to clipboard.
+
+
+ #Ctrl+Shift+C#
+ Copy the selected files to clipboard.
+
+ #Ctrl+Shift+X#
+ Cut the selected files to clipboard.
+
+ Files, copied or cut from the panels, can be pasted to other applications, e.g. Explorer.
 
  See also the list of ~macro keys~@KeyMacroShellList@, available in the panels.
 

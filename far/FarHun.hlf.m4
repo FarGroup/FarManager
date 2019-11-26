@@ -408,18 +408,26 @@ $ #Panelvezérlő parancsok#
 ~info panel~@InfoPanel@, nem az aktív, hanem a passzív panel vált a
 megfelelő mappára.
 
- A kijelölt fájlok neveit a vágólapra másolja             #Ctrl+Ins#
- (ha a parancssor üres)
- Copy the files to clipboard                                 #Ctrl+C#
- (ignore command line state)
- ^<wrap>Files, copied from the panels, can be pasted to other applications,
-e.g. Explorer.
- A kijelölt fájlok neveit a vágólapra másolja        #Ctrl+Shift+Ins#
- (a parancssor állapotától függetlenül)
- A kijelölt fájlok neveit elérési úttal a vágólapra   #Alt+Shift+Ins#
- másolja (a parancssor állapotától függetlenül)
- A kijelölt fájlok hálózati (UNC) neveit a vágólapra   #Ctrl+Alt+Ins#
- másolja (a parancssor állapotától függetlenül)
+ #Ctrl+Ins#
+ A kijelölt fájlok neveit a vágólapra másolja (ha a parancssor üres).
+
+ #Ctrl+Shift+Ins#
+ A kijelölt fájlok neveit a vágólapra másolja.
+
+ #Alt+Shift+Ins#
+ A kijelölt fájlok neveit elérési úttal a vágólapra másolja.
+
+ #Ctrl+Alt+Ins#
+ A kijelölt fájlok neveit igazi a vágólapra másolja.
+
+
+ #Ctrl+Shift+C#
+ Copy the selected files to clipboard.
+
+ #Ctrl+Shift+X#
+ Cut the selected files to clipboard.
+
+ Files, copied or cut from the panels, can be pasted to other applications, e.g. Explorer.
 
  See also the list of ~macro keys~@KeyMacroShellList@, available in the panels.
 
@@ -1640,7 +1648,7 @@ To ~highlight~@Highlight@ all archives except "*.rar" #<arc>|*.rar# should be us
 
 @ChoosePluginMenu
 $ #Plugin selection menu#
- Allows to choose the processing plugin if the host file (e. g. an archive)
+ Allows to choose the processing plugin if the host file (e.g. an archive)
 can be processed by multiple plugins.
 
  Also see common ~menu~@MenuCmd@ keyboard commands.
