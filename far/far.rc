@@ -44,7 +44,7 @@ PRODUCTVERSION RC_MAJOR, RC_MINOR, RC_BUILD, RC_REVISION
 {
 	BLOCK "StringFileInfo"
 	{
-		BLOCK "000004B0"
+		BLOCK "040904B0"
 		{
 			VALUE "CompanyName", "Eugene Roshal & Far Group"
 			VALUE "FileDescription", "File and archive manager"
@@ -65,7 +65,7 @@ PRODUCTVERSION RC_MAJOR, RC_MINOR, RC_BUILD, RC_REVISION
 	}
 	BLOCK "VarFileInfo"
 	{
-		VALUE "Translation", 0x0, 1200
+		VALUE "Translation", 0x0409, 1200
 	}
 }
 

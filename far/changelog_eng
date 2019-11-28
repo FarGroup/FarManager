@@ -724,7 +724,7 @@ drkns 17.04.2019 22:23:24 +0100 - build 5386
 
 1. Build process:
    - bootstrap directory moved to IntDir (some generated files contain platfrom-specific data).
-   - simplidied the format of vbuild.m4 - now there is only a number.
+   - simplified the format of vbuild.m4 - now there is only a number.
 
 drkns 16.04.2019 08:17:59 +0100 - build 5385
 
