@@ -531,9 +531,9 @@ void ShowHotplugDevices()
 	};
 
 	FillMenu();
-	HotPlugList->SetMenuFlags(VMENU_WRAPMODE | VMENU_AUTOHIGHLIGHT);
+	HotPlugList->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND | VMENU_AUTOHIGHLIGHT);
 	HotPlugList->SetPosition({ -1, -1, 0, 0 });
-	HotPlugList->AssignHighlights(TRUE);
+	HotPlugList->AssignHighlights();
 	HotPlugList->SetBottomTitle(msg(lng::MHotPlugListBottom));
 
 	bool NeedRefresh = false;

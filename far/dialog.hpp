@@ -123,7 +123,7 @@ struct DialogItemEx: public FarDialogItem
 		FARDIALOGITEMFLAGS Checked3Set, FARDIALOGITEMFLAGS Checked3Skip);
 };
 
-bool IsKeyHighlighted(string_view Str, int Key, int Translate, int AmpPos = -1);
+bool IsKeyHighlighted(string_view Str, int Key, bool Translate, wchar_t CharKey = {});
 void ItemsToItemsEx(span<const FarDialogItem> Items, span<DialogItemEx> ItemsEx, bool Short = false);
 
 
@@ -294,8 +294,8 @@ private:
 	int SelectFromComboBox(DialogItemEx *CurItem,DlgEdit*EditLine);
 	bool AddToEditHistory(const DialogItemEx* CurItem, const string& AddStr) const;
 	void ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex);  // обработка DIF_USELASTHISTORY
-	bool ProcessHighlighting(int Key,size_t FocusPos,int Translate);
-	int CheckHighlights(WORD Chr,int StartPos=0);
+	bool ProcessHighlighting(int Key, size_t FocusPos, bool Translate);
+	int CheckHighlights(WORD CheckSymbol, int StartPos = 0);
 	void SelectOnEntry(size_t Pos, bool Selected);
 	void CheckDialogCoord();
 	bool GetItemRect(size_t I,SMALL_RECT& Rect);

@@ -428,7 +428,7 @@ window_ptr Manager::WindowMenu()
 			auto& [Type, Name, Window] = Data[i];
 
 			const auto Hotkey = static_cast<wchar_t>(i < 10? L'0' + i : i < 36? L'A' + i - 10 : L' ');
-			replace(Name, L"&"sv, L"&&"sv);
+			inplace::escape_ampersands(Name);
 			/*  добавляется "*" если файл изменен */
 			MenuItemEx ModalMenuItem(format(FSTR(L"{0}{1}  {2:<{3}} {4} "), Hotkey == L' '? L""sv : L"&"sv,  Hotkey, Type, TypesWidth, Window->IsFileModified()? L'*' : L' ') + Name);
 			ModalMenuItem.ComplexUserData = Window.get();

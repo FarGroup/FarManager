@@ -88,8 +88,6 @@ private:
 	void ProcessSelection(VMenu2 *FilterList) const;
 	enumFileFilterFlagsType GetFFFT() const;
 	wchar_t GetCheck(const FileFilterParams& FFP) const;
-	static void SwapPanelFlags(FileFilterParams& CurFilterData);
-	static int  ParseAndAddMasks(std::list<std::pair<string, int>>& Extensions, const string& FileName, DWORD FileAttr, int Check);
 
 	Panel *m_HostPanel;
 	FAR_FILE_FILTER_TYPE m_FilterType;

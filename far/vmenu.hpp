@@ -60,7 +60,7 @@ enum vmenu_colors
 	VMenuColorBox                 = 1,     // рамка
 	VMenuColorTitle               = 2,     // заголовок - верхний и нижний
 	VMenuColorText                = 3,     // Текст пункта
-	VMenuColorHilite              = 4,     // HotKey
+	VMenuColorHighlight           = 4,     // HotKey
 	VMenuColorSeparator           = 5,     // separator
 	VMenuColorSelected            = 6,     // Выбранный
 	VMenuColorHSelect             = 7,     // Выбранный - HotKey
@@ -162,8 +162,9 @@ struct MenuItemEx: menu_item
 	std::any ComplexUserData;
 	intptr_t SimpleUserData{};
 
-	int ShowPos{};
-	short AmpPos{};                  // Позиция автоназначенной подсветки
+	size_t ShowPos{};
+	wchar_t AutoHotkey{};
+	size_t AutoHotkeyPos{};
 	short Len[2]{};                  // размеры 2-х частей
 	short Idx2{};                    // начало 2-й части
 	std::list<std::pair<int, int>> Annotations;
@@ -213,7 +214,7 @@ public:
 	bool CheckFlags(DWORD Flags) const { return VMFlags.Check(Flags); }
 	DWORD GetFlags() const { return VMFlags.Flags(); }
 	DWORD ChangeFlags(DWORD Flags, bool Status) { return VMFlags.Change(Flags, Status); }
-	void AssignHighlights(int Reverse);
+	void AssignHighlights(bool Reverse = false);
 	void SetColors(const FarDialogItemColors *ColorsIn = nullptr);
 	void GetColors(FarDialogItemColors *ColorsOut);
 	void SetOneColor(int Index, PaletteColors Color);
@@ -298,7 +299,7 @@ private:
 	void ShowMenu(bool IsParent = false);
 	void DrawTitles() const;
 	int GetItemPosition(int Position) const;
-	bool CheckKeyHiOrAcc(DWORD Key,int Type,int Translate,bool ChangePos,int& NewPos);
+	bool CheckKeyHiOrAcc(DWORD Key, int Type, bool Translate, bool ChangePos, int& NewPos);
 	int CheckHighlights(wchar_t CheckSymbol,int StartPos=0);
 	wchar_t GetHighlights(const MenuItemEx *Item) const;
 	bool ShiftItemShowPos(int Pos,int Direct);
@@ -327,7 +328,6 @@ private:
 	DWORD PrevCursorSize;
 	// переменная, отвечающая за отображение scrollbar в DI_LISTBOX & DI_COMBOBOX
 	BitFlags VMFlags;
-	BitFlags VMOldFlags;
 	// Для LisBox - родитель в виде диалога
 	std::weak_ptr<Dialog> ParentDialog;
 	size_t DialogItemID;

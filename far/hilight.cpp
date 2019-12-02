@@ -264,13 +264,9 @@ void highlight::configuration::InitHighlightFiles(/*const*/ HierarchicalConfig& 
 		if (!root)
 			continue;
 
-		for (int i=0;; ++i)
+		for (const auto& Key: cfg.KeysEnumerator(root, Item.GroupName))
 		{
-			const auto key = cfg.FindByName(root, Item.GroupName + str(i));
-			if (!key)
-				break;
-
-			HiData.emplace_back(LoadFilter(cfg, key, Item.Delta + (Item.Delta == DEFAULT_SORT_GROUP? 0 : i)));
+			HiData.emplace_back(LoadFilter(cfg, Key, Item.Delta + (Item.Delta == DEFAULT_SORT_GROUP? 0 : *Item.Count)));
 			++*Item.Count;
 		}
 	}
@@ -556,7 +552,7 @@ void highlight::configuration::HiEdit(int MenuPos)
 {
 	const auto HiMenu = VMenu2::create(msg(lng::MHighlightTitle), {}, ScrY - 4);
 	HiMenu->SetHelp(L"HighlightList"sv);
-	HiMenu->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
+	HiMenu->SetMenuFlags(VMENU_WRAPMODE);
 	HiMenu->SetPosition({ -1, -1, 0, 0 });
 	HiMenu->SetBottomTitle(msg(lng::MHighlightBottom));
 	HiMenu->SetId(HighlightMenuId);

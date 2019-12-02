@@ -120,7 +120,7 @@ void VMenu::init(span<menu_item const> const Data, DWORD Flags)
 {
 	SaveScr=nullptr;
 	SetMenuFlags(Flags | VMENU_MOUSEREACTION | VMENU_UPDATEREQUIRED);
-	ClearFlags(VMENU_SHOWAMPERSAND|VMENU_MOUSEDOWN);
+	ClearFlags(VMENU_MOUSEDOWN);
 	CurrentWindow = Global->WindowManager->GetCurrentWindow();
 	GetCursorType(PrevCursorVisible,PrevCursorSize);
 	bRightBtnPressed = false;
@@ -444,7 +444,8 @@ int VMenu::AddItem(MenuItemEx&& NewItem,int PosAdd)
 	Items.emplace(Items.begin() + PosAdd, std::move(NewItem));
 	auto& NewMenuItem = Items[PosAdd];
 
-	NewMenuItem.AmpPos = -1;
+	NewMenuItem.AutoHotkey = {};
+	NewMenuItem.AutoHotkeyPos = 0;
 	NewMenuItem.ShowPos = 0;
 
 	if (PosAdd <= SelectPos)
@@ -1294,7 +1295,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 				{
 					const auto Len = CheckFlags(VMENU_SHOWAMPERSAND)? i.Name.size() : HiStrlen(i.Name);
 					if (Len >= MaxLineWidth)
-						i.ShowPos = static_cast<int>(Len - MaxLineWidth);
+						i.ShowPos = Len - MaxLineWidth;
 				}
 			}
 
@@ -1776,30 +1777,25 @@ int VMenu::VisualPosToReal(int VPos)
 
 bool VMenu::ShiftItemShowPos(int Pos, int Direct)
 {
-	int ItemShowPos = Items[Pos].ShowPos;
+	auto ItemShowPos = Items[Pos].ShowPos;
 
 	const auto Len = VMFlags.Check(VMENU_SHOWAMPERSAND)? Items[Pos].Name.size() : HiStrlen(Items[Pos].Name);
 
-	if (Len < MaxLineWidth || (Direct < 0 && !ItemShowPos) || (Direct > 0 && ItemShowPos > static_cast<int>(Len)))
+	if (Len < MaxLineWidth || (Direct < 0 && !ItemShowPos) || (Direct > 0 && ItemShowPos > Len))
 		return false;
 
-	if (VMFlags.Check(VMENU_SHOWAMPERSAND))
+	if (Direct < 0)
 	{
-		if (Direct < 0)
-			ItemShowPos--;
-		else
-			ItemShowPos++;
+		if (ItemShowPos)
+			--ItemShowPos;
 	}
 	else
 	{
-		ItemShowPos = HiFindNextVisualPos(Items[Pos].Name, ItemShowPos,Direct);
+		++ItemShowPos;
 	}
 
-	if (ItemShowPos < 0)
-		ItemShowPos = 0;
-
 	if (ItemShowPos + MaxLineWidth > Len)
-		ItemShowPos = static_cast<int>(Len - MaxLineWidth);
+		ItemShowPos = Len - MaxLineWidth;
 
 	if (ItemShowPos != Items[Pos].ShowPos)
 	{
@@ -2119,7 +2115,7 @@ void VMenu::ShowMenu(bool IsParent)
 	if (GetShowItemCount() <= 0)
 		return;
 
-	if (CheckFlags(VMENU_AUTOHIGHLIGHT|VMENU_REVERSEHIGHLIGHT))
+	if (CheckFlags(VMENU_AUTOHIGHLIGHT))
 		AssignHighlights(CheckFlags(VMENU_REVERSEHIGHLIGHT));
 
 	int VisualSelectPos = GetVisualPos(SelectPos);
@@ -2252,26 +2248,30 @@ void VMenu::ShowMenu(bool IsParent)
 
 				strMenuLine.push_back(CheckMark);
 				strMenuLine.push_back(L' '); // left scroller (<<) placeholder
-				int ShowPos = HiFindRealPos(Items[I].Name, Items[I].ShowPos, CheckFlags(VMENU_SHOWAMPERSAND));
-				string strMItemPtr = Items[I].Name.substr(ShowPos);
-				const auto strMItemPtrLen = CheckFlags(VMENU_SHOWAMPERSAND)? strMItemPtr.size() : HiStrlen(strMItemPtr);
+				const auto PrefixSize = strMenuLine.size();
 
-				// fit menu string into available space
-				if (strMItemPtrLen > MaxLineWidth)
-					strMItemPtr.resize(HiFindRealPos(strMItemPtr, static_cast<int>(MaxLineWidth), CheckFlags(VMENU_SHOWAMPERSAND)));
+				size_t HotkeyVisualPos = string::npos;
+				auto MenuItemForDisplay = CheckFlags(VMENU_SHOWAMPERSAND)? Items[I].Name : HiText2Str(Items[I].Name, &HotkeyVisualPos);
 
-				// set highlight
-				if (!VMFlags.Check(VMENU_SHOWAMPERSAND))
+				MenuItemForDisplay.erase(0, Items[I].ShowPos);
+
+				if (HotkeyVisualPos != string::npos)
 				{
-					int AmpPos = Items[I].AmpPos - ShowPos;
-
-					if ((AmpPos >= 0) && (static_cast<size_t>(AmpPos) < strMItemPtr.size()) && (!AmpPos || strMItemPtr[AmpPos - 1] != L'&'))
-					{
-						strMItemPtr.insert(AmpPos, 1, L'&');
-					}
+					if (HotkeyVisualPos < Items[I].ShowPos)
+						HotkeyVisualPos = string::npos;
+					else
+						HotkeyVisualPos -= Items[I].ShowPos;
 				}
 
-				strMenuLine += strMItemPtr;
+				// fit menu string into available space
+				bool ShowRightScroller = false;
+				if (MenuItemForDisplay.size() > MaxLineWidth)
+				{
+					MenuItemForDisplay.resize(MaxLineWidth);
+					ShowRightScroller = true;
+				}
+
+				strMenuLine += MenuItemForDisplay;
 
 				// табуляции меняем только при показе!!!
 				// для сохранение оригинальной строки!!!
@@ -2283,7 +2283,7 @@ void VMenu::ShowMenu(bool IsParent)
 				{
 					static const vmenu_colors ItemColors[][2] =
 					{
-						{ VMenuColorHilite, VMenuColorHSelect },
+						{ VMenuColorHighlight, VMenuColorHSelect },
 						{ VMenuColorGrayed, VMenuColorSelGrayed },
 					};
 
@@ -2295,14 +2295,8 @@ void VMenu::ShowMenu(bool IsParent)
 					Col = Colors[VMenuColorDisabled];
 				}
 
-				if (CheckFlags(VMENU_SHOWAMPERSAND))
+				if (!Items[I].Annotations.empty())
 				{
-					if (Items[I].Annotations.empty())
-					{
-						Text(strMenuLine);
-					}
-					else
-					{
 						int StartOffset = 1; // 1 is '<<' placeholder size
 						size_t Pos = 0;
 						FarColor InvColor = CurColor;
@@ -2326,10 +2320,25 @@ void VMenu::ShowMenu(bool IsParent)
 						}
 						if (Pos < strMenuLine.size())
 							Text(string_view(strMenuLine).substr(Pos));
-					}
 				}
 				else
-					HiText(strMenuLine, Col);
+				{
+					if (HotkeyVisualPos != string::npos || Items[I].AutoHotkey)
+					{
+						const auto HotkeyPos = (HotkeyVisualPos != string::npos? HotkeyVisualPos : Items[I].AutoHotkeyPos) + PrefixSize;
+
+						Text(string_view(strMenuLine).substr(0, HotkeyPos));
+						const auto SaveColor = CurColor;
+						SetColor(Col);
+						Text(strMenuLine[HotkeyPos]);
+						SetColor(SaveColor);
+						Text(string_view(strMenuLine).substr(HotkeyPos + 1));
+					}
+					else
+					{
+						Text(strMenuLine);
+					}
+				}
 
 				// сделаем добавочку для NO_BOX
 				{
@@ -2346,13 +2355,13 @@ void VMenu::ShowMenu(bool IsParent)
 
 				SetColor(Colors[(Items[I].Flags&LIF_DISABLE)?VMenuColorArrowsDisabled:(Items[I].Flags&LIF_SELECTED?VMenuColorArrowsSelect:VMenuColorArrows)]);
 
-				if (/*BoxType!=NO_BOX && */Items[I].ShowPos > 0)
+				if (Items[I].ShowPos)
 				{
 					GotoXY(m_Where.left + (m_BoxType == NO_BOX? 0 : 1) + 1, Y);
 					BoxText(L'\xab'); // '<<'
 				}
 
-				if (strMItemPtrLen > MaxLineWidth)
+				if (ShowRightScroller)
 				{
 					GotoXY(static_cast<int>(m_Where.left + (m_BoxType == NO_BOX? 0 : 1) + 2 + MaxLineWidth), Y);
 					BoxText(L'\xbb'); // '>>'
@@ -2423,98 +2432,74 @@ wchar_t VMenu::GetHighlights(const MenuItemEx* const Item) const
 	if (!Item)
 		return 0;
 
-	if (Item->AmpPos != -1)
-		return Item->Name[Item->AmpPos];
+	if (Item->AutoHotkey)
+		return Item->AutoHotkey;
 
-	if (!CheckFlags(VMENU_SHOWAMPERSAND))
-	{
-		const auto AmpPos = Item->Name.find(L'&');
-		if (AmpPos != string::npos && AmpPos + 1 != Item->Name.size())
-		return Item->Name[AmpPos + 1];
-	}
+	if (CheckFlags(VMENU_SHOWAMPERSAND))
+		return 0;
 
-	return 0;
+	wchar_t Ch;
+	return HiTextHotkey(Item->Name, Ch)? Ch : 0;
 }
 
-void VMenu::AssignHighlights(int Reverse)
+void VMenu::AssignHighlights(bool Reverse)
 {
 	static_assert(sizeof(wchar_t) == 2, "512 MB for a bitset is too much, rewrite it.");
 	std::bitset<std::numeric_limits<wchar_t>::max() + 1> Used;
 
-	/* $ 02.12.2001 KM
-	   + Поелику VMENU_SHOWAMPERSAND сбрасывается для корректной
-	     работы ShowMenu сделаем сохранение энтого флага, в противном
-	     случае если в диалоге использовался DI_LISTBOX без флага
-	     DIF_LISTNOAMPERSAND, то амперсанды отображались в списке
-	     только один раз до следующего ShowMenu.
-	*/
-	if (CheckFlags(VMENU_SHOWAMPERSAND))
-		VMOldFlags.Set(VMENU_SHOWAMPERSAND);
-
-	if (VMOldFlags.Check(VMENU_SHOWAMPERSAND))
-		SetMenuFlags(VMENU_SHOWAMPERSAND);
-
-	int I;
 	const auto Delta = Reverse? -1 : 1;
 
-	// проверка заданных хоткеев
-	for (I = Reverse ? static_cast<int>(Items.size()-1) : 0; I>=0 && I<static_cast<int>(Items.size()); I+=Delta)
+	const auto RegisterHotkey = [&Used](wchar_t Hotkey)
 	{
-		wchar_t Ch = 0;
-		const auto ShowPos = HiFindRealPos(Items[I].Name, Items[I].ShowPos, CheckFlags(VMENU_SHOWAMPERSAND));
-		Items[I].AmpPos = -1;
-		// TODO: проверка на LIF_HIDDEN
-		size_t AmpPos = -1;
-		if (!CheckFlags(VMENU_SHOWAMPERSAND))
-		{
-			AmpPos = Items[I].Name.find(L'&', ShowPos);
-			if (AmpPos != string::npos && AmpPos + 1 != Items[I].Name.size())
-				Ch = Items[I].Name[AmpPos + 1];
-		}
+		const auto OtherHotkey = KeyToKeyLayout(Hotkey);
+		Used[upper(OtherHotkey)] = true;
+		Used[lower(OtherHotkey)] = true;
+		Used[upper(Hotkey)] = true;
+		Used[lower(Hotkey)] = true;
+	};
 
-		if (Ch && !Used[upper(Ch)] && !Used[lower(Ch)])
+	const auto ShowAmpersand = CheckFlags(VMENU_SHOWAMPERSAND);
+	// проверка заданных хоткеев
+	for (int I = Reverse? static_cast<int>(Items.size() - 1) : 0; I >= 0 && I < static_cast<int>(Items.size()); I += Delta)
+	{
+		wchar_t Hotkey{};
+		size_t HotkeyVisualPos{};
+		// TODO: проверка на LIF_HIDDEN
+		if (!ShowAmpersand && HiTextHotkey(Items[I].Name, Hotkey, &HotkeyVisualPos) && !Used[upper(Hotkey)] && !Used[lower(Hotkey)])
 		{
-			const auto ChKey = KeyToKeyLayout(Ch);
-			Used[upper(ChKey)] = true;
-			Used[lower(ChKey)] = true;
-			Used[upper(Ch)] = true;
-			Used[lower(Ch)] = true;
-			Items[I].AmpPos = static_cast<short>(AmpPos + 1 + ShowPos);
+			RegisterHotkey(Hotkey);
+			Items[I].AutoHotkey = Hotkey;
+			Items[I].AutoHotkeyPos = HotkeyVisualPos;
 		}
 	}
 
 	// TODO:  ЭТОТ цикл нужно уточнить - возможно вылезут артефакты (хотя не уверен)
-	for (I = Reverse ? static_cast<int>(Items.size()-1) : 0; I>=0 && I<static_cast<int>(Items.size()); I+=Delta)
+	for (int I = Reverse? static_cast<int>(Items.size() - 1) : 0; I >= 0 && I < static_cast<int>(Items.size()); I += Delta)
 	{
-		const auto ShowPos = HiFindRealPos(Items[I].Name, Items[I].ShowPos, CheckFlags(VMENU_SHOWAMPERSAND));
-		const auto Name = string_view(Items[I].Name).substr(ShowPos);
+		size_t HotkeyVisualPos;
+		auto MenuItemForDisplay = HiText2Str(Items[I].Name, &HotkeyVisualPos);
+		if (!ShowAmpersand && HotkeyVisualPos != string::npos)
+			continue;
 
-		if (!contains(Name, L'&') || CheckFlags(VMENU_SHOWAMPERSAND))
+		MenuItemForDisplay.erase(0, Items[I].ShowPos);
+
+		// TODO: проверка на LIF_HIDDEN
+		for (const auto& Ch: MenuItemForDisplay)
 		{
-			// TODO: проверка на LIF_HIDDEN
-			for (auto It = Name.cbegin(); It != Name.cend(); ++It)
+			if ((Ch == L'&' || is_alpha(Ch) || std::iswdigit(Ch)) && !Used[upper(Ch)] && !Used[lower(Ch)])
 			{
-				const auto Ch = *It;
-
-				if ((Ch == L'&' || is_alpha(Ch) || std::iswdigit(Ch)) && !Used[upper(Ch)] && !Used[lower(Ch)])
-				{
-					const wchar_t ChKey=KeyToKeyLayout(Ch);
-					Used[upper(ChKey)] = true;
-					Used[lower(ChKey)] = true;
-					Used[upper(Ch)] = true;
-					Used[lower(Ch)] = true;
-					Items[I].AmpPos = It - Name.cbegin() + ShowPos;
-					break;
-				}
+				RegisterHotkey(Ch);
+				Items[I].AutoHotkey = Ch;
+				Items[I].AutoHotkeyPos = &Ch - MenuItemForDisplay.data();
+				break;
 			}
 		}
 	}
 
-	SetMenuFlags(VMENU_AUTOHIGHLIGHT | (Reverse ? VMENU_REVERSEHIGHLIGHT : VMENU_NONE));
-	ClearFlags(VMENU_SHOWAMPERSAND);
+	SetMenuFlags(VMENU_AUTOHIGHLIGHT | (Reverse? VMENU_REVERSEHIGHLIGHT : VMENU_NONE));
 }
 
-bool VMenu::CheckKeyHiOrAcc(DWORD Key, int Type, int Translate,bool ChangePos, int& NewPos)
+bool VMenu::CheckKeyHiOrAcc(DWORD Key, int Type, bool Translate, bool ChangePos, int& NewPos)
 {
 	//не забудем сбросить EndLoop для листбокса, иначе не будут работать хоткеи в активном списке
 	if (CheckFlags(VMENU_LISTBOX))
@@ -2523,7 +2508,7 @@ bool VMenu::CheckKeyHiOrAcc(DWORD Key, int Type, int Translate,bool ChangePos, i
 	FOR_CONST_RANGE(Items, Iterator)
 	{
 		auto& CurItem = *Iterator;
-		if (ItemCanHaveFocus(CurItem.Flags) && ((!Type && CurItem.AccelKey && Key == CurItem.AccelKey) || (Type && (CurItem.AmpPos>=0 || !CheckFlags(VMENU_SHOWAMPERSAND)) && IsKeyHighlighted(CurItem.Name,Key,Translate,CurItem.AmpPos))))
+		if (ItemCanHaveFocus(CurItem.Flags) && ((!Type && CurItem.AccelKey && Key == CurItem.AccelKey) || (Type && (CurItem.AutoHotkey || !CheckFlags(VMENU_SHOWAMPERSAND)) && IsKeyHighlighted(CurItem.Name, Key, Translate, CurItem.AutoHotkey))))
 		{
 			NewPos=static_cast<int>(Iterator - Items.cbegin());
 			if (ChangePos)

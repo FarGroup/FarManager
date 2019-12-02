@@ -199,7 +199,7 @@ static bool SelectLanguage(bool HelpLanguage, string& Dest)
 		}
 	}
 
-	LangMenu->AssignHighlights(FALSE);
+	LangMenu->AssignHighlights();
 	LangMenu->Run();
 
 	if (LangMenu->GetExitCode()<0)

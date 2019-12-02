@@ -52,6 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "delete.hpp"
 #include "message.hpp"
 #include "eol.hpp"
+#include "interf.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -374,16 +375,7 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 {
 	const auto append_with_escape = [EscapeAmpersands = SubstData.EscapeAmpersands](string& Destination, string_view const Str)
 	{
-		if (EscapeAmpersands && contains(Str, L"&"sv))
-		{
-			string Escaped(Str);
-			replace(Escaped, L"&"sv, L"&&"sv);
-			append(Destination, Escaped);
-		}
-		else
-		{
-			append(Destination, Str);
-		}
+		append(Destination, EscapeAmpersands && contains(Str, L"&"sv)? escape_ampersands(Str) : Str);
 	};
 
 	if (const auto Tail = tokens::skip(CurStr, tokens::passive_panel))

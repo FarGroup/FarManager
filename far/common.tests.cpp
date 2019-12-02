@@ -729,6 +729,26 @@ TEST_CASE("view.enumerate")
 
 //----------------------------------------------------------------------------
 
+#include "common/view/reverse.hpp"
+
+TEST_CASE("view.reverse")
+{
+	const std::array Data = { 1, 2, 3, 4, 5 };
+	const std::array Reversed = { 5, 4, 3, 2, 1 };
+
+	auto Iterator = std::cbegin(Reversed);
+
+	for (const auto& i: reverse(Data))
+	{
+		REQUIRE(i == *Iterator);
+		++Iterator;
+	}
+
+	REQUIRE(Iterator == std::cend(Reversed));
+}
+
+//----------------------------------------------------------------------------
+
 #include "common/view/select.hpp"
 
 TEST_CASE("view.select")
@@ -737,7 +757,7 @@ TEST_CASE("view.select")
 	{
 		auto Iterator = std::cbegin(Data);
 
-		for (const auto i: select(Data, Selector))
+		for (const auto& i: select(Data, Selector))
 		{
 			REQUIRE(i == Selector(*Iterator));
 			++Iterator;

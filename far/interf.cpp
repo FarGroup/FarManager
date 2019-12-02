@@ -764,50 +764,120 @@ void VText(string_view const Str)
 	}
 }
 
-static void HiTextBase(const string& Str, function_ref<void(const string&)> const TextHandler, function_ref<void(wchar_t)> const HilightHandler)
+static void HiTextBase(string_view const Str, function_ref<void(string_view, bool)> const TextHandler, function_ref<void(wchar_t)> const HilightHandler)
 {
-	const auto AmpBegin = Str.find(L'&');
-	if (AmpBegin != string::npos)
+	bool Unescape = false;
+	for (size_t Offset = 0;;)
 	{
+		const auto AmpBegin = Str.find(L'&', Offset);
+		if (AmpBegin == string::npos)
+		{
+			TextHandler(Str, Offset != 0);
+			return;
+		}
+
 		/*
 		&&      = '&'
 		&&&     = '&'
-		^H
+		           ^H
 		&&&&    = '&&'
 		&&&&&   = '&&'
-		^H
+		           ^H
 		&&&&&&  = '&&&'
+		&&&&&&& = '&&&'
+		           ^H
 		*/
 
 		auto AmpEnd = Str.find_first_not_of(L'&', AmpBegin);
 		if (AmpEnd == string::npos)
 			AmpEnd = Str.size();
 
-		if ((AmpEnd - AmpBegin) & 1) // нечет?
+		if (!((AmpEnd - AmpBegin) & 1))
 		{
-			TextHandler(Str.substr(0, AmpBegin));
+			Offset = AmpEnd;
+			Unescape = true;
+			continue;
+		}
 
-			if (AmpBegin + 1 != Str.size())
+		if (AmpBegin)
+		{
+			TextHandler(Str.substr(0, AmpBegin), Unescape);
+			Unescape = false;
+		}
+
+		if (AmpBegin + 1 == Str.size())
+			return;
+
+		HilightHandler(Str[AmpBegin + 1]);
+
+		if (AmpBegin + 2 == Str.size())
+			return;
+
+		const auto HiAmpCollapse = Str[AmpBegin + 1] == L'&' && Str[AmpBegin + 2] == L'&';
+		const auto Tail = Str.substr(AmpBegin + (HiAmpCollapse ? 3 : 2));
+		TextHandler(Tail, Tail.find(L'&') != Tail.npos);
+
+		return;
+	}
+}
+
+
+static size_t unescape(string_view const Str, function_ref<bool(wchar_t)> const PutChar)
+{
+	bool LastAmpersand = false;
+
+	for (const auto& i: Str)
+	{
+		if (i == L'&')
+		{
+			if (!LastAmpersand)
 			{
-				HilightHandler(Str[AmpBegin + 1]);
+				LastAmpersand = true;
+			}
+			else
+			{
+				if (!PutChar(i))
+					return &i - Str.data();
 
-				string RightPart = Str.substr(AmpBegin + 1);
-				replace(RightPart, L"&&"sv, L"&"sv);
-				TextHandler(RightPart.substr(1));
+				LastAmpersand = false;
 			}
 		}
 		else
 		{
-			string StrCopy(Str);
-			replace(StrCopy, L"&&"sv, L"&"sv);
-			TextHandler(StrCopy);
+			if (!PutChar(i))
+				return &i - Str.data();
+
+			LastAmpersand = false;
 		}
 	}
-	else
-	{
-		TextHandler(Str);
-	}
+
+	return Str.size();
 }
+
+class text_unescape
+{
+public:
+	explicit text_unescape(function_ref<void(string_view)> const PutString, function_ref<bool(wchar_t)> const PutChar, function_ref<void()> const Commit):
+		m_PutString(PutString),
+		m_PutChar(PutChar),
+		m_Commit(Commit)
+	{
+	}
+
+	void operator()(string_view const Str, bool const Unescape) const
+	{
+		if (!Unescape)
+			return m_PutString(Str);
+
+		unescape(Str, m_PutChar);
+		m_Commit();
+	}
+
+private:
+	function_ref<void(string_view)> m_PutString;
+	function_ref<bool(wchar_t)> m_PutChar;
+	function_ref<void()> m_Commit;
+};
 
 void HiText(const string& Str,const FarColor& HiColor,int isVertText)
 {
@@ -815,7 +885,11 @@ void HiText(const string& Str,const FarColor& HiColor,int isVertText)
 	const text_func fText = Text, fVText = VText; //BUGBUG
 	const auto TextFunc  = isVertText ? fVText : fText;
 
-	HiTextBase(Str, [&TextFunc](const string& s){ TextFunc(s); }, [&TextFunc, &HiColor](wchar_t c)
+	string Buffer;
+	const auto PutChar = [&](wchar_t const Ch){ Buffer.push_back(Ch); return true; };
+	const auto Commit = [&]{ TextFunc(Buffer); Buffer.clear(); };
+
+	HiTextBase(Str, text_unescape(TextFunc, PutChar, Commit), [&TextFunc, &HiColor](wchar_t c)
 	{
 		const auto SaveColor = CurColor;
 		SetColor(HiColor);
@@ -824,35 +898,64 @@ void HiText(const string& Str,const FarColor& HiColor,int isVertText)
 	});
 }
 
-string HiText2Str(const string& Str)
+string HiText2Str(string_view const Str, size_t* HotkeyVisualPos)
 {
 	string Result;
-	HiTextBase(Str, [&Result](const string& s){ Result += s; }, [&Result](wchar_t c) { Result += c; });
+
+	if (HotkeyVisualPos)
+		*HotkeyVisualPos = string::npos;
+
+	const auto PutString = [&](string_view const s){ Result += s; };
+	const auto PutChar = [&](wchar_t const Ch){ Result.push_back(Ch); return true; };
+
+	HiTextBase(Str, text_unescape(PutString, PutChar, []{}), [&](wchar_t const Ch)
+	{
+		if (HotkeyVisualPos)
+			*HotkeyVisualPos = Result.size();
+		(void)PutChar(Ch);
+	});
+
+	return Result;
+}
+
+bool HiTextHotkey(string_view Str, wchar_t& Hotkey, size_t* HotkeyVisualPos)
+{
+	bool Result = false;
+
+	size_t Size{};
+
+	const auto PutString = [&](string_view const s) { Size += s.size(); };
+	const auto PutChar = [&](wchar_t const Ch) { ++Size; return true; };
+
+	HiTextBase(Str, text_unescape(PutString, PutChar, []{}), [&](wchar_t const Ch)
+	{
+		Hotkey = Ch;
+		if (HotkeyVisualPos)
+			*HotkeyVisualPos = Size;
+		Result = true;
+	});
+
 	return Result;
 }
 
 // removes single '&', turns '&&' into '&'
 void RemoveHighlights(string& Str)
 {
-	const auto Target = L'&';
-	auto pos = Str.find(Target);
-	if (pos != string::npos)
-	{
-		auto pos1 = pos;
-		const auto len = Str.size();
-		while (pos < len)
-		{
-			++pos;
-			if (pos < len && Str[pos] == Target)
-			{
-				Str[pos1++] = Target;
-				++pos;
-			}
-			while (pos < len && Str[pos] != Target)
-				Str[pos1++] = Str[pos++];
-		}
-		Str.resize(pos1);
-	}
+	auto Iterator = Str.begin();
+	unescape(Str, [&](wchar_t Ch){ *Iterator = Ch; ++Iterator; return true; });
+	Str.resize(Iterator - Str.begin());
+}
+
+void inplace::escape_ampersands(string& Str)
+{
+	replace(Str, L"&"sv, L"&&"sv);
+}
+
+string escape_ampersands(string_view const Str)
+{
+	string Copy(Str);
+	inplace::escape_ampersands(Copy);
+	return Copy;
 }
 
 void SetScreen(rectangle const Where, wchar_t Ch, const FarColor& Color)
@@ -1122,158 +1225,22 @@ string make_progressbar(size_t Size, size_t Percent, bool ShowPercent, bool Prop
 
 size_t HiStrlen(string_view const Str)
 {
-	/*
-			&&      = '&'
-			&&&     = '&'
-			           ^H
-			&&&&    = '&&'
-			&&&&&   = '&&'
-			           ^H
-			&&&&&&  = '&&&'
-	*/
-
-	size_t Length = 0;
-	bool Hi = false;
-
-	for (size_t i = 0, size = Str.size(); i != size; ++i)
-	{
-		if (Str[i] == L'&')
-		{
-			auto AmpEnd = Str.find_first_not_of(L'&', i);
-			if (AmpEnd == string::npos)
-				AmpEnd = Str.size();
-			const auto Count = AmpEnd - i;
-			i = AmpEnd - 1;
-
-			if (Count & 1) //нечёт?
-			{
-				if (Hi)
-					++Length;
-				else
-					Hi = true;
-			}
-
-			Length+=Count/2;
-		}
-		else
-		{
-			++Length;
-		}
-	}
-
-	return Length;
-
+	size_t Result = 0;
+	unescape(Str, [&](wchar_t){ ++Result; return true; });
+	return Result;
 }
 
-int HiFindRealPos(const string& Str, int Pos, bool ShowAmp)
+size_t HiFindRealPos(string_view const Str, size_t const Pos)
 {
-	/*
-			&&      = '&'
-			&&&     = '&'
-			           ^H
-			&&&&    = '&&'
-			&&&&&   = '&&'
-			           ^H
-			&&&&&&  = '&&&'
-	*/
-
-	if (ShowAmp)
+	size_t Unescaped = 0;
+	return unescape(Str, [&](wchar_t)
 	{
-		return Pos;
-	}
+		if (Unescaped == Pos)
+			return false;
 
-	int RealPos = 0;
-	int VisPos = 0;
-
-	for (auto i = Str.cbegin(); i != Str.cend() && VisPos != Pos; ++i)
-	{
-		if (*i == L'&')
-		{
-			++i;
-			++RealPos;
-
-			if (i == Str.cend())
-				break;
-
-			if (*i == L'&')
-			{
-				const auto Next1 = std::next(i);
-				if (Next1 != Str.cend() && *Next1 == L'&')
-				{
-					const auto Next2 = std::next(Next1);
-					if (Next2 == Str.cend() || *Next2 != L'&')
-					{
-						++i;
-						++RealPos;
-					}
-				}
-
-				if (i == Str.cend())
-					break;
-			}
-		}
-
-		++VisPos;
-		++RealPos;
-	}
-
-	return RealPos;
-}
-
-int HiFindNextVisualPos(const string& Str, int Pos, int Direct)
-{
-	/*
-			&&      = '&'
-			&&&     = '&'
-                       ^H
-			&&&&    = '&&'
-			&&&&&   = '&&'
-                       ^H
-			&&&&&&  = '&&&'
-	*/
-
-	if (Direct < 0)
-	{
-		if (!Pos || Pos == 1)
-			return 0;
-
-		if (Str[Pos-1] != L'&')
-		{
-			if (Str[Pos-2] == L'&')
-			{
-				if (Pos-3 >= 0 && Str[Pos-3] == L'&')
-					return Pos-1;
-
-				return Pos-2;
-			}
-
-			return Pos-1;
-		}
-		else
-		{
-			if (Pos-3 >= 0 && Str[Pos-3] == L'&')
-				return Pos-3;
-
-			return Pos-2;
-		}
-	}
-	else
-	{
-		if (!Str[Pos])
-			return Pos+1;
-
-		if (Str[Pos] == L'&')
-		{
-			if (Str[Pos+1] == L'&' && Str[Pos+2] == L'&')
-				return Pos+3;
-
-			return Pos+2;
-		}
-		else
-		{
-			return Pos+1;
-		}
-	}
+		++Unescaped;
+		return true;
+	});
 }
 
 bool IsConsoleFullscreen()
@@ -1387,37 +1354,59 @@ bool ConsoleYesNo(string_view const Message, bool const Default)
 
 #include "testing.hpp"
 
-TEST_CASE("interf.histrlen")
+TEST_CASE("interf.highlight")
 {
+	const auto np = string::npos;
+
 	static const struct
 	{
 		string_view Input;
-		size_t Size;
+		string_view Result;
+		wchar_t Hotkey;
+		size_t HotkeyVisualPos;
+		struct
+		{
+			size_t PosVisual;
+			size_t PosReal;
+		};
 	}
 	Tests[]
 	{
-		{ L""sv,         0 },
-		{ L"1"sv,        1 },
-		{ L"&"sv,        0 },
-		{ L"1&2"sv,      2 },
-		{ L"&1"sv,       1 },
-		{ L"1&"sv,       1 },
-		{ L"&1&"sv,      2 },
-		{ L"&1&2"sv,     3 },
-		{ L"&&"sv,       1 },
-		{ L"1&&"sv,      2 },
-		{ L"&&1"sv,      2 },
-		{ L"1&&2"sv,     3 },
-		{ L"&&&"sv,      1 },
-		{ L"&&&1"sv,     2 },
-		{ L"1&&&"sv,     2 },
-		{ L"1&&&2"sv,    3 },
-		{ L"&1&&&2"sv,   4 },
+		{ L""sv,             L""sv,          0,     np, {  0,  0 }, },
+		{ L"1"sv,            L"1"sv,         0,     np, {  0,  0 }, },
+		{ L"&"sv,            L""sv,          0,     np, {  0,  1 }, },
+		{ L"1&2"sv,          L"12"sv,        L'2',   1, {  1,  2 }, },
+		{ L"&1"sv,           L"1"sv,         L'1',   0, {  0,  1 }, },
+		{ L"1&"sv,           L"1"sv,         0,     np, {  0,  0 }, },
+		{ L"&1&"sv,          L"1"sv,         L'1',   0, {  0,  1 }, },
+		{ L"&1&2"sv,         L"12"sv,        L'1',   0, {  1,  3 }, },
+		{ L"&&"sv,           L"&"sv,         0,     np, {  0,  1 }, },
+		{ L"1&&"sv,          L"1&"sv,        0,     np, {  1,  2 }, },
+		{ L"&&1"sv,          L"&1"sv,        0,     np, {  1,  2 }, },
+		{ L"1&&2"sv,         L"1&2"sv,       0,     np, {  2,  3 }, },
+		{ L"&&&"sv,          L"&"sv,         L'&',   0, {  0,  1 }, },
+		{ L"&&&1"sv,         L"&1"sv,        L'&',   0, {  1,  3 }, },
+		{ L"1&&&"sv,         L"1&"sv,        L'&',   1, {  0,  0 }, },
+		{ L"1&&&2"sv,        L"1&2"sv,       L'&',   1, {  0,  0 }, },
+		{ L"&1&&&2"sv,       L"1&2"sv,       L'1',   0, {  0,  1 }, },
+		{ L"&1&2&3&"sv,      L"123"sv,       L'1',   0, {  2,  5 }, },
 	};
 
 	for (const auto& i: Tests)
 	{
-		REQUIRE(HiStrlen(i.Input) == i.Size);
+		size_t HotkeyPos{};
+		REQUIRE(HiText2Str(i.Input, &HotkeyPos) == i.Result);
+		REQUIRE(HotkeyPos == i.HotkeyVisualPos);
+
+		wchar_t Hotkey{};
+		HotkeyPos = np;
+		REQUIRE(HiTextHotkey(i.Input, Hotkey, &HotkeyPos) == (i.Hotkey != 0));
+		REQUIRE(Hotkey == i.Hotkey);
+		REQUIRE(HotkeyPos == i.HotkeyVisualPos);
+
+		REQUIRE(HiStrlen(i.Input) == i.Result.size());
+
+		REQUIRE(HiFindRealPos(i.Input, i.PosVisual) == i.PosReal);
 	}
 }
 #endif

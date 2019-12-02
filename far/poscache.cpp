@@ -99,7 +99,7 @@ bool FilePositionCache::GetPosition(const string& Name, EditorPosCache& poscache
 	unsigned long long id = 0;
 
 	if (Global->Opt->EdOpt.SavePos || Global->Opt->EdOpt.SaveShortPos)
-		id = ConfigProvider().HistoryCfg()->GetEditorPos(strFullName, &poscache.cur.Line, &poscache.cur.LinePos, &poscache.cur.ScreenLine, &poscache.cur.LeftPos, &poscache.CodePage);
+		id = ConfigProvider().HistoryCfg()->GetEditorPos(strFullName, poscache.cur.Line, poscache.cur.LinePos, poscache.cur.ScreenLine, poscache.cur.LeftPos, poscache.CodePage);
 
 	if (!Global->Opt->EdOpt.SavePos)
 	{
@@ -113,7 +113,7 @@ bool FilePositionCache::GetPosition(const string& Name, EditorPosCache& poscache
 
 		for (const auto& [i, index]: enumerate(poscache.bm))
 		{
-			ConfigProvider().HistoryCfg()->GetEditorBookmark(id, index, &i.Line, &i.LinePos, &i.ScreenLine, &i.LeftPos);
+			ConfigProvider().HistoryCfg()->GetEditorBookmark(id, index, i.Line, i.LinePos, i.ScreenLine, i.LeftPos);
 		}
 
 		return true;
@@ -165,7 +165,7 @@ bool FilePositionCache::GetPosition(const string& Name, ViewerPosCache& poscache
 	unsigned long long id = 0;
 
 	if (Global->Opt->ViOpt.SavePos || Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SaveWrapMode || Global->Opt->ViOpt.SaveShortPos)
-		id = ConfigProvider().HistoryCfg()->GetViewerPos(strFullName, &poscache.cur.FilePos, &poscache.cur.LeftPos, &poscache.ViewModeAndWrapState, &poscache.CodePage);
+		id = ConfigProvider().HistoryCfg()->GetViewerPos(strFullName, poscache.cur.FilePos, poscache.cur.LeftPos, poscache.ViewModeAndWrapState, poscache.CodePage);
 
 	if (!Global->Opt->ViOpt.SavePos && !Global->Opt->ViOpt.SaveCodepage && !Global->Opt->ViOpt.SaveWrapMode)
 	{
@@ -179,7 +179,7 @@ bool FilePositionCache::GetPosition(const string& Name, ViewerPosCache& poscache
 
 		for (const auto& [i, index]: enumerate(poscache.bm))
 		{
-			ConfigProvider().HistoryCfg()->GetViewerBookmark(id, index, &i.FilePos, &i.LeftPos);
+			ConfigProvider().HistoryCfg()->GetViewerBookmark(id, index, i.FilePos, i.LeftPos);
 		}
 
 		return true;

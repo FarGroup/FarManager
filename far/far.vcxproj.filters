@@ -526,6 +526,9 @@
     <ClInclude Include="common\view\enumerate.hpp">
       <Filter>Header Files\common\view</Filter>
     </ClInclude>
+    <ClInclude Include="common\view\reverse.hpp">
+      <Filter>Header Files\common\view</Filter>
+    </ClInclude>
     <ClInclude Include="common\view\select.hpp">
       <Filter>Header Files\common\view</Filter>
     </ClInclude>

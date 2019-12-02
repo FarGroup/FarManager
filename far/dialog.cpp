@@ -129,30 +129,15 @@ static bool IsEmulatedEditorLine(const DialogItemEx& Item)
 	return Item.Type == DI_EDIT && Item.Flags & DIF_EDITOR;
 }
 
-bool IsKeyHighlighted(string_view Str, int Key, int Translate, int AmpPos)
+bool IsKeyHighlighted(string_view const Str, int const Key, bool const Translate, wchar_t CharKey)
 {
-	if (AmpPos == -1)
+	if (!CharKey)
 	{
-		const auto Pos = Str.find(L'&');
-		if (Pos == Str.npos)
+		if (!HiTextHotkey(Str, CharKey))
 			return false;
-
-		Str = Str.substr(Pos);
-		AmpPos=1;
-	}
-	else
-	{
-		if (static_cast<size_t>(AmpPos) > Str.size())
-			return false;
-
-		Str = Str.substr(AmpPos);
-		AmpPos=0;
-
-		if (Str[AmpPos] == L'&')
-			AmpPos++;
 	}
 
-	const auto UpperStrKey = upper(Str[AmpPos]);
+	const auto UpperStrKey = upper(CharKey);
 
 	if (Key < 0xFFFF)
 	{
@@ -800,7 +785,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 				ListPtr->ChangeFlags(VMENU_NOMERGEBORDER, (ItemFlags& DIF_LISTNOMERGEBORDER) != 0);
 
 				if (ItemFlags&DIF_LISTAUTOHIGHLIGHT)
-					ListPtr->AssignHighlights(FALSE);
+					ListPtr->AssignHighlights();
 
 				ListPtr->SetDialogStyle(DialogMode.Check(DMODE_WARNINGSTYLE));
 				ListPtr->SetPosition(
@@ -861,7 +846,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 					ListPtr->ChangeFlags(VMENU_AUTOHIGHLIGHT, (ItemFlags&DIF_LISTAUTOHIGHLIGHT)!=0);
 
 					if (ItemFlags&DIF_LISTAUTOHIGHLIGHT)
-						ListPtr->AssignHighlights(FALSE);
+						ListPtr->AssignHighlights();
 
 					if (Items[I].ListItems && !DialogMode.Check(DMODE_OBJECTS_CREATED))
 						ListPtr->AddItem(Items[I].ListItems);
@@ -4070,12 +4055,9 @@ int Dialog::CheckHighlights(WORD CheckSymbol,int StartPos)
 
 		if ((!IsEdit(Type) || (Type == DI_COMBOBOX && (Flags&DIF_DROPDOWNLIST))) && !(Flags & (DIF_SHOWAMPERSAND|DIF_DISABLE|DIF_HIDDEN)))
 		{
-			const auto ChPos = Items[I].strData.find(L'&');
-
-			if (ChPos != string::npos)
+			wchar_t Ch;
+			if (HiTextHotkey(Items[I].strData, Ch))
 			{
-				const auto Ch = Items[I].strData[ChPos + 1];
-
 				if (Ch && upper(CheckSymbol) == upper(Ch))
 					return static_cast<int>(I);
 			}
@@ -4091,7 +4073,7 @@ int Dialog::CheckHighlights(WORD CheckSymbol,int StartPos)
 /* Private:
    Если жмакнули Alt-???
 */
-bool Dialog::ProcessHighlighting(int Key,size_t FocusPos,int Translate)
+bool Dialog::ProcessHighlighting(int Key, size_t FocusPos, bool Translate)
 {
 	INPUT_RECORD rec;
 	if(!KeyToInputRecord(Key,&rec))

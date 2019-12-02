@@ -3,6 +3,19 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 02.12.2019 23:24:22 +0000 - build 5514
+
+1. Wild things in autofilters:
+   - the extensions list was read from the FS instead of the panel, causing slowness in network folders
+   - with a lucky stars arrangement it was posible to get untoggleable filters.
+   A lot of changes, strange things could happen.
+
+2. Wild things in ampersand shortcuts handling: keys didn't work sometimes, menu scrolling was incorrect, copypaste and so on.
+   A lot of changes, strange things could happen.
+
+3. More tolerant loading of filters, highlight, panel modes - not until the first failure, but as much as possible.
+   A lot of changes, strange things could happen.
+
 drkns 26.11.2019 21:09:23 +0000 - build 5513
 
 1. Copying files from panels to clipboard reassigned to Ctrl+Shift+C. Ctrl+C goes into the command line as before.

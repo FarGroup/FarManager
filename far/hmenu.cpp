@@ -474,14 +474,8 @@ void HMenu::ResizeConsole()
 
 wchar_t HMenu::GetHighlights(const HMenuData& Item)
 {
-	const auto Pos = Item.Name.find(L'&');
-	if (Pos == Item.Name.npos)
-		return 0;
-
-	if (Pos + 1 == Item.Name.size())
-		return 0;
-
-	return Item.Name[Pos + 1];
+	wchar_t Ch;
+	return HiTextHotkey(Item.Name, Ch)? Ch : 0;
 }
 
 size_t HMenu::CheckHighlights(WORD CheckSymbol, int StartPos) const

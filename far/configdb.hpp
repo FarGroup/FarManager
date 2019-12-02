@@ -131,19 +131,21 @@ public:
 	class key
 	{
 	public:
+		key() = default;
 		explicit key(unsigned long long Key): m_Key(Key) {}
 
 		unsigned long long get() const { return m_Key; }
 		explicit operator bool() const noexcept { return m_Key != 0; }
 
 	private:
-		unsigned long long m_Key;
+		unsigned long long m_Key{};
 	};
 
 	static inline const key root_key{0};
 
 	virtual key CreateKey(const key& Root, string_view Name, const string* Description = nullptr) = 0;
 	virtual key FindByName(const key& Root, string_view Name) const = 0;
+	virtual bool GetKeyName(const key& Root, const key& Key, string& Name) const = 0;
 	virtual void SetKeyDescription(const key& Root, string_view Description) = 0;
 
 	virtual void SetValue(const key& Root, string_view Name, string_view Value) = 0;
@@ -180,12 +182,12 @@ public:
 
 	virtual const string& GetName() const = 0;
 
-	auto KeysEnumerator(key const Root) const
+	auto KeysEnumerator(key const Root, string_view const Pattern = {}) const
 	{
-		using value_type = string;
-		return make_inline_enumerator<value_type>([this, Root](const bool Reset, value_type& Value)
+		using value_type = key;
+		return make_inline_enumerator<value_type>([this, Root, Pattern = string{Pattern}](const bool Reset, value_type& Value)
 		{
-			return EnumKeys(Root, Reset, Value);
+			return EnumKeys(Root, Reset, Value, Pattern);
 		},
 		[this]
 		{
@@ -193,12 +195,12 @@ public:
 		});
 	}
 
-	auto ValuesEnumerator(key const Root) const
+	auto ValuesEnumerator(key const Root, string_view const Pattern = {}) const
 	{
 		using value_type = std::pair<string, int>;
-		return make_inline_enumerator<value_type>([this, Root](const bool Reset, value_type& Value)
+		return make_inline_enumerator<value_type>([this, Root, Pattern = string{Pattern}](const bool Reset, value_type& Value)
 		{
-			return EnumValues(Root, Reset, Value.first, Value.second);
+			return EnumValues(Root, Reset, Value.first, Value.second, Pattern);
 		},
 		[this]
 		{
@@ -212,9 +214,9 @@ protected:
 	HierarchicalConfig() = default;
 
 private:
-	virtual bool EnumKeys(const key& Root, bool Reset, string& strName) const = 0;
+	virtual bool EnumKeys(const key& Root, bool Reset, key& Key, string_view Pattern = {}) const = 0;
 	virtual void CloseEnumKeys() const = 0;
-	virtual bool EnumValues(const key& Root, bool Reset, string& strName, int& Type) const = 0;
+	virtual bool EnumValues(const key& Root, bool Reset, string& Name, int& Type, string_view Pattern = {}) const = 0;
 	virtual void CloseEnumValues() const = 0;
 };
 
@@ -370,13 +372,13 @@ public:
 
 	//view,edit file positions and bookmarks history
 	virtual unsigned long long SetEditorPos(string_view Name, int Line, int LinePos, int ScreenLine, int LeftPos, uintptr_t CodePage) = 0;
-	virtual unsigned long long GetEditorPos(string_view Name, int *Line, int *LinePos, int *ScreenLine, int *LeftPos, uintptr_t *CodePage) = 0;
+	virtual unsigned long long GetEditorPos(string_view Name, int& Line, int& LinePos, int& ScreenLine, int& LeftPos, uintptr_t& CodePage) = 0;
 	virtual void SetEditorBookmark(unsigned long long id, size_t i, int Line, int LinePos, int ScreenLine, int LeftPos) = 0;
-	virtual bool GetEditorBookmark(unsigned long long id, size_t i, int *Line, int *LinePos, int *ScreenLine, int *LeftPos) = 0;
-	virtual unsigned long long SetViewerPos(string_view Name, long long FilePos, long long LeftPos, int Hex_Wrap, uintptr_t CodePage) = 0;
-	virtual unsigned long long GetViewerPos(string_view Name, long long *FilePos, long long *LeftPos, int *Hex, uintptr_t *CodePage) = 0;
+	virtual bool GetEditorBookmark(unsigned long long id, size_t i, int& Line, int& LinePos, int& ScreenLine, int& LeftPos) = 0;
+	virtual unsigned long long SetViewerPos(string_view Name, long long FilePos, long long LeftPos, int HexWrap, uintptr_t CodePage) = 0;
+	virtual unsigned long long GetViewerPos(string_view Name, long long& FilePos, long long& LeftPos, int& HexWrap, uintptr_t& CodePage) = 0;
 	virtual void SetViewerBookmark(unsigned long long id, size_t i, long long FilePos, long long LeftPos) = 0;
-	virtual bool GetViewerBookmark(unsigned long long id, size_t i, long long *FilePos, long long *LeftPos) = 0;
+	virtual bool GetViewerBookmark(unsigned long long id, size_t i, long long& FilePos, long long& LeftPos) = 0;
 	virtual void DeleteOldPositions(int DaysToKeep, int MinimumEntries) = 0;
 
 	struct enum_data

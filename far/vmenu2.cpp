@@ -441,9 +441,9 @@ void VMenu2::SetMenuFlags(DWORD Flags)
 	SendMessage(DM_SETDLGITEMSHORT, 0, &fdi);
 }
 
-void VMenu2::AssignHighlights(int Reverse)
+void VMenu2::AssignHighlights(bool Reverse)
 {
-	SetMenuFlags(Reverse? VMENU_REVERSEHIGHLIGHT | VMENU_AUTOHIGHLIGHT : VMENU_AUTOHIGHLIGHT);
+	SetMenuFlags(VMENU_AUTOHIGHLIGHT | (Reverse? VMENU_REVERSEHIGHLIGHT : VMENU_NONE));
 }
 
 void VMenu2::clear()

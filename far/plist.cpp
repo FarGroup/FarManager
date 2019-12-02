@@ -155,7 +155,7 @@ void ShowProcessList()
 	SCOPE_EXIT{ Active = false; };
 
 	const auto ProcList = VMenu2::create(msg(lng::MProcessListTitle), {}, ScrY - 4);
-	ProcList->SetMenuFlags(VMENU_WRAPMODE);
+	ProcList->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
 	ProcList->SetPosition({ -1, -1, 0, 0 });
 	bool ShowImage = false;
 
@@ -181,7 +181,7 @@ void ShowProcessList()
 	if (!FillProcList())
 		return;
 
-	ProcList->AssignHighlights(FALSE);
+	ProcList->AssignHighlights();
 	ProcList->SetBottomTitle(msg(lng::MProcessListBottom));
 
 	ProcList->Run([&](const Manager::Key& RawKey)

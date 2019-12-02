@@ -248,7 +248,7 @@ history_return_type History::ProcessMenu(string& strStr, GUID* const Guid, strin
 				strRecord += i.Name;
 
 				if (m_TypeHistory != HISTORYTYPE_DIALOG)
-					replace(strRecord, L"&"sv, L"&&"sv);
+					inplace::escape_ampersands(strRecord);
 
 				MenuItemEx MenuItem(strRecord);
 				i.Lock? MenuItem.SetCheck() : MenuItem.ClearCheck();

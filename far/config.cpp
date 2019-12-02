@@ -2527,17 +2527,8 @@ void Options::ReadPanelModes()
 {
 	const auto cfg = ConfigProvider().CreatePanelModesConfig();
 
-	auto root = HierarchicalConfig::root_key;
-
-	const auto ReadMode = [&](auto& i, size_t Index)
+	const auto ReadMode = [&](const HierarchicalConfig::key& Key, PanelViewSettings& i)
 	{
-		const auto Key = cfg->FindByName(root, str(Index));
-
-		if (!Key)
-		{
-			return false;
-		}
-
 		i.Name = cfg->GetValue<string>(Key, ModesNameName);
 		i.Flags = cfg->GetValue<unsigned long long>(Key, ModesFlagsName);
 
@@ -2554,22 +2545,20 @@ void Options::ReadPanelModes()
 			const auto StatusColumnWidths = cfg->GetValue<string>(Key, ModesStatusColumnWidthsName);
 			i.StatusColumns = DeserialiseViewSettings(StatusColumnTitles, StatusColumnWidths);
 		}
-
-		return true;
 	};
 
-	for_each_cnt(m_ViewSettings.begin(), m_ViewSettings.begin() + predefined_panel_modes_count, ReadMode);
-
-	root = cfg->FindByName(cfg->root_key, CustomModesKeyName);
-
-	if (root)
+	for_each_cnt(m_ViewSettings.begin(), m_ViewSettings.begin() + predefined_panel_modes_count, [&](PanelViewSettings& i, size_t Index)
 	{
-		for (size_t i = 0; ; ++i)
+		if (const auto Key = cfg->FindByName(cfg->root_key, str(Index)))
+			ReadMode(Key, i);
+	});
+
+	if (const auto CustomModesRoot = cfg->FindByName(cfg->root_key, CustomModesKeyName))
+	{
+		for (const auto& Key: cfg->KeysEnumerator(CustomModesRoot))
 		{
 			PanelViewSettings NewSettings;
-			if (!ReadMode(NewSettings, i))
-				break;
-
+			ReadMode(Key, NewSettings);
 			m_ViewSettings.emplace_back(std::move(NewSettings));
 		}
 	}

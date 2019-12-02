@@ -313,9 +313,13 @@ bool PluginSettings::Enum(FarSettingsEnum& Enum)
 
 	const auto& root = m_Keys[Enum.Root];
 
-	for(auto& i: PluginsCfg->KeysEnumerator(root))
 	{
-		NewEnumItem.add(item, std::move(i));
+		string KeyName;
+		for (const auto& Key : PluginsCfg->KeysEnumerator(root))
+		{
+			if (PluginsCfg->GetKeyName(root, Key, KeyName))
+				NewEnumItem.add(item, std::move(KeyName));
+		}
 	}
 
 	for(auto& [Name, Value]: PluginsCfg->ValuesEnumerator(root))

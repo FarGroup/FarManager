@@ -222,10 +222,17 @@ string make_progressbar(size_t Size, size_t Percent, bool ShowPercent, bool Prop
 void fix_coordinates(rectangle& Where);
 
 size_t HiStrlen(string_view Str);
-int HiFindRealPos(const string& Str, int Pos, bool ShowAmp);
-int HiFindNextVisualPos(const string& Str, int Pos, int Direct);
-string HiText2Str(const string& Str);
+size_t HiFindRealPos(string_view Str, size_t Pos);
+string HiText2Str(string_view Str, size_t* HotkeyVisualPos = {});
+bool HiTextHotkey(string_view Str, wchar_t& Hotkey, size_t* HotkeyVisualPos = {});
 void RemoveHighlights(string& Str);
+
+namespace inplace
+{
+	void escape_ampersands(string& Str);
+}
+
+string escape_ampersands(string_view Str);
 
 bool IsConsoleFullscreen();
 bool IsConsoleSizeChanged();

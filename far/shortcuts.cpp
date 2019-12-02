@@ -198,7 +198,7 @@ static string MakeName(const Shortcuts::shortcut& Item)
 
 	if (Item.PluginGuid == FarGuid)
 	{
-		return !Item.Folder.empty()? os::env::expand(Item.Folder) : msg(lng::MShortcutNone);
+		return !Item.Folder.empty()? escape_ampersands(os::env::expand(Item.Folder)) : msg(lng::MShortcutNone);
 	}
 
 	const auto plugin = Global->CtrlObject->Plugins->FindPlugin(Item.PluginGuid);
@@ -220,12 +220,14 @@ static string MakeName(const Shortcuts::shortcut& Item)
 			append(TechInfo, msg(lng::MFSShortcutPluginData), L' ', PrintablePluginData, L", "sv);
 	}
 
-	return plugin->Title() + (TechInfo.empty()? TechInfo : concat(L" ("sv, string_view(TechInfo).substr(0, TechInfo.size() - 2), L')'));
+	return escape_ampersands(plugin->Title() + (TechInfo.empty()? TechInfo : concat(L" ("sv, string_view(TechInfo).substr(0, TechInfo.size() - 2), L')')));
 }
 
-// Don't listen to static analysers - List MUST NOT be const. We store non-const iterators in type-erased UserData for further usage.
 static void FillMenu(VMenu2& Menu, std::list<Shortcuts::shortcut>& List, bool const raw_mode)
 {
+	// Don't listen to static analysers - List MUST NOT be const. We store non-const iterators in type-erased UserData for further usage.
+	static_assert(!std::is_const_v<std::remove_reference_t<decltype(List)>>);
+
 	Menu.clear();
 	FOR_RANGE(List, i)
 	{
@@ -413,6 +415,7 @@ std::list<Shortcuts::shortcut>::const_iterator Shortcuts::Select(bool Raw)
 			if (Iterator && EditItem(*FolderList, **Iterator, Raw))
 			{
 				m_Changed = true;
+				FolderList->Refresh();
 			}
 			return true;
 

@@ -487,11 +487,14 @@ private:
 		{
 			{ stmtCreateKey,             "INSERT OR IGNORE INTO table_keys VALUES (NULL,?1,?2,?3);"sv },
 			{ stmtFindKey,               "SELECT id FROM table_keys WHERE parent_id=?1 AND name=?2 AND id<>0;"sv },
+			{ stmtGetKeyName,            "SELECT name from table_keys WHERE parent_id=?1 AND id=?2 AND id<>0 ;"sv },
 			{ stmtSetKeyDescription,     "UPDATE table_keys SET description=?1 WHERE id=?2 AND id<>0 AND description<>?1;"sv },
 			{ stmtSetValue,              "REPLACE INTO table_values VALUES (?1,?2,?3);"sv },
 			{ stmtGetValue,              "SELECT value FROM table_values WHERE key_id=?1 AND name=?2;"sv },
-			{ stmtEnumKeys,              "SELECT name FROM table_keys WHERE parent_id=?1 AND id<>0;"sv },
+			{ stmtEnumKeys,              "SELECT id FROM table_keys WHERE parent_id=?1 AND id<>0;"sv },
+			{ stmtEnumKeysLike,          "SELECT id FROM table_keys WHERE parent_id=?1 AND id<>0 AND name LIKE ?2 ORDER BY name;"sv },
 			{ stmtEnumValues,            "SELECT name, value FROM table_values WHERE key_id=?1;"sv },
+			{ stmtEnumValuesLike,        "SELECT name, value FROM table_values WHERE key_id=?1 AND name LIKE ?2 ORDER BY name;"sv },
 			{ stmtDelValue,              "DELETE FROM table_values WHERE key_id=?1 AND name=?2;"sv },
 			{ stmtDeleteTree,            "DELETE FROM table_keys WHERE id=?1 AND id<>0;"sv },
 		};
@@ -534,6 +537,16 @@ private:
 		return key(Stmt->GetColInt64(0));
 	}
 
+	bool GetKeyName(const key& Root, const key& Key, string& Name) const override
+	{
+		const auto Stmt = AutoStatement(stmtGetKeyName);
+		if (!Stmt->Bind(Root.get(), Key.get()).Step())
+			return false;
+
+		Name = Stmt->GetColText(0);
+		return true;
+	}
+
 	void SetKeyDescription(const key& Root, const string_view Description) override
 	{
 		ExecuteStatement(stmtSetKeyDescription, Description, Root.get());
@@ -571,7 +584,7 @@ private:
 
 	void DeleteKeyTree(const key& Key) override
 	{
-		//All subtree is automatically deleted because of foreign key constraints
+		// Whole subtree is automatically deleted because of foreign key constraints
 		ExecuteStatement(stmtDeleteTree, Key.get());
 	}
 
@@ -580,17 +593,21 @@ private:
 		ExecuteStatement(stmtDelValue, Root.get(), Name);
 	}
 
-	bool EnumKeys(const key& Root, const bool Reset, string& Name) const override
+	bool EnumKeys(const key& Root, const bool Reset, key& Key, string_view const Pattern) const override
 	{
-		auto Stmt = AutoStatement(stmtEnumKeys);
+		auto Stmt = AutoStatement(Pattern.empty()? stmtEnumKeys : stmtEnumKeysLike);
 
 		if (Reset)
+		{
 			Stmt->Reset().Bind(Root.get());
-
+			if (!Pattern.empty())
+				Stmt->Bind(Pattern + L"%"sv);
+		}
+		
 		if (!Stmt->Step())
 			return false;
 
-		Name = Stmt->GetColText(0);
+		Key = key(Stmt->GetColInt64(0));
 		(void)Stmt.release();
 		return true;
 	}
@@ -600,12 +617,16 @@ private:
 		SCOPED_ACTION(auto)(AutoStatement(stmtEnumKeys));
 	}
 
-	bool EnumValues(const key& Root, const bool Reset, string& Name, int& Type) const override
+	bool EnumValues(const key& Root, const bool Reset, string& Name, int& Type, string_view const Pattern) const override
 	{
-		auto Stmt = AutoStatement(stmtEnumValues);
+		auto Stmt = AutoStatement(Pattern.empty()? stmtEnumValues : stmtEnumValuesLike);
 
 		if (Reset)
+		{
 			Stmt->Reset().Bind(Root.get());
+			if (!Pattern.empty())
+				Stmt->Bind(Pattern);
+		}
 
 		if (!Stmt->Step())
 			return false;
@@ -765,11 +786,14 @@ private:
 	{
 		stmtCreateKey,
 		stmtFindKey,
+		stmtGetKeyName,
 		stmtSetKeyDescription,
 		stmtSetValue,
 		stmtGetValue,
 		stmtEnumKeys,
+		stmtEnumKeysLike,
 		stmtEnumValues,
+		stmtEnumValuesLike,
 		stmtDelValue,
 		stmtDeleteTree,
 
@@ -2041,18 +2065,18 @@ private:
 		return LastInsertRowID();
 	}
 
-	unsigned long long GetEditorPos(const string_view Name, int* const Line, int* const LinePos, int* const ScreenLine, int* const LeftPos, uintptr_t* const CodePage) override
+	unsigned long long GetEditorPos(const string_view Name, int& Line, int& LinePos, int& ScreenLine, int& LeftPos, uintptr_t& CodePage) override
 	{
 		WaitCommitAsync();
 		const auto Stmt = AutoStatement(stmtGetEditorPos);
 		if (!Stmt->Bind(Name).Step())
 			return 0;
 
-		*Line = Stmt->GetColInt(1);
-		*LinePos = Stmt->GetColInt(2);
-		*ScreenLine = Stmt->GetColInt(3);
-		*LeftPos = Stmt->GetColInt(4);
-		*CodePage = Stmt->GetColInt(5);
+		Line = Stmt->GetColInt(1);
+		LinePos = Stmt->GetColInt(2);
+		ScreenLine = Stmt->GetColInt(3);
+		LeftPos = Stmt->GetColInt(4);
+		CodePage = Stmt->GetColInt(5);
 		return Stmt->GetColInt64(0);
 	}
 
@@ -2062,17 +2086,17 @@ private:
 		ExecuteStatement(stmtSetEditorBookmark, id, i, Line, LinePos, ScreenLine, LeftPos);
 	}
 
-	bool GetEditorBookmark(unsigned long long id, size_t i, int *Line, int *LinePos, int *ScreenLine, int *LeftPos) override
+	bool GetEditorBookmark(unsigned long long id, size_t i, int& Line, int& LinePos, int& ScreenLine, int& LeftPos) override
 	{
 		WaitCommitAsync();
 		const auto Stmt = AutoStatement(stmtGetEditorBookmark);
 		if (!Stmt->Bind(id, i).Step())
 			return false;
 
-		*Line = Stmt->GetColInt(0);
-		*LinePos = Stmt->GetColInt(1);
-		*ScreenLine = Stmt->GetColInt(2);
-		*LeftPos = Stmt->GetColInt(3);
+		Line = Stmt->GetColInt(0);
+		LinePos = Stmt->GetColInt(1);
+		ScreenLine = Stmt->GetColInt(2);
+		LeftPos = Stmt->GetColInt(3);
 		return true;
 	}
 
@@ -2083,7 +2107,7 @@ private:
 		return LastInsertRowID();
 	}
 
-	unsigned long long GetViewerPos(const string_view Name, long long* const FilePos, long long* const LeftPos, int* const Hex, uintptr_t* const CodePage) override
+	unsigned long long GetViewerPos(const string_view Name, long long& FilePos, long long& LeftPos, int& Hex, uintptr_t& CodePage) override
 	{
 		WaitCommitAsync();
 		const auto Stmt = AutoStatement(stmtGetViewerPos);
@@ -2091,10 +2115,10 @@ private:
 		if (!Stmt->Bind(Name).Step())
 			return 0;
 
-		*FilePos = Stmt->GetColInt64(1);
-		*LeftPos = Stmt->GetColInt64(2);
-		*Hex = Stmt->GetColInt(3);
-		*CodePage = Stmt->GetColInt(4);
+		FilePos = Stmt->GetColInt64(1);
+		LeftPos = Stmt->GetColInt64(2);
+		Hex = Stmt->GetColInt(3);
+		CodePage = Stmt->GetColInt(4);
 		return Stmt->GetColInt64(0);
 	}
 
@@ -2104,15 +2128,15 @@ private:
 		ExecuteStatement(stmtSetViewerBookmark, id, i, FilePos, LeftPos);
 	}
 
-	bool GetViewerBookmark(unsigned long long id, size_t i, long long *FilePos, long long *LeftPos) override
+	bool GetViewerBookmark(unsigned long long id, size_t i, long long& FilePos, long long& LeftPos) override
 	{
 		WaitCommitAsync();
 		const auto Stmt = AutoStatement(stmtGetViewerBookmark);
 		if (!Stmt->Bind(id, i).Step())
 			return false;
 
-		*FilePos = Stmt->GetColInt64(0);
-		*LeftPos = Stmt->GetColInt64(1);
+		FilePos = Stmt->GetColInt64(0);
+		LeftPos = Stmt->GetColInt64(1);
 		return true;
 	}
 

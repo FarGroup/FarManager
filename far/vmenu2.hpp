@@ -70,7 +70,7 @@ public:
 	void SetBottomTitle(const string& Title);
 	void SetBoxType(int BoxType);
 	void SetMenuFlags(DWORD Flags);
-	void AssignHighlights(int Reverse);
+	void AssignHighlights(bool Reverse = false);
 	void clear();
 	int DeleteItem(int ID,int Count=1);
 	int AddItem(const MenuItemEx& NewItem,int PosAdd=0x7FFFFFFF);

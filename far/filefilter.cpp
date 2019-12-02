@@ -63,6 +63,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/bytes_view.hpp"
 #include "common/scope_exit.hpp"
+#include "common/view/enumerate.hpp"
 
 // External:
 #include "format.hpp"
@@ -121,7 +122,7 @@ static auto& FilterData()
 
 static auto& TempFilterData()
 {
-	static std::vector<FileFilterParams> sTempFilterData;
+	static std::unordered_map<string, FileFilterParams, hash_icase_t, equal_icase_t> sTempFilterData;
 	return sTempFilterData;
 }
 
@@ -134,6 +135,15 @@ FileFilter::FileFilter(Panel *HostPanel, FAR_FILE_FILTER_TYPE FilterType):
 	m_FilterType(FilterType)
 {
 	UpdateCurrentTime();
+}
+
+static void ParseAndAddMasks(std::map<string, int, string_sort::less_t>& Extensions, const string& FileName, DWORD FileAttr, int Check)
+{
+	if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) || IsParentDirectory(FileName))
+		return;
+
+	const auto Ext = PointToExt(FileName);
+	Extensions.emplace(Ext.empty()? L"*."s : concat(L'*', Ext), Check);
 }
 
 void FileFilter::FilterEdit()
@@ -150,7 +160,7 @@ void FileFilter::FilterEdit()
 	FilterList->SetHelp(L"FiltersMenu"sv);
 	FilterList->SetPosition({ -1, -1, 0, 0 });
 	FilterList->SetBottomTitle(msg(lng::MFilterBottom));
-	FilterList->SetMenuFlags(/*VMENU_SHOWAMPERSAND|*/VMENU_WRAPMODE);
+	FilterList->SetMenuFlags(VMENU_WRAPMODE);
 	FilterList->SetId(FiltersMenuId);
 
 	for (auto& i: FilterData())
@@ -163,20 +173,18 @@ void FileFilter::FilterEdit()
 
 	if (m_FilterType != FFT_CUSTOM)
 	{
-		using extension_list = std::list<std::pair<string, int>>;
-		extension_list Extensions;
+		std::map<string, int, string_sort::less_t> Extensions;
 
 		{
 			const auto FFFT = GetFFFT();
 
-			for (const auto& i: TempFilterData())
+			for (const auto& [Key, CurFilterData]: TempFilterData())
 			{
 				//AY: Будем показывать только те выбранные авто фильтры
 				//(для которых нету файлов на панели) которые выбраны в области данного меню
-				if (i.GetFlags(FFFT))
+				if (CurFilterData.GetFlags(FFFT))
 				{
-					if (!ParseAndAddMasks(Extensions, unquote(i.GetMask()), 0, GetCheck(i)))
-						break;
+					ParseAndAddMasks(Extensions, unquote(CurFilterData.GetMask()), 0, GetCheck(CurFilterData));
 				}
 			}
 		}
@@ -198,31 +206,13 @@ void FileFilter::FilterEdit()
 			FilterList->AddItem(ListItem);
 		}
 
-		if (m_HostPanel->GetMode() == panel_mode::NORMAL_PANEL)
-		{
-			string strFileName;
-			os::fs::find_data fdata;
-			ScanTree ScTree(false, false);
-			ScTree.SetFindPath(m_HostPanel->GetCurDir(), L"*"sv);
-
-			while (ScTree.GetNextName(fdata,strFileName))
-				if (!ParseAndAddMasks(Extensions, fdata.FileName, fdata.Attributes, 0))
-					break;
-		}
-		else
 		{
 			string strFileName;
 			DWORD FileAttr;
 
 			for (int i = 0; m_HostPanel->GetFileName(strFileName, i, FileAttr); i++)
-				if (!ParseAndAddMasks(Extensions, strFileName, FileAttr, 0))
-					break;
+				ParseAndAddMasks(Extensions, strFileName, FileAttr, 0);
 		}
-
-		Extensions.sort([](const extension_list::value_type& a, const extension_list::value_type& b)
-		{
-			return string_sort::less(a.first, b.first);
-		});
 
 		wchar_t h = L'1';
 		for (const auto& [Ext, Mark]: Extensions)
@@ -497,7 +487,7 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList) const
 {
 	const auto FFFT = GetFFFT();
 
-	for (size_t i = 0, j = 0, size = FilterList->size(); i != size; ++i)
+	for (size_t i = 0, size = FilterList->size(); i != size; ++i)
 	{
 		const auto Check = FilterList->GetCheck(static_cast<int>(i));
 		FileFilterParams* CurFilterData = nullptr;
@@ -513,65 +503,36 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList) const
 		else if (i > FilterData().size() + 1)
 		{
 			const auto& Mask = *FilterList->GetComplexUserDataPtr<string>(i);
-			//AY: Так как в меню мы показываем только те выбранные авто фильтры
-			//которые выбраны в области данного меню и TempFilterData вполне
-			//может содержать маску которую тока что выбрали в этом меню но
-			//она уже была выбрана в другом и так как TempFilterData
-			//и авто фильтры в меню отсортированы по алфавиту то немного
-			//поколдуем чтоб не было дубликатов в памяти.
-			const auto strMask1 = unquote(Mask);
-
-			while (j < TempFilterData().size())
+			if (const auto Iterator = TempFilterData().find(Mask); Iterator != TempFilterData().cend())
 			{
-				CurFilterData = &TempFilterData()[j];
-				const auto strMask2 = unquote(CurFilterData->GetMask());
-
-				if (!string_sort::less(strMask2, strMask1))
-					break;
-
-				j++;
-			}
-
-			if (CurFilterData)
-			{
-				if (equal_icase(Mask, CurFilterData->GetMask()))
+				if (!Check)
 				{
-					if (!Check)
+					bool bCheckedNowhere = true;
+
+					for (int n = FFFT_FIRST; n < FFFT_COUNT; n++)
 					{
-						bool bCheckedNowhere = true;
-
-						for (int n = FFFT_FIRST; n < FFFT_COUNT; n++)
+						if (n != FFFT && Iterator->second.GetFlags(static_cast<enumFileFilterFlagsType>(n)))
 						{
-							if (n != FFFT && CurFilterData->GetFlags(static_cast<enumFileFilterFlagsType>(n)))
-							{
-								bCheckedNowhere = false;
-								break;
-							}
-						}
-
-						if (bCheckedNowhere)
-						{
-							TempFilterData().erase(TempFilterData().begin() + j);
-							continue;
+							bCheckedNowhere = false;
+							break;
 						}
 					}
-					else
+
+					if (bCheckedNowhere)
 					{
-						j++;
+						TempFilterData().erase(Iterator);
+						continue;
 					}
 				}
-				else
-					CurFilterData = nullptr;
 			}
-
-			if (Check && !CurFilterData)
+			else if (Check)
 			{
 				FileFilterParams NewFilter;
-				NewFilter.SetMask(true, Mask);
+				NewFilter.SetMask(true, Mask.find_first_of(L",;"sv, L"*."sv.size()) == string::npos? Mask : quote(Mask));
 				//Авто фильтры они только для файлов, папки не должны к ним подходить
 				NewFilter.SetAttr(true, 0, FILE_ATTRIBUTE_DIRECTORY);
-				CurFilterData = &*TempFilterData().emplace(TempFilterData().begin() + j, std::move(NewFilter));
-				j++;
+				auto NewIterator = TempFilterData().emplace(Mask, std::move(NewFilter)).first;
+				CurFilterData = &NewIterator->second;
 			}
 		}
 
@@ -675,7 +636,7 @@ bool FileFilter::FileInFilter(const os::fs::find_data& fde, filter_status* Filte
 
 	const auto ProcessAutoFilters = [&]
 	{
-		for (const auto& CurFilterData : TempFilterData())
+		for (const auto& [Key, CurFilterData]: TempFilterData())
 		{
 			const auto Flags = CurFilterData.GetFlags(FFFT);
 
@@ -747,7 +708,7 @@ bool FileFilter::IsEnabledOnPanel()
 	if (FoldersFilter->GetFlags(FFFT))
 		return true;
 
-	return std::any_of(CONST_RANGE(TempFilterData(), i) { return i.GetFlags(FFFT); });
+	return std::any_of(CONST_RANGE(TempFilterData(), i) { return i.second.GetFlags(FFFT); });
 }
 
 FileFilterParams FileFilter::LoadFilter(/*const*/ HierarchicalConfig& cfg, unsigned long long KeyId)
@@ -893,33 +854,26 @@ void FileFilter::InitFilter()
 
 	LoadFlags(root, names::FoldersFilterFFlags, *FoldersFilter);
 
-	for (;;)
+	for (const auto& Key: cfg->KeysEnumerator(root, names::Filter))
 	{
-		const auto key = cfg->FindByName(root, names::Filter + str(FilterData().size()));
-		if (!key)
-			break;
-
-		auto NewItem = LoadFilter(*cfg, key.get());
-		LoadFlags(key, names::FFlags, NewItem);
+		auto NewItem = LoadFilter(*cfg, Key.get());
+		LoadFlags(Key, names::FFlags, NewItem);
 		FilterData().emplace_back(std::move(NewItem));
 	}
 
-	for (;;)
+	for (const auto& Key: cfg->KeysEnumerator(root, L"PanelMask"sv))
 	{
-		const auto key = cfg->FindByName(root, L"PanelMask"sv + str(TempFilterData().size()));
-		if (!key)
-			break;
-
 		FileFilterParams NewItem;
 
-		NewItem.SetMask(true, cfg->GetValue<string>(key, names::Mask));
+		auto Mask = cfg->GetValue<string>(Key, names::Mask);
+		NewItem.SetMask(true, Mask);
 
 		//Авто фильтры они только для файлов, папки не должны к ним подходить
 		NewItem.SetAttr(true, 0, FILE_ATTRIBUTE_DIRECTORY);
 
-		LoadFlags(key, names::FFlags, NewItem);
+		LoadFlags(Key, names::FFlags, NewItem);
 
-		TempFilterData().emplace_back(std::move(NewItem));
+		TempFilterData().emplace(unquote(std::move(Mask)), std::move(NewItem));
 	}
 }
 
@@ -1013,16 +967,14 @@ void FileFilter::Save(bool always)
 		SaveFlags(Key, names::FFlags, CurFilterData);
 	}
 
-	for (size_t i=0; i<TempFilterData().size(); ++i)
+	for (const auto& [CurFilterData, i]: enumerate(TempFilterData()))
 	{
 		const auto Key = cfg->CreateKey(root, L"PanelMask"sv + str(i));
 		if (!Key)
 			break;
 
-		const auto& CurFilterData = TempFilterData()[i];
-
-		cfg->SetValue(Key, names::Mask, CurFilterData.GetMask());
-		SaveFlags(Key, names::FFlags, CurFilterData);
+		cfg->SetValue(Key, names::Mask, CurFilterData.second.GetMask());
+		SaveFlags(Key, names::FFlags, CurFilterData.second);
 	}
 
 	SaveFlags(root, names::FoldersFilterFFlags, *FoldersFilter);
@@ -1030,7 +982,7 @@ void FileFilter::Save(bool always)
 	Changed = false;
 }
 
-void FileFilter::SwapPanelFlags(FileFilterParams& CurFilterData)
+static void SwapPanelFlags(FileFilterParams& CurFilterData)
 {
 	const auto LPFlags = CurFilterData.GetFlags(FFFT_LEFTPANEL);
 	const auto RPFlags = CurFilterData.GetFlags(FFFT_RIGHTPANEL);
@@ -1048,31 +1000,5 @@ void FileFilter::SwapFilter()
 	SwapPanelFlags(*FoldersFilter);
 
 	for (auto& i: TempFilterData())
-		SwapPanelFlags(i);
-}
-
-int FileFilter::ParseAndAddMasks(std::list<std::pair<string, int>>& Extensions, const string& FileName, DWORD FileAttr, int Check)
-{
-	if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) || IsParentDirectory(FileName))
-		return -1;
-
-	const auto DotPos = FileName.rfind(L'.');
-	string strMask;
-
-	if (DotPos == string::npos)
-	{
-		strMask = L"*."sv;
-	}
-	else
-	{
-		const auto Ext = string_view(FileName).substr(DotPos);
-		// Если маска содержит разделитель (',' или ';'), то возьмем ее в кавычки
-		strMask = FileName.find_first_of(L",;"sv, DotPos) != string::npos? concat(L"\"*"sv, Ext, L'"') : concat(L'*', Ext);
-	}
-
-	if (std::any_of(CONST_RANGE(Extensions, i) { return equal_icase(i.first, strMask); }))
-		return -1;
-
-	Extensions.emplace_back(strMask, Check);
-	return 1;
+		SwapPanelFlags(i.second);
 }

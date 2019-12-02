@@ -1274,7 +1274,7 @@ void PluginManager::Configure(int StartPos)
 				}
 			}
 
-			PluginList->AssignHighlights(FALSE);
+			PluginList->AssignHighlights();
 			PluginList->SetBottomTitle(msg(lng::MPluginHotKeyBottom));
 			PluginList->SortItems(false, HotKeysPresent? 3 : 0);
 			PluginList->SetSelectPos(StartPos,1);
@@ -1440,7 +1440,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 					}
 				}
 
-				PluginList->AssignHighlights(FALSE);
+				PluginList->AssignHighlights();
 				PluginList->SetBottomTitle(msg(lng::MPluginHotKeyBottom));
 				PluginList->SortItems(false, HotKeysPresent? 3 : 0);
 				PluginList->SetSelectPos(StartPos,1);

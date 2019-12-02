@@ -846,12 +846,8 @@ intptr_t WINAPI apiMenuFn(
 			if (!Selected)
 				FarMenu->SetSelectPos(0,1);
 
-			// флаги меню, с забитым контентом
-			if (Flags & FMENU_AUTOHIGHLIGHT)
-				FarMenu->AssignHighlights(FALSE);
-
-			if (Flags & FMENU_REVERSEAUTOHIGHLIGHT)
-				FarMenu->AssignHighlights(TRUE);
+			if (Flags & (FMENU_AUTOHIGHLIGHT | FMENU_REVERSEAUTOHIGHLIGHT))
+				FarMenu->AssignHighlights((Flags & FMENU_REVERSEAUTOHIGHLIGHT) != 0);
 
 			FarMenu->SetTitle(NullToEmpty(Title));
 
