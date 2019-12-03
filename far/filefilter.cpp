@@ -524,6 +524,8 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList) const
 						continue;
 					}
 				}
+
+				CurFilterData = &Iterator->second;
 			}
 			else if (Check)
 			{
