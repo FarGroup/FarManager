@@ -48,17 +48,27 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-DWORD ConvertYearToFull(DWORD ShortYear);
-
 using time_component = unsigned int;
 constexpr auto time_none = std::numeric_limits<time_component>::max();
-using date_ranges = std::array<std::pair<size_t, size_t>, 3>;
-using time_ranges = std::array<std::pair<size_t, size_t>, 5>;
-inline constexpr time_ranges DefaultTimeRanges{{ {0, 2}, { 3, 2 }, { 6, 2 }, { 9, 3 }, { 13, 4 }}};
+
+struct detailed_time_point
+{
+	unsigned
+		Year,
+		Month,
+		Day,
+		Hour,
+		Minute,
+		Second,
+		Tick;
+};
 
 void ParseTimeComponents(string_view Src, span<const std::pair<size_t, size_t>> Ranges, span<time_component> Dst, time_component Default = time_none);
-os::chrono::time_point ParseTimePoint(const string& Date, const string& Time, int DateFormat, const date_ranges& DateRanges, const time_ranges& TimeRanges);
-os::chrono::duration ParseDuration(const string& Date, const string& Time, const time_ranges& TimeRanges);
+
+detailed_time_point parse_detailed_time_point(string_view Date, string_view Time, int DateFormat);
+
+os::chrono::time_point ParseTimePoint(string_view Date, string_view Time, int DateFormat);
+os::chrono::duration ParseDuration(string_view Date, string_view Time);
 
 /*
 FullYear:

@@ -135,7 +135,7 @@ hook_ldr() noexcept
 template<auto Function>
 static auto GetProcAddress(HMODULE const Module, const char* const Name) noexcept
 {
-  return reinterpret_cast<decltype(&Function)>(reinterpret_cast<void*>(GetProcAddress(Module, Name)));
+	return reinterpret_cast<decltype(&Function)>(reinterpret_cast<void*>(GetProcAddress(Module, Name)));
 }
 
 

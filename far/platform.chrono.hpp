@@ -90,5 +90,15 @@ namespace os::chrono
 
 	[[nodiscard]]
 	string format_time();
+
+	namespace literals
+	{
+		[[nodiscard]]
+		constexpr duration(operator"" _tick)(unsigned long long Value) noexcept
+		{
+			return duration(Value);
+		}
+	}
 }
+
 #endif // PLATFORM_CHRONO_HPP_4942BDE7_47FB_49F8_B8F6_EE0AFF4EC61D

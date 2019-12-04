@@ -3,7 +3,13 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
-drkns 04.12.2019 13:20:17 +0000 - build 5517
+drkns 04.12.2019 18:28:22 +0000 - build 5518
+
+1. Removed UI time separation to milliseconds and ticks, now it's just ticks.
+
+2. Refactoring.
+
+drkns 04.12.2019 17:44:18 +0000 - build 5517
 
 1. And once more.
 

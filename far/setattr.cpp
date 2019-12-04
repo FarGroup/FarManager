@@ -257,7 +257,7 @@ struct SetAttrDlgParam
 
 static void convert_date(os::chrono::time_point const TimePoint, string& Date, string& Time)
 {
-	ConvertDate(TimePoint, Date, Time, 17, 2);
+	ConvertDate(TimePoint, Date, Time, 16, 2);
 }
 
 static void set_date_or_time(Dialog* const Dlg, int const Id, string const& Value, bool const MakeUnchanged)
@@ -587,30 +587,13 @@ static bool construct_time(
 	os::chrono::time_point const OriginalFileTime,
 	os::chrono::time_point& FileTime,
 	const string& OSrcDate,
-	const date_ranges& DateRanges,
-	const string& OSrcTime,
-	const time_ranges& TimeRanges)
+	const string& OSrcTime)
 {
 	SYSTEMTIME ost;
 	if (!utc_to_local(OriginalFileTime, ost))
 		return false;
 
-	time_component DateN[3];
-	ParseTimeComponents(OSrcDate, DateRanges, DateN);
-	time_component TimeN[5];
-	ParseTimeComponents(OSrcTime, TimeRanges, TimeN);
-
-	enum indices { i_day, i_month, i_year };
-
-	const auto Indices = []() -> std::array<indices, 3>
-	{
-		switch (locale.date_format())
-		{
-		case 0:  return { i_month, i_day, i_year };
-		case 1:  return { i_day, i_month, i_year };
-		default: return { i_year, i_month, i_day };
-		}
-	}();
+	const auto Point = parse_detailed_time_point(OSrcDate, OSrcTime, locale.date_format());
 
 	SYSTEMTIME st{};
 
@@ -619,25 +602,22 @@ static bool construct_time(
 		std::invoke(Field, st) = New != time_none? New : std::invoke(Field, ost);
 	};
 
-	set_or_inherit(&SYSTEMTIME::wDay,          DateN[Indices[0]]);
-	set_or_inherit(&SYSTEMTIME::wMonth,        DateN[Indices[1]]);
-	set_or_inherit(&SYSTEMTIME::wYear,         DateN[Indices[2]]);
-	set_or_inherit(&SYSTEMTIME::wHour,         TimeN[0]);
-	set_or_inherit(&SYSTEMTIME::wMinute,       TimeN[1]);
-	set_or_inherit(&SYSTEMTIME::wSecond,       TimeN[2]);
-	set_or_inherit(&SYSTEMTIME::wMilliseconds, TimeN[3]);
+	const auto Milliseconds = Point.Tick == time_none? time_none : std::chrono::duration_cast<std::chrono::milliseconds>(os::chrono::duration(Point.Tick)).count();
 
-	if (st.wYear < 100)
-	{
-		st.wYear = static_cast<WORD>(ConvertYearToFull(st.wYear));
-	}
+	set_or_inherit(&SYSTEMTIME::wYear,         Point.Year);
+	set_or_inherit(&SYSTEMTIME::wMonth,        Point.Month);
+	set_or_inherit(&SYSTEMTIME::wDay,          Point.Day);
+	set_or_inherit(&SYSTEMTIME::wHour,         Point.Hour);
+	set_or_inherit(&SYSTEMTIME::wMinute,       Point.Minute);
+	set_or_inherit(&SYSTEMTIME::wSecond,       Point.Second);
+	set_or_inherit(&SYSTEMTIME::wMilliseconds, Milliseconds);
 
 	if (!local_to_utc(st, FileTime))
 		return false;
 
-	FileTime += TimeN[4] != time_none?
-		os::chrono::duration(TimeN[4]) :
-		OriginalFileTime.time_since_epoch() % 1ms;
+	FileTime += (Point.Tick != time_none?
+		os::chrono::duration(Point.Tick) :
+		OriginalFileTime.time_since_epoch()) % 1ms;
 
 	return true;
 }
@@ -653,8 +633,6 @@ static bool process_single_file(
 	state const& Current,
 	state const& New,
 	function_ref<const string&(int)> const DateTimeAccessor,
-	date_ranges const& DateRanges,
-	time_ranges const& TimeRanges,
 	bool& SkipErrors)
 {
 	if (!New.Owner.empty() && !equal_icase(Current.Owner, New.Owner))
@@ -670,7 +648,7 @@ static bool process_single_file(
 		for (const auto& [i, TimePointer]: zip(TimeMap, TimePointers))
 		{
 			const auto OriginalTime = std::invoke(i.Accessor, Current.FindData);
-			if (!construct_time(OriginalTime, *TimePointer, DateTimeAccessor(i.DateId), DateRanges, DateTimeAccessor(i.TimeId), TimeRanges)
+			if (!construct_time(OriginalTime, *TimePointer, DateTimeAccessor(i.DateId), DateTimeAccessor(i.TimeId))
 				|| *TimePointer == OriginalTime)
 			{
 				TimePointer = {};
@@ -745,20 +723,20 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		{ DI_BUTTON,    {{C2,      8     }, {0,       8     }}, DIF_NONE, msg(lng::MSetAttrMore), },
 
 		{ DI_TEXT,      {{-1,      AR+1  }, {0,       AR+1  }}, DIF_SEPARATOR, },
-		{ DI_TEXT,      {{DlgX-34, AR+2  }, {0,       AR+2  }}, DIF_NONE, },
-		{ DI_TEXT,      {{DlgX-22, AR+2  }, {0,       AR+2  }}, DIF_NONE, },
+		{ DI_TEXT,      {{DlgX-33, AR+2  }, {0,       AR+2  }}, DIF_NONE, },
+		{ DI_TEXT,      {{DlgX-21, AR+2  }, {0,       AR+2  }}, DIF_NONE, },
 		{ DI_TEXT,      {{5,       AR+3  }, {0,       AR+3  }}, DIF_NONE, msg(lng::MSetAttrModification), },
-		{ DI_FIXEDIT,   {{DlgX-34, AR+3  }, {DlgX-24, AR+3  }}, DIF_MASKEDIT, },
-		{ DI_FIXEDIT,   {{DlgX-22, AR+3  }, {DlgX-6,  AR+3  }}, DIF_MASKEDIT, },
+		{ DI_FIXEDIT,   {{DlgX-33, AR+3  }, {DlgX-23, AR+3  }}, DIF_MASKEDIT, },
+		{ DI_FIXEDIT,   {{DlgX-21, AR+3  }, {DlgX-6,  AR+3  }}, DIF_MASKEDIT, },
 		{ DI_TEXT,      {{5,       AR+4  }, {0,       AR+4  }}, DIF_NONE, msg(lng::MSetAttrCreation), },
-		{ DI_FIXEDIT,   {{DlgX-34, AR+4  }, {DlgX-24, AR+4  }}, DIF_MASKEDIT, },
-		{ DI_FIXEDIT,   {{DlgX-22, AR+4  }, {DlgX-6,  AR+4  }}, DIF_MASKEDIT, },
+		{ DI_FIXEDIT,   {{DlgX-33, AR+4  }, {DlgX-23, AR+4  }}, DIF_MASKEDIT, },
+		{ DI_FIXEDIT,   {{DlgX-21, AR+4  }, {DlgX-6,  AR+4  }}, DIF_MASKEDIT, },
 		{ DI_TEXT,      {{5,       AR+5  }, {0,       AR+5  }}, DIF_NONE, msg(lng::MSetAttrLastAccess), },
-		{ DI_FIXEDIT,   {{DlgX-34, AR+5  }, {DlgX-24, AR+5  }}, DIF_MASKEDIT, },
-		{ DI_FIXEDIT,   {{DlgX-22, AR+5  }, {DlgX-6,  AR+5  }}, DIF_MASKEDIT, },
+		{ DI_FIXEDIT,   {{DlgX-33, AR+5  }, {DlgX-23, AR+5  }}, DIF_MASKEDIT, },
+		{ DI_FIXEDIT,   {{DlgX-21, AR+5  }, {DlgX-6,  AR+5  }}, DIF_MASKEDIT, },
 		{ DI_TEXT,      {{5,       AR+6  }, {0,       AR+6  }}, DIF_NONE, msg(lng::MSetAttrChange), },
-		{ DI_FIXEDIT,   {{DlgX-34, AR+6  }, {DlgX-24, AR+6  }}, DIF_MASKEDIT, },
-		{ DI_FIXEDIT,   {{DlgX-22, AR+6  }, {DlgX-6,  AR+6  }}, DIF_MASKEDIT, },
+		{ DI_FIXEDIT,   {{DlgX-33, AR+6  }, {DlgX-23, AR+6  }}, DIF_MASKEDIT, },
+		{ DI_FIXEDIT,   {{DlgX-21, AR+6  }, {DlgX-6,  AR+6  }}, DIF_MASKEDIT, },
 		{ DI_BUTTON,    {{0,       AR+7  }, {0,       AR+7  }}, DIF_CENTERGROUP | DIF_BTNNOCLOSE, msg(lng::MSetAttrOriginal), },
 		{ DI_BUTTON,    {{0,       AR+7  }, {0,       AR+7  }}, DIF_CENTERGROUP | DIF_BTNNOCLOSE, msg(lng::MSetAttrCurrent), },
 		{ DI_BUTTON,    {{0,       AR+7  }, {0,       AR+7  }}, DIF_CENTERGROUP | DIF_BTNNOCLOSE, msg(lng::MSetAttrBlank), },
@@ -835,30 +813,26 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		const auto DecimalSeparator = locale.decimal_separator();
 
 		string DateMask, DateFormat;
-		date_ranges DateRanges;
 
 		switch (locale.date_format())
 		{
 		case 0:
 			DateMask = format(FSTR(L"99{0}99{0}9999N"), DateSeparator);
 			DateFormat = format(msg(lng::MSetAttrDateTitle1), DateSeparator);
-			DateRanges = {{ { 0, 2 }, { 3, 2 }, { 6, 5 } }};
 			break;
 
 		case 1:
 			DateMask = format(FSTR(L"99{0}99{0}9999N"), DateSeparator);
 			DateFormat = format(msg(lng::MSetAttrDateTitle2), DateSeparator);
-			DateRanges = {{ { 0, 2 }, { 3, 2 }, { 6, 5 } }};
 			break;
 
 		default:
 			DateMask = format(FSTR(L"N9999{0}99{0}99"), DateSeparator);
 			DateFormat = format(msg(lng::MSetAttrDateTitle3), DateSeparator);
-			DateRanges = {{ { 0, 5 }, { 6, 2 }, { 9, 2 } }};
 			break;
 		}
 
-		const auto TimeMask = format(FSTR(L"99{0}99{0}99{1}999+9999"), TimeSeparator, DecimalSeparator);
+		const auto TimeMask = format(FSTR(L"99{0}99{0}99{1}9999999"), TimeSeparator, DecimalSeparator);
 
 		AttrDlg[SA_TEXT_TITLEDATE].strData = DateFormat;
 		AttrDlg[SA_TEXT_TITLETIME].strData = format(msg(lng::MSetAttrTimeTitle), TimeSeparator, DecimalSeparator);
@@ -1286,7 +1260,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 						Current{ DlgParam.Owner.InitialValue, SingleSelFindData },
 						New{ AttrDlg[SA_EDIT_OWNER].strData, NewFindData };
 
-					if (!process_single_file(SingleSelFileName, Current, New, AttrDlgAccessor, DateRanges, DefaultTimeRanges, SkipErrors))
+					if (!process_single_file(SingleSelFileName, Current, New, AttrDlgAccessor, SkipErrors))
 					{
 						return false;
 					}
@@ -1328,7 +1302,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 								Current{ L""s, SingleSelFindData }, // BUGBUG, should we read the owner?
 								New{ AttrDlg[SA_EDIT_OWNER].strData, NewFindData };
 
-							if (!process_single_file(SingleSelFileName, Current, New, AttrDlgAccessor, DateRanges, DefaultTimeRanges, SkipErrors))
+							if (!process_single_file(SingleSelFileName, Current, New, AttrDlgAccessor, SkipErrors))
 							{
 								return false;
 							}
@@ -1360,7 +1334,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 									Current{ L""s, SingleSelFindData }, // BUGBUG, should we read the owner?
 									New{ AttrDlg[SA_EDIT_OWNER].strData, NewFindData };
 
-								if (!process_single_file(strFullName, Current, New, AttrDlgAccessor, DateRanges, DefaultTimeRanges, SkipErrors))
+								if (!process_single_file(strFullName, Current, New, AttrDlgAccessor, SkipErrors))
 								{
 									return false;
 								}

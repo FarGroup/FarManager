@@ -53,14 +53,19 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-DWORD ConvertYearToFull(DWORD ShortYear)
+static unsigned full_year(unsigned const Year)
 {
-	DWORD UpperBoundary = 0;
-	if(!GetCalendarInfo(LOCALE_USER_DEFAULT, CAL_GREGORIAN, CAL_ITWODIGITYEARMAX|CAL_RETURN_NUMBER, nullptr, 0, &UpperBoundary))
+	if (Year >= 100)
+		return Year;
+
+	DWORD TwoDigitYearMax = 0;
+	if(!GetCalendarInfo(LOCALE_USER_DEFAULT, CAL_GREGORIAN, CAL_ITWODIGITYEARMAX|CAL_RETURN_NUMBER, nullptr, 0, &TwoDigitYearMax))
 	{
-		UpperBoundary = 2029; // Magic, current default value.
+		// Current default value (as of 4 Dec 2019 / Windows 10)
+		TwoDigitYearMax = 2049;
 	}
-	return (UpperBoundary/100-(ShortYear<UpperBoundary%100?0:1))*100+ShortYear;
+
+	return (TwoDigitYearMax / 100 - (Year > TwoDigitYearMax % 100? 1 : 0)) * 100 + Year;
 }
 
 static string st_time(const tm* tmPtr, const locale_names& Names, bool const is_dd_mmm_yyyy)
@@ -364,68 +369,106 @@ void ParseTimeComponents(string_view const Src, span<const std::pair<size_t, siz
 	});
 }
 
-os::chrono::time_point ParseTimePoint(const string& Date, const string& Time, int DateFormat, const date_ranges& DateRanges, const time_ranges& TimeRanges)
+
+using date_ranges = std::array<std::pair<size_t, size_t>, 3>;
+using time_ranges = std::array<std::pair<size_t, size_t>, 4>;
+static constexpr time_ranges TimeRanges{ { {0, 2}, { 3, 2 }, { 6, 2 }, { 9, 7 } } };
+
+static date_ranges get_date_ranges(int const DateFormat)
 {
-	time_component DateN[3];
-	ParseTimeComponents(Date, DateRanges, DateN);
-	time_component TimeN[5];
-	ParseTimeComponents(Time, TimeRanges, TimeN, 0);
-
-	if (DateN[0] == time_none || DateN[1] == time_none || DateN[2] == time_none)
-	{
-		// Пользователь оставил дату пустой, значит обнулим дату и время.
-		return {};
-	}
-
-	SYSTEMTIME st{};
-
 	switch (DateFormat)
 	{
 	case 0:
-		st.wMonth = DateN[0];
-		st.wDay   = DateN[1];
-		st.wYear  = DateN[2];
-		break;
-
 	case 1:
-		st.wDay   = DateN[0];
-		st.wMonth = DateN[1];
-		st.wYear  = DateN[2];
-		break;
+		return {{ { 0, 2 }, { 3, 2 }, { 6, 5 } }};
 
 	default:
-		st.wYear  = DateN[0];
-		st.wMonth = DateN[1];
-		st.wDay   = DateN[2];
-		break;
+		return {{ { 0, 5 }, { 6, 2 }, { 9, 2 } }};
 	}
-
-	if (st.wYear < 100)
-	{
-		st.wYear = static_cast<WORD>(ConvertYearToFull(st.wYear));
-	}
-
-	st.wHour         = TimeN[0];
-	st.wMinute       = TimeN[1];
-	st.wSecond       = TimeN[2];
-	st.wMilliseconds = TimeN[3];
-
-	os::chrono::time_point Point;
-	local_to_utc(st, Point);
-	return Point + os::chrono::duration(TimeN[4]);
 }
 
-os::chrono::duration ParseDuration(const string& Date, const string& Time, const time_ranges& TimeRanges)
+enum date_indices { i_day, i_month, i_year };
+
+static std::array<date_indices, 3> get_date_indices(int const DateFormat)
+{
+	switch (DateFormat)
+	{
+	case 0:  return { i_month, i_day, i_year };
+	case 1:  return { i_day, i_month, i_year };
+	default: return { i_year, i_month, i_day };
+	}
+}
+
+detailed_time_point parse_detailed_time_point(string_view Date, string_view Time, int DateFormat)
+{
+	time_component DateN[3];
+	const auto DateRanges = get_date_ranges(DateFormat);
+	ParseTimeComponents(Date, DateRanges, DateN);
+	time_component TimeN[4];
+	ParseTimeComponents(Time, TimeRanges, TimeN);
+
+	enum time_indices { i_hour, i_minute, i_second, i_tick };
+
+	const auto Indices = get_date_indices(DateFormat);
+
+	return
+	{
+		full_year(DateN[Indices[2]]),
+		DateN[Indices[1]],
+		DateN[Indices[0]],
+		TimeN[i_hour],
+		TimeN[i_minute],
+		TimeN[i_second],
+		TimeN[i_tick]
+	};
+}
+
+os::chrono::time_point ParseTimePoint(string_view const Date, string_view const Time, int const DateFormat)
+{
+	const auto Point = parse_detailed_time_point(Date, Time, DateFormat);
+
+	if (Point.Year == time_none || Point.Month == time_none || Point.Day == time_none)
+	{
+		// Year / Month / Day can't have reasonable defaults
+		return {};
+	}
+
+	const auto Default = [](unsigned const Value)
+	{
+		// Everything else can
+		return Value == time_none? 0 : Value;
+	};
+
+	SYSTEMTIME st{};
+
+	const auto Milliseconds = Point.Tick == time_none? time_none : std::chrono::duration_cast<std::chrono::milliseconds>(os::chrono::duration(Point.Tick)).count();
+
+	st.wYear   = Point.Year;
+	st.wMonth  = Point.Month;
+	st.wDay    = Point.Day;
+	st.wHour   = Default(Point.Hour);
+	st.wMinute = Default(Point.Minute);
+	st.wSecond = Default(Point.Second);
+	st.wMilliseconds = Default(Milliseconds);
+
+	os::chrono::time_point TimePoint;
+	if (!local_to_utc(st, TimePoint))
+		return {};
+
+	return TimePoint + os::chrono::duration(Point.Tick) % 1ms;
+}
+
+os::chrono::duration ParseDuration(string_view const Date, string_view const Time)
 {
 	time_component DateN[1];
 	const std::pair<size_t, size_t> DateRange[]{ { 0, Date.size() } };
 	ParseTimeComponents(Date, DateRange, DateN, 0);
 
-	time_component TimeN[5];
+	time_component TimeN[4];
 	ParseTimeComponents(Time, TimeRanges, TimeN, 0);
 
 	using namespace std::chrono;
-	return chrono::days(DateN[0]) + hours(TimeN[0]) + minutes(TimeN[1]) + seconds(TimeN[2]) + milliseconds(TimeN[3]) + os::chrono::duration(TimeN[4]);
+	return chrono::days(DateN[0]) + hours(TimeN[0]) + minutes(TimeN[1]) + seconds(TimeN[2]) + os::chrono::duration(TimeN[3]);
 }
 
 void ConvertDate(os::chrono::time_point const Point, string& strDateText, string& strTimeText, int const TimeLength, int const FullYear, bool const Brief, bool const TextMonth)
@@ -469,14 +512,13 @@ void ConvertDate(os::chrono::time_point const Point, string& strDateText, string
 	{
 		strTimeText = cut_right(
 			format(
-				FSTR(L"{0:02}{1}{2:02}{1}{3:02}{4}{5:03}+{6:04}"),
+				FSTR(L"{0:02}{1}{2:02}{1}{3:02}{4}{5:07}"),
 				st.wHour,
 				TimeSeparator,
 				st.wMinute,
 				st.wSecond,
 				DecimalSeparator,
-				st.wMilliseconds,
-				(Point.time_since_epoch() % 1ms).count()
+				(std::chrono::milliseconds(st.wMilliseconds) + Point.time_since_epoch() % 1ms).count()
 			),
 			TimeLength);
 	}
@@ -550,12 +592,11 @@ std::tuple<string, string> ConvertDuration(os::chrono::duration Duration)
 	return
 	{
 		str(Result.get<chrono::days>().count()),
-		format(FSTR(L"{0:02}{5}{1:02}{5}{2:02}{6}{3:03}+{4:04}"),
+		format(FSTR(L"{0:02}{4}{1:02}{4}{2:02}{5}{3:07}"),
 			Result.get<hours>().count(),
 			Result.get<minutes>().count(),
 			Result.get<seconds>().count(),
-			Result.get<milliseconds>().count(),
-			(Duration % 1ms).count(),
+			(Duration % 1s).count(),
 			locale.time_separator(),
 			locale.decimal_separator()
 		)
@@ -644,3 +685,74 @@ bool local_to_utc(const SYSTEMTIME& LocalTime, os::chrono::time_point& UtcTime)
 	UtcTime = os::chrono::nt_clock::from_filetime(FileUtcTime);
 	return true;
 }
+
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("datetime.parse.duration")
+{
+	using namespace os::chrono::literals;
+
+	static const struct
+	{
+		string_view Date, Time;
+		os::chrono::duration Duration;
+	}
+	Tests[]
+	{
+		{ L""sv,       L"  :  :  .       "sv,              0_tick, },
+		{ L""sv,       L"  :  :  .      1"sv,              1_tick, },
+		{ L""sv,       L"  :  :  . 12    "sv,              12_tick, },
+		{ L"3"sv,      L"  :42:  .       "sv,              24h * 3 + 42min, },
+		{ L""sv,       L"33:  :  .       "sv,              33h, },
+		{ L"1"sv,      L"  :  :  .       "sv,              24h, },
+		{ L"512"sv,    L"12:34:56.7890123"sv,              512 * 24h + 12h + 34min + 56s + 789ms + 123_tick, },
+	};
+
+	for (const auto& i: Tests)
+	{
+		REQUIRE(ParseDuration(i.Date, i.Time) == i.Duration);
+		auto Reverse = ConvertDuration(i.Duration);
+		REQUIRE(ParseDuration(std::get<0>(Reverse), std::get<1>(Reverse)) == i.Duration);
+	}
+}
+
+TEST_CASE("datetime.parse.timepoint")
+{
+	const auto tn = time_none;
+
+	static const struct
+	{
+		string_view Date, Time;
+		int DateFormat;
+		detailed_time_point TimePoint;
+	}
+	Tests[]
+	{
+		{ L"     /  /  "sv, L"  :  :  .       "sv, 2, { tn,   tn, tn, tn, tn, tn, tn      }, },
+		{ L"  /  /     "sv, L"  :  :  .       "sv, 1, { tn,   tn, tn, tn, tn, tn, tn      }, },
+		{ L"  /  /     "sv, L"  :  :  .       "sv, 0, { tn,   tn, tn, tn, tn, tn, tn      }, },
+		{ L" 1234/56/78"sv, L"  :55:  .     44"sv, 2, { 1234, 56, 78, tn, 55, tn, 44      }, },
+		{ L"12/34/5678 "sv, L"  :  :  .      1"sv, 1, { 5678, 34, 12, tn, tn, tn, 1       }, },
+		{ L"12/34/5678 "sv, L"  :  :  . 12    "sv, 0, { 5678, 12, 34, tn, tn, tn, 12,     }, },
+		{ L"3 / 5/7    "sv, L" 0:0 : 0.   0   "sv, 1, { 2007,  5,  3,  0,  0,  0, 0       }, },
+		{ L"01/02/ 84  "sv, L"44:55:66.1234567"sv, 1, { 1984,  2,  1, 44, 55, 66, 1234567 }, },
+		{ L" 8765/43/21"sv, L"11:22:33.4567890"sv, 2, { 8765, 43, 21, 11, 22, 33, 4567890 }, },
+	};
+
+	for (const auto& i: Tests)
+	{
+		const auto Result = parse_detailed_time_point(i.Date, i.Time, i.DateFormat);
+
+		REQUIRE(Result.Year == i.TimePoint.Year);
+		REQUIRE(Result.Month == i.TimePoint.Month);
+		REQUIRE(Result.Day == i.TimePoint.Day);
+		REQUIRE(Result.Hour == i.TimePoint.Hour);
+		REQUIRE(Result.Minute == i.TimePoint.Minute);
+		REQUIRE(Result.Second == i.TimePoint.Second);
+		REQUIRE(Result.Tick == i.TimePoint.Tick);
+	}
+}
+
+#endif
