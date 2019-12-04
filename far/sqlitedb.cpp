@@ -484,3 +484,15 @@ void SQLiteDb::EnableForeignKeysConstraints() const
 {
 	Exec({ "PRAGMA foreign_keys = ON;"sv });
 }
+
+void SQLiteDb::CreateNumericCollation() const
+{
+	const auto Comparer = [](void* const, int const Size1, const void* const Data1, int const Size2, const void* const Data2)
+	{
+		return string_sort::keyhole::compare_ordinal_numeric(
+			{ static_cast<const wchar_t*>(Data1), static_cast<size_t>(Size1) },
+			{ static_cast<const wchar_t*>(Data2), static_cast<size_t>(Size2) });
+	};
+
+	invoke(m_Db.get(), [&]{ return sqlite::sqlite3_create_collation16(m_Db.get(), L"numeric", SQLITE_UTF16_ALIGNED, nullptr, Comparer) == SQLITE_OK; });
+}

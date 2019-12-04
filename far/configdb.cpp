@@ -472,6 +472,7 @@ private:
 	static void Initialise(const db_initialiser& Db)
 	{
 		Db.EnableForeignKeysConstraints();
+		Db.CreateNumericCollation();
 
 		static const std::string_view Schema[]
 		{
@@ -492,9 +493,9 @@ private:
 			{ stmtSetValue,              "REPLACE INTO table_values VALUES (?1,?2,?3);"sv },
 			{ stmtGetValue,              "SELECT value FROM table_values WHERE key_id=?1 AND name=?2;"sv },
 			{ stmtEnumKeys,              "SELECT id FROM table_keys WHERE parent_id=?1 AND id<>0;"sv },
-			{ stmtEnumKeysLike,          "SELECT id FROM table_keys WHERE parent_id=?1 AND id<>0 AND name LIKE ?2 ORDER BY CAST(SUBSTR(name, ?3) AS UNSIGNED);"sv }, // BUGBUG, numeric sort?
+			{ stmtEnumKeysLike,          "SELECT id FROM table_keys WHERE parent_id=?1 AND id<>0 AND name LIKE ?2 ORDER BY name COLLATE numeric;"sv },
 			{ stmtEnumValues,            "SELECT name, value FROM table_values WHERE key_id=?1;"sv },
-			{ stmtEnumValuesLike,        "SELECT name, value FROM table_values WHERE key_id=?1 AND name LIKE ?2 ORDER BY CAST(SUBSTR(name, ?3) AS UNSIGNED);"sv }, // BUGBUG, numeric sort?
+			{ stmtEnumValuesLike,        "SELECT name, value FROM table_values WHERE key_id=?1 AND name LIKE ?2 ORDER BY name COLLATE numeric;"sv },
 			{ stmtDelValue,              "DELETE FROM table_values WHERE key_id=?1 AND name=?2;"sv },
 			{ stmtDeleteTree,            "DELETE FROM table_keys WHERE id=?1 AND id<>0;"sv },
 		};
@@ -601,7 +602,7 @@ private:
 		{
 			Stmt->Reset().Bind(Root.get());
 			if (!Pattern.empty())
-				Stmt->Bind(Pattern + L"%"sv, Pattern.size() + 1);
+				Stmt->Bind(Pattern + L"%"sv);
 		}
 
 		if (!Stmt->Step())
@@ -625,7 +626,7 @@ private:
 		{
 			Stmt->Reset().Bind(Root.get());
 			if (!Pattern.empty())
-				Stmt->Bind(Pattern + L"%"sv, Pattern.size() + 1);
+				Stmt->Bind(Pattern + L"%"sv);
 		}
 
 		if (!Stmt->Step())

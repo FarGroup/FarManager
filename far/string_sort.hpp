@@ -66,6 +66,12 @@ namespace string_sort
 			return less(Str1, Str2);
 		}
 	};
+
+	class keyhole
+	{
+		friend class SQLiteDb;
+		static int compare_ordinal_numeric(string_view Str1, string_view Str2);
+	};
 }
 
 #endif // STRING_SORT_HPP_CAE94F71_4292_45B5_9D34_C40E43E8C2AF
