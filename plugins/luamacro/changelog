@@ -1,4 +1,8 @@
-﻿shmuel 23.11.2019 19:16:02 +0200 - build 715
+﻿shmuel 04.12.2019 18:01:32 +0200 - build 716
+
+1. LuaFAR: far.GetMsg() accepts the optional 2-nd parameter (PluginId).
+
+shmuel 23.11.2019 19:16:02 +0200 - build 715
 
 1. LuaFAR: far.RecursiveSearch():
    Extend syntax of "Mask" parameter to optionally include file attributes after >> delimiter.

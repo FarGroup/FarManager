@@ -4132,14 +4132,18 @@ static int far_InputBox(lua_State *L)
 static int far_GetMsg(lua_State *L)
 {
 	intptr_t MsgId = luaL_checkinteger(L, 1);
-
 	if(MsgId >= 0)
 	{
+		GUID guid;
 		TPluginData *pd = GetPluginData(L);
-		const wchar_t* str = pd->Info->GetMsg(pd->PluginId, MsgId);
+		const wchar_t* str;
 
-		if(str) push_utf8_string(L, str, -1);
-		else     lua_pushnil(L);
+		GetOptGuid(L, 2, &guid, pd->PluginId);
+		str = pd->Info->GetMsg(&guid, MsgId);
+		if(str)
+			push_utf8_string(L, str, -1);
+		else
+			lua_pushnil(L);
 	}
 	else
 		lua_pushnil(L); // (MsgId < 0) crashes FAR

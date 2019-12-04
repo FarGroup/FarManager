@@ -2557,12 +2557,13 @@ id=58
 lv=2
 dt=Text
 nm=far.GetMsg
-mtime=3602446551
+mtime=3784644026
 <article>
-#_msg = far.GetMsg (MsgId)
+#_msg = far.GetMsg (MsgId [, PluginId])
 #_
 #_**Parameters:**
-#_  MsgId: integer
+#_  MsgId:    integer
+#_  PluginId: string (binary GUID; default: calling plugin's GUID)
 #_
 #_**Returns:**
 #_  msg:   string
