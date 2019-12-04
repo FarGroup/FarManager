@@ -492,9 +492,9 @@ private:
 			{ stmtSetValue,              "REPLACE INTO table_values VALUES (?1,?2,?3);"sv },
 			{ stmtGetValue,              "SELECT value FROM table_values WHERE key_id=?1 AND name=?2;"sv },
 			{ stmtEnumKeys,              "SELECT id FROM table_keys WHERE parent_id=?1 AND id<>0;"sv },
-			{ stmtEnumKeysLike,          "SELECT id FROM table_keys WHERE parent_id=?1 AND id<>0 AND name LIKE ?2 ORDER BY name;"sv },
+			{ stmtEnumKeysLike,          "SELECT id FROM table_keys WHERE parent_id=?1 AND id<>0 AND name LIKE ?2 ORDER BY CAST(SUBSTR(name, ?3) AS UNSIGNED);"sv }, // BUGBUG, numeric sort?
 			{ stmtEnumValues,            "SELECT name, value FROM table_values WHERE key_id=?1;"sv },
-			{ stmtEnumValuesLike,        "SELECT name, value FROM table_values WHERE key_id=?1 AND name LIKE ?2 ORDER BY name;"sv },
+			{ stmtEnumValuesLike,        "SELECT name, value FROM table_values WHERE key_id=?1 AND name LIKE ?2 ORDER BY CAST(SUBSTR(name, ?3) AS UNSIGNED);"sv }, // BUGBUG, numeric sort?
 			{ stmtDelValue,              "DELETE FROM table_values WHERE key_id=?1 AND name=?2;"sv },
 			{ stmtDeleteTree,            "DELETE FROM table_keys WHERE id=?1 AND id<>0;"sv },
 		};
@@ -601,9 +601,9 @@ private:
 		{
 			Stmt->Reset().Bind(Root.get());
 			if (!Pattern.empty())
-				Stmt->Bind(Pattern + L"%"sv);
+				Stmt->Bind(Pattern + L"%"sv, Pattern.size() + 1);
 		}
-		
+
 		if (!Stmt->Step())
 			return false;
 
@@ -625,7 +625,7 @@ private:
 		{
 			Stmt->Reset().Bind(Root.get());
 			if (!Pattern.empty())
-				Stmt->Bind(Pattern);
+				Stmt->Bind(Pattern + L"%"sv, Pattern.size() + 1);
 		}
 
 		if (!Stmt->Step())
