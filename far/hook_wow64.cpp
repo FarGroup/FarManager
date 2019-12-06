@@ -135,9 +135,10 @@ hook_ldr() noexcept
 template<auto Function>
 static auto GetProcAddress(HMODULE const Module, const char* const Name) noexcept
 {
-	return reinterpret_cast<decltype(&Function)>(reinterpret_cast<void*>(GetProcAddress(Module, Name)));
+	return reinterpret_cast<decltype(Function)>(reinterpret_cast<void*>(GetProcAddress(Module, Name)));
 }
 
+#define GETPROCADDRESS(Module, Name) GetProcAddress<&Name>(Module, #Name)
 
 template<typename callable>
 static bool unprotected(void* const Address, DWORD const Size, const callable& Callable) noexcept
@@ -161,15 +162,15 @@ static void init_hook() noexcept
 		return;
 
 	BOOL IsWowValue;
-	const auto IsWow = GetProcAddress<IsWow64Process>(Kernel32, "IsWow64Process");
+	const auto IsWow = GETPROCADDRESS(Kernel32, IsWow64Process);
 	if (!IsWow || !IsWow(GetCurrentProcess(), &IsWowValue) || !IsWowValue)
 		return;
 
-	const auto Disable = GetProcAddress<Wow64DisableWow64FsRedirection>(Kernel32, "Wow64DisableWow64FsRedirection");
+	const auto Disable = GETPROCADDRESS(Kernel32, Wow64DisableWow64FsRedirection);
 	if (!Disable)
 		return;
 
-	const auto Revert = GetProcAddress<Wow64RevertWow64FsRedirection>(Kernel32, "Wow64RevertWow64FsRedirection");
+	const auto Revert = GETPROCADDRESS(Kernel32, Wow64RevertWow64FsRedirection);
 	if (!Revert)
 		return;
 

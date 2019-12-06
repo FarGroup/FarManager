@@ -4596,8 +4596,7 @@ int FarMacroApi::strpadFunc()
 // S=StrWrap(Text,Width[,Break[,Flags]])
 int FarMacroApi::strwrapFunc()
 {
-	auto Params = parseParams(4, mData);
-	const auto Flags=static_cast<DWORD>(Params[3].asInteger());
+	auto Params = parseParams(3, mData);
 	auto& Break = Params[2];
 	const size_t Width = Params[1].asInteger();
 	const auto& Text = Params[0];

@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 06.12.2019 20:56:17 +0000 - build 5520
+
+1. GCC build and warnings.
+
 drkns 06.12.2019 18:23:09 +0000 - build 5519
 
 1. 0003755: Ctrl-H is slow in Code pages list
