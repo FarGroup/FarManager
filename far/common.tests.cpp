@@ -631,6 +631,22 @@ TEST_CASE("string_utils.misc")
 {
 	REQUIRE(!null_terminated(L"12345"sv.substr(0, 2)).c_str()[2]);
 
+	{
+		auto Str = L"Sempre assim em cima, em cima, em cima, em cima"s;
+		string_copyref StrCr1(Str);
+		REQUIRE(string_view(StrCr1).data() == Str.data());
+
+		string_copyref StrCr2(std::move(Str));
+		REQUIRE(Str.empty());
+		REQUIRE(string_view(StrCr2).front() == L'S');
+		REQUIRE(string_view(StrCr1).data() == string_view(StrCr2).data());
+	}
+
+	{
+		string_copyref StrCr(L"Chorando se foi quem um dia só me fez chorar"s);
+		REQUIRE(string_view(StrCr).front() == L'C');
+	}
+
 	REQUIRE(concat(L'a', L"bc", L"def"sv, L"1234"s) == L"abcdef1234"sv);
 	REQUIRE(concat(L""sv, L""sv) == L""sv);
 	REQUIRE(concat(L""sv) == L""sv);

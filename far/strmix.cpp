@@ -477,54 +477,6 @@ void remove_duplicates(string& Str, wchar_t const Char, bool const IgnoreCase)
 		;
 }
 
-/*
-Example 1.
-Str: "Пример строки, которая будет разбита на несколько строк по ширине в 20 символов."
-Width: 20
-
-Result:
-Пример строки,
-которая будет
-разбита на
-несколько строк по
-ширине в 20
-символов.
-
-Example 2.
-Str: "Эта строка содержит оооооооооооооччччччччеееень длиное слово"
-Width: 9
-BreakWords: true
-
-Result:
-Эта
-строка
-содержит
-ооооооооо
-ооооччччч
-чччеееень
-длиное
-слово
-*/
-
-wrapped_text::wrapped_text(string_view Str, size_t Width, string_view Break, bool BreakWords):
-	m_Str(Str),
-	m_Tail(m_Str),
-	m_Break(Break),
-	m_Width(Width),
-	m_BreakWords(BreakWords)
-{
-}
-
-wrapped_text::wrapped_text(string&& Str, size_t Width, string_view Break, bool BreakWords):
-	m_StrBuffer(std::move(Str)),
-	m_Str(m_StrBuffer),
-	m_Tail(m_Str),
-	m_Break(Break),
-	m_Width(Width),
-	m_BreakWords(BreakWords)
-{
-}
-
 bool wrapped_text::get(bool Reset, string_view& Value) const
 {
 	if (Reset)
@@ -533,35 +485,58 @@ bool wrapped_text::get(bool Reset, string_view& Value) const
 	if (m_Tail.empty())
 		return false;
 
-	const auto advance = [&](size_t TokenEnd, size_t NextTokenBegin)
+	const auto LineBreaks = L"\n"sv;
+	const auto WordSpaceBreaks = L" "sv;
+	const auto WordOtherBreaks = L",-"sv;
+
+	const auto advance = [&](size_t TokenEnd, size_t SeparatorSize)
 	{
 		Value = m_Tail.substr(0, TokenEnd);
-		m_Tail.remove_prefix(NextTokenBegin);
+		m_Tail.remove_prefix(TokenEnd + SeparatorSize);
 		return true;
 	};
 
-	if (m_Tail.size() <= m_Width)
-		return advance(m_Tail.size(), m_Tail.size());
+	// Try to take a line, drop line breaks
+	auto ChopSize = m_Tail.find_first_of(LineBreaks);
+	auto BreaksSize = LineBreaks.size();
 
-	// Prescan line to see if it is greater than Width
-	auto TokenEnd = m_Break.empty()? m_Tail.npos : m_Tail.substr(0, m_Width + m_Break.size()).find(m_Break);
-	if (TokenEnd != m_Tail.npos && TokenEnd <= m_Width)
-		return advance(TokenEnd, TokenEnd + m_Break.size());
+	if (ChopSize == m_Tail.npos)
+	{
+		ChopSize = m_Tail.size();
+		BreaksSize = 0;
+	}
 
-	// Needs breaking; work backwards to find previous word
-	TokenEnd = m_Tail.rfind(L' ', m_Width);
-	if (TokenEnd != m_Tail.npos)
-		return advance(TokenEnd, TokenEnd + 1);
+	if (ChopSize <= m_Width)
+		return advance(ChopSize, BreaksSize);
 
-	// Couldn't break is backwards, try looking forwards
-	if (m_BreakWords)
-		return advance(m_Width, m_Width);
+	// Try to take some words, drop spaces
+	ChopSize = m_Tail.find_last_of(WordSpaceBreaks, m_Width);
+	BreaksSize = WordSpaceBreaks.size();
 
-	TokenEnd = m_Tail.find(L' ', m_Width);
-	if (TokenEnd != m_Tail.npos)
-		return advance(TokenEnd, TokenEnd + 1);
+	if (ChopSize == m_Tail.npos)
+	{
+		ChopSize = m_Tail.size();
+		BreaksSize = 0;
+	}
 
-	return advance(m_Tail.size(), m_Tail.size());
+	if (ChopSize <= m_Width)
+		return advance(ChopSize, BreaksSize);
+
+	// Try to take some words, keep separators
+	ChopSize = m_Tail.find_last_of(WordOtherBreaks, m_Width);
+	BreaksSize = WordOtherBreaks.size();
+
+	if (ChopSize == m_Tail.npos)
+	{
+		ChopSize = m_Tail.size();
+		BreaksSize = 0;
+	}
+
+	if (ChopSize + WordOtherBreaks.size() <= m_Width)
+		return advance(ChopSize + WordOtherBreaks.size(), 0);
+
+	// Take a part of the word
+	return advance(m_Width, 0);
 }
 
 bool FindWordInString(const string& Str, size_t CurPos, size_t& Begin, size_t& End, const string& WordDiv0)
@@ -1099,6 +1074,76 @@ TEST_CASE("ReplaceStrings")
 		Src = i.Src;
 		ReplaceStrings(Src, i.Find, i.Replace, true);
 		REQUIRE(i.Result == Src);
+	}
+}
+
+TEST_CASE("wrapped_text")
+{
+	static const struct tests
+	{
+		string_view Src;
+		size_t Width;
+		span<const string_view> Result;
+	}
+	Tests[]
+	{
+		{ L""sv, 1, {
+			}
+		},
+		{ L"AB\nCD"sv, 0, {
+			L"AB"sv,
+			L"CD"sv
+		}},
+		{ L"12345"sv, 1, {
+			L"1"sv,
+			L"2"sv,
+			L"3"sv,
+			L"4"sv,
+			L"5"sv,
+		}},
+		{ L"Supercalifragilisticexpialidocious", 5, {
+			L"Super"sv,
+			L"calif"sv,
+			L"ragil"sv,
+			L"istic"sv,
+			L"expia"sv,
+			L"lidoc"sv,
+			L"ious"sv,
+		}},
+		{ L"Dale a tu cuerpo alegría Macarena\nQue tu cuerpo es pa' darle alegría why cosa buena\nDale a tu cuerpo alegría, Macarena\nHey Macarena", 35, {
+			L"Dale a tu cuerpo alegría Macarena"sv,
+			L"Que tu cuerpo es pa' darle alegría"sv,
+			L"why cosa buena"sv,
+			L"Dale a tu cuerpo alegría, Macarena"sv,
+			L"Hey Macarena",
+		}},
+		{ L"I used to wonder what friendship could be\nUntil you all shared its magic with me", 2000, {
+			L"I used to wonder what friendship could be"sv,
+			L"Until you all shared its magic with me"sv,
+		}},
+		{ L"Rah, rah, ah, ah, ah, roma, roma, ma. Gaga, ooh, la, la"sv, 10, {
+			L"Rah, rah,"sv,
+			L"ah, ah,"sv,
+			L"ah, roma,"sv,
+			L"roma, ma."sv,
+			L"Gaga, ooh,"sv,
+			L"la, la"sv
+		}},
+	};
+
+	for (const auto& Test: Tests)
+	{
+		auto Iterator = Test.Result.cbegin();
+		for (const auto& i: wrapped_text(Test.Src, Test.Width))
+		{
+			if (Test.Width)
+				REQUIRE(i.size() <= Test.Width);
+
+			REQUIRE(i == *Iterator);
+			++Iterator;
+		}
+
+		REQUIRE(Iterator == Test.Result.cend());
 	}
 }
 

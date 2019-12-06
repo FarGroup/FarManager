@@ -539,6 +539,8 @@ void codepages::SetFavorite(bool State)
 // Заполняем меню выбора таблиц символов
 void codepages::FillCodePagesVMenu(bool bShowUnicode, bool bViewOnly, bool bShowAutoDetect)
 {
+	SCOPED_ACTION(Dialog::suppress_redraw)(CodePagesMenu.get());
+
 	const auto codePage = currentCodePage;
 
 	if (CodePagesMenu->GetSelectPos() != -1 && static_cast<size_t>(CodePagesMenu->GetSelectPos()) < CodePagesMenu->size() - normalCodePages)

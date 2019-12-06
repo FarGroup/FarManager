@@ -3,6 +3,15 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 06.12.2019 18:23:09 +0000 - build 5519
+
+1. 0003755: Ctrl-H is slow in Code pages list
+   Same in Task list.
+
+2. Task list: mark the current task and other refactoring.
+
+3. More logical wrapping in DIF_WORDWRAP.
+
 drkns 04.12.2019 18:28:22 +0000 - build 5518
 
 1. Removed UI time separation to milliseconds and ticks, now it's just ticks.

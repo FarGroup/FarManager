@@ -350,7 +350,6 @@ TEST_CASE("strings.sorting")
 		{ L""sv,       L"a"sv,            -1, -1, },
 		{ L"a"sv,      L"a"sv,             0,  0, },
 		{ L"a"sv,      L"A"sv,             1,  0, },
-		{ L"A"sv,      L"a"sv,            -1,  0, },
 
 		{ L"0"sv,      L"1"sv,            -1, -1, },
 		{ L"0"sv,      L"00"sv,            1,  1, },
@@ -379,10 +378,18 @@ TEST_CASE("strings.sorting")
 		return Result < 0? -1 : Result > 0? 1 : 0;
 	};
 
+	const auto invert = [](int const Result)
+	{
+		return Result < 0? 1 : Result > 0 ? -1 : 0;
+;	};
+
 	for (const auto& i: Tests)
 	{
 		REQUIRE(normalise(compare_invariant_numeric(i.Str1, i.Str2)) == i.CaseResult);
 		REQUIRE(normalise(compare_invariant_numeric_icase(i.Str1, i.Str2)) == i.IcaseResult);
+
+		REQUIRE(invert(compare_invariant_numeric(i.Str2, i.Str1)) == i.CaseResult);
+		REQUIRE(invert(compare_invariant_numeric_icase(i.Str2, i.Str1)) == i.IcaseResult);
 	}
 }
 #endif

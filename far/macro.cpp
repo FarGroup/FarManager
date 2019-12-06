@@ -4605,7 +4605,7 @@ int FarMacroApi::strwrapFunc()
 	if (Break.isUnknown())
 		Break = L"\n"sv;
 
-	PassString(join(wrapped_text(Text.asString(), Width, Break.asString(), Flags == 1), Break.asString()));
+	PassString(join(wrapped_text(Text.asString(), Width), Break.asString()));
 
 	return 1;
 }

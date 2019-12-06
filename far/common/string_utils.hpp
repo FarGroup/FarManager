@@ -138,6 +138,30 @@ private:
 using null_terminated = null_terminated_t<wchar_t>;
 
 
+class string_copyref
+{
+public:
+	string_copyref(string_view Str) :
+		m_Str(Str)
+	{
+	}
+	string_copyref(string&& Str) :
+		m_StrBuffer(std::move(Str)),
+		m_Str(m_StrBuffer)
+	{
+	}
+
+	operator string_view() const
+	{
+		return m_Str;
+	}
+
+private:
+	string m_StrBuffer;
+	string_view m_Str;
+};
+
+
 namespace string_utils::detail
 {
 	// The overload for string literals is deliberately omitted as it also matches arrays

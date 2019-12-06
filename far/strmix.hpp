@@ -90,19 +90,21 @@ class [[nodiscard]] wrapped_text : public enumerator<wrapped_text, string_view>
 	IMPLEMENTS_ENUMERATOR(wrapped_text);
 
 public:
-	explicit wrapped_text(string_view Str, size_t Width, string_view Break = L"\n"sv, bool BreakWords = true);
-	explicit wrapped_text(string&& Str, size_t Width, string_view Break = L"\n"sv, bool BreakWords = true);
+	template<typename string_type>
+	explicit wrapped_text(string_type&& Str, size_t const Width):
+		m_Str(FWD(Str)),
+		m_Tail(m_Str),
+		m_Width(Width? Width : m_Tail.size())
+	{
+	}
 
 private:
 	[[nodiscard]]
 	bool get(bool Reset, string_view& Value) const;
 
-	string m_StrBuffer;
-	string_view m_Str;
+	string_copyref m_Str;
 	string_view mutable m_Tail;
-	string_view m_Break;
 	size_t m_Width;
-	bool m_BreakWords;
 };
 
 void PrepareUnitStr();
