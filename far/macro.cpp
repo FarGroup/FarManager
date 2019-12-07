@@ -397,6 +397,18 @@ struct DlgParam
 	bool Changed;
 };
 
+enum {
+	OP_ISEXECUTING              = 1,
+	OP_ISDISABLEOUTPUT          = 2,
+	OP_HISTORYDISABLEMASK       = 3,
+	OP_ISHISTORYDISABLE         = 4,
+	OP_ISTOPMACROOUTPUTDISABLED = 5,
+	OP_ISPOSTMACROENABLED       = 6,
+	OP_SETMACROVALUE            = 8,
+	OP_GETINPUTFROMMACRO        = 9,
+	OP_GETLASTERROR             = 11,
+};
+
 static bool ToDouble(long long v, double *d)
 {
 	if ((v >= 0 && v <= 0x1FFFFFFFFFFFFFLL) || (v < 0 && v >= -0x1FFFFFFFFFFFFFLL))
@@ -424,9 +436,9 @@ static bool CallMacroPlugin(OpenMacroPluginInfo* Info)
 	return result && ptr;
 }
 
-static bool MacroPluginOp(double OpCode, const FarMacroValue& Param, MacroPluginReturn* Ret = nullptr)
+static bool MacroPluginOp(int OpCode, const FarMacroValue& Param, MacroPluginReturn* Ret = nullptr)
 {
-	FarMacroValue values[]={OpCode,Param};
+	FarMacroValue values[]={static_cast<double> (OpCode),Param};
 	FarMacroCall fmc={sizeof(FarMacroCall),2,values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_KEYMACRO,&fmc};
 	if (CallMacroPlugin(&info))
@@ -440,48 +452,48 @@ static bool MacroPluginOp(double OpCode, const FarMacroValue& Param, MacroPlugin
 int KeyMacro::GetExecutingState()
 {
 	MacroPluginReturn Ret;
-	return MacroPluginOp(1.0,false,&Ret) ? Ret.ReturnType : static_cast<int>(MACROSTATE_NOMACRO);
+	return MacroPluginOp(OP_ISEXECUTING,false,&Ret) ? Ret.ReturnType : static_cast<int>(MACROSTATE_NOMACRO);
 }
 
 bool KeyMacro::IsOutputDisabled()
 {
 	MacroPluginReturn Ret;
-	return MacroPluginOp(2.0,false,&Ret)? Ret.ReturnType != 0 : false;
+	return MacroPluginOp(OP_ISDISABLEOUTPUT,false,&Ret)? Ret.ReturnType != 0 : false;
 }
 
 static DWORD SetHistoryDisableMask(DWORD Mask)
 {
 	MacroPluginReturn Ret;
-	return MacroPluginOp(3.0, static_cast<double>(Mask), &Ret)? Ret.ReturnType : 0;
+	return MacroPluginOp(OP_HISTORYDISABLEMASK, static_cast<double>(Mask), &Ret)? Ret.ReturnType : 0;
 }
 
 static DWORD GetHistoryDisableMask()
 {
 	MacroPluginReturn Ret;
-	return MacroPluginOp(3.0,false,&Ret) ? Ret.ReturnType : 0;
+	return MacroPluginOp(OP_HISTORYDISABLEMASK,false,&Ret) ? Ret.ReturnType : 0;
 }
 
 bool KeyMacro::IsHistoryDisabled(int TypeHistory)
 {
 	MacroPluginReturn Ret;
-	return MacroPluginOp(4.0, static_cast<double>(TypeHistory), &Ret)? !!Ret.ReturnType : false;
+	return MacroPluginOp(OP_ISHISTORYDISABLE, static_cast<double>(TypeHistory), &Ret)? !!Ret.ReturnType : false;
 }
 
 static bool IsTopMacroOutputDisabled()
 {
 	MacroPluginReturn Ret;
-	return MacroPluginOp(5.0,false,&Ret) ? !!Ret.ReturnType : false;
+	return MacroPluginOp(OP_ISTOPMACROOUTPUTDISABLED,false,&Ret) ? !!Ret.ReturnType : false;
 }
 
 static bool IsPostMacroEnabled()
 {
 	MacroPluginReturn Ret;
-	return MacroPluginOp(6.0,false,&Ret) && Ret.ReturnType==1;
+	return MacroPluginOp(OP_ISPOSTMACROENABLED,false,&Ret) && Ret.ReturnType==1;
 }
 
 static void SetMacroValue(bool Value)
 {
-	MacroPluginOp(8.0, Value);
+	MacroPluginOp(OP_SETMACROVALUE, Value);
 }
 
 static bool TryToPostMacro(FARMACROAREA Area,const string& TextKey,DWORD IntKey)
@@ -553,7 +565,7 @@ int KeyMacro::GetState() const
 
 static bool GetInputFromMacro(MacroPluginReturn *mpr)
 {
-	return MacroPluginOp(9.0,false,mpr);
+	return MacroPluginOp(OP_GETINPUTFROMMACRO,false,mpr);
 }
 
 void KeyMacro::RestoreMacroChar() const
@@ -1341,7 +1353,7 @@ bool KeyMacro::ExecuteString(MacroExecuteString *Data)
 DWORD KeyMacro::GetMacroParseError(COORD* ErrPos, string& ErrSrc)
 {
 	MacroPluginReturn Ret;
-	if (MacroPluginOp(11.0, false, &Ret))
+	if (MacroPluginOp(OP_GETLASTERROR, false, &Ret))
 	{
 		ErrSrc = Ret.Values[0].String;
 		ErrPos->Y = static_cast<SHORT>(Ret.Values[1].Double);
