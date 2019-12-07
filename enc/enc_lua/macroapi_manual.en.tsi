@@ -104,7 +104,7 @@ lv=2
 dt=Text
 nm=Regular macros
 ctime=3580139016
-mtime=3745945309
+mtime=3784921679
 <article>
 #_<markdown>
 #_
@@ -158,15 +158,20 @@ mtime=3745945309
 #_   will not execute.
 #_
 #_1. Optional field `condition` - a function.
-#_   * It is called with one argument: the name of pressed key.
-#_     For auto-started macros it is called with no arguments.
+#_   * It is called with 2 arguments:
+#_     1. Name of the pressed key (nil for auto-started macros)
+#_     2. A copy of the table-argument received by function Macro.
+#_        The same table-copy is used until macros are reloaded.
+#_        Some predefined fields, e.g. "flags" may be presented in a different form.
 #_   * If the function returns `false`/`nil`/nothing, the macro will not execute.
 #_   * If it returns a number then this number is used instead of `priority`.
 #_   * In other cases of return value (e.g., `true`) `priority` is used.<br><br>
 #_
 #_1. Field `action` - a function.<br>
-#_   If the macro has passed successfully all preliminary checks (area, flags, file mask, priority)
-#_   then this functgion is called.
+#_   * If the macro has passed successfully all preliminary checks (area, flags, file mask, priority)
+#_     then this function is called.
+#_   * It is called with 1 argument: a copy of the table-argument received by function Macro.
+#_     It is the same table that is passed as 2-nd argument to function `condition`.<br><br>
 #_
 #_1. More than one macro for (`key`,`area`) combination is allowed. In this case a macro with highest priority is executed. If there are multiple macros having the same priority then the macro selection menu is displayed.<br>
 #_   The auto-starting macros are executed all, one by one, independently from priorities. The order of their execution is not defined.

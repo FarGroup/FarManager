@@ -1,4 +1,13 @@
-﻿shmuel 04.12.2019 18:01:32 +0200 - build 716
+﻿shmuel 07.12.2019 23:34:24 +0200 - build 717
+
+1. Regular macros: functions condition() and action() receive an additional argument - a table.
+   This table can be used for keeping and modifying data that are private to the macro.
+   It is initialized by the content of a table-argument received by function Macro.
+
+2. Regular macros: arbitrary non-standard fields are allowed, they will be copied to the table
+   described in the above paragraph.
+
+shmuel 04.12.2019 18:01:32 +0200 - build 716
 
 1. LuaFAR: far.GetMsg() accepts the optional 2-nd parameter (PluginId).
 

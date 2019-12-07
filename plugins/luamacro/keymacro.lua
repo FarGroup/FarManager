@@ -2,7 +2,7 @@
 
 local Shared = ...
 local Msg, ErrMsg = Shared.Msg, Shared.ErrMsg
-local MacroInit, MacroStep = Shared.MacroInit, Shared.MacroStep
+local MacroStep = Shared.MacroStep
 local pack, loadmacro, utils = Shared.pack, Shared.loadmacro, Shared.utils
 local MacroCallFar = Shared.MacroCallFar
 local FarMacroCallToLua = Shared.FarMacroCallToLua
@@ -61,10 +61,28 @@ local NewMacroRecord do
   function MacroRecord:GetFlags() return self.m_flags end
   function MacroRecord:SetFlags(f) self.m_flags=f end
   function MacroRecord:GetHandle() return self.m_handle end
-  function MacroRecord:SetHandle(handle) self.m_handle=handle end
   function MacroRecord:GetValue() return self.m_value end
   function MacroRecord:SetValue(val) self.m_value=val end
   function MacroRecord:GetStartArea() return self.m_area end
+
+  function MacroRecord:SetHandle()
+    local Id = self.m_id
+    local chunk, params
+    if Id.action then
+      chunk, params = Id.action, Id.data
+    elseif Id.code then
+      chunk, params = loadmacro(Id.language, Id.code)
+    elseif Id.HasFunction then
+      chunk, params = Id[1], Id[2] -- macros started via MSSC_POST or from the command line
+    else
+      chunk, params = Id[1], function() return unpack(Id,2,Id.n) end -- macros started via mf.postmacro
+    end
+    if chunk then
+      self.m_handle = { coro=coroutine.create(chunk), params=params, _store=nil }
+    else
+      ErrMsg(params)
+    end
+  end
 
   NewMacroRecord = function (MacroId, Flags, Key, TextKey)
     return setmetatable({m_id=MacroId, m_flags=Flags, m_key=Key, m_textkey=TextKey,
@@ -238,16 +256,16 @@ local function GetInputFromMacro()
     end
 
     local macro = GetCurMacro()
-    if not macro then break end
+    if not macro then return end
 
     if not macro:GetHandle() then
       PushState(false)
-      macro:SetHandle(MacroInit(macro.m_id))
+      macro:SetHandle()
       PopState(false)
       if not macro:GetHandle() then
         RemoveCurMacro()
         Import.RestoreMacroChar()
-        break
+        return
       end
     end
 
@@ -430,10 +448,10 @@ local OP_HISTORYDISABLEMASK       = 3
 local OP_ISHISTORYDISABLE         = 4
 local OP_ISTOPMACROOUTPUTDISABLED = 5
 local OP_ISPOSTMACROENABLED       = 6
-local OP_POSTNEWMACRO             = 7
+local OP_POSTNEWMACRO             = 7 -- comes not from Far
 local OP_SETMACROVALUE            = 8
 local OP_GETINPUTFROMMACRO        = 9
-local OP_TRYTOPOSTMACRO           = 10
+local OP_TRYTOPOSTMACRO           = 10 -- comes not from Far
 local OP_GETLASTERROR             = 11
 
 function KeyMacro.Dispatch (opcode, ...)

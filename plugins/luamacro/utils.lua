@@ -340,14 +340,14 @@ local ExpandKey do -- измеренное время исполнения на ключе "CtrlAltShiftF12" = ?
 end
 
 local function AddRegularMacro (srctable, FileName)
-  local macro = {}
-  if type(srctable)=="table" and type(srctable.area)=="string" then
-    macro.area = srctable.area
-    macro.key = type(srctable.key)=="string" and srctable.key or "none"
-    if not macro.key:find("%S") then macro.key = "none" end
-  else
+  if not (type(srctable)=="table" and type(srctable.area)=="string") then
     return
   end
+
+  local macro = {}
+  for k,v in pairs(srctable) do macro[k]=v; end
+  macro.key = type(srctable.key)=="string" and srctable.key or "none"
+  if not macro.key:find("%S") then macro.key = "none" end
 
   local keyregex, ok = macro.key:match("^/(.+)/$"), nil
   if keyregex then
@@ -358,24 +358,24 @@ local function AddRegularMacro (srctable, FileName)
     end
   end
 
-  if type(srctable.action)=="function" then
-    macro.action = srctable.action
-  elseif type(srctable.code)=="string" then
-    local isMoonScript = srctable.language=="moonscript"
-    if srctable.code:sub(1,1) == "@" then
-      macro.code = srctable.code
-      macro.language = isMoonScript and "moonscript" or "lua"
-    else
-      local f, msg = (isMoonScript and require("moonscript").loadstring or loadstring)(srctable.code)
-      if f then
-        macro.action = f
+  if type(srctable.action)~="function" then
+    macro.action = nil
+    if type(srctable.code)=="string" then
+      local isMoonScript = srctable.language=="moonscript"
+      if srctable.code:sub(1,1) == "@" then
+        macro.language = isMoonScript and "moonscript" or "lua"
       else
-        if FileName then ErrMsg(msg, isMoonScript and "MoonScript") end
-        return
+        local f, msg = (isMoonScript and require("moonscript").loadstring or loadstring)(srctable.code)
+        if f then
+          macro.action = f
+        else
+          if FileName then ErrMsg(msg, isMoonScript and "MoonScript") end
+          return
+        end
       end
+    else
+      return
     end
-  else
-    return
   end
 
   local arFound = {} -- prevent multiple inclusions, i.e. area="Editor Editor"
@@ -406,10 +406,11 @@ local function AddRegularMacro (srctable, FileName)
   if next(arFound) then
     macro.flags = StringToFlags(srctable.flags, FileName)
 
-    if type(srctable.description)=="string" then macro.description=srctable.description end
-    if type(srctable.condition)=="function" then macro.condition=srctable.condition end
-    if type(srctable.filemask)=="string" then macro.filemask=srctable.filemask end
+    if type(srctable.description)~="string" then macro.description=nil end
+    if type(srctable.condition)~="function" then macro.condition=nil end
+    if type(srctable.filemask)~="string" then macro.filemask=nil end
 
+    macro.priority, macro.sortpriority = nil,nil
     local priority = srctable.priority
     if type(priority)=="number" then
       macro.priority = priority>100 and 100 or priority<0 and 0 or priority
@@ -423,15 +424,16 @@ local function AddRegularMacro (srctable, FileName)
 
     if FileName then
       macro.FileName = FileName
-    else
-      macro.guid = srctable.guid
-      macro.callback = srctable.callback
-      macro.callbackId = srctable.callbackId
-      macro.language = srctable.language
+      macro.guid = nil
+      macro.callback = nil
+      macro.callbackId = nil
+      macro.language = nil
     end
 
     macro.index = #LoadedMacros+1
     LoadedMacros[macro.index] = macro
+    --macro.data = setmetatable({}, {__index=macro})
+    macro.data = {}; for k,v in pairs(macro) do macro.data[k]=v end
     return macro
   end
 end
@@ -1054,7 +1056,7 @@ local function GetMacro (argMode, argKey, argUseCommon, argCheckOnly)
   local nummacros = 0
   for m,p in pairs(Collector) do
     if m.condition then
-      local pr = m.condition(argKey) -- unprotected call
+      local pr = m.condition(argKey, m.data) -- unprotected call
       if pr then
         if type(pr)=="number" then
           CInfo[p] = pr>100 and 100 or pr<0 and 0 or pr
@@ -1188,7 +1190,7 @@ local function RunStartMacro()
         if not m.disabled and m.flags and band(m.flags,0x8)~=0 and not m.autostartdone then
           m.autostartdone=true
           if MacroCallFar(MCODE_F_CHECKALL, mode, m.flags) then
-            if not m.condition or m.condition() then
+            if not m.condition or m.condition(nil, m.data) then
               Shared.keymacro.PostNewMacro(m, m.flags, nil, true)
             end
           end

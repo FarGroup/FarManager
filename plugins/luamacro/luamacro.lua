@@ -208,24 +208,6 @@ local function postmacro (f, ...)
   return false
 end
 
-local function MacroInit (Id)
-  local chunk, params
-  if Id.action then
-    chunk = Id.action
-  elseif Id.code then
-    chunk, params = loadmacro(Id.language, Id.code)
-  elseif Id.HasFunction then
-    chunk, params = Id[1], Id[2] -- макросы, запускаемые посредством MSSC_POST или с командной строки
-  else
-    chunk, params = Id[1], function() return unpack(Id,2,Id.n) end -- макросы, запускаемые через mf.postmacro
-  end
-  if chunk then
-    return { coro=coroutine.create(chunk), params=params, _store=nil }
-  else
-    ErrMsg(params)
-  end
-end
-
 local function FixReturn (handle, ok, ...)
   local ret1, ret_type = ...
   if ok then
@@ -251,12 +233,17 @@ local function MacroStep (handle, ...)
       if handle.params then
         local params = handle.params
         handle.params = nil
-        local tt = pack(xpcall(params, debug.traceback))
-        if tt[1] then
-          return FixReturn(handle, co_resume(handle.coro, unpack(tt,2,tt.n)))
-        else
-          ErrMsg(tt[2])
-          return F.MPRT_ERRORFINISH
+        local tp = type(params)
+        if tp == "function" then
+          local tt = pack(xpcall(params, debug.traceback))
+          if tt[1] then
+            return FixReturn(handle, co_resume(handle.coro, unpack(tt,2,tt.n)))
+          else
+            ErrMsg(tt[2])
+            return F.MPRT_ERRORFINISH
+          end
+        elseif tp == "table" then
+          return FixReturn(handle, co_resume(handle.coro, params))
         end
       else
         return FixReturn(handle, co_resume(handle.coro, ...))
@@ -511,7 +498,6 @@ local function Init()
     ErrMsg            = ErrMsg,
     ExpandEnv         = ExpandEnv,
     GetLastParseError = GetLastParseError,
-    MacroInit         = MacroInit,
     MacroStep         = MacroStep,
     checkarg          = checkarg,
     loadmacro         = loadmacro,
