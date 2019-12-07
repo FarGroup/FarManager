@@ -381,7 +381,7 @@ TEST_CASE("strings.sorting")
 	const auto invert = [](int const Result)
 	{
 		return Result < 0? 1 : Result > 0 ? -1 : 0;
-;	};
+	};
 
 	for (const auto& i: Tests)
 	{
