@@ -104,7 +104,7 @@ lv=2
 dt=Text
 nm=Regular macros
 ctime=3580139016
-mtime=3784921679
+mtime=3784959738
 <article>
 #_<markdown>
 #_
@@ -159,10 +159,9 @@ mtime=3784921679
 #_
 #_1. Optional field `condition` - a function.
 #_   * It is called with 2 arguments:
-#_     1. Name of the pressed key (nil for auto-started macros)
+#_     1. Name of the pressed key (`nil` for auto-started macros)
 #_     2. A copy of the table-argument received by function Macro.
-#_        The same table-copy is used until macros are reloaded.
-#_        Some predefined fields, e.g. "flags" may be presented in a different form.
+#_        The same copy is used until macros are reloaded.
 #_   * If the function returns `false`/`nil`/nothing, the macro will not execute.
 #_   * If it returns a number then this number is used instead of `priority`.
 #_   * In other cases of return value (e.g., `true`) `priority` is used.<br><br>

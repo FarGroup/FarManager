@@ -345,7 +345,7 @@ local function AddRegularMacro (srctable, FileName)
   end
 
   local macro = {}
-  for k,v in pairs(srctable) do macro[k]=v; end
+  macro.area = srctable.area
   macro.key = type(srctable.key)=="string" and srctable.key or "none"
   if not macro.key:find("%S") then macro.key = "none" end
 
@@ -358,24 +358,24 @@ local function AddRegularMacro (srctable, FileName)
     end
   end
 
-  if type(srctable.action)~="function" then
-    macro.action = nil
-    if type(srctable.code)=="string" then
-      local isMoonScript = srctable.language=="moonscript"
-      if srctable.code:sub(1,1) == "@" then
-        macro.language = isMoonScript and "moonscript" or "lua"
-      else
-        local f, msg = (isMoonScript and require("moonscript").loadstring or loadstring)(srctable.code)
-        if f then
-          macro.action = f
-        else
-          if FileName then ErrMsg(msg, isMoonScript and "MoonScript") end
-          return
-        end
-      end
+  if type(srctable.action)=="function" then
+    macro.action = srctable.action
+  elseif type(srctable.code)=="string" then
+    local isMoonScript = srctable.language=="moonscript"
+    if srctable.code:sub(1,1) == "@" then
+      macro.code = srctable.code
+      macro.language = isMoonScript and "moonscript" or "lua"
     else
-      return
+      local f, msg = (isMoonScript and require("moonscript").loadstring or loadstring)(srctable.code)
+      if f then
+        macro.action = f
+      else
+        if FileName then ErrMsg(msg, isMoonScript and "MoonScript") end
+        return
+      end
     end
+  else
+    return
   end
 
   local arFound = {} -- prevent multiple inclusions, i.e. area="Editor Editor"
@@ -406,11 +406,10 @@ local function AddRegularMacro (srctable, FileName)
   if next(arFound) then
     macro.flags = StringToFlags(srctable.flags, FileName)
 
-    if type(srctable.description)~="string" then macro.description=nil end
-    if type(srctable.condition)~="function" then macro.condition=nil end
-    if type(srctable.filemask)~="string" then macro.filemask=nil end
+    if type(srctable.description)=="string" then macro.description=srctable.description end
+    if type(srctable.condition)=="function" then macro.condition=srctable.condition end
+    if type(srctable.filemask)=="string" then macro.filemask=srctable.filemask end
 
-    macro.priority, macro.sortpriority = nil,nil
     local priority = srctable.priority
     if type(priority)=="number" then
       macro.priority = priority>100 and 100 or priority<0 and 0 or priority
@@ -424,16 +423,17 @@ local function AddRegularMacro (srctable, FileName)
 
     if FileName then
       macro.FileName = FileName
-      macro.guid = nil
-      macro.callback = nil
-      macro.callbackId = nil
-      macro.language = nil
+    else
+      macro.guid = srctable.guid
+      macro.callback = srctable.callback
+      macro.callbackId = srctable.callbackId
+      macro.language = srctable.language
     end
 
+    macro.data = {}
+    for k,v in pairs(srctable) do macro.data[k]=v; end
     macro.index = #LoadedMacros+1
     LoadedMacros[macro.index] = macro
-    --macro.data = setmetatable({}, {__index=macro})
-    macro.data = {}; for k,v in pairs(macro) do macro.data[k]=v end
     return macro
   end
 end
