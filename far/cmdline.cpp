@@ -1356,7 +1356,7 @@ bool CommandLine::IntChDir(string_view const CmdLine, bool const ClosePanel, boo
 
 	size_t DirOffset = 0;
 	ParsePath(strExpandedDir, &DirOffset);
-	if (strExpandedDir.find_first_of(L"?*", DirOffset) != string::npos) // это маска?
+	if (strExpandedDir.find_first_of(L"?*"sv, DirOffset) != string::npos) // это маска?
 	{
 		os::fs::find_data wfd;
 

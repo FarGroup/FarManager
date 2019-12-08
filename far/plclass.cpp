@@ -156,26 +156,6 @@ plugin_factory::plugin_factory(PluginManager* owner):
 	m_ExportsNames = ExportsNames;
 }
 
-bool native_plugin_factory::IsPlugin(const string& filename) const
-{
-	if (!ends_with_icase(filename, L".dll"sv))
-		return false;
-
-	const auto ModuleFile = os::fs::create_file(filename, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
-	if (!ModuleFile)
-		return false;
-
-	const auto ModuleMapping = os::handle(CreateFileMapping(ModuleFile.native_handle(), nullptr, PAGE_READONLY, 0, 0, nullptr));
-	if (!ModuleMapping)
-		return false;
-
-	const auto Data = os::fs::file_view(MapViewOfFile(ModuleMapping.native_handle(), FILE_MAP_READ, 0, 0, 0));
-	if (!Data)
-		return false;
-
-	return IsPlugin2(Data.get());
-}
-
 plugin_factory::plugin_module_ptr native_plugin_factory::Create(const string& filename)
 {
 	auto Module = std::make_unique<native_plugin_module>(filename);
@@ -206,7 +186,7 @@ bool native_plugin_factory::Destroy(plugin_factory::plugin_module_ptr& instance)
 
 plugin_factory::function_address native_plugin_factory::Function(const plugin_factory::plugin_module_ptr& Instance, const plugin_factory::export_name& Name)
 {
-	return !Name.AName.empty()? static_cast<native_plugin_module*>(Instance.get())->GetProcAddress(null_terminated_t<char>(Name.AName).c_str()) : nullptr;
+	return !Name.AName.empty()? static_cast<native_plugin_module*>(Instance.get())->GetProcAddress<function_address>(null_terminated_t<char>(Name.AName).c_str()) : nullptr;
 }
 
 bool native_plugin_factory::FindExport(const std::string_view ExportName) const
@@ -224,56 +204,78 @@ WARNING_DISABLE_CLANG("-Wold-style-cast")
 WARNING_POP()
 }
 
-bool native_plugin_factory::IsPlugin2(const void* Module) const
+template<typename T>
+static const T* real_address(const void* const BaseAddress, size_t const VirtualAddress)
 {
+	return static_cast<const T*>(static_cast<const void*>(static_cast<const char*>(BaseAddress) + VirtualAddress));
+}
+
+template<typename T>
+static const T* real_address(const void* const BaseAddress, const IMAGE_SECTION_HEADER& Section, size_t const VirtualAddress)
+{
+	return real_address<T>(BaseAddress, Section.PointerToRawData + (VirtualAddress - Section.VirtualAddress));
+}
+
+bool native_plugin_factory::IsPlugin(const string& FileName) const
+{
+	if (!ends_with_icase(FileName, L".dll"sv))
+		return false;
+
+	const auto ModuleFile = os::fs::create_file(FileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
+	if (!ModuleFile)
+		return false;
+
+	const os::handle ModuleMapping(CreateFileMapping(ModuleFile.native_handle(), nullptr, PAGE_READONLY, 0, 0, nullptr));
+	if (!ModuleMapping)
+		return false;
+
+	const os::fs::file_view Data(MapViewOfFile(ModuleMapping.native_handle(), FILE_MAP_READ, 0, 0, 0));
+	if (!Data)
+		return false;
+
 	return seh_invoke_no_ui([&]
 	{
-		const auto& DOSHeader = *static_cast<const IMAGE_DOS_HEADER*>(Module);
-		if (DOSHeader.e_magic != IMAGE_DOS_SIGNATURE)
+		const auto& DosHeader = *real_address<IMAGE_DOS_HEADER>(Data.get(), 0);
+		if (DosHeader.e_magic != IMAGE_DOS_SIGNATURE)
 			return false;
 
-		const auto& PEHeader = *static_cast<const IMAGE_NT_HEADERS*>(static_cast<const void*>(static_cast<const char*>(Module) + DOSHeader.e_lfanew));
+		const auto& NtHeaders = *real_address<IMAGE_NT_HEADERS>(Data.get(), DosHeader.e_lfanew);
 
-		if (PEHeader.Signature != IMAGE_NT_SIGNATURE)
+		if (NtHeaders.Signature != IMAGE_NT_SIGNATURE)
 			return false;
 
-		if (!(PEHeader.FileHeader.Characteristics & IMAGE_FILE_DLL))
+		if (!(NtHeaders.FileHeader.Characteristics & IMAGE_FILE_DLL))
 			return false;
 
 		static const auto FarMachineType = []
 		{
-			const void* FarModule = GetModuleHandle(nullptr);
-			return reinterpret_cast<const IMAGE_NT_HEADERS*>(static_cast<const char*>(FarModule) + static_cast<const IMAGE_DOS_HEADER*>(FarModule)->e_lfanew)->FileHeader.Machine;
+			const auto FarModule = GetModuleHandle(nullptr);
+			const auto& FarDosHeader = *real_address<IMAGE_DOS_HEADER>(FarModule, 0);
+			const auto& FarNtHeaders = *real_address<IMAGE_NT_HEADERS>(FarModule, FarDosHeader.e_lfanew);
+			return FarNtHeaders.FileHeader.Machine;
 		}();
 
-		if (PEHeader.FileHeader.Machine != FarMachineType)
+		if (NtHeaders.FileHeader.Machine != FarMachineType)
 			return false;
 
-		const auto ExportAddr = PEHeader.OptionalHeader.DataDirectory[0].VirtualAddress;
-
-		if (!ExportAddr)
+		const auto ExportDirectoryAddress = NtHeaders.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress;
+		if (!ExportDirectoryAddress)
 			return false;
 
-		for (const auto& Section: span(image_first_section(PEHeader), PEHeader.FileHeader.NumberOfSections))
+		for (const auto& Section: span(image_first_section(NtHeaders), NtHeaders.FileHeader.NumberOfSections))
 		{
-			if ((Section.VirtualAddress == ExportAddr) ||
-				((Section.VirtualAddress <= ExportAddr) && ((Section.Misc.VirtualSize + Section.VirtualAddress) > ExportAddr)))
+			if (!(Section.VirtualAddress <= ExportDirectoryAddress && ExportDirectoryAddress < Section.VirtualAddress + Section.Misc.VirtualSize))
+				continue;
+
+			const auto& ExportDirectory = *real_address<IMAGE_EXPORT_DIRECTORY>(Data.get(), Section, ExportDirectoryAddress);
+			const auto Names = span(real_address<DWORD>(Data.get(), Section, ExportDirectory.AddressOfNames), ExportDirectory.NumberOfNames);
+
+			if (std::any_of(ALL_CONST_RANGE(Names), [&](DWORD const NameAddress)
 			{
-				const auto GetAddress = [&](size_t Offset) -> const void*
-				{
-					return static_cast<const char*>(Module) + Section.PointerToRawData - Section.VirtualAddress + Offset;
-				};
-
-				const auto& ExportDir = *static_cast<const IMAGE_EXPORT_DIRECTORY*>(GetAddress(ExportAddr));
-				const auto Names = span(static_cast<const DWORD*>(GetAddress(ExportDir.AddressOfNames)), ExportDir.NumberOfNames);
-
-				if (std::any_of(ALL_CONST_RANGE(Names), [&](DWORD NameOffset)
-				{
-					return FindExport(static_cast<const char*>(GetAddress(NameOffset)));
-				}))
-				{
-					return true;
-				}
+				return FindExport(real_address<char>(Data.get(), Section, NameAddress));
+			}))
+			{
+				return true;
 			}
 		}
 		return false;

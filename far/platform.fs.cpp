@@ -1514,7 +1514,7 @@ namespace os::fs
 				{
 					return ReturnedSize > AllocatedSize;
 				},
-					[](span<const SECURITY_DESCRIPTOR>)
+				[](span<const SECURITY_DESCRIPTOR>)
 				{}
 			))
 			{
@@ -1548,7 +1548,7 @@ namespace os::fs
 			fop.pFrom = ObjectsArray.c_str();
 			fop.fFlags = FOF_NO_UI | FOF_ALLOWUNDO;
 
-			auto Result = SHErrorToWinError(SHFileOperation(&fop));
+			const auto Result = SHErrorToWinError(SHFileOperation(&fop));
 			SetLastError(Result);
 			return Result == ERROR_SUCCESS && !fop.fAnyOperationsAborted;
 		}
@@ -2056,7 +2056,7 @@ namespace os::fs
 
 		size_t DirOffset = 0;
 		ParsePath(FileName, &DirOffset);
-		if (FileName.find_first_of(L"*?", DirOffset) != string::npos)
+		if (FileName.find_first_of(L"*?"sv, DirOffset) != string::npos)
 			return false;
 
 		if ((FindData.Attributes = get_file_attributes(FileName)) == INVALID_FILE_ATTRIBUTES)

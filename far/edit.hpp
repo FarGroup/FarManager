@@ -159,25 +159,7 @@ public:
 	void SetString(string_view Str, bool KeepSelection = false);
 	void InsertString(string_view Str);
 	void AppendString(string_view Str);
-
 	void ClearString() { SetString({}); }
-
-	int Search(
-		string_view Str,
-		string_view UpperStr,
-		string_view LowerStr,
-		const RegExp& re,
-		RegExpMatch* pm,
-		MatchHash* hm,
-		string& ReplaceStr,
-		int& Position,
-		bool Case,
-		bool WholeWords,
-		bool Reverse,
-		bool Regexp,
-		bool PreserveStyle,
-		int *SearchLength
-	) const;
 
 	void SetCurPos(int NewPos) {m_CurPos=NewPos; SetPrevCurPos(NewPos);}
 	void AdjustMarkBlock();

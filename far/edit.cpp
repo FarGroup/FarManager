@@ -1747,47 +1747,6 @@ bool Edit::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	return true;
 }
 
-/* $ 03.08.2000 KM
-   Немного изменён алгоритм из-за необходимости
-   добавления поиска целых слов.
-*/
-int Edit::Search(
-	string_view const Str,
-	string_view const UpperStr,
-	string_view const LowerStr,
-	const RegExp& re,
-	RegExpMatch* const pm,
-	MatchHash* const hm,
-	string& ReplaceStr,
-	int& Position,
-	bool const Case,
-	bool const WholeWords,
-	bool const Reverse,
-	bool const Regexp,
-	bool const PreserveStyle,
-	int* const SearchLength
-) const
-{
-	return SearchString(
-		m_Str,
-		Str,
-		UpperStr,
-		LowerStr,
-		re,
-		pm,
-		hm,
-		ReplaceStr,
-		Position,
-		Case,
-		WholeWords,
-		Reverse,
-		Regexp,
-		PreserveStyle,
-		SearchLength,
-		WordDiv()
-	);
-}
-
 void Edit::InsertTab()
 {
 	if (m_Flags.Check(FEDITLINE_READONLY))

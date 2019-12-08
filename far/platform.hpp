@@ -265,8 +265,9 @@ namespace os
 				m_AlternativeLoad(AlternativeLoad)
 			{}
 
+			template<typename T>
 			[[nodiscard]]
-			void* GetProcAddress(const char* name) const { return reinterpret_cast<void*>(::GetProcAddress(get_module(), name)); }
+			T GetProcAddress(const char* name) const { return reinterpret_cast<T>(reinterpret_cast<void*>(::GetProcAddress(get_module(), name))); }
 
 			[[nodiscard]]
 			explicit operator bool() const noexcept { return get_module() != nullptr; }
@@ -305,7 +306,7 @@ namespace os
 			{
 				if (!m_Tried)
 				{
-					m_Pointer = reinterpret_cast<T>(m_Module->GetProcAddress(m_Name));
+					m_Pointer = m_Module->GetProcAddress<T>(m_Name);
 					m_Tried = true;
 				}
 

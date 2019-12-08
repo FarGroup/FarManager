@@ -94,7 +94,7 @@ static void MixToFullPath(string& strPath)
 					if (Pos + 2 == strPath.size() || IsSlash(strPath[Pos + 2]))
 					{
 						//Calculate subdir name offset
-						size_t n = strPath.find_last_of(L"\\/", Pos-2);
+						size_t n = strPath.find_last_of(L"\\/"sv, Pos-2);
 						n = (n == string::npos || n < DirOffset) ? DirOffset : n+1;
 
 						//fragment "..\" or "../"

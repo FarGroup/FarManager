@@ -86,7 +86,7 @@ string GroupDigits(unsigned long long Value)
 	{
 		const size_t Size = GetNumberFormat(LOCALE_USER_DEFAULT, 0, Src.c_str(), &Fmt, Buffer.data(), static_cast<int>(Buffer.size()));
 		return Size? Size - 1 : 0;
-		}))
+	}))
 		return Result;
 
 	// Better than nothing
@@ -487,7 +487,7 @@ bool wrapped_text::get(bool Reset, string_view& Value) const
 
 	const auto LineBreaks = L"\n"sv;
 	const auto WordSpaceBreaks = L" "sv;
-	const auto WordOtherBreaks = L",-"sv;
+	const auto WordOtherBreaks = L",-"sv; // TODO: Opt.WordDiv?
 
 	const auto advance = [&](size_t TokenEnd, size_t SeparatorSize)
 	{
@@ -498,7 +498,7 @@ bool wrapped_text::get(bool Reset, string_view& Value) const
 
 	// Try to take a line, drop line breaks
 	auto ChopSize = m_Tail.find_first_of(LineBreaks);
-	auto BreaksSize = LineBreaks.size();
+	auto BreaksSize = 1;
 
 	if (ChopSize == m_Tail.npos)
 	{
@@ -511,7 +511,7 @@ bool wrapped_text::get(bool Reset, string_view& Value) const
 
 	// Try to take some words, drop spaces
 	ChopSize = m_Tail.find_last_of(WordSpaceBreaks, m_Width);
-	BreaksSize = WordSpaceBreaks.size();
+	BreaksSize = 1;
 
 	if (ChopSize == m_Tail.npos)
 	{
@@ -524,7 +524,7 @@ bool wrapped_text::get(bool Reset, string_view& Value) const
 
 	// Try to take some words, keep separators
 	ChopSize = m_Tail.find_last_of(WordOtherBreaks, m_Width);
-	BreaksSize = WordOtherBreaks.size();
+	BreaksSize = 1;
 
 	if (ChopSize == m_Tail.npos)
 	{
@@ -532,8 +532,8 @@ bool wrapped_text::get(bool Reset, string_view& Value) const
 		BreaksSize = 0;
 	}
 
-	if (ChopSize + WordOtherBreaks.size() <= m_Width)
-		return advance(ChopSize + WordOtherBreaks.size(), 0);
+	if (ChopSize + BreaksSize <= m_Width)
+		return advance(ChopSize + BreaksSize, 0);
 
 	// Take a part of the word
 	return advance(m_Width, 0);
@@ -793,6 +793,43 @@ bool SearchString(
 	const RegExp& re,
 	RegExpMatch* const pm,
 	MatchHash* const hm,
+	int& CurPos,
+	bool const Case,
+	bool const WholeWords,
+	bool const Reverse,
+	bool const Regexp,
+	int* const SearchLength,
+	string_view WordDiv)
+{
+	string Dummy;
+	return SearchAndReplaceString(
+		Haystack,
+		Needle,
+		NeedleUpper,
+		NeedleLower,
+		re,
+		pm,
+		hm,
+		Dummy,
+		CurPos,
+		Case,
+		WholeWords,
+		Reverse,
+		Regexp,
+		false,
+		SearchLength,
+		WordDiv
+	);
+}
+
+bool SearchAndReplaceString(
+	string_view const Haystack,
+	string_view const Needle,
+	string_view const NeedleUpper,
+	string_view const NeedleLower,
+	const RegExp& re,
+	RegExpMatch* const pm,
+	MatchHash* const hm,
 	string& ReplaceStr,
 	int& CurPos,
 	bool const Case,
@@ -909,13 +946,13 @@ int HexToInt(char h)
 }
 
 template<class S, class C>
-static S BlobToHexStringT(const void* Blob, size_t Size, C Separator)
+static S BlobToHexStringT(bytes_view const Blob, C Separator)
 {
 	S Hex;
 
-	Hex.reserve(Size * (Separator? 3 : 2));
+	Hex.reserve(Blob.size() * (Separator? 3 : 2));
 
-	for (const auto& i: span(static_cast<const char*>(Blob), Size))
+	for (const auto& i: Blob)
 	{
 		Hex.push_back(IntToHex((i & 0xF0) >> 4));
 		Hex.push_back(IntToHex(i & 0x0F));
@@ -957,14 +994,9 @@ static auto HexStringToBlobT(const std::basic_string_view<char_type> Hex, const 
 	return bytes::copy(bytes_view(Blob.data(), Blob.size()));
 }
 
-std::string BlobToHexString(const void* Blob, size_t Size, char Separator)
+std::string BlobToHexString(bytes_view const Blob, char Separator)
 {
-	return BlobToHexStringT<std::string>(Blob, Size, Separator);
-}
-
-std::string BlobToHexString(const bytes_view& Blob, char Separator)
-{
-	return BlobToHexString(Blob.data(), Blob.size(), Separator);
+	return BlobToHexStringT<std::string>(Blob, Separator);
 }
 
 bytes HexStringToBlob(const std::string_view Hex, const char Separator)
@@ -972,14 +1004,9 @@ bytes HexStringToBlob(const std::string_view Hex, const char Separator)
 	return HexStringToBlobT(Hex, Separator);
 }
 
-string BlobToHexWString(const void* Blob, size_t Size, wchar_t Separator)
+string BlobToHexWString(bytes_view const Blob, wchar_t Separator)
 {
-	return BlobToHexStringT<string>(Blob, Size, Separator);
-}
-
-string BlobToHexWString(const bytes_view& Blob, char Separator)
-{
-	return BlobToHexWString(Blob.data(), Blob.size(), Separator);
+	return BlobToHexStringT<string>(Blob, Separator);
 }
 
 bytes HexStringToBlob(const string_view Hex, const wchar_t Separator)
@@ -1016,7 +1043,7 @@ string ConvertHexString(const string& From, uintptr_t Codepage, bool FromHex)
 	else
 	{
 		const auto Blob = encoding::get_bytes(CompatibleCp, From);
-		return BlobToHexWString(Blob.data(), Blob.size(), 0);
+		return BlobToHexWString({ Blob.data(), Blob.size() }, 0);
 	}
 }
 
@@ -1092,7 +1119,7 @@ TEST_CASE("wrapped_text")
 		},
 		{ L"AB\nCD"sv, 0, {
 			L"AB"sv,
-			L"CD"sv
+			L"CD"sv,
 		}},
 		{ L"12345"sv, 1, {
 			L"1"sv,
@@ -1101,7 +1128,12 @@ TEST_CASE("wrapped_text")
 			L"4"sv,
 			L"5"sv,
 		}},
-		{ L"Supercalifragilisticexpialidocious", 5, {
+		{ L"12345-67890,ABCDE"sv, 10, {
+			L"12345-"sv,
+			L"67890,"sv,
+			L"ABCDE"sv,
+		}},
+		{ L"Supercalifragilisticexpialidocious"sv, 5, {
 			L"Super"sv,
 			L"calif"sv,
 			L"ragil"sv,
@@ -1110,14 +1142,14 @@ TEST_CASE("wrapped_text")
 			L"lidoc"sv,
 			L"ious"sv,
 		}},
-		{ L"Dale a tu cuerpo alegría Macarena\nQue tu cuerpo es pa' darle alegría why cosa buena\nDale a tu cuerpo alegría, Macarena\nHey Macarena", 35, {
+		{ L"Dale a tu cuerpo alegría Macarena\nQue tu cuerpo es pa' darle alegría why cosa buena\nDale a tu cuerpo alegría, Macarena\nHey Macarena"sv, 35, {
 			L"Dale a tu cuerpo alegría Macarena"sv,
 			L"Que tu cuerpo es pa' darle alegría"sv,
 			L"why cosa buena"sv,
 			L"Dale a tu cuerpo alegría, Macarena"sv,
-			L"Hey Macarena",
+			L"Hey Macarena"sv,
 		}},
-		{ L"I used to wonder what friendship could be\nUntil you all shared its magic with me", 2000, {
+		{ L"I used to wonder what friendship could be\nUntil you all shared its magic with me"sv, 2000, {
 			L"I used to wonder what friendship could be"sv,
 			L"Until you all shared its magic with me"sv,
 		}},
@@ -1127,7 +1159,22 @@ TEST_CASE("wrapped_text")
 			L"ah, roma,"sv,
 			L"roma, ma."sv,
 			L"Gaga, ooh,"sv,
-			L"la, la"sv
+			L"la, la"sv,
+		}},
+		{ L"Ma-i-a hi\nMa-i-a hu\nMa-i-a ho\nMa-i-a ha-ha"sv, 3, {
+			L"Ma-"sv,
+			L"i-a"sv,
+			L"hi"sv,
+			L"Ma-"sv,
+			L"i-a"sv,
+			L"hu"sv,
+			L"Ma-"sv,
+			L"i-a"sv,
+			L"ho"sv,
+			L"Ma-"sv,
+			L"i-a"sv,
+			L"ha-"sv,
+			L"ha"sv,
 		}},
 	};
 

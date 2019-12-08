@@ -146,15 +146,16 @@ namespace detail
 			{
 				size_t pos = 0;
 				const auto Weekday = L"ddd"sv;
+				const auto dMyg = L"dMyg"sv;
 				if (starts_with(Value, Weekday))
 				{
 					pos = Value.find_first_not_of(L'd', Weekday.size());
 					// skip separators
-					pos = Value.find_first_of(L"dMyg", pos);
+					pos = Value.find_first_of(dMyg, pos);
 				}
 
 				// find separator
-				pos = Value.find_first_not_of(L"dMyg", pos);
+				pos = Value.find_first_not_of(dMyg, pos);
 				if (pos != Value.npos)
 					m_DateSeparator = Value[pos];
 			}

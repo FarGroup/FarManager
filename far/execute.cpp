@@ -63,6 +63,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/enum_tokens.hpp"
+#include "common/io.hpp"
 #include "common/scope_exit.hpp"
 
 // External:
@@ -88,88 +89,96 @@ static bool GetImageType(const string& FileName, image_type& ImageType)
 	if (!ModuleFile)
 		return false;
 
-	IMAGE_DOS_HEADER DOSHeader;
-	size_t ReadSize;
-
-	if (!ModuleFile.Read(&DOSHeader, sizeof(DOSHeader), ReadSize) || ReadSize != sizeof(DOSHeader))
-		return false;
-
-	if (DOSHeader.e_magic != IMAGE_DOS_SIGNATURE)
-		return false;
-
-	if (!ModuleFile.SetPointer(DOSHeader.e_lfanew, nullptr, FILE_BEGIN))
-		return false;
-
-	union
+	try
 	{
-		struct
+		os::fs::filebuf StreamBuffer(ModuleFile, std::ios::in);
+		std::istream Stream(&StreamBuffer);
+		Stream.exceptions(Stream.badbit | Stream.failbit);
+
+		IMAGE_DOS_HEADER DOSHeader;
+		if (io::read(Stream, bytes::reference(DOSHeader)) != sizeof(DOSHeader))
+			return false;
+
+		if (DOSHeader.e_magic != IMAGE_DOS_SIGNATURE)
+			return false;
+
+		Stream.seekg(DOSHeader.e_lfanew);
+
+		union
 		{
-			DWORD Signature;
-			IMAGE_FILE_HEADER FileHeader;
-			union
+			struct
 			{
-				IMAGE_OPTIONAL_HEADER32 OptionalHeader32;
-				IMAGE_OPTIONAL_HEADER64 OptionalHeader64;
-			};
-		}
-		PeHeader;
-
-		IMAGE_OS2_HEADER Os2Header;
-	}
-	ImageHeader;
-
-	if (!ModuleFile.Read(&ImageHeader, sizeof(ImageHeader), ReadSize) || ReadSize != sizeof(ImageHeader))
-		return false;
-
-	auto Result = image_type::console;
-
-	if (ImageHeader.PeHeader.Signature == IMAGE_NT_SIGNATURE)
-	{
-		const auto& PeHeader = ImageHeader.PeHeader;
-
-		if (!(PeHeader.FileHeader.Characteristics & IMAGE_FILE_DLL))
-		{
-			auto ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
-
-			switch (PeHeader.OptionalHeader32.Magic)
-			{
-			case IMAGE_NT_OPTIONAL_HDR32_MAGIC:
-				ImageSubsystem = PeHeader.OptionalHeader32.Subsystem;
-				break;
-
-			case IMAGE_NT_OPTIONAL_HDR64_MAGIC:
-				ImageSubsystem = PeHeader.OptionalHeader64.Subsystem;
-				break;
+				DWORD Signature;
+				IMAGE_FILE_HEADER FileHeader;
+				union
+				{
+					IMAGE_OPTIONAL_HEADER32 OptionalHeader32;
+					IMAGE_OPTIONAL_HEADER64 OptionalHeader64;
+				};
 			}
+			PeHeader;
 
-			if (ImageSubsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI)
-			{
-				Result = image_type::graphical;
-			}
+			IMAGE_OS2_HEADER Os2Header;
 		}
-	}
-	else if (ImageHeader.Os2Header.ne_magic == IMAGE_OS2_SIGNATURE)
-	{
-		const auto& Os2Header = ImageHeader.Os2Header;
+		ImageHeader;
 
-		enum { DllOrDriverFlag = 7_bit };
-		if (!(HIBYTE(Os2Header.ne_flags) & DllOrDriverFlag))
+		if (io::read(Stream, bytes::reference(ImageHeader)) != sizeof(ImageHeader))
+			return false;
+
+		auto Result = image_type::console;
+
+		if (ImageHeader.PeHeader.Signature == IMAGE_NT_SIGNATURE)
 		{
-			enum
-			{
-				NE_WINDOWS = 0x2,
-				NE_WIN386 = 0x4,
-			};
+			const auto& PeHeader = ImageHeader.PeHeader;
 
-			if (Os2Header.ne_exetyp == NE_WINDOWS || Os2Header.ne_exetyp == NE_WIN386)
+			if (!(PeHeader.FileHeader.Characteristics & IMAGE_FILE_DLL))
 			{
-				Result = image_type::graphical;
+				auto ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
+
+				switch (PeHeader.OptionalHeader32.Magic)
+				{
+				case IMAGE_NT_OPTIONAL_HDR32_MAGIC:
+					ImageSubsystem = PeHeader.OptionalHeader32.Subsystem;
+					break;
+
+				case IMAGE_NT_OPTIONAL_HDR64_MAGIC:
+					ImageSubsystem = PeHeader.OptionalHeader64.Subsystem;
+					break;
+				}
+
+				if (ImageSubsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI)
+				{
+					Result = image_type::graphical;
+				}
 			}
 		}
-	}
+		else if (ImageHeader.Os2Header.ne_magic == IMAGE_OS2_SIGNATURE)
+		{
+			const auto& Os2Header = ImageHeader.Os2Header;
 
-	ImageType = Result;
-	return true;
+			enum { DllOrDriverFlag = 7_bit };
+			if (!(HIBYTE(Os2Header.ne_flags) & DllOrDriverFlag))
+			{
+				enum
+				{
+					NE_WINDOWS = 1_bit,
+					NE_WIN386  = 2_bit,
+				};
+
+				if (Os2Header.ne_exetyp == NE_WINDOWS || Os2Header.ne_exetyp == NE_WIN386)
+				{
+					Result = image_type::graphical;
+				}
+			}
+		}
+
+		ImageType = Result;
+		return true;
+	}
+	catch (const std::exception&)
+	{
+		return false;
+	}
 }
 
 static bool IsProperProgID(const string& ProgID)

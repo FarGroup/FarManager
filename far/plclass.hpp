@@ -167,9 +167,10 @@ public:
 		return nullptr;
 	}
 
+	template<typename T>
 	auto GetProcAddress(const char* Name) const
 	{
-		return m_Module.GetProcAddress(Name);
+		return m_Module.GetProcAddress<T>(Name);
 	}
 
 	explicit operator bool() const noexcept
@@ -187,15 +188,14 @@ public:
 	NONCOPYABLE(native_plugin_factory);
 	using plugin_factory::plugin_factory;
 
-	bool IsPlugin(const string& filename) const override;
+	bool IsPlugin(const string& FileName) const override;
 	plugin_module_ptr Create(const string& filename) override;
 	bool Destroy(plugin_module_ptr& instance) override;
 	function_address Function(const plugin_module_ptr& Instance, const export_name& Name) override;
 
 private:
-	// the rest shouldn't be here, just an optimization for OEM plugins
+	// This shouldn't be here, just an optimization for OEM plugins
 	virtual bool FindExport(std::string_view ExportName) const;
-	bool IsPlugin2(const void* Module) const;
 };
 
 template<EXPORTS_ENUM id, bool Native>

@@ -141,11 +141,11 @@ using null_terminated = null_terminated_t<wchar_t>;
 class string_copyref
 {
 public:
-	string_copyref(string_view Str) :
+	string_copyref(string_view Str):
 		m_Str(Str)
 	{
 	}
-	string_copyref(string&& Str) :
+	string_copyref(string&& Str):
 		m_StrBuffer(std::move(Str)),
 		m_Str(m_StrBuffer)
 	{

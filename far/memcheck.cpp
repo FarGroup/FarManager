@@ -322,7 +322,7 @@ void checker::summary() const
 		const auto UserAddress = ToUser(i);
 		const size_t Width = 80 - 7 - 1;
 		Message = concat(str(UserAddress), L", "sv, encoding::ansi::get_chars(FormatLine(i->File, i->Line, i->Function, i->AllocationType, BlockSize)),
-			L"\nData: "sv, BlobToHexWString(UserAddress, std::min(BlockSize, Width / 3), L' '),
+			L"\nData: "sv, BlobToHexWString({ UserAddress, std::min(BlockSize, Width / 3) }, L' '),
 			L"\nAnsi: "sv, printable_ansi_string(UserAddress, std::min(BlockSize, Width)),
 			L"\nWide: "sv, printable_wide_string(UserAddress, std::min(BlockSize, Width * sizeof(wchar_t))), L"\n\n"sv);
 

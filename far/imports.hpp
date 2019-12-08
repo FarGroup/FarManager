@@ -86,7 +86,7 @@ private:
 	private:
 		auto get_pointer() const
 		{
-			static const auto DynamicPointer = reinterpret_cast<stub_type>(m_module->GetProcAddress(text_type::name));
+			static const auto DynamicPointer = m_module->GetProcAddress<stub_type>(text_type::name);
 			// TODO: log if nullptr
 			static const auto Pointer = DynamicPointer? DynamicPointer : StubFunction;
 			return Pointer;

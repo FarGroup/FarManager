@@ -2019,7 +2019,6 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 		if (TopicFound && !strEntryName.empty())
 		{
 			// !!!BUGBUG: необходимо "очистить" строку strReadStr от элементов разметки !!!
-			string ReplaceStr;
 			int CurPos=0;
 			int SearchLength;
 
@@ -2031,14 +2030,13 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 				re,
 				m.data(),
 				&hm,
-				ReplaceStr,
 				CurPos,
 				LastSearchCase,
 				LastSearchWholeWords,
-				false,
 				LastSearchRegexp,
 				false,
-				&SearchLength
+				&SearchLength,
+				Global->Opt->EdOpt.strWordDiv
 			))
 			{
 				AddLine(concat(L"   ~"sv, strEntryName, L'~', strCurTopic, L'@'));

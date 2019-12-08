@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
+#include "common/bytes_view.hpp"
 #include "common/enum_tokens.hpp"
 
 // External:
@@ -164,6 +165,24 @@ bool SearchString(
 	const RegExp& re,
 	RegExpMatch* pm,
 	MatchHash* hm,
+	int& CurPos,
+	bool Case,
+	bool WholeWords,
+	bool Reverse,
+	bool Regexp,
+	int* SearchLength,
+	string_view WordDiv
+);
+
+[[nodiscard]]
+bool SearchAndReplaceString(
+	string_view Haystack,
+	string_view Needle,
+	string_view NeedleUpper,
+	string_view NeedleLower,
+	const RegExp& re,
+	RegExpMatch* pm,
+	MatchHash* hm,
 	string& ReplaceStr,
 	int& CurPos,
 	bool Case,
@@ -172,7 +191,7 @@ bool SearchString(
 	bool Regexp,
 	bool PreserveStyle,
 	int* SearchLength,
-	string_view WordDiv = {}
+	string_view WordDiv
 );
 
 [[nodiscard]]
@@ -225,19 +244,13 @@ char IntToHex(int h);
 int HexToInt(char h);
 
 [[nodiscard]]
-std::string BlobToHexString(const void* Blob, size_t Size, char Separator = ',');
-
-[[nodiscard]]
-std::string BlobToHexString(const bytes_view& Blob, char Separator = ',');
+std::string BlobToHexString(bytes_view Blob, char Separator = ',');
 
 [[nodiscard]]
 bytes HexStringToBlob(std::string_view Hex, char Separator = ',');
 
 [[nodiscard]]
-string BlobToHexWString(const void* Blob, size_t Size, wchar_t Separator = L',');
-
-[[nodiscard]]
-string BlobToHexWString(const bytes_view& Blob, char Separator = ',');
+string BlobToHexWString(bytes_view Blob, wchar_t Separator = L',');
 
 [[nodiscard]]
 bytes HexStringToBlob(string_view Hex, wchar_t Separator = L',');

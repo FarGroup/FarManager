@@ -199,7 +199,7 @@ void Editor::KeepInitParameters() const
 	{
 		// BUGBUG, it's unclear how to represent unicode in hex
 		const auto AnsiStr = encoding::get_bytes(m_codepage, strLastSearchStr);
-		Global->StoreSearchString(BlobToHexWString(AnsiStr.data(), AnsiStr.size(), 0), true);
+		Global->StoreSearchString(BlobToHexWString({ AnsiStr.data(), AnsiStr.size() }, 0), true);
 	}
 	else
 	{
@@ -3538,7 +3538,7 @@ bool Editor::Search(bool Next)
 			auto strReplaceStrCurrent = ReplaceMode? strReplaceStr : L""s;
 
 			int SearchLength;
-			if (CurPtr->Search(strSearchStr, strSearchStrUpper, strSearchStrLower, re, m.data(), &hm, strReplaceStrCurrent, CurPos, Case, WholeWords, ReverseSearch, Regexp, PreserveStyle, &SearchLength))
+			if (SearchAndReplaceString(CurPtr->GetString(), strSearchStr, strSearchStrUpper, strSearchStrLower, re, m.data(), &hm, strReplaceStrCurrent, CurPos, Case, WholeWords, ReverseSearch, Regexp, PreserveStyle, &SearchLength, GetWordDiv()))
 			{
 				Match = true;
 

@@ -104,7 +104,7 @@ auto seh_invoke(function&& Callable, filter&& Filter, handler&& Handler)
 template<class function, class handler>
 auto seh_invoke_with_ui(function&& Callable, handler&& Handler, const string_view Function, const Plugin* const Module = nullptr)
 {
-	return seh_invoke(FWD(Callable), [&](auto Code, auto Info)
+	return seh_invoke(FWD(Callable), [&](DWORD const Code, EXCEPTION_POINTERS* const Info)
 	{
 		return detail::SehFilter(Code, Info, Function, Module);
 	}, FWD(Handler));
@@ -113,13 +113,13 @@ auto seh_invoke_with_ui(function&& Callable, handler&& Handler, const string_vie
 template<class function, class handler>
 auto seh_invoke_no_ui(function&& Callable, handler&& Handler)
 {
-	return seh_invoke(FWD(Callable), [](auto, auto) { return EXCEPTION_EXECUTE_HANDLER; }, FWD(Handler));
+	return seh_invoke(FWD(Callable), [](DWORD, EXCEPTION_POINTERS*) { return EXCEPTION_EXECUTE_HANDLER; }, FWD(Handler));
 }
 
 template<class function>
 auto seh_invoke_thread(std::exception_ptr& ExceptionPtr, function&& Callable)
 {
-	return seh_invoke(FWD(Callable), [&](auto Code, auto Info)
+	return seh_invoke(FWD(Callable), [&](DWORD const Code, EXCEPTION_POINTERS* const Info)
 	{
 		ExceptionPtr = detail::MakeSehExceptionPtr(Code, Info, true);
 		return EXCEPTION_EXECUTE_HANDLER;
