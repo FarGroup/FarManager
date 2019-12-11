@@ -103,7 +103,7 @@ lv=2
 dt=Text
 nm=Стационарные макросы
 ctime=3580139016
-mtime=3784959675
+mtime=3785248540
 <article>
 #_<markdown>
 #_
@@ -111,17 +111,17 @@ mtime=3784959675
 #_
 #_```
 #_  Macro {
-#_    area         = "Shell Info Tree";                         -- string
-#_    key          = "CtrlF11 ShiftHome";                       -- string (опциональное поле)
-#_    description  = "Macro example";                           -- string (опциональное поле)
-#_    flags        = "NoPluginPanels EmptyCommandLine";         -- string (опциональное поле)
-#_    filemask     = "*.txt,*.cpp";                             -- string (опциональное поле)
-#_    priority     = 50;                                        -- number (опциональное поле)
-#_    sortpriority = 50;                                        -- number (опциональное поле)
-#_    selected     = true;                                      -- boolean (опциональное поле)
-#_    condition    = function(key) return Far.Height>30 end;    -- function (опциональное поле)
-#_    action       = function() msgbox("","Macro example") end; -- function
-#_    id           = "F0109446-AA63-4873-AEC3-17AEE993AA53";    -- string (опциональное поле)
+#_    area         = "Shell Info Tree";                             -- string
+#_    key          = "CtrlF11 ShiftHome";                           -- string (опциональное поле)
+#_    description  = "Macro example";                               -- string (опциональное поле)
+#_    flags        = "NoPluginPanels EmptyCommandLine";             -- string (опциональное поле)
+#_    filemask     = "*.txt,*.cpp";                                 -- string (опциональное поле)
+#_    priority     = 50;                                            -- number (опциональное поле)
+#_    sortpriority = 50;                                            -- number (опциональное поле)
+#_    selected     = true;                                          -- boolean (опциональное поле)
+#_    condition    = function(key,data) return Far.Height>30 end;   -- function (опциональное поле)
+#_    action       = function(data) msgbox("","Macro example") end; -- function
+#_    id           = "F0109446-AA63-4873-AEC3-17AEE993AA53";        -- string (опциональное поле)
 #_  }
 #_```
 #_

@@ -104,7 +104,7 @@ lv=2
 dt=Text
 nm=Regular macros
 ctime=3580139016
-mtime=3784959738
+mtime=3785248441
 <article>
 #_<markdown>
 #_
@@ -112,17 +112,17 @@ mtime=3784959738
 #_
 #_```
 #_  Macro {
-#_    area         = "Shell Info Tree";                         -- string
-#_    key          = "CtrlF11 ShiftHome";                       -- string (optional field)
-#_    description  = "Macro example";                           -- string (optional field)
-#_    flags        = "NoPluginPanels EmptyCommandLine";         -- string (optional field)
-#_    filemask     = "*.txt,*.cpp";                             -- string (optional field)
-#_    priority     = 50;                                        -- number (optional field)
-#_    sortpriority = 50;                                        -- number (optional field)
-#_    selected     = true;                                      -- boolean (optional field)
-#_    condition    = function(key) return Far.Height>30 end;    -- function (optional field)
-#_    action       = function() msgbox("","Macro example") end; -- function
-#_    id           = "F0109446-AA63-4873-AEC3-17AEE993AA53";    -- string (optional field)
+#_    area         = "Shell Info Tree";                             -- string
+#_    key          = "CtrlF11 ShiftHome";                           -- string (optional field)
+#_    description  = "Macro example";                               -- string (optional field)
+#_    flags        = "NoPluginPanels EmptyCommandLine";             -- string (optional field)
+#_    filemask     = "*.txt,*.cpp";                                 -- string (optional field)
+#_    priority     = 50;                                            -- number (optional field)
+#_    sortpriority = 50;                                            -- number (optional field)
+#_    selected     = true;                                          -- boolean (optional field)
+#_    condition    = function(key,data) return Far.Height>30 end;   -- function (optional field)
+#_    action       = function(data) msgbox("","Macro example") end; -- function
+#_    id           = "F0109446-AA63-4873-AEC3-17AEE993AA53";        -- string (optional field)
 #_  }
 #_```
 #_
