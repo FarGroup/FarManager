@@ -904,15 +904,16 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 
 	switch (DateFormat)
 	{
-	case 0:
-	case 1:
-		// Маска даты для форматов DD.MM.YYYYY и MM.DD.YYYYY
-		strDateMask = format(FSTR(L"99{0}99{0}9999N"), DateSeparator);
-		break;
-
 	default:
+	case date_type::ymd:
 		// Маска даты для формата YYYYY.MM.DD
 		strDateMask = format(FSTR(L"N9999{0}99{0}99"), DateSeparator);
+		break;
+
+	case date_type::mdy:
+	case date_type::dmy:
+		// Маска даты для форматов DD.MM.YYYYY и MM.DD.YYYYY
+		strDateMask = format(FSTR(L"99{0}99{0}9999N"), DateSeparator);
 		break;
 	}
 
@@ -1206,8 +1207,8 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 				) :
 				filter_dates
 				(
-					ParseTimePoint(FilterDlg[ID_FF_DATEAFTEREDIT].strData, FilterDlg[ID_FF_TIMEAFTEREDIT].strData, DateFormat),
-					ParseTimePoint(FilterDlg[ID_FF_DATEBEFOREEDIT].strData, FilterDlg[ID_FF_TIMEBEFOREEDIT].strData, DateFormat)
+					ParseTimePoint(FilterDlg[ID_FF_DATEAFTEREDIT].strData, FilterDlg[ID_FF_TIMEAFTEREDIT].strData, static_cast<int>(DateFormat)),
+					ParseTimePoint(FilterDlg[ID_FF_DATEBEFOREEDIT].strData, FilterDlg[ID_FF_TIMEBEFOREEDIT].strData, static_cast<int>(DateFormat))
 				);
 
 			FF->SetDate(FilterDlg[ID_FF_MATCHDATE].Selected != 0, static_cast<enumFDateType>(FilterDlg[ID_FF_DATETYPE].ListPos), NewDates);

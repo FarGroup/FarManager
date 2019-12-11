@@ -41,154 +41,103 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 
 // Platform:
-#include "platform.fs.hpp"
 
 // Common:
 #include "common/algorithm.hpp"
+#include "common/bytes_view.hpp"
 #include "common/enum_tokens.hpp"
+#include "common/view/reverse.hpp"
 
 // External:
 #include "format.hpp"
 
 //----------------------------------------------------------------------------
 
-static const size_t DELTA = 1024;
-static const size_t ReadBufCount = 65536;
-
-enum_file_lines::enum_file_lines(const os::fs::file& SrcFile, uintptr_t CodePage) :
-	SrcFile(SrcFile),
-	BeginPos(SrcFile.GetPointer()),
+enum_file_lines::enum_file_lines(const os::fs::file& SrcFile, uintptr_t CodePage):
+	m_SrcFile(SrcFile),
+	m_BeginPos(SrcFile.GetPointer()),
+	m_StreamBuffer(m_SrcFile, std::ios::in),
+	m_Stream(&m_StreamBuffer),
 	m_CodePage(CodePage),
 	m_Eol(m_CodePage)
 {
-	if (m_CodePage == CP_UNICODE || m_CodePage == CP_REVERSEBOM)
-		m_wReadBuf.resize(ReadBufCount);
-	else
-		m_ReadBuf.resize(ReadBufCount);
-
-	m_wStr.reserve(DELTA);
+	m_Stream.exceptions(m_Stream.badbit);
+	m_wStr.reserve(1024);
 }
 
 bool enum_file_lines::get(bool Reset, file_line& Value) const
 {
 	if (Reset)
 	{
-		SrcFile.SetPointer(BeginPos, nullptr, FILE_BEGIN);
+		m_Stream.seekg(m_BeginPos);
 	}
 
 	return GetString(Value.Str, Value.Eol);
 }
 
-bool enum_file_lines::GetString(string_view& Str, eol::type& Eol) const
+static size_t get_chars(uintptr_t const Codepage, std::string_view const From, span<wchar_t> const To, bool& ConversionError)
 {
-	switch (m_CodePage)
+	if (Codepage == CP_UTF8 || Codepage == CP_UTF7)
 	{
-	case CP_UNICODE:
-	case CP_REVERSEBOM:
-		if (!GetTString(m_wReadBuf, m_wStr, Eol, m_CodePage == CP_REVERSEBOM))
-			return false;
+		Utf::errors Errors;
+		const auto Size = Utf::get_chars(Codepage, From, To, &Errors);
+		if (Errors.Conversion.Error)
+			ConversionError = true;
+		return Size;
+	}
 
-		Str = m_wStr;
-		return true;
+	if (!ConversionError)
+	{
+		if (const auto Size = MultiByteToWideChar(Codepage, MB_ERR_INVALID_CHARS, From.data(), static_cast<int>(From.size()), To.data(), static_cast<int>(To.size())))
+			return Size;
 
-	case CP_UTF8:
-	case CP_UTF7:
+		if (const auto Error = GetLastError(); Error == ERROR_NO_UNICODE_TRANSLATION || (Error == ERROR_INVALID_FLAGS && IsNoFlagsCodepage(Codepage)))
 		{
-			std::string CharStr;
-			CharStr.reserve(DELTA);
-			if (!GetTString(m_ReadBuf, CharStr, Eol))
-				return false;
-
-			if (!CharStr.empty())
-			{
-				Utf::errors Errors;
-				m_wStr.resize(m_wStr.capacity());
-
-				for (auto Overflow = true; Overflow;)
-				{
-					const auto Size = Utf::get_chars(m_CodePage, CharStr, m_wStr, &Errors);
-					Overflow = Size > m_wStr.size();
-					m_wStr.resize(Size);
-				}
-
-				m_ConversionError = m_ConversionError || Errors.Conversion.Error;
-			}
-			else
-			{
-				m_wStr.clear();
-			}
-
-			Str = m_wStr;
-			return true;
-		}
-
-	default:
-		{
-			std::string CharStr;
-			CharStr.reserve(DELTA);
-			if (!GetTString(m_ReadBuf, CharStr, Eol))
-				return false;
-
-			if (!CharStr.empty())
-			{
-				DWORD Result = ERROR_SUCCESS;
-				bool bGet = false;
-				m_wStr.resize(CharStr.size());
-
-				size_t nResultLength = 0;
-				if (!m_ConversionError)
-				{
-					nResultLength = MultiByteToWideChar(m_CodePage, MB_ERR_INVALID_CHARS, CharStr.data(), static_cast<int>(CharStr.size()), m_wStr.data(), static_cast<int>(m_wStr.size()));
-
-					if (!nResultLength)
-					{
-						Result = GetLastError();
-						if (Result == ERROR_NO_UNICODE_TRANSLATION || (Result == ERROR_INVALID_FLAGS && IsNoFlagsCodepage(m_CodePage)))
-						{
-							m_ConversionError = true;
-							bGet = true;
-						}
-					}
-				}
-				else
-				{
-					bGet = true;
-				}
-
-				if (bGet)
-				{
-					nResultLength = encoding::get_chars(m_CodePage, CharStr, m_wStr);
-					if (nResultLength > m_wStr.size())
-					{
-						Result = ERROR_INSUFFICIENT_BUFFER;
-					}
-				}
-
-				if (Result == ERROR_INSUFFICIENT_BUFFER)
-				{
-					nResultLength = encoding::get_chars_count(m_CodePage, CharStr);
-					m_wStr.resize(nResultLength);
-					encoding::get_chars(m_CodePage, CharStr, m_wStr);
-				}
-
-				if (!nResultLength)
-					return false;
-
-				m_wStr.resize(nResultLength);
-			}
-			else
-			{
-				m_wStr.clear();
-			}
-
-			Str = m_wStr;
-			return true;
+			ConversionError = true;
 		}
 	}
+
+	return encoding::get_chars(Codepage, From, To);
+}
+
+bool enum_file_lines::GetString(string_view& Str, eol::type& Eol) const
+{
+	if (m_CodePage == CP_UNICODE || m_CodePage == CP_REVERSEBOM)
+	{
+		if (!GetTString(m_wStr, Eol, m_CodePage == CP_REVERSEBOM))
+			return false;
+	}
+	else
+	{
+		m_Str.reserve(m_wStr.capacity());
+		if (!GetTString(m_Str, Eol))
+			return false;
+
+		if (!m_Str.empty())
+		{
+			m_wStr.resize(std::max(m_wStr.capacity(), m_Str.size()));
+
+			for (auto Overflow = true; Overflow;)
+			{
+				const auto Size = get_chars(m_CodePage, m_Str, m_wStr, m_ConversionError);
+				Overflow = Size > m_wStr.size();
+				m_wStr.resize(Size);
+			}
+
+			m_Str.clear();
+		}
+		else
+		{
+			m_wStr.clear();
+		}
+	}
+
+	Str = m_wStr;
+	return true;
 }
 
 template<typename T>
-bool enum_file_lines::GetTString(std::vector<T>& From, std::basic_string<T>& To, eol::type& Eol, bool bBigEndian) const
+bool enum_file_lines::GetTString(std::basic_string<T>& To, eol::type& Eol, bool bBigEndian) const
 {
 	To.clear();
 
@@ -202,35 +151,52 @@ bool enum_file_lines::GetTString(std::vector<T>& From, std::basic_string<T>& To,
 	}
 
 	auto CurrentEol = eol::type::none;
-	for (const auto* ReadBufPtr = ReadPos < ReadSize? From.data() + ReadPos / sizeof(T) : nullptr; ; ++ReadBufPtr, ReadPos += sizeof(T))
+
+	while (!m_Stream.eof())
 	{
-		if (ReadPos >= ReadSize)
+		T Char;
+
+		if (m_LastChar)
 		{
-			if (!(SrcFile.Read(From.data(), ReadBufCount * sizeof(T), ReadSize) && ReadSize))
+			Char = *m_LastChar;
+			m_LastChar.reset();
+		}
+		else
+		{
+			if constexpr (sizeof(T) == 1)
 			{
-				Eol = CurrentEol;
-				return !To.empty() || CurrentEol != eol::type::none;
+				m_Stream.get(Char);
 			}
-
-			if (bBigEndian && sizeof(T) != 1)
+			else
 			{
-				swap_bytes(From.data(), From.data(), ReadSize);
+				if (bBigEndian)
+				{
+					for (auto& i : reverse(bytes::reference(Char)))
+					{
+						m_Stream.get(i);
+					}
+				}
+				else
+				{
+					for (auto& i : bytes::reference(Char))
+					{
+						m_Stream.get(i);
+					}
+				}
 			}
-
-			ReadPos = 0;
-			ReadBufPtr = From.data();
+			m_LastChar = Char;
 		}
 
 		if (CurrentEol == eol::type::none)
 		{
 			// UNIX
-			if (*ReadBufPtr == m_Eol.lf<T>())
+			if (Char == m_Eol.lf<T>())
 			{
 				CurrentEol = eol::type::unix;
 				continue;
 			}
 			// MAC / Windows? / Notepad?
-			else if (*ReadBufPtr == m_Eol.cr<T>())
+			else if (Char == m_Eol.cr<T>())
 			{
 				CurrentEol = eol::type::mac;
 				continue;
@@ -243,7 +209,7 @@ bool enum_file_lines::GetTString(std::vector<T>& From, std::basic_string<T>& To,
 				m_CrSeen = false;
 
 				// Notepad
-				if (*ReadBufPtr == m_Eol.lf<T>())
+				if (Char == m_Eol.lf<T>())
 				{
 					CurrentEol = eol::type::bad_win;
 					continue;
@@ -258,13 +224,13 @@ bool enum_file_lines::GetTString(std::vector<T>& From, std::basic_string<T>& To,
 			else
 			{
 				// Windows
-				if (*ReadBufPtr == m_Eol.lf<T>())
+				if (Char == m_Eol.lf<T>())
 				{
 					CurrentEol = eol::type::win;
 					continue;
 				}
 				// Notepad or two MACs?
-				else if (*ReadBufPtr == m_Eol.cr<T>())
+				else if (Char == m_Eol.cr<T>())
 				{
 					m_CrSeen = true;
 					continue;
@@ -280,12 +246,13 @@ bool enum_file_lines::GetTString(std::vector<T>& From, std::basic_string<T>& To,
 			break;
 		}
 
-		To.push_back(*ReadBufPtr);
+		To.push_back(Char);
+		m_LastChar.reset();
 		CurrentEol = eol::type::none;
 	}
 
 	Eol = CurrentEol;
-	return true;
+	return !To.empty() || CurrentEol != eol::type::none;
 }
 
 // If the file contains a BOM this function will advance the file pointer by the BOM size (either 2 or 3)

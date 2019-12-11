@@ -508,7 +508,7 @@ static intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 			if (!std::any_of(ALL_CONST_RANGE(TimeMap), [&](const auto& i) { return i.DateId == Param1; }))
 				break;
 
-			if (locale.date_format() != 2)
+			if (locale.date_format() != date_type::ymd)
 				break;
 
 			if (reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, Param1, nullptr))[0] != L' ')
@@ -593,7 +593,7 @@ static bool construct_time(
 	if (!utc_to_local(OriginalFileTime, ost))
 		return false;
 
-	const auto Point = parse_detailed_time_point(OSrcDate, OSrcTime, locale.date_format());
+	const auto Point = parse_detailed_time_point(OSrcDate, OSrcTime, static_cast<int>(locale.date_format()));
 
 	SYSTEMTIME st{};
 
@@ -816,26 +816,27 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 		switch (locale.date_format())
 		{
-		case 0:
-			DateMask = format(FSTR(L"99{0}99{0}9999N"), DateSeparator);
-			DateFormat = format(msg(lng::MSetAttrDateTitle1), DateSeparator);
-			break;
-
-		case 1:
-			DateMask = format(FSTR(L"99{0}99{0}9999N"), DateSeparator);
-			DateFormat = format(msg(lng::MSetAttrDateTitle2), DateSeparator);
-			break;
-
 		default:
+		case date_type::ymd:
 			DateMask = format(FSTR(L"N9999{0}99{0}99"), DateSeparator);
-			DateFormat = format(msg(lng::MSetAttrDateTitle3), DateSeparator);
+			DateFormat = format(msg(lng::MSetAttrDateTitleYMD), DateSeparator);
+			break;
+
+		case date_type::dmy:
+			DateMask = format(FSTR(L"99{0}99{0}9999N"), DateSeparator);
+			DateFormat = format(msg(lng::MSetAttrDateTitleDMY), DateSeparator);
+			break;
+
+		case date_type::mdy:
+			DateMask = format(FSTR(L"99{0}99{0}9999N"), DateSeparator);
+			DateFormat = format(msg(lng::MSetAttrDateTitleMDY), DateSeparator);
 			break;
 		}
 
 		const auto TimeMask = format(FSTR(L"99{0}99{0}99{1}9999999"), TimeSeparator, DecimalSeparator);
 
 		AttrDlg[SA_TEXT_TITLEDATE].strData = DateFormat;
-		AttrDlg[SA_TEXT_TITLETIME].strData = format(msg(lng::MSetAttrTimeTitle), TimeSeparator, DecimalSeparator);
+		AttrDlg[SA_TEXT_TITLETIME].strData = format(msg(lng::MSetAttrTimeTitle), TimeSeparator);
 
 		for (const auto& i: TimeMap)
 		{

@@ -87,9 +87,10 @@ static string st_time(const tm* tmPtr, const locale_names& Names, bool const is_
 
 	switch(locale.date_format())
 	{
-	case 0:  return Format(FSTR(L"{2:02}{0}{1:02}{0}{3:4}"));
-	case 1:  return Format(FSTR(L"{1:02}{0}{2:02}{0}{3:4}"));
-	default: return Format(FSTR(L"{3:4}{0}{2:02}{0}{1:02}"));
+	default:
+	case date_type::ymd: return Format(FSTR(L"{3:4}{0}{2:02}{0}{1:02}"));
+	case date_type::dmy: return Format(FSTR(L"{1:02}{0}{2:02}{0}{3:4}"));
+	case date_type::mdy: return Format(FSTR(L"{2:02}{0}{1:02}{0}{3:4}"));
 	}
 }
 
@@ -374,42 +375,44 @@ using date_ranges = std::array<std::pair<size_t, size_t>, 3>;
 using time_ranges = std::array<std::pair<size_t, size_t>, 4>;
 static constexpr time_ranges TimeRanges{ { {0, 2}, { 3, 2 }, { 6, 2 }, { 9, 7 } } };
 
-static date_ranges get_date_ranges(int const DateFormat)
+static date_ranges get_date_ranges(date_type const DateFormat)
 {
 	switch (DateFormat)
 	{
-	case 0:
-	case 1:
-		return {{ { 0, 2 }, { 3, 2 }, { 6, 5 } }};
-
 	default:
-		return {{ { 0, 5 }, { 6, 2 }, { 9, 2 } }};
+	case date_type::ymd:
+		return { { { 0, 5 }, { 6, 2 }, { 9, 2 } } };
+
+	case date_type::dmy:
+	case date_type::mdy:
+		return {{ { 0, 2 }, { 3, 2 }, { 6, 5 } }};
 	}
 }
 
 enum date_indices { i_day, i_month, i_year };
 
-static std::array<date_indices, 3> get_date_indices(int const DateFormat)
+static std::array<date_indices, 3> get_date_indices(date_type const DateFormat)
 {
 	switch (DateFormat)
 	{
-	case 0:  return { i_month, i_day, i_year };
-	case 1:  return { i_day, i_month, i_year };
-	default: return { i_year, i_month, i_day };
+	default:
+	case date_type::ymd: return { i_year, i_month, i_day };
+	case date_type::dmy: return { i_day, i_month, i_year };
+	case date_type::mdy: return { i_month, i_day, i_year };
 	}
 }
 
 detailed_time_point parse_detailed_time_point(string_view Date, string_view Time, int DateFormat)
 {
 	time_component DateN[3];
-	const auto DateRanges = get_date_ranges(DateFormat);
+	const auto DateRanges = get_date_ranges(static_cast<date_type>(DateFormat));
 	ParseTimeComponents(Date, DateRanges, DateN);
 	time_component TimeN[4];
 	ParseTimeComponents(Time, TimeRanges, TimeN);
 
 	enum time_indices { i_hour, i_minute, i_second, i_tick };
 
-	const auto Indices = get_date_indices(DateFormat);
+	const auto Indices = get_date_indices(static_cast<date_type>(DateFormat));
 
 	return
 	{
@@ -485,7 +488,7 @@ void ConvertDate(os::chrono::time_point const Point, string& strDateText, string
 	const auto TimeSeparator = locale.time_separator();
 	const auto DecimalSeparator = locale.decimal_separator();
 
-	const auto CurDateFormat = Brief && DateFormat == 2? 0 : DateFormat;
+	const auto CurDateFormat = Brief && DateFormat == date_type::ymd? date_type::mdy : DateFormat;
 
 	SYSTEMTIME st;
 	if (!utc_to_local(Point, st))
@@ -534,34 +537,40 @@ void ConvertDate(os::chrono::time_point const Point, string& strDateText, string
 
 		switch (CurDateFormat)
 		{
-		case 0:  Format(FSTR(L"{1:3.3} {0:2} {2:02}")); break;
-		case 1:  Format(FSTR(L"{0:2} {1:3.3} {2:02}")); break;
-		default: Format(FSTR(L"{2:02} {1:3.3} {0:2}")); break;
+		default:
+		case date_type::ymd: Format(FSTR(L"{2:02} {1:3.3} {0:2}")); break;
+		case date_type::dmy: Format(FSTR(L"{0:2} {1:3.3} {2:02}")); break;
+		case date_type::mdy: Format(FSTR(L"{1:3.3} {0:2} {2:02}")); break;
 		}
-
 	}
 	else
 	{
-		int p1, p2, p3 = Year;
+		int p1, p2, p3;
 		int w1 = 2, w2 = 2, w3 = 2;
 		wchar_t f1 = L'0', f2 = L'0', f3 = FullYear == 2? L' ' : L'0';
+
 		switch (CurDateFormat)
 		{
-		case 0:
-			p1 = st.wMonth;
-			p2 = st.wDay;
-			break;
-		case 1:
-			p1 = st.wDay;
-			p2 = st.wMonth;
-			break;
 		default:
+		case date_type::ymd:
 			p1 = Year;
-			w1 = FullYear == 2?5:2;
+			w1 = FullYear == 2? 5 : 2;
 			using std::swap;
 			swap(f1, f3);
 			p2 = st.wMonth;
 			p3 = st.wDay;
+			break;
+
+		case date_type::dmy:
+			p1 = st.wDay;
+			p2 = st.wMonth;
+			p3 = Year;
+			break;
+
+		case date_type::mdy:
+			p1 = st.wMonth;
+			p2 = st.wDay;
+			p3 = Year;
 			break;
 		}
 
@@ -587,7 +596,7 @@ std::tuple<string, string> ConvertDuration(os::chrono::duration Duration)
 {
 	using namespace std::chrono;
 
-	const auto Result = split_duration<chrono::days, hours, minutes, seconds, milliseconds>(Duration);
+	const auto Result = split_duration<chrono::days, hours, minutes, seconds>(Duration);
 
 	return
 	{
@@ -607,7 +616,7 @@ string ConvertDurationToHMS(os::chrono::duration Duration)
 {
 	using namespace std::chrono;
 
-	const auto Result = split_duration<hours, minutes, seconds, milliseconds>(Duration);
+	const auto Result = split_duration<hours, minutes, seconds>(Duration);
 
 	return format(FSTR(L"{0:02}{3}{1:02}{3}{2:02}"),
 		Result.get<hours>().count(),

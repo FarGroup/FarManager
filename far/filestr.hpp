@@ -39,7 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "eol.hpp"
 
 // Platform:
-#include "platform.fwd.hpp"
+#include "platform.fs.hpp"
 
 // Common:
 #include "common/enumerator.hpp"
@@ -70,18 +70,18 @@ private:
 	bool GetString(string_view& Str, eol::type& Eol) const;
 
 	template<typename T>
-	bool GetTString(std::vector<T>& From, std::basic_string<T>& To, eol::type& Eol, bool bBigEndian = false) const;
+	bool GetTString(std::basic_string<T>& To, eol::type& Eol, bool bBigEndian = false) const;
 
-	const os::fs::file& SrcFile;
-	size_t BeginPos;
+	const os::fs::file& m_SrcFile;
+	size_t m_BeginPos;
+	os::fs::filebuf m_StreamBuffer;
+	mutable std::istream m_Stream;
 	uintptr_t m_CodePage;
 	raw_eol m_Eol;
 
-	mutable std::vector<char> m_ReadBuf;
-	mutable std::vector<wchar_t> m_wReadBuf;
 	mutable string m_wStr;
-	mutable size_t ReadPos{};
-	mutable size_t ReadSize{};
+	mutable std::string m_Str;
+	mutable std::optional<wchar_t> m_LastChar;
 	mutable bool m_ConversionError{};
 	mutable bool m_CrSeen{};
 	mutable bool m_CrCr{};

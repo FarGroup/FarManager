@@ -51,7 +51,7 @@ NIFTY_DEFINE(detail::locale, locale);
 
 namespace detail
 {
-	int locale::date_format() const
+	date_type locale::date_format() const
 	{
 		refresh();
 		return m_DateFormat;
@@ -116,8 +116,25 @@ namespace detail
 			return;
 
 		{
-			if (!os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_IDATE, m_DateFormat))
-				m_DateFormat = 0;
+			int DateFormat;
+			if (!os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_IDATE, DateFormat))
+				DateFormat = 2;
+
+			switch (DateFormat)
+			{
+			case 0:
+				m_DateFormat = date_type::mdy;
+				break;
+
+			case 1:
+				m_DateFormat = date_type::dmy;
+				break;
+
+			case 2:
+			default:
+				m_DateFormat = date_type::ymd;
+				break;
+			}
 		}
 
 		{

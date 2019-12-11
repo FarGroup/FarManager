@@ -55,6 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Platform:
 #include "platform.fs.hpp"
+#include "platform.reg.hpp"
 
 // Common:
 #include "common/view/zip.hpp"
@@ -195,6 +196,21 @@ static string os_version()
 	);
 }
 
+// Mental OS - mental methods *facepalm*
+static string os_version_from_registry()
+{
+	const auto Key = os::reg::key::open(os::reg::key::local_machine, L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"sv, KEY_QUERY_VALUE);
+	if (!Key)
+		return {};
+
+	string ReleaseId, CurrentBuild;
+	unsigned UBR;
+	if (!Key.get(L"ReleaseId"sv, ReleaseId) || !Key.get(L"CurrentBuild"sv, CurrentBuild) || !Key.get(L"UBR"sv, UBR))
+		return {};
+
+	return format(FSTR(L" (version {0}, OS build {1}.{2})"), ReleaseId, CurrentBuild, UBR);
+}
+
 using dialog_data_type = std::pair<const detail::exception_context*, const std::vector<const void*>*>;
 
 static intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
@@ -325,7 +341,7 @@ static reply ExcDialog(
 	const auto Errors = FormatSystemErrors(ErrorState);
 
 	const auto Version = version_to_string(build::version());
-	const auto OsVersion = os_version();
+	const auto OsVersion = os_version() + os_version_from_registry();
 
 	const string_view Messages[]
 	{

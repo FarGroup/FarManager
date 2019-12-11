@@ -18483,7 +18483,7 @@ MSetAttrSet
 "Установити"
 "Ужыць"
 
-MSetAttrDateTitle1
+MSetAttrDateTitleMDY
 l:
 "ММ{0}ДД{0}ГГГГГ"
 "MM{0}DD{0}YYYYY"
@@ -18497,7 +18497,7 @@ upd:"HH{0}NN{0}ÉÉÉÉÉ"
 "ММ{0}ДД{0}РРРРР"
 "ММ{0}ДД{0}ГГГГГ"
 
-MSetAttrDateTitle2
+MSetAttrDateTitleDMY
 "ДД{0}ММ{0}ГГГГГ"
 "DD{0}MM{0}YYYYY"
 "DD{0}MM{0}RRRRR"
@@ -18510,7 +18510,7 @@ upd:"NN{0}HH{0}ÉÉÉÉÉ"
 "ДД{0}ММ{0}РРРРР"
 "ДД{0}ММ{0}ГГГГГ"
 
-MSetAttrDateTitle3
+MSetAttrDateTitleYMD
 "ГГГГГ{0}ММ{0}ДД"
 "YYYYY{0}MM{0}DD"
 "RRRRR{0}MM{0}DD"
@@ -18524,17 +18524,17 @@ upd:"ÉÉÉÉÉ{0}HH{0}NN"
 "ГГГГГ{0}ММ{0}ДД"
 
 MSetAttrTimeTitle
-"чч{0}мм{0}сс{1}такт"
-"hh{0}mm{0}ss{1}tick"
-"hh{0}mm{0}ss{1}tick"
-upd:"hh{0}mm{0}ss{1}tick"
-upd:"óó{0}pp{0}mm{1}tick"
-"gg{0}mm{0}ss{1}takt"
-upd:"hh{0}mm{0}ss{1}tick"
-upd:"hh{0}mm{0}ss{1}tick"
-upd:"hh{0}mm{0}ss{1}tick"
-"гг{0}хх{0}сс{1}такт"
-"чч{0}мм{0}сс{1}такт"
+"чч{0}мм{0}сс"
+"hh{0}mm{0}ss"
+"hh{0}mm{0}ss"
+upd:"hh{0}mm{0}ss"
+upd:"óó{0}pp{0}mm"
+"gg{0}mm{0}ss"
+upd:"hh{0}mm{0}ss"
+upd:"hh{0}mm{0}ss"
+upd:"hh{0}mm{0}ss"
+"гг{0}хх{0}сс"
+"чч{0}мм{0}сс"
 
 MSetAttrSystemDialog
 "Системные &свойства"

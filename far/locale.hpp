@@ -56,6 +56,13 @@ struct locale_names
 	name Weekdays[7];
 };
 
+enum class date_type
+{
+	mdy,
+	dmy,
+	ymd
+};
+
 namespace detail
 {
 	class locale
@@ -63,7 +70,7 @@ namespace detail
 	public:
 		locale() = default;
 
-		int date_format() const;
+		date_type date_format() const;
 		int digits_grouping() const;
 		wchar_t date_separator() const;
 		wchar_t time_separator() const;
@@ -77,7 +84,7 @@ namespace detail
 	private:
 		void refresh() const;
 
-		mutable int m_DateFormat{};
+		mutable date_type m_DateFormat{ date_type::mdy };
 		mutable int m_DigitsGrouping{};
 		mutable wchar_t m_DateSeparator{};
 		mutable wchar_t m_TimeSeparator{};
