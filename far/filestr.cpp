@@ -68,9 +68,10 @@ enum_file_lines::enum_file_lines(const os::fs::file& SrcFile, uintptr_t CodePage
 bool enum_file_lines::get(bool Reset, file_line& Value) const
 {
 	if (Reset)
-	{
 		m_Stream.seekg(m_BeginPos);
-	}
+
+	if (m_Stream.eof())
+		return false;
 
 	return GetString(Value.Str, Value.Eol);
 }
@@ -151,40 +152,73 @@ bool enum_file_lines::GetTString(std::basic_string<T>& To, eol::type& Eol, bool 
 	}
 
 	auto CurrentEol = eol::type::none;
+	std::optional<wchar_t> LastChar;
 
-	while (!m_Stream.eof())
+	const auto get_byte = [&](char& Byte)
 	{
-		T Char;
+		if (m_Stream.eof())
+			return false;
 
-		if (m_LastChar)
+		m_Stream.get(Byte);
+
+		// To update eof status
+		m_Stream.peek();
+
+		return true;
+	};
+
+	const auto get_char = [&](T& Char)
+	{
+		if constexpr (sizeof(T) == 1)
 		{
-			Char = *m_LastChar;
-			m_LastChar.reset();
+			return get_byte(Char);
 		}
 		else
 		{
-			if constexpr (sizeof(T) == 1)
+			const auto Bytes = bytes::reference(Char);
+			for (auto& i: Bytes)
 			{
-				m_Stream.get(Char);
-			}
-			else
-			{
-				if (bBigEndian)
+				if (get_byte(i))
 				{
-					for (auto& i : reverse(bytes::reference(Char)))
-					{
-						m_Stream.get(i);
-					}
+					// Okay so far
+					continue;
 				}
-				else
-				{
-					for (auto& i : bytes::reference(Char))
-					{
-						m_Stream.get(i);
-					}
-				}
+
+				// Legitimate EOF
+				if (&i == Bytes.data())
+					return false;
+
+				// EOF in the middle of the character
+				// Logically we should return REPLACE_CHAR at this point and call it a day, however:
+				// - This class is used in the editor
+				// - People often use the editor to edit binary files
+				// - If we return REPLACE_CHAR, the incomplete char will be lost
+				// - If we pretend that the remaining bytes are \0, the worst thing that could happen is trailing \0 bytes after save.
+				i = {};
 			}
-			m_LastChar = Char;
+
+			if (bBigEndian)
+				swap_bytes(&Char, &Char, sizeof(Char));
+
+			return true;
+		}
+	};
+
+	for (;;)
+	{
+		T Char;
+
+		if (LastChar)
+		{
+			Char = *LastChar;
+			LastChar.reset();
+		}
+		else
+		{
+			if (!get_char(Char))
+				break;
+
+			LastChar = Char;
 		}
 
 		if (CurrentEol == eol::type::none)
@@ -247,7 +281,7 @@ bool enum_file_lines::GetTString(std::basic_string<T>& To, eol::type& Eol, bool 
 		}
 
 		To.push_back(Char);
-		m_LastChar.reset();
+		LastChar.reset();
 		CurrentEol = eol::type::none;
 	}
 

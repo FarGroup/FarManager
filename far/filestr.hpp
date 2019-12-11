@@ -81,7 +81,6 @@ private:
 
 	mutable string m_wStr;
 	mutable std::string m_Str;
-	mutable std::optional<wchar_t> m_LastChar;
 	mutable bool m_ConversionError{};
 	mutable bool m_CrSeen{};
 	mutable bool m_CrCr{};
