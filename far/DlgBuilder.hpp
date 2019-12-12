@@ -1072,6 +1072,15 @@ public:
 			return Item;
 		}
 
+		FarDialogItem *AddReadonlyEditField(const wchar_t *Value, int Width)
+		{
+			FarDialogItem *Item = AddDialogItem(DI_EDIT, Value);
+			SetNextY(Item);
+			Item->X2 = Item->X1 + (Width > 0 ? Width : TextWidth(*Item)) - 1;
+			Item->Flags |= DIF_READONLY;
+			return Item;
+		}
+
 		FarDialogItem *AddComboBox(int *SelectedItem, wchar_t *Text, int Width, const wchar_t* const* ItemsText, size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
 		{
 			return AddListControl(DI_COMBOBOX, SelectedItem, Text, Width, 0, ItemsText, ItemCount, ItemFlags);
