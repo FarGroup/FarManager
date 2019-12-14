@@ -75,7 +75,7 @@ namespace io
 
 			Stream.read(Buffer.data(), Buffer.size());
 			if (!Stream.bad() && Stream.eof())
-				Stream.clear();
+				Stream.clear(Stream.eofbit);
 		}
 
 		return Stream.gcount();

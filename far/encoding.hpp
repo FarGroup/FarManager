@@ -231,9 +231,9 @@ inline char raw_eol::cr<char>() const { return m_Cr; }
 template<>
 inline char raw_eol::lf<char>() const { return m_Lf; }
 template<>
-inline wchar_t raw_eol::cr<wchar_t>() const { return L'\r'; }
+constexpr wchar_t raw_eol::cr<wchar_t>() const { return L'\r'; }
 template<>
-inline wchar_t raw_eol::lf<wchar_t>() const { return L'\n'; }
+constexpr wchar_t raw_eol::lf<wchar_t>() const { return L'\n'; }
 
 // {Codepage: (MaxCharSize, Name)}
 using cp_map = std::unordered_map<UINT, std::pair<UINT, string>>;

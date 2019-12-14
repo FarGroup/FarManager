@@ -1170,7 +1170,7 @@ void Viewer::ReadString(ViewerString *pString, int MaxSize, bool update_cache)
 					++eol_len;         // CRCRLF
 				else
 				{
-					assert(Iterator + 2 < VgetcCache.cbegin());
+					//assert(Iterator + 2 < VgetcCache.cbegin()); // ???
 					VgetcCache.m_Iterator = Iterator; // CR ungetc(2)
 					eol_len = 1;
 				}

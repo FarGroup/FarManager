@@ -120,6 +120,7 @@ if not exist $(BootstrapDir) mkdir $(BootstrapDir)</Command>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <SetChecksum>true</SetChecksum>
+      <Profile>true</Profile>
     </Link>
     <PostBuildEvent>
       <Command>editbin /nologo /subsystem:console,$(TargetOsVersion) /osversion:$(TargetOsVersion) $(OutDir)$(TargetName)$(TargetExt) &gt; nul</Command>

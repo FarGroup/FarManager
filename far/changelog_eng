@@ -3,11 +3,17 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
-drkns 11.12.2019 drkns 12.12.2019 08:03:42 +0000 - build 5526
+drkns 14.12.2019 23:03:49 +0000 - build 5527
+
+1. 5524 - attempt #2, now with tests.
+
+2. Other refactoring.
+
+drkns 12.12.2019 08:03:42 +0000 - build 5526
 
 1. Partial revert of 5524.
 
-17:37:34 +0000 - build 5525
+drkns 11.12.2019 17:37:34 +0000 - build 5525
 
 1. Correction of 5524.
 

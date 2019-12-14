@@ -479,6 +479,8 @@ void remove_duplicates(string& Str, wchar_t const Char, bool const IgnoreCase)
 
 bool wrapped_text::get(bool Reset, string_view& Value) const
 {
+	// TODO: implement in terms of enum_lines to support all kinds of EOLs?
+
 	if (Reset)
 		m_Tail = m_Str;
 
@@ -1183,6 +1185,8 @@ TEST_CASE("wrapped_text")
 		auto Iterator = Test.Result.cbegin();
 		for (const auto& i: wrapped_text(Test.Src, Test.Width))
 		{
+			REQUIRE(Iterator != Test.Result.cend());
+
 			if (Test.Width)
 				REQUIRE(i.size() <= Test.Width);
 

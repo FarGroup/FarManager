@@ -1540,7 +1540,11 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 		(void)EditFile.GetSize(FileSize);
 		const time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 
-		enum_file_lines EnumFileLines(EditFile, m_codepage);
+		os::fs::filebuf StreamBuffer(EditFile, std::ios::in);
+		std::istream Stream(&StreamBuffer);
+		Stream.exceptions(Stream.badbit | Stream.failbit);
+
+		enum_lines EnumFileLines(Stream, m_codepage);
 		for (auto Str: EnumFileLines)
 		{
 			if (testBOM && IsUnicodeOrUtfCodePage(m_codepage))

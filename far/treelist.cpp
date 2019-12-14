@@ -724,7 +724,11 @@ static os::fs::file OpenCacheableTreeFile(const string& Root, string& Name, bool
 
 static void ReadLines(const os::fs::file& TreeFile, function_ref<void(string_view)> const Inserter)
 {
-	for (const auto& i: enum_file_lines(TreeFile, CP_UNICODE))
+	os::fs::filebuf StreamBuffer(TreeFile, std::ios::in);
+	std::istream Stream(&StreamBuffer);
+	Stream.exceptions(Stream.badbit | Stream.failbit);
+
+	for (const auto& i: enum_lines(Stream, CP_UNICODE))
 	{
 		if (i.Str.empty() || !IsSlash(i.Str.front()))
 			continue;

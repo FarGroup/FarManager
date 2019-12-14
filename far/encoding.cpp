@@ -43,6 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/algorithm.hpp"
+#include "common/function_ref.hpp"
 #include "common/io.hpp"
 
 // External:
@@ -676,7 +677,7 @@ static size_t Utf7_GetChar(std::string_view::const_iterator const Iterator, std:
 static size_t BytesToUnicode(
 	std::string_view const Str,
 	span<wchar_t> const Buffer,
-	size_t(*GetChar)(std::string_view::const_iterator, std::string_view::const_iterator, wchar_t*, bool&, int&),
+	function_ref<size_t(std::string_view::const_iterator, std::string_view::const_iterator, wchar_t*, bool&, int&)> const GetChar,
 	Utf::errors* const Errors)
 {
 	if (Str.empty())

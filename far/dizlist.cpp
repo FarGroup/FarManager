@@ -110,7 +110,12 @@ void DizList::Read(const string& Path, const string* DizName)
 
 		auto LastAdded = m_DizData.end();
 		string DizText;
-		for (const auto& i: enum_file_lines(DizFile, CodePage))
+
+		os::fs::filebuf StreamBuffer(DizFile, std::ios::in);
+		std::istream Stream(&StreamBuffer);
+		Stream.exceptions(Stream.badbit | Stream.failbit);
+
+		for (const auto& i: enum_lines(Stream, CodePage))
 		{
 			DizText = i.Str;
 

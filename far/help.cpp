@@ -418,7 +418,11 @@ bool Help::ReadHelp(const string& Mask)
 	int MI=0;
 	string strMacroArea;
 
-	enum_file_lines EnumFileLines(HelpFile, HelpFileCodePage);
+	os::fs::filebuf StreamBuffer(HelpFile, std::ios::in);
+	std::istream Stream(&StreamBuffer);
+	Stream.exceptions(Stream.badbit | Stream.failbit);
+
+	enum_lines EnumFileLines(Stream, HelpFileCodePage);
 	auto FileIterator = EnumFileLines.begin();
 	const size_t StartSizeKeyName = 20;
 	size_t SizeKeyName = StartSizeKeyName;
@@ -1994,7 +1998,11 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 		inplace::lower(strSearchStrLower);
 	}
 
-	for (const auto& i: enum_file_lines(HelpFile, nCodePage))
+	os::fs::filebuf StreamBuffer(HelpFile, std::ios::in);
+	std::istream Stream(&StreamBuffer);
+	Stream.exceptions(Stream.badbit | Stream.failbit);
+
+	for (const auto& i: enum_lines(Stream, nCodePage))
 	{
 		auto Str = trim_right(i.Str);
 

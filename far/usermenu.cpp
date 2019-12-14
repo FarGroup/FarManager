@@ -165,7 +165,7 @@ static string SerializeMenu(const UserMenu::menu_container& Menu)
 	return Result;
 }
 
-static void ParseMenu(UserMenu::menu_container& Menu, range<enum_file_lines::iterator> const FileStrings, bool OldFormat)
+static void ParseMenu(UserMenu::menu_container& Menu, range<enum_lines::iterator> const FileStrings, bool OldFormat)
 {
 	UserMenu::menu_container::value_type *MenuItem = nullptr;
 
@@ -225,7 +225,12 @@ static void ParseMenu(UserMenu::menu_container& Menu, range<enum_file_lines::ite
 static void DeserializeMenu(UserMenu::menu_container& Menu, const os::fs::file& File, uintptr_t& Codepage)
 {
 	Codepage = GetFileCodepage(File, encoding::codepage::oem());
-	enum_file_lines EnumFileLines(File, Codepage);
+
+	os::fs::filebuf StreamBuffer(File, std::ios::in);
+	std::istream Stream(&StreamBuffer);
+	Stream.exceptions(Stream.badbit | Stream.failbit);
+
+	enum_lines EnumFileLines(Stream, Codepage);
 	ParseMenu(Menu, EnumFileLines, Codepage == encoding::codepage::oem());
 
 	if (!IsUnicodeOrUtfCodePage(Codepage))

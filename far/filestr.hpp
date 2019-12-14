@@ -39,7 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "eol.hpp"
 
 // Platform:
-#include "platform.fwd.hpp"
+#include "platform.fs.hpp"
 
 // Common:
 #include "common/enumerator.hpp"
@@ -55,12 +55,14 @@ struct file_line
 };
 
 // TODO: rename
-class [[nodiscard]] enum_file_lines : public enumerator<enum_file_lines, file_line>
+class [[nodiscard]] enum_lines: public enumerator<enum_lines, file_line>
 {
-	IMPLEMENTS_ENUMERATOR(enum_file_lines);
+	IMPLEMENTS_ENUMERATOR(enum_lines);
 
 public:
-	enum_file_lines(const os::fs::file& SrcFile, uintptr_t CodePage);
+	enum_lines(std::istream& Stream, uintptr_t CodePage);
+	~enum_lines();
+
 	bool conversion_error() const { return m_ConversionError; }
 
 private:
@@ -69,22 +71,23 @@ private:
 
 	bool GetString(string_view& Str, eol::type& Eol) const;
 
-	template<typename T>
-	bool GetTString(std::vector<T>& From, std::basic_string<T>& To, eol::type& Eol, bool bBigEndian = false) const;
+	bool fill() const;
 
-	const os::fs::file& SrcFile;
-	size_t BeginPos;
+	template<typename T>
+	bool GetTString(std::basic_string<T>& To, eol::type& Eol, bool BigEndian = false) const;
+
+	std::istream& m_Stream;
+	std::ios_base::iostate m_StreamExceptions;
+	size_t m_BeginPos;
 	uintptr_t m_CodePage;
 	raw_eol m_Eol;
 
-	mutable std::vector<char> m_ReadBuf;
-	mutable std::vector<wchar_t> m_wReadBuf;
+	mutable char_ptr m_Buffer;
+	mutable std::string_view m_Data;
 	mutable string m_wStr;
-	mutable size_t ReadPos{};
-	mutable size_t ReadSize{};
-	mutable bool m_ConversionError{};
-	mutable bool m_CrSeen{};
+	mutable std::string m_Str;
 	mutable bool m_CrCr{};
+	mutable bool m_ConversionError{};
 };
 
 // If the file contains a BOM this function will advance the file pointer by the BOM size (either 2 or 3)

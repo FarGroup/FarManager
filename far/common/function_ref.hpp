@@ -44,8 +44,11 @@ class function_ref<return_type(args...)> final
 {
 public:
 	template<typename callable_type, REQUIRES(!std::is_same_v<std::decay_t<callable_type>, function_ref>)>
+WARNING_PUSH()
+WARNING_DISABLE_MSC(4180) // https://docs.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-1-c4180?view=vs-2019 qualifier applied to function type has no meaning; ignored
 	function_ref(const callable_type& Callable) noexcept:
-		m_Ptr(&Callable),
+WARNING_POP()
+	m_Ptr(&Callable),
 		m_ErasedFn([](const void* Ptr, args... Args) -> return_type
 		{
 			return std::invoke(*static_cast<const callable_type*>(Ptr), FWD(Args)...);

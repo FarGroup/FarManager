@@ -104,7 +104,11 @@ bool GetLangParam(const os::fs::file& LangFile, string_view const ParamName, str
 	const auto CurFilePos = LangFile.GetPointer();
 	SCOPE_EXIT{ LangFile.SetPointer(CurFilePos, nullptr, FILE_BEGIN); };
 
-	for (const auto& i: enum_file_lines(LangFile, CodePage))
+	os::fs::filebuf StreamBuffer(LangFile, std::ios::in);
+	std::istream Stream(&StreamBuffer);
+	Stream.exceptions(Stream.badbit | Stream.failbit);
+
+	for (const auto& i: enum_lines(Stream, CodePage))
 	{
 		if (starts_with_icase(i.Str, strFullParamName))
 		{
@@ -355,7 +359,11 @@ static void LoadCustomStrings(const string& FileName, std::unordered_map<string,
 
 	string SavedLabel;
 
-	for (const auto& i: enum_file_lines(CustomFile, CustomFileCodepage))
+	os::fs::filebuf StreamBuffer(CustomFile, std::ios::in);
+	std::istream Stream(&StreamBuffer);
+	Stream.exceptions(Stream.badbit | Stream.failbit);
+
+	for (const auto& i: enum_lines(Stream, CustomFileCodepage))
 	{
 		string_view Label, Text;
 		switch (parse_lng_line(trim(i.Str), true, Label, Text))
@@ -413,7 +421,11 @@ void language::load(const string& Path, const string& Language, int CountNeed) c
 
 	string SavedLabel;
 
-	for (const auto& i: enum_file_lines(LangFile, LangFileCodePage))
+	os::fs::filebuf StreamBuffer(LangFile, std::ios::in);
+	std::istream Stream(&StreamBuffer);
+	Stream.exceptions(Stream.badbit | Stream.failbit);
+
+	for (const auto& i: enum_lines(Stream, LangFileCodePage))
 	{
 		string_view Label, Text;
 		switch (parse_lng_line(trim(i.Str), LoadLabels, Label, Text))

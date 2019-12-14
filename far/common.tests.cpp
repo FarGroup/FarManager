@@ -382,6 +382,7 @@ TEST_CASE("range.dynamic")
 
 		for (auto i = Begin; i != End; ++i, ++Iterator)
 		{
+			REQUIRE(Iterator != Range.cend());
 			REQUIRE(*Iterator == i);
 		}
 
@@ -756,6 +757,7 @@ TEST_CASE("view.reverse")
 
 	for (const auto& i: reverse(Data))
 	{
+		REQUIRE(Iterator != std::cend(Reversed));
 		REQUIRE(i == *Iterator);
 		++Iterator;
 	}
@@ -775,6 +777,7 @@ TEST_CASE("view.select")
 
 		for (const auto& i: select(Data, Selector))
 		{
+			REQUIRE(Iterator != std::cend(Data));
 			REQUIRE(i == Selector(*Iterator));
 			++Iterator;
 		}
