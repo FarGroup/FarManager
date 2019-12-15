@@ -83,6 +83,10 @@ ENABLE_TESTS=1
 
 OUTDIR=$(DIRNAME).$(DIRBIT).vc
 
+!ifdef CLANG
+OUTDIR=$(OUTDIR).clang
+!endif
+
 FARINCLUDE=Include
 
 LINK=link.exe
@@ -331,7 +335,6 @@ CPP = clang-cl
 CPPFLAGS = $(CPPFLAGS) -Qunused-arguments -Werror=old-style-cast
 NOBATCH=1
 NO_RELEASE_LTCG=1
-OUTDIR=$(OUTDIR).clang
 !elseifdef ICL
 CPP = icl
 LINK = xilink
