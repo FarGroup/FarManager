@@ -2093,7 +2093,9 @@ void FileEditor::SetPluginTitle(const string* PluginTitle)
 
 bool FileEditor::SetFileName(const string_view NewFileName)
 {
-	strFileName = NewFileName;
+	// BUGBUG This whole MNewFileName thing is madness.
+	// TODO: Just support an empty name
+	strFileName = NewFileName.empty()? msg(lng::MNewFileName) : NewFileName;
 
 	if (strFileName != msg(lng::MNewFileName))
 	{

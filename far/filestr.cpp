@@ -73,7 +73,14 @@ enum_lines::enum_lines(std::istream& Stream, uintptr_t CodePage):
 
 enum_lines::~enum_lines()
 {
-	m_Stream.exceptions(m_StreamExceptions);
+	try
+	{
+		m_Stream.exceptions(m_StreamExceptions);
+	}
+	catch (const std::exception&)
+	{
+		// TODO: log
+	}
 }
 
 bool enum_lines::get(bool Reset, file_line& Value) const

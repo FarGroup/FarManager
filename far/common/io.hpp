@@ -71,7 +71,7 @@ namespace io
 		{
 			const auto Exceptions = Stream.exceptions();
 			Stream.exceptions(Exceptions & ~(Stream.failbit | Stream.eofbit));
-			SCOPE_EXIT{ Stream.exceptions(Exceptions); };
+			SCOPE_SUCCESS{ Stream.exceptions(Exceptions); };
 
 			Stream.read(Buffer.data(), Buffer.size());
 			if (!Stream.bad() && Stream.eof())

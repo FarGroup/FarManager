@@ -3,6 +3,11 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 16.12.2019 21:38:49 +0000 - build 5528
+
+1. Opening editor with an empty file name via API gives funny results.
+   All this magic about ?New File? is bad, really bad.
+
 drkns 14.12.2019 23:03:49 +0000 - build 5527
 
 1. 5524 - attempt #2, now with tests.
