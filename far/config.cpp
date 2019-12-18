@@ -2417,7 +2417,11 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 						for(int i = 0; i < static_cast<int>(ListInfo.ItemsNumber); ++i)
 						{
 							FarListGetItem Item={sizeof(FarListGetItem), i};
-							Dlg->SendMessage(DM_LISTGETITEM, Param1, &Item);
+
+							// BUGBUG(?) DM_LISTGETITEM will return false if everything is filtered out
+							if (!Dlg->SendMessage(DM_LISTGETITEM, Param1, &Item))
+								continue;
+
 							bool NeedUpdate = false;
 							if(HideUnchanged)
 							{

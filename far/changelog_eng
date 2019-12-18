@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 18.12.2019 00:03:08 +0000 - build 5529
+
+1. 0003757: far:config menu enters inconsistent state
+
 drkns 16.12.2019 21:38:49 +0000 - build 5528
 
 1. Opening editor with an empty file name via API gives funny results.
