@@ -4973,7 +4973,7 @@ void FileList::CountDirSize(bool IsRealNames)
 	{
 		if (!m_CurFile && IsParentDirectory(m_ListData[0]))
 		{
-			const auto PluginCurDir = *m_CachedOpenPanelInfo.CurDir? PointToName(m_CachedOpenPanelInfo.CurDir) : L"\\"sv;
+			const auto PluginCurDir = (m_CachedOpenPanelInfo.CurDir && *m_CachedOpenPanelInfo.CurDir)? PointToName(m_CachedOpenPanelInfo.CurDir) : L"\\"sv;
 			const auto ParentDirInfoCallback = [&](string_view const, unsigned long long const ItemsCount, unsigned long long const Size)
 			{
 				return Callback(PluginCurDir, ItemsCount, Size);

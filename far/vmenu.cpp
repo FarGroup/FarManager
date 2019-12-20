@@ -2328,17 +2328,14 @@ void VMenu::ShowMenu(bool IsParent)
 						const auto HotkeyPos = (HotkeyVisualPos != string::npos? HotkeyVisualPos : Items[I].AutoHotkeyPos) + PrefixSize;
 
 						Text(string_view(strMenuLine).substr(0, HotkeyPos));
-						const auto SaveColor = CurColor;
-						try
+
+						if (HotkeyPos < strMenuLine.size())
 						{
+							const auto SaveColor = CurColor;
 							SetColor(Col);
-							Text(string_view(strMenuLine).substr(HotkeyPos, 1));
+							Text(strMenuLine[HotkeyPos]);
 							SetColor(SaveColor);
 							Text(string_view(strMenuLine).substr(HotkeyPos + 1));
-						}
-						catch (const std::out_of_range&)
-						{
-							SetColor(SaveColor);
 						}
 					}
 					else
