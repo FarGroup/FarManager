@@ -2329,10 +2329,17 @@ void VMenu::ShowMenu(bool IsParent)
 
 						Text(string_view(strMenuLine).substr(0, HotkeyPos));
 						const auto SaveColor = CurColor;
-						SetColor(Col);
-						Text(strMenuLine[HotkeyPos]);
-						SetColor(SaveColor);
-						Text(string_view(strMenuLine).substr(HotkeyPos + 1));
+						try
+						{
+							SetColor(Col);
+							Text(string_view(strMenuLine).substr(HotkeyPos, 1));
+							SetColor(SaveColor);
+							Text(string_view(strMenuLine).substr(HotkeyPos + 1));
+						}
+						catch (const std::out_of_range&)
+						{
+							SetColor(SaveColor);
+						}
 					}
 					else
 					{

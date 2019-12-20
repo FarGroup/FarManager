@@ -4558,8 +4558,9 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			{
 				const auto OldW1 = W1;
 				const auto OldH1 = H1;
-				W1 = static_cast<COORD*>(Param2)->X;
-				H1 = static_cast<COORD*>(Param2)->Y;
+				const auto fixSize = [](intptr_t size) { return (size <= 0) ? 1 : size; };
+				W1 = fixSize(static_cast<COORD*>(Param2)->X);
+				H1 = fixSize(static_cast<COORD*>(Param2)->Y);
 				RealWidth = W1;
 				RealHeight = H1;
 
