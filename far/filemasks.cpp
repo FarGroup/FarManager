@@ -410,6 +410,10 @@ TEST_CASE("masks")
 		{ L"*.ex*"sv,       L"file.ext"sv,       true  },
 		{ L"*.e?t"sv,       L"file.est"sv,       true  },
 		{ L"*.ext"sv,       L"file.bin"sv,       false },
+		{ L"file.*"sv,      L"file"sv,           true  },
+		{ L"file.*"sv,      L"file.."sv,         true  },
+		{ L"file.*"sv,      L"file.bin"sv,       true  },
+		{ L"file.*"sv,      L"file..bin"sv,      true  },
 	};
 
 	filemasks Masks;

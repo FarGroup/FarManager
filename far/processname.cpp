@@ -159,12 +159,13 @@ string ConvertWildcards(string_view const SrcName, string_view const Mask, int c
 bool CmpName(string_view pattern, string_view str, const bool skippath, const bool CmpNameSearchMode)
 {
 	// BUGBUG rewrite
-	if (pattern.empty() || str.empty())
-		return false;
 
 	// Special case for these simplest and most common masks:
 	if (pattern == L"*"sv || pattern == L"*.*"sv)
 		return true;
+
+	if (pattern.empty() || str.empty())
+		return false;
 
 	if (skippath)
 		str = PointToName(str);
