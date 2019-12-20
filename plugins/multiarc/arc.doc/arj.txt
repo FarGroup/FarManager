@@ -185,9 +185,8 @@
                      (0x20 = BACKUP_FLAG)  obsolete
 00009  1   method    (0 = stored, 1 = compressed most ... 4 compressed fastest)
                      (8 = no data, no CRC, 9= no data)
-0000A  1   file type (0 = binary,    1 = 7-bit text)
-                     (3 = directory, 4 = volume label)
-                (5 = chapter label)
+0000A  1   file type (0 = binary,    1 = 7-bit text,   2 = comment header)
+                     (3 = directory, 4 = volume label, 5 = chapter label)
 0000B  1   reserved
 0000C  4   date time modified
 00010  4   compressed size
