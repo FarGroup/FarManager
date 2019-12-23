@@ -6961,7 +6961,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 
 	DizRead = false;
 	decltype(m_ListData) OldData;
-	string strCurName, strNextCurName;
+	std::optional<string> strCurName, strNextCurName;
 	StopFSWatcher();
 	LastCurFile=-1;
 
@@ -7127,7 +7127,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 	CorrectPosition();
 	Global->CtrlObject->Plugins->FreeFindData(Item.lock()->m_Plugin.get(), PanelData, false);
 
-	string strLastSel, strGetSel;
+	std::optional<string> strLastSel, strGetSel;
 
 	if (KeepSelection || PrevSelFileCount>0)
 	{
@@ -7148,14 +7148,14 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 
 	SortFileList(false);
 
-	if (!strLastSel.empty())
-		LastSelPosition = FindFile(strLastSel, false);
-	if (!strGetSel.empty())
-		GetSelPosition = FindFile(strGetSel, false);
+	if (strLastSel)
+		LastSelPosition = FindFile(*strLastSel, false);
+	if (strGetSel)
+		GetSelPosition = FindFile(*strGetSel, false);
 
-	if (m_CurFile >= static_cast<int>(m_ListData.size()) || !equal_icase(m_ListData[m_CurFile].FileName, strCurName))
-		if (!GoToFile(strCurName) && !strNextCurName.empty())
-			GoToFile(strNextCurName);
+	if (strCurName && (m_CurFile >= static_cast<int>(m_ListData.size()) || !equal_icase(m_ListData[m_CurFile].FileName, *strCurName)))
+		if (!GoToFile(*strCurName) && strNextCurName)
+			GoToFile(*strNextCurName);
 
 	RefreshTitle();
 }
