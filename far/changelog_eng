@@ -7,7 +7,7 @@ drkns 23.12.2019 19:22:00 +0200 - build 5533
 
 1. Forum: "Unexpected current file when opening a panel". A prehistoric bug.
 
-drkns 20.12.2019drkns 20.12.2019 18:58:10 +0000 - build 5532
+drkns 20.12.2019 18:58:10 +0000 - build 5532
 
 1. Forum: Alt+<Gray +> doesn't select files without extension.
 
@@ -16,6 +16,12 @@ drkns 20.12.2019 17:22:58 +0000 - build 5531
 1. 0003758: Crash after F3 on .. in plugin panel.
 
 2. Correction of 5530.2.
+
+zg 20.12.2019 05:17:48 +0200 - build 5530
+
+1. DM_RESIZEDIALOG: sizes that are smaller than 1 are treated as 1. same as 5267.
+
+2. crash if a menu hotkey was outside the menu.
 
 drkns 18.12.2019 00:03:08 +0000 - build 5529
 
