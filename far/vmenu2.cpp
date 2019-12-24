@@ -736,7 +736,6 @@ intptr_t VMenu2::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		case DM_RESIZEDIALOG:
 		{
 			const auto fixSize = [](SHORT& size, SHORT min) { size = (size < min) ? min : size; };
-			const auto NoBox = ListBox().CheckFlags(VMENU_SHOWNOBOX);
 			const auto MarginsX = (m_BoxType == box_type::none? 0 : m_BoxType == box_type::thin? 1 : 3) * 2;
 			const auto MarginsY = (m_BoxType == box_type::none? 0 : m_BoxType == box_type::thin? 1 : 2) * 2;
 			fixSize(static_cast<COORD*>(Param2)->X, MarginsX + 1);
