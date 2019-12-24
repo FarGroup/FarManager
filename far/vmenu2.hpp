@@ -64,6 +64,7 @@ public:
 	int GetType() const override { return windowtype_menu; }
 	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	void SetPosition(rectangle Where) override;
+	intptr_t SendMessage(intptr_t Msg,intptr_t Param1,void* Param2) override;
 
 	void Resize(bool force=false);
 	void SetTitle(const string& Title);

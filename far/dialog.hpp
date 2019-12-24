@@ -234,7 +234,7 @@ public:
 	bool IsInited() const;
 	void SetId(const GUID& Id);
 	const GUID& GetId() const {return m_Id;}
-	intptr_t SendMessage(intptr_t Msg,intptr_t Param1,void* Param2);
+	virtual intptr_t SendMessage(intptr_t Msg,intptr_t Param1,void* Param2);
 	intptr_t DefProc(intptr_t Msg,intptr_t Param1,void* Param2);
 	int GetDropDownOpened() const { return DropDownOpened; }
 	bool IsRedrawEnabled() const { return m_DisableRedraw == 0; }

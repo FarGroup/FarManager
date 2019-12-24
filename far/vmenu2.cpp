@@ -718,3 +718,18 @@ void VMenu2::SetBoxType(int BoxType)
 		SetMenuFlags(VMENU_LISTSINGLEBOX);
 	Resize();
 }
+
+intptr_t VMenu2::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
+{
+	switch (Msg)
+	{
+		case DM_RESIZEDIALOG:
+		{
+			const auto fixSize = [](SHORT min, SHORT& size) { size = (size < min) ? min : size; };
+			fixSize(8, static_cast<COORD*>(Param2)->X);
+			fixSize(5, static_cast<COORD*>(Param2)->Y);
+			break;
+		}
+	}
+	return Dialog::SendMessage(Msg,Param1,Param2);
+}
