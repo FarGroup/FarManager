@@ -379,7 +379,7 @@ void InfoList::DisplayObject()
 	DrawTitle(SectionTitle,ILSS_DISKINFO,CurY);
 
 	const auto bytes_suffix = upper(msg(lng::MListBytes));
-	const auto size2str = [&bytes_suffix](ULONGLONG Size)
+	const auto size2str = [&bytes_suffix](uint64_t const Size)
 	{
 		string str;
 		if (Global->Opt->ShowBytes)

@@ -133,13 +133,20 @@ private:
 	string GetMenuTitle(bool bottom = false);
 	VMenu& ListBox() const { return *GetAllItem()[0].ListPtr; }
 
+	enum class box_type
+	{
+		full,
+		thin,
+		none
+	};
+
+	box_type m_BoxType{ box_type::full };
 	int MaxHeight;
 	int cancel;
 	int m_X1;
 	int m_Y1;
 	int m_X2;
 	int m_Y2;
-	bool ShortBox;
 	INPUT_RECORD DefRec;
 	int InsideCall;
 	bool NeedResize;

@@ -237,7 +237,7 @@ void VMenu2::Resize(bool force)
 
 	int X1 = m_X1;
 	int Y1 = m_Y1;
-	if(!ShortBox)
+	if(m_BoxType == box_type::full)
 	{
 		if(X1>1)
 			X1-=2;
@@ -246,7 +246,7 @@ void VMenu2::Resize(bool force)
 	}
 
 
-	int width=info.MaxLength+(ShortBox?2:6) + 3;
+	int width = info.MaxLength + (m_BoxType == box_type::none? 0 : m_BoxType == box_type::thin? 2 : 6) + 3;
 	if(m_X2>0)
 		width=m_X2-X1+1;
 
@@ -258,14 +258,13 @@ void VMenu2::Resize(bool force)
 	if(MaxHeight && height>MaxHeight)
 		height=MaxHeight;
 
-	height+=ShortBox?2:4;
+	height += m_BoxType == box_type::none? 0 : m_BoxType == box_type::thin? 2 : 4;
 	if(m_Y2>0)
 		height=m_Y2-Y1+1;
 
-
 	int mh=Y1<0 ? ScrY : ScrY-Y1;
 
-	mh+=ShortBox ? 1 : 2;
+	mh += m_BoxType == box_type::none? 0 : m_BoxType == box_type::thin? 1 : 2;
 
 	if(mh<0)
 		mh=0;
@@ -273,7 +272,7 @@ void VMenu2::Resize(bool force)
 	{
 		if(m_Y2<=0 && Y1>=ScrY/2)
 		{
-			Y1+=ShortBox?1:3;
+			Y1 += m_BoxType == box_type::none? 0 : m_BoxType == box_type::thin? 1 : 3;
 			if(height>Y1)
 				height=Y1;
 			Y1-=height;
@@ -293,19 +292,19 @@ void VMenu2::Resize(bool force)
 	SendMessage(DM_RESIZEDIALOG, true, &size);
 
 	SMALL_RECT ipos;
-	if(ShortBox)
+	if (m_BoxType == box_type::full)
 	{
-		ipos.Left=0;
-		ipos.Top=0;
-		ipos.Right=width-1;
-		ipos.Bottom=height-1;
+		ipos.Left = 2;
+		ipos.Top = 1;
+		ipos.Right = width - 3;
+		ipos.Bottom = height - 2;
 	}
 	else
 	{
-		ipos.Left=2;
-		ipos.Top=1;
-		ipos.Right=width-3;
-		ipos.Bottom=height-2;
+		ipos.Left = 0;
+		ipos.Top = 0;
+		ipos.Right = width - 1;
+		ipos.Bottom = height - 1;
 	}
 	SendMessage(DM_SETITEMPOSITION, 0, &ipos);
 
@@ -361,7 +360,6 @@ VMenu2::VMenu2(private_tag, int MaxHeight):
 	m_Y1(-1),
 	m_X2(0),
 	m_Y2(0),
-	ShortBox(false),
 	DefRec(),
 	InsideCall(0),
 	NeedResize(false),
@@ -711,11 +709,23 @@ bool VMenu2::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 void VMenu2::SetBoxType(int BoxType)
 {
-	ShortBox=(BoxType==SHORT_SINGLE_BOX || BoxType==SHORT_DOUBLE_BOX || BoxType==NO_BOX);
-	if(BoxType==NO_BOX)
+	if (BoxType == NO_BOX)
+	{
+		m_BoxType = box_type::none;
 		SetMenuFlags(VMENU_SHOWNOBOX);
-	if(BoxType==SINGLE_BOX || BoxType==SHORT_SINGLE_BOX)
+	}
+	else if (BoxType == SHORT_SINGLE_BOX || BoxType == SHORT_DOUBLE_BOX)
+	{
+		m_BoxType = box_type::thin;
+	}
+	else
+	{
+		m_BoxType = box_type::full;
+	}
+
+	if (BoxType == SINGLE_BOX || BoxType == SHORT_SINGLE_BOX)
 		SetMenuFlags(VMENU_LISTSINGLEBOX);
+
 	Resize();
 }
 
@@ -725,9 +735,12 @@ intptr_t VMenu2::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 	{
 		case DM_RESIZEDIALOG:
 		{
-			const auto fixSize = [](SHORT min, SHORT& size) { size = (size < min) ? min : size; };
-			fixSize(8, static_cast<COORD*>(Param2)->X);
-			fixSize(5, static_cast<COORD*>(Param2)->Y);
+			const auto fixSize = [](SHORT& size, SHORT min) { size = (size < min) ? min : size; };
+			const auto NoBox = ListBox().CheckFlags(VMENU_SHOWNOBOX);
+			const auto MarginsX = (m_BoxType == box_type::none? 0 : m_BoxType == box_type::thin? 1 : 3) * 2;
+			const auto MarginsY = (m_BoxType == box_type::none? 0 : m_BoxType == box_type::thin? 1 : 2) * 2;
+			fixSize(static_cast<COORD*>(Param2)->X, MarginsX + 1);
+			fixSize(static_cast<COORD*>(Param2)->Y, MarginsY + (GetShowItemCount()? 1 : 0));
 			break;
 		}
 	}

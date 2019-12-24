@@ -206,7 +206,7 @@ private:
 	std::shared_ptr<detail::seh_exception_context> m_Context;
 };
 
-std::exception_ptr wrap_currrent_exception();
+std::exception_ptr wrap_currrent_exception(const char* Function, const char* File, int Line);
 
 void rethrow_if(std::exception_ptr& Ptr);
 
@@ -217,9 +217,9 @@ void rethrow_if(std::exception_ptr& Ptr);
 #define MAKE_FAR_KNOWN_EXCEPTION(...) MAKE_EXCEPTION(far_known_exception, __VA_ARGS__)
 
 #define CATCH_AND_SAVE_EXCEPTION_TO(ExceptionPtr) \
-		catch (...) \
-		{ \
-			ExceptionPtr = wrap_currrent_exception(); \
-		}
+	catch (...) \
+	{ \
+		ExceptionPtr = wrap_currrent_exception(__FUNCTION__, __FILE__, __LINE__); \
+	}
 
 #endif // EXCEPTION_HPP_2CD5B7D1_D39C_4CAF_858A_62496C9221DF
