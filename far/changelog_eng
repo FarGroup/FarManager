@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 25.12.2019 13:19:27 +0200 - build 5536
+
+1. Correction of 5523.
+
 drkns 24.12.2019 19:25:57 +0200 - build 5535
 
 1. Continuation of 5534 - an attempt to correctly process some corner cases, e.g. empty menus or menus without borders.

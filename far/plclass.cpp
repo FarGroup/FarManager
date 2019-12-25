@@ -262,23 +262,24 @@ bool native_plugin_factory::IsPlugin(const string& FileName) const
 		if (!ExportDirectoryAddress)
 			return false;
 
-		for (const auto& Section: span(image_first_section(NtHeaders), NtHeaders.FileHeader.NumberOfSections))
+		const auto Sections = span(image_first_section(NtHeaders), NtHeaders.FileHeader.NumberOfSections);
+		const auto SectionIterator = std::find_if(ALL_CONST_RANGE(Sections), [&](IMAGE_SECTION_HEADER const& Section)
 		{
-			if (!(Section.VirtualAddress <= ExportDirectoryAddress && ExportDirectoryAddress < Section.VirtualAddress + Section.Misc.VirtualSize))
-				continue;
+			return
+				Section.VirtualAddress == ExportDirectoryAddress ||
+				(Section.VirtualAddress <= ExportDirectoryAddress && ExportDirectoryAddress < Section.VirtualAddress + Section.Misc.VirtualSize);
+		});
 
-			const auto& ExportDirectory = *real_address<IMAGE_EXPORT_DIRECTORY>(Data.get(), Section, ExportDirectoryAddress);
-			const auto Names = span(real_address<DWORD>(Data.get(), Section, ExportDirectory.AddressOfNames), ExportDirectory.NumberOfNames);
+		if (SectionIterator == Sections.cend())
+			return false;
+	
+		const auto& ExportDirectory = *real_address<IMAGE_EXPORT_DIRECTORY>(Data.get(), *SectionIterator, ExportDirectoryAddress);
+		const auto Names = span(real_address<DWORD>(Data.get(), *SectionIterator, ExportDirectory.AddressOfNames), ExportDirectory.NumberOfNames);
 
-			if (std::any_of(ALL_CONST_RANGE(Names), [&](DWORD const NameAddress)
-			{
-				return FindExport(real_address<char>(Data.get(), Section, NameAddress));
-			}))
-			{
-				return true;
-			}
-		}
-		return false;
+		return std::any_of(ALL_CONST_RANGE(Names), [&](DWORD const NameAddress)
+		{
+			return FindExport(real_address<char>(Data.get(), *SectionIterator, NameAddress));
+		});
 	},
 	[]
 	{
