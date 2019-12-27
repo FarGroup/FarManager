@@ -52,6 +52,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "global.hpp"
 #include "farversion.hpp"
+#include "clipboard.hpp"
+#include "eol.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -106,7 +108,7 @@ enum exception_dialog
 	ed_items_count
 };
 
-static void ShowStackTrace(const std::vector<const void*>& Stack, const std::vector<const void*>* NestedStack)
+static auto GetStackTrace(const std::vector<const void*>& Stack, const std::vector<const void*>* NestedStack)
 {
 	std::vector<string> Symbols;
 	Symbols.reserve(Stack.size() + (NestedStack? NestedStack->size() + 3 : 0));
@@ -133,6 +135,11 @@ static void ShowStackTrace(const std::vector<const void*>& Stack, const std::vec
 		tracer::get_symbols(*NestedStack, Consumer);
 	}
 
+	return Symbols;
+}
+
+static void ShowStackTrace(std::vector<string> const& Symbols)
+{
 	if (Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown())
 	{
 		Message(MSG_WARNING | MSG_LEFTALIGN,
@@ -237,18 +244,59 @@ static intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2
 			const auto record = static_cast<const INPUT_RECORD *>(Param2);
 			if (record->EventType == KEY_EVENT)
 			{
-				const auto key = InputRecordToKey(record);
-
-				if (Param1 == ed_first_button && (key == KEY_LEFT || key == KEY_NUMPAD4 || key == KEY_SHIFTTAB))
+				switch (InputRecordToKey(record))
 				{
-					Dlg->SendMessage(DM_SETFOCUS, ed_last_button, nullptr);
-					return TRUE;
-				}
+				case KEY_LEFT:
+				case KEY_NUMPAD4:
+				case KEY_SHIFTTAB:
+					if (Param1 == ed_first_button)
+					{
+						Dlg->SendMessage(DM_SETFOCUS, ed_last_button, nullptr);
+						return TRUE;
+					}
+					break;
 
-				if (Param1 == ed_last_button && (key == KEY_RIGHT || key == KEY_NUMPAD6 || key == KEY_TAB))
-				{
-					Dlg->SendMessage(DM_SETFOCUS, ed_first_button, nullptr);
-					return TRUE;
+				case KEY_RIGHT:
+				case KEY_NUMPAD6:
+				case KEY_TAB:
+					if (Param1 == ed_last_button)
+					{
+						Dlg->SendMessage(DM_SETFOCUS, ed_first_button, nullptr);
+						return TRUE;
+					}
+					break;
+
+				case KEY_CTRLC:
+				case KEY_RCTRLC:
+				case KEY_CTRLINS:
+				case KEY_RCTRLINS:
+				case KEY_CTRLNUMPAD0:
+				case KEY_RCTRLNUMPAD0:
+					{
+						string Strings;
+						const auto Eol = eol::str(eol::system());
+						FarDialogItem di;
+						Dlg->SendMessage(DM_GETDLGITEMSHORT, 1, &di);
+						const auto Width = di.X2 - di.X1 + 1;
+
+						// BUGBUG Magic numbers
+						for (size_t i = 1; i != 23; ++i)
+						{
+							const auto Str = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, i, nullptr));
+							append(Strings, format(FSTR(L"{0:{1}}{2}"), Str, i & 1? Width : 0, i & 1? L" "sv : Eol));
+						}
+
+						append(Strings, Eol);
+
+						const auto& [ExceptionContext, NestedStack] = *reinterpret_cast<dialog_data_type*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+						for (const auto& i: GetStackTrace(tracer::get(*ExceptionContext->pointers(), ExceptionContext->thread_handle()), NestedStack))
+						{
+							append(Strings, i, Eol);
+						}
+
+						SetClipboardText(Strings);
+					}
+					break;
 				}
 			}
 		}
@@ -261,7 +309,7 @@ static intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2
 			switch (Param1)
 			{
 			case ed_button_stack:
-				ShowStackTrace(tracer::get(*ExceptionContext->pointers(), ExceptionContext->thread_handle()), NestedStack);
+				ShowStackTrace(GetStackTrace(tracer::get(*ExceptionContext->pointers(), ExceptionContext->thread_handle()), NestedStack));
 				return FALSE;
 
 			case ed_button_minidump:
@@ -506,7 +554,7 @@ static reply ExcConsole(
 		std::wcerr << Label << L' ' << v << L'\n';
 	}
 
-	ShowStackTrace(tracer::get(*Context.pointers(), Context.thread_handle()), NestedStack);
+	ShowStackTrace(GetStackTrace(tracer::get(*Context.pointers(), Context.thread_handle()), NestedStack));
 	std::wcerr << std::endl;
 
 	return ConsoleYesNo(L"Terminate the process"sv, true)? reply_handle : reply_ignore;

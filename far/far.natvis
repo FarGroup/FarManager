@@ -128,44 +128,52 @@
 	</Type>
 
 	<Type Name="FarColor">
+		<Intrinsic Name="is_f_rgb" Expression="(Flags &amp; FCF_FG_4BIT) == 0"/>
+		<Intrinsic Name="is_b_rgb" Expression="(Flags &amp; FCF_BG_4BIT) == 0"/>
+		<Intrinsic Name="is_f_index" Expression="!is_f_rgb() &amp;&amp; (ForegroundColor &amp; 0xf) == Index">
+			<Parameter Type="int" Name="Index"/>
+		</Intrinsic>
+		<Intrinsic Name="is_b_index" Expression="!is_b_rgb() &amp;&amp; (BackgroundColor &amp; 0xf) == Index">
+			<Parameter Type="int" Name="Index"/>
+		</Intrinsic>
 		<Expand>
 			<Synthetic Name="Foreground">
-				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) == 0">{ForegroundRGBA}</DisplayString>
-				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) != 0 &amp;&amp; (ForegroundColor &amp; 0xf) == 0">black</DisplayString>
-				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) != 0 &amp;&amp; (ForegroundColor &amp; 0xf) == 1">navy</DisplayString>
-				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) != 0 &amp;&amp; (ForegroundColor &amp; 0xf) == 2">green</DisplayString>
-				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) != 0 &amp;&amp; (ForegroundColor &amp; 0xf) == 3">teal</DisplayString>
-				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) != 0 &amp;&amp; (ForegroundColor &amp; 0xf) == 4">maroon</DisplayString>
-				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) != 0 &amp;&amp; (ForegroundColor &amp; 0xf) == 5">purple</DisplayString>
-				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) != 0 &amp;&amp; (ForegroundColor &amp; 0xf) == 6">olive</DisplayString>
-				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) != 0 &amp;&amp; (ForegroundColor &amp; 0xf) == 7">silver</DisplayString>
-				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) != 0 &amp;&amp; (ForegroundColor &amp; 0xf) == 8">gray</DisplayString>
-				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) != 0 &amp;&amp; (ForegroundColor &amp; 0xf) == 9">blue</DisplayString>
-				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) != 0 &amp;&amp; (ForegroundColor &amp; 0xf) == 10">lime</DisplayString>
-				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) != 0 &amp;&amp; (ForegroundColor &amp; 0xf) == 11">aqua</DisplayString>
-				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) != 0 &amp;&amp; (ForegroundColor &amp; 0xf) == 12">red</DisplayString>
-				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) != 0 &amp;&amp; (ForegroundColor &amp; 0xf) == 13">fuchsia</DisplayString>
-				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) != 0 &amp;&amp; (ForegroundColor &amp; 0xf) == 14">yellow</DisplayString>
-				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) != 0 &amp;&amp; (ForegroundColor &amp; 0xf) == 15">white</DisplayString>
+				<DisplayString Condition="is_f_rgb()">{ForegroundRGBA}</DisplayString>
+				<DisplayString Condition="is_f_index(0x0)">black</DisplayString>
+				<DisplayString Condition="is_f_index(0x1)">navy</DisplayString>
+				<DisplayString Condition="is_f_index(0x2)">green</DisplayString>
+				<DisplayString Condition="is_f_index(0x3)">teal</DisplayString>
+				<DisplayString Condition="is_f_index(0x4)">maroon</DisplayString>
+				<DisplayString Condition="is_f_index(0x5)">purple</DisplayString>
+				<DisplayString Condition="is_f_index(0x6)">olive</DisplayString>
+				<DisplayString Condition="is_f_index(0x7)">silver</DisplayString>
+				<DisplayString Condition="is_f_index(0x8)">gray</DisplayString>
+				<DisplayString Condition="is_f_index(0x9)">blue</DisplayString>
+				<DisplayString Condition="is_f_index(0xa)">lime</DisplayString>
+				<DisplayString Condition="is_f_index(0xb)">aqua</DisplayString>
+				<DisplayString Condition="is_f_index(0xc)">red</DisplayString>
+				<DisplayString Condition="is_f_index(0xd)">fuchsia</DisplayString>
+				<DisplayString Condition="is_f_index(0xe)">yellow</DisplayString>
+				<DisplayString Condition="is_f_index(0xf)">white</DisplayString>
 			</Synthetic>
 			<Synthetic Name="Background">
-				<DisplayString Condition="(Flags &amp; FCF_FG_4BIT) == 0">{BackgroundRGBA}</DisplayString>
-				<DisplayString Condition="(Flags &amp; FCF_BG_4BIT) != 0 &amp;&amp; (BackgroundColor &amp; 0xf) == 0">black</DisplayString>
-				<DisplayString Condition="(Flags &amp; FCF_BG_4BIT) != 0 &amp;&amp; (BackgroundColor &amp; 0xf) == 1">navy</DisplayString>
-				<DisplayString Condition="(Flags &amp; FCF_BG_4BIT) != 0 &amp;&amp; (BackgroundColor &amp; 0xf) == 2">green</DisplayString>
-				<DisplayString Condition="(Flags &amp; FCF_BG_4BIT) != 0 &amp;&amp; (BackgroundColor &amp; 0xf) == 3">teal</DisplayString>
-				<DisplayString Condition="(Flags &amp; FCF_BG_4BIT) != 0 &amp;&amp; (BackgroundColor &amp; 0xf) == 4">maroon</DisplayString>
-				<DisplayString Condition="(Flags &amp; FCF_BG_4BIT) != 0 &amp;&amp; (BackgroundColor &amp; 0xf) == 5">purple</DisplayString>
-				<DisplayString Condition="(Flags &amp; FCF_BG_4BIT) != 0 &amp;&amp; (BackgroundColor &amp; 0xf) == 6">olive</DisplayString>
-				<DisplayString Condition="(Flags &amp; FCF_BG_4BIT) != 0 &amp;&amp; (BackgroundColor &amp; 0xf) == 7">silver</DisplayString>
-				<DisplayString Condition="(Flags &amp; FCF_BG_4BIT) != 0 &amp;&amp; (BackgroundColor &amp; 0xf) == 8">gray</DisplayString>
-				<DisplayString Condition="(Flags &amp; FCF_BG_4BIT) != 0 &amp;&amp; (BackgroundColor &amp; 0xf) == 9">blue</DisplayString>
-				<DisplayString Condition="(Flags &amp; FCF_BG_4BIT) != 0 &amp;&amp; (BackgroundColor &amp; 0xf) == 10">lime</DisplayString>
-				<DisplayString Condition="(Flags &amp; FCF_BG_4BIT) != 0 &amp;&amp; (BackgroundColor &amp; 0xf) == 11">aqua</DisplayString>
-				<DisplayString Condition="(Flags &amp; FCF_BG_4BIT) != 0 &amp;&amp; (BackgroundColor &amp; 0xf) == 12">red</DisplayString>
-				<DisplayString Condition="(Flags &amp; FCF_BG_4BIT) != 0 &amp;&amp; (BackgroundColor &amp; 0xf) == 13">fuchsia</DisplayString>
-				<DisplayString Condition="(Flags &amp; FCF_BG_4BIT) != 0 &amp;&amp; (BackgroundColor &amp; 0xf) == 14">yellow</DisplayString>
-				<DisplayString Condition="(Flags &amp; FCF_BG_4BIT) != 0 &amp;&amp; (BackgroundColor &amp; 0xf) == 15">white</DisplayString>
+				<DisplayString Condition="is_b_rgb()">{BackgroundRGBA}</DisplayString>
+				<DisplayString Condition="is_b_index(0x0)">black</DisplayString>
+				<DisplayString Condition="is_b_index(0x1)">navy</DisplayString>
+				<DisplayString Condition="is_b_index(0x2)">green</DisplayString>
+				<DisplayString Condition="is_b_index(0x3)">teal</DisplayString>
+				<DisplayString Condition="is_b_index(0x4)">maroon</DisplayString>
+				<DisplayString Condition="is_b_index(0x5)">purple</DisplayString>
+				<DisplayString Condition="is_b_index(0x6)">olive</DisplayString>
+				<DisplayString Condition="is_b_index(0x7)">silver</DisplayString>
+				<DisplayString Condition="is_b_index(0x8)">gray</DisplayString>
+				<DisplayString Condition="is_b_index(0x9)">blue</DisplayString>
+				<DisplayString Condition="is_b_index(0xa)">lime</DisplayString>
+				<DisplayString Condition="is_b_index(0xb)">aqua</DisplayString>
+				<DisplayString Condition="is_b_index(0xc)">red</DisplayString>
+				<DisplayString Condition="is_b_index(0xd)">fuchsia</DisplayString>
+				<DisplayString Condition="is_b_index(0xe)">yellow</DisplayString>
+				<DisplayString Condition="is_b_index(0xf)">white</DisplayString>
 			</Synthetic>
 			<Synthetic Name="Flags">
 				<DisplayString>{Flags,h}</DisplayString>
@@ -182,25 +190,24 @@
 		<DisplayString>{Char}</DisplayString>
 	</Type>
 
-	<Type Name="_FILETIME">
-		<Intrinsic Name="tick"         Expression="1ull"/>
-		<Intrinsic Name="microsecond"  Expression="tick() * 10"/>
-		<Intrinsic Name="millisecond"  Expression="microsecond() * 1000"/>
-		<Intrinsic Name="second"       Expression="millisecond() * 1000"/>
-		<Intrinsic Name="minute"       Expression="second() * 60"/>
-		<Intrinsic Name="hour"         Expression="minute() * 60"/>
-		<Intrinsic Name="day"          Expression="hour() * 24"/>
+	<Type Name="std::chrono::duration&lt;*, std::ratio&lt;*,*&gt;&gt;">
+		<Intrinsic Name="ticks_in_second"       Expression="$T1(1) * $T3 / $T2"/>
+		<Intrinsic Name="ticks_in_nanosecond"   Expression="ticks_in_second() / 1000000000"/>
+		<Intrinsic Name="ticks_in_microsecond"  Expression="ticks_in_second() / 1000000"/>
+		<Intrinsic Name="ticks_in_millisecond"  Expression="ticks_in_second() / 1000"/>
+		<Intrinsic Name="ticks_in_minute"       Expression="ticks_in_second() * 60"/>
+		<Intrinsic Name="ticks_in_hour"         Expression="ticks_in_minute() * 60"/>
+		<Intrinsic Name="ticks_in_day"          Expression="ticks_in_hour() * 24"/>
 
-		<Intrinsic Name="count"        Expression="(unsigned long long)dwHighDateTime &lt;&lt; 32 | dwLowDateTime"/>
+		<Intrinsic Name="count"        Expression="_MyRep"/>
 
-		<Intrinsic Name="days"         Expression="count() / day()"/>
-		<Intrinsic Name="hours"        Expression="count() % day() / hour()"/>
-		<Intrinsic Name="minutes"      Expression="count() % hour() / minute()"/>
-		<Intrinsic Name="seconds"      Expression="count() % minute() / second()"/>
-		<Intrinsic Name="milliseconds" Expression="count() % second() / millisecond()"/>
-		<Intrinsic Name="microseconds" Expression="count() % millisecond() / microsecond()"/>
-		<Intrinsic Name="ticks"        Expression="count() % microsecond()"/>
-
+		<Intrinsic Name="days"         Expression="count()                                       / ticks_in_day()"/>
+		<Intrinsic Name="hours"        Expression="count() % ticks_in_day()                      / ticks_in_hour()"/>
+		<Intrinsic Name="minutes"      Expression="count() % ticks_in_hour()                     / ticks_in_minute()"/>
+		<Intrinsic Name="seconds"      Expression="count() % ticks_in_minute()                   / ticks_in_second()"/>
+		<Intrinsic Name="milliseconds" Expression="count() % ticks_in_second()      * 1000       / ticks_in_second()"/>
+		<Intrinsic Name="microseconds" Expression="count() % ticks_in_millisecond() * 1000000    / ticks_in_second()"/>
+		<Intrinsic Name="nanoseconds"  Expression="count() % ticks_in_microsecond() * 1000000000 / ticks_in_second()"/>
 
 		<DisplayString>[{days()}d {hours()}h {minutes()}m {seconds()}s]</DisplayString>
 
@@ -211,16 +218,16 @@
 			<Item Name="seconds">seconds()</Item>
 			<Item Name="milliseconds">milliseconds()</Item>
 			<Item Name="microseconds">microseconds()</Item>
-			<Item Name="ticks">ticks()</Item>
+			<Item Name="nanoseconds">nanoseconds()</Item>
 		</Expand>
 	</Type>
 
-	<Type Name="std::chrono::duration&lt;unsigned __int64, std::ratio&lt;1,10000000&gt;&gt;">
-		<Intrinsic Name="FILETIME" Expression="(_FILETIME*)(this)"/>
-		<DisplayString>{FILETIME(), na}</DisplayString>
+	<Type Name="_FILETIME">
+		<Intrinsic Name="as_nt_duration" Expression="*(os::chrono::duration*)(this)"/>
+		<DisplayString>{as_nt_duration()}</DisplayString>
 		<Expand>
 			<!-- Same 64-bit representation, save typing -->
-			<ExpandedItem>FILETIME()</ExpandedItem>
+			<ExpandedItem>as_nt_duration()</ExpandedItem>
 		</Expand>
 	</Type>
 
