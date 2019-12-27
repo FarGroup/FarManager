@@ -33,9 +33,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.chrono.hpp"
 
 // Internal:
-#include "platform.hpp"
+#include "imports.hpp"
 
 // Platform:
+#include "platform.hpp"
 
 // Common:
 #include "common/range.hpp"
@@ -49,49 +50,56 @@ namespace os::chrono
 	nt_clock::time_point nt_clock::now() noexcept
 	{
 		FILETIME Time;
-		GetSystemTimeAsFileTime(&Time);
+		(imports.GetSystemTimePreciseAsFileTime? imports.GetSystemTimePreciseAsFileTime : GetSystemTimeAsFileTime)(&Time);
 		return from_filetime(Time);
 	}
 
-	static nt_clock::duration posix_shift()
+	static constexpr nt_clock::duration posix_shift()
 	{
 		return 3234576h;
 	}
 
-	time_t nt_clock::to_time_t(const time_point& Time) noexcept
+	std::time_t nt_clock::to_time_t(time_point const Time) noexcept
 	{
-		return std::chrono::duration_cast<std::chrono::seconds>(Time.time_since_epoch() - posix_shift()).count();
+		return (Time.time_since_epoch() - posix_shift()) / 1s;
 	}
 
-	time_point nt_clock::from_time_t(time_t Time) noexcept
+	time_point nt_clock::from_time_t(std::time_t const Time) noexcept
 	{
 		return time_point(posix_shift() + std::chrono::seconds(Time));
 	}
 
-	FILETIME nt_clock::to_filetime(const time_point& Time) noexcept
+	FILETIME nt_clock::to_filetime(time_point const Time) noexcept
 	{
-		const auto Count = to_int64(Time);
+		const auto Count = to_hectonanoseconds(Time);
 		return { static_cast<DWORD>(Count), static_cast<DWORD>(Count >> 32) };
 	}
 
-	time_point nt_clock::from_filetime(FILETIME Time) noexcept
+	time_point nt_clock::from_filetime(FILETIME const Time) noexcept
 	{
-		return from_int64(static_cast<unsigned long long>(Time.dwHighDateTime) << 32 | Time.dwLowDateTime);
+		return from_hectonanoseconds(static_cast<unsigned long long>(Time.dwHighDateTime) << 32 | Time.dwLowDateTime);
 	}
 
-	time_point nt_clock::from_int64(int64_t Time) noexcept
+	time_point nt_clock::from_hectonanoseconds(int64_t const Time) noexcept
 	{
 		return os::chrono::time_point(os::chrono::duration(Time));
 	}
 
-	int64_t nt_clock::to_int64(const time_point& Time) noexcept
+	int64_t nt_clock::to_hectonanoseconds(time_point const Time) noexcept
 	{
-		return Time.time_since_epoch().count();
+		return to_hectonanoseconds(Time.time_since_epoch());
+	}
+
+	int64_t nt_clock::to_hectonanoseconds(duration const Duration) noexcept
+	{
+		using namespace literals;
+
+		return Duration / 1_hns;
 	}
 
 	void sleep_for(std::chrono::milliseconds Duration)
 	{
-		Sleep(static_cast<DWORD>(Duration.count()));
+		Sleep(static_cast<DWORD>(Duration / 1ms));
 	}
 
 	bool get_process_creation_time(HANDLE Process, time_point& CreationTime)

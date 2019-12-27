@@ -249,7 +249,7 @@ namespace os::concurrency
 
 	DWORD multi_waiter::wait(mode Mode, std::chrono::milliseconds Timeout) const
 	{
-		return WaitForMultipleObjects(static_cast<DWORD>(m_Objects.size()), m_Objects.data(), Mode == mode::all, Timeout.count());
+		return WaitForMultipleObjects(static_cast<DWORD>(m_Objects.size()), m_Objects.data(), Mode == mode::all, Timeout / 1ms);
 	}
 
 	DWORD multi_waiter::wait(mode Mode) const

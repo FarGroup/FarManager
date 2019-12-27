@@ -2250,7 +2250,7 @@ unsigned long long WINAPI apiFarClock() noexcept
 {
 	try
 	{
-		return std::chrono::duration_cast<std::chrono::microseconds>(Global->FarUpTime()).count();
+		return Global->FarUpTime() / 1us;
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return 0;

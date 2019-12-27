@@ -140,6 +140,7 @@ public: const unique_function_pointer<name_##NAME, imports::stub_##NAME> NAME{m_
 	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, void, ReleaseSRWLockShared, PSRWLOCK SRWLock);
 	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOLEAN, TryAcquireSRWLockExclusive, PSRWLOCK SRWLock);
 	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOLEAN, TryAcquireSRWLockShared, PSRWLOCK SRWLock);
+	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, void, GetSystemTimePreciseAsFileTime, LPFILETIME SystemTimeAsFileTime);
 
 	DECLARE_IMPORT_FUNCTION(shell32, STDAPICALLTYPE, HRESULT, SHCreateAssociationRegistration, REFIID riid, void** ppv);
 

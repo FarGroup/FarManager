@@ -272,7 +272,7 @@ bool native_plugin_factory::IsPlugin(const string& FileName) const
 
 		if (SectionIterator == Sections.cend())
 			return false;
-	
+
 		const auto& ExportDirectory = *real_address<IMAGE_EXPORT_DIRECTORY>(Data.get(), *SectionIterator, ExportDirectoryAddress);
 		const auto Names = span(real_address<DWORD>(Data.get(), *SectionIterator, ExportDirectory.AddressOfNames), ExportDirectory.NumberOfNames);
 

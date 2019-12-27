@@ -602,7 +602,7 @@ static bool construct_time(
 		std::invoke(Field, st) = New != time_none? New : std::invoke(Field, ost);
 	};
 
-	const auto Milliseconds = Point.Tick == time_none? time_none : std::chrono::duration_cast<std::chrono::milliseconds>(os::chrono::duration(Point.Tick)).count();
+	const auto Milliseconds = Point.Tick == time_none? time_none : os::chrono::duration(Point.Tick) / 1ms;
 
 	set_or_inherit(&SYSTEMTIME::wYear,         Point.Year);
 	set_or_inherit(&SYSTEMTIME::wMonth,        Point.Month);

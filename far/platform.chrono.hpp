@@ -50,7 +50,7 @@ namespace os::chrono
 	{
 	public:
 		using rep = unsigned long long;
-		using period = std::ratio_multiply<std::ratio<100, 1>, std::nano>;
+		using period = std::ratio_multiply<std::hecto, std::nano>;
 		using duration = std::chrono::duration<rep, period>;
 		using time_point = std::chrono::time_point<nt_clock>;
 
@@ -60,22 +60,25 @@ namespace os::chrono
 		static time_point now() noexcept;
 
 		[[nodiscard]]
-		static time_t to_time_t(const time_point& Time) noexcept;
+		static std::time_t to_time_t(time_point Time) noexcept;
 
 		[[nodiscard]]
-		static time_point from_time_t(time_t Time) noexcept;
+		static time_point from_time_t(std::time_t Time) noexcept;
 
 		[[nodiscard]]
-		static FILETIME to_filetime(const time_point& Time) noexcept;
+		static FILETIME to_filetime(time_point Time) noexcept;
 
 		[[nodiscard]]
 		static time_point from_filetime(FILETIME Time) noexcept;
 
 		[[nodiscard]]
-		static time_point from_int64(int64_t Time) noexcept;
+		static time_point from_hectonanoseconds(int64_t Time) noexcept;
 
 		[[nodiscard]]
-		static int64_t to_int64(const time_point& Time) noexcept;
+		static int64_t to_hectonanoseconds(time_point Time) noexcept;
+
+		[[nodiscard]]
+		static int64_t to_hectonanoseconds(duration Duration) noexcept;
 	};
 
 	using duration = nt_clock::duration;
@@ -94,7 +97,7 @@ namespace os::chrono
 	namespace literals
 	{
 		[[nodiscard]]
-		constexpr duration(operator"" _tick)(unsigned long long Value) noexcept
+		constexpr duration(operator"" _hns)(unsigned long long Value) noexcept
 		{
 			return duration(Value);
 		}

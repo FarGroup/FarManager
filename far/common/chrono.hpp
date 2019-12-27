@@ -74,7 +74,7 @@ private:
 	{
 		auto& Element = get<cast_type>();
 		Element = std::chrono::duration_cast<cast_type>(Duration);
-		Duration -= std::chrono::duration_cast<duration_type>(Element);
+		Duration -= Element;
 	}
 };
 

@@ -305,7 +305,7 @@ string StrFTime(string_view const Format, const tm* Time)
 			{
 				using namespace std::chrono;
 				const auto Offset = split_duration<hours, minutes>(-seconds(_timezone + (Time->tm_isdst? _dstbias : 0)));
-				Result += format(FSTR(L"{0:+05}"), Offset.get<hours>().count() * 100 + Offset.get<minutes>().count());
+				Result += format(FSTR(L"{0:+05}"), Offset.get<hours>() / 1h * 100 + Offset.get<minutes>() / 1min);
 			}
 			break;
 
@@ -444,7 +444,7 @@ os::chrono::time_point ParseTimePoint(string_view const Date, string_view const 
 
 	SYSTEMTIME st{};
 
-	const auto Milliseconds = Point.Tick == time_none? time_none : std::chrono::duration_cast<std::chrono::milliseconds>(os::chrono::duration(Point.Tick)).count();
+	const auto Milliseconds = Point.Tick == time_none? time_none : os::chrono::duration(Point.Tick) / 1ms;
 
 	st.wYear   = Point.Year;
 	st.wMonth  = Point.Month;
@@ -513,6 +513,8 @@ void ConvertDate(os::chrono::time_point const Point, string& strDateText, string
 	}
 	else
 	{
+		using namespace os::chrono::literals;
+
 		strTimeText = cut_right(
 			format(
 				FSTR(L"{0:02}{1}{2:02}{1}{3:02}{4}{5:07}"),
@@ -521,7 +523,7 @@ void ConvertDate(os::chrono::time_point const Point, string& strDateText, string
 				st.wMinute,
 				st.wSecond,
 				DecimalSeparator,
-				(std::chrono::milliseconds(st.wMilliseconds) + Point.time_since_epoch() % 1ms).count()
+				(std::chrono::milliseconds(st.wMilliseconds) + Point.time_since_epoch() % 1ms) / 1_hns
 			),
 			TimeLength);
 	}
@@ -595,17 +597,18 @@ void ConvertDate(os::chrono::time_point const Point, string& strDateText, string
 std::tuple<string, string> ConvertDuration(os::chrono::duration Duration)
 {
 	using namespace std::chrono;
+	using namespace os::chrono::literals;
 
 	const auto Result = split_duration<chrono::days, hours, minutes, seconds>(Duration);
 
 	return
 	{
-		str(Result.get<chrono::days>().count()),
+		str(Result.get<chrono::days>() / 24h),
 		format(FSTR(L"{0:02}{4}{1:02}{4}{2:02}{5}{3:07}"),
-			Result.get<hours>().count(),
-			Result.get<minutes>().count(),
-			Result.get<seconds>().count(),
-			(Duration % 1s).count(),
+			Result.get<hours>() / 1h,
+			Result.get<minutes>() / 1min,
+			Result.get<seconds>() / 1s,
+			(Duration % 1s) / 1_hns,
 			locale.time_separator(),
 			locale.decimal_separator()
 		)
@@ -619,9 +622,9 @@ string ConvertDurationToHMS(os::chrono::duration Duration)
 	const auto Result = split_duration<hours, minutes, seconds>(Duration);
 
 	return format(FSTR(L"{0:02}{3}{1:02}{3}{2:02}"),
-		Result.get<hours>().count(),
-		Result.get<minutes>().count(),
-		Result.get<seconds>().count(),
+		Result.get<hours>() / 1h,
+		Result.get<minutes>() / 1min,
+		Result.get<seconds>() / 1s,
 		locale.time_separator()
 	);
 }
@@ -710,13 +713,13 @@ TEST_CASE("datetime.parse.duration")
 	}
 	Tests[]
 	{
-		{ L""sv,       L"  :  :  .       "sv,              0_tick, },
-		{ L""sv,       L"  :  :  .      1"sv,              1_tick, },
-		{ L""sv,       L"  :  :  . 12    "sv,              12_tick, },
+		{ L""sv,       L"  :  :  .       "sv,              0_hns, },
+		{ L""sv,       L"  :  :  .      1"sv,              1_hns, },
+		{ L""sv,       L"  :  :  . 12    "sv,              12_hns, },
 		{ L"3"sv,      L"  :42:  .       "sv,              24h * 3 + 42min, },
 		{ L""sv,       L"33:  :  .       "sv,              33h, },
 		{ L"1"sv,      L"  :  :  .       "sv,              24h, },
-		{ L"512"sv,    L"12:34:56.7890123"sv,              512 * 24h + 12h + 34min + 56s + 789ms + 123_tick, },
+		{ L"512"sv,    L"12:34:56.7890123"sv,              512 * 24h + 12h + 34min + 56s + 789ms + 123_hns, },
 	};
 
 	for (const auto& i: Tests)

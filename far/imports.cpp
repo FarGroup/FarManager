@@ -298,6 +298,12 @@ BOOLEAN WINAPI imports::stub_TryAcquireSRWLockShared(PSRWLOCK SRWLock)
 	return FALSE;
 }
 
+void WINAPI imports::stub_GetSystemTimePreciseAsFileTime(LPFILETIME SystemTimeAsFileTime)
+{
+	// TODO: log
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+}
+
 // shell32
 HRESULT STDAPICALLTYPE imports::stub_SHCreateAssociationRegistration(REFIID riid, void ** ppv)
 {

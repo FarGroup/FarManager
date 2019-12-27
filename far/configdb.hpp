@@ -95,9 +95,11 @@ public:
 
 	virtual void DeleteValue(string_view Key, string_view Name) = 0;
 
-	template<typename T, typename key_type, REQUIRES(std::is_convertible_v<key_type, string_view>)>
+	template<typename T, typename key_type>
 	auto ValuesEnumerator(key_type&& Key) const
 	{
+		static_assert(std::is_convertible_v<key_type, string_view>);
+
 		using value_type = std::pair<string, T>;
 		return make_inline_enumerator<value_type>([this, Key = keep_alive(FWD(Key))](const bool Reset, value_type& Value)
 		{
@@ -393,9 +395,11 @@ public:
 		string Data;
 	};
 
-	template<typename type, REQUIRES(std::is_convertible_v<type, string_view>)>
+	template<typename type>
 	auto Enumerator(unsigned int HistoryType, type&& HistoryName, bool Reverse = false)
 	{
+		static_assert(std::is_convertible_v<type, string_view>);
+
 		using value_type = enum_data;
 		return make_inline_enumerator<value_type>([this, HistoryType, HistoryName = keep_alive(FWD(HistoryName)), Reverse](const bool Reset, value_type& Value)
 		{

@@ -85,10 +85,12 @@ namespace os::reg
 		[[nodiscard]]
 		bool get(string_view Name, unsigned long long& Value) const;
 
-		template<class T, REQUIRES(is_one_of_v<T, string, unsigned int, unsigned long long>)>
+		template<class T>
 		[[nodiscard]]
 		bool get(string_view SubKey, string_view Name, T& Value, REGSAM Sam = 0) const
 		{
+			static_assert(is_one_of_v<T, string, unsigned int, unsigned long long>);
+
 			const auto NewKey = open(*this, SubKey, KEY_QUERY_VALUE | Sam);
 			if (!NewKey)
 				return false;

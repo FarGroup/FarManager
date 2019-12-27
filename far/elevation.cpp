@@ -103,13 +103,13 @@ static privilege CreateBackupRestorePrivilege()
 	return { SE_BACKUP_NAME, SE_RESTORE_NAME };
 }
 
-template<typename T, REQUIRES(!std::is_pointer_v<T>)>
+template<typename T>
 static void WritePipe(const os::handle& Pipe, const T& Data)
 {
 	return pipe::write(Pipe, Data);
 }
 
-template<typename T, REQUIRES(!std::is_pointer_v<T>)>
+template<typename T>
 static void ReadPipe(const os::handle& Pipe, T& Data)
 {
 	pipe::read(Pipe, Data);

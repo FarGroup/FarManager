@@ -79,10 +79,7 @@ size_t copy_progress::CanvasWidth()
 static string GetTimeText(std::chrono::seconds Seconds)
 {
 	// BUGBUG copy time > 4.166 days (100 hrs) will not be displayed correctly
-	if (Seconds > 100h)
-		Seconds = 99h + Seconds % 1h;
-
-	return ConvertDurationToHMS(Seconds);
+	return ConvertDurationToHMS(Seconds < 100h? Seconds : 99h + Seconds % 1h);
 }
 
 void copy_progress::UpdateAllBytesInfo(unsigned long long FileSize)
@@ -262,12 +259,10 @@ void copy_progress::UpdateTime(unsigned long long SizeDone, unsigned long long S
 	m_CalcTime = std::chrono::steady_clock::now() - m_CopyStartTime - WaitUserTime;
 
 	string tmp[3];
-	const auto CalcTime = std::chrono::duration_cast<std::chrono::seconds>(m_CalcTime);
-	if (CalcTime != CalcTime.zero())
+	const auto CalcTime = m_CalcTime / 1s * 1s;
+	if (CalcTime != 0s)
 	{
 		SizeDone -= m_Bytes.Skipped;
-
-		const auto CPS = SizeDone / CalcTime.count();
 
 		const auto strCalcTimeStr = GetTimeText(CalcTime);
 
@@ -275,10 +270,11 @@ void copy_progress::UpdateTime(unsigned long long SizeDone, unsigned long long S
 		{
 			if (SizeToGo)
 			{
-				m_TimeLeft = GetTimeText(std::chrono::seconds(CPS? SizeToGo / CPS : 0));
+				// double to avoid potential overflows with large files
+				m_TimeLeft = GetTimeText((std::chrono::duration_cast<std::chrono::seconds>(CalcTime * 1.0 / SizeDone * SizeToGo)));
 			}
 
-			m_Speed = FileSizeToStr(CPS, 8, COLFLAGS_FLOATSIZE | COLFLAGS_GROUPDIGITS);
+			m_Speed = FileSizeToStr(SizeDone / (CalcTime / 1s), 8, COLFLAGS_FLOATSIZE | COLFLAGS_GROUPDIGITS);
 			if (starts_with(m_Speed, L' ') && std::iswdigit(m_Speed.back()))
 			{
 				m_Speed.erase(0, 1);

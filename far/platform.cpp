@@ -71,7 +71,7 @@ namespace os
 
 		bool handle_implementation::is_signaled(HANDLE const Handle, std::chrono::milliseconds const Timeout)
 		{
-			const auto Result = WaitForSingleObject(Handle, Timeout.count());
+			const auto Result = WaitForSingleObject(Handle, Timeout / 1ms);
 			switch (Result)
 			{
 			case WAIT_OBJECT_0:

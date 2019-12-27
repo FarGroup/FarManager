@@ -273,10 +273,10 @@ namespace os::fs
 	static void DirectoryInfoToFindData(const FILE_ID_BOTH_DIR_INFORMATION& DirectoryInfo, find_data& FindData, bool IsExtended)
 	{
 		FindData.Attributes = DirectoryInfo.FileAttributes;
-		FindData.CreationTime = os::chrono::nt_clock::from_int64(DirectoryInfo.CreationTime.QuadPart);
-		FindData.LastAccessTime = os::chrono::nt_clock::from_int64(DirectoryInfo.LastAccessTime.QuadPart);
-		FindData.LastWriteTime = os::chrono::nt_clock::from_int64(DirectoryInfo.LastWriteTime.QuadPart);
-		FindData.ChangeTime = os::chrono::nt_clock::from_int64(DirectoryInfo.ChangeTime.QuadPart);
+		FindData.CreationTime = os::chrono::nt_clock::from_hectonanoseconds(DirectoryInfo.CreationTime.QuadPart);
+		FindData.LastAccessTime = os::chrono::nt_clock::from_hectonanoseconds(DirectoryInfo.LastAccessTime.QuadPart);
+		FindData.LastWriteTime = os::chrono::nt_clock::from_hectonanoseconds(DirectoryInfo.LastWriteTime.QuadPart);
+		FindData.ChangeTime = os::chrono::nt_clock::from_hectonanoseconds(DirectoryInfo.ChangeTime.QuadPart);
 		FindData.FileSize = DirectoryInfo.EndOfFile.QuadPart;
 		FindData.AllocationSize = DirectoryInfo.AllocationSize.QuadPart;
 		FindData.ReparseTag = FindData.Attributes&FILE_ATTRIBUTE_REPARSE_POINT? DirectoryInfo.EaSize : 0;
@@ -757,16 +757,16 @@ namespace os::fs
 			return false;
 
 		if (CreationTime)
-			*CreationTime = os::chrono::nt_clock::from_int64(fbi.CreationTime.QuadPart);
+			*CreationTime = os::chrono::nt_clock::from_hectonanoseconds(fbi.CreationTime.QuadPart);
 
 		if (LastAccessTime)
-			*LastAccessTime = os::chrono::nt_clock::from_int64(fbi.LastAccessTime.QuadPart);
+			*LastAccessTime = os::chrono::nt_clock::from_hectonanoseconds(fbi.LastAccessTime.QuadPart);
 
 		if (LastWriteTime)
-			*LastWriteTime = os::chrono::nt_clock::from_int64(fbi.LastWriteTime.QuadPart);
+			*LastWriteTime = os::chrono::nt_clock::from_hectonanoseconds(fbi.LastWriteTime.QuadPart);
 
 		if (ChangeTime)
-			*ChangeTime = os::chrono::nt_clock::from_int64(fbi.ChangeTime.QuadPart);
+			*ChangeTime = os::chrono::nt_clock::from_hectonanoseconds(fbi.ChangeTime.QuadPart);
 
 		return true;
 	}
@@ -776,16 +776,16 @@ namespace os::fs
 		FILE_BASIC_INFORMATION fbi{};
 
 		if (CreationTime)
-			fbi.CreationTime.QuadPart = os::chrono::nt_clock::to_int64(*CreationTime);
+			fbi.CreationTime.QuadPart = os::chrono::nt_clock::to_hectonanoseconds(*CreationTime);
 
 		if (LastAccessTime)
-			fbi.LastAccessTime.QuadPart = os::chrono::nt_clock::to_int64(*LastAccessTime);
+			fbi.LastAccessTime.QuadPart = os::chrono::nt_clock::to_hectonanoseconds(*LastAccessTime);
 
 		if (LastWriteTime)
-			fbi.LastWriteTime.QuadPart = os::chrono::nt_clock::to_int64(*LastWriteTime);
+			fbi.LastWriteTime.QuadPart = os::chrono::nt_clock::to_hectonanoseconds(*LastWriteTime);
 
 		if (ChangeTime)
-			fbi.ChangeTime.QuadPart = os::chrono::nt_clock::to_int64(*ChangeTime);
+			fbi.ChangeTime.QuadPart = os::chrono::nt_clock::to_hectonanoseconds(*ChangeTime);
 
 		IO_STATUS_BLOCK IoStatusBlock;
 		const auto Status = imports.NtSetInformationFile(m_Handle.native_handle(), &IoStatusBlock, &fbi, sizeof fbi, FileBasicInformation);

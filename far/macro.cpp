@@ -1577,7 +1577,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			return api.PassNumber(GetCurrentProcessId());
 
 		case MCODE_V_FAR_UPTIME:
-			return api.PassNumber(std::chrono::duration_cast<std::chrono::milliseconds>(Global->FarUpTime()).count());
+			return api.PassNumber(Global->FarUpTime() / 1ms);
 
 		case MCODE_V_MACRO_AREA:
 			return api.PassNumber(GetArea());
@@ -4482,11 +4482,11 @@ int FarMacroApi::panelitemFunc()
 			case 14:  // Position
 				return PassNumber(filelistItem->Position);
 			case 15:  // CreationTime
-				return PassInteger(os::chrono::nt_clock::to_int64(filelistItem->CreationTime));
+				return PassInteger(os::chrono::nt_clock::to_hectonanoseconds(filelistItem->CreationTime));
 			case 16:  // AccessTime
-				return PassInteger(os::chrono::nt_clock::to_int64(filelistItem->LastAccessTime));
+				return PassInteger(os::chrono::nt_clock::to_hectonanoseconds(filelistItem->LastAccessTime));
 			case 17:  // WriteTime
-				return PassInteger(os::chrono::nt_clock::to_int64(filelistItem->LastWriteTime));
+				return PassInteger(os::chrono::nt_clock::to_hectonanoseconds(filelistItem->LastWriteTime));
 			case 18: // NumberOfStreams
 				return PassNumber(filelistItem->NumberOfStreams(fileList.get()));
 			case 19: // StreamsSize
@@ -4495,7 +4495,7 @@ int FarMacroApi::panelitemFunc()
 				ConvertDate(filelistItem->ChangeTime, strDate, strTime, 8, 1);
 				return PassString(concat(strDate, L' ', strTime));
 			case 21:  // ChangeTime
-				return PassInteger(os::chrono::nt_clock::to_int64(filelistItem->ChangeTime));
+				return PassInteger(os::chrono::nt_clock::to_hectonanoseconds(filelistItem->ChangeTime));
 			case 22:  // ContentData (was: CustomData)
 				//Ret=TVar(filelistItem->ContentData.size() ? filelistItem->ContentData[0] : L"");
 				break;

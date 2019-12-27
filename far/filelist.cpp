@@ -116,12 +116,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static auto compare_time(os::chrono::time_point First, os::chrono::time_point Second)
 {
-	return as_signed((First - Second).count());
+	using namespace os::chrono::literals;
+
+	return as_signed((First - Second) / 1_hns);
 }
 
 static auto compare_fat_time(os::chrono::time_point First, os::chrono::time_point Second)
 {
-	constexpr auto FatPrecision = std::chrono::duration_cast<os::chrono::duration>(2s).count();
+	using namespace os::chrono::literals;
+
+	constexpr auto FatPrecision = 2s / 1_hns;
 
 	const auto Difference = compare_time(First, Second);
 
