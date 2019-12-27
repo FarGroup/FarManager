@@ -2208,8 +2208,8 @@ void VMenu::ShowMenu(bool IsParent)
 				{
 					auto ItemWidth = static_cast<int>(Items[I].Name.size());
 
-					if (ItemWidth > m_Where.width() - 4)
-						ItemWidth = m_Where.width() - 4;
+					if (ItemWidth + 2 > m_Where.width())
+						ItemWidth = m_Where.width() - 2;
 
 					GotoXY(m_Where.left + (m_Where.width() - 2 - ItemWidth) / 2, Y);
 					Text(concat(L' ', fit_to_left(Items[I].Name, ItemWidth), L' '));
