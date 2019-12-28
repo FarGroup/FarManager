@@ -2387,21 +2387,7 @@ config_provider::implementation::~implementation()
 
 static auto pluginscache_db_name()
 {
-#if 1
-#if defined (_M_X64)
-#define PLATFORM_SUFFIX L"64"
-#elif defined (_M_IX86)
-#define PLATFORM_SUFFIX L"32"
-#else
-#define PLATFORM_SUFFIX L""
-#endif
-#else
-#define PLATFORM_SUFFIX L""
-#endif
-
-	return L"plugincache" PLATFORM_SUFFIX L".db"sv;
-
-#undef PLATFORM_SUFFIX
+	return format(FSTR(L"plugincache.{0}.db"), build::platform());
 }
 
 

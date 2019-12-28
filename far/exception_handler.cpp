@@ -171,6 +171,11 @@ static bool write_minidump(const detail::exception_context& Context, string_view
 	return imports.MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), DumpFile.get().native_handle(), MiniDumpWithFullMemory, &Mei, nullptr, nullptr) != FALSE;
 }
 
+static string self_version()
+{
+	return format(FSTR(L"{0} {1} ({2:.7})"), version_to_string(build::version()), build::platform(), build::scm_revision());
+}
+
 static bool get_os_version(OSVERSIONINFOEX& Info)
 {
 	const auto InfoPtr = static_cast<OSVERSIONINFO*>(static_cast<void*>(&Info));
@@ -185,7 +190,7 @@ WARNING_DISABLE_CLANG("-Wdeprecated-declarations")
 WARNING_POP()
 }
 
-static string os_version()
+static string os_version_from_api()
 {
 	OSVERSIONINFOEX Info{ sizeof(Info) };
 	if (!get_os_version(Info))
@@ -216,6 +221,11 @@ static string os_version_from_registry()
 		return {};
 
 	return format(FSTR(L" (version {0}, OS build {1}.{2})"), ReleaseId, CurrentBuild, UBR);
+}
+
+static string os_version()
+{
+	return os_version_from_api() + os_version_from_registry();
 }
 
 using dialog_data_type = std::pair<const detail::exception_context*, const std::vector<const void*>*>;
@@ -388,8 +398,8 @@ static reply ExcDialog(
 
 	const auto Errors = FormatSystemErrors(ErrorState);
 
-	const auto Version = version_to_string(build::version());
-	const auto OsVersion = os_version() + os_version_from_registry();
+	const auto Version = self_version();
+	const auto OsVersion = os_version();
 
 	const string_view Messages[]
 	{
@@ -528,7 +538,7 @@ static reply ExcConsole(
 
 	const auto Errors = FormatSystemErrors(ErrorState);
 
-	const auto Version = version_to_string(build::version());
+	const auto Version = self_version();
 	const auto OsVersion = os_version();
 
 	const string_view Values[] =

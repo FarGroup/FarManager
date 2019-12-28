@@ -21,6 +21,7 @@ m4_define(BUILD_PRERELEASE, m4_ifelse(
 
 m4_include(`tools.m4')
 
+m4_define(BUILD_PLATFORM, m4_ifelse(FARBIT, 64, x64, 32, x86, Unknown))
 m4_define(BUILD_DATE, m4_esyscmd(CMDAWK -f ./scripts/gendate.awk))
 m4_define(BUILD_YEAR, m4_substr(BUILD_DATE,6,4))
 m4_define(BUILD_MONTH, m4_substr(BUILD_DATE,3,2))
@@ -34,6 +35,6 @@ m4_define(FULLVERSION, VERSION_MAJOR.VERSION_MINOR.VERSION_REVISION.VERSION_BUIL
 		VERSION_TYPE, VS_BETA,    ` (Beta)',
 		VERSION_TYPE, VS_RC,      ` (RC)',
 		VERSION_TYPE, VS_RELEASE, `',
-		` (Unknown)') m4_ifelse(FARBIT, 64, x64, x86))
+		` (Unknown)') BUILD_PLATFORM)
 
 m4_divert(0)m4_dnl

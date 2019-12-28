@@ -76,16 +76,7 @@ static const string& GetFarTitleAddons()
 	replace_icase(strTitleAddons, L"%PID"sv, strPID);
 	replace_icase(strTitleAddons, L"%Ver"sv, strVer);
 	replace_icase(strTitleAddons, L"%Build"sv, strBuild);
-	replace_icase(strTitleAddons,L"%Platform"sv,
-#if defined (_M_X64)
-	L"x64"sv
-#elif defined (_M_IX86)
-	L"x86"sv
-#else
-	L"Unknown"sv
-#endif
-	);
-
+	replace_icase(strTitleAddons, L"%Platform"sv, build::platform());
 	replace_icase(strTitleAddons, L"%Admin"sv, os::security::is_admin()? msg(lng::MFarTitleAddonsAdmin) : L""sv);
 	inplace::trim_right(strTitleAddons);
 
