@@ -2751,7 +2751,7 @@ jeleníthet meg.
  $w - current working directory (without the path)
  $$ - $ karakter
  $+ - the depth of the folders stack
- $##nn - ^<wrap>max promt width, given in percents relative to the width of the window
+ $##nn - ^<wrap>max prompt width, given in percents relative to the width of the window
  $@@xx - ^<wrap>"Administrator", if Far Manager is running as administrator.
 xx is a placeholder for two characters that will surround the "Administrator" word.
 For example, #$@@{}$s$p$g# will be shown as "{Administrator} C:\>"
@@ -5943,7 +5943,7 @@ quotes file and folder names containing special characters (see
 ~System.QuotedSymbols~@System.QuotedSymbols@ parameter). Individual
 bits control the behavior in different contexts.
 
-Bit numbers:
+ Bit numbers:
  0 - ^<wrap>Quote names when inserting into the command line or editor;
  1 - Quote names when copying to the clipboard.
 
@@ -6049,111 +6049,157 @@ operation is displayed, the faster the operation itself is performed.
 
 @TitleFormat
 $ #far:config Interface.ViewerTitleFormat, Interface.EditorTitleFormat#
- Параметры "Interface.ViewerTitleFormat" и "Interface.EditorTitleFormat" позволяют задавать
-формат заголовка консольного окна для ~редактора~@Editor@ и ~программы просмотра~@Viewer@.
+ These string parameters define console window title for
+~Editor~@Editor@ and ~Viewer~@Viewer@.
 
- Допускаются шаблонные символы "%File" - имя файла, "%Lng" - строка из lng-файла ("edit" или "view")
+ Macro #%File# is expanded to the name of the file being edited
+or viewed.
 
- Кроме этого есть шаблон "Interface.TitleAddons", который добавляется в конец заголовка (задаётся в диалоге ~Настройка интерфейса~@InterfSettings@).
+ Macro #%Lng# is replaced with the word “edit” or “view” in the current
+language, see ~Options menu~@OptMenu@.
 
- По умолчанию заголовок содержит слово "редактор" (в зависимости от языка интерфейса) и "имя файла" (шаблон "%Lng %File").
+ The #Far window title addons# string of the
+~Interface settings~@InterfSettings@ will be automatically appended
+to the console window title.
 
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ Default value: #"%Lng %File"#.
+
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @System.WipeSymbol
 $ #far:config System.WipeSymbol#
- Параметр позволяет задать код символа-заполнителя для операции "~Уничтожить файл~@DeleteFile@" (Alt+Del).
-Использует младший байт параметра.
- If parameter is set to -1, random values will be used.
+ This numeric parameter defines the filler byte for the
+~wipe file~@DeleteFile@ operation (#Alt+Del# key combination).
 
- По умолчанию значение = 0.
+ Each byte of the file is overwritten with the least significant byte
+of the parameter. If the parameter is set to #-1#, random values will
+be used.
 
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ Default value: 0.
+
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @System.FlagPosixSemantics
 $ #far:config System.FlagPosixSemantics#
- Параметр "System.FlagPosixSemantics" задаёт поведение для процесса добавления отредактированного или просмотренного файла в историю.
-Если значение параметра равно true, то при поиске дублей учитывается регистр символов в именах файлов.
+ This Boolean parameter specifies whether inserting files into
+~view and edit history~@HistoryViews@ is case sensitive.
 
- По умолчанию значение = true.
+ If a file being added already exists in the history, it is not inserted
+again; instead, the existing history entry is moved to the most recent
+position.
 
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ False - ^<wrap>Case insensitive comparison is used to search the
+history for duplicates.
+ True  - Case sensitive comparison is used to search the history for
+duplicates.
+
+ Default value: True (the search is case sensitive).
+
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @System.ShowCheckingFile
 $ #far:config System.ShowCheckingFile#
- Параметр "System.ShowCheckingFile" позволяет отображать в заголовке окна Far Manager имя плагина,
-претендующего на файл, который хотим запустить или отобразить в качестве файловой панели.
+ This Boolean parameter controls whether plugin’s name is displayed
+in the console window title while the plugin is checking a file.
 
- По умолчанию значение = false - не отображать информацию.
+ When the user presses #Enter# or #Ctrl+PgDn#, Far invokes registered
+plugins one by one to check if they can “open” or otherwise render the
+file. If this parameter is True, Far will show plugin’s name in the
+console window title while the plugin is checking the file.
 
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ Default value: False (do not show plugins’ names).
+
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @System.PluginMaxReadData
 $ #far:config System.PluginMaxReadData#
- Параметр "System.PluginMaxReadData" позволяет задавать максимальный размер читаемых данных из
-файла в который попытались войти из панелей (Enter или Ctrl+PgDn). Считанные данные будут переданы
-плагинам для определения плагина поддерживающего файл этого типа.
+ This numeric parameter defines the maximum amount of file data used
+to find the plugin which supports the file.
 
- Минимальное значение - 0x1000. Максимальное - 0xFFFFFFFF.
+ When the user presses #Enter# or #Ctrl+PgDn#, Far reads the number
+of bytes specified by this parameter from the beginning of the file and
+passes the data to registered plugins to check if they can “open”
+or otherwise render the file.
 
- Не рекомендуется выставлять значение этого параметра больше 5 Mb.
+ Minimum value is 131072 (128 KiB). The maximum is limited only by the
+size of the logical address space (2^32 - 1 or 2^64 – 1).
 
- По умолчанию значение = 0x20000.
+ Setting the value of this parameter above 5 MiB is not recommended.
 
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ Default value: 131072 (0x20000).
+
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @System.SetAttrFolderRules
 $ #far:config System.SetAttrFolderRules#
- Параметр "System.SetAttrFolderRules" позволяет задавать значение по умолчанию опции "Process subfolders"
-в диалоге установки атрибутов для одиночной папки:
+ This Boolean parameter defines the default value of the
+#Process subfolders# option of the file ~Attributes~@FileAttrDlg@ dialog
+when changing attributes of a single directory.
 
- true  - ^<wrap>опция "Process subfolders" выключена, файловые дата и время установлены.
- false - ^<wrap>опция "Process subfolders" включена, файловые дата и время очищены.
+ False - ^<wrap>The #Process subfolders# option is on; date and time
+fields are cleared.
+ True  - The #Process subfolders# option is off; date and time fields
+are set to the actual values.
 
- По умолчанию значение = true.
+ Default value: True (do not process subfolders).
 
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @System.CopyBufferSize
 $ #far:config System.CopyBufferSize#
- Параметр "System.CopyBufferSize" задаёт размер буфера, когда не используется
-~системная функция копирования~@SystemSettings@. Если параметр равен 0, то используется
-размер по умолчанию - 32768 байт.
+ This numeric parameter defines the size of the buffer used by the
+internal file copy routine (see #Use system copy routine# option of the
+~System settings~@SystemSettings@ dialog).
 
- По умолчанию значение равно 0.
+ If the value of this parameter is zero, the default buffer size
+of 32768 bytes is used.
 
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ Default value: 0 (buffer size is 32768 bytes).
+
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @System.SubstNameRule
 $ #far:config System.SubstNameRule#
- Параметр "System.SubstNameRule" задаёт правило опроса приводов на предмет сканирования SUBST-дисков.
+ This numeric parameter specifies the types of physical drives which
+will be queried when Far detects drives assigned using #SUBST# command.
 
- Биты:
- 0 - если установлен, то опрашивать сменные диски
- 1 - если установлен, то опрашивать все остальные
+ Far attempts to detect if a drive was substituted to display
+appropriate information on the ~Change drive~@DriveDlg@ menu and
+~Info panel~@InfoPanel@, as well as in some other cases.
 
- По умолчанию значение = 2 - опрашивать все диски кроме сменных.
+ Bit numbers:
+ 0 - Query removable drives;
+ 1 - Query drives of all other types.
 
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ Default value: 2 (query all non-removable drives). For example,
+if a drive is associated with a CD-ROM path, it will not be detected
+as substituted.
+
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @System.SubstPluginPrefix
 $ #far:config System.SubstPluginPrefix#
- Параметр "System.SubstPluginPrefix" позволяет управлять подстановкой префиксов плагинов в операциях
-вставки пути к объекту (Ctrl+F, Ctrl+[…), находящемуся на панели плагина. Если значение равно #true#, то
-Far Manager автоматически добавит в командную строку префикс плагина перед вставляемым путём (кроме панелей,
-которые указывают на реальные файлы, например, "Временная панель"). Значение #false# не добавляет префиксы.
+ This Boolean parameter controls whether Far prepends plugin prefix
+to the path to plugin panel’s object when inserting the path into the
+command line (#Ctrl+F#, #Ctrl+[#, etc.) or copying it to the clipboard
+(#Alt+Shift+Ins#, #Ctrl+Alt+Ins#).
 
- По умолчанию значение = false.
+ False - ^<wrap>Do not prepend plugin prefix to the path to an object
+on plugin panel.
+ True  - Prepend plugin prefix except when the plugin manages real
+files, like #Temporary panel# does.
 
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ Default value: False (do not prepend plugin prefix).
+
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @System.CopySecurityOptions
