@@ -94,6 +94,7 @@ build_script:
   #build far
   - cd far 
   - set FARMANAGER_BUILD_TYPE=VS_RELEASE
+  - set FARMANAGER_SCM_REVISION=APPVEYOR_REPO_COMMIT
   - nmake /f makefile_vc %ADD_MAKE%
   - nmake /f makefile_vc install INSTALLDIR=..\ci\%configuration%.%platform% %ADD_MAKE%
   - update_headers.bat nocommit

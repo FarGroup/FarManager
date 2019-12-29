@@ -26,6 +26,9 @@ m4_define(BUILD_PLATFORM, m4_ifelse(
 	FARBIT, 32, x86,
 	Unknown))
 
+m4_define(BUILD_SCM_REVISION, m4_ifelse(SCM_REVISION, `', m4_patsubst(m4_esyscmd(git rev-parse HEAD 2>nul),`
+',`'), SCM_REVISION))
+
 m4_define(BUILD_DATE, m4_esyscmd(CMDAWK -f ./scripts/gendate.awk))
 m4_define(BUILD_YEAR, m4_substr(BUILD_DATE,6,4))
 m4_define(BUILD_MONTH, m4_substr(BUILD_DATE,3,2))

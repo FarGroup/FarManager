@@ -53,7 +53,7 @@
     <TargetOsVersion Condition="'$(Platform)'=='x64'">5.2</TargetOsVersion>
     <NewOptions Condition="'$(VisualStudioVersion)'=='15.0'"></NewOptions>
     <NewOptions Condition="'$(VisualStudioVersion)'&gt;='16.0'"></NewOptions>
-    <M4Cmd>tools\m4.exe -P -DFARBIT=$(PlatformArchitecture) -DBUILD_TYPE=%25FARMANAGER_BUILD_TYPE%25</M4Cmd>
+    <M4Cmd>tools\m4.exe -P -DFARBIT=$(PlatformArchitecture) -DBUILD_TYPE=%25FARMANAGER_BUILD_TYPE%25 -DSCM_REVISION=%25FARMANAGER_SCM_REVISION%25</M4Cmd>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <LinkIncremental>false</LinkIncremental>

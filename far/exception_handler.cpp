@@ -173,7 +173,9 @@ static bool write_minidump(const detail::exception_context& Context, string_view
 
 static string self_version()
 {
-	return format(FSTR(L"{0} {1} ({2:.7})"), version_to_string(build::version()), build::platform(), build::scm_revision());
+	const auto Version = format(FSTR(L"{0} {1}"), version_to_string(build::version()), build::platform());
+	const auto ScmRevision = build::scm_revision();
+	return ScmRevision.empty()? Version : Version + format(FSTR(L" ({0:.7})"), ScmRevision);
 }
 
 static bool get_os_version(OSVERSIONINFOEX& Info)
