@@ -40,7 +40,7 @@ build_script:
   #build Far
   - cd far
   - set FARMANAGER_BUILD_TYPE=VS_RELEASE
-  - set FARMANAGER_SCM_REVISION=APPVEYOR_REPO_COMMIT
+  - set FARMANAGER_SCM_REVISION=%APPVEYOR_REPO_COMMIT%
   - mingw32-make -j4 %ADD_MAKE% -f makefile_gcc
   - cd ..
   #build Plugins
