@@ -1064,22 +1064,18 @@ intptr_t LF_MakeDirectory(lua_State* L, struct MakeDirectoryInfo *Info)
 	{
 		Info->StructSize = sizeof(*Info);
 		PushPluginPair(L, Info->hPanel);           //+3: Func,Pair
-		push_utf8_string(L, Info->Name, -1);       //+4
+		lua_pushstring(L, "");                     //+4 (dummy argument kept for backward compatibility)
 		bit64_push(L, Info->OpMode);               //+5
 
 		if(0 == pcall_msg(L, 4, 2))                //+2
 		{
 			res = lua_tointeger(L,-2);
-
-			if(res == 1 && lua_isstring(L,-1))
+			if(lua_isstring(L,-1))
 			{
 				Info->Name = check_utf8_string(L,-1,NULL);
 				lua_pushvalue(L, -1);
 				lua_setfield(L, LUA_REGISTRYINDEX, "MakeDirectory.Name"); // protect from GC
 			}
-			else if(res != -1)
-				res = 0;
-
 			lua_pop(L,2);
 		}
 	}

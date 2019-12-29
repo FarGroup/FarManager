@@ -1932,7 +1932,7 @@ id=107
 lv=2
 dt=Text
 nm=export.MakeDirectory
-mtime=3602340977
+mtime=3786803761
 <article>
 #_Status [, NewName] = export.MakeDirectory (object, handle, Name, OpMode)
 #_
@@ -1945,6 +1945,10 @@ mtime=3602340977
 #_**Returns:**
 #_  Status:  integer (in accordance with FAR API)
 #_  NewName: string
+#_
+#_**Note:**
+#_  The 3-rd parameter (*"Name"*) should be ignored.
+#_  It is not removed in order to preserve backward compatibility.
 #_
 #_**Far API used:**
 #_  MakeDirectoryW, MakeDirectoryInfo
