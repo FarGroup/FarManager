@@ -1037,7 +1037,7 @@ function MT.test_Far()
   local temp = Far.UpTime
   mf.sleep(50)
   temp = Far.UpTime - temp
-  assert(temp > 40 and temp < 70)
+  assert(temp > 40 and temp < 80)
 
   assert(type(Far.Cfg_Get)=="function")
   assert(type(Far.DisableHistory)=="function")

@@ -138,7 +138,7 @@ void PushPluginObject(lua_State* L, HANDLE hPlugin)
 void PushPluginPair(lua_State* L, HANDLE hPlugin)
 {
 	PushPluginObject(L, hPlugin);
-	lua_pushinteger(L, (intptr_t)hPlugin);
+	lua_pushlightuserdata(L, hPlugin);
 }
 
 void ReplacePluginInfoCollector(lua_State* L)
@@ -732,7 +732,10 @@ void LF_GetOpenPanelInfo(lua_State* L, struct OpenPanelInfo *aInfo)
 
 	lua_pop(L, 1);
 	//---------------------------------------------------------------------------
-	Info->ShortcutData = AddStringToCollectorField(L, cpos, "ShortcutData");
+	// _ModuleShortcutData is a non-standard field used with LuaMacro panel modules
+	Info->ShortcutData = AddStringToCollectorField(L, cpos, "_ModuleShortcutData");
+	if (Info->ShortcutData == NULL)
+		Info->ShortcutData = AddStringToCollectorField(L, cpos, "ShortcutData");
 	//---------------------------------------------------------------------------
 	lua_pop(L,4);
 	*aInfo = *Info;

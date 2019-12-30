@@ -199,14 +199,12 @@ HANDLE OptHandle(lua_State *L)
 		case LUA_TNONE:
 		case LUA_TNIL:
 			break;
-		case LUA_TNUMBER:
-			return (HANDLE)lua_tointeger(L,1);
 		case LUA_TUSERDATA:
 			return *(HANDLE*)luaL_checkudata(L, 1, PluginHandleType);
 		case LUA_TLIGHTUSERDATA:
 			return lua_touserdata(L,1);
 		default:
-			luaL_typerror(L, 1, "integer or userdata");
+			luaL_typerror(L, 1, "userdata");
 	}
 	return NULL;
 }

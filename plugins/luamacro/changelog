@@ -1,4 +1,10 @@
-﻿shmuel 29.12.2019 18:35:07 +0200 - build 720
+﻿shmuel 30.12.2019 16:05:03 +0200 - build 721
+
+1. A fix in GetOpenPanelInfo() for LuaMacro panel modules.
+
+2. LuaFAR: minor refactoring.
+
+shmuel 29.12.2019 18:35:07 +0200 - build 720
 
 1. LuaFAR: a minor fix in MakeDirectoryW.
 

@@ -582,12 +582,12 @@ function export.GetOpenPanelInfo (wrapped_obj, handle, ...)
   local mod, obj = wrapped_obj.module, wrapped_obj.object
   if type(mod.GetOpenPanelInfo) == "function" then
     local op_info = mod.GetOpenPanelInfo(obj, handle, ...)
-    if type(op_info) == "table" and
-       type(mod.Info) == "table" and
-       type(mod.Info.Guid) == "string"
-    then
-      if type(op_info.ShortcutData) == "string" then
-        op_info.ShortcutData = win.Uuid(mod.Info.Guid) .. "/" .. op_info.ShortcutData
+    if type(op_info) == "table" then
+      if type(op_info.ShortcutData) == "string"
+         and type(mod.Info) == "table"
+         and type(mod.Info.Guid) == "string"
+      then
+        op_info._ModuleShortcutData = win.Uuid(mod.Info.Guid) .. "/" .. op_info.ShortcutData
       end
       return op_info
     end
