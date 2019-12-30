@@ -289,7 +289,7 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 		Pos = SelectPos;
 
 	auto Parent = GetDialog();
-	if (Pos != SelectPos && Parent && !Parent->CheckDialogMode(DMODE_ISMENU) && CheckFlags(VMENU_COMBOBOX|VMENU_LISTBOX) && Parent->IsInited() && !Parent->SendMessage(DN_LISTCHANGE, DialogItemID, ToPtr(Pos)))
+	if (Pos != SelectPos && CheckFlags(VMENU_COMBOBOX|VMENU_LISTBOX) && Parent && Parent->IsInited() && !Parent->SendMessage(DN_LISTCHANGE, DialogItemID, ToPtr(Pos)))
 	{
 		UpdateItemFlags(SelectPos, Items[SelectPos].Flags|LIF_SELECTED);
 		return -1;
