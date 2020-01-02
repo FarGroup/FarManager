@@ -485,6 +485,7 @@ history_return_type History::ProcessMenu(string& strStr, GUID* const Guid, strin
 			return KeyProcessed;
 		});
 
+		HistoryMenu.ClearDone();
 		if (IsUpdate)
 			continue;
 
