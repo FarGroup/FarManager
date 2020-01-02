@@ -590,7 +590,9 @@ intptr_t VMenu2::RunEx(const std::function<int(int Msg, void *param)>& fn)
 
 	Process();
 
-	return GetExitCode();
+	auto Result = GetExitCode();
+	ClearDone();
+	return Result;
 }
 
 intptr_t VMenu2::Run(const std::function<int(const Manager::Key& RawKey)>& fn)
