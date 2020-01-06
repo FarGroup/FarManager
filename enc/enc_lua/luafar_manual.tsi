@@ -5465,7 +5465,7 @@ lv=2
 dt=Text
 nm=panel.ClearSelection
 ctime=3480322277
-mtime=3571802936
+mtime=3787492154
 <article>
 #_result = panel.ClearSelection (handle, whatpanel, items)
 #_
@@ -5479,15 +5479,12 @@ mtime=3571802936
 #_  result: boolean
 #_
 #_**Far API used:**
-#_  PanelControl, FCTL_GETPANELINFO, FCTL_BEGINSELECTION,
-#_  FCTL_CLEARSELECTION, FCTL_ENDSELECTION
+#_  PanelControl, FCTL_GETPANELINFO, FCTL_CLEARSELECTION
 #_
 #_@@@
-#_{fctl_beginselection}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_BEGINSELECTION
-#_{fctl_clearselection}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_CLEARSELECTION
-#_{fctl_endselection}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_ENDSELECTION
-#_{fctl_getpanelinfo}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_GETPANELINFO
 #_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
+#_{fctl_getpanelinfo}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_GETPANELINFO
+#_{fctl_clearselection}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_CLEARSELECTION
 #_
 </article>
 </node>
@@ -6182,7 +6179,7 @@ id=14
 lv=2
 dt=Text
 nm=panel.SetSelection
-mtime=3571803052
+mtime=3787492126
 <article>
 #_result = panel.SetSelection (handle, whatpanel, items, selection)
 #_
@@ -6197,15 +6194,12 @@ mtime=3571803052
 #_  result: boolean
 #_
 #_**Far API used:**
-#_  PanelControl, FCTL_GETPANELINFO, FCTL_BEGINSELECTION,
-#_  FCTL_SETSELECTION, FCTL_ENDSELECTION
+#_  PanelControl, FCTL_GETPANELINFO, FCTL_SETSELECTION
 #_
 #_@@@
-#_{fctl_beginselection}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_BEGINSELECTION
-#_{fctl_endselection}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_ENDSELECTION
+#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
 #_{fctl_getpanelinfo}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_GETPANELINFO
 #_{fctl_setselection}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_SETSELECTION
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
 #_
 </article>
 </node>
