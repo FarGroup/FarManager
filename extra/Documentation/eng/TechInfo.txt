@@ -66,56 +66,12 @@ the main help file, that is actual for the current Far Manager version.
 =====================
 
 
-1.2.4.(TechInfo #15)
-~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far Manager\System]
-   "SetAttrFolderRules":REG_DWORD
-   The "System/SetAttrFolderRules" key of DWORD type specifies the behavior
-   of the attribute settings dialog when changing attributes for  a  single
-   directory. If this option is set to 1,  then  the  "Process  subfolders"
-   checkbox will be unset for a single directory. Setting this option to  0
-   enables the same behavior as in Far prior to the version 1.70.
-   By default the value 1 is used (the  checkbox  is  unset  for  a  single
-   directory).
-
-1.2.6.(TechInfo #23)
-~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far Manager\System]
-   "CopyBufferSize":REG_DWORD
-   The key "System/CopyBufferSize" of DWORD type sets the size of the  copy
-   buffer. If it is set to 0, the default size (0x10000 bytes) is used.
-   By default, the value is 0, meaning that the default copy buffer size is
-   used.
-
 1.2.7.(TechInfo #26)
 ~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far Manager\System]
    "CopyTimeRule":REG_DWORD
    The  parameter  can  be  changed   in   the   configuration   dialog   -
    Options|Interface settings
-
-1.2.9.(TechInfo #29)
-~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far Manager\System]
-   "WipeSymbol":REG_DWORD
-   The "System/WipeSymbol" key of DWORD type  specifies  the  code  of  the
-   filler character for the "Wipe file" operation (Alt-Del). The lower byte
-   of the parameter is used.
-   The default value is 0.
-
-1.2.10.(TechInfo #31)
-~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far Manager\System]
-   "FlagPosixSemantics":REG_DWORD
-   The  "System/FlagPosixSemantics"  key  of  DWORD  type   specifies   the
-   behaviour of the history and position cache for the internal viewer  and
-   editor.
-     0 - file names are case insensitive
-     1 - file names are case sensitive
-   This parameter is meaningful only under Windows NT/2000.
-   The default value is:
-     Windows 9x       = 0
-     Windows NT/2000  = 1
 
 1.2.11.(TechInfo #33)
 ~~~~~~~~~~~~~~~~~~~~~
@@ -143,52 +99,6 @@ the main help file, that is actual for the current Far Manager version.
      "System/MsHWheelDeltaEdit" - in the editor.
    These parameters are used under Windows Vista and above.
    The default values are 1.
-
-1.2.13.(TechInfo #36)
-~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far Manager\System]
-   "SubstNameRule":REG_DWORD
-   The key "System/SubstNameRule" of DWORD  type  specifies  the  rule  of
-   querying drives to find SUBSTed drives.
-   Bits:
-    0 - if set, then removable drives are queried
-    1 - if set, then all other drives are queried
-   The default value is 2 - query all non-removable drives.
-
-1.2.14.(TechInfo #37)
-~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far Manager\System]
-   "ShowCheckingFile":REG_DWORD
-   The key"System/ShowCheckingFile" of DWORD type  allows  to  display  the
-   name of the plugin being checked in the title of the Far Manager window,
-   while Far checks plugins after Enter or Ctrl-PgDn is pressed on a file.
-   The default value is 0 - do not display the information.
-
-1.2.16.(TechInfo #42)
-~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far Manager\System]
-   "SubstPluginPrefix":REG_DWORD
-   The key "System/SubstPluginPrefix"  of  DWORD  type  allows  to  control
-   plugin prefix substitution in operations for inserting the  path  to  an
-   object (Ctrl-F, Ctrl-[ and so on) invoked from a plugin panel.
-   If the value is equal to 1, Far will automatically  prepend  the  plugin
-   prefix to the path (except for plugins that point to  real  files,  like
-   the Temporary panel).
-   If the value is equal to 0, Far does not prepend prefixes.
-   The default value is 0.
-
-1.2.23.(TechInfo #63)
-~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far Manager\System]
-   "PluginMaxReadData":REG_DWORD
-   The key "System/PluginMaxReadData" of  DWORD  type  allows  to  set  the
-   maximum size of the data read from a file after an attempt to  enter  it
-   from the panels (Enter or Ctrl-PgDn) was made. The  data  read  will  be
-   passed to plugins to determine which plugin  supports  a  file  of  this
-   type.
-   Minimum value - 0x1000. Maximum value - 0xFFFFFFFF.
-   Setting a value above 5 MB is not recommended.
-   The default value is 0x20000.
 
 1.2.25.(TechInfo #69)
 ~~~~~~~~~~~~~~~~~~~~~
@@ -351,17 +261,6 @@ the main help file, that is actual for the current Far Manager version.
    exceeds the maximum size, a warning message will be shown before opening
    the file. The value 0 disables the size checking and the warning.
    The default value is 0 (unlimited size).
-
-1.8.6.(TechInfo #44)
-~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far Manager\Editor]
-   "EditorUndoSize":REG_DWORD
-   The value "Editor/EditorUndoSize" of type DWORD  allows  to  change  the
-   size of undo buffer in the editor. It indicates  the  number  of  stored
-   operations (not the bytesize of the buffer) and can be in the range from
-   64 up to 2147483645. If the  value  falls  out  of  that  range,  it  is
-   considered to equal 64.
-   Default value is 2048.
 
 
 

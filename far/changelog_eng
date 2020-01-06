@@ -3,6 +3,26 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+MZK 05.01.2020 20:56:58 -0800
+
+1. Translated more far:config help pages into English; cleaned up eng/TechInfo.txt.
+
+zg 02.01.2020 10:03:36 +0200 - build 5545
+
+1. Correction of 5544.
+
+zg 02.01.2020 03:19:09 +0200 - build 5544
+
+1. Crash on deleting an item from history #219.
+
+zg 30.12.2019 15:54:05 +0200 - build 5543
+
+1. Correction of 5542.
+
+zg 30.12.2019 04:29:53 +0200 - build 5542
+
+1. Experimental: DN_LISTCHANGE is delivered to regular menus.
+
 drkns 29.12.2019 14:31:00 +0200 - build 5541
 
 1. Continuation of 5540.
