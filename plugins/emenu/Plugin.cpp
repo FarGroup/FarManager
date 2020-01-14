@@ -18,6 +18,8 @@
 #include <DlgBuilder.hpp>
 #include <cassert>
 
+void __stdcall _com_issue_error(HRESULT) throw() {}
+
 // new version of PSDK doesn't contain standard smart-pointer declaration
 _COM_SMARTPTR_TYPEDEF(IContextMenu, __uuidof(IContextMenu));
 _COM_SMARTPTR_TYPEDEF(IContextMenu2, __uuidof(IContextMenu2));
@@ -1047,14 +1049,14 @@ bool CPlugin::GetAdditionalString(IContextMenu* pContextMenu, UINT nID, EAdditio
   }
   WCHAR szwAddInfo[200]=L"\0";
   HRESULT hr;
-  SEH_TRY
-  {
+  /*SEH_TRY
+  {*/
     hr = pContextMenu->GetCommandString(nID, nType, NULL, reinterpret_cast<LPSTR>(szwAddInfo), ARRAYSIZE(szwAddInfo));
-  }
+  /*}
   SEH_EXCEPT(EXCEPTION_EXECUTE_HANDLER)
   {
     hr = E_UNEXPECTED;
-  }
+  }*/
   if (FAILED(hr))
   {
     return false;

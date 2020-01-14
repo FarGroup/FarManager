@@ -1,4 +1,4 @@
-#include <cwchar>
+#include "CRT\crt.hpp"
 #include "Proclist.hpp"
 #include "perfthread.hpp"
 #include "Proclng.hpp"
@@ -17,13 +17,13 @@ class StrTok
 		StrTok(LPCTSTR str, LPCTSTR token) : tok(token)
 		{
 			buf = wcsdup(str);
-			ptr = wcstok(buf, token);
+			ptr = _wcstok(buf, token);
 		}
 		~StrTok() { free(buf); }
 
 	public:
 		operator wchar_t*() { return ptr; }
-		void operator ++ () { ptr = wcstok(NULL, tok); }
+		void operator ++ () { ptr = _wcstok(NULL, tok); }
 		operator bool() { return ptr!=NULL; }
 };
 
@@ -693,22 +693,22 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move, const 
 	if (ItemsNumber==0)
 		return 0;
 
+	ProcessData *PData = (ProcessData*)malloc(sizeof(ProcessData));
 	for (int I=0; I<ItemsNumber; I++)
 	{
 		PluginPanelItem &CurItem = PanelItem[I];
 		ProcessData *pdata=(ProcessData *)CurItem.UserData.Data;
-		ProcessData PData;
 
 		if (!pdata)
 		{
-			PData.dwPID = FSF.atoi(CurItem.AlternateFileName);
-			ProcessPerfData* ppd = pPerfThread->GetProcessData(PData.dwPID, (DWORD)CurItem.NumberOfLinks);
+			PData->dwPID = FSF.atoi(CurItem.AlternateFileName);
+			ProcessPerfData* ppd = pPerfThread->GetProcessData(PData->dwPID, (DWORD)CurItem.NumberOfLinks);
 
-			if (ppd && GetPData(PData, *ppd))
-				pdata = &PData;
+			if (ppd && GetPData(PData, ppd))
+				pdata = PData;
 
 			if (!pdata)
-				return 0;
+				break;
 		}
 
 		// may be 0 if called from FindFile
@@ -718,8 +718,7 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move, const 
 		if (!(OpMode&0x10000))
 		{
 			FSF.AddEndSlash(FileName);
-			wcsncat(FileName,CurItem.FileName,ARRAYSIZE(FileName)-lstrlen(FileName)-1);
-			wcsncat(FileName,L".txt",ARRAYSIZE(FileName)-lstrlen(FileName)-1);
+			FSF.snprintf(FileName + lstrlen(FileName), ARRAYSIZE(FileName) - lstrlen(FileName) - 1, L"%s_%s.txt", CurItem.FileName, CurItem.AlternateFileName);
 		}
 
 		// Replace "invalid" chars by underscores
@@ -735,15 +734,9 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move, const 
 		HANDLE InfoFile = CreateFile(FileName,GENERIC_WRITE,FILE_SHARE_READ,NULL,CREATE_ALWAYS,0,NULL);
 
 		if (InfoFile==INVALID_HANDLE_VALUE)
-			return 0;
+			break;
 
-		fputc(0xFEFF, InfoFile);
-		wchar_t AppType[100];
-		FSF.sprintf(AppType,L", %d%s",pdata->Bitness,GetMsg(MBits));
-
-		wchar_t ModuleName[MAX_PATH];
-		lstrcpy(ModuleName, CurItem.FileName);
-		fprintf(InfoFile,L"%s %s%s\n",PrintTitle(MTitleModule),ModuleName,AppType);
+		fprintf(InfoFile,L"%c%s %s, %d%s\n",0xFEFF,PrintTitle(MTitleModule),CurItem.FileName,pdata->Bitness,GetMsg(MBits));
 
 		if (pdata && *pdata->FullPath)
 		{
@@ -886,24 +879,18 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move, const 
 			};
 			wchar_t StyleStr[1024], ExtStyleStr[1024];
 			*StyleStr = *ExtStyleStr=0;
-			size_t i;
+			const wchar_t* sfmt0 = L"\n%-22s %08X ";
 
-			for (i=0; i<ARRAYSIZE(Styles); i++)
+			fprintf(InfoFile,sfmt0+1,PrintTitle(MTitleStyle),Style);
+			for (int i=0; i<ARRAYSIZE(Styles); i++)
 				if (Style & Styles[i])
-				{
-					lstrcat(StyleStr, L" ");
-					lstrcat(StyleStr, StrStyles[i]);
-				}
+					fprintf(InfoFile,L" %s",StrStyles[i]);
 
-			for (i=0; i<ARRAYSIZE(ExtStyles); i++)
+			fprintf(InfoFile,sfmt0,PrintTitle(MTitleExtStyle),ExtStyle);
+			for (int i=0; i<ARRAYSIZE(ExtStyles); i++)
 				if (Style & ExtStyles[i])
-				{
-					lstrcat(ExtStyleStr, L" ");
-					lstrcat(ExtStyleStr, StrExtStyles[i]);
-				}
-
-			fprintf(InfoFile,L"%-22s %08X %s\n",PrintTitle(MTitleStyle),Style,StyleStr);
-			fprintf(InfoFile,L"%-22s %08X %s\n",PrintTitle(MTitleExtStyle),ExtStyle,ExtStyleStr);
+					fprintf(InfoFile,L" %s",StrExtStyles[i]);
+			fputc(L'\n', InfoFile);
 		}
 
 		if (!*HostName && Opt.ExportModuleInfo && pdata->dwPID!=8)
@@ -919,6 +906,7 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move, const 
 
 		CloseHandle(InfoFile);
 	}
+	free(PData);
 
 	return 1;
 }
@@ -1091,7 +1079,7 @@ bool Plist::Connect(LPCTSTR pMachine, LPCTSTR pUser, LPCTSTR pPasw)
 	// Add "\\" if missing
 	if (!NORM_M_PREFIX(Machine))
 	{
-		memmove(Machine+2, Machine, (lstrlen(Machine)+1)*sizeof(wchar_t));
+		wmemmove(Machine+2, Machine, (lstrlen(Machine)+1));
 		Machine[0] = L'\\';
 		Machine[1] = L'\\';
 	}

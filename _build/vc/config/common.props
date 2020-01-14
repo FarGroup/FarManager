@@ -55,22 +55,26 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <AdditionalIncludeDirectories>$(SrcRoot)plugins\common\unicode;$(SrcRoot)plugins\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NOMINMAX;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;_CRT_STDIO_LEGACY_WIDE_SPECIFIERS;_WIN32_WINNT=0x0600;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalOptions> /J</AdditionalOptions>
       <StringPooling>true</StringPooling>
       <PrecompiledHeader></PrecompiledHeader>
-      <ExceptionHandling>Sync</ExceptionHandling>
-      <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
+      <ExceptionHandling></ExceptionHandling>
+      <AdditionalOptions>/J /Gs10000 /Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <OmitFramePointers>true</OmitFramePointers>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;advapi32.lib;shell32.lib;ole32.lib;uuid.lib;mpr.lib;netapi32.lib;version.lib;oleaut32.lib;wbemuuid.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SrcRoot)plugins\common\CRT\final.$(PlatformArchitecture).vc\libCRTwide.lib;kernel32.lib;user32.lib;advapi32.lib;shell32.lib;ole32.lib;uuid.lib;mpr.lib;version.lib;oleaut32.lib;netapi32.lib;wbemuuid.lib;Rpcrt4.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SrcRoot)plugins\common;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <GenerateMapFile>true</GenerateMapFile>
       <SubSystem>Windows</SubSystem>
       <!--MinimumRequiredVersion>5.0</MinimumRequiredVersion-->
       <ModuleDefinitionFile>$(ProjectName)W.vc.def</ModuleDefinitionFile>
       <ImportLibrary>$(IntDir)$(ProjectName).lib</ImportLibrary>
+      <MergeSections>.pdata=.rdata</MergeSections>
     </Link>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(SrcRoot)plugins\common\unicode;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -92,7 +96,9 @@
 
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
     <ClCompile>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>MinSpace</Optimization>
+      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
@@ -101,6 +107,10 @@
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
       <OptimizeReferences>true</OptimizeReferences>
+      <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
+      <TurnOffAssemblyGeneration>true</TurnOffAssemblyGeneration>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <NoEntryPoint>true</NoEntryPoint>
     </Link>
   </ItemDefinitionGroup>
 
@@ -130,13 +140,6 @@
   <ItemGroup>
     <ClCompile Include="*.cpp" />
     <ClCompile Include="*.c" />
-    <MASM Include="$(SrcRoot)plugins\common\vc_crt_fix.asm">
-      <Message>%(Identity)</Message>
-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
-    </MASM>
-    <ClCompile Include="$(SrcRoot)plugins\common\vc_crt_fix_impl.cpp">
-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClInclude Include="*.hpp" />
     <ResourceCompile Include="*.rc" />
     <None Include="*.def" />

@@ -1,5 +1,6 @@
-#include <algorithm>
-#include <cwchar>
+#include <CRT\crt.hpp>
+#define _CSTDIO_
+#define _CWCHAR_
 #include <plugin.hpp>
 #include <PluginSettings.hpp>
 #include <SimpleString.hpp>
@@ -124,7 +125,7 @@ static int SplitCopy(
 	while (i < nitems)
 	{
 		items[i] = (i > 0 ? new wchar_t[iTruncLen + 1] : name1);
-		int nw = std::min(iLen, iTruncLen);
+		int nw = Min(iLen, iTruncLen);
 		wmemcpy(items[i], cpName, nw);
 		wmemset(items[i]+nw, L' ', iTruncLen-nw);
 		items[i][iTruncLen] = L'\0';
@@ -782,8 +783,8 @@ static bool CompareFiles(const PluginPanelItem *AData, const PluginPanelItem *PD
 					if (AData->LastWriteTime.dwHighDateTime == PData->LastWriteTime.dwHighDateTime)
 					{
 						TimeDelta.hilo.hi = 0;
-						TimeDelta.hilo.lo = std::max(PData->LastWriteTime.dwLowDateTime,AData->LastWriteTime.dwLowDateTime)-
-						                    std::min(PData->LastWriteTime.dwLowDateTime,AData->LastWriteTime.dwLowDateTime);
+						TimeDelta.hilo.lo = Max(PData->LastWriteTime.dwLowDateTime,AData->LastWriteTime.dwLowDateTime)-
+						                    Min(PData->LastWriteTime.dwLowDateTime,AData->LastWriteTime.dwLowDateTime);
 					}
 					else
 					{
@@ -816,7 +817,7 @@ static bool CompareFiles(const PluginPanelItem *AData, const PluginPanelItem *PD
 					if (counter<=26*4 && TimeDelta.hilo.hi == Difference.hilo.hi)
 					{
 						TimeDelta.hilo.hi = 0;
-						TimeDelta.hilo.lo = std::max(TimeDelta.hilo.lo,Difference.hilo.lo) - std::min(TimeDelta.hilo.lo,Difference.hilo.lo);
+						TimeDelta.hilo.lo = Max(TimeDelta.hilo.lo,Difference.hilo.lo) - Min(TimeDelta.hilo.lo,Difference.hilo.lo);
 					}
 				}
 

@@ -206,7 +206,7 @@ void PrintNTCurDirAndEnv(HANDLE InfoFile, HANDLE hProcess, BOOL bExportEnvironme
 void PrintModules(HANDLE InfoFile, DWORD dwPID, _Opt& opt);
 bool PrintHandleInfo(DWORD dwPID, HANDLE file, bool bIncludeUnnamed, PerfThread* pThread=0);
 struct ProcessPerfData;
-bool GetPData(struct ProcessData& pdata, ProcessPerfData& pd);
+bool GetPData(struct ProcessData* pdata, ProcessPerfData* pd);
 
 //------
 // dynamic binding

@@ -28,6 +28,12 @@
  #endif
 #endif
 
+#define _CRT_FUNCTIONS_REQUIRED 0
+#define __STDC_WANT_SECURE_LIB__ 0
+#define _STRALIGN_USE_SECURE_CRT 0
+#define _CRT_NO_INLINE_DEPRECATED_WCSTOK
+#define _CRT_NON_CONFORMING_WCSTOK
+
 #include <stdlib.h>
 #include <stddef.h>
 

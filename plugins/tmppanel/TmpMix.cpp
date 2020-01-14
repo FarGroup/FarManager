@@ -5,6 +5,7 @@ Temporary panel miscellaneous utility functions
 
 */
 
+#include "CRT\crt.hpp"
 #include "plugin.hpp"
 
 #include "TmpPanel.hpp"
@@ -68,7 +69,7 @@ void GoToFile(const wchar_t *Target, BOOL AnotherPanel)
 	StrBuf Dir(pathlen+1);
 
 	if (pathlen)
-		memcpy(Dir.Ptr(),Target,pathlen*sizeof(wchar_t));
+		wmemcpy(Dir.Ptr(),Target,pathlen);
 
 	Dir[pathlen]=L'\0';
 	FSF.Trim(Name);

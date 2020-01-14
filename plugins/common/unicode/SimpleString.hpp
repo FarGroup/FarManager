@@ -1,5 +1,5 @@
 #pragma once
-#include <cwchar>
+#include <shlwapi.h>
 
 #define __SIMPLE_STRING_USED
 
@@ -61,7 +61,7 @@ typedef class SimpleString
 		int __cdecl Format(const wchar_t * format, ...)
 		{
 			wchar_t *buffer = nullptr;
-			size_t Size = MAX_PATH;
+			int Size = MAX_PATH;
 			int retValue = -1;
 			va_list argptr;
 			va_start(argptr, format);
@@ -82,7 +82,7 @@ typedef class SimpleString
 				//_vsnwprintf не всегда ставит '\0' вконце.
 				//Поэтому надо обнулить и передать в _vsnwprintf размер-1.
 				buffer[Size-1] = 0;
-				retValue = _vsnwprintf(buffer, Size-1, format, argptr);
+				retValue = wvnsprintf(buffer, Size-1, format, argptr);
 			}
 			while (retValue == -1);
 

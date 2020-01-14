@@ -6,6 +6,8 @@
 #pragma warning(disable : 4121)
 #endif // _MSC_VER
 
+#define _CSTDIO_
+#define _CWCHAR_
 #include <windows.h>
 #include <lm.h>
 #include <plugin.hpp>

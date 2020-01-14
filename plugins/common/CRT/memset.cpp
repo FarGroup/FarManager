@@ -3,40 +3,36 @@
 #endif
 
 #include "crt.hpp"
-#if defined(_MSC_VER) && !defined(UNICODE)
+#ifdef _MSC_VER
 #pragma function(memset)
 #endif
 
-#if !(defined(_MSC_VER) && _MSC_VER >= 1900 && defined(UNICODE))
-
-#if defined(UNICODE) && !defined(__BORLANDC__)
-typedef wchar_t PTRTYP;
-typedef wchar_t FILLTYP;
-#else
-typedef void  PTRTYP;
-typedef int   FILLTYP;
-#endif
-
-PTRTYP * __cdecl
-#ifndef UNICODE
-               memset
-#else
-#ifdef __BORLANDC__
-               _wmemset
-#else
-               wmemset
-#endif
-#endif
-                        (PTRTYP *dst, FILLTYP val, size_t count)
+void * __cdecl memset (void *dst, int val, size_t count)
 {
-  PTRTYP *start = dst;
+  void *start = dst;
 
   while (count--)
   {
-    *(TCHAR *)dst = (TCHAR)val;
-    dst = (TCHAR *)dst + 1;
+    *(char *)dst = (char)val;
+    dst = (char *)dst + 1;
   }
   return(start);
 }
 
+WMEM* __cdecl
+#ifdef __BORLANDC__
+                    _wmemset
+#else
+                    wmemset
 #endif
+                            (WMEM *dst, WMINT val, size_t count)
+{
+  WMEM *start = dst;
+
+  while (count--)
+  {
+    *(wchar_t *)dst = (wchar_t)val;
+    dst = (wchar_t *)dst + 1;
+  }
+  return(start);
+}

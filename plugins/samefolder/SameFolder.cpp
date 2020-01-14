@@ -15,8 +15,8 @@ struct OptionsName OptName={
 	L"SetMode",
 };
 
-struct PluginStartupInfo Info;
-struct FarStandardFunctions FSF;
+static struct PluginStartupInfo Info;
+static struct FarStandardFunctions FSF;
 
 void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
 {

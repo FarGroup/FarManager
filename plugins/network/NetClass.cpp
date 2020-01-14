@@ -1,3 +1,4 @@
+#include "CRT\crt.hpp"
 #include "NetCommon.hpp"
 #include "NetCfg.hpp"
 #include "NetFavorites.hpp"
@@ -165,11 +166,11 @@ BOOL NetResourceList::Enumerate(DWORD dwScope, DWORD dwType, DWORD dwUsage,
 		return FALSE;
 
 	BOOL EnumFailed = FALSE;
+	NETRESOURCE *nr = (NETRESOURCE*)malloc(1024*sizeof(NETRESOURCE));
 
 	for (;;)
 	{
-		NETRESOURCE nr[1024];
-		DWORD NetSize=sizeof(nr),NetCount=ARRAYSIZE(nr);
+		DWORD NetSize=1024*sizeof(NETRESOURCE),NetCount=-1;
 		DWORD EnumCode=WNetEnumResource(hEnum,&NetCount,nr,&NetSize);
 
 		if (EnumCode!=NO_ERROR)
@@ -194,6 +195,7 @@ BOOL NetResourceList::Enumerate(DWORD dwScope, DWORD dwType, DWORD dwUsage,
 			ResCount+=NetCount;
 		}
 	}
+	free(nr);
 
 	WNetCloseEnum(hEnum);
 	return !EnumFailed;
@@ -2401,7 +2403,7 @@ void NetBrowser::GetHiddenShares()
 	wchar_t szResPath [MAX_PATH];
 	LPTSTR pszSystem;
 	NETRESOURCE pri;
-	NETRESOURCE nr [256];
+	NETRESOURCE *nr = (NETRESOURCE*)malloc(256*sizeof(NETRESOURCE));
 	DWORD er=0,tr=0,resume=0,rrsiz;
 	lstrcpyn(lpwsNetPath,lpszServer,ARRAYSIZE(lpwsNetPath));
 
@@ -2432,9 +2434,9 @@ void NetBrowser::GetHiddenShares()
 					pri.lpRemoteName = szResPath;
 					pri.dwUsage = RESOURCEUSAGE_CONTAINER;
 					pri.lpProvider = NULL;
-					rrsiz = sizeof(nr);
+					rrsiz = 256*sizeof(NETRESOURCE);
 					// we need to provide buffer space for WNetGetResourceInformation
-					int rc = WNetGetResourceInformation(&pri,(void *)&nr [0],&rrsiz,&pszSystem);
+					int rc = WNetGetResourceInformation(&pri,nr,&rrsiz,&pszSystem);
 
 					if (rc!=NO_ERROR)
 					{
@@ -2467,4 +2469,5 @@ void NetBrowser::GetHiddenShares()
 			break;
 	}
 	while (res==ERROR_MORE_DATA);
+	free(nr);
 }

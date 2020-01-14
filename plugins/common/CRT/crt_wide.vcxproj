@@ -25,7 +25,6 @@
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-
   <PropertyGroup Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
@@ -35,21 +34,24 @@
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '11.0'">v110</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props" />
+  </ImportGroup>
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)debug.32.vc$(VisualStudioVersion)\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)debug.64.vc$(VisualStudioVersion)\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)final.32.vc$(VisualStudioVersion)\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)final.64.vc$(VisualStudioVersion)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)debug.32.vc\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)debug.64.vc\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)final.32.vc\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)final.64.vc\</OutDir>
     <IntDir>$(OutDir)wide\</IntDir>
     <TargetName>libCRTwide</TargetName>
-    <TargetExt>.tmp</TargetExt>
+    <TargetExt>.lib</TargetExt>
   </PropertyGroup>
-
   <ItemDefinitionGroup>
     <ClCompile>
       <Optimization Condition="'$(Configuration)'=='Debug'">Disabled</Optimization>
@@ -61,7 +63,7 @@
       <WarningLevel>Level3</WarningLevel>
       <StringPooling>true</StringPooling>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <AdditionalOptions> /J</AdditionalOptions>
+      <AdditionalOptions>/J /Gs1000</AdditionalOptions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <CallingConvention>FastCall</CallingConvention>
       <DisableSpecificWarnings>4985;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
@@ -73,55 +75,81 @@
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
     </Lib>
   </ItemDefinitionGroup>
-
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;_INC_CTYPE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;_INC_CTYPE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <EnableEnhancedInstructionSet Condition="'$(VisualStudioVersion)'!='10.0'">NoExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
   </ItemDefinitionGroup>
-
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PreprocessorDefinitions>NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;_INC_CTYPE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;_INC_CTYPE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
   </ItemDefinitionGroup>
-
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;_INC_CTYPE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;_INC_CTYPE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat Condition="'$(VisualStudioVersion)'!='10.0'">None</DebugInformationFormat>
       <EnableEnhancedInstructionSet Condition="'$(VisualStudioVersion)'!='10.0'">NoExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
   </ItemDefinitionGroup>
-
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PreprocessorDefinitions>NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;_INC_CTYPE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;_INC_CTYPE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat Condition="'$(VisualStudioVersion)'!='10.0'">None</DebugInformationFormat>
+      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
     </ClCompile>
   </ItemDefinitionGroup>
-
   <ItemGroup>
+    <ClCompile Include="calloc.cpp" />
+    <ClCompile Include="delete.cpp" />
+    <ClCompile Include="delete_array.cpp" />
+    <ClCompile Include="free.cpp" />
     <ClCompile Include="i64toa.cpp" />
+    <ClCompile Include="malloc.cpp" />
+    <ClCompile Include="memchr.cpp" />
+    <ClCompile Include="memcmp.cpp" />
     <ClCompile Include="memcpy.cpp" />
+    <ClCompile Include="memicmp.cpp" />
     <ClCompile Include="memmove.cpp" />
     <ClCompile Include="memset.cpp" />
+    <ClCompile Include="new.cpp" />
+    <ClCompile Include="new_array.cpp" />
+    <ClCompile Include="realloc.cpp" />
     <ClCompile Include="strchr.cpp" />
     <ClCompile Include="strcpy.cpp" />
+    <ClCompile Include="strcspn.cpp" />
     <ClCompile Include="strdup.cpp" />
     <ClCompile Include="strncat.cpp" />
     <ClCompile Include="strncmp.cpp" />
     <ClCompile Include="strncpy.cpp" />
+    <ClCompile Include="strpbrk.cpp" />
     <ClCompile Include="strrchr.cpp" />
     <ClCompile Include="strstr.cpp" />
     <ClCompile Include="strtok.cpp" />
     <ClCompile Include="strtol.cpp" />
+    <ClCompile Include="swab.cpp" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Platform)'!='x64'">
+    <MASM Include="vc_ftol.asm" />
+    <MASM Include="vc_lldiv.asm" />
+    <MASM Include="vc_lldvrm.asm" />
+    <MASM Include="vc_llmul.asm" />
+    <MASM Include="vc_llrem.asm" />
+    <MASM Include="vc_llshl.asm" />
+    <MASM Include="vc_llshr.asm" />
+    <MASM Include="vc_ulldiv.asm" />
+    <MASM Include="vc_ulldvrm.asm" />
+    <MASM Include="vc_ullrem.asm" />
+    <MASM Include="vc_ullshr.asm" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="crt.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />
+  </ImportGroup>
 </Project>

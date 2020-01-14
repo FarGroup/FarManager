@@ -6,7 +6,10 @@ Temporary panel plugin class implementation
 */
 
 
-#include <cwchar>
+#include "CRT\crt.hpp"
+#define _CSTDIO_
+#define _CWCHAR_
+//#include <cwchar>
 #include "plugin.hpp"
 #include <shellapi.h>
 #include <PluginSettings.hpp>
@@ -35,11 +38,43 @@ TmpPanel::TmpPanel(const wchar_t* pHostFile)
 		HostFile = (wchar_t*)malloc((lstrlen(pHostFile)+1)*sizeof(wchar_t));
 		lstrcpy(HostFile, pHostFile);
 	}
+
+	static WORD FKeys[]=
+	{
+		VK_F7,0,MF7,
+		VK_F2,SHIFT_PRESSED|LEFT_ALT_PRESSED,MAltShiftF2,
+		VK_F3,SHIFT_PRESSED|LEFT_ALT_PRESSED,MAltShiftF3,
+		VK_F12,SHIFT_PRESSED|LEFT_ALT_PRESSED,MAltShiftF12,
+	};
+
+	kbl = (KeyBarLabel*)malloc(sizeof(struct KeyBarLabel)*ARRAYSIZE(FKeys)/3);
+	kbt = (KeyBarTitles*)malloc(sizeof(struct KeyBarTitles));
+	kbt->CountLabels = ARRAYSIZE(FKeys) / 3;
+	kbt->Labels = kbl;
+
+	for (size_t j=0,i=0; i < ARRAYSIZE(FKeys); i+=3, ++j)
+	{
+		kbl[j].Key.VirtualKeyCode = FKeys[i];
+		kbl[j].Key.ControlKeyState = FKeys[i+1];
+
+		if (FKeys[i+2])
+		{
+			kbl[j].Text = kbl[j].LongText = GetMsg(FKeys[i+2]);
+			if (!StartupOptCommonPanel && kbl[j].Key.VirtualKeyCode == VK_F12 && kbl[j].Key.ControlKeyState == (SHIFT_PRESSED|LEFT_ALT_PRESSED))
+				kbl[j].Text = kbl[j].LongText = L"";
+		}
+		else
+		{
+			kbl[j].Text = kbl[j].LongText = L"";
+		}
+	}
 }
 
 
 TmpPanel::~TmpPanel()
 {
+	free(kbt);
+	free(kbl);
 	if (!StartupOptCommonPanel)
 		FreePanelItems(TmpPanelItem, TmpItemsNumber);
 	if (HostFile)
@@ -89,36 +124,7 @@ void TmpPanel::GetOpenPanelInfo(struct OpenPanelInfo *Info)
 	Info->PanelModesArray=PanelModesArray;
 	Info->PanelModesNumber=ARRAYSIZE(PanelModesArray);
 	Info->StartPanelMode=L'4';
-
-	static WORD FKeys[]=
-	{
-		VK_F7,0,MF7,
-		VK_F2,SHIFT_PRESSED|LEFT_ALT_PRESSED,MAltShiftF2,
-		VK_F3,SHIFT_PRESSED|LEFT_ALT_PRESSED,MAltShiftF3,
-		VK_F12,SHIFT_PRESSED|LEFT_ALT_PRESSED,MAltShiftF12,
-	};
-
-	static struct KeyBarLabel kbl[ARRAYSIZE(FKeys)/3];
-	static struct KeyBarTitles kbt = {ARRAYSIZE(kbl), kbl};
-
-	for (size_t j=0,i=0; i < ARRAYSIZE(FKeys); i+=3, ++j)
-	{
-		kbl[j].Key.VirtualKeyCode = FKeys[i];
-		kbl[j].Key.ControlKeyState = FKeys[i+1];
-
-		if (FKeys[i+2])
-		{
-			kbl[j].Text = kbl[j].LongText = GetMsg(FKeys[i+2]);
-			if (!StartupOptCommonPanel && kbl[j].Key.VirtualKeyCode == VK_F12 && kbl[j].Key.ControlKeyState == (SHIFT_PRESSED|LEFT_ALT_PRESSED))
-				kbl[j].Text = kbl[j].LongText = L"";
-		}
-		else
-		{
-			kbl[j].Text = kbl[j].LongText = L"";
-		}
-	}
-
-	Info->KeyBar=&kbt;
+	Info->KeyBar=kbt;
 }
 
 

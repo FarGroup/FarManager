@@ -276,20 +276,20 @@ HANDLE OpenProcessForced(DebugToken* token, DWORD dwFlags, DWORD dwProcessId, BO
 	return hProcess;
 }
 
-bool GetPData(ProcessData& DATA, ProcessPerfData& pd)
+bool GetPData(ProcessData* DATA, ProcessPerfData* pd)
 {
-	DATA.Size = sizeof(ProcessData);
-	DATA.dwPID = pd.dwProcessId;
-	DATA.dwPrBase = pd.dwProcessPriority;
-	DATA.dwParentPID = pd.dwCreatingPID;
-	DATA.dwElapsedTime = pd.dwElapsedTime;
-	wchar_t* pFullPath = pd.FullPath;
+	DATA->Size = sizeof(ProcessData);
+	DATA->dwPID = pd->dwProcessId;
+	DATA->dwPrBase = pd->dwProcessPriority;
+	DATA->dwParentPID = pd->dwCreatingPID;
+	DATA->dwElapsedTime = pd->dwElapsedTime;
+	wchar_t* pFullPath = pd->FullPath;
 	if (*(DWORD*)pFullPath==0x3F005C && ((DWORD*)pFullPath)[1]==0x5C003F) // "\??\"
 		pFullPath += 4;
 
-	lstrcpyn(DATA.FullPath, pFullPath, ARRAYSIZE(DATA.FullPath));
-	lstrcpyn(DATA.CommandLine, pd.CommandLine, ARRAYSIZE(DATA.CommandLine));
-	DATA.Bitness = pd.Bitness;
+	lstrcpyn(DATA->FullPath, pFullPath, ARRAYSIZE(DATA->FullPath));
+	lstrcpyn(DATA->CommandLine, pd->CommandLine, ARRAYSIZE(DATA->CommandLine));
+	DATA->Bitness = pd->Bitness;
 	return true;
 }
 
@@ -353,7 +353,7 @@ BOOL GetList(PluginPanelItem* &pPanelItem,size_t &ItemsNumber,PerfThread& Thread
 		FSF.itoa(pd.dwProcessId, (wchar_t*)CurItem.AlternateFileName, 10);
 
 		CurItem.NumberOfLinks = pd.dwThreads;
-		GetPData(*static_cast<ProcessData*>(CurItem.UserData.Data), pd);
+		GetPData((ProcessData*)CurItem.UserData.Data, &pd);
 
 		if (pd.dwProcessId==0 && pd.dwThreads >5) //_Total
 			CurItem.FileAttributes |= FILE_ATTRIBUTE_HIDDEN;

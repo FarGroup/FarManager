@@ -19,6 +19,8 @@ class TmpPanel
 		int LastLinksRead;
 		int UpdateNotNeeded;
 		wchar_t* HostFile;
+		struct KeyBarLabel *kbl;
+		struct KeyBarTitles* kbt;
 
 	private:
 		void RemoveDups();
