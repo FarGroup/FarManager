@@ -4,6 +4,9 @@ NAME = Brackets
 LINK_OBJS = $(OBJDIR)\Brackets.obj
 
 DOCS = BrackEng.hlf BrackRus.hlf BrackPol.hlf BrackEng.lng BrackRus.lng BrackSky.lng BrackSpa.lng BrackIta.lng BrackPol.lng BrackBel.lng Brackets.lua changelog
+NOENTRY = 1
+NODEFLIB = 1
+INCLUDECRT = 1
 
 !include ..\makefile_vc_def_inc
 

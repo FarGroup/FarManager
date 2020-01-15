@@ -29,6 +29,9 @@ DOCS = \
 	shortcuts.bel.temp \
 	TmpPanel.ListUTF8.farconfig \
 	changelog
+NOENTRY = 1
+NODEFLIB = 1
+INCLUDECRT = 1
 
 !include ..\makefile_vc_def_inc
 

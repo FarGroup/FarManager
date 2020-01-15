@@ -11,6 +11,9 @@ $(OBJDIR)\Pmix.obj \
 $(OBJDIR)\WMI.obj \
 $(OBJDIR)\Proclist.obj
 DOCS = ProcEng.hlf ProcRus.hlf ProcPol.hlf ProcEng.lng ProcRus.lng ProcIta.lng ProcBel.lng ProcPol.lng changelog
+NOENTRY = 1
+NODEFLIB = 1
+INCLUDECRT = 1
 
 USERCPP = /I".\WMI" -D"_WIN32_DCOM"
 

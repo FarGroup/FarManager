@@ -8,6 +8,9 @@ $(OBJDIR)\NetCommon.obj \
 $(OBJDIR)\NetFavorites.obj \
 $(OBJDIR)\NetMix.obj
 DOCS = NetEng.hlf NetRus.hlf NetPol.hlf NetEng.lng NetRus.lng NetSky.lng NetSpa.lng NetIta.lng NetBel.lng NetPol.lng changelog
+NOENTRY = 1
+NODEFLIB = 1
+INCLUDECRT = 1
 
 !if defined(DEBUG) && !defined(NO_LOG)
 USERCPP=/DNETWORK_LOGGING

@@ -3,6 +3,9 @@
 NAME = FileCase
 LINK_OBJS = $(OBJDIR)\FileCase.obj $(OBJDIR)\filecvt.obj $(OBJDIR)\FileMix.obj $(OBJDIR)\ProcessName.obj
 DOCS = CaseEng.hlf CaseRus.hlf CasePol.hlf CaseEng.lng CaseRus.lng CaseSky.lng CaseSpa.lng CaseIta.lng CasePol.lng CaseBel.lng changelog
+NOENTRY = 1
+NODEFLIB = 1
+INCLUDECRT = 1
 
 !include ..\makefile_vc_def_inc
 

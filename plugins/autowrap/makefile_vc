@@ -3,6 +3,9 @@
 NAME = AutoWrap
 LINK_OBJS = $(OBJDIR)\AutoWrap.obj
 DOCS = WrapEng.lng WrapRus.lng WrapSky.lng WrapSpa.lng WrapIta.lng WrapPol.lng WrapBel.lng changelog
+NOENTRY = 1
+NODEFLIB = 1
+INCLUDECRT = 1
 
 !include ..\makefile_vc_def_inc
 

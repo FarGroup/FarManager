@@ -4,6 +4,9 @@ NAME = HlfViewer
 LINK_OBJS = $(OBJDIR)\HlfViewer.obj
 DOCS = HlfViewerEng.hlf HlfViewerRus.hlf HlfViewerPol.hlf HlfViewerEng.lng HlfViewerRus.lng HlfViewerSky.lng HlfViewerSpa.lng HlfViewerIta.lng HlfViewerPol.lng HlfViewerBel.lng changelog
 USERLIBS = rpcrt4.lib
+NOENTRY = 1
+NODEFLIB = 1
+INCLUDECRT = 1
 
 !include ..\makefile_vc_def_inc
 
