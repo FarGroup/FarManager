@@ -28,15 +28,6 @@
  #endif
 #endif
 
-#define _CRT_FUNCTIONS_REQUIRED 0
-#define __STDC_WANT_SECURE_LIB__ 0
-#define _STRALIGN_USE_SECURE_CRT 0
-#define _CRT_NO_INLINE_DEPRECATED_WCSTOK
-#define _CRT_NON_CONFORMING_WCSTOK
-
-#include <stdlib.h>
-#include <stddef.h>
-
 #ifdef _MSC_VER
  #if _MSC_VER >= VC2005
   #define _WCTYPE_INLINE_DEFINED
@@ -47,7 +38,6 @@
  #define __WCTYPE_INLINES_DEFINED
 #endif
 
-#include <wchar.h>
 #include <tchar.h>
 
 #ifndef _CONST_RETURN

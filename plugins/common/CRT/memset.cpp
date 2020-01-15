@@ -18,21 +18,3 @@ void * __cdecl memset (void *dst, int val, size_t count)
   }
   return(start);
 }
-
-WMEM* __cdecl
-#ifdef __BORLANDC__
-                    _wmemset
-#else
-                    wmemset
-#endif
-                            (WMEM *dst, WMINT val, size_t count)
-{
-  WMEM *start = dst;
-
-  while (count--)
-  {
-    *(wchar_t *)dst = (wchar_t)val;
-    dst = (wchar_t *)dst + 1;
-  }
-  return(start);
-}

@@ -34,14 +34,3 @@ void * __cdecl memmove(void *dst, const void *src, size_t count)
   }
   return(ret);
 }
-
-WMEM * __cdecl
-#ifdef __BORLANDC__
-               _wmemmove
-#else
-               wmemmove
-#endif
-                        (WMEM *dst, const WMEM *src, size_t count)
-{
-    return (WMEM*)memmove(dst, src, count*sizeof(WMEM));
-}
