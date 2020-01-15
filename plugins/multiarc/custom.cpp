@@ -989,9 +989,9 @@ void ParseListingItemRegExp(Match match,
 {
 
     if(const char *p = match["name"])
-        lstrcat(Item->FindData.cFileName, p);
+        lstrcpyn(Item->FindData.cFileName, p, sizeof(Item->FindData.cFileName));
     if(const char *p = match["description"])
-        lstrcat(Info->Description, p);
+        lstrcpyn(Info->Description, p, sizeof(Info->Description));
 
     LARGE_INTEGER SizeFile;
     SizeFile.QuadPart = StringToInt64(match["size"]);
