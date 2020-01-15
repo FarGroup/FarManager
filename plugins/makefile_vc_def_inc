@@ -118,11 +118,11 @@ RES = $(OBJDIR)\$(NAME).res
 
 
 AFLAGS = /nologo /c /Fo"$(OBJDIR)\\"
-CPPFLAGS = /nologo /MP /c /W3 /Gy /GF /J /GS- /GR- /EHs-c- /LD /I"$(COMMON)" /I"$(COMINC)" $(ENV_INC_OPT) $(CPP_WIDE) /DNOMINMAX /D_CRT_NON_CONFORMING_WCSTOK /D_CRT_SECURE_NO_WARNINGS /D_CRT_NONSTDC_NO_WARNINGS /D_CRT_NON_CONFORMING_SWPRINTFS /D_WIN32_WINNT=0x0502 $(USERCPP) /Fo"$(OBJDIR)\\" /Fd"$(OBJDIR)\\"
+CPPFLAGS = /nologo /MP /c /W3 /Gy /GF /J /analyze- /WX- /Gs10000 /GS- /GR- /EHs-c- /LD /I"$(COMMON)" /I"$(COMINC)" $(ENV_INC_OPT) $(CPP_WIDE) /DNOMINMAX /D_CRT_NON_CONFORMING_WCSTOK /D_CRT_SECURE_NO_WARNINGS /D_CRT_NONSTDC_NO_WARNINGS /D_CRT_NON_CONFORMING_SWPRINTFS /D_WIN32_WINNT=0x0502 $(USERCPP) /Fo"$(OBJDIR)\\" /Fd"$(OBJDIR)\\"
 
 
 !ifndef DEBUG
-CPPFLAGS=$(CPPFLAGS) /DNDEBUG /O2
+CPPFLAGS=$(CPPFLAGS) /DNDEBUG /O1 /Oi /Os /Oy /GL
 !else
 CPPFLAGS=$(CPPFLAGS) /DDEBUG /Od
 !endif
@@ -136,11 +136,11 @@ CPPFLAGS=$(CPPFLAGS) /arch:IA32
 !endif
 
 !if $(VC) >= 14
-CPPFLAGS = $(CPPFLAGS) /Zc:threadSafeInit-
+CPPFLAGS = $(CPPFLAGS) /Zc:threadSafeInit- /Zc:inline
 !endif
 
 !if $(VC) >= 14
-FIXCRT_CPPFLAGS = /Zc:threadSafeInit-
+FIXCRT_CPPFLAGS = /Zc:threadSafeInit- /Zc:inline
 !endif
 
 !if "$(BUILD_PLATFORM)" == "AMD64"
@@ -153,15 +153,15 @@ ULOUT=-Tpd -Rv
 
 !ifdef INCLUDECRT
 !if "$(BUILD_PLATFORM)" == "AMD64"
-COMMONLIB = $(COMMON)\libCRT64.lib
+COMMONLIB = $(COMMON)\CRT\final.64.vc\libCRTwide.lib
 !elseif "$(BUILD_PLATFORM)" == "IA64"
 COMMONLIB = $(COMMON)\libCRTIA64.lib
 !else
-COMMONLIB = $(COMMON)\libCRT.lib
+COMMONLIB = $(COMMON)\CRT\final.32.vc\libCRTwide.lib
 !endif
 !endif
 
-LIBS = $(COMMONLIB) chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib Netapi32.lib version.lib oleaut32.lib wbemuuid.lib $(USERLIBS)
+LIBS = $(COMMONLIB) kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib Netapi32.lib version.lib oleaut32.lib wbemuuid.lib $(USERLIBS)
 
 !ifdef _BIN_PATH_
 !ifndef _ML_PATH_
@@ -191,12 +191,12 @@ NODEFLIB_FLAG = /nodefaultlib
 !if "$(BUILD_PLATFORM)" == "X86" && $(VC) < 11
 SUBSYSTEM=/subsystem:windows,5.0
 !endif
-LINK_FLAGS=$(SUBSYSTEM) /nologo /dll /release /dynamicbase /merge:.rdata=.text $(NOENTRY_FLAG) $(NODEFLIB_FLAG) $(ENV_LIB_OPT) $(DEFOPT) /map:"$(MAP)" /out:"$(DLLFULLNAME)"
+LINK_FLAGS=$(SUBSYSTEM) /nologo /dll /release /dynamicbase /merge:.pdata=.rdata /safeseh:no $(NOENTRY_FLAG) $(NODEFLIB_FLAG) $(ENV_LIB_OPT) $(DEFOPT) /map:"$(MAP)" /out:"$(DLLFULLNAME)"
 !ifndef NO_RELEASE_PDB
 LINK_FLAGS=$(LINK_FLAGS) /debug
 !endif
 !ifndef DEBUG
-LINK_FLAGS=$(LINK_FLAGS) /incremental:no /OPT:REF /OPT:ICF
+LINK_FLAGS=$(LINK_FLAGS) /incremental:no /OPT:REF /OPT:ICF /LTCG
 !endif
 !else
 LNK=$(_ULINK_PATH_)ulink.exe +-

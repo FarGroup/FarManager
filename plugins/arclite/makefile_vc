@@ -179,7 +179,11 @@ $(OBJDIR)\dep.mak: $(BOOTSTRAPDIR)msg.h $(BOOTSTRAPDIR)plugin.h
 
 $(OBJDIR)\install.mak:
   @echo Generating $@
+!ifndef NO_RELEASE_PDB
   $(TOOL) geninst $(FILES) $(OUTDIR)\$(MODULE).map $(OUTDIR)\$(MODULE).pdb > $@
+!else
+  $(TOOL) geninst $(FILES) $(OUTDIR)\$(MODULE).map > $@
+!endif
 
 $(BOOTSTRAPDIR)msg.h $(LNGS): $(BOOTSTRAP_MSGS)
   @echo Generating language files
