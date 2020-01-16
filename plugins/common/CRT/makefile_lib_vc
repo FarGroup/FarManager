@@ -17,7 +17,6 @@ DLLNAME = libCRT.lib
 MASM=$(_BIN_PATH_)ml.exe
 MASM_OPT=/coff
 !endif
-OBJDIRW = $(OBJDIR)\wide
 OUTDIR = ..
 
 !ifdef VC8
@@ -27,63 +26,50 @@ NOWIN98=/OPT:NOWIN98
 
 !if "$(BUILD_PLATFORM)" == "X86"
 LINK32_OBJS = \
-$(OBJDIR)\vc_llmul.obj \
+$(OBJDIR)\vc_ftol.obj \
 $(OBJDIR)\vc_lldiv.obj \
-$(OBJDIR)\vc_llrem.obj \
 $(OBJDIR)\vc_lldvrm.obj \
+$(OBJDIR)\vc_llmul.obj \
+$(OBJDIR)\vc_llrem.obj \
 $(OBJDIR)\vc_llshl.obj \
 $(OBJDIR)\vc_llshr.obj \
 $(OBJDIR)\vc_ulldiv.obj \
-$(OBJDIR)\vc_ullrem.obj \
 $(OBJDIR)\vc_ulldvrm.obj \
+$(OBJDIR)\vc_ullrem.obj \
 $(OBJDIR)\vc_ullshr.obj
 !endif
 
 LINK_OBJS = $(LINK32_OBJS) \
+$(OBJDIR)\calloc.obj \
 $(OBJDIR)\delete.obj \
 $(OBJDIR)\delete_array.obj \
 $(OBJDIR)\free.obj \
 $(OBJDIR)\i64toa.obj \
-$(OBJDIRW)\i64toa.obj \
 $(OBJDIR)\malloc.obj \
-$(OBJDIR)\calloc.obj \
 $(OBJDIR)\memchr.obj \
 $(OBJDIR)\memcmp.obj \
 $(OBJDIR)\memcpy.obj \
-$(OBJDIRW)\memcpy.obj \
 $(OBJDIR)\memicmp.obj \
 $(OBJDIR)\memmove.obj \
-$(OBJDIRW)\memmove.obj \
 $(OBJDIR)\memset.obj \
-$(OBJDIRW)\memset.obj \
 $(OBJDIR)\new.obj \
 $(OBJDIR)\new_array.obj \
 $(OBJDIR)\realloc.obj \
 $(OBJDIR)\strchr.obj \
-$(OBJDIRW)\strchr.obj \
 $(OBJDIR)\strcpy.obj \
-$(OBJDIRW)\strcpy.obj \
 $(OBJDIR)\strcspn.obj \
 $(OBJDIR)\strdup.obj \
-$(OBJDIRW)\strdup.obj \
 $(OBJDIR)\strncat.obj \
-$(OBJDIRW)\strncat.obj \
 $(OBJDIR)\strncmp.obj \
-$(OBJDIRW)\strncmp.obj \
-$(OBJDIR)\strpbrk.obj \
 $(OBJDIR)\strncpy.obj \
-$(OBJDIRW)\strncpy.obj \
+$(OBJDIR)\strpbrk.obj \
 $(OBJDIR)\strrchr.obj \
-$(OBJDIRW)\strrchr.obj \
 $(OBJDIR)\strstr.obj \
-$(OBJDIRW)\strstr.obj \
 $(OBJDIR)\strtok.obj \
-$(OBJDIRW)\strtok.obj \
 $(OBJDIR)\strtol.obj \
-$(OBJDIRW)\strtol.obj \
 $(OBJDIR)\swab.obj
 
-CPP_BASE=/MP /nologo /c /Gy /J /Gr /GR- /GS- /D_CRT_SECURE_NO_DEPRECATE /EHs-c- /LD /Oi /O2 /W3 $(ENV_INC_OPT)
+CPP_BASE=/MP /nologo /c /Gy /J /Gr /GR- /GS- /D_CRT_SECURE_NO_DEPRECATE /DUNICODE /D_UNICODE /EHs-c- /LD /Oi /O2 /W3 $(ENV_INC_OPT)
 !ifdef AMD64
 CPP_PROJ=$(CPP_BASE) /Oy /Zp8 $(COMPAT64)
 !elseif defined(IA64) 
@@ -125,25 +111,15 @@ $(OUTDIR)\$(DLLNAME) : $(LINK_OBJS)
 	@$(CC) $(CPP_PROJ) /Fo"$(OBJDIR)\\" { $< }
 !endif
 
-!ifndef __MAKE__
-.cpp{$(OBJDIRW)}.obj::
-	@$(CC) @<<
-	$(CPP_PROJ) /DUNICODE /D_UNICODE /Fo"$(OBJDIRW)\\" $<
-<<
-!else
-.cpp{$(OBJDIRW)}.obj:
-	@$(CC) $(CPP_PROJ) /DUNICODE /D_UNICODE /Fo"$(OBJDIRW)\\" { $< }
-!endif
-
 .asm{$(OBJDIR)}.obj:
 	@$(MASM) /nologo $(MASM_OPT) /c /Fo$@ $<
 
 
+$(OBJDIR)\calloc.obj: calloc.cpp crt.hpp
 $(OBJDIR)\delete.obj: delete.cpp crt.hpp
 $(OBJDIR)\delete_array.obj: delete_array.cpp crt.hpp
 $(OBJDIR)\free.obj: free.cpp crt.hpp
 $(OBJDIR)\i64toa.obj: i64toa.cpp crt.hpp
-$(OBJDIRW)\i64toa.obj: i64toa.cpp crt.hpp
 $(OBJDIR)\malloc.obj: malloc.cpp crt.hpp
 $(OBJDIR)\memchr.obj: memchr.cpp crt.hpp
 $(OBJDIR)\memcmp.obj: memcmp.cpp crt.hpp
@@ -151,34 +127,23 @@ $(OBJDIR)\memcpy.obj: memcpy.cpp crt.hpp
 $(OBJDIR)\memicmp.obj: memicmp.cpp crt.hpp
 $(OBJDIR)\memmove.obj: memmove.cpp crt.hpp
 $(OBJDIR)\memset.obj: memset.cpp crt.hpp
-$(OBJDIRW)\memset.obj: memset.cpp crt.hpp
 $(OBJDIR)\new.obj: new.cpp crt.hpp crt.hpp
 $(OBJDIR)\new_array.obj: new_array.cpp crt.hpp
 $(OBJDIR)\realloc.obj: realloc.cpp crt.hpp
 $(OBJDIR)\strchr.obj: strchr.cpp crt.hpp
-$(OBJDIRW)\strchr.obj: strchr.cpp crt.hpp
 $(OBJDIR)\strcpy.obj: strcpy.cpp crt.hpp
-$(OBJDIRW)\strcpy.obj: strcpy.cpp crt.hpp
 $(OBJDIR)\strcspn.obj: strcspn.cpp crt.hpp
 $(OBJDIR)\strdup.obj: strdup.cpp crt.hpp
-$(OBJDIRW)\strdup.obj: strdup.cpp crt.hpp
 $(OBJDIR)\strncat.obj: strncat.cpp crt.hpp
-$(OBJDIRW)\strncat.obj: strncat.cpp crt.hpp
 $(OBJDIR)\strncmp.obj: strncmp.cpp crt.hpp
-$(OBJDIRW)\strncmp.obj: strncmp.cpp crt.hpp
-$(OBJDIR)\strpbrk.obj: strpbrk.cpp crt.hpp
 $(OBJDIR)\strncpy.obj: strncpy.cpp crt.hpp
-$(OBJDIRW)\strncpy.obj: strncpy.cpp crt.hpp
+$(OBJDIR)\strpbrk.obj: strpbrk.cpp crt.hpp
 $(OBJDIR)\strrchr.obj: strrchr.cpp crt.hpp
-$(OBJDIRW)\strrchr.obj: strrchr.cpp crt.hpp
 $(OBJDIR)\strstr.obj: strstr.cpp crt.hpp
-$(OBJDIRW)\strstr.obj: strstr.cpp crt.hpp
 $(OBJDIR)\strtok.obj: strtok.cpp crt.hpp
-$(OBJDIRW)\strtok.obj: strtok.cpp crt.hpp
 $(OBJDIR)\strtol.obj: strtol.cpp crt.hpp
-$(OBJDIRW)\strtol.obj: strtol.cpp crt.hpp
+$(OBJDIR)\swab.obj: swab.cpp crt.hpp
 
 .PHONY: dirs
 dirs:
 	@if not exist "$(OBJDIR)\$(NULL)" mkdir "$(OBJDIR)"
-	@if not exist "$(OBJDIRW)\$(NULL)" mkdir "$(OBJDIRW)"

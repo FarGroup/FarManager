@@ -153,11 +153,11 @@ ULOUT=-Tpd -Rv
 
 !ifdef INCLUDECRT
 !if "$(BUILD_PLATFORM)" == "AMD64"
-COMMONLIB = $(COMMON)\CRT\final.64.vc\libCRTwide.lib
+COMMONLIB = $(COMMON)\libCRT64.lib
 !elseif "$(BUILD_PLATFORM)" == "IA64"
 COMMONLIB = $(COMMON)\libCRTIA64.lib
 !else
-COMMONLIB = $(COMMON)\CRT\final.32.vc\libCRTwide.lib
+COMMONLIB = $(COMMON)\libCRT.lib
 !endif
 !endif
 
