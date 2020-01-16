@@ -44,6 +44,7 @@
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <LinkIncremental>false</LinkIncremental>
     <WholeProgramOptimization>true</WholeProgramOptimization>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <LinkIncremental>true</LinkIncremental>
@@ -60,7 +61,7 @@
       <StringPooling>true</StringPooling>
       <PrecompiledHeader></PrecompiledHeader>
       <ExceptionHandling></ExceptionHandling>
-      <AdditionalOptions>/J /Gs10000 /Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/EHs-c- /J /Gs10000 /Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OmitFramePointers>true</OmitFramePointers>
@@ -70,7 +71,6 @@
       <AdditionalLibraryDirectories>$(SrcRoot)plugins\common;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <GenerateMapFile>true</GenerateMapFile>
-      <SubSystem>Windows</SubSystem>
       <!--MinimumRequiredVersion>5.0</MinimumRequiredVersion-->
       <ModuleDefinitionFile>$(ProjectName)W.vc.def</ModuleDefinitionFile>
       <ImportLibrary>$(IntDir)$(ProjectName).lib</ImportLibrary>
@@ -100,7 +100,11 @@
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary></RuntimeLibrary>
+      <UseFullPaths>false</UseFullPaths>
+      <MinimalRebuild />
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <DebugInformationFormat>None</DebugInformationFormat>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -111,6 +115,8 @@
       <TurnOffAssemblyGeneration>true</TurnOffAssemblyGeneration>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <NoEntryPoint>true</NoEntryPoint>
+      <TypeLibraryResourceID />
+      <DataExecutionPrevention />
     </Link>
   </ItemDefinitionGroup>
 

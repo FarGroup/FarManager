@@ -132,5 +132,8 @@
     <MASM Include="vc_ullshr.asm">
       <Filter>Source Files</Filter>
     </MASM>
+    <MASM Include="vc_ftol.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
   </ItemGroup>
 </Project>
