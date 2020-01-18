@@ -69,7 +69,7 @@ $(OBJDIR)\strtok.obj \
 $(OBJDIR)\strtol.obj \
 $(OBJDIR)\swab.obj
 
-CPP_BASE=/MP /nologo /c /Gy /J /Gr /GR- /GS- /D_CRT_SECURE_NO_DEPRECATE /DUNICODE /D_UNICODE /EHs-c- /LD /Oi /O2 /W3 $(ENV_INC_OPT)
+CPP_BASE=/MP /nologo /c /Gy /J /Gr /GR- /GS- /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /D_INC_CTYPE /DUNICODE /D_UNICODE /DNDEBUG /FC /GF /Gm- /EHs-c- /LD /Oi /O1 /Os /TP /W3 /WX- /Zc:forScope /Zc:inline /Zc:threadSafeInit- /Zc:wchar_t $(ENV_INC_OPT)
 !ifdef AMD64
 CPP_PROJ=$(CPP_BASE) /Oy /Zp8 $(COMPAT64)
 !elseif defined(IA64) 
