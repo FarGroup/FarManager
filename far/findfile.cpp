@@ -163,7 +163,7 @@ public:
 		return strFindMessage;
 	}
 
-	void SetFindMessage(const string& From)
+	void SetFindMessage(string_view const From)
 	{
 		SCOPED_ACTION(std::lock_guard)(DataCS);
 		strFindMessage=From;
@@ -315,6 +315,8 @@ enum FINDDLG
 	FD_BUTTON_VIEW,
 	FD_BUTTON_PANEL,
 	FD_BUTTON_STOP,
+
+	FD_COUNT
 };
 
 class background_searcher: noncopyable
@@ -349,8 +351,8 @@ private:
 	void InitInFileSearch();
 	void ReleaseInFileSearch();
 
-	bool LookForString(const string& Name);
-	bool IsFileIncluded(PluginPanelItem* FileItem, string_view FullName, DWORD FileAttr, const string& strDisplayName);
+	bool LookForString(string_view FileName);
+	bool IsFileIncluded(PluginPanelItem* FileItem, string_view FullName, DWORD FileAttr, string_view DisplayName);
 	void DoPrepareFileList();
 	void DoPreparePluginListImpl();
 	void DoPreparePluginList();
@@ -536,27 +538,6 @@ bool FindFiles::IsWordDiv(const wchar_t symbol)
 	// Также разделителем является конец строки и пробельные символы
 	return !symbol || std::iswspace(symbol) || ::IsWordDiv(Global->Opt->strWordDiv,symbol);
 }
-
-#if defined(MANTIS_0002207)
-static intptr_t GetUserDataFromPluginItem(const wchar_t *Name, const PluginPanelItem * const* PanelData,size_t ItemCount)
-{
-	intptr_t UserData=0;
-
-	if (Name && *Name)
-	{
-		for (size_t Index=0; Index < ItemCount; ++Index)
-		{
-			if (equal(PanelData[Index]->FileName,Name))
-			{
-				UserData=(intptr_t)PanelData[Index]->UserData.Data;
-				break;
-			}
-		}
-	}
-
-	return UserData;
-}
-#endif
 
 void FindFiles::SetPluginDirectory(string_view const DirName, const plugin_panel* const hPlugin, bool const UpdatePanel, const UserDataItem* const UserData)
 {
@@ -967,13 +948,13 @@ bool FindFiles::GetPluginFile(ArcListItem const* const ArcItem, const os::fs::fi
 	return nResult;
 }
 
-bool background_searcher::LookForString(const string& Name)
+bool background_searcher::LookForString(string_view const FileName)
 {
 	// Длина строки поиска
 	const auto findStringCount = strFindStr.size();
 
 	// Открываем файл
-	const os::fs::file File(Name, FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
+	const os::fs::file File(FileName, FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
 	if(!File)
 	{
 		return false;
@@ -1235,7 +1216,7 @@ bool background_searcher::LookForString(const string& Name)
 	return false;
 }
 
-bool background_searcher::IsFileIncluded(PluginPanelItem* FileItem, string_view const FullName, DWORD FileAttr, const string &strDisplayName)
+bool background_searcher::IsFileIncluded(PluginPanelItem* FileItem, string_view const FullName, DWORD FileAttr, string_view const DisplayName)
 {
 	if (!m_Owner->GetFileMask()->Compare(PointToName(FullName)))
 		return false;
@@ -1249,7 +1230,7 @@ bool background_searcher::IsFileIncluded(PluginPanelItem* FileItem, string_view 
 	if (strFindStr.empty())
 		return true;
 
-	m_Owner->itd->SetFindMessage(strDisplayName);
+	m_Owner->itd->SetFindMessage(DisplayName);
 
 	string strSearchFileName;
 	bool RemoveTemp = false;
@@ -1993,24 +1974,28 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const os::fs::
 			case column_type::date_creation:
 			case column_type::date_change:
 			{
-				const os::chrono::time_point* FileTime;
+				os::chrono::time_point const os::fs::find_data::* FileTime;
+
 				switch (i.type)
 				{
-					case column_type::date_creation:
-						FileTime = &FindData.CreationTime;
-						break;
-					case column_type::date_access:
-						FileTime = &FindData.LastAccessTime;
-						break;
-					case column_type::date_change:
-						FileTime = &FindData.ChangeTime;
-						break;
-					default:
-						FileTime = &FindData.LastWriteTime;
-						break;
+				case column_type::date_creation:
+					FileTime = &os::fs::find_data::CreationTime;
+					break;
+
+				case column_type::date_access:
+					FileTime = &os::fs::find_data::LastAccessTime;
+					break;
+
+				case column_type::date_change:
+					FileTime = &os::fs::find_data::ChangeTime;
+					break;
+
+				default:
+					FileTime = &os::fs::find_data::LastWriteTime;
+					break;
 				}
 
-				append(MenuText, FormatStr_DateTime(*FileTime, i.type, i.type_flags, Width), BoxSymbols[BS_V1]);
+				append(MenuText, FormatStr_DateTime(std::invoke(FileTime, FindData), i.type, i.type_flags, Width), BoxSymbols[BS_V1]);
 				break;
 			}
 
@@ -2563,7 +2548,7 @@ bool FindFiles::FindFilesProcess()
 	int DlgWidth = ScrX + 1 - 2;
 	int DlgHeight = ScrY + 1 - 2;
 
-	auto FindDlg = MakeDialogItems<FAD_COUNT>(
+	auto FindDlg = MakeDialogItems<FD_COUNT>(
 	{
 		{ DI_DOUBLEBOX, {{3,                    1}, {DlgWidth-4, DlgHeight-2}}, DIF_SHOWAMPERSAND, strTitle, },
 		{ DI_LISTBOX,   {{4,                    2}, {DlgWidth-5, DlgHeight-7}}, DIF_LISTNOBOX|DIF_DISABLE, },
@@ -2728,9 +2713,9 @@ bool FindFiles::FindFilesProcess()
 							FindPanel = Global->CtrlObject->Cp()->ChangePanel(FindPanel, panel_type::FILE_PANEL, TRUE, TRUE);
 						}
 
-						string strArcPath=strArcName;
-						CutToSlash(strArcPath);
-						FindPanel->SetCurDir(strArcPath,true);
+						string_view ArcPath=strArcName;
+						CutToSlash(ArcPath);
+						FindPanel->SetCurDir(ArcPath, true);
 						FindExitItem->Arc->hPlugin = std::static_pointer_cast<FileList>(FindPanel)->OpenFilePlugin(strArcName, FALSE, OFP_SEARCH);
 					}
 

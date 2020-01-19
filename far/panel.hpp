@@ -191,7 +191,7 @@ public:
 	virtual void RefreshTitle();
 	virtual string GetTitle() const;
 	virtual bool SendKeyToPlugin(DWORD Key,bool Pred=false) {return false;}
-	virtual bool SetCurDir(const string& NewDir,bool ClosePanel,bool IsUpdated=true);
+	virtual bool SetCurDir(string_view NewDir, bool ClosePanel, bool IsUpdated = true);
 	virtual void ChangeDirToCurrent();
 	virtual const string& GetCurDir() const;
 	virtual size_t GetSelCount() const { return 0; }
@@ -253,9 +253,9 @@ public:
 	void SetSortGroups(bool Mode) {m_SortGroups=Mode;}
 	bool GetShowShortNamesMode() const { return m_ShowShortNames; }
 	void SetShowShortNamesMode(bool Mode) {m_ShowShortNames=Mode;}
-	void InitCurDir(const string& CurDir);
+	void InitCurDir(string_view CurDir);
 	bool ExecShortcutFolder(int Pos);
-	bool ExecShortcutFolder(string strShortcutFolder, const GUID& PluginGuid, const string& strPluginFile, const string& strPluginData, bool CheckType, bool TryClosest = true, bool Silent = false);
+	bool ExecShortcutFolder(string_view strShortcutFolder, const GUID& PluginGuid, const string& strPluginFile, const string& strPluginData, bool CheckType, bool TryClosest = true, bool Silent = false);
 	bool SaveShortcutFolder(int Pos) const;
 	int SetPluginCommand(int Command,int Param1,void* Param2);
 	bool ProcessMouseDrag(const MOUSE_EVENT_RECORD* MouseEvent);
@@ -313,7 +313,7 @@ private:
 		GUID PluginGuid;
 	};
 	bool GetShortcutInfo(ShortcutInfo& Info) const;
-	bool SetPluginDirectory(const string& strDirectory, bool Silent);
+	bool SetPluginDirectory(string_view Directory, bool Silent);
 
 	static void DragMessage(int X,int Y,int Move);
 

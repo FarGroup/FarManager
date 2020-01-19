@@ -444,32 +444,14 @@ void SetFarConsoleMode(bool SetsActiveBuffer)
 	if (SetsActiveBuffer)
 		console.SetActiveScreenBuffer(console.GetOutputHandle());
 
-	static bool VirtualTerminalAttempted = false;
-	static bool VirtualTerminalSupported = false;
-
-	auto OutputMode = InitialConsoleMode->Output;
-
-	OutputMode |= ENABLE_PROCESSED_OUTPUT | ENABLE_WRAP_AT_EOL_OUTPUT;
-
-	if (VirtualTerminalSupported && Global->Opt->VirtualTerminalRendering)
-		OutputMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+	const auto OutputMode =
+		InitialConsoleMode->Output |
+		ENABLE_PROCESSED_OUTPUT |
+		ENABLE_WRAP_AT_EOL_OUTPUT |
+		(::console.IsVtSupported() && Global->Opt->VirtualTerminalRendering? ENABLE_VIRTUAL_TERMINAL_PROCESSING : 0);
 
 	ChangeConsoleMode(console.GetOutputHandle(), OutputMode);
 	ChangeConsoleMode(console.GetErrorHandle(), OutputMode);
-
-
-	if (Global->Opt->VirtualTerminalRendering)
-		OutputMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-
-	if (!VirtualTerminalAttempted)
-	{
-		VirtualTerminalAttempted = true;
-
-		const auto ResultOut = ChangeConsoleMode(console.GetOutputHandle(), OutputMode);
-		const auto ResultErr = ChangeConsoleMode(console.GetErrorHandle(), OutputMode);
-
-		VirtualTerminalSupported = ResultOut || ResultErr;
-	}
 }
 
 bool ChangeConsoleMode(HANDLE ConsoleHandle, DWORD Mode)

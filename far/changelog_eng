@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 18.01.2020 00:59:59 +0000 - build 5546
+
+1. Refactoring.
+
 MZK 05.01.2020 20:56:58 -0800
 
 1. Translated more far:config help pages into English; cleaned up eng/TechInfo.txt.

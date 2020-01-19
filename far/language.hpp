@@ -78,7 +78,7 @@ protected:
 	explicit language(std::unique_ptr<i_language_data>& Data): m_Data(Data) {}
 
 	// Throws on failure, strong exception safety guarantee
-	void load(const string& Path, const string& Language, int CountNeed = -1) const;
+	void load(string_view Path, string_view Language, int CountNeed = -1) const;
 
 private:
 	std::unique_ptr<i_language_data>& m_Data;
@@ -87,7 +87,7 @@ private:
 class plugin_language final: public language
 {
 public:
-	explicit plugin_language(const string& Path, const string& Language);
+	explicit plugin_language(string_view Path, string_view Language);
 	const wchar_t* Msg(intptr_t Id) const;
 
 private:

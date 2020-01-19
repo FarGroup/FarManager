@@ -278,11 +278,11 @@ bool GetDefaultPrinter(string& Printer)
 {
 	return detail::ApiDynamicStringReceiver(Printer, [&](span<wchar_t> Buffer)
 	{
-		auto dwSize = static_cast<DWORD>(Buffer.size());
-		if (::GetDefaultPrinter(Buffer.data(), &dwSize))
-			return dwSize - 1;
+		auto Size = static_cast<DWORD>(Buffer.size());
+		if (::GetDefaultPrinter(Buffer.data(), &Size))
+			return Size - 1;
 
-		return GetLastError() == ERROR_INSUFFICIENT_BUFFER? dwSize : 0;
+		return GetLastError() == ERROR_INSUFFICIENT_BUFFER? Size : 0;
 	});
 }
 
@@ -301,10 +301,10 @@ bool GetComputerNameEx(COMPUTER_NAME_FORMAT NameFormat, string& Name)
 {
 	return detail::ApiDynamicStringReceiver(Name, [&](span<wchar_t> Buffer)
 	{
-		auto dwSize = static_cast<DWORD>(Buffer.size());
-		if (!::GetComputerNameEx(NameFormat, Buffer.data(), &dwSize) && GetLastError() != ERROR_MORE_DATA)
+		auto Size = static_cast<DWORD>(Buffer.size());
+		if (!::GetComputerNameEx(NameFormat, Buffer.data(), &Size) && GetLastError() != ERROR_MORE_DATA)
 			return 0ul;
-		return dwSize;
+		return Size;
 	});
 }
 
@@ -323,10 +323,10 @@ bool GetUserNameEx(EXTENDED_NAME_FORMAT NameFormat, string& Name)
 {
 	return detail::ApiDynamicStringReceiver(Name, [&](span<wchar_t> Buffer)
 	{
-		auto dwSize = static_cast<DWORD>(Buffer.size());
-		if (!::GetUserNameEx(NameFormat, Buffer.data(), &dwSize) && GetLastError() != ERROR_MORE_DATA)
+		auto Size = static_cast<DWORD>(Buffer.size());
+		if (!::GetUserNameEx(NameFormat, Buffer.data(), &Size) && GetLastError() != ERROR_MORE_DATA)
 			return 0ul;
-		return dwSize;
+		return Size;
 	});
 }
 

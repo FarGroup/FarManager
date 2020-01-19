@@ -237,4 +237,67 @@
 		</Expand>
 	</Type>
 
+	<Type Name="_KEY_EVENT_RECORD">
+		<Expand>
+			<Item Name="KeyDown">bKeyDown != 0</Item>
+			<Item Name="Count">wRepeatCount</Item>
+			<Item Name="VkCode">wVirtualKeyCode</Item>
+			<Item Name="ScanCode">wVirtualScanCode</Item>
+			<Item Name="wchar_t">uChar.UnicodeChar</Item>
+			<Item Name="char">uChar.AsciiChar</Item>
+			<Synthetic Name="Control keys">
+				<DisplayString>RAlt: {(dwControlKeyState &amp; 0x1) != 0}, LAlt: {(dwControlKeyState &amp; 0x2) != 0}, RCtrl: {(dwControlKeyState &amp; 0x4) != 0}, LCtrl: {(dwControlKeyState &amp; 0x8) != 0}, Shift: {(dwControlKeyState &amp; 0x10) != 0}, NumLock: {(dwControlKeyState &amp; 0x20) != 0}, ScrollLock: {(dwControlKeyState &amp; 0x40) != 0}, CapsLock: {(dwControlKeyState &amp; 0x80) != 0}, Enhanced: {(dwControlKeyState &amp; 0x100) != 0}</DisplayString>
+			</Synthetic>
+		</Expand>
+	</Type>
+	<Type Name="_MOUSE_EVENT_RECORD">
+		<Expand>
+			<Item Name="Position">dwMousePosition</Item>
+			<Synthetic Name="Buttons">
+				<DisplayString>Left: {(dwButtonState &amp; 0x1) != 0}, Right: {(dwButtonState &amp; 0x2) != 0}, Middle1: {(dwButtonState &amp; 0x4) != 0}, Middle2: {(dwButtonState &amp; 0x8) != 0}, Middle3: {(dwButtonState &amp; 0x10) != 0}</DisplayString>
+			</Synthetic>
+			<Synthetic Name="Control keys">
+				<DisplayString>RAlt: {(dwControlKeyState &amp; 0x1) != 0}, LAlt: {(dwControlKeyState &amp; 0x2) != 0}, RCtrl: {(dwControlKeyState &amp; 0x4) != 0}, LCtrl: {(dwControlKeyState &amp; 0x8) != 0}, Shift: {(dwControlKeyState &amp; 0x10) != 0}, NumLock: {(dwControlKeyState &amp; 0x20) != 0}, ScrollLock: {(dwControlKeyState &amp; 0x40) != 0}, CapsLock: {(dwControlKeyState &amp; 0x80) != 0}, Enhanced: {(dwControlKeyState &amp; 0x100) != 0}</DisplayString>
+			</Synthetic>
+			<Synthetic Name="Flags">
+				<DisplayString>Moved: {(dwEventFlags &amp; 0x1) != 0}, DoubleClick: {(dwEventFlags &amp; 0x2) != 0}, Wheeled: {(dwEventFlags &amp; 0x4) != 0}, HWheeled: {(dwEventFlags &amp; 0x8) != 0}</DisplayString>
+			</Synthetic>
+		</Expand>
+	</Type>
+
+	<Type Name="_WINDOW_BUFFER_SIZE_RECORD">
+		<Expand>
+			<Item Name="Size">dwSize</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="_FOCUS_EVENT_RECORD">
+		<Expand>
+			<Item Name="Focus">bSetFocus != 0</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="_MENU_EVENT_RECORD">
+		<Expand>
+			<Item Name="Command">dwCommandId</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="_INPUT_RECORD">
+		<DisplayString Condition="EventType == 0x01">{Event.KeyEvent}</DisplayString>
+		<DisplayString Condition="EventType == 0x02">{Event.MouseEvent}</DisplayString>
+		<DisplayString Condition="EventType == 0x04">{Event.WindowBufferSizeEvent}</DisplayString>
+		<DisplayString Condition="EventType == 0x08">{Event.MenuEvent}</DisplayString>
+		<DisplayString Condition="EventType == 0x10">{Event.FocusEvent}</DisplayString>
+		<Expand>
+			<ExpandedItem Condition="EventType == 0x01">Event.KeyEvent</ExpandedItem>
+			<ExpandedItem Condition="EventType == 0x02">Event.MouseEvent</ExpandedItem>
+			<ExpandedItem Condition="EventType == 0x04">Event.WindowBufferSizeEvent</ExpandedItem>
+			<ExpandedItem Condition="EventType == 0x08">Event.MenuEvent</ExpandedItem>
+			<ExpandedItem Condition="EventType == 0x10">Event.FocusEvent</ExpandedItem>
+		</Expand>
+	</Type>
+
+
+
 </AutoVisualizer>

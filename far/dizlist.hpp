@@ -60,7 +60,7 @@ public:
 	string_view Get(const string& Name, const string& ShortName, long long FileSize) const;
 
 	void Reset();
-	bool Flush(const string& Path, const string *DizName=nullptr);
+	bool Flush(const string& Path, const string* DizName = nullptr);
 	bool CopyDiz(const string& Name, const string& ShortName, const string& DestName, const string& DestShortName,DizList *DestDiz) const;
 	const string& GetDizName() const { return m_DizFileName; }
 

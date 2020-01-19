@@ -288,9 +288,9 @@ bool native_plugin_factory::IsPlugin(const string& FileName) const
 	});
 }
 
-static void PrepareModulePath(const string& ModuleName)
+static void PrepareModulePath(string_view const ModuleName)
 {
-	string strModulePath = ModuleName;
+	auto strModulePath = ModuleName;
 	CutToSlash(strModulePath); //??
 	FarChDir(strModulePath);
 }
@@ -734,7 +734,7 @@ bool Plugin::CheckMinFarVersion()
 	return false;
 }
 
-bool Plugin::InitLang(const string& Path, const string& Language)
+bool Plugin::InitLang(string_view const Path, string_view const Language)
 {
 	if (PluginLang)
 		return true;

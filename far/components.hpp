@@ -40,7 +40,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
-#include "common/enumerator.hpp"
 
 // External:
 
@@ -54,38 +53,13 @@ namespace components
 		using info = std::pair<string_view, string>;
 		using get_info = info(*)();
 
-		explicit component(get_info getInfo);
+		explicit component(get_info GetInfo);
 
 	private:
 		friend class components_list;
 
-		get_info m_getInfo;
-		component* m_next;
-	};
-
-	class [[nodiscard]] components_list: public enumerator<components_list, component::get_info>
-	{
-		IMPLEMENTS_ENUMERATOR(components_list);
-
-	public:
-		void add(component* item);
-		[[nodiscard]]
-		bool empty() const { return list != nullptr; }
-		[[nodiscard]]
-		size_t size() const { return m_size; }
-
-	private:
-		friend components_list& GetComponentsList();
-
-		[[nodiscard]]
-		bool get(bool Reset, value_type& value) const;
-
-		components_list() = default;
-
-		component* list{};
-		component* ptr{};
-		mutable component* enum_ptr{};
-		size_t m_size{};
+		get_info m_GetInfo;
+		component* m_Next{};
 	};
 
 	const std::map<string_view, string, string_sort::less_t>& GetComponentsInfo();

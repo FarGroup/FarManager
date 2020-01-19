@@ -388,25 +388,25 @@ BOOL WINAPI apiShowHelp(const wchar_t *ModuleName, const wchar_t *HelpTopic, FAR
 				А значение FHELP_SELFHELP равно чему? Правильно - 0
 				И фигля здесь удивляться тому, что функция не работает :-(
 				*/
-				string strPath;
+				string_view Path;
 				if (Flags == FHELP_SELFHELP || (Flags&(FHELP_CUSTOMFILE | FHELP_CUSTOMPATH)))
 				{
-					strPath = ModuleName;
+					Path = ModuleName;
 
 					if (Flags == FHELP_SELFHELP || (Flags&(FHELP_CUSTOMFILE)))
 					{
 						if (Flags&FHELP_CUSTOMFILE)
-							strMask = PointToName(strPath);
+							strMask = PointToName(Path);
 						else
 							strMask.clear();
 
-						CutToSlash(strPath);
+						CutToSlash(Path);
 					}
 				}
 				else
 					return FALSE;
 
-				strTopic = help::make_link(strPath, HelpTopic);
+				strTopic = help::make_link(Path, HelpTopic);
 			}
 			else
 				return FALSE;
@@ -1092,10 +1092,10 @@ const wchar_t* WINAPI apiGetMsgFn(const GUID* PluginId,intptr_t MsgId) noexcept
 	{
 		if (Plugin *pPlugin = GuidToPlugin(PluginId))
 		{
-			string strPath = pPlugin->ModuleName();
-			CutToSlash(strPath);
+			string_view Path = pPlugin->ModuleName();
+			CutToSlash(Path);
 
-			if (pPlugin->InitLang(strPath, Global->Opt->strLanguage))
+			if (pPlugin->InitLang(Path, Global->Opt->strLanguage))
 				return pPlugin->Msg(MsgId);
 		}
 		return L"";
@@ -1755,11 +1755,15 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 						Global->GlobalSaveScrPtr->Discard();
 
 					Global->WindowManager->PluginCommit();
-#if defined(MANTIS_0002562)
-					return EEC_OPENED_EXISTING;
-#else
-					return EEC_MODIFIED;
-#endif
+
+					if constexpr (features::mantis_2562)
+					{
+						return EEC_OPENED_EXISTING;
+					}
+					else
+					{
+						return EEC_MODIFIED;
+					}
 				}
 
 				Editor->SetEnableF6((Flags & EF_ENABLE_F6) != 0);
@@ -1780,11 +1784,15 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 						Global->GlobalSaveScrPtr->Discard();
 
 					Global->WindowManager->PluginCommit();
-#if defined(MANTIS_0002562)
-					ExitCode = editorExitCode == XC_RELOAD ? EEC_RELOAD : Editor->IsFileChanged() ? EEC_MODIFIED : EEC_NOT_MODIFIED;
-#else
-					ExitCode = EEC_MODIFIED;
-#endif
+
+					if constexpr (features::mantis_2562)
+					{
+						ExitCode = editorExitCode == XC_RELOAD ? EEC_RELOAD : Editor->IsFileChanged() ? EEC_MODIFIED : EEC_NOT_MODIFIED;
+					}
+					else
+					{
+						ExitCode = EEC_MODIFIED;
+					}
 				}
 			}
 		}
@@ -2808,9 +2816,13 @@ size_t WINAPI apiInputRecordToKeyName(const INPUT_RECORD* Key, wchar_t *KeyText,
 	try
 	{
 		const auto iKey = InputRecordToKey(Key);
-		string strKT;
-		if (iKey == KEY_NONE || !KeyToText(iKey, strKT))
+		if (iKey == KEY_NONE)
 			return 0;
+
+		const auto strKT = KeyToText(iKey);
+		if (strKT.empty())
+			return 0;
+
 		auto len = strKT.size();
 		if (Size && KeyText)
 		{

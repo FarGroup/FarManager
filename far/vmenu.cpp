@@ -2949,8 +2949,7 @@ std::vector<string> VMenu::AddHotkeys(span<menu_item> const MenuItems)
 		if (Item.Flags & LIF_SEPARATOR || !Item.AccelKey)
 			continue;
 
-		string Key;
-		KeyToLocalizedText(Item.AccelKey, Key);
+		const auto Key = KeyToLocalizedText(Item.AccelKey);
 		const auto Hl = HiStrlen(Item.Name) != Item.Name.size();
 		Str = fit_to_left(Item.Name, MaxLength + (Hl? 2 : 1)) + Key;
 		Item.Name = Str;

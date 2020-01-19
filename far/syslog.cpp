@@ -1314,11 +1314,13 @@ string __FARKEY_ToName(int Key)
 	if (!IsLogON())
 		return {};
 
-	string Name;
-	if (!(far_key_code(Key) >= KEY_MACRO_BASE && far_key_code(Key) <= KEY_MACRO_ENDBASE) && KeyToText(Key,Name))
+	if (!(far_key_code(Key) >= KEY_MACRO_BASE && far_key_code(Key) <= KEY_MACRO_ENDBASE))
 	{
-		inplace::quote_unconditional(Name);
-		return str_printf(L"%s [%u/0x%08X]", Name.c_str(), Key, Key);
+		if (auto Name = KeyToText(Key); !Name.empty())
+		{
+			inplace::quote_unconditional(Name);
+			return str_printf(L"%s [%u/0x%08X]", Name.c_str(), Key, Key);
+		}
 	}
 
 	return str_printf(L"\"KEY_????\" [%u/0x%08X]",Key,Key);

@@ -630,7 +630,7 @@ bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 		if (starts_with_icase(strName, string_view(strStr).substr(0, Length)) && strStr != strName)
 		{
 			if (bAppend)
-				strStr.append(strName, Length, string::npos);
+				strStr.append(strName, Length, string::npos); // gcc 7.3-8.1 bug: npos required. TODO: Remove after we move to 8.2 or later
 			else
 				strStr = strName;
 

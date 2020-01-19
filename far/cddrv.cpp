@@ -275,17 +275,11 @@ static CDROM_DeviceCapabilities getCapsUsingMagic(const os::fs::file& Device)
 					break;
 
 				case MMC_FEATURE_DVDPLUSRW:
-					caps |= CAPABILITIES_READ_DVDRW; //if we have write support, it was determined by mode sense
-					break;
-
-				case MMC_FEATURE_DVDPLUSR:
-					caps |= CAPABILITIES_READ_DVDR; //if we have write support, it was determined by mode sense
-					break;
-
 				case MMC_FEATURE_DVDPLUSRW_DL:
 					caps |= CAPABILITIES_READ_DVDRW; //if we have write support, it was determined by mode sense
 					break;
 
+				case MMC_FEATURE_DVDPLUSR:
 				case MMC_FEATURE_DVDPLUSR_DL:
 					caps |= CAPABILITIES_READ_DVDR; //if we have write support, it was determined by mode sense
 					break;

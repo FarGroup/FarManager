@@ -5002,10 +5002,10 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 								std::vector<char> DataCopy(Data, Data + Size);
 								ListBox->SetComplexUserData(DataCopy, ListItems->Index);
 
-								return Ret = 1;
+								return TRUE;
 							}
 
-							return 0;
+							return FALSE;
 						}
 						/* $ 02.12.2001 KM
 						   + Сообщение для добавления в список строк, с удалением

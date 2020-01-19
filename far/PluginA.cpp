@@ -2019,13 +2019,12 @@ static BOOL WINAPI FarKeyToNameA(int Key, char *KeyText, int Size) noexcept
 {
 	try
 	{
-		string strKT;
-		if (KeyToText(OldKeyToKey(Key), strKT))
-		{
-			encoding::oem::get_bytes(strKT, { KeyText, static_cast<size_t>(Size > 0? Size + 1 : 32) });
-			return TRUE;
-		}
-		return FALSE;
+		const auto strKT = KeyToText(OldKeyToKey(Key));
+		if (strKT.empty())
+			return FALSE;
+
+		encoding::oem::get_bytes(strKT, { KeyText, static_cast<size_t>(Size > 0? Size + 1 : 32) });
+		return TRUE;
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return FALSE;
@@ -2268,7 +2267,7 @@ static int WINAPI FarInputBoxA(const char *Title, const char *Prompt, const char
 			NewFlags);
 
 		if (ret && DestText)
-			encoding::oem::get_bytes(Buffer.get(), { DestText, static_cast<size_t>(DestLength + 1) });
+			encoding::oem::get_bytes(Buffer.get(), { DestText, static_cast<size_t>(DestLength) + 1 });
 
 		return ret;
 	}
@@ -2344,10 +2343,10 @@ static const char * WINAPI FarGetMsgFnA(intptr_t PluginHandle, int MsgId) noexce
 	{
 		//BUGBUG, надо проверять, что PluginHandle - плагин
 		const auto pPlugin = reinterpret_cast<Plugin*>(PluginHandle);
-		string strPath = pPlugin->ModuleName();
-		CutToSlash(strPath);
+		string_view Path = pPlugin->ModuleName();
+		CutToSlash(Path);
 
-		if (pPlugin->InitLang(strPath, Global->Opt->strLanguage))
+		if (pPlugin->InitLang(Path, Global->Opt->strLanguage))
 			return GetPluginMsg(pPlugin, MsgId);
 
 		return "";
@@ -3231,7 +3230,7 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber, int X1, int Y1, int X2, in
 		}
 
 		std::vector<FarDialogItem> di(ItemsSpan.size());
-		std::vector<FarList> l(ItemsSpan.size());
+		std::vector<FarList> l(di.size());
 
 		for (const auto& i: zip(ItemsSpan, di, l))
 		{
@@ -3878,12 +3877,11 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 					Flags|=KMFLAGS_NOSENDKEYSTOPLUGINS;
 
 				auto strSequence = L"Keys(\""s;
-				string strKeyText;
 				for (const auto& Key: span(ksA->Sequence, ksA->Count))
 				{
-					if (KeyToText(OldKeyToKey(Key), strKeyText))
+					if (const auto KeyText = KeyToText(OldKeyToKey(Key)); !KeyText.empty())
 					{
-						append(strSequence, L' ', strKeyText);
+						append(strSequence, L' ', KeyText);
 					}
 				}
 				append(strSequence, L"\")"sv);
@@ -4350,20 +4348,15 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 						}
 						case oldfar::ESPT_GETWORDDIV:
 						{
-							if (!oldsp->cParam) return FALSE;
+							if (!oldsp->cParam)
+								return FALSE;
 
-							*oldsp->cParam=0;
 							newsp.Type = ESPT_GETWORDDIV;
 							newsp.Size = pluginapi::apiEditorControl(-1,ECTL_SETPARAM, 0, &newsp);
 							std::vector<wchar_t> Buffer(newsp.Size);
 							newsp.wszParam = Buffer.data();
 							const auto ret = static_cast<int>(pluginapi::apiEditorControl(-1,ECTL_SETPARAM, 0, &newsp));
-							std::unique_ptr<char[]> olddiv(UnicodeToAnsi(newsp.wszParam));
-							if (olddiv)
-							{
-								xstrncpy(oldsp->cParam, olddiv.get(), 256);
-							}
-
+							xstrncpy(oldsp->cParam, encoding::oem::get_bytes(newsp.wszParam).c_str(), 256);
 							return ret;
 						}
 						default:
@@ -4996,7 +4989,7 @@ private:
 			// скорректируем адреса и плагино-зависимые поля
 			InfoCopy.ModuleNumber = reinterpret_cast<intptr_t>(this);
 			InfoCopy.FSF = &FsfCopy;
-			encoding::oem::get_bytes(ModuleName().c_str(), InfoCopy.ModuleName);
+			encoding::oem::get_bytes(ModuleName(), InfoCopy.ModuleName);
 			InfoCopy.RootKey = static_cast<oem_plugin_factory*>(m_Factory)->PluginsRootKey().c_str();
 
 			if (Global->strRegUser.empty())
@@ -5534,7 +5527,7 @@ private:
 		return CacheName();
 	}
 
-	bool InitLang(const string& Path, const string& Language) override
+	bool InitLang(string_view const Path, string_view Language) override
 	{
 		bool Result = true;
 		if (!PluginLang)
@@ -5792,7 +5785,7 @@ private:
 	class ansi_plugin_language final: public language
 	{
 	public:
-		explicit ansi_plugin_language(const string& Path, const string& Language):
+		explicit ansi_plugin_language(string_view const Path, string_view const Language):
 			language(m_Data),
 			m_Data(std::make_unique<ansi_language_data>())
 		{

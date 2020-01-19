@@ -387,7 +387,7 @@ static void LoadCustomStrings(const string& FileName, std::unordered_map<string,
 	}
 }
 
-void language::load(const string& Path, const string& Language, int CountNeed) const
+void language::load(string_view const Path, string_view const Language, int CountNeed) const
 {
 	SCOPED_ACTION(GuardLastError);
 
@@ -485,7 +485,7 @@ bool i_language_data::validate(size_t MsgId) const
 	return false;
 }
 
-plugin_language::plugin_language(const string & Path, const string& Language):
+plugin_language::plugin_language(string_view const Path, string_view const Language):
 	language(m_Data),
 	m_Data(std::make_unique<language_data>())
 {

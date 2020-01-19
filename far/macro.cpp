@@ -1,4 +1,4 @@
-/*
+﻿/*
 macro.cpp
 
 Макросы
@@ -618,8 +618,8 @@ static bool LM_GetMacro(GetMacroData* Data, FARMACROAREA Area, const string& Tex
 bool KeyMacro::MacroExists(int Key, FARMACROAREA Area, bool UseCommon)
 {
 	GetMacroData dummy;
-	string strKey;
-	return KeyToText(Key,strKey) && LM_GetMacro(&dummy,Area,strKey,UseCommon);
+	const auto KeyName = KeyToText(Key);
+	return !KeyName.empty() && LM_GetMacro(&dummy, Area, KeyName, UseCommon);
 }
 
 static void LM_ProcessRecordedMacro(FARMACROAREA Area, const string& TextKey, const string& Code,
@@ -636,115 +636,109 @@ bool KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 	if (m_InternalInput || Rec->IntKey==KEY_IDLE || Rec->IntKey==KEY_NONE || !Global->WindowManager->GetCurrentWindow()) //FIXME: избавиться от Rec->IntKey
 		return false;
 
-	string textKey;
-	if (KeyToText(Rec->IntKey,textKey))
+	const auto textKey = KeyToText(Rec->IntKey);
+	if (textKey.empty())
+		return false;
+
+	const auto ctrldot = Rec->IntKey == Global->Opt->Macro.KeyMacroCtrlDot || Rec->IntKey == Global->Opt->Macro.KeyMacroRCtrlDot;
+	const auto ctrlshiftdot = Rec->IntKey == Global->Opt->Macro.KeyMacroCtrlShiftDot || Rec->IntKey == Global->Opt->Macro.KeyMacroRCtrlShiftDot;
+
+	if (m_Recording == MACROSTATE_NOMACRO)
 	{
-		const auto ctrldot = Rec->IntKey == Global->Opt->Macro.KeyMacroCtrlDot || Rec->IntKey == Global->Opt->Macro.KeyMacroRCtrlDot;
-		const auto ctrlshiftdot = Rec->IntKey == Global->Opt->Macro.KeyMacroCtrlShiftDot || Rec->IntKey == Global->Opt->Macro.KeyMacroRCtrlShiftDot;
-
-		if (m_Recording==MACROSTATE_NOMACRO)
+		if ((ctrldot||ctrlshiftdot) && !IsExecuting())
 		{
-			if ((ctrldot||ctrlshiftdot) && !IsExecuting())
+			const auto LuaMacro = Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Luamacro.Id);
+			if (!LuaMacro || LuaMacro->IsPendingRemove())
 			{
-				const auto LuaMacro = Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Luamacro.Id);
-				if (!LuaMacro || LuaMacro->IsPendingRemove())
-				{
-					Message(MSG_WARNING,
-						msg(lng::MError),
-						{
-							msg(lng::MMacroPluginLuamacroNotLoaded),
-							msg(lng::MMacroRecordingIsDisabled)
-						},
-						{ lng::MOk });
-					return false;
-				}
-
-				// Где мы?
-				m_StartMode=m_Area;
-				// В зависимости от того, КАК НАЧАЛИ писать макрос, различаем общий режим (Ctrl-.
-				// с передачей плагину кеев) или специальный (Ctrl-Shift-. - без передачи клавиш плагину)
-				m_Recording=ctrldot?MACROSTATE_RECORDING_COMMON:MACROSTATE_RECORDING;
-
-				m_RecCode.clear();
-				m_RecDescription.clear();
-				Global->ScrBuf->Flush();
-				return true;
-			}
-			else
-			{
-				if (!m_WaitKey && IsPostMacroEnabled())
-				{
-					DWORD key = Rec->IntKey;
-					if ((key&0x00FFFFFF) > 0x7F && (key&0x00FFFFFF) < 0xFFFF)
-						key=KeyToKeyLayout(key&0x0000FFFF)|(key&~0x0000FFFF);
-
-					if (key<0xFFFF)
-						key=upper(static_cast<wchar_t>(key));
-
-					if (key != Rec->IntKey)
-						KeyToText(key,textKey);
-
-					if (TryToPostMacro(m_Area, textKey, Rec->IntKey))
-						return true;
-				}
-			}
-		}
-		else // m_Recording!=MACROSTATE_NOMACRO
-		{
-			if (ctrldot||ctrlshiftdot) // признак конца записи?
-			{
-				m_InternalInput=1;
-				DWORD MacroKey;
-				// выставляем флаги по умолчанию.
-				unsigned long long Flags = 0;
-				int AssignRet=AssignMacroKey(MacroKey,Flags);
-
-				if (AssignRet && AssignRet!=2 && !m_RecCode.empty())
-				{
-					m_RecCode = concat(L"Keys(\""sv, m_RecCode, L"\")"sv);
-					// добавим проверку на удаление
-					// если удаляем или был вызван диалог изменения, то не нужно выдавать диалог настройки.
-					//if (MacroKey != (DWORD)-1 && (Key==KEY_CTRLSHIFTDOT || Recording==2) && RecBufferSize)
-					if (ctrlshiftdot && !GetMacroSettings(MacroKey,Flags))
+				Message(MSG_WARNING,
+					msg(lng::MError),
 					{
-						AssignRet=0;
-					}
-				}
-				m_InternalInput=0;
-				if (AssignRet)
-				{
-					string strKey;
-					KeyToText(MacroKey, strKey);
-					Flags |= m_Recording == MACROSTATE_RECORDING_COMMON? MFLAGS_NONE : MFLAGS_NOSENDKEYSTOPLUGINS;
-					LM_ProcessRecordedMacro(m_StartMode,strKey,m_RecCode,Flags,m_RecDescription);
-				}
-
-				m_Recording=MACROSTATE_NOMACRO;
-				m_RecCode.clear();
-				m_RecDescription.clear();
-				Global->ScrBuf->RestoreMacroChar();
-
-				if (Global->Opt->AutoSaveSetup)
-					SaveMacros(false); // записать только изменения!
-
-				return true;
-			}
-			else
-			{
-				if (!Global->IsProcessAssignMacroKey)
-				{
-					if (!m_RecCode.empty())
-						m_RecCode += L' ';
-
-					if (textKey == L"\""sv)
-						textKey = L"\\\""sv;
-
-					m_RecCode+=textKey;
-				}
+						msg(lng::MMacroPluginLuamacroNotLoaded),
+						msg(lng::MMacroRecordingIsDisabled)
+					},
+					{ lng::MOk });
 				return false;
+			}
+
+			// Где мы?
+			m_StartMode=m_Area;
+			// В зависимости от того, КАК НАЧАЛИ писать макрос, различаем общий режим (Ctrl-.
+			// с передачей плагину кеев) или специальный (Ctrl-Shift-. - без передачи клавиш плагину)
+			m_Recording=ctrldot?MACROSTATE_RECORDING_COMMON:MACROSTATE_RECORDING;
+
+			m_RecCode.clear();
+			m_RecDescription.clear();
+			Global->ScrBuf->Flush();
+			return true;
+		}
+		else
+		{
+			if (!m_WaitKey && IsPostMacroEnabled())
+			{
+				auto key = Rec->IntKey;
+				if ((key&0x00FFFFFF) > 0x7F && (key&0x00FFFFFF) < 0xFFFF)
+					key=KeyToKeyLayout(key&0x0000FFFF)|(key&~0x0000FFFF);
+
+				if (key<0xFFFF)
+					key=upper(static_cast<wchar_t>(key));
+
+				if (TryToPostMacro(m_Area, key == Rec->IntKey? textKey : KeyToText(key), Rec->IntKey))
+					return true;
 			}
 		}
 	}
+	else // m_Recording!=MACROSTATE_NOMACRO
+	{
+		if (ctrldot||ctrlshiftdot) // признак конца записи?
+		{
+			m_InternalInput=1;
+			DWORD MacroKey;
+			// выставляем флаги по умолчанию.
+			unsigned long long Flags = 0;
+			int AssignRet=AssignMacroKey(MacroKey,Flags);
+
+			if (AssignRet && AssignRet!=2 && !m_RecCode.empty())
+			{
+				m_RecCode = concat(L"Keys(\""sv, m_RecCode, L"\")"sv);
+				// добавим проверку на удаление
+				// если удаляем или был вызван диалог изменения, то не нужно выдавать диалог настройки.
+				//if (MacroKey != (DWORD)-1 && (Key==KEY_CTRLSHIFTDOT || Recording==2) && RecBufferSize)
+				if (ctrlshiftdot && !GetMacroSettings(MacroKey,Flags))
+				{
+					AssignRet=0;
+				}
+			}
+			m_InternalInput=0;
+			if (AssignRet)
+			{
+				const auto strKey = KeyToText(MacroKey);
+				Flags |= m_Recording == MACROSTATE_RECORDING_COMMON? MFLAGS_NONE : MFLAGS_NOSENDKEYSTOPLUGINS;
+				LM_ProcessRecordedMacro(m_StartMode, strKey, m_RecCode, Flags, m_RecDescription);
+			}
+
+			m_Recording=MACROSTATE_NOMACRO;
+			m_RecCode.clear();
+			m_RecDescription.clear();
+			Global->ScrBuf->RestoreMacroChar();
+
+			if (Global->Opt->AutoSaveSetup)
+				SaveMacros(false); // записать только изменения!
+
+			return true;
+		}
+		else
+		{
+			if (!Global->IsProcessAssignMacroKey)
+			{
+				if (!m_RecCode.empty())
+					m_RecCode += L' ';
+
+				m_RecCode += textKey == L"\""sv? L"\\\""sv : textKey;
+			}
+			return false;
+		}
+	}
+
 	return false;
 }
 
@@ -915,8 +909,8 @@ bool KeyMacro::AddMacro(const GUID& PluginId, const MacroAddMacroV1* Data)
 	if (!(Data->Area >= 0 && (Data->Area < MACROAREA_LAST || Data->Area == MACROAREA_COMMON)))
 		return false;
 
-	string strKeyText;
-	if (!InputRecordToText(&Data->AKey, strKeyText))
+	const auto KeyText = InputRecordToText(&Data->AKey);
+	if (KeyText.empty())
 		return false;
 
 	MACROFLAGS_MFLAGS Flags = 0;
@@ -927,7 +921,7 @@ bool KeyMacro::AddMacro(const GUID& PluginId, const MacroAddMacroV1* Data)
 	if (Data->StructSize >= sizeof(MacroAddMacro)) Priority = reinterpret_cast<const MacroAddMacro*>(Data)->Priority;
 	FarMacroValue values[] = {
 		static_cast<double>(Data->Area),
-		strKeyText,
+		KeyText,
 		GetMacroLanguage(Data->Flags),
 		Data->SequenceText,
 		Flags,
@@ -1220,9 +1214,7 @@ bool KeyMacro::GetMacroSettings(int Key, unsigned long long& Flags, string_view 
 	MacroSettingsDlg[MS_CHECKBOX_CMDLINE].Selected = 2;
 	MacroSettingsDlg[MS_CHECKBOX_SELBLOCK].Selected = 2;
 
-	string strKeyText;
-	KeyToText(Key,strKeyText);
-	MacroSettingsDlg[MS_DOUBLEBOX].strData = format(msg(lng::MMacroSettingsTitle), strKeyText);
+	MacroSettingsDlg[MS_DOUBLEBOX].strData = format(msg(lng::MMacroSettingsTitle), KeyToText(Key));
 	//if(!(Key&0x7F000000))
 	//MacroSettingsDlg[3].Flags|=DIF_DISABLE;
 	MacroSettingsDlg[MS_CHECKBOX_OUPUT].Selected=Flags&MFLAGS_ENABLEOUTPUT?1:0;
@@ -1374,7 +1366,7 @@ class FarMacroApi
 	int fattrFuncImpl(int Type);
 
 public:
-	FarMacroApi(FarMacroCall* Data) : mData(Data) {}
+	explicit FarMacroApi(FarMacroCall* Data) : mData(Data) {}
 
 	int PassBoolean(int b);
 	int PassError(const wchar_t *str);
@@ -2295,9 +2287,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					case 10:
 						if (Data->Count > 1)
 						{
-							string text;
-							KeyToText(Data->Values[1].Double, text);
-							api.PassString(text);
+							api.PassString(KeyToText(Data->Values[1].Double));
 						}
 						break;
 				}
@@ -2724,7 +2714,7 @@ int FarMacroApi::keyFunc()
 	if (Params[0].isInteger() || Params[0].isDouble())
 	{
 		if (Params[0].asInteger())
-			KeyToText(static_cast<int>(Params[0].asInteger()), strKeyText);
+			strKeyText = KeyToText(static_cast<int>(Params[0].asInteger()));
 	}
 	else
 	{
@@ -2752,8 +2742,7 @@ int FarMacroApi::waitkeyFunc()
 		string strKeyText;
 
 		if (Key != KEY_NONE)
-			if (!KeyToText(Key,strKeyText))
-				strKeyText.clear();
+			strKeyText = KeyToText(Key);
 
 		PassString(strKeyText);
 		return !strKeyText.empty();
@@ -4946,7 +4935,6 @@ int FarMacroApi::testfolderFunc()
 // обработчик диалогового окна назначения клавиши
 intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
-	string strKeyText;
 	static int LastKey=0;
 	static DlgParam *KMParam=nullptr;
 	const INPUT_RECORD* record=nullptr;
@@ -4977,8 +4965,7 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 
 		for (const auto& i: PreDefKeyMain)
 		{
-			KeyToText(i, strKeyText);
-			Dlg->SendMessage(DM_LISTADDSTR, 2, UNSAFE_CSTR(strKeyText));
+			Dlg->SendMessage(DM_LISTADDSTR, 2, UNSAFE_CSTR(KeyToText(i)));
 		}
 
 		static const DWORD PreDefKey[]=
@@ -5001,8 +4988,7 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 
 			for (const auto& j: PreDefModKey)
 			{
-				KeyToText(i | j, strKeyText);
-				Dlg->SendMessage(DM_LISTADDSTR, 2, UNSAFE_CSTR(strKeyText));
+				Dlg->SendMessage(DM_LISTADDSTR, 2, UNSAFE_CSTR(KeyToText(i | j)));
 			}
 		}
 
@@ -5065,7 +5051,7 @@ M1:
 
 		_SVS(SysLog(L"[%d] Assign ==> Param2='%s',LastKey='%s'",__LINE__,_FARKEY_ToName((DWORD)key),LastKey?_FARKEY_ToName(LastKey):L""));
 		KMParam->Key = static_cast<DWORD>(key);
-		KeyToText(key, strKeyText);
+		auto strKeyText = KeyToText(key);
 
 		// если УЖЕ есть такой макрос...
 		GetMacroData Data;

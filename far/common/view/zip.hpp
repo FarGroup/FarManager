@@ -39,9 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace detail
 {
-	struct increment { template<typename T> void operator()(T& Object) const { ++Object; } };
-	struct decrement { template<typename T> void operator()(T& Object) const { --Object; } };
-
 	template<typename... args>
 	struct traits
 	{
@@ -66,18 +63,6 @@ namespace detail
 
 		using reference = decltype(dereference(pointer()));
 		using value_type = reference;
-
-		template<size_t... index, typename predicate>
-		static void unary_for_each_impl(std::index_sequence<index...>, predicate Predicate, pointer& Tuple)
-		{
-			(..., Predicate(std::get<index>(Tuple)));
-		}
-
-		template<typename predicate>
-		static void unary_for_each(predicate Predicate, pointer& Tuple)
-		{
-			unary_for_each_impl(index_sequence{}, Predicate, Tuple);
-		}
 
 		template<size_t... index, typename predicate>
 		[[nodiscard]]
@@ -120,8 +105,8 @@ namespace detail
 
 		zip_iterator() = default;
 		explicit zip_iterator(args&&... Args): m_Tuple(Args...) {}
-		auto& operator++() { traits<args...>::unary_for_each(increment{}, m_Tuple); return *this; }
-		auto& operator--() { traits<args...>::unary_for_each(decrement{}, m_Tuple); return *this; }
+		auto& operator++() { std::apply([](auto&... Item){ (..., ++Item); }, m_Tuple); return *this; }
+		auto& operator--() { std::apply([](auto&... Item){ (..., --Item); }, m_Tuple); return *this; }
 
 		// tuple's operators == and < are inappropriate as ranges might be of different length and we want to stop on a shortest one
 		[[nodiscard]]

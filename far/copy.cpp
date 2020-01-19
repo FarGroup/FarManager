@@ -1083,7 +1083,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 				if (CheckNulOrCon(strNameTmp))
 				{
 					Flags|=FCOPY_COPYTONUL;
-					strNameTmp = L"\\\\?\\nul\\"s;
+					strNameTmp = L"\\\\?\\nul\\"sv;
 				}
 				else
 					Flags&=~FCOPY_COPYTONUL;
@@ -2827,10 +2827,10 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 							return COPY_RETRY;
 						}
 
-						string strDestDir = strDestName;
+						string_view DestDir = strDestName;
 
-						if (CutToSlash(strDestDir,true))
-							CreatePath(strDestDir);
+						if (CutToSlash(DestDir,true))
+							CreatePath(DestDir);
 
 
 						if (!DestFile.Open(strDestName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, (Append ? OPEN_EXISTING:CREATE_ALWAYS), SrcData.Attributes|FILE_FLAG_SEQUENTIAL_SCAN) || (Append && !DestFile.SetPointer(0,nullptr,FILE_END)))

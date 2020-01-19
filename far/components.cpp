@@ -38,8 +38,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
+#include "common/enumerator.hpp"
 #include "common/function_traits.hpp"
 #include "common/preprocessor.hpp"
+#include "common/singleton.hpp"
 
 // External:
 
@@ -47,45 +49,44 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace components
 {
-	components_list& GetComponentsList()
+	class [[nodiscard]] components_list : public enumerator<components_list, component::get_info>, public singleton<components_list>
 	{
-		static components_list sList;
-		return sList;
-	}
+		IMPLEMENTS_ENUMERATOR(components_list);
+		IMPLEMENTS_SINGLETON;
 
-	component::component(get_info getInfo):
-		m_getInfo(getInfo),
-		m_next()
-	{
-		GetComponentsList().add(this);
-	}
-
-	void components_list::add(component* item)
-	{
-		if (!list)
+	public:
+		void add(component* item)
 		{
-			list = item;
+			(m_First? m_Last->m_Next : m_First) = item;
+			m_Last = item;
 		}
-		else
+
+	private:
+		components_list() = default;
+
+		[[nodiscard]]
+		bool get(bool Reset, value_type& Value) const
 		{
-			ptr->m_next = item;
+			if (Reset)
+				m_Iterator = m_First;
+
+			if (!m_Iterator)
+				return false;
+
+			Value = m_Iterator->m_GetInfo;
+			m_Iterator = m_Iterator->m_Next;
+			return true;
 		}
-		ptr = item;
 
-		++m_size;
-	}
+		component* m_First{};
+		component* m_Last{};
+		mutable component* m_Iterator{};
+	};
 
-	bool components_list::get(bool Reset, value_type& value) const
+	component::component(get_info GetInfo):
+		m_GetInfo(GetInfo)
 	{
-		if (Reset)
-			enum_ptr = list;
-
-		if (!enum_ptr)
-			return false;
-
-		value = enum_ptr->m_getInfo;
-		enum_ptr = enum_ptr->m_next;
-		return true;
+		components_list::instance().add(this);
 	}
 
 	const std::map<string_view, string, string_sort::less_t>& GetComponentsInfo()
@@ -93,7 +94,7 @@ namespace components
 		static const auto sList = []
 		{
 			FN_RETURN_TYPE(GetComponentsInfo) Result;
-			const auto& ComponentsList = GetComponentsList();
+			const auto& ComponentsList = components_list::instance();
 			std::transform(ALL_CONST_RANGE(ComponentsList), std::inserter(Result, Result.end()), [](const auto& i)
 			{
 				return i();

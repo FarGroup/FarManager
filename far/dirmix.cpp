@@ -145,7 +145,7 @@ bool FarChDir(string_view const NewDir, bool ChangeDir)
     TSTFLD_NOTACCESS (-1) - нет доступа
     TSTFLD_ERROR     (-2) - ошибка (кривые параметры или не хватило памяти для выделения промежуточных буферов)
 */
-int TestFolder(const string& Path)
+int TestFolder(string_view const Path)
 {
 	if (Path.empty())
 		return TSTFLD_ERROR;
@@ -249,7 +249,7 @@ bool CheckShortcutFolder(string& TestPath, bool TryClosest, bool Silent)
 	return false;
 }
 
-void CreatePath(const string &InputPath, bool Simple)
+void CreatePath(string_view const InputPath, bool Simple)
 {
 	const auto Path = ConvertNameToFull(InputPath);
 	size_t DirOffset = 0;

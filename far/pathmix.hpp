@@ -61,12 +61,12 @@ namespace path
 
 	namespace detail
 	{
-		inline size_t size_one(size_t&, wchar_t const Char)
+		inline size_t length(size_t&, wchar_t const Char)
 		{
 			return contains(separators(), Char)? 0 : 1;
 		}
 
-		inline size_t size_one(size_t& Offset, string_view Str)
+		inline size_t length(size_t& Offset, string_view Str)
 		{
 			const auto Begin = Str.find_first_not_of(separators());
 			if (Begin == string_view::npos)
@@ -97,7 +97,7 @@ namespace path
 			size_t Sizes[sizeof...(Args)];
 			size_t Offsets[sizeof...(Args)]{};
 
-			reserve_exp_noshrink(Str, (Str.size() + ... + (Sizes[I] = size_one(Offsets[I], Args))) + sizeof...(Args) - 1);
+			reserve_exp_noshrink(Str, (Str.size() + ... + (Sizes[I] = length(Offsets[I], Args))) + sizeof...(Args) - 1);
 
 			const auto separate_and_append = [&](size_t Index, const auto& Arg)
 			{
@@ -162,9 +162,10 @@ bool IsAbsolutePath(string_view Path);
 bool IsRootPath(string_view Path);
 bool HasPathPrefix(string_view Path);
 bool PathStartsWith(string_view Path, string_view Start);
-bool PathCanHoldRegularFile(const string& Path);
-bool IsPluginPrefixPath(const string &Path);
-bool CutToSlash(string &strStr, bool bInclude = false); // BUGBUG, deprecated. Use CutToParent.
+bool PathCanHoldRegularFile(string_view Path);
+bool IsPluginPrefixPath(string_view Path);
+bool CutToSlash(string& Str, bool RemoveSlash = false); // BUGBUG, deprecated. Use CutToParent.
+bool CutToSlash(string_view& Str, bool RemoveSlash = false); // BUGBUG, deprecated. Use CutToParent.
 bool CutToParent(string_view& Str);
 bool CutToParent(string& Str);
 [[nodiscard]]

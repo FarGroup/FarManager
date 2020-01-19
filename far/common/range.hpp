@@ -151,10 +151,10 @@ public:
 		++m_Begin;
 	}
 
-	constexpr void pop_front(size_t const Distance)
+	constexpr void pop_front(size_t const Count)
 	{
-		assert(size() >= Distance);
-		std::advance(m_Begin, Distance);
+		assert(size() >= Count);
+		std::advance(m_Begin, Count);
 	}
 
 	constexpr void pop_back()
@@ -163,10 +163,10 @@ public:
 		--m_End;
 	}
 
-	constexpr void pop_back(size_t const Distance)
+	constexpr void pop_back(size_t const Count)
 	{
-		assert(size() >= Distance);
-		std::advance(m_End, -static_cast<ptrdiff_t>(Distance));
+		assert(size() >= Count);
+		std::advance(m_End, -static_cast<ptrdiff_t>(Count));
 	}
 
 	void swap(range& Rhs) noexcept

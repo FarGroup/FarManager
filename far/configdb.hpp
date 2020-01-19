@@ -191,9 +191,9 @@ public:
 		{
 			return EnumKeys(Root, Reset, Value, Pattern);
 		},
-		[this]
+		[this, Pattern = string{Pattern}]
 		{
-			CloseEnumKeys();
+			CloseEnumKeys(Pattern);
 		});
 	}
 
@@ -204,9 +204,9 @@ public:
 		{
 			return EnumValues(Root, Reset, Value.first, Value.second, Pattern);
 		},
-		[this]
+		[this, Pattern = string{Pattern}]
 		{
-			CloseEnumValues();
+			CloseEnumValues(Pattern);
 		});
 	}
 
@@ -217,9 +217,9 @@ protected:
 
 private:
 	virtual bool EnumKeys(const key& Root, bool Reset, key& Key, string_view Pattern = {}) const = 0;
-	virtual void CloseEnumKeys() const = 0;
+	virtual void CloseEnumKeys(string_view Pattern) const = 0;
 	virtual bool EnumValues(const key& Root, bool Reset, string& Name, int& Type, string_view Pattern = {}) const = 0;
-	virtual void CloseEnumValues() const = 0;
+	virtual void CloseEnumValues(string_view Pattern) const = 0;
 };
 
 namespace detail

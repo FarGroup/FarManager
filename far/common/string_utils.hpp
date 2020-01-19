@@ -168,8 +168,8 @@ namespace string_utils::detail
 	// and while for string literals the length formula is pretty simple: N - 1,
 	// for arrays it is not, as they could have no trailing \0 at all, or (worse) have multiple.
 	// Use string_view literal if you need to.
-	[[nodiscard]] inline size_t size_one(wchar_t) { return 1; }
-	[[nodiscard]] inline size_t size_one(string_view const Str) { return Str.size(); }
+	[[nodiscard]] inline size_t length(wchar_t) { return 1; }
+	[[nodiscard]] inline size_t length(string_view const Str) { return Str.size(); }
 
 	inline void append_one(string& Str, wchar_t const Arg, size_t) { Str += Arg; }
 	inline void append_one(string& Str, wchar_t const* const Arg, size_t const Size) { Str.append(Arg, Size); }
@@ -179,7 +179,7 @@ namespace string_utils::detail
 	void append_all(string& Str, std::index_sequence<I...> Sequence, args const&... Args)
 	{
 		size_t Sizes[Sequence.size()];
-		const auto TotalSize = (Str.size() + ... + (Sizes[I] = size_one(Args)));
+		const auto TotalSize = (Str.size() + ... + (Sizes[I] = length(Args)));
 		reserve_exp_noshrink(Str, TotalSize);
 		(..., append_one(Str, Args, Sizes[I]));
 	}
@@ -569,6 +569,22 @@ inline auto trim(string_view Str)
 template<typename container>
 void join(string& Str, const container& Container, string_view const Separator)
 {
+	if constexpr (std::is_convertible_v<typename std::iterator_traits<decltype(std::cbegin(Container))>::iterator_category, std::bidirectional_iterator_tag>)
+	{
+		size_t Size = 0;
+
+		for (const auto& i: Container)
+		{
+			Size += string_utils::detail::length(i) + Separator.size();
+		}
+
+		if (Size)
+		{
+			Size -= Separator.size();
+			reserve_exp_noshrink(Str, Size);
+		}
+	}
+
 	bool First = true;
 
 	for (const auto& i: Container)
@@ -620,6 +636,20 @@ auto operator+(const std::basic_string_view<T> Lhs, const std::basic_string<T>& 
 template<typename T>
 [[nodiscard]]
 auto operator+(const std::basic_string_view<T> Lhs, std::basic_string_view<T> Rhs)
+{
+	return concat(Lhs, Rhs);
+}
+
+template<typename T>
+[[nodiscard]]
+auto operator+(const std::basic_string_view<T> Lhs, T const Rhs)
+{
+	return concat(Lhs, Rhs);
+}
+
+template<typename T>
+[[nodiscard]]
+auto operator+(T const Lhs, std::basic_string_view<T> Rhs)
 {
 	return concat(Lhs, Rhs);
 }

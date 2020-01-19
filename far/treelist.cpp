@@ -1451,7 +1451,7 @@ void TreeList::CorrectPosition()
 		m_CurTopFile=m_CurFile-(Height-1);
 }
 
-bool TreeList::SetCurDir(const string& NewDir,bool ClosePanel,bool /*IsUpdated*/)
+bool TreeList::SetCurDir(string_view const NewDir,bool ClosePanel,bool /*IsUpdated*/)
 {
 	if (m_ListData.empty())
 		Update(0);
@@ -1471,7 +1471,7 @@ bool TreeList::SetCurDir(const string& NewDir,bool ClosePanel,bool /*IsUpdated*/
 	return true; //???
 }
 
-bool TreeList::SetDirPosition(const string& NewDir)
+bool TreeList::SetDirPosition(string_view const NewDir)
 {
 	for (size_t i = 0; i < m_ListData.size(); ++i)
 	{
@@ -1690,13 +1690,16 @@ bool TreeList::ReadTreeFile()
 bool TreeList::GetPlainString(string& Dest, int ListPos) const
 {
 	Dest.clear();
-#if defined(Mantis_698)
-	if (ListPos<TreeCount)
+
+	if constexpr (features::mantis_698)
 	{
-		Dest=m_ListData[ListPos].strName;
-		return true;
+		if (static_cast<size_t>(ListPos) < m_ListData.size())
+		{
+			Dest = m_ListData[ListPos].strName;
+			return true;
+		}
 	}
-#endif
+
 	return false;
 }
 
@@ -1704,7 +1707,7 @@ bool TreeList::FindPartName(const string& Name,int Next,int Direct)
 {
 	auto strMask = Name + L'*';
 
-	Panel::exclude_sets(strMask);
+	exclude_sets(strMask);
 
 	for (int i=m_CurFile+(Next?Direct:0); i >= 0 && static_cast<size_t>(i) < m_ListData.size(); i+=Direct)
 	{

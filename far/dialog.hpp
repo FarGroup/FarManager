@@ -144,6 +144,8 @@ std::vector<DialogItemEx> MakeDialogItems(span<const InitDialogItem> Items);
 template<size_t Size, size_t N>
 std::vector<DialogItemEx> MakeDialogItems(InitDialogItem const (&Items)[N])
 {
+	static_assert(Size == N);
+
 	return MakeDialogItems(Items);
 }
 

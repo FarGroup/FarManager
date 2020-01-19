@@ -268,7 +268,7 @@ public:
 #endif // NO_WRAPPER
 	virtual const string& GetHotkeyName() const { return m_strGuid; }
 
-	virtual bool InitLang(const string& Path, const string& Language);
+	virtual bool InitLang(string_view Path, string_view Language);
 	void CloseLang();
 
 	bool has(EXPORTS_ENUM id) const { return Exports[id].has_value(); }

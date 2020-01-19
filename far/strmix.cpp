@@ -53,6 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/bytes_view.hpp"
 #include "common/from_string.hpp"
+#include "common/function_ref.hpp"
 
 // External:
 #include "format.hpp"
@@ -158,7 +159,7 @@ void inplace::QuoteOuterSpace(string &strStr)
 // TODO: "…" is displayed as "." in raster fonts. Make it lng-customisable?
 static const auto Dots = L"…"sv;
 
-static auto legacy_operation(wchar_t* Str, int MaxLength, void (*handler)(span<wchar_t>, size_t, string_view))
+static auto legacy_operation(wchar_t* Str, int MaxLength, function_ref<void(span<wchar_t>, size_t, string_view)> const Handler)
 {
 	assert(MaxLength >= 0);
 	const size_t Max = std::max(0, MaxLength);
@@ -171,7 +172,7 @@ static auto legacy_operation(wchar_t* Str, int MaxLength, void (*handler)(span<w
 	if (Size <= Max)
 		return Str;
 
-	handler({ Str, Size }, Max, Dots.substr(0, Max));
+	Handler({ Str, Size }, Max, Dots.substr(0, Max));
 	return Str;
 }
 
@@ -473,9 +474,11 @@ bool ReplaceStrings(string& strStr, const string_view FindStr, const string_view
 
 void remove_duplicates(string& Str, wchar_t const Char, bool const IgnoreCase)
 {
-	const wchar_t DoubleChar[]{ Char, Char, 0 };
-	while (ReplaceStrings(Str, DoubleChar, { &Char, 1 }, IgnoreCase))
-		;
+	const auto NewEnd = IgnoreCase?
+		std::unique(ALL_RANGE(Str), [Char, Eq = equal_icase_t{}](wchar_t const First, wchar_t const Second){ return Eq(First, Char) && Eq(Second, Char); }) :
+		std::unique(ALL_RANGE(Str), [Char](wchar_t const First, wchar_t const Second){ return First == Char && Second == Char; });
+
+	Str.resize(NewEnd - Str.begin());
 }
 
 bool wrapped_text::get(bool Reset, string_view& Value) const
@@ -1107,13 +1110,47 @@ TEST_CASE("ReplaceStrings")
 	}
 }
 
+TEST_CASE("remove_duplicates")
+{
+	static const struct
+	{
+		wchar_t Char;
+		bool IgnoreCase;
+		string_view Src, Result;
+	}
+	Tests[]
+	{
+		{ L'1', false, L""sv,            L""sv,       },
+		{ L'2', false, L"1"sv,           L"1"sv,      },
+		{ L'1', false, L"12"sv,          L"12"sv,     },
+		{ L'2', false, L"122"sv,         L"12"sv,     },
+		{ L'1', false, L"122"sv,         L"122"sv,    },
+		{ L'1', false, L"111"sv,         L"1"sv,      },
+		{ L'1', false, L"1122"sv,        L"122"sv,    },
+		{ L'2', false, L"1122"sv,        L"112"sv,    },
+		{ L'a', false, L"qaaaz"sv,       L"qaz"sv,    },
+		{ L'b', false, L"qaaaz"sv,       L"qaaaz"sv,  },
+		{ L'a', false, L"qAaAz"sv,       L"qAaAz"sv,  },
+		{ L'a', true,  L"qqAaAzz"sv,     L"qqAzz"sv,  },
+		{ L'a', true,  L"qqaAazz"sv,     L"qqazz"sv,  },
+	};
+
+	string Src;
+	for (const auto& i: Tests)
+	{
+		Src = i.Src;
+		remove_duplicates(Src, i.Char, i.IgnoreCase);
+		REQUIRE(Src == i.Result);
+	}
+}
+
 TEST_CASE("wrapped_text")
 {
 	static const struct tests
 	{
 		string_view Src;
 		size_t Width;
-		span<const string_view> Result;
+		std::initializer_list<const string_view> Result;
 	}
 	Tests[]
 	{
@@ -1183,10 +1220,10 @@ TEST_CASE("wrapped_text")
 
 	for (const auto& Test: Tests)
 	{
-		auto Iterator = Test.Result.cbegin();
+		auto Iterator = Test.Result.begin();
 		for (const auto& i: wrapped_text(Test.Src, Test.Width))
 		{
-			REQUIRE(Iterator != Test.Result.cend());
+			REQUIRE(Iterator != Test.Result.end());
 
 			if (Test.Width)
 				REQUIRE(i.size() <= Test.Width);
@@ -1195,7 +1232,7 @@ TEST_CASE("wrapped_text")
 			++Iterator;
 		}
 
-		REQUIRE(Iterator == Test.Result.cend());
+		REQUIRE(Iterator == Test.Result.end());
 	}
 }
 
@@ -1274,14 +1311,14 @@ TEST_CASE("truncate")
 
 	for (const auto& i: Tests)
 	{
-		for (const auto& f: Functions)
+		for (const auto& [Truncate, TruncateLegacy, StrAccessor]: Functions)
 		{
-			const auto Baseline = std::invoke(std::get<2>(f), i);
+			const auto Baseline = std::invoke(StrAccessor, i);
 
-			REQUIRE(std::get<0>(f)(string(i.Src), i.Size) == Baseline);
+			REQUIRE(Truncate(string(i.Src), i.Size) == Baseline);
 
 			string Buffer(i.Src);
-			REQUIRE(std::get<1>(f)(Buffer.data(), static_cast<int>(i.Size)) == Baseline);
+			REQUIRE(TruncateLegacy(Buffer.data(), static_cast<int>(i.Size)) == Baseline);
 		}
 	}
 }

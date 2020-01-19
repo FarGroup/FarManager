@@ -81,7 +81,7 @@ string MakeTemp(string_view Prefix, bool const WithTempPath, string_view const U
 	const auto UniqueCopy = Unique? Unique : 1;
 	s_shift = (s_shift + 1) % 23;
 
-	null_terminated PrefixStr(Prefix);
+	const null_terminated PrefixStr(Prefix);
 
 	bool UseSystemFunction = true;
 

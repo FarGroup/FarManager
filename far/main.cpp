@@ -136,7 +136,7 @@ static void show_help()
 #ifndef NO_WRAPPER
 		L" -u <username>\n"
 		L"      Allows to have separate registry settings for different users.\n"
-		L"      Affects only 1.x Far Manager plugins.\n"
+		L"      Affects only Far Manager 1.x plugins.\n"
 #endif // NO_WRAPPER
 		L" -v <filename>\n"
 		L"      View the specified file. If <filename> is -, data is read from the stdin.\n"

@@ -77,7 +77,7 @@ public:
 	long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam=0) override;
 
 	const string& GetCurDir() const { return m_CurDir; }
-	void SetCurDir(const string& CurDir);
+	void SetCurDir(string_view CurDir);
 
 	const string& GetString() const { return CmdStr.GetString(); }
 	void SetString(const string& Str, bool Redraw);

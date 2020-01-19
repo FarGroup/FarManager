@@ -643,5 +643,9 @@ void ScreenBuf::Scroll(size_t Count)
 
 void ScreenBuf::SetClearTypeFix(int const ClearTypeFix)
 {
+	// 'New' console doesn't need this
+	if (::console.IsVtSupported())
+		return;
+
 	m_ClearTypeFix = ClearTypeFix;
 }

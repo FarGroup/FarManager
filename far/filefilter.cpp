@@ -902,7 +902,7 @@ void FileFilter::SaveFilter(HierarchicalConfig& cfg, unsigned long long KeyId, c
 	using namespace os::chrono::literals;
 
 	Dates.visit(overload
-	(
+	{
 		[&](os::chrono::duration After, os::chrono::duration Before)
 		{
 			cfg.SetValue(Key, names::DateTimeAfter, os::chrono::nt_clock::to_hectonanoseconds(After));
@@ -915,7 +915,7 @@ void FileFilter::SaveFilter(HierarchicalConfig& cfg, unsigned long long KeyId, c
 			cfg.SetValue(Key, names::DateTimeBefore, os::chrono::nt_clock::to_hectonanoseconds(Before));
 			cfg.SetValue(Key, names::DateRelative, false);
 		}
-	));
+	});
 
 	cfg.SetValue(Key, names::UseSize, Item.IsSizeUsed());
 	cfg.SetValue(Key, names::SizeAboveS, Item.GetSizeAbove());

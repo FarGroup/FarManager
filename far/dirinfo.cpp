@@ -157,7 +157,7 @@ int GetDirInfo(const string& DirName, DirInfoData& Data, FileFilter *Filter, dir
 		false;
 	string strFullName;
 	// Временные хранилища имён каталогов
-	string strCurDirName, strLastDirName;
+	string strLastDirName;
 	os::fs::find_data FindData;
 	while (ScTree.GetNextName(FindData,strFullName))
 	{
@@ -229,13 +229,13 @@ int GetDirInfo(const string& DirName, DirInfoData& Data, FileFilter *Filter, dir
 			// фильтра.
 			if ((Flags&GETDIRINFO_USEFILTER))
 			{
-				strCurDirName = strFullName;
-				CutToSlash(strCurDirName); //???
+				string_view CurDirName = strFullName;
+				CutToSlash(CurDirName); //???
 
-				if (!equal_icase(strCurDirName, strLastDirName))
+				if (!equal_icase(CurDirName, strLastDirName))
 				{
 					Data.DirCount++;
-					strLastDirName = strCurDirName;
+					strLastDirName = CurDirName;
 				}
 			}
 

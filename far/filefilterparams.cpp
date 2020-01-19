@@ -337,7 +337,7 @@ bool FileFilterParams::FileInFilter(const filter_file_object& Object, os::chrono
 			{
 				// Дата файла меньше начальной / больше конечной даты по фильтру?
 				if (FDate.Dates.visit(overload
-				(
+				{
 					[&](os::chrono::duration After, os::chrono::duration Before)
 					{
 						return (After != After.zero() && *ft < CurrentTime - After) || (Before != Before.zero() && *ft > CurrentTime - Before);
@@ -346,7 +346,7 @@ bool FileFilterParams::FileInFilter(const filter_file_object& Object, os::chrono
 					{
 						return (After != os::chrono::time_point{} && *ft < After) || (Before != os::chrono::time_point{} && *ft > Before);
 					}
-				)))
+				}))
 				{
 					// Не пропускаем этот файл
 					return false;
@@ -471,10 +471,10 @@ string MenuString(const FileFilterParams* const FF, bool const bHighlightType, w
 		filter_dates Dates;
 		UseDate=FF->GetDate(nullptr, &Dates);
 		Dates.visit(overload
-		(
+		{
 			[&](os::chrono::duration, os::chrono::duration) { RelativeDate = true; },
 			[&](os::chrono::time_point, os::chrono::time_point) { RelativeDate = false; }
-		));
+		});
 		UseHardLinks=FF->GetHardLinks(nullptr,nullptr);
 	}
 
@@ -720,16 +720,11 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 			}
 			else if (Param1==ID_FF_CURRENT || Param1==ID_FF_BLANK)
 			{
-				string strDate, strTime;
+				string Date, Time;
 
 				if (Param1==ID_FF_CURRENT)
 				{
-					ConvertDate(os::chrono::nt_clock::now(), strDate, strTime, 16, 2);
-				}
-				else
-				{
-					strDate.clear();
-					strTime.clear();
+					ConvertDate(os::chrono::nt_clock::now(), Date, Time, 16, 2);
 				}
 
 				SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
@@ -738,14 +733,14 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 				const auto db = relative? ID_FF_DAYSBEFOREEDIT : ID_FF_DATEBEFOREEDIT;
 				const auto da = relative? ID_FF_DAYSAFTEREDIT  : ID_FF_DATEAFTEREDIT;
 
-				Dlg->SendMessage(DM_SETTEXTPTR,da, UNSAFE_CSTR(strDate));
+				Dlg->SendMessage(DM_SETTEXTPTR,da, UNSAFE_CSTR(Date));
 				Dlg->SendMessage(DM_EDITUNCHANGEDFLAG, da, nullptr);
-				Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_TIMEAFTEREDIT, UNSAFE_CSTR(strTime));
+				Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_TIMEAFTEREDIT, UNSAFE_CSTR(Time));
 				Dlg->SendMessage(DM_EDITUNCHANGEDFLAG, ID_FF_TIMEAFTEREDIT, nullptr);
 
-				Dlg->SendMessage(DM_SETTEXTPTR,db, UNSAFE_CSTR(strDate));
+				Dlg->SendMessage(DM_SETTEXTPTR,db, UNSAFE_CSTR(Date));
 				Dlg->SendMessage(DM_EDITUNCHANGEDFLAG, db, nullptr);
-				Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_TIMEBEFOREEDIT, UNSAFE_CSTR(strTime));
+				Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_TIMEBEFOREEDIT, UNSAFE_CSTR(Time));
 				Dlg->SendMessage(DM_EDITUNCHANGEDFLAG, ID_FF_TIMEBEFOREEDIT, nullptr);
 
 				Dlg->SendMessage(DM_SETFOCUS, db, nullptr);
@@ -1091,7 +1086,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	};
 
 	Dates.visit(overload
-	(
+	{
 		[&](os::chrono::duration After, os::chrono::duration Before)
 		{
 			ProcessDuration(After, ID_FF_DAYSAFTEREDIT, ID_FF_TIMEAFTEREDIT);
@@ -1102,7 +1097,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 			ProcessPoint(After, ID_FF_DATEAFTEREDIT, ID_FF_TIMEAFTEREDIT);
 			ProcessPoint(Before, ID_FF_DATEBEFOREEDIT, ID_FF_TIMEBEFOREEDIT);
 		}
-	));
+	});
 
 	if (!FilterDlg[ID_FF_MATCHDATE].Selected)
 		for (int i=ID_FF_DATETYPE; i <= ID_FF_BLANK; i++)
