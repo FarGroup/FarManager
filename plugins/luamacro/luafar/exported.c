@@ -337,28 +337,38 @@ intptr_t LF_GetFindData(lua_State* L, struct GetFindDataInfo *Info)
 		{
 			if(lua_istable(L, -1))
 			{
-				PushPluginTable(L, Info->hPanel);      //+2: FindData,Tbl
-				lua_insert(L, -2);                     //+2: Tbl,FindData
-				FillFindData(L, Info);                 //+0
-				lua_gc(L, LUA_GCCOLLECT, 0);           //free memory taken by FindData
+				if (lua_objlen(L,-1) == 0)
+				{
+					Info->ItemsNumber = 0;
+					Info->PanelItem = NULL;
+					lua_pop(L,1);                        //+0
+				}
+				else
+				{
+					PushPluginTable(L, Info->hPanel);    //+2: FindData,Tbl
+					lua_insert(L, -2);                   //+2: Tbl,FindData
+					FillFindData(L, Info);               //+0
+					lua_gc(L, LUA_GCCOLLECT, 0);         //free memory taken by FindData
+				}
 				return TRUE;
 			}
-
 			lua_pop(L,1);
 		}
 	}
-
 	return FALSE;
 }
 
 void LF_FreeFindData(lua_State* L, const struct FreeFindDataInfo *Info)
 {
-	struct PluginPanelItem *auxItem = Info->PanelItem - 1;
-	PushPluginTable(L, Info->hPanel);
-	luaL_unref(L, -1, (int)auxItem->CustomColumnNumber); //free the collector
-	lua_pop(L, 1);
-	lua_gc(L, LUA_GCCOLLECT, 0); //free memory taken by Collector
-	free(auxItem);
+	if (Info->ItemsNumber > 0)
+	{
+		struct PluginPanelItem *auxItem = Info->PanelItem - 1;
+		PushPluginTable(L, Info->hPanel);
+		luaL_unref(L, -1, (int)auxItem->CustomColumnNumber); //free the collector
+		lua_pop(L, 1);
+		lua_gc(L, LUA_GCCOLLECT, 0); //free memory taken by Collector
+		free(auxItem);
+	}
 }
 //---------------------------------------------------------------------------
 
