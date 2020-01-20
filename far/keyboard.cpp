@@ -1404,22 +1404,20 @@ int KeyNameToKey(string_view Name)
 	return (!Key || !Name.empty())? -1: static_cast<int>(Key);
 }
 
-bool InputRecordToText(const INPUT_RECORD *Rec, string &strKeyText)
+string InputRecordToText(const INPUT_RECORD *Rec)
 {
-	return KeyToText(InputRecordToKey(Rec),strKeyText) != 0;
+	return KeyToText(InputRecordToKey(Rec));
 }
 
-static bool KeyToTextImpl(int Key0, string& strKeyText, tfkey_to_text ToText, add_separator AddSeparator)
+static string KeyToTextImpl(int Key0, tfkey_to_text ToText, add_separator AddSeparator)
 {
-	strKeyText.clear();
-
 	if (Key0 == -1)
-		return false;
+		return {};
 
 	const auto Key = static_cast<DWORD>(Key0);
 	auto FKey = static_cast<DWORD>(Key0) & 0xFFFFFF;
 
-	strKeyText = GetShiftKeyName(Key, ToText, AddSeparator);
+	auto strKeyText = GetShiftKeyName(Key, ToText, AddSeparator);
 
 	const auto FKeys1Iterator = std::find(ALL_CONST_RANGE(FKeys1), FKey);
 	if (FKeys1Iterator != std::cend(FKeys1))
@@ -1472,20 +1470,20 @@ static bool KeyToTextImpl(int Key0, string& strKeyText, tfkey_to_text ToText, ad
 		}
 	}
 
-	return !strKeyText.empty();
+	return strKeyText;
 }
 
-bool KeyToText(int Key, string &strKeyText)
+string KeyToText(int Key)
 {
-	return KeyToTextImpl(Key, strKeyText,
+	return KeyToTextImpl(Key,
 		[](const TFKey& i) { return i.Name; },
 		[](string&) {}
 	);
 }
 
-bool KeyToLocalizedText(int Key, string &strKeyText)
+string KeyToLocalizedText(int Key)
 {
-	return KeyToTextImpl(Key, strKeyText,
+	return KeyToTextImpl(Key,
 		[](const TFKey& i)
 		{
 			if (i.LocalizedNameId != lng(-1))
@@ -1780,7 +1778,6 @@ int TranslateKeyToVK(int Key, int& VirtKey, int& ControlState, INPUT_RECORD* Rec
 		}
 	}
 
-	_SVS(string strKeyText0;KeyToText(Key,strKeyText0));
 	_SVS(SysLog(L"%s or %s ==> %s",_FARKEY_ToName(Key),_MCODE_ToName(Key),_INPUT_RECORD_Dump(Rec)));
 	_SVS(SysLog(L"return VirtKey=%x",VirtKey));
 	return VirtKey;
@@ -2373,8 +2370,7 @@ TEST_CASE("keyboard.KeyNames")
 		if (!i.Str2.empty())
 			REQUIRE(i.Key == KeyNameToKey(i.Str2));
 
-		string Str;
-		REQUIRE(KeyToText(i.Key, Str));
+		const auto Str = KeyToText(i.Key);
 		REQUIRE(equal_icase(i.Str, Str));
 	}
 }

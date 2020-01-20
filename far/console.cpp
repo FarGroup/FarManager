@@ -354,25 +354,30 @@ namespace console_detail
 		return SetConsoleMode(ConsoleHandle, Mode) != FALSE;
 	}
 
-	static bool is_new_console()
+	bool console::IsVtSupported() const
 	{
-		if (!IsWindows10OrGreater())
-			return false;
+		static const auto Result = [&]
+		{
+			if (!IsWindows10OrGreater())
+				return false;
 
-		const auto Handle = ::console.GetOutputHandle();
+			const auto Handle = GetOutputHandle();
 
-		DWORD CurrentMode;
-		if (!::console.GetMode(Handle, CurrentMode))
-			return false;
+			DWORD CurrentMode;
+			if (!GetMode(Handle, CurrentMode))
+				return false;
 
-		if (CurrentMode & ENABLE_VIRTUAL_TERMINAL_PROCESSING)
+			if (CurrentMode & ENABLE_VIRTUAL_TERMINAL_PROCESSING)
+				return true;
+
+			if (!SetMode(Handle, CurrentMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING))
+				return false;
+
+			SetMode(Handle, CurrentMode);
 			return true;
+		}();
 
-		if (!::console.SetMode(Handle, CurrentMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING))
-			return false;
-
-		::console.SetMode(Handle, CurrentMode);
-		return true;
+		return Result;
 	}
 
 	static bool get_current_console_font(HANDLE OutputHandle, CONSOLE_FONT_INFO& FontInfo)
@@ -391,8 +396,8 @@ namespace console_detail
 		if (!(Record.dwEventFlags & (MOUSE_WHEELED | MOUSE_HWHEELED)))
 			return;
 
-		static const auto IsNewConsole = is_new_console();
-		if (IsNewConsole)
+		// 'New' console doesn't need this
+		if (::console.IsVtSupported())
 			return;
 
 		// Note: using the current mouse position rather than what's in the wheel event
@@ -707,7 +712,7 @@ namespace console_detail
 				assert(BufferSize.Y == WriteRegion.Bottom - WriteRegion.Top + 1);
 
 
-				for (auto&i: span(Buffer, BufferSize.X * BufferSize.Y))
+				for (auto& i: span(Buffer, BufferSize.X * BufferSize.Y))
 				{
 					i.Attributes = (i.Attributes & FCF_RAWATTR_MASK) | LOBYTE(~i.Attributes);
 				}
@@ -716,7 +721,7 @@ namespace console_detail
 				WriteOutputNTImpl(Buffer, BufferSize, WriteRegionCopy);
 				Sleep(50);
 
-				for (auto&i: span(Buffer, BufferSize.X * BufferSize.Y))
+				for (auto& i: span(Buffer, BufferSize.X * BufferSize.Y))
 					i.Attributes = (i.Attributes & FCF_RAWATTR_MASK) | LOBYTE(~i.Attributes);
 			}
 

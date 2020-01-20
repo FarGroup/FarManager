@@ -155,7 +155,13 @@ void SQLiteDb::SQLiteStmt::stmt_deleter::operator()(sqlite::sqlite3_stmt* Object
 
 	// All statement evaluations are checked so returning the error again makes no sense.
 	// This is called from a destructor so we can't throw here.
-	invoke(sqlite::sqlite3_db_handle(Object), [&]{ sqlite::sqlite3_finalize(Object); return true; });
+	invoke(sqlite::sqlite3_db_handle(Object), [&]
+	{
+		const auto Result = sqlite::sqlite3_finalize(Object);
+		(void)Result;
+		assert(Result == SQLITE_OK);
+		return true;
+	});
 }
 
 SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::Reset()
@@ -170,7 +176,14 @@ SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::Reset()
 
 	// All sqlite3_step calls are checked so returning the error again makes no sense.
 	// This is called from a destructor so we can't throw here.
-	invoke(db(), [&]{ sqlite::sqlite3_reset(m_Stmt.get()); return true; });
+	invoke(db(), [&]
+	{
+		const auto Result = sqlite::sqlite3_reset(m_Stmt.get());
+		(void)Result;
+		assert(Result == SQLITE_OK);
+		return true;
+	});
+
 	m_Param = 0;
 	return *this;
 }

@@ -96,6 +96,20 @@ void KeyBar::DisplayObject()
 
 	const auto LabelWidth = KeyWidth - 2;
 
+	static const std::array Mapping
+	{
+		std::pair{ &FarKeyboardState::NonePressed,             KBL_MAIN         },
+		std::pair{ &FarKeyboardState::OnlyAltPressed,          KBL_ALT          },
+		std::pair{ &FarKeyboardState::OnlyCtrlPressed,         KBL_CTRL         },
+		std::pair{ &FarKeyboardState::OnlyShiftPressed,        KBL_SHIFT        },
+		std::pair{ &FarKeyboardState::OnlyCtrlAltPressed,      KBL_CTRLALT      },
+		std::pair{ &FarKeyboardState::OnlyAltShiftPressed,     KBL_ALTSHIFT     },
+		std::pair{ &FarKeyboardState::OnlyCtrlShiftPressed,    KBL_CTRLSHIFT    },
+		std::pair{ &FarKeyboardState::OnlyCtrlAltShiftPressed, KBL_CTRLALTSHIFT },
+	};
+
+	static_assert(std::size(Mapping) == KBL_GROUP_COUNT);
+
 	for (size_t i=0; i<KEY_COUNT; i++)
 	{
 		if (WhereX() + LabelWidth >= m_Where.right)
@@ -104,20 +118,6 @@ void KeyBar::DisplayObject()
 		SetColor(COL_KEYBARNUM);
 		Text(str(i + 1));
 		SetColor(COL_KEYBARTEXT);
-
-		static const std::pair<bool(FarKeyboardState::*)() const, keybar_group> Mapping[] =
-		{
-			{ &FarKeyboardState::NonePressed, KBL_MAIN },
-			{ &FarKeyboardState::OnlyAltPressed, KBL_ALT },
-			{ &FarKeyboardState::OnlyCtrlPressed, KBL_CTRL },
-			{ &FarKeyboardState::OnlyShiftPressed, KBL_SHIFT },
-			{ &FarKeyboardState::OnlyCtrlAltPressed, KBL_CTRLALT },
-			{ &FarKeyboardState::OnlyAltShiftPressed, KBL_ALTSHIFT },
-			{ &FarKeyboardState::OnlyCtrlShiftPressed, KBL_CTRLSHIFT },
-			{ &FarKeyboardState::OnlyCtrlAltShiftPressed, KBL_CTRLALTSHIFT },
-		};
-
-		static_assert(std::size(Mapping) == KBL_GROUP_COUNT);
 
 		const auto State = std::find_if(ALL_CONST_RANGE(Mapping), [&](const auto& Item) { return std::invoke(Item.first, IntKeyState); });
 		// State should always be valid so check is excessive, but style is style
@@ -198,16 +198,16 @@ static int FnGroup(DWORD ControlState)
 		DWORD Group;
 		DWORD ControlState;
 	}
-	Area[] =
+	Area[]
 	{
-		{KBL_MAIN, 0},
-		{KBL_SHIFT, KEY_SHIFT},
-		{KBL_ALT, KEY_ALT},
-		{KBL_CTRL, KEY_CTRL},
-		{KBL_ALTSHIFT, KEY_ALTSHIFT},
-		{KBL_CTRLSHIFT, KEY_CTRLSHIFT},
-		{KBL_CTRLALT, KEY_CTRLALT},
-		{KBL_CTRLALTSHIFT, KEY_CTRLALT|KEY_SHIFT}
+		{ KBL_MAIN,           0                       },
+		{ KBL_SHIFT,          KEY_SHIFT               },
+		{ KBL_ALT,            KEY_ALT                 },
+		{ KBL_CTRL,           KEY_CTRL                },
+		{ KBL_ALTSHIFT,       KEY_ALTSHIFT            },
+		{ KBL_CTRLSHIFT,      KEY_CTRLSHIFT           },
+		{ KBL_CTRLALT,        KEY_CTRLALT             },
+		{ KBL_CTRLALTSHIFT,   KEY_CTRLALT | KEY_SHIFT },
 	};
 	static_assert(std::size(Area) == KBL_GROUP_COUNT);
 
@@ -241,7 +241,7 @@ void KeyBar::SetCustomLabels(KEYBARAREA Area)
 		CustomArea = Area;
 		ClearKeyTitles(true);
 
-		for (auto& [Name, Value]: ConfigProvider().GeneralCfg()->ValuesEnumerator<string>(concat(L"KeyBarLabels."sv, strLanguage, L'.', Names[Area])))
+		for (const auto& [Name, Value]: ConfigProvider().GeneralCfg()->ValuesEnumerator<string>(concat(L"KeyBarLabels."sv, strLanguage, L'.', Names[Area])))
 		{
 			const auto Key = KeyNameToKey(Name);
 			const auto fnum = (Key & ~KEY_CTRLMASK) - KEY_F1;

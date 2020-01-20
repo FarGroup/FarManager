@@ -27,7 +27,6 @@ void PackMacroValues(lua_State* L, size_t Count, const struct FarMacroValue* Val
 // "Collector" is a Lua table referenced from the Plugin Object table by name.
 // Collector contains an array of lightuserdata which are pointers to malloc'ed
 // memory regions.
-const char COLLECTOR_FD[]  = "Collector_FindData";
 const char COLLECTOR_OPI[] = "Collector_OpenPanelInfo";
 const char COLLECTOR_PI[]  = "Collector_PluginInfo";
 const char KEY_OBJECT[]    = "Object";
@@ -298,14 +297,16 @@ void FillPluginPanelItem(lua_State *L, struct PluginPanelItem *pi, int Collector
 void FillFindData(lua_State* L, struct GetFindDataInfo *Info)
 {
 	struct PluginPanelItem *ppi;
-	size_t i, num = 0;
+	size_t i, num;
 	size_t numLines = lua_objlen(L,-1);
-	lua_newtable(L);                           //+3  Tbl,FindData,Coll
-	lua_pushvalue(L,-1);                       //+4: Tbl,FindData,Coll,Coll
-	lua_setfield(L, -4, COLLECTOR_FD);         //+3: Tbl,FindData,Coll
-	ppi = (struct PluginPanelItem *)malloc(sizeof(struct PluginPanelItem) * numLines);
 
-	for(i=1; i<=numLines; i++)
+	// allocate array with an additional element at its beginning to keep the reference to collector
+	ppi = (struct PluginPanelItem *)malloc(sizeof(struct PluginPanelItem) * (1 + numLines));
+	lua_newtable(L);                                     //+3  Tbl,FindData,Coll
+	lua_pushvalue(L,-1);                                 //+4: Tbl,FindData,Coll,Coll
+	ppi[0].CustomColumnNumber = (size_t)luaL_ref(L,-4);  //+3: Tbl,FindData,Coll
+
+	for(i=1,num=1; i<=numLines; i++)
 	{
 		lua_pushinteger(L, i);                   //+4
 		lua_gettable(L, -3);                     //+4: Tbl,FindData,Coll,FindData[i]
@@ -320,8 +321,8 @@ void FillFindData(lua_State* L, struct GetFindDataInfo *Info)
 	}
 
 	lua_pop(L,3);                              //+0
-	Info->ItemsNumber = num;
-	Info->PanelItem = ppi;
+	Info->ItemsNumber = num-1;
+	Info->PanelItem = ppi+1;
 }
 
 intptr_t LF_GetFindData(lua_State* L, struct GetFindDataInfo *Info)
@@ -352,9 +353,12 @@ intptr_t LF_GetFindData(lua_State* L, struct GetFindDataInfo *Info)
 
 void LF_FreeFindData(lua_State* L, const struct FreeFindDataInfo *Info)
 {
-	free(Info->PanelItem);
-	DestroyCollector(L, Info->hPanel, COLLECTOR_FD);
+	struct PluginPanelItem *auxItem = Info->PanelItem - 1;
+	PushPluginTable(L, Info->hPanel);
+	luaL_unref(L, -1, (int)auxItem->CustomColumnNumber); //free the collector
+	lua_pop(L, 1);
 	lua_gc(L, LUA_GCCOLLECT, 0); //free memory taken by Collector
+	free(auxItem);
 }
 //---------------------------------------------------------------------------
 

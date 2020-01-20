@@ -176,12 +176,12 @@ bool HasPathPrefix(const string_view Path)
 	return Path.size() > 4 &&  Path[0] == L'\\' && (Path[1] == L'\\' || Path[1] == L'?') && (Path[2] == L'?' || Path[2] == L'.') && Path[3] == L'\\';
 }
 
-bool PathCanHoldRegularFile(const string& Path)
+bool PathCanHoldRegularFile(string_view const Path)
 {
 	return ParsePath(Path) != root_type::unknown;
 }
 
-bool IsPluginPrefixPath(const string& Path) //Max:
+bool IsPluginPrefixPath(string_view const Path) //Max:
 {
 	if (Path.empty() || Path[0] == L'\\')
 		return false;
@@ -278,7 +278,7 @@ static size_t SlashType(const wchar_t* Begin, const wchar_t* End, wchar_t &TypeS
 }
 
 // Функция работает с обоими видами слешей, также происходит
-//	изменение уже существующего конечного слеша на такой, который
+// изменение уже существующего конечного слеша на такой, который
 // указан, или встречается чаще (при равенстве '\').
 //
 bool AddEndSlash(wchar_t *Path, wchar_t TypeSlash)
@@ -342,23 +342,28 @@ string_view DeleteEndSlash(string_view Path)
 	return Path;
 }
 
-bool CutToSlash(string &strStr, bool bInclude)
+bool CutToSlash(string_view& Str, bool const RemoveSlash)
 {
-	const auto pos = FindLastSlash(strStr);
-	if (pos != string::npos)
-	{
-		if (pos==3 && HasPathPrefix(strStr))
-			return false;
+	const auto pos = FindLastSlash(Str);
+	if (pos == string::npos)
+		return false;
 
-		if (bInclude)
-			strStr.resize(pos);
-		else
-			strStr.resize(pos+1);
+	if (pos == 3 && HasPathPrefix(Str))
+		return false;
 
-		return true;
-	}
+	Str.remove_suffix(Str.size() - pos - (RemoveSlash? 0 : 1));
 
-	return false;
+	return true;
+}
+
+bool CutToSlash(string& Str, bool const RemoveSlash)
+{
+	string_view View(Str);
+	if (!CutToSlash(View, RemoveSlash))
+		return false;
+
+	Str.resize(View.size());
+	return true;
 }
 
 bool CutToParent(string_view& Str)

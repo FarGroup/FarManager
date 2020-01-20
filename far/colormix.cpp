@@ -253,34 +253,39 @@ FarColor ConsoleColorToFarColor(WORD Color)
 	return NewColor;
 }
 
-COLORREF ConsoleIndexToTrueColor(int Index)
+static auto console_palette()
 {
 	std::array<COLORREF, 16> Palette;
 	if (!console.GetPalette(Palette))
 	{
 		Palette =
 		{
-			//  BBGGRR
-			0x00000000, // black
-			0x00800000, // blue
-			0x00008000, // green
-			0x00808000, // cyan
-			0x00000080, // red
-			0x00800080, // magenta
-			0x00008080, // yellow
-			0x00C0C0C0, // white
-			0x00808080, // bright black
-			0x00FF0000, // bright blue
-			0x0000FF00, // bright green
-			0x00FFFF00, // bright cyan
-			0x000000FF, // bright red
-			0x00FF00FF, // bright magenta
-			0x0000FFFF, // bright yellow
-			0x00FFFFFF  // white
+			RGB(  0,   0,   0), // black
+			RGB(  0,   0, 128), // blue
+			RGB(  0, 128,   0), // green
+			RGB(  0, 128, 128), // cyan
+			RGB(128,   0,   0), // red
+			RGB(128,   0, 128), // magenta
+			RGB(128, 128,   0), // yellow
+			RGB(192, 192, 192), // white
+
+			RGB(128, 128, 128), // bright black
+			RGB(  0,   0, 255), // bright blue
+			RGB(  0, 255,   0), // bright green
+			RGB(  0, 255, 255), // bright cyan
+			RGB(255,   0,   0), // bright red
+			RGB(255,   0, 255), // bright magenta
+			RGB(255, 255,   0), // bright yellow
+			RGB(255, 255, 255)  // bright white
 		};
 	}
 
-	return opaque(Palette[Index & ConsoleMask]);
+	return Palette;
+}
+
+COLORREF ConsoleIndexToTrueColor(size_t Index)
+{
+	return opaque(console_palette()[Index & ConsoleMask]);
 }
 
 

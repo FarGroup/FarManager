@@ -1229,22 +1229,22 @@ void FilePanels::GoToFile(const string_view FileName)
 		}
 
 		const auto strNameFile = PointToName(FileName);
-		string strNameDir(FileName);
-		CutToSlash(strNameDir);
+		string_view NameDir(FileName);
+		CutToSlash(NameDir);
 		/* $ 10.04.2001 IS
 		     Не делаем SetCurDir, если нужный путь уже есть на открытых
 		     панелях, тем самым добиваемся того, что выделение с элементов
 		     панелей не сбрасывается.
 		*/
-		const auto AExist = (ActiveMode == panel_mode::NORMAL_PANEL) && equal_icase(ADir, strNameDir);
-		const auto PExist = (PassiveMode == panel_mode::NORMAL_PANEL) && equal_icase(PDir, strNameDir);
+		const auto AExist = (ActiveMode == panel_mode::NORMAL_PANEL) && equal_icase(ADir, NameDir);
+		const auto PExist = (PassiveMode == panel_mode::NORMAL_PANEL) && equal_icase(PDir, NameDir);
 
 		// если нужный путь есть на пассивной панели
 		if (!AExist && PExist)
 			ProcessKey(Manager::Key(KEY_TAB));
 
 		if (!AExist && !PExist)
-			ActivePanel()->SetCurDir(strNameDir, true);
+			ActivePanel()->SetCurDir(NameDir, true);
 
 		ActivePanel()->GoToFile(strNameFile);
 		// всегда обновим заголовок панели, чтобы дать обратную связь, что

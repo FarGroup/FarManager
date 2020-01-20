@@ -190,6 +190,7 @@ protected:
 	unsigned long long LastInsertRowID() const;
 
 	auto_statement AutoStatement(size_t Index) const { return auto_statement(&m_Statements[Index]); }
+	static void KeepStatement(auto_statement& Stmt) { (void)Stmt.release(); }
 
 	// No forwarding here - ExecuteStatement is atomic so we don't have to deal with lifetimes
 	template<typename... args>

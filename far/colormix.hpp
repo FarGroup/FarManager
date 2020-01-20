@@ -67,7 +67,7 @@ namespace colors
 	FarColor merge(const FarColor& Bottom, const FarColor& Top);
 	WORD FarColorToConsoleColor(const FarColor& Color);
 	FarColor ConsoleColorToFarColor(WORD Color);
-	COLORREF ConsoleIndexToTrueColor(int Index);
+	COLORREF ConsoleIndexToTrueColor(size_t Index);
 	const FarColor& PaletteColorToFarColor(PaletteColors ColorIndex);
 	const FarColor* StoreColor(const FarColor& Value);
 	COLORREF ARGB2ABGR(int Color);

@@ -725,8 +725,8 @@ TEST_CASE("datetime.parse.duration")
 	for (const auto& i: Tests)
 	{
 		REQUIRE(ParseDuration(i.Date, i.Time) == i.Duration);
-		auto Reverse = ConvertDuration(i.Duration);
-		REQUIRE(ParseDuration(std::get<0>(Reverse), std::get<1>(Reverse)) == i.Duration);
+		const auto& [Date, Time] = ConvertDuration(i.Duration);
+		REQUIRE(ParseDuration(Date, Time) == i.Duration);
 	}
 }
 

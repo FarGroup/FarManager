@@ -1966,12 +1966,12 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 							if (!os::fs::exists(strTempName))
 							{
-								auto strPath = strTempName;
-								CutToSlash(strPath, false);
-								const auto Find = os::fs::enum_files(strPath + L'*');
+								string_view Path = strTempName;
+								CutToSlash(Path);
+								const auto Find = os::fs::enum_files(Path + L'*');
 								const auto ItemIterator = std::find_if(CONST_RANGE(Find, i) { return !(i.Attributes & FILE_ATTRIBUTE_DIRECTORY); });
 								if (ItemIterator != Find.cend())
-									strTempName = strPath + ItemIterator->FileName;
+									strTempName = Path + ItemIterator->FileName;
 							}
 
 							if (FileNameToPluginItem(strTempName, PanelItem))
@@ -2775,9 +2775,8 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 }
 
 
-bool FileList::SetCurDir(const string& NewDir,bool ClosePanel,bool IsUpdated)
+bool FileList::SetCurDir(string_view const NewDir, bool ClosePanel, bool IsUpdated)
 {
-
 	UserDataItem UsedData{};
 
 	if (m_PanelMode == panel_mode::PLUGIN_PANEL)
@@ -3550,7 +3549,8 @@ bool FileList::FileInFilter(size_t idxItem)
 // $ 02.08.2000 IG  Wish.Mix #21 - при нажатии '/' или '\' в QuickSerach переходим на директорию
 bool FileList::FindPartName(const string& Name,int Next,int Direct)
 {
-#if !defined(Mantis_698)
+	if constexpr (!features::mantis_698) {
+
 	int DirFind = 0;
 	string strMask = Name;
 
@@ -3599,13 +3599,13 @@ bool FileList::FindPartName(const string& Name,int Next,int Direct)
 	}
 
 	return false;
-#else
-	// Mantis_698
+
+	} else {
+
 	// АХТУНГ! В разработке
 	string Dest;
 	int DirFind = 0;
-	string strMask = Name;
-	upper(strMask);
+	string strMask = upper(Name);
 
 	if (!Name.empty() && IsSlash(Name.back()))
 	{
@@ -3619,7 +3619,7 @@ bool FileList::FindPartName(const string& Name,int Next,int Direct)
 	exclude_sets(strMask);
 */
 
-	for (int I=m_CurFile+(Next?Direct:0); I >= 0 && I < m_ListData.size(); I+=Direct)
+	for (int I = m_CurFile + (Next ? Direct : 0); I >= 0 && static_cast<size_t>(I) < m_ListData.size(); I += Direct)
 	{
 		if (GetPlainString(Dest,I) && contains(upper(Dest), strMask))
 		//if (CmpName(strMask,ListData[I].FileName,true,I==CurFile))
@@ -3629,7 +3629,7 @@ bool FileList::FindPartName(const string& Name,int Next,int Direct)
 				if (!DirFind || (m_ListData[I].Attributes & FILE_ATTRIBUTE_DIRECTORY))
 				{
 					m_CurFile=I;
-					m_CurTopFile=m_CurFile-(m_Y2-m_Y1)/2;
+					m_CurTopFile = m_CurFile - (m_Where.height() - 1) / 2;
 					ShowFileList();
 					return true;
 				}
@@ -3637,7 +3637,7 @@ bool FileList::FindPartName(const string& Name,int Next,int Direct)
 		}
 	}
 
-	for (int I=(Direct > 0)?0:m_ListData.size()-1; (Direct > 0) ? I < m_CurFile:I > m_CurFile; I+=Direct)
+	for (int I = (Direct > 0)? 0 : static_cast<int>(m_ListData.size() - 1); (Direct > 0)? I < m_CurFile : I > m_CurFile; I += Direct)
 	{
 		if (GetPlainString(Dest,I) && contains(upper(Dest), strMask))
 		{
@@ -3646,7 +3646,7 @@ bool FileList::FindPartName(const string& Name,int Next,int Direct)
 				if (!DirFind || (m_ListData[I].Attributes & FILE_ATTRIBUTE_DIRECTORY))
 				{
 					m_CurFile=I;
-					m_CurTopFile=m_CurFile-(m_Y2-m_Y1)/2;
+					m_CurTopFile = m_CurFile - (m_Where.height() - 1) / 2;
 					ShowFileList();
 					return true;
 				}
@@ -3655,178 +3655,156 @@ bool FileList::FindPartName(const string& Name,int Next,int Direct)
 	}
 
 	return false;
-#endif
+
+	}
 }
 
 // собрать в одну строку все данные в отображаемых колонках
 bool FileList::GetPlainString(string& Dest, int ListPos) const
 {
 	Dest.clear();
-#if defined(Mantis_698)
-	if (ListPos < FileCount)
+
+	if constexpr (features::mantis_698)
 	{
-		unsigned long long *ColumnTypes=m_ViewSettings.ColumnType;
-		int ColumnCount=m_ViewSettings.ColumnCount;
-		int *ColumnWidths=m_ViewSettings.ColumnWidth;
+		if (static_cast<size_t>(ListPos) >= m_ListData.size())
+			return false;
 
-		for (int K=0; K<ColumnCount; K++)
+		for (const auto& Column : m_ViewSettings.PanelColumns)
 		{
-			int ColumnType=static_cast<int>(ColumnTypes[K] & 0xff);
-			int ColumnWidth=ColumnWidths[K];
-			if (ColumnType>=custom_0 && ColumnType<=CUSTOM_COLUMN_MAX)
+			if (Column.type >= column_type::custom_0 && Column.type <= column_type::custom_max)
 			{
-				size_t ColumnNumber=ColumnType-custom_0;
-				const wchar_t *ColumnData=nullptr;
+				const size_t ColumnNumber = static_cast<size_t>(Column.type) - static_cast<size_t>(column_type::custom_0);
+				if (ColumnNumber < m_ListData[ListPos].CustomColumnNumber)
+					Dest += m_ListData[ListPos].CustomColumnData[ColumnNumber];
 
-				if (ColumnNumber<m_ListData[ListPos].CustomColumnNumber)
-					ColumnData=m_ListData[ListPos].CustomColumnData[ColumnNumber];
-
-				if (!ColumnData)
-				{
-					ColumnData=m_ListData[ListPos].strCustomData;//L"";
-				}
-				Dest += ColumnData;
+				continue;
 			}
-			else
+
+			switch (Column.type)
 			{
-				switch (ColumnType)
+			case column_type::name:
+			{
+				string_view Name = m_ListData[ListPos].AlternateOrNormal(m_ShowShortNames);
+
+				string strNameCopy;
+				if (!(m_ListData[ListPos].Attributes & FILE_ATTRIBUTE_DIRECTORY) && Column.type_flags & COLFLAGS_NOEXTENSION)
 				{
-					case column_type::name:
+					const auto Ext = PointToExt(Name);
+					if (!Ext.empty())
 					{
-						unsigned long long ViewFlags=ColumnTypes[K];
-						const wchar_t *NamePtr = m_ShowShortNames && !m_ListData[ListPos].strShortName.empty() ? m_ListData[ListPos].strShortName:m_ListData[ListPos].FileName;
-
-						string strNameCopy;
-						if (!(m_ListData[ListPos].Attributes & FILE_ATTRIBUTE_DIRECTORY) && (ViewFlags & COLFLAGS_NOEXTENSION))
-						{
-							const wchar_t *ExtPtr = PointToExt(NamePtr);
-							if (ExtPtr)
-							{
-								strNameCopy.assign(NamePtr, ExtPtr-NamePtr);
-								NamePtr = strNameCopy;
-							}
-						}
-
-						const wchar_t *NameCopy = NamePtr;
-
-						if (ViewFlags & COLFLAGS_NAMEONLY)
-						{
-							//BUGBUG!!!
-							// !!! НЕ УВЕРЕН, но то, что отображается пустое
-							// пространство вместо названия - бага
-							NamePtr=PointToFolderNameIfFolder(NamePtr);
-						}
-
-						Dest += NamePtr;
-						break;
+						strNameCopy = Name.substr(0, Name.size() - Ext.size());
+						Name = strNameCopy;
 					}
-
-					case column_type::extension:
-					{
-						const wchar_t *ExtPtr = nullptr;
-						if (!(m_ListData[ListPos].Attributes & FILE_ATTRIBUTE_DIRECTORY))
-						{
-							const wchar_t *NamePtr = m_ShowShortNames && !m_ListData[ListPos].strShortName.empty()? m_ListData[ListPos].strShortName:m_ListData[ListPos].FileName;
-							ExtPtr = PointToExt(NamePtr);
-						}
-						if (ExtPtr && *ExtPtr) ExtPtr++; else ExtPtr = L"";
-
-						Dest += ExtPtr;
-						break;
-					}
-
-					case column_type::size:
-					case column_type::size_compressed:
-					case column_type::streams_size:
-					{
-						const auto SizeToDisplay = (ColumnType == size_compressed)
-							? m_ListData[ListPos].AllocationSize
-							: (ColumnType == streams_size)
-							? m_ListData[ListPos].StreamsSize()
-							: m_ListData[ListPos].FileSize;
-
-						Dest += FormatStr_Size(
-							SizeToDisplay,
-							m_ListData[ListPos].FileName,
-							m_ListData[ListPos].Attributes,
-							m_ListData[ListPos].ShowFolderSize,
-							m_ListData[ListPos].ReparseTag,
-							ColumnType,
-							ColumnTypes[K],
-							ColumnWidth,
-							m_CurDir);
-						break;
-					}
-
-					case column_type::date:
-					case column_type::time:
-					case column_type::date_write:
-					case column_type::date_creation:
-					case column_type::date_access:
-					case column_type::date_change:
-					{
-						time_point* FileTime;
-
-						switch (ColumnType)
-						{
-							case date_creation:
-								FileTime=&m_ListData[ListPos].CreationTime;
-								break;
-							case date_access:
-								FileTime=&m_ListData[ListPos].AccessTime;
-								break;
-							case date_change:
-								FileTime=&m_ListData[ListPos].ChangeTime;
-								break;
-							case date:
-							case time:
-							case date_write:
-							default:
-								FileTime=&m_ListData[ListPos].WriteTime;
-								break;
-						}
-
-						Dest += FormatStr_DateTime(*FileTime, ColumnType, ColumnTypes[K], ColumnWidth);
-						break;
-					}
-
-					case column_type::attributes:
-					{
-						Dest += FormatStr_Attribute(m_ListData[ListPos].Attributes,ColumnWidth);
-						break;
-					}
-
-					case column_type::description:
-					{
-						Dest += NullToEmpty(m_ListData[ListPos].DizText?);
-						break;
-					}
-
-					case column_type::owner:
-					{
-						Dest += m_ListData[ListPos].strOwner;
-						break;
-					}
-
-					case column_type::links_number:
-					{
-						Dest += str(m_ListData[ListPos].NumberOfLinks);
-						break;
-					}
-
-					case column_type::streams_number:
-					{
-						Dest += str(m_ListData[ListPos].NumberOfStreams);
-						break;
-					}
-
 				}
+
+				if (Column.type_flags & COLFLAGS_NAMEONLY)
+				{
+					//BUGBUG!!!
+					// !!! НЕ УВЕРЕН, но то, что отображается пустое
+					// пространство вместо названия - бага
+					Name = PointToFolderNameIfFolder(Name);
+				}
+
+				Dest += Name;
+				break;
+			}
+
+			case column_type::extension:
+			{
+				string_view Ext;
+				if (!(m_ListData[ListPos].Attributes & FILE_ATTRIBUTE_DIRECTORY))
+					Ext = PointToExt(m_ListData[ListPos].AlternateOrNormal(m_ShowShortNames));
+
+				if (!Ext.empty())
+					Ext.remove_prefix(1);
+
+				Dest += Ext;
+				break;
+			}
+
+			case column_type::size:
+			case column_type::size_compressed:
+			case column_type::streams_size:
+			{
+				const auto SizeToDisplay = (Column.type == column_type::size_compressed) ?
+					m_ListData[ListPos].AllocationSize :
+					Column.type == column_type::streams_size ?
+					m_ListData[ListPos].StreamsSize(this) :
+					m_ListData[ListPos].FileSize;
+
+				Dest += FormatStr_Size(
+					SizeToDisplay,
+					m_ListData[ListPos].FileName,
+					m_ListData[ListPos].Attributes,
+					m_ListData[ListPos].ShowFolderSize,
+					m_ListData[ListPos].ReparseTag,
+					Column.type,
+					Column.type_flags,
+					Column.width, // BUGBUG width_type
+					m_CurDir);
+				break;
+			}
+
+			case column_type::date:
+			case column_type::time:
+			case column_type::date_write:
+			case column_type::date_creation:
+			case column_type::date_access:
+			case column_type::date_change:
+			{
+				os::chrono::time_point const FileListItem::* FileTime;
+
+				switch (Column.type)
+				{
+				case column_type::date_creation:
+					FileTime = &FileListItem::CreationTime;
+					break;
+
+				case column_type::date_access:
+					FileTime = &FileListItem::LastAccessTime;
+					break;
+
+				case column_type::date_change:
+					FileTime = &FileListItem::ChangeTime;
+					break;
+
+				default:
+					FileTime = &FileListItem::LastWriteTime;
+					break;
+				}
+
+				Dest += FormatStr_DateTime(std::invoke(FileTime, m_ListData[ListPos]), Column.type, Column.type_flags, Column.width); // BUGBUG width_type
+				break;
+			}
+
+			case column_type::attributes:
+				Dest += FormatStr_Attribute(m_ListData[ListPos].Attributes, Column.width); // BUGBUG width_type
+				break;
+
+			case column_type::description:
+				Dest += NullToEmpty(m_ListData[ListPos].DizText);
+				break;
+
+			case column_type::owner:
+				Dest += m_ListData[ListPos].Owner(this);
+				break;
+
+			case column_type::links_number:
+				Dest += str(m_ListData[ListPos].NumberOfLinks(this));
+				break;
+
+			case column_type::streams_number:
+				Dest += str(m_ListData[ListPos].NumberOfStreams(this));
+				break;
+
+			default:
+				break; // BUGBUG?
 			}
 		}
 
 		return true;
 	}
-#endif
+
 	return false;
 }
 
@@ -5452,14 +5430,14 @@ void FileList::PopPrevData(const string& DefaultName,bool Closed,bool UsePrev,bo
 
 bool FileList::FileNameToPluginItem(const string& Name, PluginPanelItemHolder& pi)
 {
-	string strTempDir = Name;
+	string_view TempDir = Name;
 
-	if (!CutToSlash(strTempDir,true))
+	if (!CutToSlash(TempDir,true))
 		return false;
 
-	FarChDir(strTempDir);
-	os::fs::find_data fdata;
+	FarChDir(TempDir);
 
+	os::fs::find_data fdata;
 	if (os::fs::get_find_data(Name, fdata))
 	{
 		FindDataExToPluginPanelItemHolder(fdata, pi);
@@ -8405,28 +8383,28 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 						case column_type::date_access:
 						case column_type::date_change:
 						{
-							os::chrono::time_point* FileTime;
+							os::chrono::time_point const FileListItem::* FileTime;
 
 							switch (ColumnType)
 							{
-								case column_type::date_creation:
-									FileTime=&m_ListData[ListPos].CreationTime;
-									break;
-								case column_type::date_access:
-									FileTime=&m_ListData[ListPos].LastAccessTime;
-									break;
-								case column_type::date_change:
-									FileTime=&m_ListData[ListPos].ChangeTime;
-									break;
-								case column_type::date:
-								case column_type::time:
-								case column_type::date_write:
-								default:
-									FileTime=&m_ListData[ListPos].LastWriteTime;
-									break;
+							case column_type::date_creation:
+								FileTime = &FileListItem::CreationTime;
+								break;
+
+							case column_type::date_access:
+								FileTime = &FileListItem::LastAccessTime;
+								break;
+
+							case column_type::date_change:
+								FileTime = &FileListItem::ChangeTime;
+								break;
+
+							default:
+								FileTime = &FileListItem::LastWriteTime;
+								break;
 							}
 
-							Text(FormatStr_DateTime(*FileTime, ColumnType, Columns[K].type_flags, ColumnWidth));
+							Text(FormatStr_DateTime(std::invoke(FileTime, m_ListData[ListPos]), ColumnType, Columns[K].type_flags, ColumnWidth));
 							break;
 						}
 
@@ -8450,12 +8428,12 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								}
 							}
 
-							string strDizText=m_ListData[ListPos].DizText? m_ListData[ListPos].DizText+CurLeftPos : L""s;
-							size_t pos = strDizText.find(L'\4');
+							auto DizText = m_ListData[ListPos].DizText? m_ListData[ListPos].DizText + CurLeftPos : L""sv;
+							const auto pos = DizText.find(L'\4');
 							if (pos != string::npos)
-								strDizText.resize(pos);
+								DizText.remove_suffix(DizText.size() - pos);
 
-							Text(fit_to_left(strDizText, ColumnWidth));
+							Text(fit_to_left(string(DizText), ColumnWidth));
 							break;
 						}
 

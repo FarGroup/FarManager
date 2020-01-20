@@ -78,7 +78,7 @@ enum class image_type
 	graphical,
 };
 
-static string short_name_if_too_long(string LongName)
+static string short_name_if_too_long(const string& LongName)
 {
 	return LongName.size() >= MAX_PATH - 1? ConvertNameToShort(LongName) : LongName;
 }
@@ -1144,9 +1144,6 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, function_ref<void(
 			}
 			Process.close();
 		}
-
-		Result = true;
-
 	}
 
 	SetFarConsoleMode(true);

@@ -528,7 +528,7 @@ namespace os::fs
 	bool GetVolumePathNamesForVolumeName(const string& VolumeName, string& VolumePathNames);
 
 	[[nodiscard]]
-	bool QueryDosDevice(const string& DeviceName, string& Path);
+	bool QueryDosDevice(string_view DeviceName, string& Path);
 
 	[[nodiscard]]
 	bool SearchPath(const wchar_t* Path, string_view FileName, const wchar_t* Extension, string& strDest);

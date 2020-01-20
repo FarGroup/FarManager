@@ -231,35 +231,29 @@ string_view DizList::Get(const string& Name, const string& ShortName, const long
 	return string_view(Description).substr(Begin - Description.begin());
 }
 
-template<class T>
-static auto Find_t(T& Map, const string& Name, const string& ShortName, uintptr_t Codepage)
+DizList::desc_map::iterator DizList::Find(const string& Name, const string& ShortName)
 {
-	auto Iterator = Map.find(Name);
-	if (Iterator == Map.end())
-		Iterator = Map.find(ShortName);
+	auto Iterator = m_DizData.find(Name);
+	if (Iterator == m_DizData.end())
+		Iterator = m_DizData.find(ShortName);
 
 	//если файл описаний был в OEM/ANSI то имена файлов могут не совпадать с юникодными
-	if (Iterator == Map.end() && !IsUnicodeOrUtfCodePage(Codepage) && Codepage != CP_DEFAULT)
+	if (Iterator == m_DizData.end() && !IsUnicodeOrUtfCodePage(m_CodePage) && m_CodePage != CP_DEFAULT)
 	{
-		const auto strRecoded = encoding::get_chars(Codepage, encoding::get_bytes(Codepage, Name));
+		const auto strRecoded = encoding::get_chars(m_CodePage, encoding::get_bytes(m_CodePage, Name));
 		if (strRecoded == Name)
 		{
 			return Iterator;
 		}
-		return Map.find(strRecoded);
+		return m_DizData.find(strRecoded);
 	}
 
 	return Iterator;
 }
 
-DizList::desc_map::iterator DizList::Find(const string& Name, const string& ShortName)
-{
-	return Find_t(m_DizData, Name, ShortName, m_CodePage);
-}
-
 DizList::desc_map::const_iterator DizList::Find(const string& Name, const string& ShortName) const
 {
-	return Find_t(m_DizData, Name, ShortName, m_CodePage);
+	return const_cast<DizList&>(*this).Find(Name, ShortName);
 }
 
 DizList::desc_map::iterator DizList::Insert(const string& Name)

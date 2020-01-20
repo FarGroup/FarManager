@@ -152,7 +152,7 @@ public:
 	void ChangeSortOrder(bool Reverse) override;
 	void ChangeDirectoriesFirst(bool Mode) override;
 	void OnSortingChange() override;
-	bool SetCurDir(const string& NewDir, bool ClosePanel, bool IsUpdated = true) override;
+	bool SetCurDir(string_view NewDir, bool ClosePanel, bool IsUpdated = true) override;
 	panel_sort GetPrevSortMode() const override;
 	bool GetPrevSortOrder() const override;
 	int GetPrevViewMode() const override;

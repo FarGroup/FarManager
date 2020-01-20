@@ -269,9 +269,14 @@ private:
 		return EnumValuesT(Key, Reset, Name, Value, &SQLiteStmt::GetColInt64);
 	}
 
+	auto EnumValuesStmt() const
+	{
+		return AutoStatement(stmtEnumValues);
+	}
+
 	void CloseEnum() const override
 	{
-		SCOPED_ACTION(auto)(AutoStatement(stmtEnumValues));
+		(void)EnumValuesStmt();
 	}
 
 	void Export(representation_destination& Representation) const override
@@ -367,7 +372,7 @@ private:
 	template<class T, class getter_t>
 	bool EnumValuesT(const string_view Key, bool Reset, string& Name, T& Value, const getter_t Getter) const
 	{
-		auto Stmt = AutoStatement(stmtEnumValues);
+		auto Stmt = EnumValuesStmt();
 
 		if (Reset)
 			Stmt->Reset().Bind(transient(Key));
@@ -377,7 +382,7 @@ private:
 
 		Name = Stmt->GetColText(0);
 		Value = std::invoke(Getter, Stmt, 1);
-		(void)Stmt.release();
+		KeepStatement(Stmt);
 		return true;
 	}
 
@@ -594,9 +599,14 @@ private:
 		ExecuteStatement(stmtDelValue, Root.get(), Name);
 	}
 
+	auto EnumKeysStmt(string_view const Pattern) const
+	{
+		return AutoStatement(Pattern.empty()? stmtEnumKeys : stmtEnumKeysLike);
+	}
+
 	bool EnumKeys(const key& Root, const bool Reset, key& Key, string_view const Pattern) const override
 	{
-		auto Stmt = AutoStatement(Pattern.empty()? stmtEnumKeys : stmtEnumKeysLike);
+		auto Stmt = EnumKeysStmt(Pattern);
 
 		if (Reset)
 		{
@@ -609,18 +619,23 @@ private:
 			return false;
 
 		Key = key(Stmt->GetColInt64(0));
-		(void)Stmt.release();
+		KeepStatement(Stmt);
 		return true;
 	}
 
-	void CloseEnumKeys() const override
+	void CloseEnumKeys(string_view const Pattern) const override
 	{
-		SCOPED_ACTION(auto)(AutoStatement(stmtEnumKeys));
+		(void)EnumKeysStmt(Pattern);
+	}
+
+	auto EnumValuesStmt(string_view const Pattern) const
+	{
+		return AutoStatement(Pattern.empty()? stmtEnumValues : stmtEnumValuesLike);
 	}
 
 	bool EnumValues(const key& Root, const bool Reset, string& Name, int& Type, string_view const Pattern) const override
 	{
-		auto Stmt = AutoStatement(Pattern.empty()? stmtEnumValues : stmtEnumValuesLike);
+		auto Stmt = EnumValuesStmt(Pattern);
 
 		if (Reset)
 		{
@@ -634,13 +649,13 @@ private:
 
 		Name = Stmt->GetColText(0);
 		Type = static_cast<int>(Stmt->GetColType(1));
-		(void)Stmt.release();
+		KeepStatement(Stmt);
 		return true;
 	}
 
-	void CloseEnumValues() const override
+	void CloseEnumValues(string_view const Pattern) const override
 	{
-		SCOPED_ACTION(auto)(AutoStatement(stmtEnumValues));
+		(void)EnumValuesStmt(Pattern);
 	}
 
 	void Export(representation_destination& Representation) const override
@@ -1003,9 +1018,14 @@ private:
 		Db.PrepareStatements(Statements);
 	}
 
+	auto EnumMasksStmt() const
+	{
+		return AutoStatement(stmtEnumMasks);
+	}
+
 	bool EnumMasks(const bool Reset, unsigned long long* const id, string& strMask) const override
 	{
-		auto Stmt = AutoStatement(stmtEnumMasks);
+		auto Stmt = EnumMasksStmt();
 
 		if (Reset)
 			Stmt->Reset();
@@ -1015,18 +1035,23 @@ private:
 
 		*id = Stmt->GetColInt64(0);
 		strMask = Stmt->GetColText(1);
-		(void)Stmt.release();
+		KeepStatement(Stmt);
 		return true;
 	}
 
 	void CloseEnumMasks() const override
 	{
-		SCOPED_ACTION(auto)(AutoStatement(stmtEnumMasks));
+		(void)EnumMasksStmt();
+	}
+
+	auto EnumMasksForTypeStmt() const
+	{
+		return AutoStatement(stmtEnumMasksForType);
 	}
 
 	bool EnumMasksForType(const bool Reset, const int Type, unsigned long long* const id, string& strMask) const override
 	{
-		auto Stmt = AutoStatement(stmtEnumMasksForType);
+		auto Stmt = EnumMasksForTypeStmt();
 
 		if (Reset)
 			Stmt->Reset().Bind(Type);
@@ -1036,13 +1061,13 @@ private:
 
 		*id = Stmt->GetColInt64(0);
 		strMask = Stmt->GetColText(1);
-		(void)Stmt.release();
+		KeepStatement(Stmt);
 		return true;
 	}
 
 	void CloseEnumMasksForType() const override
 	{
-		SCOPED_ACTION(auto)(AutoStatement(stmtEnumMasks));
+		(void)EnumMasksForTypeStmt();
 	}
 
 	bool GetMask(unsigned long long id, string &strMask) override
@@ -1457,7 +1482,7 @@ private:
 			return false;
 
 		CacheName = Stmt->GetColText(0);
-		(void)Stmt.release();
+		KeepStatement(Stmt);
 		return true;
 	}
 
@@ -1784,9 +1809,9 @@ private:
 		}
 	}
 
-	void AddInternal(unsigned int TypeHistory, const string& HistoryName, const string &Name, int Type, bool Lock, const string &strGuid, const string &strFile, const string &strData) const
+	void AddInternal(unsigned int const TypeHistory, string_view const HistoryName, string_view const Name, int const Type, bool const Lock, string_view const Guid, string_view const File, string_view const Data) const
 	{
-		ExecuteStatement(stmtAdd, TypeHistory, HistoryName, Type, Lock, Name, os::chrono::nt_clock::to_hectonanoseconds(os::chrono::nt_clock::now()), strGuid, strFile, strData);
+		ExecuteStatement(stmtAdd, TypeHistory, HistoryName, Type, Lock, Name, os::chrono::nt_clock::to_hectonanoseconds(os::chrono::nt_clock::now()), Guid, File, Data);
 	}
 
 	void DeleteInternal(unsigned long long id) const
@@ -1890,10 +1915,15 @@ private:
 		DeleteInternal(id);
 	}
 
+	auto EnumStmt(bool const Reverse) const
+	{
+		return AutoStatement(Reverse? stmtEnumDesc : stmtEnum);
+	}
+
 	bool Enum(const bool Reset, const unsigned int TypeHistory, const string_view HistoryName, unsigned long long& id, string& Name, history_record_type& Type, bool& Lock, os::chrono::time_point& Time, string& strGuid, string& strFile, string& strData, const bool Reverse) override
 	{
 		WaitAllAsync();
-		auto Stmt = AutoStatement(Reverse? stmtEnumDesc : stmtEnum);
+		auto Stmt = EnumStmt(Reverse);
 
 		if (Reset)
 			Stmt->Reset().Bind(TypeHistory, transient(HistoryName));
@@ -1909,13 +1939,13 @@ private:
 		strGuid = Stmt->GetColText(5);
 		strFile = Stmt->GetColText(6);
 		strData = Stmt->GetColText(7);
-		(void)Stmt.release();
+		KeepStatement(Stmt);
 		return true;
 	}
 
 	void CloseEnum(bool const Reverse) const override
 	{
-		SCOPED_ACTION(auto)(AutoStatement(Reverse? stmtEnumDesc : stmtEnum));
+		(void)EnumStmt(Reverse);
 	}
 
 	bool DeleteAndAddAsync(unsigned long long const DeleteId, unsigned int const TypeHistory, string_view const HistoryName, string_view const Name, int const Type, bool const Lock, string_view const Guid, string_view const File, string_view const Data) override
@@ -1947,10 +1977,15 @@ private:
 		ExecuteStatement(stmtDeleteOldUnlocked, TypeHistory, HistoryName, older, MinimumEntries);
 	}
 
+	auto EnumLargeHistoriesStmt() const
+	{
+		return AutoStatement(stmtEnumLargeHistories);
+	}
+
 	bool EnumLargeHistories(const bool Reset, const unsigned int TypeHistory, const int MinimumEntries, string& strHistoryName) override
 	{
 		WaitAllAsync();
-		auto Stmt = AutoStatement(stmtEnumLargeHistories);
+		auto Stmt = EnumLargeHistoriesStmt();
 
 		if (Reset)
 			Stmt->Reset().Bind(TypeHistory, MinimumEntries);
@@ -1959,13 +1994,13 @@ private:
 			return false;
 
 		strHistoryName = Stmt->GetColText(0);
-		(void)Stmt.release();
+		KeepStatement(Stmt);
 		return true;
 	}
 
 	void CloseEnumLargeHistories() const override
 	{
-		SCOPED_ACTION(auto)(AutoStatement(stmtEnumLargeHistories));
+		(void)EnumLargeHistoriesStmt();
 	}
 
 	bool GetNewest(const unsigned int TypeHistory, const string_view HistoryName, string& Name) override

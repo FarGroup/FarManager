@@ -2093,9 +2093,9 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 		{
 			for (const auto& i: *Global->CtrlObject->Plugins)
 			{
-				auto strPath = i->ModuleName();
-				CutToSlash(strPath);
-				const auto [HelpFile, HelpLangName, HelpFileCodePage] = OpenLangFile(strPath, Global->HelpFileMask, Global->Opt->strHelpLanguage);
+				string_view Path = i->ModuleName();
+				CutToSlash(Path);
+				const auto [HelpFile, HelpLangName, HelpFileCodePage] = OpenLangFile(Path, Global->HelpFileMask, Global->Opt->strHelpLanguage);
 				if (HelpFile)
 				{
 					string strEntryName, strSecondParam;
@@ -2107,7 +2107,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 						{
 							append(strHelpLine, L',', strSecondParam);
 						}
-						append(strHelpLine, L"~@"sv, help::make_link(strPath, HelpContents), L'@');
+						append(strHelpLine, L"~@"sv, help::make_link(Path, HelpContents), L'@');
 
 						AddLine(strHelpLine);
 					}

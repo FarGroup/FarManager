@@ -104,6 +104,8 @@ namespace console_detail
 		bool GetMode(HANDLE ConsoleHandle, DWORD& Mode) const;
 		bool SetMode(HANDLE ConsoleHandle, DWORD Mode) const;
 
+		bool IsVtSupported() const;
+
 		bool PeekInput(span<INPUT_RECORD> Buffer, size_t& NumberOfEventsRead) const;
 		bool ReadInput(span<INPUT_RECORD> Buffer, size_t& NumberOfEventsRead) const;
 		bool WriteInput(span<INPUT_RECORD> Buffer, size_t& NumberOfEventsWritten) const;

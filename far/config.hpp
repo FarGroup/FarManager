@@ -195,19 +195,21 @@ namespace option
 	template<typename callable>
 	auto validator(callable&& Callable)
 	{
-		return overload(
+		return overload
+		{
 			[Callable =FWD(Callable)](validator_tag, const auto& Value){ return Callable(Value); },
 			[](notifier_tag, const auto&){}
-		);
+		};
 	}
 
 	template<typename callable>
 	auto notifier(callable&& Callable)
 	{
-		return overload(
+		return overload
+		{
 			[](validator_tag, const auto& Value){ return Value; },
 			[Callable = FWD(Callable)](notifier_tag, const auto& Value){ Callable(Value); }
-		);
+		};
 	}
 }
 

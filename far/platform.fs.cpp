@@ -299,19 +299,19 @@ namespace os::fs
 		}
 	}
 
-	static find_file_handle FindFirstFileInternal(const string& Name, find_data& FindData)
+	static find_file_handle FindFirstFileInternal(string_view const Name, find_data& FindData)
 	{
 		if (Name.empty() || IsSlash(Name.back()))
 			return nullptr;
 
 		auto Handle = std::make_unique<far_find_file_handle_impl>();
 
-		auto strDirectory(Name);
-		CutToSlash(strDirectory);
+		auto Directory = Name;
+		CutToSlash(Directory);
 
 		const auto OpenDirectory = [&]
 		{
-			return Handle->Object.Open(strDirectory, FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING);
+			return Handle->Object.Open(Directory, FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING);
 		};
 
 		if (!OpenDirectory())
@@ -426,11 +426,10 @@ namespace os::fs
 			{
 				if (m_ScanSymlink)
 				{
-					auto strReal = m_Object;
+					string_view Str = m_Object;
 					// only links in the path should be processed, not the object name itself
-					CutToSlash(strReal);
-					strReal = NTPath(path::join(ConvertNameToReal(strReal), PointToName(m_Object)));
-					m_Handle = FindFirstFileInternal(strReal, Value);
+					CutToSlash(Str);
+					m_Handle = FindFirstFileInternal(NTPath(path::join(ConvertNameToReal(Str), PointToName(m_Object))), Value);
 				}
 
 				if (!m_Handle && ElevationRequired(ELEVATION_READ_REQUEST))
@@ -1917,9 +1916,10 @@ namespace os::fs
 		});
 	}
 
-	bool QueryDosDevice(const string& DeviceName, string &Path)
+	bool QueryDosDevice(string_view const DeviceName, string &Path)
 	{
-		const auto DeviceNamePtr = EmptyToNull(DeviceName);
+		null_terminated const C_DeviceName(DeviceName);
+		const auto DeviceNamePtr = EmptyToNull(C_DeviceName);
 		return os::detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Path, [&](span<wchar_t> Buffer)
 		{
 			const auto ReturnedSize = ::QueryDosDevice(DeviceNamePtr, Buffer.data(), static_cast<DWORD>(Buffer.size()));
@@ -1962,8 +1962,8 @@ namespace os::fs
 
 			if (imports.QueryFullProcessImageNameW && !hModule)
 			{
-				auto dwSize = static_cast<DWORD>(Buffer.size());
-				return imports.QueryFullProcessImageNameW(hProcess, 0, Buffer.data(), &dwSize)? dwSize : 0;
+				auto Size = static_cast<DWORD>(Buffer.size());
+				return imports.QueryFullProcessImageNameW(hProcess, 0, Buffer.data(), &Size)? Size : 0;
 			}
 			else
 			{

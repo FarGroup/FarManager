@@ -62,9 +62,9 @@ enum TESTFOLDERCONST  // for TestFolder()
 */
 bool FarChDir(string_view NewDir, bool ChangeDir = true);
 
-int TestFolder(const string& Path);
+int TestFolder(string_view Path);
 bool CheckShortcutFolder(string& TestPath, bool TryClosest, bool Silent);
 
-void CreatePath(const string &InputPath, bool Simple=false);
+void CreatePath(string_view InputPath, bool Simple = false);
 
 #endif // DIRMIX_HPP_7386031B_A22B_4851_8BC6_24E90C9798D5

@@ -951,7 +951,7 @@ bool InfoList::ShowDirDescription(int YPos)
 		if (!os::fs::get_find_data(strFullDizName, FindData))
 			continue;
 
-		CutToSlash(strFullDizName, false);
+		CutToSlash(strFullDizName);
 		strFullDizName += FindData.FileName;
 
 		if (OpenDizFile(strFullDizName, YPos))

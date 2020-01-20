@@ -228,10 +228,10 @@ void Options::PanelSettings()
 	Builder.AddCheckbox(lng::MConfigSortFolderExt, SortFolderExt);
 	Builder.AddCheckbox(lng::MConfigReverseSort, ReverseSort);
 
-	DialogItemEx *AutoUpdateEnabled = Builder.AddCheckbox(lng::MConfigAutoUpdateLimit, &AutoUpdate);
-	DialogItemEx *AutoUpdateLimitItem = Builder.AddIntEditField(AutoUpdateLimit, 6);
+	const auto AutoUpdateEnabled = Builder.AddCheckbox(lng::MConfigAutoUpdateLimit, &AutoUpdate);
+	const auto AutoUpdateLimitItem = Builder.AddIntEditField(AutoUpdateLimit, 6);
 	Builder.LinkFlags(AutoUpdateEnabled, AutoUpdateLimitItem, DIF_DISABLE, false);
-	DialogItemEx *AutoUpdateTextItem = Builder.AddTextBefore(AutoUpdateLimitItem, lng::MConfigAutoUpdateLimit2);
+	const auto AutoUpdateTextItem = Builder.AddTextBefore(AutoUpdateLimitItem, lng::MConfigAutoUpdateLimit2);
 	AutoUpdateLimitItem->Indent(4);
 	AutoUpdateTextItem->Indent(4);
 	Builder.AddCheckbox(lng::MConfigAutoUpdateRemoteDrive, AutoUpdateRemoteDrive);
@@ -325,10 +325,9 @@ void Options::InterfaceSettings()
 	Builder.AddCheckbox(lng::MConfigMouse, Mouse);
 	Builder.AddCheckbox(lng::MConfigKeyBar, ShowKeyBar);
 	Builder.AddCheckbox(lng::MConfigMenuBar, ShowMenuBar);
-	DialogItemEx *SaverCheckbox = Builder.AddCheckbox(lng::MConfigSaver, ScreenSaver);
-
-	DialogItemEx *SaverEdit = Builder.AddIntEditField(ScreenSaverTime, 2);
-	SaverEdit->Indent(4);
+	const auto SaverCheckbox = Builder.AddCheckbox(lng::MConfigSaver, ScreenSaver);
+	const auto SaverEdit = Builder.AddIntEditField(ScreenSaverTime, 3);
+	SaverEdit->Indent(5);
 	Builder.AddTextAfter(SaverEdit, lng::MConfigSaverMinutes);
 	Builder.LinkFlags(SaverCheckbox, SaverEdit, DIF_DISABLE);
 
@@ -338,8 +337,8 @@ void Options::InterfaceSettings()
 	Builder.AddCheckbox(lng::MConfigPgUpChangeDisk, PgUpChangeDisk);
 	Builder.AddCheckbox(lng::MConfigUseVirtualTerminalForRendering, VirtualTerminalRendering);
 	Builder.AddCheckbox(lng::MConfigClearType, ClearType);
-	DialogItemEx* SetIconCheck = Builder.AddCheckbox(lng::MConfigSetConsoleIcon, SetIcon);
-	DialogItemEx* SetAdminIconCheck = Builder.AddCheckbox(lng::MConfigSetAdminConsoleIcon, SetAdminIcon);
+	const auto SetIconCheck = Builder.AddCheckbox(lng::MConfigSetConsoleIcon, SetIcon);
+	const auto SetAdminIconCheck = Builder.AddCheckbox(lng::MConfigSetAdminConsoleIcon, SetAdminIcon);
 	SetAdminIconCheck->Indent(4);
 	Builder.LinkFlags(SetIconCheck, SetAdminIconCheck, DIF_DISABLE);
 	Builder.AddText(lng::MConfigTitleAddons);
@@ -364,8 +363,8 @@ void Options::InterfaceSettings()
 void Options::AutoCompleteSettings()
 {
 	DialogBuilder Builder(lng::MConfigAutoCompleteTitle, L"AutoCompleteSettings"sv);
-	DialogItemEx *ListCheck=Builder.AddCheckbox(lng::MConfigAutoCompleteShowList, AutoComplete.ShowList);
-	DialogItemEx *ModalModeCheck=Builder.AddCheckbox(lng::MConfigAutoCompleteModalList, AutoComplete.ModalList);
+	const auto ListCheck=Builder.AddCheckbox(lng::MConfigAutoCompleteShowList, AutoComplete.ShowList);
+	const auto ModalModeCheck=Builder.AddCheckbox(lng::MConfigAutoCompleteModalList, AutoComplete.ModalList);
 	ModalModeCheck->Indent(4);
 	Builder.AddCheckbox(lng::MConfigAutoCompleteAutoAppend, AutoComplete.AppendCompletion);
 	Builder.LinkFlags(ListCheck, ModalModeCheck, DIF_DISABLE);
@@ -667,13 +666,13 @@ void Options::CmdlineSettings()
 	Builder.AddCheckbox(lng::MConfigCmdlineDelRemovesBlocks, CmdLine.DelRemovesBlocks);
 	Builder.AddCheckbox(lng::MConfigCmdlineAutoComplete, CmdLine.AutoComplete);
 
-	DialogItemEx *UsePromptFormat = Builder.AddCheckbox(lng::MConfigCmdlineUsePromptFormat, CmdLine.UsePromptFormat);
-	DialogItemEx *PromptFormat = Builder.AddEditField(CmdLine.strPromptFormat, 33);
+	const auto UsePromptFormat = Builder.AddCheckbox(lng::MConfigCmdlineUsePromptFormat, CmdLine.UsePromptFormat);
+	const auto PromptFormat = Builder.AddEditField(CmdLine.strPromptFormat, 33);
 	PromptFormat->Indent(4);
 	Builder.LinkFlags(UsePromptFormat, PromptFormat, DIF_DISABLE);
 
-	DialogItemEx *UseHomeDir = Builder.AddCheckbox(lng::MConfigCmdlineUseHomeDir, Exec.UseHomeDir);
-	DialogItemEx *HomeDir = Builder.AddEditField(Exec.strHomeDir, 33);
+	const auto UseHomeDir = Builder.AddCheckbox(lng::MConfigCmdlineUseHomeDir, Exec.UseHomeDir);
+	const auto HomeDir = Builder.AddEditField(Exec.strHomeDir, 33);
 	HomeDir->Indent(4);
 	Builder.LinkFlags(UseHomeDir, HomeDir, DIF_DISABLE);
 
@@ -719,8 +718,8 @@ void Options::PluginsManagerSettings()
 	Builder.AddCheckbox(lng::MPluginsManagerScanSymlinks, LoadPlug.ScanSymlinks);
 	Builder.AddSeparator(lng::MPluginConfirmationTitle);
 	Builder.AddCheckbox(lng::MPluginsManagerOFP, PluginConfirm.OpenFilePlugin);
-	DialogItemEx *StandardAssoc = Builder.AddCheckbox(lng::MPluginsManagerStdAssoc, PluginConfirm.StandardAssociation);
-	DialogItemEx *EvenIfOnlyOne = Builder.AddCheckbox(lng::MPluginsManagerEvenOne, PluginConfirm.EvenIfOnlyOnePlugin);
+	const auto StandardAssoc = Builder.AddCheckbox(lng::MPluginsManagerStdAssoc, PluginConfirm.StandardAssociation);
+	const auto EvenIfOnlyOne = Builder.AddCheckbox(lng::MPluginsManagerEvenOne, PluginConfirm.EvenIfOnlyOnePlugin);
 	StandardAssoc->Indent(2);
 	EvenIfOnlyOne->Indent(4);
 
@@ -741,7 +740,7 @@ void Options::SetDizConfig()
 
 	Builder.AddCheckbox(lng::MCfgDizSetHidden, Diz.SetHidden);
 	Builder.AddCheckbox(lng::MCfgDizROUpdate, Diz.ROUpdate);
-	DialogItemEx *StartPos = Builder.AddIntEditField(Diz.StartPos, 2);
+	const auto StartPos = Builder.AddIntEditField(Diz.StartPos, 2);
 	Builder.AddTextAfter(StartPos, lng::MCfgDizStartPos);
 	Builder.AddSeparator();
 
@@ -800,7 +799,7 @@ void Options::ViewerConfig(Options::ViewerOptions &ViOptRef, bool Local)
 	Builder.StartColumns();
 	++id; Builder.AddCheckbox(lng::MViewConfigPersistentSelection, ViOptRef.PersistentBlocks);
 	++id; Builder.AddCheckbox(lng::MViewConfigEditAutofocus, ViOptRef.SearchEditFocus);
-	++id; DialogItemEx *TabSize = Builder.AddIntEditField(ViOptRef.TabSize, 3);
+	++id; const auto TabSize = Builder.AddIntEditField(ViOptRef.TabSize, 3);
 	++id; Builder.AddTextAfter(TabSize, lng::MViewConfigTabSize);
 	Builder.ColumnBreak();
 	++id; Builder.AddCheckbox(lng::MViewConfigArrows, ViOptRef.ShowArrows);
@@ -815,7 +814,7 @@ void Options::ViewerConfig(Options::ViewerOptions &ViOptRef, bool Local)
 		save_pos = ++id; Builder.AddCheckbox(lng::MViewConfigSavePos, ViOpt.SavePos);
 		save_cp = ++id; Builder.AddCheckbox(lng::MViewConfigSaveCodepage, ViOpt.SaveCodepage);
 		Builder.AddCheckbox(lng::MViewConfigSaveShortPos, ViOpt.SaveShortPos);
-		DialogItemEx *MaxLineSize = Builder.AddIntEditField(ViOpt.MaxLineSize, 6);
+		const auto MaxLineSize = Builder.AddIntEditField(ViOpt.MaxLineSize, 6);
 		Builder.AddTextAfter(MaxLineSize, lng::MViewConfigMaxLineSize);
 		Builder.ColumnBreak();
 		Builder.AddCheckbox(lng::MViewConfigSaveViewMode, ViOpt.SaveViewMode);
@@ -860,7 +859,7 @@ void Options::EditorConfig(Options::EditorOptions &EdOptRef, bool Local)
 	Builder.AddCheckbox(lng::MEditConfigPersistentBlocks, EdOptRef.PersistentBlocks);
 	Builder.AddCheckbox(lng::MEditConfigDelRemovesBlocks, EdOptRef.DelRemovesBlocks);
 	Builder.AddCheckbox(lng::MEditConfigAutoIndent, EdOptRef.AutoIndent);
-	DialogItemEx *TabSize = Builder.AddIntEditField(EdOptRef.TabSize, 3);
+	const auto TabSize = Builder.AddIntEditField(EdOptRef.TabSize, 3);
 	Builder.AddTextAfter(TabSize, lng::MEditConfigTabSize);
 	Builder.AddCheckbox(lng::MEditShowWhiteSpace, EdOptRef.ShowWhiteSpace);
 	Builder.ColumnBreak();
@@ -1908,7 +1907,7 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeyPanelTree,              L"NetDiskTemplate"sv,               Tree.strNetDisk, NetDiskTemplate},
 		{FSSF_PRIVATE,           NKeyPanelTree,              L"NetPathTemplate"sv,               Tree.strNetPath, NetPathTemplate},
 		{FSSF_PRIVATE,           NKeyPanelTree,              L"RemovableDisk"sv,                 Tree.RemovableDisk, 2},
-		{FSSF_PRIVATE,           NKeyPanelTree,              L"RemovableDiskTemplate,"sv,        Tree.strRemovableDisk, RemovableDiskTemplate},
+		{FSSF_PRIVATE,           NKeyPanelTree,              L"RemovableDiskTemplate"sv,         Tree.strRemovableDisk, RemovableDiskTemplate},
 		{FSSF_PRIVATE,           NKeyPanelTree,              L"SaveLocalPath"sv,                 Tree.strSaveLocalPath, L""sv},
 		{FSSF_PRIVATE,           NKeyPanelTree,              L"SaveNetPath"sv,                   Tree.strSaveNetPath, L""sv},
 #endif

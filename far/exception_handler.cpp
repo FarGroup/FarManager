@@ -291,8 +291,7 @@ static intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2
 						Dlg->SendMessage(DM_GETDLGITEMSHORT, 1, &di);
 						const auto Width = di.X2 - di.X1 + 1;
 
-						// BUGBUG Magic numbers
-						for (size_t i = 1; i != 23; ++i)
+						for (size_t i = ed_text_exception; i != ed_separator; ++i)
 						{
 							const auto Str = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, i, nullptr));
 							append(Strings, format(FSTR(L"{0:{1}}{2}"), Str, i & 1? Width : 0, i & 1? L" "sv : Eol));
@@ -573,19 +572,22 @@ static reply ExcConsole(
 }
 
 template<size_t... I>
-static constexpr uint32_t any_cc(char const* const Str, std::index_sequence<I...>)
+static constexpr uint32_t any_cc(std::string_view const Str, std::index_sequence<I...> Sequence)
 {
-	return (... | (Str[I] << 8 * I)) | (Str[sizeof...(I)] * 0);
+	if (Str.size() != Sequence.size())
+		throw;
+
+	return (... | (Str[I] << 8 * I));
 }
 
-static constexpr uint32_t fourcc(char const* const Str)
+static constexpr uint32_t fourcc(std::string_view const Str)
 {
 	return any_cc(Str, std::make_index_sequence<4>{});
 }
 
 enum FARRECORDTYPE
 {
-	RTYPE_PLUGIN = fourcc("CPLG"), // информация о текущем плагине
+	RTYPE_PLUGIN = fourcc("CPLG"sv), // информация о текущем плагине
 };
 
 struct catchable_type
@@ -658,7 +660,7 @@ static bool ProcessExternally(EXCEPTION_POINTERS* Pointers, Plugin const* const 
 	{
 		PlugRec = {};
 		PlugRec.TypeRec = RTYPE_PLUGIN;
-		PlugRec.SizeRec = sizeof(PLUGINRECORD);
+		PlugRec.SizeRec = sizeof(PlugRec);
 		PlugRec.ModuleName = PluginModule->ModuleName().c_str();
 	}
 
@@ -811,7 +813,7 @@ static std::pair<string, string> extract_nested_exceptions(const std::exception&
 	ObjectType = ExtractObjectType(tracer::get_pointers().ExceptionRecord);
 
 	if (ObjectType.empty())
-		ObjectType = L"std::exception"s;
+		ObjectType = L"std::exception"sv;
 
 	// far_exception.what() returns additional information (function, file and line).
 	// We don't need it on top level because it's extracted separately
@@ -834,7 +836,7 @@ static std::pair<string, string> extract_nested_exceptions(const std::exception&
 	{
 		auto NestedObjectType = ExtractObjectType(tracer::get_pointers().ExceptionRecord);
 		if (NestedObjectType.empty())
-			NestedObjectType = L"Unknown"s;
+			NestedObjectType = L"Unknown"sv;
 
 		ObjectType = concat(NestedObjectType, L" -> "sv, ObjectType);
 		What = concat(L"?"sv, L" -> "sv, What);
@@ -968,4 +970,15 @@ namespace detail
 	}
 }
 
-#undef EXCEPTION_MICROSOFT_CPLUSPLUS
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("fourcc")
+{
+	static_assert(fourcc("CPLG"sv) == 0x474C5043);
+	static_assert(fourcc("avc1"sv) == 0x31637661);
+
+	SUCCEED();
+}
+#endif

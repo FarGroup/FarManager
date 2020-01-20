@@ -315,8 +315,7 @@ bool filemasks::masks::assign(string&& Masks, DWORD Flags)
 {
 	if (Masks[0] != RE_start)
 	{
-		m_Masks.emplace<0>();
-		auto& MasksData = std::get<0>(m_Masks);
+		auto& MasksData = m_Masks.emplace<0>();
 
 		add_pathext(Masks);
 
@@ -344,8 +343,7 @@ bool filemasks::masks::assign(string&& Masks, DWORD Flags)
 		return !MasksData.empty();
 	}
 
-	m_Masks.emplace<1>();
-	auto& RegexData = std::get<1>(m_Masks);
+	auto& RegexData = m_Masks.emplace<1>();
 
 	if (!RegexData.Regex.Compile(Masks, OP_PERLSTYLE | OP_OPTIMIZE))
 	{
@@ -364,7 +362,8 @@ bool filemasks::masks::assign(string&& Masks, DWORD Flags)
 
 bool filemasks::masks::operator==(const string_view FileName) const
 {
-	return std::visit(overload(
+	return std::visit(overload
+	{
 		[&](const std::vector<string>& Data)
 		{
 			return std::any_of(CONST_RANGE(Data, i) { return CmpName(i, FileName, false); });
@@ -374,12 +373,13 @@ bool filemasks::masks::operator==(const string_view FileName) const
 			intptr_t i = Data.Match.size();
 			return Data.Regex.Search(FileName, Data.Match.data(), i) != 0; // BUGBUG
 		}
-	), m_Masks);
+	}, m_Masks);
 }
 
 bool filemasks::masks::empty() const
 {
-	return std::visit(overload(
+	return std::visit(overload
+	{
 		[](const std::vector<string>& Data)
 		{
 			return Data.empty();
@@ -388,7 +388,7 @@ bool filemasks::masks::empty() const
 		{
 			return Data.Match.empty();
 		}
-	), m_Masks);
+	}, m_Masks);
 }
 
 #ifdef ENABLE_TESTS

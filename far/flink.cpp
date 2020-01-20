@@ -591,12 +591,12 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 			if (symlink)
 			{
 				// в этом случае создается путь, но не сам каталог
-				string strPath=strFullLink;
+				string_view Path = strFullLink;
 
-				if (CutToSlash(strPath))
+				if (CutToSlash(Path))
 				{
-					if (!os::fs::exists(strPath))
-						CreatePath(strPath);
+					if (!os::fs::exists(Path))
+						CreatePath(Path);
 				}
 			}
 			else
@@ -619,12 +619,12 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 				}
 				else
 				{
-					string strPath=strFullLink;
+					string_view Path = strFullLink;
 
-					if (CutToSlash(strPath))
+					if (CutToSlash(Path))
 					{
-						if (!os::fs::exists(strPath))
-							CreatePath(strPath);
+						if (!os::fs::exists(Path))
+							CreatePath(Path);
 						os::fs::file(strFullLink, 0, 0, nullptr, CREATE_NEW, os::fs::get_file_attributes(strFullTarget));
 					}
 				}

@@ -123,7 +123,6 @@ public:
 	void set_attributes(const SECURITY_ATTRIBUTES& Attributes)
 	{
 		m_Attributes = Attributes;
-		m_Engaged = true;
 	}
 
 	void set_descriptor(os::security::descriptor&& Descriptor)
@@ -133,17 +132,17 @@ public:
 
 	SECURITY_ATTRIBUTES* operator()() const
 	{
-		if (!m_Engaged)
+		if (!m_Attributes)
 			return nullptr;
 
-		m_Attributes.lpSecurityDescriptor = m_Descriptor? m_Descriptor.get() : nullptr;
-		return &m_Attributes;
+		auto& Attributes = *m_Attributes;
+		Attributes.lpSecurityDescriptor = m_Descriptor ? m_Descriptor.get() : nullptr;
+		return &Attributes;
 	}
 
 private:
 	os::security::descriptor m_Descriptor;
-	mutable SECURITY_ATTRIBUTES m_Attributes{};
-	bool m_Engaged{};
+	mutable std::optional<SECURITY_ATTRIBUTES> m_Attributes;
 };
 
 static void WritePipe(const os::handle& Pipe, os::security::descriptor const& Data)

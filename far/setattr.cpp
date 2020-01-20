@@ -360,20 +360,20 @@ static intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 			// Works in 2 modes: single directory or multiple selection
 			for(auto& i: DlgParam->Attributes)
 			{
-				if (SubfoldersState)
-				{
-					i.Flags |= DIF_3STATE;
-
-					if (!i.ChangedManually)
-						i.CurrentValue = BSTATE_3STATE;
-				}
-				else
+				if (SubfoldersState == BSTATE_UNCHECKED)
 				{
 					if (DlgParam->DialogMode == MODE_FOLDER)
 						i.Flags &= ~DIF_3STATE;
 
 					if (!i.ChangedManually)
 						i.CurrentValue = i.InitialValue;
+				}
+				else
+				{
+					i.Flags |= DIF_3STATE;
+
+					if (!i.ChangedManually)
+						i.CurrentValue = BSTATE_3STATE;
 				}
 			}
 
@@ -392,7 +392,7 @@ static intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 					{
 						if (!Component.ChangedManually)
 						{
-							set_date_or_time(Dlg, Id, SubfoldersState? L""s : Component.InitialValue, true);
+							set_date_or_time(Dlg, Id, SubfoldersState == BSTATE_UNCHECKED? Component.InitialValue : L""s, true);
 							Component.ChangedManually = false;
 						}
 					};
@@ -404,7 +404,7 @@ static intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 
 			if (!DlgParam->Owner.ChangedManually)
 			{
-				Dlg->SendMessage(DM_SETTEXTPTR, SA_EDIT_OWNER, SubfoldersState? nullptr : UNSAFE_CSTR(DlgParam->Owner.InitialValue));
+				Dlg->SendMessage(DM_SETTEXTPTR, SA_EDIT_OWNER, SubfoldersState == BSTATE_UNCHECKED? UNSAFE_CSTR(DlgParam->Owner.InitialValue) : nullptr);
 				DlgParam->Owner.ChangedManually = false;
 			}
 		}

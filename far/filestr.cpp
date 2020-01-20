@@ -464,7 +464,7 @@ TEST_CASE("enum_lines")
 	static const struct
 	{
 		string_view Str;
-		span<const std::pair<string_view, eol::type>> Result;
+		std::initializer_list<const std::pair<string_view, eol::type>> Result;
 	}
 	Tests[]
 	{
@@ -561,18 +561,20 @@ TEST_CASE("enum_lines")
 			// Twice to make sure that reset works as expected
 			for (const auto n: { 0, 1 })
 			{
-				auto Iterator = i.Result.cbegin();
+				(void)n;
+
+				auto Iterator = i.Result.begin();
 
 				for (const auto& Line : Enumerator)
 				{
-					REQUIRE(Iterator != i.Result.cend());
+					REQUIRE(Iterator != i.Result.end());
 					REQUIRE(Iterator->first == Line.Str);
 					REQUIRE(Iterator->second == Line.Eol);
 					++Iterator;
 				}
 
 				REQUIRE(Stream.eof());
-				REQUIRE(Iterator == i.Result.cend());
+				REQUIRE(Iterator == i.Result.end());
 			}
 		}
 	}

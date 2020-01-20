@@ -266,11 +266,8 @@ void Message::Init(
 
 	MaxLength = std::min(MaxLength, MAX_MESSAGE_WIDTH);
 
-	for (const auto& i: Strings)
-	{
-		append(strClipText, i, Eol);
-	}
-	append(strClipText, Eol);
+	join(strClipText, Strings, Eol);
+	append(strClipText, Eol, Eol);
 
 	if (!strErrStr.empty())
 	{

@@ -576,7 +576,7 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 }
 
 
-void CommandLine::SetCurDir(const string& CurDir)
+void CommandLine::SetCurDir(string_view const CurDir)
 {
 	if (!equal_icase(m_CurDir, CurDir) || !equal_icase(os::fs::GetCurrentDirectory(), CurDir))
 	{
