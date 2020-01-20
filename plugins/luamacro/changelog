@@ -1,4 +1,8 @@
-﻿shmuel 30.12.2019 16:05:03 +0200 - build 721
+﻿shmuel 20.01.2020 12:31:55 +0200 - build 722
+
+1. LuaFAR: fix LF_GetFindData/LF_FreeFindData (the bug existed from the very beginning).
+
+shmuel 30.12.2019 16:05:03 +0200 - build 721
 
 1. A fix in GetOpenPanelInfo() for LuaMacro panel modules.
 
