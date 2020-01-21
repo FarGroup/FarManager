@@ -585,6 +585,7 @@ void EditFileTypes()
 		{
 			MenuPos=ExitCode;
 			TypesMenu->Key(KEY_F4);
+			TypesMenu->ClearDone();
 			continue;
 		}
 
