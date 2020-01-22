@@ -64,7 +64,7 @@
       <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;advapi32.lib;shell32.lib;ole32.lib;uuid.lib;mpr.lib;netapi32.lib;version.lib;oleaut32.lib;wbemuuid.lib;Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;advapi32.lib;shell32.lib;ole32.lib;uuid.lib;mpr.lib;netapi32.lib;version.lib;oleaut32.lib;wbemuuid.lib;Rpcrt4.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SrcRoot)plugins\common;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateMapFile>true</GenerateMapFile>
       <SubSystem>Windows</SubSystem>

@@ -66,6 +66,12 @@ static HRESULT WINAPI fCoSetProxyBlanket(
 { return E_FAIL; }
 PCoSetProxyBlanket pCoSetProxyBlanket = fCoSetProxyBlanket;
 
+
+static BOOL WINAPI fEnumProcessModulesEx(HANDLE, HMODULE*, DWORD, DWORD*, DWORD)
+{ return FALSE; }
+PEnumProcessModulesEx pEnumProcessModulesEx = fEnumProcessModulesEx;
+
+
 static void dynamic_bind(void)
 {
 	static BOOL Inited;
@@ -127,6 +133,12 @@ static void dynamic_bind(void)
 		{
 			if ((f = GetProcAddress(h, "CoSetProxyBlanket")) != NULL)
 				pCoSetProxyBlanket = (PCoSetProxyBlanket)f;
+		}
+
+		if ((h = GetModuleHandle(L"psapi")) != NULL)
+		{
+			if ((f = GetProcAddress(h, "EnumProcessModulesEx")) != NULL)
+				pEnumProcessModulesEx = (PEnumProcessModulesEx)f;
 		}
 
 		Inited = TRUE;

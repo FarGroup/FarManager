@@ -118,7 +118,7 @@ RES = $(OBJDIR)\$(NAME).res
 
 
 AFLAGS = /nologo /c /Fo"$(OBJDIR)\\"
-CPPFLAGS = /nologo /MP /c /W3 /Gy /GF /J /GS- /GR- /EHs-c- /LD /I"$(COMMON)" /I"$(COMINC)" $(ENV_INC_OPT) $(CPP_WIDE) /DNOMINMAX /D_CRT_NON_CONFORMING_WCSTOK /D_CRT_SECURE_NO_WARNINGS /D_CRT_NONSTDC_NO_WARNINGS /D_CRT_NON_CONFORMING_SWPRINTFS /D_WIN32_WINNT=0x0502 $(USERCPP) /Fo"$(OBJDIR)\\" /Fd"$(OBJDIR)\\"
+CPPFLAGS = /nologo /MP /c /W3 /Gy /GF /J /GS- /GR- /LD /I"$(COMMON)" /I"$(COMINC)" $(ENV_INC_OPT) $(CPP_WIDE) /DNOMINMAX /D_CRT_NON_CONFORMING_WCSTOK /D_CRT_SECURE_NO_WARNINGS /D_CRT_NONSTDC_NO_WARNINGS /D_CRT_NON_CONFORMING_SWPRINTFS /D_WIN32_WINNT=0x0502 $(USERCPP) /Fo"$(OBJDIR)\\" /Fd"$(OBJDIR)\\"
 
 
 !ifndef DEBUG
@@ -161,7 +161,7 @@ COMMONLIB = $(COMMON)\libCRT.lib
 !endif
 !endif
 
-LIBS = $(COMMONLIB) chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib Netapi32.lib version.lib oleaut32.lib wbemuuid.lib $(USERLIBS)
+LIBS = $(COMMONLIB) chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib Netapi32.lib version.lib oleaut32.lib wbemuuid.lib psapi.lib $(USERLIBS)
 
 !ifdef _BIN_PATH_
 !ifndef _ML_PATH_
