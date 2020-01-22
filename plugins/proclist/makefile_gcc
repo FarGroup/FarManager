@@ -11,7 +11,7 @@ wmi.cpp
 DOCS = ProcEng.hlf ProcRus.hlf ProcPol.hlf ProcEng.lng ProcRus.lng ProcIta.lng ProcBel.lng ProcPol.lng changelog
 
 USERCPP = -I ./WMI
-USERLIBS = -lversion -lmpr -lole32 -loleaut32
+USERLIBS = -lversion -lmpr -lole32 -loleaut32 -lpsapi
 
 include ../../far/makefile_gcc_common
 

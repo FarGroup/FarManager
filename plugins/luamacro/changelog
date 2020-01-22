@@ -1,4 +1,8 @@
-﻿shmuel 20.01.2020 14:31:27 +0200 - build 723
+﻿shmuel 20.01.2020 18:03:08 +0200 - build 724
+
+1. LuaFAR: refactoring.
+
+shmuel 20.01.2020 14:31:27 +0200 - build 723
 
 1. LuaFAR: revert 721.2: panel.XX functions accept PANEL_ACTIVE/PANEL_PASSIVE in the 1-st argument again.
 

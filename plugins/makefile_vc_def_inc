@@ -161,7 +161,7 @@ COMMONLIB = $(COMMON)\libCRT.lib
 !endif
 !endif
 
-LIBS = $(COMMONLIB) kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib Netapi32.lib version.lib oleaut32.lib wbemuuid.lib $(USERLIBS)
+LIBS = $(COMMONLIB) kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib Netapi32.lib version.lib oleaut32.lib wbemuuid.lib psapi.lib $(USERLIBS)
 
 !ifdef _BIN_PATH_
 !ifndef _ML_PATH_

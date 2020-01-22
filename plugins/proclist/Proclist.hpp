@@ -251,6 +251,8 @@ typedef DWORD (WINAPI *PGetGuiResources)(IN HANDLE hProcess, IN DWORD uiFlags);
 extern PGetGuiResources pGetGuiResources;
 typedef HRESULT(WINAPI *PCoSetProxyBlanket)(IUnknown*, DWORD, DWORD, OLECHAR*, DWORD, DWORD, RPC_AUTH_IDENTITY_HANDLE, DWORD);
 extern PCoSetProxyBlanket pCoSetProxyBlanket;
+typedef BOOL (WINAPI *PEnumProcessModulesEx)(HANDLE, HMODULE*, DWORD, DWORD*, DWORD);
+extern PEnumProcessModulesEx pEnumProcessModulesEx;
 //------
 
 extern wchar_t FPRINTFbuffer[];
