@@ -15,7 +15,7 @@ NOENTRY = 1
 NODEFLIB = 1
 INCLUDECRT = 1
 
-USERCPP = /EHsc /I".\WMI" -D"_WIN32_DCOM"
+USERCPP = /I".\WMI" -D"_WIN32_DCOM"
 
 !include ..\makefile_vc_def_inc
 
