@@ -458,7 +458,7 @@ os::chrono::time_point ParseTimePoint(string_view const Date, string_view const 
 	if (!local_to_utc(st, TimePoint))
 		return {};
 
-	return TimePoint + os::chrono::duration(Point.Tick) % 1ms;
+	return TimePoint + os::chrono::duration(Default(Point.Tick)) % 1ms;
 }
 
 os::chrono::duration ParseDuration(string_view const Date, string_view const Time)

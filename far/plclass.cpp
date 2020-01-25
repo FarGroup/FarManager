@@ -746,6 +746,7 @@ bool Plugin::InitLang(string_view const Path, string_view const Language)
 	}
 	catch (const std::exception&)
 	{
+		// TODO: log
 		return false;
 	}
 }

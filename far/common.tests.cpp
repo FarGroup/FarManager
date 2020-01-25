@@ -51,11 +51,11 @@ TEST_CASE("bytes_view")
 {
 	uint32_t Value = 0;
 	const auto BytesRef = bytes::reference(Value);
-	std::fill(BytesRef.begin(), BytesRef.end(), 0x42);
+	std::fill(BytesRef.begin(), BytesRef.end(), '\x42');
 	REQUIRE(Value == 0x42424242);
 
 	auto BytesCopy = bytes::copy(Value);
-	std::fill(BytesCopy.begin(), BytesCopy.end(), 0x33);
+	std::fill(BytesCopy.begin(), BytesCopy.end(), '\x33');
 	REQUIRE(Value == 0x42424242);
 	const auto NewValue = deserialise<uint32_t>(BytesCopy);
 	REQUIRE(NewValue == 0x33333333);

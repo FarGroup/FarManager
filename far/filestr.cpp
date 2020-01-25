@@ -141,7 +141,7 @@ bool enum_lines::fill() const
 			// - People often use the editor to edit binary files
 			// - If we return REPLACE_CHAR, the incomplete char will be lost
 			// - If we pretend that the remaining bytes are \0, the worst thing that could happen is trailing \0 bytes after save.
-			std::fill_n(m_Buffer.get() + Read, MissingBytes, 0);
+			std::fill_n(m_Buffer.get() + Read, MissingBytes, '\0');
 			m_Data = { m_Buffer.get(), Read + MissingBytes };
 			m_ConversionError = true;
 		}
