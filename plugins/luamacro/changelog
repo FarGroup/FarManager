@@ -1,4 +1,8 @@
-﻿shmuel 20.01.2020 18:03:08 +0200 - build 724
+﻿shmuel 26.01.2020 20:48:33 +0200 - build 725
+
+1. LuaFAR: extend struct LuafarAPI with 3 bit64_XX() functions.
+
+shmuel 20.01.2020 18:03:08 +0200 - build 724
 
 1. LuaFAR: refactoring.
 

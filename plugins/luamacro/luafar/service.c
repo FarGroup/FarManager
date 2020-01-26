@@ -6481,11 +6481,16 @@ const LuafarAPI api_functions = {
 
 	GetExportFunction,
 	pcall_msg,
+
+	bit64_pushuserdata,
+	bit64_push,
+	bit64_getvalue,
 };
 
 void LF_GetLuafarAPI (LuafarAPI* target)
 {
 	size_t size = target->StructSize;
+	memset(target, 0, size); // fill target with nulls (it helps to detect missing functions)
 	if (size > sizeof(LuafarAPI))
 		size = sizeof(LuafarAPI);
 	memcpy(target, &api_functions, size);

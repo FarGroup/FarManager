@@ -8771,7 +8771,7 @@ lv=2
 dt=Text
 nm=far.FileTimeResolution
 ctime=3776673964
-mtime=3776679296
+mtime=3789189767
 <article>
 #_result = far.FileTimeResolution ([operation])
 #_
@@ -8783,7 +8783,7 @@ mtime=3776679296
 #_  result: previous value of resolution (1 for 1ms resolution; 2 for 100ns resolution)
 #_
 #_**Description:**
-#_  There are 2 file time resolutions in LuaFAR: 1ms and 100ns.
+#_  There are 2 file time resolutions in a LuaFAR plugin: 1ms and 100ns.
 #_  At any given moment one of those resolutions is current.
 #_  The current resolution affects functions that get or set file times:
 #_    - all functions dealing with `tPluginPanelItem`
