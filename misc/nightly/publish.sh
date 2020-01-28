@@ -18,8 +18,8 @@ processFarBuild()
 		return 1
 	fi
 
-	7za a -r -x!${ARCNAME}.msi -x!*.pdb ${ARCNAME}.7z *
-	7za a -r ${ARCNAME}.pdb.7z *.pdb
+	7za a -m0=LZMA -r -x!${ARCNAME}.msi -x!*.pdb ${ARCNAME}.7z *
+	7za a -m0=LZMA -r ${ARCNAME}.pdb.7z *.pdb
 
 	cd $BASE || return 1
 	m4 -P -DFARBIT=$1 -DHOSTTYPE=Unix -D ARC=../outfinalnew$1/$ARCNAME -D FARVAR=new -D LASTCHANGE="$LASTCHANGE" ../pagegen.m4 > $NIGHTLY_WEB_ROOT/FarW.$1.php
