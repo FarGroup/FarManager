@@ -5529,19 +5529,19 @@ private:
 
 	bool InitLang(string_view const Path, string_view Language) override
 	{
-		bool Result = true;
-		if (!PluginLang)
+		if (PluginLang)
+			return true;
+
+		try
 		{
-			try
-			{
-				PluginLang = std::make_unique<ansi_plugin_language>(Path, Language);
-			}
-			catch (const std::exception&)
-			{
-				Result = false;
-			}
+			PluginLang = std::make_unique<ansi_plugin_language>(Path, Language);
+			return true;
 		}
-		return Result;
+		catch (const std::exception&)
+		{
+			// TODO: log
+			return false;
+		}
 	}
 
 	void Prologue() override
