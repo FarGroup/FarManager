@@ -2,8 +2,6 @@
 #include "Proclng.hpp"
 #include "perfthread.hpp"
 
-#include <vector>
-
 #include <Psapi.h>
 
 // obtained from PSAPI.DLL
@@ -767,78 +765,52 @@ void PrintModuleVersion(HANDLE InfoFile, wchar_t* pVersion, wchar_t* pDesc, int 
 	}
 }
 
-template<typename callable>
-static void print_module(HANDLE const InfoFile, void* const Module, DWORD const SizeOfImage, callable const& GetName)
+static void print_module(HANDLE const InfoFile, void* const Module, DWORD const SizeOfImage, wchar_t *wszModuleName)
 {
 	int len = 0;
 	fprintf2(len, InfoFile, L"  %p  %6X", Module, SizeOfImage);
-	WCHAR wszModuleName[MAX_PATH];
 
-	if (GetName(wszModuleName, std::size(wszModuleName)))
+	int len2 = 0;
+	fprintf2(len2, InfoFile, L" %s", wszModuleName);
+	len += len2;
+	wchar_t* pVersion, * pDesc;
+	LPBYTE  pBuf;
+
+	if (Opt.ExportModuleVersion && Plist::GetVersionInfo(static_cast<wchar_t*>(wszModuleName), pBuf, pVersion, pDesc))
 	{
-		int len2 = 0;
-		fprintf2(len2, InfoFile, L" %s", wszModuleName);
-		len += len2;
-		wchar_t* pVersion, * pDesc;
-		LPBYTE  pBuf;
-
-		if (Opt.ExportModuleVersion && Plist::GetVersionInfo(static_cast<wchar_t*>(wszModuleName), pBuf, pVersion, pDesc))
-		{
-			PrintModuleVersion(InfoFile, pVersion, pDesc, len);
-			delete[] pBuf;
-		}
+		PrintModuleVersion(InfoFile, pVersion, pDesc, len);
+		delete[] pBuf;
 	}
 
 	fputc(L'\n', InfoFile);
 }
 
-_ACRTIMP __declspec(noreturn) void __cdecl _invalid_parameter_noinfo_noreturn(void) {}
-
-__declspec(noreturn)
-_ACRTIMP void __cdecl _invoke_watson(
-	_In_opt_z_ wchar_t const* _Expression,
-	_In_opt_z_ wchar_t const* _FunctionName,
-	_In_opt_z_ wchar_t const* _FileName,
-	_In_       unsigned int _LineNo,
-	_In_       uintptr_t _Reserved) {}
-
-void __cdecl std::_Xlength_error(char const*) {}
-
-void(__cdecl* std::_Raise_handler)(class stdext::exception const&) {};
-
 void PrintModules(HANDLE InfoFile, DWORD dwPID, _Opt& Opt)
 {
-	ModuleData Data;
 	DebugToken token;
 	HANDLE hProcess = OpenProcessForced(&token, PROCESS_QUERY_INFORMATION|PROCESS_VM_READ|READ_CONTROL, dwPID);
 
-	std::vector<HMODULE> Modules(1024);
-	DWORD RequiredSize = 0;
-	const auto Size = [&]{ return static_cast<DWORD>(Modules.size() * sizeof(Modules[0])); };
-	const auto Resize = [&] { Modules.resize(RequiredSize / sizeof(Modules[0])); };
-
-	while (pEnumProcessModulesEx(hProcess, Modules.data(), Size(), &RequiredSize, LIST_MODULES_ALL) && RequiredSize > Size())
-	{
-		Resize();
+	DWORD Size = 1024, RequiredSize = 0;
+	HMODULE* Modules = (HMODULE*)malloc(Size);
+	while (pEnumProcessModulesEx(hProcess, Modules, Size, &RequiredSize, LIST_MODULES_ALL) && RequiredSize > Size) {
+		Modules = (HMODULE*)realloc(Modules, RequiredSize);
+		Size = RequiredSize;
 	}
 
-	Resize();
-
+	wchar_t wszModuleName[MAX_PATH];
 	if (RequiredSize)
 	{
-		for (const auto Module: Modules)
+		for (HMODULE *Module=Modules; Module<Modules+RequiredSize/sizeof(HMODULE); Module++)
 		{
 			MODULEINFO Info{};
-			GetModuleInformation(hProcess, Module, &Info, sizeof(Info));
-
-			print_module(InfoFile, Info.lpBaseOfDll, Info.SizeOfImage, [&](wchar_t* const Buffer, size_t const BufferSize)
-			{
-				return GetModuleFileNameExW(hProcess, Module, Buffer, static_cast<DWORD>(BufferSize));
-			});
+			GetModuleInformation(hProcess, *Module, &Info, sizeof(Info));
+			if (GetModuleFileNameExW(hProcess, *Module, wszModuleName, ARRAYSIZE(wszModuleName)))
+				print_module(InfoFile, Info.lpBaseOfDll, Info.SizeOfImage, wszModuleName);
 		}
 	}
 	else
 	{
+		ModuleData Data;
 		PROCESS_PARAMETERS* pProcessParams;
 		char *pEnd;
 
@@ -848,16 +820,14 @@ void PrintModules(HANDLE InfoFile, DWORD dwPID, _Opt& Opt)
 
 			do
 			{
-				print_module(InfoFile, Data.BaseAddress, Data.SizeOfImage, [&](wchar_t* const Buffer, size_t const BufferSize)
-				{
-					return ReadProcessMemory(hProcess, Data.FullDllName.Buffer, Buffer, BufferSize * sizeof(*Buffer), nullptr);
-				});
-
-				p4 = reinterpret_cast<char*>(Data.InMemoryOrderModuleList.Flink);
+				if (ReadProcessMemory(hProcess, Data.FullDllName.Buffer, wszModuleName, sizeof(wszModuleName), nullptr))
+					print_module(InfoFile, Data.BaseAddress, Data.SizeOfImage, wszModuleName);
+				p4 = (char *)Data.InMemoryOrderModuleList.Flink;
 			}
 			while (p4 && p4!=pEnd && ReadProcessMemory(hProcess, p4-sizeof(PVOID)*2, &Data, sizeof(Data), 0));
 		}
 	}
+	free(Modules);
 	fputc(L'\n', InfoFile);
 
 	if (hProcess)
