@@ -768,15 +768,12 @@ void PrintModuleVersion(HANDLE InfoFile, wchar_t* pVersion, wchar_t* pDesc, int 
 static void print_module(HANDLE const InfoFile, void* const Module, DWORD const SizeOfImage, wchar_t *wszModuleName)
 {
 	int len = 0;
-	fprintf2(len, InfoFile, L"  %p  %6X", Module, SizeOfImage);
+	fprintf2(len, InfoFile, L"  %p  %6X %s", Module, SizeOfImage, wszModuleName);
 
-	int len2 = 0;
-	fprintf2(len2, InfoFile, L" %s", wszModuleName);
-	len += len2;
 	wchar_t* pVersion, * pDesc;
 	LPBYTE  pBuf;
 
-	if (Opt.ExportModuleVersion && Plist::GetVersionInfo(static_cast<wchar_t*>(wszModuleName), pBuf, pVersion, pDesc))
+	if (Opt.ExportModuleVersion && Plist::GetVersionInfo(wszModuleName, pBuf, pVersion, pDesc))
 	{
 		PrintModuleVersion(InfoFile, pVersion, pDesc, len);
 		delete[] pBuf;
