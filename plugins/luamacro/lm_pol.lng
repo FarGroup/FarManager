@@ -2,23 +2,25 @@
 
 "OK"
 "Błąd parsowania makra"
+"Reloading macros"
 
 "Wykonaj makro"
-"Cyfra: wykonaj | AltF4: otwórz w edytorze"
+"Cyfra: wykonaj | Alt+F4: otwórz w edytorze"
 "< Brak opisu: Indeks=%d >"
 "Niski priorytet"
 
 // okno pomocy przeglądarki makr
-"F1         pokazuje to okno pomocy"
-"F3         pokazuje info o makrze/uchwycie zdarzenia"
-"F4         otwiera plik w edytorze"
-"AltF4      otwiera plik w edytorze modalnym"
-"CtrlPgUp   znajdzuje plik w aktywnym panelu"
-"CtrlF1     sortuje makra wg lokalizacji"
-"CtrlF2     sortuje makra wg klucza"
-"CtrlF3     sortuje makra wg opisu"
-"Enter      wykonuje zaznaczone makro"
-"CtrlH      ukrywa/pokazuje nieaktywne makra"
+"F1          pokazuje to okno pomocy"
+"F3          pokazuje info o makrze/uchwycie zdarzenia"
+"F4          otwiera plik w edytorze"
+"Alt+F4      otwiera plik w edytorze modalnym"
+"Ctrl+PgUp   znajdzuje plik w aktywnym panelu"
+"Ctrl+F1     sortuje makra wg lokalizacji"
+"Ctrl+F2     sortuje makra wg klucza"
+"Ctrl+F3     sortuje makra wg opisu"
+"Enter       wykonuje zaznaczone makro"
+"Ctrl+H      ukrywa/pokazuje nieaktywne makra"
+"Ctrl+R      reload macros"
 
 // macro browser separators
 "Makra"

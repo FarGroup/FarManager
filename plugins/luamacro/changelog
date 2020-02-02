@@ -1,4 +1,8 @@
-﻿shmuel 26.01.2020 20:48:33 +0200 - build 725
+﻿shmuel 02.02.2020 21:14:03 +0200 - build 726
+
+1. Macro Browser: Ctrl+R reloads macrofiles and updates the browser menu.
+
+shmuel 26.01.2020 20:48:33 +0200 - build 725
 
 1. LuaFAR: extend struct LuafarAPI with 3 bit64_XX() functions.
 

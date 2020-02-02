@@ -2,6 +2,7 @@
 
 "OK"
 "Error parsing macro"
+"Reloading macros"
 
 "► Esegui Una Macro"
 "[Alt+F4] Modifica"
@@ -9,16 +10,17 @@
 "Low priority"
 
 // macro browser help window
-"F1         Mostra Questa Finestra Di Aiuto"
-"F3         Mostra Info Riguardo La Macro"
-"F4         Apri File Per La Modifica"
-"AltF4      Apre File In Popup Editor"
-"CtrlPgUp   Trova Il File Nel Pannello Attivo"
-"CtrlF1     Ordina Macro Per Area"
-"CtrlF2     Ordina Macro Per Tasti"
-"CtrlF3     Ordina Macro Per Descrizione"
-"Enter      Esegui Macro Selezionata"
-"CtrlH      Nascodi Macro Non Attive"
+"F1          Mostra Questa Finestra Di Aiuto"
+"F3          Mostra Info Riguardo La Macro"
+"F4          Apri File Per La Modifica"
+"Alt+F4      Apre File In Popup Editor"
+"Ctrl+PgUp   Trova Il File Nel Pannello Attivo"
+"Ctrl+F1     Ordina Macro Per Area"
+"Ctrl+F2     Ordina Macro Per Tasti"
+"Ctrl+F3     Ordina Macro Per Descrizione"
+"Enter       Esegui Macro Selezionata"
+"Ctrl+H      Nascodi Macro Non Attive"
+"Ctrl+R      reload macros"
 
 // macro browser separators
 "Macro"
