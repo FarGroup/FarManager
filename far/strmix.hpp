@@ -280,7 +280,7 @@ string ExtractHexString(string_view HexString);
 [[nodiscard]]
 string ConvertHexString(const string& From, uintptr_t Codepage, bool FromHex);
 
-char* xstrncpy(char* dest, const char* src, size_t DestSize);
-wchar_t* xwcsncpy(wchar_t* dest, const wchar_t* src, size_t DestSize);
+void xstrncpy(char* dest, const char* src, size_t DestSize);
+void xwcsncpy(wchar_t* dest, const wchar_t* src, size_t DestSize);
 
 #endif // STRMIX_HPP_66F8DC2A_61A6_4C06_9B54_E0513A9735FA

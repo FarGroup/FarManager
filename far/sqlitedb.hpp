@@ -244,7 +244,7 @@ private:
 	SQLiteStmt m_stmt_EndTransaction;
 	mutable std::vector<SQLiteStmt> m_Statements;
 	struct init{} m_Init;
-	size_t m_ActiveTransactions{};
+	std::atomic_size_t m_ActiveTransactions{};
 };
 
 #endif // SQLITEDB_HPP_1C228281_1C8E_467F_9070_520E01F7DB70

@@ -70,7 +70,7 @@ WARNING_DISABLE_MSC(4583) // no page                                            
 		else
 		{
 			m_Mode = mode::string;
-			placement::construct(m_Str, ALL_CONST_RANGE(Str));
+			placement::construct(m_Str, Str);
 		}
 	}
 

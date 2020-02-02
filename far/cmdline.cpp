@@ -916,6 +916,13 @@ static bool ProcessFarCommands(const string& Command, function_ref<void(bool)> c
 	{
 		ConsoleActivatior(true);
 
+		std::wcout << L'\n' << build::version_string() << L'\n' << build::copyright() << L'\n';
+
+		if (const auto Revision = build::scm_revision(); !Revision.empty())
+		{
+			std::wcout << L"\nSCM revision:\n"sv << Revision << L'\n';
+		}
+
 		const auto CompilerInfo = []
 		{
 			return
@@ -927,14 +934,7 @@ static bool ProcessFarCommands(const string& Command, function_ref<void(bool)> c
 				;
 		};
 
-		std::wcout
-			<< L'\n' << build::version_string() << L'\n' << build::copyright() << L'\n'
-			<< L"\nCompiler:\n"sv << format(FSTR(L"{0}, version {1}.{2}.{3}{4}"), COMPILER_NAME, COMPILER_VERSION_MAJOR, COMPILER_VERSION_MINOR, COMPILER_VERSION_PATCH, CompilerInfo()) << L'\n';
-
-		if (const auto Revision = build::scm_revision(); !Revision.empty())
-		{
-			std::wcout << L"\nSCM revision:\n"sv << Revision << L'\n';
-		}
+		std::wcout << L"\nCompiler:\n"sv << format(FSTR(L"{0}, version {1}.{2}.{3}{4}"), COMPILER_NAME, COMPILER_VERSION_MAJOR, COMPILER_VERSION_MINOR, COMPILER_VERSION_PATCH, CompilerInfo()) << L'\n';
 
 		if (const auto& ComponentsInfo = components::GetComponentsInfo(); !ComponentsInfo.empty())
 		{

@@ -304,6 +304,13 @@ void WINAPI imports::stub_GetSystemTimePreciseAsFileTime(LPFILETIME SystemTimeAs
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 }
 
+int WINAPI imports::stub_CompareStringOrdinal(LPCWCH String1, int Count1, LPCWCH String2, int Count2, BOOL IgnoreCase)
+{
+	// TODO: log
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return 0;
+}
+
 // shell32
 HRESULT STDAPICALLTYPE imports::stub_SHCreateAssociationRegistration(REFIID riid, void ** ppv)
 {

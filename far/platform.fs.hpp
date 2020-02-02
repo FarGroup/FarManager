@@ -116,7 +116,10 @@ namespace os::fs
 	bool is_standard_drive_letter(wchar_t Letter);
 
 	[[nodiscard]]
-	int get_drive_number(wchar_t Letter);
+	size_t get_drive_number(wchar_t Letter);
+
+	[[nodiscard]]
+	wchar_t get_drive_letter(size_t Number);
 
 	[[nodiscard]]
 	string get_drive(wchar_t Letter);
@@ -513,16 +516,16 @@ namespace os::fs
 	bool set_file_attributes(string_view FileName, DWORD Attributes);
 
 	[[nodiscard]]
-	bool GetLongPathName(const string& ShortPath, string& LongPath);
+	bool GetLongPathName(string_view ShortPath, string& LongPath);
 
 	[[nodiscard]]
-	bool GetShortPathName(const string& LongPath, string& ShortPath);
+	bool GetShortPathName(string_view LongPath, string& ShortPath);
 
 	[[nodiscard]]
 	bool GetVolumeInformation(const string& RootPathName, string *VolumeName, DWORD* VolumeSerialNumber, DWORD* MaximumComponentLength, DWORD* FileSystemFlags, string* FileSystemName);
 
 	[[nodiscard]]
-	bool GetVolumeNameForVolumeMountPoint(const string& VolumeMountPoint, string& VolumeName);
+	bool GetVolumeNameForVolumeMountPoint(string_view VolumeMountPoint, string& VolumeName);
 
 	[[nodiscard]]
 	bool GetVolumePathNamesForVolumeName(const string& VolumeName, string& VolumePathNames);

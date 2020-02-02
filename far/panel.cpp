@@ -1071,7 +1071,7 @@ bool Panel::ExecShortcutFolder(string_view const ShortcutFolder, const GUID& Plu
 					{
 						sizeof(OpenShortcutInfo),
 						EmptyToNull(strPluginFile),
-						strPluginData.empty()? nullptr : strPluginData.c_str(),
+						EmptyToNull(strPluginData),
 						IsActive? FOSF_ACTIVE : FOSF_NONE
 					};
 

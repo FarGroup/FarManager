@@ -62,6 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.fs.hpp"
 
 // Common:
+#include "common/scope_exit.hpp"
 
 // External:
 
@@ -130,7 +131,7 @@ int GetDirInfo(const string& DirName, DirInfoData& Data, FileFilter *Filter, dir
 	string_view ShowDirName = DirName;
 
 	const auto strFullDirName = ConvertNameToFull(DirName);
-	if (DirName.size() == 1 && DirName[0] == L'.')
+	if (DirName == L"."sv)
 	{
 		const auto pos = FindLastSlash(strFullDirName);
 		if (pos != string::npos)
@@ -279,7 +280,7 @@ static void PushPluginDirItem(std::vector<PluginPanelItem>& PluginDirList, const
 
 	NewItem.FileName = MakeCopy(path::join(strPluginSearchPath, CurPanelItem->FileName));
 
-	NewItem.AlternateFileName=nullptr;
+	NewItem.AlternateFileName = {};
 
 	if (CurPanelItem->Description)
 		NewItem.Description = MakeCopy(CurPanelItem->Description);
@@ -332,12 +333,14 @@ static void ScanPluginDir(plugin_panel* hDirListPlugin, OPERATION_MODES OpMode, 
 	if (StopSearch || !Global->CtrlObject->Plugins->GetFindData(hDirListPlugin, PanelData, OPM_FIND | OpMode))
 		return;
 
+	SCOPE_EXIT{ Global->CtrlObject->Plugins->FreeFindData(hDirListPlugin, PanelData, true); };
+
 	PluginDirList.reserve(PluginDirList.size() + PanelData.size());
 
 	for (const auto& i: PanelData)
 	{
 		if (StopSearch)
-			break;
+			return;
 
 		if (!(i.FileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 			PushPluginDirItem(PluginDirList, &i, PluginSearchPath, Data);
@@ -346,31 +349,26 @@ static void ScanPluginDir(plugin_panel* hDirListPlugin, OPERATION_MODES OpMode, 
 	for (const auto& i: PanelData)
 	{
 		if (StopSearch)
-			break;
+			return;
 
-		if ((i.FileAttributes & FILE_ATTRIBUTE_DIRECTORY) && !IsParentDirectory(i))
+		if (!(i.FileAttributes & FILE_ATTRIBUTE_DIRECTORY) || IsParentDirectory(i))
+			continue;
+
+		/* $ 30.11.2001 DJ
+				используем общую функцию для копирования FindData (не забываем
+				обработать PPIF_USERDATA)
+		*/
+		PushPluginDirItem(PluginDirList, &i, PluginSearchPath, Data);
+		const auto FileNameCopy = i.FileName;
+
+		if (Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin, FileNameCopy, OPM_FIND | OpMode, &i.UserData))
 		{
-			/* $ 30.11.2001 DJ
-					используем общую функцию для копирования FindData (не забываем
-					обработать PPIF_USERDATA)
-			*/
-			PushPluginDirItem(PluginDirList, &i, PluginSearchPath, Data);
-			const auto FileNameCopy = i.FileName;
+			ScanPluginDir(hDirListPlugin, OpMode, BaseDir, path::join(PluginSearchPath, i.FileName), PluginDirList, StopSearch, Data, Callback);
 
-			if (Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin, FileNameCopy, OPM_FIND | OpMode, &i.UserData))
-			{
-				ScanPluginDir(hDirListPlugin, OpMode, BaseDir, path::join(PluginSearchPath, i.FileName), PluginDirList, StopSearch, Data, Callback);
-
-				if (!Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin, L".."s, OPM_FIND | OpMode))
-				{
-					StopSearch = true;
-					break;
-				}
-			}
+			if (!Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin, L".."s, OPM_FIND | OpMode))
+				return;
 		}
 	}
-
-	Global->CtrlObject->Plugins->FreeFindData(hDirListPlugin, PanelData, true);
 }
 
 static bool GetPluginDirListImpl(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, const UserDataItem* const UserData, std::vector<PluginPanelItem>& Items, BasicDirInfoData& Data, dirinfo_callback const Callback)

@@ -859,10 +859,10 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			const auto DiskNumber = os::fs::get_drive_number(i.Letter[1]);
 			if (FirstCall)
 			{
-				ChDiskItem.SetSelect(DiskNumber == Pos);
+				ChDiskItem.SetSelect(static_cast<int>(DiskNumber) == Pos);
 
 				if (!SetSelected)
-					SetSelected = (DiskNumber == Pos);
+					SetSelected = (static_cast<int>(DiskNumber) == Pos);
 			}
 			else
 			{
@@ -903,7 +903,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 			PanelMenuItem item;
 			item.bIsPlugin = false;
-			item.cDrive = L'A' + DiskNumber;
+			item.cDrive = os::fs::get_drive_letter(DiskNumber);
 			item.nDriveType = i.DriveType;
 
 			ChDiskItem.Name = ItemName;

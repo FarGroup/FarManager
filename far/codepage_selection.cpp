@@ -385,13 +385,12 @@ void codepages::AddCodePages(DWORD codePages)
 
 	// other codepages
 	//
-	for (const auto& i: InstalledCodepages())
+	for (const auto& [cp, Info]: InstalledCodepages())
 	{
-		const auto cp = i.first;
 		if (IsStandardCodePage(cp))
 			continue;
 
-		auto [len, CodepageName] = GetCodePageInfo(cp);
+		auto [len, CodepageName] = Info;
 		if (!len || (len > 2 && (codePages & ::VOnly)))
 			continue;
 

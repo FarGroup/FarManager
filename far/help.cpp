@@ -516,7 +516,7 @@ bool Help::ReadHelp(const string& Mask)
 				strReadStr[PosTab] = L' ';
 
 				if (CtrlTabSize > 1) // заменим табулятор по всем правилам
-					strReadStr.insert(PosTab, strTabSpace.c_str(), CtrlTabSize - (PosTab % CtrlTabSize));
+					strReadStr.insert(PosTab, strTabSpace, 0, CtrlTabSize - (PosTab % CtrlTabSize));
 			}
 		}
 
@@ -1093,15 +1093,16 @@ bool Help::GetTopic(int realX, int realY, string& strTopic)
 	if (y < 0 || y >= static_cast<int>(HelpList.size()))
 		return false;
 
-	auto Str = HelpList[y].HelpStr.c_str();
+	string_view Str = HelpList[y].HelpStr;
 
-	if (!*Str)
+	if (Str.empty())
 		return false;
 
 	int x = m_Where.left + 1;
-	if (*Str == L'^') // center
+	if (Str.front() == L'^') // center
 	{
-		const auto w = StringLen(++Str);
+		Str.remove_prefix(1);
+		const auto w = StringLen(Str);
 		x = m_Where.left + 1 + std::max(0, (CanvasWidth() - w) / 2);
 	}
 

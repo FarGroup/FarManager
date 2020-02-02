@@ -3,6 +3,18 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 02.02.2020 23:59:59 +0000 - build 5552
+
+1. Refactoring.
+
+zg 03.02.2020 00:46:01 +0200 - build 5551
+
+1. correction of 5542.
+
+svs 29.01.2020 12:51:16 +0300 - build 5550
+
+1. SQLite 3.31.1
+
 drkns 25.01.2020 22:32:20 +0000 - build 5549
 
 1. Possible rubbish in time field when creating a new filter.
