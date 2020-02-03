@@ -174,9 +174,18 @@ namespace os::fs
 		return in_range(L'A', upper(Letter), L'Z');
 	}
 
-	int get_drive_number(wchar_t Letter)
+	size_t get_drive_number(wchar_t Letter)
 	{
+		assert(is_standard_drive_letter(Letter));
+
 		return upper(Letter) - L'A';
+	}
+
+	wchar_t get_drive_letter(size_t Number)
+	{
+		assert(Number < 26);
+
+		return static_cast<wchar_t>(L'A' + Number);
 	}
 
 	string get_drive(wchar_t Letter)
@@ -186,7 +195,7 @@ namespace os::fs
 
 	string get_drive(size_t const Number)
 	{
-		return { static_cast<wchar_t>(L'A' + Number), L':' };
+		return { get_drive_letter(Number), L':' };
 	}
 
 	string get_unc_drive(wchar_t Letter)
@@ -217,7 +226,7 @@ namespace os::fs
 		if (m_CurrentIndex == m_Drives.size())
 			return false;
 
-		Value = static_cast<wchar_t>(L'A' + m_CurrentIndex);
+		Value = get_drive_letter(m_CurrentIndex);
 		++m_CurrentIndex;
 		return true;
 	}
@@ -605,6 +614,7 @@ namespace os::fs
 
 	bool enum_volumes::get(bool Reset, string& Value) const
 	{
+		// A reasonable size for the buffer to accommodate the largest possible volume GUID path is 50 characters.
 		wchar_t VolumeName[50];
 
 		if (Reset)
@@ -733,8 +743,10 @@ namespace os::fs
 	bool file::SetEnd()
 	{
 		SyncPointer();
-		bool ok = SetEndOfFile(m_Handle.native_handle()) != FALSE;
-		if (!ok && !m_Name.empty() && GetLastError() == ERROR_INVALID_PARAMETER) // OSX buggy SMB workaround
+		if (SetEndOfFile(m_Handle.native_handle()))
+			return true;
+
+		if (!m_Name.empty() && GetLastError() == ERROR_INVALID_PARAMETER) // OSX buggy SMB workaround
 		{
 			const auto fsize = GetPointer();
 			Close();
@@ -742,10 +754,11 @@ namespace os::fs
 			{
 				SetPointer(fsize, nullptr, FILE_BEGIN);
 				SyncPointer();
-				ok = SetEndOfFile(m_Handle.native_handle()) != FALSE;
+				return SetEndOfFile(m_Handle.native_handle()) != FALSE;
 			}
 		}
-		return ok;
+
+		return false;
 	}
 
 	bool file::GetTime(os::chrono::time_point* CreationTime, os::chrono::time_point* LastAccessTime, os::chrono::time_point* LastWriteTime, os::chrono::time_point* ChangeTime) const
@@ -1852,19 +1865,19 @@ namespace os::fs
 		return false;
 	}
 
-	bool GetLongPathName(const string& ShortPath, string& LongPath)
+	bool GetLongPathName(string_view const ShortPath, string& LongPath)
 	{
 		return os::detail::ApiDynamicStringReceiver(LongPath, [&](span<wchar_t> Buffer)
 		{
-			return ::GetLongPathName(ShortPath.c_str(), Buffer.data(), static_cast<DWORD>(Buffer.size()));
+			return ::GetLongPathName(null_terminated(ShortPath).c_str(), Buffer.data(), static_cast<DWORD>(Buffer.size()));
 		});
 	}
 
-	bool GetShortPathName(const string& LongPath, string& ShortPath)
+	bool GetShortPathName(string_view const LongPath, string& ShortPath)
 	{
 		return os::detail::ApiDynamicStringReceiver(ShortPath, [&](span<wchar_t> Buffer)
 		{
-			return ::GetShortPathName(LongPath.c_str(), Buffer.data(), static_cast<DWORD>(Buffer.size()));
+			return ::GetShortPathName(null_terminated(LongPath).c_str(), Buffer.data(), static_cast<DWORD>(Buffer.size()));
 		});
 	}
 
@@ -1893,7 +1906,7 @@ namespace os::fs
 		return true;
 	}
 
-	bool GetVolumeNameForVolumeMountPoint(const string& VolumeMountPoint, string& VolumeName)
+	bool GetVolumeNameForVolumeMountPoint(string_view const VolumeMountPoint, string& VolumeName)
 	{
 		WCHAR VolumeNameBuffer[50];
 		NTPath strVolumeMountPoint(VolumeMountPoint);
@@ -2224,3 +2237,43 @@ namespace os::fs
 		return AllowedDrivesMask;
 	}
 }
+
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("drives")
+{
+	static const struct
+	{
+		wchar_t DriveLetter;
+		string_view Drive, UncDrive, RootDirectory;
+		bool Standard;
+		size_t Number;
+	}
+	Tests[]
+	{
+		{ L'A', L"A:"sv, L"\\\\.\\A:"sv, L"A:\\"sv, true,  0,  },
+		{ L'B', L"B:"sv, L"\\\\.\\B:"sv, L"B:\\"sv, true,  1,  },
+		{ L'C', L"C:"sv, L"\\\\.\\C:"sv, L"C:\\"sv, true,  2,  },
+		{ L'Z', L"Z:"sv, L"\\\\.\\Z:"sv, L"Z:\\"sv, true,  25, },
+		{ L'1', L"1:"sv, L"\\\\.\\1:"sv, L"1:\\"sv, false, 42, },
+		{ L'λ', L"λ:"sv, L"\\\\.\\λ:"sv, L"λ:\\"sv, false, 42, },
+	};
+
+	for (const auto& i: Tests)
+	{
+		REQUIRE(os::fs::get_drive(i.DriveLetter) == i.Drive);
+		REQUIRE(os::fs::get_unc_drive(i.DriveLetter) == i.UncDrive);
+		REQUIRE(os::fs::get_root_directory(i.DriveLetter) == i.RootDirectory);
+		REQUIRE(os::fs::is_standard_drive_letter(i.DriveLetter) == i.Standard);
+
+		if (i.Standard)
+		{
+			REQUIRE(os::fs::get_drive_number(i.DriveLetter) == i.Number);
+			REQUIRE(os::fs::get_drive_letter(i.Number) == i.DriveLetter);
+			REQUIRE(os::fs::get_drive(i.Number) == i.Drive);
+		}
+	}
+}
+#endif

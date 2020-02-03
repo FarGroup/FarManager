@@ -77,7 +77,7 @@ private:
 	std::list<desc_map::value_type*> m_OrderForWrite;
 	string m_DizFileName;
 	uintptr_t m_CodePage;
-	bool m_Modified;
+	bool m_Modified{};
 };
 
 #endif // DIZLIST_HPP_0115E7F4_A98B_42CE_A43A_275B8A6DFFEF

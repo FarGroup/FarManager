@@ -62,8 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
 DizList::DizList():
-	m_CodePage(CP_DEFAULT),
-	m_Modified()
+	m_CodePage(CP_DEFAULT)
 {
 }
 
@@ -274,7 +273,7 @@ bool DizList::Erase(const string& Name,const string& ShortName)
 	m_OrderForWrite.erase(std::find(ALL_RANGE(m_OrderForWrite), &*Iterator));
 
 	// Sometimes client can keep the pointer after erasure and use it,
-	// e. g. if description has been deleted during file moving and filelist decided to redraw in the process.
+	// e. g. if a description has been deleted during file moving and filelist decided to redraw in the process.
 	// Zeroing the pointer via some callback could be quite complex, so we just keep the data alive for a while:
 	m_RemovedEntries.emplace_back(std::move(Iterator->second));
 	m_DizData.erase(Iterator);

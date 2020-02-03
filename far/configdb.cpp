@@ -2253,7 +2253,7 @@ static const std::wregex& uuid_regex()
 
 }
 
-void config_provider::TryImportDatabase(representable* p, const char* NodeName, bool IsPlugin)
+void config_provider::TryImportDatabase(representable& p, const char* NodeName, bool IsPlugin)
 {
 	if (!m_TemplateSource && !Global->Opt->TemplateProfilePath.empty() && os::fs::exists(Global->Opt->TemplateProfilePath))
 	{
@@ -2266,12 +2266,12 @@ void config_provider::TryImportDatabase(representable* p, const char* NodeName, 
 
 		if (!NodeName)
 		{
-			p->Import(*m_TemplateSource);
+			p.Import(*m_TemplateSource);
 		}
 		else if (!IsPlugin)
 		{
 			m_TemplateSource->SetRoot(root.FirstChildElement(NodeName));
-			p->Import(*m_TemplateSource);
+			p.Import(*m_TemplateSource);
 		}
 		else
 		{
@@ -2281,7 +2281,7 @@ void config_provider::TryImportDatabase(representable* p, const char* NodeName, 
 				if (guid && 0 == strcmp(guid, NodeName))
 				{
 					m_TemplateSource->SetRoot(&const_cast<tinyxml::XMLElement&>(*i));
-					p->Import(*m_TemplateSource);
+					p.Import(*m_TemplateSource);
 					break;
 				}
 			}
@@ -2291,9 +2291,9 @@ void config_provider::TryImportDatabase(representable* p, const char* NodeName, 
 }
 
 template<class T>
-void config_provider::ImportDatabase(T* Database, const char* ImportNodeName, bool IsPlugin)
+void config_provider::ImportDatabase(T& Database, const char* ImportNodeName, bool IsPlugin)
 {
-	if (m_Mode != mode::m_import && Database->IsNew())
+	if (m_Mode != mode::m_import && Database.IsNew())
 	{
 		TryImportDatabase(Database, ImportNodeName, IsPlugin);
 	}
@@ -2356,7 +2356,7 @@ std::unique_ptr<T> config_provider::CreateDatabase(string_view const Name, bool 
 
 	auto Database = CreateWithFallback<T>(FullName);
 
-	ImportDatabase(Database.get(), nullptr, false);
+	ImportDatabase(*Database, nullptr, false);
 	return Database;
 }
 
@@ -2369,7 +2369,7 @@ HierarchicalConfigUniquePtr config_provider::CreateHierarchicalConfig(dbcheck Db
 
 	if (!m_CheckedDb.Check(DbId))
 	{
-		ImportDatabase(Database.get(), ImportNodeName, IsPlugin);
+		ImportDatabase(*Database, ImportNodeName, IsPlugin);
 		m_CheckedDb.Set(DbId);
 	}
 	return HierarchicalConfigUniquePtr(Database.release());

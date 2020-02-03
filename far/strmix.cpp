@@ -1056,25 +1056,22 @@ string ConvertHexString(const string& From, uintptr_t Codepage, bool FromHex)
 // dest и src НЕ ДОЛЖНЫ пересекаться
 template<typename T>
 [[nodiscard]]
-static T* xncpy(T* dest, const T* src, size_t DestSize)
+static void xncpy(T* dest, const T* src, size_t DestSize)
 {
-	const auto tmpsrc = dest;
-
 	while (DestSize > 1 && (*dest++ = *src++) != 0)
 	{
 		DestSize--;
 	}
 
 	*dest = 0;
-	return tmpsrc;
 }
 
-char* xstrncpy(char* dest, const char* src, size_t DestSize)
+void xstrncpy(char* dest, const char* src, size_t DestSize)
 {
 	return xncpy(dest, src, DestSize);
 }
 
-wchar_t* xwcsncpy(wchar_t* dest, const wchar_t* src, size_t DestSize)
+void xwcsncpy(wchar_t* dest, const wchar_t* src, size_t DestSize)
 {
 	return xncpy(dest, src, DestSize);
 }
@@ -1342,6 +1339,38 @@ TEST_CASE("hex")
 	for (const auto& i: Tests)
 	{
 		REQUIRE(ExtractHexString(i.Src) == i.Result);
+	}
+}
+
+TEST_CASE("xwcsncpy")
+{
+	static const struct
+	{
+		string_view Src;
+	}
+	Tests[]
+	{
+		{ L"12345"sv, },
+		{ L"1234"sv,  },
+		{ L"123"sv,   },
+		{ L"12"sv,    },
+		{ L"1"sv,     },
+		{ L""sv,      },
+	};
+
+	const auto MaxBufferSize = std::max_element(ALL_CONST_RANGE(Tests), [](const auto& a, const auto& b){ return a.Src.size() < b.Src.size(); })->Src.size() + 1;
+
+	for (size_t BufferSize = 0; BufferSize != MaxBufferSize + 1; ++BufferSize)
+	{
+		for (const auto& i: Tests)
+		{
+			wchar_t Buffer[10];
+			assert(std::size(Buffer) >= BufferSize);
+			xwcsncpy(Buffer, i.Src.data(), BufferSize);
+			const auto ResultSize = BufferSize? std::min(i.Src.size(), BufferSize - 1) : 0;
+			REQUIRE(std::equal(i.Src.cbegin(), i.Src.cbegin() + ResultSize, Buffer, Buffer + ResultSize));
+			REQUIRE(Buffer[ResultSize] == L'\0');
+		}
 	}
 }
 #endif

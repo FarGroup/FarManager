@@ -666,11 +666,11 @@ static int mainImpl(span<const wchar_t* const> const Args)
 					{
 						if(Arg[2] == L'-')
 						{
-							Global->Opt->WindowMode= false;
+							Global->Opt->WindowMode = false;
 						}
 						else if(!Arg[2])
 						{
-							Global->Opt->WindowMode= true;
+							Global->Opt->WindowMode = true;
 						}
 					}
 					break;

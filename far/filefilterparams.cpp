@@ -435,7 +435,6 @@ string MenuString(const FileFilterParams* const FF, bool const bHighlightType, w
 	const wchar_t DownArrow = L'\x2193';
 	string_view Name;
 	auto Mask = L""sv;
-	string EscapedMask;
 	auto MarkChar = L"' '"s;
 	DWORD IncludeAttr, ExcludeAttr;
 	bool UseSize, UseHardLinks, UseDate, RelativeDate;
@@ -479,6 +478,8 @@ string MenuString(const FileFilterParams* const FF, bool const bHighlightType, w
 	}
 
 	Mask = trim_right(Mask);
+
+	string EscapedMask;
 
 	if (contains(Mask, L"&"sv))
 	{

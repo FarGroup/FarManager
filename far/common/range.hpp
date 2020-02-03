@@ -53,7 +53,6 @@ public:
 	using pointer = typename std::iterator_traits<iterator>::pointer;
 	using iterator_category = typename std::iterator_traits<iterator_type>::iterator_category;
 
-public:
 	constexpr range() = default;
 
 	constexpr range(iterator Begin, iterator End):

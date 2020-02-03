@@ -1,6 +1,7 @@
 local list = {
   "MOk",
   "MMacroParseErrorTitle",
+  "MReloadMacros",
 
   "UtExecuteMacroTitle",
   "UtExecuteMacroBottom",
@@ -18,6 +19,7 @@ local list = {
   "MBHelpLine8",
   "MBHelpLine9",
   "MBHelpLine10",
+  "MBHelpLine11",
 
   -- macro browser separators
   "MBSepMacros",

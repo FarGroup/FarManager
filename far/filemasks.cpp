@@ -397,7 +397,7 @@ bool filemasks::masks::empty() const
 
 TEST_CASE("masks")
 {
-	struct
+	static const struct
 	{
 		string_view Mask, Test;
 		bool Match;

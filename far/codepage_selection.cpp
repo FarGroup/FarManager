@@ -385,13 +385,16 @@ void codepages::AddCodePages(DWORD codePages)
 
 	// other codepages
 	//
-	for (const auto& i: InstalledCodepages())
+	for (const auto& [cp, Info]: InstalledCodepages())
 	{
-		const auto cp = i.first;
 		if (IsStandardCodePage(cp))
 			continue;
 
-		auto [len, CodepageName] = GetCodePageInfo(cp);
+		// VS2017 spurious const bug
+		// auto [len, CodepageName] = Info;
+		const auto len = Info.first;
+		auto CodepageName = Info.second;
+
 		if (!len || (len > 2 && (codePages & ::VOnly)))
 			continue;
 

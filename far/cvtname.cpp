@@ -290,7 +290,7 @@ size_t GetMountPointLen(string_view const abs_path, string_view const drive_root
 	case root_type::volume:
 		break;
 	case root_type::drive_letter:
-		if (os::fs::GetVolumeNameForVolumeMountPoint(null_terminated(drive_root).c_str(), vol_guid))
+		if (os::fs::GetVolumeNameForVolumeMountPoint(drive_root, vol_guid))
 			break;
 		[[fallthrough]];
 	default:
@@ -352,7 +352,7 @@ string ConvertNameToReal(string_view const Object)
 string ConvertNameToShort(string_view const  Object)
 {
 	string strDest;
-	if(!os::fs::GetShortPathName(null_terminated(Object).c_str(), strDest))
+	if(!os::fs::GetShortPathName(Object, strDest))
 	{
 		strDest = Object;
 
@@ -383,7 +383,7 @@ string ConvertNameToShort(string_view const  Object)
 string ConvertNameToLong(string_view const Object)
 {
 	string strDest;
-	if (!os::fs::GetLongPathName(null_terminated(Object).c_str(), strDest))
+	if (!os::fs::GetLongPathName(Object, strDest))
 	{
 		strDest = Object;
 

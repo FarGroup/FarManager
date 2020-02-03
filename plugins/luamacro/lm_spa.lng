@@ -2,23 +2,25 @@
 
 "Aceptar"
 "Error analizando macro"
+"Reloading macros"
 
 "Ejecutar un macro"
-"Dígito: ejecutar | AltF4: abrir en editor"
+"Dígito: ejecutar | Alt+F4: abrir en editor"
 "< No description: Index=%d >"
 "Low priority"
 
 // macro browser help window
-"F1         mostrar esta ventana de ayuda"
-"F3         mostrar info acerca de macro/evento"
-"F4         abrir archivo en editor"
-"AltF4      abrir archivo en modo editor"
-"CtrlPgUp   localizar archivo en panel activo"
-"CtrlF1     ordenar macros por área"
-"CtrlF2     ordenar macros por tecla"
-"CtrlF3     ordenar macros por descripción"
-"Enter      ejecutar macro seleccionado"
-"CtrlH      ocultar macros inactivos"
+"F1          mostrar esta ventana de ayuda"
+"F3          mostrar info acerca de macro/evento"
+"F4          abrir archivo en editor"
+"Alt+F4      abrir archivo en modo editor"
+"Ctrl+PgUp   localizar archivo en panel activo"
+"Ctrl+F1     ordenar macros por área"
+"Ctrl+F2     ordenar macros por tecla"
+"Ctrl+F3     ordenar macros por descripción"
+"Enter       ejecutar macro seleccionado"
+"Ctrl+H      ocultar macros inactivos"
+"Ctrl+R      reload macros"
 
 // macro browser separators
 "Macros"

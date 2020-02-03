@@ -2,23 +2,25 @@
 
 "OK"
 "Error parsing macro"
+"Reloading macros"
 
 "Execute a macro"
-"Digit: execute | AltF4: open in editor"
+"Digit: execute | Alt+F4: open in editor"
 "< No description: Index=%d >"
 "Low priority"
 
 // macro browser help window
-"F1         show this help window"
-"F3         show info about macro/event handler"
-"F4         open file in editor"
-"AltF4      open file in modal editor"
-"CtrlPgUp   locate file in active panel"
-"CtrlF1     sort macros by area"
-"CtrlF2     sort macros by key"
-"CtrlF3     sort macros by description"
-"Enter      execute selected macro"
-"CtrlH      hide/show inactive macros"
+"F1          show this help window"
+"F3          show info about macro/event handler"
+"F4          open file in editor"
+"Alt+F4      open file in modal editor"
+"Ctrl+PgUp   locate file in active panel"
+"Ctrl+F1     sort macros by area"
+"Ctrl+F2     sort macros by key"
+"Ctrl+F3     sort macros by description"
+"Enter       execute selected macro"
+"Ctrl+H      hide/show inactive macros"
+"Ctrl+R      reload macros"
 
 // macro browser separators
 "Macros"

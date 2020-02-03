@@ -27,7 +27,10 @@ ifndef DIRBIT
 endif
 
 ARCH= -m$(DIRBIT)
-CC= gcc
+
+ifndef CC
+  CC = gcc
+endif
 
 OBJ = luaplug.o $(MYOBJ)
 

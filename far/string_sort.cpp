@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "config.hpp"
 #include "global.hpp"
+#include "imports.hpp"
 
 // Platform:
 
@@ -111,6 +112,12 @@ static int ordinal_comparer(wchar_t Char1, wchar_t Char2)
 
 static int compare_ordinal(const string_view Str1, const string_view Str2)
 {
+	if (imports.CompareStringOrdinal)
+	{
+		if (const auto Result = imports.CompareStringOrdinal(Str1.data(), static_cast<int>(Str1.size()), Str2.data(), static_cast<int>(Str2.size()), FALSE))
+			return Result - 2;
+	}
+
 	return per_char_compare(Str1, Str2, [](string_view::const_iterator& It1, string_view::const_iterator, string_view::const_iterator& It2, string_view::const_iterator)
 	{
 		return ordinal_comparer(*It1++, *It2++);
@@ -119,6 +126,12 @@ static int compare_ordinal(const string_view Str1, const string_view Str2)
 
 static int compare_ordinal_icase(const string_view Str1, const string_view Str2)
 {
+	if (imports.CompareStringOrdinal)
+	{
+		if (const auto Result = imports.CompareStringOrdinal(Str1.data(), static_cast<int>(Str1.size()), Str2.data(), static_cast<int>(Str2.size()), TRUE))
+			return Result - 2;
+	}
+
 	return per_char_compare(Str1, Str2, [](string_view::const_iterator& It1, string_view::const_iterator, string_view::const_iterator& It2, string_view::const_iterator)
 	{
 		return ordinal_comparer(upper(*It1++), upper(*It2++));

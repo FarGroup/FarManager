@@ -2,23 +2,25 @@
 
 "OK"
 "Error parsing macro"
+"Reloading macros"
 
 "Spustiť makro"
-"Číslica: spustiť | AltF4: otvoriť v editore"
+"Číslica: spustiť | Alt+F4: otvoriť v editore"
 "< No description: Index=%d >"
 "Low priority"
 
 // macro browser help window
-"F1         zobraziť toto okno Pomocníka"
-"F3         show info about macro/event"
-"F4         otvoriť súbor v editore"
-"AltF4      otvoriť súbor v modálnom editore"
-"CtrlPgUp   prejsť na súbor v aktívnom paneli"
-"CtrlF1     triediť makrá podľa oblasti"
-"CtrlF2     triediť makrá podľa klávesu"
-"CtrlF3     triediť makrá podľa opisu"
-"Enter      spustiť zvolené makro"
-"CtrlH      skryť neaktívne makrá"
+"F1          zobraziť toto okno Pomocníka"
+"F3          show info about macro/event"
+"F4          otvoriť súbor v editore"
+"Alt+F4      otvoriť súbor v modálnom editore"
+"Ctrl+PgUp   prejsť na súbor v aktívnom paneli"
+"Ctrl+F1     triediť makrá podľa oblasti"
+"Ctrl+F2     triediť makrá podľa klávesu"
+"Ctrl+F3     triediť makrá podľa opisu"
+"Enter       spustiť zvolené makro"
+"Ctrl+H      skryť neaktívne makrá"
+"Ctrl+R      reload macros"
 
 // macro browser separators
 "Makrá"

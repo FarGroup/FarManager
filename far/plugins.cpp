@@ -1341,6 +1341,7 @@ void PluginManager::Configure(int StartPos)
 			const auto item = PluginList->GetComplexUserDataPtr<PluginMenuItemData>(StartPos);
 			ConfigureCurrent(item->pPlugin, item->Guid);
 		}
+		PluginList->ClearDone();
 	}
 }
 
@@ -1372,6 +1373,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 		{
 				bool HotKeysPresent = ConfigProvider().PlHotkeyCfg()->HotkeysPresent(hotkey_type::plugins_menu);
 
+				PluginList->ClearDone();
 				PluginList->clear();
 				LoadIfCacheAbsent();
 				string strName;

@@ -1098,7 +1098,10 @@ string ShortReadableCodepageName(uintptr_t cp)
 	case CP_UTF8:        return L"UTF-8"s;
 	case CP_UNICODE:     return L"U16LE"s;
 	case CP_REVERSEBOM:  return L"U16BE"s;
-	default:             return str(cp);
+	default: return
+		cp == GetACP()? L"ANSI"s :
+		cp == GetOEMCP()? L"OEM"s :
+		str(cp);
 	}
 }
 

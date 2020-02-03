@@ -129,9 +129,10 @@ local ShowOnlyActive = Data and Data.ShowOnlyActive
 
 local function ShowHelp()
   far.Message(
-    ("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s"):format(
+    ("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s"):format(
       Msg.MBHelpLine1, Msg.MBHelpLine2, Msg.MBHelpLine3, Msg.MBHelpLine4, Msg.MBHelpLine5,
-      Msg.MBHelpLine6, Msg.MBHelpLine7, Msg.MBHelpLine8, Msg.MBHelpLine9, Msg.MBHelpLine10),
+      Msg.MBHelpLine6, Msg.MBHelpLine7, Msg.MBHelpLine8, Msg.MBHelpLine9, Msg.MBHelpLine10,
+      Msg.MBHelpLine11),
     Title, nil, "l")
 end
 
@@ -200,7 +201,8 @@ local function MenuLoop()
   }
 
   local bkeys = {
-    {BreakKey="F1"},{BreakKey="F3"},{BreakKey="F4"},{BreakKey="A+F4"},{BreakKey="C+H"},{BreakKey="C+PRIOR"},
+    {BreakKey="F1"}, {BreakKey="F3"}, {BreakKey="F4"}, {BreakKey="A+F4"}, {BreakKey="C+H"},
+    {BreakKey="C+PRIOR"}, {BreakKey="C+R"},
   }
   for k in pairs(CmpFuncs) do bkeys[#bkeys+1] = {BreakKey=k} end
 
@@ -297,6 +299,11 @@ local function MenuLoop()
       else
         Message(Msg.MBNoFileNameAvail)
       end
+    ----------------------------------------------------------------------------
+    elseif BrKey=="C+R" then -- CtrlR - reload macros
+      far.Message(Msg.MReloadMacros,"","")
+      far.MacroLoadAll()
+      win.Sleep(400)
     ----------------------------------------------------------------------------
     end
   end
