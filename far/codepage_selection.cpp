@@ -390,7 +390,11 @@ void codepages::AddCodePages(DWORD codePages)
 		if (IsStandardCodePage(cp))
 			continue;
 
-		auto [len, CodepageName] = Info;
+		// VS2017 spurious const bug
+		// auto [len, CodepageName] = Info;
+		const auto len = Info.first;
+		auto CodepageName = Info.second;
+
 		if (!len || (len > 2 && (codePages & ::VOnly)))
 			continue;
 

@@ -1336,7 +1336,7 @@ void ChangeDisk(panel_ptr Owner)
 	const auto& CurDir = Owner->GetCurDir();
 	if (!CurDir.empty() && CurDir[1] == L':' && os::fs::is_standard_drive_letter(CurDir[0]))
 	{
-		Pos = os::fs::get_drive_number(CurDir[0]);
+		Pos = static_cast<int>(os::fs::get_drive_number(CurDir[0]));
 	}
 
 	while (Pos != -1)
