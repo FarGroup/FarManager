@@ -1,3 +1,7 @@
+drkns 04.02.2020 19:06:35 +0000 - build 190
+
+1. Correction of 189.
+
 drkns 22.01.2020 01:30:39 +0000 - build 189
 
 1. 0003764: FAR/ProcessList x64 doesn't show modules for 32-bit .exe

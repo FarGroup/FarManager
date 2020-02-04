@@ -765,7 +765,7 @@ void PrintModuleVersion(HANDLE InfoFile, wchar_t* pVersion, wchar_t* pDesc, int 
 	}
 }
 
-static void print_module(HANDLE const InfoFile, void* const Module, DWORD const SizeOfImage, wchar_t *wszModuleName)
+static void print_module(HANDLE const InfoFile, void* const Module, DWORD const SizeOfImage, _Opt& Opt, wchar_t *wszModuleName)
 {
 	int len = 0;
 	fprintf2(len, InfoFile, L"  %p  %6X %s", Module, SizeOfImage, wszModuleName);
@@ -802,7 +802,7 @@ void PrintModules(HANDLE InfoFile, DWORD dwPID, _Opt& Opt)
 			MODULEINFO Info{};
 			GetModuleInformation(hProcess, *Module, &Info, sizeof(Info));
 			if (GetModuleFileNameExW(hProcess, *Module, wszModuleName, ARRAYSIZE(wszModuleName)))
-				print_module(InfoFile, Info.lpBaseOfDll, Info.SizeOfImage, wszModuleName);
+				print_module(InfoFile, Info.lpBaseOfDll, Info.SizeOfImage, Opt, wszModuleName);
 		}
 	}
 	else
@@ -818,7 +818,7 @@ void PrintModules(HANDLE InfoFile, DWORD dwPID, _Opt& Opt)
 			do
 			{
 				if (ReadProcessMemory(hProcess, Data.FullDllName.Buffer, wszModuleName, sizeof(wszModuleName), nullptr))
-					print_module(InfoFile, Data.BaseAddress, Data.SizeOfImage, wszModuleName);
+					print_module(InfoFile, Data.BaseAddress, Data.SizeOfImage, Opt, wszModuleName);
 				p4 = (char *)Data.InMemoryOrderModuleList.Flink;
 			}
 			while (p4 && p4!=pEnd && ReadProcessMemory(hProcess, p4-sizeof(PVOID)*2, &Data, sizeof(Data), 0));
