@@ -768,7 +768,7 @@ void PrintModuleVersion(HANDLE InfoFile, wchar_t* pVersion, wchar_t* pDesc, int 
 }
 
 template<typename callable>
-static void print_module(HANDLE const InfoFile, void* const Module, DWORD const SizeOfImage, callable const& GetName)
+static void print_module(HANDLE const InfoFile, void* const Module, DWORD const SizeOfImage, _Opt& Opt, callable const& GetName)
 {
 	int len = 0;
 	fprintf2(len, InfoFile, L"  %p  %6X", Module, SizeOfImage);
@@ -817,7 +817,7 @@ void PrintModules(HANDLE InfoFile, DWORD dwPID, _Opt& Opt)
 			MODULEINFO Info{};
 			GetModuleInformation(hProcess, Module, &Info, sizeof(Info));
 
-			print_module(InfoFile, Info.lpBaseOfDll, Info.SizeOfImage, [&](wchar_t* const Buffer, size_t const BufferSize)
+			print_module(InfoFile, Info.lpBaseOfDll, Info.SizeOfImage, Opt, [&](wchar_t* const Buffer, size_t const BufferSize)
 			{
 				return GetModuleFileNameExW(hProcess, Module, Buffer, static_cast<DWORD>(BufferSize));
 			});
@@ -834,7 +834,7 @@ void PrintModules(HANDLE InfoFile, DWORD dwPID, _Opt& Opt)
 
 			do
 			{
-				print_module(InfoFile, Data.BaseAddress, Data.SizeOfImage, [&](wchar_t* const Buffer, size_t const BufferSize)
+				print_module(InfoFile, Data.BaseAddress, Data.SizeOfImage, Opt, [&](wchar_t* const Buffer, size_t const BufferSize)
 				{
 					return ReadProcessMemory(hProcess, Data.FullDllName.Buffer, Buffer, BufferSize * sizeof(*Buffer), nullptr);
 				});
