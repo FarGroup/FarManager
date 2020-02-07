@@ -228,13 +228,18 @@ struct [[nodiscard]] overload: args...
 
 template<typename... args> overload(args&&...) -> overload<args...>;
 
+namespace detail
+{
+	template<typename T>
+	using is_void_or_trivially_copyable = std::disjunction<std::is_void<T>, std::is_trivially_copyable<T>>;
+}
 
 template<typename src_type, typename dst_type>
 void copy_memory(const src_type* Source, dst_type* Destination, size_t const Size)
 {
 	static_assert(std::conjunction_v<
-		std::disjunction<std::is_void<src_type>, std::is_trivially_copyable<src_type>>,
-		std::disjunction<std::is_void<dst_type>, std::is_trivially_copyable<dst_type>>
+		detail::is_void_or_trivially_copyable<src_type>,
+		detail::is_void_or_trivially_copyable<dst_type>
 	>);
 
 	if (Size) // paranoid gcc null checks are paranoid

@@ -186,7 +186,7 @@ class far_wrapper_exception : public far_exception
 {
 public:
 	far_wrapper_exception(const char* Function, const char* File, int Line);
-	const std::vector<const void*>& get_stack() const { return m_Stack; }
+	const auto& get_stack() const { return m_Stack; }
 
 private:
 	std::shared_ptr<os::handle> m_ThreadHandle;

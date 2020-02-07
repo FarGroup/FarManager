@@ -4527,7 +4527,7 @@ void FileList::SelectSortMode()
 	};
 	static_assert(std::size(InitSortMenuModes) == static_cast<size_t>(panel_sort::COUNT));
 
-	std::vector<menu_item> SortMenu(ALL_CONST_RANGE(InitSortMenuModes));
+	std::vector SortMenu(ALL_CONST_RANGE(InitSortMenuModes));
 
 	static const menu_item MenuSeparator = { {}, LIF_SEPARATOR };
 

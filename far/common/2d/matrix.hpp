@@ -34,140 +34,216 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "../preprocessor.hpp"
+#include "../range.hpp"
 #include "../rel_ops.hpp"
 
 //----------------------------------------------------------------------------
 
-template<class T>
-class matrix
+namespace detail
 {
-public:
-	COPYABLE(matrix);
-	MOVABLE(matrix);
-
-	template<class pointer>
-	class row_t: public rel_ops<row_t<pointer>>
+	template<typename T>
+	class matrix_row: public span<T>
 	{
 	public:
-		using iterator = pointer;
-		using value_type = typename std::iterator_traits<iterator>::value_type;
-		using reference = typename std::iterator_traits<iterator>::reference;
-
-		row_t(iterator Row, size_t Size): m_row(Row), m_size(Size) {}
+		using span<T>::span;
 
 		[[nodiscard]]
-		auto size() const { return m_size; }
-
-		// assert for <= is ok, &row[size] can be used as an 'end' iterator
-		[[nodiscard]]
-		decltype(auto) operator[](size_t n) { assert(n <= m_size); return m_row[n]; }
-
-		[[nodiscard]]
-		decltype(auto) operator[](size_t n) const { assert(n <= m_size); return m_row[n]; }
+		bool operator==(const matrix_row& rhs) const
+		{
+			return std::equal(ALL_CONST_RANGE(*this), ALL_CONST_RANGE(rhs));
+		}
 
 		[[nodiscard]]
-		decltype(auto) front() const { assert(m_size != 0); return m_row[0]; }
-
-		[[nodiscard]]
-		decltype(auto) back() const { assert(m_size != 0); return m_row[m_size - 1]; }
-
-		[[nodiscard]]
-		auto data() { return m_row; }
-
-		[[nodiscard]]
-		auto data() const { return m_row; }
-
-		[[nodiscard]]
-		auto begin() { return m_row; }
-
-		[[nodiscard]]
-		auto end() { return m_row + m_size; }
-
-		[[nodiscard]]
-		auto begin() const { return m_row; }
-
-		[[nodiscard]]
-		auto end() const { return m_row + m_size; }
-
-		[[nodiscard]]
-		auto cbegin() const { return m_row; }
-
-		[[nodiscard]]
-		auto cend() const { return m_row + m_size; }
-
-		[[nodiscard]]
-		bool operator==(const row_t& rhs) const { return m_size == rhs.m_size && std::equal(m_row, m_row + m_size, rhs.m_row); }
-
-	private:
-		iterator m_row;
-		size_t m_size;
+		bool operator!=(const matrix_row& rhs) const
+		{
+			return !(*this == rhs);
+		}
 	};
 
-	using row = row_t<T*>;
-	using const_row = row_t<const T*>;
+	// GCC isn't smart enough to deduce this
+	template<typename T>
+	matrix_row(T*, size_t) -> matrix_row<T>;
 
-	matrix(): m_rows(), m_cols() {}
-	matrix(size_t rows, size_t cols) { allocate(rows, cols); }
-
-	void allocate(size_t rows, size_t cols)
+	template<typename T>
+	class matrix_iterator: public rel_ops<matrix_iterator<T>>
 	{
-		m_rows = rows;
-		m_cols = cols;
+	public:
+		using iterator_category = std::random_access_iterator_tag;
+		using difference_type = std::ptrdiff_t;
+		using reference = T;
+		using value_type = T;
+		using pointer = T*;
 
-		// Force memory release
-		clear_and_shrink(m_buffer);
-		m_buffer.resize(m_rows * m_cols);
+		matrix_iterator() = default;
+
+		explicit matrix_iterator(T* Data, size_t Width):
+			m_Data(Data),
+			m_Width(Width)
+		{
+		}
+
+		[[nodiscard]]
+		decltype(auto) operator*() { return matrix_row(m_Data, m_Width); }
+
+		[[nodiscard]]
+		decltype(auto) operator*() const { return matrix_row(m_Data, m_Width); }
+
+		[[nodiscard]]
+		auto operator->() { return &**this; }
+
+		[[nodiscard]]
+		auto operator->() const { return &**this; }
+
+		auto& operator++() { m_Data += m_Width; return *this; }
+		auto& operator--() { m_Data -= m_Width; return *this; }
+
+		auto& operator+=(size_t const n) { m_Data += n * m_Width; return *this; }
+		auto& operator-=(size_t const n) { m_Data -= n * m_Width; return *this; }
+
+		auto operator+(size_t const n) const { return matrix_iterator(m_Data + n * m_Width, m_Width); }
+		auto operator-(size_t const n) const { return matrix_iterator(m_Data - n * m_Width, m_Width); }
+
+		auto operator-(const matrix_iterator& rhs) const { return m_Data - rhs.m_Data; }
+
+		[[nodiscard]]
+		auto operator==(const matrix_iterator& rhs) const { return m_Data == rhs.m_Data; }
+
+		[[nodiscard]]
+		auto operator<(const matrix_iterator& rhs) const { return m_Data < rhs.m_Data; }
+
+	private:
+		T* m_Data{};
+		size_t m_Width{};
+	};
+}
+
+template<class T>
+class matrix_view
+{
+public:
+	COPYABLE(matrix_view);
+	MOVABLE(matrix_view);
+
+	matrix_view() = default;
+	matrix_view(T* Data, size_t const Rows, size_t const Cols):
+		m_Data(Data),
+		m_Rows(Rows),
+		m_Cols(Cols)
+	{
 	}
 
-	// assert for <= is ok, &matirx[size] can be used as an 'end' iterator
-	[[nodiscard]]
-	auto operator[](size_t n) { assert(n <= m_rows); return row(m_buffer.data() + m_cols * n, m_cols); }
+	[[nodiscard]] auto begin()        { return detail::matrix_iterator(data(), m_Cols); }
+	[[nodiscard]] auto end()          { return detail::matrix_iterator(data() + size(), m_Cols); }
+	[[nodiscard]] auto begin()  const { return detail::matrix_iterator(data(), m_Cols); }
+	[[nodiscard]] auto end()    const { return detail::matrix_iterator(data() + size(), m_Cols); }
+	[[nodiscard]] auto cbegin() const { return detail::matrix_iterator(data(), m_Cols); }
+	[[nodiscard]] auto cend()   const { return detail::matrix_iterator(data() + size(), m_Cols); }
 
 	[[nodiscard]]
-	auto operator[](size_t n) const { assert(n <= m_rows); return const_row(m_buffer.data() + m_cols * n, m_cols); }
+	auto operator[](size_t const Index) { assert(Index < m_Rows); return detail::matrix_row(m_Data + m_Cols * Index, m_Cols); }
 
 	[[nodiscard]]
-	auto height() const { return m_rows; }
+	auto operator[](size_t const Index) const { assert(Index < m_Rows); return detail::matrix_row(m_Data + m_Cols * Index, m_Cols); }
 
 	[[nodiscard]]
-	auto width() const { return m_cols; }
+	auto height() const { return m_Rows; }
 
 	[[nodiscard]]
-	auto front() { assert(m_rows != 0); return (*this)[0]; }
+	auto width() const { return m_Cols; }
 
 	[[nodiscard]]
-	auto back() { assert(m_rows != 0); return (*this)[m_rows - 1]; }
+	auto front() { assert(m_Rows != 0); return (*this)[0]; }
 
 	[[nodiscard]]
-	auto front() const { assert(m_rows != 0); return (*this)[0]; }
+	auto back() { assert(m_Rows != 0); return (*this)[m_Rows - 1]; }
 
 	[[nodiscard]]
-	auto back() const { assert(m_rows != 0); return (*this)[m_rows - 1]; }
+	auto front() const { assert(m_Rows != 0); return (*this)[0]; }
 
 	[[nodiscard]]
-	auto empty() const { return m_buffer.empty(); }
+	auto back() const { assert(m_Rows != 0); return (*this)[m_Rows - 1]; }
 
 	[[nodiscard]]
-	auto size() const { return m_buffer.size(); }
+	auto empty() const { return !m_Rows || !m_Cols; }
 
 	[[nodiscard]]
-	auto data() { return m_buffer.data(); }
+	auto size() const { return m_Rows * m_Cols; }
 
 	[[nodiscard]]
-	auto data() const { return m_buffer.data(); }
-
-	// TODO: iterator interface
+	auto data() { return m_Data; }
 
 	[[nodiscard]]
-	auto& vector() { return m_buffer; }
-
-	[[nodiscard]]
-	auto& vector() const { return m_buffer; }
+	auto data() const { return m_Data; }
 
 private:
-	std::vector<T> m_buffer;
-	size_t m_rows;
-	size_t m_cols;
+	T* m_Data{};
+	size_t m_Rows{};
+	size_t m_Cols{};
+};
+
+namespace detail
+{
+	template<class T>
+	struct matrix_data
+	{
+		std::vector<T> m_Buffer;
+	};
+}
+
+template<class T>
+class matrix: private detail::matrix_data<T>, public matrix_view<T>
+{
+public:
+	matrix() = default;
+
+	matrix(size_t const Rows, size_t const Cols)
+	{
+		allocate(Rows, Cols);
+	}
+
+	matrix(const matrix& rhs):
+		detail::matrix_data<T>{ rhs.m_Buffer },
+		matrix_view<T>(this->m_Buffer.data(), rhs.height(), rhs.width())
+	{
+	}
+
+	explicit matrix(const matrix_view<T>& rhs):
+		detail::matrix_data<T>{ rhs.m_Buffer },
+		matrix_view<T>(this->m_Buffer.data(), rhs.height(), rhs.width())
+	{
+	}
+
+	matrix(matrix&& rhs) noexcept:
+		detail::matrix_data<T>{ std::move(rhs.m_Buffer) },
+		matrix_view<T>(this->m_Buffer.data(), rhs.height(), rhs.width())
+	{
+	}
+
+	COPY_ASSIGNABLE_SWAP(matrix);
+	COPY_ASSIGNABLE_SWAP(matrix_view<T>);
+
+	matrix& operator=(matrix&& rhs) noexcept
+	{
+		this->m_Buffer = std::move(rhs.m_Buffer);
+		static_cast<matrix_view<T>&>(*this) = matrix_view<T>(this->m_Buffer.data(), rhs.height(), rhs.width());
+		return *this;
+	}
+
+	void allocate(size_t const Rows, size_t const Cols)
+	{
+		// Force memory release
+		if (Rows * Cols < this->m_Buffer.capacity())
+			clear_and_shrink(this->m_Buffer);
+
+		this->m_Buffer.resize(Rows * Cols);
+		static_cast<matrix_view<T>&>(*this) = matrix_view<T>(this->m_Buffer.data(), Rows, Cols);
+	}
+
+	[[nodiscard]]
+	auto& vector() { return this->m_Buffer; }
+
+	[[nodiscard]]
+	auto& vector() const { return this->m_Buffer; }
 };
 
 #endif // MATRIX_HPP_FD448106_F9CF_43E3_8148_E9680D79AFB7

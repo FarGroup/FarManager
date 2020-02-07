@@ -1055,7 +1055,6 @@ string ConvertHexString(const string& From, uintptr_t Codepage, bool FromHex)
 
 // dest и src НЕ ДОЛЖНЫ пересекаться
 template<typename T>
-[[nodiscard]]
 static void xncpy(T* dest, const T* src, size_t DestSize)
 {
 	while (DestSize > 1 && (*dest++ = *src++) != 0)

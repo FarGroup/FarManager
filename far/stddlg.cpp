@@ -648,7 +648,7 @@ operation OperationFailed(const error_state_ex& ErrorState, string Object, lng T
 		}
 	}
 
-	std::vector<string> Msgs{std::move(Description), QuoteOuterSpace(std::move(Object))};
+	std::vector Msgs{std::move(Description), QuoteOuterSpace(std::move(Object))};
 	if(!Msg.empty())
 	{
 		Msgs.emplace_back(format(msg(lng::MObjectLockedReason), msg(Reason)));

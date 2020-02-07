@@ -163,7 +163,7 @@ void ScreenBuf::Read(rectangle Where, matrix<FAR_CHAR_INFO>& Dest)
 	for (auto i = Where.top; i <= Where.bottom; ++i)
 	{
 		const auto Row = Buf[i];
-		std::copy(&Row[Where.left], &Row[Where.right + 1], &Dest[i - Where.top][0]);
+		std::copy_n(Row.cbegin() + Where.left, Where.width(), Dest[i - Where.top].begin());
 	}
 }
 

@@ -3,6 +3,16 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 07.02.2020 21:43:51 +0000 - build 5554
+
+1. Refactoring.
+
+2. More tests.
+
+3. Potential leaks in RestoreScreen & FreeScreen.
+
+4. Please note that any new fields in API structures should be added at the end only.
+
 shmuel 07.02.2020 21:48:51 +0200 - build 5553
 
 1. Function FreeScreen added to the plugins API.

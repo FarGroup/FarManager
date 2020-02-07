@@ -2649,7 +2649,7 @@ static void ViewerSearchMsgImpl(const string& MsgStr, int Percent, int SearchHex
 	}
 
 	{
-		std::vector<string> MsgItems{ strMsg };
+		std::vector MsgItems{ strMsg };
 		if (!strProgress.empty())
 			MsgItems.emplace_back(strProgress);
 

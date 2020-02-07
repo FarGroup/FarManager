@@ -2391,8 +2391,8 @@ struct PluginStartupInfo
 	FARAPIMACROCONTROL     MacroControl;
 	FARAPISETTINGSCONTROL  SettingsControl;
 	const void*            Private;
-	FARAPIFREESCREEN       FreeScreen;
 	void*                  Instance;
+	FARAPIFREESCREEN       FreeScreen;
 };
 
 typedef HANDLE (WINAPI *FARAPICREATEFILE)(const wchar_t *Object,DWORD DesiredAccess,DWORD ShareMode,LPSECURITY_ATTRIBUTES SecurityAttributes,DWORD CreationDistribution,DWORD FlagsAndAttributes,HANDLE TemplateFile);

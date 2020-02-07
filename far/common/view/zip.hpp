@@ -52,7 +52,7 @@ namespace detail
 		[[nodiscard]]
 		static auto dereference_impl(std::index_sequence<index...>, const pointer& Tuple)
 		{
-			return std::tie(*std::get<index>(Tuple)...);
+			return std::tuple<decltype(*std::get<index>(Tuple))...>(*std::get<index>(Tuple)...);
 		}
 
 		[[nodiscard]]
