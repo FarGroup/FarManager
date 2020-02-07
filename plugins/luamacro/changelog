@@ -1,4 +1,8 @@
-﻿shmuel 02.02.2020 21:14:03 +0200 - build 726
+﻿shmuel 07.02.2020 21:52:13 +0200 - build 727
+
+1. LuaFAR: add function far.FreeScreen.
+
+shmuel 02.02.2020 21:14:03 +0200 - build 726
 
 1. Macro Browser: Ctrl+R reloads macrofiles and updates the browser menu.
 

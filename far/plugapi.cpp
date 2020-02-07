@@ -1453,6 +1453,23 @@ void WINAPI apiRestoreScreen(HANDLE hScreen) noexcept
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 }
 
+void WINAPI apiFreeScreen(HANDLE hScreen) noexcept
+{
+	try
+	{
+		if (Global->DisablePluginsOutput || Global->WindowManager->ManagerIsDown())
+			return;
+
+		if (hScreen)
+		{
+			auto scr = static_cast<SaveScreen*>(hScreen);
+			scr->Discard();
+			delete scr;
+		}
+	}
+	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
+}
+
 namespace magic
 {
 	template<typename T>
@@ -3100,6 +3117,7 @@ static const PluginStartupInfo NativeInfo
 	pluginapi::apiMacroControl,
 	pluginapi::apiSettingsControl,
 	nullptr, //Private, dynamic
+	pluginapi::apiFreeScreen,
 };
 
 void CreatePluginStartupInfo(PluginStartupInfo* PSI, FarStandardFunctions* FSF)

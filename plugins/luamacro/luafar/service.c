@@ -2605,6 +2605,19 @@ static int far_RestoreScreen(lua_State *L)
 	return 0;
 }
 
+// FreeScreen (handle)
+//   handle:    handle of saved screen.
+static int far_FreeScreen(lua_State *L)
+{
+	void **pp = (void**)luaL_checkudata(L, 1, SavedScreenType);
+	if (*pp)
+	{
+		GetPluginData(L)->Info->FreeScreen(*pp);
+		*pp = NULL;
+	}
+	return 0;
+}
+
 // handle = SaveScreen (X1,Y1,X2,Y2)
 //   handle:    handle of saved screen, [lightuserdata]
 static int far_SaveScreen(lua_State *L)
@@ -6088,6 +6101,7 @@ const luaL_Reg far_funcs[] =
 	{"Message",             far_Message},
 	{"RestoreScreen",       far_RestoreScreen},
 	{"SaveScreen",          far_SaveScreen},
+	{"FreeScreen",          far_FreeScreen},
 	{"Text",                far_Text},
 	{"ShowHelp",            far_ShowHelp},
 	{"InputBox",            far_InputBox},
@@ -6245,6 +6259,8 @@ static int luaopen_far(lua_State *L)
 	lua_setfield(L, -2, "__gc");
 
 	luaL_newmetatable(L, SavedScreenType);
+	lua_pushcfunction(L, far_FreeScreen);
+	lua_setfield(L, -2, "__gc");
 
 	return 0;
 }

@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 07.02.2020 21:48:51 +0200 - build 5553
+
+1. Function FreeScreen added to the plugins API.
+
 drkns 02.02.2020 23:59:59 +0000 - build 5552
 
 1. Refactoring.

@@ -2530,6 +2530,30 @@ mtime=3618304216
 </article>
 </node>
 <node>
+id=546
+lv=2
+dt=Text
+nm=far.FreeScreen
+ctime=3790273990
+mtime=3790274065
+<article>
+#_far.FreeScreen (handle)
+#_
+#_**Parameters:**
+#_  handle: userdata
+#_
+#_**Returns:**
+#_  nothing
+#_
+#_**Far API used:**
+#_  FreeScreen
+#_
+#_@@@
+#_{freescreen}: http://api.farmanager.com/ru/service_functions/freescreen.html
+#_
+</article>
+</node>
+<node>
 id=53
 lv=2
 dt=Text
