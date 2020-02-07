@@ -3,7 +3,7 @@ setlocal
 
 set param=%1
 
-for /f "tokens=1,2,4 delims=," %%i in ('tools\m4 -P farversion.inc.m4') do (
+for /f "tokens=1,2,4 delims=, " %%i in ('tools\m4 -P farversion.inc.m4') do (
 	set major=%%i
 	set minor=%%j
 	set build=%%k

@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 07.02.2020 21:55:55 +0000 - build 5555
+
+1. New versions of fmt and Catch2.
+
 drkns 07.02.2020 21:43:51 +0000 - build 5554
 
 1. Refactoring.
