@@ -5,7 +5,7 @@
 /*
 DlgBuilder.hpp
 
-Dynamic construction of dialogs for FAR Manager 3.0 build 5505
+Dynamic construction of dialogs for FAR Manager 3.0 build 5552
 */
 /*
 Copyright © 2009 Far Group
@@ -1066,6 +1066,15 @@ public:
 			}
 
 			SetLastItemBinding(new PluginEditFieldBinding(Info, &DialogHandle, m_DialogItemsCount-1, Value, MaxSize));
+			return Item;
+		}
+
+		FarDialogItem *AddReadonlyEditField(const wchar_t *Value, int Width)
+		{
+			FarDialogItem *Item = AddDialogItem(DI_EDIT, Value);
+			SetNextY(Item);
+			Item->X2 = Item->X1 + (Width > 0 ? Width : TextWidth(*Item)) - 1;
+			Item->Flags |= DIF_READONLY;
 			return Item;
 		}
 
