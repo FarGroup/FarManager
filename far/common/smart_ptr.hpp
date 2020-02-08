@@ -114,7 +114,6 @@ WARNING_POP()
 	[[nodiscard]]
 	T* get() const noexcept
 	{
-		assert(m_Size);
 		return size() > StaticSize? m_DynamicBuffer.get() : m_StaticBuffer.data();
 	}
 
