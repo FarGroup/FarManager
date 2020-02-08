@@ -1874,8 +1874,10 @@ int LF_Message(lua_State *L,
 		else if(!_wcsicmp(p, L"YesNo"))            Flags = FMSG_MB_YESNO;
 		else if(!_wcsicmp(p, L"YesNoCancel"))      Flags = FMSG_MB_YESNOCANCEL;
 		else if(!_wcsicmp(p, L"RetryCancel"))      Flags = FMSG_MB_RETRYCANCEL;
+		else
+			while(*aButtons == L';') aButtons++;
 	}
-	else
+	if(Flags == 0)
 	{
 		// Buttons: 1-st pass, determining number of buttons
 		BtnCopy = _wcsdup(aButtons);
