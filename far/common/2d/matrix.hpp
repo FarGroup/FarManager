@@ -140,10 +140,14 @@ public:
 	[[nodiscard]] auto cend()   const { return detail::matrix_iterator(data() + size(), m_Cols); }
 
 	[[nodiscard]]
-	auto operator[](size_t const Index) { assert(Index < m_Rows); return detail::matrix_row(m_Data + m_Cols * Index, m_Cols); }
+	// BUGBUG assert for <= is due to the fact that &row[size] can be used as an 'end' iterator
+	// TODO: use iterators
+	auto operator[](size_t const Index) { assert(Index <= m_Rows); return detail::matrix_row(m_Data + m_Cols * Index, m_Cols); }
 
 	[[nodiscard]]
-	auto operator[](size_t const Index) const { assert(Index < m_Rows); return detail::matrix_row(m_Data + m_Cols * Index, m_Cols); }
+	// BUGBUG assert for <= is due to the fact that &row[size] can be used as an 'end' iterator
+	// TODO: use iterators
+	auto operator[](size_t const Index) const { assert(Index <= m_Rows); return detail::matrix_row(m_Data + m_Cols * Index, m_Cols); }
 
 	[[nodiscard]]
 	auto height() const { return m_Rows; }
