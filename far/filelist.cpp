@@ -7039,6 +7039,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 	}
 
 	m_ListData.initialise(Item.lock()->m_Plugin.get());
+	m_FilteredExtensions.clear();
 
 	if (!m_Filter)
 		m_Filter = std::make_unique<FileFilter>(this, FFT_PANEL);
@@ -7083,9 +7084,13 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 	{
 		if (UseFilter && !(m_CachedOpenPanelInfo.Flags & OPIF_DISABLEFILTER))
 		{
-			//if (!(CurPanelData->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 			if (!m_Filter->FileInFilter(PanelItem))
+			{
+				if (!(PanelItem.FileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+					m_FilteredExtensions.emplace(PointToExt(PanelItem.FileName));
+
 				continue;
+			}
 		}
 
 		if (!Global->Opt->ShowHidden && (PanelItem.FileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM)))
