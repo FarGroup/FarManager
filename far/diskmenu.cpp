@@ -724,7 +724,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			const auto strRootDir = os::fs::get_root_directory(i);
 
 			DiskMenuItem NewItem;
-			NewItem.Letter = L'&' + LocalName;
+			NewItem.Letter = LocalName;
 
 			// We have to determine at least the basic drive type (fixed/removable/remote) regardlessly of the DRIVE_SHOW_TYPE state,
 			// as it affects the visibility of the other metrics
@@ -856,7 +856,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 		for (const auto& i: Items)
 		{
 			MenuItemEx ChDiskItem;
-			const auto DiskNumber = os::fs::get_drive_number(i.Letter[1]);
+			const auto DiskNumber = os::fs::get_drive_number(i.Letter.front());
 			if (FirstCall)
 			{
 				ChDiskItem.SetSelect(static_cast<int>(DiskNumber) == Pos);
@@ -906,7 +906,10 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			item.cDrive = os::fs::get_drive_letter(DiskNumber);
 			item.nDriveType = i.DriveType;
 
-			ChDiskItem.Name = ItemName;
+			inplace::escape_ampersands(ItemName);
+			ItemName.insert(0, 1, L'&');
+
+			ChDiskItem.Name = std::move(ItemName);
 			ChDiskItem.ComplexUserData = item;
 			ChDisk->AddItem(ChDiskItem);
 

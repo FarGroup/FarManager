@@ -4490,6 +4490,10 @@ bool FileList::GetFileName(string &strName, int Pos, DWORD &FileAttr) const
 	return true;
 }
 
+const std::unordered_set<string>* FileList::GetFilteredExtensions() const
+{
+	return &m_FilteredExtensions;
+}
 
 int FileList::GetCurrentPos() const
 {
@@ -4527,7 +4531,7 @@ void FileList::SelectSortMode()
 	};
 	static_assert(std::size(InitSortMenuModes) == static_cast<size_t>(panel_sort::COUNT));
 
-	std::vector<menu_item> SortMenu(ALL_CONST_RANGE(InitSortMenuModes));
+	std::vector SortMenu(ALL_CONST_RANGE(InitSortMenuModes));
 
 	static const menu_item MenuSeparator = { {}, LIF_SEPARATOR };
 
@@ -6553,6 +6557,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	}
 
 	m_ListData.initialise(nullptr);
+	m_FilteredExtensions.clear();
 
 	DWORD FileSystemFlags = 0;
 	string FileSystemName;
@@ -6640,8 +6645,17 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	{
 		ErrorState = error_state::fetch();
 
-		if ((Global->Opt->ShowHidden || !(fdata.Attributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))) && (!UseFilter || m_Filter->FileInFilter(fdata, nullptr, &fdata.FileName)))
+		if (fdata.Attributes & (FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_SYSTEM) && !Global->Opt->ShowHidden)
+			continue;
+
+		if (UseFilter && !m_Filter->FileInFilter(fdata, nullptr, &fdata.FileName))
 		{
+			if (!(fdata.Attributes & FILE_ATTRIBUTE_DIRECTORY))
+				m_FilteredExtensions.emplace(PointToExt(fdata.FileName));
+
+			continue;
+		}
+
 			{
 				FileListItem NewItem{};
 
@@ -6701,7 +6715,6 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 				if (check)
 					break;
 			}
-		}
 	}
 
 	if (!ErrorState)
@@ -7026,6 +7039,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 	}
 
 	m_ListData.initialise(Item.lock()->m_Plugin.get());
+	m_FilteredExtensions.clear();
 
 	if (!m_Filter)
 		m_Filter = std::make_unique<FileFilter>(this, FFT_PANEL);
@@ -7070,9 +7084,13 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 	{
 		if (UseFilter && !(m_CachedOpenPanelInfo.Flags & OPIF_DISABLEFILTER))
 		{
-			//if (!(CurPanelData->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 			if (!m_Filter->FileInFilter(PanelItem))
+			{
+				if (!(PanelItem.FileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+					m_FilteredExtensions.emplace(PointToExt(PanelItem.FileName));
+
 				continue;
+			}
 		}
 
 		if (!Global->Opt->ShowHidden && (PanelItem.FileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM)))

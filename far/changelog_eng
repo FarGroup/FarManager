@@ -3,6 +3,34 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 09.02.2020 10:28:30 +0000 - build 5557
+
+1. Apply 5556.1 to plugin panels as well (#0003675).
+
+drkns 09.02.2020 00:11:22 +0000 - build 5556
+
+1. Correction of 5514 - already filtered out extensions were unavailable in autofilters.
+
+2. Corrections of disks and filters menu rendering for some corner cases.
+
+drkns 07.02.2020 21:55:55 +0000 - build 5555
+
+1. New versions of fmt and Catch2.
+
+drkns 07.02.2020 21:43:51 +0000 - build 5554
+
+1. Refactoring.
+
+2. More tests.
+
+3. Potential leaks in RestoreScreen & FreeScreen.
+
+4. Please note that any new fields in API structures should be added at the end only.
+
+shmuel 07.02.2020 21:48:51 +0200 - build 5553
+
+1. Function FreeScreen added to the plugins API.
+
 drkns 02.02.2020 23:59:59 +0000 - build 5552
 
 1. Refactoring.

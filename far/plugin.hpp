@@ -992,6 +992,8 @@ typedef HANDLE(WINAPI *FARAPISAVESCREEN)(intptr_t X1, intptr_t Y1, intptr_t X2, 
 
 typedef void (WINAPI *FARAPIRESTORESCREEN)(HANDLE hScreen);
 
+typedef void (WINAPI *FARAPIFREESCREEN)(HANDLE hScreen);
+
 
 typedef intptr_t (WINAPI *FARAPIGETDIRLIST)(
 	const wchar_t *Dir,
@@ -2389,7 +2391,8 @@ struct PluginStartupInfo
 	FARAPIMACROCONTROL     MacroControl;
 	FARAPISETTINGSCONTROL  SettingsControl;
 	const void*            Private;
-	void* Instance;
+	void*                  Instance;
+	FARAPIFREESCREEN       FreeScreen;
 };
 
 typedef HANDLE (WINAPI *FARAPICREATEFILE)(const wchar_t *Object,DWORD DesiredAccess,DWORD ShareMode,LPSECURITY_ATTRIBUTES SecurityAttributes,DWORD CreationDistribution,DWORD FlagsAndAttributes,HANDLE TemplateFile);

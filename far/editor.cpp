@@ -6730,7 +6730,7 @@ static void EditorShowMsgImpl(const string& Title, const string& Msg, const stri
 	const size_t Length = std::max(std::min(ScrX - 1 - 10, static_cast<int>(strMsg.size())), 40);
 	auto strProgress = make_progressbar(Length, Percent, true, true);
 
-	std::vector<string> MsgItems{ strMsg };
+	std::vector MsgItems{ strMsg };
 	if (!strProgress.empty())
 		MsgItems.emplace_back(strProgress);
 

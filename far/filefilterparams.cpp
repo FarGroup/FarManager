@@ -57,12 +57,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common.hpp"
+#include "common/2d/point.hpp"
+#include "common/2d/matrix.hpp"
 #include "common/view/zip.hpp"
 
 // External:
 #include "format.hpp"
 
 //----------------------------------------------------------------------------
+
+const point ColorExampleSize{ 15, 4 };
 
 filter_dates::filter_dates(os::chrono::duration After, os::chrono::duration Before):
 	m_After(After),
@@ -79,7 +83,7 @@ filter_dates::filter_dates(os::chrono::time_point After, os::chrono::time_point 
 
 filter_dates::operator bool() const
 {
-	return m_After != m_After.zero() || m_Before != m_Before.zero();
+	return m_After != 0s || m_Before != 0s;
 }
 
 
@@ -311,46 +315,46 @@ bool FileFilterParams::FileInFilter(const filter_file_object& Object, os::chrono
 		// Есть введённая пользователем начальная / конечная дата?
 		if (FDate.Dates)
 		{
-			const os::chrono::time_point* ft = nullptr;
+			const os::chrono::time_point* ft{};
 
 			switch (FDate.DateType)
 			{
 			case FDATE_CREATED:
 				ft = &Object.CreationTime;
 				break;
+
 			case FDATE_OPENED:
 				ft = &Object.AccessTime;
 				break;
+
 			case FDATE_CHANGED:
 				ft = &Object.ChangeTime;
 				break;
+
 			case FDATE_MODIFIED:
 				ft = &Object.ModificationTime;
 				break;
 
-				// dummy label to make compiler happy
-			case FDATE_COUNT:
-				break;
+			default:
+				// Validated in SetDate()
+				UNREACHABLE;
 			}
 
-			if (ft)
+			// Дата файла меньше начальной / больше конечной даты по фильтру?
+			if (FDate.Dates.visit(overload
 			{
-				// Дата файла меньше начальной / больше конечной даты по фильтру?
-				if (FDate.Dates.visit(overload
+				[&](os::chrono::duration After, os::chrono::duration Before)
 				{
-					[&](os::chrono::duration After, os::chrono::duration Before)
-					{
-						return (After != After.zero() && *ft < CurrentTime - After) || (Before != Before.zero() && *ft > CurrentTime - Before);
-					},
-					[&](os::chrono::time_point After, os::chrono::time_point Before)
-					{
-						return (After != os::chrono::time_point{} && *ft < After) || (Before != os::chrono::time_point{} && *ft > Before);
-					}
-				}))
+					return (After != 0s && *ft < CurrentTime - After) || (Before != 0s && *ft > CurrentTime - Before);
+				},
+				[&](os::chrono::time_point After, os::chrono::time_point Before)
 				{
-					// Не пропускаем этот файл
-					return false;
+					return (After != os::chrono::time_point{} && *ft < After) || (Before != os::chrono::time_point{} && *ft > Before);
 				}
+			}))
+			{
+				// Не пропускаем этот файл
+				return false;
 			}
 		}
 	}
@@ -507,7 +511,7 @@ string MenuString(const FileFilterParams* const FF, bool const bHighlightType, w
 	{
 		SetFlag(FF->GetContinueProcessing(), DownArrow);
 
-		const auto AmpFix = contains(Name, L'&')? 1 : 0;
+		const auto AmpFix = Name.size() - HiStrlen(Name);
 
 		return format(FSTR(L"{1:3} {0} {2:{3}.{3}} {0} {4} {5} {0} {6}"),
 			BoxSymbols[BS_V1],
@@ -521,7 +525,7 @@ string MenuString(const FileFilterParams* const FF, bool const bHighlightType, w
 	}
 
 	const auto HotkeyStr = Hotkey? format(FSTR(L"&{0}. "), Hotkey) : bPanelType? L"   "s : L""s;
-	const auto AmpFix = Hotkey || contains(Name, L'&')? 1 : 0;
+	const auto AmpFix = Hotkey? 1 : Name.size() - HiStrlen(Name);
 
 	return format(FSTR(L"{1}{2:{3}.{3}} {0} {4} {5} {0} {6}"),
 			BoxSymbols[BS_V1],
@@ -616,23 +620,19 @@ struct context
 	span<attribute_map> Attributes;
 };
 
-static void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const highlight::element &Colors)
+static void HighlightDlgUpdateUserControl(matrix_view<FAR_CHAR_INFO> const& VBufColorExample, const highlight::element &Colors)
 {
 	const size_t ColorIndices[]{ highlight::color::normal, highlight::color::selected, highlight::color::normal_current, highlight::color::selected_current };
-	const auto RowSize = 15;
 
 	int VBufRow = 0;
-	for (const auto& [ColorRef, Index]: zip(Colors.Color, ColorIndices))
+	for (const auto& [ColorRef, Index, Row]: zip(Colors.Color, ColorIndices, VBufColorExample))
 	{
 		auto BakedColor = ColorRef;
 		highlight::configuration::ApplyFinalColor(BakedColor, Index);
 
-		const auto CurrentRow = span(VBufColorExample + RowSize * VBufRow, RowSize);
+		Row.front() = { BoxSymbols[BS_V2], colors::PaletteColorToFarColor(COL_PANELBOX) };
 
-		CurrentRow.front().Char = BoxSymbols[BS_V2];
-		CurrentRow.front().Attributes = colors::PaletteColorToFarColor(COL_PANELBOX);
-
-		auto Iterator = CurrentRow.begin() + 1;
+		auto Iterator = Row.begin() + 1;
 
 		if (Colors.Mark.Char)
 		{
@@ -641,17 +641,15 @@ static void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const
 			++Iterator;
 		}
 
-		const auto FileArea = span(Iterator, CurrentRow.end() - 1);
+		const auto FileArea = span(Iterator, Row.end() - 1);
 		const auto Str = fit_to_left(msg(lng::MHighlightExample), FileArea.size());
 
 		for (const auto& [Cell, Char] : zip(FileArea, Str))
 		{
-			Cell.Char = Char;
-			Cell.Attributes = BakedColor.FileColor;
+			Cell = { Char, BakedColor.FileColor };
 		}
 
-		CurrentRow.back().Char = BoxSymbols[BS_V1];
-		CurrentRow.back().Attributes = CurrentRow.front().Attributes;
+		Row.back() = { BoxSymbols[BS_V1], Row.front().Attributes };
 
 		++VBufRow;
 	}
@@ -844,7 +842,7 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 			Dlg->SendMessage(DM_GETTEXT,ID_HER_MARKEDIT,&item);
 			Context->Colors->Mark.Char = *MarkChar;
 			Context->Colors->Mark.Transparent = Dlg->SendMessage(DM_GETCHECK, ID_HER_MARKTRANSPARENT, nullptr) == BST_CHECKED;
-			HighlightDlgUpdateUserControl(gdi.Item->VBuf, *Context->Colors);
+			HighlightDlgUpdateUserControl(matrix_view(gdi.Item->VBuf, ColorExampleSize.y, ColorExampleSize.x), *Context->Colors);
 			Dlg->SendMessage(DM_SETDLGITEM,ID_HER_COLOREXAMPLE,gdi.Item);
 			return TRUE;
 		}
@@ -1035,10 +1033,10 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	for (int i = ID_HER_NORMALMARKING; i <= ID_HER_SELECTEDCURSORMARKING; i += 2)
 		FilterDlg[i].X1 = GetPosAfter(ID_HER_NORMALFILE) + 1;
 
-	FAR_CHAR_INFO VBufColorExample[15*4]={};
+	matrix<FAR_CHAR_INFO> VBufColorExample(ColorExampleSize.y, ColorExampleSize.x);
 	auto Colors = FF->GetColors();
 	HighlightDlgUpdateUserControl(VBufColorExample,Colors);
-	FilterDlg[ID_HER_COLOREXAMPLE].VBuf=VBufColorExample;
+	FilterDlg[ID_HER_COLOREXAMPLE].VBuf = VBufColorExample.data();
 	FilterDlg[ID_HER_MARKEDIT].strData.assign(Colors.Mark.Char ? 1 : 0, Colors.Mark.Char);
 	FilterDlg[ID_HER_MARKTRANSPARENT].Selected = Colors.Mark.Transparent;
 	FilterDlg[ID_HER_CONTINUEPROCESSING].Selected=(FF->GetContinueProcessing()?1:0);

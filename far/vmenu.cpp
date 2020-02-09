@@ -2178,8 +2178,8 @@ void VMenu::ShowMenu(bool IsParent)
 						const auto AnyPrev = I > 0;
 						const auto AnyNext = I < static_cast<int>(Items.size() - 1);
 
-						int PCorrection = AnyPrev && !CheckFlags(VMENU_SHOWAMPERSAND) && Items[I - 1].Name.find(L'&') < J;
-						int NCorrection = AnyNext && !CheckFlags(VMENU_SHOWAMPERSAND) && Items[I + 1].Name.find(L'&') < J;
+						const auto PCorrection = AnyPrev && !CheckFlags(VMENU_SHOWAMPERSAND)? HiFindRealPos(Items[I - 1].Name, J) - J : 0;
+						const auto NCorrection = AnyNext && !CheckFlags(VMENU_SHOWAMPERSAND)? HiFindRealPos(Items[I + 1].Name, J) - J : 0;
 
 						wchar_t PrevItem = (AnyPrev && Items[I - 1].Name.size() > J + PCorrection)? Items[I - 1].Name[J + PCorrection] : 0;
 						wchar_t NextItem = (AnyNext && Items[I + 1].Name.size() > J + NCorrection)? Items[I + 1].Name[J + NCorrection] : 0;

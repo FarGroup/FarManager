@@ -154,7 +154,7 @@ static void ShellDeleteMsgImpl(const string& Name, DEL_MODE Mode, ShellDelete::p
 	}
 
 	{
-		std::vector<string> MsgItems
+		std::vector MsgItems
 		{
 			msg(Mode == DEL_SCAN ? lng::MScanningFolder : (Mode == DEL_WIPE || Mode == DEL_WIPEPROCESS) ? lng::MDeletingWiping : lng::MDeleting),
 			fit_to_left(truncate_path(Name, Width), Width)
@@ -217,7 +217,7 @@ static bool WipeFileData(const string& Name, ShellDelete:: progress Files, bool&
 	const time_check TimeCheck(time_check::mode::immediate, GetRedrawTimeout());
 
 	std::mt19937 mt(clock()); // std::random_device doesn't work in w2k
-	std::uniform_int_distribution<int> CharDist(0, 255);
+	std::uniform_int_distribution CharDist(0, 255);
 
 	auto BufInit = false;
 
@@ -400,7 +400,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 		bool bHilite = Global->Opt->DelOpt.HighlightSelected;
 		const size_t mshow = std::min(std::max(static_cast<int>(Global->Opt->DelOpt.ShowSelected), 1), ScrY / 2);
 
-		std::vector<string> items{ strDeleteFilesMsg };
+		std::vector items{ strDeleteFilesMsg };
 
 		if (SelCount == 1)
 		{

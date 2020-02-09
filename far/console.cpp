@@ -691,7 +691,7 @@ namespace console_detail
 				if (i != SubRect.top)
 					Str += format(FSTR(L"\x9b""{0};{1}H"), CursorPosition.Y + 1 + (i - SubRect.top), CursorPosition.X + 1);
 
-				make_vt_sequence(span(Buffer[i].data() + SubRect.left, SubRect.width()), Str, LastColor);
+				make_vt_sequence(Buffer[i].subspan(SubRect.left, SubRect.width()), Str, LastColor);
 			}
 
 			append(Str, L"\x9b""0m"sv);

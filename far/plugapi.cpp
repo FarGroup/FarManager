@@ -1428,7 +1428,7 @@ HANDLE WINAPI apiSaveScreen(intptr_t X1,intptr_t Y1,intptr_t X2,intptr_t Y2) noe
 		if (Y2 == -1)
 			Y2 = ScrY;
 
-		return new SaveScreen({ static_cast<int>(X1), static_cast<int>(Y1), static_cast<int>(X2), static_cast<int>(Y2) });
+		return std::make_unique<SaveScreen>(rectangle{ static_cast<int>(X1), static_cast<int>(Y1), static_cast<int>(X2), static_cast<int>(Y2) }).release();
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return nullptr;
@@ -1438,17 +1438,32 @@ void WINAPI apiRestoreScreen(HANDLE hScreen) noexcept
 {
 	try
 	{
+		std::unique_ptr<SaveScreen> Screen(static_cast<SaveScreen*>(hScreen));
+
 		if (Global->DisablePluginsOutput || Global->WindowManager->ManagerIsDown())
 			return;
 
-		if (!hScreen)
-			Global->ScrBuf->FillBuf();
-
-		if (hScreen)
+		if (Screen)
 		{
-			delete static_cast<SaveScreen*>(hScreen);
+			Screen.reset();
 			Global->ScrBuf->Flush();
 		}
+		else
+		{
+			Global->ScrBuf->FillBuf();
+		}
+	}
+	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
+}
+
+void WINAPI apiFreeScreen(HANDLE hScreen) noexcept
+{
+	try
+	{
+		std::unique_ptr<SaveScreen> const Screen(static_cast<SaveScreen*>(hScreen));
+
+		if (Screen)
+			Screen->Discard();
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 }
@@ -3099,7 +3114,9 @@ static const PluginStartupInfo NativeInfo
 	pluginapi::apiRegExpControl,
 	pluginapi::apiMacroControl,
 	pluginapi::apiSettingsControl,
-	nullptr, //Private, dynamic
+	nullptr, // Private, dynamic
+	nullptr, // Instance, dynamic
+	pluginapi::apiFreeScreen,
 };
 
 void CreatePluginStartupInfo(PluginStartupInfo* PSI, FarStandardFunctions* FSF)

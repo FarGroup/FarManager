@@ -99,6 +99,7 @@ namespace pluginapi
 	intptr_t WINAPI apiPanelControl(HANDLE hPlugin, FILE_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept;
 	HANDLE   WINAPI apiSaveScreen(intptr_t X1, intptr_t Y1, intptr_t X2, intptr_t Y2) noexcept;
 	void     WINAPI apiRestoreScreen(HANDLE hScreen) noexcept;
+	void     WINAPI apiFreeScreen(HANDLE hScreen) noexcept;
 	intptr_t WINAPI apiGetDirList(const wchar_t *Dir, PluginPanelItem **pPanelItem, size_t *pItemsNumber) noexcept;
 	void     WINAPI apiFreeDirList(PluginPanelItem *PanelItems, size_t ItemsNumber) noexcept;
 	intptr_t WINAPI apiViewer(const wchar_t *FileName, const wchar_t *Title, intptr_t X1, intptr_t Y1, intptr_t X2, intptr_t Y2, unsigned long long Flags, uintptr_t CodePage) noexcept;

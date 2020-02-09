@@ -1874,8 +1874,10 @@ int LF_Message(lua_State *L,
 		else if(!_wcsicmp(p, L"YesNo"))            Flags = FMSG_MB_YESNO;
 		else if(!_wcsicmp(p, L"YesNoCancel"))      Flags = FMSG_MB_YESNOCANCEL;
 		else if(!_wcsicmp(p, L"RetryCancel"))      Flags = FMSG_MB_RETRYCANCEL;
+		else
+			while(*aButtons == L';') aButtons++;
 	}
-	else
+	if(Flags == 0)
 	{
 		// Buttons: 1-st pass, determining number of buttons
 		BtnCopy = _wcsdup(aButtons);
@@ -2601,6 +2603,19 @@ static int far_RestoreScreen(lua_State *L)
 			GetPluginData(L)->Info->RestoreScreen(*pp);
 			*pp = NULL;
 		}
+	}
+	return 0;
+}
+
+// FreeScreen (handle)
+//   handle:    handle of saved screen.
+static int far_FreeScreen(lua_State *L)
+{
+	void **pp = (void**)luaL_checkudata(L, 1, SavedScreenType);
+	if (*pp)
+	{
+		GetPluginData(L)->Info->FreeScreen(*pp);
+		*pp = NULL;
 	}
 	return 0;
 }
@@ -6088,6 +6103,7 @@ const luaL_Reg far_funcs[] =
 	{"Message",             far_Message},
 	{"RestoreScreen",       far_RestoreScreen},
 	{"SaveScreen",          far_SaveScreen},
+	{"FreeScreen",          far_FreeScreen},
 	{"Text",                far_Text},
 	{"ShowHelp",            far_ShowHelp},
 	{"InputBox",            far_InputBox},
@@ -6245,6 +6261,8 @@ static int luaopen_far(lua_State *L)
 	lua_setfield(L, -2, "__gc");
 
 	luaL_newmetatable(L, SavedScreenType);
+	lua_pushcfunction(L, far_FreeScreen);
+	lua_setfield(L, -2, "__gc");
 
 	return 0;
 }

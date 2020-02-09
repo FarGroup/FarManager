@@ -227,7 +227,7 @@ public:
 	void ClearDone();
 	intptr_t CloseDialog();
 	// For MACRO
-	const std::vector<DialogItemEx>& GetAllItem() const { return Items; }
+	const auto& GetAllItem() const { return Items; }
 	size_t GetDlgFocusPos() const {return m_FocusPos;}
 	int SetAutomation(WORD IDParent,WORD id, FARDIALOGITEMFLAGS UncheckedSet,FARDIALOGITEMFLAGS UncheckedSkip, FARDIALOGITEMFLAGS CheckedSet,FARDIALOGITEMFLAGS CheckedSkip,
 		FARDIALOGITEMFLAGS Checked3Set=DIF_NONE,FARDIALOGITEMFLAGS Checked3Skip=DIF_NONE);

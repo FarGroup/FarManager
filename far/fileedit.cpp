@@ -1707,7 +1707,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 			return SAVEFILE_SUCCESS;
 
 
-		std::vector<lng> Buttons{ lng::MHYes, lng::MHNo };
+		std::vector Buttons{ lng::MHYes, lng::MHNo };
 		if (Global->AllowCancelExit)
 		{
 			Buttons.emplace_back(lng::MHCancel);

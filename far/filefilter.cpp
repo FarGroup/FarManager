@@ -212,6 +212,14 @@ void FileFilter::FilterEdit()
 
 			for (int i = 0; m_HostPanel->GetFileName(strFileName, i, FileAttr); i++)
 				ParseAndAddMasks(Extensions, strFileName, FileAttr, 0);
+
+			if (const auto* FilteredExtensions = m_HostPanel->GetFilteredExtensions())
+			{
+				for (const auto& i: *FilteredExtensions)
+				{
+					ParseAndAddMasks(Extensions, i, 0, 0);
+				}
+			}
 		}
 
 		wchar_t h = L'1';

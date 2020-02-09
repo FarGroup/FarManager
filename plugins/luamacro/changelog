@@ -1,4 +1,13 @@
-﻿shmuel 02.02.2020 21:14:03 +0200 - build 726
+﻿shmuel 08.02.2020 18:14:28 +0200 - build 728
+
+1. LuaFAR: fix far.Message() - when the 3-rd argument was ";Yes;No"
+           the function immediately returned 1 with no dialog shown.
+
+shmuel 07.02.2020 21:52:13 +0200 - build 727
+
+1. LuaFAR: add function far.FreeScreen.
+
+shmuel 02.02.2020 21:14:03 +0200 - build 726
 
 1. Macro Browser: Ctrl+R reloads macrofiles and updates the browser menu.
 

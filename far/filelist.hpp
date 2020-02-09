@@ -158,6 +158,7 @@ public:
 	int GetPrevViewMode() const override;
 	bool GetPrevDirectoriesFirst() const override;
 	bool GetFileName(string &strName, int Pos, DWORD &FileAttr) const override;
+	const std::unordered_set<string>* GetFilteredExtensions() const override;
 	int GetCurrentPos() const override;
 	bool FindPartName(const string& Name, int Next, int Direct = 1) override;
 	bool GetPlainString(string& Dest, int ListPos) const override;
@@ -399,6 +400,7 @@ private:
 	mutable std::vector<const wchar_t*> m_ContentValues;
 	std::vector<Plugin*> m_ContentPlugins;
 	int m_InsideGetFindData{};
+	std::unordered_set<string> m_FilteredExtensions;
 	std::weak_ptr<PluginsListItem> GetPluginItem() const;
 };
 

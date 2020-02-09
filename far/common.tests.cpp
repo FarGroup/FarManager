@@ -45,6 +45,32 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
+#include "common/2d/matrix.hpp"
+
+TEST_CASE("2d/matrix")
+{
+	static const int Data[]
+	{
+		0,  1,  2,  3,
+		4,  5,  6,  7,
+		8,  9, 10, 11,
+	};
+
+	matrix_view Matrix(Data, 3, 4);
+
+	int Counter = 0;
+	for (const auto& Row: Matrix)
+	{
+		for (const auto& Cell : Row)
+		{
+			REQUIRE(Cell == Counter);
+			++Counter;
+		}
+	}
+}
+
+//----------------------------------------------------------------------------
+
 #include "common/bytes_view.hpp"
 
 TEST_CASE("bytes_view")
@@ -705,7 +731,7 @@ TEMPLATE_TEST_CASE("utility.clear_and_shrink", "", string, std::vector<int>)
 	REQUIRE(Container.capacity() == TestType{}.capacity());
 }
 
-TEST_CASE("utility")
+TEST_CASE("utility.node_swap")
 {
 	std::list List{ 1, 2, 3, 4, 5 };
 	const auto Ptr1 = &List.front();
@@ -724,6 +750,29 @@ TEST_CASE("utility.copy_memory")
 	REQUIRE(Buffer == "ABC45"sv);
 	copy_memory(static_cast<char const*>(nullptr), Buffer, 0);
 	REQUIRE(Buffer == "ABC45"sv);
+}
+
+TEST_CASE("utility.hash_range")
+{
+	const auto s1 = L"12345"sv;
+	const auto s2 = L"12345"s;
+	const auto s3 = L"abcde"s;
+
+	const auto h1 = hash_range(ALL_CONST_RANGE(s1));
+	const auto h2 = hash_range(ALL_CONST_RANGE(s2));
+	const auto h3 = hash_range(ALL_CONST_RANGE(s3));
+
+	REQUIRE(h1 == h2);
+	REQUIRE(h2 != h3);
+}
+
+TEST_CASE("utility.aligned_size")
+{
+	for (size_t i = 0; i <= MEMORY_ALLOCATION_ALIGNMENT * 8; ++i)
+	{
+		const auto Expected = std::ceil(static_cast<double>(i) / MEMORY_ALLOCATION_ALIGNMENT) * MEMORY_ALLOCATION_ALIGNMENT;
+		REQUIRE(aligned_size(i) == Expected);
+	}
 }
 
 //----------------------------------------------------------------------------
@@ -892,10 +941,11 @@ TEST_CASE("view.zip")
 
 	{
 		int Index = 0;
-		for (const auto& [i, l]: zip(std::vector{ 1, 2, 3 }, std::list{ 'A', 'B', 'C' }))
+		for (const auto& [i, l, b]: zip(std::vector{ 1, 2, 3 }, std::list{ 'A', 'B', 'C' }, std::vector{true, true, true}))
 		{
 			REQUIRE(i == 1 + Index);
 			REQUIRE(l == 'A' + Index);
+			REQUIRE(b);
 			++Index;
 		}
 

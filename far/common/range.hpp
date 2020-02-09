@@ -217,6 +217,11 @@ public:
 		span(ALL_CONST_RANGE(List))
 	{
 	}
+
+	constexpr span subspan(size_t const Offset, size_t const Size) const
+	{
+		return { this->data() + Offset, Size == std::numeric_limits<size_t>::max() ? this->size() - Offset : Size };
+	}
 };
 
 template<typename container>
