@@ -511,7 +511,7 @@ string MenuString(const FileFilterParams* const FF, bool const bHighlightType, w
 	{
 		SetFlag(FF->GetContinueProcessing(), DownArrow);
 
-		const auto AmpFix = contains(Name, L'&')? 1 : 0;
+		const auto AmpFix = Name.size() - HiStrlen(Name);
 
 		return format(FSTR(L"{1:3} {0} {2:{3}.{3}} {0} {4} {5} {0} {6}"),
 			BoxSymbols[BS_V1],
@@ -525,7 +525,7 @@ string MenuString(const FileFilterParams* const FF, bool const bHighlightType, w
 	}
 
 	const auto HotkeyStr = Hotkey? format(FSTR(L"&{0}. "), Hotkey) : bPanelType? L"   "s : L""s;
-	const auto AmpFix = Hotkey || contains(Name, L'&')? 1 : 0;
+	const auto AmpFix = Hotkey? 1 : Name.size() - HiStrlen(Name);
 
 	return format(FSTR(L"{1}{2:{3}.{3}} {0} {4} {5} {0} {6}"),
 			BoxSymbols[BS_V1],

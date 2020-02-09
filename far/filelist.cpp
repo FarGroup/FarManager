@@ -4490,6 +4490,10 @@ bool FileList::GetFileName(string &strName, int Pos, DWORD &FileAttr) const
 	return true;
 }
 
+const std::unordered_set<string>* FileList::GetFilteredExtensions() const
+{
+	return &m_FilteredExtensions;
+}
 
 int FileList::GetCurrentPos() const
 {
@@ -6553,6 +6557,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	}
 
 	m_ListData.initialise(nullptr);
+	m_FilteredExtensions.clear();
 
 	DWORD FileSystemFlags = 0;
 	string FileSystemName;
@@ -6640,8 +6645,17 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	{
 		ErrorState = error_state::fetch();
 
-		if ((Global->Opt->ShowHidden || !(fdata.Attributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))) && (!UseFilter || m_Filter->FileInFilter(fdata, nullptr, &fdata.FileName)))
+		if (fdata.Attributes & (FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_SYSTEM) && !Global->Opt->ShowHidden)
+			continue;
+
+		if (UseFilter && !m_Filter->FileInFilter(fdata, nullptr, &fdata.FileName))
 		{
+			if (!(fdata.Attributes & FILE_ATTRIBUTE_DIRECTORY))
+				m_FilteredExtensions.emplace(PointToExt(fdata.FileName));
+
+			continue;
+		}
+
 			{
 				FileListItem NewItem{};
 
@@ -6701,7 +6715,6 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 				if (check)
 					break;
 			}
-		}
 	}
 
 	if (!ErrorState)
