@@ -55,6 +55,7 @@ INT64 check64(lua_State *L, int pos, int* success)
 	int tp = lua_type(L, pos);
 
 	if(success) *success = 1;
+	if(pos < 0) pos += lua_gettop(L) + 1;
 
 	if(tp == LUA_TNUMBER)
 	{
