@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 #include "keys.hpp"
 #include "scantree.hpp"
-#include "chgprior.hpp"
 #include "constitle.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
@@ -477,8 +476,6 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 	bool StopProcessing_Unused;
 	auto& StopProcessing = StopProcessingPtr? *StopProcessingPtr : StopProcessing_Unused;
 
-	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
-
 	// We're conditionally messing with the title down there.
 	// However, we save & restore it unconditionally, as plugins could mess with it too.
 
@@ -696,8 +693,6 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 
 std::unique_ptr<plugin_panel> PluginManager::OpenFindListPlugin(span<const PluginPanelItem> const PanelItems)
 {
-	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
-
 	class plugin_panel_holder: public plugin_panel
 	{
 	public:
@@ -774,7 +769,6 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFindListPlugin(span<const Plugi
 
 void PluginManager::ClosePanel(std::unique_ptr<plugin_panel>&& hPlugin)
 {
-	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	ClosePanelInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
 	hPlugin->plugin()->ClosePanel(&Info);
@@ -927,7 +921,6 @@ intptr_t PluginManager::ProcessConsoleInput(ProcessConsoleInputInfo *Info) const
 
 intptr_t PluginManager::GetFindData(const plugin_panel* hPlugin, span<PluginPanelItem>& PanelItems, int OpMode)
 {
-	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	GetFindDataInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
 	Info.OpMode = OpMode;
@@ -958,8 +951,6 @@ void PluginManager::FreeFindData(const plugin_panel* hPlugin, span<PluginPanelIt
 
 intptr_t PluginManager::GetVirtualFindData(const plugin_panel* hPlugin, span<PluginPanelItem>& PanelItems, const string& Path)
 {
-	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
-
 	GetVirtualFindDataInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
 	Info.Path = Path.c_str();
@@ -983,7 +974,6 @@ void PluginManager::FreeVirtualFindData(const plugin_panel* hPlugin, span<Plugin
 
 intptr_t PluginManager::SetDirectory(const plugin_panel* hPlugin, const string& Dir, int OpMode, const UserDataItem *UserData)
 {
-	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	SetDirectoryInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
 	Info.Dir = Dir.c_str();
@@ -999,7 +989,6 @@ intptr_t PluginManager::SetDirectory(const plugin_panel* hPlugin, const string& 
 
 bool PluginManager::GetFile(const plugin_panel* hPlugin, PluginPanelItem *PanelItem, const string& DestPath, string &strResultName, int OpMode)
 {
-	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	bool Found = false;
 	GetFilesInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
@@ -1037,7 +1026,6 @@ bool PluginManager::GetFile(const plugin_panel* hPlugin, PluginPanelItem *PanelI
 
 intptr_t PluginManager::DeleteFiles(const plugin_panel* hPlugin, span<PluginPanelItem> const PanelItems, int OpMode)
 {
-	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	DeleteFilesInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
 	Info.PanelItem = PanelItems.data();
@@ -1050,7 +1038,6 @@ intptr_t PluginManager::DeleteFiles(const plugin_panel* hPlugin, span<PluginPane
 
 intptr_t PluginManager::MakeDirectory(const plugin_panel* hPlugin, const wchar_t **Name, int OpMode)
 {
-	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	MakeDirectoryInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
 	Info.Name = *Name;
@@ -1064,7 +1051,6 @@ intptr_t PluginManager::MakeDirectory(const plugin_panel* hPlugin, const wchar_t
 
 intptr_t PluginManager::ProcessHostFile(const plugin_panel* hPlugin, span<PluginPanelItem> const PanelItems, int OpMode)
 {
-	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	ProcessHostFileInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
 	Info.PanelItem = PanelItems.data();
@@ -1077,8 +1063,6 @@ intptr_t PluginManager::ProcessHostFile(const plugin_panel* hPlugin, span<Plugin
 
 intptr_t PluginManager::GetFiles(const plugin_panel* hPlugin, span<PluginPanelItem> const PanelItems, bool Move, const wchar_t **DestPath, int OpMode)
 {
-	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
-
 	GetFilesInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
 	Info.PanelItem = PanelItems.data();
@@ -1095,7 +1079,6 @@ intptr_t PluginManager::GetFiles(const plugin_panel* hPlugin, span<PluginPanelIt
 
 intptr_t PluginManager::PutFiles(const plugin_panel* hPlugin, span<PluginPanelItem> const PanelItems, bool Move, int OpMode)
 {
-	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	static string strCurrentDirectory;
 	strCurrentDirectory = os::fs::GetCurrentDirectory();
 	PutFilesInfo Info = {sizeof(Info)};

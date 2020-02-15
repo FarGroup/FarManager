@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "pathmix.hpp"
 #include "config.hpp"
-#include "chgprior.hpp"
 #include "farversion.hpp"
 #include "plugapi.hpp"
 #include "message.hpp"
@@ -789,7 +788,6 @@ void Plugin::CloseAnalyse(CloseAnalyseInfo* Info)
 
 void* Plugin::Open(OpenInfo* Info)
 {
-	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	ExecuteStruct<iOpen> es;
 	if (Global->ProcessException || !Load() || !has(es))
 		return es;

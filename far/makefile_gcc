@@ -27,7 +27,6 @@ SRCS = \
 	sqlite_unicode.c \
 	cache.cpp \
 	cddrv.cpp \
-	chgprior.cpp \
 	clipboard.cpp \
 	cmdline.cpp \
 	codepage_selection.cpp \

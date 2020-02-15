@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Internal:
 #include "flink.hpp"
-#include "chgprior.hpp"
 #include "scantree.hpp"
 #include "treelist.hpp"
 #include "constitle.hpp"
@@ -302,7 +301,6 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 	SkipWipeMode(-1),
 	ProcessedItems(0)
 {
-	SCOPED_ACTION(ChangePriority)(Global->Opt->DelThreadPriority);
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<DelPreRedrawItem>());
 	string strDeleteFilesMsg;
 	bool NeedUpdate = true, NeedSetUpADir = false;

@@ -45,7 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fileedit.hpp"
 #include "filelist.hpp"
 #include "cmdline.hpp"
-#include "chgprior.hpp"
 #include "namelist.hpp"
 #include "scantree.hpp"
 #include "manager.hpp"
@@ -2562,8 +2561,6 @@ bool FindFiles::FindFilesProcess()
 		{ DI_BUTTON,    {{0,          DlgHeight-3}, {0,          DlgHeight-3}}, DIF_CENTERGROUP | DIF_DISABLE, msg(lng::MFindPanel), },
 		{ DI_BUTTON,    {{0,          DlgHeight-3}, {0,          DlgHeight-3}}, DIF_CENTERGROUP, msg(lng::MFindStop), },
 	});
-
-	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 
 	if (PluginMode)
 	{

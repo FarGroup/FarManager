@@ -360,7 +360,7 @@ string MkStrFTime(string_view const Format)
 	return StrFTime(Format.empty()? Global->Opt->Macro.strDateFormat : Format, std::localtime(&Time));
 }
 
-void ParseTimeComponents(string_view const Src, span<const std::pair<size_t, size_t>> const Ranges, span<time_component> const Dst, time_component const Default)
+static void ParseTimeComponents(string_view const Src, span<const std::pair<size_t, size_t>> const Ranges, span<time_component> const Dst, time_component const Default)
 {
 	assert(Dst.size() == Ranges.size());
 	std::transform(ALL_CONST_RANGE(Ranges), Dst.begin(), [Src, Default](const auto& i)
@@ -404,11 +404,14 @@ static std::array<date_indices, 3> get_date_indices(date_type const DateFormat)
 
 detailed_time_point parse_detailed_time_point(string_view Date, string_view Time, int DateFormat)
 {
+	assert(Date.size() == L"YYYYY/MM/DD"sv.size());
 	time_component DateN[3];
 	const auto DateRanges = get_date_ranges(static_cast<date_type>(DateFormat));
-	ParseTimeComponents(Date, DateRanges, DateN);
+	ParseTimeComponents(Date, DateRanges, DateN, time_none);
+
+	assert(Time.size() == L"HH:MM:SS.XXXXXXX"sv.size());
 	time_component TimeN[4];
-	ParseTimeComponents(Time, TimeRanges, TimeN);
+	ParseTimeComponents(Time, TimeRanges, TimeN, time_none);
 
 	enum time_indices { i_hour, i_minute, i_second, i_tick };
 
@@ -597,13 +600,14 @@ void ConvertDate(os::chrono::time_point const Point, string& strDateText, string
 std::tuple<string, string> ConvertDuration(os::chrono::duration Duration)
 {
 	using namespace std::chrono;
+	using namespace chrono::literals;
 	using namespace os::chrono::literals;
 
 	const auto Result = split_duration<chrono::days, hours, minutes, seconds>(Duration);
 
 	return
 	{
-		str(Result.get<chrono::days>() / 24h),
+		str(Result.get<chrono::days>() / 1_d),
 		format(FSTR(L"{0:02}{4}{1:02}{4}{2:02}{5}{3:07}"),
 			Result.get<hours>() / 1h,
 			Result.get<minutes>() / 1min,
@@ -704,6 +708,7 @@ bool local_to_utc(const SYSTEMTIME& LocalTime, os::chrono::time_point& UtcTime)
 
 TEST_CASE("datetime.parse.duration")
 {
+	using namespace chrono::literals;
 	using namespace os::chrono::literals;
 
 	static const struct
@@ -716,10 +721,10 @@ TEST_CASE("datetime.parse.duration")
 		{ L""sv,       L"  :  :  .       "sv,              0_hns, },
 		{ L""sv,       L"  :  :  .      1"sv,              1_hns, },
 		{ L""sv,       L"  :  :  . 12    "sv,              12_hns, },
-		{ L"3"sv,      L"  :42:  .       "sv,              24h * 3 + 42min, },
+		{ L"3"sv,      L"  :42:  .       "sv,              3_d + 42min, },
 		{ L""sv,       L"33:  :  .       "sv,              33h, },
-		{ L"1"sv,      L"  :  :  .       "sv,              24h, },
-		{ L"512"sv,    L"12:34:56.7890123"sv,              512 * 24h + 12h + 34min + 56s + 789ms + 123_hns, },
+		{ L"1"sv,      L"  :  :  .       "sv,              1_d, },
+		{ L"512"sv,    L"12:34:56.7890123"sv,              512_d + 12h + 34min + 56s + 789ms + 123_hns, },
 	};
 
 	for (const auto& i: Tests)
@@ -767,4 +772,32 @@ TEST_CASE("datetime.parse.timepoint")
 	}
 }
 
+TEST_CASE("datetime.ConvertDuration")
+{
+	using namespace chrono::literals;
+	using namespace os::chrono::literals;
+
+	static const struct
+	{
+		os::chrono::duration Duration;
+		string_view Days, Timestamp, HMS;
+	}
+	Tests[]
+	{
+		{ 0s,                                         L"0"sv, L"00:00:00.0000000"sv, L"00:00:00"sv,  },
+		{ 7_d,                                        L"7"sv, L"00:00:00.0000000"sv, L"168:00:00"sv, },
+		{ 2_d +  7h + 13min +  47s +   7654321_hns,   L"2"sv, L"07:13:47.7654321"sv, L"55:13:47"sv,  },
+		{ 3_d + 25h + 81min + 120s + 123456789_hns,   L"4"sv, L"02:23:12.3456789"sv, L"98:23:12"sv,  },
+	};
+
+	for (const auto& i: Tests)
+	{
+		const auto [Days, Timestamp] = ConvertDuration(i.Duration);
+		REQUIRE(i.Days == Days);
+		REQUIRE(i.Timestamp == Timestamp);
+
+		const auto HMS = ConvertDurationToHMS(i.Duration);
+		REQUIRE(i.HMS == HMS);
+	}
+}
 #endif

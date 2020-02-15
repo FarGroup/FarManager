@@ -63,8 +63,6 @@ struct detailed_time_point
 		Tick;
 };
 
-void ParseTimeComponents(string_view Src, span<const std::pair<size_t, size_t>> Ranges, span<time_component> Dst, time_component Default = time_none);
-
 detailed_time_point parse_detailed_time_point(string_view Date, string_view Time, int DateFormat);
 
 os::chrono::time_point ParseTimePoint(string_view Date, string_view Time, int DateFormat);

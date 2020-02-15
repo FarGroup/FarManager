@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 #include "keyboard.hpp"
 #include "ctrlobj.hpp"
-#include "chgprior.hpp"
 #include "cmdline.hpp"
 #include "encoding.hpp"
 #include "imports.hpp"
@@ -920,7 +919,6 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, function_ref<void(
 	int ConsoleCP = CP_OEMCP;
 	int ConsoleOutputCP = CP_OEMCP;
 
-	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 
 	SHELLEXECUTEINFO seInfo={sizeof(seInfo)};
 

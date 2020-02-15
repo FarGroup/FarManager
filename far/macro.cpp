@@ -409,14 +409,14 @@ enum {
 	OP_GETLASTERROR             = 11,
 };
 
-static bool ToDouble(long long v, double *d)
+static bool ToDouble(long long v, double& d)
 {
-	if ((v >= 0 && v <= 0x1FFFFFFFFFFFFFLL) || (v < 0 && v >= -0x1FFFFFFFFFFFFFLL))
-	{
-		*d = static_cast<double>(v);
-		return true;
-	}
-	return false;
+	if (constexpr long long Limit = bit(std::numeric_limits<double>::digits); v <= -Limit || v >= Limit)
+		// TODO: log?
+		return false;
+
+	d = static_cast<double>(v);
+	return true;
 }
 
 static const wchar_t* GetMacroLanguage(FARKEYMACROFLAGS Flags)
@@ -504,11 +504,14 @@ static bool TryToPostMacro(FARMACROAREA Area,const string& TextKey,DWORD IntKey)
 	return CallMacroPlugin(&info);
 }
 
-static panel_ptr TypeToPanel(int Type)
+static panel_ptr SelectPanel(long long const Which)
 {
-	const auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
-	const auto PassivePanel = Global->CtrlObject->Cp()->PassivePanel();
-	return Type == 0 ? ActivePanel : (Type == 1 ? PassivePanel : nullptr);
+	switch (Which)
+	{
+	case 0:  return Global->CtrlObject->Cp()->ActivePanel();
+	case 1:  return Global->CtrlObject->Cp()->PassivePanel();
+	default: return {};
+	}
 }
 
 KeyMacro::KeyMacro():
@@ -1362,17 +1365,14 @@ DWORD KeyMacro::GetMacroParseError(COORD* ErrPos, string& ErrSrc)
 
 class FarMacroApi
 {
-	FarMacroCall* mData;
-	int fattrFuncImpl(int Type);
-
 public:
 	explicit FarMacroApi(FarMacroCall* Data) : mData(Data) {}
 
 	int PassBoolean(int b);
-	int PassError(const wchar_t *str);
+	int PassError(const wchar_t* str);
 	int PassInteger(long long Int);
 	int PassNumber(double dbl);
-	int PassString(const wchar_t *str);
+	int PassString(const wchar_t* str);
 	int PassString(const string& str);
 	int PassValue(const TVar& Var);
 
@@ -1439,6 +1439,11 @@ public:
 	int waitkeyFunc();
 	int windowscrollFunc();
 	int xlatFunc();
+
+private:
+	int fattrFuncImpl(int Type);
+
+	FarMacroCall* mData;
 };
 
 int FarMacroApi::PassString(const wchar_t *str)
@@ -1491,7 +1496,7 @@ int FarMacroApi::PassValue(const TVar& Var)
 		val = Var.asDouble();
 	else if (Var.isString())
 		val = Var.asString();
-	else if (ToDouble(Var.asInteger(), &dd))
+	else if (ToDouble(Var.asInteger(), dd))
 		val = dd;
 	else
 		val = Var.asInteger();
@@ -2898,7 +2903,7 @@ int FarMacroApi::xlatFunc()
 {
 	auto Params = parseParams(2, mData);
 	auto StrParam = Params[0].toString();
-	Xlat(StrParam.data(), 0, static_cast<int>(StrParam.size()), Params[1].asInteger());
+	Xlat(StrParam, Params[1].asInteger());
 	PassString(StrParam);
 	return 1;
 }
@@ -3443,10 +3448,9 @@ int FarMacroApi::panelselectFunc()
 	auto& ValItems(Params[3]);
 	const auto Mode = static_cast<int>(Params[2].asInteger());
 	const auto Action = static_cast<int>(Params[1].asInteger());
-	const auto typePanel = static_cast<int>(Params[0].asInteger());
 	long long Result=-1;
 
-	if (const auto SelPanel = TypeToPanel(typePanel))
+	if (const auto SelPanel = SelectPanel(Params[0].asInteger()))
 	{
 		long long Index=-1;
 		if (Mode == 1)
@@ -3499,10 +3503,9 @@ int FarMacroApi::fattrFuncImpl(int Type)
 	{
 		auto Params = parseParams(2, mData);
 		auto& S(Params[1]);
-		const auto typePanel = static_cast<int>(Params[0].asInteger());
 		const auto& Str = S.toString();
 
-		if (const auto SelPanel = TypeToPanel(typePanel))
+		if (const auto SelPanel = SelectPanel(Params[0].asInteger()))
 		{
 			if (Str.find_first_of(L"*?"sv) != string::npos)
 				Pos=SelPanel->FindFirst(Str);
@@ -3658,7 +3661,7 @@ int FarMacroApi::fargetconfigFunc()
 			{
 				double d;
 				PassNumber(3);
-				if (ToDouble(Opt->Get(),&d))
+				if (ToDouble(Opt->Get(), d))
 					PassNumber(d);
 				else
 					PassInteger(Opt->Get());
@@ -4227,13 +4230,12 @@ int FarMacroApi::clipFunc()
 */
 int FarMacroApi::panelsetposidxFunc()
 {
-	auto Params = parseParams(3, mData);
+	const auto Params = parseParams(3, mData);
 	const auto InSelection = static_cast<int>(Params[2].asInteger());
-	long idxItem = static_cast<long>(Params[1].asInteger());
-	const auto typePanel = static_cast<int>(Params[0].asInteger());
+	auto idxItem = static_cast<long>(Params[1].asInteger());
 	long long Ret=0;
 
-	if (const auto SelPanel = TypeToPanel(typePanel))
+	if (const auto SelPanel = SelectPanel(Params[0].asInteger()))
 	{
 		const auto PanelType = SelPanel->GetType(); //FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL
 
@@ -4338,13 +4340,12 @@ int FarMacroApi::panelsetposFunc()
 {
 	auto Params = parseParams(2, mData);
 	auto& Val(Params[1]);
-	const auto typePanel = static_cast<int>(Params[0].asInteger());
 	const auto& fileName=Val.asString();
 
 	//const auto CurrentWindow=WindowManager->GetCurrentWindow();
 	long long Ret=0;
 
-	if (const auto SelPanel = TypeToPanel(typePanel))
+	if (const auto SelPanel = SelectPanel(Params[0].asInteger()))
 	{
 		const auto PanelType = SelPanel->GetType(); //FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL
 
@@ -4401,11 +4402,10 @@ int FarMacroApi::panelitemFunc()
 	auto Params = parseParams(3, mData);
 	auto& P2(Params[2]);
 	auto& P1(Params[1]);
-	int typePanel = static_cast<int>(Params[0].asInteger());
 
 	//const auto CurrentWindow=WindowManager->GetCurrentWindow();
 
-	const auto SelPanel = TypeToPanel(typePanel);
+	const auto SelPanel = SelectPanel(Params[0].asInteger());
 	if (!SelPanel)
 		return PassError(L"No panel selected");
 
@@ -4414,8 +4414,8 @@ int FarMacroApi::panelitemFunc()
 	if (!(PanelType == panel_type::FILE_PANEL || PanelType == panel_type::TREE_PANEL))
 		return PassError(L"Unsupported panel type");
 
-	int Index = static_cast<int>(P1.toInteger()) - 1;
-	int TypeInfo = static_cast<int>(P2.toInteger());
+	const auto Index = static_cast<int>(P1.toInteger()) - 1;
+	const auto TypeInfo = static_cast<int>(P2.toInteger());
 
 	if (const auto Tree = std::dynamic_pointer_cast<TreeList>(SelPanel))
 	{
@@ -5180,6 +5180,55 @@ int KeyMacro::AssignMacroKey(DWORD &MacroKey, unsigned long long& Flags)
 #ifdef ENABLE_TESTS
 
 #include "testing.hpp"
+
+TEST_CASE("macro.ToDouble")
+{
+	constexpr auto
+		Min = std::numeric_limits<long long>::min(),
+		Max = std::numeric_limits<long long>::max(),
+		Limit = static_cast<long long>(bit(std::numeric_limits<double>::digits));
+
+	static const struct
+	{
+		long long Value;
+		bool Valid;
+	}
+	Tests[]
+	{
+		{  Min,         false },
+		{  Min + 1,     false },
+		{  Min + 2,     false },
+		{ -Limit - 2,   false },
+		{ -Limit - 1,   false },
+		{ -Limit,       false },
+		{ -Limit + 1,   true  },
+		{ -Limit + 2,   true  },
+		{ -2,           true  },
+		{ -1,           true  },
+		{  0,           true  },
+		{  1,           true  },
+		{  2,           true  },
+		{  Limit - 2,   true  },
+		{  Limit - 1,   true  },
+		{  Limit,       false },
+		{  Limit + 1,   false },
+		{  Limit + 2,   false },
+		{  Limit + 2,   false },
+		{  Max - 2,     false },
+		{  Max - 1,     false },
+		{  Max,         false },
+	};
+
+	for (const auto& i: Tests)
+	{
+		double Result;
+		REQUIRE(ToDouble(i.Value, Result) == i.Valid);
+
+		if (i.Valid)
+			REQUIRE(Result == static_cast<double>(i.Value));
+
+	}
+}
 
 TEST_CASE("macro.splitpath")
 {

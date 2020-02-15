@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Internal:
 #include "farcolor.hpp"
-#include "chgprior.hpp"
 #include "savescr.hpp"
 #include "interf.hpp"
 #include "keyboard.hpp"
@@ -168,8 +167,6 @@ int ScreenSaver()
 		--Global->SuppressClock;
 		ScreenSaverActive = false;
 	};
-
-	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_IDLE);
 
 	for (const auto WaitTime = std::chrono::steady_clock::now(); std::chrono::steady_clock::now() - WaitTime < 500ms;)
 	{

@@ -43,7 +43,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panel.hpp"
 #include "foldtree.hpp"
 #include "treelist.hpp"
-#include "chgprior.hpp"
 #include "scantree.hpp"
 #include "filefilter.hpp"
 #include "fileview.hpp"
@@ -1270,7 +1269,6 @@ ShellCopy::~ShellCopy()
 
 COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 {
-	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	//SaveScreen SaveScr;
 	DWORD DestAttr = INVALID_FILE_ATTRIBUTES;
 	size_t DestMountLen = 0;

@@ -954,7 +954,6 @@ public:
 	BoolOption ScanJunction;
 
 	IntOption RedrawTimeout;
-	IntOption DelThreadPriority; // приоритет процесса удаления, по умолчанию = THREAD_PRIORITY_NORMAL
 
 	LoadPluginsOptions LoadPlug;
 

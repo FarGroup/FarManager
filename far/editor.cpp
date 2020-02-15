@@ -6494,7 +6494,7 @@ void Editor::Xlat()
 {
 	const auto XLatStr = [&](Edit::edit_string& Str, int StartPos, int EndPos)
 	{
-		::Xlat(Str.data(), StartPos, EndPos, Global->Opt->XLat.Flags);
+		::Xlat({ Str.data() + StartPos, Str.data() + EndPos }, Global->Opt->XLat.Flags);
 	};
 
 	bool DoXlat = false;

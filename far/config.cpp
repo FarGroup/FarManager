@@ -1937,7 +1937,6 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeySystem,                 L"CopySecurityOptions"sv,           CMOpt.CopySecurityOptions, 0},
 		{FSSF_PRIVATE,           NKeySystem,                 L"CopyPreserveTimestamps"sv,        CMOpt.PreserveTimestamps, false},
 		{FSSF_SYSTEM,            NKeySystem,                 L"DeleteToRecycleBin"sv,            DeleteToRecycleBin, true},
-		{FSSF_PRIVATE,           NKeySystem,                 L"DelThreadPriority"sv,             DelThreadPriority, THREAD_PRIORITY_NORMAL},
 		{FSSF_PRIVATE,           NKeySystem,                 L"DriveDisconnectMode"sv,           ChangeDriveDisconnectMode, true},
 		{FSSF_PRIVATE,           NKeySystem,                 L"DriveMenuMode"sv,                 ChangeDriveMode, DRIVE_SHOW_TYPE|DRIVE_SHOW_PLUGINS|DRIVE_SHOW_SIZE_FLOAT|DRIVE_SHOW_CDROM},
 		{FSSF_PRIVATE,           NKeySystem,                 L"ElevationMode"sv,                 StoredElevationMode, -1},
@@ -2733,24 +2732,17 @@ static void SetLeftRightMenuChecks(menu_item* pMenu, bool bLeft)
 	switch (pPanel->GetType())
 	{
 	case panel_type::FILE_PANEL:
-		{
-			const auto MenuLine = pPanel->GetViewMode();
-
-			if (MenuLine <= MENU_LEFT_ALTERNATIVEVIEW)
-			{
-				if (!MenuLine)
-					pMenu[MENU_LEFT_ALTERNATIVEVIEW].SetCheck();
-				else
-					pMenu[MenuLine-1].SetCheck();
-			}
-		}
+		pMenu[RealModeToDisplay(pPanel->GetViewMode())].SetCheck();
 		break;
+
 	case panel_type::INFO_PANEL:
 		pMenu[MENU_LEFT_INFOPANEL].SetCheck();
 		break;
+
 	case panel_type::TREE_PANEL:
 		pMenu[MENU_LEFT_TREEPANEL].SetCheck();
 		break;
+
 	case panel_type::QVIEW_PANEL:
 		pMenu[MENU_LEFT_QUICKVIEW].SetCheck();
 		break;
