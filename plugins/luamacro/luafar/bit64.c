@@ -48,7 +48,7 @@ int bit64_getvalue(lua_State *L, int pos, INT64 *target)
 	return 0;
 }
 
-static INT64 check64(lua_State *L, int pos, int* success)
+INT64 check64(lua_State *L, int pos, int* success)
 {
 	int tp = lua_type(L, pos);
 
