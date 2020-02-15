@@ -1,4 +1,8 @@
-﻿shmuel 08.02.2020 18:14:28 +0200 - build 728
+﻿shmuel 15.02.2020 08:50:10 +0200 - build 729
+
+1. LuaFAR: added functions win.GetFileTimes and win.SetFileTimes.
+
+shmuel 08.02.2020 18:14:28 +0200 - build 728
 
 1. LuaFAR: fix far.Message() - when the 3-rd argument was ";Yes;No"
            the function immediately returned 1 with no dialog shown.

@@ -9938,6 +9938,37 @@ mtime=3705999657
 </article>
 </node>
 <node>
+id=547
+lv=3
+dt=Text
+nm=win.GetFileTimes
+ctime=3790916234
+mtime=3790917671
+<article>
+#_times = win.GetFileTimes (FileName)
+#_
+#_**Parameters:**
+#_  FileName: string
+#_
+#_**Returns:**
+#_  times:    table (success), or nil (failure)
+#_    Fields of *times*:
+#_      LastWriteTime:      `bit64-userdata`
+#_      LastAccessTime:     `bit64-userdata`
+#_      CreationTime:       `bit64-userdata`
+#_
+#_**Note:**
+#_  All time values are expressed in 100-ns intervals elapsed since 1601-01-01,00:00:00.
+#_
+#_**Windows API used:**
+#_  CreateFile, GetFileTime
+#_
+#_@@@
+#_[bit64-userdata]: 405.html
+#_
+</article>
+</node>
+<node>
 id=397
 lv=3
 dt=Text
@@ -10086,6 +10117,38 @@ mtime=3602278974
 #_
 #_@@@
 #_[tPluginPanelItem]: 85.html
+#_
+</article>
+</node>
+<node>
+id=548
+lv=3
+dt=Text
+nm=win.SetFileTimes
+ctime=3790916254
+mtime=3790917726
+<article>
+#_result = win.SetFileTimes (FileName, times)
+#_
+#_**Parameters:**
+#_  FileName: string
+#_  times:    table
+#_    Fields of *times* (each one is optional):
+#_      LastWriteTime:      `bit64-userdata` or number
+#_      LastAccessTime:     `bit64-userdata` or number
+#_      CreationTime:       `bit64-userdata` or number
+#_
+#_**Returns:**
+#_  result:   boolean
+#_
+#_**Note:**
+#_  All time values are expressed in 100-ns intervals elapsed since 1601-01-01,00:00:00.
+#_
+#_**Windows API used:**
+#_  CreateFile, SetFileTime
+#_
+#_@@@
+#_[bit64-userdata]: 405.html
 #_
 </article>
 </node>
