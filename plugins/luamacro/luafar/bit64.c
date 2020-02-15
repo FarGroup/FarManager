@@ -6,6 +6,7 @@
 #define MAX53 0x1FFFFFFFFFFFFFLL
 typedef __int64 INT64;
 typedef unsigned __int64 UINT64;
+static int f_new(lua_State *L); /* forward declaration */
 
 const char metatable_name[] = "64 bit integer";
 
@@ -50,9 +51,11 @@ int bit64_getvalue(lua_State *L, int pos, INT64 *target)
 
 INT64 check64(lua_State *L, int pos, int* success)
 {
+	INT64 ret;
 	int tp = lua_type(L, pos);
 
 	if(success) *success = 1;
+	if(pos < 0) pos += lua_gettop(L) + 1;
 
 	if(tp == LUA_TNUMBER)
 	{
@@ -61,13 +64,15 @@ INT64 check64(lua_State *L, int pos, int* success)
 		if((d >= 0 && d <= MAX53) || (d < 0 && -d <= MAX53))
 			return (INT64) d;
 	}
-	else
+	else if(tp == LUA_TSTRING)
 	{
-		INT64 ret;
-
-		if(bit64_getvalue(L, pos, &ret))
-			return ret;
+		lua_pushcfunction(L, f_new);
+		lua_pushvalue(L, pos);
+		lua_call(L, 1, 1);
+		lua_replace(L, pos);
 	}
+	if(bit64_getvalue(L, pos, &ret))
+		return ret;
 
 	if(success) *success=0;
 	else luaL_argerror(L, pos, "bad int64");
@@ -304,6 +309,12 @@ static int f_le(lua_State *L)
 	return 1;
 }
 
+static int f_tonumber(lua_State *L)
+{
+	lua_pushnumber(L, (double)check64(L,1,NULL));
+	return 1;
+}
+
 static const luaL_Reg funcs[] =
 {
 	{ "bnot",       bnot    },
@@ -340,12 +351,15 @@ static const luaL_Reg metamethods[] =
 	{ "__lt",       f_lt    },
 	{ "__le",       f_le    },
 	{ "__tostring", f_tostring },
+	{ "tonumber",   f_tonumber },
 	{ NULL,         NULL    },
 };
 
 LUALIB_API int luaopen_bit64(lua_State *L)
 {
 	luaL_newmetatable(L, metatable_name);
+	lua_pushvalue(L, -1);
+	lua_setfield(L, -2, "__index");
 	luaL_register(L, NULL, metamethods);
 	luaL_register(L, "bit64", funcs);
 	return 1;

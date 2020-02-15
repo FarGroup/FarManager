@@ -41,9 +41,6 @@
     <ClCompile Include="cddrv.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="chgprior.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="clipboard.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -491,9 +488,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cddrv.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="chgprior.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="clipboard.hpp">

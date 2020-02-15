@@ -39,7 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "flink.hpp"
 #include "keys.hpp"
 #include "filepanels.hpp"
-#include "chgprior.hpp"
 #include "treelist.hpp"
 #include "filelist.hpp"
 #include "savescr.hpp"
@@ -280,7 +279,6 @@ void Panel::DragMessage(int X,int Y,int Move)
 		}
 	}
 
-	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	// Important - the old one must be deleted before creating a new one, not after
 	DragSaveScr.reset();
 	DragSaveScr = std::make_unique<SaveScreen>(rectangle{ MsgX, Y, MsgX + Length - 1, Y });

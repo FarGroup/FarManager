@@ -34,7 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Internal:
 #include "keys.hpp"
-#include "chgprior.hpp"
 #include "farcolor.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
@@ -155,8 +154,6 @@ static int MainProcess(
     int StartChar
 )
 {
-		SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
-
 		FarColor InitAttributes;
 		if (!console.GetTextAttributes(InitAttributes))
 			InitAttributes = colors::ConsoleColorToFarColor(F_LIGHTGRAY | B_BLACK);

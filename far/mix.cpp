@@ -255,7 +255,7 @@ WINDOWINFO_TYPE WindowTypeToPluginWindowType(const int fType)
 	{
 		return i.first == fType;
 	});
-	return ItemIterator == std::cend(TypesMap)? static_cast<WINDOWINFO_TYPE>(-1) : ItemIterator->second;
+	return ItemIterator == std::cend(TypesMap)? WTYPE_UNKNOWN : ItemIterator->second;
 }
 
 SetAutocomplete::SetAutocomplete(EditControl* edit, bool NewState):

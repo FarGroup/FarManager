@@ -9620,15 +9620,15 @@ lv=1
 dt=Text
 nm=bit64
 ctime=3507278228
-mtime=3602448570
+mtime=3790945395
 <article>
 #_<markdown>
 #_As Far 3.0 started to use 64-bit integer values ("flags") in its API, arose the need to represent and handle them from Lua. This is the role of **bit64** library.
 #_
 #_The library represents and accepts flags as either numbers or "64 bit integer" userdata. Values that fit in 53 bits can be represented in both ways. Greater values are always represented as userdata.
 #_
-#_Userdata values created by the library support the following operations:<br>
-#_`+`, `-`, `*`, `/`, `%`, `==`, `<`, `<=`, unary minus.
+#_Userdata values created by the library support the following operations (metamethods):<br>
+#_`+`, `-`, `*`, `/`, `%`, `==`, `<`, `<=`, unary minus, `tonumber`.
 #_
 #_`__tostring` metamethod of "64-bit type" userdata returns an acceptable string representation that when passed to [`new`][new] will produce a value equal to the original one.
 #_

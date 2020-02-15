@@ -213,12 +213,12 @@ public:
 	{
 	}
 
-	constexpr span(const std::initializer_list<span_value_type>& List) :
+	constexpr span(const std::initializer_list<span_value_type>& List):
 		span(ALL_CONST_RANGE(List))
 	{
 	}
 
-	constexpr span subspan(size_t const Offset, size_t const Size) const
+	constexpr span subspan(size_t const Offset, size_t const Size = std::numeric_limits<size_t>::max()) const
 	{
 		return { this->data() + Offset, Size == std::numeric_limits<size_t>::max() ? this->size() - Offset : Size };
 	}

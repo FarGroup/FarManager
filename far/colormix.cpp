@@ -139,29 +139,31 @@ namespace colors
 
 WORD FarColorToConsoleColor(const FarColor& Color)
 {
-	static COLORREF LastTrueColors[2] = {};
-	static FARCOLORFLAGS LastFlags = 0;
+	static FarColor LastColor{};
 	static WORD Result = 0;
 
-	if (Color.BackgroundColor == LastTrueColors[0] && Color.ForegroundColor == LastTrueColors[1] && (Color.Flags & FCF_4BITMASK) == (LastFlags & FCF_4BITMASK))
+	if (Color.BackgroundColor == LastColor.BackgroundColor && Color.ForegroundColor == LastColor.ForegroundColor && (Color.Flags & FCF_4BITMASK) == (LastColor.Flags & FCF_4BITMASK))
 		return Result;
 
-	LastFlags = Color.Flags;
+	LastColor.Flags = Color.Flags;
 
 	static std::array<BYTE, 2> IndexColors{};
 
 	const struct
 	{
-		const COLORREF Color;
-		const rgba RGBA;
-		FARCOLORFLAGS Flags;
-		COLORREF* LastColor;
-		BYTE* IndexColor;
+		union
+		{
+			const COLORREF Color;
+			const rgba RGBA;
+		};
+		const FARCOLORFLAGS Flags;
+		COLORREF* const LastColor;
+		BYTE* const IndexColor;
 	}
-	data[] =
+	data[]
 	{
-		{Color.BackgroundColor, Color.BackgroundRGBA, FCF_BG_4BIT, &LastTrueColors[0], &IndexColors[0]},
-		{Color.ForegroundColor, Color.ForegroundRGBA, FCF_FG_4BIT, &LastTrueColors[1], &IndexColors[1]}
+		{ Color.BackgroundColor, FCF_BG_4BIT, &LastColor.BackgroundColor, &IndexColors[0] },
+		{ Color.ForegroundColor, FCF_FG_4BIT, &LastColor.ForegroundColor, &IndexColors[1] }
 	};
 
 	enum console_mask
@@ -178,6 +180,7 @@ WORD FarColorToConsoleColor(const FarColor& Color)
 			continue;
 
 		*i.LastColor = i.Color;
+
 		if(Color.Flags & i.Flags)
 		{
 			*i.IndexColor = i.Color & ConsoleMask;

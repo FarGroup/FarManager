@@ -2937,7 +2937,7 @@ wchar_t* WINAPI apiXlat(wchar_t *Line, intptr_t StartPos, intptr_t EndPos, XLAT_
 {
 	try
 	{
-		Xlat(Line, StartPos, EndPos, Flags);
+		Xlat({ Line + StartPos, Line + EndPos }, Flags);
 		return Line;
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())

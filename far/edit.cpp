@@ -1361,7 +1361,7 @@ bool Edit::InsertKey(wchar_t const Key)
 				{
 					int i=MaskLen-1;
 
-					while (!CheckCharMask(Mask[i]) && i>m_CurPos)
+					while (i > m_CurPos && !CheckCharMask(Mask[i]))
 						i--;
 
 					for (int j=i; i>m_CurPos; i--)
@@ -1616,35 +1616,29 @@ void Edit::InsertString(string_view Str)
 	const auto Mask = GetInputMask();
 	if (!Mask.empty())
 	{
-		const size_t Pos = m_CurPos;
-		const size_t MaskLen = Mask.size();
+		const auto MaskLen = Mask.size();
 
-		if (Pos<MaskLen)
+		if (static_cast<size_t>(m_CurPos) < MaskLen)
 		{
-			//_SVS(SysLog(L"InsertString ==> Str='%s' (Length=%d) Mask='%s'",Str,Length,Mask+Pos));
-			const size_t StrLen = (MaskLen - Pos > Str.size())? Str.size() : MaskLen - Pos;
+			const auto StrLen = std::min(MaskLen - m_CurPos, Str.size());
 
-			/* $ 15.11.2000 KM
-			   Внесены исправления для правильной работы PasteFromClipboard
-			   в строке с маской
-			*/
-			for (size_t i = Pos, j = 0; j < StrLen + Pos;)
+			for (size_t i = m_CurPos, j = 0; i != MaskLen && j != StrLen;)
 			{
 				if (CheckCharMask(Mask[i]))
 				{
-					int goLoop=FALSE;
+					bool goLoop = false;
 
 					if (j < Str.size() && CharInMask(Str[j], Mask[m_CurPos]))
 					{
 						InsertKey(Str[j]);
-						//_SVS(SysLog(L"InsertString ==> InsertKey(Str[%d]='%c');",j,Str[j]));
 					}
 					else
-						goLoop=TRUE;
+						goLoop = true;
 
 					j++;
 
-					if (goLoop) continue;
+					if (goLoop)
+						continue;
 				}
 				else
 				{
@@ -2239,28 +2233,21 @@ void Edit::ApplyColor(const FarColor& SelColor, int XPos, int FocusedLeftPos)
 */
 void Edit::Xlat(bool All)
 {
-	const auto XLatStr = [&](int StartPos, int EndPos)
-	{
-		::Xlat(m_Str.data(), StartPos, EndPos, Global->Opt->XLat.Flags);
-	};
+	int StartPos, EndPos;
 
 	//   Для CmdLine - если нет выделения, преобразуем всю строку
 	if (All && m_SelStart == -1 && !m_SelEnd)
 	{
-		XLatStr(0, m_Str.size());
-		Changed();
-		Show();
-		return;
+		StartPos = 0;
+		EndPos = m_Str.size();
 	}
-
-	if (m_SelStart != -1 && m_SelStart != m_SelEnd)
+	else if (m_SelStart != -1 && m_SelStart != m_SelEnd)
 	{
 		if (m_SelEnd == -1)
 			m_SelEnd = m_Str.size();
 
-		XLatStr(m_SelStart, m_SelEnd);
-		Changed();
-		Show();
+		StartPos = m_SelStart;
+		EndPos = m_SelEnd;
 	}
 	/* $ 25.11.2000 IS
 	 Если нет выделения, то обработаем текущее слово. Слово определяется на
@@ -2272,33 +2259,32 @@ void Edit::Xlat(bool All)
 		   Обрабатываем только то слово, на котором стоит курсор, или то слово, что
 		   находится левее позиции курсора на 1 символ
 		*/
-		int start = m_CurPos;
+		StartPos = m_CurPos;
 		const auto StrSize = m_Str.size();
-		bool DoXlat=true;
 
-		if (IsWordDiv(Global->Opt->XLat.strWordDivForXlat,m_Str[start]))
+		const string& WordDivForXlat = Global->Opt->XLat.strWordDivForXlat;
+		if (IsWordDiv(WordDivForXlat, m_Str[StartPos]))
 		{
-			if (start) start--;
+			if (StartPos)
+				--StartPos;
 
-			DoXlat=(!IsWordDiv(Global->Opt->XLat.strWordDivForXlat,m_Str[start]));
+			if (IsWordDiv(WordDivForXlat, m_Str[StartPos]))
+				return;
 		}
 
-		if (DoXlat)
-		{
-			while (start>=0 && !IsWordDiv(Global->Opt->XLat.strWordDivForXlat,m_Str[start]))
-				start--;
+		while (StartPos >= 0 && !IsWordDiv(WordDivForXlat, m_Str[StartPos]))
+			StartPos--;
 
-			start++;
-			int end=start+1;
+		++StartPos;
+		EndPos = StartPos + 1;
 
-			while (end<StrSize && !IsWordDiv(Global->Opt->XLat.strWordDivForXlat,m_Str[end]))
-				end++;
-
-			XLatStr(start, end);
-			Changed();
-			Show();
-		}
+		while (EndPos < StrSize && !IsWordDiv(WordDivForXlat, m_Str[EndPos]))
+			++EndPos;
 	}
+
+	::Xlat({ m_Str.data() + StartPos, m_Str.data() + EndPos }, Global->Opt->XLat.Flags);
+	Changed();
+	Show();
 }
 
 bool Edit::CharInMask(wchar_t const Char, wchar_t const Mask)

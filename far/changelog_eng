@@ -3,6 +3,16 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 15.02.2020 20:30:40 +0000 - build 5558
+
+1. Remove thread priority overriding.
+
+2. Remove XLat tables from the code, there's default.farconfig for that.
+
+3. Buffer overflow on pasting into an edit field win an input mask.
+
+4. Other refactoring.
+
 drkns 09.02.2020 10:28:30 +0000 - build 5557
 
 1. Apply 5556.1 to plugin panels as well (#0003675).

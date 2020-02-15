@@ -1,4 +1,19 @@
-﻿shmuel 15.02.2020 08:50:10 +0200 - build 729
+﻿shmuel 15.02.2020 19:31:22 +0200 - build 731
+
+1. Fix build 730.1.
+
+shmuel 15.02.2020 18:50:58 +0200 - build 730
+
+LuaFAR:
+
+1. bit64-library functions (and some other functions, e.g. win.SetFileTimes)
+   accept string parameters if they are convertible to 64-bit integers.
+
+2. Added 'tonumber' method to bit64-userdata.
+
+3. A fix in win.FileTimeToLocalFileTime function.
+
+shmuel 15.02.2020 08:50:10 +0200 - build 729
 
 1. LuaFAR: added functions win.GetFileTimes and win.SetFileTimes.
 

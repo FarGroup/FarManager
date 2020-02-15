@@ -770,7 +770,7 @@ TEST_CASE("utility.aligned_size")
 {
 	for (size_t i = 0; i <= MEMORY_ALLOCATION_ALIGNMENT * 8; ++i)
 	{
-		const auto Expected = std::ceil(static_cast<double>(i) / MEMORY_ALLOCATION_ALIGNMENT) * MEMORY_ALLOCATION_ALIGNMENT;
+		const size_t Expected = std::ceil(static_cast<double>(i) / MEMORY_ALLOCATION_ALIGNMENT) * MEMORY_ALLOCATION_ALIGNMENT;
 		REQUIRE(aligned_size(i) == Expected);
 	}
 }

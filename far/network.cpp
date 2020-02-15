@@ -122,57 +122,55 @@ bool ConnectToNetworkResource(const string& NewDir)
 		RemoteName = NewDir;
 	}
 
-	auto strUserName = IsDrive? GetStoredUserName(NewDir[0]) : L""s;
-	string strPassword;
+	auto UserName = IsDrive? GetStoredUserName(NewDir[0]) : L""s;
 
-	NETRESOURCE netResource {};
+	NETRESOURCE netResource{};
 	netResource.dwType = RESOURCETYPE_DISK;
 	netResource.lpLocalName = IsDrive? UNSAFE_CSTR(LocalName) : nullptr;
 	netResource.lpRemoteName = UNSAFE_CSTR(RemoteName);
 	netResource.lpProvider = nullptr;
-	DWORD res = WNetAddConnection2(&netResource, nullptr, EmptyToNull(strUserName), 0);
 
-	if (res == ERROR_SESSION_CREDENTIAL_CONFLICT)
-		res = WNetAddConnection2(&netResource, nullptr, nullptr, 0);
-
-	if (res != NO_ERROR)
+	if (const auto Result = WNetAddConnection2(&netResource, nullptr, EmptyToNull(UserName), 0); Result == NO_ERROR ||
+		(Result == ERROR_SESSION_CREDENTIAL_CONFLICT && WNetAddConnection2(&netResource, nullptr, nullptr, 0) == NO_ERROR))
 	{
-		for (;;)
+		return true;
+	}
+
+	string Password;
+
+	for (;;)
+	{
+		if (!GetNameAndPassword(RemoteName, UserName, Password, {}, GNP_USELAST))
+			return false;
+
+		if (const auto Result = WNetAddConnection2(&netResource, Password.c_str(), EmptyToNull(UserName), 0); Result == NO_ERROR)
+			return true;
+		else if (Result != ERROR_ACCESS_DENIED && Result != ERROR_INVALID_PASSWORD && Result != ERROR_LOGON_FAILURE)
 		{
-			if (!GetNameAndPassword(RemoteName, strUserName, strPassword, {}, GNP_USELAST))
-				break;
-
-			res = WNetAddConnection2(&netResource, strPassword.c_str(), EmptyToNull(strUserName), 0);
-
-			if (res == NO_ERROR)
-				break;
-
-			if (res != ERROR_ACCESS_DENIED && res != ERROR_INVALID_PASSWORD && res != ERROR_LOGON_FAILURE)
-			{
-				Message(MSG_WARNING, error_state::fetch(),
-					msg(lng::MError),
-					{
-						NewDir
-					},
-					{ lng::MOk });
-				break;
-			}
+			Message(MSG_WARNING, error_state::fetch(),
+				msg(lng::MError),
+				{
+					NewDir
+				},
+				{ lng::MOk });
+			return false;
 		}
 	}
-	return res == NO_ERROR;
 }
 
 string ExtractComputerName(const string_view CurDir, string* const strTail)
 {
-	string Result;
-
-	string strNetDir;
-
 	if (strTail)
 		strTail->clear();
 
-	const auto CurDirPathType = ParsePath(CurDir);
-	if (CurDirPathType == root_type::remote || CurDirPathType == root_type::unc_remote)
+	const auto IsSuppportedPathType = [](root_type const Type)
+	{
+		return Type == root_type::remote || Type == root_type::unc_remote;
+	};
+
+	string strNetDir;
+
+	if (IsSuppportedPathType(ParsePath(CurDir)))
 	{
 		strNetDir = CurDir;
 	}
@@ -181,28 +179,23 @@ string ExtractComputerName(const string_view CurDir, string* const strTail)
 		os::WNetGetConnection(CurDir.substr(0, 2), strNetDir);
 	}
 
-	if (!strNetDir.empty())
-	{
-		const auto NetDirPathType = ParsePath(strNetDir);
-		if (NetDirPathType == root_type::remote || NetDirPathType == root_type::unc_remote)
-		{
-			Result = strNetDir.substr(NetDirPathType == root_type::remote? 2 : 8);
+	if (strNetDir.empty())
+		return {};
 
-			const auto pos = FindSlash(Result);
-			if (pos != string::npos)
-			{
-				if (strTail)
-				{
-					*strTail = Result.substr(pos + 1);
-				}
-				Result.resize(pos);
-			}
-			else
-			{
-				Result.clear();
-			}
-		}
-	}
+	const auto NetDirPathType = ParsePath(strNetDir);
+	if (!IsSuppportedPathType(NetDirPathType))
+		return {};
+
+	auto Result = strNetDir.substr(NetDirPathType == root_type::remote? 2 : 8);
+	const auto pos = FindSlash(Result);
+	if (pos == string::npos)
+		return {};
+
+	if (strTail)
+		strTail->assign(Result, pos + 1, string::npos); // gcc 7.3-8.1 bug: npos required. TODO: Remove after we move to 8.2 or later)
+
+	Result.resize(pos);
+
 	return Result;
 }
 

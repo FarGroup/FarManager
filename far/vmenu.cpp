@@ -43,7 +43,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keys.hpp"
 #include "macroopcode.hpp"
 #include "farcolor.hpp"
-#include "chgprior.hpp"
 #include "dialog.hpp"
 #include "savescr.hpp"
 #include "clipboard.hpp"
@@ -1431,7 +1430,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 						start--;
 
 					start++;
-					::Xlat(strFilter.data(), start, static_cast<int>(strFilter.size()), Global->Opt->XLat.Flags);
+					::Xlat(span(strFilter).subspan(start), Global->Opt->XLat.Flags);
 					FilterStringUpdated();
 					DisplayObject();
 				}
@@ -1904,8 +1903,6 @@ void VMenu::Show()
 
 void VMenu::Hide()
 {
-	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
-
 	if (!CheckFlags(VMENU_LISTBOX) && SaveScr)
 	{
 		SaveScr.reset();
@@ -1917,8 +1914,6 @@ void VMenu::Hide()
 
 void VMenu::DisplayObject()
 {
-	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
-
 	const auto Parent = GetDialog();
 	if (Parent && !Parent->IsRedrawEnabled()) return;
 	ClearFlags(VMENU_UPDATEREQUIRED);
@@ -2029,8 +2024,6 @@ void VMenu::DrawTitles() const
 
 void VMenu::ShowMenu(bool IsParent)
 {
-	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
-
 	size_t MaxItemLength = 0;
 	bool HasRightScroll = false;
 	bool HasSubMenus = ItemSubMenusCount > 0;

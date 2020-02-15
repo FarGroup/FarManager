@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 #include "plugins.hpp"
 #include "encoding.hpp"
-#include "chgprior.hpp"
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
 #include "panel.hpp"
@@ -5009,8 +5008,6 @@ private:
 
 	HANDLE Open(OpenInfo* Info) override
 	{
-		SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
-
 		CheckScreenLock();
 
 		AnsiExecuteStruct<iOpen> es;

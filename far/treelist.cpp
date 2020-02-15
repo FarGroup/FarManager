@@ -41,7 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filepanels.hpp"
 #include "filelist.hpp"
 #include "cmdline.hpp"
-#include "chgprior.hpp"
 #include "scantree.hpp"
 #include "copy.hpp"
 #include "qview.hpp"
@@ -800,8 +799,6 @@ bool TreeList::ReadTree()
 {
 	m_ReadingTree = true;
 	SCOPE_EXIT{ m_ReadingTree = false; };
-
-	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<TreePreRedrawItem>());
 	ScanTree ScTree(false, true, -1, false);
@@ -1835,8 +1832,6 @@ void TreeList::ReadSubTree(const string& Path)
 {
 	if (!os::fs::is_directory(Path))
 		return;
-
-	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<TreePreRedrawItem>());
 	ScanTree ScTree(false, true, -1, false);

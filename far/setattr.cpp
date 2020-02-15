@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 #include "flink.hpp"
 #include "dialog.hpp"
-#include "chgprior.hpp"
 #include "scantree.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
@@ -694,7 +693,6 @@ static bool process_single_file(
 
 bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 {
-	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	short DlgX = 66, DlgY = 22;
 
 	const auto C1 = 5;

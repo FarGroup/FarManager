@@ -541,9 +541,9 @@ public:
 	explicit list_less(const FileList* Owner, const plugin_panel* SortPlugin):
 		m_Owner(Owner),
 		ListSortMode(Owner->GetSortMode()),
-		RevertSorting(Owner->GetSortOrder()),
 		ListPanelMode(Owner->GetMode()),
 		hSortPlugin(SortPlugin),
+		RevertSorting(Owner->GetSortOrder()),
 		ListSortGroups(Owner->GetSortGroups()),
 		ListSelectedFirst(Owner->GetSelectedFirstMode()),
 		ListDirectoriesFirst(Owner->GetDirectoriesFirst()),
@@ -778,9 +778,9 @@ public:
 private:
 	const FileList* const m_Owner;
 	const panel_sort ListSortMode;
-	const bool RevertSorting;
 	const panel_mode ListPanelMode;
 	const plugin_panel* hSortPlugin;
+	const bool RevertSorting;
 	bool ListSortGroups;
 	bool ListSelectedFirst;
 	bool ListDirectoriesFirst;
