@@ -1,4 +1,11 @@
-﻿shmuel 15.02.2020 19:31:22 +0200 - build 731
+﻿shmuel 17.02.2020 08:06:24 +0200 - build 732
+
+1. LuaFAR: allow 64-bit range for floating point arguments where 64-bit integers expected
+           (was: 53 bits allowed).
+
+2. LuaFAR (generic plugin): fix a nasty pointer arithmetics bug in SetStartupInfoW().
+
+shmuel 15.02.2020 19:31:22 +0200 - build 731
 
 1. Fix build 730.1.
 
