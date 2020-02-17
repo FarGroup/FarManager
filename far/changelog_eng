@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 17.02.2020 01:36:09 +0000 - build 5559
+
+1. Correction of 5558.4.
+
 drkns 15.02.2020 20:30:40 +0000 - build 5558
 
 1. Remove thread priority overriding.
