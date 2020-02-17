@@ -50,7 +50,7 @@ bool GetShellType(string_view Ext, string& strType, ASSOCIATIONTYPE aType = AT_F
 
 void OpenFolderInShell(const string& Folder);
 
-void Execute(struct execute_info& Info, bool FolderRun, bool Silent, function_ref<void(bool)> ConsoleActivator = nullptr);
+void Execute(struct execute_info& Info, bool FolderRun, function_ref<void(bool)> ConsoleActivator = nullptr);
 
 bool IsExecutable(string_view Filename);
 

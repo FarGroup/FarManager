@@ -670,8 +670,9 @@ void OpenFolderInShell(const string& Folder)
 	Info.NewWindow = true;
 	Info.ExecMode = execute_info::exec_mode::direct;
 	Info.SourceMode = execute_info::source_mode::known;
+	Info.Silent = true;
 
-	Execute(Info, true, true);
+	Execute(Info, true);
 }
 
 static bool GetAssociatedImageTypeForBatCmd(string_view const Str, image_type& ImageType)
@@ -748,7 +749,7 @@ static bool GetProtocolType(string_view const Str, image_type& ImageType)
 	return false;
 }
 
-void Execute(execute_info& Info, bool FolderRun, bool Silent, function_ref<void(bool)> const ConsoleActivator)
+void Execute(execute_info& Info, bool FolderRun, function_ref<void(bool)> const ConsoleActivator)
 {
 	bool Result = false;
 	string strNewCmdStr;
@@ -766,7 +767,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, function_ref<void(
 
 			if (ImageType == image_type::graphical)
 			{
-				Silent = true;
+				Info.Silent = true;
 				Info.NewWindow = true;
 			}
 		}
@@ -796,12 +797,12 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, function_ref<void(
 
 	if(FolderRun)
 	{
-		Silent = true;
+		Info.Silent = true;
 	}
 
 	if (Info.NewWindow)
 	{
-		Silent = true;
+		Info.Silent = true;
 
 		const auto Unquoted = unquote(strNewCmdStr);
 		IsDirectory = os::fs::is_directory(Unquoted);
@@ -893,7 +894,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, function_ref<void(
 
 					if (ImageType == image_type::graphical)
 					{
-						Silent = true;
+						Info.Silent = true;
 						Info.NewWindow = true;
 					}
 				}
@@ -909,7 +910,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, function_ref<void(
 	if (Info.WaitMode == execute_info::wait_mode::wait_finish)
 	{
 		// It's better to show console rather than non-responding panels
-		Silent = false;
+		Info.Silent = false;
 	}
 
 	bool Visible=false;
@@ -929,10 +930,10 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, function_ref<void(
 
 	if (ConsoleActivator)
 	{
-		ConsoleActivator(!Silent);
+		ConsoleActivator(!Info.Silent);
 	}
 
-	if(!Silent)
+	if(!Info.Silent)
 	{
 		ConsoleCP = console.GetInputCodepage();
 		ConsoleOutputCP = console.GetOutputCodepage();
