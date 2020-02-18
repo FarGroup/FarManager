@@ -55,26 +55,28 @@ INT64 check64(lua_State *L, int pos, int* success)
 	int tp = lua_type(L, pos);
 
 	if(success) *success = 1;
-	if(pos < 0) pos += lua_gettop(L) + 1;
+	if(pos < 0) pos += lua_gettop(L) + 1; /* mandatory in this function */
 
 	if(tp == LUA_TNUMBER)
 	{
-		double d = lua_tonumber(L, pos);
-
-		if((d >= 0 && d <= MAX53) || (d < 0 && -d <= MAX53))
-			return (INT64) d;
+		double dd = lua_tonumber(L, pos);
+		if ((dd>=0 && dd<=0x7fffffffffffffffULL) || (dd<0 && -dd<=0x8000000000000000ULL))
+			return (INT64)dd;
 	}
-	else if(tp == LUA_TSTRING)
+	else
 	{
-		lua_pushcfunction(L, f_new);
-		lua_pushvalue(L, pos);
-		lua_call(L, 1, 1);
-		lua_replace(L, pos);
+		if(tp == LUA_TSTRING)
+		{
+			lua_pushcfunction(L, f_new);
+			lua_pushvalue(L, pos);
+			lua_call(L, 1, 1);
+			lua_replace(L, pos);
+		}
+		if(bit64_getvalue(L, pos, &ret))
+			return ret;
 	}
-	if(bit64_getvalue(L, pos, &ret))
-		return ret;
 
-	if(success) *success=0;
+	if (success) *success=0;
 	else luaL_argerror(L, pos, "bad int64");
 
 	return 0;

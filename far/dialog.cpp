@@ -4075,82 +4075,84 @@ bool Dialog::ProcessHighlighting(int Key, size_t FocusPos, bool Translate)
 		rec = {};
 	}
 
+	// Beware - I is modified within the loop, so don't cache Items[I]
 	for (size_t I=0; I<Items.size(); I++)
 	{
-		auto& Item = Items[I];
-		const auto Type = Item.Type;
-		const auto Flags = Item.Flags;
+		if (IsEdit(Items[I].Type) && !(Items[I].Type == DI_COMBOBOX && Items[I].Flags & DIF_DROPDOWNLIST))
+			continue;
 
-		if ((!IsEdit(Type) || (Type == DI_COMBOBOX && (Flags&DIF_DROPDOWNLIST))) &&
-		        !(Flags & (DIF_SHOWAMPERSAND|DIF_DISABLE|DIF_HIDDEN)))
-			if (IsKeyHighlighted(Item.strData,Key,Translate))
+		if (Items[I].Flags & (DIF_SHOWAMPERSAND | DIF_DISABLE | DIF_HIDDEN))
+			continue;
+
+		if (!IsKeyHighlighted(Items[I].strData, Key, Translate))
+			continue;
+
+		bool DisableSelect = false;
+
+		// Если ЭТО: DlgEdit(пред контрол) и DI_TEXT в одну строку, то...
+		if (
+			I > 0 &&
+			Items[I].Type == DI_TEXT &&                               // DI_TEXT
+			IsEdit(Items[I - 1].Type) &&                              // и редактор
+			Items[I].Y1 == Items[I - 1].Y1 &&                         // и оба в одну строку
+			(I + 1 < Items.size() && Items[I].Y1 != Items[I + 1].Y1)) // ...и следующий контрол в другой строке
+		{
+			// Сначала сообщим о случившемся факте процедуре обработки диалога, а потом...
+			if (!DlgProc(DN_HOTKEY, I, &rec))
+				break; // сказали не продолжать обработку...
+
+			// ... если предыдущий контрол задизаблен или невидим, тогда выходим.
+			if ((Items[I - 1].Flags & (DIF_DISABLE | DIF_HIDDEN))) // и не задисаблен
+				break;
+
+			I = ChangeFocus(I, -1, false);
+			DisableSelect = true;
+		}
+		else if (
+			Items[I].Type == DI_TEXT ||
+			Items[I].Type == DI_VTEXT ||
+			Items[I].Type == DI_SINGLEBOX ||
+			Items[I].Type == DI_DOUBLEBOX)
+		{
+			if (I < Items.size() - 1) // ...и следующий контрол
 			{
-				bool DisableSelect = false;
-
-				// Если ЭТО: DlgEdit(пред контрол) и DI_TEXT в одну строку, то...
-				if (I>0 &&
-				        Type==DI_TEXT &&                              // DI_TEXT
-				        IsEdit(Items[I-1].Type) &&                     // и редактор
-				        Item.Y1==Items[I-1].Y1 &&                   // и оба в одну строку
-				        (I+1 < Items.size() && Item.Y1!=Items[I+1].Y1)) // ...и следующий контрол в другой строке
-				{
-					// Сначала сообщим о случившемся факте процедуре обработки диалога, а потом...
-					if (!DlgProc(DN_HOTKEY,I,&rec))
-						break; // сказали не продолжать обработку...
-
-					// ... если предыдущий контрол задизаблен или невидим, тогда выходим.
-					if ((Items[I-1].Flags&(DIF_DISABLE|DIF_HIDDEN)) ) // и не задисаблен
-						break;
-
-					I = ChangeFocus(I, -1, false);
-					DisableSelect = true;
-				}
-				else if (Item.Type==DI_TEXT      || Item.Type==DI_VTEXT ||
-				         Item.Type==DI_SINGLEBOX || Item.Type==DI_DOUBLEBOX)
-				{
-					if (I < Items.size() - 1) // ...и следующий контрол
-					{
-						// Сначала сообщим о случившемся факте процедуре обработки диалога, а потом...
-						if (!DlgProc(DN_HOTKEY,I,&rec))
-							break; // сказали не продолжать обработку...
-
-						// ... если следующий контрол задизаблен или невидим, тогда выходим.
-						if ((Items[I+1].Flags&(DIF_DISABLE|DIF_HIDDEN)) ) // и не задисаблен
-							break;
-
-						I = ChangeFocus(I, 1, false);
-						DisableSelect = true;
-					}
-				}
-
-				// Сообщим о случившемся факте процедуре обработки диалога
-				if (!DlgProc(DN_HOTKEY,I,&rec))
+				// Сначала сообщим о случившемся факте процедуре обработки диалога, а потом...
+				if (!DlgProc(DN_HOTKEY, I, &rec))
 					break; // сказали не продолжать обработку...
 
-				ChangeFocus2(I);
-				ShowDialog();
+				// ... если следующий контрол задизаблен или невидим, тогда выходим.
+				if ((Items[I + 1].Flags & (DIF_DISABLE | DIF_HIDDEN))) // и не задисаблен
+					break;
 
-				if ((Item.Type==DI_CHECKBOX || Item.Type==DI_RADIOBUTTON) &&
-				        (!DisableSelect || (Item.Flags & DIF_MOVESELECT)))
-				{
-					Do_ProcessSpace();
-					return true;
-				}
-				else if (Item.Type==DI_BUTTON)
-				{
-					ProcessKey(KEY_ENTER, I);
-					return true;
-				}
-				// при ComboBox`е - "вываливаем" последний //????
-				else if (Item.Type==DI_COMBOBOX)
-				{
-					ProcessOpenComboBox(Item.Type, &Item, I);
-					//ProcessKey(KEY_CTRLDOWN);
-					return true;
-				}
-
-				return true;
+				I = ChangeFocus(I, 1, false);
+				DisableSelect = true;
 			}
+		}
+
+		// Сообщим о случившемся факте процедуре обработки диалога
+		if (!DlgProc(DN_HOTKEY, I, &rec))
+			break; // сказали не продолжать обработку...
+
+		ChangeFocus2(I);
+		ShowDialog();
+
+		if ((Items[I].Type == DI_CHECKBOX || Items[I].Type == DI_RADIOBUTTON) &&
+			(!DisableSelect || (Items[I].Flags & DIF_MOVESELECT)))
+		{
+			Do_ProcessSpace();
+		}
+		else if (Items[I].Type == DI_BUTTON)
+		{
+			ProcessKey(KEY_ENTER, I);
+		}
+		// при ComboBox`е - "вываливаем" последний //????
+		else if (Items[I].Type == DI_COMBOBOX)
+		{
+			ProcessOpenComboBox(Items[I].Type, &Items[I], I);
+			//ProcessKey(KEY_CTRLDOWN);
+		}
+
+		return true;
 	}
 
 	return false;

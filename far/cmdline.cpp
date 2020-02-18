@@ -992,7 +992,6 @@ static void ProcessEcho(execute_info& Info)
 
 void CommandLine::ExecString(execute_info& Info)
 {
-	bool Silent = false;
 	bool IsUpdateNeeded = false;
 
 	const auto ExecutionContext = Global->WindowManager->Desktop()->ConsoleSession().GetContext();
@@ -1015,7 +1014,7 @@ void CommandLine::ExecString(execute_info& Info)
 		if (Global->Opt->Clock)
 			ShowTime();
 
-		if (!Silent)
+		if (!Info.Silent)
 		{
 			Global->ScrBuf->Flush();
 		}
@@ -1085,7 +1084,7 @@ void CommandLine::ExecString(execute_info& Info)
 		}
 	}
 
-	Execute(Info, false, Silent, Activator);
+	Execute(Info, false, Activator);
 
 	// BUGBUG do we really need to update panels at all?
 	IsUpdateNeeded = true;

@@ -64,6 +64,7 @@ struct execute_info
 	bool RunAs{};
 	bool Echo{ true };
 	bool UseAssociations{ true };
+	bool Silent{};
 };
 
 class CommandLine:public SimpleScreenObject
