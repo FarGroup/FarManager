@@ -1121,7 +1121,7 @@ void Manager::ModalDesktopCommit(const window_ptr& Param)
 	if (m_DesktopModalled++ == 0)
 	{
 		const auto Old = GetCurrentWindow();
-		assert(Old != Param);
+		assert(1 == m_windows.size() || Old != Param);
 		assert(IndexOf(Param) >= 0);
 		const auto Position = m_windows.begin() + IndexOf(Param);
 		std::rotate(Position, Position + 1, m_windows.end());
@@ -1156,7 +1156,7 @@ void Manager::RefreshAllCommit()
 	if (!m_windows.empty())
 	{
 		const auto ItemIterator = FindFileResult();
-		const auto PtrCopy = (ItemIterator == m_windows.cend()) ? m_windows.front() : *ItemIterator;
+		const auto PtrCopy = m_DesktopModalled == 0 ? ((ItemIterator == m_windows.cend()) ? m_windows.front() : *ItemIterator) : m_windows.back();
 		RefreshCommit(PtrCopy);
 	}
 }
