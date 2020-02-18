@@ -75,6 +75,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma warning(disable: 4673) // https://msdn.microsoft.com/en-us/library/32y577d8.aspx throwing 'identifier' the following types will not be considered at the catch site
 #pragma warning(disable: 4710) // https://msdn.microsoft.com/en-us/library/yd3056cz.aspx 'function' : function not inlined
 #pragma warning(disable: 4711) // https://msdn.microsoft.com/en-us/library/k402bt7y.aspx function 'function' selected for inline expansion
+#pragma warning(disable: 4746) // https://docs.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-c4746 volatile access of '<expression>' is subject to /volatile:[iso|ms] setting; consider using __iso_volatile_load/store intrinsic functions
 #pragma warning(disable: 4770) // no page                                                partially validated enum 'name' used as index
 #pragma warning(disable: 4738) // https://msdn.microsoft.com/en-us/library/c24hdbz6.aspx storing 32-bit float result in memory, possible loss of performance
 #pragma warning(disable: 4814) // no page                                                in C++14 'constexpr' will not imply 'const'; consider explicitly specifying 'const'

@@ -55,6 +55,7 @@ static auto GetBackTrace(CONTEXT ContextRecord, HANDLE ThreadHandle)
 {
 	std::vector<const void*> Result;
 
+#if defined _M_X64 || defined _M_IX86
 	STACKFRAME64 StackFrame{};
 	const DWORD MachineType =
 #ifdef _WIN64
@@ -76,6 +77,7 @@ static auto GetBackTrace(CONTEXT ContextRecord, HANDLE ThreadHandle)
 	{
 		Result.emplace_back(reinterpret_cast<const void*>(StackFrame.AddrPC.Offset));
 	}
+#endif
 
 	return Result;
 }
