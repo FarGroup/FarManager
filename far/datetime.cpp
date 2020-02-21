@@ -792,8 +792,11 @@ TEST_CASE("datetime.ConvertDuration")
 
 	for (const auto& i: Tests)
 	{
-		const auto [Days, Timestamp] = ConvertDuration(i.Duration);
+		auto [Days, Timestamp] = ConvertDuration(i.Duration);
 		REQUIRE(i.Days == Days);
+		// Decimal separator is locale-specific.
+		// Strictly speaking, so is time separator, but that one is less diverse, so ':' is good enough for now.
+		Timestamp[8] = L'.';
 		REQUIRE(i.Timestamp == Timestamp);
 
 		const auto HMS = ConvertDurationToHMS(i.Duration);

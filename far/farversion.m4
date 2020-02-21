@@ -24,7 +24,7 @@ m4_include(`tools.m4')
 m4_define(BUILD_PLATFORM, m4_ifelse(
 	FARBIT, 64, x64,
 	FARBIT, 32, x86,
-	Unknown))
+	FARBIT))
 
 m4_define(BUILD_SCM_REVISION, m4_ifelse(SCM_REVISION, `', m4_patsubst(m4_esyscmd(git rev-parse HEAD 2>nul),`
 ',`'), SCM_REVISION))

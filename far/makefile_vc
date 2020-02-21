@@ -7,7 +7,7 @@
 #VC - set Visual C++ version (VC=15 for 2017, VC=16 for 2019, default is 15, we try to autodetect if not set)
 #
 #AMD64 or CPU=AMD64 - set for x64 build
-#IA64 or CPU=IA64 - for IA64 build
+#ARM64 or CPU=ARM - for ARM64 build
 #ARM or CPU=ARM - for ARM build
 #
 #(we try to autodetect if not set)
@@ -46,11 +46,11 @@
 !undef CPU
 AMD64=1
 DIRBIT=64
-!elseif defined(IA64) || "$(CPU)" == "IA64" || "$(PLATFORM)" == "Itanium"
+!elseif defined(ARM64) || "$(CPU)" == "ARM64" || "$(PLATFORM)" == "arm64"
 !undef CPU
-IA64=1
-DIRBIT=IA64
-!elseif defined(ARM) || "$(CPU)" == "ARM" || "$(PLATFORM)" == "ARM"
+ARM64=1
+DIRBIT=ARM64
+!elseif defined(ARM) || "$(CPU)" == "ARM" || "$(PLATFORM)" == "arm"
 !undef CPU
 ARM=1
 DIRBIT=ARM
@@ -256,7 +256,9 @@ LINK_OBJS = \
 	"$(INTDIR)\hook_wow64.obj" \
 !endif
 !ifndef LINK_ULINK
+!if defined(X86) || defined(AMD64)
 	"$(INTDIR)\vc_crt_fix.obj" \
+!endif
 	"$(INTDIR)\vc_crt_fix_impl.obj" \
 !else
 	"$(INTDIR)\vc_crt_fix_ulink.obj"
@@ -278,9 +280,6 @@ DEFINES=\
 	/D "SYSLOG"\
 	/D "SYSLOG_FARSYSLOG"\
 !endif
-!ifdef ARM
-	/D "_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE"\
-!endif
 	/D "_ENABLE_EXTENDED_ALIGNED_STORAGE"\
 	/D "_HAS_AUTO_PTR_ETC=0"\
 	/D "_CRT_SECURE_NO_WARNINGS"
@@ -296,7 +295,8 @@ CPPFLAGS=\
 	/EHsc\
 	/std:c++17\
 	/permissive-\
-	/Zc:__cplusplus,externConstexpr,inline,referenceBinding,rvalueCast,strictStrings,throwingNew\
+	/Zc:__cplusplus,externConstexpr,inline,throwingNew\
+	/volatile:iso\
 	/Wall\
 	/Gy\
 	/GF\
@@ -391,10 +391,9 @@ OS_VERSION=5.2
 MASM=ml64
 MASM_DEFINES=/D "X64"
 !elseifdef ARM
-OS_VERSION=5.2
 LINKFLAGS=$(LINKFLAGS) /machine:ARM
-#MASM=?
-#MASM_DEFINES=?
+!elseifdef ARM64
+LINKFLAGS=$(LINKFLAGS) /machine:ARM64
 !endif
 
 CPPFLAGS = $(CPPFLAGS) /Fo"$(INTDIR)\\"
@@ -460,8 +459,10 @@ AllDirs:
 	,far.def,"$(RES_FILE)"
 <<
 !endif
+!if defined(X86) || defined(AMD64)
 	@echo Fixing subsystem version
 	editbin /nologo /subsystem:console,$(OS_VERSION) /osversion:$(OS_VERSION) $(OUTDIR)\Far.exe > $(INTDIR)\version_fix.log
+!endif
 !ifdef ENABLE_TESTS
 	@echo Running unit tests
 	$(OUTDIR)\Far.exe /service:test
