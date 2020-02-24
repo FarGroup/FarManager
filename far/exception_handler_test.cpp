@@ -138,8 +138,8 @@ namespace tests
 	static void access_violation_read()
 	{
 		volatile const int* InvalidAddress = nullptr;
+		[[maybe_unused]]
 		volatile const auto Result = *InvalidAddress;
-		(void)Result;
 	}
 
 	static void access_violation_write()
@@ -158,8 +158,8 @@ namespace tests
 	static void divide_by_zero()
 	{
 		volatile const auto InvalidDenominator = 0;
+		[[maybe_unused]]
 		volatile const auto Result = 42 / InvalidDenominator;
-		(void)Result;
 	}
 
 	static void divide_by_zero_thread()
@@ -170,8 +170,8 @@ namespace tests
 			seh_invoke_thread(Ptr, []
 			{
 				volatile const auto InvalidDenominator = 0;
+				[[maybe_unused]]
 				volatile const auto Result = 42 / InvalidDenominator;
-				(void)Result;
 			});
 		});
 
@@ -206,32 +206,32 @@ namespace tests
 	{
 		detail::SetFloatingPointExceptions(true);
 		volatile const auto InvalidDenominator = 0.0;
+		[[maybe_unused]]
 		volatile const auto Result = 42.0 / InvalidDenominator;
-		(void)Result;
 	}
 
 	static void fp_overflow()
 	{
 		detail::SetFloatingPointExceptions(true);
 		volatile const auto Max = std::numeric_limits<double>::max();
+		[[maybe_unused]]
 		volatile const auto Result = Max * 2;
-		(void)Result;
-}
+	}
 
 	static void fp_underflow()
 	{
 		detail::SetFloatingPointExceptions(true);
 		volatile const auto Min = std::numeric_limits<double>::min();
+		[[maybe_unused]]
 		volatile const auto Result = Min / 2;
-		(void)Result;
 	}
 
 	static void fp_inexact_result()
 	{
 		detail::SetFloatingPointExceptions(true);
 		volatile const auto Max = std::numeric_limits<double>::max();
+		[[maybe_unused]]
 		volatile const auto Result = Max + 1;
-		(void)Result;
 	}
 
 	static void breakpoint()
@@ -246,8 +246,8 @@ namespace tests
 			char Data[3 + sizeof(double)];
 		}
 		Data{};
+		[[maybe_unused]]
 		volatile const auto Result = *reinterpret_cast<volatile const double*>(Data.Data + 3);
-		(void)Result;
 	}
 }
 

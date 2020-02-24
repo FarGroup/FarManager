@@ -162,7 +162,7 @@ void checker::RegisterBlock(MEMINFO *block)
 	if (!m_Enabled)
 		return;
 
-	SCOPED_ACTION(std::lock_guard<os::critical_section>)(m_CS);
+	SCOPED_ACTION(std::lock_guard)(m_CS);
 
 	block->prev = LastMemBlock;
 	block->next = nullptr;
@@ -183,7 +183,7 @@ void checker::UnregisterBlock(MEMINFO *block)
 	if (!m_Enabled)
 		return;
 
-	SCOPED_ACTION(std::lock_guard<os::critical_section>)(m_CS);
+	SCOPED_ACTION(std::lock_guard)(m_CS);
 
 	if (block->prev)
 		block->prev->next = block->next;

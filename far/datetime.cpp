@@ -792,13 +792,13 @@ TEST_CASE("datetime.ConvertDuration")
 
 	for (const auto& i: Tests)
 	{
-		auto [Days, Timestamp] = ConvertDuration(i.Duration);
+		const auto [Days, Timestamp] = ConvertDuration(i.Duration);
 		REQUIRE(i.Days == Days);
-		// Decimal separator is locale-specific.
-		// Strictly speaking, so is time separator, but that one is less diverse, so ':' is good enough for now.
-		Timestamp[8] = L'.';
-		REQUIRE(i.Timestamp == Timestamp);
-
+		// Time & decimal separators are locale-specific, so let's compare numbers only
+		REQUIRE(std::equal(ALL_CONST_RANGE(i.Timestamp), ALL_CONST_RANGE(Timestamp), [](wchar_t const a, wchar_t const b)
+		{
+			return a == b || !std::iswdigit(a);
+		}));
 		const auto HMS = ConvertDurationToHMS(i.Duration);
 		REQUIRE(i.HMS == HMS);
 	}

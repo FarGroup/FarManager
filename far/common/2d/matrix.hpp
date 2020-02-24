@@ -223,8 +223,8 @@ public:
 	{
 	}
 
-	COPY_ASSIGNABLE_SWAP(matrix);
-	COPY_ASSIGNABLE_SWAP(matrix_view<T>);
+	COPY_ASSIGNABLE_SWAP(matrix)
+	COPY_ASSIGNABLE_SWAP(matrix_view<T>)
 
 	matrix& operator=(matrix&& rhs) noexcept
 	{

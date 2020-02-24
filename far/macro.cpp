@@ -5225,7 +5225,7 @@ TEST_CASE("macro.ToDouble")
 		REQUIRE(ToDouble(i.Value, Result) == i.Valid);
 
 		if (i.Valid)
-			REQUIRE(Result == static_cast<double>(i.Value));
+			REQUIRE(static_cast<long long>(Result) == i.Value);
 
 	}
 }

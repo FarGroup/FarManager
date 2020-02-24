@@ -68,6 +68,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "new_handler.hpp"
 #include "global.hpp"
 #include "locale.hpp"
+#include "farversion.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -95,7 +96,6 @@ global *Global = nullptr;
 static void show_help()
 {
 	static const auto HelpMsg =
-		L"\n"
 		L"Usage: far [switches] [apath [ppath]]\n\n"
 		L"where\n"
 		L"  apath - path to a folder (or a file or an archive or command with prefix)\n"
@@ -649,7 +649,7 @@ static int mainImpl(span<const wchar_t* const> const Args)
 
 				case L'?':
 				case L'H':
-					ControlObject::ShowCopyright(1);
+					ControlObject::ShowVersion();
 					show_help();
 					return EXIT_SUCCESS;
 
@@ -803,7 +803,8 @@ static int wmain_seh(int Argc, const wchar_t* const Argv[])
 	}
 	catch (const far_known_exception& e)
 	{
-		std::wcerr << e.what() << std::endl;
+		std::wcout << build::version_string() << L'\n' << std::endl;
+		std::wcerr << e.message() << std::endl;
 		return EXIT_FAILURE;
 	}
 	catch (const std::exception& e)

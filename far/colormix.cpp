@@ -162,8 +162,8 @@ WORD FarColorToConsoleColor(const FarColor& Color)
 	}
 	data[]
 	{
-		{ Color.BackgroundColor, FCF_BG_4BIT, &LastColor.BackgroundColor, &IndexColors[0] },
-		{ Color.ForegroundColor, FCF_FG_4BIT, &LastColor.ForegroundColor, &IndexColors[1] }
+		{ { Color.BackgroundColor }, FCF_BG_4BIT, &LastColor.BackgroundColor, &IndexColors[0] },
+		{ { Color.ForegroundColor }, FCF_FG_4BIT, &LastColor.ForegroundColor, &IndexColors[1] }
 	};
 
 	enum console_mask

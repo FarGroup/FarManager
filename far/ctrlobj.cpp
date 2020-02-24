@@ -68,7 +68,7 @@ ControlObject::ControlObject()
 
 	SetColor(COL_COMMANDLINEUSERSCREEN);
 	GotoXY(0, ScrY - 3);
-	ShowCopyright();
+	ShowVersion(false);
 	GotoXY(0, ScrY - 2);
 	MoveCursor({ 0, ScrY - 1 });
 
@@ -147,27 +147,27 @@ ControlObject::~ControlObject()
 }
 
 
-void ControlObject::ShowCopyright(DWORD Flags)
+void ControlObject::ShowVersion(bool const Direct)
 {
-	if (Flags&1)
+	if (Direct)
 	{
-		std::wcout << build::version_string() << L'\n' << build::copyright() << std::endl;
+		std::wcout << build::version_string() << L'\n' << build::copyright() << L'\n' << std::endl;
+		return;
 	}
-	else
-	{
-		COORD Size, CursorPosition;
-		console.GetSize(Size);
-		console.GetCursorPosition(CursorPosition);
-		const auto FreeSpace = Size.Y - CursorPosition.Y - 1;
 
-		if (FreeSpace<5)
-			ScrollScreen(5-FreeSpace);
+	COORD Size;
+	console.GetSize(Size);
+	COORD CursorPosition;
+	console.GetCursorPosition(CursorPosition);
+	const auto FreeSpace = Size.Y - CursorPosition.Y - 1;
 
-		GotoXY(0,ScrY-4);
-		Text(build::version_string());
-		GotoXY(0,ScrY-3);
-		Text(build::copyright());
-	}
+	if (FreeSpace<5)
+		ScrollScreen(5-FreeSpace);
+
+	GotoXY(0,ScrY-4);
+	Text(build::version_string());
+	GotoXY(0,ScrY-3);
+	Text(build::copyright());
 }
 
 FilePanels* ControlObject::Cp() const
