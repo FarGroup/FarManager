@@ -9,7 +9,7 @@ skip_non_tags: false
 
 max_jobs: 8
 
-image: Visual Studio 2017
+image: Visual Studio 2019
 
 init:
 
@@ -20,7 +20,7 @@ clone_depth: 1
 
 install:
   - cd far && for /f "tokens=1,2,4 delims=, " %%i in ('tools\m4 -P farversion.inc.m4') do appveyor UpdateBuild -Version %%i.%%j.%%k.%APPVEYOR_BUILD_NUMBER% && cd ..
-  - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars%bit%.bat"
+  - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars%bit%.bat"
   - set Path=C:\Program Files\LLVM\bin;%Path%
 
 environment:
