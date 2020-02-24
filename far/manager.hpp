@@ -109,8 +109,8 @@ public:
 	bool ExitAll();
 	size_t GetWindowCount() const { return m_windows.size(); }
 	int  GetWindowCountByType(int Type);
-	/*$ 26.06.2001 SKV
-	Для вызова через ACTL_COMMIT
+	/*
+	This method can execute any far or plugins code. Never call from non-reentrant code.
 	*/
 	void PluginCommit();
 	int CountWindowsWithName(const string& Name, bool IgnoreCase = true);
