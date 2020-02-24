@@ -201,7 +201,8 @@ private:
 
 void console_session::EnterPluginContext(bool Scroll)
 {
-	if (!m_PluginContextInvocations)
+	++m_PluginContextInvocations;
+	if (1 == m_PluginContextInvocations)
 	{
 		m_PluginContext = GetContext();
 		m_PluginContext->Activate();
@@ -213,8 +214,6 @@ void console_session::EnterPluginContext(bool Scroll)
 
 	m_PluginContext->DoPrologue();
 	m_PluginContext->Consolise(!m_PluginContextInvocations);
-
-	++m_PluginContextInvocations;
 }
 
 void console_session::LeavePluginContext(bool Scroll)
