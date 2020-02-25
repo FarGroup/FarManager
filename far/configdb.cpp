@@ -72,10 +72,10 @@ public:
 	{
 		const file_ptr XmlFile(_wfsopen(NTPath(File).c_str(), L"rb", _SH_DENYWR));
 		if (!XmlFile)
-			throw MAKE_FAR_KNOWN_EXCEPTION(format(FSTR(L"Error opening file {0}: {1}"), File, _wcserror(errno)));
+			throw MAKE_FAR_KNOWN_EXCEPTION(format(FSTR(L"Error opening file \"{0}\": {1}"), File, _wcserror(errno)));
 
 		if (const auto LoadResult = m_Document.LoadFile(XmlFile.get()); LoadResult != tinyxml::XML_SUCCESS)
-			throw MAKE_FAR_KNOWN_EXCEPTION(format(FSTR(L"Error loading document: {0}"), encoding::utf8::get_chars(m_Document.ErrorIDToName(LoadResult))));
+			throw MAKE_FAR_KNOWN_EXCEPTION(format(FSTR(L"Error loading document from \"{0}\": {1}"), File, encoding::utf8::get_chars(m_Document.ErrorIDToName(LoadResult))));
 
 		const auto root = m_Document.FirstChildElement(XmlDocumentRootName);
 		SetRoot(root);
@@ -123,10 +123,10 @@ public:
 	{
 		const file_ptr XmlFile(_wfsopen(NTPath(File).c_str(), L"w", _SH_DENYWR));
 		if (!XmlFile)
-			throw MAKE_FAR_KNOWN_EXCEPTION(format(FSTR(L"Error opening file {0}: {1}"), File, _wcserror(errno)));
+			throw MAKE_FAR_KNOWN_EXCEPTION(format(FSTR(L"Error opening file \"{0}\": {1}"), File, _wcserror(errno)));
 
 		if (const auto SaveResult = m_Document.SaveFile(XmlFile.get()); SaveResult != tinyxml::XML_SUCCESS)
-			throw MAKE_FAR_KNOWN_EXCEPTION(format(FSTR(L"Error saving document: {0}"), encoding::utf8::get_chars(m_Document.ErrorIDToName(SaveResult))));
+			throw MAKE_FAR_KNOWN_EXCEPTION(format(FSTR(L"Error saving document to \"{0}\": {1}"), File, encoding::utf8::get_chars(m_Document.ErrorIDToName(SaveResult))));
 	}
 
 private:
@@ -521,17 +521,15 @@ private:
 
 	key CreateKey(const key& Root, const string_view Name, const string* const Description) override
 	{
-		auto Key = FindByName(Root, Name);
-		if (!Key)
+		if (const auto Key = FindByName(Root, Name))
 		{
-			ExecuteStatement(stmtCreateKey, Root.get(), Name, Description);
-			Key = key(LastInsertRowID());
+			if (Description)
+				SetKeyDescription(Key, *Description);
+			return Key;
 		}
 
-		if (Description)
-			SetKeyDescription(Key, *Description);
-
-		return Key;
+		ExecuteStatement(stmtCreateKey, Root.get(), Name, Description);
+		return key(LastInsertRowID());
 	}
 
 	key FindByName(const key& Root, const string_view Name) const override
@@ -1365,12 +1363,12 @@ private:
 		return GetTextFromID(stmtGetDescription, id);
 	}
 
-	bool GetMinFarVersion(unsigned long long id, VersionInfo *Version) const override
+	bool GetMinFarVersion(unsigned long long id, VersionInfo& Version) const override
 	{
 		return GetVersionImpl(stmtGetMinFarVersion, id, Version);
 	}
 
-	bool GetVersion(unsigned long long id, VersionInfo *Version) const override
+	bool GetVersion(unsigned long long id, VersionInfo& Version) const override
 	{
 		return GetVersionImpl(stmtGetVersion, id, Version);
 	}
@@ -1442,14 +1440,14 @@ private:
 			ExecuteStatement(stmtSetExportState, id, ExportName, Exists);
 	}
 
-	void SetMinFarVersion(unsigned long long id, const VersionInfo *Version) override
+	void SetMinFarVersion(unsigned long long id, const VersionInfo& Version) override
 	{
-		ExecuteStatement(stmtSetMinFarVersion, id, bytes_view(*Version));
+		ExecuteStatement(stmtSetMinFarVersion, id, bytes_view(Version));
 	}
 
-	void SetVersion(unsigned long long id, const VersionInfo *Version) override
+	void SetVersion(unsigned long long id, const VersionInfo& Version) override
 	{
-		ExecuteStatement(stmtSetVersion, id, bytes_view(*Version));
+		ExecuteStatement(stmtSetVersion, id, bytes_view(Version));
 	}
 
 	void SetGuid(const unsigned long long id, const string_view Guid) override
@@ -1520,13 +1518,13 @@ private:
 		return Stmt->Bind(id).Step()? Stmt->GetColText(0) : string{};
 	}
 
-	bool GetVersionImpl(size_t StatementIndex, unsigned long long id, VersionInfo *Version) const
+	bool GetVersionImpl(size_t StatementIndex, unsigned long long id, VersionInfo& Version) const
 	{
 		const auto Stmt = AutoStatement(StatementIndex);
 		if (!Stmt->Bind(id).Step())
 			return false;
 
-		*Version = deserialise<VersionInfo>(Stmt->GetColBlob(0));
+		Version = deserialise<VersionInfo>(Stmt->GetColBlob(0));
 		return true;
 	}
 
@@ -2352,7 +2350,7 @@ std::unique_ptr<T> config_provider::CreateDatabase(string_view const Name, bool 
 	const auto FullName = GetDatabasePath(Name, Local);
 
 	os::mutex m(os::make_name<os::mutex>(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, Name));
-	SCOPED_ACTION(std::lock_guard<os::mutex>)(m);
+	SCOPED_ACTION(std::lock_guard)(m);
 
 	auto Database = CreateWithFallback<T>(FullName);
 

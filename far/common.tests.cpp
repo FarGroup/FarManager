@@ -59,7 +59,11 @@ TEST_CASE("2d/matrix")
 	matrix_view Matrix(Data, 3, 4);
 
 	int Counter = 0;
+
+WARNING_PUSH()
+WARNING_DISABLE_CLANG("-Wrange-loop-analysis")
 	for (const auto& Row: Matrix)
+WARNING_POP()
 	{
 		for (const auto& Cell : Row)
 		{
@@ -824,7 +828,10 @@ TEST_CASE("view.select")
 	{
 		auto Iterator = std::cbegin(Data);
 
+WARNING_PUSH()
+WARNING_DISABLE_CLANG("-Wrange-loop-analysis")
 		for (const auto& i: select(Data, Selector))
+WARNING_POP()
 		{
 			REQUIRE(Iterator != std::cend(Data));
 			REQUIRE(i == Selector(*Iterator));

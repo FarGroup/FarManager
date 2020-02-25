@@ -1,12 +1,13 @@
+#include <string>
+#include <list>
+#include <typeinfo>
+
 #include <windows.h>
 #include <shlobj.h>
 #include <msiquery.h>
 #include <rpc.h>
-
 #include <comdef.h>
 
-#include <string>
-#include <list>
 using namespace std;
 
 HMODULE g_h_module;

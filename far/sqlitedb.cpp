@@ -157,8 +157,8 @@ void SQLiteDb::SQLiteStmt::stmt_deleter::operator()(sqlite::sqlite3_stmt* Object
 	// This is called from a destructor so we can't throw here.
 	invoke(sqlite::sqlite3_db_handle(Object), [&]
 	{
+		[[maybe_unused]]
 		const auto Result = sqlite::sqlite3_finalize(Object);
-		(void)Result;
 		assert(Result == SQLITE_OK);
 		return true;
 	});
@@ -178,8 +178,8 @@ SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::Reset()
 	// This is called from a destructor so we can't throw here.
 	invoke(db(), [&]
 	{
+		[[maybe_unused]]
 		const auto Result = sqlite::sqlite3_reset(m_Stmt.get());
-		(void)Result;
 		assert(Result == SQLITE_OK);
 		return true;
 	});
@@ -327,8 +327,8 @@ SQLiteDb::SQLiteDb(busy_handler BusyHandler, initialiser Initialiser, string_vie
 
 void SQLiteDb::db_closer::operator()(sqlite::sqlite3* Object) const
 {
+	[[maybe_unused]]
 	const auto Result = sqlite::sqlite3_close(Object);
-	(void)Result;
 	assert(Result == SQLITE_OK);
 }
 
@@ -387,8 +387,8 @@ public:
 		{
 			void operator()(sqlite::sqlite3_backup* Backup) const
 			{
+				[[maybe_unused]]
 				const auto Result = sqlite::sqlite3_backup_finish(Backup);
-				(void)Result;
 				assert(Result == SQLITE_OK);
 			}
 		};

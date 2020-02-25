@@ -196,22 +196,24 @@ namespace console_detail
 
 	bool console::GetSize(COORD& Size) const
 	{
-		bool Result = false;
 		CONSOLE_SCREEN_BUFFER_INFO ConsoleScreenBufferInfo;
-		if (GetConsoleScreenBufferInfo(GetOutputHandle(), &ConsoleScreenBufferInfo))
+		if (!GetConsoleScreenBufferInfo(GetOutputHandle(), &ConsoleScreenBufferInfo))
+			return false;
+
+		if (sWindowMode)
 		{
-			if (sWindowMode)
+			Size =
 			{
-				Size.X = ConsoleScreenBufferInfo.srWindow.Right - ConsoleScreenBufferInfo.srWindow.Left + 1;
-				Size.Y = ConsoleScreenBufferInfo.srWindow.Bottom - ConsoleScreenBufferInfo.srWindow.Top + 1;
-			}
-			else
-			{
-				Size = ConsoleScreenBufferInfo.dwSize;
-			}
-			Result = true;
+				static_cast<SHORT>(ConsoleScreenBufferInfo.srWindow.Right - ConsoleScreenBufferInfo.srWindow.Left + 1),
+				static_cast<SHORT>(ConsoleScreenBufferInfo.srWindow.Bottom - ConsoleScreenBufferInfo.srWindow.Top + 1)
+			};
 		}
-		return Result;
+		else
+		{
+			Size = ConsoleScreenBufferInfo.dwSize;
+		}
+
+		return true;
 	}
 
 	bool console::SetSize(COORD Size) const
@@ -430,8 +432,11 @@ namespace console_detail
 		Set(&COORD::Y, &POINT::y, &SMALL_RECT::Top);
 	}
 
-	static void AdjustMouseEvents(span<INPUT_RECORD> const Buffer, short Delta, short MaxX)
+	static void AdjustMouseEvents(span<INPUT_RECORD> const Buffer, short Delta)
 	{
+		COORD Size = {};
+		::console.GetSize(Size);
+
 		for (auto& i: Buffer)
 		{
 			if (i.EventType != MOUSE_EVENT)
@@ -440,22 +445,23 @@ namespace console_detail
 			fix_wheel_coordinates(i.Event.MouseEvent);
 
 			i.Event.MouseEvent.dwMousePosition.Y = std::max(0, i.Event.MouseEvent.dwMousePosition.Y - Delta);
-			i.Event.MouseEvent.dwMousePosition.X = std::min(i.Event.MouseEvent.dwMousePosition.X, MaxX);
+			i.Event.MouseEvent.dwMousePosition.X = std::min(i.Event.MouseEvent.dwMousePosition.X, static_cast<short>(Size.X - 1));
 		}
 	}
 
 	bool console::PeekInput(span<INPUT_RECORD> const Buffer, size_t& NumberOfEventsRead) const
 	{
 		DWORD dwNumberOfEventsRead = 0;
-		const auto Result = PeekConsoleInput(GetInputHandle(), Buffer.data(), static_cast<DWORD>(Buffer.size()), &dwNumberOfEventsRead) != FALSE;
+		if (!PeekConsoleInput(GetInputHandle(), Buffer.data(), static_cast<DWORD>(Buffer.size()), &dwNumberOfEventsRead))
+			return false;
+
 		NumberOfEventsRead = dwNumberOfEventsRead;
+
 		if (sWindowMode)
 		{
-			COORD Size = {};
-			GetSize(Size);
-			AdjustMouseEvents({Buffer.data(), NumberOfEventsRead}, GetDelta(), Size.X - 1);
+			AdjustMouseEvents({Buffer.data(), NumberOfEventsRead}, GetDelta());
 		}
-		return Result;
+		return true;
 	}
 
 	bool console::ReadInput(span<INPUT_RECORD> const Buffer, size_t& NumberOfEventsRead) const
@@ -468,9 +474,7 @@ namespace console_detail
 
 		if (sWindowMode)
 		{
-			COORD Size = {};
-			GetSize(Size);
-			AdjustMouseEvents({Buffer.data(), NumberOfEventsRead}, GetDelta(), Size.X - 1);
+			AdjustMouseEvents({Buffer.data(), NumberOfEventsRead}, GetDelta());
 		}
 
 		return true;

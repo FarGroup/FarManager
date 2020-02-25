@@ -71,7 +71,7 @@ public:
 	FilePanels *Cp() const;
 	window_ptr Panels() const;
 	void CreateDummyFilePanels();
-	static void ShowCopyright(DWORD Flags=0);
+	static void ShowVersion(bool Direct = true);
 
 	KeyMacro Macro;
 	std::unique_ptr<highlight::configuration> HiFiles;

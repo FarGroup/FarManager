@@ -136,7 +136,7 @@ public:
 		key() = default;
 		explicit key(unsigned long long Key): m_Key(Key) {}
 
-		unsigned long long get() const { return m_Key; }
+		unsigned long long get() const noexcept { return m_Key; }
 		explicit operator bool() const noexcept { return m_Key != 0; }
 
 	private:
@@ -305,8 +305,8 @@ public:
 	virtual string GetTitle(unsigned long long id) const = 0;
 	virtual string GetAuthor(unsigned long long id) const = 0;
 	virtual string GetDescription(unsigned long long id) const = 0;
-	virtual bool GetMinFarVersion(unsigned long long id, VersionInfo *Version) const = 0;
-	virtual bool GetVersion(unsigned long long id, VersionInfo *Version) const = 0;
+	virtual bool GetMinFarVersion(unsigned long long id, VersionInfo& Version) const = 0;
+	virtual bool GetVersion(unsigned long long id, VersionInfo& Version) const = 0;
 	virtual bool GetDiskMenuItem(unsigned long long id, size_t index, string &Text, GUID& Guid) const = 0;
 	virtual bool GetPluginsMenuItem(unsigned long long id, size_t index, string &Text, GUID& Guid) const = 0;
 	virtual bool GetPluginsConfigMenuItem(unsigned long long id, size_t index, string &Text, GUID& Guid) const = 0;
@@ -320,8 +320,8 @@ public:
 	virtual void SetCommandPrefix(unsigned long long id, string_view Prefix) = 0;
 	virtual void SetFlags(unsigned long long id, unsigned long long Flags) = 0;
 	virtual void SetExportState(unsigned long long id, string_view ExportName, bool Exists) = 0;
-	virtual void SetMinFarVersion(unsigned long long id, const VersionInfo *Version) = 0;
-	virtual void SetVersion(unsigned long long id, const VersionInfo *Version) = 0;
+	virtual void SetMinFarVersion(unsigned long long id, const VersionInfo& Version) = 0;
+	virtual void SetVersion(unsigned long long id, const VersionInfo& Version) = 0;
 	virtual void SetGuid(unsigned long long id, string_view Guid) = 0;
 	virtual void SetTitle(unsigned long long id, string_view Title) = 0;
 	virtual void SetAuthor(unsigned long long id, string_view Author) = 0;

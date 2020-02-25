@@ -559,9 +559,9 @@ TEST_CASE("enum_lines")
 			const auto Enumerator = enum_lines(Stream, Codepage);
 
 			// Twice to make sure that reset works as expected
-			for (const auto n: { 0, 1 })
+			for (/*[[maybe_unused]]*/ const auto n: { 0, 1 })
 			{
-				(void)n;
+				(void)n; // [[maybe_unused]] causes ICE in VS2017. TODO: Remove after we move to 2019 or later
 
 				auto Iterator = i.Result.begin();
 

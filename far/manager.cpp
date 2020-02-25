@@ -992,8 +992,9 @@ void Manager::DeleteCommit(const window_ptr& Param)
 		*(stop->second)=true;
 		m_Executed.erase(stop);
 	}
+
+	[[maybe_unused]]
 	const auto size = m_Added.erase(Param);
-	(void)size;
 	assert(size==1);
 }
 

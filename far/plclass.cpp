@@ -407,9 +407,9 @@ bool Plugin::SaveToCache()
 	PlCache->SetCommandPrefix(id, NullToEmpty(Info.CommandPrefix));
 	PlCache->SetFlags(id, Info.Flags);
 
-	PlCache->SetMinFarVersion(id, &m_MinFarVersion);
+	PlCache->SetMinFarVersion(id, m_MinFarVersion);
 	PlCache->SetGuid(id, m_strGuid);
-	PlCache->SetVersion(id, &m_PluginVersion);
+	PlCache->SetVersion(id, m_PluginVersion);
 	PlCache->SetTitle(id, strTitle);
 	PlCache->SetDescription(id, strDescription);
 	PlCache->SetAuthor(id, strAuthor);
@@ -460,12 +460,11 @@ bool Plugin::LoadData()
 		return true;
 
 	string strCurPlugDiskPath;
-	wchar_t Drive[]={0,L' ',L':',0}; //ставим 0, как признак того, что вертать обратно ненадо!
+	wchar_t Drive[]{ L'=', 0, L':', 0 };
 	const auto strCurPath = os::fs::GetCurrentDirectory();
 
 	if (ParsePath(m_strModuleName) == root_type::drive_letter)  // если указан локальный путь, то...
 	{
-		Drive[0] = L'=';
 		Drive[1] = m_strModuleName.front();
 		strCurPlugDiskPath = os::env::get(Drive);
 	}
@@ -474,7 +473,7 @@ bool Plugin::LoadData()
 	m_Instance = m_Factory->Create(m_strModuleName);
 	FarChDir(strCurPath);
 
-	if (Drive[0]) // вернем ее (переменную окружения) обратно
+	if (Drive[1]) // вернем ее (переменную окружения) обратно
 		os::env::set(Drive, strCurPlugDiskPath);
 
 	if (!m_Instance)
@@ -596,12 +595,12 @@ bool Plugin::LoadFromCache(const os::fs::find_data &FindData)
 			return false;
 	}
 
-	if (!PlCache->GetMinFarVersion(id, &m_MinFarVersion))
+	if (!PlCache->GetMinFarVersion(id, m_MinFarVersion))
 	{
 		m_MinFarVersion = build::version();
 	}
 
-	if (!PlCache->GetVersion(id, &m_PluginVersion))
+	if (!PlCache->GetVersion(id, m_PluginVersion))
 	{
 		m_PluginVersion = {};
 	}

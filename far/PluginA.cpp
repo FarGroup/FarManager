@@ -288,6 +288,7 @@ enum char_case: char
 
 static void LocalUpperInit()
 {
+	[[maybe_unused]]
 	static const auto InitOnce = []
 	{
 		const auto to_oem   = [](char Char) { CharToOemBuffA(&Char, &Char, 1); return Char; };
@@ -323,7 +324,6 @@ static void LocalUpperInit()
 		}
 		return true;
 	}();
-	(void)InitOnce;
 }
 
 using comparer = int(*)(const void*, const void*);
