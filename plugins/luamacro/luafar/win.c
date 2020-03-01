@@ -440,7 +440,7 @@ static int win_FileTimeToSystemTime(lua_State *L)
 {
 	FILETIME ft;
 	SYSTEMTIME st;
-	long long llFileTime = (long long) luaL_checknumber(L, 1);
+	long long llFileTime = (long long) check64(L, 1, NULL);
 	if (! (GetPluginData(L)->Flags & PDF_FULL_TIME_RESOLUTION))
 		llFileTime *= 10000;
 
