@@ -107,8 +107,14 @@ void save_file_with_replace(string const& FileName, DWORD const FileAttributes, 
 		if (!OutFile && GetLastError() == ERROR_INVALID_PARAMETER)
 			OutFile = create_file(nullptr, CREATE_ALWAYS);
 
+		// TODO: lng?
 		if (!OutFile)
-			throw MAKE_FAR_EXCEPTION(L"Can't create a temporary file"sv);
+			throw MAKE_FAR_EXCEPTION(
+				UseTemporaryFile?
+					L"Can't create a temporary file"sv :
+					IsFileExists?
+						L"Can't open the file"sv :
+						L"Can't create the file"sv);
 
 		os::fs::filebuf StreamBuffer(OutFile, std::ios::out);
 		std::ostream Stream(&StreamBuffer);

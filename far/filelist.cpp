@@ -3564,38 +3564,35 @@ bool FileList::FindPartName(const string& Name,int Next,int Direct)
 
 	exclude_sets(strMask);
 
-	for (int I=m_CurFile+(Next?Direct:0); I >= 0 && I < static_cast<int>(m_ListData.size()); I+=Direct)
+	const auto Match = [&](int const I)
 	{
-		if (CmpName(strMask, m_ListData[I].FileName, true, I == m_CurFile))
+		if (CmpName(strMask, m_ListData[I].FileName, true, false))
 		{
 			if (!IsParentDirectory(m_ListData[I]))
 			{
 				if (!DirFind || (m_ListData[I].Attributes & FILE_ATTRIBUTE_DIRECTORY))
 				{
-					m_CurFile=I;
+					m_CurFile = I;
 					m_CurTopFile = m_CurFile - (m_Where.height() - 1) / 2;
 					ShowFileList();
 					return true;
 				}
 			}
 		}
+		return false;
+	};
+
+
+	for (int I=m_CurFile+(Next?Direct:0); I >= 0 && I < static_cast<int>(m_ListData.size()); I+=Direct)
+	{
+		if (Match(I))
+			return true;
 	}
 
 	for (int I=(Direct > 0)?0:static_cast<int>(m_ListData.size()-1); (Direct > 0) ? I < m_CurFile:I > m_CurFile; I+=Direct)
 	{
-		if (CmpName(strMask, m_ListData[I].FileName, true))
-		{
-			if (!IsParentDirectory(m_ListData[I]))
-			{
-				if (!DirFind || (m_ListData[I].Attributes & FILE_ATTRIBUTE_DIRECTORY))
-				{
-					m_CurFile=I;
-					m_CurTopFile = m_CurFile - (m_Where.height() - 1) / 2;
-					ShowFileList();
-					return true;
-				}
-			}
-		}
+		if (Match(I))
+			return true;
 	}
 
 	return false;
@@ -4346,7 +4343,7 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 		Global->CtrlObject->Plugins->GetOpenPanelInfo(GetPluginHandle(), &m_CachedOpenPanelInfo);
 	}
 
-	const auto Eol = eol::str(eol::system());
+	const auto Eol = eol::system.str();
 	for (const auto& i: enum_selected())
 	{
 		if (!CopyData.empty())

@@ -272,7 +272,7 @@ wchar_t* WINAPI apiRemoveLeadingSpaces(wchar_t *Str) noexcept
 	return nullptr;
 }
 
-wchar_t * WINAPI apiRemoveTrailingSpaces(wchar_t *Str) noexcept
+wchar_t* WINAPI apiRemoveTrailingSpaces(wchar_t *Str) noexcept
 {
 	try
 	{

@@ -150,8 +150,8 @@ public:
 
 	void SetHiString(const string& Str);
 
-	void SetEOL(eol::type Eol);
-	eol::type GetEOL() const;
+	void SetEOL(eol Eol);
+	eol GetEOL() const;
 
 	string GetSelString() const;
 	int GetLength() const;
@@ -261,7 +261,7 @@ private:
 	int m_SelStart;
 	int m_SelEnd;
 	int LeftPos;
-	eol::type m_Eol;
+	eol m_Eol;
 };
 
 #endif // EDIT_HPP_5A787FA0_4FFF_4A61_811F_F8BAEDEF241B

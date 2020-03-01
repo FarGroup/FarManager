@@ -120,7 +120,7 @@ void LoadVolume(wchar_t const Letter)
 {
 	const os::fs::file File(os::fs::get_unc_drive(Letter), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING);
 	if (!File)
-		throw MAKE_FAR_EXCEPTION(L"Cannot open disk"sv);
+		throw MAKE_FAR_EXCEPTION(L"Cannot open the disk"sv);
 
 	if (!File.IoControl(IOCTL_STORAGE_LOAD_MEDIA, nullptr, 0, nullptr, 0))
 		throw MAKE_FAR_EXCEPTION(L"IOCTL_STORAGE_LOAD_MEDIA"sv);

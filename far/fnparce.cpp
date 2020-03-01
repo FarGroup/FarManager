@@ -337,7 +337,7 @@ static bool MakeListFile(panel_ptr const& Panel, string& ListFileName, bool cons
 			std::ostream Stream(&StreamBuffer);
 			Stream.exceptions(Stream.badbit | Stream.failbit);
 			encoding::writer Writer(Stream, CodePage);
-			const auto Eol = eol::str(eol::system());
+			const auto Eol = eol::system.str();
 
 			for (const auto& i: Panel->enum_selected())
 			{

@@ -131,7 +131,7 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 	Line.reserve(CharBuf.width());
 
 	const auto& [SelectionBegin, SelectionEnd] = GetSelection();
-	const auto Eol = eol::str(eol::system());
+	const auto Eol = eol::system.str();
 
 	for (size_t i = 0; i != CharBuf.height(); ++i)
 	{

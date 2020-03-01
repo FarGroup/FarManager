@@ -146,7 +146,7 @@ public:
 
 	static void PR_EditorShowMsg();
 	static void SetReplaceMode(bool Mode);
-	static eol::type GetDefaultEOL();
+	static eol GetDefaultEOL();
 
 	struct EditorUndoData;
 
@@ -230,8 +230,8 @@ private:
 	void UnmarkBlock();
 	void UnmarkEmptyBlock();
 	void UnmarkMacroBlock();
-	void AddUndoData(int Type) { return AddUndoData(Type, {}, eol::type::none, 0, 0); }
-	void AddUndoData(int Type, const string& Str, eol::type Eol, int StrNum, int StrPos);
+	void AddUndoData(int Type) { return AddUndoData(Type, {}, eol::none, 0, 0); }
+	void AddUndoData(int Type, const string& Str, eol Eol, int StrNum, int StrPos);
 	void Undo(int redo);
 	void SelectAll();
 	void BlockLeft();
@@ -355,7 +355,7 @@ private:
 	*/
 	Options::EditorOptions EdOpt;
 	int Pasting{};
-	eol::type GlobalEOL;
+	eol GlobalEOL;
 	// работа с блоками из макросов (MCODE_F_EDITOR_SEL)
 	numbered_iterator m_it_MBlockStart{ EndIterator() };
 	numbered_iterator m_it_AnyBlockStart{ EndIterator() };

@@ -87,7 +87,7 @@ Edit::Edit(window_ptr Owner):
 	m_SelStart(-1),
 	m_SelEnd(0),
 	LeftPos(0),
-	m_Eol(eol::type::none)
+	m_Eol(eol::none)
 {
 	m_Flags.Set(FEDITLINE_EDITBEYONDEND);
 	const auto& EdOpt = Global->Opt->EdOpt;
@@ -299,25 +299,24 @@ void Edit::FastShow(const Edit::ShowInfo* Info)
 
 		if (m_Flags.Check(FEDITLINE_SHOWLINEBREAK) && m_Flags.Check(FEDITLINE_EDITORMODE) && (m_Str.size() >= RealLeftPos) && (OutStr.size() < EditLength))
 		{
-			switch(m_Eol)
+			if (m_Eol == eol::mac)
 			{
-			case eol::type::mac:
 				OutStr.push_back(L'\x266A');
-				break;
-
-			case eol::type::unix:
+			}
+			else if (m_Eol == eol::unix)
+			{
 				OutStr.push_back(L'\x25D9');
-				break;
-
-			case eol::type::win:
+			}
+			else if (m_Eol == eol::win)
+			{
 				OutStr.push_back(L'\x266A');
 				if(OutStr.size() < EditLength)
 				{
 					OutStr.push_back(L'\x25D9');
 				}
-				break;
-
-			case eol::type::bad_win:
+			}
+			else if (m_Eol == eol::bad_win)
+			{
 				OutStr.push_back(L'\x266A');
 				if(OutStr.size() < EditLength)
 				{
@@ -327,10 +326,6 @@ void Edit::FastShow(const Edit::ShowInfo* Info)
 						OutStr.push_back(L'\x25D9');
 					}
 				}
-				break;
-
-			case eol::type::none:
-				break;
 			}
 		}
 
@@ -1464,12 +1459,12 @@ void Edit::SetHiString(const string& Str)
 	SetString(NewStr);
 }
 
-void Edit::SetEOL(eol::type Eol)
+void Edit::SetEOL(eol Eol)
 {
 	m_Eol = Eol;
 }
 
-eol::type Edit::GetEOL() const
+eol Edit::GetEOL() const
 {
 	return m_Eol;
 }
@@ -1497,7 +1492,7 @@ void Edit::SetString(string_view Str, bool const KeepSelection)
 	{
 		if (!Str.empty() && Str.back() == L'\r')
 		{
-			m_Eol = eol::type::mac;
+			m_Eol = eol::mac;
 			Str.remove_suffix(1);
 		}
 		else
@@ -1513,16 +1508,16 @@ void Edit::SetString(string_view Str, bool const KeepSelection)
 					if (!Str.empty() && Str.back() == L'\r')
 					{
 						Str.remove_suffix(1);
-						m_Eol = eol::type::bad_win;
+						m_Eol = eol::bad_win;
 					}
 					else
-						m_Eol = eol::type::win;
+						m_Eol = eol::win;
 				}
 				else
-					m_Eol = eol::type::unix;
+					m_Eol = eol::unix;
 			}
 			else
-				m_Eol = eol::type::none;
+				m_Eol = eol::none;
 		}
 	}
 

@@ -112,9 +112,9 @@ private:
 	bool needCheckUnmark;
 };
 
-eol::type Editor::GetDefaultEOL()
+eol Editor::GetDefaultEOL()
 {
-	return Global->Opt->EdOpt.NewFileUnixEOL? eol::type::unix : eol::type::win;
+	return Global->Opt->EdOpt.NewFileUnixEOL? eol::unix : eol::win;
 }
 
 Editor::Editor(window_ptr Owner, bool DialogUsed):
@@ -1581,7 +1581,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 						const auto NextLine = std::next(m_it_CurLine);
 						if (NextLine == Lines.end())
 						{
-							m_it_CurLine->SetEOL(eol::type::none);
+							m_it_CurLine->SetEOL(eol::none);
 						}
 						else
 						{
@@ -2972,7 +2972,7 @@ Editor::numbered_iterator Editor::DeleteString(numbered_iterator DelPtr, bool De
 
 	if (IsLastLine(DelPtr))
 	{
-		std::prev(DelPtr)->SetEOL(eol::type::none);
+		std::prev(DelPtr)->SetEOL(eol::none);
 	}
 
 	AddUndoData(UNDO_DELSTR, DelPtr->GetString(), DelPtr->GetEOL(), DelPtr.Number(), 0);
@@ -3130,13 +3130,13 @@ void Editor::InsertString()
 		AddUndoData(UNDO_INSSTR, {}, m_it_CurLine->GetEOL(), m_it_CurLine.Number() + 1, 0);
 	}
 
-	if (LineEol != eol::type::none)
+	if (LineEol != eol::none)
 	{
 		m_it_CurLine->SetEOL(LineEol);
 	}
 	else
 	{
-		m_it_CurLine->SetEOL(GlobalEOL != eol::type::none? GlobalEOL : GetDefaultEOL());
+		m_it_CurLine->SetEOL(GlobalEOL != eol::none? GlobalEOL : GetDefaultEOL());
 		NewString->SetEOL(LineEol);
 	}
 
@@ -3740,7 +3740,7 @@ bool Editor::Search(bool Next)
 								/* Fast method */
 								const auto& Str = CurPtr->GetString();
 								int LocalCurPos = CurPtr->GetCurPos();
-								const auto NewStr = concat(string_view(Str).substr(0, CurPos), strReplaceStrCurrent, string_view(Str).substr(CurPos + SearchLength), eol::str(CurPtr->GetEOL()));
+								const auto NewStr = concat(string_view(Str).substr(0, CurPos), strReplaceStrCurrent, string_view(Str).substr(CurPos + SearchLength), CurPtr->GetEOL().str());
 								AddUndoData(UNDO_EDIT, CurPtr->GetString(), CurPtr->GetEOL(), CurPtr.Number(), CurPos);
 								CurPtr->SetString(NewStr, true);
 								CurPtr->SetCurPos(CurPos + static_cast<int>(strReplaceStrCurrent.size()));
@@ -3978,7 +3978,7 @@ void Editor::Paste(string_view const Data)
 		int StartPos=m_it_CurLine->GetCurPos();
 		const auto oldAutoIndent = EdOpt.AutoIndent;
 
-		auto keep_eol = eol::type::none;
+		auto keep_eol = eol::none;
 		if (EdOpt.KeepEOL)
 		{
 			auto line = m_it_CurLine;
@@ -3999,17 +3999,17 @@ void Editor::Paste(string_view const Data)
 				const auto PrevLine = m_it_CurLine;
 				ProcessKeyInternal(Manager::Key(KEY_ENTER), RefreshMe);
 
-				auto Eol = eol::type::unix;
+				auto Eol = eol::unix;
 				if (Data[i] == L'\r' && i + 1 != size)
 				{
-					Eol = eol::type::mac;
+					Eol = eol::mac;
 					if (Data[i + 1] == L'\n')
-						Eol = eol::type::win;
+						Eol = eol::win;
 					else if (Data[i + 1] == L'\r' && i + 2 != size && Data[i + 2] == L'\n')
-						Eol = eol::type::bad_win;
+						Eol = eol::bad_win;
 				}
 
-				if (keep_eol != eol::type::none)
+				if (keep_eol != eol::none)
 				{
 					PrevLine->SetEOL(keep_eol);
 				}
@@ -4018,7 +4018,7 @@ void Editor::Paste(string_view const Data)
 					PrevLine->SetEOL(Eol);
 				}
 
-				i += eol::str(Eol).size();
+				i += Eol.str().size();
 			}
 			else
 			{
@@ -4116,7 +4116,7 @@ string Editor::Block2Text()
 		if (EndSel == -1)
 		{
 			TotalChars += i->GetLength() - StartSel;
-			TotalChars += eol::str(i->GetEOL()).size();
+			TotalChars += i->GetEOL().str().size();
 		}
 		else
 			TotalChars += EndSel - StartSel;
@@ -4133,7 +4133,7 @@ string Editor::Block2Text()
 		i.GetSelection(StartSel, EndSel);
 		if (EndSel == -1)
 		{
-			append(CopyData, eol::str(i.GetEOL()));
+			append(CopyData, i.GetEOL().str());
 		}
 	}
 
@@ -4485,7 +4485,7 @@ struct Editor::EditorUndoData
 	int m_Type;
 	int m_StrPos;
 	int m_StrNum;
-	eol::type m_EOL;
+	eol m_EOL;
 	string m_Str;
 	bookmark_list m_BM; //treat as uni-directional linked list
 
@@ -4495,11 +4495,11 @@ private:
 public:
 	static size_t GetUndoDataSize() { return UndoDataSize; }
 
-	EditorUndoData(int Type, const string& Str, eol::type Eol, int StrNum, int StrPos):
+	EditorUndoData(int Type, const string& Str, eol Eol, int StrNum, int StrPos):
 		m_Type(),
 		m_StrPos(),
 		m_StrNum(),
-		m_EOL(eol::type::none)
+		m_EOL(eol::none)
 	{
 		SetData(Type, Str, Eol, StrNum, StrPos);
 	}
@@ -4509,7 +4509,7 @@ public:
 		UndoDataSize -= m_Str.size();
 	}
 
-	void SetData(int Type, const string& Str, eol::type Eol, int StrNum, int StrPos)
+	void SetData(int Type, const string& Str, eol Eol, int StrNum, int StrPos)
 	{
 		m_Type = Type;
 		m_StrPos = StrPos;
@@ -4532,7 +4532,7 @@ public:
 
 size_t Editor::EditorUndoData::UndoDataSize = 0;
 
-void Editor::AddUndoData(int Type, const string& Str, eol::type Eol, int StrNum, int StrPos)
+void Editor::AddUndoData(int Type, const string& Str, eol Eol, int StrNum, int StrPos)
 {
 	if (m_Flags.Check(FEDITOR_DISABLEUNDO))
 		return;
@@ -4817,7 +4817,7 @@ long long Editor::GetCurPos(bool file_pos, bool add_bom) const
 	const auto TotalSize = std::accumulate(Lines.cbegin(), m_it_TopScreen.cbase(), bom, [&](auto Value, const auto& line)
 	{
 		const auto& Str = line.GetString();
-		return Value + (Multiplier != UnknownMultiplier? Str.size() : encoding::get_bytes_count(m_codepage, Str)) + eol::str(line.GetEOL()).size();
+		return Value + (Multiplier != UnknownMultiplier? Str.size() : encoding::get_bytes_count(m_codepage, Str)) + line.GetEOL().str().size();
 	});
 
 	return Multiplier != UnknownMultiplier? TotalSize * Multiplier : TotalSize;
@@ -5014,7 +5014,7 @@ void Editor::DeleteVBlock()
 			TmpStr.append(CurStr.cbegin() + TBlockX + TBlockSizeX, CurStr.cend());
 		}
 
-		append(TmpStr, eol::str(CurPtr->GetEOL()));
+		append(TmpStr, CurPtr->GetEOL().str());
 		size_t CurPos = CurPtr->GetCurPos();
 		CurPtr->SetString(TmpStr, true);
 
@@ -5086,7 +5086,7 @@ string Editor::VBlock2Text()
 			CopyData.append(TBlockSizeX, L' ');
 		}
 
-		append(CopyData, eol::str(GetDefaultEOL()));
+		append(CopyData, GetDefaultEOL().str());
 	}
 
 	return CopyData;
@@ -5237,7 +5237,7 @@ void Editor::VBlockShift(int Left)
 
 		inplace::trim_right(TmpStr);
 
-		append(TmpStr, eol::str(CurPtr->GetEOL()));
+		append(TmpStr, CurPtr->GetEOL().str());
 		CurPtr->SetString(TmpStr, true);
 		Change(ECTYPE_CHANGED, CurPtr.Number());
 	}
@@ -5271,7 +5271,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 				const auto& Str = CurPtr->GetString();
 				GetString->StringText = Str.data();
-				GetString->StringEOL = eol::str(CurPtr->GetEOL()).data();
+				GetString->StringEOL = CurPtr->GetEOL().str().data();
 				GetString->StringLength = Str.size();
 				GetString->SelStart=-1;
 				GetString->SelEnd=0;
@@ -5405,7 +5405,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				AddUndoData(UNDO_EDIT, CurPtr->GetString(), CurPtr->GetEOL(), DestLine, CurPtr->GetCurPos());
 				const auto CurPos = CurPtr->GetCurPos();
 				CurPtr->SetString({ SetString->StringText, static_cast<size_t>(SetString->StringLength) }, true);
-				if (CurPtr->GetEOL() == eol::type::none)
+				if (CurPtr->GetEOL() == eol::none)
 				{
 					CurPtr->SetEOL(Eol);
 				}
@@ -6839,7 +6839,7 @@ void Editor::SetCacheParams(EditorPosCache &pc, bool count_bom)
 				TotalSize += CurPtr->GetString().size();
 			}
 
-			TotalSize += eol::str(CurPtr->GetEOL()).size();
+			TotalSize += CurPtr->GetEOL().str().size();
 
 			if (static_cast<int>(TotalSize) > StartChar)
 				break;

@@ -412,7 +412,7 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 	}
 }
 
-static bool ProcessServiceModes(span<const wchar_t* const> const Args, int& ServiceResult)
+static std::optional<int> ProcessServiceModes(span<const wchar_t* const> const Args)
 {
 	const auto isArg = [](const wchar_t* Arg, string_view const Name)
 	{
@@ -421,8 +421,7 @@ static bool ProcessServiceModes(span<const wchar_t* const> const Args, int& Serv
 
 	if (Args.size() == 4 && IsElevationArgument(Args[0])) // /service:elevation {GUID} PID UsePrivileges
 	{
-		ServiceResult = ElevationMain(Args[1], std::wcstoul(Args[2], nullptr, 10), *Args[3] == L'1');
-		return true;
+		return ElevationMain(Args[1], std::wcstoul(Args[2], nullptr, 10), *Args[3] == L'1');
 	}
 
 	if (in_range(2u, Args.size(), 5u) && (isArg(Args[0], L"export"sv) || isArg(Args[0], L"import"sv)))
@@ -433,8 +432,7 @@ static bool ProcessServiceModes(span<const wchar_t* const> const Args, int& Serv
 		InitProfile(strProfilePath, strLocalProfilePath);
 		Global->m_ConfigProvider = new config_provider(Export? config_provider::mode::m_export : config_provider::mode::m_import);
 		ConfigProvider().ServiceMode(Args[1]);
-		ServiceResult = 0;
-		return true;
+		return EXIT_SUCCESS;
 	}
 
 	if (in_range(1u, Args.size(), 3u) && isArg(Args[0], L"clearcache"sv))
@@ -443,11 +441,10 @@ static bool ProcessServiceModes(span<const wchar_t* const> const Args, int& Serv
 		string strLocalProfilePath(Args.size() > 2? Args[2] : L""sv);
 		InitProfile(strProfilePath, strLocalProfilePath);
 		(void)config_provider{config_provider::clear_cache{}};
-		ServiceResult = 0;
-		return true;
+		return EXIT_SUCCESS;
 	}
 
-	return false;
+	return {};
 }
 
 static void UpdateErrorMode()
@@ -503,11 +500,8 @@ static int mainImpl(span<const wchar_t* const> const Args)
 	else
 		os::env::del(L"FARADMINMODE"sv);
 
-	{
-		int ServiceResult;
-		if (ProcessServiceModes(Args, ServiceResult))
-			return ServiceResult;
-	}
+	if (const auto Result = ProcessServiceModes(Args))
+		return *Result;
 
 	SCOPED_ACTION(listener)(update_environment, &ReloadEnvironment);
 	SCOPED_ACTION(listener)(update_intl, [] { locale.invalidate(); });
@@ -771,23 +765,13 @@ static int mainImpl(span<const wchar_t* const> const Args)
 	}
 }
 
-//#define DEBUG_TESTS
-
 static int wmain_seh(int Argc, const wchar_t* const Argv[])
 {
 #ifdef ENABLE_TESTS
-	if (Argc > 1 && Argv[1] == L"/service:test"sv)
+	if (const auto Result = testing_main(Argc, Argv))
 	{
-#ifdef DEBUG_TESTS
-		return EXIT_SUCCESS;
-#else
-		return testing_main(true, Argc, Argv);
-#endif
+		return *Result;
 	}
-
-#ifdef DEBUG_TESTS
-	return testing_main(false, Argc, Argv);
-#endif
 #endif
 
 #if defined(SYSLOG)

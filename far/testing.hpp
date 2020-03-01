@@ -62,7 +62,7 @@ WARNING_POP()
 
 #endif
 
-int testing_main(bool IsBuildStep, int Argc, wchar_t const* const Argv[]);
+std::optional<int> testing_main(int Argc, wchar_t const* const Argv[]);
 
 #endif
 

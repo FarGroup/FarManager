@@ -60,8 +60,6 @@ public:
 
 void RestoreGPFaultUI();
 
-bool IsCppException(const EXCEPTION_RECORD* Record);
-
 namespace detail
 {
 	int SehFilter(int Code, const EXCEPTION_POINTERS* Info, string_view Function, const Plugin* Module);

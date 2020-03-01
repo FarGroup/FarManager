@@ -51,7 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 struct file_line
 {
 	string_view Str;
-	eol::type Eol;
+	eol Eol;
 };
 
 // TODO: rename
@@ -69,12 +69,12 @@ private:
 	[[nodiscard]]
 	bool get(bool Reset, file_line& Value) const;
 
-	bool GetString(string_view& Str, eol::type& Eol) const;
+	bool GetString(string_view& Str, eol& Eol) const;
 
 	bool fill() const;
 
 	template<typename T>
-	bool GetTString(std::basic_string<T>& To, eol::type& Eol, bool BigEndian = false) const;
+	bool GetTString(std::basic_string<T>& To, eol& Eol, bool BigEndian = false) const;
 
 	std::istream& m_Stream;
 	std::ios_base::iostate m_StreamExceptions;

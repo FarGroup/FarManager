@@ -286,7 +286,7 @@ static intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2
 				case KEY_RCTRLNUMPAD0:
 					{
 						string Strings;
-						const auto Eol = eol::str(eol::system());
+						const auto Eol = eol::system.str();
 						FarDialogItem di;
 						Dlg->SendMessage(DM_GETDLGITEMSHORT, 1, &di);
 						const auto Width = di.X2 - di.X1 + 1;
@@ -610,13 +610,18 @@ struct throw_info
 	DWORD pCatchableTypeArray;       // Image relative offset of CatchableTypeArray
 };
 
-static string ExtractObjectType(const EXCEPTION_RECORD* xr)
+bool IsCppException(const EXCEPTION_RECORD& Record)
 {
-	if (!IsCppException(xr) || !xr->NumberParameters)
+	return Record.ExceptionCode == static_cast<DWORD>(EXCEPTION_MICROSOFT_CPLUSPLUS);
+}
+
+static string ExtractObjectType(const EXCEPTION_RECORD& xr)
+{
+	if (!IsCppException(xr) || !xr.NumberParameters)
 		return {};
 
-	const auto BaseAddress = xr->NumberParameters == 4? xr->ExceptionInformation[3] : 0;
-	const auto& ThrowInfo = *reinterpret_cast<const throw_info*>(xr->ExceptionInformation[2]);
+	const auto BaseAddress = xr.NumberParameters == 4? xr.ExceptionInformation[3] : 0;
+	const auto& ThrowInfo = *reinterpret_cast<const throw_info*>(xr.ExceptionInformation[2]);
 	const auto& CatchableTypeArray = *reinterpret_cast<const catchable_type_array*>(BaseAddress + ThrowInfo.pCatchableTypeArray);
 	const auto& CatchableType = *reinterpret_cast<const catchable_type*>(BaseAddress + CatchableTypeArray.arrayOfCatchableTypes);
 	const auto& TypeInfo = *reinterpret_cast<const std::type_info*>(BaseAddress + CatchableType.pType);
@@ -810,7 +815,7 @@ static std::pair<string, string> extract_nested_exceptions(const std::exception&
 	std::pair<string, string> Result;
 	auto& [ObjectType, What] = Result;
 
-	ObjectType = ExtractObjectType(tracer::get_pointers().ExceptionRecord);
+	ObjectType = ExtractObjectType(*tracer::get_pointers().ExceptionRecord);
 
 	if (ObjectType.empty())
 		ObjectType = L"std::exception"sv;
@@ -834,7 +839,7 @@ static std::pair<string, string> extract_nested_exceptions(const std::exception&
 	}
 	catch (...)
 	{
-		auto NestedObjectType = ExtractObjectType(tracer::get_pointers().ExceptionRecord);
+		auto NestedObjectType = ExtractObjectType(*tracer::get_pointers().ExceptionRecord);
 		if (NestedObjectType.empty())
 			NestedObjectType = L"Unknown"sv;
 
@@ -878,7 +883,7 @@ bool ProcessUnknownException(string_view const Function, const Plugin* const Mod
 	// It won't work in gcc etc.
 	// Set ExceptionCode manually so ProcessGenericException will at least report it as C++ exception
 	const detail::exception_context Context(EXCEPTION_MICROSOFT_CPLUSPLUS, tracer::get_pointers(), os::OpenCurrentThread(), GetCurrentThreadId());
-	const auto Type = ExtractObjectType(Context.pointers()->ExceptionRecord);
+	const auto Type = ExtractObjectType(*Context.pointers()->ExceptionRecord);
 
 	return ProcessGenericException(Context, Function, {}, Module, Type, L"?"sv);
 }
@@ -908,11 +913,6 @@ unhandled_exception_filter::~unhandled_exception_filter()
 void unhandled_exception_filter::dismiss()
 {
 	SetUnhandledExceptionFilter(nullptr);
-}
-
-bool IsCppException(const EXCEPTION_RECORD* Record)
-{
-	return Record->ExceptionCode == static_cast<DWORD>(EXCEPTION_MICROSOFT_CPLUSPLUS);
 }
 
 namespace detail

@@ -229,7 +229,7 @@ void PrintFiles(FileList* SrcPanel)
 			{
 				const os::fs::file SrcFile(FileName, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING);
 				if (!SrcFile)
-					throw MAKE_FAR_EXCEPTION(L"Cannot open file"sv);
+					throw MAKE_FAR_EXCEPTION(L"Cannot open the file"sv);
 
 				os::fs::filebuf StreamBuffer(SrcFile, std::ios::in);
 				std::istream Stream(&StreamBuffer);

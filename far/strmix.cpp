@@ -930,20 +930,20 @@ bool SearchAndReplaceString(
 
 char IntToHex(int h)
 {
-	if (h > 15)
+	if (h > 0xF)
 		throw MAKE_FAR_FATAL_EXCEPTION(L"Not a hex char"sv);
-	if (h >= 10)
-		return 'A' + h - 10;
+	if (h >= 0xA)
+		return 'A' + h - 0xA;
 	return '0' + h;
 }
 
 int HexToInt(char h)
 {
 	if (h >= 'a' && h <= 'f')
-		return h - 'a' + 10;
+		return h - 'a' + 0xA;
 
 	if (h >= 'A' && h <= 'F')
-		return h - 'A' + 10;
+		return h - 'A' + 0xA;
 
 	if (std::isdigit(h))
 		return h - '0';
