@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 02.03.2020 19:36:15 +0000 - build 5565
+
+1. gh-221: Help for MkTemp is out of date or something is broken
+
 drkns 01.03.2020 21:34:45 +0000 - build 5564
 
 1. Refactoring.
