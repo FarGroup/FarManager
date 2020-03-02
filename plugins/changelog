@@ -1,6 +1,6 @@
 qlost 18.01.2020 23:08:33 +0300
 
-1. Вернул libcrt в плагины, собираемые из makefile_all_vc кроме arclite и luamacro
+1. Р’РµСЂРЅСѓР» libcrt РІ РїР»Р°РіРёРЅС‹, СЃРѕР±РёСЂР°РµРјС‹Рµ РёР· makefile_all_vc РєСЂРѕРјРµ arclite Рё luamacro
 
 drkns 11.09.2016 02:47:09 +0200
 
