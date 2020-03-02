@@ -6122,43 +6122,60 @@ files, like #Temporary panel# does.
 
 @System.CopySecurityOptions
 $ #far:config System.CopySecurityOptions#
- Параметр "System.CopySecurityOptions" позволяет управлять поведением опции "Права доступа" в диалоге копирования/перемещения.
+ This numeric parameter controls the initial state of the
+#Access rights# option in the ~Copy / Move~@CopyFiles@ dialog.
 
- Номера битов:
- 0 и 1 - ^<wrap>Диалог Move: по умолчанию выставлять опцию копирования (бит 0 выставлен в 1,
-бит 1 сброшен в 0) или наследования (биты 0 и 1 выставлены в 1) прав доступа;
- 2     - ^<wrap>Диалог Move: запоминать состояние опции до конца сеанса работы Far Manager;
- 3 и 4 - ^<wrap>Диалог Copy: по умолчанию выставлять опцию копирования (бит 3 выставлен в 1, бит 4
-сброшен в 0) или наследования (биты 3 и 4 выставлены в 1) прав доступа;
- 5     - ^<wrap>Диалог Copy: запоминать состояние опции до конца сеанса работы Far Manager.
+ The #Access rights# option specifies the access rights assigned
+to newly created files and folders and can be one of:
 
- Воздействие битов 0 и 1 зависит от состояния бита 2:
- 1. ^<wrap>Если бит 2 выставлен в 1, то опция "Права доступа" будет установлена в зависимости от
-битов 0 и 1 только при первом вызове диалога перемещения после запуска Far Manager. Если вы
-переключите эту опцию в диалоге вручную, то при следующем вызове диалог предложит значение
-опции, выбранное вами в прошлый раз. Значение этой опции запоминается только до конца сеанса
-работы Far Manager. При следующем запуске Far опция снова будет установлена в зависимости от битов 0 и 1.
- 2. ^<wrap>Если бит 2 сброшен в 0, то опция "Права доступа" будет установлена в зависимости от
-битов 0 и 1 всякий раз при вызове диалога перемещения. Вы можете переключать эту опцию в диалоге
-вручную, но выбранное вами значение будет действовать только на текущую операцию переноса файлов.
+ #Default# - ^<wrap>Access rights are controlled by the operating system;
+ #Copy#    - Copy access rights of the source objects;
+ #Inherit# - Inherit access rights of the parent folder.
 
- Аналогично, для операции копирования воздействие битов 3 и 4 зависит от состояния бита 5.
+ The initial state of the #Access rights# option when the dialog
+is opened is controlled by three bits of the
+#System.CopySecurityOptions# parameter. Bits 0, 1, and 2 control the
+state of the option in the Move dialog; bits 3, 4, and 5 -- in the Copy
+dialog.
 
- Примеры:
- 0x21 - ^<wrap>для операции перемещения опцию "Права доступа" выставлять всегда в "Копировать",
-для операции копирования выставлять опцию в значение по умолчанию и запоминать её значение до конца сеанса работы Far Manager.
- 0xС0 - ^<wrap>для перемещения запоминать значение опции до конца сеанса работы Far (при первом вызове диалога опция
-выставлена в значение по умолчанию), для операции копирования опцию "Права доступа" выставлять всегда в "Копировать".
+@=
+ Copy     Move     ^<wrap>Initial state of the #Access rights#
+ Dialog   Dialog   option when the dialog is opened
+@=
+ Bit 0    Bit 3    0 - ^<wrap>#Default# (bits 1 / 4 are ignored)
+                   1 - controlled by bits 1 / 4
 
- По умолчанию значение параметра = 0 (опция "Права доступа" устанавливается в значение по
-умолчанию и до конца сеанса работы не запоминается).
+ Bit 1    Bit 4    0 - ^<wrap>#Copy# (if bit 0 / 3 is set to 1)
+                   1 - #Inherit# (if bit 0 / 3 is set to 1)
 
- Примечание:
+ Bit 2    Bit 5    0 - ^<wrap>Defined by bits 0 and 1 / 3 and 4 of this parameter
+                   1 - The last user’s choice (within the current Far session)
 
- Параметр "System.CopySecurityOptions" не влияет на создание ссылок (Alt+F6). В этом случае
-права всегда копируются.
+ Default value: 0 (when the dialog is opened, the #Access rights# option
+is always set to #Default#; user’s choices are not remembered).
 
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ Examples:
+
+ #0x21# (binary 100'001)
+
+ - ^<wrap>In the Move dialog, the #Access rights# option is always set
+to #Copy#.
+ - In the Copy dialog, the option is initially set to #Default#; then
+the previous user’s choice is remembered (within the current Far
+session).
+
+ #0x1C# (binary 011'100)
+
+ - ^<wrap>In the Move dialog, the #Access rights# option is initially
+set to #Default#; then the previous user’s choice is remembered (within
+the current Far session).
+ - In the Copy dialog, the option is always set to #Inherit#.
+
+ Note: The #System.CopySecurityOptions# parameter does not affect
+creation of links (#Alt+F6#). In this case access rights are always
+copied.
+
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @Interface.CursorSize

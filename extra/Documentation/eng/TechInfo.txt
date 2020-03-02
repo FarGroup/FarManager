@@ -100,49 +100,6 @@ the main help file, that is actual for the current Far Manager version.
    These parameters are used under Windows Vista and above.
    The default values are 1.
 
-1.2.25.(TechInfo #69)
-~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far Manager\System]
-   "CopySecurityOptions":REG_DWORD
-
-   The key "System/CopySecurityOptions" of DWORD type allows to control the
-   state of the "Access rights" option of the Copy/Move dialogs.
-   Bit map:
-     0 and 1 - Move dialog: set this option to "Copy" (bit 0 is set  to  1,
-               bit 1 is set to 0) or "Move" (both bits 0 and 1 are  set  to
-               1) by default;
-     2 - Move dialog: remember option state for the current Far session;
-     3 and 4 - Copy dialog: set this option to "Copy" (bit 3 is set  to  1,
-               bit 4 is set to 0) or "Move" (both bits 3 and 4 are  set  to
-               1) by default;
-     5 - Copy dialog: remember option state for the current Far session.
-   The effect of bits 0 and 1 depends on the state of bit 2:
-   1. If bit 2 is set to 1 then the "Access  rights"  option  will  be  set
-      according to bits 0 and 1 only in the first time the Move  dialog  is
-      called. If you change this option manually in  the  dialog  then  the
-      next time the dialog is  called  this  option  will  have  the  value
-      previously set by you. The state of this option is saved  only  until
-      the end of the current Far session. Next  time  you  start  Far  this
-      option will once again be set according to bits 0 and 1.
-   2. If bit 2 is set to 0, then the "Access rights"  option  will  be  set
-      according to bits 0 and 1 every time the Move  dialog  is  displayed.
-      You can change the option but it will apply only to the current  Move
-      operation.
-   The same rules apply to the effect of bits 3  and  4  depending  on  the
-   state of bit 5 for the Copy dialog.
-   Examples:
-     0x21 - always set the "Copy" action for the "Access rights" option  in
-            the Move dialog and set the default action for the Copy  dialog
-            where user setting will be remembered until Far is closed.
-     0xC0 - always set the "Copy" action for the "Access rights" option  in
-            the Copy dialog and set the default action for the Move  dialog
-            where user setting will be remembered until Far is closed.
-   The default value is 0 (select the default option each time  the  dialog
-   is opened).
-   Remarks:
-   1. The "System/CopySecurityOptions" key does not affect the creation  of
-      links (Alt-F6). In this case the access right are always copied.
-
 1.2.27.(TechInfo #79)
 ~~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far Manager\System]
