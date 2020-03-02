@@ -8830,6 +8830,27 @@ mtime=3789189767
 </article>
 </node>
 <node>
+id=549
+lv=2
+dt=Text
+nm=far.GetLuafarVersion
+ctime=3792338906
+mtime=3792339365
+<article>
+#_strVersion = far.GetLuafarVersion()
+#_  or
+#_major,minor,revision,build = far.LuafarVersion(true)
+#_
+#_**Returns:**
+#_  strVersion: string
+#_    or
+#_  major,minor,revision,build: numbers
+#_
+#_@@@
+#_
+</article>
+</node>
+<node>
 id=280
 lv=2
 dt=Text

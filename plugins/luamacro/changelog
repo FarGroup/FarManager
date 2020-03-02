@@ -1,3 +1,8 @@
+shmuel 02.03.2020 19:10:27 +0200 - build 734
+
+1. LuaFAR: added function far.GetLuafarVersion.
+   luafar3.dll and luamacro.dll will share the same version within any given Far Manager build.
+
 shmuel 01.03.2020 22:01:50 +0200 - build 733
 
 1. LuaFAR: more 730.1 (win.FileTimeToSystemTime).
