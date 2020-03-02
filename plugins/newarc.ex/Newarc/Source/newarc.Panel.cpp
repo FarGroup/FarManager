@@ -1,4 +1,4 @@
-#include "newarc.h"
+п»ї#include "newarc.h"
 
 #include "processname.cpp"
 
@@ -256,7 +256,7 @@ int ArchivePanel::pGetFindData(
 #pragma message("check if pArchive exists!!")
 
 	if ( !m_pArchive->ReadArchiveItems() )
-		return FALSE; //??? в ¬ ­Ґв FALSE
+		return FALSE; //??? РІВ В¬ В­ТђРІ FALSE
 
 	const ArchiveInfoItem* pInfoItems;
 
@@ -282,7 +282,7 @@ int ArchivePanel::pGetFindData(
 	ConstArray<PluginPanelItem> pPanelItems(100);
 	Array<ArchiveTreeNode*> items;
 
-	m_pArchive->SetCurrentDirectory(m_strPathInArchive, false); //а вдруг архив перезагрузили, вернем путь (с рута)
+	m_pArchive->SetCurrentDirectory(m_strPathInArchive, false); //Р° РІРґСЂСѓРі Р°СЂС…РёРІ РїРµСЂРµР·Р°РіСЂСѓР·РёР»Рё, РІРµСЂРЅРµРј РїСѓС‚СЊ (СЃ СЂСѓС‚Р°)
 	m_pArchive->GetArchiveTreeItems(items, false); //no recursive
 
 	for (unsigned int i = 0; i < items.count(); i++)
@@ -394,8 +394,8 @@ void ArchivePanel::GetArchiveItemsToProcess(
 
 		ArchiveTreeNode* node = (ArchiveTreeNode*)pPanelItems[i].UserData;
 
-		//ад и кромешный пиздец. отдаем обратно модулю то, что он сам и навыделял. т.е. хоть эти ArchiveItem и новые, данные в них 
-		//старые. т.е. удалять их нельзя ни при каких обстоятельствах!
+		//Р°Рґ Рё РєСЂРѕРјРµС€РЅС‹Р№ РїРёР·РґРµС†. РѕС‚РґР°РµРј РѕР±СЂР°С‚РЅРѕ РјРѕРґСѓР»СЋ С‚Рѕ, С‡С‚Рѕ РѕРЅ СЃР°Рј Рё РЅР°РІС‹РґРµР»СЏР». С‚.Рµ. С…РѕС‚СЊ СЌС‚Рё ArchiveItem Рё РЅРѕРІС‹Рµ, РґР°РЅРЅС‹Рµ РІ РЅРёС… 
+		//СЃС‚Р°СЂС‹Рµ. С‚.Рµ. СѓРґР°Р»СЏС‚СЊ РёС… РЅРµР»СЊР·СЏ РЅРё РїСЂРё РєР°РєРёС… РѕР±СЃС‚РѕСЏС‚РµР»СЊСЃС‚РІР°С…!
 
 		m_OS.uTotalSize += GetArchiveItemsToProcessFromNode(node, items);
 	}
@@ -590,7 +590,7 @@ int ArchivePanel::pPutFiles(
 				strFullArchiveName += strArchiveName;
 				
 				//Archive* pArchive = pManager->OpenCreateArchive(params.pFormat, strFullArchiveName, this, Callback, true);
-				//BADBAD, надо убедиться, что отсюда сразу в ClosePlugin попадаем
+				//BADBAD, РЅР°РґРѕ СѓР±РµРґРёС‚СЊСЃСЏ, С‡С‚Рѕ РѕС‚СЃСЋРґР° СЃСЂР°Р·Сѓ РІ ClosePlugin РїРѕРїР°РґР°РµРј
 				m_pArchive = pManager->OpenCreateArchive(params.pFormat, strFullArchiveName, this, Callback, true);
 
 				if ( m_pArchive )

@@ -1,3 +1,5 @@
+#pragma code_page(65001)
+
 #include "multiarcversion.hpp"
 
 #define PLUGIN_MAJOR 1

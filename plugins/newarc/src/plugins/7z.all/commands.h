@@ -1,4 +1,4 @@
-static const char *pRAR[]={
+﻿static const char *pRAR[]={
 /*Extract               */"rar x {-p%%P} {-ap%%R} -y -c- -kb -- %%A @%%LNM",
 /*Extract without paths */"rar e {-p%%P} -y -c- -kb -- %%A @%%LNM",
 /*Test                  */"rar t -y {-p%%P} -- %%A",

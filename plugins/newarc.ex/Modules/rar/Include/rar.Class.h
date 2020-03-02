@@ -1,4 +1,4 @@
-#include "rar.h"
+﻿#include "rar.h"
 
 typedef HANDLE (__stdcall *RAROPENARCHIVEEX) (struct RAROpenArchiveDataEx *ArchiveData);
 typedef int    (__stdcall *RARCLOSEARCHIVE) (HANDLE hArcData);

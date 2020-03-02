@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #define E_MESSAGE MAKE_HRESULT(SEVERITY_ERROR, FACILITY_ITF, 0x200)
 

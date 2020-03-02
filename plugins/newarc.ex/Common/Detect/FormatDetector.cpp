@@ -1,4 +1,4 @@
-#include "FormatDetector.hpp"
+﻿#include "FormatDetector.hpp"
 
 #include "7zdetect.cpp"
 #include "arjdetect.cpp"

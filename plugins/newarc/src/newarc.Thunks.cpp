@@ -1,4 +1,4 @@
-#include "newarc.h"
+﻿#include "newarc.h"
 
 LONG_PTR __stdcall ArchiveCallbackThunk(int nMsg, int nParam, LONG_PTR nParam2)
 {

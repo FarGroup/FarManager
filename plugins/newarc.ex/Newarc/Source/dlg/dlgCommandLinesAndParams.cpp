@@ -1,4 +1,4 @@
-
+﻿
 LONG_PTR __stdcall hndCommandLinesAndParams(FarDialog* D, int nMsg, int nParam1, LONG_PTR nParam2)
 {
 	ArchiveFormat* pFormat = (ArchiveFormat*)D->GetDlgData();

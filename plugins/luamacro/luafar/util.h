@@ -1,4 +1,4 @@
-#ifndef LUAFAR_UTIL_H
+﻿#ifndef LUAFAR_UTIL_H
 #define LUAFAR_UTIL_H
 
 #include <plugin.hpp>

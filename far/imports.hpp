@@ -74,19 +74,19 @@ private:
 	class unique_function_pointer
 	{
 		// The indirection is a workaround for MSVC
-		using stub_type = std::enable_if_t<true, decltype(StubFunction)>;
+		using function_type = std::enable_if_t<true, decltype(StubFunction)>;
 
 	public:
 		NONCOPYABLE(unique_function_pointer);
 
 		explicit unique_function_pointer(const os::rtdl::module& Module): m_module(&Module) {}
-		operator stub_type() const { return get_pointer(); }
+		operator function_type() const { return get_pointer(); }
 		explicit operator bool() const noexcept { return get_pointer() != StubFunction; }
 
 	private:
 		auto get_pointer() const
 		{
-			static const auto DynamicPointer = m_module->GetProcAddress<stub_type>(text_type::name);
+			static const auto DynamicPointer = m_module->GetProcAddress<function_type>(text_type::name);
 			// TODO: log if nullptr
 			static const auto Pointer = DynamicPointer? DynamicPointer : StubFunction;
 			return Pointer;
@@ -98,7 +98,7 @@ private:
 #define DECLARE_IMPORT_FUNCTION(MODULE, CALLTYPE, RETTYPE, NAME, ...)\
 private: static RETTYPE CALLTYPE stub_##NAME(__VA_ARGS__);\
 private: struct name_##NAME { static constexpr auto name = #NAME; };\
-public: const unique_function_pointer<name_##NAME, imports::stub_##NAME> NAME{m_##MODULE}
+public: const unique_function_pointer<name_##NAME, stub_##NAME> NAME{m_##MODULE}
 
 	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, NtQueryDirectoryFile, HANDLE FileHandle, HANDLE Event, PVOID ApcRoutine, PVOID ApcContext, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, BOOLEAN ReturnSingleEntry, PUNICODE_STRING FileName, BOOLEAN RestartScan);
 	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, NtQueryInformationFile, HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass);

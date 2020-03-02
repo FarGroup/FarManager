@@ -1,4 +1,4 @@
-#ifndef __MULTIARC_HPP__
+п»ї#ifndef __MULTIARC_HPP__
 #define __MULTIARC_HPP__
 
 #pragma warning (disable : 4005)
@@ -222,7 +222,7 @@ struct InitDialogItem
 };
 
 /* $ 13.09.2000 tran
-   разное для ожидания процесса, чтобы убить лист-файл */
+   СЂР°Р·РЅРѕРµ РґР»СЏ РѕР¶РёРґР°РЅРёСЏ РїСЂРѕС†РµСЃСЃР°, С‡С‚РѕР±С‹ СѓР±РёС‚СЊ Р»РёСЃС‚-С„Р°Р№Р» */
 struct KillStruct
 {
     char ListFileName[260];
@@ -256,7 +256,7 @@ struct Options
   int ReadDescriptions;
   int UpdateDescriptions;
   /* $ 13.09.2000 tran
-     запуск процесса в фоне */
+     Р·Р°РїСѓСЃРє РїСЂРѕС†РµСЃСЃР° РІ С„РѕРЅРµ */
   int UserBackground;
   int Background;
   int PriorityClass;

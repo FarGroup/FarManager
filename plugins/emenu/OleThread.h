@@ -1,4 +1,4 @@
-#ifndef _OLETHREAD_H_
+﻿#ifndef _OLETHREAD_H_
 #define _OLETHREAD_H_
 
 #include "Plugin.h"

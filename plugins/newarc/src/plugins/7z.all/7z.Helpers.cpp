@@ -1,4 +1,4 @@
-#include "7z.h"
+ï»¿#include "7z.h"
 #include <objbase.h>
 #include <debug.h>
 
@@ -784,12 +784,12 @@ HRESULT __stdcall CArchiveOpenCallback::SetCompleted (const UInt64 *files, const
 	   	char szFileCount[100];
    		const char *pMsgs[4];
 
-	   	pMsgs[0] = "®¤®¦¤¨â¥";
-   		pMsgs[1] = "—â¥­¨¥  àå¨¢  [7z.all]";
+	   	pMsgs[0] = "ÐŸÐ¾Ð´Ð¾Ð¶Ð´Ð¸Ñ‚Ðµ";
+   		pMsgs[1] = "Ð§Ñ‚ÐµÐ½Ð¸Ðµ Ð°Ñ€Ñ…Ð¸Ð²Ð° [7z.all]";
 	   	pMsgs[2] = m_pArchive->m_lpFileName;
    		pMsgs[3] = szFileCount;
 
-	   	FSF.sprintf (szFileCount, "%I64u ä ©«®¢", *files);
+	   	FSF.sprintf (szFileCount, "%I64u Ñ„Ð°Ð¹Ð»Ð¾Ð²", *files);
 
    		Info.Message(
    				Info.ModuleNumber,

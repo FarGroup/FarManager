@@ -1,4 +1,4 @@
-#include <Rtl.Base.h>
+﻿#include <Rtl.Base.h>
 
 PBYTE CreateThunkEx(void *obj, void *start, void *end)
 {

@@ -1,4 +1,4 @@
-#include "SystemApi.hpp"
+﻿#include "SystemApi.hpp"
 
 DWORD apiGetEnvironmentVariable(const TCHAR *lpName, string &strBuffer)
 {

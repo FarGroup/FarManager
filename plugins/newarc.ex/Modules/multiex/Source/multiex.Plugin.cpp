@@ -1,4 +1,4 @@
-#include "MultiEx.h"
+п»ї#include "MultiEx.h"
 
 MultiExPlugin::MultiExPlugin(const GUID& uid)
 {
@@ -204,7 +204,7 @@ MultiExArchive* MultiExPlugin::OpenCreateArchive(
 		)
 {
 	if ( bCreate )
-		return NULL; //теоретически оно как-бы да, но проверить не на чем
+		return NULL; //С‚РµРѕСЂРµС‚РёС‡РµСЃРєРё РѕРЅРѕ РєР°Рє-Р±С‹ РґР°, РЅРѕ РїСЂРѕРІРµСЂРёС‚СЊ РЅРµ РЅР° С‡РµРј
 
 	return new MultiExArchive(this, uidFormat, lpFileName, hCallback, pfnCallback);
 }

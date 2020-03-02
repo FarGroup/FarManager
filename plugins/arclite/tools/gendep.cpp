@@ -1,4 +1,4 @@
-const wchar_t* c_ext_list[] = {
+﻿const wchar_t* c_ext_list[] = {
   L"c", L"h", L"cpp", L"hpp", L"rc",
 };
 

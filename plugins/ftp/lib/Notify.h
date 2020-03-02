@@ -1,4 +1,4 @@
-#ifndef __FTP_PLUGIN_NOTIFY
+﻿#ifndef __FTP_PLUGIN_NOTIFY
 #define __FTP_PLUGIN_NOTIFY
 
 //------------------------------------------------------------------------

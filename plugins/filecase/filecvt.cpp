@@ -1,4 +1,4 @@
-#include "FileCase.hpp"
+﻿#include "FileCase.hpp"
 #include <DlgBuilder.hpp>
 #include <PluginSettings.hpp>
 #include "FileLng.hpp"

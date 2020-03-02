@@ -1,6 +1,6 @@
-#include "UnicodeAnsi.hpp"
+п»ї#include "UnicodeAnsi.hpp"
 
-//как-то ANSI тут неумно звучит
+//РєР°Рє-С‚Рѕ ANSI С‚СѓС‚ РЅРµСѓРјРЅРѕ Р·РІСѓС‡РёС‚
 
 wchar_t* AnsiToUnicode(const char* lpSrc, int CodePage)
 {
@@ -32,7 +32,7 @@ char* UnicodeToAnsi(const wchar_t* lpSrc, int CodePage)
 
 char* UnicodeToUTF8(const wchar_t* lpSrc)
 {
-	return UnicodeToAnsi(lpSrc, CP_UTF8); //ааа!!!! ToAnsi!!!
+	return UnicodeToAnsi(lpSrc, CP_UTF8); //Р°Р°Р°!!!! ToAnsi!!!
 }
 
 char* AnsiToUTF8(const char* lpSrc, int CodePage)

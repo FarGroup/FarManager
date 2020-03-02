@@ -1,4 +1,4 @@
-#ifndef __FAR_PLUGIN_FTP
+﻿#ifndef __FAR_PLUGIN_FTP
 #define __FAR_PLUGIN_FTP
 
 #include "fstdlib.h"         //FAR plugin stdlib

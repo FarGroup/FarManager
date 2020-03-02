@@ -1,4 +1,4 @@
-// EditCase is Far Manager plugin. It allows to change the case of selected text
+﻿// EditCase is Far Manager plugin. It allows to change the case of selected text
 // or current (nearest) word in the internal editor.
 // This plugin can change case to: lower case, Title Case, UPPER CASE and tOGGLE cASE
 // Besides, it has ability of cyclic case change like MS Word by ShiftF3

@@ -1,4 +1,4 @@
-// Windows/PropVariant.cpp
+﻿// Windows/PropVariant.cpp
 
 #include "PropVariant.h"
 #include "7z.headers/Common/Defs.h"

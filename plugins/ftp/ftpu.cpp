@@ -1,4 +1,4 @@
-#include <all_lib.h>
+﻿#include <all_lib.h>
 #pragma hdrstop
 
 #include "pwd.h"

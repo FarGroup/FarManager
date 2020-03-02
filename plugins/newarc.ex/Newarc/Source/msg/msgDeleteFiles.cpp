@@ -1,4 +1,4 @@
-bool msgDeleteFiles()
+﻿bool msgDeleteFiles()
 {
 	FarMessage message(0);
 

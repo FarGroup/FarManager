@@ -1,1 +1,1 @@
-const wchar_t *GetMsg(int MsgId);
+﻿const wchar_t *GetMsg(int MsgId);

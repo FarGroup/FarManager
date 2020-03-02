@@ -1,4 +1,4 @@
-#include <CRT\crt.hpp>
+﻿#include <CRT\crt.hpp>
 #include <plugin.hpp>
 #include "DrawLng.hpp"
 #include "version.hpp"

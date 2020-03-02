@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** uloadlib.c, copyright 2010-2012, Shmuel Zeigerman.
 ** A modification of Dynamic library loader for Lua
 ** giving it capability of working with Unicode paths.

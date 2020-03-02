@@ -1,4 +1,4 @@
-
+﻿
                     The FAR File and Archive Manager
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                      Archiver support configuration

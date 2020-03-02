@@ -1,4 +1,4 @@
-#ifndef __TMPLNG_HPP__
+﻿#ifndef __TMPLNG_HPP__
 #define __TMPLNG_HPP__
 
 enum

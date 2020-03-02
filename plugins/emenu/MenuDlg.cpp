@@ -1,4 +1,4 @@
-#include "MenuDlg.h"
+﻿#include "MenuDlg.h"
 #include <cassert>
 
 BOOL CALLBACK MenuDlgProc(HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lParam)

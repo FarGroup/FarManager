@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 
 struct DLNGHeader {
 	char ID[5];
@@ -60,7 +60,7 @@ struct DLNGExtendedHeader {
      Email: WideString;
      FontName: WideString;
 */
-}; //упоротый заголовок
+}; //СѓРїРѕСЂРѕС‚С‹Р№ Р·Р°РіРѕР»РѕРІРѕРє
 
 struct DLNGIndexEntryV3 {
 	char ID[6];

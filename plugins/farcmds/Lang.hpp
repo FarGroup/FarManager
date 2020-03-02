@@ -1,4 +1,4 @@
-enum
+﻿enum
 {
 	MConfig,
 

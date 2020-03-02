@@ -1,4 +1,4 @@
-#include "newarc.h"
+﻿#include "newarc.h"
 
 extern const TCHAR* pCommandNames[MAX_COMMANDS];
 

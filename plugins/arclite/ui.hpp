@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 const wchar_t** get_size_suffixes();
 const wchar_t** get_speed_suffixes();

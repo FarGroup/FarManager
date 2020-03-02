@@ -1,4 +1,4 @@
-#ifndef __FILEUTILS_HPP__
+﻿#ifndef __FILEUTILS_HPP__
 #define __FILEUTILS_HPP__
 
 enum

@@ -1,4 +1,4 @@
-#include <plugin.hpp>
+п»ї#include <plugin.hpp>
 
 #include "FARCmds.hpp"
 #include "Lang.hpp"
@@ -138,8 +138,8 @@ inline bool isDevice(const wchar_t* FileName, const wchar_t* dev_begin)
 
 static bool validForView(const wchar_t *FileName, bool viewEmpty, bool editNew)
 {
-	if (!wcsncmp(FileName, L"\\\\.\\", 4) &&  // специальная обработка имен
-			FSF.LIsAlpha(FileName[4]) &&          // вида: \\.\буква:
+	if (!wcsncmp(FileName, L"\\\\.\\", 4) &&  // СЃРїРµС†РёР°Р»СЊРЅР°СЏ РѕР±СЂР°Р±РѕС‚РєР° РёРјРµРЅ
+			FSF.LIsAlpha(FileName[4]) &&          // РІРёРґР°: \\.\Р±СѓРєРІР°:
 			FileName[5]==L':' && FileName[6]==0)
 		return true;
 
@@ -217,7 +217,7 @@ static bool validForView(const wchar_t *FileName, bool viewEmpty, bool editNew)
 	return Ret;
 }
 
-// нитка параллельного вывода на экран для ":<+"
+// РЅРёС‚РєР° РїР°СЂР°Р»Р»РµР»СЊРЅРѕРіРѕ РІС‹РІРѕРґР° РЅР° СЌРєСЂР°РЅ РґР»СЏ ":<+"
 static DWORD showPartOfOutput(TShowOutputStreamData *sd, bool mainProc)
 {
 	DWORD Res = 0;
@@ -325,7 +325,7 @@ DWORD WINAPI ThreadWhatUpdateScreen(LPVOID par)
 }
 
 
-// два файла в одном каталоге
+// РґРІР° С„Р°Р№Р»Р° РІ РѕРґРЅРѕРј РєР°С‚Р°Р»РѕРіРµ
 static bool MakeTempNames(wchar_t** FileName1, wchar_t** FileName2)
 {
 	static const wchar_t tmpPrefix[] = L"FCP";
@@ -410,13 +410,13 @@ static const wchar_t* MakeExecuteString(const wchar_t *Cmd)
 	bool quote_cmd=false, quoted_par=false;
 	const wchar_t COMSPEC[]=L"%COMSPEC% /c ";
 
-	// 1. разбор строки на команду и параметры
+	// 1. СЂР°Р·Р±РѕСЂ СЃС‚СЂРѕРєРё РЅР° РєРѕРјР°РЅРґСѓ Рё РїР°СЂР°РјРµС‚СЂС‹
 	wchar_t *NewCmdStr=nullptr, *NewCmdPar=nullptr;
 	PartCmdLine(Cmd,&NewCmdStr,&NewCmdPar);
 
 	if (NewCmdStr)
 	{
-		// 1.1 если команда не содержит полный путь...
+		// 1.1 РµСЃР»Рё РєРѕРјР°РЅРґР° РЅРµ СЃРѕРґРµСЂР¶РёС‚ РїРѕР»РЅС‹Р№ РїСѓС‚СЊ...
 		if (!wcschr(NewCmdStr,L'\\'))
 		{
 			wchar_t *fpath=__proc_WhereIs(false,NewCmdStr,false);
@@ -428,16 +428,16 @@ static const wchar_t* MakeExecuteString(const wchar_t *Cmd)
 		}
 	}
 
-	// 2. обкавычим, если путь к команде получился с пробелами
+	// 2. РѕР±РєР°РІС‹С‡РёРј, РµСЃР»Рё РїСѓС‚СЊ Рє РєРѕРјР°РЅРґРµ РїРѕР»СѓС‡РёР»СЃСЏ СЃ РїСЂРѕР±РµР»Р°РјРё
 	if (NewCmdStr && wcschr(NewCmdStr,L' '))
 		quote_cmd=true;
 
-	// 3. проверим параметр
+	// 3. РїСЂРѕРІРµСЂРёРј РїР°СЂР°РјРµС‚СЂ
 	if (NewCmdPar && wcschr(NewCmdPar,L'"'))
 		quoted_par=true;
 
 
-	// 4. собираем всё обратно
+	// 4. СЃРѕР±РёСЂР°РµРј РІСЃС‘ РѕР±СЂР°С‚РЅРѕ
 	wchar_t* temp=new wchar_t[
 		lstrlen(COMSPEC)+
 		(NewCmdStr?lstrlen(NewCmdStr)+(quote_cmd?2:0):0)+1+
@@ -480,12 +480,12 @@ static const wchar_t* MakeExecuteString(const wchar_t *Cmd)
 }
 
 /*
-  Возвращает указатель на выделенный кусок, которому после использования сделать free
+  Р’РѕР·РІСЂР°С‰Р°РµС‚ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РІС‹РґРµР»РµРЅРЅС‹Р№ РєСѓСЃРѕРє, РєРѕС‚РѕСЂРѕРјСѓ РїРѕСЃР»Рµ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ СЃРґРµР»Р°С‚СЊ free
 
-  fn - имя файла, откуда читать
-  maxSize - сколько максимум прочитать из файла
-  outputtofile - это было перенаправление или...
-  shift - начало "правильных данных" в прочитанном буфере, с учетом кодировок...
+  fn - РёРјСЏ С„Р°Р№Р»Р°, РѕС‚РєСѓРґР° С‡РёС‚Р°С‚СЊ
+  maxSize - СЃРєРѕР»СЊРєРѕ РјР°РєСЃРёРјСѓРј РїСЂРѕС‡РёС‚Р°С‚СЊ РёР· С„Р°Р№Р»Р°
+  outputtofile - СЌС‚Рѕ Р±С‹Р»Рѕ РїРµСЂРµРЅР°РїСЂР°РІР»РµРЅРёРµ РёР»Рё...
+  shift - РЅР°С‡Р°Р»Рѕ "РїСЂР°РІРёР»СЊРЅС‹С… РґР°РЅРЅС‹С…" РІ РїСЂРѕС‡РёС‚Р°РЅРЅРѕРј Р±СѓС„РµСЂРµ, СЃ СѓС‡РµС‚РѕРј РєРѕРґРёСЂРѕРІРѕРє...
 */
 static wchar_t *loadFile(const wchar_t *fn, DWORD maxSize, BOOL outputtofile, size_t& shift, bool& foundFile)
 {
@@ -1329,7 +1329,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 						{
 							return __proc_Unload(outputtofile,pCmd);
 						}
-						case prefLink: //link [/msg] [/n] источник назначение
+						case prefLink: //link [/msg] [/n] РёСЃС‚РѕС‡РЅРёРє РЅР°Р·РЅР°С‡РµРЅРёРµ
 						{
 							if (!__proc_Link(outputtofile,pCmd))
 								Info.ShowHelp(Info.ModuleName,PrefHlp,0);
@@ -1403,7 +1403,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 							}
 							else // <Start process>
 							{
-								// разделение потоков
+								// СЂР°Р·РґРµР»РµРЅРёРµ РїРѕС‚РѕРєРѕРІ
 								int catchStdOutput = CatchMode != cmtStdErr;
 								int catchStdError  = CatchMode != cmtStdOut;
 								int catchSeparate  = (CatchMode == cmtDiff) && (PrefIdx == prefView || PrefIdx == prefEdit || PrefIdx == prefClip);
@@ -1526,7 +1526,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 
 										if (ShowCmdOutput)// == scoShowAll) // <+
 										{
-											// данные для нитки параллельного вывода
+											// РґР°РЅРЅС‹Рµ РґР»СЏ РЅРёС‚РєРё РїР°СЂР°Р»Р»РµР»СЊРЅРѕРіРѕ РІС‹РІРѕРґР°
 											td = new TThreadData;
 
 											if (td)
@@ -1580,7 +1580,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 												closeHandle(FileHandleOut);
 												closeHandle(FileHandleErr);
 
-												// "дочищаем" остатки вывода, которые не успели вывестись в ThreadWhatUpdateScreen()
+												// "РґРѕС‡РёС‰Р°РµРј" РѕСЃС‚Р°С‚РєРё РІС‹РІРѕРґР°, РєРѕС‚РѕСЂС‹Рµ РЅРµ СѓСЃРїРµР»Рё РІС‹РІРµСЃС‚РёСЃСЊ РІ ThreadWhatUpdateScreen()
 												for (int i = 0 ; i < enStreamMAX ; i++)
 												{
 													TShowOutputStreamData *sd = &(td->stream[i]);

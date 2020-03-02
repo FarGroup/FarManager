@@ -1,4 +1,4 @@
-/* lregex.cpp */
+﻿/* lregex.cpp */
 
 #include "luafar.h"
 #include "ustring.h"

@@ -1,4 +1,4 @@
-ARC, PAK Format
+﻿ARC, PAK Format
 Intel byte order
 
 The ARC files are archive files created by the SEA ARC program. The compression

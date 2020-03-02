@@ -1,4 +1,4 @@
-#include "ansi.h"
+﻿#include "ansi.h"
 
 oldfar::PluginStartupInfo oldInfo;
 oldfar::FARSTANDARDFUNCTIONS oldFSF;

@@ -1,4 +1,4 @@
-#include <all_far.h>
+Ôªø#include <all_far.h>
 #pragma hdrstop
 
 #include "Int.h"
@@ -11,10 +11,10 @@
   - [RWCEAFMS] SERG                             3335 Jan 27  2001 ZD001206.ARJ
   - [RWCEAFMS] COM                            276043 Mar 05  2002 basa_iva.ARJ
   - [RWCEAFMS] SERG                             7680 Apr 27  2001 12032001.xls
-  - [RWCEAFMS] COM                           1142784 Jan 29 16:03 Ñ†© ¨≠• °Î‚Ï · ‚Æ°ÆÓ ‡Ô§Æ¨ (î‡®·‚†©´).mp3
+  - [RWCEAFMS] COM                           1142784 Jan 29 16:03 –î–∞–π –º–Ω–µ –±—ã—Ç—å —Å —Ç–æ–±–æ—é —Ä—è–¥–æ–º (–§—Ä–∏—Å—Ç–∞–π–ª).mp3
   - [RWCEAFMS] COM                             12288 Dec 20  2001 nds10009.xls
   - [RWCEAFMS] COM                             30000 Jul 16  2002 TRACK22.WAV
-  - [RWCEAFMS] ASDU                            22528 Dec 16  2002 '_'-R°¢ˇ¢RÚ.xls
+  - [RWCEAFMS] ASDU                            22528 Dec 16  2002 '_'-R–±–≤¬†–≤R–Ñ.xls
   - [RWCEAFMS] COM                             96256 Jul 09  2001 ZP010621.XLS
   - [RWCEAFMS] COM                            266240 Jul 27  2001 rgp18i.zip
   d [RWCEAFMS] SERG                              512 Mar 13 14:29 baza_arz

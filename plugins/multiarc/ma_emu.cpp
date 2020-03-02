@@ -1,4 +1,4 @@
-/*
+﻿/*
   MA_EMU.CPP
 
   MultiArc plugin emulator for debugging second-level plugin modules

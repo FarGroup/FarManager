@@ -1,4 +1,4 @@
-#include "7z.h"
+п»ї#include "7z.h"
 
 #include "GUID.h"
 
@@ -7,14 +7,14 @@ const unsigned char GZipSig[]     = {0x1F, 0x8B};
 const unsigned char ZSig[]        = {0x1F, 0x9D};
 const unsigned char RpmSig[]      = {0xED, 0xAB, 0xEE, 0xDB};
 const unsigned char DebSig[]      = {'!', '<', 'a', 'r', 'c', 'h', '>', 0x0A, 'd', 'e', 'b', 'i', 'a', 'n', '-', 'b', 'i', 'n', 'a', 'r', 'y'};
-const unsigned char CpioSig[]     = {'0', '7', '0', '7', '0'}; //BUGBUG: вроде не совсем точно
+const unsigned char CpioSig[]     = {'0', '7', '0', '7', '0'}; //BUGBUG: РІСЂРѕРґРµ РЅРµ СЃРѕРІСЃРµРј С‚РѕС‡РЅРѕ
 const unsigned char ChmSig[]      = {'I', 'T', 'S', 'F'};
 const unsigned char WimSig[]      = {'M', 'S', 'W', 'I', 'M', 0, 0, 0};
 const unsigned char CompoundSig[] = {0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1};
 const unsigned char ELFSig[]      = {0x7F, 'E', 'L', 'F'};
 const unsigned char MubSig[]      = {0xCA, 0xFE, 0xBA, 0xBE, 0, 0, 0};
 const unsigned char XarSig[]      = {'x', 'a', 'r', '!', 0, 0x1C};
-const unsigned char DmgSig[]      = {0x78, 0xDA}; //BUGBUG: тупо наугад поставил, в тех 2-ух dmg что я видел было так.
+const unsigned char DmgSig[]      = {0x78, 0xDA}; //BUGBUG: С‚СѓРїРѕ РЅР°СѓРіР°Рґ РїРѕСЃС‚Р°РІРёР», РІ С‚РµС… 2-СѓС… dmg С‡С‚Рѕ СЏ РІРёРґРµР» Р±С‹Р»Рѕ С‚Р°Рє.
 const unsigned char XzSig[]       = {0xFD, '7' , 'z', 'X', 'Z', '\0'};
 const unsigned char VhdSig[]      = { 'c', 'o', 'n', 'e', 'c', 't', 'i', 'x', 0, 0 };
 const unsigned char MbrSig[]      = { 1, 1, 0 };

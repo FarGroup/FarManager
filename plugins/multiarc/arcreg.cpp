@@ -1,4 +1,4 @@
-#include "MultiArc.hpp"
+﻿#include "MultiArc.hpp"
 
 HKEY CreateRegKey(HKEY hRoot,const char *Key);
 HKEY OpenRegKey(HKEY hRoot,const char *Key);

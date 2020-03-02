@@ -1,4 +1,4 @@
-typedef int (*DETECTARCHIVE)(const unsigned char *buffer, int size);
+﻿typedef int (*DETECTARCHIVE)(const unsigned char *buffer, int size);
 
 int IsTarHeader  (const unsigned char *Data, int DataSize);
 int IsRarHeader  (const unsigned char *Data, int DataSize);

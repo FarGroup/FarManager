@@ -1,4 +1,4 @@
-#ifndef __FTP_PLUGINS_HOLDERS
+﻿#ifndef __FTP_PLUGINS_HOLDERS
 #define __FTP_PLUGINS_HOLDERS
 
 //------------------------------------------------------------------------

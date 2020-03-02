@@ -1,4 +1,4 @@
-#include "7z.h"
+﻿#include "7z.h"
 
 #define PROPERTY_BOOL bool
 

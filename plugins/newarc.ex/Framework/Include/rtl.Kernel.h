@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Rtl.Base.h"
 
 extern HANDLE RtlCreateEvent  (const TCHAR *EventName = NULL);

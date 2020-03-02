@@ -1,4 +1,4 @@
-
+﻿
 void mnuCommandLinesAndParams(ArchiveManagerConfig* pCfg)
 {
 	Array<ArchiveFormat*> formats;

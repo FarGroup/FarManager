@@ -1,4 +1,4 @@
-#ifndef FARFMT_HPP
+﻿#ifndef FARFMT_HPP
 #define FARFMT_HPP
 /*
   FMT.HPP

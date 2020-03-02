@@ -1,4 +1,4 @@
-#include "msg.h"
+﻿#include "msg.h"
 #include "plugin.h"
 #include "guids.hpp"
 

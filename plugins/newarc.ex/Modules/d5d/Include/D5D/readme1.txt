@@ -1,5 +1,5 @@
-Dragon UnPACKer 5 Plugin SDK (PR-2 - Preview Release 2)                Freeware
-�Copyright 2002 Alex Devilliers / Dragon Software                    12-09-2002
+﻿Dragon UnPACKer 5 Plugin SDK (PR-2 - Preview Release 2)                Freeware
+©Copyright 2002 Alex Devilliers / Dragon Software                    12-09-2002
 ===============================================================================
 
 This plugin SDK is compatible with Dragon UnPACKer 5.0.0 Beta 1:

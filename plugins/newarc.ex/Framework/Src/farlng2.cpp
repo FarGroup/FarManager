@@ -1,4 +1,4 @@
-#include "FarPluginBase.hpp"
+﻿#include "FarPluginBase.hpp"
 #include "SystemApi.hpp"
 #include "FarApi.hpp"
 #include "FarLng2.hpp"

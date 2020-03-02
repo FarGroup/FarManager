@@ -1,4 +1,4 @@
-#include <all_far.h>
+ï»¿#include <all_far.h>
 #pragma hdrstop
 
 #include "Int.h"
@@ -438,26 +438,26 @@ abort:
 /* abort using RFC959 recommended ffIP,SYNC sequence  */
 /*
   WarFTP
-  |->âABOR
+  |->Ã¢ABOR
   |<-226 Transfer complete. 39600000 bytes in 18.84 sec. (2052.974 Kb/s)
   |<-225 ABOR command successful.
 
   FreeBSD, SunOS
-  |->òABOR
+  |->Ã²ABOR
   |<-426 Transfer aborted. Data connection closed.
   |<-226 Abort successful
 
   QNX
-  |->âABOR
+  |->Ã¢ABOR
   |<-226 Transfer complete.
   |<-225 ABOR command successful.
 
   IIS
-  |->âABOR
+  |->Ã¢ABOR
   |<-225 ABOR command successful.
 
   QNX
-  |->òABOR
+  |->Ã²ABOR
   |<-452 Error writing file: No child processes.
   |<-225 ABOR command successful.
 
@@ -466,9 +466,9 @@ abort:
   <- 226 Transfer complete. 11200000 bytes in 2 sec. (5600.00 Kb/s).
 
   ??
-  ->òABOR
+  ->Ã²ABOR
   <-450 Transfer aborted. Link to file server lost.
-  <-500 ÿôÿòABOR not understood
+  <-500 Ã¿Ã´Ã¿Ã²ABOR not understood
 */
 BOOL Connection::SendAbort(SOCKET din)
 {

@@ -1,4 +1,4 @@
-/* lusercontrol.c */
+﻿/* lusercontrol.c */
 
 #include "ustring.h"
 #include "util.h"

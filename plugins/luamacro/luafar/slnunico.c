@@ -1,4 +1,4 @@
-/*
+﻿/*
 *	Selene Unicode/UTF-8
 *	This additions
 *	Copyright (c) 2005 Malete Partner, Berlin, partner@malete.org

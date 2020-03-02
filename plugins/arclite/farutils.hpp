@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 extern std::wstring get_error_dlg_title();
 

@@ -1,4 +1,4 @@
-#ifndef __TMPCFG_HPP__
+﻿#ifndef __TMPCFG_HPP__
 #define __TMPCFG_HPP__
 
 typedef struct options_s

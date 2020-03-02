@@ -1,4 +1,4 @@
-#include <wbemidl.h>
+﻿#include <wbemidl.h>
 #include "Proclist.hpp"
 #include "perfthread.hpp"
 

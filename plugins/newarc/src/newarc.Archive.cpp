@@ -1,4 +1,4 @@
-#include "newarc.h"
+Ôªø#include "newarc.h"
 
 bool GetFileInfo (
 		const char *lpFileName,
@@ -107,7 +107,7 @@ void doFrame (int X, int Y, int Width, int Height, char *Header, bool Shadow)
 	}
 
 	memset (Line, 0, Width+1);
-	memset (Line,'Õ',Width-6);
+	memset (Line,'√ç',Width-6);
 
 	Info.Text (X+3,Y+1,Color,Line);
 	Info.Text (X+3,Y2-1,Color,Line);
@@ -120,15 +120,15 @@ void doFrame (int X, int Y, int Width, int Height, char *Header, bool Shadow)
 
 	for (y = Y+1; y <= Y2-1; y++)
    	{
-		Info.Text (X+3,y,Color,"∫");
-		Info.Text (X2-3,y,Color,"∫");
+		Info.Text (X+3,y,Color,"¬∫");
+		Info.Text (X2-3,y,Color,"¬∫");
 	}
 
 	Color = FarGetColor(COL_DIALOGBOX);
-	Info.Text (X+3,Y+1,Color,"…");
-	Info.Text (X2-3,Y2-1,Color,"º");
-	Info.Text (X+3,Y2-1,Color,"»");
-	Info.Text (X2-3,Y+1,Color,"ª");
+	Info.Text (X+3,Y+1,Color,"√â");
+	Info.Text (X2-3,Y2-1,Color,"¬º");
+	Info.Text (X+3,Y2-1,Color,"√à");
+	Info.Text (X2-3,Y+1,Color,"¬ª");
 
 	if (Header)
 	{

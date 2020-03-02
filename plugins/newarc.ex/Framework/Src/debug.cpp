@@ -1,4 +1,4 @@
-#include <debug.h>
+﻿#include <debug.h>
 #include <stdio.h>
 
 void __cdecl __debug (const TCHAR *format, ...)

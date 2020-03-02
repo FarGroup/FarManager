@@ -418,7 +418,7 @@ bool clipboard::GetHDROPAsText(string& data) const
 
 	const auto StartA=reinterpret_cast<const char*>(Files.get()) + Files->pFiles;
 
-	const auto Eol = eol::str(eol::system());
+	const auto Eol = eol::system.str();
 	if (Files->fWide)
 	{
 		const auto Start = reinterpret_cast<const wchar_t*>(StartA);

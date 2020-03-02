@@ -1,4 +1,4 @@
-/*
+﻿/*
   RAR.CPP
 
   Second-level plugin module for FAR Manager and MultiArc plugin

@@ -1,4 +1,4 @@
-#ifndef _NA7Z_
+﻿#ifndef _NA7Z_
 #define _NA7Z_
 
 #include <Rtl.Base.h>

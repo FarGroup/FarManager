@@ -1,4 +1,4 @@
-#ifndef __MARCLNG_HPP__
+﻿#ifndef __MARCLNG_HPP__
 #define __MARCLNG_HPP__
 
 enum LanguageID

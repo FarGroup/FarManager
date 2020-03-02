@@ -1,4 +1,4 @@
-#ifndef _MENUDLG_H_
+﻿#ifndef _MENUDLG_H_
 #define _MENUDLG_H_
 
 #include <windows.h>

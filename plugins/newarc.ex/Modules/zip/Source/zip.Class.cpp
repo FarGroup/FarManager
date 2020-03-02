@@ -1,4 +1,4 @@
-#include "zip.h"
+﻿#include "zip.h"
 
 void ConvertSlashes (char *lpFileName)
 {

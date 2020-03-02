@@ -1,4 +1,4 @@
-#include "rar.h"
+п»ї#include "rar.h"
 
 RarModule::RarModule (
 		const TCHAR *lpFileName
@@ -100,7 +100,7 @@ int RarArchive::GetArchiveItem (
 
 		pItem->lpFileName = StrDuplicate(UNICODE_NAME(fileHeader->FileName));
 
-		pItem->dwFileAttributes = (BYTE)(fileHeader->FileAttr >> 16); //бред!
+		pItem->dwFileAttributes = (BYTE)(fileHeader->FileAttr >> 16); //Р±СЂРµРґ!
 
 		if ( (fileHeader->Flags & 0x04) == 0x04 )
 			pItem->dwFlags |= AIF_CRYPTED;
@@ -172,7 +172,7 @@ int __stdcall RarArchive::RarCallback (
 	{
 		if ( !pArchive->Callback (AM_PROCESS_DATA, nParam1, (LONG_PTR)nParam2) )
 		{
-			pArchive->m_bAborted = true; // а нужно ли...
+			pArchive->m_bAborted = true; // Р° РЅСѓР¶РЅРѕ Р»Рё...
 			return -1;
 		}
 	}

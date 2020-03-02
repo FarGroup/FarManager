@@ -1,4 +1,4 @@
-#ifndef __DETECT_HPP__
+﻿#ifndef __DETECT_HPP__
 #define __DETECT_HPP__
 
 extern int IsTarHeader(const unsigned char *Data,int DataSize);

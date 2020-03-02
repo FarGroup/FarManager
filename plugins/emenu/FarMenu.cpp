@@ -1,4 +1,4 @@
-#include "FarMenu.h"
+﻿#include "FarMenu.h"
 #include "Plugin.h"
 #include "guid.hpp"
 #include <cassert>

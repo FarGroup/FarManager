@@ -1,4 +1,4 @@
-bool msgError(const TCHAR* lpErrorString)
+﻿bool msgError(const TCHAR* lpErrorString)
 {
 	FarMessage message(FMSG_WARNING);
 

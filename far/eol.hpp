@@ -47,19 +47,25 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class eol
 {
 public:
-	enum class type : char
-	{
-		none = 0,
+	eol();
+
+	static const eol
+		none,
 		win,      // <CR><LF>      \r\n
 		unix,     // <LF>          \n
 		mac,      // <CR>          \r
 		bad_win,  // <CR><CR><LF>  \r\r\n
-	};
+		system;   // win
 
-	static type system();
+	static eol parse(string_view Value);
+	string_view str() const;
+	bool operator==(const eol& rhs) const;
+	bool operator!=(const eol& rhs) const;
 
-	static string_view str(type Value);
-	static type parse(string_view Value);
+private:
+	explicit eol(char Type);
+
+	char m_Type;
 };
 
 #endif // EOL_HPP_F17D2D67_EAFD_480A_A1DA_92894204FB5A

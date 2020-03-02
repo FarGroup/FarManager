@@ -1,4 +1,4 @@
-#include "7z.h"
+п»ї#include "7z.h"
 #include "Guid.h"
 #include "commands.h"
 #include "detectarchive.h"
@@ -10,14 +10,14 @@ const unsigned char GZipSig[]     = {0x1F, 0x8B};
 const unsigned char ZSig[]        = {0x1F, 0x9D};
 const unsigned char RpmSig[]      = {0xED, 0xAB, 0xEE, 0xDB};
 const unsigned char DebSig[]      = {'!', '<', 'a', 'r', 'c', 'h', '>', 0x0A, 'd', 'e', 'b', 'i', 'a', 'n', '-', 'b', 'i', 'n', 'a', 'r', 'y'};
-const unsigned char CpioSig[]     = {'0', '7', '0', '7', '0'}; //BUGBUG: ўа®¤Ґ ­Ґ б®ўбҐ¬ в®з­®
+const unsigned char CpioSig[]     = {'0', '7', '0', '7', '0'}; //BUGBUG: РІСЂРѕРґРµ РЅРµ СЃРѕРІСЃРµРј С‚РѕС‡РЅРѕ
 const unsigned char ChmSig[]      = {'I', 'T', 'S', 'F'};
 const unsigned char WimSig[]      = {'M', 'S', 'W', 'I', 'M', 0, 0, 0};
 const unsigned char CompoundSig[] = {0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1};
 const unsigned char ELFSig[]      = {0x7F, 'E', 'L', 'F'};
 const unsigned char MubSig[]      = {0xCA, 0xFE, 0xBA, 0xBE, 0, 0, 0};
 const unsigned char XarSig[]      = {'x', 'a', 'r', '!', 0, 0x1C};
-const unsigned char DmgSig[]      = {0x78, 0xDA}; //BUGBUG: вгЇ® ­ гЈ ¤ Ї®бв ўЁ«, ў вҐе 2-ге dmg зв® п ўЁ¤Ґ« Ўл«® в Є.
+const unsigned char DmgSig[]      = {0x78, 0xDA}; //BUGBUG: С‚СѓРїРѕ РЅР°СѓРіР°Рґ РїРѕСЃС‚Р°РІРёР», РІ С‚РµС… 2-СѓС… dmg С‡С‚Рѕ СЏ РІРёРґРµР» Р±С‹Р»Рѕ С‚Р°Рє.
 const unsigned char XzSig[]       = {0xFD, '7' , 'z', 'X', 'Z', '\0'};
 const unsigned char VhdSig[]      = { 'c', 'o', 'n', 'e', 'c', 't', 'i', 'x', 0, 0 };
 const unsigned char MbrSig[]      = { 1, 1, 0 };
@@ -499,8 +499,8 @@ bool __stdcall SevenZipArchive::pOpenArchive (
 					}
 					else
 					{
-						//HACK!!! цинично показываем пустую панель при неправильном пароле на
-						//листинге. а то Far неадекватно воспринимает FALSE из GetFindData
+						//HACK!!! РЋС€СЌС€СћСЌСЋ СЏСЋСЉСЂС‡в€љС‚СЂС…СЊ СЏС”С‘Р„С”в–  СЏСЂСЌС…С‹в„– СЏРЃС€ СЌС…СЏРЃСЂС‚С€С‹в„–СЌСЋСЊ СЏСЂРЃСЋС‹С… СЌСЂ
+						//С‹С€С‘Р„С€СЌСѓС…. СЂ Р„СЋ Far СЌС…СЂС„С…СЉС‚СЂР„СЌСЋ С‚СЋС‘СЏРЃС€СЌС€СЊСЂС…Р„ FALSE С€С‡ GetFindData
 
 						if ( m_bListPassword )
 						{
@@ -697,7 +697,7 @@ bool __stdcall SevenZipArchive::pDelete (
 	{
 		pointer_array<ArchiveUpdateItem*> indicies (ARRAY_OPTIONS_DELETE);
 
-		for (unsigned int i = 0; i < nArchiveItemsNumber; i++) //лажа полная написана
+		for (unsigned int i = 0; i < nArchiveItemsNumber; i++) //С‹СЂС†СЂ СЏСЋС‹СЌСЂВ  СЌСЂСЏС€С‘СЂСЌСЂ
 		{
 			bool bFound = false;
 

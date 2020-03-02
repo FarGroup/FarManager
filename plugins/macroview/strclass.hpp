@@ -1,4 +1,4 @@
-#ifndef STR_CLASS_INCLUDED
+﻿#ifndef STR_CLASS_INCLUDED
 #define STR_CLASS_INCLUDED
 
 class TStrList

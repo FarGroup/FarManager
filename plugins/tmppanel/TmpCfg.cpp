@@ -1,4 +1,4 @@
-/*
+﻿/*
 TMPCFG.CPP
 
 Temporary panel configuration

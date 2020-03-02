@@ -1,4 +1,4 @@
-#include <windows.h>
+﻿#include <windows.h>
 #include <limits.h>
 
 #if defined(__BORLANDC__)

@@ -242,7 +242,7 @@ void Message::Init(
 
 	string strClipText;
 
-	const auto Eol = eol::str(eol::system());
+	const auto Eol = eol::system.str();
 
 	if (!Title.empty())
 	{

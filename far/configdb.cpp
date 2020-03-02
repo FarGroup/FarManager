@@ -2470,12 +2470,12 @@ void config_provider::Export(const string& File)
 	CreateShortcutsConfig()->Export(Representation);
 
 	{
+		const auto Ext = L"*.db"sv;
 		//TODO: export local plugin settings
 		auto& e = CreateChild(root, "pluginsconfig");
-		for(auto& i: os::fs::enum_files(path::join(Global->Opt->ProfilePath, L"PluginsData"sv, L"*.db"sv)))
+		for(auto& i: os::fs::enum_files(path::join(Global->Opt->ProfilePath, L"PluginsData"sv, Ext)))
 		{
-			i.FileName.resize(i.FileName.size()-3);
-			inplace::upper(i.FileName);
+			i.FileName.resize(i.FileName.size() - Ext.size());
 			if (std::regex_search(i.FileName, uuid_regex()))
 			{
 				auto& PluginRoot = CreateChild(e, "plugin");
@@ -2525,7 +2525,7 @@ void config_provider::Import(const string& File)
 		const auto guid = plugin->Attribute("guid");
 		if (!guid)
 			continue;
-		const auto Guid = upper(encoding::utf8::get_chars(guid));
+		const auto Guid = encoding::utf8::get_chars(guid);
 
 		if (std::regex_search(Guid, uuid_regex()))
 		{

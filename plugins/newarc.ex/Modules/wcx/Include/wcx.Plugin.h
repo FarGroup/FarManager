@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 typedef HANDLE (__stdcall *PLUGINOPENARCHIVE)(tOpenArchiveData* ArchiveData);
 typedef HANDLE (__stdcall *PLUGINOPENARCHIVEW)(tOpenArchiveDataW* ArchiveData);

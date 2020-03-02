@@ -1,4 +1,4 @@
-#define _FAR_NO_NAMELESS_UNIONS
+п»ї#define _FAR_NO_NAMELESS_UNIONS
 #define _FAR_USE_FARFINDDATA
 #include <CRT/crt.hpp>
 #include "plugin.hpp"
@@ -80,13 +80,13 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom, INT_PTR Item)
 {
 	::OpenFrom=OpenFrom;
 
-	// создаем экземпляр класса для работы с реестром
+	// СЃРѕР·РґР°РµРј СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ СЂРµРµСЃС‚СЂРѕРј
 	if (!Reg)
 		Reg=new TReg;
 
 	Reg->SetRootKey(HKEY_CURRENT_USER);
 
-	// создаем экземпляр Macro browser'а
+	// СЃРѕР·РґР°РµРј СЌРєР·РµРјРїР»СЏСЂ Macro browser'Р°
 	if (!Macro)
 		Macro=new TMacroView;
 
@@ -132,13 +132,13 @@ void WINAPI EXP_NAME(ExitFAR)()
 
 int WINAPI EXP_NAME(Configure)(int ItemNumber)
 {
-	// создаем экземпляр класса для работы с реестром
+	// СЃРѕР·РґР°РµРј СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ СЂРµРµСЃС‚СЂРѕРј
 	if (!Reg)
 		Reg=new TReg;
 
 	Reg->SetRootKey(HKEY_CURRENT_USER);
 
-	// создаем экземпляр Macro browser'а
+	// СЃРѕР·РґР°РµРј СЌРєР·РµРјРїР»СЏСЂ Macro browser'Р°
 	if (!Macro)
 		Macro=new TMacroView;
 

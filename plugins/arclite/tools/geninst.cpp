@@ -1,4 +1,4 @@
-void geninst(const std::deque<std::wstring>& params) {
+﻿void geninst(const std::deque<std::wstring>& params) {
   std::wstring install_target(L"install_project: $(INSTALL)");
   for (unsigned i = 0; i < params.size(); ++i) {
     std::wstring file_path(params[i]);

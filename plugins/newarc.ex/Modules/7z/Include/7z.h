@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #define _M(id) (TCHAR*)Info.GetMsg(Info.ModuleNumber, id)
 

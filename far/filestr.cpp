@@ -154,13 +154,13 @@ bool enum_lines::fill() const
 }
 
 template<typename T>
-bool enum_lines::GetTString(std::basic_string<T>& To, eol::type& Eol, bool BigEndian) const
+bool enum_lines::GetTString(std::basic_string<T>& To, eol& Eol, bool BigEndian) const
 {
 	To.clear();
 
 	if (m_CrCr)
 	{
-		Eol = eol::type::mac;
+		Eol = eol::mac;
 		m_CrCr = false;
 		return true;
 	}
@@ -176,13 +176,13 @@ bool enum_lines::GetTString(std::basic_string<T>& To, eol::type& Eol, bool BigEn
 	{
 		if (Str.front() == EolLf)
 		{
-			Eol = eol::type::win;
+			Eol = eol::win;
 			return 2;
 		}
 
 		if (Str.front() != EolCr)
 		{
-			Eol = eol::type::mac;
+			Eol = eol::mac;
 			return 1;
 		}
 
@@ -194,11 +194,11 @@ bool enum_lines::GetTString(std::basic_string<T>& To, eol::type& Eol, bool BigEn
 
 		if (Str[1] == EolLf)
 		{
-			Eol = eol::type::bad_win;
+			Eol = eol::bad_win;
 			return 3;
 		}
 
-		Eol = eol::type::mac;
+		Eol = eol::mac;
 		return 1;
 	};
 
@@ -211,7 +211,7 @@ bool enum_lines::GetTString(std::basic_string<T>& To, eol::type& Eol, bool BigEn
 	{
 		if (m_Data.empty() && !fill())
 		{
-			Eol = eol::type::none;
+			Eol = eol::none;
 			return !To.empty();
 		}
 
@@ -230,7 +230,7 @@ bool enum_lines::GetTString(std::basic_string<T>& To, eol::type& Eol, bool BigEn
 
 		if (StrData[EolPos] == EolLf)
 		{
-			Eol = eol::type::unix;
+			Eol = eol::unix;
 			m_Data.remove_prefix(sizeof(T));
 			return true;
 		}
@@ -249,7 +249,7 @@ bool enum_lines::GetTString(std::basic_string<T>& To, eol::type& Eol, bool BigEn
 
 		if (!fill())
 		{
-			Eol = eol::type::mac;
+			Eol = eol::mac;
 			return true;
 		}
 
@@ -258,7 +258,7 @@ bool enum_lines::GetTString(std::basic_string<T>& To, eol::type& Eol, bool BigEn
 	}
 }
 
-bool enum_lines::GetString(string_view& Str, eol::type& Eol) const
+bool enum_lines::GetString(string_view& Str, eol& Eol) const
 {
 	if (IsUnicodeCodePage(m_CodePage))
 	{
@@ -464,87 +464,87 @@ TEST_CASE("enum_lines")
 	static const struct
 	{
 		string_view Str;
-		std::initializer_list<const std::pair<string_view, eol::type>> Result;
+		std::initializer_list<const std::pair<string_view, eol>> Result;
 	}
 	Tests[]
 	{
 		{ L""sv, {
 		}},
 		{ L"dQw4w9WgXcQ"sv, {
-			{ L"dQw4w9WgXcQ"sv, eol::type::none },
+			{ L"dQw4w9WgXcQ"sv, eol::none },
 		}},
 		{ L"\r"sv, {
-			{ L""sv, eol::type::mac },
+			{ L""sv, eol::mac },
 		}},
 		{ L"\n"sv, {
-			{ L""sv, eol::type::unix },
+			{ L""sv, eol::unix },
 		}},
 		{ L"\r\n"sv, {
-			{ L""sv, eol::type::win },
+			{ L""sv, eol::win },
 		}},
 		{ L"\r\r\n"sv, {
-			{ L""sv, eol::type::bad_win },
+			{ L""sv, eol::bad_win },
 		}},
 		{ L"Oi!\r"sv, {
-			{ L"Oi!"sv, eol::type::mac },
+			{ L"Oi!"sv, eol::mac },
 		}},
 		{ L"Oi!\n"sv, {
-			{ L"Oi!"sv, eol::type::unix },
+			{ L"Oi!"sv, eol::unix },
 		}},
 		{ L"Oi!\r\n"sv, {
-			{ L"Oi!"sv, eol::type::win },
+			{ L"Oi!"sv, eol::win },
 		}},
 		{ L"Oi!\r\r\n"sv, {
-			{ L"Oi!"sv, eol::type::bad_win },
+			{ L"Oi!"sv, eol::bad_win },
 		}},
 		{ L"\rOi!"sv, {
-			{ L""sv,    eol::type::mac },
-			{ L"Oi!"sv, eol::type::none },
+			{ L""sv,    eol::mac },
+			{ L"Oi!"sv, eol::none },
 		}},
 		{ L"\nOi!"sv, {
-			{ L""sv,    eol::type::unix },
-			{ L"Oi!"sv, eol::type::none },
+			{ L""sv,    eol::unix },
+			{ L"Oi!"sv, eol::none },
 		}},
 		{ L"\r\nOi!"sv, {
-			{ L""sv,    eol::type::win },
-			{ L"Oi!"sv, eol::type::none },
+			{ L""sv,    eol::win },
+			{ L"Oi!"sv, eol::none },
 		}},
 		{ L"\r\r\nOi!"sv, {
-			{ L""sv,    eol::type::bad_win },
-			{ L"Oi!"sv, eol::type::none },
+			{ L""sv,    eol::bad_win },
+			{ L"Oi!"sv, eol::none },
 		}},
 		{ L"\r\r"sv, {
-			{ L""sv, eol::type::mac },
-			{ L""sv, eol::type::mac },
+			{ L""sv, eol::mac },
+			{ L""sv, eol::mac },
 		}},
 		{ L"\n\n"sv, {
-			{ L""sv, eol::type::unix },
-			{ L""sv, eol::type::unix },
+			{ L""sv, eol::unix },
+			{ L""sv, eol::unix },
 		}},
 		{ L"\r\n\r\n"sv, {
-			{ L""sv, eol::type::win },
-			{ L""sv, eol::type::win },
+			{ L""sv, eol::win },
+			{ L""sv, eol::win },
 		}},
 		{ L"\r\r\n\r\r\n"sv, {
-			{ L""sv, eol::type::bad_win },
-			{ L""sv, eol::type::bad_win },
+			{ L""sv, eol::bad_win },
+			{ L""sv, eol::bad_win },
 		}},
 		{ L"\n\r\r\n\n\r\r\r\r\n\r\n\r\r"sv, {
-			{ L""sv, eol::type::unix },
-			{ L""sv, eol::type::bad_win },
-			{ L""sv, eol::type::unix },
-			{ L""sv, eol::type::mac },
-			{ L""sv, eol::type::mac },
-			{ L""sv, eol::type::bad_win },
-			{ L""sv, eol::type::win },
-			{ L""sv, eol::type::mac },
-			{ L""sv, eol::type::mac },
+			{ L""sv, eol::unix },
+			{ L""sv, eol::bad_win },
+			{ L""sv, eol::unix },
+			{ L""sv, eol::mac },
+			{ L""sv, eol::mac },
+			{ L""sv, eol::bad_win },
+			{ L""sv, eol::win },
+			{ L""sv, eol::mac },
+			{ L""sv, eol::mac },
 		}},
 		{ L"Ho\nho\rho!\r\n\r\r\n"sv, {
-			{ L"Ho"sv,  eol::type::unix },
-			{ L"ho"sv,  eol::type::mac },
-			{ L"ho!"sv, eol::type::win },
-			{ L""sv,    eol::type::bad_win },
+			{ L"Ho"sv,  eol::unix },
+			{ L"ho"sv,  eol::mac },
+			{ L"ho!"sv, eol::win },
+			{ L""sv,    eol::bad_win },
 		}},
 	};
 

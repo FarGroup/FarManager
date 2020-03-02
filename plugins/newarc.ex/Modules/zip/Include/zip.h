@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "FarPluginBase.hpp"
 #include "FarDialogBase.hpp"
 #include "StringBase.hpp"

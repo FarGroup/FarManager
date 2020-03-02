@@ -1,4 +1,4 @@
-enum enumUnpackFiles {
+﻿enum enumUnpackFiles {
 	ID_UP_TITLE,
 	ID_UP_UNPACKTO,
 	ID_UP_UNPACKTOEDIT,

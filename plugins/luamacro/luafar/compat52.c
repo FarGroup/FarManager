@@ -1,4 +1,4 @@
-/* Started: 2012-03-27 */
+﻿/* Started: 2012-03-27 */
 
 #include "compat52.h"
 

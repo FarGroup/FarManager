@@ -1,4 +1,4 @@
-#ifndef __FARZLIB_HPP__
+﻿#ifndef __FARZLIB_HPP__
 #define __FARZLIB_HPP__
 
 #include "zlib.h"

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #define E_BAD_FORMAT MAKE_HRESULT(SEVERITY_ERROR, FACILITY_ITF, 0x201)
 

@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 
 struct ShortString {
 	unsigned char Length;
@@ -44,7 +44,7 @@ typedef void (__stdcall *PERCENTCALLBACK)(unsigned char p);
 typedef ShortString (__stdcall *LANGUAGECALLBACK)(ShortString x);
 */
 
-//эти callback'и не stdcall, нет, идиоты. реальные прототипы выше.
+//СЌС‚Рё callback'Рё РЅРµ stdcall, РЅРµС‚, РёРґРёРѕС‚С‹. СЂРµР°Р»СЊРЅС‹Рµ РїСЂРѕС‚РѕС‚РёРїС‹ РІС‹С€Рµ.
 typedef void (*PERCENTCALLBACK)();
 typedef void (*LANGUAGECALLBACK)();
 typedef void (*MESSAGEBOXCALLBACK)();

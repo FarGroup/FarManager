@@ -1,4 +1,4 @@
-#ifndef __NETCLASS_HPP__
+﻿#ifndef __NETCLASS_HPP__
 #define __NETCLASS_HPP__
 
 #ifdef _MSC_VER

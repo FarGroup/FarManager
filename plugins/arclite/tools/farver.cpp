@@ -1,4 +1,4 @@
-std::wstring extract_version_number(const std::wstring& text, const std::wstring& ver_name) {
+﻿std::wstring extract_version_number(const std::wstring& text, const std::wstring& ver_name) {
   size_t pos = text.find(ver_name);
   CHECK(pos != std::wstring::npos);
   pos += ver_name.size();

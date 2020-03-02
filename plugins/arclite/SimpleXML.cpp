@@ -1,4 +1,4 @@
-#include "SimpleXML.hpp"
+﻿#include "SimpleXML.hpp"
 namespace SimpleXML {
 
 #if defined(_WIN32) && defined(_MSC_VER) && defined(_DEBUG)

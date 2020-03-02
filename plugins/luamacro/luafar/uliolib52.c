@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** uliolib52.c, copyright 2010-2012, Shmuel Zeigerman.
 ** A modification of Standard I/O (and system) library
 ** giving it capability of working with Unicode paths.

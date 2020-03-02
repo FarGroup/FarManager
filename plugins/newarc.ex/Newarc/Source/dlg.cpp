@@ -1,4 +1,4 @@
-
+﻿
 ///////
 
 void OperationErrorList::AddError(const TCHAR* lpFileName)

@@ -1,4 +1,4 @@
-#include "d5d.h"
+﻿#include "d5d.h"
 
 D5DLanguage lng; //bugbug
 

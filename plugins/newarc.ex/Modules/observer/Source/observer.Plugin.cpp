@@ -1,4 +1,4 @@
-#include "observer.h"
+ο»Ώ#include "observer.h"
 
 ObserverPlugin::ObserverPlugin(const GUID& uid)
 {
@@ -29,7 +29,7 @@ bool ObserverPlugin::Load(const TCHAR* lpModuleName)
 		m_pfnLoadSubModule = (LoadSubModuleFunc)GetProcAddress(m_hModule, "LoadSubModule");
 		m_pfnUnloadSubModule = (UnloadSubModuleFunc)GetProcAddress(m_hModule, "UnloadSubModule");
 		
-		if ( m_pfnLoadSubModule && m_pfnUnloadSubModule ) //β ξαρεπβεπε ςΰκ
+		if ( m_pfnLoadSubModule && m_pfnUnloadSubModule ) //Π² ΠΎΠ±ΡΠµΡ€Π²ΠµΡ€Πµ Ρ‚Π°ΠΊ
 		{
 			ModuleLoadParameters params;
 			memset(&params, 0, sizeof(params));

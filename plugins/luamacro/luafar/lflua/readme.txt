@@ -1,4 +1,4 @@
-lflua.exe is a "Unicode Lua Interpreter". In addition to lua51.dll,
+﻿lflua.exe is a "Unicode Lua Interpreter". In addition to lua51.dll,
 it is dynamically linked with luafar3.dll. The interpreter works identically
 to the standard lua.exe except the following additions and changes:
 

@@ -1,4 +1,4 @@
-#define TOOLS_TOOL
+﻿#define TOOLS_TOOL
 
 #define NOMINMAX 1
 #include <windows.h>

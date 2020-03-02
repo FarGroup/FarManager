@@ -1,4 +1,4 @@
-#include <FarPluginBase.hpp>
+Ôªø#include <FarPluginBase.hpp>
 #include <stdio.h>
 #include "zip.class.h"
 
@@ -59,7 +59,7 @@ int OnQueryArchive (QueryArchiveStruct *pQAS)
 		}
 	}
 
-	return NAERROR_INTERNAL; //† ¢Æ‚ Ì‚Æ ≠•¢•‡≠Æ. §Æ´¶•≠ °Î‚Ï ¢·• ‡†¢≠Æ SUCCESS, ≠Æ INVALID_HANDLE_VALUE
+	return NAERROR_INTERNAL; //–∞ –≤–æ—Ç —ç—Ç–æ –Ω–µ–≤–µ—Ä–Ω–æ. –¥–æ–ª–∂–µ–Ω –±—ã—Ç—å –≤—Å–µ —Ä–∞–≤–Ω–æ SUCCESS, –Ω–æ INVALID_HANDLE_VALUE
 }
 
 int OnOpenArchive (OpenArchiveStruct *pOAS)

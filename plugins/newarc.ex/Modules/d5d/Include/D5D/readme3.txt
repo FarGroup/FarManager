@@ -1,5 +1,5 @@
-Dragon UnPACKer 5 Plugin DK (PR-3 - Preview Release 3)                 Freeware
-�Copyright 2004 Alexande Devilliers                                  21-02-2004
+﻿Dragon UnPACKer 5 Plugin DK (PR-3 - Preview Release 3)                 Freeware
+©Copyright 2004 Alexande Devilliers                                  21-02-2004
 ===============================================================================
 
 This plugin development kit (PDK) is compatible with Dragon UnPACKer 5.0.0 RC3:

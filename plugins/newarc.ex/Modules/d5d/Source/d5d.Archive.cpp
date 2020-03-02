@@ -1,4 +1,4 @@
-#include "d5d.h"
+﻿#include "d5d.h"
 
 D5DArchive::D5DArchive(
 		D5DPlugin* pPlugin, 

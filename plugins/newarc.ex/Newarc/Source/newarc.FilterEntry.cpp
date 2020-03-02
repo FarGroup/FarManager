@@ -1,4 +1,4 @@
-#include "newarc.h"
+﻿#include "newarc.h"
 
 ArchiveFilterEntry::ArchiveFilterEntry()
 {

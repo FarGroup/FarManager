@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "newarc.h"
 
 #define PROCESS_CANCEL 0

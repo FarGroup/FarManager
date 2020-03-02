@@ -1,4 +1,4 @@
-#include "MultiArc.hpp"
+п»ї#include "MultiArc.hpp"
 #include "marclng.hpp"
 #include <farkeys.hpp>
 
@@ -292,7 +292,7 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
       lstrcpy(Command,Password);
       break;
     case 'C':
-      if(*CommentFileName) //второй раз сюда не лезем
+      if(*CommentFileName) //РІС‚РѕСЂРѕР№ СЂР°Р· СЃСЋРґР° РЅРµ Р»РµР·РµРј
         break;
       {
         *Command=0;
@@ -314,8 +314,8 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
         {
           DWORD Count;
           if(Info.InputBox(GetMsg(MComment), GetMsg(MInputComment), NULL, "", Buf, sizeof(Buf), NULL, 0))
-          //??тут можно и заполнить строку комментарием, но надо знать, файловый
-          //?? он или архивный. да и имя файла в архиве тоже надо знать...
+          //??С‚СѓС‚ РјРѕР¶РЅРѕ Рё Р·Р°РїРѕР»РЅРёС‚СЊ СЃС‚СЂРѕРєСѓ РєРѕРјРјРµРЅС‚Р°СЂРёРµРј, РЅРѕ РЅР°РґРѕ Р·РЅР°С‚СЊ, С„Р°Р№Р»РѕРІС‹Р№
+          //?? РѕРЅ РёР»Рё Р°СЂС…РёРІРЅС‹Р№. РґР° Рё РёРјСЏ С„Р°Р№Р»Р° РІ Р°СЂС…РёРІРµ С‚РѕР¶Рµ РЅР°РґРѕ Р·РЅР°С‚СЊ...
           {
             WriteFile(CommentFile, Buf, lstrlen(Buf), &Count, NULL);
             lstrcpy(Command, CommentFileName);

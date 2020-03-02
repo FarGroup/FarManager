@@ -1,4 +1,4 @@
-#include "FarRegistry.hpp"
+﻿#include "FarRegistry.hpp"
 
 int RegQueryStringArray (
 		HKEY hKey,

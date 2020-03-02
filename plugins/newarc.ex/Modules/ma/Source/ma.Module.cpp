@@ -1,4 +1,4 @@
-#include "ma.h"
+ï»¿#include "ma.h"
 
 // {BEDAF2F1-09EC-4F9E-A276-46C9E5C00266}
 MY_DEFINE_GUID(CLSID_ModuleMA, 0xbedaf2f1, 0x9ec, 0x4f9d, 0xa2, 0x76, 0x46, 0xc9, 0xe5, 0xc0, 0x2, 0x66);
@@ -94,7 +94,7 @@ bool MaModule::Load()
 		info->uFormats = pPlugin->GetNumberOfFormats();
 		info->pFormats = pPlugin->GetFormats();
 		info->lpModuleName = StrDuplicate(pPlugin->GetModuleName());
-		info->dwFlags = 0; //íå ïîääåðæèâàåì çàïðîñ îòäåëüíûõ ôîðìàòîâ
+		info->dwFlags = 0; //Ð½Ðµ Ð¿Ð¾Ð´Ð´ÐµÑ€Ð¶Ð¸Ð²Ð°ÐµÐ¼ Ð·Ð°Ð¿Ñ€Ð¾Ñ Ð¾Ñ‚Ð´ÐµÐ»ÑŒÐ½Ñ‹Ñ… Ñ„Ð¾Ñ€Ð¼Ð°Ñ‚Ð¾Ð²
 	}
 
 	return m_Plugins.count() > 0;

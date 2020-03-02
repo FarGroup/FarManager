@@ -1,4 +1,4 @@
-#include "regclass.hpp"
+﻿#include "regclass.hpp"
 
 BOOL IsRelative(TCHAR *Value)
 {

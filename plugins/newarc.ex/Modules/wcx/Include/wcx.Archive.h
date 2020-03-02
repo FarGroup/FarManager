@@ -1,4 +1,4 @@
-#include "wcx.h"
+﻿#include "wcx.h"
 
 class WcxArchive {
 

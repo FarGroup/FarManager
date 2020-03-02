@@ -1,4 +1,4 @@
-enum enumConfigure {
+﻿enum enumConfigure {
 	ID_CFG_TITLE,
 	ID_CFG_ARCHIVERSHOWALWAYS,
 	ID_CFG_ARCHIVERSHOWEDITVIEW,

@@ -1,4 +1,4 @@
-#ifdef __GNUC__
+п»ї#ifdef __GNUC__
 #include <cwchar>
 #define swprintf_s(buffer, size, format, ...) swprintf(buffer, format, __VA_ARGS__)
 #endif
@@ -328,10 +328,10 @@ CPlugin::EDoMenu CPlugin::DoMenu(LPWSTR szCmdLine, CallMode Mode)
     int UseGUISav=m_UseGUI;
     int GuiPosSav=m_GuiPos;
     if (m_UseGUI==2)
-      m_UseGUI = 0; //если [?] то при right click по дефолту текст меню
+      m_UseGUI = 0; //РµСЃР»Рё [?] С‚Рѕ РїСЂРё right click РїРѕ РґРµС„РѕР»С‚Сѓ С‚РµРєСЃС‚ РјРµРЅСЋ
     if(Mode == CALL_RIGHTCLICK)
     {
-      m_GuiPos=0; //покажем меню там где мышь
+      m_GuiPos=0; //РїРѕРєР°Р¶РµРј РјРµРЅСЋ С‚Р°Рј РіРґРµ РјС‹С€СЊ
     }
     EDoMenu enDoMenu = MenuForPanelOrCmdLine(szCmdLine);
     m_UseGUI=UseGUISav;
@@ -538,7 +538,7 @@ CPlugin::EDoMenu CPlugin::MenuForPanelOrCmdLine(LPWSTR szCmdLine/*=NULL*/
       {
         if (*szFName==L'\0')
         {
-          // это бывает для дисков (c:, c:\)
+          // СЌС‚Рѕ Р±С‹РІР°РµС‚ РґР»СЏ РґРёСЃРєРѕРІ (c:, c:\)
           szFName=pFiles[i];
         }
         auto_sz strDir(pFiles[i], szFName-pFiles[i]);
@@ -580,7 +580,7 @@ CPlugin::EDoMenu CPlugin::MenuForPanelOrCmdLine(LPWSTR szCmdLine/*=NULL*/
       auto_sz szFile(pFiles[i]);
       if (szFile.Len()==2 && L':'==szFile[1])
       {
-        // диск (c:)
+        // РґРёСЃРє (c:)
         szFile+=L"\\";
       }
       HRESULT hr=0;
@@ -705,7 +705,7 @@ bool CPlugin::GetFilesFromPanel(LPCWSTR** ppFiles, unsigned* pnFiles, unsigned* 
     LPCWSTR szFName=m_fsf.PointToName(*pstrCurDir);
     if (*szFName==L'\0')
     {
-      // это бывает для дисков (c:, c:\)
+      // СЌС‚Рѕ Р±С‹РІР°РµС‚ РґР»СЏ РґРёСЃРєРѕРІ (c:, c:\)
       szFName=*pstrCurDir;
     }
     static wchar_t szFNameTmp[1024];
@@ -812,7 +812,7 @@ CPlugin::EDoMenu CPlugin::DoMenu(LPSHELLFOLDER pCurFolder, LPCITEMIDLIST* pPiids
     pPreferredMenu=pCMenu3;
   }
 
-  // Решение дурацкой проблемы с падением в 2000 на paste
+  // Р РµС€РµРЅРёРµ РґСѓСЂР°С†РєРѕР№ РїСЂРѕР±Р»РµРјС‹ СЃ РїР°РґРµРЅРёРµРј РІ 2000 РЅР° paste
   if (m_bWin2K) pCMenu1.Detach();
 
   CHMenu oHMenu;
@@ -964,24 +964,24 @@ CPlugin::EDoMenu CPlugin::DoMenu(LPSHELLFOLDER pCurFolder, LPCITEMIDLIST* pPiids
       if (FAILED(pPreferredMenu->InvokeCommand(&cmici)))
       {
         // return DOMNU_ERR_INVOKE;
-        // Иногда здесь возвращается ошибка даже в
-        // нормальных ситуациях.
-        // Например, если занести это в реестр
+        // РРЅРѕРіРґР° Р·РґРµСЃСЊ РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ РѕС€РёР±РєР° РґР°Р¶Рµ РІ
+        // РЅРѕСЂРјР°Р»СЊРЅС‹С… СЃРёС‚СѓР°С†РёСЏС….
+        // РќР°РїСЂРёРјРµСЂ, РµСЃР»Рё Р·Р°РЅРµСЃС‚Рё СЌС‚Рѕ РІ СЂРµРµСЃС‚СЂ
 //[HKEY_CLASSES_ROOT\AllFileSystemObjects\shellex\ContextMenuHandlers\Copy To]
 //@="{C2FBB630-2971-11D1-A18C-00C04FD75D13}"
 //[HKEY_CLASSES_ROOT\AllFileSystemObjects\shellex\ContextMenuHandlers\Move To]
 //@="{C2FBB631-2971-11D1-A18C-00C04FD75D13}"
-        // , а потом вызвать один из добавившихся пунктов
-        // и нажать Esc.
+        // , Р° РїРѕС‚РѕРј РІС‹Р·РІР°С‚СЊ РѕРґРёРЅ РёР· РґРѕР±Р°РІРёРІС€РёС…СЃСЏ РїСѓРЅРєС‚РѕРІ
+        // Рё РЅР°Р¶Р°С‚СЊ Esc.
       }
 
-      // Эта функция решает проблему, когда
-      // после помещения файла в буфер и выхода из FARа
-      // буфер портился.
-      // проблема точно проявлялась на Build950 и XP
+      // Р­С‚Р° С„СѓРЅРєС†РёСЏ СЂРµС€Р°РµС‚ РїСЂРѕР±Р»РµРјСѓ, РєРѕРіРґР°
+      // РїРѕСЃР»Рµ РїРѕРјРµС‰РµРЅРёСЏ С„Р°Р№Р»Р° РІ Р±СѓС„РµСЂ Рё РІС‹С…РѕРґР° РёР· FARР°
+      // Р±СѓС„РµСЂ РїРѕСЂС‚РёР»СЃСЏ.
+      // РїСЂРѕР±Р»РµРјР° С‚РѕС‡РЅРѕ РїСЂРѕСЏРІР»СЏР»Р°СЃСЊ РЅР° Build950 Рё XP
       if (FAILED(OleFlushClipboard()))
       {
-        // иногда бывает E_FAIL
+        // РёРЅРѕРіРґР° Р±С‹РІР°РµС‚ E_FAIL
         //assert(0);
       }
     }
@@ -1014,8 +1014,8 @@ bool CPlugin::ShowGuiMenu(HMENU hMenu, LPCONTEXTMENU pMenu1, LPCONTEXTMENU2 pMen
       assert(0);
     }
   }
-  // Не устанавливаем родительское окно hFarWnd, т.к.
-  // окно мелькает если консольных окон несколько
+  // РќРµ СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј СЂРѕРґРёС‚РµР»СЊСЃРєРѕРµ РѕРєРЅРѕ hFarWnd, С‚.Рє.
+  // РѕРєРЅРѕ РјРµР»СЊРєР°РµС‚ РµСЃР»Рё РєРѕРЅСЃРѕР»СЊРЅС‹С… РѕРєРѕРЅ РЅРµСЃРєРѕР»СЊРєРѕ
   HWND hWnd=CreateDialogParam(m_hModule, MAKEINTRESOURCE(IDD_NULL), NULL, (DLGPROC)MenuDlgProc, (LPARAM)&DlgParam);
   assert(hWnd);
   if (!hWnd)
@@ -1130,9 +1130,9 @@ bool CPlugin::ShowTextMenu(HMENU hMenu, LPCONTEXTMENU pPreferredMenu, LPCONTEXTM
           szItem=L"{";
 
           wchar_t *Buf = new wchar_t[szSub.Len() + 1]();
-          //Получаем из shell32.dll шаблон, по которому формируются эти подсказки,
-          //(строковый ресурс #5380, "Opens the document with %s."),
-          //и убираем его из сабжевых строк. Для XP/2003.
+          //РџРѕР»СѓС‡Р°РµРј РёР· shell32.dll С€Р°Р±Р»РѕРЅ, РїРѕ РєРѕС‚РѕСЂРѕРјСѓ С„РѕСЂРјРёСЂСѓСЋС‚СЃСЏ СЌС‚Рё РїРѕРґСЃРєР°Р·РєРё,
+          //(СЃС‚СЂРѕРєРѕРІС‹Р№ СЂРµСЃСѓСЂСЃ #5380, "Opens the document with %s."),
+          //Рё СѓР±РёСЂР°РµРј РµРіРѕ РёР· СЃР°Р±Р¶РµРІС‹С… СЃС‚СЂРѕРє. Р”Р»СЏ XP/2003.
           LoadString(GetModuleHandle(L"shell32.dll"),5380,Buf,int(szSub.Len()+1));
           int i=0;
           while(Buf[i] && Buf[i]!=L'%')
@@ -1145,9 +1145,9 @@ bool CPlugin::ShowTextMenu(HMENU hMenu, LPCONTEXTMENU pPreferredMenu, LPCONTEXTM
           }
           delete[] Buf;
 
-          //На практике выходит что иногда выходят VERB'ы вида
-          //AboutA&bout и т.п., вот тут немного AI чтоб это убрать.
-          if (szSub.Len() > 3) //а просто так
+          //РќР° РїСЂР°РєС‚РёРєРµ РІС‹С…РѕРґРёС‚ С‡С‚Рѕ РёРЅРѕРіРґР° РІС‹С…РѕРґСЏС‚ VERB'С‹ РІРёРґР°
+          //AboutA&bout Рё С‚.Рї., РІРѕС‚ С‚СѓС‚ РЅРµРјРЅРѕРіРѕ AI С‡С‚РѕР± СЌС‚Рѕ СѓР±СЂР°С‚СЊ.
+          if (szSub.Len() > 3) //Р° РїСЂРѕСЃС‚Рѕ С‚Р°Рє
           {
             auto_sz szLeft, szRight;
 

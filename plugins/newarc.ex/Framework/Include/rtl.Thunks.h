@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Rtl.Base.h"
 
 #ifdef _WIN64

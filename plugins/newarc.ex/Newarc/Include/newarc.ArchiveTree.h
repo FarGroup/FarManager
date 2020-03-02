@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 #include "newarc.h"
 
 
@@ -83,8 +83,8 @@ public:
 
 		ArchiveTreeNode* pPath = this;
 
-		//пиздец, извините, срочно убрать
-		while ( (lpNameCopy[StrLength(lpNameCopy)-1] == _T('/')) || //бля, индусский код
+		//РїРёР·РґРµС†, РёР·РІРёРЅРёС‚Рµ, СЃСЂРѕС‡РЅРѕ СѓР±СЂР°С‚СЊ
+		while ( (lpNameCopy[StrLength(lpNameCopy)-1] == _T('/')) || //Р±Р»СЏ, РёРЅРґСѓСЃСЃРєРёР№ РєРѕРґ
 				(lpNameCopy[StrLength(lpNameCopy)-1] == _T('\\')) )
 				lpNameCopy[StrLength(lpNameCopy)-1] = 0;
 
@@ -174,7 +174,7 @@ public:
 	{
 		strPath = strFileName;
 
-		if ( level > 1 ) //первый после рута
+		if ( level > 1 ) //РїРµСЂРІС‹Р№ РїРѕСЃР»Рµ СЂСѓС‚Р°
 		{
 			string strPart;
 

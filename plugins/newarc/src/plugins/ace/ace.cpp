@@ -1,4 +1,4 @@
-#include <Rtl.Base.h>
+﻿#include <Rtl.Base.h>
 #include <FarPluginBase.hpp>
 #include "ace.class.h"
 #include "ace.h"

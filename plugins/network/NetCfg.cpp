@@ -1,4 +1,4 @@
-#include "NetCfg.hpp"
+﻿#include "NetCfg.hpp"
 #include "NetCommon.hpp"
 #include "NetFavorites.hpp"
 #include <DlgBuilder.hpp>

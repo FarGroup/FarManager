@@ -1,4 +1,4 @@
-#define PF_FLAG_QUOTE_SPACES		1 //Q
+п»ї#define PF_FLAG_QUOTE_SPACES		1 //Q
 #define PF_FLAG_QUOTE_ALL			2 //q
 #define PF_FLAG_USE_BACKSLASH		4 //S
 #define PF_FLAG_DIR_NAME_AS_MASK	8 //M
@@ -115,7 +115,7 @@ void WriteLine(HANDLE hFile, const TCHAR* lpLine, DWORD dwFlags)
 			true
 			);
 
-	//надо еще UTF-8 добавить и конвертацию OEM/ANSI
+	//РЅР°РґРѕ РµС‰Рµ UTF-8 РґРѕР±Р°РІРёС‚СЊ Рё РєРѕРЅРІРµСЂС‚Р°С†РёСЋ OEM/ANSI
 
 	if ( OptionIsOn(dwFlags, PF_FLAG_UTF16_CHARSET) )
 	{

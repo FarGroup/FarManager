@@ -142,7 +142,7 @@ struct UserMenu::UserMenuItem
 static string SerializeMenu(const UserMenu::menu_container& Menu)
 {
 	string Result;
-	const auto Eol = eol::str(eol::system());
+	const auto Eol = eol::system.str();
 
 	for (const auto& i: Menu)
 	{
@@ -190,7 +190,7 @@ static void ParseMenu(UserMenu::menu_container& Menu, range<enum_lines::iterator
 
 		if (!std::iswblank(MenuStr.front()))
 		{
-			size_t ChPos = MenuStr.find(L':');
+			auto ChPos = MenuStr.find(L':');
 
 			if (ChPos == string::npos)
 				continue;
@@ -290,7 +290,7 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 		if (SerialisedMenu.empty())
 		{
 			if (!os::fs::delete_file(MenuFileName))
-				throw MAKE_FAR_EXCEPTION(L"Can't delete file"sv);
+				throw MAKE_FAR_EXCEPTION(L"Can't delete the file"sv);
 
 			return;
 		}

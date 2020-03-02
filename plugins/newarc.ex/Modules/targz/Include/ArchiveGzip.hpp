@@ -1,4 +1,4 @@
-#ifndef __ARCHIVEGZIP_HPP__
+﻿#ifndef __ARCHIVEGZIP_HPP__
 #define __ARCHIVEGZIP_HPP__
 
 #include <plugin.hpp>

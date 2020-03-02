@@ -1,4 +1,4 @@
-#ifndef MACRO_INCLUDED
+п»ї#ifndef MACRO_INCLUDED
 
 #include <tchar.h>
 #include "plugin.hpp"
@@ -68,9 +68,9 @@ const TCHAR *MacroGroupShort[]=
 
 
 //----
-// позиция в этом массиве содержит номер позиции в массиве
-// MacroGroupShort, само значение означает откуда был запущен
-// плагин
+// РїРѕР·РёС†РёСЏ РІ СЌС‚РѕРј РјР°СЃСЃРёРІРµ СЃРѕРґРµСЂР¶РёС‚ РЅРѕРјРµСЂ РїРѕР·РёС†РёРё РІ РјР°СЃСЃРёРІРµ
+// MacroGroupShort, СЃР°РјРѕ Р·РЅР°С‡РµРЅРёРµ РѕР·РЅР°С‡Р°РµС‚ РѕС‚РєСѓРґР° Р±С‹Р» Р·Р°РїСѓС‰РµРЅ
+// РїР»Р°РіРёРЅ
 int GroupIndex[]=
 {
 	-1,9,-1,-1,-1,2,11,-1,-1,-1,-1,-1,-1,-1,-1,-1,
@@ -282,7 +282,7 @@ class TMacroView
 #ifdef UNICODE
 		// for EditDialog
 		wchar_t       _Button[/*BUTTONLEN*/70];
-		wchar_t       _Group[MAX_KEY_LEN]; //длинное название текущего раздела макроса
+		wchar_t       _Group[MAX_KEY_LEN]; //РґР»РёРЅРЅРѕРµ РЅР°Р·РІР°РЅРёРµ С‚РµРєСѓС‰РµРіРѕ СЂР°Р·РґРµР»Р° РјР°РєСЂРѕСЃР°
 		wchar_t       _Data[MAX_PATH_LEN];
 		wchar_t      *_DataPtr;
 		size_t        _DataPtrSize;

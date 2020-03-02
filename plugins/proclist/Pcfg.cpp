@@ -1,4 +1,4 @@
-#include <stdlib.h>
+﻿#include <stdlib.h>
 #include <PluginSettings.hpp>
 #include <DlgBuilder.hpp>
 #include "Proclist.hpp"

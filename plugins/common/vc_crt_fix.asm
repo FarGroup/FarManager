@@ -2,7 +2,7 @@
 
 ;Workaround for Visual C++ CRT incompatibility with old Windows versions
 
-;Copyright © 2010 Far Group
+;Copyright Â© 2010 Far Group
 ;All rights reserved.
 ;
 ;Redistribution and use in source and binary forms, with or without

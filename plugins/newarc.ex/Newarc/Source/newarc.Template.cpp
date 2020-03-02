@@ -1,4 +1,4 @@
-#include "newarc.h"
+п»ї#include "newarc.h"
 
 extern const GUID& STR2GUID(const TCHAR *lpStr);
 extern const TCHAR *GUID2STR(const GUID &uid);
@@ -147,7 +147,7 @@ void ArchiveTemplate::ToXml(TiXmlNode& node)
 
 	node.ToElement()->SetAttribute("name", strName);
 
-	//нечего мусорить в xml
+	//РЅРµС‡РµРіРѕ РјСѓСЃРѕСЂРёС‚СЊ РІ xml
 
 	if ( !strParams.IsEmpty() )
 	{

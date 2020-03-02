@@ -1,4 +1,4 @@
-void search_and_replace(std::wstring& text, const std::wstring& name, const std::wstring& value) {
+﻿void search_and_replace(std::wstring& text, const std::wstring& name, const std::wstring& value) {
   size_t pos = 0;
   while (true) {
     pos = text.find(name, pos);

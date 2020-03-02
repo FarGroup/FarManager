@@ -1,4 +1,4 @@
-#include "MultiArc.hpp"
+п»ї#include "MultiArc.hpp"
 #include "marclng.hpp"
 #include <dos.h>
 
@@ -82,7 +82,7 @@ const char *GetMsg(int MsgId)
 
 
 /* $ 13.09.2000 tran
-   запуск треда для ожидания момента убийства лист файла */
+   Р·Р°РїСѓСЃРє С‚СЂРµРґР° РґР»СЏ РѕР¶РёРґР°РЅРёСЏ РјРѕРјРµРЅС‚Р° СѓР±РёР№СЃС‚РІР° Р»РёСЃС‚ С„Р°Р№Р»Р° */
 void StartThreadForKillListFile(PROCESS_INFORMATION *pi,char *list)
 {
     if ( pi==0 || list==0 || *list==0)
@@ -181,7 +181,7 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
     SetConsoleTitle(ExpandedCmd);
 
   /* $ 14.02.2001 raVen
-     делать окошку minimize, если в фоне */
+     РґРµР»Р°С‚СЊ РѕРєРѕС€РєСѓ minimize, РµСЃР»Рё РІ С„РѕРЅРµ */
   if (Opt.Background)
   {
     si.dwFlags=si.dwFlags | STARTF_USESHOWWINDOW;
@@ -235,7 +235,7 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
       CloseHandle(hChildStdoutRd);
     }
     /* $ 13.09.2000 tran
-       фоновой выполнение */
+       С„РѕРЅРѕРІРѕР№ РІС‹РїРѕР»РЅРµРЅРёРµ */
     if ( !Opt.Background )
     {
         WaitForSingleObject(pi.hProcess,INFINITE);
@@ -245,7 +245,7 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
     }
     else
     {
-        StartThreadForKillListFile(&pi,ListFileName); // нехай за процессом тред следит, и файл бъет тапком
+        StartThreadForKillListFile(&pi,ListFileName); // РЅРµС…Р°Р№ Р·Р° РїСЂРѕС†РµСЃСЃРѕРј С‚СЂРµРґ СЃР»РµРґРёС‚, Рё С„Р°Р№Р» Р±СЉРµС‚ С‚Р°РїРєРѕРј
         ExitCode=0;
     }
     /* tran 13.09.2000 $ */
@@ -474,7 +474,7 @@ int FindExecuteFile(char *OriginalName,char *DestName,int SizeDest)
 
 char *SeekDefExtPoint(char *Name, char *DefExt/*=NULL*/, char **Ext/*=NULL*/)
 {
-  FSF.Unquote(Name); //$ AA 15.04.2003 для правильной обработки имен в кавычках
+  FSF.Unquote(Name); //$ AA 15.04.2003 РґР»СЏ РїСЂР°РІРёР»СЊРЅРѕР№ РѕР±СЂР°Р±РѕС‚РєРё РёРјРµРЅ РІ РєР°РІС‹С‡РєР°С…
   Name=FSF.PointToName(Name);
   char *TempExt=strrchr(Name, '.');
   if(!DefExt)
@@ -487,7 +487,7 @@ char *SeekDefExtPoint(char *Name, char *DefExt/*=NULL*/, char **Ext/*=NULL*/)
 BOOL AddExt(char *Name, char *Ext)
 {
   char *ExtPnt;
-  FSF.Unquote(Name); //$ AA 15.04.2003 для правильной обработки имен в кавычках
+  FSF.Unquote(Name); //$ AA 15.04.2003 РґР»СЏ РїСЂР°РІРёР»СЊРЅРѕР№ РѕР±СЂР°Р±РѕС‚РєРё РёРјРµРЅ РІ РєР°РІС‹С‡РєР°С…
   if(Name && *Name && !SeekDefExtPoint(Name, Ext, &ExtPnt))
   {
     // transform Ext
@@ -575,9 +575,9 @@ int PathMayBeAbsolute(const char *Path)
 }
 
 /*
-  преобразует строку
+  РїСЂРµРѕР±СЂР°Р·СѓРµС‚ СЃС‚СЂРѕРєСѓ
     "cdrecord-1.6.1/mkisofs-1.12b4/../cdrecord/cd_misc.c"
-  в
+  РІ
     "cdrecord-1.6.1/cdrecord/cd_misc.c"
 */
 void NormalizePath(const char *lpcSrcName,char *lpDestName)

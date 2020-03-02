@@ -1,4 +1,4 @@
-#include "makeguid.h"
+﻿#include "makeguid.h"
 
 unsigned long CRC32(
 		unsigned long crc,

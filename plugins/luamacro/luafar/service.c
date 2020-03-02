@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+п»ї//---------------------------------------------------------------------------
 
 #include <windows.h>
 #include <ctype.h>
@@ -449,6 +449,21 @@ static int far_GetNumberOfLinks(lua_State *L)
 	return lua_pushinteger(L, num), 1;
 }
 
+static int far_GetLuafarVersion(lua_State *L)
+{
+	if(lua_toboolean(L, 1))
+	{
+		lua_pushinteger(L, 3);
+		lua_pushinteger(L, 0);
+		lua_pushinteger(L, 0);
+		lua_pushinteger(L, PLUGIN_BUILD);
+		return 4;
+	}
+
+	lua_pushfstring(L, "3.0.0.%d", (int)PLUGIN_BUILD);
+	return 1;
+}
+
 static void GetMouseEvent(lua_State *L, MOUSE_EVENT_RECORD* rec)
 {
 	rec->dwMousePosition.X = GetOptIntFromTable(L, "MousePositionX", 0);
@@ -665,15 +680,15 @@ static int editor_GetInfo(lua_State *L)
 }
 
 /* t-rex:
- * Для тех кому плохо доходит описываю:
- * Редактор в фаре это двух связный список, указатель на текущюю строку
- * изменяется только при ECTL_SETPOSITION, при использовании любой другой
- * ECTL_* для которой нужно задавать номер строки если этот номер не -1
- * (т.е. текущаая строка) то фар должен найти эту строку в списке (а это
- * занимает дофига времени), поэтому если надо делать несколько ECTL_*
- * (тем более когда они делаются на последовательность строк
- * i,i+1,i+2,...) то перед каждым ECTL_* надо делать ECTL_SETPOSITION а
- * сами ECTL_* вызывать с -1.
+ * Р”Р»СЏ С‚РµС… РєРѕРјСѓ РїР»РѕС…Рѕ РґРѕС…РѕРґРёС‚ РѕРїРёСЃС‹РІР°СЋ:
+ * Р РµРґР°РєС‚РѕСЂ РІ С„Р°СЂРµ СЌС‚Рѕ РґРІСѓС… СЃРІСЏР·РЅС‹Р№ СЃРїРёСЃРѕРє, СѓРєР°Р·Р°С‚РµР»СЊ РЅР° С‚РµРєСѓС‰СЋСЋ СЃС‚СЂРѕРєСѓ
+ * РёР·РјРµРЅСЏРµС‚СЃСЏ С‚РѕР»СЊРєРѕ РїСЂРё ECTL_SETPOSITION, РїСЂРё РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРё Р»СЋР±РѕР№ РґСЂСѓРіРѕР№
+ * ECTL_* РґР»СЏ РєРѕС‚РѕСЂРѕР№ РЅСѓР¶РЅРѕ Р·Р°РґР°РІР°С‚СЊ РЅРѕРјРµСЂ СЃС‚СЂРѕРєРё РµСЃР»Рё СЌС‚РѕС‚ РЅРѕРјРµСЂ РЅРµ -1
+ * (С‚.Рµ. С‚РµРєСѓС‰Р°Р°СЏ СЃС‚СЂРѕРєР°) С‚Рѕ С„Р°СЂ РґРѕР»Р¶РµРЅ РЅР°Р№С‚Рё СЌС‚Сѓ СЃС‚СЂРѕРєСѓ РІ СЃРїРёСЃРєРµ (Р° СЌС‚Рѕ
+ * Р·Р°РЅРёРјР°РµС‚ РґРѕС„РёРіР° РІСЂРµРјРµРЅРё), РїРѕСЌС‚РѕРјСѓ РµСЃР»Рё РЅР°РґРѕ РґРµР»Р°С‚СЊ РЅРµСЃРєРѕР»СЊРєРѕ ECTL_*
+ * (С‚РµРј Р±РѕР»РµРµ РєРѕРіРґР° РѕРЅРё РґРµР»Р°СЋС‚СЃСЏ РЅР° РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ СЃС‚СЂРѕРє
+ * i,i+1,i+2,...) С‚Рѕ РїРµСЂРµРґ РєР°Р¶РґС‹Рј ECTL_* РЅР°РґРѕ РґРµР»Р°С‚СЊ ECTL_SETPOSITION Р°
+ * СЃР°РјРё ECTL_* РІС‹Р·С‹РІР°С‚СЊ СЃ -1.
  */
 static BOOL FastGetString(intptr_t EditorId, intptr_t string_num,
                           struct EditorGetString *egs, PSInfo *Info)
@@ -6160,6 +6175,7 @@ const luaL_Reg far_funcs[] =
 	{"GetCurrentDirectory", far_GetCurrentDirectory},
 	{"GetFileOwner",        far_GetFileOwner},
 	{"GetNumberOfLinks",    far_GetNumberOfLinks},
+	{"GetLuafarVersion",    far_GetLuafarVersion},
 	{"MakeMenuItems",       far_MakeMenuItems},
 	{"RunDefaultScript",    far_RunDefaultScript},
 	{"Show",                far_Show},

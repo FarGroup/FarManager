@@ -1,4 +1,4 @@
-#include <windows.h>
+﻿#include <windows.h>
 
 #if defined(__BORLANDC__)
   #pragma option -a1

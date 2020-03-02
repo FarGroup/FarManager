@@ -1,4 +1,4 @@
-             Notes on the features of the FAR FTP plugin
+﻿             Notes on the features of the FAR FTP plugin
              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
              and its operation with specific FTP servers
              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -1,4 +1,4 @@
-#include <CRT\crt.hpp>
+﻿#include <CRT\crt.hpp>
 #include <shlobj.h>
 #include <plugin.hpp>
 #include <DlgBuilder.hpp>

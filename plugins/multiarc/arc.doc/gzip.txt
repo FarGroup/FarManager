@@ -1,4 +1,4 @@
-			The gzip file format
+﻿			The gzip file format
 
 The data format used by gzip is described by RFCs (Request for Comments)
 1951 and 1952 in the files http://www.ietf.org/rfc/rfc1951.txt (deflate

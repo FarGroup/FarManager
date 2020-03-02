@@ -1,4 +1,4 @@
-#include "utils.hpp"
+﻿#include "utils.hpp"
 
 bool substr_match(const std::wstring& str, std::wstring::size_type pos, std::wstring::const_pointer mstr) {
   size_t mstr_len = std::wcslen(mstr);

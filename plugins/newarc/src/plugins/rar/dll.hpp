@@ -1,4 +1,4 @@
-#ifndef _UNRAR_DLL_
+﻿#ifndef _UNRAR_DLL_
 #define _UNRAR_DLL_
 
 #define ERAR_END_ARCHIVE     10

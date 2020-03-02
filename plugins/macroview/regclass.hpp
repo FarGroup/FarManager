@@ -1,4 +1,4 @@
-#ifndef REG_CLASS_INCLUDED
+﻿#ifndef REG_CLASS_INCLUDED
 #define REG_CLASS_INCLUDED
 #define MAX_KEY_LEN 128
 #define MAX_PATH_LEN 512

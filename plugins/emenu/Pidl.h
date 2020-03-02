@@ -1,4 +1,4 @@
-// CPidl - class to store one or more LPITEMIDLIST
+﻿// CPidl - class to store one or more LPITEMIDLIST
 
 #ifndef _PIDL_H_
 #define _PIDL_H_

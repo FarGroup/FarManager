@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "StringBase.hpp"
 #include <stdio.h>
 
@@ -380,8 +380,8 @@ public:
 
 			buffer = tmpbuffer;
 
-			//_vsnwprintf íå âñåãäà ñòàâèò '\0' âêîíöå.
-			//Ïîýòîìó íàäî îáíóëèòü è ïåðåäàòü â _vsnwprintf ðàçìåð-1.
+			//_vsnwprintf Ð½Ðµ Ð²ÑÐµÐ³Ð´Ð° ÑÑ‚Ð°Ð²Ð¸Ñ‚ '\0' Ð²ÐºÐ¾Ð½Ñ†Ðµ.
+			//ÐŸÐ¾ÑÑ‚Ð¾Ð¼Ñƒ Ð½Ð°Ð´Ð¾ Ð¾Ð±Ð½ÑƒÐ»Ð¸Ñ‚ÑŒ Ð¸ Ð¿ÐµÑ€ÐµÐ´Ð°Ñ‚ÑŒ Ð² _vsnwprintf Ñ€Ð°Ð·Ð¼ÐµÑ€-1.
 			buffer[Size-1] = 0;
 			retValue = _vsnprintf(buffer, Size-1, format, argptr);
 
@@ -417,7 +417,7 @@ public:
 
 	void ReleaseBuffer(size_t nLength = (size_t)-1)
 	{
-		//íåïðàâèëüíàÿ ëîãèêà
+		//Ð½ÐµÐ¿Ñ€Ð°Ð²Ð¸Ð»ÑŒÐ½Ð°Ñ Ð»Ð¾Ð³Ð¸ÐºÐ°
 		if ( nLength == (size_t)-1 )
 			nLength = strlen(m_pData->GetData());
 

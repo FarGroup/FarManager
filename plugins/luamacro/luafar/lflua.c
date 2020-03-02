@@ -1,4 +1,4 @@
-#include "ustring.h"
+﻿#include "ustring.h"
 #include "luafar.h"
 
 extern int IsLuaJIT();

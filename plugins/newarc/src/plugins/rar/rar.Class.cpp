@@ -1,4 +1,4 @@
-#include <Rtl.Base.h>
+п»ї#include <Rtl.Base.h>
 #include <FarPluginBase.hpp>
 #include "rar.class.h"
 #include "dll.hpp"
@@ -118,7 +118,7 @@ int __stdcall RarArchive::pGetArchiveItem (
 
 		strcpy ((char*)pItem->pi.FindData.cFileName, fileHeader->FileName);
 
-		pItem->pi.FindData.dwFileAttributes = (BYTE)(fileHeader->FileAttr >> 16); //бред!
+		pItem->pi.FindData.dwFileAttributes = (BYTE)(fileHeader->FileAttr >> 16); //Р±СЂРµРґ!
 
 		if ( (fileHeader->Flags & 0x04) == 0x04 )
 			pItem->dwFlags |= AIF_CRYPTED;
@@ -172,7 +172,7 @@ int __stdcall RarArchive::RarCallback (
 	{
 		if ( !Callback (AM_PROCESS_DATA, nParam1, (LONG_PTR)nParam2) )
 		{
-			m_bAborted = true; // а нужно ли...
+			m_bAborted = true; // Р° РЅСѓР¶РЅРѕ Р»Рё...
 			return -1;
 		}
 	}

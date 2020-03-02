@@ -1,4 +1,4 @@
-#include "multiex.h"
+﻿#include "multiex.h"
 
 PluginStartupInfo Info;
 FARSTANDARDFUNCTIONS FSF;

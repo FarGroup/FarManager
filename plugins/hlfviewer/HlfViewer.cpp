@@ -1,4 +1,4 @@
-#include <plugin.hpp>
+п»ї#include <plugin.hpp>
 #include <PluginSettings.hpp>
 #include <DlgBuilder.hpp>
 #include "Lang.hpp"
@@ -100,7 +100,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	if (OInfo->OpenFrom == OPEN_EDITOR || OInfo->OpenFrom==OPEN_FROMMACRO)
 	{
 		HANDLE MacroResult=nullptr;
-		// в редакторе проверяем файл на принадлежность к системе помощи Far Manager
+		// РІ СЂРµРґР°РєС‚РѕСЂРµ РїСЂРѕРІРµСЂСЏРµРј С„Р°Р№Р» РЅР° РїСЂРёРЅР°РґР»РµР¶РЅРѕСЃС‚СЊ Рє СЃРёСЃС‚РµРјРµ РїРѕРјРѕС‰Рё Far Manager
 		if (IsHlf())
 		{
 			if (ShowCurrentHelpTopic())
@@ -119,7 +119,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	{
 		static wchar_t cmdbuf[1024], FileName[MAX_PATH], *ptrTopic, *ptrName;
 
-		// разбор "параметров ком.строки"
+		// СЂР°Р·Р±РѕСЂ "РїР°СЂР°РјРµС‚СЂРѕРІ РєРѕРј.СЃС‚СЂРѕРєРё"
 		lstrcpyn(cmdbuf,((OpenCommandLineInfo*)OInfo->Data)->CommandLine,ARRAYSIZE(cmdbuf));
 
 		if (cmdbuf[0])
@@ -168,9 +168,9 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 
 			wchar_t *ptrCurDir=NULL;
 
-			// Здесь: ptrName - тмя файла/GUID, ptrTopic - имя темы
+			// Р—РґРµСЃСЊ: ptrName - С‚РјСЏ С„Р°Р№Р»Р°/GUID, ptrTopic - РёРјСЏ С‚РµРјС‹
 
-			// показ темы помощи по GUID`у
+			// РїРѕРєР°Р· С‚РµРјС‹ РїРѕРјРѕС‰Рё РїРѕ GUID`Сѓ
 			GUID FindGuid;
 			bool guidMode=StrToGuid(ptrName,&FindGuid);
 			if (!guidMode && *ptrName == L'{')
@@ -186,17 +186,17 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 			if (guidMode)
 				Info.ShowHelp((const wchar_t*)&FindGuid,ptrTopic,FHELP_GUID);
 
-			// по GUID`у не найдено, пробуем имя файла
+			// РїРѕ GUID`Сѓ РЅРµ РЅР°Р№РґРµРЅРѕ, РїСЂРѕР±СѓРµРј РёРјСЏ С„Р°Р№Р»Р°
 			if (!guidMode)
 			{
 				wchar_t TempFileName[MAX_PATH*2];
 				wchar_t ExpFileName[MAX_PATH*2];
 				lstrcpyn(TempFileName,ptrName,ARRAYSIZE(TempFileName));
 
-				// Если имя файла без пути...
+				// Р•СЃР»Рё РёРјСЏ С„Р°Р№Р»Р° Р±РµР· РїСѓС‚Рё...
 				if (FSF.PointToName(ptrName) == ptrName)
 				{
-					// ...смотрим в текущем каталоге
+					// ...СЃРјРѕС‚СЂРёРј РІ С‚РµРєСѓС‰РµРј РєР°С‚Р°Р»РѕРіРµ
 					size_t Size=FSF.GetCurrentDirectory(0,NULL);
 
 					if (Size)
@@ -209,16 +209,16 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 							ptrName=(wchar_t *)ptrCurDir;
 					}
 
-					// ...в текущем нет...
+					// ...РІ С‚РµРєСѓС‰РµРј РЅРµС‚...
 					if (FSF.PointToName(ptrName) == ptrName)
 					{
-						// ...смотрим в %FARHOME%
+						// ...СЃРјРѕС‚СЂРёРј РІ %FARHOME%
 						ExpandEnvironmentStrings(L"%FARHOME%",ExpFileName,ARRAYSIZE(ExpFileName));
 						FSF.AddEndSlash(ExpFileName);
 						lstrcat(ExpFileName,ptrName);
 						if (!FileExists(ExpFileName))
 						{
-							// ...в %FARHOME% нет, поищем по путям плагинов.
+							// ...РІ %FARHOME% РЅРµС‚, РїРѕРёС‰РµРј РїРѕ РїСѓС‚СЏРј РїР»Р°РіРёРЅРѕРІ.
 							if (FindPluginHelp(ptrName,ExpFileName))
 								ptrName=ExpFileName;
 						}
@@ -228,7 +228,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 				}
 				else
 				{
-					// ptrName указан с путём.
+					// ptrName СѓРєР°Р·Р°РЅ СЃ РїСѓС‚С‘Рј.
 					ExpandEnvironmentStrings(ptrName,ExpFileName,ARRAYSIZE(ExpFileName));
 					ptrName=ExpFileName;
 				}
@@ -240,14 +240,14 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 
 				if (!ShowHelp(FileName,ptrTopic,true,(!ptrTopic || !*ptrTopic?false:true)))
 				{
-					// синтаксис hlf:topic_из_ФАР_хелпа ==> TempFileName
+					// СЃРёРЅС‚Р°РєСЃРёСЃ hlf:topic_РёР·_Р¤РђР _С…РµР»РїР° ==> TempFileName
 					Info.ShowHelp(nullptr,TempFileName,FHELP_FARHELP);
 				}
 			}
 		}
 		else
 		{
-			// параметры не указаны, выводим подсказку по использованию плагина.
+			// РїР°СЂР°РјРµС‚СЂС‹ РЅРµ СѓРєР°Р·Р°РЅС‹, РІС‹РІРѕРґРёРј РїРѕРґСЃРєР°Р·РєСѓ РїРѕ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЋ РїР»Р°РіРёРЅР°.
 			Info.ShowHelp(Info.ModuleName,L"cmd",FHELP_SELFHELP);
 		}
 	}
@@ -422,8 +422,8 @@ void RestorePosition(struct EditorInfo *ei)
 	Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
 }
 
-// это HLF-файл?
-// первая строка hlf всегда начинается с ".Language="
+// СЌС‚Рѕ HLF-С„Р°Р№Р»?
+// РїРµСЂРІР°СЏ СЃС‚СЂРѕРєР° hlf РІСЃРµРіРґР° РЅР°С‡РёРЅР°РµС‚СЃСЏ СЃ ".Language="
 BOOL IsHlf(void)
 {
 	BOOL ret=FALSE;
@@ -457,7 +457,7 @@ BOOL IsHlf(void)
 
 				if (!FSF.LStrnicmp(L".Language=",egs.StringText,10))
 				{
-					// доп.проверка
+					// РґРѕРї.РїСЂРѕРІРµСЂРєР°
 					if (FindTopic(true,false))
 						ret=TRUE;
 					break;
@@ -471,7 +471,7 @@ BOOL IsHlf(void)
 	return ret;
 }
 
-// для "этой темы" ищем её имя (от позиции курсора вверх/вниз по файлу)
+// РґР»СЏ "СЌС‚РѕР№ С‚РµРјС‹" РёС‰РµРј РµС‘ РёРјСЏ (РѕС‚ РїРѕР·РёС†РёРё РєСѓСЂСЃРѕСЂР° РІРІРµСЂС…/РІРЅРёР· РїРѕ С„Р°Р№Р»Сѓ)
 const wchar_t *FindTopic(bool ForwardDirect, bool RestorePos)
 {
 	const wchar_t *ret=NULL;
@@ -490,7 +490,7 @@ const wchar_t *FindTopic(bool ForwardDirect, bool RestorePos)
 		Info.EditorControl(-1,ECTL_GETSTRING,0,&egs);
 		tmp=egs.StringText;
 
-		// "Тема": начинается '@', дальше букво-цифры, не содержит '='
+		// "РўРµРјР°": РЅР°С‡РёРЅР°РµС‚СЃСЏ '@', РґР°Р»СЊС€Рµ Р±СѓРєРІРѕ-С†РёС„СЂС‹, РЅРµ СЃРѕРґРµСЂР¶РёС‚ '='
 		if (lstrlen(tmp)>1 && *tmp==L'@' && *(tmp+1)!=L'-' && *(tmp+1)!=L'+' && !wcschr(tmp,L'='))
 		{
 			ret=tmp+1;
@@ -529,8 +529,8 @@ static bool inputrecord_compare(const INPUT_RECORD &r1,const INPUT_RECORD &r2)
 }
 
 
-// поиск hlf-файла Name в каталогах плагинов (первый найденный!)
-// в DestPath возвращает полный путь к найденному hlf-файлу
+// РїРѕРёСЃРє hlf-С„Р°Р№Р»Р° Name РІ РєР°С‚Р°Р»РѕРіР°С… РїР»Р°РіРёРЅРѕРІ (РїРµСЂРІС‹Р№ РЅР°Р№РґРµРЅРЅС‹Р№!)
+// РІ DestPath РІРѕР·РІСЂР°С‰Р°РµС‚ РїРѕР»РЅС‹Р№ РїСѓС‚СЊ Рє РЅР°Р№РґРµРЅРЅРѕРјСѓ hlf-С„Р°Р№Р»Сѓ
 static int WINAPI frsuserfunc(const struct PluginPanelItem *FData,const wchar_t *FullName,void *Param)
 {
 	lstrcpy((wchar_t*)Param,FullName);
@@ -542,7 +542,7 @@ bool FindPluginHelp(const wchar_t* Name,wchar_t* DestPath)
 	bool Result=false;
 	DestPath[0]=0;
 
-	// 1. Получить количество плагинов в "этом сеансе" Far Manager
+	// 1. РџРѕР»СѓС‡РёС‚СЊ РєРѕР»РёС‡РµСЃС‚РІРѕ РїР»Р°РіРёРЅРѕРІ РІ "СЌС‚РѕРј СЃРµР°РЅСЃРµ" Far Manager
 	int CountPlugin = (int)Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_GETPLUGINS,0,NULL);
 
 	if (CountPlugin > 0)
@@ -550,13 +550,13 @@ bool FindPluginHelp(const wchar_t* Name,wchar_t* DestPath)
 		HANDLE *hPlugins=new HANDLE[CountPlugin];
 		if (hPlugins)
 		{
-			// 2. Получить хэндлы плагинов
+			// 2. РџРѕР»СѓС‡РёС‚СЊ С…СЌРЅРґР»С‹ РїР»Р°РіРёРЅРѕРІ
 			Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_GETPLUGINS,CountPlugin,hPlugins);
 
-			// 3. Посмотреть на эти плагины
+			// 3. РџРѕСЃРјРѕС‚СЂРµС‚СЊ РЅР° СЌС‚Рё РїР»Р°РіРёРЅС‹
 			for (int I=0; I < CountPlugin; ++I)
 			{
-				// 4. Для очередного плагина получить размер необходимой памяти по информационные структуры
+				// 4. Р”Р»СЏ РѕС‡РµСЂРµРґРЅРѕРіРѕ РїР»Р°РіРёРЅР° РїРѕР»СѓС‡РёС‚СЊ СЂР°Р·РјРµСЂ РЅРµРѕР±С…РѕРґРёРјРѕР№ РїР°РјСЏС‚Рё РїРѕ РёРЅС„РѕСЂРјР°С†РёРѕРЅРЅС‹Рµ СЃС‚СЂСѓРєС‚СѓСЂС‹
 				int SizeMemory=(int)Info.PluginsControl(hPlugins[I],PCTL_GETPLUGININFORMATION,0,NULL);
 				if (SizeMemory > 0)
 				{
@@ -564,23 +564,23 @@ bool FindPluginHelp(const wchar_t* Name,wchar_t* DestPath)
 					if (fgpi)
 					{
 						wchar_t FoundPath[MAX_PATH];
-						// 5. Для очередного плагина получить информационные структуры
+						// 5. Р”Р»СЏ РѕС‡РµСЂРµРґРЅРѕРіРѕ РїР»Р°РіРёРЅР° РїРѕР»СѓС‡РёС‚СЊ РёРЅС„РѕСЂРјР°С†РёРѕРЅРЅС‹Рµ СЃС‚СЂСѓРєС‚СѓСЂС‹
 						Info.PluginsControl(hPlugins[I],PCTL_GETPLUGININFORMATION,SizeMemory,fgpi);
 
-						// 6. Путь к плагину
+						// 6. РџСѓС‚СЊ Рє РїР»Р°РіРёРЅСѓ
 						wchar_t *ModuleName=new wchar_t[lstrlen(fgpi->ModuleName)+1];
 						lstrcpy(ModuleName,fgpi->ModuleName);
 						wchar_t *ptrModuleName=(wchar_t *)FSF.PointToName(ModuleName);
 						if (ptrModuleName)
 							*ptrModuleName=0;
 
-						// 7. Поиск hlf-файла в "этом каталоге"
+						// 7. РџРѕРёСЃРє hlf-С„Р°Р№Р»Р° РІ "СЌС‚РѕРј РєР°С‚Р°Р»РѕРіРµ"
 						FoundPath[0]=0;
 						FSF.FarRecursiveSearch(ModuleName,Name,(FRSUSERFUNC)frsuserfunc,FRS_RETUPDIR|FRS_RECUR|FRS_SCANSYMLINK,FoundPath);
 
 						if (*FoundPath)
 						{
-							// НАЙДЕНО!
+							// РќРђР™Р”Р•РќРћ!
 							lstrcpy(DestPath,FoundPath);
 							Result=true;
 						}

@@ -1,4 +1,4 @@
-#include <plugin.hpp>
+﻿#include <plugin.hpp>
 
 // TYPES OF CONVERSIONS
 

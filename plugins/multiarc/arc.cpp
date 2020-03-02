@@ -1,4 +1,4 @@
-/*
+Ôªø/*
   ARC.CPP
 
   Second-level plugin module for FAR Manager and MultiArc plugin
@@ -255,7 +255,7 @@ int WINAPI _export GetArcItem(PluginPanelItem *Item, ArcItemInfo *Info)
   NextPosition+=sizeof(Header)+Header.CompSize;
   if(Header.Type == 1) // old style is shorter
   {
-    // SetFilePointer(ArcHandle,-(sizeof(DWORD)),NULL,FILE_CURRENT); // §´Ô ¢†‡®†≠‚† · ®ß¢´•Á•≠®•¨!
+    // SetFilePointer(ArcHandle,-(sizeof(DWORD)),NULL,FILE_CURRENT); // –¥–ª—è –≤–∞—Ä–∏–∞–Ω—Ç–∞ —Å –∏–∑–≤–ª–µ—á–µ–Ω–∏–µ–º!
     Header.Type=2;  // convert header to new format
     Header.OrigSize=Header.CompSize;  // size is same when not packed
     NextPosition-=sizeof(DWORD);

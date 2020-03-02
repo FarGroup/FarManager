@@ -1,4 +1,4 @@
-#ifndef __FAR_PLUGIN_FTP_FTP
+﻿#ifndef __FAR_PLUGIN_FTP_FTP
 #define __FAR_PLUGIN_FTP_FTP
 
 #define FTP_COL_MODE 0

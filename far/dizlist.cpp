@@ -330,7 +330,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		if (m_OrderForWrite.empty())
 		{
 			if (!os::fs::delete_file(m_DizFileName))
-				throw MAKE_FAR_EXCEPTION(L"Can't delete file"sv);
+				throw MAKE_FAR_EXCEPTION(L"Can't delete the file"sv);
 
 			return true;
 		}
@@ -339,7 +339,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		{
 			encoding::writer Writer(Stream, Global->Opt->Diz.SaveInUTF? CP_UTF8 : Global->Opt->Diz.AnsiByDefault? CP_ACP : CP_OEMCP);
 
-			const auto Eol = eol::str(eol::type::win);
+			const auto Eol = eol::win.str();
 
 			for (const auto& i_ptr : m_OrderForWrite)
 			{

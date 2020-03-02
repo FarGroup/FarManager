@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Rtl.Base.h"
 
 inline bool IsEOL(TCHAR c)

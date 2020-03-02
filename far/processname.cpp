@@ -156,12 +156,12 @@ string ConvertWildcards(string_view const SrcName, string_view const Mask, int c
 	return Result;
 }
 
-bool CmpName(string_view pattern, string_view str, const bool skippath, const bool CmpNameSearchMode)
+bool CmpName(string_view pattern, string_view str, const bool skippath, const bool CmpNameLegacyMode)
 {
 	// BUGBUG rewrite
 
 	// Special case for these simplest and most common masks:
-	if (pattern == L"*"sv || pattern == L"*.*"sv)
+	if (pattern == L"*"sv || (CmpNameLegacyMode && pattern == L"*.*"sv))
 		return true;
 
 	if (pattern.empty() || str.empty())
@@ -219,7 +219,7 @@ bool CmpName(string_view pattern, string_view str, const bool skippath, const bo
 
 			for(;;)
 			{
-				if(CmpName(pattern,str,false,CmpNameSearchMode))
+				if(CmpName(pattern, str, false, CmpNameLegacyMode))
 					return true;
 
 				if (str.empty())
@@ -287,10 +287,7 @@ bool CmpName(string_view pattern, string_view str, const bool skippath, const bo
 		default:
 			if (patternc != stringc)
 			{
-				if (patternc==L'.' && !stringc && !CmpNameSearchMode)
-					return !starts_with(pattern, L'.') && CmpName(pattern, str, true, CmpNameSearchMode);
-
-				return false;
+				return CmpNameLegacyMode && str.empty() && patternc == L'.' && pattern == L"*"sv;
 			}
 			break;
 		}
@@ -301,58 +298,135 @@ bool CmpName(string_view pattern, string_view str, const bool skippath, const bo
 
 #include "testing.hpp"
 
+static const string_view Masks[]
+{
+	L"*"sv,
+	L"A?Z*"sv,
+	L"*.txt"sv,
+	L"*?.bak"sv,
+	L"?????.?????"sv,
+	L"*_NEW.*"sv,
+	L"?x.????999.*rForTheCourse"sv,
+	L"*.*.2"sv,
+};
+
 TEST_CASE("ConvertWildcards")
 {
-	static const string_view Masks[]
-	{
-		L"A?Z*"sv,
-		L"*.txt"sv,
-		L"*?.bak"sv,
-		L"?????.?????"sv,
-		L"*_NEW.*"sv,
-		L"?x.????999.*rForTheCourse"sv,
-		L"*.*.2"sv,
-	};
-
 	static const struct
 	{
-		int Mask;
+		size_t Mask;
 		string_view Src, Expected;
 	}
 	Tests[]
 	{
-		{ 0, L"1"sv,                        L"AZ"sv },
-		{ 0, L"12"sv,                       L"A2Z"sv },
-		{ 0, L"1.txt"sv,                    L"AZ.txt"sv },
-		{ 0, L"12.txt"sv,                   L"A2Z.txt"sv },
-		{ 0, L"123"sv,                      L"A2Z"sv },
-		{ 0, L"123.txt"sv,                  L"A2Z.txt"sv },
-		{ 0, L"1234"sv,                     L"A2Z4"sv },
-		{ 0, L"1234.txt"sv,                 L"A2Z4.txt"sv },
-		{ 1, L"a"sv,                        L"a.txt"sv },
-		{ 1, L"b.dat"sv,                    L"b.txt"sv },
-		{ 1, L"c.x.y"sv,                    L"c.x.txt"sv },
-		{ 2, L"a"sv,                        L"a.bak"sv },
-		{ 2, L"b.dat"sv,                    L"b.dat.bak"sv },
-		{ 2, L"c.x.y"sv,                    L"c.x.y.bak"sv },
-		{ 3, L"a"sv,                        L"a"sv },
-		{ 3, L"a.b"sv,                      L"a.b"sv },
-		{ 3, L"a.b.c"sv,                    L"a.b"sv },
-		{ 3, L"part1.part2.part3"sv,        L"part1.part2"sv },
-		{ 3, L"123456.123456.123456"sv,     L"12345.12345"sv },
-		{ 4, L"abcd_12345.txt"sv,           L"abcd_NEW.txt"sv },
-		{ 4, L"abc_newt_1.dat"sv,           L"abc_newt_NEW.dat"sv },
-		{ 4, L"abcd_123.a_b"sv,             L"abcd_123.a_NEW"sv },
-		{ 5, L"part1.part2"sv,              L"px.part999.rForTheCourse"sv },
-		{ 5, L"part1.part2.part3"sv,        L"px.part999.parForTheCourse"sv },
-		{ 5, L"a.b.c"sv,                    L"ax.b999.crForTheCourse"sv },
-		{ 5, L"a.b.CarPart3BEER"sv,         L"ax.b999.CarParForTheCourse"sv },
-		{ 6, L"1.1.1"sv,                    L"1.1.1.2"sv },
+		{ 0, L""sv,                         L""sv },
+		{ 0, L"whatever"sv,                 L"whatever"sv },
+
+		{ 1, L"1"sv,                        L"AZ"sv },
+		{ 1, L"12"sv,                       L"A2Z"sv },
+		{ 1, L"1.txt"sv,                    L"AZ.txt"sv },
+		{ 1, L"12.txt"sv,                   L"A2Z.txt"sv },
+		{ 1, L"123"sv,                      L"A2Z"sv },
+		{ 1, L"123.txt"sv,                  L"A2Z.txt"sv },
+		{ 1, L"1234"sv,                     L"A2Z4"sv },
+		{ 1, L"1234.txt"sv,                 L"A2Z4.txt"sv },
+
+		{ 2, L"a"sv,                        L"a.txt"sv },
+		{ 2, L"b.dat"sv,                    L"b.txt"sv },
+		{ 2, L"c.x.y"sv,                    L"c.x.txt"sv },
+
+		{ 3, L"a"sv,                        L"a.bak"sv },
+		{ 3, L"b.dat"sv,                    L"b.dat.bak"sv },
+		{ 3, L"c.x.y"sv,                    L"c.x.y.bak"sv },
+
+		{ 4, L"a"sv,                        L"a"sv },
+		{ 4, L"a.b"sv,                      L"a.b"sv },
+		{ 4, L"a.b.c"sv,                    L"a.b"sv },
+		{ 4, L"part1.part2.part3"sv,        L"part1.part2"sv },
+		{ 4, L"123456.123456.123456"sv,     L"12345.12345"sv },
+
+		{ 5, L"abcd_12345.txt"sv,           L"abcd_NEW.txt"sv },
+		{ 5, L"abc_newt_1.dat"sv,           L"abc_newt_NEW.dat"sv },
+		{ 5, L"abcd_123.a_b"sv,             L"abcd_123.a_NEW"sv },
+
+		{ 6, L"part1.part2"sv,              L"px.part999.rForTheCourse"sv },
+		{ 6, L"part1.part2.part3"sv,        L"px.part999.parForTheCourse"sv },
+		{ 6, L"a.b.c"sv,                    L"ax.b999.crForTheCourse"sv },
+		{ 6, L"a.b.CarPart3BEER"sv,         L"ax.b999.CarParForTheCourse"sv },
+
+		{ 7, L"1.1.1"sv,                    L"1.1.1.2"sv },
 	};
 
 	for (const auto& i: Tests)
 	{
 		REQUIRE(i.Expected == ConvertWildcards(i.Src, Masks[i.Mask], 0));
+	}
+}
+
+TEST_CASE("CmpName")
+{
+	static const struct
+	{
+		size_t Mask;
+		string_view Src;
+		bool Match;
+	}
+	Tests[]
+	{
+		{ 0, L""sv,                          true  },
+		{ 0, L"."sv,                         true  },
+		{ 0, L"whatever"sv,                  true  },
+
+		{ 1, L""sv,                          false },
+		{ 1, L"1"sv,                         false },
+		{ 1, L"AZ"sv,                        false },
+		{ 1, L"ALZ"sv,                       true  },
+		{ 1, L"ALZA1"sv,                     true  },
+
+		{ 2, L""sv,                          false },
+		{ 2, L"foo.bar"sv,                   false },
+		{ 2, L"foo.txt"sv,                   true  },
+		{ 2, L".txt"sv,                      true  },
+		{ 2, L"foo.txt1"sv,                  false },
+
+		{ 3, L""sv,                          false },
+		{ 3, L"foo.bar"sv,                   false },
+		{ 3, L"1.bak"sv,                     true  },
+		{ 3, L"foo.bak"sv,                   true  },
+		{ 3, L"foo.bak1"sv,                  false },
+
+		{ 4, L""sv,                          false },
+		{ 4, L"12345.1234"sv,                false },
+		{ 4, L"12345.12345"sv,               true  },
+		{ 4, L"1.234.123.4"sv,               true  },
+		{ 4, L"..........."sv,               true  },
+		{ 4, L"123456.12345"sv,              false },
+
+		{ 5, L""sv,                          false },
+		{ 5, L"1"sv,                         false },
+		{ 5, L"_NEW"sv,                      true  },
+		{ 5, L"1_NEW"sv,                     true  },
+		{ 5, L"1_NEW."sv,                    true  },
+		{ 5, L"1_NEW.2"sv,                   true  },
+		{ 5, L"1_NEW2"sv,                    false },
+
+		{ 6, L""sv,                          false },
+		{ 6, L"1"sv,                         false },
+		{ 6, L"Rx.1234999.rForTheCourse"sv,  true  },
+		{ 6, L"Rx.1234999.QrForTheCourse"sv, true  },
+		{ 6, L"Rx.999.rForTheCourse"sv,      false },
+
+		{ 7, L""sv,                          false },
+		{ 7, L".bar.2"sv,                    true  },
+		{ 7, L"..2"sv,                       true  },
+		{ 7, L"foo..2"sv,                    true  },
+		{ 7, L"foo.bar.2"sv,                 true  },
+		{ 7, L"foo.bar."sv,                  false },
+	};
+
+	for (const auto& i: Tests)
+	{
+		REQUIRE(i.Match == CmpName(Masks[i.Mask], i.Src));
 	}
 }
 #endif

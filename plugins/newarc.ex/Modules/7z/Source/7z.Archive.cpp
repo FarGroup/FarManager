@@ -1,4 +1,4 @@
-#include "7z.h"
+п»ї#include "7z.h"
 
 SevenZipArchive::SevenZipArchive(
 		SevenZipPlugin *pPlugin,
@@ -444,7 +444,7 @@ int SevenZipArchive::Delete(const ArchiveItem* pItems, int nItemsNumber)
 	{
 		ObjectArray<ArchiveUpdateItem*> indicies;
 
-		for (unsigned int i = 0; i < m_uItemsCount; i++) //какая жесть
+		for (unsigned int i = 0; i < m_uItemsCount; i++) //РєР°РєР°СЏ Р¶РµСЃС‚СЊ
 		{
 			bool bFound = false;
 
@@ -627,7 +627,7 @@ int SevenZipArchive::AddFiles(
 						}
 					}
 
-					if ( !FSF.LStricmp(strArchiveFileName, strCheckName) ) //где-то тут бред
+					if ( !FSF.LStricmp(strArchiveFileName, strCheckName) ) //РіРґРµ-С‚Рѕ С‚СѓС‚ Р±СЂРµРґ
 					{
 						bFound = true;
 
@@ -728,7 +728,7 @@ int SevenZipArchive::AddFiles(
 			}
 		}
 
-		outArchive->Release(); //ниже не переносить!!
+		outArchive->Release(); //РЅРёР¶Рµ РЅРµ РїРµСЂРµРЅРѕСЃРёС‚СЊ!!
 
 		if ( (nResult == RESULT_SUCCESS) || (nResult == RESULT_PARTIAL) )
 		{

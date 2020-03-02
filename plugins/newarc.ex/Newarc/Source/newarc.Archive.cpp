@@ -1,4 +1,4 @@
-#include "newarc.h"
+п»ї#include "newarc.h"
 
 #include "msg/msgError.cpp"
 
@@ -309,7 +309,7 @@ bool Archive::StartOperation(int nOperation, bool bInternal)
 			bResult = m_pModule->StartOperation(m_hArchive, nOperation, bInternal);
 
 		if ( bResult )
-			m_pModule->GetArchiveFormat(m_hArchive, &m_uid); //уточним, а вдруг это другой формат )))
+			m_pModule->GetArchiveFormat(m_hArchive, &m_uid); //СѓС‚РѕС‡РЅРёРј, Р° РІРґСЂСѓРі СЌС‚Рѕ РґСЂСѓРіРѕР№ С„РѕСЂРјР°С‚ )))
 	}
 	
 	return bResult;

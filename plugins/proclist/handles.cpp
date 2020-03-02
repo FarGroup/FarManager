@@ -1,4 +1,4 @@
-// Based on Zoltan Csizmadia's TaskManagerEx source, zoltan_csizmadia@yahoo.com
+﻿// Based on Zoltan Csizmadia's TaskManagerEx source, zoltan_csizmadia@yahoo.com
 
 #include <stdio.h>
 #include "Proclist.hpp"

@@ -1,4 +1,4 @@
-/*
+ï»¿/*
 TMPCLASS.CPP
 
 Temporary panel plugin class implementation
@@ -480,9 +480,9 @@ void TmpPanel::UpdateItems(int ShowOwners,int ShowLinks)
 		int SameFolderItems=1;
 
 		/* $ 23.12.2001 DJ
-		   åñëè FullName - ýòî êàòàëîã, òî FindFirstFile (FullName+"*.*")
-		   ýòîò êàòàëîã íå íàéäåò. Ïîýòîìó äëÿ êàòàëîãîâ îïòèìèçàöèþ ñ
-		   SameFolderItems ïðîïóñêàåì.
+		   ÐµÑÐ»Ð¸ FullName - ÑÑ‚Ð¾ ÐºÐ°Ñ‚Ð°Ð»Ð¾Ð³, Ñ‚Ð¾ FindFirstFile (FullName+"*.*")
+		   ÑÑ‚Ð¾Ñ‚ ÐºÐ°Ñ‚Ð°Ð»Ð¾Ð³ Ð½Ðµ Ð½Ð°Ð¹Ð´ÐµÑ‚. ÐŸÐ¾ÑÑ‚Ð¾Ð¼Ñƒ Ð´Ð»Ñ ÐºÐ°Ñ‚Ð°Ð»Ð¾Ð³Ð¾Ð² Ð¾Ð¿Ñ‚Ð¸Ð¼Ð¸Ð·Ð°Ñ†Ð¸ÑŽ Ñ
+		   SameFolderItems Ð¿Ñ€Ð¾Ð¿ÑƒÑÐºÐ°ÐµÐ¼.
 		*/
 		if (Length>0 && Length > (int)lstrlen(lpFullName))    /* DJ $ */
 		{
@@ -500,10 +500,10 @@ void TmpPanel::UpdateItems(int ShowOwners,int ShowLinks)
 			}
 		}
 
-		// SameFolderItems - îïòèìèçàöèÿ äëÿ ñëó÷àÿ, êîãäà â ïàíåëè ëåæàò
-		// íåñêîëüêî ôàéëîâ èç îäíîãî è òîãî æå êàòàëîãà. Ïðè ýòîì
-		// FindFirstFile() äåëàåòñÿ îäèí ðàç íà êàòàëîã, à íå îòäåëüíî äëÿ
-		// êàæäîãî ôàéëà.
+		// SameFolderItems - Ð¾Ð¿Ñ‚Ð¸Ð¼Ð¸Ð·Ð°Ñ†Ð¸Ñ Ð´Ð»Ñ ÑÐ»ÑƒÑ‡Ð°Ñ, ÐºÐ¾Ð³Ð´Ð° Ð² Ð¿Ð°Ð½ÐµÐ»Ð¸ Ð»ÐµÐ¶Ð°Ñ‚
+		// Ð½ÐµÑÐºÐ¾Ð»ÑŒÐºÐ¾ Ñ„Ð°Ð¹Ð»Ð¾Ð² Ð¸Ð· Ð¾Ð´Ð½Ð¾Ð³Ð¾ Ð¸ Ñ‚Ð¾Ð³Ð¾ Ð¶Ðµ ÐºÐ°Ñ‚Ð°Ð»Ð¾Ð³Ð°. ÐŸÑ€Ð¸ ÑÑ‚Ð¾Ð¼
+		// FindFirstFile() Ð´ÐµÐ»Ð°ÐµÑ‚ÑÑ Ð¾Ð´Ð¸Ð½ Ñ€Ð°Ð· Ð½Ð° ÐºÐ°Ñ‚Ð°Ð»Ð¾Ð³, Ð° Ð½Ðµ Ð¾Ñ‚Ð´ÐµÐ»ÑŒÐ½Ð¾ Ð´Ð»Ñ
+		// ÐºÐ°Ð¶Ð´Ð¾Ð³Ð¾ Ñ„Ð°Ð¹Ð»Ð°.
 		if (SameFolderItems>2)
 		{
 			WIN32_FIND_DATA FindData;

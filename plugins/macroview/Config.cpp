@@ -1,4 +1,4 @@
-void _fastcall TMacroView::ReadConfig()
+ï»¿void _fastcall TMacroView::ReadConfig()
 {
 	if (Reg->OpenKey(PluginRootKey))
 	{
@@ -148,7 +148,7 @@ BOOL _fastcall TMacroView::Configure()
 		OutCode=Info.DialogRun(hDlg);
 #endif
 
-	if (OutCode==16) // êíîïêà [Ñîõðàíèòü]
+	if (OutCode==16) // ÐºÐ½Ð¾Ð¿ÐºÐ° [Ð¡Ð¾Ñ…Ñ€Ð°Ð½Ð¸Ñ‚ÑŒ]
 	{
 		Reg->OpenKey(PluginRootKey);
 

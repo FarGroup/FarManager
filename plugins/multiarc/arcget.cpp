@@ -1,4 +1,4 @@
-#include "MultiArc.hpp"
+п»ї#include "MultiArc.hpp"
 #include "marclng.hpp"
 #include <farkeys.hpp>
 
@@ -34,7 +34,7 @@ inline void CreateDirectory(char *FullPath) //$ 16.05.2002 AA
 int PluginClass::GetFiles(PluginPanelItem *PanelItem, int ItemsNumber,
                           int Move, char *DestPath, int OpMode)
 {
-  //костыль против зацикливания в FAR'е при Quick View архивов с паролем
+  //РєРѕСЃС‚С‹Р»СЊ РїСЂРѕС‚РёРІ Р·Р°С†РёРєР»РёРІР°РЅРёСЏ РІ FAR'Рµ РїСЂРё Quick View Р°СЂС…РёРІРѕРІ СЃ РїР°СЂРѕР»РµРј
   TRecur Recur;   //$ 07.04.2002 AA
   if(Recur.Count>1 && OpMode&(OPM_VIEW|OPM_QUICKVIEW))
     return 0;
@@ -43,7 +43,7 @@ int PluginClass::GetFiles(PluginPanelItem *PanelItem, int ItemsNumber,
   GetCurrentDirectory(sizeof(SaveDir),SaveDir);
   char Command[512],AllFilesMask[32];
   if (ItemsNumber==0)
-    return /*0*/1; //$ 07.02.2002 AA чтобы многотомные CABы нормально распаковывались
+    return /*0*/1; //$ 07.02.2002 AA С‡С‚РѕР±С‹ РјРЅРѕРіРѕС‚РѕРјРЅС‹Рµ CABС‹ РЅРѕСЂРјР°Р»СЊРЅРѕ СЂР°СЃРїР°РєРѕРІС‹РІР°Р»РёСЃСЊ
   if (*DestPath)
     FSF.AddEndSlash(DestPath);
   const char *PathHistoryName="ExtrDestPath";
@@ -80,9 +80,9 @@ int PluginClass::GetFiles(PluginPanelItem *PanelItem, int ItemsNumber,
       }
   }
 
-  Opt.UserBackground=0; // $ 14.02.2001 raVen //сброс галки "фоновая архивация"
+  Opt.UserBackground=0; // $ 14.02.2001 raVen //СЃР±СЂРѕСЃ РіР°Р»РєРё "С„РѕРЅРѕРІР°СЏ Р°СЂС…РёРІР°С†РёСЏ"
   if ((OpMode & ~OPM_SILENT) & ~OPM_TOPLEVEL)
-    Opt.OldUserBackground=0; // $ 03.07.02 AY: если OPM_SILENT но не из за Shift-F2 при несколько выбраных архивах
+    Opt.OldUserBackground=0; // $ 03.07.02 AY: РµСЃР»Рё OPM_SILENT РЅРѕ РЅРµ РёР· Р·Р° Shift-F2 РїСЂРё РЅРµСЃРєРѕР»СЊРєРѕ РІС‹Р±СЂР°РЅС‹С… Р°СЂС…РёРІР°С…
   DialogItems[8].Selected=Opt.UserBackground;
   DialogItems[9].Selected=Move;
 
@@ -95,13 +95,13 @@ int PluginClass::GetFiles(PluginPanelItem *PanelItem, int ItemsNumber,
     lstrcpy(DestPath,DialogItems[2].Data);
     FSF.Unquote(DestPath);
     Opt.UserBackground=DialogItems[8].Selected;
-    Opt.OldUserBackground=Opt.UserBackground; // $ 02.07.2002 AY: запомним и не будем не где сбрасывать
+    Opt.OldUserBackground=Opt.UserBackground; // $ 02.07.2002 AY: Р·Р°РїРѕРјРЅРёРј Рё РЅРµ Р±СѓРґРµРј РЅРµ РіРґРµ СЃР±СЂР°СЃС‹РІР°С‚СЊ
     //SetRegKey(HKEY_CURRENT_USER,"","Background",Opt.UserBackground); // $ 06.02.2002 AA
   }
 
   LastWithoutPathsState=DialogItems[7].Selected;
 
-  Opt.Background=OpMode & OPM_SILENT ? Opt.OldUserBackground : Opt.UserBackground; // $ 02.07.2002 AY: Если OPM_SILENT значит выбрано несколько архивов
+  Opt.Background=OpMode & OPM_SILENT ? Opt.OldUserBackground : Opt.UserBackground; // $ 02.07.2002 AY: Р•СЃР»Рё OPM_SILENT Р·РЅР°С‡РёС‚ РІС‹Р±СЂР°РЅРѕ РЅРµСЃРєРѕР»СЊРєРѕ Р°СЂС…РёРІРѕРІ
 
   /*int SpaceOnly=TRUE;
   for (int I=0;DestPath[I]!=0;I++)
@@ -138,9 +138,9 @@ int PluginClass::GetFiles(PluginPanelItem *PanelItem, int ItemsNumber,
 
     /*if(OpMode & OPM_TOPLEVEL) // $ 16.02.2002 AA
     {
-      //?? есть разница между извлечением выделенных файлов тома и
-      //извлечением из выделенных томов. здесь можно ее учесть.
-      //как минимум - нужно изменить надпись в мессаджбоксе
+      //?? РµСЃС‚СЊ СЂР°Р·РЅРёС†Р° РјРµР¶РґСѓ РёР·РІР»РµС‡РµРЅРёРµРј РІС‹РґРµР»РµРЅРЅС‹С… С„Р°Р№Р»РѕРІ С‚РѕРјР° Рё
+      //РёР·РІР»РµС‡РµРЅРёРµРј РёР· РІС‹РґРµР»РµРЅРЅС‹С… С‚РѕРјРѕРІ. Р·РґРµСЃСЊ РјРѕР¶РЅРѕ РµРµ СѓС‡РµСЃС‚СЊ.
+      //РєР°Рє РјРёРЅРёРјСѓРј - РЅСѓР¶РЅРѕ РёР·РјРµРЅРёС‚СЊ РЅР°РґРїРёСЃСЊ РІ РјРµСЃСЃР°РґР¶Р±РѕРєСЃРµ
       MsgCode=1;
     }
     else        */
@@ -190,7 +190,7 @@ int PluginClass::GetFiles(PluginPanelItem *PanelItem, int ItemsNumber,
              DialogItems[5].Data,AllFilesMask,IgnoreErrors,
              (OpMode & OPM_VIEW)!=0,(OpMode & OPM_FIND),CurDir);
 
-  //последующие операции (тестирование и тд) не должны быть фоновыми
+  //РїРѕСЃР»РµРґСѓСЋС‰РёРµ РѕРїРµСЂР°С†РёРё (С‚РµСЃС‚РёСЂРѕРІР°РЅРёРµ Рё С‚Рґ) РЅРµ РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ С„РѕРЅРѕРІС‹РјРё
   Opt.Background=0; // $ 06.02.2002 AA
 
   Opt.HideOutput=SaveHideOut;

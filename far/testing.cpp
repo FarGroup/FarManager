@@ -51,19 +51,35 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-int testing_main(bool const IsBuildStep, int const Argc, wchar_t const* const Argv[])
+const auto DebugTests = false;
+
+std::optional<int> testing_main(int const Argc, wchar_t const* const Argv[])
 {
-	if (!IsBuildStep)
+	if (Argc > 1 && Argv[1] == L"/service:test"sv)
 	{
-		return Catch::Session().run(Argc, Argv);
+		if (DebugTests)
+		{
+			std::wcout << L"Unit tests skipped"sv << std::endl;
+			return EXIT_SUCCESS;
+		}
+
+		std::vector<const wchar_t*> Args;
+		Args.reserve(Argc - 1);
+		Args.push_back(Argv[0]);
+		Args.insert(Args.end(), Argv + 2, Argv + Argc);
+
+		return Catch::Session().run(Argc - 1, Args.data());
 	}
 
-	std::vector<const wchar_t*> Args;
-	Args.reserve(Argc - 1);
-	Args.push_back(*Argv);
-	Args.insert(Args.end(), Argv + 2, Argv + Argc);
+	if (DebugTests)
+	{
+		std::vector<const wchar_t*> Args(Argv, Argv + Argc);
+		Args.emplace_back(L"--break");
 
-	return Catch::Session().run(Argc - 1, Args.data());
+		return Catch::Session().run(Argc + 1, Args.data());
+	}
+
+	return {};
 }
 
 namespace

@@ -1,4 +1,4 @@
-class FormatDetector {
+﻿class FormatDetector {
 
 public:
 

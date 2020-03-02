@@ -1,4 +1,4 @@
-#include <cwchar>
+﻿#include <cwchar>
 #include "FileCase.hpp"
 #include "guid.hpp"
 

@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 #include <windows.h>
 
 #define __US_DELTA 20
@@ -103,7 +103,7 @@ public:
 template <typename T>
 StringData<T> *eus()
 {
-	//для оптимизации создания пустых String
+	//РґР»СЏ РѕРїС‚РёРјРёР·Р°С†РёРё СЃРѕР·РґР°РЅРёСЏ РїСѓСЃС‚С‹С… String
 	static StringData<T> *EmptyStringData = new StringData<T>(1,1);
 	return EmptyStringData;
 }

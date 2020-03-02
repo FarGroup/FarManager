@@ -1,4 +1,4 @@
-#include <shlobj.h>
+﻿#include <shlobj.h>
 #include "ustring.h"
 #include "compat52.h"
 

@@ -1,4 +1,4 @@
-#ifndef _USTRING_H
+﻿#ifndef _USTRING_H
 #define _USTRING_H
 
 #include <windows.h>

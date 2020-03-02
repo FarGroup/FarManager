@@ -1,4 +1,4 @@
-void MakeCryptPassword(LPCSTR Src,BYTE Dest[FTP_PWD_LEN])
+﻿void MakeCryptPassword(LPCSTR Src,BYTE Dest[FTP_PWD_LEN])
 {
 	BYTE    *CurDest;
 	clock_t  Random = clock();

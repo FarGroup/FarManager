@@ -1,4 +1,4 @@
-#ifndef __PLUGINSETTINGS_HPP__
+﻿#ifndef __PLUGINSETTINGS_HPP__
 #define __PLUGINSETTINGS_HPP__
 
 #include "plugin.hpp"

@@ -1,4 +1,4 @@
-#include "newarc.h"
+ï»¿#include "newarc.h"
 
 extern char *lpINIFileName;
 
@@ -715,7 +715,7 @@ void GetArchiveItemsToProcess (
 		}
 		else
 		{
-			//åñëè ìû ñþäà ïîïàëè - ó íàñ ïîõîæå ïðîáëåìû.
+			//Ñ…Ñ‘Ñ‹Ñˆ ÑŒâˆš Ñ‘â– Ñ„Ñ€ ÑÑŽÑÑ€Ñ‹Ñˆ - Ñ” ÑÑ€Ñ‘ ÑÑŽÑ—ÑŽÑ†Ñ… ÑÐÑŽÑÑ‹Ñ…ÑŒâˆš.
 
 			char *lpFullName = StrCreate (260);
 
@@ -817,7 +817,7 @@ void ExecuteCommand (
 /*		char *pMsgs[2];
 
 		pMsgs[0] = "";
-		pMsgs[1] = "‚ë¯®«­ï¥âáï  àå¨¢­ ï ®¯¥à æ¨ï";
+		pMsgs[1] = "Ð’Ñ‹Ð¿Ð¾Ð»Ð½ÑÐµÑ‚ÑÑ Ð°Ñ€Ñ…Ð¸Ð²Ð½Ð°Ñ Ð¾Ð¿ÐµÑ€Ð°Ñ†Ð¸Ñ";
 
 		Info.Message (
 				Info.ModuleNumber,
@@ -1053,7 +1053,7 @@ LONG_PTR __stdcall hndAddEditTemplate (
 
 void LoadTemplates ()
 {
-	char *szNames = StrCreate (4096); //ï §­ î, çâ® íâ® « ¬¥àáâ¢®, ­® ï ¢®®¡é¥ ­¥ á®¡¨à îáì åà ­¨âì è ¡«®­ë ¢ ¨­¨. ???
+	char *szNames = StrCreate (4096); //Ñ Ð·Ð½Ð°ÑŽ, Ñ‡Ñ‚Ð¾ ÑÑ‚Ð¾ Ð»Ð°Ð¼ÐµÑ€ÑÑ‚Ð²Ð¾, Ð½Ð¾ Ñ Ð²Ð¾Ð¾Ð±Ñ‰Ðµ Ð½Ðµ ÑÐ¾Ð±Ð¸Ñ€Ð°ÑŽÑÑŒ Ñ…Ñ€Ð°Ð½Ð¸Ñ‚ÑŒ ÑˆÐ°Ð±Ð»Ð¾Ð½Ñ‹ Ð² Ð¸Ð½Ð¸. ???
 
 	Templates.create (ARRAY_OPTIONS_DELETE);
 
@@ -1136,14 +1136,14 @@ bool dlgAddEditTemplate (ArchiveTemplate *ptpl, bool bAdd)
 {
 	FarDialog D(-1, -1, 55, 11);
 
-	D.DoubleBox (3, 1, 51, 9, ( bAdd ) ? "„®¡ ¢¨âì è ¡«®­" : "ˆ§¬¥­¨âì è ¡«®­"); //0
+	D.DoubleBox (3, 1, 51, 9, ( bAdd ) ? "Ð”Ð¾Ð±Ð°Ð²Ð¸Ñ‚ÑŒ ÑˆÐ°Ð±Ð»Ð¾Ð½" : "Ð˜Ð·Ð¼ÐµÐ½Ð¸Ñ‚ÑŒ ÑˆÐ°Ð±Ð»Ð¾Ð½"); //0
 
-	D.Text (5, 2, "ˆ¬ï è ¡«®­ "); //1
+	D.Text (5, 2, "Ð˜Ð¼Ñ ÑˆÐ°Ð±Ð»Ð¾Ð½Ð°"); //1
 	D.Edit (5, 3, 45); //2
 
 	D.Separator (4); //3
 
-	D.Text (5, 5, "€àå¨¢ â®à"); //4
+	D.Text (5, 5, "ÐÑ€Ñ…Ð¸Ð²Ð°Ñ‚Ð¾Ñ€"); //4
 	D.ComboBox (5, 6, 15, NULL, 0); //5
 	D.SetFlags (DIF_DROPDOWNLIST);
 
@@ -1153,16 +1153,16 @@ bool dlgAddEditTemplate (ArchiveTemplate *ptpl, bool bAdd)
 //		D.Button (22, 5, "Internal config");
 //	else
 //	{
-		D.Text (22, 5, "„®¯®«­¨â¥«ì­ë¥ ¯ à ¬¥âàë"); //6
+		D.Text (22, 5, "Ð”Ð¾Ð¿Ð¾Ð»Ð½Ð¸Ñ‚ÐµÐ»ÑŒÐ½Ñ‹Ðµ Ð¿Ð°Ñ€Ð°Ð¼ÐµÑ‚Ñ€Ñ‹"); //6
 		D.Edit (22, 6, 27); //7
 //	}
 
 	D.Separator(7); //8
 
-	D.Button(-1, 8, ( bAdd ) ? "„®¡ ¢¨âì" : "à¨¬¥­¨âì"); //9
+	D.Button(-1, 8, ( bAdd ) ? "Ð”Ð¾Ð±Ð°Ð²Ð¸Ñ‚ÑŒ" : "ÐŸÑ€Ð¸Ð¼ÐµÐ½Ð¸Ñ‚ÑŒ"); //9
 	D.DefaultButton ();
 
-	D.Button(-1, 8, "Žâ¬¥­¨âì"); //10
+	D.Button(-1, 8, "ÐžÑ‚Ð¼ÐµÐ½Ð¸Ñ‚ÑŒ"); //10
 
 
 	if ( D.ShowEx (hndAddEditTemplate, ptpl) == 9 )
@@ -1339,9 +1339,9 @@ LONG_PTR __stdcall hndModifyCreateArchive (
 						lpPassword1,
 						lpPassword2
 						) )
-					D->SetTextPtr (21, "(¯ à®«¨ á®¢¯ ¤ îâ)");
+					D->SetTextPtr (21, "(Ð¿Ð°Ñ€Ð¾Ð»Ð¸ ÑÐ¾Ð²Ð¿Ð°Ð´Ð°ÑŽÑ‚)");
 				else
-					D->SetTextPtr (21, "(¯ à®«¨ … á®¢¯ ¤ îâ)");
+					D->SetTextPtr (21, "(Ð¿Ð°Ñ€Ð¾Ð»Ð¸ ÐÐ• ÑÐ¾Ð²Ð¿Ð°Ð´Ð°ÑŽÑ‚)");
 			}
 
 			StrFree (lpPassword1);
@@ -1459,15 +1459,15 @@ void dlgModifyCreateArchive (ArchivePanel *pPanel)
 
 	D.DoubleBox (3, 1, 71, 18, NULL); //0
 
-	D.Text (5, 2, "&„®¡ ¢¨âì ª  àå¨¢ã");//1
+	D.Text (5, 2, "&Ð”Ð¾Ð±Ð°Ð²Ð¸Ñ‚ÑŒ Ðº Ð°Ñ€Ñ…Ð¸Ð²Ñƒ");//1
 	D.Edit (5, 3, 65, lpArchiveName, AUTO_LENGTH, "sdfas"); //2
 
 	D.Separator (4); //3
 
-	D.Text (5, 5, " áâà®©ª¨  àå¨¢ â®à :"); //4
+	D.Text (5, 5, "ÐÐ°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ¸ Ð°Ñ€Ñ…Ð¸Ð²Ð°Ñ‚Ð¾Ñ€Ð°:"); //4
 
-	D.RadioButton (6, 6, true, "˜ ¡«®­:"); //5
-	D.RadioButton (6, 8, false, "¥¯®áà¥¤áâ¢¥­­ë¥ ­ áâà®©ª¨:"); //6
+	D.RadioButton (6, 6, true, "Ð¨Ð°Ð±Ð»Ð¾Ð½:"); //5
+	D.RadioButton (6, 8, false, "ÐÐµÐ¿Ð¾ÑÑ€ÐµÐ´ÑÑ‚Ð²ÐµÐ½Ð½Ñ‹Ðµ Ð½Ð°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ¸:"); //6
 
 	D.ComboBox (9, 7, 48, NULL, 0); //7
 	D.SetFlags (DIF_DROPDOWNLIST);
@@ -1481,34 +1481,34 @@ void dlgModifyCreateArchive (ArchivePanel *pPanel)
 	D.Button (67, 7, "[*]"); //10
 	D.SetFlags(DIF_BTNNOCLOSE);
 
-	D.Text (9, 9, "€àå¨¢ â®à:");//11
+	D.Text (9, 9, "ÐÑ€Ñ…Ð¸Ð²Ð°Ñ‚Ð¾Ñ€:");//11
 	D.ComboBox (19, 9, 15, NULL, 0, "123");//12
 ///	D->ListBox (50, 5, 65, 10, NULL);
 	D.SetFlags (DIF_DROPDOWNLIST);
 
-	D.Text (37, 9, "„&®¯. ¯ à ¬¥âàë:");//13
+	D.Text (37, 9, "Ð”&Ð¾Ð¿. Ð¿Ð°Ñ€Ð°Ð¼ÐµÑ‚Ñ€Ñ‹:");//13
 	D.Edit (52, 9, 18, NULL, AUTO_LENGTH, "adsaf");//14
 
 	D.Separator (10); //15
 
-	D.Text (5, 11, "& à®«ì"); //16
+	D.Text (5, 11, "&ÐŸÐ°Ñ€Ð¾Ð»ÑŒ"); //16
 	D.PswEdit (5, 12, 32); //17
 
-	D.Text (38, 11, "&®¤â¢¥à¦¤¥­¨¥ ¯ à®«ï"); //18
+	D.Text (38, 11, "&ÐŸÐ¾Ð´Ñ‚Ð²ÐµÑ€Ð¶Ð´ÐµÐ½Ð¸Ðµ Ð¿Ð°Ñ€Ð¾Ð»Ñ"); //18
 	D.PswEdit (38, 12, 32); //19
 
 	D.Separator (13); //20
 	D.Text (48, 13); //21
 
-	D.CheckBox (5, 14, false, "’®ç­®¥ á®®â¢¥âáâ¢¨¥ ¨¬¥­¨ ä ©« "); //22
-	D.CheckBox (5, 15, false, "Š ¦¤ë© í«¥¬¥­â ¢ ®â¤¥«ì­ë©  àå¨¢"); //23
+	D.CheckBox (5, 14, false, "Ð¢Ð¾Ñ‡Ð½Ð¾Ðµ ÑÐ¾Ð¾Ñ‚Ð²ÐµÑ‚ÑÑ‚Ð²Ð¸Ðµ Ð¸Ð¼ÐµÐ½Ð¸ Ñ„Ð°Ð¹Ð»Ð°"); //22
+	D.CheckBox (5, 15, false, "ÐšÐ°Ð¶Ð´Ñ‹Ð¹ ÑÐ»ÐµÐ¼ÐµÐ½Ñ‚ Ð² Ð¾Ñ‚Ð´ÐµÐ»ÑŒÐ½Ñ‹Ð¹ Ð°Ñ€Ñ…Ð¸Ð²"); //23
 
 	D.Separator (16); //24
 
-	D.Button (-1, 17, "„®¡ ¢¨âì"); //25
+	D.Button (-1, 17, "Ð”Ð¾Ð±Ð°Ð²Ð¸Ñ‚ÑŒ"); //25
 	D.DefaultButton ();
 
-	D.Button (-1, 17, "Žâ¬¥­¨âì"); //26
+	D.Button (-1, 17, "ÐžÑ‚Ð¼ÐµÐ½Ð¸Ñ‚ÑŒ"); //26
 
 	D.Button (-1, 17, "[?]"); //27
 
@@ -1556,7 +1556,7 @@ void dlgModifyCreateArchive (ArchivePanel *pPanel)
 
 				if ( pArchive )
 				{
-					if ( pArchive->pOpenArchive (OM_ADD) ) //!!! ¯®ª  ­ ¤®, å®âï ­¥ ã¢¥à¥­ ­ áç¥â OpMode, ¢®§¬®¦­® ã¡¥àã.
+					if ( pArchive->pOpenArchive (OM_ADD) ) //!!! Ð¿Ð¾ÐºÐ° Ð½Ð°Ð´Ð¾, Ñ…Ð¾Ñ‚Ñ Ð½Ðµ ÑƒÐ²ÐµÑ€ÐµÐ½ Ð½Ð°ÑÑ‡ÐµÑ‚ OpMode, Ð²Ð¾Ð·Ð¼Ð¾Ð¶Ð½Ð¾ ÑƒÐ±ÐµÑ€Ñƒ.
 					{
 						pPanel->pPutFilesNew (
 							pArchive,
@@ -1568,7 +1568,7 @@ void dlgModifyCreateArchive (ArchivePanel *pPanel)
 
 						bResult = true;
 
-						pArchive->pCloseArchive (); //!!!   ­ ¤® «¨?
+						pArchive->pCloseArchive (); //!!! Ð° Ð½Ð°Ð´Ð¾ Ð»Ð¸?
 					}
 
 					pPlugin->FinalizeArchive (pArchive);
@@ -1751,26 +1751,26 @@ bool dlgGetArchiveFiles (
 
 	FarDialog D (-1, -1, 75, 13);
 
-	D.DoubleBox (3, 1, 71, 11, bMove?" á¯ ª®¢ª  á ã¤ «¥­¨¥¬ ¨§  àå¨¢ ":" á¯ ª®¢ª "); //0
+	D.DoubleBox (3, 1, 71, 11, bMove?"Ð Ð°ÑÐ¿Ð°ÐºÐ¾Ð²ÐºÐ° Ñ ÑƒÐ´Ð°Ð»ÐµÐ½Ð¸ÐµÐ¼ Ð¸Ð· Ð°Ñ€Ñ…Ð¸Ð²Ð°":"Ð Ð°ÑÐ¿Ð°ÐºÐ¾Ð²ÐºÐ°"); //0
 
-	D.Text (5, 2, "& á¯ ª®¢ âì ¢"); //1
+	D.Text (5, 2, "&Ð Ð°ÑÐ¿Ð°ÐºÐ¾Ð²Ð°Ñ‚ÑŒ Ð²"); //1
 	D.Edit (5, 3, 65, lpResultDestPath, AUTO_LENGTH, "123"); //2
 
 	D.Separator (4);
 
-	D.Text (5, 5, "& à®«ì");
+	D.Text (5, 5, "&ÐŸÐ°Ñ€Ð¾Ð»ÑŒ");
 	D.PswEdit (5, 6, 40);
 
 	D.Separator (7);
 
-	D.CheckBox (5, 8, false, " á¯ ª®¢ª  ¡¥§ ¯ãâ¥©");
+	D.CheckBox (5, 8, false, "Ð Ð°ÑÐ¿Ð°ÐºÐ¾Ð²ÐºÐ° Ð±ÐµÐ· Ð¿ÑƒÑ‚ÐµÐ¹");
 
 	D.Separator (9);
 
-	D.Button (-1, 10, " á¯ ª®¢ âì");
+	D.Button (-1, 10, "Ð Ð°ÑÐ¿Ð°ÐºÐ¾Ð²Ð°Ñ‚ÑŒ");
 	D.DefaultButton ();
 
-	D.Button (-1, 10, "Žâ¬¥­¨âì");
+	D.Button (-1, 10, "ÐžÑ‚Ð¼ÐµÐ½Ð¸Ñ‚ÑŒ");
 
 	if ( D.Show () == D.FirstButton() )
 	{
@@ -1914,10 +1914,10 @@ bool msgDeleteFiles ()
 {
 	const char *pMsgs[4];
 
-	pMsgs[0] = "“¤ «¥­¨¥ ¨§  àå¨¢ ";
-	pMsgs[1] = "‚ë å®â¨â¥ ã¤ «¨âì ¨§  àå¨¢  ä ©«ë";
-	pMsgs[2] = "“¤ «¨âì";
-	pMsgs[3] = "Žâ¬¥­¨âì";
+	pMsgs[0] = "Ð£Ð´Ð°Ð»ÐµÐ½Ð¸Ðµ Ð¸Ð· Ð°Ñ€Ñ…Ð¸Ð²Ð°";
+	pMsgs[1] = "Ð’Ñ‹ Ñ…Ð¾Ñ‚Ð¸Ñ‚Ðµ ÑƒÐ´Ð°Ð»Ð¸Ñ‚ÑŒ Ð¸Ð· Ð°Ñ€Ñ…Ð¸Ð²Ð° Ñ„Ð°Ð¹Ð»Ñ‹";
+	pMsgs[2] = "Ð£Ð´Ð°Ð»Ð¸Ñ‚ÑŒ";
+	pMsgs[3] = "ÐžÑ‚Ð¼ÐµÐ½Ð¸Ñ‚ÑŒ";
 
 	return !Info.Message (
 			Info.ModuleNumber,
@@ -2066,7 +2066,7 @@ int mnuChooseOperation ()
 			-1,
 			0,
 			FMENU_WRAPMODE,
-			"€àå¨¢­ë¥ ª®¬¬ ­¤ë",
+			"ÐÑ€Ñ…Ð¸Ð²Ð½Ñ‹Ðµ ÐºÐ¾Ð¼Ð¼Ð°Ð½Ð´Ñ‹",
 			NULL,
 			NULL,
 			NULL,
@@ -2146,7 +2146,7 @@ int __stdcall ArchivePanel::pProcessHostFile(
 			TS.pItems = pItemsToProcess;
 			TS.nItemsNumber = nItemsToProcessNumber;
 
-			m_pArchive->m_pPlugin->m_pfnPluginEntry (FID_TEST, (void*)&TS); //« ¬¥àáâ¢®, ­ âãà «ì­®¥!!! ¨á¯à ¢¨âì ®¡ï§ â¥«ì­®
+			m_pArchive->m_pPlugin->m_pfnPluginEntry (FID_TEST, (void*)&TS); //Ð»Ð°Ð¼ÐµÑ€ÑÑ‚Ð²Ð¾, Ð½Ð°Ñ‚ÑƒÑ€Ð°Ð»ÑŒÐ½Ð¾Ðµ!!! Ð¸ÑÐ¿Ñ€Ð°Ð²Ð¸Ñ‚ÑŒ Ð¾Ð±ÑÐ·Ð°Ñ‚ÐµÐ»ÑŒÐ½Ð¾
 
 			m_pArchive->pCloseArchive ();
 		}
@@ -2178,8 +2178,8 @@ int __stdcall ArchivePanel::pProcessKey (
 		char szFolderPath[MAX_PATH];
 
 		if ( Info.InputBox (
-				"‘®§¤ ­¨¥ ¯ ¯ª¨",
-				"‘®§¤ âì ¯ ¯ªã",
+				"Ð¡Ð¾Ð·Ð´Ð°Ð½Ð¸Ðµ Ð¿Ð°Ð¿ÐºÐ¸",
+				"Ð¡Ð¾Ð·Ð´Ð°Ñ‚ÑŒ Ð¿Ð°Ð¿ÐºÑƒ",
 				NULL,
 				NULL,
 				szFolderPath,

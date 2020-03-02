@@ -1,9 +1,11 @@
+#pragma code_page(65001)
+
 #include "farversion.hpp"
 
 #define PLUGIN_BUILD 28
 #define PLUGIN_DESC "Macro browser for FAR Manager"
 #define PLUGIN_NAME "MacroView"
 #define PLUGIN_FILENAME "MacroView.dll"
-#define PLUGIN_COPYRIGHT "Copyright © Konstantin Melnikov 1998-2007, " FARGROUPCOPYRIGHT("2007")
+#define PLUGIN_COPYRIGHT "Copyright Â© Konstantin Melnikov 1998-2007, " FARGROUPCOPYRIGHT("2007")
 
 fullgenericpluginrc(FAR_MAJOR_VER, FAR_MINOR_VER, PLUGIN_BUILD, PLUGIN_DESC, PLUGIN_NAME, PLUGIN_FILENAME, PLUGIN_COPYRIGHT, FAR_MAJOR_VER, FAR_MINOR_VER, FAR_BUILD, FARPRODUCTNAME)

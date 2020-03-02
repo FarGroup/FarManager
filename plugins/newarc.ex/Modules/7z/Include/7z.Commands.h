@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 static const TCHAR *pRAR[]={
 /*Extract               */_T("rar x {-p%%P} {-ap%%R} -y -c- -kb -- %%A @%%LNM"),

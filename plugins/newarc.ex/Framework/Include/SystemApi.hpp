@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Rtl.Base.h"
 #include "StringBase.hpp"
 #include "strmix.hpp"

@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 #include "7z.h"
 
 struct ArchiveUpdateItem {
@@ -36,7 +36,7 @@ public:
 	CArchiveUpdateCallback(
 			SevenZipArchive* pArchive,
 			const TCHAR* lpPassword,
-			const Array<ArchiveUpdateItem*>& indicies,  ///это какое-то УГ
+			const Array<ArchiveUpdateItem*>& indicies,  ///СЌС‚Рѕ РєР°РєРѕРµ-С‚Рѕ РЈР“
 			const TCHAR* lpSourceDiskPath,
 			const TCHAR* lpPathInArchive
 			);

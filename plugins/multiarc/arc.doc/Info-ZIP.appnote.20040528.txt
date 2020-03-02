@@ -1,4 +1,4 @@
-[Info-ZIP note, 20040528:  this file is based on PKWARE's appnote.txt of
+﻿[Info-ZIP note, 20040528:  this file is based on PKWARE's appnote.txt of
  15 February 1996, taking into account PKWARE's revised appnote.txt
  version 6.2.0 of 26 April 2004.  It has been unofficially corrected
  and extended by Info-ZIP without explicit permission by PKWARE.
