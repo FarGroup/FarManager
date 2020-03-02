@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "FarPluginBase.hpp"
 
 extern bool LoadLanguageFile (

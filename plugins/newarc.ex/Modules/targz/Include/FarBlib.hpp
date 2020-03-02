@@ -1,4 +1,4 @@
-#ifndef __FARBLIB_HPP__
+﻿#ifndef __FARBLIB_HPP__
 #define __FARBLIB_HPP__
 
 #include "bzlib.h"

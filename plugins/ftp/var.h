@@ -1,4 +1,4 @@
-#ifndef __FAR_PLUGIN_FTP_VARS
+﻿#ifndef __FAR_PLUGIN_FTP_VARS
 #define __FAR_PLUGIN_FTP_VARS
 
 /* The following defines are from ftp.h and telnet.h from bsd.h */

@@ -1,4 +1,4 @@
-#ifndef _PLUGIN_H_
+﻿#ifndef _PLUGIN_H_
 #define _PLUGIN_H_
 
 #include <plugin.hpp>

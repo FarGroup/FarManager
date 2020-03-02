@@ -1,4 +1,4 @@
-#ifndef __NETCOMMON_HPP__
+﻿#ifndef __NETCOMMON_HPP__
 #define __NETCOMMON_HPP__
 
 #ifdef _MSC_VER

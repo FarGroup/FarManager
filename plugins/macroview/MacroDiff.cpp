@@ -1,4 +1,4 @@
-#define EXPORTLEN 70
+п»ї#define EXPORTLEN 70
 #define BUTTONLEN 64
 #define DIALOGWID 76
 #define DIALOGHGT 24
@@ -33,7 +33,7 @@ LONG_PTR WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
 			else
 				MenuDialogProc(hDlg,DM_KEY,0,KEY_ENTER);
 
-			// Сообщение обработано, больше не обрабатывать его.
+			// РЎРѕРѕР±С‰РµРЅРёРµ РѕР±СЂР°Р±РѕС‚Р°РЅРѕ, Р±РѕР»СЊС€Рµ РЅРµ РѕР±СЂР°Р±Р°С‚С‹РІР°С‚СЊ РµРіРѕ.
 			return TRUE;
 		}
 		case DN_DRAGGED:
@@ -101,15 +101,15 @@ LONG_PTR WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
 
 			switch (Param2)
 			{
-					// Экспорт макро
+					// Р­РєСЃРїРѕСЂС‚ РјР°РєСЂРѕ
 				case KEY_F2:
-					// Экспорт всех макро
+					// Р­РєСЃРїРѕСЂС‚ РІСЃРµС… РјР°РєСЂРѕ
 				case KEY_SHIFTF2:
 					Macro->ActiveMode=MAC_EXPORTACTIVE;
 					Macro->ExportMacro(Param2&KEY_SHIFT?TRUE:FALSE);
 					Macro->ActiveMode=MAC_MENUACTIVE;
 					return TRUE;
-					// Редактирование
+					// Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ
 				case KEY_F4:
 				case KEY_ENTER:
 					Macro->ActiveMode=MAC_EDITACTIVE;
@@ -119,7 +119,7 @@ LONG_PTR WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
 
 					Macro->ActiveMode=MAC_MENUACTIVE;
 					return TRUE;
-					// Добавление
+					// Р”РѕР±Р°РІР»РµРЅРёРµ
 				case KEY_INS:
 					Macro->ActiveMode=MAC_EDITACTIVE;
 
@@ -128,7 +128,7 @@ LONG_PTR WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
 
 					Macro->ActiveMode=MAC_MENUACTIVE;
 					return TRUE;
-					// Копирование - Перемещение
+					// РљРѕРїРёСЂРѕРІР°РЅРёРµ - РџРµСЂРµРјРµС‰РµРЅРёРµ
 				case KEY_F5:
 				case KEY_F6:
 					Macro->ActiveMode=MAC_COPYACTIVE;
@@ -138,7 +138,7 @@ LONG_PTR WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
 
 					Macro->ActiveMode=MAC_MENUACTIVE;
 					return TRUE;
-					// Удаление
+					// РЈРґР°Р»РµРЅРёРµ
 				case KEY_DEL:
 					Macro->ActiveMode=MAC_DELETEACTIVE;
 
@@ -147,7 +147,7 @@ LONG_PTR WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
 
 					Macro->ActiveMode=MAC_MENUACTIVE;
 					return TRUE;
-					// Группа вверх
+					// Р“СЂСѓРїРїР° РІРІРµСЂС…
 				case KEY_CTRLUP:
 				{
 					int Pos1=(int)Info.SendDlgMessage(hDlg,DM_LISTGETCURPOS,0,(LONG_PTR)&ListPos);
@@ -175,11 +175,11 @@ LONG_PTR WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
 										if (i==0) break;
 									}
 
-									// Запомним позицию и установим её.
+									// Р—Р°РїРѕРјРЅРёРј РїРѕР·РёС†РёСЋ Рё СѓСЃС‚Р°РЅРѕРІРёРј РµС‘.
 									Macro->SelectPos=ListPos.SelectPos=i;
 									Info.SendDlgMessage(hDlg,DM_LISTSETCURPOS,0,(LONG_PTR)&ListPos);
 									Info.SendDlgMessage(hDlg,DM_LISTGETCURPOS,0,(LONG_PTR)&ListPos);
-									// Получим текущую верхнюю позицию в списке.
+									// РџРѕР»СѓС‡РёРј С‚РµРєСѓС‰СѓСЋ РІРµСЂС…РЅСЋСЋ РїРѕР·РёС†РёСЋ РІ СЃРїРёСЃРєРµ.
 //                  if (ListPos.TopPos<=Macro->SelectPos)
 									Macro->TopPos=ListPos.TopPos;
 									break;
@@ -190,7 +190,7 @@ LONG_PTR WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
 
 					return TRUE;
 				}
-				// Группа вниз
+				// Р“СЂСѓРїРїР° РІРЅРёР·
 				case KEY_CTRLDOWN:
 				{
 					int Pos1=(int)Info.SendDlgMessage(hDlg,DM_LISTGETCURPOS,0,(LONG_PTR)&ListPos);
@@ -205,11 +205,11 @@ LONG_PTR WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
 							{
 								if (CmpStr(MData->Group,MData1->Group)!=0)
 								{
-									// Запомним позицию и установим её.
+									// Р—Р°РїРѕРјРЅРёРј РїРѕР·РёС†РёСЋ Рё СѓСЃС‚Р°РЅРѕРІРёРј РµС‘.
 									Macro->SelectPos=ListPos.SelectPos=i;
 									Info.SendDlgMessage(hDlg,DM_LISTSETCURPOS,0,(LONG_PTR)&ListPos);
 									Info.SendDlgMessage(hDlg,DM_LISTGETCURPOS,0,(LONG_PTR)&ListPos);
-									// Получим текущую верхнюю позицию в списке.
+									// РџРѕР»СѓС‡РёРј С‚РµРєСѓС‰СѓСЋ РІРµСЂС…РЅСЋСЋ РїРѕР·РёС†РёСЋ РІ СЃРїРёСЃРєРµ.
 //                  if (ListPos.TopPos<=Macro->SelectPos)
 									Macro->TopPos=ListPos.TopPos;
 									break;
@@ -219,7 +219,7 @@ LONG_PTR WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
 
 						if (Macro->Conf.MenuCycle && i>=Macro->MenuItemsNumber)
 						{
-							// Запомним текущию верхнюю позицию и позицию курсора и установим их.
+							// Р—Р°РїРѕРјРЅРёРј С‚РµРєСѓС‰РёСЋ РІРµСЂС…РЅСЋСЋ РїРѕР·РёС†РёСЋ Рё РїРѕР·РёС†РёСЋ РєСѓСЂСЃРѕСЂР° Рё СѓСЃС‚Р°РЅРѕРІРёРј РёС….
 							Macro->SelectPos=Macro->TopPos=ListPos.SelectPos=ListPos.TopPos=0;
 							Info.SendDlgMessage(hDlg,DM_LISTSETCURPOS,0,(LONG_PTR)&ListPos);
 						}
@@ -444,7 +444,7 @@ LONG_PTR WINAPI MacroDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
 		case DN_BTNCLICK:
 
 #ifdef UNICODE
-			if (Param1==31) // кнопка [Проверить]
+			if (Param1==31) // РєРЅРѕРїРєР° [РџСЂРѕРІРµСЂРёС‚СЊ]
 			{
 				ActlKeyMacro command;
 				command.Command=MCMD_CHECKMACRO;
@@ -469,10 +469,10 @@ LONG_PTR WINAPI MacroDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
 #endif
 			if (Param1==16) // Active panel
 			{
-				// Запретим отрисовку экрана
+				// Р—Р°РїСЂРµС‚РёРј РѕС‚СЂРёСЃРѕРІРєСѓ СЌРєСЂР°РЅР°
 				Info.SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
 
-				if (Param2==0) // Пометка снята
+				if (Param2==0) // РџРѕРјРµС‚РєР° СЃРЅСЏС‚Р°
 				{
 					//Info.SendDlgMessage(hDlg,DM_SETCHECK,18,BSTATE_3STATE);
 					//Info.SendDlgMessage(hDlg,DM_SETCHECK,20,BSTATE_3STATE);
@@ -488,16 +488,16 @@ LONG_PTR WINAPI MacroDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
 					Info.SendDlgMessage(hDlg,DM_ENABLE,22,TRUE);
 				}
 
-				// Разрешим отрисовку экрана
+				// Р Р°Р·СЂРµС€РёРј РѕС‚СЂРёСЃРѕРІРєСѓ СЌРєСЂР°РЅР°
 				Info.SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
 				return TRUE;
 			}
 			else if (Param1==17) // Passive panel
 			{
-				// Запретим отрисовку экрана
+				// Р—Р°РїСЂРµС‚РёРј РѕС‚СЂРёСЃРѕРІРєСѓ СЌРєСЂР°РЅР°
 				Info.SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
 
-				if (Param2==0) // Пометка снята
+				if (Param2==0) // РџРѕРјРµС‚РєР° СЃРЅСЏС‚Р°
 				{
 					//Info.SendDlgMessage(hDlg,DM_SETCHECK,19,BSTATE_3STATE);
 					//Info.SendDlgMessage(hDlg,DM_SETCHECK,21,BSTATE_3STATE);
@@ -513,7 +513,7 @@ LONG_PTR WINAPI MacroDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
 					Info.SendDlgMessage(hDlg,DM_ENABLE,23,TRUE);
 				}
 
-				// Разрешим отрисовку экрана
+				// Р Р°Р·СЂРµС€РёРј РѕС‚СЂРёСЃРѕРІРєСѓ СЌРєСЂР°РЅР°
 				Info.SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
 				return TRUE;
 			}
@@ -925,10 +925,10 @@ BOOL __fastcall ProcessPeekKey(PINPUT_RECORD ir)
 				break;
 			case MAC_EDITACTIVE:
 
-				// Включен режим копирования текста с экрана?
+				// Р’РєР»СЋС‡РµРЅ СЂРµР¶РёРј РєРѕРїРёСЂРѕРІР°РЅРёСЏ С‚РµРєСЃС‚Р° СЃ СЌРєСЂР°РЅР°?
 				if (Macro->AltInsPressed)
 				{
-					// Запретим в режиме копирования текста с экрана работать Ctrl-Dot
+					// Р—Р°РїСЂРµС‚РёРј РІ СЂРµР¶РёРјРµ РєРѕРїРёСЂРѕРІР°РЅРёСЏ С‚РµРєСЃС‚Р° СЃ СЌРєСЂР°РЅР° СЂР°Р±РѕС‚Р°С‚СЊ Ctrl-Dot
 					if (KeyCode==0xbe && CtrlPressed && !AltPressed) // Ctrl-Dot pressed
 						return FALSE;
 
@@ -942,10 +942,10 @@ BOOL __fastcall ProcessPeekKey(PINPUT_RECORD ir)
 					return TRUE;
 				}
 
-				// Если не в режиме ввода макроса
+				// Р•СЃР»Рё РЅРµ РІ СЂРµР¶РёРјРµ РІРІРѕРґР° РјР°РєСЂРѕСЃР°
 				if (!Macro->WaitForKeyToMacro && !Macro->CtrlDotPressed && !Macro->AltInsPressed)
 				{
-					// Включим режим копирования текста с экрана
+					// Р’РєР»СЋС‡РёРј СЂРµР¶РёРј РєРѕРїРёСЂРѕРІР°РЅРёСЏ С‚РµРєСЃС‚Р° СЃ СЌРєСЂР°РЅР°
 					if (KeyCode==VK_INSERT && !CtrlPressed && AltPressed && !ShiftPressed) // Alt-Ins pressed
 					{
 						Macro->AltInsPressed=TRUE;
@@ -953,10 +953,10 @@ BOOL __fastcall ProcessPeekKey(PINPUT_RECORD ir)
 					}
 				}
 
-				// Включим режим ввода макроса
+				// Р’РєР»СЋС‡РёРј СЂРµР¶РёРј РІРІРѕРґР° РјР°РєСЂРѕСЃР°
 				if (KeyCode==0xbe && CtrlPressed && !AltPressed) // Ctrl-Dot pressed
 				{
-					// Включена помощь, диалог перемещается или режим копирования текста с экрана
+					// Р’РєР»СЋС‡РµРЅР° РїРѕРјРѕС‰СЊ, РґРёР°Р»РѕРі РїРµСЂРµРјРµС‰Р°РµС‚СЃСЏ РёР»Рё СЂРµР¶РёРј РєРѕРїРёСЂРѕРІР°РЅРёСЏ С‚РµРєСЃС‚Р° СЃ СЌРєСЂР°РЅР°
 					if (Macro->HelpActivated || Macro->EditInMove || Macro->AltInsPressed)
 						return FALSE;
 
@@ -984,11 +984,11 @@ BOOL __fastcall ProcessPeekKey(PINPUT_RECORD ir)
 					return FALSE;
 				}
 
-				// Ожидаем клавишу активации макрокоманды.
+				// РћР¶РёРґР°РµРј РєР»Р°РІРёС€Сѓ Р°РєС‚РёРІР°С†РёРё РјР°РєСЂРѕРєРѕРјР°РЅРґС‹.
 				if (Macro->WaitForKeyToMacro)
 				{
-					// Запретим в режиме ввода макроса копировать текст с экрана
-					if (KeyCode==VK_INSERT && !CtrlPressed && AltPressed && !ShiftPressed) // Alt-Ins запрещено
+					// Р—Р°РїСЂРµС‚РёРј РІ СЂРµР¶РёРјРµ РІРІРѕРґР° РјР°РєСЂРѕСЃР° РєРѕРїРёСЂРѕРІР°С‚СЊ С‚РµРєСЃС‚ СЃ СЌРєСЂР°РЅР°
+					if (KeyCode==VK_INSERT && !CtrlPressed && AltPressed && !ShiftPressed) // Alt-Ins Р·Р°РїСЂРµС‰РµРЅРѕ
 						return FALSE;
 
 					Key=FSF.FarInputRecordToKey(ir);
@@ -1003,7 +1003,7 @@ BOOL __fastcall ProcessPeekKey(PINPUT_RECORD ir)
 								Key|=KEY_SHIFT;
 
 							DefKeyDialogProc(Macro->DefDlg,DN_KEY,0,(LONG_PTR)Key);
-							// Завершающая стадия, поэтому очистим событие, но вернём TRUE
+							// Р—Р°РІРµСЂС€Р°СЋС‰Р°СЏ СЃС‚Р°РґРёСЏ, РїРѕСЌС‚РѕРјСѓ РѕС‡РёСЃС‚РёРј СЃРѕР±С‹С‚РёРµ, РЅРѕ РІРµСЂРЅС‘Рј TRUE
 							ZeroMemory(&ir->Event.KeyEvent,sizeof(ir->Event.KeyEvent));
 							return TRUE;
 						}
@@ -1012,11 +1012,11 @@ BOOL __fastcall ProcessPeekKey(PINPUT_RECORD ir)
 					return FALSE;
 				}
 
-				// Ctrl-. нажата - обрабатываем клавиши.
+				// Ctrl-. РЅР°Р¶Р°С‚Р° - РѕР±СЂР°Р±Р°С‚С‹РІР°РµРј РєР»Р°РІРёС€Рё.
 				if (Macro->CtrlDotPressed)
 				{
-					// Запретим в режиме ввода макроса копировать текст с экрана
-					if (KeyCode==VK_INSERT && !CtrlPressed && AltPressed && !ShiftPressed) // Alt-Ins запрещено
+					// Р—Р°РїСЂРµС‚РёРј РІ СЂРµР¶РёРјРµ РІРІРѕРґР° РјР°РєСЂРѕСЃР° РєРѕРїРёСЂРѕРІР°С‚СЊ С‚РµРєСЃС‚ СЃ СЌРєСЂР°РЅР°
+					if (KeyCode==VK_INSERT && !CtrlPressed && AltPressed && !ShiftPressed) // Alt-Ins Р·Р°РїСЂРµС‰РµРЅРѕ
 						return FALSE;
 
 					Key=FSF.FarInputRecordToKey(ir);
@@ -1479,7 +1479,7 @@ void __fastcall TMacroView::WriteKeyBar(int kbType)
 	                              NULL,NULL,NULL,
 	                             };
 	TCHAR *KeyBar[12];
-	//Узнаем ширину экрана консоли
+	//РЈР·РЅР°РµРј С€РёСЂРёРЅСѓ СЌРєСЂР°РЅР° РєРѕРЅСЃРѕР»Рё
 	//int ScrWidth=ConsoleSize.X+1;
 
 	switch (kbType)
@@ -1577,7 +1577,7 @@ BOOL __fastcall TMacroView::CreateDirs(TCHAR *Dir)
 	TCHAR *ptrend=Data+lstrlen(Data);
 	TCHAR *ptr;
 
-	// сетевой путь?
+	// СЃРµС‚РµРІРѕР№ РїСѓС‚СЊ?
 	if ((Data[0]==_T('\\')) && (Data[1]==_T('\\')))
 	{
 		ptr=_tcschr(&Data[2],_T('\\'));
@@ -1666,8 +1666,8 @@ TCHAR *TMacroView::ConvertGroupName(TCHAR *Group,int nWhere)
 
 					for (i=0; i<MacroGroupsSize; i++)
 					{
-						// Предполагаем, что Group короткое имя, поэтому
-						// производим поиск в массиве коротких имён
+						// РџСЂРµРґРїРѕР»Р°РіР°РµРј, С‡С‚Рѕ Group РєРѕСЂРѕС‚РєРѕРµ РёРјСЏ, РїРѕСЌС‚РѕРјСѓ
+						// РїСЂРѕРёР·РІРѕРґРёРј РїРѕРёСЃРє РІ РјР°СЃСЃРёРІРµ РєРѕСЂРѕС‚РєРёС… РёРјС‘РЅ
 						if (CmpStr(Group,MacroGroupShort[i])==0)
 						{
 							lstrcpy(Group,GroupItems[i].Text);
@@ -1680,8 +1680,8 @@ TCHAR *TMacroView::ConvertGroupName(TCHAR *Group,int nWhere)
 
 					for (i=0; i<MacroGroupsSize; i++)
 					{
-						// Предполагаем, что Group длинное имя, поэтому
-						// производим поиск в массиве длинных имён
+						// РџСЂРµРґРїРѕР»Р°РіР°РµРј, С‡С‚Рѕ Group РґР»РёРЅРЅРѕРµ РёРјСЏ, РїРѕСЌС‚РѕРјСѓ
+						// РїСЂРѕРёР·РІРѕРґРёРј РїРѕРёСЃРє РІ РјР°СЃСЃРёРІРµ РґР»РёРЅРЅС‹С… РёРјС‘РЅ
 						if (CmpStr(Group,GroupItems[i].Text)==0)
 						{
 							lstrcpy(Group,MacroGroupShort[i]);
@@ -2081,7 +2081,7 @@ MACRO_DIALOG:
 			ExitCode=Info.DialogRun(hDlg);
 #endif
 
-		if (ExitCode==4) // Сохранить
+		if (ExitCode==4) // РЎРѕС…СЂР°РЅРёС‚СЊ
 		{
 			ZeroMemory(&si,sizeof(si));
 			si.cb=sizeof(si);
@@ -2249,15 +2249,15 @@ void TMacroView::SwitchOver(const TCHAR *Group,const TCHAR *Key)
 			lstrcat(lKey,Key);
 		}
 
-		wsprintf(S,_T("%s\\%s\\%s"),KeyMacros,lGroup,lKey); //полное имя ключа реестра
+		wsprintf(S,_T("%s\\%s\\%s"),KeyMacros,lGroup,lKey); //РїРѕР»РЅРѕРµ РёРјСЏ РєР»СЋС‡Р° СЂРµРµСЃС‚СЂР°
 		CheckFirstBackSlash(S,TRUE);
 
-		if ((EditDialog[28].Param.Selected) && (!Deactivated))  // отключить макрокоманду
+		if ((EditDialog[28].Param.Selected) && (!Deactivated))  // РѕС‚РєР»СЋС‡РёС‚СЊ РјР°РєСЂРѕРєРѕРјР°РЅРґСѓ
 		{
 			wsprintf(Str,_T("%s\\%s\\~%s"),KeyMacros,lGroup,lKey);
 			Reg->MoveKey(S,Str); //(OldName,NewName);
 		}
-		else if ((!EditDialog[28].Param.Selected) && (Deactivated)) // восстановить макрокоманду
+		else if ((!EditDialog[28].Param.Selected) && (Deactivated)) // РІРѕСЃСЃС‚Р°РЅРѕРІРёС‚СЊ РјР°РєСЂРѕРєРѕРјР°РЅРґСѓ
 		{
 			wsprintf(Str,_T("%s\\%s\\%s"),KeyMacros,lGroup,&lKey[1]);
 			Reg->MoveKey(S,Str); //(OldName,NewName);
@@ -2282,7 +2282,7 @@ BOOL TMacroView::DeletingMacro(const TCHAR **Items,int ItemsSize,const TCHAR *He
 		}
 
 		lCode=Info.Message(Info.ModuleNumber,FMSG_WARNING,HelpTopic,Items,ItemsSize,3);
-		wsprintf(S,_T("%s\\%s\\%s"),KeyMacros,Group,lKey); //полное имя ключа реестра
+		wsprintf(S,_T("%s\\%s\\%s"),KeyMacros,Group,lKey); //РїРѕР»РЅРѕРµ РёРјСЏ РєР»СЋС‡Р° СЂРµРµСЃС‚СЂР°
 		CheckFirstBackSlash(S,TRUE);
 
 		if (lCode==0)
@@ -2299,9 +2299,9 @@ BOOL TMacroView::DeletingMacro(const TCHAR **Items,int ItemsSize,const TCHAR *He
 		}
 		else if (lCode==1)
 		{
-			if (Deactivated)  //TRUE - восстановить
+			if (Deactivated)  //TRUE - РІРѕСЃСЃС‚Р°РЅРѕРІРёС‚СЊ
 				wsprintf(Str,_T("%s\\%s\\%s"),KeyMacros,Group,&lKey[1]);
-			else         //FALSE - отключить
+			else         //FALSE - РѕС‚РєР»СЋС‡РёС‚СЊ
 				wsprintf(Str,_T("%s\\%s\\~%s"),KeyMacros,Group,lKey);
 
 			Reg->MoveKey(S,Str); //(OldName,NewName);
@@ -2320,12 +2320,12 @@ BOOL __fastcall TMacroView::CopyMoveMacro(int Op)
 	TCHAR LocalKeyMacros[MAX_PATH_LEN];
 	TCHAR lKey[MAX_KEY_LEN];
 	TCHAR lGroup[MAX_KEY_LEN];
-	// Если пользовательских конфигураций в фаре нет, то
-	// количество пользователей = 1 (Основная конфигурация)
+	// Р•СЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёС… РєРѕРЅС„РёРіСѓСЂР°С†РёР№ РІ С„Р°СЂРµ РЅРµС‚, С‚Рѕ
+	// РєРѕР»РёС‡РµСЃС‚РІРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ = 1 (РћСЃРЅРѕРІРЅР°СЏ РєРѕРЅС„РёРіСѓСЂР°С†РёСЏ)
 	int UserCount=1;
-	// Индекс текущей конфигурации в списке пользовательских конфигураций.
+	// РРЅРґРµРєСЃ С‚РµРєСѓС‰РµР№ РєРѕРЅС„РёРіСѓСЂР°С†РёРё РІ СЃРїРёСЃРєРµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёС… РєРѕРЅС„РёРіСѓСЂР°С†РёР№.
 	UserConfPos=0;
-	// Индекс области копирования.
+	// РРЅРґРµРєСЃ РѕР±Р»Р°СЃС‚Рё РєРѕРїРёСЂРѕРІР°РЅРёСЏ.
 	GroupPos=0;
 	const TCHAR *ItemsErrorConf[]=
 	{
@@ -2355,16 +2355,16 @@ BOOL __fastcall TMacroView::CopyMoveMacro(int Op)
 		_T("\x1"),
 		GetMsg(MMacroOk),
 	};
-	// Создадим локальную копию адреса расположения макросов в реестре
-	// в основной конфигурации пользователя.
+	// РЎРѕР·РґР°РґРёРј Р»РѕРєР°Р»СЊРЅСѓСЋ РєРѕРїРёСЋ Р°РґСЂРµСЃР° СЂР°СЃРїРѕР»РѕР¶РµРЅРёСЏ РјР°РєСЂРѕСЃРѕРІ РІ СЂРµРµСЃС‚СЂРµ
+	// РІ РѕСЃРЅРѕРІРЅРѕР№ РєРѕРЅС„РёРіСѓСЂР°С†РёРё РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.
 	lstrcpy(LocalKeyMacros,KeyMacros);
-	// список, в который будем читать из реестра имена пользовательских конфигураций.
+	// СЃРїРёСЃРѕРє, РІ РєРѕС‚РѕСЂС‹Р№ Р±СѓРґРµРј С‡РёС‚Р°С‚СЊ РёР· СЂРµРµСЃС‚СЂР° РёРјРµРЅР° РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёС… РєРѕРЅС„РёРіСѓСЂР°С†РёР№.
 	TStrList UserList;
 	FarListItem *ConfItems=NULL;
 
 	if (!Reg->OpenKey(FarUsersKey))
 	{
-		// Создадим первый элемент списка конфигураций - общий.
+		// РЎРѕР·РґР°РґРёРј РїРµСЂРІС‹Р№ СЌР»РµРјРµРЅС‚ СЃРїРёСЃРєР° РєРѕРЅС„РёРіСѓСЂР°С†РёР№ - РѕР±С‰РёР№.
 		ConfItems=new FarListItem[1];
 
 		if (ConfItems==NULL)
@@ -2436,10 +2436,10 @@ BOOL __fastcall TMacroView::CopyMoveMacro(int Op)
 				}
 			}
 		}
-		// Список пользовательских конфигураций в реестре не найден.
+		// РЎРїРёСЃРѕРє РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёС… РєРѕРЅС„РёРіСѓСЂР°С†РёР№ РІ СЂРµРµСЃС‚СЂРµ РЅРµ РЅР°Р№РґРµРЅ.
 		else
 		{
-			// Создадим первый элемент списка конфигураций - общий.
+			// РЎРѕР·РґР°РґРёРј РїРµСЂРІС‹Р№ СЌР»РµРјРµРЅС‚ СЃРїРёСЃРєР° РєРѕРЅС„РёРіСѓСЂР°С†РёР№ - РѕР±С‰РёР№.
 			ConfItems=new FarListItem[1];
 
 			if (ConfItems==NULL)
@@ -2463,7 +2463,7 @@ BOOL __fastcall TMacroView::CopyMoveMacro(int Op)
 
 	ConfList.ItemsNumber=UserCount;
 	ConfList.Items=ConfItems;
-	// Заполним список значений макрогрупп.
+	// Р—Р°РїРѕР»РЅРёРј СЃРїРёСЃРѕРє Р·РЅР°С‡РµРЅРёР№ РјР°РєСЂРѕРіСЂСѓРїРї.
 	InitMacroAreas();
 	struct InitDialogItem InitItems[]=
 	{
@@ -2482,11 +2482,11 @@ BOOL __fastcall TMacroView::CopyMoveMacro(int Op)
 	};
 	FarDialogItem DialogItems[ARRAYSIZE(InitItems)];
 	InitDialogItems(InitItems,DialogItems,ARRAYSIZE(InitItems));
-	// Скопируем в локальный буфер имя группы из которой производим копирование.
+	// РЎРєРѕРїРёСЂСѓРµРј РІ Р»РѕРєР°Р»СЊРЅС‹Р№ Р±СѓС„РµСЂ РёРјСЏ РіСЂСѓРїРїС‹ РёР· РєРѕС‚РѕСЂРѕР№ РїСЂРѕРёР·РІРѕРґРёРј РєРѕРїРёСЂРѕРІР°РЅРёРµ.
 	lstrcpy(lGroup,Group);
-	// Преобразуем наименование группы из которой копируем в длинное имя.
+	// РџСЂРµРѕР±СЂР°Р·СѓРµРј РЅР°РёРјРµРЅРѕРІР°РЅРёРµ РіСЂСѓРїРїС‹ РёР· РєРѕС‚РѕСЂРѕР№ РєРѕРїРёСЂСѓРµРј РІ РґР»РёРЅРЅРѕРµ РёРјСЏ.
 	ConvertGroupName(lGroup,GRP_TOLONGNAME);
-	// Подготовим строку имени копируемого макроса для заголовка диалога.
+	// РџРѕРґРіРѕС‚РѕРІРёРј СЃС‚СЂРѕРєСѓ РёРјРµРЅРё РєРѕРїРёСЂСѓРµРјРѕРіРѕ РјР°РєСЂРѕСЃР° РґР»СЏ Р·Р°РіРѕР»РѕРІРєР° РґРёР°Р»РѕРіР°.
 	wsprintf(S1,_T("\"%s: %s\""),lGroup,Key);
 #ifdef UNICODE
 	wchar_t _tmps[ARRAYSIZE(lGroup)+ARRAYSIZE(Key)+64];
@@ -2497,7 +2497,7 @@ BOOL __fastcall TMacroView::CopyMoveMacro(int Op)
 #endif
 	wsprintf(_NS, _T("%s %s"), GetMsg((Op==KEY_F5) ? MMacroCopy : MMacroMove), S1);
 #undef _NS
-	// Инициализируем содержимое поля команды выполнения.
+	// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј СЃРѕРґРµСЂР¶РёРјРѕРµ РїРѕР»СЏ РєРѕРјР°РЅРґС‹ РІС‹РїРѕР»РЅРµРЅРёСЏ.
 #ifndef UNICODE
 	lstrcpyn(DialogItems[8].Data.Data,Key,ARRAYSIZE(DialogItems[8].Data.Data));
 #else
@@ -2531,7 +2531,7 @@ COPY_MOVE:
 		ExitCode = Info.DialogRun(hDlg);
 #endif
 
-	if (ExitCode==10) // Сохранить
+	if (ExitCode==10) // РЎРѕС…СЂР°РЅРёС‚СЊ
 	{
 		if (GetDataPtr(8)[0]==0) // New key is empty
 		{
@@ -2544,8 +2544,8 @@ COPY_MOVE:
 			goto COPY_MOVE;
 		}
 
-		// Создадим локальную копию адреса расположения макросов в реестре,
-		// в зависимости от выбранной конфигурации пользователя.
+		// РЎРѕР·РґР°РґРёРј Р»РѕРєР°Р»СЊРЅСѓСЋ РєРѕРїРёСЋ Р°РґСЂРµСЃР° СЂР°СЃРїРѕР»РѕР¶РµРЅРёСЏ РјР°РєСЂРѕСЃРѕРІ РІ СЂРµРµСЃС‚СЂРµ,
+		// РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ РІС‹Р±СЂР°РЅРЅРѕР№ РєРѕРЅС„РёРіСѓСЂР°С†РёРё РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.
 		if (UserConfPos==0)
 			wsprintf(LocalKeyMacros,_T("%s\\%s"),Default_KEY,KeyMacros_KEY);
 		else if (UserConfPos>1)
@@ -2564,7 +2564,7 @@ COPY_MOVE:
 		TCHAR *Str1=new TCHAR[MAX_PATH_LEN];
 		lstrcpy(lGroup,GetDataPtr(4)); // New group
 		lstrcpy(lKey,GetDataPtr(8)); // New key
-		// Сконвертируем имя группы назначения в короткое имя
+		// РЎРєРѕРЅРІРµСЂС‚РёСЂСѓРµРј РёРјСЏ РіСЂСѓРїРїС‹ РЅР°Р·РЅР°С‡РµРЅРёСЏ РІ РєРѕСЂРѕС‚РєРѕРµ РёРјСЏ
 		ConvertGroupName(lGroup,GRP_TOSHORTNAME);
 
 		if (Deactivated)
@@ -2636,7 +2636,7 @@ COPY_MOVE:
 		}
 
 		delete[] Str1;
-		// Запомним новые имена группы и команды выполнения
+		// Р—Р°РїРѕРјРЅРёРј РЅРѕРІС‹Рµ РёРјРµРЅР° РіСЂСѓРїРїС‹ Рё РєРѕРјР°РЅРґС‹ РІС‹РїРѕР»РЅРµРЅРёСЏ
 		lstrcpy(Group,lGroup);
 		lstrcpy(Key,lKey);
 		lResult=TRUE;
@@ -2690,9 +2690,9 @@ void TMacroView::PrepareDependentSort(TStrList *&List,BOOL doit)
 
 	for (i=0; i<List->GetCount(); i++)
 	{
-		// сейчас в Str содержится длинное имя группы макрокоманд
+		// СЃРµР№С‡Р°СЃ РІ Str СЃРѕРґРµСЂР¶РёС‚СЃСЏ РґР»РёРЅРЅРѕРµ РёРјСЏ РіСЂСѓРїРїС‹ РјР°РєСЂРѕРєРѕРјР°РЅРґ
 		List->GetText(Str,i);
-		// сконвертируем Str в короткое имя группы, хранящееся в реестре
+		// СЃРєРѕРЅРІРµСЂС‚РёСЂСѓРµРј Str РІ РєРѕСЂРѕС‚РєРѕРµ РёРјСЏ РіСЂСѓРїРїС‹, С…СЂР°РЅСЏС‰РµРµСЃСЏ РІ СЂРµРµСЃС‚СЂРµ
 		ConvertGroupName(Str,GRP_TOSHORTNAME);
 
 		if (doit)
@@ -2718,7 +2718,7 @@ void TMacroView::PrepareDependentSort(TStrList *&List,BOOL doit)
 
 
 //=========================================================
-// Заполнение меню данными из реестра
+// Р—Р°РїРѕР»РЅРµРЅРёРµ РјРµРЅСЋ РґР°РЅРЅС‹РјРё РёР· СЂРµРµСЃС‚СЂР°
 //=========================================================
 void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
 {
@@ -2730,7 +2730,7 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
 	FarList List;
 //  FarListItem *ListItems;
 	FarListPos ListPos;
-	// Запретим отрисовку экрана
+	// Р—Р°РїСЂРµС‚РёРј РѕС‚СЂРёСЃРѕРІРєСѓ СЌРєСЂР°РЅР°
 	Info.SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
 
 	if (RebuildList || MenuItemsNumber==0 || MaxMenuItemLen==0)
@@ -2740,22 +2740,22 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
 		GroupKeyLen=0;
 		EditMode=EM_NONE;
 		ZeroMemory(OldGroup,sizeof(OldGroup));
-		NameList=new TStrList;        // список коротких имен групп из реестра
-		MacNameList=new TStrList;     // список значений в группе
-		DescrList=new TStrList;       // список описаний
-		MenuList=new TStrList;        // список всех макрокоманд из реестра
-		// Эти два списка созданы для синхронизации со списком MenuList
-		// и содержат названия групп и ключей как будто они были взяты
-		// из MenuList.
-		TStrList *GroupList=new TStrList;  // список групп в текущей сортировке
-		TStrList *KeyList=new TStrList;    // список ключей в текущей сортировке
+		NameList=new TStrList;        // СЃРїРёСЃРѕРє РєРѕСЂРѕС‚РєРёС… РёРјРµРЅ РіСЂСѓРїРї РёР· СЂРµРµСЃС‚СЂР°
+		MacNameList=new TStrList;     // СЃРїРёСЃРѕРє Р·РЅР°С‡РµРЅРёР№ РІ РіСЂСѓРїРїРµ
+		DescrList=new TStrList;       // СЃРїРёСЃРѕРє РѕРїРёСЃР°РЅРёР№
+		MenuList=new TStrList;        // СЃРїРёСЃРѕРє РІСЃРµС… РјР°РєСЂРѕРєРѕРјР°РЅРґ РёР· СЂРµРµСЃС‚СЂР°
+		// Р­С‚Рё РґРІР° СЃРїРёСЃРєР° СЃРѕР·РґР°РЅС‹ РґР»СЏ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё СЃРѕ СЃРїРёСЃРєРѕРј MenuList
+		// Рё СЃРѕРґРµСЂР¶Р°С‚ РЅР°Р·РІР°РЅРёСЏ РіСЂСѓРїРї Рё РєР»СЋС‡РµР№ РєР°Рє Р±СѓРґС‚Рѕ РѕРЅРё Р±С‹Р»Рё РІР·СЏС‚С‹
+		// РёР· MenuList.
+		TStrList *GroupList=new TStrList;  // СЃРїРёСЃРѕРє РіСЂСѓРїРї РІ С‚РµРєСѓС‰РµР№ СЃРѕСЂС‚РёСЂРѕРІРєРµ
+		TStrList *KeyList=new TStrList;    // СЃРїРёСЃРѕРє РєР»СЋС‡РµР№ РІ С‚РµРєСѓС‰РµР№ СЃРѕСЂС‚РёСЂРѕРІРєРµ
 		CheckFirstBackSlash(KeyMacros,TRUE);
 		Reg->OpenKey(KeyMacros,TRUE);
 		Reg->GetKeyNames(NameList);
 
 		if (Conf.LongGroupNames)
 		{
-			//Сконвертируем короткие имена групп в длинные
+			//РЎРєРѕРЅРІРµСЂС‚РёСЂСѓРµРј РєРѕСЂРѕС‚РєРёРµ РёРјРµРЅР° РіСЂСѓРїРї РІ РґР»РёРЅРЅС‹Рµ
 			for (i=0; i<NameList->GetCount(); i++)
 			{
 				NameList->GetText(S,i);
@@ -2764,28 +2764,28 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
 			}
 		}
 
-		//Если сортировка стартозависимая, то сделаем для этого приготовления
+		//Р•СЃР»Рё СЃРѕСЂС‚РёСЂРѕРІРєР° СЃС‚Р°СЂС‚РѕР·Р°РІРёСЃРёРјР°СЏ, С‚Рѕ СЃРґРµР»Р°РµРј РґР»СЏ СЌС‚РѕРіРѕ РїСЂРёРіРѕС‚РѕРІР»РµРЅРёСЏ
 		if (Conf.StartDependentSort>0)
 			PrepareDependentSort(NameList,TRUE);
 
-		// Сортируем список групп
+		// РЎРѕСЂС‚РёСЂСѓРµРј СЃРїРёСЃРѕРє РіСЂСѓРїРї
 		NameList->Sort(0,NameList->GetCount()-1);
 
-		//Уберем приготовления стартозависимой сортировки
+		//РЈР±РµСЂРµРј РїСЂРёРіРѕС‚РѕРІР»РµРЅРёСЏ СЃС‚Р°СЂС‚РѕР·Р°РІРёСЃРёРјРѕР№ СЃРѕСЂС‚РёСЂРѕРІРєРё
 		if (Conf.StartDependentSort>0)
 			PrepareDependentSort(NameList);
 
-		// Номер позиции в готовящемся списке, куда нам следует перейти.
+		// РќРѕРјРµСЂ РїРѕР·РёС†РёРё РІ РіРѕС‚РѕРІСЏС‰РµРјСЃСЏ СЃРїРёСЃРєРµ, РєСѓРґР° РЅР°Рј СЃР»РµРґСѓРµС‚ РїРµСЂРµР№С‚Рё.
 		ListPos.SelectPos=0;
 		ListPos.TopPos=TopPos;
-		// Очистим весь список
+		// РћС‡РёСЃС‚РёРј РІРµСЃСЊ СЃРїРёСЃРѕРє
 		Info.SendDlgMessage(hDlg,DM_LISTDELETE,0,0);
 
 		for (i=0; i<NameList->GetCount(); i++)
 		{
-			// сейчас в Group и содержится длинное имя группы макрокоманд
+			// СЃРµР№С‡Р°СЃ РІ Group Рё СЃРѕРґРµСЂР¶РёС‚СЃСЏ РґР»РёРЅРЅРѕРµ РёРјСЏ РіСЂСѓРїРїС‹ РјР°РєСЂРѕРєРѕРјР°РЅРґ
 			NameList->GetText(Group,i);
-			// сконвертируем Group в короткое имя группы, хранящееся в реестре
+			// СЃРєРѕРЅРІРµСЂС‚РёСЂСѓРµРј Group РІ РєРѕСЂРѕС‚РєРѕРµ РёРјСЏ РіСЂСѓРїРїС‹, С…СЂР°РЅСЏС‰РµРµСЃСЏ РІ СЂРµРµСЃС‚СЂРµ
 			ConvertGroupName(Group,GRP_TOSHORTNAME);
 
 			if (((Conf.ViewShell) && (OpenFrom==OPEN_PLUGINSMENU) &&
@@ -2805,12 +2805,12 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
 			if (!Reg->GetKeyNames(MacNameList))
 				continue;
 
-			// Если макрокоманды временно отключены, уберём '~'
-			// в ключе для обеспечения корректной сортировки
+			// Р•СЃР»Рё РјР°РєСЂРѕРєРѕРјР°РЅРґС‹ РІСЂРµРјРµРЅРЅРѕ РѕС‚РєР»СЋС‡РµРЅС‹, СѓР±РµСЂС‘Рј '~'
+			// РІ РєР»СЋС‡Рµ РґР»СЏ РѕР±РµСЃРїРµС‡РµРЅРёСЏ РєРѕСЂСЂРµРєС‚РЅРѕР№ СЃРѕСЂС‚РёСЂРѕРІРєРё
 			MoveTildeInKey(MacNameList,TRUE);
-			// Сортируем наименования макрокоманд
+			// РЎРѕСЂС‚РёСЂСѓРµРј РЅР°РёРјРµРЅРѕРІР°РЅРёСЏ РјР°РєСЂРѕРєРѕРјР°РЅРґ
 			MacNameList->Sort(MenuItemsNumber,MacNameList->GetCount()-1);
-			// Восстановим положение тильды в ключе
+			// Р’РѕСЃСЃС‚Р°РЅРѕРІРёРј РїРѕР»РѕР¶РµРЅРёРµ С‚РёР»СЊРґС‹ РІ РєР»СЋС‡Рµ
 			MoveTildeInKey(MacNameList);
 
 			for (j=MenuItemsNumber; j<MacNameList->GetCount(); j++,k++)
@@ -2819,10 +2819,10 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
 				lstrcpy(Str,Group);
 				ConvertGroupName(Str,Conf.LongGroupNames?GRP_TOLONGNAME:GRP_TOSHORTNAME);          //local Group
 				ConvertGroupName(Macro->Group,Conf.LongGroupNames?GRP_TOLONGNAME:GRP_TOSHORTNAME); //Macro->Group
-				// Проверим, совпадают ли название группы и макроса с Macro->Group и Macro->Key
-				// и если да, то запомним номер позиции в списке, мы на него затем перейдём.
-				// Если же искомые группа и макрос не найдены, то перейдём потом на строку,
-				// на которой были в прошлый раз, а именно SelectPos.
+				// РџСЂРѕРІРµСЂРёРј, СЃРѕРІРїР°РґР°СЋС‚ Р»Рё РЅР°Р·РІР°РЅРёРµ РіСЂСѓРїРїС‹ Рё РјР°РєСЂРѕСЃР° СЃ Macro->Group Рё Macro->Key
+				// Рё РµСЃР»Рё РґР°, С‚Рѕ Р·Р°РїРѕРјРЅРёРј РЅРѕРјРµСЂ РїРѕР·РёС†РёРё РІ СЃРїРёСЃРєРµ, РјС‹ РЅР° РЅРµРіРѕ Р·Р°С‚РµРј РїРµСЂРµР№РґС‘Рј.
+				// Р•СЃР»Рё Р¶Рµ РёСЃРєРѕРјС‹Рµ РіСЂСѓРїРїР° Рё РјР°РєСЂРѕСЃ РЅРµ РЅР°Р№РґРµРЅС‹, С‚Рѕ РїРµСЂРµР№РґС‘Рј РїРѕС‚РѕРј РЅР° СЃС‚СЂРѕРєСѓ,
+				// РЅР° РєРѕС‚РѕСЂРѕР№ Р±С‹Р»Рё РІ РїСЂРѕС€Р»С‹Р№ СЂР°Р·, Р° РёРјРµРЅРЅРѕ SelectPos.
 				if (Macro->Key[0] && Macro->Group[0])
 					if ((CmpStr(Str,Macro->Group)==0) && (CmpStr((Key[0]==_T('~') && lstrlen(Key)>1)?&Key[1]:Key,Macro->Key)==0))
 						ListPos.SelectPos=k;
@@ -2832,7 +2832,7 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
 
 				if (Conf.GroupDivider)
 				{
-					// Добавление разделителя групп.
+					// Р”РѕР±Р°РІР»РµРЅРёРµ СЂР°Р·РґРµР»РёС‚РµР»СЏ РіСЂСѓРїРї.
 					if (*OldGroup && CmpStr(OldGroup,Str)!=0)
 					{
 						MenuList->Add(_T(""));
@@ -2888,7 +2888,7 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
 				GroupList->Add(Group);
 				KeyList->Add(Key);
 				MenuItemsNumber++;
-				//вычисляем самое длинное имя макрокоманды
+				//РІС‹С‡РёСЃР»СЏРµРј СЃР°РјРѕРµ РґР»РёРЅРЅРѕРµ РёРјСЏ РјР°РєСЂРѕРєРѕРјР°РЅРґС‹
 				GroupKeyLen=max(lstrlen(S),GroupKeyLen);
 			}
 		}
@@ -2896,7 +2896,7 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
 		if (ListPos.SelectPos==0)
 			ListPos.SelectPos=SelectPos;
 
-		// Структура для хранения ассоциированных с итемом меню данных.
+		// РЎС‚СЂСѓРєС‚СѓСЂР° РґР»СЏ С…СЂР°РЅРµРЅРёСЏ Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅС‹С… СЃ РёС‚РµРјРѕРј РјРµРЅСЋ РґР°РЅРЅС‹С….
 		MenuData MData;
 		FarListItemData ItemData;
 		MenuItemsNumber+=AddCount;
@@ -2986,7 +2986,7 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
 				}
 
 				Info.SendDlgMessage(hDlg,DM_LISTADD,0,(LONG_PTR)&List);
-				// Ассоциируем с добавленным итемом меню данные о группе и ключе.
+				// РђСЃСЃРѕС†РёРёСЂСѓРµРј СЃ РґРѕР±Р°РІР»РµРЅРЅС‹Рј РёС‚РµРјРѕРј РјРµРЅСЋ РґР°РЅРЅС‹Рµ Рѕ РіСЂСѓРїРїРµ Рё РєР»СЋС‡Рµ.
 				ItemData.Index=i;
 				ItemData.Data=&MData;
 				ItemData.DataSize=sizeof(MData);
@@ -3009,7 +3009,7 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
 	}
 	else
 	{
-		// Номер позиции в готовящемся списке, куда нам следует перейти.
+		// РќРѕРјРµСЂ РїРѕР·РёС†РёРё РІ РіРѕС‚РѕРІСЏС‰РµРјСЃСЏ СЃРїРёСЃРєРµ, РєСѓРґР° РЅР°Рј СЃР»РµРґСѓРµС‚ РїРµСЂРµР№С‚Рё.
 		ListPos.SelectPos=SelectPos;
 		ListPos.TopPos=TopPos;
 	}
@@ -3025,15 +3025,15 @@ void __fastcall TMacroView::FillMenu(HANDLE hDlg,int RebuildList)
 		ListPos.TopPos=MenuItemsNumber-(MenuH-4);
 	}
 
-	// Установим позицию курсора в списке
+	// РЈСЃС‚Р°РЅРѕРІРёРј РїРѕР·РёС†РёСЋ РєСѓСЂСЃРѕСЂР° РІ СЃРїРёСЃРєРµ
 	Info.SendDlgMessage(hDlg,DM_LISTSETCURPOS,0,(LONG_PTR)&ListPos);
-	// Разрешим отрисовку экрана
+	// Р Р°Р·СЂРµС€РёРј РѕС‚СЂРёСЃРѕРІРєСѓ СЌРєСЂР°РЅР°
 	Info.SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
 	COORD Coord;
 	Coord.X=MenuW;
 	Coord.Y=MenuH;
 	Info.SendDlgMessage(hDlg,DM_RESIZEDIALOG,0,(LONG_PTR)&Coord);
-	/*  if (MenuX==-1 && MenuY==-1) // MenuX и MenuY равны -1, значит первый вызов и диалог центрируется.
+	/*  if (MenuX==-1 && MenuY==-1) // MenuX Рё MenuY СЂР°РІРЅС‹ -1, Р·РЅР°С‡РёС‚ РїРµСЂРІС‹Р№ РІС‹Р·РѕРІ Рё РґРёР°Р»РѕРі С†РµРЅС‚СЂРёСЂСѓРµС‚СЃСЏ.
 	  {
 	    MenuX=(ConsoleSize.X-MenuW)/2;
 	    MenuY=(ConsoleSize.Y-MenuH)/2;
@@ -3129,7 +3129,7 @@ void TMacroView::WriteRegValues(FarDialogItem *DialogItems
 			break;
 	}
 
-	// Флаги активной панели
+	// Р¤Р»Р°РіРё Р°РєС‚РёРІРЅРѕР№ РїР°РЅРµР»Рё
 	if (GetCheck(16))
 	{
 		switch (GetCheck(18))
@@ -3190,7 +3190,7 @@ void TMacroView::WriteRegValues(FarDialogItem *DialogItems
 		Reg->DeleteValue(_T("Selection"));
 	}
 
-	// Флаги пассивной панели
+	// Р¤Р»Р°РіРё РїР°СЃСЃРёРІРЅРѕР№ РїР°РЅРµР»Рё
 	if (GetCheck(17))
 	{
 		switch (GetCheck(19))
@@ -3276,7 +3276,7 @@ BOOL __fastcall TMacroView::CopyMacro(int vKey)
 void __fastcall TMacroView::ExportMacro(BOOL AllMacros)
 {
 	int eCode;
-	TCHAR lGroup[MAX_KEY_LEN]; //длинное название текущего раздела макроса
+	TCHAR lGroup[MAX_KEY_LEN]; //РґР»РёРЅРЅРѕРµ РЅР°Р·РІР°РЅРёРµ С‚РµРєСѓС‰РµРіРѕ СЂР°Р·РґРµР»Р° РјР°РєСЂРѕСЃР°
 	const TCHAR *ItemsSave1[]=
 	{
 		GetMsg(MMacroExport),GetMsg(MMacroWhere),S,
@@ -3298,7 +3298,7 @@ void __fastcall TMacroView::ExportMacro(BOOL AllMacros)
 		{
 			case OPEN_EDITOR:
 				lstrcpy(lGroup,Group);
-				//Из короткого имени группы создадим длинное
+				//РР· РєРѕСЂРѕС‚РєРѕРіРѕ РёРјРµРЅРё РіСЂСѓРїРїС‹ СЃРѕР·РґР°РґРёРј РґР»РёРЅРЅРѕРµ
 				ConvertGroupName(lGroup,GRP_TOLONGNAME);
 				wsprintf(S,_T("%s: %s"),lGroup,Key);
 				QuoteText(S,TRUE);
@@ -3336,7 +3336,7 @@ BOOL __fastcall TMacroView::DeleteMacro()
 {
 	BOOL lResult=FALSE;
 	TCHAR Button[BUTTONLEN];
-	TCHAR lGroup[MAX_KEY_LEN]; //длинное название текущего раздела макроса
+	TCHAR lGroup[MAX_KEY_LEN]; //РґР»РёРЅРЅРѕРµ РЅР°Р·РІР°РЅРёРµ С‚РµРєСѓС‰РµРіРѕ СЂР°Р·РґРµР»Р° РјР°РєСЂРѕСЃР°
 
 	if (Deactivated)
 		wsprintf(Str,GetMsg(MMacroWarningDeleteThisKey),GetMsg(MMacroWarningRest));
@@ -3354,7 +3354,7 @@ BOOL __fastcall TMacroView::DeleteMacro()
 	if (MenuItemsNumber!=0)
 	{
 		lstrcpy(lGroup,Group);
-		//Из короткого имени группы создадим длинное
+		//РР· РєРѕСЂРѕС‚РєРѕРіРѕ РёРјРµРЅРё РіСЂСѓРїРїС‹ СЃРѕР·РґР°РґРёРј РґР»РёРЅРЅРѕРµ
 		ConvertGroupName(lGroup,GRP_TOLONGNAME);
 		wsprintf(S,_T("%s: %s"),lGroup,Key);
 		QuoteText(S,TRUE);
@@ -3376,7 +3376,7 @@ BOOL __fastcall TMacroView::DeleteMacro()
 BOOL __fastcall TMacroView::InsertMacro()
 {
 	BOOL RetVal=FALSE;
-	TCHAR lGroup[MAX_KEY_LEN]; //длинное название текущего раздела макроса
+	TCHAR lGroup[MAX_KEY_LEN]; //РґР»РёРЅРЅРѕРµ РЅР°Р·РІР°РЅРёРµ С‚РµРєСѓС‰РµРіРѕ СЂР°Р·РґРµР»Р° РјР°РєСЂРѕСЃР°
 	const TCHAR *ItemsInsEmp[]=
 	{
 		GetMsg(MMacroWarning),GetMsg(MMacroWarningInsertEmpty1),
@@ -3397,9 +3397,9 @@ BOOL __fastcall TMacroView::InsertMacro()
 		_T("\x1"),
 		GetMsg(MMacroOverwrite),GetMsg(MMacroCancel)
 	};
-	// Проинициализируем диалог!
+	// РџСЂРѕРёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РґРёР°Р»РѕРі!
 	InitDialogs();
-	// Инициализируем новый макрос как НЕ многострочный
+	// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РЅРѕРІС‹Р№ РјР°РєСЂРѕСЃ РєР°Рє РќР• РјРЅРѕРіРѕСЃС‚СЂРѕС‡РЅС‹Р№
 	MultiLine=FALSE;
 	_Group[0]=0;
 	EditDialog[2].Focus=TRUE;
@@ -3462,8 +3462,8 @@ BOOL __fastcall TMacroView::InsertMacro()
 	HANDLE hDlg = INVALID_HANDLE_VALUE;
 #endif
 INSERT_RETRY:
-	// сконвертируем из короткого имени группы длинное,
-	// для работы в диалоге
+	// СЃРєРѕРЅРІРµСЂС‚РёСЂСѓРµРј РёР· РєРѕСЂРѕС‚РєРѕРіРѕ РёРјРµРЅРё РіСЂСѓРїРїС‹ РґР»РёРЅРЅРѕРµ,
+	// РґР»СЏ СЂР°Р±РѕС‚С‹ РІ РґРёР°Р»РѕРіРµ
 	ConvertGroupName(_Button,GRP_TOLONGNAME);
 	WriteKeyBar(KB_DIALOG);
 	ActiveMode=MAC_EDITACTIVE;
@@ -3490,7 +3490,7 @@ INSERT_RETRY:
 		OutCode = Info.DialogRun(hDlg);
 #endif
 
-	if (OutCode==30) // кнопка [Сохранить]
+	if (OutCode==30) // РєРЅРѕРїРєР° [РЎРѕС…СЂР°РЅРёС‚СЊ]
 	{
 #ifdef UNICODE
 		lstrcpyn(_Group,(const TCHAR *)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,2,0),ARRAYSIZE(_Group));
@@ -3499,8 +3499,8 @@ INSERT_RETRY:
 		lstrcpyn(_DataPtr,(const TCHAR *)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,8,0),(int)_DataPtrSize);
 		EditDialog[28].Param.Selected=static_cast<int>(Info.SendDlgMessage(hDlg,DM_GETCHECK,28,0));
 #endif
-		// конвертируем из длинного имени группы короткое,
-		// для записи в реестр
+		// РєРѕРЅРІРµСЂС‚РёСЂСѓРµРј РёР· РґР»РёРЅРЅРѕРіРѕ РёРјРµРЅРё РіСЂСѓРїРїС‹ РєРѕСЂРѕС‚РєРѕРµ,
+		// РґР»СЏ Р·Р°РїРёСЃРё РІ СЂРµРµСЃС‚СЂ
 		ConvertGroupName(_Button,GRP_TOSHORTNAME);
 
 		if ((_Group[0]!=0) && (
@@ -3510,7 +3510,7 @@ INSERT_RETRY:
 		            _DataPtr[0]!=0))
 		{
 			lstrcpy(lGroup,_Button);
-			//Из короткого имени группы создадим длинное
+			//РР· РєРѕСЂРѕС‚РєРѕРіРѕ РёРјРµРЅРё РіСЂСѓРїРїС‹ СЃРѕР·РґР°РґРёРј РґР»РёРЅРЅРѕРµ
 			ConvertGroupName(lGroup,GRP_TOLONGNAME);
 
 			if ((Conf.AutomaticSave) || ((Info.Message(Info.ModuleNumber,0,NULL,ItemsEdit,
@@ -3564,8 +3564,8 @@ INSERT_RETRY:
 			goto INSERT_RETRY;
 		}
 
-		// Копируем  в переменные Key и Group последние значения
-		// для перехода потом на новое значение
+		// РљРѕРїРёСЂСѓРµРј  РІ РїРµСЂРµРјРµРЅРЅС‹Рµ Key Рё Group РїРѕСЃР»РµРґРЅРёРµ Р·РЅР°С‡РµРЅРёСЏ
+		// РґР»СЏ РїРµСЂРµС…РѕРґР° РїРѕС‚РѕРј РЅР° РЅРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ
 		lstrcpy(Key,_Group);
 		lstrcpy(Group,_Button);
 #ifndef UNICODE
@@ -3589,7 +3589,7 @@ BOOL __fastcall TMacroView::EditMacro()
 {
 	BOOL RetVal=FALSE;
 	TCHAR Button[BUTTONLEN];
-	TCHAR lGroup[MAX_KEY_LEN]; //длинное название текущего раздела макроса
+	TCHAR lGroup[MAX_KEY_LEN]; //РґР»РёРЅРЅРѕРµ РЅР°Р·РІР°РЅРёРµ С‚РµРєСѓС‰РµРіРѕ СЂР°Р·РґРµР»Р° РјР°РєСЂРѕСЃР°
 	int i;
 	const TCHAR *ItemsError[]=
 	{
@@ -3643,9 +3643,9 @@ BOOL __fastcall TMacroView::EditMacro()
 	if (MenuItemsNumber==0)
 		return RetVal;
 
-	// Проинициализируем диалог!
+	// РџСЂРѕРёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РґРёР°Р»РѕРі!
 	InitDialogs();
-	// Инициализируем новый макрос как НЕ многострочный
+	// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РЅРѕРІС‹Р№ РјР°РєСЂРѕСЃ РєР°Рє РќР• РјРЅРѕРіРѕСЃС‚СЂРѕС‡РЅС‹Р№
 	MultiLine=FALSE;
 	lstrcpy(_Group,Key);
 	lstrcpy(_Button,Group);
@@ -3730,7 +3730,7 @@ BOOL __fastcall TMacroView::EditMacro()
 				{
 					if (MacroData)
 					{
-						// Получим тип данных макропоследовательности
+						// РџРѕР»СѓС‡РёРј С‚РёРї РґР°РЅРЅС‹С… РјР°РєСЂРѕРїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚Рё
 						TRegDataType Type;
 						int nSize=Reg->GetData(S,MacroData,DATASIZE,Type);
 
@@ -3738,7 +3738,7 @@ BOOL __fastcall TMacroView::EditMacro()
 						{
 							if (Type == rdMultiString)
 							{
-								// Макрос в реестре с типом многострочный
+								// РњР°РєСЂРѕСЃ РІ СЂРµРµСЃС‚СЂРµ СЃ С‚РёРїРѕРј РјРЅРѕРіРѕСЃС‚СЂРѕС‡РЅС‹Р№
 								MultiLine=TRUE;
 
 								int nLen=(nSize/sizeof(TCHAR))-1;
@@ -3810,7 +3810,7 @@ BOOL __fastcall TMacroView::EditMacro()
 					if (result>0)
 						EditDialog[15].Param.Selected=1;
 				}
-				// Флаги активной панели
+				// Р¤Р»Р°РіРё Р°РєС‚РёРІРЅРѕР№ РїР°РЅРµР»Рё
 				else if (CmpStr(S,_T("NoPluginPanels"))==0) // NoPluginPanels
 				{
 					int result=Reg->ReadInteger(S);
@@ -3853,7 +3853,7 @@ BOOL __fastcall TMacroView::EditMacro()
 					if (result>0)
 						EditDialog[22].Param.Selected=1;
 				}
-				// Флаги пассивной панели
+				// Р¤Р»Р°РіРё РїР°СЃСЃРёРІРЅРѕР№ РїР°РЅРµР»Рё
 				else if (CmpStr(S,_T("NoPluginPPanels"))==0) // NoPluginPPanels
 				{
 					int result=Reg->ReadInteger(S);
@@ -3939,8 +3939,8 @@ BOOL __fastcall TMacroView::EditMacro()
 			HANDLE hDlg = INVALID_HANDLE_VALUE;
 #endif
 EDIT_RETRY:
-			// сконвертируем из короткого имени группы длинное,
-			// для работы в диалоге
+			// СЃРєРѕРЅРІРµСЂС‚РёСЂСѓРµРј РёР· РєРѕСЂРѕС‚РєРѕРіРѕ РёРјРµРЅРё РіСЂСѓРїРїС‹ РґР»РёРЅРЅРѕРµ,
+			// РґР»СЏ СЂР°Р±РѕС‚С‹ РІ РґРёР°Р»РѕРіРµ
 			ConvertGroupName(_Button,GRP_TOLONGNAME);
 			WriteKeyBar(KB_DIALOG);
 			ActiveMode=MAC_EDITACTIVE;
@@ -3967,7 +3967,7 @@ EDIT_RETRY:
 				OutCode = Info.DialogRun(hDlg);
 #endif
 
-			if (OutCode==30) // кнопка [Сохранить]
+			if (OutCode==30) // РєРЅРѕРїРєР° [РЎРѕС…СЂР°РЅРёС‚СЊ]
 			{
 #ifdef UNICODE
 				lstrcpyn(_Group,(const TCHAR *)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,2,0),ARRAYSIZE(_Group));
@@ -3976,8 +3976,8 @@ EDIT_RETRY:
 				lstrcpyn(_DataPtr,(const TCHAR *)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,8,0),(int)_DataPtrSize);
 				EditDialog[28].Param.Selected=static_cast<int>(Info.SendDlgMessage(hDlg,DM_GETCHECK,28,0));
 #endif
-				// конвертируем из длинного имени группы короткое,
-				// для записи в реестр
+				// РєРѕРЅРІРµСЂС‚РёСЂСѓРµРј РёР· РґР»РёРЅРЅРѕРіРѕ РёРјРµРЅРё РіСЂСѓРїРїС‹ РєРѕСЂРѕС‚РєРѕРµ,
+				// РґР»СЏ Р·Р°РїРёСЃРё РІ СЂРµРµСЃС‚СЂ
 				ConvertGroupName(_Button,GRP_TOSHORTNAME);
 				BOOL deleted=FALSE;
 
@@ -3988,7 +3988,7 @@ EDIT_RETRY:
 				    _DataPtr[0]==0)
 				{
 					lstrcpy(lGroup,Group);
-					//Из короткого имени группы создадим длинное
+					//РР· РєРѕСЂРѕС‚РєРѕРіРѕ РёРјРµРЅРё РіСЂСѓРїРїС‹ СЃРѕР·РґР°РґРёРј РґР»РёРЅРЅРѕРµ
 					ConvertGroupName(lGroup,GRP_TOLONGNAME);
 					wsprintf(S,_T("%s: %s"),lGroup,Key);
 					QuoteText(S,TRUE);
@@ -4007,14 +4007,14 @@ EDIT_RETRY:
 					if (_Group[0]!=0)
 					{
 						lstrcpy(lGroup,_Button);
-						//Из короткого имени группы создадим длинное
+						//РР· РєРѕСЂРѕС‚РєРѕРіРѕ РёРјРµРЅРё РіСЂСѓРїРїС‹ СЃРѕР·РґР°РґРёРј РґР»РёРЅРЅРѕРµ
 						ConvertGroupName(lGroup,GRP_TOLONGNAME);
 
 						if ((Conf.AutomaticSave) || (Info.Message(Info.ModuleNumber,0,NULL,ItemsEdit,
 						                             ARRAYSIZE(ItemsEdit),2)==0))
 						{
-							// Если изменилась группа или команда
-							// переместим сначала макрокоманду на новое место
+							// Р•СЃР»Рё РёР·РјРµРЅРёР»Р°СЃСЊ РіСЂСѓРїРїР° РёР»Рё РєРѕРјР°РЅРґР°
+							// РїРµСЂРµРјРµСЃС‚РёРј СЃРЅР°С‡Р°Р»Р° РјР°РєСЂРѕРєРѕРјР°РЅРґСѓ РЅР° РЅРѕРІРѕРµ РјРµСЃС‚Рѕ
 							if ((CmpStr(_Group,Key)!=0) ||
 							        (CmpStr(_Button,Group)!=0))
 							{
@@ -4062,7 +4062,7 @@ EDIT_RETRY:
 								delete[] S1;
 							}
 
-							// Теперь сохраняем параметры макрокоманды
+							// РўРµРїРµСЂСЊ СЃРѕС…СЂР°РЅСЏРµРј РїР°СЂР°РјРµС‚СЂС‹ РјР°РєСЂРѕРєРѕРјР°РЅРґС‹
 							if (Deactivated)
 								wsprintf(S,_T("%s\\%s\\~%s"),KeyMacros,_Button,_Group);
 							else
@@ -4103,8 +4103,8 @@ EDIT_RETRY:
 					}
 				}
 
-				// Копируем  в переменные Key и Group последние значения
-				// для перехода потом на новое значение
+				// РљРѕРїРёСЂСѓРµРј  РІ РїРµСЂРµРјРµРЅРЅС‹Рµ Key Рё Group РїРѕСЃР»РµРґРЅРёРµ Р·РЅР°С‡РµРЅРёСЏ
+				// РґР»СЏ РїРµСЂРµС…РѕРґР° РїРѕС‚РѕРј РЅР° РЅРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ
 				lstrcpy(Key,_Group);
 				lstrcpy(Group,_Button);
 #ifndef UNICODE
@@ -4136,14 +4136,14 @@ EDIT_RETRY:
 
 
        /*************************************************/
-       /* Создает список макросов и выводит в виде меню */
+       /* РЎРѕР·РґР°РµС‚ СЃРїРёСЃРѕРє РјР°РєСЂРѕСЃРѕРІ Рё РІС‹РІРѕРґРёС‚ РІ РІРёРґРµ РјРµРЅСЋ */
        /*************************************************/
 int TMacroView::MacroList()
 {
 	ActlKeyMacro akm;
 	InitData();
-	//назначим ширину отображения макрокоманд,
-	//в зависимости от установленного Conf.LongGroupNames
+	//РЅР°Р·РЅР°С‡РёРј С€РёСЂРёРЅСѓ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ РјР°РєСЂРѕРєРѕРјР°РЅРґ,
+	//РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅРѕРіРѕ Conf.LongGroupNames
 	KeyWidth=(Conf.LongGroupNames)?24:10;
 
 	if (Conf.SaveOnStart)

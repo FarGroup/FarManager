@@ -1,4 +1,4 @@
-#include <all_far.h>
+﻿#include <all_far.h>
 #pragma hdrstop
 
 #include "Int.h"
@@ -49,7 +49,7 @@ BOOL net_parse_os_date_time(LPCSTR datestr, Time_t& decoded)
  *  012345678901234567890123456789012345678901234567890123456789
                   8807      A         11-23-102   13:37  22BAL.GOM
                   8807      A         11-24-102   10:05  23BAL.GOM
-                   512           DIR   07-22-99   16:41  �1
+                   512           DIR   07-22-99   16:41  Р1
                   1024      R    DIR   11-16-98   17:24  h
                 513910      A         01-07-100   13:44  wined241.zip
                 513910      A         01-07-100   13:44  wined241.zip
@@ -58,25 +58,25 @@ BOOL net_parse_os_date_time(LPCSTR datestr, Time_t& decoded)
 
                   3259      A          04-07-00   11:23  24250C2E.PKT
                1221444      A          04-04-00   08:01  bcb4up2.exe
-    >> ����� 䠩�� � Arhive ��ਡ�⮬
+    >> обычные файлы с Arhive атрибутом
 
                 293483     RA          04-02-00   08:55  Mablag.rar
     >> read-only + arhive
 
                      2                 04-07-00   15:14  no-attr
-    >> 䠩� ��� ��ਡ�⮢
+    >> файл без отрибутов
 
                      6      R          04-07-00   15:10  readonly
-    >> 䠩� ���� � read-only
+    >> файл просто с read-only
 
                      6    RSA          04-07-00   15:12  ro-a-sys
     >> read-only + system + archive
 
                  87264      A          03-25-00   07:48  SP Dialer.rar
-    >> 䠩� � �஡���� � �����
+    >> файл с пробелом в имени
 
                      0      S          04-07-00   15:09  system
-    >> ���� system ��ਡ��
+    >> просто system атрибут
 */
 BOOL WINAPI idPRParceOS2(const FTPServerInfo* Server, FTPFileInfo* p, char *entry, int entry_len)
 {

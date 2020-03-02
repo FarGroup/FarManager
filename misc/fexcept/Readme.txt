@@ -1,4 +1,4 @@
-  FAR Exception handler used to replace existing FAR exception
+ï»¿  FAR Exception handler used to replace existing FAR exception
   procedure, but saves to file full exception dump using plugin MAP
   files and disassembles the place of exception.
 
@@ -27,19 +27,19 @@
      In case you do all things correctly, the next time any plugin traps
      you should see a message:
       +========== Trap log ===========+
-      ¦   Generating trap log file... ¦
+      Â¦   Generating trap log file... Â¦
       +===============================+
 
      followed by message:
       +================= Exception error... =================+
-      ¦ Plugin:                                              ¦
-      ¦   xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  ¦
-      ¦ executes an error and will be unloaded.              ¦
-      ¦ The trap log file has been saved to file:            ¦
-      ¦   yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy  ¦
-      ¦------------------------------------------------------¦
-      ¦ Do you want to terminate FAR itself ? (recommended)  ¦
-      ¦                       Yes  No                        ¦
+      Â¦ Plugin:                                              Â¦
+      Â¦   xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  Â¦
+      Â¦ executes an error and will be unloaded.              Â¦
+      Â¦ The trap log file has been saved to file:            Â¦
+      Â¦   yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy  Â¦
+      Â¦------------------------------------------------------Â¦
+      Â¦ Do you want to terminate FAR itself ? (recommended)  Â¦
+      Â¦                       Yes  No                        Â¦
       +======================================================+
 
      where instead "x" line will be plugin name or FAR.exe itself

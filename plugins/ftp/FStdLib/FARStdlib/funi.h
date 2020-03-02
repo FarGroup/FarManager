@@ -1,4 +1,4 @@
-#ifndef __FAR_PLUGIN_UNIPLACE_HEADER
+Ôªø#ifndef __FAR_PLUGIN_UNIPLACE_HEADER
 #define __FAR_PLUGIN_UNIPLACE_HEADER
 
 //-   FAR `plugin.hpp` header missed\addons
@@ -63,33 +63,33 @@ typedef FKeyBarTitle *PFKeyBarTitle;
 #define FHK_KEY(hkey)      ((int)HI_WORD((DWORD)hkey))
 
 //Usefull console chars
-#define FAR_SHADOW_CHAR                      '\xB0' //∞
-#define FAR_FULL_CHAR                        '\xDB' //€
-#define FAR_VERT_CHAR                        '\xB3' //≥
-#define FAR_DVERT_CHAR                       '\xBA' //∫
-#define FAR_HORZ_CHAR                        '\xC4' //ƒ
-#define FAR_DHORZ_CHAR                       '\xCD' //Õ
-#define FAR_CHECK_CHAR                       '\xFb' //˚
+#define FAR_SHADOW_CHAR                      '\xB0' //‚ñë
+#define FAR_FULL_CHAR                        '\xDB' //‚ñà
+#define FAR_VERT_CHAR                        '\xB3' //‚îÇ
+#define FAR_DVERT_CHAR                       '\xBA' //‚ïë
+#define FAR_HORZ_CHAR                        '\xC4' //‚îÄ
+#define FAR_DHORZ_CHAR                       '\xCD' //‚ïê
+#define FAR_CHECK_CHAR                       '\xFb' //‚àö
 #define FAR_SBMENU_CHAR                      '\x10' //
 #define FAR_LEFT_CHAR                        '\x11' //
 #define FAR_RIGHT_CHAR                       FAR_SBMENU_CHAR
-#define FAR_SPACE_CHAR                       '\xFA' //˙
-#define FAR_TAB_CHAR                         '\xFE' //˛
+#define FAR_SPACE_CHAR                       '\xFA' //¬∑
+#define FAR_TAB_CHAR                         '\xFE' //‚ñ†
 #define FAR_DOWN_CHAR                        '\x19' //
 #define FAR_SKIP_CHAR                        '\x20' //' '
 
-#define FAR_SHADOW_STR                       "\xB0" //∞
-#define FAR_FULL_STR                         "\xDB" //€
-#define FAR_VERT_STR                         "\xB3" //≥
-#define FAR_DVERT_STR                        "\xBA" //∫
-#define FAR_HORZ_STR                         "\xC4" //ƒ
-#define FAR_DHORZ_STR                        "\xCD" //Õ
-#define FAR_CHECK_STR                        "\xFb" //˚
+#define FAR_SHADOW_STR                       "\xB0" //‚ñë
+#define FAR_FULL_STR                         "\xDB" //‚ñà
+#define FAR_VERT_STR                         "\xB3" //‚îÇ
+#define FAR_DVERT_STR                        "\xBA" //‚ïë
+#define FAR_HORZ_STR                         "\xC4" //‚îÄ
+#define FAR_DHORZ_STR                        "\xCD" //‚ïê
+#define FAR_CHECK_STR                        "\xFb" //‚àö
 #define FAR_SBMENU_STR                       "\x10" //
 #define FAR_LEFT_STR                         "\x11" //
 #define FAR_RIGHT_STR                        FAR_SBMENU_STR
-#define FAR_SPACE_STR                        "\xFA" //˙
-#define FAR_TAB_STR                          "\xFE" //˛
+#define FAR_SPACE_STR                        "\xFA" //¬∑
+#define FAR_TAB_STR                          "\xFE" //‚ñ†
 #define FAR_DOWN_STR                         "\x19" //
 #define FAR_SKIP_STR                         "\x20" //" "
 //Menu spec characters

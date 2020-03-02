@@ -1,4 +1,4 @@
-/* Started: 2012-03-27 */
+﻿/* Started: 2012-03-27 */
 
 #ifndef COMPAT52_H
 #define COMPAT52_H

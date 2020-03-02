@@ -1,4 +1,4 @@
-deb-old - old style Debian binary package format
+﻿deb-old - old style Debian binary package format
 
 The .deb format is the Debian binary package file format. This manual page
 describes the old format, used before Debian 0.93. Please see deb(5) for

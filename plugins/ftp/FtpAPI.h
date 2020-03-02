@@ -1,4 +1,4 @@
-#ifndef __FAR_PLUGIN_FTP_IEFTP
+﻿#ifndef __FAR_PLUGIN_FTP_IEFTP
 #define __FAR_PLUGIN_FTP_IEFTP
 
 BOOL   FtpChmod(Connection *hConnect,LPCSTR lpszFileName,DWORD Mode);

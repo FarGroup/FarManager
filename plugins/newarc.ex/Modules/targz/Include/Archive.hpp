@@ -1,4 +1,4 @@
-#ifndef __ARCHIVE_HPP__
+﻿#ifndef __ARCHIVE_HPP__
 #define __ARCHIVE_HPP__
 
 #include <plugin.hpp>

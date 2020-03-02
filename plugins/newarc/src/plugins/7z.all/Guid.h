@@ -1,4 +1,4 @@
-#ifdef __cplusplus
+﻿#ifdef __cplusplus
   #define MY_EXTERN_C extern "C"
 #else
   #define MY_EXTERN_C extern

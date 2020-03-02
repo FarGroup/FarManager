@@ -1,4 +1,4 @@
-#include <FarPluginBase.hpp>
+﻿#include <FarPluginBase.hpp>
 #include <Rtl.Base.h>
 #include <array.hpp>
 #include "../../module.hpp"

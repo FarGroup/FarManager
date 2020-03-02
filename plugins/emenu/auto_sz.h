@@ -1,4 +1,4 @@
-#ifndef _AUTO_SZ_H_
+﻿#ifndef _AUTO_SZ_H_
 #define _AUTO_SZ_H_
 
 #include <shlobj.h>

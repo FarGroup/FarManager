@@ -1,4 +1,4 @@
-#include "wcx.h"
+п»ї#include "wcx.h"
 
 WcxPlugin::WcxPlugin(const GUID& uid)
 {
@@ -550,7 +550,7 @@ int WcxPlugin::PackFiles(
 		int Flags
 		)
 {
-	//это бред, надо его будет в класс запихать (без этого не работает, нет). 
+	//СЌС‚Рѕ Р±СЂРµРґ, РЅР°РґРѕ РµРіРѕ Р±СѓРґРµС‚ РІ РєР»Р°СЃСЃ Р·Р°РїРёС…Р°С‚СЊ (Р±РµР· СЌС‚РѕРіРѕ РЅРµ СЂР°Р±РѕС‚Р°РµС‚, РЅРµС‚). 
 	string strPackedFile = lpPackedFile;
 	CutToSlash(strPackedFile);
 	SetCurrentDirectory(strPackedFile);

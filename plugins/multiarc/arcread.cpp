@@ -1,4 +1,4 @@
-#include "MultiArc.hpp"
+﻿#include "MultiArc.hpp"
 #include "marclng.hpp"
 
 PluginClass::PluginClass(int ArcPluginNumber)

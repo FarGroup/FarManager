@@ -1,4 +1,4 @@
-#define NCOUNTERS 22
+﻿#define NCOUNTERS 22
 #define MAX_USERNAME_LENGTH 128
 
 template <class T> class Array

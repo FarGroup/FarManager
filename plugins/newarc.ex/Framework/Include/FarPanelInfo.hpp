@@ -1,4 +1,4 @@
-#include "FarPluginBase.hpp"
+﻿#include "FarPluginBase.hpp"
 
 #ifdef UNICODE
 	#define FINDDATA_GET_NAME(fdata) (fdata.lpwszFileName)

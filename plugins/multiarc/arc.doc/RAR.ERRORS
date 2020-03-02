@@ -1,4 +1,4 @@
- Exit values
+﻿ Exit values
  ~~~~~~~~~~~
 
     RAR exits with a zero code (0) in case of successful operation. The exit

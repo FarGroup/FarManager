@@ -1,4 +1,4 @@
-#include "7z.h"
+п»ї#include "7z.h"
 
 bool CInFile::Open()
 {
@@ -383,7 +383,7 @@ HRESULT __stdcall CVolumeOutFile::Write(const void *data, unsigned int size, uns
 		if ( (realProcessed == 0) && (curSize != 0) )
 			return E_FAIL;
 
-		break; //с чего бы вдруг?
+		break; //СЃ С‡РµРіРѕ Р±С‹ РІРґСЂСѓРі?
 	}
 	
 	return S_OK;

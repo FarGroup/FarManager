@@ -1,4 +1,4 @@
-#include "FarPluginBase.hpp"
+﻿#include "FarPluginBase.hpp"
 
 class Language {
 

@@ -1,4 +1,4 @@
-/*
+﻿/*
 TMPCLASS.HPP
 
 Temporary panel plugin class header file

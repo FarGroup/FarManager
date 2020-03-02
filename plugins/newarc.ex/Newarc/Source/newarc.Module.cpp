@@ -1,4 +1,4 @@
-#include "newarc.h"
+п»ї#include "newarc.h"
 
 const TCHAR* __stdcall ArchiveModule::GetMsg(INT_PTR nModuleNumber, int nID)
 {
@@ -52,7 +52,7 @@ bool ArchiveModule::Load(const TCHAR *lpModuleName, const TCHAR *lpLanguage)
 			_si.Info.ModuleNumber = (INT_PTR)this;
 			_si.Info.GetMsg = GetMsg;
 
-			ReloadLanguage(lpLanguage); //хм, а не рано ли
+			ReloadLanguage(lpLanguage); //С…Рј, Р° РЅРµ СЂР°РЅРѕ Р»Рё
 
 			if ( m_pfnModuleEntry(FID_INITIALIZE, (void*)&_si) == NAERROR_SUCCESS )
 			{
@@ -306,7 +306,7 @@ void ArchiveModule::ReloadLanguage(
 				{
 					if ( strLanguage == _T("English") ) //case??
 					{
-						if ( !pEnglishLanguage ) //нам два не надо
+						if ( !pEnglishLanguage ) //РЅР°Рј РґРІР° РЅРµ РЅР°РґРѕ
 							pEnglishLanguage = pLanguage;
 						else
 							delete pLanguage;

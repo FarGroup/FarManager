@@ -1,4 +1,7 @@
 #include <winresrc.h>
+
+#pragma code_page(65001)
+
 1 VERSIONINFO
 FILEVERSION <(VER_MAJOR)>,<(VER_MINOR)>,<(VER_BUILD)>,0
 PRODUCTVERSION <(VER_MAJOR)>,<(VER_MINOR)>,<(VER_BUILD)>,0
@@ -23,7 +26,7 @@ BEGIN
 #ifdef DEBUG
       VALUE "SpecialBuild", "Debug build.\0"
 #endif
-      VALUE "LegalCopyright", "Copyright © 2010 Far Group\0"
+      VALUE "LegalCopyright", "Copyright Â© 2010 Far Group\0"
       VALUE "CompanyName", "Eugene Roshal & Far Group\0"
     END
   END

@@ -1,4 +1,4 @@
-#include "newarc.h"
+п»ї#include "newarc.h"
 
 ArchiveModuleManager::ArchiveModuleManager(const TCHAR* lpCurrentLanguage)
 {
@@ -79,7 +79,7 @@ void ArchiveModuleManager::SetCurrentLanguage(const TCHAR* lpLanguage, bool bFor
 }
 
 
-//бля, это пиздец
+//Р±Р»СЏ, СЌС‚Рѕ РїРёР·РґРµС†
 int ArchiveModuleManager::QueryArchives(
 		const TCHAR* lpFileName,
 		const unsigned char* pBuffer,

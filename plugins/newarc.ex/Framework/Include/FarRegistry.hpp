@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "FarPluginBase.hpp"
 
 extern int  RegQueryStringArray (HKEY hKey, const TCHAR *lpPrefix, TCHAR ***Strings);

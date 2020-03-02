@@ -1,4 +1,4 @@
-/*
+﻿/*
 TMPMIX.CPP
 
 Temporary panel miscellaneous utility functions

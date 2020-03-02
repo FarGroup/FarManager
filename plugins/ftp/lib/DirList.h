@@ -1,4 +1,4 @@
-#ifndef __FTP_PLUGIN_DIRECTORY_LIST
+﻿#ifndef __FTP_PLUGIN_DIRECTORY_LIST
 #define __FTP_PLUGIN_DIRECTORY_LIST
 
 //------------------------------------------------------------------------

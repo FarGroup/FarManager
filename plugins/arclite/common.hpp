@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 typedef ByteVector ArcType;
 typedef std::list<ArcType> ArcTypes;

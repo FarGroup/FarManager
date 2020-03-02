@@ -1,4 +1,4 @@
-#ifndef __STRING
+﻿#ifndef __STRING
 #define __STRING
 
 #define DEF_STR_ALLOC 50

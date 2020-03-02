@@ -1,4 +1,4 @@
-#include "NetCommon.hpp"
+﻿#include "NetCommon.hpp"
 #include "NetCfg.hpp"
 #include "NetFavorites.hpp"
 #include <PluginSettings.hpp>

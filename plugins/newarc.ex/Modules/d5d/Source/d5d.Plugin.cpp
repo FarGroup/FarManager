@@ -1,4 +1,4 @@
-#include "d5d.h"
+п»ї#include "d5d.h"
 
 TCHAR* ShortStringToTCHAR(const ShortString& str)
 {
@@ -32,7 +32,7 @@ void __stdcall GetLanguageString(ShortString& src, ShortString& dst)
 */
 /*
 
-//как это работает - одному богу известно
+//РєР°Рє СЌС‚Рѕ СЂР°Р±РѕС‚Р°РµС‚ - РѕРґРЅРѕРјСѓ Р±РѕРіСѓ РёР·РІРµСЃС‚РЅРѕ
 void __stdcall ShowMessageBox(const char* lpStr1, const char* lpStr2)
 {
 	MessageBoxA(0, lpStr2, lpStr1, MB_OK);
@@ -144,14 +144,14 @@ bool D5DPlugin::Load(const TCHAR* lpModuleName)
 		m_pfnDUDIVersion = (DUDIVERSION)GetProcAddress(m_hModule, "DUDIVersion");
 		m_pfnDUDIVersionEx = (DUDIVERSIONEX)GetProcAddress(m_hModule, "DUDIVersionEx");
 
-		if ( m_pfnDUDIVersion ) //нет ножек, нет варенья
+		if ( m_pfnDUDIVersion ) //РЅРµС‚ РЅРѕР¶РµРє, РЅРµС‚ РІР°СЂРµРЅСЊСЏ
 		{
 			m_dwDUDIVersion = m_pfnDUDIVersion();
 
 			if ( m_pfnDUDIVersionEx )
 				m_dwDUDIVersion = m_pfnDUDIVersionEx(4); //no rtf in messageboxes, v5!! 
 
-			if ( (m_dwDUDIVersion >= 1) && (m_dwDUDIVersion <= 5) ) //про 6 мы ничего пока не знаем
+			if ( (m_dwDUDIVersion >= 1) && (m_dwDUDIVersion <= 5) ) //РїСЂРѕ 6 РјС‹ РЅРёС‡РµРіРѕ РїРѕРєР° РЅРµ Р·РЅР°РµРј
 			{
 			 	m_pfnIsFormat = (ISFORMAT)GetProcAddress(m_hModule, "IsFormat");
 				m_pfnCloseFormat = (CLOSEFORMAT)GetProcAddress(m_hModule, "CloseFormat");
@@ -161,7 +161,7 @@ bool D5DPlugin::Load(const TCHAR* lpModuleName)
 				m_pfnGetNumVersion = (GETNUMVERSION)GetProcAddress(m_hModule, "GetNumVersion");
 				m_pfnGetDriverInfo = (GETDRIVERINFO)GetProcAddress(m_hModule, "GetDriverInfo");
 
-				//в оригинальном коде еще и в загрузчике глюки. но это ничего ))
+				//РІ РѕСЂРёРіРёРЅР°Р»СЊРЅРѕРј РєРѕРґРµ РµС‰Рµ Рё РІ Р·Р°РіСЂСѓР·С‡РёРєРµ РіР»СЋРєРё. РЅРѕ СЌС‚Рѕ РЅРёС‡РµРіРѕ ))
 
 				if ( m_dwDUDIVersion == 1 )
 				{
@@ -215,7 +215,7 @@ bool D5DPlugin::Load(const TCHAR* lpModuleName)
 			InitPlugin();
 
 			/*
-			DriverInfo* pInfo = new DriverInfo; //только не в стеке, ааа!!!
+			DriverInfo* pInfo = new DriverInfo; //С‚РѕР»СЊРєРѕ РЅРµ РІ СЃС‚РµРєРµ, Р°Р°Р°!!!
 
 			m_pfnGetDriverInfo(pInfo);
 
@@ -225,7 +225,7 @@ bool D5DPlugin::Load(const TCHAR* lpModuleName)
 
 				format->dwFlags = AFF_SUPPORT_INTERNAL_EXTRACT;
 
-				format->lpName = ShortStringToTCHAR(pInfo->Formats[i].Name); //не, имя есть, но там такое полотно...
+				format->lpName = ShortStringToTCHAR(pInfo->Formats[i].Name); //РЅРµ, РёРјСЏ РµСЃС‚СЊ, РЅРѕ С‚Р°Рј С‚Р°РєРѕРµ РїРѕР»РѕС‚РЅРѕ...
 
 				TCHAR* p = (TCHAR*)_tcschr(format->lpName, _T('('));
 
@@ -311,8 +311,8 @@ void D5DPlugin::InitPlugin()
 		m_pfnInitPlugin3((PERCENTCALLBACK)m_pfnPercentThunk, (LANGUAGECALLBACK)m_pfnGetMsgThunk, str, GetConsoleWindow(), NULL);
 
 	if ( m_pfnInitPluginEx5 )
-		m_pfnInitPluginEx5((MESSAGEBOXCALLBACK)m_pfnMessageBoxThunk); //и все упадет
-	//m_pfnInitPluginEx5 не поддерживается. где я им AnsiString возьму
+		m_pfnInitPluginEx5((MESSAGEBOXCALLBACK)m_pfnMessageBoxThunk); //Рё РІСЃРµ СѓРїР°РґРµС‚
+	//m_pfnInitPluginEx5 РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚СЃСЏ. РіРґРµ СЏ РёРј AnsiString РІРѕР·СЊРјСѓ
 
 	ANSI_NAME_DELETE(lpModulePath);
 }
@@ -381,7 +381,7 @@ int D5DPlugin::ReadFormat(const TCHAR* lpFileName)
 
 	ANSI_NAME_DELETE(lpFileName);
 
-	//тут надо получить информацию о том, что же это было
+	//С‚СѓС‚ РЅР°РґРѕ РїРѕР»СѓС‡РёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ С‚РѕРј, С‡С‚Рѕ Р¶Рµ СЌС‚Рѕ Р±С‹Р»Рѕ
 
 	return nResult;
 }
@@ -426,9 +426,9 @@ int D5DPlugin::GetEntry(int& nIndex, ArchiveItem* pItem)
 		{
 			m_pfnGetEntry(entry);
 
-			//бред, приходят пустые файлы, количество больше реального
+			//Р±СЂРµРґ, РїСЂРёС…РѕРґСЏС‚ РїСѓСЃС‚С‹Рµ С„Р°Р№Р»С‹, РєРѕР»РёС‡РµСЃС‚РІРѕ Р±РѕР»СЊС€Рµ СЂРµР°Р»СЊРЅРѕРіРѕ
 			if ( entry->FileName.Length > 0 )
-            //if ( (entry->Offset >= 0) && (entry->Size > 0) ) //взято из оригинального кода, но херня
+            //if ( (entry->Offset >= 0) && (entry->Size > 0) ) //РІР·СЏС‚Рѕ РёР· РѕСЂРёРіРёРЅР°Р»СЊРЅРѕРіРѕ РєРѕРґР°, РЅРѕ С…РµСЂРЅСЏ
 			{
 				pItem->lpFileName = ShortStringToTCHAR(entry->FileName);
 				pItem->nFileSize = entry->Size;
@@ -476,7 +476,7 @@ int D5DPlugin::QueryArchives(const TCHAR* lpFileName, Array<ArchiveQueryResult*>
 	if ( m_pfnIsFormat )
 		bResult = m_pfnIsFormat(dFileName, false);
  	
- 	//else //вот тут надо подумать, может открыть/закрыть
+ 	//else //РІРѕС‚ С‚СѓС‚ РЅР°РґРѕ РїРѕРґСѓРјР°С‚СЊ, РјРѕР¶РµС‚ РѕС‚РєСЂС‹С‚СЊ/Р·Р°РєСЂС‹С‚СЊ
 
 	ANSI_NAME_DELETE(lpFileName);
 

@@ -1,4 +1,4 @@
-/* Contents of file wcxhead.h */
+﻿/* Contents of file wcxhead.h */
 /* It contains definitions of error codes, flags and callbacks */
 
 /* Error codes returned to calling application */

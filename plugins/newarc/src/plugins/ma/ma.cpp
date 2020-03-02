@@ -1,4 +1,4 @@
-#include <Rtl.Base.h>
+ï»¿#include <Rtl.Base.h>
 #include <FarPluginBase.hpp>
 #include "ma.class.h"
 
@@ -44,7 +44,7 @@ int OnQueryArchive (QueryArchiveStruct *pQAS)
 
 		if ( bResult )
 		{
-			pQAS->nFormats = -1; //BUGBUG íàäî ñäåëàòü ïîääåðæêó ïîïàäàíèÿ ïîä íåñêîëüêî ôîðìàòîê
+			pQAS->nFormats = -1; //BUGBUG Ð½Ð°Ð´Ð¾ ÑÐ´ÐµÐ»Ð°Ñ‚ÑŒ Ð¿Ð¾Ð´Ð´ÐµÑ€Ð¶ÐºÑƒ Ð¿Ð¾Ð¿Ð°Ð´Ð°Ð½Ð¸Ñ Ð¿Ð¾Ð´ Ð½ÐµÑÐºÐ¾Ð»ÑŒÐºÐ¾ Ñ„Ð¾Ñ€Ð¼Ð°Ñ‚Ð¾Ðº
 			pQAS->hResult = (HANDLE)pArchive;
 			return NAERROR_SUCCESS;
 		}

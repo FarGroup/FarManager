@@ -1,4 +1,4 @@
-#include "dlgFilterOneFormat.cpp"
+﻿#include "dlgFilterOneFormat.cpp"
 
 enum enumArchiveFilter {
 	ID_AF_TITLE,

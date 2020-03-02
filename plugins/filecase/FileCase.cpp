@@ -1,4 +1,4 @@
-#include <PluginSettings.hpp>
+﻿#include <PluginSettings.hpp>
 #include "FileCase.hpp"
 #include "version.hpp"
 #include <initguid.h>

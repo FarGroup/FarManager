@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 
 #define ARCHIVE_OPERATION_ADD 1
 #define ARCHIVE_OPERATION_DELETE 2
@@ -14,7 +14,7 @@ public:
 	DWORD m_dwDUDIVersion; //interface version
 	DWORD m_dwVersion; //driver version
 
-	bool m_bSpecialCase; //а вот это для глюков оригинального плагина
+	bool m_bSpecialCase; //Р° РІРѕС‚ СЌС‚Рѕ РґР»СЏ РіР»СЋРєРѕРІ РѕСЂРёРіРёРЅР°Р»СЊРЅРѕРіРѕ РїР»Р°РіРёРЅР°
 
 	GUID m_uid;
 
@@ -30,7 +30,7 @@ public:
 
 	string m_strModuleName;
 
-	//эти не менялись
+	//СЌС‚Рё РЅРµ РјРµРЅСЏР»РёСЃСЊ
 	DUDIVERSION m_pfnDUDIVersion;
 	GETNUMVERSION m_pfnGetNumVersion;
 
@@ -41,13 +41,13 @@ public:
 	GETDRIVERINFO m_pfnGetDriverInfo;
 	ISFORMAT m_pfnIsFormat;
 
-	//эти новые
+	//СЌС‚Рё РЅРѕРІС‹Рµ
 	DUDIVERSIONEX m_pfnDUDIVersionEx;
 	EXTRACTFILETOSTREAM m_pfnExtractFileToStream; //not supported, TStream needed
 	INITPLUGINEX5 m_pfnInitPluginEx5;
 
-	//насрать, что имена одинаковые. на самом деле это могут быть разные функции в разных
-	//версиях DUDI
+	//РЅР°СЃСЂР°С‚СЊ, С‡С‚Рѕ РёРјРµРЅР° РѕРґРёРЅР°РєРѕРІС‹Рµ. РЅР° СЃР°РјРѕРј РґРµР»Рµ СЌС‚Рѕ РјРѕРіСѓС‚ Р±С‹С‚СЊ СЂР°Р·РЅС‹Рµ С„СѓРЅРєС†РёРё РІ СЂР°Р·РЅС‹С…
+	//РІРµСЂСЃРёСЏС… DUDI
 
 	INITPLUGIN m_pfnInitPlugin;
 	INITPLUGIN3 m_pfnInitPlugin3;
@@ -59,7 +59,7 @@ public:
 	READFORMAT m_pfnReadFormat;
 	READFORMAT2 m_pfnReadFormat2;
 
-	//схватка 3-х якодзун
+	//СЃС…РІР°С‚РєР° 3-С… СЏРєРѕРґР·СѓРЅ
 	ABOUTBOX m_pfnAboutBox;
 	ABOUTBOX2 m_pfnAboutBox2;
 	ABOUTBOX3 m_pfnAboutBox3;

@@ -1,4 +1,4 @@
-#include "zip.h"
+﻿#include "zip.h"
 
 typedef unzFile (__stdcall *UNZOPEN) (const char*);
 typedef unzFile (__stdcall *UNZOPEN2) (const char *, zlib_filefunc_def*);

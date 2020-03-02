@@ -1,4 +1,4 @@
-#include "lua.h"
+﻿#include "lua.h"
 
 extern void LF_InitLuaState1(lua_State *L, lua_CFunction aOpenLibs);
 

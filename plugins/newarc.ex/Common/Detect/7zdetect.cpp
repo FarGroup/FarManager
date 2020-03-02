@@ -1,4 +1,4 @@
-#include "../Include/7z.h"
+﻿#include "../Include/7z.h"
 
 #if defined(__BORLANDC__)
   #pragma option -a1

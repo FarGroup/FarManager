@@ -1,4 +1,4 @@
-#ifndef __FTP_PROGRESS_INTERNAL
+﻿#ifndef __FTP_PROGRESS_INTERNAL
 #define __FTP_PROGRESS_INTERNAL
 
 #include "fstdlib.h"         //FAR plugin stdlib

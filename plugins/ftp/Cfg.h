@@ -1,4 +1,4 @@
-#ifndef __FAR_PLUGIN_CONFIGDATA
+﻿#ifndef __FAR_PLUGIN_CONFIGDATA
 #define __FAR_PLUGIN_CONFIGDATA
 
 //Traffic message [ftp_TraficCB.cpp]

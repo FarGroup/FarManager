@@ -1,4 +1,4 @@
-#include <cwchar>
+﻿#include <cwchar>
 #include "Proclist.hpp"
 #include "perfthread.hpp"
 #include "Proclng.hpp"
@@ -85,7 +85,7 @@ Plist::Plist()
 	}
 
 	if (SortMode >= SM_PERSEC)
-		SortMode &= (SM_PERSEC-1); // ���㭣!
+		SortMode &= (SM_PERSEC-1); // Ахтунг!
 
 	InitializePanelModes();
 

@@ -1,4 +1,4 @@
-#ifndef __FAR_PLUGIN_FTP_LANGUAGE
+﻿#ifndef __FAR_PLUGIN_FTP_LANGUAGE
 #define __FAR_PLUGIN_FTP_LANGUAGE
 
 enum

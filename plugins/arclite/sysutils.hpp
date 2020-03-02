@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifdef DEBUG
   #define DEBUG_OUTPUT(msg) OutputDebugStringW(((msg) + L"\n").c_str())

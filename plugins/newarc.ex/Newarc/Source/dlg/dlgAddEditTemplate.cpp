@@ -1,4 +1,4 @@
-extern ArchiveModuleManager* pManager;
+﻿extern ArchiveModuleManager* pManager;
 
 enum enumAddEditTemplate {
 	ID_AET_TITLE,

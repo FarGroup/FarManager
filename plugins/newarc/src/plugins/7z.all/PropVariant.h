@@ -1,4 +1,4 @@
-// Windows/PropVariant.h
+﻿// Windows/PropVariant.h
 
 #pragma once
 #include "7z.h"

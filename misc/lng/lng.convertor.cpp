@@ -1,4 +1,4 @@
-/*
+﻿/*
 Copyright (c) 2005 WARP ItSelf & Alex Yaroslavsky
 All rights reserved.
 

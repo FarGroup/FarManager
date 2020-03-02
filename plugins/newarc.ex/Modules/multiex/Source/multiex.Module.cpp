@@ -1,4 +1,4 @@
-#include "multiex.h"
+﻿#include "multiex.h"
 
 // {BEDAF2F1-09EC-4F9E-A276-46C9E5C00266}
 MY_DEFINE_GUID(CLSID_ModuleMultiEx, 0xbedaf2f1, 0x9ec, 0x4f9e, 0xa2, 0x76, 0x46, 0xc9, 0xe5, 0xc0, 0x2, 0x66);

@@ -1,4 +1,4 @@
-#include "zip.h"
+Ôªø#include "zip.h"
 
 MY_DEFINE_GUID (CLSID_FormatZIP, 0x946378F0, 0xB7C0, 0x4811, 0x82, 0x7A, 0x27, 0xB2, 0xE9, 0xBC, 0xE8, 0x54);
 
@@ -57,7 +57,7 @@ int OnQueryArchive (QueryArchiveStruct *pQAS)
 		}
 	}
 
-	return NAERROR_INTERNAL; //† ¢Æ‚ Ì‚Æ ≠•¢•‡≠Æ. §Æ´¶•≠ °Î‚Ï ¢·• ‡†¢≠Æ SUCCESS, ≠Æ INVALID_HANDLE_VALUE
+	return NAERROR_INTERNAL; //–∞ –≤–æ—Ç —ç—Ç–æ –Ω–µ–≤–µ—Ä–Ω–æ. –¥–æ–ª–∂–µ–Ω –±—ã—Ç—å –≤—Å–µ —Ä–∞–≤–Ω–æ SUCCESS, –Ω–æ INVALID_HANDLE_VALUE
 }
 
 int OnOpenArchive (OpenArchiveStruct *pOAS)

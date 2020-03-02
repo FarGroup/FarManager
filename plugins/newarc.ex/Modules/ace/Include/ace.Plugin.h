@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "ace.h"
 
 typedef int (__stdcall *ACEINITDLL) (pACEInitDllStruc DllData);

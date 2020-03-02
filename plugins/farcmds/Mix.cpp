@@ -1,4 +1,4 @@
-#include <cwchar>
+п»ї#include <cwchar>
 #include <shlobj.h>
 #include <plugin.hpp>
 
@@ -30,8 +30,8 @@ wchar_t *ExpandEnv(const wchar_t* Src, DWORD* Length)
 }
 
 /*
-	возвращает число, вырезав его из строки, или -2 в случае ошибки
-	Start, End - начало и конец строки
+	РІРѕР·РІСЂР°С‰Р°РµС‚ С‡РёСЃР»Рѕ, РІС‹СЂРµР·Р°РІ РµРіРѕ РёР· СЃС‚СЂРѕРєРё, РёР»Рё -2 РІ СЃР»СѓС‡Р°Рµ РѕС€РёР±РєРё
+	Start, End - РЅР°С‡Р°Р»Рѕ Рё РєРѕРЅРµС† СЃС‚СЂРѕРєРё
 */
 int GetInt(const wchar_t *Start, wchar_t *End)
 {
@@ -67,9 +67,9 @@ int GetInt(const wchar_t *Start, wchar_t *End)
 }
 
 /*
-	Заменить в строке Str Count вхождений подстроки FindStr на подстроку ReplStr
-	Если Count < 0 - заменять "до полной победы"
-	Return - количество замен
+	Р—Р°РјРµРЅРёС‚СЊ РІ СЃС‚СЂРѕРєРµ Str Count РІС…РѕР¶РґРµРЅРёР№ РїРѕРґСЃС‚СЂРѕРєРё FindStr РЅР° РїРѕРґСЃС‚СЂРѕРєСѓ ReplStr
+	Р•СЃР»Рё Count < 0 - Р·Р°РјРµРЅСЏС‚СЊ "РґРѕ РїРѕР»РЅРѕР№ РїРѕР±РµРґС‹"
+	Return - РєРѕР»РёС‡РµСЃС‚РІРѕ Р·Р°РјРµРЅ
 */
 int ReplaceStrings(wchar_t *Str,const wchar_t *FindStr,const wchar_t *ReplStr,int Count,BOOL IgnoreCase)
 {
@@ -106,8 +106,8 @@ int ReplaceStrings(wchar_t *Str,const wchar_t *FindStr,const wchar_t *ReplStr,in
 
 
 /*
-	возвращает PipeFound
-	NewCmdStr и NewCmdPar после использования удалить
+	РІРѕР·РІСЂР°С‰Р°РµС‚ PipeFound
+	NewCmdStr Рё NewCmdPar РїРѕСЃР»Рµ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ СѓРґР°Р»РёС‚СЊ
 */
 int PartCmdLine(const wchar_t *CmdStr,wchar_t **NewCmdStr,wchar_t **NewCmdPar)
 {
@@ -127,9 +127,9 @@ int PartCmdLine(const wchar_t *CmdStr,wchar_t **NewCmdStr,wchar_t **NewCmdPar)
 		wchar_t *ParPtr = NULL;
 		int QuoteFound = FALSE;
 
-		// Разделим собственно команду для исполнения и параметры.
-		// При этом заодно определим наличие символов переопределения потоков
-		// Работаем с учетом кавычек. Т.е. пайп в кавычках - не пайп.
+		// Р Р°Р·РґРµР»РёРј СЃРѕР±СЃС‚РІРµРЅРЅРѕ РєРѕРјР°РЅРґСѓ РґР»СЏ РёСЃРїРѕР»РЅРµРЅРёСЏ Рё РїР°СЂР°РјРµС‚СЂС‹.
+		// РџСЂРё СЌС‚РѕРј Р·Р°РѕРґРЅРѕ РѕРїСЂРµРґРµР»РёРј РЅР°Р»РёС‡РёРµ СЃРёРјРІРѕР»РѕРІ РїРµСЂРµРѕРїСЂРµРґРµР»РµРЅРёСЏ РїРѕС‚РѕРєРѕРІ
+		// Р Р°Р±РѕС‚Р°РµРј СЃ СѓС‡РµС‚РѕРј РєР°РІС‹С‡РµРє. Рў.Рµ. РїР°Р№Рї РІ РєР°РІС‹С‡РєР°С… - РЅРµ РїР°Р№Рї.
 
 		while (*CmdPtr)
 		{
@@ -140,7 +140,7 @@ int PartCmdLine(const wchar_t *CmdStr,wchar_t **NewCmdStr,wchar_t **NewCmdPar)
 			{
 				if (*CmdPtr == L'>' || *CmdPtr == L'<' ||
 				        *CmdPtr == L'|' || *CmdPtr == L' ' ||
-				        *CmdPtr == L'/' ||      // вариант "far.exe/?"
+				        *CmdPtr == L'/' ||      // РІР°СЂРёР°РЅС‚ "far.exe/?"
 				        *CmdPtr == L'&'
 				   )
 				{
@@ -152,13 +152,13 @@ int PartCmdLine(const wchar_t *CmdStr,wchar_t **NewCmdStr,wchar_t **NewCmdPar)
 				}
 			}
 
-			if (ParPtr && PipeFound) // Нам больше ничего не надо узнавать
+			if (ParPtr && PipeFound) // РќР°Рј Р±РѕР»СЊС€Рµ РЅРёС‡РµРіРѕ РЅРµ РЅР°РґРѕ СѓР·РЅР°РІР°С‚СЊ
 				break;
 
 			CmdPtr++;
 		}
 
-		if (NewCmdPar && ParPtr) // Мы нашли параметры и отделяем мух от котлет
+		if (NewCmdPar && ParPtr) // РњС‹ РЅР°С€Р»Рё РїР°СЂР°РјРµС‚СЂС‹ Рё РѕС‚РґРµР»СЏРµРј РјСѓС… РѕС‚ РєРѕС‚Р»РµС‚
 		{
 			wchar_t *ptrNewCmdPar=new wchar_t[lstrlen(ParPtr)+1];
 			if (ptrNewCmdPar)
@@ -546,7 +546,7 @@ UINT GetCPBuffer(const void* data, size_t size, size_t* off)
 					{
 						cp=CP_REVERSEBOM;
 					}
-					else if (test & IS_TEXT_UNICODE_STATISTICS) // !!! допускаем возможность, что это Unicode
+					else if (test & IS_TEXT_UNICODE_STATISTICS) // !!! РґРѕРїСѓСЃРєР°РµРј РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ, С‡С‚Рѕ СЌС‚Рѕ Unicode
 					{
 						cp=CP_UNICODE;
 					}

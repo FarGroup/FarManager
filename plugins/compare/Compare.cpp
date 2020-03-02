@@ -1,4 +1,4 @@
-#include <algorithm>
+п»ї#include <algorithm>
 #include <cwchar>
 #include <plugin.hpp>
 #include <PluginSettings.hpp>
@@ -13,7 +13,7 @@
 #define CheckDisabled(i) (!((int)Info.SendDlgMessage(hDlg,DM_ENABLE,i,(void *)-1)))
 
 /****************************************************************************
- * Текущие настройки плагина
+ * РўРµРєСѓС‰РёРµ РЅР°СЃС‚СЂРѕР№РєРё РїР»Р°РіРёРЅР°
  ****************************************************************************/
 struct Options
 {
@@ -34,7 +34,7 @@ struct Options
 } Opt;
 
 /****************************************************************************
- * Копии стандартных структур FAR
+ * РљРѕРїРёРё СЃС‚Р°РЅРґР°СЂС‚РЅС‹С… СЃС‚СЂСѓРєС‚СѓСЂ FAR
  ****************************************************************************/
 static struct PluginStartupInfo Info;
 static struct FarStandardFunctions FSF;
@@ -64,7 +64,7 @@ struct OwnPanelInfo
 };
 
 /****************************************************************************
- * Обёртка сервисной функции FAR: получение строки из .lng-файла
+ * РћР±С‘СЂС‚РєР° СЃРµСЂРІРёСЃРЅРѕР№ С„СѓРЅРєС†РёРё FAR: РїРѕР»СѓС‡РµРЅРёРµ СЃС‚СЂРѕРєРё РёР· .lng-С„Р°Р№Р»Р°
  ****************************************************************************/
 static const wchar_t *GetMsg(int CompareLng)
 {
@@ -91,8 +91,8 @@ static __int64 GetSetting(FARSETTINGS_SUBFOLDERS Root,const wchar_t* Name)
 static int iTruncLen;
 
 /****************************************************************************
- * Усекает начало длинных имен файлов (или дополняет короткие имена)
- * для правильного показа в сообщении сравнения
+ * РЈСЃРµРєР°РµС‚ РЅР°С‡Р°Р»Рѕ РґР»РёРЅРЅС‹С… РёРјРµРЅ С„Р°Р№Р»РѕРІ (РёР»Рё РґРѕРїРѕР»РЅСЏРµС‚ РєРѕСЂРѕС‚РєРёРµ РёРјРµРЅР°)
+ * РґР»СЏ РїСЂР°РІРёР»СЊРЅРѕРіРѕ РїРѕРєР°Р·Р° РІ СЃРѕРѕР±С‰РµРЅРёРё СЃСЂР°РІРЅРµРЅРёСЏ
  ****************************************************************************/
 static int SplitCopy(
 	wchar_t* items[], int mitems, wchar_t *name1, const wchar_t *cpName)
@@ -140,7 +140,7 @@ static int nAdds = -1;
 static bool bOpenFail;
 
 /****************************************************************************
- * Показывает сообщение о сравнении двух файлов
+ * РџРѕРєР°Р·С‹РІР°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ Рѕ СЃСЂР°РІРЅРµРЅРёРё РґРІСѓС… С„Р°Р№Р»РѕРІ
  ****************************************************************************/
 static void ShowMessage(const wchar_t *Name1, const wchar_t *Name2)
 {
@@ -182,7 +182,7 @@ static void ShowMessage(const wchar_t *Name1, const wchar_t *Name2)
 
 
 /****************************************************************************
- * Обработчик диалога для ShowDialog
+ * РћР±СЂР°Р±РѕС‚С‡РёРє РґРёР°Р»РѕРіР° РґР»СЏ ShowDialog
  ****************************************************************************/
 INT_PTR WINAPI ShowDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void *Param2)
 {
@@ -232,9 +232,9 @@ INT_PTR WINAPI ShowDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void *
 }
 
 /****************************************************************************
- * Читает настройки из реестра, показывает диалог с опциями сравнения,
- * заполняет структуру Opt, сохраняет (если надо) новые настройки в реестре,
- * возвращает true, если пользователь нажал OK
+ * Р§РёС‚Р°РµС‚ РЅР°СЃС‚СЂРѕР№РєРё РёР· СЂРµРµСЃС‚СЂР°, РїРѕРєР°Р·С‹РІР°РµС‚ РґРёР°Р»РѕРі СЃ РѕРїС†РёСЏРјРё СЃСЂР°РІРЅРµРЅРёСЏ,
+ * Р·Р°РїРѕР»РЅСЏРµС‚ СЃС‚СЂСѓРєС‚СѓСЂСѓ Opt, СЃРѕС…СЂР°РЅСЏРµС‚ (РµСЃР»Рё РЅР°РґРѕ) РЅРѕРІС‹Рµ РЅР°СЃС‚СЂРѕР№РєРё РІ СЂРµРµСЃС‚СЂРµ,
+ * РІРѕР·РІСЂР°С‰Р°РµС‚ true, РµСЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅР°Р¶Р°Р» OK
  ****************************************************************************/
 static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
 {
@@ -458,7 +458,7 @@ static bool bBrokenByEsc;
 static HANDLE hConInp = INVALID_HANDLE_VALUE;
 
 /****************************************************************************
- * Проверка на Esc. Возвращает true, если пользователь нажал Esc
+ * РџСЂРѕРІРµСЂРєР° РЅР° Esc. Р’РѕР·РІСЂР°С‰Р°РµС‚ true, РµСЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅР°Р¶Р°Р» Esc
  ****************************************************************************/
 static bool CheckForEsc(void)
 {
@@ -481,7 +481,7 @@ static bool CheckForEsc(void)
 
 		if (rec.EventType == KEY_EVENT && rec.Event.KeyEvent.wVirtualKeyCode == VK_ESCAPE &&
 		        rec.Event.KeyEvent.bKeyDown)
-			// Опциональное подтверждение прерывания по Esc
+			// РћРїС†РёРѕРЅР°Р»СЊРЅРѕРµ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ РїСЂРµСЂС‹РІР°РЅРёСЏ РїРѕ Esc
 		{
 			if (GetSetting(FSSF_CONFIRMATIONS,L"Esc"))
 			{
@@ -509,7 +509,7 @@ static bool CheckForEsc(void)
 }
 
 /****************************************************************************
- * Строит полное имя файла из пути и имени
+ * РЎС‚СЂРѕРёС‚ РїРѕР»РЅРѕРµ РёРјСЏ С„Р°Р№Р»Р° РёР· РїСѓС‚Рё Рё РёРјРµРЅРё
  ****************************************************************************/
 
 class FileName
@@ -549,8 +549,8 @@ struct FileIndex
 };
 
 /****************************************************************************
- * Функция сравнения имён файлов в двух структурах PluginPanelItem
- * для нужд qsort()
+ * Р¤СѓРЅРєС†РёСЏ СЃСЂР°РІРЅРµРЅРёСЏ РёРјС‘РЅ С„Р°Р№Р»РѕРІ РІ РґРІСѓС… СЃС‚СЂСѓРєС‚СѓСЂР°С… PluginPanelItem
+ * РґР»СЏ РЅСѓР¶Рґ qsort()
  ****************************************************************************/
 static int WINAPI PICompare(const void *el1, const void *el2, void*)
 {
@@ -571,7 +571,7 @@ static int WINAPI PICompare(const void *el1, const void *el2, void*)
 }
 
 /****************************************************************************
- * Построение сортированного списка файлов для быстрого сравнения
+ * РџРѕСЃС‚СЂРѕРµРЅРёРµ СЃРѕСЂС‚РёСЂРѕРІР°РЅРЅРѕРіРѕ СЃРїРёСЃРєР° С„Р°Р№Р»РѕРІ РґР»СЏ Р±С‹СЃС‚СЂРѕРіРѕ СЃСЂР°РІРЅРµРЅРёСЏ
  ****************************************************************************/
 static bool BuildPanelIndex(const OwnPanelInfo *pInfo, struct FileIndex *pIndex, HANDLE Filter)
 {
@@ -619,7 +619,7 @@ static bool BuildPanelIndex(const OwnPanelInfo *pInfo, struct FileIndex *pIndex,
 }
 
 /****************************************************************************
- * Освобождение памяти
+ * РћСЃРІРѕР±РѕР¶РґРµРЅРёРµ РїР°РјСЏС‚Рё
  ****************************************************************************/
 static void FreePanelIndex(struct FileIndex *pIndex)
 {
@@ -631,8 +631,8 @@ static void FreePanelIndex(struct FileIndex *pIndex)
 }
 
 /****************************************************************************
- * Замена сервисной функции Info.GetDirList(). В отличие от оной возвращает
- * список файлов только в каталоге Dir, без подкаталогов.
+ * Р—Р°РјРµРЅР° СЃРµСЂРІРёСЃРЅРѕР№ С„СѓРЅРєС†РёРё Info.GetDirList(). Р’ РѕС‚Р»РёС‡РёРµ РѕС‚ РѕРЅРѕР№ РІРѕР·РІСЂР°С‰Р°РµС‚
+ * СЃРїРёСЃРѕРє С„Р°Р№Р»РѕРІ С‚РѕР»СЊРєРѕ РІ РєР°С‚Р°Р»РѕРіРµ Dir, Р±РµР· РїРѕРґРєР°С‚Р°Р»РѕРіРѕРІ.
  ****************************************************************************/
 static int GetDirList(OwnPanelInfo *PInfo, const wchar_t *Dir)
 {
@@ -677,7 +677,7 @@ static int GetDirList(OwnPanelInfo *PInfo, const wchar_t *Dir)
 }
 
 /****************************************************************************
- * Замена сервисной функции Info.FreeDirList().
+ * Р—Р°РјРµРЅР° СЃРµСЂРІРёСЃРЅРѕР№ С„СѓРЅРєС†РёРё Info.FreeDirList().
  ****************************************************************************/
 static void FreeDirList(OwnPanelInfo *AInfo)
 {
@@ -698,8 +698,8 @@ static bool CompareDirs(const OwnPanelInfo *AInfo, const OwnPanelInfo *PInfo, bo
 static DWORD bufSize;
 static HANDLE AFilter, PFilter;
 
-//TODO: эта часть (до конца CompareFiles) НЕ адоптировано к unicode/locale
-//      и, тем паче, к автоопознованию файлов
+//TODO: СЌС‚Р° С‡Р°СЃС‚СЊ (РґРѕ РєРѕРЅС†Р° CompareFiles) РќР• Р°РґРѕРїС‚РёСЂРѕРІР°РЅРѕ Рє unicode/locale
+//      Рё, С‚РµРј РїР°С‡Рµ, Рє Р°РІС‚РѕРѕРїРѕР·РЅРѕРІР°РЅРёСЋ С„Р°Р№Р»РѕРІ
 static char *ABuf, *PBuf;
 
 bool isnewline(int c)
@@ -708,9 +708,9 @@ bool isnewline(int c)
 }
 
 /****************************************************************************
- * Сравнение атрибутов и прочего для двух одноимённых элементов (файлов или
- * подкаталогов).
- * Возвращает true, если они совпадают.
+ * РЎСЂР°РІРЅРµРЅРёРµ Р°С‚СЂРёР±СѓС‚РѕРІ Рё РїСЂРѕС‡РµРіРѕ РґР»СЏ РґРІСѓС… РѕРґРЅРѕРёРјС‘РЅРЅС‹С… СЌР»РµРјРµРЅС‚РѕРІ (С„Р°Р№Р»РѕРІ РёР»Рё
+ * РїРѕРґРєР°С‚Р°Р»РѕРіРѕРІ).
+ * Р’РѕР·РІСЂР°С‰Р°РµС‚ true, РµСЃР»Рё РѕРЅРё СЃРѕРІРїР°РґР°СЋС‚.
  ****************************************************************************/
 static bool CompareFiles(const PluginPanelItem *AData, const PluginPanelItem *PData,
                          const wchar_t *ACurDir, const wchar_t *PCurDir, int ScanDepth)
@@ -719,13 +719,13 @@ static bool CompareFiles(const PluginPanelItem *AData, const PluginPanelItem *PD
 
 	if (AData->FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 	{
-		// Здесь сравниваем два подкаталога
+		// Р—РґРµСЃСЊ СЃСЂР°РІРЅРёРІР°РµРј РґРІР° РїРѕРґРєР°С‚Р°Р»РѕРіР°
 		if (Opt.ProcessSubfolders)
 		{
 			if (Opt.UseMaxScanDepth && Opt.MaxScanDepth<ScanDepth+1)
 				return true;
 
-			// Составим списки файлов в подкаталогах
+			// РЎРѕСЃС‚Р°РІРёРј СЃРїРёСЃРєРё С„Р°Р№Р»РѕРІ РІ РїРѕРґРєР°С‚Р°Р»РѕРіР°С…
 			OwnPanelInfo AInfo, PInfo;
 			memset(&AInfo, 0, sizeof(AInfo));
 			memset(&PInfo, 0, sizeof(PInfo));
@@ -734,8 +734,8 @@ static bool CompareFiles(const PluginPanelItem *AData, const PluginPanelItem *PD
 			if (!GetDirList(&AInfo, FileA.BuildName(ACurDir, AData->FileName))
 			 || !GetDirList(&PInfo, FileP.BuildName(PCurDir, PData->FileName)))
 			{
-				bBrokenByEsc = true; // То ли юзер прервал, то ли ошибка чтения
-				bEqual = false; // Остановим сравнение
+				bBrokenByEsc = true; // РўРѕ Р»Рё СЋР·РµСЂ РїСЂРµСЂРІР°Р», С‚Рѕ Р»Рё РѕС€РёР±РєР° С‡С‚РµРЅРёСЏ
+				bEqual = false; // РћСЃС‚Р°РЅРѕРІРёРј СЃСЂР°РІРЅРµРЅРёРµ
 			}
 			else
 				bEqual = CompareDirs(&AInfo, &PInfo, false, ScanDepth+1);
@@ -747,7 +747,7 @@ static bool CompareFiles(const PluginPanelItem *AData, const PluginPanelItem *PD
 	}
 	else
 	{
-		// Здесь сравниваем два файла
+		// Р—РґРµСЃСЊ СЃСЂР°РІРЅРёРІР°РµРј РґРІР° С„Р°Р№Р»Р°
 		if (Opt.CompareSize)
 			if (AData->FileSize != PData->FileSize)
 				return false;
@@ -795,7 +795,7 @@ static bool CompareFiles(const PluginPanelItem *AData, const PluginPanelItem *PD
 					}
 				}
 
-				//игнорировать различия не больше чем 26 часов.
+				//РёРіРЅРѕСЂРёСЂРѕРІР°С‚СЊ СЂР°Р·Р»РёС‡РёСЏ РЅРµ Р±РѕР»СЊС€Рµ С‡РµРј 26 С‡Р°СЃРѕРІ.
 				if (Opt.IgnorePossibleTimeZoneDifferences)
 				{
 					int counter=0;
@@ -1008,15 +1008,15 @@ static bool CompareFiles(const PluginPanelItem *AData, const PluginPanelItem *PD
 }
 
 /****************************************************************************
- * Сравнение двух каталогов, описанных структурами AInfo и PInfo.
- * Возвращает true, если они совпадают.
- * Параметр bCompareAll определяет,
- * надо ли сравнивать все файлы и взводить PPIF_SELECTED (bCompareAll == true)
- * или просто вернуть false при первом несовпадении (bCompareAll == false).
+ * РЎСЂР°РІРЅРµРЅРёРµ РґРІСѓС… РєР°С‚Р°Р»РѕРіРѕРІ, РѕРїРёСЃР°РЅРЅС‹С… СЃС‚СЂСѓРєС‚СѓСЂР°РјРё AInfo Рё PInfo.
+ * Р’РѕР·РІСЂР°С‰Р°РµС‚ true, РµСЃР»Рё РѕРЅРё СЃРѕРІРїР°РґР°СЋС‚.
+ * РџР°СЂР°РјРµС‚СЂ bCompareAll РѕРїСЂРµРґРµР»СЏРµС‚,
+ * РЅР°РґРѕ Р»Рё СЃСЂР°РІРЅРёРІР°С‚СЊ РІСЃРµ С„Р°Р№Р»С‹ Рё РІР·РІРѕРґРёС‚СЊ PPIF_SELECTED (bCompareAll == true)
+ * РёР»Рё РїСЂРѕСЃС‚Рѕ РІРµСЂРЅСѓС‚СЊ false РїСЂРё РїРµСЂРІРѕРј РЅРµСЃРѕРІРїР°РґРµРЅРёРё (bCompareAll == false).
  ****************************************************************************/
 static bool CompareDirs(const OwnPanelInfo *AInfo, const OwnPanelInfo *PInfo, bool bCompareAll, int ScanDepth)
 {
-	// Строим индексы файлов для быстрого сравнения
+	// РЎС‚СЂРѕРёРј РёРЅРґРµРєСЃС‹ С„Р°Р№Р»РѕРІ РґР»СЏ Р±С‹СЃС‚СЂРѕРіРѕ СЃСЂР°РІРЅРµРЅРёСЏ
 	struct FileIndex sfiA, sfiP;
 	FileName DirA, DirP;
 	ShowMessage(DirA.BuildName(AInfo->lpwszCurDir, L"*"), DirP.BuildName(PInfo->lpwszCurDir, L"*"));
@@ -1054,10 +1054,10 @@ static bool CompareDirs(const OwnPanelInfo *AInfo, const OwnPanelInfo *PInfo, bo
 
 		switch (PICompare(&sfiA.ppi[i], &sfiP.ppi[j], nullptr))
 		{
-			case 0: // Имена совпали - проверяем всё остальное
+			case 0: // РРјРµРЅР° СЃРѕРІРїР°Р»Рё - РїСЂРѕРІРµСЂСЏРµРј РІСЃС‘ РѕСЃС‚Р°Р»СЊРЅРѕРµ
 
 				if (CompareFiles(sfiA.ppi[i], sfiP.ppi[j], AInfo->lpwszCurDir, PInfo->lpwszCurDir, ScanDepth))
-				{ // И остальное совпало
+				{ // Р РѕСЃС‚Р°Р»СЊРЅРѕРµ СЃРѕРІРїР°Р»Рѕ
 					sfiA.ppi[i--]->Flags &= ~PPIF_SELECTED;
 					sfiP.ppi[j--]->Flags &= ~PPIF_SELECTED;
 				}
@@ -1069,11 +1069,11 @@ static bool CompareDirs(const OwnPanelInfo *AInfo, const OwnPanelInfo *PInfo, bo
 				}
 
 				break;
-			case 1: // Элемент sfiA.ppi[i] не имеет одноимённых в sfiP.ppi
+			case 1: // Р­Р»РµРјРµРЅС‚ sfiA.ppi[i] РЅРµ РёРјРµРµС‚ РѕРґРЅРѕРёРјС‘РЅРЅС‹С… РІ sfiP.ppi
 				bDifferenceNotFound = false;
 				sfiA.ppi[i--]->Flags |= PPIF_SELECTED;
 				break;
-			case -1: // Элемент sfiP.ppi[j] не имеет одноимённых в sfiA.ppi
+			case -1: // Р­Р»РµРјРµРЅС‚ sfiP.ppi[j] РЅРµ РёРјРµРµС‚ РѕРґРЅРѕРёРјС‘РЅРЅС‹С… РІ sfiA.ppi
 				bDifferenceNotFound = false;
 				sfiP.ppi[j--]->Flags |= PPIF_SELECTED;
 				break;
@@ -1082,7 +1082,7 @@ static bool CompareDirs(const OwnPanelInfo *AInfo, const OwnPanelInfo *PInfo, bo
 
 	if (!bBrokenByEsc)
 	{
-		// Собственно сравнение окончено. Пометим то, что осталось необработанным в массивах
+		// РЎРѕР±СЃС‚РІРµРЅРЅРѕ СЃСЂР°РІРЅРµРЅРёРµ РѕРєРѕРЅС‡РµРЅРѕ. РџРѕРјРµС‚РёРј С‚Рѕ, С‡С‚Рѕ РѕСЃС‚Р°Р»РѕСЃСЊ РЅРµРѕР±СЂР°Р±РѕС‚Р°РЅРЅС‹Рј РІ РјР°СЃСЃРёРІР°С…
 		if (i >= 0)
 		{
 			bDifferenceNotFound = false;
@@ -1123,7 +1123,7 @@ void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
 }
 
 /****************************************************************************
- * Эту функцию плагина FAR вызывает в первую очередь
+ * Р­С‚Сѓ С„СѓРЅРєС†РёСЋ РїР»Р°РіРёРЅР° FAR РІС‹Р·С‹РІР°РµС‚ РІ РїРµСЂРІСѓСЋ РѕС‡РµСЂРµРґСЊ
  ****************************************************************************/
 void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 {
@@ -1132,7 +1132,7 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 }
 
 /****************************************************************************
- * Эту функцию плагина FAR вызывает во вторую очередь
+ * Р­С‚Сѓ С„СѓРЅРєС†РёСЋ РїР»Р°РіРёРЅР° FAR РІС‹Р·С‹РІР°РµС‚ РІРѕ РІС‚РѕСЂСѓСЋ РѕС‡РµСЂРµРґСЊ
  ****************************************************************************/
 void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 {
@@ -1202,7 +1202,7 @@ void FreePanelItems(OwnPanelInfo &AInfo,OwnPanelInfo &PInfo)
 
 
 /****************************************************************************
- * Основная функция плагина. FAR её вызывает, когда пользователь зовёт плагин
+ * РћСЃРЅРѕРІРЅР°СЏ С„СѓРЅРєС†РёСЏ РїР»Р°РіРёРЅР°. FAR РµС‘ РІС‹Р·С‹РІР°РµС‚, РєРѕРіРґР° РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ Р·РѕРІС‘С‚ РїР»Р°РіРёРЅ
  ****************************************************************************/
 HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 {
@@ -1282,7 +1282,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		PInfo.SelectedItems=NULL;
 	}
 
-	// Если панели нефайловые...
+	// Р•СЃР»Рё РїР°РЅРµР»Рё РЅРµС„Р°Р№Р»РѕРІС‹Рµ...
 	if (AInfo.PanelType != PTYPE_FILEPANEL || PInfo.PanelType != PTYPE_FILEPANEL)
 	{
 		const wchar_t *MsgItems[] =
@@ -1296,7 +1296,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		return nullptr;
 	}
 
-	// Если не можем показать диалог плагина...
+	// Р•СЃР»Рё РЅРµ РјРѕР¶РµРј РїРѕРєР°Р·Р°С‚СЊ РґРёР°Р»РѕРі РїР»Р°РіРёРЅР°...
 	if (!ShowDialog(AInfo.Plugin || PInfo.Plugin,
 	                (AInfo.SelectedItemsNumber && (AInfo.SelectedItems[0].Flags & PPIF_SELECTED)) ||
 	                (PInfo.SelectedItemsNumber && (PInfo.SelectedItems[0].Flags & PPIF_SELECTED))))
@@ -1305,10 +1305,10 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		return nullptr;
 	}
 
-	// Откроем консольный ввод для проверок на Esc...
+	// РћС‚РєСЂРѕРµРј РєРѕРЅСЃРѕР»СЊРЅС‹Р№ РІРІРѕРґ РґР»СЏ РїСЂРѕРІРµСЂРѕРє РЅР° Esc...
 	HANDLE hScreen = Info.SaveScreen(0, 0, -1, -1);
 	hConInp = CreateFile(L"CONIN$", GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
-	// Определим оптимальную ширину диалога сравнения...
+	// РћРїСЂРµРґРµР»РёРј РѕРїС‚РёРјР°Р»СЊРЅСѓСЋ С€РёСЂРёРЅСѓ РґРёР°Р»РѕРіР° СЃСЂР°РІРЅРµРЅРёСЏ...
 	SMALL_RECT rcFar = {0};
 
 	if (Info.AdvControl(&MainGuid, ACTL_GETFARRECT, 0, &rcFar))
@@ -1325,12 +1325,12 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		iTruncLen = 60;
 	}
 
-	// На время сравнения изменим заголовок консоли ФАРа...
+	// РќР° РІСЂРµРјСЏ СЃСЂР°РІРЅРµРЅРёСЏ РёР·РјРµРЅРёРј Р·Р°РіРѕР»РѕРІРѕРє РєРѕРЅСЃРѕР»Рё Р¤РђР Р°...
 	wchar_t cConsoleTitle[512], cBuffer[MAX_PATH];
 	DWORD dwTitleSaved = GetConsoleTitle(cConsoleTitle, ARRAYSIZE(cConsoleTitle));
 	lstrcpy(cBuffer, GetMsg(MComparingFiles));
 	SetConsoleTitle(cBuffer);
-	// Читаем размер буфера сравнения из настроек...
+	// Р§РёС‚Р°РµРј СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° СЃСЂР°РІРЅРµРЅРёСЏ РёР· РЅР°СЃС‚СЂРѕРµРє...
 	{
 		PluginSettings settings(MainGuid, Info.SettingsControl);
 		bufSize = settings.Get(0, L"CompareBufferSize", 32768);
@@ -1351,7 +1351,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	Info.FileFilterControl(AFilter, FFCTL_STARTINGTOFILTER, 0, 0);
 	Info.FileFilterControl(PFilter, FFCTL_STARTINGTOFILTER, 0, 0);
 
-	// Теперь можем сравнить объекты на панелях...
+	// РўРµРїРµСЂСЊ РјРѕР¶РµРј СЃСЂР°РІРЅРёС‚СЊ РѕР±СЉРµРєС‚С‹ РЅР° РїР°РЅРµР»СЏС…...
 	if (ABuf && PBuf && AFilter != INVALID_HANDLE_VALUE && PFilter != INVALID_HANDLE_VALUE)
 	{
 		bDifferenceNotFound = CompareDirs(&AInfo, &PInfo, true, 0);
@@ -1364,7 +1364,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	CloseHandle(hConInp);
 	Info.RestoreScreen(hScreen);
 
-	// Отмечаем файлы и перерисовываем панели. Если нужно показываем сообщение...
+	// РћС‚РјРµС‡Р°РµРј С„Р°Р№Р»С‹ Рё РїРµСЂРµСЂРёСЃРѕРІС‹РІР°РµРј РїР°РЅРµР»Рё. Р•СЃР»Рё РЅСѓР¶РЅРѕ РїРѕРєР°Р·С‹РІР°РµРј СЃРѕРѕР±С‰РµРЅРёРµ...
 	if (!bBrokenByEsc)
 	{
 		Info.PanelControl(PANEL_ACTIVE,FCTL_BEGINSELECTION,0,0);
@@ -1409,7 +1409,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		}
 	}
 
-	// Восстановим заголовок консоли ФАРа...
+	// Р’РѕСЃСЃС‚Р°РЅРѕРІРёРј Р·Р°РіРѕР»РѕРІРѕРє РєРѕРЅСЃРѕР»Рё Р¤РђР Р°...
 	if (dwTitleSaved)
 		SetConsoleTitle(cConsoleTitle);
 

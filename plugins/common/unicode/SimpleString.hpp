@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 #include <cwchar>
 
 #define __SIMPLE_STRING_USED
@@ -79,8 +79,8 @@ typedef class SimpleString
 				}
 
 				buffer = tmpbuffer;
-				//_vsnwprintf не всегда ставит '\0' вконце.
-				//Поэтому надо обнулить и передать в _vsnwprintf размер-1.
+				//_vsnwprintf РЅРµ РІСЃРµРіРґР° СЃС‚Р°РІРёС‚ '\0' РІРєРѕРЅС†Рµ.
+				//РџРѕСЌС‚РѕРјСѓ РЅР°РґРѕ РѕР±РЅСѓР»РёС‚СЊ Рё РїРµСЂРµРґР°С‚СЊ РІ _vsnwprintf СЂР°Р·РјРµСЂ-1.
 				buffer[Size-1] = 0;
 				retValue = _vsnwprintf(buffer, Size-1, format, argptr);
 			}

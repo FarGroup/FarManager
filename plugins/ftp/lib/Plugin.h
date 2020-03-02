@@ -1,4 +1,4 @@
-#ifndef __FAR_FTP_PLUGIN
+﻿#ifndef __FAR_FTP_PLUGIN
 #define __FAR_FTP_PLUGIN
 
 #ifdef __GNUC__

@@ -1,4 +1,4 @@
-#include "NetCommon.hpp"
+﻿#include "NetCommon.hpp"
 
 const wchar_t *GetMsg(int MsgId)
 {

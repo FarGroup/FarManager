@@ -1,4 +1,4 @@
-Archive support plugin considers all *.fmt DLL modules in Formats
+﻿Archive support plugin considers all *.fmt DLL modules in Formats
 directory as second level plugins.  Examples of such plugins
 are supplied here. To reduce the size of the compiled DLLs,
 the examples mainly use Win32 API functions and were compiled

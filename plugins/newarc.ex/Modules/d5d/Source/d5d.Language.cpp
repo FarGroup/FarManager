@@ -1,4 +1,4 @@
-#include "d5d.h"
+﻿#include "d5d.h"
 #include "zlib/deflate.h"
 
 D5DLanguage::D5DLanguage()

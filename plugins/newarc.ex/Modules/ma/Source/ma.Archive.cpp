@@ -1,4 +1,4 @@
-#include "ma.h"
+﻿#include "ma.h"
 
 MaArchive::MaArchive(
 		MaPlugin* pPlugin, 

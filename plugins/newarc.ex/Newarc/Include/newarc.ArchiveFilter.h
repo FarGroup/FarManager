@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 #include "newarc.h"
 
 class ArchiveFilter {
@@ -28,7 +28,7 @@ public:
 
 	void AddFilter(ArchiveFilterEntry* pFE);
 
-	//добавлять сюда только фильтры из m_pFilters, не вновь созданные
+	//РґРѕР±Р°РІР»СЏС‚СЊ СЃСЋРґР° С‚РѕР»СЊРєРѕ С„РёР»СЊС‚СЂС‹ РёР· m_pFilters, РЅРµ РІРЅРѕРІСЊ СЃРѕР·РґР°РЅРЅС‹Рµ
 	void AddStopFilter(ArchiveFilterEntry* pFE);
 
 	int GetFilters(Array<ArchiveFilterEntry*>& filters);

@@ -1,4 +1,4 @@
-#ifndef __NETFAVORITES_HPP__
+﻿#ifndef __NETFAVORITES_HPP__
 #define __NETFAVORITES_HPP__
 
 #ifdef _MSC_VER

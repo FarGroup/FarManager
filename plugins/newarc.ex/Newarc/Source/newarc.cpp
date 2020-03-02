@@ -1,4 +1,4 @@
-#include "newarc.h"
+п»ї#include "newarc.h"
 
 FARSTANDARDFUNCTIONS FSF;
 PluginStartupInfo Info;
@@ -72,7 +72,7 @@ HANDLE __stdcall EXP_NAME(OpenPlugin) (
 	{
 		if ( OpenFrom == OPEN_SHORTCUT )
 		{
-			/* не работает
+			/* РЅРµ СЂР°Р±РѕС‚Р°РµС‚
 			 
 			const TCHAR* lpShortcutData = (const TCHAR*)Item;
 			TCHAR szGUID[64];
@@ -250,7 +250,7 @@ void __stdcall EXP_NAME(SetStartupInfo) (
 	pManager = new ArchiveModuleManager(strLanguage);
 
 #ifdef UNICODE
-	pManager->LoadIfNeeded(); //теперь вроде можно так
+	pManager->LoadIfNeeded(); //С‚РµРїРµСЂСЊ РІСЂРѕРґРµ РјРѕР¶РЅРѕ С‚Р°Рє
 #endif
 	//cfg.uArchiverOutput = ARCHIVER_OUTPUT_SHOW_ALWAYS;
 }

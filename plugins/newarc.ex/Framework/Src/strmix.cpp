@@ -1,4 +1,4 @@
-#include "strmix.hpp"
+﻿#include "strmix.hpp"
 
 void CutTo(string& str, TCHAR symbol, bool bInclude)
 {

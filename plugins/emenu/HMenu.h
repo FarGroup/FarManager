@@ -1,4 +1,4 @@
-#ifndef _HMENU_H_
+﻿#ifndef _HMENU_H_
 #define _HMENU_H_
 
 #include <windows.h>

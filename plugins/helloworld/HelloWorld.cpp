@@ -1,4 +1,4 @@
-#include <plugin.hpp>
+п»ї#include <plugin.hpp>
 #include "HelloWorldLng.hpp"
 #include "version.hpp"
 #include <initguid.h>
@@ -19,8 +19,8 @@ void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
 }
 
 /*
- Функция GetMsg возвращает строку сообщения из языкового файла.
- А это надстройка над Info.GetMsg для сокращения кода :-)
+ Р¤СѓРЅРєС†РёСЏ GetMsg РІРѕР·РІСЂР°С‰Р°РµС‚ СЃС‚СЂРѕРєСѓ СЃРѕРѕР±С‰РµРЅРёСЏ РёР· СЏР·С‹РєРѕРІРѕРіРѕ С„Р°Р№Р»Р°.
+ Рђ СЌС‚Рѕ РЅР°РґСЃС‚СЂРѕР№РєР° РЅР°Рґ Info.GetMsg РґР»СЏ СЃРѕРєСЂР°С‰РµРЅРёСЏ РєРѕРґР° :-)
 */
 const wchar_t *GetMsg(int MsgId)
 {
@@ -28,9 +28,9 @@ const wchar_t *GetMsg(int MsgId)
 }
 
 /*
-Функция SetStartupInfoW вызывается один раз, перед всеми
-другими функциями. Она передается плагину информацию,
-необходимую для дальнейшей работы.
+Р¤СѓРЅРєС†РёСЏ SetStartupInfoW РІС‹Р·С‹РІР°РµС‚СЃСЏ РѕРґРёРЅ СЂР°Р·, РїРµСЂРµРґ РІСЃРµРјРё
+РґСЂСѓРіРёРјРё С„СѓРЅРєС†РёСЏРјРё. РћРЅР° РїРµСЂРµРґР°РµС‚СЃСЏ РїР»Р°РіРёРЅСѓ РёРЅС„РѕСЂРјР°С†РёСЋ,
+РЅРµРѕР±С…РѕРґРёРјСѓСЋ РґР»СЏ РґР°Р»СЊРЅРµР№С€РµР№ СЂР°Р±РѕС‚С‹.
 */
 void WINAPI SetStartupInfoW(const struct PluginStartupInfo *psi)
 {
@@ -38,7 +38,7 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *psi)
 }
 
 /*
-Функция GetPluginInfoW вызывается для получения информации о плагине
+Р¤СѓРЅРєС†РёСЏ GetPluginInfoW РІС‹Р·С‹РІР°РµС‚СЃСЏ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РёРЅС„РѕСЂРјР°С†РёРё Рѕ РїР»Р°РіРёРЅРµ
 */
 void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 {
@@ -52,7 +52,7 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 }
 
 /*
-  Функция OpenPluginW вызывается при создании новой копии плагина.
+  Р¤СѓРЅРєС†РёСЏ OpenPluginW РІС‹Р·С‹РІР°РµС‚СЃСЏ РїСЂРё СЃРѕР·РґР°РЅРёРё РЅРѕРІРѕР№ РєРѕРїРёРё РїР»Р°РіРёРЅР°.
 */
 HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 {

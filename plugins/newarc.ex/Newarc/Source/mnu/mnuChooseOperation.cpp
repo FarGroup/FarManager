@@ -1,6 +1,6 @@
-int mnuChooseOperation()
+Ôªøint mnuChooseOperation()
 {
-	FarMenu menu(_T("Ä‡Â®¢≠Î• ™Æ¨¨†≠§Î"));
+	FarMenu menu(_T("–ê—Ä—Ö–∏–≤–Ω—ã–µ –∫–æ–º–º–∞–Ω–¥—ã"));
 
 	menu.Add(_M(MSG_mnuCO_S_TEST_ARCHIVE));
 	menu.Add(_M(MSG_mnuCO_S_ADD_ARCHIVE_COMMENT));

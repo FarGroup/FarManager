@@ -1,4 +1,4 @@
-#include <shlobj.h>
+п»ї#include <shlobj.h>
 #include <plugin.hpp>
 #include <DlgBuilder.hpp>
 #include <PluginSettings.hpp>
@@ -115,7 +115,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 
 			if (Opt.SetMode)
 			{
-				// TODO: сюда можно добавить установку визуальных настроек панели DstPanel, как у SrcPanel
+				// TODO: СЃСЋРґР° РјРѕР¶РЅРѕ РґРѕР±Р°РІРёС‚СЊ СѓСЃС‚Р°РЅРѕРІРєСѓ РІРёР·СѓР°Р»СЊРЅС‹С… РЅР°СЃС‚СЂРѕРµРє РїР°РЅРµР»Рё DstPanel, РєР°Рє Сѓ SrcPanel
 				;
 			}
 

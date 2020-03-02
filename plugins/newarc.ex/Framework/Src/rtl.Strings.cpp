@@ -1,4 +1,4 @@
-#include <Rtl.Base.h>
+﻿#include <Rtl.Base.h>
 
 void StrDeleteArray (TCHAR** &Strings, int Count)
 {

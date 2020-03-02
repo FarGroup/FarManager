@@ -1,4 +1,4 @@
-#ifndef __MY_JM
+﻿#ifndef __MY_JM
 #define __MY_JM
 
 class FTP;

@@ -1,4 +1,4 @@
-#include "observer.h"
+п»ї#include "observer.h"
 
 // {B9B29522-3CA7-42BD-A2B1-A06294A5197F}
 MY_DEFINE_GUID(CLSID_ModuleObserver, 0xb9b29522, 0x3ca7, 0x42bd, 0xa2, 0xb1, 0xa0, 0x62, 0x94, 0xa5, 0x19, 0x7f);
@@ -32,7 +32,7 @@ bool ObserverModule::Load()
 		info->lpModuleName = StrDuplicate(pPlugin->GetModuleName());
 		info->uFormats = pPlugin->GetNumberOfFormats();
 		info->pFormats = pPlugin->GetFormats();
-		info->dwFlags = 0; //нет смысла поддерживать "запрос одного UID", все равно один плагин == один формат
+		info->dwFlags = 0; //РЅРµС‚ СЃРјС‹СЃР»Р° РїРѕРґРґРµСЂР¶РёРІР°С‚СЊ "Р·Р°РїСЂРѕСЃ РѕРґРЅРѕРіРѕ UID", РІСЃРµ СЂР°РІРЅРѕ РѕРґРёРЅ РїР»Р°РіРёРЅ == РѕРґРёРЅ С„РѕСЂРјР°С‚
 	}
 
 	return m_Plugins.count() > 0;

@@ -1,4 +1,4 @@
-All numbers are in LOHI byte order.
+﻿All numbers are in LOHI byte order.
 
 HAFILE
 

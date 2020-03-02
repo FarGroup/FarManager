@@ -1,4 +1,4 @@
-#include <initguid.h>
+﻿#include <initguid.h>
 #include "Network.hpp"
 #include "version.hpp"
 

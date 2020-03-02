@@ -1,4 +1,4 @@
-#include <windows.h>
+п»ї#include <windows.h>
 
 #if defined(__BORLANDC__)
   #pragma option -a1
@@ -10,7 +10,7 @@
 
 const unsigned char nsis_signature[] = {0xEF, 0xBE, 0xAD, 0xDE, 0x4E, 0x75, 0x6C, 0x6C, 0x73, 0x6F, 0x66, 0x74, 0x49, 0x6E, 0x73, 0x74};
 
-struct NSISHeader //обязан быть на позиции в файле, кратной 512 байт (перед ним идет exe stub)
+struct NSISHeader //РѕР±СЏР·Р°РЅ Р±С‹С‚СЊ РЅР° РїРѕР·РёС†РёРё РІ С„Р°Р№Р»Рµ, РєСЂР°С‚РЅРѕР№ 512 Р±Р°Р№С‚ (РїРµСЂРµРґ РЅРёРј РёРґРµС‚ exe stub)
 {
 	DWORD dwFlags;
 	unsigned char Signature[16];

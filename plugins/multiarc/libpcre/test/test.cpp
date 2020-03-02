@@ -1,4 +1,4 @@
-#define PCRE_STATIC
+﻿#define PCRE_STATIC
 #include "pcre++.h"
 #include <iostream>
 #include <string>
@@ -9,10 +9,11 @@ using namespace PCRE;
 
 int main(int argc, char **argv)
 {
-	RegExp re("^(?P<date>\\d\\d\\.\\d\\d\\.(\\d\\d)?\\d\\d)\\s+(?P<time>\\d\\d:\\d\\d)\\s+(?P<size>(\\d+\\xff?)+)\\s+(?P<name>[^\\s].*[^\\s])\\s*$",
-			  "ix");
+	RegExp re(
+		"^(?P<date>\\d\\d\\.\\d\\d\\.(\\d\\d)?\\d\\d)\\s+(?P<time>\\d\\d:\\d\\d)\\s+(?P<size>(\\d+\\xff?)+)\\s+(?P<name>[^\\s].*[^\\s])\\s*$",
+		"ix");
 
-	string input;							
+	string input;
 	while(getline(cin, input))
 	{
 		if(Match m = re.match(input.c_str()))

@@ -1,201 +1,201 @@
-newarc.Messages.h
+я╗┐newarc.Messages.h
 2
 
-newarc.Russian.lng Russian "Russian (Русский)"
+newarc.Russian.lng Russian "Russian (╨а╤Г╤Б╤Б╨║╨╕╨╣)"
 newarc.English.lng English "English"
 
 MPluginTitle
-"Поддержка архивов (newarc)"
+"╨Я╨╛╨┤╨┤╨╡╤А╨╢╨║╨░ ╨░╤А╤Е╨╕╨▓╨╛╨▓ (newarc)"
 "Archive support (newarc)"
 
 MSG_cmn_B_OK
-"Продолжить"
+"╨Я╤А╨╛╨┤╨╛╨╗╨╢╨╕╤В╤М"
 "Ok"
 
 MSG_cmn_B_CANCEL
-"Отмена"
+"╨Ю╤В╨╝╨╡╨╜╨░"
 "Cancel"
 
 MReset
-"Сбросить"
+"╨б╨▒╤А╨╛╤Б╨╕╤В╤М"
 "Reset"
 
 MCommandLinesAndParamsTitleMenu
-"Командные строки архиваторов"
+"╨Ъ╨╛╨╝╨░╨╜╨┤╨╜╤Л╨╡ ╤Б╤В╤А╨╛╨║╨╕ ╨░╤А╤Е╨╕╨▓╨░╤В╨╛╤А╨╛╨▓"
 "Archivers command lines"
 
 MCommandLinesAndParamsTitleDialog
-"Параметры архиватора %s"
+"╨Я╨░╤А╨░╨╝╨╡╤В╤А╤Л ╨░╤А╤Е╨╕╨▓╨░╤В╨╛╤А╨░ %s"
 "%s settings"
 
 MSG_dlgCLAP_S_EXTRACT
-"&Распаковка            :"
+"&╨а╨░╤Б╨┐╨░╨║╨╛╨▓╨║╨░            :"
 "Extract               :"
 
 MSG_dlgCLAP_S_EXTRACT_WITHOUT_PATH
-"Р&аспаковка без путей  :"
+"╨а&╨░╤Б╨┐╨░╨║╨╛╨▓╨║╨░ ╨▒╨╡╨╖ ╨┐╤Г╤В╨╡╨╣  :"
 "Extract without path  :"
 
 MSG_dlgCLAP_S_TEST
-"&Тестирование          :"
+"&╨в╨╡╤Б╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡          :"
 "Test                  :"
 
 MSG_dlgCLAP_S_DELETE
-"&Удаление              :"
+"&╨г╨┤╨░╨╗╨╡╨╜╨╕╨╡              :"
 "Delete                :"
 
 MSG_dlgCLAP_S_ARCHIVE_COMMENT
-"&Архивный комментарий  :"
+"&╨Р╤А╤Е╨╕╨▓╨╜╤Л╨╣ ╨║╨╛╨╝╨╝╨╡╨╜╤В╨░╤А╨╕╨╣  :"
 "Archive comment       :"
 
 MSG_dlgCLAP_S_FILE_COMMENT
-"&Файловый комментарий  :"
+"&╨д╨░╨╣╨╗╨╛╨▓╤Л╨╣ ╨║╨╛╨╝╨╝╨╡╨╜╤В╨░╤А╨╕╨╣  :"
 "File comment          :"
 
 MSG_dlgCLAP_S_CONVERT_TO_SFX
-"&Преобразование в SFX  :"
+"&╨Я╤А╨╡╨╛╨▒╤А╨░╨╖╨╛╨▓╨░╨╜╨╕╨╡ ╨▓ SFX  :"
 "Convert to SFX        :"
 
 MSG_dlgCLAP_S_LOCK
-"&Запрет модификации    :"
+"&╨Ч╨░╨┐╤А╨╡╤В ╨╝╨╛╨┤╨╕╤Д╨╕╨║╨░╤Ж╨╕╨╕    :"
 "Lock                  :"
 
 MSG_dlgCLAP_S_ADD_RECOVERY_RECORD
-"За&щита от повреждений :"
+"╨Ч╨░&╤Й╨╕╤В╨░ ╨╛╤В ╨┐╨╛╨▓╤А╨╡╨╢╨┤╨╡╨╜╨╕╨╣ :"
 "Add recovery record   :"
 
 MSG_dlgCLAP_S_RECOVER
-"&Восстановление архива :"
+"&╨Т╨╛╤Б╤Б╤В╨░╨╜╨╛╨▓╨╗╨╡╨╜╨╕╨╡ ╨░╤А╤Е╨╕╨▓╨░ :"
 "Recover               :"
 
 MSG_dlgCLAP_S_ADD_FILES
-"&Добавление файлов     :"
+"&╨Ф╨╛╨▒╨░╨▓╨╗╨╡╨╜╨╕╨╡ ╤Д╨░╨╣╨╗╨╛╨▓     :"
 "Add files             :"
 
 MCommandLinesAndParamsFileExtension
-"Расширение файлов :"
+"╨а╨░╤Б╤И╨╕╤А╨╡╨╜╨╕╨╡ ╤Д╨░╨╣╨╗╨╛╨▓ :"
 "File extension :"
 
 MCommandLinesAndParamsAllFilesMask
-"Маска \"все файлы\" :"
+"╨Ь╨░╤Б╨║╨░ \"╨▓╤Б╨╡ ╤Д╨░╨╣╨╗╤Л\" :"
 "All files mask :"
 
 MCommandLinesAndParamsArchiveFormat
-"Формат архива"
+"╨д╨╛╤А╨╝╨░╤В ╨░╤А╤Е╨╕╨▓╨░"
 "Archive format"
 
 MSG_mnuCO_S_TEST_ARCHIVE
-"&Тестирование архива"
+"&╨в╨╡╤Б╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨░╤А╤Е╨╕╨▓╨░"
 "Test archive"
 
 MSG_mnuCO_S_ADD_ARCHIVE_COMMENT
-"&Добавить архивный коментарий"
+"&╨Ф╨╛╨▒╨░╨▓╨╕╤В╤М ╨░╤А╤Е╨╕╨▓╨╜╤Л╨╣ ╨║╨╛╨╝╨╡╨╜╤В╨░╤А╨╕╨╣"
 "Add archive comment"
 
 MSG_mnuCO_S_ADD_FILE_COMMENT
-"Д&обавить файловый коментарий"
+"╨Ф&╨╛╨▒╨░╨▓╨╕╤В╤М ╤Д╨░╨╣╨╗╨╛╨▓╤Л╨╣ ╨║╨╛╨╝╨╡╨╜╤В╨░╤А╨╕╨╣"
 "Add file comment"
 
 MSG_mnuCO_S_CONVERT_TO_SFX
-"&Преобразовать архив в SFX"
+"&╨Я╤А╨╡╨╛╨▒╤А╨░╨╖╨╛╨▓╨░╤В╤М ╨░╤А╤Е╨╕╨▓ ╨▓ SFX"
 "Convert archive to SFX"
 
 MSG_mnuCO_S_RECOVER
-"&Восстановить поврежденный архив"
+"&╨Т╨╛╤Б╤Б╤В╨░╨╜╨╛╨▓╨╕╤В╤М ╨┐╨╛╨▓╤А╨╡╨╢╨┤╨╡╨╜╨╜╤Л╨╣ ╨░╤А╤Е╨╕╨▓"
 "Recover damaged archive"
 
 MSG_mnuCO_S_ADD_RECOVERY_RECORD
-"&Защитить архив от повреждений"
+"&╨Ч╨░╤Й╨╕╤В╨╕╤В╤М ╨░╤А╤Е╨╕╨▓ ╨╛╤В ╨┐╨╛╨▓╤А╨╡╨╢╨┤╨╡╨╜╨╕╨╣"
 "Add recovery record"
 
 MSG_mnuCO_S_LOCK
-"З&апретить изменение архива"
+"╨Ч&╨░╨┐╤А╨╡╤В╨╕╤В╤М ╨╕╨╖╨╝╨╡╨╜╨╡╨╜╨╕╨╡ ╨░╤А╤Е╨╕╨▓╨░"
 "Lock archive"
 
 MConfigCommonTitle
-"Общие настройки"
+"╨Ю╨▒╤Й╨╕╨╡ ╨╜╨░╤Б╤В╤А╨╛╨╣╨║╨╕"
 "Common settings"
 
 MConfigCommonAlwaysShowOutput
-"Всегда показывать сообщения архиваторов"
+"╨Т╤Б╨╡╨│╨┤╨░ ╨┐╨╛╨║╨░╨╖╤Л╨▓╨░╤В╤М ╤Б╨╛╨╛╨▒╤Й╨╡╨╜╨╕╤П ╨░╤А╤Е╨╕╨▓╨░╤В╨╛╤А╨╛╨▓"
 "Always show archiver output"
 
 MConfigCommonDontShowOutputWhenViewingEditing
-"Не показывать сообщения архиваторов при редактировании/просмотре"
+"╨Э╨╡ ╨┐╨╛╨║╨░╨╖╤Л╨▓╨░╤В╤М ╤Б╨╛╨╛╨▒╤Й╨╡╨╜╨╕╤П ╨░╤А╤Е╨╕╨▓╨░╤В╨╛╤А╨╛╨▓ ╨┐╤А╨╕ ╤А╨╡╨┤╨░╨║╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╕/╨┐╤А╨╛╤Б╨╝╨╛╤В╤А╨╡"
 "Don't show archiver output when editing/viewing"
 
 MConfigCommonNeverShowOutput
-"Не показывать сообщения архиваторов"
+"╨Э╨╡ ╨┐╨╛╨║╨░╨╖╤Л╨▓╨░╤В╤М ╤Б╨╛╨╛╨▒╤Й╨╡╨╜╨╕╤П ╨░╤А╤Е╨╕╨▓╨░╤В╨╛╤А╨╛╨▓"
 "Don't show archiver output"
 
 MQueryPasswordFileList
-"Информация об именах файлов защищена паролем"
+"╨Ш╨╜╤Д╨╛╤А╨╝╨░╤Ж╨╕╤П ╨╛╨▒ ╨╕╨╝╨╡╨╜╨░╤Е ╤Д╨░╨╣╨╗╨╛╨▓ ╨╖╨░╤Й╨╕╤Й╨╡╨╜╨░ ╨┐╨░╤А╨╛╨╗╨╡╨╝"
 "File list is password protected"
 
 MQueryPasswordContents
-"Содержимое файла защищено паролем"
+"╨б╨╛╨┤╨╡╤А╨╢╨╕╨╝╨╛╨╡ ╤Д╨░╨╣╨╗╨░ ╨╖╨░╤Й╨╕╤Й╨╡╨╜╨╛ ╨┐╨░╤А╨╛╨╗╨╡╨╝"
 "The contents is password protected"
 
 MQueryPasswordEnterPassword
-"Введите пароль"
+"╨Т╨▓╨╡╨┤╨╕╤В╨╡ ╨┐╨░╤А╨╛╨╗╤М"
 "Enter password"
 
 MProcessFileExtractionTitle
-" Распаковка "
+" ╨а╨░╤Б╨┐╨░╨║╨╛╨▓╨║╨░ "
 " Extraction "
 
 MProcessFileExtraction
-"Распаковка файла"
+"╨а╨░╤Б╨┐╨░╨║╨╛╨▓╨║╨░ ╤Д╨░╨╣╨╗╨░"
 "Extracting"
 
 MProcessFileAdditionTitle
-" Добавление "
+" ╨Ф╨╛╨▒╨░╨▓╨╗╨╡╨╜╨╕╨╡ "
 " Addition "
 
 MProcessFileAddition
-"Добавление файла"
+"╨Ф╨╛╨▒╨░╨▓╨╗╨╡╨╜╨╕╨╡ ╤Д╨░╨╣╨╗╨░"
 "Adding"
 
 MProcessFileAdditionRecompresion
-"Перепаковка архива"
+"╨Я╨╡╤А╨╡╨┐╨░╨║╨╛╨▓╨║╨░ ╨░╤А╤Е╨╕╨▓╨░"
 "Recompressing"
 
 MProcessFileDeletionTitle
-" Удаление "
+" ╨г╨┤╨░╨╗╨╡╨╜╨╕╨╡ "
 " Deletion "
 
 MProcessFileDeletion
-"Удаление файла"
+"╨г╨┤╨░╨╗╨╡╨╜╨╕╨╡ ╤Д╨░╨╣╨╗╨░"
 "Deleting"
 
 MProcessFileTo
-"в"
+"╨▓"
 "to"
 
 MProcessDataWindowTitle
-"{%d%%} Распаковка - Far"
+"{%d%%} ╨а╨░╤Б╨┐╨░╨║╨╛╨▓╨║╨░ - Far"
 "{%d%%} Extraction - Far"
 
 MProcessDataOperationCanceled
-"Операция прерывается..."
+"╨Ю╨┐╨╡╤А╨░╤Ж╨╕╤П ╨┐╤А╨╡╤А╤Л╨▓╨░╨╡╤В╤Б╤П..."
 "Operation is being canceled..."
 
 MReadArchiveWait
-"Подождите"
+"╨Я╨╛╨┤╨╛╨╢╨┤╨╕╤В╨╡"
 "Please wait"
 
 MReadArchiveReading
-"Чтение архива"
+"╨з╤В╨╡╨╜╨╕╨╡ ╨░╤А╤Е╨╕╨▓╨░"
 "Reading archive"
 
 MReadArchiveFileCount
-"%d файлов"
+"%d ╤Д╨░╨╣╨╗╨╛╨▓"
 "%d files"
 
 MOpenArchiveAs
-"Открыть как"
+"╨Ю╤В╨║╤А╤Л╤В╤М ╨║╨░╨║"
 "Open as"
 
 MAddToTitle
-"Добавить к %s"
+"╨Ф╨╛╨▒╨░╨▓╨╕╤В╤М ╨║ %s"
 "Add to %s"

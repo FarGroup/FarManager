@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "d5d.h"
 
 struct LanguageEntry {

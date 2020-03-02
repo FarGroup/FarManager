@@ -1,4 +1,4 @@
-#ifndef _HANDLE_H_
+﻿#ifndef _HANDLE_H_
 #define _HANDLE_H_
 
 #include <windows.h>

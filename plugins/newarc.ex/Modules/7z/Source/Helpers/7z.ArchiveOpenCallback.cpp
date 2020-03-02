@@ -1,4 +1,4 @@
-#include "7z.h"
+ï»¿#include "7z.h"
 #include <objbase.h>
 
 CArchiveOpenCallback::CArchiveOpenCallback(SevenZipArchive* pArchive)
@@ -128,15 +128,15 @@ HRESULT __stdcall CArchiveOpenCallback::SetCompleted(const UInt64 *files, const 
 
 	if ( files && !(*files & 0x1f)  && (GetTickCount ()-m_dwStartTime > 500) )
 	{
-		//íâ® ­ ¤® ­ ä¨£ ãáâà ­¨âì, §¤¥áì ¤®«¦¥­ ¡ëâì callback
+		//ÑÑ‚Ð¾ Ð½Ð°Ð´Ð¾ Ð½Ð°Ñ„Ð¸Ð³ ÑƒÑÑ‚Ñ€Ð°Ð½Ð¸Ñ‚ÑŒ, Ð·Ð´ÐµÑÑŒ Ð´Ð¾Ð»Ð¶ÐµÐ½ Ð±Ñ‹Ñ‚ÑŒ callback
 		FarMessage message(m_bProgressMessage?FMSG_KEEPBACKGROUND:0);
 
 		string strFileCount;
 
-		strFileCount.Format(_T("%I64u ä ©«®¢"), *files);
+		strFileCount.Format(_T("%I64u Ñ„Ð°Ð¹Ð»Ð¾Ð²"), *files);
 
-		message.Add(_T("®¤®¦¤¨â¥"));
-		message.Add(_T("—â¥­¨¥  àå¨¢  [7z.all]"));
+		message.Add(_T("ÐŸÐ¾Ð´Ð¾Ð¶Ð´Ð¸Ñ‚Ðµ"));
+		message.Add(_T("Ð§Ñ‚ÐµÐ½Ð¸Ðµ Ð°Ñ€Ñ…Ð¸Ð²Ð° [7z.all]"));
 		message.Add(m_pArchive->GetFileName());
 		message.Add(strFileCount);
 

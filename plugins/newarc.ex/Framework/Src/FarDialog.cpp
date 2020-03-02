@@ -1,4 +1,4 @@
-#include "FarPluginBase.hpp"
+﻿#include "FarPluginBase.hpp"
 
 unsigned int cstrlen(const TCHAR *str)
 {

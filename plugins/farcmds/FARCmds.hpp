@@ -1,4 +1,4 @@
-struct OptionsName
+﻿struct OptionsName
 {
 	const wchar_t *ShowCmdOutput;
 	const wchar_t *CatchMode;

@@ -1,4 +1,4 @@
-#include "Plugin.h"
+﻿#include "Plugin.h"
 #include "OleThread.h"
 #include <cassert>
 #include "version.hpp"

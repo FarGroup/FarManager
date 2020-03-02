@@ -1,4 +1,4 @@
-#include <windows.h>
+﻿#include <windows.h>
 #include <imagehlp.h>
 #include <string>
 #include <fstream>

@@ -1,4 +1,4 @@
-#include "ma.h"
+п»ї#include "ma.h"
 
 MaPlugin::MaPlugin(const GUID& uid)
 {
@@ -160,7 +160,7 @@ int MaPlugin::QueryArchives(const unsigned char* pBuffer, DWORD dwBufferSize, co
 
 	if ( m_pfnIsArchive(lpFileNameA, pBuffer, dwBufferSize) )
 	{
-		//попробуем сделать страшное...
+		//РїРѕРїСЂРѕР±СѓРµРј СЃРґРµР»Р°С‚СЊ СЃС‚СЂР°С€РЅРѕРµ...
 		int nArcType = -1;
 
 		if ( m_pfnOpenArchive(lpFileNameA, &nArcType) )
@@ -243,7 +243,7 @@ void MaPlugin::CloseArchive(ArcInfo* pInfo)
 int MaPlugin::GetArchiveItem(ArchiveItem* pItem, ArcItemInfo* pInfo)
 {
 	oldfar::PluginPanelItem item;
-	memset(&item, 0, sizeof(oldfar::PluginPanelItem)); //модули глючат и считают, что тут нули
+	memset(&item, 0, sizeof(oldfar::PluginPanelItem)); //РјРѕРґСѓР»Рё РіР»СЋС‡Р°С‚ Рё СЃС‡РёС‚Р°СЋС‚, С‡С‚Рѕ С‚СѓС‚ РЅСѓР»Рё
 
 	ArcItemInfo MaItemInfo;
 	memset(&MaItemInfo, 0, sizeof(ArcItemInfo));

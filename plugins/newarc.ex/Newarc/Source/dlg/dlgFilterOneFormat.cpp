@@ -1,4 +1,4 @@
-enum enumFilterOneFormat {
+﻿enum enumFilterOneFormat {
 	ID_FOF_FILTER,
 	ID_FOF_ACTION,
 	ID_FOF_ACTIONLIST,

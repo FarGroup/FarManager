@@ -1,4 +1,4 @@
-#ifndef __NETWORK_HPP__
+﻿#ifndef __NETWORK_HPP__
 #define __NETWORK_HPP__
 
 #include "NetCommon.hpp"

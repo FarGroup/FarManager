@@ -1,4 +1,4 @@
-#include "observer.h"
+﻿#include "observer.h"
 
 ObserverArchive::ObserverArchive(
 		ObserverPlugin* pPlugin, 

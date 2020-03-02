@@ -1,4 +1,4 @@
-#include "wcx.h"
+п»ї#include "wcx.h"
 
 WcxArchive::WcxArchive(
 		WcxPlugin* pPlugin, 
@@ -314,7 +314,7 @@ int WcxArchive::OnProcessData(const char* FileName, int Size)
 
 		if ( (Size < 0) && (Size > -1000) ) //percents
 		{
-			//чушь собачья
+			//С‡СѓС€СЊ СЃРѕР±Р°С‡СЊСЏ
 			//Size = (__x/100)*(-Size);
 			//__x -= Size;
 		}

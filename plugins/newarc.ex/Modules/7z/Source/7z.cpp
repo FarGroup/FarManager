@@ -1,4 +1,4 @@
-#include "7z.h"
+п»ї#include "7z.h"
 
 PluginStartupInfo Info;
 FARSTANDARDFUNCTIONS FSF;
@@ -195,7 +195,7 @@ int OnConfigure(ConfigureStruct* pCF)
 
 int OnConfigureFormat(ConfigureFormatStruct* pCFS)
 {
-	//пока считаем, что тут у нас uidFormat уникален (а так оно и есть)
+	//РїРѕРєР° СЃС‡РёС‚Р°РµРј, С‡С‚Рѕ С‚СѓС‚ Сѓ РЅР°СЃ uidFormat СѓРЅРёРєР°Р»РµРЅ (Р° С‚Р°Рє РѕРЅРѕ Рё РµСЃС‚СЊ)
 
 	const CompressionFormatInfo* pFormat = GetCompressionFormatInfo(pCFS->uidFormat);
 

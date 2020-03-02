@@ -1,4 +1,4 @@
-#include "lng.common.h"
+﻿#include "lng.common.h"
 
 void TrimEnd (char *lpStr)
 {

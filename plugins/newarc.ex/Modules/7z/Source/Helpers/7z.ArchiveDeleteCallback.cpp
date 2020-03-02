@@ -1,4 +1,4 @@
-#include "7z.h"
+﻿#include "7z.h"
 #include <objbase.h>
 
 CArchiveDeleteCallback::CArchiveDeleteCallback(

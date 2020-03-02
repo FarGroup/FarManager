@@ -1,4 +1,4 @@
-#include <windows.h>
+﻿#include <windows.h>
 #include <VersionHelpers.h>
 #include "reg.h"
 #include "util.h"

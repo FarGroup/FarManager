@@ -1,4 +1,4 @@
-/*
+п»ї/*
 TMPPANEL.CPP
 
 Temporary panel main plugin code
@@ -169,7 +169,7 @@ void ReadFileLines(HANDLE hFileMapping, DWORD FileSizeLow, wchar_t **argv, wchar
 
 			if (!(test & IS_TEXT_UNICODE_NOT_UNICODE_MASK) || (test & IS_TEXT_UNICODE_ODD_LENGTH)) // ignore odd
 			{
-				if (test & IS_TEXT_UNICODE_STATISTICS) // !!! допускаем возможность, что это Unicode
+				if (test & IS_TEXT_UNICODE_STATISTICS) // !!! РґРѕРїСѓСЃРєР°РµРј РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ, С‡С‚Рѕ СЌС‚Рѕ Unicode
 				{
 					cp=CP_UNICODE;
 				}

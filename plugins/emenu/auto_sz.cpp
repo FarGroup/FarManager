@@ -1,4 +1,4 @@
-#include "auto_sz.h"
+﻿#include "auto_sz.h"
 #include <cassert>
 
 auto_sz::auto_sz()

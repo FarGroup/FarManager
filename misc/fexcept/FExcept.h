@@ -1,4 +1,4 @@
-#ifndef __FAR_EXCEPTION_HEADER
+п»ї#ifndef __FAR_EXCEPTION_HEADER
 #define __FAR_EXCEPTION_HEADER
 
 #if defined(__BORLANDC__)
@@ -13,17 +13,17 @@
 
 #define ArraySize(a)  (sizeof(a)/sizeof(a[0]))
 
-struct PLUGINRECORD       // информация о плагине
+struct PLUGINRECORD       // РёРЅС„РѕСЂРјР°С†РёСЏ Рѕ РїР»Р°РіРёРЅРµ
 {
-	DWORD TypeRec;          // Тип записи = RTYPE_PLUGIN
-	DWORD SizeRec;          // Размер
+	DWORD TypeRec;          // РўРёРї Р·Р°РїРёСЃРё = RTYPE_PLUGIN
+	DWORD SizeRec;          // Р Р°Р·РјРµСЂ
 	DWORD Reserved1[4];
 
 	// DWORD SysID; GUID
 
 	const wchar_t *ModuleName;
 
-	DWORD Reserved2[2];    // разерв :-)
+	DWORD Reserved2[2];    // СЂР°Р·РµСЂРІ :-)
 
 	DWORD SizeModuleName;
 };

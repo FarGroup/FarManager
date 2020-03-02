@@ -1,4 +1,4 @@
-#include "7z.h"
+﻿#include "7z.h"
 
 typedef unsigned int (__stdcall *CREATEOBJECT) (const GUID *, const GUID *, void **);
 typedef HRESULT (__stdcall *GETHANDLERPROPERTY) (PROPID propID, PROPVARIANT *value);

@@ -1,4 +1,4 @@
-#include "NetCommon.hpp"
+п»ї#include "NetCommon.hpp"
 #include "NetCfg.hpp"
 #include "NetFavorites.hpp"
 #include "NetClass.hpp"
@@ -551,7 +551,7 @@ BOOL NetBrowser::CancelConnection(const wchar_t *RemoteName)
 
 			if (Info.Message(&MainGuid, nullptr,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,ARRAYSIZE(MsgItems),2)==0)
 
-				// всегда рвать соединение
+				// РІСЃРµРіРґР° СЂРІР°С‚СЊ СЃРѕРµРґРёРЅРµРЅРёРµ
 				if (WNetCancelConnection2(LocalName,UpdateProfile,TRUE)!=NO_ERROR)
 					Failed=TRUE;
 		}

@@ -1,4 +1,4 @@
-#ifndef __FARFMT_HPP__
+﻿#ifndef __FARFMT_HPP__
 #define __FARFMT_HPP__
 /*
   FMT.HPP

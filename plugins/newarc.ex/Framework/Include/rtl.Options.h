@@ -1,4 +1,4 @@
-#include "Rtl.Base.h"
+﻿#include "Rtl.Base.h"
 
 
 inline void SetOptions (DWORD &fOptions, DWORD fFlags, bool bOn)

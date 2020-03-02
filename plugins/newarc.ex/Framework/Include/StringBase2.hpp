@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 #include <windows.h>
 #include <stdio.h>
 
@@ -233,7 +233,7 @@ public:
 template <typename T>
 StringData<T> *eus()
 {
-	//для оптимизации создания пустых String
+	//РґР»СЏ РѕРїС‚РёРјРёР·Р°С†РёРё СЃРѕР·РґР°РЅРёСЏ РїСѓСЃС‚С‹С… String
 	static StringData<T> *EmptyStringData = new StringData<T>(1,1);
 	return EmptyStringData;
 }
@@ -617,8 +617,8 @@ public:
 
 			buffer = tmpbuffer;
 
-			//_vsnwprintf не всегда ставит '\0' вконце.
-			//Поэтому надо обнулить и передать в _vsnwprintf размер-1.
+			//_vsnwprintf РЅРµ РІСЃРµРіРґР° СЃС‚Р°РІРёС‚ '\0' РІРєРѕРЅС†Рµ.
+			//РџРѕСЌС‚РѕРјСѓ РЅР°РґРѕ РѕР±РЅСѓР»РёС‚СЊ Рё РїРµСЂРµРґР°С‚СЊ РІ _vsnwprintf СЂР°Р·РјРµСЂ-1.
 			buffer[Size-1] = 0;
 			retValue = Traits::VPrintf(buffer, Size-1, format, argptr);
 
@@ -654,7 +654,7 @@ public:
 
 	void ReleaseBuffer(size_t nLength = (size_t)-1)
 	{
-		//неправильная логика
+		//РЅРµРїСЂР°РІРёР»СЊРЅР°СЏ Р»РѕРіРёРєР°
 		if ( nLength == (size_t)-1 )
 			nLength = Traits::StrLength(m_pData->GetData());
 

@@ -1,4 +1,4 @@
-int __stdcall ProcessEditorEvent(
+﻿int __stdcall ProcessEditorEvent(
 		int nEvent,
 		void *Param
 		)

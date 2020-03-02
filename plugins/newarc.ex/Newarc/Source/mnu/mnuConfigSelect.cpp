@@ -1,4 +1,4 @@
-#include "../dlg/dlgArchiveFilter.cpp"
+﻿#include "../dlg/dlgArchiveFilter.cpp"
 
 void mnuConfigSelect(ArchiveManagerConfig* pCfg)
 {

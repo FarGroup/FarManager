@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "7z.h"
 
 class CPropVariant : public tagPROPVARIANT

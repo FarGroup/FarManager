@@ -1,4 +1,4 @@
-#include <windows.h>
+﻿#include <windows.h>
 
 HKEY CreateRegKey(HKEY hRoot, wchar_t *Key, REGSAM samDesired);
 HKEY OpenRegKey(HKEY hRoot, wchar_t *Key, REGSAM samDesired);

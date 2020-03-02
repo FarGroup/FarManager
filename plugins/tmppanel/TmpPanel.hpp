@@ -1,4 +1,4 @@
-/*
+﻿/*
 TMPPANEL.HPP
 
 Temporary panel header file

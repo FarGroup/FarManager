@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "ma.h"
 
 typedef DWORD (WINAPI *PLUGINLOADFORMATMODULE)(const char *ModuleName);

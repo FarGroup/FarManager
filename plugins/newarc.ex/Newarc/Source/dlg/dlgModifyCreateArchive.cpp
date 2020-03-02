@@ -1,4 +1,4 @@
-enum enumModifyCreateArchive {
+﻿enum enumModifyCreateArchive {
 	ID_MCA_TITLE,
 	ID_MCA_NAME,
 	ID_MCA_NAMEEDIT,

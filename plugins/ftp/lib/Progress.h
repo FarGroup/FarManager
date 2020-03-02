@@ -1,4 +1,4 @@
-#ifndef __FTP_PLUGIN_PROGRESS
+﻿#ifndef __FTP_PLUGIN_PROGRESS
 #define __FTP_PLUGIN_PROGRESS
 
 /*

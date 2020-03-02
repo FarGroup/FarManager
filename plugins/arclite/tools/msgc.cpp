@@ -1,4 +1,4 @@
-struct MsgPair {
+﻿struct MsgPair {
   std::wstring id;
   std::wstring phrase;
   bool operator==(const MsgPair& lp) const {

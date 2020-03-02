@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "newarc.h"
 
 typedef int (__stdcall* MODULEENTRY) (int nFunctionID, void *pParams);
