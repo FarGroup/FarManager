@@ -145,6 +145,10 @@ const char* VirtualKeyStrings[256] =
 	"NONAME", "PA1", "OEM_CLEAR", NULL,
 };
 
+const char FAKE_PLUGIN_DATA_KEY[] = "FakePluginData";
+static TPluginData* GetRealPluginData(lua_State* L); /* forward declaration */
+TPluginData* (*GetPluginData)(lua_State* L) = GetRealPluginData;
+
 static lua_CFunction luaopen_bit = NULL;
 static lua_CFunction luaopen_ffi = NULL;
 static lua_CFunction luaopen_jit = NULL;
@@ -353,10 +357,19 @@ void PutFlagsToArray(lua_State *L, int index, UINT64 flags)
 	lua_rawseti(L, -2, index);
 }
 
-TPluginData* GetPluginData(lua_State* L)
+static TPluginData* GetRealPluginData(lua_State* L)
 {
 	TPluginData *pd;
 	(void) lua_getallocf(L, (void**)&pd);
+	return pd;
+}
+
+static TPluginData* GetFakePluginData(lua_State* L)
+{
+	TPluginData *pd;
+	lua_getfield(L, LUA_REGISTRYINDEX, FAKE_PLUGIN_DATA_KEY);
+	pd = (TPluginData*)lua_touserdata(L,-1);
+	lua_pop(L, 1);
 	return pd;
 }
 
@@ -6429,6 +6442,14 @@ static void LoadExtraLibraries(lua_State *L)
 		lua_call(L, 1, 0);
 	}
 
+	// add "luafar" namespace with a few functions
+	lua_newtable(L);
+	lua_pushcfunction(L, far_GetLuafarVersion);
+	lua_setfield(L, -2, "GetLuafarVersion");
+	lua_pushcfunction(L, far_FileTimeResolution);
+	lua_setfield(L, -2, "FileTimeResolution");
+	lua_setglobal(L, "luafar");
+
 	// getmetatable("").__index = utf8
 	lua_pushliteral(L, "");
 	lua_getmetatable(L, -1);
@@ -6531,9 +6552,12 @@ void LF_GetLuafarAPI (LuafarAPI* target)
 	target->StructSize = size;
 }
 
+// This function makes possible use of luafar3.dll as a library without Far Manager.
+// It is called by means of: require("luafar3")
 __declspec(dllexport) int luaopen_luafar3 (lua_State *L)
 {
 	int InsideFarManager = 0;
+
 	lua_getglobal(L, "far");
 	if (lua_istable(L, -1))
 	{
@@ -6542,7 +6566,21 @@ __declspec(dllexport) int luaopen_luafar3 (lua_State *L)
 		lua_pop(L, 1);
 	}
 	lua_pop(L, 1);
+
 	if (! InsideFarManager)
+	{
+		/* There is no Far Manager here and no plugin data but some functions need TPluginData::Flags
+		*  to handle file time resolution. So let's create "fake" plugin data and place it in Lua state
+		*  registry.
+		*/
+		TPluginData *pd = (TPluginData*)lua_newuserdata(L, sizeof(TPluginData));
+		lua_setfield(L, LUA_REGISTRYINDEX, FAKE_PLUGIN_DATA_KEY);
+		memset(pd, 0, sizeof(TPluginData));
+		pd->Flags = 0;
+		pd->MainLuaState = L;
+		GetPluginData = GetFakePluginData;
+
 		LoadExtraLibraries(L);
+	}
 	return 0;
 }

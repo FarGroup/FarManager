@@ -58,8 +58,7 @@ string MakeTemp(string_view Prefix, bool const WithTempPath, string_view const U
 {
 	static UINT s_shift = 0;
 
-	if (Prefix.empty())
-		Prefix = L"FAR"sv;
+	Prefix = Prefix.empty()? L"FAR"sv : Prefix.substr(0, 3);
 
 	auto strPath = L"."s;
 

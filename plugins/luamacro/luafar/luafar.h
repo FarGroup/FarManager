@@ -37,7 +37,7 @@ typedef struct
 	void (*new_action)(int i);
 	void (*old_action)(int i);
 } TPluginData;
-TPluginData* GetPluginData(lua_State* L);
+extern TPluginData* (*GetPluginData)(lua_State* L);
 
 /*---------------------------------*/
 /* DO NOT CHANGE THESE SIGNATURES. */

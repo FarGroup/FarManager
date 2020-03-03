@@ -12828,3 +12828,37 @@ mtime=3776336416
 #_SOFTWARE.
 </article>
 </node>
+<node>
+id=550
+lv=0
+dt=Text
+nm=Usage without Far Manager
+ctime=3792399244
+mtime=3792403649
+<article>
+#_<markdown>
+#_`luafar3.dll` can be used in Lua scripts independently of Far Manager. Only part of its functionality is available in this case.
+#_
+#_It should be invoked as *require "luafar3"*.
+#_
+#_When the library is `require()`'d the following global variables are set:
+#_
+#_  - [`bit64`](405.html)
+#_  - [`utf8`](537.html)
+#_  - [`win`](430.html)
+#_  - `luafar`
+#_
+#_`luafar` namespace contains the following functions:
+#_
+#_  - `FileTimeResolution` (same as [`far.FileTimeResolution`](544.html))
+#_  - `GetLuafarVersion` (same as [`far.GetLuafarVersion`](549.html))
+#_
+#_Also: the `__index` field of the strings metatable is modified to point to [`utf8`](537.html) table, rather than to `string` table.<br>
+#_That means `("abc"):match("b")` is equivalent to `utf8.match("abc", "b")`
+#_rather than to `string.match("abc", "b")`.<br>
+#_
+#_
+#_@@@
+#_
+</article>
+</node>

@@ -2475,7 +2475,7 @@ void config_provider::Export(const string& File)
 		auto& e = CreateChild(root, "pluginsconfig");
 		for(auto& i: os::fs::enum_files(path::join(Global->Opt->ProfilePath, L"PluginsData"sv, Ext)))
 		{
-			i.FileName.resize(i.FileName.size() - Ext.size());
+			i.FileName.resize(i.FileName.size() - (Ext.size() - 1));
 			if (std::regex_search(i.FileName, uuid_regex()))
 			{
 				auto& PluginRoot = CreateChild(e, "plugin");

@@ -1,3 +1,8 @@
+shmuel 03.03.2020 13:29:18 +0200 - build 735
+
+1. LuaFAR: fix win.XX functions dependent on FileTimeResolution broken since build 704
+   (they were broken only when luafar3.dll was used outside Far Manager).
+
 shmuel 02.03.2020 19:10:27 +0200 - build 734
 
 1. LuaFAR: added function far.GetLuafarVersion.
