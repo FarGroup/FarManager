@@ -688,7 +688,8 @@ static BOOL mkdir(const wchar_t* aPath)
 static int win_CreateDir(lua_State *L)
 {
 	BOOL result, opt_tolerant, opt_original;
-	const wchar_t* path = check_utf8_string(L, 1, NULL);
+	size_t len;
+	const wchar_t* path = check_utf8_string(L, 1, &len);
 	const char* flags = "";
 
 	if (lua_type(L,2) == LUA_TSTRING)
@@ -698,6 +699,15 @@ static int win_CreateDir(lua_State *L)
 
 	opt_tolerant = strchr(flags,'t') != NULL;
 	opt_original = strchr(flags,'o') != NULL;
+
+	// prevent CreateDirectoryW() from trimming trailing spaces (add a backslash)
+	if (len && path[len-1]==L' ')
+	{
+		wchar_t *path2 = (wchar_t*)lua_newuserdata(L, (len+2)*sizeof(wchar_t));
+		wcsncpy(path2, path, len);
+		wcscpy(path2+len, L"\\");
+		path = path2;
+	}
 
 	if(dir_exist(path))
 	{
