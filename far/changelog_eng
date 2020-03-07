@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 07.03.2020 18:03:21 +0000 - build 5567
+
+1. Forum: opening large files in editor is too slow after 5527.
+
 drkns 02.03.2020 22:55:22 +0000 - build 5566
 
 1. Correction of 5564.
