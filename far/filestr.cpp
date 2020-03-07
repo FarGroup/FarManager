@@ -272,7 +272,7 @@ bool enum_lines::GetString(string_view& Str, eol& Eol) const
 
 		if (!m_Str.empty())
 		{
-			m_wStr.resize(std::max(m_wStr.capacity(), m_Str.size()));
+			m_wStr.resize(std::max(m_wStr.size(), m_Str.size()));
 
 			for (auto Overflow = true; Overflow;)
 			{
