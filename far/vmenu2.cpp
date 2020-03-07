@@ -338,16 +338,16 @@ string VMenu2::GetMenuTitle(bool bottom)
 	{
 		size=titles.BottomSize;
 		title.reset(size);
-		titles.Bottom = title.get();
+		titles.Bottom = title.data();
 	}
 	else
 	{
 		size=titles.TitleSize;
 		title.reset(size);
-		titles.Title = title.get();
+		titles.Title = title.data();
 	}
 	SendMessage(DM_LISTGETTITLES, 0, &titles);
-	return { title.get(), size - 1 };
+	return { title.data(), size - 1 };
 }
 
 static const FarDialogItem VMenu2DialogItems[]

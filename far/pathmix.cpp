@@ -501,10 +501,10 @@ TEST_CASE("path.ExtractPathRoot")
 	}
 	Tests[]
 	{
-		{L""sv,                                                                    L""sv},
-		{L"\\"sv,                                                                  L""sv},
-		{L"file"sv,                                                                L""sv},
-		{L"path\\file"sv,                                                          L""sv},
+		{{},                                                                       {}},
+		{L"\\"sv,                                                                  {}},
+		{L"file"sv,                                                                {}},
+		{L"path\\file"sv,                                                          {}},
 		{L"C:"sv,                                                                  L"C:\\"sv},
 		{L"C:\\"sv,                                                                L"C:\\"sv},
 		{L"C:\\path\\file"sv,                                                      L"C:\\"sv},
@@ -535,10 +535,10 @@ TEST_CASE("path.ExtractFilePath")
 	}
 	Tests[]
 	{
-		{L""sv,                                                                    L""sv},
-		{L"\\"sv,                                                                  L""sv},
-		{L"\\file"sv,                                                              L""sv},
-		{L"file"sv,                                                                L""sv},
+		{{},                                                                       {}},
+		{L"\\"sv,                                                                  {}},
+		{L"\\file"sv,                                                              {}},
+		{L"file"sv,                                                                {}},
 		{L"path\\"sv,                                                              L"path"sv},
 		{L"path\\file"sv,                                                          L"path"sv},
 		{L"C:"sv,                                                                  L"C:\\"sv},
@@ -573,26 +573,26 @@ TEST_CASE("path.ExtractFileName")
 	}
 	Tests[]
 	{
-		{L""sv,                                                                    L""sv},
-		{L"\\"sv,                                                                  L""sv},
+		{{},                                                                       {}},
+		{L"\\"sv,                                                                  {}},
 		{L"\\file"sv,                                                              L"file"sv},
 		{L"file"sv,                                                                L"file"sv},
-		{L"path\\"sv,                                                              L""sv},
+		{L"path\\"sv,                                                              {}},
 		{L"path\\file"sv,                                                          L"file"sv},
-		{L"C:"sv,                                                                  L""sv},
-		{L"C:\\"sv,                                                                L""sv},
+		{L"C:"sv,                                                                  {}},
+		{L"C:\\"sv,                                                                {}},
 		{L"C:\\file"sv,                                                            L"file"sv},
 		{L"C:\\path\\file"sv,                                                      L"file"sv},
-		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"sv,                 L""sv},
-		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv,               L""sv},
+		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"sv,                 {}},
+		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv,               {}},
 		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\file"sv,           L"file"sv},
 		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file"sv,     L"file"sv},
-		{L"\\\\server\\share"sv,                                                   L""sv},
-		{L"\\\\server\\share\\"sv,                                                 L""sv},
+		{L"\\\\server\\share"sv,                                                   {}},
+		{L"\\\\server\\share\\"sv,                                                 {}},
 		{L"\\\\server\\share\\file"sv,                                             L"file"sv},
 		{L"\\\\server\\share\\path\\file"sv,                                       L"file"sv},
-		{L"\\\\?\\UNC\\server\\share"sv,                                           L""sv},
-		{L"\\\\?\\UNC\\server\\share\\"sv,                                         L""sv},
+		{L"\\\\?\\UNC\\server\\share"sv,                                           {}},
+		{L"\\\\?\\UNC\\server\\share\\"sv,                                         {}},
 		{L"\\\\?\\UNC\\server\\share\\file"sv,                                     L"file"sv},
 		{L"\\\\?\\UNC\\server\\share\\path\\file"sv,                               L"file"sv},
 	};
@@ -611,26 +611,26 @@ TEST_CASE("path.PointToName")
 	}
 	Tests[]
 	{
-		{L""sv,                                                                    L""sv},
-		{L"\\"sv,                                                                  L""sv},
+		{{},                                                                       {}},
+		{L"\\"sv,                                                                  {}},
 		{L"\\file"sv,                                                              L"file"sv},
 		{L"file"sv,                                                                L"file"sv},
-		{L"path\\"sv,                                                              L""sv},
+		{L"path\\"sv,                                                              {}},
 		{L"path\\file"sv,                                                          L"file"sv},
-		// {L"C:"sv,                                                                  L""sv},
-		{L"C:\\"sv,                                                                L""sv},
+		// {L"C:"sv,                                                                  {}},
+		{L"C:\\"sv,                                                                {}},
 		{L"C:\\file"sv,                                                            L"file"sv},
 		{L"C:\\path\\file"sv,                                                      L"file"sv},
-		// {L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"sv,                 L""sv},
-		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv,               L""sv},
+		// {L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"sv,                 {}},
+		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv,               {}},
 		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\file"sv,           L"file"sv},
 		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file"sv,     L"file"sv},
-		// {L"\\\\server\\share"sv,                                                   L""sv},
-		{L"\\\\server\\share\\"sv,                                                 L""sv},
+		// {L"\\\\server\\share"sv,                                                   {}},
+		{L"\\\\server\\share\\"sv,                                                 {}},
 		{L"\\\\server\\share\\file"sv,                                             L"file"sv},
 		{L"\\\\server\\share\\path\\file"sv,                                       L"file"sv},
-		// {L"\\\\?\\UNC\\server\\share"sv,                                           L""sv},
-		{L"\\\\?\\UNC\\server\\share\\"sv,                                         L""sv},
+		// {L"\\\\?\\UNC\\server\\share"sv,                                           {}},
+		{L"\\\\?\\UNC\\server\\share\\"sv,                                         {}},
 		{L"\\\\?\\UNC\\server\\share\\file"sv,                                     L"file"sv},
 		{L"\\\\?\\UNC\\server\\share\\path\\file"sv,                               L"file"sv},
 	};
@@ -649,9 +649,9 @@ TEST_CASE("path.PointToExt")
 	}
 	Tests[]
 	{
-		{ L""sv,                              L""sv      },
-		{ L"file"sv,                          L""sv      },
-		{ L"path\\file"sv,                    L""sv      },
+		{ {},                                 {}         },
+		{ L"file"sv,                          {}         },
+		{ L"path\\file"sv,                    {}         },
 		{ L"file.ext"sv,                      L".ext"sv  },
 		{ L"path\\file.ext"sv,                L".ext"sv  },
 		{ L"file.ext1.ext2"sv,                L".ext2"sv },
@@ -673,7 +673,7 @@ TEST_CASE("path.IsRootPath")
 	}
 	Tests[]
 	{
-		{ false,  L""sv },
+		{ false,  {} },
 		{ false,  L"dir"sv },
 		{ false,  L"dir\\"sv },
 		{ true,   L"\\"sv },
@@ -721,8 +721,8 @@ TEST_CASE("path.PathStartsWith")
 		{ true,  L"C:\\path\\file"sv,   L"C:\\path"sv },
 		{ true,  L"C:\\path\\file"sv,   L"C:\\path\\"sv },
 		{ false, L"C:\\path\\file"sv,   L"C:\\pat"sv },
-		{ true,  L"\\"sv,               L""sv },
-		{ false, L"C:\\path\\file"sv,   L""sv },
+		{ true,  L"\\"sv,               {} },
+		{ false, L"C:\\path\\file"sv,   {} },
 	};
 
 	for (const auto& i: Tests)
@@ -735,7 +735,7 @@ TEST_CASE("path.CutToParent")
 {
 	static const string_view TestRoots[]
 	{
-		L""sv,
+		{},
 		L"C:"sv,
 		L"C:\\"sv,
 		L"\\\\server\\share\\"sv,
@@ -794,7 +794,7 @@ TEST_CASE("path.AddEndSlash")
 	}
 	Tests[]
 	{
-		{ L""sv,           L"\\"sv },
+		{ {},              L"\\"sv },
 		{ L"\\"sv,         L"\\"sv },
 		{ L"/"sv,          L"/"sv },
 		{ L"a"sv,          L"a\\"sv },

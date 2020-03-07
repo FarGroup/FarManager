@@ -1888,7 +1888,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 						if (m_CopySecurity == security::copy && !GetSecurity(Src, tmpsd))
 							return COPY_CANCEL;
 
-						SECURITY_ATTRIBUTES TmpSecAttr{ sizeof(TmpSecAttr), tmpsd? tmpsd.get() : nullptr };
+						SECURITY_ATTRIBUTES TmpSecAttr{ sizeof(TmpSecAttr), tmpsd? tmpsd.data() : nullptr };
 
 						for (;;)
 						{
@@ -1943,7 +1943,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			if (m_CopySecurity == security::copy && !GetSecurity(Src, sd))
 				return COPY_CANCEL;
 
-			SECURITY_ATTRIBUTES SecAttr = { sizeof(SecAttr), sd? sd.get() : nullptr };
+			SECURITY_ATTRIBUTES SecAttr = { sizeof(SecAttr), sd? sd.data() : nullptr };
 			if (RPT!=RP_SYMLINKFILE && SrcData.Attributes&FILE_ATTRIBUTE_DIRECTORY)
 			{
 				while (!os::fs::create_directory(
@@ -2569,7 +2569,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 	{
 		//if (DestAttr!=INVALID_FILE_ATTRIBUTES && !Append) //вот это портит копирование поверх хардлинков
 		//api::DeleteFile(DestName);
-		SECURITY_ATTRIBUTES SecAttr = { sizeof(SecAttr), sd? sd.get() : nullptr };
+		SECURITY_ATTRIBUTES SecAttr = { sizeof(SecAttr), sd? sd.data() : nullptr };
 
 		const auto attrs = SrcData.Attributes & ~(Flags & FCOPY_DECRYPTED_DESTINATION? FILE_ATTRIBUTE_ENCRYPTED : 0);
 		const auto IsSystemEncrypted = flags::check_all(attrs, FILE_ATTRIBUTE_SYSTEM | FILE_ATTRIBUTE_ENCRYPTED);
@@ -2673,7 +2673,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 			}
 
 			size_t BytesRead;
-			while (!SrcFile.Read(CopyBuffer.get(), SrcFile.GetChunkSize(), BytesRead))
+			while (!SrcFile.Read(CopyBuffer.data(), SrcFile.GetChunkSize(), BytesRead))
 			{
 				ErrorState = error_state::fetch();
 
@@ -2719,7 +2719,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 			if (!(Flags&FCOPY_COPYTONUL))
 			{
 				DestFile.SetPointer(SrcFile.GetChunkOffset() + (Append? AppendPos : 0), nullptr, FILE_BEGIN);
-				while (!DestFile.Write(CopyBuffer.get(), BytesRead))
+				while (!DestFile.Write(CopyBuffer.data(), BytesRead))
 				{
 					ErrorState = error_state::fetch();
 
@@ -2734,7 +2734,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 						if (os::fs::get_disk_size(strDriveRoot, nullptr, nullptr, &FreeSize))
 						{
 							if (FreeSize<BytesRead &&
-								DestFile.Write(CopyBuffer.get(), static_cast<size_t>(FreeSize)) &&
+								DestFile.Write(CopyBuffer.data(), static_cast<size_t>(FreeSize)) &&
 								SrcFile.SetPointer(FreeSize-BytesRead,nullptr,FILE_CURRENT))
 							{
 								DestFile.Close();

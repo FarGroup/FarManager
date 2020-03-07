@@ -140,7 +140,7 @@ static void show_help()
 		L" -v <filename>\n"
 		L"      View the specified file. If <filename> is -, data is read from the stdin.\n"
 		L" -w[-] Stretch to console window instead of console buffer or vise versa.\n"
-		""sv;
+		L""sv;
 
 	std::wcout << HelpMsg << std::flush;
 }

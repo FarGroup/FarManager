@@ -171,7 +171,7 @@ public:
 		{
 			block_ptr<SP_DEVICE_INTERFACE_DETAIL_DATA> DData(RequiredSize);
 			DData->cbSize = sizeof(*DData);
-			if(SetupDiGetDeviceInterfaceDetail(m_info.native_handle(), &DeviceInterfaceData, DData.get(), RequiredSize, nullptr, nullptr))
+			if(SetupDiGetDeviceInterfaceDetail(m_info.native_handle(), &DeviceInterfaceData, DData.data(), RequiredSize, nullptr, nullptr))
 			{
 				result = DData->DevicePath;
 			}
@@ -315,11 +315,11 @@ static DWORD GetRelationDrivesMask(DEVINST hDevInst)
 		return 0;
 
 	const wchar_t_ptr_n<os::default_buffer_size> DeviceIdList(dwSize);
-	if (CM_Get_Device_ID_List(szDeviceID, DeviceIdList.get(), dwSize, CM_GETIDLIST_FILTER_REMOVALRELATIONS) != CR_SUCCESS)
+	if (CM_Get_Device_ID_List(szDeviceID, DeviceIdList.data(), dwSize, CM_GETIDLIST_FILTER_REMOVALRELATIONS) != CR_SUCCESS)
 		return 0;
 
 	DWORD dwMask = 0;
-	const auto DeviceIdListPtr = DeviceIdList.get();
+	const auto DeviceIdListPtr = DeviceIdList.data();
 	for (const auto& i: enum_substrings(DeviceIdListPtr))
 	{
 		DEVINST hRelationDevInst;

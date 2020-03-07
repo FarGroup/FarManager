@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.fs.hpp"
 
 // Common:
+#include "common/smart_ptr.hpp"
 #include "common/string_utils.hpp"
 
 // External:
@@ -85,7 +86,7 @@ void save_file_with_replace(string const& FileName, DWORD const FileAttributes, 
 		// ReplaceFileW handles DAC, but just in case if it can't for whatever reason:
 		SecurityDescriptor = os::fs::get_file_security(FileName, DACL_SECURITY_INFORMATION);
 		if (SecurityDescriptor)
-			SecurityAttributes.lpSecurityDescriptor = SecurityDescriptor.get();
+			SecurityAttributes.lpSecurityDescriptor = SecurityDescriptor.data();
 	}
 
 	{

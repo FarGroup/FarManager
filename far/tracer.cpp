@@ -112,7 +112,7 @@ static void GetSymbols(const std::vector<const void*>& BackTrace, function_ref<v
 					PointToName(Module.ImageName) :
 					L"<unknown>"sv,
 				L'!',
-				imports.SymFromAddr(Process, Address, nullptr, Symbol.get())?
+				imports.SymFromAddr(Process, Address, nullptr, Symbol.data())?
 					encoding::ansi::get_chars(Symbol->Name) :
 					L"<unknown> (get the pdb)"sv);
 

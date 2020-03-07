@@ -72,18 +72,18 @@ namespace os
 		[[nodiscard]]
 		bool ApiDynamicReceiver(buffer_type&& Buffer, const receiver& Receiver, const condition& Condition, const assigner& Assigner)
 		{
-			size_t Size = Receiver({ Buffer.get(), Buffer.size() });
+			size_t Size = Receiver(Buffer);
 
 			while (Condition(Size, Buffer.size()))
 			{
 				Buffer.reset(Size? Size : Buffer.size() * 2);
-				Size = Receiver({ Buffer.get(), Buffer.size() });
+				Size = Receiver(Buffer);
 			}
 
 			if (!Size)
 				return false;
 
-			Assigner({ Buffer.get(), Size });
+			Assigner({ Buffer.data(), Size });
 			return true;
 		}
 

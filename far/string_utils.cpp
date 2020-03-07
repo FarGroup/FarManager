@@ -39,30 +39,21 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/preprocessor.hpp"
+#include "common/string_utils.hpp"
 #include "common/utility.hpp"
 
 // External:
 
 //----------------------------------------------------------------------------
 
-const string& GetSpaces()
+string_view GetSpaces()
 {
-	// TODO: test for consistency with IsSpace()
-	static const auto Spaces = L" \t"s;
-	return Spaces;
+	return L" \t"sv;
 }
 
-const string& GetEols()
+string_view GetEols()
 {
-	// TODO: test for consistency with IsEol()
-	static const auto Eols = L"\r\n"s;
-	return Eols;
-}
-
-const string& GetSpacesAndEols()
-{
-	static const auto SpacesOrEols = GetSpaces() + GetEols();
-	return SpacesOrEols;
+	return L"\r\n"sv;
 }
 
 bool is_alpha(wchar_t Char)
@@ -217,6 +208,22 @@ bool contains_icase(const string_view Str, wchar_t const What)
 
 #include "testing.hpp"
 
+TEST_CASE("string.spaces")
+{
+	for (const auto& i: GetSpaces())
+	{
+		REQUIRE(std::iswblank(i));
+	}
+}
+
+TEST_CASE("string.eols")
+{
+	for (const auto& i: GetEols())
+	{
+		REQUIRE(IsEol(i));
+	}
+}
+
 TEST_CASE("string.utils")
 {
 	for (const auto& i: GetSpaces())
@@ -248,9 +255,9 @@ TEST_CASE("string.utils.icase")
 	}
 	Tests[]
 	{
-		{ L""sv,                 L""sv,             npos, },
-		{ L""sv,                 L"abc"sv,          npos, },
-		{ L"foobar"sv,           L""sv,             0,    },
+		{ {},                    {},                npos, },
+		{ {},                    L"abc"sv,          npos, },
+		{ L"foobar"sv,           {},                0,    },
 		{ L"foobar"sv,           L"FOOBAR"sv,       0,    },
 		{ L"foobar"sv,           L"foobar1"sv,      npos, },
 		{ L"foobar"sv,           L"foo"sv,          0,    },

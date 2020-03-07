@@ -50,6 +50,8 @@ WARNING_PUSH()
 
 WARNING_DISABLE_CLANG("-Weverything")
 
+#define CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS
+
 #include "thirdparty/catch2/catch.hpp"
 
 WARNING_POP()

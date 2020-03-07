@@ -136,7 +136,7 @@ public:
 			return nullptr;
 
 		auto& Attributes = *m_Attributes;
-		Attributes.lpSecurityDescriptor = m_Descriptor ? m_Descriptor.get() : nullptr;
+		Attributes.lpSecurityDescriptor = m_Descriptor ? m_Descriptor.data() : nullptr;
 		return &Attributes;
 	}
 
@@ -153,7 +153,7 @@ static void WritePipe(const os::handle& Pipe, os::security::descriptor const& Da
 	if (!Size)
 		return;
 
-	pipe::write(Pipe, Data.get(), Size);
+	pipe::write(Pipe, Data.data(), Size);
 }
 
 static void WritePipe(const os::handle& Pipe, SECURITY_DESCRIPTOR* Data)
@@ -194,7 +194,7 @@ static void ReadPipe(const os::handle& Pipe, os::security::descriptor& Data)
 		return;
 
 	Data.reset(Size);
-	pipe::read(Pipe, Data.get(), Size);
+	pipe::read(Pipe, Data.data(), Size);
 }
 
 static void ReadPipe(const os::handle& Pipe, security_attributes_wrapper& Data)
@@ -897,13 +897,13 @@ bool elevation::set_file_security(string const& Object, SECURITY_INFORMATION con
 		false,
 		[&]
 		{
-			return os::fs::low::set_file_security(Object.c_str(), RequestedInformation, Descriptor.get());
+			return os::fs::low::set_file_security(Object.c_str(), RequestedInformation, Descriptor.data());
 		},
 		[&]
 		{
 
 			Write(C_FUNCTION_SETFILESECURITY, Object, RequestedInformation);
-			pipe::write(m_Pipe, Descriptor.get(), Descriptor.size());
+			pipe::write(m_Pipe, Descriptor.data(), Descriptor.size());
 			return RetrieveLastErrorAndResult<bool>();
 		});
 }
@@ -1245,9 +1245,9 @@ private:
 		const auto SecurityInformation = Read<SECURITY_INFORMATION>();
 		const auto Size = Read<size_t>();
 		const os::security::descriptor SecurityDescriptor(Size);
-		pipe::read(m_Pipe, SecurityDescriptor.get(), Size);
+		pipe::read(m_Pipe, SecurityDescriptor.data(), Size);
 
-		const auto Result = os::fs::low::set_file_security(Object.c_str(), SecurityInformation, SecurityDescriptor.get());
+		const auto Result = os::fs::low::set_file_security(Object.c_str(), SecurityInformation, SecurityDescriptor.data());
 
 		Write(error_state::fetch(), Result);
 	}

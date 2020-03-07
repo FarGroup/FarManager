@@ -87,7 +87,7 @@ new_handler::new_handler():
 	const string_view Strings[] =
 	{
 		build::version_string(),
-		L""sv,
+		{},
 		L"Not enough memory is available to complete this operation."sv,
 		L"Press Enter to retry or Esc to continue..."sv
 	};

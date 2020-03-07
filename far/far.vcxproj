@@ -674,6 +674,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <None Include="Far.hack.ico" />
     <None Include="Far.mono.ico" />
     <None Include="Far.msg.ico" />
+    <None Include="far.natjmc" />
     <None Include="Far.red.ico" />
     <None Include="farversion.m4" />
     <None Include="headers.m4" />

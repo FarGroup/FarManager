@@ -834,7 +834,7 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 			const auto Context = reinterpret_cast<const context*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 			const size_t Size = Dlg->SendMessage(DM_GETDLGITEM, ID_HER_COLOREXAMPLE, nullptr);
 			const block_ptr<FarDialogItem> Buffer(Size);
-			FarGetDialogItem gdi = {sizeof(FarGetDialogItem), Size, Buffer.get()};
+			FarGetDialogItem gdi = {sizeof(FarGetDialogItem), Size, Buffer.data()};
 			Dlg->SendMessage(DM_GETDLGITEM,ID_HER_COLOREXAMPLE,&gdi);
 			//MarkChar это FIXEDIT размером в 1 символ
 			wchar_t MarkChar[2];

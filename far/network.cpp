@@ -81,7 +81,7 @@ os::fs::drives_set GetSavedNetworkDrives()
 	{
 		DWORD Count = -1;
 		auto BufferSize = static_cast<DWORD>(Buffer.size());
-		const auto Result = WNetEnumResource(hEnum, &Count, Buffer.get(), &BufferSize);
+		const auto Result = WNetEnumResource(hEnum, &Count, Buffer.data(), &BufferSize);
 
 		if (Result == ERROR_MORE_DATA)
 		{
@@ -92,7 +92,7 @@ os::fs::drives_set GetSavedNetworkDrives()
 		if (Result != NO_ERROR || !Count)
 			break;
 
-		for (const auto& i: span(Buffer.get(), Count))
+		for (const auto& i: span(Buffer.data(), Count))
 		{
 			const auto Name = i.lpLocalName;
 			if (os::fs::is_standard_drive_letter(Name[0]) && Name[1] == L':')

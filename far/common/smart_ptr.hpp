@@ -34,11 +34,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "placement.hpp"
 #include "preprocessor.hpp"
+#include "range.hpp"
 
 //----------------------------------------------------------------------------
 
-template<typename T, size_t StaticSize>
-class array_ptr
+template<typename T, size_t StaticSize, REQUIRES(std::is_trivially_copyable_v<T>)>
+class array_ptr: public span<T>
 {
 public:
 	NONCOPYABLE(array_ptr);
@@ -50,6 +51,7 @@ WARNING_DISABLE_MSC(4583) // no page                                            
 	array_ptr() noexcept
 	{
 		placement::construct(m_StaticBuffer);
+		init_span();
 	}
 
 	explicit array_ptr(size_t const Size, bool Init = false):
@@ -85,6 +87,10 @@ WARNING_POP()
 				placement::destruct(m_StaticBuffer);
 				placement::construct(m_DynamicBuffer);
 			}
+
+			// We don't need a strong guarantee here, so it's better to reduce memory usage
+			m_DynamicBuffer.reset();
+
 			m_DynamicBuffer.reset(Init? new T[Size]() : new T[Size]);
 		}
 		else
@@ -97,6 +103,7 @@ WARNING_POP()
 		}
 
 		m_Size = Size;
+		init_span();
 	}
 
 	[[nodiscard]]
@@ -112,7 +119,7 @@ WARNING_POP()
 	}
 
 	[[nodiscard]]
-	T* get() const noexcept
+	T* data() const noexcept
 	{
 		return size() > StaticSize? m_DynamicBuffer.get() : m_StaticBuffer.data();
 	}
@@ -121,17 +128,15 @@ WARNING_POP()
 	T& operator*() const
 	{
 		assert(m_Size);
-		return *get();
-	}
-
-	[[nodiscard]]
-	T& operator[](size_t Index) const
-	{
-		assert(Index < m_Size);
-		return get()[Index];
+		return *data();
 	}
 
 private:
+	void init_span()
+	{
+		static_cast<span<T>&>(*this) = { data(), size() };
+	}
+
 	bool is_dynamic() const
 	{
 		return m_Size > StaticSize;
@@ -159,6 +164,7 @@ private:
 		}
 
 		m_Size = std::exchange(rhs.m_Size, 0);
+		init_span();
 
 		return *this;
 	}
@@ -181,7 +187,7 @@ using wchar_t_ptr = wchar_t_ptr_n<1>;
 using char_ptr = char_ptr_n<1>;
 
 
-template<typename T, size_t Size = 1>
+template<typename T, size_t Size = 1, REQUIRES(std::is_trivially_copyable_v<T>)>
 class block_ptr: public char_ptr_n<Size>
 {
 public:
@@ -192,13 +198,13 @@ public:
 	block_ptr() noexcept = default;
 
 	[[nodiscard]]
-	decltype(auto) get() const noexcept {return reinterpret_cast<T*>(char_ptr_n<Size>::get());}
+	decltype(auto) data() const noexcept {return reinterpret_cast<T*>(char_ptr_n<Size>::data());}
 
 	[[nodiscard]]
-	decltype(auto) operator->() const noexcept { return get(); }
+	decltype(auto) operator->() const noexcept { return data(); }
 
 	[[nodiscard]]
-	decltype(auto) operator*() const noexcept {return *get();}
+	decltype(auto) operator*() const noexcept {return *data();}
 };
 
 template <typename T>

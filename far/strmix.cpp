@@ -550,7 +550,7 @@ bool FindWordInString(const string& Str, size_t CurPos, size_t& Begin, size_t& E
 	if (Str.empty() || CurPos > Str.size())
 		return false;
 
-	const auto WordDiv = WordDiv0 + GetSpacesAndEols();
+	const auto WordDiv = concat(WordDiv0, GetSpaces(), GetEols());
 
 	if (!CurPos)
 	{
@@ -600,13 +600,13 @@ bool FindWordInString(const string& Str, size_t CurPos, size_t& Begin, size_t& E
 	return Begin != End;
 }
 
-bool CheckFileSizeStringFormat(const string& FileSizeStr)
+bool CheckFileSizeStringFormat(string_view const FileSizeStr)
 {
 	static const std::wregex SizeRegex(RE_BEGIN RE_ANY_OF(L"0-9") RE_ONE_OR_MORE_LAZY RE_ANY_OF(L"BKMGTPE") RE_ZERO_OR_ONE_GREEDY RE_END, std::regex::icase | std::regex::optimize);
-	return std::regex_search(FileSizeStr, SizeRegex);
+	return std::regex_search(ALL_CONST_RANGE(FileSizeStr), SizeRegex);
 }
 
-unsigned long long ConvertFileSizeString(const string& FileSizeStr)
+unsigned long long ConvertFileSizeString(string_view const FileSizeStr)
 {
 	if (!CheckFileSizeStringFormat(FileSizeStr))
 		return 0;
@@ -680,7 +680,7 @@ namespace
 					{
 						static const std::wregex re(RE_BEGIN RE_ESCAPE(L"{") RE_C_GROUP(RE_ANY_OF(L"\\w\\s") RE_ZERO_OR_MORE_LAZY) RE_ESCAPE(L"}"), std::regex::optimize);
 						std::wcmatch CMatch;
-						if (std::regex_search(ReplaceStr.c_str() + TokenStart, CMatch, re))
+						if (std::regex_search(ReplaceStr.data() + TokenStart, ReplaceStr.data() + (ReplaceStr.size() - TokenStart), CMatch, re))
 						{
 							ShiftLength = CMatch[0].length();
 							if (HMatch)
@@ -1079,6 +1079,47 @@ void xwcsncpy(wchar_t* dest, const wchar_t* src, size_t DestSize)
 
 #include "testing.hpp"
 
+TEST_CASE("ConvertFileSizeString")
+{
+	constexpr auto
+		B = 1ull,
+		K = B * 1024,
+		M = K * 1024,
+		G = M * 1024,
+		T = G * 1024,
+		P = T * 1024,
+		E = P * 1024;
+
+	static const struct
+	{
+		string_view Src;
+		uint64_t Result;
+	}
+	Tests[]
+	{
+		{ {},           0     },
+		{ {},           0     },
+		{ L"Beep"sv,    0     },
+		{ L"0"sv,       0 * B },
+		{ L"1"sv,       1 * B },
+		{ L"32K"sv,    32 * K },
+		{ L"640K"sv,  640 * K },
+		{ L"1M"sv,      1 * M },
+		{ L"345M"sv,  345 * M },
+		{ L"2G"sv,      2 * G },
+		{ L"3T"sv,      3 * T },
+		{ L"42P"sv,    42 * P },
+		{ L"12E"sv,    12 * E },
+		{ L"0E"sv,      0 * E },
+	};
+
+	string Src;
+	for (const auto& i: Tests)
+	{
+		REQUIRE(i.Result == ConvertFileSizeString(i.Src));
+	}
+}
+
 TEST_CASE("ReplaceStrings")
 {
 	static const struct
@@ -1087,12 +1128,12 @@ TEST_CASE("ReplaceStrings")
 	}
 	Tests[]
 	{
-		{ L"lorem ipsum dolor"sv,    L"loREm"sv,                L""sv,            L" ipsum dolor"sv,      },
+		{ L"lorem ipsum dolor"sv,    L"loREm"sv,                {},               L" ipsum dolor"sv,      },
 		{ L"lorem ipsum dolor"sv,    L"lorem"sv,                L"alpha"sv,       L"alpha ipsum dolor"sv, },
 		{ L"lorem ipsum dolor"sv,    L"m"sv,                    L"q"sv,           L"loreq ipsuq dolor"sv, },
-		{ L"lorem ipsum dolor"sv,    L""sv,                     L"alpha"sv,       L"lorem ipsum dolor"sv, },
-		{ L"lorem ipsum dolor"sv,    L""sv,                     L""sv,            L"lorem ipsum dolor"sv, },
-		{ L"lorem ipsum dolor"sv,    L"lorem ipsum dolor"sv,    L""sv,            L""sv,                  },
+		{ L"lorem ipsum dolor"sv,    {},                        L"alpha"sv,       L"lorem ipsum dolor"sv, },
+		{ L"lorem ipsum dolor"sv,    {},                        {},               L"lorem ipsum dolor"sv, },
+		{ L"lorem ipsum dolor"sv,    L"lorem ipsum dolor"sv,    {},               {},                     },
 		{ L"lorem ipsum dolor"sv,    L"lorem ipsum dolor"sv,    L"bravo"sv,       L"bravo"sv,             },
 		{ L"lorem"sv,                L"lorem ipsum"sv,          L"charlie"sv,     L"lorem"sv,             },
 	};
@@ -1116,7 +1157,7 @@ TEST_CASE("remove_duplicates")
 	}
 	Tests[]
 	{
-		{ L'1', false, L""sv,            L""sv,       },
+		{ L'1', false, {},               {},          },
 		{ L'2', false, L"1"sv,           L"1"sv,      },
 		{ L'1', false, L"12"sv,          L"12"sv,     },
 		{ L'2', false, L"122"sv,         L"12"sv,     },
@@ -1150,7 +1191,7 @@ TEST_CASE("wrapped_text")
 	}
 	Tests[]
 	{
-		{ L""sv, 1, {
+		{ {}, 1, {
 			}
 		},
 		{ L"AB\nCD"sv, 0, {
@@ -1253,7 +1294,7 @@ TEST_CASE("truncate")
 		{ L"c:/123/456"sv, 3,  L"…56"sv,         L"c…6"sv,         L"c:…"sv,         L"c:…"sv,        },
 		{ L"c:/123/456"sv, 2,  L"…6"sv,          L"…6"sv,          L"c…"sv,          L"c…"sv,         },
 		{ L"c:/123/456"sv, 1,  L"…"sv,           L"…"sv,           L"…"sv,           L"…"sv,          },
-		{ L"c:/123/456"sv, 0,  L""sv,            L""sv,            L""sv,            L""sv,           },
+		{ L"c:/123/456"sv, 0,  {},               {},               {},               {},              },
 
 		{ L"0123456789"sv, 20, L"0123456789"sv,  L"0123456789"sv,  L"0123456789"sv,  L"0123456789"sv, },
 		{ L"0123456789"sv, 10, L"0123456789"sv,  L"0123456789"sv,  L"0123456789"sv,  L"0123456789"sv, },
@@ -1266,35 +1307,35 @@ TEST_CASE("truncate")
 		{ L"0123456789"sv, 3,  L"…89"sv,         L"0…9"sv,         L"01…"sv,         L"…89"sv,        },
 		{ L"0123456789"sv, 2,  L"…9"sv,          L"…9"sv,          L"0…"sv,          L"…9"sv,         },
 		{ L"0123456789"sv, 1,  L"…"sv,           L"…"sv,           L"…"sv,           L"…"sv,          },
-		{ L"0123456789"sv, 0,  L""sv,            L""sv,            L""sv,            L""sv,           },
+		{ L"0123456789"sv, 0,  {},               {},               {},               {},              },
 
 		{ L"0123"sv,       5,  L"0123"sv,        L"0123"sv,        L"0123"sv,        L"0123"sv,       },
 		{ L"0123"sv,       4,  L"0123"sv,        L"0123"sv,        L"0123"sv,        L"0123"sv,       },
 		{ L"0123"sv,       3,  L"…23"sv,         L"0…3"sv,         L"01…"sv,         L"…23"sv,        },
 		{ L"0123"sv,       2,  L"…3"sv,          L"…3"sv,          L"0…"sv,          L"…3"sv,         },
 		{ L"0123"sv,       1,  L"…"sv,           L"…"sv,           L"…"sv,           L"…"sv,          },
-		{ L"0123"sv,       0,  L""sv,            L""sv,            L""sv,            L""sv,           },
+		{ L"0123"sv,       0,  {},               {},               {},               {},              },
 
 		{ L"012"sv,        4,  L"012"sv,         L"012"sv,         L"012"sv,         L"012"sv,        },
 		{ L"012"sv,        3,  L"012"sv,         L"012"sv,         L"012"sv,         L"012"sv,        },
 		{ L"012"sv,        2,  L"…2"sv,          L"…2"sv,          L"0…"sv,          L"…2"sv,         },
 		{ L"012"sv,        1,  L"…"sv,           L"…"sv,           L"…"sv,           L"…"sv,          },
-		{ L"012"sv,        0,  L""sv,            L""sv,            L""sv,            L""sv,           },
+		{ L"012"sv,        0,  {},               {},               {},               {},              },
 
 		{ L"01"sv,         3,  L"01"sv,          L"01"sv,          L"01"sv,          L"01"sv,         },
 		{ L"01"sv,         2,  L"01"sv,          L"01"sv,          L"01"sv,          L"01"sv,         },
 		{ L"01"sv,         1,  L"…"sv,           L"…"sv,           L"…"sv,           L"…"sv,          },
-		{ L"01"sv,         0,  L""sv,            L""sv,            L""sv,            L""sv,           },
+		{ L"01"sv,         0,  {},               {},               {},               {},              },
 
 		{ L"0"sv,          2,  L"0"sv,           L"0"sv,           L"0"sv,           L"0"sv,          },
 		{ L"0"sv,          1,  L"0"sv,           L"0"sv,           L"0"sv,           L"0"sv,          },
-		{ L"0"sv,          0,  L""sv,            L""sv,            L""sv,            L""sv,           },
+		{ L"0"sv,          0,  {},               {},               {},               {},              },
 
-		{ L""sv,           4,  L""sv,            L""sv,            L""sv,            L""sv,           },
-		{ L""sv,           3,  L""sv,            L""sv,            L""sv,            L""sv,           },
-		{ L""sv,           2,  L""sv,            L""sv,            L""sv,            L""sv,           },
-		{ L""sv,           1,  L""sv,            L""sv,            L""sv,            L""sv,           },
-		{ L""sv,           0,  L""sv,            L""sv,            L""sv,            L""sv,           },
+		{ {},              4,  {},               {},               {},               {},              },
+		{ {},              3,  {},               {},               {},               {},              },
+		{ {},              2,  {},               {},               {},               {},              },
+		{ {},              1,  {},               {},               {},               {},              },
+		{ {},              0,  {},               {},               {},               {},              },
 	};
 
 	static const std::array Functions
@@ -1319,6 +1360,30 @@ TEST_CASE("truncate")
 	}
 }
 
+TEST_CASE("IsCaseMixed")
+{
+	static const struct
+	{
+		string_view Src;
+		bool Result;
+	}
+	Tests[]
+	{
+		{ {},             false },
+		{ L"123"sv,       false },
+		{ L"FUBAR"sv,     false },
+		{ L"burrito"sv,   false },
+		{ L"CamelCase"sv, true  },
+		{ L"sPoNgEbOb"sv, true  },
+		{ L"12345Nz67"sv, true  },
+	};
+
+	for (const auto& i: Tests)
+	{
+		REQUIRE(i.Result == IsCaseMixed(i.Src));
+	}
+}
+
 TEST_CASE("hex")
 {
 	static const struct
@@ -1330,9 +1395,9 @@ TEST_CASE("hex")
 		{ L"12 34"sv,    L"1234"sv, },
 		{ L"12 3"sv,     L"1203"sv, },
 		{ L"12 "sv,      L"12"sv,   },
-		{ L"  "sv,       L""sv,     },
-		{ L" "sv,        L""sv,     },
-		{ L""sv,         L""sv,     },
+		{ L"  "sv,       {},        },
+		{ L" "sv,        {},        },
+		{ {},            {},        },
 	};
 
 	for (const auto& i: Tests)

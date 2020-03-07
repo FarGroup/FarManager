@@ -63,7 +63,7 @@ static bool SidToName(PSID Sid, string& Name, const string& Computer)
 
 	for (;;)
 	{
-		if (LookupAccountSid(EmptyToNull(Computer), Sid, AccountName.get(), &AccountLength, DomainName.get(), &DomainLength, &snu))
+		if (LookupAccountSid(EmptyToNull(Computer), Sid, AccountName.data(), &AccountLength, DomainName.data(), &DomainLength, &snu))
 			break;
 
 		if (GetLastError() == ERROR_INSUFFICIENT_BUFFER)
@@ -85,9 +85,9 @@ static bool SidToName(PSID Sid, string& Name, const string& Computer)
 	Name.clear();
 
 	if (DomainLength)
-		append(Name, string_view(DomainName.get(), DomainLength), L'\\', string_view(AccountName.get(), AccountLength));
+		append(Name, string_view(DomainName.data(), DomainLength), L'\\', string_view(AccountName.data(), AccountLength));
 	else
-		Name.assign(AccountName.get(), AccountLength);
+		Name.assign(AccountName.data(), AccountLength);
 
 	return true;
 }
@@ -115,12 +115,12 @@ namespace
 		{
 			const auto Size = GetLengthSid(rhs);
 			m_Data.reset(Size);
-			CopySid(Size, m_Data.get(), rhs);
+			CopySid(Size, m_Data.data(), rhs);
 		}
 
 		bool operator==(const sid& rhs) const
 		{
-			return EqualSid(m_Data.get(), rhs.m_Data.get()) != FALSE;
+			return EqualSid(m_Data.data(), rhs.m_Data.data()) != FALSE;
 		}
 
 		explicit operator bool() const
@@ -130,7 +130,7 @@ namespace
 
 		auto get() const
 		{
-			return m_Data.get();
+			return m_Data.data();
 		}
 
 		void reset(size_t Size)
@@ -145,8 +145,8 @@ namespace
 
 		size_t get_hash() const
 		{
-			const auto Begin = reinterpret_cast<const char*>(m_Data.get());
-			const auto End = Begin + GetLengthSid(m_Data.get());
+			const auto Begin = m_Data.cbegin();
+			const auto End = Begin + GetLengthSid(m_Data.data());
 			return hash_range(Begin, End);
 		}
 
@@ -188,7 +188,7 @@ static bool ProcessFileOwner(const string& Name, function_ref<bool(PSID)> const 
 
 	PSID pOwner;
 	BOOL OwnerDefaulted;
-	if (!GetSecurityDescriptorOwner(SecurityDescriptor.get(), &pOwner, &OwnerDefaulted))
+	if (!GetSecurityDescriptorOwner(SecurityDescriptor.data(), &pOwner, &OwnerDefaulted))
 		return false;
 
 	if (!IsValidSid(pOwner))
@@ -230,7 +230,7 @@ static sid get_sid(const string& Name)
 	SID_NAME_USE Use;
 	for (;;)
 	{
-		if (LookupAccountName(nullptr, Name.c_str(), Sid.get(), &SidSize, ReferencedDomainName.get(), &ReferencedDomainNameSize, &Use))
+		if (LookupAccountName(nullptr, Name.c_str(), Sid.get(), &SidSize, ReferencedDomainName.data(), &ReferencedDomainNameSize, &Use))
 			break;
 
 		if (GetLastError() == ERROR_INSUFFICIENT_BUFFER)

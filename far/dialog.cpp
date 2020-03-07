@@ -5356,7 +5356,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			FarGetDialogItem Item={sizeof(FarGetDialogItem),0,nullptr};
 			Item.Size=ConvertItemEx2(CurItem,nullptr);
 			block_ptr<FarDialogItem> Buffer(Item.Size);
-			Item.Item = Buffer.get();
+			Item.Item = Buffer.data();
 			intptr_t I=FALSE;
 			if(ConvertItemEx2(CurItem,&Item)<=Item.Size)
 			{
@@ -5477,7 +5477,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			FarGetDialogItem Item={sizeof(FarGetDialogItem),0,nullptr};
 			Item.Size=ConvertItemEx2(CurItem,nullptr);
 			block_ptr<FarDialogItem> Buffer(Item.Size);
-			Item.Item = Buffer.get();
+			Item.Item = Buffer.data();
 			intptr_t I=FALSE;
 			if(ConvertItemEx2(CurItem,&Item)<=Item.Size)
 			{

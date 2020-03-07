@@ -436,7 +436,7 @@ string ConvertNameToUNC(string_view const Object)
 	{
 		DWORD uniSize = 1024;
 		block_ptr<UNIVERSAL_NAME_INFO> uni(uniSize);
-		switch (WNetGetUniversalName(strFileName.c_str(), UNIVERSAL_NAME_INFO_LEVEL, uni.get(), &uniSize))
+		switch (WNetGetUniversalName(strFileName.c_str(), UNIVERSAL_NAME_INFO_LEVEL, uni.data(), &uniSize))
 		{
 		case NO_ERROR:
 			strFileName = uni->lpUniversalName;
@@ -444,7 +444,7 @@ string ConvertNameToUNC(string_view const Object)
 
 		case ERROR_MORE_DATA:
 			uni.reset(uniSize);
-			if (WNetGetUniversalName(strFileName.c_str(), UNIVERSAL_NAME_INFO_LEVEL, uni.get(), &uniSize) == NO_ERROR)
+			if (WNetGetUniversalName(strFileName.c_str(), UNIVERSAL_NAME_INFO_LEVEL, uni.data(), &uniSize) == NO_ERROR)
 				strFileName = uni->lpUniversalName;
 			break;
 		}

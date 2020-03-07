@@ -399,17 +399,17 @@ TEST_CASE("colors.parser")
 	}
 	InvalidTests[]
 	{
-		{L""sv, false},
-		{L"("sv, true},
-		{L"(z"sv, true},
-		{L"(z)"sv, false},
-		{L"(0:z)"sv, false},
-		{L"(z:0)"sv, false},
-		{L"(Tz)"sv, false},
-		{L"( )"sv, false},
-		{L"( 0)"sv, false},
-		{L"( -0)"sv, false},
-		{L"( +0)"sv, false},
+		{ {},            false },
+		{ L"("sv,        true  },
+		{ L"(z"sv,       true  },
+		{ L"(z)"sv,      false },
+		{ L"(0:z)"sv,    false },
+		{ L"(z:0)"sv,    false },
+		{ L"(Tz)"sv,     false },
+		{ L"( )"sv,      false },
+		{ L"( 0)"sv,     false },
+		{ L"( -0)"sv,    false },
+		{ L"( +0)"sv,    false },
 	};
 
 	for (const auto& i: InvalidTests)

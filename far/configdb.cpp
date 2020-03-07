@@ -2243,10 +2243,10 @@ private:
 	void Export(representation_destination&) const override {}
 };
 
-static const std::wregex& uuid_regex()
+static bool is_uuid(string_view const Str)
 {
 	static const std::wregex re(RE_BEGIN RE_ANY_UUID RE_END, std::regex::icase | std::regex::optimize);
-	return re;
+	return std::regex_search(ALL_CONST_RANGE(Str), re);
 }
 
 }
@@ -2476,7 +2476,7 @@ void config_provider::Export(const string& File)
 		for(auto& i: os::fs::enum_files(path::join(Global->Opt->ProfilePath, L"PluginsData"sv, Ext)))
 		{
 			i.FileName.resize(i.FileName.size() - (Ext.size() - 1));
-			if (std::regex_search(i.FileName, uuid_regex()))
+			if (is_uuid(i.FileName))
 			{
 				auto& PluginRoot = CreateChild(e, "plugin");
 				PluginRoot.SetAttribute("guid", encoding::utf8::get_bytes(i.FileName).c_str());
@@ -2525,9 +2525,8 @@ void config_provider::Import(const string& File)
 		const auto guid = plugin->Attribute("guid");
 		if (!guid)
 			continue;
-		const auto Guid = encoding::utf8::get_chars(guid);
 
-		if (std::regex_search(Guid, uuid_regex()))
+		if (const auto Guid = encoding::utf8::get_chars(guid); is_uuid(Guid))
 		{
 			Representation.SetRoot(&const_cast<tinyxml::XMLElement&>(*plugin));
 			CreatePluginsConfig(Guid)->Import(Representation);
