@@ -319,7 +319,7 @@ TEST_CASE("ConvertWildcards")
 	}
 	Tests[]
 	{
-		{ 0, L""sv,                         L""sv },
+		{ 0, {},                            {} },
 		{ 0, L"whatever"sv,                 L"whatever"sv },
 
 		{ 1, L"1"sv,                        L"AZ"sv },
@@ -373,36 +373,36 @@ TEST_CASE("CmpName")
 	}
 	Tests[]
 	{
-		{ 0, L""sv,                          true  },
+		{ 0, {},                             true  },
 		{ 0, L"."sv,                         true  },
 		{ 0, L"whatever"sv,                  true  },
 
-		{ 1, L""sv,                          false },
+		{ 1, {},                             false },
 		{ 1, L"1"sv,                         false },
 		{ 1, L"AZ"sv,                        false },
 		{ 1, L"ALZ"sv,                       true  },
 		{ 1, L"ALZA1"sv,                     true  },
 
-		{ 2, L""sv,                          false },
+		{ 2, {},                             false },
 		{ 2, L"foo.bar"sv,                   false },
 		{ 2, L"foo.txt"sv,                   true  },
 		{ 2, L".txt"sv,                      true  },
 		{ 2, L"foo.txt1"sv,                  false },
 
-		{ 3, L""sv,                          false },
+		{ 3, {},                             false },
 		{ 3, L"foo.bar"sv,                   false },
 		{ 3, L"1.bak"sv,                     true  },
 		{ 3, L"foo.bak"sv,                   true  },
 		{ 3, L"foo.bak1"sv,                  false },
 
-		{ 4, L""sv,                          false },
+		{ 4, {},                             false },
 		{ 4, L"12345.1234"sv,                false },
 		{ 4, L"12345.12345"sv,               true  },
 		{ 4, L"1.234.123.4"sv,               true  },
 		{ 4, L"..........."sv,               true  },
 		{ 4, L"123456.12345"sv,              false },
 
-		{ 5, L""sv,                          false },
+		{ 5, {},                             false },
 		{ 5, L"1"sv,                         false },
 		{ 5, L"_NEW"sv,                      true  },
 		{ 5, L"1_NEW"sv,                     true  },
@@ -410,13 +410,13 @@ TEST_CASE("CmpName")
 		{ 5, L"1_NEW.2"sv,                   true  },
 		{ 5, L"1_NEW2"sv,                    false },
 
-		{ 6, L""sv,                          false },
+		{ 6, {},                             false },
 		{ 6, L"1"sv,                         false },
 		{ 6, L"Rx.1234999.rForTheCourse"sv,  true  },
 		{ 6, L"Rx.1234999.QrForTheCourse"sv, true  },
 		{ 6, L"Rx.999.rForTheCourse"sv,      false },
 
-		{ 7, L""sv,                          false },
+		{ 7, {},                             false },
 		{ 7, L".bar.2"sv,                    true  },
 		{ 7, L"..2"sv,                       true  },
 		{ 7, L"foo..2"sv,                    true  },

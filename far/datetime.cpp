@@ -718,11 +718,11 @@ TEST_CASE("datetime.parse.duration")
 	}
 	Tests[]
 	{
-		{ L""sv,       L"  :  :  .       "sv,              0_hns, },
-		{ L""sv,       L"  :  :  .      1"sv,              1_hns, },
-		{ L""sv,       L"  :  :  . 12    "sv,              12_hns, },
+		{ {},          L"  :  :  .       "sv,              0_hns, },
+		{ {},          L"  :  :  .      1"sv,              1_hns, },
+		{ {},          L"  :  :  . 12    "sv,              12_hns, },
 		{ L"3"sv,      L"  :42:  .       "sv,              3_d + 42min, },
-		{ L""sv,       L"33:  :  .       "sv,              33h, },
+		{ {},          L"33:  :  .       "sv,              33h, },
 		{ L"1"sv,      L"  :  :  .       "sv,              1_d, },
 		{ L"512"sv,    L"12:34:56.7890123"sv,              512_d + 12h + 34min + 56s + 789ms + 123_hns, },
 	};

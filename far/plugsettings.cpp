@@ -71,7 +71,7 @@ const void* AbstractSettings::Add(const void* Data, size_t Size)
 void* AbstractSettings::Allocate(size_t Size)
 {
 	m_Data.emplace_back(Size);
-	return m_Data.back().get();
+	return m_Data.back().data();
 }
 
 class PluginSettings: public AbstractSettings

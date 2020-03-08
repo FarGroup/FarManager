@@ -84,9 +84,9 @@ string MakeTemp(string_view Prefix, bool const WithTempPath, string_view const U
 
 	bool UseSystemFunction = true;
 
-	const auto Generator = [&]()
+	const auto Generator = [&]
 	{
-		if (!UseSystemFunction || !GetTempFileName(strPath.c_str(), PrefixStr.c_str(), Unique, Buffer.get()))
+		if (!UseSystemFunction || !GetTempFileName(strPath.c_str(), PrefixStr.c_str(), Unique, Buffer.data()))
 		{
 			// GetTempFileName uses only the last 16 bits of Unique.
 			// We either did a full round trip through them or GetTempFileName failed for whatever reason.
@@ -94,7 +94,7 @@ string MakeTemp(string_view Prefix, bool const WithTempPath, string_view const U
 			return path::join(strPath, concat(Prefix, to_hex_wstring(Unique), L".tmp"sv));
 		}
 
-		return string(Buffer.get());
+		return string(Buffer.data());
 	};
 
 	for (;;)

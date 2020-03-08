@@ -5247,22 +5247,22 @@ TEST_CASE("macro.splitpath")
 	}
 	Tests[]
 	{
-		{ L"C:"sv,                                L"C:"sv,                L""sv,         L""sv,     L""sv,     },
-		{ L"C:\\"sv,                              L"C:"sv,                L"\\"sv,       L""sv,     L""sv,     },
-		{ L"C:\\path"sv,                          L"C:"sv,                L"\\"sv,       L"path"sv, L""sv,     },
-		{ L"C:\\.ext"sv,                          L"C:"sv,                L"\\"sv,       L""sv,     L".ext"sv, },
+		{ L"C:"sv,                                L"C:"sv,                {},            {},        {},        },
+		{ L"C:\\"sv,                              L"C:"sv,                L"\\"sv,       {},        {},        },
+		{ L"C:\\path"sv,                          L"C:"sv,                L"\\"sv,       L"path"sv, {},        },
+		{ L"C:\\.ext"sv,                          L"C:"sv,                L"\\"sv,       {},        L".ext"sv, },
 		{ L"C:\\path.ext"sv,                      L"C:"sv,                L"\\"sv,       L"path"sv, L".ext"sv, },
-		{ L"C:\\path\\file"sv,                    L"C:"sv,                L"\\path\\"sv, L"file"sv, L""sv,     },
-		{ L"C:\\path\\.ext"sv,                    L"C:"sv,                L"\\path\\"sv, L""sv,     L".ext"sv, },
+		{ L"C:\\path\\file"sv,                    L"C:"sv,                L"\\path\\"sv, L"file"sv, {},        },
+		{ L"C:\\path\\.ext"sv,                    L"C:"sv,                L"\\path\\"sv, {},        L".ext"sv, },
 		{ L"C:\\path\\file.ext"sv,                L"C:"sv,                L"\\path\\"sv, L"file"sv, L".ext"sv, },
 
-		{ L"\\\\server\\share"sv,                 L"\\\\server\\share"sv, L""sv,         L""sv,     L""sv,     },
-		{ L"\\\\server\\share\\"sv,               L"\\\\server\\share"sv, L"\\"sv,       L""sv,     L""sv,     },
-		{ L"\\\\server\\share\\path"sv,           L"\\\\server\\share"sv, L"\\"sv,       L"path"sv, L""sv,     },
-		{ L"\\\\server\\share\\.ext"sv,           L"\\\\server\\share"sv, L"\\"sv,       L""sv,     L".ext"sv, },
+		{ L"\\\\server\\share"sv,                 L"\\\\server\\share"sv, {},            {},        {},        },
+		{ L"\\\\server\\share\\"sv,               L"\\\\server\\share"sv, L"\\"sv,       {},        {},        },
+		{ L"\\\\server\\share\\path"sv,           L"\\\\server\\share"sv, L"\\"sv,       L"path"sv, {},        },
+		{ L"\\\\server\\share\\.ext"sv,           L"\\\\server\\share"sv, L"\\"sv,       {},        L".ext"sv, },
 		{ L"\\\\server\\share\\path.ext"sv,       L"\\\\server\\share"sv, L"\\"sv,       L"path"sv, L".ext"sv, },
-		{ L"\\\\server\\share\\path\\file"sv,     L"\\\\server\\share"sv, L"\\path\\"sv, L"file"sv, L""sv,     },
-		{ L"\\\\server\\share\\path\\.ext"sv,     L"\\\\server\\share"sv, L"\\path\\"sv, L""sv,     L".ext"sv, },
+		{ L"\\\\server\\share\\path\\file"sv,     L"\\\\server\\share"sv, L"\\path\\"sv, L"file"sv, {},        },
+		{ L"\\\\server\\share\\path\\.ext"sv,     L"\\\\server\\share"sv, L"\\path\\"sv, {},        L".ext"sv, },
 		{ L"\\\\server\\share\\path\\file.ext"sv, L"\\\\server\\share"sv, L"\\path\\"sv, L"file"sv, L".ext"sv, },
 	};
 

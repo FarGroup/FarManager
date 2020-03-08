@@ -209,7 +209,7 @@ TEST_CASE("from_string")
 	REQUIRE_THROWS_AS(from_string<unsigned int>(L"4294967296"sv), std::out_of_range);
 	REQUIRE_THROWS_AS(from_string<unsigned int>(L"-42"sv), std::out_of_range);
 	REQUIRE_THROWS_AS(from_string<int>(L"fubar"sv), std::invalid_argument);
-	REQUIRE_THROWS_AS(from_string<int>(L""sv), std::invalid_argument);
+	REQUIRE_THROWS_AS(from_string<int>({}), std::invalid_argument);
 	REQUIRE_THROWS_AS(from_string<int>(L" 42"sv), std::invalid_argument);
 	REQUIRE_THROWS_AS(from_string<int>(L" +42"sv), std::invalid_argument);
 
@@ -476,14 +476,14 @@ TEST_CASE("string_utils.cut")
 		{ L"12345"sv, 6, L"12345"sv, L"12345"sv, },
 		{ L"12345"sv, 3, L"345"sv,   L"123"sv,   },
 		{ L"12345"sv, 1, L"5"sv,     L"1"sv,     },
-		{ L"12345"sv, 0, L""sv,      L""sv,      },
+		{ L"12345"sv, 0, {},         {},         },
 
 		{ L"1"sv,     2, L"1"sv,     L"1"sv,     },
 		{ L"1"sv,     1, L"1"sv,     L"1"sv,     },
-		{ L"1"sv,     0, L""sv,      L""sv,      },
+		{ L"1"sv,     0, {},         {},         },
 
-		{ L""sv,      1, L""sv,      L""sv,      },
-		{ L""sv,      0, L""sv,      L""sv,      },
+		{ {},         1, {},         {},         },
+		{ {},         0, {},         {},         },
 	};
 
 	for (const auto& i: Tests)
@@ -511,9 +511,9 @@ TEST_CASE("string_utils.pad")
 		{ L"1"sv,   1, L"1"sv,     L"1"sv,     },
 		{ L"1"sv,   0, L"1"sv,     L"1"sv,     },
 
-		{ L""sv,    2, L"  "sv,    L"  "sv,    },
-		{ L""sv,    1, L" "sv,     L" "sv,     },
-		{ L""sv,    0, L""sv,      L""sv,      },
+		{ {},       2, L"  "sv,    L"  "sv,    },
+		{ {},       1, L" "sv,     L" "sv,     },
+		{ {},       0, {},         {},         },
 	};
 
 	for (const auto& i: Tests)
@@ -536,8 +536,8 @@ TEST_CASE("string_utils.trim")
 		{ L"  12345"sv,   L"12345"sv,   L"  12345"sv, L"12345"sv, },
 		{ L"12345  "sv,   L"12345  "sv, L"12345"sv,   L"12345"sv, },
 		{ L"  12345  "sv, L"12345  "sv, L"  12345"sv, L"12345"sv, },
-		{ L" "sv,         L""sv,        L""sv,        L""sv,      },
-		{ L""sv,          L""sv,        L""sv,        L""sv,      },
+		{ L" "sv,         {},           {},           {},         },
+		{ {},             {},           {},           {},         },
 	};
 
 	for (const auto& i: Tests)
@@ -562,15 +562,15 @@ TEST_CASE("string_utils.fit")
 		{ L"12345"sv,  5,   L"12345"sv,     L"12345"sv,     L"12345"sv,   },
 		{ L"12345"sv,  3,   L"123"sv,       L"123"sv,       L"123"sv,     },
 		{ L"12345"sv,  1,   L"1"sv,         L"1"sv,         L"1"sv,       },
-		{ L"12345"sv,  0,   L""sv,          L""sv,          L""sv,        },
+		{ L"12345"sv,  0,   {},             {},             {},           },
 
 		{ L"1"sv,      2,   L"1 "sv,        L"1 "sv,        L" 1"sv,      },
 		{ L"1"sv,      1,   L"1"sv,         L"1"sv,         L"1"sv,       },
-		{ L"1"sv,      0,   L""sv,          L""sv,          L""sv,        },
+		{ L"1"sv,      0,   {},             {},             {},           },
 
-		{ L""sv,       2,   L"  "sv,        L"  "sv,        L"  "sv,      },
-		{ L""sv,       1,   L" "sv,         L" "sv,         L" "sv,       },
-		{ L""sv,       0,   L""sv,          L""sv,          L""sv,        },
+		{ {},          2,   L"  "sv,        L"  "sv,        L"  "sv,      },
+		{ {},          1,   L" "sv,         L" "sv,         L" "sv,       },
+		{ {},          0,   {},             {},             {},           },
 	};
 
 	for (const auto& i: Tests)
@@ -596,12 +596,12 @@ TEST_CASE("string_utils.contains")
 		{ L"12345"sv,      L"123"sv,    true,   false,  true,   },
 		{ L"12345"sv,      L"345"sv,    false,  true,   true,   },
 		{ L"12345"sv,      L"234"sv,    false,  false,  true,   },
-		{ L"12345"sv,      L""sv,       true,   true,   true,   },
+		{ L"12345"sv,      {},          true,   true,   true,   },
 		{ L"12345"sv,      L"foo"sv,    false,  false,  false,  },
 		{ L"12345"sv,      L"24"sv,     false,  false,  false,  },
 
-		{ L""sv,           L"1"sv,      false,  false,  false,  },
-		{ L""sv,           L""sv,       true,   true,   true,   },
+		{ {},              L"1"sv,      false,  false,  false,  },
+		{ {},              {},          true,   true,   true,   },
 	};
 
 	for (const auto& i: Tests)
@@ -616,7 +616,7 @@ TEST_CASE("string_utils.quotes")
 {
 	REQUIRE(unquote(LR"("12"345")"s) == L"12345"sv);
 	REQUIRE(unquote(L"12345"s) == L"12345"sv);
-	REQUIRE(unquote(L""s) == L""sv);
+	REQUIRE(unquote(L""s).empty());
 
 	REQUIRE(quote(L"12345"s) == LR"("12345")"sv);
 	REQUIRE(quote(LR"("12345")"s) == LR"("12345")"sv);
@@ -643,12 +643,12 @@ TEST_CASE("string_utils.split_name_value")
 	{
 		{ L"foo=bar"sv,    { L"foo"sv,   L"bar"sv,   }, },
 		{ L"foo=bar="sv,   { L"foo"sv,   L"bar="sv,  }, },
-		{ L"=foo"sv,       { L""sv,      L"foo"sv,   }, },
-		{ L"==foo"sv,      { L""sv,      L"=foo"sv,  }, },
-		{ L"foo="sv,       { L"foo"sv,   L""sv,      }, },
+		{ L"=foo"sv,       { {},         L"foo"sv,   }, },
+		{ L"==foo"sv,      { {},         L"=foo"sv,  }, },
+		{ L"foo="sv,       { L"foo"sv,   {},         }, },
 		{ L"foo=="sv,      { L"foo"sv,   L"="sv,     }, },
-		{ L"="sv,          { L""sv,      L""sv,      }, },
-		{ L""sv,           { L""sv,      L""sv,      }, },
+		{ L"="sv,          { {},         {},         }, },
+		{ {},              { {},         {},         }, },
 		{ L"foo"sv,        { L"foo"sv,   L"foo"sv,   }, },
 	};
 
@@ -679,12 +679,12 @@ TEST_CASE("string_utils.misc")
 	}
 
 	REQUIRE(concat(L'a', L"bc", L"def"sv, L"1234"s) == L"abcdef1234"sv);
-	REQUIRE(concat(L""sv, L""sv) == L""sv);
-	REQUIRE(concat(L""sv) == L""sv);
+	REQUIRE(concat(L""sv, L""sv).empty());
+	REQUIRE(concat(L""sv).empty());
 
 	REQUIRE(erase_all(L"1,2,3,4,5"s, L',') == L"12345"sv);
 	REQUIRE(erase_all(L"12345"s, L',') == L"12345"sv);
-	REQUIRE(erase_all(L""s, L',') == L""sv);
+	REQUIRE(erase_all(L""s, L',').empty());
 
 	REQUIRE(join(std::array{ L"123"sv, L"45"sv, L""sv, L"6"sv }, L","sv) == L"123,45,,6"sv);
 

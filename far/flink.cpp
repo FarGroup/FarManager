@@ -221,9 +221,9 @@ bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointT
 								rdb->SymbolicLinkReparseBuffer.Flags=SYMLINK_FLAG_RELATIVE;
 							}
 
-							if (FillREPARSE_DATA_BUFFER(rdb.get(), strPrintName, strSubstituteName))
+							if (FillREPARSE_DATA_BUFFER(rdb.data(), strPrintName, strSubstituteName))
 							{
-								Result=SetREPARSE_DATA_BUFFER(Object,rdb.get());
+								Result=SetREPARSE_DATA_BUFFER(Object,rdb.data());
 							}
 							else
 							{
@@ -241,9 +241,9 @@ bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointT
 				const block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
 				rdb->ReparseTag=IO_REPARSE_TAG_MOUNT_POINT;
 
-				if (FillREPARSE_DATA_BUFFER(rdb.get(), strPrintName, strSubstituteName))
+				if (FillREPARSE_DATA_BUFFER(rdb.data(), strPrintName, strSubstituteName))
 				{
-					Result=SetREPARSE_DATA_BUFFER(Object,rdb.get());
+					Result=SetREPARSE_DATA_BUFFER(Object,rdb.data());
 				}
 				else
 				{
@@ -273,7 +273,7 @@ static bool GetREPARSE_DATA_BUFFER(const string& Object, REPARSE_DATA_BUFFER* rd
 bool DeleteReparsePoint(const string& Object)
 {
 	const block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
-	if (!GetREPARSE_DATA_BUFFER(Object, rdb.get()))
+	if (!GetREPARSE_DATA_BUFFER(Object, rdb.data()))
 		return false;
 
 	const os::fs::file fObject(Object, GetDesiredAccessForReparsePointChange(), 0, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT);
@@ -287,7 +287,7 @@ bool DeleteReparsePoint(const string& Object)
 bool GetReparsePointInfo(const string& Object, string& DestBuffer, LPDWORD ReparseTag)
 {
 	const block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
-	if (!GetREPARSE_DATA_BUFFER(Object, rdb.get()))
+	if (!GetREPARSE_DATA_BUFFER(Object, rdb.data()))
 		return false;
 
 	if (ReparseTag)
@@ -446,7 +446,7 @@ bool GetVHDInfo(const string& DeviceName, string &strVolumePath, VIRTUAL_STORAGE
 	for (;;)
 	{
 		InitStorage(Size);
-		if (Device.GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG_HOST_VOLUMES, Size, StorageDependencyInfo.get(), &Size))
+		if (Device.GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG_HOST_VOLUMES, Size, StorageDependencyInfo.data(), &Size))
 			break;
 		if (GetLastError() != ERROR_INSUFFICIENT_BUFFER)
 			return false;
@@ -472,7 +472,7 @@ string GetPathRoot(string_view const Path)
 bool ModifyReparsePoint(const string& Object,const string& NewData)
 {
 	const block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
-	if (!GetREPARSE_DATA_BUFFER(Object, rdb.get()))
+	if (!GetREPARSE_DATA_BUFFER(Object, rdb.data()))
 		return false;
 
 	switch (rdb->ReparseTag)
@@ -481,7 +481,7 @@ bool ModifyReparsePoint(const string& Object,const string& NewData)
 		{
 			const auto strPrintName = ConvertNameToFull(NewData);
 			const auto strSubstituteName = KernelPath(NTPath(strPrintName));
-			if (!FillREPARSE_DATA_BUFFER(rdb.get(), strPrintName, strSubstituteName))
+			if (!FillREPARSE_DATA_BUFFER(rdb.data(), strPrintName, strSubstituteName))
 			{
 				SetLastError(ERROR_INSUFFICIENT_BUFFER);
 				return false;
@@ -504,7 +504,7 @@ bool ModifyReparsePoint(const string& Object,const string& NewData)
 				rdb->SymbolicLinkReparseBuffer.Flags=SYMLINK_FLAG_RELATIVE;
 			}
 
-			if (!FillREPARSE_DATA_BUFFER(rdb.get(), strPrintName, strSubstituteName))
+			if (!FillREPARSE_DATA_BUFFER(rdb.data(), strPrintName, strSubstituteName))
 			{
 				SetLastError(ERROR_INSUFFICIENT_BUFFER);
 				return false;
@@ -516,13 +516,13 @@ bool ModifyReparsePoint(const string& Object,const string& NewData)
 		return false;
 	}
 
-	return SetREPARSE_DATA_BUFFER(Object,rdb.get());
+	return SetREPARSE_DATA_BUFFER(Object,rdb.data());
 }
 
 bool DuplicateReparsePoint(const string& Src,const string& Dst)
 {
 	const block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
-	return GetREPARSE_DATA_BUFFER(Src, rdb.get()) && SetREPARSE_DATA_BUFFER(Dst, rdb.get());
+	return GetREPARSE_DATA_BUFFER(Src, rdb.data()) && SetREPARSE_DATA_BUFFER(Dst, rdb.data());
 }
 
 void NormalizeSymlinkName(string &strLinkName)

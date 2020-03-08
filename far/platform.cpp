@@ -134,12 +134,12 @@ bool WNetGetConnection(const string_view LocalName, string &RemoteName)
 	Buffer[0] = L'\0';
 	auto Size = static_cast<DWORD>(Buffer.size());
 	const null_terminated C_LocalName(LocalName);
-	auto Result = ::WNetGetConnection(C_LocalName.c_str(), Buffer.get(), &Size);
+	auto Result = ::WNetGetConnection(C_LocalName.c_str(), Buffer.data(), &Size);
 
 	while (Result == ERROR_MORE_DATA)
 	{
 		Buffer.reset(Size);
-		Result = ::WNetGetConnection(C_LocalName.c_str(), Buffer.get(), &Size);
+		Result = ::WNetGetConnection(C_LocalName.c_str(), Buffer.data(), &Size);
 	}
 
 	const auto IsReceived = [](int Code) { return Code == NO_ERROR || Code == ERROR_NOT_CONNECTED || Code == ERROR_CONNECTION_UNAVAIL; };
@@ -147,7 +147,7 @@ bool WNetGetConnection(const string_view LocalName, string &RemoteName)
 	if (IsReceived(Result) && *Buffer)
 	{
 		// Size isn't updated if the buffer is large enough
-		RemoteName = Buffer.get();
+		RemoteName = Buffer.data();
 		return true;
 	}
 

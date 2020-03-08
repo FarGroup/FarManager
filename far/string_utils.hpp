@@ -53,13 +53,10 @@ inline bool IsEol(wchar_t x) { return x == L'\r' || x == L'\n'; }
 inline bool IsBlankOrEos(wchar_t x) { return std::iswblank(x) || !x; }
 
 [[nodiscard]]
-const string& GetSpaces();
+string_view GetSpaces();
 
 [[nodiscard]]
-const string& GetEols();
-
-[[nodiscard]]
-const string& GetSpacesAndEols();
+string_view GetEols();
 
 [[nodiscard]]
 bool is_alpha(wchar_t Char);

@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/bytes_view.hpp"
 #include "common/enum_tokens.hpp"
 #include "common/io.hpp"
+#include "common/placement.hpp"
 
 // External:
 #include "format.hpp"
@@ -55,6 +56,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 const auto BufferSize = 4096;
 static_assert(BufferSize % sizeof(wchar_t) == 0);
+
+WARNING_PUSH()
+WARNING_DISABLE_MSC(4582) // no page                                                'class': constructor is not implicitly called
+WARNING_DISABLE_MSC(4583) // no page                                                'class': destructor is not implicitly called
 
 enum_lines::enum_lines(std::istream& Stream, uintptr_t CodePage):
 	m_Stream(Stream),
@@ -66,9 +71,16 @@ enum_lines::enum_lines(std::istream& Stream, uintptr_t CodePage):
 {
 	Stream.exceptions(m_StreamExceptions & ~(Stream.failbit | Stream.eofbit));
 
-	m_wStr.reserve(1024);
-	if (!IsUnicodeCodePage(m_CodePage))
-		m_Str.reserve(m_wStr.capacity());
+	if (IsUnicodeCodePage(m_CodePage))
+	{
+		placement::construct(m_wStr);
+		m_wStr.reserve(default_capacity);
+	}
+	else
+	{
+		placement::construct(m_ConversionData);
+		m_ConversionData.m_Bytes.reserve(default_capacity);
+	}
 }
 
 enum_lines::~enum_lines()
@@ -81,13 +93,20 @@ enum_lines::~enum_lines()
 	{
 		// TODO: log
 	}
+
+	if (IsUnicodeCodePage(m_CodePage))
+		placement::destruct(m_wStr);
+	else
+		placement::destruct(m_ConversionData);
 }
+
+WARNING_POP()
 
 bool enum_lines::get(bool Reset, file_line& Value) const
 {
 	if (Reset)
 	{
-		m_Data = {};
+		m_BufferView = {};
 
 		if (!m_Stream.bad() && m_Stream.eof())
 			m_Stream.clear();
@@ -125,11 +144,11 @@ static size_t get_chars(uintptr_t const Codepage, std::string_view const From, s
 
 bool enum_lines::fill() const
 {
-	const auto Read = io::read(m_Stream, { m_Buffer.get(), m_Buffer.size() });
+	const auto Read = io::read(m_Stream, m_Buffer);
 	if (!Read)
 		return false;
 
-	m_Data = { m_Buffer.get(), Read };
+	m_BufferView = { m_Buffer.data(), Read };
 
 	if (IsUnicodeCodePage(m_CodePage))
 	{
@@ -141,13 +160,13 @@ bool enum_lines::fill() const
 			// - People often use the editor to edit binary files
 			// - If we return REPLACE_CHAR, the incomplete char will be lost
 			// - If we pretend that the remaining bytes are \0, the worst thing that could happen is trailing \0 bytes after save.
-			std::fill_n(m_Buffer.get() + Read, MissingBytes, '\0');
-			m_Data = { m_Buffer.get(), Read + MissingBytes };
+			std::fill_n(m_Buffer.begin() + Read, MissingBytes, '\0');
+			m_BufferView = { m_Buffer.data(), Read + MissingBytes };
 			m_ConversionError = true;
 		}
 
 		if (m_CodePage == CP_REVERSEBOM)
-			swap_bytes(m_Buffer.get(), m_Buffer.get(), m_Data.size());
+			swap_bytes(m_Buffer.data(), m_Buffer.data(), m_BufferView.size());
 	}
 
 	return true;
@@ -204,12 +223,12 @@ bool enum_lines::GetTString(std::basic_string<T>& To, eol& Eol, bool BigEndian) 
 
 	const auto Cast = [&]
 	{
-		return std::basic_string_view{ static_cast<const T*>(static_cast<const void*>(m_Data.data())), m_Data.size() / sizeof(T) };
+		return std::basic_string_view{ static_cast<const T*>(static_cast<const void*>(m_BufferView.data())), m_BufferView.size() / sizeof(T) };
 	};
 
 	for (;;)
 	{
-		if (m_Data.empty() && !fill())
+		if (m_BufferView.empty() && !fill())
 		{
 			Eol = eol::none;
 			return !To.empty();
@@ -222,16 +241,16 @@ bool enum_lines::GetTString(std::basic_string<T>& To, eol& Eol, bool BigEndian) 
 
 		if (EolPos == StrData.npos)
 		{
-			m_Data = {};
+			m_BufferView = {};
 			continue;
 		}
 
-		m_Data.remove_prefix(EolPos * sizeof(T));
+		m_BufferView.remove_prefix(EolPos * sizeof(T));
 
 		if (StrData[EolPos] == EolLf)
 		{
 			Eol = eol::unix;
-			m_Data.remove_prefix(sizeof(T));
+			m_BufferView.remove_prefix(sizeof(T));
 			return true;
 		}
 
@@ -239,13 +258,13 @@ bool enum_lines::GetTString(std::basic_string<T>& To, eol& Eol, bool BigEndian) 
 		{
 			if (const auto ToRemove = ProcessAfterCr(StrData.substr(EolPos + 1)))
 			{
-				m_Data.remove_prefix(ToRemove * sizeof(T));
+				m_BufferView.remove_prefix(ToRemove * sizeof(T));
 				return true;
 			}
 		}
 
 		// (('\r' or '\r\r') and DataEnd): inconclusive, get more
-		m_Data = {};
+		m_BufferView = {};
 
 		if (!fill())
 		{
@@ -253,7 +272,7 @@ bool enum_lines::GetTString(std::basic_string<T>& To, eol& Eol, bool BigEndian) 
 			return true;
 		}
 
-		m_Data.remove_prefix((ProcessAfterCr(Cast()) - 1) * sizeof(T));
+		m_BufferView.remove_prefix((ProcessAfterCr(Cast()) - 1) * sizeof(T));
 		return true;
 	}
 }
@@ -264,33 +283,36 @@ bool enum_lines::GetString(string_view& Str, eol& Eol) const
 	{
 		if (!GetTString(m_wStr, Eol, m_CodePage == CP_REVERSEBOM))
 			return false;
+
+		Str = m_wStr;
+		return true;
 	}
-	else
+
+
+	if (!GetTString(m_ConversionData.m_Bytes, Eol))
+		return false;
+
+	if (m_ConversionData.m_Bytes.empty())
 	{
-		if (!GetTString(m_Str, Eol))
-			return false;
-
-		if (!m_Str.empty())
-		{
-			m_wStr.resize(std::max(m_wStr.size(), m_Str.size()));
-
-			for (auto Overflow = true; Overflow;)
-			{
-				const auto Size = get_chars(m_CodePage, m_Str, m_wStr, m_ConversionError);
-				Overflow = Size > m_wStr.size();
-				m_wStr.resize(Size);
-			}
-
-			m_Str.clear();
-		}
-		else
-		{
-			m_wStr.clear();
-		}
+		Str = {};
+		return true;
 	}
 
-	Str = m_wStr;
-	return true;
+	if (m_ConversionData.m_Bytes.size() > m_ConversionData.m_wBuffer.size())
+		m_ConversionData.m_wBuffer.reset(m_ConversionData.m_Bytes.size());
+
+	for (;;)
+	{
+		const auto Size = get_chars(m_CodePage, m_ConversionData.m_Bytes, m_ConversionData.m_wBuffer, m_ConversionError);
+		if (Size <= m_ConversionData.m_wBuffer.size())
+		{
+			m_ConversionData.m_Bytes.clear();
+			Str = { m_ConversionData.m_wBuffer.data(), Size };
+			return true;
+		}
+
+		m_ConversionData.m_wBuffer.reset(Size);
+	}
 }
 
 // If the file contains a BOM this function will advance the file pointer by the BOM size (either 2 or 3)
@@ -401,13 +423,13 @@ static bool GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage,
 	char_ptr const Buffer(Size);
 	size_t ReadSize = 0;
 
-	const auto ReadResult = File.Read(Buffer.get(), Size, ReadSize);
+	const auto ReadResult = File.Read(Buffer.data(), Size, ReadSize);
 	File.SetPointer(0, nullptr, FILE_BEGIN);
 
 	if (!ReadResult || !ReadSize)
 		return false;
 
-	if (GetUnicodeCpUsingWindows(Buffer.get(), ReadSize, Codepage))
+	if (GetUnicodeCpUsingWindows(Buffer.data(), ReadSize, Codepage))
 		return true;
 
 	NotUTF16 = true;
@@ -416,7 +438,7 @@ static bool GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage,
 	const auto WholeFileRead = File.GetSize(FileSize) && ReadSize == FileSize;
 	bool PureAscii = false;
 
-	if (encoding::is_valid_utf8({ Buffer.get(), ReadSize }, !WholeFileRead, PureAscii))
+	if (encoding::is_valid_utf8({ Buffer.data(), ReadSize }, !WholeFileRead, PureAscii))
 	{
 		if (!PureAscii)
 			Codepage = CP_UTF8;
@@ -430,7 +452,7 @@ static bool GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage,
 
 	NotUTF8 = true;
 
-	return GetCpUsingUniversalDetectorWithExceptions({ Buffer.get(), ReadSize }, Codepage);
+	return GetCpUsingUniversalDetectorWithExceptions({ Buffer.data(), ReadSize }, Codepage);
 }
 
 uintptr_t GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage, bool* SignatureFound, bool UseHeuristics)
@@ -468,22 +490,22 @@ TEST_CASE("enum_lines")
 	}
 	Tests[]
 	{
-		{ L""sv, {
+		{ {}, {
 		}},
 		{ L"dQw4w9WgXcQ"sv, {
 			{ L"dQw4w9WgXcQ"sv, eol::none },
 		}},
 		{ L"\r"sv, {
-			{ L""sv, eol::mac },
+			{ {}, eol::mac },
 		}},
 		{ L"\n"sv, {
-			{ L""sv, eol::unix },
+			{ {}, eol::unix },
 		}},
 		{ L"\r\n"sv, {
-			{ L""sv, eol::win },
+			{ {}, eol::win },
 		}},
 		{ L"\r\r\n"sv, {
-			{ L""sv, eol::bad_win },
+			{ {}, eol::bad_win },
 		}},
 		{ L"Oi!\r"sv, {
 			{ L"Oi!"sv, eol::mac },
@@ -498,53 +520,53 @@ TEST_CASE("enum_lines")
 			{ L"Oi!"sv, eol::bad_win },
 		}},
 		{ L"\rOi!"sv, {
-			{ L""sv,    eol::mac },
+			{ {},       eol::mac },
 			{ L"Oi!"sv, eol::none },
 		}},
 		{ L"\nOi!"sv, {
-			{ L""sv,    eol::unix },
+			{ {},       eol::unix },
 			{ L"Oi!"sv, eol::none },
 		}},
 		{ L"\r\nOi!"sv, {
-			{ L""sv,    eol::win },
+			{ {},       eol::win },
 			{ L"Oi!"sv, eol::none },
 		}},
 		{ L"\r\r\nOi!"sv, {
-			{ L""sv,    eol::bad_win },
+			{ {},       eol::bad_win },
 			{ L"Oi!"sv, eol::none },
 		}},
 		{ L"\r\r"sv, {
-			{ L""sv, eol::mac },
-			{ L""sv, eol::mac },
+			{ {}, eol::mac },
+			{ {}, eol::mac },
 		}},
 		{ L"\n\n"sv, {
-			{ L""sv, eol::unix },
-			{ L""sv, eol::unix },
+			{ {}, eol::unix },
+			{ {}, eol::unix },
 		}},
 		{ L"\r\n\r\n"sv, {
-			{ L""sv, eol::win },
-			{ L""sv, eol::win },
+			{ {}, eol::win },
+			{ {}, eol::win },
 		}},
 		{ L"\r\r\n\r\r\n"sv, {
-			{ L""sv, eol::bad_win },
-			{ L""sv, eol::bad_win },
+			{ {}, eol::bad_win },
+			{ {}, eol::bad_win },
 		}},
 		{ L"\n\r\r\n\n\r\r\r\r\n\r\n\r\r"sv, {
-			{ L""sv, eol::unix },
-			{ L""sv, eol::bad_win },
-			{ L""sv, eol::unix },
-			{ L""sv, eol::mac },
-			{ L""sv, eol::mac },
-			{ L""sv, eol::bad_win },
-			{ L""sv, eol::win },
-			{ L""sv, eol::mac },
-			{ L""sv, eol::mac },
+			{ {}, eol::unix },
+			{ {}, eol::bad_win },
+			{ {}, eol::unix },
+			{ {}, eol::mac },
+			{ {}, eol::mac },
+			{ {}, eol::bad_win },
+			{ {}, eol::win },
+			{ {}, eol::mac },
+			{ {}, eol::mac },
 		}},
 		{ L"Ho\nho\rho!\r\n\r\r\n"sv, {
 			{ L"Ho"sv,  eol::unix },
 			{ L"ho"sv,  eol::mac },
 			{ L"ho!"sv, eol::win },
-			{ L""sv,    eol::bad_win },
+			{ {},       eol::bad_win },
 		}},
 	};
 

@@ -121,7 +121,7 @@ public:
 
 		m_Buffer.reset(Size);
 
-		if (!GetFileVersionInfo(Filename.c_str(), 0, Size, m_Buffer.get()))
+		if (!GetFileVersionInfo(Filename.c_str(), 0, Size, m_Buffer.data()))
 			return false;
 
 		const auto Translation = GetValue<DWORD>(L"\\VarFileInfo\\Translation"sv);
@@ -148,7 +148,7 @@ private:
 	{
 		UINT Length;
 		T* Result;
-		return VerQueryValue(m_Buffer.get(), null_terminated(SubBlock).c_str(), reinterpret_cast<void**>(&Result), &Length) && Length? Result : nullptr;
+		return VerQueryValue(m_Buffer.data(), null_terminated(SubBlock).c_str(), reinterpret_cast<void**>(&Result), &Length) && Length? Result : nullptr;
 	}
 
 	string m_BlockPath;
@@ -1970,7 +1970,7 @@ static int WINAPI ProcessNameA(const char *Param1, char *Param2, DWORD Flags) no
 		const auto strP1 = encoding::oem::get_chars(Param1), strP2 = encoding::oem::get_chars(Param2);
 		const auto size = static_cast<int>(strP1.size() + strP2.size() + oldfar::NM) + 1; //а хрен ещё как угадать скока там этот Param2 для PN_GENERATENAME
 		const wchar_t_ptr_n<os::default_buffer_size> p(size);
-		*std::copy(ALL_CONST_RANGE(strP2), p.get()) = L'\0';
+		*std::copy(ALL_CONST_RANGE(strP2), p.data()) = L'\0';
 
 		auto newFlags = PN_NONE;
 
@@ -1993,10 +1993,10 @@ static int WINAPI ProcessNameA(const char *Param1, char *Param2, DWORD Flags) no
 			newFlags |= PN_GENERATENAME | (Flags & 0xFF);
 		}
 
-		const auto ret = static_cast<int>(pluginapi::apiProcessName(strP1.c_str(), p.get(), size, newFlags));
+		const auto ret = static_cast<int>(pluginapi::apiProcessName(strP1.c_str(), p.data(), size, newFlags));
 
 		if (ret && (newFlags & PN_GENERATENAME))
-			encoding::oem::get_bytes({ p.get(), static_cast<size_t>(ret - 1) }, { Param2, static_cast<size_t>(size) });
+			encoding::oem::get_bytes({ p.data(), static_cast<size_t>(ret - 1) }, { Param2, static_cast<size_t>(size) });
 
 		return ret;
 	}
@@ -2261,12 +2261,12 @@ static int WINAPI FarInputBoxA(const char *Title, const char *Prompt, const char
 			Prompt? encoding::oem::get_chars(Prompt).c_str() : nullptr,
 			HistoryName? encoding::oem::get_chars(HistoryName).c_str() : nullptr,
 			SrcText? encoding::oem::get_chars(SrcText).c_str() : nullptr,
-			Buffer.get(), Buffer.size(),
+			Buffer.data(), Buffer.size(),
 			HelpTopic? encoding::oem::get_chars(HelpTopic).c_str() : nullptr,
 			NewFlags);
 
 		if (ret && DestText)
-			encoding::oem::get_bytes(Buffer.get(), { DestText, static_cast<size_t>(DestLength) + 1 });
+			encoding::oem::get_bytes(Buffer.data(), { DestText, static_cast<size_t>(DestLength) + 1 });
 
 		return ret;
 	}
@@ -2699,7 +2699,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 				if (item_size)
 				{
 					block_ptr<FarDialogItem> Buffer(item_size);
-					FarGetDialogItem gdi = {sizeof(FarGetDialogItem), item_size, Buffer.get()};
+					FarGetDialogItem gdi = {sizeof(FarGetDialogItem), item_size, Buffer.data()};
 
 					if (gdi.Item)
 					{
@@ -3272,7 +3272,7 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber, int X1, int Y1, int X2, in
 			{
 				size_t const Size = pluginapi::apiSendDlgMessage(hDlg, DM_GETDLGITEM, i, nullptr);
 				block_ptr<FarDialogItem> Buffer(Size);
-				FarGetDialogItem gdi = {sizeof(FarGetDialogItem), Size, Buffer.get()};
+				FarGetDialogItem gdi = {sizeof(FarGetDialogItem), Size, Buffer.data()};
 
 				if (gdi.Item)
 				{
@@ -3393,7 +3393,7 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 								PPI.reset(NewPPISize);
 								PPISize = NewPPISize;
 							}
-							FarGetPluginPanelItem gpi { sizeof(FarGetPluginPanelItem), PPISize, PPI.get() };
+							FarGetPluginPanelItem gpi { sizeof(FarGetPluginPanelItem), PPISize, PPI.data() };
 							pluginapi::apiPanelControl(hPlugin, ControlCode, i, &gpi);
 							if (PPI)
 							{
@@ -3410,7 +3410,7 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 					{
 						block_ptr<FarPanelDirectory> dirInfo(dirSize);
 						dirInfo->StructSize=sizeof(FarPanelDirectory);
-						pluginapi::apiPanelControl(hPlugin, FCTL_GETPANELDIRECTORY, dirSize, dirInfo.get());
+						pluginapi::apiPanelControl(hPlugin, FCTL_GETPANELDIRECTORY, dirSize, dirInfo.data());
 						encoding::oem::get_bytes(dirInfo->Name,OldPI->CurDir);
 					}
 
@@ -3455,7 +3455,7 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 					{
 						block_ptr<FarPanelDirectory> dirInfo(dirSize);
 						dirInfo->StructSize=sizeof(FarPanelDirectory);
-						pluginapi::apiPanelControl(hPlugin, FCTL_GETPANELDIRECTORY, dirSize, dirInfo.get());
+						pluginapi::apiPanelControl(hPlugin, FCTL_GETPANELDIRECTORY, dirSize, dirInfo.data());
 						encoding::oem::get_bytes(dirInfo->Name, OldPI->CurDir);
 					}
 					wchar_t ColumnTypes[sizeof(OldPI->ColumnTypes)];
@@ -4131,9 +4131,9 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 					if (const size_t FileNameSize = pluginapi::apiEditorControl(-1, ECTL_GETFILENAME, 0, nullptr))
 					{
 						wchar_t_ptr_n<os::default_buffer_size> FileName(FileNameSize);
-						pluginapi::apiEditorControl(-1,ECTL_GETFILENAME,FileNameSize,FileName.get());
+						pluginapi::apiEditorControl(-1, ECTL_GETFILENAME, FileNameSize, FileName.data());
 						static std::unique_ptr<char[]> fn;
-						fn.reset(UnicodeToAnsi(FileName.get()));
+						fn.reset(UnicodeToAnsi(FileName.data()));
 						oei->FileName = fn.get();
 					}
 
@@ -4427,7 +4427,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 				block_ptr<EditorBookmarks> newbm(size);
 				newbm->StructSize = sizeof(*newbm);
 				newbm->Size = size;
-				if (!pluginapi::apiEditorControl(-1,Command,0,newbm.get()))
+				if (!pluginapi::apiEditorControl(-1, Command, 0, newbm.data()))
 				{
 					return FALSE;
 				}
@@ -4509,9 +4509,9 @@ static int WINAPI FarViewerControlA(int Command, void* Param) noexcept
 				if (const size_t FileNameSize = pluginapi::apiViewerControl(-1, VCTL_GETFILENAME, 0, nullptr))
 				{
 					const wchar_t_ptr_n<os::default_buffer_size> FileName(FileNameSize);
-					pluginapi::apiViewerControl(-1,VCTL_GETFILENAME,FileNameSize,FileName.get());
+					pluginapi::apiViewerControl(-1, VCTL_GETFILENAME, FileNameSize, FileName.data());
 					static std::unique_ptr<char[]> filename;
-					filename.reset(UnicodeToAnsi(FileName.get()));
+					filename.reset(UnicodeToAnsi(FileName.data()));
 					viA->FileName = filename.get();
 				}
 				viA->FileSize = viW.FileSize;
@@ -5183,9 +5183,9 @@ private:
 		pVFDPanelItemA = nullptr;
 		string_view const Path = Info->Path;
 		char_ptr_n<os::default_buffer_size> const PathA(Path.size() + 1);
-		encoding::oem::get_bytes(Path, { PathA.get(), PathA.size() });
+		encoding::oem::get_bytes(Path, PathA);
 		int ItemsNumber = 0;
-		ExecuteFunction(es, Info->hPanel, &pVFDPanelItemA, &ItemsNumber, PathA.get());
+		ExecuteFunction(es, Info->hPanel, &pVFDPanelItemA, &ItemsNumber, PathA.data());
 		Info->ItemsNumber = ItemsNumber;
 
 		if (es && ItemsNumber)

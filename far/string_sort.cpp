@@ -359,8 +359,8 @@ TEST_CASE("strings.sorting")
 	}
 	Tests[]
 	{
-		{ L""sv,       L""sv,              0,  0, },
-		{ L""sv,       L"a"sv,            -1, -1, },
+		{ {},          {},                 0,  0, },
+		{ {},          L"a"sv,            -1, -1, },
 		{ L"a"sv,      L"a"sv,             0,  0, },
 		{ L"a"sv,      L"A"sv,             1,  0, },
 

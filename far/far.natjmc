@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copy to %USERPROFILE%\Documents\Visual Studio 2019\Visualizers
+-->
+<NonUserCode>
+<File Name="*\thirdparty\*" />
+</NonUserCode>

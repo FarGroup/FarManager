@@ -99,11 +99,11 @@ static string str_vprintf(const wchar_t * format, va_list argptr)
 		//_vsnwprintf не всегда ставит '\0' в конце.
 		//Поэтому надо обнулить и передать в _vsnwprintf размер-1.
 		buffer[size - 1] = 0;
-		length = _vsnwprintf(buffer.get(), size - 1, format, argptr);
+		length = _vsnwprintf(buffer.data(), size - 1, format, argptr);
 	}
 	while (length < 0);
 
-	return string(buffer.get());
+	return string(buffer.data());
 }
 
 static string str_printf(const wchar_t * format, ...)
@@ -499,7 +499,7 @@ void SaveScreenDumpBuffer(const wchar_t *Title,const FAR_CHAR_INFO *Buffer,int X
 			}
 
 			line[i]=0;
-			fwprintf(fp,L"%s\n",line.get());
+			fwprintf(fp,L"%s\n", line.data());
 		}
 
 		fwprintf(fp,L"\n");

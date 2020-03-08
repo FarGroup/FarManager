@@ -136,7 +136,7 @@ namespace os::security
 			return;
 
 		DWORD ReturnLength;
-		m_Changed = AdjustTokenPrivileges(Token.native_handle(), FALSE, NewState.get(), static_cast<DWORD>(m_SavedState.size()), m_SavedState.get(), &ReturnLength) && m_SavedState->PrivilegeCount;
+		m_Changed = AdjustTokenPrivileges(Token.native_handle(), FALSE, NewState.data(), static_cast<DWORD>(m_SavedState.size()), m_SavedState.data(), &ReturnLength) && m_SavedState->PrivilegeCount;
 		// TODO: log if failed
 	}
 
@@ -151,7 +151,7 @@ namespace os::security
 			return;
 
 		SCOPED_ACTION(GuardLastError);
-		AdjustTokenPrivileges(Token.native_handle(), FALSE, m_SavedState.get(), 0, nullptr, nullptr);
+		AdjustTokenPrivileges(Token.native_handle(), FALSE, m_SavedState.data(), 0, nullptr, nullptr);
 		// TODO: log if failed
 	}
 
@@ -166,7 +166,7 @@ namespace os::security
 			return false;
 
 		block_ptr<TOKEN_PRIVILEGES> TokenInformation{ TokenInformationLength };
-		if (!GetTokenInformation(Token.native_handle(), TokenPrivileges, TokenInformation.get(), TokenInformationLength, &TokenInformationLength))
+		if (!GetTokenInformation(Token.native_handle(), TokenPrivileges, TokenInformation.data(), TokenInformationLength, &TokenInformationLength))
 			return false;
 
 		const auto Privileges = span(TokenInformation->Privileges, TokenInformation->PrivilegeCount);

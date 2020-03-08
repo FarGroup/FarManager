@@ -3,6 +3,18 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 07.03.2020 22:21:15 +0000 - build 5568
+
+1. Refactoring.
+
+2. More tests.
+
+3. Continuation of 5567.
+
+MZK 07.03.2020 12:45:31 -0800
+
+1. Revised @System.CopySecurityOptions help page, both English and Russian.
+
 drkns 07.03.2020 18:03:21 +0000 - build 5567
 
 1. Forum: opening large files in editor is too slow after 5527.

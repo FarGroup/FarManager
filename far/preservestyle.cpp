@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/range.hpp"
 #include "common/string_utils.hpp"
+#include "common/utility.hpp"
 
 // External:
 
@@ -74,13 +75,13 @@ static int GetPeserveCaseStyleMask(const string_view strStr)
 		const auto Upper = is_upper(strStr[I]);
 		const auto Lower = is_lower(strStr[I]);
 		if (!Upper)
-			Result &= ~(1 << UPPERCASE_ALL);
+			Result &= ~bit(UPPERCASE_ALL);
 		if (!Lower)
-			Result &= ~(1 << LOWERCASE_ALL);
+			Result &= ~bit(LOWERCASE_ALL);
 		if ((!Upper || !is_alpha(strStr[I])) && I == 0)
-			Result &= ~(1 << UPPERCASE_FIRST);
+			Result &= ~bit(UPPERCASE_FIRST);
 		if (!Lower && I > 0)
-			Result &= ~(1 << UPPERCASE_FIRST);
+			Result &= ~bit(UPPERCASE_FIRST);
 	}
 
 	return Result;
@@ -146,7 +147,7 @@ static auto InternalPreserveStyleTokenize(const string_view strStr, size_t From,
 				Result.clear();
 				PreserveStyleToken T;
 				T.Token = strStr.substr(From, Length);
-				T.TypeMask = 1 << UNKNOWN;
+				T.TypeMask = bit(UNKNOWN);
 				Result.emplace_back(T);
 				return Result;
 			}
@@ -179,14 +180,14 @@ static void ToPreserveStyleType(string& strStr, PreserveStyleType type)
 	}
 }
 
-static PreserveStyleType ChoosePreserveStyleType(int Mask)
+static PreserveStyleType ChoosePreserveStyleType(unsigned Mask)
 {
-	if (Mask == (1 << UNKNOWN))
+	if (Mask == bit(UNKNOWN))
 		return UNKNOWN;
 
 	PreserveStyleType Result = UNKNOWN;
 	for (int Style = 0; UPPERCASE_ALL+Style < UNKNOWN; Style++)
-		if ((Mask & (1 << Style)) != 0)
+		if (Mask & bit(Style))
 			Result = PreserveStyleType(UPPERCASE_ALL+Style);
 
 	return Result;
@@ -301,7 +302,7 @@ bool PreserveStyleReplaceString(
 		while (((j != LastItem) || (j == LastItem && T < j->Token.size()))
 			&& Source[Idx])
 		{
-			bool Sep = (static_cast<size_t>(I) < Idx && Source[I+1] && IsPreserveStyleTokenSeparator(Source[Idx])
+			bool Sep = (static_cast<size_t>(I) < Idx && static_cast<size_t>(I + 1) != Source.size() && IsPreserveStyleTokenSeparator(Source[Idx])
 					&& !IsPreserveStyleTokenSeparator(Source[Idx-1])
 					&& !IsPreserveStyleTokenSeparator(Source[Idx+1]));
 
@@ -456,3 +457,96 @@ bool PreserveStyleReplaceString(
 
 	return false;
 }
+
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("PreserveStyleReplaceString")
+{
+	static const struct
+	{
+		string_view Find, Replace;
+	}
+	Patterns[]
+	{
+		{ {},                     {},                   },
+		{ {},                     L"la"sv,              },
+		{ L"na"sv,                {},                   },
+		{ L"na"sv,                L"la"sv,              },
+		{ L"abc-def-ghi"sv,       L"pq.RST.Xyz"sv,      },
+		{ L"AA-B-C"sv,            L"xxx.Yy.ZZ"sv,       },
+		{ L"abc-def-ghi"sv,       L"pq.RST.uvw.Xyz"sv,  },
+		{ L"A-B-C"sv,             L"aa.Bb.cc.DD"sv,     },
+		{ L"ijk"sv,               L"MnoPqrStu"sv,       },
+		{ L"ab.cd"sv,             L"wx-yz"sv,           },
+	};
+
+	static const struct
+	{
+		size_t PatternIndex;
+		string_view Src, ResultStr;
+		bool Result;
+		int Position, Size;
+	}
+	Tests[]
+	{
+		{ 0, {},                   {},                      false, 0, 0,  },
+		{ 0, L"LaLaNaLa"sv,        {},                      false, 0, 0,  },
+
+		{ 1, {},                   {},                      false, 0, 0,  },
+		{ 1, L"LaLaNaLa"sv,        {},                      false, 0, 0,  },
+
+		{ 2, {},                   {},                      false, 0, 0,  },
+		{ 2, L"LaLaNaLa"sv,        {},                      false, 0, 0,  },
+
+		{ 3, {},                   {},                      false, 0, 0,  },
+		{ 3, L"LaLaNaLa"sv,        L"La"sv,                 true,  4, 2,  },
+
+		{ 4, L"AbcDefGhi"sv,       L"PqRstXyz"sv,           true,  0, 9,  },
+		{ 4, L"ABC_DEF_GHI"sv,     L"PQ_RST_XYZ"sv,         true,  0, 11, },
+		{ 4, L"abc.def.ghi"sv,     L"pq.rst.xyz"sv,         true,  0, 11, },
+		{ 4, L"abcDefGhi"sv,       L"pqRstXyz"sv,           true,  0, 9,  },
+		{ 4, L"ABC_Def_Ghi"sv,     L"PQ_Rst_Xyz"sv,         true,  0, 11, },
+
+		{ 5, L"Aa_B_C"sv,          L"Xxx_Yy_Zz"sv,          true,  0, 6,  },
+		{ 5, L"aa-b-c"sv,          L"xxx-yy-zz"sv,          true,  0, 6,  },
+		{ 5, L"AA_B_C"sv,          L"XXX_YY_ZZ"sv,          true,  0, 6,  },
+		{ 5, L"aa.B.C"sv,          L"xxx.Yy.Zz"sv,          true,  0, 6,  },
+		{ 5, L"Aa.B.c"sv,          L"Xxx.Yy.zz"sv,          true,  0, 6,  },
+
+		{ 6, L"Abc.def.ghi"sv,     L"Pq.rst.uvw.xyz"sv,     true,  0, 11, },
+		{ 6, L"ABC.Def.Ghi"sv,     L"PQ.Rst.Uvw.Xyz"sv,     true,  0, 11, },
+		{ 6, L"abc.Def.ghi"sv,     L"pq.RST.uvw.Xyz"sv,     true,  0, 11, },
+		{ 6, L"ABC.DEF.ghi"sv,     L"PQ.RST.uvw.Xyz"sv,     true,  0, 11, },
+
+		{ 7, L"A_B_C"sv,           L"Aa_Bb_Cc_Dd"sv,        true,  0, 5,  },
+		{ 7, L"a-b-c"sv,           L"aa-bb-cc-dd"sv,        true,  0, 5,  },
+		{ 7, L"A.B.c"sv,           L"Aa.Bb.cc.DD"sv,        true,  0, 5,  },
+
+		{ 8, L"ijk.Zzz"sv,         L"mno.Pqr.Stu"sv,        true,  0, 3,  },
+		{ 8, L"AAA-ijk"sv,         L"mno-pqr-stu"sv,        true,  4, 3,  },
+		{ 8, L"aaa-ijk_ZZZ"sv,     L"mno_PQR_STU"sv,        true,  4, 3,  },
+		{ 8, L"AaaIjk"sv,          L"MnoPqrStu"sv,          true,  3, 3,  },
+		{ 8, L"0_ijk_9"sv,         L"mno_Pqr_Stu"sv,        true,  2, 3,  },
+		{ 8, L">ijk<"sv,           L"mnopqrstu"sv,          true,  1, 3,  },
+
+		{ 9, L"Ab.cD"sv,           {},                      false, 0, 0,  },
+	};
+
+	string ResultStr;
+	for (const auto& i: Tests)
+	{
+		int Position = 0;
+		int Size;
+		ResultStr = Patterns[i.PatternIndex].Replace;
+		REQUIRE(i.Result == PreserveStyleReplaceString(i.Src, Patterns[i.PatternIndex].Find, ResultStr, Position, false, false, {}, false, Size));
+		if (i.Result)
+		{
+			REQUIRE(i.ResultStr == ResultStr);
+			REQUIRE(i.Position == Position);
+			REQUIRE(i.Size == Size);
+		}
+	}
+}
+#endif

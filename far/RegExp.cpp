@@ -164,7 +164,7 @@ enum
 
 enum
 {
-	RE_CHAR_COUNT = 1 << sizeof(wchar_t)* 8,
+	RE_CHAR_COUNT = std::numeric_limits<wchar_t>::max() + 1,
 };
 
 static bool isType(wchar_t chr,int type)

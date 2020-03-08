@@ -122,10 +122,10 @@ namespace os::reg
 		{
 			wchar_t_ptr_n<default_buffer_size> Buffer(Size);
 			auto RetSize = Size;
-			ExitCode = RegEnumValue(native_handle(), static_cast<DWORD>(Index), Buffer.get(), &RetSize, nullptr, &Value.m_Type, nullptr, nullptr);
+			ExitCode = RegEnumValue(native_handle(), static_cast<DWORD>(Index), Buffer.data(), &RetSize, nullptr, &Value.m_Type, nullptr, nullptr);
 			if (ExitCode == ERROR_SUCCESS)
 			{
-				Value.m_Name.assign(Buffer.get(), RetSize);
+				Value.m_Name.assign(Buffer.data(), RetSize);
 				Value.m_Key = this;
 			}
 		}

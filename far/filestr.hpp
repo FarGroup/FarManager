@@ -83,9 +83,25 @@ private:
 	raw_eol m_Eol;
 
 	mutable char_ptr m_Buffer;
-	mutable std::string_view m_Data;
-	mutable string m_wStr;
-	mutable std::string m_Str;
+	mutable std::string_view m_BufferView;
+
+	enum
+	{
+		default_capacity = 1024,
+	};
+
+	union
+	{
+		mutable string m_wStr;
+
+		struct
+		{
+			mutable std::string m_Bytes;
+			mutable wchar_t_ptr_n<default_capacity> m_wBuffer;
+		}
+		m_ConversionData;
+	};
+
 	mutable bool m_CrCr{};
 	mutable bool m_ConversionError{};
 };

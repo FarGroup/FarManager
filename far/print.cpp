@@ -119,7 +119,7 @@ void PrintFiles(FileList* SrcPanel)
 				PRINTER_ENUM_LOCAL | PRINTER_ENUM_CONNECTIONS,
 				nullptr,
 				4,
-				static_cast<BYTE*>(static_cast<void*>(pi.get())),
+				static_cast<BYTE*>(static_cast<void*>(pi.data())),
 				static_cast<DWORD>(pi.size()),
 				&Needed,
 				&PrintersCount
@@ -158,7 +158,7 @@ void PrintFiles(FileList* SrcPanel)
 			const auto PrinterList = VMenu2::create(strTitle, {}, ScrY - 4);
 			PrinterList->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
 			PrinterList->SetPosition({ -1, -1, 0, 0 });
-			AddToPrintersMenu(PrinterList.get(), { pi.get(), PrintersCount });
+			AddToPrintersMenu(PrinterList.get(), { pi.data(), PrintersCount });
 
 			if (PrinterList->Run() < 0)
 				return;

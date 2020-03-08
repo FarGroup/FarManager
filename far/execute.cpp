@@ -1292,7 +1292,7 @@ static string_view PrepareOSIfExist(string_view const CmdLine, predicate IsExist
 			break;
 
 		if ((IsExistToken? IsExists : IsDefined)(unquote(string(ExpressionStart.substr(0, ExpressionStart.size() - Command.size())))) == IsNot)
-			return L""sv;
+			return {};
 
 		SkippedSomethingValid = true;
 	}
@@ -1348,7 +1348,7 @@ bool ExpandOSAliases(string& strStr)
 
 	auto ExeName = PointToName(Global->g_strFarModuleName);
 	const wchar_t_ptr Buffer(4096);
-	int ret = console.GetAlias(strNewCmdStr, Buffer.get(), Buffer.size() * sizeof(wchar_t), ExeName);
+	int ret = console.GetAlias(strNewCmdStr, Buffer.data(), Buffer.size() * sizeof(wchar_t), ExeName);
 
 	if (!ret)
 	{
@@ -1356,14 +1356,14 @@ bool ExpandOSAliases(string& strStr)
 		if (!strComspec.empty())
 		{
 			ExeName=PointToName(strComspec);
-			ret = console.GetAlias(strNewCmdStr, Buffer.get(), Buffer.size() * sizeof(wchar_t), ExeName);
+			ret = console.GetAlias(strNewCmdStr, Buffer.data(), Buffer.size() * sizeof(wchar_t), ExeName);
 		}
 	}
 
 	if (!ret)
 		return false;
 
-	strNewCmdStr.assign(Buffer.get());
+	strNewCmdStr.assign(Buffer.data());
 
 	if (!ReplaceStrings(strNewCmdStr, L"$*"sv, strNewCmdPar) && !strNewCmdPar.empty())
 		append(strNewCmdStr, L' ', strNewCmdPar);
@@ -1387,12 +1387,12 @@ TEST_CASE("execute.exist.defined")
 	Tests[]
 	{
 		{
-			L""sv,
+			{},
 
-			L""sv, // ed
-			L""sv, // eD
-			L""sv, // Ed
-			L""sv, // ED
+			{}, // ed
+			{}, // eD
+			{}, // Ed
+			{}, // ED
 		},
 		{
 			L" "sv,
@@ -1413,50 +1413,50 @@ TEST_CASE("execute.exist.defined")
 		{
 			L"  if  exist  bar  foo"sv,
 
-			L""sv,    // ed
-			L""sv,    // eD
+			{},       // ed
+			{},       // eD
 			L"foo"sv, // Ed
 			L"foo"sv  // ED
 		},
 		{
 			L"  if  exist  bar  if  defined  ham  foo"sv,
 
-			L""sv,    // ed
-			L""sv,    // eD
-			L""sv,    // Ed
+			{},       // ed
+			{},       // eD
+			{},       // Ed
 			L"foo"sv, // ED
 		},
 		{
 			L"  if  exist  bar  if  not  defined  ham  foo"sv,
 
-			L""sv,    // ed
-			L""sv,    // eD
+			{},       // ed
+			{},       // eD
 			L"foo"sv, // Ed
-			L""sv,    // ED
+			{},       // ED
 		},
 		{
 			L"  if  not  exist  bar  foo"sv,
 
 			L"foo"sv, // ed
 			L"foo"sv, // eD
-			L""sv,    // Ed
-			L""sv,    // ED
+			{},       // Ed
+			{},       // ED
 		},
 		{
 			L"  if  not  exist  bar  if  defined  ham  foo"sv,
 
-			L""sv,    // ed
+			{},       // ed
 			L"foo"sv, // eD
-			L""sv,    // Ed
-			L""sv     // ED
+			{},       // Ed
+			{},       // ED
 		},
 		{
 			L"  if  not  exist  bar  if  not  defined  ham  foo"sv,
 
 			L"foo"sv, // ed
-			L""sv,    // eD
-			L""sv,    // Ed
-			L""sv     // ED
+			{},       // eD
+			{},       // Ed
+			{},       // ED
 		},
 	};
 

@@ -1137,6 +1137,7 @@
     <None Include="vbuild.m4">
       <Filter>Dependencies</Filter>
     </None>
+    <None Include="far.natjmc" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="far.rc">

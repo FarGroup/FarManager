@@ -339,11 +339,11 @@ namespace os::fs
 		const auto NamePart = PointToName(Name);
 		Handle->Extended = true;
 
-		bool QueryResult = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.get(), Handle->BufferBase.size(), FileIdBothDirectoryInformation, false, NamePart, true);
+		bool QueryResult = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.data(), Handle->BufferBase.size(), FileIdBothDirectoryInformation, false, NamePart, true);
 		if (QueryResult) // try next read immediately to avoid M#2128 bug
 		{
 			block_ptr<BYTE> Buffer2(Handle->BufferBase.size());
-			if (Handle->Object.NtQueryDirectoryFile(Buffer2.get(), Buffer2.size(), FileIdBothDirectoryInformation, false, NamePart, false))
+			if (Handle->Object.NtQueryDirectoryFile(Buffer2.data(), Buffer2.size(), FileIdBothDirectoryInformation, false, NamePart, false))
 			{
 				Handle->Buffer2 = std::move(Buffer2);
 			}
@@ -364,14 +364,14 @@ namespace os::fs
 			Handle->Object.Close();
 			if (OpenDirectory())
 			{
-				QueryResult = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.get(), Handle->BufferBase.size(), FileBothDirectoryInformation, false, NamePart, true);
+				QueryResult = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.data(), Handle->BufferBase.size(), FileBothDirectoryInformation, false, NamePart, true);
 			}
 		}
 
 		if (!QueryResult)
 			return nullptr;
 
-		const auto DirectoryInfo = reinterpret_cast<const FILE_ID_BOTH_DIR_INFORMATION*>(Handle->BufferBase.get());
+		const auto DirectoryInfo = reinterpret_cast<const FILE_ID_BOTH_DIR_INFORMATION*>(Handle->BufferBase.data());
 		DirectoryInfoToFindData(*DirectoryInfo, FindData, Handle->Extended);
 		Handle->NextOffset = DirectoryInfo->NextEntryOffset;
 		return find_file_handle(Handle.release());
@@ -382,7 +382,7 @@ namespace os::fs
 		bool Result = false;
 		const auto Handle = static_cast<far_find_file_handle_impl*>(Find.native_handle());
 		bool Status = true, set_errcode = true;
-		auto DirectoryInfo = reinterpret_cast<const FILE_ID_BOTH_DIR_INFORMATION*>(Handle->BufferBase.get());
+		auto DirectoryInfo = reinterpret_cast<const FILE_ID_BOTH_DIR_INFORMATION*>(Handle->BufferBase.data());
 		if (Handle->NextOffset)
 		{
 			DirectoryInfo = reinterpret_cast<const FILE_ID_BOTH_DIR_INFORMATION*>(reinterpret_cast<const char*>(DirectoryInfo) + Handle->NextOffset);
@@ -398,11 +398,11 @@ namespace os::fs
 				if (Handle->Buffer2)
 				{
 					Handle->BufferBase = std::move(Handle->Buffer2);
-					DirectoryInfo = reinterpret_cast<const FILE_ID_BOTH_DIR_INFORMATION*>(Handle->BufferBase.get());
+					DirectoryInfo = reinterpret_cast<const FILE_ID_BOTH_DIR_INFORMATION*>(Handle->BufferBase.data());
 				}
 				else
 				{
-					Status = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.get(), Handle->BufferBase.size(), Handle->Extended ? FileIdBothDirectoryInformation : FileBothDirectoryInformation, false, {}, false);
+					Status = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.data(), Handle->BufferBase.size(), Handle->Extended ? FileIdBothDirectoryInformation : FileBothDirectoryInformation, false, {}, false);
 					set_errcode = false;
 				}
 			}
@@ -553,17 +553,17 @@ namespace os::fs
 			BufferSize *= 2;
 			Handle->BufferBase.reset(BufferSize);
 			// sometimes for directories NtQueryInformationFile returns STATUS_SUCCESS but doesn't fill the buffer
-			const auto StreamInfo = reinterpret_cast<FILE_STREAM_INFORMATION*>(Handle->BufferBase.get());
+			const auto StreamInfo = reinterpret_cast<FILE_STREAM_INFORMATION*>(Handle->BufferBase.data());
 			StreamInfo->StreamNameLength = 0;
 			// BUGBUG check result
-			(void)Handle->Object.NtQueryInformationFile(Handle->BufferBase.get(), Handle->BufferBase.size(), FileStreamInformation, &Result);
+			(void)Handle->Object.NtQueryInformationFile(Handle->BufferBase.data(), Handle->BufferBase.size(), FileStreamInformation, &Result);
 		}
 		while (Result == STATUS_BUFFER_OVERFLOW || Result == STATUS_BUFFER_TOO_SMALL);
 
 		if (Result != STATUS_SUCCESS)
 			return nullptr;
 
-		const auto StreamInfo = reinterpret_cast<const FILE_STREAM_INFORMATION*>(Handle->BufferBase.get());
+		const auto StreamInfo = reinterpret_cast<const FILE_STREAM_INFORMATION*>(Handle->BufferBase.data());
 		Handle->NextOffset = StreamInfo->NextEntryOffset;
 		const auto StreamData = static_cast<WIN32_FIND_STREAM_DATA*>(FindStreamData);
 
@@ -585,7 +585,7 @@ namespace os::fs
 		if (!Handle->NextOffset)
 			return false;
 
-		const auto StreamInfo = reinterpret_cast<const FILE_STREAM_INFORMATION*>(Handle->BufferBase.get() + Handle->NextOffset);
+		const auto StreamInfo = reinterpret_cast<const FILE_STREAM_INFORMATION*>(Handle->BufferBase.data() + Handle->NextOffset);
 		Handle->NextOffset = StreamInfo->NextEntryOffset? Handle->NextOffset + StreamInfo->NextEntryOffset : 0;
 		const auto StreamData = static_cast<WIN32_FIND_STREAM_DATA*>(FindStreamData);
 
@@ -889,7 +889,7 @@ namespace os::fs
 
 		const auto QueryObject = [&]
 		{
-			return imports.NtQueryObject(hFile, ObjectNameInformation, oni.get(), static_cast<unsigned long>(oni.size()), &ReturnLength);
+			return imports.NtQueryObject(hFile, ObjectNameInformation, oni.data(), static_cast<unsigned long>(oni.size()), &ReturnLength);
 		};
 
 		auto Result = QueryObject();
@@ -936,7 +936,7 @@ namespace os::fs
 
 		const auto BufSize = 32767;
 		const wchar_t_ptr Buffer(BufSize);
-		UNICODE_STRING LinkTarget{ 0, static_cast<USHORT>(BufSize * sizeof(wchar_t)), Buffer.get() };
+		UNICODE_STRING LinkTarget{ 0, static_cast<USHORT>(BufSize * sizeof(wchar_t)), Buffer.data() };
 
 		if (imports.NtQuerySymbolicLinkObject(hSymLink, &LinkTarget, nullptr) != STATUS_SUCCESS)
 			return 0;
@@ -2002,7 +2002,7 @@ namespace os::fs
 	{
 		NTPath const NtObject(Object);
 
-		if (low::set_file_security(NtObject.c_str(), RequestedInformation, SecurityDescriptor.get()))
+		if (low::set_file_security(NtObject.c_str(), RequestedInformation, SecurityDescriptor.data()))
 			return true;
 
 		if (ElevationRequired(ELEVATION_MODIFY_REQUEST))
@@ -2191,30 +2191,33 @@ namespace os::fs
 		return file(Name, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, CREATE_ALWAYS, FILE_FLAG_DELETE_ON_CLOSE)? true : false;
 	}
 
+	template<DWORD... Components>
+	static unsigned long long condition_mask(DWORD Operation)
+	{
+		return (... | VerSetConditionMask(0, Components, Operation));
+	}
+
+	static bool is_win10_1703_or_later()
+	{
+		static const auto Result = []
+		{
+			const auto Win10_1703_build = 15063;
+			OSVERSIONINFOEXW osvi{ sizeof(osvi), HIBYTE(_WIN32_WINNT_WIN10), LOBYTE(_WIN32_WINNT_WIN10), Win10_1703_build };
+
+			const auto ConditionMask = condition_mask<VER_MAJORVERSION, VER_MINORVERSION, VER_BUILDNUMBER>(VER_GREATER_EQUAL);
+
+			return VerifyVersionInfo(&osvi, VER_MAJORVERSION | VER_MINORVERSION | VER_BUILDNUMBER, ConditionMask) != FALSE;
+		}();
+
+		return Result;
+	}
 
 	bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD Flags)
 	{
 		if (!imports.CreateSymbolicLinkW)
 			return CreateReparsePoint(Target, Object, Flags & SYMBOLIC_LINK_FLAG_DIRECTORY? RP_SYMLINKDIR : RP_SYMLINKFILE);
 
-		static const DWORD unpriv_flag = []
-		{
-			DWORD const Win10_1703_build = 15063;
-			OSVERSIONINFOEXW osvi = {sizeof(osvi), HIBYTE(_WIN32_WINNT_WIN10), LOBYTE(_WIN32_WINNT_WIN10), Win10_1703_build};
-
-			DWORDLONG const dwlConditionMask = VerSetConditionMask(
-				VerSetConditionMask(
-					VerSetConditionMask(
-						0, VER_MAJORVERSION, VER_GREATER_EQUAL),
-					VER_MINORVERSION, VER_GREATER_EQUAL),
-				VER_BUILDNUMBER, VER_GREATER_EQUAL
-			);
-
-			if (VerifyVersionInfoW(&osvi, VER_MAJORVERSION | VER_MINORVERSION | VER_BUILDNUMBER, dwlConditionMask))
-				return SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE;
-
-			return 0;
-		}();
+		static const DWORD unpriv_flag = is_win10_1703_or_later()? SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE : 0;
 
 		return imports.CreateSymbolicLinkW(Object.c_str(), Target.c_str(), Flags | unpriv_flag) != FALSE;
 	}

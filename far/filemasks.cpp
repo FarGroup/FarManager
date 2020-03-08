@@ -404,7 +404,7 @@ TEST_CASE("masks")
 	}
 	Tests[]
 	{
-		{ L".."sv,          L""sv,               false },
+		{ L".."sv,          {},                  false },
 		{ L".."sv,          L"."sv,              false },
 		{ L".."sv,          L".."sv,             true  },
 		{ L"*.ext"sv,       L"file.ext"sv,       true  },
