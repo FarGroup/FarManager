@@ -127,7 +127,7 @@ void Edit::DisplayObject()
 			::SetCursorType(true, GetCursorSize() == -1?NewCursorSize:GetCursorSize());
 		}
 		else
-{
+		{
 			const auto NewCursorSize = IsConsoleFullscreen()?
 			                  (Global->Opt->CursorSize[1]? static_cast<int>(Global->Opt->CursorSize[1]) : 10):
 			                  (Global->Opt->CursorSize[0]? static_cast<int>(Global->Opt->CursorSize[0]) : 10);

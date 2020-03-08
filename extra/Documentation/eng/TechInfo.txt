@@ -66,40 +66,6 @@ the main help file, that is actual for the current Far Manager version.
 =====================
 
 
-1.2.7.(TechInfo #26)
-~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far Manager\System]
-   "CopyTimeRule":REG_DWORD
-   The  parameter  can  be  changed   in   the   configuration   dialog   -
-   Options|Interface settings
-
-1.2.11.(TechInfo #33)
-~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far Manager\System]
-   "MsWheelDelta":REG_DWORD
-   "MsWheelDeltaView":REG_DWORD
-   "MsWheelDeltaEdit":REG_DWORD
-   "MsWheelDeltaHelp":REG_DWORD
-   The keys "System/MsWheelDelta*" of  DWORD  type  specify  the  scrolling
-   delta:
-     "System/MsWheelDelta"     - in the panels,
-     "System/MsWheelDeltaView" - in the viewer,
-     "System/MsWheelDeltaEdit" - in the editor.
-     "System/MsWheelDeltaHelp" - in the help.
-   These parameters are used under Windows 2000 and above.
-   The default values are 1.
-
-   "MsHWheelDelta":REG_DWORD
-   "MsHWheelDeltaView":REG_DWORD
-   "MsHWheelDeltaEdit":REG_DWORD
-   The keys "System/MsHWheelDelta*" of  DWORD  type  specify  the  horizontal
-   scrolling delta:
-     "System/MsHWheelDelta"     - in the panels,
-     "System/MsHWheelDeltaView" - in the viewer,
-     "System/MsHWheelDeltaEdit" - in the editor.
-   These parameters are used under Windows Vista and above.
-   The default values are 1.
-
 1.2.27.(TechInfo #79)
 ~~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far Manager\System]
@@ -113,111 +79,6 @@ the main help file, that is actual for the current Far Manager version.
      2 - exclude from history panel execution commands
      3 - exclude from history command line execution commands
    The default value is 0 (all commands are included into history).
-
-
-
-======================
-  1.4. Policies.
-======================
-
-
-1.4.1.(TechInfo #30)
-~~~~~~~~~~~~~~~~~~~~
-   [HKEY_LOCAL_MACHINE\Software\Far Manager\Policies]
-   [HKEY_CURRENT_USER\Software\Far Manager\Policies]
-   "ShowHiddenDrives":REG_DWORD
-   The key "Policies/ShowHiddenDrives" of DWORD type allows Far to use  the
-   Windows settings for hiding logical drives from the system ("Hide Drives
-   in My Computer")
-     0 - Far shows only allowed drives (taking into account the value
-         of the system policy parameter "NoDrives").
-     1 - the feature is disabled, Far shows all the drives,
-         independently of the value of the "NoDrives" registry setting
-         [HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer]
-   The key in HKLM allows to specify the options for all users, the key  in
-   HKCU - only for the current user. If the parameter in HKLM is equal to 0
-   (do not show hidden drives for all users),  the  parameter  in  HKCU  is
-   ignored.
-   The default value is 1.
-
-
-
-======================
-  1.5. Interface.
-======================
-
-
-1.5.2.(TechInfo #25)
-~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far Manager\Interface]
-   "CursorSize1":REG_DWORD
-   "CursorSize2":REG_DWORD
-   "CursorSize3":REG_DWORD
-   "CursorSize4":REG_DWORD
-   The keys "Interface/CursorSize1" and  "Interface/CursorSize2"  of  DWORD
-   type allow to set the  insert  mode  cursor  size  for  the  window  and
-   fullscreen modes of Far.
-   The keys "Interface/CursorSize3" and  "Interface/CursorSize4"  of  DWORD
-   type allow to set the overwrite mode cusrsor size  for  the  window  and
-   fullscreen modes of Far.
-   The values of the parameters (numbers between 1  and  100)  specify  the
-   fraction of the character cell (in percents) filled by the  cursor.  The
-   cursor can change from a completely full cell to a  horizontal  line  at
-   the bottom of the cell. The values equal to 0 allow to  use  the  system
-   console settings. The default values are:
-     "CursorSize1"=15
-     "CursorSize2"=10
-     "CursorSize3"=99
-     "CursorSize4"=99
-
-
-
-======================
-  1.7. Dialog.
-======================
-
-
-
-======================
-  1.8. Editor.
-======================
-
-
-1.8.0.(TechInfo #1)
-~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far Manager\Editor]
-   "WordDiv":REG_SZ
-   Words delimiters. Used by the internal  editor  for  the  Ctrl-Left  and
-   Ctrl-Right functions and for the "whole words" search.
-   Maximum 255 characters.
-   Default ~!%^&*()+|{}:"<>?`-=\[];',./
-
-1.8.3.(TechInfo #19)
-~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far Manager\Editor]
-   "ReadOnlyLock":REG_DWORD
-   The key "Editor/ReadOnlyLock" of DWORD type specifies the  behaviour  of
-   the  editor  when  opening  files  with  ReadOnly,  Hidden   or   System
-   attributes. In addition to the options that can  be  configured  in  the
-   editor settings dialog (("Disable editing of read-only files" and  "Warn
-   when opening read-only  files"),  that  are  stored  in  bits  0  and  1
-   respectively, the following options can be specified:
-     bit 5 - apply settings also to files with the Hidden attribute
-     bit 6 - apply settings also to files with the System attribute
-   The bits 2-4 are not used.
-   For example, the value 0x43 means "show a warning and  lock  files  with
-   ReadOnly and System attributes".
-   The default value is 0x0000
-
-1.8.4.(TechInfo #20)
-~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far Manager\Editor]
-   "FileSizeLimit":REG_DWORD
-   The key "Editor/FileSizeLimit" of DWORD type specifies the maximum  size
-   of files that can be edited in bytes. If the size of a file being edited
-   exceeds the maximum size, a warning message will be shown before opening
-   the file. The value 0 disables the size checking and the warning.
-   The default value is 0 (unlimited size).
 
 
 
@@ -253,14 +114,6 @@ the main help file, that is actual for the current Far Manager version.
       16 - Конвертировать всю командную строку при отсутствии выделенного
            блока.
    The default value is 0x00010001 (switch the keyboard layout).
-
-1.9.1.(TechInfo #16)
-~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far Manager\XLat]
-   "WordDivForXlat":REG_SZ
-   Word delimiter symbols for the XLat function (for transliteration of the
-   currrent word without selection). Can contain no more than 255 symbols.
-   The default value is ' \t!#$%^&*()+|"=\[]/@?'.
 
 1.9.2.(TechInfo #80)
 ~~~~~~~~~~~~~~~~~~~~

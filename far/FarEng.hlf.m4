@@ -6179,144 +6179,170 @@ copied.
 
 @Interface.CursorSize
 $ #far:config Interface.CursorSizeX#
- Параметры "Interface.CursorSize1" и "Interface.CursorSize2" позволяют задавать размер курсора в оконном и полноэкранном режимах Far Manager для режима вставки.
+ These numeric parameters control cursor size in Far console window.
+Cursor size can be set separately for insert and override mode, as well
+as for windowed and fullscreen mode.
 
- Параметры "Interface.CursorSize3" и "Interface.CursorSize4" позволяют задавать размер курсора в оконном и полноэкранном режимах Far Manager для режима замены.
+@-
+ ┌──────────╥───────────────────────┬───────────────────────┐
+ │ Mode     ║ Windowed              │ Fullscreen            │           
+ ╞══════════╬═══════════════════════╪═══════════════════════╡
+ │ Insert   ║ Interface.CursorSize1 │ Interface.CursorSize2 │
+ ├──────────╫───────────────────────┼───────────────────────┤
+ │ Override ║ Interface.CursorSize3 │ Interface.CursorSize4 │
+ └──────────╨───────────────────────┴───────────────────────┘
+@+
 
- Значения параметров: число между 1 и 100 - процент символьной ячейки, который заполняется курсором.
-Курсор изменяется от полностью заполненной ячейки до горизонтальной строки внизу ячейки.
+ The parameters specify the fraction of the character cell in percents
+filled by the cursor. Parameters’ values may vary from 1 to 100
+corresponding to the cursor changing from the single horizontal line
+at the bottom of the cell to the solid block filling the entire cell.
+If parameter’s value is zero, the system console setting is used.
 
- Значения параметров равные нулю позволяют использовать системные настройки консоли.
+ Default values:
+ Interface.CursorSize1: 15
+ Interface.CursorSize2: 10
+ Interface.CursorSize3: 99
+ Interface.CursorSize4: 99
 
- По умолчанию:
- Interface.CursorSize1 = 15
- Interface.CursorSize2 = 10
- Interface.CursorSize3 = 99
- Interface.CursorSize4 = 99
-
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @System.WordDiv
 $ #far:config System.WordDiv#
- Параметр "System.WordDiv" позволяет задавать дополнительные (кроме пробела и табуляции) cимволы-разделители слов.
+ This string parameter defines additional word delimiters besides
+#Space# and #Tab#.
 
- По умолчанию: #~~!%^&*()+|{}:"<>?`-=\\[];',./#
+ Default value: #~~!%^&*()+|{}:"<>?`-=\\[];',./#
 
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @XLat.WordDivForXlat
 $ #far:config XLat.WordDivForXlat#
- Параметр "XLat.WordDivForXlat" позволяет задавать используемые в функции транслитерации (XLat,
-для преобразования текущего слова без выделения) символы-разделители слов.
+ This string parameter defines word delimiters for transliteration
+(#XLat# function) of the current word without selecting it.
 
- По умолчанию: пробел табуляция и символы #!##$%^&*()+|=\\/@?#
+ Default value: #Space#, #Tab# and characters #!##$%^&*()+|=\\/@?#.
 
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @Editor.ReadOnlyLock
 $ #far:config Editor.ReadOnlyLock#
- Параметр "Editor.ReadOnlyLock" задаёт поведение редактора при открытии файлов с атрибутами ReadOnly, Hidden и System.
+ This numeric parameter controls the behavior of the Editor when opening
+files with #Read-only#, #Hidden# or #System# attributes.
 
- Биты:
- 0 - Блокировать редактирование файла с атрибутом R/O
- 1 - Предупреждать при открытии файла с атрибутом R/O
- 2 - не используется
- 3 - не используется
- 4 - не используется
- 5 - применять дополнительно для файлов с атрибутом Hidden
- 6 - применять дополнительно для файлов с атрибутом System
+ Bit numbers:
+ 0 - ^<wrap>Lock down editing of read-only files;
+ 1 - Warn when opening read-only files;
+ 2 - Unused;
+ 3 - Unused;
+ 4 - Unused;
+ 5 - Also, apply the behavior defined by bits 0 and 1 to hidden files;
+ 6 - Also, apply the behavior defined by bits 0 and 1 to system files.
 
- Значения в битах 0 и 1 соответствуют опциям в диалоге ~настроек редактора~@EditorSettings@  ("Блокировать
-редактирование файла с атрибутом R/O" и "Предупреждать при открытии файла с атрибутом R/O").
+ Default value: 0 (allow editing of any files without warnings).
 
- Например, значение 0x43 - предупреждать и блокировать изменения в файлах с атрибутами ReadOnly и System.
+ For example, if this parameter is set to #0x43# (binary 0100'0011),
+warning will be shown when opening read-only and system files; editing
+of such files will be disabled.
 
- По умолчанию значение = 0.
-
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ This parameter can be changed via ~far:config~@FarConfig@. Bits 0 and
+1 are also controlled by the options #Lock editing of read-only files#
+and #Warn when opening read-only files# of the ~Editor~@EditorSettings@
+settings dialog.
 
 
 @Editor.FileSizeLimit
 $ #far:config Editor.FileSizeLimit#
- Параметр "Editor.FileSizeLimit" задаёт максимальный размер редактируемого файла в байтах.
-Если размер редактируемого файла превышает максимально допустимый, то будет показано предупреждающее сообщение перед
-открытием такого файла.
+ This numeric parameter defines file size limit; when exceeded,
+a warning message will be shown before opening the file in Editor.
 
- По умолчанию значение = 0 (отключает проверку и вывод сообщения)
+ If the value of this parameter is zero, the warning is disabled. The
+limit is defined in bytes.
 
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ Default value: 0 (file size is not checked, and the warning is never
+displayed).
+
+ Note: When a file is opened in Editor, its entire content is loaded
+into memory. Thus, opening very large files could be undesirable. The
+warning enabled by this parameter helps to avoid opening of large files
+inadvertently.
+
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @System.MsWheelDelta
 $ #far:config System.MsWheelDelta* & System.MsHWheelDelta*#
- Параметры "System.MsWheelDelta*" и "System.MsHWheelDelta*" позволяют менять смещения для
-прокрутки колесом мыши по вертикали и горизонтали.
+ These numeric parameters define scroll speed when mouse wheel is rolled
+or tilted. Scroll speed can be specified separately for different
+directions and different areas.
 
- Параметры для вертикальной прокрутки:
+ Roll the wheel one notch to scroll the specified number of lines at
+a time vertically:
 
- System.MsWheelDeltaView  - в программе просмотра
- System.MsWheelDeltaEdit  - во встроенном редакторе
- System.MsWheelDeltaHelp  - в системе помощи
- System.MsWheelDelta      - в прочих областях
+ System.MsWheelDeltaView  - ^<wrap>in the internal Viewer
+ System.MsWheelDeltaEdit  - in the internal Editor
+ System.MsWheelDeltaHelp  - on help pages
+ System.MsWheelDelta      - in other areas
 
- Параметры для горизонтальной прокрутки (Windows Vista и выше):
+ Tilt the wheel to scroll the specified number of characters at a time
+horizontally (Windows Vista and above):
 
- System.MsHWheelDeltaView - в программе просмотра
- System.MsHWheelDeltaEdit - во встроенном редакторе
- System.MsHWheelDeltaHelp - в системе помощи
- System.MsHWheelDelta     - в прочих областях
+ System.MsHWheelDeltaView - ^<wrap>in the internal Viewer
+ System.MsHWheelDeltaEdit - in the internal Editor
+ System.MsHWheelDelta     - in other areas
 
- По умолчанию значение = 1
+ Default value: 1 (for all parameters).
 
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ Note: Rolling or tilting mouse wheel while holding #Alt# key always
+scrolls one line or character at a time.
+
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @System.CopyTimeRule
 $ #far:config System.CopyTimeRule#
- Параметр "System.CopyTimeRule" задаёт режим отображения вывода информации
-о средней скорости копирования, времени копирования и примерном времени до конца операции в диалоге копирования.
+ This numeric parameter specifies whether the progress (speed, time, and
+estimated remaining time) is displayed during file copy operations.
 
- Номера битов:
- 0 - ^<wrap>если установлен, то показывать при копировании в NUL.
- 1 - ^<wrap>если установлен, то показывать при обычных операциях копирования.
+ Bit numbers:
+ 0 - ^<wrap>If set, show progress while copying to NUL;
+ 1 - If set, show progress during regular file copy operations.
 
- Так как эта функция требует времени для сбора статистики, то на небольших файлах при выключенном
-"общем индикаторе копирования" Вы можете ничего не увидеть.
+ Default value: 3 (always display progress of file copy operations).
 
- Параметр доступен в ~Настройках интерфейса~@InterfSettings@, но в диалоге можно выставить только два значения
-- показывать информацию везде или отключить режим отображения.
+ Note: Since this feature requires some time to gather statistics, it is
+likely that no progress is displayed for small files if the option
+#Show total copy progress indicator# is turned off in the
+~Interface settings~@InterfSettings@ dialog.
 
- Примеры:
- 1 - ^<wrap>показывать информацию только при копировании в NUL.
- 2 - ^<wrap>показывать информацию при обычных операциях копирования.
- 3 - ^<wrap>всегда показывать информацию о времени и скорости.
-
- По умолчанию значение = 3 (всегда показывать информацию о времени и скорости)
-
- Изменение этого параметра возможно через ~far:config~@FarConfig@ или в ~Настройках интерфейса~@InterfSettings@
+ This parameter can be changed via ~far:config~@FarConfig@ or by the
+#Show copying time information# option of the
+~Interface settings~@InterfSettings@ dialog. However, only values 0 or
+3 can be set using this option.
 
 
 @Policies.ShowHiddenDrives
 $ #far:config Policies.ShowHiddenDrives#
- Параметр "Policies.ShowHiddenDrives" позволяет позволяет наследовать свойства Windows
-по сокрытию логических дисков из системы ("Hide  Drives in My Computer").
+ This Boolean parameter specifies whether Far honors the
+#Hide these specified drives in My Computer# Windows Group Policy.
 
- Значение:
+ False - ^<wrap>Far shows only drives visible (not hidden) in Windows
+Explorer;
+ True  - Far shows all drives (ignores the Group Policy).
 
- false - ^<wrap>Far показывает только доступные диски (учитывается значение параметра
-"NoDrives" системной политики - [HKLM или HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer]).
-Если "NoDrives" из HKLM=0 (не показывать скрытые диски для всех пользователей),
-то значение этого параметра из HKCU не имеет никакого эффекта.
+ Default value: True (show all drives).
 
- true  - ^<wrap>функция отключена, Far показывает все диски, независимо от
-значения параметра "NoDrives" в реестре.
+ Note: The state of this Group Policy is stored in the #NoDrives# value
+of the
+#\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer# key in
+both #HKLM# and #HKCU# hives of Windows Registry. If the NoDrives value
+in HKLM hive is zero (no hidden files on Local Machine), the value
+in HKCU hive is ignored.
 
- По умолчанию значение = true
-
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @Editor.KeepEditorEOL
