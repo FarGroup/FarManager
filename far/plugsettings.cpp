@@ -146,21 +146,22 @@ bool PluginSettings::Set(const FarSettingsItem& Item)
 	if (Item.Root >= m_Keys.size())
 		return false;
 
+	auto name = NullToEmpty(Item.Name);
 	switch(Item.Type)
 	{
 	case FST_SUBKEY:
 		return false;
 
 	case FST_QWORD:
-		PluginsCfg->SetValue(m_Keys[Item.Root], Item.Name, Item.Number);
+		PluginsCfg->SetValue(m_Keys[Item.Root], name, Item.Number);
 		return true;
 
 	case FST_STRING:
-		PluginsCfg->SetValue(m_Keys[Item.Root], Item.Name, Item.String);
+		PluginsCfg->SetValue(m_Keys[Item.Root], name, NullToEmpty(Item.String));
 		return true;
 
 	case FST_DATA:
-		PluginsCfg->SetValue(m_Keys[Item.Root], Item.Name, bytes_view(Item.Data.Data, Item.Data.Size));
+		PluginsCfg->SetValue(m_Keys[Item.Root], name, bytes_view(Item.Data.Data, Item.Data.Size));
 		return true;
 
 	default:
@@ -173,6 +174,7 @@ bool PluginSettings::Get(FarSettingsItem& Item)
 	if (Item.Root >= m_Keys.size())
 		return false;
 
+	auto name = NullToEmpty(Item.Name);
 	switch(Item.Type)
 	{
 	case FST_SUBKEY:
@@ -181,7 +183,7 @@ bool PluginSettings::Get(FarSettingsItem& Item)
 	case FST_QWORD:
 		{
 			unsigned long long value;
-			if (PluginsCfg->GetValue(m_Keys[Item.Root], Item.Name, value))
+			if (PluginsCfg->GetValue(m_Keys[Item.Root], name, value))
 			{
 				Item.Number = value;
 				return true;
@@ -192,7 +194,7 @@ bool PluginSettings::Get(FarSettingsItem& Item)
 	case FST_STRING:
 		{
 			string data;
-			if (PluginsCfg->GetValue(m_Keys[Item.Root], Item.Name, data))
+			if (PluginsCfg->GetValue(m_Keys[Item.Root], name, data))
 			{
 				Item.String = Add(data);
 				return true;
@@ -203,7 +205,7 @@ bool PluginSettings::Get(FarSettingsItem& Item)
 	case FST_DATA:
 		{
 			bytes data;
-			if (PluginsCfg->GetValue(m_Keys[Item.Root], Item.Name, data))
+			if (PluginsCfg->GetValue(m_Keys[Item.Root], name, data))
 			{
 				Item.Data.Data = Add(data.data(), data.size());
 				Item.Data.Size = data.size();
