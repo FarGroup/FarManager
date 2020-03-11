@@ -176,9 +176,9 @@ public:
 	explicit oem_plugin_factory(PluginManager* Owner):
 		native_plugin_factory(Owner)
 	{
-		static const export_name ExportsNames[] =
+		static const export_name ExportsNames[]
 		{
-			WA(""), // GetGlobalInfo not used
+			{}, // GetGlobalInfo not used
 			WA("SetStartupInfo"),
 			WA("OpenPlugin"),
 			WA("ClosePlugin"),
@@ -204,13 +204,13 @@ public:
 			WA("ProcessEditorInput"),
 			WA("ProcessViewerEvent"),
 			WA("ProcessDialogEvent"),
-			WA(""), // ProcessSynchroEvent not used
-			WA(""), // ProcessConsoleEvent not used
-			WA(""), // Analyse not used
-			WA(""), // CloseAnalyse not used
-			WA(""), // GetContentFields not used
-			WA(""), // GetContentData not used
-			WA(""), // FreeContentData not used
+			{}, // ProcessSynchroEvent not used
+			{}, // ProcessConsoleEvent not used
+			{}, // Analyse not used
+			{}, // CloseAnalyse not used
+			{}, // GetContentFields not used
+			{}, // GetContentData not used
+			{}, // FreeContentData not used
 
 			WA("OpenFilePlugin"),
 			WA("GetMinFarVersion"),
@@ -5798,8 +5798,8 @@ private:
 		std::unique_ptr<i_language_data> m_Data;
 	};
 
-	template<EXPORTS_ENUM ExportId>
-	using AnsiExecuteStruct = ExecuteStruct<ExportId, false>;
+	template<export_index Export>
+	using AnsiExecuteStruct = ExecuteStruct<Export, false>;
 
 	PluginInfo PI;
 	OpenPanelInfo OPI;

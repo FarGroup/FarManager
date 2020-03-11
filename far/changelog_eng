@@ -3,6 +3,16 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 11.03.2020 18:14:35 +0000 - build 5570
+
+1. A bit of magic to make the wow64 hook work in VS2019.
+
+2. Refactoring.
+
+zg 10.03.2020 00:35:41 +0200 - build 5569
+
+1. crash in SettingsControl if the setting name is nullptr.
+
 drkns 07.03.2020 22:21:15 +0000 - build 5568
 
 1. Refactoring.

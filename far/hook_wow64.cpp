@@ -133,12 +133,12 @@ hook_ldr() noexcept
 
 
 template<auto Function>
-static auto GetProcAddress(HMODULE const Module, const char* const Name) noexcept
+static auto GetProcAddressImpl(HMODULE const Module, const char* const Name) noexcept
 {
 	return reinterpret_cast<decltype(Function)>(reinterpret_cast<void*>(GetProcAddress(Module, Name)));
 }
 
-#define GETPROCADDRESS(Module, Name) GetProcAddress<&Name>(Module, #Name)
+#define GETPROCADDRESS(Module, Name) GetProcAddressImpl<&Name>(Module, #Name)
 
 template<typename callable>
 static bool unprotected(void* const Address, DWORD const Size, const callable& Callable) noexcept
@@ -234,7 +234,12 @@ static void init_hook() noexcept
 	if (!unprotected(ur.pb, sizeof(Data), [&]{ memcpy(ur.pb, &Data, sizeof(Data)); }))
 		return;
 
-	unprotected(const_cast<wow*>(&Wow), sizeof(Wow), [&]{ const_cast<wow&>(Wow) = { Disable, Revert };});
+	unprotected(const_cast<wow*>(&Wow), sizeof(Wow), [&]
+	{
+		auto& mWow = const_cast<volatile wow&>(Wow);
+		mWow.disable = Disable;
+		mWow.revert = Revert;
+	});
 }
 
 

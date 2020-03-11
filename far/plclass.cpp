@@ -112,7 +112,7 @@ std::unique_ptr<Plugin> plugin_factory::CreatePlugin(const string& filename)
 plugin_factory::plugin_factory(PluginManager* owner):
 	m_owner(owner)
 {
-	static const export_name ExportsNames[] =
+	static const export_name ExportsNames[]
 	{
 		WA("GetGlobalInfoW"),
 		WA("SetStartupInfoW"),
@@ -148,8 +148,8 @@ plugin_factory::plugin_factory(PluginManager* owner):
 		WA("GetContentDataW"),
 		WA("FreeContentDataW"),
 
-		WA(""), // OpenFilePlugin not used
-		WA(""), // GetMinFarVersion not used
+		{}, // OpenFilePlugin not used
+		{}, // GetMinFarVersion not used
 	};
 	static_assert(std::size(ExportsNames) == ExportsCount);
 	m_ExportsNames = ExportsNames;
@@ -416,7 +416,7 @@ bool Plugin::SaveToCache()
 
 	for (const auto& [Name, Export]: zip(m_Factory->ExportsNames(), Exports))
 	{
-		PlCache->SetExportState(id, Name.UName, Export.has_value());
+		PlCache->SetExportState(id, Name.UName, Export != nullptr);
 	}
 
 	return true;
@@ -426,8 +426,7 @@ void Plugin::InitExports()
 {
 	for (const auto& [Name, Export]: zip(m_Factory->ExportsNames(), Exports))
 	{
-		if (const auto Address = m_Factory->Function(m_Instance, Name))
-			Export = Address;
+		Export = m_Factory->Function(m_Instance, Name);
 	}
 }
 
@@ -614,7 +613,7 @@ bool Plugin::LoadFromCache(const os::fs::find_data &FindData)
 	for (const auto& [Name, Export]: zip(m_Factory->ExportsNames(), Exports))
 	{
 		if (PlCache->GetExportState(id, Name.UName))
-			Export = nullptr;
+			Export = ToPtr(true); // Fake, will be overwritten with the real address later
 	}
 
 	WorkFlags.Set(PIWF_CACHED); //too many "cached" flags
@@ -670,7 +669,7 @@ bool Plugin::RemoveDialog(const window_ptr& Dlg)
 
 bool Plugin::IsPanelPlugin()
 {
-	static const int PanelExports[] =
+	static const int PanelExports[]
 	{
 		iSetFindList,
 		iGetFindData,
@@ -689,9 +688,10 @@ bool Plugin::IsPanelPlugin()
 		iFreeVirtualFindData,
 		iClosePanel,
 	};
+
 	return std::any_of(CONST_RANGE(PanelExports, i)
 	{
-		return Exports[i].has_value();
+		return Exports[i] != nullptr;
 	});
 }
 
@@ -1102,7 +1102,7 @@ void Plugin::ExitFAR(ExitInfo *Info)
 	ExecuteFunction(es, Info);
 }
 
-void Plugin::HandleFailure(EXPORTS_ENUM id)
+void Plugin::HandleFailure(export_index id)
 {
 	m_Factory->Owner()->UnloadPlugin(this, id);
 	Global->ProcessException = false;
