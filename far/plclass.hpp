@@ -60,7 +60,7 @@ class PluginsCacheConfig;
 
 std::exception_ptr& GlobalExceptionPtr();
 
-enum EXPORTS_ENUM
+enum export_index
 {
 	iGetGlobalInfo,
 	iSetStartupInfo,
@@ -124,7 +124,7 @@ public:
 	explicit plugin_factory(PluginManager* owner);
 	using plugin_module_ptr = std::unique_ptr<i_plugin_module>;
 	using function_address = void*;
-	using exports_array = std::array<std::optional<function_address>, ExportsCount>;
+	using exports_array = std::array<function_address, ExportsCount>;
 
 	struct export_name
 	{
@@ -198,11 +198,8 @@ private:
 	virtual bool FindExport(std::string_view ExportName) const;
 };
 
-template<EXPORTS_ENUM id, bool Native>
-struct prototype;
-
-template<EXPORTS_ENUM id, bool Native>
-using prototype_t = typename prototype<id, Native>::type;
+template<export_index id, bool native>
+struct export_type;
 
 namespace detail
 {
@@ -213,7 +210,6 @@ namespace detail
 		operator intptr_t() const { return Result; }
 		operator void*() const { return ToPtr(Result); }
 		operator bool() const { return Result != 0; }
-		EXPORTS_ENUM id;
 		intptr_t Result;
 	};
 }
@@ -271,8 +267,14 @@ public:
 	virtual bool InitLang(string_view Path, string_view Language);
 	void CloseLang();
 
-	bool has(EXPORTS_ENUM id) const { return Exports[id].has_value(); }
-	bool has(const detail::ExecuteStruct& es) const { return has(es.id); }
+	bool has(export_index id) const { return Exports[id] != nullptr; }
+
+	template<typename T>
+	bool has(const T& es) const
+	{
+		static_assert(std::is_base_of_v<detail::ExecuteStruct, T>);
+		return has(es.export_id);
+	}
 
 	const string& ModuleName() const { return m_strModuleName; }
 	const string& CacheName() const  { return m_strCacheName; }
@@ -299,17 +301,16 @@ public:
 	auto keep_activity() { return make_raii_wrapper(this, [](Plugin* p){ ++p->Activity; }, [](Plugin* p){ --p->Activity; });  }
 
 protected:
-	template<EXPORTS_ENUM ExportId, bool Native = true>
+	template<export_index Export, bool Native = true>
 	struct ExecuteStruct: detail::ExecuteStruct
 	{
 		explicit ExecuteStruct(intptr_t FallbackValue = 0)
 		{
-			id = ExportId;
 			Result = FallbackValue;
 		}
 
-		using export_id = std::integral_constant<EXPORTS_ENUM, ExportId>;
-		using native = std::integral_constant<bool, Native>;
+		static constexpr inline auto export_id = Export;
+		using type = typename export_type<Export, Native>::type;
 
 		using detail::ExecuteStruct::operator=;
 	};
@@ -322,13 +323,13 @@ protected:
 
 		const auto ProcessException = [&](const auto& Handler, auto&&... ProcArgs)
 		{
-			Handler(FWD(ProcArgs)..., m_Factory->ExportsNames()[T::export_id::value].UName, this)? HandleFailure(T::export_id::value) : throw;
+			Handler(FWD(ProcArgs)..., m_Factory->ExportsNames()[T::export_id].UName, this)? HandleFailure(T::export_id) : throw;
 		};
 
 		try
 		{
-			using function_type = prototype_t<T::export_id::value, T::native::value>;
-			const auto Function = reinterpret_cast<function_type>(*Exports[T::export_id::value]);
+			using function_type = typename T::type;
+			const auto Function = reinterpret_cast<function_type>(Exports[T::export_id]);
 
 			if constexpr (std::is_void_v<std::invoke_result_t<function_type, args...>>)
 				Function(FWD(Args)...);
@@ -336,7 +337,7 @@ protected:
 				es = Function(FWD(Args)...);
 
 			rethrow_if(GlobalExceptionPtr());
-			m_Factory->ProcessError(m_Factory->ExportsNames()[T::export_id::value].UName);
+			m_Factory->ProcessError(m_Factory->ExportsNames()[T::export_id].UName);
 		}
 		catch (const std::exception& e)
 		{
@@ -358,12 +359,12 @@ protected:
 		},
 		[this]
 		{
-			HandleFailure(T::export_id::value);
+			HandleFailure(T::export_id);
 		},
-		m_Factory->ExportsNames()[T::export_id::value].UName, this);
+		m_Factory->ExportsNames()[T::export_id].UName, this);
 	}
 
-	void HandleFailure(EXPORTS_ENUM id);
+	void HandleFailure(export_index id);
 
 	virtual void Prologue() {}
 	virtual void Epilogue() {}
@@ -408,7 +409,7 @@ private:
 
 plugin_factory_ptr CreateCustomPluginFactory(PluginManager* Owner, const string& Filename);
 
-#define DECLARE_GEN_PLUGIN_FUNCTION(name, is_native, signature) template<> struct prototype<name, is_native>  { using type = signature; };
+#define DECLARE_GEN_PLUGIN_FUNCTION(name, is_native, signature) template<> struct export_type<name, is_native>  { using type = signature; };
 #define WA(string) { L##string##sv, string##sv }
 
 #endif // PLCLASS_HPP_E324EC16_24F2_4402_BA87_74212799246D
