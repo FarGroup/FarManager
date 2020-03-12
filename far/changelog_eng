@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+MZK 11.03.2020 23:03:40 -0700
+
+1. Translated more far:config help pages into English; cleaned up eng/TechInfo.txt.
+
 drkns 11.03.2020 18:14:35 +0000 - build 5570
 
 1. A bit of magic to make the wow64 hook work in VS2019.
