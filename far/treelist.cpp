@@ -1702,9 +1702,7 @@ bool TreeList::GetPlainString(string& Dest, int ListPos) const
 
 bool TreeList::FindPartName(const string& Name,int Next,int Direct)
 {
-	auto strMask = Name + L'*';
-
-	exclude_sets(strMask);
+	const auto strMask = exclude_sets(Name + L'*');
 
 	for (int i=m_CurFile+(Next?Direct:0); i >= 0 && static_cast<size_t>(i) < m_ListData.size(); i+=Direct)
 	{

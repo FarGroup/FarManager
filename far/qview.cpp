@@ -456,7 +456,7 @@ void QuickView::ShowFile(string_view const FileName, const UserDataItem* const U
 			OldWrapType = QView->GetWrapType();
 			QView->SetWrapMode(LastWrapMode);
 			QView->SetWrapType(LastWrapType);
-			QView->OpenFile(strCurFileName,FALSE);
+			QView->OpenFile(strCurFileName, false);
 		}
 	}
 

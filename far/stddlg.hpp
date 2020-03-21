@@ -148,7 +148,7 @@ enum FlagsNameAndPassword
 	GNP_USELAST      = 0_bit, // использовать последние введенные данные
 };
 
-bool GetNameAndPassword(const string& Title, string& strUserName, string& strPassword, string_view HelpTopic, DWORD Flags);
+bool GetNameAndPassword(string_view Title, string& strUserName, string& strPassword, string_view HelpTopic, DWORD Flags);
 
 enum class operation
 {
@@ -160,7 +160,7 @@ enum class operation
 
 operation OperationFailed(const error_state_ex& ErrorState, string Object, lng Title, string Description, bool AllowSkip = true, bool AllowSkipAll = true);
 
-void ReCompileErrorMessage(const RegExp& re, const string& str);
+void ReCompileErrorMessage(const RegExp& re, string_view str);
 void ReMatchErrorMessage(const RegExp& re);
 
 struct goto_coord

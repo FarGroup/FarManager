@@ -256,7 +256,7 @@ string truncate_center(string Str, size_t const MaxLength)
 }
 
 
-static auto StartOffset(const string& Str)
+static auto StartOffset(string_view const Str)
 {
 	size_t DirOffset = 0;
 	ParsePath(Str, &DirOffset);
@@ -545,7 +545,7 @@ bool wrapped_text::get(bool Reset, string_view& Value) const
 	return advance(m_Width, 0);
 }
 
-bool FindWordInString(const string& Str, size_t CurPos, size_t& Begin, size_t& End, const string& WordDiv0)
+bool FindWordInString(string_view const Str, size_t CurPos, size_t& Begin, size_t& End, string_view const WordDiv0)
 {
 	if (Str.empty() || CurPos > Str.size())
 		return false;
@@ -631,7 +631,7 @@ namespace
 {
 	string ReplaceBrackets(
 		const string_view SearchStr,
-		const string& ReplaceStr,
+		const string_view ReplaceStr,
 		const RegExpMatch* Match,
 		size_t Count,
 		const MatchHash* HMatch,
@@ -1038,7 +1038,7 @@ string ExtractHexString(string_view const HexString)
 	return Result;
 }
 
-string ConvertHexString(const string& From, uintptr_t Codepage, bool FromHex)
+string ConvertHexString(string_view const From, uintptr_t Codepage, bool FromHex)
 {
 	const auto CompatibleCp = IsVirtualCodePage(Codepage)? CP_ACP : Codepage;
 	if (FromHex)

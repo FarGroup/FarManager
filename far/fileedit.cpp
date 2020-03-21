@@ -302,7 +302,7 @@ static bool dlgSaveFileAs(string &strFileName, eol& Eol, uintptr_t &codepage, bo
 	if (const auto pos = EditDlg[ID_SF_FILENAME].strData.find(msg(lng::MNewFileName)); pos != string::npos)
 		EditDlg[ID_SF_FILENAME].strData.resize(pos);
 
-	const auto EolToIndex = [](const eol& Eol)
+	const auto EolToIndex = [&]()
 	{
 		if (Eol == eol::win)
 			return 1;
@@ -313,7 +313,7 @@ static bool dlgSaveFileAs(string &strFileName, eol& Eol, uintptr_t &codepage, bo
 		return 0;
 	};
 
-	EditDlg[ID_SF_DONOTCHANGE + EolToIndex(Eol)].Selected = TRUE;
+	EditDlg[ID_SF_DONOTCHANGE + EolToIndex()].Selected = TRUE;
 	const auto Dlg = Dialog::create(EditDlg, hndSaveFileAs, &codepage);
 	Dlg->SetPosition({ -1, -1, 76, 17 });
 	Dlg->SetHelp(L"FileSaveAs"sv);

@@ -33,6 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.memory.hpp"
 
 // Internal:
+#include "imports.hpp"
 
 // Platform:
 
@@ -106,5 +107,32 @@ namespace os::memory
 			reinterpret_cast<uintptr_t>(Address),
 			reinterpret_cast<uintptr_t>(info.lpMaximumApplicationAddress)
 		);
+	}
+
+	void enable_low_fragmentation_heap()
+	{
+		// Starting with Windows Vista, the system uses the low-fragmentation heap (LFH) as needed to service memory allocation requests.
+		// Applications do not need to enable the LFH for their heaps.
+		if (IsWindowsVistaOrGreater())
+			return;
+
+		if (!imports.HeapSetInformation)
+			return;
+
+		std::vector<HANDLE> Heaps(10);
+		for (;;)
+		{
+			const auto NumberOfHeaps = ::GetProcessHeaps(static_cast<DWORD>(Heaps.size()), Heaps.data());
+			const auto Received = NumberOfHeaps <= Heaps.size();
+			Heaps.resize(NumberOfHeaps);
+			if (Received)
+				break;
+		}
+
+		for (const auto i: Heaps)
+		{
+			ULONG HeapFragValue = 2;
+			imports.HeapSetInformation(i, HeapCompatibilityInformation, &HeapFragValue, sizeof(HeapFragValue));
+		}
 	}
 }

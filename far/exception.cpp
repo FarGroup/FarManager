@@ -80,9 +80,9 @@ string error_state::NtErrorStr() const
 namespace detail
 {
 	far_base_exception::far_base_exception(const char* const Function, const char* const File, int const Line, string_view const Message):
-		m_Function(encoding::ansi::get_chars(Function)),
+		m_Function(Function),
 		m_Location(format(FSTR(L"{0}:{1}"), encoding::ansi::get_chars(File), Line)),
-		m_FullMessage(format(FSTR(L"{0} (at {1}, {2})"), Message, m_Function, m_Location)),
+		m_FullMessage(format(FSTR(L"{0} (at {1}, {2})"), Message, encoding::utf8::get_chars(m_Function), m_Location)),
 		m_ErrorState(error_state::fetch(), Message)
 	{
 	}

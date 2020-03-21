@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception.hpp"
 
 // Platform:
+#include "platform.version.hpp"
 
 // Common:
 #include "common.hpp"
@@ -360,7 +361,8 @@ namespace console_detail
 	{
 		static const auto Result = [&]
 		{
-			if (!IsWindows10OrGreater())
+			// https://devblogs.microsoft.com/commandline/24-bit-color-in-the-windows-console/
+			if (!os::version::is_win10_build_or_later(14931))
 				return false;
 
 			const auto Handle = GetOutputHandle();

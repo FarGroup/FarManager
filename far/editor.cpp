@@ -89,9 +89,11 @@ enum {UNDO_EDIT=1,UNDO_INSSTR,UNDO_DELSTR,UNDO_BEGIN,UNDO_END};
 на любом выходе если была нажата кнопка выделения,
 и она его "сняла" (сделала 0-й ширины), то его надо убрать.
 */
-class EditorBlockGuard: noncopyable
+class EditorBlockGuard
 {
 public:
+	NONCOPYABLE(EditorBlockGuard);
+
 	EditorBlockGuard(Editor& ed, void (Editor::*method)()):
 		ed(ed),
 		method(method),
@@ -381,10 +383,9 @@ int Editor::BlockStart2NumLine(int *Pos)
 	{
 		if (Pos)
 		{
-			if (IsVerticalSelection())
-				*Pos = m_it_AnyBlockStart->RealPosToTab(m_it_AnyBlockStart->TabPosToReal(VBlockX));
-			else
-				*Pos = m_it_AnyBlockStart->RealPosToTab(m_it_AnyBlockStart->m_SelStart);
+			*Pos = m_it_AnyBlockStart->RealPosToTab(IsVerticalSelection()?
+				m_it_AnyBlockStart->TabPosToReal(VBlockX) :
+				m_it_AnyBlockStart->m_SelStart);
 		}
 
 		return CalcDistance(FirstLine(), m_it_AnyBlockStart);

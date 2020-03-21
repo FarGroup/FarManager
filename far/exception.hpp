@@ -88,7 +88,7 @@ namespace detail
 		far_base_exception(const char* Function, const char* File, int Line, string_view Message);
 
 	private:
-		string m_Function;
+		std::string m_Function;
 		string m_Location;
 		string m_FullMessage;
 		error_state_ex m_ErrorState;

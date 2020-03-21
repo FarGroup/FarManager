@@ -390,7 +390,7 @@ bool GetString(
   Умеет сам запоминать последнего юзвера и пароль.
 */
 bool GetNameAndPassword(
-	string const& Title,
+	string_view const Title,
 	string& strUserName,
 	string& strPassword,
 	string_view const HelpTopic,
@@ -765,13 +765,13 @@ static string GetReErrorString(int code)
 	}
 }
 
-void ReCompileErrorMessage(const RegExp& re, const string& str)
+void ReCompileErrorMessage(const RegExp& re, string_view const str)
 {
 	Message(MSG_WARNING | MSG_LEFTALIGN,
 		msg(lng::MError),
 		{
 			GetReErrorString(re.LastError()),
-			str,
+			string(str),
 			string(re.ErrorPosition(), L' ') + L'↑'
 		},
 		{ lng::MOk });

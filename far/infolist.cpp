@@ -161,11 +161,13 @@ string InfoList::GetTitle() const
 	return msg(lng::MInfoTitle);
 }
 
-void InfoList::DrawTitle(string &strTitle,int Id,int &CurY)
+void InfoList::DrawTitle(string_view const Title, int Id, int &CurY)
 {
 	SetColor(COL_PANELBOX);
 	DrawSeparator(CurY);
 	SetColor(COL_PANELTEXT);
+
+	auto strTitle = concat(L' ', Title, L' ');
 	inplace::truncate_left(strTitle, std::max(0, m_Where.width() - 4));
 	GotoXY(m_Where.left + (m_Where.width() - static_cast<int>(strTitle.size())) / 2, CurY);
 	PrintText(strTitle);
@@ -305,35 +307,34 @@ void InfoList::DisplayObject()
 		                            &VolumeNumber,&MaxNameLength,&FileSystemFlags,
 		                            &strFileSystemName))
 		{
-			lng IdxMsgID = lng::MInfoUnknown;
+			auto DiskTypeId = lng::MInfoUnknown;
 			int DriveType=FAR_GetDriveType(strDriveRoot, Global->Opt->InfoPanel.ShowCDInfo);
 
 			switch (DriveType)
 			{
 				case DRIVE_REMOVABLE:
-					IdxMsgID = lng::MInfoRemovable;
+					DiskTypeId = lng::MInfoRemovable;
 					break;
 				case DRIVE_FIXED:
-					IdxMsgID = lng::MInfoFixed;
+					DiskTypeId = lng::MInfoFixed;
 					break;
 				case DRIVE_REMOTE:
-					IdxMsgID = lng::MInfoNetwork;
+					DiskTypeId = lng::MInfoNetwork;
 					break;
 				case DRIVE_CDROM:
-					IdxMsgID = lng::MInfoCDROM;
+					DiskTypeId = lng::MInfoCDROM;
 					break;
 				case DRIVE_RAMDISK:
-					IdxMsgID = lng::MInfoRAM;
+					DiskTypeId = lng::MInfoRAM;
 					break;
 				default:
 
 					if (IsDriveTypeCDROM(DriveType))
-						IdxMsgID = lng::MInfoCD_RW + (DriveType - DRIVE_CD_RW);
+						DiskTypeId = lng::MInfoCD_RW + (DriveType - DRIVE_CD_RW);
 
 					break;
 			}
 
-			auto DiskTypeId = IdxMsgID;
 			string strAssocPath;
 
 			if (GetSubstName(DriveType,strDriveRoot,strAssocPath))
@@ -347,7 +348,7 @@ void InfoList::DisplayObject()
 				DriveType=DRIVE_VIRTUAL;
 			}
 
-			SectionTitle = concat(L' ', msg(DiskTypeId), L' ', msg(lng::MInfoDisk), L' ', strDriveRoot, L" ("sv, strFileSystemName, L") "sv);
+			SectionTitle = concat(msg(DiskTypeId), L' ', msg(lng::MInfoDisk), L' ', strDriveRoot, L" ("sv, strFileSystemName, L')');
 
 			switch(DriveType)
 			{
@@ -362,8 +363,7 @@ void InfoList::DisplayObject()
 				case DRIVE_SUBSTITUTE:
 				case DRIVE_VIRTUAL:
 				{
-					SectionTitle += strAssocPath;
-					SectionTitle += L' ';
+					append(SectionTitle, L' ', strAssocPath);
 				}
 				break;
 			}
@@ -373,9 +373,9 @@ void InfoList::DisplayObject()
 		else // Error!
 			SectionTitle = strDriveRoot;
 	}
-
-	if (!SectionState[ILSS_DISKINFO].Show)
+	else
 		SectionTitle = msg(lng::MInfoDiskTitle);
+
 	DrawTitle(SectionTitle,ILSS_DISKINFO,CurY);
 
 	const auto bytes_suffix = upper(msg(lng::MListBytes));
@@ -422,8 +422,7 @@ void InfoList::DisplayObject()
 	}
 
 	/* #3 - memory info */
-	SectionTitle = msg(lng::MInfoMemory);
-	DrawTitle(SectionTitle, ILSS_MEMORYINFO, CurY);
+	DrawTitle(msg(lng::MInfoMemory), ILSS_MEMORYINFO, CurY);
 
 	if (SectionState[ILSS_MEMORYINFO].Show)
 	{
@@ -474,8 +473,7 @@ void InfoList::DisplayObject()
 	/* #4 - power status */
 	if (Global->Opt->InfoPanel.ShowPowerStatus)
 	{
-		SectionTitle = msg(lng::MInfoPowerStatus);
-		DrawTitle(SectionTitle, ILSS_POWERSTATUS, CurY);
+		DrawTitle(msg(lng::MInfoPowerStatus), ILSS_POWERSTATUS, CurY);
 
 		if (SectionState[ILSS_POWERSTATUS].Show)
 		{
@@ -549,8 +547,7 @@ void InfoList::DisplayObject()
 	if (AnotherPanel->GetMode() == panel_mode::NORMAL_PANEL)
 	{
 		/* #5 - description */
-		SectionTitle = msg(lng::MInfoDescription);
-		DrawTitle(SectionTitle, ILSS_DIRDESCRIPTION, CurY);
+		DrawTitle(msg(lng::MInfoDescription), ILSS_DIRDESCRIPTION, CurY);
 
 		if (SectionState[ILSS_DIRDESCRIPTION].Show)
 		{
@@ -570,8 +567,7 @@ void InfoList::DisplayObject()
 	if (AnotherPanel->GetMode() == panel_mode::PLUGIN_PANEL)
 	{
 		/* #6 - Plugin Description */
-		SectionTitle = msg(lng::MInfoPlugin);
-		DrawTitle(SectionTitle, ILSS_PLDESCRIPTION, CurY);
+		DrawTitle(msg(lng::MInfoPlugin), ILSS_PLDESCRIPTION, CurY);
 		if (SectionState[ILSS_PLDESCRIPTION].Show)
 		{
 			if (ShowPluginDescription(CurY))
@@ -712,9 +708,9 @@ bool InfoList::ProcessKey(const Manager::Key& Key)
 		case KEY_RCTRLF12:
 			SelectShowMode();
 			return true;
+
 		case KEY_F3:
 		case KEY_NUMPAD5:  case KEY_SHIFTNUMPAD5:
-
 			if (!strDizFileName.empty())
 			{
 				m_CurDir = Parent()->GetAnotherPanel(this)->GetCurDir();
@@ -724,6 +720,7 @@ bool InfoList::ProcessKey(const Manager::Key& Key)
 
 			Parent()->Redraw();
 			return true;
+
 		case KEY_F4:
 			/* $ 30.04.2001 DJ
 			не показываем редактор, если ничего не задано в именах файлов;
@@ -757,6 +754,7 @@ bool InfoList::ProcessKey(const Manager::Key& Key)
 			Parent()->Redraw();
 			return true;
 		}
+
 		case KEY_CTRLR:
 		case KEY_RCTRLR:
 		{
@@ -810,34 +808,25 @@ bool InfoList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	bool NeedRedraw=false;
 	const auto AnotherPanel = Parent()->GetAnotherPanel(this);
-	const auto ProcessDescription = AnotherPanel->GetMode() == panel_mode::NORMAL_PANEL;
-	const auto ProcessPluginDescription = AnotherPanel->GetMode() == panel_mode::PLUGIN_PANEL;
+
+	const std::pair<InfoListSectionStateIndex, bool> Sections[]
+	{
+		{ ILSS_DISKINFO,        true },
+		{ ILSS_MEMORYINFO,      true },
+		{ ILSS_DIRDESCRIPTION,  AnotherPanel->GetMode() == panel_mode::NORMAL_PANEL },
+		{ ILSS_PLDESCRIPTION,   AnotherPanel->GetMode() == panel_mode::PLUGIN_PANEL },
+		{ ILSS_POWERSTATUS,     true },
+	};
+
 	if ((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && !(MouseEvent->dwEventFlags & MOUSE_MOVED))
 	{
-		if (MouseEvent->dwMousePosition.Y == SectionState[ILSS_DISKINFO].Y)
+		for (const auto& [Section, Enabled]: Sections)
 		{
-			SectionState[ILSS_DISKINFO].Show=!SectionState[ILSS_DISKINFO].Show;
-			NeedRedraw=true;
-		}
-		else if (MouseEvent->dwMousePosition.Y == SectionState[ILSS_MEMORYINFO].Y)
-		{
-			SectionState[ILSS_MEMORYINFO].Show=!SectionState[ILSS_MEMORYINFO].Show;
-			NeedRedraw=true;
-		}
-		else if (ProcessDescription && MouseEvent->dwMousePosition.Y == SectionState[ILSS_DIRDESCRIPTION].Y)
-		{
-			SectionState[ILSS_DIRDESCRIPTION].Show=!SectionState[ILSS_DIRDESCRIPTION].Show;
-			NeedRedraw=true;
-		}
-		else if (ProcessPluginDescription && MouseEvent->dwMousePosition.Y == SectionState[ILSS_PLDESCRIPTION].Y)
-		{
-			SectionState[ILSS_PLDESCRIPTION].Show=!SectionState[ILSS_PLDESCRIPTION].Show;
-			NeedRedraw=true;
-		}
-		else if (MouseEvent->dwMousePosition.Y == SectionState[ILSS_POWERSTATUS].Y)
-		{
-			SectionState[ILSS_POWERSTATUS].Show=!SectionState[ILSS_POWERSTATUS].Show;
-			NeedRedraw=true;
+			if (!Enabled || MouseEvent->dwMousePosition.Y != SectionState[Section].Y)
+				continue;
+
+			SectionState[Section].Show = !SectionState[Section].Show;
+			NeedRedraw = true;
 		}
 	}
 
@@ -1056,7 +1045,7 @@ bool InfoList::OpenDizFile(const string& DizFile,int YPos)
 
 	if (bOK)
 	{
-		if (!DizView->OpenFile(DizFile,FALSE))
+		if (!DizView->OpenFile(DizFile, false))
 		{
 			DizView=nullptr;
 			return false;
@@ -1067,9 +1056,8 @@ bool InfoList::OpenDizFile(const string& DizFile,int YPos)
 
 	DizView->Show();
 
-	auto strTitle = concat(L' ', PointToName(strDizFileName), L' ');
 	int CurY=YPos-1;
-	DrawTitle(strTitle,ILSS_DIRDESCRIPTION,CurY);
+	DrawTitle(PointToName(strDizFileName), ILSS_DIRDESCRIPTION, CurY);
 	return true;
 }
 

@@ -3,6 +3,16 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 22.03.2020 01:25:01 +0200 - build 5571
+
+1. 0003313: FCTL_SETPANELDIRECTORY not working for certain types of paths.
+
+2. Search results could sometimes include results of the previous search.
+
+3. Use unicode DbgHelp functions (if available).
+
+4. Refactoring.
+
 MZK 11.03.2020 23:03:40 -0700
 
 1. Translated more far:config help pages into English; cleaned up eng/TechInfo.txt.

@@ -200,24 +200,24 @@ void checker::UnregisterBlock(MEMINFO *block)
 	m_AllocatedMemorySize -= block->Size;
 }
 
-static std::string FormatLine(const char* File, int Line, const char* Function, allocation_type Type, size_t Size)
+static string FormatLine(string_view const File, int Line, string_view const Function, allocation_type Type, size_t Size)
 {
-	std::string_view sType;
+	string_view sType;
 	switch (Type)
 	{
 	case allocation_type::scalar:
-		sType = "operator new"sv;
+		sType = L"operator new"sv;
 		break;
 
 	case allocation_type::vector:
-		sType = "operator new[]"sv;
+		sType = L"operator new[]"sv;
 		break;
 
 	default:
 		throw MAKE_FAR_FATAL_EXCEPTION(L"Unknown allocation type"sv);
 	}
 
-	return format(FSTR("{0}:{1} -> {2}:{3} ({4} bytes)"), File, Line, Function, sType, Size);
+	return format(FSTR(L"{0}:{1} -> {2}:{3} ({4} bytes)"), File, Line, Function, sType, Size);
 }
 
 static size_t GetRequiredSize(size_t RequestedSize)
@@ -321,7 +321,8 @@ void checker::summary() const
 		const auto BlockSize = i->Size - sizeof(MEMINFO) - sizeof(EndMarker);
 		const auto UserAddress = ToUser(i);
 		const size_t Width = 80 - 7 - 1;
-		Message = concat(str(UserAddress), L", "sv, encoding::ansi::get_chars(FormatLine(i->File, i->Line, i->Function, i->AllocationType, BlockSize)),
+		Message = concat(
+			str(UserAddress), L", "sv, FormatLine(encoding::ansi::get_chars(i->File), i->Line, encoding::utf8::get_chars(i->Function), i->AllocationType, BlockSize),
 			L"\nData: "sv, BlobToHexWString({ UserAddress, std::min(BlockSize, Width / 3) }, L' '),
 			L"\nAnsi: "sv, printable_ansi_string(UserAddress, std::min(BlockSize, Width)),
 			L"\nWide: "sv, printable_wide_string(UserAddress, std::min(BlockSize, Width * sizeof(wchar_t))), L"\n\n"sv);

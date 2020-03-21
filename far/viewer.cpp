@@ -274,7 +274,7 @@ void Viewer::KeepInitParameters() const
 	Global->Opt->ViOpt.SearchRegexp=LastSearchRegexp;
 }
 
-bool Viewer::OpenFile(const string& Name,int warning)
+bool Viewer::OpenFile(const string& Name, bool const Warn)
 {
 	m_Codepage=m_DefCodepage;
 	m_DefCodepage=CP_DEFAULT;
@@ -320,7 +320,7 @@ bool Viewer::OpenFile(const string& Name,int warning)
 			/* $ 04.07.2000 tran
 			   + 'warning' flag processing, in QuickView it is FALSE
 				 so don't show red message box */
-			if (warning)
+			if (Warn)
 			{
 				const auto ErrorState = error_state::fetch();
 
@@ -1575,7 +1575,7 @@ bool Viewer::process_key(const Manager::Key& Key)
 					SavePosition();
 					BMSavePos.Clear(); //Prepare for new file loading
 
-					if (OpenFile(strName, TRUE))
+					if (OpenFile(strName, true))
 					{
 						SecondPos=0;
 						Show();

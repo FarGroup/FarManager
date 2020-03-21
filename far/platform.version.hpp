@@ -1,15 +1,13 @@
-﻿#ifndef TESTING_HPP_DF49B287_DB16_4C12_AB55_9D6F14D3A409
-#define TESTING_HPP_DF49B287_DB16_4C12_AB55_9D6F14D3A409
+﻿#ifndef PLATFORM_VERSION_HPP_CC7E1536_485F_4A75_862F_E15DEF06C5C5
+#define PLATFORM_VERSION_HPP_CC7E1536_485F_4A75_862F_E15DEF06C5C5
 #pragma once
 
 /*
-testing.hpp
-
-Testing framework wrapper
+platform.version.hpp
 
 */
 /*
-Copyright © 2019 Far Group
+Copyright © 2020 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -35,38 +33,31 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifdef ENABLE_TESTS
+// Internal:
 
-#ifndef TESTS_ENTRYPOINT_ONLY
+// Platform:
 
-#include "disable_warnings_in_std_begin.hpp"
+// Common:
 
-#ifdef MEMCHECK
-#pragma push_macro("new")
-#undef new
-#endif
+// External:
 
-WARNING_PUSH()
+//----------------------------------------------------------------------------
 
-WARNING_DISABLE_MSC(5204) // no page                                                'class': class has virtual functions, but its trivial destructor is not virtual; instances of objects derived from this class may not be destructed correctly
-WARNING_DISABLE_CLANG("-Weverything")
+namespace os::version
+{
+	bool is_win10_build_or_later(DWORD Build);
 
-#define CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS
+	// This versioning scheme is mental
 
-#include "thirdparty/catch2/catch.hpp"
+	inline bool is_win10_1607_or_later()
+	{
+		return is_win10_build_or_later(14393);
+	}
 
-WARNING_POP()
+	inline bool is_win10_1703_or_later()
+	{
+		return is_win10_build_or_later(15063);
+	}
+}
 
-#ifdef MEMCHECK
-#pragma pop_macro("new")
-#endif
-
-#include "disable_warnings_in_std_end.hpp"
-
-#endif
-
-std::optional<int> testing_main(int Argc, wchar_t const* const Argv[]);
-
-#endif
-
-#endif // TESTING_HPP_DF49B287_DB16_4C12_AB55_9D6F14D3A409
+#endif // PLATFORM_VERSION_HPP_CC7E1536_485F_4A75_862F_E15DEF06C5C5

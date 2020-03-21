@@ -347,6 +347,9 @@
     <ClCompile Include="platform.security.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="platform.version.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="plclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -947,6 +950,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="platform.security.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="platform.version.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="plclass.hpp">

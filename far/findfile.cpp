@@ -339,7 +339,7 @@ public:
 	void Search();
 	void Pause() const { PauseEvent.reset(); }
 	void Resume() const { PauseEvent.set(); }
-	void Stop() const { StopEvent.set(); }
+	void Stop() const { PauseEvent.set(); StopEvent.set(); }
 	bool Stopped() const { return StopEvent.is_signaled(); }
 	bool Finished() const { return m_Finished; }
 
@@ -1282,6 +1282,17 @@ bool background_searcher::IsFileIncluded(PluginPanelItem* FileItem, string_view 
 	return LookForString(strSearchFileName) ^ NotContaining;
 }
 
+static void clear_queue(os::synced_queue<FindFiles::AddMenuData>& Messages)
+{
+	SCOPED_ACTION(auto)(Messages.scoped_lock());
+
+	FindFiles::AddMenuData Data;
+	while (Messages.try_pop(Data))
+	{
+		FreePluginPanelItemUserData(Data.m_Arc? Data.m_Arc->hPlugin : nullptr, { Data.m_Data, Data.m_FreeData });
+	}
+}
+
 intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
 	if (!m_ExceptionPtr)
@@ -1315,20 +1326,16 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			++Recurse;
 			SCOPE_EXIT{ --Recurse; };
 			{
-				SCOPED_ACTION(auto)(m_Messages.scoped_lock());
 				size_t EventsCount = 0;
 				const time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 				while (!m_Messages.empty() && 0 == EventsCount)
 				{
 					if (m_Searcher->Stopped())
 					{
-						// The user has decided to stop the search so they must be satisfied with the results already.
-						// No need to process the rest of the messages
-
-						AddMenuData Data;
-						while (m_Messages.try_pop(Data))
+						// The request to stop might arrive in the middle of something and searcher can still pump some messages
+						while (!m_Searcher->Finished())
 						{
-							FreePluginPanelItemUserData(Data.m_Arc? Data.m_Arc->hPlugin : nullptr, { Data.m_Data, Data.m_FreeData });
+							clear_queue(m_Messages);
 						}
 					}
 
@@ -1442,14 +1449,11 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					if (!m_Searcher->Finished())
 					{
 						m_Searcher->Pause();
-						bool LocalRes=true;
-						if (Global->Opt->Confirm.Esc)
-							LocalRes=ConfirmAbortOp()!=0;
-						m_Searcher->Resume();
-						if(LocalRes)
-						{
-							m_Searcher->Stop();
-						}
+
+						ConfirmAbortOp()?
+							m_Searcher->Stop() :
+							m_Searcher->Resume();
+
 						return TRUE;
 					}
 				}
@@ -2213,7 +2217,7 @@ void background_searcher::DoScanTree(const string& strRoot)
 					// сюда заходим, если не попали в фильтр или попали в Exclude-фильтр
 					if (FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY && FilterStatus == filter_status::in_exclude)
 						ScTree.SkipDir(); // скипаем только по Exclude-фильтру, т.к. глубже тоже нужно просмотреть
-					return;
+					return !Stopped();
 				}
 
 				if (FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY)
@@ -2228,10 +2232,13 @@ void background_searcher::DoScanTree(const string& strRoot)
 
 				if (SearchInArchives)
 					ArchiveSearch(FullStreamName);
+
+				return !Stopped();
 			};
 
 			// default stream first:
-			ProcessStream(strFullName);
+			if (!ProcessStream(strFullName))
+				break;
 
 			// now the rest:
 			if (Global->Opt->FindOpt.FindAlternateStreams)
@@ -2253,7 +2260,8 @@ void background_searcher::DoScanTree(const string& strRoot)
 					FindData.FileSize = StreamData.StreamSize.QuadPart;
 					FindData.Attributes &= ~FILE_ATTRIBUTE_DIRECTORY;
 
-					ProcessStream(FullStreamName);
+					if (!ProcessStream(FullStreamName))
+						break;
 				}
 			}
 		}
@@ -2593,6 +2601,8 @@ bool FindFiles::FindFilesProcess()
 	Dlg->SetId(FindFileResultId);
 
 	m_ResultsDialogPtr = Dlg.get();
+
+	clear_queue(m_Messages);
 
 		{
 			background_searcher BC(this, strFindStr, SearchMode, CodePage, ConvertFileSizeString(Global->Opt->FindOpt.strSearchInFirstSize), CmpCase, WholeWords, SearchInArchives, SearchHex, NotContaining, UseFilter, PluginMode);

@@ -1,15 +1,9 @@
-﻿#ifndef TESTING_HPP_DF49B287_DB16_4C12_AB55_9D6F14D3A409
-#define TESTING_HPP_DF49B287_DB16_4C12_AB55_9D6F14D3A409
-#pragma once
-
-/*
-testing.hpp
-
-Testing framework wrapper
+﻿/*
+platform.version.cpp
 
 */
 /*
-Copyright © 2019 Far Group
+Copyright © 2020 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -35,38 +29,36 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifdef ENABLE_TESTS
+// Self:
+#include "platform.version.hpp"
 
-#ifndef TESTS_ENTRYPOINT_ONLY
+// Internal:
 
-#include "disable_warnings_in_std_begin.hpp"
+// Platform:
 
-#ifdef MEMCHECK
-#pragma push_macro("new")
-#undef new
-#endif
+// Common:
 
-WARNING_PUSH()
+// External:
 
-WARNING_DISABLE_MSC(5204) // no page                                                'class': class has virtual functions, but its trivial destructor is not virtual; instances of objects derived from this class may not be destructed correctly
-WARNING_DISABLE_CLANG("-Weverything")
+//----------------------------------------------------------------------------
 
-#define CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS
+namespace os::version
+{
+	template<DWORD... Components>
+	static unsigned long long condition_mask(DWORD const Operation)
+	{
+		return (... | VerSetConditionMask(0, Components, Operation));
+	}
 
-#include "thirdparty/catch2/catch.hpp"
+	bool is_win10_build_or_later(DWORD const Build)
+	{
+		static const auto Result = [&]
+		{
+			OSVERSIONINFOEXW osvi{ sizeof(osvi), HIBYTE(_WIN32_WINNT_WIN10), LOBYTE(_WIN32_WINNT_WIN10), Build };
+				const auto ConditionMask = condition_mask<VER_MAJORVERSION, VER_MINORVERSION, VER_BUILDNUMBER>(VER_GREATER_EQUAL);
+				return VerifyVersionInfo(&osvi, VER_MAJORVERSION | VER_MINORVERSION | VER_BUILDNUMBER, ConditionMask) != FALSE;
+		}();
 
-WARNING_POP()
-
-#ifdef MEMCHECK
-#pragma pop_macro("new")
-#endif
-
-#include "disable_warnings_in_std_end.hpp"
-
-#endif
-
-std::optional<int> testing_main(int Argc, wchar_t const* const Argv[]);
-
-#endif
-
-#endif // TESTING_HPP_DF49B287_DB16_4C12_AB55_9D6F14D3A409
+		return Result;
+	}
+}

@@ -294,6 +294,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="platform.memory.cpp" />
     <ClCompile Include="platform.reg.cpp" />
     <ClCompile Include="platform.security.cpp" />
+    <ClCompile Include="platform.version.cpp" />
     <ClCompile Include="plclass.cpp" />
     <ClCompile Include="plist.cpp" />
     <ClCompile Include="plugapi.cpp" />
@@ -506,6 +507,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="platform.memory.hpp" />
     <ClInclude Include="platform.reg.hpp" />
     <ClInclude Include="platform.security.hpp" />
+    <ClInclude Include="platform.version.hpp" />
     <ClInclude Include="plclass.hpp" />
     <ClInclude Include="plist.hpp" />
     <ClInclude Include="plugapi.hpp" />

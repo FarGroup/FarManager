@@ -139,6 +139,8 @@ namespace os::memory
 
 	[[nodiscard]]
 	bool is_pointer(const void* Address);
+
+	void enable_low_fragmentation_heap();
 }
 
 #endif // PLATFORM_MEMORY_HPP_87E958A6_C4DE_4F53_A9F6_337D97D664E6

@@ -211,6 +211,7 @@ LINK_OBJS = \
 	"$(INTDIR)\platform.memory.obj" \
 	"$(INTDIR)\platform.reg.obj" \
 	"$(INTDIR)\platform.security.obj" \
+	"$(INTDIR)\platform.version.obj" \
 	"$(INTDIR)\plclass.obj" \
 	"$(INTDIR)\plist.obj" \
 	"$(INTDIR)\plugapi.obj" \

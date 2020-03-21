@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 #include "platform.hpp"
 #include "platform.reg.hpp"
+#include "platform.version.hpp"
 
 // Common:
 #include "common/algorithm.hpp"
@@ -315,8 +316,12 @@ namespace os::fs
 
 		auto Handle = std::make_unique<far_find_file_handle_impl>();
 
+		string_view NamePart;
 		auto Directory = Name;
-		CutToSlash(Directory);
+		if (CutToSlash(Directory))
+		{
+			NamePart = Name.substr(Directory.size());
+		}
 
 		const auto OpenDirectory = [&]
 		{
@@ -326,7 +331,7 @@ namespace os::fs
 		if (!OpenDirectory())
 		{
 			// fix error code if we are looking for FILE(S) in a non-existent directory, not for a directory itself
-			if (GetLastError() == ERROR_FILE_NOT_FOUND && !PointToName(Name).empty())
+			if (GetLastError() == ERROR_FILE_NOT_FOUND && !NamePart.empty())
 			{
 				SetLastError(ERROR_PATH_NOT_FOUND);
 			}
@@ -335,8 +340,6 @@ namespace os::fs
 
 		// for network paths buffer size must be <= 64k
 		Handle->BufferBase.reset(65536);
-
-		const auto NamePart = PointToName(Name);
 		Handle->Extended = true;
 
 		bool QueryResult = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.data(), Handle->BufferBase.size(), FileIdBothDirectoryInformation, false, NamePart, true);
@@ -1578,7 +1581,21 @@ namespace os::fs
 
 	bool SetProcessRealCurrentDirectory(const string& Directory)
 	{
-		return ::SetCurrentDirectory(Directory.c_str()) != FALSE;
+		if constexpr (features::win10_curdir)
+		{
+			/*
+			The final character before the null character must be a backslash (''). If you do not specify the backslash, it will be added for you
+			https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-setcurrentdirectory
+			It seems that "it will be added for you" doesn't work for funny names with trailing dots or spaces, so we add it ourselves.
+			 */
+			auto DirectoryWithSlash = Directory;
+			AddEndSlash(DirectoryWithSlash);
+			return ::SetCurrentDirectory(DirectoryWithSlash.c_str()) != FALSE;
+		}
+		else
+		{
+			return ::SetCurrentDirectory(Directory.c_str()) != FALSE;
+		}
 	}
 
 	void InitCurrentDirectory()
@@ -1635,13 +1652,23 @@ namespace os::fs
 
 		CurrentDirectory() = strDir;
 
-#ifndef NO_WRAPPER
 		// try to synchronize far current directory with process current directory
-		if (Global->CtrlObject && Global->CtrlObject->Plugins->OemPluginsPresent())
+		if (
+			// https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-setcurrentdirectory
+			// Starting with Windows 10, version 1607, for the unicode version of this function (SetCurrentDirectoryW), you can opt-in to remove the MAX_PATH limitation
+			// I'm not yet sure we should though
+			(features::win10_curdir && version::is_win10_1607_or_later()) ||
+#ifndef NO_WRAPPER
+
+			// Legacy plugins expect that the current directory is set
+			(Global->CtrlObject && Global->CtrlObject->Plugins->OemPluginsPresent())
+#else
+			false
+#endif // NO_WRAPPER
+		)
 		{
 			SetProcessRealCurrentDirectory(strDir);
 		}
-#endif // NO_WRAPPER
 		return true;
 	}
 
@@ -2191,33 +2218,12 @@ namespace os::fs
 		return file(Name, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, CREATE_ALWAYS, FILE_FLAG_DELETE_ON_CLOSE)? true : false;
 	}
 
-	template<DWORD... Components>
-	static unsigned long long condition_mask(DWORD Operation)
-	{
-		return (... | VerSetConditionMask(0, Components, Operation));
-	}
-
-	static bool is_win10_1703_or_later()
-	{
-		static const auto Result = []
-		{
-			const auto Win10_1703_build = 15063;
-			OSVERSIONINFOEXW osvi{ sizeof(osvi), HIBYTE(_WIN32_WINNT_WIN10), LOBYTE(_WIN32_WINNT_WIN10), Win10_1703_build };
-
-			const auto ConditionMask = condition_mask<VER_MAJORVERSION, VER_MINORVERSION, VER_BUILDNUMBER>(VER_GREATER_EQUAL);
-
-			return VerifyVersionInfo(&osvi, VER_MAJORVERSION | VER_MINORVERSION | VER_BUILDNUMBER, ConditionMask) != FALSE;
-		}();
-
-		return Result;
-	}
-
 	bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD Flags)
 	{
 		if (!imports.CreateSymbolicLinkW)
 			return CreateReparsePoint(Target, Object, Flags & SYMBOLIC_LINK_FLAG_DIRECTORY? RP_SYMLINKDIR : RP_SYMLINKFILE);
 
-		static const DWORD unpriv_flag = is_win10_1703_or_later()? SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE : 0;
+		static const DWORD unpriv_flag = version::is_win10_1703_or_later()? SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE : 0;
 
 		return imports.CreateSymbolicLinkW(Object.c_str(), Target.c_str(), Flags | unpriv_flag) != FALSE;
 	}

@@ -128,6 +128,7 @@ SRCS = \
 	platform.memory.cpp \
 	platform.reg.cpp \
 	platform.security.cpp \
+	platform.version.cpp \
 	plist.cpp \
 	plclass.cpp \
 	plugapi.cpp \

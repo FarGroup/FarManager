@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/compiler.hpp"
+#include "common/preprocessor.hpp"
 
 // External:
 
@@ -80,30 +81,30 @@ extern "C" void* wow_disable()
 	return p;
 }
 
-
-static void
 #if COMPILER(GCC)
-// Unfortunately GCC doesn't support this attribute on x86 until v8
-#if _GCC_VER >= GCC_VER_(8, 0, 0)
-__attribute__((naked))
-#endif
+	#if _GCC_VER >= GCC_VER_(8, 0, 0)
+		#define NAKED __attribute__((naked))
+	#else
+		#define NAKED // Unfortunately GCC doesn't support this attribute on x86 until v8
+	#endif
 #elif COMPILER(CLANG)
-__attribute__((naked))
+	#define NAKED __attribute__((naked))
 #else
-__declspec(naked)
-#endif
-hook_ldr() noexcept
-{
-#if COMPILER(GCC)
-#define ASM_BLOCK_BEGIN __asm__(
-#define ASM_BLOCK_END );
-#define ASM(...) #__VA_ARGS__"\n"
-#else
-#define ASM_BLOCK_BEGIN __asm {
-#define ASM_BLOCK_END }
-#define ASM(...) __VA_ARGS__
+	#define NAKED __declspec(naked)
 #endif
 
+#if COMPILER(GCC)
+	#define ASM_BLOCK_BEGIN __asm__(
+	#define ASM_BLOCK_END );
+	#define ASM(...) #__VA_ARGS__"\n"
+#else
+	#define ASM_BLOCK_BEGIN __asm {
+	#define ASM_BLOCK_END }
+	#define ASM(...) __VA_ARGS__
+#endif
+
+static void NAKED hook_ldr() noexcept
+{
 	ASM_BLOCK_BEGIN
 		ASM(call    wow_restore )                                  // 5
 		ASM(pop     edx         ) // real call                     // 1
@@ -123,14 +124,15 @@ hook_ldr() noexcept
 		ASM(push    0x240       )                                  //+1 = 35
 		ASM(jmp     edx         )
 	ASM_BLOCK_END
+}
 
-#define HOOK_PUSH_OFFSET  35
+constexpr auto HookPushOffset = 35;
 
 #undef ASM_BLOCK_BEGIN
 #undef ASM_BLOCK_END
 #undef ASM
-}
 
+#undef NAKED
 
 template<auto Function>
 static auto GetProcAddressImpl(HMODULE const Module, const char* const Name) noexcept
@@ -140,24 +142,39 @@ static auto GetProcAddressImpl(HMODULE const Module, const char* const Name) noe
 
 #define GETPROCADDRESS(Module, Name) GetProcAddressImpl<&Name>(Module, #Name)
 
-template<typename callable>
-static bool unprotected(void* const Address, DWORD const Size, const callable& Callable) noexcept
+class remove_protection
 {
-	// don't use WriteProcessMemory here - BUG in 2003x64 32bit kernel32.dll :(
+public:
+	NONCOPYABLE(remove_protection);
 
-	DWORD Protection;
-	if (!VirtualProtect(Address, Size, PAGE_EXECUTE_READWRITE, &Protection))
-		return false;
+	remove_protection(void* const Address, DWORD const Size):
+		m_Address(Address),
+		m_Size(Size)
+	{
+		if (!VirtualProtect(Address, Size, PAGE_EXECUTE_READWRITE, &m_Protection))
+			m_Address = {};
+	}
 
-	Callable();
+	~remove_protection()
+	{
+		if (m_Address)
+			VirtualProtect(m_Address, m_Size, m_Protection, &m_Protection);
+	}
 
-	return VirtualProtect(Address, Size, Protection, &Protection);
-}
+	explicit operator bool() const
+	{
+		return m_Address != nullptr;
+	}
 
+private:
+	void* m_Address;
+	DWORD m_Size;
+	DWORD m_Protection;
+};
 
 static void init_hook() noexcept
 {
-	const auto Kernel32 = GetModuleHandleW(L"kernel32");
+	const auto Kernel32 = GetModuleHandle(L"kernel32");
 	if (!Kernel32)
 		return;
 
@@ -174,48 +191,49 @@ static void init_hook() noexcept
 	if (!Revert)
 		return;
 
-	const auto Ntdll = GetModuleHandleW(L"ntdll");
+	const auto Ntdll = GetModuleHandle(L"ntdll");
 	if (!Ntdll)
 		return;
 
-	const union
-	{
-		FARPROC f;
-		DWORD* pd;
-		BYTE* pb;
-		DWORD d;
-	}
-	ur
-	{
-		GetProcAddress(Ntdll, "LdrLoadDll")
-	};
-
-	if (!ur.f)
+	const auto LdrLoadDll = GetProcAddress(Ntdll, "LdrLoadDll");
+	if (!LdrLoadDll)
 		return;
 
-	if (ur.pb[0] != 0x68     // push m32
-		&& (ur.pd[0] != 0x8B55FF8B || ur.pb[4] != 0xEC))
-			return;
+	const auto FunctionData = reinterpret_cast<BYTE*>(LdrLoadDll);
 
-	// (Win2008-R2) mov edi, edi; push ebp; mov ebp, esp
+	if (!
+		(
+			// push m32
+			FunctionData[0] == 0x68
+		||
+		(
+			// (Win2008-R2) mov edi, edi; push ebp; mov ebp, esp
+			FunctionData[0] == 0x8b &&
+			FunctionData[1] == 0xff &&
+			FunctionData[2] == 0x55 &&
+			FunctionData[3] == 0x8b &&
+			FunctionData[4] == 0xEC
+		))
+	)
+		return;
+
+	auto loff = *reinterpret_cast<DWORD const*>(FunctionData + 1);
+	const auto p_loff = reinterpret_cast<BYTE*>(&hook_ldr) + HookPushOffset;
+
+	if (loff != *reinterpret_cast<DWORD const*>(p_loff))  // 0x240 in non vista, 0x244 in vista/2008
 	{
-		auto loff = *reinterpret_cast<DWORD const*>(ur.pb + 1);
-		const auto p_loff = reinterpret_cast<BYTE*>(&hook_ldr) + HOOK_PUSH_OFFSET;
-
-		if (loff != *reinterpret_cast<DWORD const*>(p_loff))  // 0x240 in non vista, 0x244 in vista/2008
+		if (SCOPED_ACTION(remove_protection){ p_loff - 1, sizeof(loff) + 1 })
 		{
-			if (!unprotected(p_loff - 1, sizeof(loff) + 1, [&]
+			if (FunctionData[0] != 0x68)   // Win7r2 (not push .... => mov edi,edi)
 			{
-				if (ur.pb[0] != 0x68)   // Win7r2 (not push .... => mov edi,edi)
-				{
-					p_loff[-1] = 0x90;  // nop
-					loff = 0xE5895590;  // nop; push ebp; mov ebp, esp
-				}
+				p_loff[-1] = 0x90;  // nop
+				loff = 0xE5895590;  // nop; push ebp; mov ebp, esp
+			}
 
-				*reinterpret_cast<DWORD*>(p_loff) = loff;
-			}))
-				return;
+			*reinterpret_cast<DWORD*>(p_loff) = loff;
 		}
+		else
+			return;
 	}
 
 	PACK_PUSH(1)
@@ -227,19 +245,23 @@ static void init_hook() noexcept
 	Data
 	{
 		0xE8,
-		static_cast<DWORD>(reinterpret_cast<uintptr_t>(reinterpret_cast<char*>(hook_ldr))) - sizeof(Data) - ur.d
+		reinterpret_cast<DWORD>(hook_ldr) - sizeof(Data) - reinterpret_cast<DWORD>(LdrLoadDll)
 	};
 	PACK_POP()
 
-	if (!unprotected(ur.pb, sizeof(Data), [&]{ memcpy(ur.pb, &Data, sizeof(Data)); }))
+	if (SCOPED_ACTION(remove_protection){ FunctionData, sizeof(Data) })
+	{
+		std::memcpy(FunctionData, &Data, sizeof(Data));
+	}
+	else
 		return;
 
-	unprotected(const_cast<wow*>(&Wow), sizeof(Wow), [&]
+	if (SCOPED_ACTION(remove_protection){ const_cast<wow*>(&Wow), sizeof(Wow) })
 	{
-		auto& mWow = const_cast<volatile wow&>(Wow);
-		mWow.disable = Disable;
-		mWow.revert = Revert;
-	});
+		auto& MutableWow = const_cast<volatile wow&>(Wow);
+		MutableWow.disable = Disable;
+		MutableWow.revert = Revert;
+	}
 }
 
 

@@ -206,8 +206,6 @@ namespace os
 
 	bool WNetGetConnection(string_view LocalName, string &RemoteName);
 
-	void EnableLowFragmentationHeap();
-
 	[[nodiscard]]
 	string GetPrivateProfileString(string_view AppName, string_view KeyName, string_view Default, string_view FileName);
 
@@ -299,6 +297,9 @@ namespace os
 
 			[[nodiscard]]
 			explicit operator bool() const noexcept { return get_pointer() != nullptr; }
+
+			[[nodiscard]]
+			std::string_view name() const { return m_Name; }
 
 		private:
 			[[nodiscard]]

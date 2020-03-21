@@ -3552,17 +3552,15 @@ bool FileList::FindPartName(const string& Name,int Next,int Direct)
 	if constexpr (!features::mantis_698) {
 
 	int DirFind = 0;
-	string strMask = Name;
+	string_view NameView = Name;
 
 	if (!Name.empty() && IsSlash(Name.back()))
 	{
 		DirFind = 1;
-		strMask.pop_back();
+		NameView.remove_suffix(1);
 	}
 
-	strMask += L'*';
-
-	exclude_sets(strMask);
+	const auto strMask = exclude_sets(NameView + L'*');
 
 	const auto Match = [&](int const I)
 	{
@@ -3611,9 +3609,7 @@ bool FileList::FindPartName(const string& Name,int Next,int Direct)
 	}
 
 /*
-	strMask += L'*';
-
-	exclude_sets(strMask);
+	strMask = exclude_sets(strMask + L'*');
 */
 
 	for (int I = m_CurFile + (Next ? Direct : 0); I >= 0 && static_cast<size_t>(I) < m_ListData.size(); I += Direct)
