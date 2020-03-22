@@ -84,7 +84,7 @@ static auto GetBackTrace(CONTEXT ContextRecord, HANDLE ThreadHandle)
 
 static void GetSymbols(const std::vector<const void*>& BackTrace, function_ref<void(string&&, string&&, string&&)> const Consumer)
 {
-	SCOPED_ACTION(auto)(tracer::with_symbols());
+	SCOPED_ACTION(tracer::with_symbols);
 
 	const auto Process = GetCurrentProcess();
 	const auto MaxNameLen = MAX_SYM_NAME;
@@ -180,7 +180,7 @@ EXCEPTION_POINTERS tracer::get_pointers()
 
 std::vector<const void*> tracer::get(const EXCEPTION_POINTERS& Pointers, HANDLE ThreadHandle)
 {
-	SCOPED_ACTION(auto)(with_symbols());
+	SCOPED_ACTION(tracer::with_symbols);
 
 	return GetBackTrace(*Pointers.ContextRecord, ThreadHandle);
 }

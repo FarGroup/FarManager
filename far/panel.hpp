@@ -191,7 +191,7 @@ public:
 	virtual void RefreshTitle();
 	virtual string GetTitle() const;
 	virtual bool SendKeyToPlugin(DWORD Key,bool Pred=false) {return false;}
-	virtual bool SetCurDir(string_view NewDir, bool ClosePanel, bool IsUpdated = true);
+	virtual bool SetCurDir(string_view NewDir, bool ClosePanel, bool IsUpdated = true, bool Silent = false);
 	virtual void ChangeDirToCurrent();
 	virtual const string& GetCurDir() const;
 	virtual size_t GetSelCount() const { return 0; }

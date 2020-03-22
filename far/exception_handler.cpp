@@ -384,7 +384,7 @@ static reply ExcDialog(
 	// TODO: Far Dialog is not the best choice for exception reporting
 	// replace with something trivial
 
-	SCOPED_ACTION(auto)(tracer::with_symbols());
+	SCOPED_ACTION(tracer::with_symbols);
 
 	string Address, Name, Source;
 	tracer::get_symbol(Context.pointers()->ExceptionRecord->ExceptionAddress, Address, Name, Source);
@@ -486,7 +486,7 @@ static reply ExcConsole(
 	std::vector<const void*> const* const NestedStack
 )
 {
-	SCOPED_ACTION(auto)(tracer::with_symbols());
+	SCOPED_ACTION(tracer::with_symbols);
 
 	string Address, Name, Source;
 	tracer::get_symbol(Context.pointers()->ExceptionRecord->ExceptionAddress, Address, Name, Source);

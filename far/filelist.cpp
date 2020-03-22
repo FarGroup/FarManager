@@ -2666,7 +2666,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			// Don't use CurItem directly: ChangeDir calls PopPlugin, which clears m_ListData
 			const auto DirCopy = CurItem.FileName;
 			const auto DataItemCopy = CurItem.UserData;
-			ChangeDir(DirCopy, IsParentDirectory(CurItem), false, true, &DataItemCopy, Type);
+			ChangeDir(DirCopy, IsParentDirectory(CurItem), false, true, &DataItemCopy, Type, false);
 
 			//"this" может быть удалён в ChangeDir
 			const auto ActivePanel = OldParent->ActivePanel();
@@ -2775,7 +2775,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 }
 
 
-bool FileList::SetCurDir(string_view const NewDir, bool ClosePanel, bool IsUpdated)
+bool FileList::SetCurDir(string_view const NewDir, bool ClosePanel, bool IsUpdated, bool const Silent)
 {
 	UserDataItem UsedData{};
 
@@ -2818,13 +2818,13 @@ bool FileList::SetCurDir(string_view const NewDir, bool ClosePanel, bool IsUpdat
 
 	if (!NewDir.empty())
 	{
-		return ChangeDir(NewDir, NewDir == L".."sv, true, IsUpdated, &UsedData, OFP_NORMAL);
+		return ChangeDir(NewDir, NewDir == L".."sv, true, IsUpdated, &UsedData, OFP_NORMAL, Silent);
 	}
 
 	return false;
 }
 
-bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePath,bool IsUpdated, const UserDataItem* DataItem, OPENFILEPLUGINTYPE OfpType)
+bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePath,bool IsUpdated, const UserDataItem* DataItem, OPENFILEPLUGINTYPE OfpType, bool const Silent)
 {
 	if (m_PanelMode != panel_mode::PLUGIN_PANEL && !IsAbsolutePath(NewDir) && !equal_icase(os::fs::GetCurrentDirectory(), m_CurDir))
 		FarChDir(m_CurDir);
@@ -2990,7 +2990,7 @@ bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePa
 
 	if (!FarChDir(strSetDir))
 	{
-		if (Global->WindowManager->ManagerStarted())
+		if (!Silent && Global->WindowManager->ManagerStarted())
 		{
 			/* $ 03.11.2001 IS Укажем имя неудачного каталога */
 			Message(MSG_WARNING, error_state::fetch(),
@@ -3043,7 +3043,7 @@ bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePa
 
 bool FileList::ChangeDir(string_view const NewDir, bool IsParent)
 {
-	return ChangeDir(NewDir, IsParent, false, true, nullptr, OFP_NORMAL);
+	return ChangeDir(NewDir, IsParent, false, true, nullptr, OFP_NORMAL, false);
 }
 
 bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)

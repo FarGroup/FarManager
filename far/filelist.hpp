@@ -152,7 +152,7 @@ public:
 	void ChangeSortOrder(bool Reverse) override;
 	void ChangeDirectoriesFirst(bool Mode) override;
 	void OnSortingChange() override;
-	bool SetCurDir(string_view NewDir, bool ClosePanel, bool IsUpdated = true) override;
+	bool SetCurDir(string_view NewDir, bool ClosePanel, bool IsUpdated = true, bool Silent = false) override;
 	panel_sort GetPrevSortMode() const override;
 	bool GetPrevSortOrder() const override;
 	int GetPrevViewMode() const override;
@@ -262,7 +262,7 @@ private:
 	long SelectFiles(int Mode, string_view Mask = {});
 	void ProcessEnter(bool EnableExec, bool SeparateWindow, bool EnableAssoc, bool RunAs, OPENFILEPLUGINTYPE Type);
 	// ChangeDir возвращает false, eсли не смогла выставить заданный путь
-	bool ChangeDir(string_view NewDir, bool IsParent, bool ResolvePath, bool IsUpdated, const UserDataItem* DataItem, OPENFILEPLUGINTYPE OfpType);
+	bool ChangeDir(string_view NewDir, bool IsParent, bool ResolvePath, bool IsUpdated, const UserDataItem* DataItem, OPENFILEPLUGINTYPE OfpType, bool Silent);
 	bool ChangeDir(string_view NewDir, bool IsParent);
 	void CountDirSize(bool IsRealNames);
 	void ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, int DrawMessage);

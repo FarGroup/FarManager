@@ -1448,7 +1448,7 @@ void TreeList::CorrectPosition()
 		m_CurTopFile=m_CurFile-(Height-1);
 }
 
-bool TreeList::SetCurDir(string_view const NewDir,bool ClosePanel,bool /*IsUpdated*/)
+bool TreeList::SetCurDir(string_view const NewDir, bool const ClosePanel, bool const IsUpdated, bool const Silent)
 {
 	if (m_ListData.empty())
 		Update(0);

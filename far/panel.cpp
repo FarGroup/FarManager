@@ -294,7 +294,7 @@ const string& Panel::GetCurDir() const
 }
 
 
-bool Panel::SetCurDir(string_view const NewDir, bool ClosePanel, bool /*IsUpdated*/)
+bool Panel::SetCurDir(string_view const NewDir, bool const ClosePanel, bool const IsUpdated, bool const Silent)
 {
 	InitCurDir(NewDir);
 	return true;
@@ -1085,14 +1085,14 @@ bool Panel::ExecFolder(string_view const Folder, const GUID& PluginGuid, const s
 		return Result;
 	}
 
-	auto ExpandedShortcutFolder = os::env::expand(Folder);
+	auto ExpandedFolder = os::env::expand(Folder);
 
-	if ((TryClosest && !CheckShortcutFolder(ExpandedShortcutFolder, TryClosest, Silent)) || ProcessPluginEvent(FE_CLOSE, nullptr))
+	if ((TryClosest && !CheckShortcutFolder(ExpandedFolder, TryClosest, Silent)) || ProcessPluginEvent(FE_CLOSE, nullptr))
 	{
 		return false;
 	}
 
-	if (!SrcPanel->SetCurDir(ExpandedShortcutFolder, true))
+	if (!SrcPanel->SetCurDir(ExpandedFolder, true, true, Silent))
 		return false;
 
 	if (CheckFullScreen!=SrcPanel->IsFullScreen())

@@ -52,26 +52,21 @@ public:
 	static void get_symbols(const std::vector<const void*>& Trace, function_ref<void(string&& Address, string&& Name, string&& Source)> Consumer);
 	static void get_symbol(const void* Ptr, string& Address, string& Name, string& Source);
 
-	static auto with_symbols()
+	class with_symbols
 	{
-		class with_symbols_t
+	public:
+		NONCOPYABLE(with_symbols);
+
+		with_symbols()
 		{
-		public:
-			NONCOPYABLE(with_symbols_t);
+			sym_initialise();
+		}
 
-			with_symbols_t()
-			{
-				sym_initialise();
-			}
-
-			~with_symbols_t()
-			{
-				sym_cleanup();
-			}
-		};
-
-		return with_symbols_t{};
-	}
+		~with_symbols()
+		{
+			sym_cleanup();
+		}
+	};
 
 private:
 	static void sym_initialise();
