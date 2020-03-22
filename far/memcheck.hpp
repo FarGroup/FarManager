@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Internal:
 #include "common/nifty_counter.hpp"
+#include "common/preprocessor.hpp"
 
 // Platform:
 
@@ -58,14 +59,14 @@ namespace memcheck
 
 NIFTY_DECLARE(memcheck::checker, Checker);
 
-void* operator new(size_t size, const char* Function, const char* File, int Line);
-void* operator new(size_t size, const std::nothrow_t& nothrow_value, const char* Function, const char* File, int Line) noexcept;
-void* operator new[](size_t size, const char* Function, const char* File, int Line);
-void* operator new[](size_t size, const std::nothrow_t& nothrow_value, const char* Function, const char* File, int Line) noexcept;
-void operator delete(void* block, const char* Function, const char* File, int Line);
-void operator delete[](void* block, const char* Function, const char* File, int Line);
+void* operator new(size_t size, const char* Function, string_view File, int Line);
+void* operator new(size_t size, const std::nothrow_t& nothrow_value, const char* Function, string_view File, int Line) noexcept;
+void* operator new[](size_t size, const char* Function, string_view File, int Line);
+void* operator new[](size_t size, const std::nothrow_t& nothrow_value, const char* Function, string_view File, int Line) noexcept;
+void operator delete(void* block, const char* Function, string_view File, int Line);
+void operator delete[](void* block, const char* Function, string_view File, int Line);
 
-#define new new(__FUNCTION__, __FILE__, __LINE__)
+#define new new(__FUNCTION__, WIDE_SV(__FILE__), __LINE__)
 #endif
 
 #endif // MEMCHECK_HPP_3DC127D2_3D5C_4E0C_BFDD_6CE23AE099DB

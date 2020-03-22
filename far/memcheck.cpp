@@ -66,7 +66,7 @@ struct alignas(MEMORY_ALLOCATION_ALIGNMENT) MEMINFO
 {
 	allocation_type AllocationType;
 	int Line;
-	const char* File;
+	string_view File;
 	const char* Function;
 	size_t Size;
 	MEMINFO* prev;
@@ -227,7 +227,7 @@ static size_t GetRequiredSize(size_t RequestedSize)
 	return sizeof(MEMINFO) + RequestedSize + sizeof(EndMarker);
 }
 
-static void* DebugAllocator(size_t size, bool Noexcept, allocation_type type, const char* Function, const char* File, int Line)
+static void* DebugAllocator(size_t const size, bool const Noexcept, allocation_type const type, const char* const Function, string_view const File, int const Line)
 {
 	const auto realSize = GetRequiredSize(size);
 
@@ -322,7 +322,7 @@ void checker::summary() const
 		const auto UserAddress = ToUser(i);
 		const size_t Width = 80 - 7 - 1;
 		Message = concat(
-			str(UserAddress), L", "sv, FormatLine(encoding::ansi::get_chars(i->File), i->Line, encoding::utf8::get_chars(i->Function), i->AllocationType, BlockSize),
+			str(UserAddress), L", "sv, FormatLine(i->File, i->Line, encoding::utf8::get_chars(i->Function), i->AllocationType, BlockSize),
 			L"\nData: "sv, BlobToHexWString({ UserAddress, std::min(BlockSize, Width / 3) }, L' '),
 			L"\nAnsi: "sv, printable_ansi_string(UserAddress, std::min(BlockSize, Width)),
 			L"\nWide: "sv, printable_wide_string(UserAddress, std::min(BlockSize, Width * sizeof(wchar_t))), L"\n\n"sv);
@@ -335,40 +335,40 @@ void checker::summary() const
 
 void* operator new(size_t size)
 {
-	return memcheck::DebugAllocator(size, false, memcheck::allocation_type::scalar, __FUNCTION__, __FILE__, __LINE__);
+	return memcheck::DebugAllocator(size, false, memcheck::allocation_type::scalar, __FUNCTION__, WIDE_SV(__FILE__), __LINE__);
 }
 
 void* operator new(size_t size, const std::nothrow_t&) noexcept
 {
-	return memcheck::DebugAllocator(size, true, memcheck::allocation_type::scalar, __FUNCTION__, __FILE__, __LINE__);
+	return memcheck::DebugAllocator(size, true, memcheck::allocation_type::scalar, __FUNCTION__, WIDE_SV(__FILE__), __LINE__);
 }
 
 void* operator new[](size_t size)
 {
-	return memcheck::DebugAllocator(size, false, memcheck::allocation_type::vector, __FUNCTION__, __FILE__, __LINE__);
+	return memcheck::DebugAllocator(size, false, memcheck::allocation_type::vector, __FUNCTION__, WIDE_SV(__FILE__), __LINE__);
 }
 
 void* operator new[](size_t size, const std::nothrow_t&) noexcept
 {
-	return memcheck::DebugAllocator(size, true, memcheck::allocation_type::vector, __FUNCTION__, __FILE__, __LINE__);
+	return memcheck::DebugAllocator(size, true, memcheck::allocation_type::vector, __FUNCTION__, WIDE_SV(__FILE__), __LINE__);
 }
 
-void* operator new(size_t size, const char* Function, const char* File, int Line)
+void* operator new(size_t const size, const char* const Function, string_view const File, int const Line)
 {
 	return memcheck::DebugAllocator(size, false, memcheck::allocation_type::scalar, Function, File, Line);
 }
 
-void* operator new(size_t size, const std::nothrow_t&, const char* Function, const char* File, int Line) noexcept
+void* operator new(size_t const size, const std::nothrow_t&, const char* const Function, string_view const File, int const Line) noexcept
 {
 	return memcheck::DebugAllocator(size, true, memcheck::allocation_type::scalar, Function, File, Line);
 }
 
-void* operator new[](size_t size, const char* Function, const char* File, int Line)
+void* operator new[](size_t const size, const char* const Function, string_view const File, int const Line)
 {
 	return memcheck::DebugAllocator(size, false, memcheck::allocation_type::vector, Function, File, Line);
 }
 
-void* operator new[](size_t size, const std::nothrow_t&, const char* Function, const char* File, int Line) noexcept
+void* operator new[](size_t const size, const std::nothrow_t&, const char* const Function, string_view const File, int const Line) noexcept
 {
 	return memcheck::DebugAllocator(size, true, memcheck::allocation_type::vector, Function, File, Line);
 }
@@ -393,12 +393,12 @@ void operator delete[](void* block, size_t size) noexcept
 	return memcheck::DebugDeallocator(block, memcheck::allocation_type::vector);
 }
 
-void operator delete(void* block, const char* Function, const char* File, int Line)
+void operator delete(void* const block, const char* const Function, string_view const File, int const Line)
 {
 	return memcheck::DebugDeallocator(block, memcheck::allocation_type::scalar);
 }
 
-void operator delete[](void* block, const char* Function, const char* File, int Line)
+void operator delete[](void* const block, const char* const Function, string_view const File, int const Line)
 {
 	return memcheck::DebugDeallocator(block, memcheck::allocation_type::vector);
 }
