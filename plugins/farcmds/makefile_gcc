@@ -1,4 +1,4 @@
-NAME = FarCmds
+NAME = FARCmds
 SRCS = FARCmds.cpp Mix.cpp OpenCmd.cpp
 DOCS = FARCmdsEng.hlf FARCmdsRus.hlf FARCmdsPol.hlf FARCmdsEng.lng FARCmdsRus.lng FARCmdsSky.lng FARCmdsSpa.lng FARCmdsIta.lng FARCmdsBel.lng FARCmdsPol.lng changelog
 USERLIBS = -lole32 -luuid -lrpcrt4

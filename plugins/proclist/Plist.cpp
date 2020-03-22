@@ -4,7 +4,7 @@
 
 #include <vector>
 
-#include <Psapi.h>
+#include <psapi.h>
 
 // obtained from PSAPI.DLL
 /*

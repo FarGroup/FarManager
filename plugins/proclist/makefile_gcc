@@ -1,4 +1,4 @@
-NAME = ProcList
+NAME = Proclist
 SRCS = Proclist.cpp \
 fileio.cpp \
 handles.cpp \

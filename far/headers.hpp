@@ -159,7 +159,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <shlobj.h>
 #include <shellapi.h>
 #include <userenv.h>
-#include <DbgHelp.h>
+#include <dbghelp.h>
 #include <dwmapi.h>
 #include <restartmanager.h>
 #include <commdlg.h>
