@@ -191,7 +191,7 @@ public:
 	virtual void RefreshTitle();
 	virtual string GetTitle() const;
 	virtual bool SendKeyToPlugin(DWORD Key,bool Pred=false) {return false;}
-	virtual bool SetCurDir(string_view NewDir, bool ClosePanel, bool IsUpdated = true);
+	virtual bool SetCurDir(string_view NewDir, bool ClosePanel, bool IsUpdated = true, bool Silent = false);
 	virtual void ChangeDirToCurrent();
 	virtual const string& GetCurDir() const;
 	virtual size_t GetSelCount() const { return 0; }
@@ -238,8 +238,6 @@ public:
 	virtual Viewer* GetById(int ID) { return nullptr;}
 	virtual void OnDestroy() {}
 
-	static void exclude_sets(string& mask);
-
 	panel_mode GetMode() const { return m_PanelMode; }
 	void SetMode(panel_mode Mode) { m_PanelMode = Mode; }
 	int GetModalMode() const { return m_ModalMode; }
@@ -256,7 +254,7 @@ public:
 	void SetShowShortNamesMode(bool Mode) {m_ShowShortNames=Mode;}
 	void InitCurDir(string_view CurDir);
 	bool ExecShortcutFolder(int Pos);
-	bool ExecShortcutFolder(string_view strShortcutFolder, const GUID& PluginGuid, const string& strPluginFile, const string& strPluginData, bool CheckType, bool TryClosest = true, bool Silent = false);
+	bool ExecFolder(string_view Folder, const GUID& PluginGuid, const string& strPluginFile, const string& strPluginData, bool CheckType, bool TryClosest, bool Silent);
 	bool SaveShortcutFolder(int Pos) const;
 	int SetPluginCommand(int Command,int Param1,void* Param2);
 	bool ProcessMouseDrag(const MOUSE_EVENT_RECORD* MouseEvent);

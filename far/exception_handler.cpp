@@ -384,7 +384,7 @@ static reply ExcDialog(
 	// TODO: Far Dialog is not the best choice for exception reporting
 	// replace with something trivial
 
-	SCOPED_ACTION(auto)(tracer::with_symbols());
+	SCOPED_ACTION(tracer::with_symbols);
 
 	string Address, Name, Source;
 	tracer::get_symbol(Context.pointers()->ExceptionRecord->ExceptionAddress, Address, Name, Source);
@@ -394,8 +394,6 @@ static reply ExcDialog(
 
 	if (Source.empty())
 		Source = Location;
-
-	const string FunctionName(Function);
 
 	const auto Errors = FormatSystemErrors(ErrorState);
 
@@ -411,7 +409,7 @@ static reply ExcDialog(
 		Errors[2],
 		Address,
 		Source,
-		FunctionName,
+		Function,
 		ModuleName,
 		Version,
 		OsVersion,
@@ -445,7 +443,7 @@ static reply ExcDialog(
 		{ DI_TEXT,      {{C1X, 8 }, {C1X+C1W, 8 }}, DIF_NONE, msg(lng::MExcSource), },
 		{ DI_EDIT,      {{C2X, 8 }, {C2X+C2W, 8 }}, DIF_READONLY | DIF_SELECTONENTRY, Source, },
 		{ DI_TEXT,      {{C1X, 9 }, {C1X+C1W, 9 }}, DIF_NONE, msg(lng::MExcFunction), },
-		{ DI_EDIT,      {{C2X, 9 }, {C2X+C2W, 9 }}, DIF_READONLY | DIF_SELECTONENTRY, FunctionName, },
+		{ DI_EDIT,      {{C2X, 9 }, {C2X+C2W, 9 }}, DIF_READONLY | DIF_SELECTONENTRY, Function, },
 		{ DI_TEXT,      {{C1X, 10}, {C1X+C1W, 10}}, DIF_NONE, msg(lng::MExcModule), },
 		{ DI_EDIT,      {{C2X, 10}, {C2X+C2W, 10}}, DIF_READONLY | DIF_SELECTONENTRY, ModuleName, },
 		{ DI_TEXT,      {{C1X, 11}, {C1X+C1W, 11}}, DIF_NONE, msg(lng::MExcFarVersion), },
@@ -488,7 +486,7 @@ static reply ExcConsole(
 	std::vector<const void*> const* const NestedStack
 )
 {
-	SCOPED_ACTION(auto)(tracer::with_symbols());
+	SCOPED_ACTION(tracer::with_symbols);
 
 	string Address, Name, Source;
 	tracer::get_symbol(Context.pointers()->ExceptionRecord->ExceptionAddress, Address, Name, Source);
@@ -610,7 +608,7 @@ struct throw_info
 	DWORD pCatchableTypeArray;       // Image relative offset of CatchableTypeArray
 };
 
-bool IsCppException(const EXCEPTION_RECORD& Record)
+static bool IsCppException(const EXCEPTION_RECORD& Record)
 {
 	return Record.ExceptionCode == static_cast<DWORD>(EXCEPTION_MICROSOFT_CPLUSPLUS);
 }
@@ -626,7 +624,7 @@ static string ExtractObjectType(const EXCEPTION_RECORD& xr)
 	const auto& CatchableType = *reinterpret_cast<const catchable_type*>(BaseAddress + CatchableTypeArray.arrayOfCatchableTypes);
 	const auto& TypeInfo = *reinterpret_cast<const std::type_info*>(BaseAddress + CatchableType.pType);
 
-	return encoding::ansi::get_chars(TypeInfo.name());
+	return encoding::utf8::get_chars(TypeInfo.name());
 }
 
 static bool ProcessExternally(EXCEPTION_POINTERS* Pointers, Plugin const* const PluginModule)
@@ -675,7 +673,7 @@ static bool ProcessExternally(EXCEPTION_POINTERS* Pointers, Plugin const* const 
 
 static bool ProcessGenericException(
 	detail::exception_context const& Context,
-	string_view const Function,
+	std::string_view const Function,
 	string_view const Location,
 	Plugin const* const PluginModule,
 	string_view const Type,
@@ -790,7 +788,7 @@ static bool ProcessGenericException(
 		break;
 	}
 
-	const auto MsgCode = (Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown()? ExcDialog : ExcConsole)(strFileName, Exception, Details, Context, Function, Location, PluginModule, ErrorState, NestedStack);
+	const auto MsgCode = (Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown()? ExcDialog : ExcConsole)(strFileName, Exception, Details, Context, encoding::utf8::get_chars(Function), Location, PluginModule, ErrorState, NestedStack);
 
 	switch (MsgCode)
 	{
@@ -850,7 +848,7 @@ static std::pair<string, string> extract_nested_exceptions(const std::exception&
 	return Result;
 }
 
-bool ProcessStdException(const std::exception& e, string_view const Function, const Plugin* const Module)
+bool ProcessStdException(const std::exception& e, std::string_view const Function, const Plugin* const Module)
 {
 	if (const auto SehException = dynamic_cast<const seh_exception*>(&e))
 	{
@@ -877,7 +875,7 @@ bool ProcessStdException(const std::exception& e, string_view const Function, co
 	return ProcessGenericException(Context, Function, {}, Module, Type, What);
 }
 
-bool ProcessUnknownException(string_view const Function, const Plugin* const Module)
+bool ProcessUnknownException(std::string_view const Function, const Plugin* const Module)
 {
 	// C++ exception to EXCEPTION_POINTERS translation relies on Microsoft implementation.
 	// It won't work in gcc etc.
@@ -892,7 +890,7 @@ static LONG WINAPI FarUnhandledExceptionFilter(EXCEPTION_POINTERS* const Pointer
 {
 	detail::SetFloatingPointExceptions(false);
 	const detail::exception_context Context(Pointers->ExceptionRecord->ExceptionCode, *Pointers, os::OpenCurrentThread(), GetCurrentThreadId());
-	if (ProcessGenericException(Context, L"FarUnhandledExceptionFilter"sv, {}, {}, {}, {}))
+	if (ProcessGenericException(Context, __FUNCTION__, {}, {}, {}, {}))
 	{
 		std::_Exit(EXIT_FAILURE);
 	}
@@ -919,7 +917,7 @@ namespace detail
 {
 	static thread_local bool StackOverflowHappened;
 
-	int SehFilter(int const Code, const EXCEPTION_POINTERS* const Info, string_view const Function, const Plugin* const Module)
+	int SehFilter(int const Code, const EXCEPTION_POINTERS* const Info, std::string_view const Function, const Plugin* const Module)
 	{
 		const exception_context Context(Code, *Info, os::OpenCurrentThread(), GetCurrentThreadId());
 		if (Code == EXCEPTION_STACK_OVERFLOW)

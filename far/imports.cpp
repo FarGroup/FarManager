@@ -413,6 +413,13 @@ BOOL WINAPI imports::stub_SymInitialize(HANDLE Process, PCSTR UserSearchPath, BO
 	return FALSE;
 }
 
+BOOL WINAPI imports::stub_SymInitializeW(HANDLE Process, LPCWSTR UserSearchPath, BOOL InvadeProcess)
+{
+	// TODO: log
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return FALSE;
+}
+
 BOOL WINAPI imports::stub_SymCleanup(HANDLE Process)
 {
 	// TODO: log
@@ -421,6 +428,13 @@ BOOL WINAPI imports::stub_SymCleanup(HANDLE Process)
 }
 
 BOOL WINAPI imports::stub_SymFromAddr(HANDLE Process, DWORD64 Address, PDWORD64 Displacement, PSYMBOL_INFO Symbol)
+{
+	// TODO: log
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return FALSE;
+}
+
+BOOL WINAPI imports::stub_SymFromAddrW(HANDLE Process, DWORD64 Address, PDWORD64 Displacement, PSYMBOL_INFOW Symbol)
 {
 	// TODO: log
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
@@ -441,18 +455,18 @@ BOOL WINAPI imports::stub_SymGetLineFromAddr64(HANDLE Process, DWORD64 Addr, PDW
 	return FALSE;
 }
 
-BOOL WINAPI imports::stub_SymGetModuleInfoW64(HANDLE Process, DWORD64 Addr, PIMAGEHLP_MODULEW64 ModuleInfo)
+BOOL WINAPI imports::stub_SymGetLineFromAddrW64(HANDLE Process, DWORD64 Addr, PDWORD Displacement, PIMAGEHLP_LINEW64 Line)
 {
 	// TODO: log
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	return FALSE;
 }
 
-DWORD WINAPI imports::stub_UnDecorateSymbolName(PCSTR Name, PSTR OutputString, DWORD MaxStringLength, DWORD Flags)
+BOOL WINAPI imports::stub_SymGetModuleInfoW64(HANDLE Process, DWORD64 Addr, PIMAGEHLP_MODULEW64 ModuleInfo)
 {
 	// TODO: log
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-	return 0;
+	return FALSE;
 }
 
 PVOID WINAPI imports::stub_SymFunctionTableAccess64(HANDLE Process, DWORD64 AddrBase)

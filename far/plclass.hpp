@@ -139,7 +139,7 @@ public:
 	virtual plugin_module_ptr Create(const string& filename) = 0;
 	virtual bool Destroy(plugin_module_ptr& module) = 0;
 	virtual function_address Function(const plugin_module_ptr& Instance, const export_name& Name) = 0;
-	virtual void ProcessError(string_view Function) const {}
+	virtual void ProcessError(std::string_view Function) const {}
 	virtual bool IsExternal() const { return false; }
 	virtual string Title() const { return {}; }
 	virtual VersionInfo version() const { return {}; }
@@ -323,7 +323,7 @@ protected:
 
 		const auto ProcessException = [&](const auto& Handler, auto&&... ProcArgs)
 		{
-			Handler(FWD(ProcArgs)..., m_Factory->ExportsNames()[T::export_id].UName, this)? HandleFailure(T::export_id) : throw;
+			Handler(FWD(ProcArgs)..., m_Factory->ExportsNames()[T::export_id].AName, this)? HandleFailure(T::export_id) : throw;
 		};
 
 		try
@@ -337,7 +337,7 @@ protected:
 				es = Function(FWD(Args)...);
 
 			rethrow_if(GlobalExceptionPtr());
-			m_Factory->ProcessError(m_Factory->ExportsNames()[T::export_id].UName);
+			m_Factory->ProcessError(m_Factory->ExportsNames()[T::export_id].AName);
 		}
 		catch (const std::exception& e)
 		{
@@ -361,7 +361,7 @@ protected:
 		{
 			HandleFailure(T::export_id);
 		},
-		m_Factory->ExportsNames()[T::export_id].UName, this);
+		m_Factory->ExportsNames()[T::export_id].AName, this);
 	}
 
 	void HandleFailure(export_index id);

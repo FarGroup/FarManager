@@ -474,7 +474,7 @@ static int mainImpl(span<const wchar_t* const> const Args)
 
 	RegisterTestExceptionsHook();
 
-	os::EnableLowFragmentationHeap();
+	os::memory::enable_low_fragmentation_heap();
 
 	if(!console.IsFullscreenSupported())
 	{
@@ -753,13 +753,13 @@ static int mainImpl(span<const wchar_t* const> const Args)
 	}
 	catch (const std::exception& e)
 	{
-		if (ProcessStdException(e, L"mainImpl"sv))
+		if (ProcessStdException(e, __FUNCTION__))
 			std::_Exit(EXIT_FAILURE);
 		throw;
 	}
 	catch (...)
 	{
-		if (ProcessUnknownException(L"mainImpl"sv))
+		if (ProcessUnknownException(__FUNCTION__))
 			std::_Exit(EXIT_FAILURE);
 		throw;
 	}
@@ -793,7 +793,7 @@ static int wmain_seh(int Argc, const wchar_t* const Argv[])
 	}
 	catch (const std::exception& e)
 	{
-		if (ProcessStdException(e, L"wmain_seh"sv))
+		if (ProcessStdException(e, __FUNCTION__))
 			std::_Exit(EXIT_FAILURE);
 
 		unhandled_exception_filter::dismiss();
@@ -802,7 +802,7 @@ static int wmain_seh(int Argc, const wchar_t* const Argv[])
 	}
 	catch (...)
 	{
-		if (ProcessUnknownException(L"wmain_seh"sv))
+		if (ProcessUnknownException(__FUNCTION__))
 			std::_Exit(EXIT_FAILURE);
 
 		unhandled_exception_filter::dismiss();
@@ -825,5 +825,5 @@ int main()
 	{
 		std::_Exit(EXIT_FAILURE);
 	},
-	L"main"sv);
+	__FUNCTION__);
 }

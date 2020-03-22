@@ -79,7 +79,7 @@ private:
 	void PrintInfo(const string& Str) const;
 	void PrintInfo(lng MsgID) const;
 	void SelectShowMode();
-	void DrawTitle(string &strTitle, int Id, int &CurY);
+	void DrawTitle(string_view Title, int Id, int &CurY);
 	bool OpenDizFile(const string& DizFile, int YPos);
 	void DynamicUpdateKeyBar() const;
 

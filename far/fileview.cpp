@@ -69,7 +69,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-FileViewer::FileViewer(private_tag, int DisableEdit, string_view const Title):
+FileViewer::FileViewer(private_tag, bool const DisableEdit, string_view const Title):
 	m_RedrawTitle(),
 	m_F3KeyOnly(),
 	m_bClosing(),
@@ -118,7 +118,7 @@ fileviewer_ptr FileViewer::create(
 	rectangle Position,
 	uintptr_t aCodePage)
 {
-	const auto FileViewerPtr = std::make_shared<FileViewer>(private_tag(), TRUE, Title);
+	const auto FileViewerPtr = std::make_shared<FileViewer>(private_tag(), true, Title);
 
 	_OT(SysLog(L"[%p] FileViewer::FileViewer(II variant...)", this));
 
@@ -156,20 +156,20 @@ fileviewer_ptr FileViewer::create(
 
 void FileViewer::Init(
 	const string& Name,
-	bool EnableSwitch,
-	const int DisableHistory,
-	long long ViewStartPos,
-	string_view PluginData,
-	NamesList *ViewNamesList,
-	bool ToSaveAs,
-	uintptr_t aCodePage,
-	window_ptr Update)
+	bool const EnableSwitch,
+	bool const DisableHistory,
+	long long const ViewStartPos,
+	string_view const PluginData,
+	NamesList* const ViewNamesList,
+	bool const ToSaveAs,
+	uintptr_t const aCodePage,
+	window_ptr const Update)
 {
 	m_View = std::make_unique<Viewer>(shared_from_this(), false, aCodePage);
 	m_View->SetTitle(m_StrTitle);
 	m_windowKeyBar = std::make_unique<KeyBar>(shared_from_this());
 
-	m_RedrawTitle = FALSE;
+	m_RedrawTitle = false;
 	SetMacroMode(MACROAREA_VIEWER);
 	m_View->SetPluginData(PluginData);
 	m_View->SetHostFileViewer(this);
@@ -184,9 +184,9 @@ void FileViewer::Init(
 	if (ViewNamesList)
 		m_View->SetNamesList(*ViewNamesList);
 
-	if (!m_View->OpenFile(m_Name,TRUE)) // $ 04.07.2000 tran + add TRUE as 'warning' parameter
+	if (!m_View->OpenFile(m_Name, true))
 	{
-		m_DisableHistory = TRUE;  // $ 26.03.2002 DJ - при неудаче открытия - не пишем мусор в историю
+		m_DisableHistory = true;  // $ 26.03.2002 DJ - при неудаче открытия - не пишем мусор в историю
 		// WindowManager->DeleteWindow(this); // ЗАЧЕМ? Вьювер то еще не помещен в очередь манагера!
 		m_ExitCode=FALSE;
 		return;

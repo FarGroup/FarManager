@@ -214,7 +214,11 @@ namespace features
 {
 	constexpr auto
 		mantis_698 = false,
-		mantis_2562 = false;
+		mantis_2562 = false,
+		win10_curdir = false,
+
+		reserved = false;
+
 }
 
 #endif // HEADERS_HPP_9A02D08B_02BB_4240_845F_36ED60ED2647

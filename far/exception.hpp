@@ -85,10 +85,10 @@ namespace detail
 		[[nodiscard]] const auto& location() const noexcept { return m_Location; }
 
 	protected:
-		far_base_exception(const char* Function, const char* File, int Line, string_view Message);
+		far_base_exception(const char* Function, string_view File, int Line, string_view Message);
 
 	private:
-		string m_Function;
+		std::string m_Function;
 		string m_Location;
 		string m_FullMessage;
 		error_state_ex m_ErrorState;
@@ -185,7 +185,7 @@ namespace detail
 class far_wrapper_exception : public far_exception
 {
 public:
-	far_wrapper_exception(const char* Function, const char* File, int Line);
+	far_wrapper_exception(const char* Function, string_view File, int Line);
 	const auto& get_stack() const { return m_Stack; }
 
 private:
@@ -206,12 +206,12 @@ private:
 	std::shared_ptr<detail::seh_exception_context> m_Context;
 };
 
-std::exception_ptr wrap_currrent_exception(const char* Function, const char* File, int Line);
+std::exception_ptr wrap_currrent_exception(const char* Function, string_view File, int Line);
 
 void rethrow_if(std::exception_ptr& Ptr);
 
 
-#define MAKE_EXCEPTION(ExceptionType, ...) ExceptionType(__FUNCTION__, __FILE__, __LINE__, ##__VA_ARGS__)
+#define MAKE_EXCEPTION(ExceptionType, ...) ExceptionType(__FUNCTION__, WIDE_SV(__FILE__), __LINE__, ##__VA_ARGS__)
 #define MAKE_FAR_FATAL_EXCEPTION(...) MAKE_EXCEPTION(far_fatal_exception, __VA_ARGS__)
 #define MAKE_FAR_EXCEPTION(...) MAKE_EXCEPTION(far_exception, __VA_ARGS__)
 #define MAKE_FAR_KNOWN_EXCEPTION(...) MAKE_EXCEPTION(far_known_exception, __VA_ARGS__)
@@ -219,7 +219,7 @@ void rethrow_if(std::exception_ptr& Ptr);
 #define CATCH_AND_SAVE_EXCEPTION_TO(ExceptionPtr) \
 	catch (...) \
 	{ \
-		ExceptionPtr = wrap_currrent_exception(__FUNCTION__, __FILE__, __LINE__); \
+		ExceptionPtr = wrap_currrent_exception(__FUNCTION__, WIDE_SV(__FILE__), __LINE__); \
 	}
 
 #endif // EXCEPTION_HPP_2CD5B7D1_D39C_4CAF_858A_62496C9221DF

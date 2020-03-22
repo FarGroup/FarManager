@@ -123,10 +123,13 @@ unsigned long long ConvertFileSizeString(string_view FileSizeStr);
 string GroupDigits(unsigned long long Value);
 
 [[nodiscard]]
-inline bool IsWordDiv(const string& WordDiv, wchar_t Chr) { return !Chr || contains(WordDiv, Chr); }
+inline bool IsWordDiv(string_view const WordDiv, wchar_t const Chr)
+{
+	return !Chr || contains(WordDiv, Chr);
+}
 
 [[nodiscard]]
-bool FindWordInString(const string& Str, size_t CurPos, size_t& Begin, size_t& End, const string& WordDiv0);
+bool FindWordInString(string_view Str, size_t CurPos, size_t& Begin, size_t& End, string_view WordDiv0);
 
 namespace legacy
 {
@@ -220,7 +223,7 @@ auto FlagsToString(unsigned long long Flags, const container& From, wchar_t Sepa
 
 template<class container>
 [[nodiscard]]
-auto StringToFlags(const string& strFlags, const container& From, const string_view Separators = L"|;, "sv)
+auto StringToFlags(string_view const strFlags, const container& From, const string_view Separators = L"|;, "sv)
 {
 	decltype(std::begin(From)->first) Flags {};
 
@@ -278,7 +281,7 @@ auto to_hex_wstring(T Value) { return to_hex_string_t<string>(Value); }
 string ExtractHexString(string_view HexString);
 
 [[nodiscard]]
-string ConvertHexString(const string& From, uintptr_t Codepage, bool FromHex);
+string ConvertHexString(string_view From, uintptr_t Codepage, bool FromHex);
 
 void xstrncpy(char* dest, const char* src, size_t DestSize);
 void xwcsncpy(wchar_t* dest, const wchar_t* src, size_t DestSize);

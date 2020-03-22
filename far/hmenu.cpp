@@ -355,7 +355,11 @@ bool HMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	if (m_Where.contains(MouseEvent->dwMousePosition))
 	{
-		const auto SubmenuIterator = std::find_if(REVERSE_RANGE(m_Item, i) { return MouseEvent->dwMousePosition.X >= i.XPos; });
+		auto SubmenuIterator = std::find_if(REVERSE_RANGE(m_Item, i) { return MouseEvent->dwMousePosition.X >= i.XPos; });
+
+		if (SubmenuIterator == m_Item.rend())
+			--SubmenuIterator;
+
 		const size_t NewPos = std::distance(SubmenuIterator, m_Item.rend()) - 1;
 
 		if (m_SubmenuOpened && m_SelectPos == NewPos)

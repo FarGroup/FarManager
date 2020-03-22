@@ -70,7 +70,7 @@ public:
 	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	long long VMProcess(int OpCode,void *vParam=nullptr,long long iParam=0) override;
 
-	bool OpenFile(const string& Name, int warning);
+	bool OpenFile(const string& Name, bool Warn);
 	void SetViewKeyBar(KeyBar *ViewKeyBar);
 	void UpdateViewKeyBar(KeyBar& ViewKeyBar);
 	void SetStatusMode(int Mode);

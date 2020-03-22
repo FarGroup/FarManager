@@ -154,33 +154,6 @@ bool WNetGetConnection(const string_view LocalName, string &RemoteName)
 	return false;
 }
 
-void EnableLowFragmentationHeap()
-{
-	// Starting with Windows Vista, the system uses the low-fragmentation heap (LFH) as needed to service memory allocation requests.
-	// Applications do not need to enable the LFH for their heaps.
-	if (IsWindowsVistaOrGreater())
-		return;
-
-	if (!imports.HeapSetInformation)
-		return;
-
-	std::vector<HANDLE> Heaps(10);
-	for (;;)
-	{
-		const auto NumberOfHeaps = ::GetProcessHeaps(static_cast<DWORD>(Heaps.size()), Heaps.data());
-		const auto Received = NumberOfHeaps <= Heaps.size();
-		Heaps.resize(NumberOfHeaps);
-		if (Received)
-			break;
-	}
-
-	for (const auto i: Heaps)
-	{
-		ULONG HeapFragValue = 2;
-		imports.HeapSetInformation(i, HeapCompatibilityInformation, &HeapFragValue, sizeof(HeapFragValue));
-	}
-}
-
 bool get_locale_value(LCID const LcId, LCTYPE const Id, string& Value)
 {
 	return detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Value, [&](span<wchar_t> Buffer)

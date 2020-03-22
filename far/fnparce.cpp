@@ -328,33 +328,31 @@ static bool MakeListFile(panel_ptr const& Panel, string& ListFileName, bool cons
 		}
 	};
 
+	ListFileName = MakeTemp();
+
 	try
 	{
-		ListFileName = MakeTemp();
-		if (const auto ListFile = os::fs::file(ListFileName, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, CREATE_ALWAYS))
-		{
-			os::fs::filebuf StreamBuffer(ListFile, std::ios::out);
-			std::ostream Stream(&StreamBuffer);
-			Stream.exceptions(Stream.badbit | Stream.failbit);
-			encoding::writer Writer(Stream, CodePage);
-			const auto Eol = eol::system.str();
-
-			for (const auto& i: Panel->enum_selected())
-			{
-				auto Name = ShortNames? i.AlternateFileName() : i.FileName;
-
-				transform(Name);
-
-				Writer.write(Name);
-				Writer.write(Eol);
-			}
-
-			Stream.flush();
-		}
-		else
-		{
+		const os::fs::file ListFile(ListFileName, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, CREATE_ALWAYS);	
+		if (!ListFile)
 			throw MAKE_FAR_EXCEPTION(msg(lng::MCannotCreateListTemp));
+
+		os::fs::filebuf StreamBuffer(ListFile, std::ios::out);
+		std::ostream Stream(&StreamBuffer);
+		Stream.exceptions(Stream.badbit | Stream.failbit);
+		encoding::writer Writer(Stream, CodePage);
+		const auto Eol = eol::system.str();
+
+		for (const auto& i: Panel->enum_selected())
+		{
+			auto Name = ShortNames? i.AlternateFileName() : i.FileName;
+
+			transform(Name);
+
+			Writer.write(Name);
+			Writer.write(Eol);
 		}
+
+		Stream.flush();
 
 		return true;
 	}

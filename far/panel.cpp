@@ -294,7 +294,7 @@ const string& Panel::GetCurDir() const
 }
 
 
-bool Panel::SetCurDir(string_view const NewDir, bool ClosePanel, bool /*IsUpdated*/)
+bool Panel::SetCurDir(string_view const NewDir, bool const ClosePanel, bool const IsUpdated, bool const Silent)
 {
 	InitCurDir(NewDir);
 	return true;
@@ -877,7 +877,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			const auto dirInfo = static_cast<const FarPanelDirectory*>(Param2);
 			if (CheckStructSize(dirInfo))
 			{
-				Result = ExecShortcutFolder(NullToEmpty(dirInfo->Name), dirInfo->PluginId, NullToEmpty(dirInfo->File), NullToEmpty(dirInfo->Param), false, false, true);
+				Result = ExecFolder(NullToEmpty(dirInfo->Name), dirInfo->PluginId, NullToEmpty(dirInfo->File), NullToEmpty(dirInfo->Param), false, false, true);
 				// restore current directory to active panel path
 				if (!IsFocused())
 				{
@@ -1006,10 +1006,10 @@ bool Panel::SetPluginDirectory(string_view const Directory, bool Silent)
 bool Panel::ExecShortcutFolder(int Pos)
 {
 	Shortcuts::data Data;
-	return Shortcuts(Pos).Get(Data) && ExecShortcutFolder(std::move(Data.Folder), Data.PluginGuid, Data.PluginFile, Data.PluginData, true);
+	return Shortcuts(Pos).Get(Data) && ExecFolder(std::move(Data.Folder), Data.PluginGuid, Data.PluginFile, Data.PluginData, true, true, false);
 }
 
-bool Panel::ExecShortcutFolder(string_view const ShortcutFolder, const GUID& PluginGuid, const string& strPluginFile, const string& strPluginData, bool CheckType, bool TryClosest, bool Silent)
+bool Panel::ExecFolder(string_view const Folder, const GUID& PluginGuid, const string& strPluginFile, const string& strPluginData, bool CheckType, bool TryClosest, bool Silent)
 {
 	auto SrcPanel = shared_from_this();
 	const auto AnotherPanel = Parent()->GetAnotherPanel(this);
@@ -1039,7 +1039,7 @@ bool Panel::ExecShortcutFolder(string_view const ShortcutFolder, const GUID& Plu
 		GetShortcutInfo(Info);
 		if (Info.PluginGuid == PluginGuid && Info.PluginFile == strPluginFile && Info.PluginData == strPluginData)
 		{
-			Result = SetPluginDirectory(ShortcutFolder, Silent);
+			Result = SetPluginDirectory(Folder, Silent);
 		}
 		else
 		{
@@ -1077,7 +1077,7 @@ bool Panel::ExecShortcutFolder(string_view const ShortcutFolder, const GUID& Plu
 					{
 						const auto NewPanel = Parent()->ChangePanel(SrcPanel, panel_type::FILE_PANEL, TRUE, TRUE);
 						NewPanel->SetPluginMode(std::move(hNewPlugin), {}, IsActive || !Parent()->GetAnotherPanel(NewPanel)->IsVisible());
-						Result = NewPanel->SetPluginDirectory(ShortcutFolder, Silent);
+						Result = NewPanel->SetPluginDirectory(Folder, Silent);
 					}
 				}
 			}
@@ -1085,14 +1085,15 @@ bool Panel::ExecShortcutFolder(string_view const ShortcutFolder, const GUID& Plu
 		return Result;
 	}
 
-	auto ExpandedShortcutFolder = os::env::expand(ShortcutFolder);
+	auto ExpandedFolder = os::env::expand(Folder);
 
-	if (!CheckShortcutFolder(ExpandedShortcutFolder, TryClosest, Silent) || ProcessPluginEvent(FE_CLOSE, nullptr))
+	if ((TryClosest && !CheckShortcutFolder(ExpandedFolder, TryClosest, Silent)) || ProcessPluginEvent(FE_CLOSE, nullptr))
 	{
 		return false;
 	}
 
-	SrcPanel->SetCurDir(ExpandedShortcutFolder,true);
+	if (!SrcPanel->SetCurDir(ExpandedFolder, true, true, Silent))
+		return false;
 
 	if (CheckFullScreen!=SrcPanel->IsFullScreen())
 		Parent()->GetAnotherPanel(SrcPanel)->Show();
@@ -1150,13 +1151,6 @@ string Panel::CreateFullPathName(string_view const Name, bool const Directory, b
 	}
 
 	return FullName;
-}
-
-void Panel::exclude_sets(string& mask)
-{
-	replace(mask, L"["sv, L"<[%>"sv);
-	replace(mask, L"]"sv, L"[]]"sv);
-	replace(mask, L"<[%>"sv, L"[[]"sv);
 }
 
 FilePanels* Panel::Parent() const

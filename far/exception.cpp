@@ -79,10 +79,10 @@ string error_state::NtErrorStr() const
 
 namespace detail
 {
-	far_base_exception::far_base_exception(const char* const Function, const char* const File, int const Line, string_view const Message):
-		m_Function(encoding::ansi::get_chars(Function)),
-		m_Location(format(FSTR(L"{0}:{1}"), encoding::ansi::get_chars(File), Line)),
-		m_FullMessage(format(FSTR(L"{0} (at {1}, {2})"), Message, m_Function, m_Location)),
+	far_base_exception::far_base_exception(const char* const Function, string_view const File, int const Line, string_view const Message):
+		m_Function(Function),
+		m_Location(format(FSTR(L"{0}:{1}"), File, Line)),
+		m_FullMessage(format(FSTR(L"{0} (at {1}, {2})"), Message, encoding::utf8::get_chars(m_Function), m_Location)),
 		m_ErrorState(error_state::fetch(), Message)
 	{
 	}
@@ -113,7 +113,7 @@ namespace detail
 	}
 }
 
-far_wrapper_exception::far_wrapper_exception(const char* const Function, const char* const File, int const Line):
+far_wrapper_exception::far_wrapper_exception(const char* const Function, string_view const File, int const Line):
 	far_exception(Function, File, Line, L"exception_ptr"sv),
 	m_ThreadHandle(std::make_shared<os::handle>(os::OpenCurrentThread())),
 	m_Stack(tracer::get(tracer::get_pointers(), m_ThreadHandle->native_handle()))
@@ -125,7 +125,7 @@ seh_exception::seh_exception(DWORD const Code, EXCEPTION_POINTERS& Pointers, os:
 {
 }
 
-std::exception_ptr wrap_currrent_exception(const char* const Function, const char* const File, int const Line)
+std::exception_ptr wrap_currrent_exception(const char* const Function, string_view const File, int const Line)
 {
 	try
 	{

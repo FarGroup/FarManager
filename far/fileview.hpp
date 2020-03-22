@@ -73,7 +73,7 @@ public:
 		rectangle Position,
 		uintptr_t aCodePage = CP_DEFAULT);
 
-	FileViewer(private_tag, int DisableEdit, string_view Title);
+	FileViewer(private_tag, bool DisableEdit, string_view Title);
 	~FileViewer() override;
 
 	void InitKeyBar() override;
@@ -120,7 +120,7 @@ private:
 	void Init(
 		const string& Name,
 		bool EnableSwitch,
-		int DisableHistory,
+		bool DisableHistory,
 		long long ViewStartPos,
 		string_view PluginData,
 		NamesList *ViewNamesList,
@@ -129,12 +129,12 @@ private:
 		window_ptr Update = nullptr);
 
 	std::unique_ptr<Viewer> m_View;
-	int m_RedrawTitle;
+	bool m_RedrawTitle;
 	bool m_F3KeyOnly;
 	bool m_bClosing;
 	bool m_FullScreen;
-	int m_DisableEdit;
-	int m_DisableHistory;
+	bool m_DisableEdit;
+	bool m_DisableHistory;
 	string m_Name;
 	bool m_SaveToSaveAs;
 	int m_DeleteOnClose;

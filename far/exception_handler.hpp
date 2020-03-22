@@ -46,8 +46,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class Plugin;
 
-bool ProcessStdException(const std::exception& e, string_view Function, const Plugin* Module = nullptr);
-bool ProcessUnknownException(string_view Function, const Plugin* Module = nullptr);
+bool ProcessStdException(const std::exception& e, std::string_view Function, const Plugin* Module = nullptr);
+bool ProcessUnknownException(std::string_view Function, const Plugin* Module = nullptr);
 
 class unhandled_exception_filter
 {
@@ -62,7 +62,7 @@ void RestoreGPFaultUI();
 
 namespace detail
 {
-	int SehFilter(int Code, const EXCEPTION_POINTERS* Info, string_view Function, const Plugin* Module);
+	int SehFilter(int Code, const EXCEPTION_POINTERS* Info, std::string_view Function, const Plugin* Module);
 	void ResetStackOverflowIfNeeded();
 	void SetFloatingPointExceptions(bool Enable);
 	std::exception_ptr MakeSehExceptionPtr(DWORD Code, EXCEPTION_POINTERS* Pointers, bool ResumeThread);
@@ -100,7 +100,7 @@ auto seh_invoke(function&& Callable, filter&& Filter, handler&& Handler)
 }
 
 template<class function, class handler>
-auto seh_invoke_with_ui(function&& Callable, handler&& Handler, const string_view Function, const Plugin* const Module = nullptr)
+auto seh_invoke_with_ui(function&& Callable, handler&& Handler, const std::string_view Function, const Plugin* const Module = nullptr)
 {
 	return seh_invoke(FWD(Callable), [&](DWORD const Code, EXCEPTION_POINTERS* const Info)
 	{

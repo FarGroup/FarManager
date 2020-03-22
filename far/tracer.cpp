@@ -84,22 +84,51 @@ static auto GetBackTrace(CONTEXT ContextRecord, HANDLE ThreadHandle)
 
 static void GetSymbols(const std::vector<const void*>& BackTrace, function_ref<void(string&&, string&&, string&&)> const Consumer)
 {
-	SCOPED_ACTION(auto)(tracer::with_symbols());
+	SCOPED_ACTION(tracer::with_symbols);
 
 	const auto Process = GetCurrentProcess();
 	const auto MaxNameLen = MAX_SYM_NAME;
 	const auto BufferSize = sizeof(SYMBOL_INFO) + MaxNameLen + 1;
-	block_ptr<SYMBOL_INFO, BufferSize> Symbol(BufferSize);
-	Symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
-	Symbol->MaxNameLen = MaxNameLen;
 
 	imports.SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS | SYMOPT_INCLUDE_32BIT_MODULES);
 
 	IMAGEHLP_MODULEW64 Module{ static_cast<DWORD>(aligned_size(offsetof(IMAGEHLP_MODULEW64, LoadedImageName), 8)) }; // use the pre-07-Jun-2002 struct size, aligned to 8
-	IMAGEHLP_LINE64 Line{ sizeof(Line) };
-	DWORD Displacement;
 
 	const auto MaxAddressSize = format(FSTR(L"{0:0X}"), reinterpret_cast<uintptr_t>(*std::max_element(ALL_CONST_RANGE(BackTrace)))).size();
+
+	block_ptr<SYMBOL_INFO, BufferSize> Symbol(BufferSize);
+	Symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+	Symbol->MaxNameLen = MaxNameLen;
+
+	block_ptr<SYMBOL_INFOW, BufferSize> SymbolW(BufferSize);
+	SymbolW->SizeOfStruct = sizeof(SYMBOL_INFOW);
+	SymbolW->MaxNameLen = MaxNameLen;
+
+	const auto GetName = [&](DWORD_PTR const Address) -> string
+	{
+		if (imports.SymFromAddrW && imports.SymFromAddrW(Process, Address, nullptr, SymbolW.data()))
+			return SymbolW->Name;
+
+		if (imports.SymFromAddr && imports.SymFromAddr(Process, Address, nullptr, Symbol.data()))
+			return encoding::ansi::get_chars(Symbol->Name);
+
+		return L"<unknown> (get the pdb)"s;
+	};
+
+	const auto GetLocation = [&](DWORD_PTR const Address) -> string
+	{
+		DWORD Displacement;
+
+		IMAGEHLP_LINEW64 LineW{ sizeof(LineW) };
+		if (imports.SymGetLineFromAddrW64 && imports.SymGetLineFromAddrW64(Process, Address, &Displacement, &LineW))
+			return format(FSTR(L"{0}:{1}"), LineW.FileName, LineW.LineNumber);
+
+		IMAGEHLP_LINE64 Line{ sizeof(Line) };
+		if (imports.SymGetLineFromAddr64 && imports.SymGetLineFromAddr64(Process, Address, &Displacement, &Line))
+			return format(FSTR(L"{0}:{1}"), encoding::ansi::get_chars(Line.FileName), Line.LineNumber);
+
+		return {};
+	};
 
 	for (const auto i: BackTrace)
 	{
@@ -112,13 +141,9 @@ static void GetSymbols(const std::vector<const void*>& BackTrace, function_ref<v
 					PointToName(Module.ImageName) :
 					L"<unknown>"sv,
 				L'!',
-				imports.SymFromAddr(Process, Address, nullptr, Symbol.data())?
-					encoding::ansi::get_chars(Symbol->Name) :
-					L"<unknown> (get the pdb)"sv);
+				GetName(Address));
 
-			sLocation = imports.SymGetLineFromAddr64(Process, Address, &Displacement, &Line)?
-				format(FSTR(L"{0}:{1}"), encoding::ansi::get_chars(Line.FileName), Line.LineNumber) :
-				L""sv;
+			sLocation = GetLocation(Address);
 		}
 
 		Consumer(format(FSTR(L"0x{0:0{1}X}"), Address, MaxAddressSize), std::move(sFunction), std::move(sLocation));
@@ -155,7 +180,7 @@ EXCEPTION_POINTERS tracer::get_pointers()
 
 std::vector<const void*> tracer::get(const EXCEPTION_POINTERS& Pointers, HANDLE ThreadHandle)
 {
-	SCOPED_ACTION(auto)(with_symbols());
+	SCOPED_ACTION(tracer::with_symbols);
 
 	return GetBackTrace(*Pointers.ContextRecord, ThreadHandle);
 }
@@ -190,9 +215,11 @@ void tracer::sym_initialise()
 		throw MAKE_FAR_FATAL_EXCEPTION(L"GetModuleFileName failed"sv);
 
 	CutToParent(Path);
-	const auto SymbolSearchPath = encoding::ansi::get_bytes(Path);
 
-	if (imports.SymInitialize(GetCurrentProcess(), EmptyToNull(SymbolSearchPath), TRUE))
+	if (
+		(imports.SymInitializeW && imports.SymInitializeW(GetCurrentProcess(), EmptyToNull(Path), TRUE)) ||
+		(imports.SymInitialize && imports.SymInitialize(GetCurrentProcess(), EmptyToNull(encoding::ansi::get_bytes(Path)), TRUE))
+	)
 		++s_SymInitialised;
 }
 

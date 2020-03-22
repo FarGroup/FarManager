@@ -3,6 +3,28 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 22.03.2020 16:09:56 +0200 - build 5574
+
+1. Possible stack corruption when switching the main menu with a mouse.
+
+drkns 22.03.2020 13:47:01 +0200 - build 5573
+
+1. More about unicode & debugging.
+
+drkns 22.03.2020 12:46:20 +0200 - build 5572
+
+1. A few corrections of 5571.
+
+drkns 22.03.2020 01:25:01 +0200 - build 5571
+
+1. 0003313: FCTL_SETPANELDIRECTORY not working for certain types of paths.
+
+2. Search results could sometimes include results of the previous search.
+
+3. Use unicode DbgHelp functions (if available).
+
+4. Refactoring.
+
 MZK 11.03.2020 23:03:40 -0700
 
 1. Translated more far:config help pages into English; cleaned up eng/TechInfo.txt.

@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 #include "pathmix.hpp"
 #include "string_utils.hpp"
+#include "strmix.hpp"
 
 // Platform:
 
@@ -294,6 +295,29 @@ bool CmpName(string_view pattern, string_view str, const bool skippath, const bo
 	}
 }
 
+string exclude_sets(string_view const Str)
+{
+	string Result;
+	Result.reserve(Str.size());
+
+	for (const auto i: Str)
+	{
+		switch (i)
+		{
+		case L'[':
+		case L']':
+			append(Result, L'[', i, L']');
+			break;
+
+		default:
+			Result.push_back(i);
+			break;
+		}
+	}
+
+	return Result;
+}
+
 #ifdef ENABLE_TESTS
 
 #include "testing.hpp"
@@ -427,6 +451,30 @@ TEST_CASE("CmpName")
 	for (const auto& i: Tests)
 	{
 		REQUIRE(i.Match == CmpName(Masks[i.Mask], i.Src));
+	}
+}
+
+TEST_CASE("exclude_sets")
+{
+	static const struct
+	{
+		string_view Src, Result;
+	}
+	Tests[]
+	{
+		{ L""sv,          L""sv                   },
+		{ L"-"sv,         L"-"sv                  },
+		{ L"["sv,         L"[[]"sv                },
+		{ L"]"sv,         L"[]]"sv                },
+		{ L"[]"sv,        L"[[][]]"sv             },
+		{ L"[[]]"sv,      L"[[][[][]][]]"sv       },
+		{ L"[a[b]c]"sv,   L"[[]a[[]b[]]c[]]"sv    },
+		{ L"[]]]"sv,      L"[[][]][]][]]"sv       },
+	};
+
+	for (const auto& i: Tests)
+	{
+		REQUIRE(exclude_sets(i.Src) == i.Result);
 	}
 }
 #endif

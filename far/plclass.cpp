@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "configdb.hpp"
 #include "global.hpp"
+#include "encoding.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -1145,7 +1146,7 @@ public:
 			}
 			// TODO: store info, show message if version is bad
 		}
-		custom_plugin_factory::ProcessError(L"Initialize"sv);
+		custom_plugin_factory::ProcessError(m_Imports.pInitialize.name());
 	}
 
 	~custom_plugin_factory() override
@@ -1155,7 +1156,7 @@ public:
 
 		ExitInfo Info = { sizeof(Info) };
 		m_Imports.pFree(&Info);
-		custom_plugin_factory::ProcessError(L"Free"sv);
+		custom_plugin_factory::ProcessError(m_Imports.pFree.name());
 	}
 
 	bool Success() const { return m_Success; }
@@ -1163,7 +1164,7 @@ public:
 	bool IsPlugin(const string& Filename) const override
 	{
 		const auto Result = m_Imports.pIsPlugin(Filename.c_str()) != FALSE;
-		ProcessError(L"IsPlugin"sv);
+		ProcessError(m_Imports.pIsPlugin.name());
 		return Result;
 	}
 
@@ -1174,7 +1175,7 @@ public:
 		{
 			Module.reset();
 		}
-		ProcessError(L"Create"sv);
+		ProcessError(m_Imports.pCreateInstance.name());
 		return Module;
 	}
 
@@ -1182,7 +1183,7 @@ public:
 	{
 		const auto Result = m_Imports.pDestroyInstance(static_cast<custom_plugin_module*>(Module.get())->opaque()) != FALSE;
 		Module.reset();
-		ProcessError(L"Destroy"sv);
+		ProcessError(m_Imports.pDestroyInstance.name());
 		return Result;
 	}
 
@@ -1191,11 +1192,11 @@ public:
 		if (Name.UName.empty())
 			return nullptr;
 		const auto Result = m_Imports.pGetFunctionAddress(static_cast<custom_plugin_module*>(Instance.get())->opaque(), null_terminated(Name.UName).c_str());
-		ProcessError(L"GetFunction"sv);
+		ProcessError(m_Imports.pGetFunctionAddress.name());
 		return Result;
 	}
 
-	void ProcessError(const string_view Function) const override
+	void ProcessError(const std::string_view Function) const override
 	{
 		if (!m_Imports.pGetError)
 			return;
@@ -1205,7 +1206,7 @@ public:
 			return;
 
 		std::vector<string> MessageLines;
-		const string Summary = concat(Info.Summary, L" ("sv, Function, L')');
+		const string Summary = concat(Info.Summary, L" ("sv, encoding::utf8::get_chars(Function), L')');
 		const auto Enumerator = enum_tokens(Info.Description, L"\n"sv);
 		std::transform(ALL_CONST_RANGE(Enumerator), std::back_inserter(MessageLines), [](const string_view View) { return string(View); });
 		Message(MSG_WARNING | MSG_LEFTALIGN,

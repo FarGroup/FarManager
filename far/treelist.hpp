@@ -111,7 +111,7 @@ public:
 
 private:
 	long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
-	bool SetCurDir(string_view NewDir, bool ClosePanel, bool IsUpdated = true) override;
+	bool SetCurDir(string_view NewDir, bool ClosePanel, bool IsUpdated = true, bool Silent = false) override;
 	bool GetCurName(string &strName, string &strShortName) const override;
 	void UpdateViewPanel() override;
 	void MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
