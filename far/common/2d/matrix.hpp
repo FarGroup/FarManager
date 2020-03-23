@@ -190,6 +190,12 @@ namespace detail
 	template<class T>
 	struct matrix_data
 	{
+		template<typename... args>
+		explicit matrix_data(args&&... Args):
+			m_Buffer(FWD(Args)...)
+		{
+		}
+
 		std::vector<T> m_Buffer;
 	};
 }
@@ -211,8 +217,9 @@ public:
 	{
 	}
 
-	explicit matrix(const matrix_view<T>& rhs):
-		detail::matrix_data<T>{ rhs.m_Buffer },
+	template<typename Y, REQUIRES(std::is_same_v<std::remove_const_t<Y>, T>)>
+	explicit matrix(const matrix_view<Y>& rhs):
+		detail::matrix_data<T>(rhs.data(), rhs.data() + rhs.size()),
 		matrix_view<T>(this->m_Buffer.data(), rhs.height(), rhs.width())
 	{
 	}
@@ -224,7 +231,12 @@ public:
 	}
 
 	COPY_ASSIGNABLE_SWAP(matrix)
-	COPY_ASSIGNABLE_SWAP(matrix_view<T>)
+
+	template<typename Y, REQUIRES(std::is_same_v<std::remove_const_t<Y>, T>)>
+	matrix& operator=(const matrix_view<Y>& rhs)
+	{
+		return *this = matrix<T>(rhs);
+	}
 
 	matrix& operator=(matrix&& rhs) noexcept
 	{
@@ -236,9 +248,7 @@ public:
 	void allocate(size_t const Rows, size_t const Cols)
 	{
 		// Force memory release
-		if (Rows * Cols < this->m_Buffer.capacity())
-			clear_and_shrink(this->m_Buffer);
-
+		clear_and_shrink(this->m_Buffer);
 		this->m_Buffer.resize(Rows * Cols);
 		static_cast<matrix_view<T>&>(*this) = matrix_view<T>(this->m_Buffer.data(), Rows, Cols);
 	}
@@ -249,5 +259,8 @@ public:
 	[[nodiscard]]
 	auto& vector() const { return this->m_Buffer; }
 };
+
+template<typename T>
+matrix(const matrix_view<T>&) -> matrix<std::remove_const_t<T>>;
 
 #endif // MATRIX_HPP_FD448106_F9CF_43E3_8148_E9680D79AFB7

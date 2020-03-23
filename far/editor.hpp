@@ -364,7 +364,6 @@ private:
 	int VBlockX{};
 	int VBlockSizeX{};
 	int VBlockSizeY{};
-	int MaxRightPos{};
 	int XX2{}; //scrollbar
 	string strLastSearchStr;
 	bool LastSearchCase{}, LastSearchWholeWords{}, LastSearchReverse{}, LastSearchRegexp{}, LastSearchPreserveStyle{};
@@ -407,6 +406,14 @@ private:
 		string Name;
 		size_t Percent{};
 	};
+
+	struct
+	{
+		std::optional<std::pair<const_iterator, int>> m_LastState;
+
+		int Position{};
+	}
+	MaxRightPosState;
 };
 
 class EditorContainer

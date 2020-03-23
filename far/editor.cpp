@@ -259,7 +259,11 @@ void Editor::ShowEditor()
 
 	if (!EdOpt.CursorBeyondEOL)
 	{
-		MaxRightPos=CurPos;
+		if (!MaxRightPosState.m_LastState || MaxRightPosState.m_LastState->first != m_it_CurLine || MaxRightPosState.m_LastState->second != CurPos)
+		{
+			MaxRightPosState.Position = CurPos;
+		}
+
 		const auto RealCurPos = m_it_CurLine->GetCurPos();
 		const auto Length = m_it_CurLine->GetLength();
 
@@ -269,6 +273,8 @@ void Editor::ShowEditor()
 			m_it_CurLine->SetLeftPos(0);
 			CurPos=m_it_CurLine->GetTabCurPos();
 		}
+
+		MaxRightPosState.m_LastState = { m_it_CurLine, CurPos };
 	}
 
 	//---
@@ -297,28 +303,29 @@ void Editor::ShowEditor()
 	auto LeftPos = m_it_CurLine->GetLeftPos();
 	Edit::ShowInfo info={LeftPos,CurPos};
 	auto Y = m_Where.top;
-	for (auto CurPtr = m_it_TopScreen; Y <= m_Where.bottom; ++Y)
+
+	for (auto CurPtr = m_it_TopScreen; CurPtr != Lines.end() && Y <= m_Where.bottom; ++CurPtr, ++Y)
 	{
-		if (CurPtr != Lines.end())
+		CurPtr->SetEditBeyondEnd(true);
+		CurPtr->SetPosition({ m_Where.left, Y, XX2, Y });
+		CurPtr->SetLeftPos(LeftPos);
+		CurPtr->SetTabCurPos(CurPos);
+		CurPtr->SetEditBeyondEnd(EdOpt.CursorBeyondEOL);
+
+		if(CurPtr==m_it_CurLine)
 		{
-			CurPtr->SetEditBeyondEnd(true);
-			CurPtr->SetPosition({ m_Where.left, Y, XX2, Y });
-			CurPtr->SetLeftPos(LeftPos);
-			CurPtr->SetTabCurPos(CurPos);
-			CurPtr->SetEditBeyondEnd(EdOpt.CursorBeyondEOL);
-			if(CurPtr==m_it_CurLine)
-			{
-				CurPtr->SetOvertypeMode(m_Flags.Check(FEDITOR_OVERTYPE));
-				CurPtr->Show();
-			}
-			else
-				CurPtr->FastShow(&info);
-			++CurPtr;
+			CurPtr->SetOvertypeMode(m_Flags.Check(FEDITOR_OVERTYPE));
+			CurPtr->Show();
 		}
 		else
 		{
-			SetScreen({ m_Where.left, Y, XX2, Y }, L' ', colors::PaletteColorToFarColor(COL_EDITORTEXT)); //Пустые строки после конца текста
+			CurPtr->FastShow(&info);
 		}
+	}
+
+	if (Y != m_Where.bottom + 1)
+	{
+		SetScreen({ m_Where.left, Y, XX2, m_Where.bottom }, L' ', colors::PaletteColorToFarColor(COL_EDITORTEXT)); //Пустые строки после конца текста
 	}
 
 	if (IsVerticalSelection() && VBlockSizeX > 0 && VBlockSizeY > 0)
@@ -1709,7 +1716,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 		{
 			{
 				m_Flags.Set(FEDITOR_NEWUNDO);
-				int PrevMaxPos=MaxRightPos;
+				const auto PrevMaxPos = MaxRightPosState.Position;
 				const auto LastTopScreen = m_it_TopScreen;
 				if (LocalKey() == KEY_UP || LocalKey() == KEY_NUMPAD8)
 					Up();
@@ -1722,7 +1729,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 					m_it_CurLine->FixLeftPos();
 				}
 
-				if (PrevMaxPos>m_it_CurLine->GetTabCurPos())
+				if (!EdOpt.CursorBeyondEOL && PrevMaxPos > m_it_CurLine->GetTabCurPos())
 				{
 					m_it_CurLine->SetTabCurPos(PrevMaxPos);
 				}
@@ -2561,7 +2568,8 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 				{
 					Pasting++;
 					ProcessKeyInternal(Manager::Key(KEY_HOME), Refresh);
-					if (!EdOpt.CursorBeyondEOL) MaxRightPos = m_it_CurLine->GetCurPos();
+					if (!EdOpt.CursorBeyondEOL)
+						MaxRightPosState.Position = m_it_CurLine->GetCurPos();
 					ProcessKeyInternal(Manager::Key(KEY_DOWN), Refresh);
 					Pasting--;
 					Refresh = true;
@@ -6695,16 +6703,6 @@ void Editor::SetCursorBeyondEOL(bool NewMode)
 		{
 			i.SetEditBeyondEnd(NewMode);
 		}
-	}
-
-	/* $ 16.10.2001 SKV
-	  Если переключились туда сюда этот режим,
-	  то из-за этой штуки возникают нехилые глюки
-	  при выделении вертикальных блоков.
-	*/
-	if (EdOpt.CursorBeyondEOL)
-	{
-		MaxRightPos=0;
 	}
 }
 
