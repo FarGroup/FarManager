@@ -1,5 +1,5 @@
 ﻿#include <windows.h>
-#include <VersionHelpers.h>
+#include <versionhelpers.h>
 #include "reg.h"
 #include "util.h"
 #include "ustring.h"

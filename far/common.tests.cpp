@@ -49,28 +49,46 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 TEST_CASE("2d/matrix")
 {
-	static const int Data[]
+	static const size_t Data[]
 	{
 		0,  1,  2,  3,
 		4,  5,  6,  7,
 		8,  9, 10, 11,
 	};
 
-	matrix_view Matrix(Data, 3, 4);
+	const size_t Width = 4, Height = 3;
 
-	int Counter = 0;
+	const matrix_view Matrix(Data, Height, Width);
+
+	matrix Copy(Matrix);
+	Copy = Matrix;
+
+	REQUIRE(Matrix.width() == Width);
+	REQUIRE(Matrix.height() == Height);
+	REQUIRE(Matrix.size() == Height * Width);
+
+	size_t Counter = 0;
+	size_t RowNumber = 0;
 
 WARNING_PUSH()
 WARNING_DISABLE_CLANG("-Wrange-loop-analysis")
 	for (const auto& Row: Matrix)
 WARNING_POP()
 	{
-		for (const auto& Cell : Row)
+		REQUIRE(Row.size() == Width);
+
+		for (const auto& Cell: Row)
 		{
 			REQUIRE(Cell == Counter);
 			++Counter;
 		}
+
+		++RowNumber;
+
+		REQUIRE(Counter == RowNumber * Width);
 	}
+
+	REQUIRE(Counter == Width * Height);
 }
 
 //----------------------------------------------------------------------------

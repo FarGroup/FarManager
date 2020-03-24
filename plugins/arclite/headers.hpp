@@ -33,7 +33,7 @@ using namespace std::literals;
 #include <basetyps.h>
 #include "CPP/7zip/Archive/IArchive.h"
 #include "CPP/7zip/IPassword.h"
-#include "CPP/7Zip/ICoder.h"
+#include "CPP/7zip/ICoder.h"
 
 #include "plugin.hpp"
 #include "farcolor.hpp"

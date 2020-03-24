@@ -352,7 +352,7 @@ typedef struct _RTL_RESOURCE
 RTL_RESOURCE, *PRTL_RESOURCE;
 
 #if _WIN32_WINNT >= 0x0603
-#include <VersionHelpers.h>
+#include <versionhelpers.h>
 #else
 #define _WIN32_WINNT_WIN8 0x0602
 #define _WIN32_WINNT_WINBLUE 0x0603

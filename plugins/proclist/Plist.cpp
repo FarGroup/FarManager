@@ -2,7 +2,7 @@
 #include "Proclng.hpp"
 #include "perfthread.hpp"
 
-#include <Psapi.h>
+#include <psapi.h>
 
 // obtained from PSAPI.DLL
 /*

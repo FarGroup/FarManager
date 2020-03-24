@@ -41,7 +41,7 @@ _COM_SMARTPTR_TYPEDEF(IDataObject, __uuidof(IDataObject));
 #endif
 
 #if _WIN32_WINNT >= 0x0603
-# include <VersionHelpers.h>
+# include <versionhelpers.h>
 #else
  inline bool IsWindowsVersionOrGreater(WORD wMajorVersion, WORD wMinorVersion, WORD wServicePackMajor)
  {
