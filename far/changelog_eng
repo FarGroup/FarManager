@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 26.03.2020 00:44:00 +0200 - build 5576
+
+1. Correction of 5570 - the plugins cache might work incorrectly.
+
 drkns 24.03.2020 01:10:31 +0200 - build 5575
 
 1. gh-45: Editor: A very strange bug in cursor positioning.

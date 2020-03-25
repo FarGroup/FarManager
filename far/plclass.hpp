@@ -369,7 +369,7 @@ protected:
 	virtual void Prologue() {}
 	virtual void Epilogue() {}
 
-	plugin_factory::exports_array Exports;
+	plugin_factory::exports_array Exports{};
 
 	std::unordered_set<window_ptr> m_dialogs;
 	plugin_factory* m_Factory;
