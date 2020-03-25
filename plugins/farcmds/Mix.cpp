@@ -408,7 +408,7 @@ wchar_t *GetShellLinkPath(const wchar_t *LinkFile)
 	{
 		// <get target>
 		Result=false;
-		/*HRESULT hres0 = */CoInitialize(NULL);
+		const auto CoInited = SUCCEEDED(CoInitialize(nullptr));
 
 		IShellLink* psl = NULL;
 		HRESULT hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (LPVOID*)&psl);
@@ -439,7 +439,8 @@ wchar_t *GetShellLinkPath(const wchar_t *LinkFile)
 			psl->Release();
 		}
 
-		CoUninitialize();
+		if (CoInited)
+			CoUninitialize();
 		// </get target>
 	}
 

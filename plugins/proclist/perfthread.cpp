@@ -453,7 +453,7 @@ DWORD WINAPI PerfThread::ThreadProc()
 {
 	HANDLE handles[2] = {hEvtBreak, hEvtRefresh};
 
-	CoInitialize(NULL);
+	const auto CoInited = SUCCEEDED(CoInitialize(nullptr));
 	while (1)
 	{
 		Refresh();
@@ -472,7 +472,8 @@ DWORD WINAPI PerfThread::ThreadProc()
 	}
 
 	WMI.Disconnect();
-	CoUninitialize();
+	if (CoInited)
+		CoUninitialize();
 	return 1;
 }
 
