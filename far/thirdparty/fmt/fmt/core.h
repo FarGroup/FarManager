@@ -10,9 +10,12 @@
 
 #include <cstdio>  // std::FILE
 #include <cstring>
+#include <functional>
 #include <iterator>
+#include <memory>
 #include <string>
 #include <type_traits>
+#include <vector>
 
 // The fmt library version in the form major * 10000 + minor * 100 + patch.
 #define FMT_VERSION 60103
@@ -34,6 +37,18 @@
 #  define FMT_HAS_CPP_ATTRIBUTE(x) __has_cpp_attribute(x)
 #else
 #  define FMT_HAS_CPP_ATTRIBUTE(x) 0
+#endif
+
+#define FMT_HAS_CPP14_ATTRIBUTE(attribute) \
+  (__cplusplus >= 201402L && FMT_HAS_CPP_ATTRIBUTE(attribute))
+
+#define FMT_HAS_CPP17_ATTRIBUTE(attribute) \
+  (__cplusplus >= 201703L && FMT_HAS_CPP_ATTRIBUTE(attribute))
+
+#ifdef __clang__
+#  define FMT_CLANG_VERSION (__clang_major__ * 100 + __clang_minor__)
+#else
+#  define FMT_CLANG_VERSION 0
 #endif
 
 #if defined(__GNUC__) && !defined(__clang__)
@@ -126,9 +141,16 @@
 #  define FMT_NORETURN
 #endif
 
+#ifndef FMT_MAYBE_UNUSED
+#  if FMT_HAS_CPP17_ATTRIBUTE(maybe_unused)
+#    define FMT_MAYBE_UNUSED [[maybe_unused]]
+#  else
+#    define FMT_MAYBE_UNUSED
+#  endif
+#endif
+
 #ifndef FMT_DEPRECATED
-#  if (FMT_HAS_CPP_ATTRIBUTE(deprecated) && __cplusplus >= 201402L) || \
-      FMT_MSC_VER >= 1900
+#  if FMT_HAS_CPP14_ATTRIBUTE(deprecated) || FMT_MSC_VER >= 1900
 #    define FMT_DEPRECATED [[deprecated]]
 #  else
 #    if defined(__GNUC__) || defined(__clang__)
@@ -141,8 +163,8 @@
 #  endif
 #endif
 
-// Workaround broken [[deprecated]] in the Intel compiler and NVCC.
-#if defined(__INTEL_COMPILER) || FMT_NVCC
+// Workaround broken [[deprecated]] in the Intel, PGI and NVCC compilers.
+#if defined(__INTEL_COMPILER) || defined(__PGI) || FMT_NVCC
 #  define FMT_DEPRECATED_ALIAS
 #else
 #  define FMT_DEPRECATED_ALIAS FMT_DEPRECATED
@@ -218,9 +240,9 @@
 #endif
 
 #ifndef FMT_UNICODE
-#  define FMT_UNICODE 0
+#  define FMT_UNICODE !FMT_MSC_VER
 #endif
-#if FMT_UNICODE
+#if FMT_UNICODE && FMT_MSC_VER
 #  pragma execution_character_set("utf-8")
 #endif
 
@@ -250,18 +272,24 @@ struct monostate {};
 
 namespace internal {
 
+// A helper function to suppress bogus "conditional expression is constant"
+// warnings.
+template <typename T> FMT_CONSTEXPR T const_check(T value) { return value; }
+
 // A workaround for gcc 4.8 to make void_t work in a SFINAE context.
 template <typename... Ts> struct void_t_impl { using type = void; };
 
-FMT_API void assert_fail(const char* file, int line, const char* message);
+FMT_NORETURN FMT_API void assert_fail(const char* file, int line,
+                                      const char* message);
 
 #ifndef FMT_ASSERT
 #  ifdef NDEBUG
-#    define FMT_ASSERT(condition, message)
+// FMT_ASSERT is not empty to avoid -Werror=empty-body.
+#    define FMT_ASSERT(condition, message) ((void)0)
 #  else
-#    define FMT_ASSERT(condition, message) \
-      ((condition)                         \
-           ? void()                        \
+#    define FMT_ASSERT(condition, message)                                    \
+      ((condition) /* void() fails with -Winvalid-constexpr on clang 4.0.1 */ \
+           ? (void)0                                                          \
            : ::fmt::internal::assert_fail(__FILE__, __LINE__, (message)))
 #  endif
 #endif
@@ -295,6 +323,19 @@ FMT_CONSTEXPR typename std::make_unsigned<Int>::type to_unsigned(Int value) {
   FMT_ASSERT(value >= 0, "negative value");
   return static_cast<typename std::make_unsigned<Int>::type>(value);
 }
+
+constexpr unsigned char micro[] = "\u00B5";
+
+constexpr bool is_utf8() {
+  return FMT_UNICODE ||
+         (sizeof(micro) == 3 && micro[0] == 0xC2 && micro[1] == 0xB5);
+}
+
+#ifdef __cpp_char8_t
+using char8_type = char8_t;
+#else
+enum char8_type : unsigned char {};
+#endif
 }  // namespace internal
 
 template <typename... Ts>
@@ -330,6 +371,9 @@ template <typename Char> class basic_string_view {
     the size with ``std::char_traits<Char>::length``.
     \endrst
    */
+#if __cplusplus >= 201703L  // C++17's char_traits::length() is constexpr.
+  FMT_CONSTEXPR
+#endif
   basic_string_view(const Char* s)
       : data_(s), size_(std::char_traits<Char>::length(s)) {}
 
@@ -395,15 +439,15 @@ using string_view = basic_string_view<char>;
 using wstring_view = basic_string_view<wchar_t>;
 
 #ifndef __cpp_char8_t
-// A UTF-8 code unit type.
-enum char8_t : unsigned char {};
+// char8_t is deprecated; use char instead.
+using char8_t FMT_DEPRECATED_ALIAS = internal::char8_type;
 #endif
 
 /** Specifies if ``T`` is a character type. Can be specialized by users. */
 template <typename T> struct is_char : std::false_type {};
 template <> struct is_char<char> : std::true_type {};
 template <> struct is_char<wchar_t> : std::true_type {};
-template <> struct is_char<char8_t> : std::true_type {};
+template <> struct is_char<internal::char8_type> : std::true_type {};
 template <> struct is_char<char16_t> : std::true_type {};
 template <> struct is_char<char32_t> : std::true_type {};
 
@@ -633,6 +677,9 @@ template <typename T> class buffer {
   T* begin() FMT_NOEXCEPT { return ptr_; }
   T* end() FMT_NOEXCEPT { return ptr_ + size_; }
 
+  const T* begin() const FMT_NOEXCEPT { return ptr_; }
+  const T* end() const FMT_NOEXCEPT { return ptr_ + size_; }
+
   /** Returns the size of this buffer. */
   std::size_t size() const FMT_NOEXCEPT { return size_; }
 
@@ -669,8 +716,10 @@ template <typename T> class buffer {
   /** Appends data to the end of the buffer. */
   template <typename U> void append(const U* begin, const U* end);
 
-  T& operator[](std::size_t index) { return ptr_[index]; }
-  const T& operator[](std::size_t index) const { return ptr_[index]; }
+  template <typename I> T& operator[](I index) { return ptr_[index]; }
+  template <typename I> const T& operator[](I index) const {
+    return ptr_[index];
+  }
 };
 
 // A container-backed buffer.
@@ -900,7 +949,8 @@ template <typename Context> struct arg_mapper {
   template <typename T,
             FMT_ENABLE_IF(
                 std::is_constructible<basic_string_view<char_type>, T>::value &&
-                !is_string<T>::value)>
+                !is_string<T>::value && !has_formatter<T, Context>::value &&
+                !has_fallback_formatter<T, Context>::value)>
   FMT_CONSTEXPR basic_string_view<char_type> map(const T& val) {
     return basic_string_view<char_type>(val);
   }
@@ -909,7 +959,8 @@ template <typename Context> struct arg_mapper {
       FMT_ENABLE_IF(
           std::is_constructible<std_string_view<char_type>, T>::value &&
           !std::is_constructible<basic_string_view<char_type>, T>::value &&
-          !is_string<T>::value && !has_formatter<T, Context>::value)>
+          !is_string<T>::value && !has_formatter<T, Context>::value &&
+          !has_fallback_formatter<T, Context>::value)>
   FMT_CONSTEXPR basic_string_view<char_type> map(const T& val) {
     return std_string_view<char_type>(val);
   }
@@ -938,18 +989,15 @@ template <typename Context> struct arg_mapper {
             FMT_ENABLE_IF(std::is_enum<T>::value &&
                           !has_formatter<T, Context>::value &&
                           !has_fallback_formatter<T, Context>::value)>
-  FMT_CONSTEXPR auto map(const T& val) -> decltype(
-      map(static_cast<typename std::underlying_type<T>::type>(val))) {
+  FMT_CONSTEXPR auto map(const T& val)
+      -> decltype(std::declval<arg_mapper>().map(
+          static_cast<typename std::underlying_type<T>::type>(val))) {
     return map(static_cast<typename std::underlying_type<T>::type>(val));
   }
-  template <
-      typename T,
-      FMT_ENABLE_IF(
-          !is_string<T>::value && !is_char<T>::value &&
-          !std::is_constructible<basic_string_view<char_type>, T>::value &&
-          (has_formatter<T, Context>::value ||
-           (has_fallback_formatter<T, Context>::value &&
-            !std::is_constructible<std_string_view<char_type>, T>::value)))>
+  template <typename T,
+            FMT_ENABLE_IF(!is_string<T>::value && !is_char<T>::value &&
+                          (has_formatter<T, Context>::value ||
+                           has_fallback_formatter<T, Context>::value))>
   FMT_CONSTEXPR const T& map(const T& val) {
     return val;
   }
@@ -1170,6 +1218,43 @@ template <bool IS_PACKED, typename Context, typename T,
 inline basic_format_arg<Context> make_arg(const T& value) {
   return make_arg<Context>(value);
 }
+
+template <typename T> struct is_reference_wrapper : std::false_type {};
+
+template <typename T>
+struct is_reference_wrapper<std::reference_wrapper<T>> : std::true_type {};
+
+class dynamic_arg_list {
+  // Workaround for clang's -Wweak-vtables. Unlike for regular classes, for
+  // templates it doesn't complain about inability to deduce single translation
+  // unit for placing vtable. So storage_node_base is made a fake template.
+  template <typename = void> struct node {
+    virtual ~node() = default;
+    std::unique_ptr<node<>> next;
+  };
+
+  template <typename T> struct typed_node : node<> {
+    T value;
+
+    template <typename Arg>
+    FMT_CONSTEXPR typed_node(const Arg& arg) : value(arg) {}
+
+    template <typename Char>
+    FMT_CONSTEXPR typed_node(const basic_string_view<Char>& arg)
+        : value(arg.data(), arg.size()) {}
+  };
+
+  std::unique_ptr<node<>> head_;
+
+ public:
+  template <typename T, typename Arg> const T& push(const Arg& arg) {
+    auto node = std::unique_ptr<typed_node<T>>(new typed_node<T>(arg));
+    auto& value = node->value;
+    node->next = std::move(head_);
+    head_ = std::move(node);
+    return value;
+  }
+};
 }  // namespace internal
 
 // Formatting context.
@@ -1281,6 +1366,102 @@ inline format_arg_store<Context, Args...> make_format_args(
 
 /**
   \rst
+  A dynamic version of `fmt::format_arg_store<>`.
+  It's equipped with a storage to potentially temporary objects which lifetime
+  could be shorter than the format arguments object.
+
+  It can be implicitly converted into `~fmt::basic_format_args` for passing
+  into type-erased formatting functions such as `~fmt::vformat`.
+  \endrst
+ */
+template <typename Context>
+class dynamic_format_arg_store
+#if FMT_GCC_VERSION < 409
+    // Workaround a GCC template argument substitution bug.
+    : public basic_format_args<Context>
+#endif
+{
+ private:
+  using char_type = typename Context::char_type;
+
+  template <typename T> struct need_copy {
+    static constexpr internal::type mapped_type =
+        internal::mapped_type_constant<T, Context>::value;
+
+    enum {
+      value = !(internal::is_reference_wrapper<T>::value ||
+                std::is_same<T, basic_string_view<char_type>>::value ||
+                std::is_same<T, internal::std_string_view<char_type>>::value ||
+                (mapped_type != internal::type::cstring_type &&
+                 mapped_type != internal::type::string_type &&
+                 mapped_type != internal::type::custom_type &&
+                 mapped_type != internal::type::named_arg_type))
+    };
+  };
+
+  template <typename T>
+  using stored_type = conditional_t<internal::is_string<T>::value,
+                                    std::basic_string<char_type>, T>;
+
+  // Storage of basic_format_arg must be contiguous.
+  std::vector<basic_format_arg<Context>> data_;
+
+  // Storage of arguments not fitting into basic_format_arg must grow
+  // without relocation because items in data_ refer to it.
+  internal::dynamic_arg_list dynamic_args_;
+
+  friend class basic_format_args<Context>;
+
+  unsigned long long get_types() const {
+    return internal::is_unpacked_bit | data_.size();
+  }
+
+  template <typename T> void emplace_arg(const T& arg) {
+    data_.emplace_back(internal::make_arg<Context>(arg));
+  }
+
+ public:
+  /**
+    \rst
+    Adds an argument into the dynamic store for later passing to a formating
+    function.
+
+    Note that custom types and string types (but not string views!) are copied
+    into the store with dynamic memory (in addition to resizing vector).
+
+    **Example**::
+
+      fmt::dynamic_format_arg_store<fmt::format_context> store;
+      store.push_back(42);
+      store.push_back("abc");
+      store.push_back(1.5f);
+      std::string result = fmt::vformat("{} and {} and {}", store);
+    \endrst
+  */
+  template <typename T> void push_back(const T& arg) {
+    static_assert(
+        !std::is_base_of<internal::named_arg_base<char_type>, T>::value,
+        "named arguments are not supported yet");
+    if (internal::const_check(need_copy<T>::value))
+      emplace_arg(dynamic_args_.push<stored_type<T>>(arg));
+    else
+      emplace_arg(arg);
+  }
+
+  /**
+    Adds a reference to the argument into the dynamic store for later passing to
+    a formating function.
+  */
+  template <typename T> void push_back(std::reference_wrapper<T> arg) {
+    static_assert(
+        need_copy<T>::value,
+        "objects of built-in types and string views are always copied");
+    emplace_arg(arg.get());
+  }
+};
+
+/**
+  \rst
   A view of a collection of formatting arguments. To avoid lifetime issues it
   should only be used as a parameter type in type-erased functions such as
   ``vformat``::
@@ -1348,6 +1529,17 @@ template <typename Context> class basic_format_args {
   basic_format_args(const format_arg_store<Context, Args...>& store)
       : types_(store.types) {
     set_data(store.data_);
+  }
+
+  /**
+   \rst
+   Constructs a `basic_format_args` object from
+   `~fmt::dynamic_format_arg_store`.
+   \endrst
+   */
+  basic_format_args(const dynamic_format_arg_store<Context>& store)
+      : types_(store.get_types()) {
+    set_data(store.data_.data());
   }
 
   /**
@@ -1453,7 +1645,7 @@ make_args_checked(const S& format_str,
       all_true<(!std::is_base_of<view, remove_reference_t<Args>>::value ||
                 !std::is_reference<Args>::value)...>::value,
       "passing views as lvalues is disallowed");
-  check_format_string<remove_const_t<remove_reference_t<Args>>...>(format_str);
+  check_format_string<Args...>(format_str);
   return {args...};
 }
 
@@ -1468,6 +1660,10 @@ typename buffer_context<Char>::iterator vformat_to(
     basic_format_args<buffer_context<type_identity_t<Char>>> args);
 
 FMT_API void vprint_mojibake(std::FILE*, string_view, format_args);
+
+#ifndef _WIN32
+inline void vprint_mojibake(std::FILE*, string_view, format_args) {}
+#endif
 }  // namespace internal
 
 /**
@@ -1558,14 +1754,12 @@ FMT_API void vprint(std::FILE*, string_view, format_args);
 template <typename S, typename... Args,
           FMT_ENABLE_IF(internal::is_string<S>::value)>
 inline void print(std::FILE* f, const S& format_str, Args&&... args) {
-#if !defined(_WIN32) || FMT_UNICODE
-  vprint(f, to_string_view(format_str),
-         internal::make_args_checked<Args...>(format_str, args...));
-#else
-  internal::vprint_mojibake(
-      f, to_string_view(format_str),
-      internal::make_args_checked<Args...>(format_str, args...));
-#endif
+  return internal::is_utf8()
+             ? vprint(f, to_string_view(format_str),
+                      internal::make_args_checked<Args...>(format_str, args...))
+             : internal::vprint_mojibake(
+                   f, to_string_view(format_str),
+                   internal::make_args_checked<Args...>(format_str, args...));
 }
 
 /**
@@ -1582,14 +1776,12 @@ inline void print(std::FILE* f, const S& format_str, Args&&... args) {
 template <typename S, typename... Args,
           FMT_ENABLE_IF(internal::is_string<S>::value)>
 inline void print(const S& format_str, Args&&... args) {
-#if !defined(_WIN32) || FMT_UNICODE
-  vprint(to_string_view(format_str),
-         internal::make_args_checked<Args...>(format_str, args...));
-#else
-  internal::vprint_mojibake(
-      stdout, to_string_view(format_str),
-      internal::make_args_checked<Args...>(format_str, args...));
-#endif
+  return internal::is_utf8()
+             ? vprint(to_string_view(format_str),
+                      internal::make_args_checked<Args...>(format_str, args...))
+             : internal::vprint_mojibake(
+                   stdout, to_string_view(format_str),
+                   internal::make_args_checked<Args...>(format_str, args...));
 }
 FMT_END_NAMESPACE
 
