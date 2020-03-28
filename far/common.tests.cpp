@@ -698,7 +698,6 @@ TEST_CASE("string_utils.misc")
 
 	REQUIRE(concat(L'a', L"bc", L"def"sv, L"1234"s) == L"abcdef1234"sv);
 	REQUIRE(concat(L""sv, L""sv).empty());
-	REQUIRE(concat(L""sv).empty());
 
 	REQUIRE(erase_all(L"1,2,3,4,5"s, L',') == L"12345"sv);
 	REQUIRE(erase_all(L"12345"s, L',') == L"12345"sv);

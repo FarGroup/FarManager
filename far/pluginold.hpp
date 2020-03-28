@@ -47,7 +47,7 @@ namespace oldfar
 {
 WARNING_PUSH()
 
-WARNING_DISABLE_MSC(6244) // https://msdn.microsoft.com/en-us/library/35whedce.aspx local declaration of <variable> hides previous declaration at <line> of <file>
+WARNING_DISABLE_MSC(6244) // local declaration of <variable> hides previous declaration at <line> of <file>
 
 #ifndef _WIN64
 PACK_PUSH(2)

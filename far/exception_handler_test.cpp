@@ -188,7 +188,6 @@ namespace tests
 	}
 
 	WARNING_PUSH()
-	WARNING_DISABLE_MSC(4717) // https://msdn.microsoft.com/en-us/library/97c54274.aspx 'function' : recursive on all control paths, function will cause runtime stack overflow
 	WARNING_DISABLE_CLANG("-Winfinite-recursion")
 
 	static void stack_overflow()

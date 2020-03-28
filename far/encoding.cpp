@@ -1276,4 +1276,31 @@ WARNING_POP()
 		REQUIRE(i.Str == Bytes);
 	}
 }
+
+TEST_CASE("encoding.raw_eol")
+{
+	static const struct
+	{
+		unsigned Codepage;
+		char Cr, Lf;
+	}
+	Tests[]
+	{
+		{CP_ACP,   '\r', '\n' },
+		{CP_OEMCP, '\r', '\n' },
+		{37,       '\r', '%'  },
+		{500,      '\r', '%'  },
+	};
+
+	for (const auto& i: Tests)
+	{
+		raw_eol Eol(i.Codepage);
+
+		REQUIRE(Eol.cr<char>() == i.Cr);
+		REQUIRE(Eol.lf<char>() == i.Lf);
+
+		REQUIRE(Eol.cr<wchar_t>() == '\r');
+		REQUIRE(Eol.lf<wchar_t>() == '\n');
+	}
+}
 #endif

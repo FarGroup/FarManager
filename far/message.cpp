@@ -250,7 +250,7 @@ void Message::Init(
 		append(strClipText, Title, Eol, Eol);
 	}
 
-	size_t BtnLength = std::accumulate(Buttons.cbegin(), Buttons.cend(), size_t(0), [](size_t Result, const auto& i)
+	size_t BtnLength = std::accumulate(ALL_CONST_RANGE(Buttons), size_t{}, [](size_t Result, const auto& i)
 	{
 		return Result + HiStrlen(i) + 2 + 2 + 1; // "[ ", " ]", " "
 	});

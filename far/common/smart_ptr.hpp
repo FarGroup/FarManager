@@ -45,8 +45,8 @@ public:
 	NONCOPYABLE(array_ptr);
 
 WARNING_PUSH()
-WARNING_DISABLE_MSC(4582) // no page                                                'class': constructor is not implicitly called
-WARNING_DISABLE_MSC(4583) // no page                                                'class': destructor is not implicitly called
+WARNING_DISABLE_MSC(4582) // 'class': constructor is not implicitly called
+WARNING_DISABLE_MSC(4583) // 'class': destructor is not implicitly called
 
 	array_ptr() noexcept
 	{

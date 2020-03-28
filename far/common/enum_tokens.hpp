@@ -168,7 +168,7 @@ namespace detail
 	{
 	public:
 		[[nodiscard]]
-		string_view::const_iterator extract(string_view::const_iterator const Begin, string_view::const_iterator const End, const string_view Separators, string_view& Value) const
+		auto extract(string_view::const_iterator const Begin, string_view::const_iterator const End, const string_view Separators, string_view& Value) const
 		{
 			const auto NewIterator = std::find_first_of(Begin, End, ALL_CONST_RANGE(Separators));
 			Value = make_string_view(Begin, NewIterator);
@@ -181,7 +181,7 @@ namespace detail
 	{
 	public:
 		[[nodiscard]]
-		string_view::const_iterator extract(string_view::const_iterator const Begin, string_view::const_iterator const End, const string_view Separators, string_view& Value) const
+		auto extract(string_view::const_iterator const Begin, string_view::const_iterator const End, const string_view Separators, string_view& Value) const
 		{
 			m_Overrider.reset();
 

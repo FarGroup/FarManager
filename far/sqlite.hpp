@@ -72,7 +72,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace sqlite
 {
 WARNING_PUSH(3)
-WARNING_DISABLE_GCC("-Wzero-as-null-pointer-constant")
 WARNING_DISABLE_GCC("-Wold-style-cast")
 WARNING_DISABLE_CLANG("-Wold-style-cast")
 #include "thirdparty/sqlite/sqlite3.h"

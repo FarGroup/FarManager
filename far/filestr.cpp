@@ -58,8 +58,8 @@ const auto BufferSize = 4096;
 static_assert(BufferSize % sizeof(wchar_t) == 0);
 
 WARNING_PUSH()
-WARNING_DISABLE_MSC(4582) // no page                                                'class': constructor is not implicitly called
-WARNING_DISABLE_MSC(4583) // no page                                                'class': destructor is not implicitly called
+WARNING_DISABLE_MSC(4582) // 'class': constructor is not implicitly called
+WARNING_DISABLE_MSC(4583) // 'class': destructor is not implicitly called
 
 enum_lines::enum_lines(std::istream& Stream, uintptr_t CodePage):
 	m_Stream(Stream),

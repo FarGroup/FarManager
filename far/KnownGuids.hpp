@@ -48,7 +48,7 @@ namespace guids::plugins
 {
 	using namespace guid_parse::literals;
 
-	constexpr inline const auto
+	constexpr inline auto
 		NetworkGuid  = "773B5051-7C5F-4920-A201-68051C4176A4"_guid,
 		EMenuGuid    = "742910F1-02ED-4542-851F-DEE37C2E13B2"_guid,
 		ArcliteGuid  = "65642111-AA69-4B84-B4B8-9249579EC4FA"_guid,
