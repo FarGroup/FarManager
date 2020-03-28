@@ -49,7 +49,7 @@ namespace guids::far
 {
 	using namespace guid_parse::literals;
 
-	constexpr inline const auto
+	constexpr inline auto
 		FarGuid = "00000000-0000-0000-0000-000000000000"_guid;
 }
 

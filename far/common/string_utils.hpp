@@ -52,8 +52,8 @@ public:
 	NONCOPYABLE(null_terminated_t);
 
 WARNING_PUSH()
-WARNING_DISABLE_MSC(4582) // no page                                                'class': constructor is not implicitly called
-WARNING_DISABLE_MSC(4583) // no page                                                'class': destructor is not implicitly called
+WARNING_DISABLE_MSC(4582) // 'class': constructor is not implicitly called
+WARNING_DISABLE_MSC(4583) // 'class': destructor is not implicitly called
 
 	explicit null_terminated_t(const std::basic_string_view<T> Str)
 	{
@@ -164,39 +164,49 @@ private:
 
 namespace string_utils::detail
 {
-	// The overload for string literals is deliberately omitted as it also matches arrays
-	// and while for string literals the length formula is pretty simple: N - 1,
-	// for arrays it is not, as they could have no trailing \0 at all, or (worse) have multiple.
-	// Use string_view literal if you need to.
-	[[nodiscard]] inline size_t length(wchar_t) { return 1; }
-	[[nodiscard]] inline size_t length(string_view const Str) { return Str.size(); }
-
-	inline void append_one(string& Str, wchar_t const Arg, size_t) { Str += Arg; }
-	inline void append_one(string& Str, wchar_t const* const Arg, size_t const Size) { Str.append(Arg, Size); }
-	inline void append_one(string& Str, string_view const Arg, size_t) { Str += Arg; }
-
-	template<size_t... I, typename... args>
-	void append_all(string& Str, std::index_sequence<I...> Sequence, args const&... Args)
+	class append_arg: public string_view
 	{
-		size_t Sizes[Sequence.size()];
-		const auto TotalSize = (Str.size() + ... + (Sizes[I] = length(Args)));
+	public:
+		explicit append_arg(string_view const Str):
+			string_view(Str)
+		{
+		}
+
+		explicit append_arg(const wchar_t& Char):
+			string_view(&Char, 1)
+		{
+		}
+	};
+
+	inline void append_impl(string& Str, const std::initializer_list<append_arg>& Args)
+	{
+		const auto TotalSize = std::accumulate(ALL_RANGE(Args), size_t{}, [](size_t const Value, const append_arg& Element)
+		{
+			return Value + Element.size();
+		});
+
 		reserve_exp_noshrink(Str, TotalSize);
-		(..., append_one(Str, Args, Sizes[I]));
+		for (const auto& i: Args)
+		{
+			Str += i;
+		}
 	}
 }
 
 template<typename... args>
 void append(string& Str, args const&... Args)
 {
-	string_utils::detail::append_all(Str, std::index_sequence_for<args...>{}, Args...);
+	string_utils::detail::append_impl(Str, { string_utils::detail::append_arg(Args)... });
 }
 
 template<typename... args>
 [[nodiscard]]
 auto concat(args const&... Args)
 {
+	static_assert(sizeof...(Args) > 1);
+
 	string Str;
-	append(Str, Args...);
+	string_utils::detail::append_impl(Str, { string_utils::detail::append_arg(Args)... });
 	return Str;
 }
 
@@ -569,21 +579,12 @@ inline auto trim(string_view Str)
 template<typename container>
 void join(string& Str, const container& Container, string_view const Separator)
 {
-	if constexpr (std::is_convertible_v<typename std::iterator_traits<decltype(std::cbegin(Container))>::iterator_category, std::bidirectional_iterator_tag>)
+	const auto Size = std::accumulate(ALL_CONST_RANGE(Container), size_t{}, [Separator](size_t const Value, const auto& Element)
 	{
-		size_t Size = 0;
+		return Value + Separator.size() + Element.size();
+	});
 
-		for (const auto& i: Container)
-		{
-			Size += string_utils::detail::length(i) + Separator.size();
-		}
-
-		if (Size)
-		{
-			Size -= Separator.size();
-			reserve_exp_noshrink(Str, Size);
-		}
-	}
+	reserve_exp_noshrink(Str, Size? Size - Separator.size() : Size);
 
 	bool First = true;
 

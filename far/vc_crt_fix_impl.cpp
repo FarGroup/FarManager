@@ -38,8 +38,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "disable_warnings_in_std_begin.hpp"
 //----------------------------------------------------------------------------
 #endif // END FAR_USE_INTERNALS
-#include <windows.h>
 #include <utility>
+
+#include <windows.h>
 #ifdef FAR_USE_INTERNALS
 //----------------------------------------------------------------------------
 #include "disable_warnings_in_std_end.hpp"

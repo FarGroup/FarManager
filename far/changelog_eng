@@ -3,6 +3,12 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 28.03.2020 15:58:39 +0200 - build 5578
+
+1. Refactoring.
+
+2. Minimum GCC version - 8.1.
+
 drkns 26.03.2020 19:19:19 +0200 - build 5577
 
 1. New versions of fmt, tinyxml2, Catch2.

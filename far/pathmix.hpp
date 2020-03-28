@@ -61,68 +61,74 @@ namespace path
 
 	namespace detail
 	{
-		inline size_t length(size_t&, wchar_t const Char)
+		class append_arg: public string_view
 		{
-			return contains(separators(), Char)? 0 : 1;
-		}
+		public:
+			explicit append_arg(string_view const Str):
+				string_view(process(Str))
+			{
+			}
 
-		inline size_t length(size_t& Offset, string_view Str)
-		{
-			const auto Begin = Str.find_first_not_of(separators());
-			if (Begin == string_view::npos)
-				return 0;
+			explicit append_arg(const wchar_t& Char):
+				string_view(&Char, contains(separators(), Char)? 0 : 1)
+			{
+			}
 
-			Str.remove_prefix(Offset = Begin);
+		private:
+			string_view process(string_view Str)
+			{
+				const auto Begin = Str.find_first_not_of(separators());
+				if (Begin == Str.npos)
+					return {};
 
-			const auto LastCharPos = Str.find_last_not_of(separators());
-			if (LastCharPos == string_view::npos)
-				return 0;
+				Str.remove_prefix(Begin);
 
-			Str.remove_suffix(Str.size() - LastCharPos - 1);
+				const auto LastCharPos = Str.find_last_not_of(separators());
+				if (LastCharPos == Str.npos)
+					return {};
 
-			return Str.size();
-		}
+				Str.remove_suffix(Str.size() - LastCharPos - 1);
 
-		inline void append_one(string& Str, wchar_t const Arg, size_t const, size_t const Size) { Str.append(&Arg, Size); }
-		inline void append_one(string& Str, wchar_t const* const Arg, size_t const Offset, size_t const Size) { Str.append(Arg + Offset, Size); }
-		inline void append_one(string& Str, string const& Arg, size_t const Offset, size_t const Size) { Str.append(Arg, Offset, Size); }
-		inline void append_one(string& Str, string_view const Arg, size_t const Offset, size_t const Size) { Str.append(Arg.data() + Offset, Size); }
+				return Str;
+			}
+		};
 
-		template<size_t... I, typename... args>
-		void append_all(string& Str, std::index_sequence<I...> Sequence, args const&... Args)
+		inline void append_impl(string& Str, const std::initializer_list<append_arg>& Args)
 		{
 			const auto LastCharPos = Str.find_last_not_of(separators());
 			Str.resize(LastCharPos == string::npos? 0 : LastCharPos + 1);
 
-			size_t Sizes[sizeof...(Args)];
-			size_t Offsets[sizeof...(Args)]{};
-
-			reserve_exp_noshrink(Str, (Str.size() + ... + (Sizes[I] = length(Offsets[I], Args))) + sizeof...(Args) - 1);
-
-			const auto separate_and_append = [&](size_t Index, const auto& Arg)
+			const auto TotalSize = std::accumulate(ALL_RANGE(Args), Str.size() + (Args.size() - 1), [](size_t const Value, const append_arg& Element)
 			{
-				if (!Str.empty() && (Sizes[Index] || Index + 1 == Sequence.size()))
+				return Value + Element.size();
+			});
+
+			reserve_exp_noshrink(Str, TotalSize);
+
+			for (const auto& i: Args)
+			{
+				if (!Str.empty() && (!i.empty() || &i + 1 == Args.end()))
 					Str += separators().front();
 
-				append_one(Str, Arg, Offsets[Index], Sizes[Index]);
-			};
-
-			(..., separate_and_append(I, Args));
+				Str += i;
+			}
 		}
 	}
 
 	template<typename... args>
 	void append(string& Str, args const&... Args)
 	{
-		detail::append_all(Str, std::index_sequence_for<args...>{}, Args...);
+		detail::append_impl(Str, { detail::append_arg(Args)... });
 	}
 
 	template<typename arg, typename... args>
 	[[nodiscard]]
 	string join(arg&& Arg, const args&... Args)
 	{
+		static_assert(sizeof...(Args));
+
 		string Str(FWD(Arg));
-		path::append(Str, Args...);
+		detail::append_impl(Str, { detail::append_arg(Args)... });
 		return Str;
 	}
 }

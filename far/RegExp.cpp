@@ -50,9 +50,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-WARNING_DISABLE_GCC("-Wpragmas")
-WARNING_DISABLE_GCC("-Wimplicit-fallthrough")
-
 #ifdef RE_DEBUG
 
 #ifdef dpf
@@ -940,17 +937,17 @@ int RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int src
 				case 'E':inquote=0; pos--; continue;
 				case 'b':op->op=opWordBound; continue;
 				case 'B':op->op=opNotWordBound; continue;
-				case 'D':op->op=opNotType;
+				case 'D':op->op=opNotType; [[fallthrough]];
 				case 'd':op->type=TYPE_DIGITCHAR; continue;
-				case 'S':op->op=opNotType;
+				case 'S':op->op=opNotType; [[fallthrough]];
 				case 's':op->type=TYPE_SPACECHAR; continue;
-				case 'W':op->op=opNotType;
+				case 'W':op->op=opNotType; [[fallthrough]];
 				case 'w':op->type=TYPE_WORDCHAR; continue;
-				case 'U':op->op=opNotType;
+				case 'U':op->op=opNotType; [[fallthrough]];
 				case 'u':op->type=TYPE_UPCASE; continue;
-				case 'L':op->op=opNotType;
+				case 'L':op->op=opNotType; [[fallthrough]];
 				case 'l':op->type=TYPE_LOWCASE; continue;
-				case 'I':op->op=opNotType;
+				case 'I':op->op=opNotType; [[fallthrough]];
 				case 'i':op->type=TYPE_ALPHACHAR; continue;
 				case 'A':op->op=opDataStart; continue;
 				case 'Z':op->op=opDataEnd; continue;
@@ -1249,7 +1246,9 @@ int RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int src
 						if (l == -1)return SetError(errVariableLengthLookBehind, i + (src - start));
 
 						brackets[brdepth]->assert.length=l;
-					}// there is no break and this is correct!
+					}
+						[[fallthrough]];
+
 					case opLookAhead:
 					case opNotLookAhead:
 					{
@@ -1290,17 +1289,17 @@ int RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int src
 
 						switch (src[i])
 						{
-							case 'D':isnottype=1;
+							case 'D':isnottype=1; [[fallthrough]];
 							case 'd':type=TYPE_DIGITCHAR; break;
-							case 'W':isnottype=1;
+							case 'W':isnottype=1; [[fallthrough]];
 							case 'w':type=TYPE_WORDCHAR; break;
-							case 'S':isnottype=1;
+							case 'S':isnottype=1; [[fallthrough]];
 							case 's':type=TYPE_SPACECHAR; break;
-							case 'L':isnottype=1;
+							case 'L':isnottype=1; [[fallthrough]];
 							case 'l':type=TYPE_LOWCASE; break;
-							case 'U':isnottype=1;
+							case 'U':isnottype=1; [[fallthrough]];
 							case 'u':type=TYPE_UPCASE; break;
-							case 'I':isnottype=1;
+							case 'I':isnottype=1; [[fallthrough]];
 							case 'i':type=TYPE_ALPHACHAR; break;
 							case 'n':lastchar='\n'; break;
 							case 'r':lastchar='\r'; break;

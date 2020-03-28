@@ -210,9 +210,10 @@ public:
 	explicit raw_eol(uintptr_t Codepage): m_Cr(to(Codepage, L'\r')), m_Lf(to(Codepage, L'\n')) {}
 
 	template <class T>
-	T cr() const = delete;
+	T cr() const { return value<T>(L'\r', m_Cr); }
+
 	template <class T>
-	T lf() const = delete;
+	T lf() const { return value<T>(L'\n', m_Lf); }
 
 private:
 	static char to(uintptr_t Codepage, wchar_t WideChar)
@@ -222,18 +223,24 @@ private:
 		return Char;
 	}
 
+	template <typename T>
+	static T value(
+		[[maybe_unused]] wchar_t const WideChar,
+		[[maybe_unused]] char const Char
+	)
+	{
+		if constexpr (std::is_same_v<T, wchar_t>)
+			return WideChar;
+		else
+		{
+			static_assert(std::is_same_v<T, char>);
+			return Char;
+		}
+	}
+
 	const char m_Cr;
 	const char m_Lf;
 };
-
-template<>
-inline char raw_eol::cr<char>() const { return m_Cr; }
-template<>
-inline char raw_eol::lf<char>() const { return m_Lf; }
-template<>
-constexpr wchar_t raw_eol::cr<wchar_t>() const { return L'\r'; }
-template<>
-constexpr wchar_t raw_eol::lf<wchar_t>() const { return L'\n'; }
 
 // {Codepage: (MaxCharSize, Name)}
 using cp_map = std::unordered_map<UINT, std::pair<UINT, string>>;

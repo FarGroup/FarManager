@@ -107,6 +107,7 @@ if not exist $(BootstrapDir) mkdir $(BootstrapDir)</Command>
       <DiagnosticsFormat>Caret</DiagnosticsFormat>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ConformanceMode>true</ConformanceMode>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <ResourceCompile>
       <Culture>0x0409</Culture>
@@ -128,7 +129,6 @@ if not exist $(BootstrapDir) mkdir $(BootstrapDir)</Command>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -151,7 +151,6 @@ if not exist $(BootstrapDir) mkdir $(BootstrapDir)</Command>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PreprocessorDefinitions>_DEBUG;ENABLE_TESTS;SYSLOG;SYSLOG_FARSYSLOG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DebugInformationFormat Condition="'$(Platform)'=='Win32' or '$(Platform)'=='x64'">EditAndContinue</DebugInformationFormat>
       <SupportJustMyCode>true</SupportJustMyCode>
       <SDLCheck>true</SDLCheck>
     </ClCompile>

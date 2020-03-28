@@ -47,13 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 WARNING_PUSH(3)
 
-WARNING_DISABLE_MSC(4396) // https://msdn.microsoft.com/en-us/library/bb384968.aspx 'name': the inline specifier cannot be used when a friend declaration refers to a specialization of a function template
-WARNING_DISABLE_MSC(4702) // https://msdn.microsoft.com/en-us/library/c26da40e.aspx unreachable code
-
-WARNING_DISABLE_GCC("-Wctor-dtor-privacy")
-WARNING_DISABLE_GCC("-Wmaybe-uninitialized")
-WARNING_DISABLE_GCC("-Wduplicated-branches")
-
 WARNING_DISABLE_CLANG("-Weverything")
 
 #include "thirdparty/fmt/fmt/format.h"
@@ -79,9 +72,9 @@ auto format(const char_type(&Format)[N], args&&...) = delete;
 
 
 template<typename T>
-auto str(T&& Value)
+auto str(const T& Value)
 {
-	return fmt::to_wstring(FWD(Value));
+	return fmt::to_wstring(Value);
 }
 
 inline auto str(const void* Value)

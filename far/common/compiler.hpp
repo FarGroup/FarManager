@@ -86,7 +86,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 #if COMPILER(CL) || COMPILER(INTEL)
-#define WARNING_PUSH(...) __pragma(warning(push, __VA_ARGS__))
+#define WARNING_PUSH(...) __pragma(warning(push, ## __VA_ARGS__))
 #define WARNING_POP()     __pragma(warning(pop))
 #elif COMPILER(GCC) || COMPILER(CLANG)
 #define WARNING_PUSH(...) STR_PRAGMA(GCC diagnostic push)

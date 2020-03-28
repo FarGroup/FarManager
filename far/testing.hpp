@@ -48,7 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 WARNING_PUSH()
 
-WARNING_DISABLE_MSC(5204) // no page                                                'class': class has virtual functions, but its trivial destructor is not virtual; instances of objects derived from this class may not be destructed correctly
+WARNING_DISABLE_MSC(5204) // 'class': class has virtual functions, but its trivial destructor is not virtual; instances of objects derived from this class may not be destructed correctly
 WARNING_DISABLE_CLANG("-Weverything")
 
 #define CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS

@@ -343,7 +343,7 @@ CPPFLAGS = $(CPPFLAGS) /Qstd=c++11 /Qdiag-disable:672,869,2415,3280
 
 # config-specific
 !ifdef DEBUG
-CPPFLAGS=$(CPPFLAGS) /MTd /Od /ZI
+CPPFLAGS=$(CPPFLAGS) /MTd /Od /Zi
 LINKFLAGS=$(LINKFLAGS) /debug
 ULINKFLAGS=$(ULINKFLAGS) -v
 !else

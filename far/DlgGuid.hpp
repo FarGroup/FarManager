@@ -49,7 +49,7 @@ namespace guids::far::dialogs
 {
 	using namespace guid_parse::literals;
 
-	constexpr inline const auto
+	constexpr inline auto
 		FindFileId                       = "8C9EAD29-910F-4B24-A669-EDAFBA6ED964"_guid,
 		FindFileResultId                 = "536754EB-C2D1-4626-933F-A25D1E1D110A"_guid,
 		CopyOverwriteId                  = "9FBCB7E1-ACA2-475D-B40D-0F7365B632FF"_guid,
