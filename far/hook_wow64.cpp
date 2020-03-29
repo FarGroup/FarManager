@@ -81,13 +81,7 @@ extern "C" void* wow_disable()
 	return p;
 }
 
-#if COMPILER(GCC)
-	#if _GCC_VER >= GCC_VER_(8, 0, 0)
-		#define NAKED __attribute__((naked))
-	#else
-		#define NAKED // Unfortunately GCC doesn't support this attribute on x86 until v8
-	#endif
-#elif COMPILER(CLANG)
+#if COMPILER(GCC) || COMPILER(CLANG)
 	#define NAKED __attribute__((naked))
 #else
 	#define NAKED __declspec(naked)
