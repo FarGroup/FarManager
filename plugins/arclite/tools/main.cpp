@@ -1,6 +1,9 @@
 ﻿#define TOOLS_TOOL
 
-#define NOMINMAX 1
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
 #include <windows.h>
 
 #include <algorithm>
