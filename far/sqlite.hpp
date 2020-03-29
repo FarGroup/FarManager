@@ -73,11 +73,16 @@ namespace sqlite
 {
 WARNING_PUSH(3)
 WARNING_DISABLE_GCC("-Wold-style-cast")
+WARNING_DISABLE_GCC("-Wzero-as-null-pointer-constant")
+
 WARNING_DISABLE_CLANG("-Wold-style-cast")
+WARNING_DISABLE_CLANG("-Wzero-as-null-pointer-constant")
+
 #include "thirdparty/sqlite/sqlite3.h"
 
 	static const auto static_destructor = SQLITE_STATIC;
 	static const auto transient_destructor = SQLITE_TRANSIENT;
+
 WARNING_POP()
 }
 
