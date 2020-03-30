@@ -20,7 +20,7 @@ function bnetbox {
   cp -f LICENSE.txt ../outfinalnew${BIT}/Plugins/${PLUGIN}
 }
 
-#git clone must already exist and set to far3 branch
+#git clone must already exist
 cd Far-NetBox || exit 1
 rm -fR build
 git pull || exit 1
