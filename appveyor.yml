@@ -22,10 +22,7 @@ install:
   #update AppVeyor build number to match Far build number
   - cd far && for /f "tokens=1,2,4 delims=, " %%i in ('tools\m4 -P farversion.inc.m4') do appveyor UpdateBuild -Version %%i.%%j.%%k.%APPVEYOR_BUILD_NUMBER% && cd ..
   #clone NetBox
-  - git clone https://github.com/michaellukashov/Far-NetBox.git 
-  - cd Far-NetBox
-  - git checkout far3
-  - cd ..
+  - git clone https://github.com/FarGroup/Far-NetBox.git
   #clone and build Colorer-schemes
   - git clone https://github.com/colorer/Colorer-schemes.git
   - cd Colorer-schemes
