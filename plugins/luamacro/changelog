@@ -1,3 +1,7 @@
+shmuel 30.03.2020 15:14:49 +0200 - build 737
+
+1. LuaFAR: add file:read("*b") - read binary line.
+
 shmuel 04.03.2020 16:14:42 +0200 - build 736
 
 1. LuaFAR: win.CreateDir() preserves trailing spaces.
