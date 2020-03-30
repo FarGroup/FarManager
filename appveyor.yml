@@ -178,14 +178,18 @@ after_build:
   - nmake -nologo %ADD_MAKE_MSI%
   - cd ..\..
   - move ci\%configuration%.%platform%\final.msi "%APPVEYOR_BUILD_FOLDER%\%NAME_PREFIX%.msi"
+  #publish artifacts only for release as we keep on reaching the appveyor limit
+  - if "%configuration%" == "Release" appveyor PushArtifact "%NAME_PREFIX%.7z"
+  - if "%configuration%" == "Release" appveyor PushArtifact "%NAME_PREFIX%.pdb.7z"
+  - if "%configuration%" == "Release" appveyor PushArtifact "%NAME_PREFIX%.msi"
 
-artifacts:
-  - path: $(NAME_PREFIX).7z
-    name: Far Manager
-  - path: $(NAME_PREFIX).msi
-    name: Far Manager MSI
-  - path: $(NAME_PREFIX).pdb.7z
-    name: Far Manager PDBs
+#artifacts:
+#  - path: $(NAME_PREFIX).7z
+#    name: Far Manager
+#  - path: $(NAME_PREFIX).msi
+#    name: Far Manager MSI
+#  - path: $(NAME_PREFIX).pdb.7z
+#    name: Far Manager PDBs
 
 deploy:
   tag: ci/v$(appveyor_build_version)
