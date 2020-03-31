@@ -165,10 +165,11 @@ after_build:
   #set NAME_PREFIX variable as otherwise it is not available when artifacts are collected
   - set NAME_PREFIX="Far%NAME_ADD%.%platform%.%appveyor_build_version%.%APPVEYOR_REPO_COMMIT%"
   - appveyor SetVariable -Name NAME_PREFIX -Value "%NAME_PREFIX%"
+  #publish artifacts only for release as we keep on reaching the appveyor limit
   #archive PDBs
-  - 7z a -ir!*.pdb "%APPVEYOR_BUILD_FOLDER%\%NAME_PREFIX%.pdb.7z"
+  - if "%configuration%" == "Release" 7z a -ir!*.pdb "%APPVEYOR_BUILD_FOLDER%\%NAME_PREFIX%.pdb.7z"
   #archive Far without PDBs
-  - 7z a -xr!*.pdb "%APPVEYOR_BUILD_FOLDER%\%NAME_PREFIX%.7z"
+  - if "%configuration%" == "Release" 7z a -xr!*.pdb "%APPVEYOR_BUILD_FOLDER%\%NAME_PREFIX%.7z"
   - cd ..\..
   #create msi
   - cd misc\msi-installer
@@ -177,19 +178,15 @@ after_build:
   - genparams %APPVEYOR_BUILD_FOLDER%\ci\%configuration%.%platform% %platform%
   - nmake -nologo %ADD_MAKE_MSI%
   - cd ..\..
-  - move ci\%configuration%.%platform%\final.msi "%APPVEYOR_BUILD_FOLDER%\%NAME_PREFIX%.msi"
-  #publish artifacts only for release as we keep on reaching the appveyor limit
-  - if "%configuration%" == "Release" appveyor PushArtifact "%NAME_PREFIX%.7z"
-  - if "%configuration%" == "Release" appveyor PushArtifact "%NAME_PREFIX%.pdb.7z"
-  - if "%configuration%" == "Release" appveyor PushArtifact "%NAME_PREFIX%.msi"
+  - if "%configuration%" == "Release" move ci\%configuration%.%platform%\final.msi "%APPVEYOR_BUILD_FOLDER%\%NAME_PREFIX%.msi"
 
-#artifacts:
-#  - path: $(NAME_PREFIX).7z
-#    name: Far Manager
-#  - path: $(NAME_PREFIX).msi
-#    name: Far Manager MSI
-#  - path: $(NAME_PREFIX).pdb.7z
-#    name: Far Manager PDBs
+artifacts:
+  - path: $(NAME_PREFIX).7z
+    name: Far Manager
+  - path: $(NAME_PREFIX).msi
+    name: Far Manager MSI
+  - path: $(NAME_PREFIX).pdb.7z
+    name: Far Manager PDBs
 
 deploy:
   tag: ci/v$(appveyor_build_version)
