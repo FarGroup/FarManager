@@ -11641,6 +11641,23 @@ mtime=3744087293
 </article>
 </node>
 <node>
+id=551
+lv=1
+dt=Text
+nm=file:read("*b")
+ctime=3794741921
+mtime=3794742737
+<article>
+#_<markdown>
+#_This is the same as `file:read("*l")` but it treats the `'\0'`
+#_character like any other non-newline character which makes it
+#_possible to read "lines" from binary files.
+#_
+#_**Note:** `"*b"` stands for "binary line".
+#_
+</article>
+</node>
+<node>
 id=128
 lv=0
 dt=Text

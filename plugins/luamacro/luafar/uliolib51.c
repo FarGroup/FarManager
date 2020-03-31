@@ -403,6 +403,30 @@ static int read_line(lua_State *L, FILE *f)
 }
 
 
+static int read_line_bin (lua_State *L, FILE *f) {
+	luaL_Buffer b;
+	luaL_buffinit(L, &b);
+	for (;;) {
+		char *q, *p = luaL_prepbuffer(&b);
+		memset(p, '\n', LUAL_BUFFERSIZE);
+		if (fgets(p, LUAL_BUFFERSIZE, f) == NULL) {  /* eof? */
+			luaL_pushresult(&b);  /* close buffer */
+			return (lua_objlen(L, -1) > 0);  /* check whether read something */
+		}
+		for (q=p+LUAL_BUFFERSIZE-1; q>p && *q; --q) { /* find last '\0' char */
+		}
+		if (q-- > p) {
+			if (*q == '\n') {
+				luaL_addsize(&b, q-p);
+				luaL_pushresult(&b);  /* close buffer */
+				return 1;
+			}
+			luaL_addsize(&b, q-p+1);
+		}
+	}
+}
+
+
 static int read_chars(lua_State *L, FILE *f, size_t n)
 {
 	size_t rlen;  /* how much to read */
@@ -464,6 +488,9 @@ static int g_read(lua_State *L, FILE *f, int first)
 						break;
 					case 'l':  /* line */
 						success = read_line(L, f);
+						break;
+					case 'b':  /* "binary" line (LuaFAR extension) */
+						success = read_line_bin(L, f);
 						break;
 					case 'a':  /* file */
 						read_chars(L, f, ~((size_t)0));  /* read MAX_SIZE_T chars */

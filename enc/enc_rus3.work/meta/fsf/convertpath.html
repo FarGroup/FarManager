@@ -91,7 +91,7 @@ size_t WINAPI ConvertPath(
    {
      const auto ActualSize = FSF.ConvertPath(CPM_FULL, L"..\\some_file", Buffer.data(), Buffer.size());
 
-     if (ActualSize <= Buffer.size())
+     if (ActualSize &lt;= Buffer.size())
         break;
 
      Buffer.resize(ActualSize);

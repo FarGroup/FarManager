@@ -57,7 +57,8 @@ after_build:
   - set NAME_PREFIX="Far%NAME_ADD%.%platform%.%appveyor_build_version%.%APPVEYOR_REPO_COMMIT%"
   - appveyor SetVariable -Name NAME_PREFIX -Value "%NAME_PREFIX%"
   #archive Far
-  - 7z a "%APPVEYOR_BUILD_FOLDER%\%NAME_PREFIX%.7z" -x!obj\
+  #save artifacts only for release as we keep on reaching the appveyor limit
+  - if "%configuration%" == "Release" 7z a "%APPVEYOR_BUILD_FOLDER%\%NAME_PREFIX%.7z" -x!obj\
   - cd ..\..
 
 artifacts:
