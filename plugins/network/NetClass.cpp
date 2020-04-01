@@ -31,7 +31,7 @@ static __int64 GetSetting(FARSETTINGS_SUBFOLDERS Root,const wchar_t* Name)
 FILE* NetBrowser::LogFile = NULL;
 int NetBrowser::LogFileRef = 0;
 
-void NetBrowser::OpenLogFile(wchar_t *lpFileName)
+void NetBrowser::OpenLogFile(const wchar_t *lpFileName)
 {
 	if (!LogFileRef)
 		LogFile = _wfopen(lpFileName, L"a+t");
@@ -49,7 +49,7 @@ void NetBrowser::CloseLogfile()
 	if (!LogFileRef && LogFile)fclose(LogFile),LogFile = NULL;
 }
 
-void NetBrowser::LogData(wchar_t * Data)
+void NetBrowser::LogData(const wchar_t * Data)
 {
 	if (LogFile)
 	{
