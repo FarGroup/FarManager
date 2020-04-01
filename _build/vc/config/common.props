@@ -55,7 +55,9 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <AdditionalIncludeDirectories>$(SrcRoot)plugins\common\unicode;$(SrcRoot)plugins\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NOMINMAX;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;_CRT_STDIO_LEGACY_WIDE_SPECIFIERS;_WIN32_WINNT=0x0600;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;_CRT_NON_CONFORMING_WCSTOK;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;_CRT_STDIO_LEGACY_WIDE_SPECIFIERS;_WIN32_WINNT=0x0600;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <ConformanceMode>true</ConformanceMode>
       <WarningLevel>Level3</WarningLevel>
       <AdditionalOptions> /J</AdditionalOptions>
       <StringPooling>true</StringPooling>

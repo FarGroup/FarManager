@@ -1,294 +1,310 @@
-﻿#include <stdio.h>
-#include <time.h>
+﻿#include <cstdio>
+#include <ctime>
+
 #include <initguid.h>
 #include "guid.hpp"
 #include "Proclist.hpp"
 #include "Proclng.hpp"
 #include "version.hpp"
 
-_Opt Opt;
-ui64Table *_ui64Table;
+options Opt;
+ui64Table* Ui64Table;
 
 PluginStartupInfo Info;
 FarStandardFunctions FSF;
-wchar_t *PluginRootKey;
 
 //-----------------------------------------------------------------------------
-static LONG WINAPI fNtQueryInformationProcess(
-    HANDLE, PROCESSINFOCLASS, PVOID, ULONG, PULONG)
-{ return STATUS_NOT_IMPLEMENTED; }
-PNtQueryInformationProcess pNtQueryInformationProcess = fNtQueryInformationProcess;
+static LONG WINAPI fNtQueryInformationProcess(HANDLE, PROCESSINFOCLASS, PVOID, ULONG, PULONG)
+{
+	return STATUS_NOT_IMPLEMENTED;
+}
 
 static LONG WINAPI fNtQueryInformationThread(HANDLE, ULONG, PVOID, DWORD, DWORD*)
-{ return STATUS_NOT_IMPLEMENTED; }
-PNtQueryInformationThread pNtQueryInformationThread = fNtQueryInformationThread;
-
-static LONG WINAPI fNtQueryObject(HANDLE, DWORD, VOID*, DWORD, VOID*)
-{ return STATUS_NOT_IMPLEMENTED; }
-PNtQueryObject pNtQueryObject = fNtQueryObject;
-
-static LONG WINAPI fNtQuerySystemInformation(DWORD, VOID*, DWORD, ULONG*)
-{ return STATUS_NOT_IMPLEMENTED; }
-PNtQuerySystemInformation pNtQuerySystemInformation = fNtQuerySystemInformation;
-
-static LONG WINAPI fNtQueryInformationFile(HANDLE, PVOID, PVOID, DWORD, DWORD)
-{ return STATUS_NOT_IMPLEMENTED; }
-PNtQueryInformationFile pNtQueryInformationFile = fNtQueryInformationFile;
-
-
-static BOOL WINAPI fIsWow64Process(HANDLE, PBOOL) { return FALSE; }
-PIsWow64Process pIsWow64Process = fIsWow64Process;
-
-static DWORD WINAPI fGetGuiResources(HANDLE, DWORD) { return 0; }
-PGetGuiResources pGetGuiResources = fGetGuiResources;
-
-
-static BOOL WINAPI fIsValidSid(PSID) { return FALSE; }
-PIsValidSid pIsValidSid = fIsValidSid;
-
-static PSID_IDENTIFIER_AUTHORITY WINAPI fGetSidIdentifierAuthority(PSID)
-{ return NULL; }
-PGetSidIdentifierAuthority pGetSidIdentifierAuthority = fGetSidIdentifierAuthority;
-
-static PUCHAR WINAPI fGetSidSubAuthorityCount(PSID) { return NULL; }
-PGetSidSubAuthorityCount pGetSidSubAuthorityCount = fGetSidSubAuthorityCount;
-
-static PDWORD WINAPI fGetSidSubAuthority(PSID, DWORD) { return NULL; }
-PGetSidSubAuthority pGetSidSubAuthority = fGetSidSubAuthority;
-
-static BOOL WINAPI fLookupAccountName(LPCTSTR,LPCTSTR,PSID,LPDWORD,LPTSTR,LPDWORD,PSID_NAME_USE)
-{ return FALSE; }
-PLookupAccountName pLookupAccountName = fLookupAccountName;
-
-
-static HRESULT WINAPI fCoSetProxyBlanket(
-    IUnknown*, DWORD, DWORD, OLECHAR*, DWORD, DWORD, RPC_AUTH_IDENTITY_HANDLE, DWORD)
-{ return E_FAIL; }
-PCoSetProxyBlanket pCoSetProxyBlanket = fCoSetProxyBlanket;
-
-
-static BOOL WINAPI fEnumProcessModulesEx(HANDLE, HMODULE*, DWORD, DWORD*, DWORD)
-{ return FALSE; }
-PEnumProcessModulesEx pEnumProcessModulesEx = fEnumProcessModulesEx;
-
-
-static void dynamic_bind(void)
 {
-	static BOOL Inited;
-
-	if (!Inited)
-	{
-		HMODULE h;
-		FARPROC f;
-
-		if ((h = GetModuleHandle(L"ntdll")) != NULL)
-		{
-			if ((f = GetProcAddress(h, "NtQueryInformationProcess")) != NULL)
-				pNtQueryInformationProcess = (PNtQueryInformationProcess)f;
-
-			if ((f = GetProcAddress(h, "NtQueryInformationThread")) != NULL)
-				pNtQueryInformationThread = (PNtQueryInformationThread)f;
-
-			if ((f = GetProcAddress(h, "NtQueryObject")) != NULL)
-				pNtQueryObject = (PNtQueryObject)f;
-
-			if ((f = GetProcAddress(h, "NtQuerySystemInformation")) != NULL)
-				pNtQuerySystemInformation = (PNtQuerySystemInformation)f;
-
-			if ((f = GetProcAddress(h, "NtQueryInformationFile")) != NULL)
-				pNtQueryInformationFile = (PNtQueryInformationFile)f;
-		}
-
-		if ((h = GetModuleHandle(L"kernel32")) != NULL)
-		{
-			if ((f = GetProcAddress(h, "IsWow64Process")) != NULL)
-				pIsWow64Process = (PIsWow64Process)f;
-		}
-
-		if ((h = GetModuleHandle(L"advapi32")) != NULL)
-		{
-			if ((f = GetProcAddress(h, "IsValidSid")) != NULL)
-				pIsValidSid = (PIsValidSid)f;
-
-			if ((f = GetProcAddress(h, "GetSidIdentifierAuthority")) != NULL)
-				pGetSidIdentifierAuthority = (PGetSidIdentifierAuthority)f;
-
-			if ((f = GetProcAddress(h, "GetSidSubAuthorityCount")) != NULL)
-				pGetSidSubAuthorityCount = (PGetSidSubAuthorityCount)f;
-
-			if ((f = GetProcAddress(h, "GetSidSubAuthority")) != NULL)
-				pGetSidSubAuthority = (PGetSidSubAuthority)f;
-
-			if ((f = GetProcAddress(h, "LookupAccountNameW" )) != NULL)
-				pLookupAccountName = (PLookupAccountName)f;
-		}
-
-		if ((h = GetModuleHandle(L"user32")) != NULL)
-		{
-			if ((f = GetProcAddress(h, "GetGuiResources")) != NULL)
-				pGetGuiResources = (PGetGuiResources)f;
-		}
-
-		if ((h = GetModuleHandle(L"ole32")) != NULL)
-		{
-			if ((f = GetProcAddress(h, "CoSetProxyBlanket")) != NULL)
-				pCoSetProxyBlanket = (PCoSetProxyBlanket)f;
-		}
-
-		if ((h = GetModuleHandle(L"psapi")) != NULL)
-		{
-			if ((f = GetProcAddress(h, "EnumProcessModulesEx")) != NULL)
-				pEnumProcessModulesEx = (PEnumProcessModulesEx)f;
-		}
-
-		Inited = TRUE;
-	}
+	return STATUS_NOT_IMPLEMENTED;
 }
 
-int Message(unsigned Flags, wchar_t *HelpTopic, LPCTSTR*Items, int nItems, int nButtons)
+static LONG WINAPI fNtQueryObject(HANDLE, DWORD, VOID*, DWORD, VOID*)
 {
-	return (int)Info.Message(&MainGuid, nullptr, Flags, HelpTopic, Items, nItems, nButtons);
+	return STATUS_NOT_IMPLEMENTED;
+}
+
+static LONG WINAPI fNtQuerySystemInformation(DWORD, VOID*, DWORD, ULONG*)
+{
+	return STATUS_NOT_IMPLEMENTED;
+}
+
+static LONG WINAPI fNtQueryInformationFile(HANDLE, PVOID, PVOID, DWORD, DWORD)
+{
+	return STATUS_NOT_IMPLEMENTED;
+}
+
+static BOOL WINAPI fIsWow64Process(HANDLE, PBOOL)
+{
+	return FALSE;
+}
+
+static DWORD WINAPI fGetGuiResources(HANDLE, DWORD)
+{
+	return 0;
+}
+
+static BOOL WINAPI fIsValidSid(PSID)
+{
+	return FALSE;
+}
+
+static PSID_IDENTIFIER_AUTHORITY WINAPI fGetSidIdentifierAuthority(PSID)
+{
+	return {};
+}
+
+static PUCHAR WINAPI fGetSidSubAuthorityCount(PSID)
+{
+	return {};
+}
+
+static PDWORD WINAPI fGetSidSubAuthority(PSID, DWORD)
+{
+	return {};
+}
+
+static BOOL WINAPI fLookupAccountNameW(LPCTSTR, LPCTSTR, PSID, LPDWORD, LPTSTR, LPDWORD, PSID_NAME_USE)
+{
+	return FALSE;
+}
+
+static HRESULT WINAPI fCoSetProxyBlanket(IUnknown*, DWORD, DWORD, OLECHAR*, DWORD, DWORD, RPC_AUTH_IDENTITY_HANDLE, DWORD)
+{
+	return E_FAIL;
+}
+
+static BOOL WINAPI fEnumProcessModulesEx(HANDLE, HMODULE*, DWORD, DWORD*, DWORD)
+{
+	return FALSE;
+}
+
+#define STATIC_INIT_IMPORT(Name) \
+	P ## Name p ## Name = f ## Name
+
+STATIC_INIT_IMPORT(NtQueryInformationProcess);
+STATIC_INIT_IMPORT(NtQueryInformationThread);
+STATIC_INIT_IMPORT(NtQueryObject);
+STATIC_INIT_IMPORT(NtQuerySystemInformation);
+STATIC_INIT_IMPORT(NtQueryInformationFile);
+STATIC_INIT_IMPORT(IsWow64Process);
+STATIC_INIT_IMPORT(GetGuiResources);
+STATIC_INIT_IMPORT(IsValidSid);
+STATIC_INIT_IMPORT(GetSidIdentifierAuthority);
+STATIC_INIT_IMPORT(GetSidSubAuthorityCount);
+STATIC_INIT_IMPORT(GetSidSubAuthority);
+STATIC_INIT_IMPORT(LookupAccountNameW);
+STATIC_INIT_IMPORT(CoSetProxyBlanket);
+STATIC_INIT_IMPORT(EnumProcessModulesEx);
+
+#undef STATIC_INIT_IMPORT
+
+static void dynamic_bind()
+{
+	static bool Inited = false;
+
+	if (Inited)
+		return;
+
+#define INIT_IMPORT(Name) \
+	if (const auto FunctionAddress = GetProcAddress(Module, # Name)) \
+		p ## Name = reinterpret_cast<P ## Name>(FunctionAddress)
+
+
+	if (const auto Module = GetModuleHandle(L"ntdll"))
+	{
+		INIT_IMPORT(NtQueryInformationProcess);
+		INIT_IMPORT(NtQueryInformationThread);
+		INIT_IMPORT(NtQueryObject);
+		INIT_IMPORT(NtQuerySystemInformation);
+		INIT_IMPORT(NtQueryInformationFile);
+	}
+
+	if (const auto Module = GetModuleHandle(L"kernel32"))
+	{
+		INIT_IMPORT(IsWow64Process);
+	}
+
+	if (const auto Module = GetModuleHandle(L"advapi32"))
+	{
+		INIT_IMPORT(IsValidSid);
+		INIT_IMPORT(GetSidIdentifierAuthority);
+		INIT_IMPORT(GetSidSubAuthorityCount);
+		INIT_IMPORT(GetSidSubAuthority);
+		INIT_IMPORT(LookupAccountNameW);
+	}
+
+	if (const auto Module = GetModuleHandle(L"user32"))
+	{
+		INIT_IMPORT(GetGuiResources);
+	}
+
+	if (const auto Module = GetModuleHandle(L"ole32"))
+	{
+		INIT_IMPORT(CoSetProxyBlanket);
+	}
+
+	if (const auto Module = GetModuleHandle(L"psapi"))
+	{
+		INIT_IMPORT(EnumProcessModulesEx);
+	}
+
+#undef INIT_IMPORT
+
+	Inited = true;
+}
+
+int Message(unsigned Flags, const wchar_t* HelpTopic, const wchar_t** Items, size_t nItems, size_t nButtons)
+{
+	return static_cast<int>(Info.Message(&MainGuid, {}, Flags, HelpTopic, Items, nItems, nButtons));
 }
 
 //-----------------------------------------------------------------------------
-void WINAPI GetGlobalInfoW(GlobalInfo *Info)
+void WINAPI GetGlobalInfoW(GlobalInfo* Info)
 {
-	Info->StructSize=sizeof(GlobalInfo);
-	Info->MinFarVersion=FARMANAGERVERSION;
-	Info->Version=PLUGIN_VERSION;
-	Info->Guid=MainGuid;
-	Info->Title=PLUGIN_NAME;
-	Info->Description=PLUGIN_DESC;
-	Info->Author=PLUGIN_AUTHOR;
+	Info->StructSize = sizeof(GlobalInfo);
+	Info->MinFarVersion = FARMANAGERVERSION;
+	Info->Version = PLUGIN_VERSION;
+	Info->Guid = MainGuid;
+	Info->Title = PLUGIN_NAME;
+	Info->Description = PLUGIN_DESC;
+	Info->Author = PLUGIN_AUTHOR;
 }
 
 
-void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
+void WINAPI SetStartupInfoW(const struct PluginStartupInfo* Info)
 {
 	dynamic_bind();
 	::Info = *Info;
 	FSF = *Info->FSF;
 	::Info.FSF = &FSF;
-	_ui64Table = new ui64Table;
+	Ui64Table = new ui64Table;
 	Opt.Read();
 	DebugToken::CreateToken();
 }
 
 
-void WINAPI ExitFARW(const struct ExitInfo *Info)
+void WINAPI ExitFARW(const struct ExitInfo* Info)
 {
-	free(PluginRootKey);
-	delete _ui64Table;
+	delete Ui64Table;
 }
 
 
-HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
+HANDLE WINAPI OpenW(const struct OpenInfo* OInfo)
 {
 	Opt.Read();
-	Plist* hPlugin = new Plist();
+	auto hPlugin = std::make_unique<Plist>();
 
-	if (OInfo->OpenFrom == OPEN_COMMANDLINE && (NORM_M_PREFIX(reinterpret_cast<OpenCommandLineInfo*>(OInfo->Data)->CommandLine)))
+	if (OInfo->OpenFrom == OPEN_COMMANDLINE && norm_m_prefix(reinterpret_cast<OpenCommandLineInfo*>(OInfo->Data)->CommandLine))
 	{
 		if (!hPlugin->Connect(reinterpret_cast<OpenCommandLineInfo*>(OInfo->Data)->CommandLine))
 		{
-			delete hPlugin;
-			hPlugin = nullptr;
+			return {};
 		}
 	}
 
-	return hPlugin;
+	return hPlugin.release();
 }
 
 
-void WINAPI ClosePanelW(const struct ClosePanelInfo *Info)
+void WINAPI ClosePanelW(const struct ClosePanelInfo* Info)
 {
-	delete(Plist *)Info->hPanel;
+	std::unique_ptr<Plist>(static_cast<Plist*>(Info->hPanel));
 }
 
 
-intptr_t WINAPI GetFindDataW(struct GetFindDataInfo *Info)
+intptr_t WINAPI GetFindDataW(struct GetFindDataInfo* Info)
 {
-	Plist *Panel=(Plist *)Info->hPanel;
-	return Panel->GetFindData(Info->PanelItem,Info->ItemsNumber,Info->OpMode);
+	auto& Panel = *static_cast<Plist*>(Info->hPanel);
+	return Panel.GetFindData(Info->PanelItem, Info->ItemsNumber, Info->OpMode);
 }
 
 
-void   WINAPI FreeFindDataW(const struct FreeFindDataInfo *Info)
+void WINAPI FreeFindDataW(const struct FreeFindDataInfo* Info)
 {
-	Plist *Panel=(Plist *)Info->hPanel;
-	Panel->FreeFindData(Info->PanelItem,(int)Info->ItemsNumber);
+	auto& Panel = *static_cast<Plist*>(Info->hPanel);
+	Panel.FreeFindData(Info->PanelItem, Info->ItemsNumber);
 }
 
-
-void WINAPI GetPluginInfoW(struct PluginInfo *Info)
+void WINAPI GetPluginInfoW(struct PluginInfo* Info)
 {
-	Info->StructSize=sizeof(*Info);
-	Info->Flags=PF_NONE;
+	Info->StructSize = sizeof(*Info);
+	Info->Flags = PF_NONE;
 
 	if (Opt.AddToPluginsMenu)
 	{
-		static const wchar_t *PluginMenuStrings[1];
-		PluginMenuStrings[0]=GetMsg(MPlistPanel);
-		Info->PluginMenu.Guids=&MenuGuid;
-		Info->PluginMenu.Strings=PluginMenuStrings;
-		Info->PluginMenu.Count=ARRAYSIZE(PluginMenuStrings);
+		static const wchar_t* PluginMenuStrings[1];
+		PluginMenuStrings[0] = GetMsg(MPlistPanel);
+		Info->PluginMenu.Guids = &MenuGuid;
+		Info->PluginMenu.Strings = PluginMenuStrings;
+		Info->PluginMenu.Count = std::size(PluginMenuStrings);
 	}
 
 	if (Opt.AddToDisksMenu)
 	{
-		static const wchar_t *DiskMenuStrings[1];
-		DiskMenuStrings[0]=GetMsg(MPlistPanel);
-    	Info->DiskMenu.Guids=&MenuGuid;
-    	Info->DiskMenu.Strings=DiskMenuStrings;
-    	Info->DiskMenu.Count=ARRAYSIZE(DiskMenuStrings);
+		static const wchar_t* DiskMenuStrings[1];
+		DiskMenuStrings[0] = GetMsg(MPlistPanel);
+		Info->DiskMenu.Guids = &MenuGuid;
+		Info->DiskMenu.Strings = DiskMenuStrings;
+		Info->DiskMenu.Count = std::size(DiskMenuStrings);
 	}
 
-	static const wchar_t *PluginCfgStrings[1];
-	PluginCfgStrings[0]=GetMsg(MPlistPanel);
-	Info->PluginConfig.Guids=&MenuGuid;
-	Info->PluginConfig.Strings=PluginCfgStrings;
-	Info->PluginConfig.Count=ARRAYSIZE(PluginCfgStrings);
+	static const wchar_t* PluginCfgStrings[1];
+	PluginCfgStrings[0] = GetMsg(MPlistPanel);
+	Info->PluginConfig.Guids = &MenuGuid;
+	Info->PluginConfig.Strings = PluginCfgStrings;
+	Info->PluginConfig.Count = std::size(PluginCfgStrings);
 
 	Info->CommandPrefix = L"plist";
 }
 
 
-void WINAPI GetOpenPanelInfoW(struct OpenPanelInfo *Info)
+void WINAPI GetOpenPanelInfoW(struct OpenPanelInfo* Info)
 {
-	Plist *Panel=(Plist *)Info->hPanel;
-	Panel->GetOpenPanelInfo(Info);
+	auto& Panel = *static_cast<Plist*>(Info->hPanel);
+	Panel.GetOpenPanelInfo(Info);
 }
 
 
-intptr_t WINAPI GetFilesW(struct GetFilesInfo *Info)
+intptr_t WINAPI GetFilesW(struct GetFilesInfo* Info)
 {
-	return ((Plist *)Info->hPanel)->GetFiles(Info->PanelItem,(int)Info->ItemsNumber,Info->Move,&Info->DestPath,Info->OpMode);
+	auto& Panel = *static_cast<Plist*>(Info->hPanel);
+	return Panel.GetFiles(Info->PanelItem, Info->ItemsNumber, Info->Move, &Info->DestPath, Info->OpMode);
 }
 
 
-intptr_t WINAPI DeleteFilesW(const struct DeleteFilesInfo *Info)
+intptr_t WINAPI DeleteFilesW(const struct DeleteFilesInfo* Info)
 {
-	return ((Plist *)Info->hPanel)->DeleteFiles(Info->PanelItem,(int)Info->ItemsNumber,Info->OpMode);
+	auto& Panel = *static_cast<Plist*>(Info->hPanel);
+	return Panel.DeleteFiles(Info->PanelItem, Info->ItemsNumber, Info->OpMode);
 }
 
 
-intptr_t WINAPI ProcessPanelEventW(const struct ProcessPanelEventInfo *Info)
+intptr_t WINAPI ProcessPanelEventW(const struct ProcessPanelEventInfo* Info)
 {
-	return ((Plist *)Info->hPanel)->ProcessEvent(Info->Event,Info->Param);
+	auto& Panel = *static_cast<Plist*>(Info->hPanel);
+	return Panel.ProcessEvent(Info->Event, Info->Param);
 }
 
 
-intptr_t WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo *Info)
+intptr_t WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo* Info)
 {
-	return ((Plist *)Info->hPanel)->ProcessKey(&Info->Rec);
+	auto& Panel = *static_cast<Plist*>(Info->hPanel);
+	return Panel.ProcessKey(&Info->Rec);
 }
 
-intptr_t WINAPI ConfigureW(const struct ConfigureInfo *Info)
+intptr_t WINAPI ConfigureW(const struct ConfigureInfo* Info)
 {
 	return Config();
 }
 
-intptr_t WINAPI CompareW(const struct CompareInfo *Info)
+intptr_t WINAPI CompareW(const struct CompareInfo* Info)
 {
-	return ((Plist *)Info->hPanel)->Compare(Info->Item1, Info->Item2, Info->Mode);
+	auto& Panel = *static_cast<Plist*>(Info->hPanel);
+	return Panel.Compare(Info->Item1, Info->Item2, Info->Mode);
 }

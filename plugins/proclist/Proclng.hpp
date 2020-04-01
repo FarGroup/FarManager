@@ -1,4 +1,9 @@
-﻿enum
+﻿#ifndef PROCLNG_HPP_65EE0261_7B48_4884_9EAF_6DC567E13F68
+#define PROCLNG_HPP_65EE0261_7B48_4884_9EAF_6DC567E13F68
+
+#pragma once
+
+enum
 {
 	MOk,
 	MCancel,
@@ -176,3 +181,5 @@
 	MViewDDD,
 	MViewWithOptions,
 };
+
+#endif // PROCLNG_HPP_65EE0261_7B48_4884_9EAF_6DC567E13F68

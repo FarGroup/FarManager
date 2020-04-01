@@ -1,24 +1,13 @@
 ﻿// Based on Zoltan Csizmadia's TaskManagerEx source, zoltan_csizmadia@yahoo.com
 
-#include <stdio.h>
+#include <algorithm>
+#include <memory>
+#include <mutex>
+
 #include "Proclist.hpp"
 #include "perfthread.hpp" // fot GetProcessData
 #include "Proclng.hpp"
 
-/*
-struct SYSTEM_HANDLE {
-        DWORD   ProcessID;
-        WORD    HandleType;
-        WORD    HandleNumber;
-        DWORD   KernelAddress;
-        DWORD   Flags;
-};
-struct SYSTEM_HANDLE_INFORMATION
-{
-        DWORD           Count;
-        SYSTEM_HANDLE   Handles[1];
-};
-*/
 
 typedef struct _SYSTEM_HANDLE_TABLE_ENTRY_INFO
 {
@@ -29,32 +18,19 @@ typedef struct _SYSTEM_HANDLE_TABLE_ENTRY_INFO
 	USHORT HandleValue;
 	PVOID Object;
 	ULONG GrantedAccess;
-} SYSTEM_HANDLE_TABLE_ENTRY_INFO, *PSYSTEM_HANDLE_TABLE_ENTRY_INFO;
+} SYSTEM_HANDLE_TABLE_ENTRY_INFO, * PSYSTEM_HANDLE_TABLE_ENTRY_INFO;
 
 typedef struct _SYSTEM_HANDLE_INFORMATION
 {
 	ULONG NumberOfHandles;
 	SYSTEM_HANDLE_TABLE_ENTRY_INFO Handles[1];
-} SYSTEM_HANDLE_INFORMATION, *PSYSTEM_HANDLE_INFORMATION;
-
-
-/*
-struct BASIC_THREAD_INFORMATION {
-        DWORD u1;
-        DWORD u2;
-        DWORD u3;
-        DWORD ThreadId;
-        DWORD u5;
-        DWORD u6;
-        DWORD u7;
-};
-*/
+} SYSTEM_HANDLE_INFORMATION, * PSYSTEM_HANDLE_INFORMATION;
 
 typedef struct _CLIENT_ID
 {
 	HANDLE UniqueProcess;
 	HANDLE UniqueThread;
-} CLIENT_ID, *PCLIENT_ID;
+} CLIENT_ID, * PCLIENT_ID;
 
 typedef ULONG_PTR KAFFINITY;
 typedef LONG  KPRIORITY;
@@ -67,7 +43,7 @@ typedef struct _THREAD_BASIC_INFORMATION
 	KAFFINITY  AffinityMask;
 	KPRIORITY  Priority;
 	KPRIORITY  BasePriority;
-} BASIC_THREAD_INFORMATION, THREAD_BASIC_INFORMATION, *PTHREAD_BASIC_INFORMATION;
+} BASIC_THREAD_INFORMATION, THREAD_BASIC_INFORMATION, * PTHREAD_BASIC_INFORMATION;
 
 typedef struct _PROCESS_BASIC_INFORMATION
 {
@@ -85,314 +61,314 @@ struct UNICODE_STRING
 	PWSTR Buffer;
 };
 
-enum { OB_TYPE_UNKNOWN = 0, OB_TYPE_TYPE = 1, OB_TYPE_DIRECTORY,
-       OB_TYPE_SYMBOLIC_LINK,  OB_TYPE_TOKEN,  OB_TYPE_PROCESS,
-       OB_TYPE_THREAD, /*OB_TYPE_UNKNOWN_7,*/ OB_TYPE_EVENT,
-       OB_TYPE_EVENT_PAIR, OB_TYPE_MUTANT, //OB_TYPE_UNKNOWN_11,
-       OB_TYPE_SEMAPHORE, OB_TYPE_TIMER, OB_TYPE_PROFILE,
-       OB_TYPE_WINDOW_STATION, OB_TYPE_DESKTOP, OB_TYPE_SECTION,
-       OB_TYPE_KEY, OB_TYPE_PORT, OB_TYPE_WAITABLE_PORT,
-       /*OB_TYPE_UNKNOWN_21, OB_TYPE_UNKNOWN_22, OB_TYPE_UNKNOWN_23,
-       OB_TYPE_UNKNOWN_24,*/ OB_TYPE_JOB, //22 on Whistler
-       //OB_TYPE_CONTROLLER, OB_TYPE_DEVICE, OB_TYPE_DRIVER,
-       OB_TYPE_IO_COMPLETION, OB_TYPE_FILE, OB_TYPE_WMI_GUID,
-     };
+typedef enum _OBJECT_INFORMATION_CLASS
+{
+	ObjectBasicInformation,
+	ObjectNameInformation,
+	ObjectTypeInformation,
+}
+OBJECT_INFORMATION_CLASS;
 
 static const wchar_t* GetUserAccountID();
 static const wchar_t* pUserAccountID;
 
-static BOOL GetProcessId(HANDLE handle, DWORD& dwPID)
+static bool GetProcessId(HANDLE Handle, DWORD& Pid)
 {
-	BOOL ret = FALSE;
-	//bool remote = false;
-	PROCESS_BASIC_INFORMATION pi;
-	ZeroMemory(&pi, sizeof(pi));
-	dwPID = 0;
+	PROCESS_BASIC_INFORMATION pi{};
 
-	// Get the process information
-	if (pNtQueryInformationProcess(handle, ProcessBasicInformation, &pi, sizeof(pi), NULL) == 0)
-	{
-		dwPID = (DWORD)pi.UniqueProcessId;
-		ret = TRUE;
-	}
+	if (pNtQueryInformationProcess(Handle, ProcessBasicInformation, &pi, sizeof(pi), {}) != STATUS_SUCCESS)
+		return false;
 
-	return ret;
+	Pid = static_cast<DWORD>(pi.UniqueProcessId);
+	return true;
 }
-static BOOL GetThreadId(HANDLE h, DWORD& threadID)
+
+static bool GetThreadId(HANDLE Handle, DWORD& Tid)
 {
-	BOOL ret = FALSE;
 	BASIC_THREAD_INFORMATION ti;
-	HANDLE handle, hRemoteProcess = NULL;
-	bool remote = false;
-	handle = h;
+	if (pNtQueryInformationThread(Handle, 0, &ti, sizeof(ti), {}) != STATUS_SUCCESS)
+		return false;
 
-	// Get the thread information
-	if (pNtQueryInformationThread(handle, 0, &ti, sizeof(ti), NULL) == 0)
-	{
-		threadID = (DWORD)(SIZE_T)ti.ClientId.UniqueThread;
-		ret = TRUE;
-	}
-
-	if (remote)
-	{
-		if (hRemoteProcess) CloseHandle(hRemoteProcess);
-
-		if (handle) CloseHandle(handle);
-	}
-
-	return ret;
+	Tid = static_cast<DWORD>(reinterpret_cast<uintptr_t>(ti.ClientId.UniqueThread));
+	return true;
 }
 
-inline bool GOODSTATUS(LONG st) { return !(st) || (st)==STATUS_INFO_LENGTH_MISMATCH; }
-
-static DWORD WINAPI GetFileNameThread(PVOID Param)
+static std::wstring to_string(const UNICODE_STRING& Str)
 {
-	DWORD iob[2];
-	BYTE info[256];
-
-	if (pNtQueryInformationFile((HANDLE)Param, &iob, &info, sizeof(info), 22)
-	        == STATUS_NOT_IMPLEMENTED) Sleep(200);
-
-	return 0;
+	return std::wstring(Str.Buffer, Str.Length / sizeof(wchar_t));
 }
 
-static bool PrintFileName(HANDLE handle, HANDLE file)
+static std::unique_ptr<char[]> query_object(HANDLE Handle, OBJECT_INFORMATION_CLASS const Class)
 {
-	bool ret = false;
-	// Check if it's possible to get the file name info
-	DWORD dwThreadId;
-	HANDLE hThread = CreateThread(0, 0, GetFileNameThread, handle, 0, &dwThreadId);
-
-	// Wait for finishing the thread
-	if (WaitForSingleObject(hThread, 100) == WAIT_TIMEOUT)
+	ULONG Size = 8192;
+	for (;;)
 	{
-		// Access denied, terminate the thread
-		TerminateThread(hThread, 0);
-		ret = true;
-	}
-	else
-	{
-		// it is safe to call NtQueryObject
-		ULONG size = 0x2000;
+		auto Buffer = std::make_unique<char[]>(Size);
 
-		if (GOODSTATUS(pNtQueryObject(handle, 1, NULL, 0, &size)))
+		switch (pNtQueryObject(Handle, Class, Buffer.get(), Size, &Size))
 		{
-			// let's try to use the default
-			if (size == 0)
-				size = 0x2000;
+		case STATUS_SUCCESS:
+			return Buffer;
 
-			UCHAR* lpBuffer = new UCHAR[size];
+		case STATUS_INFO_LENGTH_MISMATCH:
+			continue;
 
-			if (pNtQueryObject(handle, 1, lpBuffer, size, 0) == 0 &&
-			        ((UNICODE_STRING*)lpBuffer)->Length)
+		default:
+			return {};
+		}
+	}
+}
+
+static void PrintFileName(HANDLE Handle, HANDLE file)
+{
+	if (GetFileType(Handle) == FILE_TYPE_PIPE)
+	{
+		// Check if it's possible to get the file name info
+		struct test
+		{
+			static DWORD WINAPI GetFileNameThread(PVOID Param)
 			{
-				fprintf(file, L"%ls", ((UNICODE_STRING*)lpBuffer)->Buffer);
+				DWORD iob[2];
+				BYTE info[256];
+				const auto FileBasicInformation = 4;
+				pNtQueryInformationFile(Param, iob, info, sizeof(info), FileBasicInformation);
+				return 0;
 			}
-			else
-			{
-				ret = true;
-			}
+		};
 
-			delete[] lpBuffer;
+		const handle Thread(CreateThread({}, 0, test::GetFileNameThread, Handle, 0, {}));
+
+		// Wait for finishing the thread
+		const auto Timeout = WaitForSingleObject(Thread.get(), 100) == WAIT_TIMEOUT;
+		if (Timeout)
+		{
+			TerminateThread(Thread.get(), 0);
+			PrintToFile(file, L"<pipe>");
+			return;
 		}
 	}
 
-	CloseHandle(hThread);
-	return ret;
+	const auto Data = query_object(Handle, ObjectNameInformation);
+	if (!Data)
+		return;
+
+	if (const auto Str = to_string(*reinterpret_cast<const UNICODE_STRING*>(Data.get())); !Str.empty())
+		PrintToFile(file, L"%ls", Str.c_str());
 }
 
-static bool GetTypeToken(HANDLE handle, wchar_t* str, DWORD dwSize)
+static std::wstring GetTypeToken(HANDLE Handle)
 {
-	ULONG size = 0x2000;
-	bool ret = false;
+	const auto Data = query_object(Handle, ObjectTypeInformation);
+	if (!Data)
+		return {};
 
-	// Query the info size
-	if (GOODSTATUS(pNtQueryObject(handle, 2, NULL, 0, &size)))
-	{
-		UCHAR* lpBuffer = new UCHAR[size];
-
-		// Query the info size ( type )
-		if (pNtQueryObject(handle, 2, lpBuffer, size, NULL) == 0)
-		{
-			lstrcpynW(str,(LPCWSTR)(lpBuffer+0x60) , dwSize);
-			ret = true;
-		}
-
-		delete[] lpBuffer;
-	}
-
-	return ret;
+	return to_string(*reinterpret_cast<const UNICODE_STRING*>(Data.get()));
 }
 
-static wchar_t const * const constStrTypes[] =
+enum
 {
-	L"",             L"",           L"Directory",    L"SymbolicLink",
-	L"Token",        L"Process",    L"Thread",       /*L"Unk7",*/
-	L"Event",        L"EventPair",  L"Mutant",       /*L"Unk11", */
-	L"Semaphore",    L"Timer",      L"Profile",      L"WindowStation",
-	L"Desktop",      L"Section",    L"Key",          L"Port",
-	L"WaitablePort", /*L"Unk21",*/  /*L"Unk22",*/    /*L"Unk23",*/
-	/*L"Unk24",*/     L"Job",        L"IoCompletion", L"File",
-	/*L"Unk27",*/     L"WmiGuid",
+	OB_TYPE_UNKNOWN,
+	/*OB_TYPE_TYPE,
+	OB_TYPE_DIRECTORY,
+	OB_TYPE_SYMBOLIC_LINK,
+	OB_TYPE_TOKEN,*/
+	OB_TYPE_PROCESS,
+	OB_TYPE_THREAD,
+	/*OB_TYPE_JOB,
+	OB_TYPE_DEBUG_OBJECT,
+	OB_TYPE_EVENT,
+	OB_TYPE_EVENT_PAIR,
+	OB_TYPE_MUTANT,
+	OB_TYPE_CALLBACK,
+	OB_TYPE_SEMAPHORE,
+	OB_TYPE_TIMER,
+	OB_TYPE_PROFILE,
+	OB_TYPE_KEYED_EVENT,
+	OB_TYPE_WINDOW_STATION,
+	OB_TYPE_DESKTOP,
+	OB_TYPE_SECTION,*/
+	OB_TYPE_KEY,
+	/*OB_TYPE_PORT,
+	OB_TYPE_WAITABLE_PORT,
+	OB_TYPE_ADAPTER,
+	OB_TYPE_CONTROLLER,
+	OB_TYPE_DEVICE,
+	OB_TYPE_DRIVER,
+	OB_TYPE_IOCOMPLETION,*/
+	OB_TYPE_FILE,
+	/*OB_TYPE_WMI_GUID,*/
+
+	OB_OTHER
 };
 
-static WORD GetTypeFromTypeToken(LPCTSTR typeToken)
+static wchar_t const* const constStrTypes[]
 {
-	for (WORD i = 1; i < ARRAYSIZE(constStrTypes); i++)
-		if (!FSF.LStricmp(constStrTypes[i], typeToken))
-			return i;
+	L"",
+	/*L"Type",
+	L"Directory",
+	L"SymbolicLink",
+	L"Token",*/
+	L"Process",
+	L"Thread",
+	/*L"Job",
+	L"OB_TYPE_DEBUG_OBJECT",
+	L"Event",
+	L"EventPair",
+	L"Mutant",
+	L"Callback",
+	L"Semaphore",
+	L"Timer",
+	L"Profile",
+	L"OB_TYPE_KEYED_EVENT",
+	L"WindowStation",
+	L"Desktop",
+	L"Section",*/
+	L"Key",
+	/*L"Port",
+	L"OB_TYPE_WAITABLE_PORT",
+	L"Adapter",
+	L"Controller",
+	L"Device",
+	L"Driver",
+	L"IoCompletion",*/
+	L"File",
+	/*L"WmiGuid",*/
+};
 
-	return OB_TYPE_UNKNOWN;
+static_assert(std::size(constStrTypes) == OB_OTHER);
+
+static WORD GetTypeFromTypeToken(const wchar_t* const TypeToken)
+{
+	const auto It = std::find_if(std::cbegin(constStrTypes), std::cend(constStrTypes), [&](const wchar_t* i)
+	{
+		return !FSF.LStricmp(i, TypeToken);
+	});
+
+	return It == std::cend(constStrTypes)? OB_OTHER : static_cast<WORD>(It - std::cbegin(constStrTypes));
 }
 
-static WORD GetType(HANDLE h)
+static void PrintNameByType(HANDLE handle, WORD type, HANDLE file, PerfThread* pThread)
 {
-	wchar_t strType[256];
-	return GetTypeToken(h, strType, ARRAYSIZE(strType)) ? GetTypeFromTypeToken(strType) : OB_TYPE_UNKNOWN;
-}
-
-static bool PrintNameByType(HANDLE handle, WORD type, HANDLE file, PerfThread* pThread=0)
-{
-	bool ret = false;
-	// let's be happy, handle is in our process space, so query the infos :)
-	DWORD dwId = 0;
 
 	switch (type)
 	{
-		case OB_TYPE_PROCESS:
+	case OB_TYPE_UNKNOWN:
+		return;
 
-			if (GetProcessId(handle, dwId))
-			{
-				Lock l(pThread);
-				ProcessPerfData* pd = pThread ? pThread->GetProcessData(dwId, 0) : 0;
-				const wchar_t* pName = pd ? pd->ProcessName : L"<unknown>";
-				fprintf(file, L"%s (%d)", pName, dwId);
-			}
-
-			return true;
-		case OB_TYPE_THREAD:
-
-			if (GetThreadId(handle, dwId))
-				fprintf(file, L"TID: %d", dwId);
-
-			return true;
-		case OB_TYPE_FILE:
-			return PrintFileName(handle, file);
-	}
-
-	ULONG size = 0x2000;
-
-	if (GOODSTATUS(pNtQueryObject(handle, 1, NULL, 0, &size)))
-	{
-		// let's try to use the default
-		if (size == 0)
-			size = 0x2000;
-
-		UCHAR* lpBuffer = new UCHAR[size];
-
-		if (pNtQueryObject(handle, 1, lpBuffer, size, 0) == 0)
+	case OB_TYPE_PROCESS:
+		if (DWORD dwId = 0; GetProcessId(handle, dwId))
 		{
-#define REGISTRY L"\\REGISTRY\\"
-#define USER L"USER"
-#define CLASSES L"MACHINE\\SOFTWARE\\CLASSES"
-#define MACHINE L"MACHINE"
-#define _CLASSES L"_Classes"
-
-			if (((UNICODE_STRING*)lpBuffer)->Length)
+			if (pThread)
 			{
-				wchar_t *ws = ((UNICODE_STRING*)lpBuffer)->Buffer;
+				const std::scoped_lock l(*pThread);
+				const auto pd = pThread->GetProcessData(dwId, 0);
+				const auto pName = pd? pd->ProcessName.c_str() : L"<unknown>";
+				PrintToFile(file, L"%s (%d)", pName, dwId);
+			}
+			else
+			{
+				PrintToFile(file, L"<unknown> (%d)", dwId);
+			}
+		}
+		return;
 
-				if (type==OB_TYPE_KEY && !_memicmp(ws, REGISTRY, sizeof(REGISTRY)-2))
+	case OB_TYPE_THREAD:
+		if (DWORD dwId = 0; GetThreadId(handle, dwId))
+			PrintToFile(file, L"TID: %d", dwId);
+		return;
+
+	case OB_TYPE_FILE:
+		PrintFileName(handle, file);
+		return;
+
+	default:
+		const auto Data = query_object(handle, ObjectNameInformation);
+		if (!Data)
+			return;
+
+		const auto& Str = *reinterpret_cast<const UNICODE_STRING*>(Data.get());
+		if (!Str.Length)
+			return;
+
+		auto ws = Str.Buffer;
+
+		const wchar_t
+			REGISTRY[] = L"\\REGISTRY\\",
+			USER[] = L"USER",
+			CLASSES[] = L"MACHINE\\SOFTWARE\\CLASSES",
+			MACHINE[] = L"MACHINE",
+			CLASSES_[] = L"_Classes";
+
+		if (type == OB_TYPE_KEY && !_memicmp(ws, REGISTRY, sizeof(REGISTRY) - 2))
+		{
+			wchar_t* ws1 = ws + std::size(REGISTRY) - 1;
+			const wchar_t* s0 = {};
+
+			if (!_memicmp(ws1, USER, sizeof(USER) - 2))
+			{
+				ws1 += std::size(USER) - 1;
+				const auto l = std::wcslen(pUserAccountID);
+
+				if (l && !_memicmp(ws1, pUserAccountID, l * 2))
 				{
-					wchar_t *ws1 = ws + ARRAYSIZE(REGISTRY) - 1;
-					const wchar_t *s0 = 0;
+					s0 = L"HKCU";
+					ws1 += l;
 
-					if (!_memicmp(ws1, USER, sizeof(USER)-2))
+					if (!_memicmp(ws1, CLASSES_, sizeof(CLASSES_) - 2))
 					{
-						ws1 += ARRAYSIZE(USER) - 1;
-						size_t l  = lstrlenW(pUserAccountID);
-
-						if (l>0 && !_memicmp(ws1,pUserAccountID,l*2))
-						{
-							s0 = L"HKCU";
-							ws1 += l;
-
-							if (!_memicmp(ws1,_CLASSES,sizeof(_CLASSES)-2))
-							{
-								s0 = L"HKCU\\Classes";
-								ws1 += ARRAYSIZE(_CLASSES) - 1;
-							}
-						}
-						else
-							s0 = L"HKU";
-					}
-					else if (!_memicmp(ws1, CLASSES, sizeof(CLASSES)-2)) { s0 = L"HKCR"; ws1+=ARRAYSIZE(CLASSES) - 1;}
-					else if (!_memicmp(ws1, MACHINE, sizeof(MACHINE)-2)) { s0 = L"HKLM"; ws1+=ARRAYSIZE(MACHINE) - 1;}
-
-					if (s0)
-					{
-						fprintf(file, L"%s", s0);
-						ws = ws1;
+						s0 = L"HKCU\\Classes";
+						ws1 += std::size(CLASSES_) - 1;
 					}
 				}
+				else
+					s0 = L"HKU";
+			}
+			else if (!_memicmp(ws1, CLASSES, sizeof(CLASSES) - 2)) { s0 = L"HKCR"; ws1 += std::size(CLASSES) - 1; }
+			else if (!_memicmp(ws1, MACHINE, sizeof(MACHINE) - 2)) { s0 = L"HKLM"; ws1 += std::size(MACHINE) - 1; }
 
-				fprintf(file, L"%ls", ws);
-				ret = true;
+			if (s0)
+			{
+				PrintToFile(file, L"%s", s0);
+				ws = ws1;
 			}
 		}
 
-		delete [] lpBuffer;
+		PrintToFile(file, L"%ls", ws);
 	}
-
-	return ret;
 }
 
-static bool PrintNameAndType(HANDLE h, DWORD dwPID, HANDLE file, PerfThread* pThread=0)
+static void PrintNameAndType(HANDLE h, DWORD dwPID, HANDLE file, PerfThread* pThread)
 {
-	HANDLE handle, hRemoteProcess=NULL;
-	bool remote = dwPID != GetCurrentProcessId();
+	HANDLE Handle = h;
+	handle DuplicatedHandle, RemoteProcess;
+	const auto remote = dwPID != GetCurrentProcessId();
 
 	if (remote)
 	{
 		DebugToken token;
-		hRemoteProcess = OpenProcessForced(&token, PROCESS_DUP_HANDLE, dwPID, TRUE);
+		RemoteProcess.reset(OpenProcessForced(&token, PROCESS_DUP_HANDLE, dwPID, TRUE));
+		if (!RemoteProcess)
+			return;
 
-		if (hRemoteProcess == NULL)
-			return false;
+		if (!DuplicateHandle(RemoteProcess.get(), h, GetCurrentProcess(), &Handle, 0, 0, DUPLICATE_SAME_ACCESS))
+			return;
 
-		if (!DuplicateHandle(hRemoteProcess, h, GetCurrentProcess(), &handle,0,0, DUPLICATE_SAME_ACCESS))
-			handle = 0;
-	}
-	else
-		handle = h;
-
-	WORD type = GetType(handle);
-
-	if (type < ARRAYSIZE(constStrTypes))
-		fprintf(file, L"%-13s ", constStrTypes[type]);
-
-	bool ret = type!=OB_TYPE_UNKNOWN &&
-	           PrintNameByType(handle, type, file, pThread);
-
-	if (remote)
-	{
-		if (hRemoteProcess) CloseHandle(hRemoteProcess);
-
-		if (handle) CloseHandle(handle);
+		DuplicatedHandle.reset(Handle);
 	}
 
-	return ret;
+	const auto TypeToken = GetTypeToken(Handle);
+	PrintToFile(file, L"%-13s ", TypeToken.c_str());
+
+	const auto type = GetTypeFromTypeToken(TypeToken.c_str());
+	PrintNameByType(Handle, type, file, pThread);
 }
 
 bool PrintHandleInfo(DWORD dwPID, HANDLE file, bool bIncludeUnnamed, PerfThread* pThread)
 {
 	bool ret = true;
-	DWORD i;
 	DWORD size = 0x2000, needed = 0;
-	SYSTEM_HANDLE_INFORMATION* pSysHandleInformation = (SYSTEM_HANDLE_INFORMATION*)
-	        VirtualAlloc(NULL, size, MEM_COMMIT, PAGE_READWRITE);
-
-	if (pSysHandleInformation == NULL)
+	auto pSysHandleInformation = static_cast<SYSTEM_HANDLE_INFORMATION*>(VirtualAlloc({}, size, MEM_COMMIT, PAGE_READWRITE));
+	if (!pSysHandleInformation)
 		return false;
 
 	if (pNtQuerySystemInformation(16, pSysHandleInformation, size, &needed))
@@ -405,112 +381,98 @@ bool PrintHandleInfo(DWORD dwPID, HANDLE file, bool bIncludeUnnamed, PerfThread*
 
 		// The size was not enough
 		VirtualFree(pSysHandleInformation, 0, MEM_RELEASE);
-		pSysHandleInformation = (SYSTEM_HANDLE_INFORMATION*)
-		                        VirtualAlloc(NULL, size = needed+256, MEM_COMMIT, PAGE_READWRITE);
+		pSysHandleInformation = static_cast<SYSTEM_HANDLE_INFORMATION*>(VirtualAlloc({}, size = needed + 256, MEM_COMMIT, PAGE_READWRITE));
 	}
 
-	if (pSysHandleInformation == NULL)
+	if (!pSysHandleInformation)
 		return false;
 
 	// Query the objects ( system wide )
-	if (pNtQuerySystemInformation(16, pSysHandleInformation, size, NULL))
+	if (pNtQuerySystemInformation(16, pSysHandleInformation, size, {}))
 	{
 		ret = false;
 		goto cleanup;
 	}
 
-	fprintf(file, L"%s\n%s\n", GetMsg(MTitleHandleInfo), GetMsg(MHandleInfoHdr));
+	PrintToFile(file, L"%s\n%s\n", GetMsg(MTitleHandleInfo), GetMsg(MHandleInfoHdr));
 
 	if (!pUserAccountID)
 		pUserAccountID = GetUserAccountID(); // init once
 
 	// Iterating through the objects
-	for (i = 0; i < pSysHandleInformation->NumberOfHandles; i++)
+	for (DWORD i = 0; i < pSysHandleInformation->NumberOfHandles; i++)
 	{
 		// ProcessId filtering check
-		if (pSysHandleInformation->Handles[i].UniqueProcessId==dwPID || dwPID==(DWORD)-1)
+		if (pSysHandleInformation->Handles[i].UniqueProcessId == dwPID || dwPID == (DWORD)-1)
 		{
 			pSysHandleInformation->Handles[i].HandleAttributes = (UCHAR)(pSysHandleInformation->Handles[i].HandleAttributes & 0xff);
-			fprintf(file, L"%5X  %08X ",
-			        pSysHandleInformation->Handles[i].HandleValue,
-			        /*dwType< ARRAYSIZE(constStrTypes) ?
-			            constStrTypes[dwType] : _L"(Unknown)",*/
-//              pSysHandleInformation->Handles[i].KernelAddress,
-			        pSysHandleInformation->Handles[i].GrantedAccess);
+			PrintToFile(file, L"%5X  %08X ",
+				pSysHandleInformation->Handles[i].HandleValue,
+				/*dwType< std::size(constStrTypes) ?
+					constStrTypes[dwType] : _L"(Unknown)",*/
+					//              pSysHandleInformation->Handles[i].KernelAddress,
+				pSysHandleInformation->Handles[i].GrantedAccess);
 			PrintNameAndType((HANDLE)(SIZE_T)(UINT)pSysHandleInformation->Handles[i].HandleValue, dwPID, file, pThread);
-			fputc(L'\n', file);
+			PrintToFile(file, L'\n');
 		}
 	}
 
-	fputc(L'\n', file);
+	PrintToFile(file, L'\n');
 cleanup:
 
-	if (pSysHandleInformation != NULL)
-		VirtualFree(pSysHandleInformation, 0, MEM_RELEASE);
+	VirtualFree(pSysHandleInformation, 0, MEM_RELEASE);
 
 	return ret;
 }
-/*
-void main(int ac, char** av)
-{
-    if(ac<2) return;
-    PrintHandleInfo(FSF.atoi(av[1]),stdout);
-}
-*/
 
 static BOOL ConvertSid(PSID pSid, LPWSTR pszSidText, LPDWORD dwBufferLen)
 {
-	PUCHAR pscnt;
-	PSID_IDENTIFIER_AUTHORITY psia;
-	DWORD dwSubAuthorities;
-	DWORD dwSidRev=SID_REVISION;
-	DWORD dwCounter;
-	DWORD dwSidSize;
-
-	//
 	// test if SID passed in is valid
-	//
-	if (!pIsValidSid(pSid)) return FALSE;
+	if (!pIsValidSid(pSid))
+		return FALSE;
 
 	// obtain SidIdentifierAuthority
-	if ((psia = pGetSidIdentifierAuthority(pSid)) == NULL) return FALSE;
+	const auto psia = pGetSidIdentifierAuthority(pSid);
+	if (!psia)
+		return FALSE;
 
 	// obtain sidsubauthority count
-	if ((pscnt = pGetSidSubAuthorityCount(pSid)) == NULL) return FALSE;
+	const auto pscnt = pGetSidSubAuthorityCount(pSid);
+	if (!pscnt)
+		return FALSE;
 
-	dwSubAuthorities=*pscnt;
-	//
+	const auto dwSubAuthorities = *pscnt;
+
 	// compute buffer length
-	// S-SID_REVISION- + identifierauthority- + subauthorities- + NULL
-	//
-	dwSidSize=(15 + 12 + (12 * dwSubAuthorities) + 1) * sizeof(wchar_t);
+	// S-SID_REVISION- + identifierauthority- + subauthorities- + {}
+	auto dwSidSize = (15 + 12 + (12 * dwSubAuthorities) + 1) * sizeof(wchar_t);
 
 	// check provided buffer length.
 	// If not large enough, indicate proper size and setlasterror
 	if (*dwBufferLen < dwSidSize)
 	{
-		*dwBufferLen = dwSidSize;
+		*dwBufferLen = static_cast<DWORD>(dwSidSize);
 		SetLastError(ERROR_INSUFFICIENT_BUFFER);
 		return FALSE;
 	}
 
 	// prepare S-SID_REVISION-
-	dwSidSize=wsprintfW(pszSidText, L"\\S-%lu-", dwSidRev);
+	dwSidSize = wsprintfW(pszSidText, L"\\S-%lu-", SID_REVISION);
 	// prepare SidIdentifierAuthority
 	dwSidSize += psia->Value[0] || psia->Value[1] ?
-	             wsprintfW(pszSidText + lstrlenW(pszSidText),L"0x%02hx%02hx%02hx%02hx%02hx%02hx",
-	                       (USHORT)psia->Value[0], (USHORT)psia->Value[1],
-	                       (USHORT)psia->Value[2], (USHORT)psia->Value[3],
-	                       (USHORT)psia->Value[4], (USHORT)psia->Value[5])  :
-	             wsprintfW(pszSidText + lstrlenW(pszSidText),L"%lu",
-	                       (ULONG)(psia->Value[5]) + (ULONG)(psia->Value[4] <<  8) +
-	                       (ULONG)(psia->Value[3] << 16) + (ULONG)(psia->Value[2] << 24));
+		wsprintfW(pszSidText + std::wcslen(pszSidText), L"0x%02hx%02hx%02hx%02hx%02hx%02hx",
+			(USHORT)psia->Value[0], (USHORT)psia->Value[1],
+			(USHORT)psia->Value[2], (USHORT)psia->Value[3],
+			(USHORT)psia->Value[4], (USHORT)psia->Value[5]) :
+		wsprintfW(pszSidText + std::wcslen(pszSidText), L"%lu",
+			(ULONG)(psia->Value[5]) + (ULONG)(psia->Value[4] << 8) +
+		(ULONG)(psia->Value[3] << 16) + (ULONG)(psia->Value[2] << 24));
 
 	// loop through SidSubAuthorities
 	// obtain sidsubauthority count
-	for (dwCounter=0 ; dwCounter < dwSubAuthorities ; dwCounter++)
+	for (DWORD dwCounter = 0; dwCounter < dwSubAuthorities; dwCounter++)
 	{
-		DWORD rc = 0, *prc = pGetSidSubAuthority(pSid, dwCounter);
+		DWORD rc = 0, * prc = pGetSidSubAuthority(pSid, dwCounter);
 
 		if (prc) rc = *prc;
 
@@ -520,27 +482,29 @@ static BOOL ConvertSid(PSID pSid, LPWSTR pszSidText, LPDWORD dwBufferLen)
 	return TRUE;
 }
 
-static const wchar_t *GetUserAccountID()
+static const wchar_t* GetUserAccountID()
 {
 	static wchar_t UserAccountID[256];
-	DWORD size = ARRAYSIZE(UserAccountID);
-	SID_NAME_USE eUse;
-	DWORD cbSid=0,cbDomainName=0;
-
-	if (!GetUserName(UserAccountID, &size)
-	        || !pLookupAccountName(0,UserAccountID,0,&cbSid, 0,&cbDomainName, &eUse))
+	auto size = static_cast<DWORD>(std::size(UserAccountID));
+	if (!GetUserName(UserAccountID, &size))
 	{
 		return L"";
 	}
 
-	PSID pSid = static_cast<PSID>(malloc(cbSid));
-	wchar_t* pDomainName = new wchar_t[cbDomainName+1];
-	pLookupAccountName(0,UserAccountID,pSid,&cbSid, pDomainName,&cbDomainName, &eUse);
-	size = ARRAYSIZE(UserAccountID);
+	SID_NAME_USE eUse;
+	DWORD cbSid = 0, cbDomainName = 0;
+	if (!pLookupAccountNameW({}, UserAccountID, {}, &cbSid, {}, &cbDomainName, &eUse))
+	{
+		return L"";
+	}
 
-	if (!ConvertSid(pSid, (wchar_t*)UserAccountID, &size)) *UserAccountID = 0;
+	const auto Sid = make_malloc<void>(cbSid);
+	const auto DomainName = std::make_unique<wchar_t[]>(cbDomainName + 1);
+	pLookupAccountNameW({}, UserAccountID, Sid.get(), &cbSid, DomainName.get(), &cbDomainName, &eUse);
+	size = static_cast<DWORD>(std::size(UserAccountID));
 
-	free(pSid);
-	delete[] pDomainName;
-	return (const wchar_t *)UserAccountID;
+	if (!ConvertSid(Sid.get(), static_cast<wchar_t*>(UserAccountID), &size))
+		*UserAccountID = 0;
+
+	return static_cast<const wchar_t*>(UserAccountID);
 }

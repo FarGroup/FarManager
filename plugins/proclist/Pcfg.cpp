@@ -1,4 +1,9 @@
-﻿#include <stdlib.h>
+﻿#include <cstdlib>
+
+#define WIN32_NO_STATUS //exclude ntstatus.h macros from winnt.h
+#include <windows.h>
+#undef WIN32_NO_STATUS
+
 #include <PluginSettings.hpp>
 #include <DlgBuilder.hpp>
 #include "Proclist.hpp"
@@ -38,32 +43,32 @@ int Config()
 	return FALSE;
 }
 
-void _Opt::Write()
+void options::Write() const
 {
 	PluginSettings settings(MainGuid, Info.SettingsControl);
 
-	settings.Set(0,L"AddToDisksMenu",Opt.AddToDisksMenu);
-	settings.Set(0,L"AddToPluginsMenu",Opt.AddToPluginsMenu);
-	settings.Set(0,L"ExportEnvironment",Opt.ExportEnvironment);
-	settings.Set(0,L"ExportModuleInfo",Opt.ExportModuleInfo);
-	settings.Set(0,L"ExportModuleVersion",Opt.ExportModuleVersion);
-	settings.Set(0,L"ExportPerformance",Opt.ExportPerformance);
-	settings.Set(0,L"ExportHandles",Opt.ExportHandles);
-	settings.Set(0,L"ExportHandlesUnnamed",Opt.ExportHandlesUnnamed);
-	//settings.Set(0,L"EnableWMI",Opt.EnableWMI,);
+	settings.Set(0, L"AddToDisksMenu", AddToDisksMenu);
+	settings.Set(0, L"AddToPluginsMenu", AddToPluginsMenu);
+	settings.Set(0, L"ExportEnvironment", ExportEnvironment);
+	settings.Set(0, L"ExportModuleInfo", ExportModuleInfo);
+	settings.Set(0, L"ExportModuleVersion", ExportModuleVersion);
+	settings.Set(0, L"ExportPerformance", ExportPerformance);
+	settings.Set(0, L"ExportHandles", ExportHandles);
+	settings.Set(0, L"ExportHandlesUnnamed", ExportHandlesUnnamed);
+	//settings.Set(0, L"EnableWMI", EnableWMI);
 }
 
-void _Opt::Read()
+void options::Read()
 {
 	PluginSettings settings(MainGuid, Info.SettingsControl);
 
-	Opt.AddToDisksMenu=settings.Get(0,L"AddToDisksMenu", 1);
-	Opt.AddToPluginsMenu=settings.Get(0,L"AddToPluginsMenu", 1);
-	Opt.ExportEnvironment=settings.Get(0,L"ExportEnvironment", 1);
-	Opt.ExportModuleInfo=settings.Get(0,L"ExportModuleInfo", 1);
-	Opt.ExportModuleVersion=settings.Get(0,L"ExportModuleVersion", 0);
-	Opt.ExportPerformance=settings.Get(0,L"ExportPerformance", 1);
-	Opt.ExportHandles=settings.Get(0,L"ExportHandles", 0);
-	Opt.ExportHandlesUnnamed=settings.Get(0,L"ExportHandlesUnnamed",0);
-	Opt.EnableWMI=settings.Get(0,L"EnableWMI", 1);
+	AddToDisksMenu = settings.Get(0, L"AddToDisksMenu", 1);
+	AddToPluginsMenu = settings.Get(0, L"AddToPluginsMenu", 1);
+	ExportEnvironment = settings.Get(0, L"ExportEnvironment", 1);
+	ExportModuleInfo = settings.Get(0, L"ExportModuleInfo", 1);
+	ExportModuleVersion = settings.Get(0, L"ExportModuleVersion", 0);
+	ExportPerformance = settings.Get(0, L"ExportPerformance", 1);
+	ExportHandles = settings.Get(0, L"ExportHandles", 0);
+	ExportHandlesUnnamed = settings.Get(0, L"ExportHandlesUnnamed", 0);
+	EnableWMI = settings.Get(0, L"EnableWMI", 1);
 }
