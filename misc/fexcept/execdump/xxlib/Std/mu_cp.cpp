@@ -5,8 +5,8 @@
 #endif
 
 
-static char *stdEngChars = "QWERTYUIOP[]ASDFGHJKL;\'ZXCVBNM,.qwertyuiop[]asdfghjkl:\"zxcvbnm<>";
-static char *stdRusChars[CT_CP_MAXTABLES] = {
+static const char* stdEngChars = "QWERTYUIOP[]ASDFGHJKL;\'ZXCVBNM,.qwertyuiop[]asdfghjkl:\"zxcvbnm<>";
+static const char* stdRusChars[CT_CP_MAXTABLES] = {
   "‰–“Š…ƒ˜™‡•š”›‚€‹„†Ÿ—‘Œˆ’œ©æãª¥­£èé§åêäë¢ ¯à®«¤¦íïçá¬¨âì¡î",
   "ÉÖÓÊÅÍÃØÙÇÕÚÔÛÂÀÏĞÎËÄÆİß×ÑÌÈÒÜÁŞéöóêåíãøùçõúôûâàïğîëäæı ÷ñìèòüáş",
   "¹ÆÃºµ½³ÈÉ·ÅÊÄË²°¿À¾»´¶ÍÏÇÁ¼¸ÂÌ±ÎÙæãÚÕİÓèé×åêäëÒĞßàŞÛÔÖíïçáÜØâìÑî",

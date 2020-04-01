@@ -48,7 +48,7 @@
 /* watch out for aad && aam with odd operands */
 
 
-static char *opmap1[256] = {
+static const char *opmap1[256] = {
 /* 0 */
   "add\t%Eb,%Gb",      "add\t%Ev,%Gv",     "add\t%Gb,%Eb",    "add\t%Gv,%Ev",
   "add\tal,%Ib",       "add\t%eax,%Iv",    "push\tes",        "pop\tes",
@@ -278,7 +278,7 @@ static DWORD op_flags[256] = {
   DISASM_FL_FL,                      DISASM_FL_FL,                 0,                            0
 };
 
-static char *second[] = {
+static const char*second[] = {
 /* 0 */
   "%g5",              "%g6",             "lar\t%Gv,%Ew",   "lsl\t%Gv,%Ew",
   0,                  "loadall",         "clts",           "loadall",
@@ -346,7 +346,7 @@ static char *second[] = {
 };
 
 
-static char *groups[][8] = {   /* group 0 is group 3 for %Ev set */
+static const char* groups[][8] = {   /* group 0 is group 3 for %Ev set */
 /* 0 */
   { "add",           "or",            "adc",          "sbb",
     "and",           "sub",           "xor",          "cmp"           },
@@ -418,39 +418,39 @@ static DWORD group_flags[][8] = {   /* group 0 is group 3 for %Ev set */
 
 /* zero here means invalid.  If first entry starts with '*', use st(i) */
 /* no assumed %EFs here.  Indexed by RM(modrm())                       */
-static char *f0[]     = { 0, 0, 0, 0, 0, 0, 0, 0};
-static char *fop_9[]  = { "*fxch st,%GF" };
-static char *fop_10[] = { "fnop", 0, 0, 0, 0, 0, 0, 0 };
-static char *fop_12[] = { "fchs", "fabs", 0, 0, "ftst", "fxam", 0, 0 };
-static char *fop_13[] = { "fld1", "fldl2t", "fldl2e", "fldpi",
-                   "fldlg2", "fldln2", "fldz", 0 };
-static char *fop_14[] = { "f2xm1", "fyl2x", "fptan", "fpatan",
-                   "fxtract", "fprem1", "fdecstp", "fincstp" };
-static char *fop_15[] = { "fprem", "fyl2xp1", "fsqrt", "fsincos",
-                   "frndint", "fscale", "fsin", "fcos" };
-static char *fop_21[] = { 0, "fucompp", 0, 0, 0, 0, 0, 0 };
-static char *fop_28[] = { 0, 0, "fclex", "finit", 0, 0, 0, 0 };
-static char *fop_32[] = { "*fadd\t%GF,st" };
-static char *fop_33[] = { "*fmul\t%GF,st" };
-static char *fop_36[] = { "*fsubr\t%GF,st" };
-static char *fop_37[] = { "*fsub\t%GF,st" };
-static char *fop_38[] = { "*fdivr\t%GF,st" };
-static char *fop_39[] = { "*fdiv\t%GF,st" };
-static char *fop_40[] = { "*ffree\t%GF" };
-static char *fop_42[] = { "*fst\t%GF" };
-static char *fop_43[] = { "*fstp\t%GF" };
-static char *fop_44[] = { "*fucom\t%GF" };
-static char *fop_45[] = { "*fucomp\t%GF" };
-static char *fop_48[] = { "*faddp\t%GF,st" };
-static char *fop_49[] = { "*fmulp\t%GF,st" };
-static char *fop_51[] = { 0, "fcompp", 0, 0, 0, 0, 0, 0 };
-static char *fop_52[] = { "*fsubrp\t%GF,st" };
-static char *fop_53[] = { "*fsubp\t%GF,st" };
-static char *fop_54[] = { "*fdivrp\t%GF,st" };
-static char *fop_55[] = { "*fdivp\t%GF,st" };
-static char *fop_60[] = { "fstsw\tax", 0, 0, 0, 0, 0, 0, 0 };
+static const char* f0[]     = { 0, 0, 0, 0, 0, 0, 0, 0};
+static const char* fop_9[]  = { "*fxch st,%GF" };
+static const char* fop_10[] = { "fnop", 0, 0, 0, 0, 0, 0, 0 };
+static const char* fop_12[] = { "fchs", "fabs", 0, 0, "ftst", "fxam", 0, 0 };
+static const char* fop_13[] = { "fld1", "fldl2t", "fldl2e", "fldpi",
+                                "fldlg2", "fldln2", "fldz", 0 };
+static const char* fop_14[] = { "f2xm1", "fyl2x", "fptan", "fpatan",
+                                "fxtract", "fprem1", "fdecstp", "fincstp" };
+static const char* fop_15[] = { "fprem", "fyl2xp1", "fsqrt", "fsincos",
+                                "frndint", "fscale", "fsin", "fcos" };
+static const char* fop_21[] = { 0, "fucompp", 0, 0, 0, 0, 0, 0 };
+static const char* fop_28[] = { 0, 0, "fclex", "finit", 0, 0, 0, 0 };
+static const char* fop_32[] = { "*fadd\t%GF,st" };
+static const char* fop_33[] = { "*fmul\t%GF,st" };
+static const char* fop_36[] = { "*fsubr\t%GF,st" };
+static const char* fop_37[] = { "*fsub\t%GF,st" };
+static const char* fop_38[] = { "*fdivr\t%GF,st" };
+static const char* fop_39[] = { "*fdiv\t%GF,st" };
+static const char* fop_40[] = { "*ffree\t%GF" };
+static const char* fop_42[] = { "*fst\t%GF" };
+static const char* fop_43[] = { "*fstp\t%GF" };
+static const char* fop_44[] = { "*fucom\t%GF" };
+static const char* fop_45[] = { "*fucomp\t%GF" };
+static const char* fop_48[] = { "*faddp\t%GF,st" };
+static const char* fop_49[] = { "*fmulp\t%GF,st" };
+static const char* fop_51[] = { 0, "fcompp", 0, 0, 0, 0, 0, 0 };
+static const char* fop_52[] = { "*fsubrp\t%GF,st" };
+static const char* fop_53[] = { "*fsubp\t%GF,st" };
+static const char* fop_54[] = { "*fdivrp\t%GF,st" };
+static const char* fop_55[] = { "*fdivp\t%GF,st" };
+static const char* fop_60[] = { "fstsw\tax", 0, 0, 0, 0, 0, 0, 0 };
 
-static char **fspecial[] = { /* 0=use st(i), 1=undefined 0 in fop_* means undefined */
+static const char **fspecial[] = { /* 0=use st(i), 1=undefined 0 in fop_* means undefined */
   0, 0, 0, 0, 0, 0, 0, 0,
   0, fop_9, fop_10, 0, fop_12, fop_13, fop_14, fop_15,
   f0, f0, f0, f0, f0, fop_21, f0, f0,
@@ -461,7 +461,7 @@ static char **fspecial[] = { /* 0=use st(i), 1=undefined 0 in fop_* means undefi
   f0, f0, f0, f0, fop_60, f0, f0, f0,
 };
 
-static char *floatops[] = { /* assumed " %EF" at end of each.  mod != 3 only */
+static const char* floatops[] = { /* assumed " %EF" at end of each.  mod != 3 only */
 /*00*/ "fadd", "fmul", "fcom", "fcomp",
        "fsub", "fsubr", "fdiv", "fdivr",
 /*08*/ "fld", 0, "fst", "fstp",

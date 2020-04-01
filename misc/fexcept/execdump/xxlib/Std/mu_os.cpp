@@ -284,7 +284,7 @@ WORD MYRTLEXP OSVersion( void )
 #endif  //QNX
 }
 
-char *MYRTLEXP OSPlatform( void )
+const char *MYRTLEXP OSPlatform( void )
   {
 #if defined(__QNX__)
   #if defined(CONSOLE_ONLY)
