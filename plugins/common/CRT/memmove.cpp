@@ -3,6 +3,9 @@
 #endif
 
 #include "crt.hpp"
+#if _MSC_VER >= 1925
+ #pragma function(memmove)
+#endif
 
 #if !(defined(_MSC_VER) && _MSC_VER >= 1900 && defined(UNICODE))
 

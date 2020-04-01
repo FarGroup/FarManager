@@ -1,4 +1,7 @@
 #include "crt.hpp"
+#if _MSC_VER >= 1925
+ #pragma function(memchr)
+#endif
 
 _CONST_RETURN void * __cdecl memchr(const void *buf, int chr, size_t cnt)
 {

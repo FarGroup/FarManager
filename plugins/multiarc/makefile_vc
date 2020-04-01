@@ -15,6 +15,8 @@ $(OBJDIR)\ArcReg.obj \
 $(OBJDIR)\global.obj
 DOCS = arceng.hlf arcrus.hlf arceng.lng arcrus.lng MultiArc.TryIfNoOther.reg arcspa.lng arcita.lng arcbel.lng changelog
 
+USERCPP=/DWINDOWS_IGNORE_PACKING_MISMATCH /wd4996
+
 !include ..\makefile_vc_def_inc
 
 !include ..\makefile_vc_target_inc

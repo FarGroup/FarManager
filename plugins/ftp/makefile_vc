@@ -104,7 +104,7 @@ JM.h var.h Connect.h FtpAPI.h Ftp.h
 
 ##########
 
-USERCPP=/I.\FStdLib /D__NOMEM__=1 /D__USEASSERT__=1
+USERCPP=/I.\FStdLib /D__NOMEM__=1 /D__USEASSERT__=1 /wd5033 /wd4996
 !ifdef DEBUG
 USERCPP=$(USERCPP) /D__FILELOG__=1
 !endif
