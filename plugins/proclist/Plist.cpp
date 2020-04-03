@@ -214,7 +214,7 @@ bool GetPData(ProcessData& Data, const ProcessPerfData& pd)
 	Data.dwPrBase = pd.dwProcessPriority;
 	Data.dwParentPID = pd.dwCreatingPID;
 	Data.dwElapsedTime = pd.dwElapsedTime;
-	Data.FullPath.assign(pd.FullPath, !std::wmemcmp(pd.FullPath.data(), L"\\??\\", 4)? 4 : 0);
+	Data.FullPath.assign(pd.FullPath, !std::wmemcmp(pd.FullPath.data(), L"\\??\\", 4)? 4 : 0, Data.FullPath.npos); // gcc 7.3-8.1 bug: npos required. TODO: Remove after we move to 8.2 or later
 	Data.CommandLine = pd.CommandLine;
 	Data.Bitness = pd.Bitness;
 	return true;
