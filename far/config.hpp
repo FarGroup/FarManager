@@ -788,6 +788,7 @@ public:
 
 	BoolOption SelectFolders;
 	BoolOption ReverseSort;
+	BoolOption ReverseSortCharCompat;
 	BoolOption SortFolderExt;
 	BoolOption DeleteToRecycleBin;
 	IntOption WipeSymbol; // символ заполнитель для "ZAP-операции"

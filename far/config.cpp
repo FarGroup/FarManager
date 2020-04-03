@@ -1851,6 +1851,7 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeyPanel,                  L"CtrlFRule"sv,                     PanelCtrlFRule, false},
 		{FSSF_PRIVATE,           NKeyPanel,                  L"Highlight"sv,                     Highlight, true},
 		{FSSF_PRIVATE,           NKeyPanel,                  L"ReverseSort"sv,                   ReverseSort, true},
+		{FSSF_PRIVATE,           NKeyPanel,                  L"ReverseSortCharCompat"sv,         ReverseSortCharCompat, false},
 		{FSSF_PRIVATE,           NKeyPanel,                  L"RememberLogicalDrives"sv,         RememberLogicalDrives, false},
 		{FSSF_PRIVATE,           NKeyPanel,                  L"RightClickRule"sv,                PanelRightClickRule, 2},
 		{FSSF_PRIVATE,           NKeyPanel,                  L"SelectFolders"sv,                 SelectFolders, false},

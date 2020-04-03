@@ -7404,6 +7404,7 @@ void FileList::ShowFileList(bool Fast)
 	if (Global->Opt->ShowSortMode)
 	{
 		wchar_t Indicator = 0;
+		bool showReverseSortChar = m_ReverseSortOrder ^ Global->Opt->ReverseSortCharCompat;
 
 		if (m_SortMode < panel_sort::COUNT)
 		{
@@ -7430,11 +7431,11 @@ void FileList::ShowFileList(bool Fast)
 			const auto& CurrentModeName = msg(std::find_if(CONST_RANGE(ModeNames, i) { return i.first == m_SortMode; })->second);
 			// Owerflow from npos to 0 is ok - pick the first character if & isn't there.
 			const auto Char = CurrentModeName[CurrentModeName.find(L'&') + 1];
-			Indicator = m_ReverseSortOrder? upper(Char) : lower(Char);
+			Indicator = showReverseSortChar? upper(Char) : lower(Char);
 		}
 		else
 		{
-			Indicator = m_ReverseSortOrder? CustomSortIndicator[1] : CustomSortIndicator[0];
+			Indicator = showReverseSortChar? CustomSortIndicator[1] : CustomSortIndicator[0];
 		}
 
 		if (Indicator)
