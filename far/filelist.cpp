@@ -3400,33 +3400,33 @@ void FileList::ApplySortMode(panel_sort Mode)
 	Global->WindowManager->RefreshWindow();
 }
 
+static bool const InvertSortByDefault[]
+{
+  false, // UNSORTED,
+  false, // BY_NAME,
+  false, // BY_EXT,
+  true,  // BY_MTIME,
+  true,  // BY_CTIME,
+  true,  // BY_ATIME,
+  true,  // BY_SIZE,
+  false, // BY_DIZ,
+  false, // BY_OWNER,
+  true,  // BY_COMPRESSEDSIZE,
+  true,  // BY_NUMLINKS,
+  true,  // BY_NUMSTREAMS,
+  true,  // BY_STREAMSSIZE,
+  false, // BY_FULLNAME,
+  true,  // BY_CHTIME,
+};
+static_assert(std::size(InvertSortByDefault) == static_cast<size_t>(panel_sort::COUNT));
+
 void FileList::SetSortMode(panel_sort Mode, bool KeepOrder)
 {
 	if (Mode < panel_sort::COUNT)
 	{
 		if (!KeepOrder)
 		{
-			static bool const InvertByDefault[]
-			{
-				false, // UNSORTED,
-				false, // BY_NAME,
-				false, // BY_EXT,
-				true,  // BY_MTIME,
-				true,  // BY_CTIME,
-				true,  // BY_ATIME,
-				true,  // BY_SIZE,
-				false, // BY_DIZ,
-				false, // BY_OWNER,
-				true,  // BY_COMPRESSEDSIZE,
-				true,  // BY_NUMLINKS,
-				true,  // BY_NUMSTREAMS,
-				true,  // BY_STREAMSSIZE,
-				false, // BY_FULLNAME,
-				true,  // BY_CHTIME,
-			};
-			static_assert(std::size(InvertByDefault) == static_cast<size_t>(panel_sort::COUNT));
-
-			m_ReverseSortOrder = (m_SortMode == Mode && Global->Opt->ReverseSort)? !m_ReverseSortOrder : InvertByDefault[static_cast<size_t>(Mode)];
+			m_ReverseSortOrder = (m_SortMode == Mode && Global->Opt->ReverseSort)? !m_ReverseSortOrder : InvertSortByDefault[static_cast<size_t>(Mode)];
 		}
 
 		ApplySortMode(Mode);
@@ -7404,7 +7404,6 @@ void FileList::ShowFileList(bool Fast)
 	if (Global->Opt->ShowSortMode)
 	{
 		wchar_t Indicator = 0;
-		bool showReverseSortChar = m_ReverseSortOrder ^ Global->Opt->ReverseSortCharCompat;
 
 		if (m_SortMode < panel_sort::COUNT)
 		{
@@ -7431,11 +7430,12 @@ void FileList::ShowFileList(bool Fast)
 			const auto& CurrentModeName = msg(std::find_if(CONST_RANGE(ModeNames, i) { return i.first == m_SortMode; })->second);
 			// Owerflow from npos to 0 is ok - pick the first character if & isn't there.
 			const auto Char = CurrentModeName[CurrentModeName.find(L'&') + 1];
-			Indicator = showReverseSortChar? upper(Char) : lower(Char);
+			const auto UseReverseIndicator = Global->Opt->ReverseSortCharCompat && InvertSortByDefault[static_cast<size_t>(m_SortMode)]? !m_ReverseSortOrder: m_ReverseSortOrder;
+			Indicator = UseReverseIndicator? upper(Char) : lower(Char);
 		}
 		else
 		{
-			Indicator = showReverseSortChar? CustomSortIndicator[1] : CustomSortIndicator[0];
+			Indicator = m_ReverseSortOrder? CustomSortIndicator[1] : CustomSortIndicator[0];
 		}
 
 		if (Indicator)
