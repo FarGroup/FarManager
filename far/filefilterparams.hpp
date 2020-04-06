@@ -58,16 +58,15 @@ enum
 
 enum enumFileFilterFlagsType: int
 {
-	FFFT_FIRST = 0, //обязан быть первым
-
-	FFFT_LEFTPANEL = FFFT_FIRST,
+	// Keep the order
+	FFFT_LEFTPANEL,
 	FFFT_RIGHTPANEL,
 	FFFT_FINDFILE,
 	FFFT_COPY,
 	FFFT_SELECT,
 	FFFT_CUSTOM,
 
-	FFFT_COUNT, //обязан быть последним
+	FFFT_COUNT
 };
 
 enum enumFileFilterFlags
@@ -80,12 +79,13 @@ enum enumFileFilterFlags
 
 enum enumFDateType
 {
+	// Keep the order
 	FDATE_MODIFIED,
 	FDATE_CREATED,
 	FDATE_OPENED,
 	FDATE_CHANGED,
 
-	FDATE_COUNT, // всегда последний !!!
+	FDATE_COUNT
 };
 
 class filter_dates

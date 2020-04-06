@@ -303,7 +303,8 @@ static void ApplyBlackOnBlackColor(highlight::element::colors_array::value_type&
 			Color.ForegroundColor = colors::alpha_value(Color.ForegroundColor) | colors::color_value(Base.ForegroundColor);
 			Color.Flags &= FCF_EXTENDEDFLAGS;
 			Color.Flags |= Base.Flags;
-			Color.Reserved = Base.Reserved;
+			Color.Reserved[0] = Base.Reserved[0];
+			Color.Reserved[1] = Base.Reserved[1];
 		}
 	};
 

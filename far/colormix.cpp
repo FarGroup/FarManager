@@ -110,7 +110,6 @@ namespace colors
 		hash_combine(Seed, Value.Flags);
 		hash_combine(Seed, Value.BackgroundColor);
 		hash_combine(Seed, Value.ForegroundColor);
-		hash_combine(Seed, Value.Reserved);
 
 		return Seed;
 	}

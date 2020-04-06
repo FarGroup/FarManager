@@ -1849,7 +1849,7 @@ int Plist::Compare(const PluginPanelItem* Item1, const PluginPanelItem* Item2, u
 	if (Mode != SM_CTIME || SortMode < SM_CUSTOM)
 		return -2;
 
-	ptrdiff_t diff;
+	int64_t diff;
 
 	const auto& pd1 = *static_cast<const ProcessData*>(Item1->UserData.Data);
 	const auto& pd2 = *static_cast<const ProcessData*>(Item2->UserData.Data);

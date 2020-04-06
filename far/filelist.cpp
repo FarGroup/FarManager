@@ -3402,21 +3402,21 @@ void FileList::ApplySortMode(panel_sort Mode)
 
 static bool const InvertSortByDefault[]
 {
-  false, // UNSORTED,
-  false, // BY_NAME,
-  false, // BY_EXT,
-  true,  // BY_MTIME,
-  true,  // BY_CTIME,
-  true,  // BY_ATIME,
-  true,  // BY_SIZE,
-  false, // BY_DIZ,
-  false, // BY_OWNER,
-  true,  // BY_COMPRESSEDSIZE,
-  true,  // BY_NUMLINKS,
-  true,  // BY_NUMSTREAMS,
-  true,  // BY_STREAMSSIZE,
-  false, // BY_FULLNAME,
-  true,  // BY_CHTIME,
+	false, // UNSORTED,
+	false, // BY_NAME,
+	false, // BY_EXT,
+	true,  // BY_MTIME,
+	true,  // BY_CTIME,
+	true,  // BY_ATIME,
+	true,  // BY_SIZE,
+	false, // BY_DIZ,
+	false, // BY_OWNER,
+	true,  // BY_COMPRESSEDSIZE,
+	true,  // BY_NUMLINKS,
+	true,  // BY_NUMSTREAMS,
+	true,  // BY_STREAMSSIZE,
+	false, // BY_FULLNAME,
+	true,  // BY_CHTIME,
 };
 static_assert(std::size(InvertSortByDefault) == static_cast<size_t>(panel_sort::COUNT));
 

@@ -121,15 +121,14 @@ struct FarColor
 	Background
 #endif
 	;
-	void* Reserved;
+	DWORD Reserved[2];
 
 #ifdef __cplusplus
 	bool operator ==(const FarColor& rhs) const
 	{
 		return Flags == rhs.Flags
 			&& ForegroundColor == rhs.ForegroundColor
-			&& BackgroundColor == rhs.BackgroundColor
-			&& Reserved == rhs.Reserved;
+			&& BackgroundColor == rhs.BackgroundColor;
 	}
 
 	bool operator !=(const FarColor& rhs) const
@@ -161,6 +160,10 @@ struct FarColor
 
 #endif
 };
+
+#ifdef FAR_USE_INTERNALS
+static_assert(sizeof(FarColor) == 24);
+#endif // END FAR_USE_INTERNALS
 
 #define INDEXMASK 0x0000000f
 #define COLORMASK 0x00ffffff

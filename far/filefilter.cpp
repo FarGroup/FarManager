@@ -76,9 +76,9 @@ namespace names
 {
 	static const string_view
 		STR_INIT(Filters),
+		STR_INIT(FoldersFilter),
 		STR_INIT(Filter),
-		STR_INIT(FFlags),
-		STR_INIT(FoldersFilterFFlags),
+		STR_INIT(Flags),
 		STR_INIT(Title),
 		STR_INIT(UseAttr),
 		STR_INIT(AttrSet),
@@ -99,10 +99,12 @@ namespace names
 }
 
 // Old format
-// TODO 2019 Q4: remove
+// TODO 2020 Q4: remove
 namespace legacy_names
 {
 	static const string_view
+		STR_INIT(FFlags),
+		STR_INIT(FoldersFilterFFlags),
 		STR_INIT(IgnoreMask),
 		STR_INIT(DateAfter),
 		STR_INIT(DateBefore),
@@ -113,6 +115,18 @@ namespace legacy_names
 }
 
 #undef STR_INIT
+
+static const string_view FilterFlagNames[]
+{
+	L"LeftPanel"sv,
+	L"RightPanel"sv,
+	L"FindFile"sv,
+	L"Copy"sv,
+	L"Select"sv,
+	L"Custom"sv,
+};
+
+static_assert(std::size(FilterFlagNames) == FFFT_COUNT);
 
 static auto& FilterData()
 {
@@ -517,7 +531,7 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList) const
 				{
 					bool bCheckedNowhere = true;
 
-					for (int n = FFFT_FIRST; n < FFFT_COUNT; n++)
+					for (int n = 0; n != FFFT_COUNT; ++n)
 					{
 						if (n != FFFT && Iterator->second.GetFlags(static_cast<enumFileFilterFlagsType>(n)))
 						{
@@ -733,7 +747,7 @@ FileFilterParams FileFilter::LoadFilter(/*const*/ HierarchicalConfig& cfg, unsig
 	if (!cfg.GetValue(Key, names::UseMask, UseMask))
 	{
 		// Old format
-		// TODO 2019 Q4: remove
+		// TODO 2020 Q4: remove
 		unsigned long long IgnoreMask = 0;
 		if (cfg.GetValue(Key, legacy_names::IgnoreMask, IgnoreMask))
 		{
@@ -749,7 +763,7 @@ FileFilterParams FileFilter::LoadFilter(/*const*/ HierarchicalConfig& cfg, unsig
 	if (!cfg.GetValue(Key, names::DateTimeAfter, DateAfter))
 	{
 		// Old format
-		// TODO 2019 Q4: remove
+		// TODO 2020 Q4: remove
 		if (cfg.GetValue(Key, legacy_names::DateAfter, bytes::reference(DateAfter)))
 		{
 			cfg.SetValue(Key, names::DateTimeAfter, DateAfter);
@@ -761,7 +775,7 @@ FileFilterParams FileFilter::LoadFilter(/*const*/ HierarchicalConfig& cfg, unsig
 	if (!cfg.GetValue(Key, names::DateTimeBefore, DateBefore))
 	{
 		// Old format
-		// TODO 2019 Q4: remove
+		// TODO 2020 Q4: remove
 		if (cfg.GetValue(Key, legacy_names::DateBefore, bytes::reference(DateBefore)))
 		{
 			cfg.SetValue(Key, names::DateTimeBefore, DateBefore);
@@ -776,7 +790,7 @@ FileFilterParams FileFilter::LoadFilter(/*const*/ HierarchicalConfig& cfg, unsig
 	if (!cfg.GetValue(Key, names::DateRelative, DateRelative))
 	{
 		// Old format
-		// TODO 2019 Q4: remove
+		// TODO 2020 Q4: remove
 		if (cfg.GetValue(Key, legacy_names::RelativeDate, DateRelative))
 		{
 			cfg.SetValue(Key, names::DateRelative, DateRelative);
@@ -803,7 +817,7 @@ FileFilterParams FileFilter::LoadFilter(/*const*/ HierarchicalConfig& cfg, unsig
 	if (!cfg.GetValue(Key, names::AttrSet, AttrSet))
 	{
 		// Old format
-		// TODO 2019 Q4: remove
+		// TODO 2020 Q4: remove
 		if (cfg.GetValue(Key, legacy_names::IncludeAttributes, AttrSet))
 		{
 			cfg.SetValue(Key, names::AttrSet, AttrSet);
@@ -815,7 +829,7 @@ FileFilterParams FileFilter::LoadFilter(/*const*/ HierarchicalConfig& cfg, unsig
 	if (!cfg.GetValue(Key, names::AttrClear, AttrClear))
 	{
 		// Old format
-		// TODO 2019 Q4: remove
+		// TODO 2020 Q4: remove
 		if (cfg.GetValue(Key, legacy_names::ExcludeAttributes, AttrClear))
 		{
 			cfg.SetValue(Key, names::AttrClear, AttrClear);
@@ -827,7 +841,7 @@ FileFilterParams FileFilter::LoadFilter(/*const*/ HierarchicalConfig& cfg, unsig
 	if (!cfg.GetValue(Key, names::UseAttr, UseAttr))
 	{
 		// Old format
-		// TODO 2019 Q4: remove
+		// TODO 2020 Q4: remove
 		if (AttrSet || AttrClear)
 		{
 			UseAttr = true;
@@ -839,6 +853,54 @@ FileFilterParams FileFilter::LoadFilter(/*const*/ HierarchicalConfig& cfg, unsig
 
 	return Item;
 }
+
+static void SaveFlags(const HierarchicalConfigUniquePtr& Cfg, HierarchicalConfig::key const FilterKey, const FileFilterParams& Item)
+{
+	const auto FlagsKey = Cfg->CreateKey(FilterKey, names::Flags);
+
+	for (size_t i = 0; i != std::size(FilterFlagNames); ++i)
+	{
+		Cfg->SetValue(FlagsKey, FilterFlagNames[i], Item.GetFlags(static_cast<enumFileFilterFlagsType>(i)));
+	}
+}
+
+static bool LoadFlags(const HierarchicalConfigUniquePtr& Cfg, HierarchicalConfig::key const FilterKey, FileFilterParams& Item)
+{
+	const auto FlagsKey = Cfg->FindByName(FilterKey, names::Flags);
+	if (!FlagsKey)
+		return false;
+
+	auto AnyLoaded = false;
+
+	for (size_t i = 0; i != std::size(FilterFlagNames); ++i)
+	{
+		unsigned long long Value;
+		if (Cfg->GetValue(FlagsKey, FilterFlagNames[i], Value))
+		{
+			AnyLoaded = true;
+			Item.SetFlags(static_cast<enumFileFilterFlagsType>(i), Value);
+		}
+	}
+
+	return AnyLoaded;
+}
+
+// Old format
+// TODO 2020 Q4: remove
+static bool LoadLegacyFlags(const HierarchicalConfigUniquePtr& Cfg, HierarchicalConfig::key const Key, string_view const Name, FileFilterParams& Item)
+{
+	const auto LegacyCount = FFFT_CUSTOM + 1;
+	static_assert(FFFT_COUNT >= LegacyCount);
+
+	DWORD LegacyFlags[LegacyCount]{};
+	if (!Cfg->GetValue(Key, Name, bytes::reference(LegacyFlags)))
+		return false;
+
+	for (int i = 0; i != LegacyCount; ++i)
+		Item.SetFlags(static_cast<enumFileFilterFlagsType>(i), LegacyFlags[i]);
+
+	return true;
+};
 
 void FileFilter::InitFilter()
 {
@@ -853,21 +915,36 @@ void FileFilter::InitFilter()
 	if (!root)
 		return;
 
-	const auto LoadFlags = [&cfg](const auto& Key, const auto& Name, auto& Item)
+	if (const auto FoldersFilterKey = cfg->FindByName(root, names::FoldersFilter))
 	{
-		DWORD Flags[FFFT_COUNT]{};
-		cfg->GetValue(Key, Name, bytes::reference(Flags));
-
-		for (DWORD i = FFFT_FIRST; i < FFFT_COUNT; i++)
-			Item.SetFlags(static_cast<enumFileFilterFlagsType>(i), Flags[i]);
-	};
-
-	LoadFlags(root, names::FoldersFilterFFlags, *FoldersFilter);
+		LoadFlags(cfg, FoldersFilterKey, *FoldersFilter);
+	}
+	else
+	{
+		// Old format
+		// TODO 2020 Q4: remove
+		if (LoadLegacyFlags(cfg, root, legacy_names::FoldersFilterFFlags, *FoldersFilter))
+		{
+			SaveFlags(cfg, cfg->CreateKey(root, names::FoldersFilter), *FoldersFilter);
+			cfg->DeleteValue(root, legacy_names::FoldersFilterFFlags);
+		}
+	}
 
 	for (const auto& Key: cfg->KeysEnumerator(root, names::Filter))
 	{
 		auto NewItem = LoadFilter(*cfg, Key.get());
-		LoadFlags(Key, names::FFlags, NewItem);
+
+		if (!LoadFlags(cfg, Key, NewItem))
+		{
+			// Old format
+			// TODO 2020 Q4: remove
+			if (LoadLegacyFlags(cfg, Key, legacy_names::FFlags, NewItem))
+			{
+				SaveFlags(cfg, Key, NewItem);
+				cfg->DeleteValue(Key, legacy_names::FFlags);
+			}
+		}
+
 		FilterData().emplace_back(std::move(NewItem));
 	}
 
@@ -881,7 +958,16 @@ void FileFilter::InitFilter()
 		//Авто фильтры они только для файлов, папки не должны к ним подходить
 		NewItem.SetAttr(true, 0, FILE_ATTRIBUTE_DIRECTORY);
 
-		LoadFlags(Key, names::FFlags, NewItem);
+		if (!LoadFlags(cfg, Key, NewItem))
+		{
+			// Old format
+			// TODO 2020 Q4: remove
+			if (LoadLegacyFlags(cfg, Key, legacy_names::FFlags, NewItem))
+			{
+				SaveFlags(cfg, Key, NewItem);
+				cfg->DeleteValue(Key, legacy_names::FFlags);
+			}
+		}
 
 		TempFilterData().emplace(unquote(std::move(Mask)), std::move(NewItem));
 	}
@@ -957,16 +1043,6 @@ void FileFilter::Save(bool always)
 	if (!root)
 		return;
 
-	const auto SaveFlags = [&cfg](const auto& Key, const auto& Name, const auto& Item)
-	{
-		DWORD Flags[FFFT_COUNT];
-
-		for (DWORD j = FFFT_FIRST; j < FFFT_COUNT; j++)
-			Flags[j] = Item.GetFlags(static_cast<enumFileFilterFlagsType>(j));
-
-		cfg->SetValue(Key, Name, bytes_view(Flags));
-	};
-
 	for (size_t i=0; i<FilterData().size(); ++i)
 	{
 		const auto Key = cfg->CreateKey(root, names::Filter + str(i));
@@ -976,7 +1052,7 @@ void FileFilter::Save(bool always)
 		const auto& CurFilterData = FilterData()[i];
 
 		SaveFilter(*cfg, Key.get(), CurFilterData);
-		SaveFlags(Key, names::FFlags, CurFilterData);
+		SaveFlags(cfg, Key, CurFilterData);
 	}
 
 	for (const auto& [CurFilterData, i]: enumerate(TempFilterData()))
@@ -986,10 +1062,10 @@ void FileFilter::Save(bool always)
 			break;
 
 		cfg->SetValue(Key, names::Mask, CurFilterData.second.GetMask());
-		SaveFlags(Key, names::FFlags, CurFilterData.second);
+		SaveFlags(cfg, Key, CurFilterData.second);
 	}
 
-	SaveFlags(root, names::FoldersFilterFFlags, *FoldersFilter);
+	SaveFlags(cfg, cfg->CreateKey(root, names::FoldersFilter), *FoldersFilter);
 
 	Changed = false;
 }
