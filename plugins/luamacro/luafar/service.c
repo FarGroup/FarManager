@@ -1358,7 +1358,8 @@ int GetFarColor(lua_State *L, int pos, struct FarColor* Color)
 		Color->Flags = CheckFlagsFromTable(L, -1, "Flags");
 		Color->Foreground.ForegroundColor = CAST(COLORREF, GetOptNumFromTable(L, "ForegroundColor", 0));
 		Color->Background.BackgroundColor = CAST(COLORREF, GetOptNumFromTable(L, "BackgroundColor", 0));
-		Color->Reserved = NULL;
+		Color->Reserved[0] = 0;
+		Color->Reserved[1] = 0;
 		lua_pop(L, 1);
 		return 1;
 	}
@@ -1368,7 +1369,8 @@ int GetFarColor(lua_State *L, int pos, struct FarColor* Color)
 		Color->Flags = FCF_4BITMASK;
 		Color->Foreground.ForegroundColor = (num & 0x0F) | ALPHAMASK;
 		Color->Background.BackgroundColor = ((num>>4) & 0x0F) | ALPHAMASK;
-		Color->Reserved = NULL;
+		Color->Reserved[0] = 0;
+		Color->Reserved[1] = 0;
 		return 1;
 	}
 	return 0;
@@ -4198,7 +4200,7 @@ static int far_Text(lua_State *L)
 {
 	PSInfo *Info = GetPluginData(L)->Info;
 	const wchar_t *Str;
-	struct FarColor fc = { FCF_4BITMASK, {0x0F}, {0x00}, NULL };
+	struct FarColor fc = { FCF_4BITMASK, {0x0F}, {0x00} };
 	intptr_t X = luaL_optinteger(L, 1, 0);
 	intptr_t Y = luaL_optinteger(L, 2, 0);
 	GetFarColor(L, 3, &fc);
