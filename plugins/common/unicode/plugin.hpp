@@ -6,7 +6,7 @@
 /*
 plugin.hpp
 
-Plugin API for Far Manager 3.0 build 5555
+Plugin API for Far Manager 3.0 build 5579
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -44,7 +44,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 5555
+#define FARMANAGERVERSION_BUILD 5579
 #define FARMANAGERVERSION_STAGE VS_PRIVATE
 
 #ifndef RC_INVOKED
@@ -100,15 +100,14 @@ struct FarColor
 	Background
 #endif
 	;
-	void* Reserved;
+	DWORD Reserved[2];
 
 #ifdef __cplusplus
 	bool operator ==(const FarColor& rhs) const
 	{
 		return Flags == rhs.Flags
 			&& ForegroundColor == rhs.ForegroundColor
-			&& BackgroundColor == rhs.BackgroundColor
-			&& Reserved == rhs.Reserved;
+			&& BackgroundColor == rhs.BackgroundColor;
 	}
 
 	bool operator !=(const FarColor& rhs) const
@@ -140,6 +139,7 @@ struct FarColor
 
 #endif
 };
+
 
 #define INDEXMASK 0x0000000f
 #define COLORMASK 0x00ffffff
@@ -528,12 +528,6 @@ struct FAR_CHAR_INFO
 	struct FarColor Attributes;
 
 #ifdef __cplusplus
-	static FAR_CHAR_INFO make(wchar_t Char, const FarColor& Attributes)
-	{
-		FAR_CHAR_INFO info = { Char, Attributes };
-		return info;
-	}
-
 	bool operator ==(const FAR_CHAR_INFO& rhs) const
 	{
 		return Char == rhs.Char && Attributes == rhs.Attributes;
@@ -1274,6 +1268,7 @@ struct FarSetColors
 
 enum WINDOWINFO_TYPE
 {
+	WTYPE_UNKNOWN                   = -1,
 	WTYPE_DESKTOP                   = 0,
 	WTYPE_PANELS                    = 1,
 	WTYPE_VIEWER                    = 2,
