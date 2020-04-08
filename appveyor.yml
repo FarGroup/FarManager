@@ -32,7 +32,7 @@ install:
   - build.cmd base.far
   - cd ..
   #clone FarColorer
-  - git clone https://github.com/colorer/FarColorer.git --recursive
+  - git clone https://github.com/colorer/FarColorer.git --recursive -b develop
   #set locale to russian, needed for chm generation
   - ps: Set-WinSystemLocale -SystemLocale ru-RU
   - ps: Start-Sleep -s 5
@@ -132,7 +132,7 @@ build_script:
   - cd FarColorer
   - mkdir build\%configuration%\%platform%
   - cd build\%configuration%\%platform%
-  - cmake -G "NMake Makefiles" -D PROJECT_ROOT=%PROJECT_ROOT% -D CMAKE_BUILD_TYPE=%PROJECT_CONFIG% -D CONF=%PROJECT_CONF% %PROJECT_ROOT%\src
+  - cmake -G "NMake Makefiles" -D CMAKE_BUILD_TYPE=%PROJECT_CONFIG% -D CONF=%PROJECT_CONF% %PROJECT_ROOT%
   - nmake
   - cd ..\..\..\..
   - mkdir ci\%configuration%.%platform%\Plugins\FarColorer\base
