@@ -132,13 +132,13 @@ build_script:
   - cd FarColorer
   - mkdir build\%configuration%\%platform%
   - cd build\%configuration%\%platform%
-  - cmake -G "NMake Makefiles" -D PROJECT_ROOT=%PROJECT_ROOT% -D CMAKE_BUILD_TYPE=%PROJECT_CONFIG% -D CONF=%PROJECT_CONF% %PROJECT_ROOT%\src
+  - cmake -G "NMake Makefiles" -D CMAKE_BUILD_TYPE=%PROJECT_CONFIG% -D CONF=%PROJECT_CONF% %PROJECT_ROOT%
   - nmake
   - cd ..\..\..\..
   - mkdir ci\%configuration%.%platform%\Plugins\FarColorer\base
   - xcopy /e /q /y /k Colorer-schemes\build\basefar\* ci\%configuration%.%platform%\Plugins\FarColorer\base
   - mkdir ci\%configuration%.%platform%\Plugins\FarColorer\bin
-  - copy /Y FarColorer\build\%configuration%\%platform%\colorer.* ci\%configuration%.%platform%\Plugins\FarColorer\bin
+  - copy /Y FarColorer\build\%configuration%\%platform%\src\colorer.* ci\%configuration%.%platform%\Plugins\FarColorer\bin
   - copy /Y FarColorer\docs\history.ru.txt ci\%configuration%.%platform%\Plugins\FarColorer
   - copy /Y FarColorer\LICENSE ci\%configuration%.%platform%\Plugins\FarColorer
   - copy /Y FarColorer\README.md ci\%configuration%.%platform%\Plugins\FarColorer
