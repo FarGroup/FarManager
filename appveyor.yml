@@ -138,7 +138,7 @@ build_script:
   - mkdir ci\%configuration%.%platform%\Plugins\FarColorer\base
   - xcopy /e /q /y /k Colorer-schemes\build\basefar\* ci\%configuration%.%platform%\Plugins\FarColorer\base
   - mkdir ci\%configuration%.%platform%\Plugins\FarColorer\bin
-  - copy /Y FarColorer\build\%configuration%\%platform%\colorer.* ci\%configuration%.%platform%\Plugins\FarColorer\bin
+  - copy /Y FarColorer\build\%configuration%\%platform%\src\colorer.* ci\%configuration%.%platform%\Plugins\FarColorer\bin
   - copy /Y FarColorer\docs\history.ru.txt ci\%configuration%.%platform%\Plugins\FarColorer
   - copy /Y FarColorer\LICENSE ci\%configuration%.%platform%\Plugins\FarColorer
   - copy /Y FarColorer\README.md ci\%configuration%.%platform%\Plugins\FarColorer
