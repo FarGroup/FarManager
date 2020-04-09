@@ -7,6 +7,9 @@ function run {
   fi
 }
 
+WINEDEBUG=-all
+export WINEDEBUG
+
 if cd far.git && git pull && cd ..; then
 
 	#start mspdbsrv.exe manually before compilation, with an infinite timeout
