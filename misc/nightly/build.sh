@@ -11,7 +11,7 @@ if cd far.git && git pull && cd ..; then
 
 	#start mspdbsrv.exe manually before compilation, with an infinite timeout
 	#prevents compilation being stuck when using cmake
-	wine c:/VC_current/bin/mspdbsrv.exe -start -spawn -shutdowntime -1 &> /dev/null &
+	wine c:/VC_current/bin/Hostx64/x64/mspdbsrv.exe -start -spawn -shutdowntime -1 &> /dev/null &
 
 
 	run "far" && run "plugins" && run "colorer" && run "netbox" && run "enc" && run "docs" && run "publish"
