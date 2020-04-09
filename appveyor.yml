@@ -32,7 +32,7 @@ install:
   - build.cmd base.far
   - cd ..
   #clone FarColorer
-  - git clone https://github.com/colorer/FarColorer.git --recursive -b develop
+  - git clone https://github.com/colorer/FarColorer.git --recursive
   #set locale to russian, needed for chm generation
   - ps: Set-WinSystemLocale -SystemLocale ru-RU
   - ps: Start-Sleep -s 5
