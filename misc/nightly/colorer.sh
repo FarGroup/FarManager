@@ -11,7 +11,8 @@ function bcolorer {
 
   wine cmd /c ../../../../colorer.${BIT}.bat &> ../../../../logs/colorer${BIT}
 
-  if [ ! -e colorer.dll ]; then
+  if [ ! -e src/colorer.dll ]; then
+    echo "Can't find colorer.dll"
     return 1
   fi
 
