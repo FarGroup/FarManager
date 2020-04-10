@@ -17,7 +17,7 @@ function bcolorer {
 
   mkdir -p ../../../../outfinalnew${BIT}/Plugins/${PLUGIN}/bin
 
-  cp -f colorer.dll colorer.map ../../../../outfinalnew${BIT}/Plugins/$PLUGIN/bin
+  cp -f src/colorer.dll src/colorer.map ../../../../outfinalnew${BIT}/Plugins/$PLUGIN/bin
 
   popd
 
