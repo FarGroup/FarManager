@@ -495,7 +495,7 @@ BOOL AddExt(char *Name, char *Ext)
     lstrcpyn(NewExt,Ext,sizeof(NewExt));
 
     int Up=0, Lw=0;
-    Ptr=Name;
+    Ptr=FSF.PointToName(Name); // yjh 11.04.2020
     while(*Ptr)
     {
       if(FSF.LIsAlpha(*Ptr))
