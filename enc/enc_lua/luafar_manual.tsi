@@ -11341,13 +11341,12 @@ lv=1
 dt=Text
 nm=luautf8
 ctime=3776336119
-mtime=3776336176
+mtime=3795716600
 <article>
 #_<markdown>
 #_
 #_UTF-8 module for Lua 5.x
 #_========================
-#_
 #_This module adds UTF-8 support to Lua.
 #_
 #_It use data extracted from
@@ -11424,34 +11423,34 @@ mtime=3776336176
 #_
 #_Some routines are new, with some Unicode-spec functions:
 #_
-#_###utf8.escape(str) -> utf8 string
+#_### utf8.escape(str) -> utf8 string
 #_escape a str to UTF-8 format string. It support several escape format:
 #_
-#_%ddd - which ddd is a decimal number at any length:
-#_       change Unicode code point to UTF-8 format.
-#_%{ddd} - same as %nnn but has bracket around.
-#_%uddd - same as %ddd, u stands Unicode
-#_%u{ddd} - same as %{ddd}
-#_%xhhh - hexadigit version of %ddd
-#_%x{hhh} same as %xhhh.
-#_%? - '?' stands for any other character: escape this character.
+#_ * `%ddd` - which ddd is a decimal number at any length:
+#_   change Unicode code point to UTF-8 format.
+#_ * `%{ddd}` - same as `%nnn` but has bracket around.
+#_ * `%uddd` - same as `%ddd`, u stands Unicode
+#_ * `%u{ddd}` - same as `%{ddd}`
+#_ * `%xhhh` - hexadigit version of `%ddd`
+#_ * `%x{hhh}` same as `%xhhh`.
+#_ * `%?` - '?' stands for any other character: escape this character.
 #_
-#_####Examples:
-#_```
+#_#### Examples:
+#_```lua
 #_local u = utf8.escape
 #_print(u"%123%u123%{123}%u{123}%xABC%x{ABC}")
 #_print(u"%%123%?%d%%u")
 #_```
 #_
-#_###utf8.charpos(s[[, charpos], offset]) -> charpos, code point
+#_### utf8.charpos(s[[, charpos], index]) -> charpos, code point
 #_convert UTF-8 position to byte offset.
-#_if only offset is given, return byte offset of this UTF-8 char index.
-#_if charpos and offset is given, a new charpos will calculate, by
-#_add/subtract UTF-8 char offset to current charpos.
-#_in all case, it return a new char position, and code point (a number) at
-#_this position.
+#_if only `index` is given, return byte offset of this UTF-8 char index.
+#_if both `charpos` and `index` is given, a new `charpos` will be
+#_calculated, by add/subtract UTF-8 char `index` to current `charpos`.
+#_in all cases, it returns a new char position, and code point (a
+#_number) at this position.
 #_
-#_###utf8.next(s[, charpos[, offset]]) -> charpos, code point
+#_### utf8.next(s[, charpos[, index]]) -> charpos, code point
 #_iterate though the UTF-8 string s.
 #_If only s is given, it can used as a iterator:
 #_```lua
@@ -11459,25 +11458,25 @@ mtime=3776336176
 #_   -- ...
 #_end
 #_```
-#_if only charpos is given, return the next byte offset of in string.
-#_if charpos and offset is given, a new charpos will calculate, by
+#_if only `charpos` is given, return the next byte offset of in string.
+#_if `charpos` and `index` is given, a new `charpos` will be calculated, by
 #_add/subtract UTF-8 char offset to current charpos.
 #_in all case, it return a new char position (in bytes), and code point
 #_(a number) at this position.
 #_
-#_###utf8.insert(s[, idx], substring) -> new_string
+#_### utf8.insert(s[, idx], substring) -> new_string
 #_insert a substring to s. If idx is given, insert substring before char at
 #_this index, otherwise substring will concat to s. idx can be negative.
 #_
 #_
-#_###utf8.remove(s[, start[, stop]]) -> new_string
+#_### utf8.remove(s[, start[, stop]]) -> new_string
 #_delete a substring in s. If neither start nor stop is given, delete the
 #_last UTF-8 char in s, otherwise delete char from start to end of s. if
 #_stop is given, delete char from start to stop (include start and stop).
 #_start and stop can be negative.
 #_
 #_
-#_###utf8.width(s[, ambi_is_double[, default_width]]) -> width
+#_### utf8.width(s[, ambi_is_double[, default_width]]) -> width
 #_calculate the width of UTF-8 string s. if ambi_is_double is given, the
 #_ambiguous width character's width is 2, otherwise it's 1.
 #_fullwidth/doublewidth character's width is 2, and other character's width
@@ -11487,7 +11486,7 @@ mtime=3776336176
 #_if s is a code point, return the width of this code point.
 #_
 #_
-#_###utf8.widthindex(s, location[, ambi_is_double[, default_width]]) -> idx, offset, width
+#_### utf8.widthindex(s, location[, ambi_is_double[, default_width]]) -> idx, offset, width
 #_return the character index at given location in string s. this is a
 #_reverse operation of utf8.width().
 #_this function return a index of location, and a offset in in UTF-8
@@ -11495,15 +11494,15 @@ mtime=3776336176
 #_char, offset will be 2. the width of character at idx is returned, also.
 #_
 #_
-#_###utf8.title(s) -> new_string
-#_###utf8.fold(s) -> new_string
+#_### utf8.title(s) -> new_string
+#_### utf8.fold(s) -> new_string
 #_convert UTF-8 string s to title-case, or folded case used to compare by
 #_ignore case.
 #_if s is a number, it's treat as a code point and return a convert code
 #_point (number). utf8.lower/utf8.upper has the same extension.
 #_
 #_
-#_###utf8.ncasecmp(a, b) -> [-1,0,1]
+#_### utf8.ncasecmp(a, b) -> [-1,0,1]
 #_compare a and b without case, -1 means a < b, 0 means a == b and 1 means a > b.
 #_
 #_
