@@ -7,6 +7,8 @@
 
 #include <psapi.h>
 
+using namespace std::literals;
+
 struct UNICODE_STRING
 {
 	USHORT Length;
@@ -262,7 +264,7 @@ bool GetList(PluginPanelItem*& pPanelItem, size_t& ItemsNumber, PerfThread& Thre
 			St.LowPart = ftSystemTime.dwLowDateTime;
 			St.HighPart = ftSystemTime.dwHighDateTime;
 			ULARGE_INTEGER Cr;
-			Cr.QuadPart = St.QuadPart - (UINT64)pd.dwElapsedTime * 10000000;
+			Cr.QuadPart = St.QuadPart - pd.dwElapsedTime * 10000000;
 			pd.ftCreation.dwLowDateTime = Cr.LowPart;
 			pd.ftCreation.dwHighDateTime = Cr.HighPart;
 		}
@@ -483,40 +485,11 @@ bool KillProcess(DWORD pid, HWND hwnd)
 	return TerminateProcess(Process.get(), ERROR_PROCESS_ABORTED);
 }
 
-wchar_t* PrintTime(ULONG s, bool bDays = true)
-{
-	ULONG m = s / 60;
-	s %= 60;
-	const auto h = m / 60;
-	m %= 60;
-	static wchar_t buf[32];
-
-	if (!bDays || h < 24)
-		FSF.sprintf(buf, L"%02d:%02d:%02d", h, m, s);
-	else
-		FSF.sprintf(buf, L"%d %02d:%02d:%02d", h / 24, h % 24, m, s);
-
-	return buf;
-}
-
-wchar_t* PrintTime(ULONGLONG ul100ns, bool bDays)
-{
-	wchar_t* buf = PrintTime((ULONG)(ul100ns / 10000000), bDays);
-	FSF.sprintf(buf + std::wcslen(buf), L".%03d", (ul100ns / 10000) % 1000);
-	return buf;
-}
-
-wchar_t* PrintNTUptime(void* p)
-{
-	return PrintTime((ULONG)(static_cast<ProcessData*>(p))->dwElapsedTime);
-}
-
 void DumpNTCounters(HANDLE InfoFile, PerfThread& Thread, DWORD dwPid, DWORD dwThreads)
 {
 	PrintToFile(InfoFile, L'\n');
 	const std::scoped_lock l(Thread);
-	ProcessPerfData* pdata = Thread.GetProcessData(dwPid, dwThreads);
-
+	const auto pdata = Thread.GetProcessData(dwPid, dwThreads);
 	if (!pdata)
 		return;
 
@@ -527,10 +500,7 @@ void DumpNTCounters(HANDLE InfoFile, PerfThread& Thread, DWORD dwPid, DWORD dwTh
 		if (!pf->dwCounterTitles[i]) // counter is absent
 			continue;
 
-		wchar_t buf[28];
-		std::wcsncpy(buf, GetMsg(Counters[i].idName), std::size(buf) - 2);
-		std::wcscat(buf, L":");
-		PrintToFile(InfoFile, L"%-24s ", buf);
+		PrintToFile(InfoFile, L"%-24s ", (GetMsg(Counters[i].idName) + L":"s).c_str());
 
 		switch (pf->CounterTypes[i])
 		{
@@ -542,7 +512,7 @@ void DumpNTCounters(HANDLE InfoFile, PerfThread& Thread, DWORD dwPid, DWORD dwTh
 
 		case PERF_100NSEC_TIMER:
 			// 64-bit Timer in 100 nsec units. Display delta divided by delta time. Display suffix: "%"
-			PrintToFile(InfoFile, L"%s %7I64u%%\n", PrintTime((ULONGLONG)pdata->qwCounters[i]), pdata->qwResults[i]);
+			PrintToFile(InfoFile, L"%s %7I64u%%\n", DurationToText(pdata->qwCounters[i]).c_str(), pdata->qwResults[i]);
 			break;
 
 		case PERF_COUNTER_COUNTER:

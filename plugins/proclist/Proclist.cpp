@@ -8,7 +8,6 @@
 #include "version.hpp"
 
 options Opt;
-ui64Table* Ui64Table;
 
 PluginStartupInfo Info;
 FarStandardFunctions FSF;
@@ -183,7 +182,6 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo* Info)
 	::Info = *Info;
 	FSF = *Info->FSF;
 	::Info.FSF = &FSF;
-	Ui64Table = new ui64Table;
 	Opt.Read();
 	DebugToken::CreateToken();
 }
@@ -191,7 +189,6 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo* Info)
 
 void WINAPI ExitFARW(const struct ExitInfo* Info)
 {
-	delete Ui64Table;
 }
 
 

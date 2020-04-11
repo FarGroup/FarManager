@@ -18,11 +18,11 @@ Counters[NCOUNTERS];
 
 struct ProcessPerfData
 {
-	DWORD       dwProcessId;
-	DWORD       dwProcessPriority;
-	DWORD       dwThreads;
-	DWORD       dwCreatingPID;
-	DWORD       dwElapsedTime;
+	DWORD       dwProcessId{};
+	DWORD       dwProcessPriority{};
+	DWORD       dwThreads{};
+	DWORD       dwCreatingPID{};
+	uint64_t    dwElapsedTime{};
 	LONGLONG    qwCounters[NCOUNTERS]{};
 	LONGLONG    qwResults[NCOUNTERS]{};
 
@@ -32,9 +32,9 @@ struct ProcessPerfData
 	std::wstring CommandLine;
 	bool FullPathRead{};
 	bool OwnerRead{};
-	FILETIME    ftCreation;
-	DWORD       dwGDIObjects, dwUSERObjects;
-	int         Bitness;
+	FILETIME    ftCreation{};
+	DWORD       dwGDIObjects{}, dwUSERObjects{};
+	int         Bitness{};
 };
 
 struct PerfLib
@@ -93,12 +93,12 @@ public:
 	void SyncReread();
 	void SmartReread() { if (dwLastRefreshTicks > 1000) AsyncReread(); else SyncReread(); }
 	bool IsOK() const { return bOK; }
-	const wchar_t* GetHostName() const { return HostName; }
+	const auto& HostName() const { return m_HostName; }
 	bool Updated() { const auto Ret = bUpdated; bUpdated = false; return Ret; }
 	bool IsWMIConnected() const { return WMI.operator bool(); }
 	int GetDefaultBitness() const { return DefaultBitness; }
-	auto GetUserName() const { return UserName; }
-	auto GetPassword() const { return Password; }
+	const auto& UserName() const { return m_UserName; }
+	const auto& Password() const { return m_Password; }
 private:
 	static DWORD WINAPI ThreadProc(void* Param);
 	void ThreadProc();
@@ -115,14 +115,14 @@ private:
 	bool bOK{};
 	HKEY hHKLM{}, hPerf{};
 	DWORD dwRefreshMsec{ 500 }, dwLastRefreshTicks{};
-	wchar_t HostName[64]{};
+	std::wstring m_HostName;
 	handle hMutex;
 	WMIConnection WMI;
 	PerfLib pf;
 	bool bUpdated{};
 	bool bConnectAttempted{};
-	wchar_t UserName[64]{};
-	wchar_t Password[64]{};
+	std::wstring m_UserName;
+	std::wstring m_Password;
 };
 
 enum

@@ -20,9 +20,10 @@ void ConvertDate(const FILETIME& ft, wchar_t* DateText, wchar_t* TimeText)
 		return;
 	}
 
-	SYSTEMTIME st;
 	FILETIME ct;
 	FileTimeToLocalFileTime(&ft, &ct);
+
+	SYSTEMTIME st;
 	FileTimeToSystemTime(&ct, &st);
 
 	if (TimeText)

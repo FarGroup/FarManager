@@ -31,16 +31,13 @@ int Config()
 	if (!Plist::PanelModesInitialized())
 		Plist::InitializePanelModes();
 
-	if (Builder.ShowDialog())
-	{
-		Opt.Write();
-		Plist::SavePanelModes();
-		Plist::bInit = false;
+	if (!Builder.ShowDialog())
+		return FALSE;
 
-		return TRUE;
-	}
+	Opt.Write();
+	Plist::SavePanelModes();
 
-	return FALSE;
+	return TRUE;
 }
 
 void options::Write() const

@@ -14,8 +14,20 @@ static std::wstring str_vprintf(const wchar_t* format, va_list argptr)
 		Buffer[Size - 1] = 0;
 		const auto Length = _vsnwprintf(Buffer.get(), Size - 1, format, argptr);
 		if (Length >= 0)
-			return std::wstring( Buffer.get(), Length);
+			return std::wstring(Buffer.get(), Length);
 	}
+}
+
+std::wstring str_printf(const wchar_t* Format...)
+{
+	va_list argptr;
+	va_start(argptr, Format);
+
+	auto Str = str_vprintf(Format, argptr);
+
+	va_end(argptr);
+
+	return Str;
 }
 
 size_t PrintToFile(HANDLE File, const wchar_t* Format...)

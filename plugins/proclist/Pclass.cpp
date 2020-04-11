@@ -1,7 +1,12 @@
 ﻿#include <algorithm>
+#include <array>
 #include <mutex>
 #include <string>
+#include <unordered_map>
+#include <cassert>
+#include <cmath>
 #include <cwchar>
+#include <cwctype>
 
 #include "Proclist.hpp"
 #include "perfthread.hpp"
@@ -43,57 +48,56 @@ private:
 	malloc_ptr<wchar_t> buf;
 };
 
-ui64Table::ui64Table()
+// Far: FileSizeToStr
+// TODO: API?
+static std::wstring ui64toa_width(uint64_t value, unsigned width, bool bThousands)
 {
-	uint64_t n = 1;
+	auto ValueStr = std::to_wstring(value);
+	if (ValueStr.size() <= width)
+		return ValueStr;
 
-	for (auto& i : Table)
+	constexpr std::pair
+		BinaryDivider(1024, 10), // 10 == log2(1024)
+		DecimalDivider(1000, 3); // 3 == log10(1000)
+
+	const auto& Divider = bThousands? DecimalDivider : BinaryDivider;
+
+	const auto Numerator = value? bThousands? std::log10(value) : std::log2(value) : 0;
+	const auto UnitIndex = static_cast<size_t>(Numerator / Divider.second);
+
+	if (!UnitIndex)
+		return ValueStr;
+
+	const auto SizeInUnits = value / std::pow(Divider.first, UnitIndex);
+
+	double Parts[2];
+	Parts[1] = std::modf(SizeInUnits, &Parts[0]);
+	auto Integral = static_cast<int>(Parts[0]);
+
+	if (const auto NumDigits = Integral < 10? 2 : Integral < 100? 1 : 0)
 	{
-		i = n;
-		n *= 10;
+		const auto AjustedParts = [&]
+		{
+			const auto Multiplier = static_cast<unsigned long long>(std::pow(10, NumDigits));
+			const auto Value = Parts[1] * Multiplier;
+			const auto UseRound = true;
+			const auto Fractional = static_cast<unsigned long long>(UseRound ? std::round(Value) : Value);
+			return Fractional == Multiplier? std::make_pair(Integral + 1, 0ull) : std::make_pair(Integral, Fractional);
+		}();
+
+		ValueStr = str_printf(L"%d.%0*d", AjustedParts.first, NumDigits, AjustedParts.second);
 	}
-}
-
-uint64_t ui64Table::tenpow(size_t n)
-{
-	if (n >= std::size(Table))
-		n = std::size(Table) - 1;
-
-	return Table[n];
-}
-
-static void ui64toa_width(unsigned __int64 value, wchar_t* buf, unsigned width, bool bThousands)
-{
-	if (width < 1)
-		return;
-
-	const wchar_t* pSuffix = L"";
-	const unsigned uDivider = bThousands? 1000 : 1024;
-
-	if (width <= 20)
+	else
 	{
-		if (value >= Ui64Table->tenpow(width))
-		{
-			value /= uDivider;
-			pSuffix = L"K";
-		}
-
-		if (value >= Ui64Table->tenpow(width))
-		{
-			value /= uDivider;
-			pSuffix = L"M";
-		}
+		ValueStr = std::to_wstring(static_cast<int>(std::round(SizeInUnits)));
 	}
 
-	_ui64tow(value, buf, 10);
-	std::wcscat(buf, pSuffix);
+	return ValueStr.append(1, L' ').append(1, L"BKMGTPE"sv[UnitIndex]);
 }
 
 Plist::Plist():
 	dwPluginThread(GetCurrentThreadId())
 {
-	bInit = false; // force initialize when opening the panel
-
 	{
 		PluginSettings settings(MainGuid, Info.SettingsControl);
 		SortMode = settings.Get(0, L"SortMode", SM_UNSORTED); //SM_CUSTOM;
@@ -113,88 +117,177 @@ int Plist::Menu(unsigned int Flags, const wchar_t* Title, const wchar_t* Bottom,
 	return static_cast<int>((*Info.Menu)(&MainGuid, {}, -1, -1, 0, Flags, Title, Bottom, HelpTopic, BreakKeys, {}, Items, ItemsNumber));
 }
 
+static wchar_t upper(wchar_t Char)
+{
+	CharUpperBuff(&Char, 1);
+	return Char;
+}
+
+static bool TranslateMode(const std::wstring& Src, std::wstring& Destination)
+{
+	std::wstring dest;
+
+	int iCustomMode = L'0';
+	bool bWasDesc = false;
+
+	auto src = Src.c_str();
+	while (*src)
+	{
+		switch (upper(*src))
+		{
+		case L'Z':
+			switch (*++src)
+			{
+			case L'P':
+			case L'W':
+			case L'D':
+			case L'C':
+				++src;
+				break;
+
+			default:
+				return false;
+			}
+
+			if (bWasDesc)
+				return false;
+
+			dest.push_back(L'Z');
+			bWasDesc = true;
+
+			if (*src && *src != L',')
+				return false;
+			break;
+
+		case L'X':
+
+			switch (*++src)
+			{
+			case L'P':
+			case L'I':
+			case L'C':
+			case L'T':
+			case L'B':
+			case L'G':
+			case L'U':
+				src++;
+				break;
+
+			default:
+				auto endptr = src;
+				while (std::iswdigit(*endptr))
+					++endptr;
+
+				if (endptr == src)
+					return false;
+
+				src = endptr;
+			}
+
+			dest.push_back(L'C');
+			dest.push_back(iCustomMode++);
+
+			/*if(*src && *src!=L',')
+			return false;*/
+			while (*src && *src != L',') ++src;
+
+			break;
+		default:
+
+			while (*src && *src != L',')
+				dest.push_back(*src++);
+		}
+
+		if (*src == L',')
+			dest.push_back(*src++);
+	}
+
+	Destination = std::move(dest);
+	return true;
+}
+
 void Plist::InitializePanelModes()
 {
 	static const wchar_t
-		StatusWidth[] = L"0,8,0,5",
-		StatusCols[] = L"N,S,D,T";
+		StatusCols[] = L"N,S,D,T",
+		StatusWidths[] = L"0,8,0,5";
 
-	// Default panel modes. Overridable from registry.
+	// Default panel modes. Overridable from config.
 	// These modes are translated into PanelModesXX
-	static const struct
+	m_PanelModesDataLocal =
 	{
-		const wchar_t* Cols;
-		const wchar_t* Width;
-	}
-	DefaultModes[NPANELMODES]
-	{
-		/*0*/ {L"N,X15T,X16T,X17T,X18S", L"12,0,0,0,4"}, // I/O
-		/*1*/ {L"N,XI,XB,XP,X0S,X6", L"0,6,2,2,3,9"}, // General info
-		/*2*/ {L"N,N",L"0,0"},// Names only
-		/*3*/ {L"N,XI,XB,XC,D,T",L"0,6,2,6,0,0"},    // Startup: PID/Date/Time
-		/*4*/ {L"N,XI,X4,X6",L"0,6,9,9"}, // Memory (basic)
-		/*5*/ {L"N,XI,X4,X6,X10,X12,X0,X1,X2",L"12,6,0,0,0,0,8,8,8"},     // Extended Memory/Time
-		/*6*/ {L"N,ZD",L"12,0"}, // Descriptions
-		/*7*/ {L"N,XP,X0S,X1S,X2S,X11S,X14S,X18S",L"0,2,3,2,2,3,4,3"}, // Dynamic Performance
-		/*8*/ {L"N,XI,O",L"0,6,15"}, // Owners (not implemented)
-		/*9*/ {L"N,XI,XT,X3,XG,XU",L"0,6,3,4,4,4"} // Resources
+		/*0*/ { { L"N,X15F,X16F,X17F,X18S",             L"12,0,0,0,4",         }, {}, PMFLAGS_NONE,       }, // I/O
+		/*1*/ { { L"N,XI,XB,XP,X0S,X6F",                L"0,6,2,2,3,9",        }, {}, PMFLAGS_NONE,       }, // General info
+		/*2*/ { { L"N,N",                               L"0,0",                }, {}, PMFLAGS_NONE,       }, // Names only
+		/*3*/ { { L"N,XI,XB,XC,D,T",                    L"0,6,2,6,0,0",        }, {}, PMFLAGS_NONE,       }, // Startup: PID/Date/Time
+		/*4*/ { { L"N,XI,X4F,X6F",                      L"0,6,9,9",            }, {}, PMFLAGS_NONE,       }, // Memory (basic)
+		/*5*/ { { L"N,XI,X4F,X6F,X10F,X12F,X0,X1,X2",   L"0,6,9,9,9,9,8,8,8",  }, {}, PMFLAGS_FULLSCREEN, }, // Extended Memory/Time
+		/*6*/ { { L"N,ZD",                              L"12,0",               }, {}, PMFLAGS_NONE,       }, // Descriptions
+		/*7*/ { { L"N,XP,X0S,X1S,X2S,X11S,X14FS,X18S",  L"0,2,3,2,2,3,4,3",    }, {}, PMFLAGS_NONE,       }, // Dynamic Performance
+		/*8*/ { { L"N,XI,O",                            L"0,6,15",             }, {}, PMFLAGS_NONE,       }, // Owners (not implemented)
+		/*9*/ { { L"N,XI,XT,X3,XG,XU",                  L"0,6,3,4,4,4",        }, {}, PMFLAGS_NONE,       }, // Resources
 	},
 
-	DefaultModesRemote[NPANELMODES]
+	m_PanelModesDataRemote =
 	{
-		/*0*/ {L"N,X15T,X16T,X17T,X18S", L"12,0,0,0,4"}, // I/O
-		/*1*/ {L"N,XI,XB,XP,X0S,X6", L"0,6,2,2,3,9"}, // General info
-		/*2*/ {L"N,N",L"0,0"},// Names only
-		/*3*/ {L"N,XI,XB,XC,D,T",L"0,6,2,6,0,0"},    // Startup: PID/Date/Time
-		/*4*/ {L"N,XI,X4,X6",L"0,6,9,9"}, // Memory (basic)
-		/*5*/ {L"N,XI,X4,X6,X10,X12,X0,X1,X2",L"12,6,0,0,0,0,8,8,8"},     // Extended Memory/Time
-		/*6*/ {L"N,ZD",L"12,0"}, // Descriptions
-		/*7*/ {L"N,XP,X0S,X1S,X2S,X11S,X14S,X18S",L"0,2,3,2,2,3,4,3"}, // Dynamic Performance
-		/*8*/ {L"N,XI,O",L"0,6,15"}, // Owners (not implemented)
-		/*9*/ {L"N,XI,XT,X3",L"0,6,3,4"}
+		/*0*/ { { L"N,X15F,X16F,X17F,X18S",             L"12,0,0,0,4",         }, {}, PMFLAGS_NONE,       }, // I/O
+		/*1*/ { { L"N,XI,XB,XP,X0S,X6F",                L"0,6,2,2,3,9",        }, {}, PMFLAGS_NONE,       }, // General info
+		/*2*/ { { L"N,N",                               L"0,0",                }, {}, PMFLAGS_NONE,       }, // Names only
+		/*3*/ { { L"N,XI,XB,XC,D,T",                    L"0,6,2,6,0,0",        }, {}, PMFLAGS_NONE,       }, // Startup: PID/Date/Time
+		/*4*/ { { L"N,XI,X4F,X6F",                      L"0,6,9,9",            }, {}, PMFLAGS_NONE,       }, // Memory (basic)
+		/*5*/ { { L"N,XI,X4F,X6F,X10F,X12F,X0,X1,X2",   L"0,6,9,9,9,9,8,8,8",  }, {}, PMFLAGS_FULLSCREEN, }, // Extended Memory/Time
+		/*6*/ { { L"N,ZD",                              L"12,0",               }, {}, PMFLAGS_NONE,       }, // Descriptions
+		/*7*/ { { L"N,XP,X0S,X1S,X2S,X11S,X14FS,X18S",  L"0,2,3,2,2,3,4,3",    }, {}, PMFLAGS_NONE,       }, // Dynamic Performance
+		/*8*/ { { L"N,XI,O",                            L"0,6,15",             }, {}, PMFLAGS_NONE,       }, // Owners (not implemented)
+		/*9*/ { { L"N,XI,XT,X3",                        L"0,6,3,4",            }, {}, PMFLAGS_NONE,       }, // Resources
 	};
-	wchar_t name[20];
-	PanelModesLocal[5].Flags |= PMFLAGS_FULLSCREEN;
-	PanelModesRemote[5].Flags |= PMFLAGS_FULLSCREEN;
 
 	PluginSettings settings(MainGuid, Info.SettingsControl);
 
-	for (int iMode = 0; iMode < NPANELMODES; iMode++)
+	for (size_t i = 0; i != NPANELMODES; ++i)
 	{
-		// Set pointers to our buffer
-		PanelModesLocal[iMode].ColumnTypes = PanelModeBuffer + iMode * MAX_MODE_STR * 8;
-		PanelModesLocal[iMode].ColumnWidths = PanelModeBuffer + iMode * MAX_MODE_STR * 8 + MAX_MODE_STR;
-		PanelModesLocal[iMode].StatusColumnTypes = PanelModeBuffer + iMode * MAX_MODE_STR * 8 + MAX_MODE_STR * 2;
-		PanelModesLocal[iMode].StatusColumnWidths = PanelModeBuffer + iMode * MAX_MODE_STR * 8 + MAX_MODE_STR * 3;
-		PanelModesRemote[iMode].ColumnTypes = PanelModeBuffer + iMode * MAX_MODE_STR * 8 + MAX_MODE_STR * 4;
-		PanelModesRemote[iMode].ColumnWidths = PanelModeBuffer + iMode * MAX_MODE_STR * 8 + MAX_MODE_STR * 5;
-		PanelModesRemote[iMode].StatusColumnTypes = PanelModeBuffer + iMode * MAX_MODE_STR * 8 + MAX_MODE_STR * 6;
-		PanelModesRemote[iMode].StatusColumnWidths = PanelModeBuffer + iMode * MAX_MODE_STR * 8 + MAX_MODE_STR * 7;
+		auto& ModeLocal = m_PanelModesDataLocal[i];
+		auto& ModeRemote = m_PanelModesDataRemote[i];
 
-		FSF.sprintf(name, L"Mode%d", iMode);
-		const auto Root = settings.OpenSubKey(0, name);
+		auto& ColsLocal = ModeLocal.panel_columns;
+		auto& ColsRemote = ModeRemote.panel_columns;
 
-		auto FullScreen = settings.Get(Root, L"FullScreenLocal", iMode == 5? 1 : 0);
-		if (FullScreen)
-			PanelModesLocal[iMode].Flags |= PMFLAGS_FULLSCREEN;
-		else
-			PanelModesLocal[iMode].Flags &= ~PMFLAGS_FULLSCREEN;
+		wchar_t name[20];
+		FSF.sprintf(name, L"Mode%d", i);
 
-		FullScreen = settings.Get(Root, L"FullScreenRemote", iMode == 5? 1 : 0);
-		if (FullScreen)
-			PanelModesRemote[iMode].Flags |= PMFLAGS_FULLSCREEN;
-		else
-			PanelModesRemote[iMode].Flags &= ~PMFLAGS_FULLSCREEN;
+		if (const auto Root = settings.OpenSubKey(0, name))
+		{
+			if (settings.Get(Root, L"FullScreenLocal", (ModeLocal.Flags & PMFLAGS_FULLSCREEN) != 0))
+				ModeLocal.Flags |= PMFLAGS_FULLSCREEN;
+			else
+				ModeLocal.Flags &= ~PMFLAGS_FULLSCREEN;
 
-		settings.Get(Root, L"ColumnsLocal", ProcPanelModesLocal[iMode], std::size(ProcPanelModesLocal[iMode]), DefaultModes[iMode].Cols);
-		settings.Get(Root, L"ColumnsRemote", ProcPanelModesRemote[iMode], std::size(ProcPanelModesRemote[iMode]), DefaultModesRemote[iMode].Cols);
-		settings.Get(Root, L"WidthsLocal", const_cast<wchar_t*>(PanelModesLocal[iMode].ColumnWidths), MAX_MODE_STR - 1, DefaultModes[iMode].Width);
-		settings.Get(Root, L"WidthsRemote", const_cast<wchar_t*>(PanelModesRemote[iMode].ColumnWidths), MAX_MODE_STR - 1, DefaultModesRemote[iMode].Width);
+			if (settings.Get(Root, L"FullScreenRemote", (ModeRemote.Flags & PMFLAGS_FULLSCREEN) != 0))
+				ModeRemote.Flags |= PMFLAGS_FULLSCREEN;
+			else
+				ModeRemote.Flags &= ~PMFLAGS_FULLSCREEN;
+
+
+			ColsLocal.internal_types = settings.Get(Root, L"ColumnsLocal", ColsLocal.internal_types.c_str());
+			ColsRemote.internal_types = settings.Get(Root, L"ColumnsRemote", ColsRemote.internal_types.c_str());
+			ColsLocal.widths = settings.Get(Root, L"WidthsLocal", ColsLocal.widths.c_str());
+			ColsRemote.widths = settings.Get(Root, L"WidthsRemote", ColsRemote.widths.c_str());
+		}
+
+		TranslateMode(ColsLocal.internal_types, ColsLocal.far_types);
+		TranslateMode(ColsRemote.internal_types, ColsRemote.far_types);
+
+		auto& StatusLocal = ModeLocal.status_columns;
+		auto& StatusRemote = ModeRemote.status_columns;
+
 		//Status line is the same for all modes currently and cannot be changed.
-		TranslateMode(StatusCols, const_cast<wchar_t*>(PanelModesLocal[iMode].StatusColumnTypes));
-		TranslateMode(StatusCols, const_cast<wchar_t*>(PanelModesRemote[iMode].StatusColumnTypes));
-		std::wcscpy(const_cast<wchar_t*>(PanelModesLocal[iMode].StatusColumnWidths), StatusWidth);
-		std::wcscpy(const_cast<wchar_t*>(PanelModesRemote[iMode].StatusColumnWidths), StatusWidth);
+		StatusLocal.internal_types = StatusCols;
+		StatusRemote.internal_types = StatusCols;
+		StatusLocal.widths = StatusWidths;
+		StatusRemote.widths = StatusWidths;
+
+		TranslateMode(StatusLocal.internal_types, StatusLocal.far_types);
+		TranslateMode(StatusRemote.internal_types, StatusRemote.far_types);
 	}
 }
 
@@ -206,212 +299,127 @@ Plist::~Plist()
 
 void Plist::SavePanelModes()
 {
-	wchar_t name[20];
 	PluginSettings settings(MainGuid, Info.SettingsControl);
 
-	for (int iMode = 0; iMode < NPANELMODES; iMode++)
+	for (size_t i = 0; i != NPANELMODES; ++i)
 	{
-		FSF.sprintf(name, L"Mode%d", iMode);
+		wchar_t name[20];
+		FSF.sprintf(name, L"Mode%d", i);
 		const auto Root = settings.CreateSubKey(0, name);
-		settings.Set(Root, L"ColumnsLocal", ProcPanelModesLocal[iMode]);
-		settings.Set(Root, L"ColumnsRemote", ProcPanelModesRemote[iMode]);
-		settings.Set(Root, L"WidthsLocal", PanelModesLocal[iMode].ColumnWidths);
-		settings.Set(Root, L"WidthsRemote", PanelModesRemote[iMode].ColumnWidths);
-		settings.Set(Root, L"FullScreenLocal", PanelModesLocal[iMode].Flags & PMFLAGS_FULLSCREEN);
-		settings.Set(Root, L"FullScreenRemote", PanelModesRemote[iMode].Flags & PMFLAGS_FULLSCREEN);
+
+		auto& ModeLocal = m_PanelModesDataLocal[i];
+		auto& ModeRemote = m_PanelModesDataRemote[i];
+		settings.Set(Root, L"FullScreenLocal", (ModeLocal.Flags & PMFLAGS_FULLSCREEN) != 0);
+		settings.Set(Root, L"FullScreenRemote", (ModeRemote.Flags & PMFLAGS_FULLSCREEN) != 0);
+
+		auto& ColsLocal = ModeLocal.panel_columns;
+		auto& ColsRemote = ModeRemote.panel_columns;
+		settings.Set(Root, L"ColumnsLocal", ColsLocal.internal_types.c_str());
+		settings.Set(Root, L"ColumnsRemote", ColsRemote.internal_types.c_str());
+		settings.Set(Root, L"WidthsLocal", ColsLocal.widths.c_str());
+		settings.Set(Root, L"WidthsRemote", ColsRemote.widths.c_str());
 	}
 }
 
-bool Plist::TranslateMode(const wchar_t* src, wchar_t* dest)
+static bool can_be_per_sec(size_t const Counter)
 {
-	if (!dest) return true;
+	return Counter < 3 || Counter == 11 || Counter >= 14;
+}
 
-	if (!src) { *dest = 0; return true; }
+using panel_modes_array = std::array<PanelMode, NPANELMODES>;
 
-	int iCustomMode = L'0';
-	bool bWasDesc = false;
+static void generate_titles(const std::wstring& Str, PanelMode& PanelMode)
+{
+	int ii = 0;
 
-	while (*src)
+	for (StrTok tok(Str.data(), L","); tok; ++tok)
 	{
-		switch (*src)
+		int id = 0;
+
+		switch (upper(*tok))
 		{
-		case L'z':
+		case L'N': id = MColumnModule; break;
+
 		case L'Z':
-
-			switch (*++src)
+			switch (upper(tok[1]))
 			{
-			case L'p':case L'w':case L'd':case L'c':
-			case L'P':case L'W':case L'D':case L'C':
-				break;
-			default:
-				return false;
+			case L'P': id = MTitleFullPath; break;
+			case L'W': id = MColumnTitle; break;
+			case L'D': id = MTitleFileDesc; break;
+			case L'C': id = MCommandLine; break;
 			}
-
-			if (bWasDesc)
-				return false;
-
-			*dest++ = L'Z';
-			bWasDesc = true;
-
-			//*dest++ = iCustomMode++;
-			// BUGBUG
-			if (*src && *src != L',')
-				return false;
-
 			break;
-		case L'x':
+
 		case L'X':
-
-			switch (*++src)
+			switch (upper(tok[1]))
 			{
-			case L'P':case L'I':case L'C'://case L'W':
-			case L'T':case L'B':case L'G':case L'U':
-			case L'p':case L'i':case L'c'://case L'w':
-			case L't':case L'b':case L'g':case L'u':
-				src++;
-				break;
+			case L'P': id = MColumnPriority; break;
+			case L'I': id = MTitlePID; break;
+			case L'C': id = MColumnParentPID; break;
+			case L'T': id = MTitleThreads; break;
+			case L'B': id = MColumnBits; break;
+			case L'G': id = MColumnGDI; break;
+			case L'U': id = MColumnUSER; break;
 			default:
-				auto endptr = src;
-				while (*endptr >= L'0' && *endptr <= L'9')
-					++endptr;
+				const auto n = FSF.atoi(&tok[1]);
 
-				if (endptr == src)
-					return false;
-
-				src = endptr;
-			}
-
-			*dest++ = L'C';
-			*dest++ = iCustomMode++;
-
-			/*if(*src && *src!=L',')
-			return false;*/
-			while (*src && *src != L',') ++src;
-
-			break;
-		default:
-
-			while (*src && *src != L',') *dest++ = *src++;
-		}
-
-		if (*src == L',') *dest++ = *src++;
-	}
-
-	*dest = 0;
-	return true;
-}
-
-void Plist::GeneratePanelModes()
-{
-	for (int iMode = 0; iMode < NPANELMODES; iMode++)
-	{
-		TranslateMode(ProcPanelModesLocal[iMode], const_cast<wchar_t*>(PanelModesLocal[iMode].ColumnTypes));
-		TranslateMode(ProcPanelModesRemote[iMode], const_cast<wchar_t*>(PanelModesRemote[iMode].ColumnTypes));
-	}
-}
-
-int DescIDs[] = { MColFullPathname, MColumnTitle,
-				  MTitleFileDesc, MCommandLine
-};
-
-#define CANBE_PERSEC(n) ((n)<3 || (n)==11 || (n)>=14)
-
-static void GenerateTitles(wchar_t ProcPanelModes[][MAX_MODE_STR], PanelMode* PanelModes, wchar_t* Titles[][MAXCOLS])
-{
-	wchar_t buf[80];
-
-	for (int i = 0; i < NPANELMODES; i++)
-	{
-		if (*ProcPanelModes[i])
-		{
-			std::wcsncpy(buf, ProcPanelModes[i], std::size(buf));
-			int ii = 0;
-
-			for (StrTok tok(buf, L","); tok; ++tok)
-			{
-				int id = 0;
-
-				switch (*tok)
+				if (n >= 0 && n < NCOUNTERS)
 				{
-				case L'n':
-				case L'N':
-					id = MColumnModule;
-					break;
-				case L'z':
-				case L'Z':
-
-					switch (tok[1])
-					{
-					case L'P': case L'p': id = MTitleFullPath; break;
-					case L'W': case L'w': id = MColumnTitle; break;
-					case L'D': case L'd': id = MTitleFileDesc; break;
-					case L'C': case L'c': id = MCommandLine; break;
-					}
-
-					break;
-				case L'x':
-				case L'X':
-
-					switch (tok[1])
-					{
-					case L'P': case L'p': id = MColumnPriority; break;
-					case L'I': case L'i': id = MTitlePID; break;
-					case L'C': case L'c': id = MColumnParentPID; break;
-						//	case L'W': case L'w': id = ; break;
-					case L'T': case L't': id = MTitleThreads; break;
-					case L'B': case L'b': id = MColumnBits; break;
-					case L'G': case L'g': id = MColumnGDI; break;
-					case L'U': case L'u': id = MColumnUSER; break;
-					default:
-						const auto n = FSF.atoi(&tok[1]);
-
-						if (n >= 0 && n < NCOUNTERS)
-						{
-							id = Counters[n].idCol;
-
-							if (wcspbrk(&tok[1], L"Ss") && CANBE_PERSEC(n))
-								++id;
-						}
-
-						break;
-					}
-
-					break;
+					id = Counters[n].idCol;
+					if (wcspbrk(&tok[1], L"Ss") && can_be_per_sec(n))
+						++id;
 				}
 
-				Titles[i][ii++] = id? const_cast<wchar_t*>(GetMsg(id)) : nullptr;
+				break;
 			}
 
-			PanelModes[i].ColumnTitles = Titles[i];
+			break;
 		}
-		else
-			PanelModes[i].ColumnTitles = {};
+
+		if (id)
+			const_cast<const wchar_t*&>(PanelMode.ColumnTitles[ii++]) = GetMsg(id);
+	}
+}
+
+static void convert_panel_modes(const std::vector<mode>& Data, panel_modes_array& PanelModes)
+{
+	for (size_t i = 0, size = Data.size(); i != size; ++i)
+	{
+		const auto& From = Data[i];
+		auto& To = PanelModes[i];
+
+		To.ColumnTypes = From.panel_columns.far_types.c_str();
+		To.ColumnWidths = From.panel_columns.widths.c_str();
+		To.StatusColumnTypes = From.status_columns.far_types.c_str();
+		To.StatusColumnWidths = From.status_columns.widths.c_str();
+		To.Flags = From.Flags;
+
+		generate_titles(From.panel_columns.internal_types, To);
 	}
 }
 
 // Obtains the current array of panel modes. Called from OpenPluginInfo.
 PanelMode* Plist::PanelModes(size_t& nModes)
 {
-	static wchar_t* TitlesLocal[NPANELMODES][MAXCOLS];
-	static wchar_t* TitlesRemote[NPANELMODES][MAXCOLS];
-	static const wchar_t* OldMsg0;
+	using custom_titles_array = std::array<wchar_t*, MAXCOLS>;
+	static std::array<custom_titles_array, NPANELMODES> TitlesLocal, TitlesRemote;
+	static std::array<PanelMode, NPANELMODES> PanelModesLocal, PanelModesRemote;
 
-	if (OldMsg0 != GetMsg(0)) // language changed
+	if (static bool ArraysInited = false; !ArraysInited)
 	{
-		bInit = false;
-		OldMsg0 = GetMsg(0);
+		for (size_t i = 0; i != NPANELMODES; ++i)
+		{
+			PanelModesLocal[i].ColumnTitles = TitlesLocal[i].data();
+			PanelModesRemote[i].ColumnTitles = TitlesRemote[i].data();
+		}
+		ArraysInited = true;
 	}
 
-	if (!bInit)
-	{
-		GeneratePanelModes();
-		GenerateTitles(ProcPanelModesLocal, PanelModesLocal, TitlesLocal);
-		GenerateTitles(ProcPanelModesRemote, PanelModesRemote, TitlesRemote);
-		bInit = true;
-	}
+	convert_panel_modes(m_PanelModesDataLocal, PanelModesLocal);
+	convert_panel_modes(m_PanelModesDataRemote, PanelModesRemote);
 
 	nModes = NPANELMODES;
-	return HostName.empty()? PanelModesLocal : PanelModesRemote;
+	return HostName.empty()? PanelModesLocal.data() : PanelModesRemote.data();
 }
 
 void Plist::GetOpenPanelInfo(OpenPanelInfo* Info)
@@ -468,31 +476,54 @@ void Plist::GetOpenPanelInfo(OpenPanelInfo* Info)
 	Info->KeyBar = &kbt;
 }
 
-struct EnumWndData
-{
-	DWORD dwPID;
-	HWND hWnd;
-};
-
 BOOL CALLBACK EnumWndProc(HWND hWnd, LPARAM lParam)
 {
 	DWORD dwProcID;
 	GetWindowThreadProcessId(hWnd, &dwProcID);
 
-	auto& Data = *reinterpret_cast<EnumWndData*>(lParam);
+	auto& Data = *reinterpret_cast<std::unordered_map<DWORD, HWND>*>(lParam);
 
-	if (dwProcID == Data.dwPID && !GetParent(hWnd))
+	const auto Iterator = Data.find(dwProcID);
+
+	if (Iterator != Data.end() && !GetParent(hWnd))
 	{
 		const auto bVisible = IsWindowVisible(hWnd) || (IsIconic(hWnd) && !(GetWindowLongPtr(hWnd, GWL_STYLE) & WS_DISABLED));
 
-		if (!Data.hWnd || bVisible)
-			Data.hWnd = hWnd;
-
-		return !bVisible;
+		if (!Iterator->second || bVisible)
+			Iterator->second = hWnd;
 	}
 
 	return TRUE;
 }
+
+struct custom_data
+{
+	static auto make(std::vector<std::wstring>&& Strings)
+	{
+		const auto Data = new custom_data;
+		Data->m_Strings = std::move(Strings);
+		Data->m_Pointers.resize(Data->m_Strings.size() + 1);
+		std::transform(Data->m_Strings.cbegin(), Data->m_Strings.cend(), Data->m_Pointers.begin(), [](const std::wstring& Str) { return Str.c_str(); });
+		Data->m_Pointers.back() = reinterpret_cast<const wchar_t*>(Data);
+		return Data->m_Pointers.data();
+	}
+
+	static void destroy(const wchar_t* const* const Ptr, size_t const Size)
+	{
+		delete reinterpret_cast<const custom_data*>(Ptr[Size]);
+	}
+
+	custom_data(const custom_data&) = delete;
+	custom_data& operator=(const custom_data&) = delete;
+
+private:
+	custom_data() = default;
+	~custom_data() = default;
+
+	std::vector<std::wstring> m_Strings;
+	std::vector<const wchar_t*> m_Pointers;
+};
+
 
 int Plist::GetFindData(PluginPanelItem*& pPanelItem, size_t& ItemsNumber, OPERATION_MODES OpMode)
 {
@@ -503,73 +534,70 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem, size_t& ItemsNumber, OPERAT
 
 	PanelInfo pi = { sizeof(PanelInfo) };
 	Info.PanelControl(this, FCTL_GETPANELINFO, 0, &pi);
-	auto& ProcPanelModes = HostName.empty()? ProcPanelModesLocal : ProcPanelModesRemote;
-	int cDescMode = 0;
+	auto& ProcPanelModes = HostName.empty()? m_PanelModesDataLocal : m_PanelModesDataRemote;
+	wchar_t cDescMode = 0;
 
 	if (HostName.empty())
 	{
-		if (const auto p = wcschr(ProcPanelModes[pi.ViewMode], L'Z'))
+		if (const auto p = wcschr(ProcPanelModes[pi.ViewMode].panel_columns.internal_types.c_str(), L'Z'))
 			cDescMode = p[1];
 	}
 
-	for (size_t i = 0; i < ItemsNumber; i++)
+	std::unordered_map<DWORD, HWND> Windows;
+
+	for (size_t i = 0; i != ItemsNumber; ++i)
 	{
 		PluginPanelItem& CurItem = pPanelItem[i];
-		ProcessData& pdata = *((ProcessData*)CurItem.UserData.Data);
+		auto& pdata = *static_cast<ProcessData*>(CurItem.UserData.Data);
+		Windows[pdata.dwPID] = {};
+	}
+
+	EnumWindows(EnumWndProc, (LPARAM)&Windows);
+
+	for (size_t i = 0; i != ItemsNumber; ++i)
+	{
+		PluginPanelItem& CurItem = pPanelItem[i];
+		auto& pdata = *static_cast<ProcessData*>(CurItem.UserData.Data);
 		// Make descriptions
-		wchar_t Title[MAX_PATH];
-		*Title = 0;
-		const wchar_t* pDesc = L"";
+		wchar_t Title[MAX_PATH]{};
 		std::unique_ptr<char[]> Buffer;
-		EnumWndData ewdata = { pdata.dwPID, {} };
-		EnumWindows((WNDENUMPROC)EnumWndProc, (LPARAM)&ewdata);
-		pdata.hwnd = ewdata.hWnd;
+		pdata.hwnd = Windows[pdata.dwPID];
+		const wchar_t* pDesc = {};
 
-		if (cDescMode)
+		switch (upper(cDescMode))
 		{
-			switch (cDescMode)
-			{
-			case L'p':
-			case L'P':
-				pDesc = pdata.FullPath.c_str();
-				break;
+		case L'P':
+			pDesc = pdata.FullPath.c_str();
+			break;
 
-			case L'w':
-			case L'W':
-				if (ewdata.hWnd)
-					GetWindowText(ewdata.hWnd, Title, static_cast<int>(std::size(Title)));
-				pDesc = Title;
-				break;
+		case L'W':
+			if (pdata.hwnd)
+				GetWindowText(pdata.hwnd, Title, static_cast<int>(std::size(Title)));
+			pDesc = Title;
+			break;
 
-			case L'd':
-			case L'D':
-				const wchar_t* pVersion;
-				if (!GetVersionInfo(pdata.FullPath.c_str(), Buffer, pVersion, pDesc))
-					pDesc = L"";
-				break;
+		case L'D':
+			const wchar_t* pVersion;
+			GetVersionInfo(pdata.FullPath.c_str(), Buffer, pVersion, pDesc);
+			break;
 
-			case L'c':
-			case L'C':
-				pDesc = static_cast<ProcessData*>(CurItem.UserData.Data)->CommandLine.c_str();
-				break;
+		case L'C':
+			pDesc = static_cast<ProcessData*>(CurItem.UserData.Data)->CommandLine.c_str();
+			break;
 
-			default:
-				cDescMode = 0;
-				break;
-			}
+		default:
+			break;
+		}
 
-			if (cDescMode)
-			{
-				CurItem.Description = new wchar_t[std::wcslen(pDesc) + 1];
-				std::wcscpy(const_cast<wchar_t*>(CurItem.Description), pDesc);
-			}
+		if (pDesc)
+		{
+			CurItem.Description = new wchar_t[std::wcslen(pDesc) + 1];
+			std::wcscpy(const_cast<wchar_t*>(CurItem.Description), pDesc);
 		}
 
 		const auto pd = pPerfThread->GetProcessData(pdata.dwPID, (DWORD)CurItem.NumberOfLinks);
 
-		const int DataOffset = sizeof(wchar_t*) * MAX_CUSTOM_COLS;
 		int Widths[MAX_CUSTOM_COLS]{};
-		unsigned uCustomColSize = 0;
 		int nCols = 0;
 
 		{
@@ -577,104 +605,97 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem, size_t& ItemsNumber, OPERAT
 			const auto ColumnWidths = std::make_unique<wchar_t[]>(Size);
 			Info.PanelControl(this, FCTL_GETCOLUMNWIDTHS, Size, ColumnWidths.get());
 
-			for (StrTok tokn(ColumnWidths.get(), L", "); tokn && nCols < MAX_CUSTOM_COLS; ++tokn)
+			for (StrTok tokn(ColumnWidths.get(), L","); tokn && nCols < MAX_CUSTOM_COLS; ++tokn)
 			{
-				uCustomColSize += (unsigned int)(((Widths[nCols++] = FSF.atoi(tokn)) + 1) * sizeof(wchar_t));
+				Widths[nCols++] = FSF.atoi(tokn);
 			}
 
 		}
 
 		if (nCols)
 		{
-			CurItem.CustomColumnData = (wchar_t**)new char[DataOffset + uCustomColSize];
-			wchar_t* pData = (wchar_t*)((PCH)CurItem.CustomColumnData + DataOffset); // Start offset of column data aftet ptrs
-			int nCustomCols;
-			nCustomCols = nCols = 0;
+			std::vector<std::wstring> CustomDataStrings;
+			nCols = 0;
 
-			for (StrTok tok(ProcPanelModes[pi.ViewMode], L", "); tok; ++tok, ++nCols)
+			for (StrTok tok(ProcPanelModes[pi.ViewMode].panel_columns.internal_types.data(), L", "); tok; ++tok, ++nCols)
 			{
-				if (*tok == L'X' || *tok == L'x')  // Custom column
+				if (upper(*tok) != L'X')
+					continue;
+
+				// Custom column
+				bool bCol = true;
+				DWORD dwData = 0;
+				int iCounter = -1;
+				int nColWidth = Widths[nCols];
+
+				if (nColWidth == 0)
+					continue;
+
+				bool bPerSec = false, bThousands = false, bFloat = false;
+
+				const auto c = upper(tok[1]);
+				switch (c)
 				{
-					bool bCol = true;
-					DWORD dwData = 0;
-					int nBase = 10;
-					int iCounter = -1;
-					int nColWidth = Widths[nCols];
+				case L'P': dwData = pdata.dwPrBase; break;
+				case L'I': dwData = pdata.dwPID;
+					break;
 
-					if (nColWidth == 0)
-						continue;
+				case L'C': dwData = pdata.dwParentPID;
+					break;
 
-					bool bPerSec = false, bThousands = false;
-					wchar_t c = tok[1];
+				case L'T': dwData = (DWORD)CurItem.NumberOfLinks; break;
+				case L'B': dwData = pdata.Bitness; break;
 
-					switch (c)
+				case L'G': if (pd) dwData = pd->dwGDIObjects; break;
+
+				case L'U': if (pd) dwData = pd->dwUSERObjects; break;
+
+				default:
+					if (std::iswdigit(c))
 					{
-					case L'P': case L'p': dwData = pdata.dwPrBase; break;
-					case L'I': case L'i': dwData = pdata.dwPID;
-						break;
+						iCounter = FSF.atoi(&tok[1]);
 
-					case L'C': case L'c': dwData = pdata.dwParentPID;
-						break;
+						if (wcspbrk(&tok[1], L"Ss") && can_be_per_sec(iCounter))
+							bPerSec = true;
 
-						//	case L'W': case L'w': dwData = hwnd; nBase = 16; break;
-					case L'T': case L't': dwData = (DWORD)CurItem.NumberOfLinks; break;
-					case L'B': case L'b': dwData = pdata.Bitness; break;
+						if (wcspbrk(&tok[1], L"Tt"))
+							bThousands = true;
 
-					case L'G': case L'g': if (pd) dwData = pd->dwGDIObjects; break;
-
-					case L'U': case L'u': if (pd) dwData = pd->dwUSERObjects; break;
-
-					default:
-
-						if (c < L'0' || c>L'9')
-							bCol = false;
-						else
-						{
-							iCounter = FSF.atoi(&tok[1]);
-
-							if (wcspbrk(&tok[1], L"Ss") && CANBE_PERSEC(iCounter))
-								bPerSec = true;
-
-							if (wcspbrk(&tok[1], L"Tt"))
-								bThousands = true;
-						}
-					}
-
-					if (!bCol)
-						continue;
-
-					((wchar_t**)(CurItem.CustomColumnData))[nCustomCols] = pData;
-					int nBufSize = std::max(nColWidth + 1, 16);  // to provide space for itoa
-					std::vector<wchar_t> buf(nBufSize);
-
-					if (c >= L'A') // Not a performance counter
-						FSF.itoa(dwData, buf.data(), nBase);
-					else if (pd && iCounter >= 0)     // Format performance counters
-					{
-						if (iCounter < 3 && !bPerSec) // first 3 are date/time
-							std::wcsncpy(buf.data(), PrintTime(pd->qwCounters[iCounter], false), nBufSize);
-						else
-							ui64toa_width(bPerSec? pd->qwResults[iCounter] : pd->qwCounters[iCounter],
-								buf.data(), nColWidth, bThousands);
+						if (wcspbrk(&tok[1], L"Ff"))
+							bFloat = true;
 					}
 					else
-						buf[0] = L'\0';
-
-					int nVisibleDigits = static_cast<int>(buf.size());
-
-					if (nVisibleDigits > nColWidth) nVisibleDigits = nColWidth;
-
-					wmemset(pData, L' ', nColWidth - nVisibleDigits);
-					pData += nColWidth - nVisibleDigits;
-					std::wcsncpy(pData, buf.data(), nVisibleDigits + 1);
-					pData += nVisibleDigits + 1;
-
-					if (++nCustomCols >= MAX_CUSTOM_COLS/* || ...>=MAX_CUSTOM_COL_SIZE*/)
-						break;
+						bCol = false;
 				}
+
+				if (!bCol)
+					continue;
+
+				std::wstring Str;
+
+				if (c >= L'A') // Not a performance counter
+					Str = std::to_wstring(dwData);
+				else if (pd && iCounter >= 0)     // Format performance counters
+				{
+					if (iCounter < 3 && !bPerSec) // first 3 are date/time
+						Str = DurationToText(pd->qwCounters[iCounter]);
+					else
+						Str = ui64toa_width(bPerSec? pd->qwResults[iCounter] : pd->qwCounters[iCounter], bFloat? 0 : nColWidth, bThousands);
+				}
+
+				int nVisibleDigits = static_cast<int>(Str.size());
+
+				if (nVisibleDigits > nColWidth) nVisibleDigits = nColWidth;
+
+				Str.insert(0, nColWidth - nVisibleDigits, L' ');
+				CustomDataStrings.emplace_back(std::move(Str));
+
+				if (CustomDataStrings.size() == MAX_CUSTOM_COLS)
+					break;
 			}
 
-			CurItem.CustomColumnNumber = /*Modes[pi.ViewMode].*/nCustomCols;
+			CurItem.CustomColumnNumber = CustomDataStrings.size();
+			CurItem.CustomColumnData = custom_data::make(std::move(CustomDataStrings));
 		}
 	}
 
@@ -690,9 +711,9 @@ void Plist::FreeFindData(PluginPanelItem* PanelItem, size_t ItemsNumber)
 
 		delete[] item.Description;
 		delete[] item.Owner;
-		delete[] item.CustomColumnData;
 		delete[] item.FileName;
 		delete[] item.AlternateFileName;
+		custom_data::destroy(item.CustomColumnData, item.CustomColumnNumber);
 	}
 
 	delete PanelItem;
@@ -799,7 +820,7 @@ int Plist::GetFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, int Move, co
 		if (!pdata)
 		{
 			PData.dwPID = FSF.atoi(CurItem.AlternateFileName);
-			ProcessPerfData* ppd = pPerfThread->GetProcessData(PData.dwPID, (DWORD)CurItem.NumberOfLinks);
+			const auto ppd = pPerfThread->GetProcessData(PData.dwPID, (DWORD)CurItem.NumberOfLinks);
 
 			if (ppd && GetPData(PData, *ppd))
 				pdata = &PData;
@@ -852,7 +873,7 @@ int Plist::GetFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, int Move, co
 
 		{
 			const std::scoped_lock l(*pPerfThread);
-			ProcessPerfData* pParentData = pPerfThread->GetProcessData(pdata->dwParentPID, 0);
+			const auto pParentData = pPerfThread->GetProcessData(pdata->dwParentPID, 0);
 			const auto pName = pdata->dwParentPID && pParentData? pParentData->ProcessName.c_str() : nullptr;
 			PrintToFile(InfoFile.get(), pName? L"%u  (%s)\n" : L"%u\n", pdata->dwParentPID, pName);
 		}
@@ -884,9 +905,7 @@ int Plist::GetFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, int Move, co
 				PrintToFile(InfoFile.get(), L"\n%s %s\n", PrintTitle(MTitleStarted), TimeText);
 			}
 
-			//PrintToFile(InfoFile,L"%s %s\n",PrintTitle(MTitleUptime),PrintNTUptime(CurItem.UserData));
-			FileTimeToText(CurFileTime, CurItem.CreationTime, TimeText);
-			PrintToFile(InfoFile.get(), L"%s %s\n", PrintTitle(MTitleUptime), TimeText);
+			PrintToFile(InfoFile.get(), L"%s %s\n", PrintTitle(MTitleUptime), FileTimeDifferenceToText(CurFileTime, CurItem.CreationTime).c_str());
 		}
 
 		if (HostName.empty()) // local only
@@ -903,9 +922,8 @@ int Plist::GetFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, int Move, co
 				PrintNTCurDirAndEnv(InfoFile.get(), Process.get(), Opt.ExportEnvironment);
 
 				const std::scoped_lock l(*pPerfThread);
-				ProcessPerfData* pd = pPerfThread->GetProcessData(pdata->dwPID, (DWORD)CurItem.NumberOfLinks);
 
-				if (pd)
+				if (const auto pd = pPerfThread->GetProcessData(pdata->dwPID, (DWORD)CurItem.NumberOfLinks))
 				{
 					if (pd->dwGDIObjects)
 					{
@@ -1176,6 +1194,38 @@ bool Plist::Connect(const wchar_t* pMachine, const wchar_t* pUser, const wchar_t
 	return false;
 }
 
+// https://blogs.msdn.microsoft.com/oldnewthing/20071008-00/?p=24863/
+static bool is_alttab_window(HWND const Window)
+{
+	if (!IsWindowVisible(Window))
+		return false;
+
+	auto Try = GetAncestor(Window, GA_ROOTOWNER);
+	HWND Walk = nullptr;
+	while (Try != Walk)
+	{
+		Walk = Try;
+		Try = GetLastActivePopup(Walk);
+		if (IsWindowVisible(Try))
+			break;
+	}
+	if (Walk != Window)
+		return false;
+
+	// Tool windows should not be displayed either, these do not appear in the task bar
+	if (GetWindowLongPtr(Window, GWL_EXSTYLE) & WS_EX_TOOLWINDOW)
+		return false;
+
+	/*if (IsWindows8OrGreater())
+	{
+		int Cloaked = 0;
+		if (SUCCEEDED(imports.DwmGetWindowAttribute(Window, DWMWA_CLOAKED, &Cloaked, sizeof(Cloaked))) && Cloaked)
+			return false;
+	}*/
+
+	return true;
+}
+
 int Plist::ProcessKey(const INPUT_RECORD* Rec)
 {
 	if (Rec->EventType != KEY_EVENT)
@@ -1212,31 +1262,11 @@ int Plist::ProcessKey(const INPUT_RECORD* Rec)
 			if (!CurItem->UserData.Data)
 				return false;
 
-			const auto hWnd = static_cast<ProcessData*>(CurItem->UserData.Data)->hwnd;
-
-			if (hWnd && (IsWindowVisible(hWnd) || (IsIconic(hWnd) && (GetWindowLongPtr(hWnd, GWL_STYLE) & WS_DISABLED) == 0)))
+			if (const auto hWnd = static_cast<ProcessData*>(CurItem->UserData.Data)->hwnd; hWnd && is_alttab_window(hWnd))
 			{
-#ifndef SPI_GETFOREGROUNDLOCKTIMEOUT
-#define SPI_GETFOREGROUNDLOCKTIMEOUT        0x2000
-#define SPI_SETFOREGROUNDLOCKTIMEOUT        0x2001
-#endif
-				// Allow SetForegroundWindow on Win98+.
-				DWORD dwMs;
-				// Remember the current value.
-				BOOL bSPI = SystemParametersInfo(SPI_GETFOREGROUNDLOCKTIMEOUT, 0, &dwMs, 0);
-
-				if (bSPI) // Reset foreground lock timeout
-					bSPI = SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, {}, 0);
-
 				SetForegroundWindow(hWnd);
 
-				if (bSPI) // Restore the old value
-					SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, (PVOID)(SIZE_T)dwMs, 0);
-
-				WINDOWPLACEMENT wp;
-				wp.length = sizeof(wp);
-
-				if (!GetWindowPlacement(hWnd, &wp) || wp.showCmd != SW_SHOWMAXIMIZED)
+				if (IsIconic(hWnd))
 					ShowWindowAsync(hWnd, SW_RESTORE);
 			}
 		}
@@ -1648,7 +1678,7 @@ int Plist::ProcessKey(const INPUT_RECORD* Rec)
 				}
 				nItems++;
 
-				if (CANBE_PERSEC(i))
+				if (can_be_per_sec(i))
 				{
 					wchar_t tmpStr[512];
 					if (i < 3)
@@ -1709,16 +1739,8 @@ wchar_t* Plist::PrintTitle(int MsgId)
 	return FullStr;
 }
 
-void Plist::FileTimeToText(const FILETIME& CurFileTime, const FILETIME& SrcTime, wchar_t* TimeText)
+std::wstring DurationToText(uint64_t Duration)
 {
-	ULARGE_INTEGER Cur, Src;
-	Cur.HighPart = CurFileTime.dwHighDateTime;
-	Cur.LowPart = CurFileTime.dwLowDateTime;
-	Src.HighPart = SrcTime.dwHighDateTime;
-	Src.LowPart = SrcTime.dwLowDateTime;
-
-	const auto Duration = Cur.QuadPart - Src.QuadPart;
-
 	const auto
 		TicksPerS = 10'000'000ull,
 		TicksPerM = TicksPerS * 60,
@@ -1729,12 +1751,24 @@ void Plist::FileTimeToText(const FILETIME& CurFileTime, const FILETIME& SrcTime,
 		Days    = Duration / TicksPerD,
 		Hours   = Duration % TicksPerD / TicksPerH,
 		Minutes = Duration % TicksPerD % TicksPerH / TicksPerM,
-		Seconds = Duration % TicksPerD % TicksPerH % TicksPerM / TicksPerS;
+		Seconds = Duration % TicksPerD % TicksPerH % TicksPerM / TicksPerS,
+		Ticks   = Duration % TicksPerD % TicksPerH % TicksPerM % TicksPerS / 1;
 
 	if (Days > 0)
-		FSF.sprintf(TimeText, L"%d %02d:%02d:%02d", Days, Hours, Minutes, Seconds);
+		return str_printf(L"%d %02d:%02d:%02d:%07d", Days, Hours, Minutes, Seconds, Ticks);
 	else
-		FSF.sprintf(TimeText, L"%02d:%02d:%02d", Hours, Minutes, Seconds);
+		return str_printf(L"%02d:%02d:%02d:%07d", Hours, Minutes, Seconds, Ticks);
+}
+
+std::wstring FileTimeDifferenceToText(const FILETIME& CurFileTime, const FILETIME& SrcTime)
+{
+	ULARGE_INTEGER Cur, Src;
+	Cur.HighPart = CurFileTime.dwHighDateTime;
+	Cur.LowPart = CurFileTime.dwLowDateTime;
+	Src.HighPart = SrcTime.dwHighDateTime;
+	Src.LowPart = SrcTime.dwLowDateTime;
+
+	return DurationToText(Cur.QuadPart - Src.QuadPart);
 }
 
 template<class T>
@@ -1802,7 +1836,11 @@ bool Plist::ConnectWMI()
 	if (*pWMI)
 		return true;
 
-	return pWMI->Connect(HostName.c_str(), pPerfThread->GetUserName(), pPerfThread->GetPassword());
+	return pWMI->Connect(
+		HostName.c_str(),
+		pPerfThread->UserName().c_str(),
+		pPerfThread->Password().c_str()
+	);
 }
 
 void Plist::DisconnectWMI()
@@ -1904,10 +1942,6 @@ int Plist::Compare(const PluginPanelItem* Item1, const PluginPanelItem* Item2, u
 	return diff < 0? -1 : diff == 0? 0 : 1;
 }
 
-bool Plist::bInit;
-PanelMode Plist::PanelModesLocal[], Plist::PanelModesRemote[];
-wchar_t Plist::PanelModeBuffer[];
-wchar_t Plist::ProcPanelModesLocal[NPANELMODES][MAX_MODE_STR], Plist::ProcPanelModesRemote[NPANELMODES][MAX_MODE_STR];
 /*
 bool Plist::PostUpdate()
 {

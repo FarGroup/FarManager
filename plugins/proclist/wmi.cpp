@@ -40,6 +40,36 @@ static auto ProcessPath(DWORD const Pid)
 	return bstr(Str);
 }
 
+struct com_closer
+{
+	void operator()(IUnknown* Object) const
+	{
+		Object->Release();
+	}
+};
+
+template<typename T>
+using com_ptr = std::unique_ptr<T, com_closer>;
+
+template<typename T>
+class ptr_setter
+{
+public:
+	explicit ptr_setter(T& Ptr) : m_Ptr(&Ptr) {}
+	~ptr_setter() { m_Ptr->reset(m_RawPtr); }
+
+	[[nodiscard]]
+	auto operator&() { return &m_RawPtr; }
+
+	ptr_setter(const ptr_setter&) = delete;
+	ptr_setter& operator=(const ptr_setter&) = delete;
+
+private:
+	T* m_Ptr;
+	typename T::pointer m_RawPtr{};
+};
+
+
 WMIConnection::WMIConnection()
 {
 	token.Enable();
@@ -52,9 +82,8 @@ WMIConnection::~WMIConnection()
 
 std::wstring WMIConnection::GetProcessExecutablePath(DWORD dwPID)
 {
-	hrLast = WBEM_S_NO_ERROR;
-	IWbemClassObject* Object = {};
-	hrLast = pIWbemServices->GetObject(ProcessPath(dwPID), 0, {}, &Object, {});
+	com_ptr<IWbemClassObject> Object;
+	hrLast = pIWbemServices->GetObject(ProcessPath(dwPID), 0, {}, &ptr_setter(Object), {});
 
 	if (!Object)
 		return {};
@@ -69,15 +98,13 @@ std::wstring WMIConnection::GetProcessExecutablePath(DWORD dwPID)
 		VariantClear(&pVal);
 	}
 
-	Object->Release();
 	return Result;
 }
 
 DWORD WMIConnection::GetProcessPriority(DWORD dwPID)
 {
-	hrLast = WBEM_S_NO_ERROR;
-	IWbemClassObject* Object = {};
-	hrLast = pIWbemServices->GetObject(ProcessPath(dwPID), 0, {}, &Object, {});
+	com_ptr<IWbemClassObject> Object;
+	hrLast = pIWbemServices->GetObject(ProcessPath(dwPID), 0, {}, &ptr_setter(Object), {});
 
 	if (hrLast != WBEM_S_NO_ERROR || !Object)
 		return 0;
@@ -100,60 +127,57 @@ DWORD WMIConnection::GetProcessPriority(DWORD dwPID)
 
 std::wstring WMIConnection::GetProcessOwner(DWORD dwPID, std::wstring* Domain)
 {
-	hrLast = WBEM_S_NO_ERROR;
-	IWbemClassObject* pOutParams = {};
+	com_ptr<IWbemClassObject> OutParams;
 
 	if (Domain)
 		Domain->clear();
 
-	if ((hrLast=pIWbemServices->ExecMethod(ProcessPath(dwPID), bstr(L"GetOwner"), 0, {}, {}, &pOutParams, {}))!=WBEM_S_NO_ERROR || !pOutParams)
+	hrLast = pIWbemServices->ExecMethod(ProcessPath(dwPID), bstr(L"GetOwner"), 0, {}, {}, &ptr_setter(OutParams), {});
+	if (hrLast != WBEM_S_NO_ERROR || !OutParams)
 		return {};
 
 	VARIANT pVal;
 
 	std::wstring User;
-	if ((hrLast=pOutParams->Get(L"User", 0, &pVal, {}, {}))==WBEM_S_NO_ERROR && pVal.vt!=VT_NULL)
+	if ((hrLast = OutParams->Get(L"User", 0, &pVal, {}, {})) == WBEM_S_NO_ERROR && pVal.vt != VT_NULL)
 	{
 		User = pVal.bstrVal;
 		VariantClear(&pVal);
 	}
 
-	if (Domain && (hrLast=pOutParams->Get(L"Domain", 0, &pVal, {}, {}))==WBEM_S_NO_ERROR && pVal.vt!=VT_NULL)
+	if (Domain && (hrLast = OutParams->Get(L"Domain", 0, &pVal, {}, {})) == WBEM_S_NO_ERROR && pVal.vt != VT_NULL)
 	{
 		*Domain = pVal.bstrVal;
 		VariantClear(&pVal);
 	}
 
-	pOutParams->Release();
 	return User;
 }
 
 std::wstring WMIConnection::GetProcessUserSid(DWORD dwPID)
 {
-	hrLast = WBEM_S_NO_ERROR;
-	IWbemClassObject* pOutParams = {};
+	com_ptr<IWbemClassObject> OutParams;
+	hrLast = pIWbemServices->ExecMethod(ProcessPath(dwPID), bstr(L"GetOwnerSid"), 0, {}, {}, &ptr_setter(OutParams), {});
 
-	if ((hrLast = pIWbemServices->ExecMethod(ProcessPath(dwPID), bstr(L"GetOwnerSid"), 0, {}, {}, &pOutParams, {})) != WBEM_S_NO_ERROR || !pOutParams)
+	if (hrLast != WBEM_S_NO_ERROR || !OutParams)
 		return {};
 
 	VARIANT pVal;
 	std::wstring UserSid;
 
-	if ((hrLast=pOutParams->Get(L"Sid", 0, &pVal, {}, {}))==WBEM_S_NO_ERROR && pVal.vt!=VT_NULL)
+	if ((hrLast = OutParams->Get(L"Sid", 0, &pVal, {}, {})) == WBEM_S_NO_ERROR && pVal.vt != VT_NULL)
 	{
 		UserSid = pVal.bstrVal;
 		VariantClear(&pVal);
 	}
 
-	pOutParams->Release();
 	return UserSid;
 }
 
 int WMIConnection::GetProcessSessionId(DWORD dwPID)
 {
-	hrLast = WBEM_S_NO_ERROR;
-	IWbemClassObject* Object = {};
-	hrLast = pIWbemServices->GetObject(ProcessPath(dwPID), 0, {}, &Object, {});
+	com_ptr<IWbemClassObject> Object;
+	hrLast = pIWbemServices->GetObject(ProcessPath(dwPID), 0, {}, &ptr_setter(Object), {});
 
 	if (!Object)
 		return -1;
@@ -169,74 +193,63 @@ int WMIConnection::GetProcessSessionId(DWORD dwPID)
 		VariantClear(&pVal);
 	}
 
-	Object->Release();
 	return rc;
 }
 
 int WMIConnection::ExecMethod(DWORD dwPID, const wchar_t* wsMethod, const wchar_t* wsParamName, DWORD dwParam)
 {
-	hrLast = WBEM_S_NO_ERROR;
-	IWbemClassObject* Object = {};
-	hrLast = pIWbemServices->GetObject(bstr(L"Win32_Process"), WBEM_FLAG_DIRECT_READ, {}, &Object, {});
+	com_ptr<IWbemClassObject> Object;
+	hrLast = pIWbemServices->GetObject(bstr(L"Win32_Process"), WBEM_FLAG_DIRECT_READ, {}, &ptr_setter(Object), {});
 
 	if (!Object)
 		return -1;
 
-	IWbemClassObject* pInSignature = {};
+	com_ptr<IWbemClassObject> InSignature;
 
 	if (wsParamName)
-		hrLast = Object->GetMethod(wsMethod, 0, &pInSignature, {});
+		hrLast = Object->GetMethod(wsMethod, 0, &ptr_setter(InSignature), {});
 
 	int rc = -1;
 
-	if (pInSignature || !wsParamName)
+	if (InSignature || !wsParamName)
 	{
-		IWbemClassObject* pInParams = {};
+		com_ptr<IWbemClassObject> InParams;
 
-		if (pInSignature)
-			hrLast = pInSignature->SpawnInstance(0, &pInParams);
+		if (InSignature)
+			hrLast = InSignature->SpawnInstance(0, &ptr_setter(InParams));
 
-		if (pInParams || !wsParamName)
+		if (InParams || !wsParamName)
 		{
-			if (pInParams)
+			if (InParams)
 			{
 				VARIANT var; VariantClear(&var);
 				var.vt = VT_I4;
 				var.lVal = dwParam;
-				hrLast = pInParams->Put(wsParamName, 0, &var, 0);
+				hrLast = InParams->Put(wsParamName, 0, &var, 0);
 			}
 
-			IWbemClassObject* pOutParams = {};
+			com_ptr<IWbemClassObject> OutParams;
 
-			if ((hrLast=pIWbemServices->ExecMethod(ProcessPath(dwPID), bstr(wsMethod), 0, {}, pInParams, &pOutParams, {}))==WBEM_S_NO_ERROR)
+			if ((hrLast = pIWbemServices->ExecMethod(ProcessPath(dwPID), bstr(wsMethod), 0, {}, InParams.get(), &ptr_setter(OutParams), {})) == WBEM_S_NO_ERROR)
 			{
 				rc = 0;
 
-				if (pOutParams)
+				if (OutParams)
 				{
 					VARIANT pVal;
 
-					if (pOutParams->Get(L"ReturnValue", 0, &pVal, {}, {}) == WBEM_S_NO_ERROR)
+					if (OutParams->Get(L"ReturnValue", 0, &pVal, {}, {}) == WBEM_S_NO_ERROR)
 					{
 						if (pVal.vt==VT_I4)
 							rc = pVal.lVal;
 
 						VariantClear(&pVal);
 					}
-
-					pOutParams->Release();
 				}
 			}
-
-			if (pInParams)
-				pInParams->Release();
 		}
-
-		if (pInSignature)
-			pInSignature->Release();
 	}
 
-	Object->Release();
 	return rc;
 }
 
@@ -247,7 +260,7 @@ int WMIConnection::SetProcessPriority(DWORD dwPID, DWORD dwPri)
 
 int WMIConnection::TerminateProcess(DWORD dwPID)
 {
-	return ExecMethod(dwPID, L"Terminate", L"Reason", 0xffffffff);
+	return ExecMethod(dwPID, L"Terminate", L"Reason", ERROR_PROCESS_ABORTED);
 }
 
 bool WMIConnection::Connect(const wchar_t* pMachineName, const wchar_t* pUser, const wchar_t* pPassword)
@@ -259,9 +272,9 @@ bool WMIConnection::Connect(const wchar_t* pMachineName, const wchar_t* pUser, c
 		pUser = pPassword = {}; // Empty username means default security
 
 	hrLast = WBEM_S_NO_ERROR;
-	IWbemLocator* pIWbemLocator = {};
+	com_ptr<IWbemLocator> IWbemLocator;
 
-	if ((hrLast = CoCreateInstance(CLSID_WbemLocator, {}, CLSCTX_INPROC_SERVER, IID_IWbemLocator, IID_PPV_ARGS_Helper(&pIWbemLocator))) == S_OK)
+	if ((hrLast = CoCreateInstance(CLSID_WbemLocator, {}, CLSCTX_INPROC_SERVER, IID_IWbemLocator, IID_PPV_ARGS_Helper(&ptr_setter(IWbemLocator)))) == S_OK)
 	{
 		if (!pMachineName || !*pMachineName)
 			pMachineName = L".";
@@ -271,7 +284,7 @@ bool WMIConnection::Connect(const wchar_t* pMachineName, const wchar_t* pUser, c
 		wchar_t Namespace[128];
 		wsprintfW(Namespace, L"\\\\%s\\root\\cimv2", pMachineName);
 
-		if ((hrLast=pIWbemLocator->ConnectServer(bstr(Namespace), bstr(pUser), bstr(pPassword), {},0, {}, {}, &pIWbemServices)) == S_OK)
+		if ((hrLast = IWbemLocator->ConnectServer(bstr(Namespace), bstr(pUser), bstr(pPassword), {}, 0, {}, {}, &pIWbemServices)) == S_OK)
 		{
 			// We impersonate a token to enable SeDebugPrivilege privilege.
 			// Enable static cloaking here to make sure the server sees it.
@@ -292,8 +305,6 @@ bool WMIConnection::Connect(const wchar_t* pMachineName, const wchar_t* pUser, c
 		{
 			pIWbemServices = {};
 		}
-
-		pIWbemLocator->Release();
 	}
 
 	return pIWbemServices != nullptr;

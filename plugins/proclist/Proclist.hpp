@@ -44,7 +44,7 @@ using handle = std::unique_ptr<void, handle_closer>;
 
 inline HANDLE normalise_handle(HANDLE Handle)
 {
-	return Handle == INVALID_HANDLE_VALUE ? nullptr : Handle;
+	return Handle == INVALID_HANDLE_VALUE? nullptr : Handle;
 }
 
 
@@ -61,7 +61,6 @@ typedef unsigned long ULONG_PTR, * PULONG_PTR;
 
 inline constexpr auto
 	NPANELMODES     = 10,      // Number of panel modes
-	MAX_MODE_STR    = 80,      // Max length of panel mode string and width string
 	MAX_CUSTOM_COLS = 20,      // Max number of custom cols in any panel mode
 	MAX_DATETIME    = 50,
 	MAXCOLS = MAX_CUSTOM_COLS + 4;
@@ -92,16 +91,21 @@ Opt;
 
 int Message(unsigned Flags, const wchar_t* HelpTopic, const wchar_t** Items, size_t nItems, size_t nButtons = 1);
 
-extern class ui64Table
+struct columns
 {
-public:
-	ui64Table();
-	uint64_t tenpow(size_t n);
+	std::wstring
+		internal_types,
+		widths,
+		far_types;
+};
 
-private:
-	uint64_t Table[21];
-}
-*Ui64Table;
+struct mode
+{
+	columns
+		panel_columns,
+		status_columns;
+	PANELMODE_FLAGS Flags;
+};
 
 class Plist
 {
@@ -121,20 +125,16 @@ public:
 
 	static wchar_t* PrintTitle(int MsgId);
 	static bool GetVersionInfo(const wchar_t* pFullPath, std::unique_ptr<char[]>& Buffer, const wchar_t*& pVersion, const wchar_t*& pDesc);
+
 	static void SavePanelModes();
 	static void InitializePanelModes();
-	static bool PanelModesInitialized() { return PanelModesLocal[0].ColumnTypes != nullptr; }
-
-	static bool bInit;
+	static bool PanelModesInitialized() { return !m_PanelModesDataLocal.empty(); }
 
 private:
 	static void PrintVersionInfo(HANDLE InfoFile, const wchar_t* FullPath);
-	static void FileTimeToText(const FILETIME& CurFileTime, const FILETIME& SrcTime, wchar_t* TimeText);
 	void Reread();
 	void PutToCmdLine(const wchar_t* tmp);
-	static void GeneratePanelModes();
 	static int Menu(unsigned int Flags, const wchar_t* Title, const wchar_t* Bottom, const wchar_t* HelpTopic, const struct FarKey* BreakKeys, const FarMenuItem* Items, size_t ItemsNumber);
-	static bool TranslateMode(const wchar_t* src, wchar_t* dest);
 	void PrintOwnerInfo(HANDLE InfoFile, DWORD dwPid);
 	bool ConnectWMI();
 	void DisconnectWMI();
@@ -147,13 +147,8 @@ private:
 	unsigned SortMode{};
 	std::unique_ptr<WMIConnection> pWMI;
 	DWORD dwPluginThread;
-	static PanelMode
-		PanelModesLocal[NPANELMODES],
-		PanelModesRemote[NPANELMODES];
-	static wchar_t
-		ProcPanelModesLocal[NPANELMODES][MAX_MODE_STR],
-		ProcPanelModesRemote[NPANELMODES][MAX_MODE_STR];
-	static wchar_t PanelModeBuffer[NPANELMODES * MAX_MODE_STR * 4 * 2];
+
+	static inline std::vector<mode> m_PanelModesDataLocal, m_PanelModesDataRemote;
 };
 
 struct InitDialogItem
@@ -169,15 +164,15 @@ struct InitDialogItem
 
 struct ProcessData
 {
-	DWORD Size;
-	HWND hwnd;
+	DWORD Size{};
+	HWND hwnd{};
 	//  DWORD Threads;
-	DWORD dwPID;
-	DWORD dwParentPID;
-	DWORD dwPrBase;
-	int Bitness;
+	DWORD dwPID{};
+	DWORD dwParentPID{};
+	DWORD dwPrBase{};
+	int Bitness{};
 	std::wstring FullPath;
-	DWORD dwElapsedTime;
+	uint64_t dwElapsedTime{};
 	std::wstring CommandLine;
 };
 
@@ -243,8 +238,6 @@ enum
 
 extern wchar_t CustomColumns[10][10];
 
-wchar_t* PrintNTUptime(void* p);
-wchar_t* PrintTime(ULONGLONG ul100ns, bool bDays = true);
 void DumpNTCounters(HANDLE InfoFile, PerfThread& PThread, DWORD dwPid, DWORD dwThreads);
 void PrintNTCurDirAndEnv(HANDLE InfoFile, HANDLE hProcess, BOOL bExportEnvironment);
 void PrintModules(HANDLE InfoFile, DWORD dwPID, options& opt);
@@ -282,6 +275,11 @@ DECLARE_IMPORT(EnumProcessModulesEx, BOOL (WINAPI*)(HANDLE, HMODULE*, DWORD, DWO
 
 #undef DECLARE_IMPORT
 //------
+
+std::wstring str_printf(const wchar_t* Format...);
+
+std::wstring DurationToText(uint64_t Duration);
+std::wstring FileTimeDifferenceToText(const FILETIME& CurFileTime, const FILETIME& SrcTime);
 
 size_t PrintToFile(HANDLE File, const wchar_t* Format...);
 size_t PrintToFile(HANDLE File, wchar_t Char);

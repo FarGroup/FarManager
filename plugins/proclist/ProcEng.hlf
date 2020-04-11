@@ -294,9 +294,9 @@ below.
 
    For X11 and X14..X21 you can append #S# to show per second value.
 
-   For any counter, if the column is too narrow to show the full number,
-it's calculated in K's (1024) or M's (1024*1024). You can append #T# to the
-column type to use 1000 instead of 1024 as a divider.
+   For any counter, if the column is too narrow to show the full number or
+if #F# modifier is specified, the value is calculated in K's (1024), M's (1024*1024) etc.
+You can append #T# to the column type to use 1000 instead of 1024 as a divider.
 
    #X0 # Processor Time
    #X1 # Privileged Time

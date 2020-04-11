@@ -258,17 +258,10 @@ static void PrintNameByType(HANDLE handle, WORD type, HANDLE file, PerfThread* p
 	case OB_TYPE_PROCESS:
 		if (DWORD dwId = 0; GetProcessId(handle, dwId))
 		{
-			if (pThread)
-			{
-				const std::scoped_lock l(*pThread);
-				const auto pd = pThread->GetProcessData(dwId, 0);
-				const auto pName = pd? pd->ProcessName.c_str() : L"<unknown>";
-				PrintToFile(file, L"%s (%d)", pName, dwId);
-			}
-			else
-			{
-				PrintToFile(file, L"<unknown> (%d)", dwId);
-			}
+			const std::scoped_lock l(*pThread);
+			const auto pd = pThread->GetProcessData(dwId, 0);
+			const auto pName = pd? pd->ProcessName.c_str() : L"<unknown>";
+			PrintToFile(file, L"%s (%d)", pName, dwId);
 		}
 		return;
 
