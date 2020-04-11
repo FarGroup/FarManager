@@ -77,6 +77,11 @@ namespace os::fs
 		};
 	}
 
+	namespace state
+	{
+		void set_current_directory_syncronisation(bool Value);
+	}
+
 	using find_handle = os::detail::handle_t<detail::find_handle_closer>;
 	using find_file_handle = os::detail::handle_t<detail::find_file_handle_closer>;
 	using find_volume_handle = os::detail::handle_t<detail::find_volume_handle_closer>;

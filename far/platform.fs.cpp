@@ -33,7 +33,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.fs.hpp"
 
 // Internal:
-#include "ctrlobj.hpp"
 #include "cvtname.hpp"
 #include "drivemix.hpp"
 #include "elevation.hpp"
@@ -41,10 +40,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "lasterror.hpp"
 #include "pathmix.hpp"
-#include "plugins.hpp"
 #include "string_utils.hpp"
 #include "strmix.hpp"
-#include "global.hpp"
+#include "exception_handler.hpp"
 
 // Platform:
 #include "platform.hpp"
@@ -52,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.version.hpp"
 
 // Common:
+#include "common.hpp"
 #include "common/algorithm.hpp"
 #include "common/scope_exit.hpp"
 
@@ -152,6 +151,16 @@ namespace os::fs
 		void file_unmapper::operator()(const void* Data) const
 		{
 			UnmapViewOfFile(Data);
+		}
+	}
+
+	namespace state
+	{
+		static std::atomic_bool current_directory_syncronisation = false;
+
+		void set_current_directory_syncronisation(bool const Value)
+		{
+			current_directory_syncronisation = Value;
 		}
 	}
 
@@ -1661,7 +1670,7 @@ namespace os::fs
 #ifndef NO_WRAPPER
 
 			// Legacy plugins expect that the current directory is set
-			(Global->CtrlObject && Global->CtrlObject->Plugins->OemPluginsPresent())
+			state::current_directory_syncronisation
 #else
 			false
 #endif // NO_WRAPPER

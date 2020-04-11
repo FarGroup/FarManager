@@ -187,6 +187,11 @@ Plugin* PluginManager::AddPlugin(std::unique_ptr<Plugin>&& pPlugin)
 #ifndef NO_WRAPPER
 	if (PluginPtr->IsOemPlugin())
 	{
+		if (!OemPluginsCount)
+		{
+			os::fs::state::set_current_directory_syncronisation(true);
+		}
+
 		OemPluginsCount++;
 	}
 #endif // NO_WRAPPER
@@ -214,7 +219,14 @@ bool PluginManager::RemovePlugin(Plugin *pPlugin)
 #ifndef NO_WRAPPER
 	if(pPlugin->IsOemPlugin())
 	{
+		assert(OemPluginsCount);
+
 		OemPluginsCount--;
+
+		if (!OemPluginsCount)
+		{
+			os::fs::state::set_current_directory_syncronisation(false);
+		}
 	}
 #endif // NO_WRAPPER
 	SortedPlugins.erase(std::find(ALL_CONST_RANGE(SortedPlugins), pPlugin));

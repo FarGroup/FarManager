@@ -2615,16 +2615,12 @@ nem elérhető).
  Redraw the window in such a way that ClearType related artifacts do not appear.
  #Attention!#: Enabling this option can considerably slow down the redraw speed.
 
- #Set console icon#
- If this option is activated Far will actively set the icon of the console window
-to its inbuilt icon. If the option is not activated it's possible to set the icon of
-the console window to any desired icon via the properties of the Far launching link
-in Windows.
+ #Console icon#
+ If this option is activated, Far will set the selected embedded icon as the icon of the console window.
+Otherwise you can choose any desired icon in the Far shourtcut properties.
 
  #Alternate for Administrator#
- If this option is activated and Far is executed by a user with administrator privileges,
-then the used icon will be red instead of blue. This option is only relevant if the
-option #Set console icon# is activated.
+ If this option is activated, Far will use the red icon when running with administrator privileges.
 
  #Far window title addons#
  Additional information, displayed in the window title.

@@ -1100,7 +1100,7 @@ void Execute(execute_info& Info, bool FolderRun, function_ref<void(bool)> const 
 									{
 										const auto Aliases = console.GetAllAliases();
 
-										consoleicons::instance().restorePreviousIcons();
+										consoleicons::instance().restore_icon();
 
 										console.ReadInput(ir, rd);
 										/*
@@ -1123,7 +1123,7 @@ void Execute(execute_info& Info, bool FolderRun, function_ref<void(bool)> const 
 										os::chrono::sleep_for(100ms);
 										InitConsole();
 
-										consoleicons::instance().setFarIcons();
+										consoleicons::instance().set_icon();
 										console.SetAllAliases(Aliases);
 										stop=1;
 										break;

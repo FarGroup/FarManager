@@ -247,8 +247,10 @@ class consoleicons: public singleton<consoleicons>
 	IMPLEMENTS_SINGLETON;
 
 public:
-	void setFarIcons();
-	void restorePreviousIcons();
+	void set_icon();
+	void restore_icon();
+
+	size_t size() const;
 
 private:
 	consoleicons() = default;
@@ -256,15 +258,11 @@ private:
 	struct icon
 	{
 		bool IsBig;
-		HICON Icon;
-		HICON PreviousIcon;
-		bool Changed;
+		std::optional<HICON> InitialIcon;
 	};
 
 	icon m_Large{true};
 	icon m_Small{false};
-
-	bool m_Loaded{};
 };
 
 bool ConsoleYesNo(string_view Message, bool Default);

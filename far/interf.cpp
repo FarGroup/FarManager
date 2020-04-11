@@ -75,30 +75,31 @@ static HICON set_icon(HWND Wnd, bool Big, HICON Icon)
 	return reinterpret_cast<HICON>(SendMessage(Wnd, WM_SETICON, Big? ICON_BIG : ICON_SMALL, reinterpret_cast<LPARAM>(Icon)));
 }
 
-void consoleicons::setFarIcons()
+void consoleicons::set_icon()
 {
 	if (!Global->Opt->SetIcon)
-		return;
+		return restore_icon();
 
 	const auto hWnd = console.GetWindow();
 	if (!hWnd)
 		return;
 
-	if (!m_Loaded)
-	{
-		const int IconId = (Global->Opt->SetAdminIcon && os::security::is_admin())? FAR_ICON_RED : FAR_ICON;
+	if (Global->Opt->IconIndex < 0 || static_cast<size_t>(Global->Opt->IconIndex) >= size())
+		return;
 
-		m_Large.Icon = load_icon(IconId, m_Large.IsBig);
-		m_Small.Icon = load_icon(IconId, m_Small.IsBig);
-		m_Loaded = true;
-	}
+	const int IconId = (Global->Opt->SetAdminIcon && os::security::is_admin())? FAR_ICON_RED : FAR_ICON + Global->Opt->IconIndex;
 
-	const auto Set = [hWnd](icon& Icon)
+	const auto Set = [&](icon& Icon)
 	{
-		if (Icon.Icon)
+		const auto RawIcon = load_icon(IconId, Icon.IsBig);
+		if (!RawIcon)
+			return;
+
+		const auto PreviousIcon = ::set_icon(hWnd, Icon.IsBig, RawIcon);
+
+		if (!Icon.InitialIcon)
 		{
-			Icon.PreviousIcon = set_icon(hWnd, Icon.IsBig, Icon.Icon);
-			Icon.Changed = true;
+			Icon.InitialIcon = PreviousIcon;
 		}
 	};
 
@@ -106,26 +107,28 @@ void consoleicons::setFarIcons()
 	Set(m_Small);
 }
 
-void consoleicons::restorePreviousIcons()
+void consoleicons::restore_icon()
 {
-	if (!Global->Opt->SetIcon)
-		return;
-
 	const auto hWnd = console.GetWindow();
 	if (!hWnd)
 		return;
 
 	const auto Restore = [hWnd](icon& Icon)
 	{
-		if (!Icon.Changed)
+		if (!Icon.InitialIcon)
 			return;
 
-		set_icon(hWnd, Icon.IsBig, Icon.PreviousIcon);
-		Icon.Changed = false;
+		::set_icon(hWnd, Icon.IsBig, *Icon.InitialIcon);
+		Icon.InitialIcon.reset();
 	};
 
 	Restore(m_Large);
 	Restore(m_Small);
+}
+
+size_t consoleicons::size() const
+{
+	return FAR_ICON_COUNT;
 }
 
 static int CurX,CurY;
@@ -352,7 +355,7 @@ void InitConsole()
 	UpdateScreenSize();
 	Global->ScrBuf->FillBuf();
 
-	consoleicons::instance().setFarIcons();
+	consoleicons::instance().set_icon();
 
 	FirstInit = false;
 }
@@ -396,7 +399,7 @@ void CloseConsole()
 	}
 
 	ClearKeyQueue();
-	consoleicons::instance().restorePreviousIcons();
+	consoleicons::instance().restore_icon();
 	CancelIoInProgress().close();
 }
 

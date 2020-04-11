@@ -51,7 +51,7 @@ WARNING_DISABLE_MSC(4583) // 'class': destructor is not implicitly called
 	array_ptr() noexcept
 	{
 		placement::construct(m_StaticBuffer);
-		init_span();
+		init_span(0);
 	}
 
 	explicit array_ptr(size_t const Size, bool Init = false):
@@ -102,47 +102,51 @@ WARNING_POP()
 			}
 		}
 
-		m_Size = Size;
-		init_span();
-	}
-
-	[[nodiscard]]
-	size_t size() const noexcept
-	{
-		return m_Size;
+		init_span(Size);
 	}
 
 	[[nodiscard]]
 	explicit operator bool() const noexcept
 	{
-		return m_Size != 0;
+		return !this->empty();
 	}
 
 	[[nodiscard]]
 	T* data() const noexcept
 	{
-		return size() > StaticSize? m_DynamicBuffer.get() : m_StaticBuffer.data();
+		return data(this->size());
 	}
 
 	[[nodiscard]]
-	T& operator*() const
+	T& operator*() const noexcept
 	{
-		assert(m_Size);
+		assert(!this->empty());
 		return *data();
 	}
 
 private:
-	void init_span()
+	void init_span(size_t const Size) noexcept
 	{
-		static_cast<span<T>&>(*this) = { data(), size() };
+		static_cast<span<T>&>(*this) = { data(Size), Size };
 	}
 
-	bool is_dynamic() const
+	[[nodiscard]]
+	T* data(size_t const Size) const noexcept
 	{
-		return m_Size > StaticSize;
+		return is_dynamic(Size)? m_DynamicBuffer.get() : m_StaticBuffer.data();
 	}
 
-	void destruct()
+	bool is_dynamic(size_t const Size) const noexcept
+	{
+		return Size > StaticSize;
+	}
+
+	bool is_dynamic() const noexcept
+	{
+		return is_dynamic(this->size());
+	}
+
+	void destruct() noexcept
 	{
 		if (is_dynamic())
 			placement::destruct(m_DynamicBuffer);
@@ -163,8 +167,8 @@ private:
 			placement::destruct(rhs.m_StaticBuffer);
 		}
 
-		m_Size = std::exchange(rhs.m_Size, 0);
-		init_span();
+		init_span(rhs.size());
+		rhs.init_span(0);
 
 		return *this;
 	}
@@ -174,7 +178,6 @@ private:
 		mutable std::array<T, StaticSize> m_StaticBuffer;
 		std::unique_ptr<T[]> m_DynamicBuffer;
 	};
-	size_t m_Size{};
 };
 
 template<size_t Size = 1>

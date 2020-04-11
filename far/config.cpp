@@ -337,7 +337,24 @@ void Options::InterfaceSettings()
 	Builder.AddCheckbox(lng::MConfigPgUpChangeDisk, PgUpChangeDisk);
 	Builder.AddCheckbox(lng::MConfigUseVirtualTerminalForRendering, VirtualTerminalRendering);
 	Builder.AddCheckbox(lng::MConfigClearType, ClearType);
+	Builder.StartColumns();
 	const auto SetIconCheck = Builder.AddCheckbox(lng::MConfigSetConsoleIcon, SetIcon);
+	Builder.ColumnBreak();
+
+	std::vector<FarDialogBuilderListItem2> IconIndices(consoleicons::instance().size());
+	{
+		int Index = 0;
+		for (auto& i: IconIndices)
+		{
+			i.Text = str(Index);
+			i.ItemValue = Index;
+			++Index;
+		}
+	}
+
+	const auto IconIndexEdit = Builder.AddComboBox(IconIndex, nullptr, 0, IconIndices, DIF_LISTAUTOHIGHLIGHT | DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
+	Builder.EndColumns();
+	Builder.LinkFlags(SetIconCheck, IconIndexEdit, DIF_DISABLE);
 	const auto SetAdminIconCheck = Builder.AddCheckbox(lng::MConfigSetAdminConsoleIcon, SetAdminIcon);
 	SetAdminIconCheck->Indent(4);
 	Builder.LinkFlags(SetIconCheck, SetAdminIconCheck, DIF_DISABLE);
@@ -351,6 +368,8 @@ void Options::InterfaceSettings()
 			CMOpt.CopyTimeRule = 3;
 
 		SetFarConsoleMode();
+		consoleicons::instance().set_icon();
+
 		const auto& Panels = Global->CtrlObject->Cp();
 		Panels->LeftPanel()->Update(UPDATE_KEEP_SELECTION);
 		Panels->RightPanel()->Update(UPDATE_KEEP_SELECTION);
@@ -1821,6 +1840,7 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeyInterface,              L"FormatNumberSeparators"sv,        FormatNumberSeparators, L""sv},
 		{FSSF_PRIVATE,           NKeyInterface,              L"Mouse"sv,                         Mouse, true},
 		{FSSF_PRIVATE,           NKeyInterface,              L"SetIcon"sv,                       SetIcon, false},
+		{FSSF_PRIVATE,           NKeyInterface,              L"IconIndex"sv,                     IconIndex, 0},
 		{FSSF_PRIVATE,           NKeyInterface,              L"SetAdminIcon"sv,                  SetAdminIcon, true},
 		{FSSF_PRIVATE,           NKeyInterface,              L"ShowDotsInRoot"sv,                ShowDotsInRoot, false},
 		{FSSF_INTERFACE,         NKeyInterface,              L"ShowMenuBar"sv,                   ShowMenuBar, false},
@@ -2102,7 +2122,6 @@ void Options::SetSearchColumns(const string& Columns, const string& Widths)
 	if (Columns.empty())
 		return;
 
-	auto& FindOpt = Global->Opt->FindOpt;
 	FindOpt.OutColumns = DeserialiseViewSettings(Columns, Widths);
 	std::tie(FindOpt.strSearchOutFormat, FindOpt.strSearchOutFormatWidth) = SerialiseViewSettings(FindOpt.OutColumns);
 }
@@ -2763,7 +2782,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		}
 	};
 
-	const auto no_tree = Global->Opt->Tree.TurnOffCompletely? LIF_HIDDEN : LIF_NONE;
+	const auto no_tree = Tree.TurnOffCompletely? LIF_HIDDEN : LIF_NONE;
 
 	menu_item LeftMenu[]
 	{
