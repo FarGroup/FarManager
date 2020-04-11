@@ -31,7 +31,7 @@ void Connection::lostpeer()
 int Connection::ProcessCommand(LPCSTR LineToProcess)
 {
 	PROC(("ProcessCommand","%s",LineToProcess))
-	register struct cmd *c;
+	struct cmd *c;
 	BOOL rc = FALSE;
 
 	do
@@ -85,11 +85,11 @@ int Connection::ProcessCommand(LPCSTR LineToProcess)
 }
 
 
-struct cmd *Connection::getcmd(register char *name)
+struct cmd *Connection::getcmd(char *name)
 {
-	register const char *p, *q;
-	register struct cmd *c, *found;
-	register int nmatches, longest;
+	const char *p, *q;
+	struct cmd *c, *found;
+	int nmatches, longest;
 
 	longest = 0;
 	nmatches = 0;
@@ -147,8 +147,8 @@ void Connection::makeargv()
 const char *Connection::slurpstring()
 {
 	int got_one = 0;
-	register char *sb = stringbase;
-	register char *ap = argbase;
+	char *sb = stringbase;
+	char *ap = argbase;
 	char *tmp = argbase;            /* will return this if token found */
 
 	if(*sb == '!' || *sb == '$')    /* recognize ! as a token for shell */

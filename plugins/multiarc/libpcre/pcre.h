@@ -143,9 +143,9 @@ required for Win32 DLL; it is null on other OS. For Virtual Pascal, these
 have to be different again. */
 
 #ifndef VPCOMPAT
-PCRE_DATA_SCOPE void *(_cdecl *pcre_malloc)(size_t);
-PCRE_DATA_SCOPE void  (_cdecl *pcre_free)(void *);
-PCRE_DATA_SCOPE int   (_cdecl *pcre_callout)(pcre_callout_block *);
+PCRE_DATA_SCOPE void *(__cdecl *pcre_malloc)(size_t);
+PCRE_DATA_SCOPE void  (__cdecl *pcre_free)(void *);
+PCRE_DATA_SCOPE int   (__cdecl *pcre_callout)(pcre_callout_block *);
 #else   /* VPCOMPAT */
 extern void *pcre_malloc(size_t);
 extern void  pcre_free(void *);

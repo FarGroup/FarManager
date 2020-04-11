@@ -92,11 +92,11 @@ template <class T> void Swap(T& a,T& b) { T tmp = a; a = b; b = tmp; }
 //- ASSERT
 #if !defined(__FP_NOT_FUNCTIONS__)
 //[fstd_asrt.cpp]
-extern void         _cdecl __WinAbort(LPCSTR msg,...);
+extern void         __cdecl __WinAbort(LPCSTR msg,...);
 //[fstd_err.cpp]
-extern const char  *_cdecl __WINError(void);
+extern const char  *__cdecl __WINError(void);
 //[fstd_exit.cpp]
-typedef void (_cdecl *AbortProc)(void);
+typedef void (__cdecl *AbortProc)(void);
 
 extern AbortProc WINAPI    AtExit(AbortProc p);
 extern void      WINAPI    CallAtExit(void);
@@ -208,7 +208,7 @@ extern LPCSTR WINAPI StrGetCol(LPCSTR str,int number,LPCSTR seps);
 extern DWORD    WINAPI Crc32(DWORD StartCrc/*=0*/, const BYTE *buf,DWORD len);
 
 //[fstd_Mesg.cpp]
-extern LPCSTR _cdecl Message(LPCSTR patt,...);
+extern LPCSTR __cdecl Message(LPCSTR patt,...);
 extern LPCSTR WINAPI    MessageV(LPCSTR patt,va_list a);
 
 //Utils
@@ -235,14 +235,14 @@ class FARINProc
 		FARINProc(LPCSTR nm,LPCSTR s,...);
 		~FARINProc();
 
-		static void _cdecl Say(LPCSTR s,...);
+		static void __cdecl Say(LPCSTR s,...);
 };
 
 extern int FP_LogErrorStringLength;
 
 /** @brief Procedure callback for specify name of current log file
 */
-extern void               _cdecl FP_FILELog(LPCSTR msg,...);              ///< Writes text to current log file.
+extern void               __cdecl FP_FILELog(LPCSTR msg,...);              ///< Writes text to current log file.
 extern LPCSTR           WINAPI    FP_GetLogFullFileName(void);               ///< Returns full current file log.
 /**@} Log*/
 

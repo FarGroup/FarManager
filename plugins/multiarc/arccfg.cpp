@@ -2,8 +2,6 @@
 #include "marclng.hpp"
 #include <farkeys.hpp>
 
-#pragma warning (disable : 4838)
-
 int ConfigGeneral()
 {
   struct InitDialogItem InitItems[]={
@@ -20,7 +18,7 @@ int ConfigGeneral()
   //*  7 */{DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MGConfigDeleteExtFile},
   //*  8 */{DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MGConfigAddExtArchive},
   /*  7 */{DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MGConfigAutoResetExactArcName},
-  /*  8 */{DI_CHECKBOX,5,10,0,0,0,1,DIF_DISABLE|DIF_HIDDEN,0,(char *)MGConfigOldDialogStyle},
+  /*  8 */{DI_CHECKBOX,5,10,0,0,0,1,0u|DIF_DISABLE|DIF_HIDDEN,0,(char *)MGConfigOldDialogStyle},
 
   /*  9 */{DI_TEXT,5,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
   /* 10 */{DI_TEXT,5,11,0,0,0,0,0,0,(char *)MGConfigDizNames},

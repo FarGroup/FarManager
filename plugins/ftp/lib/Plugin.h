@@ -147,9 +147,9 @@ struct FTPInterface
 	LPCSTR(WINAPI    *GetMsgStr)(LPCSTR Msg);
 
 //Debug
-	void (_cdecl *Assertion)(LPCSTR Format,...);
-	void (_cdecl *SayLog)(LPCSTR Format,...);
-	HANDLE(_cdecl *LogProcStart)(LPCSTR FunctionName,LPCSTR Format,...);
+	void (__cdecl *Assertion)(LPCSTR Format,...);
+	void (__cdecl *SayLog)(LPCSTR Format,...);
+	HANDLE(__cdecl *LogProcStart)(LPCSTR FunctionName,LPCSTR Format,...);
 	void (WINAPI    *LogProcEnd)(HANDLE Proc);
 
 //Reg
@@ -164,7 +164,7 @@ struct FTPInterface
 	char*(WINAPI    *StrCat)(char *dest,LPCSTR src,int dest_sz /*=-1*/);
 
 //Utilities
-	LPCSTR(_cdecl *Message)(LPCSTR patt,...);
+	LPCSTR(__cdecl *Message)(LPCSTR patt,...);
 	LPCSTR(WINAPI    *MessageV)(LPCSTR patt,va_list a);
 	char*(WINAPI    *PointToName)(char *Path);
 	char*(WINAPI    *FDigit)(char *buff,__int64 Value,int BuffSize /*-1*/);        // Output digit to string. Delimits thousands.

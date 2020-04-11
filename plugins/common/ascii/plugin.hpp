@@ -16,46 +16,11 @@
 
 #ifndef RC_INVOKED
 
+#include<windows.h>
+
 #define MAKEFARVERSION(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
 
 #define FARMANAGERVERSION MAKEFARVERSION(FARMANAGERVERSION_MAJOR,FARMANAGERVERSION_MINOR,FARMANAGERVERSION_BUILD)
-
-#if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
-#if (defined(__GNUC__) || defined(_MSC_VER)) && !defined(_WIN64)
-#if !defined(_WINCON_H) && !defined(_WINCON_)
-#define _WINCON_H
-#define _WINCON_ // to prevent including wincon.h
-#if defined(_MSC_VER)
-#pragma pack(push,2)
-#else
-#pragma pack(2)
-#endif
-#include<windows.h>
-#if defined(_MSC_VER)
-#pragma pack(pop)
-#else
-#pragma pack()
-#endif
-#undef _WINCON_
-#undef  _WINCON_H
-
-#if defined(_MSC_VER)
-#pragma pack(push,8)
-#else
-#pragma pack(8)
-#endif
-#include<wincon.h>
-#if defined(_MSC_VER)
-#pragma pack(pop)
-#else
-#pragma pack()
-#endif
-#endif
-#define _WINCON_
-#else
-#include<windows.h>
-#endif
-#endif
 
 #if defined(__BORLANDC__)
 # ifndef _WIN64
@@ -95,15 +60,6 @@
 // for example, the Data field of the FarDialogItem structure
 // you will need to use Data.Data, and the Selected field - Param.Selected
 //#define _FAR_NO_NAMELESS_UNIONS
-
-// To ensure correct structure packing the member PluginPanelItem.FindData
-// has the type FAR_FIND_DATA, not WIN32_FIND_DATA (since version 1.71
-// build 2250). The structure FAR_FIND_DATA has the same layout as
-// WIN32_FIND_DATA, but since it is declared in this file, it is
-// generated with correct 2-byte alignment.
-// This #define is necessary to compile plugins that expect
-// PluginPanelItem.FindData to be of WIN32_FIND_DATA type.
-//#define _FAR_USE_WIN32_FIND_DATA
 
 #ifndef _WINCON_
 typedef struct _INPUT_RECORD INPUT_RECORD;
@@ -649,8 +605,6 @@ enum PLUGINPANELITEMFLAGS
 	PPIF_USERDATA               = 0x20000000,
 };
 
-#ifndef _FAR_USE_WIN32_FIND_DATA
-
 struct FAR_FIND_DATA
 {
 	DWORD    dwFileAttributes;
@@ -665,15 +619,9 @@ struct FAR_FIND_DATA
 	CHAR     cAlternateFileName[14];
 };
 
-#endif
-
 struct PluginPanelItem
 {
-#ifndef _FAR_USE_WIN32_FIND_DATA
 	struct FAR_FIND_DATA FindData;
-#else
-	WIN32_FIND_DATA      FindData;
-#endif
 	DWORD                PackSizeHigh;
 	DWORD                PackSize;
 	DWORD                Flags;

@@ -567,7 +567,7 @@ void Connection::account(int argc,char **argv)
 void Connection::doproxy(int argc, char *argv[])
 {
 	PROC(("doproxy","%d [%s,%s,%s]",argc,(argc>=1)?argv[0]:"nil",(argc>=2)?argv[1]:"nil",(argc>=3)?argv[2]:"nil"));
-	register struct cmd *c;
+	struct cmd *c;
 
 	if(argc < 2)
 	{

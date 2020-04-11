@@ -1,9 +1,17 @@
 ﻿#ifndef __MULTIARC_HPP__
 #define __MULTIARC_HPP__
 
+#ifdef _MSC_VER
+#pragma warning (push)
 #pragma warning (disable : 4005)
+#endif
+
 #include <plugin.hpp>
 #include "fmt.hpp"
+
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif
 
 //#define _NEW_ARC_SORT_
 #define OLD_DIALOG_STYLE 1

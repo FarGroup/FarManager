@@ -52,8 +52,7 @@ const char UnRARName[]="UNRAR64.DLL";
 static const char * const RarOS[]={"DOS","OS/2","Windows","Unix","MacOS","BeOS"};
 
 static HANDLE ArcHandle;
-static DWORD NextPosition,SFXSize,FileSize,FileSizeHigh,Flags;
-static long NextPositionHigh;
+static DWORD SFXSize,Flags;
 static int RarFormat=15;
 static bool MissingVolume;
 
@@ -142,8 +141,8 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
     // The marker block is actually considered as a fixed byte sequence: 0x52 0x61 0x72 0x21 0x1a 0x07 0x00
     if (D[0]==0x52 && D[1]==0x61 && D[2]==0x72 && D[3]==0x21 &&
         D[4]==0x1a && D[5]==0x07 &&
-        (D[6]==0 && D[9]==0x73 || // RAR 1.5 signature followed by main archive header (Header type: 0x73)
-         D[6]==1 && D[7]==0))     // RAR 5.0 signature.
+        ((D[6]==0 && D[9]==0x73) || // RAR 1.5 signature followed by main archive header (Header type: 0x73)
+         (D[6]==1 && D[7]==0)))     // RAR 5.0 signature.
     {
       RarFormat=D[6]==0 ? 15 : 50; // RAR 1.5 or 5.0 archive format.
       SFXSize=I;

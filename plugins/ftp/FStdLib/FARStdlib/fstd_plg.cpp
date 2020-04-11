@@ -12,7 +12,7 @@ HMODULE                     FP_HModule       = NULL;
 int                         FP_LastOpMode    = 0;
 DWORD                       FP_WinVerDW;
 
-static void _cdecl idAtExit(void)
+static void __cdecl idAtExit(void)
 {
 	delete FP_Info;                FP_Info            = NULL;
 	delete FP_FSF;                 FP_FSF             = NULL;

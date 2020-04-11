@@ -56,23 +56,23 @@ struct ConnectionState
 struct Connection
 {
 		void       ExecCmdTab(struct cmd *c,int argc,char *argv[]);
-		void       Gcat(register char *s1, register char *s2);
-		void       Gmatch(register char *s, register char *p);
+		void       Gcat(char *s1, char *s2);
+		void       Gmatch(char *s, char *p);
 		void       abortpt();
 		void       account(int argc,char **argv);
-		void       acollect(register char *as);
+		void       acollect(char *as);
 		void       addpath(char c);
-		int        amatch(register char *s, register char *p);
-		int        any(register int c, register char *s);
-		char**     blkcpy(char **oav, register char **bv);
-		int        blklen(register char **av);
+		int        amatch(char *s, char *p);
+		int        any(int c, char *s);
+		char**     blkcpy(char **oav, char **bv);
+		int        blklen(char **av);
 		void       cd(int argc, char *argv[]);
 		void       cdup();
-		void       collect(register char *as);
-		char**     copyblk(register char **v);
+		void       collect(char *as);
+		char**     copyblk(char **v);
 		SOCKET     dataconn(void);
 		void       deleteFile(int argc, char *argv[]);
-		int        digit(register char c);
+		int        digit(char c);
 		void       disconnect();
 		void       do_chmod(int argc, char *argv[]);
 		void       do_umask(int argc, char *argv[]);
@@ -81,7 +81,7 @@ struct Connection
 		int        execbrc(char *p, char *s);
 		void       expand(char *as);
 		void       get(int argc, char *argv[]);
-		cmd       *getcmd(register char *name);
+		cmd       *getcmd(char *name);
 		int        gethdir(char *home);
 		int        getit(int argc, char *argv[], int restartit, const char *mode);
 		int        getreply(BOOL expecteof, DWORD tm = MAX_DWORD);
@@ -89,7 +89,7 @@ struct Connection
 		BOOL       hookup(char *host, int port);
 		void       idle(int argc, char *argv[]);
 		BOOL       initconn();
-		int        letter(register char c);
+		int        letter(char c);
 		int        login(void);
 		void       lostpeer();
 		void       ls(int argc, char *argv[]);
@@ -114,7 +114,7 @@ struct Connection
 		void       restart(int argc, char *argv[]);
 		void       rmthelp(int argc, char *argv[]);
 		void       rmtstatus(int argc, char *argv[]);
-		void       rscan(register char **t, int (*f)());
+		void       rscan(char **t, int (*f)());
 		void       sendrequestINT(char *cmd, char *local, char *remote);
 		void       sendrequest(char *cmd, char *local, char *remote);
 		void       setcase();
@@ -132,8 +132,8 @@ struct Connection
 		void       site(int argc, char *argv[]);
 		void       sizecmd(int argc, char *argv[]);
 		const char *slurpstring();
-		char*      strend(register char *cp);
-		char*      strspl(register char *cp, register char *dp);
+		char*      strend(char *cp);
+		char*      strspl(char *cp, char *dp);
 		void       syst();
 		int        user(int argc, char **argv);
 

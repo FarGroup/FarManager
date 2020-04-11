@@ -3,7 +3,6 @@
 #include "marclng.hpp"
 
 //#define MAX_PASSW_LEN 256
-#pragma warning (disable : 4838)
 
 struct PutDlgData
 {
@@ -501,7 +500,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       /*18*/{DI_TEXT,3,13,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
       /*19*/{DI_BUTTON,0,14,0,0,0,0,DIF_CENTERGROUP,1,(char *)MAddAdd},
       /*20*/{DI_BUTTON,0,14,0,0,0,0,DIF_CENTERGROUP,0,(char *)MAddSelect},
-      /*21*/{DI_BUTTON,0,14,0,0,0,0,DIF_CENTERGROUP|DIF_DISABLE,0,(char *)MAddSave},
+      /*21*/{DI_BUTTON,0,14,0,0,0,0,0u|DIF_CENTERGROUP|DIF_DISABLE,0,(char *)MAddSave},
       /*22*/{DI_BUTTON,0,14,0,0,0,0,DIF_CENTERGROUP,0,(char *)MAddCancel},
     };
     struct FarDialogItem DialogItems[ARRAYSIZE(InitItems)];

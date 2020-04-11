@@ -8,7 +8,7 @@
 static char *messbuff = NULL;
 static AbortProc ExitProc;
 
-static void _cdecl MSG_DelBuff(void)
+static void __cdecl MSG_DelBuff(void)
 {
 	if(messbuff)
 	{
@@ -20,7 +20,7 @@ static void _cdecl MSG_DelBuff(void)
 		ExitProc();
 }
 
-LPCSTR _cdecl Message(LPCSTR patt,...)
+LPCSTR __cdecl Message(LPCSTR patt,...)
 {
 	va_list  a;
 	LPCSTR m;

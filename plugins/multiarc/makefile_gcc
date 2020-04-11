@@ -12,7 +12,6 @@ arcread.cpp \
 arcreg.cpp \
 global.cpp
 DOCS = arceng.hlf arcrus.hlf arceng.lng arcrus.lng MultiArc.TryIfNoOther.reg arcspa.lng arcita.lng arcbel.lng changelog
-NOENTRY=1
 
 include ../../far/makefile_gcc_common
 
