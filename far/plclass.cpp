@@ -1105,6 +1105,9 @@ void Plugin::ExitFAR(ExitInfo *Info)
 
 void Plugin::HandleFailure(export_index id)
 {
+	if (use_terminate_handler())
+		std::_Exit(EXIT_FAILURE);
+
 	m_Factory->Owner()->UnloadPlugin(this, id);
 	Global->ProcessException = false;
 }

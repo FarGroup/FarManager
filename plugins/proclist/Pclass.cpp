@@ -92,7 +92,7 @@ static std::wstring ui64toa_width(uint64_t value, unsigned width, bool bThousand
 		ValueStr = std::to_wstring(static_cast<int>(std::round(SizeInUnits)));
 	}
 
-	return ValueStr.append(1, L' ').append(1, L"BKMGTPE"sv[UnitIndex]);
+	return ValueStr.append(1, L' ').append(1, L"BKMGTPE"[UnitIndex]);
 }
 
 Plist::Plist():

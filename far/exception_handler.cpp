@@ -67,6 +67,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
+namespace detail
+{
+	std::atomic_bool UseTerminateHandler = false;
+}
+
 void CreatePluginStartupInfo(PluginStartupInfo *PSI, FarStandardFunctions *FSF);
 
 constexpr inline NTSTATUS EXCEPTION_MICROSOFT_CPLUSPLUS = 0xE06D7363;
@@ -86,23 +91,28 @@ enum exception_dialog
 	ed_edit_ntstatus,
 	ed_text_address,
 	ed_edit_address,
-	ed_text_source,
-	ed_edit_source,
 	ed_text_function,
 	ed_edit_function,
+	ed_text_source,
+	ed_edit_source,
 	ed_text_module,
 	ed_edit_module,
+	ed_text_plugin_information,
+	ed_edit_plugin_information,
 	ed_text_far_version,
 	ed_edit_far_version,
 	ed_text_os_version,
 	ed_edit_os_version,
-	ed_separator,
-	ed_button_terminate,
+	ed_separator_1,
+	ed_button_copy,
 	ed_button_stack,
 	ed_button_minidump,
+	ed_separator_2,
+	ed_button_terminate,
+	ed_button_unload,
 	ed_button_ignore,
 
-	ed_first_button = ed_button_terminate,
+	ed_first_button = ed_button_copy,
 	ed_last_button = ed_button_ignore,
 
 	ed_items_count
@@ -232,6 +242,31 @@ static string os_version()
 
 using dialog_data_type = std::pair<const detail::exception_context*, const std::vector<const void*>*>;
 
+static void copy_information(Dialog* const Dlg)
+{
+	string Strings;
+	const auto Eol = eol::system.str();
+	FarDialogItem di;
+	Dlg->SendMessage(DM_GETDLGITEMSHORT, 1, &di);
+	const auto Width = di.X2 - di.X1 + 1;
+
+	for (size_t i = ed_text_exception; i != ed_separator_1; ++i)
+	{
+		const auto Str = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, i, nullptr));
+		append(Strings, format(FSTR(L"{0:{1}}{2}"), Str, i & 1 ? Width : 0, i & 1 ? L" "sv : Eol));
+	}
+
+	append(Strings, Eol);
+
+	const auto& [ExceptionContext, NestedStack] = *reinterpret_cast<dialog_data_type*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+	for (const auto& i : GetStackTrace(tracer::get(*ExceptionContext->pointers(), ExceptionContext->thread_handle()), NestedStack))
+	{
+		append(Strings, i, Eol);
+	}
+
+	SetClipboardText(Strings);
+}
+
 static intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	switch (Msg)
@@ -284,29 +319,7 @@ static intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2
 				case KEY_RCTRLINS:
 				case KEY_CTRLNUMPAD0:
 				case KEY_RCTRLNUMPAD0:
-					{
-						string Strings;
-						const auto Eol = eol::system.str();
-						FarDialogItem di;
-						Dlg->SendMessage(DM_GETDLGITEMSHORT, 1, &di);
-						const auto Width = di.X2 - di.X1 + 1;
-
-						for (size_t i = ed_text_exception; i != ed_separator; ++i)
-						{
-							const auto Str = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, i, nullptr));
-							append(Strings, format(FSTR(L"{0:{1}}{2}"), Str, i & 1? Width : 0, i & 1? L" "sv : Eol));
-						}
-
-						append(Strings, Eol);
-
-						const auto& [ExceptionContext, NestedStack] = *reinterpret_cast<dialog_data_type*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
-						for (const auto& i: GetStackTrace(tracer::get(*ExceptionContext->pointers(), ExceptionContext->thread_handle()), NestedStack))
-						{
-							append(Strings, i, Eol);
-						}
-
-						SetClipboardText(Strings);
-					}
+					copy_information(Dlg);
 					break;
 				}
 			}
@@ -319,6 +332,10 @@ static intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2
 
 			switch (Param1)
 			{
+			case ed_button_copy:
+				copy_information(Dlg);
+				return FALSE;
+
 			case ed_button_stack:
 				ShowStackTrace(GetStackTrace(tracer::get(*ExceptionContext->pointers(), ExceptionContext->thread_handle()), NestedStack));
 				return FALSE;
@@ -362,22 +379,16 @@ static intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-enum reply
-{
-	reply_handle,
-	reply_minidump,
-	reply_ignore,
-};
-
-static reply ExcDialog(
-	string const& ModuleName,
-	string const& Exception,
-	string const& Details,
+static bool ExcDialog(
 	detail::exception_context const& Context,
+	string_view const Exception,
+	string_view const Details,
+	error_state const& ErrorState,
 	string_view const Function,
 	string_view const Location,
+	string_view const ModuleName,
+	string_view const PluginInformation,
 	Plugin const* const PluginModule,
-	error_state const& ErrorState,
 	std::vector<const void*> const* const NestedStack
 )
 {
@@ -408,9 +419,10 @@ static reply ExcDialog(
 		Errors[1],
 		Errors[2],
 		Address,
-		Source,
 		Function,
+		Source,
 		ModuleName,
+		PluginInformation,
 		Version,
 		OsVersion,
 	};
@@ -423,7 +435,7 @@ static reply ExcDialog(
 	const auto DlgW = std::max(80, std::min(ScrX + 1, static_cast<int>(C2X + MaxSize + SysArea + 1)));
 	const auto C2W = DlgW - C2X - SysArea - 1;
 
-	const auto DY = 17;
+	const auto DY = std::size(Messages) + 8;
 
 	auto EditDlg = MakeDialogItems<ed_items_count>(
 	{
@@ -440,20 +452,25 @@ static reply ExcDialog(
 		{ DI_EDIT,      {{C2X, 6 }, {C2X+C2W, 6 }}, DIF_READONLY | DIF_SELECTONENTRY, Errors[2], },
 		{ DI_TEXT,      {{C1X, 7 }, {C1X+C1W, 7 }}, DIF_NONE, msg(lng::MExcAddress), },
 		{ DI_EDIT,      {{C2X, 7 }, {C2X+C2W, 7 }}, DIF_READONLY | DIF_SELECTONENTRY, Address, },
-		{ DI_TEXT,      {{C1X, 8 }, {C1X+C1W, 8 }}, DIF_NONE, msg(lng::MExcSource), },
-		{ DI_EDIT,      {{C2X, 8 }, {C2X+C2W, 8 }}, DIF_READONLY | DIF_SELECTONENTRY, Source, },
-		{ DI_TEXT,      {{C1X, 9 }, {C1X+C1W, 9 }}, DIF_NONE, msg(lng::MExcFunction), },
-		{ DI_EDIT,      {{C2X, 9 }, {C2X+C2W, 9 }}, DIF_READONLY | DIF_SELECTONENTRY, Function, },
-		{ DI_TEXT,      {{C1X, 10}, {C1X+C1W, 10}}, DIF_NONE, msg(lng::MExcModule), },
+		{ DI_TEXT,      {{C1X, 8 }, {C1X+C1W, 8 }}, DIF_NONE, msg(lng::MExcFunction), },
+		{ DI_EDIT,      {{C2X, 8 }, {C2X+C2W, 8 }}, DIF_READONLY | DIF_SELECTONENTRY, Function, },
+		{ DI_TEXT,      {{C1X, 9 }, {C1X+C1W, 9 }}, DIF_NONE, msg(lng::MExcSource), },
+		{ DI_EDIT,      {{C2X, 9 }, {C2X+C2W, 9 }}, DIF_READONLY | DIF_SELECTONENTRY, Source, },
+		{ DI_TEXT,      {{C1X, 10}, {C1X+C1W, 10}}, DIF_NONE, msg(lng::MExcFileName), },
 		{ DI_EDIT,      {{C2X, 10}, {C2X+C2W, 10}}, DIF_READONLY | DIF_SELECTONENTRY, ModuleName, },
-		{ DI_TEXT,      {{C1X, 11}, {C1X+C1W, 11}}, DIF_NONE, msg(lng::MExcFarVersion), },
-		{ DI_EDIT,      {{C2X, 11}, {C2X+C2W, 11}}, DIF_READONLY | DIF_SELECTONENTRY, Version, },
-		{ DI_TEXT,      {{C1X, 12}, {C1X+C1W, 12}}, DIF_NONE, msg(lng::MExcOSVersion), },
-		{ DI_EDIT,      {{C2X, 12}, {C2X+C2W, 12}}, DIF_READONLY | DIF_SELECTONENTRY, OsVersion, },
+		{ DI_TEXT,      {{C1X, 11}, {C1X+C1W, 11}}, DIF_NONE, msg(lng::MExcPlugin), },
+		{ DI_EDIT,      {{C2X, 11}, {C2X+C2W, 11}}, DIF_READONLY | DIF_SELECTONENTRY, PluginInformation, },
+		{ DI_TEXT,      {{C1X, 12}, {C1X+C1W, 12}}, DIF_NONE, msg(lng::MExcFarVersion), },
+		{ DI_EDIT,      {{C2X, 12}, {C2X+C2W, 12}}, DIF_READONLY | DIF_SELECTONENTRY, Version, },
+		{ DI_TEXT,      {{C1X, 13}, {C1X+C1W, 13}}, DIF_NONE, msg(lng::MExcOSVersion), },
+		{ DI_EDIT,      {{C2X, 13}, {C2X+C2W, 13}}, DIF_READONLY | DIF_SELECTONENTRY, OsVersion, },
+		{ DI_TEXT,      {{-1,DY-6}, {0,     DY-6}}, DIF_SEPARATOR, },
+		{ DI_BUTTON,    {{0, DY-5}, {0,     DY-5}}, DIF_CENTERGROUP | DIF_FOCUS, msg(lng::MExcCopy), },
+		{ DI_BUTTON,    {{0, DY-5}, {0,     DY-5}}, DIF_CENTERGROUP, msg(lng::MExcStack), },
+		{ DI_BUTTON,    {{0, DY-5}, {0,     DY-5}}, DIF_CENTERGROUP, msg(lng::MExcMinidump), },
 		{ DI_TEXT,      {{-1,DY-4}, {0,     DY-4}}, DIF_SEPARATOR, },
-		{ DI_BUTTON,    {{0, DY-3}, {0,     DY-3}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(PluginModule ? lng::MExcUnload : lng::MExcTerminate), },
-		{ DI_BUTTON,    {{0, DY-3}, {0,     DY-3}}, DIF_CENTERGROUP | DIF_FOCUS, msg(lng::MExcStack), },
-		{ DI_BUTTON,    {{0, DY-3}, {0,     DY-3}}, DIF_CENTERGROUP, msg(lng::MExcMinidump), },
+		{ DI_BUTTON,    {{0, DY-3}, {0,     DY-3}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MExcTerminate), },
+		{ DI_BUTTON,    {{0, DY-3}, {0,     DY-3}}, DIF_CENTERGROUP | (PluginModule? 0 : DIF_DISABLE), msg(lng::MExcUnload), },
 		{ DI_BUTTON,    {{0, DY-3}, {0,     DY-3}}, DIF_CENTERGROUP, msg(lng::MIgnore), },
 	});
 
@@ -466,23 +483,26 @@ static reply ExcDialog(
 	switch (Dlg->GetExitCode())
 	{
 	case ed_button_terminate:
-		return reply_handle;
-	case ed_button_minidump:
-		return reply_minidump;
+		detail::UseTerminateHandler = true;
+		[[fallthrough]];
+	case ed_button_unload:
+		return true;
+
 	default:
-		return reply_ignore;
+		return false;
 	}
 }
 
-static reply ExcConsole(
-	string const& ModuleName,
-	string const& Exception,
-	string const& Details,
+static bool ExcConsole(
 	detail::exception_context const& Context,
+	string_view const Exception,
+	string_view const Details,
+	error_state const& ErrorState,
 	string_view const Function,
 	string_view const Location,
-	Plugin const* const Module,
-	error_state const& ErrorState,
+	string_view const ModuleName,
+	string_view const PluginInformation,
+	Plugin const* const PluginModule,
 	std::vector<const void*> const* const NestedStack
 )
 {
@@ -497,7 +517,22 @@ static reply ExcConsole(
 	if (Source.empty())
 		Source = Location;
 
-	std::array<string_view, 11> Msg;
+	std::array Msg
+	{
+		L"Exception:"sv,
+		L"Details:  "sv,
+		L"errno:    "sv,
+		L"LastError:"sv,
+		L"NTSTATUS: "sv,
+		L"Address:  "sv,
+		L"Function: "sv,
+		L"Source:   "sv,
+		L"File:     "sv,
+		L"Plugin:   "sv,
+		L"Far:      "sv,
+		L"OS:       "sv,
+	};
+
 	if (far_language::instance().is_loaded())
 	{
 		Msg =
@@ -508,28 +543,12 @@ static reply ExcConsole(
 			L"LastError:"sv,
 			L"NTSTATUS:"sv,
 			msg(lng::MExcAddress),
-			msg(lng::MExcSource),
 			msg(lng::MExcFunction),
-			msg(lng::MExcModule),
+			msg(lng::MExcSource),
+			msg(lng::MExcPlugin),
+			msg(lng::MExcFileName),
 			msg(lng::MExcFarVersion),
 			msg(lng::MExcOSVersion),
-		};
-	}
-	else
-	{
-		Msg =
-		{
-			L"Exception:"sv,
-			L"Details:  "sv,
-			L"errno:    "sv,
-			L"LastError:"sv,
-			L"NTSTATUS: "sv,
-			L"Address:  "sv,
-			L"Source:   "sv,
-			L"Function: "sv,
-			L"Module:   "sv,
-			L"Version:  "sv,
-			L"OS:       "sv,
 		};
 	}
 
@@ -540,7 +559,7 @@ static reply ExcConsole(
 	const auto Version = self_version();
 	const auto OsVersion = os_version();
 
-	const string_view Values[] =
+	const string_view Values[]
 	{
 		Exception,
 		Details,
@@ -548,9 +567,10 @@ static reply ExcConsole(
 		Errors[1],
 		Errors[2],
 		Address,
-		Source,
 		Function,
+		Source,
 		ModuleName,
+		PluginInformation,
 		Version,
 		OsVersion,
 	};
@@ -566,7 +586,11 @@ static reply ExcConsole(
 	ShowStackTrace(GetStackTrace(tracer::get(*Context.pointers(), Context.thread_handle()), NestedStack));
 	std::wcerr << std::endl;
 
-	return ConsoleYesNo(L"Terminate the process"sv, true)? reply_handle : reply_ignore;
+	if (!ConsoleYesNo(L"Terminate the process"sv, true))
+		return false;
+
+	detail::UseTerminateHandler = true;
+	return true;
 }
 
 template<size_t... I>
@@ -788,19 +812,31 @@ static bool ProcessGenericException(
 		break;
 	}
 
-	const auto MsgCode = (Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown()? ExcDialog : ExcConsole)(strFileName, Exception, Details, Context, encoding::utf8::get_chars(Function), Location, PluginModule, ErrorState, NestedStack);
+	const auto PluginInformation = PluginModule? format(FSTR(L"{0} {1} ({2}, {3})"),
+		PluginModule->Title(),
+		version_to_string(PluginModule->version()),
+		PluginModule->Description(),
+		PluginModule->Author()
+	) : L""s;
 
-	switch (MsgCode)
-	{
-	case reply_handle: // terminate / unload
-		if (!PluginModule && Global)
-			Global->CriticalInternalError = true;
-		return true;
-
-	case reply_ignore:
-	default:
+	if (!(Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown()? ExcDialog : ExcConsole)(
+		Context,
+		Exception,
+		Details,
+		ErrorState,
+		encoding::utf8::get_chars(Function),
+		Location,
+		strFileName,
+		PluginInformation,
+		PluginModule,
+		NestedStack
+	))
 		return false;
-	}
+
+	if (!PluginModule && Global)
+		Global->CriticalInternalError = true;
+
+	return true;
 }
 
 void RestoreGPFaultUI()
@@ -884,6 +920,11 @@ bool ProcessUnknownException(std::string_view const Function, const Plugin* cons
 	const auto Type = ExtractObjectType(*Context.pointers()->ExceptionRecord);
 
 	return ProcessGenericException(Context, Function, {}, Module, Type, L"?"sv);
+}
+
+bool use_terminate_handler()
+{
+	return detail::UseTerminateHandler;
 }
 
 static LONG WINAPI FarUnhandledExceptionFilter(EXCEPTION_POINTERS* const Pointers)

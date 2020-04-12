@@ -99,8 +99,6 @@ pdir=multiarc\libpcre\obj.$(DIRBIT).vc
 
 clean:
 	@if exist $(fdir)\lua*.* echo del $(fdir)\lua*.*& del /q $(fdir)\lua*.* 1>nul
-	@if exist $(clib) echo del $(clib)& del /q /s $(clib) 1>nul
-	@if exist $(cdir)\ echo del $(cdir)\& rd /q /s $(cdir) 1>nul
 	@for %d in (ftp multiarc multiarc\libpcre) do @if exist $(adir)\ echo del $(adir)\& rd /q /s $(adir) 1>nul
 	@if exist $(pdir)\ echo del $(pdir)\& rd /q /s $(pdir) 1>nul
 	@for %d in ($(ALLDIRS)) do @if not "%d" == "ftp" if not "%d" == "multiarc" @if exist $(wdir)\ echo del $(wdir)\& rd /q /s $(wdir) 1>nul

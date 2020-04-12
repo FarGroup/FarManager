@@ -48,6 +48,7 @@ class Plugin;
 
 bool ProcessStdException(const std::exception& e, std::string_view Function, const Plugin* Module = nullptr);
 bool ProcessUnknownException(std::string_view Function, const Plugin* Module = nullptr);
+bool use_terminate_handler();
 
 class unhandled_exception_filter
 {
