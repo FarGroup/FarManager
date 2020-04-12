@@ -715,7 +715,8 @@ static PluginPanelItem* ConvertAnsiPanelItemsToUnicode(span<const oldfar::Plugin
 	const span DstSpan(Result.get(), PanelItemA.size());
 	for(const auto& [Src, Dst]: zip(PanelItemA, DstSpan))
 	{
-		Dst.Flags = 0;
+		// Plugin can keep its own flags in the low word
+		Dst.Flags = LOWORD(Src.Flags);
 		FirstFlagsToSecond(Src.Flags, Dst.Flags, PluginPanelItemFlagsMap);
 
 		Dst.NumberOfLinks = Src.NumberOfLinks;
@@ -757,7 +758,8 @@ static PluginPanelItem* ConvertAnsiPanelItemsToUnicode(span<const oldfar::Plugin
 
 static void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::PluginPanelItem &PanelItemA, size_t PathOffset = 0)
 {
-	PanelItemA.Flags = 0;
+	// Plugin can keep its own flags in the low word
+	PanelItemA.Flags = LOWORD(PanelItem.Flags);
 
 	SecondFlagsToFirst(PanelItem.Flags, PanelItemA.Flags, PluginPanelItemFlagsMap);
 
