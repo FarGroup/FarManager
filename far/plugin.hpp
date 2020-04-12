@@ -763,6 +763,7 @@ typedef intptr_t (WINAPI *FARAPIMENU)(
 
 typedef unsigned long long PLUGINPANELITEMFLAGS;
 static const PLUGINPANELITEMFLAGS
+	// The low word is reserved for private flags
 	PPIF_SELECTED               = 0x0000000040000000ULL,
 	PPIF_PROCESSDESCR           = 0x0000000080000000ULL,
 
