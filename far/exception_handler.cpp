@@ -69,7 +69,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace detail
 {
-	std::atomic_bool UseTerminateHandler = false;
+	static std::atomic_bool UseTerminateHandler = false;
 }
 
 void CreatePluginStartupInfo(PluginStartupInfo *PSI, FarStandardFunctions *FSF);
@@ -770,14 +770,31 @@ static bool ProcessGenericException(
 		strFileName = PluginModule->ModuleName();
 	}
 
+	const auto AppendType = [](string& Str, string_view const ExceptionType)
+	{
+		append(Str, L" ("sv, ExceptionType, ')');
+	};
+
+	const auto WithType = [&](string&& Str)
+	{
+		if (!Type.empty())
+		{
+			AppendType(Str, Type);
+			return std::move(Str);
+		}
+
+		if (const auto TypeStr = ExtractObjectType(*xr); !TypeStr.empty())
+		{
+			AppendType(Str, TypeStr);
+		}
+		return std::move(Str);
+	};
+
 	const auto Exception = [&](NTSTATUS Code)
 	{
 		const auto ItemIterator = std::find_if(CONST_RANGE(KnownExceptions, i) { return i.second == Code; });
 		const auto Name = ItemIterator != std::cend(KnownExceptions)? ItemIterator->first : L"Unknown exception"sv;
-		auto Result = format(FSTR(L"0x{0:0>8X} - {1}"), static_cast<DWORD>(Code), Name);
-		if (!Type.empty())
-			append(Result, L" ("sv, Type, ')');
-		return Result;
+		return WithType(format(FSTR(L"0x{0:0>8X} - {1}"), static_cast<DWORD>(Code), Name));
 	}(Context.code());
 
 	string Details;
@@ -917,9 +934,7 @@ bool ProcessUnknownException(std::string_view const Function, const Plugin* cons
 	// It won't work in gcc etc.
 	// Set ExceptionCode manually so ProcessGenericException will at least report it as C++ exception
 	const detail::exception_context Context(EXCEPTION_MICROSOFT_CPLUSPLUS, tracer::get_pointers(), os::OpenCurrentThread(), GetCurrentThreadId());
-	const auto Type = ExtractObjectType(*Context.pointers()->ExceptionRecord);
-
-	return ProcessGenericException(Context, Function, {}, Module, Type, L"?"sv);
+	return ProcessGenericException(Context, Function, {}, Module, {}, L"?"sv);
 }
 
 bool use_terminate_handler()
