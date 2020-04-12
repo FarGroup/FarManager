@@ -477,7 +477,7 @@ static bool ExcDialog(
 	auto DlgData = dialog_data_type(&Context, NestedStack);
 	const auto Dlg = Dialog::create(EditDlg, ExcDlgProc, &DlgData);
 	Dlg->SetDialogMode(DMODE_WARNINGSTYLE|DMODE_NOPLUGINS);
-	Dlg->SetPosition({ -1, -1, DlgW, DY });
+	Dlg->SetPosition({ -1, -1, DlgW, static_cast<int>(DY) });
 	Dlg->Process();
 
 	switch (Dlg->GetExitCode())
