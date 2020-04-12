@@ -722,7 +722,7 @@ void FileEditor::ReadEvent()
 {
 	Global->CtrlObject->Plugins->ProcessEditorEvent(EE_READ, nullptr, m_editor.get());
 	bEE_READ_Sent = true;
-	Show(); //в EE_READ поменялась позиция курсора или размер табуляции.
+	Global->WindowManager->RefreshWindow(); //в EE_READ поменялась позиция курсора или размер табуляции.
 }
 
 void FileEditor::InitKeyBar()
