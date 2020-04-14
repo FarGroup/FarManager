@@ -51,6 +51,7 @@ public:
 	virtual void BeginTransaction() = 0;
 	virtual void EndTransaction() = 0;
 
+	[[nodiscard]]
 	auto ScopedTransaction() { return make_raii_wrapper(this, &transactional::BeginTransaction, &transactional::EndTransaction); }
 };
 

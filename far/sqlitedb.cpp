@@ -100,7 +100,7 @@ namespace
 
 	string GetLastErrorString(sqlite::sqlite3* Db)
 	{
-		return static_cast<const wchar_t*>(sqlite::sqlite3_errmsg16(Db));
+		return encoding::utf8::get_chars(sqlite::sqlite3_errmsg(Db));
 	}
 
 	[[noreturn]]
@@ -227,12 +227,7 @@ SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(long long Value)
 	return *this;
 }
 
-SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(string&& Value)
-{
-	return BindImpl(Value, false);
-}
-
-SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const string_view Value, const bool bStatic)
+SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const string_view Value)
 {
 	// https://www.sqlite.org/c3ref/bind_blob.html
 	// If the third parameter to sqlite3_bind_text() or sqlite3_bind_text16() or sqlite3_bind_blob() is a NULL pointer
@@ -240,18 +235,17 @@ SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const string_view Value, co
 
 	// And this is how you get a NULL constraint violation with empty strings. Truly amazing design. *facepalm*
 
-	invoke(db(), [&]{ return sqlite::sqlite3_bind_text16(m_Stmt.get(), ++m_Param, NullToEmpty(Value.data()), static_cast<int>(Value.size() * sizeof(wchar_t)), bStatic? sqlite::static_destructor : sqlite::transient_destructor) == SQLITE_OK; });
+	invoke(db(), [&]
+	{
+		const auto ValueUtf8 = encoding::utf8::get_bytes(Value);
+		return sqlite::sqlite3_bind_text(m_Stmt.get(), ++m_Param, NullToEmpty(ValueUtf8.data()), static_cast<int>(ValueUtf8.size()), sqlite::transient_destructor) == SQLITE_OK;
+	});
 	return *this;
 }
 
-SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(bytes_view&& Value)
+SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const bytes_view& Value)
 {
-	return BindImpl(Value, false);
-}
-
-SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const bytes_view& Value, bool bStatic)
-{
-	invoke(db(), [&]{ return sqlite::sqlite3_bind_blob(m_Stmt.get(), ++m_Param, Value.data(), static_cast<int>(Value.size()), bStatic? sqlite::static_destructor : sqlite::transient_destructor) == SQLITE_OK; });
+	invoke(db(), [&]{ return sqlite::sqlite3_bind_blob(m_Stmt.get(), ++m_Param, Value.data(), static_cast<int>(Value.size()), sqlite::transient_destructor) == SQLITE_OK; });
 	return *this;
 }
 
@@ -260,22 +254,25 @@ sqlite::sqlite3* SQLiteDb::SQLiteStmt::db() const
 	return sqlite::sqlite3_db_handle(m_Stmt.get());
 }
 
+static std::string_view get_column_text(sqlite::sqlite3_stmt* Stmt, int Col)
+{
+	// https://www.sqlite.org/c3ref/column_blob.html
+	// call sqlite3_column_text() first to force the result into the desired format,
+	// then invoke sqlite3_column_bytes() to find the size of the result
+	const auto Data = static_cast<const char*>(static_cast<const void*>(sqlite::sqlite3_column_text(Stmt, Col)));
+	const auto Size = static_cast<size_t>(sqlite::sqlite3_column_bytes(Stmt, Col));
+
+	return { Data, Size };
+}
+
 string SQLiteDb::SQLiteStmt::GetColText(int Col) const
 {
-	return
-	{
-		static_cast<const wchar_t*>(sqlite::sqlite3_column_text16(m_Stmt.get(), Col)),
-		static_cast<size_t>(sqlite::sqlite3_column_bytes16(m_Stmt.get(), Col) / sizeof(wchar_t))
-	};
+	return encoding::utf8::get_chars(get_column_text(m_Stmt.get(), Col));
 }
 
 std::string SQLiteDb::SQLiteStmt::GetColTextUTF8(int Col) const
 {
-	return
-	{
-		reinterpret_cast<const char*>(sqlite::sqlite3_column_text(m_Stmt.get(), Col)),
-		static_cast<size_t>(sqlite::sqlite3_column_bytes(m_Stmt.get(), Col))
-	};
+	return std::string(get_column_text(m_Stmt.get(), Col));
 }
 
 int SQLiteDb::SQLiteStmt::GetColInt(int Col) const
@@ -290,7 +287,12 @@ unsigned long long SQLiteDb::SQLiteStmt::GetColInt64(int Col) const
 
 bytes_view SQLiteDb::SQLiteStmt::GetColBlob(int Col) const
 {
-	return bytes_view(sqlite::sqlite3_column_blob(m_Stmt.get(), Col), sqlite::sqlite3_column_bytes(m_Stmt.get(), Col));
+	// https://www.sqlite.org/c3ref/column_blob.html
+	// call sqlite3_column_blob() first to force the result into the desired format,
+	// then invoke sqlite3_column_bytes() to find the size of the result
+	const auto Data = sqlite::sqlite3_column_blob(m_Stmt.get(), Col);
+	const auto Size = sqlite::sqlite3_column_bytes(m_Stmt.get(), Col);
+	return bytes_view(Data, Size);
 }
 
 SQLiteDb::column_type SQLiteDb::SQLiteStmt::GetColType(int Col) const
@@ -507,5 +509,5 @@ void SQLiteDb::CreateNumericCollation() const
 			{ static_cast<const wchar_t*>(Data2), static_cast<size_t>(Size2) });
 	};
 
-	invoke(m_Db.get(), [&]{ return sqlite::sqlite3_create_collation16(m_Db.get(), L"numeric", SQLITE_UTF16_ALIGNED, nullptr, Comparer) == SQLITE_OK; });
+	invoke(m_Db.get(), [&]{ return sqlite::sqlite3_create_collation(m_Db.get(), "numeric", SQLITE_UTF16_ALIGNED, nullptr, Comparer) == SQLITE_OK; });
 }

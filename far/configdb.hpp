@@ -82,11 +82,15 @@ public:
 	virtual void SetValue(string_view Key, string_view Name, unsigned long long Value) = 0;
 	virtual void SetValue(string_view Key, string_view Name, const bytes_view& Value) = 0;
 
+	[[nodiscard]]
 	virtual bool GetValue(string_view Key, string_view Name, bool& Value) const = 0;
+	[[nodiscard]]
 	virtual bool GetValue(string_view Key, string_view Name, long long& Value) const = 0;
+	[[nodiscard]]
 	virtual bool GetValue(string_view Key, string_view Name, string& Value) const = 0;
 
 	template<typename value_type, typename default_type = value_type>
+	[[nodiscard]]
 	value_type GetValue(string_view Key, string_view const Name, const default_type& Default = {})
 	{
 		value_type Value;
@@ -96,6 +100,7 @@ public:
 	virtual void DeleteValue(string_view Key, string_view Name) = 0;
 
 	template<typename T, typename key_type>
+	[[nodiscard]]
 	auto ValuesEnumerator(key_type&& Key) const
 	{
 		static_assert(std::is_convertible_v<key_type, string_view>);
@@ -115,8 +120,11 @@ protected:
 	GeneralConfig() = default;
 
 private:
+	[[nodiscard]]
 	virtual bool EnumValues(string_view Key, bool Reset, string& strName, string& strValue) const = 0;
+	[[nodiscard]]
 	virtual bool EnumValues(string_view Key, bool Reset, string& strName, long long& Value) const = 0;
+	[[nodiscard]]
 	virtual void CloseEnum() const = 0;
 };
 
@@ -145,8 +153,11 @@ public:
 
 	static inline const key root_key{0};
 
+	[[nodiscard]]
 	virtual key CreateKey(const key& Root, string_view Name, const string* Description = nullptr) = 0;
+	[[nodiscard]]
 	virtual key FindByName(const key& Root, string_view Name) const = 0;
+	[[nodiscard]]
 	virtual bool GetKeyName(const key& Root, const key& Key, string& Name) const = 0;
 	virtual void SetKeyDescription(const key& Root, string_view Description) = 0;
 
@@ -182,8 +193,10 @@ public:
 	virtual void DeleteValue(const key& Root, string_view Name) = 0;
 	virtual void Flush() = 0;
 
+	[[nodiscard]]
 	virtual const string& GetName() const = 0;
 
+	[[nodiscard]]
 	auto KeysEnumerator(key const Root, string_view const Pattern = {}) const
 	{
 		using value_type = key;
@@ -197,6 +210,7 @@ public:
 		});
 	}
 
+	[[nodiscard]]
 	auto ValuesEnumerator(key const Root, string_view const Pattern = {}) const
 	{
 		using value_type = std::pair<string, int>;
@@ -210,14 +224,17 @@ public:
 		});
 	}
 
+	[[nodiscard]]
 	static int ToSettingsType(int Type);
 
 protected:
 	HierarchicalConfig() = default;
 
 private:
+	[[nodiscard]]
 	virtual bool EnumKeys(const key& Root, bool Reset, key& Key, string_view Pattern = {}) const = 0;
 	virtual void CloseEnumKeys(string_view Pattern) const = 0;
+	[[nodiscard]]
 	virtual bool EnumValues(const key& Root, bool Reset, string& Name, int& Type, string_view Pattern = {}) const = 0;
 	virtual void CloseEnumValues(string_view Pattern) const = 0;
 };
@@ -252,11 +269,14 @@ public:
 	virtual bool GetDescription(unsigned long long id, string &strDescription) = 0;
 	virtual bool GetCommand(unsigned long long id, int Type, string &strCommand, bool *Enabled=nullptr) = 0;
 	virtual void SetCommand(unsigned long long id, int Type, string_view Command, bool Enabled) = 0;
+	[[nodiscard]]
 	virtual bool SwapPositions(unsigned long long id1, unsigned long long id2) = 0;
+	[[nodiscard]]
 	virtual unsigned long long AddType(unsigned long long after_id, string_view Mask, string_view Description) = 0;
 	virtual void UpdateType(unsigned long long id, string_view Mask, string_view Description) = 0;
 	virtual void DelType(unsigned long long id) = 0;
 
+	[[nodiscard]]
 	auto MasksEnumerator()
 	{
 		using value_type = std::pair<unsigned long long, string>;
@@ -270,6 +290,7 @@ public:
 		});
 	}
 
+	[[nodiscard]]
 	auto TypedMasksEnumerator(int Type)
 	{
 		using value_type = std::pair<unsigned long long, string>;
@@ -284,8 +305,10 @@ public:
 	}
 
 private:
+	[[nodiscard]]
 	virtual bool EnumMasks(bool Reset, unsigned long long *id, string &strMask) const = 0;
 	virtual void CloseEnumMasks() const = 0;
+	[[nodiscard]]
 	virtual bool EnumMasksForType(bool Reset, int Type, unsigned long long *id, string &strMask) const = 0;
 	virtual void CloseEnumMasksForType() const = 0;
 
@@ -296,21 +319,37 @@ protected:
 class PluginsCacheConfig: public representable, virtual public transactional
 {
 public:
+	[[nodiscard]]
 	virtual unsigned long long CreateCache(string_view CacheName) = 0;
+	[[nodiscard]]
 	virtual unsigned long long GetCacheID(string_view CacheName) const = 0;
+	[[nodiscard]]
 	virtual bool IsPreload(unsigned long long id) const = 0;
+	[[nodiscard]]
 	virtual string GetSignature(unsigned long long id) const = 0;
+	[[nodiscard]]
 	virtual bool GetExportState(unsigned long long id, string_view ExportName) const = 0;
+	[[nodiscard]]
 	virtual string GetGuid(unsigned long long id) const = 0;
+	[[nodiscard]]
 	virtual string GetTitle(unsigned long long id) const = 0;
+	[[nodiscard]]
 	virtual string GetAuthor(unsigned long long id) const = 0;
+	[[nodiscard]]
 	virtual string GetDescription(unsigned long long id) const = 0;
+	[[nodiscard]]
 	virtual bool GetMinFarVersion(unsigned long long id, VersionInfo& Version) const = 0;
+	[[nodiscard]]
 	virtual bool GetVersion(unsigned long long id, VersionInfo& Version) const = 0;
+	[[nodiscard]]
 	virtual bool GetDiskMenuItem(unsigned long long id, size_t index, string &Text, GUID& Guid) const = 0;
+	[[nodiscard]]
 	virtual bool GetPluginsMenuItem(unsigned long long id, size_t index, string &Text, GUID& Guid) const = 0;
+	[[nodiscard]]
 	virtual bool GetPluginsConfigMenuItem(unsigned long long id, size_t index, string &Text, GUID& Guid) const = 0;
+	[[nodiscard]]
 	virtual string GetCommandPrefix(unsigned long long id) const = 0;
+	[[nodiscard]]
 	virtual unsigned long long GetFlags(unsigned long long id) const = 0;
 	virtual void SetPreload(unsigned long long id, bool Preload) = 0;
 	virtual void SetSignature(unsigned long long id, string_view Signature) = 0;
@@ -326,8 +365,10 @@ public:
 	virtual void SetTitle(unsigned long long id, string_view Title) = 0;
 	virtual void SetAuthor(unsigned long long id, string_view Author) = 0;
 	virtual void SetDescription(unsigned long long id, string_view Description) = 0;
+	[[nodiscard]]
 	virtual bool EnumPlugins(DWORD index, string &CacheName) const = 0;
 	virtual void DiscardCache() = 0;
+	[[nodiscard]]
 	virtual bool IsCacheEmpty() const = 0;
 
 protected:
@@ -344,7 +385,9 @@ enum class hotkey_type: int
 class PluginsHotkeysConfig: public representable, virtual public transactional
 {
 public:
+	[[nodiscard]]
 	virtual bool HotkeysPresent(hotkey_type HotKeyType) = 0;
+	[[nodiscard]]
 	virtual string GetHotkey(string_view PluginKey, const GUID& MenuGuid, hotkey_type HotKeyType) = 0;
 	virtual void SetHotkey(string_view PluginKey, const GUID& MenuGuid, hotkey_type HotKeyType, string_view HotKey) = 0;
 	virtual void DelHotkey(string_view PluginKey, const GUID& MenuGuid, hotkey_type HotKeyType) = 0;
@@ -360,24 +403,36 @@ class HistoryConfig: public representable, virtual public transactional
 public:
 	//command,view,edit,folder,dialog history
 	virtual void Delete(unsigned long long id) = 0;
-	virtual bool DeleteAndAddAsync(unsigned long long DeleteId, unsigned int TypeHistory, string_view HistoryName, string_view Name, int Type, bool Lock, string_view Guid, string_view File, string_view Data) = 0;
+	[[nodiscard]]
+	virtual void DeleteAndAddAsync(unsigned long long DeleteId, unsigned int TypeHistory, string_view HistoryName, string_view Name, int Type, bool Lock, string_view Guid, string_view File, string_view Data) = 0;
 	virtual void DeleteOldUnlocked(unsigned int TypeHistory, string_view HistoryName, int DaysToKeep, int MinimumEntries) = 0;
+	[[nodiscard]]
 	virtual bool GetNewest(unsigned int TypeHistory, string_view HistoryName, string &strName) = 0;
+	[[nodiscard]]
 	virtual bool Get(unsigned long long id, string* Name = {}, history_record_type* Type = {}, string* Guid = {}, string* File = {}, string* Data = {}) = 0;
+	[[nodiscard]]
 	virtual DWORD Count(unsigned int TypeHistory, string_view HistoryName) = 0;
 	virtual void FlipLock(unsigned long long id) = 0;
+	[[nodiscard]]
 	virtual bool IsLocked(unsigned long long id) = 0;
 	virtual void DeleteAllUnlocked(unsigned int TypeHistory, string_view HistoryName) = 0;
+	[[nodiscard]]
 	virtual unsigned long long GetNext(unsigned int TypeHistory, string_view HistoryName, unsigned long long id, string &strName) = 0;
+	[[nodiscard]]
 	virtual unsigned long long GetPrev(unsigned int TypeHistory, string_view HistoryName, unsigned long long id, string &strName) = 0;
+	[[nodiscard]]
 	virtual unsigned long long CyclicGetPrev(unsigned int TypeHistory, string_view HistoryName, unsigned long long id, string &strName) = 0;
 
 	//view,edit file positions and bookmarks history
+	[[nodiscard]]
 	virtual unsigned long long SetEditorPos(string_view Name, int Line, int LinePos, int ScreenLine, int LeftPos, uintptr_t CodePage) = 0;
+	[[nodiscard]]
 	virtual unsigned long long GetEditorPos(string_view Name, int& Line, int& LinePos, int& ScreenLine, int& LeftPos, uintptr_t& CodePage) = 0;
 	virtual void SetEditorBookmark(unsigned long long id, size_t i, int Line, int LinePos, int ScreenLine, int LeftPos) = 0;
 	virtual bool GetEditorBookmark(unsigned long long id, size_t i, int& Line, int& LinePos, int& ScreenLine, int& LeftPos) = 0;
+	[[nodiscard]]
 	virtual unsigned long long SetViewerPos(string_view Name, long long FilePos, long long LeftPos, int HexWrap, uintptr_t CodePage) = 0;
+	[[nodiscard]]
 	virtual unsigned long long GetViewerPos(string_view Name, long long& FilePos, long long& LeftPos, int& HexWrap, uintptr_t& CodePage) = 0;
 	virtual void SetViewerBookmark(unsigned long long id, size_t i, long long FilePos, long long LeftPos) = 0;
 	virtual bool GetViewerBookmark(unsigned long long id, size_t i, long long& FilePos, long long& LeftPos) = 0;
@@ -396,6 +451,7 @@ public:
 	};
 
 	template<typename type>
+	[[nodiscard]]
 	auto Enumerator(unsigned int HistoryType, type&& HistoryName, bool Reverse = false)
 	{
 		static_assert(std::is_convertible_v<type, string_view>);
@@ -411,6 +467,7 @@ public:
 		});
 	}
 
+	[[nodiscard]]
 	auto LargeHistoriesEnumerator(unsigned int HistoryType, int MinimumEntries)
 	{
 		using value_type = string;
@@ -429,8 +486,10 @@ protected:
 
 private:
 	//command,view,edit,folder,dialog history
+	[[nodiscard]]
 	virtual bool Enum(bool Reset, unsigned int TypeHistory, string_view HistoryName, unsigned long long& id, string& strName, history_record_type& Type, bool& Lock, os::chrono::time_point& Time, string& strGuid, string& strFile, string& strData, bool Reverse) = 0;
 	virtual void CloseEnum(bool Reverse) const = 0;
+	[[nodiscard]]
 	virtual bool EnumLargeHistories(bool Reset, unsigned int TypeHistory, int MinimumEntries, string& strHistoryName) = 0;
 	virtual void CloseEnumLargeHistories() const = 0;
 };
@@ -446,18 +505,27 @@ public:
 	explicit config_provider(mode Mode = mode::m_default);
 	explicit config_provider(clear_cache);
 	~config_provider();
+	[[nodiscard]]
 	bool ShowProblems() const;
 	void ServiceMode(const string& File);
 
 	void AsyncCall(const std::function<void()>& Routine);
 
+	[[nodiscard]]
 	const auto& GeneralCfg() const { return m_GeneralCfg; }
+	[[nodiscard]]
 	const auto& LocalGeneralCfg() const { return m_LocalGeneralCfg; }
+	[[nodiscard]]
 	const auto& ColorsCfg() const { return m_ColorsCfg; }
+	[[nodiscard]]
 	const auto& AssocConfig() const { return m_AssocConfig; }
+	[[nodiscard]]
 	const auto& PlCacheCfg() const { return m_PlCacheCfg; }
+	[[nodiscard]]
 	const auto& PlHotkeyCfg() const { return m_PlHotkeyCfg; }
+	[[nodiscard]]
 	const auto& HistoryCfg() const { return m_HistoryCfg; }
+	[[nodiscard]]
 	const auto& HistoryCfgMem() const { return m_HistoryCfgMem; }
 
 	HierarchicalConfigUniquePtr CreatePluginsConfig(string_view guid, bool Local = false, bool UseFallback = true);
@@ -467,10 +535,21 @@ public:
 	HierarchicalConfigUniquePtr CreatePanelModesConfig();
 
 private:
-	template<class T> void ImportDatabase(T& Database, const char* ImportNodeName, bool IsPlugin);
-	template<class T> std::unique_ptr<T> CreateWithFallback(string_view Name);
-	template<class T> std::unique_ptr<T> CreateDatabase(string_view Name, bool Local);
-	template<class T> HierarchicalConfigUniquePtr CreateHierarchicalConfig(dbcheck DbId, string_view DbName, const char* ImportNodeName, bool Local = false, bool IsPlugin = false, bool UseFallback = true);
+	template<class T>
+	void ImportDatabase(T& Database, const char* ImportNodeName, bool IsPlugin);
+
+	template<class T>
+	[[nodiscard]]
+	std::unique_ptr<T> CreateWithFallback(string_view Name);
+
+	template<class T>
+	[[nodiscard]]
+	std::unique_ptr<T> CreateDatabase(string_view Name, bool Local);
+
+	template<class T>
+	[[nodiscard]]
+	HierarchicalConfigUniquePtr CreateHierarchicalConfig(dbcheck DbId, string_view DbName, const char* ImportNodeName, bool Local = false, bool IsPlugin = false, bool UseFallback = true);
+
 	void Import(const string& File);
 	void Export(const string& File);
 	void TryImportDatabase(representable& p, const char* NodeName = nullptr, bool IsPlugin = false);
@@ -501,6 +580,7 @@ private:
 	BitFlags m_CheckedDb;
 };
 
+[[nodiscard]]
 config_provider& ConfigProvider();
 
 #endif // CONFIGDB_HPP_552309E5_DEA6_42FD_BD7B_0F59C839FE62

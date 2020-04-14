@@ -375,7 +375,7 @@ private:
 		auto Stmt = EnumValuesStmt();
 
 		if (Reset)
-			Stmt->Reset().Bind(transient(Key));
+			Stmt->Reset().Bind(Key);
 
 		if (!Stmt->Step())
 			return false;
@@ -1924,7 +1924,7 @@ private:
 		auto Stmt = EnumStmt(Reverse);
 
 		if (Reset)
-			Stmt->Reset().Bind(TypeHistory, transient(HistoryName));
+			Stmt->Reset().Bind(TypeHistory, HistoryName);
 
 		if (!Stmt->Step())
 			return false;
@@ -1946,7 +1946,7 @@ private:
 		(void)EnumStmt(Reverse);
 	}
 
-	bool DeleteAndAddAsync(unsigned long long const DeleteId, unsigned int const TypeHistory, string_view const HistoryName, string_view const Name, int const Type, bool const Lock, string_view const Guid, string_view const File, string_view const Data) override
+	void DeleteAndAddAsync(unsigned long long const DeleteId, unsigned int const TypeHistory, string_view const HistoryName, string_view const Name, int const Type, bool const Lock, string_view const Guid, string_view const File, string_view const Data) override
 	{
 		auto item = std::make_unique<AsyncWorkItem>();
 		item->DeleteId=DeleteId;
@@ -1964,7 +1964,6 @@ private:
 		WaitAllAsync();
 		AsyncDeleteAddDone.reset();
 		AsyncWork.set();
-		return true;
 	}
 
 	void DeleteOldUnlocked(const unsigned int TypeHistory, const string_view HistoryName, const int DaysToKeep, const int MinimumEntries) override

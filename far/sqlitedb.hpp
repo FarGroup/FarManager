@@ -101,13 +101,6 @@ protected:
 
 		explicit SQLiteStmt(sqlite::sqlite3_stmt* Stmt): m_Stmt(Stmt) {}
 
-		template<class T>
-		struct transient_t
-		{
-			explicit transient_t(const T& Value): m_Value(Value) {}
-			const T& m_Value;
-		};
-
 		SQLiteStmt& Reset();
 		bool Step() const;
 		void Execute() const;
@@ -136,14 +129,10 @@ protected:
 		SQLiteStmt& BindImpl(std::nullptr_t);
 		SQLiteStmt& BindImpl(int Value);
 		SQLiteStmt& BindImpl(long long Value);
-		SQLiteStmt& BindImpl(string&& Value);
-		SQLiteStmt& BindImpl(string_view Value, bool bStatic = true);
-		SQLiteStmt& BindImpl(bytes_view&& Value);
-		SQLiteStmt& BindImpl(const bytes_view& Value, bool bStatic = true);
+		SQLiteStmt& BindImpl(string_view Value);
+		SQLiteStmt& BindImpl(const bytes_view& Value);
 		SQLiteStmt& BindImpl(unsigned int Value) { return BindImpl(static_cast<int>(Value)); }
 		SQLiteStmt& BindImpl(unsigned long long Value) { return BindImpl(static_cast<long long>(Value)); }
-		template<class T>
-		SQLiteStmt& BindImpl(const transient_t<T>& Value) { return BindImpl(Value.m_Value, false); }
 
 		sqlite::sqlite3* db() const;
 
@@ -161,9 +150,6 @@ protected:
 
 	template<typename T>
 	using stmt_init = std::pair<T, std::string_view>;
-
-	template<class T>
-	static auto transient(const T& Value) { return SQLiteStmt::transient_t<T>(Value); }
 
 	SQLiteStmt create_stmt(std::string_view Stmt, bool Persistent = true) const;
 

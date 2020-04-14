@@ -358,7 +358,7 @@ int PluginSettings::SubKey(const FarSettingsValue& Value, bool bCreate)
 		return 0;
 
 	const auto root = bCreate? PluginsCfg->CreateKey(m_Keys[Value.Root], Value.Value) : PluginsCfg->FindByName(m_Keys[Value.Root], Value.Value);
-	if (!root)
+	if (!bCreate && !root)
 		return 0;
 
 	m_Keys.emplace_back(root);
@@ -459,7 +459,7 @@ int FarSettings::SubKey(const FarSettingsValue& Value, bool bCreate)
 
 static const auto& HistoryRef(int Type)
 {
-	const auto IsSave = [Type]() -> bool
+	const auto IsPersistent = [Type]() -> bool
 	{
 		switch (Type)
 		{
@@ -471,7 +471,7 @@ static const auto& HistoryRef(int Type)
 		}
 	};
 
-	return IsSave()? ConfigProvider().HistoryCfg() : ConfigProvider().HistoryCfgMem();
+	return IsPersistent()? ConfigProvider().HistoryCfg() : ConfigProvider().HistoryCfgMem();
 }
 
 bool FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum& Enum, function_ref<bool(history_record_type)> const Filter)

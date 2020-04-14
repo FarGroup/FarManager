@@ -73,7 +73,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace names
 {
-#define STR_INIT(x) x{L ## #x ## sv}
+#define STR_INIT(x) x = WSTRVIEW(x)
 
 	static const string_view
 		STR_INIT(NormalColor),
@@ -137,10 +137,6 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig& cfg)
 	if (cfg.FindByName(cfg.root_key, names::Highlight))
 		return;
 
-	const auto root = cfg.CreateKey(cfg.root_key, names::Highlight);
-	if (!root)
-		return;
-
 	const auto MakeFarColor = [](int ConsoleColour)
 	{
 		auto Colour = colors::ConsoleColorToFarColor(ConsoleColour);
@@ -165,15 +161,15 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig& cfg)
 		{ L"<temp>"sv, 0,                        MakeFarColor(F_BROWN),        MakeFarColor(F_BROWN) },
 	};
 
+	const auto root = cfg.CreateKey(cfg.root_key, names::Highlight);
+
 	for (const auto& [i, Index]: enumerate(DefaultHighlighting))
 	{
-		const auto Key = cfg.CreateKey(root, names::Group + str(Index));
-		if (!Key)
-			break;
-
 		FileFilterParams Params;
 		Params.SetMask(!i.Mask.empty(), i.Mask);
 		Params.SetAttr(i.IncludeAttr != 0, i.IncludeAttr, 0);
+
+		const auto Key = cfg.CreateKey(root, names::Group + str(Index));
 		FileFilter::SaveFilter(cfg, Key.get(), Params);
 
 		cfg.SetValue(Key, names::NormalColor, bytes_view(i.NormalColor));
@@ -808,15 +804,11 @@ void highlight::configuration::Save(bool always)
 
 	SCOPED_ACTION(auto)(cfg->ScopedTransaction());
 
-	auto root = cfg->FindByName(cfg->root_key, names::Highlight);
+	if (const auto Key = cfg->FindByName(cfg->root_key, names::Highlight))
+		cfg->DeleteKeyTree(Key);
 
-	if (root)
-		cfg->DeleteKeyTree(root);
-
-	root = cfg->FindByName(cfg->root_key, names::SortGroups);
-
-	if (root)
-		cfg->DeleteKeyTree(root);
+	if (const auto Key = cfg->FindByName(cfg->root_key, names::SortGroups))
+		cfg->DeleteKeyTree(Key);
 
 	const struct
 	{
@@ -835,15 +827,11 @@ void highlight::configuration::Save(bool always)
 
 	for(const auto& i: Data)
 	{
-		root = cfg->CreateKey(cfg->root_key, i.KeyName);
-		if (!root)
-			continue; // TODO: log
+		const auto root = cfg->CreateKey(cfg->root_key, i.KeyName);
 
 		for (int j = i.from; j != i.to; ++j)
 		{
-			if (const auto Key = cfg->CreateKey(root, i.GroupName + str(j - i.from)))
-				SaveFilter(*cfg, Key, &HiData[j]);
-			// TODO: log
+			SaveFilter(*cfg, cfg->CreateKey(root, i.GroupName + str(j - i.from)), &HiData[j]);
 		}
 	}
 }

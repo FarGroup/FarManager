@@ -126,6 +126,7 @@ public:
 	// BUGBUG
 	void Lock() { PluginCS.lock(); }
 	void Unlock() { PluginCS.unlock(); }
+	[[nodiscard]]
 	auto ScopedLock() { return make_raii_wrapper(this, &FindFiles::Lock, &FindFiles::Unlock); }
 
 private:

@@ -105,6 +105,7 @@ public:
 	void notify(const string& EventName, std::any&& Payload = {});
 	bool dispatch();
 
+	[[nodiscard]]
 	auto suppress()
 	{
 		return make_raii_wrapper(

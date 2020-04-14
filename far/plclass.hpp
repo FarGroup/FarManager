@@ -298,6 +298,7 @@ public:
 	bool Active() const {return Activity != 0;}
 	void AddDialog(const window_ptr& Dlg);
 	bool RemoveDialog(const window_ptr& Dlg);
+	[[nodiscard]]
 	auto keep_activity() { return make_raii_wrapper(this, [](Plugin* p){ ++p->Activity; }, [](Plugin* p){ --p->Activity; });  }
 
 protected:

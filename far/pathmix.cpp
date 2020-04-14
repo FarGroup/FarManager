@@ -697,7 +697,7 @@ TEST_CASE("path.IsRootPath")
 		{ true,   L"\\\\?\\UNC\\server\\share\\"sv },
 		{ false,  L"\\\\?\\UNC\\server\\share\\dir"sv },
 		{ false,  L"\\\\?\\UNC\\server\\share\\dir\\"sv },
-		{ true,   L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv },
+		{ true,   L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"sv },
 		{ true,   L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv },
 		{ false,  L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\dir"sv },
 		{ false,  L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\dir\\"sv },
@@ -809,6 +809,44 @@ TEST_CASE("path.AddEndSlash")
 		string Str(i.Input);
 		AddEndSlash(Str);
 		REQUIRE(Str == i.Result);
+
+		wchar_t Buffer[64];
+		REQUIRE(i.Input.size() < std::size(Buffer));
+		*std::copy(ALL_CONST_RANGE(i.Input), Buffer) = L'\0';
+		AddEndSlash(Buffer);
+		REQUIRE(Buffer == i.Result);
+	}
+}
+
+TEST_CASE("path.DeleteEndSlash")
+{
+	static const struct
+	{
+		string_view Input, Result;
+	}
+	Tests[]
+	{
+		{ {},              {} },
+		{ L"\\"sv,         {} },
+		{ L"/"sv,          {} },
+		{ L"a"sv,          L"a"sv },
+		{ L"a\\"sv,        L"a"sv },
+		{ L"a\\\\"sv,      L"a"sv },
+		{ L"a\\b/"sv,      L"a\\b"sv },
+		{ L"a\\b/c/d"sv,   L"a\\b/c/d"sv },
+	};
+
+	for (const auto& i : Tests)
+	{
+		string Str(i.Input);
+		DeleteEndSlash(Str);
+		REQUIRE(Str == i.Result);
+
+		wchar_t Buffer[64];
+		REQUIRE(i.Input.size() < std::size(Buffer));
+		*std::copy(ALL_CONST_RANGE(i.Input), Buffer) = L'\0';
+		DeleteEndSlash(Buffer);
+		REQUIRE(Buffer == i.Result);
 	}
 }
 #endif

@@ -153,17 +153,12 @@ void Shortcuts::Save()
 
 	SCOPED_ACTION(auto)(Cfg->ScopedTransaction());
 
-	auto Root = Cfg->FindByName(Cfg->root_key, FolderShortcutsKey);
-	if (!Root)
-		Root = Cfg->CreateKey(Cfg->root_key, FolderShortcutsKey);
+	const auto Root = Cfg->CreateKey(Cfg->root_key, FolderShortcutsKey);
 
-	auto Key = Cfg->FindByName(Root, m_KeyName);
-	if (Key)
+	if (const auto Key = Cfg->FindByName(Root, m_KeyName))
 		Cfg->DeleteKeyTree(Key);
 
-	Key = Cfg->CreateKey(Root, m_KeyName);
-	if (!Key)
-		return;
+	const auto Key = Cfg->CreateKey(Root, m_KeyName);
 
 	for (const auto& [Item, Index]: enumerate(m_Items))
 	{

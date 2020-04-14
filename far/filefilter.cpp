@@ -70,7 +70,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-#define STR_INIT(x) x{L ## #x ## sv}
+#define STR_INIT(x) x = WSTRVIEW(x)
 
 namespace names
 {
@@ -1035,20 +1035,14 @@ void FileFilter::Save(bool always)
 
 	SCOPED_ACTION(auto)(cfg->ScopedTransaction());
 
-	auto root = cfg->FindByName(cfg->root_key, names::Filters);
-	if (root)
-		cfg->DeleteKeyTree(root);
+	if (const auto Key = cfg->FindByName(cfg->root_key, names::Filters))
+		cfg->DeleteKeyTree(Key);
 
-	root = cfg->CreateKey(cfg->root_key, names::Filters);
-	if (!root)
-		return;
+	const auto root = cfg->CreateKey(cfg->root_key, names::Filters);
 
 	for (size_t i=0; i<FilterData().size(); ++i)
 	{
 		const auto Key = cfg->CreateKey(root, names::Filter + str(i));
-		if (!Key)
-			break;
-
 		const auto& CurFilterData = FilterData()[i];
 
 		SaveFilter(*cfg, Key.get(), CurFilterData);
@@ -1058,9 +1052,6 @@ void FileFilter::Save(bool always)
 	for (const auto& [CurFilterData, i]: enumerate(TempFilterData()))
 	{
 		const auto Key = cfg->CreateKey(root, L"PanelMask"sv + str(i));
-		if (!Key)
-			break;
-
 		cfg->SetValue(Key, names::Mask, CurFilterData.second.GetMask());
 		SaveFlags(cfg, Key, CurFilterData.second);
 	}

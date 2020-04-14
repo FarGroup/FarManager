@@ -220,7 +220,10 @@ public:
 
 	constexpr span subspan(size_t const Offset, size_t const Size = std::numeric_limits<size_t>::max()) const
 	{
-		return { this->data() + Offset, Size == std::numeric_limits<size_t>::max() ? this->size() - Offset : Size };
+		assert(Offset <= this->size());
+		assert(Size == std::numeric_limits<size_t>::max() || (Size <= this->size() - Offset));
+
+		return { this->data() + Offset, Size == std::numeric_limits<size_t>::max()? this->size() - Offset : Size };
 	}
 };
 

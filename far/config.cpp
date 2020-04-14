@@ -89,6 +89,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/algorithm.hpp"
 #include "common/from_string.hpp"
+#include "common/view/enumerate.hpp"
 #include "common/view/zip.hpp"
 
 // External:
@@ -2598,35 +2599,38 @@ void Options::SavePanelModes(bool always)
 
 	SCOPED_ACTION(auto)(cfg->ScopedTransaction());
 
-	auto root = cfg->root_key;
-
-	const auto SaveMode = [&](const auto& i, size_t Index)
+	const auto SaveMode = [&](HierarchicalConfig::key const ModesKey, PanelViewSettings const& Item, size_t Index)
 	{
-		const auto [PanelTitles, PanelWidths] = SerialiseViewSettings(i.PanelColumns);
-		const auto [StatusTitles, StatusWidths] = SerialiseViewSettings(i.StatusColumns);
+		const auto [PanelTitles, PanelWidths] = SerialiseViewSettings(Item.PanelColumns);
+		const auto [StatusTitles, StatusWidths] = SerialiseViewSettings(Item.StatusColumns);
 
-		if(const auto Key = cfg->CreateKey(root, str(Index)))
-		{
-			cfg->SetValue(Key, ModesNameName, i.Name);
-			cfg->SetValue(Key, ModesColumnTitlesName, PanelTitles);
-			cfg->SetValue(Key, ModesColumnWidthsName, PanelWidths);
-			cfg->SetValue(Key, ModesStatusColumnTitlesName, StatusTitles);
-			cfg->SetValue(Key, ModesStatusColumnWidthsName, StatusWidths);
-			cfg->SetValue(Key, ModesFlagsName, i.Flags);
-		}
+		const auto Key = cfg->CreateKey(ModesKey, str(Index));
+
+		cfg->SetValue(Key, ModesNameName, Item.Name);
+		cfg->SetValue(Key, ModesColumnTitlesName, PanelTitles);
+		cfg->SetValue(Key, ModesColumnWidthsName, PanelWidths);
+		cfg->SetValue(Key, ModesStatusColumnTitlesName, StatusTitles);
+		cfg->SetValue(Key, ModesStatusColumnWidthsName, StatusWidths);
+		cfg->SetValue(Key, ModesFlagsName, Item.Flags);
 	};
 
-	for_each_cnt(ViewSettings.cbegin(), ViewSettings.cbegin() + predefined_panel_modes_count, SaveMode);
-
-	if ((root = cfg->FindByName(cfg->root_key, CustomModesKeyName)))
+	for (const auto& [Value, Index]: enumerate(span(ViewSettings).subspan(0, predefined_panel_modes_count)))
 	{
-		cfg->DeleteKeyTree(root);
+		SaveMode(cfg->root_key, Value, Index);
 	}
 
-	if ((root = cfg->CreateKey(cfg->root_key, CustomModesKeyName)))
+	if (const auto ModesKey = cfg->FindByName(cfg->root_key, CustomModesKeyName))
 	{
-		for_each_cnt(ViewSettings.cbegin() + predefined_panel_modes_count, ViewSettings.cend(), SaveMode);
+		cfg->DeleteKeyTree(ModesKey);
 	}
+
+	const auto ModesKey = cfg->CreateKey(cfg->root_key, CustomModesKeyName);
+
+	for (const auto& [Value, Index]: enumerate(span(ViewSettings).subspan(predefined_panel_modes_count)))
+	{
+		SaveMode(ModesKey, Value, Index);
+	}
+
 	m_ViewSettingsChanged = false;
 }
 

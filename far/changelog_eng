@@ -3,6 +3,16 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 14.04.2020 22:38:19 +0300 - build 5585
+
+1. As it turned out, the wonderful SQLite library wonderfully works with UTF16, namely:
+   - converts the passed strings to UTF8, replacing any failures with 0xfffd.
+   - looks for BOM in the passed strings to decide whether it's LE or BE.
+   Maybe it's reasonable in some cloud cuckoo land, but definitely not in our case.
+   All this luxury can't be turned off, so now we convert to UTF8 manually.
+
+2. Refactoring.
+
 drkns 13.04.2020 00:07:06 +0300 - build 5584
 
 1. Private flags of ansi plugins panel items weren't preserved.
