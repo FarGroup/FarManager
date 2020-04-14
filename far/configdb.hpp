@@ -124,7 +124,7 @@ private:
 	virtual bool EnumValues(string_view Key, bool Reset, string& strName, string& strValue) const = 0;
 	[[nodiscard]]
 	virtual bool EnumValues(string_view Key, bool Reset, string& strName, long long& Value) const = 0;
-	[[nodiscard]]
+
 	virtual void CloseEnum() const = 0;
 };
 
@@ -403,7 +403,7 @@ class HistoryConfig: public representable, virtual public transactional
 public:
 	//command,view,edit,folder,dialog history
 	virtual void Delete(unsigned long long id) = 0;
-	[[nodiscard]]
+
 	virtual void DeleteAndAddAsync(unsigned long long DeleteId, unsigned int TypeHistory, string_view HistoryName, string_view Name, int Type, bool Lock, string_view Guid, string_view File, string_view Data) = 0;
 	virtual void DeleteOldUnlocked(unsigned int TypeHistory, string_view HistoryName, int DaysToKeep, int MinimumEntries) = 0;
 	[[nodiscard]]

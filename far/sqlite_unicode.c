@@ -43,6 +43,27 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
+struct qlite3_value;
+typedef struct sqlite3_value sqlite3_value;
+
+const void* far_value_text16(void*);
+
+static const void* sqlite3_value_text16(sqlite3_value* Val)
+{
+	return far_value_text16(Val);
+}
+
+struct sqlite3_context;
+typedef struct sqlite3_context sqlite3_context;
+
+void far_result_text16(void*, const void*, int);
+
+static void sqlite3_result_text16(sqlite3_context* Ctx, const void* Val, int Length, void (*Del)(void*))
+{
+	far_result_text16(Ctx, Val, Length);
+}
+
+
 #define SQLITE_CORE
 #define SQLITE_ENABLE_UNICODE
 

@@ -505,9 +505,36 @@ void SQLiteDb::CreateNumericCollation() const
 	const auto Comparer = [](void* const, int const Size1, const void* const Data1, int const Size2, const void* const Data2)
 	{
 		return string_sort::keyhole::compare_ordinal_numeric(
-			{ static_cast<const wchar_t*>(Data1), static_cast<size_t>(Size1) },
-			{ static_cast<const wchar_t*>(Data2), static_cast<size_t>(Size2) });
+			encoding::utf8::get_chars({ static_cast<const char*>(Data1), static_cast<size_t>(Size1) }),
+			encoding::utf8::get_chars({ static_cast<const char*>(Data2), static_cast<size_t>(Size2) })
+		);
 	};
 
-	invoke(m_Db.get(), [&]{ return sqlite::sqlite3_create_collation(m_Db.get(), "numeric", SQLITE_UTF16_ALIGNED, nullptr, Comparer) == SQLITE_OK; });
+	invoke(m_Db.get(), [&]{ return sqlite::sqlite3_create_collation(m_Db.get(), "numeric", SQLITE_UTF8, nullptr, Comparer) == SQLITE_OK; });
 }
+
+
+// for sqlite_unicode.c
+
+WARNING_PUSH()
+WARNING_DISABLE_CLANG("-Wmissing-prototypes")
+
+extern "C" const void* far_value_text16(void* Val)
+{
+	static string Value;
+
+	Value = encoding::utf8::get_chars(static_cast<const char*>(static_cast<const void*>(sqlite::sqlite3_value_text(static_cast<sqlite::sqlite3_value*>(Val)))));
+
+	return Value.c_str();
+}
+
+extern "C" void far_result_text16(void* Ctx, const void* Val, int Length)
+{
+	const auto Data = static_cast<const wchar_t*>(Val);
+	const auto Size = Length < 0? std::wcslen(Data) : static_cast<size_t>(Length);
+	const auto Value = encoding::utf8::get_bytes({ Data, Size });
+
+	sqlite::sqlite3_result_text(static_cast<sqlite::sqlite3_context*>(Ctx), Value.c_str(), static_cast<int>(Value.size()), sqlite::transient_destructor);
+}
+
+WARNING_POP()

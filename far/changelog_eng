@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 15.04.2020 02:08:30 +0300 - build 5586
+
+1. Continuation of 5585.
+
 drkns 14.04.2020 22:38:19 +0300 - build 5585
 
 1. As it turned out, the wonderful SQLite library wonderfully works with UTF16, namely:
