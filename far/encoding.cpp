@@ -1326,7 +1326,7 @@ TEST_CASE("encoding.ucs2-utf8.round-trip")
 		return Result;
 	};
 
-	const irange Chars(std::numeric_limits<wchar_t>::max());
+	const irange Chars(std::numeric_limits<wchar_t>::max() + 1);
 	REQUIRE(std::all_of(ALL_CONST_RANGE(Chars), [&](wchar_t const Char)
 	{
 		const auto Result = round_trip(Char);
