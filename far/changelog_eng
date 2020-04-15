@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 15.04.2020 22:27:36 +0300 - build 5587
+
+1. Experimental UTF-8 converter extension to support the full UCS-2 range, including unpaired surrogates.
+
 drkns 15.04.2020 02:08:30 +0300 - build 5586
 
 1. Continuation of 5585.

@@ -51,6 +51,24 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
+// http://unicode.org/faq/utf_bom.html#utf8-5
+// Q: How do I convert an unpaired UTF-16 surrogate to UTF-8?
+// A: A different issue arises if an unpaired surrogate is encountered when converting ill-formed UTF-16 data.
+// By representing such an unpaired surrogate on its own as a 3-byte sequence, the resulting UTF-8 data stream would
+// become ill-formed. While it faithfully reflects the nature of the input, Unicode conformance requires that encoding
+// form conversion always results in a valid data stream. Therefore a converter must treat this as an error.
+
+// https://en.wikipedia.org/wiki/UTF-8
+// Since RFC 3629 (November 2003), the high and low surrogate halves used by UTF-16 (U+D800 through U+DFFF)
+// and code points not encodable by UTF-16 (those after U+10FFFF) are not legal Unicode values,
+// and their UTF-8 encoding must be treated as an invalid byte sequence.
+// Not decoding unpaired surrogate halves makes it impossible to store invalid UTF-16
+// (such as Windows filenames or UTF-16 that has been split between the surrogates) as UTF-8.
+// To preserve these invalid UTF-16 sequences, their corresponding UTF-8 encodings are sometimes allowed
+// by implementations despite the above rule.
+
+const auto support_unpaired_surrogates_in_utf8 = true;
+
 class installed_codepages
 {
 public:
@@ -743,13 +761,17 @@ size_t Utf7::get_chars(std::string_view const Str, span<wchar_t> const Buffer, U
 
 namespace utf8
 {
-	const auto surrogate_low_first  = 0b11011100'00000000u;
-	const auto surrogate_low_last   = 0b11011111'11111111u;
-	const auto surrogate_high_first = 0b11011000'00000000u;
-	const auto surrogate_high_last  = 0b11011011'11111111u;
+	const auto
+		surrogate_high_first = 0b11011000'00000000u, // 55296
+		surrogate_high_last  = 0b11011011'11111111u, // 56319
+		surrogate_low_first  = 0b11011100'00000000u, // 56320
+		surrogate_low_last   = 0b11011111'11111111u, // 57343
 
-	const auto invalid_first        = 0b11011100'10000000u;
-	const auto invalid_last         = 0b11011100'11111111u;
+		surrogate_first      = surrogate_high_first,
+		surrogate_last       = surrogate_low_last,
+
+		invalid_first        = 0b11011100'10000000u, // 56448
+		invalid_last         = 0b11011100'11111111u; // 56575
 
 	static constexpr bool is_ascii_byte(unsigned int c)
 	{
@@ -889,14 +911,21 @@ size_t Utf8::get_char(std::string_view::const_iterator& StrIterator, std::string
 				// legal 3-byte
 				First = utf8::extract(c1, c2, c3);
 
-				if (utf8::surrogate_high_first <= First && First <= utf8::surrogate_low_last)
+				if constexpr (support_unpaired_surrogates_in_utf8)
 				{
-					// invalid: surrogate area code
-					First = InvalidChar(c1);
+					StrIterator += 2;
 				}
 				else
 				{
-					StrIterator += 2;
+					if (in_range(utf8::surrogate_first, First, utf8::surrogate_last))
+					{
+						// invalid: surrogate area code
+						First = InvalidChar(c1);
+					}
+					else
+					{
+						StrIterator += 2;
+					}
 				}
 			}
 			else
@@ -1000,7 +1029,7 @@ size_t Utf8::get_bytes(string_view const Str, span<char> const Buffer)
 		{
 			BytesNumber = 2;
 		}
-		else if (!in_range(utf8::surrogate_high_first, Char, utf8::surrogate_low_last))
+		else if (!in_range(utf8::surrogate_first, Char, utf8::surrogate_last))
 		{
 			// not surrogates
 			BytesNumber = 3;
@@ -1021,8 +1050,12 @@ size_t Utf8::get_bytes(string_view const Str, span<char> const Buffer)
 		}
 		else
 		{
-			BytesNumber = 1;
-			Char = Utf::REPLACE_CHAR;
+			BytesNumber = 3;
+
+			if constexpr (!support_unpaired_surrogates_in_utf8)
+			{
+				Char = Utf::REPLACE_CHAR;
+			}
 		}
 
 		RequiredCapacity += BytesNumber;
@@ -1275,6 +1308,40 @@ WARNING_POP()
 		const auto Bytes = encoding::utf8::get_bytes(Str);
 		REQUIRE(i.Str == Bytes);
 	}
+}
+
+TEST_CASE("encoding.ucs2-utf8.round-trip")
+{
+	const auto round_trip = [](wchar_t const Char)
+	{
+		char Bytes[4];
+		const auto Size = encoding::utf8::get_bytes({ &Char, 1 }, Bytes);
+		assert(Size);
+		assert(Size <= std::size(Bytes));
+
+		wchar_t Result;
+		const auto ResultSize = encoding::utf8::get_chars({ Bytes, Size }, { &Result, 1 });
+		assert(ResultSize == 1u);
+
+		return Result;
+	};
+
+	const irange Chars(std::numeric_limits<wchar_t>::max());
+	REQUIRE(std::all_of(ALL_CONST_RANGE(Chars), [&](wchar_t const Char)
+	{
+		const auto Result = round_trip(Char);
+
+		if constexpr (support_unpaired_surrogates_in_utf8)
+		{
+			return Result == Char;
+		}
+		else
+		{
+			return Result == (in_range(utf8::surrogate_first, Char, utf8::surrogate_last) && !in_range(utf8::invalid_first, Char, utf8::invalid_last)?
+				Utf::REPLACE_CHAR :
+				Char);
+		}
+	}));
 }
 
 TEST_CASE("encoding.raw_eol")
