@@ -281,7 +281,7 @@ bool GetList(PluginPanelItem*& pPanelItem, size_t& ItemsNumber, PerfThread& Thre
 		CurItem.NumberOfLinks = pd.dwThreads;
 		GetPData(*static_cast<ProcessData*>(CurItem.UserData.Data), pd);
 
-		if (pd.dwProcessId == 0 && pd.dwThreads > 5) //_Total
+		if (pd.dwProcessId == 0 && pd.ProcessName == L"_Total")
 			CurItem.FileAttributes |= FILE_ATTRIBUTE_HIDDEN;
 
 		if (pd.Bitness != Thread.GetDefaultBitness())
@@ -507,19 +507,19 @@ void DumpNTCounters(HANDLE InfoFile, PerfThread& Thread, DWORD dwPid, DWORD dwTh
 		case PERF_COUNTER_RAWCOUNT:
 		case PERF_COUNTER_LARGE_RAWCOUNT:
 			// Display as is.  No Display Suffix.
-			PrintToFile(InfoFile, L"%10I64u\n", pdata->qwResults[i]);
+			PrintToFile(InfoFile, L"%14I64u\n", pdata->qwResults[i]);
 			break;
 
 		case PERF_100NSEC_TIMER:
 			// 64-bit Timer in 100 nsec units. Display delta divided by delta time. Display suffix: "%"
-			PrintToFile(InfoFile, L"%s %7I64u%%\n", DurationToText(pdata->qwCounters[i]).c_str(), pdata->qwResults[i]);
+			PrintToFile(InfoFile, L"%20s %7I64u%%\n", DurationToText(pdata->qwCounters[i]).c_str(), pdata->qwResults[i]);
 			break;
 
 		case PERF_COUNTER_COUNTER:
 			// 32-bit Counter.  Divide delta by delta time.  Display suffix: "/sec"
 		case PERF_COUNTER_BULK_COUNT:
 			// 64-bit Counter.  Divide delta by delta time. Display Suffix: "/sec"
-			PrintToFile(InfoFile, L"%10I64u  %5I64u%s\n", pdata->qwCounters[i], pdata->qwResults[i], GetMsg(MperSec));
+			PrintToFile(InfoFile, L"%14I64u  %9I64u%s\n", pdata->qwCounters[i], pdata->qwResults[i], GetMsg(MperSec));
 			break;
 
 		default:

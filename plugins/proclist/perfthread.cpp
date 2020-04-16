@@ -1,6 +1,7 @@
-﻿#include <mutex>
+﻿#include <algorithm>
+#include <mutex>
 #include <cstddef>
-#include <cstdlib>
+#include <cassert>
 
 #include "Proclist.hpp"
 #include "Proclng.hpp"
@@ -196,13 +197,44 @@ void PerfThread::unlock()
 
 ProcessPerfData* PerfThread::GetProcessData(DWORD dwPid, DWORD dwThreads)
 {
+	std::pair<ProcessPerfData*, size_t> ZeroPid[10];
+	auto ZeroPidIterator = std::begin(ZeroPid);
+
 	for (auto& i: pData)
 	{
-		if (i.dwProcessId == dwPid && (dwPid || ((dwThreads > 5 && i.dwThreads > 5) || (dwThreads <= 5 && i.dwThreads <= 5))))
-			return &i;
+		if (i.dwProcessId == dwPid)
+		{
+			if (dwPid)
+				return &i;
+
+			if (ZeroPidIterator == std::end(ZeroPid))
+			{
+				assert(false);
+				continue;
+			}
+
+			ZeroPidIterator->first = &i;
+			++ZeroPidIterator;
+		}
 	}
 
-	return {};
+	if (dwPid)
+		return {};
+
+	if (ZeroPidIterator == ZeroPid + 1)
+		return ZeroPidIterator->first;
+
+	const auto threads_delta = [dwThreads](ProcessPerfData* Data)
+	{
+		return dwThreads > Data->dwThreads?
+			dwThreads - Data->dwThreads :
+			Data->dwThreads - dwThreads;
+	};
+
+	return std::min_element(std::begin(ZeroPid), ZeroPidIterator, [&](const auto& a, const auto& b)
+	{
+		return threads_delta(a.first) < threads_delta(b.first);
+	})->first;
 }
 
 template<typename T>
@@ -297,6 +329,8 @@ void PerfThread::Refresh()
 		// get the process id
 		const auto pCounter = view_as<PERF_COUNTER_BLOCK>(pInst, pInst->ByteLength);
 
+		Task.Bitness = DefaultBitness;
+
 		Task.dwProcessId = *view_as<DWORD>(pCounter, dwProcessIdCounter);
 		if (dwThreadCounter)
 			Task.dwThreads = *view_as<DWORD>(pCounter, dwThreadCounter);
@@ -311,8 +345,6 @@ void PerfThread::Refresh()
 				Task = *pOldTask;
 			}
 		}
-
-		Task.Bitness = DefaultBitness;
 
 		Task.dwProcessPriority = *view_as<DWORD>(pCounter, dwPriorityCounter);
 		if (dwCreatingPIDCounter)
