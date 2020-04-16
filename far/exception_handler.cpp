@@ -118,7 +118,7 @@ enum exception_dialog
 	ed_items_count
 };
 
-static auto GetStackTrace(const std::vector<const void*>& Stack, const std::vector<const void*>* NestedStack)
+static auto GetStackTrace(string_view const Module, const std::vector<const void*>& Stack, const std::vector<const void*>* NestedStack)
 {
 	std::vector<string> Symbols;
 	Symbols.reserve(Stack.size() + (NestedStack? NestedStack->size() + 3 : 0));
@@ -134,7 +134,7 @@ static auto GetStackTrace(const std::vector<const void*>& Stack, const std::vect
 		Symbols.emplace_back(std::move(Address));
 	};
 
-	tracer::get_symbols(Stack, Consumer);
+	tracer::get_symbols(Module, Stack, Consumer);
 
 	if (NestedStack)
 	{
@@ -142,7 +142,7 @@ static auto GetStackTrace(const std::vector<const void*>& Stack, const std::vect
 		Symbols.emplace_back(L"Nested stack:"sv);
 		Symbols.emplace_back(40, L'-');
 
-		tracer::get_symbols(*NestedStack, Consumer);
+		tracer::get_symbols(Module, *NestedStack, Consumer);
 	}
 
 	return Symbols;
@@ -240,7 +240,12 @@ static string os_version()
 	return os_version_from_api() + os_version_from_registry();
 }
 
-using dialog_data_type = std::pair<const detail::exception_context*, const std::vector<const void*>*>;
+struct dialog_data_type
+{
+	const detail::exception_context* Context;
+	const std::vector<const void*>* NestedStack;
+	string_view Module;
+};
 
 static void copy_information(Dialog* const Dlg)
 {
@@ -258,8 +263,8 @@ static void copy_information(Dialog* const Dlg)
 
 	append(Strings, Eol);
 
-	const auto& [ExceptionContext, NestedStack] = *reinterpret_cast<dialog_data_type*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
-	for (const auto& i : GetStackTrace(tracer::get(*ExceptionContext->pointers(), ExceptionContext->thread_handle()), NestedStack))
+	const auto& Data = *reinterpret_cast<dialog_data_type*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+	for (const auto& i: GetStackTrace(Data.Module, tracer::get(Data.Module, *Data.Context->pointers(), Data.Context->thread_handle()), Data.NestedStack))
 	{
 		append(Strings, i, Eol);
 	}
@@ -328,7 +333,7 @@ static intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2
 
 		case DN_CLOSE:
 		{
-			const auto& [ExceptionContext, NestedStack] = *reinterpret_cast<dialog_data_type*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+			const auto& Data = *reinterpret_cast<dialog_data_type*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 
 			switch (Param1)
 			{
@@ -337,7 +342,7 @@ static intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2
 				return FALSE;
 
 			case ed_button_stack:
-				ShowStackTrace(GetStackTrace(tracer::get(*ExceptionContext->pointers(), ExceptionContext->thread_handle()), NestedStack));
+				ShowStackTrace(GetStackTrace(Data.Module, tracer::get(Data.Module, *Data.Context->pointers(), Data.Context->thread_handle()), Data.NestedStack));
 				return FALSE;
 
 			case ed_button_minidump:
@@ -345,7 +350,7 @@ static intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2
 					// TODO: subdirectory && timestamp
 					auto Path = path::join(Global->Opt->LocalProfilePath, L"Far.mdmp"sv);
 
-					if (write_minidump(*ExceptionContext, Path))
+					if (write_minidump(*Data.Context, Path))
 					{
 						Message(0,
 							msg(lng::MExcMinidump),
@@ -395,10 +400,10 @@ static bool ExcDialog(
 	// TODO: Far Dialog is not the best choice for exception reporting
 	// replace with something trivial
 
-	SCOPED_ACTION(tracer::with_symbols);
+	SCOPED_ACTION(tracer::with_symbols)(PluginModule? ModuleName : L""sv);
 
 	string Address, Name, Source;
-	tracer::get_symbol(Context.pointers()->ExceptionRecord->ExceptionAddress, Address, Name, Source);
+	tracer::get_symbol(ModuleName, Context.pointers()->ExceptionRecord->ExceptionAddress, Address, Name, Source);
 
 	if (!Name.empty())
 		append(Address, L" - "sv, Name);
@@ -474,7 +479,7 @@ static bool ExcDialog(
 		{ DI_BUTTON,    {{0, DY-3}, {0,     DY-3}}, DIF_CENTERGROUP, msg(lng::MIgnore), },
 	});
 
-	auto DlgData = dialog_data_type(&Context, NestedStack);
+	dialog_data_type DlgData{ &Context, NestedStack, ModuleName };
 	const auto Dlg = Dialog::create(EditDlg, ExcDlgProc, &DlgData);
 	Dlg->SetDialogMode(DMODE_WARNINGSTYLE|DMODE_NOPLUGINS);
 	Dlg->SetPosition({ -1, -1, DlgW, static_cast<int>(DY) });
@@ -506,10 +511,10 @@ static bool ExcConsole(
 	std::vector<const void*> const* const NestedStack
 )
 {
-	SCOPED_ACTION(tracer::with_symbols);
+	SCOPED_ACTION(tracer::with_symbols)(PluginModule? ModuleName : L""sv);
 
 	string Address, Name, Source;
-	tracer::get_symbol(Context.pointers()->ExceptionRecord->ExceptionAddress, Address, Name, Source);
+	tracer::get_symbol(ModuleName, Context.pointers()->ExceptionRecord->ExceptionAddress, Address, Name, Source);
 
 	if (!Name.empty())
 		append(Address, L" - "sv, Name);
@@ -583,7 +588,7 @@ static bool ExcConsole(
 		std::wcerr << Label << L' ' << v << L'\n';
 	}
 
-	ShowStackTrace(GetStackTrace(tracer::get(*Context.pointers(), Context.thread_handle()), NestedStack));
+	ShowStackTrace(GetStackTrace(ModuleName, tracer::get(ModuleName, *Context.pointers(), Context.thread_handle()), NestedStack));
 	std::wcerr << std::endl;
 
 	if (!ConsoleYesNo(L"Terminate the process"sv, true))

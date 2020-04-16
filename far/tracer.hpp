@@ -48,18 +48,18 @@ class tracer: noncopyable
 {
 public:
 	static EXCEPTION_POINTERS get_pointers();
-	static std::vector<const void*> get(const EXCEPTION_POINTERS& Pointers, HANDLE ThreadHandle);
-	static void get_symbols(const std::vector<const void*>& Trace, function_ref<void(string&& Address, string&& Name, string&& Source)> Consumer);
-	static void get_symbol(const void* Ptr, string& Address, string& Name, string& Source);
+	static std::vector<const void*> get(string_view Module, const EXCEPTION_POINTERS& Pointers, HANDLE ThreadHandle);
+	static void get_symbols(string_view Module, const std::vector<const void*>& Trace, function_ref<void(string&& Address, string&& Name, string&& Source)> Consumer);
+	static void get_symbol(string_view Module, const void* Ptr, string& Address, string& Name, string& Source);
 
 	class with_symbols
 	{
 	public:
 		NONCOPYABLE(with_symbols);
 
-		with_symbols()
+		with_symbols(string_view const Module)
 		{
-			sym_initialise();
+			sym_initialise(Module);
 		}
 
 		~with_symbols()
@@ -69,7 +69,7 @@ public:
 	};
 
 private:
-	static void sym_initialise();
+	static void sym_initialise(string_view Module);
 	static void sym_cleanup();
 };
 

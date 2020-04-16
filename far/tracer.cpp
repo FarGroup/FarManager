@@ -82,9 +82,9 @@ static auto GetBackTrace(CONTEXT ContextRecord, HANDLE ThreadHandle)
 	return Result;
 }
 
-static void GetSymbols(const std::vector<const void*>& BackTrace, function_ref<void(string&&, string&&, string&&)> const Consumer)
+static void GetSymbols(string_view const ModuleName, const std::vector<const void*>& BackTrace, function_ref<void(string&&, string&&, string&&)> const Consumer)
 {
-	SCOPED_ACTION(tracer::with_symbols);
+	SCOPED_ACTION(tracer::with_symbols)(ModuleName);
 
 	const auto Process = GetCurrentProcess();
 	const auto MaxNameLen = MAX_SYM_NAME;
@@ -178,21 +178,21 @@ EXCEPTION_POINTERS tracer::get_pointers()
 	};
 }
 
-std::vector<const void*> tracer::get(const EXCEPTION_POINTERS& Pointers, HANDLE ThreadHandle)
+std::vector<const void*> tracer::get(string_view const Module, const EXCEPTION_POINTERS& Pointers, HANDLE ThreadHandle)
 {
-	SCOPED_ACTION(tracer::with_symbols);
+	SCOPED_ACTION(tracer::with_symbols)(Module);
 
 	return GetBackTrace(*Pointers.ContextRecord, ThreadHandle);
 }
 
-void tracer::get_symbols(const std::vector<const void*>& Trace, function_ref<void(string&& Address, string&& Name, string&& Source)> const Consumer)
+void tracer::get_symbols(string_view const Module, const std::vector<const void*>& Trace, function_ref<void(string&& Address, string&& Name, string&& Source)> const Consumer)
 {
-	GetSymbols(Trace, Consumer);
+	GetSymbols(Module, Trace, Consumer);
 }
 
-void tracer::get_symbol(const void* Ptr, string& Address, string& Name, string& Source)
+void tracer::get_symbol(string_view const Module, const void* Ptr, string& Address, string& Name, string& Source)
 {
-	GetSymbols({Ptr}, [&](string&& StrAddress, string&& StrName, string&& StrSource)
+	GetSymbols(Module, {Ptr}, [&](string&& StrAddress, string&& StrName, string&& StrSource)
 	{
 		Address = std::move(StrAddress);
 		Name = std::move(StrName);
@@ -202,7 +202,7 @@ void tracer::get_symbol(const void* Ptr, string& Address, string& Name, string& 
 
 static int s_SymInitialised = 0;
 
-void tracer::sym_initialise()
+void tracer::sym_initialise(string_view Module)
 {
 	if (s_SymInitialised)
 	{
@@ -211,10 +211,14 @@ void tracer::sym_initialise()
 	}
 
 	string Path;
-	if (!os::fs::GetModuleFileName(nullptr, nullptr, Path))
-		throw MAKE_FAR_FATAL_EXCEPTION(L"GetModuleFileName failed"sv);
-
+	(void)os::fs::GetModuleFileName(nullptr, nullptr, Path);
 	CutToParent(Path);
+
+	if (!Module.empty())
+	{
+		CutToParent(Module);
+		append(Path, L';', Module);
+	}
 
 	if (
 		(imports.SymInitializeW && imports.SymInitializeW(GetCurrentProcess(), EmptyToNull(Path), TRUE)) ||
