@@ -76,9 +76,9 @@
 "Opis"
 
 "Moduły:"
-"Base"
-"Size"
-"Path, version, description"
+"Adres"
+"Wielk."
+"Ścieżka, wersja, opis"
 "Path (version info is not displayed)"
 "Uchwyty:"
 "Handle  Access   Type         Name"
@@ -97,7 +97,7 @@
 "Include unnamed handles"
 
 "Czas procesora"
-"Privileged Time"
+"Czas uprzywilejowany"
 "Czas użytkownika"
 "Liczba uchwytów"
 "Page Faults"
@@ -174,5 +174,5 @@
 "Brak uprawnień"
 "Nieznany błąd WMI"
 
-"View..."
-"View with Options..."
+"Podgląd..."
+"Podgląd z opcjami..."
