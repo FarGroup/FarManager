@@ -81,7 +81,7 @@ static std::wstring ui64toa_width(uint64_t value, unsigned width, bool bThousand
 			const auto Multiplier = static_cast<unsigned long long>(std::pow(10, NumDigits));
 			const auto Value = Parts[1] * Multiplier;
 			const auto UseRound = true;
-			const auto Fractional = static_cast<unsigned long long>(UseRound ? std::round(Value) : Value);
+			const auto Fractional = static_cast<unsigned long long>(UseRound? std::round(Value) : Value);
 			return Fractional == Multiplier? std::make_pair(Integral + 1, 0ull) : std::make_pair(Integral, Fractional);
 		}();
 
@@ -956,8 +956,13 @@ int Plist::GetFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, int Move, co
 
 		if (HostName.empty() && Opt.ExportModuleInfo && pdata->dwPID != 8)
 		{
-			PrintToFile(InfoFile.get(), L"\n%s\n%s%s\n", GetMsg(MTitleModules), GetMsg(MColBaseSize),
-				Opt.ExportModuleVersion? GetMsg(MColPathVerDesc) : GetMsg(MColPathVerDescNotShown));
+			PrintToFile(InfoFile.get(), L"\n%s\n  %-*s %-8s %s\n",
+				GetMsg(MTitleModules),
+				pdata->Bitness == 64? 16 : 8,
+				GetMsg(MColBase),
+				GetMsg(MColSize),
+				GetMsg(Opt.ExportModuleVersion? MColPathVerDesc : MColPathVerDescNotShown)
+			);
 
 			PrintModules(InfoFile.get(), pdata->dwPID, Opt);
 		}
@@ -1747,17 +1752,18 @@ std::wstring DurationToText(uint64_t Duration)
 		TicksPerH = TicksPerM * 60,
 		TicksPerD = TicksPerH * 24;
 
+	// Cast to int is due to the variadic function below
 	const auto
-		Days    = Duration / TicksPerD,
-		Hours   = Duration % TicksPerD / TicksPerH,
-		Minutes = Duration % TicksPerD % TicksPerH / TicksPerM,
-		Seconds = Duration % TicksPerD % TicksPerH % TicksPerM / TicksPerS,
-		Ticks   = Duration % TicksPerD % TicksPerH % TicksPerM % TicksPerS / 1;
+		Days    = static_cast<int>(Duration / TicksPerD),
+		Hours   = static_cast<int>(Duration % TicksPerD / TicksPerH),
+		Minutes = static_cast<int>(Duration % TicksPerD % TicksPerH / TicksPerM),
+		Seconds = static_cast<int>(Duration % TicksPerD % TicksPerH % TicksPerM / TicksPerS),
+		Ticks   = static_cast<int>(Duration % TicksPerD % TicksPerH % TicksPerM % TicksPerS / 1);
 
 	if (Days > 0)
-		return str_printf(L"%d %02d:%02d:%02d:%07d", Days, Hours, Minutes, Seconds, Ticks);
+		return str_printf(L"%d %02d:%02d:%02d.%07d", Days, Hours, Minutes, Seconds, Ticks);
 	else
-		return str_printf(L"%02d:%02d:%02d:%07d", Hours, Minutes, Seconds, Ticks);
+		return str_printf(L"%02d:%02d:%02d.%07d", Hours, Minutes, Seconds, Ticks);
 }
 
 std::wstring FileTimeDifferenceToText(const FILETIME& CurFileTime, const FILETIME& SrcTime)
@@ -1876,10 +1882,7 @@ void Plist::PrintOwnerInfo(HANDLE InfoFile, DWORD dwPid)
 		PrintToFile(InfoFile, L'\n');
 	}
 
-	const auto nSession = pWMI->GetProcessSessionId(dwPid);
-
-	if (nSession != -1)
-		PrintToFile(InfoFile, L"%s %d\n", PrintTitle(MTitleSessionId), nSession);
+	PrintToFile(InfoFile, L"%s %d\n", PrintTitle(MTitleSessionId), pWMI->GetProcessSessionId(dwPid));
 }
 
 int Plist::Compare(const PluginPanelItem* Item1, const PluginPanelItem* Item2, unsigned int Mode) const

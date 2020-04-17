@@ -81,7 +81,8 @@ enum
 	MTitleFileDesc,
 
 	MTitleModules,
-	MColBaseSize,
+	MColBase,
+	MColSize,
 	MColPathVerDesc,
 	MColPathVerDescNotShown,
 	MTitleHandleInfo,

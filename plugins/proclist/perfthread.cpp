@@ -72,8 +72,8 @@ static bool Is64BitWindows()
 #else
 	// 32-bit programs run on both 32-bit and 64-bit Windows
 	// so must sniff
-	BOOL f64 = FALSE;
-	return pIsWow64Process(GetCurrentProcess(), &f64) && f64;
+	static const auto IsWow64 = is_wow64_process(GetCurrentProcess());
+	return IsWow64;
 #endif
 }
 
@@ -406,9 +406,8 @@ void PerfThread::Refresh()
 				SetLastError(ERROR_SUCCESS);
 				Task.dwGDIObjects = pGetGuiResources(hProcess.get(), 0/*GR_GDIOBJECTS*/);
 				Task.dwUSERObjects = pGetGuiResources(hProcess.get(), 1/*GR_USEROBJECTS*/);
-				BOOL wow64;
 
-				if (pIsWow64Process(hProcess.get(), &wow64) && wow64)
+				if (is_wow64_process(hProcess.get()))
 					Task.Bitness = 32;
 			}
 		}

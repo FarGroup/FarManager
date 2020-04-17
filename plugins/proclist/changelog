@@ -1,3 +1,8 @@
+drkns 17.04.2020 20:21:44 +0300 - build 196
+
+1. Forum: Process List plugin does not show environment and command line
+   x86 версия чудовищно работала в WOW64.
+
 drkns 17.04.2020 03:04:16 +0300 - build 195
 
 1. Добавлено получение командной строки через WMI.
