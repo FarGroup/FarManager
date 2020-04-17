@@ -80,49 +80,19 @@ WMIConnection::~WMIConnection()
 	Disconnect();
 }
 
-std::wstring WMIConnection::GetProcessExecutablePath(DWORD dwPID)
+std::wstring WMIConnection::GetProcessExecutablePath(DWORD const Pid)
 {
-	com_ptr<IWbemClassObject> Object;
-	hrLast = pIWbemServices->GetObject(ProcessPath(dwPID), 0, {}, &ptr_setter(Object), {});
-
-	if (!Object)
-		return {};
-
-	VARIANT pVal;
-	hrLast = Object->Get(L"ExecutablePath", 0, &pVal, {}, {});
-
-	std::wstring Result;
-	if (hrLast==WBEM_S_NO_ERROR && pVal.vt!=VT_NULL)
-	{
-		Result = pVal.bstrVal;
-		VariantClear(&pVal);
-	}
-
-	return Result;
+	return GetProcessString(Pid, L"ExecutablePath");
 }
 
-DWORD WMIConnection::GetProcessPriority(DWORD dwPID)
+std::wstring WMIConnection::GetProcessCommandLine(DWORD const Pid)
 {
-	com_ptr<IWbemClassObject> Object;
-	hrLast = pIWbemServices->GetObject(ProcessPath(dwPID), 0, {}, &ptr_setter(Object), {});
+	return GetProcessString(Pid, L"CommandLine");
+}
 
-	if (hrLast != WBEM_S_NO_ERROR || !Object)
-		return 0;
-
-	DWORD rc = 0;
-	VARIANT pVal;
-	hrLast = Object->Get(L"Priority", 0, &pVal, {}, {});
-
-	if (hrLast==WBEM_S_NO_ERROR)
-	{
-		if (pVal.vt==VT_I4)
-			rc = pVal.lVal;
-
-		VariantClear(&pVal);
-	}
-
-	Object->Release();
-	return rc;
+DWORD WMIConnection::GetProcessPriority(DWORD const Pid)
+{
+	return GetProcessInt(Pid, L"Priority");
 }
 
 std::wstring WMIConnection::GetProcessOwner(DWORD dwPID, std::wstring* Domain)
@@ -174,26 +144,9 @@ std::wstring WMIConnection::GetProcessUserSid(DWORD dwPID)
 	return UserSid;
 }
 
-int WMIConnection::GetProcessSessionId(DWORD dwPID)
+DWORD WMIConnection::GetProcessSessionId(DWORD const Pid)
 {
-	com_ptr<IWbemClassObject> Object;
-	hrLast = pIWbemServices->GetObject(ProcessPath(dwPID), 0, {}, &ptr_setter(Object), {});
-
-	if (!Object)
-		return -1;
-
-	int rc = -1;
-	VARIANT pVal;
-
-	if ((hrLast = Object->Get(L"SessionId", 0, &pVal, {}, {})) == WBEM_S_NO_ERROR)
-	{
-		if (pVal.vt==VT_I4)
-			rc = pVal.lVal;
-
-		VariantClear(&pVal);
-	}
-
-	return rc;
+	return GetProcessInt(Pid, L"SessionId");
 }
 
 int WMIConnection::ExecMethod(DWORD dwPID, const wchar_t* wsMethod, const wchar_t* wsParamName, DWORD dwParam)
@@ -251,6 +204,50 @@ int WMIConnection::ExecMethod(DWORD dwPID, const wchar_t* wsMethod, const wchar_
 	}
 
 	return rc;
+}
+
+bool WMIConnection::GetProcessProperty(DWORD const Pid, const wchar_t* const Name, const std::function<void(const VARIANT&)>& Getter)
+{
+	com_ptr<IWbemClassObject> Object;
+	hrLast = pIWbemServices->GetObject(ProcessPath(Pid), 0, {}, &ptr_setter(Object), {});
+
+	if (hrLast != WBEM_S_NO_ERROR || !Object)
+		return false;
+
+	VARIANT pVal;
+
+	hrLast = Object->Get(Name, 0, &pVal, {}, {});
+	if (hrLast != WBEM_S_NO_ERROR)
+		return false;
+
+	Getter(pVal);
+
+	VariantClear(&pVal);
+
+	return true;
+}
+
+DWORD WMIConnection::GetProcessInt(DWORD const Pid, const wchar_t* const Name)
+{
+	DWORD Value = 0;
+	GetProcessProperty(Pid, Name, [&](const VARIANT& Variant)
+	{
+		if (Variant.vt == VT_I4)
+			Value = Variant.lVal;
+	});
+	return Value;
+}
+
+std::wstring WMIConnection::GetProcessString(DWORD const Pid, const wchar_t* const Name)
+{
+	std::wstring Value;
+	GetProcessProperty(Pid, Name, [&](const VARIANT& Variant)
+	{
+		if (Variant.vt == VT_BSTR)
+			Value = Variant.bstrVal;
+	});
+	return Value;
+
 }
 
 int WMIConnection::SetProcessPriority(DWORD dwPID, DWORD dwPri)

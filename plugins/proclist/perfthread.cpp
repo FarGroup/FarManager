@@ -454,13 +454,19 @@ void PerfThread::RefreshWMIData()
 		{
 			i.Owner = WMI.GetProcessOwner(i.dwProcessId);
 
-			if (const auto SessionId = WMI.GetProcessSessionId(i.dwProcessId); SessionId > 0)
+			if (const auto SessionId = WMI.GetProcessSessionId(i.dwProcessId); SessionId)
 			{
 				i.Owner += L':';
 				i.Owner += std::to_wstring(SessionId);
 			}
 
 			i.OwnerRead = true;
+		}
+
+		if (!i.CommandLineRead)
+		{
+			i.CommandLine = WMI.GetProcessCommandLine(i.dwProcessId);
+			i.CommandLineRead = true;
 		}
 	}
 }

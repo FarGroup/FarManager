@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <functional>
 #include <string>
 
 constexpr inline auto NCOUNTERS = 22;
@@ -32,6 +33,7 @@ struct ProcessPerfData
 	std::wstring CommandLine;
 	bool FullPathRead{};
 	bool OwnerRead{};
+	bool CommandLineRead{};
 	FILETIME    ftCreation{};
 	DWORD       dwGDIObjects{}, dwUSERObjects{};
 	int         Bitness{};
@@ -59,18 +61,23 @@ public:
 	explicit operator bool() const { return pIWbemServices != nullptr; }
 	bool Connect(const wchar_t* pMachineName, const wchar_t* pUser = {}, const wchar_t* pPassword = {});
 	void Disconnect();
-	DWORD GetProcessPriority(DWORD dwPID);
+	DWORD GetProcessPriority(DWORD Pid);
 	int SetProcessPriority(DWORD dwPID, DWORD dwPri);
 	int TerminateProcess(DWORD dwPID);
 	std::wstring GetProcessOwner(DWORD dwPID, std::wstring* pDomain = {});
 	std::wstring GetProcessUserSid(DWORD dwPID);
-	int GetProcessSessionId(DWORD dwPID);
-	std::wstring GetProcessExecutablePath(DWORD dwPID);
+	DWORD GetProcessSessionId(DWORD Pid);
+	std::wstring GetProcessExecutablePath(DWORD Pid);
+	std::wstring GetProcessCommandLine(DWORD Pid);
 	int AttachDebuggerToProcess(DWORD dwPID) { return ExecMethod(dwPID, L"AttachDebugger"); }
 	HRESULT GetLastHResult() const { return hrLast; }
 
 private:
 	int ExecMethod(DWORD dwPID, const wchar_t* wsMethod, const wchar_t* wsParamName = {}, DWORD dwParam = 0);
+
+	bool GetProcessProperty(DWORD Pid, const wchar_t* Name, const std::function<void(const VARIANT&)>& Getter);
+	DWORD GetProcessInt(DWORD Pid, const wchar_t* Name);
+	std::wstring GetProcessString(DWORD Pid, const wchar_t* Name);
 
 	DebugToken token;
 	IWbemServices* pIWbemServices{};
