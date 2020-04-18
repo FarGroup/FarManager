@@ -4,7 +4,7 @@ NAME = ProcList
 LINK_OBJS = $(OBJDIR)\fileio.obj \
 $(OBJDIR)\format.obj \
 $(OBJDIR)\handles.obj \
-$(OBJDIR)\PCFG.OBJ \
+$(OBJDIR)\Pcfg.obj \
 $(OBJDIR)\Pclass.obj \
 $(OBJDIR)\perfthread.obj \
 $(OBJDIR)\Plist.obj \
