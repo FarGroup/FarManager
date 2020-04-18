@@ -14,6 +14,8 @@
 
 #include <plugin.hpp>
 
+#include "format.hpp"
+
 
 struct free_deleter
 {
@@ -46,6 +48,17 @@ inline HANDLE normalise_handle(HANDLE Handle)
 {
 	return Handle == INVALID_HANDLE_VALUE? nullptr : Handle;
 }
+
+struct local_deleter
+{
+	void operator()(const void* MemoryBlock) const
+	{
+		LocalFree(const_cast<HLOCAL>(MemoryBlock));
+	}
+};
+
+template<typename T>
+using local_ptr = std::unique_ptr<T, local_deleter>;
 
 
 #ifdef _MSC_VER
@@ -270,7 +283,6 @@ DECLARE_IMPORT(IsValidSid, BOOL (WINAPI*)(PSID));
 DECLARE_IMPORT(GetSidIdentifierAuthority, PSID_IDENTIFIER_AUTHORITY (WINAPI*)(PSID));
 DECLARE_IMPORT(GetSidSubAuthorityCount, PUCHAR (WINAPI*)(PSID));
 DECLARE_IMPORT(GetSidSubAuthority, PDWORD (WINAPI*)(PSID, DWORD));
-DECLARE_IMPORT(LookupAccountNameW, BOOL (WINAPI*)(LPCTSTR, LPCTSTR, PSID, LPDWORD, LPTSTR, LPDWORD, PSID_NAME_USE));
 DECLARE_IMPORT(IsWow64Process, BOOL (WINAPI*)(HANDLE hProcess, PBOOL Wow64Process));
 DECLARE_IMPORT(GetGuiResources, DWORD (WINAPI*)(HANDLE hProcess, DWORD uiFlags));
 DECLARE_IMPORT(CoSetProxyBlanket, HRESULT (WINAPI*)(IUnknown*, DWORD, DWORD, OLECHAR*, DWORD, DWORD, RPC_AUTH_IDENTITY_HANDLE, DWORD));
@@ -281,18 +293,34 @@ DECLARE_IMPORT(EnumProcessModulesEx, BOOL (WINAPI*)(HANDLE, HMODULE*, DWORD, DWO
 
 bool is_wow64_process(HANDLE Process);
 
-std::wstring str_printf(const wchar_t* Format...);
-
 std::wstring DurationToText(uint64_t Duration);
 std::wstring FileTimeDifferenceToText(const FILETIME& CurFileTime, const FILETIME& SrcTime);
 
-size_t PrintToFile(HANDLE File, const wchar_t* Format...);
-size_t PrintToFile(HANDLE File, wchar_t Char);
+size_t WriteToFile(HANDLE File, const std::wstring_view& Str);
+size_t WriteToFile(HANDLE File, wchar_t Char);
 
 //-------
 inline bool norm_m_prefix(const wchar_t* Str)
 {
 	return Str[0] == L'\\' && Str[1] == L'\\';
 }
+
+template<typename T>
+class ptr_setter
+{
+public:
+	explicit ptr_setter(T& Ptr) : m_Ptr(&Ptr) {}
+	~ptr_setter() { m_Ptr->reset(m_RawPtr); }
+
+	[[nodiscard]]
+	auto operator&() { return &m_RawPtr; }
+
+	ptr_setter(const ptr_setter&) = delete;
+	ptr_setter& operator=(const ptr_setter&) = delete;
+
+private:
+	T* m_Ptr;
+	typename T::pointer m_RawPtr{};
+};
 
 #endif // PROCLIST_HPP_71FFA62B_457B_416D_B4F5_DAB215BE015F

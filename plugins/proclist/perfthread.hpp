@@ -41,7 +41,7 @@ struct ProcessPerfData
 
 struct PerfLib
 {
-	wchar_t szSubKey[1024]{};
+	std::wstring SubKey;
 	DWORD dwProcessIdTitle{};
 	DWORD dwPriorityTitle{};
 	DWORD dwThreadTitle{};

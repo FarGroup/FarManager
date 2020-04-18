@@ -68,8 +68,8 @@
 "Obiekty GDI"
 "Obiekty USER"
 
-"Linia poleceń"
-"Bieżączy folder"
+"Linia poleceń:"
+"Bieżączy folder:"
 "Środowisko:"
 
 "Wersja pliku"
@@ -81,7 +81,10 @@
 "Ścieżka, wersja, opis"
 "Path (version info is not displayed)"
 "Uchwyty:"
-"Handle  Access   Type         Name"
+"Handle"
+"Access"
+"Type"
+"Name"
 
 "Lista procesów - ustawienie"
 "Dodaj do listy &Dysków"

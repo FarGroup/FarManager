@@ -85,8 +85,11 @@ enum
 	MColSize,
 	MColPathVerDesc,
 	MColPathVerDescNotShown,
-	MTitleHandleInfo,
-	MHandleInfoHdr,
+	MHandles,
+	MHandlesHandle,
+	MHandlesAccess,
+	MHandlesType,
+	MHandlesName,
 
 	MConfigTitle,
 	MConfigAddToDisksMenu,

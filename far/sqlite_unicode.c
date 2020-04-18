@@ -43,27 +43,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-struct qlite3_value;
-typedef struct sqlite3_value sqlite3_value;
-
-const void* far_value_text16(void*);
-
-static const void* sqlite3_value_text16(sqlite3_value* Val)
-{
-	return far_value_text16(Val);
-}
-
-struct sqlite3_context;
-typedef struct sqlite3_context sqlite3_context;
-
-void far_result_text16(void*, const void*, int);
-
-static void sqlite3_result_text16(sqlite3_context* Ctx, const void* Val, int Length, void (*Del)(void*))
-{
-	far_result_text16(Ctx, Val, Length);
-}
-
-
 #define SQLITE_CORE
 #define SQLITE_ENABLE_UNICODE
 
@@ -74,7 +53,26 @@ WARNING_DISABLE_GCC("-Wsign-compare")
 
 WARNING_DISABLE_CLANG("-Weverything")
 
+#define sqlite3_value_text16 sqlite3_value_text16_hook
+#define sqlite3_result_text16 sqlite3_result_text16_hook
+
 #include "thirdparty/sqlite/sqlite3_unicode.c"
+
+
+const void* far_value_text16(void*);
+
+const void* sqlite3_value_text16_hook(sqlite3_value* Val)
+{
+	return far_value_text16(Val);
+}
+
+void far_result_text16(void*, const void*, int);
+
+void sqlite3_result_text16_hook(sqlite3_context* Ctx, const void* Val, int Length, void (*Del)(void*))
+{
+	far_result_text16(Ctx, Val, Length);
+}
+
 
 const wchar_t SQLite_Unicode_Version[] = WIDE(SQLITE3_UNICODE_VERSION_STRING);
 

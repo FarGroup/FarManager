@@ -78,11 +78,6 @@ static PDWORD WINAPI fGetSidSubAuthority(PSID, DWORD)
 	return {};
 }
 
-static BOOL WINAPI fLookupAccountNameW(LPCTSTR, LPCTSTR, PSID, LPDWORD, LPTSTR, LPDWORD, PSID_NAME_USE)
-{
-	return FALSE;
-}
-
 static HRESULT WINAPI fCoSetProxyBlanket(IUnknown*, DWORD, DWORD, OLECHAR*, DWORD, DWORD, RPC_AUTH_IDENTITY_HANDLE, DWORD)
 {
 	return E_FAIL;
@@ -109,7 +104,6 @@ STATIC_INIT_IMPORT(IsValidSid);
 STATIC_INIT_IMPORT(GetSidIdentifierAuthority);
 STATIC_INIT_IMPORT(GetSidSubAuthorityCount);
 STATIC_INIT_IMPORT(GetSidSubAuthority);
-STATIC_INIT_IMPORT(LookupAccountNameW);
 STATIC_INIT_IMPORT(CoSetProxyBlanket);
 STATIC_INIT_IMPORT(EnumProcessModulesEx);
 
@@ -149,7 +143,6 @@ static void dynamic_bind()
 		INIT_IMPORT(GetSidIdentifierAuthority);
 		INIT_IMPORT(GetSidSubAuthorityCount);
 		INIT_IMPORT(GetSidSubAuthority);
-		INIT_IMPORT(LookupAccountNameW);
 	}
 
 	if (const auto Module = GetModuleHandle(L"user32"))

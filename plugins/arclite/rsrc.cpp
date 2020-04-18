@@ -37,11 +37,11 @@ public:
 };
 
 struct IconImage {
-  BYTE width;
-  BYTE height;
-  BYTE color_cnt;
-  WORD plane_cnt;
-  WORD bit_cnt;
+  BYTE width{};
+  BYTE height{};
+  BYTE color_cnt{};
+  WORD plane_cnt{};
+  WORD bit_cnt{};
   ByteVector bitmap;
 };
 
@@ -96,8 +96,8 @@ IconFile load_icon_file(const std::wstring& file_path) {
 
 
 struct IconImageRsrc {
-  WORD id;
-  WORD lang_id;
+  WORD id{};
+  WORD lang_id{};
   IconImage image;
 };
 

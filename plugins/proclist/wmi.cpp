@@ -51,25 +51,6 @@ struct com_closer
 template<typename T>
 using com_ptr = std::unique_ptr<T, com_closer>;
 
-template<typename T>
-class ptr_setter
-{
-public:
-	explicit ptr_setter(T& Ptr) : m_Ptr(&Ptr) {}
-	~ptr_setter() { m_Ptr->reset(m_RawPtr); }
-
-	[[nodiscard]]
-	auto operator&() { return &m_RawPtr; }
-
-	ptr_setter(const ptr_setter&) = delete;
-	ptr_setter& operator=(const ptr_setter&) = delete;
-
-private:
-	T* m_Ptr;
-	typename T::pointer m_RawPtr{};
-};
-
-
 WMIConnection::WMIConnection()
 {
 	token.Enable();

@@ -68,8 +68,8 @@
 "GDI Objects"
 "USER Objects"
 
-"Command Line"
-"Current Directory"
+"Command Line:"
+"Current Directory:"
 "Environment:"
 
 "File version"
@@ -81,7 +81,10 @@
 "Path, version, description"
 "Path (version info is not displayed)"
 "Handles:"
-"Handle  Access   Type         Name"
+"Handle"
+"Access"
+"Type"
+"Name"
 
 "Process list - config"
 "&Add to Disks menu"

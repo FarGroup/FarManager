@@ -1,3 +1,7 @@
+drkns 18.04.2020 18:47:55 +0300 - build 197
+
+1. Рефакторинг. Том III. Используем fmt вместо printf.
+
 drkns 17.04.2020 20:21:44 +0300 - build 196
 
 1. Forum: Process List plugin does not show environment and command line

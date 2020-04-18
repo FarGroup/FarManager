@@ -114,8 +114,8 @@ PerfThread::PerfThread(const wchar_t* hostname, const wchar_t* pUser, const wcha
 	}
 
 	const auto lid = MAKELANGID(LANG_ENGLISH, SUBLANG_NEUTRAL);
-	FSF.sprintf(pf.szSubKey, L"Software\\Microsoft\\Windows NT\\CurrentVersion\\Perflib\\%03X", lid);
-	const RegKey hKeyNames(hHKLM, pf.szSubKey, KEY_READ);
+	pf.SubKey = format(FSTR(L"Software\\Microsoft\\Windows NT\\CurrentVersion\\Perflib\\{0:03X}"), lid);
+	const RegKey hKeyNames(hHKLM, pf.SubKey.c_str(), KEY_READ);
 
 	if (!hKeyNames)
 		return;
@@ -149,7 +149,7 @@ PerfThread::PerfThread(const wchar_t* hostname, const wchar_t* pUser, const wcha
 	for (auto p = buf.data(); *p; p += std::wcslen(p) + 1)
 	{
 		if (FSF.LStricmp(p, L"Process") == 0)
-			FSF.itoa(getcounter(p), pf.szSubKey, 10);
+			pf.SubKey = str(getcounter(p));
 		else if (!pf.dwProcessIdTitle && FSF.LStricmp(p, L"ID Process") == 0)
 			pf.dwProcessIdTitle = getcounter(p);
 		else if (!pf.dwPriorityTitle && FSF.LStricmp(p, L"Priority Base") == 0)
@@ -259,7 +259,7 @@ void PerfThread::Refresh()
 		dwDeltaTickCount = GetTickCount() - dwLastTickCount;
 		DWORD rc;
 
-		while ((rc = RegQueryValueEx(hPerf, pf.szSubKey, {}, &dwType, buf.data(), &dwSize)) == ERROR_LOCK_FAILED)
+		while ((rc = RegQueryValueEx(hPerf, pf.SubKey.c_str(), {}, &dwType, buf.data(), &dwSize)) == ERROR_LOCK_FAILED)
 			; //Just retry
 
 		pPerf = view_as<PERF_DATA_BLOCK>(buf.data(), 0);
@@ -456,7 +456,7 @@ void PerfThread::RefreshWMIData()
 			if (const auto SessionId = WMI.GetProcessSessionId(i.dwProcessId); SessionId)
 			{
 				i.Owner += L':';
-				i.Owner += std::to_wstring(SessionId);
+				i.Owner += str(SessionId);
 			}
 
 			i.OwnerRead = true;

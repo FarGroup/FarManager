@@ -69,7 +69,7 @@
 "Oggetti USER"
 
 "Linea Di Comando:"
-"Cartella Corrente"
+"Cartella Corrente:"
 "Ambiente:"
 
 "Versione File"
@@ -81,7 +81,10 @@
 "Descrizione Percorso"
 "Percorso (versione non mostrata)"
 "Handles:"
-"Handle  Accesso  Tipo         Nome"
+"Handle"
+"Accesso"
+"Tipo"
+"Nome"
 
 "► Lista Processi (Configura)"
 "&Aggiungi Al Pannello Delle Unita'"

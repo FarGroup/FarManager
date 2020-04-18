@@ -192,7 +192,7 @@ namespace detail
 	{
 		ULONG         Length;
 		BOOLEAN       Initialized;
-		PVOID         SsHandle;
+		ULONG64       SsHandle;
 		LIST_ENTRY_64 InLoadOrderModuleList;
 		LIST_ENTRY_64 InMemoryOrderModuleList;
 		LIST_ENTRY_64 InInitializationOrderModuleList;
@@ -513,9 +513,9 @@ public:
 		std::wstring* EnvStrings
 	)
 	{
-		typename types::LDR_MODULE Data = {};
-		typename types::PTR pEnd;
-		typename types::PTR pProcessParams;
+		typename types::LDR_MODULE Data;
+		typename types::PTR pEnd{};
+		typename types::PTR pProcessParams{};
 
 		if (!GetInternalProcessData(hProcess, &Data, pProcessParams, pEnd))
 			return;
@@ -568,8 +568,8 @@ public:
 	static void PrintModules(HANDLE Process, HANDLE InfoFile, options& Opt)
 	{
 		typename types::LDR_MODULE Data;
-		typename types::PTR pProcessParams;
-		typename types::PTR pEnd;
+		typename types::PTR pProcessParams{};
+		typename types::PTR pEnd{};
 
 		if (GetInternalProcessData(Process, &Data, pProcessParams, pEnd, true))
 		{

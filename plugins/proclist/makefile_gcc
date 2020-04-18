@@ -1,6 +1,7 @@
 NAME = Proclist
 SRCS = Proclist.cpp \
 fileio.cpp \
+format.cpp \
 handles.cpp \
 Pcfg.cpp \
 Pclass.cpp \

@@ -35,55 +35,33 @@ void ConvertDate(const FILETIME& ft, wchar_t* DateText, wchar_t* TimeText)
 
 int WinError(const wchar_t* pSourceModule)
 {
-	wchar_t* lpMsgBuf;
-	const auto dwLastErr = GetLastError();
-	const size_t Size = FormatMessage(
-	(pSourceModule? FORMAT_MESSAGE_FROM_HMODULE : FORMAT_MESSAGE_FROM_SYSTEM) | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
+	local_ptr<wchar_t> SysBuffer;
+	const auto LastError = GetLastError();
+
+	std::wstring Buffer;
+
+	if (const auto Size = FormatMessage(
+		(pSourceModule? FORMAT_MESSAGE_FROM_HMODULE : FORMAT_MESSAGE_FROM_SYSTEM) | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
 		pSourceModule? GetModuleHandle(pSourceModule) : nullptr,
-		dwLastErr,
+		LastError,
 		0,
-		reinterpret_cast<wchar_t*>(&lpMsgBuf), 0, {});
-
-	wchar_t ErrBuf[32];
-
-	if (!Size)
+		reinterpret_cast<wchar_t*>(&ptr_setter(SysBuffer)), 0, {}))
 	{
-		FSF.sprintf(ErrBuf, L"Error 0x%x", dwLastErr);
-		lpMsgBuf = ErrBuf;
+		Buffer = { SysBuffer.get(), Size };
+	}
+	else
+	{
+		Buffer = format(FSTR(L"Error 0x{0:08X}"), LastError);
 	}
 
-	static const wchar_t* items[]
+	Buffer.resize(Buffer.find_last_not_of(L"\r\n") + 1);
+
+	const wchar_t* items[]
 	{
-		{},
-		{},
-		{},
-		{},
+		GetMsg(MError),
+		Buffer.c_str(),
+		GetMsg(MOk),
 	};
 
-	items[0] = GetMsg(MError); items[3] = GetMsg(MOk);
-
-	if (std::wcslen(lpMsgBuf) > 64)
-	{
-		for (auto i = std::wcslen(lpMsgBuf) / 2; i < std::wcslen(lpMsgBuf); ++i)
-		{
-			if (lpMsgBuf[i] == L' ')
-			{
-				lpMsgBuf[i] = L'\n';
-				break;
-			}
-		}
-	}
-
-	items[1] = std::wcstok(lpMsgBuf, L"\r\n");
-	items[2] = std::wcstok({}, L"\r\n");
-
-	if (!items[2])
-		items[2] = items[3];
-
-	const auto rc = Message(FMSG_WARNING, {}, items, std::size(items) - (items[2] == items[3]));
-
-	if (Size)
-		LocalFree(lpMsgBuf);
-
-	return rc;
+	return Message(FMSG_WARNING, {}, items, std::size(items));
 }

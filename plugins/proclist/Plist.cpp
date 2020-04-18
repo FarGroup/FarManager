@@ -249,7 +249,7 @@ bool KillProcess(DWORD pid, HWND hwnd)
 
 void DumpNTCounters(HANDLE InfoFile, PerfThread& Thread, DWORD dwPid, DWORD dwThreads)
 {
-	PrintToFile(InfoFile, L'\n');
+	WriteToFile(InfoFile, L'\n');
 	const std::scoped_lock l(Thread);
 	const auto pdata = Thread.GetProcessData(dwPid, dwThreads);
 	if (!pdata)
@@ -262,30 +262,30 @@ void DumpNTCounters(HANDLE InfoFile, PerfThread& Thread, DWORD dwPid, DWORD dwTh
 		if (!pf->dwCounterTitles[i]) // counter is absent
 			continue;
 
-		PrintToFile(InfoFile, L"%-24s ", (GetMsg(Counters[i].idName) + L":"s).c_str());
+		WriteToFile(InfoFile, format(FSTR(L"{0:<24} "), GetMsg(Counters[i].idName) + L":"s));
 
 		switch (pf->CounterTypes[i])
 		{
 		case PERF_COUNTER_RAWCOUNT:
 		case PERF_COUNTER_LARGE_RAWCOUNT:
 			// Display as is.  No Display Suffix.
-			PrintToFile(InfoFile, L"%14I64u\n", pdata->qwResults[i]);
+			WriteToFile(InfoFile, format(FSTR(L"{0:14}\n"), pdata->qwResults[i]));
 			break;
 
 		case PERF_100NSEC_TIMER:
 			// 64-bit Timer in 100 nsec units. Display delta divided by delta time. Display suffix: "%"
-			PrintToFile(InfoFile, L"%20s %7I64u%%\n", DurationToText(pdata->qwCounters[i]).c_str(), pdata->qwResults[i]);
+			WriteToFile(InfoFile, format(FSTR(L"{0:20} {1:7}%\n"), DurationToText(pdata->qwCounters[i]), pdata->qwResults[i]));
 			break;
 
 		case PERF_COUNTER_COUNTER:
 			// 32-bit Counter.  Divide delta by delta time.  Display suffix: "/sec"
 		case PERF_COUNTER_BULK_COUNT:
 			// 64-bit Counter.  Divide delta by delta time. Display Suffix: "/sec"
-			PrintToFile(InfoFile, L"%14I64u  %9I64u%s\n", pdata->qwCounters[i], pdata->qwResults[i], GetMsg(MperSec));
+			WriteToFile(InfoFile, format(FSTR(L"{0:14}  {1:9}{2}\n"), pdata->qwCounters[i], pdata->qwResults[i], GetMsg(MperSec)));
 			break;
 
 		default:
-			PrintToFile(InfoFile, L'\n');
+			WriteToFile(InfoFile, L'\n');
 			break;
 		}
 	}
@@ -295,20 +295,20 @@ void PrintNTCurDirAndEnv(HANDLE InfoFile, HANDLE hProcess, BOOL bExportEnvironme
 {
 	std::wstring CurDir, EnvStrings;
 	GetOpenProcessData(hProcess, {}, {}, {}, &CurDir, bExportEnvironment? &EnvStrings : nullptr);
-	PrintToFile(InfoFile, L'\n');
+	WriteToFile(InfoFile, L'\n');
 
 	if (!CurDir.empty())
 	{
-		PrintToFile(InfoFile, L"%s %s\n\n", Plist::PrintTitle(MCurDir), CurDir.c_str());
+		WriteToFile(InfoFile, format(FSTR(L"{0}\n{1}\n"), GetMsg(MCurDir), CurDir));
 	}
 
 	if (bExportEnvironment && !EnvStrings.empty())
 	{
-		PrintToFile(InfoFile, L"%s\n\n", GetMsg(MEnvironment));
+		WriteToFile(InfoFile, format(FSTR(L"\n{0}\n"), GetMsg(MEnvironment)));
 
 		for (wchar_t* p = EnvStrings.data(); *p; p += std::wcslen(p) + 1)
 		{
-			PrintToFile(InfoFile, L"%s\n", p);
+			WriteToFile(InfoFile, format(FSTR(L"{0}\n"), p));
 		}
 	}
 }
@@ -317,31 +317,31 @@ void PrintModuleVersion(HANDLE InfoFile, const wchar_t* pVersion, const wchar_t*
 {
 	do
 	{
-		PrintToFile(InfoFile, L'\t');
+		WriteToFile(InfoFile, L'\t');
 	} while ((len = (len | 7) + 1) < 56);
 
-	len += PrintToFile(InfoFile, L"%s", pVersion? pVersion : L"");
+	len += WriteToFile(InfoFile, pVersion? pVersion : L"");
 
 	if (pDesc)
 	{
 		do
 		{
-			PrintToFile(InfoFile, L' ');
+			WriteToFile(InfoFile, L' ');
 		} while (len++ < 72);
 
-		PrintToFile(InfoFile, L"%s", pDesc);
+		WriteToFile(InfoFile, pDesc);
 	}
 }
 
-static void print_module_impl(HANDLE const InfoFile, const std::wstring& Module, DWORD const SizeOfImage, options& Opt, const std::function<bool(wchar_t*, size_t)>& GetName)
+static void print_module_impl(HANDLE const InfoFile, const std::wstring& Module, DWORD const SizeOfImage, const options& Opt, const std::function<bool(wchar_t*, size_t)>& GetName)
 {
-	auto len = PrintToFile(InfoFile, L"  %s %8X", Module.c_str(), SizeOfImage);
+	auto len = WriteToFile(InfoFile, format(FSTR(L"{0} {1:8X}"), Module, SizeOfImage));
 
 	WCHAR wszModuleName[MAX_PATH];
 
 	if (GetName(wszModuleName, std::size(wszModuleName)))
 	{
-		len += PrintToFile(InfoFile, L" %s", wszModuleName);
+		len += WriteToFile(InfoFile, format(FSTR(L" {0}"), wszModuleName));
 
 		const wchar_t* pVersion, * pDesc;
 		std::unique_ptr<char[]> Buffer;
@@ -352,13 +352,19 @@ static void print_module_impl(HANDLE const InfoFile, const std::wstring& Module,
 		}
 	}
 
-	PrintToFile(InfoFile, L'\n');
+	WriteToFile(InfoFile, L'\n');
 }
 
 template<typename module_type>
 static void print_module(HANDLE const InfoFile, module_type Module, DWORD const SizeOfImage, options& Opt, const std::function<bool(wchar_t*, size_t)>& GetName)
 {
-	const auto ModuleStr = str_printf(sizeof(module_type) > sizeof(void*)? L"%016I64X" : L"%p", Module);
+	std::wstring ModuleStr;
+
+	if constexpr (sizeof(module_type) > sizeof(void*))
+		ModuleStr = format(FSTR(L"{0:016X}"), Module);
+	else
+		ModuleStr = format(FSTR(L"{0:0{1}X}"), reinterpret_cast<uintptr_t>(Module), sizeof(void*) * 2);
+
 	print_module_impl(InfoFile, ModuleStr, SizeOfImage, Opt, GetName);
 }
 
@@ -410,5 +416,5 @@ void PrintModules(HANDLE InfoFile, DWORD dwPID, options& Opt)
 		);
 	}
 
-	PrintToFile(InfoFile, L'\n');
+	WriteToFile(InfoFile, L'\n');
 }
