@@ -70,8 +70,8 @@ enum
 	MChangePriority,
 	MConfirmChangePriority,
 
-	MGDIObjects,
-	MUSERObjects,
+	MTitleGDIObjects,
+	MTitleUSERObjects,
 
 	MCommandLine,
 	MCurDir,
@@ -162,7 +162,7 @@ enum
 	MColVirtualBytes,
 	MColVirtualBytesPeak,
 
-	MperSec,
+	MPerSec,
 
 	MSortBy,
 	MSortByName,

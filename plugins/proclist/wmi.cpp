@@ -35,9 +35,7 @@ private:
 
 static auto ProcessPath(DWORD const Pid)
 {
-	wchar_t Str[64];
-	wsprintfW(Str, L"Win32_Process.Handle=%u", Pid);
-	return bstr(Str);
+	return bstr(format(FSTR(L"Win32_Process.Handle={0}"), Pid).c_str());
 }
 
 struct com_closer
@@ -259,10 +257,10 @@ bool WMIConnection::Connect(const wchar_t* pMachineName, const wchar_t* pUser, c
 
 		if (norm_m_prefix(pMachineName))
 			pMachineName += 2;
-		wchar_t Namespace[128];
-		wsprintfW(Namespace, L"\\\\%s\\root\\cimv2", pMachineName);
 
-		if ((hrLast = IWbemLocator->ConnectServer(bstr(Namespace), bstr(pUser), bstr(pPassword), {}, 0, {}, {}, &pIWbemServices)) == S_OK)
+		const auto Namespace = format(FSTR(L"\\\\{0}\\root\\cimv2"), pMachineName);
+
+		if ((hrLast = IWbemLocator->ConnectServer(bstr(Namespace.c_str()), bstr(pUser), bstr(pPassword), {}, 0, {}, {}, &pIWbemServices)) == S_OK)
 		{
 			// We impersonate a token to enable SeDebugPrivilege privilege.
 			// Enable static cloaking here to make sure the server sees it.

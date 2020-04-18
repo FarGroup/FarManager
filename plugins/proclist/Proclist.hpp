@@ -136,7 +136,6 @@ public:
 	int ProcessKey(const INPUT_RECORD* Rec);
 	PanelMode* PanelModes(size_t& nModes);
 
-	static wchar_t* PrintTitle(int MsgId);
 	static bool GetVersionInfo(const wchar_t* pFullPath, std::unique_ptr<char[]>& Buffer, const wchar_t*& pVersion, const wchar_t*& pDesc);
 
 	static void SavePanelModes();
@@ -251,7 +250,6 @@ enum
 
 extern wchar_t CustomColumns[10][10];
 
-void DumpNTCounters(HANDLE InfoFile, PerfThread& PThread, DWORD dwPid, DWORD dwThreads);
 void PrintNTCurDirAndEnv(HANDLE InfoFile, HANDLE hProcess, BOOL bExportEnvironment);
 void PrintModules(HANDLE InfoFile, DWORD dwPID, options& opt);
 bool PrintHandleInfo(DWORD dwPID, HANDLE file, bool bIncludeUnnamed, PerfThread* pThread);

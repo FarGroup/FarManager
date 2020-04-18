@@ -247,50 +247,6 @@ bool KillProcess(DWORD pid, HWND hwnd)
 	return TerminateProcess(Process.get(), ERROR_PROCESS_ABORTED);
 }
 
-void DumpNTCounters(HANDLE InfoFile, PerfThread& Thread, DWORD dwPid, DWORD dwThreads)
-{
-	WriteToFile(InfoFile, L'\n');
-	const std::scoped_lock l(Thread);
-	const auto pdata = Thread.GetProcessData(dwPid, dwThreads);
-	if (!pdata)
-		return;
-
-	const PerfLib* pf = Thread.GetPerfLib();
-
-	for (size_t i = 0; i != std::size(Counters); i++)
-	{
-		if (!pf->dwCounterTitles[i]) // counter is absent
-			continue;
-
-		WriteToFile(InfoFile, format(FSTR(L"{0:<24} "), GetMsg(Counters[i].idName) + L":"s));
-
-		switch (pf->CounterTypes[i])
-		{
-		case PERF_COUNTER_RAWCOUNT:
-		case PERF_COUNTER_LARGE_RAWCOUNT:
-			// Display as is.  No Display Suffix.
-			WriteToFile(InfoFile, format(FSTR(L"{0:14}\n"), pdata->qwResults[i]));
-			break;
-
-		case PERF_100NSEC_TIMER:
-			// 64-bit Timer in 100 nsec units. Display delta divided by delta time. Display suffix: "%"
-			WriteToFile(InfoFile, format(FSTR(L"{0:20} {1:7}%\n"), DurationToText(pdata->qwCounters[i]), pdata->qwResults[i]));
-			break;
-
-		case PERF_COUNTER_COUNTER:
-			// 32-bit Counter.  Divide delta by delta time.  Display suffix: "/sec"
-		case PERF_COUNTER_BULK_COUNT:
-			// 64-bit Counter.  Divide delta by delta time. Display Suffix: "/sec"
-			WriteToFile(InfoFile, format(FSTR(L"{0:14}  {1:9}{2}\n"), pdata->qwCounters[i], pdata->qwResults[i], GetMsg(MperSec)));
-			break;
-
-		default:
-			WriteToFile(InfoFile, L'\n');
-			break;
-		}
-	}
-}
-
 void PrintNTCurDirAndEnv(HANDLE InfoFile, HANDLE hProcess, BOOL bExportEnvironment)
 {
 	std::wstring CurDir, EnvStrings;
