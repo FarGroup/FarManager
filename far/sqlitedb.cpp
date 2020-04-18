@@ -517,7 +517,7 @@ void SQLiteDb::CreateNumericCollation() const
 // for sqlite_unicode.c
 
 WARNING_PUSH()
-WARNING_DISABLE_GCC("-Wmissing-prototypes")
+WARNING_DISABLE_GCC("-Wmissing-declarations")
 WARNING_DISABLE_CLANG("-Wmissing-prototypes")
 
 extern "C" const void* far_value_text16(void* Val)
