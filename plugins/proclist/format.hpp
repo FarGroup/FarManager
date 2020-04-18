@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include "../../far/thirdparty/fmt/fmt/format.h"
-#include "../../far/thirdparty/fmt/fmt/ostream.h"
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 
 // TODO: Unify with Far

@@ -13,7 +13,11 @@ $(OBJDIR)\WMI.obj \
 $(OBJDIR)\Proclist.obj
 DOCS = ProcEng.hlf ProcRus.hlf ProcPol.hlf ProcEng.lng ProcRus.lng ProcIta.lng ProcBel.lng ProcPol.lng changelog
 
-USERCPP = /EHsc /I".\WMI" -D"_WIN32_DCOM"
+!ifndef FARDIR
+FARDIR=../../far
+!endif
+
+USERCPP = /EHsc /I".\WMI" -D"_WIN32_DCOM" -I"$(FARDIR)/thirdparty/fmt"
 
 !include ..\makefile_vc_def_inc
 
