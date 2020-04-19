@@ -12,10 +12,12 @@ wmi.cpp
 DOCS = ProcEng.hlf ProcRus.hlf ProcPol.hlf ProcEng.lng ProcRus.lng ProcIta.lng ProcBel.lng ProcPol.lng changelog
 
 ifndef FARDIR
-FARDIR=../../far
+FAR_DIRECTORY=../../far
+else
+FAR_DIRECTORY=$(FARDIR)
 endif
 
-USERCPP = -I ./WMI -I "$(FARDIR)/thirdparty/fmt"
+USERCPP = -I ./WMI -I "$(FAR_DIRECTORY)/thirdparty/fmt"
 USERLIBS = -lversion -lmpr -lole32 -loleaut32 -lpsapi
 
 include ../../far/makefile_gcc_common
