@@ -326,7 +326,7 @@ int ustring_OemToUtf8(lua_State *L)
 
 int ustring_Utf8ToOem(lua_State *L)
 {
-	size_t len;
+	size_t len = 0;
 	const wchar_t* buf = check_utf8_string(L, 1, &len);
 	push_oem_string(L, buf, len);
 	return 1;
@@ -342,7 +342,7 @@ int ustring_Utf16ToUtf8(lua_State *L)
 
 int ustring_Utf8ToUtf16(lua_State *L)
 {
-	size_t len;
+	size_t len = 0;
 	const wchar_t *ws = check_utf8_string(L, 1, &len);
 	lua_pushlstring(L, (const char*) ws, len*sizeof(wchar_t));
 	return 1;

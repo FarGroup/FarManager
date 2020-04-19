@@ -1,3 +1,7 @@
+shmuel 19.04.2020 11:22:12 +0200 - build 739
+
+1. LuaFAR: fix GCC warnings from appveyor.
+
 shmuel 10.04.2020 21:59:24 +0200 - build 738
 
 1. LuaFAR: update luautf8 library to release 0.1.2.
