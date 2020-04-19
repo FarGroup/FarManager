@@ -71,6 +71,8 @@ struct DialogItemBinding
 
 	virtual void SaveValue(T *Item, int RadioGroupIndex)
 	{
+		(void)Item;
+		(void)RadioGroupIndex;
 	}
 };
 
@@ -316,10 +318,13 @@ class DialogBuilderBase
 
 		virtual void InitDialogItem(T *NewDialogItem, const wchar_t *Text)
 		{
+			(void)NewDialogItem;
+			(void)Text;
 		}
 
 		virtual int TextWidth(const T &Item)
 		{
+			(void)Item;
 			return -1;
 		}
 
@@ -361,6 +366,7 @@ class DialogBuilderBase
 
 		virtual const wchar_t *GetLangString(int MessageID)
 		{
+			(void)MessageID;
 			return nullptr;
 		}
 
@@ -371,11 +377,14 @@ class DialogBuilderBase
 
 		virtual DialogItemBinding<T> *CreateCheckBoxBinding(int *Value, int Mask)
 		{
+			(void)Value;
+			(void)Mask;
 			return nullptr;
 		}
 
 		virtual DialogItemBinding<T> *CreateRadioButtonBinding(int *Value)
 		{
+			(void)Value;
 			return nullptr;
 		}
 
@@ -467,11 +476,15 @@ class DialogBuilderBase
 		// Добавляет поле типа DI_FIXEDIT для редактирования указанного числового значения.
 		virtual T *AddIntEditField(int *Value, int Width)
 		{
+			(void)Value;
+			(void)Width;
 			return nullptr;
 		}
 
 		virtual T *AddUIntEditField(unsigned int *Value, int Width)
 		{
+			(void)Value;
+			(void)Width;
 			return nullptr;
 		}
 
@@ -718,6 +731,8 @@ public:
 
 	void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
 	{
+		(void)RadioGroupIndex;
+		(void)Item;
 		const int Selected = static_cast<int>(Info.SendDlgMessage(*DialogHandle, DM_GETCHECK, ID, nullptr));
 		if (!Mask)
 		{
@@ -747,6 +762,7 @@ class PluginRadioButtonBinding: public DialogAPIBinding
 
 		void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
 		{
+			(void)Item;
 			if (Info.SendDlgMessage(*DialogHandle, DM_GETCHECK, ID, nullptr))
 				*Value = RadioGroupIndex;
 		}
@@ -766,6 +782,8 @@ public:
 
 	void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
 	{
+		(void)RadioGroupIndex;
+		(void)Item;
 		const wchar_t *DataPtr = reinterpret_cast<const wchar_t*>(Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, nullptr));
 		lstrcpynW(Value, DataPtr, MaxSize);
 	}
@@ -794,6 +812,8 @@ public:
 
 	void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
 	{
+		(void)RadioGroupIndex;
+		(void)Item;
 		const wchar_t *DataPtr = reinterpret_cast<const wchar_t*>(Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, nullptr));
 		*Value = Info.FSF->atoi(DataPtr);
 	}
@@ -832,6 +852,8 @@ public:
 
 	void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
 	{
+		(void)RadioGroupIndex;
+		(void)Item;
 		const wchar_t *DataPtr = reinterpret_cast<const wchar_t*>(Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, nullptr));
 		*Value = static_cast<unsigned int>(Info.FSF->atoi64(DataPtr));
 	}
@@ -876,6 +898,8 @@ public:
 
 	void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
 	{
+		(void)RadioGroupIndex;
+		(void)Item;
 		if (SelectedIndex)
 		{
 			*SelectedIndex = static_cast<int>(Info.SendDlgMessage(*DialogHandle, DM_LISTGETCURPOS, ID, nullptr));
