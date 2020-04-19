@@ -1170,7 +1170,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 
 		ConsoleActivatior(false);
 
-		const auto VariableValue = SetParams.substr(pos + 1);
+		const auto VariableValue = trim_right(SetParams.substr(pos + 1));
 		const auto VariableName = unquote(string(SetParams.substr(0, pos)));
 
 		if (VariableValue.empty()) //set var=
