@@ -337,65 +337,68 @@ private:
 		FEDITOR_PROCESSCTRLQ          = 19_bit,   // нажата Ctrl-Q и идет процесс вставки кода символа
 		FEDITOR_DIALOGMEMOEDIT        = 20_bit,   // Editor используется в диалоге в качестве DI_MEMOEDIT
 	};
-
+	// Editor content state
 	editor_container Lines;
 	numbered_iterator m_it_TopScreen{ EndIterator() };
 	numbered_iterator m_it_CurLine{ EndIterator() };
 	numbered_iterator m_it_LastGetLine{ EndIterator() };
-
-	std::unordered_set<UUID> ChangeEventSubscribers;
 	std::list<EditorUndoData> UndoData;
 	std::list<EditorUndoData>::iterator UndoPos{ UndoData.end() };
 	std::list<EditorUndoData>::iterator UndoSavePos{ UndoData.end() };
 	int UndoSkipLevel{};
 	int LastChangeStrPos{};
-	/* $ 26.02.2001 IS
-	Сюда запомним размер табуляции и в дальнейшем будем использовать его,
-	а не Global->Opt->TabSize
-	*/
-	Options::EditorOptions EdOpt;
-	int Pasting{};
 	eol GlobalEOL;
-	// работа с блоками из макросов (MCODE_F_EDITOR_SEL)
 	numbered_iterator m_it_MBlockStart{ EndIterator() };
 	numbered_iterator m_it_AnyBlockStart{ EndIterator() };
 	EDITOR_BLOCK_TYPES m_BlockType{ BTYPE_NONE };
+	// работа с блоками из макросов (MCODE_F_EDITOR_SEL)
 	int MBlockStartX{};
 	int VBlockX{};
 	int VBlockSizeX{};
 	int VBlockSizeY{};
-	int XX2{}; //scrollbar
-	string strLastSearchStr;
-	bool LastSearchCase{}, LastSearchWholeWords{}, LastSearchReverse{}, LastSearchRegexp{}, LastSearchPreserveStyle{};
+	int MacroSelectionStart{ -1 };
 	uintptr_t m_codepage{ CP_DEFAULT }; //BUGBUG
-	int m_StartLine{-1};
-	int StartChar{-1};
+	int m_StartLine{ -1 };
+	int StartChar{ -1 };
 	//numbered bookmarks (accessible by Ctrl-0..9)
 	Bookmarks<editor_bookmark> m_SavePos;
-
 	bookmark_list SessionBookmarks;
 	//pointer to the current "session" bookmark (in the list of "session" bookmarks accessible through BM.Goto(n))
 	bookmark_list::iterator SessionPos{ SessionBookmarks.end() };
-
 	bool NewSessionPos{};
-	int EditorID{};
-	FileEditor *HostFileEditor{};
-	int EditorControlLock{};
 	std::vector<char> decoded;
-	FarColor Color;
-	FarColor SelColor;
-	int MacroSelectionStart{-1};
-	int CursorPos{};
-	std::unordered_set<Edit*> m_AutoDeletedColors;
-
-	bool fake_editor{};
-
 	numbered_iterator m_FoundLine{ EndIterator() };
 	int m_FoundPos{};
 	int m_FoundSize{};
+	std::unordered_set<Edit*> m_AutoDeletedColors;
+	struct
+	{
+		std::optional<std::pair<const_iterator, int>> m_LastState;
 
+		int Position{};
+	}
+	MaxRightPosState;
+
+	bool fake_editor{};
+	// Editor content state end
+	// No iterators or anything content-related after this point
+	// Don't forget to update SwapState() when needed.
+
+
+	std::unordered_set<UUID> ChangeEventSubscribers;
+	Options::EditorOptions EdOpt;
+	int Pasting{};
+	int XX2{}; //scrollbar
+	string strLastSearchStr;
+	bool LastSearchCase{}, LastSearchWholeWords{}, LastSearchReverse{}, LastSearchRegexp{}, LastSearchPreserveStyle{};
+
+	int EditorID{};
+	FileEditor *HostFileEditor{};
+	int EditorControlLock{};
+	FarColor Color;
+	FarColor SelColor;
+	int CursorPos{};
 	int m_InEERedraw{};
-
 	bool m_GotoHex{};
 
 	struct EditorPreRedrawItem : public PreRedrawItem
@@ -406,14 +409,6 @@ private:
 		string Name;
 		size_t Percent{};
 	};
-
-	struct
-	{
-		std::optional<std::pair<const_iterator, int>> m_LastState;
-
-		int Position{};
-	}
-	MaxRightPosState;
 };
 
 class EditorContainer

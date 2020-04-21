@@ -178,20 +178,36 @@ void Editor::SwapState(Editor& swap_state)
 	// BUGBUGBUG not all fields swapped
 	using std::swap;
 	Lines.swap(swap_state.Lines);
-	swap(m_it_AnyBlockStart, swap_state.m_it_AnyBlockStart);
-	swap(m_BlockType, swap_state.m_BlockType);
-	swap(m_it_LastGetLine, swap_state.m_it_LastGetLine);
 	swap(m_it_TopScreen, swap_state.m_it_TopScreen);
 	swap(m_it_CurLine, swap_state.m_it_CurLine);
-
+	swap(m_it_LastGetLine, swap_state.m_it_LastGetLine);
 	UndoData.swap(swap_state.UndoData);
 	swap(UndoPos, swap_state.UndoPos);
 	swap(UndoSavePos, swap_state.UndoSavePos);
 	swap(UndoSkipLevel, swap_state.UndoSkipLevel);
-	SessionBookmarks.swap(swap_state.SessionBookmarks);
-	m_SavePos.swap(swap_state.m_SavePos);
-	swap(NewSessionPos, swap_state.NewSessionPos);
+	swap(LastChangeStrPos, swap_state.LastChangeStrPos);
 	swap(GlobalEOL, swap_state.GlobalEOL);
+	swap(m_it_MBlockStart, swap_state.m_it_MBlockStart);
+	swap(m_it_AnyBlockStart, swap_state.m_it_AnyBlockStart);
+	swap(m_BlockType, swap_state.m_BlockType);
+	swap(MBlockStartX, swap_state.MBlockStartX);
+	swap(VBlockX, swap_state.VBlockX);
+	swap(VBlockSizeX, swap_state.VBlockSizeX);
+	swap(VBlockSizeY, swap_state.VBlockSizeY);
+	swap(MacroSelectionStart, swap_state.MacroSelectionStart);
+	swap(m_codepage, swap_state.m_codepage);
+	swap(m_StartLine, swap_state.m_StartLine);
+	swap(StartChar, swap_state.StartChar);
+	m_SavePos.swap(swap_state.m_SavePos);
+	SessionBookmarks.swap(swap_state.SessionBookmarks);
+	swap(SessionPos, swap_state.SessionPos);
+	swap(NewSessionPos, swap_state.NewSessionPos);
+	decoded.swap(swap_state.decoded);
+	swap(m_FoundLine, swap_state.m_FoundLine);
+	swap(m_FoundPos, swap_state.m_FoundPos);
+	swap(m_FoundSize, swap_state.m_FoundSize);
+	swap(m_AutoDeletedColors, swap_state.m_AutoDeletedColors);
+	swap(MaxRightPosState, swap_state.MaxRightPosState);
 }
 
 void Editor::KeepInitParameters() const

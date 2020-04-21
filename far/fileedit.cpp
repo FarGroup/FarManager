@@ -1653,7 +1653,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 
 bool FileEditor::ReloadFile(uintptr_t codepage)
 {
-	const auto save_codepage(m_codepage), save_codepage1(m_editor->m_codepage);
+	const auto save_codepage(m_codepage);
 	const auto save_bAddSignature(m_bAddSignature);
 	const auto save_BadConversiom(BadConversion);
 	const auto save_Flags(m_Flags), save_Flags1(m_editor->m_Flags);
@@ -1686,7 +1686,6 @@ bool FileEditor::ReloadFile(uintptr_t codepage)
 		m_bAddSignature = save_bAddSignature;
 		BadConversion = save_BadConversiom;
 		m_Flags = save_Flags;
-		m_editor->m_codepage = save_codepage1;
 		m_editor->m_Flags = save_Flags1;
 		m_editor->SwapState(saved);
 

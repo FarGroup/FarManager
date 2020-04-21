@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 21.04.2020 20:12:46 +0300 - build 5590
+
+1. Switching the code page breaks the editor state in some cases.
+
 drkns 19.04.2020 22:19:47 +0300 - build 5589
 
 1. gh-237: set command is too strict with whitespace
