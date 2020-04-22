@@ -128,11 +128,13 @@ build_script:
   - set PROJECT_BUILD=Build
   - set PROJECT_CONF=%platform%
   - set PROJECT_PLATFORM=Win32
+  - set COLORER_WIN64_BUILD=ON
   - if "%platform%" == "x64" set PROJECT_PLATFORM=x64
+  - if "%platform%" == "x64" set COLORER_WIN64_BUILD=OFF
   - cd FarColorer
   - mkdir build\%configuration%\%platform%
   - cd build\%configuration%\%platform%
-  - cmake -G "NMake Makefiles" -D CMAKE_BUILD_TYPE=%PROJECT_CONFIG% -D CONF=%PROJECT_CONF% %PROJECT_ROOT%
+  - cmake -G "NMake Makefiles" -D CMAKE_BUILD_TYPE=%PROJECT_CONFIG% -D COLORER_WIN64_BUILD=%COLORER_WIN64_BUILD% %PROJECT_ROOT%
   - nmake
   - cd ..\..\..\..
   - mkdir ci\%configuration%.%platform%\Plugins\FarColorer\base
