@@ -315,7 +315,7 @@ static std::wstring GetNameByType(HANDLE handle, WORD type, PerfThread* pThread)
 			USER     = L"USER"sv,
 			CLASSES  = L"MACHINE\\SOFTWARE\\CLASSES"sv,
 			MACHINE  = L"MACHINE"sv,
-			CLASSES_ = L"_Classes"sv;
+			CLASSES_ = L"_CLASSES"sv;
 
 		const auto starts_with = [](std::wstring_view const Str, std::wstring_view const Pattern)
 		{
@@ -338,14 +338,14 @@ static std::wstring GetNameByType(HANDLE handle, WORD type, PerfThread* pThread)
 
 					const auto& Id = GetUserAccountID();
 
-					if (ws1 == Id)
+					if (starts_with(ws1, Id))
 					{
-						s0 = L"HKCU\\"sv;
+						s0 = L"HKCU"sv;
 						ws1.remove_prefix(Id.size());
 
 						if (starts_with(ws1, CLASSES_))
 						{
-							s0 = L"HKCU\\Classes\\"sv;
+							s0 = L"HKCU\\Classes"sv;
 							ws1.remove_prefix(CLASSES_.size());
 						}
 					}
