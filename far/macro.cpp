@@ -4296,7 +4296,8 @@ int FarMacroApi::panelsetposidxFunc()
 
 					if (idxItem != -1 && SelPanel->GoToFile(idxItem))
 					{
-						SelPanel->Show();
+						if (SelPanel->IsVisible())
+							SelPanel->Show();
 						// <Mantis#0000289> - грозно, но со вкусом :-)
 						//ShellUpdatePanels(SelPanel);
 						//SelPanel->UpdateIfChanged(UIC_UPDATE_NORMAL);
