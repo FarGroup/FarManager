@@ -1,3 +1,7 @@
+shmuel 24.04.2020 21:12:21 +0200 - build 740
+
+1. GCC warnings + micro-refactoring.
+
 shmuel 19.04.2020 11:22:12 +0200 - build 739
 
 1. LuaFAR: fix GCC warnings from appveyor.

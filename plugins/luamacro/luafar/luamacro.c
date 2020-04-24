@@ -229,12 +229,12 @@ int far_FarMacroCallToLua(lua_State *L)
   if (lua_type(L,1) == LUA_TLIGHTUSERDATA)
 	{
 		struct FarMacroCall* Data = (struct FarMacroCall*)lua_touserdata(L, 1);
-		lua_settop(L, 1);
+		lua_settop(L, 0);
 		if (Data && !FL_PushParams(L, Data))
 		{
 			LF_Message(L, L"too many values to place onto Lua stack", L"LuaMacro", L"OK", "wl", NULL, NULL);
 		}
-		return lua_gettop(L) - 1;
+		return lua_gettop(L);
 	}
 	return 0;
 }

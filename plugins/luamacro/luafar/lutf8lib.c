@@ -784,7 +784,7 @@ static int singlematch (MatchState *ms, const char *s, const char *p, const char
   if (s >= ms->src_end)
     return 0;
   else {
-    utfint ch, pch;
+    utfint ch=0, pch=0;
     utf8_safe_decode(ms->L, s, &ch);
     p = utf8_safe_decode(ms->L, p, &pch);
     switch (pch) {

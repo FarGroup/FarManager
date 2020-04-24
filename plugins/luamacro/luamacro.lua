@@ -252,7 +252,7 @@ local function MacroStep (handle, ...)
       ErrMsg("Step: called on macro in "..status.." status") -- debug only: should not be here
     end
   else
-    ErrMsg(("Step: handle %d does not exist"):format(handle)) -- debug only: should not be here
+    ErrMsg("Step: handle does not exist") -- debug only: should not be here
   end
 end
 
