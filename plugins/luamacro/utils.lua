@@ -362,12 +362,17 @@ local function AddRegularMacro (srctable, FileName)
     macro.action = srctable.action
   elseif type(srctable.code)=="string" then
     local isMoonScript = srctable.language=="moonscript"
-    local f, msg = (isMoonScript and require("moonscript").loadstring or loadstring)(srctable.code)
-    if f then
-      macro.action = f
+    if srctable.code:sub(1,1) == "@" then
+      macro.code = srctable.code
+      macro.language = isMoonScript and "moonscript" or "lua"
     else
-      if FileName then ErrMsg(FileName..":\n"..msg, isMoonScript and "MoonScript") end
-      return
+      local f, msg = (isMoonScript and require("moonscript").loadstring or loadstring)(srctable.code)
+      if f then
+        macro.action = f
+      else
+        if FileName then ErrMsg(FileName..":\n"..msg, isMoonScript and "MoonScript"); end
+        return
+      end
     end
   else
     return

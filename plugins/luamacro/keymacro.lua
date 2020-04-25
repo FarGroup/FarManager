@@ -79,8 +79,9 @@ local NewMacroRecord do
     end
     if chunk then
       self.m_handle = { coro=coroutine.create(chunk), params=params, _store=nil }
+      return true
     else
-      ErrMsg(params)
+      return nil, params
     end
   end
 
@@ -260,11 +261,12 @@ local function GetInputFromMacro()
 
     if not macro:GetHandle() then
       PushState(false)
-      macro:SetHandle()
+      local ok, msg = macro:SetHandle()
       PopState(false)
-      if not macro:GetHandle() then
+      if not ok then
         RemoveCurMacro()
         Import.RestoreMacroChar()
+        ErrMsg(msg)
         return
       end
     end
