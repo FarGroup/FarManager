@@ -39,7 +39,7 @@ end
 function coroutine.resume(co, ...) return yield_resume(co, co_resume(co, ...)) end
 
 local ErrMsg = function(msg, title, buttons, flags)
-  if type(msg)=="string" and not msg:utf8valid() then
+  if type(msg)=="string" and not msg:utf8valid() and string.sub(msg,1,3)~="..." then
     local wstr = win.MultiByteToWideChar(msg, win.GetACP(), "e")
     msg = wstr and win.Utf16ToUtf8(wstr) or msg
   end
@@ -219,9 +219,9 @@ local function FixReturn (handle, ok, ...)
       return F.MPRT_NORMALFINISH, pack(true, ...)
     end
   else
-    ret1 = type(ret1)=="string" and ret1 or "(error object is not a string)"
-    ret1 = debug.traceback(handle.coro, ret1):gsub("\n\t","\n   ")
-    ErrMsg(ret1)
+    local msg = type(ret1)=="string" and ret1 or "(error object is not a string)"
+    msg = string.gsub(debug.traceback(handle.coro, msg), "\n\t", "\n   ")
+    ErrMsg(msg)
     return F.MPRT_ERRORFINISH
   end
 end
