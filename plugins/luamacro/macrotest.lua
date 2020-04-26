@@ -140,6 +140,21 @@ end
 local function test_mf_eval()
   assert(eval==mf.eval)
 
+  -- test arguments validity checking
+  assert(eval("") == 0)
+  assert(eval("", 0) == 0)
+  assert(eval() == -1)
+  assert(eval(0) == -1)
+  assert(eval(true) == -1)
+  assert(eval("", -1) == -1)
+  assert(eval("", 5) == -1)
+  assert(eval("", true) == -1)
+  assert(eval("", 1, true) == -1)
+  assert(eval("",1,"javascript")==-1)
+
+  -- test macro-not-found error
+  assert(eval("", 2) == -2)
+
   temp=3
   assert(eval("temp=5+7")==0)
   assert(temp==12)
@@ -157,7 +172,7 @@ local function test_mf_eval()
   assert(eval("5",0,"moonscript")==0)
   assert(eval("5+7",1,"lua")==11)
   assert(eval("5+7",1,"moonscript")==0)
-  assert(eval("5+7",1,"unknown")==-1)
+  assert(eval("5 7",1,"moonscript")==11)
 
   -- test with Mode==2
   local Id = assert(far.MacroAdd(nil,nil,"CtrlA",[[

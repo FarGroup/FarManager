@@ -1,3 +1,5 @@
+-- coding: utf-8
+
 local Shared = ...
 local Msg, ErrMsg, pack, ExpandEnv = Shared.Msg, Shared.ErrMsg, Shared.pack, Shared.ExpandEnv
 
@@ -42,7 +44,7 @@ end
 
 local SomeAreaNames = {
   "other", "viewer", "editor", "dialog", "menu", "help", "dialogautocompletion",
-  "grabber", "desktop", "common" -- "common" должен идти последним
+  "grabber", "desktop", "common" -- "common" РґРѕР»Р¶РµРЅ РёРґС‚Рё РїРѕСЃР»РµРґРЅРёРј
 }
 
 local function GetTrueAreaName(Mode) return TrueAreaNames[Mode] end
@@ -291,7 +293,7 @@ local function export_GetContentData (filename, colnames)
   return tOut
 end
 
-local ExpandKey do -- измеренное время исполнения на ключе "CtrlAltShiftF12" = ??? (Lua); 2.3uS (LuaJIT);
+local ExpandKey do -- РёР·РјРµСЂРµРЅРЅРѕРµ РІСЂРµРјСЏ РёСЃРїРѕР»РЅРµРЅРёСЏ РЅР° РєР»СЋС‡Рµ "CtrlAltShiftF12" = ??? (Lua); 2.3uS (LuaJIT);
   local t={}
 
   ExpandKey = function (key)
@@ -979,7 +981,7 @@ local function GetMacro (argMode, argKey, argUseCommon, argCheckOnly)
   if LoadingInProgress then return end
 
   local area = GetAreaName(argMode)
-  if not area then return end -- трюк используется в CheckForEscSilent() в Фаре
+  if not area then return end -- С‚СЂСЋРє РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РІ CheckForEscSilent() РІ Р¤Р°СЂРµ
 
   local key = argKey:lower()
   do
@@ -1116,7 +1118,7 @@ local function ProcessRecordedMacro (Mode, Key, code, flags, description)
 
   local keys,numkeys = ExpandKey(Key)
 
-  if code == "" then -- удаление
+  if code == "" then -- СѓРґР°Р»РµРЅРёРµ
     for i=1,numkeys do
       local k = keys[i]
       local m = Areas[area][k] and Areas[area][k].recorded or

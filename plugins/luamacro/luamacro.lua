@@ -1,3 +1,4 @@
+-- coding: utf-8
 -- started: 2012-04-20
 
 -- This plugin does not support reloading the default script on the fly.

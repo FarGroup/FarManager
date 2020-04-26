@@ -1,3 +1,5 @@
+-- coding: utf-8
+
 local Shared = ...
 local Msg = Shared.Msg
 local ffi = require "ffi"

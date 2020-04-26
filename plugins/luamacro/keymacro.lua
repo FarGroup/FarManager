@@ -296,7 +296,9 @@ local function GetInputFromMacro()
     end
 
     if r1 == MPRT_NORMALFINISH or r1 == MPRT_ERRORFINISH then
-      if macro.caller then macro.caller:SetValue(r1==MPRT_NORMALFINISH and r2) end
+      if macro.caller then
+        macro.caller:SetValue(r1==MPRT_NORMALFINISH and r2)
+      end
       if band(macro:GetFlags(),MFLAGS_ENABLEOUTPUT) == 0 then
         Import.ScrBufUnlock()
       end

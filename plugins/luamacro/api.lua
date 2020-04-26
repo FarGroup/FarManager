@@ -1,4 +1,4 @@
--- api.lua
+-- coding: utf-8
 
 local Shared = ...
 local checkarg, utils, yieldcall = Shared.checkarg, Shared.utils, Shared.yieldcall
@@ -408,14 +408,21 @@ Mouse   = SetProperties({}, prop_Mouse)
 Viewer  = SetProperties({}, prop_Viewer)
 --------------------------------------------------------------------------------
 
-local function Eval_GetData (str) -- ��������� ������ ������� ��� Eval(S,2).
+local EVAL_SUCCESS       =  0
+local EVAL_SYNTAXERROR   = 11
+local EVAL_BADARGS       = -1
+local EVAL_MACRONOTFOUND = -2  -- макрос не найден среди загруженных макросов
+local EVAL_MACROCANCELED = -3  -- было выведено меню выбора макроса, и пользователь его отменил
+local EVAL_RUNTIMEERROR  = -4  -- макрос был прерван в результате ошибки времени исполнения
+
+local function Eval_GetData (str) -- Получение данных макроса для Eval(S,2).
   local Mode=far.MacroGetArea()
   local UseCommon=false
   str = str:match("^%s*(.-)%s*$")
 
   local strArea,strKey = str:match("^(.-)/(.+)$")
   if strArea then
-    if strArea ~= "." then -- ������� "./Key" �� ������������� ����� � Common`�
+    if strArea ~= "." then -- вариант "./Key" не подразумевает поиск в макрообласти Common
       Mode=utils.GetAreaCode(strArea)
       if Mode==nil then return end
     end
@@ -428,23 +435,28 @@ local function Eval_GetData (str) -- ��������� ������ ������� ��� Eval(S,2).
 end
 
 local function Eval_FixReturn (ok, ...)
-  return ok and 0 or -4, ...
+  return ok and EVAL_SUCCESS or EVAL_RUNTIMEERROR, ...
 end
 
+-- @param mode:
+--   0=Выполнить макропоследовательность str
+--   1=Проверить макропоследовательность str и вернуть код ошибки компиляции
+--   2=Выполнить макрос, назначенный на сочетание клавиш str
+--   3=Проверить макропоследовательность str и вернуть строку-сообщение с ошибкой компиляции
 function mf.eval (str, mode, lang)
-  if type(str) ~= "string" then return -1 end
+  if type(str) ~= "string" then return EVAL_BADARGS end
   mode = mode or 0
-  if not (mode==0 or mode==1 or mode==2 or mode==3) then return -1 end
+  if not (mode==0 or mode==1 or mode==2 or mode==3) then return EVAL_BADARGS end
   lang = lang or "lua"
-  if not (lang=="lua" or lang=="moonscript") then return -1 end
+  if not (lang=="lua" or lang=="moonscript") then return EVAL_BADARGS end
 
   if mode == 2 then
     local area,key,usecommon = Eval_GetData(str)
-    if not area then return -2 end
+    if not area then return EVAL_MACRONOTFOUND end
 
     local macro = utils.GetMacro(area,key,usecommon,false)
-    if not macro then return -2 end
-    if not macro.index then return -3 end
+    if not macro then return EVAL_MACRONOTFOUND end
+    if not macro.index then return EVAL_MACROCANCELED end
 
     return Eval_FixReturn(yieldcall("eval", macro, key))
   end
@@ -452,16 +464,16 @@ function mf.eval (str, mode, lang)
   local ok, env = pcall(getfenv, 3)
   local chunk, params = Shared.loadmacro(lang, str, ok and env)
   if chunk then
-    if mode==1 then return 0 end
+    if mode==1 then return EVAL_SUCCESS end
     if mode==3 then return "" end
     if params then chunk(params())
     else chunk()
     end
-    return 0
+    return EVAL_SUCCESS
   else
     local msg = params
     if mode==0 then Shared.ErrMsg(msg) end
-    return mode==3 and msg or 11
+    return mode==3 and msg or EVAL_SYNTAXERROR
   end
 end
 --------------------------------------------------------------------------------
