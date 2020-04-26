@@ -3148,7 +3148,7 @@ $ #Editor: search/replace#
 
  #Regular expressions#
  Treat input as Perl regular expression (~search~@RegExp@ and ~replace~@RegExpRepl@).
-Each line is processed individually, so multi-line expressions and line-break characters will not be found.
+Each line is processed individually, so multi-line expressions and line break characters will not be found.
 
  ~Preserve style~@PreserveStyle@
  Preserve style (case and delimiters in program source code) of the replaced text.
@@ -3877,7 +3877,7 @@ $ #Settings dialog: editor#
  #Show scrollbar#          Show scrollbar.
 
  #Show white space#        Make while space characters (spaces, tabulations,
-                         line endings) visible.
+                         line breaks) visible.
 
  #Select found#            Found text is selected
 
@@ -6335,92 +6335,91 @@ in HKCU hive is ignored.
 
 @Editor.KeepEditorEOL
 $ #far:config Editor.KeepEditorEOL#
- Параметр "Editor.KeepEditorEOL" позволяет управлять типом перевода строк для текста
-вставляемого в редактор из буфера обмена.
+ This Boolean parameter controls how line breaks within the text on the
+clipboard are pasted into the edited file.
 
- false - ^<wrap>текст вставляется без изменений, т.е. берётся тип перевода строк источника (при этом можно получить текст
-с разными типами перевода строк).
+ False - ^<wrap>Line breaks in the pasted text are preserved. After the
+paste operation, line breaks in the edited file may have different styles.
+ True  - If the file is not empty, line breaks in the pasted text are
+changed to match the line break style of the edited file. If the file
+is empty, line breaks are not changed; this parameter has no effect.
 
- true  - ^<wrap>если файл не пуст, сохраняется текущий тип перевода строк редактируемого файла,
-в противном случае параметр ни на что не влияет, т.е. будет использован стиль переводов строк оригинала.
+ Default value: True (match line break style of the edited file).
 
- По умолчанию значение = true
-
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @Editor.AddUnicodeBOM
 $ #far:config Editor.AddUnicodeBOM#
- Параметр "Editor.AddUnicodeBOM" указывает надо ли добавлять BOM (Byte Order Mark) в начало создаваемых
-редактором файлов в юникодной кодировке (1200, 1201, 65001).
+ This Boolean parameter specifies whether Byte Order Mark (BOM) is added
+at the beginning of the files created by the Editor and saved in
+a UNICODE encoding (UTF-8, UTF-16LE, UTF-16BE).
 
- false - ^<wrap>BOM не добавляется.
+ False - ^<wrap>BOM is not added.
+ True  - BOM is added.
 
- true  - ^<wrap>BOM добавляется.
+ Default value: True (BOM is added).
 
- По умолчанию значение = true
-
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @Editor.NewFileUnixEOL
 $ #far:config Editor.NewFileUnixEOL#
- Параметр "Editor.NewFileUnixEOL" позволяет задавать умолчательные символы конца строки в редакторе
-для вновь создаваемых файлов.
+ This Boolean parameter specifies line break style in the files created
+by the Editor.
 
- false - ^<wrap>Во вновь создаваемых файлах строки заканчиваются символами #<CR><LF># - (как в Windows).
+ False - ^<wrap>Files are created with Windows line break style (CR LF).
+ True  - Files are created with Unix line break style (LF).
 
- true  - ^<wrap>Во вновь создаваемых файлах строки заканчиваются символом #<LF># - (как в Unix).
+ Default value: False (Windows line break style).
 
- По умолчанию значение = false
-
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @Panel.ShortcutAlwaysChdir
 $ #far:config Panel.ShortcutAlwaysChdir#
- Параметр "Panel.ShortcutAlwaysChdir" управляет поведением при нажатии клавиш перехода на папку
-#RCtrl+0…9#, когда панели невидимы.
+ This Boolean parameter controls the behavior of
+~folder shortcuts~@FolderShortcuts@ (#RightCtrl+0…9# key combinations)
+when the panels are hidden.
 
- false - ^<wrap>нажатия передаются редактору командной строки, что приводит к появлению имени папки,
-связанной с нажатой клавишей, в командной строке.
+ False - ^<wrap>Folder shortcuts insert the associated path into the
+command line.
+ True  - Folder shortcuts change the current folder even if the panels
+are hidden.
 
- true  - ^<wrap>всегда осуществляется переход на папку, связанную с нажатой клавишей (если задана),
-даже если панели невидимы.
+ Default value: False (inset the shortcut path).
 
- По умолчанию значение = false
-
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @Macros.ShowPlayIndicator
 $ #far:config Macros.ShowPlayIndicator#
- Параметр "Macros.ShowPlayIndicator" позволяет включать или отключать отображение в левом верхнем углу экрана символа '\2FP\-'
-во время воспроизведения макропоследовательности.
+ This Boolean parameter turns macro playback indicator (symbol ‘\2FP\-’
+at the top left-hand corner of the screen) on or off.
 
- false - ^<wrap>Символ не отображается
+ False - ^<wrap>The indicator is turned off.
+ True  - The indicator is turned on.
 
- true  - ^<wrap>Символ отображается
+ Default value: True (the indicator is on).
 
- По умолчанию значение = true
-
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @Viewer.SearchWrapStop
 $ #far:config Viewer.SearchWrapStop#
- Параметр "Viewer.SearchWrapStop" позволяет изменять поведение при прохождении через начало/конец
-файла при поиске в просмотрщике.
+ This tri-state parameter controls the behavior of the “continue search”
+key combinations in the Viewer (#Shift+F7#, #Space#, #Alt+F7#) when
+search wraps around the beginning or end of the file or passes the
+search starting point.
 
- false - ^<wrap>Тихий переход через начало/конец файла
+ False - ^<wrap>Silently wrap around the beginning or end of the file
+or the search starting point.
+ True  - Show message when wrapping around the beginning or end of the file.
+ Other - Show message when passing the search starting point.
 
- true  - ^<wrap>Показывается сообщение о переходе через начало/конец файла
+ Default value: True (silently wrap around).
 
- other - ^<wrap>Сообщение выводится при переходе через точку начала поиска (пройден весь файл)
-
- По умолчанию значение = True
-
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @XLat.Layouts
