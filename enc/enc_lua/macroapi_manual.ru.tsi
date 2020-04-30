@@ -529,7 +529,7 @@ lv=3
 dt=Text
 nm=Пример применения
 ctime=3774015850
-mtime=3774015872
+mtime=3797419034
 <article>
 #_<markdown>
 #_```
@@ -560,7 +560,7 @@ mtime=3774015872
 #_      fp:close()
 #_      if s then
 #_        local out = {}
-#_        s = s:gsub("%s+", " "):match("[%w_].*")
+#_        s = string.gsub(s, "%s+", " ")
 #_        for k,v in ipairs(colnames) do
 #_          if col_set[v:lower()] then out[k]=s end
 #_        end
