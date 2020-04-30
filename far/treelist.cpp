@@ -1195,17 +1195,14 @@ bool TreeList::ProcessKey(const Manager::Key& Key)
 		{
 			if (SetCurPath())
 			{
-				const auto SaveOpt = Global->Opt->DeleteToRecycleBin;
-
-				if (LocalKey==KEY_SHIFTDEL||LocalKey==KEY_SHIFTNUMDEL||LocalKey==KEY_SHIFTDECIMAL)
-					Global->Opt->DeleteToRecycleBin = false;
-
-				Delete(shared_from_this(), LocalKey == KEY_ALTDEL || LocalKey == KEY_RALTDEL || LocalKey == KEY_ALTNUMDEL || LocalKey == KEY_RALTNUMDEL || LocalKey == KEY_ALTDECIMAL || LocalKey == KEY_RALTDECIMAL);
+				Delete(shared_from_this(),
+					LocalKey == KEY_SHIFTDEL || LocalKey == KEY_SHIFTNUMDEL || LocalKey == KEY_SHIFTDECIMAL? delete_type::remove :
+					LocalKey == KEY_ALTDEL || LocalKey == KEY_RALTDEL || LocalKey == KEY_ALTNUMDEL || LocalKey == KEY_RALTNUMDEL || LocalKey == KEY_ALTDECIMAL || LocalKey == KEY_RALTDECIMAL ? delete_type::erase :
+					delete_type::recycle);
 				// Надобно не забыть обновить противоположную панель...
 				const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 				AnotherPanel->Update(UPDATE_KEEP_SELECTION);
 				AnotherPanel->Redraw();
-				Global->Opt->DeleteToRecycleBin=SaveOpt;
 
 				if (Global->Opt->Tree.AutoChangeFolder && !m_ModalMode)
 					ProcessKey(Manager::Key(KEY_ENTER));

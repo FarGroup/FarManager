@@ -3534,7 +3534,7 @@ bool Editor::Search(bool Next)
 		const auto strSearchStrUpper = Case? strSearchStr : upper(strSearchStr);
 		const auto strSearchStrLower = Case? strSearchStr : lower(strSearchStr);
 
-		const time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+		const time_check TimeCheck;
 		int StartLine = m_it_CurLine.Number();
 		SCOPED_ACTION(taskbar::indeterminate);
 		SCOPED_ACTION(wakeful);

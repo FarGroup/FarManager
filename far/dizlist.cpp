@@ -103,7 +103,7 @@ void DizList::Read(const string& Path, const string* DizName)
 		if (!DizFile)
 			return false;
 
-		const time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+		const time_check TimeCheck;
 
 		const auto CodePage = GetFileCodepage(DizFile, Global->Opt->Diz.AnsiByDefault? encoding::codepage::ansi() : encoding::codepage::oem(), nullptr, false);
 

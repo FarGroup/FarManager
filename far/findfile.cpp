@@ -1327,7 +1327,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			SCOPE_EXIT{ --Recurse; };
 			{
 				size_t EventsCount = 0;
-				const time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+				const time_check TimeCheck;
 				while (!m_Messages.empty() && 0 == EventsCount)
 				{
 					if (m_Searcher->Stopped())

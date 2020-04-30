@@ -1519,7 +1519,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 
 			auto Items = std::make_unique<std::vector<PluginPanelItem>>();
 
-			const time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+			const time_check TimeCheck;
 			bool MsgOut = false;
 			while (ScTree.GetNextName(FindData,strFullName))
 			{
@@ -1567,7 +1567,7 @@ intptr_t WINAPI apiGetPluginDirList(const GUID* PluginId, HANDLE hPlugin, const 
 
 		// BUGBUG This is API, shouldn't the callback be empty?
 
-		time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+		const time_check TimeCheck;
 
 		const auto DirInfoCallback = [&](string_view const Name, unsigned long long const ItemsCount, unsigned long long const Size)
 		{

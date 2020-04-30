@@ -708,6 +708,11 @@ bool local_to_utc(const SYSTEMTIME& LocalTime, os::chrono::time_point& UtcTime)
 	return true;
 }
 
+time_check::time_check(mode Mode):
+	time_check(Mode, GetRedrawTimeout())
+{
+}
+
 #ifdef ENABLE_TESTS
 
 #include "testing.hpp"

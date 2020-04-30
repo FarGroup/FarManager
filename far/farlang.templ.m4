@@ -5523,31 +5523,18 @@ MAskWipe
 "Ви бажаєте знищити"
 "Вы жадаеце знішчыць"
 
-MDeleteLinkTitle
-"Удаление ссылки"
-"Delete link"
-"Smazat link"
-"Link löschen"
-"Link törlése"
-"Usuń link"
-"Borrar enlace"
-"Zmazať prepojenie"
-"Elimina Collegamento"
-"Видалення посилання"
-"Выдаленне спасылкі"
-
 MAskDeleteLink
-"является ссылкой на"
-"is a link to"
-"je link na"
-"ist ein Link auf"
-"linkelve ide:"
-"jest linkiem do:"
-"es un enlace al"
-"je prepojenie na"
-"E' Un Link Simbolico Ad"
-"є посиланням на"
-"з'яўляецца спасылкам"
+"cсылка на"
+"a link to"
+upd:"link na"
+upd:"ein Link auf"
+upd:"link ide"
+upd:"linkiem do"
+upd:"un enlace al"
+upd:"prepojenie na"
+upd:"Un Link Simbolico Ad"
+"посилання на"
+"спасылка на"
 
 MAskDeleteLinkFolder
 "папку"
@@ -5874,20 +5861,6 @@ MDeleteFileCancel
 "&Annulla"
 "&Скасувати"
 "&Адмена"
-
-MDeleteLinkDelete
-l:
-"Удалить ссылку"
-"Delete link"
-"Smazat link"
-"Link löschen"
-"Link törlése"
-"Usuń link"
-"Borrar enlace"
-"Zmazať prepojenie"
-"Cancella Link"
-"Видалити посилання"
-"Выдаліць спасылак"
 
 MDeletingTitle
 l:

@@ -3593,7 +3593,7 @@ bool ShellCopy::CalcTotalSize() const
 	CP->m_Bytes.CurrCopied = 0;
 	CP->m_Files.Total = 0;
 
-	time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+	const time_check TimeCheck;
 
 	const auto DirInfoCallback = [&](string_view const Name, unsigned long long const ItemsCount, unsigned long long const Size)
 	{

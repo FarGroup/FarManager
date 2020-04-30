@@ -1281,7 +1281,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					SCOPED_ACTION(taskbar::indeterminate);
 					SCOPED_ACTION(wakeful);
 
-					const time_check TimeCheck(time_check::mode::immediate, GetRedrawTimeout());
+					const time_check TimeCheck(time_check::mode::immediate);
 
 					while (!SrcPanel || SrcPanel->GetSelName(&SingleSelFileName, nullptr, &SingleSelFindData))
 					{
@@ -1311,7 +1311,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 						{
 							ScanTree ScTree(false);
 							ScTree.SetFindPath(SingleSelFileName, L"*"sv);
-							const time_check TreeTimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+							const time_check TreeTimeCheck;
 							string strFullName;
 
 							while (ScTree.GetNextName(SingleSelFindData, strFullName))

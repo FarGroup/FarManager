@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 30.04.2020 20:15:13 +0300 - build 5592
+
+1. Refactoring.
+
 shmuel 23.04.2020 22:40:18 +0200 - build 5591
 
 1. gh-233: Panel.SetPosIdx makes hidden Panel visible

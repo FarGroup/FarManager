@@ -160,6 +160,16 @@ enum class operation
 
 operation OperationFailed(const error_state_ex& ErrorState, string Object, lng Title, string Description, bool AllowSkip = true, bool AllowSkipAll = true);
 
+class operation_cancelled: public std::exception
+{
+};
+
+[[noreturn]]
+inline void cancel_operation()
+{
+	throw operation_cancelled{};
+}
+
 void ReCompileErrorMessage(const RegExp& re, string_view str);
 void ReMatchErrorMessage(const RegExp& re);
 

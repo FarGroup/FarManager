@@ -413,7 +413,7 @@ void QuickView::ShowFile(string_view const FileName, const UserDataItem* const U
 		// Не показывать тип файла для каталогов в "Быстром просмотре"
 		strCurFileType.clear();
 
-		time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+		const time_check TimeCheck;
 
 		const auto DirInfoCallback = [&](string_view const Name, unsigned long long const ItemsCount, unsigned long long const Size)
 		{

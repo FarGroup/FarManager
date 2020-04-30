@@ -3433,7 +3433,7 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<ViewerPreRedrawItem>());
 		SetCursorType(false, 0);
 
-		const time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+		const time_check TimeCheck;
 		for (;;)
 		{
 			const auto found = std::invoke(searcher, this, &sd);

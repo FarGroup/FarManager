@@ -1547,7 +1547,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 		unsigned long long FileSize = 0;
 		// BUGBUG check result
 		(void)EditFile.GetSize(FileSize);
-		const time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+		const time_check TimeCheck;
 
 		os::fs::filebuf StreamBuffer(EditFile, std::ios::in);
 		std::istream Stream(&StreamBuffer);
@@ -1939,7 +1939,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 			if (!bSaveAs)
 				AddSignature = m_bAddSignature;
 
-			const time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+			const time_check TimeCheck;
 
 			encoding::writer Writer(Stream, Codepage, AddSignature);
 

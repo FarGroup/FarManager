@@ -2247,13 +2247,11 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 					PluginDelete();
 				else
 				{
-					bool SaveOpt=Global->Opt->DeleteToRecycleBin;
-
-					if (LocalKey==KEY_SHIFTDEL || LocalKey==KEY_SHIFTNUMDEL || LocalKey==KEY_SHIFTDECIMAL)
-						Global->Opt->DeleteToRecycleBin = false;
-
-					Delete(shared_from_this(), LocalKey == KEY_ALTDEL || LocalKey == KEY_RALTDEL || LocalKey == KEY_ALTNUMDEL || LocalKey == KEY_RALTNUMDEL || LocalKey == KEY_ALTDECIMAL || LocalKey == KEY_RALTDECIMAL);
-					Global->Opt->DeleteToRecycleBin=SaveOpt;
+					Delete(
+						shared_from_this(),
+						LocalKey == KEY_SHIFTDEL || LocalKey == KEY_SHIFTNUMDEL || LocalKey == KEY_SHIFTDECIMAL ? delete_type::remove :
+						LocalKey == KEY_ALTDEL || LocalKey == KEY_RALTDEL || LocalKey == KEY_ALTNUMDEL || LocalKey == KEY_RALTNUMDEL || LocalKey == KEY_ALTDECIMAL || LocalKey == KEY_RALTDECIMAL ? delete_type::erase :
+						delete_type::recycle);
 				}
 
 				if (LocalKey==KEY_SHIFTF8)
@@ -4910,7 +4908,7 @@ void FileList::CountDirSize(bool IsRealNames)
 	//Рефреш текущему времени для фильтра перед началом операции
 	m_Filter->UpdateCurrentTime();
 
-	time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+	time_check TimeCheck;
 
 	struct
 	{
@@ -6632,7 +6630,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	}
 
 	error_state ErrorState;
-	const time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+	const time_check TimeCheck;
 
 	for (const auto& fdata: Find)
 	{
