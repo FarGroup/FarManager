@@ -47,20 +47,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-enum class setattr_result
-{
-	ok,
-	skip,
-	cancel
-};
-
-[[nodiscard]] setattr_result ESetFileAttributes(const string& Name, DWORD Attributes, bool& SkipErrors);
-[[nodiscard]] setattr_result ESetFileCompression(const string& Name, bool State, DWORD CurrentAttributes, bool& SkipErrors);
-[[nodiscard]] setattr_result ESetFileEncryption(const string& Name, bool State, DWORD CurrentAttributes, bool& SkipErrors);
-[[nodiscard]] setattr_result ESetFileSparse(const string& Name, bool State, DWORD CurrentAttributes, bool& SkipErrors);
-[[nodiscard]] setattr_result ESetFileTime(const string& Name, const os::chrono::time_point* LastWriteTime, const os::chrono::time_point* CreationTime, const os::chrono::time_point* LastAccessTime, const os::chrono::time_point* ChangeTime, DWORD CurrentAttributes, bool& SkipErrors);
-[[nodiscard]] setattr_result ESetFileOwner(const string& Name, const string& Owner, bool& SkipErrors);
-[[nodiscard]] setattr_result EDeleteReparsePoint(const string& Name, DWORD CurrentAttributes, bool& SkipErrors);
+void ESetFileAttributes(const string& Name, DWORD Attributes, bool& SkipErrors);
+void ESetFileCompression(const string& Name, bool State, DWORD CurrentAttributes, bool& SkipErrors);
+void ESetFileEncryption(const string& Name, bool State, DWORD CurrentAttributes, bool& SkipErrors);
+void ESetFileSparse(const string& Name, bool State, DWORD CurrentAttributes, bool& SkipErrors);
+void ESetFileTime(const string& Name, const os::chrono::time_point* LastWriteTime, const os::chrono::time_point* CreationTime, const os::chrono::time_point* LastAccessTime, const os::chrono::time_point* ChangeTime, DWORD CurrentAttributes, bool& SkipErrors);
+void ESetFileOwner(const string& Name, const string& Owner, bool& SkipErrors);
+void EDeleteReparsePoint(const string& Name, DWORD CurrentAttributes, bool& SkipErrors);
 
 void enum_attributes(function_ref<bool(DWORD, wchar_t)> Pred);
 

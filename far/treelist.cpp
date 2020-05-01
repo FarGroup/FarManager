@@ -1113,7 +1113,7 @@ bool TreeList::ProcessKey(const Manager::Key& Key)
 			if (SetCurPath())
 			{
 				int ToPlugin = 0;
-				ShellCopy(shared_from_this(), LocalKey == KEY_SHIFTF6, false, true, true, ToPlugin, nullptr);
+				Copy(shared_from_this(), LocalKey == KEY_SHIFTF6, false, true, true, ToPlugin, nullptr);
 			}
 
 			return true;
@@ -1139,7 +1139,7 @@ bool TreeList::ProcessKey(const Manager::Key& Key)
 					return true;
 
 				{
-					ShellCopy(shared_from_this(), Move, Link, false, Ask, ToPlugin, nullptr);
+					Copy(shared_from_this(), Move, Link, false, Ask, ToPlugin, nullptr);
 				}
 
 				if (ToPlugin)

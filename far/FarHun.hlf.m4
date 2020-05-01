@@ -2406,9 +2406,8 @@ A "Törlés a Lomtárba" művelet csak helyi merevlemezeken működik.
  A Far beépített másolórutinja helyett az operációs rendszer rutinját használja.
 Alkalmazása NTFS fájlrendszerben hasznos lehet, mert a CopyFileEx rendszerfunkció
 ésszerűbb lemezfoglalási módszert használ, azonkívül a fájlokat bővített attribútumkészletükkel együtt másolja
-át. Másrészt viszont az operációs rendszer metódusa meggátolja a fájlok
-feloszthatóságát, ha a ~másolás~@CopyFiles@ vagy mozgatás nem használható., same as
-the "smart" copying of sparse files.
+át. Másrészt viszont az operációs rendszer metódusa meggátolja
+the possibility of "smart" ~másolás~@CopyFiles@ vof sparse files is not available.
 
  #Írásra megnyitott fájlok másolhatók#
  Megengedi más programokban írásra megnyitott fájlok másolását. A módszer praktikus lehet a hosszú időre
@@ -4524,12 +4523,6 @@ lehetősége a plugin képességeitől függ.
 
  Ha a célfájl már létezik, felülírhatjuk, kihagyhatjuk vagy a
 forrásfájl tartalmát hozzáfűzhetjük a célfájl végéhez.
-
- Ha a másolás vagy mozgatás során a céllemez megtelik, felfüggeszthetjük
-a másolást vagy kicserélhetjük a lemezt és alkalmazhatjuk a "Felosztást".
-Utóbbi esetben a Far a másolt fájlt a céllemez méretére szeleteli fel. Ez az
-opció csak akkor jelenik meg, ha a ~Rendszer beállítások~@SystemSettings@ menüben a
-"Másoláshoz a rendszerrutin használata" opció ki van kapcsolva.
 
  A "Hozzáférési jogok" opció csak NTFS fájlrendszernél működik, vele a
 fájlok hozzáférési információit is átmásolhatjuk. A másolás és mozgatás

@@ -53,7 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-static auto retrievable_ui_operation(function_ref<bool()> const Action, string const& Name, lng const ErrorDescription, bool& SkipErrors)
+static void retrievable_ui_operation(function_ref<bool()> const Action, string const& Name, lng const ErrorDescription, bool& SkipErrors)
 {
 	while (!Action())
 	{
@@ -68,14 +68,12 @@ static auto retrievable_ui_operation(function_ref<bool()> const Action, string c
 			SkipErrors = true;
 			[[fallthrough]];
 		case operation::skip:
-			return setattr_result::skip;
+			return;
 
 		case operation::cancel:
-			return setattr_result::cancel;
+			cancel_operation();
 		}
 	}
-
-	return setattr_result::ok;
 }
 
 static auto without_ro(string_view const Name, DWORD const Attributes, function_ref<bool()> const Action)
@@ -99,12 +97,12 @@ static auto without_ro(string_view const Name, DWORD const Attributes, function_
 	};
 }
 
-setattr_result ESetFileAttributes(const string& Name, DWORD Attributes, bool& SkipErrors)
+void ESetFileAttributes(const string& Name, DWORD Attributes, bool& SkipErrors)
 {
 	if ((Attributes & FILE_ATTRIBUTE_DIRECTORY) && (Attributes & FILE_ATTRIBUTE_TEMPORARY))
 		Attributes &= ~FILE_ATTRIBUTE_TEMPORARY;
 
-	return retrievable_ui_operation([&]{ return os::fs::set_file_attributes(Name, Attributes); }, Name, lng::MSetAttrCannotFor, SkipErrors);
+	retrievable_ui_operation([&]{ return os::fs::set_file_attributes(Name, Attributes); }, Name, lng::MSetAttrCannotFor, SkipErrors);
 }
 
 static bool set_file_compression(string const& Name, bool const State)
@@ -117,10 +115,10 @@ static bool set_file_compression(string const& Name, bool const State)
 	return File.IoControl(FSCTL_SET_COMPRESSION, &NewState, sizeof(NewState), nullptr, 0);
 }
 
-setattr_result ESetFileCompression(const string& Name, bool const State, DWORD const CurrentAttributes, bool& SkipErrors)
+void ESetFileCompression(const string& Name, bool const State, DWORD const CurrentAttributes, bool& SkipErrors)
 {
 	if (!!(CurrentAttributes & FILE_ATTRIBUTE_COMPRESSED) == State)
-		return setattr_result::ok;
+		return;
 
 	const auto Implementation = [&]
 	{
@@ -130,28 +128,28 @@ setattr_result ESetFileCompression(const string& Name, bool const State, DWORD c
 		return set_file_compression(Name, State);
 	};
 
-	return retrievable_ui_operation(
+	retrievable_ui_operation(
 		without_ro(Name, CurrentAttributes, Implementation),
 		Name, lng::MSetAttrCompressedCannotFor, SkipErrors);
 }
 
-setattr_result ESetFileEncryption(string const& Name, bool const State, DWORD const CurrentAttributes, bool& SkipErrors)
+void ESetFileEncryption(string const& Name, bool const State, DWORD const CurrentAttributes, bool& SkipErrors)
 {
 	if (!!(CurrentAttributes & FILE_ATTRIBUTE_ENCRYPTED) == State)
-		return setattr_result::ok;
+		return;
 
 	const auto Implementation = [&]
 	{
 		return os::fs::set_file_encryption(Name, State);
 	};
 
-	return retrievable_ui_operation(
+	retrievable_ui_operation(
 		without_ro(Name, CurrentAttributes, Implementation),
 		Name, lng::MSetAttrEncryptedCannotFor, SkipErrors);
 }
 
 
-setattr_result ESetFileTime(
+void ESetFileTime(
 	const string& Name,
 	os::chrono::time_point const* const LastWriteTime,
 	os::chrono::time_point const* const CreationTime,
@@ -161,7 +159,7 @@ setattr_result ESetFileTime(
 	bool& SkipErrors)
 {
 	if (!LastWriteTime && !CreationTime && !LastAccessTime && !ChangeTime)
-		return setattr_result::ok;
+		return;
 
 	const auto Implementation = [&]
 	{
@@ -172,7 +170,7 @@ setattr_result ESetFileTime(
 		return File.SetTime(CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
 	};
 
-	return retrievable_ui_operation(
+	retrievable_ui_operation(
 		without_ro(Name, CurrentAttributes, Implementation),
 		Name, lng::MSetAttrTimeCannotFor, SkipErrors);
 }
@@ -187,32 +185,32 @@ static bool set_file_sparse(string const& Name, bool const State)
 	return File.IoControl(FSCTL_SET_SPARSE, &Buffer, sizeof(Buffer), nullptr, 0);
 }
 
-setattr_result ESetFileSparse(const string& Name, bool const State, DWORD const CurrentAttributes, bool& SkipErrors)
+void ESetFileSparse(const string& Name, bool const State, DWORD const CurrentAttributes, bool& SkipErrors)
 {
 	if ((CurrentAttributes & FILE_ATTRIBUTE_DIRECTORY) || !!(CurrentAttributes & FILE_ATTRIBUTE_SPARSE_FILE) == State)
-		return setattr_result::ok;
+		return;
 
 	const auto Implementation = [&]
 	{
 		return set_file_sparse(Name, State);
 	};
 
-	return retrievable_ui_operation(
+	retrievable_ui_operation(
 		without_ro(Name, CurrentAttributes, Implementation),
 		Name, lng::MSetAttrSparseCannotFor, SkipErrors);
 }
 
-setattr_result ESetFileOwner(const string& Name, const string& Owner, bool& SkipErrors)
+void ESetFileOwner(const string& Name, const string& Owner, bool& SkipErrors)
 {
-	return retrievable_ui_operation([&]{ return SetFileOwner(Name, Owner); }, Name, lng::MSetAttrOwnerCannotFor, SkipErrors);
+	retrievable_ui_operation([&]{ return SetFileOwner(Name, Owner); }, Name, lng::MSetAttrOwnerCannotFor, SkipErrors);
 }
 
-setattr_result EDeleteReparsePoint(const string& Name, DWORD const CurrentAttributes, bool& SkipErrors)
+void EDeleteReparsePoint(const string& Name, DWORD const CurrentAttributes, bool& SkipErrors)
 {
 	if (!(CurrentAttributes & FILE_ATTRIBUTE_REPARSE_POINT))
-		return setattr_result::ok;
+		return;
 
-	return retrievable_ui_operation([&]{ return DeleteReparsePoint(Name); }, Name, lng::MSetAttrReparsePointCannotFor, SkipErrors);
+	retrievable_ui_operation([&]{ return DeleteReparsePoint(Name); }, Name, lng::MSetAttrReparsePointCannotFor, SkipErrors);
 }
 
 void enum_attributes(function_ref<bool(DWORD, wchar_t)> const Pred)

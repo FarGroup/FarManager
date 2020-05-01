@@ -2147,7 +2147,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 				if (RealName)
 				{
 					int ToPlugin = 0;
-					ShellCopy(shared_from_this(), LocalKey == KEY_SHIFTF6, false, true, true, ToPlugin, nullptr);
+					Copy(shared_from_this(), LocalKey == KEY_SHIFTF6, false, true, true, ToPlugin, nullptr);
 				}
 				else
 				{
@@ -5116,7 +5116,7 @@ void FileList::ProcessCopyKeys(int Key)
 				        !Global->CtrlObject->Plugins->UseFarCommand(AnotherPanel->GetPluginHandle(),PLUGIN_FARPUTFILES))
 				{
 					ToPlugin=2;
-					ShellCopy(shared_from_this(), Move, false, false, Ask, ToPlugin, &strPluginDestPath);
+					Copy(shared_from_this(), Move, false, false, Ask, ToPlugin, &strPluginDestPath);
 				}
 
 				if (ToPlugin!=-1)
@@ -5157,7 +5157,7 @@ void FileList::ProcessCopyKeys(int Key)
 			int ToPlugin = AnotherPanel->GetMode() == panel_mode::PLUGIN_PANEL &&
 			             AnotherPanel->IsVisible() && (Key!=KEY_ALTF6 && Key!=KEY_RALTF6) &&
 			             !Global->CtrlObject->Plugins->UseFarCommand(AnotherPanel->GetPluginHandle(),PLUGIN_FARPUTFILES);
-			ShellCopy(shared_from_this(), Move, Key == KEY_ALTF6 || Key == KEY_RALTF6, false, Ask, ToPlugin, nullptr, Drag && AnotherDir);
+			Copy(shared_from_this(), Move, Key == KEY_ALTF6 || Key == KEY_RALTF6, false, Ask, ToPlugin, nullptr, Drag && AnotherDir);
 
 			if (ToPlugin==1)
 				PluginPutFilesToAnother(Move,AnotherPanel);

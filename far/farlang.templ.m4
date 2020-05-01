@@ -226,19 +226,6 @@ MDelete
 "Видалити"
 "Выдаліць"
 
-MSplit
-"Разделить"
-"Split"
-"Rozdělit"
-"Zerteilen"
-"Feloszt"
-"Podziel"
-"Dividir"
-"Rozdeliť"
-"&Dividi"
-"Розділити"
-"Падзяліць"
-
 MHCancel
 l:
 "&Отмена"

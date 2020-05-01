@@ -3,6 +3,12 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 02.05.2020 02:54:39 +0300 - build 5593
+
+1. Continue 5592 - simplify copying files & setting attributes.
+
+2. Remove splitting files from copying.
+
 drkns 30.04.2020 20:15:13 +0300 - build 5592
 
 1. Refactoring.

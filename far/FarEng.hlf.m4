@@ -2332,8 +2332,7 @@ Bin can be performed only for local hard disks.
  Use the file copy functions provided by the operating system instead of internal
 file copy implementation. It can be useful on NTFS, because the system function
 (CopyFileEx) copies file extended attributes. On the other hand, when using the system
-function, the possibility to split files when ~copying~@CopyFiles@ or moving is not available, same as
-the "smart" copying of sparse files.
+function, the possibility of "smart" ~copying~@CopyFiles@ of sparse files is not available.
 
  #Copy files opened for writing#
  Allows to copy files that are opened by other programs for writing. This mode
@@ -4442,13 +4441,6 @@ selected in the tree is appended to the input line.
 
  Whether copying, moving or renaming files works for a plugin depends
 upon the plugin functionality.
-
- If the destination disk of the copy or move operation becomes full,
-it is possible to either cancel the operation or replace the disk and
-select the “Split” option. In the latter case the file being copied will
-be split between disks. This feature is available only when the
-“#Use system copy routine#” option in the ~System settings~@SystemSettings@
-dialog is switched off.
 
  The #Access rights# parameter is valid only for the NTFS file system
 and controls how access rights of the created files and folders are set.

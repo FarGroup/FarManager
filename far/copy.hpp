@@ -36,11 +36,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 // Internal:
-#include "dizlist.hpp"
 #include "panelfwd.hpp"
 
 // Platform:
-#include "platform.fs.hpp"
 
 // Common:
 
@@ -48,101 +46,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-class Dialog;
-class copy_progress;
-class FileFilter;
-
-struct error_state_ex;
-
-enum COPY_CODES: int;
-enum ReparsePointTypes: int;
-enum class panel_mode;
-
-class ShellCopy: noncopyable
-{
-public:
-	ShellCopy(panel_ptr SrcPanel, bool Move, bool Link, bool CurrentOnly, bool Ask, int& ToPlugin, string* PluginDestPath, bool ToSubdir = false);
-	~ShellCopy();
-	DWORD CopyProgressRoutine(unsigned long long TotalFileSize, unsigned long long TotalBytesTransferred, unsigned long long StreamSize, unsigned long long StreamBytesTransferred, DWORD StreamNumber, DWORD CallbackReason, HANDLE SourceFile, HANDLE DestinationFile);
-
-	enum class security
-	{
-		do_nothing,
-		copy,
-		inherit,
-	};
-
-private:
-	COPY_CODES CopyFileTree(const string&  Dest);
-	COPY_CODES ShellCopyOneFile(const string& Src, const os::fs::find_data &SrcData, string &strDest, int KeepPathPos, int Rename);
-	bool CheckStreams(const string& Src,const string& DestPath);
-	int ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcData, string &strDestName,DWORD &DestAttr,int Append, error_state_ex& ErrorState);
-	int ShellSystemCopy(const string& SrcName,const string& DestName,const os::fs::find_data &SrcData);
-	int DeleteAfterMove(const string& Name,DWORD Attr);
-	bool AskOverwrite(const os::fs::find_data &SrcData,const string& SrcName,const string& DestName, DWORD DestAttr,int SameName,int Rename,int AskAppend, int &Append,string &strNewName,int &RetCode);
-	bool GetSecurity(const string& FileName, os::security::descriptor& sd);
-	bool SetSecurity(const string& FileName, const os::security::descriptor& sd);
-	bool ResetSecurity(const string& FileName);
-	bool ResetSecurityRecursively(const string& FileName);
-	bool CalcTotalSize() const;
-	bool ShellSetAttr(const string& Dest,DWORD Attr);
-	void SetDestDizPath(const string& DestPath);
-	static intptr_t WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
-	intptr_t CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
-
-	struct created_folders
-	{
-		created_folders(const string& FullName, const os::fs::find_data& FindData);
-
-		string FullName;
-		os::chrono::time_point
-			CreationTime,
-			LastAccessTime,
-			LastWriteTime,
-			ChangeTime;
-	};
-
-	std::unique_ptr<copy_progress> CP;
-	std::unique_ptr<FileFilter> m_Filter;
-	DWORD Flags;
-	panel_ptr SrcPanel, DestPanel;
-	panel_mode SrcPanelMode,DestPanelMode;
-	int SrcDriveType,DestDriveType;
-	string strSrcDriveRoot;
-	string strDestDriveRoot;
-	string strDestFSName;
-	DizList DestDiz;
-	string strDestDizPath;
-	char_ptr CopyBuffer;
-	const size_t CopyBufferSize;
-	string strCopiedName;
-	string strRenamedName;
-	string strRenamedFilesPath;
-	int OvrMode;
-	int ReadOnlyOvrMode;
-	int ReadOnlyDelMode;
-	bool SkipErrors{};     // ...для пропуска при копировании залоченных файлов.
-	int SkipEncMode;
-	bool SkipDeleteErrors{};
-	bool SkipSecurityErrors{};
-	int SelectedFolderNameLength;
-	std::vector<string> m_DestList;
-	// тип создаваемого репарспоинта.
-	// при AltF6 будет то, что выбрал юзер в диалоге,
-	// в остальных случаях - RP_EXACTCOPY - как у источника
-	ReparsePointTypes RPT;
-	string strPluginFormat;
-	int AltF10;
-
-	security m_CopySecurity{ security::do_nothing };
-	size_t SelCount;
-	bool FolderPresent;
-	bool FilesPresent;
-	bool AskRO;
-	bool m_UseFilter;
-	HANDLE m_FileHandleForStreamSizeFix;
-	size_t m_NumberOfTargets;
-	std::list<created_folders> m_CreatedFolders;
-};
+void Copy(panel_ptr SrcPanel, bool Move, bool Link, bool CurrentOnly, bool Ask, int& ToPlugin, string* PluginDestPath, bool ToSubdir = false);
 
 #endif // COPY_HPP_741275F9_6A07_4F73_9674_D8464C559194

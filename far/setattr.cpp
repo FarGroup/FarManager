@@ -636,8 +636,7 @@ static bool process_single_file(
 {
 	if (!New.Owner.empty() && !equal_icase(Current.Owner, New.Owner))
 	{
-		if (ESetFileOwner(Name, New.Owner, SkipErrors) == setattr_result::cancel)
-			return false;
+		ESetFileOwner(Name, New.Owner, SkipErrors);
 	}
 
 	{
@@ -654,21 +653,17 @@ static bool process_single_file(
 			}
 		}
 
-		if (ESetFileTime(Name, TimePointers[0], TimePointers[1], TimePointers[2], TimePointers[3], Current.FindData.Attributes, SkipErrors) == setattr_result::cancel)
-			return false;
+		ESetFileTime(Name, TimePointers[0], TimePointers[1], TimePointers[2], TimePointers[3], Current.FindData.Attributes, SkipErrors);
 	}
 
 	if (New.FindData.Attributes == Current.FindData.Attributes)
 		return true;
 
-	if (ESetFileCompression(Name, (New.FindData.Attributes & FILE_ATTRIBUTE_COMPRESSED) != 0, Current.FindData.Attributes, SkipErrors) == setattr_result::cancel)
-		return false;
+	ESetFileCompression(Name, (New.FindData.Attributes & FILE_ATTRIBUTE_COMPRESSED) != 0, Current.FindData.Attributes, SkipErrors);
 
-	if (ESetFileEncryption(Name, (New.FindData.Attributes & FILE_ATTRIBUTE_ENCRYPTED) != 0, Current.FindData.Attributes, SkipErrors) == setattr_result::cancel)
-		return false;
+	ESetFileEncryption(Name, (New.FindData.Attributes & FILE_ATTRIBUTE_ENCRYPTED) != 0, Current.FindData.Attributes, SkipErrors);
 
-	if (ESetFileSparse(Name, (New.FindData.Attributes & FILE_ATTRIBUTE_SPARSE_FILE) != 0, Current.FindData.Attributes, SkipErrors) == setattr_result::cancel)
-		return false;
+	ESetFileSparse(Name, (New.FindData.Attributes & FILE_ATTRIBUTE_SPARSE_FILE) != 0, Current.FindData.Attributes, SkipErrors);
 
 	const auto IsChanged = [&](DWORD const Attributes)
 	{
@@ -677,21 +672,19 @@ static bool process_single_file(
 
 	if (IsChanged(FILE_ATTRIBUTE_REPARSE_POINT))
 	{
-		if (EDeleteReparsePoint(Name, Current.FindData.Attributes, SkipErrors) == setattr_result::cancel)
-			return false;
+		EDeleteReparsePoint(Name, Current.FindData.Attributes, SkipErrors);
 	}
 
 	const auto OtherAttributes = ~(FILE_ATTRIBUTE_ENCRYPTED | FILE_ATTRIBUTE_COMPRESSED | FILE_ATTRIBUTE_SPARSE_FILE | FILE_ATTRIBUTE_REPARSE_POINT);
 	if (IsChanged(OtherAttributes))
 	{
-		if (ESetFileAttributes(Name, New.FindData.Attributes & OtherAttributes, SkipErrors) == setattr_result::cancel)
-			return false;
+		ESetFileAttributes(Name, New.FindData.Attributes & OtherAttributes, SkipErrors);
 	}
 
 	return true;
 }
 
-bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
+static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 {
 	short DlgX = 66, DlgY = 22;
 
@@ -1214,7 +1207,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 						}
 						else if (OperationResult == operation::cancel)
 						{
-							return false;
+							cancel_operation();
 						}
 					}
 				}
@@ -1382,4 +1375,16 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 	}
 	Global->WindowManager->RefreshWindow(Global->CtrlObject->Panels());
 	return true;
+}
+
+void ShellSetFileAttributes(Panel* SrcPanel, const string* Object)
+{
+	try
+	{
+		ShellSetFileAttributesImpl(SrcPanel, Object);
+	}
+	catch (const operation_cancelled&)
+	{
+		;
+	}
 }
