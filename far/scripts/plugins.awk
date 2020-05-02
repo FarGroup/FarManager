@@ -1,14 +1,14 @@
 #
 # plugins.awk
-# Преобразование plugin.hpp в дистрибутивный вид.
+# РџСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ plugin.hpp РІ РґРёСЃС‚СЂРёР±СѓС‚РёРІРЅС‹Р№ РІРёРґ.
 #
 # gawk -f plugins.awk -v p1=1 -v p2=70 -v p4=build# plugin.hpp > plugin1.hpp
 # gawk -f plugins.awk -v p1=1 -v p2=70 -v p4=build# plugin.pas > plugin1.pas
 #
 #  #ifdef FAR_USE_INTERNALS
-#    то, что должно быть скрыто
+#    С‚Рѕ, С‡С‚Рѕ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ СЃРєСЂС‹С‚Рѕ
 #  #else // ELSE FAR_USE_INTERNALS
-#    замена!
+#    Р·Р°РјРµРЅР°!
 #  #endif // END FAR_USE_INTERNALS
 #
 

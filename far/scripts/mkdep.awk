@@ -41,7 +41,7 @@ BEGIN{
   {
     if(substr(lnsrc,1,length("#include \"")) == "#include \"")
     {
-      lnsrc=gensub(/^#include[ \t]*\"([^\"]+)\".*$/, "\\1", "g", lnsrc);
+      lnsrc=gensub(/^#include[ \t]*"([^"]+)".*$/, "\\1", "g", lnsrc);
       if(lnsrc != "" && lnsrc != $0)
         if(substr(lnsrc,1,length("bootstrap/")) == "bootstrap/")
           lnsrc = bootstrap substr(lnsrc, length("bootstrap/") + 1)
