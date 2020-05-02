@@ -2251,7 +2251,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 						shared_from_this(),
 						LocalKey == KEY_SHIFTDEL || LocalKey == KEY_SHIFTNUMDEL || LocalKey == KEY_SHIFTDECIMAL ? delete_type::remove :
 						LocalKey == KEY_ALTDEL || LocalKey == KEY_RALTDEL || LocalKey == KEY_ALTNUMDEL || LocalKey == KEY_RALTNUMDEL || LocalKey == KEY_ALTDECIMAL || LocalKey == KEY_RALTDECIMAL ? delete_type::erase :
-						delete_type::recycle);
+						Global->Opt->DeleteToRecycleBin? delete_type::recycle : delete_type::remove);
 				}
 
 				if (LocalKey==KEY_SHIFTF8)
