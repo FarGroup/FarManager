@@ -174,7 +174,7 @@ end
 local function AddId (trg, src)
   trg.id = "<no id>"
   if type(src.id)=="string" then
-    local lstr = src.id:lower()
+    local lstr = string.lower(src.id)
     if not IdSet[lstr] then
       IdSet[lstr] = true
       trg.id = src.id
