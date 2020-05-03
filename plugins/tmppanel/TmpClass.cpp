@@ -243,9 +243,10 @@ int TmpPanel::PutOneFile(const wchar_t* SrcPath, PluginPanelItem &PanelItem)
 	if (CurPanelItem->FileName==NULL)
 		return FALSE;
 
+	*(wchar_t*)CurPanelItem->FileName = L'\0';
 	CurPanelItem->AlternateFileName = NULL;
 
-	if (*SrcPath)
+	if (*SrcPath && !wcschr(PanelItem.FileName, L'\\'))
 	{
 		lstrcpy((wchar_t*)CurPanelItem->FileName, SrcPath);
 		FSF.AddEndSlash((wchar_t*)CurPanelItem->FileName);
