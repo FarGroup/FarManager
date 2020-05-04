@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 04.05.2020 20:12:47 +0300 - build 5596
+
+1. Correction of 5592.
+
+zg 04.05.2020 14:50:25 +0300 - build 5595
+
+1. forum: combobox allows to position the cursor outside the text boundaries.
+
 MZK 02.05.2020 23:48:24 -0700
 
 1. Translated more far:config help pages into English.

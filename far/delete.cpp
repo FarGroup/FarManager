@@ -105,7 +105,7 @@ private:
 	bool ConfirmDeleteReadOnlyFile(const string& Name, DWORD Attr);
 	bool ShellRemoveFile(const string& Name, progress Files);
 	bool ERemoveDirectory(const string& Name, delete_type Type, bool& RetryRecycleAsRemove);
-	bool RemoveToRecycleBin(const string& Name, bool dir, bool& RetryRecycleAsRemove);
+	bool RemoveToRecycleBin(const string& Name, bool dir, bool& RetryRecycleAsRemove, bool& Skip);
 	void process_item(
 		panel_ptr SrcPanel,
 		const os::fs::find_data& SelFindData,
@@ -883,11 +883,9 @@ bool ShellDelete::ShellRemoveFile(const string& Name, progress Files)
 		{
 			recycle_bin = true;
 			bool RetryRecycleAsRemove = false;
-			if (RemoveToRecycleBin(strFullName, false, RetryRecycleAsRemove))
+			bool Skip = false;
+			if (RemoveToRecycleBin(strFullName, false, RetryRecycleAsRemove, Skip))
 				return true;
-
-			if (m_SkipFileErrors)
-				return false;
 
 			if (RetryRecycleAsRemove)
 			{
@@ -895,27 +893,17 @@ bool ShellDelete::ShellRemoveFile(const string& Name, progress Files)
 				if (os::fs::delete_file(strFullName))
 					return true;
 			}
-			else
-			{
+
+			if (Skip)
 				return false;
-			}
-
 		}
 
-		operation MsgCode;
+		if (m_SkipFileErrors)
+			return false;
 
-		if (!m_SkipFileErrors)
-		{
-			const auto ErrorState = error_state::fetch();
+		const auto ErrorState = error_state::fetch();
 
-			MsgCode = OperationFailed(ErrorState, strFullName, lng::MError, msg(recycle_bin? lng::MCannotRecycleFile : lng::MCannotDeleteFile));
-		}
-		else
-		{
-			MsgCode = operation::skip;
-		}
-
-		switch (MsgCode)
+		switch (OperationFailed(ErrorState, strFullName, lng::MError, msg(recycle_bin? lng::MCannotRecycleFile : lng::MCannotDeleteFile)))
 		{
 		case operation::retry:
 			continue;
@@ -952,10 +940,14 @@ bool ShellDelete::ERemoveDirectory(const string& Name, delete_type const Type, b
 		case delete_type::recycle:
 			{
 				recycle_bin = true;
-				if (RemoveToRecycleBin(Name, true, RetryRecycleAsRemove))
+				bool Skip = false;
+				if (RemoveToRecycleBin(Name, true, RetryRecycleAsRemove, Skip))
 					return true;
 
 				if (RetryRecycleAsRemove)
+					return false;
+
+				if (Skip)
 					return false;
 			}
 			break;
@@ -1036,7 +1028,7 @@ static void break_links_for_old_os(const string& Name)
 	}
 }
 
-bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, bool& RetryRecycleAsRemove)
+bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, bool& RetryRecycleAsRemove, bool& Skip)
 {
 	RetryRecycleAsRemove = false;
 	auto strFullName = ConvertNameToFull(Name);
@@ -1077,6 +1069,7 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, bool& RetryRe
 			(dir? m_SkipFolderErrors : m_SkipFileErrors) = true;
 			[[fallthrough]];
 		case Message::second_button:    // [Skip]
+			Skip = true;
 			return false;
 
 		default:
