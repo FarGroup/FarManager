@@ -918,7 +918,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 				// Последовательно определенные поля ввода (edit controls),
 				// имеющие этот флаг группируются в редактор с возможностью
 				// вставки и удаления строк
-				if (!IsEmulatedEditorLine(Item) && Item.Type != DI_COMBOBOX)
+				if (!IsEmulatedEditorLine(Item))
 				{
 					DialogEdit->SetEditBeyondEnd(false);
 
