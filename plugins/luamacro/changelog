@@ -1,6 +1,6 @@
 shmuel 05.05.2020 23:27:35 +0300 - build 745
 
-1. Make tPluginPanelItem.UserData accessible from coroutines (and therefore macros).
+1. LuaFAR: make tPluginPanelItem.UserData accessible from coroutines (and therefore macros).
 
 shmuel 03.05.2020 14:12:01 +0200 - build 744
 
