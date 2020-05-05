@@ -569,7 +569,8 @@ void PushPanelItem(lua_State *L, const struct PluginPanelItem *PanelItem)
 		// This is a panel of a LuaFAR plugin
 		FarPanelItemUserData* ud = (FarPanelItemUserData*)PanelItem->UserData.Data;
 
-		if(ud->L == L)
+		// Compare registries rather than Lua states to allow for different coroutines of the same state
+		if(lua_topointer(ud->L, LUA_REGISTRYINDEX) == lua_topointer(L, LUA_REGISTRYINDEX))
 		{
 			lua_rawgeti(L, LUA_REGISTRYINDEX, ud->ref);
 			lua_setfield(L, -2, "UserData");
