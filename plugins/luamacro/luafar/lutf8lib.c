@@ -1282,7 +1282,6 @@ LUALIB_API int luaopen_utf8 (lua_State *L) {
 #if LUA_VERSION_NUM >= 502
   luaL_newlib(L, libs);
 #else
-  lua_createtable(L, 0, sizeof(libs)/sizeof(libs[0]));
   luaL_register(L, "utf8", libs);
 #endif
 

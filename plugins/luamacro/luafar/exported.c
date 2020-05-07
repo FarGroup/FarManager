@@ -29,7 +29,8 @@ void PackMacroValues(lua_State* L, size_t Count, const struct FarMacroValue* Val
 // memory regions.
 const char COLLECTOR_OPI[] = "Collector_OpenPanelInfo";
 const char COLLECTOR_PI[]  = "Collector_PluginInfo";
-const char KEY_OBJECT[]    = "Object";
+const char COLLECTOR_GI[]  = "Collector_GlobalInfo";
+const char KEY_OBJECT[]    = "Panel_Object";
 
 // taken from lua.c v5.1.2
 int traceback(lua_State *L)
@@ -140,19 +141,11 @@ void PushPluginPair(lua_State* L, HANDLE hPlugin)
 	lua_pushlightuserdata(L, hPlugin);
 }
 
-void ReplacePluginInfoCollector(lua_State* L)
+void ReplacePluginInfoCollector(lua_State* L, const char* Key)
 {
 	lua_newtable(L);
 	lua_pushvalue(L, -1);
-	lua_setfield(L, LUA_REGISTRYINDEX, COLLECTOR_PI);
-}
-
-void DestroyCollector(lua_State* L, HANDLE hPlugin, const char* Collector)
-{
-	PushPluginTable(L, hPlugin);      //+1: Tbl
-	lua_pushnil(L);                   //+2
-	lua_setfield(L, -2, Collector);   //+1
-	lua_pop(L,1);                     //+0
+	lua_setfield(L, LUA_REGISTRYINDEX, Key);
 }
 
 // the value is on stack top (-1)
@@ -611,7 +604,6 @@ void LF_GetOpenPanelInfo(lua_State* L, struct OpenPanelInfo *aInfo)
 		return;
 	}
 
-	DestroyCollector(L, aInfo->hPanel, COLLECTOR_OPI);
 	PushPluginTable(L, aInfo->hPanel);                 //+2: Info,Tbl
 	lua_newtable(L);                                   //+3: Info,Tbl,Coll
 	cpos = lua_gettop(L);       // collector stack position
@@ -1005,7 +997,6 @@ void LF_ClosePanel(lua_State* L, const struct ClosePanelInfo *Info)
 		PushPluginPair(L, Info->hPanel);        //+3: Func,Pair
 		pcall_msg(L, 2, 0);
 	}
-	DestroyCollector(L, Info->hPanel, COLLECTOR_OPI);
 	lua_pushlightuserdata(L, Info->hPanel);
 	lua_pushnil(L);
 	lua_rawset(L, LUA_REGISTRYINDEX);
@@ -1300,7 +1291,7 @@ void LF_GetPluginInfo(lua_State* L, struct PluginInfo *PI)
 		return;
 	}
 
-	ReplacePluginInfoCollector(L);                     //+2: Info,Coll
+	ReplacePluginInfoCollector(L, COLLECTOR_PI);       //+2: Info,Coll
 	cpos = lua_gettop(L);  // collector position
 	lua_pushvalue(L, -2);                              //+3: Info,Coll,Info
 	//--------------------------------------------------------------------------
@@ -1650,7 +1641,7 @@ int LF_GetGlobalInfo(lua_State* L, struct GlobalInfo *Info, const wchar_t *Plugi
 	}
 
 	//--------------------------------------------------------------------------
-	ReplacePluginInfoCollector(L);                     //+2: Info,Coll
+	ReplacePluginInfoCollector(L, COLLECTOR_GI);       //+2: Info,Coll
 	cpos = lua_gettop(L);  // collector position
 	lua_pushvalue(L, -2);                              //+3: Info,Coll,Info
 	//--------------------------------------------------------------------------

@@ -6238,10 +6238,13 @@ static int luaopen_far(lua_State *L)
 	lua_setfield(L, LUA_REGISTRYINDEX, FAR_VIRTUALKEYS);
 	luaL_register(L, "far", far_funcs);
 
-	lua_pushcfunction(L, far_MacroCallFar);
-	lua_setfield(L, -2, "MacroCallFar");
-	lua_pushcfunction(L, far_FarMacroCallToLua);
-	lua_setfield(L, -2, "FarMacroCallToLua");
+	if (GetPluginData(L)->Info->Private)
+	{
+		lua_pushcfunction(L, far_MacroCallFar);
+		lua_setfield(L, -2, "MacroCallFar");
+		lua_pushcfunction(L, far_FarMacroCallToLua);
+		lua_setfield(L, -2, "FarMacroCallToLua");
+	}
 
 	push_flags_table(L);
 	lua_pushvalue(L, -1);
