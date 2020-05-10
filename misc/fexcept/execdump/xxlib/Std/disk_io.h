@@ -44,7 +44,7 @@ STRUCT( FILE_ENUM )
         HotPathEntry
  *********************************/
 STRUCT( FileAttrEntry )
-  char *Name;
+  const char* Name;
   int   Value;
   char  CharDescr;
 };
@@ -204,7 +204,7 @@ CLASSBASE( DirEntry, public MyArray<PFileEntry> )
   BOOL isRealPath( void ) { return Path[0] != ':'; }
 
   BOOL OpenDir( CONSTSTR path,OpenDirProc callBack = NULL,CONSTSTR filter = NULL,CONSTSTR exfilter = NULL );
-  int  IndexOf( char *fname );
+  int  IndexOf(const char* fname);
   int  SelCount( void );
   BOOL Assign( DirEntry& from, BOOL selected );
   BOOL Assign( DirEntry& from, PFileEntry p );
@@ -297,7 +297,7 @@ inline    MyString   MYRTLEXP MakeStartRelativePath( const AnsiString& fnm ) { r
  *******************************************************************/
 HDECLSPEC pchar      MYRTLEXP MakePathName( char *path,CONSTSTR fname,char Slash = SLASH_CHAR );
 #if defined(__cplusplus)
-HDECLSPEC MyString   MYRTLEXP ChangeFilePart( char *fpath,CONSTSTR newPart,cfpTypes chType, char Slash = SLASH_CHAR );
+HDECLSPEC MyString   MYRTLEXP ChangeFilePart(const char* fpath,CONSTSTR newPart,cfpTypes chType, char Slash = SLASH_CHAR );
 HDECLSPEC MyString   MYRTLEXP MakePathName( CONSTSTR path,CONSTSTR fname,char Slash = SLASH_CHAR ); //Make pathname from `path` & `name`
 HDECLSPEC MyString   MYRTLEXP MakeFullPathName( const MyString& fname, const MyString& basePath );  //Make full path-ed filename
 HDECLSPEC MyString   MYRTLEXP MakePathString( CONSTSTR path, int maxWidth );                 // inserts "/../" if length > maxWidth

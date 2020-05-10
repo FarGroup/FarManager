@@ -7,11 +7,11 @@
 /*******************************************************************
    DATA
  *******************************************************************/
-static char     *CT_Def_argv[] = { "",NULL };
+static const char* CT_Def_argv[] = { "",NULL };
 static BOOL      CT_CaseSensitive;
 static BOOL      CT_SelfArgs = FALSE;
 
-static char **CT_argv = CT_Def_argv;
+static const char** CT_argv = CT_Def_argv;
 static int    CT_argc = 1;
 
 /*******************************************************************
@@ -78,7 +78,7 @@ void MYRTLEXP CTArgInit( int argc, char **argv,BOOL CaseSensitive )
     CT_SelfArgs      = TRUE;
 
     CT_argc = argc;
-    CT_argv = new pchar[ CT_argc+1 ];
+    CT_argv = new const char*[ CT_argc+1 ];
     int n;
 
     if ( StrChr(argv[0],SLASH_CHAR) == NULL )
@@ -92,12 +92,12 @@ void MYRTLEXP CTArgInit( int argc, char **argv,BOOL CaseSensitive )
     CT_argv[n] = NULL;
 }
 
-char *MYRTLEXP CTArgGet( int num )
+const char* MYRTLEXP CTArgGet( int num )
   {
   return ( num < 0 || num >= CT_argc ) ? NULL : CT_argv[num];
 }
 
-char *MYRTLEXP CTArgGetArg( int num )
+const char* MYRTLEXP CTArgGetArg( int num )
   {
     for ( int n = 1; num >= 0 && n < CT_argc && CT_argv[n]; n++ )
       if (
@@ -114,7 +114,7 @@ char *MYRTLEXP CTArgGetArg( int num )
   return NULL;
 }
 
-char *MYRTLEXP CTArgGet( CONSTSTR name )
+const char* MYRTLEXP CTArgGet( CONSTSTR name )
   {  int         cn = StrColCount(name,";"),
                  n,i,len;
      CONSTSTR m;

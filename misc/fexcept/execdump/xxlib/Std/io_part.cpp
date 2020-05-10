@@ -14,7 +14,7 @@ pchar MYRTLEXP FixSlashChars( char *str,char SlashChar )
  return str;
 }
 
-MyString MYRTLEXP ChangeFilePart( char *fpath,CONSTSTR newPart,cfpTypes chType, char Slash )
+MyString MYRTLEXP ChangeFilePart( const char* fpath,CONSTSTR newPart,cfpTypes chType, char Slash )
   {  MyString p,n,e;
 
     if ( !fpath ) fpath = "";

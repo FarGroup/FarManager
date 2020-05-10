@@ -79,14 +79,14 @@ class NetBrowser
 		static FILE *LogFile;
 		static int LogFileRef;
 		static void LogNetResource(NETRESOURCE &Res);
-		static void OpenLogFile(wchar_t *lpFileName);
+		static void OpenLogFile(const wchar_t *lpFileName);
 		static void CloseLogfile();
 #endif
 
 	private:
 		void RemoveItems();
 #ifdef NETWORK_LOGGING
-		void LogData(wchar_t* Data);
+		void LogData(const wchar_t* Data);
 #endif
 		static void DisconnectFromServer(NETRESOURCE *nr);
 		BOOL ChangeToDirectory(const wchar_t *Dir, OPERATION_MODES opmodes, bool IsExplicit);

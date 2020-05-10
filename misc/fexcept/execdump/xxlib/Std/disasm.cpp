@@ -39,7 +39,7 @@ static jmp_buf             reached_eof; /* jump back when reached eof */
 
 // prototypes
 static BYTE      getbyte(void);
-static void      ua_str(char *);
+static void      ua_str(const char*);
 static CONSTSTR  addr_to_hex( DWORD addr,int useSign,int opSize );
 static int       modrm(void);
 static int       sib(void);
@@ -52,8 +52,8 @@ static void      do_sib(int );
 static void      do_modrm(char );
 static void      floating_point(int );
 static void      percent( char, char );
-static char     *GetOP( BYTE Num );
-static char     *GetOPGroup( char subtype );
+static const char* GetOP( BYTE Num );
+static const char* GetOPGroup( char subtype );
 
 CONSTSTR UnassembeInfo::HexDigit( DWORD Value,char Sign,BOOL Compress )
   {  static char str[ 20 ];
@@ -618,7 +618,7 @@ static void  percent( char type, char subtype )
    }
 }
 
-static void  ua_str(char *str)
+static void  ua_str(const char* str)
   {  char c,c1;
 
   if ( !str ) {

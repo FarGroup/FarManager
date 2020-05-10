@@ -1,4 +1,7 @@
 #include "crt.hpp"
+#if _MSC_VER >= 1925
+ #pragma function(memchr)
+#endif
 
 #ifdef _MSC_VER
 #pragma function(memchr)

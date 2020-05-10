@@ -143,7 +143,8 @@ CONSTSTR MYRTLEXP Key2Str( DWORD key )
   {  BYTE sc = KEY_SCAN(key),
           sh = KEY_SHIFT(key);
      int  n;
-     char ss[10],*m;
+     char ss[10];
+     const char* m;
      static char buf[50];
 
     buf[0] = 0;

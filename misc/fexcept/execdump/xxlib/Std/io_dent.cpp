@@ -200,7 +200,7 @@ BOOL DirEntry::OpenDir( CONSTSTR path, OpenDirProc callBack, CONSTSTR filter,CON
 return TRUE;
 }
 
-int DirEntry::IndexOf( char *fname )
+int DirEntry::IndexOf(const char* fname)
   {
     for ( int n = 0; n < Count(); n++ )
       if ( CMP_FILE( Item(n)->NameExt(),fname ) )

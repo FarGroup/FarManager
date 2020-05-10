@@ -54,7 +54,7 @@ void MYRTLEXP StrUpr( char *str )
 }
 #endif
 
-static char *sysSpaces= " \t";
+static const char* sysSpaces= " \t";
 
 BOOL MYRTLEXP isSpace( char ch )
   {

@@ -45,7 +45,7 @@ inline maCmp Int2Cmp( int v ) { return (v==0)?masEqual:((v<0)?masMore:masLess); 
 
 STRUCT( CTScanStruct )
   BYTE  Scan;
-  char *Text;
+  const char *Text;
 };
 
 //--- RANDOM
@@ -239,8 +239,8 @@ HDECLSPEC BOOL          MYRTLEXP isUpper( char ch );
 HDECLSPEC void          MYRTLEXP StrUpr( char *str );
 HDECLSPEC void          MYRTLEXP StrLwr( char *str );
 #else
-inline    char                   ToUpperI( char c )  { return (char)(int)CharUpper( (LPTSTR)MK_DWORD(0,(WORD)c) ); }
-inline    char                   ToLowerI( char c )  { return (char)(int)CharLower( (LPTSTR)MK_DWORD(0,(WORD)c) ); }
+inline    char                   ToUpperI( char c )  { return (char)CharUpperBuff(&c, 1); }
+inline    char                   ToLowerI( char c )  { return (char)CharLowerBuff(&c, 1); }
 inline    char                   ToLower( char ch )  { return ToLowerI(ch); }
 inline    char                   ToUpper( char ch )  { return ToUpperI(ch); }
 inline    BOOL                   isLower( char ch )  { return IsCharLower( (TCHAR)ch ); }
@@ -341,7 +341,7 @@ HDECLSPEC BOOL          MYRTLEXP StrContainCol( CONSTSTR str,CONSTSTR seps,CONST
  *******************************************************************/
 HDECLSPEC BOOL          MYRTLEXP CheckReadable( const LPVOID Ptr,SIZE_T sz );
 HDECLSPEC WORD          MYRTLEXP OSVersion( void );
-HDECLSPEC pchar         MYRTLEXP OSPlatform( void );
+HDECLSPEC const char*   MYRTLEXP OSPlatform( void );
 HDECLSPEC void          MYRTLEXP ErrorBeep( void );
 HDECLSPEC AbortProc     MYRTLEXP AtExit( AbortProc p );                //Regiseter exit proc. Client must call prev proc
 HDECLSPEC void      RTL_CALLBACK CallAtExit( void );                   //Call registered exit chain. Unregister all.
@@ -359,9 +359,9 @@ HDECLSPEC CONSTSTR      MYRTLEXP FromOEM( CONSTSTR s );
  *******************************************************************/
 HDECLSPEC void          MYRTLEXP CTArgInit( int argc, char **argv,BOOL CaseSensitive = FALSE );
 HDECLSPEC void          MYRTLEXP CTArgInit( CONSTSTR Args,BOOL CaseSensitive = FALSE );
-HDECLSPEC pchar         MYRTLEXP CTArgGet( int num );                   //get base argument
-HDECLSPEC pchar         MYRTLEXP CTArgGetArg( int num );                //get`s argument that not switch
-HDECLSPEC pchar         MYRTLEXP CTArgGet( CONSTSTR name );             //find "[-/]<name>[=<value>]" key and ret <value> || NULL
+HDECLSPEC const char*   MYRTLEXP CTArgGet( int num );                   //get base argument
+HDECLSPEC const char*   MYRTLEXP CTArgGetArg( int num );                //get`s argument that not switch
+HDECLSPEC const char*   MYRTLEXP CTArgGet( CONSTSTR name );             //find "[-/]<name>[=<value>]" key and ret <value> || NULL
 HDECLSPEC BOOL          MYRTLEXP CTArgCheck( CONSTSTR name );           //check for "[-/]<name>" exist
 HDECLSPEC int           MYRTLEXP CTArgCount( void );
 HDECLSPEC pchar         MYRTLEXP CTGetArgPathName( CONSTSTR ArgName, CONSTSTR DefFileName, char *Buffer, int bSz );

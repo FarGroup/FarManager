@@ -36,7 +36,7 @@ pchar MYRTLEXP StrTrim( char *str )
   {  CONSTSTR m;
 
      if ( !str )
-       return "";
+       return str;
 
      for( m = str; *m && isSpace(*m); m++ );
 
@@ -66,9 +66,6 @@ pchar MYRTLEXP StrTrim( char *str )
 
 pchar MYRTLEXP StrTrim( char *buff, CONSTSTR str, int bsz /*=-1*/ )
   {  CONSTSTR m;
-
-     if ( !bsz )
-       return "";
 
      buff[0] = 0;
 
