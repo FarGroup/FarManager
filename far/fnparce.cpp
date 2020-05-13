@@ -291,48 +291,58 @@ static size_t SkipInputToken(string_view const Str, subst_strings* const Strings
 static bool MakeListFile(panel_ptr const& Panel, string& ListFileName, bool const ShortNames, string_view const Modifers)
 {
 	uintptr_t CodePage = CP_OEMCP;
+	bool UseFullPaths{}, QuotePaths{}, UseForwardSlash{};
 
-	if (!Modifers.empty())
+	for (const auto& i: Modifers)
 	{
-		if (contains(Modifers, L'A')) // ANSI
+		switch (i)
 		{
+		case L'A':
 			CodePage = CP_ACP;
-		}
-		else if (contains(Modifers, L'U')) // UTF8
-		{
+			break;
+
+		case L'U':
 			CodePage = CP_UTF8;
-		}
-		else if (contains(Modifers, L'W')) // UTF16LE
-		{
+			break;
+
+		case L'W':
 			CodePage = CP_UNICODE;
+			break;
+
+		case L'F':
+			UseFullPaths = true;
+			break;
+
+		case L'Q':
+			QuotePaths = true;
+			break;
+
+		case L'S':
+			UseForwardSlash = true;
+			break;
 		}
 	}
 
 	const auto transform = [&](string& strFileName)
 	{
-		if (!Modifers.empty())
+		if (UseFullPaths && PointToName(strFileName).size() == strFileName.size())
 		{
-			if (contains(Modifers, L'F') && PointToName(strFileName).size() == strFileName.size()) // 'F' - использовать полный путь; //BUGBUG?
-			{
-				const auto CurDir = Panel->GetCurDir();
-				strFileName = path::join(ShortNames? ConvertNameToShort(CurDir) : CurDir, strFileName); //BUGBUG?
-			}
-
-			if (contains(Modifers, L'Q')) // 'Q' - заключать имена в кавычки;
-				inplace::quote(strFileName);
-
-			if (contains(Modifers, L'S')) // 'S' - использовать '/' вместо '\' в путях файлов;
-			{
-				ReplaceBackslashToSlash(strFileName);
-			}
+			const auto& CurDir = Panel->GetCurDir();
+			strFileName = path::join(ShortNames? ConvertNameToShort(CurDir) : CurDir, strFileName); //BUGBUG?
 		}
+
+		if (QuotePaths)
+			inplace::quote(strFileName);
+
+		if (UseForwardSlash)
+			ReplaceBackslashToSlash(strFileName);
 	};
 
 	ListFileName = MakeTemp();
 
 	try
 	{
-		const os::fs::file ListFile(ListFileName, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, CREATE_ALWAYS);	
+		const os::fs::file ListFile(ListFileName, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, CREATE_ALWAYS);
 		if (!ListFile)
 			throw MAKE_FAR_EXCEPTION(msg(lng::MCannotCreateListTemp));
 

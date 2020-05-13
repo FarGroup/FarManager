@@ -5222,7 +5222,7 @@ TEST_CASE("macro.ToDouble")
 
 	for (const auto& i: Tests)
 	{
-		double Result;
+		double Result = 0;
 		REQUIRE(ToDouble(i.Value, Result) == i.Valid);
 
 		if (i.Valid)

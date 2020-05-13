@@ -146,7 +146,7 @@ bool PluginSettings::Set(const FarSettingsItem& Item)
 	if (Item.Root >= m_Keys.size())
 		return false;
 
-	auto name = NullToEmpty(Item.Name);
+	const auto name = NullToEmpty(Item.Name);
 	switch(Item.Type)
 	{
 	case FST_SUBKEY:
@@ -174,7 +174,7 @@ bool PluginSettings::Get(FarSettingsItem& Item)
 	if (Item.Root >= m_Keys.size())
 		return false;
 
-	auto name = NullToEmpty(Item.Name);
+	const auto name = NullToEmpty(Item.Name);
 	switch(Item.Type)
 	{
 	case FST_SUBKEY:

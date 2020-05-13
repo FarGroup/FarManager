@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "encoding.hpp"
 #include "pathmix.hpp"
-#include "exception.hpp"
 
 // Platform:
 #include "platform.fs.hpp"

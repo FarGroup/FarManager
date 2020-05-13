@@ -1320,7 +1320,7 @@ TEST_CASE("encoding.ucs2-utf8.round-trip")
 		assert(Size <= std::size(Bytes));
 
 		wchar_t Result;
-		const auto ResultSize = encoding::utf8::get_chars({ Bytes, Size }, { &Result, 1 });
+		[[maybe_unused]] const auto ResultSize = encoding::utf8::get_chars({ Bytes, Size }, { &Result, 1 });
 		assert(ResultSize == 1u);
 
 		return Result;

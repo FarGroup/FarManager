@@ -111,7 +111,7 @@ public:
 	};
 
 private:
-	COPY_CODES CopyFileTree(const string& Dest);
+	void CopyFileTree(const string& Dest);
 	COPY_CODES ShellCopyOneFile(const string& Src, const os::fs::find_data& SrcData, string& strDest, int KeepPathPos, int Rename);
 	void CheckStreams(const string& Src, const string& DestPath);
 	int ShellCopyFile(const string& SrcName, const os::fs::find_data& SrcData, string& strDestName, DWORD& DestAttr, int Append, error_state_ex& ErrorState);
@@ -1293,7 +1293,7 @@ ShellCopy::ShellCopy(
 
 		NeedDizUpdate = true;
 
-		const auto I = CopyFileTree(strNameTmp);
+		CopyFileTree(strNameTmp);
 
 		if (OldCopySymlinkContents)
 			Flags|=FCOPY_COPYSYMLINKCONTENTS;
@@ -1317,14 +1317,14 @@ ShellCopy::ShellCopy(
 }
 
 
-COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
+void ShellCopy::CopyFileTree(const string& Dest)
 {
 	//SaveScreen SaveScr;
 	DWORD DestAttr = INVALID_FILE_ATTRIBUTES;
 	size_t DestMountLen = 0;
 
 	if (Dest.empty() || IsCurrentDirectory(Dest))
-		return COPY_FAILURE; //????
+		return;
 
 	SetCursorType(false, 0);
 
@@ -1444,26 +1444,21 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 				{
 					const auto ErrorState = error_state::fetch();
 
-					const auto Result = OperationFailed(ErrorState, strDestDriveRoot, lng::MError, {});
-					if (Result == operation::retry)
+					switch (OperationFailed(ErrorState, strDestDriveRoot, lng::MError, {}))
 					{
+					case operation::retry:
+						Exists_2 = os::fs::exists(strDestDriveRoot);
 						continue;
-					}
-					else if (Result == operation::skip)
-					{
-						return COPY_SKIPPED;
-					}
-					else if (Result == operation::skip_all)
-					{
+
+					case operation::skip_all:
 						SkipErrors = true;
-						return COPY_SKIPPED;
-					}
-					else if (Result == operation::cancel)
-					{
+						[[fallthrough]];
+					case operation::skip:
+						return;
+
+					default:
 						cancel_operation();
 					}
-
-					Exists_2 = os::fs::exists(strDestDriveRoot);
 				}
 				if (!Exists_1 && Exists_2)
 					DestAttr = os::fs::get_file_attributes(strDest);
@@ -1493,7 +1488,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 						strNewPath
 					},
 					{ lng::MOk });
-				return COPY_FAILURE;
+				return;
 			}
 		}
 
@@ -1515,15 +1510,16 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 			{
 				case 2:
 					break;
-				case 1:
 
+				case 1:
 					// Отметим (Ins) несколько каталогов, ALT-F6 Enter - выделение с папок не снялось.
 					if ((!(Flags&FCOPY_CURRENTONLY)) && (Flags&FCOPY_COPYLASTTIME))
 						SrcPanel->ClearLastGetSelection();
 
 					continue;
+
 				case 0:
-					return COPY_FAILURE;
+					return;
 			}
 		}
 		else
@@ -1744,8 +1740,6 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 			SrcPanel->ClearLastGetSelection();
 		}
 	}
-
-	return COPY_SUCCESS; //COPY_SUCCESS_MOVE???
 }
 
 
@@ -3545,6 +3539,6 @@ void Copy(panel_ptr SrcPanel, bool Move, bool Link, bool CurrentOnly, bool Ask, 
 	}
 	catch (const operation_cancelled&)
 	{
-		;
+		// Nop
 	}
 }

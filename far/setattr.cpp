@@ -1385,6 +1385,6 @@ void ShellSetFileAttributes(Panel* SrcPanel, const string* Object)
 	}
 	catch (const operation_cancelled&)
 	{
-		;
+		// Nop
 	}
 }

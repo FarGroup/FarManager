@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 // Internal:
-#include "exception.hpp"
 
 // Platform:
 #include "platform.fs.hpp"

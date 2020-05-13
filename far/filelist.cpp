@@ -3999,7 +3999,7 @@ long FileList::SelectFiles(int Mode, string_view const Mask)
 		{
 			// Учтем тот момент, что имя может содержать символы-разделители
 			strRawMask = concat(L"\""sv, strCurName);
-			size_t pos = strRawMask.rfind(L'.');
+			const auto pos = strRawMask.rfind(L'.');
 
 			if (pos != string::npos && pos!=strRawMask.size()-1)
 				strRawMask.resize(pos);
@@ -5227,7 +5227,7 @@ string FileList::GetPluginPrefix() const
 			PluginInfo PInfo = {sizeof(PInfo)};
 			if (Global->CtrlObject->Plugins->GetPluginInfo(GetPluginHandle()->plugin(), &PInfo) && PInfo.CommandPrefix && *PInfo.CommandPrefix)
 			{
-				string_view Prefix = PInfo.CommandPrefix;
+				const string_view Prefix = PInfo.CommandPrefix;
 				return Prefix.substr(0, Prefix.find(L':')) + L":"sv;
 			}
 		}

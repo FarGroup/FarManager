@@ -1453,7 +1453,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 			int NewPos=SelectPos;
 
 			bool IsHotkey=true;
-			if (!CheckKeyHiOrAcc(LocalKey, 0, 0, !(Parent && !Parent->CheckDialogMode(DMODE_ISMENU) && CheckFlags(VMENU_COMBOBOX | VMENU_LISTBOX)), NewPos))
+			if (!CheckKeyHiOrAcc(LocalKey, 0, false, !(Parent && !Parent->CheckDialogMode(DMODE_ISMENU) && CheckFlags(VMENU_COMBOBOX | VMENU_LISTBOX)), NewPos))
 			{
 				if (LocalKey == KEY_SHIFTF1 || LocalKey == KEY_F1)
 				{

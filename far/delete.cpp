@@ -576,7 +576,7 @@ void ShellDelete::process_item(
 
 			if (MsgCode == Message::first_button)
 			{
-				;
+				// Nop
 			}
 			else if (MsgCode == Message::second_button)
 			{
@@ -646,7 +646,7 @@ void ShellDelete::process_item(
 
 					if (MsgCode == Message::first_button)
 					{
-						;
+						// Nop
 					}
 					else if (MsgCode == Message::second_button)
 					{
@@ -863,7 +863,7 @@ bool ShellDelete::ShellRemoveFile(const string& Name, progress Files)
 			case Message::first_button:
 				if (EraseFile(strFullName, Files))
 					return true;
-
+				break;
 			case Message::fourth_button:
 				SkipWipeMode = Message::third_button;
 				[[fallthrough]];
@@ -932,10 +932,12 @@ bool ShellDelete::ERemoveDirectory(const string& Name, delete_type const Type, b
 		case delete_type::remove:
 			if (os::fs::remove_directory(Name))
 				return true;
+			break;
 
 		case delete_type::erase:
 			if (EraseDirectory(Name))
 				return true;
+			break;
 
 		case delete_type::recycle:
 			{
@@ -1031,7 +1033,7 @@ static void break_links_for_old_os(const string& Name)
 bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, bool& RetryRecycleAsRemove, bool& Skip)
 {
 	RetryRecycleAsRemove = false;
-	auto strFullName = ConvertNameToFull(Name);
+	const auto strFullName = ConvertNameToFull(Name);
 
 	break_links_for_old_os(strFullName);
 
@@ -1169,7 +1171,7 @@ void Delete(const panel_ptr& SrcPanel, delete_type const Type)
 	}
 	catch (const operation_cancelled&)
 	{
-		;
+		// Nop
 	}
 
 	if (UpdateDiz && DizPresent == CheckDiz())
