@@ -1509,6 +1509,27 @@ local function test_utf8_sub()
   assert(not pcall(text.sub, text, nil))
 end
 
+local function test_utf8_lower_upper()
+  assert((""):lower() == "")
+  assert(("abc"):lower() == "abc")
+  assert(("ABC"):lower() == "abc")
+
+  assert((""):upper() == "")
+  assert(("abc"):upper() == "ABC")
+  assert(("ABC"):upper() == "ABC")
+
+  local russian_abc = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя"
+  local part1, part2 = russian_abc:sub(1,33), russian_abc:sub(34)
+  assert(part1:lower() == part2)
+  assert(part2:lower() == part2)
+  assert(part1:upper() == part1)
+  assert(part2:upper() == part1)
+
+  local noletters = "1234567890~@#$%^&*()_+-=[]{}|/\\';.,"
+  assert(noletters:lower() == noletters)
+  assert(noletters:upper() == noletters)
+end
+
 ---------------------------------------------------------------------------------------------------
 -- ACTL_GETWINDOWCOUNT, ACTL_GETWINDOWTYPE, ACTL_GETWINDOWINFO, ACTL_SETCURRENTWINDOW, ACTL_COMMIT
 ---------------------------------------------------------------------------------------------------
@@ -1756,6 +1777,7 @@ function MT.test_luafar()
   test_gmatch_coro()
   test_utf8_len()
   test_utf8_sub()
+  test_utf8_lower_upper()
 
   test_AdvControl()
   test_far_GetMsg()
