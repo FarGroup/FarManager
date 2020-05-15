@@ -1374,11 +1374,7 @@ bool CommandLine::IntChDir(string_view const CmdLine, bool const ClosePanel, boo
 		}
 	}
 
-	/* $ 15.11.2001 OT
-		Сначала проверяем есть ли такая "обычная" директория.
-		если уж нет, то тогда начинаем думать, что это директория плагинная
-	*/
-	if (os::fs::is_directory(strExpandedDir) && IsAbsolutePath(strExpandedDir))
+	if (IsAbsolutePath(strExpandedDir))
 	{
 		ReplaceSlashToBackslash(strExpandedDir);
 		SetPanel->SetCurDir(strExpandedDir,true);

@@ -120,6 +120,7 @@ bool ConnectToNetworkResource(const string& NewDir)
 	{
 		LocalName = NewDir;
 		RemoteName = NewDir;
+		DeleteEndSlash(RemoteName);
 	}
 
 	auto UserName = IsDrive? GetStoredUserName(NewDir[0]) : L""s;

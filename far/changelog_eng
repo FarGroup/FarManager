@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 15.05.2020 18:05:22 +0100 - build 5598
+
+1. Request credentials when traversing network paths.
+
 drkns 13.05.2020 23:46:30 +0100 - build 5597
 
 1. Refactoring.

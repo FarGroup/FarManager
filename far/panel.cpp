@@ -344,13 +344,11 @@ bool Panel::SetCurPath()
 
 	if (AnotherPanel->GetMode() != panel_mode::PLUGIN_PANEL)
 	{
-		if (AnotherPanel->m_CurDir.size() > 1 && AnotherPanel->m_CurDir[1]==L':' &&
-		        (m_CurDir.empty() || upper(AnotherPanel->m_CurDir[0])!=upper(m_CurDir[0])))
+		// Propagate passive panel curent directory to the environment
+		// (only if it won't be overwritten by the active)
+		if (!AnotherPanel->m_CurDir.empty() && (m_CurDir.empty() || !equal_icase_t{}(AnotherPanel->m_CurDir[0], m_CurDir[0])))
 		{
-			// сначала установим переменные окружения для пассивной панели
-			// (без реальной смены пути, чтобы лишний раз пассивный каталог
-			// не перечитывать)
-			FarChDir(AnotherPanel->m_CurDir, false);
+			set_drive_env_curdir(AnotherPanel->m_CurDir);
 		}
 	}
 

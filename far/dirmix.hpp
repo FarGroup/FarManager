@@ -54,13 +54,13 @@ enum TESTFOLDERCONST  // for TestFolder()
 	TSTFLD_NOTEMPTY  =  2,
 };
 
+void set_drive_env_curdir(string_view Directory);
+
 /* $ 15.02.2002 IS
    Установка нужного диска и каталога и установление соответствующей переменной
-   окружения. В случае успеха возвращается не ноль.
-   Если ChangeDir==FALSE, то не меняем текущий  диск, а только устанавливаем
-   переменные окружения.
+   окружения.
 */
-bool FarChDir(string_view NewDir, bool ChangeDir = true);
+bool FarChDir(string_view NewDir);
 
 int TestFolder(string_view Path);
 bool CheckShortcutFolder(string& TestPath, bool TryClosest, bool Silent);

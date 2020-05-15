@@ -73,67 +73,71 @@ static auto env_set_current_dir(wchar_t Drive, const string_view Value)
 	return os::env::set(make_curdir_name(Drive), Value);
 }
 
-bool FarChDir(string_view const NewDir, bool ChangeDir)
+void set_drive_env_curdir(string_view const Directory)
+{
+	if (Directory.size() > 1 && Directory[1] == L':')
+		env_set_current_dir(Directory[0], Directory);
+}
+
+bool FarChDir(string_view const NewDir)
 {
 	if (NewDir.empty())
 		return false;
 
-	bool rc = false;
-	string strCurDir;
-
-	bool IsNetworkDrive = false;
+	string Directory;
 
 	// если указана только буква диска, то путь возьмем из переменной
-	if (NewDir.size() == 2 && NewDir[1]==L':')
+	if (NewDir.size() == 2 && NewDir[1] == L':')
 	{
-		strCurDir = env_get_current_dir(NewDir[0]);
-		if (strCurDir.empty())
-		{
-			strCurDir = NewDir;
-			AddEndSlash(strCurDir);
-			ReplaceSlashToBackslash(strCurDir);
-		}
-
-		if (ChangeDir)
-		{
-			rc=os::fs::SetCurrentDirectory(strCurDir);
-		}
-
-		if (!rc && GetLastError() == ERROR_PATH_NOT_FOUND)
-		{
-			IsNetworkDrive = os::fs::is_standard_drive_letter(NewDir[0]) && GetSavedNetworkDrives()[os::fs::get_drive_number(NewDir[0])];
-		}
+		Directory = env_get_current_dir(NewDir[0]);
+		if (Directory.empty())
+			Directory = NewDir;
 	}
 	else
 	{
-		if (ChangeDir)
-		{
-			strCurDir = ConvertNameToFull(NewDir);
-			ReplaceSlashToBackslash(strCurDir);
-			AddEndSlash(strCurDir);
-			PrepareDiskPath(strCurDir,false); // resolving not needed, very slow
-			rc=os::fs::SetCurrentDirectory(strCurDir);
-		}
+		Directory = ConvertNameToFull(NewDir);
 	}
 
-	if (!rc && (IsNetworkDrive || GetLastError() == ERROR_LOGON_FAILURE))
+	AddEndSlash(Directory);
+	ReplaceSlashToBackslash(Directory);
+	PrepareDiskPath(Directory, false); // resolving not needed, very slow
+
+	const auto PathType = ParsePath(Directory);
+
+	const auto IsNetworkPath = PathType == root_type::remote || PathType == root_type::unc_remote;
+
+	std::optional<elevation::suppress> NoElevation;
+
+	// It's usually useless over the network anyway
+	// TODO: a more generic/common way
+	if (IsNetworkPath)
+		NoElevation.emplace();
+
+	if (os::fs::SetCurrentDirectory(Directory))
 	{
-		ConnectToNetworkResource(strCurDir);
-		rc = os::fs::SetCurrentDirectory(strCurDir);
+		set_drive_env_curdir(Directory);
+		return true;
 	}
 
-	if (rc || !ChangeDir)
+	const auto LastError = GetLastError();
+	if (LastError != ERROR_PATH_NOT_FOUND && LastError != ERROR_ACCESS_DENIED && LastError != ERROR_LOGON_FAILURE)
+		return false;
+
+	const auto IsDrive = PathType == root_type::drive_letter || PathType == root_type::unc_drive_letter;
+	const auto IsNetworkDrive = IsDrive && os::fs::is_standard_drive_letter(NewDir[0]) && GetSavedNetworkDrives()[os::fs::get_drive_number(NewDir[0])];
+
+	if (!IsNetworkDrive && !IsNetworkPath)
+		return false;
+
+	ConnectToNetworkResource(Directory);
+
+	if (os::fs::SetCurrentDirectory(Directory))
 	{
-		if (ChangeDir)
-			strCurDir = os::fs::GetCurrentDirectory();
-
-		if (strCurDir.size() > 1 && strCurDir[1]==L':')
-		{
-			env_set_current_dir(strCurDir[0], strCurDir);
-		}
+		set_drive_env_curdir(Directory);
+		return true;
 	}
 
-	return rc;
+	return false;
 }
 
 /*
