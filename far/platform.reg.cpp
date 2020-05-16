@@ -189,7 +189,7 @@ namespace os::reg
 	{
 	}
 
-	void key::hkey_deleter::operator()(HKEY Key) const
+	void key::hkey_deleter::operator()(HKEY Key) const noexcept
 	{
 		// TODO: do not try to close predefined keys?
 		RegCloseKey(Key);

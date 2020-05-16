@@ -145,7 +145,7 @@ private:
 	DWORD Flags;
 	panel_ptr SrcPanel, DestPanel;
 	panel_mode SrcPanelMode, DestPanelMode;
-	int SrcDriveType, DestDriveType;
+	int SrcDriveType{}, DestDriveType{};
 	string strSrcDriveRoot;
 	string strDestDriveRoot;
 	string strDestFSName;
@@ -156,30 +156,30 @@ private:
 	string strCopiedName;
 	string strRenamedName;
 	string strRenamedFilesPath;
-	int OvrMode;
-	int ReadOnlyOvrMode;
-	int ReadOnlyDelMode;
+	int OvrMode{-1};
+	int ReadOnlyOvrMode{-1};
+	int ReadOnlyDelMode{-1};
 	bool SkipErrors{};     // ...для пропуска при копировании залоченных файлов.
-	int SkipEncMode;
+	int SkipEncMode{-1};
 	bool SkipDeleteErrors{};
 	bool SkipSecurityErrors{};
-	int SelectedFolderNameLength;
+	int SelectedFolderNameLength{};
 	std::vector<string> m_DestList;
 	// тип создаваемого репарспоинта.
 	// при AltF6 будет то, что выбрал юзер в диалоге,
 	// в остальных случаях - RP_EXACTCOPY - как у источника
-	ReparsePointTypes RPT;
+	ReparsePointTypes RPT{ RP_EXACTCOPY };
 	string strPluginFormat;
-	int AltF10;
+	int AltF10{};
 
 	security m_CopySecurity{ security::do_nothing };
-	size_t SelCount;
-	bool FolderPresent;
-	bool FilesPresent;
-	bool AskRO;
-	bool m_UseFilter;
-	HANDLE m_FileHandleForStreamSizeFix;
-	size_t m_NumberOfTargets;
+	size_t SelCount{};
+	bool FolderPresent{};
+	bool FilesPresent{};
+	bool AskRO{};
+	bool m_UseFilter{};
+	HANDLE m_FileHandleForStreamSizeFix{};
+	size_t m_NumberOfTargets{};
 	std::list<created_folders> m_CreatedFolders;
 };
 
@@ -575,23 +575,8 @@ ShellCopy::ShellCopy(
 	DestPanel(Global->CtrlObject->Cp()->GetAnotherPanel(SrcPanel)),
 	SrcPanelMode(SrcPanel->GetMode()),
 	DestPanelMode(ToPlugin? DestPanel->GetMode() : panel_mode::NORMAL_PANEL),
-	SrcDriveType(),
-	DestDriveType(),
 	CopyBufferSize(!Global->Opt->CMOpt.BufferSize.Get()? default_copy_buffer_size : Global->Opt->CMOpt.BufferSize.Get()),
-	OvrMode(-1),
-	ReadOnlyOvrMode(-1),
-	ReadOnlyDelMode(-1),
-	SkipEncMode(-1),
-	SelectedFolderNameLength(),
-	RPT(RP_EXACTCOPY),
-	AltF10(),
-	SelCount(SrcPanel->GetSelCount()),
-	FolderPresent(),
-	FilesPresent(),
-	AskRO(),
-	m_UseFilter(),
-	m_FileHandleForStreamSizeFix(),
-	m_NumberOfTargets()
+	SelCount(SrcPanel->GetSelCount())
 {
 	if (!SelCount)
 		return;
@@ -2241,7 +2226,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				{
 					MsgCode = SkipEncMode;
 
-					if (SkipEncMode == 1)
+					if (SkipEncMode == Message::first_button)
 						Flags |= FCOPY_DECRYPTED_DESTINATION;
 				}
 				else
@@ -2265,17 +2250,17 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				}
 				switch (MsgCode)
 				{
-				case 1:
-					SkipEncMode = 1;
+				case Message::second_button:
+					SkipEncMode = Message::first_button;
 					[[fallthrough]];
-				case 0:
+				case Message::first_button:
 					Flags |= FCOPY_DECRYPTED_DESTINATION;
 					break;
 
-				case 3:
-					SkipEncMode = 3;
+				case Message::fourth_button:
+					SkipEncMode = Message::third_button;
 					[[fallthrough]];
-				case 2:
+				case Message::third_button:
 					return COPY_SKIPPED;
 
 				default:

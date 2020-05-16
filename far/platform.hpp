@@ -181,14 +181,14 @@ namespace os
 			}
 		};
 
-		struct handle_closer
+		struct handle_closer 
 		{
-			void operator()(HANDLE Handle) const;
+			void operator()(HANDLE Handle) const noexcept;
 		};
 
 		struct printer_handle_closer
 		{
-			void operator()(HANDLE Handle) const;
+			void operator()(HANDLE Handle) const noexcept;
 		};
 	}
 
@@ -272,7 +272,7 @@ namespace os
 
 		private:
 			[[nodiscard]]
-			HMODULE get_module() const;
+			HMODULE get_module() const noexcept;
 
 			struct module_deleter { void operator()(HMODULE Module) const; };
 			using module_ptr = std::unique_ptr<std::remove_pointer_t<HMODULE>, module_deleter>;
@@ -328,7 +328,7 @@ namespace os
 			template<class T>
 			struct deleter
 			{
-				void operator()(T* Ptr) const
+				void operator()(T* Ptr) const noexcept
 				{
 					NetApiBufferFree(Ptr);
 				}

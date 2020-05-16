@@ -102,7 +102,7 @@ namespace
 
 namespace detail
 {
-	struct devinfo_handle_closer { void operator()(HDEVINFO Handle) const { SetupDiDestroyDeviceInfoList(Handle); } };
+	struct devinfo_handle_closer { void operator()(HDEVINFO Handle) const noexcept { SetupDiDestroyDeviceInfoList(Handle); } };
 }
 
 class [[nodiscard]] dev_info: noncopyable

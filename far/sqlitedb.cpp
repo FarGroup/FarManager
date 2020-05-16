@@ -145,7 +145,7 @@ void SQLiteDb::library_free()
 	sqlite::sqlite3_shutdown();
 }
 
-void SQLiteDb::SQLiteStmt::stmt_deleter::operator()(sqlite::sqlite3_stmt* Object) const
+void SQLiteDb::SQLiteStmt::stmt_deleter::operator()(sqlite::sqlite3_stmt* Object) const noexcept
 {
 	// https://www.sqlite.org/c3ref/finalize.html
 	// If the most recent evaluation of the statement encountered no errors
@@ -327,7 +327,7 @@ SQLiteDb::SQLiteDb(busy_handler BusyHandler, initialiser Initialiser, string_vie
 {
 }
 
-void SQLiteDb::db_closer::operator()(sqlite::sqlite3* Object) const
+void SQLiteDb::db_closer::operator()(sqlite::sqlite3* Object) const noexcept
 {
 	[[maybe_unused]]
 	const auto Result = sqlite::sqlite3_close(Object);
@@ -387,7 +387,7 @@ public:
 
 		struct backup_closer
 		{
-			void operator()(sqlite::sqlite3_backup* Backup) const
+			void operator()(sqlite::sqlite3_backup* Backup) const noexcept
 			{
 				[[maybe_unused]]
 				const auto Result = sqlite::sqlite3_backup_finish(Backup);

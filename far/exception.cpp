@@ -98,7 +98,7 @@ namespace detail
 			DebugBreak();
 	}
 
-	exception_context::exception_context(DWORD const Code, const EXCEPTION_POINTERS& Pointers, os::handle&& ThreadHandle, DWORD const ThreadId):
+	exception_context::exception_context(DWORD const Code, const EXCEPTION_POINTERS& Pointers, os::handle&& ThreadHandle, DWORD const ThreadId) noexcept:
 		m_Code(Code),
 		m_Pointers(Pointers),
 		m_ThreadHandle(std::move(ThreadHandle)),

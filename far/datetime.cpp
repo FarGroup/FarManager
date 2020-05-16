@@ -708,7 +708,7 @@ bool local_to_utc(const SYSTEMTIME& LocalTime, os::chrono::time_point& UtcTime)
 	return true;
 }
 
-time_check::time_check(mode Mode):
+time_check::time_check(mode Mode) noexcept:
 	time_check(Mode, GetRedrawTimeout())
 {
 }

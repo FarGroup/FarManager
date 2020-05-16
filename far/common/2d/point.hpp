@@ -44,19 +44,19 @@ struct point: public rel_ops<point>
 
 	point() = default;
 
-	point(int const X, int const Y):
+	point(int const X, int const Y) noexcept:
 		x(X),
 		y(Y)
 	{
 	}
 
-	point(COORD const Coord):
+	point(COORD const Coord) noexcept:
 		point(Coord.X, Coord.Y)
 	{
 	}
 
 	[[nodiscard]]
-	bool operator==(point const& rhs) const
+	bool operator==(point const& rhs) const noexcept
 	{
 		return x == rhs.x && y == rhs.y;
 	}

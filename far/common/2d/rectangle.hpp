@@ -46,9 +46,9 @@ struct rectangle_t
 	T right;
 	T bottom;
 
-	rectangle_t() = default;
+	rectangle_t() noexcept = default;
 
-	rectangle_t(T const Left, T const Top, T const Right, T const Bottom):
+	rectangle_t(T const Left, T const Top, T const Right, T const Bottom) noexcept:
 		left(Left),
 		top(Top),
 		right(Right),
@@ -59,19 +59,19 @@ struct rectangle_t
 	}
 
 	template<typename Y>
-	rectangle_t(rectangle_t<Y> const Rectangle):
+	rectangle_t(rectangle_t<Y> const Rectangle) noexcept:
 		rectangle_t(Rectangle.left, Rectangle.top, Rectangle.right, Rectangle.bottom)
 	{
 	}
 
 	[[nodiscard]]
-	auto width() const { assert(left <= right); return right - left + 1; }
+	auto width() const noexcept { assert(left <= right); return right - left + 1; }
 
 	[[nodiscard]]
-	auto height() const { assert(top <= bottom); return bottom - top + 1; }
+	auto height() const noexcept { assert(top <= bottom); return bottom - top + 1; }
 
 	[[nodiscard]]
-	bool contains(point Point) const
+	bool contains(point Point) const noexcept
 	{
 		return in_range(left, Point.x, right) && in_range(top, Point.y, bottom);
 	}

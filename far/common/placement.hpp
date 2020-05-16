@@ -45,14 +45,14 @@ namespace placement
 #pragma push_macro("new")
 #undef new
 #endif
-		return *new(std::addressof(Object)) T(FWD(Args)...);
+		return *new(std::addressof(Object)) T{ FWD(Args)... };
 #ifdef MEMCHECK
 #pragma pop_macro("new")
 #endif
 	}
 
 	template<typename T>
-	void destruct(T& Object)
+	void destruct(T& Object) noexcept
 	{
 		Object.~T();
 	}

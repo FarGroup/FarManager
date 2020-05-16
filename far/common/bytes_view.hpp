@@ -41,21 +41,21 @@ class bytes_view: public span<char const>
 {
 public:
 	template<typename T>
-	bytes_view(T const* const Data, size_t const Size):
+	bytes_view(T const* const Data, size_t const Size) noexcept:
 		span<char const>(static_cast<char const*>(static_cast<void const*>(Data)), Size)
 	{
 		static_assert(std::disjunction_v<std::is_void<T>, std::is_trivially_copyable<T>>);
 	}
 
 	template<typename T>
-	explicit bytes_view(const T& Object):
+	explicit bytes_view(const T& Object) noexcept:
 		bytes_view(&Object, sizeof(Object))
 	{
 		static_assert(std::is_trivially_copyable_v<T>);
 	}
 
 	[[nodiscard]]
-	operator std::string_view() const
+	operator std::string_view() const noexcept
 	{
 		return { data(), size() };
 	}
@@ -86,7 +86,7 @@ public:
 
 	template<typename T>
 	[[nodiscard]]
-	static bytes reference(T* const Data, size_t const Size)
+	static bytes reference(T* const Data, size_t const Size) noexcept
 	{
 		static_assert(std::is_trivially_copyable_v<T>);
 
@@ -97,7 +97,7 @@ public:
 
 	template<typename T>
 	[[nodiscard]]
-	static bytes reference(T& Object)
+	static bytes reference(T& Object) noexcept
 	{
 		return reference(&Object, sizeof(Object));
 	}
@@ -119,13 +119,13 @@ public:
 	}
 
 	[[nodiscard]]
-	operator bytes_view() const
+	operator bytes_view() const noexcept
 	{
 		return { data(), size() };
 	}
 
 	[[nodiscard]]
-	operator std::string_view() const
+	operator std::string_view() const noexcept
 	{
 		return { data(), size() };
 	}
@@ -136,7 +136,7 @@ private:
 
 template<typename T>
 [[nodiscard]]
-T deserialise(const bytes_view& Bytes)
+T deserialise(const bytes_view& Bytes) noexcept
 {
 	T Value;
 	bytes::reference(Value) = Bytes;

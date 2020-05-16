@@ -141,17 +141,18 @@ using null_terminated = null_terminated_t<wchar_t>;
 class string_copyref
 {
 public:
-	string_copyref(string_view Str):
+	string_copyref(string_view Str) noexcept:
 		m_Str(Str)
 	{
 	}
-	string_copyref(string&& Str):
+
+	string_copyref(string&& Str) noexcept:
 		m_StrBuffer(std::move(Str)),
 		m_Str(m_StrBuffer)
 	{
 	}
 
-	operator string_view() const
+	operator string_view() const noexcept
 	{
 		return m_Str;
 	}
@@ -167,12 +168,12 @@ namespace string_utils::detail
 	class append_arg: public string_view
 	{
 	public:
-		explicit append_arg(string_view const Str):
+		explicit append_arg(string_view const Str) noexcept:
 			string_view(Str)
 		{
 		}
 
-		explicit append_arg(const wchar_t& Char):
+		explicit append_arg(const wchar_t& Char) noexcept:
 			string_view(&Char, 1)
 		{
 		}
@@ -213,14 +214,14 @@ auto concat(args const&... Args)
 // uniform "contains"
 template<typename find_type, typename... traits>
 [[nodiscard]]
-bool contains(const std::basic_string<traits...>& Str, const find_type& What)
+bool contains(const std::basic_string<traits...>& Str, const find_type& What) noexcept
 {
 	return Str.find(What) != Str.npos;
 }
 
 template<typename find_type, typename... traits>
 [[nodiscard]]
-bool contains(const std::basic_string_view<traits...> Str, const find_type& What)
+bool contains(const std::basic_string_view<traits...> Str, const find_type& What) noexcept
 {
 	return Str.find(What) != Str.npos;
 }
@@ -261,7 +262,7 @@ namespace detail
 {
 	template<typename begin_iterator, typename end_iterator>
 	[[nodiscard]]
-	size_t get_space_count(begin_iterator Begin, end_iterator End)
+	size_t get_space_count(begin_iterator Begin, end_iterator End) noexcept
 	{
 		return std::find_if_not(Begin, End, std::iswspace) - Begin;
 	}
@@ -302,7 +303,7 @@ namespace inplace
 	{
 		const auto StrSize = Str.size();
 
-		if (Str.size() < Size)
+		if (StrSize < Size)
 		{
 			pad_left(Str, StrSize + (Size - StrSize) / 2);
 			pad_right(Str, Size);
@@ -360,7 +361,7 @@ namespace inplace
 		Str.erase(0, detail::get_space_count(ALL_CONST_RANGE(Str)));
 	}
 
-	inline void trim_left(string_view& Str)
+	inline void trim_left(string_view& Str) noexcept
 	{
 		Str.remove_prefix(detail::get_space_count(ALL_CONST_RANGE(Str)));
 	}
@@ -370,7 +371,7 @@ namespace inplace
 		Str.resize(Str.size() - detail::get_space_count(ALL_CONST_REVERSE_RANGE(Str)));
 	}
 
-	inline void trim_right(string_view& Str)
+	inline void trim_right(string_view& Str) noexcept
 	{
 		Str.remove_suffix(detail::get_space_count(ALL_CONST_REVERSE_RANGE(Str)));
 	}
@@ -381,7 +382,7 @@ namespace inplace
 		trim_left(Str);
 	}
 
-	inline void trim(string_view& Str)
+	inline void trim(string_view& Str) noexcept
 	{
 		trim_right(Str);
 		trim_left(Str);
@@ -412,7 +413,7 @@ inline auto cut_right(string Str, size_t MaxWidth)
 }
 
 [[nodiscard]]
-inline auto cut_left(string_view Str, size_t MaxWidth)
+inline auto cut_left(string_view Str, size_t MaxWidth) noexcept
 {
 	if (Str.size() > MaxWidth)
 		Str.remove_prefix(Str.size() - MaxWidth);
@@ -420,7 +421,7 @@ inline auto cut_left(string_view Str, size_t MaxWidth)
 }
 
 [[nodiscard]]
-inline auto cut_right(string_view Str, size_t MaxWidth)
+inline auto cut_right(string_view Str, size_t MaxWidth) noexcept
 {
 	if (Str.size() > MaxWidth)
 		Str.remove_suffix(Str.size() - MaxWidth);
@@ -505,31 +506,31 @@ inline auto quote_space(string Str)
 }
 
 [[nodiscard]]
-inline bool equal(const string_view Str1, const string_view Str2)
+inline bool equal(const string_view Str1, const string_view Str2) noexcept
 {
 	return Str1 == Str2;
 }
 
 [[nodiscard]]
-inline bool starts_with(const string_view Str, const string_view Prefix)
+inline bool starts_with(const string_view Str, const string_view Prefix) noexcept
 {
 	return Str.size() >= Prefix.size() && Str.substr(0, Prefix.size()) == Prefix;
 }
 
 [[nodiscard]]
-inline bool starts_with(const string_view Str, wchar_t const Prefix)
+inline bool starts_with(const string_view Str, wchar_t const Prefix) noexcept
 {
 	return !Str.empty() && Str.front() == Prefix;
 }
 
 [[nodiscard]]
-inline bool ends_with(const string_view Str, const string_view Suffix)
+inline bool ends_with(const string_view Str, const string_view Suffix) noexcept
 {
 	return Str.size() >= Suffix.size() && Str.substr(Str.size() - Suffix.size()) == Suffix;
 }
 
 [[nodiscard]]
-inline bool ends_with(const string_view Str, wchar_t const Suffix)
+inline bool ends_with(const string_view Str, wchar_t const Suffix) noexcept
 {
 	return !Str.empty() && Str.back() == Suffix;
 }
@@ -542,7 +543,7 @@ inline auto trim_left(string Str)
 }
 
 [[nodiscard]]
-inline auto trim_left(string_view Str)
+inline auto trim_left(string_view Str) noexcept
 {
 	inplace::trim_left(Str);
 	return Str;
@@ -556,7 +557,7 @@ inline auto trim_right(string Str)
 }
 
 [[nodiscard]]
-inline auto trim_right(string_view Str)
+inline auto trim_right(string_view Str) noexcept
 {
 	inplace::trim_right(Str);
 	return Str;
@@ -570,7 +571,7 @@ inline auto trim(string Str)
 }
 
 [[nodiscard]]
-inline auto trim(string_view Str)
+inline auto trim(string_view Str) noexcept
 {
 	inplace::trim(Str);
 	return Str;
@@ -612,7 +613,7 @@ string join(const container& Container, string_view const Separator)
 }
 
 [[nodiscard]]
-inline std::pair<string_view, string_view> split_name_value(string_view const Str)
+inline std::pair<string_view, string_view> split_name_value(string_view const Str) noexcept
 {
 	const auto SeparatorPos = Str.find(L'=');
 	return { Str.substr(0, SeparatorPos), Str.substr(SeparatorPos + 1) };
@@ -660,7 +661,7 @@ auto operator+(T const Lhs, std::basic_string_view<T> Rhs)
 // "Design by committee" *facepalm*
 template <typename T>
 [[nodiscard]]
-auto make_string_view(T const Begin, T const End)
+constexpr auto make_string_view(T const Begin, T const End) noexcept
 {
 	using char_type = typename std::iterator_traits<T>::value_type;
 	static_assert(std::is_same_v<typename std::basic_string_view<char_type>::const_iterator, T>);

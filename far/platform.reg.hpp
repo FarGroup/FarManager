@@ -106,7 +106,7 @@ namespace os::reg
 
 		struct hkey_deleter
 		{
-			void operator()(HKEY Key) const;
+			void operator()(HKEY Key) const noexcept;
 		};
 
 		std::unique_ptr<std::remove_pointer_t<HKEY>, hkey_deleter> m_Key;

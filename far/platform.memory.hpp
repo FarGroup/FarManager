@@ -52,12 +52,12 @@ namespace os::memory
 		{
 			struct deleter
 			{
-				void operator()(HGLOBAL MemoryBlock) const;
+				void operator()(HGLOBAL MemoryBlock) const noexcept;
 			};
 
 			struct unlocker
 			{
-				void operator()(const void* MemoryBlock) const;
+				void operator()(const void* MemoryBlock) const noexcept;
 			};
 		}
 
@@ -70,14 +70,14 @@ namespace os::memory
 
 		template<class T>
 		[[nodiscard]]
-		auto lock(HGLOBAL Ptr)
+		auto lock(HGLOBAL Ptr) noexcept
 		{
 			return lock_t<T>(static_cast<T>(GlobalLock(Ptr)));
 		}
 
 		template<class T>
 		[[nodiscard]]
-		auto lock(const ptr& Ptr)
+		auto lock(const ptr& Ptr) noexcept
 		{
 			return lock<T>(Ptr.get());
 		}
@@ -110,7 +110,7 @@ namespace os::memory
 		{
 			struct deleter
 			{
-				void operator()(const void* MemoryBlock) const;
+				void operator()(const void* MemoryBlock) const noexcept;
 			};
 		}
 

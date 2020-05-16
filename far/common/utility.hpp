@@ -235,7 +235,7 @@ namespace detail
 }
 
 template<typename src_type, typename dst_type>
-void copy_memory(const src_type* Source, dst_type* Destination, size_t const Size)
+void copy_memory(const src_type* Source, dst_type* Destination, size_t const Size) noexcept
 {
 	static_assert(std::conjunction_v<
 		detail::is_void_or_trivially_copyable<src_type>,

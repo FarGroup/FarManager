@@ -50,12 +50,12 @@ namespace os::memory
 	{
 		namespace detail
 		{
-			void deleter::operator()(HGLOBAL MemoryBlock) const
+			void deleter::operator()(HGLOBAL MemoryBlock) const noexcept
 			{
 				GlobalFree(MemoryBlock);
 			}
 
-			void unlocker::operator()(const void* MemoryBlock) const
+			void unlocker::operator()(const void* MemoryBlock) const noexcept
 			{
 				GlobalUnlock(const_cast<HGLOBAL>(MemoryBlock));
 			}
@@ -86,7 +86,7 @@ namespace os::memory
 	{
 		namespace detail
 		{
-			void deleter::operator()(const void* MemoryBlock) const
+			void deleter::operator()(const void* MemoryBlock) const noexcept
 			{
 				LocalFree(const_cast<HLOCAL>(MemoryBlock));
 			}

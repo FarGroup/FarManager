@@ -84,48 +84,48 @@ public:
 	}
 
 	[[nodiscard]]
-	constexpr bool empty() const { return m_Begin == m_End; }
+	constexpr bool empty() const noexcept { return m_Begin == m_End; }
 
 	[[nodiscard]]
-	constexpr auto begin() const { return m_Begin; }
+	constexpr auto begin() const noexcept { return m_Begin; }
 
 	[[nodiscard]]
-	constexpr auto end() const { return m_End; }
+	constexpr auto end() const noexcept { return m_End; }
 
 	[[nodiscard]]
-	constexpr auto cbegin() const { return const_iterator(m_Begin); }
+	constexpr auto cbegin() const noexcept { return const_iterator(m_Begin); }
 
 	[[nodiscard]]
-	constexpr auto cend() const { return const_iterator(m_End); }
+	constexpr auto cend() const noexcept { return const_iterator(m_End); }
 
 	[[nodiscard]]
-	constexpr auto rbegin() const { return reverse_iterator(m_End); }
+	constexpr auto rbegin() const noexcept { return reverse_iterator(m_End); }
 
 	[[nodiscard]]
-	constexpr auto rend() const { return reverse_iterator(m_Begin); }
+	constexpr auto rend() const noexcept { return reverse_iterator(m_Begin); }
 
 	[[nodiscard]]
-	constexpr auto crbegin() const { return const_reverse_iterator(m_End); }
+	constexpr auto crbegin() const noexcept { return const_reverse_iterator(m_End); }
 
 	[[nodiscard]]
-	constexpr auto crend() const { return const_reverse_iterator(m_Begin); }
+	constexpr auto crend() const noexcept { return const_reverse_iterator(m_Begin); }
 
 	[[nodiscard]]
-	constexpr auto& front() const
+	constexpr auto& front() const noexcept
 	{
 		assert(!empty());
 		return *m_Begin;
 	}
 
 	[[nodiscard]]
-	constexpr auto& back() const
+	constexpr auto& back() const noexcept
 	{
 		assert(!empty());
 		return *std::prev(m_End);
 	}
 
 	[[nodiscard]]
-	constexpr auto& operator[](size_t n) const
+	constexpr auto& operator[](size_t n) const noexcept
 	{
 		static_assert(std::is_convertible_v<iterator_category, std::random_access_iterator_tag>);
 		assert(n < size() || (!n && empty()));
@@ -133,7 +133,7 @@ public:
 	}
 
 	[[nodiscard]]
-	constexpr auto data() const
+	constexpr auto data() const noexcept
 	{
 		if constexpr (std::is_pointer_v<iterator>)
 			return m_Begin;
@@ -142,27 +142,27 @@ public:
 	}
 
 	[[nodiscard]]
-	constexpr size_t size() const { return m_End - m_Begin; }
+	constexpr size_t size() const noexcept { return m_End - m_Begin; }
 
-	constexpr void pop_front()
+	constexpr void pop_front() noexcept
 	{
 		assert(!empty());
 		++m_Begin;
 	}
 
-	constexpr void pop_front(size_t const Count)
+	constexpr void pop_front(size_t const Count) noexcept
 	{
 		assert(size() >= Count);
 		std::advance(m_Begin, Count);
 	}
 
-	constexpr void pop_back()
+	constexpr void pop_back() noexcept
 	{
 		assert(!empty());
 		--m_End;
 	}
 
-	constexpr void pop_back(size_t const Count)
+	constexpr void pop_back(size_t const Count) noexcept
 	{
 		assert(size() >= Count);
 		std::advance(m_End, -static_cast<ptrdiff_t>(Count));
@@ -190,35 +190,35 @@ template<class span_value_type>
 class [[nodiscard]] span: public range<span_value_type*, span_value_type const*>
 {
 public:
-	constexpr span() = default;
+	constexpr span() noexcept = default;
 
-	constexpr span(span_value_type* Begin, span_value_type* End):
+	constexpr span(span_value_type* Begin, span_value_type* End) noexcept:
 		range<span_value_type*, span_value_type const*>(Begin, End)
 	{}
 
-	constexpr span(span_value_type* Data, size_t Size):
+	constexpr span(span_value_type* Data, size_t Size) noexcept:
 		span(Data, Data + Size)
 	{
 	}
 
 	template<typename compatible_span_value_type, REQUIRES((std::is_convertible_v<compatible_span_value_type*, span_value_type*>))>
-	constexpr span(const span<compatible_span_value_type>& Rhs):
+	constexpr span(const span<compatible_span_value_type>& Rhs) noexcept:
 		span(ALL_RANGE(Rhs))
 	{
 	}
 
 	template<typename container, REQUIRES(is_span_v<container>)>
-	constexpr span(container& Container):
+	constexpr span(container& Container) noexcept:
 		span(std::data(Container), std::size(Container))
 	{
 	}
 
-	constexpr span(const std::initializer_list<span_value_type>& List):
+	constexpr span(const std::initializer_list<span_value_type>& List) noexcept:
 		span(ALL_CONST_RANGE(List))
 	{
 	}
 
-	constexpr span subspan(size_t const Offset, size_t const Size = std::numeric_limits<size_t>::max()) const
+	constexpr span subspan(size_t const Offset, size_t const Size = std::numeric_limits<size_t>::max()) const noexcept
 	{
 		assert(Offset <= this->size());
 		assert(Size == std::numeric_limits<size_t>::max() || (Size <= this->size() - Offset));
@@ -245,34 +245,34 @@ public:
 	using reference = T&;
 
 	i_iterator() = default;
-	explicit i_iterator(const T& value): m_value(value) {}
+	explicit i_iterator(const T& value) noexcept: m_value(value) {}
 
 	[[nodiscard]]
-	auto operator->() const { return &m_value; }
+	auto operator->() const noexcept { return &m_value; }
 
 	[[nodiscard]]
-	auto& operator*() const { return m_value; }
+	auto& operator*() const noexcept { return m_value; }
 
-	auto& operator++() { ++m_value; return *this; }
-	auto& operator--() { --m_value; return *this; }
+	auto& operator++() noexcept { ++m_value; return *this; }
+	auto& operator--() noexcept { --m_value; return *this; }
 
-	auto& operator+=(size_t n) { m_value += n; return *this; }
-	auto& operator-=(size_t n) { m_value -= n; return *this; }
-
-	[[nodiscard]]
-	auto operator+(size_t n) const { return i_iterator(m_value + n); }
+	auto& operator+=(size_t n) noexcept { m_value += n; return *this; }
+	auto& operator-=(size_t n) noexcept { m_value -= n; return *this; }
 
 	[[nodiscard]]
-	auto operator-(size_t n) const { return i_iterator(m_value - n); }
+	auto operator+(size_t n) const noexcept { return i_iterator(m_value + n); }
 
 	[[nodiscard]]
-	auto operator-(const i_iterator& rhs) const { return m_value - rhs.m_value; }
+	auto operator-(size_t n) const noexcept { return i_iterator(m_value - n); }
 
 	[[nodiscard]]
-	auto operator==(const i_iterator& rhs) const { return m_value == rhs.m_value; }
+	auto operator-(const i_iterator& rhs) const noexcept { return m_value - rhs.m_value; }
 
 	[[nodiscard]]
-	auto operator<(const i_iterator& rhs) const { return m_value < rhs.m_value; }
+	auto operator==(const i_iterator& rhs) const noexcept { return m_value == rhs.m_value; }
+
+	[[nodiscard]]
+	auto operator<(const i_iterator& rhs) const noexcept { return m_value < rhs.m_value; }
 
 private:
 	T m_value{};
@@ -282,12 +282,12 @@ template<class T, REQUIRES(std::is_integral_v<T>)>
 class [[nodiscard]] irange: public range<i_iterator<T>>
 {
 public:
-	irange(T Begin, T End):
+	irange(T Begin, T End) noexcept:
 		range<i_iterator<T>>(i_iterator{Begin}, i_iterator{End})
 	{
 	}
 
-	explicit irange(T End):
+	explicit irange(T End) noexcept:
 		range<i_iterator<T>>(i_iterator{T{}}, i_iterator{End})
 	{
 	}

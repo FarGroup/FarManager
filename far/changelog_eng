@@ -3,6 +3,12 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 16.05.2020 02:22:20 +0100 - build 5599
+
+1. Refactoring.
+
+3. Warnings.
+
 drkns 15.05.2020 18:05:22 +0100 - build 5598
 
 1. Request credentials when traversing network paths.

@@ -43,12 +43,12 @@ namespace detail
 	class null_overrider
 	{
 	public:
-		void reset() {}
+		void reset() noexcept {}
 
 		[[nodiscard]]
-		bool active(wchar_t) { return false; }
+		bool active(wchar_t) noexcept { return false; }
 
-		void postprocess(string_view&) {}
+		void postprocess(string_view&) noexcept {}
 	};
 
 	template<typename... args>
@@ -120,14 +120,14 @@ namespace detail
 	class quotes_overrider
 	{
 	public:
-		void reset()
+		void reset() noexcept
 		{
 			m_InQuotes = false;
 			m_MetQuote = false;
 		}
 
 		[[nodiscard]]
-		bool active(wchar_t i)
+		bool active(wchar_t i) noexcept
 		{
 			if (i == L'"')
 			{
@@ -158,7 +158,7 @@ namespace detail
 	class trimmer
 	{
 	public:
-		static void postprocess(string_view& Value)
+		static void postprocess(string_view& Value) noexcept
 		{
 			Value = trim(Value);
 		}

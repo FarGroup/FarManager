@@ -198,7 +198,7 @@ bool SearchAndReplaceString(
 );
 
 [[nodiscard]]
-inline wchar_t* UNSAFE_CSTR(const string& s) {return const_cast<wchar_t*>(s.c_str());}
+inline wchar_t* UNSAFE_CSTR(const string& s) noexcept {return const_cast<wchar_t*>(s.c_str());}
 
 template<class container>
 [[nodiscard]]

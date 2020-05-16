@@ -475,9 +475,10 @@ void FileEditor::Init(
 
 			if (!EditorWindow->GetCanLoseFocus(true) || Global->Opt->Confirm.AllowReedit)
 			{
-				int MsgCode;
+				int Result = XC_EXISTS;
 				if (OpenModeExstFile == EF_OPENMODE_QUERY)
 				{
+					int MsgCode;
 					if (m_Flags.Check(FFILEEDIT_ENABLEF6))
 					{
 						MsgCode = Message(0,
@@ -486,7 +487,7 @@ void FileEditor::Init(
 								strFullFileName,
 								msg(lng::MAskReload)
 							},
-							{ lng::MCurrent, lng::MNewOpen, lng::MReload },
+							{ lng::MCurrent, lng::MNewOpen, lng::MReload, lng::MCancel },
 							L"EditorReload"sv, &EditorReloadId);
 					}
 					else
@@ -499,34 +500,76 @@ void FileEditor::Init(
 							},
 							{ lng::MNewOpen, lng::MCancel },
 							L"EditorReload"sv, &EditorReloadModalId);
-						if (MsgCode == 0)
-							MsgCode=1;
-						else
-							MsgCode=-200;
+
+						if (MsgCode == Message::first_button)
+							MsgCode = Message::second_button;
+					}
+
+					switch (MsgCode)
+					{
+					case Message::first_button:
+						Result = XC_EXISTS;
+						break;
+
+					case Message::second_button:
+						Result = XC_OPEN_NEWINSTANCE;
+						break;
+
+					case Message::third_button:
+						Result = XC_RELOAD;
+						break;
+
+					default:
+						SetExitCode(XC_LOADING_INTERRUPTED);
+						return;
 					}
 				}
 				else
 				{
 					if (m_Flags.Check(FFILEEDIT_ENABLEF6))
-						MsgCode=(OpenModeExstFile==EF_OPENMODE_USEEXISTING)?0:
-					        (OpenModeExstFile==EF_OPENMODE_NEWIFOPEN?1:
-					         (OpenModeExstFile==EF_OPENMODE_RELOADIFOPEN?2:-100)
-					        );
+					{
+						switch (OpenModeExstFile)
+						{
+						case EF_OPENMODE_USEEXISTING:
+							Result = XC_EXISTS;
+							break;
+
+						case EF_OPENMODE_NEWIFOPEN:
+							Result = XC_OPEN_NEWINSTANCE;
+							break;
+
+						case EF_OPENMODE_RELOADIFOPEN:
+							Result = XC_RELOAD;
+							break;
+
+						default:
+							SetExitCode(XC_EXISTS);
+							return;
+						}
+					}
 					else
-						MsgCode=(OpenModeExstFile==EF_OPENMODE_NEWIFOPEN?1:-100);
+					{
+						switch (OpenModeExstFile)
+						{
+						case EF_OPENMODE_NEWIFOPEN:
+							Result = XC_OPEN_NEWINSTANCE;
+							break;
+						}
+					}
 				}
 
-				switch (MsgCode)
+				switch (Result)
 				{
-					case 0:         // Current
-						SwitchTo=TRUE;
-						SetExitCode(XC_EXISTS); // ???
-						break;
-					case 1:         // NewOpen
-						SwitchTo=FALSE;
-						SetExitCode(XC_OPEN_NEWINSTANCE); // ???
-						break;
-					case 2:         // Reload
+				case XC_EXISTS:
+					SwitchTo=TRUE;
+					SetExitCode(Result); // ???
+					break;
+
+				case XC_OPEN_NEWINSTANCE:
+					SetExitCode(Result); // ???
+					break;
+
+				case XC_RELOAD:
 					{
 						//файл могли уже закрыть. например макросом в диалоговой процедуре предыдущего Message.
 						EditorWindow = Global->WindowManager->FindWindowByFile(windowtype_editor, strFullFileName);
@@ -535,18 +578,9 @@ void FileEditor::Init(
 							EditorWindow->SetFlags(FFILEEDIT_DISABLESAVEPOS);
 							Global->WindowManager->DeleteWindow(EditorWindow);
 						}
-						SetExitCode(XC_RELOAD); // -2 ???
-						break;
+						SetExitCode(Result); // -2 ???
 					}
-					case -200:
-						SetExitCode(XC_LOADING_INTERRUPTED);
-						return;
-					case -100:
-						SetExitCode(XC_EXISTS);
-						return;
-					default:
-						SetExitCode(XC_QUIT);
-						return;
+					break;
 				}
 			}
 			else
@@ -1218,8 +1252,6 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 					if (m_editor->IsFileChanged() || // в текущем сеансе были изменения?
 					        FilePlaced) // а сам файл то еще на месте?
 					{
-						int Res=100;
-
 						auto MsgLine1 = lng::MNewFileName;
 						if (m_editor->IsFileChanged() && FilePlaced)
 							MsgLine1 = lng::MEditSavedChangedNonFile;
@@ -1228,35 +1260,35 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 
 						if (MsgLine1 != lng::MNewFileName)
 						{
-							Res = Message(MSG_WARNING,
+							switch (Message(MSG_WARNING,
 								msg(lng::MEditTitle),
 								{
 									msg(MsgLine1),
 									msg(lng::MEditSavedChangedNonFile2)
 								},
 								{ lng::MHYes, lng::MHNo, lng::MHCancel },
-								{}, &EditorSaveExitDeletedId);
-						}
-
-						switch (Res)
-						{
-							case 0:
+								{}, &EditorSaveExitDeletedId))
+							{
+							case Message::first_button:
 
 								if (!ProcessKey(Manager::Key(KEY_F2))) // попытка сначала сохранить
 									NeedQuestion = false;
 
 								FirstSave = false;
 								break;
-							case 1:
+
+							case Message::second_button:
 								NeedQuestion = false;
 								FirstSave = false;
 								break;
-							case 100:
-								FirstSave = NeedQuestion = true;
-								break;
-							case 2:
+
 							default:
 								return false;
+							}
+						}
+						else
+						{
+							FirstSave = NeedQuestion = true;
 						}
 					}
 					else if (!m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED)) //????
@@ -1730,21 +1762,19 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 			{}, &EditAskSaveId);
 		if(Code < 0 && !Global->AllowCancelExit)
 		{
-			Code = 1; // close == not save
+			Code = Message::second_button; // close == not save
 		}
 
 		switch (Code)
 		{
-		case 0:  // Save
+		case Message::first_button: // Save
 			break;
 
-		case 1:  // Not Save
-			m_editor->TextChanged(false); // 10.08.2000 skv: TextChanged() support;
+		case Message::second_button: // Not Save
+			m_editor->TextChanged(false);
 			return SAVEFILE_SUCCESS;
 
-		case -1:
-		case -2:
-		case 2:  // Continue Edit
+		default:
 			return SAVEFILE_CANCEL;
 		}
 	}
@@ -1771,19 +1801,16 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 						{ lng::MHYes, lng::MEditBtnSaveAs, lng::MHCancel },
 						L"WarnEditorSavedEx"sv, &EditAskSaveExtId))
 					{
-						case -1:
-						case -2:
-						case 2:  // Continue Edit
-							return SAVEFILE_CANCEL;
-						case 1:  // Save as
+					case Message::first_button: // Save
+						break;
 
-							if (ProcessKey(Manager::Key(KEY_SHIFTF2)))
-								return SAVEFILE_SUCCESS;
-							else
-								return SAVEFILE_CANCEL;
+					case Message::second_button: // Save as
+						return ProcessKey(Manager::Key(KEY_SHIFTF2))?
+							SAVEFILE_SUCCESS :
+							SAVEFILE_CANCEL;
 
-						case 0:  // Save
-							break;
+					default:
+						return SAVEFILE_CANCEL;
 					}
 				}
 			}

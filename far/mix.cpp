@@ -285,11 +285,11 @@ SetAutocomplete::~SetAutocomplete()
 
 void ReloadEnvironment()
 {
-	std::vector<std::pair<string_view, string>> PreservedVariables;
+	std::unordered_map<string_view, string> PreservedVariables;
 
 	if (os::IsWow64Process())
 	{
-		PreservedVariables.emplace_back(L"PROCESSOR_ARCHITECTURE"sv, L""sv); // Incorrect under WOW64
+		PreservedVariables.emplace(L"PROCESSOR_ARCHITECTURE"sv, L""sv); // Incorrect under WOW64
 	}
 
 	for (auto& [Name, Value]: PreservedVariables)

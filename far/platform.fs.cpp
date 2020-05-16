@@ -128,27 +128,27 @@ namespace os::fs
 {
 	namespace detail
 	{
-		void find_handle_closer::operator()(HANDLE Handle) const
+		void find_handle_closer::operator()(HANDLE Handle) const noexcept
 		{
 			FindClose(Handle);
 		}
 
-		void find_file_handle_closer::operator()(HANDLE Handle) const
+		void find_file_handle_closer::operator()(HANDLE Handle) const noexcept
 		{
 			delete static_cast<i_find_file_handle_impl*>(Handle);
 		}
 
-		void find_volume_handle_closer::operator()(HANDLE Handle) const
+		void find_volume_handle_closer::operator()(HANDLE Handle) const noexcept
 		{
 			FindVolumeClose(Handle);
 		}
 
-		void find_notification_handle_closer::operator()(HANDLE Handle) const
+		void find_notification_handle_closer::operator()(HANDLE Handle) const noexcept
 		{
 			FindCloseChangeNotification(Handle);
 		}
 
-		void file_unmapper::operator()(const void* Data) const
+		void file_unmapper::operator()(const void* Data) const noexcept
 		{
 			UnmapViewOfFile(Data);
 		}

@@ -51,12 +51,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-void default_clipboard_mode::set(clipboard_mode Mode)
+void default_clipboard_mode::set(clipboard_mode Mode) noexcept
 {
 	m_Mode = Mode;
 }
 
-clipboard_mode default_clipboard_mode::get()
+clipboard_mode default_clipboard_mode::get() noexcept
 {
 	return m_Mode;
 }
@@ -109,7 +109,7 @@ public:
 		return false;
 	}
 
-	bool Close() override
+	bool Close() noexcept override
 	{
 		// Closing already closed buffer is OK
 		if (!m_Opened)
@@ -221,7 +221,7 @@ public:
 		return true;
 	}
 
-	bool Close() override
+	bool Close() noexcept override
 	{
 		// Closing already closed buffer is OK
 		m_Opened = false;
@@ -281,7 +281,7 @@ private:
 //-----------------------------------------------------------------------------
 static thread_local clipboard* OverridenInternalClipboard;
 
-void clipboard_restorer::operator()(const clipboard* Clip) const
+void clipboard_restorer::operator()(const clipboard* Clip) const noexcept
 {
 	OverridenInternalClipboard = nullptr;
 	delete Clip;
@@ -366,7 +366,7 @@ bool clipboard::SetHDROP(const string_view NamesData, const bool bMoved)
 	Drop->pt.y = 0;
 	Drop->fNC = TRUE;
 	Drop->fWide = TRUE;
-	*std::copy(ALL_CONST_RANGE(NamesData), reinterpret_cast<wchar_t*>(Drop.get() + 1)) = 0;
+	*std::copy(ALL_CONST_RANGE(NamesData), static_cast<wchar_t*>(static_cast<void*>(Drop.get() + 1))) = 0;
 
 	if (!Clear() || !SetData(CF_HDROP, std::move(Memory)))
 		return false;

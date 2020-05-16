@@ -5772,7 +5772,6 @@ private:
 		void reserve(size_t Size) override { return m_Messages.reserve(Size); }
 		void add(string&& Str) override { m_Messages.emplace_back(encoding::oem::get_bytes(Str)); }
 		void set_at(size_t Index, string&& Str) override { m_Messages[Index] = encoding::oem::get_bytes(Str); }
-		const string& at(size_t Index) const override { throw MAKE_FAR_FATAL_EXCEPTION(L"Not supported"sv); }
 		size_t size() const override { return m_Messages.size(); }
 
 		const std::string& ansi_at(size_t Index) const { return m_Messages[Index]; }
@@ -5785,8 +5784,7 @@ private:
 	{
 	public:
 		explicit ansi_plugin_language(string_view const Path, string_view const Language):
-			language(m_Data),
-			m_Data(std::make_unique<ansi_language_data>())
+			language(std::make_unique<ansi_language_data>())
 		{
 			load(Path, Language);
 		}
@@ -5795,9 +5793,6 @@ private:
 		{
 			return m_Data->validate(Id)? static_cast<const ansi_language_data&>(*m_Data).ansi_at(Id).c_str() : "";
 		}
-
-	private:
-		std::unique_ptr<i_language_data> m_Data;
 	};
 
 	template<export_index Export>

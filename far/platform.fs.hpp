@@ -53,27 +53,27 @@ namespace os::fs
 	{
 		struct find_handle_closer
 		{
-			void operator()(HANDLE Handle) const;
+			void operator()(HANDLE Handle) const noexcept;
 		};
 
 		struct find_file_handle_closer
 		{
-			void operator()(HANDLE Handle) const;
+			void operator()(HANDLE Handle) const noexcept;
 		};
 
 		struct find_volume_handle_closer
 		{
-			void operator()(HANDLE Handle) const;
+			void operator()(HANDLE Handle) const noexcept;
 		};
 
 		struct find_notification_handle_closer
 		{
-			void operator()(HANDLE Handle) const;
+			void operator()(HANDLE Handle) const noexcept;
 		};
 
 		struct file_unmapper
 		{
-			void operator()(const void* Data) const;
+			void operator()(const void* Data) const noexcept;
 		};
 	}
 

@@ -58,7 +58,6 @@ public:
 	virtual void reserve(size_t Size) = 0;
 	virtual void add(string&& Str) = 0;
 	virtual void set_at(size_t Index, string&& Str) = 0;
-	virtual const string& at(size_t Index) const = 0;
 	virtual size_t size() const = 0;
 
 	bool validate(size_t MsgId) const;
@@ -74,13 +73,13 @@ public:
 	virtual ~language() = default;
 
 protected:
-	explicit language(std::unique_ptr<i_language_data>& Data): m_Data(Data) {}
+	explicit language(std::unique_ptr<i_language_data>&& Data): m_Data(std::move(Data)) {}
 
 	// Throws on failure, strong exception safety guarantee
-	void load(string_view Path, string_view Language, int CountNeed = -1) const;
+	void load(string_view Path, string_view Language, int CountNeed = -1);
 
-private:
-	std::unique_ptr<i_language_data>& m_Data;
+protected:
+	std::unique_ptr<i_language_data> m_Data;
 };
 
 class plugin_language final: public language
@@ -88,9 +87,6 @@ class plugin_language final: public language
 public:
 	explicit plugin_language(string_view Path, string_view Language);
 	const wchar_t* Msg(intptr_t Id) const;
-
-private:
-	std::unique_ptr<i_language_data> m_Data;
 };
 
 class far_language final: private language, public singleton<far_language>
@@ -104,8 +100,6 @@ public:
 
 private:
 	far_language();
-
-	std::unique_ptr<i_language_data> m_Data;
 };
 
 // (file, name, codepage)

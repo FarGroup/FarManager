@@ -85,12 +85,12 @@ namespace os
 			}
 		}
 
-		void handle_closer::operator()(HANDLE Handle) const
+		void handle_closer::operator()(HANDLE Handle) const noexcept
 		{
 			CloseHandle(Handle);
 		}
 
-		void printer_handle_closer::operator()(HANDLE Handle) const
+		void printer_handle_closer::operator()(HANDLE Handle) const noexcept
 		{
 			ClosePrinter(Handle);
 		}
@@ -345,7 +345,7 @@ handle OpenConsoleActiveScreenBuffer()
 			FreeLibrary(Module);
 		}
 
-		HMODULE module::get_module() const
+		HMODULE module::get_module() const noexcept
 		{
 			if (!m_tried && !m_module && !m_name.empty())
 			{

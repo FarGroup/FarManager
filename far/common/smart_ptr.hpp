@@ -112,28 +112,16 @@ WARNING_POP()
 	}
 
 	[[nodiscard]]
-	T* data() const noexcept
-	{
-		return data(this->size());
-	}
-
-	[[nodiscard]]
 	T& operator*() const noexcept
 	{
 		assert(!this->empty());
-		return *data();
+		return *this->data();
 	}
 
 private:
 	void init_span(size_t const Size) noexcept
 	{
-		static_cast<span<T>&>(*this) = { data(Size), Size };
-	}
-
-	[[nodiscard]]
-	T* data(size_t const Size) const noexcept
-	{
-		return is_dynamic(Size)? m_DynamicBuffer.get() : m_StaticBuffer.data();
+		static_cast<span<T>&>(*this) = { is_dynamic(Size)? m_DynamicBuffer.get() : m_StaticBuffer.data(), Size };
 	}
 
 	bool is_dynamic(size_t const Size) const noexcept
@@ -240,7 +228,7 @@ namespace detail
 {
 	struct file_closer
 	{
-		void operator()(FILE* Object) const
+		void operator()(FILE* Object) const noexcept
 		{
 			fclose(Object);
 		}

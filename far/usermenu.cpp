@@ -888,12 +888,13 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 					},
 					{ lng::MHYes, lng::MHNo, lng::MHCancel }))
 				{
-				case 0:
+				case Message::first_button:
 					Dlg->SendMessage( DM_CLOSE, EM_BUTTON_OK, nullptr);
 					break;
-				case 1:
+
+				case Message::second_button:
 					return TRUE;
-				case 2:
+
 				default:
 					return FALSE;
 				}

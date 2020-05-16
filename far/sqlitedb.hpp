@@ -136,7 +136,7 @@ protected:
 
 		sqlite::sqlite3* db() const;
 
-		struct stmt_deleter { void operator()(sqlite::sqlite3_stmt*) const; };
+		struct stmt_deleter { void operator()(sqlite::sqlite3_stmt*) const noexcept; };
 		std::unique_ptr<sqlite::sqlite3_stmt, stmt_deleter> m_Stmt;
 		int m_Param{};
 	};
@@ -216,7 +216,7 @@ private:
 	class implementation;
 	friend class implementation;
 
-	struct db_closer { void operator()(sqlite::sqlite3*) const; };
+	struct db_closer { void operator()(sqlite::sqlite3*) const noexcept; };
 	using database_ptr = std::unique_ptr<sqlite::sqlite3, db_closer>;
 
 	database_ptr Open(string_view Path, busy_handler BusyHandler, bool WAL);

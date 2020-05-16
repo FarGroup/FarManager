@@ -54,10 +54,7 @@ struct PluginPanelItem;
 
 namespace path
 {
-	inline auto separators()
-	{
-		return L"\\/"sv;
-	}
+	inline constexpr auto separators = L"\\/"sv;
 
 	namespace detail
 	{
@@ -70,20 +67,20 @@ namespace path
 			}
 
 			explicit append_arg(const wchar_t& Char):
-				string_view(&Char, contains(separators(), Char)? 0 : 1)
+				string_view(&Char, contains(separators, Char)? 0 : 1)
 			{
 			}
 
 		private:
 			string_view process(string_view Str)
 			{
-				const auto Begin = Str.find_first_not_of(separators());
+				const auto Begin = Str.find_first_not_of(separators);
 				if (Begin == Str.npos)
 					return {};
 
 				Str.remove_prefix(Begin);
 
-				const auto LastCharPos = Str.find_last_not_of(separators());
+				const auto LastCharPos = Str.find_last_not_of(separators);
 				if (LastCharPos == Str.npos)
 					return {};
 
@@ -95,7 +92,7 @@ namespace path
 
 		inline void append_impl(string& Str, const std::initializer_list<append_arg>& Args)
 		{
-			const auto LastCharPos = Str.find_last_not_of(separators());
+			const auto LastCharPos = Str.find_last_not_of(separators);
 			Str.resize(LastCharPos == string::npos? 0 : LastCharPos + 1);
 
 			const auto TotalSize = std::accumulate(ALL_RANGE(Args), Str.size() + (Args.size() - 1), [](size_t const Value, const append_arg& Element)
@@ -108,7 +105,7 @@ namespace path
 			for (const auto& i: Args)
 			{
 				if (!Str.empty() && (!i.empty() || &i + 1 == Args.end()))
-					Str += separators().front();
+					Str += separators.front();
 
 				Str += i;
 			}
@@ -148,7 +145,7 @@ public:
 string KernelPath(string_view NtPath);
 string KernelPath(string&& NtPath);
 
-inline bool IsSlash(wchar_t x) { return x==L'\\' || x==L'/'; }
+inline constexpr bool IsSlash(wchar_t x) noexcept { return x==L'\\' || x==L'/'; }
 
 enum class root_type
 {

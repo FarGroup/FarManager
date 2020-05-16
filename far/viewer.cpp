@@ -447,7 +447,8 @@ bool Viewer::OpenFile(const string& Name, bool const Warn)
 
 bool Viewer::isBinaryFile(uintptr_t cp) // very approximate: looks for '\0' in first 2k bytes
 {
-	char Buffer[2048];
+	alignas(wchar_t) char Buffer[2048];
+
 	const auto CurrentPos = vtell();
 	vseek(0, FILE_BEGIN);
 	size_t BytesRead = 0;

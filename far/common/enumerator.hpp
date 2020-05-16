@@ -70,16 +70,16 @@ public:
 		iterator_t(owner_type Owner, position Position): m_Owner(Owner), m_Position(Position) {}
 
 		[[nodiscard]]
-		auto operator->() { return &m_Value; }
+		auto operator->() noexcept { return &m_Value; }
 
 		[[nodiscard]]
-		auto operator->() const { return &m_Value; }
+		auto operator->() const noexcept { return &m_Value; }
 
 		[[nodiscard]]
-		auto& operator*() { return m_Value; }
+		auto& operator*() noexcept { return m_Value; }
 
 		[[nodiscard]]
-		auto& operator*() const { return m_Value; }
+		auto& operator*() const noexcept { return m_Value; }
 
 		auto& operator++()
 		{
@@ -96,19 +96,19 @@ public:
 		}
 
 		[[nodiscard]]
-		bool operator==(const iterator_t& rhs) const
+		bool operator==(const iterator_t& rhs) const noexcept
 		{
 			assert(!m_Owner || !rhs.m_Owner || m_Owner == rhs.m_Owner);
 			return m_Owner == rhs.m_Owner && m_Position == rhs.m_Position;
 		}
 
 		[[nodiscard]]
-		explicit operator bool() const
+		explicit operator bool() const noexcept
 		{
 			return m_Owner != nullptr;
 		}
 
-		static const size_t invalid_index{ size_t(-1) };
+		static inline constexpr size_t invalid_index{ size_t(-1) };
 
 	private:
 		owner_type m_Owner {};

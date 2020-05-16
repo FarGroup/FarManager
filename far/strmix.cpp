@@ -1113,7 +1113,6 @@ TEST_CASE("ConvertFileSizeString")
 		{ L"0E"sv,      0 * E },
 	};
 
-	string Src;
 	for (const auto& i: Tests)
 	{
 		REQUIRE(i.Result == ConvertFileSizeString(i.Src));

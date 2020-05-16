@@ -62,6 +62,8 @@ enum class allocation_type: unsigned
 	vector = 0xa77ec10e,
 };
 
+static const int EndMarker = 0xDEADBEEF;
+
 struct alignas(MEMORY_ALLOCATION_ALIGNMENT) MEMINFO
 {
 	allocation_type AllocationType;
@@ -71,6 +73,11 @@ struct alignas(MEMORY_ALLOCATION_ALIGNMENT) MEMINFO
 	size_t Size;
 	MEMINFO* prev;
 	MEMINFO* next;
+
+	int& end_marker()
+	{
+		return *reinterpret_cast<int*>(reinterpret_cast<char*>(this) + Size - sizeof(EndMarker));
+	}
 };
 
 static_assert(alignof(MEMINFO) == MEMORY_ALLOCATION_ALIGNMENT);
@@ -95,13 +102,6 @@ static void CheckChain()
 			p = p->prev;
 		assert(p == &FirstMemBlock);
 	}
-}
-
-static const int EndMarker = 0xDEADBEEF;
-
-static int& GetMarker(MEMINFO* Info)
-{
-	return *reinterpret_cast<int*>(reinterpret_cast<char*>(Info)+Info->Size-sizeof(EndMarker));
 }
 
 class checker
@@ -233,10 +233,11 @@ static void* DebugAllocator(size_t const size, bool const Noexcept, allocation_t
 
 	for(;;)
 	{
-		if (const auto Info = static_cast<MEMINFO*>(malloc(realSize)))
+		if (const auto RawBlock = malloc(realSize))
 		{
-			*Info = { type, Line, File, Function, realSize };
-			GetMarker(Info) = EndMarker;
+			const auto Info = static_cast<MEMINFO*>(RawBlock);
+			placement::construct(*Info, type, Line, File, Function, realSize);
+			Info->end_marker() = EndMarker;
 			Checker.RegisterBlock(Info);
 			return ToUser(Info);
 		}
@@ -257,8 +258,11 @@ static void DebugDeallocator(void* block, allocation_type type) noexcept
 	if (const auto Info = block? ToReal(block) : nullptr)
 	{
 		assert(Info->AllocationType == type);
-		assert(GetMarker(Info) == EndMarker);
+		assert(Info->end_marker() == EndMarker);
 		Checker.UnregisterBlock(Info);
+
+		placement::destruct(*Info);
+
 		free(Info);
 	}
 }

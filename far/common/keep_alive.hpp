@@ -53,13 +53,13 @@ public:
 	{}
 
 	[[nodiscard]]
-	operator const type&() const { return m_Value; }
+	operator const type&() const noexcept { return m_Value; }
 
 	[[nodiscard]]
-	auto operator&() const { return &m_Value; }
+	auto operator&() const noexcept { return &m_Value; }
 
 	[[nodiscard]]
-	auto& get() const { return m_Value; }
+	auto& get() const noexcept { return m_Value; }
 
 private:
 	type m_Value;

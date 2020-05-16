@@ -342,8 +342,9 @@ public:
 	void reserve(size_t Size) override { return m_Messages.reserve(Size); }
 	void add(string&& Str) override { m_Messages.emplace_back(std::move(Str)); }
 	void set_at(size_t Index, string&& Str) override { m_Messages[Index] = std::move(Str); }
-	const string& at(size_t Index) const override { return m_Messages[Index]; }
 	size_t size() const override { return m_Messages.size(); }
+
+	const string& at(size_t Index) const { return m_Messages[Index]; }
 
 private:
 	std::vector<string> m_Messages;
@@ -387,7 +388,7 @@ static void LoadCustomStrings(const string& FileName, std::unordered_map<string,
 	}
 }
 
-void language::load(string_view const Path, string_view const Language, int CountNeed) const
+void language::load(string_view const Path, string_view const Language, int CountNeed)
 {
 	SCOPED_ACTION(GuardLastError);
 
@@ -490,21 +491,19 @@ bool i_language_data::validate(size_t MsgId) const
 }
 
 plugin_language::plugin_language(string_view const Path, string_view const Language):
-	language(m_Data),
-	m_Data(std::make_unique<language_data>())
+	language(std::make_unique<language_data>())
 {
 	load(Path, Language);
 }
 
 const wchar_t* plugin_language::Msg(intptr_t Id) const
 {
-	return m_Data->validate(Id)? m_Data->at(Id).c_str() : L"";
+	return m_Data->validate(Id)? static_cast<const language_data&>(*m_Data).at(Id).c_str() : L"";
 }
 
 
 far_language::far_language():
-	language(m_Data),
-	m_Data(std::make_unique<language_data>())
+	language(std::make_unique<language_data>())
 {
 }
 
@@ -555,6 +554,34 @@ TEST_CASE("language.parser")
 		REQUIRE(i.Result == Result);
 		REQUIRE(i.Label == Label);
 		REQUIRE(i.Data == Data);
+	}
+}
+
+TEST_CASE("language.escape")
+{
+	static const struct
+	{
+		string_view Str, Result;
+	}
+	Tests[]
+	{
+		{ {},          {},         },
+		{ L"y"sv,      L"y"sv,     },
+		{ L"\\y"sv,    L"\\y"sv,   },
+		{ L"\\"sv,     L"\\"sv,    },
+		{ L"\\x"sv,    L"\\x"sv,   },
+		{ L"\\r"sv,    L"\r"sv,    },
+		{ L"\\n"sv,    L"\n"sv,    },
+		{ L"\\t"sv,    L"\t"sv,    },
+		{ L"\""sv,     L"\""sv,    },
+		{ L"\\\\"sv,   L"\\"sv,    },
+		{ L"\\b"sv,    L"\b"sv,    },
+	};
+
+	for (const auto& i: Tests)
+	{
+		const auto Result = ConvertString(i.Str);
+		REQUIRE(i.Result == Result);
 	}
 }
 #endif

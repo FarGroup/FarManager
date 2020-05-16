@@ -151,12 +151,12 @@ namespace detail
 	public:
 		NONCOPYABLE(exception_context);
 
-		explicit exception_context(DWORD Code, const EXCEPTION_POINTERS& Pointers, os::handle&& ThreadHandle, DWORD ThreadId);
+		explicit exception_context(DWORD Code, const EXCEPTION_POINTERS& Pointers, os::handle&& ThreadHandle, DWORD ThreadId) noexcept;
 
-		auto code() const { return m_Code; }
-		auto pointers() const { return const_cast<EXCEPTION_POINTERS*>(&m_Pointers); }
-		auto thread_handle() const { return m_ThreadHandle.native_handle(); }
-		auto thread_id() const { return m_ThreadId; }
+		auto code() const noexcept { return m_Code; }
+		auto pointers() const noexcept { return const_cast<EXCEPTION_POINTERS*>(&m_Pointers); }
+		auto thread_handle() const noexcept { return m_ThreadHandle.native_handle(); }
+		auto thread_id() const noexcept { return m_ThreadId; }
 
 	private:
 		DWORD m_Code;
@@ -186,7 +186,7 @@ class far_wrapper_exception : public far_exception
 {
 public:
 	far_wrapper_exception(const char* Function, string_view File, int Line);
-	const auto& get_stack() const { return m_Stack; }
+	const auto& get_stack() const noexcept { return m_Stack; }
 
 private:
 	std::shared_ptr<os::handle> m_ThreadHandle;
@@ -198,7 +198,7 @@ class seh_exception : public std::exception
 public:
 	seh_exception(DWORD Code, EXCEPTION_POINTERS& Pointers, os::handle&& ThreadHandle, DWORD ThreadId, bool ResumeThread);
 
-	const auto& context() const { return *m_Context; }
+	const auto& context() const noexcept { return *m_Context; }
 
 private:
 	// Q: Why do you need a shared_ptr here?

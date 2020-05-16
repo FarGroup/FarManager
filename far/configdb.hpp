@@ -243,7 +243,7 @@ namespace detail
 {
 	struct async_deleter
 	{
-		void operator()(async_delete* Ptr) const
+		void operator()(async_delete* Ptr) const noexcept
 		{
 			Ptr->finish();
 		}

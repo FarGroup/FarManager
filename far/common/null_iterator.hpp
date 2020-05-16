@@ -46,25 +46,27 @@ public:
 	using pointer = T*;
 	using reference = T&;
 
-	explicit null_iterator(T* Data): m_Data(Data) {}
-	auto& operator++() { ++m_Data; return *this; }
-	auto operator++(int) { return null_iterator(m_Data++); }
+	explicit null_iterator(T* Data) noexcept: m_Data(Data) {}
+	auto& operator++() noexcept { ++m_Data; return *this; }
+	auto operator++(int) noexcept { return null_iterator(m_Data++); }
 
 	[[nodiscard]]
-	auto& operator*() { return *m_Data; }
+	auto& operator*() noexcept { return *m_Data; }
 
 	[[nodiscard]]
 	auto operator->() noexcept { return m_Data; }
-	auto& operator*() const { return *m_Data; }
+
+	[[nodiscard]]
+	auto& operator*() const noexcept { return *m_Data; }
 
 	[[nodiscard]]
 	auto operator->() const noexcept { return m_Data; }
 
 	[[nodiscard]]
-	static const auto& end() { static T Empty{}; static const null_iterator Iter(&Empty); return Iter; }
+	static const auto& end() noexcept { static T Empty{}; static const null_iterator Iter(&Empty); return Iter; }
 
 	[[nodiscard]]
-	bool operator==(const null_iterator& rhs) const { return m_Data == rhs.m_Data || (rhs.m_Data == end().m_Data && !*m_Data); }
+	bool operator==(const null_iterator& rhs) const noexcept { return m_Data == rhs.m_Data || (rhs.m_Data == end().m_Data && !*m_Data); }
 
 private:
 	T* m_Data;
