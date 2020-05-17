@@ -63,22 +63,22 @@ enum
 
 enum FFILEEDIT_FLAGS
 {
-	FFILEEDIT_NEW                   = 0x00010000,  // Этот файл СОВЕРШЕННО! новый или его успели стереть! Нету такого и все тут.
-	FFILEEDIT_REDRAWTITLE           = 0x00020000,  // Нужно редравить заголовок?
-	FFILEEDIT_FULLSCREEN            = 0x00040000,  // Полноэкранный режим?
-	FFILEEDIT_DISABLEHISTORY        = 0x00080000,  // Запретить запись в историю?
-	FFILEEDIT_ENABLEF6              = 0x00100000,  // Переключаться во вьювер можно?
-	FFILEEDIT_SAVETOSAVEAS          = 0x00200000,  // $ 17.08.2001 KM  Добавлено для поиска по AltF7.
+	FFILEEDIT_NEW                   = 16_bit,  // Этот файл СОВЕРШЕННО! новый или его успели стереть! Нету такого и все тут.
+	FFILEEDIT_REDRAWTITLE           = 17_bit,  // Нужно редравить заголовок?
+	FFILEEDIT_FULLSCREEN            = 18_bit,  // Полноэкранный режим?
+	FFILEEDIT_DISABLEHISTORY        = 19_bit,  // Запретить запись в историю?
+	FFILEEDIT_ENABLEF6              = 20_bit,  // Переключаться во вьювер можно?
+	FFILEEDIT_SAVETOSAVEAS          = 21_bit,  // $ 17.08.2001 KM  Добавлено для поиска по AltF7.
 	//   При редактировании найденного файла из архива для
 	//   клавиши F2 сделать вызов ShiftF2.
-	FFILEEDIT_SAVEWQUESTIONS        = 0x00400000,  // сохранить без вопросов
-	FFILEEDIT_LOCKED                = 0x00800000,  // заблокировать?
-	FFILEEDIT_OPENFAILED            = 0x01000000,  // файл открыть не удалось
-	FFILEEDIT_DELETEONCLOSE         = 0x02000000,  // удалить в деструкторе файл вместе с каталогом (если тот пуст)
-	FFILEEDIT_DELETEONLYFILEONCLOSE = 0x04000000,  // удалить в деструкторе только файл
-	FFILEEDIT_DISABLESAVEPOS        = 0x08000000,  // не сохранять позицию для файла
-	FFILEEDIT_CANNEWFILE            = 0x10000000,  // допускается новый файл?
-	FFILEEDIT_SERVICEREGION         = 0x20000000,  // используется сервисная область
+	FFILEEDIT_SAVEWQUESTIONS        = 22_bit,  // сохранить без вопросов
+	FFILEEDIT_LOCKED                = 23_bit,  // заблокировать?
+	FFILEEDIT_OPENFAILED            = 24_bit,  // файл открыть не удалось
+	FFILEEDIT_DELETEONCLOSE         = 25_bit,  // удалить в деструкторе файл вместе с каталогом (если тот пуст)
+	FFILEEDIT_DELETEONLYFILEONCLOSE = 26_bit,  // удалить в деструкторе только файл
+	FFILEEDIT_DISABLESAVEPOS        = 27_bit,  // не сохранять позицию для файла
+	FFILEEDIT_CANNEWFILE            = 28_bit,  // допускается новый файл?
+	FFILEEDIT_SERVICEREGION         = 29_bit,  // используется сервисная область
 };
 
 class FileEditor: public window,public EditorContainer

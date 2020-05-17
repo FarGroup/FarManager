@@ -2869,7 +2869,7 @@ BOOL WINAPI apiMkLink(const wchar_t *Target, const wchar_t *LinkName, LINK_TYPE 
 {
 	try
 	{
-		int Result = 0;
+		bool Result{};
 
 		if (Target && *Target && LinkName && *LinkName)
 		{
@@ -2885,7 +2885,7 @@ BOOL WINAPI apiMkLink(const wchar_t *Target, const wchar_t *LinkName, LINK_TYPE 
 			case LINK_SYMLINKDIR:
 			case LINK_SYMLINK:
 			{
-				ReparsePointTypes LinkType = RP_JUNCTION;
+				auto LinkType = RP_JUNCTION;
 
 				switch (Type)
 				{

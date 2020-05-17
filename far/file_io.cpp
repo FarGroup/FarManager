@@ -134,5 +134,5 @@ void save_file_with_replace(string const& FileName, DWORD const FileAttributes, 
 	}
 
 	// No error checking - non-critical (TODO: log)
-	os::fs::set_file_attributes(FileName, NewAttributes);
+	(void)os::fs::set_file_attributes(FileName, NewAttributes); //BUGBUG
 }

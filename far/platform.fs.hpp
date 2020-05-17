@@ -398,7 +398,7 @@ namespace os::fs
 	bool is_directory(DWORD Attributes);
 
 	[[nodiscard]]
-	bool is_not_empty_directory(const string& Object);
+	bool is_not_empty_directory(string_view Object);
 
 	class current_directory_guard
 	{
@@ -468,7 +468,7 @@ namespace os::fs
 		bool set_file_encryption(const wchar_t* FileName, bool Encrypt);
 
 		[[nodiscard]]
-		security::descriptor get_file_security(string const& Object, SECURITY_INFORMATION RequestedInformation);
+		security::descriptor get_file_security(const wchar_t* Object, SECURITY_INFORMATION RequestedInformation);
 
 		[[nodiscard]]
 		bool set_file_security(const wchar_t* Object, SECURITY_INFORMATION RequestedInformation, SECURITY_DESCRIPTOR* SecurityDescriptor);
@@ -504,6 +504,7 @@ namespace os::fs
 	[[nodiscard]]
 	handle create_file(string_view Object, DWORD DesiredAccess, DWORD ShareMode, SECURITY_ATTRIBUTES* SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes = 0, HANDLE TemplateFile = nullptr, bool ForceElevation = false);
 
+	[[nodiscard]]
 	bool delete_file(string_view FileName);
 
 	[[nodiscard]]
@@ -518,6 +519,7 @@ namespace os::fs
 	[[nodiscard]]
 	DWORD get_file_attributes(string_view FileName);
 
+	[[nodiscard]]
 	bool set_file_attributes(string_view FileName, DWORD Attributes);
 
 	[[nodiscard]]
@@ -566,7 +568,7 @@ namespace os::fs
 	bool GetFileTimeSimple(string_view FileName, chrono::time_point* CreationTime, chrono::time_point* LastAccessTime, chrono::time_point* LastWriteTime, chrono::time_point* ChangeTime);
 
 	[[nodiscard]]
-	bool get_find_data(const string& FileName, find_data& FindData, bool ScanSymLink = true);
+	bool get_find_data(string_view FileName, find_data& FindData, bool ScanSymLink = true);
 
 	[[nodiscard]]
 	find_notification_handle FindFirstChangeNotification(const string& PathName, bool WatchSubtree, DWORD NotifyFilter);
@@ -575,10 +577,10 @@ namespace os::fs
 	bool IsDiskInDrive(const string& Root);
 
 	[[nodiscard]]
-	bool create_hard_link(const string& FileName, const string& ExistingFileName, SECURITY_ATTRIBUTES* SecurityAttributes);
+	bool create_hard_link(string_view FileName, string_view ExistingFileName, SECURITY_ATTRIBUTES* SecurityAttributes);
 
 	[[nodiscard]]
-	bool CreateSymbolicLink(const string& SymlinkFileName, const string& TargetFileName, DWORD Flags);
+	bool CreateSymbolicLink(string_view SymlinkFileName, string_view TargetFileName, DWORD Flags);
 
 	[[nodiscard]]
 	bool set_file_encryption(string_view FileName, bool Encrypt);
@@ -597,7 +599,7 @@ namespace os::fs
 
 
 	[[nodiscard]]
-	bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD Flags);
+	bool CreateSymbolicLinkInternal(string_view Object, string_view Target, DWORD Flags);
 
 	[[nodiscard]]
 	drives_set allowed_drives_mask();

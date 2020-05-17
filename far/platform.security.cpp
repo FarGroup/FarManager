@@ -55,8 +55,7 @@ namespace
 
 	static bool lookup_privilege_value(const wchar_t* Name, LUID& Value)
 	{
-		using value_type = std::pair<LUID, bool>;
-		static std::unordered_map<string, value_type> s_Cache;
+		static std::unordered_map<string, std::pair<LUID, bool>> s_Cache;
 		static os::critical_section s_CS;
 
 		SCOPED_ACTION(std::lock_guard)(s_CS);

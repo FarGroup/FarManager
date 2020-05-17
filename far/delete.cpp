@@ -616,7 +616,7 @@ void ShellDelete::process_item(
 				if (os::fs::is_directory_symbolic_link(FindData))
 				{
 					if (FindData.Attributes & FILE_ATTRIBUTE_READONLY)
-						os::fs::set_file_attributes(strFullName,FILE_ATTRIBUTE_NORMAL);
+						(void)os::fs::set_file_attributes(strFullName,FILE_ATTRIBUTE_NORMAL); //BUGBUG
 
 					bool Dummy = false;
 					if (!ERemoveDirectory(strFullName, m_DeleteType, Dummy))
@@ -666,7 +666,7 @@ void ShellDelete::process_item(
 				if (ScTree.IsDirSearchDone())
 				{
 					if (FindData.Attributes & FILE_ATTRIBUTE_READONLY)
-						os::fs::set_file_attributes(strFullName,FILE_ATTRIBUTE_NORMAL);
+						(void)os::fs::set_file_attributes(strFullName,FILE_ATTRIBUTE_NORMAL); //BUGBUG
 
 					bool Dummy = false;
 					if (!ERemoveDirectory(strFullName, m_DeleteType, Dummy))
@@ -690,7 +690,7 @@ void ShellDelete::process_item(
 	}
 
 	if (SelFindData.Attributes & FILE_ATTRIBUTE_READONLY)
-		os::fs::set_file_attributes(strSelName,FILE_ATTRIBUTE_NORMAL);
+		(void)os::fs::set_file_attributes(strSelName,FILE_ATTRIBUTE_NORMAL); //BUGBUG
 
 	bool RetryRecycleAsRemove = false;
 	const auto Removed = ERemoveDirectory(
@@ -802,7 +802,7 @@ bool ShellDelete::ConfirmDeleteReadOnlyFile(const string& Name,DWORD Attr)
 		ReadOnlyDeleteMode = Message::first_button;
 		[[fallthrough]];
 	case Message::first_button:
-		os::fs::set_file_attributes(Name, FILE_ATTRIBUTE_NORMAL);
+		(void)os::fs::set_file_attributes(Name, FILE_ATTRIBUTE_NORMAL); //BUGBUG
 		return true;
 
 	case Message::fourth_button:
@@ -1096,7 +1096,7 @@ void DeleteDirTree(const string& Dir)
 
 	while (ScTree.GetNextName(FindData, strFullName))
 	{
-		os::fs::set_file_attributes(strFullName,FILE_ATTRIBUTE_NORMAL);
+		(void)os::fs::set_file_attributes(strFullName,FILE_ATTRIBUTE_NORMAL); //BUGBUG
 
 		if (FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY)
 		{
@@ -1118,7 +1118,7 @@ void DeleteDirTree(const string& Dir)
 bool DeleteFileWithFolder(const string& FileName)
 {
 	auto strFileOrFolderName = unquote(FileName);
-	os::fs::set_file_attributes(strFileOrFolderName, FILE_ATTRIBUTE_NORMAL);
+	(void)os::fs::set_file_attributes(strFileOrFolderName, FILE_ATTRIBUTE_NORMAL); //BUGBUG
 
 	if (!os::fs::delete_file(strFileOrFolderName))
 		return false;

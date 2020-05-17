@@ -220,8 +220,8 @@ Viewer::~Viewer()
 			DeleteFileWithFolder(strTempViewName);
 		else
 		{
-			os::fs::set_file_attributes(strTempViewName,FILE_ATTRIBUTE_NORMAL);
-			os::fs::delete_file(strTempViewName); //BUGBUG
+			(void)os::fs::set_file_attributes(strTempViewName,FILE_ATTRIBUTE_NORMAL); // BUGBUG
+			(void)os::fs::delete_file(strTempViewName); //BUGBUG
 		}
 	}
 }

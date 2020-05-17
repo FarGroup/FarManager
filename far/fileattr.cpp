@@ -90,7 +90,7 @@ static auto without_ro(string_view const Name, DWORD const Attributes, function_
 		{
 			GuardLastError Gle;
 			if (Attributes & Mask)
-				os::fs::set_file_attributes(Name, Attributes);
+				(void)os::fs::set_file_attributes(Name, Attributes); //BUGBUG
 		};
 
 		return Action();

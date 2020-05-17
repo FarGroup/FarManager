@@ -77,7 +77,7 @@ public:
 	bool set_file_attributes(const string& Object, DWORD FileAttributes);
 	bool create_hard_link(const string& Object, const string& Target, SECURITY_ATTRIBUTES* SecurityAttributes);
 
-	bool fCreateSymbolicLink(const string& Object, const string& Target, DWORD Flags);
+	bool fCreateSymbolicLink(string_view Object, string_view Target, DWORD Flags);
 	bool fMoveToRecycleBin(string_view Object);
 	bool fSetOwner(const string& Object, const string& Owner);
 

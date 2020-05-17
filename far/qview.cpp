@@ -502,8 +502,8 @@ void QuickView::QViewDelTempName()
 			QView=nullptr;
 		}
 
-		os::fs::set_file_attributes(strCurFileName, FILE_ATTRIBUTE_ARCHIVE);
-		os::fs::delete_file(strCurFileName);  //BUGBUG
+		(void)os::fs::set_file_attributes(strCurFileName, FILE_ATTRIBUTE_ARCHIVE); // BUGBUG
+		(void)os::fs::delete_file(strCurFileName);  //BUGBUG
 		string_view TempDirectoryName = strCurFileName;
 		CutToSlash(TempDirectoryName);
 		// BUGBUG check result

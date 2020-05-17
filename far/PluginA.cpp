@@ -2753,7 +2753,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 				if (!Param2)
 					return FALSE;
 
-				FarDialogItem& di=CurrentDialogItem(hDlg,Param1);
+				auto& di = CurrentDialogItem(hDlg, Param1);
 
 				if (di.Type==DI_LISTBOX || di.Type==DI_COMBOBOX)
 					di.ListItems = &CurrentList(hDlg,Param1);
@@ -2765,7 +2765,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 				// save color info
 				if(diA->Flags&oldfar::DIF_SETCOLOR)
 				{
-					oldfar::FarDialogItem *diA_Copy=CurrentDialogItemA(hDlg,Param1);
+					const auto diA_Copy = CurrentDialogItemA(hDlg, Param1);
 					diA_Copy->Flags = diA->Flags;
 				}
 

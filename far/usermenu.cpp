@@ -282,7 +282,7 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 			{ lng::MYes, lng::MNo }) != Message::first_button)
 			return;
 
-		os::fs::set_file_attributes(MenuFileName, FileAttr & ~FILE_ATTRIBUTE_READONLY);
+		(void)os::fs::set_file_attributes(MenuFileName, FileAttr & ~FILE_ATTRIBUTE_READONLY); //BUGBUG
 	}
 
 	try

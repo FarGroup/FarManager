@@ -322,7 +322,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 				{ lng::MYes, lng::MNo }) != Message::first_button)
 			return false;
 
-		os::fs::set_file_attributes(m_DizFileName, FileAttr & ~FILE_ATTRIBUTE_READONLY);
+		(void)os::fs::set_file_attributes(m_DizFileName, FileAttr & ~FILE_ATTRIBUTE_READONLY); //BUGBUG
 	}
 
 	try

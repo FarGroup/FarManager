@@ -377,7 +377,7 @@ public:
 				throw_exception(SQLITE_READONLY, Path);
 
 			Deleter.add(TmpDbPath);
-			os::fs::set_file_attributes(TmpDbPath, FILE_ATTRIBUTE_NORMAL);
+			(void)os::fs::set_file_attributes(TmpDbPath, FILE_ATTRIBUTE_NORMAL); //BUGBUG
 			SourceDb = open(TmpDbPath, BusyHandler);
 		}
 		else

@@ -1353,27 +1353,6 @@ bool CommandLine::IntChDir(string_view const CmdLine, bool const ClosePanel, boo
 		}
 	}
 
-	size_t DirOffset = 0;
-	ParsePath(strExpandedDir, &DirOffset);
-	if (strExpandedDir.find_first_of(L"?*"sv, DirOffset) != string::npos) // это маска?
-	{
-		os::fs::find_data wfd;
-
-		if (os::fs::get_find_data(strExpandedDir, wfd))
-		{
-			const auto pos = FindLastSlash(strExpandedDir);
-			if (pos != string::npos)
-			{
-				strExpandedDir.resize(pos + 1);
-			}
-			else
-			{
-				strExpandedDir.clear();
-			}
-			strExpandedDir += wfd.FileName;
-		}
-	}
-
 	if (IsAbsolutePath(strExpandedDir))
 	{
 		ReplaceSlashToBackslash(strExpandedDir);

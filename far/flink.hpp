@@ -58,17 +58,17 @@ enum ReparsePointTypes: int
 
 bool MkHardLink(const string& ExistingName,const string& NewName, bool Silent = false);
 
-std::optional<size_t> GetNumberOfLinks(const string& Name);
-bool CreateVolumeMountPoint(const string& TargetVolume, const string& Object);
+std::optional<size_t> GetNumberOfLinks(string_view Name);
+bool CreateVolumeMountPoint(string_view TargetVolume, const string& Object);
 
-bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointTypes Type=RP_JUNCTION);
-bool DeleteReparsePoint(const string& Object);
-bool ModifyReparsePoint(const string& Object,const string& NewData);
+bool CreateReparsePoint(string_view Target, string_view Object, ReparsePointTypes Type = RP_JUNCTION);
+bool DeleteReparsePoint(string_view Object);
+bool ModifyReparsePoint(string_view Object, string_view NewData);
 
-bool GetReparsePointInfo(const string& Object, string &DestBuffer,LPDWORD ReparseTag=nullptr);
+bool GetReparsePointInfo(string_view Object, string &DestBuffer,LPDWORD ReparseTag=nullptr);
 
 bool GetSubstName(int DriveType,const string& DeviceName,string &strTargetPath);
-bool GetVHDInfo(const string& DeviceName, string &strVolumePath, VIRTUAL_STORAGE_TYPE* StorageType = nullptr);
+bool GetVHDInfo(string_view DeviceName, string &strVolumePath, VIRTUAL_STORAGE_TYPE* StorageType = nullptr);
 
 bool DelSubstDrive(const string& DeviceName);
 string GetPathRoot(string_view Path);
@@ -79,13 +79,13 @@ string GetPathRoot(string_view Path);
 //typedef BOOL (WINAPI *ENUMFILESTREAMS)(int Idx,const WCHAR *StreamName,const WIN32_STREAM_ID *sid);
 //int WINAPI EnumNTFSStreams(const char *FileName,ENUMFILESTREAMS fpEnum, long long* SizeStreams);
 
-bool EnumStreams(const string& FileName, unsigned long long& StreamsSize, size_t& StreamsCount);
+bool EnumStreams(string_view FileName, unsigned long long& StreamsSize, size_t& StreamsCount);
 
-bool DuplicateReparsePoint(const string& Src,const string& Dst);
+bool DuplicateReparsePoint(string_view Src, string_view Dst);
 
 void NormalizeSymlinkName(string &strLinkName);
 
-int MkSymLink(const string& Target,const string& LinkName, ReparsePointTypes LinkType, bool Silent=false, bool HoldTarget=false);
+bool MkSymLink(string_view Target, string_view LinkName, ReparsePointTypes LinkType, bool Silent = false, bool HoldTarget = false);
 
 bool reparse_tag_to_string(DWORD ReparseTag, string& Str);
 

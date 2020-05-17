@@ -61,15 +61,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-bool CreateVolumeMountPoint(const string& TargetVolume, const string& Object)
+bool CreateVolumeMountPoint(string_view const TargetVolume, const string& Object)
 {
 	string VolumeName;
 	return os::fs::GetVolumeNameForVolumeMountPoint(TargetVolume, VolumeName) && SetVolumeMountPoint(Object.c_str(), VolumeName.c_str());
 }
 
-static bool FillREPARSE_DATA_BUFFER(REPARSE_DATA_BUFFER* rdb, const string& PrintName, const string& SubstituteName)
+static bool FillREPARSE_DATA_BUFFER(REPARSE_DATA_BUFFER& rdb, string_view const PrintName, string_view const SubstituteName)
 {
-	switch (rdb->ReparseTag)
+	switch (rdb.ReparseTag)
 	{
 	// IO_REPARSE_TAG_MOUNT_POINT and IO_REPARSE_TAG_SYMLINK buffers are filled differently:
 	// different order of print and substitute names and additional zero bytes in IO_REPARSE_TAG_MOUNT_POINT.
@@ -87,10 +87,10 @@ static bool FillREPARSE_DATA_BUFFER(REPARSE_DATA_BUFFER* rdb, const string& Prin
 			if (ReparseDataLength + REPARSE_DATA_BUFFER_HEADER_SIZE > MAXIMUM_REPARSE_DATA_BUFFER_SIZE)
 				return false;
 
-			rdb->ReparseDataLength = static_cast<USHORT>(ReparseDataLength);
-			rdb->Reserved = 0;
+			rdb.ReparseDataLength = static_cast<USHORT>(ReparseDataLength);
+			rdb.Reserved = 0;
 
-			auto& Buffer = rdb->MountPointReparseBuffer;
+			auto& Buffer = rdb.MountPointReparseBuffer;
 			Buffer.SubstituteNameOffset = static_cast<USHORT>(SubstituteNameOffset);
 			Buffer.SubstituteNameLength = static_cast<USHORT>(SubstituteNameLength);
 			Buffer.PrintNameOffset = static_cast<USHORT>(PrintNameOffset);
@@ -111,10 +111,10 @@ static bool FillREPARSE_DATA_BUFFER(REPARSE_DATA_BUFFER* rdb, const string& Prin
 			if (ReparseDataLength + REPARSE_DATA_BUFFER_HEADER_SIZE > MAXIMUM_REPARSE_DATA_BUFFER_SIZE)
 				return false;
 
-			rdb->ReparseDataLength = static_cast<USHORT>(ReparseDataLength);
-			rdb->Reserved = 0;
+			rdb.ReparseDataLength = static_cast<USHORT>(ReparseDataLength);
+			rdb.Reserved = 0;
 
-			auto& Buffer = rdb->SymbolicLinkReparseBuffer;
+			auto& Buffer = rdb.SymbolicLinkReparseBuffer;
 			Buffer.SubstituteNameOffset = static_cast<USHORT>(SubstituteNameOffset);
 			Buffer.SubstituteNameLength = static_cast<USHORT>(SubstituteNameLength);
 			Buffer.PrintNameOffset = static_cast<USHORT>(PrintNameOffset);
@@ -135,9 +135,9 @@ static auto GetDesiredAccessForReparsePointChange()
 	return DesiredAccess;
 }
 
-static bool SetREPARSE_DATA_BUFFER(const string& Object, REPARSE_DATA_BUFFER* rdb)
+static bool SetREPARSE_DATA_BUFFER(const string_view Object, REPARSE_DATA_BUFFER& rdb)
 {
-	if (!IsReparseTagValid(rdb->ReparseTag))
+	if (!IsReparseTagValid(rdb.ReparseTag))
 		return false;
 
 	SCOPED_ACTION(os::security::privilege){ SE_CREATE_SYMBOLIC_LINK_NAME };
@@ -145,19 +145,19 @@ static bool SetREPARSE_DATA_BUFFER(const string& Object, REPARSE_DATA_BUFFER* rd
 	const auto Attributes = os::fs::get_file_attributes(Object);
 	if(Attributes&FILE_ATTRIBUTE_READONLY)
 	{
-		os::fs::set_file_attributes(Object, Attributes&~FILE_ATTRIBUTE_READONLY);
+		(void)os::fs::set_file_attributes(Object, Attributes&~FILE_ATTRIBUTE_READONLY); //BUGBUG
 	}
 
 	SCOPE_EXIT
 	{
 		if (Attributes&FILE_ATTRIBUTE_READONLY)
-			os::fs::set_file_attributes(Object, Attributes);
+		(void)os::fs::set_file_attributes(Object, Attributes); //BUGBUG
 	};
 
 	const auto SetBuffer = [&](bool ForceElevation)
 	{
 		const os::fs::file fObject(Object, GetDesiredAccessForReparsePointChange(), 0, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT, nullptr, ForceElevation);
-		return fObject && fObject.IoControl(FSCTL_SET_REPARSE_POINT, rdb, rdb->ReparseDataLength + REPARSE_DATA_BUFFER_HEADER_SIZE, nullptr, 0);
+		return fObject && fObject.IoControl(FSCTL_SET_REPARSE_POINT, &rdb, rdb.ReparseDataLength + REPARSE_DATA_BUFFER_HEADER_SIZE, nullptr, 0);
 	};
 
 	if (SetBuffer(false))
@@ -172,92 +172,82 @@ static bool SetREPARSE_DATA_BUFFER(const string& Object, REPARSE_DATA_BUFFER* rd
 	return false;
 }
 
-bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointTypes Type)
+bool CreateReparsePoint(string_view const Target, string_view const Object, ReparsePointTypes Type)
 {
-	bool Result=false;
-
+	switch (Type)
 	{
-		switch (Type)
+	case RP_EXACTCOPY:
+		return DuplicateReparsePoint(Target, Object);
+
+	case RP_SYMLINK:
+	case RP_SYMLINKFILE:
+	case RP_SYMLINKDIR:
 		{
-			case RP_HARDLINK:
-				break;
-			case RP_EXACTCOPY:
-				Result=DuplicateReparsePoint(Target,Object);
-				break;
-			case RP_SYMLINK:
-			case RP_SYMLINKFILE:
-			case RP_SYMLINKDIR:
-				{
-					os::fs::file_status const ObjectStatus(Object);
-					if(Type == RP_SYMLINK)
-					{
-						Type = os::fs::is_directory(Target)? RP_SYMLINKDIR : RP_SYMLINKFILE;
-					}
-					if (imports.CreateSymbolicLinkW && !os::fs::exists(ObjectStatus))
-					{
-						Result=os::fs::CreateSymbolicLink(Object,Target,Type==RP_SYMLINKDIR?SYMBOLIC_LINK_FLAG_DIRECTORY:0);
-					}
-					else
-					{
-						const auto ObjectCreated = Type==RP_SYMLINKDIR?
-							os::fs::is_directory(ObjectStatus) || os::fs::create_directory(Object) :
-							os::fs::is_file(ObjectStatus) || os::fs::file(Object, 0, 0, nullptr, CREATE_NEW);
+			if(Type == RP_SYMLINK)
+				Type = os::fs::is_directory(Target)? RP_SYMLINKDIR : RP_SYMLINKFILE;
 
-						if (ObjectCreated)
-						{
-							const block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
+			os::fs::file_status const ObjectStatus(Object);
+			if (imports.CreateSymbolicLinkW && !os::fs::exists(ObjectStatus))
+				return os::fs::CreateSymbolicLink(Object, Target, Type == RP_SYMLINKDIR? SYMBOLIC_LINK_FLAG_DIRECTORY : 0);
 
-							rdb->ReparseTag=IO_REPARSE_TAG_SYMLINK;
-							const auto& strPrintName = Target;
-							auto strSubstituteName = Target;
+			const auto ObjectCreated = Type==RP_SYMLINKDIR?
+				os::fs::is_directory(ObjectStatus) || os::fs::create_directory(Object) :
+				os::fs::is_file(ObjectStatus) || os::fs::file(Object, 0, 0, nullptr, CREATE_NEW);
 
-							if (IsAbsolutePath(Target))
-							{
-								strSubstituteName = KernelPath(NTPath(strSubstituteName));
-								rdb->SymbolicLinkReparseBuffer.Flags=0;
-							}
-							else
-							{
-								rdb->SymbolicLinkReparseBuffer.Flags=SYMLINK_FLAG_RELATIVE;
-							}
+			if (!ObjectCreated)
+				return false;
 
-							if (FillREPARSE_DATA_BUFFER(rdb.data(), strPrintName, strSubstituteName))
-							{
-								Result=SetREPARSE_DATA_BUFFER(Object,rdb.data());
-							}
-							else
-							{
-								SetLastError(ERROR_INSUFFICIENT_BUFFER);
-							}
-						}
-					}
-				}
-				break;
-			case RP_JUNCTION:
-			case RP_VOLMOUNT:
+			const block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
+			rdb->ReparseTag=IO_REPARSE_TAG_SYMLINK;
+
+			const auto& strPrintName = Target;
+			auto strSubstituteName = Target;
+
+			if (IsAbsolutePath(Target))
 			{
-				const auto strPrintName = ConvertNameToFull(Target);
-				const auto strSubstituteName = KernelPath(NTPath(strPrintName));
-				const block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
-				rdb->ReparseTag=IO_REPARSE_TAG_MOUNT_POINT;
-
-				if (FillREPARSE_DATA_BUFFER(rdb.data(), strPrintName, strSubstituteName))
-				{
-					Result=SetREPARSE_DATA_BUFFER(Object,rdb.data());
-				}
-				else
-				{
-					SetLastError(ERROR_INSUFFICIENT_BUFFER);
-				}
+				strSubstituteName = KernelPath(NTPath(strSubstituteName));
+				rdb->SymbolicLinkReparseBuffer.Flags = 0;
 			}
-			break;
-		}
-	}
+			else
+			{
+				rdb->SymbolicLinkReparseBuffer.Flags = SYMLINK_FLAG_RELATIVE;
+			}
 
-	return Result;
+			if (!FillREPARSE_DATA_BUFFER(*rdb, strPrintName, strSubstituteName))
+			{
+				SetLastError(ERROR_INSUFFICIENT_BUFFER);
+				return false;
+			}
+
+			return SetREPARSE_DATA_BUFFER(Object, *rdb);
+		}
+		break;
+
+	case RP_JUNCTION:
+	case RP_VOLMOUNT:
+		{
+			const auto strPrintName = ConvertNameToFull(Target);
+			const auto strSubstituteName = KernelPath(NTPath(strPrintName));
+
+			const block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
+			rdb->ReparseTag=IO_REPARSE_TAG_MOUNT_POINT;
+
+			if (!FillREPARSE_DATA_BUFFER(*rdb, strPrintName, strSubstituteName))
+			{
+				SetLastError(ERROR_INSUFFICIENT_BUFFER);
+				return false;
+			}
+
+			return SetREPARSE_DATA_BUFFER(Object, *rdb);
+		}
+		break;
+
+	default:
+		return false;
+	}
 }
 
-static bool GetREPARSE_DATA_BUFFER(const string& Object, REPARSE_DATA_BUFFER* rdb)
+static bool GetREPARSE_DATA_BUFFER(string_view const Object, REPARSE_DATA_BUFFER& rdb)
 {
 	const auto FileAttr = os::fs::get_file_attributes(Object);
 	if (FileAttr == INVALID_FILE_ATTRIBUTES || !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
@@ -267,13 +257,13 @@ static bool GetREPARSE_DATA_BUFFER(const string& Object, REPARSE_DATA_BUFFER* rd
 	if (!fObject)
 		return false;
 
-	return fObject.IoControl(FSCTL_GET_REPARSE_POINT, nullptr, 0, rdb, MAXIMUM_REPARSE_DATA_BUFFER_SIZE) && IsReparseTagValid(rdb->ReparseTag);
+	return fObject.IoControl(FSCTL_GET_REPARSE_POINT, nullptr, 0, &rdb, MAXIMUM_REPARSE_DATA_BUFFER_SIZE) && IsReparseTagValid(rdb.ReparseTag);
 }
 
-bool DeleteReparsePoint(const string& Object)
+bool DeleteReparsePoint(string_view const Object)
 {
 	const block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
-	if (!GetREPARSE_DATA_BUFFER(Object, rdb.data()))
+	if (!GetREPARSE_DATA_BUFFER(Object, *rdb))
 		return false;
 
 	const os::fs::file fObject(Object, GetDesiredAccessForReparsePointChange(), 0, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT);
@@ -284,10 +274,10 @@ bool DeleteReparsePoint(const string& Object)
 	return fObject.IoControl(FSCTL_DELETE_REPARSE_POINT, &rgdb, REPARSE_GUID_DATA_BUFFER_HEADER_SIZE, nullptr, 0);
 }
 
-bool GetReparsePointInfo(const string& Object, string& DestBuffer, LPDWORD ReparseTag)
+bool GetReparsePointInfo(string_view const Object, string& DestBuffer, LPDWORD ReparseTag)
 {
 	const block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
-	if (!GetREPARSE_DATA_BUFFER(Object, rdb.data()))
+	if (!GetREPARSE_DATA_BUFFER(Object, *rdb))
 		return false;
 
 	if (ReparseTag)
@@ -328,7 +318,7 @@ bool GetReparsePointInfo(const string& Object, string& DestBuffer, LPDWORD Repar
 	}
 }
 
-std::optional<size_t> GetNumberOfLinks(const string& Name)
+std::optional<size_t> GetNumberOfLinks(string_view const Name)
 {
 	const os::fs::file File(Name, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT);
 	if (!File)
@@ -360,7 +350,7 @@ bool MkHardLink(const string& ExistingName,const string& NewName, bool Silent)
 	return false;
 }
 
-bool EnumStreams(const string& FileName, unsigned long long& StreamsSize, size_t& StreamsCount)
+bool EnumStreams(string_view const FileName, unsigned long long& StreamsSize, size_t& StreamsCount)
 {
 	bool Result=false;
 
@@ -426,7 +416,7 @@ bool GetSubstName(int DriveType,const string& DeviceName, string &strTargetPath)
 	return Ret;
 }
 
-bool GetVHDInfo(const string& DeviceName, string &strVolumePath, VIRTUAL_STORAGE_TYPE* StorageType)
+bool GetVHDInfo(string_view const DeviceName, string &strVolumePath, VIRTUAL_STORAGE_TYPE* StorageType)
 {
 	const auto IsDosDevice = DeviceName.size() == 2 && ends_with(DeviceName, L':');
 	const os::fs::file Device(IsDosDevice? os::fs::get_unc_drive(DeviceName.front()) : DeviceName, FILE_READ_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING);
@@ -469,10 +459,10 @@ string GetPathRoot(string_view const Path)
 	return ExtractPathRoot(ConvertNameToReal(Path));
 }
 
-bool ModifyReparsePoint(const string& Object,const string& NewData)
+bool ModifyReparsePoint(string_view const Object, string_view const NewData)
 {
 	const block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
-	if (!GetREPARSE_DATA_BUFFER(Object, rdb.data()))
+	if (!GetREPARSE_DATA_BUFFER(Object, *rdb))
 		return false;
 
 	switch (rdb->ReparseTag)
@@ -481,7 +471,7 @@ bool ModifyReparsePoint(const string& Object,const string& NewData)
 		{
 			const auto strPrintName = ConvertNameToFull(NewData);
 			const auto strSubstituteName = KernelPath(NTPath(strPrintName));
-			if (!FillREPARSE_DATA_BUFFER(rdb.data(), strPrintName, strSubstituteName))
+			if (!FillREPARSE_DATA_BUFFER(*rdb, strPrintName, strSubstituteName))
 			{
 				SetLastError(ERROR_INSUFFICIENT_BUFFER);
 				return false;
@@ -504,7 +494,7 @@ bool ModifyReparsePoint(const string& Object,const string& NewData)
 				rdb->SymbolicLinkReparseBuffer.Flags=SYMLINK_FLAG_RELATIVE;
 			}
 
-			if (!FillREPARSE_DATA_BUFFER(rdb.data(), strPrintName, strSubstituteName))
+			if (!FillREPARSE_DATA_BUFFER(*rdb, strPrintName, strSubstituteName))
 			{
 				SetLastError(ERROR_INSUFFICIENT_BUFFER);
 				return false;
@@ -516,13 +506,13 @@ bool ModifyReparsePoint(const string& Object,const string& NewData)
 		return false;
 	}
 
-	return SetREPARSE_DATA_BUFFER(Object,rdb.data());
+	return SetREPARSE_DATA_BUFFER(Object, *rdb);
 }
 
-bool DuplicateReparsePoint(const string& Src,const string& Dst)
+bool DuplicateReparsePoint(string_view const Src, string_view const Dst)
 {
 	const block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
-	return GetREPARSE_DATA_BUFFER(Src, rdb.data()) && SetREPARSE_DATA_BUFFER(Dst, rdb.data());
+	return GetREPARSE_DATA_BUFFER(Src, *rdb) && SetREPARSE_DATA_BUFFER(Dst, *rdb);
 }
 
 void NormalizeSymlinkName(string &strLinkName)
@@ -530,7 +520,6 @@ void NormalizeSymlinkName(string &strLinkName)
 	if (!starts_with(strLinkName, L"\\??\\"sv))
 		return;
 
-	strLinkName[1] = L'\\';
 	if (ParsePath(strLinkName) != root_type::unc_drive_letter)
 		return;
 
@@ -538,167 +527,156 @@ void NormalizeSymlinkName(string &strLinkName)
 }
 
 // Кусок для создания SymLink для каталогов.
-int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes LinkType, bool Silent, bool HoldTarget)
+bool MkSymLink(string_view const Target, string_view const LinkName, ReparsePointTypes LinkType, bool Silent, bool HoldTarget)
 {
-	if (!Target.empty() && !LinkName.empty())
+	string strFullTarget;
+	// выделим имя
+	string strSelOnlyName(Target);
+	DeleteEndSlash(strSelOnlyName);
+	const auto SlashPos = FindLastSlash(strSelOnlyName);
+
+	const auto symlink = LinkType == RP_SYMLINK || LinkType == RP_SYMLINKFILE || LinkType == RP_SYMLINKDIR;
+
+	if (Target[1] == L':' && (!Target[2] || (IsSlash(Target[2]) && !Target[3]))) // C: или C:/
 	{
-		string strFullTarget;
-		// выделим имя
-		auto strSelOnlyName = Target;
-		DeleteEndSlash(strSelOnlyName);
-		const auto SlashPos = FindLastSlash(strSelOnlyName);
-
-		const auto symlink = LinkType==RP_SYMLINK || LinkType==RP_SYMLINKFILE || LinkType==RP_SYMLINKDIR;
-
-		if (Target[1] == L':' && (!Target[2] || (IsSlash(Target[2]) && !Target[3]))) // C: или C:/
+		// if(Flags&FCOPY_VOLMOUNT)
 		{
-//      if(Flags&FCOPY_VOLMOUNT)
-			{
-				strFullTarget = Target;
-				AddEndSlash(strFullTarget);
-			}
-			/*
-			  Вот здесь - ну очень умное поведение!
-			  Т.е. если в качестве SelName передали "C:", то в этом куске происходит
-			  коррекция типа линка - с symlink`а на volmount
-			*/
-			LinkType=RP_VOLMOUNT;
-		}
-		else
-			strFullTarget = ConvertNameToFull(Target);
-
-		auto strFullLink = ConvertNameToFull(LinkName);
-
-		if (IsSlash(strFullLink.back()))
-		{
-			if (LinkType != RP_VOLMOUNT)
-			{
-				const auto SelName = SlashPos != string::npos? string_view(strSelOnlyName).substr(SlashPos + 1) : string_view(strSelOnlyName);
-				append(strFullLink, SelName);
-			}
-			else
-			{
-				append(strFullLink, L"Disk_"sv, Target.front());
-			}
-		}
-
-		if (LinkType==RP_VOLMOUNT)
-		{
+			strFullTarget = Target;
 			AddEndSlash(strFullTarget);
-			AddEndSlash(strFullLink);
 		}
+		/*
+			Вот здесь - ну очень умное поведение!
+			Т.е. если в качестве SelName передали "C:", то в этом куске происходит
+			коррекция типа линка - с symlink`а на volmount
+		*/
+		LinkType = RP_VOLMOUNT;
+	}
+	else
+		strFullTarget = ConvertNameToFull(Target);
 
-			if (symlink)
-			{
-				// в этом случае создается путь, но не сам каталог
-				string_view Path = strFullLink;
+	auto strFullLink = ConvertNameToFull(LinkName);
 
-				if (CutToSlash(Path))
-				{
-					if (!os::fs::exists(Path))
-						CreatePath(Path);
-				}
-			}
-			else
-			{
-				bool CreateDir=true;
-
-				if (LinkType==RP_EXACTCOPY)
-				{
-					// в этом случае создается или каталог, или пустой файл
-					if (os::fs::is_file(strFullTarget))
-						CreateDir=false;
-				}
-
-				if (CreateDir)
-				{
-					if (os::fs::create_directory(strFullLink))
-						TreeList::AddTreeName(strFullLink);
-					else
-						CreatePath(strFullLink);
-				}
-				else
-				{
-					string_view Path = strFullLink;
-
-					if (CutToSlash(Path))
-					{
-						if (!os::fs::exists(Path))
-							CreatePath(Path);
-						os::fs::file(strFullLink, 0, 0, nullptr, CREATE_NEW, os::fs::get_file_attributes(strFullTarget));
-					}
-				}
-
-				if (!os::fs::exists(strFullLink))
-				{
-					if (!Silent)
-					{
-						const auto ErrorState = error_state::fetch();
-
-						Message(MSG_WARNING, ErrorState,
-							msg(lng::MError),
-							{
-								msg(lng::MCopyCannotCreateLink),
-								strFullLink
-							},
-							{ lng::MOk });
-					}
-
-					return 0;
-				}
-			}
-
-		if (LinkType!=RP_VOLMOUNT)
+	if (IsSlash(strFullLink.back()))
+	{
+		if (LinkType != RP_VOLMOUNT)
 		{
-			if (CreateReparsePoint(HoldTarget && symlink ? Target : strFullTarget, strFullLink, LinkType))
-			{
-				return 1;
-			}
-			else
-			{
-				if (!Silent)
-				{
-					const auto ErrorState = error_state::fetch();
-
-					Message(MSG_WARNING, ErrorState,
-						msg(lng::MError),
-						{
-							msg(lng::MCopyCannotCreateLink),
-							strFullLink
-						},
-						{ lng::MOk });
-				}
-
-				return 0;
-			}
+			const auto SelName = SlashPos != string::npos?
+				string_view(strSelOnlyName).substr(SlashPos + 1) :
+				string_view(strSelOnlyName);
+			append(strFullLink, SelName);
 		}
 		else
 		{
-			if (CreateVolumeMountPoint(strFullTarget,strFullLink))
-			{
-				return 1;
-			}
-			else
-			{
-				if (!Silent)
-				{
-					const auto ErrorState = error_state::fetch();
-
-					Message(MSG_WARNING, ErrorState,
-						msg(lng::MError),
-						{
-							format(msg(lng::MCopyMountVolFailed), Target),
-							format(msg(lng::MCopyMountVolFailed2), strFullLink)
-						},
-						{ lng::MOk });
-				}
-
-				return 0;
-			}
+			append(strFullLink, L"Disk_"sv, Target.front());
 		}
 	}
 
-	return 2;
+	if (LinkType == RP_VOLMOUNT)
+	{
+		AddEndSlash(strFullTarget);
+		AddEndSlash(strFullLink);
+	}
+
+	if (symlink)
+	{
+		// в этом случае создается путь, но не сам каталог
+		string_view Path = strFullLink;
+
+		if (CutToSlash(Path))
+		{
+			if (!os::fs::exists(Path))
+				CreatePath(Path);
+		}
+	}
+	else
+	{
+		bool CreateDir = true;
+
+		if (LinkType == RP_EXACTCOPY)
+		{
+			// в этом случае создается или каталог, или пустой файл
+			if (os::fs::is_file(strFullTarget))
+				CreateDir = false;
+		}
+
+		if (CreateDir)
+		{
+			if (os::fs::create_directory(strFullLink))
+				TreeList::AddTreeName(strFullLink);
+			else
+				CreatePath(strFullLink);
+		}
+		else
+		{
+			string_view Path = strFullLink;
+
+			if (CutToSlash(Path))
+			{
+				if (!os::fs::exists(Path))
+					CreatePath(Path);
+				os::fs::file(strFullLink, 0, 0, nullptr, CREATE_NEW, os::fs::get_file_attributes(strFullTarget));
+			}
+		}
+
+		if (!os::fs::exists(strFullLink))
+		{
+			if (!Silent)
+			{
+				const auto ErrorState = error_state::fetch();
+
+				Message(MSG_WARNING, ErrorState,
+					msg(lng::MError),
+					{
+						msg(lng::MCopyCannotCreateLink),
+						strFullLink
+					},
+					{ lng::MOk });
+			}
+
+			return false;
+		}
+	}
+
+	if (LinkType == RP_VOLMOUNT)
+	{
+		if (CreateVolumeMountPoint(strFullTarget, strFullLink))
+			return true;
+
+		if (!Silent)
+		{
+			const auto ErrorState = error_state::fetch();
+
+			Message(MSG_WARNING, ErrorState,
+				msg(lng::MError),
+				{
+					format(msg(lng::MCopyMountVolFailed), Target),
+					format(msg(lng::MCopyMountVolFailed2), strFullLink)
+				},
+				{ lng::MOk });
+		}
+
+		return false;
+	}
+	else
+	{
+		if (CreateReparsePoint(HoldTarget && symlink? Target : strFullTarget, strFullLink, LinkType))
+			return true;
+
+		if (!Silent)
+		{
+			const auto ErrorState = error_state::fetch();
+
+			Message(MSG_WARNING, ErrorState,
+				msg(lng::MError),
+				{
+					msg(lng::MCopyCannotCreateLink),
+					strFullLink
+				},
+				{ lng::MOk });
+		}
+
+		return false;
+	}
 }
 
 static string reparse_tag_to_string(DWORD ReparseTag)

@@ -368,7 +368,7 @@ static bool MakeListFile(panel_ptr const& Panel, string& ListFileName, bool cons
 	}
 	catch (const far_exception& e)
 	{
-		os::fs::delete_file(ListFileName);
+		(void)os::fs::delete_file(ListFileName); // BUGBUG
 		Message(MSG_WARNING, e.error_state(),
 			msg(lng::MError),
 			{

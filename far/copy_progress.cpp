@@ -224,14 +224,11 @@ void copy_progress::CreateBackground()
 
 void copy_progress::SetNames(const string& Src, const string& Dst)
 {
-	if (m_ShowTime)
+	if (m_ShowTime && !m_Files.Copied)
 	{
-		if (!m_Files.Copied)
-		{
-			m_CopyStartTime = std::chrono::steady_clock::now();
-			WaitUserTime = 0s;
-			m_CalcTime = 0s;
-		}
+		m_CopyStartTime = std::chrono::steady_clock::now();
+		WaitUserTime = 0s;
+		m_CalcTime = 0s;
 	}
 
 	const auto NameWidth = static_cast<int>(CanvasWidth());

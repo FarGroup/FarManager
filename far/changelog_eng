@@ -3,6 +3,12 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 17.05.2020 17:56:00 +0100 - build 5600
+
+1. Refactoring.
+
+2. Tests.
+
 drkns 16.05.2020 02:22:20 +0100 - build 5599
 
 1. Refactoring.

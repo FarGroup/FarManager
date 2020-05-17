@@ -416,8 +416,8 @@ FileEditor::~FileEditor()
 				DeleteFileWithFolder(strFullFileName);
 			else
 			{
-				os::fs::set_file_attributes(strFullFileName,FILE_ATTRIBUTE_NORMAL);
-				os::fs::delete_file(strFullFileName); //BUGBUG
+				(void)os::fs::set_file_attributes(strFullFileName,FILE_ATTRIBUTE_NORMAL); // BUGBUG
+				(void)os::fs::delete_file(strFullFileName); //BUGBUG
 			}
 		}
 	}
@@ -1833,7 +1833,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 				{}, &EditorSavedROId) != Message::first_button)
 				return SAVEFILE_CANCEL;
 
-			os::fs::set_file_attributes(Name, FileAttr & ~FILE_ATTRIBUTE_READONLY);
+			(void)os::fs::set_file_attributes(Name, FileAttr & ~FILE_ATTRIBUTE_READONLY); //BUGBUG
 		}
 	}
 	else

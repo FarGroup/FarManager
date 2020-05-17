@@ -743,7 +743,7 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 	DWORD SavedAttributes = os::fs::get_file_attributes(Name);
 
 	if (SavedAttributes != INVALID_FILE_ATTRIBUTES)
-		os::fs::set_file_attributes(Name, FILE_ATTRIBUTE_NORMAL);
+		(void)os::fs::set_file_attributes(Name, FILE_ATTRIBUTE_NORMAL); //BUGBUG
 
 	error_state_ex ErrorState;
 
@@ -766,7 +766,7 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 			Stream.flush();
 
 			if (SavedAttributes != INVALID_FILE_ATTRIBUTES) // вернем атрибуты (если получится :-)
-				os::fs::set_file_attributes(Name, SavedAttributes);
+				(void)os::fs::set_file_attributes(Name, SavedAttributes); //BUGBUG
 		}
 		catch (const far_exception& e)
 		{
@@ -783,7 +783,7 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 
 	if (ErrorState)
 	{
-		os::fs::delete_file(TreeCache().GetTreeName());
+		(void)os::fs::delete_file(TreeCache().GetTreeName()); // BUGBUG
 		if (!Global->WindowManager->ManagerIsDown())
 			Message(MSG_WARNING, ErrorState,
 				msg(lng::MError),

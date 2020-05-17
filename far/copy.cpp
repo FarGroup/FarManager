@@ -191,8 +191,8 @@ enum
 
 enum
 {
-	COPY_RULE_NUL    = 0x0001,
-	COPY_RULE_FILES  = 0x0002,
+	COPY_RULE_NUL    = 0_bit,
+	COPY_RULE_FILES  = 1_bit,
 };
 
 enum COPY_FLAGS
@@ -1491,21 +1491,14 @@ void ShellCopy::CopyFileTree(const string& Dest)
 
 		if (RPT==RP_JUNCTION || RPT==RP_SYMLINK || RPT==RP_SYMLINKFILE || RPT==RP_SYMLINKDIR)
 		{
-			switch (MkSymLink(i.FileName, strDest, RPT))
-			{
-				case 2:
-					break;
+			if (!MkSymLink(i.FileName, strDest, RPT))
+				return;
 
-				case 1:
-					// Отметим (Ins) несколько каталогов, ALT-F6 Enter - выделение с папок не снялось.
-					if ((!(Flags&FCOPY_CURRENTONLY)) && (Flags&FCOPY_COPYLASTTIME))
-						SrcPanel->ClearLastGetSelection();
+			// Отметим (Ins) несколько каталогов, ALT-F6 Enter - выделение с папок не снялось.
+			if ((!(Flags&FCOPY_CURRENTONLY)) && (Flags&FCOPY_COPYLASTTIME))
+				SrcPanel->ClearLastGetSelection();
 
-					continue;
-
-				case 0:
-					return;
-			}
+			continue;
 		}
 		else
 		{
@@ -1996,15 +1989,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			// Directory symbolic links and junction points are handled by CreateDirectoryEx.
 			if (!dir && rpt && !cpc && RPT==RP_EXACTCOPY)
 			{
-				switch (MkSymLink(Src, strDestPath, RPT))
-				{
-					case 2:
-						cancel_operation();
-					case 1:
-						break;
-					case 0:
-						return COPY_FAILURE;
-				}
+				if (!MkSymLink(Src, strDestPath, RPT))
+					return COPY_FAILURE;
 			}
 
 			TreeList::AddTreeName(strDestPath);
@@ -2084,10 +2070,9 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			{
 				int AskDelete;
 
-				if (strDestFSName == L"NWFS"sv && !Append &&
-				        DestAttr!=INVALID_FILE_ATTRIBUTES && !SameName)
+				if (strDestFSName == L"NWFS"sv && !Append && DestAttr!=INVALID_FILE_ATTRIBUTES && !SameName)
 				{
-					os::fs::delete_file(strDestPath); //BUGBUG
+					(void)os::fs::delete_file(strDestPath); //BUGBUG
 				}
 
 				bool FileMoved = false;
@@ -2097,7 +2082,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					const auto strSrcFullName = ConvertNameToFull(Src);
 
 					if (NWFS_Attr)
-						os::fs::set_file_attributes(strSrcFullName,SrcData.Attributes&(~FILE_ATTRIBUTE_READONLY));
+						(void)os::fs::set_file_attributes(strSrcFullName,SrcData.Attributes&(~FILE_ATTRIBUTE_READONLY)); //BUGBUG
 
 					if (strDestFSName == L"NWFS"sv)
 						FileMoved = os::fs::move_file(strSrcFullName, strDestPath);
@@ -2109,7 +2094,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 						ErrorState = error_state::fetch();
 
 						if (NWFS_Attr)
-							os::fs::set_file_attributes(strSrcFullName,SrcData.Attributes);
+							(void)os::fs::set_file_attributes(strSrcFullName,SrcData.Attributes); //BUGBUG
 
 						if (ErrorState.Win32Error == ERROR_NOT_SAME_DEVICE)
 							return COPY_FAILURE;
@@ -2121,7 +2106,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					}
 
 					if (NWFS_Attr)
-						os::fs::set_file_attributes(strDestPath,SrcData.Attributes);
+						(void)os::fs::set_file_attributes(strDestPath,SrcData.Attributes); //BUGBUG
 
 					if (FileMoved)
 					{
@@ -2183,7 +2168,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				SCOPE_EXIT
 				{
 					if (DestAttr != INVALID_FILE_ATTRIBUTES && Append)
-						os::fs::set_file_attributes(strDestPath,DestAttr);
+					(void)os::fs::set_file_attributes(strDestPath,DestAttr); //BUGBUG
 				};
 
 				int CopyCode;
@@ -2402,7 +2387,7 @@ int ShellCopy::DeleteAfterMove(const string& Name,DWORD Attr)
 			cancel_operation();
 		}
 
-		os::fs::set_file_attributes(FullName,FILE_ATTRIBUTE_NORMAL);
+		(void)os::fs::set_file_attributes(FullName,FILE_ATTRIBUTE_NORMAL); //BUGBUG
 	}
 
 	while ((Attr&FILE_ATTRIBUTE_DIRECTORY)?!os::fs::remove_directory(FullName):!os::fs::delete_file(FullName))
@@ -2452,7 +2437,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 	{
 		if (RPT==RP_HARDLINK)
 		{
-			os::fs::delete_file(strDestName); //BUGBUG
+			(void)os::fs::delete_file(strDestName); //BUGBUG
 			return MkHardLink(SrcName,strDestName)? COPY_SUCCESS : COPY_FAILURE;
 		}
 		else
@@ -2579,7 +2564,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 		}
 
 		if (IsSystemEncrypted)
-			os::fs::set_file_attributes(strDestName, attrs);
+			(void)os::fs::set_file_attributes(strDestName, attrs); //BUGBUG
 
 		const auto strDriveRoot = GetPathRoot(strDestName);
 
@@ -2637,8 +2622,8 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 
 		if (!Append)
 		{
-			os::fs::set_file_attributes(strDestName, FILE_ATTRIBUTE_NORMAL);
-			os::fs::delete_file(strDestName); //BUGBUG
+			(void)os::fs::set_file_attributes(strDestName, FILE_ATTRIBUTE_NORMAL); // BUGBUG
+			(void)os::fs::delete_file(strDestName); //BUGBUG
 		}
 	};
 
@@ -3190,7 +3175,7 @@ bool ShellCopy::AskOverwrite(
 		}
 
 		if (!SameName && (DestAttr & (FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM)))
-			os::fs::set_file_attributes(DestName,FILE_ATTRIBUTE_NORMAL);
+			(void)os::fs::set_file_attributes(DestName,FILE_ATTRIBUTE_NORMAL); //BUGBUG
 	}
 
 	return true;

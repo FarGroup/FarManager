@@ -755,7 +755,7 @@ bool elevation::create_hard_link(const string& Object, const string& Target, SEC
 		});
 }
 
-bool elevation::fCreateSymbolicLink(const string& Object, const string& Target, DWORD Flags)
+bool elevation::fCreateSymbolicLink(string_view const Object, string_view const Target, DWORD Flags)
 {
 	return execute(lng::MElevationRequiredSymLink, Object,
 		false,
@@ -882,7 +882,7 @@ os::security::descriptor elevation::get_file_security(string const& Object, SECU
 		os::security::descriptor{},
 		[&]
 		{
-			return os::fs::low::get_file_security(Object, RequestedInformation);
+			return os::fs::low::get_file_security(Object.c_str(), RequestedInformation);
 		},
 		[&]
 		{

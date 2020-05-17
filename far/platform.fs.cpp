@@ -1387,7 +1387,7 @@ namespace os::fs
 		return Attributes != INVALID_FILE_ATTRIBUTES && flags::check_any(Attributes, FILE_ATTRIBUTE_DIRECTORY);
 	}
 
-	bool is_not_empty_directory(const string& Object)
+	bool is_not_empty_directory(string_view const Object)
 	{
 		const auto Find = enum_files(path::join(Object, L'*'));
 		return Find.begin() != Find.end();
@@ -1522,7 +1522,7 @@ namespace os::fs
 			return (Encrypt? ::EncryptFile(FileName) : ::DecryptFile(FileName, 0)) != FALSE;
 		}
 
-		security::descriptor get_file_security(string const& Object, SECURITY_INFORMATION RequestedInformation)
+		security::descriptor get_file_security(const wchar_t* Object, SECURITY_INFORMATION RequestedInformation)
 		{
 			security::descriptor Result(default_buffer_size);
 
@@ -1530,7 +1530,7 @@ namespace os::fs
 				[&](span<SECURITY_DESCRIPTOR> Buffer)
 				{
 					DWORD LengthNeeded = 0;
-					if (!::GetFileSecurity(Object.c_str(), RequestedInformation, Buffer.data(), static_cast<DWORD>(Buffer.size()), &LengthNeeded))
+					if (!::GetFileSecurity(Object, RequestedInformation, Buffer.data(), static_cast<DWORD>(Buffer.size()), &LengthNeeded))
 						return static_cast<size_t>(LengthNeeded);
 					return Buffer.size();
 				},
@@ -2025,7 +2025,7 @@ namespace os::fs
 	{
 		NTPath const NtObject(Object);
 
-		if (auto Result = low::get_file_security(NtObject, RequestedInformation))
+		if (auto Result = low::get_file_security(NtObject.c_str(), RequestedInformation))
 			return Result;
 
 		if (ElevationRequired(ELEVATION_READ_REQUEST))
@@ -2090,7 +2090,7 @@ namespace os::fs
 		return File.Open(FileName, FILE_READ_ATTRIBUTES, FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING) && File.GetTime(CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
 	}
 
-	bool get_find_data(const string& FileName, find_data& FindData, bool ScanSymLink)
+	bool get_find_data(string_view const FileName, find_data& FindData, bool ScanSymLink)
 	{
 		const auto Find = enum_files(FileName, ScanSymLink);
 		auto ItemIterator = Find.begin();
@@ -2150,7 +2150,7 @@ namespace os::fs
 		return os::fs::GetVolumeInformation(strDrive, &strVolName, nullptr, &MaxComSize, &Flags, &strFS);
 	}
 
-	bool create_hard_link(const string& FileName, const string& ExistingFileName, SECURITY_ATTRIBUTES* SecurityAttributes)
+	bool create_hard_link(string_view const FileName, string_view const ExistingFileName, SECURITY_ATTRIBUTES* SecurityAttributes)
 	{
 		const auto Create = [SecurityAttributes](const string& Object, const string& Target)
 		{
@@ -2168,12 +2168,12 @@ namespace os::fs
 
 		// win2k bug: \\?\ fails
 		if (!IsWindowsXPOrGreater())
-			return Create(FileName, ExistingFileName);
+			return Create(string(FileName), string(ExistingFileName));
 
 		return false;
 	}
 
-	bool CreateSymbolicLink(const string& SymlinkFileName, const string& TargetFileName, DWORD Flags)
+	bool CreateSymbolicLink(string_view const SymlinkFileName, string_view const TargetFileName, DWORD Flags)
 	{
 		const NTPath NtSymlinkFileName(SymlinkFileName);
 
@@ -2227,14 +2227,14 @@ namespace os::fs
 		return file(Name, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, CREATE_ALWAYS, FILE_FLAG_DELETE_ON_CLOSE)? true : false;
 	}
 
-	bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD Flags)
+	bool CreateSymbolicLinkInternal(string_view const Object, string_view const Target, DWORD Flags)
 	{
 		if (!imports.CreateSymbolicLinkW)
 			return CreateReparsePoint(Target, Object, Flags & SYMBOLIC_LINK_FLAG_DIRECTORY? RP_SYMLINKDIR : RP_SYMLINKFILE);
 
 		static const DWORD unpriv_flag = version::is_win10_1703_or_later()? SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE : 0;
 
-		return imports.CreateSymbolicLinkW(Object.c_str(), Target.c_str(), Flags | unpriv_flag) != FALSE;
+		return imports.CreateSymbolicLinkW(null_terminated(Object).c_str(), null_terminated(Target).c_str(), Flags | unpriv_flag) != FALSE;
 	}
 
 	drives_set allowed_drives_mask()

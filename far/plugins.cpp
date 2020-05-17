@@ -1027,8 +1027,8 @@ bool PluginManager::GetFile(const plugin_panel* hPlugin, PluginPanelItem *PanelI
 		}
 		else
 		{
-			os::fs::set_file_attributes(Result,FILE_ATTRIBUTE_NORMAL);
-			os::fs::delete_file(Result); //BUGBUG
+			(void)os::fs::set_file_attributes(Result,FILE_ATTRIBUTE_NORMAL); // BUGBUG
+			(void)os::fs::delete_file(Result); //BUGBUG
 		}
 	}
 
