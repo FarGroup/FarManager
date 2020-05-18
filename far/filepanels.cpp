@@ -58,6 +58,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "diskmenu.hpp"
 #include "global.hpp"
+#include "ctrlobj.hpp"
+#include "plugins.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -94,6 +96,11 @@ filepanels_ptr FilePanels::create(bool CreateRealPanels, int DirCount)
 		FilePanelsPtr->CmdLine = std::make_unique<CommandLine>(FilePanelsPtr);
 	}
 	return FilePanelsPtr;
+}
+
+void FilePanels::folderchanged()
+{
+	Global->WindowManager->CallbackWindow([](){ Global->CtrlObject->Plugins->ProcessSynchroEvent(SE_FOLDERCHANGED, nullptr); });
 }
 
 static void PrepareOptFolder(string &strSrc, int IsLocalPath_FarPath)
@@ -849,6 +856,7 @@ void FilePanels::SetActivePanel(Panel* ToBeActive)
 {
 	if (ActivePanel().get() != ToBeActive)
 	{
+		folderchanged();
 		SetPassivePanelInternal(ActivePanel());
 		SetActivePanelInternal(ToBeActive->shared_from_this());
 	}
