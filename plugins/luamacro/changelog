@@ -1,3 +1,7 @@
+zg 18.05.2020 18:30:29 +0300 - build 747
+
+1. experimental "FolderChanged" event.
+
 shmuel 07.05.2020 22:58:33 +0300 - build 746
 
 1. LuaFAR: refactoring.

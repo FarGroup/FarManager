@@ -1456,6 +1456,24 @@ intptr_t LF_ProcessDialogEvent(lua_State* L, const struct ProcessDialogEventInfo
 	return ret;
 }
 
+static intptr_t Common_ProcessSynchroEvent(lua_State* L, intptr_t Event, int Data)
+{
+	intptr_t ret=0;
+	if(GetExportFunction(L, "ProcessSynchroEvent"))     //+1: Func
+	{
+		lua_pushinteger(L, Event); //+2
+		lua_pushinteger(L, Data);     //+3
+
+		if(pcall_msg(L, 2, 1) == 0)      //+1
+		{
+			if(lua_isnumber(L,-1)) ret = lua_tointeger(L,-1);
+
+			lua_pop(L,1);
+		}
+	}
+	return ret;
+}
+
 intptr_t LF_ProcessSynchroEvent(lua_State* L, const struct ProcessSynchroEventInfo *Info)
 {
 	intptr_t ret=0;
@@ -1496,18 +1514,14 @@ intptr_t LF_ProcessSynchroEvent(lua_State* L, const struct ProcessSynchroEventIn
 				luaL_unref(L, LUA_REGISTRYINDEX, sd.timerData->tabRef);
 			}
 		}
-		else if(GetExportFunction(L, "ProcessSynchroEvent"))     //+1: Func
+		else
 		{
-			lua_pushinteger(L, Info->Event); //+2
-			lua_pushinteger(L, sd.data);     //+3
-
-			if(pcall_msg(L, 2, 1) == 0)      //+1
-			{
-				if(lua_isnumber(L,-1)) ret = lua_tointeger(L,-1);
-
-				lua_pop(L,1);
-			}
+			Common_ProcessSynchroEvent(L, Info->Event, sd.data);
 		}
+	}
+	else if(Info->Event == SE_FOLDERCHANGED)
+	{
+		Common_ProcessSynchroEvent(L, Info->Event, 0);
 	}
 
 	return ret;
