@@ -1843,7 +1843,11 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 					if (-1 == editorExitCode)
 						Global->WindowManager->ExecuteModal(Editor);
 
-					if (Editor->GetExitCode())
+					if (Editor->GetExitCode() == XC_OPEN_ERROR)
+					{
+						ExitCode = EEC_OPEN_ERROR;
+					}
+					else
 					{
 #if 0
 
@@ -1852,10 +1856,6 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 						else
 #endif
 							ExitCode = Editor->IsFileChanged() ? EEC_MODIFIED : EEC_NOT_MODIFIED;
-					}
-					else
-					{
-						ExitCode = EEC_OPEN_ERROR;
 					}
 				}
 				break;

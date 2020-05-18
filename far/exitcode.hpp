@@ -47,8 +47,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 enum
 {
-	XC_QUIT,
-	XC_OPEN_ERROR,
+	XC_QUIT = -1,
+	XC_OPEN_ERROR = 0, // For horrendous reasons this must be 0. TODO: fix all the places like "if (Editor->GetExitCode())" before changing it
 	XC_MODIFIED,
 	XC_NOT_MODIFIED,
 	XC_LOADING_INTERRUPTED,

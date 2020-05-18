@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 18.05.2020 18:13:57 +0100 - build 5602
+
+1. Correction of 5599.
+
+zg 18.05.2020 17:08:41 +0300 - build 5601
+
+1. experimental: new event SE_FOLDERCHANGED, sent when changing the current directory in panels.
+
 drkns 17.05.2020 17:56:00 +0100 - build 5600
 
 1. Refactoring.
