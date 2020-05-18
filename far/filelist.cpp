@@ -2824,7 +2824,6 @@ bool FileList::SetCurDir(string_view const NewDir, bool ClosePanel, bool IsUpdat
 
 bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePath,bool IsUpdated, const UserDataItem* DataItem, OPENFILEPLUGINTYPE OfpType, bool const Silent)
 {
-	FilePanels::folderchanged();
 	if (m_PanelMode != panel_mode::PLUGIN_PANEL && !IsAbsolutePath(NewDir) && !equal_icase(os::fs::GetCurrentDirectory(), m_CurDir))
 		FarChDir(m_CurDir);
 
@@ -6167,7 +6166,6 @@ void FileList::SetPluginMode(std::unique_ptr<plugin_panel>&& PluginPanel, const 
 {
 	const auto ParentWindow = Parent();
 
-	FilePanels::folderchanged();
 	if (m_PanelMode != panel_mode::PLUGIN_PANEL)
 	{
 		Global->CtrlObject->FolderHistory->AddToHistory(m_CurDir);

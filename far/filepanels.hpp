@@ -57,7 +57,6 @@ class FilePanels:public window, public ViewerContainer
 
 public:
 	static filepanels_ptr create(bool CreateRealPanels, int DirCount);
-	static void folderchanged();
 
 	explicit FilePanels(private_tag);
 

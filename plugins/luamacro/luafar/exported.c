@@ -1519,10 +1519,6 @@ intptr_t LF_ProcessSynchroEvent(lua_State* L, const struct ProcessSynchroEventIn
 			Common_ProcessSynchroEvent(L, Info->Event, sd.data);
 		}
 	}
-	else if(Info->Event == SE_FOLDERCHANGED)
-	{
-		Common_ProcessSynchroEvent(L, Info->Event, 0);
-	}
 
 	return ret;
 }
