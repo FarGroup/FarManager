@@ -115,92 +115,112 @@ static bool CASHook(const Manager::Key& key)
 		return false;
 
 	const auto& KeyRecord = key.Event().Event.KeyEvent;
-	if (KeyRecord.bKeyDown)
+	if (!KeyRecord.bKeyDown)
+		return false;
+
+	switch (KeyRecord.wVirtualKeyCode)
 	{
-		switch (KeyRecord.wVirtualKeyCode)
-		{
-		case VK_SHIFT:
-		case VK_MENU:
-		case VK_CONTROL:
-			{
-				const auto
-					maskLeft=LEFT_CTRL_PRESSED|LEFT_ALT_PRESSED|SHIFT_PRESSED,
-					maskRight=RIGHT_CTRL_PRESSED|RIGHT_ALT_PRESSED|SHIFT_PRESSED;
-				const auto state = KeyRecord.dwControlKeyState;
-				const auto wait = [](DWORD mask)
-				{
-					for (;;)
-					{
-						INPUT_RECORD Record;
+	case VK_SHIFT:
+	case VK_MENU:
+	case VK_CONTROL:
+		break;
 
-						if (PeekInputRecord(&Record, true))
-						{
-							GetInputRecord(&Record, true, true);
-							if ((Record.Event.KeyEvent.dwControlKeyState&mask) != mask)
-								break;
-						}
-
-						os::chrono::sleep_for(1ms);
-					}
-				};
-				const auto
-					case1 = Global->Opt->CASRule&1 && (state&maskLeft) == maskLeft,
-					case2 = Global->Opt->CASRule&2 && (state&maskRight) == maskRight;
-				if (case1 || case2)
-				{
-					const auto maskCurrent = case1?maskLeft:maskRight;
-					const auto currentWindow = Global->WindowManager->GetCurrentWindow();
-					if (currentWindow->CanFastHide())
-					{
-						const auto isPanelFocus = currentWindow->GetType() == windowtype_panels;
-
-						if (isPanelFocus)
-						{
-							const auto LeftVisible = Global->CtrlObject->Cp()->LeftPanel()->IsVisible();
-							const auto RightVisible = Global->CtrlObject->Cp()->RightPanel()->IsVisible();
-							const auto CmdLineVisible = Global->CtrlObject->CmdLine()->IsVisible();
-							const auto KeyBarVisible = Global->CtrlObject->Cp()->GetKeybar().IsVisible();
-							Global->WindowManager->ShowBackground();
-							Global->CtrlObject->Cp()->LeftPanel()->HideButKeepSaveScreen();
-							Global->CtrlObject->Cp()->RightPanel()->HideButKeepSaveScreen();
-
-							switch (Global->Opt->PanelCtrlAltShiftRule)
-							{
-							case 0:
-								if (CmdLineVisible)
-									Global->CtrlObject->CmdLine()->Show();
-								if (KeyBarVisible)
-									Global->CtrlObject->Cp()->GetKeybar().Show();
-								break;
-							case 1:
-								if (KeyBarVisible)
-									Global->CtrlObject->Cp()->GetKeybar().Show();
-								break;
-							}
-
-							wait(maskCurrent);
-
-							if (LeftVisible)      Global->CtrlObject->Cp()->LeftPanel()->Show();
-							if (RightVisible)     Global->CtrlObject->Cp()->RightPanel()->Show();
-							if (CmdLineVisible)   Global->CtrlObject->CmdLine()->Show();
-							if (KeyBarVisible)    Global->CtrlObject->Cp()->GetKeybar().Show();
-						}
-						else
-						{
-							Global->WindowManager->ImmediateHide();
-							wait(maskCurrent);
-						}
-
-						Global->WindowManager->RefreshWindow();
-					}
-
-					return true;
-				}
-				break;
-			}
-		}
+	default:
+		return false;
 	}
-	return false;
+
+	const auto AnyPressed = [](DWORD const State)
+	{
+		return
+			flags::check_any(State, LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED) &&
+			flags::check_any(State, LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED) &&
+			flags::check_any(State, SHIFT_PRESSED);
+	};
+
+	const auto LeftPressed = [](DWORD const State)
+	{
+		return flags::check_all(State, LEFT_CTRL_PRESSED | LEFT_ALT_PRESSED | SHIFT_PRESSED);
+	};
+
+	const auto RightPressed = [](DWORD const State)
+	{
+		return flags::check_all(State, RIGHT_CTRL_PRESSED | RIGHT_ALT_PRESSED | SHIFT_PRESSED);
+	};
+
+	const auto wait = [](auto const CasChecker)
+	{
+		for (;;)
+		{
+			INPUT_RECORD Record;
+
+			if (!PeekInputRecord(&Record, true))
+				continue;
+
+			GetInputRecord(&Record, true, true);
+			if (!CasChecker(Record.Event.KeyEvent.dwControlKeyState))
+				break;
+
+			os::chrono::sleep_for(1ms);
+		}
+	};
+
+	const auto state = KeyRecord.dwControlKeyState;
+
+	const auto
+		CaseAny   = flags::check_all(Global->Opt->CASRule, 0b11) && AnyPressed(state),
+		CaseLeft  = flags::check_all(Global->Opt->CASRule, 0b01) && LeftPressed(state),
+		CaseRight = flags::check_all(Global->Opt->CASRule, 0b10) && RightPressed(state);
+
+	if (!CaseAny && !CaseLeft && !CaseRight)
+		return false;
+
+	const auto CasChecker = CaseAny? AnyPressed : CaseLeft? LeftPressed : RightPressed;
+
+	const auto currentWindow = Global->WindowManager->GetCurrentWindow();
+
+	if (!currentWindow->CanFastHide())
+		return true;
+
+	if (currentWindow->GetType() == windowtype_panels)
+	{
+		const auto LeftVisible = Global->CtrlObject->Cp()->LeftPanel()->IsVisible();
+		const auto RightVisible = Global->CtrlObject->Cp()->RightPanel()->IsVisible();
+		const auto CmdLineVisible = Global->CtrlObject->CmdLine()->IsVisible();
+		const auto KeyBarVisible = Global->CtrlObject->Cp()->GetKeybar().IsVisible();
+
+		Global->WindowManager->ShowBackground();
+		Global->CtrlObject->Cp()->LeftPanel()->HideButKeepSaveScreen();
+		Global->CtrlObject->Cp()->RightPanel()->HideButKeepSaveScreen();
+
+		switch (Global->Opt->PanelCtrlAltShiftRule)
+		{
+		case 0:
+			if (CmdLineVisible)
+				Global->CtrlObject->CmdLine()->Show();
+			[[fallthrough]];
+		case 1:
+			if (KeyBarVisible)
+				Global->CtrlObject->Cp()->GetKeybar().Show();
+			[[fallthrough]];
+		case 2:
+			break;
+		}
+
+		wait(CasChecker);
+
+		if (LeftVisible)      Global->CtrlObject->Cp()->LeftPanel()->Show();
+		if (RightVisible)     Global->CtrlObject->Cp()->RightPanel()->Show();
+		if (CmdLineVisible)   Global->CtrlObject->CmdLine()->Show();
+		if (KeyBarVisible)    Global->CtrlObject->Cp()->GetKeybar().Show();
+	}
+	else
+	{
+		Global->WindowManager->ImmediateHide();
+		wait(CasChecker);
+	}
+
+	Global->WindowManager->RefreshWindow();
+	return true;
 }
 
 Manager::Manager():

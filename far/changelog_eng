@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 19.05.2020 20:35:17 +0100 - build 5604
+
+1. gh-242: Far2 CtrlAltShift behavior
+
+zg 18.05.2020 23:28:13 +0300 - build 5603
+
+1. revert 5601.
+
 drkns 18.05.2020 18:13:57 +0100 - build 5602
 
 1. Correction of 5599.
