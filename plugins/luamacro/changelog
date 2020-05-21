@@ -1,3 +1,7 @@
+shmuel 21.05.2020 15:21:20 +0300 - build 749
+
+1. Show traceback when error is thrown from ExitFAR event handler.
+
 zg 18.05.2020 23:28:55 +0300 - build 748
 
 1. откат 747.
