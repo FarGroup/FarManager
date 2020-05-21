@@ -480,22 +480,22 @@ void Dialog::InitDialog()
 	if (!DialogMode.Check(DMODE_OBJECTS_INITED))      // самодостаточный вариант, когда
 	{                      //  элементы инициализируются при первом вызове.
 		CheckDialogCoord();
-		size_t InitFocus=InitDialogObjects();
-		const auto Result = static_cast<int>(DlgProc(DN_INITDIALOG, InitFocus, DataDialog));
+		InitDialogObjects();
+		const auto Result = static_cast<int>(DlgProc(DN_INITDIALOG, GetDlgFocusPos(), DataDialog));
 
 		if (m_ExitCode == -1)
 		{
 			if (Result)
 			{
 				// еще разок, т.к. данные могли быть изменены
-				InitFocus=InitDialogObjects(); // InitFocus=????
+				InitDialogObjects();
 			}
 		}
 
 		// все объекты проинициализированы!
 		DialogMode.Set(DMODE_OBJECTS_INITED);
 
-		DlgProc(DN_GOTFOCUS, InitFocus, nullptr);
+		DlgProc(DN_GOTFOCUS, GetDlgFocusPos(), nullptr);
 	}
 }
 
@@ -650,14 +650,14 @@ std::any* Dialog::GetListItemComplexUserData(size_t ListId, size_t ItemId)
   TODO: Необходимо применить ProcessRadioButton для исправления
         кривых рук некоторых плагинописателей (а надо?)
 */
-size_t Dialog::InitDialogObjects(size_t ID)
+void Dialog::InitDialogObjects(size_t ID)
 {
 	size_t InitItemCount;
 	_DIALOG(CleverSysLog CL(L"Dialog::InitDialogObjects()"));
 	bool AllElements = false;
 
 	if (ID+1 > Items.size())
-		return static_cast<size_t>(-1);
+		return;
 
 	if (ID == static_cast<size_t>(-1)) // инициализируем все?
 	{
@@ -1003,9 +1003,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 	// все объекты созданы!
 	if (AllElements)
 		DialogMode.Set(DMODE_OBJECTS_CREATED);
-	return m_FocusPos;
 }
-
 
 string Dialog::GetTitle() const
 {
