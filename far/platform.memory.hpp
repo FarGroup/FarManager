@@ -82,6 +82,8 @@ namespace os::memory
 			return lock<T>(Ptr.get());
 		}
 
+		ptr copy(HGLOBAL Ptr);
+
 		template<class T>
 		[[nodiscard]]
 		ptr copy(const T& Object)

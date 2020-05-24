@@ -479,6 +479,20 @@ TEST_CASE("scope_exit")
 
 //----------------------------------------------------------------------------
 
+#include "common/smart_ptr.hpp"
+
+TEST_CASE("array_ptr")
+{
+	char_ptr_n<1> Ptr;
+	constexpr auto ActualStaticSize = sizeof(std::unique_ptr<char[]>) / sizeof(char);
+	char_ptr_n<ActualStaticSize> Ptr2;
+
+	static_assert(sizeof(Ptr) == sizeof(Ptr2));
+	REQUIRE(Ptr.size() == Ptr2.size());
+}
+
+//----------------------------------------------------------------------------
+
 #include "common/string_utils.hpp"
 
 TEST_CASE("string_utils.cut")

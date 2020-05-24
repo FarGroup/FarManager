@@ -1,7 +1,18 @@
-﻿=======================================================================================
-This file is a translation of the main russian changelog and is provided by volunteers.
-It might not always be as up to date as the main changelog.
-=======================================================================================
+drkns 24.05.2020 02:04:04 +0100 - build 5606
+
+1. Correction of 5599 once more.
+
+2. Ignore spaces before / after far:config and far:about.
+
+3. A few minor optimisations.
+
+4. Unit tests preserve the clipboard.
+
+5. Remove the disclaimer from this file. Update it along with everything else, it's not that hard.
+
+zg 21.05.2020 14:52:59 +0300 - build 5605
+
+1. first DN_GOTFOCUS could contain outdated information.
 
 drkns 19.05.2020 20:35:17 +0100 - build 5604
 

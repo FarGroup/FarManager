@@ -139,30 +139,15 @@ private:
 		return GetClipboardData(uFormat);
 	}
 
-	static bool Set(unsigned const Format, os::memory::global::ptr&& Data)
+	bool SetData(unsigned const Format, os::memory::global::ptr&& Data) override
 	{
+		assert(m_Opened);
+
 		if (!SetClipboardData(Format, Data.get()))
 			return false;
 
 		// Owned by the OS now
 		(void)Data.release();
-		return true;
-	}
-
-	bool SetData(unsigned Format, os::memory::global::ptr&& Data) override
-	{
-		assert(m_Opened);
-
-		if (!Set(Format, std::move(Data)))
-			return false;
-
-		auto Locale = os::memory::global::copy(GetUserDefaultLCID());
-		if (!Locale)
-			return false;
-
-		if (!Set(CF_LOCALE, std::move(Locale)))
-			return false;
-
 		return true;
 	}
 
@@ -320,6 +305,10 @@ bool clipboard::SetText(const string_view Str)
 	// 'Notepad++ binary text length'
 	// return value is ignored - non-critical feature
 	SetData(RegisterFormat(clipboard_format::notepad_plusplus_binary_text_length), os::memory::global::copy(static_cast<uint32_t>(Str.size())));
+
+	// return value is ignored - non-critical feature
+	if (auto Locale = os::memory::global::copy(GetUserDefaultLCID()))
+		SetData(CF_LOCALE, std::move(Locale));
 
 	return true;
 }
@@ -527,8 +516,51 @@ bool CopyData(const clipboard_accessor& From, const clipboard_accessor& To)
 
 #include "testing.hpp"
 
+class clipboard_guard
+{
+public:
+	NONCOPYABLE(clipboard_guard);
+
+	clipboard_guard()
+	{
+		const clipboard_accessor Clip(clipboard_mode::system);
+		if (!Clip->Open())
+			return;
+
+		m_Data.reserve(CountClipboardFormats());
+
+		for (auto i = EnumClipboardFormats(0); i; i = EnumClipboardFormats(i))
+		{
+			if (i == CF_BITMAP)
+				continue;
+
+			m_Data.emplace_back(i, os::memory::global::copy(GetClipboardData(i)));
+		}
+	}
+
+	~clipboard_guard()
+	{
+		if (m_Data.empty())
+			return;
+
+		const clipboard_accessor Clip(clipboard_mode::system);
+		if (!Clip->Open())
+			return;
+
+		for (auto& [Format, Data]: m_Data)
+		{
+			SetClipboardData(Format, Data.release());
+		}
+	}
+
+private:
+	std::vector<std::pair<unsigned, os::memory::global::ptr>> m_Data;
+};
+
 TEST_CASE("clipboard.stream")
 {
+	SCOPED_ACTION(clipboard_guard);
+
 	const auto Baseline = L"\0 Comfortably Numb \0"sv;
 	string Str;
 
@@ -560,6 +592,8 @@ TEST_CASE("clipboard.stream")
 
 TEST_CASE("clipboard.accessors")
 {
+	SCOPED_ACTION(clipboard_guard);
+
 	const auto Baseline = L"\0 Hey Macarena \0"sv;
 	string Str;
 

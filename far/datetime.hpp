@@ -96,7 +96,7 @@ class time_check: noncopyable
 public:
 	enum class mode { delayed, immediate };
 
-	time_check(mode Mode = mode::delayed) noexcept;
+	explicit time_check(mode Mode = mode::delayed) noexcept;
 
 	time_check(mode Mode, clock_type::duration Interval) noexcept:
 		m_Begin(Mode == mode::delayed? clock_type::now() : clock_type::now() - Interval),

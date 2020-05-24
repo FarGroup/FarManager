@@ -66,6 +66,20 @@ namespace os::memory
 			return ptr(GlobalAlloc(Flags, size));
 		}
 
+		ptr copy(HGLOBAL const Ptr)
+		{
+			const auto Size = GlobalSize(Ptr);
+			auto Memory = alloc(GMEM_MOVEABLE, Size);
+			if (!Memory)
+				return nullptr;
+
+			const auto From = lock<const char*>(Ptr);
+			const auto To = lock<char*>(Memory);
+			*std::copy(From.get(), From.get() + Size, To.get());
+
+			return Memory;
+		}
+
 		ptr copy(string_view const Str)
 		{
 			auto Memory = alloc(GMEM_MOVEABLE, (Str.size() + 1) * sizeof(wchar_t));

@@ -903,8 +903,10 @@ void CommandLine::SetPromptSize(int NewSize)
 	PromptSize = NewSize? std::clamp(NewSize, 5, 95) : DEFAULT_CMDLINE_WIDTH;
 }
 
-static bool ProcessFarCommands(const string& Command, function_ref<void(bool)> const ConsoleActivatior)
+static bool ProcessFarCommands(string_view Command, function_ref<void(bool)> const ConsoleActivatior)
 {
+	inplace::trim(Command);
+
 	if (equal_icase(Command, L"far:config"sv))
 	{
 		ConsoleActivatior(false);
@@ -923,18 +925,13 @@ static bool ProcessFarCommands(const string& Command, function_ref<void(bool)> c
 			std::wcout << L"\nSCM revision:\n"sv << Revision << L'\n';
 		}
 
-		const auto CompilerInfo = []
-		{
-			return
+		const auto CompilerInfo =
 #ifdef _MSC_BUILD
-				format(FSTR(L".{0}"), _MSC_BUILD)
-#else
-				L""s
+			L"." WSTR(_MSC_BUILD)
 #endif
-				;
-		};
+			L""sv;
 
-		std::wcout << L"\nCompiler:\n"sv << format(FSTR(L"{0}, version {1}.{2}.{3}{4}"), COMPILER_NAME, COMPILER_VERSION_MAJOR, COMPILER_VERSION_MINOR, COMPILER_VERSION_PATCH, CompilerInfo()) << L'\n';
+		std::wcout << L"\nCompiler:\n"sv << format(FSTR(L"{0}, version {1}.{2}.{3}{4}"), COMPILER_NAME, COMPILER_VERSION_MAJOR, COMPILER_VERSION_MINOR, COMPILER_VERSION_PATCH, CompilerInfo) << L'\n';
 
 		if (const auto& ComponentsInfo = components::GetComponentsInfo(); !ComponentsInfo.empty())
 		{

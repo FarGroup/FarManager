@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-template<typename T, size_t StaticSize, REQUIRES(std::is_trivially_copyable_v<T>)>
+template<typename T, size_t MinStaticSize, REQUIRES(std::is_trivially_copyable_v<T>)>
 class array_ptr: public span<T>
 {
 public:
@@ -119,6 +119,8 @@ WARNING_POP()
 	}
 
 private:
+	constexpr static size_t StaticSize = std::max(MinStaticSize, sizeof(std::unique_ptr<T[]>) / sizeof(T));
+
 	void init_span(size_t const Size) noexcept
 	{
 		static_cast<span<T>&>(*this) = { is_dynamic(Size)? m_DynamicBuffer.get() : m_StaticBuffer.data(), Size };
@@ -189,7 +191,11 @@ public:
 	block_ptr() noexcept = default;
 
 	[[nodiscard]]
-	decltype(auto) data() const noexcept {return reinterpret_cast<T*>(char_ptr_n<Size>::data());}
+	decltype(auto) data() const noexcept
+	{
+		assert(this->size() >= sizeof(T));
+		return reinterpret_cast<T*>(char_ptr_n<Size>::data());
+	}
 
 	[[nodiscard]]
 	decltype(auto) operator->() const noexcept { return data(); }
