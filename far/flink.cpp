@@ -221,7 +221,6 @@ bool CreateReparsePoint(string_view const Target, string_view const Object, Repa
 
 			return SetREPARSE_DATA_BUFFER(Object, *rdb);
 		}
-		break;
 
 	case RP_JUNCTION:
 	case RP_VOLMOUNT:
@@ -240,7 +239,6 @@ bool CreateReparsePoint(string_view const Target, string_view const Object, Repa
 
 			return SetREPARSE_DATA_BUFFER(Object, *rdb);
 		}
-		break;
 
 	default:
 		return false;

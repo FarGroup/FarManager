@@ -181,7 +181,7 @@ namespace os
 			}
 		};
 
-		struct handle_closer 
+		struct handle_closer
 		{
 			void operator()(HANDLE Handle) const noexcept;
 		};

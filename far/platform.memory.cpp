@@ -75,7 +75,7 @@ namespace os::memory
 
 			const auto From = lock<const char*>(Ptr);
 			const auto To = lock<char*>(Memory);
-			*std::copy(From.get(), From.get() + Size, To.get());
+			std::copy(From.get(), From.get() + Size, To.get());
 
 			return Memory;
 		}

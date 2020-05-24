@@ -1,3 +1,9 @@
+drkns 24.05.2020 20:53:25 +0100 - build 5607
+
+1. New versions of fmt, tinyxml2, Catch2.
+
+2. Warnings.
+
 drkns 24.05.2020 02:04:04 +0100 - build 5606
 
 1. Correction of 5599 once more.
