@@ -55,58 +55,59 @@ class IntOption;
 class StringOption;
 
 // Элемент выпадающего списка в диалоге.
-struct FarDialogBuilderListItem
+class FarDialogBuilderListItem
 {
-	// Строчка из LNG-файла, которая будет показана в диалоге.
-	lng MessageId;
-
-	// Значение, которое будет записано в поле Value при выборе этой строчки.
-	int ItemValue;
-};
-
-// Элемент выпадающего списка в диалоге.
-struct FarDialogBuilderListItem2
-{
-	// Строчка, которая будет показана в диалоге.
-	string Text;
-
-	LISTITEMFLAGS Flags;
-
-	// Значение, которое будет записано в поле Value при выборе этой строчки.
-	int ItemValue;
-};
-
-template<class T>
-struct ListControlBinding: public DialogItemBinding<T>
-{
-	int& Value;
-	string *Text;
-	FarList *List;
-
-	ListControlBinding(int& aValue, string *aText, FarList *aList)
-		: Value(aValue), Text(aText), List(aList)
+public:
+	FarDialogBuilderListItem(lng const MessageId, int const Value, LISTITEMFLAGS Flags = LIF_NONE):
+		m_Str(MessageId),
+		m_Value(Value),
+		m_Flags(Flags)
 	{
 	}
 
-	~ListControlBinding() override
+	FarDialogBuilderListItem(string_view Str, int const Value, LISTITEMFLAGS Flags = LIF_NONE):
+		m_Str(string(Str)),
+		m_Value(Value),
+		m_Flags(Flags)
 	{
-		if (List)
-		{
-			delete [] List->Items;
-		}
-		delete List;
+	}
+
+	std::variant<string, lng> m_Str;
+	int m_Value;
+	LISTITEMFLAGS m_Flags;
+
+	const string& str() const;
+	auto value() const { return m_Value; }
+	auto flags() const { return m_Flags; }
+};
+
+template<class T, typename value_type>
+struct ListControlBinding: public DialogItemBinding<T>
+{
+	NONCOPYABLE(ListControlBinding);
+
+	value_type& m_Value;
+	std::vector<FarListItem> m_ListItems;
+	FarList m_List{sizeof(m_List)};
+
+	ListControlBinding(value_type& Value, std::vector<FarListItem>&& ListItems):
+		m_Value(Value),
+		m_ListItems(std::move(ListItems))
+	{
+		m_List.Items = m_ListItems.data();
+		m_List.ItemsNumber = m_ListItems.size();
+	}
+
+	auto list()
+	{
+		return &m_List;
 	}
 
 	void SaveValue(T *Item, int RadioGroupIndex) override
 	{
-		if (List)
+		if (!m_ListItems.empty())
 		{
-			FarListItem &ListItem = List->Items[Item->ListPos];
-			Value = ListItem.UserData;
-		}
-		if (Text)
-		{
-			*Text = Item->strData;
+			m_Value = m_ListItems[Item->ListPos].UserData;
 		}
 	}
 };
@@ -145,15 +146,11 @@ public:
 	DialogItemEx *AddConstEditField(const string& Value, int Width, FARDIALOGITEMFLAGS Flags = 0);
 
 	// Добавляет выпадающий список с указанными значениями.
-	DialogItemEx *AddComboBox(int& Value, string *Text, int Width, const FarDialogBuilderListItem *Items, size_t ItemCount, FARDIALOGITEMFLAGS Flags = DIF_NONE);
-	DialogItemEx *AddComboBox(IntOption& Value, string *Text, int Width, const FarDialogBuilderListItem *Items, size_t ItemCount, FARDIALOGITEMFLAGS Flags = DIF_NONE);
-	DialogItemEx *AddComboBox(int& Value, string *Text, int Width, const std::vector<FarDialogBuilderListItem2> &Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
-	DialogItemEx *AddComboBox(IntOption& Value, string *Text, int Width, const std::vector<FarDialogBuilderListItem2> &Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+	DialogItemEx *AddComboBox(int& Value, int Width, span<FarDialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+	DialogItemEx *AddComboBox(IntOption& Value, int Width, span<FarDialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
 
-	DialogItemEx *AddListBox(int& Value, int Width, int Height, const FarDialogBuilderListItem *Items, size_t ItemCount, FARDIALOGITEMFLAGS Flags = DIF_NONE);
-	DialogItemEx *AddListBox(IntOption& Value, int Width, int Height, const FarDialogBuilderListItem *Items, size_t ItemCount, FARDIALOGITEMFLAGS Flags = DIF_NONE);
-	DialogItemEx *AddListBox(int& Value, int Width, int Height, const std::vector<FarDialogBuilderListItem2> &Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
-	DialogItemEx *AddListBox(IntOption& Value, int Width, int Height, const std::vector<FarDialogBuilderListItem2> &Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+	DialogItemEx *AddListBox(int& Value, int Width, int Height, span<FarDialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+	DialogItemEx *AddListBox(IntOption& Value, int Width, int Height, span<FarDialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
 
 	decltype(auto) AddCheckbox(lng TextMessageId, int *Value, int Mask = 0, bool ThreeState = false)
 	{
@@ -229,16 +226,17 @@ protected:
 	DialogItemBinding<DialogItemEx> *CreateCheckBoxBinding(BoolOption& Value);
 	DialogItemBinding<DialogItemEx> *CreateRadioButtonBinding(IntOption& Value);
 
-	DialogItemEx *AddListControl(FARDIALOGITEMTYPES Type, int& Value, string *Text, int Width, int Height, const FarDialogBuilderListItem *Items, size_t ItemCount, FARDIALOGITEMFLAGS Flags = DIF_NONE);
-	DialogItemEx *AddListControl(FARDIALOGITEMTYPES Type, IntOption& Value, string *Text, int Width, int Height, const FarDialogBuilderListItem *Items, size_t ItemCount, FARDIALOGITEMFLAGS Flags = DIF_NONE);
-	DialogItemEx *AddListControl(FARDIALOGITEMTYPES Type, int& Value, string *Text, int Width, int Height, const std::vector<FarDialogBuilderListItem2> &Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
-	DialogItemEx *AddListControl(FARDIALOGITEMTYPES Type, IntOption& Value, string *Text, int Width, int Height, const std::vector<FarDialogBuilderListItem2> &Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+	DialogItemEx *AddListControl(FARDIALOGITEMTYPES Type, int& Value, int Width, int Height, span<FarDialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+	DialogItemEx *AddListControl(FARDIALOGITEMTYPES Type, IntOption& Value, int Width, int Height, span<FarDialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
 
 	const wchar_t* GetLangString(lng MessageID);
 
 private:
 	const wchar_t* GetLangString(int MessageID) override;
 	static void LinkFlagsByID(DialogItemEx *Parent, DialogItemEx* Target, FARDIALOGITEMFLAGS Flags);
+
+	template<typename value_type>
+	DialogItemEx* AddListControlImpl(FARDIALOGITEMTYPES Type, value_type& Value, int Width, int Height, span<FarDialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags);
 
 	string m_HelpTopic;
 	DWORD m_Mode{};

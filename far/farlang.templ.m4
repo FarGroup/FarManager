@@ -14637,7 +14637,7 @@ MInfoNetwork
 "Sieťový"
 "Rete"
 "Мережевий"
-"Сеткавыя"
+"Сеткавы"
 
 MInfoCDROM
 "CD-ROM"
@@ -16888,13 +16888,13 @@ MChangeDriveFixed
 MChangeDriveNetwork
 "сетевой"
 "network"
-"síťová"
+"síťový"
 "Netzwerk"
 "hálózati"
 "sieciowy"
 "Red"
 "sieťový"
-"Coll. Rete"
+"Rete"
 "мережевий"
 "сеткавы"
 
@@ -18028,17 +18028,17 @@ MSetAttrVolMount
 "Дыск:"
 
 MSetAttrDfsTargets
-"DFS цели"
-"DFS Targets"
-"DFS cíly"
-"DFS Ziele"
-upd:"DFS Targets"
-"Cel DFS"
-"DFS Destinos"
-"DFS ciele"
-"Destinazioni DFS"
-"DFS признач."
-"DFS мэты"
+"DFS цели:"
+"DFS Targets:"
+"DFS cíly:"
+"DFS Ziele:"
+upd:"DFS Targets:"
+"Cel DFS:"
+"DFS Destinos:"
+"DFS ciele:"
+"Destinazioni DFS:"
+"DFS цілі:"
+"DFS мэты:"
 
 MSetAttrUnknownReparsePoint
 "(нет данных)"

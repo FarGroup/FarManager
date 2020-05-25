@@ -197,7 +197,7 @@ void Options::SystemSettings()
 		{ lng::MConfigSortingLinguistic, as_underlying_type(SortingOptions::collation::linguistic) },
 	};
 
-	const auto SortingMethodsComboBox = Builder.AddComboBox(Sort.Collation, nullptr, 20, SortingMethods, std::size(SortingMethods), DIF_LISTAUTOHIGHLIGHT | DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
+	const auto SortingMethodsComboBox = Builder.AddComboBox(Sort.Collation, 20, SortingMethods);
 	Builder.AddTextBefore(SortingMethodsComboBox, lng::MConfigSortingCollation);
 	Builder.AddCheckbox(lng::MConfigSortingDigitsAsNumbers, Sort.DigitsAsNumbers)->Indent(4);
 	Builder.AddCheckbox(lng::MConfigSortingCase, Sort.CaseSensitive)->Indent(4);
@@ -342,18 +342,15 @@ void Options::InterfaceSettings()
 	const auto SetIconCheck = Builder.AddCheckbox(lng::MConfigSetConsoleIcon, SetIcon);
 	Builder.ColumnBreak();
 
-	std::vector<FarDialogBuilderListItem2> IconIndices(consoleicons::instance().size());
+	std::vector<FarDialogBuilderListItem> IconIndices;
+	IconIndices.reserve(consoleicons::instance().size());
+
+	for (size_t i = 0, size = consoleicons::instance().size(); i != size; ++i)
 	{
-		int Index = 0;
-		for (auto& i: IconIndices)
-		{
-			i.Text = str(Index);
-			i.ItemValue = Index;
-			++Index;
-		}
+		IconIndices.emplace_back(str(i), static_cast<int>(i));
 	}
 
-	const auto IconIndexEdit = Builder.AddComboBox(IconIndex, nullptr, 0, IconIndices, DIF_LISTAUTOHIGHLIGHT | DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
+	const auto IconIndexEdit = Builder.AddComboBox(IconIndex, 0, IconIndices);
 	Builder.EndColumns();
 	Builder.LinkFlags(SetIconCheck, IconIndexEdit, DIF_DISABLE);
 	const auto SetAdminIconCheck = Builder.AddCheckbox(lng::MConfigSetAdminConsoleIcon, SetAdminIcon);
@@ -422,9 +419,9 @@ void Options::InfoPanelSettings()
 	Builder.AddCheckbox(lng::MConfigInfoPanelShowPowerStatus, InfoPanel.ShowPowerStatus);
 	Builder.AddCheckbox(lng::MConfigInfoPanelShowCDInfo, InfoPanel.ShowCDInfo);
 	Builder.AddText(lng::MConfigInfoPanelCNTitle);
-	Builder.AddComboBox(InfoPanel.ComputerNameFormat, nullptr, 50, CNListItems, std::size(CNListItems), DIF_LISTAUTOHIGHLIGHT | DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
+	Builder.AddComboBox(InfoPanel.ComputerNameFormat, 50, CNListItems);
 	Builder.AddText(lng::MConfigInfoPanelUNTitle);
-	Builder.AddComboBox(InfoPanel.UserNameFormat, nullptr, 50, UNListItems, std::size(UNListItems), DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
+	Builder.AddComboBox(InfoPanel.UserNameFormat, 50, UNListItems);
 	Builder.AddOKCancel();
 
 	if (Builder.ShowDialog())
@@ -671,7 +668,7 @@ void Options::VMenuSettings()
 	for (const auto& [LngId, OptPtr]: DialogItems)
 	{
 		Builder.AddText(LngId);
-		Builder.AddComboBox(std::invoke(OptPtr, VMenu), nullptr, 40, CAListItems, std::size(CAListItems), DIF_LISTAUTOHIGHLIGHT | DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
+		Builder.AddComboBox(std::invoke(OptPtr, VMenu), 40, CAListItems);
 	}
 
 	Builder.AddOKCancel();
@@ -806,7 +803,7 @@ void Options::ViewerConfig(Options::ViewerOptions &ViOptRef, bool Local)
 		return Dlg->DefProc(Msg, Param1, Param2);
 	});
 
-	std::vector<FarDialogBuilderListItem2> Items; //Must live until Dialog end
+	std::vector<FarDialogBuilderListItem> Items; //Must live until Dialog end
 
 	if (!Local)
 	{
@@ -844,7 +841,7 @@ void Options::ViewerConfig(Options::ViewerOptions &ViOptRef, bool Local)
 		Builder.EndColumns();
 		Builder.AddText(lng::MViewConfigDefaultCodePage);
 		codepages::instance().FillCodePagesList(Items, false, false, false, false, true);
-		Builder.AddComboBox(ViOpt.DefaultCodePage, nullptr, 64, Items, DIF_LISTAUTOHIGHLIGHT | DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
+		Builder.AddComboBox(ViOpt.DefaultCodePage, 64, Items);
 	}
 
 	Builder.AddOKCancel();
@@ -856,7 +853,7 @@ void Options::EditorConfig(Options::EditorOptions &EdOptRef, bool Local)
 {
 	DialogBuilder Builder(lng::MEditConfigTitle, L"EditorSettings"sv);
 
-	std::vector<FarDialogBuilderListItem2> Items; //Must live until Dialog end
+	std::vector<FarDialogBuilderListItem> Items; //Must live until Dialog end
 
 	if (!Local)
 	{
@@ -873,7 +870,7 @@ void Options::EditorConfig(Options::EditorOptions &EdOptRef, bool Local)
 		{ lng::MEditConfigExpandTabs, EXPAND_NEWTABS },
 		{ lng::MEditConfigConvertAllTabsToSpaces, EXPAND_ALLTABS }
 	};
-	Builder.AddComboBox(EdOptRef.ExpandTabs, nullptr, 64, ExpandTabsItems, std::size(ExpandTabsItems), DIF_LISTAUTOHIGHLIGHT | DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
+	Builder.AddComboBox(EdOptRef.ExpandTabs, 64, ExpandTabsItems);
 
 	Builder.StartColumns();
 	Builder.AddCheckbox(lng::MEditConfigPersistentBlocks, EdOptRef.PersistentBlocks);
@@ -900,7 +897,7 @@ void Options::EditorConfig(Options::EditorOptions &EdOptRef, bool Local)
 		Builder.AddCheckbox(lng::MEditAutoDetectCodePage, EdOpt.AutoDetectCodePage);
 		Builder.AddText(lng::MEditConfigDefaultCodePage);
 		codepages::instance().FillCodePagesList(Items, false, false, false, false, false);
-		Builder.AddComboBox(EdOpt.DefaultCodePage, nullptr, 64, Items, DIF_LISTAUTOHIGHLIGHT | DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
+		Builder.AddComboBox(EdOpt.DefaultCodePage, 64, Items);
 	}
 
 	Builder.AddOKCancel();

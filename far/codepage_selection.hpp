@@ -60,7 +60,7 @@ enum
 };
 
 class Dialog;
-struct FarDialogBuilderListItem2;
+class FarDialogBuilderListItem;
 class VMenu2;
 enum CodePagesCallbackCallSource: int;
 
@@ -74,7 +74,7 @@ public:
 
 	bool SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool ViewOnly, bool bShowAutoDetect);
 	size_t FillCodePagesList(Dialog* Dlg, size_t controlId, uintptr_t codePage, bool allowAuto, bool allowAll, bool allowDefault, bool allowChecked, bool bViewOnly);
-	void FillCodePagesList(std::vector<FarDialogBuilderListItem2> &List, bool allowAuto, bool allowAll, bool allowDefault, bool allowChecked, bool bViewOnly);
+	void FillCodePagesList(std::vector<FarDialogBuilderListItem> &List, bool allowAuto, bool allowAll, bool allowDefault, bool allowChecked, bool bViewOnly);
 
 	static bool IsCodePageSupported(uintptr_t CodePage, size_t MaxCharSize = size_t(-1));
 	static void FormatCodePageName(uintptr_t CodePage, string& CodePageName);
@@ -119,7 +119,7 @@ private:
 
 	Dialog* dialog;
 	size_t control;
-	std::vector<FarDialogBuilderListItem2> *DialogBuilderList;
+	std::vector<FarDialogBuilderListItem> *DialogBuilderList;
 	vmenu2_ptr CodePagesMenu;
 	uintptr_t currentCodePage;
 	int favoriteCodePages, normalCodePages;

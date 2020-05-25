@@ -63,7 +63,7 @@ bool CreateVolumeMountPoint(string_view TargetVolume, const string& Object);
 
 bool CreateReparsePoint(string_view Target, string_view Object, ReparsePointTypes Type = RP_JUNCTION);
 bool DeleteReparsePoint(string_view Object);
-bool ModifyReparsePoint(string_view Object, string_view NewData);
+bool ModifyReparsePoint(string_view Object, string_view Target);
 
 bool GetReparsePointInfo(string_view Object, string &DestBuffer,LPDWORD ReparseTag=nullptr);
 

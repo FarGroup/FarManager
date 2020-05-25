@@ -896,21 +896,20 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 
 			if ((SingleSelFindData.Attributes != INVALID_FILE_ATTRIBUTES && (SingleSelFindData.Attributes & FILE_ATTRIBUTE_REPARSE_POINT)) || IsMountPoint)
 			{
+				auto ID_Msg = IsMountPoint? lng::MSetAttrVolMount : lng::MSetAttrSymlink;
 				DWORD ReparseTag = SingleSelFindData.ReparseTag;
-				DWORD ReparseTagAlternative = 0;
 				bool KnownReparsePoint = false;
 				if (!DlgParam.Plugin)
 				{
 					if (IsMountPoint)
 					{
 						// BUGBUG, cheating
-						KnownReparsePoint = true;
 						ReparseTag = IO_REPARSE_TAG_MOUNT_POINT;
-						// BUGBUG check result
-						(void)os::fs::GetVolumeNameForVolumeMountPoint(SingleSelFileName, strLinkName);
+						KnownReparsePoint = os::fs::GetVolumeNameForVolumeMountPoint(SingleSelFileName, strLinkName);
 					}
 					else
 					{
+						DWORD ReparseTagAlternative = 0;
 						KnownReparsePoint = GetReparsePointInfo(SingleSelFileName, strLinkName, &ReparseTagAlternative);
 						if (ReparseTagAlternative && !ReparseTag)
 						{
@@ -969,9 +968,8 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 
 				LinkPresent=true;
 				NormalizeSymlinkName(strLinkName);
-				auto ID_Msg = lng::MSetAttrSymlink;
 
-				if (ReparseTag==IO_REPARSE_TAG_MOUNT_POINT)
+				if (!IsMountPoint && ReparseTag==IO_REPARSE_TAG_MOUNT_POINT)
 				{
 					bool Root;
 					if(ParsePath(strLinkName, nullptr, &Root) == root_type::volume && Root)
@@ -989,11 +987,14 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 
 				AttrDlg[SA_TEXT_SYMLINK].Flags &= ~DIF_HIDDEN;
 				AttrDlg[SA_TEXT_SYMLINK].strData = msg(ID_Msg);
+
 				if (ReparseTag != IO_REPARSE_TAG_DFS)
 					AttrDlg[SA_EDIT_SYMLINK].Flags &= ~DIF_HIDDEN;
+
 				AttrDlg[SA_EDIT_SYMLINK].strData = strLinkName;
-				if (ReparseTag == IO_REPARSE_TAG_DEDUP)
-					AttrDlg[SA_EDIT_SYMLINK].Flags |= DIF_DISABLE;
+
+				if (IsMountPoint || ReparseTag == IO_REPARSE_TAG_DEDUP)
+					AttrDlg[SA_EDIT_SYMLINK].Flags |= DIF_READONLY;
 			}
 
 			// обработка случая "несколько хардлинков"

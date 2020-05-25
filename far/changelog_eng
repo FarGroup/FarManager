@@ -1,3 +1,11 @@
+drkns 25.05.2020 16:27:26 +0100 - build 5608
+
+1. Incorrect symlink creation.
+
+2. Incorrect display of network drives in attributes dialog.
+
+3. Refactoring. Removed a lot of copy-paste.
+
 drkns 24.05.2020 20:53:25 +0100 - build 5607
 
 1. New versions of fmt, tinyxml2, Catch2.

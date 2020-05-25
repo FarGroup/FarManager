@@ -196,43 +196,6 @@ public:
 };
 
 template<class T>
-struct FarListControlBinding: public DialogItemBinding<DialogItemEx>
-{
-private:
-	T& Value;
-	string *Text;
-	FarList *List;
-
-public:
-	FarListControlBinding(T& aValue, string *aText, FarList *aList)
-		: Value(aValue), Text(aText), List(aList)
-	{
-	}
-
-	~FarListControlBinding() override
-	{
-		if (List)
-		{
-			delete [] List->Items;
-		}
-		delete List;
-	}
-
-	void SaveValue(DialogItemEx *Item, int RadioGroupIndex) override
-	{
-		if (List)
-		{
-			FarListItem &ListItem = List->Items[Item->ListPos];
-			Value = ListItem.UserData;
-		}
-		if (Text)
-		{
-			*Text = Item->strData;
-		}
-	}
-};
-
-template<class T>
 struct FarRadioButtonBinding: public DialogItemBinding<DialogItemEx>
 {
 private:
@@ -254,6 +217,22 @@ static bool IsEditField(DialogItemEx *Item)
 	return Item->Type == DI_EDIT || Item->Type == DI_FIXEDIT || Item->Type == DI_PSWEDIT;
 }
 */
+
+const string& FarDialogBuilderListItem::str() const
+{
+	return std::visit(overload
+	{
+		[](lng Id) -> const string&
+		{
+			return msg(Id);
+		},
+		[](string const& Str) -> const string&
+		{
+			return Str;
+		}
+	},
+	m_Str);
+}
 
 DialogBuilder::DialogBuilder(const lng TitleMessageId, const string_view HelpTopic, const Dialog::dialog_handler handler):
 	m_HelpTopic(HelpTopic),
@@ -432,9 +411,10 @@ DialogItemEx *DialogBuilder::AddHexEditField(IntOption& Value, int Width)
 	return Item;
 }
 
-DialogItemEx *DialogBuilder::AddListControl(FARDIALOGITEMTYPES Type, int& Value, string *Text, int Width, int Height, const FarDialogBuilderListItem *Items, size_t ItemCount, FARDIALOGITEMFLAGS Flags)
+template<typename value_type>
+DialogItemEx *DialogBuilder::AddListControlImpl(FARDIALOGITEMTYPES Type, value_type& Value, int Width, int Height, span<FarDialogBuilderListItem const> const Items, FARDIALOGITEMFLAGS Flags)
 {
-	const auto Item = AddDialogItem(Type, Text ? Text->c_str() : L"");
+	const auto Item = AddDialogItem(Type, L"");
 	SetNextY(Item);
 	Item->X2 = Item->X1 + Width;
 	Item->Y2 = Item->Y1 + Height;
@@ -442,156 +422,52 @@ DialogItemEx *DialogBuilder::AddListControl(FARDIALOGITEMTYPES Type, int& Value,
 
 	m_NextY += Height;
 
-	const auto ListItems = Items? new FarListItem[ItemCount] : nullptr;
-	if (Items)
-	{
-		std::transform(Items, Items + ItemCount, ListItems, [&Value](const auto& i)
-		{
-			FarListItem NewItem = {};
-			NewItem.Text = msg(static_cast<lng>(i.MessageId)).c_str();
-			NewItem.Flags = (Value == i.ItemValue)? LIF_SELECTED : 0;
-			NewItem.UserData = i.ItemValue;
-			return NewItem;
-		});
-	}
-	const auto List = new FarList;
-	List->StructSize = sizeof(FarList);
-	List->Items = ListItems;
-	List->ItemsNumber = ItemCount;
-	Item->ListItems = List;
+	std::vector<FarListItem> ListItems;
+	ListItems.reserve(Items.size());
 
-	SetLastItemBinding(new ListControlBinding<DialogItemEx>(Value, Text, List));
-	return Item;
-}
-
-DialogItemEx *DialogBuilder::AddListControl(FARDIALOGITEMTYPES Type, IntOption& Value, string *Text, int Width, int Height, const FarDialogBuilderListItem *Items, size_t ItemCount, FARDIALOGITEMFLAGS Flags)
-{
-	const auto Item = AddDialogItem(Type, Text ? Text->c_str() : L"");
-	SetNextY(Item);
-	Item->X2 = Item->X1 + Width;
-	Item->Y2 = Item->Y1 + Height;
-	Item->Flags |= Flags;
-
-	m_NextY += Height;
-
-	const auto ListItems = Items? new FarListItem[ItemCount] : nullptr;
-	if (Items)
-	{
-		std::transform(Items, Items + ItemCount, ListItems, [&Value](const auto& i)
-		{
-			FarListItem NewItem = {};
-			NewItem.Text = msg(static_cast<lng>(i.MessageId)).c_str();
-			NewItem.Flags = (Value == i.ItemValue)? LIF_SELECTED : 0;
-			NewItem.UserData = i.ItemValue;
-			return NewItem;
-		});
-	}
-	const auto List = new FarList;
-	List->StructSize = sizeof(FarList);
-	List->Items = ListItems;
-	List->ItemsNumber = ItemCount;
-	Item->ListItems = List;
-
-	SetLastItemBinding(new FarListControlBinding<IntOption>(Value, Text, List));
-	return Item;
-}
-
-DialogItemEx *DialogBuilder::AddListControl(FARDIALOGITEMTYPES Type, int& Value, string *Text, int Width, int Height, const std::vector<FarDialogBuilderListItem2> &Items, FARDIALOGITEMFLAGS Flags)
-{
-	const auto Item = AddDialogItem(Type, Text ? Text->c_str() : L"");
-	SetNextY(Item);
-	Item->X2 = Item->X1 + Width;
-	Item->Y2 = Item->Y1 + Height;
-	Item->Flags |= DIF_DROPDOWNLIST|Flags;
-
-	m_NextY += Height;
-
-	const auto ListItems = new FarListItem[Items.size()];
-	std::transform(ALL_CONST_RANGE(Items), ListItems, [&Value](const auto& i)
+	std::transform(ALL_CONST_RANGE(Items), std::back_inserter(ListItems), [&Value](const FarDialogBuilderListItem& i)
 	{
 		FarListItem NewItem = {};
-		NewItem.Text = i.Text.c_str();
-		NewItem.Flags = i.Flags | ((Value == i.ItemValue)? LIF_SELECTED : 0);
-		NewItem.UserData = i.ItemValue;
+		NewItem.Text = i.str().c_str();
+		NewItem.Flags = Value == i.value()? LIF_SELECTED : 0;
+		NewItem.UserData = i.value();
 		return NewItem;
 	});
-	const auto List = new FarList;
-	List->StructSize = sizeof(FarList);
-	List->Items = ListItems;
-	List->ItemsNumber = Items.size();
-	Item->ListItems = List;
 
-	SetLastItemBinding(new ListControlBinding<DialogItemEx>(Value, Text, List));
+	const auto Binding = new ListControlBinding<DialogItemEx, value_type>(Value, std::move(ListItems));
+	Item->ListItems = Binding->list();
+	SetLastItemBinding(Binding);
 	return Item;
 }
 
-DialogItemEx *DialogBuilder::AddListControl(FARDIALOGITEMTYPES Type, IntOption& Value, string *Text, int Width, int Height, const std::vector<FarDialogBuilderListItem2> &Items, FARDIALOGITEMFLAGS Flags)
+DialogItemEx *DialogBuilder::AddListControl(FARDIALOGITEMTYPES Type, int& Value, int Width, int Height, span<FarDialogBuilderListItem const> const Items, FARDIALOGITEMFLAGS Flags)
 {
-	const auto Item = AddDialogItem(Type, Text ? Text->c_str() : L"");
-	SetNextY(Item);
-	Item->X2 = Item->X1 + Width;
-	Item->Y2 = Item->Y1 + Height;
-	Item->Flags |= DIF_DROPDOWNLIST|Flags;
-
-	m_NextY += Height;
-
-	const auto ListItems = new FarListItem[Items.size()];
-	std::transform(ALL_CONST_RANGE(Items), ListItems, [&Value](const auto& i)
-	{
-		FarListItem NewItem = {};
-		NewItem.Text = i.Text.c_str();
-		NewItem.Flags = i.Flags | ((Value == i.ItemValue)? LIF_SELECTED : 0);
-		NewItem.UserData = i.ItemValue;
-		return NewItem;
-	});
-	const auto List = new FarList;
-	List->StructSize = sizeof(FarList);
-	List->Items = ListItems;
-	List->ItemsNumber = Items.size();
-	Item->ListItems = List;
-
-	SetLastItemBinding(new FarListControlBinding<IntOption>(Value, Text, List));
-	return Item;
+	return AddListControlImpl(Type, Value, Width, Height, Items, Flags);
 }
 
-DialogItemEx *DialogBuilder::AddComboBox(int& Value, string *Text, int Width, const FarDialogBuilderListItem *Items, size_t ItemCount, FARDIALOGITEMFLAGS Flags)
+DialogItemEx *DialogBuilder::AddListControl(FARDIALOGITEMTYPES Type, IntOption& Value, int Width, int Height, span<FarDialogBuilderListItem const> const Items, FARDIALOGITEMFLAGS Flags)
 {
-	return AddListControl(DI_COMBOBOX, Value, Text, Width, 0, Items, ItemCount, Flags);
+	return AddListControlImpl(Type, Value, Width, Height, Items, Flags);
 }
 
-DialogItemEx *DialogBuilder::AddComboBox(IntOption& Value, string *Text, int Width, const FarDialogBuilderListItem *Items, size_t ItemCount, FARDIALOGITEMFLAGS Flags)
+DialogItemEx *DialogBuilder::AddComboBox(int& Value, int Width, span<FarDialogBuilderListItem const> const Items, FARDIALOGITEMFLAGS Flags)
 {
-	return AddListControl(DI_COMBOBOX, Value, Text, Width, 0, Items, ItemCount, Flags);
+	return AddListControl(DI_COMBOBOX, Value, Width, 0, Items, Flags | DIF_DROPDOWNLIST | DIF_LISTAUTOHIGHLIGHT);
 }
 
-DialogItemEx *DialogBuilder::AddComboBox(int& Value, string *Text, int Width, const std::vector<FarDialogBuilderListItem2> &Items, FARDIALOGITEMFLAGS Flags)
+DialogItemEx *DialogBuilder::AddComboBox(IntOption& Value, int Width, span<FarDialogBuilderListItem const> const Items, FARDIALOGITEMFLAGS Flags)
 {
-	return AddListControl(DI_COMBOBOX, Value, Text, Width, 0, Items, Flags);
+	return AddListControl(DI_COMBOBOX, Value, Width, 0, Items, Flags | DIF_DROPDOWNLIST | DIF_LISTAUTOHIGHLIGHT);
 }
 
-DialogItemEx *DialogBuilder::AddComboBox(IntOption& Value, string *Text, int Width, const std::vector<FarDialogBuilderListItem2> &Items, FARDIALOGITEMFLAGS Flags)
+DialogItemEx *DialogBuilder::AddListBox(int& Value, int Width, int Height, span<FarDialogBuilderListItem const> const Items, FARDIALOGITEMFLAGS Flags)
 {
-	return AddListControl(DI_COMBOBOX, Value, Text, Width, 0, Items, Flags);
+	return AddListControl(DI_LISTBOX, Value, Width, Height, Items, Flags | DIF_LISTWRAPMODE | DIF_LISTAUTOHIGHLIGHT);
 }
 
-DialogItemEx *DialogBuilder::AddListBox(int& Value, int Width, int Height, const FarDialogBuilderListItem *Items, size_t ItemCount, FARDIALOGITEMFLAGS Flags)
+DialogItemEx *DialogBuilder::AddListBox(IntOption& Value, int Width, int Height, span<FarDialogBuilderListItem const> const Items, FARDIALOGITEMFLAGS Flags)
 {
-	return AddListControl(DI_LISTBOX, Value, nullptr, Width, Height, Items, ItemCount, Flags);
-}
-
-DialogItemEx *DialogBuilder::AddListBox(IntOption& Value, int Width, int Height, const FarDialogBuilderListItem *Items, size_t ItemCount, FARDIALOGITEMFLAGS Flags)
-{
-	return AddListControl(DI_LISTBOX, Value, nullptr, Width, Height, Items, ItemCount, Flags);
-}
-
-DialogItemEx *DialogBuilder::AddListBox(int& Value, int Width, int Height, const std::vector<FarDialogBuilderListItem2> &Items, FARDIALOGITEMFLAGS Flags)
-{
-	return AddListControl(DI_LISTBOX, Value, nullptr, Width, Height, Items, Flags);
-}
-
-DialogItemEx *DialogBuilder::AddListBox(IntOption& Value, int Width, int Height, const std::vector<FarDialogBuilderListItem2> &Items, FARDIALOGITEMFLAGS Flags)
-{
-	return AddListControl(DI_LISTBOX, Value, nullptr, Width, Height, Items, Flags);
+	return AddListControl(DI_LISTBOX, Value, Width, Height, Items, Flags | DIF_LISTWRAPMODE | DIF_LISTAUTOHIGHLIGHT);
 }
 
 DialogItemEx *DialogBuilder::AddCheckbox(lng TextMessageId, Bool3Option& Value)

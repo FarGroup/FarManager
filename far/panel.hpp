@@ -146,7 +146,6 @@ enum sort_order
 
 class VMenu2;
 class Edit;
-struct PanelMenuItem;
 class Viewer;
 class FilePanels;
 

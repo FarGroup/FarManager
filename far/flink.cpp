@@ -172,6 +172,54 @@ static bool SetREPARSE_DATA_BUFFER(const string_view Object, REPARSE_DATA_BUFFER
 	return false;
 }
 
+static bool PrepareAndSetREPARSE_DATA_BUFFER(REPARSE_DATA_BUFFER& rdb, string_view const Object, string_view const Target)
+{
+	switch (rdb.ReparseTag)
+	{
+	case IO_REPARSE_TAG_MOUNT_POINT:
+		{
+			const auto PrintName = ConvertNameToFull(Target);
+			const auto SubstituteName = KernelPath(NTPath(PrintName));
+			if (!FillREPARSE_DATA_BUFFER(rdb, PrintName, SubstituteName))
+			{
+				SetLastError(ERROR_INSUFFICIENT_BUFFER);
+				return false;
+			}
+		}
+		break;
+
+	case IO_REPARSE_TAG_SYMLINK:
+		{
+			const auto PrintName = Target;
+			auto SubstituteName = Target;
+			string SubstituteNameBuffer;
+
+			if (IsAbsolutePath(Target))
+			{
+				SubstituteNameBuffer = KernelPath(NTPath(SubstituteName));
+				SubstituteName = SubstituteNameBuffer;
+				rdb.SymbolicLinkReparseBuffer.Flags = 0;
+			}
+			else
+			{
+				rdb.SymbolicLinkReparseBuffer.Flags = SYMLINK_FLAG_RELATIVE;
+			}
+
+			if (!FillREPARSE_DATA_BUFFER(rdb, PrintName, SubstituteName))
+			{
+				SetLastError(ERROR_INSUFFICIENT_BUFFER);
+				return false;
+			}
+		}
+		break;
+
+	default:
+		return false;
+	}
+
+	return SetREPARSE_DATA_BUFFER(Object, rdb);
+}
+
 bool CreateReparsePoint(string_view const Target, string_view const Object, ReparsePointTypes Type)
 {
 	switch (Type)
@@ -198,46 +246,16 @@ bool CreateReparsePoint(string_view const Target, string_view const Object, Repa
 				return false;
 
 			const block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
-			rdb->ReparseTag=IO_REPARSE_TAG_SYMLINK;
-
-			const auto& strPrintName = Target;
-			auto strSubstituteName = Target;
-
-			if (IsAbsolutePath(Target))
-			{
-				strSubstituteName = KernelPath(NTPath(strSubstituteName));
-				rdb->SymbolicLinkReparseBuffer.Flags = 0;
-			}
-			else
-			{
-				rdb->SymbolicLinkReparseBuffer.Flags = SYMLINK_FLAG_RELATIVE;
-			}
-
-			if (!FillREPARSE_DATA_BUFFER(*rdb, strPrintName, strSubstituteName))
-			{
-				SetLastError(ERROR_INSUFFICIENT_BUFFER);
-				return false;
-			}
-
-			return SetREPARSE_DATA_BUFFER(Object, *rdb);
+			rdb->ReparseTag = IO_REPARSE_TAG_SYMLINK;
+			return PrepareAndSetREPARSE_DATA_BUFFER(*rdb, Object, Target);
 		}
 
 	case RP_JUNCTION:
 	case RP_VOLMOUNT:
 		{
-			const auto strPrintName = ConvertNameToFull(Target);
-			const auto strSubstituteName = KernelPath(NTPath(strPrintName));
-
 			const block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
-			rdb->ReparseTag=IO_REPARSE_TAG_MOUNT_POINT;
-
-			if (!FillREPARSE_DATA_BUFFER(*rdb, strPrintName, strSubstituteName))
-			{
-				SetLastError(ERROR_INSUFFICIENT_BUFFER);
-				return false;
-			}
-
-			return SetREPARSE_DATA_BUFFER(Object, *rdb);
+			rdb->ReparseTag = IO_REPARSE_TAG_MOUNT_POINT;
+			return PrepareAndSetREPARSE_DATA_BUFFER(*rdb, Object, Target);
 		}
 
 	default:
@@ -457,54 +475,10 @@ string GetPathRoot(string_view const Path)
 	return ExtractPathRoot(ConvertNameToReal(Path));
 }
 
-bool ModifyReparsePoint(string_view const Object, string_view const NewData)
+bool ModifyReparsePoint(string_view const Object, string_view const Target)
 {
 	const block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
-	if (!GetREPARSE_DATA_BUFFER(Object, *rdb))
-		return false;
-
-	switch (rdb->ReparseTag)
-	{
-	case IO_REPARSE_TAG_MOUNT_POINT:
-		{
-			const auto strPrintName = ConvertNameToFull(NewData);
-			const auto strSubstituteName = KernelPath(NTPath(strPrintName));
-			if (!FillREPARSE_DATA_BUFFER(*rdb, strPrintName, strSubstituteName))
-			{
-				SetLastError(ERROR_INSUFFICIENT_BUFFER);
-				return false;
-			}
-		}
-		break;
-
-	case IO_REPARSE_TAG_SYMLINK:
-		{
-			const auto& strPrintName = NewData;
-			auto strSubstituteName = NewData;
-
-			if (IsAbsolutePath(NewData))
-			{
-				strSubstituteName = KernelPath(NTPath(strSubstituteName));
-				rdb->SymbolicLinkReparseBuffer.Flags=0;
-			}
-			else
-			{
-				rdb->SymbolicLinkReparseBuffer.Flags=SYMLINK_FLAG_RELATIVE;
-			}
-
-			if (!FillREPARSE_DATA_BUFFER(*rdb, strPrintName, strSubstituteName))
-			{
-				SetLastError(ERROR_INSUFFICIENT_BUFFER);
-				return false;
-			}
-		}
-		break;
-
-	default:
-		return false;
-	}
-
-	return SetREPARSE_DATA_BUFFER(Object, *rdb);
+	return GetREPARSE_DATA_BUFFER(Object, *rdb) && PrepareAndSetREPARSE_DATA_BUFFER(*rdb, Object, Target);
 }
 
 bool DuplicateReparsePoint(string_view const Src, string_view const Dst)
