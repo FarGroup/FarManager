@@ -1,3 +1,11 @@
+drkns 26.05.2020 08:45:08 +0100 - build 5610
+
+1. Correction of 5608.
+
+svs 26.05.2020 10:38:50 +0300 - build 5609
+
+1. SQLite 3.32.0
+
 drkns 25.05.2020 16:27:26 +0100 - build 5608
 
 1. Incorrect symlink creation.

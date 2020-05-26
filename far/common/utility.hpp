@@ -234,7 +234,7 @@ constexpr decltype(auto) visit_if(callable&& Callable, variant&& Variant)
 	return std::visit(overload
 	{
 		FWD(Callable),
-		[](auto&&...){}
+		[](const auto&...){}
 	},
 	FWD(Variant));
 }
