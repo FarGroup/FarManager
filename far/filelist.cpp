@@ -5198,7 +5198,7 @@ void FileList::UpdateKeyBar()
 
 bool FileList::PluginPanelHelp(const plugin_panel* hPlugin) const
 {
-	auto strPath = hPlugin->plugin()->ModuleName();
+	string_view strPath = hPlugin->plugin()->ModuleName();
 	CutToSlash(strPath);
 	const auto [File, Name, Codepage] = OpenLangFile(strPath, Global->HelpFileMask, Global->Opt->strHelpLanguage);
 	if (!File)

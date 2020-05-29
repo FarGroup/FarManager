@@ -1,3 +1,15 @@
+drkns 29.05.2020 18:57:47 +0100 - build 5612
+
+1. File descriptions weren't removed in some cases.
+
+2. Refactoring.
+
+3. Warnings.
+
+svs 27.05.2020 21:30:18 +0300 - build 5611
+
+1. SQLite 3.32.1
+
 drkns 26.05.2020 08:45:08 +0100 - build 5610
 
 1. Correction of 5608.

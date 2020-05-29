@@ -37,6 +37,8 @@ environment:
     ADD_MAKE: DIRBIT=64
 
 build_script:
+  #print version
+  - gcc --version
   #build Far
   - cd far
   - set FARMANAGER_BUILD_TYPE=VS_RELEASE

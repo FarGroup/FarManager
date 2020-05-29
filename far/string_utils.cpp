@@ -224,6 +224,36 @@ TEST_CASE("string.eols")
 	}
 }
 
+TEST_CASE("string.traits")
+{
+	REQUIRE(is_alpha(L'A'));
+	REQUIRE(!is_alpha(L'1'));
+
+	REQUIRE(is_alphanumeric(L'0'));
+	REQUIRE(!is_alphanumeric(L'?'));
+
+	REQUIRE(is_upper(L'A'));
+	REQUIRE(!is_upper(L'a'));
+
+	REQUIRE(is_lower(L'a'));
+	REQUIRE(!is_lower(L'A'));
+}
+
+TEST_CASE("string.case")
+{
+	REQUIRE(upper(L'a') == L'A');
+	REQUIRE(upper(L'A') == L'A');
+
+	REQUIRE(upper(L"foo"sv) == L"FOO"sv);
+	REQUIRE(upper(L"FOO"sv) == L"FOO"sv);
+
+	REQUIRE(lower(L'A') == L'a');
+	REQUIRE(lower(L'a') == L'a');
+
+	REQUIRE(lower(L"FOO"sv) == L"foo"sv);
+	REQUIRE(lower(L"foo"sv) == L"foo"sv);
+}
+
 TEST_CASE("string.utils")
 {
 	for (const auto& i: GetSpaces())

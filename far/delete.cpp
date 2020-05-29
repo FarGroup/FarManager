@@ -93,7 +93,7 @@ struct total_items
 class ShellDelete : noncopyable
 {
 public:
-	ShellDelete(panel_ptr SrcPanel, delete_type Type, bool UpdateDiz);
+	ShellDelete(panel_ptr SrcPanel, delete_type Type);
 
 	struct progress
 	{
@@ -718,11 +718,18 @@ void ShellDelete::process_item(
 
 }
 
-ShellDelete::ShellDelete(panel_ptr SrcPanel, delete_type const Type, bool const UpdateDiz):
+ShellDelete::ShellDelete(panel_ptr SrcPanel, delete_type const Type):
 	m_DeleteFolders(!Global->Opt->Confirm.DeleteFolder),
-	m_UpdateDiz(UpdateDiz),
+	m_UpdateDiz(Global->Opt->Diz.UpdateMode == DIZ_UPDATE_ALWAYS || (SrcPanel->IsDizDisplayed() && Global->Opt->Diz.UpdateMode == DIZ_UPDATE_IF_DISPLAYED)),
 	m_DeleteType(Type)
 {
+	if (m_UpdateDiz)
+		SrcPanel->ReadDiz();
+
+	const auto strDizName = SrcPanel->GetDizName();
+	const auto CheckDiz = [&] { return !strDizName.empty() && os::fs::exists(strDizName); };
+	const auto DizPresent = CheckDiz();
+
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<DelPreRedrawItem>());
 
 	const auto SelCount = SrcPanel->GetSelCount();
@@ -742,6 +749,9 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, delete_type const Type, bool const 
 
 	SCOPE_EXIT
 	{
+		if (m_UpdateDiz && DizPresent == CheckDiz())
+			SrcPanel->FlushDiz();
+
 		ShellUpdatePanels(SrcPanel, NeedSetUpADir);
 	};
 
@@ -1156,24 +1166,12 @@ bool delayed_deleter::any() const
 
 void Delete(const panel_ptr& SrcPanel, delete_type const Type)
 {
-	const auto UpdateDiz = Global->Opt->Diz.UpdateMode == DIZ_UPDATE_ALWAYS || (SrcPanel->IsDizDisplayed() && Global->Opt->Diz.UpdateMode == DIZ_UPDATE_IF_DISPLAYED);
-
-	if (UpdateDiz)
-		SrcPanel->ReadDiz();
-
-	const auto strDizName = SrcPanel->GetDizName();
-	const auto CheckDiz = [&]{ return !strDizName.empty() && os::fs::exists(strDizName); };
-	const auto DizPresent = CheckDiz();
-
 	try
 	{
-		ShellDelete(SrcPanel, Type, UpdateDiz);
+		ShellDelete(SrcPanel, Type);
 	}
 	catch (const operation_cancelled&)
 	{
 		// Nop
 	}
-
-	if (UpdateDiz && DizPresent == CheckDiz())
-		SrcPanel->FlushDiz();
 }

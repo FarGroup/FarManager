@@ -88,6 +88,8 @@ build_script:
   - enc/tools/tool.make_lua_chm.bat
   #set vs environment variables
   - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars%bit%.bat"
+  #print version
+  - cl
   #build far
   - cd far 
   - set FARMANAGER_BUILD_TYPE=VS_RELEASE

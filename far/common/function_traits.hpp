@@ -36,9 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace detail
 {
-	template<typename T>
-	using root_type_t = std::remove_cv_t<std::remove_reference_t<std::remove_pointer_t<T>>>;
-
 	template<typename result, typename object, typename... args>
 	struct function_traits_impl
 	{
@@ -46,8 +43,6 @@ namespace detail
 
 		template <size_t i>
 		using arg = std::tuple_element_t<i, std::tuple<args...>>;
-
-		using root_result_type = root_type_t<result>;
 	};
 }
 
@@ -67,6 +62,6 @@ template<typename result, typename object, typename... args>
 struct function_traits<result(object::*)(args...) const>: detail::function_traits_impl<result, object, args...> {};
 
 
-#define FN_RETURN_TYPE(...) function_traits<decltype(&__VA_ARGS__)>::root_result_type
+#define FN_RETURN_TYPE(...) std::decay_t<function_traits<decltype(&__VA_ARGS__)>::result_type>
 
 #endif // FUNCTION_TRAITS_HPP_071DD1DD_F933_40DC_A662_CB85F7BE7F00

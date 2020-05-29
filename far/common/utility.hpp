@@ -32,6 +32,9 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "function_traits.hpp"
+#include "type_traits.hpp"
+
 //----------------------------------------------------------------------------
 
 template<typename T>
@@ -231,6 +234,13 @@ template<typename... args> overload(args&&...) -> overload<args...>;
 template<typename callable, typename variant>
 constexpr decltype(auto) visit_if(callable&& Callable, variant&& Variant)
 {
+	{
+		using arg = typename function_traits<callable>::template arg<0>;
+		using get_arg = decltype(std::get<std::decay_t<arg>>(Variant));
+		// This will fail if callable's arg type is not compatible with the variant:
+		using try_call [[maybe_unused]] = decltype(Callable(std::declval<get_arg>()));
+	}
+
 	return std::visit(overload
 	{
 		FWD(Callable),

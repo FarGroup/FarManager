@@ -47,6 +47,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 WARNING_PUSH(3)
 
+WARNING_DISABLE_GCC("-Wctor-dtor-privacy")
+
 WARNING_DISABLE_CLANG("-Weverything")
 
 #include "thirdparty/fmt/fmt/format.h"

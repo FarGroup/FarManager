@@ -97,9 +97,10 @@ CFLAGS += \
 
 CCFLAGS = $(CFLAGS)\
 -std=gnu++17 \
+-fvisibility=hidden \
 -Werror=old-style-cast \
-#-Wctor-dtor-privacy \
-#-Wextra-semi \
+-Wctor-dtor-privacy \
+-Wextra-semi \
 -Wnon-virtual-dtor \
 -Woverloaded-virtual \
 -Wsuggest-override \

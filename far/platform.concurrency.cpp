@@ -176,7 +176,7 @@ namespace os::concurrency
 			void unlock_shared() override { imports.ReleaseSRWLockShared(&m_Lock); }
 
 		private:
-			SRWLOCK m_Lock = SRWLOCK_INIT;
+			SRWLOCK m_Lock{};
 		};
 	}
 
