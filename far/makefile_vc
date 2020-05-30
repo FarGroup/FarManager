@@ -585,6 +585,7 @@ PASINSTDIR=$(INSTALLDIR)\PluginSDK\Headers.pas
 install: instdir
 	@echo Installing to $(INSTALLDIR)
 	@copy /Y "$(FARINCLUDE)\*.hpp" "$(HPPINSTDIR)\" > nul
+	@copy /Y "$(FARINCLUDE)\..\..\plugins\common\unicode\DlgBuilder.hpp" "$(HPPINSTDIR)\" > nul
 	@copy /Y "$(FARINCLUDE)\*.pas" "$(PASINSTDIR)\" > nul
 	for %%i in (changelog changelog_eng "$(OUTDIR)\Far.*" "$(OUTDIR)\*.lng" "$(OUTDIR)\File_id.diz" "$(OUTDIR)\*.hlf" "$(OUTDIR)\Far.exe.example.ini") do @copy /Y %%i "$(INSTALLDIR)\" > nul
 
