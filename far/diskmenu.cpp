@@ -210,7 +210,7 @@ static void ConfigureChangeDriveMode()
 
 	BOOL ShowSizeAny = DriveMode & (DRIVE_SHOW_SIZE | DRIVE_SHOW_SIZE_FLOAT);
 
-	DialogItemEx *ShowSize = Builder.AddCheckbox(lng::MChangeDriveShowSize, &ShowSizeAny);
+	DialogItemEx *ShowSize = Builder.AddCheckbox(lng::MChangeDriveShowSize, ShowSizeAny);
 	DialogItemEx *ShowSizeFloat = Builder.AddCheckbox(lng::MChangeDriveShowSizeFloat, DriveMode, DRIVE_SHOW_SIZE_FLOAT);
 	ShowSizeFloat->Indent(4);
 	Builder.LinkFlags(ShowSize, ShowSizeFloat, DIF_DISABLE);

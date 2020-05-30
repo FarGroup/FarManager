@@ -10,9 +10,6 @@ call :%COMPILER%
 :MSVC_PROJ
 set PATH=C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin;%PATH%
 
-rem print version
-cl
-
 cd far
 MSBuild.exe /property:Configuration=%CONFIG% /property:Platform=%PLATFORM% far.vcxproj || %throw%
 
@@ -24,7 +21,7 @@ call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliar
 if %CONFIG%==Debug set DEBUG=1
 
 rem print version
-cl
+cl 3>&2 2>&1 1>&3 > nul
 
 cd far
 nmake /f makefile_vc %ADD_MAKE% || %throw%

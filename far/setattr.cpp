@@ -301,7 +301,7 @@ static void AdvancedAttributesDialog(SetAttrDlgParam* const DlgParam)
 		const auto AbsoluteIndex = main_attributes_count + i;
 		auto& Attr = DlgParam->Attributes[main_attributes_count + i];
 		SavedState[i] = Attr.CurrentValue;
-		Builder.AddCheckbox(AttributeMap[AbsoluteIndex].LngId, &Attr.CurrentValue, 0, flags::check_any(Attr.Flags, DIF_3STATE));
+		Builder.AddCheckbox(AttributeMap[AbsoluteIndex].LngId, Attr.CurrentValue, 0, flags::check_any(Attr.Flags, DIF_3STATE));
 	}
 
 	Builder.AddOKCancel();

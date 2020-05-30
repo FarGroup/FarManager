@@ -1,3 +1,8 @@
+drkns 30.05.2020 20:22:00 +0100 - build 5614
+
+1. FarDlgBuilder.hpp doesn't depend on DlgBuilder.hpp anymore.
+   DlgBuilder.hpp is now only used by plugins.
+
 shmuel 30.05.2020 19:39:20 +0300 - build 5613
 
 1. Experimentally: do not hide progress windows (e.g. copy progress) during macro execution.

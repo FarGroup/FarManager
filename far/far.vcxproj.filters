@@ -1193,9 +1193,6 @@
     <CustomBuild Include="api_test.c">
       <Filter>Source Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="DlgBuilder.hpp">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="vc_crt_fix.asm">

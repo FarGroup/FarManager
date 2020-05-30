@@ -172,7 +172,7 @@ static bool dlgBadEditorCodepage(uintptr_t& codepage)
 	IntOption cp_val;
 	cp_val = codepage;
 
-	std::vector<FarDialogBuilderListItem> Items;
+	std::vector<DialogBuilderListItem> Items;
 	codepages::instance().FillCodePagesList(Items, true, false, true, false, false);
 
 	Builder.AddComboBox(cp_val, 46, Items);

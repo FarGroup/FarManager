@@ -692,7 +692,7 @@ static bool AttributesDialog(span<attribute_map> const Attributes)
 	DialogBuilder Builder(lng::MSetAttrTitle);
 
 	for (auto& i: Attributes)
-		Builder.AddCheckbox(i.Name, &i.State, 0, true);
+		Builder.AddCheckbox(i.Name, i.State, 0, true);
 
 	Builder.AddOKCancel();
 

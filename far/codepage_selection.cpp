@@ -191,7 +191,7 @@ void codepages::AddCodePage(string_view codePageName, uintptr_t codePage, size_t
 			ItemFlags |= LIF_GRAYED;
 		}
 
-		FarDialogBuilderListItem item(FormatCodePageString(codePage, codePageName, IsCodePageNameCustom), static_cast<int>(codePage), ItemFlags);
+		DialogBuilderListItem item(FormatCodePageString(codePage, codePageName, IsCodePageNameCustom), static_cast<int>(codePage), ItemFlags);
 
 		// Вычисляем позицию вставляемого элемента
 		if (position == size_t(-1) || position >= DialogBuilderList->size())
@@ -734,7 +734,7 @@ bool codepages::SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool View
 }
 
 // Заполняем список таблицами символов
-void codepages::FillCodePagesList(std::vector<FarDialogBuilderListItem> &List, bool allowAuto, bool allowAll, bool allowDefault, bool allowChecked, bool bViewOnly)
+void codepages::FillCodePagesList(std::vector<DialogBuilderListItem> &List, bool allowAuto, bool allowAll, bool allowDefault, bool allowChecked, bool bViewOnly)
 {
 	CallbackCallSource = CodePagesFill2;
 	// Устанавливаем переменные для доступа из каллбака

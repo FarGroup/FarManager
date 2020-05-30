@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 // Internal:
-#include "DlgBuilder.hpp"
+#include "plugin.hpp"
 #include "dialog.hpp"
 
 // Platform:
@@ -53,68 +53,72 @@ class BoolOption;
 class Bool3Option;
 class IntOption;
 class StringOption;
+struct DialogItemBinding;
 
-// Элемент выпадающего списка в диалоге.
-class FarDialogBuilderListItem
+class lng_string
 {
 public:
-	FarDialogBuilderListItem(lng const MessageId, int const Value, LISTITEMFLAGS Flags = LIF_NONE):
+	lng_string(lng Str);
+	lng_string(const wchar_t* Str);
+	lng_string(const string& Str);
+
+	const wchar_t* c_str() const;
+
+private:
+	const wchar_t* m_Str;
+};
+
+class DialogBuilderListItem
+{
+public:
+	DialogBuilderListItem(lng const MessageId, int const Value, LISTITEMFLAGS Flags = LIF_NONE):
 		m_Str(MessageId),
 		m_Value(Value),
 		m_Flags(Flags)
 	{
 	}
 
-	FarDialogBuilderListItem(string_view Str, int const Value, LISTITEMFLAGS Flags = LIF_NONE):
+	DialogBuilderListItem(string_view Str, int const Value, LISTITEMFLAGS Flags = LIF_NONE):
 		m_Str(string(Str)),
 		m_Value(Value),
 		m_Flags(Flags)
 	{
 	}
 
-	std::variant<string, lng> m_Str;
-	int m_Value;
-	LISTITEMFLAGS m_Flags;
-
 	const string& str() const;
 	auto value() const { return m_Value; }
 	auto flags() const { return m_Flags; }
-};
 
-template<class T, typename value_type>
-struct ListControlBinding: public DialogItemBinding<T>
-{
-	NONCOPYABLE(ListControlBinding);
-
-	value_type& m_Value;
-	std::vector<FarListItem> m_ListItems;
-	FarList m_List{sizeof(m_List)};
-
-	ListControlBinding(value_type& Value, std::vector<FarListItem>&& ListItems):
-		m_Value(Value),
-		m_ListItems(std::move(ListItems))
-	{
-		m_List.Items = m_ListItems.data();
-		m_List.ItemsNumber = m_ListItems.size();
-	}
-
-	auto list()
-	{
-		return &m_List;
-	}
-
-	void SaveValue(T *Item, int RadioGroupIndex) override
-	{
-		if (!m_ListItems.empty())
-		{
-			m_Value = m_ListItems[Item->ListPos].UserData;
-		}
-	}
+//BUGBUG
+//private:
+	std::variant<string, lng> m_Str;
+	int m_Value;
+	LISTITEMFLAGS m_Flags;
 };
 
 /*
-Класс для динамического построения диалогов, используемый внутри кода FAR.
-Использует FAR'овский класс string для работы с текстовыми полями.
+Класс для динамического построения диалогов. Автоматически вычисляет положение и размер
+для добавляемых контролов, а также размер самого диалога. Автоматически записывает выбранные
+значения в указанное место после закрытия диалога по OK.
+
+По умолчанию каждый контрол размещается в новой строке диалога. Ширина для текстовых строк,
+checkbox и radio button вычисляется автоматически, для других элементов передаётся явно.
+Есть также возможность добавить статический текст слева или справа от контрола, при помощи
+методов AddTextBefore и AddTextAfter.
+
+Поддерживается также возможность расположения контролов в две колонки. Используется следующим
+образом:
+- StartColumns()
+- добавляются контролы для первой колонки
+- ColumnBreak()
+- добавляются контролы для второй колонки
+- EndColumns()
+
+Поддерживается также возможность расположения контролов внутри бокса. Используется следующим
+образом:
+- StartSingleBox()
+- добавляются контролы
+- EndSingleBox()
 
 Для того, чтобы сместить элемент относительно дефолтного
 положения по горизонтали, можно использовать метод DialogItemEx::Indent().
@@ -122,122 +126,90 @@ struct ListControlBinding: public DialogItemBinding<T>
 Поддерживает automation (изменение флагов одного элемента в зависимости от состояния
 другого). Реализуется при помощи метода LinkFlags().
 */
-class DialogBuilder: noncopyable, public base<DialogBuilderBase<DialogItemEx>>
+
+class DialogBuilder
 {
 public:
-	explicit DialogBuilder(lng TitleMessageId, string_view HelpTopic = {}, Dialog::dialog_handler handler = nullptr);
-	DialogBuilder();
-	~DialogBuilder() override;
+	NONCOPYABLE(DialogBuilder);
 
-	// Добавляет поле типа DI_FIXEDIT для редактирования указанного числового значения.
-	DialogItemEx *AddIntEditField(int *Value, int Width) override;
-	virtual DialogItemEx *AddIntEditField(IntOption& Value, int Width);
-	virtual DialogItemEx *AddHexEditField(IntOption& Value, int Width);
+	explicit DialogBuilder(lng_string Title = L"", string_view HelpTopic = {}, Dialog::dialog_handler handler = nullptr);
+	~DialogBuilder();
 
-	// Добавляет поле типа DI_EDIT для редактирования указанного строкового значения.
-	DialogItemEx *AddEditField(string& Value, int Width, string_view HistoryID = {}, FARDIALOGITEMFLAGS Flags = 0);
-	DialogItemEx *AddEditField(StringOption& Value, int Width, string_view HistoryID = {}, FARDIALOGITEMFLAGS Flags = 0);
-
-	// Добавляет поле типа DI_FIXEDIT для редактирования указанного строкового значения.
-	DialogItemEx *AddFixEditField(string& Value, int Width, const wchar_t *Mask = nullptr);
-	DialogItemEx *AddFixEditField(StringOption& Value, int Width, const wchar_t *Mask = nullptr);
-
-	// Добавляет неизменяемое поле типа DI_EDIT для посмотра указанного строкового значения.
-	DialogItemEx *AddConstEditField(const string& Value, int Width, FARDIALOGITEMFLAGS Flags = 0);
-
-	// Добавляет выпадающий список с указанными значениями.
-	DialogItemEx *AddComboBox(int& Value, int Width, span<FarDialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
-	DialogItemEx *AddComboBox(IntOption& Value, int Width, span<FarDialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
-
-	DialogItemEx *AddListBox(int& Value, int Width, int Height, span<FarDialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
-	DialogItemEx *AddListBox(IntOption& Value, int Width, int Height, span<FarDialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
-
-	decltype(auto) AddCheckbox(lng TextMessageId, int *Value, int Mask = 0, bool ThreeState = false)
-	{
-		return base_type::AddCheckbox(static_cast<int>(TextMessageId), Value, Mask, ThreeState);
-	}
-	DialogItemEx *AddCheckbox(lng TextMessageId, IntOption& Value, int Mask=0, bool ThreeState=false);
-	DialogItemEx *AddCheckbox(lng TextMessageId, Bool3Option& Value);
-	DialogItemEx *AddCheckbox(lng TextMessageId, BoolOption& Value);
-	DialogItemEx *AddCheckbox(const wchar_t* Caption, BoolOption& Value);
-
-	void AddRadioButtons(IntOption& Value, int OptionCount, const lng MessageIDs[], bool FocusOnSelected=false);
-
-	using base_type::AddText;
-
-	decltype(auto) AddText(lng LabelId)
-	{
-		return base_type::AddText(static_cast<int>(LabelId));
-	}
-
-	// BUGBUG
-	decltype(auto) AddText(const string& Label)
-	{
-		return base_type::AddText(Label.c_str());
-	}
-
-	decltype(auto) AddTextBefore(DialogItemEx* RelativeTo, lng LabelId)
-	{
-		return base_type::AddTextBefore(RelativeTo, static_cast<int>(LabelId));
-	}
-
-	using base_type::AddTextAfter;
-
-	decltype(auto) AddTextAfter(DialogItemEx* RelativeTo, lng LabelId, int skip = 1)
-	{
-		return base_type::AddTextAfter(RelativeTo, static_cast<int>(LabelId), skip);
-	}
-
-	using base_type::AddSeparator;
-
-	decltype(auto) AddSeparator(lng LabelId)
-	{
-		return base_type::AddSeparator(static_cast<int>(LabelId));
-	}
-
-	// Связывает состояние элементов Parent и Target. Когда Parent->Selected равно
-	// false, устанавливает флаги Flags у элемента Target; когда равно true -
-	// сбрасывает флаги.
-	// Если LinkLabels установлено в true, то текстовые элементы, добавленные к элементу Target
-	// методами AddTextBefore и AddTextAfter, также связываются с элементом Parent.
-	void LinkFlags(DialogItemEx *Parent, DialogItemEx *Target, FARDIALOGITEMFLAGS Flags, bool LinkLabels=true);
-
+	DialogItemEx* AddText(lng_string Text);
+	DialogItemEx* AddCheckbox(lng_string Text, int& Value, int Mask = 0, bool ThreeState = false);
+	DialogItemEx* AddCheckbox(lng_string Text, IntOption& Value, int Mask = 0, bool ThreeState = false);
+	DialogItemEx* AddCheckbox(lng_string Text, Bool3Option& Value);
+	DialogItemEx* AddCheckbox(lng_string Text, BoolOption& Value);
+	DialogItemEx* AddTextBefore(DialogItemEx* RelativeTo, lng_string Text);
+	DialogItemEx* AddTextAfter(DialogItemEx* RelativeTo, lng_string Text, int skip = 1);
+	DialogItemEx* AddButtonAfter(DialogItemEx* RelativeTo, lng_string Text);
+	DialogItemEx* AddIntEditField(IntOption& Value, int Width);
+	DialogItemEx* AddHexEditField(IntOption& Value, int Width);
+	DialogItemEx* AddEditField(string& Value, int Width, string_view HistoryID = {}, FARDIALOGITEMFLAGS Flags = 0);
+	DialogItemEx* AddEditField(StringOption& Value, int Width, string_view HistoryID = {}, FARDIALOGITEMFLAGS Flags = 0);
+	DialogItemEx* AddFixEditField(string& Value, int Width, const wchar_t* Mask = nullptr);
+	DialogItemEx* AddFixEditField(StringOption& Value, int Width, const wchar_t* Mask = nullptr);
+	DialogItemEx* AddConstEditField(const string& Value, int Width, FARDIALOGITEMFLAGS Flags = 0);
+	DialogItemEx* AddComboBox(int& Value, int Width, span<DialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+	DialogItemEx* AddComboBox(IntOption& Value, int Width, span<DialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+	DialogItemEx* AddListBox(int& Value, int Width, int Height, span<DialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+	DialogItemEx* AddListBox(IntOption& Value, int Width, int Height, span<DialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+	void AddRadioButtons(size_t& Value, span<lng const> Options, bool FocusOnSelected = false);
+	void AddRadioButtons(IntOption& Value, span<lng const> Options, bool FocusOnSelected = false);
+	void LinkFlags(DialogItemEx* Parent, DialogItemEx* Target, FARDIALOGITEMFLAGS Flags, bool LinkLabels = true);
+	void AddOK();
 	void AddOKCancel();
 	void AddOKCancel(lng OKMessageId, lng CancelMessageId);
-	void AddButtons(span<const lng> Buttons, size_t OkIndex, size_t CancelIndex);
-	void AddOK();
-
+	void AddButtons(span<lng const> Buttons, size_t OkIndex, size_t CancelIndex);
 	void SetDialogMode(DWORD Flags);
-
-	int AddTextWrap(const wchar_t *text, bool center=false, int width=0);
-
+	int AddTextWrap(lng_string Text, bool center = false, int width = 0);
 	void SetId(const GUID& Id);
-	const GUID& GetId() const {return m_Id;}
-
-protected:
-	void InitDialogItem(DialogItemEx *Item, const wchar_t* Text) override;
-	int TextWidth(const DialogItemEx &Item) override;
-	intptr_t DoShowDialog() override;
-	DialogItemBinding<DialogItemEx> *CreateCheckBoxBinding(BOOL* Value, int Mask) override;
-	DialogItemBinding<DialogItemEx> *CreateRadioButtonBinding(int *Value) override;
-
-	DialogItemBinding<DialogItemEx> *CreateCheckBoxBinding(IntOption &Value, int Mask);
-	DialogItemBinding<DialogItemEx> *CreateCheckBoxBinding(Bool3Option& Value);
-	DialogItemBinding<DialogItemEx> *CreateCheckBoxBinding(BoolOption& Value);
-	DialogItemBinding<DialogItemEx> *CreateRadioButtonBinding(IntOption& Value);
-
-	DialogItemEx *AddListControl(FARDIALOGITEMTYPES Type, int& Value, int Width, int Height, span<FarDialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
-	DialogItemEx *AddListControl(FARDIALOGITEMTYPES Type, IntOption& Value, int Width, int Height, span<FarDialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
-
-	const wchar_t* GetLangString(lng MessageID);
+	const GUID& GetId() const;
+	size_t GetLastID() const;
+	void StartColumns();
+	void ColumnBreak();
+	void EndColumns();
+	void StartSingleBox(lng_string Text, bool LeftAlign = false);
+	void EndSingleBox();
+	void AddEmptyLine();
+	void AddSeparator(lng_string Text = L"");
+	intptr_t ShowDialogEx();
+	bool ShowDialog();
 
 private:
-	const wchar_t* GetLangString(int MessageID) override;
-	static void LinkFlagsByID(DialogItemEx *Parent, DialogItemEx* Target, FARDIALOGITEMFLAGS Flags);
+	DialogItemEx* AddDialogItem(FARDIALOGITEMTYPES Type, const wchar_t* Text);
+	void SetNextY(DialogItemEx* Item);
+	void AddBorder(const wchar_t* TitleText);
+	void UpdateBorderSize();
+	intptr_t MaxTextWidth();
+	void UpdateSecondColumnPosition();
+	void SetLastItemBinding(std::unique_ptr<DialogItemBinding>&& Binding);
+	int GetItemID(DialogItemEx* Item) const;
+	DialogItemBinding* FindBinding(DialogItemEx* Item);
+	void SaveValues();
+	intptr_t DoShowDialog();
 
 	template<typename value_type>
-	DialogItemEx* AddListControlImpl(FARDIALOGITEMTYPES Type, value_type& Value, int Width, int Height, span<FarDialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags);
+	DialogItemEx* AddCheckboxImpl(lng_string Text, value_type& Value, int Mask, bool ThreeState);
 
+	template<typename value_type>
+	DialogItemEx* AddListControlImpl(FARDIALOGITEMTYPES Type, value_type& Value, int Width, int Height, span<DialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags);
+
+	static const int SECOND_COLUMN = -2;
+	static constexpr size_t npos = -1;
+
+	std::vector<DialogItemEx> m_DialogItems;
+	std::vector<std::unique_ptr<DialogItemBinding>> m_Bindings;
+	int m_NextY{2};
+	int m_Indent{};
+	size_t m_SingleBoxIndex{ npos };
+	size_t m_FirstButtonID{ npos };
+	size_t m_CancelButtonID{ npos };
+	size_t m_ColumnStartIndex{ npos };
+	size_t m_ColumnBreakIndex{ npos };
+	int m_ColumnStartY{-1};
+	int m_ColumnEndY{-1};
+	intptr_t m_ColumnMinWidth{};
 	string m_HelpTopic;
 	DWORD m_Mode{};
 	GUID m_Id{ GUID_NULL };

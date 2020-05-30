@@ -209,7 +209,6 @@ include: \
 	$(FARINCLUDE)FarColorW.pas \
 	$(FARINCLUDE)farcolor.hpp \
 	$(FARINCLUDE)plugin.hpp \
-	$(FARINCLUDE)DlgBuilder.hpp \
 	$(FARINCLUDE)vc_crt_fix_impl.cpp \
 	$(FARINCLUDE)vc_crt_fix.asm \
 	$(FARINCLUDE)vc_crt_fix_ulink.cpp
@@ -256,7 +255,7 @@ $(OBJDIR)api_test_c.testobj: $(FARINCLUDE)plugin.hpp $(FARINCLUDE)farcolor.hpp a
 	@echo Testing C plugin API
 	$(CC) $(CFLAGS) -c -x c -o $@ api_test.c
 
-$(OBJDIR)api_test_c++.testobj: $(FARINCLUDE)plugin.hpp $(FARINCLUDE)farcolor.hpp $(FARINCLUDE)DlgBuilder.hpp api_test.c
+$(OBJDIR)api_test_c++.testobj: $(FARINCLUDE)plugin.hpp $(FARINCLUDE)farcolor.hpp api_test.c
 	@echo Testing C++ plugin API
 	$(CXX) $(CCFLAGS) -c -x c++ -o $@ api_test.c
 
@@ -313,10 +312,6 @@ $(FARINCLUDE)farcolor.hpp: farcolor.hpp farversion.m4 tools.m4 vbuild.m4
 $(FARINCLUDE)plugin.hpp: plugin.hpp farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
 	$(M4) -DINPUT=plugin.hpp headers.m4 > $@
-
-$(FARINCLUDE)DlgBuilder.hpp: DlgBuilder.hpp farversion.m4 tools.m4 vbuild.m4
-	$(MSG)
-	$(M4) -DINPUT=DlgBuilder.hpp headers.m4 > $@
 
 $(FARINCLUDE)PluginW.pas: PluginW.pas farversion.m4 tools.m4 vbuild.m4
 	$(MSG)

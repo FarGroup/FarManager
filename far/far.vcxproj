@@ -179,7 +179,7 @@ cl /nologo  /c /Fo"$(IntDir)%(Filename)_c.testobj" /TC api_test.c
 echo testing C++ plugin API
 cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
 </Command>
-      <AdditionalInputs>Include/plugin.hpp;Include/farcolor.hpp;Include/DlgBuilder.hpp</AdditionalInputs>
+      <AdditionalInputs>Include/plugin.hpp;Include/farcolor.hpp</AdditionalInputs>
       <Message>
       </Message>
       <Outputs>$(IntDir)%(Filename)_c.testobj;$(IntDir)%(Filename)_c++.testobj</Outputs>
@@ -433,7 +433,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="exception_handler_test.hpp" />
     <ClInclude Include="execute.hpp" />
     <ClInclude Include="exitcode.hpp" />
-    <ClInclude Include="FarDlgBuilder.hpp" />
     <ClInclude Include="FarGuid.hpp" />
     <ClInclude Include="farversion.hpp" />
     <ClInclude Include="fastfind.hpp" />
@@ -562,12 +561,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="xlat.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="DlgBuilder.hpp">
-      <Message>Transforming %(Identity) to redistributable form...</Message>
-      <Command>$(M4Cmd) -DINPUT=%(Identity) headers.m4 &gt; Include\DlgBuilder.hpp</Command>
-      <AdditionalInputs>headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs>Include\%(Identity);%(Outputs)</Outputs>
-    </CustomBuild>
     <CustomBuild Include="farcolor.hpp">
       <Message>Transforming %(Identity) to redistributable form...</Message>
       <Command>$(M4Cmd) -DINPUT=%(Identity) headers.m4 &gt; Include\farcolor.hpp</Command>

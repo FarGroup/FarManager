@@ -190,7 +190,7 @@ void Options::SystemSettings()
 	Builder.AddCheckbox(lng::MConfigElevationRead, StoredElevationMode, ELEVATION_READ_REQUEST)->Indent(4);
 	Builder.AddCheckbox(lng::MConfigElevationUsePrivileges, StoredElevationMode, ELEVATION_USE_PRIVILEGES)->Indent(4);
 
-	static const FarDialogBuilderListItem SortingMethods[] =
+	static const DialogBuilderListItem SortingMethods[] =
 	{
 		{ lng::MConfigSortingOrdinal, as_underlying_type(SortingOptions::collation::ordinal) },
 		{ lng::MConfigSortingInvariant, as_underlying_type(SortingOptions::collation::invariant) },
@@ -229,7 +229,7 @@ void Options::PanelSettings()
 	Builder.AddCheckbox(lng::MConfigSortFolderExt, SortFolderExt);
 	Builder.AddCheckbox(lng::MConfigReverseSort, ReverseSort);
 
-	const auto AutoUpdateEnabled = Builder.AddCheckbox(lng::MConfigAutoUpdateLimit, &AutoUpdate);
+	const auto AutoUpdateEnabled = Builder.AddCheckbox(lng::MConfigAutoUpdateLimit, AutoUpdate);
 	const auto AutoUpdateLimitItem = Builder.AddIntEditField(AutoUpdateLimit, 6);
 	Builder.LinkFlags(AutoUpdateEnabled, AutoUpdateLimitItem, DIF_DISABLE, false);
 	const auto AutoUpdateTextItem = Builder.AddTextBefore(AutoUpdateLimitItem, lng::MConfigAutoUpdateLimit2);
@@ -342,7 +342,7 @@ void Options::InterfaceSettings()
 	const auto SetIconCheck = Builder.AddCheckbox(lng::MConfigSetConsoleIcon, SetIcon);
 	Builder.ColumnBreak();
 
-	std::vector<FarDialogBuilderListItem> IconIndices;
+	std::vector<DialogBuilderListItem> IconIndices;
 	IconIndices.reserve(consoleicons::instance().size());
 
 	for (size_t i = 0, size = consoleicons::instance().size(); i != size; ++i)
@@ -391,7 +391,7 @@ void Options::AutoCompleteSettings()
 
 void Options::InfoPanelSettings()
 {
-	static const FarDialogBuilderListItem UNListItems[]=
+	static const DialogBuilderListItem UNListItems[]
 	{
 		{ lng::MConfigInfoPanelUNFullyQualifiedDN, NameFullyQualifiedDN },          // 1  - CN=John Doe, OU=Software, OU=Engineering, O=Widget, C=US
 		{ lng::MConfigInfoPanelUNSamCompatible, NameSamCompatible },                // 2  - Engineering\JohnDoe, If the user account is not in a domain, only NameSamCompatible is supported.
@@ -403,7 +403,7 @@ void Options::InfoPanelSettings()
 		{ lng::MConfigInfoPanelUNDnsDomain, NameDnsDomain },                        // 12 - DNS domain name + SAM username eg: engineering.widget.com\JohnDoe
 	};
 
-	static const FarDialogBuilderListItem CNListItems[] =
+	static const DialogBuilderListItem CNListItems[]
 	{
 		{ lng::MConfigInfoPanelCNNetBIOS, ComputerNameNetBIOS },                                     // The NetBIOS name of the local computer or the cluster associated with the local computer. This name is limited to MAX_COMPUTERNAME_LENGTH + 1 characters and may be a truncated version of the DNS host name. For example, if the DNS host name is "corporate-mail-server", the NetBIOS name would be "corporate-mail-".
 		{ lng::MConfigInfoPanelCNDnsHostname, ComputerNameDnsHostname },                             // The DNS name of the local computer or the cluster associated with the local computer.
@@ -649,7 +649,7 @@ void Options::DialogSettings()
 void Options::VMenuSettings()
 {
 
-	static const FarDialogBuilderListItem CAListItems[]=
+	static const DialogBuilderListItem CAListItems[]
 	{
 		{ lng::MConfigVMenuClickCancel, VMENUCLICK_CANCEL },  // Cancel menu
 		{ lng::MConfigVMenuClickApply,  VMENUCLICK_APPLY  },  // Execute selected item
@@ -762,7 +762,7 @@ void Options::SetDizConfig()
 	Builder.AddSeparator();
 
 	static const lng DizOptions[] = { lng::MCfgDizNotUpdate, lng::MCfgDizUpdateIfDisplayed, lng::MCfgDizAlwaysUpdate };
-	Builder.AddRadioButtons(Diz.UpdateMode, 3, DizOptions);
+	Builder.AddRadioButtons(Diz.UpdateMode, DizOptions);
 	Builder.AddSeparator();
 
 	Builder.AddCheckbox(lng::MCfgDizAnsiByDefault, Diz.AnsiByDefault);
@@ -803,7 +803,7 @@ void Options::ViewerConfig(Options::ViewerOptions &ViOptRef, bool Local)
 		return Dlg->DefProc(Msg, Param1, Param2);
 	});
 
-	std::vector<FarDialogBuilderListItem> Items; //Must live until Dialog end
+	std::vector<DialogBuilderListItem> Items; //Must live until Dialog end
 
 	if (!Local)
 	{
@@ -853,7 +853,7 @@ void Options::EditorConfig(Options::EditorOptions &EdOptRef, bool Local)
 {
 	DialogBuilder Builder(lng::MEditConfigTitle, L"EditorSettings"sv);
 
-	std::vector<FarDialogBuilderListItem> Items; //Must live until Dialog end
+	std::vector<DialogBuilderListItem> Items; //Must live until Dialog end
 
 	if (!Local)
 	{
@@ -864,7 +864,7 @@ void Options::EditorConfig(Options::EditorOptions &EdOptRef, bool Local)
 	}
 
 	Builder.AddText(lng::MEditConfigExpandTabsTitle);
-	static const FarDialogBuilderListItem ExpandTabsItems[] =
+	static const DialogBuilderListItem ExpandTabsItems[]
 	{
 		{ lng::MEditConfigDoNotExpandTabs, EXPAND_NOTABS },
 		{ lng::MEditConfigExpandTabs, EXPAND_NEWTABS },
