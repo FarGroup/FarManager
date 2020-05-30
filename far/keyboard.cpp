@@ -1223,20 +1223,7 @@ bool CheckForEscSilent()
 	}
 
 	INPUT_RECORD rec;
-	bool Processed = true;
-	/* TODO: Здесь, в общем то - ХЗ, т.к.
-	         по хорошему нужно проверять Global->CtrlObject->Macro.PeekKey() на ESC или BREAK
-	         Но к чему это приведет - пока не могу дать ответ !!!
-	*/
-
-	// если в "макросе"...
-	if (Global->CtrlObject->Macro.IsExecuting() && Global->WindowManager->GetCurrentWindow())
-	{
-		if (Global->CtrlObject->Macro.IsOutputDisabled())
-			Processed = false;
-	}
-
-	if (Processed && PeekInputRecord(&rec))
+	if (PeekInputRecord(&rec))
 	{
 		switch (GetInputRecordNoMacroArea(&rec, false))
 		{
@@ -1253,9 +1240,6 @@ bool CheckForEscSilent()
 			break;
 		}
 	}
-
-	if (!Processed && Global->CtrlObject->Macro.IsExecuting())
-		Global->ScrBuf->Flush();
 
 	return false;
 }

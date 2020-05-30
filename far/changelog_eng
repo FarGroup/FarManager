@@ -1,3 +1,7 @@
+shmuel 30.05.2020 19:39:20 +0300 - build 5613
+
+1. Experimentally: do not hide progress windows (e.g. copy progress) during macro execution.
+
 drkns 29.05.2020 18:57:47 +0100 - build 5612
 
 1. File descriptions weren't removed in some cases.
