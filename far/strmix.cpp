@@ -71,10 +71,10 @@ string GroupDigits(unsigned long long Value)
 
 	Fmt.Grouping = locale.digits_grouping();
 
-	wchar_t DecimalSeparator[]{ locale.decimal_separator(), L'\0' };
+	wchar_t DecimalSeparator[]{ locale.decimal_separator(), {} };
 	Fmt.lpDecimalSep = DecimalSeparator;
 
-	wchar_t ThousandSeparator[]{ locale.thousand_separator(), L'\0' };
+	wchar_t ThousandSeparator[]{ locale.thousand_separator(), {} };
 	Fmt.lpThousandSep = ThousandSeparator;
 
 	// Don't care - can't be negative
@@ -180,7 +180,7 @@ wchar_t* legacy::truncate_right(wchar_t *Str, int MaxLength)
 {
 	return legacy_operation(Str, MaxLength, [](span<wchar_t> const StrParam, size_t const MaxLengthParam, string_view const CurrentDots)
 	{
-		*std::copy(ALL_CONST_RANGE(CurrentDots), StrParam.data() + MaxLengthParam - CurrentDots.size()) = '\0';
+		*copy_string(CurrentDots, StrParam.data() + MaxLengthParam - CurrentDots.size()) = {};
 	});
 }
 
@@ -203,12 +203,12 @@ wchar_t* legacy::truncate_left(wchar_t *Str, int MaxLength)
 {
 	return legacy_operation(Str, MaxLength, [](span<wchar_t> const StrParam, size_t const MaxLengthParam, string_view const CurrentDots)
 	{
-		const auto Iterator = std::copy(ALL_CONST_RANGE(CurrentDots), StrParam.begin());
+		const auto Iterator = copy_string(CurrentDots, StrParam.begin());
 
 		const auto StrEnd = StrParam.end();
 		const auto StrBegin = StrEnd - MaxLengthParam + CurrentDots.size();
 
-		*std::copy(StrBegin, StrEnd, Iterator) = L'\0';
+		*std::copy(StrBegin, StrEnd, Iterator) = {};
 	});
 }
 
@@ -231,12 +231,12 @@ wchar_t* legacy::truncate_center(wchar_t *Str, int MaxLength)
 {
 	return legacy_operation(Str, MaxLength, [](span<wchar_t> const StrParam, size_t const MaxLengthParam, string_view const CurrentDots)
 	{
-		const auto Iterator = std::copy(ALL_CONST_RANGE(CurrentDots), StrParam.data() + (MaxLengthParam - CurrentDots.size()) / 2);
+		const auto Iterator = copy_string(CurrentDots, StrParam.data() + (MaxLengthParam - CurrentDots.size()) / 2);
 
 		const auto StrEnd = StrParam.end();
 		const auto StrBegin = Iterator + (StrParam.size() - MaxLengthParam);
 
-		*std::copy(StrBegin, StrEnd, Iterator) = L'\0';
+		*std::copy(StrBegin, StrEnd, Iterator) = {};
 	});
 }
 
@@ -269,12 +269,12 @@ wchar_t* legacy::truncate_path(wchar_t*Str, int MaxLength)
 	{
 		const auto Offset = std::min(StartOffset(StrParam.data()), MaxLengthParam - CurrentDots.size());
 
-		const auto Iterator = std::copy(ALL_CONST_RANGE(CurrentDots), StrParam.begin() + Offset);
+		const auto Iterator = copy_string(CurrentDots, StrParam.begin() + Offset);
 
 		const auto StrEnd = StrParam.end();
 		const auto StrBegin = StrEnd - MaxLengthParam + CurrentDots.size() + Offset;
 
-		*std::copy(StrBegin, StrEnd, Iterator) = L'\0';
+		*std::copy(StrBegin, StrEnd, Iterator) = {};
 	});
 }
 

@@ -5468,7 +5468,7 @@ void FileList::FileListToPluginItem(const FileListItem& fi, PluginPanelItemHolde
 	const auto MakeCopy = [](string_view const Str)
 	{
 		auto Buffer = std::make_unique<wchar_t[]>(Str.size() + 1);
-		*std::copy(ALL_CONST_RANGE(Str), Buffer.get()) = L'\0';
+		*copy_string(Str, Buffer.get()) = {};
 		return Buffer.release();
 	};
 
@@ -5507,7 +5507,7 @@ size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelI
 			const auto CopyToBuffer = [&](string_view const Str)
 			{
 				const auto Result = reinterpret_cast<const wchar_t*>(data);
-				*std::copy(ALL_CONST_RANGE(Str), reinterpret_cast<wchar_t*>(data)) = L'\0';
+				*copy_string(Str, reinterpret_cast<wchar_t*>(data)) = {};
 				data += StringSizeInBytes(Str);
 				return Result;
 			};
@@ -5562,7 +5562,7 @@ FileListItem::FileListItem(const PluginPanelItem& pi)
 
 			string_view const Data = pi.CustomColumnData[i];
 			CustomColumnData[i] = new wchar_t[Data.size() + 1];
-			*std::copy(ALL_CONST_RANGE(Data), CustomColumnData[i]) = L'\0';
+			*copy_string(Data, CustomColumnData[i]) = {};
 		}
 	}
 
@@ -5573,7 +5573,7 @@ FileListItem::FileListItem(const PluginPanelItem& pi)
 	{
 		string_view const Description = pi.Description;
 		const auto Str = new wchar_t[Description.size() + 1];
-		*std::copy(ALL_CONST_RANGE(Description), Str) = L'\0';
+		*copy_string(Description, Str) = {};
 		DizText = Str;
 		DeleteDiz = true;
 	}

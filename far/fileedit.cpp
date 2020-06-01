@@ -2418,7 +2418,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		{
 			if (Param2 && static_cast<size_t>(Param1) > strFullFileName.size())
 			{
-				*std::copy(ALL_CONST_RANGE(strFullFileName), static_cast<wchar_t*>(Param2)) = L'\0';
+				*copy_string(strFullFileName, static_cast<wchar_t*>(Param2)) = {};
 			}
 
 			return strFullFileName.size()+1;
@@ -2489,7 +2489,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			const auto strLocalTitle = GetTitle();
 			if (Param2 && static_cast<size_t>(Param1) > strLocalTitle.size())
 			{
-				*std::copy(ALL_CONST_RANGE(strLocalTitle), static_cast<wchar_t*>(Param2)) = L'\0';
+				*copy_string(strLocalTitle, static_cast<wchar_t*>(Param2)) = {};
 			}
 
 			return strLocalTitle.size()+1;

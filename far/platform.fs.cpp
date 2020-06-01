@@ -535,7 +535,7 @@ namespace os::fs
 		if (!Length || Length >= std::size(StreamData.cStreamName))
 			return false;
 
-		*std::copy_n(std::cbegin(StreamInfo.StreamName), Length, StreamData.cStreamName) = L'\0';
+		*std::copy_n(std::cbegin(StreamInfo.StreamName), Length, StreamData.cStreamName) = {};
 		StreamData.StreamSize = StreamInfo.StreamSize;
 		return true;
 	}
@@ -1922,11 +1922,11 @@ namespace os::fs
 		wchar_t VolumeNameBuffer[MAX_PATH + 1], FileSystemNameBuffer[MAX_PATH + 1];
 		if (VolumeName)
 		{
-			VolumeNameBuffer[0] = L'\0';
+			VolumeNameBuffer[0] = {};
 		}
 		if (FileSystemName)
 		{
-			FileSystemNameBuffer[0] = L'\0';
+			FileSystemNameBuffer[0] = {};
 		}
 
 		if (!::GetVolumeInformation(RootPathName.c_str(), VolumeNameBuffer, static_cast<DWORD>(std::size(VolumeNameBuffer)), VolumeSerialNumber,

@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/preprocessor.hpp"
+#include "common/string_utils.hpp"
 
 // External:
 
@@ -125,10 +126,10 @@ namespace tests
 	static void cpp_memory_leak()
 	{
 		const auto Str1 = "We're walking in the air"sv;
-		std::copy(ALL_CONST_RANGE(Str1), new char[Str1.size()]);
+		copy_string(Str1, new char[Str1.size()]);
 
 		const auto Str2 = L"We're floating in the moonlit sky"sv;
-		std::copy(ALL_CONST_RANGE(Str2), new wchar_t[Str2.size()]);
+		copy_string(Str2, new wchar_t[Str2.size()]);
 
 		*new int = 42;
 

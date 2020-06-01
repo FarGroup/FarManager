@@ -1663,7 +1663,7 @@ static wchar_t* StrToBuf(const string& Str, char*& Buf, size_t& Rest, size_t& Si
 	const auto Res = reinterpret_cast<wchar_t*>(BufReserve(Buf, Count, Rest, Size));
 	if (Res)
 	{
-		*std::copy(ALL_CONST_RANGE(Str), Res) = L'\0';
+		*copy_string(Str, Res) = {};
 	}
 	return Res;
 }

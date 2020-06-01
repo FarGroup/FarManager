@@ -314,6 +314,10 @@ TEST_CASE("null_iterator")
 	REQUIRE(Count == wcslen(Ptr));
 }
 
+//----------------------------------------------------------------------------
+
+#include "common/placement.hpp"
+
 TEST_CASE("placement")
 {
 	struct raii

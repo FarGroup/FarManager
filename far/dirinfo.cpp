@@ -272,7 +272,7 @@ static void PushPluginDirItem(std::vector<PluginPanelItem>& PluginDirList, const
 	const auto MakeCopy = [](string_view const Str)
 	{
 		auto Buffer = std::make_unique<wchar_t[]>(Str.size() + 1);
-		*std::copy(ALL_CONST_RANGE(Str), Buffer.get()) = {};
+		*copy_string(Str, Buffer.get()) = {};
 		return Buffer.release();
 	};
 

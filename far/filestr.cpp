@@ -47,7 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/bytes_view.hpp"
 #include "common/enum_tokens.hpp"
 #include "common/io.hpp"
-#include "common/placement.hpp"
 
 // External:
 #include "format.hpp"
@@ -56,10 +55,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 const auto BufferSize = 4096;
 static_assert(BufferSize % sizeof(wchar_t) == 0);
-
-WARNING_PUSH()
-WARNING_DISABLE_MSC(4582) // 'class': constructor is not implicitly called
-WARNING_DISABLE_MSC(4583) // 'class': destructor is not implicitly called
 
 enum_lines::enum_lines(std::istream& Stream, uintptr_t CodePage):
 	m_Stream(Stream),
@@ -73,13 +68,11 @@ enum_lines::enum_lines(std::istream& Stream, uintptr_t CodePage):
 
 	if (IsUnicodeCodePage(m_CodePage))
 	{
-		placement::construct(m_wStr);
-		m_wStr.reserve(default_capacity);
+		m_Data.emplace<string>().reserve(default_capacity);
 	}
 	else
 	{
-		placement::construct(m_ConversionData);
-		m_ConversionData.m_Bytes.reserve(default_capacity);
+		m_Data.emplace<conversion_data>().m_Bytes.reserve(default_capacity);
 	}
 }
 
@@ -93,14 +86,7 @@ enum_lines::~enum_lines()
 	{
 		// TODO: log
 	}
-
-	if (IsUnicodeCodePage(m_CodePage))
-		placement::destruct(m_wStr);
-	else
-		placement::destruct(m_ConversionData);
 }
-
-WARNING_POP()
 
 bool enum_lines::get(bool Reset, file_line& Value) const
 {
@@ -279,40 +265,45 @@ bool enum_lines::GetTString(std::basic_string<T>& To, eol& Eol, bool BigEndian) 
 
 bool enum_lines::GetString(string_view& Str, eol& Eol) const
 {
-	if (IsUnicodeCodePage(m_CodePage))
+	return std::visit(overload
 	{
-		if (!GetTString(m_wStr, Eol, m_CodePage == CP_REVERSEBOM))
-			return false;
-
-		Str = m_wStr;
-		return true;
-	}
-
-
-	if (!GetTString(m_ConversionData.m_Bytes, Eol))
-		return false;
-
-	if (m_ConversionData.m_Bytes.empty())
-	{
-		Str = {};
-		return true;
-	}
-
-	if (m_ConversionData.m_Bytes.size() > m_ConversionData.m_wBuffer.size())
-		m_ConversionData.m_wBuffer.reset(m_ConversionData.m_Bytes.size());
-
-	for (;;)
-	{
-		const auto Size = get_chars(m_CodePage, m_ConversionData.m_Bytes, m_ConversionData.m_wBuffer, m_ConversionError);
-		if (Size <= m_ConversionData.m_wBuffer.size())
+		[&](string& String)
 		{
-			m_ConversionData.m_Bytes.clear();
-			Str = { m_ConversionData.m_wBuffer.data(), Size };
-			return true;
-		}
+			if (!GetTString(String, Eol, m_CodePage == CP_REVERSEBOM))
+				return false;
 
-		m_ConversionData.m_wBuffer.reset(Size);
-	}
+			Str = String;
+			return true;
+
+		},
+		[&](conversion_data& Data)
+		{
+			if (!GetTString(Data.m_Bytes, Eol))
+				return false;
+
+			if (Data.m_Bytes.empty())
+			{
+				Str = {};
+				return true;
+			}
+
+			if (Data.m_Bytes.size() > Data.m_wBuffer.size())
+				Data.m_wBuffer.reset(Data.m_Bytes.size());
+
+			for (;;)
+			{
+				const auto Size = get_chars(m_CodePage, Data.m_Bytes, Data.m_wBuffer, m_ConversionError);
+				if (Size <= Data.m_wBuffer.size())
+				{
+					Data.m_Bytes.clear();
+					Str = { Data.m_wBuffer.data(), Size };
+					return true;
+				}
+
+				Data.m_wBuffer.reset(Size);
+			}
+		}
+	}, m_Data);
 }
 
 // If the file contains a BOM this function will advance the file pointer by the BOM size (either 2 or 3)

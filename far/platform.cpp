@@ -130,8 +130,8 @@ bool WNetGetConnection(const string_view LocalName, string &RemoteName)
 	// MSDN says that call can fail with ERROR_NOT_CONNECTED or ERROR_CONNECTION_UNAVAIL if calling application
 	// is running in a different logon session than the application that made the connection.
 	// However, it may fail with ERROR_NOT_CONNECTED for non-network too, in this case Buffer will not be initialised.
-	// Deliberately initialised with empty string to fix that.
-	Buffer[0] = L'\0';
+	// Deliberately initialised with an empty string to fix that.
+	Buffer[0] = {};
 	auto Size = static_cast<DWORD>(Buffer.size());
 	const null_terminated C_LocalName(LocalName);
 	auto Result = ::WNetGetConnection(C_LocalName.c_str(), Buffer.data(), &Size);
@@ -401,7 +401,7 @@ TEST_CASE("platform.string.receiver")
 		if (BufferSize < Data.size() + 1)
 			return Data.size() + 1;
 
-		*std::copy(ALL_CONST_RANGE(Data), Buffer) = L'\0';
+		*copy_string(Data, Buffer) = {};
 
 		return Data.size();
 	};

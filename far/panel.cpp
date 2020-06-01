@@ -743,9 +743,9 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 					dirInfo->Name = static_cast<wchar_t*>(static_cast<void*>(static_cast<char*>(Param2) + folderOffset));
 					dirInfo->Param = static_cast<wchar_t*>(static_cast<void*>(static_cast<char*>(Param2) + pluginDataOffset));
 					dirInfo->File = static_cast<wchar_t*>(static_cast<void*>(static_cast<char*>(Param2) + pluginFileOffset));
-					*std::copy(ALL_CONST_RANGE(Info.ShortcutFolder), const_cast<wchar_t*>(dirInfo->Name)) = L'\0';
-					*std::copy(ALL_CONST_RANGE(Info.PluginData), const_cast<wchar_t*>(dirInfo->Param)) = L'\0';
-					*std::copy(ALL_CONST_RANGE(Info.PluginFile), const_cast<wchar_t*>(dirInfo->File)) = L'\0';
+					*copy_string(Info.ShortcutFolder, const_cast<wchar_t*>(dirInfo->Name)) = {};
+					*copy_string(Info.PluginData, const_cast<wchar_t*>(dirInfo->Param)) = {};
+					*copy_string(Info.PluginFile, const_cast<wchar_t*>(dirInfo->File)) = {};
 				}
 				Reenter--;
 			}

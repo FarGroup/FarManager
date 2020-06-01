@@ -237,8 +237,8 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 					auto& item = ListBox->at(ii);
 					listItems[ii].Flags=item.Flags;
 					listItems[ii].Text=text;
-					text = std::copy(ALL_CONST_RANGE(item.Name), text);
-					*text++ = L'\0';
+					text += item.Name.copy(text, item.Name.npos);
+					*text++ = {};
 					listItems[ii].UserData = item.SimpleUserData;
 					listItems[ii].Reserved = 0;
 				}
@@ -249,14 +249,14 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 			}
 			auto p = static_cast<wchar_t*>(static_cast<void*>(reinterpret_cast<char*>(Item->Item) + offsetStrings));
 			Item->Item->Data = p;
-			p = std::copy(ALL_CONST_RANGE(str), p);
-			*p++ = L'\0';
+			p += str.copy(p, str.npos);
+			*p++ = {};
 			Item->Item->History = p;
-			p = std::copy(ALL_CONST_RANGE(ItemEx->strHistory), p);
-			*p++ = L'\0';
+			p += ItemEx->strHistory.copy(p, ItemEx->strHistory.npos);
+			*p++ = {};
 			Item->Item->Mask = p;
-			p = std::copy(ALL_CONST_RANGE(ItemEx->strMask), p);
-			*p++ = L'\0';
+			p += ItemEx->strMask.copy(p, ItemEx->strMask.npos);
+			*p++ = {};
 		}
 	}
 	return size;
@@ -1948,7 +1948,7 @@ void Dialog::ShowDialog(size_t ID)
 
 				if (Item.Type==DI_CHECKBOX)
 				{
-					const wchar_t Check[] = { L'[',(Item.Selected ? (((Item.Flags&DIF_3STATE) && Item.Selected == 2) ? msg(lng::MCheckBox2State).front() : L'x') : L' '),L']',L'\0' };
+					const wchar_t Check[]{ L'[', (Item.Selected ? (((Item.Flags & DIF_3STATE) && Item.Selected == 2) ? msg(lng::MCheckBox2State).front() : L'x') : L' '), L']', {} };
 					strStr=Check;
 
 					if (!Item.strData.empty())
@@ -1956,7 +1956,7 @@ void Dialog::ShowDialog(size_t ID)
 				}
 				else
 				{
-					wchar_t Dot[]={L' ',Item.Selected ? L'\x2022':L' ',L' ',L'\0'};
+					wchar_t Dot[]{ L' ', Item.Selected ? L'\x2022' : L' ', L' ', {} };
 
 					if (Item.Flags&DIF_MOVESELECT)
 					{
@@ -4816,7 +4816,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				if (did->PtrData)
 				{
 					std::copy_n(strTitleDialog.data(), Len, did->PtrData);
-					did->PtrData[Len] = L'\0';
+					did->PtrData[Len] = {};
 				}
 			}
 
@@ -5533,7 +5533,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				if (did->PtrData)
 				{
 					std::copy_n(Ptr, Len, did->PtrData);
-					did->PtrData[Len]=L'\0';
+					did->PtrData[Len] = {};
 				}
 			};
 			if (CheckStructSize(did)) // если здесь nullptr, то это еще один способ получить размер

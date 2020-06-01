@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/algorithm.hpp"
+#include "common/string_utils.hpp"
 
 // External:
 
@@ -90,7 +91,7 @@ namespace os::memory
 			if (!Copy)
 				return nullptr;
 
-			*std::copy(ALL_CONST_RANGE(Str), Copy.get()) = L'\0';
+			*copy_string(Str, Copy.get()) = {};
 			return Memory;
 		}
 

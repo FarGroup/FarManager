@@ -4683,7 +4683,7 @@ int FarMacroApi::chrFunc()
 
 	if (tmpVar.isNumber())
 	{
-		const wchar_t tmp[]={static_cast<wchar_t>(tmpVar.asInteger()), L'\0'};
+		const wchar_t tmp[]{ static_cast<wchar_t>(tmpVar.asInteger()), {} };
 		tmpVar = tmp;
 	}
 

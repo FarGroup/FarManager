@@ -296,13 +296,13 @@ bool AddEndSlash(wchar_t *Path, wchar_t TypeSlash)
 		--len;
 
 	Path[len++] = TypeSlash;
-	Path[len] = L'\0';
+	Path[len] = {};
 	return true;
 }
 
 bool AddEndSlash(wchar_t *Path)
 {
-	return AddEndSlash(Path, L'\0');
+	return AddEndSlash(Path, {});
 }
 
 void AddEndSlash(string &strPath, wchar_t TypeSlash)
@@ -310,7 +310,7 @@ void AddEndSlash(string &strPath, wchar_t TypeSlash)
 	if (!IsSlash(TypeSlash))
 		SlashType(strPath.data(), strPath.data() + strPath.size(), TypeSlash);
 
-	wchar_t LastSlash = L'\0';
+	wchar_t LastSlash{};
 
 	if (!strPath.empty() && IsSlash(strPath.back()))
 		LastSlash = strPath.back();
@@ -326,7 +326,7 @@ void AddEndSlash(string &strPath, wchar_t TypeSlash)
 
 void AddEndSlash(string &strPath)
 {
-	AddEndSlash(strPath, L'\0');
+	AddEndSlash(strPath, {});
 }
 
 void DeleteEndSlash(wchar_t *Path)
@@ -832,7 +832,7 @@ TEST_CASE("path.AddEndSlash")
 
 		wchar_t Buffer[64];
 		REQUIRE(i.Input.size() < std::size(Buffer));
-		*std::copy(ALL_CONST_RANGE(i.Input), Buffer) = L'\0';
+		*copy_string(i.Input, Buffer) = {};
 		AddEndSlash(Buffer);
 		REQUIRE(Buffer == i.Result);
 	}
@@ -864,7 +864,7 @@ TEST_CASE("path.DeleteEndSlash")
 
 		wchar_t Buffer[64];
 		REQUIRE(i.Input.size() < std::size(Buffer));
-		*std::copy(ALL_CONST_RANGE(i.Input), Buffer) = L'\0';
+		*copy_string(i.Input, Buffer) = {};
 		DeleteEndSlash(Buffer);
 		REQUIRE(Buffer == i.Result);
 	}

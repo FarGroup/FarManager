@@ -355,7 +355,7 @@ bool clipboard::SetHDROP(const string_view NamesData, const bool bMoved)
 	Drop->pt.y = 0;
 	Drop->fNC = TRUE;
 	Drop->fWide = TRUE;
-	*std::copy(ALL_CONST_RANGE(NamesData), static_cast<wchar_t*>(static_cast<void*>(Drop.get() + 1))) = 0;
+	*copy_string(NamesData, static_cast<wchar_t*>(static_cast<void*>(Drop.get() + 1))) = {};
 
 	if (!Clear() || !SetData(CF_HDROP, std::move(Memory)))
 		return false;

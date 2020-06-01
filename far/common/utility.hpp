@@ -33,7 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "function_traits.hpp"
-#include "type_traits.hpp"
+#include "preprocessor.hpp"
 
 //----------------------------------------------------------------------------
 

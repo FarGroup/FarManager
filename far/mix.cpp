@@ -150,7 +150,7 @@ void FindDataExToPluginPanelItemHolder(const os::fs::find_data& Src, PluginPanel
 	const auto MakeCopy = [](string_view const Str)
 	{
 		auto Buffer = std::make_unique<wchar_t[]>(Str.size() + 1);
-		*std::copy(ALL_CONST_RANGE(Str), Buffer.get()) = L'\0';
+		*copy_string(Str, Buffer.get()) = {};
 		return Buffer.release();
 	};
 

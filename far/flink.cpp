@@ -95,8 +95,8 @@ static bool FillREPARSE_DATA_BUFFER(REPARSE_DATA_BUFFER& rdb, string_view const 
 			Buffer.SubstituteNameLength = static_cast<USHORT>(SubstituteNameLength);
 			Buffer.PrintNameOffset = static_cast<USHORT>(PrintNameOffset);
 			Buffer.PrintNameLength = static_cast<USHORT>(PrintNameLength);
-			*std::copy(ALL_CONST_RANGE(SubstituteName), Buffer.PathBuffer + SubstituteNameOffset / sizeof(wchar_t)) = 0;
-			*std::copy(ALL_CONST_RANGE(PrintName), Buffer.PathBuffer + PrintNameOffset / sizeof(wchar_t)) = 0;
+			*copy_string(SubstituteName, Buffer.PathBuffer + SubstituteNameOffset / sizeof(wchar_t)) = {};
+			*copy_string(PrintName, Buffer.PathBuffer + PrintNameOffset / sizeof(wchar_t)) = {};
 			return true;
 		}
 
@@ -119,8 +119,8 @@ static bool FillREPARSE_DATA_BUFFER(REPARSE_DATA_BUFFER& rdb, string_view const 
 			Buffer.SubstituteNameLength = static_cast<USHORT>(SubstituteNameLength);
 			Buffer.PrintNameOffset = static_cast<USHORT>(PrintNameOffset);
 			Buffer.PrintNameLength = static_cast<USHORT>(PrintNameLength);
-			std::copy(ALL_CONST_RANGE(SubstituteName), Buffer.PathBuffer + SubstituteNameOffset / sizeof(wchar_t));
-			std::copy(ALL_CONST_RANGE(PrintName), Buffer.PathBuffer + PrintNameOffset / sizeof(wchar_t));
+			copy_string(SubstituteName, Buffer.PathBuffer + SubstituteNameOffset / sizeof(wchar_t));
+			copy_string(PrintName, Buffer.PathBuffer + PrintNameOffset / sizeof(wchar_t));
 			return true;
 		}
 

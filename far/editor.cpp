@@ -4096,7 +4096,7 @@ void Editor::ProcessChar(wchar_t Char)
 		ProcessKeyInternal(Manager::Key(L' '), RefreshMe);
 		auto& line = m_it_CurLine->m_Str;
 		if (line.size() > cur_pos && line[cur_pos] == L' ')
-			line[cur_pos] = L'\0';
+			line[cur_pos] = {};
 	}
 }
 

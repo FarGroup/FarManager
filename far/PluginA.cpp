@@ -1333,7 +1333,7 @@ static oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem &di, HANDLE 
 		diA->Ptr.PtrLength = static_cast<int>(Length);
 		auto Data = std::make_unique<char[]>(Length + 1);
 		encoding::oem::get_bytes({ di.Data, Length }, { Data.get(), Length });
-		Data[Length] = L'\0';
+		Data[Length] = {};
 		diA->Ptr.PtrData = Data.release();
 	}
 	else
@@ -1972,7 +1972,7 @@ static int WINAPI ProcessNameA(const char *Param1, char *Param2, DWORD Flags) no
 		const auto strP1 = encoding::oem::get_chars(Param1), strP2 = encoding::oem::get_chars(Param2);
 		const auto size = static_cast<int>(strP1.size() + strP2.size() + oldfar::NM) + 1; //а хрен ещё как угадать скока там этот Param2 для PN_GENERATENAME
 		const wchar_t_ptr_n<os::default_buffer_size> p(size);
-		*std::copy(ALL_CONST_RANGE(strP2), p.data()) = L'\0';
+		*copy_string(strP2, p.data()) = {};
 
 		auto newFlags = PN_NONE;
 
@@ -4653,7 +4653,7 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize) noexc
 					return -1;
 
 				cpiex.MaxCharSize = cpi.MaxCharSize;
-				cpiex.CodePageName[0] = L'\0';
+				cpiex.CodePageName[0] = {};
 			}
 
 			if (cpiex.MaxCharSize != 1)

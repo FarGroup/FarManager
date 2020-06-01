@@ -1,3 +1,7 @@
+drkns 01.06.2020 02:05:40 +0100 - build 5615
+
+1. Refactoring.
+
 drkns 30.05.2020 20:22:00 +0100 - build 5614
 
 1. FarDlgBuilder.hpp doesn't depend on DlgBuilder.hpp anymore.

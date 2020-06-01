@@ -33,16 +33,21 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "compiler.hpp"
-#include "placement.hpp"
 #include "preprocessor.hpp"
 #include "type_traits.hpp"
 #include "utility.hpp"
 
 //----------------------------------------------------------------------------
 
+template<typename string_type>
+auto copy_string(string_type const& Str, typename string_type::value_type* Destination)
+{
+	return Destination + Str.copy(Destination, Str.npos);
+}
+
 /*
 Helper class to safely pass string_view to low level C or platform API.
-Builds a compatible null-terminated std::basic_string if the given view is not null-terminated,
+Builds a compatible null-terminated string if the given view is not null-terminated,
 otherwise uses the same data.
 */
 template<typename T>
@@ -51,65 +56,26 @@ class [[nodiscard]] null_terminated_t
 public:
 	NONCOPYABLE(null_terminated_t);
 
-WARNING_PUSH()
-WARNING_DISABLE_MSC(4582) // 'class': constructor is not implicitly called
-WARNING_DISABLE_MSC(4583) // 'class': destructor is not implicitly called
-
 	explicit null_terminated_t(const std::basic_string_view<T> Str)
 	{
 		if (Str.data() && !Str.data()[Str.size()])
 		{
-			m_Mode = mode::view;
-			placement::construct(m_View, Str);
+			m_Str.template emplace<view_type>(Str);
 		}
-		else if (Str.size() < std::size(m_Buffer))
+		else if (Str.size() < std::tuple_size_v<buffer_type>)
 		{
-			m_Mode = mode::buffer;
-			*std::copy(ALL_CONST_RANGE(Str), m_Buffer) = {};
+			*copy_string(Str, m_Str.template emplace<buffer_type>().data()) = {};
 		}
 		else
 		{
-			m_Mode = mode::string;
-			placement::construct(m_Str, Str);
+			m_Str.template emplace<string_type>(Str);
 		}
 	}
-
-	~null_terminated_t()
-	{
-		switch(m_Mode)
-		{
-		case mode::view:
-			placement::destruct(m_View);
-			break;
-
-		case mode::buffer:
-			break;
-
-		case mode::string:
-			placement::destruct(m_Str);
-			break;
-		}
-	}
-
-WARNING_POP()
 
 	[[nodiscard]]
 	const T* c_str() const noexcept
 	{
-		switch (m_Mode)
-		{
-		case mode::view:
-			return m_View.data();
-
-		case mode::buffer:
-			return m_Buffer;
-
-		case mode::string:
-			return m_Str.c_str();
-
-		default:
-			UNREACHABLE;
-		}
+		return std::visit([](const auto& Str){ return Str.data(); }, m_Str);
 	}
 
 	[[nodiscard]]
@@ -119,20 +85,11 @@ WARNING_POP()
 	}
 
 private:
-	union
-	{
-		std::basic_string_view<T> m_View;
-		T m_Buffer[MAX_PATH];
-		std::basic_string<T> m_Str;
-	};
+	using view_type = std::basic_string_view<T>;
+	using buffer_type = std::array<T, MAX_PATH>;
+	using string_type = std::basic_string<T>;
 
-	enum class mode: char
-	{
-		view,
-		buffer,
-		string
-	}
-	m_Mode;
+	std::variant<view_type, buffer_type, string_type> m_Str;
 };
 
 using null_terminated = null_terminated_t<wchar_t>;

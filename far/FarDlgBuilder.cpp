@@ -86,7 +86,7 @@ public:
 		m_Mask[0] = L'#';
 		const auto MaskWidth = std::min(static_cast<int>(std::size(m_Mask) - 1), Width);
 		std::fill(m_Mask + 1, m_Mask + MaskWidth, L'9');
-		m_Mask[MaskWidth] = L'\0';
+		m_Mask[MaskWidth] = {};
 	}
 
 	void SaveValue(DialogItemEx const* const Item, int const RadioGroupIndex) override
@@ -132,7 +132,7 @@ public:
 		m_Mask[0] = L'0';
 		m_Mask[1] = L'x';
 		std::fill(std::begin(m_Mask) + 2, std::end(m_Mask) - 1, L'H');
-		*(std::end(m_Mask) - 1) = L'\0';
+		*(std::end(m_Mask) - 1) = {};
 	}
 
 	void SaveValue(DialogItemEx const* const Item, int const RadioGroupIndex) override
@@ -345,14 +345,14 @@ DialogItemEx* DialogBuilder::AddCheckbox(lng_string const Text, IntOption& Value
 
 DialogItemEx* DialogBuilder::AddCheckbox(lng_string const Text, Bool3Option& Value)
 {
-	const auto Item = AddCheckboxImpl(Text, Value, false, true);
+	const auto Item = AddCheckboxImpl(Text, Value, 0, true);
 	SetLastItemBinding(std::make_unique<CheckBoxBool3Binding<Bool3Option>>(Value));
 	return Item;
 }
 
 DialogItemEx* DialogBuilder::AddCheckbox(lng_string const Text, BoolOption& Value)
 {
-	const auto Item = AddCheckboxImpl(Text, Value, false, false);
+	const auto Item = AddCheckboxImpl(Text, Value, 0, false);
 	SetLastItemBinding(std::make_unique<CheckBoxBoolBinding<BoolOption>>(Value));
 	return Item;
 }

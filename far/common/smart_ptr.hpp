@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "placement.hpp"
 #include "preprocessor.hpp"
 #include "range.hpp"
+#include "utility.hpp"
 
 //----------------------------------------------------------------------------
 
@@ -44,13 +45,9 @@ class array_ptr: public span<T>
 public:
 	NONCOPYABLE(array_ptr);
 
-WARNING_PUSH()
-WARNING_DISABLE_MSC(4582) // 'class': constructor is not implicitly called
-WARNING_DISABLE_MSC(4583) // 'class': destructor is not implicitly called
-
 	array_ptr() noexcept
 	{
-		placement::construct(m_StaticBuffer);
+		m_Buffer.template emplace<static_type>();
 		init_span(0);
 	}
 
@@ -65,16 +62,8 @@ WARNING_DISABLE_MSC(4583) // 'class': destructor is not implicitly called
 		move_from(rhs);
 	}
 
-	~array_ptr()
-	{
-		destruct();
-	}
-
-WARNING_POP()
-
 	array_ptr& operator=(array_ptr&& rhs) noexcept
 	{
-		destruct();
 		return move_from(rhs);
 	}
 
@@ -82,24 +71,15 @@ WARNING_POP()
 	{
 		if (Size > StaticSize)
 		{
-			if (!is_dynamic())
-			{
-				placement::destruct(m_StaticBuffer);
-				placement::construct(m_DynamicBuffer);
-			}
+			auto& DynamicBuffer = m_Buffer.template emplace<dynamic_type>();
 
 			// We don't need a strong guarantee here, so it's better to reduce memory usage
-			m_DynamicBuffer.reset();
-
-			m_DynamicBuffer.reset(Init? new T[Size]() : new T[Size]);
+			DynamicBuffer.reset();
+			DynamicBuffer.reset(Init? new T[Size]() : new T[Size]);
 		}
 		else
 		{
-			if (is_dynamic())
-			{
-				placement::destruct(m_DynamicBuffer);
-				placement::construct(m_StaticBuffer);
-			}
+			m_Buffer.template emplace<static_type>();
 		}
 
 		init_span(Size);
@@ -119,11 +99,21 @@ WARNING_POP()
 	}
 
 private:
-	constexpr static size_t StaticSize = std::max(MinStaticSize, sizeof(std::unique_ptr<T[]>) / sizeof(T));
+	using dynamic_type = std::unique_ptr<T[]>;
+	constexpr static size_t StaticSize = std::max(MinStaticSize, sizeof(dynamic_type) / sizeof(T));
+	using static_type = std::array<T, StaticSize>;
 
 	void init_span(size_t const Size) noexcept
 	{
-		static_cast<span<T>&>(*this) = { is_dynamic(Size)? m_DynamicBuffer.get() : m_StaticBuffer.data(), Size };
+		static_cast<span<T>&>(*this) =
+		{
+			std::visit(overload
+			{
+				[](static_type& Data){ return Data.data(); },
+				[](dynamic_type& Data){ return Data.get(); }
+			}, m_Buffer),
+			Size
+		};
 	}
 
 	bool is_dynamic(size_t const Size) const noexcept
@@ -136,38 +126,16 @@ private:
 		return is_dynamic(this->size());
 	}
 
-	void destruct() noexcept
-	{
-		if (is_dynamic())
-			placement::destruct(m_DynamicBuffer);
-		else
-			placement::destruct(m_StaticBuffer);
-	}
-
 	array_ptr& move_from(array_ptr& rhs) noexcept
 	{
-		if (rhs.is_dynamic())
-		{
-			placement::construct(m_DynamicBuffer, std::move(rhs.m_DynamicBuffer));
-			placement::destruct(rhs.m_DynamicBuffer);
-		}
-		else
-		{
-			placement::construct(m_StaticBuffer, std::move(rhs.m_StaticBuffer));
-			placement::destruct(rhs.m_StaticBuffer);
-		}
-
+		m_Buffer = std::move(rhs.m_Buffer);
 		init_span(rhs.size());
 		rhs.init_span(0);
 
 		return *this;
 	}
 
-	union
-	{
-		mutable std::array<T, StaticSize> m_StaticBuffer;
-		std::unique_ptr<T[]> m_DynamicBuffer;
-	};
+	mutable std::variant<static_type, dynamic_type> m_Buffer;
 };
 
 template<size_t Size = 1>
