@@ -2424,7 +2424,7 @@ void background_searcher::DoPrepareFileList()
 
 			const auto DriveType = FAR_GetDriveType(RootDir);
 
-			if (DriveType != DRIVE_REMOVABLE && !IsDriveTypeCDROM(DriveType) && (DriveType != DRIVE_REMOTE || SearchMode != FINDAREA_ALL_BUTNETWORK))
+			if (DriveType != DRIVE_REMOVABLE && DriveType != DRIVE_CDROM && (DriveType != DRIVE_REMOTE || SearchMode != FINDAREA_ALL_BUTNETWORK))
 			{
 				string strGuidVolime;
 				if(os::fs::GetVolumeNameForVolumeMountPoint(RootDir, strGuidVolime))
@@ -2439,7 +2439,7 @@ void background_searcher::DoPrepareFileList()
 		{
 			const auto DriveType = FAR_GetDriveType(VolumeName);
 
-			if (DriveType==DRIVE_REMOVABLE || IsDriveTypeCDROM(DriveType) || (DriveType==DRIVE_REMOTE && SearchMode==FINDAREA_ALL_BUTNETWORK))
+			if (DriveType == DRIVE_REMOVABLE || DriveType == DRIVE_CDROM || (DriveType == DRIVE_REMOTE && SearchMode == FINDAREA_ALL_BUTNETWORK))
 			{
 				continue;
 			}

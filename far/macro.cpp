@@ -1938,7 +1938,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			if (SelPanel  && SelPanel->GetMode() != panel_mode::PLUGIN_PANEL)
 			{
-				return FAR_GetDriveType(GetPathRoot(SelPanel->GetCurDir()), 0);
+				return FAR_GetDriveType(GetPathRoot(SelPanel->GetCurDir()));
 			}
 
 			return -1;

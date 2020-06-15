@@ -1858,7 +1858,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				{
 					DWORD SetAttr=SrcData.Attributes;
 
-					if (IsDriveTypeCDROM(SrcDriveType) && (SetAttr & FILE_ATTRIBUTE_READONLY))
+					if (SrcDriveType == DRIVE_CDROM && (SetAttr & FILE_ATTRIBUTE_READONLY))
 						SetAttr&=~FILE_ATTRIBUTE_READONLY;
 
 					if (SetAttr!=DestAttr)
@@ -1978,7 +1978,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 				DWORD SetAttr=SrcData.Attributes;
 
-				if (IsDriveTypeCDROM(SrcDriveType) && (SetAttr & FILE_ATTRIBUTE_READONLY))
+				if (SrcDriveType == DRIVE_CDROM && (SetAttr & FILE_ATTRIBUTE_READONLY))
 					SetAttr&=~FILE_ATTRIBUTE_READONLY;
 
 				ShellSetAttr(strDestPath, SetAttr);
@@ -2152,7 +2152,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 							strCopiedName = NamePart;
 					}
 
-					if (IsDriveTypeCDROM(SrcDriveType) && (SrcData.Attributes & FILE_ATTRIBUTE_READONLY))
+					if (SrcDriveType == DRIVE_CDROM && (SrcData.Attributes & FILE_ATTRIBUTE_READONLY))
 						ShellSetAttr(strDestPath,SrcData.Attributes & (~FILE_ATTRIBUTE_READONLY));
 
 					++CP->m_Files.Copied;
@@ -2184,7 +2184,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 					if (!(Flags&FCOPY_COPYTONUL))
 					{
-						if (IsDriveTypeCDROM(SrcDriveType) && (SrcData.Attributes & FILE_ATTRIBUTE_READONLY))
+						if (SrcDriveType == DRIVE_CDROM && (SrcData.Attributes & FILE_ATTRIBUTE_READONLY))
 							ShellSetAttr(strDestPath,SrcData.Attributes & ~FILE_ATTRIBUTE_READONLY);
 
 						if (DestAttr!=INVALID_FILE_ATTRIBUTES && equal_icase(strCopiedName, DestData.FileName) && strCopiedName != DestData.FileName)
@@ -2739,7 +2739,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 
 		if (!IsWindowsVistaOrGreater() && IsWindowsServer()) // M#1607 WS2003-Share SetFileTime BUG
 		{
-			if (FAR_GetDriveType(GetPathRoot(strDestName), 0) == DRIVE_REMOTE)
+			if (FAR_GetDriveType(GetPathRoot(strDestName)) == DRIVE_REMOTE)
 			{
 				if (DestFile.Open(strDestName, FILE_WRITE_ATTRIBUTES, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
 				{

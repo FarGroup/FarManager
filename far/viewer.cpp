@@ -423,15 +423,15 @@ bool Viewer::OpenFile(const string& Name, bool const Warn)
 	const auto update_check_period = [&]
 	{
 		// media inserted here
-		switch (FAR_GetDriveType(GetPathRoot(strFullFileName), 2)) //??? make it configurable
+		const auto PathRoot = GetPathRoot(strFullFileName);
+		switch (FAR_GetDriveType(PathRoot)) //??? make it configurable
 		{
-			case DRIVE_REMOVABLE: return 0ms;
-			case DRIVE_USBDRIVE:  return 500ms;
-			case DRIVE_FIXED:     return 1ms;
-			case DRIVE_REMOTE:    return 500ms;
-			case DRIVE_CDROM:     return 0ms;
-			case DRIVE_RAMDISK:   return 1ms;
-			default:              return 0ms;
+		case DRIVE_REMOVABLE: return is_removable_usb(PathRoot)? 500ms : 0ms;
+		case DRIVE_FIXED:     return 1ms;
+		case DRIVE_REMOTE:    return 500ms;
+		case DRIVE_CDROM:     return 0ms;
+		case DRIVE_RAMDISK:   return 1ms;
+		default:              return 0ms;
 		}
 	}();
 

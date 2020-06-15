@@ -160,7 +160,7 @@ static string CreateTreeFileName(string_view const Path)
 		}
 	}
 
-	UINT DriveType = FAR_GetDriveType(strRootDir, 0);
+	UINT DriveType = FAR_GetDriveType(strRootDir);
 	const auto PathType = ParsePath(strRootDir);
 	/*
 	root_type::unknown,
@@ -180,14 +180,8 @@ static string CreateTreeFileName(string_view const Path)
 		&VolumeNumber, &MaxNameLength, &FileSystemFlags,
 		&strFileSystemName))
 	{
-		if (DriveType == DRIVE_SUBSTITUTE) // Разворачиваем и делаем подмену
-		{
-			DriveType = DRIVE_FIXED; //????
-		}
-
 		switch (DriveType)
 		{
-		case DRIVE_USBDRIVE:
 		case DRIVE_REMOVABLE:
 			if (Global->Opt->Tree.RemovableDisk)
 			{
@@ -196,6 +190,7 @@ static string CreateTreeFileName(string_view const Path)
 				strPath = Global->Opt->Tree.strSaveLocalPath;
 			}
 			break;
+
 		case DRIVE_FIXED:
 			if (Global->Opt->Tree.LocalDisk)
 			{
@@ -204,6 +199,7 @@ static string CreateTreeFileName(string_view const Path)
 				strPath = Global->Opt->Tree.strSaveLocalPath;
 			}
 			break;
+
 		case DRIVE_REMOTE:
 			if (Global->Opt->Tree.NetDisk || Global->Opt->Tree.NetPath)
 			{
@@ -219,15 +215,7 @@ static string CreateTreeFileName(string_view const Path)
 				strPath = Global->Opt->Tree.strSaveNetPath;
 			}
 			break;
-		case DRIVE_CD_RW:
-		case DRIVE_CD_RWDVD:
-		case DRIVE_DVD_ROM:
-		case DRIVE_DVD_RW:
-		case DRIVE_DVD_RAM:
-		case DRIVE_BD_ROM:
-		case DRIVE_BD_RW:
-		case DRIVE_HDDVD_ROM:
-		case DRIVE_HDDVD_RW:
+
 		case DRIVE_CDROM:
 			if (Global->Opt->Tree.CDDisk)
 			{
@@ -236,13 +224,9 @@ static string CreateTreeFileName(string_view const Path)
 				strPath = Global->Opt->Tree.strSaveLocalPath;
 			}
 			break;
-		case DRIVE_VIRTUAL:
+
 		case DRIVE_RAMDISK:
 			break;
-		case DRIVE_REMOTE_NOT_CONNECTED:
-		case DRIVE_NOT_INIT:
-			break;
-
 		}
 
 		return path::join(!strPath.empty()? os::env::expand(strPath) : Path, strTreeFileName);
@@ -390,8 +374,8 @@ static TreeListCache& tempTreeCache()
 
 enum TREELIST_FLAGS
 {
-	FTREELIST_TREEISPREPARED = 0x00010000,
-	FTREELIST_UPDATEREQUIRED = 0x00020000,
+	FTREELIST_TREEISPREPARED = 16_bit,
+	FTREELIST_UPDATEREQUIRED = 17_bit,
 };
 
 tree_panel_ptr TreeList::create(window_ptr Owner, int ModalMode)
@@ -691,7 +675,7 @@ static bool MustBeCached(const string& Root)
 {
 	const auto type = FAR_GetDriveType(Root);
 
-	if (type==DRIVE_UNKNOWN || type==DRIVE_NO_ROOT_DIR || type==DRIVE_REMOVABLE || IsDriveTypeCDROM(type))
+	if (type == DRIVE_UNKNOWN || type == DRIVE_NO_ROOT_DIR || type == DRIVE_REMOVABLE || type == DRIVE_CDROM)
 	{
 		// кешируются CD, removable и неизвестно что :)
 		return true;

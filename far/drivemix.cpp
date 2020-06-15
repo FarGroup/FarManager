@@ -80,8 +80,3 @@ os::fs::drives_set os::fs::get_logical_drives()
 
 	return *SavedLogicalDrives;
 }
-
-bool IsDriveTypeRemote(UINT DriveType)
-{
-	return DriveType == DRIVE_REMOTE || DriveType == DRIVE_REMOTE_NOT_CONNECTED;
-}

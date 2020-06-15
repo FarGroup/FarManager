@@ -1,3 +1,9 @@
+drkns 15.06.2020 21:22:23 +0100 - build 5618
+
+1. Incorrect CD drive type detection in some cases.
+
+2. Refactoring.
+
 shmuel 09.06.2020 16:37:06 +0300 - build 5617
 
 1. Revert 5613.

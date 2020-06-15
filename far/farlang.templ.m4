@@ -14648,11 +14648,24 @@ MInfoCDROM
 "CD-ROM"
 "CD-ROM"
 "CD-ROM"
-"CD-Rom"
 "CD-ROM"
 "CD-ROM"
+"CD-ROM"
 
-MInfoCD_RW
+MInfoCDR
+"CD-R"
+"CD-R"
+"CD-R"
+"CD-R"
+"CD-R"
+"CD-R"
+"CD-R"
+"CD-R"
+"CD-R"
+"CD-R"
+"CD-R"
+
+MInfoCDRW
 "CD-RW"
 "CD-RW"
 "CD-RW"
@@ -14665,7 +14678,7 @@ MInfoCD_RW
 "CD-RW"
 "CD-RW"
 
-MInfoCD_RWDVD
+MInfoCDRWDVD
 "CD-RW/DVD"
 "CD-RW/DVD"
 "CD-RW/DVD"
@@ -14678,7 +14691,7 @@ MInfoCD_RWDVD
 "CD-RW/DVD"
 "CD-RW/DVD"
 
-MInfoDVD_ROM
+MInfoDVDROM
 "DVD-ROM"
 "DVD-ROM"
 "DVD-ROM"
@@ -14687,11 +14700,24 @@ MInfoDVD_ROM
 "DVD-ROM"
 "DVD-ROM"
 "DVD-ROM"
-"DVD-Rom"
+"DVD-ROM"
 "DVD-ROM"
 "DVD-ROM"
 
-MInfoDVD_RW
+MInfoDVDR
+"DVD-R"
+"DVD-R"
+"DVD-R"
+"DVD-R"
+"DVD-R"
+"DVD-R"
+"DVD-R"
+"DVD-R"
+"DVD-R"
+"DVD-R"
+"DVD-R"
+
+MInfoDVDRW
 "DVD-RW"
 "DVD-RW"
 "DVD-RW"
@@ -14704,7 +14730,7 @@ MInfoDVD_RW
 "DVD-RW"
 "DVD-RW"
 
-MInfoDVD_RAM
+MInfoDVDRAM
 "DVD-RAM"
 "DVD-RAM"
 "DVD-RAM"
@@ -14713,9 +14739,100 @@ MInfoDVD_RAM
 "DVD-RAM"
 "DVD-RAM"
 "DVD-RAM"
-"DVD-Ram"
 "DVD-RAM"
 "DVD-RAM"
+"DVD-RAM"
+
+MInfoBDROM
+"BD-ROM"
+"BD-ROM"
+"BD-ROM"
+"BD-ROM"
+"BD-ROM"
+"BD-ROM"
+"BD-ROM"
+"BD-ROM"
+"BD-ROM"
+"BD-ROM"
+"BD-ROM"
+
+MInfoBDR
+"BD-R"
+"BD-R"
+"BD-R"
+"BD-R"
+"BD-R"
+"BD-R"
+"BD-R"
+"BD-R"
+"BD-R"
+"BD-R"
+"BD-R"
+
+MInfoBDRW
+"BD-RW"
+"BD-RW"
+"BD-RW"
+"BD-RW"
+"BD-RW"
+"BD-RW"
+"BD-RW"
+"BD-RW"
+"BD-RW"
+"BD-RW"
+"BD-RW"
+
+MInfoHDDVDROM
+"HDDVD-ROM"
+"HDDVD-ROM"
+"HDDVD-ROM"
+"HDDVD-ROM"
+"HDDVD-ROM"
+"HDDVD-ROM"
+"HDDVD-ROM"
+"HDDVD-ROM"
+"HDDVD-ROM"
+"HDDVD-ROM"
+"HDDVD-ROM"
+
+MInfoHDDVDR
+"HDDVD-R"
+"HDDVD-R"
+"HDDVD-R"
+"HDDVD-R"
+"HDDVD-R"
+"HDDVD-R"
+"HDDVD-R"
+"HDDVD-R"
+"HDDVD-R"
+"HDDVD-R"
+"HDDVD-R"
+
+MInfoHDDVDRW
+"HDDVD-RW"
+"HDDVD-RW"
+"HDDVD-RW"
+"HDDVD-RW"
+"HDDVD-RW"
+"HDDVD-RW"
+"HDDVD-RW"
+"HDDVD-RW"
+"HDDVD-RW"
+"HDDVD-RW"
+"HDDVD-RW"
+
+MInfoHDDVDRAM
+"HDDVD-RAM"
+"HDDVD-RAM"
+"HDDVD-RAM"
+"HDDVD-RAM"
+"HDDVD-RAM"
+"HDDVD-RAM"
+"HDDVD-RAM"
+"HDDVD-RAM"
+"HDDVD-RAM"
+"HDDVD-RAM"
+"HDDVD-RAM"
 
 MInfoRAM
 "RAM"
@@ -16924,7 +17041,20 @@ MChangeDriveCDROM
 "CD-ROM"
 "CD-ROM"
 
-MChangeDriveCD_RW
+MChangeDriveCDR
+"CD-R"
+"CD-R"
+"CD-R"
+"CD-R"
+"CD-R"
+"CD-R"
+"CD-R"
+"CD-R"
+"CD-R"
+"CD-R"
+"CD-R"
+
+MChangeDriveCDRW
 "CD-RW"
 "CD-RW"
 "CD-RW"
@@ -16937,7 +17067,7 @@ MChangeDriveCD_RW
 "CD-RW"
 "CD-RW"
 
-MChangeDriveCD_RWDVD
+MChangeDriveCDRWDVD
 "CD-RW/DVD"
 "CD-RW/DVD"
 "CD-RW/DVD"
@@ -16950,7 +17080,7 @@ MChangeDriveCD_RWDVD
 "CD-RW/DVD"
 "CD-RW/DVD"
 
-MChangeDriveDVD_ROM
+MChangeDriveDVDROM
 "DVD-ROM"
 "DVD-ROM"
 "DVD-ROM"
@@ -16963,20 +17093,33 @@ MChangeDriveDVD_ROM
 "DVD-ROM"
 "DVD-ROM"
 
-MChangeDriveDVD_RW
+MChangeDriveDVDR
+"DVD-R"
+"DVD-R"
+"DVD-R"
+"DVD-R"
+"DVD-R"
+"DVD-R"
+"DVD-R"
+"DVD-R"
+"DVD-R"
+"DVD-R"
+"DVD-R"
+
+MChangeDriveDVDRW
 "DVD-RW"
 "DVD-RW"
-"DWD-RW"
 "DVD-RW"
 "DVD-RW"
 "DVD-RW"
 "DVD-RW"
-"DWD-RW"
+"DVD-RW"
+"DVD-RW"
 "DVD-RW"
 "DVD-RW"
 "DVD-RW"
 
-MChangeDriveDVD_RAM
+MChangeDriveDVDRAM
 "DVD-RAM"
 "DVD-RAM"
 "DVD-RAM"
@@ -16989,7 +17132,7 @@ MChangeDriveDVD_RAM
 "DVD-RAM"
 "DVD-RAM"
 
-MChangeDriveBD_ROM
+MChangeDriveBDROM
 "BD-ROM"
 "BD-ROM"
 "BD-ROM"
@@ -17002,7 +17145,20 @@ MChangeDriveBD_ROM
 "BD-ROM"
 "BD-ROM"
 
-MChangeDriveBD_RW
+MChangeDriveBDR
+"BD-R"
+"BD-R"
+"BD-R"
+"BD-R"
+"BD-R"
+"BD-R"
+"BD-R"
+"BD-R"
+"BD-R"
+"BD-R"
+"BD-R"
+
+MChangeDriveBDRW
 "BD-RW"
 "BD-RW"
 "BD-RW"
@@ -17015,7 +17171,7 @@ MChangeDriveBD_RW
 "BD-RW"
 "BD-RW"
 
-MChangeDriveHDDVD_ROM
+MChangeDriveHDDVDROM
 "HDDVD-ROM"
 "HDDVD-ROM"
 "HDDVD-ROM"
@@ -17028,7 +17184,20 @@ MChangeDriveHDDVD_ROM
 "HDDVD-ROM"
 "HDDVD-ROM"
 
-MChangeDriveHDDVD_RW
+MChangeDriveHDDVDR
+"HDDVD-R"
+"HDDVD-R"
+"HDDVD-R"
+"HDDVD-R"
+"HDDVD-R"
+"HDDVD-R"
+"HDDVD-R"
+"HDDVD-R"
+"HDDVD-R"
+"HDDVD-R"
+"HDDVD-R"
+
+MChangeDriveHDDVDRW
 "HDDVD-RW"
 "HDDVD-RW"
 "HDDVD-RW"
@@ -17041,6 +17210,18 @@ MChangeDriveHDDVD_RW
 "HDDVD-RW"
 "HDDVD-RW"
 
+MChangeDriveHDDVDRAM
+"HDDVD-RAM"
+"HDDVD-RAM"
+"HDDVD-RAM"
+"HDDVD-RAM"
+"HDDVD-RAM"
+"HDDVD-RAM"
+"HDDVD-RAM"
+"HDDVD-RAM"
+"HDDVD-RAM"
+"HDDVD-RAM"
+"HDDVD-RAM"
 
 MChangeDriveRAM
 "RAM диск"
@@ -23794,7 +23975,7 @@ upd:"Minidump saved to"
 upd:"Minidump saved to"
 upd:"Minidump saved to"
 "Мінідамп збережено в"
-upd:"Мінідамп захаваны ў"
+"Мінідамп захаваны ў"
 
 
 MNetUserName
@@ -29964,7 +30145,7 @@ upd:"para reemplazar este objeto:"
 upd:"nahradenie tohto objektu:"
 upd:"Per Sostituire Questo Oggetto:"
 "для заміщення цього об'єкта:"
-upd:"для замены гэтага аб'екту:"
+"для замены гэтага аб'екту:"
 
 MElevationRequiredGetAttributes
 "для получения атрибутов этого объекта:"

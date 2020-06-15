@@ -197,7 +197,7 @@ namespace option
 	{
 		return overload
 		{
-			[Callable =FWD(Callable)](validator_tag, const auto& Value){ return Callable(Value); },
+			[Callable = FWD(Callable)](validator_tag, const auto& Value){ return Callable(Value); },
 			[](notifier_tag, const auto&){}
 		};
 	}
@@ -227,7 +227,11 @@ namespace detail
 			void(option::notifier_tag, const base_type&)
 		>;
 
-		void SetCallback(const callback_type& Callback) { m_Callback = Callback; }
+		void SetCallback(const callback_type& Callback)
+		{
+			assert(!m_Callback);
+			m_Callback = Callback;
+		}
 
 		[[nodiscard]]
 		const auto& Get() const { return GetT<base_type>(); }

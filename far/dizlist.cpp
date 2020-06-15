@@ -257,7 +257,7 @@ DizList::desc_map::const_iterator DizList::Find(const string& Name, const string
 
 DizList::desc_map::iterator DizList::Insert(const string& Name)
 {
-	auto Iterator = m_DizData.emplace(Name, std::list<string>());
+	auto Iterator = m_DizData.emplace(Name, description_data{});
 	m_OrderForWrite.push_back(&*Iterator);
 	return Iterator;
 }

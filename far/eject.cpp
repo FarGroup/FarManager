@@ -61,7 +61,7 @@ void EjectVolume(wchar_t Letter)
 		WriteFlag = GENERIC_WRITE;
 		ReadOnly = false;
 	}
-	else if (IsDriveTypeCDROM(DriveType))
+	else if (DriveType == DRIVE_CDROM)
 	{
 		WriteFlag = 0;
 		ReadOnly = true;

@@ -36,12 +36,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace detail
 {
-	template<typename result, typename object, typename... args>
+	template<typename result, typename, typename... args>
 	struct function_traits_impl
 	{
 		using result_type = result;
 
-		template <size_t i>
+		template<size_t i>
 		using arg = std::tuple_element_t<i, std::tuple<args...>>;
 	};
 }
@@ -53,7 +53,7 @@ template<typename result, typename... args>
 struct function_traits<result(args...)>: detail::function_traits_impl<result, void, args...> {};
 
 template<typename result, typename... args>
-struct function_traits<result(*)(args...)> : detail::function_traits_impl<result, void, args...> {};
+struct function_traits<result(*)(args...)>: detail::function_traits_impl<result, void, args...> {};
 
 template<typename result, typename object, typename... args>
 struct function_traits<result(object::*)(args...)>: detail::function_traits_impl<result, object, args...> {};

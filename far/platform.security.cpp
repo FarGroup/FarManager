@@ -53,9 +53,9 @@ namespace
 		return os::handle(OpenProcessToken(GetCurrentProcess(), DesiredAccess, &Handle)? Handle : nullptr);
 	}
 
-	static bool lookup_privilege_value(const wchar_t* Name, LUID& Value)
+	static const auto& lookup_privilege_value(const wchar_t* Name)
 	{
-		static std::unordered_map<string, std::pair<LUID, bool>> s_Cache;
+		static std::unordered_map<string, std::optional<LUID>> s_Cache;
 		static os::critical_section s_CS;
 
 		SCOPED_ACTION(std::lock_guard)(s_CS);
@@ -63,15 +63,15 @@ namespace
 		const auto [Iterator, IsEmplaced] = s_Cache.try_emplace(Name);
 
 		auto& [MapKey, MapValue] = *Iterator;
-		auto& [Luid, Result] = MapValue;
 
 		if (IsEmplaced)
 		{
-			Result = LookupPrivilegeValue(nullptr, MapKey.c_str(), &Luid) != FALSE;
+			LUID Luid;
+			if (LookupPrivilegeValue(nullptr, MapKey.c_str(), &Luid))
+				MapValue = Luid;
 		}
 
-		Value = Luid;
-		return Result;
+		return MapValue;
 	}
 
 	static bool operator==(const LUID& a, const LUID& b)
@@ -119,10 +119,9 @@ namespace os::security
 
 		for (const auto& i: Names)
 		{
-			LUID_AND_ATTRIBUTES laa = { {}, SE_PRIVILEGE_ENABLED };
-			if (lookup_privilege_value(i, laa.Luid))
+			if (const auto& Luid = lookup_privilege_value(i))
 			{
-				NewState->Privileges[NewState->PrivilegeCount++] = laa;
+				NewState->Privileges[NewState->PrivilegeCount++] = { *Luid, SE_PRIVILEGE_ENABLED };
 			}
 			// TODO: log if failed
 		}
@@ -168,19 +167,16 @@ namespace os::security
 		if (!GetTokenInformation(Token.native_handle(), TokenPrivileges, TokenInformation.data(), TokenInformationLength, &TokenInformationLength))
 			return false;
 
-		const auto Privileges = span(TokenInformation->Privileges, TokenInformation->PrivilegeCount);
+		const span Privileges(TokenInformation->Privileges, TokenInformation->PrivilegeCount);
 
-		for (const auto& Name: Names)
+		return std::all_of(ALL_CONST_RANGE(Names), [&](const wchar_t* const Name)
 		{
-			LUID Luid;
-			if (!lookup_privilege_value(Name, Luid))
+			const auto& Luid = lookup_privilege_value(Name);
+			if (!Luid)
 				return false;
 
-			const auto ItemIterator = std::find_if(ALL_CONST_RANGE(Privileges), [&](const auto& Item) { return Item.Luid == Luid; });
-			if (ItemIterator == Privileges.end() || !(ItemIterator->Attributes & (SE_PRIVILEGE_ENABLED | SE_PRIVILEGE_ENABLED_BY_DEFAULT)))
-				return false;
-		}
-
-		return true;
+			const auto ItemIterator = std::find_if(ALL_CONST_RANGE(Privileges), [&](const auto& Item) { return Item.Luid == *Luid; });
+			return ItemIterator != Privileges.end() && ItemIterator->Attributes & (SE_PRIVILEGE_ENABLED | SE_PRIVILEGE_ENABLED_BY_DEFAULT);
+		});
 	}
 }

@@ -72,26 +72,24 @@ const auto support_unpaired_surrogates_in_utf8 = true;
 class installed_codepages
 {
 public:
-	installed_codepages();
-	const auto& get() const { return m_InstalledCp; }
+	installed_codepages()
+	{
+		Context = this;
+		EnumSystemCodePages([](wchar_t* cpNum){ return Context->enum_cp_callback(cpNum); }, CP_INSTALLED);
+		Context = {};
+
+		rethrow_if(m_ExceptionPtr);
+	}
+
+	const auto& get() const
+	{
+		return m_InstalledCp;
+	}
 
 private:
-	void insert(UINT Codepage, UINT MaxCharSize, const string& Name)
-	{
-		m_InstalledCp.emplace(Codepage, std::pair(MaxCharSize, Name));
-	}
-	friend class system_codepages_enumerator;
+	static inline installed_codepages* Context;
 
-	cp_map m_InstalledCp;
-	std::exception_ptr m_ExceptionPtr;
-};
-
-class system_codepages_enumerator
-{
-public:
-	static installed_codepages* context;
-
-	static BOOL CALLBACK enum_cp(wchar_t *cpNum)
+	BOOL enum_cp_callback(wchar_t const* cpNum)
 	{
 		try
 		{
@@ -109,40 +107,32 @@ public:
 				cpix.MaxCharSize = cpi.MaxCharSize;
 				xwcsncpy(cpix.CodePageName, cpNum, std::size(cpix.CodePageName));
 			}
-			if (cpix.MaxCharSize > 0)
+
+			if (cpix.MaxCharSize < 1)
+				return TRUE;
+
+			string_view cp_data = cpix.CodePageName;
+			// Windows: "XXXX (Name)", Wine: "Name"
+			const auto OpenBracketPos = cp_data.find(L'(');
+			if (OpenBracketPos != string::npos)
 			{
-				string cp_data(cpix.CodePageName);
-				// Windows: "XXXX (Name)", Wine: "Name"
-				const auto OpenBracketPos = cp_data.find(L'(');
-				if (OpenBracketPos != string::npos)
+				const auto CloseBracketPos = cp_data.rfind(L')');
+				if (CloseBracketPos != string::npos && CloseBracketPos > OpenBracketPos)
 				{
-					const auto CloseBracketPos = cp_data.rfind(L')');
-					if (CloseBracketPos != string::npos && CloseBracketPos > OpenBracketPos)
-					{
-						cp_data.resize(CloseBracketPos);
-						cp_data.erase(0, OpenBracketPos + 1);
-					}
+					cp_data = cp_data.substr(OpenBracketPos + 1, CloseBracketPos - OpenBracketPos - 1);
 				}
-				context->insert(cp, cpix.MaxCharSize, cp_data);
 			}
 
+			m_InstalledCp.try_emplace(cp, cpix.MaxCharSize, cp_data);
 			return TRUE;
 		}
-		CATCH_AND_SAVE_EXCEPTION_TO(context->m_ExceptionPtr)
-
+		CATCH_AND_SAVE_EXCEPTION_TO(m_ExceptionPtr)
 		return FALSE;
 	}
+
+	cp_map m_InstalledCp;
+	std::exception_ptr m_ExceptionPtr;
 };
-
-installed_codepages* system_codepages_enumerator::context;
-
-installed_codepages::installed_codepages()
-{
-	system_codepages_enumerator::context = this;
-	EnumSystemCodePages(system_codepages_enumerator::enum_cp, CP_INSTALLED);
-	system_codepages_enumerator::context = nullptr;
-	rethrow_if(m_ExceptionPtr);
-}
 
 const cp_map& InstalledCodepages()
 {
@@ -154,11 +144,11 @@ cp_map::value_type::second_type GetCodePageInfo(UINT cp)
 {
 	// Standard unicode CPs (1200, 1201, 65001) are NOT in the list.
 	const auto& InstalledCp = InstalledCodepages();
-	const auto found = InstalledCp.find(cp);
-	if (InstalledCp.end() == found)
-		return {};
 
-	return found->second;
+	if (const auto found = InstalledCp.find(cp); found != InstalledCp.cend())
+		return found->second;
+
+	return {};
 }
 
 static bool IsValid(UINT cp)

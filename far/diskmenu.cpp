@@ -56,7 +56,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panel.hpp"
 #include "filepanels.hpp"
 #include "execute.hpp"
-#include "savescr.hpp"
 #include "scrbuf.hpp"
 #include "plugapi.hpp"
 #include "message.hpp"
@@ -78,15 +77,29 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
+enum
+{
+	// DRIVE_UNKNOWN            = 0,
+	// DRIVE_NO_ROOT_DIR        = 1,
+	// DRIVE_REMOVABLE          = 2,
+	// DRIVE_FIXED              = 3,
+	// DRIVE_REMOTE             = 4,
+	// DRIVE_CDROM              = 5,
+	// DRIVE_RAMDISK            = 6,
+
+	// BUGBUG ELIMINATE
+	DRIVE_SUBSTITUTE            = 100,
+	DRIVE_REMOTE_NOT_CONNECTED  = 101,
+	DRIVE_VIRTUAL               = 102,
+};
+
 class ChDiskPluginItem
 {
 public:
 	NONCOPYABLE(ChDiskPluginItem);
 	MOVE_CONSTRUCTIBLE(ChDiskPluginItem);
 
-	ChDiskPluginItem():
-		HotKey()
-	{}
+	ChDiskPluginItem() = default;
 
 	bool operator <(const ChDiskPluginItem& rhs) const
 	{
@@ -95,12 +108,12 @@ public:
 			string_sort::less(Item.Name, rhs.Item.Name);
 	}
 
-	MenuItemEx& getItem() { return Item; }
-	WCHAR& getHotKey() { return HotKey; }
+	auto& getItem() { return Item; }
+	auto& getHotKey() { return HotKey; }
 
 private:
 	MenuItemEx Item;
-	WCHAR HotKey;
+	wchar_t HotKey{};
 };
 
 struct disk_item
@@ -208,10 +221,10 @@ static void ConfigureChangeDriveMode()
 	Builder.LinkFlags(ShowLabel, ShowLabelUseShell, DIF_DISABLE);
 	Builder.AddCheckbox(lng::MChangeDriveShowFileSystem, DriveMode, DRIVE_SHOW_FILESYSTEM);
 
-	BOOL ShowSizeAny = DriveMode & (DRIVE_SHOW_SIZE | DRIVE_SHOW_SIZE_FLOAT);
+	int ShowSizeAny = DriveMode & (DRIVE_SHOW_SIZE | DRIVE_SHOW_SIZE_FLOAT);
 
-	DialogItemEx *ShowSize = Builder.AddCheckbox(lng::MChangeDriveShowSize, ShowSizeAny);
-	DialogItemEx *ShowSizeFloat = Builder.AddCheckbox(lng::MChangeDriveShowSizeFloat, DriveMode, DRIVE_SHOW_SIZE_FLOAT);
+	const auto ShowSize = Builder.AddCheckbox(lng::MChangeDriveShowSize, ShowSizeAny);
+	const auto ShowSizeFloat = Builder.AddCheckbox(lng::MChangeDriveShowSizeFloat, DriveMode, DRIVE_SHOW_SIZE_FLOAT);
 	ShowSizeFloat->Indent(4);
 	Builder.LinkFlags(ShowSize, ShowSizeFloat, DIF_DISABLE);
 
@@ -224,18 +237,18 @@ static void ConfigureChangeDriveMode()
 	Builder.AddCheckbox(lng::MChangeDriveShowVirtualDisk, DriveMode, DRIVE_SHOW_VIRTUAL);
 
 	Builder.AddOKCancel();
-	if (Builder.ShowDialog())
+	if (!Builder.ShowDialog())
+		return;
+
+	if (ShowSizeAny)
 	{
-		if (ShowSizeAny)
-		{
-			if (DriveMode & DRIVE_SHOW_SIZE_FLOAT)
-				DriveMode &= ~DRIVE_SHOW_SIZE;
-			else
-				DriveMode |= DRIVE_SHOW_SIZE;
-		}
+		if (DriveMode & DRIVE_SHOW_SIZE_FLOAT)
+			DriveMode &= ~DRIVE_SHOW_SIZE;
 		else
-			DriveMode &= ~(DRIVE_SHOW_SIZE | DRIVE_SHOW_SIZE_FLOAT);
+			DriveMode |= DRIVE_SHOW_SIZE;
 	}
+	else
+		DriveMode &= ~(DRIVE_SHOW_SIZE | DRIVE_SHOW_SIZE_FLOAT);
 }
 
 class separator
@@ -534,7 +547,7 @@ static bool ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 
 static bool DisconnectDrive(panel_ptr Owner, const disk_item& item, VMenu2 &ChDisk, bool& Cancelled)
 {
-	if (item.nDriveType != DRIVE_REMOVABLE && !IsDriveTypeCDROM(item.nDriveType))
+	if (item.nDriveType != DRIVE_REMOVABLE && item.nDriveType != DRIVE_CDROM)
 		return ProcessDelDisk(Owner, item.cDrive, item.nDriveType);
 
 	if (item.nDriveType == DRIVE_REMOVABLE && !IsEjectableMedia(item.cDrive))
@@ -719,7 +732,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 			// We have to determine at least the basic drive type (fixed/removable/remote) regardlessly of the DRIVE_SHOW_TYPE state,
 			// as it affects the visibility of the other metrics
-			NewItem.DriveType = FAR_GetDriveType(strRootDir, DriveMode & DRIVE_SHOW_CDROM? 1 : 0);
+			NewItem.DriveType = FAR_GetDriveType(strRootDir);
 
 			if (DisconnectedNetworkDrives[os::fs::get_drive_number(i)])
 			{
@@ -740,38 +753,36 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 				if (DriveMode & DRIVE_SHOW_TYPE)
 				{
-					static const std::pair<int, lng> DriveTypes[]
+					if (NewItem.DriveType == DRIVE_CDROM)
 					{
-						{ DRIVE_REMOVABLE, lng::MChangeDriveRemovable },
-						{ DRIVE_FIXED, lng::MChangeDriveFixed },
-						{ DRIVE_REMOTE, lng::MChangeDriveNetwork },
-						{ DRIVE_REMOTE_NOT_CONNECTED, lng::MChangeDriveDisconnectedNetwork },
-						{ DRIVE_CDROM, lng::MChangeDriveCDROM },
-						{ DRIVE_CD_RW, lng::MChangeDriveCD_RW },
-						{ DRIVE_CD_RWDVD, lng::MChangeDriveCD_RWDVD },
-						{ DRIVE_DVD_ROM, lng::MChangeDriveDVD_ROM },
-						{ DRIVE_DVD_RW, lng::MChangeDriveDVD_RW },
-						{ DRIVE_DVD_RAM, lng::MChangeDriveDVD_RAM },
-						{ DRIVE_BD_ROM, lng::MChangeDriveBD_ROM },
-						{ DRIVE_BD_RW, lng::MChangeDriveBD_RW },
-						{ DRIVE_HDDVD_ROM, lng::MChangeDriveHDDVD_ROM },
-						{ DRIVE_HDDVD_RW, lng::MChangeDriveHDDVD_RW },
-						{ DRIVE_RAMDISK, lng::MChangeDriveRAM },
-						{ DRIVE_SUBSTITUTE, lng::MChangeDriveSUBST },
-						{ DRIVE_VIRTUAL, lng::MChangeDriveVirtual },
-						{ DRIVE_USBDRIVE, lng::MChangeDriveRemovable },
-					};
+						static_assert(as_underlying_type(lng::MChangeDriveHDDVDRAM) - as_underlying_type(lng::MChangeDriveCDROM) == as_underlying_type(cd_type::hddvdram) - as_underlying_type(cd_type::cdrom));
 
-					const auto ItemIterator = std::find_if(CONST_RANGE(DriveTypes, DriveTypeItem) { return DriveTypeItem.first == NewItem.DriveType; });
-					if (ItemIterator != std::cend(DriveTypes))
-						NewItem.Type = msg(ItemIterator->second);
+						NewItem.Type = msg(lng::MChangeDriveCDROM + ((DriveMode & DRIVE_SHOW_CDROM)? as_underlying_type(get_cdrom_type(strRootDir)) - as_underlying_type(cd_type::cdrom) : 0));
+					}
+					else
+					{
+						static const std::pair<int, lng> DriveTypes[]
+						{
+							{ DRIVE_REMOVABLE,            lng::MChangeDriveRemovable },
+							{ DRIVE_FIXED,                lng::MChangeDriveFixed },
+							{ DRIVE_REMOTE,               lng::MChangeDriveNetwork },
+							{ DRIVE_REMOTE_NOT_CONNECTED, lng::MChangeDriveDisconnectedNetwork },
+							{ DRIVE_RAMDISK,              lng::MChangeDriveRAM },
+							{ DRIVE_SUBSTITUTE,           lng::MChangeDriveSUBST },
+							{ DRIVE_VIRTUAL,              lng::MChangeDriveVirtual },
+						};
+
+						const auto ItemIterator = std::find_if(CONST_RANGE(DriveTypes, DriveTypeItem) { return DriveTypeItem.first == NewItem.DriveType; });
+						if (ItemIterator != std::cend(DriveTypes))
+							NewItem.Type = msg(ItemIterator->second);
+					}
 				}
 			}
 
 			const auto ShowDiskInfo =
 				((DriveMode & DRIVE_SHOW_REMOVABLE) || NewItem.DriveType != DRIVE_REMOVABLE) &&
-				((DriveMode & DRIVE_SHOW_CDROM) || !IsDriveTypeCDROM(NewItem.DriveType)) &&
-				((DriveMode & DRIVE_SHOW_REMOTE) || !IsDriveTypeRemote(NewItem.DriveType));
+				((DriveMode & DRIVE_SHOW_CDROM) || NewItem.DriveType != DRIVE_CDROM) &&
+				((DriveMode & DRIVE_SHOW_REMOTE) || !(NewItem.DriveType == DRIVE_REMOTE || NewItem.DriveType == DRIVE_REMOTE_NOT_CONNECTED));
 
 			if (ShowDiskInfo)
 			{
@@ -825,7 +836,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				case DRIVE_REMOTE:
 				case DRIVE_REMOTE_NOT_CONNECTED:
 					// TODO: check result
-					DriveLocalToRemoteName(NewItem.DriveType, strRootDir[0], NewItem.Path);
+					DriveLocalToRemoteName(DRIVE_REMOTE, strRootDir[0], NewItem.Path);
 					break;
 				}
 			}
@@ -977,7 +988,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 				visit_if([&](disk_item const& item)
 				{
-					if (item.nDriveType != DRIVE_REMOVABLE && !IsDriveTypeCDROM(item.nDriveType))
+					if (item.nDriveType != DRIVE_REMOVABLE && item.nDriveType != DRIVE_CDROM)
 						return;
 
 					for (;;)
@@ -1243,7 +1254,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 	{
 		visit_if([](disk_item const& item)
 		{
-			if (item.nDriveType != DRIVE_REMOVABLE && !IsDriveTypeCDROM(item.nDriveType))
+			if (item.nDriveType != DRIVE_REMOVABLE && item.nDriveType != DRIVE_CDROM)
 				return;
 
 			if (os::fs::IsDiskInDrive(os::fs::get_drive(item.cDrive)))

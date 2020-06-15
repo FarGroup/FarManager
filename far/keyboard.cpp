@@ -983,11 +983,11 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 			{
 				// Шаманство с AltGr (виртуальная клавиатура)
 				bForceAltGr = (rec->Event.KeyEvent.wVirtualScanCode == 0)
-					&& ((rec->Event.KeyEvent.dwControlKeyState & 0x1F) == 0x0A);
+					&& ((rec->Event.KeyEvent.dwControlKeyState & 0x1F) == (LEFT_ALT_PRESSED | LEFT_CTRL_PRESSED));
 			}
 		}
 
-		if (bForceAltGr && (rec->Event.KeyEvent.dwControlKeyState & 0x1F) == 0x0A)
+		if (bForceAltGr && (rec->Event.KeyEvent.dwControlKeyState & 0x1F) == (LEFT_ALT_PRESSED | LEFT_CTRL_PRESSED))
 		{
 			rec->Event.KeyEvent.dwControlKeyState &= ~LEFT_ALT_PRESSED;
 			rec->Event.KeyEvent.dwControlKeyState |= RIGHT_ALT_PRESSED;
@@ -2211,12 +2211,12 @@ unsigned int CalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros)
 	//и т.д.
 	if ((CtrlState & (LEFT_CTRL_PRESSED | RIGHT_ALT_PRESSED)) == (LEFT_CTRL_PRESSED | RIGHT_ALT_PRESSED))
 	{
-		if (Char >= ' ')
+		if (Char >= L' ')
 		{
 			return Char;
 		}
 
-		if (RealKey && ScanCode && !Char && (KeyCode && KeyCode != VK_MENU))
+		if (RealKey && ScanCode && !Char && KeyCode && KeyCode != VK_MENU)
 		{
 			//Это шаманство для ввода всяческих букв с тильдами, акцентами и прочим.
 			//Например на Шведской раскладке, "AltGr+VK_OEM_1" вообще не должно обрабатываться фаром, т.к. это DeadKey

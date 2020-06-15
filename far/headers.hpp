@@ -164,30 +164,37 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <restartmanager.h>
 #include <commdlg.h>
 
+#define _NTSCSI_USER_MODE_
+
 #ifdef _MSC_VER
-# include <ntstatus.h>
-# include <shobjidl.h>
-# include <winternl.h>
-# include <cfgmgr32.h>
-# include <ntddscsi.h>
-# include <virtdisk.h>
-# include <lmdfs.h>
+#include <ntstatus.h>
+#include <shobjidl.h>
+#include <winternl.h>
+#include <cfgmgr32.h>
+#include <ntddmmc.h>
+#include <ntddscsi.h>
+#include <virtdisk.h>
+#include <lmdfs.h>
+#include <scsi.h>
 #endif // _MSC_VER
 
 #ifdef __GNUC__
 # define __NTDDK_H
-  struct _ADAPTER_OBJECT;
-  typedef struct _ADAPTER_OBJECT ADAPTER_OBJECT,*PADAPTER_OBJECT;
-# ifdef _W32API_OLD
-#  include <ntstatus.h>
-#  include <cfgmgr32.h>
-#  include <ntddscsi.h>
-# else
-#  include <ddk/ntstatus.h>
-#  include <ddk/cfgmgr32.h>
-#  include <ddk/ntddscsi.h>
-#  include <ntdef.h>
-# endif
+struct _ADAPTER_OBJECT;
+typedef struct _ADAPTER_OBJECT ADAPTER_OBJECT,*PADAPTER_OBJECT;
+#ifdef _W32API_OLD
+#include <ntstatus.h>
+#include <cfgmgr32.h>
+#include <ntddmmc.h>
+#include <ntddscsi.h>
+#else
+#include <ddk/ntstatus.h>
+#include <ddk/cfgmgr32.h>
+#include <ddk/ntddmmc.h>
+#include <ddk/ntddscsi.h>
+#include <ntdef.h>
+#endif
+#include <ddk/scsi.h>
 #endif // __GNUC__
 
 //----------------------------------------------------------------------------

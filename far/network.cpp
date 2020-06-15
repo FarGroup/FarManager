@@ -114,7 +114,7 @@ bool ConnectToNetworkResource(const string& NewDir)
 	{
 		LocalName = NewDir.substr(0, 2);
 		// TODO: check result
-		DriveLocalToRemoteName(DRIVE_REMOTE_NOT_CONNECTED, NewDir[0], RemoteName);
+		DriveLocalToRemoteName(DRIVE_REMOTE, NewDir[0], RemoteName);
 	}
 	else
 	{
@@ -211,7 +211,7 @@ bool DriveLocalToRemoteName(int DriveType, wchar_t Letter, string &strDest)
 
 	string strRemoteName;
 
-	if (IsDriveTypeRemote(DriveType) && os::WNetGetConnection(LocalName, strRemoteName))
+	if (DriveType == DRIVE_REMOTE && os::WNetGetConnection(LocalName, strRemoteName))
 	{
 		strDest = strRemoteName;
 		return true;

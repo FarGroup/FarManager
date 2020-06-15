@@ -641,7 +641,7 @@ static void HighlightDlgUpdateUserControl(matrix_view<FAR_CHAR_INFO> const& VBuf
 			++Iterator;
 		}
 
-		const auto FileArea = span(Iterator, Row.end() - 1);
+		const span FileArea(Iterator, Row.end() - 1);
 		const auto Str = fit_to_left(msg(lng::MHighlightExample), FileArea.size());
 
 		for (const auto& [Cell, Char] : zip(FileArea, Str))

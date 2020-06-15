@@ -262,7 +262,7 @@ bool native_plugin_factory::IsPlugin(const string& FileName) const
 		if (!ExportDirectoryAddress)
 			return false;
 
-		const auto Sections = span(image_first_section(NtHeaders), NtHeaders.FileHeader.NumberOfSections);
+		const span Sections(image_first_section(NtHeaders), NtHeaders.FileHeader.NumberOfSections);
 		const auto SectionIterator = std::find_if(ALL_CONST_RANGE(Sections), [&](IMAGE_SECTION_HEADER const& Section)
 		{
 			return
@@ -274,7 +274,7 @@ bool native_plugin_factory::IsPlugin(const string& FileName) const
 			return false;
 
 		const auto& ExportDirectory = *real_address<IMAGE_EXPORT_DIRECTORY>(Data.get(), *SectionIterator, ExportDirectoryAddress);
-		const auto Names = span(real_address<DWORD>(Data.get(), *SectionIterator, ExportDirectory.AddressOfNames), ExportDirectory.NumberOfNames);
+		const span Names(real_address<DWORD>(Data.get(), *SectionIterator, ExportDirectory.AddressOfNames), ExportDirectory.NumberOfNames);
 
 		return std::any_of(ALL_CONST_RANGE(Names), [&](DWORD const NameAddress)
 		{
