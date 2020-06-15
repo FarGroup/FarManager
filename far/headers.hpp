@@ -194,7 +194,13 @@ typedef struct _ADAPTER_OBJECT ADAPTER_OBJECT,*PADAPTER_OBJECT;
 #include <ddk/ntddscsi.h>
 #include <ntdef.h>
 #endif
+
+// Workaround for MinGW, see a66e40
+#define _LBA
+#define _MSF
 #include <ddk/scsi.h>
+#undef _MSF
+#undef _LBA
 #endif // __GNUC__
 
 //----------------------------------------------------------------------------

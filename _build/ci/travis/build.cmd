@@ -2,10 +2,7 @@
 @set throw=@goto :eof
 @set exit=@goto :eof
 
-call :%COMPILER%
-
-@endlocal
-@goto :eof
+goto :main
 
 :MSVC_PROJ
 set PATH=C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin;%PATH%
@@ -66,3 +63,7 @@ mingw32-make -j4 -f makefile_all_gcc %ADD_MAKE% || %throw%
 cd ..
 
 %exit%
+
+
+:main
+call :%COMPILER%
