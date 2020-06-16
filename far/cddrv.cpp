@@ -64,14 +64,14 @@ enum cdrom_device_capabilities
 	CAPABILITIES_DVDRW    = 5_bit,
 	CAPABILITIES_DVDRAM   = 6_bit,
 
-	CAPABILITIES_BDROM    = 9_bit,
-	CAPABILITIES_BDR      = 10_bit,
-	CAPABILITIES_BDRW     = 11_bit,
+	CAPABILITIES_BDROM    = 7_bit,
+	CAPABILITIES_BDR      = 8_bit,
+	CAPABILITIES_BDRW     = 9_bit,
 
-	CAPABILITIES_HDDVDROM = 12_bit,
-	CAPABILITIES_HDDVDR   = 13_bit,
-	CAPABILITIES_HDDVDRW  = 14_bit,
-	CAPABILITIES_HDDVDRAM = 15_bit,
+	CAPABILITIES_HDDVDROM = 10_bit,
+	CAPABILITIES_HDDVDR   = 11_bit,
+	CAPABILITIES_HDDVDRW  = 12_bit,
+	CAPABILITIES_HDDVDRAM = 13_bit,
 };
 
 static auto operator | (cdrom_device_capabilities const This, cdrom_device_capabilities const Rhs)
@@ -323,30 +323,49 @@ static auto product_id_to_capatibilities(const char* const ProductId)
 	const auto Iterator = null_iterator(ProductId);
 	std::copy_if(Iterator, Iterator.end(), std::back_inserter(ProductIdFiltered), isalpha);
 
-	static const std::pair<std::string_view, cdrom_device_capabilities> Capabilities[]
+	static const struct
 	{
-		{ "CDROM"sv,     CAPABILITIES_CDROM     },
-		{ "CDR"sv,       CAPABILITIES_CDR       },
-		{ "CDRW"sv,      CAPABILITIES_CDRW      },
-		{ "DVDROM"sv,    CAPABILITIES_DVDROM    },
-		{ "DVDR"sv,      CAPABILITIES_DVDR      },
-		{ "DVDRW"sv,     CAPABILITIES_DVDRW     },
-		{ "DVDRAM"sv,    CAPABILITIES_DVDRAM    },
-		{ "DVDR"sv,      CAPABILITIES_DVDRAM    },
-		{ "BDROM"sv,     CAPABILITIES_BDROM     },
-		{ "BDRW"sv,      CAPABILITIES_BDRW      },
-		{ "HDDVDROM"sv,  CAPABILITIES_HDDVDROM  },
-		{ "HDDVDR"sv,    CAPABILITIES_HDDVDR    },
-		{ "HDDVDRW"sv,   CAPABILITIES_HDDVDRW   },
-		{ "HDDVDRAM"sv,  CAPABILITIES_HDDVDRAM  },
+		std::string_view Pattern;
+		std::initializer_list<std::string_view> AntipatternsBefore, AntipatternsAfter;
+		cdrom_device_capabilities Capabilities;
+	}
+	Capabilities[]
+	{
+		{ "CDROM"sv,     {},       {},                       CAPABILITIES_CDROM     },
+		{ "CDR"sv,       {},       {"OM"sv, "W"sv},          CAPABILITIES_CDR       },
+		{ "CDRW"sv,      {},       {},                       CAPABILITIES_CDRW      },
+		{ "DVDROM"sv,    {"HD"sv}, {},                       CAPABILITIES_DVDROM    },
+		{ "DVDR"sv,      {"HD"sv}, {"OM"sv, "W"sv, "AM"sv},  CAPABILITIES_DVDR      },
+		{ "DVDRW"sv,     {"HD"sv}, {},                       CAPABILITIES_DVDRW     },
+		{ "DVDRAM"sv,    {"HD"sv}, {},                       CAPABILITIES_DVDRAM    },
+		{ "BDROM"sv,     {},       {},                       CAPABILITIES_BDROM     },
+		{ "BDR"sv,       {},       {"OM"sv, "W"sv},          CAPABILITIES_BDR       },
+		{ "BDRW"sv,      {},       {},                       CAPABILITIES_BDRW      },
+		{ "HDDVDROM"sv,  {},       {},                       CAPABILITIES_HDDVDROM  },
+		{ "HDDVDR"sv,    {},       {"OM"sv, "W"sv, "AM"sv},  CAPABILITIES_HDDVDR    },
+		{ "HDDVDRW"sv,   {},       {},                       CAPABILITIES_HDDVDRW   },
+		{ "HDDVDRAM"sv,  {},       {},                       CAPABILITIES_HDDVDRAM  },
 	};
 
 	return std::accumulate(ALL_CONST_RANGE(Capabilities), CAPABILITIES_NONE, [&ProductIdFiltered](auto const Value, auto const& i)
 	{
-		const auto Pos = ProductIdFiltered.find(i.first);
-		return Pos != i.first.npos && (Pos + i.first.size() == i.first.size() || !std::isalpha(ProductIdFiltered[Pos + i.first.size()]))?
-			Value | i.second :
-			Value;
+		const auto Pos = ProductIdFiltered.find(i.Pattern);
+		if (Pos == i.Pattern.npos)
+			return Value;
+
+		for (const auto& Ap: i.AntipatternsBefore)
+		{
+			if (const auto Apos = ProductIdFiltered.find(Ap); Apos != ProductIdFiltered.npos && Apos + Ap.size() == Pos)
+				return Value;
+		}
+
+		for (const auto& Ap: i.AntipatternsAfter)
+		{
+			if (ProductIdFiltered.find(Ap, Pos) != Ap.npos)
+				return Value;
+		}
+
+		return Value | i.Capabilities;
 	});
 }
 
@@ -470,3 +489,39 @@ bool is_removable_usb(string_view RootDir)
 
 	return DiskGeometry.MediaType == FixedMedia || DiskGeometry.MediaType == RemovableMedia;
 }
+
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("product_id_to_capatibilities")
+{
+	static const struct
+	{
+		const char* Src;
+		cdrom_device_capabilities Result;
+	}
+	Tests[]
+	{
+		{ "CD-ROM",      CAPABILITIES_CDROM     },
+		{ "CD+R",        CAPABILITIES_CDR       },
+		{ "CD+-RW Foo",  CAPABILITIES_CDRW      },
+		{ "DVD ROM",     CAPABILITIES_DVDROM    },
+		{ "DVD_R_Bar",   CAPABILITIES_DVDR      },
+		{ "123+DVD+RW",  CAPABILITIES_DVDRW     },
+		{ "DVD+RAM",     CAPABILITIES_DVDRAM    },
+		{ "BD_ROM",      CAPABILITIES_BDROM     },
+		{ "UberBDR",     CAPABILITIES_BDR       },
+		{ "HDBD/RW",     CAPABILITIES_BDRW      },
+		{ "HD-DVD-ROM",  CAPABILITIES_HDDVDROM  },
+		{ "HDDVDR",      CAPABILITIES_HDDVDR    },
+		{ "HDDVD RW",    CAPABILITIES_HDDVDRW   },
+		{ "HD/DVD+RAM",  CAPABILITIES_HDDVDRAM  },
+	};
+
+	for (const auto& i : Tests)
+	{
+		REQUIRE(i.Result == product_id_to_capatibilities(i.Src));
+	}
+}
+#endif

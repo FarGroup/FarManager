@@ -196,11 +196,19 @@ typedef struct _ADAPTER_OBJECT ADAPTER_OBJECT,*PADAPTER_OBJECT;
 #endif
 
 // Workaround for MinGW, see a66e40
+// Their loony headers are unversioned,
+// so the only way to make it compatible
+// with both old and new is this madness:
+#include <netfw.h>
+#ifndef __INetFwProduct_FWD_DEFINED__
 #define _LBA
 #define _MSF
+#endif
 #include <ddk/scsi.h>
+#ifndef __INetFwProduct_FWD_DEFINED__
 #undef _MSF
 #undef _LBA
+#endif
 #endif // __GNUC__
 
 //----------------------------------------------------------------------------

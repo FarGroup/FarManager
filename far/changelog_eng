@@ -1,3 +1,7 @@
+drkns 16.06.2020 02:25:55 +0100 - build 5619
+
+1. Correction of 5618.
+
 drkns 15.06.2020 21:22:23 +0100 - build 5618
 
 1. Incorrect CD drive type detection in some cases.
