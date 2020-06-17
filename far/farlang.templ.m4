@@ -29288,19 +29288,46 @@ MKBTreeCtrlAltShiftF12
 ""
 ""
 
-MCopyTimeInfo
+MCopyTimeInfoElapsed
 l:
-"Время: {0}    Осталось: {1}    {2}Б/с"
-"Time: {0}    Remaining: {1}    {2}B/s"
-"Čas: {0}      Zbývá: {1}       {2}B/s"
-"Zeit: {0}     Restzeit: {1}    {2}B/s"
-"Eltelt: {0}    Maradt: {1}     {2}B/s"
-"Czas: {0}    Pozostało: {1}    {2}B/s"
-"Tiempo: {0}    Restante: {1}   {2}b/s"
-"Čas: {0}      Zostáva: {1}     {2}B/s"
-"Tempo: {0}     Manca: {1}      {2}B/s"
-"Час: {0}    Залишилося: {1}    {2}Б/с"
-"Час: {0}    Засталося: {1}    {2}Б/с"
+"Время:"
+"Time:"
+"Čas:"
+"Zeit:"
+"Eltelt:"
+"Czas:"
+"Tiempo:"
+"Čas:"
+"Tempo:"
+"Час:"
+"Час:"
+
+MCopyTimeInfoRemaining
+"Осталось:"
+"Remaining:"
+"Zbývá:"
+"Restzeit:"
+"Maradt:"
+"Pozostało:"
+"Restante:"
+"Zostáva:"
+"Manca:"
+"Залишилося:"
+"Засталося:"
+
+MCopyTimeInfoSpeed
+l:// Bytes per second
+"Б/с"
+"B/s"
+"B/s"
+"B/s"
+"B/s"
+"B/s"
+"b/s"
+"B/s"
+"B/s"
+"Б/с"
+"Б/с"
 
 MKeyESCWasPressed
 l:

@@ -1,3 +1,7 @@
+drkns 17.06.2020 19:50:37 +0100 - build 5622
+
+1. Copy progress dialog correctly shows times over 100 hours.
+
 drkns 17.06.2020 08:40:49 +0100 - build 5621
 
 1. Fix typo in 5620.
