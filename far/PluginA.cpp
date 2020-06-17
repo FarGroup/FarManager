@@ -4643,24 +4643,10 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize) noexc
 
 			if (nCP==CP_DEFAULT) return -1;
 
-			CPINFOEX cpiex;
-
-			if (!GetCPInfoEx(static_cast<UINT>(nCP), 0, &cpiex))
-			{
-				CPINFO cpi;
-
-				if (!GetCPInfo(static_cast<UINT>(nCP), &cpi))
-					return -1;
-
-				cpiex.MaxCharSize = cpi.MaxCharSize;
-				cpiex.CodePageName[0] = {};
-			}
-
-			if (cpiex.MaxCharSize != 1)
+			auto [MaxCharSize, CodepageName] = codepages::GetInfo(nCP);
+			if (MaxCharSize != 1)
 				return -1;
 
-			string CodepageName(cpiex.CodePageName);
-			codepages::FormatCodePageName(nCP, CodepageName);
 			string sTableName = pad_right(str(nCP), 5);
 			append(sTableName, BoxSymbols[BS_V1], L' ', CodepageName);
 			encoding::oem::get_bytes(sTableName, TableSet->TableName);

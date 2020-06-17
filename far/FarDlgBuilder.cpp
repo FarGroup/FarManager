@@ -937,7 +937,7 @@ DialogItemEx* DialogBuilder::AddListControlImpl(FARDIALOGITEMTYPES Type, value_t
 	{
 		FarListItem NewItem = {};
 		NewItem.Text = i.str().c_str();
-		NewItem.Flags = Value == i.value()? LIF_SELECTED : 0;
+		NewItem.Flags = (Value == i.value()? LIF_SELECTED : 0) | i.flags();
 		NewItem.UserData = i.value();
 		return NewItem;
 	});

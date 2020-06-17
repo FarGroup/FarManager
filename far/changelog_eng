@@ -1,3 +1,11 @@
+drkns 17.06.2020 01:01:01 +0100 - build 5620
+
+1. Incorrect flags processing in DialogBuilder.
+
+2. Corrections of codepage switching error messages.
+
+3. Refactoring.
+
 drkns 16.06.2020 02:25:55 +0100 - build 5619
 
 1. Correction of 5618.

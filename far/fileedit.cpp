@@ -2742,11 +2742,14 @@ bool FileEditor::SetCodePage(uintptr_t codepage)
 	int x, y;
 	if (!m_editor->TryCodePage(codepage, x, y))
 	{
+		auto [MaxCharSize, CodepageName] = codepages::GetInfo(codepage);
+
 		const int ret = Message(MSG_WARNING,
 			msg(lng::MWarning),
 			{
 				msg(lng::MEditorSwitchCPWarn1),
-				format(msg(lng::MEditorSwitchCPWarn2), codepage),
+				format(msg(lng::MEditorSwitchCPWarn2)),
+				format(FSTR(L"{0} - {1}"), codepage, CodepageName),
 				msg(lng::MEditorSwitchCPConfirm)
 			},
 			{ lng::MCancel, lng::MEditorSaveCPWarnShow, lng::MOk });

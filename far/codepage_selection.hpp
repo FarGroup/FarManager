@@ -77,7 +77,7 @@ public:
 	void FillCodePagesList(std::vector<DialogBuilderListItem> &List, bool allowAuto, bool allowAll, bool allowDefault, bool allowChecked, bool bViewOnly);
 
 	static bool IsCodePageSupported(uintptr_t CodePage, size_t MaxCharSize = size_t(-1));
-	static void FormatCodePageName(uintptr_t CodePage, string& CodePageName);
+	static std::pair<UINT, string> GetInfo(uintptr_t CodePage);
 	static long long GetFavorite(uintptr_t cp);
 	static void SetFavorite(uintptr_t cp, long long value);
 	static void DeleteFavorite(uintptr_t cp);
@@ -97,7 +97,7 @@ private:
 
 	codepages();
 
-	static void FormatCodePageName(uintptr_t CodePage, string& CodePageName, bool &IsCodePageNameCustom);
+	static bool GetCodePageCustomName(uintptr_t CodePage, string& CodePageName);
 	size_t GetMenuItemCodePage(size_t Position = -1) const;
 	size_t GetListItemCodePage(size_t Position) const;
 	bool IsPositionStandard(size_t position) const;
