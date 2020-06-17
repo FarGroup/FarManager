@@ -565,7 +565,7 @@ bool codepages::GetCodePageCustomName(uintptr_t const CodePage, string& CodePage
 	const auto strCodePage = str(CodePage);
 	string StoredName;
 
-	if (ConfigProvider().GeneralCfg()->GetValue(NamesOfCodePagesKey, strCodePage, StoredName))
+	if (!ConfigProvider().GeneralCfg()->GetValue(NamesOfCodePagesKey, strCodePage, StoredName))
 		return false;
 
 	if (CodePageName == StoredName)

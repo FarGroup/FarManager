@@ -1,3 +1,7 @@
+drkns 17.06.2020 08:40:49 +0100 - build 5621
+
+1. Fix typo in 5620.
+
 drkns 17.06.2020 01:01:01 +0100 - build 5620
 
 1. Incorrect flags processing in DialogBuilder.
