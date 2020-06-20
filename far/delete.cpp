@@ -1055,41 +1055,32 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, bool& RetryRe
 
 	const auto ErrorState = error_state::fetch();
 
-	// Probably a bad path for Recycle Bin API
-	if (
-		ErrorState.Win32Error == ERROR_BAD_PATHNAME ||
-		ErrorState.Win32Error == ERROR_FILE_NOT_FOUND ||
-		ErrorState.Win32Error == ERROR_PATH_NOT_FOUND
-	)
-	{
-		const int MsgCode = Message(MSG_WARNING, ErrorState,
-			msg(lng::MError),
-			{
-				msg(dir? lng::MCannotRecycleFolder : lng::MCannotRecycleFile),
-				QuoteOuterSpace(strFullName)
-			},
-			{ lng::MDeleteFileDelete, lng::MDeleteSkip, lng::MDeleteSkipAll, lng::MDeleteCancel },
-			{}, dir? &CannotRecycleFolderId : &CannotRecycleFileId);
-
-		switch (MsgCode)
+	const int MsgCode = Message(MSG_WARNING, ErrorState,
+		msg(lng::MError),
 		{
-		case Message::first_button:     // {Delete}
-			RetryRecycleAsRemove = true;
-			return false;
+			msg(dir? lng::MCannotRecycleFolder : lng::MCannotRecycleFile),
+			QuoteOuterSpace(strFullName),
+			msg(lng::MTryToDeletePermanently)
+		},
+		{ lng::MDeleteFileDelete, lng::MDeleteSkip, lng::MDeleteSkipAll, lng::MDeleteCancel },
+		{}, dir? &CannotRecycleFolderId : &CannotRecycleFileId);
 
-		case Message::third_button:     // [Skip All]
-			(dir? m_SkipFolderErrors : m_SkipFileErrors) = true;
-			[[fallthrough]];
-		case Message::second_button:    // [Skip]
-			Skip = true;
-			return false;
+	switch (MsgCode)
+	{
+	case Message::first_button:     // {Delete}
+		RetryRecycleAsRemove = true;
+		return false;
 
-		default:
-			cancel_operation();
-		}
+	case Message::third_button:     // [Skip All]
+		(dir? m_SkipFolderErrors : m_SkipFileErrors) = true;
+		[[fallthrough]];
+	case Message::second_button:    // [Skip]
+		Skip = true;
+		return false;
+
+	default:
+		cancel_operation();
 	}
-
-	return false;
 }
 
 void DeleteDirTree(const string& Dir)

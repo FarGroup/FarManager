@@ -6075,6 +6075,19 @@ upd:"Cannot move folder to the Recycle Bin"
 "Не вдалося перемістити папку в Кошик"
 "Немагчыма перанесці каталог у Сметнік"
 
+MTryToDeletePermanently
+"Попробовать удалить окончательно?"
+"Try to delete it permanently?"
+upd:"Try to delete it permanently?"
+upd:"Try to delete it permanently?"
+upd:"Try to delete it permanently?"
+upd:"Try to delete it permanently?"
+upd:"Try to delete it permanently?"
+upd:"Try to delete it permanently?"
+upd:"Try to delete it permanently?"
+"Спробувати видалити остаточно?"
+"Паспрабаваць выдаліць канчаткова?"
+
 MCannotGetSecurity
 l:
 "Ошибка получения прав доступа к файлу"
