@@ -51,7 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-void save_file_with_replace(string const& FileName, DWORD const FileAttributes, DWORD const ExtraAttributes, bool const CreateBackup, function_ref<void(std::ostream& Sream)> const Handler)
+void save_file_with_replace(string_view const FileName, DWORD const FileAttributes, DWORD const ExtraAttributes, bool const CreateBackup, function_ref<void(std::ostream& Sream)> const Handler)
 {
 	const auto IsFileExists = FileAttributes != INVALID_FILE_ATTRIBUTES;
 
@@ -75,7 +75,7 @@ void save_file_with_replace(string const& FileName, DWORD const FileAttributes, 
 		return true;
 	}();
 
-	const auto OutFileName = UseTemporaryFile? MakeTempInSameDir(FileName) : FileName;
+	const auto OutFileName = UseTemporaryFile? MakeTempInSameDir(FileName) : string(FileName);
 	const auto NewAttributes = (IsFileExists? FileAttributes : 0) | FILE_ATTRIBUTE_ARCHIVE | ExtraAttributes;
 
 	os::security::descriptor SecurityDescriptor;

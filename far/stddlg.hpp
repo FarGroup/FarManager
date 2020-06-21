@@ -158,7 +158,7 @@ enum class operation
 	cancel
 };
 
-operation OperationFailed(const error_state_ex& ErrorState, string Object, lng Title, string Description, bool AllowSkip = true, bool AllowSkipAll = true);
+operation OperationFailed(const error_state_ex& ErrorState, string_view Object, lng Title, string Description, bool AllowSkip = true, bool AllowSkipAll = true);
 
 class operation_cancelled: public std::exception
 {

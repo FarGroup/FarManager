@@ -86,7 +86,7 @@ static void PR_ReadingMsg()
 		{});
 }
 
-void DizList::Read(const string& Path, const string* DizName)
+void DizList::Read(string_view const Path, const string* DizName)
 {
 	Reset();
 
@@ -153,7 +153,7 @@ void DizList::Read(const string& Path, const string* DizName)
 				}
 
 				// Insert unconditionally
-				LastAdded = Insert({ NameBegin, NameEnd });
+				LastAdded = Insert({ &*NameBegin, static_cast<size_t>(NameEnd - NameBegin) });
 				LastAdded->second.emplace_back(DescBegin, DizText.cend());
 			}
 			else if (LastAdded != m_DizData.end())
@@ -255,7 +255,7 @@ DizList::desc_map::const_iterator DizList::Find(const string& Name, const string
 	return const_cast<DizList&>(*this).Find(Name, ShortName);
 }
 
-DizList::desc_map::iterator DizList::Insert(const string& Name)
+DizList::desc_map::iterator DizList::Insert(string_view const Name)
 {
 	auto Iterator = m_DizData.emplace(Name, description_data{});
 	m_OrderForWrite.push_back(&*Iterator);
@@ -281,7 +281,7 @@ bool DizList::Erase(const string& Name,const string& ShortName)
 	return true;
 }
 
-bool DizList::Flush(const string& Path,const string* DizName)
+bool DizList::Flush(string_view const Path, const string* DizName)
 {
 	if (!m_Modified)
 		return true;

@@ -88,7 +88,7 @@ public:
 	const std::unique_ptr<FileFilter>& GetFilter() const { return Filter; }
 	static bool IsWordDiv(wchar_t symbol);
 	// BUGBUG
-	void AddMenuRecord(Dialog* Dlg, const string& FullName, const os::fs::find_data& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData, ArcListItem* Arc);
+	void AddMenuRecord(Dialog* Dlg, string_view FullName, const os::fs::find_data& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData, ArcListItem* Arc);
 
 	enum type2
 	{
@@ -110,9 +110,9 @@ public:
 
 		AddMenuData() = default;
 		explicit AddMenuData(type2 Type): m_Type(Type) {}
-		AddMenuData(string FullName, os::fs::find_data FindData, void* Data, FARPANELITEMFREECALLBACK FreeData, ArcListItem* Arc):
-			m_FullName(std::move(FullName)),
-			m_FindData(std::move(FindData)),
+		AddMenuData(string_view FullName, const os::fs::find_data& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData, ArcListItem* Arc):
+			m_FullName(FullName),
+			m_FindData(FindData),
 			m_Data(Data),
 			m_FreeData(FreeData),
 			m_Arc(Arc)

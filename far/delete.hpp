@@ -57,8 +57,8 @@ enum class delete_type
 };
 
 void Delete(const panel_ptr& SrcPanel, delete_type Type);
-void DeleteDirTree(const string& Dir);
-bool DeleteFileWithFolder(const string& FileName);
+void DeleteDirTree(string_view Dir);
+bool DeleteFileWithFolder(string_view FileName);
 
 class delayed_deleter: noncopyable
 {

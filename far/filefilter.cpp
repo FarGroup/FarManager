@@ -150,7 +150,7 @@ FileFilter::FileFilter(Panel *HostPanel, FAR_FILE_FILTER_TYPE FilterType):
 	UpdateCurrentTime();
 }
 
-static void ParseAndAddMasks(std::map<string, int, string_sort::less_t>& Extensions, const string& FileName, DWORD FileAttr, int Check)
+static void ParseAndAddMasks(std::map<string, int, string_sort::less_t>& Extensions, string_view const FileName, DWORD const FileAttr, int const Check)
 {
 	if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) || IsParentDirectory(FileName))
 		return;
@@ -586,10 +586,10 @@ void FileFilter::UpdateCurrentTime()
 
 bool FileFilter::FileInFilter(const FileListItem* fli, filter_status* FilterStatus)
 {
-	return FileInFilter(*fli, FilterStatus, &fli->FileName);
+	return FileInFilter(*fli, FilterStatus, fli->FileName);
 }
 
-bool FileFilter::FileInFilter(const os::fs::find_data& fde, filter_status* FilterStatus, const string* FullName)
+bool FileFilter::FileInFilter(const os::fs::find_data& fde, filter_status* const FilterStatus, string_view const FullName)
 {
 	const auto FFFT = GetFFFT();
 	const auto bFolder = (fde.Attributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
@@ -715,7 +715,7 @@ bool FileFilter::FileInFilter(const PluginPanelItem& fd, filter_status* FilterSt
 {
 	os::fs::find_data fde;
 	PluginPanelItemToFindDataEx(fd, fde);
-	return FileInFilter(fde, FilterStatus, &fde.FileName);
+	return FileInFilter(fde, FilterStatus, fde.FileName);
 }
 
 bool FileFilter::IsEnabledOnPanel()

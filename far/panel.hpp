@@ -183,7 +183,7 @@ public:
 	virtual void SetReturnCurrentFile(bool Mode) {}
 	virtual void QViewDelTempName() {}
 	virtual void GetOpenPanelInfo(OpenPanelInfo *Info) const {}
-	virtual void SetPluginMode(std::unique_ptr<plugin_panel>&& hPlugin,const string& PluginFile,bool SendOnFocus=false) {}
+	virtual void SetPluginMode(std::unique_ptr<plugin_panel>&& hPlugin, string_view PluginFile, bool SendOnFocus = false) {}
 	virtual void SetPluginModified() {}
 	virtual bool ProcessPluginEvent(int Event,void *Param) {return false;}
 	virtual plugin_panel* GetPluginHandle() const {return nullptr;}
@@ -209,15 +209,15 @@ public:
 	virtual void UpdateIfRequired() {}
 	virtual void StartFSWatcher(bool got_focus=false, bool check_time=true) {}
 	virtual void StopFSWatcher() {}
-	virtual bool FindPartName(const string& Name,int Next,int Direct=1) {return false;}
+	virtual bool FindPartName(string_view Name,int Next,int Direct=1) {return false;}
 	virtual bool GetPlainString(string& Dest, int ListPos) const { return false; }
 	virtual bool GoToFile(long idxItem) {return true;}
 	virtual bool GoToFile(string_view Name, bool OnlyPartName = false) {return true;}
 	virtual long FindFile(string_view Name, bool OnlyPartName = false) {return -1;}
-	virtual bool IsSelected(const string& Name) {return false;}
+	virtual bool IsSelected(string_view Name) {return false;}
 	virtual bool IsSelected(size_t indItem) {return false;}
-	virtual long FindFirst(const string& Name) {return -1;}
-	virtual long FindNext(int StartPos, const string& Name) {return -1;}
+	virtual long FindFirst(string_view Name) {return -1;}
+	virtual long FindNext(int StartPos, string_view Name) {return -1;}
 	virtual void SetSelectedFirstMode(bool) {}
 	virtual bool GetSelectedFirstMode() const { return false; }
 	virtual void SetViewMode(int ViewMode);

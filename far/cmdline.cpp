@@ -202,7 +202,7 @@ void CommandLine::DisplayObject()
 	Text(L'\x2191'); // up arrow
 }
 
-void CommandLine::DrawFakeCommand(const string& FakeCommand)
+void CommandLine::DrawFakeCommand(string_view const FakeCommand)
 {
 	DrawPrompt();
 	SetColor(COL_COMMANDLINE);
@@ -588,7 +588,7 @@ void CommandLine::SetCurDir(string_view const CurDir)
 	}
 }
 
-void CommandLine::SetString(const string& Str, bool Redraw)
+void CommandLine::SetString(string_view const Str, bool Redraw)
 {
 	LastCmdPartLength=-1;
 	CmdStr.SetString(Str);
@@ -598,7 +598,7 @@ void CommandLine::SetString(const string& Str, bool Redraw)
 		Refresh();
 }
 
-void CommandLine::InsertString(const string& Str)
+void CommandLine::InsertString(string_view const Str)
 {
 	LastCmdPartLength=-1;
 	CmdStr.InsertString(Str);
@@ -1148,7 +1148,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 			if (std::find_first_of(ALL_CONST_RANGE(SetParams), ALL_CONST_RANGE(CharsToFind)) != SetParams.cend())
 				return false;
 
-			const auto UnquotedSetParams = unquote(string(SetParams));
+			const auto UnquotedSetParams = unquote(SetParams);
 
 			ConsoleActivatior(true);
 
@@ -1168,7 +1168,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 		ConsoleActivatior(false);
 
 		const auto VariableValue = trim_right(SetParams.substr(pos + 1));
-		const auto VariableName = unquote(string(SetParams.substr(0, pos)));
+		const auto VariableName = unquote(SetParams.substr(0, pos));
 
 		if (VariableValue.empty()) //set var=
 		{

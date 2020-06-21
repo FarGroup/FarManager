@@ -4520,7 +4520,7 @@ private:
 public:
 	static size_t GetUndoDataSize() { return UndoDataSize; }
 
-	EditorUndoData(int Type, const string& Str, eol Eol, int StrNum, int StrPos):
+	EditorUndoData(int Type, string_view const Str, eol Eol, int StrNum, int StrPos):
 		m_Type(),
 		m_StrPos(),
 		m_StrNum(),
@@ -4534,7 +4534,7 @@ public:
 		UndoDataSize -= m_Str.size();
 	}
 
-	void SetData(int Type, const string& Str, eol Eol, int StrNum, int StrPos)
+	void SetData(int Type, string_view const Str, eol Eol, int StrNum, int StrPos)
 	{
 		m_Type = Type;
 		m_StrPos = StrPos;
@@ -4557,7 +4557,7 @@ public:
 
 size_t Editor::EditorUndoData::UndoDataSize = 0;
 
-void Editor::AddUndoData(int Type, const string& Str, eol Eol, int StrNum, int StrPos)
+void Editor::AddUndoData(int Type, string_view const Str, eol Eol, int StrNum, int StrPos)
 {
 	if (m_Flags.Check(FEDITOR_DISABLEUNDO))
 		return;
@@ -5117,7 +5117,7 @@ string Editor::VBlock2Text()
 	return CopyData;
 }
 
-void Editor::VPaste(const string& Data)
+void Editor::VPaste(string_view const Data)
 {
 	if (m_Flags.Check(FEDITOR_LOCKMODE))
 		return;
@@ -6739,7 +6739,7 @@ void Editor::SetSavePosMode(int SavePos, int SaveShortPos)
 		EdOpt.SaveShortPos = (0 != SaveShortPos);
 }
 
-static void EditorShowMsgImpl(const string& Title, const string& Msg, const string& Name, size_t Percent)
+static void EditorShowMsgImpl(string_view const Title, const string& Msg, const string& Name, size_t Percent)
 {
 	const auto strMsg = concat(Msg, L' ', Name);
 	const size_t Length = std::max(std::min(ScrX - 1 - 10, static_cast<int>(strMsg.size())), 40);
@@ -6755,7 +6755,7 @@ static void EditorShowMsgImpl(const string& Title, const string& Msg, const stri
 		{});
 }
 
-void Editor::EditorShowMsg(const string& Title, const string& Msg, const string& Name, size_t Percent)
+void Editor::EditorShowMsg(string_view const Title, const string& Msg, const string& Name, size_t Percent)
 {
 	EditorShowMsgImpl(Title, Msg, Name, Percent);
 

@@ -51,17 +51,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 struct column;
 
 void ShellUpdatePanels(panel_ptr SrcPanel, bool NeedSetUpADir = false);
-bool CheckUpdateAnotherPanel(panel_ptr SrcPanel,const string& SelName);
+bool CheckUpdateAnotherPanel(panel_ptr SrcPanel, string_view SelName);
 
 bool MakePath(const panel_ptr& SrcPanel, bool FilePath, bool RealName, bool ShortNameAsIs, string& strPathName);
 bool MakePathForUI(DWORD Key, string &strPathName);
 
 string FormatStr_Attribute(DWORD FileAttributes, size_t Width);
 string FormatStr_DateTime(os::chrono::time_point FileTime, column_type ColumnType, unsigned long long Flags, int Width);
-string FormatStr_Size(long long Size, const string& strName,
+string FormatStr_Size(long long Size, string_view strName,
 	DWORD FileAttributes, DWORD ShowFolderSize, DWORD ReparseTag, column_type ColumnType,
 	unsigned long long Flags, int Width, string_view CurDir = {});
-std::vector<column> DeserialiseViewSettings(const string& ColumnTitles, const string& ColumnWidths);
+std::vector<column> DeserialiseViewSettings(string_view ColumnTitles, string_view ColumnWidths);
 std::pair<string, string> SerialiseViewSettings(const std::vector<column>& Columns);
 int GetDefaultWidth(const column& Column);
 

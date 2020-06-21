@@ -154,7 +154,7 @@ public:
 	// Возвращает true  - попадает;
 	//            false - не попадает.
 	bool FileInFilter(const FileListItem& Object, const FileList* Owner, os::chrono::time_point CurrentTime) const;
-	bool FileInFilter(const os::fs::find_data& Object, os::chrono::time_point CurrentTime, const string* FullName = nullptr) const; //Used in dirinfo, copy, findfile
+	bool FileInFilter(const os::fs::find_data& Object, os::chrono::time_point CurrentTime, string_view FullName = {}) const; //Used in dirinfo, copy, findfile
 	bool FileInFilter(const PluginPanelItem& Object, os::chrono::time_point CurrentTime) const;
 
 

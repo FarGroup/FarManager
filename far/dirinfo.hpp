@@ -82,14 +82,14 @@ enum getdirinfo_message_delay
 };
 
 using dirinfo_callback = function_ref<void(string_view Name, unsigned long long Items, unsigned long long Size)>;
-int GetDirInfo(const string& DirName, DirInfoData& Data, FileFilter *Filter, dirinfo_callback Callback, DWORD Flags = GETDIRINFO_SCANSYMLINKDEF);
+int GetDirInfo(string_view DirName, DirInfoData& Data, FileFilter *Filter, dirinfo_callback Callback, DWORD Flags = GETDIRINFO_SCANSYMLINKDEF);
 void DirInfoMsg(string_view Title, string_view Name, unsigned long long Items, unsigned long long Size);
 
 class plugin_panel;
 
-bool GetPluginDirInfo(const plugin_panel* hPlugin, const string& DirName, const UserDataItem* UserData, BasicDirInfoData& Data, dirinfo_callback Callback);
+bool GetPluginDirInfo(const plugin_panel* hPlugin, string_view DirName, const UserDataItem* UserData, BasicDirInfoData& Data, dirinfo_callback Callback);
 
-bool GetPluginDirList(class Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, const UserDataItem* UserData, std::vector<PluginPanelItem>& Items, dirinfo_callback Callback);
+bool GetPluginDirList(class Plugin* PluginNumber, HANDLE hPlugin, string_view Dir, const UserDataItem* UserData, std::vector<PluginPanelItem>& Items, dirinfo_callback Callback);
 void FreePluginDirList(HANDLE hPlugin, std::vector<PluginPanelItem>& Items);
 
 #endif // DIRINFO_HPP_DA86BD11_D517_4EC9_8324_44EDF0CC7C9A

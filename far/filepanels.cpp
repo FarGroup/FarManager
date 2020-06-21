@@ -133,11 +133,14 @@ void FilePanels::Init(int DirCount)
 
 	m_ActivePanelIndex = Global->Opt->LeftFocus? panel_left : panel_right;
 
-	const auto Left = std::pair<panel_ptr, Options::PanelOptions&>(LeftPanel(), Global->Opt->LeftPanel);
-	const auto Right = std::pair<panel_ptr, Options::PanelOptions&>(RightPanel(), Global->Opt->RightPanel);
+	const std::pair<panel_ptr, Options::PanelOptions&>
+		Left(LeftPanel(), Global->Opt->LeftPanel),
+		Right(RightPanel(), Global->Opt->RightPanel);
 
-	SetPanelPositions(FileList::IsModeFullScreen(Left.second.ViewMode),
-	                  FileList::IsModeFullScreen(Right.second.ViewMode));
+	SetPanelPositions(
+		FileList::IsModeFullScreen(Left.second.ViewMode),
+		FileList::IsModeFullScreen(Right.second.ViewMode)
+	);
 
 	const auto InitPanel = [](const std::pair<panel_ptr, const Options::PanelOptions&>& Params)
 	{
@@ -169,6 +172,7 @@ void FilePanels::Init(int DirCount)
 		PrepareOptFolder(Folder, IsLocalPath_FarPath);
 		Params.second.Folder = Folder;
 	};
+
 	SetFolder(Left);
 	SetFolder(Right);
 
@@ -204,31 +208,22 @@ void FilePanels::Init(int DirCount)
 	}
 
 #if 1
+	const auto show_if_visible = [](const std::pair<panel_ptr, Options::PanelOptions&>& Params)
+	{
+		if (Params.second.Visible)
+			Params.first->Show();
+	};
 
 	//! Вначале "показываем" пассивную панель
 	if (m_ActivePanelIndex == panel_right)
 	{
-		if (Left.second.Visible)
-		{
-			Left.first->Show();
-		}
-
-		if (Right.second.Visible)
-		{
-			Right.first->Show();
-		}
+		show_if_visible(Left);
+		show_if_visible(Right);
 	}
 	else
 	{
-		if (Right.second.Visible)
-		{
-			Right.first->Show();
-		}
-
-		if (Left.second.Visible)
-		{
-			Left.first->Show();
-		}
+		show_if_visible(Right);
+		show_if_visible(Left);
 	}
 
 #endif

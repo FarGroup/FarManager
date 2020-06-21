@@ -116,7 +116,7 @@ public:
 	}
 };
 
-static bool OpenURL(const string& URLPath);
+static bool OpenURL(string_view URLPath);
 
 static const auto HelpFormatLink = FSTR(L"<{0}\\>{1}");
 static const auto HelpFormatLinkModule = FSTR(L"<{0}>{1}");
@@ -149,7 +149,7 @@ private:
 	string GetTitle() const override { return {}; }
 
 	void init(string_view Topic, string_view Mask, unsigned long long Flags);
-	bool ReadHelp(const string& Mask);
+	bool ReadHelp(string_view Mask);
 	void AddLine(string_view Line);
 	void AddTitle(string_view Title);
 	static void HighlightsCorrection(string &strStr);
@@ -297,7 +297,7 @@ void Help::init(string_view const Topic, string_view const Mask, unsigned long l
 	}
 }
 
-bool Help::ReadHelp(const string& Mask)
+bool Help::ReadHelp(string_view const Mask)
 {
 	string strPath;
 
@@ -342,7 +342,7 @@ bool Help::ReadHelp(const string& Mask)
 					msg(lng::MHelpTitle),
 					{
 						msg(lng::MCannotOpenHelp),
-						Mask
+						string(Mask)
 					},
 					{ lng::MOk });
 			}
@@ -2148,7 +2148,7 @@ void Help::InitKeyBar()
 	m_windowKeyBar->SetCustomLabels(KBA_HELP);
 }
 
-static bool OpenURL(const string& URLPath)
+static bool OpenURL(string_view const URLPath)
 {
 	if (!Global->Opt->HelpURLRules)
 		return false;

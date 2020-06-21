@@ -47,13 +47,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-void ESetFileAttributes(const string& Name, DWORD Attributes, bool& SkipErrors);
-void ESetFileCompression(const string& Name, bool State, DWORD CurrentAttributes, bool& SkipErrors);
-void ESetFileEncryption(const string& Name, bool State, DWORD CurrentAttributes, bool& SkipErrors);
-void ESetFileSparse(const string& Name, bool State, DWORD CurrentAttributes, bool& SkipErrors);
-void ESetFileTime(const string& Name, const os::chrono::time_point* LastWriteTime, const os::chrono::time_point* CreationTime, const os::chrono::time_point* LastAccessTime, const os::chrono::time_point* ChangeTime, DWORD CurrentAttributes, bool& SkipErrors);
-void ESetFileOwner(const string& Name, const string& Owner, bool& SkipErrors);
-void EDeleteReparsePoint(const string& Name, DWORD CurrentAttributes, bool& SkipErrors);
+void ESetFileAttributes(string_view Name, DWORD Attributes, bool& SkipErrors);
+void ESetFileCompression(string_view Name, bool State, DWORD CurrentAttributes, bool& SkipErrors);
+void ESetFileEncryption(string_view Name, bool State, DWORD CurrentAttributes, bool& SkipErrors);
+void ESetFileSparse(string_view Name, bool State, DWORD CurrentAttributes, bool& SkipErrors);
+void ESetFileTime(string_view Name, const os::chrono::time_point* LastWriteTime, const os::chrono::time_point* CreationTime, const os::chrono::time_point* LastAccessTime, const os::chrono::time_point* ChangeTime, DWORD CurrentAttributes, bool& SkipErrors);
+void ESetFileOwner(string_view Name, const string& Owner, bool& SkipErrors);
+void EDeleteReparsePoint(string_view Name, DWORD CurrentAttributes, bool& SkipErrors);
 
 void enum_attributes(function_ref<bool(DWORD, wchar_t)> Pred);
 

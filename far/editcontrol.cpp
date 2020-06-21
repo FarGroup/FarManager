@@ -168,7 +168,7 @@ static void AddSeparatorOrSetTitle(VMenu2& Menu, lng TitleId)
 	}
 }
 
-static bool ParseStringWithQuotes(const string& Str, string& Start, string& Token, bool& StartQuote)
+static bool ParseStringWithQuotes(string_view const Str, string& Start, string& Token, bool& StartQuote)
 {
 	size_t Pos;
 	if (std::count(ALL_CONST_RANGE(Str), L'"') & 1) // odd quotes count
@@ -416,20 +416,21 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 			// These two guys use the whole string, not the extracted token:
 			if (pHistory && ECFlags.Check(EC_COMPLETE_HISTORY) && CompletionEnabled(Global->Opt->AutoComplete.UseHistory))
 			{
-				auto Items = pHistory->GetAllSimilar(Str);
-				if (!Items.empty())
+				bool AnyAdded = false;
+				pHistory->GetAllSimilar(Str, [&](string_view const Name, unsigned long long const Id, bool const IsLocked)
 				{
-					for (auto& [Name, Id, IsLocked]: Items)
-					{
-						MenuItemEx Item;
-						// Preserve the case of the already entered part
-						Item.ComplexUserData = cmp_user_data{ Global->Opt->AutoComplete.AppendCompletion? Str + string_view(Name).substr(Str.size()) : L""s, Id };
-						Item.Name = std::move(Name);
-						Item.Flags |= IsLocked? LIF_CHECKED : LIF_NONE;
-						ComplMenu->AddItem(std::move(Item));
-					}
+					MenuItemEx Item;
+					// Preserve the case of the already entered part
+					Item.ComplexUserData = cmp_user_data{ Global->Opt->AutoComplete.AppendCompletion? Str + string_view(Name).substr(Str.size()) : L""s, Id };
+					Item.Name = Name;
+					Item.Flags |= IsLocked? LIF_CHECKED : LIF_NONE;
+					ComplMenu->AddItem(std::move(Item));
+
+					AnyAdded = true;
+				});
+
+				if (AnyAdded)
 					ComplMenu->SetTitle(msg(lng::MCompletionHistoryTitle));
-				}
 			}
 			else if (pList)
 			{
@@ -848,7 +849,7 @@ EXPAND_TABS EditControl::GetTabExpandMode() const
 	return EXPAND_NOTABS;
 }
 
-void EditControl::SetInputMask(const string& InputMask)
+void EditControl::SetInputMask(string_view const InputMask)
 {
 	m_Mask = InputMask;
 	if (!m_Mask.empty())

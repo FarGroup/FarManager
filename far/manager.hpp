@@ -113,7 +113,7 @@ public:
 	This method can execute any far or plugins code. Never call from non-reentrant code.
 	*/
 	void PluginCommit();
-	int CountWindowsWithName(const string& Name, bool IgnoreCase = true);
+	int CountWindowsWithName(string_view Name, bool IgnoreCase = true);
 	bool IsPanelsActive(bool and_not_qview = false, bool or_autocomplete = false) const;
 	window_ptr FindWindowByFile(int ModalType, string_view FileName);
 	void EnterMainLoop();

@@ -99,10 +99,10 @@ public:
 	using handlers_map = std::unordered_multimap<string, const detail::event_handler*>;
 
 	handlers_map::iterator subscribe(event_id EventId, const detail::event_handler& EventHandler);
-	handlers_map::iterator subscribe(const string& EventName, const detail::event_handler& EventHandler);
+	handlers_map::iterator subscribe(string_view EventName, const detail::event_handler& EventHandler);
 	void unsubscribe(handlers_map::iterator HandlerIterator);
 	void notify(event_id EventId, std::any&& Payload = {});
-	void notify(const string& EventName, std::any&& Payload = {});
+	void notify(string_view EventName, std::any&& Payload = {});
 	bool dispatch();
 
 	[[nodiscard]]

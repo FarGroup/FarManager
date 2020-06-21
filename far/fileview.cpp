@@ -478,7 +478,7 @@ void FileViewer::ShowConsoleTitle()
 }
 
 
-void FileViewer::SetTempViewName(const string& Name, bool DeleteFolder)
+void FileViewer::SetTempViewName(string_view const Name, bool const DeleteFolder)
 {
 	m_DeleteOnClose = (DeleteFolder ? 1 : 2);
 	m_View->SetTempViewName(Name, DeleteFolder);

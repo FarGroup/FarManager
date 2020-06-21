@@ -281,7 +281,7 @@ private:
 	void Construct(span<const FarDialogItem> SrcItems);
 	void Init();
 	void DeleteDialogObjects();
-	int LenStrItem(size_t ID, const string& Str) const;
+	int LenStrItem(size_t ID, string_view Str) const;
 	int LenStrItem(size_t ID);
 	int LenStrItem(const DialogItemEx& Item);
 	void ShowDialog(size_t ID=static_cast<size_t>(-1));  //    ID=-1 - отрисовать весь диалог
@@ -292,9 +292,9 @@ private:
 	*/
 	void ChangeFocus2(size_t SetFocusPos);
 	size_t ChangeFocus(size_t CurFocusPos, int Step, bool SkipGroup) const;
-	bool SelectFromEditHistory(const DialogItemEx *CurItem, DlgEdit *EditLine, const string& HistoryName);
+	bool SelectFromEditHistory(DialogItemEx const* CurItem, DlgEdit* EditLine, string_view HistoryName);
 	int SelectFromComboBox(DialogItemEx *CurItem,DlgEdit*EditLine);
-	bool AddToEditHistory(const DialogItemEx* CurItem, const string& AddStr) const;
+	bool AddToEditHistory(DialogItemEx const* CurItem, string_view AddStr) const;
 	void ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex);  // обработка DIF_USELASTHISTORY
 	bool ProcessHighlighting(int Key, size_t FocusPos, bool Translate);
 	int CheckHighlights(WORD CheckSymbol, int StartPos = 0);

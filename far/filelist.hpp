@@ -160,15 +160,15 @@ public:
 	bool GetFileName(string &strName, int Pos, DWORD &FileAttr) const override;
 	const std::unordered_set<string>* GetFilteredExtensions() const override;
 	int GetCurrentPos() const override;
-	bool FindPartName(const string& Name, int Next, int Direct = 1) override;
+	bool FindPartName(string_view Name, int Next, int Direct = 1) override;
 	bool GetPlainString(string& Dest, int ListPos) const override;
 	bool GoToFile(long idxItem) override;
 	bool GoToFile(string_view Name, bool OnlyPartName = false) override;
 	long FindFile(string_view Name, bool OnlyPartName = false) override;
-	bool IsSelected(const string& Name) override;
+	bool IsSelected(string_view Name) override;
 	bool IsSelected(size_t idxItem) override;
-	long FindFirst(const string& Name) override;
-	long FindNext(int StartPos, const string& Name) override;
+	long FindFirst(string_view Name) override;
+	long FindNext(int StartPos, string_view Name) override;
 	void UpdateViewPanel() override;
 	void CompareDir() override;
 	void ClearSelection() override;
@@ -188,7 +188,7 @@ public:
 	int GetColumnsCount() const override;
 	void SetReturnCurrentFile(bool Mode) override;
 	void GetOpenPanelInfo(OpenPanelInfo *Info) const override;
-	void SetPluginMode(std::unique_ptr<plugin_panel>&& PluginPanel, const string& PluginFile, bool SendOnFocus = false) override;
+	void SetPluginMode(std::unique_ptr<plugin_panel>&& PluginPanel, string_view PluginFile, bool SendOnFocus = false) override;
 	size_t GetSelCount() const override;
 	bool GetSelName(string *strName, string *strShortName = nullptr, os::fs::find_data *fd = nullptr) override;
 	void ClearLastGetSelection() override;
@@ -221,7 +221,7 @@ public:
 	string GetPluginPrefix() const;
 
 	size_t FileListToPluginItem2(const FileListItem& fi, FarGetPluginPanelItem* pi) const;
-	static bool FileNameToPluginItem(const string& Name, class PluginPanelItemHolder& pi);
+	static bool FileNameToPluginItem(string_view Name, class PluginPanelItemHolder& pi);
 	void FileListToPluginItem(const FileListItem& fi, PluginPanelItemHolder& Holder) const;
 	static bool IsModeFullScreen(int Mode);
 
@@ -268,9 +268,9 @@ private:
 	void ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, int DrawMessage);
 	void UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible);
 	void MoveSelection(list_data& From, list_data& To);
-	void PushPlugin(std::unique_ptr<plugin_panel>&& hPlugin, const string& HostFile);
+	void PushPlugin(std::unique_ptr<plugin_panel>&& hPlugin, string_view HostFile);
 	bool PopPlugin(int EnableRestoreViewMode);
-	void PopPrevData(const string& DefaultName, bool Closed, bool UsePrev, bool Position, bool SetDirectorySuccess);
+	void PopPrevData(string_view DefaultName, bool Closed, bool UsePrev, bool Position, bool SetDirectorySuccess);
 	void CopyFiles(bool bMoved);
 	void CopyNames(bool FillPathName, bool UNC);
 	void SelectSortMode();

@@ -66,9 +66,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-History::History(history_type TypeHistory, string HistoryName, const BoolOption& EnableSave):
+History::History(history_type TypeHistory, string_view const HistoryName, const BoolOption& EnableSave):
 	m_TypeHistory(TypeHistory),
-	m_HistoryName(std::move(HistoryName)),
+	m_HistoryName(HistoryName),
 	m_EnableSave(EnableSave),
 	m_EnableAdd(true),
 	m_KeepSelectedPos(false),
@@ -96,7 +96,7 @@ void History::CompactHistory()
    SaveForbid - принудительно запретить запись добавляемой строки.
                 Используется на панели плагина
 */
-void History::AddToHistory(const string& Str, history_record_type const Type, const GUID* const Guid, string_view const File, string_view const Data, bool const SaveForbid)
+void History::AddToHistory(string_view const Str, history_record_type const Type, const GUID* const Guid, string_view const File, string_view const Data, bool const SaveForbid)
 {
 	if (!m_EnableAdd || SaveForbid)
 		return;
@@ -140,16 +140,16 @@ void History::AddToHistory(const string& Str, history_record_type const Type, co
 	ResetPosition();
 }
 
-bool History::ReadLastItem(const string& HistoryName, string &strStr) const
+bool History::ReadLastItem(string_view const HistoryName, string &strStr) const
 {
 	strStr.clear();
 	return HistoryCfgRef()->GetNewest(HISTORYTYPE_DIALOG, HistoryName, strStr);
 }
 
-history_return_type History::Select(const string& Title, string_view const HelpTopic, string &strStr, history_record_type &Type, GUID* Guid, string *File, string *Data)
+history_return_type History::Select(string_view const Title, string_view const HelpTopic, string &strStr, history_record_type &Type, GUID* Guid, string *File, string *Data)
 {
 	const auto Height = ScrY - 8;
-	const auto HistoryMenu = VMenu2::create(Title, {}, Height);
+	const auto HistoryMenu = VMenu2::create(string(Title), {}, Height);
 	HistoryMenu->SetMenuFlags(VMENU_WRAPMODE);
 	HistoryMenu->SetHelp(HelpTopic);
 
@@ -644,18 +644,15 @@ bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 	return false;
 }
 
-std::vector<std::tuple<string, unsigned long long, bool>> History::GetAllSimilar(const string& Str) const
+void History::GetAllSimilar(string_view const Str, function_ref<void(string_view Name, unsigned long long Id, bool IsLocked)> const Callback) const
 {
-	FN_RETURN_TYPE(History::GetAllSimilar) Result;
-
 	for (const auto& i: HistoryCfgRef()->Enumerator(m_TypeHistory, m_HistoryName, true))
 	{
 		if (starts_with_icase(i.Name, Str))
 		{
-			Result.emplace_back(i.Name, i.Id, i.Lock);
+			Callback(i.Name, i.Id, i.Lock);
 		}
 	}
-	return Result;
 }
 
 bool History::DeleteIfUnlocked(unsigned long long id)

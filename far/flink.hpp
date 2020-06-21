@@ -56,7 +56,7 @@ enum ReparsePointTypes: int
 	RP_SYMLINKDIR,  // каталог-ссылка, NT>=6
 };
 
-bool MkHardLink(const string& ExistingName,const string& NewName, bool Silent = false);
+bool MkHardLink(string_view ExistingName, string_view NewName, bool Silent = false);
 
 std::optional<size_t> GetNumberOfLinks(string_view Name);
 bool CreateVolumeMountPoint(string_view TargetVolume, const string& Object);

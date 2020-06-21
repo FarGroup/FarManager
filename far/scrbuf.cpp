@@ -564,7 +564,7 @@ void ScreenBuf::GetCursorType(bool& Visible, DWORD& Size) const
 	Size=CurSize;
 }
 
-void ScreenBuf::SetTitle(const string& Title)
+void ScreenBuf::SetTitle(string_view const Title)
 {
 	if (Title != m_Title)
 	{

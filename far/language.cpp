@@ -350,7 +350,7 @@ private:
 	std::vector<string> m_Messages;
 };
 
-static void LoadCustomStrings(const string& FileName, std::unordered_map<string, string>& Strings)
+static void LoadCustomStrings(string_view const FileName, std::unordered_map<string, string>& Strings)
 {
 	const os::fs::file CustomFile(FileName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
 	if (!CustomFile)

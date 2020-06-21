@@ -345,7 +345,7 @@ bool GetString(
 
 	if (!Prompt.empty())
 	{
-		StrDlg[gs_text].strData = truncate_right(string(Prompt), 66);
+		StrDlg[gs_text].strData = truncate_right(Prompt, 66);
 
 		if (Flags&FIB_NOAMPERSAND)
 			StrDlg[gs_text].Flags &= ~DIF_SHOWAMPERSAND;
@@ -560,7 +560,7 @@ static size_t enumerate_rm_processes(const string& Filename, DWORD& Reasons, fun
 	return ProcessInfos.size();
 }
 
-operation OperationFailed(const error_state_ex& ErrorState, string Object, lng Title, string Description, bool AllowSkip, bool AllowSkipAll)
+operation OperationFailed(const error_state_ex& ErrorState, string_view const Object, lng Title, string Description, bool AllowSkip, bool AllowSkipAll)
 {
 	std::vector<string> Msg;
 	os::com::ptr<IFileIsInUse> FileIsInUse;
@@ -648,7 +648,7 @@ operation OperationFailed(const error_state_ex& ErrorState, string Object, lng T
 		}
 	}
 
-	std::vector Msgs{std::move(Description), QuoteOuterSpace(std::move(Object))};
+	std::vector Msgs{std::move(Description), QuoteOuterSpace(string(Object))};
 	if(!Msg.empty())
 	{
 		Msgs.emplace_back(format(msg(lng::MObjectLockedReason), msg(Reason)));

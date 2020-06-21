@@ -68,7 +68,7 @@ static const auto XmlDocumentRootName = "farconfig";
 class representation_source
 {
 public:
-	explicit representation_source(const string& File)
+	explicit representation_source(string_view const File)
 	{
 		const file_ptr XmlFile(_wfsopen(NTPath(File).c_str(), L"rb", _SH_DENYWR));
 		if (!XmlFile)
@@ -119,7 +119,7 @@ public:
 
 	void SetRoot(tinyxml::XMLElement& Root) { m_Root = &Root; }
 
-	void Save(const string& File)
+	void Save(string_view const File)
 	{
 		const file_ptr XmlFile(_wfsopen(NTPath(File).c_str(), L"w", _SH_DENYWR));
 		if (!XmlFile)
@@ -2447,7 +2447,7 @@ config_provider::~config_provider()
 	m_Threads.clear();
 }
 
-void config_provider::Export(const string& File)
+void config_provider::Export(string_view const File)
 {
 	representation_destination Representation;
 	auto& root = Representation.Root();
@@ -2488,7 +2488,7 @@ void config_provider::Export(const string& File)
 	return Representation.Save(File);
 }
 
-void config_provider::ServiceMode(const string& File)
+void config_provider::ServiceMode(string_view const File)
 {
 	switch (m_Mode)
 	{
@@ -2498,7 +2498,7 @@ void config_provider::ServiceMode(const string& File)
 	}
 }
 
-void config_provider::Import(const string& File)
+void config_provider::Import(string_view const File)
 {
 	representation_source Representation(File);
 

@@ -1449,7 +1449,7 @@ bool Edit::InsertKey(wchar_t const Key)
 	return true;
 }
 
-void Edit::SetHiString(const string& Str)
+void Edit::SetHiString(string_view const Str)
 {
 	if (m_Flags.Check(FEDITLINE_READONLY))
 		return;

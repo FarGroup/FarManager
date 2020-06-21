@@ -203,8 +203,8 @@ public:
 
 	void FastShow() { ShowMenu(); }
 	void ResetCursor();
-	void SetTitle(const string& Title);
-	void SetBottomTitle(const wchar_t *BottomTitle);
+	void SetTitle(string_view Title);
+	void SetBottomTitle(string_view BottomTitle);
 	string &GetBottomTitle(string &strDest) const;
 	void SetDialogStyle(bool Style) { ChangeFlags(VMENU_WARNDIALOG, Style); SetColors(nullptr); }
 	void SetUpdateRequired(bool SetUpdate) { ChangeFlags(VMENU_UPDATEREQUIRED, SetUpdate); }
@@ -227,7 +227,7 @@ public:
 	int InsertItem(const FarListInsert *NewItem);
 	bool UpdateItem(const FarListUpdate *NewItem);
 	int FindItem(const FarListFind *FItem);
-	int FindItem(int StartIndex, const string& Pattern, unsigned long long Flags = 0);
+	int FindItem(int StartIndex, string_view Pattern, unsigned long long Flags = 0);
 	void RestoreFilteredItems();
 	void FilterStringUpdated();
 	void FilterUpdateHeight(bool bShrink = false);

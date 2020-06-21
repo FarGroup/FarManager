@@ -180,7 +180,7 @@ static bool SidToNameCached(PSID Sid, string& Name, const string& Computer)
 	return false;
 }
 
-static bool ProcessFileOwner(const string& Name, function_ref<bool(PSID)> const Callable)
+static bool ProcessFileOwner(string_view const Name, function_ref<bool(PSID)> const Callable)
 {
 	const auto SecurityDescriptor = os::fs::get_file_security(Name, OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION);
 	if (!SecurityDescriptor)
@@ -197,7 +197,7 @@ static bool ProcessFileOwner(const string& Name, function_ref<bool(PSID)> const 
 	return Callable(pOwner);
 }
 
-static bool IsOwned(const string& Name, PSID const Owner)
+static bool IsOwned(string_view const Name, PSID const Owner)
 {
 	return ProcessFileOwner(Name, [&](PSID const Sid)
 	{
@@ -207,7 +207,7 @@ static bool IsOwned(const string& Name, PSID const Owner)
 
 
 // TODO: elevation
-bool GetFileOwner(const string& Computer, const string& Object, string& Owner)
+bool GetFileOwner(const string& Computer, string_view const Object, string& Owner)
 {
 	return ProcessFileOwner(Object, [&](PSID const Sid)
 	{
@@ -263,7 +263,7 @@ bool SetOwnerInternal(const string& Object, const string& Owner)
 	return Result == ERROR_SUCCESS;
 }
 
-bool SetFileOwner(const string& Object, const string& Owner)
+bool SetFileOwner(string_view const Object, const string& Owner)
 {
 	const NTPath NtObject(Object);
 

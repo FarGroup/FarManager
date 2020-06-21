@@ -53,7 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-static void retrievable_ui_operation(function_ref<bool()> const Action, string const& Name, lng const ErrorDescription, bool& SkipErrors)
+static void retrievable_ui_operation(function_ref<bool()> const Action, string_view const Name, lng const ErrorDescription, bool& SkipErrors)
 {
 	while (!Action())
 	{
@@ -97,7 +97,7 @@ static auto without_ro(string_view const Name, DWORD const Attributes, function_
 	};
 }
 
-void ESetFileAttributes(const string& Name, DWORD Attributes, bool& SkipErrors)
+void ESetFileAttributes(string_view const Name, DWORD Attributes, bool& SkipErrors)
 {
 	if ((Attributes & FILE_ATTRIBUTE_DIRECTORY) && (Attributes & FILE_ATTRIBUTE_TEMPORARY))
 		Attributes &= ~FILE_ATTRIBUTE_TEMPORARY;
@@ -105,7 +105,7 @@ void ESetFileAttributes(const string& Name, DWORD Attributes, bool& SkipErrors)
 	retrievable_ui_operation([&]{ return os::fs::set_file_attributes(Name, Attributes); }, Name, lng::MSetAttrCannotFor, SkipErrors);
 }
 
-static bool set_file_compression(string const& Name, bool const State)
+static bool set_file_compression(string_view const Name, bool const State)
 {
 	const os::fs::file File(Name, FILE_READ_DATA | FILE_WRITE_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
 	if (!File)
@@ -115,7 +115,7 @@ static bool set_file_compression(string const& Name, bool const State)
 	return File.IoControl(FSCTL_SET_COMPRESSION, &NewState, sizeof(NewState), nullptr, 0);
 }
 
-void ESetFileCompression(const string& Name, bool const State, DWORD const CurrentAttributes, bool& SkipErrors)
+void ESetFileCompression(string_view const Name, bool const State, DWORD const CurrentAttributes, bool& SkipErrors)
 {
 	if (!!(CurrentAttributes & FILE_ATTRIBUTE_COMPRESSED) == State)
 		return;
@@ -133,7 +133,7 @@ void ESetFileCompression(const string& Name, bool const State, DWORD const Curre
 		Name, lng::MSetAttrCompressedCannotFor, SkipErrors);
 }
 
-void ESetFileEncryption(string const& Name, bool const State, DWORD const CurrentAttributes, bool& SkipErrors)
+void ESetFileEncryption(string_view const Name, bool const State, DWORD const CurrentAttributes, bool& SkipErrors)
 {
 	if (!!(CurrentAttributes & FILE_ATTRIBUTE_ENCRYPTED) == State)
 		return;
@@ -150,7 +150,7 @@ void ESetFileEncryption(string const& Name, bool const State, DWORD const Curren
 
 
 void ESetFileTime(
-	const string& Name,
+	string_view const Name,
 	os::chrono::time_point const* const LastWriteTime,
 	os::chrono::time_point const* const CreationTime,
 	os::chrono::time_point const* const LastAccessTime,
@@ -175,7 +175,7 @@ void ESetFileTime(
 		Name, lng::MSetAttrTimeCannotFor, SkipErrors);
 }
 
-static bool set_file_sparse(string const& Name, bool const State)
+static bool set_file_sparse(string_view const Name, bool const State)
 {
 	const os::fs::file File(Name, FILE_WRITE_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING);
 	if (!File)
@@ -185,7 +185,7 @@ static bool set_file_sparse(string const& Name, bool const State)
 	return File.IoControl(FSCTL_SET_SPARSE, &Buffer, sizeof(Buffer), nullptr, 0);
 }
 
-void ESetFileSparse(const string& Name, bool const State, DWORD const CurrentAttributes, bool& SkipErrors)
+void ESetFileSparse(string_view const Name, bool const State, DWORD const CurrentAttributes, bool& SkipErrors)
 {
 	if ((CurrentAttributes & FILE_ATTRIBUTE_DIRECTORY) || !!(CurrentAttributes & FILE_ATTRIBUTE_SPARSE_FILE) == State)
 		return;
@@ -200,12 +200,12 @@ void ESetFileSparse(const string& Name, bool const State, DWORD const CurrentAtt
 		Name, lng::MSetAttrSparseCannotFor, SkipErrors);
 }
 
-void ESetFileOwner(const string& Name, const string& Owner, bool& SkipErrors)
+void ESetFileOwner(string_view const Name, const string& Owner, bool& SkipErrors)
 {
 	retrievable_ui_operation([&]{ return SetFileOwner(Name, Owner); }, Name, lng::MSetAttrOwnerCannotFor, SkipErrors);
 }
 
-void EDeleteReparsePoint(const string& Name, DWORD const CurrentAttributes, bool& SkipErrors)
+void EDeleteReparsePoint(string_view const Name, DWORD const CurrentAttributes, bool& SkipErrors)
 {
 	if (!(CurrentAttributes & FILE_ATTRIBUTE_REPARSE_POINT))
 		return;

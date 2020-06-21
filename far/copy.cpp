@@ -839,7 +839,7 @@ ShellCopy::ShellCopy(
 
 	for (const auto& i: SrcPanel->enum_selected())
 	{
-		if (m_UseFilter && !m_Filter->FileInFilter(i, nullptr, &i.FileName))
+		if (m_UseFilter && !m_Filter->FileInFilter(i, {}, i.FileName))
 			continue;
 
 		if (i.Attributes & FILE_ATTRIBUTE_DIRECTORY)
@@ -1617,7 +1617,7 @@ void ShellCopy::CopyFileTree(const string& Dest)
 					// Просто пропустить каталог недостаточно - если каталог помечен в
 					// фильтре как некопируемый, то следует пропускать и его и всё его
 					// содержимое.
-					if (!m_Filter->FileInFilter(SrcData, nullptr, &strFullName))
+					if (!m_Filter->FileInFilter(SrcData, {}, strFullName))
 					{
 						ScTree.SkipDir();
 						continue;
@@ -1741,7 +1741,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 	if (m_UseFilter)
 	{
-		if (!m_Filter->FileInFilter(SrcData, nullptr, &Src))
+		if (!m_Filter->FileInFilter(SrcData, {}, Src))
 			return COPY_NOFILTER;
 	}
 
@@ -3445,7 +3445,7 @@ void ShellCopy::CalcTotalSize() const
 		else
 		{
 			//  Подсчитаем количество файлов
-			if (m_UseFilter && !m_Filter->FileInFilter(i, nullptr, &i.FileName))
+			if (m_UseFilter && !m_Filter->FileInFilter(i, {}, i.FileName))
 				continue;
 
 			CP->m_Bytes.Total += i.FileSize;

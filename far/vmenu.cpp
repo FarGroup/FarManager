@@ -2560,19 +2560,16 @@ string &VMenu::GetBottomTitle(string &strDest) const
 	return strDest;
 }
 
-void VMenu::SetBottomTitle(const wchar_t *BottomTitle)
+void VMenu::SetBottomTitle(string_view const BottomTitle)
 {
 	SetMenuFlags(VMENU_UPDATEREQUIRED);
 
-	if (BottomTitle)
-		strBottomTitle = BottomTitle;
-	else
-		strBottomTitle.clear();
+	strBottomTitle = BottomTitle;
 
 	UpdateMaxLength(strBottomTitle.size() + 2);
 }
 
-void VMenu::SetTitle(const string& Title)
+void VMenu::SetTitle(string_view const Title)
 {
 	SetMenuFlags(VMENU_UPDATEREQUIRED);
 
@@ -2854,7 +2851,7 @@ int VMenu::FindItem(const FarListFind *FItem)
 	return FindItem(FItem->StartIndex,FItem->Pattern,FItem->Flags);
 }
 
-int VMenu::FindItem(int StartIndex, const string& Pattern, unsigned long long Flags)
+int VMenu::FindItem(int StartIndex, string_view const Pattern, unsigned long long Flags)
 {
 	if (static_cast<size_t>(StartIndex) < Items.size())
 	{

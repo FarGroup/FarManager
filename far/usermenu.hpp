@@ -54,17 +54,17 @@ class UserMenu: noncopyable
 
 public:
 	explicit UserMenu(bool ChooseMenuType); //	true - выбор типа меню (основное или локальное), false - зависит от наличия FarMenu.Ini в текущем каталоге
-	explicit UserMenu(const string& MenuFileName);
+	explicit UserMenu(string_view MenuFileName);
 	~UserMenu();
 
 	using menu_container = std::list<UserMenuItem>;
 
 private:
-	void ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName);
+	void ProcessUserMenu(bool ChooseMenuType, string_view MenuFileName);
 	bool DeleteMenuRecord(menu_container& Menu, const menu_container::iterator& MenuItem) const;
 	bool EditMenu(menu_container& Menu, menu_container::iterator* MenuItem, bool Create);
-	int ProcessSingleMenu(menu_container& Menu, int MenuPos, menu_container& MenuRoot, const string& MenuFileName, const string& Title);
-	void SaveMenu(const string& MenuFileName) const;
+	int ProcessSingleMenu(menu_container& Menu, int MenuPos, menu_container& MenuRoot, string_view MenuFileName, const string& Title);
+	void SaveMenu(string_view MenuFileName) const;
 	intptr_t EditMenuDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 
 	enum class menu_mode: int;

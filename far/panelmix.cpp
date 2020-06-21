@@ -147,7 +147,7 @@ void ShellUpdatePanels(panel_ptr SrcPanel, bool NeedSetUpADir)
 	Global->CtrlObject->Cp()->Redraw();
 }
 
-bool CheckUpdateAnotherPanel(panel_ptr SrcPanel, const string& SelName)
+bool CheckUpdateAnotherPanel(panel_ptr SrcPanel, string_view const SelName)
 {
 	if (!SrcPanel)
 		SrcPanel = Global->CtrlObject->Cp()->ActivePanel();
@@ -313,7 +313,7 @@ bool MakePathForUI(DWORD Key, string &strPathName)
 	}
 }
 
-std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const string& ColumnWidths)
+std::vector<column> DeserialiseViewSettings(string_view const ColumnTitles, string_view const ColumnWidths)
 {
 	// BUGBUG, add error checking
 
@@ -685,7 +685,7 @@ string FormatStr_DateTime(os::chrono::time_point FileTime, column_type const Col
 
 string FormatStr_Size(
 	long long const Size,
-	string const& strName,
+	string_view const strName,
 	DWORD const FileAttributes,
 	DWORD const ShowFolderSize,
 	DWORD const ReparseTag,

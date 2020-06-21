@@ -105,6 +105,15 @@ void hash_combine(size_t& Seed, const type& Value)
 	Seed ^= make_hash(Value) + MagicValue + (Seed << 6) + (Seed >> 2);
 }
 
+template<typename... args>
+size_t hash_combine_all(const args&... Args)
+{
+	size_t Seed = 0;
+	(..., hash_combine(Seed, Args));
+	return Seed;
+}
+
+
 template<typename iterator>
 [[nodiscard]]
 size_t hash_range(iterator First, iterator Last)

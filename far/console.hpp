@@ -89,7 +89,7 @@ namespace console_detail
 
 		string GetPhysicalTitle() const;
 		string GetTitle() const;
-		bool SetTitle(const string& Title) const;
+		bool SetTitle(string_view Title) const;
 
 		bool GetKeyboardLayoutName(string &strName) const;
 

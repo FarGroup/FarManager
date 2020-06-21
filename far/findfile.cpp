@@ -186,14 +186,14 @@ public:
 		ArcList.clear();
 	}
 
-	FindFiles::ArcListItem& AddArcListItem(const string& ArcName, plugin_panel* hPlugin, unsigned long long dwFlags, const string& RootPath)
+	FindFiles::ArcListItem& AddArcListItem(string_view const ArcName, plugin_panel* const hPlugin, unsigned long long const Flags, string_view const RootPath)
 	{
 		SCOPED_ACTION(std::lock_guard)(DataCS);
 
 		FindFiles::ArcListItem NewItem;
 		NewItem.strArcName = ArcName;
 		NewItem.hPlugin = hPlugin;
-		NewItem.Flags = dwFlags;
+		NewItem.Flags = Flags;
 		NewItem.strRootPath = RootPath;
 		AddEndSlash(NewItem.strRootPath);
 		ArcList.emplace_back(NewItem);
@@ -355,10 +355,10 @@ private:
 	void DoPrepareFileList();
 	void DoPreparePluginListImpl();
 	void DoPreparePluginList();
-	void ArchiveSearch(const string& ArcName);
-	void DoScanTree(const string& strRoot);
+	void ArchiveSearch(string_view ArcName);
+	void DoScanTree(string_view strRoot);
 	void ScanPluginTree(plugin_panel* hPlugin, unsigned long long Flags, int& RecurseLevel);
-	void AddMenuRecord(const string& FullName, PluginPanelItem& FindData) const;
+	void AddMenuRecord(string_view FullName, PluginPanelItem& FindData) const;
 
 	FindFiles* const m_Owner;
 	const string m_EventName;
@@ -1881,7 +1881,7 @@ void FindFiles::OpenFile(const string& strSearchFileName, int OpenKey, const Fin
 	console.SetTitle(strOldTitle);
 }
 
-void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const os::fs::find_data& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData, ArcListItem* Arc)
+void FindFiles::AddMenuRecord(Dialog* const Dlg, string_view const FullName, const os::fs::find_data& FindData, void* const Data, FARPANELITEMFREECALLBACK const FreeData, ArcListItem* const Arc)
 {
 	if (!Dlg)
 		return;
@@ -2016,7 +2016,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const os::fs::
 	const auto DisplayName0 = Arc? PointToName(DisplayName) : DisplayName;
 	append(MenuText, DisplayName0);
 
-	string strPathName=FullName;
+	string strPathName(FullName);
 	{
 		const auto pos = FindLastSlash(strPathName);
 		if (pos != string::npos)
@@ -2099,7 +2099,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const os::fs::
 	++m_LastFoundNumber;
 }
 
-void background_searcher::AddMenuRecord(const string& FullName, PluginPanelItem& FindData) const
+void background_searcher::AddMenuRecord(string_view const FullName, PluginPanelItem& FindData) const
 {
 	os::fs::find_data fdata;
 	PluginPanelItemToFindDataEx(FindData, fdata);
@@ -2107,17 +2107,16 @@ void background_searcher::AddMenuRecord(const string& FullName, PluginPanelItem&
 	FindData.UserData.FreeData = nullptr; //передано в FINDLIST
 }
 
-void background_searcher::ArchiveSearch(const string& ArcName)
+void background_searcher::ArchiveSearch(string_view const ArcName)
 {
 	_ALGO(CleverSysLog clv(L"FindFiles::ArchiveSearch()"));
-	_ALGO(SysLog(L"ArcName='%s'",(ArcName?ArcName:L"nullptr")));
 
 	std::unique_ptr<plugin_panel> hArc;
 
 	{
 		const auto SavePluginsOutput = std::exchange(Global->DisablePluginsOutput, true);
 
-		string strArcName = ArcName;
+		string strArcName(ArcName);
 		{
 			SCOPED_ACTION(auto)(m_Owner->ScopedLock());
 			hArc = Global->CtrlObject->Plugins->OpenFilePlugin(&strArcName, OPM_FIND, OFP_SEARCH);
@@ -2166,7 +2165,7 @@ void background_searcher::ArchiveSearch(const string& ArcName)
 	const_cast<FINDAREA&>(SearchMode) = SaveSearchMode;
 }
 
-void background_searcher::DoScanTree(const string& strRoot)
+void background_searcher::DoScanTree(string_view const strRoot)
 {
 	ScanTree ScTree(
 		false,
@@ -2209,10 +2208,10 @@ void background_searcher::DoScanTree(const string& strRoot)
 			std::this_thread::yield();
 			PauseEvent.wait();
 
-			const auto ProcessStream = [&](const string& FullStreamName)
+			const auto ProcessStream = [&](string_view const FullStreamName)
 			{
 				filter_status FilterStatus;
-				if (UseFilter && !m_Owner->GetFilter()->FileInFilter(FindData, &FilterStatus, &FullStreamName))
+				if (UseFilter && !m_Owner->GetFilter()->FileInFilter(FindData, &FilterStatus, FullStreamName))
 				{
 					// сюда заходим, если не попали в фильтр или попали в Exclude-фильтр
 					if (FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY && FilterStatus == filter_status::in_exclude)

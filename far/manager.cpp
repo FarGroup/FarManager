@@ -391,7 +391,7 @@ int Manager::GetModalExitCode() const
 /* $ 11.10.2001 IS
    Подсчитать количество окон с указанным именем.
 */
-int Manager::CountWindowsWithName(const string& Name, bool IgnoreCase)
+int Manager::CountWindowsWithName(string_view const Name, bool IgnoreCase)
 {
 	const auto AreEqual = IgnoreCase? equal_icase : equal;
 

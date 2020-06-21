@@ -167,7 +167,7 @@ void Text(lng MsgId);
 
 void VText(string_view Str);
 
-void HiText(const string& Str,const FarColor& HiColor,int isVertText=0);
+void HiText(string_view Str,const FarColor& HiColor, bool isVertText = false);
 void PutText(rectangle Where, const FAR_CHAR_INFO* Src);
 void GetText(rectangle Where, matrix<FAR_CHAR_INFO>& Dest);
 

@@ -118,11 +118,11 @@ struct ViewerPosCache: noncopyable
 class FilePositionCache: noncopyable
 {
 public:
-	static bool AddPosition(const string& Name, const EditorPosCache& poscache);
-	static bool GetPosition(const string& Name, EditorPosCache& poscache);
+	static bool AddPosition(string_view Name, const EditorPosCache& poscache);
+	static bool GetPosition(string_view Name, EditorPosCache& poscache);
 
-	static bool AddPosition(const string& Name, const ViewerPosCache& poscache);
-	static bool GetPosition(const string& Name, ViewerPosCache& poscache);
+	static bool AddPosition(string_view Name, const ViewerPosCache& poscache);
+	static bool GetPosition(string_view Name, ViewerPosCache& poscache);
 
 	static void CompactHistory();
 };

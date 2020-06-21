@@ -235,9 +235,9 @@ struct FileList::PluginsListItem
 	NONCOPYABLE(PluginsListItem);
 	MOVE_CONSTRUCTIBLE(PluginsListItem);
 
-	PluginsListItem(std::unique_ptr<plugin_panel>&& hPlugin, string HostFile, int Modified, int PrevViewMode, panel_sort PrevSortMode, bool PrevSortOrder, bool PrevDirectoriesFirst, const PanelViewSettings& PrevViewSettings):
+	PluginsListItem(std::unique_ptr<plugin_panel>&& hPlugin, string_view const HostFile, bool Modified, int PrevViewMode, panel_sort PrevSortMode, bool PrevSortOrder, bool PrevDirectoriesFirst, const PanelViewSettings& PrevViewSettings):
 		m_Plugin(std::move(hPlugin)),
-		m_HostFile(std::move(HostFile)),
+		m_HostFile(HostFile),
 		m_Modified(Modified),
 		m_PrevViewMode(PrevViewMode),
 		m_PrevSortMode(PrevSortMode),
@@ -249,7 +249,7 @@ struct FileList::PluginsListItem
 
 	std::unique_ptr<plugin_panel> m_Plugin;
 	string m_HostFile;
-	int m_Modified;
+	bool m_Modified;
 	int m_PrevViewMode;
 	panel_sort m_PrevSortMode;
 	bool m_PrevSortOrder;
@@ -1087,7 +1087,7 @@ long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 class file_state: public rel_ops<file_state>
 {
 public:
-	static auto get(const string& Filename)
+	static auto get(string_view const Filename)
 	{
 		file_state State;
 		State.IsValid = os::fs::GetFileTimeSimple(Filename, nullptr, nullptr, &State.Times.first, &State.Times.second);
@@ -3504,12 +3504,12 @@ long FileList::FindFile(const string_view Name, const bool OnlyPartName)
 	return II;
 }
 
-long FileList::FindFirst(const string& Name)
+long FileList::FindFirst(string_view const Name)
 {
-	return FindNext(0,Name);
+	return FindNext(0, Name);
 }
 
-long FileList::FindNext(int StartPos, const string& Name)
+long FileList::FindNext(int StartPos, string_view const Name)
 {
 	if (static_cast<size_t>(StartPos) < m_ListData.size())
 		for (long I=StartPos; I < static_cast<int>(m_ListData.size()); I++)
@@ -3523,7 +3523,7 @@ long FileList::FindNext(int StartPos, const string& Name)
 }
 
 
-bool FileList::IsSelected(const string& Name)
+bool FileList::IsSelected(string_view const Name)
 {
 	const long Pos = FindFile(Name);
 	return Pos!=-1 && (m_ListData[Pos].Selected || (!m_SelFileCount && Pos==m_CurFile));
@@ -3545,7 +3545,7 @@ bool FileList::FileInFilter(size_t idxItem)
 }
 
 // $ 02.08.2000 IG  Wish.Mix #21 - при нажатии '/' или '\' в QuickSerach переходим на директорию
-bool FileList::FindPartName(const string& Name,int Next,int Direct)
+bool FileList::FindPartName(string_view const Name,int Next,int Direct)
 {
 	if constexpr (!features::mantis_698) {
 
@@ -4946,7 +4946,7 @@ void FileList::CountDirSize(bool IsRealNames)
 		}
 	}
 
-	const auto GetPluginDirInfoOrParent = [this, &Total](const plugin_panel* const ph, const string& DirName, const UserDataItem* const UserData, BasicDirInfoData& BasicData, const dirinfo_callback& Callback)
+	const auto GetPluginDirInfoOrParent = [this, &Total](const plugin_panel* const ph, string_view const DirName, const UserDataItem* const UserData, BasicDirInfoData& BasicData, const dirinfo_callback& Callback)
 	{
 		if (!m_CurFile && IsParentDirectory(m_ListData[0]))
 		{
@@ -5292,9 +5292,9 @@ void FileList::ClearAllItem()
    В стеке ФАРова панель не хранится - только плагиновые!
 */
 
-void FileList::PushPlugin(std::unique_ptr<plugin_panel>&& hPlugin,const string& HostFile)
+void FileList::PushPlugin(std::unique_ptr<plugin_panel>&& hPlugin, string_view const HostFile)
 {
-	PluginsList.emplace_back(std::make_shared<PluginsListItem>(std::move(hPlugin), HostFile, FALSE, m_ViewMode, m_SortMode, m_ReverseSortOrder, m_DirectoriesFirst, m_ViewSettings));
+	PluginsList.emplace_back(std::make_shared<PluginsListItem>(std::move(hPlugin), HostFile, false, m_ViewMode, m_SortMode, m_ReverseSortOrder, m_DirectoriesFirst, m_ViewSettings));
 	++Global->PluginPanelsCount;
 }
 
@@ -5383,7 +5383,7 @@ bool FileList::PopPlugin(int EnableRestoreViewMode)
 	UsePrev - если востанавливаемся из PrevDataList, элемент для позиционирования брать оттуда же.
 	Position - надо ли вообще устанавливать текущий элемент.
 */
-void FileList::PopPrevData(const string& DefaultName,bool Closed,bool UsePrev,bool Position,bool SetDirectorySuccess)
+void FileList::PopPrevData(string_view const DefaultName, bool const Closed, bool const UsePrev, bool const Position, bool const SetDirectorySuccess)
 {
 	string strName(DefaultName);
 	if (Closed && !PrevDataList.empty())
@@ -5423,7 +5423,7 @@ void FileList::PopPrevData(const string& DefaultName,bool Closed,bool UsePrev,bo
 		m_CurFile = m_CurTopFile = 0;
 }
 
-bool FileList::FileNameToPluginItem(const string& Name, PluginPanelItemHolder& pi)
+bool FileList::FileNameToPluginItem(string_view const Name, PluginPanelItemHolder& pi)
 {
 	string_view TempDir = Name;
 
@@ -6162,7 +6162,7 @@ int FileList::ProcessOneHostFile(const FileListItem* Item)
 	return Done;
 }
 
-void FileList::SetPluginMode(std::unique_ptr<plugin_panel>&& PluginPanel, const string& PluginFile, bool SendOnFocus)
+void FileList::SetPluginMode(std::unique_ptr<plugin_panel>&& PluginPanel, string_view const PluginFile, bool SendOnFocus)
 {
 	const auto ParentWindow = Parent();
 
@@ -6330,7 +6330,7 @@ void FileList::SetPluginModified()
 {
 	if(!PluginsList.empty())
 	{
-		PluginsList.back()->m_Modified = TRUE;
+		PluginsList.back()->m_Modified = true;
 	}
 }
 
@@ -6637,7 +6637,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 		if (fdata.Attributes & (FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_SYSTEM) && !Global->Opt->ShowHidden)
 			continue;
 
-		if (UseFilter && !m_Filter->FileInFilter(fdata, nullptr, &fdata.FileName))
+		if (UseFilter && !m_Filter->FileInFilter(fdata, {}, fdata.FileName))
 		{
 			if (!(fdata.Attributes & FILE_ATTRIBUTE_DIRECTORY))
 				m_FilteredExtensions.emplace(PointToExt(fdata.FileName));

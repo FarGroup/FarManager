@@ -149,7 +149,7 @@ private:
 	void SetTitle(const string* Title);
 	bool SetFileName(string_view NewFileName);
 	int ProcessEditorInput(const INPUT_RECORD& Rec);
-	DWORD EditorGetFileAttributes(const string& Name);
+	DWORD EditorGetFileAttributes(string_view Name);
 	void SetPluginData(const string* PluginData);
 	const string& GetPluginData() const { return strPluginData; }
 	bool LoadFromCache(EditorPosCache &pc) const;

@@ -102,10 +102,10 @@ public:
 	};
 
 private:
-	bool ConfirmDeleteReadOnlyFile(const string& Name, DWORD Attr);
-	bool ShellRemoveFile(const string& Name, progress Files);
-	bool ERemoveDirectory(const string& Name, delete_type Type, bool& RetryRecycleAsRemove);
-	bool RemoveToRecycleBin(const string& Name, bool dir, bool& RetryRecycleAsRemove, bool& Skip);
+	bool ConfirmDeleteReadOnlyFile(string_view Name, DWORD Attr);
+	bool ShellRemoveFile(string_view Name, progress Files);
+	bool ERemoveDirectory(string_view Name, delete_type Type, bool& RetryRecycleAsRemove);
+	bool RemoveToRecycleBin(string_view Name, bool dir, bool& RetryRecycleAsRemove, bool& Skip);
 	void process_item(
 		panel_ptr SrcPanel,
 		const os::fs::find_data& SelFindData,
@@ -136,7 +136,7 @@ struct DelPreRedrawItem : public PreRedrawItem
 	int WipePercent{};
 };
 
-static void ShellDeleteMsgImpl(const string& Name, DEL_MODE Mode, ShellDelete::progress Files, int WipePercent)
+static void ShellDeleteMsgImpl(string_view const Name, DEL_MODE Mode, ShellDelete::progress Files, int WipePercent)
 {
 	string strProgress, strWipeProgress;
 	const auto Width = copy_progress::CanvasWidth();
@@ -176,7 +176,7 @@ static void ShellDeleteMsgImpl(const string& Name, DEL_MODE Mode, ShellDelete::p
 	}
 }
 
-static void ShellDeleteMsg(const string& Name, DEL_MODE Mode, ShellDelete::progress Files, int WipePercent)
+static void ShellDeleteMsg(string_view const Name, DEL_MODE Mode, ShellDelete::progress Files, int WipePercent)
 {
 	if (CheckForEscSilent() && ConfirmAbortOp())
 		cancel_operation();
@@ -200,7 +200,7 @@ static void PR_ShellDeleteMsg()
 	});
 }
 
-static bool EraseFileData(const string& Name, ShellDelete::progress Files)
+static bool EraseFileData(string_view const Name, ShellDelete::progress Files)
 {
 	os::fs::file_walker File;
 	if (!File.Open(Name, FILE_READ_DATA | FILE_WRITE_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_WRITE_THROUGH | FILE_FLAG_SEQUENTIAL_SCAN))
@@ -257,7 +257,7 @@ static bool EraseFileData(const string& Name, ShellDelete::progress Files)
 	return true;
 }
 
-static bool EraseFile(const string& Name, ShellDelete::progress Files)
+static bool EraseFile(string_view const Name, ShellDelete::progress Files)
 {
 	if (!os::fs::set_file_attributes(Name, FILE_ATTRIBUTE_NORMAL))
 		return false;
@@ -273,16 +273,16 @@ static bool EraseFile(const string& Name, ShellDelete::progress Files)
 	return os::fs::delete_file(strTempName);
 }
 
-static bool EraseDirectory(const string& Name)
+static bool EraseDirectory(string_view const Name)
 {
-	string strPath = Name;
+	auto Path = Name;
 
-	if (!CutToParent(strPath))
+	if (!CutToParent(Path))
 	{
-		strPath.clear();
+		Path = {};
 	}
 
-	const auto strTempName = MakeTemp({}, false, strPath);
+	const auto strTempName = MakeTemp({}, false, Path);
 
 	if (!os::fs::move_file(Name, strTempName))
 	{
@@ -773,7 +773,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, delete_type const Type):
 	}
 }
 
-bool ShellDelete::ConfirmDeleteReadOnlyFile(const string& Name,DWORD Attr)
+bool ShellDelete::ConfirmDeleteReadOnlyFile(string_view const Name, DWORD Attr)
 {
 	if (!(Attr & FILE_ATTRIBUTE_READONLY))
 		return true;
@@ -799,7 +799,7 @@ bool ShellDelete::ConfirmDeleteReadOnlyFile(const string& Name,DWORD Attr)
 			msg(lng::MWarning),
 			{
 				msg(lng::MDeleteRO),
-				Name,
+				string(Name),
 				msg(AskId)
 			},
 			{ ButtonId, lng::MDeleteFileAll, lng::MDeleteFileSkip, lng::MDeleteFileSkipAll, lng::MDeleteFileCancel },
@@ -826,7 +826,7 @@ bool ShellDelete::ConfirmDeleteReadOnlyFile(const string& Name,DWORD Attr)
 	}
 }
 
-static int confirm_erase_file_with_hardlinks(const string& File)
+static int confirm_erase_file_with_hardlinks(string_view const File)
 {
 	const auto Hardlinks = GetNumberOfLinks(File);
 	if (!Hardlinks || *Hardlinks < 2)
@@ -835,7 +835,7 @@ static int confirm_erase_file_with_hardlinks(const string& File)
 	return Message(MSG_WARNING,
 		msg(lng::MError),
 		{
-			File,
+			string(File),
 			msg(lng::MDeleteHardLink1),
 			msg(lng::MDeleteHardLink2),
 			msg(lng::MDeleteHardLink3)
@@ -844,7 +844,7 @@ static int confirm_erase_file_with_hardlinks(const string& File)
 		{}, &WipeHardLinkId);
 }
 
-bool ShellDelete::ShellRemoveFile(const string& Name, progress Files)
+bool ShellDelete::ShellRemoveFile(string_view const Name, progress Files)
 {
 	ProcessedItems++;
 	const auto strFullName = ConvertNameToFull(Name);
@@ -930,7 +930,7 @@ bool ShellDelete::ShellRemoveFile(const string& Name, progress Files)
 	}
 }
 
-bool ShellDelete::ERemoveDirectory(const string& Name, delete_type const Type, bool& RetryRecycleAsRemove)
+bool ShellDelete::ERemoveDirectory(string_view const Name, delete_type const Type, bool& RetryRecycleAsRemove)
 {
 	ProcessedItems++;
 
@@ -998,7 +998,7 @@ bool ShellDelete::ERemoveDirectory(const string& Name, delete_type const Type, b
 	}
 }
 
-static void break_links_for_old_os(const string& Name)
+static void break_links_for_old_os(string_view const Name)
 {
 	// При удалении в корзину папки с симлинками получим траблу, если предварительно линки не убрать.
 	if (IsWindowsVistaOrGreater() || !os::fs::is_directory(Name))
@@ -1040,7 +1040,7 @@ static void break_links_for_old_os(const string& Name)
 	}
 }
 
-bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, bool& RetryRecycleAsRemove, bool& Skip)
+bool ShellDelete::RemoveToRecycleBin(string_view const Name, bool dir, bool& RetryRecycleAsRemove, bool& Skip)
 {
 	RetryRecycleAsRemove = false;
 	const auto strFullName = ConvertNameToFull(Name);
@@ -1083,7 +1083,7 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, bool& RetryRe
 	}
 }
 
-void DeleteDirTree(const string& Dir)
+void DeleteDirTree(string_view const Dir)
 {
 	if (Dir.empty() ||
 	        (Dir.size() == 1 && IsSlash(Dir[0])) ||
@@ -1116,7 +1116,7 @@ void DeleteDirTree(const string& Dir)
 	(void)os::fs::remove_directory(Dir);
 }
 
-bool DeleteFileWithFolder(const string& FileName)
+bool DeleteFileWithFolder(string_view const FileName)
 {
 	auto strFileOrFolderName = unquote(FileName);
 	(void)os::fs::set_file_attributes(strFileOrFolderName, FILE_ATTRIBUTE_NORMAL); //BUGBUG

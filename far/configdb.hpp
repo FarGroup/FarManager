@@ -507,7 +507,7 @@ public:
 	~config_provider();
 	[[nodiscard]]
 	bool ShowProblems() const;
-	void ServiceMode(const string& File);
+	void ServiceMode(string_view File);
 
 	void AsyncCall(const std::function<void()>& Routine);
 
@@ -550,8 +550,8 @@ private:
 	[[nodiscard]]
 	HierarchicalConfigUniquePtr CreateHierarchicalConfig(dbcheck DbId, string_view DbName, const char* ImportNodeName, bool Local = false, bool IsPlugin = false, bool UseFallback = true);
 
-	void Import(const string& File);
-	void Export(const string& File);
+	void Import(string_view File);
+	void Export(string_view File);
 	void TryImportDatabase(representable& p, const char* NodeName = nullptr, bool IsPlugin = false);
 
 	struct implementation

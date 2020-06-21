@@ -82,7 +82,7 @@ public:
 		--Global->SuppressIndicators;
 	}
 
-	void DrawCommand(const string& Command) override
+	void DrawCommand(string_view const Command) override
 	{
 		Global->CtrlObject->CmdLine()->DrawFakeCommand(Command);
 		ScrollScreen(1);

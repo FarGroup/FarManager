@@ -263,7 +263,7 @@ static bool IsDeviceHotplug(DEVINST hDevInst, bool const IncludeSafeToRemove)
 }
 
 [[nodiscard]]
-static DWORD DriveMaskFromVolumeName(const string& VolumeName)
+static DWORD DriveMaskFromVolumeName(string_view const VolumeName)
 {
 	DWORD Result = 0;
 	string strCurrentVolumeName;

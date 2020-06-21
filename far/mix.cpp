@@ -54,6 +54,39 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
+constexpr auto max_integer_in_double = bit(std::numeric_limits<double>::digits);
+
+unsigned int ToPercent(unsigned long long const Value, unsigned long long const Base)
+{
+	if (!Value || !Base)
+		return 0;
+
+	if (Value == Base)
+		return 100;
+
+	if (Value <= max_integer_in_double && Base <= max_integer_in_double)
+		return static_cast<double>(Value) / Base * 100;
+
+	const auto Step = Base / 100;
+	const auto Result = Value / Step;
+
+	return Result == 100? 99 : Result;
+}
+
+unsigned long long FromPercent(unsigned int const Percent, unsigned long long const Base)
+{
+	if (!Percent || !Base)
+		return 0;
+
+	if (Percent == 100)
+		return Base;
+
+	if (Base <= max_integer_in_double)
+		return static_cast<double>(Base) / 100 * Percent;
+
+	return Base / 100 * Percent;
+}
+
 string MakeTemp(string_view Prefix, bool const WithTempPath, string_view const UserTempPath)
 {
 	static UINT s_shift = 0;
@@ -335,6 +368,79 @@ string version_to_string(const VersionInfo& PluginVersion)
 #ifdef ENABLE_TESTS
 
 #include "testing.hpp"
+
+
+TEST_CASE("to_percent")
+{
+	const auto Max = std::numeric_limits<unsigned long long>::max();
+
+	static const struct
+	{
+		unsigned long long Value, Base, Result;
+	}
+	Tests[]
+	{
+		{ 0,                     0,                      0   },
+		{ 1,                     0,                      0   },
+		{ 1,                     1,                      100 },
+		{ 0,                     1,                      0   },
+		{ 1,                     2,                      50  },
+		{ 2,                     1,                      200 },
+		{ 3,                     4,                      75  },
+		{ 0,                     Max,                    0   },
+		{ 1,                     Max,                    0   },
+		{ Max,                   0,                      0   },
+		{ Max,                   Max,                    100 },
+		{ 50_bit - 2,            50_bit - 1,             99  },
+		{ 51_bit - 2,            51_bit - 1,             99  },
+		{ 52_bit - 2,            52_bit - 1,             99  },
+		{ 53_bit - 2,            53_bit - 1,             99  },
+		{ 54_bit - 2,            54_bit - 1,             99  },
+		{ 64_bit - 2,            64_bit - 1,             99  },
+		{ (50_bit - 2) / 2,      50_bit - 1,             49  },
+		{ (51_bit - 2) / 2,      51_bit - 1,             49  },
+		{ (52_bit - 2) / 2,      52_bit - 1,             49  },
+		{ (53_bit - 2) / 2,      53_bit - 1,             49  },
+		{ (54_bit - 2) / 2,      54_bit - 1,             50  },
+		{ (64_bit - 2) / 2,      64_bit - 1,             50  },
+		{ 850536266682995018u,   3335436339933313800u,   25  },
+		{ 3552239702028979196u,  10006309019799941400u,  35  },
+		{ 1680850982666015624u,  2384185791015625000u,   70  },
+	};
+
+	for (const auto& i: Tests)
+	{
+		REQUIRE(ToPercent(i.Value, i.Base) == i.Result);
+	}
+}
+
+TEST_CASE("from_percent")
+{
+	const auto Max = std::numeric_limits<unsigned long long>::max();
+
+	static const struct
+	{
+		unsigned long long Value, Base, Result;
+	}
+	Tests[]
+	{
+		{ 0,           0,       0   },
+		{ 1,           0,       0   },
+		{ 100,         1,       1   },
+		{ 0,           1,       0   },
+		{ 50,          1,       0   },
+		{ 50,          2,       1   },
+		{ 200,         1,       2   },
+		{ 75,          4,       3   },
+		{ 0,           Max,     0   },
+		{ 100,         Max,     Max },
+	};
+
+	for (const auto& i: Tests)
+	{
+		REQUIRE(FromPercent(i.Value, i.Base) == i.Result);
+	}
+}
 
 TEST_CASE("version_to_string")
 {

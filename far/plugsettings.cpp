@@ -56,7 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-const wchar_t* AbstractSettings::Add(const string& String)
+const wchar_t* AbstractSettings::Add(string_view const String)
 {
 	return static_cast<const wchar_t*>(Add(String.data(), (String.size() + 1) * sizeof(wchar_t)));
 }
@@ -260,7 +260,7 @@ public:
 	class FarSettingsHistoryItems;
 
 private:
-	bool FillHistory(int Type, const string& HistoryName, FarSettingsEnum& Enum, function_ref<bool(history_record_type)> Filter);
+	bool FillHistory(int Type, string_view HistoryName, FarSettingsEnum& Enum, function_ref<bool(history_record_type)> Filter);
 	std::vector<FarSettingsHistoryItems> m_Enum;
 	std::vector<string> m_Keys;
 };
@@ -474,7 +474,7 @@ static const auto& HistoryRef(int Type)
 	return IsPersistent()? ConfigProvider().HistoryCfg() : ConfigProvider().HistoryCfgMem();
 }
 
-bool FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum& Enum, function_ref<bool(history_record_type)> const Filter)
+bool FarSettings::FillHistory(int Type, string_view const HistoryName, FarSettingsEnum& Enum, function_ref<bool(history_record_type)> const Filter)
 {
 	FarSettingsHistory item = {};
 	FarSettingsHistoryItems NewEnumItem;

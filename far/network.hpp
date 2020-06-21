@@ -47,7 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 os::fs::drives_set GetSavedNetworkDrives();
 
-bool ConnectToNetworkResource(const string& NewDir);
+bool ConnectToNetworkResource(string_view NewDir);
 
 string ExtractComputerName(string_view CurDir, string* strTail = nullptr);
 

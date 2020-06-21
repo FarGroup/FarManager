@@ -89,7 +89,7 @@ public:
 	void SetCursorType(bool Visible, DWORD Size);
 	void GetCursorType(bool& Visible, DWORD& Size) const;
 	const string& GetTitle() const { return m_Title; }
-	void SetTitle(const string& Title);
+	void SetTitle(string_view Title);
 
 	void FillBuf();
 	void Read(rectangle Where, matrix<FAR_CHAR_INFO>& Dest);

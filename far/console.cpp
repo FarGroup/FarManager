@@ -306,10 +306,10 @@ namespace console_detail
 		return m_Title;
 	}
 
-	bool console::SetTitle(const string& Title) const
+	bool console::SetTitle(string_view const Title) const
 	{
 		m_Title = Title;
-		return SetConsoleTitle(Title.c_str()) != FALSE;
+		return SetConsoleTitle(m_Title.c_str()) != FALSE;
 	}
 
 	bool console::GetKeyboardLayoutName(string &strName) const

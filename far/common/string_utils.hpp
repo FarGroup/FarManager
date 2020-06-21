@@ -435,6 +435,12 @@ inline auto unquote(string Str)
 }
 
 [[nodiscard]]
+inline auto unquote(string_view const Str)
+{
+	return unquote(string(Str));
+}
+
+[[nodiscard]]
 inline auto quote(string Str)
 {
 	inplace::quote(Str);

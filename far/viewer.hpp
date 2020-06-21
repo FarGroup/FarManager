@@ -70,7 +70,7 @@ public:
 	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	long long VMProcess(int OpCode,void *vParam=nullptr,long long iParam=0) override;
 
-	bool OpenFile(const string& Name, bool Warn);
+	bool OpenFile(string_view Name, bool Warn);
 	void SetViewKeyBar(KeyBar *ViewKeyBar);
 	void UpdateViewKeyBar(KeyBar& ViewKeyBar);
 	void SetStatusMode(int Mode);
@@ -81,8 +81,8 @@ public:
 	void SetWrapType(bool TypeWrap);
 	void KeepInitParameters() const;
 	const string& GetFileName() const { return strFullFileName; }
-	void SetTempViewName(const string& Name, bool DeleteFolder);
-	void SetTitle(const string& Title);
+	void SetTempViewName(string_view Name, bool DeleteFolder);
+	void SetTitle(string_view Title);
 	string GetTitle() const;
 	void SetFilePos(long long Pos);
 	long long GetFilePos() const { return FilePos; }

@@ -76,11 +76,11 @@ private:
 	bool ShowPluginDescription(int YPos) const;
 	void PrintText(string_view Str) const;
 	void PrintText(lng MsgID) const;
-	void PrintInfo(const string& Str) const;
+	void PrintInfo(string_view Str) const;
 	void PrintInfo(lng MsgID) const;
 	void SelectShowMode();
 	void DrawTitle(string_view Title, int Id, int &CurY);
-	bool OpenDizFile(const string& DizFile, int YPos);
+	bool OpenDizFile(string_view DizFile, int YPos);
 	void DynamicUpdateKeyBar() const;
 
 	unique_ptr_with_ondestroy<DizViewer> DizView;

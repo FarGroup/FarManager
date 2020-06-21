@@ -529,7 +529,7 @@ namespace os::fs
 	bool GetShortPathName(string_view LongPath, string& ShortPath);
 
 	[[nodiscard]]
-	bool GetVolumeInformation(const string& RootPathName, string *VolumeName, DWORD* VolumeSerialNumber, DWORD* MaximumComponentLength, DWORD* FileSystemFlags, string* FileSystemName);
+	bool GetVolumeInformation(string_view RootPathName, string *VolumeName, DWORD* VolumeSerialNumber, DWORD* MaximumComponentLength, DWORD* FileSystemFlags, string* FileSystemName);
 
 	[[nodiscard]]
 	bool GetVolumeNameForVolumeMountPoint(string_view VolumeMountPoint, string& VolumeName);
@@ -574,7 +574,7 @@ namespace os::fs
 	find_notification_handle FindFirstChangeNotification(const string& PathName, bool WatchSubtree, DWORD NotifyFilter);
 
 	[[nodiscard]]
-	bool IsDiskInDrive(const string& Root);
+	bool IsDiskInDrive(string_view Root);
 
 	[[nodiscard]]
 	bool create_hard_link(string_view FileName, string_view ExistingFileName, SECURITY_ATTRIBUTES* SecurityAttributes);

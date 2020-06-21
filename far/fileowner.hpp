@@ -45,8 +45,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-bool GetFileOwner(const string& Computer, const string& Object, string &Owner);
-bool SetFileOwner(const string& Object, const string& Owner);
+bool GetFileOwner(const string& Computer, string_view Object, string &Owner);
+bool SetFileOwner(string_view Object, const string& Owner);
 
 
 // internal, for elevation only.

@@ -73,7 +73,7 @@ public:
 	void FilterEdit();
 	void UpdateCurrentTime();
 	bool FileInFilter(const FileListItem* fli, filter_status* FilterStatus = nullptr);
-	bool FileInFilter(const os::fs::find_data& fde, filter_status* FilterStatus = nullptr, const string* FullName = nullptr);
+	bool FileInFilter(const os::fs::find_data& fde, filter_status* FilterStatus = nullptr, string_view FullName = {});
 	bool FileInFilter(const PluginPanelItem& fd, filter_status* FilterStatus = nullptr);
 	bool IsEnabledOnPanel();
 

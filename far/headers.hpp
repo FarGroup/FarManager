@@ -224,6 +224,9 @@ typedef struct _ADAPTER_OBJECT ADAPTER_OBJECT,*PADAPTER_OBJECT;
 using string = std::wstring;
 using string_view = std::wstring_view;
 
+static_assert(std::is_unsigned_v<char>);
+static_assert(sizeof(wchar_t) == 2);
+
 WARNING_PUSH()
 WARNING_DISABLE_CLANG("-Wheader-hygiene")
 using namespace std::string_literals;

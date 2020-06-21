@@ -105,7 +105,7 @@ os::fs::drives_set GetSavedNetworkDrives()
 	return Drives;
 }
 
-bool ConnectToNetworkResource(const string& NewDir)
+bool ConnectToNetworkResource(string_view const NewDir)
 {
 	string LocalName, RemoteName;
 
@@ -151,7 +151,7 @@ bool ConnectToNetworkResource(const string& NewDir)
 			Message(MSG_WARNING, error_state::fetch(),
 				msg(lng::MError),
 				{
-					NewDir
+					string(NewDir)
 				},
 				{ lng::MOk });
 			return false;

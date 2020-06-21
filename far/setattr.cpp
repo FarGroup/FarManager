@@ -542,7 +542,7 @@ struct AttrPreRedrawItem : public PreRedrawItem
 	string Name;
 };
 
-static void ShellSetFileAttributesMsgImpl(const string& Name)
+static void ShellSetFileAttributesMsgImpl(string_view const Name)
 {
 	static int Width=54;
 	int WidthTemp;
@@ -564,7 +564,7 @@ static void ShellSetFileAttributesMsgImpl(const string& Name)
 		{});
 }
 
-static void ShellSetFileAttributesMsg(const string& Name)
+static void ShellSetFileAttributesMsg(string_view const Name)
 {
 	ShellSetFileAttributesMsgImpl(Name);
 
@@ -585,8 +585,8 @@ static void PR_ShellSetFileAttributesMsg()
 static bool construct_time(
 	os::chrono::time_point const OriginalFileTime,
 	os::chrono::time_point& FileTime,
-	const string& OSrcDate,
-	const string& OSrcTime)
+	string_view const OSrcDate,
+	string_view const OSrcTime)
 {
 	SYSTEMTIME ost;
 	if (!utc_to_local(OriginalFileTime, ost))

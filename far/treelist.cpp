@@ -261,7 +261,7 @@ static string MkTreeCacheFolderName(const string_view RootDir)
 #endif
 }
 
-static bool GetCacheTreeName(const string& Root, string& strName, int CreateDir)
+static bool GetCacheTreeName(string_view const Root, string& strName, bool const CreateDir)
 {
 	string strVolumeName, strFileSystemName;
 	DWORD dwVolumeSerialNumber;
@@ -345,7 +345,7 @@ public:
 
 	const string& GetTreeName() const { return m_TreeName; }
 
-	void SetTreeName(const string& Name) { m_TreeName = Name; }
+	void SetTreeName(string_view const Name) { m_TreeName = Name; }
 
 private:
 	using cache_set = std::set<string, string_sort::less_t>;
@@ -403,7 +403,7 @@ TreeList::~TreeList()
 	FlushCache();
 }
 
-void TreeList::SetRootDir(const string& NewRootDir)
+void TreeList::SetRootDir(string_view const NewRootDir)
 {
 	m_Root = NewRootDir;
 	m_CurDir = NewRootDir;
@@ -666,12 +666,12 @@ static void PR_MsgReadTree()
 	});
 }
 
-static os::fs::file OpenTreeFile(const string& Name, bool Writable)
+static os::fs::file OpenTreeFile(string_view const Name, bool const Writable)
 {
 	return os::fs::file(Name, Writable? FILE_WRITE_DATA : FILE_READ_DATA, FILE_SHARE_READ, nullptr, Writable? OPEN_ALWAYS : OPEN_EXISTING);
 }
 
-static bool MustBeCached(const string& Root)
+static bool MustBeCached(string_view const Root)
 {
 	const auto type = FAR_GetDriveType(Root);
 
@@ -689,7 +689,7 @@ static bool MustBeCached(const string& Root)
 	return false;
 }
 
-static os::fs::file OpenCacheableTreeFile(const string& Root, string& Name, bool Writable)
+static os::fs::file OpenCacheableTreeFile(string_view const Root, string& Name, bool Writable)
 {
 	os::fs::file Result;
 	if (!MustBeCached(Root))
@@ -1681,7 +1681,7 @@ bool TreeList::GetPlainString(string& Dest, int ListPos) const
 	return false;
 }
 
-bool TreeList::FindPartName(const string& Name,int Next,int Direct)
+bool TreeList::FindPartName(string_view const Name,int Next,int Direct)
 {
 	const auto strMask = exclude_sets(Name + L'*');
 
@@ -1786,7 +1786,7 @@ void TreeList::DelTreeName(const string_view Name)
 	TreeCache().remove(NamePart);
 }
 
-void TreeList::RenTreeName(const string& SrcName, const string& DestName)
+void TreeList::RenTreeName(string_view const SrcName, string_view const DestName)
 {
 	if (Global->Opt->Tree.TurnOffCompletely)
 		return;
@@ -1800,14 +1800,14 @@ void TreeList::RenTreeName(const string& SrcName, const string& DestName)
 		ReadSubTree(SrcName);
 	}
 
-	const auto SrcNamePart = string_view(SrcName).substr(strSrcRoot.size() - 1);
-	const auto DestNamePart = string_view(DestName).substr(strDestRoot.size() - 1);
+	const auto SrcNamePart = SrcName.substr(strSrcRoot.size() - 1);
+	const auto DestNamePart = DestName.substr(strDestRoot.size() - 1);
 	ReadCache(strSrcRoot);
 
 	TreeCache().rename(SrcNamePart, DestNamePart);
 }
 
-void TreeList::ReadSubTree(const string& Path)
+void TreeList::ReadSubTree(string_view const Path)
 {
 	if (!os::fs::is_directory(Path))
 		return;
@@ -1850,7 +1850,7 @@ void TreeList::ClearCache()
 	TreeCache().clear();
 }
 
-void TreeList::ReadCache(const string& TreeRoot)
+void TreeList::ReadCache(string_view const TreeRoot)
 {
 	if (Global->Opt->Tree.TurnOffCompletely)
 		return;
@@ -1927,12 +1927,12 @@ long TreeList::FindFile(const string_view Name, const bool OnlyPartName)
 	return ItemIterator == m_ListData.cend()? -1 : ItemIterator - m_ListData.cbegin();
 }
 
-long TreeList::FindFirst(const string& Name)
+long TreeList::FindFirst(string_view const Name)
 {
-	return FindNext(0,Name);
+	return FindNext(0, Name);
 }
 
-long TreeList::FindNext(int StartPos, const string& Name)
+long TreeList::FindNext(int StartPos, string_view const Name)
 {
 	if (static_cast<size_t>(StartPos) < m_ListData.size())
 	{

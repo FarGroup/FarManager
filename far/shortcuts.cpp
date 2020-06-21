@@ -83,12 +83,12 @@ class Shortcuts::shortcut: public data, public rel_ops<shortcut>
 public:
 	shortcut() = default;
 
-	shortcut(string Name, string Folder, string PluginFile, string PluginData, const GUID& PluginGuid):
-		Name(std::move(Name))
+	shortcut(string_view const Name, string_view const Folder, string_view const PluginFile, string_view const PluginData, const GUID& PluginGuid):
+		Name(Name)
 	{
-		this->Folder = std::move(Folder);
-		this->PluginFile = std::move(PluginFile);
-		this->PluginData = std::move(PluginData);
+		this->Folder = Folder;
+		this->PluginFile = PluginFile;
+		this->PluginData = PluginData;
 		this->PluginGuid = PluginGuid;
 	}
 
@@ -453,13 +453,13 @@ bool Shortcuts::GetOne(size_t Index, data& Data) const
 	return true;
 }
 
-void Shortcuts::Add(const string& Folder, const GUID& PluginGuid, const string& PluginFile, const string& PluginData)
+void Shortcuts::Add(string_view const Folder, const GUID& PluginGuid, string_view const PluginFile, string_view const PluginData)
 {
 	m_Items.emplace_back(string{}, Folder, PluginFile, PluginData, PluginGuid);
 	m_Changed = true;
 }
 
-static void MakeListName(const std::list<Shortcuts::shortcut>& List, const string& Key, MenuItemEx& MenuItem)
+static void MakeListName(const std::list<Shortcuts::shortcut>& List, string_view const Key, MenuItemEx& MenuItem)
 {
 	const auto ItemName = List.empty()? msg(lng::MShortcutNone) : MakeName(List.front());
 	MenuItem.Name = concat(msg(lng::MRightCtrl), L"+&"sv, Key, L" \x2502 "sv, ItemName);

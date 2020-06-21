@@ -302,7 +302,7 @@ void FastFind::init()
 	InitPositionAndSize();
 }
 
-void FastFind::ProcessName(const string& Src) const
+void FastFind::ProcessName(string_view const Src) const
 {
 	auto Buffer = unquote(m_FindEdit->GetString() + Src);
 

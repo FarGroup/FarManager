@@ -248,7 +248,7 @@ UserMenu::UserMenu(bool ChooseMenuType):
 	ProcessUserMenu(ChooseMenuType, {});
 }
 
-UserMenu::UserMenu(const string& MenuFileName):
+UserMenu::UserMenu(string_view const MenuFileName):
 	m_MenuMode(menu_mode::local),
 	m_MenuModified(false),
 	m_ItemChanged(false),
@@ -259,7 +259,7 @@ UserMenu::UserMenu(const string& MenuFileName):
 
 UserMenu::~UserMenu() = default;
 
-void UserMenu::SaveMenu(const string& MenuFileName) const
+void UserMenu::SaveMenu(string_view const MenuFileName) const
 {
 	if (!m_MenuModified)
 		return;
@@ -275,7 +275,7 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 		if (Message(MSG_WARNING,
 			msg(lng::MUserMenuTitle),
 			{
-				MenuFileName,
+				string(MenuFileName),
 				msg(lng::MEditRO),
 				msg(lng::MEditOvr)
 			},
@@ -312,7 +312,7 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 	}
 }
 
-void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
+void UserMenu::ProcessUserMenu(bool ChooseMenuType, string_view const MenuFileName)
 {
 	// Путь к текущему каталогу с файлом LocalMenuFileName
 	auto strMenuFilePath = Global->CtrlObject->Cp()->ActivePanel()->GetCurDir();
@@ -348,7 +348,7 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 		m_Menu.clear();
 
 		const auto strMenuFileFullPath = !MenuFileName.empty()?
-			MenuFileName :
+			string(MenuFileName) :
 			path::join(strMenuFilePath, LocalMenuFileName);
 
 		// Пытаемся открыть файл на локальном диске
@@ -515,7 +515,7 @@ static void FillUserMenu(VMenu2& FarUserMenu, UserMenu::menu_container& Menu, in
 }
 
 // обработка единичного меню
-int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std::list<UserMenuItem>& MenuRoot, const string& MenuFileName, const string& Title)
+int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std::list<UserMenuItem>& MenuRoot, string_view const MenuFileName, const string& Title)
 {
 	for (;;)
 	{

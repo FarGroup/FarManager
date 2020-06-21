@@ -64,7 +64,7 @@ public:
 	static std::unique_ptr<AbstractSettings> CreatePluginSettings(const GUID& Guid, bool Local);
 
 protected:
-	const wchar_t* Add(const string& String);
+	const wchar_t* Add(string_view String);
 	const void* Add(const void* Data, size_t Size);
 
 private:

@@ -49,27 +49,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-template<class T>
-auto ToPercent(T Value, T Base)
-{
-	if (!Base)
-		return 0;
-
-	return static_cast<int>(std::numeric_limits<T>::max() / 100 > Value?
-		Value * 100 / Base :
-		Value / Base * 100);
-}
-
-template<typename T>
-T FromPercent(int Percent, T Base)
-{
-	if (!Percent)
-		return 0;
-
-	return std::numeric_limits<T>::max() / Percent > Base?
-		Base * Percent / 100 :
-		Base / 100 * Percent;
-}
+unsigned int ToPercent(unsigned long long Value, unsigned long long Base);
+unsigned long long FromPercent(unsigned int Percent, unsigned long long Base);
 
 string MakeTemp(string_view Prefix = {}, bool WithTempPath = true, string_view UserTempPath = {});
 string MakeTempInSameDir(string_view FileName);

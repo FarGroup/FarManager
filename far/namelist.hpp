@@ -54,10 +54,10 @@ public:
 
 	NamesList(): CurPos(Names.end()) {}
 
-	void AddName(const string& Name);
-	bool GetNextName(string& strName);
-	bool GetPrevName(string& strName);
-	bool SetCurName(const string& Name);
+	void AddName(string_view Name);
+	std::optional<string_view> GetNextName();
+	std::optional<string_view> GetPrevName();
+	bool SetCurName(string_view Name);
 
 	bool empty() const { return Names.empty(); }
 

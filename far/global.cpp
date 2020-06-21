@@ -105,7 +105,7 @@ std::chrono::steady_clock::duration global::FarUpTime() const
 	return std::chrono::steady_clock::now() - m_FarStartTime;
 }
 
-void global::StoreSearchString(const string& Str, bool Hex)
+void global::StoreSearchString(string_view const Str, bool Hex)
 {
 	m_SearchHex = Hex;
 	m_SearchString = Str;

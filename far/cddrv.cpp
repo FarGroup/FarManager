@@ -253,7 +253,7 @@ static auto capatibilities_from_scsi_configuration(const os::fs::file& Device)
 	if (!FeatureList)
 		return CAPABILITIES_NONE;
 
-	if (read_value_from_big_endian<FEATURE_NUMBER>((FeatureList->Header.FeatureCode)) != FeatureProfileList)
+	if (read_value_from_big_endian<FEATURE_NUMBER>(FeatureList->Header.FeatureCode) != FeatureProfileList)
 		return CAPABILITIES_NONE;
 
 	const span Profiles(FeatureList->Profiles, FeatureList->Header.AdditionalLength / sizeof(*FeatureList->Profiles));

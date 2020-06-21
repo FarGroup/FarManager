@@ -115,9 +115,6 @@ enum saved_modes
 };
 
 
-static void PR_ViewerSearchMsg();
-static void ViewerSearchMsg(const string& MsgStr, int Percent, int SearchHex);
-
 static int ViewerID=0;
 
 static bool IsCodePageSupported(uintptr_t cp)
@@ -274,7 +271,7 @@ void Viewer::KeepInitParameters() const
 	Global->Opt->ViOpt.SearchRegexp=LastSearchRegexp;
 }
 
-bool Viewer::OpenFile(const string& Name, bool const Warn)
+bool Viewer::OpenFile(string_view const Name, bool const Warn)
 {
 	m_Codepage=m_DefCodepage;
 	m_DefCodepage=CP_DEFAULT;
@@ -1570,13 +1567,12 @@ bool Viewer::process_key(const Manager::Key& Key)
 		{
 			if (!ViewNamesList.empty())
 			{
-				string strName;
-				if (LocalKey == KEY_ADD? ViewNamesList.GetNextName(strName) : ViewNamesList.GetPrevName(strName))
+				if (const auto Name = LocalKey == KEY_ADD? ViewNamesList.GetNextName() : ViewNamesList.GetPrevName())
 				{
 					SavePosition();
 					BMSavePos.Clear(); //Prepare for new file loading
 
-					if (OpenFile(strName, true))
+					if (OpenFile(*Name, true))
 					{
 						SecondPos=0;
 						Show();
@@ -2626,6 +2622,8 @@ intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
+static void PR_ViewerSearchMsg();
+
 struct ViewerPreRedrawItem : public PreRedrawItem
 {
 	ViewerPreRedrawItem():
@@ -2639,7 +2637,7 @@ struct ViewerPreRedrawItem : public PreRedrawItem
 	int hex;
 };
 
-static void ViewerSearchMsgImpl(const string& MsgStr, int Percent, int SearchHex)
+static void ViewerSearchMsgImpl(string_view const MsgStr, int Percent, int SearchHex)
 {
 	string strProgress;
 	const auto strMsg = concat(msg(SearchHex? lng::MViewSearchingHex : lng::MViewSearchingFor), L' ', MsgStr);
@@ -2661,7 +2659,7 @@ static void ViewerSearchMsgImpl(const string& MsgStr, int Percent, int SearchHex
 	}
 }
 
-static void ViewerSearchMsg(const string& MsgStr, int Percent, int SearchHex)
+static void ViewerSearchMsg(string_view const MsgStr, int Percent, int SearchHex)
 {
 	ViewerSearchMsgImpl(MsgStr, Percent, SearchHex);
 
@@ -3572,7 +3570,7 @@ void Viewer::SetWrapType(bool TypeWrap)
 	Viewer::m_WordWrap=TypeWrap;
 }
 
-void Viewer::SetTempViewName(const string& Name, bool DeleteFolder)
+void Viewer::SetTempViewName(string_view const Name, bool DeleteFolder)
 {
 	if (!Name.empty())
 		strTempViewName = ConvertNameToFull(Name);
@@ -3585,7 +3583,7 @@ void Viewer::SetTempViewName(const string& Name, bool DeleteFolder)
 	m_DeleteFolder=DeleteFolder;
 }
 
-void Viewer::SetTitle(const string& Title)
+void Viewer::SetTitle(string_view const Title)
 {
 	strTitle = Title;
 }

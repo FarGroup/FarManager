@@ -99,7 +99,7 @@ private:
 	size_t GetTabSize() const override;
 	EXPAND_TABS GetTabExpandMode() const override;
 	string GetInputMask() const override {return m_Mask;}
-	void SetInputMask(const string& InputMask) override;
+	void SetInputMask(string_view InputMask) override;
 	const string& WordDiv() const override;
 	int GetPrevCurPos() const override { return PrevCurPos; }
 	void SetPrevCurPos(int Pos) override { PrevCurPos = Pos; }

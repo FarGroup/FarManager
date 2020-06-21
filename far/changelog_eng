@@ -1,3 +1,7 @@
+drkns 21.06.2020 22:47:28 +0100 - build 5625
+
+1. Refactoring.
+
 drkns 20.06.2020 18:27:17 +0100 - build 5624
 
 1. Continuation of 3449 - bypassing Recycle Bin is possible on any errors, since the OS returns arbitrary errors in general.

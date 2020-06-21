@@ -61,7 +61,7 @@ public:
 
 	const string& GetSearchString() const { return m_SearchString; }
 	bool GetSearchHex() const { return m_SearchHex; }
-	void StoreSearchString(const string& Str, bool Hex);
+	void StoreSearchString(string_view Str, bool Hex);
 	bool IsPanelsActive() const;
 
 	// BUGBUG

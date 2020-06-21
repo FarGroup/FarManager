@@ -316,7 +316,7 @@ auto elevation::execute(lng Why, string_view const Object, T Fallback, const F1&
 	}
 }
 
-static os::handle create_named_pipe(const string& Name)
+static os::handle create_named_pipe(string_view const Name)
 {
 	SID_IDENTIFIER_AUTHORITY NtAuthority = SECURITY_NT_AUTHORITY;
 

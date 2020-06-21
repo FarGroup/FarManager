@@ -1447,7 +1447,7 @@ struct FARConfigItem
 	}
 };
 
-static bool ParseIntValue(const string& sValue, long long& iValue)
+static bool ParseIntValue(string_view const sValue, long long& iValue)
 {
 	if (from_string(sValue, iValue))
 		return true;
@@ -2115,7 +2115,7 @@ void Options::InitConfigs()
 	}
 }
 
-void Options::SetSearchColumns(const string& Columns, const string& Widths)
+void Options::SetSearchColumns(string_view const Columns, string_view const Widths)
 {
 	if (Columns.empty())
 		return;

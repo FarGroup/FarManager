@@ -68,7 +68,7 @@ FileSystemWatcher::~FileSystemWatcher()
 	}
 }
 
-void FileSystemWatcher::Set(const string& Directory, bool WatchSubtree)
+void FileSystemWatcher::Set(string_view const Directory, bool const WatchSubtree)
 {
 	Release();
 

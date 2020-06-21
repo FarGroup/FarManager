@@ -66,7 +66,7 @@ public:
 	};
 
 	bool Get(data& Data);
-	void Add(const string& Folder, const GUID& PluginGuid, const string& PluginFile, const string& PluginData);
+	void Add(string_view Folder, const GUID& PluginGuid, string_view PluginFile, string_view PluginData);
 
 	static int Configure();
 

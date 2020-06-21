@@ -350,8 +350,8 @@ static int LocalStricmp(const char *s1, const char *s2)
 {
 	for (;;)
 	{
-		if (UpperToLower[static_cast<unsigned>(*s1)] != UpperToLower[static_cast<unsigned>(*s2)])
-			return (UpperToLower[static_cast<unsigned>(*s1)] < UpperToLower[static_cast<unsigned>(*s2)]) ? -1 : 1;
+		if (const auto Result = UpperToLower[static_cast<unsigned>(*s1)] - UpperToLower[static_cast<unsigned>(*s2)])
+			return Result < 0? -1 : 1;
 
 		if (!*(s1++))
 			break;
@@ -366,8 +366,8 @@ static int LocalStrnicmp(const char *s1, const char *s2, int n)
 {
 	while (n-- > 0)
 	{
-		if (UpperToLower[static_cast<unsigned>(*s1)] != UpperToLower[static_cast<unsigned>(*s2)])
-			return (UpperToLower[static_cast<unsigned>(*s1)] < UpperToLower[static_cast<unsigned>(*s2)]) ? -1 : 1;
+		if (const auto Result = UpperToLower[static_cast<unsigned>(*s1)] - UpperToLower[static_cast<unsigned>(*s2)])
+			return Result < 0? -1 : 1;
 
 		if (!*(s1++))
 			break;
@@ -384,7 +384,8 @@ static const char *FirstSlashA(const char *String)
 	{
 		if (IsSlashA(*String))
 			return String;
-	} while (*String++);
+	}
+	while (*String++);
 
 	return nullptr;
 }

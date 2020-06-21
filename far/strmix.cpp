@@ -199,6 +199,11 @@ string truncate_right(string Str, size_t const MaxLength)
 	return Str;
 }
 
+string truncate_right(string_view const Str, size_t const MaxLength)
+{
+	return truncate_right(string(Str), MaxLength);
+}
+
 wchar_t* legacy::truncate_left(wchar_t *Str, int MaxLength)
 {
 	return legacy_operation(Str, MaxLength, [](span<wchar_t> const StrParam, size_t const MaxLengthParam, string_view const CurrentDots)
@@ -225,6 +230,11 @@ string truncate_left(string Str, size_t const MaxLength)
 {
 	inplace::truncate_left(Str, MaxLength);
 	return Str;
+}
+
+string truncate_left(string_view const Str, size_t const MaxLength)
+{
+	return truncate_left(string(Str), MaxLength);
 }
 
 wchar_t* legacy::truncate_center(wchar_t *Str, int MaxLength)
@@ -255,6 +265,10 @@ string truncate_center(string Str, size_t const MaxLength)
 	return Str;
 }
 
+string truncate_center(string_view const Str, size_t const MaxLength)
+{
+	return truncate_center(string(Str), MaxLength);
+}
 
 static auto StartOffset(string_view const Str)
 {
@@ -292,6 +306,11 @@ string truncate_path(string Str, size_t const MaxLength)
 {
 	inplace::truncate_path(Str, MaxLength);
 	return Str;
+}
+
+string truncate_path(string_view const Str, size_t const MaxLength)
+{
+	return truncate_path(string(Str), MaxLength);
 }
 
 bool IsCaseMixed(const string_view Str)
@@ -399,16 +418,16 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 
 			if (const auto NumDigits = FixedPrecision? FixedPrecision : Integral < 10? 2 : Integral < 100? 1 : 0)
 			{
-				const auto AjustedParts = [&]
+				const auto [IntegralPart, FractionalPart] = [&]
 				{
 					const auto Multiplier = static_cast<unsigned long long>(std::pow(10, NumDigits));
 					const auto Value = Parts[1] * Multiplier;
 					const auto UseRound = true;
 					const auto Fractional = static_cast<unsigned long long>(UseRound? std::round(Value) : Value);
-					return Fractional == Multiplier? std::make_pair(Integral + 1, 0ull) : std::make_pair(Integral, Fractional);
+					return Fractional == Multiplier? std::pair(Integral + 1, 0ull) : std::pair(Integral, Fractional);
 				}();
 
-				Str = concat(str(AjustedParts.first), locale.decimal_separator(), pad_left(str(AjustedParts.second), NumDigits, L'0'));
+				Str = concat(str(IntegralPart), locale.decimal_separator(), pad_left(str(FractionalPart), NumDigits, L'0'));
 			}
 			else
 			{
@@ -1337,12 +1356,17 @@ TEST_CASE("truncate")
 		{ {},              0,  {},               {},               {},               {},              },
 	};
 
+	using handler = string(string_view, size_t);
+	using legacy_handler = wchar_t*(wchar_t*, int);
+	using result_ptr = decltype(&tests::ResultLeft);
+	using tp = std::tuple<handler*, legacy_handler*, result_ptr>;
+
 	static const std::array Functions
 	{
-		std::tuple{ truncate_left,   legacy::truncate_left,   &tests::ResultLeft   },
-		std::tuple{ truncate_center, legacy::truncate_center, &tests::ResultCenter },
-		std::tuple{ truncate_right,  legacy::truncate_right,  &tests::ResultRight  },
-		std::tuple{ truncate_path,   legacy::truncate_path,   &tests::ResultPath   },
+		tp{ truncate_left,   legacy::truncate_left,   &tests::ResultLeft   },
+		tp{ truncate_center, legacy::truncate_center, &tests::ResultCenter },
+		tp{ truncate_right,  legacy::truncate_right,  &tests::ResultRight  },
+		tp{ truncate_path,   legacy::truncate_path,   &tests::ResultPath   },
 	};
 
 	for (const auto& i: Tests)

@@ -72,7 +72,7 @@ private:
 
 	void InitPositionAndSize();
 	void init();
-	void ProcessName(const string& Src) const;
+	void ProcessName(string_view Src) const;
 	void ShowBorder() const;
 	void Close(int ExitCode);
 

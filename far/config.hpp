@@ -418,7 +418,7 @@ public:
 	bool AdvancedConfig(config_type Mode = config_type::roaming);
 	void LocalViewerConfig(ViewerOptions &ViOptRef) {return ViewerConfig(ViOptRef, true);}
 	void LocalEditorConfig(EditorOptions &EdOptRef) {return EditorConfig(EdOptRef, true);}
-	void SetSearchColumns(const string& Columns, const string& Widths);
+	void SetSearchColumns(string_view Columns, string_view Widths);
 
 	struct SortingOptions
 	{

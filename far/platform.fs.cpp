@@ -918,7 +918,7 @@ namespace os::fs
 		return true;
 	}
 
-	static int MatchNtPathRoot(const string& NtPath, const string& DeviceName)
+	static int MatchNtPathRoot(string_view const NtPath, const string& DeviceName)
 	{
 		string TargetPath;
 		if (!os::fs::QueryDosDevice(DeviceName, TargetPath))
@@ -1917,7 +1917,7 @@ namespace os::fs
 		});
 	}
 
-	bool GetVolumeInformation(const string& RootPathName, string* VolumeName, DWORD* VolumeSerialNumber, DWORD* MaximumComponentLength, DWORD* FileSystemFlags, string* FileSystemName)
+	bool GetVolumeInformation(string_view const RootPathName, string* VolumeName, DWORD* VolumeSerialNumber, DWORD* MaximumComponentLength, DWORD* FileSystemFlags, string* FileSystemName)
 	{
 		wchar_t VolumeNameBuffer[MAX_PATH + 1], FileSystemNameBuffer[MAX_PATH + 1];
 		if (VolumeName)
@@ -1929,7 +1929,7 @@ namespace os::fs
 			FileSystemNameBuffer[0] = {};
 		}
 
-		if (!::GetVolumeInformation(RootPathName.c_str(), VolumeNameBuffer, static_cast<DWORD>(std::size(VolumeNameBuffer)), VolumeSerialNumber,
+		if (!::GetVolumeInformation(null_terminated(RootPathName).c_str(), VolumeNameBuffer, static_cast<DWORD>(std::size(VolumeNameBuffer)), VolumeSerialNumber,
 			MaximumComponentLength, FileSystemFlags, FileSystemNameBuffer, static_cast<DWORD>(std::size(FileSystemNameBuffer))))
 			return false;
 
@@ -2139,15 +2139,11 @@ namespace os::fs
 		return find_notification_handle(::FindFirstChangeNotification(NTPath(PathName).c_str(), WatchSubtree, NotifyFilter));
 	}
 
-	bool IsDiskInDrive(const string& Root)
+	bool IsDiskInDrive(string_view const Root)
 	{
-		string strVolName;
-		DWORD MaxComSize;
-		DWORD Flags;
-		string strFS;
-		auto strDrive = Root;
+		string strDrive(Root);
 		AddEndSlash(strDrive);
-		return os::fs::GetVolumeInformation(strDrive, &strVolName, nullptr, &MaxComSize, &Flags, &strFS);
+		return os::fs::GetVolumeInformation(strDrive, {}, {}, {}, {}, {});
 	}
 
 	bool create_hard_link(string_view const FileName, string_view const ExistingFileName, SECURITY_ATTRIBUTES* SecurityAttributes)

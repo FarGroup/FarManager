@@ -148,7 +148,7 @@ public:
 
 	const string& GetString() const { return m_Str; }
 
-	void SetHiString(const string& Str);
+	void SetHiString(string_view Str);
 
 	void SetEOL(eol Eol);
 	eol GetEOL() const;
@@ -215,7 +215,7 @@ private:
 	virtual const FarColor& GetUnchangedColor() const;
 	virtual size_t GetTabSize() const;
 	virtual EXPAND_TABS GetTabExpandMode() const;
-	virtual void SetInputMask(const string& InputMask) {}
+	virtual void SetInputMask(string_view InputMask) {}
 	virtual string GetInputMask() const {return {};}
 	virtual const string& WordDiv() const;
 	virtual int GetPrevCurPos() const { return 0; }

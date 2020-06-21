@@ -97,7 +97,7 @@ public:
 	   содержащий (если каталог пуст). По умолчанию - TRUE (получаем
 	   поведение SetTempViewName такое же, как и раньше)
 	*/
-	void SetTempViewName(const string& Name, bool DeleteFolder = true);
+	void SetTempViewName(string_view Name, bool DeleteFolder = true);
 	void SetEnableF6(int AEnable) { m_DisableEdit = !AEnable; InitKeyBar(); }
 	/* $ 17.08.2001 KM
 		Добавлено для поиска по AltF7. При редактировании найденного файла из

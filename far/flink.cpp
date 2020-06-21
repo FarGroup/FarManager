@@ -347,7 +347,7 @@ std::optional<size_t> GetNumberOfLinks(string_view const Name)
 	return bhfi.nNumberOfLinks;
 }
 
-bool MkHardLink(const string& ExistingName,const string& NewName, bool Silent)
+bool MkHardLink(string_view const ExistingName, string_view const NewName, bool const Silent)
 {
 	for (;;)
 	{

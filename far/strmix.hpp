@@ -149,12 +149,27 @@ namespace inplace
 
 [[nodiscard]]
 string truncate_left(string Str, size_t MaxLength);
+
+[[nodiscard]]
+string truncate_left(string_view Str, size_t MaxLength);
+
 [[nodiscard]]
 string truncate_right(string Str, size_t MaxLength);
+
+[[nodiscard]]
+string truncate_right(string_view Str, size_t MaxLength);
+
 [[nodiscard]]
 string truncate_center(string Str, size_t MaxLength);
+
+[[nodiscard]]
+string truncate_center(string_view Str, size_t MaxLength);
+
 [[nodiscard]]
 string truncate_path(string Str, size_t MaxLength);
+
+[[nodiscard]]
+string truncate_path(string_view Str, size_t MaxLength);
 
 [[nodiscard]]
 bool IsCaseMixed(string_view Str);

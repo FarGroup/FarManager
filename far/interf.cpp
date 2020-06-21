@@ -864,7 +864,7 @@ private:
 	function_ref<void()> m_Commit;
 };
 
-void HiText(const string& Str,const FarColor& HiColor,int isVertText)
+void HiText(string_view const Str,const FarColor& HiColor, bool const isVertText)
 {
 	using text_func = void (*)(string_view);
 	const text_func fText = Text, fVText = VText; //BUGBUG

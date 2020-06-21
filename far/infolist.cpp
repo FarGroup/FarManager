@@ -889,7 +889,7 @@ void InfoList::PrintText(lng MsgID) const
 }
 
 
-void InfoList::PrintInfo(const string& Str) const
+void InfoList::PrintInfo(string_view const Str) const
 {
 	if (WhereY() > m_Where.bottom - 1)
 		return;
@@ -1017,10 +1017,9 @@ void InfoList::CloseFile()
 	strDizFileName.clear();
 }
 
-bool InfoList::OpenDizFile(const string& DizFile,int YPos)
+bool InfoList::OpenDizFile(string_view const DizFile, int const YPos)
 {
 	bool bOK=true;
-	_tran(SysLog(L"InfoList::OpenDizFile([%s]",DizFile));
 
 	if (!DizView)
 	{

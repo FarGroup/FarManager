@@ -105,13 +105,10 @@ namespace colors
 
 	size_t color_hash(const FarColor& Value)
 	{
-		size_t Seed = 0;
-
-		hash_combine(Seed, Value.Flags);
-		hash_combine(Seed, Value.BackgroundColor);
-		hash_combine(Seed, Value.ForegroundColor);
-
-		return Seed;
+		return hash_combine_all(
+			Value.Flags,
+			Value.BackgroundColor,
+			Value.ForegroundColor);
 	}
 
 	FarColor merge(const FarColor& Bottom, const FarColor& Top)
