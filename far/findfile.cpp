@@ -1246,13 +1246,15 @@ bool background_searcher::IsFileIncluded(PluginPanelItem* FileItem, string_view 
 	}
 	else
 	{
-		const auto UseFarCommand = [&]
+		const auto UseInternalCommand = [&]
 		{
 			SCOPED_ACTION(auto)(m_Owner->ScopedLock());
-			return Global->CtrlObject->Plugins->UseFarCommand(hPlugin, PLUGIN_FARGETFILES);
+			OpenPanelInfo Info;
+			Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin, &Info);
+			return PluginManager::UseInternalCommand(hPlugin, PLUGIN_FARGETFILES, Info);
 		};
 
-		if (UseFarCommand())
+		if (UseInternalCommand())
 		{
 			strSearchFileName = strPluginSearchPath + FullName;
 		}

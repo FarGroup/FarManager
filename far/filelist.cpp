@@ -1549,8 +1549,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 		{
 			_ALGO(CleverSysLog clv(L"Ctrl-G"));
 
-			if (m_PanelMode != panel_mode::PLUGIN_PANEL ||
-			        Global->CtrlObject->Plugins->UseFarCommand(GetPluginHandle(), PLUGIN_FAROTHER))
+			if (m_PanelMode != panel_mode::PLUGIN_PANEL || PluginManager::UseInternalCommand(GetPluginHandle(), PLUGIN_FAROTHER, m_CachedOpenPanelInfo))
 				if (!m_ListData.empty() && ApplyCommand())
 				{
 					// позиционируемся в панели
@@ -1754,14 +1753,12 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 				string strPluginData;
 				bool PluginMode =
 					m_PanelMode == panel_mode::PLUGIN_PANEL &&
-					!Global->CtrlObject->Plugins->UseFarCommand(GetPluginHandle(), PLUGIN_FARGETFILE) &&
+					!PluginManager::UseInternalCommand(GetPluginHandle(), PLUGIN_FARGETFILE, m_CachedOpenPanelInfo) &&
 					!(m_CachedOpenPanelInfo.Flags & OPIF_REALNAMES);
 
 				if (PluginMode)
 				{
-					const string strHostFile = NullToEmpty(m_CachedOpenPanelInfo.HostFile);
-					const string strInfoCurDir = NullToEmpty(m_CachedOpenPanelInfo.CurDir);
-					strPluginData = L'<' + strHostFile + L':' + strInfoCurDir + L'>';
+					strPluginData = concat(L'<', NullToEmpty(m_CachedOpenPanelInfo.HostFile), L':', NullToEmpty(m_CachedOpenPanelInfo.CurDir), L'>');
 				}
 
 				uintptr_t codepage = CP_DEFAULT;
@@ -2177,7 +2174,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 			if (SetCurPath())
 			{
-				if (m_PanelMode == panel_mode::PLUGIN_PANEL && !Global->CtrlObject->Plugins->UseFarCommand(GetPluginHandle(), PLUGIN_FARMAKEDIRECTORY))
+				if (m_PanelMode == panel_mode::PLUGIN_PANEL && !PluginManager::UseInternalCommand(GetPluginHandle(), PLUGIN_FARMAKEDIRECTORY, m_CachedOpenPanelInfo))
 				{
 					string strDirName;
 					auto DirName = strDirName.c_str();
@@ -2242,9 +2239,10 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 				if (LocalKey==KEY_SHIFTF8)
 					ReturnCurrentFile = true;
 
-				if (m_PanelMode == panel_mode::PLUGIN_PANEL &&
-				        !Global->CtrlObject->Plugins->UseFarCommand(GetPluginHandle(), PLUGIN_FARDELETEFILES))
+				if (m_PanelMode == panel_mode::PLUGIN_PANEL && !PluginManager::UseInternalCommand(GetPluginHandle(), PLUGIN_FARDELETEFILES, m_CachedOpenPanelInfo))
+				{
 					PluginDelete();
+				}
 				else
 				{
 					Delete(
@@ -2680,7 +2678,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 	else
 	{
 		bool OpenedPlugin = false;
-		const auto PluginMode = m_PanelMode == panel_mode::PLUGIN_PANEL && !Global->CtrlObject->Plugins->UseFarCommand(GetPluginHandle(), PLUGIN_FARGETFILE);
+		const auto PluginMode = m_PanelMode == panel_mode::PLUGIN_PANEL && !PluginManager::UseInternalCommand(GetPluginHandle(), PLUGIN_FARGETFILE, m_CachedOpenPanelInfo);
 		string FileNameToDelete;
 		SCOPE_EXIT{ if (PluginMode && !OpenedPlugin && !FileNameToDelete.empty()) GetPluginHandle()->delayed_delete(FileNameToDelete); };
 		file_state SavedState;
@@ -4143,8 +4141,7 @@ void FileList::UpdateViewPanel()
 		assert(m_CurFile < static_cast<int>(m_ListData.size()));
 		const auto& Current = m_ListData[m_CurFile];
 
-		if (m_PanelMode != panel_mode::PLUGIN_PANEL ||
-			Global->CtrlObject->Plugins->UseFarCommand(GetPluginHandle(), PLUGIN_FARGETFILE))
+		if (m_PanelMode != panel_mode::PLUGIN_PANEL || PluginManager::UseInternalCommand(GetPluginHandle(), PLUGIN_FARGETFILE, m_CachedOpenPanelInfo))
 		{
 			if (IsParentDirectory(Current))
 				ViewPanel->ShowFile(m_CurDir, nullptr, false, nullptr);
@@ -5105,15 +5102,17 @@ void FileList::ProcessCopyKeys(int Key)
 			}
 		}
 
-		if (m_PanelMode == panel_mode::PLUGIN_PANEL && !Global->CtrlObject->Plugins->UseFarCommand(GetPluginHandle(), PLUGIN_FARGETFILES))
+		if (m_PanelMode == panel_mode::PLUGIN_PANEL && !PluginManager::UseInternalCommand(GetPluginHandle(), PLUGIN_FARGETFILES, m_CachedOpenPanelInfo))
 		{
 			if (Key!=KEY_ALTF6 && Key!=KEY_RALTF6)
 			{
 				string strPluginDestPath;
 				int ToPlugin = 0;
 
-				if (AnotherPanel->GetMode() == panel_mode::PLUGIN_PANEL && AnotherPanel->IsVisible() &&
-				        !Global->CtrlObject->Plugins->UseFarCommand(AnotherPanel->GetPluginHandle(),PLUGIN_FARPUTFILES))
+				if (
+					AnotherPanel->GetMode() == panel_mode::PLUGIN_PANEL &&
+					AnotherPanel->IsVisible() &&
+					!PluginManager::UseInternalCommand(AnotherPanel->GetPluginHandle(),PLUGIN_FARPUTFILES, m_CachedOpenPanelInfo))
 				{
 					ToPlugin=2;
 					Copy(shared_from_this(), Move, false, false, Ask, ToPlugin, &strPluginDestPath);
@@ -5154,9 +5153,11 @@ void FileList::ProcessCopyKeys(int Key)
 		}
 		else
 		{
-			int ToPlugin = AnotherPanel->GetMode() == panel_mode::PLUGIN_PANEL &&
-			             AnotherPanel->IsVisible() && (Key!=KEY_ALTF6 && Key!=KEY_RALTF6) &&
-			             !Global->CtrlObject->Plugins->UseFarCommand(AnotherPanel->GetPluginHandle(),PLUGIN_FARPUTFILES);
+			int ToPlugin =
+				AnotherPanel->GetMode() == panel_mode::PLUGIN_PANEL &&
+				AnotherPanel->IsVisible() && (Key!=KEY_ALTF6 && Key!=KEY_RALTF6) &&
+				!PluginManager::UseInternalCommand(AnotherPanel->GetPluginHandle(),PLUGIN_FARPUTFILES, m_CachedOpenPanelInfo);
+
 			Copy(shared_from_this(), Move, Key == KEY_ALTF6 || Key == KEY_RALTF6, false, Ask, ToPlugin, nullptr, Drag && AnotherDir);
 
 			if (ToPlugin==1)

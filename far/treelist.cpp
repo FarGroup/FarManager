@@ -1114,9 +1114,16 @@ bool TreeList::ProcessKey(const Manager::Key& Key)
 				const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 				const auto Ask = (LocalKey!=KEY_DRAGCOPY && LocalKey!=KEY_DRAGMOVE) || Global->Opt->Confirm.Drag;
 				const auto Move = (LocalKey==KEY_F6 || LocalKey==KEY_DRAGMOVE);
-				int ToPlugin = AnotherPanel->GetMode() == panel_mode::PLUGIN_PANEL &&
-				             AnotherPanel->IsVisible() &&
-				             !Global->CtrlObject->Plugins->UseFarCommand(AnotherPanel->GetPluginHandle(),PLUGIN_FARPUTFILES);
+
+				const auto UseInternalCommand = [&]
+				{
+					const auto Handle = AnotherPanel->GetPluginHandle();
+					OpenPanelInfo Info;
+					Global->CtrlObject->Plugins->GetOpenPanelInfo(Handle, &Info);
+					return PluginManager::UseInternalCommand(Handle, PLUGIN_FARPUTFILES, Info);
+				};
+
+				int ToPlugin = AnotherPanel->GetMode() == panel_mode::PLUGIN_PANEL && AnotherPanel->IsVisible() && !UseInternalCommand();
 				const auto Link = (LocalKey==KEY_ALTF6||LocalKey==KEY_RALTF6) && !ToPlugin;
 
 				if ((LocalKey==KEY_ALTF6||LocalKey==KEY_RALTF6) && !Link) // молча отвалим :-)

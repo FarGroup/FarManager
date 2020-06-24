@@ -187,7 +187,15 @@ void PrintFiles(FileList* SrcPanel)
 		SetCursorType(false, 0);
 		PR_PrintMsg();
 		const auto hPlugin = SrcPanel->GetPluginHandle();
-		const auto PluginMode = SrcPanel->GetMode() == panel_mode::PLUGIN_PANEL && !Global->CtrlObject->Plugins->UseFarCommand(hPlugin, PLUGIN_FARGETFILE);
+
+		const auto UseInternalCommand = [&]
+		{
+			OpenPanelInfo Info;
+			Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin, &Info);
+			return PluginManager::UseInternalCommand(hPlugin, PLUGIN_FARGETFILE, Info);
+		};
+
+		const auto PluginMode = SrcPanel->GetMode() == panel_mode::PLUGIN_PANEL && !UseInternalCommand();
 
 		for (const auto& i: SrcPanel->enum_selected())
 		{

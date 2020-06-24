@@ -51,7 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static auto GetFullName(string_view const Name)
 {
-	return Name[0] == L'<'? Name : ConvertNameToFull(Name);
+	return Name[0] == L'<'? string(Name) : ConvertNameToFull(Name);
 }
 
 void FilePositionCache::CompactHistory()
