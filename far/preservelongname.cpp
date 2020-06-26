@@ -35,54 +35,45 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "preservelongname.hpp"
 
 // Internal:
-#include "pathmix.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
 
 // Common:
-#include "common/string_utils.hpp"
 
 // External:
 
 //----------------------------------------------------------------------------
 
-PreserveLongName::PreserveLongName(string_view const ShortName, bool Preserve):
+PreserveLongName::PreserveLongName(string_view const Name, bool Preserve):
 	m_Preserve(Preserve)
 {
-	if (Preserve)
+	if (!Preserve)
+		return;
+
+	os::fs::find_data FindData;
+	if (!os::fs::get_find_data(Name, FindData))
 	{
-		m_SaveShortName = ShortName;
-
-		os::fs::find_data FindData;
-
-		if (os::fs::get_find_data(m_SaveShortName, FindData))
-			m_SaveLongName = FindData.FileName;
-		else
-			m_SaveLongName.clear();
+		m_Preserve = false;
+		return;
 	}
+
+	m_SaveLongName = FindData.FileName;
+	m_SaveShortName = FindData.AlternateFileName();
 }
 
 
 PreserveLongName::~PreserveLongName()
 {
-	if (m_Preserve && os::fs::exists(m_SaveShortName))
-	{
-		os::fs::find_data FindData;
+	if (!m_Preserve || os::fs::exists(m_SaveLongName) || !os::fs::exists(m_SaveShortName))
+		return;
 
-		if (!os::fs::get_find_data(m_SaveShortName, FindData) || m_SaveLongName != FindData.FileName)
-		{
-			auto strNewName = m_SaveShortName;
+	os::fs::find_data FindData;
+	const auto LongNameLost = os::fs::get_find_data(m_SaveShortName, FindData) && FindData.FileName != m_SaveLongName;
 
-			if (CutToSlash(strNewName,true))
-			{
-				append(strNewName, L'\\', m_SaveLongName);
-			}
-			else
-				strNewName = m_SaveLongName;
+	if (!LongNameLost)
+		return;
 
-			// BUGBUG check result
-			(void)os::fs::move_file(m_SaveShortName, strNewName);
-		}
-	}
+	// BUGBUG check result
+	(void)os::fs::move_file(m_SaveShortName, m_SaveLongName);
 }

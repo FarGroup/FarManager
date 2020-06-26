@@ -120,10 +120,10 @@ static auto& view_as(span<char_type> const Buffer)
 	return *static_cast<add_const_if_t<T, IsConst>*>(static_cast<add_const_if_t<void, IsConst>*>(Buffer.data()));
 }
 
-template<typename T, typename char_type>
-static auto view_as_if(span<char_type> const Buffer)
+template<typename T>
+static auto view_as_if(span<unsigned char const> const Buffer)
 {
-	return Buffer.size() >= sizeof(T)? &view_as<T>(Buffer) : nullptr;
+	return Buffer.size() >= sizeof(T)? view_as<T const*>(Buffer) : nullptr;
 }
 
 struct SCSI_PASS_THROUGH_WITH_BUFFERS: SCSI_PASS_THROUGH
@@ -249,7 +249,7 @@ static auto capatibilities_from_scsi_configuration(const os::fs::file& Device)
 
 	Buffer.pop_front(sizeof(ConfigurationHeader));
 
-	const auto FeatureList = view_as_if<FEATURE_DATA_PROFILE_LIST const>(Buffer);
+	const auto FeatureList = view_as_if<FEATURE_DATA_PROFILE_LIST>(Buffer);
 	if (!FeatureList)
 		return CAPABILITIES_NONE;
 
@@ -283,7 +283,7 @@ static auto capatibilities_from_scsi_mode_sense(const os::fs::file& Device)
 	span Buffer(Spt.DataBuf, Spt.DataTransferLength);
 	Buffer.pop_front(sizeof(MODE_PARAMETER_HEADER));
 
-	const auto& CapsPage = view_as<CDVD_CAPABILITIES_PAGE>(Buffer);
+	const auto& CapsPage = view_as<CDVD_CAPABILITIES_PAGE const>(Buffer);
 
 	auto caps = CAPABILITIES_CDROM;
 

@@ -209,7 +209,7 @@ bool enum_lines::GetTString(std::basic_string<T>& To, eol& Eol, bool BigEndian) 
 
 	const auto Cast = [&]
 	{
-		return std::basic_string_view{ static_cast<const T*>(static_cast<const void*>(m_BufferView.data())), m_BufferView.size() / sizeof(T) };
+		return std::basic_string_view{ view_as<T const*>(m_BufferView.data()), m_BufferView.size() / sizeof(T) };
 	};
 
 	for (;;)

@@ -79,7 +79,8 @@ constexpr inline NTSTATUS EXCEPTION_MICROSOFT_CPLUSPLUS = 0xE06D7363;
 enum exception_dialog
 {
 	ed_doublebox,
-	ed_text_exception,
+	ed_first_line,
+	ed_text_exception = ed_first_line,
 	ed_edit_exception,
 	ed_text_details,
 	ed_edit_details,
@@ -103,6 +104,7 @@ enum exception_dialog
 	ed_edit_far_version,
 	ed_text_os_version,
 	ed_edit_os_version,
+	ed_last_line = ed_edit_os_version,
 	ed_separator_1,
 	ed_button_copy,
 	ed_button_stack,
@@ -118,7 +120,7 @@ enum exception_dialog
 	ed_items_count
 };
 
-static auto GetStackTrace(string_view const Module, const std::vector<const void*>& Stack, const std::vector<const void*>* NestedStack)
+static auto GetStackTrace(string_view const Module, const std::vector<DWORD64>& Stack, const std::vector<DWORD64>* NestedStack)
 {
 	std::vector<string> Symbols;
 	Symbols.reserve(Stack.size() + (NestedStack? NestedStack->size() + 3 : 0));
@@ -243,7 +245,7 @@ static string os_version()
 struct dialog_data_type
 {
 	const detail::exception_context* Context;
-	const std::vector<const void*>* NestedStack;
+	const std::vector<DWORD64>* NestedStack;
 	string_view Module;
 };
 
@@ -384,91 +386,58 @@ static intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
+static size_t max_item_size(span<string_view const> const Items)
+{
+	return std::max_element(ALL_CONST_RANGE(Items), [](string_view const Str1, string_view const Str2)
+	{
+		return Str1.size() < Str2.size();
+	})->size();
+}
+
 static bool ExcDialog(
+	span<string_view const> const Labels,
+	span<string_view const> const Values,
 	detail::exception_context const& Context,
-	string_view const Exception,
-	string_view const Details,
-	error_state const& ErrorState,
-	string_view const Function,
-	string_view const Location,
 	string_view const ModuleName,
-	string_view const PluginInformation,
 	Plugin const* const PluginModule,
-	std::vector<const void*> const* const NestedStack
+	std::vector<DWORD64> const* const NestedStack
 )
 {
 	// TODO: Far Dialog is not the best choice for exception reporting
 	// replace with something trivial
 
-	SCOPED_ACTION(tracer::with_symbols)(PluginModule? ModuleName : L""sv);
-
-	string Address, Name, Source;
-	tracer::get_symbol(ModuleName, Context.pointers()->ExceptionRecord->ExceptionAddress, Address, Name, Source);
-
-	if (!Name.empty())
-		append(Address, L" - "sv, Name);
-
-	if (Source.empty())
-		Source = Location;
-
-	const auto Errors = FormatSystemErrors(ErrorState);
-
-	const auto Version = self_version();
-	const auto OsVersion = os_version();
-
-	const string_view Messages[]
-	{
-		Exception,
-		Details,
-		Errors[0],
-		Errors[1],
-		Errors[2],
-		Address,
-		Function,
-		Source,
-		ModuleName,
-		PluginInformation,
-		Version,
-		OsVersion,
-	};
-
-	const auto MaxSize = (*std::max_element(ALL_CONST_RANGE(Messages), [](string_view const Str1, string_view const Str2) { return Str1.size() < Str2.size(); })).size();
 	const auto SysArea = 5;
 	const auto C1X = 5;
-	const auto C1W = 12;
+	const auto C1W = static_cast<int>(max_item_size(Labels));
 	const auto C2X = C1X + C1W + 1;
-	const auto DlgW = std::max(80, std::min(ScrX + 1, static_cast<int>(C2X + MaxSize + SysArea + 1)));
+	const auto DlgW = std::max(80, std::min(ScrX + 1, static_cast<int>(C2X + max_item_size(Values) + SysArea + 1)));
 	const auto C2W = DlgW - C2X - SysArea - 1;
 
-	const auto DY = std::size(Messages) + 8;
+	const auto DY = static_cast<int>(Values.size() + 8);
 
 	auto EditDlg = MakeDialogItems<ed_items_count>(
 	{
 		{ DI_DOUBLEBOX, {{3,   1 }, {DlgW-4,DY-2}}, DIF_NONE, msg(lng::MExcTrappedException), },
-		{ DI_TEXT,      {{C1X, 2 }, {C1X+C1W, 2 }}, DIF_NONE, msg(lng::MExcException), },
-		{ DI_EDIT,      {{C2X, 2 }, {C2X+C2W, 2 }}, DIF_READONLY | DIF_SELECTONENTRY, Exception, },
-		{ DI_TEXT,      {{C1X, 3 }, {C1X+C1W, 3 }}, DIF_NONE, msg(lng::MExcDetails), },
-		{ DI_EDIT,      {{C2X, 3 }, {C2X+C2W, 3 }}, DIF_READONLY | DIF_SELECTONENTRY, Details, },
-		{ DI_TEXT,      {{C1X, 4 }, {C1X+C1W, 4 }}, DIF_NONE, L"errno:"sv },
-		{ DI_EDIT,      {{C2X, 4 }, {C2X+C2W, 4 }}, DIF_READONLY | DIF_SELECTONENTRY, Errors[0], },
-		{ DI_TEXT,      {{C1X, 5 }, {C1X+C1W, 5 }}, DIF_NONE, L"LastError:"sv },
-		{ DI_EDIT,      {{C2X, 5 }, {C2X+C2W, 5 }}, DIF_READONLY | DIF_SELECTONENTRY, Errors[1], },
-		{ DI_TEXT,      {{C1X, 6 }, {C1X+C1W, 6 }}, DIF_NONE, L"NTSTATUS:"sv },
-		{ DI_EDIT,      {{C2X, 6 }, {C2X+C2W, 6 }}, DIF_READONLY | DIF_SELECTONENTRY, Errors[2], },
-		{ DI_TEXT,      {{C1X, 7 }, {C1X+C1W, 7 }}, DIF_NONE, msg(lng::MExcAddress), },
-		{ DI_EDIT,      {{C2X, 7 }, {C2X+C2W, 7 }}, DIF_READONLY | DIF_SELECTONENTRY, Address, },
-		{ DI_TEXT,      {{C1X, 8 }, {C1X+C1W, 8 }}, DIF_NONE, msg(lng::MExcFunction), },
-		{ DI_EDIT,      {{C2X, 8 }, {C2X+C2W, 8 }}, DIF_READONLY | DIF_SELECTONENTRY, Function, },
-		{ DI_TEXT,      {{C1X, 9 }, {C1X+C1W, 9 }}, DIF_NONE, msg(lng::MExcSource), },
-		{ DI_EDIT,      {{C2X, 9 }, {C2X+C2W, 9 }}, DIF_READONLY | DIF_SELECTONENTRY, Source, },
-		{ DI_TEXT,      {{C1X, 10}, {C1X+C1W, 10}}, DIF_NONE, msg(lng::MExcFileName), },
-		{ DI_EDIT,      {{C2X, 10}, {C2X+C2W, 10}}, DIF_READONLY | DIF_SELECTONENTRY, ModuleName, },
-		{ DI_TEXT,      {{C1X, 11}, {C1X+C1W, 11}}, DIF_NONE, msg(lng::MExcPlugin), },
-		{ DI_EDIT,      {{C2X, 11}, {C2X+C2W, 11}}, DIF_READONLY | DIF_SELECTONENTRY, PluginInformation, },
-		{ DI_TEXT,      {{C1X, 12}, {C1X+C1W, 12}}, DIF_NONE, msg(lng::MExcFarVersion), },
-		{ DI_EDIT,      {{C2X, 12}, {C2X+C2W, 12}}, DIF_READONLY | DIF_SELECTONENTRY, Version, },
-		{ DI_TEXT,      {{C1X, 13}, {C1X+C1W, 13}}, DIF_NONE, msg(lng::MExcOSVersion), },
-		{ DI_EDIT,      {{C2X, 13}, {C2X+C2W, 13}}, DIF_READONLY | DIF_SELECTONENTRY, OsVersion, },
+
+#define LABEL_AND_VALUE(n)\
+		{ DI_TEXT,  {{C1X, n+2 }, {C1X+C1W, n+2 }}, DIF_NONE, Labels[n], },\
+		{ DI_EDIT,  {{C2X, n+2 }, {C2X+C2W, n+2 }}, DIF_READONLY | DIF_SELECTONENTRY, Values[n], }
+
+		LABEL_AND_VALUE(0),
+		LABEL_AND_VALUE(1),
+		LABEL_AND_VALUE(2),
+		LABEL_AND_VALUE(3),
+		LABEL_AND_VALUE(4),
+		LABEL_AND_VALUE(5),
+		LABEL_AND_VALUE(6),
+		LABEL_AND_VALUE(7),
+		LABEL_AND_VALUE(8),
+		LABEL_AND_VALUE(9),
+		LABEL_AND_VALUE(10),
+		LABEL_AND_VALUE(11),
+
+#undef LABEL_AND_VALUE
+
 		{ DI_TEXT,      {{-1,DY-6}, {0,     DY-6}}, DIF_SEPARATOR, },
 		{ DI_BUTTON,    {{0, DY-5}, {0,     DY-5}}, DIF_CENTERGROUP | DIF_FOCUS, msg(lng::MExcCopy), },
 		{ DI_BUTTON,    {{0, DY-5}, {0,     DY-5}}, DIF_CENTERGROUP, msg(lng::MExcStack), },
@@ -499,6 +468,32 @@ static bool ExcDialog(
 }
 
 static bool ExcConsole(
+	span<string_view const> const Labels,
+	span<string_view const> const Values,
+	detail::exception_context const& Context,
+	string_view const ModuleName,
+	Plugin const* const PluginModule,
+	std::vector<DWORD64> const* const NestedStack
+)
+{
+	for (const auto& [m, v]: zip(Labels, Values))
+	{
+		const auto Label = fit_to_left(string(m), max_item_size(Labels));
+		std::wcerr << Label << L' ' << v << L'\n';
+	}
+
+	ShowStackTrace(GetStackTrace(ModuleName, tracer::get(ModuleName, *Context.pointers(), Context.thread_handle()), NestedStack));
+	std::wcerr << std::endl;
+
+	if (!ConsoleYesNo(L"Terminate the process"sv, true))
+		return false;
+
+	detail::UseTerminateHandler = true;
+	return true;
+}
+
+static bool ShowExceptionUI(
+	bool const UseDialog,
 	detail::exception_context const& Context,
 	string_view const Exception,
 	string_view const Details,
@@ -508,7 +503,7 @@ static bool ExcConsole(
 	string_view const ModuleName,
 	string_view const PluginInformation,
 	Plugin const* const PluginModule,
-	std::vector<const void*> const* const NestedStack
+	std::vector<DWORD64> const* const NestedStack
 )
 {
 	SCOPED_ACTION(tracer::with_symbols)(PluginModule? ModuleName : L""sv);
@@ -522,7 +517,11 @@ static bool ExcConsole(
 	if (Source.empty())
 		Source = Location;
 
-	std::array Msg
+	const auto Errors = FormatSystemErrors(ErrorState);
+	const auto Version = self_version();
+	const auto OsVersion = os_version();
+
+	std::array Labels
 	{
 		L"Exception:"sv,
 		L"Details:  "sv,
@@ -540,7 +539,7 @@ static bool ExcConsole(
 
 	if (far_language::instance().is_loaded())
 	{
-		Msg =
+		Labels =
 		{
 			msg(lng::MExcException),
 			msg(lng::MExcDetails),
@@ -556,13 +555,6 @@ static bool ExcConsole(
 			msg(lng::MExcOSVersion),
 		};
 	}
-
-	const auto ColumnWidth = std::max_element(ALL_CONST_RANGE(Msg), [](string_view const Str1, string_view const Str2){ return Str1.size() < Str2.size(); })->size();
-
-	const auto Errors = FormatSystemErrors(ErrorState);
-
-	const auto Version = self_version();
-	const auto OsVersion = os_version();
 
 	const string_view Values[]
 	{
@@ -580,23 +572,12 @@ static bool ExcConsole(
 		OsVersion,
 	};
 
-	static_assert(std::size(Msg) == std::size(Values));
+	static_assert(std::size(Labels) == std::size(Values));
+	static_assert(std::size(Labels) == (ed_last_line - ed_first_line) / 2 + 1);
 
-	for (const auto& [m, v]: zip(Msg, Values))
-	{
-		const auto Label = fit_to_left(string(m), ColumnWidth);
-		std::wcerr << Label << L' ' << v << L'\n';
-	}
-
-	ShowStackTrace(GetStackTrace(ModuleName, tracer::get(ModuleName, *Context.pointers(), Context.thread_handle()), NestedStack));
-	std::wcerr << std::endl;
-
-	if (!ConsoleYesNo(L"Terminate the process"sv, true))
-		return false;
-
-	detail::UseTerminateHandler = true;
-	return true;
+	return (UseDialog? ExcDialog : ExcConsole)(Labels, span(Values), Context, ModuleName, PluginModule, NestedStack); // This goofy explicit span() is a workaround for GCC
 }
+
 
 template<size_t... I>
 static constexpr uint32_t any_cc(std::string_view const Str, std::index_sequence<I...> Sequence)
@@ -708,7 +689,7 @@ static bool ProcessGenericException(
 	string_view const Type,
 	string_view const Message,
 	error_state const& ErrorState = error_state::fetch(),
-	std::vector<const void*> const* const NestedStack = nullptr
+	std::vector<DWORD64> const* const NestedStack = nullptr
 )
 {
 	if (Global)
@@ -841,7 +822,8 @@ static bool ProcessGenericException(
 		PluginModule->Author()
 	) : L""s;
 
-	if (!(Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown()? ExcDialog : ExcConsole)(
+	if (!ShowExceptionUI(
+		Global&& Global->WindowManager && !Global->WindowManager->ManagerIsDown(),
 		Context,
 		Exception,
 		Details,
@@ -919,13 +901,11 @@ bool ProcessStdException(const std::exception& e, std::string_view const Functio
 
 	if (const auto FarException = dynamic_cast<const detail::far_base_exception*>(&e))
 	{
-		const std::vector<const void*>* NestedStack = nullptr;
-
-		if (const auto Wrapper = dynamic_cast<const far_wrapper_exception*>(&e))
+		const auto NestedStack = [&]
 		{
-			const auto& Stack = Wrapper->get_stack();
-			NestedStack = &Stack;
-		}
+			const auto Wrapper = dynamic_cast<const far_wrapper_exception*>(&e);
+			return Wrapper? &Wrapper->get_stack() : nullptr;
+		}();
 
 		return ProcessGenericException(Context, FarException->function(), FarException->location(), Module, Type, What, FarException->error_state(), NestedStack);
 	}

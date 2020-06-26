@@ -332,7 +332,18 @@ RFLAGS=/nologo /l 0x409 /fo"$(RES_FILE)" $(ADDINCLUDE) /d $(USEDEBUG)
 
 !ifdef CLANG
 CPP = clang-cl
-CPPFLAGS = $(CPPFLAGS) /clang:-fvisibility=hidden -Qunused-arguments -Werror=old-style-cast
+CPPFLAGS =\
+	$(CPPFLAGS)\
+	-Qunused-arguments\
+	/clang:-fvisibility=hidden\
+	-Werror=array-bounds\
+	-Werror=dangling\
+	-Werror=odr\
+	-Werror=old-style-cast\
+	-Werror=reorder\
+	-Werror=return-type\
+
+
 NOBATCH=1
 NO_RELEASE_LTCG=1
 !elseifdef ICL

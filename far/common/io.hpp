@@ -90,7 +90,7 @@ namespace io
 		if (!Size)
 			return;
 
-		Stream.write(static_cast<const char*>(static_cast<const void*>(std::data(Container))), Size * sizeof(*std::data(Container)));
+		Stream.write(view_as<char const*>(std::data(Container)), Size * sizeof(*std::data(Container)));
 	}
 }
 

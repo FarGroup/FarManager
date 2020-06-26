@@ -167,7 +167,7 @@ bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, 
 	bool PreserveLFN = false;
 	if (SubstFileName(strCommand, Context, &ListNames, &PreserveLFN) && !strCommand.empty())
 	{
-		SCOPED_ACTION(PreserveLongName)(ShortName, PreserveLFN);
+		SCOPED_ACTION(PreserveLongName)(Name, PreserveLFN);
 
 		execute_info Info;
 		Info.DisplayCommand = strCommand;
@@ -271,7 +271,7 @@ void ProcessExternal(string_view const Command, string_view const Name, string_v
 	// If you want your history to be usable - use full paths yourself. We cannot reliably substitute them.
 	Global->CtrlObject->ViewHistory->AddToHistory(strExecStr, AlwaysWaitFinish? HR_EXTERNAL_WAIT : HR_EXTERNAL);
 
-	SCOPED_ACTION(PreserveLongName)(ShortName, PreserveLFN);
+	SCOPED_ACTION(PreserveLongName)(Name, PreserveLFN);
 
 	execute_info Info;
 	Info.DisplayCommand = strExecStr;

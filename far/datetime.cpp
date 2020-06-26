@@ -713,6 +713,33 @@ time_check::time_check(mode Mode) noexcept:
 {
 }
 
+time_check::time_check(mode Mode, clock_type::duration Interval) noexcept:
+	m_Begin(Mode == mode::delayed? clock_type::now() : clock_type::now() - Interval),
+	m_Interval(Interval)
+{
+}
+
+void time_check::reset(clock_type::time_point Value) const noexcept
+{
+	m_Begin = Value;
+}
+
+bool time_check::is_time() const noexcept
+{
+	return clock_type::now() - m_Begin > m_Interval;
+}
+
+time_check::operator bool() const noexcept
+{
+	const auto Current = clock_type::now();
+	if (m_Interval != 0s && Current - m_Begin > m_Interval)
+	{
+		reset(Current);
+		return true;
+	}
+	return false;
+}
+
 #ifdef ENABLE_TESTS
 
 #include "testing.hpp"

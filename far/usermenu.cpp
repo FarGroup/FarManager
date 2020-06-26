@@ -760,7 +760,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 					bool PreserveLFN = false;
 					if (SubstFileName(strCommand, Context, &ListNames, &PreserveLFN, false, CurrentLabel) && !strCommand.empty())
 					{
-						SCOPED_ACTION(PreserveLongName)(strShortName, PreserveLFN);
+						SCOPED_ACTION(PreserveLongName)(strName, PreserveLFN);
 
 						execute_info Info;
 						Info.DisplayCommand = strCommand;

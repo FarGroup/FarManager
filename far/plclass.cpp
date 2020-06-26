@@ -205,15 +205,9 @@ WARNING_POP()
 }
 
 template<typename T>
-static const T* real_address(const void* const BaseAddress, size_t const VirtualAddress)
+static decltype(auto) view_as(void const* const BaseAddress, IMAGE_SECTION_HEADER const& Section, size_t const VirtualAddress)
 {
-	return static_cast<const T*>(static_cast<const void*>(static_cast<const char*>(BaseAddress) + VirtualAddress));
-}
-
-template<typename T>
-static const T* real_address(const void* const BaseAddress, const IMAGE_SECTION_HEADER& Section, size_t const VirtualAddress)
-{
-	return real_address<T>(BaseAddress, Section.PointerToRawData + (VirtualAddress - Section.VirtualAddress));
+	return view_as<T>(BaseAddress, Section.PointerToRawData + (VirtualAddress - Section.VirtualAddress));
 }
 
 bool native_plugin_factory::IsPlugin(const string& FileName) const
@@ -221,11 +215,11 @@ bool native_plugin_factory::IsPlugin(const string& FileName) const
 	if (!ends_with_icase(FileName, L".dll"sv))
 		return false;
 
-	const auto ModuleFile = os::fs::create_file(FileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
+	const os::fs::file ModuleFile(FileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
 	if (!ModuleFile)
 		return false;
 
-	const os::handle ModuleMapping(CreateFileMapping(ModuleFile.native_handle(), nullptr, PAGE_READONLY, 0, 0, nullptr));
+	const os::handle ModuleMapping(CreateFileMapping(ModuleFile.get().native_handle(), nullptr, PAGE_READONLY, 0, 0, nullptr));
 	if (!ModuleMapping)
 		return false;
 
@@ -235,56 +229,61 @@ bool native_plugin_factory::IsPlugin(const string& FileName) const
 
 	return seh_invoke_no_ui([&]
 	{
-		const auto& DosHeader = *real_address<IMAGE_DOS_HEADER>(Data.get(), 0);
-		if (DosHeader.e_magic != IMAGE_DOS_SIGNATURE)
-			return false;
-
-		const auto& NtHeaders = *real_address<IMAGE_NT_HEADERS>(Data.get(), DosHeader.e_lfanew);
-
-		if (NtHeaders.Signature != IMAGE_NT_SIGNATURE)
-			return false;
-
-		if (!(NtHeaders.FileHeader.Characteristics & IMAGE_FILE_DLL))
-			return false;
-
-		static const auto FarMachineType = []
-		{
-			const auto FarModule = GetModuleHandle(nullptr);
-			const auto& FarDosHeader = *real_address<IMAGE_DOS_HEADER>(FarModule, 0);
-			const auto& FarNtHeaders = *real_address<IMAGE_NT_HEADERS>(FarModule, FarDosHeader.e_lfanew);
-			return FarNtHeaders.FileHeader.Machine;
-		}();
-
-		if (NtHeaders.FileHeader.Machine != FarMachineType)
-			return false;
-
-		const auto ExportDirectoryAddress = NtHeaders.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress;
-		if (!ExportDirectoryAddress)
-			return false;
-
-		const span Sections(image_first_section(NtHeaders), NtHeaders.FileHeader.NumberOfSections);
-		const auto SectionIterator = std::find_if(ALL_CONST_RANGE(Sections), [&](IMAGE_SECTION_HEADER const& Section)
-		{
-			return
-				Section.VirtualAddress == ExportDirectoryAddress ||
-				(Section.VirtualAddress <= ExportDirectoryAddress && ExportDirectoryAddress < Section.VirtualAddress + Section.Misc.VirtualSize);
-		});
-
-		if (SectionIterator == Sections.cend())
-			return false;
-
-		const auto& ExportDirectory = *real_address<IMAGE_EXPORT_DIRECTORY>(Data.get(), *SectionIterator, ExportDirectoryAddress);
-		const span Names(real_address<DWORD>(Data.get(), *SectionIterator, ExportDirectory.AddressOfNames), ExportDirectory.NumberOfNames);
-
-		return std::any_of(ALL_CONST_RANGE(Names), [&](DWORD const NameAddress)
-		{
-			return FindExport(real_address<char>(Data.get(), *SectionIterator, NameAddress));
-		});
+		return IsPlugin(Data.get());
 	},
 	[]
 	{
 		// TODO: log
 		return false;
+	});
+}
+
+bool native_plugin_factory::IsPlugin(const void* Data) const
+{
+	const auto& DosHeader = view_as<IMAGE_DOS_HEADER const>(Data, 0);
+	if (DosHeader.e_magic != IMAGE_DOS_SIGNATURE)
+		return false;
+
+	const auto& NtHeaders = view_as<IMAGE_NT_HEADERS const>(Data, DosHeader.e_lfanew);
+
+	if (NtHeaders.Signature != IMAGE_NT_SIGNATURE)
+		return false;
+
+	if (!(NtHeaders.FileHeader.Characteristics & IMAGE_FILE_DLL))
+		return false;
+
+	static const auto FarMachineType = []
+	{
+		const auto FarModule = GetModuleHandle(nullptr);
+		const auto& FarDosHeader = view_as<IMAGE_DOS_HEADER const>(FarModule, 0);
+		const auto& FarNtHeaders = view_as<IMAGE_NT_HEADERS const>(FarModule, FarDosHeader.e_lfanew);
+		return FarNtHeaders.FileHeader.Machine;
+	}();
+
+	if (NtHeaders.FileHeader.Machine != FarMachineType)
+		return false;
+
+	const auto ExportDirectoryAddress = NtHeaders.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress;
+	if (!ExportDirectoryAddress)
+		return false;
+
+	const span Sections(image_first_section(NtHeaders), NtHeaders.FileHeader.NumberOfSections);
+	const auto SectionIterator = std::find_if(ALL_CONST_RANGE(Sections), [&](IMAGE_SECTION_HEADER const& Section)
+	{
+		return
+			Section.VirtualAddress == ExportDirectoryAddress ||
+			(Section.VirtualAddress <= ExportDirectoryAddress && ExportDirectoryAddress < Section.VirtualAddress + Section.Misc.VirtualSize);
+	});
+
+	if (SectionIterator == Sections.cend())
+		return false;
+
+	const auto& ExportDirectory = view_as<IMAGE_EXPORT_DIRECTORY const>(Data, *SectionIterator, ExportDirectoryAddress);
+	const span Names(view_as<DWORD const*>(Data, *SectionIterator, ExportDirectory.AddressOfNames), ExportDirectory.NumberOfNames);
+
+	return std::any_of(ALL_CONST_RANGE(Names), [&](DWORD const NameAddress)
+	{
+		return FindExport(view_as<char const*>(Data, *SectionIterator, NameAddress));
 	});
 }
 

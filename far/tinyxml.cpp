@@ -77,5 +77,5 @@ WARNING_POP()
 
 SCOPED_ACTION(components::component)([]
 {
-	return components::component::info{ L"TinyXML-2"sv, format(FSTR(L"{0}.{1}.{2}"), tinyxml_impl::TIXML2_MAJOR_VERSION, tinyxml_impl::TIXML2_MINOR_VERSION, tinyxml_impl::TIXML2_PATCH_VERSION) };
+	return components::info{ L"TinyXML-2"sv, format(FSTR(L"{0}.{1}.{2}"), tinyxml_impl::TIXML2_MAJOR_VERSION, tinyxml_impl::TIXML2_MINOR_VERSION, tinyxml_impl::TIXML2_PATCH_VERSION) };
 });

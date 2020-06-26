@@ -86,7 +86,7 @@ namespace
 {
 	SCOPED_ACTION(components::component)([]
 	{
-		return components::component::info{ L"Catch2"sv, format(FSTR(L"{0}.{1}.{2}"), CATCH_VERSION_MAJOR, CATCH_VERSION_MINOR, CATCH_VERSION_PATCH) };
+		return components::info{ L"Catch2"sv, format(FSTR(L"{0}.{1}.{2}"), CATCH_VERSION_MAJOR, CATCH_VERSION_MINOR, CATCH_VERSION_PATCH) };
 	});
 }
 

@@ -4867,7 +4867,7 @@ bool FileList::ApplyCommand()
 
 			if (SubstFileName(strConvertedCommand, subst_context(i.FileName, i.AlternateFileName()), &ListNames, &PreserveLFN) && !strConvertedCommand.empty())
 			{
-				SCOPED_ACTION(PreserveLongName)(i.AlternateFileName(), PreserveLFN);
+				SCOPED_ACTION(PreserveLongName)(i.FileName, PreserveLFN);
 
 				execute_info Info;
 				Info.DisplayCommand = strConvertedCommand;

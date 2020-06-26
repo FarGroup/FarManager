@@ -125,12 +125,12 @@ namespace
 
 	SCOPED_ACTION(components::component)([]
 	{
-		return components::component::info{ L"SQLite"sv, WIDE_S(SQLITE_VERSION) };
+		return components::info{ L"SQLite"sv, WIDE_S(SQLITE_VERSION) };
 	});
 
 	SCOPED_ACTION(components::component)([]
 	{
-		return components::component::info{ L"SQLite Unicode extension"sv, sqlite_unicode::SQLite_Unicode_Version };
+		return components::info{ L"SQLite Unicode extension"sv, sqlite_unicode::SQLite_Unicode_Version };
 	});
 }
 
@@ -259,7 +259,7 @@ static std::string_view get_column_text(sqlite::sqlite3_stmt* Stmt, int Col)
 	// https://www.sqlite.org/c3ref/column_blob.html
 	// call sqlite3_column_text() first to force the result into the desired format,
 	// then invoke sqlite3_column_bytes() to find the size of the result
-	const auto Data = static_cast<const char*>(static_cast<const void*>(sqlite::sqlite3_column_text(Stmt, Col)));
+	const auto Data = view_as<char const*>(sqlite::sqlite3_column_text(Stmt, Col));
 	const auto Size = static_cast<size_t>(sqlite::sqlite3_column_bytes(Stmt, Col));
 
 	return { Data, Size };

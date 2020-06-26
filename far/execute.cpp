@@ -82,6 +82,89 @@ static string short_name_if_too_long(const string& LongName)
 	return LongName.size() >= MAX_PATH - 1? ConvertNameToShort(LongName) : LongName;
 }
 
+static bool GetImageType(std::istream& Stream, image_type& ImageType)
+{
+	IMAGE_DOS_HEADER DOSHeader;
+	if (io::read(Stream, bytes::reference(DOSHeader)) != sizeof(DOSHeader))
+		return false;
+
+	if (DOSHeader.e_magic != IMAGE_DOS_SIGNATURE)
+		return false;
+
+	Stream.seekg(DOSHeader.e_lfanew);
+
+	union
+	{
+		struct
+		{
+			DWORD Signature;
+			IMAGE_FILE_HEADER FileHeader;
+			union
+			{
+				IMAGE_OPTIONAL_HEADER32 OptionalHeader32;
+				IMAGE_OPTIONAL_HEADER64 OptionalHeader64;
+			};
+		}
+		PeHeader;
+
+		IMAGE_OS2_HEADER Os2Header;
+	}
+	ImageHeader;
+
+	if (io::read(Stream, bytes::reference(ImageHeader)) != sizeof(ImageHeader))
+		return false;
+
+	auto Result = image_type::console;
+
+	if (ImageHeader.PeHeader.Signature == IMAGE_NT_SIGNATURE)
+	{
+		const auto& PeHeader = ImageHeader.PeHeader;
+
+		if (PeHeader.FileHeader.Characteristics & IMAGE_FILE_DLL)
+			return false;
+
+		auto ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
+
+		switch (PeHeader.OptionalHeader32.Magic)
+		{
+		case IMAGE_NT_OPTIONAL_HDR32_MAGIC:
+			ImageSubsystem = PeHeader.OptionalHeader32.Subsystem;
+			break;
+
+		case IMAGE_NT_OPTIONAL_HDR64_MAGIC:
+			ImageSubsystem = PeHeader.OptionalHeader64.Subsystem;
+			break;
+		}
+
+		if (ImageSubsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI)
+		{
+			Result = image_type::graphical;
+		}
+	}
+	else if (ImageHeader.Os2Header.ne_magic == IMAGE_OS2_SIGNATURE)
+	{
+		const auto& Os2Header = ImageHeader.Os2Header;
+
+		enum { DllOrDriverFlag = 7_bit };
+		if (HIBYTE(Os2Header.ne_flags) & DllOrDriverFlag)
+			return false;
+
+		enum
+		{
+			NE_WINDOWS = 1_bit,
+			NE_WIN386  = 2_bit,
+		};
+
+		if (Os2Header.ne_exetyp == NE_WINDOWS || Os2Header.ne_exetyp == NE_WIN386)
+		{
+			Result = image_type::graphical;
+		}
+	}
+
+	ImageType = Result;
+	return true;
+}
+
 static bool GetImageType(string_view const FileName, image_type& ImageType)
 {
 	const os::fs::file ModuleFile(FileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
@@ -93,86 +176,8 @@ static bool GetImageType(string_view const FileName, image_type& ImageType)
 		os::fs::filebuf StreamBuffer(ModuleFile, std::ios::in);
 		std::istream Stream(&StreamBuffer);
 		Stream.exceptions(Stream.badbit | Stream.failbit);
+		return GetImageType(Stream, ImageType);
 
-		IMAGE_DOS_HEADER DOSHeader;
-		if (io::read(Stream, bytes::reference(DOSHeader)) != sizeof(DOSHeader))
-			return false;
-
-		if (DOSHeader.e_magic != IMAGE_DOS_SIGNATURE)
-			return false;
-
-		Stream.seekg(DOSHeader.e_lfanew);
-
-		union
-		{
-			struct
-			{
-				DWORD Signature;
-				IMAGE_FILE_HEADER FileHeader;
-				union
-				{
-					IMAGE_OPTIONAL_HEADER32 OptionalHeader32;
-					IMAGE_OPTIONAL_HEADER64 OptionalHeader64;
-				};
-			}
-			PeHeader;
-
-			IMAGE_OS2_HEADER Os2Header;
-		}
-		ImageHeader;
-
-		if (io::read(Stream, bytes::reference(ImageHeader)) != sizeof(ImageHeader))
-			return false;
-
-		auto Result = image_type::console;
-
-		if (ImageHeader.PeHeader.Signature == IMAGE_NT_SIGNATURE)
-		{
-			const auto& PeHeader = ImageHeader.PeHeader;
-
-			if (!(PeHeader.FileHeader.Characteristics & IMAGE_FILE_DLL))
-			{
-				auto ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
-
-				switch (PeHeader.OptionalHeader32.Magic)
-				{
-				case IMAGE_NT_OPTIONAL_HDR32_MAGIC:
-					ImageSubsystem = PeHeader.OptionalHeader32.Subsystem;
-					break;
-
-				case IMAGE_NT_OPTIONAL_HDR64_MAGIC:
-					ImageSubsystem = PeHeader.OptionalHeader64.Subsystem;
-					break;
-				}
-
-				if (ImageSubsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI)
-				{
-					Result = image_type::graphical;
-				}
-			}
-		}
-		else if (ImageHeader.Os2Header.ne_magic == IMAGE_OS2_SIGNATURE)
-		{
-			const auto& Os2Header = ImageHeader.Os2Header;
-
-			enum { DllOrDriverFlag = 7_bit };
-			if (!(HIBYTE(Os2Header.ne_flags) & DllOrDriverFlag))
-			{
-				enum
-				{
-					NE_WINDOWS = 1_bit,
-					NE_WIN386  = 2_bit,
-				};
-
-				if (Os2Header.ne_exetyp == NE_WINDOWS || Os2Header.ne_exetyp == NE_WIN386)
-				{
-					Result = image_type::graphical;
-				}
-			}
-		}
-
-		ImageType = Result;
-		return true;
 	}
 	catch (const std::exception&)
 	{
@@ -190,17 +195,15 @@ static bool IsProperProgID(string_view const ProgID)
 hExtKey - корневой ключ для поиска (ключ расширения)
 strType - сюда запишется результат, если будет найден
 */
-static bool SearchExtHandlerFromList(const os::reg::key& ExtKey, string& strType)
+static string SearchExtHandlerFromList(const os::reg::key& ExtKey)
 {
-	for (const auto& i: os::reg::enum_value(ExtKey, L"OpenWithProgIds"sv, KEY_ENUMERATE_SUB_KEYS))
+	const auto Enumerator = os::reg::enum_value(ExtKey, L"OpenWithProgIds"sv, KEY_ENUMERATE_SUB_KEYS);
+	const auto Iterator = std::find_if(ALL_CONST_RANGE(Enumerator), [](const os::reg::value& i)
 	{
-		if (i.type() == REG_SZ && IsProperProgID(i.name()))
-		{
-			strType = i.name();
-			return true;
-		}
-	}
-	return false;
+			return i.type() == REG_SZ && IsProperProgID(i.name());
+	});
+
+	return Iterator != Enumerator.cend()? Iterator->name() : L""s;
 }
 
 static bool FindObject(string_view const Module, string& strDest, bool* Internal)
@@ -653,10 +656,10 @@ bool GetShellType(const string_view Ext, string& strType, const ASSOCIATIONTYPE 
 		}
 
 		if (strType.empty() && UserKey)
-			SearchExtHandlerFromList(UserKey, strType);
+			strType = SearchExtHandlerFromList(UserKey);
 
 		if (strType.empty() && CRKey)
-			SearchExtHandlerFromList(CRKey, strType);
+			strType = SearchExtHandlerFromList(CRKey);
 	}
 
 	return !strType.empty();
@@ -1176,7 +1179,7 @@ void Execute(execute_info& Info, bool FolderRun, function_ref<void(bool)> const 
 		console.SetOutputCodepage(ConsoleOutputCP);
 	}
 
-	if (!Result)
+	if (!Result && ErrorState.Win32Error != ERROR_CANCELLED)
 	{
 		std::vector<string> Strings;
 		if (Info.ExecMode == execute_info::exec_mode::direct)

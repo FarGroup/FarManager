@@ -97,33 +97,10 @@ public:
 	enum class mode { delayed, immediate };
 
 	explicit time_check(mode Mode = mode::delayed) noexcept;
-
-	time_check(mode Mode, clock_type::duration Interval) noexcept:
-		m_Begin(Mode == mode::delayed? clock_type::now() : clock_type::now() - Interval),
-		m_Interval(Interval)
-	{
-	}
-
-	void reset(clock_type::time_point Value = clock_type::now()) const noexcept
-	{
-		m_Begin = Value;
-	}
-
-	bool is_time() const noexcept
-	{
-		return clock_type::now() - m_Begin > m_Interval;
-	}
-
-	explicit operator bool() const noexcept
-	{
-		const auto Current = clock_type::now();
-		if (m_Interval != 0s && Current - m_Begin > m_Interval)
-		{
-			reset(Current);
-			return true;
-		}
-		return false;
-	}
+	time_check(mode Mode, clock_type::duration Interval) noexcept;
+	void reset(clock_type::time_point Value = clock_type::now()) const noexcept;
+	bool is_time() const noexcept;
+	explicit operator bool() const noexcept;
 
 private:
 	mutable clock_type::time_point m_Begin;

@@ -318,7 +318,7 @@ void FileFilter::FilterEdit()
 					{
 						MenuItemEx ListItem(MenuString(&FilterData()[SelPos]));
 
-						if (const auto Check = GetCheck(FilterData()[SelPos]))
+						if (const auto Check = FilterList->GetCheck(SelPos))
 							ListItem.SetCustomCheck(Check);
 
 						FilterList->DeleteItem(SelPos);

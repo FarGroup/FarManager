@@ -84,6 +84,11 @@ inline auto str(const void* Value)
 	return format(FSTR(L"0x{0:0{1}X}"), reinterpret_cast<uintptr_t>(Value), sizeof(Value) * 2);
 }
 
+inline auto str(void* Value)
+{
+	return str(static_cast<void const*>(Value));
+}
+
 string str(const char*) = delete;
 string str(const wchar_t*) = delete;
 string str(std::string) = delete;

@@ -47,10 +47,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace components
 {
+	using components_map = std::map<string_view, string, string_sort::less_t>;
+	using info = components_map::value_type;
+
 	class component
 	{
 	public:
-		using info = std::pair<string_view, string>;
 		using get_info = info(*)();
 
 		explicit component(get_info GetInfo);
@@ -62,7 +64,7 @@ namespace components
 		component* m_Next{};
 	};
 
-	const std::map<string_view, string, string_sort::less_t>& GetComponentsInfo();
+	const components_map& GetComponentsInfo();
 }
 
 #endif // COMPONENTS_HPP_5EB4061D_47B2_4941_8B57_FE405EBD3D83

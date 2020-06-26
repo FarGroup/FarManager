@@ -276,4 +276,27 @@ void copy_memory(const src_type* Source, dst_type* Destination, size_t const Siz
 		std::memmove(Destination, Source, Size);
 }
 
+template<typename T>
+decltype(auto) view_as(void const* const BaseAddress, size_t const Offset = 0)
+{
+	static_assert(std::is_pod_v<T>);
+
+	const auto Ptr = static_cast<void const*>(static_cast<char const*>(BaseAddress) + Offset);
+
+	if constexpr (std::is_pointer_v<T>)
+	{
+		return static_cast<T>(Ptr);
+	}
+	else
+	{
+		return *static_cast<T*>(Ptr);
+	}
+}
+
+template<typename T>
+decltype(auto) view_as(unsigned long long const Address)
+{
+	return view_as<T>(reinterpret_cast<void const*>(Address));
+}
+
 #endif // UTILITY_HPP_D8E934C7_BF30_4CEB_B80C_6E508DF7A1BC

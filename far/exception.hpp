@@ -190,7 +190,7 @@ public:
 
 private:
 	std::shared_ptr<os::handle> m_ThreadHandle;
-	std::vector<const void*> m_Stack;
+	std::vector<DWORD64> m_Stack;
 };
 
 class seh_exception : public std::exception

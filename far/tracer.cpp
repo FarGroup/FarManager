@@ -48,40 +48,72 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
+static auto platform_specific_data(CONTEXT const& ContextRecord)
+{
+	const struct
+	{
+		DWORD MachineType;
+		DWORD64 PC, Frame, Stack;
+	}
+	Data
+	{
+#if defined _M_X64
+		IMAGE_FILE_MACHINE_AMD64,
+		ContextRecord.Rip,
+		ContextRecord.Rbp,
+		ContextRecord.Rsp
+#elif defined _M_IX86
+		IMAGE_FILE_MACHINE_I386,
+		ContextRecord.Eip,
+		ContextRecord.Ebp,
+		ContextRecord.Esp
+#elif defined _M_ARM64
+		IMAGE_FILE_MACHINE_ARM64,
+		ContextRecord.Pc,
+		ContextRecord.Fp,
+		ContextRecord.Sp
+#elif defined _M_ARM
+		IMAGE_FILE_MACHINE_ARM,
+		ContextRecord.Pc,
+		ContextRecord.R11,
+		ContextRecord.Sp
+#else
+		IMAGE_FILE_MACHINE_UNKNOWN
+#endif
+	};
+
+	return Data;
+}
 
 // StackWalk64() may modify context record passed to it, so we will use a copy.
 static auto GetBackTrace(CONTEXT ContextRecord, HANDLE ThreadHandle)
 {
-	std::vector<const void*> Result;
+	std::vector<DWORD64> Result;
 
-#if defined _M_X64 || defined _M_IX86
-	STACKFRAME64 StackFrame{};
-	const DWORD MachineType =
-#ifdef _WIN64
-		IMAGE_FILE_MACHINE_AMD64;
-	StackFrame.AddrPC.Offset = ContextRecord.Rip;
-	StackFrame.AddrFrame.Offset = ContextRecord.Rbp;
-	StackFrame.AddrStack.Offset = ContextRecord.Rsp;
-#else
-		IMAGE_FILE_MACHINE_I386;
-	StackFrame.AddrPC.Offset = ContextRecord.Eip;
-	StackFrame.AddrFrame.Offset = ContextRecord.Ebp;
-	StackFrame.AddrStack.Offset = ContextRecord.Esp;
-#endif
-	StackFrame.AddrPC.Mode = AddrModeFlat;
-	StackFrame.AddrFrame.Mode = AddrModeFlat;
-	StackFrame.AddrStack.Mode = AddrModeFlat;
+	const auto Data = platform_specific_data(ContextRecord);
 
-	while (imports.StackWalk64(MachineType, GetCurrentProcess(), ThreadHandle, &StackFrame, &ContextRecord, nullptr, imports.SymFunctionTableAccess64, imports.SymGetModuleBase64, nullptr))
+	if (Data.MachineType == IMAGE_FILE_MACHINE_UNKNOWN)
+		return Result;
+
+	const auto address = [](DWORD64 const Offset)
 	{
-		Result.emplace_back(reinterpret_cast<const void*>(StackFrame.AddrPC.Offset));
+		return ADDRESS64{ Offset, 0, AddrModeFlat };
+	};
+
+	STACKFRAME64 StackFrame{};
+	StackFrame.AddrPC    = address(Data.PC);
+	StackFrame.AddrFrame = address(Data.Frame);
+	StackFrame.AddrStack = address(Data.Stack);
+
+	while (imports.StackWalk64(Data.MachineType, GetCurrentProcess(), ThreadHandle, &StackFrame, &ContextRecord, nullptr, imports.SymFunctionTableAccess64, imports.SymGetModuleBase64, nullptr))
+	{
+		Result.emplace_back(StackFrame.AddrPC.Offset);
 	}
-#endif
 
 	return Result;
 }
 
-static void GetSymbols(string_view const ModuleName, const std::vector<const void*>& BackTrace, function_ref<void(string&&, string&&, string&&)> const Consumer)
+static void GetSymbols(string_view const ModuleName, const std::vector<DWORD64>& BackTrace, function_ref<void(string&&, string&&, string&&)> const Consumer)
 {
 	SCOPED_ACTION(tracer::with_symbols)(ModuleName);
 
@@ -91,22 +123,25 @@ static void GetSymbols(string_view const ModuleName, const std::vector<const voi
 
 	imports.SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS | SYMOPT_INCLUDE_32BIT_MODULES);
 
-	IMAGEHLP_MODULEW64 Module{ static_cast<DWORD>(aligned_size(offsetof(IMAGEHLP_MODULEW64, LoadedImageName), 8)) }; // use the pre-07-Jun-2002 struct size, aligned to 8
-
-	const auto MaxAddressSize = format(FSTR(L"{0:0X}"), reinterpret_cast<uintptr_t>(*std::max_element(ALL_CONST_RANGE(BackTrace)))).size();
+	block_ptr<SYMBOL_INFOW, BufferSize> SymbolW(BufferSize);
+	SymbolW->SizeOfStruct = sizeof(SYMBOL_INFOW);
+	SymbolW->MaxNameLen = MaxNameLen;
 
 	block_ptr<SYMBOL_INFO, BufferSize> Symbol(BufferSize);
 	Symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
 	Symbol->MaxNameLen = MaxNameLen;
 
-	block_ptr<SYMBOL_INFOW, BufferSize> SymbolW(BufferSize);
-	SymbolW->SizeOfStruct = sizeof(SYMBOL_INFOW);
-	SymbolW->MaxNameLen = MaxNameLen;
+	const auto FormatAddress = [](DWORD64 const Value)
+	{
+		// It is unlikely that RVAs will be above 4 GiB,
+		// so we can save some screen space here.
+		return format(FSTR(L"0x{0:0{1}X}"), Value, (Value & 0xffffffff00000000)? 16 : 8);
+	};
 
-	const auto GetName = [&](DWORD_PTR const Address) -> string
+	const auto GetName = [&](DWORD64 const Address)
 	{
 		if (imports.SymFromAddrW && imports.SymFromAddrW(Process, Address, nullptr, SymbolW.data()))
-			return SymbolW->Name;
+			return string(SymbolW->Name);
 
 		if (imports.SymFromAddr && imports.SymFromAddr(Process, Address, nullptr, Symbol.data()))
 			return encoding::ansi::get_chars(Symbol->Name);
@@ -114,38 +149,36 @@ static void GetSymbols(string_view const ModuleName, const std::vector<const voi
 		return L"<unknown> (get the pdb)"s;
 	};
 
-	const auto GetLocation = [&](DWORD_PTR const Address) -> string
+	const auto GetLocation = [&](DWORD64 const Address)
 	{
+		const auto Location = [](string_view const File, unsigned const Line)
+		{
+			return format(FSTR(L"{0}:{1}"), File, Line);
+		};
+
 		DWORD Displacement;
 
 		IMAGEHLP_LINEW64 LineW{ sizeof(LineW) };
 		if (imports.SymGetLineFromAddrW64 && imports.SymGetLineFromAddrW64(Process, Address, &Displacement, &LineW))
-			return format(FSTR(L"{0}:{1}"), LineW.FileName, LineW.LineNumber);
+			return Location(LineW.FileName, LineW.LineNumber);
 
 		IMAGEHLP_LINE64 Line{ sizeof(Line) };
 		if (imports.SymGetLineFromAddr64 && imports.SymGetLineFromAddr64(Process, Address, &Displacement, &Line))
-			return format(FSTR(L"{0}:{1}"), encoding::ansi::get_chars(Line.FileName), Line.LineNumber);
+			return Location(encoding::ansi::get_chars(Line.FileName), Line.LineNumber);
 
-		return {};
+		return L""s;
 	};
 
-	for (const auto i: BackTrace)
+	for (const auto Address: BackTrace)
 	{
-		const auto Address = reinterpret_cast<DWORD_PTR>(i);
-		string sFunction, sLocation;
-		if (Address)
-		{
-			sFunction = concat(
-				imports.SymGetModuleInfoW64(Process, Address, &Module)?
-					PointToName(Module.ImageName) :
-					L"<unknown>"sv,
-				L'!',
-				GetName(Address));
+		IMAGEHLP_MODULEW64 Module{ static_cast<DWORD>(aligned_size(offsetof(IMAGEHLP_MODULEW64, LoadedImageName), 8)) }; // use the pre-07-Jun-2002 struct size, aligned to 8
+		const auto HasModuleInfo = imports.SymGetModuleInfoW64(Process, Address, &Module);
 
-			sLocation = GetLocation(Address);
-		}
-
-		Consumer(format(FSTR(L"0x{0:0{1}X}"), Address, MaxAddressSize), std::move(sFunction), std::move(sLocation));
+		Consumer(
+			FormatAddress(Address - Module.BaseOfImage),
+			concat(HasModuleInfo? PointToName(Module.ImageName) : L"<unknown>"sv, L'!', GetName(Address)),
+			GetLocation(Address)
+		);
 	}
 }
 
@@ -177,21 +210,21 @@ EXCEPTION_POINTERS tracer::get_pointers()
 	};
 }
 
-std::vector<const void*> tracer::get(string_view const Module, const EXCEPTION_POINTERS& Pointers, HANDLE ThreadHandle)
+std::vector<DWORD64> tracer::get(string_view const Module, const EXCEPTION_POINTERS& Pointers, HANDLE ThreadHandle)
 {
 	SCOPED_ACTION(tracer::with_symbols)(Module);
 
 	return GetBackTrace(*Pointers.ContextRecord, ThreadHandle);
 }
 
-void tracer::get_symbols(string_view const Module, const std::vector<const void*>& Trace, function_ref<void(string&& Address, string&& Name, string&& Source)> const Consumer)
+void tracer::get_symbols(string_view const Module, const std::vector<DWORD64>& Trace, function_ref<void(string&& Address, string&& Name, string&& Source)> const Consumer)
 {
 	GetSymbols(Module, Trace, Consumer);
 }
 
 void tracer::get_symbol(string_view const Module, const void* Ptr, string& Address, string& Name, string& Source)
 {
-	GetSymbols(Module, {Ptr}, [&](string&& StrAddress, string&& StrName, string&& StrSource)
+	GetSymbols(Module, { reinterpret_cast<DWORD_PTR>(Ptr) }, [&](string&& StrAddress, string&& StrName, string&& StrSource)
 	{
 		Address = std::move(StrAddress);
 		Name = std::move(StrName);
