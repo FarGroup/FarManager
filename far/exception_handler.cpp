@@ -549,8 +549,8 @@ static bool ShowExceptionUI(
 			msg(lng::MExcAddress),
 			msg(lng::MExcFunction),
 			msg(lng::MExcSource),
-			msg(lng::MExcPlugin),
 			msg(lng::MExcFileName),
+			msg(lng::MExcPlugin),
 			msg(lng::MExcFarVersion),
 			msg(lng::MExcOSVersion),
 		};
