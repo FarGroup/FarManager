@@ -109,21 +109,20 @@ static auto read_value_from_big_endian(unsigned char const (&Src)[N])
 	return read_value_from_big_endian_impl<T>(Src, std::make_index_sequence<N>{});
 }
 
-template<typename T, bool Add>
-using add_const_if_t = std::conditional_t<Add, T const, T>;
-
-
-template<typename T, typename char_type>
-static auto& view_as(span<char_type> const Buffer)
+template<typename T>
+static auto& edit_as(void* const Buffer)
 {
-	const auto IsConst = std::is_const_v<char_type>;
-	return *static_cast<add_const_if_t<T, IsConst>*>(static_cast<add_const_if_t<void, IsConst>*>(Buffer.data()));
+	static_assert(std::is_pod_v<T>);
+
+	return *static_cast<T*>(Buffer);
 }
 
 template<typename T>
 static auto view_as_if(span<unsigned char const> const Buffer)
 {
-	return Buffer.size() >= sizeof(T)? view_as<T const*>(Buffer) : nullptr;
+	static_assert(std::is_pod_v<T>);
+
+	return Buffer.size() >= sizeof(T)? view_as<T const*>(Buffer.data()) : nullptr;
 }
 
 struct SCSI_PASS_THROUGH_WITH_BUFFERS: SCSI_PASS_THROUGH
@@ -226,7 +225,7 @@ static auto capatibilities_from_scsi_configuration(const os::fs::file& Device)
 #define CDB CDB_FIXED
 #endif
 
-	auto& GetConfiguration = view_as<CDB>(span(Spt.Cdb)).GET_CONFIGURATION;
+	auto& GetConfiguration = edit_as<CDB>(Spt.Cdb).GET_CONFIGURATION;
 
 #if COMPILER(GCC)
 #undef CDB
@@ -241,13 +240,13 @@ static auto capatibilities_from_scsi_configuration(const os::fs::file& Device)
 	if (!Device.IoControl(IOCTL_SCSI_PASS_THROUGH, &Spt, sizeof(SCSI_PASS_THROUGH), &Spt, sizeof(Spt)) || Spt.ScsiStatus != SCSISTAT_GOOD)
 		return CAPABILITIES_NONE;
 
-	span Buffer(Spt.DataBuf, Spt.DataBuf + Spt.DataTransferLength);
+	span Buffer(Spt.DataBuf, Spt.DataTransferLength);
 
-	const auto& ConfigurationHeader = view_as<GET_CONFIGURATION_HEADER const>(Buffer);
-	if (Buffer.size() < sizeof(ConfigurationHeader.DataLength) + read_value_from_big_endian<size_t>(ConfigurationHeader.DataLength))
+	const auto ConfigurationHeader = view_as_if<GET_CONFIGURATION_HEADER>(Buffer);
+	if (!ConfigurationHeader || Buffer.size() < sizeof(ConfigurationHeader->DataLength) + read_value_from_big_endian<size_t>(ConfigurationHeader->DataLength))
 		return CAPABILITIES_NONE;
 
-	Buffer.pop_front(sizeof(ConfigurationHeader));
+	Buffer.pop_front(sizeof(*ConfigurationHeader));
 
 	const auto FeatureList = view_as_if<FEATURE_DATA_PROFILE_LIST>(Buffer);
 	if (!FeatureList)
@@ -269,7 +268,7 @@ static auto capatibilities_from_scsi_mode_sense(const os::fs::file& Device)
 	SCSI_PASS_THROUGH_WITH_BUFFERS Spt;
 	InitSCSIPassThrough(Spt);
 
-	auto& ModeSense = view_as<CDB>(span(Spt.Cdb)).MODE_SENSE;
+	auto& ModeSense = edit_as<CDB>(Spt.Cdb).MODE_SENSE;
 	ModeSense.OperationCode = SCSIOP_MODE_SENSE;
 	ModeSense.Dbd = true;
 	ModeSense.Pc = MODE_SENSE_CURRENT_VALUES;
@@ -280,10 +279,7 @@ static auto capatibilities_from_scsi_mode_sense(const os::fs::file& Device)
 	if (!Device.IoControl(IOCTL_SCSI_PASS_THROUGH, &Spt, sizeof(SCSI_PASS_THROUGH), &Spt, sizeof(Spt)) || Spt.ScsiStatus != SCSISTAT_GOOD)
 		return CAPABILITIES_NONE;
 
-	span Buffer(Spt.DataBuf, Spt.DataTransferLength);
-	Buffer.pop_front(sizeof(MODE_PARAMETER_HEADER));
-
-	const auto& CapsPage = view_as<CDVD_CAPABILITIES_PAGE const>(Buffer);
+	const auto& CapsPage = view_as<CDVD_CAPABILITIES_PAGE>(Spt.DataBuf + sizeof(MODE_PARAMETER_HEADER));
 
 	auto caps = CAPABILITIES_CDROM;
 
@@ -381,7 +377,7 @@ static auto capatibilities_from_product_id(const os::fs::file& Device)
 	if (!Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &PropertyQuery, sizeof(PropertyQuery), Buffer.data(), static_cast<DWORD>(Buffer.size())))
 		return CAPABILITIES_NONE;
 
-	const auto& DeviceDescriptor = view_as<STORAGE_DEVICE_DESCRIPTOR const>(Buffer);
+	const auto& DeviceDescriptor = view_as<STORAGE_DEVICE_DESCRIPTOR>(Buffer.data());
 
 	if (!DeviceDescriptor.ProductIdOffset || !Buffer[DeviceDescriptor.ProductIdOffset])
 		return CAPABILITIES_NONE;

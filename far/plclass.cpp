@@ -240,11 +240,11 @@ bool native_plugin_factory::IsPlugin(const string& FileName) const
 
 bool native_plugin_factory::IsPlugin(const void* Data) const
 {
-	const auto& DosHeader = view_as<IMAGE_DOS_HEADER const>(Data, 0);
+	const auto& DosHeader = view_as<IMAGE_DOS_HEADER>(Data, 0);
 	if (DosHeader.e_magic != IMAGE_DOS_SIGNATURE)
 		return false;
 
-	const auto& NtHeaders = view_as<IMAGE_NT_HEADERS const>(Data, DosHeader.e_lfanew);
+	const auto& NtHeaders = view_as<IMAGE_NT_HEADERS>(Data, DosHeader.e_lfanew);
 
 	if (NtHeaders.Signature != IMAGE_NT_SIGNATURE)
 		return false;
@@ -255,8 +255,8 @@ bool native_plugin_factory::IsPlugin(const void* Data) const
 	static const auto FarMachineType = []
 	{
 		const auto FarModule = GetModuleHandle(nullptr);
-		const auto& FarDosHeader = view_as<IMAGE_DOS_HEADER const>(FarModule, 0);
-		const auto& FarNtHeaders = view_as<IMAGE_NT_HEADERS const>(FarModule, FarDosHeader.e_lfanew);
+		const auto& FarDosHeader = view_as<IMAGE_DOS_HEADER>(FarModule, 0);
+		const auto& FarNtHeaders = view_as<IMAGE_NT_HEADERS>(FarModule, FarDosHeader.e_lfanew);
 		return FarNtHeaders.FileHeader.Machine;
 	}();
 
@@ -278,7 +278,7 @@ bool native_plugin_factory::IsPlugin(const void* Data) const
 	if (SectionIterator == Sections.cend())
 		return false;
 
-	const auto& ExportDirectory = view_as<IMAGE_EXPORT_DIRECTORY const>(Data, *SectionIterator, ExportDirectoryAddress);
+	const auto& ExportDirectory = view_as<IMAGE_EXPORT_DIRECTORY>(Data, *SectionIterator, ExportDirectoryAddress);
 	const span Names(view_as<DWORD const*>(Data, *SectionIterator, ExportDirectory.AddressOfNames), ExportDirectory.NumberOfNames);
 
 	return std::any_of(ALL_CONST_RANGE(Names), [&](DWORD const NameAddress)

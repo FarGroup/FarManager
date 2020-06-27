@@ -289,7 +289,7 @@ decltype(auto) view_as(void const* const BaseAddress, size_t const Offset = 0)
 	}
 	else
 	{
-		return *static_cast<T*>(Ptr);
+		return *static_cast<T const*>(Ptr);
 	}
 }
 
