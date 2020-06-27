@@ -28,9 +28,10 @@ def show_stack():
 			if m is not None:
 				map_data[int(m.group(4), 16) - BaseAddress] = (m.group(3), m.group(5))
 
+	keys = sorted(map_data.keys())
+
 	for i in sys.argv[2:]:
 		address = int(i, 16)
-		keys = sorted(map_data.keys())
 		key_index = bisect.bisect(keys, address)
 		if keys[key_index] > address:
 			key_index -= 1;
