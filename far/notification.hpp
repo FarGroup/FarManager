@@ -62,6 +62,7 @@ struct update_devices_message
 {
 	bool Arrival;
 	unsigned Drives;
+	bool Media;
 };
 
 class wm_listener;

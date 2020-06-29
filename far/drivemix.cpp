@@ -56,6 +56,9 @@ void UpdateSavedDrives(const std::any& Payload)
 		return;
 
 	const auto& Message = std::any_cast<const update_devices_message&>(Payload);
+	if (Message.Media)
+		return;
+
 	const os::fs::drives_set Drives(Message.Drives);
 
 	if (Message.Arrival)
