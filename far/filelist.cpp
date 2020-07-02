@@ -617,7 +617,8 @@ public:
 			return Item1.SortGroup < Item2.SortGroup;
 
 		// Reverse sorting is taken into account from this point
-		const auto& [a, b] = RevertSorting? std::tie(Item2, Item1) : std::tie(Item1, Item2);
+		const auto& a = RevertSorting? Item2 : Item1;
+		const auto& b = RevertSorting? Item1 : Item2;
 
 		if (hSortPlugin)
 		{
@@ -6619,7 +6620,6 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 		span<PluginPanelItem> PanelData;
 		if (Global->CtrlObject->Plugins->GetVirtualFindData(hAnotherPlugin, PanelData, strPath))
 		{
-			const auto OldSize = m_ListData.size();
 			m_ListData.reserve(m_ListData.size() + PanelData.size());
 
 			OpenPanelInfo AnotherPanelInfo{};
