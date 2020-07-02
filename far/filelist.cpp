@@ -114,6 +114,36 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
+static const struct
+{
+	lng Label;
+	bool InvertByDefault;
+	int MenuPosition;
+	LISTITEMFLAGS MenuFlags;
+	far_key_code MenuKey;
+}
+SortModes[]
+{
+	{ lng::MMenuUnsorted,             false, 4,  LIF_NONE,        KEY_CTRLF7,  },
+	{ lng::MMenuSortByName,           false, 0,  LIF_SELECTED,    KEY_CTRLF3,  },
+	{ lng::MMenuSortByExt,            false, 1,  LIF_NONE,        KEY_CTRLF4,  },
+	{ lng::MMenuSortByWrite,          true,  2,  LIF_NONE,        KEY_CTRLF5,  },
+	{ lng::MMenuSortByCreation,       true,  5,  LIF_NONE,        KEY_CTRLF8,  },
+	{ lng::MMenuSortByAccess,         true,  6,  LIF_NONE,        KEY_CTRLF9,  },
+	{ lng::MMenuSortBySize,           true,  3,  LIF_NONE,        KEY_CTRLF6,  },
+	{ lng::MMenuSortByDiz,            false, 8,  LIF_NONE,        KEY_CTRLF10, },
+	{ lng::MMenuSortByOwner,          false, 9,  LIF_NONE,        KEY_CTRLF11, },
+	{ lng::MMenuSortByAllocatedSize,  true,  10, LIF_NONE,        NO_KEY,      },
+	{ lng::MMenuSortByNumLinks,       true,  11, LIF_NONE,        NO_KEY,      },
+	{ lng::MMenuSortByNumStreams,     true,  12, LIF_NONE,        NO_KEY,      },
+	{ lng::MMenuSortByStreamsSize,    true,  13, LIF_NONE,        NO_KEY,      },
+	{ lng::MMenuSortByNameOnly,       false, 14, LIF_NONE,        NO_KEY,      },
+	{ lng::MMenuSortByChange,         true,  7,  LIF_NONE,        NO_KEY,      },
+};
+
+static_assert(std::size(SortModes) == static_cast<size_t>(panel_sort::COUNT));
+
+
 static auto compare_time(os::chrono::time_point First, os::chrono::time_point Second)
 {
 	using namespace os::chrono::literals;
@@ -571,29 +601,23 @@ public:
 			const auto IsDirItem2 = (Item2.Attributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
 
 			if (IsDirItem1 != IsDirItem2)
-				return IsDirItem1 > IsDirItem2;
+				return IsDirItem1;
 		}
 
 		if (ListSelectedFirst && Item1.Selected != Item2.Selected)
-			return Item1.Selected > Item2.Selected;
+			return Item1.Selected;
 
-		if (ListSortGroups &&
-			(ListSortMode == panel_sort::BY_NAME || ListSortMode == panel_sort::BY_EXT || ListSortMode == panel_sort::BY_FULLNAME) &&
-			Item1.SortGroup != Item2.SortGroup
+		if (ListSortGroups && Item1.SortGroup != Item2.SortGroup &&
+			(
+				ListSortMode == panel_sort::BY_NAME ||
+				ListSortMode == panel_sort::BY_EXT ||
+				ListSortMode == panel_sort::BY_NAMEONLY
+			)
 		)
 			return Item1.SortGroup < Item2.SortGroup;
 
 		// Reverse sorting is taken into account from this point
-		const auto& a = RevertSorting? Item2 : Item1;
-		const auto& b = RevertSorting? Item1 : Item2;
-
-		bool UseReverseNameSort = false;
-		string_view Ext1, Ext2;
-
-		if (ListSortMode == panel_sort::UNSORTED)
-		{
-			return a.Position < b.Position;
-		}
+		const auto& [a, b] = RevertSorting? std::tie(Item2, Item1) : std::tie(Item1, Item2);
 
 		if (hSortPlugin)
 		{
@@ -615,7 +639,7 @@ public:
 		const auto GetExt = [SortFolderExt = SortFolderExt](const FileListItem& i)
 		{
 			if ((i.Attributes & FILE_ATTRIBUTE_DIRECTORY) && !SortFolderExt)
-				return string_view(i.FileName).substr(i.FileName.size());
+				return L""sv;
 
 			return PointToExt(i.FileName);
 		};
@@ -623,155 +647,53 @@ public:
 		switch (ListSortMode)
 		{
 		case panel_sort::UNSORTED:
-			break;
+			return a.Position < b.Position;
 
 		case panel_sort::BY_NAME:
-			UseReverseNameSort = true;
-			break;
+			return string_sort::compare(a.FileName, b.FileName) < 0;
+
+		case panel_sort::BY_NAMEONLY:
+			return string_sort::compare(PointToName(a.FileName), PointToName(b.FileName)) < 0;
 
 		case panel_sort::BY_EXT:
-			UseReverseNameSort = true;
-
-			Ext1 = GetExt(a);
-			Ext2 = GetExt(b);
-
-			if (Ext1.empty())
-			{
-				if (Ext2.empty())
-					break;
-				else
-					return true;
-			}
-			if (Ext2.empty())
-				return false;
-
-			if (const auto Result = string_sort::compare(Ext1, Ext2))
-				return Result < 0;
-
-			break;
+			return string_sort::compare(GetExt(a), GetExt(b)) < 0;
 
 		case panel_sort::BY_MTIME:
-			if (const auto Result = CompareTime(&FileListItem::LastWriteTime))
-				return Result < 0;
-			break;
+			return CompareTime(&FileListItem::LastWriteTime) < 0;
 
 		case panel_sort::BY_CTIME:
-			if (const auto Result = CompareTime(&FileListItem::CreationTime))
-				return Result < 0;
-			break;
+			return CompareTime(&FileListItem::CreationTime) < 0;
 
 		case panel_sort::BY_ATIME:
-			if (const auto Result = CompareTime(&FileListItem::LastAccessTime))
-				return Result < 0;
-			break;
+			return CompareTime(&FileListItem::LastAccessTime) < 0;
 
 		case panel_sort::BY_CHTIME:
-			if (const auto Result = CompareTime(&FileListItem::ChangeTime))
-				return Result < 0;
-			break;
+			return CompareTime(&FileListItem::ChangeTime) < 0;
 
 		case panel_sort::BY_SIZE:
-			if (a.FileSize != b.FileSize)
-				return a.FileSize < b.FileSize;
-			break;
+			return a.FileSize < b.FileSize;
 
 		case panel_sort::BY_DIZ:
-			if (!a.DizText)
-			{
-				if (!b.DizText)
-					break;
-				else
-					return false;
-			}
-
-			if (!b.DizText)
-				return true;
-
-			if (const auto Result = string_sort::compare(a.DizText, b.DizText))
-				return Result < 0;
-			break;
+			return string_sort::compare(NullToEmpty(a.DizText), NullToEmpty(b.DizText)) < 0;
 
 		case panel_sort::BY_OWNER:
-			{
-				if (const auto Result = string_sort::compare(a.Owner(m_Owner), b.Owner(m_Owner)))
-					return Result < 0;
-			}
-			break;
+			return string_sort::compare(a.Owner(m_Owner), b.Owner(m_Owner)) < 0;
 
 		case panel_sort::BY_COMPRESSEDSIZE:
-			if (a.AllocationSize != b.AllocationSize)
-				return a.AllocationSize < b.AllocationSize;
-			break;
+			return a.AllocationSize < b.AllocationSize;
 
 		case panel_sort::BY_NUMLINKS:
-			{
-				const auto aValue = a.NumberOfLinks(m_Owner);
-				const auto bValue = b.NumberOfLinks(m_Owner);
-				if (aValue != bValue)
-					return aValue < bValue;
-			}
-			break;
+			return a.NumberOfLinks(m_Owner) < b.NumberOfLinks(m_Owner);
 
 		case panel_sort::BY_NUMSTREAMS:
-			{
-				const auto aValue = a.NumberOfStreams(m_Owner);
-				const auto bValue = b.NumberOfStreams(m_Owner);
-				if (aValue != bValue)
-					return aValue < bValue;
-			}
-			break;
+			return a.NumberOfStreams(m_Owner) < b.NumberOfStreams(m_Owner);
 
 		case panel_sort::BY_STREAMSSIZE:
-			{
-				const auto aValue = a.StreamsSize(m_Owner);
-				const auto bValue = b.StreamsSize(m_Owner);
-				if (aValue != bValue)
-					return aValue < bValue;
-			}
-			break;
+			return a.StreamsSize(m_Owner) < b.StreamsSize(m_Owner);
 
-		case panel_sort::BY_FULLNAME:
-			UseReverseNameSort = true;
-			if (const auto Result = string_sort::compare(a.FileName, b.FileName))
-				return Result < 0;
-			break;
-
-		case panel_sort::COUNT:
-			// this case makes no sense - just to suppress the warning
-			break;
-		}
-
-		if (Ext1.empty())
-			Ext1 = GetExt(a);
-
-		if (Ext2.empty())
-			Ext2 = GetExt(b);
-
-		const auto GetNameOnly = [](string_view const FullName, string_view const Ext)
-		{
-			return PointToName(FullName.substr(0, FullName.size() - Ext.size()));
-		};
-
-		int NameCmp = string_sort::compare(GetNameOnly(a.FileName, Ext1), GetNameOnly(b.FileName, Ext2));
-
-		if (!NameCmp)
-		{
-			NameCmp = string_sort::compare(Ext1, Ext2);
-		}
-
-		if (NameCmp)
-		{
-			if (RevertSorting && !UseReverseNameSort)
-			{
-				// We have swapped references earlier for convenience.
-				// However, we don't want to reverse fallback sorting by name, so it's time to "undo" that:
-				return NameCmp > 0;
-			}
-			return NameCmp < 0;
-		}
-		else
-		{
-			return a.Position < b.Position;
+		default:
+			assert(false);
+			UNREACHABLE;
 		}
 	}
 
@@ -811,7 +733,7 @@ void FileList::SortFileList(bool KeepPosition)
 
 		if (m_SortMode < panel_sort::COUNT)
 		{
-			std::sort(ALL_RANGE(m_ListData), list_less(this, hSortPlugin));
+			std::stable_sort(ALL_RANGE(m_ListData), list_less(this, hSortPlugin));
 		}
 		else
 		{
@@ -3396,33 +3318,15 @@ void FileList::ApplySortMode(panel_sort Mode)
 	Global->WindowManager->RefreshWindow();
 }
 
-static bool const InvertSortByDefault[]
-{
-	false, // UNSORTED,
-	false, // BY_NAME,
-	false, // BY_EXT,
-	true,  // BY_MTIME,
-	true,  // BY_CTIME,
-	true,  // BY_ATIME,
-	true,  // BY_SIZE,
-	false, // BY_DIZ,
-	false, // BY_OWNER,
-	true,  // BY_COMPRESSEDSIZE,
-	true,  // BY_NUMLINKS,
-	true,  // BY_NUMSTREAMS,
-	true,  // BY_STREAMSSIZE,
-	false, // BY_FULLNAME,
-	true,  // BY_CHTIME,
-};
-static_assert(std::size(InvertSortByDefault) == static_cast<size_t>(panel_sort::COUNT));
-
 void FileList::SetSortMode(panel_sort Mode, bool KeepOrder)
 {
 	if (Mode < panel_sort::COUNT)
 	{
 		if (!KeepOrder)
 		{
-			m_ReverseSortOrder = (m_SortMode == Mode && Global->Opt->ReverseSort)? !m_ReverseSortOrder : InvertSortByDefault[static_cast<size_t>(Mode)];
+			m_ReverseSortOrder = (m_SortMode == Mode && Global->Opt->ReverseSort)?
+				!m_ReverseSortOrder :
+				SortModes[static_cast<size_t>(Mode)].InvertByDefault;
 		}
 
 		ApplySortMode(Mode);
@@ -4499,27 +4403,14 @@ void FileList::EditFilter()
 
 void FileList::SelectSortMode()
 {
-	const menu_item InitSortMenuModes[]
+	std::vector<menu_item> SortMenu(std::size(SortModes));
+	for (const auto& i: SortModes)
 	{
-		{ msg(lng::MMenuSortByName),              LIF_SELECTED,    KEY_CTRLF3,      },
-		{ msg(lng::MMenuSortByExt),               0,               KEY_CTRLF4,      },
-		{ msg(lng::MMenuSortByWrite),             0,               KEY_CTRLF5,      },
-		{ msg(lng::MMenuSortBySize),              0,               KEY_CTRLF6,      },
-		{ msg(lng::MMenuUnsorted),                0,               KEY_CTRLF7,      },
-		{ msg(lng::MMenuSortByCreation),          0,               KEY_CTRLF8,      },
-		{ msg(lng::MMenuSortByAccess),            0,               KEY_CTRLF9,      },
-		{ msg(lng::MMenuSortByChange),            0,               0,               },
-		{ msg(lng::MMenuSortByDiz),               0,               KEY_CTRLF10,     },
-		{ msg(lng::MMenuSortByOwner),             0,               KEY_CTRLF11,     },
-		{ msg(lng::MMenuSortByAllocatedSize),     0,               0,               },
-		{ msg(lng::MMenuSortByNumLinks),          0,               0,               },
-		{ msg(lng::MMenuSortByNumStreams),        0,               0,               },
-		{ msg(lng::MMenuSortByStreamsSize),       0,               0,               },
-		{ msg(lng::MMenuSortByFullName),          0,               0,               },
-	};
-	static_assert(std::size(InitSortMenuModes) == static_cast<size_t>(panel_sort::COUNT));
-
-	std::vector SortMenu(ALL_CONST_RANGE(InitSortMenuModes));
+		auto& Item = SortMenu[i.MenuPosition];
+		Item.Name = msg(i.Label);
+		Item.Flags = i.MenuFlags;
+		Item.AccelKey = i.MenuKey;
+	}
 
 	static const menu_item MenuSeparator = { {}, LIF_SEPARATOR };
 
@@ -4548,45 +4439,25 @@ void FileList::SelectSortMode()
 		}
 	}
 
-	static const panel_sort SortModes[] =
+	const auto& SetCheckAndSelect = [&](size_t const Index)
 	{
-		panel_sort::BY_NAME,
-		panel_sort::BY_EXT,
-		panel_sort::BY_MTIME,
-		panel_sort::BY_SIZE,
-		panel_sort::UNSORTED,
-		panel_sort::BY_CTIME,
-		panel_sort::BY_ATIME,
-		panel_sort::BY_CHTIME,
-		panel_sort::BY_DIZ,
-		panel_sort::BY_OWNER,
-		panel_sort::BY_COMPRESSEDSIZE,
-		panel_sort::BY_NUMLINKS,
-		panel_sort::BY_NUMSTREAMS,
-		panel_sort::BY_STREAMSSIZE,
-		panel_sort::BY_FULLNAME,
+		auto& MenuItem = SortMenu[Index];
+		MenuItem.SetCustomCheck(m_ReverseSortOrder? L'-' : L'+');
+		MenuItem.SetSelect(true);
 	};
-	static_assert(std::size(SortModes) == static_cast<size_t>(panel_sort::COUNT));
 
+	if (m_SortMode < panel_sort::COUNT)
 	{
-		const auto ItemIterator = std::find(ALL_CONST_RANGE(SortModes), m_SortMode);
-		const wchar_t Check = m_ReverseSortOrder? L'-' : L'+';
-
-		if (ItemIterator != std::cend(SortModes))
+		SetCheckAndSelect(SortModes[static_cast<size_t>(m_SortMode)].MenuPosition);
+	}
+	else if (mpr)
+	{
+		for (size_t i=0; i < mpr->Count; i += 3)
 		{
-			SortMenu[ItemIterator - std::cbegin(SortModes)].SetCustomCheck(Check);
-			SortMenu[ItemIterator - std::cbegin(SortModes)].SetSelect(true);
-		}
-		else if (mpr)
-		{
-			for (size_t i=0; i < mpr->Count; i += 3)
+			if (static_cast<int>(mpr->Values[i].Double) == static_cast<int>(m_SortMode))
 			{
-				if (static_cast<int>(mpr->Values[i].Double) == static_cast<int>(m_SortMode))
-				{
-					SortMenu[std::size(SortModes) + 1 + i/3].SetCustomCheck(Check);
-					SortMenu[std::size(SortModes) + 1 + i/3].SetSelect(true);
-					break;
-				}
+				SetCheckAndSelect(std::size(SortModes) + 1 + i / 3);
+				break;
 			}
 		}
 	}
@@ -4673,7 +4544,8 @@ void FileList::SelectSortMode()
 			KeepOrder = true;
 		}
 
-		SetSortMode(SortModes[SortCode], KeepOrder);
+		const auto SortMode = static_cast<panel_sort>(std::find_if(CONST_RANGE(SortModes, i){ return i.MenuPosition == SortCode; }) - SortModes);
+		SetSortMode(SortMode, KeepOrder);
 	}
 	// custom sort modes
 	else if (static_cast<size_t>(SortCode) >= std::size(SortModes) + 1 && static_cast<size_t>(SortCode) < std::size(SortModes) + 1 + extra - 1)
@@ -6651,14 +6523,13 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 
 				static_cast<os::fs::find_data&>(NewItem) = fdata;
 
-				NewItem.Position = m_ListData.size();
-				NewItem.SortGroup = DEFAULT_SORT_GROUP;
-
-				if (!(fdata.Attributes & FILE_ATTRIBUTE_DIRECTORY))
+			if (!(fdata.Attributes & FILE_ATTRIBUTE_DIRECTORY))
 				{
 					TotalFileSize += NewItem.FileSize;
 				}
 
+				NewItem.SortGroup = DEFAULT_SORT_GROUP;
+				NewItem.Position = m_ListData.size();
 				m_ListData.emplace_back(std::move(NewItem));
 			}
 
@@ -6723,7 +6594,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	if ((Global->Opt->ShowDotsInRoot || !bCurDirRoot) || (NetRoot && Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Network.Id))) // NetWork Plugin
 	{
 		FileListItem NewItem;
-		FillParentPoint(NewItem, m_ListData.size() + 1);
+		FillParentPoint(NewItem);
 
 		os::chrono::time_point TwoDotsTimes[4];
 		// BUGBUG check result
@@ -6733,7 +6604,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 		NewItem.LastAccessTime = TwoDotsTimes[1];
 		NewItem.LastWriteTime = TwoDotsTimes[2];
 		NewItem.ChangeTime = TwoDotsTimes[3];
-
+		NewItem.Position = m_ListData.size();
 		m_ListData.emplace_back(std::move(NewItem));
 	}
 
@@ -6749,7 +6620,6 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 		if (Global->CtrlObject->Plugins->GetVirtualFindData(hAnotherPlugin, PanelData, strPath))
 		{
 			const auto OldSize = m_ListData.size();
-			auto Position = OldSize - 1;
 			m_ListData.reserve(m_ListData.size() + PanelData.size());
 
 			OpenPanelInfo AnotherPanelInfo{};
@@ -6760,11 +6630,10 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 			for (const auto& i: PanelData)
 			{
 				FileListItem Item{ i };
-				Item.Position = Position++;
 				Item.PrevSelected = Item.Selected = false;
 				Item.ShowFolderSize = 0;
 				Item.SortGroup = Global->CtrlObject->HiFiles->GetGroup(Item, this);
-
+				Item.Position = m_ListData.size();
 				m_ListData.emplace_back(std::move(Item));
 
 				if (!ParentPointSeen && IsParentDirectory(i))
@@ -6892,14 +6761,20 @@ void FileList::StopFSWatcher()
 	FSWatcher.Release();
 }
 
-static struct search_list_less
+struct hash_less
 {
-	bool operator()(const FileListItem& a, const FileListItem& b) const
+	struct arg
 	{
-		return a.FileName < b.FileName;
+		arg(unsigned long long const Value): m_Value(Value) {}
+		arg(FileListItem const& Value): m_Value(Value.FileId) {}
+		unsigned long long m_Value;
+	};
+
+	bool operator()(arg const a, arg const b) const
+	{
+		return a.m_Value < b.m_Value;
 	}
-}
-SearchListLess;
+};
 
 void FileList::MoveSelection(list_data& From, list_data& To)
 {
@@ -6909,27 +6784,54 @@ void FileList::MoveSelection(list_data& From, list_data& To)
 	CacheSelIndex=-1;
 	CacheSelClearIndex=-1;
 
-	std::sort(From.begin(), From.end(), SearchListLess);
+	// Repurpose some no longer used fields to turn From into a flat map & intrusively store its order
+	for (auto& i: From)
+	{
+		i.FileId = make_hash(i.FileName);
+		i.Position = &i - From.data();
+	}
+
+	std::sort(From.begin(), From.end(), hash_less{});
+
+	std::vector<size_t> OldPositions;
+	OldPositions.reserve(To.size());
+
+	const auto npos = size_t(-1);
 
 	for (auto& i: To)
 	{
-		const auto OldItem = std::lower_bound(ALL_CONST_RANGE(From), i, SearchListLess);
-		if (OldItem != From.end())
+		const auto EqualRange = std::equal_range(ALL_CONST_RANGE(From), make_hash(i.FileName), hash_less{});
+		const auto OldItemIterator = std::find_if(EqualRange.first, EqualRange.second, [&](FileListItem const& Item){ return Item.FileName == i.FileName;});
+		if (OldItemIterator == From.cend())
 		{
-			if (OldItem->FileName == i.FileName)
-			{
-				if (OldItem->ShowFolderSize)
-				{
-					i.ShowFolderSize = 2;
-					i.FileSize = OldItem->FileSize;
-					i.AllocationSize = OldItem->AllocationSize;
-				}
-
-				Select(i, OldItem->Selected);
-				i.PrevSelected = OldItem->PrevSelected;
-			}
+			OldPositions.emplace_back(npos);
+			continue;
 		}
+
+		OldPositions.emplace_back(OldItemIterator->Position);
+
+		if (OldItemIterator->ShowFolderSize)
+		{
+			i.ShowFolderSize = 2;
+			i.FileSize = OldItemIterator->FileSize;
+			i.AllocationSize = OldItemIterator->AllocationSize;
+		}
+
+		Select(i, OldItemIterator->Selected);
+		i.PrevSelected = OldItemIterator->PrevSelected;
 	}
+
+	std::sort(ALL_RANGE(To), [&](FileListItem const& a, FileListItem const& b)
+	{
+		const auto OldPosA = OldPositions[a.Position];
+		const auto OldPosB = OldPositions[b.Position];
+
+		return OldPosA != npos && OldPosB != npos?
+			&From[OldPosA] < &From[OldPosB] :
+			a.Position < b.Position;
+	});
+
+	From.clear();
 }
 
 void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
@@ -7051,7 +6953,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 	if (m_CachedOpenPanelInfo.Flags & OPIF_ADDDOTS)
 	{
 		FileListItem NewItem;
-		FillParentPoint(NewItem, m_ListData.size() + 1);
+		FillParentPoint(NewItem);
 
 		if (m_CachedOpenPanelInfo.HostFile && *m_CachedOpenPanelInfo.HostFile)
 		{
@@ -7065,11 +6967,11 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 				NewItem.ChangeTime = FindData.ChangeTime;
 			}
 		}
+		NewItem.Position = m_ListData.size();
 		m_ListData.emplace_back(std::move(NewItem));
 		ParentPoint.TryToFind = false;
 	}
 
-	size_t Position = 0;
 	for (const auto& PanelItem: PanelData)
 	{
 		if (UseFilter && !(m_CachedOpenPanelInfo.Flags & OPIF_DISABLEFILTER))
@@ -7087,17 +6989,16 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 			continue;
 
 		FileListItem NewItem(PanelItem);
-		NewItem.Position = Position++;
 
 		NewItem.SortGroup = (m_CachedOpenPanelInfo.Flags & OPIF_DISABLESORTGROUPS)? DEFAULT_SORT_GROUP : Global->CtrlObject->HiFiles->GetGroup(NewItem, this);
-
+		NewItem.Position = m_ListData.size();
 		m_ListData.emplace_back(std::move(NewItem));
 
 		if (ParentPoint.TryToFind && !ParentPoint.Item && IsParentDirectory(PanelItem))
 		{
 			// We reserve capacity so no reallocation will happen and pointer will stay valid.
 			ParentPoint.Item = &m_ListData.back();
-			FillParentPoint(*ParentPoint.Item, 0);
+			FillParentPoint(*ParentPoint.Item);
 		}
 		else
 		{
@@ -7127,7 +7028,6 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 			strGetSel = OldData[GetSelPosition].FileName;
 
 		MoveSelection(OldData, m_ListData);
-		OldData.clear();
 	}
 
 	if (!KeepSelection && PrevSelFileCount>0)
@@ -7249,12 +7149,11 @@ void FileList::ReadSortGroups(bool UpdateFilterCurrentTime)
 }
 
 // занести предопределенные данные для каталога ".."
-void FileList::FillParentPoint(FileListItem& Item, size_t CurFilePos)
+void FileList::FillParentPoint(FileListItem& Item)
 {
 	Item.Attributes = FILE_ATTRIBUTE_DIRECTORY;
 	Item.FileName = L".."sv;
 	Item.SetAlternateFileName(Item.FileName);
-	Item.Position = CurFilePos;
 	Item.UserFlags = PPIF_RESERVED;
 }
 
@@ -7404,30 +7303,11 @@ void FileList::ShowFileList(bool Fast)
 
 		if (m_SortMode < panel_sort::COUNT)
 		{
-			static const std::pair<panel_sort, lng> ModeNames[] =
-			{
-				{panel_sort::UNSORTED,                lng::MMenuUnsorted},
-				{panel_sort::BY_NAME,                 lng::MMenuSortByName},
-				{panel_sort::BY_EXT,                  lng::MMenuSortByExt},
-				{panel_sort::BY_MTIME,                lng::MMenuSortByWrite},
-				{panel_sort::BY_CTIME,                lng::MMenuSortByCreation},
-				{panel_sort::BY_ATIME,                lng::MMenuSortByAccess},
-				{panel_sort::BY_CHTIME,               lng::MMenuSortByChange},
-				{panel_sort::BY_SIZE,                 lng::MMenuSortBySize},
-				{panel_sort::BY_DIZ,                  lng::MMenuSortByDiz},
-				{panel_sort::BY_OWNER,                lng::MMenuSortByOwner},
-				{panel_sort::BY_COMPRESSEDSIZE,       lng::MMenuSortByAllocatedSize},
-				{panel_sort::BY_NUMLINKS,             lng::MMenuSortByNumLinks},
-				{panel_sort::BY_NUMSTREAMS,           lng::MMenuSortByNumStreams},
-				{panel_sort::BY_STREAMSSIZE,          lng::MMenuSortByStreamsSize},
-				{panel_sort::BY_FULLNAME,             lng::MMenuSortByFullName},
-			};
-			static_assert(std::size(ModeNames) == static_cast<size_t>(panel_sort::COUNT));
-
-			const auto& CurrentModeName = msg(std::find_if(CONST_RANGE(ModeNames, i) { return i.first == m_SortMode; })->second);
+			const auto& CurrenModeData = SortModes[static_cast<size_t>(m_SortMode)];
+			const auto& CurrentModeName = msg(CurrenModeData.Label);
 			// Owerflow from npos to 0 is ok - pick the first character if & isn't there.
 			const auto Char = CurrentModeName[CurrentModeName.find(L'&') + 1];
-			const auto UseReverseIndicator = Global->Opt->ReverseSortCharCompat && InvertSortByDefault[static_cast<size_t>(m_SortMode)]? !m_ReverseSortOrder: m_ReverseSortOrder;
+			const auto UseReverseIndicator = Global->Opt->ReverseSortCharCompat && CurrenModeData.InvertByDefault? !m_ReverseSortOrder: m_ReverseSortOrder;
 			Indicator = UseReverseIndicator? upper(Char) : lower(Char);
 		}
 		else

@@ -1,3 +1,25 @@
+drkns 02.07.2020 01:07:47 +0100 - build 5630
+
+1. Experimental:
+   - File panels use stable sorting.
+   - Sorting criteria don't fallback to file names.
+   What does it mean:
+   - Panel sorting preserves the current order of equivalent elements.
+   What does it mean:
+   - Various criteria can be applied sequentially.
+     Example:
+     Ctrl+F5, Ctrl+F6 - sort files by size, files of the same size - by modification time.
+
+2. Experimental:
+   - "Name" criterion renamed to "Only name".
+   - "Full name" criterion renamed to "Name".
+   No difference in normal panels, but should work faster.
+   In plugin panels this is more sensible when full names are displayed.
+
+3. Folders re-reading optimisation.
+
+4. A few minor changes.
+
 drkns 29.06.2020 20:22:06 +0100 - build 5629
 
 1. Ejecting a CD with Panel.RememberLogicalDrives enabled had funny effects.

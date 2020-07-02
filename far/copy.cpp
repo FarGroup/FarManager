@@ -662,6 +662,7 @@ ShellCopy::ShellCopy(
 		CopyDlg[ID_SC_COMBOTEXT].strData=msg(lng::MLinkType);
 		CopyDlg[ID_SC_COPYSYMLINK].Selected=0;
 		CopyDlg[ID_SC_COPYSYMLINK].Flags|=DIF_DISABLE|DIF_HIDDEN;
+		CopyDlg[IS_SC_PRESERVETIMESTAMPS].Flags |= DIF_DISABLE | DIF_HIDDEN;
 	}
 	else
 	{

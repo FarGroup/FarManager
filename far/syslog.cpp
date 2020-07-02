@@ -543,7 +543,7 @@ void PluginsStackItem_Dump(const wchar_t *Title,const PluginsListItem *ListItems
 			DEF_SORTMODE_(BY_SIZE),   DEF_SORTMODE_(BY_DIZ),   DEF_SORTMODE_(BY_OWNER),
 			DEF_SORTMODE_(BY_COMPRESSEDSIZE),DEF_SORTMODE_(BY_NUMLINKS),
 			DEF_SORTMODE_(BY_NUMSTREAMS),DEF_SORTMODE_(BY_STREAMSSIZE),
-			DEF_SORTMODE_(BY_FULLNAME)
+			DEF_SORTMODE_(BY_NAMEONLY)
 		};
 		static_assert(std::size(__SORT) == static_cast<size_t>(panel_sort::COUNT));
 

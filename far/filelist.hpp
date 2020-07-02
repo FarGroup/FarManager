@@ -304,7 +304,7 @@ private:
 	};
 	void MoveSelection(direction Direction);
 
-	static void FillParentPoint(FileListItem& Item, size_t CurFilePos);
+	static void FillParentPoint(FileListItem& Item);
 
 	std::unique_ptr<FileFilter> m_Filter;
 	DizList Diz;
