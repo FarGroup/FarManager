@@ -1,3 +1,11 @@
+drkns 03.07.2020 02:42:42 +0100 - build 5631
+
+1. Continuation and improving of 5630.1:
+   - Multiple sorting criteria can be defined permanently: Ctrl+F12, F4 on a mode, Ins/Del/CtrlUp/CtrlDown/CtrlR.
+   - Default criteria replicate the previous behaviour.
+
+2. Fixed old and new bugs in preserving selection on a panel update.
+
 drkns 02.07.2020 01:07:47 +0100 - build 5630
 
 1. Experimental:

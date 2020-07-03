@@ -91,7 +91,7 @@ public:
 
 	template<typename value_type, typename default_type = value_type>
 	[[nodiscard]]
-	value_type GetValue(string_view Key, string_view const Name, const default_type& Default = {})
+	value_type GetValue(string_view Key, string_view const Name, const default_type& Default = {}) const
 	{
 		value_type Value;
 		return GetValue(Key, Name, Value)? Value : value_type{ Default };

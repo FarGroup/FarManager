@@ -142,6 +142,7 @@ static const auto
 	NKeyPanelLayout = L"Panel.Layout"sv,
 	NKeyPanelTree = L"Panel.Tree"sv,
 	NKeyPanelInfo = L"Panel.Info"sv,
+	NKeyPanelSortLayers = L"Panel.SortLayers"sv,
 	NKeyLayout = L"Layout"sv,
 	NKeyDescriptions = L"Descriptions"sv,
 	NKeyKeyMacros = L"Macros"sv,
@@ -2153,6 +2154,54 @@ void Options::SetDriveMenuHotkeys()
 	ConfigProvider().GeneralCfg()->SetValue(L"Interface"sv, L"InitDriveMenuHotkeys"sv, false);
 }
 
+void Options::ReadSortLayers()
+{
+	PanelSortLayers.resize(static_cast<size_t>(panel_sort::COUNT));
+
+	for (auto& [Item, i]: enumerate(PanelSortLayers))
+	{
+		Item.emplace_back(i + 1);
+
+		string Layers;
+		if (ConfigProvider().GeneralCfg()->GetValue(NKeyPanelSortLayers, str(i), Layers))
+		{
+			for (const auto& Str: enum_tokens(Layers, L" "sv))
+			{
+				int SortLayerId;
+				if (
+					!from_string(Str, SortLayerId) ||
+					!SortLayerId ||
+					!in_range(-static_cast<int>(panel_sort::COUNT), SortLayerId, static_cast<int>(panel_sort::COUNT)) ||
+					contains(Item, SortLayerId)
+					)
+				{
+					// TODO: log
+					continue;
+				}
+
+				Item.emplace_back(SortLayerId);
+			}
+		}
+		else
+		{
+			const auto& DefaultLayers = default_sort_layers(static_cast<panel_sort>(i));
+			Item.insert(Item.end(), ALL_CONST_RANGE(DefaultLayers));
+		}
+	}
+}
+
+void Options::SaveSortLayers(bool const Always)
+{
+	auto& Cfg = *ConfigProvider().GeneralCfg();
+
+	for (const auto& [Item, i]: enumerate(PanelSortLayers))
+	{
+		const auto NewLayers = join(select(span(Item).subspan(1), [](int const SortLayerId){ return str(SortLayerId); }), L" "sv);
+		if ( Always || (NewLayers != Cfg.GetValue<string>(NKeyPanelSortLayers, str(i))))
+			Cfg.SetValue(NKeyPanelSortLayers, str(i), NewLayers);
+	}
+}
+
 void Options::Load(overrides&& Overrides)
 {
 	// KnownModulesIDs::GuidOption::Default pointer is used in the static config structure, so it MUST be initialized before calling InitConfig()
@@ -2258,6 +2307,8 @@ void Options::Load(overrides&& Overrides)
 
 	SetDriveMenuHotkeys();
 
+	ReadSortLayers();
+
 /* *************************************************** </ПОСТПРОЦЕССЫ> */
 
 	// we assume that any changes after this point will be made by the user
@@ -2324,6 +2375,7 @@ void Options::Save(bool Manual)
 
 	FileFilter::Save(Manual);
 	SavePanelModes(Manual);
+	SaveSortLayers(Manual);
 	Global->CtrlObject->Macro.SaveMacros(Manual);
 }
 

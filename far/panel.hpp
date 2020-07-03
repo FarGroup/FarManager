@@ -115,7 +115,7 @@ enum class panel_mode
 	PLUGIN_PANEL
 };
 
-enum class panel_sort
+enum class panel_sort: int
 {
 	UNSORTED,
 	BY_NAME,
@@ -135,6 +135,8 @@ enum class panel_sort
 
 	COUNT
 };
+
+span<int const> default_sort_layers(panel_sort SortMode);
 
 enum sort_order
 {

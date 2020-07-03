@@ -1012,6 +1012,8 @@ public:
 	BoolOption WindowModeStickyX;
 	BoolOption WindowModeStickyY;
 
+	std::vector<std::vector<int>> PanelSortLayers;
+
 	const std::vector<PanelViewSettings>& ViewSettings;
 
 	class farconfig;
@@ -1045,6 +1047,8 @@ private:
 	void ReadPanelModes();
 	void SavePanelModes(bool always);
 	void SetDriveMenuHotkeys();
+	void ReadSortLayers();
+	void SaveSortLayers(bool Always);
 
 	std::vector<farconfig> m_Configs;
 	std::vector<PanelViewSettings> m_ViewSettings;
