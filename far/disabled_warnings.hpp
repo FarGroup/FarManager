@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma warning(disable: 4996) // The compiler encountered a deprecated declaration
 #pragma warning(disable: 4582) // 'class': constructor is not implicitly called
 #pragma warning(disable: 4583) // 'class': destructor is not implicitly called
+#pragma warning(disable: 5219) // implicit conversion from 'type1' to 'type2', possible loss of data
 #else
 // these in the rest of the code as well:
 #pragma warning(disable: 4061) // enumerator 'identifier' in switch of enum 'enumeration' is not explicitly handled by a case label
@@ -80,6 +81,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma warning(disable: 4746) // volatile access of '<expression>' is subject to /volatile:[iso|ms] setting; consider using __iso_volatile_load/store intrinsic functions
 #pragma warning(disable: 4770) // partially validated enum 'name' used as index
 #pragma warning(disable: 4738) // storing 32-bit float result in memory, possible loss of performance
+#pragma warning(disable: 4686) //'user-defined type' : possible change in behavior, change in UDT return calling convention
 #pragma warning(disable: 4814) // in C++14 'constexpr' will not imply 'const'; consider explicitly specifying 'const'
 #pragma warning(disable: 4820) // 'bytes' bytes padding added after construct 'member_name'
 #pragma warning(disable: 4868) // file(line_number)' compiler may not enforce left-to-right evaluation order in braced initializer list

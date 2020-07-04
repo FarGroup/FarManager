@@ -51,6 +51,8 @@ namespace ucd
 {
 WARNING_PUSH(2)
 
+WARNING_DISABLE_MSC(5219) // implicit conversion from 'type1' to 'type2', possible loss of data
+
 WARNING_DISABLE_GCC("-Wcast-qual")
 WARNING_DISABLE_GCC("-Wdouble-promotion")
 WARNING_DISABLE_GCC("-Wnon-virtual-dtor")

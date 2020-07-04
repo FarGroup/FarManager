@@ -326,23 +326,38 @@ bool IsCaseMixed(const string_view Str)
 /* FileSizeToStr()
    Форматирование размера файла в удобочитаемый вид.
 */
-enum
+
+static const unsigned long long BytesInUnit[][2]
 {
-	UNIT_COUNT = 7, // byte, kilobyte, megabyte, gigabyte, terabyte, petabyte, exabyte.
+	{0x0000000000000001ull,                   1ull}, // B
+	{0x0000000000000400ull,                1000ull}, // KiB / KB
+	{0x0000000000100000ull,             1000000ull}, // MiB / MB
+	{0x0000000040000000ull,          1000000000ull}, // GiB / GB
+	{0x0000010000000000ull,       1000000000000ull}, // TiB / GB
+	{0x0004000000000000ull,    1000000000000000ull}, // PiB / GB
+	{0x1000000000000000ull, 1000000000000000000ull}, // EiB / GB
 };
+
+static const unsigned long long PrecisionMultiplier[]
+{
+	  1ull,
+	 10ull,
+	100ull,
+};
+
 
 static string& UnitStr(size_t Unit, bool Binary)
 {
-	static string Data[UNIT_COUNT][2];
-	return Data[Unit][Binary? 1 : 0];
+	static string Data[std::size(BytesInUnit)][2];
+	return Data[Unit][Binary? 0 : 1];
 }
 
 void PrepareUnitStr()
 {
-	for (int i=0; i<UNIT_COUNT; i++)
+	for (size_t i = 0; i != std::size(BytesInUnit); ++i)
 	{
-		UnitStr(i, false) = lower(msg(lng::MListBytes + i));
 		UnitStr(i, true) = upper(msg(lng::MListBytes + i));
+		UnitStr(i, false) = lower(msg(lng::MListBytes + i));
 	}
 }
 
@@ -365,8 +380,8 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 	const size_t MinUnit = (ViewFlags & COLFLAGS_MULTIPLIER_MASK & ~COLFLAGS_USE_MULTIPLIER) + 1;
 
 	constexpr std::pair
-		BinaryDivider(1024, 10), // 10 == log2(1024)
-		DecimalDivider(1000, 3); // 3 == log10(1000)
+		BinaryDivider(0, 10), // 10 == log2(1024)
+		DecimalDivider(1, 3); // 3 == log10(1000)
 
 	const auto& Divider = ViewFlags & COLFLAGS_THOUSAND? DecimalDivider : BinaryDivider;
 
@@ -407,31 +422,28 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 		}
 		else
 		{
-			const auto SizeInUnits = FileSize / std::pow(Divider.first, UnitIndex);
-
-			double Parts[2];
-			Parts[1] = std::modf(SizeInUnits, &Parts[0]);
-
-			auto Integral = static_cast<int>(Parts[0]);
+			const auto Denominator = BytesInUnit[UnitIndex][Divider.first];
+			const auto RawIntegral = FileSize / Denominator;
+			const auto RawFractional = static_cast<double>(FileSize % Denominator) / static_cast<double>(Denominator);
 
 			const auto FixedPrecision = 0; // 0 for floating, else fixed. TODO: option?
 
-			if (const auto NumDigits = FixedPrecision? FixedPrecision : Integral < 10? 2 : Integral < 100? 1 : 0)
+			if (const auto NumDigits = FixedPrecision? std::min(FixedPrecision, static_cast<int>(std::size(PrecisionMultiplier) - 1)) : RawIntegral < 10? 2 : RawIntegral < 100? 1 : 0)
 			{
 				const auto [IntegralPart, FractionalPart] = [&]
 				{
-					const auto Multiplier = static_cast<unsigned long long>(std::pow(10, NumDigits));
-					const auto Value = Parts[1] * Multiplier;
+					const auto Multiplier = PrecisionMultiplier[NumDigits];
+					const auto FractionalDigits = RawFractional * static_cast<double>(Multiplier);
 					const auto UseRound = true;
-					const auto Fractional = static_cast<unsigned long long>(UseRound? std::round(Value) : Value);
-					return Fractional == Multiplier? std::pair(Integral + 1, 0ull) : std::pair(Integral, Fractional);
+					const auto RoundedFractionalDigits = static_cast<unsigned>(UseRound? std::round(FractionalDigits) : FractionalDigits);
+					return RoundedFractionalDigits == Multiplier? std::pair(RawIntegral + 1, 0u) : std::pair(RawIntegral, RoundedFractionalDigits);
 				}();
 
 				Str = concat(str(IntegralPart), locale.decimal_separator(), pad_left(str(FractionalPart), NumDigits, L'0'));
 			}
 			else
 			{
-				Str = str(static_cast<int>(std::round(SizeInUnits)));
+				Str = str(static_cast<unsigned long long>(std::round(static_cast<double>(RawIntegral) + RawFractional)));
 			}
 		}
 
@@ -452,7 +464,12 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 
 	while ((UseUnit && UnitIndex < MinUnit) || (Width && Str.size() > MaxNumberWidth))
 	{
-		if (const unsigned long long SizeInUnits = std::round(FileSize / std::pow(Divider.first, UnitIndex + 1)))
+		const auto Denominator = BytesInUnit[UnitIndex + 1][Divider.first];
+		const auto IntegralPart = FileSize / Denominator;
+		const auto FractionalPart = static_cast<double>(FileSize % Denominator) / static_cast<double>(Denominator);
+		const auto SizeInUnits = IntegralPart + static_cast<unsigned long long>(std::round(FractionalPart));
+
+		if (SizeInUnits)
 		{
 			++UnitIndex;
 			Str = ToStr(SizeInUnits);

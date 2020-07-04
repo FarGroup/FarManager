@@ -59,7 +59,7 @@ Wow
 	&wow::e_revert,
 };
 
-static_assert(std::is_pod_v<wow>);
+static_assert(std::is_trivial_v<wow>);
 
 
 #if COMPILER(GCC) || COMPILER(CLANG)

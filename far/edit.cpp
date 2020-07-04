@@ -2063,7 +2063,7 @@ void Edit::AddColor(const ColorItem& col)
 
 void Edit::DeleteColor(delete_color_condition const Condition)
 {
-	erase_if(ColorList, Condition);
+	std::erase_if(ColorList, Condition);
 }
 
 bool Edit::GetColor(ColorItem& col, size_t Item) const

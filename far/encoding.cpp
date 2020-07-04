@@ -1238,6 +1238,19 @@ bool encoding::is_valid_utf8(std::string_view const Str, bool const PartialConte
 
 #include "testing.hpp"
 
+// http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0482r6.html#design_compat
+// "This proposal does not specify any backward compatibility features other than to retain interfaces that it deprecates.
+// The author believes such features are necessary, but that a single set of such features would unnecessarily compromise the goals of this proposal.
+// Rather, the expectation is that implementations will provide options to enable more fine grained compatibility features."
+
+// *facepalm*
+
+template<typename char_type, REQUIRES(sizeof(char_type) == 1)>
+std::string_view sane_sv(std::basic_string_view<char_type> const Str)
+{
+	return { static_cast<const char*>(static_cast<const void*>(Str.data())), Str.size() };
+}
+
 TEST_CASE("encoding.utf8")
 {
 WARNING_PUSH()
@@ -1251,27 +1264,27 @@ WARNING_DISABLE_CLANG("-Wc++2a-compat")
 	}
 	Tests[]
 	{
-		{ true, false, u8R"(
+		{ true, false, sane_sv(u8R"(
 ᚠᛇᚻ᛫ᛒᛦᚦ᛫ᚠᚱᚩᚠᚢᚱ᛫ᚠᛁᚱᚪ᛫ᚷᛖᚻᚹᛦᛚᚳᚢᛗ
 ᛋᚳᛖᚪᛚ᛫ᚦᛖᚪᚻ᛫ᛗᚪᚾᚾᚪ᛫ᚷᛖᚻᚹᛦᛚᚳ᛫ᛗᛁᚳᛚᚢᚾ᛫ᚻᛦᛏ᛫ᛞᚫᛚᚪᚾ
 ᚷᛁᚠ᛫ᚻᛖ᛫ᚹᛁᛚᛖ᛫ᚠᚩᚱ᛫ᛞᚱᛁᚻᛏᚾᛖ᛫ᛞᚩᛗᛖᛋ᛫ᚻᛚᛇᛏᚪᚾ᛬
-)"sv },
+)"sv) },
 
-		{ true, false, u8R"(
+		{ true, false, sane_sv(u8R"(
 𠜎 𠜱 𠝹 𠱓 𠱸 𠲖 𠳏 𠳕 𠴕 𠵼 𠵿 𠸎
 𠸏 𠹷 𠺝 𠺢 𠻗 𠻹 𠻺 𠼭 𠼮 𠽌 𠾴 𠾼
 𠿪 𡁜 𡁯 𡁵 𡁶 𡁻 𡃁 𡃉 𡇙 𢃇 𢞵 𢫕
 𢭃 𢯊 𢱑 𢱕 𢳂 𢴈 𢵌 𢵧 𢺳 𣲷 𤓓 𤶸
 𤷪 𥄫 𦉘 𦟌 𦧲 𦧺 𧨾 𨅝 𨈇 𨋢 𨳊 𨳍
-)"sv },
+)"sv) },
 
-		{ true, true, u8R"(
+		{ true, true, sane_sv(u8R"(
 Lorem ipsum dolor sit amet,
 consectetur adipiscing elit,
 sed do eiusmod tempor incididunt
 ut labore et dolore magna aliqua.
-)"sv },
-		{ true,  false, u8"φ"sv },
+)"sv) },
+		{ true,  false, sane_sv(u8"φ"sv) },
 		{ false, false, "\x80"sv },
 		{ false, false, "\xFF"sv },
 		{ false, false, "\xC0"sv },

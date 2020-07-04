@@ -328,7 +328,7 @@ public:
 
 	void remove(string_view const Name)
 	{
-		erase_if(m_Names, [&](const auto& i)
+		std::erase_if(m_Names, [&](const auto& i)
 		{
 			return starts_with_icase(i, Name) && (i.size() == Name.size() || (i.size() > Name.size() && IsSlash(i[Name.size()])));
 		});

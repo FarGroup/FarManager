@@ -411,7 +411,7 @@ bool TVar::operator<(const TVar& rhs) const
 			return asInteger() < rhs.asInteger();
 
 		case Type::Double:
-			return asInteger() < rhs.asDouble();
+			return asDouble() < rhs.asDouble();
 
 		case Type::String:
 			switch (checkTypeString(rhs.asString()))
@@ -423,7 +423,7 @@ bool TVar::operator<(const TVar& rhs) const
 				return asInteger() < rhs.asInteger();
 
 			case tsFloat:
-				return asInteger() < rhs.asDouble();
+				return asDouble() < rhs.asDouble();
 			}
 			break;
 		}
@@ -434,8 +434,6 @@ bool TVar::operator<(const TVar& rhs) const
 		{
 		case Type::Unknown:
 		case Type::Integer:
-			return asDouble() < rhs.asInteger();
-
 		case Type::Double:
 			return asDouble() < rhs.asDouble();
 
@@ -446,8 +444,6 @@ bool TVar::operator<(const TVar& rhs) const
 				return string_sort::less(asString(), rhs.asString());
 
 			case tsInt:
-				return asDouble() < rhs.asInteger();
-
 			case tsFloat:
 				return asDouble() < rhs.asDouble();
 			}

@@ -111,7 +111,7 @@ static auto read_value_from_big_endian(unsigned char const (&Src)[N])
 template<typename T>
 static auto& edit_as(void* const Buffer)
 {
-	static_assert(std::is_pod_v<T>);
+	static_assert(std::is_trivially_copyable_v<T>);
 
 	return *static_cast<T*>(Buffer);
 }
@@ -119,7 +119,7 @@ static auto& edit_as(void* const Buffer)
 template<typename T>
 static auto view_as_if(span<unsigned char const> const Buffer)
 {
-	static_assert(std::is_pod_v<T>);
+	static_assert(std::is_trivially_copyable_v<T>);
 
 	return Buffer.size() >= sizeof(T)? view_as<T const*>(Buffer.data()) : nullptr;
 }

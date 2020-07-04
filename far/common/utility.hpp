@@ -58,7 +58,7 @@ void reserve_exp_noshrink(container& Container, size_t Capacity)
 
 	// For vector reserve typically allocates exactly the requested amount instead of exponential growth.
 	// This can be really bad if called in a loop.
-	Capacity = std::max(static_cast<size_t>(CurrentCapacity * 1.5), Capacity);
+	Capacity = std::max(CurrentCapacity + CurrentCapacity / 2, Capacity);
 
 	Container.reserve(Capacity);
 }
@@ -240,23 +240,6 @@ struct [[nodiscard]] overload: args...
 
 template<typename... args> overload(args&&...) -> overload<args...>;
 
-template<typename callable, typename variant>
-constexpr decltype(auto) visit_if(callable&& Callable, variant&& Variant)
-{
-	{
-		using arg = typename function_traits<callable>::template arg<0>;
-		using get_arg = decltype(std::get<std::decay_t<arg>>(Variant));
-		// This will fail if callable's arg type is not compatible with the variant:
-		using try_call [[maybe_unused]] = decltype(Callable(std::declval<get_arg>()));
-	}
-
-	return std::visit(overload
-	{
-		FWD(Callable),
-		[](const auto&...){}
-	},
-	FWD(Variant));
-}
 
 namespace detail
 {
@@ -279,7 +262,7 @@ void copy_memory(const src_type* Source, dst_type* Destination, size_t const Siz
 template<typename T>
 decltype(auto) view_as(void const* const BaseAddress, size_t const Offset = 0)
 {
-	static_assert(std::is_pod_v<T>);
+	static_assert(std::is_trivially_copyable_v<T>);
 
 	const auto Ptr = static_cast<void const*>(static_cast<char const*>(BaseAddress) + Offset);
 

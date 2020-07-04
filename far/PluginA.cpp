@@ -5068,7 +5068,8 @@ private:
 			break;
 
 		case OPEN_FROMMACRO:
-			OpenFromA = oldfar::OPEN_FROMMACRO | Global->CtrlObject->Macro.GetArea();
+			// BUGBUG this is not how it worked in 1.7
+			OpenFromA = static_cast<int>(oldfar::OPEN_FROMMACRO) | static_cast<int>(Global->CtrlObject->Macro.GetArea());
 			Buffer.reset(UnicodeToAnsi(reinterpret_cast<OpenMacroInfo*>(Info->Data)->Count ? reinterpret_cast<OpenMacroInfo*>(Info->Data)->Values[0].String : L""));
 			Ptr = reinterpret_cast<intptr_t>(Buffer.get());
 			break;

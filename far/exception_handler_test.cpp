@@ -207,7 +207,7 @@ namespace tests
 
 		// A "side effect" to prevent deletion of this function call due to C4718.
 		// After the recursive call to prevent the tail call optimisation.
-		*Buffer = 0;
+		Sleep(Buffer[0]);
 	}
 
 	WARNING_POP()

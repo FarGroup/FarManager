@@ -88,7 +88,7 @@ namespace os::memory
 		[[nodiscard]]
 		ptr copy(const T& Object)
 		{
-			static_assert(std::is_pod_v<T>);
+			static_assert(std::is_trivially_copyable_v<T>);
 
 			auto Memory = alloc(GMEM_MOVEABLE, sizeof(Object));
 			if (!Memory)

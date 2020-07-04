@@ -290,17 +290,6 @@ enum FINDASKDLG
 	FAD_COUNT
 };
 
-enum FINDASKDLGCOMBO
-{
-	FADC_ALLDISKS,
-	FADC_ALLBUTNET,
-	FADC_PATH,
-	FADC_ROOT,
-	FADC_FROMCURRENT,
-	FADC_INCURRENT,
-	FADC_SELECTED,
-};
-
 enum FINDDLG
 {
 	FD_DOUBLEBOX,
@@ -700,13 +689,13 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					Global->WindowManager->ResizeAllWindows();
 					string strSearchFromRoot;
 					PrepareDriveNameStr(strSearchFromRoot);
-					FarListGetItem item={sizeof(FarListGetItem),FADC_ROOT};
+					FarListGetItem item{ sizeof(FarListGetItem), FINDAREA_ROOT };
 					Dlg->SendMessage(DM_LISTGETITEM,FAD_COMBOBOX_WHERE,&item);
 					item.Item.Text=strSearchFromRoot.c_str();
 					Dlg->SendMessage(DM_LISTUPDATE,FAD_COMBOBOX_WHERE,&item);
 					PluginMode = Global->CtrlObject->Cp()->ActivePanel()->GetMode() == panel_mode::PLUGIN_PANEL;
 					Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_DIRS,ToPtr(!PluginMode));
-					item.ItemIndex=FADC_ALLDISKS;
+					item.ItemIndex = FINDAREA_ROOT;
 					Dlg->SendMessage(DM_LISTGETITEM,FAD_COMBOBOX_WHERE,&item);
 
 					if (PluginMode)
@@ -715,7 +704,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 						item.Item.Flags&=~LIF_GRAYED;
 
 					Dlg->SendMessage(DM_LISTUPDATE,FAD_COMBOBOX_WHERE,&item);
-					item.ItemIndex=FADC_ALLBUTNET;
+					item.ItemIndex = FINDAREA_ALL_BUTNETWORK;
 					Dlg->SendMessage(DM_LISTGETITEM,FAD_COMBOBOX_WHERE,&item);
 
 					if (PluginMode)
@@ -2928,7 +2917,10 @@ FindFiles::FindFiles():
 			{ 0, msg(lng::MSearchInCurrent).c_str() },
 			{ 0, msg(lng::MSearchInSelected).c_str() },
 		};
-		li[FADC_ALLDISKS+SearchMode].Flags|=LIF_SELECTED;
+
+		static_assert(std::size(li) == FINDAREA_COUNT);
+
+		li[FINDAREA_ALL + SearchMode].Flags|=LIF_SELECTED;
 		FarList l={sizeof(FarList),std::size(li),li};
 		FindAskDlg[FAD_COMBOBOX_WHERE].ListItems=&l;
 
@@ -2943,13 +2935,13 @@ FindFiles::FindFiles():
 
 			if (SearchMode == FINDAREA_ALL || SearchMode == FINDAREA_ALL_BUTNETWORK)
 			{
-				li[FADC_ALLDISKS].Flags=0;
-				li[FADC_ALLBUTNET].Flags=0;
-				li[FADC_ROOT].Flags|=LIF_SELECTED;
+				li[FINDAREA_ALL].Flags=0;
+				li[FINDAREA_ALL_BUTNETWORK].Flags=0;
+				li[FINDAREA_ROOT].Flags|=LIF_SELECTED;
 			}
 
-			li[FADC_ALLDISKS].Flags|=LIF_GRAYED;
-			li[FADC_ALLBUTNET].Flags|=LIF_GRAYED;
+			li[FINDAREA_ALL].Flags|=LIF_GRAYED;
+			li[FINDAREA_ALL_BUTNETWORK].Flags|=LIF_GRAYED;
 			FindAskDlg[FAD_CHECKBOX_LINKS].Selected=0;
 			FindAskDlg[FAD_CHECKBOX_LINKS].Flags|=DIF_DISABLE;
 			FindAskDlg[FAD_CHECKBOX_STREAMS].Selected = 0;
@@ -3024,30 +3016,7 @@ FindFiles::FindFiles():
 			Global->GlobalSearchWholeWords=WholeWords;
 		}
 
-		switch (FindAskDlg[FAD_COMBOBOX_WHERE].ListPos)
-		{
-			case FADC_ALLDISKS:
-				SearchMode=FINDAREA_ALL;
-				break;
-			case FADC_ALLBUTNET:
-				SearchMode=FINDAREA_ALL_BUTNETWORK;
-				break;
-			case FADC_PATH:
-				SearchMode=FINDAREA_INPATH;
-				break;
-			case FADC_ROOT:
-				SearchMode=FINDAREA_ROOT;
-				break;
-			case FADC_FROMCURRENT:
-				SearchMode=FINDAREA_FROM_CURRENT;
-				break;
-			case FADC_INCURRENT:
-				SearchMode=FINDAREA_CURRENT_ONLY;
-				break;
-			case FADC_SELECTED:
-				SearchMode=FINDAREA_SELECTED;
-				break;
-		}
+		SearchMode = static_cast<FINDAREA>(FindAskDlg[FAD_COMBOBOX_WHERE].ListPos);
 
 		if (SearchFromChanged)
 		{

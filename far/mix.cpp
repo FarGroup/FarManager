@@ -65,7 +65,7 @@ unsigned int ToPercent(unsigned long long const Value, unsigned long long const 
 		return 100;
 
 	if (Value <= max_integer_in_double && Base <= max_integer_in_double)
-		return static_cast<double>(Value) / Base * 100;
+		return static_cast<int>(static_cast<double>(Value) / static_cast<double>(Base) * 100);
 
 	const auto Step = Base / 100;
 	const auto Result = Value / Step;

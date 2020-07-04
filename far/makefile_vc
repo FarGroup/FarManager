@@ -294,7 +294,7 @@ CPPFLAGS=\
 	/c\
 	/J\
 	/EHsc\
-	/std:c++17\
+	/std:c++latest\
 	/permissive-\
 	/Zc:__cplusplus,externConstexpr,inline,throwingNew\
 	/volatile:iso\

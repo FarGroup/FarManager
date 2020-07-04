@@ -965,10 +965,11 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				if (!MenuItem)
 					break;
 
-				visit_if([](disk_item const& item)
+				std::visit(overload{[&](disk_item const& item)
 				{
 					OpenFolderInShell(os::fs::get_root_directory(item.cDrive));
-				}, *MenuItem);
+				},
+				[](plugin_item const&){}}, *MenuItem);
 				break;
 
 			case KEY_CTRLPGUP:
@@ -986,7 +987,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				if (!MenuItem)
 					break;
 
-				visit_if([&](disk_item const& item)
+				std::visit(overload{[&](disk_item const& item)
 				{
 					if (item.nDriveType != DRIVE_REMOVABLE && item.nDriveType != DRIVE_CDROM)
 						return;
@@ -1013,7 +1014,8 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 					}
 
 					RetCode = SelPos;
-				}, *MenuItem);
+				},
+				[](plugin_item const&){}}, *MenuItem);
 				break;
 
 			case KEY_NUMDEL:
@@ -1021,25 +1023,27 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				if (!MenuItem)
 					break;
 
-				visit_if([&](disk_item const& item)
+				std::visit(overload{[&](disk_item const& item)
+
 				{
 					bool Cancelled = false;
 					if (DisconnectDrive(Owner, item, *ChDisk, Cancelled))
 					{
 						RetCode = SelPos;
 					}
-				}, *MenuItem);
+				},
+				[](plugin_item const&){}}, *MenuItem);
 				break;
 
 			case KEY_F3:
 				if (!MenuItem)
 					break;
 
-				visit_if([](plugin_item const& item)
+				std::visit(overload{[&](plugin_item const& item)
 				{
 					Global->CtrlObject->Plugins->ShowPluginInfo(item.pPlugin, item.Guid);
 				},
-				*MenuItem);
+				[](disk_item const&){}}, *MenuItem);
 				break;
 
 			case KEY_CTRLA:
@@ -1070,7 +1074,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				if (!MenuItem)
 					break;
 
-				visit_if([&](disk_item const& item)
+				std::visit(overload{[&](disk_item const& item)
 				{
 					if (!Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Emenu.Id))
 						return;
@@ -1080,7 +1084,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 					struct DiskMenuParam { const wchar_t* CmdLine; BOOL Apps; } p = { RootDirectory.c_str(), Key != KEY_MSRCLICK };
 					Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu.Id, Owner->Parent()->IsLeft(Owner)? OPEN_LEFTDISKMENU : OPEN_RIGHTDISKMENU, &p); // EMenu Plugin :-)
 				},
-				*MenuItem);
+				[](plugin_item const&){}}, *MenuItem);
 				break;
 
 			case KEY_SHIFTNUMDEL:
@@ -1089,12 +1093,12 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				if (!MenuItem)
 					break;
 
-				visit_if([&](disk_item const& item)
+				std::visit(overload{[&](disk_item const& item)
 				{
 					RemoveHotplugDevice(Owner, item, *ChDisk);
 					RetCode = SelPos;
 				},
-				*MenuItem);
+				[](plugin_item const&){}}, *MenuItem);
 				break;
 
 			case KEY_CTRL1:
@@ -1182,7 +1186,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				if (!MenuItem)
 					break;
 
-				visit_if([](plugin_item const& item)
+				std::visit(overload{[&](plugin_item const& item)
 				{
 					// Вызываем нужный топик, который передали в CommandsMenu()
 					pluginapi::apiShowHelp(
@@ -1190,7 +1194,8 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 						nullptr,
 						FHELP_SELFHELP | FHELP_NOSHOWERROR | FHELP_USECONTENTS
 					);
-				}, *MenuItem);
+				},
+				[](disk_item const&){}}, *MenuItem);
 				break;
 
 			case KEY_ALTSHIFTF9:
@@ -1203,12 +1208,12 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				if (!MenuItem)
 					break;
 
-				visit_if([](plugin_item const& item)
+				std::visit(overload{[&](plugin_item const& item)
 				{
 					if (item.pPlugin->has(iConfigure))
 						Global->CtrlObject->Plugins->ConfigureCurrent(item.pPlugin, item.Guid);
 				},
-				*MenuItem);
+				[](disk_item const&){}}, *MenuItem);
 				RetCode = SelPos;
 				break;
 
@@ -1252,7 +1257,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 	if (mitem)
 	{
-		visit_if([](disk_item const& item)
+		std::visit(overload{[&](disk_item const& item)
 		{
 			if (item.nDriveType != DRIVE_REMOVABLE && item.nDriveType != DRIVE_CDROM)
 				return;
@@ -1276,7 +1281,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				// TODO: Message & retry? It conflicts with the CD retry dialog.
 			}
 		},
-		*mitem);
+		[](plugin_item const&){}}, *mitem);
 	}
 
 	if (Owner->ProcessPluginEvent(FE_CLOSE, nullptr))

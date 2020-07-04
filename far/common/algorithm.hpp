@@ -111,6 +111,9 @@ void apply_permutation(Iter1 first, Iter1 last, Iter2 indices)
 	}
 }
 
+#ifndef __cpp_lib_erase_if
+namespace std {
+
 namespace detail
 {
 	template <typename container, typename predicate>
@@ -157,6 +160,9 @@ void erase_if(std::unordered_map<traits...>& Container, predicate Predicate) { d
 template <typename predicate, typename... traits>
 void erase_if(std::unordered_multimap<traits...>& Container, predicate Predicate) { detail::associative_erase_if(Container, Predicate); }
 
+}
+
+#endif
 
 namespace detail
 {

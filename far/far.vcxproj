@@ -105,7 +105,7 @@ if not exist $(BootstrapDir) mkdir $(BootstrapDir)</Command>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
       <DiagnosticsFormat>Caret</DiagnosticsFormat>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <ConformanceMode>true</ConformanceMode>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>

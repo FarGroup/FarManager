@@ -362,6 +362,9 @@ TEST_CASE("range.static")
 
 				const auto TestType = [&](const auto & ContainerGetter, const auto & RangeGetter)
 				{
+					// Workaround for VS19
+					[[maybe_unused]] auto& RangeRef = Range;
+
 					static_assert(std::is_same_v<decltype(ContainerGetter(ContainerVersion)), decltype(RangeGetter(Range))>);
 				};
 
