@@ -55,7 +55,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.env.hpp"
 
 // Common:
-#include "common/algorithm.hpp"
 
 // External:
 

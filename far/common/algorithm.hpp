@@ -111,59 +111,6 @@ void apply_permutation(Iter1 first, Iter1 last, Iter2 indices)
 	}
 }
 
-#ifndef __cpp_lib_erase_if
-namespace std {
-
-namespace detail
-{
-	template <typename container, typename predicate>
-	void associative_erase_if(container& Container, const predicate& Predicate)
-	{
-		for (auto i = Container.begin(), End = Container.end(); i != End; )
-		{
-			if (Predicate(*i))
-			{
-				i = Container.erase(i);
-			}
-			else
-			{
-				++i;
-			}
-		}
-	}
-}
-
-// TODO: add proper overloads as per Library fundamentals TS v2: Uniform container erasure.
-// Consider moving to cpp.hpp / std::experimental namespace for GCC, or just #include <experimental/...> for VS.
-
-template <typename predicate, typename... traits>
-void erase_if(std::set<traits...>& Container, predicate Predicate) { detail::associative_erase_if(Container, Predicate); }
-
-template <typename predicate, typename... traits>
-void erase_if(std::multiset<traits...>& Container, predicate Predicate) { detail::associative_erase_if(Container, Predicate); }
-
-template <typename predicate, typename... traits>
-void erase_if(std::map<traits...>& Container, predicate Predicate) { detail::associative_erase_if(Container, Predicate); }
-
-template <typename predicate, typename... traits>
-void erase_if(std::multimap<traits...>& Container, predicate Predicate) { detail::associative_erase_if(Container, Predicate); }
-
-template <typename predicate, typename... traits>
-void erase_if(std::unordered_set<traits...>& Container, predicate Predicate) { detail::associative_erase_if(Container, Predicate); }
-
-template <typename predicate, typename... traits>
-void erase_if(std::unordered_multiset<traits...>& Container, predicate Predicate) { detail::associative_erase_if(Container, Predicate); }
-
-template <typename predicate, typename... traits>
-void erase_if(std::unordered_map<traits...>& Container, predicate Predicate) { detail::associative_erase_if(Container, Predicate); }
-
-template <typename predicate, typename... traits>
-void erase_if(std::unordered_multimap<traits...>& Container, predicate Predicate) { detail::associative_erase_if(Container, Predicate); }
-
-}
-
-#endif
-
 namespace detail
 {
 	template<typename T>
