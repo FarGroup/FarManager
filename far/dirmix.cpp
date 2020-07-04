@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "elevation.hpp"
 #include "network.hpp"
 #include "string_utils.hpp"
+#include "lasterror.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -123,11 +124,14 @@ bool FarChDir(string_view const NewDir)
 	if (LastError != ERROR_PATH_NOT_FOUND && LastError != ERROR_ACCESS_DENIED && LastError != ERROR_LOGON_FAILURE)
 		return false;
 
-	const auto IsDrive = PathType == root_type::drive_letter || PathType == root_type::unc_drive_letter;
-	const auto IsNetworkDrive = IsDrive && os::fs::is_standard_drive_letter(NewDir[0]) && GetSavedNetworkDrives()[os::fs::get_drive_number(NewDir[0])];
+	{
+		GuardLastError gle;
+		const auto IsDrive = PathType == root_type::drive_letter || PathType == root_type::unc_drive_letter;
+		const auto IsNetworkDrive = IsDrive && os::fs::is_standard_drive_letter(Directory[0]) && GetSavedNetworkDrives()[os::fs::get_drive_number(Directory[0])];
 
-	if (!IsNetworkDrive && !IsNetworkPath)
-		return false;
+		if (!IsNetworkDrive && !IsNetworkPath)
+			return false;
+	}
 
 	ConnectToNetworkResource(Directory);
 
