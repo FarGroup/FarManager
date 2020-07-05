@@ -911,10 +911,18 @@ DialogItemEx* DialogBuilder::AddCheckboxImpl(lng_string const Text, value_type& 
 		Item->Flags |= DIF_3STATE;
 	SetNextY(Item);
 	Item->X2 = Item->X1 + ItemWidth(*Item);
-	if (!Mask)
+
+	if constexpr (is_one_of_v<value_type, BoolOption, Bool3Option>)
+	{
 		Item->Selected = Value;
+	}
 	else
-		Item->Selected = (Value & Mask) != 0;
+	{
+		if (!Mask)
+			Item->Selected = Value;
+		else
+			Item->Selected = (Value & Mask) != 0;
+	}
 
 	return Item;
 }

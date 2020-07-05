@@ -2984,7 +2984,10 @@ int FarMacroApi::kbdLayoutFunc()
 		if (static_cast<long>(dwLayout) == -1)
 		{
 			wParam=INPUTLANGCHANGE_BACKWARD;
+WARNING_PUSH()
+WARNING_DISABLE_GCC("-Wzero-as-null-pointer-constant")
 			Layout = static_cast<HKL>(HKL_PREV);
+WARNING_POP()
 		}
 		else if (dwLayout == 1)
 		{

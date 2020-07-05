@@ -95,6 +95,7 @@ if not exist $(BootstrapDir) mkdir $(BootstrapDir)</Command>
       <PrecompiledHeaderFile>headers.hpp</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)headers.pch</PrecompiledHeaderOutputFile>
       <WarningLevel>EnableAllWarnings</WarningLevel>
+      <DisableSpecificWarnings>5045</DisableSpecificWarnings>
       <AssemblerListingLocation>$(OutDir)cod\</AssemblerListingLocation>
       <StringPooling>true</StringPooling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -433,6 +434,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="exception_handler_test.hpp" />
     <ClInclude Include="execute.hpp" />
     <ClInclude Include="exitcode.hpp" />
+    <ClInclude Include="FarDlgBuilder.hpp" />
     <ClInclude Include="FarGuid.hpp" />
     <ClInclude Include="farversion.hpp" />
     <ClInclude Include="fastfind.hpp" />

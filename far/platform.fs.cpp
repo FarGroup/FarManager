@@ -2238,7 +2238,9 @@ namespace os::fs
 		// It's good enough to read it once.
 		static const auto AllowedDrivesMask = []
 		{
-			for (const auto& i: { &os::reg::key::local_machine, &os::reg::key::current_user })
+			// Declared separately due to a VS19 bug
+			const auto Where = { &os::reg::key::local_machine, &os::reg::key::current_user };
+			for (const auto& i: Where)
 			{
 				unsigned NoDrives;
 				if (i->get(L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer"sv, L"NoDrives"sv, NoDrives))

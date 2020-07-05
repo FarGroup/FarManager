@@ -743,7 +743,6 @@ TEMPLATE_TEST_CASE("utility.reserve_exp_noshrink", "", string, std::vector<int>)
 	TestType Container;
 	Container.resize(42);
 	const auto InitialCapacity = Container.capacity();
-	const auto GrowthFactor = 1.5;
 
 	SECTION("no shrink")
 	{
@@ -753,8 +752,8 @@ TEMPLATE_TEST_CASE("utility.reserve_exp_noshrink", "", string, std::vector<int>)
 
 	SECTION("exponential < factor")
 	{
-		reserve_exp_noshrink(Container, InitialCapacity * 1.1);
-		REQUIRE(Container.capacity() >= InitialCapacity * GrowthFactor);
+		reserve_exp_noshrink(Container, InitialCapacity + InitialCapacity / 10);
+		REQUIRE(Container.capacity() >= InitialCapacity  + InitialCapacity / 2);
 	}
 
 	SECTION("exponential > factor")
