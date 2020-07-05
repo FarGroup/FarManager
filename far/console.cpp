@@ -250,17 +250,7 @@ namespace console_detail
 	bool console::SetScreenBufferSize(COORD Size) const
 	{
 		// This abominable workaround is for another Windows 10 bug, see https://github.com/microsoft/terminal/issues/2366
-		COORD CursorPosition;
-		if (GetCursorRealPosition(CursorPosition))
-		{
-			CursorPosition =
-			{
-				std::min(CursorPosition.X, static_cast<SHORT>(Size.X - 1)),
-				std::min(CursorPosition.Y, static_cast<SHORT>(Size.Y - 1)),
-			};
-
-			SetConsoleCursorPosition(GetOutputHandle(), CursorPosition);
-		}
+		ResetViewportPosition();
 
 		return SetConsoleScreenBufferSize(GetOutputHandle(), Size) != FALSE;
 	}
@@ -1161,11 +1151,11 @@ namespace console_detail
 
 	bool console::ResetViewportPosition() const
 	{
-		COORD Size;
+		SMALL_RECT WindowRect;
 		return
-			GetSize(Size) &&
+			GetWindowRect(WindowRect) &&
 			SetCursorPosition({}) &&
-			SetCursorPosition({0, static_cast<SHORT>(Size.Y - 1) });
+			SetCursorPosition({ 0, WindowRect.Bottom - WindowRect.Top });
 	}
 
 	bool console::GetColorDialog(FarColor& Color, bool const Centered, const FarColor* const BaseColor) const
