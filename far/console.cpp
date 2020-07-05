@@ -1155,7 +1155,7 @@ namespace console_detail
 		return
 			GetWindowRect(WindowRect) &&
 			SetCursorPosition({}) &&
-			SetCursorPosition({ 0, WindowRect.Bottom - WindowRect.Top });
+			SetCursorPosition({ 0, static_cast<SHORT>(WindowRect.Bottom - WindowRect.Top) });
 	}
 
 	bool console::GetColorDialog(FarColor& Color, bool const Centered, const FarColor* const BaseColor) const
