@@ -161,7 +161,7 @@ void ControlObject::ShowVersion(bool const Direct)
 	console.GetCursorPosition(CursorPosition);
 	const auto FreeSpace = Size.Y - CursorPosition.Y - 1;
 
-	if (FreeSpace<5)
+	if (FreeSpace < 5 && DoWeReallyHaveToScroll(5))
 		ScrollScreen(5-FreeSpace);
 
 	GotoXY(0,ScrY-4);

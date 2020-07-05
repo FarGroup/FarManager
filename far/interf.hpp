@@ -157,6 +157,7 @@ void GetCursorType(bool& Visible, DWORD& Size);
 void MoveRealCursor(int X,int Y);
 void GetRealCursorPos(SHORT& X,SHORT& Y);
 void ScrollScreen(int Count);
+bool DoWeReallyHaveToScroll(short Rows);
 
 void Text(point Where, const FarColor& Color, string_view Str);
 
