@@ -1,3 +1,7 @@
+drkns 06.07.2020 18:56:37 +0100 - build 5638
+
+1. New versions of fmt, tinyxml2, Catch2.
+
 drkns 05.07.2020 19:49:40 +0100 - build 5637
 
 1. Continuation of 5370 - skip redundant scroll on startup.

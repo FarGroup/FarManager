@@ -23,12 +23,14 @@
 #endif
 
 #ifdef _WIN32
-#  if defined(NOMINMAX)
-#    include <windows.h>
-#  else
+#  if !defined(NOMINMAX) && !defined(WIN32_LEAN_AND_MEAN)
 #    define NOMINMAX
+#    define WIN32_LEAN_AND_MEAN
 #    include <windows.h>
+#    undef WIN32_LEAN_AND_MEAN
 #    undef NOMINMAX
+#  else
+#    include <windows.h>
 #  endif
 #  include <io.h>
 #endif
@@ -47,7 +49,9 @@ FMT_BEGIN_NAMESPACE
 namespace detail {
 
 FMT_FUNC void assert_fail(const char* file, int line, const char* message) {
-  print(stderr, "{}:{}: assertion failed: {}", file, line, message);
+  // Use unchecked std::fprintf to avoid triggering another assertion when
+  // writing to stderr fails
+  std::fprintf(stderr, "%s:%d: assertion failed: %s", file, line, message);
   // Chosen instead of std::abort to satisfy Clang in CUDA mode during device
   // code pass.
   std::terminate();
@@ -237,12 +241,27 @@ template <> FMT_FUNC int count_digits<4>(detail::fallback_uintptr n) {
 }
 
 template <typename T>
-const char basic_data<T>::digits[] =
-    "0001020304050607080910111213141516171819"
-    "2021222324252627282930313233343536373839"
-    "4041424344454647484950515253545556575859"
-    "6061626364656667686970717273747576777879"
-    "8081828384858687888990919293949596979899";
+const typename basic_data<T>::digit_pair basic_data<T>::digits[] = {
+    {'0', '0'},  {'0', '1'},  {'0', '2'},  {'0', '3'},  {'0', '4'},
+    {'0', '5'},  {'0', '6'},  {'0', '7'},  {'0', '8'},  {'0', '9'},
+    {'1', '0'},  {'1', '1'},  {'1', '2'},  {'1', '3'},  {'1', '4'},
+    {'1', '5'},  {'1', '6'},  {'1', '7'},  {'1', '8'},  {'1', '9'},
+    {'2', '0'},  {'2', '1'},  {'2', '2'},  {'2', '3'},  {'2', '4'},
+    {'2', '5'},  {'2', '6'},  {'2', '7'},  {'2', '8'},  {'2', '9'},
+    {'3', '0'},  {'3', '1'},  {'3', '2'},  {'3', '3'},  {'3', '4'},
+    {'3', '5'},  {'3', '6'},  {'3', '7'},  {'3', '8'},  {'3', '9'},
+    {'4', '0'},  {'4', '1'},  {'4', '2'},  {'4', '3'},  {'4', '4'},
+    {'4', '5'},  {'4', '6'},  {'4', '7'},  {'4', '8'},  {'4', '9'},
+    {'5', '0'},  {'5', '1'},  {'5', '2'},  {'5', '3'},  {'5', '4'},
+    {'5', '5'},  {'5', '6'},  {'5', '7'},  {'5', '8'},  {'5', '9'},
+    {'6', '0'},  {'6', '1'},  {'6', '2'},  {'6', '3'},  {'6', '4'},
+    {'6', '5'},  {'6', '6'},  {'6', '7'},  {'6', '8'},  {'6', '9'},
+    {'7', '0'},  {'7', '1'},  {'7', '2'},  {'7', '3'},  {'7', '4'},
+    {'7', '5'},  {'7', '6'},  {'7', '7'},  {'7', '8'},  {'7', '9'},
+    {'8', '0'},  {'8', '1'},  {'8', '2'},  {'8', '3'},  {'8', '4'},
+    {'8', '5'},  {'8', '6'},  {'8', '7'},  {'8', '8'},  {'8', '9'},
+    {'9', '0'},  {'9', '1'},  {'9', '2'},  {'9', '3'},  {'9', '4'},
+    {'9', '5'},  {'9', '6'},  {'9', '7'},  {'9', '8'},  {'9', '9'}};
 
 template <typename T>
 const char basic_data<T>::hex_digits[] = "0123456789abcdef";
@@ -584,9 +603,10 @@ class bigint {
   void operator=(const bigint&) = delete;
 
   void assign(const bigint& other) {
-    bigits_.resize(other.bigits_.size());
+    auto size = other.bigits_.size();
+    bigits_.resize(size);
     auto data = other.bigits_.data();
-    std::copy(data, data + other.bigits_.size(), bigits_.data());
+    std::copy(data, data + size, make_checked(bigits_.data(), size));
     exp_ = other.exp_;
   }
 
@@ -1133,7 +1153,7 @@ int snprintf_float(T value, int precision, float_specs specs,
     precision = (precision >= 0 ? precision : 6) - 1;
 
   // Build the format string.
-  enum { max_format_size = 7 };  // Ths longest format is "%#.*Le".
+  enum { max_format_size = 7 };  // The longest format is "%#.*Le".
   char format[max_format_size];
   char* format_ptr = format;
   *format_ptr++ = '%';
@@ -1159,7 +1179,7 @@ int snprintf_float(T value, int precision, float_specs specs,
           "fuzz mode - avoid large allocation inside snprintf");
 #endif
     // Suppress the warning about a nonliteral format string.
-    // Cannot use auto becase of a bug in MinGW (#1532).
+    // Cannot use auto because of a bug in MinGW (#1532).
     int (*snprintf_ptr)(char*, size_t, const char*, ...) = FMT_SNPRINTF;
     int result = precision >= 0
                      ? snprintf_ptr(begin, capacity, format, precision, value)
@@ -1362,6 +1382,31 @@ FMT_FUNC void detail::error_handler::on_error(const char* message) {
 FMT_FUNC void report_system_error(int error_code,
                                   fmt::string_view message) FMT_NOEXCEPT {
   report_error(format_system_error, error_code, message);
+}
+
+struct stringifier {
+  template <typename T> FMT_INLINE std::string operator()(T value) const {
+    return to_string(value);
+  }
+  std::string operator()(basic_format_arg<format_context>::handle h) const {
+    memory_buffer buf;
+    detail::buffer<char>& base = buf;
+    format_parse_context parse_ctx({});
+    format_context format_ctx(std::back_inserter(base), {}, {});
+    h.format(parse_ctx, format_ctx);
+    return to_string(buf);
+  }
+};
+
+FMT_FUNC std::string detail::vformat(string_view format_str, format_args args) {
+  if (format_str.size() == 2 && equal2(format_str.data(), "{}")) {
+    auto arg = args.get(0);
+    if (!arg) error_handler().on_error("argument not found");
+    return visit_format_arg(stringifier(), arg);
+  }
+  memory_buffer buffer;
+  detail::vformat_to(buffer, format_str, args);
+  return to_string(buffer);
 }
 
 FMT_FUNC void vprint(std::FILE* f, string_view format_str, format_args args) {

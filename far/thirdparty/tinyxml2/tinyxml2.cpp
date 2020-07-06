@@ -234,13 +234,13 @@ char* StrPair::ParseName( char* p )
     if ( !p || !(*p) ) {
         return 0;
     }
-    if ( !XMLUtil::IsNameStartChar( *p ) ) {
+    if ( !XMLUtil::IsNameStartChar( (unsigned char) *p ) ) {
         return 0;
     }
 
     char* const start = p;
     ++p;
-    while ( *p && XMLUtil::IsNameChar( *p ) ) {
+    while ( *p && XMLUtil::IsNameChar( (unsigned char) *p ) ) {
         ++p;
     }
 
@@ -608,17 +608,17 @@ void XMLUtil::ToStr( uint64_t v, char* buffer, int bufferSize )
     TIXML_SNPRINTF(buffer, bufferSize, "%llu", (long long)v);
 }
 
-bool XMLUtil::ToInt( const char* str, int* value )
+bool XMLUtil::ToInt(const char* str, int* value)
 {
-    if ( TIXML_SSCANF( str, "%d", value ) == 1 ) {
+    if (TIXML_SSCANF(str, IsPrefixHex(str) ? "%x" : "%d", value) == 1) {
         return true;
     }
     return false;
 }
 
-bool XMLUtil::ToUnsigned( const char* str, unsigned *value )
+bool XMLUtil::ToUnsigned(const char* str, unsigned* value)
 {
-    if ( TIXML_SSCANF( str, "%u", value ) == 1 ) {
+    if (TIXML_SSCANF(str, IsPrefixHex(str) ? "%x" : "%u", value) == 1) {
         return true;
     }
     return false;
@@ -671,7 +671,7 @@ bool XMLUtil::ToDouble( const char* str, double* value )
 bool XMLUtil::ToInt64(const char* str, int64_t* value)
 {
 	long long v = 0;	// horrible syntax trick to make the compiler happy about %lld
-	if (TIXML_SSCANF(str, "%lld", &v) == 1) {
+	if (TIXML_SSCANF(str, IsPrefixHex(str) ? "%llx" : "%lld", &v) == 1) {
 		*value = static_cast<int64_t>(v);
 		return true;
 	}
@@ -681,7 +681,7 @@ bool XMLUtil::ToInt64(const char* str, int64_t* value)
 
 bool XMLUtil::ToUnsigned64(const char* str, uint64_t* value) {
     unsigned long long v = 0;	// horrible syntax trick to make the compiler happy about %llu
-    if(TIXML_SSCANF(str, "%llu", &v) == 1) {
+    if(TIXML_SSCANF(str, IsPrefixHex(str) ? "%llx" : "%llu", &v) == 1) {
         *value = (uint64_t)v;
         return true;
     }
@@ -1909,7 +1909,7 @@ char* XMLElement::ParseAttributes( char* p, int* curLineNumPtr )
         }
 
         // attribute.
-        if (XMLUtil::IsNameStartChar( *p ) ) {
+        if (XMLUtil::IsNameStartChar( (unsigned char) *p ) ) {
             XMLAttribute* attrib = CreateAttribute();
             TIXMLASSERT( attrib );
             attrib->_parseLineNum = _document->_parseCurLineNum;
@@ -2659,22 +2659,33 @@ void XMLPrinter::PushHeader( bool writeBOM, bool writeDec )
     }
 }
 
-
-void XMLPrinter::OpenElement( const char* name, bool compactMode )
+void XMLPrinter::PrepareForNewNode( bool compactMode )
 {
     SealElementIfJustOpened();
-    _stack.Push( name );
 
-    if ( _textDepth < 0 && !_firstElement && !compactMode ) {
+    if ( compactMode ) {
+        return;
+    }
+
+    if ( _firstElement ) {
+        PrintSpace (_depth);
+    } else if ( _textDepth < 0) {
         Putc( '\n' );
         PrintSpace( _depth );
     }
+
+    _firstElement = false;
+}
+
+void XMLPrinter::OpenElement( const char* name, bool compactMode )
+{
+    PrepareForNewNode( compactMode );
+    _stack.Push( name );
 
     Write ( "<" );
     Write ( name );
 
     _elementJustOpened = true;
-    _firstElement = false;
     ++_depth;
 }
 
@@ -2850,12 +2861,7 @@ void XMLPrinter::PushText( double value )
 
 void XMLPrinter::PushComment( const char* comment )
 {
-    SealElementIfJustOpened();
-    if ( _textDepth < 0 && !_firstElement && !_compactMode) {
-        Putc( '\n' );
-        PrintSpace( _depth );
-    }
-    _firstElement = false;
+    PrepareForNewNode( _compactMode );
 
     Write( "<!--" );
     Write( comment );
@@ -2865,12 +2871,7 @@ void XMLPrinter::PushComment( const char* comment )
 
 void XMLPrinter::PushDeclaration( const char* value )
 {
-    SealElementIfJustOpened();
-    if ( _textDepth < 0 && !_firstElement && !_compactMode) {
-        Putc( '\n' );
-        PrintSpace( _depth );
-    }
-    _firstElement = false;
+    PrepareForNewNode( _compactMode );
 
     Write( "<?" );
     Write( value );
@@ -2880,12 +2881,7 @@ void XMLPrinter::PushDeclaration( const char* value )
 
 void XMLPrinter::PushUnknown( const char* value )
 {
-    SealElementIfJustOpened();
-    if ( _textDepth < 0 && !_firstElement && !_compactMode) {
-        Putc( '\n' );
-        PrintSpace( _depth );
-    }
-    _firstElement = false;
+    PrepareForNewNode( _compactMode );
 
     Write( "<!" );
     Write( value );
