@@ -783,7 +783,7 @@ local function LoadMacros (unload, paths)
         for _,name in ipairs(FuncList2) do env[name]=nil; end
       else
         numerrors=numerrors+1
-        msg = msg:gsub("\n\t","\n   ")
+        msg = string.gsub(msg,"\n\t","\n   ")
         ErrMsgLoad(msg,FullPath,isMoonScript,"run")
       end
     end

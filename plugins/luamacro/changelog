@@ -1,3 +1,7 @@
+shmuel 06.07.2020 11:48:04 +0300 - build 750
+
+1. Minor fix related to build 738.
+
 shmuel 21.05.2020 15:21:20 +0300 - build 749
 
 1. Show traceback when error is thrown from ExitFAR event handler.
