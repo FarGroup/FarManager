@@ -155,7 +155,7 @@ static void ParseAndAddMasks(std::map<string, int, string_sort::less_t>& Extensi
 	if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) || IsParentDirectory(FileName))
 		return;
 
-	const auto Ext = PointToExt(FileName);
+	const auto Ext = name_ext(FileName).second;
 	Extensions.emplace(Ext.empty()? L"*."s : concat(L'*', Ext), Check);
 }
 

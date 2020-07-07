@@ -176,7 +176,7 @@ string_view PointToName(string_view Path);
 [[nodiscard]]
 string_view PointToFolderNameIfFolder(string_view Path);
 [[nodiscard]]
-string_view PointToExt(string_view Path);
+std::pair<string_view, string_view> name_ext(string_view Path);
 
 void AddEndSlash(string &strPath, wchar_t TypeSlash);
 void AddEndSlash(string &strPath);

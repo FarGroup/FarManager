@@ -211,7 +211,7 @@ static bool FindObject(string_view const Module, string& strDest, bool* Internal
 	if (Module.empty())
 		return false;
 
-	const auto ModuleExt = PointToExt(Module);
+	const auto ModuleExt = name_ext(Module).second;
 	const auto PathExtList = enum_tokens(lower(os::env::get_pathext()), L";"sv);
 
 	const auto TryWithExtOrPathExt = [&](string_view const Name, const auto& Predicate)
@@ -455,7 +455,7 @@ static bool PartCmdLine(string_view const CmdStr, string& strNewCmdStr, string& 
 
 static bool RunAsSupported(const wchar_t* Name)
 {
-	const auto Extension = PointToExt(Name);
+	const auto Extension = name_ext(Name).second;
 	string Type;
 	return !Extension.empty() &&
 		GetShellType(Extension, Type) &&
@@ -526,7 +526,7 @@ static string GetShellActionForType(string_view const TypeName, string& KeyName)
 
 static string GetShellTypeFromExtension(string_view const FileName)
 {
-	auto Ext = PointToExt(FileName);
+	auto Ext = name_ext(FileName).second;
 	if (Ext.empty())
 	{
 		// Yes, no matter how mad it looks - it is possible to specify actions for empty extension too
@@ -1327,7 +1327,7 @@ bool ExtractIfExistCommand(string& strCommandText)
 
 bool IsExecutable(string_view const Filename)
 {
-	const auto Ext = PointToExt(Filename);
+	const auto Ext = name_ext(Filename).second;
 	if (Ext.empty())
 		return false;
 

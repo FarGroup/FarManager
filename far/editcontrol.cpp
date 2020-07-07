@@ -311,7 +311,7 @@ static bool EnumModules(VMenu2& Menu, const string_view strStart, const string_v
 
 				for (const auto& FindData: os::fs::enum_files(path::join(Path, Pattern)))
 				{
-					const auto FindExt = PointToExt(FindData.FileName);
+					const auto FindExt = name_ext(FindData.FileName).second;
 					for (const auto& Ext: PathExtList)
 					{
 						if (starts_with_icase(Ext, FindExt))

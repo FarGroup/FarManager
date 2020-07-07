@@ -324,21 +324,21 @@ static bool CheckNulOrCon(string_view Src)
 	return (starts_with_icase(Src, L"nul"sv) || starts_with_icase(Src, L"con"sv)) && (Src.size() == 3 || (Src.size() > 3 && IsSlash(Src[3])));
 }
 
-static void GenerateName(string &strName, const string& Path)
+static string GenerateName(string_view const Name, string_view const Path)
 {
-	if (!Path.empty())
-		strName = path::join(Path, PointToName(strName));
+	auto Result = Path.empty()? string(Name) : path::join(Path, PointToName(Name));
 
-	// The source string will be altered below so the view must be copied
-	const string Ext(PointToExt(strName));
-	const auto NameLength = strName.size() - Ext.size();
+	const auto BaseSize = Result.size() - Name.size();
+	const auto NameExt = name_ext(Name);
 
 	// file (2).ext, file (3).ext and so on
-	for (int i = 2; os::fs::exists(strName); ++i)
+	for (int i = 2; os::fs::exists(Result); ++i)
 	{
-		strName.resize(NameLength);
-		append(strName, L" ("sv, str(i), L')', Ext);
+		Result.resize(BaseSize);
+		append(Result, NameExt.first, L" ("sv, str(i), L')', NameExt.second);
 	}
+
+	return Result;
 }
 
 static void CheckAndUpdateConsole()
@@ -2863,8 +2863,7 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 				case WDLG_RENAME:
 				{
 					const auto WFN = reinterpret_cast<const file_names_for_overwrite_dialog*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
-					string strDestName = *WFN->Dest;
-					GenerateName(strDestName, *WFN->DestPath);
+					const auto strDestName = GenerateName(*WFN->Dest, *WFN->DestPath);
 
 					if (Dlg->SendMessage(DM_GETCHECK, WDLG_CHECKBOX, nullptr) == BSTATE_UNCHECKED)
 					{
@@ -3076,7 +3075,7 @@ bool ShellCopy::AskOverwrite(
 
 		case 5:
 			OvrMode = 5;
-			GenerateName(strDestName, strRenamedFilesPath);
+			strDestName = GenerateName(strDestName, strRenamedFilesPath);
 			[[fallthrough]];
 		case 4:
 			RetCode = COPY_RETRY;

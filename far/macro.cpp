@@ -2581,10 +2581,9 @@ static void SplitPath(string_view const FullPath, string& Dest, int Flags)
 	const auto RootType = ParsePath(FullPath, &DirOffset);
 	const auto Root = DeleteEndSlash(FullPath.substr(0, RootType == root_type::unknown? 0 : DirOffset));
 	auto Path = FullPath.substr(Root.size());
-	auto Name = PointToName(Path);
-	Path.remove_suffix(Name.size());
-	auto Ext = PointToExt(Name);
-	Name.remove_suffix(Ext.size());
+	const auto FileName = PointToName(Path);
+	Path.remove_suffix(FileName.size());
+	const auto& [Name, Ext] = name_ext(FileName);
 
 	const std::pair<int, string_view> Mappings[] =
 	{

@@ -158,6 +158,20 @@ span<int const> default_sort_layers(panel_sort const SortMode)
 	return SortModes[static_cast<size_t>(SortMode)].DefaultLayers;
 }
 
+static int compare_names(std::pair<string_view, string_view> const& Name1, std::pair<string_view, string_view> const& Name2)
+{
+	// Why this witchcraft, why not compare the names directly?
+	// Consider this:
+	// a-b.txt
+	// a.txt
+	// 'a' == 'a', but '-' < '.', so "a-b.txt" comes first.
+	// To fix this, we only take extensions into account when the names are the same.
+	if (const auto Result = string_sort::compare(Name1.first, Name2.first))
+		return Result;
+
+	return string_sort::compare(Name1.second, Name2.second);
+}
+
 template<typename T>
 auto compare_numbers(T const First, T const Second)
 {
@@ -170,15 +184,14 @@ static auto compare_time(os::chrono::time_point First, os::chrono::time_point Se
 }
 
 // FAT Last Write time is rounded up to the even number of seconds
-static auto to_fat_time(os::chrono::time_point Point)
+static auto to_fat_write_time(os::chrono::time_point Point)
 {
-	const auto Duration = Point.time_since_epoch();
-	return (Duration + 2s - 1ns) / 2s;
+	return (Point.time_since_epoch() + 2s - 1ns) / 2s;
 }
 
 static auto compare_fat_write_time(os::chrono::time_point First, os::chrono::time_point Second)
 {
-	return compare_numbers(to_fat_time(First), to_fat_time(Second));
+	return compare_numbers(to_fat_write_time(First), to_fat_write_time(Second));
 }
 
 
@@ -667,12 +680,13 @@ private:
 	{
 		const auto& [a, b] = Reverse? std::tie(Item2, Item1) : std::tie(Item1, Item2);
 
-		const auto GetExt = [SortFolderExt = SortFolderExt](const FileListItem& i)
-		{
-			if ((i.Attributes & FILE_ATTRIBUTE_DIRECTORY) && !SortFolderExt)
-				return L""sv;
+		const auto identity = [](string_view const Str) { return Str; };
 
-			return PointToExt(i.FileName);
+		const auto name_ext_opt = [SortFolderExt = SortFolderExt](FileListItem const& i, auto const Mutator)
+		{
+			return SortFolderExt || !(i.Attributes & FILE_ATTRIBUTE_DIRECTORY)?
+				name_ext(Mutator(i.FileName)) :
+				std::pair(Mutator(i.FileName), L""sv);
 		};
 
 		switch (SortMode)
@@ -681,13 +695,13 @@ private:
 			return compare_numbers(a.Position, b.Position);
 
 		case panel_sort::BY_NAME:
-			return string_sort::compare(a.FileName, b.FileName);
+			return compare_names(name_ext_opt(a, identity), name_ext_opt(b, identity));
 
 		case panel_sort::BY_NAMEONLY:
-			return string_sort::compare(PointToName(a.FileName), PointToName(b.FileName));
+			return compare_names(name_ext_opt(a, PointToName), name_ext_opt(b, PointToName));
 
 		case panel_sort::BY_EXT:
-			return string_sort::compare(GetExt(a), GetExt(b));
+			return string_sort::compare(name_ext_opt(a, identity).second, name_ext_opt(b, identity).second);
 
 		case panel_sort::BY_MTIME:
 			return compare_time(a.LastWriteTime, b.LastWriteTime);
@@ -3620,15 +3634,9 @@ bool FileList::GetPlainString(string& Dest, int ListPos) const
 			{
 				string_view Name = m_ListData[ListPos].AlternateOrNormal(m_ShowShortNames);
 
-				string strNameCopy;
 				if (!(m_ListData[ListPos].Attributes & FILE_ATTRIBUTE_DIRECTORY) && Column.type_flags & COLFLAGS_NOEXTENSION)
 				{
-					const auto Ext = PointToExt(Name);
-					if (!Ext.empty())
-					{
-						strNameCopy = Name.substr(0, Name.size() - Ext.size());
-						Name = strNameCopy;
-					}
+					Name = name_ext(Name).first;
 				}
 
 				if (Column.type_flags & COLFLAGS_NAMEONLY)
@@ -3647,7 +3655,7 @@ bool FileList::GetPlainString(string& Dest, int ListPos) const
 			{
 				string_view Ext;
 				if (!(m_ListData[ListPos].Attributes & FILE_ATTRIBUTE_DIRECTORY))
-					Ext = PointToExt(m_ListData[ListPos].AlternateOrNormal(m_ShowShortNames));
+					Ext = name_ext(m_ListData[ListPos].AlternateOrNormal(m_ShowShortNames)).second;
 
 				if (!Ext.empty())
 					Ext.remove_prefix(1);
@@ -4139,82 +4147,64 @@ void FileList::CompareDir()
 	}
 
 	Global->ScrBuf->Flush();
-	// полностью снимаем выделение с обоих панелей
-	ClearSelection();
-	Another->ClearSelection();
 
-	for (auto& i: m_ListData)
+	const auto select_files = [&](FileList& Panel)
 	{
-		if (!(i.Attributes & FILE_ATTRIBUTE_DIRECTORY))
-			Select(i, true);
-	}
+		for (auto& i: Panel.m_ListData)
+		{
+			Panel.Select(i, !(i.Attributes & FILE_ATTRIBUTE_DIRECTORY));
+		}
+	};
 
-	for (auto& i: Another->m_ListData)
+	select_files(*this);
+	select_files(*Another);
+
+	const auto use_fat_time = [&](FileList& Panel)
 	{
-		if (!(i.Attributes & FILE_ATTRIBUTE_DIRECTORY))
-			Another->Select(i, true);
-	}
-
-	bool UseFatTime = false;
-
-	if (m_PanelMode == panel_mode::PLUGIN_PANEL)
-	{
-		Global->CtrlObject->Plugins->GetOpenPanelInfo(GetPluginHandle(), &m_CachedOpenPanelInfo);
-
-		if (m_CachedOpenPanelInfo.Flags & OPIF_COMPAREFATTIME)
-			UseFatTime = true;
-
-	}
-
-	if (Another->m_PanelMode == panel_mode::PLUGIN_PANEL && !UseFatTime)
-	{
-		Global->CtrlObject->Plugins->GetOpenPanelInfo(Another->GetPluginHandle(), &m_CachedOpenPanelInfo);
-
-		if (m_CachedOpenPanelInfo.Flags & OPIF_COMPAREFATTIME)
-			UseFatTime = true;
-
-	}
-
-	if (m_PanelMode == panel_mode::NORMAL_PANEL && Another->m_PanelMode == panel_mode::NORMAL_PANEL)
-	{
-		const auto is_fat = [](string_view const Path)
+		if (Panel.m_PanelMode == panel_mode::PLUGIN_PANEL)
+		{
+			OpenPanelInfo OpInfo{ sizeof(OpInfo) };
+			Global->CtrlObject->Plugins->GetOpenPanelInfo(Panel.GetPluginHandle(), &OpInfo);
+			return (OpInfo.Flags & OPIF_COMPAREFATTIME) != 0;
+		}
+		else
 		{
 			string FileSystemName;
-			return os::fs::GetVolumeInformation(GetPathRoot(Path), nullptr, nullptr, nullptr, nullptr, &FileSystemName) && contains_icase(FileSystemName, L"FAT"sv);
-		};
+			return os::fs::GetVolumeInformation(GetPathRoot(Panel.m_CurDir), {}, {}, {}, {}, &FileSystemName) && contains_icase(FileSystemName, L"FAT"sv);
+		}
+	};
 
-		UseFatTime = is_fat(m_CurDir) || is_fat(Another->m_CurDir);
-	}
+	const auto UseFatTime = use_fat_time(*this) || use_fat_time(*Another);
 
 	// теперь начнем цикл по снятию выделений
 	// каждый элемент активной панели...
-	for (auto& i: m_ListData)
+	for (auto& This: m_ListData)
 	{
-		if (i.Attributes & FILE_ATTRIBUTE_DIRECTORY)
+		if (!This.Selected)
 			continue;
 
 		// ...сравниваем с элементом пассивной панели...
-		for (auto& j: Another->m_ListData)
+		for (auto& That: Another->m_ListData)
 		{
-			if (j.Attributes & FILE_ATTRIBUTE_DIRECTORY)
+			if (!That.Selected)
 				continue;
 
-			if (equal_icase(PointToName(i.FileName), PointToName(j.FileName)))
-			{
-				const auto Cmp = (UseFatTime? compare_fat_write_time : compare_time)(i.LastWriteTime, j.LastWriteTime);
+			if (!equal_icase(PointToName(This.FileName), PointToName(That.FileName)))
+				continue;
 
-				if (!Cmp && (i.FileSize != j.FileSize))
-					continue;
+			const auto Cmp = (UseFatTime? compare_fat_write_time : compare_time)(This.LastWriteTime, That.LastWriteTime);
 
-				if (Cmp <= 0 && i.Selected)
-					Select(i, false);
+			if (!Cmp && (This.FileSize != That.FileSize))
+				continue;
 
-				if (Cmp >= 0 && j.Selected)
-					Another->Select(j, false);
+			if (Cmp <= 0)
+				Select(This, false);
 
-				if (Another->m_PanelMode != panel_mode::PLUGIN_PANEL)
-					break;
-			}
+			if (Cmp >= 0)
+				Another->Select(That, false);
+
+			if (Another->m_PanelMode != panel_mode::PLUGIN_PANEL)
+				break;
 		}
 	}
 
@@ -4224,8 +4214,9 @@ void FileList::CompareDir()
 			Panel.SortFileList(true);
 		Panel.Redraw();
 	};
+
 	refresh(*this);
-	refresh(*Another.get());
+	refresh(*Another);
 
 	if (!m_SelFileCount && !Another->m_SelFileCount)
 		Message(0,
@@ -6705,7 +6696,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 		if (UseFilter && !m_Filter->FileInFilter(fdata, {}, fdata.FileName))
 		{
 			if (!(fdata.Attributes & FILE_ATTRIBUTE_DIRECTORY))
-				m_FilteredExtensions.emplace(PointToExt(fdata.FileName));
+				m_FilteredExtensions.emplace(name_ext(fdata.FileName).second);
 
 			continue;
 		}
@@ -7174,7 +7165,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 			if (!m_Filter->FileInFilter(PanelItem))
 			{
 				if (!(PanelItem.FileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-					m_FilteredExtensions.emplace(PointToExt(PanelItem.FileName));
+					m_FilteredExtensions.emplace(name_ext(PanelItem.FileName).second);
 
 				continue;
 			}
@@ -7859,7 +7850,7 @@ bool FileList::ConvertName(const string_view SrcName, string& strDest, const int
 	        ((!(FileAttr & FILE_ATTRIBUTE_DIRECTORY) && (m_ViewSettings.Flags & PVS_ALIGNEXTENSIONS)) ||
 	          ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) && (m_ViewSettings.Flags & PVS_FOLDERALIGNEXTENSIONS))) &&
 	        SrcLength <= MaxLength &&
-	        (Extension = PointToExt(SrcName)).size() > 1 && Extension.size() != SrcName.size() &&
+	        (Extension = name_ext(SrcName).second).size() > 1 && Extension.size() != SrcName.size() &&
 	        (SrcName.size() > 2 || SrcName[0] != L'.') && !contains(Extension, L' '))
 	{
 		Extension.remove_prefix(1);
@@ -8285,11 +8276,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 							if (!(m_ListData[ListPos].Attributes & FILE_ATTRIBUTE_DIRECTORY) && (ViewFlags & COLFLAGS_NOEXTENSION))
 							{
-								const auto ExtPtr = PointToExt(Name);
-								if (!ExtPtr.empty())
-								{
-									Name.remove_suffix(ExtPtr.size());
-								}
+								Name = name_ext(Name).first;
 							}
 
 							const auto NameCopy = Name;
@@ -8410,7 +8397,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 							if (!(m_ListData[ListPos].Attributes & FILE_ATTRIBUTE_DIRECTORY))
 							{
 								const auto& Name = m_ListData[ListPos].AlternateOrNormal(m_ShowShortNames);
-								ExtPtr = PointToExt(Name);
+								ExtPtr = name_ext(Name).second;
 							}
 							if (!ExtPtr.empty())
 								ExtPtr.remove_prefix(1);

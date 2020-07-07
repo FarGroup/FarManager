@@ -1253,9 +1253,6 @@ std::string_view sane_sv(std::basic_string_view<char_type> const Str)
 
 TEST_CASE("encoding.utf8")
 {
-WARNING_PUSH()
-WARNING_DISABLE_CLANG("-Wc++2a-compat")
-
 	static const struct
 	{
 		bool Utf8;
@@ -1298,8 +1295,6 @@ ut labore et dolore magna aliqua.
 		{ false, false, "\xF4\xBF\xBF\xBF"sv },
 		{ false, false, "\xF0\xA0\xA0\x20"sv },
 	};
-
-WARNING_POP()
 
 	for (const auto& i: Tests)
 	{

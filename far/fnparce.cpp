@@ -424,7 +424,7 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 
 	const auto GetExtension = [](string_view const Name)
 	{
-		const auto Extension = PointToExt(Name);
+		const auto Extension = name_ext(Name).second;
 		return Extension.empty()? Extension : Extension.substr(1);
 	};
 
@@ -854,15 +854,9 @@ bool SubstFileName(
 	SubstData.ListNames = ListNames;
 	SubstData.CmdDir = CmdLineDir.empty()? Global->CtrlObject->CmdLine()->GetCurDir() : CmdLineDir;
 
-	const auto GetNameOnly = [](string_view WithExt)
-	{
-		WithExt.remove_suffix(PointToExt(WithExt).size());
-		return WithExt;
-	};
-
 	// Предварительно получим некоторые "константы" :-)
-	SubstData.This.Normal.NameOnly = GetNameOnly(Name);
-	SubstData.This.Short.NameOnly = GetNameOnly(ShortName);
+	SubstData.This.Normal.NameOnly = name_ext(Name).first;
+	SubstData.This.Short.NameOnly = name_ext(ShortName).first;
 
 	SubstData.This.Panel = Global->CtrlObject->Cp()->ActivePanel();
 	SubstData.Another.Panel = Global->CtrlObject->Cp()->PassivePanel();
@@ -872,8 +866,8 @@ bool SubstFileName(
 	SubstData.Another.Normal.Name = AnotherName;
 	SubstData.Another.Short.Name = AnotherShortName;
 
-	SubstData.Another.Normal.NameOnly = GetNameOnly(SubstData.Another.Normal.Name);
-	SubstData.Another.Short.NameOnly = GetNameOnly(SubstData.Another.Short.Name);
+	SubstData.Another.Normal.NameOnly = name_ext(SubstData.Another.Normal.Name).first;
+	SubstData.Another.Short.NameOnly = name_ext(SubstData.Another.Short.Name).first;
 
 	SubstData.PreserveLFN = false;
 	SubstData.PassivePanel = false; // первоначально речь идет про активную панель!

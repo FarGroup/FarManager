@@ -258,10 +258,15 @@ string_view PointToFolderNameIfFolder(string_view Path)
 	return PointToName(Path);
 }
 
-string_view PointToExt(string_view const Path)
+std::pair<string_view, string_view> name_ext(string_view const Path)
 {
-	const auto ExtensionStart = std::find(ALL_CONST_REVERSE_RANGE(Path), L'.');
-	return Path.substr(ExtensionStart == Path.crend()? Path.size() : Path.crend() - ExtensionStart - 1);
+	auto ExtensionStart = std::find_if(ALL_CONST_REVERSE_RANGE(Path), [](wchar_t const Char){ return Char == L'.' || IsSlash(Char); });
+	if (ExtensionStart != Path.crend() && *ExtensionStart != L'.')
+		ExtensionStart = Path.crend();
+
+	const auto NameSize = ExtensionStart == Path.crend()? Path.size() : Path.crend() - ExtensionStart - 1;
+
+	return { Path.substr(0, NameSize), Path.substr(NameSize) };
 }
 
 
@@ -645,26 +650,38 @@ TEST_CASE("path.PointToName")
 	}
 }
 
-TEST_CASE("path.PointToExt")
+TEST_CASE("path.name_ext")
 {
 	static const struct
 	{
-		string_view Input, Result;
+		string_view Input, Name, Extension;
 	}
 	Tests[]
 	{
-		{ {},                                 {}         },
-		{ L"file"sv,                          {}         },
-		{ L"path\\file"sv,                    {}         },
-		{ L"file.ext"sv,                      L".ext"sv  },
-		{ L"path\\file.ext"sv,                L".ext"sv  },
-		{ L"file.ext1.ext2"sv,                L".ext2"sv },
-		{ L"path\\file.ext1.ext2"sv,          L".ext2"sv },
+		{ {},                                 {},                        {}         },
+		{ L"file"sv,                          L"file"sv,                 {}         },
+		{ L"path\\file"sv,                    L"path\\file"sv,           {}         },
+		{ L"path.ext\\file"sv,                L"path.ext\\file"sv,       {}         },
+		{ L".\\"sv,                           L".\\"sv,                  {}         },
+		{ L"\\."sv,                           L"\\"sv,                   L"."sv     },
+		{ L"."sv,                             {},                        L"."sv     },
+		{ L".."sv,                            L"."sv,                    L"."sv     },
+		{ L"..."sv,                           L".."sv,                   L"."sv     },
+		{ L"file."sv,                         L"file"sv,                 L"."sv     },
+		{ L".e"sv,                            {},                        L".e"sv    },
+		{ L".ext"sv,                          {},                        L".ext"sv  },
+		{ L"..ext"sv,                         L"."sv,                    L".ext"sv  },
+		{ L"file.ext"sv,                      L"file"sv,                 L".ext"sv  },
+		{ L"path\\file.ext"sv,                L"path\\file"sv,           L".ext"sv  },
+		{ L"file.ext1.ext2"sv,                L"file.ext1"sv,            L".ext2"sv },
+		{ L"path\\file.ext1.ext2"sv,          L"path\\file.ext1"sv,      L".ext2"sv },
 	};
 
 	for (const auto& i: Tests)
 	{
-		REQUIRE(i.Result == PointToExt(i.Input));
+		const auto& [Name, Extension] = name_ext(i.Input);
+		REQUIRE(i.Name == Name);
+		REQUIRE(i.Extension == Extension);
 	}
 }
 
