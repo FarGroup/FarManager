@@ -47,11 +47,15 @@ public:
 		static_assert(std::disjunction_v<std::is_void<T>, std::is_trivially_copyable<T>>);
 	}
 
-	template<typename T>
+	template<typename T, REQUIRES(std::is_trivially_copyable_v<T>)>
 	explicit bytes_view(const T& Object) noexcept:
 		bytes_view(&Object, sizeof(Object))
 	{
-		static_assert(std::is_trivially_copyable_v<T>);
+	}
+
+	explicit bytes_view(span<char const> const Object) noexcept:
+		bytes_view(Object.data(), Object.size())
+	{
 	}
 
 	[[nodiscard]]

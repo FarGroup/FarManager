@@ -1972,8 +1972,6 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 
 			size_t LineNumber = -1;
 
-			std::vector<char> Buffer;
-
 			for (auto& Line : m_editor->Lines)
 			{
 				++LineNumber;

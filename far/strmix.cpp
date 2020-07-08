@@ -1080,12 +1080,12 @@ string ConvertHexString(string_view const From, uintptr_t Codepage, bool FromHex
 	if (FromHex)
 	{
 		const auto Blob = HexStringToBlob(ExtractHexString(From), 0);
-		return encoding::get_chars(CompatibleCp, { Blob.data(), Blob.size() });
+		return encoding::get_chars(CompatibleCp, Blob);
 	}
 	else
 	{
 		const auto Blob = encoding::get_bytes(CompatibleCp, From);
-		return BlobToHexWString({ Blob.data(), Blob.size() }, 0);
+		return BlobToHexWString(bytes_view(Blob), 0);
 	}
 }
 

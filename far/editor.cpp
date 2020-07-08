@@ -121,6 +121,7 @@ eol Editor::GetDefaultEOL()
 
 Editor::Editor(window_ptr Owner, bool DialogUsed):
 	SimpleScreenObject(std::move(Owner)),
+	GlobalEOL(GetDefaultEOL()),
 	EdOpt(Global->Opt->EdOpt),
 	LastSearchCase(Global->GlobalSearchCase),
 	LastSearchWholeWords(Global->GlobalSearchWholeWords),
@@ -146,8 +147,6 @@ Editor::Editor(window_ptr Owner, bool DialogUsed):
 		strLastSearchStr = Global->GetSearchString();
 	}
 	UnmarkMacroBlock();
-
-	GlobalEOL = GetDefaultEOL();
 	PushString({});
 }
 

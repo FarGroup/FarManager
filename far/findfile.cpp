@@ -1046,7 +1046,7 @@ bool background_searcher::LookForString(string_view const FileName)
 				size_t bufferCount;
 
 				// Буфер для поиска
-				wchar_t *buffer;
+				wchar_t const *buffer;
 
 				// Перегоняем буфер в UTF-16
 				if (IsUnicodeCodePage(i.CodePage))
