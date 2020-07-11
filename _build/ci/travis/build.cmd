@@ -65,5 +65,23 @@ cd ..
 %exit%
 
 
+:CLANG_MAKE
+set PATH=C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw%PLATFORM:~-2%\bin;C:\Program Files\LLVM\bin;%PATH%
+if %CONFIG%==Debug set DEBUG=1
+
+rem print version
+clang --version
+
+cd far
+mingw32-make -j4 CLANG=1 -f makefile_gcc %ADD_MAKE% || %throw%
+cd ..
+
+cd plugins
+rem mingw32-make -j4 CLANG=1 -f makefile_all_gcc %ADD_MAKE% || %throw%
+cd ..
+
+%exit%
+
+
 :main
 call :%COMPILER%
