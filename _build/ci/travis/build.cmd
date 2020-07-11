@@ -73,7 +73,7 @@ rem print version
 clang --version
 
 cd far
-mingw32-make -j4 CLANG=1 -f makefile_gcc %ADD_MAKE% || %throw%
+mingw32-make -j4 CLANG=1 DISABLE_TESTS=1 -f makefile_gcc %ADD_MAKE% || %throw%
 cd ..
 
 cd plugins
