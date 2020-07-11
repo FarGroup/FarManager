@@ -986,17 +986,6 @@ namespace detail
 		return EXCEPTION_CONTINUE_SEARCH;
 	}
 
-	void ResetStackOverflowIfNeeded()
-	{
-		if (StackOverflowHappened)
-		{
-			if (!_resetstkoflw())
-				std::_Exit(EXIT_FAILURE);
-
-			StackOverflowHappened = false;
-		}
-	}
-
 	void SetFloatingPointExceptions(bool const Enable)
 	{
 		_clearfp();
@@ -1006,6 +995,42 @@ namespace detail
 	std::exception_ptr MakeSehExceptionPtr(DWORD const Code, EXCEPTION_POINTERS* const Pointers, bool const ResumeThread)
 	{
 		return std::make_exception_ptr(seh_exception(Code, *Pointers, os::OpenCurrentThread(), GetCurrentThreadId(), ResumeThread));
+	}
+
+	void seh_invoke_impl(function_ref<void()> const Callable, function_ref<DWORD(DWORD, EXCEPTION_POINTERS*)> const Filter, function_ref<void()> const Handler)
+	{
+#if COMPILER(GCC) || (COMPILER(CLANG) && !defined _WIN64 && defined __GNUC__)
+		// GCC doesn't support these currently
+		// Clang x86 crashes with "Assertion failed: STI.isTargetWindowsMSVC() && "funclets only supported in MSVC env""
+		return Callable();
+#else
+#if COMPILER(CLANG)
+		// Workaround for clang "filter expression type should be an integral value" error
+		const auto FilterWrapper = [&](DWORD const Code, EXCEPTION_POINTERS* const Pointers){ return Filter(Code, Pointers); };
+#define Filter FilterWrapper
+#endif
+
+		__try
+		{
+			return Callable();
+		}
+		__except (SetFloatingPointExceptions(false), Filter(GetExceptionCode(), GetExceptionInformation()))
+		{
+			if (StackOverflowHappened)
+			{
+				if (!_resetstkoflw())
+					std::_Exit(EXIT_FAILURE);
+
+				StackOverflowHappened = false;
+			}
+		}
+
+		return Handler();
+
+#if COMPILER(CLANG)
+#undef Filter
+#endif
+#endif
 	}
 }
 

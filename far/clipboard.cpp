@@ -568,8 +568,8 @@ TEST_CASE("clipboard.stream")
 
 	const std::array Types
 	{
-		std::pair{SetClipboardText, GetClipboardText},
-		std::pair{SetClipboardVText, GetClipboardVText},
+		std::pair{&SetClipboardText, &GetClipboardText},
+		std::pair{&SetClipboardVText, &GetClipboardVText},
 	};
 
 	for (const auto i: { clipboard_mode::system, clipboard_mode::internal })

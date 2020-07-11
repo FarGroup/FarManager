@@ -66,14 +66,14 @@ namespace io
 	using wstreambuf_override = basic_streambuf_override<wchar_t>;
 
 	[[nodiscard]]
-	inline size_t read(std::istream& Stream, span<char> const Buffer)
+	inline size_t read(std::istream& Stream, span<std::byte> const Buffer)
 	{
 		{
 			const auto Exceptions = Stream.exceptions();
 			Stream.exceptions(Exceptions & ~(Stream.failbit | Stream.eofbit));
 			SCOPE_SUCCESS{ Stream.exceptions(Exceptions); };
 
-			Stream.read(Buffer.data(), Buffer.size());
+			Stream.read(static_cast<char*>(static_cast<void*>(Buffer.data())), Buffer.size());
 			if (!Stream.bad() && Stream.eof())
 				Stream.clear(Stream.eofbit);
 		}

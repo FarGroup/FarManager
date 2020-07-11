@@ -75,7 +75,7 @@ public:
 	installed_codepages()
 	{
 		Context = this;
-		EnumSystemCodePages([](wchar_t* cpNum){ return Context->enum_cp_callback(cpNum); }, CP_INSTALLED);
+		EnumSystemCodePages(callback, CP_INSTALLED);
 		Context = {};
 
 		rethrow_if(m_ExceptionPtr);
@@ -88,6 +88,11 @@ public:
 
 private:
 	static inline installed_codepages* Context;
+
+	static BOOL WINAPI callback(wchar_t* const cpNum)
+	{
+		return Context->enum_cp_callback(cpNum);
+	}
 
 	BOOL enum_cp_callback(wchar_t const* cpNum)
 	{
@@ -349,6 +354,11 @@ std::string encoding::get_bytes(uintptr_t const Codepage, string_view const Str,
 	return Buffer;
 }
 
+size_t encoding::get_bytes_count(uintptr_t const Codepage, string_view const Str)
+{
+	return get_bytes(Codepage, Str, span<char>{});
+}
+
 namespace Utf7
 {
 	size_t get_chars(std::string_view Str, span<wchar_t> Buffer, Utf::errors *Errors);
@@ -387,6 +397,11 @@ size_t encoding::get_chars(uintptr_t const Codepage, std::string_view const Str,
 	return Result;
 }
 
+size_t encoding::get_chars(uintptr_t const Codepage, bytes_view const Str, span<wchar_t> Buffer)
+{
+	return get_chars(Codepage, to_string_view(Str), Buffer);
+}
+
 string encoding::get_chars(uintptr_t const Codepage, std::string_view const Str)
 {
 	if (Str.empty())
@@ -420,6 +435,21 @@ string encoding::get_chars(uintptr_t const Codepage, std::string_view const Str)
 	}
 
 	return Buffer;
+}
+
+string encoding::get_chars(uintptr_t const Codepage, bytes_view const Str)
+{
+	return get_chars(Codepage, to_string_view(Str));
+}
+
+size_t encoding::get_chars_count(uintptr_t const Codepage, std::string_view const Str)
+{
+	return get_chars(Codepage, Str, {});
+}
+
+size_t encoding::get_chars_count(uintptr_t const Codepage, bytes_view const Str)
+{
+	return get_chars(Codepage, Str, {});
 }
 
 std::string_view encoding::get_signature_bytes(uintptr_t Cp)
@@ -991,7 +1021,7 @@ size_t Utf8::get_chars(std::string_view const Str, span<wchar_t> const Buffer, U
 	return BytesToUnicode(Str, Buffer, [](std::string_view::const_iterator const Iterator, std::string_view::const_iterator const End, wchar_t* CharBuffer, bool&, int&)
 	{
 		auto NextIterator = Iterator;
-		get_char(NextIterator, End, CharBuffer[0], CharBuffer[1]);
+		(void)get_char(NextIterator, End, CharBuffer[0], CharBuffer[1]);
 		return static_cast<size_t>(NextIterator - Iterator);
 	}, Errors);
 }

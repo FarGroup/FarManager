@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.chrono.hpp"
 
 // Common:
+#include "common/bytes_view.hpp"
 #include "common/enumerator.hpp"
 #include "common/keep_alive.hpp"
 #include "common/noncopyable.hpp"
@@ -54,8 +55,6 @@ struct FarColor;
 struct VersionInfo;
 class representation_source;
 class representation_destination;
-class bytes;
-class bytes_view;
 
 namespace os
 {
@@ -80,7 +79,7 @@ class GeneralConfig : public representable, virtual public transactional
 public:
 	virtual void SetValue(string_view Key, string_view Name, string_view Value) = 0;
 	virtual void SetValue(string_view Key, string_view Name, unsigned long long Value) = 0;
-	virtual void SetValue(string_view Key, string_view Name, const bytes_view& Value) = 0;
+	virtual void SetValue(string_view Key, string_view Name, bytes_view Value) = 0;
 
 	[[nodiscard]]
 	virtual bool GetValue(string_view Key, string_view Name, bool& Value) const = 0;
@@ -163,7 +162,7 @@ public:
 
 	virtual void SetValue(const key& Root, string_view Name, string_view Value) = 0;
 	virtual void SetValue(const key& Root, string_view Name, unsigned long long Value) = 0;
-	virtual void SetValue(const key& Root, string_view Name, const bytes_view& Value) = 0;
+	virtual void SetValue(const key& Root, string_view Name, bytes_view Value) = 0;
 
 	virtual bool GetValue(const key& Root, string_view Name, unsigned long long& Value) const = 0;
 	virtual bool GetValue(const key& Root, string_view Name, string& strValue) const = 0;
@@ -178,8 +177,6 @@ public:
 		Value = iValue != 0;
 		return true;
 	}
-
-	bool GetValue(const key& Root, string_view Name, bytes&& Value) const { return GetValue(Root, Name, Value); }
 
 	template<typename value_type, typename default_type = value_type>
 	value_type GetValue(const key& Root, string_view const Name, const default_type& Default = {})

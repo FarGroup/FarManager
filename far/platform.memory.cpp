@@ -74,8 +74,8 @@ namespace os::memory
 			if (!Memory)
 				return nullptr;
 
-			const auto From = lock<const char*>(Ptr);
-			const auto To = lock<char*>(Memory);
+			const auto From = lock<std::byte const*>(Ptr);
+			const auto To = lock<std::byte*>(Memory);
 			std::copy(From.get(), From.get() + Size, To.get());
 
 			return Memory;

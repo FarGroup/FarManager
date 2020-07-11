@@ -252,7 +252,7 @@ void PrintFiles(FileList* SrcPanel)
 
 				for (;;)
 				{
-					char Buffer[8192];
+					std::byte Buffer[8192];
 					const auto Read = io::read(Stream, Buffer);
 					if (!Read)
 						break;

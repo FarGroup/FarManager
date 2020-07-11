@@ -33,118 +33,108 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "range.hpp"
-#include "utility.hpp"
 
 //----------------------------------------------------------------------------
 
-class bytes_view: public span<char const>
+namespace detail
 {
-public:
-	template<typename T>
-	bytes_view(T const* const Data, size_t const Size) noexcept:
-		span<char const>(static_cast<char const*>(static_cast<void const*>(Data)), Size)
+	template<typename T, bool Add>
+	using add_const_if_t = std::conditional_t<Add, T const, T>;
+
+	template<typename return_type, typename T, REQUIRES((std::disjunction_v<std::is_void<T>, std::is_trivially_copyable<T>>))>
+	return_type bytes_impl(T* const Data, size_t const Size)
 	{
-		static_assert(std::disjunction_v<std::is_void<T>, std::is_trivially_copyable<T>>);
+		constexpr auto IsConst = std::is_const_v<T>;
+		using void_type = add_const_if_t<void, IsConst>;
+		using byte_type = add_const_if_t<std::byte, IsConst>;
+		return { static_cast<byte_type*>(static_cast<void_type*>(Data)), Size };
 	}
 
-	template<typename T, REQUIRES(std::is_trivially_copyable_v<T>)>
-	explicit bytes_view(const T& Object) noexcept:
-		bytes_view(&Object, sizeof(Object))
+	template<typename return_type, typename T>
+	auto bytes_impl(T& Object)
 	{
-	}
-
-	explicit bytes_view(span<char const> const Object) noexcept:
-		bytes_view(Object.data(), Object.size())
-	{
-	}
-
-	[[nodiscard]]
-	operator std::string_view() const noexcept
-	{
-		return { data(), size() };
-	}
-};
-
-class bytes: public base<span<char>>
-{
-public:
-	NONCOPYABLE(bytes);
-	MOVABLE(bytes);
-
-	bytes() = default;
-
-	[[nodiscard]]
-	static bytes copy(const bytes_view& Object)
-	{
-		bytes Bytes;
-		Bytes = Object;
-		return Bytes;
-	}
-
-	template<typename T>
-	[[nodiscard]]
-	static bytes copy(const T& Object)
-	{
-		return copy(bytes_view(Object));
-	}
-
-	template<typename T>
-	[[nodiscard]]
-	static bytes reference(T* const Data, size_t const Size) noexcept
-	{
-		static_assert(std::is_trivially_copyable_v<T>);
-
-		bytes Bytes;
-		static_cast<base_type&>(Bytes) = { static_cast<char*>(static_cast<void*>(Data)), Size };
-		return Bytes;
-	}
-
-	template<typename T>
-	[[nodiscard]]
-	static bytes reference(T& Object) noexcept
-	{
-		return reference(&Object, sizeof(Object));
-	}
-
-	bytes& operator=(const bytes_view& rhs)
-	{
-		if (data())
+		if constexpr (is_span_v<T>)
 		{
-			if (size() != rhs.size())
-				throw std::runtime_error("Incorrect blob size: "s + std::to_string(rhs.size()) + ", expected "s + std::to_string(size()));
+			using value_type = std::remove_reference_t<decltype(*std::data(std::declval<T&>()))>;
+			static_assert(std::is_trivially_copyable_v<value_type>);
+
+			return bytes_impl<return_type>(std::data(Object), std::size(Object) * sizeof(value_type));
+		}
+		else if constexpr (std::is_trivially_copyable_v<T>)
+		{
+			return bytes_impl<return_type>(&Object, sizeof(Object));
 		}
 		else
 		{
-			m_Buffer = std::make_unique<char[]>(rhs.size());
-			static_cast<base_type&>(*this) = { m_Buffer.get(), rhs.size() };
+			static_assert(!sizeof(T), "The type is not serialisable");
 		}
-		std::copy(ALL_CONST_RANGE(rhs), begin());
-		return *this;
 	}
+}
 
-	[[nodiscard]]
-	operator bytes_view() const noexcept
-	{
-		return { data(), size() };
-	}
 
-	[[nodiscard]]
-	operator std::string_view() const noexcept
-	{
-		return { data(), size() };
-	}
+using bytes_view = std::basic_string_view<std::byte>;
 
-private:
-	std::unique_ptr<char[]> m_Buffer;
-};
+[[nodiscard]]
+constexpr inline bytes_view operator "" _bv(const char* Str, std::size_t Size) noexcept
+{
+	return { static_cast<std::byte const*>(static_cast<void const*>(Str)), Size };
+}
+
+
+using bytes = std::basic_string<std::byte>;
+
+[[nodiscard]]
+/*constexpr*/ inline bytes operator "" _b(const char* Str, std::size_t Size) noexcept
+{
+	return bytes{ operator ""_bv(Str, Size) };
+}
+
 
 template<typename T>
 [[nodiscard]]
-T deserialise(const bytes_view& Bytes) noexcept
+auto view_bytes(T const* const Data, size_t const Size)
 {
-	T Value;
-	bytes::reference(Value) = Bytes;
-	return Value;
+	return detail::bytes_impl<bytes_view>(Data, Size);
+}
+
+template<typename T>
+[[nodiscard]]
+auto view_bytes(T const& Object)
+{
+	return detail::bytes_impl<bytes_view>(Object);
+}
+
+template<typename T>
+[[nodiscard]]
+auto edit_bytes(T* const Data, size_t const Size)
+{
+	return detail::bytes_impl<span<std::byte>>(Data, Size);
+}
+
+template<typename T>
+[[nodiscard]]
+auto edit_bytes(T& Object)
+{
+	return detail::bytes_impl<span<std::byte>>(Object);
+}
+
+[[nodiscard]]
+inline std::string_view to_string_view(bytes_view const Bytes)
+{
+	return { static_cast<char const*>(static_cast<void const*>(Bytes.data())), Bytes.size() };
+}
+
+template<typename T>
+[[nodiscard]]
+bool deserialise(bytes_view const Bytes, T& Value) noexcept
+{
+	const auto ValueBytes = edit_bytes(Value);
+
+	if (ValueBytes.size() != Bytes.size())
+		return false;
+
+	std::copy(ALL_CONST_RANGE(Bytes), ValueBytes.begin());
+	return true;
 }
 
 #endif // BYTES_VIEW_HPP_3707377A_7C4B_4B2E_89EC_6411A1988FB3

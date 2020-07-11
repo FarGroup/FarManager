@@ -352,7 +352,7 @@ private:
 	FindFiles* const m_Owner;
 	const string m_EventName;
 
-	std::vector<char> readBufferA;
+	std::vector<std::byte> readBufferA;
 	std::vector<wchar_t> readBuffer;
 	bytes hexFindString;
 	struct CodePageInfo;
@@ -383,9 +383,19 @@ private:
 	template<typename... args>
 	using searcher = std::boyer_moore_horspool_searcher<args...>;
 
-	std::optional<searcher<string::const_iterator>> CaseSensitiveSearcher;
-	std::optional<searcher<string::const_iterator, hash_icase_t, equal_icase_t>> CaseInsensitiveSearcher;
-	std::optional<searcher<const char*>> HexSearcher;
+	using case_sensitive_searcher = searcher<string::const_iterator>;
+	using case_insensitive_searcher = searcher<string::const_iterator, hash_icase_t, equal_icase_t>;
+	using hex_searcher = searcher<bytes::const_iterator>;
+
+	std::variant
+	<
+		bool, // Just to make it default-constructible
+		case_sensitive_searcher,
+		case_insensitive_searcher,
+		hex_searcher
+	>
+	m_Searcher;
+
 	std::optional<taskbar::indeterminate> m_TaskbarProgress{ std::in_place };
 };
 
@@ -437,9 +447,9 @@ void background_searcher::InitInFileSearch()
 	if (!SearchHex)
 	{
 		if (CmpCase)
-			CaseSensitiveSearcher.emplace(ALL_CONST_RANGE(strFindStr));
+			m_Searcher.emplace<case_sensitive_searcher>(ALL_CONST_RANGE(strFindStr));
 		else
-			CaseInsensitiveSearcher.emplace(ALL_CONST_RANGE(strFindStr));
+			m_Searcher.emplace<case_insensitive_searcher>(ALL_CONST_RANGE(strFindStr));
 
 		// Формируем список кодовых страниц
 		if (CodePage == CP_ALL)
@@ -488,7 +498,7 @@ void background_searcher::InitInFileSearch()
 		hexFindString = HexStringToBlob(strFindStr, 0);
 
 		// Инициализируем данные для аглоритма поиска
-		HexSearcher.emplace(ALL_CONST_RANGE(hexFindString));
+		m_Searcher.emplace<hex_searcher>(ALL_CONST_RANGE(hexFindString));
 	}
 }
 
@@ -998,7 +1008,7 @@ bool background_searcher::LookForString(string_view const FileName)
 
 			// Ищем
 			const auto Begin = readBufferA.data(), End = Begin + readBlockSize;
-			if (std::search(Begin, End, *HexSearcher) != End)
+			if (std::search(Begin, End, std::get<hex_searcher>(m_Searcher)) != End)
 				return true;
 		}
 		else
@@ -1122,8 +1132,8 @@ bool background_searcher::LookForString(string_view const FileName)
 				{
 					// Ищем подстроку в буфере и возвращаем индекс её начала в случае успеха
 					const auto NewIterator = CmpCase?
-						std::search(Iterator, End, *CaseSensitiveSearcher):
-						std::search(Iterator, End, *CaseInsensitiveSearcher);
+						std::search(Iterator, End, std::get<case_sensitive_searcher>(m_Searcher)):
+						std::search(Iterator, End, std::get<case_insensitive_searcher>(m_Searcher));
 
 					// Если подстрока не найдена идём на следующий шаг
 					if (NewIterator == End)

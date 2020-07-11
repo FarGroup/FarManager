@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
+#include "common/bytes_view.hpp"
 #include "common/noncopyable.hpp"
 #include "common/range.hpp"
 
@@ -51,29 +52,22 @@ namespace encoding
 {
 	namespace codepage
 	{
-		uintptr_t ansi();
-		uintptr_t oem();
+		[[nodiscard]] uintptr_t ansi();
+		[[nodiscard]] uintptr_t oem();
 	}
 
 	size_t get_bytes(uintptr_t Codepage, string_view Str, span<char> Buffer, bool* UsedDefaultChar = nullptr);
-
-	std::string get_bytes(uintptr_t Codepage, string_view Str, bool* UsedDefaultChar = nullptr);
-
-	inline auto get_bytes_count(uintptr_t const Codepage, string_view const Str)
-	{
-		return get_bytes(Codepage, Str, span<char>{});
-	}
+	[[nodiscard]] std::string get_bytes(uintptr_t Codepage, string_view Str, bool* UsedDefaultChar = nullptr);
+	[[nodiscard]] size_t get_bytes_count(uintptr_t Codepage, string_view Str);
 
 	//-------------------------------------------------------------------------
 
-	size_t get_chars(uintptr_t Codepage, std::string_view Str, span<wchar_t> Buffer);
-
-	string get_chars(uintptr_t Codepage, std::string_view Str);
-
-	inline auto get_chars_count(uintptr_t const Codepage, std::string_view const Str)
-	{
-		return get_chars(Codepage, Str, {});
-	}
+	[[nodiscard]] size_t get_chars(uintptr_t Codepage, std::string_view Str, span<wchar_t> Buffer);
+	[[nodiscard]] size_t get_chars(uintptr_t Codepage, bytes_view Str, span<wchar_t> Buffer);
+	[[nodiscard]] string get_chars(uintptr_t Codepage, std::string_view Str);
+	[[nodiscard]] string get_chars(uintptr_t Codepage, bytes_view Str);
+	[[nodiscard]] size_t get_chars_count(uintptr_t Codepage, std::string_view Str);
+	[[nodiscard]] size_t get_chars_count(uintptr_t Codepage, bytes_view Str);
 
 	//-------------------------------------------------------------------------
 
@@ -88,12 +82,12 @@ namespace encoding
 				return encoding::get_bytes(Codepage, Str, Buffer, UsedDefaultChar);
 			}
 
-			static auto get_bytes(string_view const Str, bool* const UsedDefaultChar = nullptr)
+			[[nodiscard]] static auto get_bytes(string_view const Str, bool* const UsedDefaultChar = nullptr)
 			{
 				return encoding::get_bytes(Codepage, Str, UsedDefaultChar);
 			}
 
-			static auto get_bytes_count(string_view const Str)
+			[[nodiscard]] static auto get_bytes_count(string_view const Str)
 			{
 				return encoding::get_bytes_count(Codepage, Str);
 			}
@@ -103,12 +97,27 @@ namespace encoding
 				return encoding::get_chars(Codepage, Str, Buffer);
 			}
 
-			static auto get_chars(std::string_view const Str)
+			[[nodiscard]] static auto get_chars(bytes_view const Str, span<wchar_t> const Buffer)
+			{
+				return encoding::get_chars(Codepage, Str, Buffer);
+			}
+
+			[[nodiscard]] static auto get_chars(std::string_view const Str)
 			{
 				return encoding::get_chars(Codepage, Str);
 			}
 
-			static auto get_chars_count(std::string_view const Str)
+			[[nodiscard]] static auto get_chars(bytes_view const Str)
+			{
+				return encoding::get_chars(Codepage, Str);
+			}
+
+			[[nodiscard]] static auto get_chars_count(std::string_view const Str)
+			{
+				return encoding::get_chars_count(Codepage, Str);
+			}
+
+			[[nodiscard]] static auto get_chars_count(bytes_view const Str)
 			{
 				return encoding::get_chars_count(Codepage, Str);
 			}
@@ -119,7 +128,7 @@ namespace encoding
 	using ansi = detail::codepage<CP_ACP>;
 	using oem = detail::codepage<CP_OEMCP>;
 
-	std::string_view get_signature_bytes(uintptr_t Cp);
+	[[nodiscard]] std::string_view get_signature_bytes(uintptr_t Cp);
 
 	class writer
 	{
@@ -140,13 +149,13 @@ namespace encoding
 
 void swap_bytes(const void* Src, void* Dst, size_t SizeInBytes);
 
-bool IsVirtualCodePage(uintptr_t cp);
-bool IsUnicodeCodePage(uintptr_t cp);
-bool IsStandardCodePage(uintptr_t cp);
-bool IsUnicodeOrUtfCodePage(uintptr_t cp);
-bool IsNoFlagsCodepage(uintptr_t cp);
+[[nodiscard]] bool IsVirtualCodePage(uintptr_t cp);
+[[nodiscard]] bool IsUnicodeCodePage(uintptr_t cp);
+[[nodiscard]] bool IsStandardCodePage(uintptr_t cp);
+[[nodiscard]] bool IsUnicodeOrUtfCodePage(uintptr_t cp);
+[[nodiscard]] bool IsNoFlagsCodepage(uintptr_t cp);
 
-string ShortReadableCodepageName(uintptr_t cp);
+[[nodiscard]] string ShortReadableCodepageName(uintptr_t cp);
 
 //#############################################################################
 
@@ -192,35 +201,34 @@ namespace Utf
 namespace Utf8
 {
 	// returns the number of decoded chars, 1 or 2. Moves the StrIterator forward as required.
-	size_t get_char(std::string_view::const_iterator& StrIterator, std::string_view::const_iterator StrEnd, wchar_t& First, wchar_t& Second);
+	[[nodiscard]] size_t get_char(std::string_view::const_iterator& StrIterator, std::string_view::const_iterator StrEnd, wchar_t& First, wchar_t& Second);
 	// returns the number of decoded chars, up to Buffer.size(). Stops on buffer overflow. Tail contains the number of unprocessed bytes.
-	size_t get_chars(std::string_view Str, span<wchar_t> Buffer, int& Tail);
+	[[nodiscard]] size_t get_chars(std::string_view Str, span<wchar_t> Buffer, int& Tail);
 	// returns the required buffer size. Fills Buffer up to its size.
-	size_t get_chars(std::string_view Str, span<wchar_t> Buffer, Utf::errors* Errors);
+	[[nodiscard]] size_t get_chars(std::string_view Str, span<wchar_t> Buffer, Utf::errors* Errors);
 	// returns the required buffer size. Fills Buffer up to its size.
-	size_t get_bytes(string_view Str, span<char> Buffer);
+	[[nodiscard]] size_t get_bytes(string_view Str, span<char> Buffer);
 }
 
 //#############################################################################
 
-class raw_eol
+class [[nodiscard]] raw_eol
 {
 public:
 	raw_eol(): m_Cr('\r'), m_Lf('\n') {}
 	explicit raw_eol(uintptr_t Codepage): m_Cr(to(Codepage, L'\r')), m_Lf(to(Codepage, L'\n')) {}
 
 	template <class T>
-	T cr() const { return value<T>(L'\r', m_Cr); }
+	[[nodiscard]] T cr() const { return value<T>(L'\r', m_Cr); }
 
 	template <class T>
-	T lf() const { return value<T>(L'\n', m_Lf); }
+	[[nodiscard]] T lf() const { return value<T>(L'\n', m_Lf); }
 
 private:
 	static char to(uintptr_t Codepage, wchar_t WideChar)
 	{
-		char Char = WideChar;
-		encoding::get_bytes(Codepage, { &WideChar, 1 }, { &Char, 1 });
-		return Char;
+		char Char;
+		return encoding::get_bytes(Codepage, { &WideChar, 1 }, { &Char, 1 })? Char : WideChar;
 	}
 
 	template <typename T>
@@ -244,7 +252,7 @@ private:
 
 // {Codepage: (MaxCharSize, Name)}
 using cp_map = std::unordered_map<UINT, std::pair<UINT, string>>;
-const cp_map& InstalledCodepages();
-cp_map::value_type::second_type GetCodePageInfo(UINT cp);
+[[nodiscard]] const cp_map& InstalledCodepages();
+[[nodiscard]] cp_map::value_type::second_type GetCodePageInfo(UINT cp);
 
 #endif // ENCODING_HPP_44AE7032_AF79_4A6F_A2ED_529BC1A38758

@@ -763,7 +763,7 @@ FileFilterParams FileFilter::LoadFilter(/*const*/ HierarchicalConfig& cfg, unsig
 	{
 		// Old format
 		// TODO 2020 Q4: remove
-		if (cfg.GetValue(Key, legacy_names::DateAfter, bytes::reference(DateAfter)))
+		if (bytes Blob; cfg.GetValue(Key, legacy_names::DateAfter, Blob) && deserialise(Blob, DateAfter))
 		{
 			cfg.SetValue(Key, names::DateTimeAfter, DateAfter);
 			cfg.DeleteValue(Key, legacy_names::DateAfter);
@@ -775,7 +775,7 @@ FileFilterParams FileFilter::LoadFilter(/*const*/ HierarchicalConfig& cfg, unsig
 	{
 		// Old format
 		// TODO 2020 Q4: remove
-		if (cfg.GetValue(Key, legacy_names::DateBefore, bytes::reference(DateBefore)))
+		if (bytes Blob; cfg.GetValue(Key, legacy_names::DateBefore, Blob) && deserialise(Blob, DateBefore))
 		{
 			cfg.SetValue(Key, names::DateTimeBefore, DateBefore);
 			cfg.DeleteValue(Key, legacy_names::DateBefore);
@@ -892,14 +892,14 @@ static bool LoadLegacyFlags(const HierarchicalConfigUniquePtr& Cfg, Hierarchical
 	static_assert(FFFT_COUNT >= LegacyCount);
 
 	DWORD LegacyFlags[LegacyCount]{};
-	if (!Cfg->GetValue(Key, Name, bytes::reference(LegacyFlags)))
+	if (bytes Blob; !Cfg->GetValue(Key, Name, Blob) || !deserialise(Blob, LegacyFlags))
 		return false;
 
 	for (int i = 0; i != LegacyCount; ++i)
 		Item.SetFlags(static_cast<enumFileFilterFlagsType>(i), LegacyFlags[i]);
 
 	return true;
-};
+}
 
 void FileFilter::InitFilter()
 {

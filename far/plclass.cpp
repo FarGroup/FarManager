@@ -195,15 +195,6 @@ bool native_plugin_factory::FindExport(const std::string_view ExportName) const
 	return ExportName == m_ExportsNames[iGetGlobalInfo].AName;
 }
 
-static auto image_first_section(const IMAGE_NT_HEADERS& Header)
-{
-WARNING_PUSH()
-WARNING_DISABLE_GCC("-Wold-style-cast")
-WARNING_DISABLE_CLANG("-Wold-style-cast")
-	return IMAGE_FIRST_SECTION(&Header);
-WARNING_POP()
-}
-
 template<typename T>
 static decltype(auto) view_as(void const* const BaseAddress, IMAGE_SECTION_HEADER const& Section, size_t const VirtualAddress)
 {
@@ -267,7 +258,8 @@ bool native_plugin_factory::IsPlugin(const void* Data) const
 	if (!ExportDirectoryAddress)
 		return false;
 
-	const span Sections(image_first_section(NtHeaders), NtHeaders.FileHeader.NumberOfSections);
+	const auto FirstSection = view_as<IMAGE_SECTION_HEADER const*>(&NtHeaders, offsetof(IMAGE_NT_HEADERS, OptionalHeader) + NtHeaders.FileHeader.SizeOfOptionalHeader);
+	const span Sections(FirstSection, NtHeaders.FileHeader.NumberOfSections);
 	const auto SectionIterator = std::find_if(ALL_CONST_RANGE(Sections), [&](IMAGE_SECTION_HEADER const& Section)
 	{
 		return

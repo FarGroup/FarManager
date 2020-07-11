@@ -229,7 +229,7 @@ private:
 		SetValueT(Key, Name, Value);
 	}
 
-	void SetValue(const string_view Key, const string_view Name, const bytes_view& Value) override
+	void SetValue(const string_view Key, const string_view Name, bytes_view const Value) override
 	{
 		SetValueT(Key, Name, Value);
 	}
@@ -296,7 +296,7 @@ private:
 			{
 			case column_type::integer:
 				e.SetAttribute("type", "qword");
-				e.SetAttribute("value", to_hex_string(stmtEnumAllValues.GetColInt64(2)).c_str());
+				e.SetAttribute("value", encoding::utf8::get_bytes(to_hex_wstring(stmtEnumAllValues.GetColInt64(2))).c_str());
 				break;
 
 			case column_type::string:
@@ -308,7 +308,7 @@ private:
 			case column_type::unknown:
 				{
 					e.SetAttribute("type", "hex");
-					e.SetAttribute("value", BlobToHexString(stmtEnumAllValues.GetColBlob(2)).c_str());
+					e.SetAttribute("value", encoding::utf8::get_bytes(BlobToHexString(stmtEnumAllValues.GetColBlob(2))).c_str());
 				}
 			}
 		}
@@ -344,7 +344,7 @@ private:
 
 			if (!strcmp(type,"hex"))
 			{
-				SetValue(Key, Name, HexStringToBlob(value));
+				SetValue(Key, Name, HexStringToBlob(encoding::utf8::get_chars(value)));
 				continue;
 			}
 		}
@@ -462,15 +462,15 @@ public:
 	}
 
 protected:
-	virtual void SerializeBlob(std::string_view /*Name*/, const bytes_view& Blob, tinyxml::XMLElement& e) const
+	virtual void SerializeBlob(std::string_view /*Name*/, bytes_view const Blob, tinyxml::XMLElement& e) const
 	{
 		e.SetAttribute("type", "hex");
-		e.SetAttribute("value", BlobToHexString(Blob).c_str());
+		e.SetAttribute("value", encoding::utf8::get_bytes(BlobToHexString(Blob)).c_str());
 	}
 
 	virtual bytes DeserializeBlob(const char* Type, const char* Value, const tinyxml::XMLElement& e) const
 	{
-		return Value? HexStringToBlob(Value) : bytes{};
+		return Value? HexStringToBlob(encoding::utf8::get_chars(Value)) : bytes{};
 	}
 
 private:
@@ -566,7 +566,7 @@ private:
 		SetValueT(Root, Name, Value);
 	}
 
-	void SetValue(const key& Root, const string_view Name, const bytes_view& Value) override
+	void SetValue(const key& Root, const string_view Name, bytes_view const Value) override
 	{
 		SetValueT(Root, Name, Value);
 	}
@@ -686,7 +686,7 @@ private:
 				{
 				case column_type::integer:
 					e.SetAttribute("type", "qword");
-					e.SetAttribute("value", to_hex_string(Stmt->GetColInt64(1)).c_str());
+					e.SetAttribute("value", encoding::utf8::get_bytes(to_hex_wstring(Stmt->GetColInt64(1))).c_str());
 					break;
 
 				case column_type::string:
@@ -755,7 +755,7 @@ private:
 			else if (!strcmp(type, "hex"))
 			{
 				if (value)
-					SetValue(Key, Name, HexStringToBlob(value));
+					SetValue(Key, Name, HexStringToBlob(encoding::utf8::get_chars(value)));
 			}
 			else
 			{
@@ -777,16 +777,7 @@ private:
 		if (!Stmt->Bind(Root.get(), Name).Step())
 			return false;
 
-		try
-		{
-			Value = std::invoke(Getter, Stmt, 0);
-		}
-		catch (const far_exception&)
-		{
-			// Blob assignment could fail if the size is incorrect
-			return false;
-		}
-
+		Value = std::invoke(Getter, Stmt, 0);
 		return true;
 	}
 
@@ -830,7 +821,7 @@ public:
 	using HierarchicalConfigDb::HierarchicalConfigDb;
 
 private:
-	void SerializeBlob(std::string_view const Name, const bytes_view& Blob, tinyxml::XMLElement& e) const override
+	void SerializeBlob(std::string_view const Name, bytes_view const Blob, tinyxml::XMLElement& e) const override
 	{
 		static const std::string_view ColorKeys[] =
 		{
@@ -842,16 +833,18 @@ private:
 
 		if (std::find(ALL_CONST_RANGE(ColorKeys), Name) != std::cend(ColorKeys))
 		{
-			const auto Color = deserialise<FarColor>(Blob);
-			e.SetAttribute("type", "color");
-			e.SetAttribute("background", to_hex_string(Color.BackgroundColor).c_str());
-			e.SetAttribute("foreground", to_hex_string(Color.ForegroundColor).c_str());
-			e.SetAttribute("flags", encoding::utf8::get_bytes(FlagsToString(Color.Flags, ColorFlagNames)).c_str());
+			FarColor Color;
+			if (deserialise(Blob, Color))
+			{
+				e.SetAttribute("type", "color");
+				e.SetAttribute("background", encoding::utf8::get_bytes(to_hex_wstring(Color.BackgroundColor)).c_str());
+				e.SetAttribute("foreground", encoding::utf8::get_bytes(to_hex_wstring(Color.ForegroundColor)).c_str());
+				e.SetAttribute("flags", encoding::utf8::get_bytes(FlagsToString(Color.Flags, ColorFlagNames)).c_str());
+				return;
+			}
 		}
-		else
-		{
-			return HierarchicalConfigDb::SerializeBlob(Name, Blob, e);
-		}
+
+		return HierarchicalConfigDb::SerializeBlob(Name, Blob, e);
 	}
 
 	bytes DeserializeBlob(const char* Type, const char* Value, const tinyxml::XMLElement& e) const override
@@ -867,7 +860,7 @@ private:
 			if (const auto flags = e.Attribute("flags"))
 				Color.Flags = StringToFlags(encoding::utf8::get_chars(flags), ColorFlagNames);
 
-			return bytes::copy(Color);
+			return bytes(view_bytes(Color));
 		}
 
 		return HierarchicalConfigDb::DeserializeBlob(Type, Value, e);
@@ -904,7 +897,7 @@ private:
 
 	void SetValue(const string_view Name, const FarColor& Value) override
 	{
-		ExecuteStatement(stmtSetValue, Name, bytes_view(Value));
+		ExecuteStatement(stmtSetValue, Name, view_bytes(Value));
 	}
 
 	bool GetValue(const string_view Name, FarColor& Value) const override
@@ -913,8 +906,7 @@ private:
 		if (!Stmt->Bind(Name).Step())
 			return false;
 
-		Value = deserialise<FarColor>(Stmt->GetColBlob(0));
-		return true;
+		return deserialise(Stmt->GetColBlob(0), Value);
 	}
 
 	void Export(representation_destination& Representation) const override
@@ -928,10 +920,12 @@ private:
 			auto& e = CreateChild(root, "object");
 
 			e.SetAttribute("name", stmtEnumAllValues.GetColTextUTF8(0).c_str());
-			const auto Color = deserialise<FarColor>(stmtEnumAllValues.GetColBlob(1));
-			e.SetAttribute("background", to_hex_string(Color.BackgroundColor).c_str());
-			e.SetAttribute("foreground", to_hex_string(Color.ForegroundColor).c_str());
-			e.SetAttribute("flags", encoding::utf8::get_bytes(FlagsToString(Color.Flags, ColorFlagNames)).c_str());
+			if (FarColor Color; deserialise(stmtEnumAllValues.GetColBlob(1), Color))
+			{
+				e.SetAttribute("background", encoding::utf8::get_bytes(to_hex_wstring(Color.BackgroundColor)).c_str());
+				e.SetAttribute("foreground", encoding::utf8::get_bytes(to_hex_wstring(Color.ForegroundColor)).c_str());
+				e.SetAttribute("flags", encoding::utf8::get_bytes(FlagsToString(Color.Flags, ColorFlagNames)).c_str());
+			}
 		}
 	}
 
@@ -1442,12 +1436,12 @@ private:
 
 	void SetMinFarVersion(unsigned long long id, const VersionInfo& Version) override
 	{
-		ExecuteStatement(stmtSetMinFarVersion, id, bytes_view(Version));
+		ExecuteStatement(stmtSetMinFarVersion, id, view_bytes(Version));
 	}
 
 	void SetVersion(unsigned long long id, const VersionInfo& Version) override
 	{
-		ExecuteStatement(stmtSetVersion, id, bytes_view(Version));
+		ExecuteStatement(stmtSetVersion, id, view_bytes(Version));
 	}
 
 	void SetGuid(const unsigned long long id, const string_view Guid) override
@@ -1524,8 +1518,7 @@ private:
 		if (!Stmt->Bind(id).Step())
 			return false;
 
-		Version = deserialise<VersionInfo>(Stmt->GetColBlob(0));
-		return true;
+		return deserialise(Stmt->GetColBlob(0), Version);
 	}
 
 	enum statement_id

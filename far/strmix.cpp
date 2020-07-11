@@ -987,17 +987,16 @@ int HexToInt(char h)
 	throw MAKE_FAR_FATAL_EXCEPTION(L"Not a hex char"sv);
 }
 
-template<class S, class C>
-static S BlobToHexStringT(bytes_view const Blob, C Separator)
+string BlobToHexString(bytes_view const Blob, wchar_t Separator)
 {
-	S Hex;
+	string Hex;
 
 	Hex.reserve(Blob.size() * (Separator? 3 : 2));
 
 	for (const auto& i: Blob)
 	{
-		Hex.push_back(IntToHex((i & 0xF0) >> 4));
-		Hex.push_back(IntToHex(i & 0x0F));
+		Hex.push_back(IntToHex((std::to_integer<int>(i) & 0xF0) >> 4));
+		Hex.push_back(IntToHex(std::to_integer<int>(i) & 0x0F));
 		if (Separator)
 		{
 			Hex.push_back(Separator);
@@ -1011,8 +1010,7 @@ static S BlobToHexStringT(bytes_view const Blob, C Separator)
 	return Hex;
 }
 
-template<typename char_type>
-static auto HexStringToBlobT(const std::basic_string_view<char_type> Hex, const char_type Separator)
+bytes HexStringToBlob(const string_view Hex, const wchar_t Separator)
 {
 	// Size shall be either 3 * N + 2 or even
 	if (!Hex.empty() && (Separator? Hex.size() % 3 != 2 : Hex.size() & 1))
@@ -1024,36 +1022,16 @@ static auto HexStringToBlobT(const std::basic_string_view<char_type> Hex, const 
 	const auto BlobSize = AlignedSize / StepSize;
 
 	if (!BlobSize)
-		return bytes();
+		return {};
 
-	std::vector<char> Blob;
+	bytes Blob;
 	Blob.reserve(BlobSize);
 	for (size_t i = 0; i != AlignedSize; i += StepSize)
 	{
-		Blob.emplace_back(HexToInt(Hex[i]) << 4 | HexToInt(Hex[i + 1]));
+		Blob.push_back(std::byte(HexToInt(Hex[i]) << 4 | HexToInt(Hex[i + 1])));
 	}
 
-	return bytes::copy(bytes_view(Blob.data(), Blob.size()));
-}
-
-std::string BlobToHexString(bytes_view const Blob, char Separator)
-{
-	return BlobToHexStringT<std::string>(Blob, Separator);
-}
-
-bytes HexStringToBlob(const std::string_view Hex, const char Separator)
-{
-	return HexStringToBlobT(Hex, Separator);
-}
-
-string BlobToHexWString(bytes_view const Blob, wchar_t Separator)
-{
-	return BlobToHexStringT<string>(Blob, Separator);
-}
-
-bytes HexStringToBlob(const string_view Hex, const wchar_t Separator)
-{
-	return HexStringToBlobT(Hex, Separator);
+	return Blob;
 }
 
 string ExtractHexString(string_view const HexString)
@@ -1085,7 +1063,7 @@ string ConvertHexString(string_view const From, uintptr_t Codepage, bool FromHex
 	else
 	{
 		const auto Blob = encoding::get_bytes(CompatibleCp, From);
-		return BlobToHexWString(bytes_view(Blob), 0);
+		return BlobToHexString(view_bytes(Blob), 0);
 	}
 }
 
@@ -1428,21 +1406,25 @@ TEST_CASE("hex")
 {
 	static const struct
 	{
-		string_view Src, Result;
+		string_view Src, Numbers;
+		bytes_view Bytes;
 	}
 	Tests[]
 	{
-		{ L"12 34"sv,    L"1234"sv, },
-		{ L"12 3"sv,     L"1203"sv, },
-		{ L"12 "sv,      L"12"sv,   },
-		{ L"  "sv,       {},        },
-		{ L" "sv,        {},        },
-		{ {},            {},        },
+		{ {},            {},          {},                },
+		{ L" "sv,        {},          {},                },
+		{ L"  "sv,       {},          {},                },
+		{ L"12 "sv,      L"12"sv,     "\x12"_bv,         },
+		{ L"12 3"sv,     L"1203"sv,   "\x12\x03"_bv,     },
+		{ L"12 34"sv,    L"1234"sv,   "\x12\x34"_bv,     },
+		{ L"12 34 56"sv, L"123456"sv, "\x12\x34\x56"_bv, },
 	};
 
 	for (const auto& i: Tests)
 	{
-		REQUIRE(ExtractHexString(i.Src) == i.Result);
+		REQUIRE(ExtractHexString(i.Src) == i.Numbers);
+		REQUIRE(HexStringToBlob(i.Numbers, 0) == i.Bytes);
+		REQUIRE(BlobToHexString(view_bytes(i.Bytes), 0) == i.Numbers);
 	}
 }
 

@@ -2690,7 +2690,7 @@ struct Viewer::search_data
 {
 	long long CurPos{-1};
 	long long MatchPos{-1};
-	std::string_view search_bytes;
+	bytes_view search_bytes;
 	string_view search_text;
 	int search_len{};
 	int  ch_size{};
@@ -2716,16 +2716,14 @@ enum SEARCHER_RESULT: int
 	Search_Found     = 5,
 };
 
-enum SEARCH_WRAP_MODE
-{
-	SearchWrap_NO    = 0,
-	SearchWrap_END   = 1,
-	SearchWrap_CYCLE = 2,
-};
+constexpr auto
+	SearchWrap_NO    = BSTATE_UNCHECKED,
+	SearchWrap_END   = BSTATE_CHECKED,
+	SearchWrap_CYCLE = BSTATE_3STATE;
 
 SEARCHER_RESULT Viewer::search_hex_forward(search_data* sd)
 {
-	const auto buff = reinterpret_cast<char *>(Search_buffer.data());
+	const auto buff = reinterpret_cast<std::byte*>(Search_buffer.data());
 	const auto bsize = static_cast<int>(Search_buffer.size() * sizeof(wchar_t)), slen = sd->search_len;
 	long long to;
 	const auto cpos = sd->CurPos;
@@ -2754,7 +2752,7 @@ SEARCHER_RESULT Viewer::search_hex_forward(search_data* sd)
 	if ( n1 != nb )
 		SetFileSize();
 
-	char *ps = buff;
+	auto ps = buff;
 	while (n1 >= slen)
 	{
 		const auto ps_end = ps + n1 - slen + 1;
@@ -2782,7 +2780,7 @@ SEARCHER_RESULT Viewer::search_hex_forward(search_data* sd)
 			return Search_Cycle;
 		else if (swrap == SearchWrap_END)
 			return Search_Eof;
-		else
+		else if (swrap == SearchWrap_NO)
 			return Search_Continue;
 	}
 	if (swrap == SearchWrap_CYCLE && !tail_part && sd->CurPos >= StartSearchPos)
@@ -2793,7 +2791,7 @@ SEARCHER_RESULT Viewer::search_hex_forward(search_data* sd)
 
 SEARCHER_RESULT Viewer::search_hex_backward(search_data* sd)
 {
-	const auto buff = reinterpret_cast<char *>(Search_buffer.data());
+	const auto buff = reinterpret_cast<std::byte*>(Search_buffer.data());
 	const auto bsize = static_cast<int>(Search_buffer.size() * sizeof(wchar_t)), slen = sd->search_len;
 	long long to, cpos = sd->CurPos;
 	const auto swrap = ViOpt.SearchWrapStop;
@@ -3823,7 +3821,8 @@ bool Viewer::vgetc(wchar_t* pCh)
 		else
 		{
 			const auto Ch = VgetcCache.pop();
-			encoding::get_chars(m_Codepage, { &Ch, 1 }, { pCh, 1 });
+			// BUGBUG, error checking
+			(void)encoding::get_chars(m_Codepage, { &Ch, 1 }, { pCh, 1 });
 		}
 
 		break;
@@ -3889,7 +3888,8 @@ wchar_t Viewer::vgetc_prev()
 		default:
 			if (CharSize == 1)
 			{
-				encoding::get_chars(m_Codepage, { RawBuffer, 1 }, { &Result, 1 });
+				// BUGBUG, error checking
+				(void)encoding::get_chars(m_Codepage, { RawBuffer, 1 }, { &Result, 1 });
 			}
 			else
 			{

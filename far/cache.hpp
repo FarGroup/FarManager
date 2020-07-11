@@ -63,7 +63,7 @@ private:
 	size_t m_BytesLeft{};
 	unsigned long long m_LastPtr{};
 	int m_Alignment;
-	std::vector<char> m_Buffer; // = 2*k*Alignment (k >= 2)
+	std::vector<std::byte> m_Buffer; // = 2*k*Alignment (k >= 2)
 };
 
 #endif // CACHE_HPP_2D98721D_C727_4F3B_86A2_BEDD0B1D6D8A

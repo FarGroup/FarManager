@@ -38,6 +38,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
+#include "common/function_ref.hpp"
+#include "common/function_traits.hpp"
 #include "common/preprocessor.hpp"
 
 // External:
@@ -64,61 +66,48 @@ void RestoreGPFaultUI();
 namespace detail
 {
 	int SehFilter(int Code, const EXCEPTION_POINTERS* Info, std::string_view Function, const Plugin* Module);
-	void ResetStackOverflowIfNeeded();
 	void SetFloatingPointExceptions(bool Enable);
 	std::exception_ptr MakeSehExceptionPtr(DWORD Code, EXCEPTION_POINTERS* Pointers, bool ResumeThread);
+	void seh_invoke_impl(function_ref<void()> Callable, function_ref<DWORD(DWORD, EXCEPTION_POINTERS*)> Filter, function_ref<void()> Handler);
 }
 
 
 template<class function, class filter, class handler>
-auto seh_invoke(function&& Callable, filter&& Filter, handler&& Handler)
+auto seh_invoke(function const& Callable, filter const& Filter, handler const& Handler)
 {
-#if COMPILER(GCC)
-	// GCC doesn't support these currently
-	return Callable();
-#else
-#if COMPILER(CLANG)
-	// Workaround for clang "filter expression type should be an integral value" error
-	std::function<DWORD(DWORD, EXCEPTION_POINTERS*)> FilterWrapper = Filter;
-#define Filter FilterWrapper
-#endif
+	using result_type = typename function_traits<function>::result_type;
 
-	__try
+	if constexpr (std::is_same_v<result_type, void>)
 	{
-		return Callable();
+		detail::seh_invoke_impl([&]{ Callable(); }, Filter, [&]{ Handler(); });
 	}
-	__except (detail::SetFloatingPointExceptions(false), Filter(GetExceptionCode(), GetExceptionInformation()))
+	else
 	{
-		detail::ResetStackOverflowIfNeeded();
+		result_type Result;
+		detail::seh_invoke_impl([&]{ Result = Callable(); }, Filter, [&]{ Result = Handler(); });
+		return Result;
 	}
-
-	return Handler();
-
-#if COMPILER(CLANG)
-#undef Filter
-#endif
-#endif
 }
 
 template<class function, class handler>
-auto seh_invoke_with_ui(function&& Callable, handler&& Handler, const std::string_view Function, const Plugin* const Module = nullptr)
+auto seh_invoke_with_ui(function const& Callable, handler const& Handler, const std::string_view Function, const Plugin* const Module = nullptr)
 {
-	return seh_invoke(FWD(Callable), [&](DWORD const Code, EXCEPTION_POINTERS* const Info)
+	return seh_invoke(Callable, [&](DWORD const Code, EXCEPTION_POINTERS* const Info)
 	{
 		return detail::SehFilter(Code, Info, Function, Module);
-	}, FWD(Handler));
+	}, Handler);
 }
 
 template<class function, class handler>
-auto seh_invoke_no_ui(function&& Callable, handler&& Handler)
+auto seh_invoke_no_ui(function const& Callable, handler const& Handler)
 {
-	return seh_invoke(FWD(Callable), [](DWORD, EXCEPTION_POINTERS*) { return EXCEPTION_EXECUTE_HANDLER; }, FWD(Handler));
+	return seh_invoke(Callable, [](DWORD, EXCEPTION_POINTERS*) { return EXCEPTION_EXECUTE_HANDLER; }, Handler);
 }
 
 template<class function>
-auto seh_invoke_thread(std::exception_ptr& ExceptionPtr, function&& Callable)
+auto seh_invoke_thread(std::exception_ptr& ExceptionPtr, function const& Callable)
 {
-	return seh_invoke(FWD(Callable), [&](DWORD const Code, EXCEPTION_POINTERS* const Info)
+	return seh_invoke(Callable, [&](DWORD const Code, EXCEPTION_POINTERS* const Info)
 	{
 		ExceptionPtr = detail::MakeSehExceptionPtr(Code, Info, true);
 		return EXCEPTION_EXECUTE_HANDLER;

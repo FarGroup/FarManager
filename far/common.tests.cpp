@@ -95,25 +95,22 @@ WARNING_POP()
 
 #include "common/bytes_view.hpp"
 
-TEST_CASE("bytes_view")
+TEST_CASE("bytes")
 {
 	uint32_t Value = 0;
-	const auto BytesRef = bytes::reference(Value);
-	std::fill(BytesRef.begin(), BytesRef.end(), '\x42');
+	const auto BytesRef = edit_bytes(Value);
+	std::fill(BytesRef.begin(), BytesRef.end(), std::byte{0x42});
 	REQUIRE(Value == 0x42424242);
+	const auto View = view_bytes(Value);
+	REQUIRE(View == "\x42\x42\x42\x42"_bv);
+	bytes Copy(View);
+	REQUIRE(Copy == View);
 
-	auto BytesCopy = bytes::copy(Value);
-	std::fill(BytesCopy.begin(), BytesCopy.end(), '\x33');
-	REQUIRE(Value == 0x42424242);
-	const auto NewValue = deserialise<uint32_t>(BytesCopy);
-	REQUIRE(NewValue == 0x33333333);
-
-	uint8_t SmallerValue = 1;
-	auto SmallerView = bytes_view(SmallerValue);
-	auto SmallerRef = bytes::reference(SmallerValue);
-	REQUIRE_THROWS_AS(BytesCopy = SmallerView, std::runtime_error);
-	REQUIRE_THROWS_AS(SmallerRef = bytes_view(Value), std::runtime_error);
-	REQUIRE_NOTHROW(SmallerView = BytesCopy);
+	const auto Str = "BANANA"sv;
+	const auto Bytes = view_bytes(Str);
+	REQUIRE(Bytes == "BANANA"_bv);
+	const auto Str2 = to_string_view(Bytes);
+	REQUIRE(Str2 == Str);
 }
 
 //----------------------------------------------------------------------------
@@ -266,7 +263,7 @@ TEST_CASE("io")
 	constexpr auto Str = "12345"sv;
 	REQUIRE_NOTHROW(io::write(Stream, Str));
 
-	char Buffer[Str.size()];
+	std::byte Buffer[Str.size()];
 	REQUIRE(io::read(Stream, Buffer) == Str.size());
 	REQUIRE(!io::read(Stream, Buffer));
 }

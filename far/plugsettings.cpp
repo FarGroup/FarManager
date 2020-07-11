@@ -161,7 +161,7 @@ bool PluginSettings::Set(const FarSettingsItem& Item)
 		return true;
 
 	case FST_DATA:
-		PluginsCfg->SetValue(m_Keys[Item.Root], name, bytes_view(Item.Data.Data, Item.Data.Size));
+		PluginsCfg->SetValue(m_Keys[Item.Root], name, view_bytes(Item.Data.Data, Item.Data.Size));
 		return true;
 
 	default:

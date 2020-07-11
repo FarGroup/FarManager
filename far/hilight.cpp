@@ -172,8 +172,8 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig& cfg)
 		const auto Key = cfg.CreateKey(root, names::Group + str(Index));
 		FileFilter::SaveFilter(cfg, Key.get(), Params);
 
-		cfg.SetValue(Key, names::NormalColor, bytes_view(i.NormalColor));
-		cfg.SetValue(Key, names::CursorColor, bytes_view(i.CursorColor));
+		cfg.SetValue(Key, names::NormalColor, view_bytes(i.NormalColor));
+		cfg.SetValue(Key, names::CursorColor, view_bytes(i.CursorColor));
 
 		static const std::array Default
 		{
@@ -194,7 +194,7 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig& cfg)
 				{colors::transparent(F_BLACK)}
 			};
 
-			cfg.SetValue(Key, j, bytes_view(DefaultColor));
+			cfg.SetValue(Key, j, view_bytes(DefaultColor));
 		}
 	}
 }
@@ -217,8 +217,9 @@ static FileFilterParams LoadFilter(/*const*/ HierarchicalConfig& cfg, const Hier
 
 	for (const auto& [Color, Index]: enumerate(Colors.Color))
 	{
-		cfg.GetValue(key, names::file_color(Index), bytes::reference(Color.FileColor));
-		cfg.GetValue(key, names::mark_color(Index), bytes::reference(Color.MarkColor));
+		bytes Blob;
+		cfg.GetValue(key, names::file_color(Index), Blob) && deserialise(Blob, Color.FileColor);
+		cfg.GetValue(key, names::mark_color(Index), Blob) && deserialise(Blob, Color.MarkColor);
 	}
 
 	unsigned long long MarkChar;
@@ -785,8 +786,8 @@ static void SaveFilter(HierarchicalConfig& cfg, const HierarchicalConfig::key& k
 
 	for (const auto& [Color, Index]: enumerate(Colors.Color))
 	{
-		cfg.SetValue(key, names::file_color(Index), bytes_view(Color.FileColor));
-		cfg.SetValue(key, names::mark_color(Index), bytes_view(Color.MarkColor));
+		cfg.SetValue(key, names::file_color(Index), view_bytes(Color.FileColor));
+		cfg.SetValue(key, names::mark_color(Index), view_bytes(Color.MarkColor));
 	}
 
 	cfg.SetValue(key, names::MarkChar, MAKELONG(Colors.Mark.Char, MAKEWORD(Colors.Mark.Transparent? 0xff : 0, 0)));

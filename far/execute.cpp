@@ -85,7 +85,7 @@ static string short_name_if_too_long(const string& LongName)
 static bool GetImageType(std::istream& Stream, image_type& ImageType)
 {
 	IMAGE_DOS_HEADER DOSHeader;
-	if (io::read(Stream, bytes::reference(DOSHeader)) != sizeof(DOSHeader))
+	if (io::read(Stream, edit_bytes(DOSHeader)) != sizeof(DOSHeader))
 		return false;
 
 	if (DOSHeader.e_magic != IMAGE_DOS_SIGNATURE)
@@ -111,7 +111,7 @@ static bool GetImageType(std::istream& Stream, image_type& ImageType)
 	}
 	ImageHeader;
 
-	if (io::read(Stream, bytes::reference(ImageHeader)) != sizeof(ImageHeader))
+	if (io::read(Stream, edit_bytes(ImageHeader)) != sizeof(ImageHeader))
 		return false;
 
 	auto Result = image_type::console;

@@ -396,7 +396,7 @@ static void AnsiToUnicodeBin(std::string_view const AnsiString, wchar_t* Unicode
 	{
 		*UnicodeString = 0;
 		// BUGBUG, error checking
-		encoding::get_chars(CodePage, AnsiString, { UnicodeString, AnsiString.size() });
+		(void)encoding::get_chars(CodePage, AnsiString, { UnicodeString, AnsiString.size() });
 	}
 }
 

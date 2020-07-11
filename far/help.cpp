@@ -987,9 +987,8 @@ static bool GetHelpColor(string_view& Str, wchar_t cColor, FarColor& color)
 	// '\hh' custom color index
 	if (Str.size() > 2 && std::iswxdigit(Str[1]) && std::iswxdigit(Str[2]))
 	{
-		const auto b = HexToInt(Str[1]);
-		const auto f = HexToInt(Str[2]);
-		color = colors::ConsoleColorToFarColor((b & 0x0f) << 4 | (f & 0x0f));
+		const auto Value = std::to_integer<unsigned>(HexStringToBlob(Str.substr(1, 2))[0]);
+		color = colors::ConsoleColorToFarColor(Value);
 		Str.remove_prefix(3);
 		return true;
 	}

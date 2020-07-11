@@ -130,7 +130,7 @@ static size_t get_chars(uintptr_t const Codepage, std::string_view const From, s
 
 bool enum_lines::fill() const
 {
-	const auto Read = io::read(m_Stream, m_Buffer);
+	const auto Read = io::read(m_Stream, edit_bytes(m_Buffer));
 	if (!Read)
 		return false;
 

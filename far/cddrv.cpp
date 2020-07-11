@@ -205,7 +205,7 @@ static auto capatibilities_from_scsi_configuration(const os::fs::file& Device)
 	SCSI_PASS_THROUGH_WITH_BUFFERS Spt;
 	InitSCSIPassThrough(Spt);
 
-#if COMPILER(GCC)
+#if !IS_MICROSOFT_SDK()
 	// GCC headers incorrectly reserve only one bit for RequestType
 	struct CDB_FIXED
 	{
@@ -226,7 +226,7 @@ static auto capatibilities_from_scsi_configuration(const os::fs::file& Device)
 
 	auto& GetConfiguration = edit_as<CDB>(Spt.Cdb).GET_CONFIGURATION;
 
-#if COMPILER(GCC)
+#if !IS_MICROSOFT_SDK()
 #undef CDB
 #endif
 

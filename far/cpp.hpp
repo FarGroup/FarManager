@@ -144,7 +144,7 @@ namespace std
 }
 #endif
 
-#if COMPILER(CLANG) && defined _MSC_VER && defined __cpp_char8_t && !defined __cpp_lib_char8_t
+#if COMPILER(CLANG) && IS_MICROSOFT_SDK() && defined __cpp_char8_t && !defined __cpp_lib_char8_t
 namespace std
 {
 	inline namespace literals

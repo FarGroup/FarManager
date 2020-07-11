@@ -277,7 +277,7 @@ typedef enum _FILE_INFORMATION_CLASS
 }
 FILE_INFORMATION_CLASS, *PFILE_INFORMATION_CLASS;
 
-#if !defined(_W32API_OLD) || (_GCC_VER < GCC_VER_(4,5,3))
+#if !defined(_W32API_OLD)
 // ShObjIdl.h
 typedef enum tagASSOCIATIONLEVEL
 {
@@ -330,7 +330,7 @@ public:
 };
 #endif
 
-#if !defined(_W32API_OLD) || (_GCC_VER < GCC_VER_(4,5,3))
+#if !defined(_W32API_OLD)
 typedef enum TBPFLAG
 {
 	TBPF_NOPROGRESS    = 0,
