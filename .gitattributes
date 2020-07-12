@@ -11,7 +11,6 @@
 *.cs            text    diff=csharp
 *.sh            text    eol=lf
 [Cc]hangelog    text
-changelog_eng   text
 
 # Custom for Visual Studio
 *.sln           text    merge=union  eol=crlf

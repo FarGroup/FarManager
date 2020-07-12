@@ -50,22 +50,13 @@ cd far
    not self-explanatory and won't be understood by "future generations".
 2. Recent changes go on top.
 3. Each entry starts with a header of the form:
->   warp 05.12.2006 01:39:38 +0300 - build 2149
+```
+--------------------------------------------------------------------------------
+warp 05.12.2006 01:39:38 +0300 - build 2149
+```
 4. Changes not always require a build increase (i.e. cosmetic or non code
    related changes).
-5. Sample macro to generate the header:  
-```lua
-   Macro {
-     area="Editor"; key="Ctrl`"; action = function()
-       Keys("CtrlHome End CtrlLeft")
-       build=mf.int(mf.substr(Editor.Value,Editor.RealPos-1))+1;
-       Keys("CtrlHome")
-       print(mf.date("name %d.%m0.%Y %H:%M:%S %z - build ")) print(build)
-       for RCounter=4,1,-1 do  Keys("Enter") end
-       Keys("Up Up 1 . Space")
-     end;
-   }
-```
+5. Sample macro to generate the header: [ChangelogHeader.lua](./misc/changelog/ChangelogHeader.lua)
 
 #### farversion.m4
 

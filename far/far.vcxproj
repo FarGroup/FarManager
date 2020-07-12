@@ -679,9 +679,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <CopyFileToFolders Include="changelog">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="changelog_eng">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
     <None Include="Far.ico" />
     <None Include="Far.black.ico" />
     <None Include="Far.hack.ico" />

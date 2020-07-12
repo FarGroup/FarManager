@@ -32,7 +32,7 @@ processFarBuild()
 ./installer.sh || exit 1
 
 cd far || exit 1
-LASTCHANGE=`head -1 changelog | dos2unix`
+LASTCHANGE=`head -2 changelog | tail -1 | dos2unix`
 ( \
 	processFarBuild 32 && \
 	processFarBuild 64 \

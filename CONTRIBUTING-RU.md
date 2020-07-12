@@ -43,23 +43,14 @@
    может быть непонятен для "будущих поколений".
 2. Изменения добавляются в начало файла.
 3. Каждая запись начинается с шапки вида:
->   warp 05.12.2006 01:39:38 +0300 - build 2149
+```
+--------------------------------------------------------------------------------
+warp 05.12.2006 01:39:38 +0300 - build 2149
+```
 4. Изменениям может не присваиваться билд, например, была косметика или
    изменения не в коде.
-5. Пример макроса для создания шапки:
+5. Пример макроса для создания шапки: [ChangelogHeader.lua](./misc/changelog/ChangelogHeader.lua)
 
-```lua
-   Macro {
-     area="Editor"; key="Ctrl`"; action = function()
-       Keys("CtrlHome End CtrlLeft")
-       build=mf.int(mf.substr(Editor.Value,Editor.RealPos-1))+1;
-       Keys("CtrlHome")
-       print(mf.date("name %d.%m0.%Y %H:%M:%S %z - build ")) print(build)
-       for RCounter=4,1,-1 do  Keys("Enter") end
-       Keys("Up Up 1 . Space")
-     end;
-   }
-```
 #### farversion.m4
 
 1. Этот файл содержит информацию для генерирования версии Far:
