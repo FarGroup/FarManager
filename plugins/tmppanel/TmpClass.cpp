@@ -60,16 +60,30 @@ int TmpPanel::GetFindData(PluginPanelItem **pPanelItem,size_t *pItemsNumber,cons
 }
 
 
-void TmpPanel::GetOpenPanelInfo(struct OpenPanelInfo *Info)
+void TmpPanel::GetOpenPanelInfo(struct OpenPanelInfo *opInfo)
 {
-	Info->StructSize=sizeof(*Info);
-	Info->Flags=OPIF_ADDDOTS|OPIF_SHOWNAMESONLY;
+	opInfo->StructSize=sizeof(*opInfo);
+	opInfo->Flags=OPIF_ADDDOTS|OPIF_SHOWNAMESONLY;
 
-	if (!Opt.SafeModePanel) Info->Flags|=OPIF_REALNAMES;
+	if (!Opt.SafeModePanel) opInfo->Flags|=OPIF_REALNAMES;
 
-	Info->HostFile=this->HostFile;
-	Info->CurDir=L"";
-	Info->Format=(wchar_t*)GetMsg(MTempPanel);
+	opInfo->HostFile=NULL;
+	if (this->HostFile)
+	{
+		FarGetPluginPanelItem fgppi = { sizeof(FarGetPluginPanelItem),0,NULL };
+		if (0 != (fgppi.Size=Info.PanelControl(PANEL_ACTIVE,FCTL_GETCURRENTPANELITEM,0,&fgppi)))
+		{
+			if (NULL != (fgppi.Item=(PluginPanelItem*)malloc(fgppi.Size)))
+			{
+				if (Info.PanelControl(PANEL_ACTIVE,FCTL_GETCURRENTPANELITEM,0,&fgppi) && !wcscmp(fgppi.Item->FileName,L".."))
+					opInfo->HostFile = this->HostFile;
+				free(fgppi.Item);
+			}
+		}
+	}
+
+	opInfo->CurDir=L"";
+	opInfo->Format=(wchar_t*)GetMsg(MTempPanel);
 	static wchar_t Title[100];
 
 	if (StartupOptCommonPanel)
@@ -77,7 +91,7 @@ void TmpPanel::GetOpenPanelInfo(struct OpenPanelInfo *Info)
 	else
 		FSF.sprintf(Title,L" %s%s ",(Opt.SafeModePanel ? L"(R) " : L""),GetMsg(MTempPanel));
 
-	Info->PanelTitle=Title;
+	opInfo->PanelTitle=Title;
 	static struct PanelMode PanelModesArray[10];
 	PanelModesArray[4].Flags=PMFLAGS_CASECONVERSION;
 	if ((StartupOpenFrom==OPEN_COMMANDLINE)?Opt.FullScreenPanel:StartupOptFullScreenPanel)
@@ -86,9 +100,9 @@ void TmpPanel::GetOpenPanelInfo(struct OpenPanelInfo *Info)
 	PanelModesArray[4].ColumnWidths=Opt.ColumnWidths;
 	PanelModesArray[4].StatusColumnTypes=Opt.StatusColumnTypes;
 	PanelModesArray[4].StatusColumnWidths=Opt.StatusColumnWidths;
-	Info->PanelModesArray=PanelModesArray;
-	Info->PanelModesNumber=ARRAYSIZE(PanelModesArray);
-	Info->StartPanelMode=L'4';
+	opInfo->PanelModesArray=PanelModesArray;
+	opInfo->PanelModesNumber=ARRAYSIZE(PanelModesArray);
+	opInfo->StartPanelMode=L'4';
 
 	static WORD FKeys[]=
 	{
@@ -118,7 +132,7 @@ void TmpPanel::GetOpenPanelInfo(struct OpenPanelInfo *Info)
 		}
 	}
 
-	Info->KeyBar=&kbt;
+	opInfo->KeyBar=&kbt;
 }
 
 
