@@ -1857,7 +1857,7 @@ drkns 26.10.2018 19:48:27 +0100 - build 5296
 
 1. Forum: Visual issue with moving items between groups in Files highlighting
 
-drkns 26.10.2018 18:59.10 +0100 - build 5295
+drkns 26.10.2018 18:59:10 +0100 - build 5295
 
 1. FSF.FarClock / Far.UpTime worked incorrectly after 5080.
 
@@ -2428,7 +2428,7 @@ w17 23.04.2018 23:42:59 +0300 - build 5195
 
 1. Correction of 5194.
 
-drkns 21.04.2018 20:29:10 +0100 - build 5194
+drkns 21.04.2018 20:27:25 +0100 - build 5194
 
 1. Show less rubbish in Task List.
 
@@ -3301,7 +3301,7 @@ drkns 09.09.2017 17:32:31 +0100 - build 5025
 
 1. 0003485: Exception on attempt of viewing an incorrect? hlf
 
-zg 03.09.2017 14:24:00 FLE Daylight Time - build 5024
+zg 03.09.2017 14:24:00 +0300 - build 5024
 
 1. if selection was removed in an inactive editor then it would be drawn on top of all the windows.
 
@@ -4155,7 +4155,7 @@ zg 16.11.2016 14:48:22 +0200 - build 4841
 
 1. separate dragging with mouse and with keyboard.
 
-svs 15.11.2016 11:18:33 +0300 - build
+svs 15.11.2016 11:18:33 +0300
 
 1. Append info on "far:config" and "far:about" in Help
 
@@ -6296,14 +6296,12 @@ svs 10.09.2015 10:31:11 +0300 - build 4418
     CannotRecycleFolderId            = {BBD9B7AE-9F6B-4444-89BF-C6124A5A83A4}  --> Dlg.Id
     Could not delete folder to recycle bin
 
-
 svs 08.09.2015 17:50:24 +0300 - build 4417
 
 1. Mantis#0002905: Assign GUID to "Apply command" dialog (CtrlG)
 
     ApplyCommandId                   = {044EF83E-8146-41B2-97F0-404C2F4C7B69}  --> Dlg.Id
     "Apply command" dialog (CtrlG)
-
 
 w17 08.09.2015 16:09:18 +0300 - build 4416
 
@@ -6343,7 +6341,6 @@ svs 07.09.2015 16:06:23 +0300 - build 4414
 
     ChangeDriveCannotReadDiskErrorId = {F3D46DC3-380B-4264-8BF8-10B05B897A5E}
     Drive change error dialog
-
 
 drkns 04.09.2015 21:47:21 +0200 - build 4413
 
@@ -8890,7 +8887,6 @@ svs 17.04.2014 11:00:21 +0400 - build 3868
     ChangeDriveModeId           = {F87F9351-6A80-4872-BEEE-96EF80C809FB}  --> Dlg.Id
     Dialog "Change Drive Menu Options"
 
-
 drkns 15.04.2014 22:31:59 +0200 - build 3867
 
 1. Transition with +/- in viewer was broken in 3857.
@@ -8922,7 +8918,6 @@ svs 15.04.2014 12:37:20 +0400 - build 3866
 
     EditorFileGetSizeErrorId    = {6AD4B317-C1ED-44C8-A76A-9146CA8AF984}  --> Dlg.Id
     Editor. Cannot get the size of the edited file (if Editor.FileSizeLimit and Editor.FileSizeLimitHi are set)
-
 
 drkns 13.04.2014 12:41:13 +0200 - build 3865
 
@@ -8991,10 +8986,8 @@ svs 09.04.2014 09:11:50 +0400 - build 3855
       the line is cleared. The dialog procedure coniders it as "PtrData point to an empty line".
       Next DN_EDITCHANGE is passed with the same data that have been entered.
 
-
    2. unchanged _technically_ is like a selected text, the difference is that information (DN_EDITCHANGE)
       on a deleted block for the selected text is not sent to the dialog procedure.
-
 
 svs 07.04.2014 16:26:57 +0400 - build 3854
 
@@ -9025,7 +9018,6 @@ svs 07.04.2014 16:26:57 +0400 - build 3854
       Reopen the file if it is already opened in an editor.
 
    fileedit.hpp::FEOPMODEEXISTFILE are removed, EDITOR_FLAGS are used instead.
-
 
 svs 07.04.2014 11:56:50 +0400 - build 3853
 
@@ -9153,7 +9145,6 @@ svs 21.03.2014 13:59:21 +0400 - build 3838
     or "list" (like DI_LISTBOX) available.
     If the dialog items array lacks at least one of these items then the caption is empty.
 
-
 2. Dialog API. Addition:
 
     DN_DRAWDLGITEMDONE event (68) is sent at the end of dialog item drawing (pair DN_DRAWDLGITEM).
@@ -9179,7 +9170,6 @@ svs 21.03.2014 13:59:21 +0400 - build 3838
           DN_CTLCOLORDLGLIST
           DN_DRAWDLGITEMDONE
 
-
 3. Mantis#0002586: Events: there's no possibility to handle a combo box opening
 
    Dialog API. Addition:
@@ -9190,7 +9180,6 @@ svs 21.03.2014 13:59:21 +0400 - build 3838
       Return = 0
 
    Perhaps the correction of the place of call is necessary here.
-
 
 svs 19.03.2014 16:17:34 +0400 - build 3837
 
@@ -9227,7 +9216,6 @@ svs 18.03.2014 15:20:34 +0400 - build 3836
    Clearing of DMODE_DRAWING flag moved to the end of DMODE_DRAWING Dialog::ShowDialog().
 
    </ACHTUNG!>
-
 
 svs 14.03.2014 12:20:09 +0400 - build 3835
 
@@ -9285,7 +9273,6 @@ svs 11.03.2014 10:24:41 +0400 - build 3830
    Now: Enter on a file panel item skips the algorithm of '@' character definition at the beginning of the name.
         For '@@@@howl_by_tomape.jpg' in command line a warning will be issued that the file "@@@howl_by_tomape.jpg" does not exist.
         For '"@@@@howl_by_tomape.jpg"' (quoted name) the '@@@@howl_by_tomape.jpg' file will be launched.
-
 
 svs 10.03.2014 22:56:53 +0400 - build 3829
 
@@ -9806,7 +9793,7 @@ drkns 19.11.2013 21:18:07 +0200 - build 3719
 
 1. 0002528: Crash when LCtrl8 panel mode is on
 
-﻿svs 18.11.2013 15:42:46 +0400 - build 3718
+svs 18.11.2013 15:42:46 +0400 - build 3718
 
 1. Corrections on TREEFILE_PROJECT (Mantis#0000186)
 
@@ -9862,7 +9849,7 @@ w17 12.11.2013 20:11:28 +0400 - build 3709
 1. M#2525: Incorrect clipping of edited file on Mac network drive
    Experimental workaround for buggy OSX SMB.
 
-svs 11.11.2013 11:16:52 +0400 - build
+svs 11.11.2013 11:16:52 +0400
 
 1. Corrections in 'title' command help topic
 
@@ -10689,7 +10676,7 @@ drkns 18.07.2013 14:10:32 +0200 - build 3526
 
 1. Files were copied to clipboard incorrectly in CF_HDROP format.
 
-shmuel 17.07.2013 21:51:48 +0200 - build
+shmuel 17.07.2013 21:51:48 +0200
 
 1. On macros loading %FARPROFILE%\Macros\scripts\_macroinit.lua is executed first if it exists.
    The running order of other macro files is undefined.
@@ -10781,12 +10768,12 @@ drkns 10.07.2013 00:39:34 +0200 - build 3506
 
 1. Refactoring.
 
-svs 09.07.2013 16:52:15 +0400 - build
+svs 09.07.2013 16:52:15 +0400
 
 1. Help correction, incl. TI:
     #26 System.CopyTimeRule
 
-svs 09.07.2013 11:29:32 +0400 - build
+svs 09.07.2013 11:29:32 +0400
 
 1. Some help on privilege elevation.
 
@@ -10863,7 +10850,7 @@ svs 02.07.2013 17:15:47 +0400 - build 3492
 
 2. A link to "@MaskGroupsSettings" is added for the mask groups editing dialog
 
-svs 02.07.2013 11:40:49 +0400 - build
+svs 02.07.2013 11:40:49 +0400
 
 1. Correction in help
    @MakeFolder
@@ -10898,7 +10885,7 @@ w17 01.07.2013 09:49:39 +0400 - build 3487
 
 1. M#2439: Command line prompt format: environment variables don't work anymore
 
-shmuel 30.06.2013 13:12:37 +0200 - build
+shmuel 30.06.2013 13:12:37 +0200
 
 1. Capability of calling script files with arguments is added.
    This is related to: MCTL_SENDSTRING, MCTL_ADDMACRO, eval, lm:post, lm:check.
@@ -11088,7 +11075,7 @@ shmuel 10.06.2013 02:03:06 +0200 - build 3446
 
 1. M#2307: On msgbox call from condition(), the msgbox closing key is passed further (not consumed).
 
-svs 06.06.2013 16:03:29 +0400 - build
+svs 06.06.2013 16:03:29 +0400
 
 1. Menu filtering with RAlt is noted in help.
 
@@ -11547,7 +11534,6 @@ svs 18.04.2013 09:29:05 +0400 - build 3346
      fnparce.cpp::ReplaceVariables() - dialog frame moved to position 0 (it was the last one earlier). This is to the question of possible bugs :-)
    </inside>
 
-
 drkns 17.04.2013 23:54:41 +0200 - build 3345
 
 1. Correction of 3343.2.
@@ -11718,7 +11704,7 @@ drkns 09.04.2013 13:47:32 +0200 - build 3309
 
 1. A command called from completion menu did not run if the menu was closed with the mouse.
 
-svs 09.04.2013 12:08:51 +0400 - build
+svs 09.04.2013 12:08:51 +0400
 
 1. Makeup without a build (lower vs. upper in GUIDs)
 
@@ -11846,7 +11832,7 @@ drkns 28.03.2013 20:02:12 +0200 - build 3284
 
 1. Correction in search regarding [x] Process alternate data streams.
 
-drkns 28.03.2013 15:58:11 +0400 - build 3283
+drkns 28.03.2013 15:58:11 +0200 - build 3283
 
 1. "Break link" button is removed from the symlink deletion confirmation dialog.
 
@@ -11861,7 +11847,7 @@ drkns 28.03.2013 09:58:16 +0200 - build 3281
 
 1. vc10.
 
-svs 28.03.2013 11:16:18 +0400 - build
+svs 28.03.2013 11:16:18 +0400
 
 1. Corrections (a few of) on TREEFILE_PROJECT (Mantis#0000186)
    without a build because they have no influence on the main code.
@@ -11934,7 +11920,7 @@ w17 23.03.2013 00:02:37 +0400 - build 3267
 
 1. correction of 3259.
 
-svs 22.03.2013 18:21:38 +0400 - build
+svs 22.03.2013 18:21:38 +0400
 
 1. Corrections (a few of) on TREEFILE_PROJECT (Mantis#0000186)
    without a build, because of no influence on the main code.
@@ -12097,7 +12083,7 @@ w17 09.03.2013 13:17:54 +0400 - build 3236
 
 1. Export/Import for localconfig.db
 
-shmuel 08.03.2013 11:51:14 +0200 - build
+shmuel 08.03.2013 11:51:14 +0200
 
 1. Macros: 'EditorInput' event is added, i.e. group="EditorInput" must be noted in event specification.
    'action' and 'condition' functions parameters, as well as the returned value of 'action' function match the description
@@ -12163,7 +12149,6 @@ svs 28.02.2013 11:46:34 +0400 - build 3222
    Part 1: implementation.
    UserMenu(filename) constructor is added. It is expected that 'filename' is the full path to the menu file.
 
-
    Noted Menu.Open(filemenu [,mode]) function may be written :-)
 
 zg 27.02.2013 01:14:16 +0200 - build 3221
@@ -12171,13 +12156,13 @@ zg 27.02.2013 01:14:16 +0200 - build 3221
 1. forum: "Folder size calculation can be interrupted with Esc. In the meanwhile, if Esc is assigned a macro,
    for example, panels hiding, the macro is executed instead of interrupting the calculation and closing the dialog."
 
-shmuel 27.02.2013 00:19:09 +0200 - build
+shmuel 27.02.2013 00:19:09 +0200
 
 1. Macros: 'DialogEvent' event is added, i.e. group="DialogEvent" must be noted in event specification.
    Parameters of 'action' and 'condition' functions and the returned value of 'action' function follow the description
    of export.ProcessDialogEvent function in LuaFAR manual.
 
-shmuel 26.02.2013 18:14:23 +0200 - build
+shmuel 26.02.2013 18:14:23 +0200
 
 1. Macros: 'ExitFAR' event is added, i.e. group="ExitFAR" must be noted in event specification.
    Event handlers are called on each unload of LuaMacro plugin.
@@ -12257,7 +12242,7 @@ drkns 17.02.2013 18:01:04 +0200 - build 3204
 
 1. Correction of 3197.
 
-shmuel 16.02.2013 23:01:07 +0200 - build
+shmuel 16.02.2013 23:01:07 +0200
 
 1. Macros: condition() function is called with a single string parameter: the name of the key.
    * This does not apply for macros called during 'RunAfterFARStart'.
@@ -12443,7 +12428,7 @@ drkns 11.02.2013 19:57:46 +0200 - build 3176
 
 1. Continuation of 3171.
 
-shmuel 11.02.2013 18:53:29 +0200 - build
+shmuel 11.02.2013 18:53:29 +0200
 
 1. Macros: precedence of events is defined by dynamic priorities.
    * Dynamic priority is defined as in macros, with 'condition' and 'priority' fields.
@@ -12461,7 +12446,7 @@ t-rex 11.02.2013 12:16:10 +0200 - build 3174
 
 2. Correction for 3173.
 
-shmuel 11.02.2013 11:27:48 +0200 - build
+shmuel 11.02.2013 11:27:48 +0200
 
 1. Macros: new specification for events, incompatible with the previous one.
    1.1. No flags checking, 'flags' field is not used.
@@ -12483,7 +12468,7 @@ drkns 10.02.2013 19:50:21 +0200 - build 3171
 
 2. Refactoring of panel states storage. Variety of bugs is possible.
 
-shmuel 10.02.2013 16:55:25 +0200 - build
+shmuel 10.02.2013 16:55:25 +0200
 
 1. Macros (specification of events):
    In ViewerEvent group, 'name' field can have the following values: 'Read', 'Close', 'KillFocus', 'GotFocus'.
@@ -12512,7 +12497,7 @@ drkns 08.02.2013 01:56:40 +0200 - build 3165
 
 1. Refactoring.
 
-shmuel 08.02.2013 01:25:45 +0200 - build
+shmuel 08.02.2013 01:25:45 +0200
 
 1. Macros: continuation.
    * In EditorEvent group, 'name' can have the following values:
@@ -12521,7 +12506,7 @@ shmuel 08.02.2013 01:25:45 +0200 - build
      1. ID - viewer/editor window ID (a number).
      2. Param - according to LuaFAR documentation on export.ProcessEditorEvent, export.ProcessViewerEvent functions.
 
-shmuel 07.02.2013 20:15:14 +0200 - build
+shmuel 07.02.2013 20:15:14 +0200
 
 1. Macros: new specification for events handler (modifies the specification from 05.02.2013).
    * key="Read" key in the table-parameter of Macro function is canceled.
@@ -12576,7 +12561,7 @@ drkns 06.02.2013 01:28:10 +0200 - build 3157
 
 1. Edit class size reduced, editor must be using a bit less memory on large amount of lines.
 
-shmuel 05.02.2013 17:11:26 +0200 - build
+shmuel 05.02.2013 17:11:26 +0200
 
 1. Macros specification: a new optional field "filemask" of string type.
    * For Editor and Viewer areas, with the field present, conformity of
@@ -12835,7 +12820,6 @@ svs 21.01.2013 17:37:30 +0400 - build 3106
                {2D71DCCE-F0B8-4e29-A3A9-1F6D8C1128C2}
      Editor: file rewrite prompt
                {4109C8B3-760D-4011-B1D5-14C36763B23E}
-
 
 w17 21.01.2013 14:25:04 +0400 - build 3105
 
@@ -13201,10 +13185,8 @@ svs 21.12.2012 16:15:36 +0400 - build 3040
      d) lack for FreeData calls for OpenPanelInfo
         handle it separately...
 
-
    ACHTUNG!
    If your plugins use SetDirectoryInfo.Reserved (former SetDirectoryInfo.UserData), rebuild them considering this novation.
-
 
 drkns 21.12.2012 01:39:53 +0200 - build 3039
 
@@ -13372,9 +13354,7 @@ svs 14.12.2012 16:33:53 +0400 - build 3013
       Together with DIF_WORDWRAP, DIF_RIGHTTEXT, DIF_CENTERTEXT and DIF_SHOWAMPERSAND can be used (the rest is ignored).
       The line separator is '\n'.
 
-
    ACHTUNG! ...about drawing, where coordinates for DI_TEXT/DI_VTEXT were ignored
-
 
 zg 14.12.2012 02:09:58 +0200 - build 3012
 
@@ -14745,7 +14725,6 @@ w17 28.06.2012 14:21:36 +0400 - build 2751
 1. endless loop in editor replace reverse search
    replacement of, say, ';' to ';+' never finished...
 
-
 w17 27.06.2012 21:44:29 +0400 - build 2750
 
 1. another correction of 2748 - avoid code duplication
@@ -15097,7 +15076,6 @@ svs 16.05.2012 10:04:17 +0400 - build 2677
    - Ctrl-Up/Down scrolls the editor text
    - Add sets the stacked bookmark
    - RCtrl-(0-9) - set the bookmark 0..9 in the current position, LCtrl-(0-9) - go to bookmark 0-9
-
 
 w17 15.05.2012 19:31:43 +0400 - build 2676
 
@@ -15484,7 +15462,6 @@ svs 20.04.2012 12:10:58 +0400 - build 2629
      Fill  - value to fill with
      Op    - how to fill: 0 - from the right, 1 - from the left, 2 - centered.
 
-
 w17 19.04.2012 15:45:53 +0400 - build 2628
 
 1. gcc -warning
@@ -15789,10 +15766,7 @@ svs 28.03.2012 17:39:50 +0400 - build 2576
 5. Macro: "$Text" is removed, use "print"
    Double-quoted text is temporarily left.
 
-
 6. In intMacroFunction array, the names of the functions are made CaseMixed...
-
-
 
    <ACHTUNG>
 
@@ -15802,7 +15776,6 @@ svs 28.03.2012 17:39:50 +0400 - build 2576
      3) "$Text" is removed, use "print"
 
    </ACHTUNG>
-
 
 w17 28.03.2012 16:27:50 +0400 - build 2575
 
@@ -16077,11 +16050,11 @@ w17 11.03.2012 14:38:39 +0400 - build 2536
 
 1. M#2048: Search in directories containing ";"
 
-w17 09.03.2012 11:31:30 +0400 build - 2535
+w17 09.03.2012 11:31:30 +0400 - build 2535
 
 1. M#2045 - Win+Up does not maximize the FAR window
 
-w17 07.03.2012 23:39:00 +0400 build - 2534
+w17 07.03.2012 23:39:00 +0400 - build 2534
 
 1. the cause of crash is formally eliminated. what the code doe is a secret for me
 
@@ -16203,7 +16176,7 @@ drkns 02.03.2012 00:25:26 +0200 - build 2513
 
 2. FSF.ProcessName(PN_CMPNAMELIST) is now "complete" and capable of all Far features.
 
-w17 01.03.2012 22:14:13 +0400 build - 2512
+w17 01.03.2012 22:14:13 +0400 - build 2512
 
 1. correction of 2511 - getting rid of AI
 
@@ -16237,7 +16210,7 @@ svs 01.03.2012 09:13:01 +0400 - build 2505
    (from samlyukov)
    http://forum.farmanager.com/viewtopic.php?p=85114#p85114
 
-w17 01.03.2012 02:24:47 +0400 build - 2504
+w17 01.03.2012 02:24:47 +0400 - build 2504
 
 1. if a database was not opened 'normally' Finalize() is done for each of its stmtXXXX,
    else it cannot be closed nor renamed correctly
@@ -16255,7 +16228,6 @@ svs 29.02.2012 16:52:09 +0400 - build 2502
    It is used in clip(3|4) macrofunction.
 
 2. Clipboard::CopyHDROP() is given an ability of work with things other than the system clipboard.
-
 
 drkns 29.02.2012 13:55:44 +0200 - build 2501
 
@@ -16381,7 +16353,7 @@ zg 21.02.2012 04:40:45 +0200 - build 2478
    ACTL_GETSYSTEMSETTINGS, ACTL_GETPANELSETTINGS, ACTL_GETINTERFACESETTINGS, ACTL_GETCONFIRMATIONS,
    ACTL_GETPLUGINMAXREADDATA and ACTL_GETDIALOGSETTINGS will be deleted in the nearest future.
 
-w17 20.02.2012 23:34:49 +0400 build - 2477
+w17 20.02.2012 23:34:49 +0400 - build 2477
 
 1. Calling convention mismatch (yet another typo?)
 
@@ -16827,7 +16799,6 @@ svs 27.01.2012 09:15:50 +0400 - build 2418
       |word
       +---------+
 
-
 drkns 26.01.2012 23:03:50 +0200 - build 2417
 
 1. Support for detection and switching off virtual CDs in Windows 8.
@@ -17216,7 +17187,7 @@ drkns 09.01.2012 17:14:54 +0200 - build 2354
 
 1. Mantis#0001975: FAR3 user menu eats hotkeys
 
-w17 09.01.2012 17:15:14 +0400 build - 2353
+w17 09.01.2012 17:15:14 +0400 - build 2353
 
 1. Mantis#1723,1927: CPU load when idle on VM
    (originated by sezal)
@@ -17229,12 +17200,12 @@ t-rex 07.01.2012 13:43:07 +0200 - build 2351
 
 1. Minor corrections of history.
 
-w17 03.01.2012 23:23:11 +0400 build - 2350
+w17 03.01.2012 23:23:11 +0400 - build 2350
 
 1. Mantis#1964: Viewer cannot find a text in UTF8 file
    This is not related to UTF-8, just a bug in text search
 
-w17 03.01.2012 22:13:00 +0400 build - 2349
+w17 03.01.2012 22:13:00 +0400 - build 2349
 
 1. Mantis#1966: Error in search displaying.
 
@@ -17431,7 +17402,7 @@ t-rex 22.12.2011 18:20:50 +0200 - build 2310
 
 1. RCtrl and RAlt were passed incorrectly in ANSI plugins panel.
 
-w17 22.12.2011 16:50:49 +0400 build - 2309
+w17 22.12.2011 16:50:49 +0400 - build 2309
 
 1. mistype in string constructor
 
@@ -17465,11 +17436,11 @@ drkns 21.12.2011 20:33:19 +0200 - build 2303
 
 2. Elevation works in encryption/decryption.
 
-w17 21.12.2011 17:12:54 +0400 build - 2302
+w17 21.12.2011 17:12:54 +0400 - build 2302
 
 1. 0001950: Erroneous switching to Dump mode on Unicode files
 
-w17 15.12.2011 22:40:32 +0400 build - 2301
+w17 15.12.2011 22:40:32 +0400 - build 2301
 
 1. Mantis #1235: Incorrect Shift-Del functioning on storage devices with more than 1 partition
    (from Arty)
@@ -17478,7 +17449,7 @@ svs 15.12.2011 21:39:07 +0400 - build 2300
 
 1. Correction of build 2297
 
-w17 15.12.2011 19:04:57 +0400 build - 2299
+w17 15.12.2011 19:04:57 +0400 - build 2299
 
 1. Mantis #1944 - fix
 
@@ -17504,11 +17475,11 @@ drkns 12.12.2011 15:20:01 +0200 - build 2295
 
 1. Mantis#0001461: In Drive Menu, ShiftEnter on CD/DVD drive without a disc causes a black screen
 
-w17 09.12.2011 14:37:30 +0400 build - 2294
+w17 09.12.2011 14:37:30 +0400 - build 2294
 
 1. Mantis #1151: Incorrect destination path after choosing "Retry" when copying a folder with files to a Flash drive
 
-w17 09.12.2011 07:13:09 +0400 build - 2293
+w17 09.12.2011 07:13:09 +0400 - build 2293
 
 1. Mantis #1937 - Editor RCtrl+Alt+...
 
@@ -17527,16 +17498,16 @@ svs 08.12.2011 19:59:48 +0400 - build 2291
 
    The previous database must be deleted (export then import to keep data).
 
-w17 08.12.2011 12:26:58 +0400 build - 2290
+w17 08.12.2011 12:26:58 +0400 - build 2290
 
 1. #1938: After ECTL_DELETESTRING, blocks in the editor cease working
 
-w17 08.12.2011 00:07:18 +0400 build - 2289
+w17 08.12.2011 00:07:18 +0400 - build 2289
 
 1. Mantis #514 - continuation
    console buffer scrolling is functional if the current mode is neither the editor nor the viewer. ScrollLock is not checked.
 
-w17 07.12.2011 23:53:06 +0400 build - 2288
+w17 07.12.2011 23:53:06 +0400 - build 2288
 
 1. Mantis #1939 Viewer - searching progress state in the taskbar
 
@@ -17567,12 +17538,11 @@ svs 07.12.2011 16:15:27 +0400 - build 2287
             <variable name="%%PI" value="3.14" type="text"/>
         </variables>
 
-
    The previous database must be deleted (export then import to keep data).
 
    TODO: error diagnostics at import!
 
-w17 07.12.2011 12:59:31 +0400 build - 2286
+w17 07.12.2011 12:59:31 +0400 - build 2286
 
 1. Mantis #514 - block selection in editor.
    Changes:
@@ -17653,7 +17623,7 @@ drkns 27.11.2011 23:32:27 +0200 - build 2272
 
 2. Support for privilege elevation when obtaining the packed size.
 
-w17 24.11.2011 00:13:34 +0400 build - 2271
+w17 24.11.2011 00:13:34 +0400 - build 2271
 
 1. Mantis #1925, #1326: Editor replace string selection fix.
 
@@ -17661,11 +17631,11 @@ drkns 19.11.2011 23:35:25 +0200 - build 2270
 
 1. Incorrect processing of FMSG_MB_* flags in the wrapper.
 
-w17 17.11.2011 02:55:35 +0400 build - 2269
+w17 17.11.2011 02:55:35 +0400 - build 2269
 
 1. Continuation of 2268
 
-w17 16.11.2011 13:43:39 +0400 build - 2268
+w17 16.11.2011 13:43:39 +0400 - build 2268
 
 1. Common code is taken out of makefile_gcc in order to use it for building plugins.
 
@@ -17698,7 +17668,7 @@ svs 09.11.2011 06:42:02 +0400 - build 2264
 
 2. Correction of build 2246
 
-w17 07.11.2011 22:30:08 +0400 build - 2263
+w17 07.11.2011 22:30:08 +0400 - build 2263
 
 1. HOSTTYPE is Windows by default, Cygwin != Unix
 
@@ -17706,27 +17676,27 @@ drkns 07.11.2011 09:41:27 +0200
 
 1. HOSTTYPE is Windows by default.
 
-w17 07.11.2011 11:30:15 +0400 build - 2262
+w17 07.11.2011 11:30:15 +0400 - build 2262
 
 1. 2252 - Vstudio build repaired
 
-w17 07.11.2011 03:58:15 +0400 build - 2261
+w17 07.11.2011 03:58:15 +0400 - build 2261
 
 1. 2252 one more time - the return of -O3
 
-w17 05.11.2011 01:02:42 +0400 build - 2260
+w17 05.11.2011 01:02:42 +0400 - build 2260
 
 1. gcc #pragma for 4.6 only
 
-w17 04.11.2011 21:49:00 +0400 build - 2259
+w17 04.11.2011 21:49:00 +0400 - build 2259
 
 1. Again, a fix for 2252 - msys mingw fix
 
-w17 04.11.2011 20:09:02 +0400 build - 2258
+w17 04.11.2011 20:09:02 +0400 - build 2258
 
 1. A fix for 2257.2 (__GNUC_MINOR__)
 
-w17 04.11.2011 20:05:17 +0400 build - 2257
+w17 04.11.2011 20:05:17 +0400 - build 2257
 
 1. Correction of 2252.2
 
@@ -17738,19 +17708,19 @@ drkns 04.11.2011 14:10:46 +0200 - build 2256
 
 2. Minor things.
 
-w17 04.11.2011 14:53:20 +0400 build - 2255
+w17 04.11.2011 14:53:20 +0400 - build 2255
 
 1. Correction of 2252.2
 
-w17 04.11.2011 14:14:30 +0400 build - 2254
+w17 04.11.2011 14:14:30 +0400 - build 2254
 
 1. Correction of 2252.2
 
-w17 04.11.2011 14:10:35 +0400 build - 2253
+w17 04.11.2011 14:10:35 +0400 - build 2253
 
 1. Correction of 2252.1
 
-w17 04.11.2011 11:14:20 +0400 build - 2252
+w17 04.11.2011 11:14:20 +0400 - build 2252
 
 MinGW gcc build
    The following ones are supposed to be functional:
@@ -17774,7 +17744,7 @@ drkns 25.10.2011 20:14:28 +0200
 
 1. Far.exe.ini -> Far.exe.example.ini
 
-w17 25.10.2011 17:09:29 +0400 build - 2249
+w17 25.10.2011 17:09:29 +0400 - build 2249
 
 1. Viewer - errors are fixed, scroll bar drawing is normalized.
 
@@ -17854,7 +17824,7 @@ drkns 20.10.2011 09:40:46 +0300 - build 2234
 
 1. If codepage change in editor has messed up the text, do not remember the codepage.
 
-w17 20.10.2011 09:49:18 +0400 build - 2233
+w17 20.10.2011 09:49:18 +0400 - build 2233
 
 1. Makeup for #1905
 
@@ -17864,7 +17834,7 @@ zg 20.10.2011 01:33:55 +0200 - build 2232
    id must be set to FarGuid, the command is SCTL_ENUM, Root must be set to one of
    FARSETTINGS_SUBFOLDERS values.
 
-w17 19.10.2011 22:36:30 +0400 build - 2231
+w17 19.10.2011 22:36:30 +0400 - build 2231
 
 1. Mantis #1905 again
 
@@ -17872,7 +17842,7 @@ zg 19.10.2011 17:15:15 +0200 - build 2230
 
 1. DM_ADDHISTORY crashed for created but not shown dialog.
 
-w17 19.10.2011 18:02:30 +0400 build - 2229
+w17 19.10.2011 18:02:30 +0400 - build 2229
 
 1. 1905: viewer dump mode
 
@@ -17896,7 +17866,7 @@ drkns 18.10.2011 14:33:06 +0300 - build 2224
 
 1. Now synchronous I/O operations can be interrupted (hello goes to Network plugin). Ctrl-Break.
 
-w17 16.10.2011 12:39:32 +0400 build - 2223
+w17 16.10.2011 12:39:32 +0400 - build 2223
 
 1. Mantis#1791: "Cannot find the file" on F5 after Ctrl+Tab from a file saved in editor
 
@@ -17963,7 +17933,6 @@ svs 13.10.2011 17:44:03 +0400 - build 2220
      {
         the plugin does not get DN_GETVALUE.
      }
-
 
 svs 13.10.2011 15:23:12 +0400 - build 2219
 
@@ -18226,7 +18195,6 @@ svs 30.08.2011 10:16:23 +0300 - build 2182
 
 2. Mantis#0001866: Make all prompt() parameters optional
 
-
 svs 29.08.2011 14:39:57 +0300 - build 2181
 
 1. Mantis#0001864: Debug version crash when executng a written macro
@@ -18375,7 +18343,6 @@ based on Mantis#0001486
 3. MCTL_DELMACRO delete a macro.
    Param1 - 0
    Param2 - Id of the macro.
-
 
 drkns 23.08.2011 15:46:49 +0200 - build 2158
 
@@ -19140,7 +19107,6 @@ svs 20.05.2011 11:13:13 +0300 - build 2038
 3. Mantis#0001768: testfolder(): incorrect return code for an empty directory
    TSTFLD_ERROR is still returned for files
 
-
 drkns 20.05.2011 09:07:19 +0200 - build 2037
 
 1. ExitInfo structure is passed to ExitFARW (for the future).
@@ -19570,7 +19536,7 @@ t-rex 19.04.2011 03:40:18 +0200 - build 1973
 
 1. folder shortcuts in sqlite.
 
-t-rex 19.04.2011 01:09:36 +0200 - build 1972 - Hag Sameach!
+t-rex 19.04.2011 01:09:36 +0200 - build 1972 - Chag Sameach!
 
 1. filters and highligh in sqlite (pluginsconfig.db must be removed again).
 
@@ -19752,7 +19718,6 @@ svs 06.04.2011 13:43:53 +0300 - build 1946
    From: DAtaMan
 
      N=FMatch(S, Mask)
-
 
 t-rex 06.04.2011 01:51:53 +0200 - build 1945
 
@@ -19985,7 +19950,7 @@ t-rex 19.03.2011 17:59:17 +0200 - build 1915
 
 3. Warnings.
 
-zeroes 18.03.2011 16:22:17 +200 - build 1914
+zeroes 18.03.2011 16:22:17 +0200 - build 1914
 
 1. Correction of the type of a variable
 
@@ -20047,7 +20012,6 @@ svs 17.03.2011 17:55:16 +0300 - build 1909
      * keyboard layout is not switched
      * there's a beep (sound)
      * values "00000409", "00000419" etc. from "HKCU\Software\Far2\XLat" branch are used
-
 
    $XLat macrocommand still depends on TechInfo#10
 
@@ -20463,7 +20427,6 @@ svs 10.02.2011 12:01:19 +0300 - build 1849
          Param2=0
          Return=FARMACROAREA
 
-
 zg 10.02.2011 02:16:46 +0200 - build 1848
 
 1. correction of 1846.2.
@@ -20666,7 +20629,7 @@ drkns 04.02.2011 16:50:21 +0200 - build 1821
 
 1. FAR_FIND_DATA is removed, the content is moved to PluginPanelItem. Also, ChangeTime is added there.
 
-svs 04.02.2011 17:43:54 +0300 - build
+svs 04.02.2011 17:43:54 +0300
 
 1. Pay attention to the phrase "#ifdef FAR_USE_INTERNALS"!
    Is has got a pair: "#endif // END FAR_USE_INTERNALS"
@@ -20806,7 +20769,6 @@ svs 01.02.2011 16:07:38 +0300 - build 1805
        if length = 0
        if ... (clarify!)
 
-
 drkns 01.02.2011 14:02:14 +0200 - build 1804
 
 1. "In all non-removable drives"/"In all local drives" search mode also counts unmounted drives.
@@ -20840,7 +20802,6 @@ svs 25.01.2011 16:53:18 +0300 - build 1800
        OPENPLUGIN_OPENFROM enumeration.
 
    </ACHTUNG>
-
 
 2. Mantis#0001677: Provide "launching" key code when running a macro with MCMD_POSTMACROSTRING
    ActlKeyMacro::Param::PlainText structure is appended with "AKey" field.
@@ -21590,11 +21551,11 @@ drkns 21.09.2010 20:38:32 +0200
 
 1. Another flaw in gcc headers.
 
-warp 21.09.2010 00:30:00 +0100 build 1680
+warp 21.09.2010 00:30:00 +0100 - build 1680
 
 1. Some unnecessary stuff got into the wrapper. Returned.
 
-warp 21.09.2010 00:15:00 +0100 build 1679
+warp 21.09.2010 00:15:00 +0100 - build 1679
 
 1. Experimental. The support of detection is added for BD-ROM (it was buggy), BD-RW, HDDVD, HDDVD-RW.
 
@@ -21758,7 +21719,7 @@ drkns 27.08.2010 09:50:32 +0200
 
 1. Spanish translation (lng file) from Mauro72.
 
-svs 26.08.2010 07:50:23 +0300 - build
+svs 26.08.2010 07:50:23 +0300
 
 1. Mantis#0000986: Far 2 API - pascal
    PluginW.pas is updated.
@@ -21988,7 +21949,7 @@ drkns 20.07.2010 01:21:33 +0200 - build 1623
 1. A Stunning Generosity Show: ECTL_GETSTRING cyclic call is sped up dramatically,
    so ECTL_SETPOSITION + ECTL_GETSTRING(-1) trick is no longer needed.
 
-t-rex 16.07.2010 20:13:36 +0200 - build 1622.
+t-rex 16.07.2010 20:13:36 +0200 - build 1622
 
 1. "Show total copy progress indicator" on by default.
 
@@ -22480,7 +22441,9 @@ drkns 03.05.2010 12:45:16 +0200 - build 1536
 1. Problems with Mantis#1362: that "macro execution indication" caused regular screen refreshes.
   Also, 'P' is now green :)
 
-t-rex 02.05.2010 21:46:41 +0200 - build 15351. Mantis#1288: Slow processing of network folders in owners view mode.
+t-rex 02.05.2010 21:46:41 +0200 - build 1535
+
+1. Mantis#1288: Slow processing of network folders in owners view mode.
 
 drkns 02.05.2010 19:13:38 +0200 - build 1534
 
@@ -22986,8 +22949,6 @@ V:
 
   2 mentioned "objects" will be removed... say, in 2 months :-)
 
-
-
 svs 25.03.2010 18:38:53 +0300 - build 1454
 
 1. Macro: RCounter constant is added, it contains the current value of $Rep loop operator.
@@ -23026,7 +22987,6 @@ RCounter = undefined
 1 - on (the function switches Action on and returns previous value)
 2 - flip (the function toggles Action and returns previous value)
 
-
 4.
 
   Fix your macros:
@@ -23037,8 +22997,6 @@ RCounter = undefined
  d) "DisableOutput" state has to be replaced with "MMode(1,-1)" function call because "DisableOutput" state (not the macro flag!) will be removed.
 
   4 mentioned "objects" will be removed... say, in 2 months :-)
-
-
 
 chupakabra 23.03.2010 00:51:00 +0200 - build 1453
 
@@ -23438,6 +23396,7 @@ svs 16.02.2010 11:05:58 +0300 - build 1401
 3. editor.cpp: a commented code deleted (Editor::ReadFile())
 
 garry 15.02.2010 17:37:17 +0300 - build 1400
+
 1. Crash when processing files with increasing size:
   1. Editor crashed when displaying progress bar for the file which size was increasing
   while opening;
@@ -23531,9 +23490,6 @@ svs 10.02.2010 12:55:31 +0300 - build 1386
 drkns 10.02.2010 00:57:46 +0200 - build 1385
 
  1. Incorrect focus positioning in codepages menu.
-
-
-
 
 zg 09.02.2010 17:59:01 +0200 - build 1384
 
@@ -23668,7 +23624,7 @@ drkns 31.01.2010 20:56:38 +0200 - build 1365
 
 1. Panels were not redrawn after filters switch on.
 
-svs 31.01.2010 17:57:22 +0300 - build
+svs 31.01.2010 17:57:22 +0300
 
 1. Mantis#0000986: Far 2 API - pascal
 
@@ -23758,7 +23714,7 @@ zg 19.01.2010 22:58:11 +0200 - build 1346
 
 1. "&" symbol is not displayed in completion.
 
-svs 18.01.2010 10:26:51 +0300 - build
+svs 18.01.2010 10:26:51 +0300
 
 1. Mantis#0001246: Build fails in gcc on Linux. Incorrect include in edit.cpp
 
@@ -24190,8 +24146,12 @@ drkns 06.12.2009 11:14:26 +0200 - build 1274
 
 drkns 05.12.2009 18:46:16 +0200 - build 1273
 
-1. As it suddenly became clear, those admin-in-caption tricks didn't work at all, because because the state of user's membership in admins group had been taken from astral plane.
-Ibid: removed Windows version check (need to check how it works under NT<6) a couple of minor things. t-rex 05.12.2009 17:29:08 +0200 - build 1272
+1. As it suddenly became clear, those admin-in-caption tricks didn't work at all,
+   because the state of user's membership in admins group had been taken from astral plane.
+
+Ibid: removed Windows version check (need to check how it works under NT<6) a couple of minor things.
+
+t-rex 05.12.2009 17:29:08 +0200 - build 1272
 
 1. Remakes in TitleAddons:
 a. GUI option. Please always add it for new GUI features, say no to “techinfo”.
@@ -24719,7 +24679,7 @@ t-rex 27.10.2009 18:04:07 +0200 - build 1187
 
 1. Finished Mantis#1087.
 
-t-rex 27.10.2009 16:45:19 +0200 - 1186
+t-rex 27.10.2009 16:45:19 +0200 - build 1186
 
 1. Mantis#1087: FCTL_SETPANELDIR does not return error (0) for nonexisting path.
 
@@ -25051,17 +25011,11 @@ For Unicode plugins nothing is set.
 Thus, some careless plugins can malfunction somehow.
 It's still not too late to repent and start using FCTL_GETCURRENTDIRECTORY.
 
-svs 26.09.2009 19:07:24 +0300 - build
+svs 26.09.2009 19:07:24 +0300
 
 1. Mantis#0000986: Far 2 API - pascal
 from: max rusov
 PluginW.pas: Added RegExp support
-
-svs 26.09.2009 19:07:24 +0300 - build
-
-1. Mantis#0000986: Far 2 API - pascal
-from: max rusov
-PluginW.pas: Added RegExp support.
 
 zg 26.09.2009 17:05:26 +0200 - build 1144
 
@@ -25431,7 +25385,7 @@ chupakabra 28.08.2009 18:28:00 +0200 - build 1095
 
 1. FCTL_REDRAWPANEL could return FALSE in case of success
 
-svs 28.08.2009 19:14:22 +0300 - build
+svs 28.08.2009 19:14:22 +0300
 
 1. Help translation from Igor Yudincev
 
@@ -25532,7 +25486,7 @@ svs 19.08.2009 11:42:58 +0300 - build 1086
    eval("",1) variant returns error 12 ("Zero-length macro")
    Considering empty macro sequences illegal.
 
-svs 17.08.2009 12:26:34 +0300 - build
+svs 17.08.2009 12:26:34 +0300
 
 1. Mantis#0000986: Far 2 API - pascal
     from: max rusov
@@ -25553,7 +25507,7 @@ drkns 14.08.2009 23:38:43 +0200 - build 1083
    Localization of settings dialog.
    All plugin selection menus are off by default.
 
-svs 14.08.2009 11:51:50 +0300 - build
+svs 14.08.2009 11:51:50 +0300
 
 1. Mantis#0000986: Far 2 API - pascal
     from: max rusov
@@ -25572,11 +25526,9 @@ drkns 09.08.2009 17:21:34 +0200 - build 1080
 
 1. If a single object was selected on panel and cursor was on "..", then PanelInfo.SelectedItemsNumber contained 0.
 
-
 --------------------------------------------------------------------------------
 Entries 464-1079 are not translated yet.
 --------------------------------------------------------------------------------
-
 
 svs 27.03.2008 18:03:22 +0300 - build 463
 
@@ -25675,7 +25627,6 @@ object name (for cursor, like in panel.SetPos)
        Logical:              &&
        Logical:              ||
 
-
 4. Some macro functions accept optional parameters
      S=itoa(N[,radix]) - if radix is not provided, 10 assumed
      N=Menu.Select(S[,N]) - N assumed to be 0
@@ -25721,7 +25672,6 @@ settings were renamed
 2. In History/Combobox, arrows were displayed using the menu color;
 added VMENU_COMBOBOX flag
 
-
 svs 17.03.2008 20:23:22 +0300 - build 452
 
 1. Mantis#0000498 - Screen scrolling arrows colors for Menu/Listbox/
@@ -25766,7 +25716,7 @@ t-rex 15.03.2008 17:47:09 +0200 - build 448
 
 1. Mantis#87: Copying and hard links.
 
-svs 15.03.2008 17:48:39 +0300 - build  447
+svs 15.03.2008 17:48:39 +0300 - build 447
 
 1. Ctrl-N removed for lists (http://forum.farmanager.com/viewtopic.php?
 f=3&t=3130)
@@ -26182,6 +26132,7 @@ used.
    - other small fixes
 
 Zuz 12.01.2008 01:52:26 +0500 - build 410
+
 1. More liberal requirements for access rights (Mantis#0000453).
 
 2. In FindFiles::LookForString, libc API for file operations changed
@@ -26295,7 +26246,6 @@ is requested (bug from 1.65...)
 3. Small fix in registry.cpp::MkKeyName - RegMon doesn't like e.g.
 "HKCU\\Console"
 
-
 ts 05.01.2008 11:39:30 +0200 - build 400
 
 1. Changes in wrapper messages handling for listbox and combobox.
@@ -26374,7 +26324,6 @@ enabled and exclusionary filter (-) is used, and a directory matches
 this filter, that directory is skipped along with its content and
 subdirectories. Of course this is true only when D+ is disabled :)
 
-
 svs 15.12.2007 00:35:38 +0300 - build 393
 
 1. Macros with non-Latin characters in names were saved incorrectly.
@@ -26433,7 +26382,6 @@ from Alexander Mitin
 2. Mantis#0000431: Crash when deleting the File Highlighting entry
 
 3. Mantis#0000430: Crash in "System parameters"
-
 
 svs 13.12.2007 20:31:34 +0300 - build 390
 
@@ -26526,7 +26474,6 @@ the element having Focus=1
    To support this, a virtual function OnChangeFocus added to
 FileEditor.
 
-
 svs 06.12.2007 13:31:33 +0300 - build 384
 
 1. Mantis#0000417: Memory leak in Viewer::ProcessKey()
@@ -26540,7 +26487,6 @@ ScreenBuf::Scroll(int Num)
 4. Mantis#0000420: INVALID_HANDLE_VALUE used in FindClose() in
 ScanTree::GetNextName()
 
-
 svs 05.12.2007 17:29:24 +0300 - build 383
 
 1. Mantis#0000414: Handle leak in FileEditor::LoadFile()
@@ -26548,7 +26494,6 @@ svs 05.12.2007 17:29:24 +0300 - build 383
 2. Mantis#0000412: Wrong delete type in Language::Init()
 
 3. Mantis#0000413: Wrong delete type in FileEditor::SaveFile()
-
 
 t-rex 04.12.2007 23:41:54 +0200 - build 382
 
@@ -26581,7 +26526,6 @@ is commented out, only the place in the code is marked...
    combobox-related correction:
    - correction of Top
    - dynamical change of opened drop-down list (Hide+Show)
-
 
 t-rex 04.12.2007 08:18:31 +0200 - build 377
 
@@ -26754,7 +26698,6 @@ drkns 24.11.2007 18:24:58 +0200 - build 358
 
 2. Macro function Date() did't work.
 
-
 t-rex 24.11.2007 18:03:42 +0200 - build 357
 
 1. Mantis#375: Network plugin wasn't called after doing ChangeUp in a
@@ -26788,7 +26731,6 @@ drkns 18.11.2007 12:11:21 +0200 - build 352
 
 1. For the user's menu, macro scope was set to Menu instead of
 UserMenu.
-
 
 t-rex 18.11.2007 02:19:42 +0200 - build 351
 
@@ -26860,7 +26802,6 @@ copied directory wasn't completely removed
 2. While performing a Move operation with filtering enabled, empty
 directories weren't copied even if they matched a filter
 
-
 yjh 16.11.2007 00:17:38 +0300 - build 347
 
 1. In exception filters, the option that disallowed filtering of
@@ -26869,7 +26810,6 @@ directories wasn't respected.
 drkns 15.11.2007 20:04:49 +0200 - build 346
 
 1. One more "owners-related" fix
-
 
 yjh 15.11.2007 04:10:08 +0300 - build 345
 
@@ -26880,7 +26820,6 @@ that matches the filter, we skip it along with all its contents.
 
 2. Removed a couple of BUGBUG in copying with filters enabled. Now it
 works :-)
-
 
 drkns 14.11.2007 22:22:05 +0200 - build 344
 
@@ -26897,7 +26836,6 @@ freed.
 display a domain.
 
 4. It is possible to input Unicode symbols with Alt-NumX :)
-
 
 yjh 14.11.2007 22:04:42 +0300 - build 342
 
@@ -26931,11 +26869,9 @@ yjh 13.11.2007 09:44:34 +0300
 home :-). It is recommended that you define -DLINK_WITH_ULINK and use
 ulink. Otherwise, you'll get less protection and a warning.
 
-
 yjh 13.11.2007 07:06:56 +0300 - build 340
 
 1. FarNameToKey for plugins
-
 
 yjh 13.11.2007 03:04:15 +0300 - build 339
 
@@ -26948,7 +26884,6 @@ make).
    It can be correctly linked with ms-link from vc8, or with ulink ver
 >= 1.05 build 3.9 (build >= 3.11 recommended, otherwise unnecessary
 warning appears).
-
 
 t-rex 12.11.2007 22:58:42 +0200 - build 338
 
@@ -27026,7 +26961,6 @@ yjh 10.11.2007 20:39:24 +0300 - build 332
              (IsEdit(Type) && MaxLen==0)
              the allocated buffer (DataOut) must be freed by a plugin
 itself
-
 
 t-rex 10.11.2007 19:11:17 +0200 - build 331
 
@@ -27160,7 +27094,6 @@ macro.cpp to syntax.cpp
 
 5. Mantis#0000351: ACTL_POSTKEYSEQUENCE: pause while running and extra
 redrawing.
-
 
 t-rex 07.11.2007 17:47:14 +0200 - build 324
 
@@ -27299,7 +27232,7 @@ from Alex Alabuzhev:
 to Unicode in the wrapper (wrap.cpp), some deeper problems detected -
 type inference to char (vmenu.cpp)
 
-svs 28.10.2007 17:00:58 +0300 - build
+svs 28.10.2007 17:00:58 +0300
 
 1. Added SYSLOG-RU file, describing logging in FAR
 
@@ -27410,8 +27343,7 @@ editor, but we have the same macro there, and it runs
 
      The only solution is a power off switch.
 
-
-t-rex 26.10.2007 14:34:01 +0200 build 300
+t-rex 26.10.2007 14:34:01 +0200 - build 300
 
 1. Are you ready? :)
 
