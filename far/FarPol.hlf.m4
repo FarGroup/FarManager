@@ -820,79 +820,74 @@ $ #Polecenia specjalne#
 
 
 @MsWheel
-$ #Mouse: wheel support#
- #Panels#
- Rotating the wheel scrolls the file list without changing the cursor position on the screen.
-Pressing the #middle button# has the same effect as pressing #Enter#.
+$ #Myszka: obsługa rolki#
+ #Panele#
+ Obracanie rolki przewija listę plików bez zmiany pozycji kursora na ekranie.
+ Wciśnięcie #środkowego przycisku# działa tak samo jak klawisz #Enter#.
 
- #Editor#
- Rotating the wheel scrolls the text without changing the cursor position on the screen
-(similar to #Ctrl+Up#/#Ctrl+Down#).
+ #Edytor#
+ Obracanie rolki przewija tekst bez zmiany pozycji kursora na ekranie
+(podobnie do #Ctrl+Up#/#Ctrl+Down#).
 
- #Viewer#
- Rotating the wheel scrolls the text.
+ #Podgląd#
+ Obracanie rolki przewija tekst.
 
- #Help#
- Rotating the wheel scrolls the text.
+ #Pomoc#
+ Obracanie rolki przewija tekst.
 
- #Menus#
- Wheel scrolling works as #Up#/#Down# keys. Pressing the #middle button# has the same effect as
-pressing #Enter#. It is possible to choose items without moving the cursor.
+ #Menu#
+ Obracanie rolki działa tak samo jak klawisze #Góra#/#Dół#. Wciśnięcie #środkowego przycisku# działa tak samo
+jak klawisz #Enter#. Można wybrać pozycję menu bez przesuwania kursora.
 
- #Dialogs#
- In dialogs, when the wheel is rotated at an edit line with a history list or a combo box,
-the drop-down list is opened. In the drop-down list scrolling works the same as in menus.
+ #Dialogi#
+ W oknach dialogowych, przy obracaniu folki w polu edycji z listą historii lub listą wyboru - otwierana jest
+lista opcji. W liście rozwijanej - obracanie działa tak samo jak w menu.
 
- You can specify the number of lines to scroll at a time in the panels,
-editor and viewer (see ~System.MsWheelDelta~@System.MsWheelDelta@).
+ Można ustawić ilość linii do przewijania w panelach, edytorze i przeglądarce (szczegóły ~System.MsWheelDelta~@System.MsWheelDelta@).
 
 
 @Plugins
-$ #Plugins support#
- Plugins can be used to implement new Far commands and emulate file systems.
-For example, archives support, FTP client, temporary panel and network browser
-are plugins that emulate file systems.
+$ #Obsługa wtyczek#
+ Wtyczki mogą być używane do rozszerzenia poleceń Far i emulowania systemu plików.
+Np. obsługa archiwów, klient FTP, panel tymczasowy, przeglądarka sieci - są wtyczkami
+emulującymi system plików.
 
- All plugins are stored in separate folders within the 'Plugins' folder,
-which is in the same folder as Far.exe, and the 'Plugins' folder, which is in the
-user profile folder (#%APPDATA%\\Far Manager\\Profile# by default).
-When detecting a new plugin Far saves information about it and later loads the
-plugin only when necessary, so unused plugins do not require additional memory.
-But if you are sure that some plugins are useless for you, you can remove them
-to save disk space.
+ Wszystkie wtyczki są zapisywane w osobnych podfolderach folderu 'Plugins', który znajduje
+się w tym samym miejscu co plik Far.exe, lub w folderze 'Plugins' znajdującym się w profilu
+użytkownika (domyślnie #%APPDATA%\\Far Manager\\Profile#).
+Po wykryciu nowej wtyczki Far zapisuje informację o niej, a później wczytuje ją tylko wtedy,
+gdy jest potrzebna - nie używane wtyczki nie zajmują dodatkowej pamięci.
+Ale jeżeli któraś wtyczka nie będzie już potrzebna, można ją usunąć oszczędzając miejsce na dysku.
 
- Plugins can be called either from ~Change drive menu~@DriveDlg@ or from
-#Plugin commands# menu, activated by #F11# or by corresponding item of
-~Commands menu~@CmdMenu@. #F4# in ~"Plugin commands"~@PluginCommands@ menu allows to assign hot
-keys to menu items (this makes easier to call them from ~keyboard macros~@KeyMacro@).
-This menu is accessible from file panels, dialogs and (only by #F11#) from the
-internal viewer and editor. Only specially designed plugins will be shown when
-calling the menu from dialogs, the viewer or the editor.
+ Wtyczki mogą być wywołane z menu ~Zmienń dysk~@DriveDlg@ lub #Listy wtyczek# włączanej klawiszem
+#F11# lub odpowiadającemgo menu ~Polecenia~@CmdMenu@. Wciśnięcie #F4# na ~"Liście wtyczek"~@PluginCommands@
+pozwala przypisać klawisz skrótu do menu (ułatwia to wywoływanie wtyczek w ~makrach klawiatury~@KeyMacro@).
+Menu to jest dostępne w panelu plików, oknach dialogowych oraz (tylko po wciśnięciu klawisza #F11#)
+w oknie podglądu i edycji. Tylko specjalnie przygotowane wtyczki będą pokazywane w oknach dialogowych,
+przeglądarce lub edytorze.
 
- You can set plugin parameters using ~Plugin configuration~@PluginsConfig@
-command from ~Options menu~@OptMenu@.
+ Można ustawić parametry wtyczek używając polecenia ~Konfiguracja wtyczek~@PluginsConfig@
+w menu ~Opcje~@OptMenu@.
 
- File processing operations like copy, move, delete, edit or ~Find file~@FindFile@
-work with plugins, which emulate file systems, if these plugins provide
-necessary functionality. Search from the current folder in the "Find file"
-command requires less functionality than search from the root folder, so try to
-use it if search from the root folder does not work correctly.
+ Operacje przetwarzania plików takie jak kopiowanie, przenoszenie, usuwanie, edycja lub
+~wyszukiwanie plików~@FindFile@ współpracują z wtyczkami emulującymi system plików, jeżeli wtyczki
+posiadają odpowiednią funkcjonalność. Wyszukiwanie w bieżącym folderze poleceniem "Znajdź plik"
+wymaga mniejszej funkcjonalności niż wyszukiwanie w głównym folderze, więc można ją wykorzystać
+jeżeli wyszukiwanie z głównego foldera będzie nieskuteczne.
 
- Plugins have their own message and help files. You can get a list of
-available help on the plugins by pressing
+ Wtyczki mają własne komunikaty i pliki pomocy. Można odczytać pomoc po wcisnięciu
 
- #Shift+F2# - anywhere in the Far help system
+ #Shift+F2# - w każdym miejscu pomocy Far
 
- #Shift+F1# - in the list of plugins (context-dependent help).
+ #Shift+F1# - na liście wtyczek (pomoc kontekstowa).
 
- If the plugin has no help file, then context-dependent help will not pop out.
+ Jeżeli wtyczka nie zawiera pliku pomocy, pomoc kontekstowa nie zostanie wyświetlona.
 
- If the active panel shows a plugin emulated file system, the command "CD"
-in the command line can be used to change the plugin file system folder. Unlike
-"CD", "CHDIR" command always treats the specified parameter as a real folder
-name regardless a file panel type.
+ Jeżeli aktywny panel pokazuje wtyczkę emulującą system plkików, polecenie "CD"
+w linii poleceń może być użyte do zmiany folderu wtyczki. Inaczej niż polecenia "CD", "CHDIR"
+podany parametr zawsze jest traktowany jak rzeczywisty folder bez względu na typ panelu plików.
 
- Use #Alt+Shift+F9# to ~configure plugins~@PluginsConfig@.
+ Użyj klawiszy #Alt+Shift+F9# aby ~skonfigurować wtyczki~@PluginsConfig@.
 
 
 @PluginCommands
