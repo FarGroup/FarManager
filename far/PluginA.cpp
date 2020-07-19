@@ -876,20 +876,16 @@ struct DialogData
 	FarList *l;
 };
 
-static auto& DialogList()
+static auto& Dialogs()
 {
-	static std::list<DialogData> s_DialogList;
-	return s_DialogList;
+	static std::unordered_map<HANDLE, DialogData> s_Dialogs;
+	return s_Dialogs;
 }
 
 static auto FindDialogData(HANDLE hDlg)
 {
-	const auto ItemIterator = std::find_if(RANGE(DialogList(), i)
-	{
-		return i.hDlg == hDlg;
-	});
-
-	return ItemIterator == DialogList().end()? nullptr : &*ItemIterator;
+	const auto ItemIterator = Dialogs().find(hDlg);
+	return ItemIterator == Dialogs().end()? nullptr : &ItemIterator->second;
 }
 
 // can be nullptr in case of the ansi dialog plugin
@@ -3256,65 +3252,63 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber, int X1, int Y1, int X2, in
 		if (Flags&oldfar::FDLG_NONMODAL)
 			DlgFlags|=FDLG_NONMODAL;
 
-		int ret = -1;
 		const auto hDlg = pluginapi::apiDialogInit(GetPluginGuid(PluginNumber), &FarGuid, X1, Y1, X2, Y2, (HelpTopic? encoding::oem::get_chars(HelpTopic).c_str() : nullptr), di.data(), di.size(), 0, DlgFlags, DlgProcA, Param);
+		if (hDlg == INVALID_HANDLE_VALUE)
+			return -1;
+
 		DialogData NewDialogData;
-		NewDialogData.DlgProc=DlgProc;
-		NewDialogData.hDlg=hDlg;
-		NewDialogData.diA=diA.data();
-		NewDialogData.di=di.data();
-		NewDialogData.l=l.data();
+		NewDialogData.DlgProc = DlgProc;
+		NewDialogData.hDlg = hDlg;
+		NewDialogData.diA = diA.data();
+		NewDialogData.di = di.data();
+		NewDialogData.l = l.data();
 
-		DialogList().emplace_back(NewDialogData);
+		Dialogs().emplace(hDlg, NewDialogData);
+		SCOPE_EXIT{ Dialogs().erase(hDlg); };
 
-		if (hDlg != INVALID_HANDLE_VALUE)
+		const auto ret = pluginapi::apiDialogRun(hDlg);
+
+		for (int i = 0; i != ItemsNumber; ++i)
 		{
-			ret = pluginapi::apiDialogRun(hDlg);
+			size_t const Size = pluginapi::apiSendDlgMessage(hDlg, DM_GETDLGITEM, i, nullptr);
+			block_ptr<FarDialogItem> Buffer(Size);
+			FarGetDialogItem gdi = {sizeof(FarGetDialogItem), Size, Buffer.data()};
 
-			for (int i=0; i<ItemsNumber; i++)
+			if (gdi.Item)
 			{
-				size_t const Size = pluginapi::apiSendDlgMessage(hDlg, DM_GETDLGITEM, i, nullptr);
-				block_ptr<FarDialogItem> Buffer(Size);
-				FarGetDialogItem gdi = {sizeof(FarGetDialogItem), Size, Buffer.data()};
+				pluginapi::apiSendDlgMessage(hDlg, DM_GETDLGITEM, i, &gdi);
+				UnicodeDialogItemToAnsiSafe(*gdi.Item, ItemsSpan[i]);
+				const auto res = NullToEmpty(gdi.Item->Data);
 
-				if (gdi.Item)
+				if ((di[i].Type==DI_EDIT || di[i].Type==DI_COMBOBOX) && ItemsSpan[i].Flags&oldfar::DIF_VAREDIT)
+					encoding::oem::get_bytes(res, { ItemsSpan[i].Ptr.PtrData, static_cast<size_t>(ItemsSpan[i].Ptr.PtrLength + 1) });
+				else
+					encoding::oem::get_bytes(res, ItemsSpan[i].Data);
+
+				if (gdi.Item->Type==DI_USERCONTROL)
 				{
-					pluginapi::apiSendDlgMessage(hDlg, DM_GETDLGITEM, i, &gdi);
-					UnicodeDialogItemToAnsiSafe(*gdi.Item, ItemsSpan[i]);
-					const wchar_t *res = NullToEmpty(gdi.Item->Data);
-
-					if ((di[i].Type==DI_EDIT || di[i].Type==DI_COMBOBOX) && ItemsSpan[i].Flags&oldfar::DIF_VAREDIT)
-						encoding::oem::get_bytes(res, { ItemsSpan[i].Ptr.PtrData, static_cast<size_t>(ItemsSpan[i].Ptr.PtrLength + 1) });
-					else
-						encoding::oem::get_bytes(res, ItemsSpan[i].Data);
-
-					if (gdi.Item->Type==DI_USERCONTROL)
-					{
-						di[i].VBuf=gdi.Item->VBuf;
-						ItemsSpan[i].VBuf=GetAnsiVBufPtr(gdi.Item->VBuf,GetAnsiVBufSize(ItemsSpan[i]));
-					}
-
-					if (gdi.Item->Type==DI_COMBOBOX || gdi.Item->Type==DI_LISTBOX)
-					{
-						ItemsSpan[i].ListPos = static_cast<int>(pluginapi::apiSendDlgMessage(hDlg, DM_LISTGETCURPOS, i, nullptr));
-					}
+					di[i].VBuf=gdi.Item->VBuf;
+					ItemsSpan[i].VBuf=GetAnsiVBufPtr(gdi.Item->VBuf,GetAnsiVBufSize(ItemsSpan[i]));
 				}
 
-				FreeAnsiDialogItem(diA[i]);
+				if (gdi.Item->Type==DI_COMBOBOX || gdi.Item->Type==DI_LISTBOX)
+				{
+					ItemsSpan[i].ListPos = static_cast<int>(pluginapi::apiSendDlgMessage(hDlg, DM_LISTGETCURPOS, i, nullptr));
+				}
 			}
 
-			pluginapi::apiDialogFree(hDlg);
-
-			for (int i=0; i<ItemsNumber; i++)
-			{
-				if (di[i].Type==DI_LISTBOX || di[i].Type==DI_COMBOBOX)
-					di[i].ListItems = &CurrentList(hDlg,i);
-
-				FreeUnicodeDialogItem(di[i]);
-			}
+			FreeAnsiDialogItem(diA[i]);
 		}
 
-		DialogList().pop_back();
+		pluginapi::apiDialogFree(hDlg);
+
+		for (int i=0; i<ItemsNumber; i++)
+		{
+			if (di[i].Type==DI_LISTBOX || di[i].Type==DI_COMBOBOX)
+				di[i].ListItems = &CurrentList(hDlg,i);
+
+			FreeUnicodeDialogItem(di[i]);
+		}
 
 		return ret;
 	}
@@ -5826,14 +5820,14 @@ TEST_CASE("plugin.ansi.tables")
 	}
 	Tests[]
 	{
+		{   0, case_none,    0,   0 },
+		{ ' ', case_none,  ' ', ' ' },
+		{ '0', case_none,  '0', '0' },
+		{ '9', case_none,  '9', '9' },
 		{ 'a', case_lower, 'A', 'a' },
 		{ 'A', case_upper, 'A', 'a' },
 		{ 'z', case_lower, 'Z', 'z' },
 		{ 'Z', case_upper, 'Z', 'z' },
-		{ '0', case_none,  '0', '0' },
-		{ '9', case_none,  '9', '9' },
-		{ ' ', case_none,  ' ', ' ' },
-		{   0, case_none,    0,   0 },
 	};
 
 	for (const auto& i: Tests)

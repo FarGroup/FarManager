@@ -163,10 +163,7 @@ void FileSystemWatcher::Register()
 			if (!m_Notification)
 				return;
 
-			os::multi_waiter waiter;
-			waiter.add(m_Notification.native_handle());
-			waiter.add(m_Cancelled);
-			waiter.wait(os::multi_waiter::mode::any);
+			(void)os::handle::wait_any({ m_Notification.native_handle(), m_Cancelled.native_handle() });
 			return;
 		}
 		CATCH_AND_SAVE_EXCEPTION_TO(m_ExceptionPtr)

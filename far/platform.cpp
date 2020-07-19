@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.memory.hpp"
 
 // Common:
+#include "common/algorithm.hpp"
 #include "common/range.hpp"
 #include "common/scope_exit.hpp"
 #include "common/string_utils.hpp"
@@ -64,15 +65,9 @@ namespace os
 			return Handle == INVALID_HANDLE_VALUE? nullptr : Handle;
 		}
 
-		void handle_implementation::wait(HANDLE const Handle)
+		bool handle_implementation::wait(HANDLE const Handle, std::optional<std::chrono::milliseconds> const Timeout)
 		{
-			WaitForSingleObject(Handle, INFINITE);
-		}
-
-		bool handle_implementation::is_signaled(HANDLE const Handle, std::chrono::milliseconds const Timeout)
-		{
-			const auto Result = WaitForSingleObject(Handle, Timeout / 1ms);
-			switch (Result)
+			switch (const auto Result = WaitForSingleObject(Handle, Timeout? *Timeout / 1ms : INFINITE))
 			{
 			case WAIT_OBJECT_0:
 				return true;
@@ -81,7 +76,30 @@ namespace os
 				return false;
 
 			default:
+				// Abandoned or error
 				throw MAKE_FAR_FATAL_EXCEPTION(format(FSTR(L"WaitForSingleobject returned {0}"), Result));
+			}
+		}
+
+		std::optional<size_t> handle_implementation::wait(span<HANDLE const> const Handles, bool const WaitAll, std::optional<std::chrono::milliseconds> Timeout)
+		{
+			assert(!Handles.empty());
+			assert(Handles.size() <= MAXIMUM_WAIT_OBJECTS);
+
+			const auto Result = WaitForMultipleObjects(static_cast<DWORD>(Handles.size()), Handles.data(), WaitAll, Timeout? *Timeout / 1ms : INFINITE);
+
+			if (in_range<size_t>(WAIT_OBJECT_0, Result, WAIT_OBJECT_0 + Handles.size() - 1))
+			{
+				return Result - WAIT_OBJECT_0;
+			}
+			else if (Result == WAIT_TIMEOUT)
+			{
+				return {};
+			}
+			else
+			{
+				// Abandoned or error
+				throw MAKE_FAR_FATAL_EXCEPTION(format(FSTR(L"WaitForMultipleObjects returned {0}"), Result));
 			}
 		}
 

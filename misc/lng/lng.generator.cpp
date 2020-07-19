@@ -273,19 +273,19 @@ void WriteSignatureIfNeeded(HANDLE hFile, int nEncoding)
 
 int main (int argc, const char* argv[])
 {
-	printf (".LNG Generator "VERSION"\n\r");
-	printf ("Copyright (C) 2003-2009 WARP ItSelf\n\r");
-	printf ("Copyright (C) 2005 WARP ItSelf & Alex Yaroslavsky\n\n\r");
+	printf (".LNG Generator "VERSION"\r\n");
+	printf ("Copyright (C) 2003-2009 WARP ItSelf\r\n");
+	printf ("Copyright (C) 2005 WARP ItSelf & Alex Yaroslavsky\r\n\r\n");
 
 	if ( argc < 2 )
 	{
-		printf ("Usage: generator [options] feed_file\n\r");
+		printf ("Usage: generator [options] feed_file\r\n");
 		printf ("\nOptions:\n");
-		printf ("\t-i filename - optional ini file with update status.\n\r");
-		printf ("\t-ol output_path - language files output path.\n\r");
-		printf ("\t-oh output_path - header file output path.\n\r");
-		printf ("\t-nc - don't write copyright info to generated files.\n\r");
-		printf ("\t-e - output encoding set in feed file for each output file (UTF8 otherwise).\n\r");
+		printf ("\t-i filename - optional ini file with update status.\r\n");
+		printf ("\t-ol output_path - language files output path.\r\n");
+		printf ("\t-oh output_path - header file output path.\r\n");
+		printf ("\t-nc - don't write copyright info to generated files.\r\n");
+		printf ("\t-e - output encoding set in feed file for each output file (UTF8 otherwise).\r\n");
 		return 0;
 	}
 
@@ -353,7 +353,7 @@ int main (int argc, const char* argv[])
 
 	if ( hFeedFile == INVALID_HANDLE_VALUE )
 	{
-		printf ("ERROR: Can't open the feed file, exiting.\n\r");
+		printf ("ERROR: Can't open the feed file, exiting.\r\n");
 		return 0;
 	}
 
@@ -478,7 +478,7 @@ int main (int argc, const char* argv[])
 							);
 
 					if ( pLangEntries[i].hLNGFile == INVALID_HANDLE_VALUE )
-						printf ("WARNING: Can't create the language file \"%s\".\n\r", pLangEntries[i].lpLNGFileName);
+						printf ("WARNING: Can't create the language file \"%s\".\r\n", pLangEntries[i].lpLNGFileName);
 					else
 					{
 						WriteSignatureIfNeeded(pLangEntries[i].hLNGFile, pLangEntries[i].nEncoding);
@@ -566,7 +566,7 @@ int main (int argc, const char* argv[])
 
 									/*
 									printf (
-											"WARNING: String %s (ID = %s) of %s language needs update!\n\r",
+											"WARNING: String %s (ID = %s) of %s language needs update!\r\n",
 											lpLNGString,
 											lpMsgID,
 											pLangEntries[i].lpLanguageName
@@ -613,7 +613,7 @@ int main (int argc, const char* argv[])
 				{
 					if (pLangEntries[i].cNeedUpdate > 0)
 					{
-						printf ("INFO: There are %d strings that require review in %s translation!\n\n\r",
+						printf ("INFO: There are %d strings that require review in %s translation\r\n",
 								pLangEntries[i].cNeedUpdate,
 								pLangEntries[i].lpLanguageName);
 					}
@@ -707,10 +707,10 @@ int main (int argc, const char* argv[])
 				free (lpCRC32);
 		}
 		else
-			printf ("ERROR: Can't create the header file, exiting.\n\r");
+			printf ("ERROR: Can't create the header file, exiting.\r\n");
 	}
 	else
-		printf ("ERROR: Zero languages to process, exiting.\n\r");
+		printf ("ERROR: Zero languages to process, exiting.\r\n");
 
 	DeleteFile (lpHPPFileNameTemp);
 

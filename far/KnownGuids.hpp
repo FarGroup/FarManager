@@ -46,8 +46,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace guids::plugins
 {
-	using namespace guid_parse::literals;
-
 	constexpr inline auto
 		NetworkGuid  = "773B5051-7C5F-4920-A201-68051C4176A4"_guid,
 		EMenuGuid    = "742910F1-02ED-4542-851F-DEE37C2E13B2"_guid,
@@ -56,13 +54,12 @@ namespace guids::plugins
 		NetBoxGuid   = "42E4AEB1-A230-44F4-B33C-F195BB654931"_guid,
 		ProcListGuid = "1E26A927-5135-48C6-88B2-845FB8945484"_guid,
 		TmpPanelGuid = "B77C964B-E31E-4D4C-8FE5-D6B0C6853E7C"_guid;
-
 }
 
 // TODO: Use fully qualified names everywhere
-WARNING_PUSH()
-WARNING_DISABLE_CLANG("-Wheader-hygiene")
-using namespace guids::plugins;
-WARNING_POP()
+inline namespace guids_inline
+{
+	using namespace guids::plugins;
+}
 
 #endif // KNOWNGUIDS_HPP_346A7786_E86B_4C38_A02F_68FDAABB07AE

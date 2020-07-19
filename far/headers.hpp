@@ -228,12 +228,10 @@ using string_view = std::wstring_view;
 static_assert(std::is_unsigned_v<char>);
 static_assert(sizeof(wchar_t) == 2);
 
-WARNING_PUSH()
-WARNING_DISABLE_CLANG("-Wheader-hygiene")
-using namespace std::string_literals;
-using namespace std::string_view_literals;
-using namespace std::chrono_literals;
-WARNING_POP()
+inline namespace literals
+{
+	using namespace std::literals;
+}
 
 namespace features
 {

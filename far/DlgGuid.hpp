@@ -47,8 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace guids::far::dialogs
 {
-	using namespace guid_parse::literals;
-
 	constexpr inline auto
 		FindFileId                       = "8C9EAD29-910F-4B24-A669-EDAFBA6ED964"_guid,
 		FindFileResultId                 = "536754EB-C2D1-4626-933F-A25D1E1D110A"_guid,
@@ -142,9 +140,9 @@ namespace guids::far::dialogs
 }
 
 // TODO: Use fully qualified names everywhere
-WARNING_PUSH()
-WARNING_DISABLE_CLANG("-Wheader-hygiene")
-using namespace guids::far::dialogs;
-WARNING_POP()
+inline namespace guids_inline
+{
+	using namespace guids::far::dialogs;
+}
 
 #endif // DLGGUID_HPP_760BACF0_E0D8_4C67_A732_5C075A1CC176

@@ -2130,8 +2130,6 @@ void Options::SetDriveMenuHotkeys()
 	if (!ConfigProvider().GeneralCfg()->GetValue<bool>(L"Interface"sv, L"InitDriveMenuHotkeys"sv, true))
 		return;
 
-	using namespace guid_parse::literals;
-
 	static constexpr struct
 	{
 		KnownModulesIDs::GuidOption KnownModulesIDs::* Option;

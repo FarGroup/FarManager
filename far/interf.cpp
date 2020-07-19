@@ -179,11 +179,14 @@ static BOOL WINAPI CtrlHandler(DWORD CtrlType)
 
 		if (Global->CtrlObject && Global->CtrlObject->Cp())
 		{
-			if (Global->CtrlObject->Cp()->LeftPanel() && Global->CtrlObject->Cp()->LeftPanel()->GetMode() == panel_mode::PLUGIN_PANEL)
-				Global->CtrlObject->Plugins->ProcessEvent(Global->CtrlObject->Cp()->LeftPanel()->GetPluginHandle(),FE_BREAK, ToPtr(CtrlType));
+			const auto ProcessEvent = [&](Panel const* const p)
+			{
+				if (p && p->GetMode() == panel_mode::PLUGIN_PANEL)
+					Global->CtrlObject->Plugins->ProcessEvent(p->GetPluginHandle(), FE_BREAK, ToPtr(CtrlType));
+			};
 
-			if (Global->CtrlObject->Cp()->RightPanel() && Global->CtrlObject->Cp()->RightPanel()->GetMode() == panel_mode::PLUGIN_PANEL)
-				Global->CtrlObject->Plugins->ProcessEvent(Global->CtrlObject->Cp()->RightPanel()->GetPluginHandle(),FE_BREAK, ToPtr(CtrlType));
+			ProcessEvent(Global->CtrlObject->Cp()->LeftPanel().get());
+			ProcessEvent(Global->CtrlObject->Cp()->RightPanel().get());
 		}
 		return TRUE;
 

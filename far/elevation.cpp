@@ -394,10 +394,7 @@ static bool connect_pipe_to_process(const os::handle& Process, const os::handle&
 			return false;
 	}
 
-	os::multi_waiter Waiter;
-	Waiter.add(AEvent);
-	Waiter.add(Process.native_handle());
-	if (Waiter.wait(os::multi_waiter::mode::any, 15s) != WAIT_OBJECT_0)
+	if (const auto Result = os::handle::wait_any({ AEvent.native_handle(), Process.native_handle() }, 15s); !Result || *Result == 1)
 		return false;
 
 	DWORD NumberOfBytesTransferred;

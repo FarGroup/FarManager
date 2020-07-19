@@ -45,13 +45,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace os::chrono
 {
+	using hectonanoseconds = std::chrono::duration<unsigned long long, std::ratio_multiply<std::hecto, std::nano>>;
+
 	// TrivialClock with fixed period (100 ns) and epoch (1 Jan 1601)
 	class nt_clock
 	{
 	public:
-		using rep = unsigned long long;
-		using period = std::ratio_multiply<std::hecto, std::nano>;
-		using duration = std::chrono::duration<rep, period>;
+		using duration = hectonanoseconds;
+		using rep = duration::rep;
+		using period = duration::period;
 		using time_point = std::chrono::time_point<nt_clock>;
 
 		static inline constexpr bool is_steady = false;
@@ -97,11 +99,16 @@ namespace os::chrono
 	namespace literals
 	{
 		[[nodiscard]]
-		constexpr duration(operator"" _hns)(unsigned long long Value) noexcept
+		constexpr auto operator"" _hns(unsigned long long const Value) noexcept
 		{
-			return duration(Value);
+			return hectonanoseconds(Value);
 		}
 	}
+}
+
+inline namespace literals
+{
+	using namespace os::chrono::literals;
 }
 
 #endif // PLATFORM_CHRONO_HPP_4942BDE7_47FB_49F8_B8F6_EE0AFF4EC61D

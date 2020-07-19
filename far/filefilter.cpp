@@ -798,7 +798,7 @@ FileFilterParams FileFilter::LoadFilter(/*const*/ HierarchicalConfig& cfg, unsig
 	}
 
 	Item.SetDate(UseDate, static_cast<enumFDateType>(DateType), DateRelative?
-		filter_dates(os::chrono::duration(DateAfter), os::chrono::duration(DateBefore)) :
+		filter_dates(os::chrono::hectonanoseconds(DateAfter), os::chrono::hectonanoseconds(DateBefore)) :
 		filter_dates(os::chrono::nt_clock::from_hectonanoseconds(DateAfter), os::chrono::nt_clock::from_hectonanoseconds(DateBefore)));
 
 	const auto UseSize = cfg.GetValue<bool>(Key, names::UseSize);
@@ -991,8 +991,6 @@ void FileFilter::SaveFilter(HierarchicalConfig& cfg, unsigned long long KeyId, c
 	filter_dates Dates;
 	cfg.SetValue(Key, names::UseDate, Item.GetDate(&DateType, &Dates));
 	cfg.SetValue(Key, names::DateType, DateType);
-
-	using namespace os::chrono::literals;
 
 	Dates.visit(overload
 	{

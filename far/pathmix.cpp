@@ -755,11 +755,13 @@ TEST_CASE("path.PathStartsWith")
 	}
 	Tests[]
 	{
-		{ true,  L"C:\\path\\file"sv,   L"C:\\path"sv },
-		{ true,  L"C:\\path\\file"sv,   L"C:\\path\\"sv },
-		{ false, L"C:\\path\\file"sv,   L"C:\\pat"sv },
-		{ true,  L"\\"sv,               {} },
-		{ false, L"C:\\path\\file"sv,   {} },
+		{ true,  {},                    {}                },
+		{ false, {},                    L"Q"sv            },
+		{ true,  L"\\"sv,               {}                },
+		{ false, L"C:\\path\\file"sv,   {}                },
+		{ true,  L"C:\\path\\file"sv,   L"C:\\path"sv     },
+		{ true,  L"C:\\path\\file"sv,   L"C:\\path\\"sv   },
+		{ false, L"C:\\path\\file"sv,   L"C:\\pat"sv      },
 	};
 
 	for (const auto& i: Tests)

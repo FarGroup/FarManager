@@ -1948,25 +1948,23 @@ void Dialog::ShowDialog(size_t ID)
 
 				if (Item.Type==DI_CHECKBOX)
 				{
-					const wchar_t Check[]{ L'[', (Item.Selected ? (((Item.Flags & DIF_3STATE) && Item.Selected == 2) ? msg(lng::MCheckBox2State).front() : L'x') : L' '), L']', {} };
-					strStr=Check;
+					const auto Check = Item.Selected? (Item.Flags & DIF_3STATE) && Item.Selected == 2? L'?' : L'x' : L' ';
+					strStr = concat(L'[', Check, L']');
 
 					if (!Item.strData.empty())
 						strStr += L' ';
 				}
 				else
 				{
-					wchar_t Dot[]{ L' ', Item.Selected ? L'\x2022' : L' ', L' ', {} };
+					const auto Dot = Item.Selected? L'\x2022' : L' ';
 
 					if (Item.Flags&DIF_MOVESELECT)
 					{
-						strStr=Dot;
+						strStr = concat(L' ', Dot, L' ');
 					}
 					else
 					{
-						Dot[0]=L'(';
-						Dot[2]=L')';
-						strStr=Dot;
+						strStr = concat(L'(', Dot, L')');
 
 						if (!Item.strData.empty())
 							strStr += L' ';

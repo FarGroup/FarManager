@@ -119,13 +119,6 @@ protected:
 		column_type GetColType(int Col) const;
 
 	private:
-		template<typename type>
-		SQLiteStmt& BindImpl(const type* Value)
-		{
-			return Value? BindImpl(*Value) : BindImpl(nullptr);
-		}
-
-		SQLiteStmt& BindImpl(std::nullptr_t);
 		SQLiteStmt& BindImpl(int Value);
 		SQLiteStmt& BindImpl(long long Value);
 		SQLiteStmt& BindImpl(string_view Value);

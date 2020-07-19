@@ -226,41 +226,6 @@ namespace os::concurrency
 			throw MAKE_FAR_FATAL_EXCEPTION(L"Event is not initialized properly"sv);
 		}
 	}
-
-
-	multi_waiter::multi_waiter()
-	{
-		m_Objects.reserve(10);
-	}
-
-	void multi_waiter::add(const handle& Object)
-	{
-		assert(m_Objects.size() < MAXIMUM_WAIT_OBJECTS);
-
-		m_Objects.emplace_back(Object.native_handle());
-	}
-
-	void multi_waiter::add(HANDLE handle)
-	{
-		assert(m_Objects.size() < MAXIMUM_WAIT_OBJECTS);
-
-		m_Objects.emplace_back(handle);
-	}
-
-	DWORD multi_waiter::wait(mode Mode, std::chrono::milliseconds Timeout) const
-	{
-		return WaitForMultipleObjects(static_cast<DWORD>(m_Objects.size()), m_Objects.data(), Mode == mode::all, Timeout / 1ms);
-	}
-
-	DWORD multi_waiter::wait(mode Mode) const
-	{
-		return WaitForMultipleObjects(static_cast<DWORD>(m_Objects.size()), m_Objects.data(), Mode == mode::all, INFINITE);
-	}
-
-	void multi_waiter::clear()
-	{
-		m_Objects.clear();
-	}
 }
 
 #ifdef ENABLE_TESTS

@@ -130,9 +130,14 @@ private:
 class async_delete
 {
 public:
-	virtual ~async_delete() = default;
 	virtual void finish() = 0;
+
+protected:
+	virtual ~async_delete() = default;
 };
+
+class async_delete_impl;
+
 
 class HierarchicalConfig: public representable, virtual public async_delete, virtual public transactional
 {
@@ -153,7 +158,7 @@ public:
 	static inline const key root_key{0};
 
 	[[nodiscard]]
-	virtual key CreateKey(const key& Root, string_view Name, const string* Description = nullptr) = 0;
+	virtual key CreateKey(const key& Root, string_view Name) = 0;
 	[[nodiscard]]
 	virtual key FindByName(const key& Root, string_view Name) const = 0;
 	[[nodiscard]]
@@ -506,7 +511,13 @@ public:
 	bool ShowProblems() const;
 	void ServiceMode(string_view File);
 
-	void AsyncCall(const std::function<void()>& Routine);
+	class async_key
+	{
+		friend async_delete_impl;
+		async_key() = default;
+	};
+
+	void AsyncCall(async_key, const std::function<void()>& Routine);
 
 	[[nodiscard]]
 	const auto& GeneralCfg() const { return m_GeneralCfg; }

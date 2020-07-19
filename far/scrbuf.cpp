@@ -141,14 +141,8 @@ void ScreenBuf::Write(int X, int Y, span<const FAR_CHAR_INFO> Text)
 	}
 
 	SBFlags.Clear(SBFLAGS_FLUSHED);
-#ifdef DIRECT_SCREEN_OUT
-	Flush();
-#elif defined(DIRECT_RT)
 
-	if (Global->DirectRT)
-		Flush();
-
-#endif
+	debug_flush();
 }
 
 
@@ -192,14 +186,7 @@ void ScreenBuf::ApplyShadow(rectangle Where)
 		}
 	});
 
-#ifdef DIRECT_SCREEN_OUT
-	Flush();
-#elif defined(DIRECT_RT)
-
-	if (Global->DirectRT)
-		Flush();
-
-#endif
+	debug_flush();
 }
 
 /* Непосредственное изменение цветовых атрибутов
@@ -231,12 +218,7 @@ void ScreenBuf::ApplyColor(rectangle Where, const FarColor& Color, bool Preserve
 		});
 	}
 
-#ifdef DIRECT_SCREEN_OUT
-	Flush();
-#elif defined(DIRECT_RT)
-	if (Global->DirectRT)
-		Flush();
-#endif
+	debug_flush();
 }
 
 /* Непосредственное изменение цветовых атрибутов с заданным цветом исключением
@@ -263,12 +245,7 @@ void ScreenBuf::ApplyColor(rectangle Where, const FarColor& Color, const FarColo
 		}
 	});
 
-#ifdef DIRECT_SCREEN_OUT
-	Flush();
-#elif defined(DIRECT_RT)
-	if (Global->DirectRT)
-		Flush();
-#endif
+	debug_flush();
 }
 
 /* Закрасить прямоугольник символом Ch и цветом Color
@@ -289,12 +266,7 @@ void ScreenBuf::FillRect(rectangle Where, const FAR_CHAR_INFO& Info)
 
 	SBFlags.Clear(SBFLAGS_FLUSHED);
 
-#ifdef DIRECT_SCREEN_OUT
-	Flush();
-#elif defined(DIRECT_RT)
-	if (Global->DirectRT)
-		Flush();
-#endif
+	debug_flush();
 }
 
 /* "Сбросить" виртуальный буфер на консоль
@@ -631,14 +603,7 @@ void ScreenBuf::Scroll(size_t Count)
 		SBFlags.Clear(SBFLAGS_FLUSHED);
 	}
 
-#ifdef DIRECT_SCREEN_OUT
-	Flush();
-#elif defined(DIRECT_RT)
-
-	if (Global->DirectRT)
-		Flush();
-
-#endif
+	debug_flush();
 }
 
 void ScreenBuf::SetClearTypeFix(int const ClearTypeFix)
@@ -648,4 +613,14 @@ void ScreenBuf::SetClearTypeFix(int const ClearTypeFix)
 		return;
 
 	m_ClearTypeFix = ClearTypeFix;
+}
+
+void ScreenBuf::debug_flush()
+{
+#ifdef DIRECT_SCREEN_OUT
+	Flush();
+#elif defined(DIRECT_RT)
+	if (Global->DirectRT)
+		Flush();
+#endif
 }

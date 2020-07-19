@@ -103,6 +103,15 @@ static auto& CreateChild(tinyxml::XMLElement& Parent, const char* Name)
 	return *e;
 }
 
+template<typename T>
+static void SetAttribute(tinyxml::XMLElement& Element, const char* Name, T const& Value)
+{
+	if constexpr (std::is_same_v<T, std::string>)
+		Element.SetAttribute(Name, Value.c_str());
+	else
+		Element.SetAttribute(Name, Value);
+}
+
 class representation_destination
 {
 public:
@@ -134,10 +143,42 @@ private:
 	tinyxml::XMLElement* m_Root{};
 };
 
+
+class async_delete_impl: virtual public async_delete
+{
+protected:
+	explicit async_delete_impl(string_view const Name):
+		// If a thread with same event name is running, we will open that event here
+		m_AsyncDone(os::event::type::manual, os::event::state::signaled, Name)
+	{
+		// and wait for the signal
+		m_AsyncDone.wait();
+	}
+
+	~async_delete_impl() override
+	{
+		m_AsyncDone.set();
+	}
+
+	void finish() override
+	{
+		m_AsyncDone.reset();
+		// TODO: SEH guard, try/catch, exception_ptr
+		ConfigProvider().AsyncCall(config_provider::async_key{}, [this]
+		{
+			delete this;
+		});
+	}
+
+private:
+	os::event m_AsyncDone;
+};
+
+
 namespace
 {
 
-class [[nodiscard]] xml_enum: noncopyable, public enumerator<xml_enum, const tinyxml::XMLElement*>
+class [[nodiscard]] xml_enum: noncopyable, public enumerator<xml_enum, const tinyxml::XMLElement*, true>
 {
 	IMPLEMENTS_ENUMERATOR(xml_enum);
 
@@ -154,11 +195,13 @@ public:
 	}
 
 private:
-	[[nodiscard]]
+	[[nodiscard, maybe_unused]]
 	bool get(bool Reset, value_type& value) const
 	{
-		value = !Reset? value->NextSiblingElement(m_name) :
-		        m_base? m_base->FirstChildElement(m_name) : nullptr;
+		value =
+			!Reset? value->NextSiblingElement(m_name) :
+			m_base? m_base->FirstChildElement(m_name) :
+			nullptr;
 
 		return value != nullptr;
 	}
@@ -289,26 +332,26 @@ private:
 		{
 			auto& e = CreateChild(root, "setting");
 
-			e.SetAttribute("key", stmtEnumAllValues.GetColTextUTF8(0).c_str());
-			e.SetAttribute("name", stmtEnumAllValues.GetColTextUTF8(1).c_str());
+			SetAttribute(e, "key", stmtEnumAllValues.GetColTextUTF8(0));
+			SetAttribute(e, "name", stmtEnumAllValues.GetColTextUTF8(1));
 
 			switch (stmtEnumAllValues.GetColType(2))
 			{
 			case column_type::integer:
-				e.SetAttribute("type", "qword");
-				e.SetAttribute("value", encoding::utf8::get_bytes(to_hex_wstring(stmtEnumAllValues.GetColInt64(2))).c_str());
+				SetAttribute(e, "type", "qword"s);
+				SetAttribute(e, "value", encoding::utf8::get_bytes(to_hex_wstring(stmtEnumAllValues.GetColInt64(2))));
 				break;
 
 			case column_type::string:
-				e.SetAttribute("type", "text");
-				e.SetAttribute("value", stmtEnumAllValues.GetColTextUTF8(2).c_str());
+				SetAttribute(e, "type", "text"s);
+				SetAttribute(e, "value", stmtEnumAllValues.GetColTextUTF8(2));
 				break;
 
 			case column_type::blob:
 			case column_type::unknown:
 				{
-					e.SetAttribute("type", "hex");
-					e.SetAttribute("value", encoding::utf8::get_bytes(BlobToHexString(stmtEnumAllValues.GetColBlob(2))).c_str());
+					SetAttribute(e, "type", "hex"s);
+					SetAttribute(e, "value", encoding::utf8::get_bytes(BlobToHexString(stmtEnumAllValues.GetColBlob(2))));
 				}
 			}
 		}
@@ -319,10 +362,10 @@ private:
 		SCOPED_ACTION(auto)(ScopedTransaction());
 		for(const auto& e: xml_enum(Representation.Root().FirstChildElement(GetKeyName()), "setting"))
 		{
-			const auto key = e->Attribute("key");
-			const auto name = e->Attribute("name");
-			const auto type = e->Attribute("type");
-			const auto value = e->Attribute("value");
+			const auto key = e.Attribute("key");
+			const auto name = e.Attribute("name");
+			const auto type = e.Attribute("type");
+			const auto value = e.Attribute("value");
 
 			if (!key || !name || !type || !value)
 				continue;
@@ -421,37 +464,6 @@ private:
 	const char* GetKeyName() const override {return "localconfig";}
 };
 
-class async_delete_impl: virtual public async_delete
-{
-public:
-	~async_delete_impl() override
-	{
-		m_AsyncDone.set();
-	}
-
-	void finish() override
-	{
-		m_AsyncDone.reset();
-		// TODO: SEH guard, try/catch, exception_ptr
-		ConfigProvider().AsyncCall([this]
-		{
-			delete this;
-		});
-	}
-
-protected:
-	explicit async_delete_impl(string_view const Name):
-		// If a thread with same event name is running, we will open that event here
-		m_AsyncDone(os::event::type::manual, os::event::state::signaled, Name)
-	{
-		// and wait for the signal
-		m_AsyncDone.wait();
-	}
-
-private:
-	os::event m_AsyncDone;
-};
-
 class HierarchicalConfigDb: public async_delete_impl, public HierarchicalConfig, public sqlite_boilerplate
 {
 public:
@@ -464,8 +476,8 @@ public:
 protected:
 	virtual void SerializeBlob(std::string_view /*Name*/, bytes_view const Blob, tinyxml::XMLElement& e) const
 	{
-		e.SetAttribute("type", "hex");
-		e.SetAttribute("value", encoding::utf8::get_bytes(BlobToHexString(Blob)).c_str());
+		SetAttribute(e, "type", "hex"s);
+		SetAttribute(e, "value", encoding::utf8::get_bytes(BlobToHexString(Blob)));
 	}
 
 	virtual bytes DeserializeBlob(const char* Type, const char* Value, const tinyxml::XMLElement& e) const
@@ -491,7 +503,7 @@ private:
 
 		static const stmt_init<statement_id> Statements[] =
 		{
-			{ stmtCreateKey,             "INSERT OR IGNORE INTO table_keys VALUES (NULL,?1,?2,?3);"sv },
+			{ stmtCreateKey,             "INSERT OR IGNORE INTO table_keys VALUES (NULL,?1,?2,NULL);"sv },
 			{ stmtFindKey,               "SELECT id FROM table_keys WHERE parent_id=?1 AND name=?2 AND id<>0;"sv },
 			{ stmtGetKeyName,            "SELECT name from table_keys WHERE parent_id=?1 AND id=?2 AND id<>0 ;"sv },
 			{ stmtSetKeyDescription,     "UPDATE table_keys SET description=?1 WHERE id=?2 AND id<>0 AND description<>?1;"sv },
@@ -519,16 +531,12 @@ private:
 		return GetPath();
 	}
 
-	key CreateKey(const key& Root, const string_view Name, const string* const Description) override
+	key CreateKey(const key& Root, const string_view Name) override
 	{
 		if (const auto Key = FindByName(Root, Name))
-		{
-			if (Description)
-				SetKeyDescription(Key, *Description);
 			return Key;
-		}
 
-		ExecuteStatement(stmtCreateKey, Root.get(), Name, Description);
+		ExecuteStatement(stmtCreateKey, Root.get(), Name);
 		return key(LastInsertRowID());
 	}
 
@@ -666,7 +674,7 @@ private:
 		SCOPED_ACTION(auto)(ScopedTransaction());
 		for (const auto& e: xml_enum(Representation.Root().FirstChildElement("hierarchicalconfig"), "key"))
 		{
-			Import(root_key, *e);
+			Import(root_key, e);
 		}
 	}
 
@@ -680,18 +688,18 @@ private:
 				auto& e = CreateChild(XmlKey, "value");
 
 				const auto name = Stmt->GetColTextUTF8(0);
-				e.SetAttribute("name", name.c_str());
+				SetAttribute(e, "name", name);
 
 				switch (Stmt->GetColType(1))
 				{
 				case column_type::integer:
-					e.SetAttribute("type", "qword");
-					e.SetAttribute("value", encoding::utf8::get_bytes(to_hex_wstring(Stmt->GetColInt64(1))).c_str());
+					SetAttribute(e, "type", "qword"s);
+					SetAttribute(e, "value", encoding::utf8::get_bytes(to_hex_wstring(Stmt->GetColInt64(1))));
 					break;
 
 				case column_type::string:
-					e.SetAttribute("type", "text");
-					e.SetAttribute("value", Stmt->GetColTextUTF8(1).c_str());
+					SetAttribute(e, "type", "text"s);
+					SetAttribute(e, "value", Stmt->GetColTextUTF8(1));
 					break;
 
 				case column_type::blob:
@@ -708,10 +716,10 @@ private:
 		{
 			auto& e = CreateChild(XmlKey, "key");
 
-			e.SetAttribute("name", stmtEnumSubKeys.GetColTextUTF8(1).c_str());
+			SetAttribute(e, "name", stmtEnumSubKeys.GetColTextUTF8(1));
 			const auto description = stmtEnumSubKeys.GetColTextUTF8(2);
 			if (!description.empty())
-				e.SetAttribute("description", description.c_str());
+				SetAttribute(e, "description", description);
 
 			Export(Representation, key(stmtEnumSubKeys.GetColInt64(0)), e);
 		}
@@ -719,23 +727,20 @@ private:
 
 	void Import(const key& root, const tinyxml::XMLElement& key)
 	{
-		const auto key_name = key.Attribute("name");
-		if (!key_name)
+		const auto KeyName = key.Attribute("name");
+		if (!KeyName)
 			return;
-		const auto KeyName = encoding::utf8::get_chars(key_name);
-		const auto key_description = key.Attribute("description");
-		string KeyDescription;
-		if (key_description)
-		{
-			KeyDescription = encoding::utf8::get_chars(key_description);
-		}
-		const auto Key = CreateKey(root, KeyName, key_description? &KeyDescription : nullptr);
+
+		const auto Key = CreateKey(root, encoding::utf8::get_chars(KeyName));
+
+		if (const auto KeyDescription = key.Attribute("description"))
+			SetKeyDescription(Key, encoding::utf8::get_chars(KeyDescription));
 
 		for (const auto& e: xml_enum(key, "value"))
 		{
-			const auto name = e->Attribute("name");
-			const auto type = e->Attribute("type");
-			const auto value = e->Attribute("value");
+			const auto name = e.Attribute("name");
+			const auto type = e.Attribute("type");
+			const auto value = e.Attribute("value");
 
 			if (!name || !type)
 				continue;
@@ -760,13 +765,13 @@ private:
 			else
 			{
 				// custom types, value is optional
-				SetValue(Key, Name, DeserializeBlob(type, value, *e));
+				SetValue(Key, Name, DeserializeBlob(type, value, e));
 			}
 		}
 
 		for (const auto& e: xml_enum(key, "key"))
 		{
-			Import(Key, *e);
+			Import(Key, e);
 		}
 	}
 
@@ -836,10 +841,10 @@ private:
 			FarColor Color;
 			if (deserialise(Blob, Color))
 			{
-				e.SetAttribute("type", "color");
-				e.SetAttribute("background", encoding::utf8::get_bytes(to_hex_wstring(Color.BackgroundColor)).c_str());
-				e.SetAttribute("foreground", encoding::utf8::get_bytes(to_hex_wstring(Color.ForegroundColor)).c_str());
-				e.SetAttribute("flags", encoding::utf8::get_bytes(FlagsToString(Color.Flags, ColorFlagNames)).c_str());
+				SetAttribute(e, "type", "color"s);
+				SetAttribute(e, "background", encoding::utf8::get_bytes(to_hex_wstring(Color.BackgroundColor)));
+				SetAttribute(e, "foreground", encoding::utf8::get_bytes(to_hex_wstring(Color.ForegroundColor)));
+				SetAttribute(e, "flags", encoding::utf8::get_bytes(FlagsToString(Color.Flags, ColorFlagNames)));
 				return;
 			}
 		}
@@ -919,12 +924,12 @@ private:
 		{
 			auto& e = CreateChild(root, "object");
 
-			e.SetAttribute("name", stmtEnumAllValues.GetColTextUTF8(0).c_str());
+			SetAttribute(e, "name", stmtEnumAllValues.GetColTextUTF8(0));
 			if (FarColor Color; deserialise(stmtEnumAllValues.GetColBlob(1), Color))
 			{
-				e.SetAttribute("background", encoding::utf8::get_bytes(to_hex_wstring(Color.BackgroundColor)).c_str());
-				e.SetAttribute("foreground", encoding::utf8::get_bytes(to_hex_wstring(Color.ForegroundColor)).c_str());
-				e.SetAttribute("flags", encoding::utf8::get_bytes(FlagsToString(Color.Flags, ColorFlagNames)).c_str());
+				SetAttribute(e, "background", encoding::utf8::get_bytes(to_hex_wstring(Color.BackgroundColor)));
+				SetAttribute(e, "foreground", encoding::utf8::get_bytes(to_hex_wstring(Color.ForegroundColor)));
+				SetAttribute(e, "flags", encoding::utf8::get_bytes(FlagsToString(Color.Flags, ColorFlagNames)));
 			}
 		}
 	}
@@ -934,10 +939,10 @@ private:
 		SCOPED_ACTION(auto)(ScopedTransaction());
 		for (const auto& e: xml_enum(Representation.Root().FirstChildElement("colors"), "object"))
 		{
-			const auto name = e->Attribute("name");
-			const auto background = e->Attribute("background");
-			const auto foreground = e->Attribute("foreground");
-			const auto flags = e->Attribute("flags");
+			const auto name = e.Attribute("name");
+			const auto background = e.Attribute("background");
+			const auto foreground = e.Attribute("foreground");
+			const auto flags = e.Attribute("flags");
 
 			if (!name)
 				continue;
@@ -1145,17 +1150,17 @@ private:
 		{
 			auto& e = CreateChild(root, "filetype");
 
-			e.SetAttribute("mask", stmtEnumAllTypes.GetColTextUTF8(1).c_str());
-			e.SetAttribute("description", stmtEnumAllTypes.GetColTextUTF8(2).c_str());
+			SetAttribute(e, "mask", stmtEnumAllTypes.GetColTextUTF8(1));
+			SetAttribute(e, "description", stmtEnumAllTypes.GetColTextUTF8(2));
 
 			stmtEnumCommandsPerFiletype.Bind(stmtEnumAllTypes.GetColInt64(0));
 			while (stmtEnumCommandsPerFiletype.Step())
 			{
 				auto& se = CreateChild(e, "command");
 
-				se.SetAttribute("type", stmtEnumCommandsPerFiletype.GetColInt(0));
-				se.SetAttribute("enabled", stmtEnumCommandsPerFiletype.GetColInt(1));
-				se.SetAttribute("command", stmtEnumCommandsPerFiletype.GetColTextUTF8(2).c_str());
+				SetAttribute(se, "type", stmtEnumCommandsPerFiletype.GetColInt(0));
+				SetAttribute(se, "enabled", stmtEnumCommandsPerFiletype.GetColInt(1));
+				SetAttribute(se, "command", stmtEnumCommandsPerFiletype.GetColTextUTF8(2));
 			}
 			stmtEnumCommandsPerFiletype.Reset();
 		}
@@ -1172,8 +1177,8 @@ private:
 		unsigned long long id = 0;
 		for (const auto& e: xml_enum(base, "filetype"))
 		{
-			const auto mask = e->Attribute("mask");
-			const auto description = e->Attribute("description");
+			const auto mask = e.Attribute("mask");
+			const auto description = e.Attribute("description");
 
 			if (!mask)
 				continue;
@@ -1183,18 +1188,18 @@ private:
 
 			id = AddType(id, Mask, Description);
 
-			for (const auto& se: xml_enum(*e, "command"))
+			for (const auto& se: xml_enum(e, "command"))
 			{
-				const auto command = se->Attribute("command");
+				const auto command = se.Attribute("command");
 				if (!command)
 					continue;
 
 				int type=0;
-				if (se->QueryIntAttribute("type", &type) != tinyxml::XML_SUCCESS)
+				if (se.QueryIntAttribute("type", &type) != tinyxml::XML_SUCCESS)
 					continue;
 
 				int enabled=0;
-				if (se->QueryIntAttribute("enabled", &enabled) != tinyxml::XML_SUCCESS)
+				if (se.QueryIntAttribute("enabled", &enabled) != tinyxml::XML_SUCCESS)
 					continue;
 
 				SetCommand(id, type, encoding::utf8::get_chars(command), enabled != 0);
@@ -1622,7 +1627,7 @@ private:
 		{
 			auto& p = CreateChild(root, "plugin");
 
-			p.SetAttribute("key", stmtEnumAllPluginKeys.GetColTextUTF8(0).c_str());
+			SetAttribute(p, "key", stmtEnumAllPluginKeys.GetColTextUTF8(0));
 
 			stmtEnumAllHotkeysPerKey.Bind(stmtEnumAllPluginKeys.GetColText(0));
 			while (stmtEnumAllHotkeysPerKey.Step())
@@ -1642,9 +1647,9 @@ private:
 				}
 
 				auto& e = CreateChild(p, "hotkey");
-				e.SetAttribute("menu", type);
-				e.SetAttribute("guid", stmtEnumAllHotkeysPerKey.GetColTextUTF8(0).c_str());
-				e.SetAttribute("hotkey", stmtEnumAllHotkeysPerKey.GetColTextUTF8(2).c_str());
+				SetAttribute(e, "menu", type);
+				SetAttribute(e, "guid", stmtEnumAllHotkeysPerKey.GetColTextUTF8(0));
+				SetAttribute(e, "hotkey", stmtEnumAllHotkeysPerKey.GetColTextUTF8(2));
 			}
 			stmtEnumAllHotkeysPerKey.Reset();
 		}
@@ -1655,18 +1660,18 @@ private:
 		SCOPED_ACTION(auto)(ScopedTransaction());
 		for (const auto& e: xml_enum(Representation.Root().FirstChildElement("pluginhotkeys"), "plugin"))
 		{
-			const auto key = e->Attribute("key");
+			const auto key = e.Attribute("key");
 
 			if (!key)
 				continue;
 
 			const auto Key = encoding::utf8::get_chars(key);
 
-			for (const auto& se: xml_enum(*e, "hotkey"))
+			for (const auto& se: xml_enum(e, "hotkey"))
 			{
-				const auto stype = se->Attribute("menu");
-				const auto guid = se->Attribute("guid");
-				const auto hotkey = se->Attribute("hotkey");
+				const auto stype = se.Attribute("menu");
+				const auto guid = se.Attribute("guid");
+				const auto hotkey = se.Attribute("hotkey");
 
 				GUID Guid;
 
@@ -1709,7 +1714,6 @@ public:
 	explicit HistoryConfigCustom(string_view const DbName):
 		sqlite_boilerplate(&HistoryConfigCustom::Initialise, DbName, true)
 	{
-		StartThread();
 	}
 
 	~HistoryConfigCustom() override
@@ -1719,12 +1723,11 @@ public:
 	}
 
 private:
-	os::thread WorkThread;
-	os::event StopEvent;
-	os::event AsyncDeleteAddDone;
-	os::event AsyncCommitDone;
-	os::event AsyncWork;
-	os::multi_waiter AllWaiter;
+	os::event StopEvent{os::event::type::automatic, os::event::state::nonsignaled};
+	os::event AsyncDeleteAddDone{os::event::type::manual, os::event::state::signaled};
+	os::event AsyncCommitDone{os::event::type::manual, os::event::state::signaled};
+	os::event AsyncWork{os::event::type::automatic, os::event::state::nonsignaled};
+	os::thread WorkThread{&os::thread::join, &HistoryConfigCustom::ThreadProc, this};
 
 	struct AsyncWorkItem
 	{
@@ -1741,33 +1744,23 @@ private:
 
 	os::synced_queue<std::unique_ptr<AsyncWorkItem>> WorkQueue;
 
-	void WaitAllAsync() const { AllWaiter.wait(); }
-	void WaitCommitAsync() const { AsyncCommitDone.wait(); }
-
-	bool StartThread()
+	void WaitAllAsync() const
 	{
-		StopEvent = os::event(os::event::type::automatic, os::event::state::nonsignaled);
-		AsyncDeleteAddDone = os::event(os::event::type::manual, os::event::state::signaled);
-		AsyncCommitDone = os::event(os::event::type::manual, os::event::state::signaled);
-		AllWaiter.add(AsyncDeleteAddDone);
-		AllWaiter.add(AsyncCommitDone);
-		AsyncWork = os::event(os::event::type::automatic, os::event::state::nonsignaled);
-		WorkThread = os::thread(&os::thread::join, &HistoryConfigCustom::ThreadProc, this);
-		return true;
+		(void)os::handle::wait_all({ AsyncDeleteAddDone.native_handle(), AsyncCommitDone.native_handle() });
+	}
+
+	void WaitCommitAsync() const
+	{
+		AsyncCommitDone.wait();
 	}
 
 	void ThreadProc()
 	{
 		// TODO: SEH guard, try/catch, exception_ptr
-		os::multi_waiter Waiter;
-		Waiter.add(AsyncWork);
-		Waiter.add(StopEvent);
 
 		for (;;)
 		{
-			const auto wait = Waiter.wait(os::multi_waiter::mode::any);
-
-			if (wait != WAIT_OBJECT_0)
+			if (os::handle::wait_any({ AsyncWork.native_handle(), StopEvent.native_handle() }) == 1)
 				break;
 
 			bool bAddDelete=false, bCommit=false;
@@ -1963,7 +1956,7 @@ private:
 	{
 		WaitAllAsync();
 
-		const auto older = os::chrono::nt_clock::to_hectonanoseconds(os::chrono::nt_clock::now() - chrono::days(DaysToKeep));
+		const auto older = os::chrono::nt_clock::to_hectonanoseconds(os::chrono::nt_clock::now() - std::chrono::days(DaysToKeep));
 		ExecuteStatement(stmtDeleteOldUnlocked, TypeHistory, HistoryName, older, MinimumEntries);
 	}
 
@@ -2169,7 +2162,7 @@ private:
 	void DeleteOldPositions(int DaysToKeep, int MinimumEntries) override
 	{
 		WaitCommitAsync();
-		const auto older = os::chrono::nt_clock::to_hectonanoseconds(os::chrono::nt_clock::now() - chrono::days(DaysToKeep));
+		const auto older = os::chrono::nt_clock::to_hectonanoseconds(os::chrono::nt_clock::now() - std::chrono::days(DaysToKeep));
 		ExecuteStatement(stmtDeleteOldEditor, older, MinimumEntries);
 		ExecuteStatement(stmtDeleteOldViewer, older, MinimumEntries);
 	}
@@ -2267,10 +2260,10 @@ void config_provider::TryImportDatabase(representable& p, const char* NodeName, 
 		{
 			for (const auto& i: xml_enum(root.FirstChildElement("pluginsconfig"), "plugin"))
 			{
-				const auto guid = i->Attribute("guid");
+				const auto guid = i.Attribute("guid");
 				if (guid && 0 == strcmp(guid, NodeName))
 				{
-					m_TemplateSource->SetRoot(&const_cast<tinyxml::XMLElement&>(*i));
+					m_TemplateSource->SetRoot(&const_cast<tinyxml::XMLElement&>(i));
 					p.Import(*m_TemplateSource);
 					break;
 				}
@@ -2445,7 +2438,7 @@ void config_provider::Export(string_view const File)
 	representation_destination Representation;
 	auto& root = Representation.Root();
 	const auto Version = build::version();
-	root.SetAttribute("version", format(FSTR("{0}.{1}.{2}"), Version.Major, Version.Minor, Version.Build).c_str());
+	SetAttribute(root, "version", format(FSTR("{0}.{1}.{2}"), Version.Major, Version.Minor, Version.Build));
 
 	GeneralCfg()->Export(Representation);
 	LocalGeneralCfg()->Export(Representation);
@@ -2465,15 +2458,15 @@ void config_provider::Export(string_view const File)
 		const auto Ext = L"*.db"sv;
 		//TODO: export local plugin settings
 		auto& e = CreateChild(root, "pluginsconfig");
-		for(auto& i: os::fs::enum_files(path::join(Global->Opt->ProfilePath, L"PluginsData"sv, Ext)))
+		for(const auto& i: os::fs::enum_files(path::join(Global->Opt->ProfilePath, L"PluginsData"sv, Ext)))
 		{
-			i.FileName.resize(i.FileName.size() - (Ext.size() - 1));
-			if (is_uuid(i.FileName))
+			const auto FileName = name_ext(i.FileName).first;
+			if (is_uuid(FileName))
 			{
 				auto& PluginRoot = CreateChild(e, "plugin");
-				PluginRoot.SetAttribute("guid", encoding::utf8::get_bytes(i.FileName).c_str());
+				SetAttribute(PluginRoot, "guid", encoding::utf8::get_bytes(FileName));
 				Representation.SetRoot(PluginRoot);
-				CreatePluginsConfig(i.FileName)->Export(Representation);
+				CreatePluginsConfig(FileName)->Export(Representation);
 			}
 		}
 	}
@@ -2514,13 +2507,13 @@ void config_provider::Import(string_view const File)
 	//TODO: import local plugin settings
 	for (const auto& plugin: xml_enum(root.FirstChildElement("pluginsconfig"), "plugin"))
 	{
-		const auto guid = plugin->Attribute("guid");
+		const auto guid = plugin.Attribute("guid");
 		if (!guid)
 			continue;
 
 		if (const auto Guid = encoding::utf8::get_chars(guid); is_uuid(Guid))
 		{
-			Representation.SetRoot(&const_cast<tinyxml::XMLElement&>(*plugin));
+			Representation.SetRoot(&const_cast<tinyxml::XMLElement&>(plugin));
 			CreatePluginsConfig(Guid)->Import(Representation);
 		}
 	}
@@ -2537,7 +2530,7 @@ bool config_provider::ShowProblems() const
 		{ lng::MShowConfigFolders, lng::MIgnore }) == Message::first_button;
 }
 
-void config_provider::AsyncCall(const std::function<void()>& Routine)
+void config_provider::AsyncCall(async_key, const std::function<void()>& Routine)
 {
 	m_Threads.erase(std::remove_if(ALL_RANGE(m_Threads), [](const os::thread& i){ return i.is_signaled(); }), m_Threads.end());
 	m_Threads.emplace_back(&os::thread::join, Routine);

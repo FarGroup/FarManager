@@ -452,7 +452,11 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 			join(
 				select(
 					SubstData.Default().Panel->enum_selected(),
-					[&](os::fs::find_data const& i) { return (Quote? quote : quote_space)(std::invoke(Selector, i)); }),
+					[&](os::fs::find_data const& i)
+					{
+						const auto Data = std::invoke(Selector, i);
+						return Quote? quote(Data) : quote_space(Data);
+					}),
 					L" "sv
 			)
 		);

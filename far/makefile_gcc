@@ -194,7 +194,9 @@ ADDINCLUDE=-I$(BOOTSTRAPDIR)..
 CCFLAGS += $(ADDINCLUDE)
 
 .PHONY: all
-all: dirs lng depfile include docs $(TESTOBJS)
+all:
+	$(MAKE) -f $(THIS_MAKE) $(MK_FLAGS) dirs
+	$(MAKE) -f $(THIS_MAKE) $(MK_FLAGS) lng depfile include docs $(TESTOBJS)
 	$(MAKE) -f $(THIS_MAKE) $(MK_FLAGS) build
 
 .PHONY: lng

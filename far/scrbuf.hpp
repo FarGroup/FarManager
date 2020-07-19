@@ -108,6 +108,8 @@ public:
 	void SetClearTypeFix(int ClearTypeFix);
 
 private:
+	void debug_flush();
+
 	os::critical_section CS;
 	FAR_CHAR_INFO MacroChar{};
 	FAR_CHAR_INFO ElevationChar{};

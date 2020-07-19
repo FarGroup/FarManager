@@ -4685,8 +4685,8 @@ int FarMacroApi::chrFunc()
 
 	if (tmpVar.isNumber())
 	{
-		const wchar_t tmp[]{ static_cast<wchar_t>(tmpVar.asInteger()), {} };
-		tmpVar = tmp;
+		const auto Char = static_cast<wchar_t>(tmpVar.asInteger());
+		tmpVar = string_view{ &Char, 1 };
 	}
 
 	PassValue(tmpVar);
@@ -5063,7 +5063,7 @@ M1:
 			// общие макросы учитываем только при удалении.
 			if (m_RecCode.empty() || Data.Area!=MACROAREA_COMMON)
 			{
-				auto strBufKey = quote_unconditional(Data.Code);
+				auto strBufKey = quote_unconditional(string(Data.Code));
 				const auto SetChange = m_RecCode.empty();
 				lng MessageTemplate;
 				if (Data.Area==MACROAREA_COMMON)

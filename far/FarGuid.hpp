@@ -47,16 +47,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace guids::far
 {
-	using namespace guid_parse::literals;
-
 	constexpr inline auto
 		FarGuid = "00000000-0000-0000-0000-000000000000"_guid;
 }
 
 // TODO: Use fully qualified names everywhere
-WARNING_PUSH()
-WARNING_DISABLE_CLANG("-Wheader-hygiene")
-using namespace guids::far;
-WARNING_POP()
+inline namespace guids_inline
+{
+	using namespace guids::far;
+}
 
 #endif // FARGUID_HPP_49C263EE_12A1_48FD_BA02_52CCE8950C28

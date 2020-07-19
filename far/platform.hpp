@@ -131,9 +131,10 @@ namespace os
 		protected:
 			[[nodiscard]]
 			static HANDLE normalise(HANDLE Handle);
-			static void wait(HANDLE Handle);
 			[[nodiscard]]
-			static bool is_signaled(HANDLE Handle, std::chrono::milliseconds Timeout = 0ms);
+			static bool wait(HANDLE Handle, std::optional<std::chrono::milliseconds> Timeout = {});
+			[[nodiscard]]
+			static std::optional<size_t> wait(span<HANDLE const> Handles, bool WaitAll, std::optional<std::chrono::milliseconds> Timeout = {});
 		};
 
 		template<class deleter>
@@ -171,13 +172,37 @@ namespace os
 
 			void wait() const
 			{
-				handle_implementation::wait(native_handle());
+				(void)handle_implementation::wait(native_handle());
 			}
 
 			[[nodiscard]]
 			bool is_signaled(std::chrono::milliseconds Timeout = 0ms) const
 			{
-				return handle_implementation::is_signaled(native_handle(), Timeout);
+				return handle_implementation::wait(native_handle(), Timeout);
+			}
+
+			[[nodiscard]]
+			static auto wait_any(span<HANDLE const> const Handles, std::chrono::milliseconds const Timeout)
+			{
+				return handle_implementation::wait(Handles, false, Timeout);
+			}
+
+			[[nodiscard]]
+			static auto wait_any(span<HANDLE const> const Handles)
+			{
+				return *handle_implementation::wait(Handles, false);
+			}
+
+			[[nodiscard]]
+			static auto wait_all(span<HANDLE const> const Handles, std::chrono::milliseconds const Timeout)
+			{
+				return handle_implementation::wait(Handles, true, Timeout);
+			}
+
+			[[nodiscard]]
+			static auto wait_all(span<HANDLE const> const Handles)
+			{
+				return *handle_implementation::wait(Handles, true);
 			}
 		};
 

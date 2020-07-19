@@ -453,7 +453,7 @@ os::chrono::time_point ParseTimePoint(string_view const Date, string_view const 
 
 	SYSTEMTIME st{};
 
-	const auto Milliseconds = Point.Tick == time_none? time_none : os::chrono::duration(Point.Tick) / 1ms;
+	const auto Milliseconds = Point.Tick == time_none? time_none : os::chrono::hectonanoseconds(Point.Tick) / 1ms;
 
 	st.wYear   = Point.Year;
 	st.wMonth  = Point.Month;
@@ -467,7 +467,7 @@ os::chrono::time_point ParseTimePoint(string_view const Date, string_view const 
 	if (!local_to_utc(st, TimePoint))
 		return {};
 
-	return TimePoint + os::chrono::duration(Default(Point.Tick)) % 1ms;
+	return TimePoint + os::chrono::hectonanoseconds(Default(Point.Tick)) % 1ms;
 }
 
 os::chrono::duration ParseDuration(string_view const Date, string_view const Time)
@@ -480,7 +480,7 @@ os::chrono::duration ParseDuration(string_view const Date, string_view const Tim
 	ParseTimeComponents(Time, TimeRanges, TimeN, 0);
 
 	using namespace std::chrono;
-	return chrono::days(DateN[0]) + hours(TimeN[0]) + minutes(TimeN[1]) + seconds(TimeN[2]) + os::chrono::duration(TimeN[3]);
+	return days(DateN[0]) + hours(TimeN[0]) + minutes(TimeN[1]) + seconds(TimeN[2]) + os::chrono::hectonanoseconds(TimeN[3]);
 }
 
 void ConvertDate(os::chrono::time_point const Point, string& strDateText, string& strTimeText, int const TimeLength, int const FullYear, bool const Brief, bool const TextMonth)
@@ -522,8 +522,6 @@ void ConvertDate(os::chrono::time_point const Point, string& strDateText, string
 	}
 	else
 	{
-		using namespace os::chrono::literals;
-
 		strTimeText = cut_right(
 			format(
 				FSTR(L"{0:02}{1}{2:02}{1}{3:02}{4}{5:07}"),
@@ -606,19 +604,17 @@ void ConvertDate(os::chrono::time_point const Point, string& strDateText, string
 std::tuple<string, string> ConvertDuration(os::chrono::duration Duration)
 {
 	using namespace std::chrono;
-	using namespace chrono::literals;
-	using namespace os::chrono::literals;
 
-	const auto Result = split_duration<chrono::days, hours, minutes, seconds>(Duration);
+	const auto Result = split_duration<days, hours, minutes, seconds, os::chrono::hectonanoseconds>(Duration);
 
 	return
 	{
-		str(Result.get<chrono::days>() / 1_d),
+		str(Result.get<days>() / 1_d),
 		format(FSTR(L"{0:02}{4}{1:02}{4}{2:02}{5}{3:07}"),
 			Result.get<hours>() / 1h,
 			Result.get<minutes>() / 1min,
 			Result.get<seconds>() / 1s,
-			(Duration % 1s) / 1_hns,
+			Result.get<os::chrono::hectonanoseconds>() / 1_hns,
 			locale.time_separator(),
 			locale.decimal_separator()
 		)
@@ -746,9 +742,6 @@ time_check::operator bool() const noexcept
 
 TEST_CASE("datetime.parse.duration")
 {
-	using namespace chrono::literals;
-	using namespace os::chrono::literals;
-
 	static const struct
 	{
 		string_view Date, Time;
@@ -759,9 +752,11 @@ TEST_CASE("datetime.parse.duration")
 		{ {},          L"  :  :  .       "sv,              0_hns, },
 		{ {},          L"  :  :  .      1"sv,              1_hns, },
 		{ {},          L"  :  :  . 12    "sv,              12_hns, },
-		{ L"3"sv,      L"  :42:  .       "sv,              3_d + 42min, },
+		{ {},          L"  :42:  .       "sv,              42min, },
 		{ {},          L"33:  :  .       "sv,              33h, },
 		{ L"1"sv,      L"  :  :  .       "sv,              1_d, },
+		{ L"2"sv,      L"26:  :  .       "sv,              3_d + 2h, },
+		{ L"3"sv,      L"  :42:  .       "sv,              3_d + 42min, },
 		{ L"512"sv,    L"12:34:56.7890123"sv,              512_d + 12h + 34min + 56s + 789ms + 123_hns, },
 	};
 
@@ -812,9 +807,6 @@ TEST_CASE("datetime.parse.timepoint")
 
 TEST_CASE("datetime.ConvertDuration")
 {
-	using namespace chrono::literals;
-	using namespace os::chrono::literals;
-
 	static const struct
 	{
 		os::chrono::duration Duration;

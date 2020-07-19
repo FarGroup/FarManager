@@ -188,7 +188,7 @@ int main (int argc, const char* argv[])
 
 	if ( argc < 5 )
 	{
-		printf ("Usage: convertor feed_file hpp_file num_of_lng lng_file1 lng_file2 ...\n\r");
+		printf ("Usage: convertor feed_file hpp_file num_of_lng lng_file1 lng_file2 ...\r\n");
 		return 0;
 	}
 
@@ -204,7 +204,7 @@ int main (int argc, const char* argv[])
 
 	if ( hFeedFile == INVALID_HANDLE_VALUE )
 	{
-		printf ("ERROR: Can't create the feed file, exiting.\n\r");
+		printf ("ERROR: Can't create the feed file, exiting.\r\n");
 		return 0;
 	}
 
@@ -221,7 +221,7 @@ int main (int argc, const char* argv[])
 
 	if ( hHFile == INVALID_HANDLE_VALUE )
 	{
-		printf ("ERROR: Can't open the header file, exiting.\n\r");
+		printf ("ERROR: Can't open the header file, exiting.\r\n");
 		return 0;
 	}
 
@@ -229,7 +229,7 @@ int main (int argc, const char* argv[])
 
 	if ( !dwLangs )
 	{
-		printf ("ERROR: Zero language files to process, exiting.\n\r");
+		printf ("ERROR: Zero language files to process, exiting.\r\n");
 		return 0;
 	}
 
@@ -278,7 +278,7 @@ int main (int argc, const char* argv[])
 			CloseHandle (hFile);
 		}
 		else
-			printf ("WARNING: Can't open the language file \"%s\", skiping\n\r", argv[4+i]);
+			printf ("WARNING: Can't open the language file \"%s\", skiping\r\n", argv[4+i]);
 	}
 
 	char *lpTmp = (char*)malloc (2048);

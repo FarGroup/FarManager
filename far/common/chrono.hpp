@@ -78,17 +78,12 @@ private:
 	}
 };
 
-namespace chrono
+inline namespace literals
 {
-	using days = std::chrono::duration<int, std::ratio_multiply<std::ratio<24>, std::chrono::hours::period>>;
-
-	namespace literals
+	[[nodiscard]]
+	constexpr auto operator"" _d(unsigned long long const Value) noexcept
 	{
-		[[nodiscard]]
-		constexpr days(operator"" _d)(unsigned long long Value) noexcept
-		{
-			return days(Value);
-		}
+		return std::chrono::days(Value);
 	}
 }
 

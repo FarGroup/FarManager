@@ -85,7 +85,7 @@ namespace
 		}
 
 	private:
-		[[nodiscard]]
+		[[nodiscard, maybe_unused]]
 		bool get(bool Reset, DEVINST& Value) const
 		{
 			if ((Reset? CM_Get_Child(&m_Current, m_Root, 0) : CM_Get_Sibling(&m_Current, m_Current, 0)) != CR_SUCCESS)

@@ -147,7 +147,6 @@ namespace tests
 		volatile const int* InvalidAddress = nullptr;
 		[[maybe_unused]]
 		volatile const auto Result = *InvalidAddress;
-
 	}
 
 	static void seh_access_violation_write()

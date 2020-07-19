@@ -77,6 +77,9 @@ auto seh_invoke(function const& Callable, filter const& Filter, handler const& H
 {
 	using result_type = typename function_traits<function>::result_type;
 
+WARNING_PUSH()
+WARNING_DISABLE_MSC(4702) // unreachable code
+
 	if constexpr (std::is_same_v<result_type, void>)
 	{
 		detail::seh_invoke_impl([&]{ Callable(); }, Filter, [&]{ Handler(); });
@@ -87,6 +90,8 @@ auto seh_invoke(function const& Callable, filter const& Filter, handler const& H
 		detail::seh_invoke_impl([&]{ Result = Callable(); }, Filter, [&]{ Result = Handler(); });
 		return Result;
 	}
+
+WARNING_POP()
 }
 
 template<class function, class handler>

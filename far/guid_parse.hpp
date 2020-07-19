@@ -46,4 +46,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "thirdparty/guid_parse/guid_parse.hpp"
 
+inline namespace literals
+{
+	using namespace guid_parse::literals;
+}
+
 #endif // GUID_PARSE_HPP_800DD3D1_3DE5_4A72_B28B_207EDF88005C

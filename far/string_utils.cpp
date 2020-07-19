@@ -237,6 +237,9 @@ TEST_CASE("string.traits")
 
 	REQUIRE(is_lower(L'a'));
 	REQUIRE(!is_lower(L'A'));
+
+	REQUIRE(!is_upper(L'1'));
+	REQUIRE(!is_lower(L'1'));
 }
 
 TEST_CASE("string.case")
@@ -271,7 +274,9 @@ TEST_CASE("string.utils.hash")
 {
 	const hash_icase_t hash;
 	REQUIRE(hash(L'A') == hash(L'a'));
+	REQUIRE(hash(L'A') != hash(L'B'));
 	REQUIRE(hash(L"fooBAR"sv) == hash(L"FOObar"sv));
+	REQUIRE(hash(L"fooBAR"sv) != hash(L"Banana"sv));
 }
 
 TEST_CASE("string.utils.icase")

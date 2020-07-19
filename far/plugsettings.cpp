@@ -118,7 +118,9 @@ PluginSettings::PluginSettings(const Plugin* const pPlugin, bool const Local)
 	PluginsCfg = ConfigProvider().CreatePluginsConfig(strGuid, Local, false);
 	PluginsCfg->BeginTransaction();
 
-	m_Keys.emplace_back(PluginsCfg->CreateKey(HierarchicalConfig::root_key, strGuid, &pPlugin->Title()));
+	const auto Key = PluginsCfg->CreateKey(HierarchicalConfig::root_key, strGuid);
+	PluginsCfg->SetKeyDescription(Key, pPlugin->Title());
+	m_Keys.emplace_back(Key);
 
 	if (!Global->Opt->ReadOnlyConfig)
 	{
