@@ -12,5 +12,6 @@ m4_define(COPY3,m4_esyscmd(cp -f ARC`.pdb.7z' `/var/www/html/nightly/'NEWARC`.pd
 `$far'FARVAR`_msi="'NEWARC`.msi";'
 `$far'FARVAR`_pdb="'NEWARC`.pdb.7z";'
 `$far'FARVAR`_date="'BUILD_YEAR`-'BUILD_MONTH`-'BUILD_DAY`";'
+`$far'FARVAR`_scm_revision="'SCM_REVISION`";'
 `$far'FARVAR`_lastchange="'LASTCHANGE`";'
 `?>'
