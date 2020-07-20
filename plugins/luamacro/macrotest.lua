@@ -41,7 +41,7 @@ local function DeleteTmpFile()
 end
 
 local function TestArea (area, msg)
-  assert(Area[area]==true and Area.Current==area, msg)
+  assert(Area[area]==true and Area.Current==area, msg or "assertion failed!")
 end
 
 function MT.test_areas()
