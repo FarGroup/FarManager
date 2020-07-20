@@ -532,7 +532,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		UserMenu->SetMenuFlags(VMENU_WRAPMODE | VMENU_NOMERGEBORDER);
 		UserMenu->SetHelp(L"UserMenu"sv);
 		UserMenu->SetPosition({ -1, -1, 0, 0 });
-		UserMenu->SetBottomTitle(KeysToLocalizedText(KEY_INS, KEY_DEL, KEY_F4, KEY_ALTF4, KEY_SHIFTF2, KEY_BS, KEY_CTRLUP, KEY_CTRLDOWN));
+		UserMenu->SetBottomTitle(KeysToLocalizedText(KEY_INS, KEY_DEL, KEY_F4, KEY_ALTF4, KEY_CTRLUP, KEY_CTRLDOWN));
 		UserMenu->SetMacroMode(MACROAREA_USERMENU);
 
 		int ReturnCode=1;
