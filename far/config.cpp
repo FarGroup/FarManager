@@ -480,7 +480,8 @@ static void FillMasksMenu(VMenu2& MasksMenu, int SelPos = 0)
 void Options::MaskGroupsSettings()
 {
 	const auto MasksMenu = VMenu2::create(msg(lng::MMenuMaskGroups), {}, 0, VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
-	MasksMenu->SetBottomTitle(msg(lng::MMaskGroupBottom));
+	const auto BottomTitle = KeysToLocalizedText(KEY_INS, KEY_DEL, KEY_F4, KEY_F7, KEY_CTRLR);
+	MasksMenu->SetBottomTitle(BottomTitle);
 	MasksMenu->SetHelp(L"MaskGroupsSettings"sv);
 	FillMasksMenu(*MasksMenu);
 	MasksMenu->SetPosition({ -1, -1, -1, -1 });
@@ -503,7 +504,7 @@ void Options::MaskGroupsSettings()
 					}
 					MasksMenu->SetPosition({ -1, -1, -1, -1 });
 					MasksMenu->SetTitle(msg(lng::MMenuMaskGroups));
-					MasksMenu->SetBottomTitle(msg(lng::MMaskGroupBottom));
+					MasksMenu->SetBottomTitle(BottomTitle);
 				}
 				return 1;
 			}
@@ -1168,7 +1169,7 @@ void Options::SetFilePanelModes()
 			ModeList->SetHelp(L"PanelViewModes"sv);
 			ModeList->SetMenuFlags(VMENU_WRAPMODE);
 			ModeList->SetId(PanelViewModesId);
-			ModeList->SetBottomTitle(msg(lng::MEditPanelModesBottom));
+			ModeList->SetBottomTitle(KeysToLocalizedText(KEY_INS, KEY_DEL, KEY_F4, KEY_CTRLENTER, KEY_CTRLSHIFTENTER));
 
 			ModeNumber=ModeList->Run([&](const Manager::Key& RawKey)
 			{
@@ -2422,8 +2423,10 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 			SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
 
 			FarListTitles Titles{ sizeof(Titles) };
+
+			const auto BottomTitle = KeysToLocalizedText(KEY_SHIFTF1, KEY_F4, KEY_SHIFTF4, KEY_CTRLH);
 			Titles.Title = msg(lng::MConfigEditor).c_str();
-			Titles.Bottom = msg(lng::MConfigEditorHelp).c_str();
+			Titles.Bottom = BottomTitle.c_str();
 			Dlg->SendMessage(DM_LISTSETTITLES, ac_item_listbox, &Titles);
 
 			Dlg->SendMessage(DM_LISTSORT, ac_item_listbox, nullptr);

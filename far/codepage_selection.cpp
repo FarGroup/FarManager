@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "vmenu.hpp"
 #include "global.hpp"
+#include "keyboard.hpp"
 
 // Platform:
 
@@ -660,12 +661,17 @@ bool codepages::SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool View
 	bool Result = false;
 	CallbackCallSource = CodePageSelect;
 	currentCodePage = CodePage;
+
+	const auto BottomTitle = KeysToLocalizedText(KEY_CTRLH, KEY_INS, KEY_DEL, KEY_F4);
+	const auto BottomTitleShort = KeysToLocalizedText(KEY_CTRLH, KEY_DEL, KEY_F4);
+
 	// Создаём меню
 	CodePagesMenu = VMenu2::create({}, {}, ScrY - 4);
-	CodePagesMenu->SetBottomTitle(msg(!Global->Opt->CPMenuMode? lng::MGetCodePageBottomTitle : lng::MGetCodePageBottomShortTitle));
 	CodePagesMenu->SetMenuFlags(VMENU_WRAPMODE | VMENU_AUTOHIGHLIGHT);
 	CodePagesMenu->SetHelp(L"CodePagesMenu"sv);
 	CodePagesMenu->SetId(CodePagesMenuId);
+	CodePagesMenu->SetBottomTitle(Global->Opt->CPMenuMode? BottomTitleShort : BottomTitle);
+
 	// Добавляем таблицы символов
 	FillCodePagesVMenu(bShowUnicode, ViewOnly, bShowAutoDetect);
 	// Показываем меню
@@ -681,7 +687,7 @@ bool codepages::SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool View
 		case KEY_CTRLH:
 		case KEY_RCTRLH:
 			Global->Opt->CPMenuMode = !Global->Opt->CPMenuMode;
-			CodePagesMenu->SetBottomTitle(msg(Global->Opt->CPMenuMode? lng::MGetCodePageBottomShortTitle : lng::MGetCodePageBottomTitle));
+			CodePagesMenu->SetBottomTitle(Global->Opt->CPMenuMode? BottomTitleShort : BottomTitle);
 			FillCodePagesVMenu(bShowUnicode, ViewOnly, bShowAutoDetect);
 			break;
 			// Обработка удаления таблицы символов из списка выбранных

@@ -54,7 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define INTERNAL_KEY_BASE_2   0x00030000
 #define INTERNAL_MACRO_BASE   0x00080000
 
-enum far_key_code
+enum far_key_code: unsigned int
 {
 	NO_KEY = 0,
 

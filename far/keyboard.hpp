@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/2d/point.hpp"
 #include "common/function_ref.hpp"
+#include "common/range.hpp"
 
 // External:
 
@@ -108,8 +109,14 @@ bool while_mouse_button_pressed(function_ref<bool()> Action);
 int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec=nullptr);
 int KeyNameToKey(string_view Name);
 string InputRecordToText(const INPUT_RECORD *Rec);
-string KeyToText(int Key);
-string KeyToLocalizedText(int Key);
+string KeyToText(unsigned int Key);
+string KeyToLocalizedText(unsigned int Key);
+string KeysListToLocalizedText(span<unsigned int const> Keys);
+template<typename... args>
+string KeysToLocalizedText(args const... Keys)
+{
+	return KeysListToLocalizedText({ Keys... });
+}
 unsigned int InputRecordToKey(const INPUT_RECORD *Rec);
 bool KeyToInputRecord(int Key, INPUT_RECORD *Rec);
 void ProcessKeyToInputRecord(int Key, unsigned int dwControlState, INPUT_RECORD *Rec);

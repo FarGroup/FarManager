@@ -3982,19 +3982,6 @@ upd:"Configuration editor"
 "Редактор конфігурації"
 "Рэдактар налад"
 
-MConfigEditorHelp
-"Enter, F4, Shift+F4, Ctrl+H, Shift+F1"
-"Enter, F4, Shift+F4, Ctrl+H, Shift+F1"
-"Enter, F4, Shift+F4, Ctrl+H, Shift+F1"
-upd:"Enter, F4, Shift+F4, Ctrl+H, Shift+F1"
-upd:"Enter, F4, Shift+F4, Ctrl+H, Shift+F1"
-"Enter, F4, Shift+F4, Ctrl+H, Shift+F1"
-upd:"Enter, F4, Shift+F4, Ctrl+H, Shift+F1"
-upd:"Enter, F4, Shift+F4, Ctrl+H, Shift+F1"
-upd:"Enter, F4, Shift+F4, Ctrl+H, Shift+F1"
-"Enter, F4, Shift+F4, Ctrl+H, Shift+F1"
-"Enter, F4, Shift+F4, Ctrl+H, Shift+F1"
-
 MSaveSetupTitle
 l:
 "Конфигурация"
@@ -6645,19 +6632,6 @@ upd:"Occurrences: {0}, lines: {1}"
 "Входжень: {0}, рядків: {1}"
 "Уваходжаняў: {0}, радкоў: {1}"
 
-MEditFindAllMenuFooter
-"F1, F5, Ctrl+Enter, Ctrl+Up/Down, Add"
-"F1, F5, Ctrl+Enter, Ctrl+Up/Down, Add"
-"F1, F5, Ctrl+Enter, Ctrl+Up/Down, Add"
-"F1, F5, Ctrl+Enter, Ctrl+Up/Down, Add"
-"F1, F5, Ctrl+Enter, Ctrl+Up/Down, Add"
-"F1, F5, Ctrl+Enter, Ctrl+Up/Down, Add"
-"F1, F5, Ctrl+Enter, Ctrl+Up/Down, Añadir"
-"F1, F5, Ctrl+Enter, Ctrl+Up/Down, Add"
-"Aggiungi [F1] [F5] [CTRL+INVIO] [CTRL+Up/Down]"
-"F1, F5, Ctrl+Enter, Ctrl+Up/Down, Add"
-"F1, F5, Ctrl+Enter, Ctrl+Up/Down, Add"
-
 MEditNotFound
 "Строка не найдена"
 "Could not find the string"
@@ -6829,32 +6803,6 @@ l:
 "Collegamento Cartelle"
 "Посилання на папки"
 "Спасылкі на каталогі"
-
-MFolderShortcutBottom
-"Редактирование: Del,Ins,F4"
-"Edit: Del,Ins,F4"
-"Změnit: Del,Ins,F4"
-"Bearb.: Entf,Einf,F4"
-"Szerk.: Del,Ins,F4"
-"Edycja: Del,Ins,F4"
-"Editar: Del,Ins,F4"
-"Upraviť: Del,Ins,F4"
-"Edita: [DEL] [INS] [F4]"
-"Редагування: Del,Ins,F4"
-"Змена: Del,Ins,F4"
-
-MFolderShortcutBottomSub
-"Редактирование: Del,Ins,F4"
-"Edit: Del,Ins,F4"
-"Změnit: Del,Ins,F4"
-"Bearb.: Entf,Einf,F4"
-"Szerk.: Del,Ins,F4"
-"Edycja: Del,Ins,F4"
-"Editar: Del,Ins,F4"
-"Upraviť: Del,Ins,F4"
-"Edita: [DEL] [INS] [F4]"
-"Редагування: Del,Ins,F4"
-"Змена: Del,Ins,F4"
 
 MShortcutNone
 "<отсутствует>"
@@ -9899,45 +9847,6 @@ upd:"Show"
 "Показати"
 "Адлюстраваць"
 
-MEditorSwitchUnicodeCPDisabled
-"Нельзя изменить юникодную кодовую страницу"
-"Unicode code page switch is not supported"
-"Přepínač kódové stránky Unicode není podporovaný"
-"Unicode Codepage kann nicht verändert werden"
-upd:"Unicode code page switch is not supported"
-"Strona kodowa Unicode nie jest obsługiwana"
-"Cambio a página de códigos unicode no está soportado"
-"Prepínač Unicode nie je podporovaný"
-"Il Cambio Di Codifica Ad Unicode Non è Supportata"
-"Не можна змінити юнікодну кодову сторінку"
-"Нельга змяніць юнікодную кадыроўку"
-
-MEditorTryReloadFile
-"Можно перечитать файл, указав нужную кодовую страницу (ShiftF4)"
-"You can reload file using custom code page (ShiftF4)"
-"Můžete znova načíst soubor s uživatelskou kódovou stránkou (ShiftF4)"
-"Sie können die Datei neu starten, um neue Codepage zu wählen (ShiftF4)"
-upd:"You can reload file using custom code page (ShiftF4)"
-"Możesz przeładować plik, używając innej strony kodowej (ShiftF4)"
-"Usted puede recargar el archivo usando página de códigos a elección (ShiftF4)"
-"Môžete znova načítať súbor s užívateľskou tabuľkou znakov (ShiftF4)"
-"Puoi Ricaricare Il File Usando Una Tabella Personale [SHIFT+F4]"
-"Можна перечитати файл, вказавши потрібну кодову сторінку (Shift+F4)"
-"Магчыма перапрачытаць файл, калі ўжыць патрэбную кадыроўку (ShiftF4)"
-
-MEditorSwitchToUnicodeCPDisabled
-"Переключение на юникодную кодовую страницу {0} не поддерживается"
-"Switch to unicode code page {0} is not supported"
-"Přepnutí na kódovou stránku Unicode {0} není podporované"
-"Wechseln zu Unicode Codepage {0} ist nicht unterstützt"
-upd:"Switch to unicode code page {0} is not supported"
-"Przełączenie na stronę kodową Unicode {0} nie jest możliwe"
-"Cambio a página de códigos unicode {0} no está soportado"
-"Prepínač na tabuľku Unicode {0} nie je podporovaný"
-"Il Cambio In Unicode {0} Non è Supportato"
-"Переключення на юнікодну кодову сторінку {0} не підтримується"
-"Пераключэнне на юнікодную кадыроўку {0} не падтрымліваецца"
-
 MEditorCPNotSupported
 "Кодовая страница {0} не поддерживается вашей системой"
 "Code page {0} is not supported in your system"
@@ -10556,19 +10465,6 @@ l:
 "Associazioni Dei Files"
 "Асоціації для файлів"
 "Прызначэнні да файлаў"
-
-MAssocBottom
-"Редактирование: Del,Ins,F4"
-"Edit: Del,Ins,F4"
-"Změnit: Del,Ins,F4"
-"Bearb.: Entf,Einf,F4"
-"Szerk.: Del,Ins,F4"
-"Edycja: Del,Ins,F4"
-"Editar: Del,Ins,F4"
-"Upraviť: Del,Ins,F4"
-"Edita: [DEL] [INS] [F4]"
-"Редагування: Del,Ins,F4"
-"Змена: Del,Ins,F4"
 
 MAskDelAssoc
 "Вы хотите удалить ассоциацию для"
@@ -13382,19 +13278,6 @@ l:
 "Меню фільтрів"
 "Меню фільтраў"
 
-MFilterBottom
-"+,-,Пробел,I,X,BS,Shift+BS,Ins,Del,F4,F5,Ctrl+Up,Ctrl+Dn"
-"+,-,Space,I,X,BS,Shift+BS,Ins,Del,F4,F5,Ctrl+Up,Ctrl+Dn"
-"+,-,Mezera,I,X,BS,Shift+BS,Ins,Del,F4,F5,Ctrl+Up,Ctrl+Dn"
-"+,-,Leer,I,X,BS,UmschBS,Einf,Entf,F4,F5,Strg+Up,Strg+Dn"
-"+,-,Szóköz,I,X,BS,Shift+BS,Ins,Del,F4,F5,Ctrl+Fel,Ctrl+Le"
-"+,-,Spacja,I,X,BS,Shift+BS,Ins,Del,F4,F5,Ctrl+Up,Ctrl+Dn"
-"+,-,Espacio,I,X,BS,Shift+BS,Ins,Del,F4,F5,Ctrl+Up,Ctrl+Dn"
-"+,-,Medzera,I,X,BS,Shift+BS,Ins,Del,F4,F5,Ctrl+Up,Ctrl+Dn"
-"[+] [-] [Spazio] [I] [X] [BS] [INS] [DEL] [F4] [F5] [Ctrl+Su] [Ctrl+Giu]"
-"+,-,Пробіл,I,X,BS,Shift+BS,Ins,Del,F4,F5,Ctrl+Up,Ctrl+Dn"
-"+,-,Прагал,I,X,BS,Shift+BS,Ins,Del,F4,F5,Ctrl+Up,Ctrl+Dn"
-
 MPanelFileType
 "Файлы панели"
 "Panel file type"
@@ -14129,32 +14012,6 @@ upd:"Other"
 "Інші"
 "Іншыя"
 
-MGetCodePageBottomTitle
-"Ctrl+H, Del, Ins, F4"
-"Ctrl+H, Del, Ins, F4"
-"Ctrl+H, Del, Ins, F4"
-"Strg+H, Entf, Einf, F4"
-"Ctrl+H, Del, Ins, F4"
-"Ctrl+H, Del, Ins, F4"
-"Ctrl+H, Del, Ins, F4"
-"Ctrl+H, Del, Ins, F4"
-"[Ctrl+H] [Canc] [Ins] [F4]"
-"Ctrl+H, Del, Ins, F4"
-"Ctrl+H, Del, Ins, F4"
-
-MGetCodePageBottomShortTitle
-"Ctrl+H, Del, F4"
-"Ctrl+H, Del, F4"
-"Ctrl+H, Del, F4"
-"Strg+H, Entf, F4"
-"Ctrl+H, Del, F4"
-"Ctrl+H, Del, F4"
-"Ctrl+H, Del, F4"
-"Ctrl+H, Del, F4"
-"[Ctrl+H] [Canc] [F4]"
-"Ctrl+H, Del, F4"
-"Ctrl+H, Del, F4"
-
 MGetCodePageEditCodePageName
 "Переименование кодовой страницы"
 "Rename the code page"
@@ -14194,19 +14051,6 @@ l:
 "Evidenzia File"
 "Розмальовка файлів"
 "Разфарбоўка файлаў"
-
-MHighlightBottom
-"Ins,Del,F4,F5,Ctrl+Up,Ctrl+Down"
-"Ins,Del,F4,F5,Ctrl+Up,Ctrl+Down"
-"Ins,Del,F4,F5,Ctrl+Up,Ctrl+Down"
-"Einf,Entf,F4,F5,Strg+Up,Strg+Down"
-"Ins,Del,F4,F5,Ctrl+Fel,Ctrl+Le"
-"Ins,Del,F4,F5,Ctrl+Up,Ctrl+Down"
-"Ins,Del,F4,F5,Ctrl+Up,Ctrl+Down"
-"Ins,Del,F4,F5,Ctrl+Nahor,Ctrl+Nadol"
-"[INS] [DEL] [F4] [F5] [Ctrl+Giu] [Ctrl+Su]"
-"Ins,Del,F4,F5,Ctrl+Up,Ctrl+Down"
-"Ins,Del,F4,F5,Ctrl+Up,Ctrl+Down"
 
 MHighlightUpperSortGroup
 "Верхняя группа сортировки"
@@ -16867,7 +16711,7 @@ MMenuSortSelectedFirst
 "Zazna&czone najpierw"
 "Mostrar seleccionados primero"
 "Najprv zobraziť vy&brané"
-"Prima I Selezionati [Shift+F1&2]"
+"Prima I Selezionati"
 "Позначені &файли вперед"
 "Адзначаныя &файлы першапачаткова"
 
@@ -16883,19 +16727,6 @@ upd:"Sho&w directories first"
 "&Mostra Le Cartelle Per Prime"
 "&Каталоги вперед"
 "&Каталогі першапачаткова"
-
-MMaskGroupBottom
-"Редактирование: Ins, Del, F4, F7, Ctrl+R"
-"Edit: Ins, Del, F4, F7, Ctrl+R"
-"Změnit: Ins, Del, F4, F7, Ctrl+R"
-"Tasten: Einf, Entf, F4, F7, Strg+R"
-"Szerk.: Ins, Del, F4, F7, Ctrl+R"
-"Edycja: Ins, Del, F4, F7, Ctrl+R"
-"Editar: Ins, Del, F4, F7, Ctrl+R"
-"Upraviť: Ins, Del, F4, F7, Ctrl+R"
-"Edita: [INS] [DEL] [F4] [F7] [Ctrl+R]"
-"Редагування: Ins, Del, F4, F7, Ctrl+R"
-"Змена: Ins, Del, F4, F7, Ctrl+R"
 
 MMaskGroupName
 "&Имя:"
@@ -17512,19 +17343,6 @@ MHotPlugListTitle
 "Hotplug-пристрої"
 "Прылада гарачай ўсталёўкі"
 
-MHotPlugListBottom
-"Редактирование: Del,Ctrl+R"
-"Edit: Del,Ctrl+R"
-"Edit: Del,Ctrl+R"
-"Tasten: Entf,Strg+R,F1"
-"Szerkesztés: Del,Ctrl+R"
-"Edycja: Del,Ctrl+R"
-"Editar: Del,Ctrl+R"
-"Edit: Del,Ctrl+R"
-"Edita: [Canc] [Ctrl+R]"
-"Редагування: Del,Ctrl+R"
-"Змена: Del,Ctrl+R"
-
 MChangeDriveDisconnectTitle
 l:
 "Отсоединение сетевого диска"
@@ -17800,19 +17618,6 @@ upd:"Detect virtual disks"
 "Визначати віртуальні диски"
 "Вызначаць віртуальныя дыскі"
 
-MChangeDriveMenuFooter
-"Del,Shift+Del,F3,F4,F9"
-"Del,Shift+Del,F3,F4,F9"
-"Del,Shift+Del,F3,F4,F9"
-"Entf,Shift+Entf,F3,F4,F9"
-"Del,Shift+Del,F3,F4,F9"
-"Del,Shift+Del,F3,F4,F9"
-"Del,Shift+Del,F3,F4,F9"
-"Del,Shift+Del,F3,F4,F9"
-"[Canc] [Shift+Canc] [F3] [F4] [F9]"
-"Del,Shift+Del,F3,F4,F9"
-"Del,Shift+Del,F3,F4,F9"
-
 MSearchFileTitle
 l:
 "Поиск"
@@ -17906,19 +17711,6 @@ l:
 "Lista Processi Attivi"
 "Список завдань"
 "Спіс &заданняў"
-
-MProcessListBottom
-"Редактирование: Del,Ctrl+R,F2"
-"Edit: Del,Ctrl+R,F2"
-"Změnit: Del,Ctrl+R,F2"
-"Tasten: Entf,Strg+R,F2"
-"Szerk.: Del,Ctrl+R,F2"
-"Edycja: Del,Ctrl+R,F2"
-"Editar: Del,Ctrl+R,F2"
-"Upraviť: Del,Ctrl+R,F2"
-"Edita: [Canc] [Ctrl+R] [F2]"
-"Редагування: Del,Ctrl+R,F2"
-"Змена: Del,Ctrl+R,F2"
 
 MKillProcessTitle
 "Удаление задачи"
@@ -22075,19 +21867,6 @@ MLocalMenuTitle
 "Локальне меню"
 "Мясцовае меню"
 
-MMainMenuBottomTitle
-"Редактирование: Del,Ins,F4,Alt+F4"
-"Edit: Del,Ins,F4,Alt+F4"
-"Změnit: Del,Ins,F4,Alt+F4"
-"Bearb.: Entf,Einf,F4,Alt+F4"
-"Szerk.: Del,Ins,F4,Alt+F4"
-"Edycja: Del,Ins,F4,Alt+F4"
-"Editar: Del,Ins,F4,Alt+F4"
-"Upraviť: Del,Ins,F4,Alt+F4"
-"Edita: [DEL] [INS] [F4] [ALT+F4]"
-"Редагування: Del,Ins,F4,Alt+F4"
-"Змена: Del,Ins,F4,Alt+F4"
-
 MAskDeleteMenuItem
 "Вы хотите удалить пункт меню"
 "Do you wish to delete the menu item"
@@ -22937,19 +22716,6 @@ l:
 "Режими панелі"
 "Становішча панэляў"
 
-MEditPanelModesBottom
-"Ins,Del,F4,Ctrl+Enter,Ctrl+Shift+Enter"
-"Ins,Del,F4,Ctrl+Enter,Ctrl+Shift+Enter"
-"Ins,Del,F4,Ctrl+Enter,Ctrl+Shift+Enter"
-"Ins,Del,F4,Ctrl+Enter,Ctrl+Shift+Enter"
-"Ins,Del,F4,Ctrl+Enter,Ctrl+Shift+Enter"
-"Ins,Del,F4,Ctrl+Enter,Ctrl+Shift+Enter"
-"Ins,Del,F4,Ctrl+Enter,Ctrl+Shift+Enter"
-"Ins,Del,F4,Ctrl+Enter,Ctrl+Shift+Enter"
-"Ins,Del,F4,Ctrl+Enter,Ctrl+Shift+Enter"
-"Ins,Del,F4,Ctrl+Enter,Ctrl+Shift+Enter"
-"Ins,Del,F4,Ctrl+Enter,Ctrl+Shift+Enter"
-
 MEditPanelModeName
 l:
 "Имя"
@@ -23753,34 +23519,6 @@ upd:"Plugin &prefix:"
 "Prefi&sso:"
 "&Префікс плагіна:"
 "&Прыстаўка дадатку:"
-
-MPluginHotKeyBottom
-"F4 - задать горячую клавишу, F3 - информация"
-"F4 - set hot key, F3 - information"
-"F4 - nastavení horké klávesy, F3 - informace"
-upd:"Kurztaste setzen: F4, information: F3"
-upd:"F4 - gyorsbillentyű hozzárendelés, F3 - information"
-"F4 - ustaw klawisz skrótu, F3 - informacja"
-"F4 - tecla de atajo, F3 - información"
-"F4 - nastavenie skratkového klávesu, F3 - informácia"
-"[F4] Assegna Tasto [F3] Informazioni"
-"F4 - задати гарячу клавішу, F3 - інформація"
-"F4 - прызначыць хуткую клавішу, F3 - даведка"
-
-
-MRightCtrl
-l:
-"ПравыйCtrl"
-"RightCtrl"
-"PravýCtrl"
-"StrgRechts"
-"JobbCtrl"
-"PrawyCtrl"
-"CtrlDrcho"
-"PravýCtrl"
-"CtrlDestra"
-"ПравийCtrl"
-"ПравыCtrl"
 
 MExcTrappedException
 "Исключительная ситуация"

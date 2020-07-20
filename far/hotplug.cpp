@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "drivemix.hpp"
 #include "global.hpp"
+#include "keyboard.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -536,7 +537,7 @@ void ShowHotplugDevices()
 	HotPlugList->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND | VMENU_AUTOHIGHLIGHT);
 	HotPlugList->SetPosition({ -1, -1, 0, 0 });
 	HotPlugList->AssignHighlights();
-	HotPlugList->SetBottomTitle(msg(lng::MHotPlugListBottom));
+	HotPlugList->SetBottomTitle(KeysToLocalizedText(KEY_DEL, KEY_CTRLR));
 
 	bool NeedRefresh = false;
 

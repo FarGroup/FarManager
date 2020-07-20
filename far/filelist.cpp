@@ -4486,6 +4486,7 @@ static void edit_sort_layers(int MenuPos)
 	SortLayersMenu->SetHelp(L"PanelCmdSort"sv);
 	SortLayersMenu->SetPosition({ -1, -1, 0, 0 });
 	SortLayersMenu->SetMenuFlags(VMENU_WRAPMODE);
+	SortLayersMenu->SetBottomTitle(KeysToLocalizedText(KEY_INS, KEY_DEL, L'+', L'-', L'*', KEY_CTRLUP, KEY_CTRLDOWN, KEY_CTRLR)),
 
 	SortLayersMenu->Run([&](const Manager::Key& RawKey)
 	{
@@ -4496,6 +4497,7 @@ static void edit_sort_layers(int MenuPos)
 		switch (const auto Key = RawKey())
 		{
 		case KEY_INS:
+		case KEY_NUMPAD0:
 			if (const auto Result = select_sort_layer(SortLayers); Result >= 0)
 			{
 				const auto NewSortModeIndex = std::find_if(CONST_RANGE(SortModes, i){ return i.MenuPosition == Result; }) - SortModes;
@@ -4508,6 +4510,7 @@ static void edit_sort_layers(int MenuPos)
 			break;
 
 		case KEY_DEL:
+		case KEY_NUMDEL:
 			if (Pos > 0)
 			{
 				SortLayersMenu->DeleteItem(Pos);
@@ -4673,6 +4676,7 @@ void FileList::SelectSortMode()
 		SortModeMenu->SetPosition({ m_Where.left + 4, -1, 0, 0 });
 		SortModeMenu->SetMenuFlags(VMENU_WRAPMODE);
 		SortModeMenu->SetId(SelectSortModeId);
+		SortModeMenu->SetBottomTitle(KeysToLocalizedText(L'+', L'-', L'*', KEY_F4)),
 
 		SortCode=SortModeMenu->Run([&](const Manager::Key& RawKey)
 		{

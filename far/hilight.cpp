@@ -57,6 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filefilter.hpp"
 #include "lockscrn.hpp"
 #include "global.hpp"
+#include "keyboard.hpp"
 
 // Platform:
 
@@ -552,7 +553,7 @@ void highlight::configuration::HiEdit(int MenuPos)
 	HiMenu->SetHelp(L"HighlightList"sv);
 	HiMenu->SetMenuFlags(VMENU_WRAPMODE);
 	HiMenu->SetPosition({ -1, -1, 0, 0 });
-	HiMenu->SetBottomTitle(msg(lng::MHighlightBottom));
+	HiMenu->SetBottomTitle(KeysToLocalizedText(KEY_INS, KEY_DEL, KEY_F4, KEY_F5, KEY_CTRLUP, KEY_CTRLDOWN, KEY_CTRLR));
 	HiMenu->SetId(HighlightMenuId);
 	FillMenu(HiMenu.get(), MenuPos);
 	bool NeedUpdate = false;

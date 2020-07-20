@@ -1409,9 +1409,9 @@ string InputRecordToText(const INPUT_RECORD *Rec)
 	return KeyToText(InputRecordToKey(Rec));
 }
 
-static string KeyToTextImpl(int Key0, tfkey_to_text ToText, add_separator AddSeparator)
+static string KeyToTextImpl(unsigned int const Key0, tfkey_to_text ToText, add_separator AddSeparator)
 {
-	if (Key0 == -1)
+	if (Key0 == static_cast<unsigned int>(-1))
 		return {};
 
 	const auto Key = static_cast<DWORD>(Key0);
@@ -1452,20 +1452,23 @@ static string KeyToTextImpl(int Key0, tfkey_to_text ToText, add_separator AddSep
 			{
 				FKey=upper(static_cast<wchar_t>(Key & 0xFFFF));
 
-				wchar_t KeyText[2]={};
+				wchar_t KeyText;
 
 				if (FKey >= L'A' && FKey <= L'Z')
 				{
 					if (Key&(KEY_RCTRL|KEY_CTRL|KEY_RALT|KEY_ALT)) // ??? а если есть другие модификаторы ???
-						KeyText[0] = static_cast<wchar_t>(FKey); // для клавиш с модификаторами подставляем "латиницу" в верхнем регистре
+						KeyText = static_cast<wchar_t>(FKey); // для клавиш с модификаторами подставляем "латиницу" в верхнем регистре
 					else
-						KeyText[0] = static_cast<wchar_t>(Key & 0xFFFF);
+						KeyText = static_cast<wchar_t>(Key & 0xFFFF);
 				}
 				else
-					KeyText[0] = static_cast<wchar_t>(Key & 0xFFFF);
+					KeyText = static_cast<wchar_t>(Key & 0xFFFF);
 
-				AddSeparator(strKeyText);
-				strKeyText += KeyText;
+				if (KeyText)
+				{
+					AddSeparator(strKeyText);
+					strKeyText += KeyText;
+				}
 			}
 		}
 	}
@@ -1473,7 +1476,7 @@ static string KeyToTextImpl(int Key0, tfkey_to_text ToText, add_separator AddSep
 	return strKeyText;
 }
 
-string KeyToText(int Key)
+string KeyToText(unsigned int const Key)
 {
 	return KeyToTextImpl(Key,
 		[](const TFKey& i) { return i.Name; },
@@ -1481,7 +1484,7 @@ string KeyToText(int Key)
 	);
 }
 
-string KeyToLocalizedText(int Key)
+string KeyToLocalizedText(unsigned int const Key)
 {
 	return KeyToTextImpl(Key,
 		[](const TFKey& i)
@@ -1500,6 +1503,11 @@ string KeyToLocalizedText(int Key)
 				str += L'+';
 		}
 	);
+}
+
+string KeysListToLocalizedText(span<unsigned int const> const Keys)
+{
+	return join(select(Keys, [](unsigned int const Key) { return KeyToLocalizedText(Key); }), L" "sv);
 }
 
 int TranslateKeyToVK(int Key, int& VirtKey, int& ControlState, INPUT_RECORD* Rec)
@@ -1522,7 +1530,7 @@ int TranslateKeyToVK(int Key, int& VirtKey, int& ControlState, INPUT_RECORD* Rec
 
 	bool KeyInTable = false;
 	{
-		static const std::pair<int, int> Table_KeyToVK[] =
+		static const std::pair<unsigned int, int> Table_KeyToVK[] =
 		{
 			{ KEY_BREAK, VK_CANCEL },
 			{ KEY_BS, VK_BACK },

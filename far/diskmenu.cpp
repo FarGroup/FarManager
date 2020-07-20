@@ -697,7 +697,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 	disk_menu_item Item, *mitem = nullptr;
 	{ // эта скобка надо, см. M#605
 		const auto ChDisk = VMenu2::create(msg(lng::MChangeDriveTitle), {}, ScrY - PanelRect.top - 3);
-		ChDisk->SetBottomTitle(msg(lng::MChangeDriveMenuFooter));
+		ChDisk->SetBottomTitle(KeysToLocalizedText(KEY_DEL, KEY_SHIFTDEL, KEY_F3, KEY_F4, KEY_F9));
 		ChDisk->SetHelp(L"DriveDlg"sv);
 		ChDisk->SetMenuFlags(VMENU_WRAPMODE);
 		ChDisk->SetId(ChangeDiskMenuId);
