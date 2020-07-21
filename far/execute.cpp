@@ -313,7 +313,7 @@ static bool FindObject(string_view const Module, string& strDest, bool* Internal
 		const auto[Found, FoundName] = TryWithExtOrPathExt(Module, [](string_view const NameWithExt)
 		{
 			string Str;
-			return std::pair(os::fs::SearchPath(nullptr, NameWithExt, nullptr, Str), Str);
+			return std::pair(os::fs::SearchPath(nullptr, NameWithExt, nullptr, Str) && !os::fs::is_directory(Str), Str);
 		});
 
 		if (Found)
