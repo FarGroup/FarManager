@@ -131,21 +131,21 @@ static const struct
 }
 SortModes[]
 {
-	{ lng::MMenuUnsorted,             false, 4,  LIF_NONE,        KEY_CTRLF7,  { /* Shifted by 1 to allow unsorted to be reversed */ }, },
-	{ lng::MMenuSortByName,           false, 0,  LIF_SELECTED,    KEY_CTRLF3,  {                           +panel_sort::UNSORTED + 1 }, },
-	{ lng::MMenuSortByExt,            false, 1,  LIF_NONE,        KEY_CTRLF4,  { +panel_sort::BY_NAME + 1, +panel_sort::UNSORTED + 1 }, },
-	{ lng::MMenuSortByWrite,          true,  2,  LIF_NONE,        KEY_CTRLF5,  { +panel_sort::BY_NAME + 1, +panel_sort::UNSORTED + 1 }, },
-	{ lng::MMenuSortByCreation,       true,  5,  LIF_NONE,        KEY_CTRLF8,  { +panel_sort::BY_NAME + 1, +panel_sort::UNSORTED + 1 }, },
-	{ lng::MMenuSortByAccess,         true,  6,  LIF_NONE,        KEY_CTRLF9,  { +panel_sort::BY_NAME + 1, +panel_sort::UNSORTED + 1 }, },
-	{ lng::MMenuSortBySize,           true,  3,  LIF_NONE,        KEY_CTRLF6,  { +panel_sort::BY_NAME + 1, +panel_sort::UNSORTED + 1 }, },
-	{ lng::MMenuSortByDiz,            false, 8,  LIF_NONE,        KEY_CTRLF10, { +panel_sort::BY_NAME + 1, +panel_sort::UNSORTED + 1 }, },
-	{ lng::MMenuSortByOwner,          false, 9,  LIF_NONE,        KEY_CTRLF11, { +panel_sort::BY_NAME + 1, +panel_sort::UNSORTED + 1 }, },
-	{ lng::MMenuSortByAllocatedSize,  true,  10, LIF_NONE,        NO_KEY,      { +panel_sort::BY_NAME + 1, +panel_sort::UNSORTED + 1 }, },
-	{ lng::MMenuSortByNumLinks,       true,  11, LIF_NONE,        NO_KEY,      { +panel_sort::BY_NAME + 1, +panel_sort::UNSORTED + 1 }, },
-	{ lng::MMenuSortByNumStreams,     true,  12, LIF_NONE,        NO_KEY,      { +panel_sort::BY_NAME + 1, +panel_sort::UNSORTED + 1 }, },
-	{ lng::MMenuSortByStreamsSize,    true,  13, LIF_NONE,        NO_KEY,      { +panel_sort::BY_NAME + 1, +panel_sort::UNSORTED + 1 }, },
-	{ lng::MMenuSortByNameOnly,       false, 14, LIF_NONE,        NO_KEY,      { +panel_sort::BY_NAME + 1, +panel_sort::UNSORTED + 1 }, },
-	{ lng::MMenuSortByChange,         true,  7,  LIF_NONE,        NO_KEY,      { +panel_sort::BY_NAME + 1, +panel_sort::UNSORTED + 1 }, },
+	{ lng::MMenuUnsorted,             false, 5,  LIF_NONE,        KEY_CTRLF7,  { /* Shifted by 1 to allow unsorted to be reversed */     }, },
+	{ lng::MMenuSortByName,           false, 0,  LIF_SELECTED,    KEY_CTRLF3,  {                               +panel_sort::UNSORTED + 1 }, },
+	{ lng::MMenuSortByExt,            false, 2,  LIF_NONE,        KEY_CTRLF4,  { +panel_sort::BY_NAMEONLY + 1, +panel_sort::UNSORTED + 1 }, },
+	{ lng::MMenuSortByWrite,          true,  3,  LIF_NONE,        KEY_CTRLF5,  { +panel_sort::BY_NAME     + 1, +panel_sort::UNSORTED + 1 }, },
+	{ lng::MMenuSortByCreation,       true,  6,  LIF_NONE,        KEY_CTRLF8,  { +panel_sort::BY_NAME     + 1, +panel_sort::UNSORTED + 1 }, },
+	{ lng::MMenuSortByAccess,         true,  7,  LIF_NONE,        KEY_CTRLF9,  { +panel_sort::BY_NAME     + 1, +panel_sort::UNSORTED + 1 }, },
+	{ lng::MMenuSortBySize,           true,  4,  LIF_NONE,        KEY_CTRLF6,  { +panel_sort::BY_NAME     + 1, +panel_sort::UNSORTED + 1 }, },
+	{ lng::MMenuSortByDiz,            false, 9,  LIF_NONE,        KEY_CTRLF10, { +panel_sort::BY_NAME     + 1, +panel_sort::UNSORTED + 1 }, },
+	{ lng::MMenuSortByOwner,          false, 10, LIF_NONE,        KEY_CTRLF11, { +panel_sort::BY_NAME     + 1, +panel_sort::UNSORTED + 1 }, },
+	{ lng::MMenuSortByAllocatedSize,  true,  11, LIF_NONE,        NO_KEY,      { +panel_sort::BY_NAME     + 1, +panel_sort::UNSORTED + 1 }, },
+	{ lng::MMenuSortByNumLinks,       true,  12, LIF_NONE,        NO_KEY,      { +panel_sort::BY_NAME     + 1, +panel_sort::UNSORTED + 1 }, },
+	{ lng::MMenuSortByNumStreams,     true,  13, LIF_NONE,        NO_KEY,      { +panel_sort::BY_NAME     + 1, +panel_sort::UNSORTED + 1 }, },
+	{ lng::MMenuSortByStreamsSize,    true,  14, LIF_NONE,        NO_KEY,      { +panel_sort::BY_NAME     + 1, +panel_sort::UNSORTED + 1 }, },
+	{ lng::MMenuSortByNameOnly,       false, 1,  LIF_NONE,        NO_KEY,      { +panel_sort::BY_EXT      + 1, +panel_sort::UNSORTED + 1 }, },
+	{ lng::MMenuSortByChange,         true,  8,  LIF_NONE,        NO_KEY,      { +panel_sort::BY_NAME     + 1, +panel_sort::UNSORTED + 1 }, },
 };
 
 static_assert(std::size(SortModes) == static_cast<size_t>(panel_sort::COUNT));
@@ -156,20 +156,6 @@ const auto SortAsc = L'\x25B2', SortDesc = L'\x25BC';
 span<int const> default_sort_layers(panel_sort const SortMode)
 {
 	return SortModes[static_cast<size_t>(SortMode)].DefaultLayers;
-}
-
-static int compare_names(std::pair<string_view, string_view> const& Name1, std::pair<string_view, string_view> const& Name2)
-{
-	// Why this witchcraft, why not compare the names directly?
-	// Consider this:
-	// a-b.txt
-	// a.txt
-	// 'a' == 'a', but '-' < '.', so "a-b.txt" comes first.
-	// To fix this, we only take extensions into account when the names are the same.
-	if (const auto Result = string_sort::compare(Name1.first, Name2.first))
-		return Result;
-
-	return string_sort::compare(Name1.second, Name2.second);
 }
 
 template<typename T>
@@ -680,13 +666,11 @@ private:
 	{
 		const auto& [a, b] = Reverse? std::tie(Item2, Item1) : std::tie(Item1, Item2);
 
-		const auto identity = [](string_view const Str) { return Str; };
-
-		const auto name_ext_opt = [SortFolderExt = SortFolderExt](FileListItem const& i, auto const Mutator)
+		const auto name_ext_opt = [SortFolderExt = SortFolderExt](FileListItem const& i)
 		{
 			return SortFolderExt || !(i.Attributes & FILE_ATTRIBUTE_DIRECTORY)?
-				name_ext(Mutator(i.FileName)) :
-				std::pair(Mutator(i.FileName), L""sv);
+				name_ext(i.FileName) :
+				std::pair(i.FileName, L""sv);
 		};
 
 		switch (SortMode)
@@ -695,13 +679,13 @@ private:
 			return compare_numbers(a.Position, b.Position);
 
 		case panel_sort::BY_NAME:
-			return compare_names(name_ext_opt(a, identity), name_ext_opt(b, identity));
+			return string_sort::compare(a.FileName, b.FileName);
 
 		case panel_sort::BY_NAMEONLY:
-			return compare_names(name_ext_opt(a, PointToName), name_ext_opt(b, PointToName));
+			return string_sort::compare(name_ext_opt(a).first, name_ext_opt(b).first);
 
 		case panel_sort::BY_EXT:
-			return string_sort::compare(name_ext_opt(a, identity).second, name_ext_opt(b, identity).second);
+			return string_sort::compare(name_ext_opt(a).second, name_ext_opt(b).second);
 
 		case panel_sort::BY_MTIME:
 			return compare_time(a.LastWriteTime, b.LastWriteTime);
