@@ -670,7 +670,7 @@ private:
 		{
 			return SortFolderExt || !(i.Attributes & FILE_ATTRIBUTE_DIRECTORY)?
 				name_ext(i.FileName) :
-				std::pair(i.FileName, L""sv);
+				std::pair(string_view(i.FileName), L""sv);
 		};
 
 		switch (SortMode)
