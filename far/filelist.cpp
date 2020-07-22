@@ -4470,7 +4470,7 @@ static void edit_sort_layers(int MenuPos)
 	SortLayersMenu->SetHelp(L"PanelCmdSort"sv);
 	SortLayersMenu->SetPosition({ -1, -1, 0, 0 });
 	SortLayersMenu->SetMenuFlags(VMENU_WRAPMODE);
-	SortLayersMenu->SetBottomTitle(KeysToLocalizedText(KEY_INS, KEY_DEL, L'+', L'-', L'*', KEY_CTRLUP, KEY_CTRLDOWN, KEY_CTRLR)),
+	SortLayersMenu->SetBottomTitle(KeysToLocalizedText(KEY_INS, KEY_DEL, L'+', L'-', L'*', KEY_CTRLUP, KEY_CTRLDOWN, KEY_CTRLR));
 
 	SortLayersMenu->Run([&](const Manager::Key& RawKey)
 	{
@@ -4660,7 +4660,7 @@ void FileList::SelectSortMode()
 		SortModeMenu->SetPosition({ m_Where.left + 4, -1, 0, 0 });
 		SortModeMenu->SetMenuFlags(VMENU_WRAPMODE);
 		SortModeMenu->SetId(SelectSortModeId);
-		SortModeMenu->SetBottomTitle(KeysToLocalizedText(L'+', L'-', L'*', KEY_F4)),
+		SortModeMenu->SetBottomTitle(KeysToLocalizedText(L'+', L'-', L'*', KEY_F4));
 
 		SortCode=SortModeMenu->Run([&](const Manager::Key& RawKey)
 		{
