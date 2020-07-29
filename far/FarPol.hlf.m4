@@ -859,7 +859,7 @@ Po wykryciu nowej wtyczki Far zapisuje informację o niej, a później wczytuje 
 gdy jest potrzebna - nie używane wtyczki nie zajmują dodatkowej pamięci.
 Ale jeżeli któraś wtyczka nie będzie już potrzebna, można ją usunąć oszczędzając miejsce na dysku.
 
- Wtyczki mogą być wywołane z menu ~Zmienń dysk~@DriveDlg@ lub #Listy wtyczek# włączanej klawiszem
+ Wtyczki mogą być wywołane z menu ~Zmień dysk~@DriveDlg@ lub #Listy wtyczek# włączanej klawiszem
 #F11# lub odpowiadającemgo menu ~Polecenia~@CmdMenu@. Wciśnięcie #F4# na ~"Liście wtyczek"~@PluginCommands@
 pozwala przypisać klawisz skrótu do menu (ułatwia to wywoływanie wtyczek w ~makrach klawiatury~@KeyMacro@).
 Menu to jest dostępne w panelu plików, oknach dialogowych oraz (tylko po wciśnięciu klawisza #F11#)
@@ -889,279 +889,272 @@ podany parametr zawsze jest traktowany jak rzeczywisty folder bez względu na ty
 
  Użyj klawiszy #Alt+Shift+F9# aby ~skonfigurować wtyczki~@PluginsConfig@.
 
-
 @PluginCommands
-$ #Plugin commands#
- This menu provides user with ability to use plugins functionality (other
-ways are listed in ~"Plugins support"~@Plugins@).
-The contents of the menu and actions triggered on menu items selection are
-controlled by plugins.
+$ #Lista wtyczek#
+ To menu pozwala na rozszerzenie fukncjonalności programu poprzez użycie wtyczek
+(inny sposoby podane są w ~"obsłudze wtyczek"~@Plugins@).
+Zawartość menu i odpowiadające czynności w menu są kontrolowane przez wtyczki
 
- The menu can be invoked in the following ways:
+ Menu może zostać wywołane na następujące sposoby:
 
- - ^<wrap>#F11# at file panels or #Plugins# item at ~commands menu~@CmdMenu@, herewith
-the commands intended for use from file panels are shown;
- - ^<wrap>#F11# in viewer or editor, herewith the commands intended for use from
-viewer and editor accordingly are shown.
+ - ^<wrap>#F11# na panelu plików lub pozycja #Wtyczki# z ~menu poleceń~@CmdMenu@, gdzie widoczne
+są tylko wtyczki potrafiące pracować w panelu plików;
+ - ^<wrap>#F11# w przeglądarce lub edytorze, gdzie widoczne są tylko wtyczki współpracujące
+z przeglądarką lub edytorem plików.
 
- Each item of plugin commands menu can be assigned a hotkey with #F4#, this
-possibility is widely used in ~key macros~@KeyMacro@. The assigned hotkey is
-displayed left to the item. The #A# character in the leftmost menu column means that
-the corresponding plugin is written for Far 1.7x and it does not support all
-possibilities available in Far 3 (these are, in particular, Unicode characters
-in filenames and in editor).
+ Każdej wtyczce w menu konfiguracyjnym można przypisać klawisz skrótu za pomocą
+klawisza #F4#, możliwość ta jest stosowane w ~makrach~@KeyMacro@. Przypisany klawisz
+skrótu będzie wyświetlany po lewej stronie listy. Znak #A# w kolumnie po lewej stronie
+oznacza, że wtyczka została napisana dla Far 1.7x i nie obsługuje w pełni możliwości
+zawartych w Far 3 (np. znaki Unicode w nazwach plików i edytorze).
 
- #Plugin commands# menu hotkeys:
+ Klawisze sktótu #listy wtyczek#:
 
  #Shift+F1#
- Help on use for selected menu item. The text of the help
-is taken from HLF file, associated with the plugin that owns the menu item.
+ Pomoc dotycząca używania danej wtyczki. Zawartość pomocy jest odczytywana
+z plików HLF, powiązanych z aktualnie podświetloną wtyczką.
 
  #F4#
- Assign a hotkey for selected menu item. If #Space# is
-entered, then Far sets the hotkey automatically.
+ Przypisywanie klawisza skrótu do pozycji menu. Jeżeli wciśnięto #Spację#,
+Far przypisze skrót automatycznie (lub wyczyści wcześniej wpisany skrót).
 
  #F3#
- Show plugin technical information.
+ Pokazuje informacje techniczne o wtyczce.
 
  #Shift+F9#
- Settings of the selected plugin.
+ Konfiguracja wybranej wtyczki.
 
  #Alt+Shift+F9#
- Open ~"Plugins configuration"~@PluginsConfig@ menu.
+ Otwiera menu ~"Konfiguracja wtyczek"~@PluginsConfig@.
 
- See also:
+ Zobacz także:
 
- ~Plugins support~@Plugins@.
- Common ~menu~@MenuCmd@ keyboard commands.
-
+ ~Obsługa wtyczek~@Plugins@.
+ Polecenia ~menu~@MenuCmd@.
 
 @PluginsConfig
-$ #Plugins configuration#
- You can configure the installed ~plugins~@Plugins@ using the command
-#"Plugins configuration"# from the ~Options menu~@OptMenu@ or by pressing
-#Alt+Shift+F9# in the ~Change drive menu~@DriveDlg@ or plugins menu.
+$ #Konfiguracja wtyczek#
+ Można skonfigurować zainstalowane ~wtyczki~@Plugins@ używając polecenia
+#"Konfiguracja wtyczek"# z menu ~Opcje~@OptMenu@ lub wciskając klawisze
+#Alt+Shift+F9# w menu ~Zmień dysk~@DriveDlg@ lub menu wtyczek wtyczek.
 
- To get the help on the currently selected plugin, press #Shift+F1# -
-context-sensitive help on plugin configuration. If the plugin doesn't have a
-help file, the context-sensitive help will not be shown.
+ Aby uzyskać pomoc aktualnie wybranej wtyczki, wciśnij klawisze #Shift+F1# - 
+wyświetlona zostanie pomoc kontekstowa dotycząca tej wtyczki. Jeżeli wtyczka
+nie zawiera plików pomocy, pomoc kontekstowa nie zostanie wyświetlona.
 
- When the context-sensitive help is invoked, Far will try to show the topic
-#Config#. If such a topic does not exist in the plugin help file, the main help
-topic for the selected plugin will be shown.
+ Gdy pomoc kontekstowa jest wywołana, Far próbuje wyświetlić temat #Config#
+(konfiguracja). Jeżeli taki temat istnieje w pliku pomocy wtyczki, wyświetlony
+zostanie główny temat z pliku.
 
- Each item of plugins configuration menu can be assigned a hotkey with #F4#,
-this possibility is widely used in ~key macros~@KeyMacro@. The assigned hotkey is
-displayed left to the item. The #A# character in the leftmost menu column means that
-the corresponding plugin is written for Far 1.7x and it does not support all
-possibilities available in Far 3 (these are, in particular, Unicode characters
-in filenames and in editor).
+ Każdej wtyczce w menu konfiguracyjnym można przypisać klawisz skrótu za pomocą
+klawisza #F4#, możliwość ta jest stosowane w ~makrach~@KeyMacro@. Przypisany klawisz
+skrótu będzie wyświetlany po lewej stronie listy. Znak #A# w kolumnie po lewej stronie
+oznacza, że wtyczka została napisana dla Far 1.7x i nie obsługuje w pełni możliwości
+zawartych w Far 3 (np. znaki Unicode w nazwach plików i edytorze).
 
- Pressing #F3# will show some technical information about the plugin.
+ Wciśnięcie #F3# pokaże informacje techniczne o wskazanej wtyczce.
 
- See also: common ~menu~@MenuCmd@ keyboard commands.
+ Zobacz także: Polecenia ~menu~@MenuCmd@.
 
 
 @PluginsReviews
-$ #Overview of plugin capabilities#
- Far Manager is so tightly integrated with its plugins that it is simply
-meaningless to talk about Far and not to mention the plugins. Plugins present
-an almost limitless expansion of the features of Far.
+$ #Przegląd możliwości wtyczek#
+ Far Manager jest tak ściśle powiązany ze swoimi wtyczkami, że nie sposób mówić
+o programie Far i nie wspominać o wtyczkach. Obecność wtyczek powoduje prawie
+nieograniczone możliwości rozbudowy programu Far.
 
- Without going into details, some of the capabilities can be noted:
+ Bez podawania szczegółów, oto niektóre możliwości wtyczek:
 
- * ^<wrap>Syntax highlighting in program source texts.
- * Working with FTP-servers (including access through proxy).
- * Search and replace in many files at the same time, using regular expressions.
- * Renaming groups of files with support for complex compound masks consisting of substitution symbols and templates.
- * NNTP/SMTP/POP3/IMAP4 clients and sending messages to a pager.
- * Working with non-standard text screen resolutions.
- * Conversion of texts from one national code page to another.
- * Manipulating the contents of the Recycle Bin.
- * Process priority control on local or network PC.
- * Words autocomplete in editor and working with templates.
- * Windows system registry editing.
- * Creating and modifying Windows shortcuts.
- * File and text operations making it more comfortable to use FidoNet.
- * Files UU-encode and UU-decode.
- * WinAmp control and MP3-tags modifying.
- * Quake PAK-files processing.
- * Printers control, both connected to PC and network.
- * Connection and debugging of queries to ODBC-compatible databases.
- * RAS service control.
- * External programs executing (compilers, converters etc.) while editing text in Far editor.
- * Windows help files contents displaying (.hlp and .chm)
- * Calculators with different possibilities.
- * Several games :-)
- * Spell checker functions while editing text in Far editor.
- * Removable drives catalog preparation and much more…
+ * ^<wrap>Podświetlanie składni w trakcie edycji źródeł programów.
+ * Praca z serwerami FTP (włączają dostęp przez proxy).
+ * Wyszukiwanie i zastępowanie w wielu plikach w tym samym czasie, używając wyrażeń regularnych.
+ * Zmiana nazw grup plików z pełną obsługą masek wykorzystujących zamianę symboli i szablonów.
+ * Klient NNTP/SMTP/POP3/IMAP4 i wysyłanie wiadomości na pager.
+ * Praca w niestandardowych rozdzielczościach ekranu.
+ * Konwersja tekstów z jednej strony kodowej na inną.
+ * Manipulacja zawartością Kosza.
+ * Przetwarzanie kontroli procesów na komputerze lokalnym lub zdalnym.
+ * Automatyczne uzupełnianie słów w edytorze i praca z szablonami.
+ * Edycja rejestru systemowego Windows.
+ * Tworzenie i modyfikacja skrótów Windows.
+ * Operacja na plikach i tekstach dając komfort obsługi FidoNet.
+ * Kodowanie i dekodowanie plików UUencode/UUdecode.
+ * Kontrola programu WinAmp i modyfikacja tagów MP3.
+ * Przetwarzanie plików PAK z gry Quake.
+ * Kontrola drukarek, zarówno lokalnych jak i sieciowych.
+ * Połączenia i debugowanie zapytań do baz danych zgodnych z ODBC.
+ * Kontrola usługi zdalnego dostępu.
+ * Uruchamianie zewnętrznych programów (kompilatorów, konwerterów, etc.) w trakcie edycji plików tekstowych w edytorze Far.
+ * Wyświetlanie plików pomocy Windows (.hlp i .chm).
+ * Kalkulatory z wieloma różnymi możliwościami.
+ * Kilka gier :-)
+ * Funkcja sprawdzanie pisowni podczas edycji plików tekstowych w edytorze Far.
+ * Przygotowanie katalogu dysków wymiennych i wiele więcej...
 
- As an information source, which can be used to search for specific plugins,
-one can recommend:
+ Jako źródło informacji, gdzie można znaleźć wtyczki możemy zarekomendować:
 
- - Far Manager official site
+ - Oficjalna strona 
    ~https://www.farmanager.com~@https://www.farmanager.com@
- - Online forum
+ - Forum programu
    ~https://forum.farmanager.com~@https://forum.farmanager.com@
- - Registration and handling of problems
+ - Rejestracja i obsługa zgłoszeń problemów
    ~https://bugs.farmanager.com~@https://bugs.farmanager.com@
- - PlugRinG site
+ - Strona PlugRinG (baza wtyczek)
    ~https://plugring.farmanager.com~@https://plugring.farmanager.com@
- - Free email group service
+ - Bezpłatna grupa dyskusyjna
    ~https://groups.google.com/group/fardeven/~@https://groups.google.com/group/fardeven@
- - USENET echo conference
+ - Grypy dyskusyjne USENET
    ~news:fido7.far.support~@news:fido7.far.support@
    ~news:fido7.far.development~@news:fido7.far.development@
- - FidoNet echo conference
+ - Grupy dyskusyjne FidoNet
    far.support
    far.development
 
 
 @Panels
-$ #Panels #
- Normally Far shows two panels (left and right windows), with different
-information. If you want to change the type of information displayed in the
-panel, use the ~panel menu~@LeftRightMenu@ or corresponding ~keyboard commands~@KeyRef@.
+$ #Panele#
+ Zwykle Far pokazuje dwa panele (lewe i prawe okno), z różnymi informacjami.
+Do zmiany wyświetlanych informacji należy użyć ~menu panelu~@LeftRightMenu@
+lub użyć ~skrótów klawiszowych~@KeyRef@.
 
- See also the following topics for more information:
+ Zobacz także następujące tematy, aby uzyskać więcej informacji:
 
- ~File panel~@FilePanel@
- ~Tree panel~@TreePanel@
- ~Info panel~@InfoPanel@
- ~Quick view panel~@QViewPanel@
+ ~Panel plików~@FilePanel@
+ ~Drzewko plików~@TreePanel@
+ ~Panel informacyjny~@InfoPanel@
+ ~Szybki podgląd~@QViewPanel@
 
- ~Drag and drop files~@DragAndDrop@
- ~Selecting files~@SelectFiles@
- ~Customizing file panel view modes~@PanelViewModes@
+ ~Przeciąganie plików~@DragAndDrop@
+ ~Zaznaczanie plików~@SelectFiles@
+ ~Dostosowanie paneli plików~@PanelViewModes@
 
 
 @FilePanel
-$ #Panels: file panel#
- The file panel displays the current folder. You can select or deselect
-files and folders, perform different file and archive operations. Read
-~Keyboard reference~@KeyRef@ for commands list.
+$ #Panele: panel plików#
+ Panel plików wyświetla bieżący folder. Można zaznaczać lub odznaczać
+pliki lub foldery, przeprowadzać różne operacje na plikach i archiwach.
+Przeczytaj ~Skróty klawiszowe~@KeyRef@, aby sprawdzić listę poleceń.
 
- Default view modes of the file panel are:
+ Domyślne tryby wyświetlania w panelu plików:
 
- #Brief#         File names are displayed within three columns.
+ #Skrótowy#      Nazwy plików są wyświetlane w trzech kolumnach.
 
- #Medium#        File names are displayed within two columns.
+ #Średni#        Nazwy plików są wyświetlane w dwóch kolumnach.
 
- #Full#          Name, size, date and time of the file are displayed.
+ #Pełny#         Wyświetlane są nazwy, wielkość, daty i czas pliku.
 
- #Wide#          File names and sizes are displayed.
+ #Szeroki#       Wyświetlane są nazwy i wielkość pliku.
 
- #Detailed#      ^<wrap>File names, sizes, allocation sizes, last write,
-creation, access time and attributes are displayed. Fullscreen mode.
+ #Ze szczegółami#      ^<wrap>Wyświetlane są nazwy, wielkość, wielkość rzeczywista,
+data ostatniego zapisu, data utworzenia, data ostatniego dostępu do pliku. Tryb pełnoekranowy.
 
- #Descriptions#  File names and ~file descriptions~@FileDiz@
+ #Opisy#         Nazwy plików i ~opisy plików~@FileDiz@
 
- #Long#          ^<wrap>File names, sizes and descriptions. Fullscreen mode.
- #descriptions#
+ #Długie#        ^<wrap>Nazwy plików, wielkość i opisy. Tryb pełnoekranowy.
+ #opisy#
 
- #File owners#   File names, sizes and owners.
+ #Właściciele plików#   Nazwy plików, wielkości i właściciele.
 
- #File links#    File names, sizes and number of hard links.
+ #Dowiązania#    Nazwy plików, wielkości i liczba dowiązań do plików (hardlink)
 
- #Alternative#   ^<wrap>File name, size (formatted with commas) and date of the file are displayed.
- #full#
+ #Alternatywny#  ^<wrap>Wyświetlane są nazwy plików, wielkość (sformatowana) oraz data pliku.
+ #pełny#
 
- You can ~customize file panel view modes~@PanelViewModes@.
+ Można ~dostosować wygląd panelu plików~@PanelViewModes@.
 
- File owners and number of hard links have meaning for NTFS only. Some
-file systems may not support file creation and access dates.
+ Właściciele plików oraz dowiązania do plików działają tylko w systemie plików NTFS.
+Niektóre systemy nie przechowują dat tworzenia i dostępu do plików.
 
- If you wish to change the panel view mode, choose it from the
-~panel menu~@LeftRightMenu@. After the mode change or drive change action,
-if the initial panel type differs it will be automatically set to the file panel.
+ Jeżeli chcemy zmienić widok panelu, należy wybrać go z ~menu panelu~@LeftRightMenu@.
+Po zmianie trybu lub wybraniu dysku, jeżeli początkowy typ panelu jest inny, zostanie
+automatycznie ustawiony na panel plików.
 
- ~Fast find~@FastFind@ action can be used to point to the required file
-by the first letters of its name.
+ Operacja ~szybkiego szukania~@FastFind@ może być użyta jako odnośnik do żądanego
+plików po pierwszej literze jego nazwy.
 
- See also the list of ~macro keys~@KeyMacroShellList@, available in the panels.
+ Zobacz także listę ~klawiszy makro~@KeyMacroShellList@, dostępnych w panelach.
 
 
 @TreePanel
-$ #Panels: tree panel#
- The tree panel displays the folder structure of the current disk as a tree.
-Within tree mode you can change to a folder quickly and perform folder
-operations.
+$ #Panele: drzewko plików#
+ Panel drzewka wyświetla strukturę folderu bieżącego dysku jako drzewko.
+Wewnątrz drzewka można szybko zmieniać foldery lub przeprowadzać operacje na folderach.
 
- Far stores folder tree information in the file named #tree3.far# at root
-folder of each drive. For read-only drives this information is stored in the
-hidden folder Tree.Cache within the folder containing Far.exe. The tree3.far
-file doesn't exist by default. It will be automatically created after the first
-use of the #Tree Panel# or the #Find Folder# command. If that file exists, Far
-updates it with the changes to the tree structure it is aware of. If such
-changes were made outside of Far and Tree.far is no longer current, it can be
-refreshed by pressing #Ctrl+R#.
+ Far zapisuje informacje o drzewku w pliku o nazwie #tree3.far# w głównym folderze
+każdego dysku. Na dyskach tylko do odczytu, informacja jest zapisywana w ukrytym
+folderze Tree.Cache w folderze programu Far. Plik tree3.far nie jest automatycznie zakładany.
+Jest on zakładany przy pierwszym użyciu #Panelu drzewka# lub poleceniu #Znajdź folder#.
+Jeżeli plik już istnieje, Far uaktualnia go, jeżeli zmieniła się struktura.
+Jeżeli jakieś zmiany powstały poza programem Far, i plik tree3.far nie odświeżył się,
+można wymusić odświeżenie struktury wciskając klawisze #Ctrl+R#.
 
- You can find a folder quickly with the help of #fast find# action. Hold
-the Alt key and type the folder name until you point to the right folder.
-Pressing #Ctrl+Enter# keys simultaneously will select the next match.
+ Można szybko odszukać folder za pomocą operacji #szybkiego szukanie#. Należy przytrzymać
+klawisz Alt i rozpocząć wpisywanie nazwy folderu, dopóki nie odnajdziemy właściwego folderu.
+Wciśnięcie #Ctrl+Enter# przeniesie do następnego folderu o takim samym początku nazwy.
 
- #Gray +# and #Gray -# keys move up and down the tree to the next branch
-on the same level.
+ Klawisze #Szary +# i #Szary -# przesuwają przesuwają w górę i w dół do następnej gałęzi
+tego samego poziomu.
 
- See also the list of ~macro keys~@KeyMacroTreeList@, available in the folder tree panel.
-
+ Zobacz także listę ~klawiszy makro~@KeyMacroTreeList@, dostępną dla panelu drzewka.
 
 @InfoPanel
-$ #Panels: info panel#
- The information panel contains the following data:
+$ #Panele: panel informacyjny#
+ Panel informacyjny zawiera następujące dane:
 
- 1. ^<wrap>#network# names of the computer and the current user (see ~Info panel settings~@InfoPanelSettings@);
+ 1. ^<wrap>#sieciowa# nazwa komputera i bieżący użytkownik (zobacz ~Ustawienia panelu informacyjnego~@InfoPanelSettings@);
 
- 2. ^<wrap>name and type of the #current disk#, type of the file system, network
-name, total and free space, disk volume label and serial number;
+ 2. ^<wrap>nazwa i typ #bieżącego dysku#, typ systemu plików, nazwa sieciowa,
+całkowita i wolna ilość wolnego miejsca, etykieta dysku i jego numer seryjny;
 
-    ^<wrap>Far will attempt to determine the type of each of the CD drives available
-in the system. Known types are as follows: CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM,
-DVD-RW and DVD-RAM. This function is available only for users either with
-administrative privileges or all local users, when it's stated explicitly in
-the Local Policy Editor (to do this, run #secpol.msc# from the command
-prompt, and set the '#Local Policies/Security Options/Devices: Restrict#
-#CD-ROM access to locally logged-on user only#' setting to '#Enabled#')
+    ^<wrap>Far spróbuje wykryć typ każdego napędy CD dostępnego w systemie.
+Znane typy to: CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM, DVD-RW i DVD-RAM. Funkcja ta jest dostępna
+tylko dla użytkowników z prawami administratora lub wszystkich lokalnych użytkowników mających
+uprawnienia ustawione w Zasadach zabezpieczeń lokalnych (aby ustawić, uruchom #secpol.msc# z wiersza poleceń, przejdź do
+'#Zasady lokalne/Opcje zabezpieczeń/Urządzenia: ogranicz dostęp do stacji CD-ROM tylko do użytkownika zalogowanego lokalnie#' ustawione
+na '#Włączone#')
 
-    ^<wrap>For virtual devices (SUBST-disk) the parameters of the primary disk are shown.
+    ^<wrap>Dla dysków wirtualnych (polecenie SUBST), podawane są parametry rzeczywistego dysku.
 
-    ^<wrap>#Ctrl+Shift+S# toggles size display mode: float with size suffixes or bytes.
-Memory size display mode also changes. ~Quick view panel~@QViewPanel@ and ~file panel~@FilePanel@
-status line also affected.
-Current mode - far:config #Panel.ShowBytes# (default=false).
+    ^<wrap>#Ctrl+Shift+S# przełącza tryb wyświetlania: wykładnicze z przyrostkami wielkości lub w bajtach.
+Zmieniany jest także tryb wyświetlania pamięci. Dotyczy to zarówno ~Panelu szybkiego poglądu~@QViewPanel@, ~panelu plików~@FilePanel@
+i linii statusu.
+Bieżący tryb - far:config #Panel.ShowBytes# (domyślnie=fałsz).
 
- 3. ^<wrap>Memory information
-    ^<wrap>#memory# load percentage (100% means all of available memory is used),
-size of the installed physical memory (in Vista and newer), total and free size of the physical
-memory (available for Windows), virtual memory and paging file;
+ 3. ^<wrap>Informacje o pamięci
+    ^<wrap>procentowa zajętość #pamięci# (100% oznacza, że cała dostępna pamięć jest zajęta),
+wielkość fizycznie zainstalowanej pamięci (Windows Vista i nowsze), całkowita i wolna wielkość
+fizycznej pamięci (dostępnej dla Windows), pamięć wirtualna i plik stronicowania;
 
- 4. ^<wrap>#folder description# file
-    ^<wrap>You can view the contents of the folder description file in full screen by
-pressing the #F3# key or clicking the #left mouse button#. To edit or create the
-description file, press #F4# or click the #right mouse button#. You can also use
-many of the ~viewer commands~@Viewer@ (search, code page selection and so on)
-for viewing the folder description file.
-    ^<wrap>A list of possible folder description file names can be defined using
-"Folder description files" command in the ~Options menu~@OptMenu@.
+ 4. ^<wrap>plik #opisu folderu#
+    ^<wrap>Można podejrzeć zawartość pliku opisu foldera na pełnym ekranie wciskając klawisz
+#F3# lub klikając #lewym przyciskiem myszy#. Do edycji lub utworzenia pliku opisu należy
+wcisnąć klawisz #F4# lub kliknąć #prawym klawiszem myszy#. Można także wielu poleceń
+~podglądu~@Viewer@ (wyszukiwanie, wybór strony kodowej, itd.) do obejrzenia pliku opisu
+folderu.
+    ^<wrap>Lista możliwych plików opisu folderu może być zdefiniowana używając
+polcenia "Pliki opisów folderów" w menu ~Opcje~@OptMenu@.
 
- 5. Plugin panel
-    ^<wrap>Contains information about the opposite plugin panel, if provided by the plugin.
+ 5. Panel wtyczek
+    ^<wrap>W drugim oknie panelu pokazuje informacje o wtyczce, jeżeli są dostarczane przez wtyczkę.
 
- 6. Power status.
-    - ^<wrap>AC power status (offline, online, unknown);
-    - ^<wrap>Battery percentage;
-    - ^<wrap>Charge status (High (more than 66%), low (less than 33%), critical, charging, no battery or unknown);
-    - ^<wrap>Battery life time;
-    - ^<wrap>Battery full time (the system is only capable of estimating this time based on calculations on
-battery life time and battery life percent. Without smart battery subsystems, this value may not be accurate enough to be useful).
-    ^<wrap>AC power status is updated automatically.
-    ^<wrap>In Windows Vista and above charge status is update automatically.
-    ^<wrap>Power status section can be turned on and off in ~settings~@InfoPanelSettings@.
+ 6. Status zasilania.
+    - ^<wrap>Status zasilania sieciowego (wyłączone, włączone, nieznane);
+    - ^<wrap>Procent naładowania baterii;
+    - ^<wrap>Stan naładowania (Wysoki (powyżej 66%), niski (poniżej 33%), krytyczny, ładowanie,
+brak baterii lub nieznany);
+    - ^<wrap>Czas pracy na baterii;
+    - ^<wrap>Całkowity czas pracy na baterii (system jest w stanie oszacować ten czas wyłącznie
+na podstawie obliczeń czasu pracy baterii i stanu naładowania. Bez inteligentnych podsystemów,
+wartość ta może być zbyt niedokładna do rzeczywistości).
+    ^<wrap>Status zasilania sieciowego jest automatycznie aktualizowany.
+    ^<wrap>W Windows Vista i nowszych stan ładowania bateii jest automatycznie aktualizowany.
+    ^<wrap>Sekcja statusu zasilania może być włączana lub wyłączana w ~ustawieniach panelu~@InfoPanelSettings@.
 
 
- All sections (except computer and user names) can be hidden or shown (see ~InfoPanel display modes~@InfoPanelShowMode@).
+ Wszystkie sekcje (za wyjątkiem nazwy komputera i użytkownia) mogą być widoczne lub ukryte (zobacz
+~Tryby wyświetlania panelu informacyjnego~@InfoPanelShowMode@).
 
- Also see the list of ~macro keys~@KeyMacroInfoList@, available in the info panel.
+ Zobacz także listę ~klawiszy makr~@KeyMacroInfoList@, dostępnych w panelu informacyjnym.
 
 
 @InfoPanelShowMode
