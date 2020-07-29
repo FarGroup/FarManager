@@ -788,10 +788,7 @@ static void HiTextBase(string_view const Str, function_ref<void(string_view, boo
 		}
 
 		if (AmpBegin)
-		{
 			TextHandler(Str.substr(0, AmpBegin), Unescape);
-			Unescape = false;
-		}
 
 		if (AmpBegin + 1 == Str.size())
 			return;

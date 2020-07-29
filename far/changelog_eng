@@ -1,3 +1,15 @@
+drkns 29.07.2020 23:39:52 +0100 - build 5646
+
+1. Refactoring.
+
+2. gh-261 Mistake in help file
+   Actually not.
+   Ibid - added a couple of new user name display formats to Info Panel.
+
+3. Clang analyzer warnings.
+
+4. Rewritten the screensaver (why not).
+
 drkns 22.07.2020 01:35:45 +0100 - build 5645
 
 1. Correction of 5643.

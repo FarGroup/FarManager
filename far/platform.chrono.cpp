@@ -95,9 +95,20 @@ namespace os::chrono
 		return Duration / 1_hns;
 	}
 
-	void sleep_for(std::chrono::milliseconds Duration)
+	void sleep_for(duration Duration)
 	{
-		Sleep(static_cast<DWORD>(Duration / 1ms));
+		if (Duration % 1ms != 0s)
+		{
+			handle const Timer(CreateWaitableTimer({}, true, {}));
+			LARGE_INTEGER DueTime;
+			DueTime.QuadPart = -nt_clock::to_hectonanoseconds(Duration);
+			SetWaitableTimer(Timer.get(), &DueTime, 0, {}, {}, 0);
+			Timer.wait();
+		}
+		else
+		{
+			Sleep(Duration / 1ms);
+		}
 	}
 
 	bool get_process_creation_time(HANDLE Process, time_point& CreationTime)

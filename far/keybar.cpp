@@ -244,6 +244,9 @@ void KeyBar::SetCustomLabels(KEYBARAREA Area)
 		for (const auto& [Name, Value]: ConfigProvider().GeneralCfg()->ValuesEnumerator<string>(concat(L"KeyBarLabels."sv, strLanguage, L'.', Names[Area])))
 		{
 			const auto Key = KeyNameToKey(Name);
+			if (!Key)
+				continue;
+
 			const auto fnum = (Key & ~KEY_CTRLMASK) - KEY_F1;
 			if (fnum < KEY_COUNT)
 			{

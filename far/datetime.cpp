@@ -94,7 +94,33 @@ static string st_time(const tm* tmPtr, const locale_names& Names, bool const is_
 	}
 }
 
-string StrFTime(string_view const Format, const tm* Time)
+struct time_zone_information
+{
+	string Name;
+	std::chrono::minutes Offset;
+};
+
+static std::optional<time_zone_information> time_zone()
+{
+	using namespace std::chrono;
+
+	TIME_ZONE_INFORMATION Tz;
+	switch (GetTimeZoneInformation(&Tz))
+	{
+	case TIME_ZONE_ID_UNKNOWN:
+	case TIME_ZONE_ID_STANDARD:
+		return { {Tz.StandardName, -minutes(Tz.Bias + Tz.StandardBias) } };
+
+	case TIME_ZONE_ID_DAYLIGHT:
+		return { { Tz.DaylightName, -minutes(Tz.Bias + Tz.DaylightBias) } };
+
+	case TIME_ZONE_ID_INVALID:
+	default:
+		return {};
+	}
+}
+
+static string StrFTime(string_view const Format, const tm* Time)
 {
 	bool IsLocal = false;
 
@@ -303,15 +329,27 @@ string StrFTime(string_view const Format, const tm* Time)
 		// ISO 8601 offset from UTC in timezone
 		case L'z':
 			{
-				using namespace std::chrono;
-				const auto Offset = split_duration<hours, minutes>(-seconds(_timezone + (Time->tm_isdst? _dstbias : 0)));
-				Result += format(FSTR(L"{0:+05}"), Offset.get<hours>() / 1h * 100 + Offset.get<minutes>() / 1min);
+				const auto HHMM = []
+				{
+					const auto Tz = time_zone();
+					if (!Tz)
+						return 0h / 1h;
+
+					using namespace std::chrono;
+					const auto Offset = split_duration<hours, minutes>(Tz->Offset);
+					return Offset.get<hours>() / 1h * 100 + Offset.get<minutes>() / 1min;
+				}();
+
+				Result += format(FSTR(L"{0:+05}"), HHMM);
 			}
 			break;
 
 		// Timezone name or abbreviation
 		case L'Z':
-			Result += encoding::ansi::get_chars(_tzname[Time->tm_isdst]);
+			if (const auto Tz = time_zone())
+			{
+				Result += Tz->Name;
+			}
 			break;
 
 		// same as \n

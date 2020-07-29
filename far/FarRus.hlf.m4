@@ -1248,32 +1248,36 @@ $ #Настройка информационной панели#
 
  Задаёт формат вывода имени пользователя. Может быть одним из:
 
- - #По умолчанию#
+ - #Имя для входа#
    Логин пользователя, например, JohnDoe
 
  - #Полностью определённое имя домена#
-   ^<wrap>FQDN (Fully Qualified Domain Name) - включает наименования всех уровней иерархии, начиная от имени конечного узла и заканчивая корневой точкой (логином), например, CN=JohnDoe, OU=Software, OU=Engineering, O=Widget, C=US
+   ^<wrap>The fully qualified distinguished name (for example, CN=Jeff Smith,OU=Users,DC=Engineering,DC=Microsoft,DC=Com).
 
  - #Sam Compatible#
-   ^<wrap>Engineering\JohnDoe
+   ^<wrap>A legacy account name (for example, Engineering\JSmith). The domain-only version includes trailing backslashes (\\).
 
  - #Display Name#
-   ^<wrap>Probably "John Doe" but could be something else.  I.e. The display name is not necessarily the defining RDN.
+   ^<wrap>A "friendly" display name (for example, Jeff Smith). The display name is not necessarily the defining relative distinguished name (RDN).
 
  - #Уникальный идентификатор#
-   ^<wrap>Уникальный идентификатор имени пользователя (GUID), например, {4fa050f0-f561-11cf-bdd9-00aa003a77b6}
+   ^<wrap>A GUID string (for example, {4fa050f0-f561-11cf-bdd9-00aa003a77b6}).
 
  - #Канонический вид#
-   ^<wrap>ADCN (Active Directory Canonical Name) - данный формат является путём в иерархической структуре к объекту (логину), например, engineering.widget.com/software/JohnDoe
+   ^<wrap>The complete canonical name (for example, engineering.microsoft.com/software/someone). The domain-only version includes a trailing forward slash (/).
 
  - #Основное имя пользователя#
-   ^<wrap>UPN (User Principial Name) - известен также как адрес электронной почты, например, someone@example.com
+   ^<wrap>The user principal name (for example, someone@@example.com).
 
  - #Service Principal#
-   ^<wrap>www/srv.engineering.com/engineering.com
+   ^<wrap>The generalized service principal name (for example, www/www.microsoft.com@@microsoft.com).
 
  - #DNS Domain#
-   ^<wrap>engineering.widget.com\JohnDoe
+   ^<wrap>The DNS domain name followed by a backward-slash and the SAM user name.
+
+   #Имя#
+
+   #Фамилия#
 
  Формат вывода зависит от наличия доменной структуры.
 

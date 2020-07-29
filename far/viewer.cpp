@@ -2870,15 +2870,14 @@ SEARCHER_RESULT Viewer::search_text_forward(search_data* sd)
 	const auto tail_part = cpos >= StartSearchPos;
 	if (swrap != SearchWrap_CYCLE || tail_part )
 	{
-		if ( (to = FileSize) - cpos <= bsize )
+		if (FileSize - cpos <= bsize )
 			SetFileSize();
+
 		to = FileSize;
 	}
 	else
 	{
-		to = StartSearchPos;
-		if ( to > FileSize )
-			to = FileSize;
+		to = std::min(FileSize, StartSearchPos);
 	}
 
 	const auto nb = (to - cpos > bsize? bsize : static_cast<int>(to - cpos));
@@ -3338,7 +3337,6 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 		sd.search_bytes = search_bytes;
 		sd.ch_size = 1;
 		Case = true;
-		WholeWords = false;
 		SearchRegexp = false;
 		searcher = (ReverseSearch ? &Viewer::search_hex_backward : &Viewer::search_hex_forward);
 	}
@@ -3349,7 +3347,6 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 
 		if (SearchRegexp)
 		{
-			WholeWords = false;
 			searcher = (ReverseSearch ? &Viewer::search_regex_backward : &Viewer::search_regex_forward);
 
 			const auto strSlash = InsertRegexpQuote(strSearchStr);

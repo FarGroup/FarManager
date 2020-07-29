@@ -83,7 +83,6 @@ std::tuple<string, string> ConvertDuration(os::chrono::duration Duration);
 
 string ConvertDurationToHMS(os::chrono::duration Duration);
 
-string StrFTime(string_view Format, const tm* Time);
 string MkStrFTime(string_view Format = {});
 
 bool utc_to_local(os::chrono::time_point UtcTime, SYSTEMTIME& LocalTime);

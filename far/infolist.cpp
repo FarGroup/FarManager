@@ -229,18 +229,23 @@ void InfoList::DisplayObject()
 			}
 		}
 
-		string strUserName;
-		if (!os::GetUserNameEx(static_cast<EXTENDED_NAME_FORMAT>(Global->Opt->InfoPanel.UserNameFormat.Get()), strUserName) && !os::GetUserName(strUserName))
+		string UserLogonName, UserExtendedName;
+		const auto UserNameRead = os::GetUserName(UserLogonName);
+
+		string_view DisplayName = UserLogonName;
+
+		if (const auto NameFormat = static_cast<EXTENDED_NAME_FORMAT>(Global->Opt->InfoPanel.UserNameFormat.Get());
+			NameFormat != NameUnknown && os::GetUserNameEx(NameFormat, UserExtendedName))
 		{
-			// TODO: fallback?
+			DisplayName = UserExtendedName;
 		}
 
 		GotoXY(m_Where.left + 2, CurY++);
 		PrintText(lng::MInfoUserName);
-		PrintInfo(strUserName);
+		PrintInfo(DisplayName);
 
 		os::netapi::ptr<USER_INFO_1> UserInfo;
-		if (NetUserGetInfo(nullptr, strUserName.c_str(), 1, reinterpret_cast<LPBYTE*>(&ptr_setter(UserInfo))) == NERR_Success)
+		if (UserNameRead && NetUserGetInfo(nullptr, UserLogonName.c_str(), 1, reinterpret_cast<LPBYTE*>(&ptr_setter(UserInfo))) == NERR_Success)
 		{
 			if(UserInfo->usri1_comment && *UserInfo->usri1_comment)
 			{
@@ -272,7 +277,6 @@ void InfoList::DisplayObject()
 			PrintText(lng::MInfoUserAccessLevel);
 			PrintInfo(LabelId);
 		}
-
 	}
 
 	string SectionTitle;

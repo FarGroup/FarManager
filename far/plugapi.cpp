@@ -873,32 +873,27 @@ intptr_t WINAPI apiMenuFn(
 				if (ReadKey==KEY_NONE)
 					return 0;
 
-				for (int I=0; BreakKeys[I].VirtualKeyCode; I++)
+				for (size_t i = 0; BreakKeys[i].VirtualKeyCode; ++i)
 				{
-					if (Global->CtrlObject->Macro.IsExecuting())
+					if (ReadRec->Event.KeyEvent.wVirtualKeyCode != BreakKeys[i].VirtualKeyCode)
+						continue;
+
+					const auto NormalizeControlKeys = [](DWORD const Value)
 					{
-						int VirtKey,ControlState;
-						TranslateKeyToVK(ReadKey,VirtKey,ControlState,ReadRec);
-					}
+						// BUGBUG What if they actually want to handle left & right separately, or other control keys?
+						return
+							(Value & (LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED) ? LEFT_CTRL_PRESSED : 0) |
+							(Value & (LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED) ? LEFT_ALT_PRESSED : 0) |
+							(Value & SHIFT_PRESSED);
+					};
 
-					if (ReadRec->Event.KeyEvent.wVirtualKeyCode==BreakKeys[I].VirtualKeyCode)
+					if (NormalizeControlKeys(ReadRec->Event.KeyEvent.dwControlKeyState) == NormalizeControlKeys(BreakKeys[i].ControlKeyState))
 					{
-						const auto NormalizeControlKeys = [](DWORD Value)
-						{
-							DWORD result = Value&(LEFT_CTRL_PRESSED | LEFT_ALT_PRESSED | SHIFT_PRESSED);
-							if (Value&RIGHT_CTRL_PRESSED) result |= LEFT_CTRL_PRESSED;
-							if (Value&RIGHT_ALT_PRESSED) result |= LEFT_ALT_PRESSED;
-							return result;
-						};
+						if (BreakCode)
+							*BreakCode = i;
 
-						if (NormalizeControlKeys(ReadRec->Event.KeyEvent.dwControlKeyState) == NormalizeControlKeys(BreakKeys[I].ControlKeyState))
-						{
-							if (BreakCode)
-								*BreakCode=I;
-
-							FarMenu->Close(-2, true);
-							return 1;
-						}
+						FarMenu->Close(-2, true);
+						return 1;
 					}
 				}
 				return 0;
@@ -2859,7 +2854,7 @@ BOOL WINAPI apiKeyNameToInputRecord(const wchar_t *Name, INPUT_RECORD* RecKey) n
 	try
 	{
 		const auto Key = KeyNameToKey(Name);
-		return Key > 0 ? KeyToInputRecord(Key, RecKey) : FALSE;
+		return Key? KeyToInputRecord(Key, RecKey) : FALSE;
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return FALSE;

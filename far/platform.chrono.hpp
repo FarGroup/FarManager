@@ -88,7 +88,7 @@ namespace os::chrono
 
 	// Q: WTF is this, it's in the standard!
 	// A: MSVC implemented it in terms of sleep_until, which is mental
-	void sleep_for(std::chrono::milliseconds Duration);
+	void sleep_for(duration Duration);
 
 	[[nodiscard]]
 	bool get_process_creation_time(HANDLE Process, time_point& CreationTime);

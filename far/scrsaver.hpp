@@ -45,6 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-int ScreenSaver();
+void ScreenSaver();
 
 #endif // SCRSAVER_HPP_D7350E24_3DC9_40F1_8693_140B02767F9D

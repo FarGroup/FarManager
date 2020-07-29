@@ -2007,10 +2007,11 @@ static int WINAPI KeyNameToKeyA(const char *Name) noexcept
 {
 	try
 	{
-		return KeyToOldKey(KeyNameToKey(encoding::oem::get_chars(Name)));
+		const auto Key = KeyNameToKey(encoding::oem::get_chars(Name));
+		return Key? KeyToOldKey(Key) : -1;
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
-	return 0;
+	return -1;
 }
 
 static BOOL WINAPI FarKeyToNameA(int Key, char *KeyText, int Size) noexcept
@@ -5324,20 +5325,20 @@ private:
 		if (Global->ProcessException || !has(es))
 			return es;
 
-		int VirtKey;
-		int dwControlState;
-
 		const auto Prepocess = (Info->Rec.EventType & 0x4000) != 0;
 		Info->Rec.EventType &= ~0x4000;
 
-		//BUGBUG: здесь можно проще.
-		TranslateKeyToVK(InputRecordToKey(&Info->Rec), VirtKey, dwControlState);
-		if (dwControlState & PKF_RALT)
-			dwControlState = (dwControlState & (~PKF_RALT)) | PKF_ALT;
-		if (dwControlState & PKF_RCONTROL)
-			dwControlState = (dwControlState & (~PKF_RCONTROL)) | PKF_CONTROL;
+		if (Info->Rec.EventType != KEY_EVENT)
+			return es;
 
-		ExecuteFunction(es, Info->hPanel, VirtKey | (Prepocess ? PKF_PREPROCESS : 0), dwControlState);
+		const auto& KeyEvent = Info->Rec.Event.KeyEvent;
+
+		const DWORD ControlState =
+			(KeyEvent.dwControlKeyState & (LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED)? oldfar::PKF_CONTROL : 0) |
+			(KeyEvent.dwControlKeyState & (LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED)? oldfar::PKF_ALT : 0) |
+			(KeyEvent.dwControlKeyState & SHIFT_PRESSED? oldfar::PKF_SHIFT : 0);
+
+		ExecuteFunction(es, Info->hPanel, KeyEvent.wVirtualKeyCode | (Prepocess? oldfar::PKF_PREPROCESS : 0), ControlState);
 		return es;
 	}
 

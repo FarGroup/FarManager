@@ -220,7 +220,7 @@ static bool EraseFileData(string_view const Name, ShellDelete::progress Files)
 	const time_check TimeCheck(time_check::mode::immediate);
 
 	std::mt19937 mt(clock()); // std::random_device doesn't work in w2k
-	std::uniform_int_distribution CharDist(0, 255);
+	std::uniform_int_distribution CharDist(0, UCHAR_MAX);
 
 	auto BufInit = false;
 

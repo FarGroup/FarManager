@@ -3196,6 +3196,19 @@ upd:"&User name format"
 "Формат відображення імені &користувача"
 "Выгляд імі &карыстальніка"
 
+MConfigInfoPanelUNLogon
+"Имя для входа"
+"Logon name"
+"Přihlašovací jméno"
+"Anmeldename"
+"Bejelentkezési név"
+"Nazwa logowania"
+"Nombre de inicio de sesión"
+"Prihlasovacie meno"
+"Nome di accesso"
+"Ім'я для входу"
+"Імя ўваходу"
+
 MConfigInfoPanelUNFullyQualifiedDN
 "Полностью определённое имя домена"
 "Fully Qualified Domain Name"
@@ -3299,6 +3312,32 @@ upd:"DNS Domain"
 "Dominio DNS"
 "Ім'я домену DNS"
 "Дамен DNS"
+
+MConfigInfoPanelUNGivenName
+"Собственное имя"
+"Given name"
+"Křestní jméno"
+"Vorname"
+"Utónév"
+"Imię"
+"Nombre dado"
+"Meno"
+"Nome"
+"Дане ім’я"
+"Названае імя"
+
+MConfigInfoPanelUNSurname
+"Фамилия"
+"Surname"
+"Příjmení"
+"Nachname"
+"Vezetéknév"
+"Nazwisko"
+"Apellido"
+"Priezvisko"
+"Cognome"
+"Прізвище"
+"Прозвішча"
 
 MConfigInfoPanelShowPowerStatus
 "Показывать состояние п&итания"

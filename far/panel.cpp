@@ -508,6 +508,11 @@ void Panel::ShowScreensCount() const
 }
 
 
+void Panel::GetOpenPanelInfo(OpenPanelInfo* Info) const
+{
+	*Info = {};
+}
+
 void Panel::RefreshTitle()
 {
 	m_Title = concat(L'{', GetTitle(), L'}');

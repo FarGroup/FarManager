@@ -1260,7 +1260,7 @@ Supported types: CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM, DVD-RW and DVD-RAM.
 
  Can be one of:
 
- - #Default#
+ - #Bejelentkezési név#
    User login, (for example, JeffSmith)
 
  - #Fully Qualified Domain Name#
@@ -1279,13 +1279,17 @@ Supported types: CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM, DVD-RW and DVD-RAM.
    ^<wrap>The complete canonical name (for example, engineering.microsoft.com/software/someone). The domain-only version includes a trailing forward slash (/).
 
  - #User Principial Name#
-   ^<wrap>The user principal name (for example, someone@example.com).
+   ^<wrap>The user principal name (for example, someone@@example.com).
 
  - #Service Principal#
-   ^<wrap>The generalized service principal name (for example, www/www.microsoft.com@microsoft.com).
+   ^<wrap>The generalized service principal name (for example, www/www.microsoft.com@@microsoft.com).
 
  - #DNS Domain#
    ^<wrap>The DNS domain name followed by a backward-slash and the SAM user name.
+
+   #Utónév#
+
+   #Vezetéknév#
 
  The ouput format depends on the domain structure.
 

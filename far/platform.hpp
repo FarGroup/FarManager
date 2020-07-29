@@ -182,6 +182,12 @@ namespace os
 			}
 
 			[[nodiscard]]
+			static bool is_signaled(HANDLE const Handle, std::chrono::milliseconds const Timeout)
+			{
+				return handle_implementation::wait(Handle, Timeout);
+			}
+
+			[[nodiscard]]
 			static auto wait_any(span<HANDLE const> const Handles, std::chrono::milliseconds const Timeout)
 			{
 				return handle_implementation::wait(Handles, false, Timeout);

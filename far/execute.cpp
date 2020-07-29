@@ -54,6 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "RegExp.hpp"
 #include "scrbuf.hpp"
 #include "global.hpp"
+#include "keys.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -752,6 +753,114 @@ static bool GetProtocolType(string_view const Str, image_type& ImageType)
 	return false;
 }
 
+static void wait_for_process_or_detach(os::handle const& Process, int const ConsoleDetachKey, COORD const ConsoleSize, SMALL_RECT const ConsoleWindowRect)
+{
+	const auto
+		hInput = console.GetInputHandle(),
+		hOutput = console.GetOutputHandle();
+
+	const auto ConfigVKey = TranslateKeyToVK(ConsoleDetachKey);
+
+	enum class dual_key_t
+	{
+		none,
+		right,
+		any
+	};
+
+	const auto dual_key = [](DWORD const Mask, const DWORD Left, const DWORD Right)
+	{
+		return Mask & Left? dual_key_t::any : Mask & Right? dual_key_t::right : dual_key_t::none;
+	};
+
+	const auto match = [](dual_key_t Expected, dual_key_t Actual)
+	{
+		return Expected == dual_key_t::any? Actual != dual_key_t::none : Expected == Actual;
+	};
+
+	const auto
+		ConfigCtrl  = dual_key(ConsoleDetachKey, KEY_CTRL,  KEY_RCTRL),
+		ConfigAlt   = dual_key(ConsoleDetachKey, KEY_ALT,   KEY_RALT),
+		ConfigShift = dual_key(ConsoleDetachKey, KEY_SHIFT, KEY_RSHIFT);
+
+	const auto is_detach_key = [&](INPUT_RECORD const& i)
+	{
+		if (i.EventType != KEY_EVENT)
+			return false;
+
+		const auto ControlKeyState = i.Event.KeyEvent.dwControlKeyState;
+
+		const auto
+			Ctrl  = dual_key(ControlKeyState, LEFT_CTRL_PRESSED, RIGHT_CTRL_PRESSED),
+			Alt   = dual_key(ControlKeyState, LEFT_ALT_PRESSED,  RIGHT_ALT_PRESSED),
+			Shift = dual_key(ControlKeyState, SHIFT_PRESSED,     SHIFT_PRESSED); // BUGBUG
+
+		return ConfigVKey == i.Event.KeyEvent.wVirtualKeyCode && match(ConfigCtrl, Ctrl) && match(ConfigAlt, Alt) && match(ConfigShift, Shift);
+	};
+
+	std::vector<INPUT_RECORD> Buffer(256);
+
+	//Тут нельзя делать WaitForMultipleObjects из за бага в Win7 при работе в телнет
+	while (!Process.is_signaled(100ms))
+	{
+		const auto NumberOfEvents = []
+		{
+			size_t Result;
+			return console.GetNumberOfInputEvents(Result)? Result : 0;
+		}();
+
+		if (Buffer.size() < NumberOfEvents)
+		{
+			Buffer.clear();
+			Buffer.resize(NumberOfEvents + NumberOfEvents / 2);
+		}
+
+		if (!os::handle::is_signaled(hInput, 100ms))
+			continue;
+
+		size_t EventsRead;
+		if (!console.PeekInput(Buffer, EventsRead) || !EventsRead)
+			continue;
+
+		if (std::none_of(Buffer.cbegin(), Buffer.cbegin() + EventsRead, is_detach_key))
+			continue;
+
+		const auto Aliases = console.GetAllAliases();
+
+		consoleicons::instance().restore_icon();
+
+		console.FlushInputBuffer();
+		ClearKeyQueue();
+
+		/*
+		  Не будем вызывать CloseConsole, потому, что она поменяет
+		  ConsoleMode на тот, что был до запуска Far'а,
+		  чего работающее приложение могло и не ожидать.
+		*/
+
+		os::handle{ hInput };
+		os::handle{ hOutput };
+
+		console.Free();
+		console.Allocate();
+
+		if (const auto Window = console.GetWindow())   // если окно имело HOTKEY, то старое должно его забыть.
+			SendMessage(Window, WM_SETHOTKEY, 0, 0);
+
+		console.SetSize(ConsoleSize);
+		console.SetWindowRect(ConsoleWindowRect);
+		console.SetSize(ConsoleSize);
+
+		os::chrono::sleep_for(100ms);
+		InitConsole();
+
+		consoleicons::instance().set_icon();
+		console.SetAllAliases(Aliases);
+
+		return;
+	}
+}
+
 void Execute(execute_info& Info, bool FolderRun, function_ref<void(bool)> const ConsoleActivator)
 {
 	bool Result = false;
@@ -918,7 +1027,7 @@ void Execute(execute_info& Info, bool FolderRun, function_ref<void(bool)> const 
 
 	bool Visible=false;
 	DWORD CursorSize=0;
-	SMALL_RECT ConsoleWindowRect;
+	SMALL_RECT ConsoleWindowRect{};
 	COORD ConsoleSize={};
 	int ConsoleCP = CP_OEMCP;
 	int ConsoleOutputCP = CP_OEMCP;
@@ -1059,85 +1168,13 @@ void Execute(execute_info& Info, bool FolderRun, function_ref<void(bool)> const 
 		{
 			if (Info.WaitMode == execute_info::wait_mode::wait_finish || !Info.NewWindow)
 			{
-				if (Global->Opt->ConsoleDetachKey.empty())
+				if (const auto ConsoleDetachKey = KeyNameToKey(Global->Opt->ConsoleDetachKey))
 				{
-					Process.wait();
+					wait_for_process_or_detach(Process, ConsoleDetachKey, ConsoleSize, ConsoleWindowRect);
 				}
 				else
 				{
-					/*$ 12.02.2001 SKV
-					  супер фитча ;)
-					  Отделение фаровской консоли от неинтерактивного процесса.
-					  Задаётся кнопкой в System/ConsoleDetachKey
-					*/
-					HANDLE hOutput = console.GetOutputHandle();
-					HANDLE hInput = console.GetInputHandle();
-					INPUT_RECORD ir[256];
-					size_t rd;
-					int vkey=0,ctrl=0;
-					TranslateKeyToVK(KeyNameToKey(Global->Opt->ConsoleDetachKey),vkey,ctrl,nullptr);
-					int alt=ctrl&(PKF_ALT|PKF_RALT);
-					int shift=ctrl&PKF_SHIFT;
-					ctrl=ctrl&(PKF_CONTROL|PKF_RCONTROL);
-
-					//Тут нельзя делать WaitForMultipleObjects из за бага в Win7 при работе в телнет
-					while (!Process.is_signaled(100ms))
-					{
-						if (WaitForSingleObject(hInput, 100)==WAIT_OBJECT_0 && console.PeekInput(ir, rd) && rd)
-						{
-							int stop=0;
-
-							for (const auto& i: span(ir, rd))
-							{
-								if (i.EventType==KEY_EVENT)
-								{
-									const auto dwControlKeyState = i.Event.KeyEvent.dwControlKeyState;
-									const auto bAlt = (dwControlKeyState & LEFT_ALT_PRESSED) || (dwControlKeyState & RIGHT_ALT_PRESSED);
-									const auto bCtrl = (dwControlKeyState & LEFT_CTRL_PRESSED) || (dwControlKeyState & RIGHT_CTRL_PRESSED);
-									const auto bShift = (dwControlKeyState & SHIFT_PRESSED)!=0;
-
-									if (vkey == i.Event.KeyEvent.wVirtualKeyCode &&
-									        (alt ?bAlt:!bAlt) &&
-									        (ctrl ?bCtrl:!bCtrl) &&
-									        (shift ?bShift:!bShift))
-									{
-										const auto Aliases = console.GetAllAliases();
-
-										consoleicons::instance().restore_icon();
-
-										console.ReadInput(ir, rd);
-										/*
-										  Не будем вызывать CloseConsole, потому, что она поменяет
-										  ConsoleMode на тот, что был до запуска Far'а,
-										  чего работающее приложение могло и не ожидать.
-										*/
-										CloseHandle(hInput);
-										CloseHandle(hOutput);
-										ClearKeyQueue();
-										console.Free();
-										console.Allocate();
-
-										if (const auto hWnd = console.GetWindow())   // если окно имело HOTKEY, то старое должно его забыть.
-											SendMessage(hWnd, WM_SETHOTKEY, 0, 0);
-
-										console.SetSize(ConsoleSize);
-										console.SetWindowRect(ConsoleWindowRect);
-										console.SetSize(ConsoleSize);
-										os::chrono::sleep_for(100ms);
-										InitConsole();
-
-										consoleicons::instance().set_icon();
-										console.SetAllAliases(Aliases);
-										stop=1;
-										break;
-									}
-								}
-							}
-
-							if (stop)
-								break;
-						}
-					}
+					Process.wait();
 				}
 			}
 			if(Info.WaitMode == execute_info::wait_mode::wait_idle)

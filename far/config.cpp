@@ -394,26 +394,29 @@ void Options::InfoPanelSettings()
 {
 	static const DialogBuilderListItem UNListItems[]
 	{
-		{ lng::MConfigInfoPanelUNFullyQualifiedDN, NameFullyQualifiedDN },          // 1  - CN=John Doe, OU=Software, OU=Engineering, O=Widget, C=US
-		{ lng::MConfigInfoPanelUNSamCompatible, NameSamCompatible },                // 2  - Engineering\JohnDoe, If the user account is not in a domain, only NameSamCompatible is supported.
-		{ lng::MConfigInfoPanelUNDisplay, NameDisplay },                            // 3  - Probably "John Doe" but could be something else.  I.e. The display name is not necessarily the defining RDN.
-		{ lng::MConfigInfoPanelUNUniqueId, NameUniqueId },                          // 6  - String-ized GUID as returned by IIDFromString(). eg: {4fa050f0-f561-11cf-bdd9-00aa003a77b6}
-		{ lng::MConfigInfoPanelUNCanonical, NameCanonical },                        // 7  - engineering.widget.com/software/John Doe
-		{ lng::MConfigInfoPanelUNUserPrincipal, NameUserPrincipal },                // 8  - someone@example.com
-		{ lng::MConfigInfoPanelUNServicePrincipal, NameServicePrincipal },          // 10 - www/srv.engineering.com/engineering.com
-		{ lng::MConfigInfoPanelUNDnsDomain, NameDnsDomain },                        // 12 - DNS domain name + SAM username eg: engineering.widget.com\JohnDoe
+		{ lng::MConfigInfoPanelUNLogon,             NameUnknown },
+		{ lng::MConfigInfoPanelUNFullyQualifiedDN,  NameFullyQualifiedDN },
+		{ lng::MConfigInfoPanelUNSamCompatible,     NameSamCompatible },
+		{ lng::MConfigInfoPanelUNDisplay,           NameDisplay },
+		{ lng::MConfigInfoPanelUNUniqueId,          NameUniqueId },
+		{ lng::MConfigInfoPanelUNCanonical,         NameCanonical },
+		{ lng::MConfigInfoPanelUNUserPrincipal,     NameUserPrincipal },
+		{ lng::MConfigInfoPanelUNServicePrincipal,  NameServicePrincipal },
+		{ lng::MConfigInfoPanelUNDnsDomain,         NameDnsDomain },
+		{ lng::MConfigInfoPanelUNGivenName,         NameGivenName },
+		{ lng::MConfigInfoPanelUNSurname,           NameSurname },
 	};
 
 	static const DialogBuilderListItem CNListItems[]
 	{
-		{ lng::MConfigInfoPanelCNNetBIOS, ComputerNameNetBIOS },                                     // The NetBIOS name of the local computer or the cluster associated with the local computer. This name is limited to MAX_COMPUTERNAME_LENGTH + 1 characters and may be a truncated version of the DNS host name. For example, if the DNS host name is "corporate-mail-server", the NetBIOS name would be "corporate-mail-".
-		{ lng::MConfigInfoPanelCNDnsHostname, ComputerNameDnsHostname },                             // The DNS name of the local computer or the cluster associated with the local computer.
-		{ lng::MConfigInfoPanelCNDnsDomain, ComputerNameDnsDomain },                                 // The name of the DNS domain assigned to the local computer or the cluster associated with the local computer.
-		{ lng::MConfigInfoPanelCNDnsFullyQualified, ComputerNameDnsFullyQualified },                 // The fully-qualified DNS name that uniquely identifies the local computer or the cluster associated with the local computer. This name is a combination of the DNS host name and the DNS domain name, using the form HostName.DomainName. For example, if the DNS host name is "corporate-mail-server" and the DNS domain name is "microsoft.com", the fully qualified DNS name is "corporate-mail-server.microsoft.com".
-		{ lng::MConfigInfoPanelCNPhysicalNetBIOS, ComputerNamePhysicalNetBIOS },                     // The NetBIOS name of the local computer. On a cluster, this is the NetBIOS name of the local node on the cluster.
-		{ lng::MConfigInfoPanelCNPhysicalDnsHostname, ComputerNamePhysicalDnsHostname },             // The DNS host name of the local computer. On a cluster, this is the DNS host name of the local node on the cluster.
-		{ lng::MConfigInfoPanelCNPhysicalDnsDomain, ComputerNamePhysicalDnsDomain },                 // The name of the DNS domain assigned to the local computer. On a cluster, this is the DNS domain of the local node on the cluster.
-		{ lng::MConfigInfoPanelCNPhysicalDnsFullyQualified, ComputerNamePhysicalDnsFullyQualified }, // The fully-qualified DNS name that uniquely identifies the computer. On a cluster, this is the fully qualified DNS name of the local node on the cluster. The fully qualified DNS name is a combination of the DNS host name and the DNS domain name, using the form HostName.DomainName.
+		{ lng::MConfigInfoPanelCNNetBIOS,                    ComputerNameNetBIOS },
+		{ lng::MConfigInfoPanelCNDnsHostname,                ComputerNameDnsHostname },
+		{ lng::MConfigInfoPanelCNDnsDomain,                  ComputerNameDnsDomain },
+		{ lng::MConfigInfoPanelCNDnsFullyQualified,          ComputerNameDnsFullyQualified },
+		{ lng::MConfigInfoPanelCNPhysicalNetBIOS,            ComputerNamePhysicalNetBIOS },
+		{ lng::MConfigInfoPanelCNPhysicalDnsHostname,        ComputerNamePhysicalDnsHostname },
+		{ lng::MConfigInfoPanelCNPhysicalDnsDomain,          ComputerNamePhysicalDnsDomain },
+		{ lng::MConfigInfoPanelCNPhysicalDnsFullyQualified,  ComputerNamePhysicalDnsFullyQualified },
 	};
 
 	DialogBuilder Builder(lng::MConfigInfoPanelTitle, L"InfoPanelSettings"sv);
@@ -1667,7 +1670,8 @@ Options::Options():
 
 	const auto MacroKeyValidator = [](const string& Value, DWORD& Key, string_view const DefaultValue, DWORD DefaultKey)
 	{
-		if ((Key = KeyNameToKey(Value)) == static_cast<DWORD>(-1))
+		Key = KeyNameToKey(Value);
+		if (!Key)
 		{
 			Key = DefaultKey;
 			return string(DefaultValue);

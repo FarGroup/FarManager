@@ -107,7 +107,9 @@ namespace console_detail
 		bool IsVtSupported() const;
 
 		bool PeekInput(span<INPUT_RECORD> Buffer, size_t& NumberOfEventsRead) const;
+		bool PeekOneInput(INPUT_RECORD& Record) const;
 		bool ReadInput(span<INPUT_RECORD> Buffer, size_t& NumberOfEventsRead) const;
+		bool ReadOneInput(INPUT_RECORD& Record) const;
 		bool WriteInput(span<INPUT_RECORD> Buffer, size_t& NumberOfEventsWritten) const;
 		bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, const SMALL_RECT& ReadRegionRelative) const;
 		bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, const SMALL_RECT& ReadRegion) const { return ReadOutput(Buffer, {}, ReadRegion); }

@@ -438,32 +438,7 @@ unsigned int InputRecordToKey(const INPUT_RECORD* Rec)
 
 bool KeyToInputRecord(int Key, INPUT_RECORD *Rec)
 {
-	int VirtKey, ControlState;
-	return TranslateKeyToVK(Key, VirtKey, ControlState, Rec) != 0;
-}
-
-//BUGBUG - временная затычка
-void ProcessKeyToInputRecord(int Key, unsigned int dwControlState, INPUT_RECORD *Rec)
-{
-	if (Rec)
-	{
-		Rec->EventType=KEY_EVENT;
-		Rec->Event.KeyEvent.bKeyDown=1;
-		Rec->Event.KeyEvent.wRepeatCount=1;
-		Rec->Event.KeyEvent.wVirtualKeyCode=Key;
-		Rec->Event.KeyEvent.wVirtualScanCode = MapVirtualKey(Rec->Event.KeyEvent.wVirtualKeyCode,MAPVK_VK_TO_VSC);
-
-		//BUGBUG
-		Rec->Event.KeyEvent.uChar.UnicodeChar=MapVirtualKey(Rec->Event.KeyEvent.wVirtualKeyCode,MAPVK_VK_TO_CHAR);
-
-		//BUGBUG
-		Rec->Event.KeyEvent.dwControlKeyState=
-			(dwControlState&PKF_SHIFT?SHIFT_PRESSED:0)|
-			(dwControlState&PKF_ALT?LEFT_ALT_PRESSED:0)|
-			(dwControlState&PKF_RALT?RIGHT_ALT_PRESSED:0)|
-			(dwControlState&PKF_RCONTROL?RIGHT_CTRL_PRESSED:0)|
-			(dwControlState&PKF_CONTROL?LEFT_CTRL_PRESSED:0);
-	}
+	return TranslateKeyToVK(Key, Rec) != 0;
 }
 
 void FarKeyToInputRecord(const FarKey& Key,INPUT_RECORD* Rec)
@@ -632,8 +607,10 @@ static bool ProcessMacros(INPUT_RECORD* rec, DWORD& Result)
 		}
 
 		Global->ScrBuf->Flush();
-		int VirtKey, ControlState;
-		TranslateKeyToVK(MacroKey, VirtKey, ControlState, rec);
+
+		if (!TranslateKeyToVK(MacroKey, rec))
+			return false;
+
 		rec->EventType =
 			in_range(KEY_MACRO_BASE, static_cast<far_key_code>(MacroKey), KEY_MACRO_ENDBASE) ||
 			in_range(KEY_OP_BASE, static_cast<far_key_code>(MacroKey), KEY_OP_ENDBASE) ||
@@ -659,8 +636,7 @@ static bool ProcessMacros(INPUT_RECORD* rec, DWORD& Result)
 static void DropConsoleInputEvent()
 {
 	INPUT_RECORD rec;
-	size_t ReadCount;
-	console.ReadInput({ &rec, 1 }, ReadCount);
+	console.ReadOneInput(rec);
 }
 
 static void UpdateIntKeyState(DWORD CtrlState)
@@ -882,8 +858,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 			FullscreenState=CurrentFullscreenState;
 		}
 
-		size_t ReadCount;
-		if (console.PeekInput({ rec, 1 }, ReadCount) && ReadCount)
+		if (console.PeekOneInput(*rec))
 		{
 			//check for flock
 			if (rec->EventType==KEY_EVENT && !rec->Event.KeyEvent.wVirtualScanCode && (rec->Event.KeyEvent.wVirtualKeyCode==VK_NUMLOCK||rec->Event.KeyEvent.wVirtualKeyCode==VK_CAPITAL||rec->Event.KeyEvent.wVirtualKeyCode==VK_SCROLL))
@@ -937,8 +912,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 				Global->Opt->ScreenSaverTime > 0 &&
 				CurTime - Global->StartIdleTime > std::chrono::minutes(Global->Opt->ScreenSaverTime))
 			{
-				if (!ScreenSaver())
-					return KEY_NONE;
+				ScreenSaver();
 			}
 
 			if (!Global->IsPanelsActive() && LoopCount==64)
@@ -1028,10 +1002,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 		return ProcessMacroEvent();
 	}
 
-	{
-		size_t ReadCount;
-		console.ReadInput({ rec, 1 }, ReadCount);
-	}
+	console.ReadOneInput(*rec);
 
 	if (EnableShowTime)
 		ShowTime();
@@ -1142,27 +1113,24 @@ DWORD GetInputRecord(INPUT_RECORD *rec, bool ExcludeMacro, bool ProcessMouse, bo
 
 DWORD PeekInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 {
-	size_t ReadCount;
 	DWORD Key;
 	Global->ScrBuf->Flush();
 
 	if (!KeyQueue().empty() && (Key = KeyQueue().front()) != 0)
 	{
-		int VirtKey,ControlState;
-		ReadCount=TranslateKeyToVK(Key,VirtKey,ControlState,rec)?1:0;
+		if (!TranslateKeyToVK(Key, rec))
+			return 0;
 	}
 	else if (!ExcludeMacro && (Key=Global->CtrlObject->Macro.PeekKey()) != 0)
 	{
-		int VirtKey,ControlState;
-		ReadCount=TranslateKeyToVK(Key,VirtKey,ControlState,rec)?1:0;
+		if (!TranslateKeyToVK(Key, rec))
+			return 0;
 	}
 	else
 	{
-		console.PeekInput({ rec, 1 }, ReadCount);
+		if (!console.PeekOneInput(*rec))
+			return 0;
 	}
-
-	if (!ReadCount)
-		return 0;
 
 	return CalcKeyCode(rec, true); // ShieldCalcKeyCode?
 }
@@ -1293,7 +1261,7 @@ static string GetShiftKeyName(DWORD Key, tfkey_to_text ToText, add_separator Add
 
 /* $ 24.09.2000 SVS
  + Функция KeyNameToKey - получение кода клавиши по имени
-   Если имя не верно или нет такого - возвращается -1
+   Если имя не верно или нет такого - возвращается 0
    Может и криво, но правильно и коротко!
 
    Функция KeyNameToKey ждет строку по вот такой спецификации:
@@ -1307,17 +1275,17 @@ static string GetShiftKeyName(DWORD Key, tfkey_to_text ToText, add_separator Add
 int KeyNameToKey(string_view Name)
 {
 	if (Name.empty())
-		return -1;
+		return 0;
 
 	DWORD Key=0;
 
 	if (Name.size() > 1) // если не один символ
 	{
 		if (Name[0] == L'%')
-		return -1;
+		return 0;
 
 		if (Name.find_first_of(L"()"sv) != string::npos) // встречаются '(' или ')', то это явно не клавиша!
-			return -1;
+			return 0;
 	}
 
 	// пройдемся по всем модификаторам
@@ -1401,7 +1369,7 @@ int KeyNameToKey(string_view Name)
 		}
 	}
 
-	return (!Key || !Name.empty())? -1: static_cast<int>(Key);
+	return (!Key || !Name.empty())? 0: static_cast<int>(Key);
 }
 
 string InputRecordToText(const INPUT_RECORD *Rec)
@@ -1510,7 +1478,7 @@ string KeysListToLocalizedText(span<unsigned int const> const Keys)
 	return join(select(Keys, [](unsigned int const Key) { return KeyToLocalizedText(Key); }), L" "sv);
 }
 
-int TranslateKeyToVK(int Key, int& VirtKey, int& ControlState, INPUT_RECORD* Rec)
+int TranslateKeyToVK(int Key, INPUT_RECORD* Rec)
 {
 	_KEYMACRO(CleverSysLog Clev(L"TranslateKeyToVK()"));
 	_KEYMACRO(SysLog(L"Param: Key=%08X",Key));
@@ -1520,13 +1488,7 @@ int TranslateKeyToVK(int Key, int& VirtKey, int& ControlState, INPUT_RECORD* Rec
 	DWORD FKey  =Key&KEY_END_SKEY;
 	DWORD FShift=Key&KEY_CTRLMASK;
 
-	VirtKey=0;
-
-	ControlState=(FShift&KEY_SHIFT?PKF_SHIFT:0)|
-	             (FShift&KEY_ALT?PKF_ALT:0)|
-	             (FShift&KEY_RALT?PKF_RALT:0)|
-	             (FShift&KEY_RCTRL?PKF_RCONTROL:0)|
-	             (FShift&KEY_CTRL?PKF_CONTROL:0);
+	int VirtKey=0;
 
 	bool KeyInTable = false;
 	{
@@ -1588,12 +1550,6 @@ int TranslateKeyToVK(int Key, int& VirtKey, int& ControlState, INPUT_RECORD* Rec
 					FShift|=(HIBYTE(Vk)&1?KEY_SHIFT:NO_KEY)|
 					        (HIBYTE(Vk)&2?KEY_CTRL:NO_KEY)|
 					        (HIBYTE(Vk)&4?KEY_ALT:NO_KEY);
-
-					ControlState=(FShift&KEY_SHIFT?PKF_SHIFT:0)|
-					        (FShift&KEY_ALT?PKF_ALT:0)|
-					        (FShift&KEY_RALT?PKF_RALT:0)|
-					        (FShift&KEY_RCTRL?PKF_RCONTROL:0)|
-					        (FShift&KEY_CTRL?PKF_CONTROL:0);
 				}
 			}
 
@@ -2113,6 +2069,8 @@ unsigned int CalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros)
 		{
 			return Modif | MouseKey;
 		}
+
+		return KEY_NONE;
 	}
 
 	if (rec->Event.KeyEvent.wVirtualKeyCode >= 0xFF && RealKey)
@@ -2354,6 +2312,8 @@ TEST_CASE("keyboard.KeyNames")
 	}
 	Tests[]
 	{
+		{ 0,                          {} },
+		{ 0,                          L"BANANA"sv },
 		{ L'C',                       L"C"sv },
 		{ KEY_ALT,                    L"Alt"sv },
 		{ KEY_RALT,                   L"RAlt"sv },
@@ -2379,7 +2339,10 @@ TEST_CASE("keyboard.KeyNames")
 			REQUIRE(i.Key == KeyNameToKey(i.Str2));
 
 		const auto Str = KeyToText(i.Key);
-		REQUIRE(equal_icase(i.Str, Str));
+		if (i.Key)
+			REQUIRE(equal_icase(i.Str, Str));
+		else
+			REQUIRE(Str.empty());
 	}
 }
 #endif

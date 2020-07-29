@@ -161,12 +161,12 @@ span<int const> default_sort_layers(panel_sort const SortMode)
 template<typename T>
 auto compare_numbers(T const First, T const Second)
 {
-	return First < Second? -1 : static_cast<bool>(First - Second);
+	return First < Second? -1 : First != Second;
 }
 
 static auto compare_time(os::chrono::time_point First, os::chrono::time_point Second)
 {
-	return compare_numbers(First.time_since_epoch().count(), Second.time_since_epoch().count());
+	return compare_numbers(First, Second);
 }
 
 // FAT Last Write time is rounded up to the even number of seconds
@@ -3101,7 +3101,7 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			{
 				FlushInputBuffer(); // !!!
 				INPUT_RECORD rec;
-				ProcessKeyToInputRecord(VK_RETURN,IntKeyState.ShiftPressed()? PKF_SHIFT:0,&rec);
+				FarKeyToInputRecord({VK_RETURN, IntKeyState.ShiftPressed()? SHIFT_PRESSED : 0u}, &rec);
 				if (Global->CtrlObject->Plugins->ProcessKey(GetPluginHandle(), &rec, false))
 					return true;
 			}

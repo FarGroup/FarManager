@@ -106,7 +106,7 @@ int KeyToKeyLayout(int Key);
 // возвращает: 1 - LeftPressed, 2 - Right Pressed, 3 - Middle Pressed, 0 - none
 DWORD IsMouseButtonPressed();
 bool while_mouse_button_pressed(function_ref<bool()> Action);
-int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec=nullptr);
+int TranslateKeyToVK(int Key, INPUT_RECORD* Rec = nullptr);
 int KeyNameToKey(string_view Name);
 string InputRecordToText(const INPUT_RECORD *Rec);
 string KeyToText(unsigned int Key);
@@ -119,7 +119,6 @@ string KeysToLocalizedText(args const... Keys)
 }
 unsigned int InputRecordToKey(const INPUT_RECORD *Rec);
 bool KeyToInputRecord(int Key, INPUT_RECORD *Rec);
-void ProcessKeyToInputRecord(int Key, unsigned int dwControlState, INPUT_RECORD *Rec);
 void FarKeyToInputRecord(const FarKey& Key,INPUT_RECORD* Rec);
 DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro=false,bool ProcessMouse=false,bool AllowSynchro=true);
 DWORD GetInputRecordNoMacroArea(INPUT_RECORD *rec,bool AllowSynchro=true);
