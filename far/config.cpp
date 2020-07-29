@@ -1886,7 +1886,7 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeyPanel,                  L"SortFolderExt"sv,                 SortFolderExt, false},
 		{FSSF_PRIVATE,           NKeyPanel,                  L"RightClickSelect"sv,              RightClickSelect, false},
 		{FSSF_PRIVATE,           NKeyPanelInfo,              L"InfoComputerNameFormat"sv,        InfoPanel.ComputerNameFormat, ComputerNamePhysicalNetBIOS},
-		{FSSF_PRIVATE,           NKeyPanelInfo,              L"InfoUserNameFormat"sv,            InfoPanel.UserNameFormat, NameUserPrincipal},
+		{FSSF_PRIVATE,           NKeyPanelInfo,              L"InfoUserNameFormat"sv,            InfoPanel.UserNameFormat, NameUnknown },
 		{FSSF_PRIVATE,           NKeyPanelInfo,              L"ShowCDInfo"sv,                    InfoPanel.ShowCDInfo, true},
 		{FSSF_PRIVATE,           NKeyPanelInfo,              L"ShowPowerStatus"sv,               InfoPanel.ShowPowerStatus, false},
 		{FSSF_PANELLAYOUT,       NKeyPanelLayout,            L"ColumnTitles"sv,                  ShowColumnTitles, true},
