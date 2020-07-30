@@ -103,7 +103,7 @@ public:
 				return true;
 			}
 
-			os::chrono::sleep_for((i + 1)  * 50ms);
+			os::chrono::sleep_for((i + 1) * 50ms);
 		}
 
 		return false;

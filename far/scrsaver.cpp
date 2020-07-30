@@ -157,7 +157,7 @@ namespace
 					std::tie(X, Y) = screen_position();
 				}
 
-				const size_t Size = (Horizon - i.Z) / Horizon * std::size(StarSprites);
+				const size_t Size = (Horizon - i.Z) / static_cast<double>(Horizon * std::size(StarSprites));
 				assert(Size < std::size(StarSprites));
 
 				const auto Bright = Size >= std::size(StarSprites) / 2 ? FOREGROUND_INTENSITY : 0;
