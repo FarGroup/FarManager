@@ -424,37 +424,6 @@ namespace console_detail
 		Set(&COORD::Y, &POINT::y, &SMALL_RECT::Top);
 	}
 
-	static bool mouse_moved_within_cell(INPUT_RECORD const& Rec, bool const Reading)
-	{
-		static thread_local std::optional<std::pair<COORD, bool>> LastPosition;
-
-		if (Rec.EventType != MOUSE_EVENT)
-		{
-			LastPosition.reset();
-			return false;
-		}
-
-		const auto& MouseEvent = Rec.Event.MouseEvent;
-		if (MouseEvent.dwEventFlags != MOUSE_MOVED)
-		{
-			LastPosition.reset();
-			return false;
-		}
-
-		if (
-			!LastPosition ||
-			(!LastPosition->second && Reading) || // Transition from peek to read
-			LastPosition->first.X != MouseEvent.dwMousePosition.X ||
-			LastPosition->first.Y != MouseEvent.dwMousePosition.Y
-			)
-		{
-			LastPosition = { MouseEvent.dwMousePosition, Reading };
-			return false;
-		}
-
-		return true;
-	}
-
 	static void AdjustMouseEvents(span<INPUT_RECORD> const Buffer, short Delta)
 	{
 		COORD Size = {};
@@ -474,30 +443,11 @@ namespace console_detail
 
 	bool console::PeekInput(span<INPUT_RECORD> const Buffer, size_t& NumberOfEventsRead) const
 	{
-		for (;;)
-		{
-			DWORD dwNumberOfEventsRead = 0;
-			if (!PeekConsoleInput(GetInputHandle(), Buffer.data(), static_cast<DWORD>(Buffer.size()), &dwNumberOfEventsRead))
-				return false;
+		DWORD dwNumberOfEventsRead = 0;
+		if (!PeekConsoleInput(GetInputHandle(), Buffer.data(), static_cast<DWORD>(Buffer.size()), &dwNumberOfEventsRead))
+			return false;
 
-			if (!dwNumberOfEventsRead)
-			{
-				NumberOfEventsRead = 0;
-				return true;
-			}
-
-			const auto NewIterator = std::find_if_not(Buffer.data(), Buffer.data() + dwNumberOfEventsRead, [&](INPUT_RECORD const& i){ return mouse_moved_within_cell(i, false); });
-
-			if (NewIterator == Buffer.cbegin())
-			{
-				NumberOfEventsRead = dwNumberOfEventsRead;
-				break;
-			}
-
-			const auto ToRead = static_cast<DWORD>(NewIterator - Buffer.cbegin());
-			if (!ReadConsoleInput(GetInputHandle(), Buffer.data(), ToRead, &dwNumberOfEventsRead) || dwNumberOfEventsRead != ToRead)
-				return false;
-		}
+		NumberOfEventsRead = dwNumberOfEventsRead;
 
 		if (sWindowMode)
 		{
@@ -514,28 +464,11 @@ namespace console_detail
 
 	bool console::ReadInput(span<INPUT_RECORD> const Buffer, size_t& NumberOfEventsRead) const
 	{
-		auto BufferIterator = Buffer.data();
-		const auto BufferEnd = BufferIterator + Buffer.size();
+		DWORD dwNumberOfEventsRead = 0;
+		if (!ReadConsoleInput(GetInputHandle(), Buffer.data(), static_cast<DWORD>(Buffer.size()), &dwNumberOfEventsRead))
+			return false;
 
-		NumberOfEventsRead = 0;
-
-		for (;;)
-		{
-			DWORD dwNumberOfEventsRead = 0;
-			if (!ReadConsoleInput(GetInputHandle(), BufferIterator, static_cast<DWORD>(BufferEnd - BufferIterator), &dwNumberOfEventsRead) || !dwNumberOfEventsRead)
-				return false;
-
-			const auto ReadEnd = BufferIterator + dwNumberOfEventsRead;
-
-			const auto NewIterator = std::find_if_not(BufferIterator, ReadEnd, [&](INPUT_RECORD const& i){ return mouse_moved_within_cell(i, true); });
-
-			NumberOfEventsRead += ReadEnd - NewIterator;
-
-			if (NewIterator == BufferIterator)
-				break;
-
-			BufferIterator = std::move(NewIterator, ReadEnd, BufferIterator);
-		}
+		NumberOfEventsRead = dwNumberOfEventsRead;
 
 		if (sWindowMode)
 		{
