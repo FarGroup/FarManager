@@ -131,7 +131,10 @@ void PushPluginTable(lua_State* L, HANDLE hPlugin)
 void PushPluginObject(lua_State* L, HANDLE hPlugin)
 {
 	PushPluginTable(L, hPlugin);
-	lua_getfield(L, -1, KEY_OBJECT);
+	if (lua_istable(L, -1))
+		lua_getfield(L, -1, KEY_OBJECT);
+	else
+		lua_pushnil(L);
 	lua_remove(L, -2);
 }
 
@@ -401,7 +404,7 @@ intptr_t LF_GetFiles(lua_State* L, struct GetFilesInfo *Info)
 	{
 		intptr_t ret;
 		Info->StructSize = sizeof(*Info);
-		PushPanelItems(L, Info->PanelItem, Info->ItemsNumber); //+2: Func,Item
+		PushPanelItems(L, Info->PanelItem, Info->ItemsNumber, 0); //+2: Func,Item
 		lua_insert(L,-2);                  //+2: Item,Func
 		PushPluginPair(L, Info->hPanel);   //+4: Item,Func,Pair
 		lua_pushvalue(L,-4);               //+5: Item,Func,Pair,Item
@@ -1009,8 +1012,8 @@ intptr_t LF_Compare(lua_State* L, const struct CompareInfo *Info)
 	if(GetExportFunction(L, "Compare"))    //+1: Func
 	{
 		PushPluginPair(L, Info->hPanel);     //+3: Func,Pair
-		PushPanelItem(L, Info->Item1);       //+4
-		PushPanelItem(L, Info->Item2);       //+5
+		PushPanelItem(L, Info->Item1, 0);    //+4
+		PushPanelItem(L, Info->Item2, 0);    //+5
 		lua_pushinteger(L, Info->Mode);      //+6
 
 		if(0 == pcall_msg(L, 5, 1))          //+1
@@ -1048,7 +1051,7 @@ intptr_t LF_DeleteFiles(lua_State* L, const struct DeleteFilesInfo *Info)
 	if(GetExportFunction(L, "DeleteFiles"))      //+1: Func
 	{
 		PushPluginPair(L, Info->hPanel);           //+3: Func,Pair
-		PushPanelItems(L, Info->PanelItem, Info->ItemsNumber); //+4
+		PushPanelItems(L, Info->PanelItem, Info->ItemsNumber, 0); //+4
 		bit64_push(L, Info->OpMode);               //+5
 
 		if(0 == pcall_msg(L, 4, 1))                //+1
@@ -1125,7 +1128,7 @@ intptr_t LF_ProcessHostFile(lua_State* L, const struct ProcessHostFileInfo *Info
 	if(GetExportFunction(L, "ProcessHostFile"))      //+1: Func
 	{
 		intptr_t ret;
-		PushPanelItems(L, Info->PanelItem, Info->ItemsNumber); //+2: Func,Item
+		PushPanelItems(L, Info->PanelItem, Info->ItemsNumber, 0); //+2: Func,Item
 		lua_insert(L,-2);                  //+2: Item,Func
 		PushPluginPair(L, Info->hPanel);   //+4: Item,Func,Pair
 		lua_pushvalue(L,-4);               //+5: Item,Func,Pair,Item
@@ -1168,7 +1171,7 @@ intptr_t LF_PutFiles(lua_State* L, const struct PutFilesInfo *Info)
 	if(GetExportFunction(L, "PutFiles"))       //+1: Func
 	{
 		intptr_t ret;
-		PushPanelItems(L, Info->PanelItem, Info->ItemsNumber); //+2: Func,Items
+		PushPanelItems(L, Info->PanelItem, Info->ItemsNumber, 0); //+2: Func,Items
 		lua_insert(L,-2);                        //+2: Items,Func
 		PushPluginPair(L, Info->hPanel);         //+4: Items,Func,Pair
 		lua_pushvalue(L,-4);                     //+5: Items,Func,Pair,Items
@@ -1225,9 +1228,9 @@ intptr_t LF_SetFindList(lua_State* L, const struct SetFindListInfo *Info)
 	if(GetExportFunction(L, "SetFindList"))                  //+1: Func
 	{
 		intptr_t ret;
-		PushPluginPair(L, Info->hPanel);                       //+3: Func,Pair
-		PushPanelItems(L, Info->PanelItem, Info->ItemsNumber); //+4: Func,Pair,Items
-		ret = pcall_msg(L, 3, 1);                              //+1: Res
+		PushPluginPair(L, Info->hPanel);                          //+3: Func,Pair
+		PushPanelItems(L, Info->PanelItem, Info->ItemsNumber, 0); //+4: Func,Pair,Items
+		ret = pcall_msg(L, 3, 1);                                 //+1: Res
 
 		if(ret == 0)
 		{
