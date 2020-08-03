@@ -160,7 +160,7 @@ namespace
 				const size_t Size = (Horizon - i.Z) / static_cast<double>(Horizon * std::size(StarSprites));
 				assert(Size < std::size(StarSprites));
 
-				const auto Bright = Size >= std::size(StarSprites) / 2 ? FOREGROUND_INTENSITY : 0;
+				const auto Bright = Size >= std::size(StarSprites) / 2? FOREGROUND_INTENSITY : 0;
 				SetColor(i.Color | Bright | B_BLACK);
 
 				GotoXY(X, Y);
@@ -228,7 +228,7 @@ namespace
 				New2 = Coord1 * s + Coord2 * c;
 
 			if (IsY)
-				(&Coord1 == &Star.Y ? New1 : New2) /= 2;
+				(&Coord1 == &Star.Y? New1 : New2) /= 2;
 
 			Coord1 = New1 + Base1;
 			Coord2 = New2 + Base2;
@@ -238,7 +238,7 @@ namespace
 		double factor() const
 		{
 			// https://www.google.com/search?q=1%2F(1%2B(x%2F(1000-x))^-e)
-			return 1 / (1 + std::pow(m_Step / (Steps - m_Step), -std::exp(1)));
+			return 1 / (1 + std::pow(static_cast<double>(m_Step) / (Steps - m_Step), -std::exp(1)));
 		}
 
 		star m_Stars[StarsCount];
@@ -255,7 +255,8 @@ namespace
 
 		std::mt19937 m_Engine{ static_cast<unsigned>(clock()) }; // std::random_device doesn't work in w2k
 
-		double m_Speed{}, m_Step{};
+		double m_Speed{};
+		int m_Step{};
 
 		enum class steer_axis
 		{

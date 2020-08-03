@@ -53,9 +53,12 @@ class RegExp;
 struct RegExpMatch;
 struct MatchHash;
 
-wchar_t* QuoteSpace(wchar_t *Str);
-wchar_t* InsertQuote(wchar_t *Str);
-wchar_t* QuoteSpaceOnly(wchar_t *Str);
+namespace legacy
+{
+	wchar_t* QuoteSpace(wchar_t* Str);
+	wchar_t* InsertQuotes(wchar_t* Str);
+	wchar_t* QuoteSpaceOnly(wchar_t* Str);
+}
 
 string &QuoteSpace(string &strStr);
 

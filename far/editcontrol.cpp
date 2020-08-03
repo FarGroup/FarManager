@@ -387,13 +387,34 @@ static bool EnumEnvironment(VMenu2& Menu, const string_view strStart, const stri
 	return EnumWithQuoutes(Menu, strStart, Token, StartQuote, lng::MCompletionEnvironmentTitle, ResultStrings);
 }
 
+static bool is_input_queue_empty()
+{
+	size_t EventsCount = 0;
+	if (!console.GetNumberOfInputEvents(EventsCount))
+		return true; // Let's hope for the best
+
+	if (!EventsCount)
+		return true; // Grand!
+
+	INPUT_RECORD Record;
+	if (EventsCount == 1 && console.PeekOneInput(Record) && Record.EventType == KEY_EVENT && !Record.Event.KeyEvent.bKeyDown)
+	{
+		// The corresponding Up event. It should not happen under normal circumstances.
+		// If it happens - either the user is Flash / Sonic or the host is Windows Terminal.
+		// https://github.com/microsoft/terminal/issues/3910
+		// https://github.com/FarGroup/FarManager/issues/262
+		return true;
+	}
+
+	// Emulated input
+	return false;
+}
+
 int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKey, FARMACROAREA Area)
 {
 	int Result=0;
 	static int Reenter=0;
-	size_t EventsCount = 0;
-	console.GetNumberOfInputEvents(EventsCount);
-	if(ECFlags.Check(EC_ENABLEAUTOCOMPLETE) && !m_Str.empty() && !Reenter && !EventsCount && (Global->CtrlObject->Macro.GetState() == MACROSTATE_NOMACRO || Manual))
+	if(ECFlags.Check(EC_ENABLEAUTOCOMPLETE) && !m_Str.empty() && !Reenter && is_input_queue_empty() && (Global->CtrlObject->Macro.GetState() == MACROSTATE_NOMACRO || Manual))
 	{
 		Reenter++;
 		const auto ComplMenu = VMenu2::create({}, {}, 0);

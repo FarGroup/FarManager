@@ -66,12 +66,7 @@ auto format(F&& Format, args&&... Args)
 template<typename char_type, size_t N, typename... args>
 auto format(const char_type(&Format)[N], args&&...) = delete;
 
-#if 1
-#define FSTR(str) FMT_STRING(str)
-#else
-#define FSTR(str) str ## sv
-#endif
-
+#define FSTR(str) FMT_STRING(str ## sv)
 
 template<typename T>
 auto str(const T& Value)

@@ -1,3 +1,9 @@
+drkns 03.08.2020 22:49:55 +0100 - build 5648
+
+1. gh-262 AutoComplete popup does not show under Windows 10's Terminal
+
+2. Refactoring.
+
 drkns 30.07.2020 19:00:15 +0100 - build 5647
 
 1. Correction of 5646.

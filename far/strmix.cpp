@@ -94,7 +94,7 @@ string GroupDigits(unsigned long long Value)
 	return Src;
 }
 
-wchar_t* InsertQuote(wchar_t *Str)
+wchar_t* legacy::InsertQuotes(wchar_t *Str)
 {
 	const auto QuoteChar = L'"';
 	size_t l = wcslen(Str);
@@ -114,10 +114,10 @@ wchar_t* InsertQuote(wchar_t *Str)
 	return Str;
 }
 
-wchar_t* QuoteSpace(wchar_t *Str)
+wchar_t* legacy::QuoteSpace(wchar_t *Str)
 {
 	if (Global->Opt->strQuotedSymbols.Get().find_first_of(Str) != string::npos)
-		InsertQuote(Str);
+		InsertQuotes(Str);
 
 	return Str;
 }
@@ -142,10 +142,10 @@ string &QuoteSpace(string &strStr)
 	return strStr;
 }
 
-wchar_t* QuoteSpaceOnly(wchar_t *Str)
+wchar_t* legacy::QuoteSpaceOnly(wchar_t* Str)
 {
 	if (contains(Str, L' '))
-		InsertQuote(Str);
+		InsertQuotes(Str);
 
 	return Str;
 }

@@ -210,17 +210,24 @@ private:
 	const tinyxml::XMLNode* m_base;
 };
 
-int sqlite_busy_handler(void* Param, int Retries)
+int sqlite_busy_handler(void* Param, int Retries) noexcept
 {
-	if (Retries < 10)
+	try
 	{
-		// Let's retry silently first:
-		os::chrono::sleep_for(500ms);
-		return 1;
-	}
+		if (Retries < 10)
+		{
+			// Let's retry silently first:
+			os::chrono::sleep_for(500ms);
+			return 1;
+		}
 
-	const auto& Db = *static_cast<const SQLiteDb*>(Param);
-	return RetryAbort({ Db.GetPath(), L"Database is busy"s });
+		const auto& Db = *static_cast<const SQLiteDb*>(Param);
+		return RetryAbort({ Db.GetPath(), L"Database is busy"s });
+	}
+	catch (...)
+	{
+		return 0;
+	}
 }
 
 class sqlite_boilerplate : public SQLiteDb

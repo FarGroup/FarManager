@@ -59,7 +59,7 @@ struct detailed_time_point
 		Hour,
 		Minute,
 		Second,
-		Tick;
+		Hectonanosecond;
 };
 
 detailed_time_point parse_detailed_time_point(string_view Date, string_view Time, int DateFormat);

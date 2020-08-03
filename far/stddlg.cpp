@@ -906,7 +906,7 @@ bool GoToRowCol(goto_coord& Row, goto_coord& Col, bool& Hex, string_view const H
 	}
 }
 
-int RetryAbort(std::vector<string>&& Messages)
+bool RetryAbort(std::vector<string>&& Messages)
 {
 	if (Global->WindowManager && !Global->WindowManager->ManagerIsDown() && far_language::instance().is_loaded())
 	{

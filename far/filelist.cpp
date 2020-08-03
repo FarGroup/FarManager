@@ -7394,28 +7394,29 @@ void FileList::ShowFileList(bool Fast)
 
 		if (Global->Opt->ShowColumnTitles)
 		{
-			lng IDMessage = lng::MColumnUnknown;
-
-			switch (m_ViewSettings.PanelColumns[I].type)
+			const auto IDMessage = [&]
 			{
-				case column_type::name:               IDMessage = lng::MColumnName;            break;
-				case column_type::extension:          IDMessage = lng::MColumnExtension;       break;
-				case column_type::size:               IDMessage = lng::MColumnSize;            break;
-				case column_type::size_compressed:    IDMessage = lng::MColumnAlocatedSize;    break;
-				case column_type::date:               IDMessage = lng::MColumnDate;            break;
-				case column_type::time:               IDMessage = lng::MColumnTime;            break;
-				case column_type::date_write:         IDMessage = lng::MColumnWrited;          break;
-				case column_type::date_creation:      IDMessage = lng::MColumnCreated;         break;
-				case column_type::date_access:        IDMessage = lng::MColumnAccessed;        break;
-				case column_type::date_change:        IDMessage = lng::MColumnChanged;         break;
-				case column_type::attributes:         IDMessage = lng::MColumnAttr;            break;
-				case column_type::description:        IDMessage = lng::MColumnDescription;     break;
-				case column_type::owner:              IDMessage = lng::MColumnOwner;           break;
-				case column_type::links_number:       IDMessage = lng::MColumnMumLinks;        break;
-				case column_type::streams_number:     IDMessage = lng::MColumnNumStreams;      break;
-				case column_type::streams_size:       IDMessage = lng::MColumnStreamsSize;     break;
-				default: break;
-			}
+				switch (m_ViewSettings.PanelColumns[I].type)
+				{
+				case column_type::name:               return lng::MColumnName;
+				case column_type::extension:          return lng::MColumnExtension;
+				case column_type::size:               return lng::MColumnSize;
+				case column_type::size_compressed:    return lng::MColumnAlocatedSize;
+				case column_type::date:               return lng::MColumnDate;
+				case column_type::time:               return lng::MColumnTime;
+				case column_type::date_write:         return lng::MColumnWrited;
+				case column_type::date_creation:      return lng::MColumnCreated;
+				case column_type::date_access:        return lng::MColumnAccessed;
+				case column_type::date_change:        return lng::MColumnChanged;
+				case column_type::attributes:         return lng::MColumnAttr;
+				case column_type::description:        return lng::MColumnDescription;
+				case column_type::owner:              return lng::MColumnOwner;
+				case column_type::links_number:       return lng::MColumnMumLinks;
+				case column_type::streams_number:     return lng::MColumnNumStreams;
+				case column_type::streams_size:       return lng::MColumnStreamsSize;
+				default:                              return lng::MColumnUnknown;
+				}
+			}();
 
 			strTitle = IDMessage == lng::MColumnUnknown && !m_ViewSettings.PanelColumns[I].title.empty()? m_ViewSettings.PanelColumns[I].title : msg(IDMessage);
 

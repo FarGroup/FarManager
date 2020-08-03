@@ -109,7 +109,7 @@ static std::optional<time_zone_information> time_zone()
 	{
 	case TIME_ZONE_ID_UNKNOWN:
 	case TIME_ZONE_ID_STANDARD:
-		return { {Tz.StandardName, -minutes(Tz.Bias + Tz.StandardBias) } };
+		return { { Tz.StandardName, -minutes(Tz.Bias + Tz.StandardBias) } };
 
 	case TIME_ZONE_ID_DAYLIGHT:
 		return { { Tz.DaylightName, -minutes(Tz.Bias + Tz.DaylightBias) } };
@@ -417,6 +417,10 @@ namespace
 	using time_ranges = dt_ranges<4>;
 }
 
+// HH:MM:SS.XXXXXXX
+// 0123456789012345
+// ^  ^  ^  ^
+// 12 12 12 1234567
 static constexpr time_ranges TimeRanges{ { {0, 2}, { 3, 2 }, { 6, 2 }, { 9, 7 } } };
 
 static date_ranges get_date_ranges(date_type const DateFormat)
@@ -425,10 +429,19 @@ static date_ranges get_date_ranges(date_type const DateFormat)
 	{
 	default:
 	case date_type::ymd:
+		// YYYYY/MM/DD
+		// 01234567890
+		// ^     ^  ^
+		// 12345 12 12
 		return { { { 0, 5 }, { 6, 2 }, { 9, 2 } } };
 
 	case date_type::dmy:
 	case date_type::mdy:
+		// DD/MM/YYYYY
+		// MM/DD/YYYYY
+		// 01234567890
+		// ^  ^  ^
+		// 12 12 12345
 		return {{ { 0, 2 }, { 3, 2 }, { 6, 5 } }};
 	}
 }
@@ -491,21 +504,21 @@ os::chrono::time_point ParseTimePoint(string_view const Date, string_view const 
 
 	SYSTEMTIME st{};
 
-	const auto Milliseconds = Point.Tick == time_none? time_none : os::chrono::hectonanoseconds(Point.Tick) / 1ms;
+	const auto Milliseconds = Point.Hectonanosecond == time_none? time_none : os::chrono::hectonanoseconds(Point.Hectonanosecond) / 1ms;
 
-	st.wYear   = Point.Year;
-	st.wMonth  = Point.Month;
-	st.wDay    = Point.Day;
-	st.wHour   = Default(Point.Hour);
-	st.wMinute = Default(Point.Minute);
-	st.wSecond = Default(Point.Second);
+	st.wYear         = Point.Year;
+	st.wMonth        = Point.Month;
+	st.wDay          = Point.Day;
+	st.wHour         = Default(Point.Hour);
+	st.wMinute       = Default(Point.Minute);
+	st.wSecond       = Default(Point.Second);
 	st.wMilliseconds = Default(Milliseconds);
 
 	os::chrono::time_point TimePoint;
 	if (!local_to_utc(st, TimePoint))
 		return {};
 
-	return TimePoint + os::chrono::hectonanoseconds(Default(Point.Tick)) % 1ms;
+	return TimePoint + os::chrono::hectonanoseconds(Default(Point.Hectonanosecond)) % 1ms;
 }
 
 os::chrono::duration ParseDuration(string_view const Date, string_view const Time)
@@ -842,7 +855,7 @@ TEST_CASE("datetime.parse.timepoint")
 		REQUIRE(Result.Hour == i.TimePoint.Hour);
 		REQUIRE(Result.Minute == i.TimePoint.Minute);
 		REQUIRE(Result.Second == i.TimePoint.Second);
-		REQUIRE(Result.Tick == i.TimePoint.Tick);
+		REQUIRE(Result.Hectonanosecond == i.TimePoint.Hectonanosecond);
 	}
 }
 

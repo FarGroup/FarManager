@@ -601,7 +601,7 @@ static bool construct_time(
 		std::invoke(Field, st) = New != time_none? New : std::invoke(Field, ost);
 	};
 
-	const auto Milliseconds = Point.Tick == time_none? time_none : os::chrono::hectonanoseconds(Point.Tick) / 1ms;
+	const auto Milliseconds = Point.Hectonanosecond == time_none? time_none : os::chrono::hectonanoseconds(Point.Hectonanosecond) / 1ms;
 
 	set_or_inherit(&SYSTEMTIME::wYear,         Point.Year);
 	set_or_inherit(&SYSTEMTIME::wMonth,        Point.Month);
@@ -614,8 +614,8 @@ static bool construct_time(
 	if (!local_to_utc(st, FileTime))
 		return false;
 
-	FileTime += (Point.Tick != time_none?
-		os::chrono::hectonanoseconds(Point.Tick) :
+	FileTime += (Point.Hectonanosecond != time_none?
+		os::chrono::hectonanoseconds(Point.Hectonanosecond) :
 		OriginalFileTime.time_since_epoch()) % 1ms;
 
 	return true;

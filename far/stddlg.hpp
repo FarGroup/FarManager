@@ -183,9 +183,6 @@ struct goto_coord
 
 bool GoToRowCol(goto_coord& Row, goto_coord& Col, bool& Hex, string_view HelpTopic);
 
-//  1: Rerty
-//  0: Abort
-// -1: Error
-int RetryAbort(std::vector<string>&& Messages);
+bool RetryAbort(std::vector<string>&& Messages);
 
 #endif // STDDLG_HPP_D7E3481D_D478_4F57_8C20_7E0A21FAE788

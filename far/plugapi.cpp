@@ -227,7 +227,7 @@ wchar_t* WINAPI apiQuoteSpace(wchar_t *Str) noexcept
 {
 	try
 	{
-		return QuoteSpace(Str);
+		return legacy::QuoteSpace(Str);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return nullptr;
@@ -237,7 +237,7 @@ wchar_t* WINAPI apiInsertQuote(wchar_t *Str) noexcept
 {
 	try
 	{
-		return InsertQuote(Str);
+		return legacy::InsertQuotes(Str);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return nullptr;
@@ -294,7 +294,7 @@ wchar_t* WINAPI apiQuoteSpaceOnly(wchar_t *Str) noexcept
 {
 	try
 	{
-		return QuoteSpaceOnly(Str);
+		return legacy::QuoteSpaceOnly(Str);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return nullptr;
