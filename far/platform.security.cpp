@@ -153,21 +153,43 @@ namespace os::security
 		// TODO: log if failed
 	}
 
+	static auto get_token_privileges(HANDLE TokenHandle)
+	{
+		block_ptr<TOKEN_PRIVILEGES> Result(1024);
+
+		if (!os::detail::ApiDynamicReceiver(Result,
+			[&](span<TOKEN_PRIVILEGES> Buffer)
+			{
+				DWORD LengthNeeded = 0;
+				if (!GetTokenInformation(TokenHandle, TokenPrivileges, Buffer.data(), static_cast<DWORD>(Buffer.size()), &LengthNeeded))
+					return static_cast<size_t>(LengthNeeded);
+				return Buffer.size();
+			},
+			[](size_t ReturnedSize, size_t AllocatedSize)
+			{
+				return ReturnedSize > AllocatedSize;
+			},
+			[](span<const TOKEN_PRIVILEGES>)
+			{}
+		))
+		{
+			Result.reset();
+		}
+
+		return Result;
+	}
+
 	bool privilege::check(span<const wchar_t* const> const Names)
 	{
 		const auto Token = OpenCurrentProcessToken(TOKEN_QUERY);
 		if (!Token)
 			return false;
 
-		DWORD TokenInformationLength = 0;
-		if (!GetTokenInformation(Token.native_handle(), TokenPrivileges, nullptr, 0, &TokenInformationLength) || TokenInformationLength)
+		const auto TokenPrivileges = get_token_privileges(Token.native_handle());
+		if (!TokenPrivileges)
 			return false;
 
-		block_ptr<TOKEN_PRIVILEGES> TokenInformation{ TokenInformationLength };
-		if (!GetTokenInformation(Token.native_handle(), TokenPrivileges, TokenInformation.data(), TokenInformationLength, &TokenInformationLength))
-			return false;
-
-		const span Privileges(TokenInformation->Privileges, TokenInformation->PrivilegeCount);
+		const span Privileges(TokenPrivileges->Privileges, TokenPrivileges->PrivilegeCount);
 
 		return std::all_of(ALL_CONST_RANGE(Names), [&](const wchar_t* const Name)
 		{
