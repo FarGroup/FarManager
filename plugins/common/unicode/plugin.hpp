@@ -6,7 +6,7 @@
 /*
 plugin.hpp
 
-Plugin API for Far Manager 3.0 build 5603
+Plugin API for Far Manager 3.0 build 5649
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -44,7 +44,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 5603
+#define FARMANAGERVERSION_BUILD 5649
 #define FARMANAGERVERSION_STAGE VS_PRIVATE
 
 #ifndef RC_INVOKED
@@ -819,6 +819,7 @@ enum OPENPANELINFO_SORTMODES
 	SM_DEFAULT                   =  0,
 	SM_UNSORTED                  =  1,
 	SM_NAME                      =  2,
+	SM_FULLNAME                  =  SM_NAME,
 	SM_EXT                       =  3,
 	SM_MTIME                     =  4,
 	SM_CTIME                     =  5,
@@ -830,7 +831,7 @@ enum OPENPANELINFO_SORTMODES
 	SM_NUMLINKS                  = 11,
 	SM_NUMSTREAMS                = 12,
 	SM_STREAMSSIZE               = 13,
-	SM_FULLNAME                  = 14,
+	SM_NAMEONLY                  = 14,
 	SM_CHTIME                    = 15,
 
 	SM_COUNT
@@ -2610,7 +2611,6 @@ struct OpenMacroPluginInfo
 	struct FarMacroCall *Data;
 	struct MacroPluginReturn Ret;
 };
-
 
 enum FAR_EVENTS
 {
