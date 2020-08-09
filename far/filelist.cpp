@@ -586,17 +586,18 @@ void FileList::CorrectPosition()
 class list_less
 {
 public:
-	explicit list_less(const FileList* Owner, const plugin_panel* SortPlugin):
+	explicit list_less(const FileList* Owner, const plugin_panel* SortPlugin, bool const IgnorePaths):
 		m_Owner(Owner),
 		m_ListSortMode(Owner->GetSortMode()),
-		ListPanelMode(Owner->GetMode()),
-		hSortPlugin(SortPlugin),
+		m_ListPanelMode(Owner->GetMode()),
+		m_SortPlugin(SortPlugin),
 		m_SortLayers(Global->Opt->PanelSortLayers[static_cast<size_t>(m_ListSortMode)]),
 		m_Reverse(Owner->GetSortOrder()),
-		ListSortGroups(Owner->GetSortGroups()),
-		ListSelectedFirst(Owner->GetSelectedFirstMode()),
-		ListDirectoriesFirst(Owner->GetDirectoriesFirst()),
-		SortFolderExt(Global->Opt->SortFolderExt)
+		m_ListSortGroups(Owner->GetSortGroups()),
+		m_ListSelectedFirst(Owner->GetSelectedFirstMode()),
+		m_ListDirectoriesFirst(Owner->GetDirectoriesFirst()),
+		m_SortFolderExt(Global->Opt->SortFolderExt),
+		m_IgnorePaths(IgnorePaths)
 	{
 	}
 
@@ -614,7 +615,7 @@ public:
 		if (IsParentDirItem2)
 			return false;
 
-		if (ListDirectoriesFirst)
+		if (m_ListDirectoriesFirst)
 		{
 			const auto IsDirItem1 = (Item1.Attributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
 			const auto IsDirItem2 = (Item2.Attributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
@@ -623,10 +624,10 @@ public:
 				return IsDirItem1;
 		}
 
-		if (ListSelectedFirst && Item1.Selected != Item2.Selected)
+		if (m_ListSelectedFirst && Item1.Selected != Item2.Selected)
 			return Item1.Selected;
 
-		if (ListSortGroups && Item1.SortGroup != Item2.SortGroup &&
+		if (m_ListSortGroups && Item1.SortGroup != Item2.SortGroup &&
 			(
 				m_ListSortMode == panel_sort::BY_NAME ||
 				m_ListSortMode == panel_sort::BY_EXT ||
@@ -635,14 +636,14 @@ public:
 		)
 			return Item1.SortGroup < Item2.SortGroup;
 
-		if (hSortPlugin)
+		if (m_SortPlugin)
 		{
 			const auto& [a, b] = m_Reverse? std::tie(Item2, Item1) : std::tie(Item1, Item2);
 
 			PluginPanelItemHolder pi1, pi2;
 			m_Owner->FileListToPluginItem(a, pi1);
 			m_Owner->FileListToPluginItem(b, pi2);
-			if (const auto Result = Global->CtrlObject->Plugins->Compare(hSortPlugin, &pi1.Item, &pi2.Item, static_cast<int>(m_ListSortMode) + (SM_UNSORTED - static_cast<int>(panel_sort::UNSORTED))))
+			if (const auto Result = Global->CtrlObject->Plugins->Compare(m_SortPlugin, &pi1.Item, &pi2.Item, static_cast<int>(m_ListSortMode) + (SM_UNSORTED - static_cast<int>(panel_sort::UNSORTED))))
 			{
 				if (Result != -2)
 					return Result < 0;
@@ -666,7 +667,12 @@ private:
 	{
 		const auto& [a, b] = Reverse? std::tie(Item2, Item1) : std::tie(Item1, Item2);
 
-		const auto name_ext_opt = [SortFolderExt = SortFolderExt](FileListItem const& i)
+		const auto ignore_path_opt = [&](string_view const FullName)
+		{
+			return m_IgnorePaths? PointToName(FullName) : FullName;
+		};
+
+		const auto name_ext_opt = [SortFolderExt = m_SortFolderExt](FileListItem const& i)
 		{
 			return SortFolderExt || !(i.Attributes & FILE_ATTRIBUTE_DIRECTORY)?
 				name_ext(i.FileName) :
@@ -679,10 +685,10 @@ private:
 			return compare_numbers(a.Position, b.Position);
 
 		case panel_sort::BY_NAME:
-			return string_sort::compare(a.FileName, b.FileName);
+			return string_sort::compare(ignore_path_opt(a.FileName), ignore_path_opt(b.FileName));
 
 		case panel_sort::BY_NAMEONLY:
-			return string_sort::compare(name_ext_opt(a).first, name_ext_opt(b).first);
+			return string_sort::compare(ignore_path_opt(name_ext_opt(a).first), ignore_path_opt(name_ext_opt(b).first));
 
 		case panel_sort::BY_EXT:
 			return string_sort::compare(name_ext_opt(a).second, name_ext_opt(b).second);
@@ -728,14 +734,15 @@ private:
 
 	const FileList* const m_Owner;
 	const panel_sort m_ListSortMode;
-	const panel_mode ListPanelMode;
-	const plugin_panel* hSortPlugin;
+	const panel_mode m_ListPanelMode;
+	const plugin_panel* m_SortPlugin;
 	const span<int> m_SortLayers;
 	const bool m_Reverse;
-	bool ListSortGroups;
-	bool ListSelectedFirst;
-	bool ListDirectoriesFirst;
-	bool SortFolderExt;
+	bool m_ListSortGroups;
+	bool m_ListSelectedFirst;
+	bool m_ListDirectoriesFirst;
+	bool m_SortFolderExt;
+	bool m_IgnorePaths;
 };
 
 
@@ -762,16 +769,21 @@ void FileList::SortFileList(bool KeepPosition)
 
 		if (m_SortMode < panel_sort::COUNT)
 		{
+			const auto NameColumn = std::find_if(ALL_CONST_RANGE(m_ViewSettings.PanelColumns), [](column const& i){ return i.type == column_type::name; });
+			const auto IgnorePaths = NameColumn != m_ViewSettings.PanelColumns.cend() && NameColumn->type_flags & COLFLAGS_NAMEONLY;
+
+			list_less const Predicate(this, hSortPlugin, IgnorePaths);
+
 			const auto& SortLayers = Global->Opt->PanelSortLayers[static_cast<size_t>(m_SortMode)];
 
 			if (std::any_of(ALL_CONST_RANGE(SortLayers), [](int const Id){ return std::abs(Id) - 1 == static_cast<int>(panel_sort::UNSORTED); }))
 			{
 				// Unsorted criterion is deterministic and won't report equality, thus ensuring stability
-				std::sort(ALL_RANGE(m_ListData), list_less(this, hSortPlugin));
+				std::sort(ALL_RANGE(m_ListData), Predicate);
 			}
 			else
 			{
-				std::stable_sort(ALL_RANGE(m_ListData), list_less(this, hSortPlugin));
+				std::stable_sort(ALL_RANGE(m_ListData), Predicate);
 			}
 		}
 		else
@@ -7919,15 +7931,15 @@ void FileList::PrepareViewSettings(int ViewMode)
 		}
 		else
 		{
+			const auto NameOnlyFlag = m_CachedOpenPanelInfo.Flags & OPIF_SHOWNAMESONLY? COLFLAGS_NAMEONLY : COLFLAGS_NONE;
+			const auto RightAlignFlag = m_CachedOpenPanelInfo.Flags & OPIF_SHOWRIGHTALIGNNAMES? COLFLAGS_RIGHTALIGN : COLFLAGS_NONE;
+
 			for (auto& i: m_ViewSettings.PanelColumns)
 			{
 				if (i.type == column_type::name)
 				{
-					if (m_CachedOpenPanelInfo.Flags & OPIF_SHOWNAMESONLY)
-						i.type_flags |= COLFLAGS_NAMEONLY;
-
-					if (m_CachedOpenPanelInfo.Flags & OPIF_SHOWRIGHTALIGNNAMES)
-						i.type_flags |= COLFLAGS_RIGHTALIGN;
+					i.type_flags |= NameOnlyFlag;
+					i.type_flags |= RightAlignFlag;
 				}
 			}
 

@@ -1,3 +1,7 @@
+drkns 09.08.2020 12:26:42 +0100 - build 5650
+
+1. Ignore paths when sorting in panel modes without paths.
+
 drkns 04.08.2020 17:56:27 +0100 - build 5649
 
 1. Forum: unnecessary privilege request
