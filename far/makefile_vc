@@ -299,6 +299,7 @@ CPPFLAGS=\
 	/Zc:__cplusplus,externConstexpr,inline,throwingNew\
 	/volatile:iso\
 	/Wall\
+	/utf-8\
 	/Gy\
 	/GF\
 	/Fd"$(INTDIR)\\"\

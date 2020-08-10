@@ -476,6 +476,8 @@ static bool ExcConsole(
 	std::vector<DWORD64> const* const NestedStack
 )
 {
+	std::wcerr << L'\n';
+
 	for (const auto& [m, v]: zip(Labels, Values))
 	{
 		const auto Label = fit_to_left(string(m), max_item_size(Labels));
