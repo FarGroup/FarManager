@@ -952,7 +952,7 @@ HANDLE LF_Open(lua_State* L, const struct OpenInfo *Info)
 					if(lua_toboolean(L, -1))
 					{
 						struct FarMacroCall* fmc = (struct FarMacroCall*)
-						  malloc(sizeof(struct FarMacroCall)+sizeof(struct FarMacroValue));
+							malloc(sizeof(struct FarMacroCall)+sizeof(struct FarMacroValue));
 						fmc->StructSize = sizeof(*fmc);
 						fmc->Count = 1;
 						fmc->Values = (struct FarMacroValue*)(fmc+1);

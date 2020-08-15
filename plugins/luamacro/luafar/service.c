@@ -207,7 +207,7 @@ static HANDLE OptHandle(lua_State *L)
 		{
 			lua_Integer whatPanel = lua_tointeger(L,1);
 			HANDLE hh = (HANDLE)whatPanel;
-		  return (hh==PANEL_PASSIVE || hh==PANEL_ACTIVE) ? hh : whatPanel%2 ? PANEL_ACTIVE:PANEL_PASSIVE;
+			return (hh==PANEL_PASSIVE || hh==PANEL_ACTIVE) ? hh : whatPanel%2 ? PANEL_ACTIVE:PANEL_PASSIVE;
 		}
 		case LUA_TUSERDATA:
 			return *(HANDLE*)luaL_checkudata(L, 1, PluginHandleType);
@@ -1762,7 +1762,7 @@ static int far_Menu(lua_State *L)
 		lua_replace(L,3);
 	}
 	else
-	  NumBreakCodes = lua_istable(L,3) ? (int)lua_objlen(L,3) : 0;
+		NumBreakCodes = lua_istable(L,3) ? (int)lua_objlen(L,3) : 0;
 
 	if(NumBreakCodes)
 	{
@@ -2929,8 +2929,7 @@ static int SetDlgItem(lua_State *L, HANDLE hDlg, int numitem, int pos_table,
 	return 1;
 }
 
-TDialogData* NewDialogData(lua_State* L, PSInfo *Info, HANDLE hDlg,
-                           BOOL isOwned)
+TDialogData* NewDialogData(lua_State* L, PSInfo *Info, HANDLE hDlg, BOOL isOwned)
 {
 	TDialogData *dd = (TDialogData*) lua_newuserdata(L, sizeof(TDialogData));
 	dd->L        = GetPluginData(L)->MainLuaState;
@@ -5159,8 +5158,7 @@ static int far_CreateFileFilter(lua_State *L)
 	int filterType = CAST(int, check_env_flag(L,2));
 	HANDLE* pOutHandle = (HANDLE*)lua_newuserdata(L, sizeof(HANDLE));
 
-	if(Info->FileFilterControl(hHandle, FFCTL_CREATEFILEFILTER, filterType,
-	                           pOutHandle))
+	if(Info->FileFilterControl(hHandle, FFCTL_CREATEFILEFILTER, filterType, pOutHandle))
 	{
 		luaL_getmetatable(L, FarFileFilterType);
 		lua_setmetatable(L, -2);
@@ -6020,7 +6018,7 @@ static int far_PluginGetFiles(lua_State *L)
 	gfInfo.StructSize = sizeof(gfInfo);
 	gfInfo.Move = lua_toboolean(L, 3); //3-rd argument
 	gfInfo.DestPath = check_utf8_string(L, 4, NULL); //4-th argument
-	gfInfo.OpMode = luaL_optinteger(L, 5, OPM_FIND|OPM_SILENT); //5-th argument
+	gfInfo.OpMode = luaL_optinteger(L, 5, (lua_Integer)(OPM_FIND|OPM_SILENT)); //5-th argument
 
 	lua_pushinteger(L,0);  //prepare to return 0
 
@@ -6087,7 +6085,7 @@ static int far_PluginGetFindData(lua_State *L)
 	if (! (getfinddata && getfinddata(&gfdInfo)))
 		return 1;
 
-  PushPanelItems(L, gfdInfo.PanelItem, gfdInfo.ItemsNumber, 1); //this will be returned
+	PushPanelItems(L, gfdInfo.PanelItem, gfdInfo.ItemsNumber, 1); //this will be returned
 
 	//as panel items will never be returned back to the plugin, free their UserData
 	freeInfo.StructSize = sizeof(freeInfo);
