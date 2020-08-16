@@ -33,7 +33,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.security.hpp"
 
 // Internal:
-#include "lasterror.hpp"
 
 // Platform:
 #include "platform.hpp"
@@ -148,7 +147,8 @@ namespace os::security
 			// TODO: log
 			return;
 
-		SCOPED_ACTION(GuardLastError);
+		SCOPED_ACTION(os::last_error_guard);
+
 		AdjustTokenPrivileges(Token.native_handle(), FALSE, m_SavedState.data(), 0, nullptr, nullptr);
 		// TODO: log if failed
 	}

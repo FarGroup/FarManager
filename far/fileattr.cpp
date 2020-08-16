@@ -40,7 +40,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fileowner.hpp"
 #include "exception.hpp"
 #include "stddlg.hpp"
-#include "lasterror.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -88,7 +87,8 @@ static auto without_ro(string_view const Name, DWORD const Attributes, function_
 
 		SCOPE_EXIT
 		{
-			GuardLastError Gle;
+			SCOPED_ACTION(os::last_error_guard);
+
 			if (Attributes & Mask)
 				(void)os::fs::set_file_attributes(Name, Attributes); //BUGBUG
 		};

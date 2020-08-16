@@ -257,9 +257,6 @@
     <ClCompile Include="language.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lasterror.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="locale.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -851,9 +848,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="language.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="lasterror.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="locale.hpp">

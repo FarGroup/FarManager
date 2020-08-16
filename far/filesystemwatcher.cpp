@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "elevation.hpp"
 #include "exception_handler.hpp"
 #include "pathmix.hpp"
+#include "exception.hpp"
 
 // Platform:
 #include "platform.fs.hpp"

@@ -38,10 +38,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "elevation.hpp"
 #include "flink.hpp"
 #include "imports.hpp"
-#include "lasterror.hpp"
 #include "pathmix.hpp"
 #include "string_utils.hpp"
 #include "strmix.hpp"
+#include "exception.hpp"
 #include "exception_handler.hpp"
 
 // Platform:
@@ -1845,7 +1845,7 @@ namespace os::fs
 
 		if (ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
 		{
-			GuardLastError gle;
+			last_error_guard gle;
 			// exclude fake elevation request for: move file over existing directory with same name
 			const file_status SrcStatus(strFrom), DstStatus(strTo);
 			if (is_directory(DstStatus) && is_file(SrcStatus))

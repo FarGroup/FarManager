@@ -294,13 +294,7 @@ static intptr_t ItemWidth(const DialogItemEx& Item)
 	case DI_COMBOBOX:
 	case DI_LISTBOX:
 	case DI_PSWEDIT:
-		{
-			intptr_t Width = Item.X2 - Item.X1 + 1;
-			// стрелка history занимает дополнительное место, но раньше она рисовалась поверх рамки???
-			if (Item.Flags & DIF_HISTORY)
-				++Width;
-			return Width;
-		}
+		return Item.X2 - Item.X1 + 1;
 
 	default:
 		break;

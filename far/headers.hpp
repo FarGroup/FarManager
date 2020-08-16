@@ -225,13 +225,15 @@ typedef struct _ADAPTER_OBJECT ADAPTER_OBJECT,*PADAPTER_OBJECT;
 using string = std::wstring;
 using string_view = std::wstring_view;
 
-static_assert(std::is_unsigned_v<char>);
-static_assert(sizeof(wchar_t) == 2);
-
 inline namespace literals
 {
 	using namespace std::literals;
 }
+
+static_assert(std::is_unsigned_v<char>);
+static_assert(sizeof(wchar_t) == 2);
+static_assert("𠜎"sv == "\xF0\xA0\x9C\x8E"sv);
+
 
 namespace features
 {

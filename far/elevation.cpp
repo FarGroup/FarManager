@@ -39,7 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dialog.hpp"
 #include "farcolor.hpp"
 #include "colormix.hpp"
-#include "lasterror.hpp"
 #include "fileowner.hpp"
 #include "imports.hpp"
 #include "taskbar.hpp"
@@ -50,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "string_utils.hpp"
 #include "global.hpp"
+#include "exception.hpp"
 
 // Platform:
 #include "platform.concurrency.hpp"
@@ -553,7 +553,8 @@ bool elevation::ElevationApproveDlg(lng const Why, string_view const Object)
 
 	// request for backup&restore privilege is useless if the user already has them
 	{
-		SCOPED_ACTION(GuardLastError);
+		SCOPED_ACTION(os::last_error_guard);
+
 		if (m_AskApprove && is_admin() && privilege::check(SE_BACKUP_NAME, SE_RESTORE_NAME))
 		{
 			m_AskApprove = false;
@@ -566,8 +567,10 @@ bool elevation::ElevationApproveDlg(lng const Why, string_view const Object)
  		Global->WindowManager && !Global->WindowManager->ManagerIsDown())
 	{
 		++m_Recurse;
-		SCOPED_ACTION(GuardLastError);
+
+		SCOPED_ACTION(os::last_error_guard);
 		SCOPED_ACTION(taskbar::state)(TBPF_PAUSED);
+
 		EAData Data(Object, Why, m_AskApprove, m_IsApproved, m_DontAskAgain);
 
 		if(!Global->IsMainThread())

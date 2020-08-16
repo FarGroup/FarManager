@@ -1385,9 +1385,4 @@ TEST_CASE("encoding.raw_eol")
 		REQUIRE(Eol.lf<wchar_t>() == '\n');
 	}
 }
-
-TEST_CASE("encoding.compiler_charset")
-{
-	static_assert("𠜎𠜱"sv == "\xF0\xA0\x9C\x8E\xF0\xA0\x9C\xB1"sv);
-}
 #endif

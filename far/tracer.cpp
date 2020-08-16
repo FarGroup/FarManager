@@ -113,7 +113,7 @@ static auto GetBackTrace(CONTEXT ContextRecord, HANDLE ThreadHandle)
 	return Result;
 }
 
-static void GetSymbols(string_view const ModuleName, const std::vector<DWORD64>& BackTrace, function_ref<void(string&&, string&&, string&&)> const Consumer)
+static void GetSymbols(string_view const ModuleName, span<DWORD64 const> const BackTrace, function_ref<void(string&&, string&&, string&&)> const Consumer)
 {
 	SCOPED_ACTION(tracer::with_symbols)(ModuleName);
 
@@ -212,19 +212,20 @@ EXCEPTION_POINTERS tracer::get_pointers()
 
 std::vector<DWORD64> tracer::get(string_view const Module, const EXCEPTION_POINTERS& Pointers, HANDLE ThreadHandle)
 {
-	SCOPED_ACTION(tracer::with_symbols)(Module);
+	//SCOPED_ACTION(tracer::with_symbols)(Module);
 
 	return GetBackTrace(*Pointers.ContextRecord, ThreadHandle);
 }
 
-void tracer::get_symbols(string_view const Module, const std::vector<DWORD64>& Trace, function_ref<void(string&& Address, string&& Name, string&& Source)> const Consumer)
+void tracer::get_symbols(string_view const Module, span<DWORD64 const> const Trace, function_ref<void(string&& Address, string&& Name, string&& Source)> const Consumer)
 {
 	GetSymbols(Module, Trace, Consumer);
 }
 
 void tracer::get_symbol(string_view const Module, const void* Ptr, string& Address, string& Name, string& Source)
 {
-	GetSymbols(Module, { reinterpret_cast<DWORD_PTR>(Ptr) }, [&](string&& StrAddress, string&& StrName, string&& StrSource)
+	DWORD64 const Stack[]{ reinterpret_cast<DWORD_PTR>(Ptr) };
+	GetSymbols(Module, Stack, [&](string&& StrAddress, string&& StrName, string&& StrSource)
 	{
 		Address = std::move(StrAddress);
 		Name = std::move(StrName);

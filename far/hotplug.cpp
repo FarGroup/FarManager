@@ -44,7 +44,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "pathmix.hpp"
 #include "notification.hpp"
-#include "lasterror.hpp"
 #include "flink.hpp"
 #include "strmix.hpp"
 #include "drivemix.hpp"
@@ -494,42 +493,42 @@ void ShowHotplugDevices()
 		HotPlugList->clear();
 		Info = GetHotplugDevicesInfo(false);
 
-		if (!Info.empty())
+		if (Info.empty())
+			return;
+
+		for (const auto& i: Info)
 		{
-			for (const auto& i: Info)
+			MenuItemEx ListItem;
+			string strDescription;
+			if (GetDevicePropertyRecursive(i.DevInst, SPDRP_DEVICEDESC, strDescription) && !strDescription.empty())
 			{
-				MenuItemEx ListItem;
-				string strDescription;
-				if (GetDevicePropertyRecursive(i.DevInst, SPDRP_DEVICEDESC, strDescription) && !strDescription.empty())
-				{
-					inplace::trim(strDescription);
-					ListItem.Name = strDescription;
-				}
-
-				string strFriendlyName;
-				if (GetDevicePropertyRecursive(i.DevInst, SPDRP_FRIENDLYNAME, strFriendlyName) && !strFriendlyName.empty())
-				{
-					inplace::trim(strFriendlyName);
-
-					if (!strDescription.empty())
-					{
-						if (!equal_icase(strDescription, strFriendlyName))
-						{
-							append(ListItem.Name, L" \""sv, strFriendlyName, L"\""sv);
-						}
-					}
-					else
-					{
-						ListItem.Name = strFriendlyName;
-					}
-				}
-
-				if (ListItem.Name.empty())
-				{
-					ListItem.Name = L"UNKNOWN"sv;
-				}
-				HotPlugList->AddItem(ListItem);
+				inplace::trim(strDescription);
+				ListItem.Name = strDescription;
 			}
+
+			string strFriendlyName;
+			if (GetDevicePropertyRecursive(i.DevInst, SPDRP_FRIENDLYNAME, strFriendlyName) && !strFriendlyName.empty())
+			{
+				inplace::trim(strFriendlyName);
+
+				if (!strDescription.empty())
+				{
+					if (!equal_icase(strDescription, strFriendlyName))
+					{
+						append(ListItem.Name, L" \""sv, strFriendlyName, L"\""sv);
+					}
+				}
+				else
+				{
+					ListItem.Name = strFriendlyName;
+				}
+			}
+
+			if (ListItem.Name.empty())
+			{
+				ListItem.Name = L"UNKNOWN"sv;
+			}
+			HotPlugList->AddItem(ListItem);
 		}
 	};
 

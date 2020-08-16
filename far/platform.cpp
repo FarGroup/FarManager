@@ -38,7 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "pathmix.hpp"
 #include "string_utils.hpp"
-#include "lasterror.hpp"
 #include "exception.hpp"
 
 // Platform:
@@ -142,6 +141,29 @@ string GetErrorString(bool Nt, DWORD Code)
 	return Result;
 }
 
+
+last_error_guard::last_error_guard():
+	m_LastError(GetLastError()),
+	m_LastStatus(imports.RtlGetLastNtStatus()),
+	m_Active(true)
+{
+}
+
+last_error_guard::~last_error_guard()
+{
+	if (!m_Active)
+		return;
+
+	SetLastError(m_LastError);
+	imports.RtlNtStatusToDosError(m_LastStatus);
+}
+
+void last_error_guard::dismiss()
+{
+	m_Active = false;
+}
+
+
 bool WNetGetConnection(const string_view LocalName, string &RemoteName)
 {
 	auto Buffer = os::buffer<wchar_t>();
@@ -149,7 +171,7 @@ bool WNetGetConnection(const string_view LocalName, string &RemoteName)
 	// is running in a different logon session than the application that made the connection.
 	// However, it may fail with ERROR_NOT_CONNECTED for non-network too, in this case Buffer will not be initialised.
 	// Deliberately initialised with an empty string to fix that.
-	Buffer[0] = {};
+	Buffer.front() = {};
 	auto Size = static_cast<DWORD>(Buffer.size());
 	const null_terminated C_LocalName(LocalName);
 	auto Result = ::WNetGetConnection(C_LocalName.c_str(), Buffer.data(), &Size);
@@ -204,7 +226,7 @@ bool GetWindowText(HWND Hwnd, string& Text)
 	// GetWindowText[Length] might return 0 not only in case of failure, but also when the window title is empty.
 	// To recognise this, we set LastError to ERROR_SUCCESS manually and check it after the call,
 	// which doesn't change it upon success.
-	GuardLastError ErrorGuard;
+	last_error_guard ErrorGuard;
 	SetLastError(ERROR_SUCCESS);
 
 	if (detail::ApiDynamicStringReceiver(Text, [&](span<wchar_t> Buffer)

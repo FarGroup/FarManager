@@ -57,7 +57,7 @@ public:
 private:
 	COORD m_BufferSize;
 	os::handle m_Screen;
-	std::new_handler m_OldHandler;
+	std::new_handler m_OldHandler{};
 };
 
 void invoke_new_handler();

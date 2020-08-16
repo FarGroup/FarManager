@@ -33,7 +33,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.env.hpp"
 
 // Internal:
-#include "lasterror.hpp"
 
 // Platform:
 #include "platform.hpp"
@@ -92,7 +91,7 @@ namespace os::env
 
 	bool get(const string_view Name, string& Value)
 	{
-		GuardLastError ErrorGuard;
+		last_error_guard ErrorGuard;
 		null_terminated C_Name(Name);
 
 		// GetEnvironmentVariable might return 0 not only in case of failure, but also when the variable is empty.

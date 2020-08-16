@@ -106,7 +106,6 @@ SRCS = \
 	keybar.cpp \
 	keyboard.cpp \
 	language.cpp \
-	lasterror.cpp \
 	locale.cpp \
 	lockscrn.cpp \
 	macro.cpp \

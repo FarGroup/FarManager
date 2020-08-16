@@ -41,14 +41,7 @@ namespace placement
 	template<typename T, typename... args>
 	auto& construct(T& Object, args&&... Args)
 	{
-#ifdef MEMCHECK
-#pragma push_macro("new")
-#undef new
-#endif
 		return *new(std::addressof(Object)) T{ FWD(Args)... };
-#ifdef MEMCHECK
-#pragma pop_macro("new")
-#endif
 	}
 
 	template<typename T>

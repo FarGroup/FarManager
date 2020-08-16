@@ -46,7 +46,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "elevation.hpp"
 #include "network.hpp"
 #include "string_utils.hpp"
-#include "lasterror.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -125,7 +124,8 @@ bool FarChDir(string_view const NewDir)
 		return false;
 
 	{
-		GuardLastError gle;
+		SCOPED_ACTION(os::last_error_guard);
+
 		const auto IsDrive = PathType == root_type::drive_letter || PathType == root_type::unc_drive_letter;
 		const auto IsNetworkDrive = IsDrive && os::fs::is_standard_drive_letter(Directory[0]) && GetSavedNetworkDrives()[os::fs::get_drive_number(Directory[0])];
 

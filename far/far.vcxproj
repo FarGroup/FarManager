@@ -265,7 +265,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="keybar.cpp" />
     <ClCompile Include="keyboard.cpp" />
     <ClCompile Include="language.cpp" />
-    <ClCompile Include="lasterror.cpp" />
     <ClCompile Include="locale.cpp" />
     <ClCompile Include="lockscrn.cpp" />
     <ClCompile Include="macro.cpp" />
@@ -475,7 +474,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="KnownGuids.hpp" />
     <ClInclude Include="lang.hpp" />
     <ClInclude Include="language.hpp" />
-    <ClInclude Include="lasterror.hpp" />
     <ClInclude Include="locale.hpp" />
     <ClInclude Include="lockscrn.hpp" />
     <ClInclude Include="macro.hpp" />

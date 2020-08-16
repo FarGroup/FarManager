@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 // Internal:
-#include "exception.hpp"
 
 // Platform:
 #include "platform.hpp"
@@ -114,13 +113,13 @@ namespace os::concurrency
 		void starter(T&& f)
 		{
 			auto Param = std::make_unique<T>(std::move(f));
-			reset(reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, wrapper<T>, Param.get(), 0, &m_ThreadId)));
-
-			if (!*this)
-				throw MAKE_FAR_FATAL_EXCEPTION(L"Can't create thread"sv);
-
+			starter_impl(wrapper<T>, Param.get());
 			Param.release();
 		}
+
+		using proc_type = unsigned(WINAPI*)(void*);
+
+		void starter_impl(proc_type Proc, void* Param);
 
 		template<class T>
 		static unsigned int WINAPI wrapper(void* RawPtr)
@@ -150,25 +149,7 @@ namespace os::concurrency
 
 	namespace detail
 	{
-		class i_shared_mutex
-		{
-		public:
-			virtual ~i_shared_mutex() = default;
-
-			virtual void lock() = 0;
-
-			[[nodiscard]]
-			virtual bool try_lock() = 0;
-
-			virtual void unlock() = 0;
-
-			virtual void lock_shared() = 0;
-
-			[[nodiscard]]
-			virtual bool try_lock_shared() = 0;
-
-			virtual void unlock_shared() = 0;
-		};
+		class i_shared_mutex;
 	}
 
 	// Q: WTF is this, it's in the standard!
@@ -176,24 +157,19 @@ namespace os::concurrency
 	class shared_mutex
 	{
 	public:
+		NONCOPYABLE(shared_mutex);
+
 		shared_mutex();
+		~shared_mutex();
 
-		shared_mutex(const shared_mutex&) = delete;
-		shared_mutex& operator=(const shared_mutex&) = delete;
-
-		void lock() { m_Impl->lock(); }
-
+		void lock();
 		[[nodiscard]]
-		bool try_lock() { return m_Impl->try_lock(); }
-
-		void unlock() { m_Impl->unlock(); }
-
-		void lock_shared() { m_Impl->lock_shared(); }
-
+		bool try_lock();
+		void unlock();
+		void lock_shared();
 		[[nodiscard]]
-		bool try_lock_shared() { return m_Impl->try_lock_shared(); }
-
-		void unlock_shared() { m_Impl->unlock_shared(); }
+		bool try_lock_shared();
+		void unlock_shared();
 
 	private:
 		std::unique_ptr<detail::i_shared_mutex> m_Impl;

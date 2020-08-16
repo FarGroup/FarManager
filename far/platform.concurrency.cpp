@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.concurrency.hpp"
 
 // Internal:
+#include "exception.hpp"
 #include "imports.hpp"
 #include "pathmix.hpp"
 
@@ -117,6 +118,14 @@ namespace os::concurrency
 			throw MAKE_FAR_FATAL_EXCEPTION(L"Thread is not joinable"sv);
 	}
 
+	void thread::starter_impl(proc_type Proc, void* Param)
+	{
+		reset(reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, Proc, Param, 0, &m_ThreadId)));
+
+		if (!*this)
+			throw MAKE_FAR_FATAL_EXCEPTION(L"Can't create thread"sv);
+	}
+
 
 	mutex::mutex(string_view const Name):
 		handle(CreateMutex(nullptr, false, EmptyToNull(null_terminated(Name))))
@@ -142,6 +151,20 @@ namespace os::concurrency
 
 	namespace detail
 	{
+		class i_shared_mutex
+		{
+		public:
+			virtual ~i_shared_mutex() = default;
+			virtual void lock() = 0;
+			[[nodiscard]]
+			virtual bool try_lock() = 0;
+			virtual void unlock() = 0;
+			virtual void lock_shared() = 0;
+			[[nodiscard]]
+			virtual bool try_lock_shared() = 0;
+			virtual void unlock_shared() = 0;
+		};
+
 		class shared_mutex_legacy final: public i_shared_mutex
 		{
 		public:
@@ -180,13 +203,29 @@ namespace os::concurrency
 		};
 	}
 
-	shared_mutex::shared_mutex()
+	static std::unique_ptr<detail::i_shared_mutex> make_shared_mutex()
 	{
-		if (imports.TryAcquireSRWLockExclusive) // Windows 7 and above
-			m_Impl = std::make_unique<detail::shared_mutex_srw>();
-		else
-			m_Impl = std::make_unique<detail::shared_mutex_legacy>();
+		// Windows 7 and above
+		if (imports.TryAcquireSRWLockExclusive)
+			return std::make_unique<detail::shared_mutex_srw>();
+
+		return std::make_unique<detail::shared_mutex_legacy>();
 	}
+
+
+	shared_mutex::shared_mutex():
+		m_Impl(make_shared_mutex())
+	{
+	}
+
+	shared_mutex::~shared_mutex() = default;
+
+	void shared_mutex::lock()            { return m_Impl->lock(); }
+	bool shared_mutex::try_lock()        { return m_Impl->try_lock(); }
+	void shared_mutex::unlock()          { return m_Impl->unlock(); }
+	void shared_mutex::lock_shared()     { return m_Impl->lock_shared(); }
+	bool shared_mutex::try_lock_shared() { return m_Impl->try_lock_shared(); }
+	void shared_mutex::unlock_shared()   { return m_Impl->unlock_shared(); }
 
 
 	event::event(type const Type, state const InitialState, string_view const Name):

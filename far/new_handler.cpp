@@ -57,8 +57,7 @@ namespace
 
 new_handler::new_handler():
 	m_BufferSize{ X, Y },
-	m_Screen(CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, CONSOLE_TEXTMODE_BUFFER, nullptr)),
-	m_OldHandler()
+	m_Screen(CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, CONSOLE_TEXTMODE_BUFFER, nullptr))
 {
 	if (!m_Screen)
 		return;
@@ -84,7 +83,7 @@ new_handler::new_handler():
 	if (!SetConsoleCursorInfo(m_Screen.native_handle(), &cci))
 		return;
 
-	const string_view Strings[] =
+	const string_view Strings[]
 	{
 		build::version_string(),
 		{},

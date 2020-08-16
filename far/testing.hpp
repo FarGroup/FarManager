@@ -41,11 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "disable_warnings_in_std_begin.hpp"
 
-#ifdef MEMCHECK
-#pragma push_macro("new")
-#undef new
-#endif
-
 WARNING_PUSH()
 
 WARNING_DISABLE_MSC(5204) // 'class': class has virtual functions, but its trivial destructor is not virtual; instances of objects derived from this class may not be destructed correctly
@@ -56,10 +51,6 @@ WARNING_DISABLE_CLANG("-Weverything")
 #include "thirdparty/catch2/catch.hpp"
 
 WARNING_POP()
-
-#ifdef MEMCHECK
-#pragma pop_macro("new")
-#endif
 
 #include "disable_warnings_in_std_end.hpp"
 

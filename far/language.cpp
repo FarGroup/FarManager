@@ -43,7 +43,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "filestr.hpp"
 #include "interf.hpp"
-#include "lasterror.hpp"
 #include "string_utils.hpp"
 #include "pathmix.hpp"
 #include "exception.hpp"
@@ -390,7 +389,7 @@ static void LoadCustomStrings(string_view const FileName, std::unordered_map<str
 
 void language::load(string_view const Path, string_view const Language, int CountNeed)
 {
-	SCOPED_ACTION(GuardLastError);
+	SCOPED_ACTION(os::last_error_guard);
 
 	auto Data = m_Data->create();
 
