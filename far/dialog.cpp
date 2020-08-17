@@ -1223,7 +1223,7 @@ bool Dialog::GetItemRect(size_t I, SMALL_RECT& Rect)
 bool Dialog::ItemHasDropDownArrow(const DialogItemEx *Item)
 {
 	return (!Item->strHistory.empty() && (Item->Flags & DIF_HISTORY) && Global->Opt->Dialogs.EditHistory) ||
-		(Item->Type == DI_COMBOBOX && Item->ListPtr && !Item->ListPtr->empty());
+		(Item->Type == DI_COMBOBOX && Item->ListPtr && Item->ListPtr->HasVisible());
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -3548,7 +3548,7 @@ bool Dialog::ProcessOpenComboBox(FARDIALOGITEMTYPES Type,DialogItemEx *CurItem, 
 	// $ 18.07.2000 SVS:  +обработка DI_COMBOBOX - выбор из списка!
 	else if (Type == DI_COMBOBOX && CurItem->ListPtr &&
 	         !(CurItem->Flags & DIF_READONLY) &&
-	         !CurItem->ListPtr->empty()) //??
+	         CurItem->ListPtr->HasVisible()) //??
 	{
 		SelectFromComboBox(CurItem, CurEditLine);
 	}
@@ -5097,7 +5097,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 					// уточнение для DI_COMBOBOX - здесь еще и DlgEdit нужно корректно заполнить
 					if (!CurItem->IFlags.Check(DLGIIF_COMBOBOXNOREDRAWEDIT) && Type==DI_COMBOBOX && CurItem->ObjPtr)
 					{
-						if (!ListBox->empty())
+						if (ListBox->HasVisible())
 						{
 							const auto& ListMenuItem = ListBox->at(ListBox->GetSelectPos());
 							const auto Edit = static_cast<DlgEdit*>(CurItem->ObjPtr);

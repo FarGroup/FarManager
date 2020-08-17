@@ -907,7 +907,7 @@ long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 		{
 			if (iParam == -1LL)
 				iParam = SelectPos;
-			else if (iParam >= static_cast<int>(size()) || iParam < -1LL)
+			else if (iParam >= static_cast<int>(size()) || iParam <= -1LL)
 				return -1;
 
 			auto& menuEx = at(iParam);
@@ -922,7 +922,7 @@ long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 
 		case MCODE_V_MENU_VALUE: // Menu.Value
 		{
-			if (empty())
+			if (!HasVisible())
 				return 0;
 			*static_cast<string*>(vParam) = at(SelectPos).Name;
 			return 1;

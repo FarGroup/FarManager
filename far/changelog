@@ -1,3 +1,7 @@
+zg 17.08.2020 22:24:45 +0300 - build 5654
+
+1. с форума: Пустой список DI_LIST-а, если исходном списке все строки - LIF_HIDDEN.
+
 drkns 17.08.2020 19:45:45 +0100 - build 5653
 
 1. gh-263: Use ArcLite for .aab by default
