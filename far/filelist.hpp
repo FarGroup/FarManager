@@ -148,7 +148,7 @@ public:
 	void SortFileList(bool KeepPosition) override;
 	void SetViewMode(int ViewMode) override;
 	void SetSortMode(panel_sort Mode, bool KeepOrder = false) override;
-	void SetCustomSortMode(int Mode, sort_order Order = SO_AUTO, bool InvertByDefault = false) override;
+	void SetCustomSortMode(panel_sort Mode, sort_order Order = SO_AUTO, bool InvertByDefault = false) override;
 	void ChangeSortOrder(bool Reverse) override;
 	void ChangeDirectoriesFirst(bool Mode) override;
 	void OnSortingChange() override;

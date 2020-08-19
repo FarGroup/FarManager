@@ -2256,20 +2256,23 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 				if (panel)
 				{
-					int SortMode = static_cast<int>(Data->Values[1].Double);
-					bool InvertByDefault = Data->Values[2].Boolean != 0;
-					sort_order Order = SO_AUTO;
-					if (Data->Count>=4 && Data->Values[3].Type==FMVT_DOUBLE)
+					const auto SortMode = panel_sort{ static_cast<int>(Data->Values[1].Double) };
+					const auto InvertByDefault = Data->Values[2].Boolean != 0;
+					const auto Order = [&]
 					{
+						if (Data->Count < 4 || Data->Values[3].Type != FMVT_DOUBLE)
+							return SO_AUTO;
+
 						switch (static_cast<int>(Data->Values[3].Double))
 						{
-							default:
-							case 0: Order=SO_AUTO; break;
-							case 1: Order=SO_KEEPCURRENT; break;
-							case 2: Order=SO_DIRECT; break;
-							case 3: Order=SO_REVERSE; break;
+						default:
+						case 0: return SO_AUTO;
+						case 1: return SO_KEEPCURRENT;
+						case 2: return SO_DIRECT;
+						case 3: return SO_REVERSE;
 						}
-					}
+					}();
+
 					panel->SetCustomSortMode(SortMode, Order, InvertByDefault);
 				}
 			}

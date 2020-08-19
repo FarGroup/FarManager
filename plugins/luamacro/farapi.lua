@@ -717,6 +717,10 @@ enum OPENPANELINFO_SORTMODES
 	SM_STREAMSSIZE               = 13,
 	SM_NAMEONLY                  = 14,
 	SM_CHTIME                    = 15,
+
+	SM_COUNT,
+
+	SM_USER                      = 100000
 };
 
 struct PanelInfo

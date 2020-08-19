@@ -1,3 +1,7 @@
+drkns 19.08.2020 22:29:34 +0100 - build 5655
+
+1. Added a constant that defines the range of custom sort modes to Plugin API.
+
 zg 17.08.2020 22:24:45 +0300 - build 5654
 
 1. forum: empty DI_LIST's list in case in initial list all elements have flag LIF_HIDDEN.

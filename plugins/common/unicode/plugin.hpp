@@ -6,7 +6,7 @@
 /*
 plugin.hpp
 
-Plugin API for Far Manager 3.0 build 5649
+Plugin API for Far Manager 3.0 build 5655
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -44,7 +44,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 5649
+#define FARMANAGERVERSION_BUILD 5655
 #define FARMANAGERVERSION_STAGE VS_PRIVATE
 
 #ifndef RC_INVOKED
@@ -834,7 +834,9 @@ enum OPENPANELINFO_SORTMODES
 	SM_NAMEONLY                  = 14,
 	SM_CHTIME                    = 15,
 
-	SM_COUNT
+	SM_COUNT,
+
+	SM_USER                      = 100000
 };
 
 struct PanelInfo

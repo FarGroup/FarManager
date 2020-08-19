@@ -114,6 +114,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
+static_assert(as_underlying_type(panel_sort::BY_USER) == as_underlying_type(OPENPANELINFO_SORTMODES::SM_USER));
+
+
 constexpr auto operator+(panel_sort const Value) noexcept
 {
 	return as_underlying_type(Value);
@@ -643,7 +646,7 @@ public:
 			PluginPanelItemHolder pi1, pi2;
 			m_Owner->FileListToPluginItem(a, pi1);
 			m_Owner->FileListToPluginItem(b, pi2);
-			if (const auto Result = Global->CtrlObject->Plugins->Compare(m_SortPlugin, &pi1.Item, &pi2.Item, static_cast<int>(m_ListSortMode) + (SM_UNSORTED - static_cast<int>(panel_sort::UNSORTED))))
+			if (const auto Result = Global->CtrlObject->Plugins->Compare(m_SortPlugin, &pi1.Item, &pi2.Item, internal_sort_mode_to_plugin(m_ListSortMode)))
 			{
 				if (Result != -2)
 					return Result < 0;
@@ -786,7 +789,7 @@ void FileList::SortFileList(bool KeepPosition)
 				std::stable_sort(ALL_RANGE(m_ListData), Predicate);
 			}
 		}
-		else
+		else if (m_SortMode >= panel_sort::BY_USER)
 		{
 			custom_sort::CustomSort cs{};
 			custom_sort::FileListPtr = this;
@@ -812,6 +815,10 @@ void FileList::SortFileList(bool KeepPosition)
 				SetSortMode(panel_sort::BY_NAME); // recursive call
 				return;
 			}
+		}
+		else
+		{
+			// TODO: log
 		}
 
 		if (KeepPosition)
@@ -3382,27 +3389,37 @@ void FileList::SetSortMode(panel_sort Mode, bool KeepOrder)
 
 		ApplySortMode(Mode);
 	}
-	else
-		SetCustomSortMode(static_cast<int>(Mode), (KeepOrder ? SO_KEEPCURRENT : SO_AUTO), false);
+	else if (Mode >= panel_sort::BY_USER)
+	{
+		SetCustomSortMode(Mode, KeepOrder? SO_KEEPCURRENT : SO_AUTO, false);
+	}
 }
 
-void FileList::SetCustomSortMode(int Mode, sort_order Order, bool InvertByDefault)
+void FileList::SetCustomSortMode(panel_sort const Mode, sort_order const Order, bool const InvertByDefault)
 {
-	if (Mode >= static_cast<int>(panel_sort::COUNT))
-	{
-		switch (Order)
-		{
-			default:
-			case SO_AUTO:
-				m_ReverseSortOrder = (static_cast<int>(m_SortMode) == Mode && Global->Opt->ReverseSort)? !m_ReverseSortOrder : InvertByDefault;
-				break;
-			case SO_KEEPCURRENT: break;
-			case SO_DIRECT: m_ReverseSortOrder = false; break;
-			case SO_REVERSE: m_ReverseSortOrder = true; break;
-		}
+	if (Mode < panel_sort::BY_USER)
+		return;
 
-		ApplySortMode(panel_sort(Mode));
+	switch (Order)
+	{
+	default:
+	case SO_AUTO:
+		m_ReverseSortOrder = (Mode == m_SortMode && Global->Opt->ReverseSort)? !m_ReverseSortOrder : InvertByDefault;
+		break;
+
+	case SO_KEEPCURRENT:
+		break;
+
+	case SO_DIRECT:
+		m_ReverseSortOrder = false;
+		break;
+
+	case SO_REVERSE:
+		m_ReverseSortOrder = true;
+		break;
 	}
+
+	ApplySortMode(Mode);
 }
 
 void FileList::ChangeDirectoriesFirst(bool Mode)
@@ -4628,7 +4645,7 @@ void FileList::SelectSortMode()
 	{
 		SetCheckAndSelect(SortModes[static_cast<size_t>(m_SortMode)].MenuPosition);
 	}
-	else if (mpr)
+	else if (m_SortMode >= panel_sort::BY_USER)
 	{
 		for (size_t i=0; i < mpr->Count; i += 3)
 		{
@@ -4638,6 +4655,10 @@ void FileList::SelectSortMode()
 				break;
 			}
 		}
+	}
+	else
+	{
+		// TODO: log
 	}
 
 	enum SortOptions
@@ -4747,7 +4768,7 @@ void FileList::SelectSortMode()
 				Order = SO_KEEPCURRENT;
 			}
 
-			SetCustomSortMode(mode, Order, InvertByDefault);
+			SetCustomSortMode(panel_sort{ mode }, Order, InvertByDefault);
 		}
 	}
 	// sort options
@@ -6240,13 +6261,9 @@ void FileList::SetPluginMode(std::unique_ptr<plugin_panel>&& PluginPanel, string
 		SetViewMode(VIEW_0 + m_CachedOpenPanelInfo.StartPanelMode-L'0');
 
 	if (m_CachedOpenPanelInfo.StartSortMode)
-	{
-		if (m_CachedOpenPanelInfo.StartSortMode <= SM_COUNT)
-			m_SortMode = panel_sort(m_CachedOpenPanelInfo.StartSortMode - (SM_UNSORTED - static_cast<int>(panel_sort::UNSORTED)));
-		else
-			m_SortMode = panel_sort(m_CachedOpenPanelInfo.StartSortMode);
-		m_ReverseSortOrder = m_CachedOpenPanelInfo.StartSortOrder != 0;
-	}
+		m_SortMode = plugin_sort_mode_to_internal(m_CachedOpenPanelInfo.StartSortMode);
+
+	m_ReverseSortOrder = m_CachedOpenPanelInfo.StartSortOrder != 0;
 
 	if (ParentWindow)
 	{
@@ -7497,9 +7514,13 @@ void FileList::ShowFileList(bool Fast)
 			const auto UseReverseIndicator = Global->Opt->ReverseSortCharCompat && CurrenModeData.InvertByDefault? !m_ReverseSortOrder: m_ReverseSortOrder;
 			Indicator = UseReverseIndicator? upper(Char) : lower(Char);
 		}
-		else
+		else if (m_SortMode >= panel_sort::BY_USER)
 		{
 			Indicator = m_ReverseSortOrder? CustomSortIndicator[1] : CustomSortIndicator[0];
+		}
+		else
+		{
+			// TODO: log
 		}
 
 		if (Indicator)

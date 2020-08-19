@@ -615,7 +615,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			Info->PanelRect.right = Rect.right;
 			Info->PanelRect.bottom = Rect.bottom;
 			Info->ViewMode=GetViewMode();
-			Info->SortMode = static_cast<OPENPANELINFO_SORTMODES>((GetSortMode() < panel_sort::COUNT? SM_UNSORTED - static_cast<int>(panel_sort::UNSORTED) : 0) + static_cast<int>(GetSortMode()));
+			Info->SortMode = static_cast<OPENPANELINFO_SORTMODES>(internal_sort_mode_to_plugin(GetSortMode()));
 
 			Info->Flags |= Global->Opt->ShowHidden? PFLAGS_SHOWHIDDEN : 0;
 			Info->Flags |= Global->Opt->Highlight? PFLAGS_HIGHLIGHT : 0;
@@ -1159,4 +1159,17 @@ string Panel::CreateFullPathName(string_view const Name, bool const Directory, b
 FilePanels* Panel::Parent() const
 {
 	return dynamic_cast<FilePanels*>(GetOwner().get());
+}
+
+const auto PluginSortModesOffset = 1;
+
+int internal_sort_mode_to_plugin(panel_sort const Mode)
+{
+	const auto ModeValue = static_cast<int>(Mode);
+	return Mode < panel_sort::BY_USER? ModeValue + PluginSortModesOffset : ModeValue;
+}
+
+panel_sort plugin_sort_mode_to_internal(int const Mode)
+{
+	return panel_sort{ Mode < SM_USER? Mode - PluginSortModesOffset : Mode };
 }

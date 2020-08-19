@@ -5,7 +5,7 @@
 /*
 farcolor.hpp
 
-Colors Index for FAR Manager 3.0 build 5649
+Colors Index for FAR Manager 3.0 build 5655
 */
 /*
 Copyright © 1996 Eugene Roshal

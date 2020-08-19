@@ -133,7 +133,9 @@ enum class panel_sort: int
 	BY_NAMEONLY,
 	BY_CHTIME,
 
-	COUNT
+	COUNT,
+
+	BY_USER = 100000
 };
 
 span<int const> default_sort_layers(panel_sort SortMode);
@@ -230,7 +232,7 @@ public:
 	virtual void ChangeDirectoriesFirst(bool Mode) { SetDirectoriesFirst(Mode); }
 	virtual void OnSortingChange() {}
 	virtual void SetSortMode(panel_sort Mode, bool KeepOrder = false) { m_SortMode = Mode; }
-	virtual void SetCustomSortMode(int SortMode, sort_order Order = SO_AUTO, bool InvertByDefault = false) {}
+	virtual void SetCustomSortMode(panel_sort Mode, sort_order Order = SO_AUTO, bool InvertByDefault = false) {}
 	virtual void ChangeSortOrder(bool Reverse) {SetSortOrder(Reverse);}
 	virtual void IfGoHome(wchar_t Drive) {}
 	virtual void UpdateKeyBar() = 0;
@@ -351,5 +353,8 @@ private:
 	void Update(int Mode) override {}
 	void UpdateKeyBar() override {}
 };
+
+int internal_sort_mode_to_plugin(panel_sort Mode);
+panel_sort plugin_sort_mode_to_internal(int Mode);
 
 #endif // PANEL_HPP_FFA15B35_5546_4AA9_84B2_B60D8AA904C7
