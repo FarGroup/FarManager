@@ -6261,9 +6261,10 @@ void FileList::SetPluginMode(std::unique_ptr<plugin_panel>&& PluginPanel, string
 		SetViewMode(VIEW_0 + m_CachedOpenPanelInfo.StartPanelMode-L'0');
 
 	if (m_CachedOpenPanelInfo.StartSortMode)
+	{
 		m_SortMode = plugin_sort_mode_to_internal(m_CachedOpenPanelInfo.StartSortMode);
-
-	m_ReverseSortOrder = m_CachedOpenPanelInfo.StartSortOrder != 0;
+		m_ReverseSortOrder = m_CachedOpenPanelInfo.StartSortOrder != 0;
+	}
 
 	if (ParentWindow)
 	{
