@@ -1,3 +1,7 @@
+shmuel 20.08.2020 20:11:34 +0300 - build 755
+
+1. Correct argument safety check in LoadCustomSortMode().
+
 shmuel 20.08.2020 19:28:27 +0300 - build 754
 
 1. Revert changes (except farapi.lua) made in 753.

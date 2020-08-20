@@ -73,7 +73,8 @@ local TernaryProperties = {
 }
 
 local function LoadCustomSortMode (nMode, Settings)
-  assert(type(nMode)=="number" and nMode==math.floor(nMode) and nMode>=100 and nMode<=0x7FFFFFFF)
+  local minMode = F.SM_USER or 100 -- SM_USER appeared in Far 3.0.5655
+  assert(type(nMode)=="number" and nMode==math.floor(nMode) and nMode>=minMode and nMode<=0x7FFFFFFF)
   if type(Settings) == "table" then
     local t = {}
 
