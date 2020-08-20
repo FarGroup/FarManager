@@ -1661,12 +1661,12 @@ lv=3
 dt=Text
 nm=LoadCustomSortMode
 ctime=3585324926
-mtime=3666994029
+mtime=3807114127
 <article>
 #_Panel.LoadCustomSortMode (Mode, Settings)
 #_
 #_**Параметры:**
-#_  Mode:         режим сортировки, целое число >=100 и <=0x7FFFFFFF
+#_  Mode:         режим сортировки, целое число >=SM_USER и <=0x7FFFFFFF
 #_  Settings:     таблица, содержит следующие поля:
 #_                  *Condition*:
 #_                     Функция. Если задана, то будет вызвана с одним аргументом - режим сортировки.
@@ -1746,7 +1746,7 @@ mtime=3666994029
 #_  *-- Загрузить сортировку по длине имени файла.*
 #_  local ffi = require "ffi"
 #_  local C = ffi.C
-#_  Panel.LoadCustomSortMode (100,
+#_  Panel.LoadCustomSortMode (SM_USER+10,
 #_    { 
 #_      Compare = function(p1, p2, opt)
 #_        local l1, l2 = C.wcslen(p1.FileName), C.wcslen(p2.FileName)
@@ -1769,12 +1769,12 @@ lv=3
 dt=Text
 nm=SetCustomSortMode
 ctime=3585499487
-mtime=3676118664
+mtime=3807114155
 <article>
 #_Panel.SetCustomSortMode (Mode, whatpanel [, order])
 #_
 #_**Параметры:**
-#_  Mode:         режим сортировки, целое число >=100 и <=0x7FFFFFFF
+#_  Mode:         режим сортировки, целое число >=SM_USER и <=0x7FFFFFFF
 #_  whatpanel:    0=активная панель, 1=пассивная панель
 #_  order:        "auto"    - стандартный выбор направления сортировки (значение по умолчанию)
 #_                "current" - сохранить текущее направление сортировки в панели
@@ -1794,7 +1794,7 @@ mtime=3676118664
 #_  Macro {
 #_    description="Sort files by their name length";
 #_    area="Shell"; key="CtrlShiftF1";
-#_    action=function() Panel.SetCustomSortMode(100,0) end;
+#_    action=function() Panel.SetCustomSortMode(SM_USER+10,0) end;
 #_  }
 #_
 #_@@@

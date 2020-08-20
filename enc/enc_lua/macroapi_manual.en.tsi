@@ -1670,12 +1670,12 @@ lv=3
 dt=Text
 nm=LoadCustomSortMode
 ctime=3585324926
-mtime=3666993887
+mtime=3807114389
 <article>
 #_Panel.LoadCustomSortMode (Mode, Settings)
 #_
 #_**Parameters:**
-#_  Mode:         sort mode; integer >=100 and <=0x7FFFFFFF
+#_  Mode:         sort mode; integer >=SM_USER and <=0x7FFFFFFF
 #_  Settings:     a table containing the following fields:
 #_      *Condition*:
 #_         Function. If it is specified it will be called with one argument - sort mode.
@@ -1752,7 +1752,8 @@ mtime=3666993887
 #_  *-- Load the sorting by file name length.*
 #_  local ffi = require "ffi"
 #_  local C = ffi.C
-#_  Panel.LoadCustomSortMode (100,
+#_  local F = far.Flags
+#_  Panel.LoadCustomSortMode (F.SM_USER+10,
 #_    { 
 #_      Compare = function(p1, p2, opt)
 #_        local l1, l2 = C.wcslen(p1.FileName), C.wcslen(p2.FileName)
@@ -1776,12 +1777,12 @@ lv=3
 dt=Text
 nm=SetCustomSortMode
 ctime=3585499487
-mtime=3676118654
+mtime=3807114048
 <article>
 #_Panel.SetCustomSortMode (Mode, whatpanel [, order])
 #_
 #_**Parameters:**
-#_  Mode:         sorting mode, an integer >=100 and <=0x7FFFFFFF
+#_  Mode:         sorting mode, an integer >=SM_USER and <=0x7FFFFFFF
 #_  whatpanel:    0=active panel, 1=passive panel
 #_  order:        "auto"    - standard choice of sort direction (default)
 #_                "current" - keep current sort direction in the panel
@@ -1800,7 +1801,7 @@ mtime=3676118654
 #_  Macro {
 #_    description="Sort files by their name lengths";
 #_    area="Shell"; key="CtrlShiftF1";
-#_    action=function() Panel.SetCustomSortMode(100,0) end;
+#_    action=function() Panel.SetCustomSortMode(F.SM_USER+10,0) end;
 #_  }
 #_
 #_@@@
