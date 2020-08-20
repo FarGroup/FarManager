@@ -77,8 +77,6 @@ local function LoadCustomSortMode (nMode, Settings)
   if type(Settings) == "table" then
     local t = {}
 
-    nMode = nMode + far.Flags.SM_USER
-
     if type(Settings.Compare) == "function" then t.Compare=Settings.Compare end
     local cond = Settings.Condition or Settings.condition -- allow lower case for 'Condition'
     if type(cond) == "function" then t.Condition=cond end
@@ -133,7 +131,7 @@ local function SetCustomSortMode (nMode, whatpanel, order)
       end
       local Settings = CustomSortModes[nMode]
       whatpanel = whatpanel==1 and 1 or 0
-      Shared.MacroCallFar(MCODE_F_SETCUSTOMSORTMODE, whatpanel, nMode + far.Flags.SM_USER, Settings.InvertByDefault, order)
+      Shared.MacroCallFar(MCODE_F_SETCUSTOMSORTMODE, whatpanel, nMode, Settings.InvertByDefault, order)
     end
   end
 end

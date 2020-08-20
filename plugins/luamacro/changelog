@@ -1,3 +1,7 @@
+shmuel 20.08.2020 19:28:27 +0300 - build 754
+
+1. Revert changes (except farapi.lua) made in 753.
+
 drkns 19.08.2020 22:34:11 +0100 - build 753
 
 1. Adaptation to Far 3.0.5655.
