@@ -59,6 +59,41 @@ struct equal_icase_t;
 struct column;
 struct FARConfigItem;
 
+enum class panel_sort: int
+{
+	UNSORTED,
+	BY_NAME,
+	BY_EXT,
+	BY_MTIME,
+	BY_CTIME,
+	BY_ATIME,
+	BY_SIZE,
+	BY_DIZ,
+	BY_OWNER,
+	BY_COMPRESSEDSIZE,
+	BY_NUMLINKS,
+	BY_NUMSTREAMS,
+	BY_STREAMSSIZE,
+	BY_NAMEONLY,
+	BY_CHTIME,
+
+	COUNT,
+
+	BY_USER = 100000
+};
+
+enum class sort_order: int
+{
+	first,
+
+	flip_or_default = first,
+	keep,
+	ascend,
+	descend,
+
+	last = descend
+};
+
 enum
 {
 	CASR_PANEL  = 0_bit,
@@ -791,7 +826,7 @@ public:
 	BoolOption ShowBytes;
 
 	BoolOption SelectFolders;
-	BoolOption ReverseSort;
+	BoolOption AllowReverseSort;
 	BoolOption ReverseSortCharCompat;
 	BoolOption SortFolderExt;
 	BoolOption DeleteToRecycleBin;
@@ -1012,7 +1047,7 @@ public:
 	BoolOption WindowModeStickyX;
 	BoolOption WindowModeStickyY;
 
-	std::vector<std::vector<int>> PanelSortLayers;
+	std::vector<std::vector<std::pair<panel_sort, sort_order>>> PanelSortLayers;
 
 	const std::vector<PanelViewSettings>& ViewSettings;
 

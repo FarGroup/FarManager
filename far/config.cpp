@@ -228,7 +228,7 @@ void Options::PanelSettings()
 	Builder.AddCheckbox(lng::MConfigSelectFolders, SelectFolders);
 	Builder.AddCheckbox(lng::MConfigRightClickSelect, RightClickSelect);
 	Builder.AddCheckbox(lng::MConfigSortFolderExt, SortFolderExt);
-	Builder.AddCheckbox(lng::MConfigReverseSort, ReverseSort);
+	Builder.AddCheckbox(lng::MConfigAllowReverseSort, AllowReverseSort);
 
 	const auto AutoUpdateEnabled = Builder.AddCheckbox(lng::MConfigAutoUpdateLimit, AutoUpdate);
 	const auto AutoUpdateLimitItem = Builder.AddIntEditField(AutoUpdateLimit, 6);
@@ -1874,7 +1874,7 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeyPanel,                  L"CtrlAltShiftRule"sv,              PanelCtrlAltShiftRule, 0},
 		{FSSF_PRIVATE,           NKeyPanel,                  L"CtrlFRule"sv,                     PanelCtrlFRule, false},
 		{FSSF_PRIVATE,           NKeyPanel,                  L"Highlight"sv,                     Highlight, true},
-		{FSSF_PRIVATE,           NKeyPanel,                  L"ReverseSort"sv,                   ReverseSort, true},
+		{FSSF_PRIVATE,           NKeyPanel,                  L"ReverseSort"sv,                   AllowReverseSort, true},
 		{FSSF_PRIVATE,           NKeyPanel,                  L"ReverseSortCharCompat"sv,         ReverseSortCharCompat, false},
 		{FSSF_PRIVATE,           NKeyPanel,                  L"RememberLogicalDrives"sv,         RememberLogicalDrives, false},
 		{FSSF_PRIVATE,           NKeyPanel,                  L"RightClickRule"sv,                PanelRightClickRule, 2},
@@ -2157,38 +2157,70 @@ void Options::SetDriveMenuHotkeys()
 	ConfigProvider().GeneralCfg()->SetValue(L"Interface"sv, L"InitDriveMenuHotkeys"sv, false);
 }
 
+static std::optional<std::pair<panel_sort, sort_order>> deserialise_sort_layer(string_view const LayerStr)
+{
+	int Sort = -1;
+	int Order = -1;
+
+	for (const auto& Str: enum_tokens(LayerStr, L":"sv))
+	{
+		switch (Str.front())
+		{
+		case L'S':
+			if (!from_string(Str.substr(1), Sort) || !in_range(0, Sort, static_cast<int>(panel_sort::COUNT)))
+				return {};
+			break;
+
+		case L'O':
+			if (!from_string(Str.substr(1), Order) || !in_range(static_cast<int>(sort_order::first), Order, static_cast<int>(sort_order::last)))
+				return {};
+			break;
+		}
+	}
+
+	if (Sort == -1 || Order == -1)
+		return {};
+
+	return std::pair(panel_sort{ Sort }, sort_order{ Order });
+}
+
+static auto deserialise_sort_layers(string_view const LayersStr)
+{
+	std::vector<std::pair<panel_sort, sort_order>> Layers;
+
+	for (const auto& Str: enum_tokens(LayersStr, L" "sv))
+	{
+		if (const auto Layer = deserialise_sort_layer(Str); Layer && !contains(Layers, *Layer))
+			Layers.emplace_back(*Layer);
+	}
+
+	return Layers;
+}
+
+static auto serialise_sort_layer(std::pair<panel_sort, sort_order> const& Layer)
+{
+	return format(FSTR(L"S{0}:O{1}"), Layer.first, Layer.second);
+}
+
+static auto serialise_sort_layers(span<std::pair<panel_sort, sort_order> const> const Layers)
+{
+	return join(select(Layers, serialise_sort_layer), L" "sv);
+}
+
 void Options::ReadSortLayers()
 {
 	PanelSortLayers.resize(static_cast<size_t>(panel_sort::COUNT));
 
-	for (auto& [Item, i]: enumerate(PanelSortLayers))
+	for (auto& [Layers, i]: enumerate(PanelSortLayers))
 	{
-		Item.emplace_back(i + 1);
+		string LayersStr;
+		if (ConfigProvider().GeneralCfg()->GetValue(NKeyPanelSortLayers, str(i), LayersStr))
+			Layers = deserialise_sort_layers(LayersStr);
 
-		string Layers;
-		if (ConfigProvider().GeneralCfg()->GetValue(NKeyPanelSortLayers, str(i), Layers))
+		if (Layers.empty())
 		{
-			for (const auto& Str: enum_tokens(Layers, L" "sv))
-			{
-				int SortLayerId;
-				if (
-					!from_string(Str, SortLayerId) ||
-					!SortLayerId ||
-					!in_range(-static_cast<int>(panel_sort::COUNT), SortLayerId, static_cast<int>(panel_sort::COUNT)) ||
-					contains(Item, SortLayerId)
-					)
-				{
-					// TODO: log
-					continue;
-				}
-
-				Item.emplace_back(SortLayerId);
-			}
-		}
-		else
-		{
-			const auto& DefaultLayers = default_sort_layers(static_cast<panel_sort>(i));
-			Item.insert(Item.end(), ALL_CONST_RANGE(DefaultLayers));
+			const auto DefaultLayers = default_sort_layers(static_cast<panel_sort>(i));
+			Layers.assign(ALL_CONST_RANGE(DefaultLayers));
 		}
 	}
 }
@@ -2197,11 +2229,18 @@ void Options::SaveSortLayers(bool const Always)
 {
 	auto& Cfg = *ConfigProvider().GeneralCfg();
 
-	for (const auto& [Item, i]: enumerate(PanelSortLayers))
+	for (const auto& [Layers, i]: enumerate(PanelSortLayers))
 	{
-		const auto NewLayers = join(select(span(Item).subspan(1), [](int const SortLayerId){ return str(SortLayerId); }), L" "sv);
-		if ( Always || (NewLayers != Cfg.GetValue<string>(NKeyPanelSortLayers, str(i))))
-			Cfg.SetValue(NKeyPanelSortLayers, str(i), NewLayers);
+		const auto DefaultLayers = default_sort_layers(static_cast<panel_sort>(i));
+		if (std::equal(ALL_CONST_RANGE(Layers), ALL_CONST_RANGE(DefaultLayers)))
+		{
+			Cfg.DeleteValue(NKeyPanelSortLayers, str(i));
+			continue;
+		}
+
+		const auto LayersStr = serialise_sort_layers(Layers);
+		if ( Always || (LayersStr != Cfg.GetValue<string>(NKeyPanelSortLayers, str(i))))
+			Cfg.SetValue(NKeyPanelSortLayers, str(i), LayersStr);
 	}
 }
 

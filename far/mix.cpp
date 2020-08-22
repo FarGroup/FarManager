@@ -334,7 +334,7 @@ void ReloadEnvironment()
 		const os::env::provider::block EnvBlock;
 		for (const auto& i: enum_substrings(EnvBlock.data()))
 		{
-			const auto [Name, Value] = split_name_value(i);
+			const auto [Name, Value] = split(i);
 			os::env::set(Name, Value);
 		}
 	}

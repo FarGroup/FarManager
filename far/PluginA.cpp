@@ -1366,10 +1366,10 @@ static void ConvertUnicodePanelInfoToAnsi(const PanelInfo* PIW, oldfar::PanelInf
 	PIA->Focus = (PIW->Flags&PFLAGS_FOCUS)? 1 : 0;
 	PIA->ViewMode = PIW->ViewMode;
 	PIA->ShortNames = (PIW->Flags&PFLAGS_ALTERNATIVENAMES)? 1 : 0;
-	PIA->SortMode = 0;
 
 	switch (PIW->SortMode)
 	{
+	default:
 	case SM_DEFAULT:        PIA->SortMode = oldfar::SM_DEFAULT;        break;
 	case SM_UNSORTED:       PIA->SortMode = oldfar::SM_UNSORTED;       break;
 	case SM_NAME:           PIA->SortMode = oldfar::SM_NAME;           break;
@@ -1382,8 +1382,6 @@ static void ConvertUnicodePanelInfoToAnsi(const PanelInfo* PIW, oldfar::PanelInf
 	case SM_OWNER:          PIA->SortMode = oldfar::SM_OWNER;          break;
 	case SM_COMPRESSEDSIZE: PIA->SortMode = oldfar::SM_COMPRESSEDSIZE; break;
 	case SM_NUMLINKS:       PIA->SortMode = oldfar::SM_NUMLINKS;       break;
-	default:
-		break;
 	}
 
 	PIA->Flags = 0;

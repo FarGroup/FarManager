@@ -600,10 +600,10 @@ string join(const container& Container, string_view const Separator)
 }
 
 [[nodiscard]]
-inline std::pair<string_view, string_view> split_name_value(string_view const Str) noexcept
+inline std::pair<string_view, string_view> split(string_view const Str, wchar_t const Separator = L'=') noexcept
 {
-	const auto SeparatorPos = Str.find(L'=');
-	return { Str.substr(0, SeparatorPos), Str.substr(SeparatorPos + 1) };
+	const auto SeparatorPos = Str.find(Separator);
+	return { Str.substr(0, SeparatorPos), Str.substr(SeparatorPos == Str.npos? Str.size() : SeparatorPos + 1) };
 }
 
 

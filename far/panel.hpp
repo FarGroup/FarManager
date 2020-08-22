@@ -115,38 +115,10 @@ enum class panel_mode
 	PLUGIN_PANEL
 };
 
-enum class panel_sort: int
-{
-	UNSORTED,
-	BY_NAME,
-	BY_EXT,
-	BY_MTIME,
-	BY_CTIME,
-	BY_ATIME,
-	BY_SIZE,
-	BY_DIZ,
-	BY_OWNER,
-	BY_COMPRESSEDSIZE,
-	BY_NUMLINKS,
-	BY_NUMSTREAMS,
-	BY_STREAMSSIZE,
-	BY_NAMEONLY,
-	BY_CHTIME,
+enum class panel_sort: int;
+enum class sort_order: int;
 
-	COUNT,
-
-	BY_USER = 100000
-};
-
-span<int const> default_sort_layers(panel_sort SortMode);
-
-enum sort_order
-{
-	SO_AUTO,
-	SO_KEEPCURRENT,
-	SO_DIRECT,
-	SO_REVERSE,
-};
+span<std::pair<panel_sort, sort_order> const> default_sort_layers(panel_sort SortMode);
 
 class VMenu2;
 class Edit;
@@ -232,7 +204,7 @@ public:
 	virtual void ChangeDirectoriesFirst(bool Mode) { SetDirectoriesFirst(Mode); }
 	virtual void OnSortingChange() {}
 	virtual void SetSortMode(panel_sort Mode, bool KeepOrder = false) { m_SortMode = Mode; }
-	virtual void SetCustomSortMode(panel_sort Mode, sort_order Order = SO_AUTO, bool InvertByDefault = false) {}
+	virtual void SetCustomSortMode(panel_sort Mode, sort_order Order, bool InvertByDefault) {}
 	virtual void ChangeSortOrder(bool Reverse) {SetSortOrder(Reverse);}
 	virtual void IfGoHome(wchar_t Drive) {}
 	virtual void UpdateKeyBar() = 0;
@@ -325,7 +297,7 @@ protected:
 	panel_type m_Type = panel_type::FILE_PANEL;
 	int m_EnableUpdate = TRUE;
 	panel_mode m_PanelMode = panel_mode::NORMAL_PANEL;
-	panel_sort m_SortMode = panel_sort::UNSORTED;
+	panel_sort m_SortMode{};
 	bool m_ReverseSortOrder = false;
 	bool m_SortGroups = false;
 	int m_PrevViewMode = VIEW_3;

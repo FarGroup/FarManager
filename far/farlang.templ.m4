@@ -2328,7 +2328,7 @@ MConfigSortFolderExt
 "Сортувати імена папок за ти&пом"
 "Парадкаваць імёны каталогаў па па&шырэнню"
 
-MConfigReverseSort
+MConfigAllowReverseSort
 "Разрешить &обратную сортировку"
 "Allow re&verse sort modes"
 "Po&volit změnu směru řazení"

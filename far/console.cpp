@@ -977,7 +977,7 @@ namespace console_detail
 			auto& ExeMap = Result[ExeNamePtr];
 			for (const auto& AliasToken : enum_substrings(AliasesBuffer.data()))
 			{
-				ExeMap.emplace(split_name_value(AliasToken));
+				ExeMap.emplace(split(AliasToken));
 			}
 		}
 

@@ -1,3 +1,9 @@
+drkns 22.08.2020 22:49:52 +0100 - build 5657
+
+1. Sorting again: additional criteria direction can inherit the primary one.
+
+2. Refactoring.
+
 drkns 20.08.2020 18:00:35 +0100 - build 5656
 
 1. Correction of 5655.

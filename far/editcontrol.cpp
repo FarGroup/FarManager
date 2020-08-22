@@ -373,7 +373,7 @@ static bool EnumEnvironment(VMenu2& Menu, const string_view strStart, const stri
 	const os::env::provider::strings EnvStrings;
 	for (const auto& i: enum_substrings(EnvStrings.data()))
 	{
-		const auto Name = split_name_value(i).first;
+		const auto Name = split(i).first;
 		if (Name.empty()) // =C: etc.
 			continue;
 

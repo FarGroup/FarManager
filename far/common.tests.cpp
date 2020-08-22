@@ -734,7 +734,7 @@ TEST_CASE("string_utils.quotes")
 	}
 }
 
-TEST_CASE("string_utils.split_name_value")
+TEST_CASE("string_utils.split")
 {
 	static const struct
 	{
@@ -749,7 +749,7 @@ TEST_CASE("string_utils.split_name_value")
 		{ L"==foo"sv,      { {},         L"=foo"sv,  }, },
 		{ L"foo="sv,       { L"foo"sv,   {},         }, },
 		{ L"foo=="sv,      { L"foo"sv,   L"="sv,     }, },
-		{ L"foo"sv,        { L"foo"sv,   L"foo"sv,   }, },
+		{ L"foo"sv,        { L"foo"sv,   {},         }, },
 		{ L"foo=bar"sv,    { L"foo"sv,   L"bar"sv,   }, },
 		{ L"foo=bar="sv,   { L"foo"sv,   L"bar="sv,  }, },
 		{ L"foo==bar="sv,  { L"foo"sv,   L"=bar="sv, }, },
@@ -757,7 +757,7 @@ TEST_CASE("string_utils.split_name_value")
 
 	for (const auto& i: Tests)
 	{
-		REQUIRE(split_name_value(i.Src) == i.Result);
+		REQUIRE(split(i.Src) == i.Result);
 	}
 }
 
