@@ -1681,6 +1681,16 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 		ErrorState = error_state::fetch();
 		return false;
 	}
+	catch (const std::exception&)
+	{
+		// A portion of file can be locked
+
+		// TODO: better diagnostics
+		m_editor->FreeAllocatedData();
+		m_Flags.Set(FFILEEDIT_OPENFAILED);
+		ErrorState = error_state::fetch();
+		return false;
+	}
 }
 
 bool FileEditor::ReloadFile(uintptr_t codepage)

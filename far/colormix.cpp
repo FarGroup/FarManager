@@ -301,7 +301,7 @@ const FarColor* StoreColor(const FarColor& Value)
 
 COLORREF ARGB2ABGR(int Color)
 {
-	return (Color & 0xFF000000) | ((Color & 0x00FF0000) >> 16) | (Color & 0x0000FF00) | ((Color & 0x000000FF) << 16);
+	return (Color & 0xFF00FF00) | ((Color & 0x00FF0000) >> 16) | ((Color & 0x000000FF) << 16);
 }
 
 static bool ExtractColor(string_view const Str, COLORREF& Target, FARCOLORFLAGS& TargetFlags, FARCOLORFLAGS SetFlag)
@@ -361,6 +361,37 @@ string_view ExtractColorInNewFormat(string_view const Str, FarColor& Color, bool
 #ifdef ENABLE_TESTS
 
 #include "testing.hpp"
+
+TEST_CASE("colors.COLORREF")
+{
+	static const struct
+	{
+		COLORREF Src, Alpha, Color, ABGR, Index;
+		bool Opaque, Transparent;
+
+	}
+	Tests[]
+	{
+		{ 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00, false, true  },
+		{ 0x00000001, 0x00000000, 0x00000001, 0x00010000, 0x01, false, true  },
+		{ 0x01000000, 0x01000000, 0x00000000, 0x01000000, 0x00, false, false },
+		{ 0xFF000000, 0xFF000000, 0x00000000, 0xFF000000, 0x00, true,  false },
+		{ 0x00ABCDEF, 0x00000000, 0x00ABCDEF, 0x00EFCDAB, 0x0F, false, true  },
+		{ 0xFFFFFFFF, 0xFF000000, 0x00FFFFFF, 0xFFFFFFFF, 0x0F, true,  false },
+	};
+
+	for (const auto& i: Tests)
+	{
+		REQUIRE(colors::alpha_value(i.Src) == i.Alpha);
+		REQUIRE(colors::color_value(i.Src) == i.Color);
+		REQUIRE(colors::index_value(i.Src) == i.Index);
+		REQUIRE(colors::is_opaque(i.Src) == i.Opaque);
+		REQUIRE(colors::is_transparent(i.Src) == i.Transparent);
+		REQUIRE(colors::is_opaque(colors::opaque(i.Src)));
+		REQUIRE(colors::is_transparent(colors::transparent(i.Src)));
+		REQUIRE(colors::ARGB2ABGR(i.Src) == i.ABGR);
+	}
+}
 
 TEST_CASE("colors.parser")
 {

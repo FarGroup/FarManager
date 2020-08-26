@@ -275,7 +275,11 @@ size_t GetMountPointLen(string_view const abs_path, string_view const drive_root
 		return 0;
 	}
 
-	return TryConvertVolumeGuidToDrivePath(VolumeGuid).size();
+	const auto DrivePath = TryConvertVolumeGuidToDrivePath(VolumeGuid);
+	if (DrivePath.size() == VolumeGuid.size())
+		return 0;
+
+	return VolumeGuid.size();
 }
 
 /*
