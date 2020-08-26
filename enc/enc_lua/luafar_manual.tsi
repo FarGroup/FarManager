@@ -1886,7 +1886,7 @@ id=104
 lv=2
 dt=Text
 nm=export.GetOpenPanelInfo
-mtime=3754053574
+mtime=3807625364
 <article>
 #_OPInfo = export.GetOpenPanelInfo (object, handle)
 #_
@@ -1903,10 +1903,8 @@ mtime=3754053574
 #_      Format:           string
 #_      PanelTitle:       string
 #_      InfoLines:        table (array of `tInfoLine` tables)
-#_      InfoLinesNumber:  integer
 #_      DescrFiles:       table (array of strings)
 #_      PanelModesArray:  table (array of `tPanelMode` tables)
-#_      PanelModesNumber: integer
 #_      StartPanelMode:   integer
 #_      StartSortMode:    flag
 #_      StartSortOrder:   integer
