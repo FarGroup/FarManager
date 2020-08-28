@@ -1980,6 +1980,8 @@ void VMenu::DisplayObject()
 
 void VMenu::DrawTitles() const
 {
+	if (CheckFlags(VMENU_SHOWNOBOX)) return;
+
 	const auto MaxTitleLength = m_Where.width() - 3;
 	int WidthTitle;
 

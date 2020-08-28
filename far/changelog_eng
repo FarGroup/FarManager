@@ -1,3 +1,7 @@
+zg 28.08.2020 03:38:58 +0300 - build 5659
+
+1. forum: titles never shown in listbox with DIF_LISTNOBOX flag.
+
 drkns 27.08.2020 00:35:51 +0100 - build 5658
 
 1. 0003817: F6 - Failed move file when volume is mounted to folder only
