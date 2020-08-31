@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "configdb.hpp"
 #include "global.hpp"
+#include "exception.hpp"
 
 // Platform:
 

@@ -36,17 +36,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 #include "bitflags.hpp"
 #include "windowsfwd.hpp"
-#include "exception_handler.hpp"
-#include "exception.hpp"
 #include "plugin.hpp"
 
 // Platform:
+#include "platform.hpp"
 #include "platform.fwd.hpp"
 
 // Common:
 #include "common.hpp"
-#include "common/scope_exit.hpp"
+#include "common/function_ref.hpp"
 #include "common/range.hpp"
+#include "common/smart_ptr.hpp"
+#include "common/utility.hpp"
 
 // External:
 
@@ -215,9 +216,11 @@ namespace detail
 	};
 }
 
-class Plugin: noncopyable
+class Plugin
 {
 public:
+	NONCOPYABLE(Plugin);
+
 	Plugin(plugin_factory* Factory, const string& ModuleName);
 	virtual ~Plugin();
 
@@ -317,18 +320,10 @@ protected:
 		using detail::ExecuteStruct::operator=;
 	};
 
-	template<typename T, class... args>
-	void ExecuteFunctionSeh(T& es, args&&... Args)
+	template<typename T, typename... args>
+	void ExecuteFunction(T& es, args&&... Args)
 	{
-		Prologue(); ++Activity;
-		SCOPE_EXIT{ --Activity; Epilogue(); };
-
-		const auto ProcessException = [&](const auto& Handler, auto&&... ProcArgs)
-		{
-			Handler(FWD(ProcArgs)..., m_Factory->ExportsNames()[T::export_id].AName, this)? HandleFailure(T::export_id) : throw;
-		};
-
-		try
+		ExecuteFunctionImpl(T::export_id, [&]
 		{
 			using function_type = typename T::type;
 			const auto Function = reinterpret_cast<function_type>(Exports[T::export_id]);
@@ -337,36 +332,8 @@ protected:
 				Function(FWD(Args)...);
 			else
 				es = Function(FWD(Args)...);
-
-			rethrow_if(GlobalExceptionPtr());
-			m_Factory->ProcessError(m_Factory->ExportsNames()[T::export_id].AName);
-		}
-		catch (const std::exception& e)
-		{
-			ProcessException(ProcessStdException, e);
-		}
-		catch (...)
-		{
-			ProcessException(ProcessUnknownException);
-		}
+		});
 	}
-
-	template<typename T, typename... args>
-	void ExecuteFunction(T& es, args&&... Args)
-	{
-		seh_invoke_with_ui(
-		[&]
-		{
-			ExecuteFunctionSeh(es, FWD(Args)...);
-		},
-		[this]
-		{
-			HandleFailure(T::export_id);
-		},
-		m_Factory->ExportsNames()[T::export_id].AName, this);
-	}
-
-	void HandleFailure(export_index id);
 
 	virtual void Prologue() {}
 	virtual void Epilogue() {}
@@ -392,6 +359,8 @@ private:
 	{
 		Object->Instance = m_Instance->opaque();
 	}
+
+	void ExecuteFunctionImpl(export_index ExportId, function_ref<void()> Callback);
 
 	string strTitle;
 	string strDescription;

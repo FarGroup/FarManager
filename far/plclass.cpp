@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "global.hpp"
 #include "encoding.hpp"
+#include "exception_handler.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -54,6 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/enum_tokens.hpp"
+#include "common/scope_exit.hpp"
 #include "common/view/zip.hpp"
 
 // External:
@@ -218,7 +220,7 @@ bool native_plugin_factory::IsPlugin(const string& FileName) const
 	if (!Data)
 		return false;
 
-	return seh_invoke_no_ui([&]
+	return seh_try_no_ui([&]
 	{
 		return IsPlugin(Data.get());
 	},
@@ -337,18 +339,13 @@ static void CreatePluginStartupInfo(const Plugin* pPlugin, PluginStartupInfo *PS
 
 static void ShowMessageAboutIllegalPluginVersion(const string& plg, const VersionInfo& required)
 {
-	const auto str = [](const VersionInfo& Version)
-	{
-		return format(FSTR(L"{0}.{1}.{2}.{3}"), Version.Major, Version.Minor, Version.Revision, Version.Build);
-	};
-
 	Message(MSG_WARNING|MSG_NOPLUGINS,
 		msg(lng::MError),
 		{
 			msg(lng::MPlgBadVers),
 			plg,
-			format(msg(lng::MPlgRequired), str(required)),
-			format(msg(lng::MPlgRequired2), str(build::version()))
+			format(msg(lng::MPlgRequired), version_to_string(required)),
+			format(msg(lng::MPlgRequired2), version_to_string(build::version()))
 		},
 		{ lng::MOk }
 	);
@@ -1094,13 +1091,49 @@ void Plugin::ExitFAR(ExitInfo *Info)
 	ExecuteFunction(es, Info);
 }
 
-void Plugin::HandleFailure(export_index id)
+void Plugin::ExecuteFunctionImpl(export_index const ExportId, function_ref<void()> const Callback)
 {
-	if (use_terminate_handler())
-		std::_Exit(EXIT_FAILURE);
+	const auto HandleFailure = [&]
+	{
+		if (use_terminate_handler())
+			std::_Exit(EXIT_FAILURE);
 
-	m_Factory->Owner()->UnloadPlugin(this, id);
-	Global->ProcessException = false;
+		m_Factory->Owner()->UnloadPlugin(this, ExportId);
+		Global->ProcessException = false;
+	};
+
+	seh_try_with_ui(
+	[&]
+	{
+		Prologue(); ++Activity;
+		SCOPE_EXIT{ --Activity; Epilogue(); };
+
+		const auto HandleException = [&](const auto& Handler, auto&&... ProcArgs)
+		{
+			Handler(FWD(ProcArgs)..., m_Factory->ExportsNames()[ExportId].AName, this)? HandleFailure() : throw;
+		};
+
+		cpp_try(
+		[&]
+		{
+			Callback();
+			rethrow_if(GlobalExceptionPtr());
+			m_Factory->ProcessError(m_Factory->ExportsNames()[ExportId].AName);
+		},
+		[&]
+		{
+			HandleException(handle_unknown_exception);
+		},
+		[&](std::exception const& e)
+		{
+			HandleException(handle_std_exception, e);
+		});
+	},
+	[&]
+	{
+		HandleFailure();
+	},
+	m_Factory->ExportsNames()[ExportId].AName, this);
 }
 
 class custom_plugin_module: public i_plugin_module

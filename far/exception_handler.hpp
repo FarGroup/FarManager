@@ -46,10 +46,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
+void disable_exception_handling();
+
 class Plugin;
 
-bool ProcessStdException(const std::exception& e, std::string_view Function, const Plugin* Module = nullptr);
-bool ProcessUnknownException(std::string_view Function, const Plugin* Module = nullptr);
+bool handle_std_exception(const std::exception& e, std::string_view Function, const Plugin* Module = nullptr);
+bool handle_unknown_exception(std::string_view Function, const Plugin* Module = nullptr);
 bool use_terminate_handler();
 
 class unhandled_exception_filter
@@ -58,72 +60,113 @@ public:
 	NONCOPYABLE(unhandled_exception_filter);
 	unhandled_exception_filter();
 	~unhandled_exception_filter();
-	static void dismiss();
+
+private:
+	PTOP_LEVEL_EXCEPTION_FILTER m_PreviousFilter;
 };
 
-void RestoreGPFaultUI();
+void restore_gpfault_ui();
 
 namespace detail
 {
-	int SehFilter(int Code, const EXCEPTION_POINTERS* Info, std::string_view Function, const Plugin* Module);
-	void SetFloatingPointExceptions(bool Enable);
-	std::exception_ptr MakeSehExceptionPtr(DWORD Code, EXCEPTION_POINTERS* Pointers, bool ResumeThread);
-	void seh_invoke_impl(function_ref<void()> Callable, function_ref<DWORD(DWORD, EXCEPTION_POINTERS*)> Filter, function_ref<void()> Handler);
+	struct no_handler
+	{
+		template<typename T>
+		void operator()(T const&) const {}
+	};
+
+	void cpp_try(function_ref<void()> Callable, function_ref<void()> UnknownHandler, function_ref<void(std::exception const&)> StdHandler);
+	void seh_try(function_ref<void()> Callable, function_ref<DWORD(DWORD, EXCEPTION_POINTERS*)> Filter, function_ref<void()> Handler);
+	int seh_filter(int Code, const EXCEPTION_POINTERS* Info, std::string_view Function, const Plugin* Module);
+	int seh_thread_filter(std::exception_ptr& Ptr, DWORD Code, EXCEPTION_POINTERS* Info);
+	void seh_thread_handler();
+	void set_fp_exceptions(bool Enable);
 }
 
-
-template<class function, class filter, class handler>
-auto seh_invoke(function const& Callable, filter const& Filter, handler const& Handler)
+template<typename callable, typename unknown_handler, typename std_handler = ::detail::no_handler>
+auto cpp_try(callable const& Callable, unknown_handler const& UnknownHandler, std_handler const& StdHandler = {})
 {
-	using result_type = typename function_traits<function>::result_type;
-
-WARNING_PUSH()
-WARNING_DISABLE_MSC(4702) // unreachable code
+	using result_type = typename function_traits<callable>::result_type;
 
 	if constexpr (std::is_same_v<result_type, void>)
 	{
-		detail::seh_invoke_impl([&]{ Callable(); }, Filter, [&]{ Handler(); });
+		::detail::cpp_try(Callable, UnknownHandler, StdHandler);
 	}
 	else
 	{
 		result_type Result;
-		detail::seh_invoke_impl([&]{ Result = Callable(); }, Filter, [&]{ Result = Handler(); });
+
+		::detail::cpp_try(
+		[&]
+		{
+			Result = Callable();
+		},
+		[&]
+		{
+WARNING_PUSH()
+WARNING_DISABLE_MSC(4702) // unreachable code
+			Result = UnknownHandler();
+		},
+		[&](std::exception const& e)
+		{
+			if constexpr (!std::is_same_v<std_handler, ::detail::no_handler>)
+				Result = StdHandler(e);
+		});
+WARNING_POP()
+
+		return Result;
+	}
+}
+
+template<class function, class filter, class handler>
+auto seh_try(function const& Callable, filter const& Filter, handler const& Handler)
+{
+	using result_type = typename function_traits<function>::result_type;
+
+	if constexpr (std::is_same_v<result_type, void>)
+	{
+		::detail::seh_try(Callable, Filter, Handler);
+	}
+	else
+	{
+		result_type Result;
+WARNING_PUSH()
+WARNING_DISABLE_MSC(4702) // unreachable code
+		::detail::seh_try([&]{ Result = Callable(); }, Filter, [&]{ Result = Handler(); });
+WARNING_POP()
 		return Result;
 	}
 
-WARNING_POP()
 }
 
 template<class function, class handler>
-auto seh_invoke_with_ui(function const& Callable, handler const& Handler, const std::string_view Function, const Plugin* const Module = nullptr)
+auto seh_try_with_ui(function const& Callable, handler const& Handler, const std::string_view Function, const Plugin* const Module = nullptr)
 {
-	return seh_invoke(Callable, [&](DWORD const Code, EXCEPTION_POINTERS* const Info)
-	{
-		return detail::SehFilter(Code, Info, Function, Module);
-	}, Handler);
+	return seh_try(
+		Callable,
+		[&](DWORD const Code, EXCEPTION_POINTERS* const Info){ return detail::seh_filter(Code, Info, Function, Module); },
+		Handler
+	);
 }
 
 template<class function, class handler>
-auto seh_invoke_no_ui(function const& Callable, handler const& Handler)
+auto seh_try_no_ui(function const& Callable, handler const& Handler)
 {
-	return seh_invoke(Callable, [](DWORD, EXCEPTION_POINTERS*) { return EXCEPTION_EXECUTE_HANDLER; }, Handler);
+	return seh_try(
+		Callable,
+		[](DWORD, EXCEPTION_POINTERS*) { return EXCEPTION_EXECUTE_HANDLER; },
+		Handler
+	);
 }
 
 template<class function>
-auto seh_invoke_thread(std::exception_ptr& ExceptionPtr, function const& Callable)
+auto seh_try_thread(std::exception_ptr& ExceptionPtr, function const& Callable)
 {
-	return seh_invoke(Callable, [&](DWORD const Code, EXCEPTION_POINTERS* const Info)
-	{
-		ExceptionPtr = detail::MakeSehExceptionPtr(Code, Info, true);
-		return EXCEPTION_EXECUTE_HANDLER;
-	},
-	[]
-	{
-		// The thread is about to quit, but we still need it to get a stack trace.
-		// It will be released once the corresponding exception context is destroyed.
-		// The caller MUST detach it if ExceptionPtr is not empty.
-		SuspendThread(GetCurrentThread());
-	});
+	return seh_try(
+		Callable,
+		[&](DWORD const Code, EXCEPTION_POINTERS* const Info){ return detail::seh_thread_filter(ExceptionPtr, Code, Info); },
+		detail::seh_thread_handler
+	);
 }
 
 #endif // EXCEPTION_HANDLER_HPP_F7B85E85_71DD_483D_BD7F_B26B8566AC8E

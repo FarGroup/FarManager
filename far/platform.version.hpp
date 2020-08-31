@@ -45,6 +45,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace os::version
 {
+	class file_version
+	{
+	public:
+		bool read(string_view Filename);
+		wchar_t const* get_string(string_view Value) const;
+		VS_FIXEDFILEINFO const* get_fixed_info() const;
+
+	private:
+		string m_BlockPath;
+		std::vector<std::byte> m_Buffer;
+	};
+
 	bool is_win10_build_or_later(DWORD Build);
 
 	// This versioning scheme is mental

@@ -69,6 +69,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "cvtname.hpp"
 #include "exception.hpp"
+#include "exception_handler.hpp"
 #include "global.hpp"
 #include "dizlist.hpp"
 
@@ -3350,13 +3351,17 @@ int ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,cons
 		static DWORD CALLBACK callback(LARGE_INTEGER TotalFileSize, LARGE_INTEGER TotalBytesTransferred, LARGE_INTEGER StreamSize, LARGE_INTEGER StreamBytesTransferred, DWORD StreamNumber, DWORD CallbackReason, HANDLE SourceFile, HANDLE DestinationFile, LPVOID Data)
 		{
 			const auto CallbackData = static_cast<callback_data*>(Data);
-			try
+
+			return cpp_try(
+			[&]
 			{
 				return CallbackData->Owner->CopyProgressRoutine(TotalFileSize.QuadPart, TotalBytesTransferred.QuadPart, StreamSize.QuadPart, StreamBytesTransferred.QuadPart, StreamNumber, CallbackReason, SourceFile, DestinationFile);
-			}
-			CATCH_AND_SAVE_EXCEPTION_TO(CallbackData->ExceptionPtr)
-
-			return PROGRESS_CANCEL;
+			},
+			[&]
+			{
+				SAVE_EXCEPTION_TO(CallbackData->ExceptionPtr);
+				return PROGRESS_CANCEL;
+			});
 		}
 	};
 

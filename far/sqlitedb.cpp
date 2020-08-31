@@ -43,7 +43,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 
 // Platform:
-#include "platform.concurrency.hpp"
 #include "platform.fs.hpp"
 
 // Common:

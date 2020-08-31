@@ -212,7 +212,7 @@ EXCEPTION_POINTERS tracer::get_pointers()
 
 std::vector<DWORD64> tracer::get(string_view const Module, const EXCEPTION_POINTERS& Pointers, HANDLE ThreadHandle)
 {
-	//SCOPED_ACTION(tracer::with_symbols)(Module);
+	SCOPED_ACTION(tracer::with_symbols)(Module);
 
 	return GetBackTrace(*Pointers.ContextRecord, ThreadHandle);
 }

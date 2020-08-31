@@ -159,11 +159,8 @@ int TestFolder(string_view const Path)
 		return TSTFLD_ERROR;
 
 	// первая проверка - че-нить считать можем?
-	const auto Find = os::fs::enum_files(path::join(Path, L'*'));
-	if (Find.begin() != Find.end())
-	{
+	if (os::fs::is_not_empty_directory(Path))
 		return TSTFLD_NOTEMPTY;
-	}
 
 	const auto ErrorState = error_state::fetch();
 	const auto LastError = ErrorState.Win32Error;

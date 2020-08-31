@@ -51,7 +51,7 @@ public:
 	class iterator_t: public rel_ops<iterator_t<item_type, owner>>
 	{
 	public:
-		using iterator_category = std::forward_iterator_tag;
+		using iterator_category = std::input_iterator_tag;
 		using value_type = std::conditional_t<Dereference, std::remove_pointer_t<item_type>, item_type>;
 		using difference_type = std::ptrdiff_t;
 		using pointer = value_type*;
@@ -172,6 +172,9 @@ public:
 
 	[[nodiscard]]
 	auto cend() const { return end(); }
+
+	[[nodiscard]]
+	auto empty() const { return cbegin() == cend(); }
 
 protected:
 	enumerator() { static_assert(std::is_base_of_v<enumerator, Derived>); }

@@ -150,9 +150,10 @@ bool FileSystemWatcher::Signaled() const
 
 void FileSystemWatcher::Register()
 {
-	seh_invoke_thread(m_ExceptionPtr, [this]
+	seh_try_thread(m_ExceptionPtr, [this]
 	{
-		try
+		cpp_try(
+		[&]
 		{
 			m_Notification = os::fs::FindFirstChangeNotification(m_Directory, m_WatchSubtree,
 				FILE_NOTIFY_CHANGE_FILE_NAME |
@@ -165,10 +166,12 @@ void FileSystemWatcher::Register()
 				return;
 
 			(void)os::handle::wait_any({ m_Notification.native_handle(), m_Cancelled.native_handle() });
-			return;
-		}
-		CATCH_AND_SAVE_EXCEPTION_TO(m_ExceptionPtr)
-		m_IsRegularException = true;
+		},
+		[&]
+		{
+			SAVE_EXCEPTION_TO(m_ExceptionPtr);
+			m_IsRegularException = true;
+		});
 	});
 }
 

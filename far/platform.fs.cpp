@@ -1011,7 +1011,7 @@ namespace os::fs
 			// It seems that Microsoft has forgotten to put an exception handler around this function.
 			// It causes EXCEPTION_ACCESS_VIOLATION (read from 0) in kernel32 under certain conditions,
 			// e.g. badly written file system drivers or weirdly formatted volumes.
-			return seh_invoke_no_ui(
+			return seh_try_no_ui(
 			[&]
 			{
 				return imports.GetFinalPathNameByHandle(File, Buffer, Size, Flags);
@@ -1390,7 +1390,7 @@ namespace os::fs
 	bool is_not_empty_directory(string_view const Object)
 	{
 		const auto Find = enum_files(path::join(Object, L'*'));
-		return Find.begin() != Find.end();
+		return !Find.empty();
 	}
 
 	//-------------------------------------------------------------------------

@@ -1,6 +1,9 @@
 language: bash
 os: windows
 
+install:
+ - choco install visualstudio2019buildtools --package-parameters "--add Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
+
 env:
  - COMPILER=MSVC_PROJ PLATFORM=x64 CONFIG=Debug
  - COMPILER=MSVC_PROJ PLATFORM=x64 CONFIG=Release

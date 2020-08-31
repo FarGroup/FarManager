@@ -50,16 +50,16 @@ template<typename object>
 struct function_traits: function_traits<decltype(&object::operator())> {};
 
 template<typename result, typename... args>
-struct function_traits<result(args...)>: detail::function_traits_impl<result, void, args...> {};
+struct function_traits<result(args...)>: ::detail::function_traits_impl<result, void, args...> {};
 
 template<typename result, typename... args>
-struct function_traits<result(*)(args...)>: detail::function_traits_impl<result, void, args...> {};
+struct function_traits<result(*)(args...)>: ::detail::function_traits_impl<result, void, args...> {};
 
 template<typename result, typename object, typename... args>
-struct function_traits<result(object::*)(args...)>: detail::function_traits_impl<result, object, args...> {};
+struct function_traits<result(object::*)(args...)>: ::detail::function_traits_impl<result, object, args...> {};
 
 template<typename result, typename object, typename... args>
-struct function_traits<result(object::*)(args...) const>: detail::function_traits_impl<result, object, args...> {};
+struct function_traits<result(object::*)(args...) const>: ::detail::function_traits_impl<result, object, args...> {};
 
 
 #define FN_RETURN_TYPE(...) std::decay_t<function_traits<decltype(&__VA_ARGS__)>::result_type>

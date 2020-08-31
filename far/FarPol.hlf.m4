@@ -274,6 +274,10 @@ zastąpione standardowym tekstem okna Far, zależnym od kontekstu programu.
  #-set:<parametr>=<wartość>#
  Nadpisuje parametr konfiguracyjny, zobacz szczegóły w ~far:config~@Konfiguracji FAR@.
 
+ #-x#
+ Disable exception handling. This parameter is for developers
+and is not recommended for normal operations.
+
  Istnieje możliwość podania maksymalnie dwóch ścieżek (do folderów, plików lub archiwów)
 lub dwóch poleceń z przedrostkami wtyczek w linii poleceń. Pierwsza ścieżka dotyczy
 panelu aktywnego, druga - panelu pasywnego:
@@ -2540,7 +2544,6 @@ Otherwise you can choose any desired icon in the Far shourtcut properties.
  Additional information, displayed in the window title.
 Can contain any text, including environment variables (e.g. "%USERDOMAIN%\%USERNAME%") and the following special variables:
  - #%Ver# - Far version;
- - #%Build# - Far build number;
  - #%Platform# - Far platform;
  - #%Admin# - ^<wrap>"Administrator" if running as administrator, otherwise an empty string.
  - #%PID# - Far process ID;

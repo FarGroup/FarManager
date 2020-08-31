@@ -23689,6 +23689,19 @@ upd:"OS:"
 "ОС:"
 "ОС:"
 
+MExcKernelVersion
+"Ядро:"
+"Kernel:"
+upd:"Kernel:"
+upd:"Kernel:"
+upd:"Kernel:"
+upd:"Kernel:"
+upd:"Kernel:"
+upd:"Kernel:"
+upd:"Kernel:"
+"Ядро:"
+"Ядро:"
+
 MExcTerminate
 "Завершить Far"
 "&Terminate Far"

@@ -5,7 +5,7 @@
 goto :main
 
 :MSVC_PROJ
-set PATH=C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin;%PATH%
+set PATH=C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin;%PATH%
 
 cd far
 MSBuild.exe /property:Configuration=%CONFIG% /property:Platform=%PLATFORM% far.vcxproj || %throw%
@@ -14,7 +14,7 @@ MSBuild.exe /property:Configuration=%CONFIG% /property:Platform=%PLATFORM% far.v
 
 
 :MSVC_NMAKE
-call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars%PLATFORM:~-2%.bat" || %throw%
+call "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvars%PLATFORM:~-2%.bat" || %throw%
 if %CONFIG%==Debug set DEBUG=1
 
 rem print version
@@ -32,7 +32,7 @@ cd ..
 
 
 :CLANG_NMAKE
-call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars%PLATFORM:~-2%.bat" || %throw%
+call "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvars%PLATFORM:~-2%.bat" || %throw%
 set PATH=C:\Program Files\LLVM\bin;%PATH%
 set CLANG=1
 if %CONFIG%==Debug set DEBUG=1

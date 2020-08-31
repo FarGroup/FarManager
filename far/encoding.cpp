@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 #include "strmix.hpp"
 #include "exception.hpp"
+#include "exception_handler.hpp"
 #include "plugin.hpp"
 
 // Platform:
@@ -96,7 +97,8 @@ private:
 
 	BOOL enum_cp_callback(wchar_t const* cpNum)
 	{
-		try
+		return cpp_try(
+		[&]
 		{
 			const auto cp = static_cast<UINT>(std::wcstoul(cpNum, nullptr, 10));
 			if (cp == CP_UTF8)
@@ -130,9 +132,12 @@ private:
 
 			m_InstalledCp.try_emplace(cp, cpix.MaxCharSize, cp_data);
 			return TRUE;
-		}
-		CATCH_AND_SAVE_EXCEPTION_TO(m_ExceptionPtr)
-		return FALSE;
+		},
+		[&]
+		{
+			SAVE_EXCEPTION_TO(m_ExceptionPtr);
+			return FALSE;
+		});
 	}
 
 	cp_map m_InstalledCp;

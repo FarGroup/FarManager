@@ -137,7 +137,7 @@ string MakeTemp(string_view Prefix, bool const WithTempPath, string_view const U
 		const auto Str = Generator();
 
 		const auto Find = os::fs::enum_files(Str, false);
-		if (Find.begin() == Find.end())
+		if (Find.empty())
 			return Str;
 
 		if ((++Unique & 0xffff) == (UniqueCopy & 0xffff))
@@ -345,7 +345,7 @@ void ReloadEnvironment()
 	}
 }
 
-string version_to_string(const VersionInfo& PluginVersion)
+string version_to_string(const VersionInfo& Version)
 {
 	static const string_view Stage[]
 	{
@@ -357,12 +357,12 @@ string version_to_string(const VersionInfo& PluginVersion)
 		L"Private"sv
 	};
 
-	auto strVersion = format(FSTR(L"{0}.{1}.{2}.{3}"), PluginVersion.Major, PluginVersion.Minor, PluginVersion.Revision, PluginVersion.Build);
-	if (PluginVersion.Stage != VS_RELEASE && static_cast<size_t>(PluginVersion.Stage) < std::size(Stage))
+	auto VersionStr = format(FSTR(L"{0}.{1}.{2}.{3}"), Version.Major, Version.Minor, Version.Build, Version.Revision);
+	if (Version.Stage != VS_RELEASE && static_cast<size_t>(Version.Stage) < std::size(Stage))
 	{
-		append(strVersion, L" ("sv, Stage[PluginVersion.Stage], L')');
+		append(VersionStr, L" ("sv, Stage[Version.Stage], L')');
 	}
-	return strVersion;
+	return VersionStr;
 }
 
 #ifdef ENABLE_TESTS
@@ -451,12 +451,12 @@ TEST_CASE("version_to_string")
 	}
 	Tests[]
 	{
-		{ { 0,  1,  2,  3,  VS_RELEASE },    L"0.1.2.3"sv,               },
-		{ { 4,  5,  6,  7,  VS_ALPHA   },    L"4.5.6.7 (Alpha)"sv,       },
-		{ { 8,  9,  10, 11, VS_BETA    },    L"8.9.10.11 (Beta)"sv,      },
-		{ { 12, 13, 14, 15, VS_RC      },    L"12.13.14.15 (RC)"sv,      },
-		{ { 16, 17, 18, 19, VS_SPECIAL },    L"16.17.18.19 (Special)"sv, },
-		{ { 20, 21, 22, 23, VS_PRIVATE },    L"20.21.22.23 (Private)"sv, },
+		{ { 0,  1,  3,  2,  VS_RELEASE },    L"0.1.2.3"sv,               },
+		{ { 4,  5,  7,  6,  VS_ALPHA   },    L"4.5.6.7 (Alpha)"sv,       },
+		{ { 8,  9,  11, 10, VS_BETA    },    L"8.9.10.11 (Beta)"sv,      },
+		{ { 12, 13, 15, 14, VS_RC      },    L"12.13.14.15 (RC)"sv,      },
+		{ { 16, 17, 19, 18, VS_SPECIAL },    L"16.17.18.19 (Special)"sv, },
+		{ { 20, 21, 23, 22, VS_PRIVATE },    L"20.21.22.23 (Private)"sv, },
 	};
 
 	for (const auto& i: Tests)

@@ -58,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 #include "platform.fs.hpp"
 #include "platform.reg.hpp"
+#include "platform.version.hpp"
 
 // Common:
 #include "common/view/zip.hpp"
@@ -69,7 +70,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace detail
 {
+	static bool HandleCppExceptions = true;
+	static bool HandleSehExceptions = true;
+
 	static std::atomic_bool UseTerminateHandler = false;
+}
+
+void disable_exception_handling()
+{
+	detail::HandleCppExceptions = false;
+	detail::HandleSehExceptions = false;
 }
 
 void CreatePluginStartupInfo(PluginStartupInfo *PSI, FarStandardFunctions *FSF);
@@ -104,7 +114,9 @@ enum exception_dialog
 	ed_edit_far_version,
 	ed_text_os_version,
 	ed_edit_os_version,
-	ed_last_line = ed_edit_os_version,
+	ed_text_kernel_version,
+	ed_edit_kernel_version,
+	ed_last_line = ed_edit_kernel_version,
 	ed_separator_1,
 	ed_button_copy,
 	ed_button_stack,
@@ -136,16 +148,16 @@ static auto GetStackTrace(string_view const Module, const std::vector<DWORD64>& 
 		Symbols.emplace_back(std::move(Address));
 	};
 
-	tracer::get_symbols(Module, Stack, Consumer);
-
 	if (NestedStack)
 	{
-		Symbols.emplace_back(40, L'-');
-		Symbols.emplace_back(L"Nested stack:"sv);
-		Symbols.emplace_back(40, L'-');
-
 		tracer::get_symbols(Module, *NestedStack, Consumer);
+
+		Symbols.emplace_back(40, L'-');
+		Symbols.emplace_back(L"Rethrow:"sv);
+		Symbols.emplace_back(40, L'-');
 	}
+
+	tracer::get_symbols(Module, Stack, Consumer);
 
 	return Symbols;
 }
@@ -240,6 +252,27 @@ static string os_version_from_registry()
 static string os_version()
 {
 	return os_version_from_api() + os_version_from_registry();
+}
+
+static string kernel_version()
+{
+	os::version::file_version Version;
+	if (!Version.read(L"ntoskrnl.exe"sv))
+		return L"Unknown"s;
+
+	if (const auto Str = Version.get_string(L"FileVersion"sv))
+		return Str;
+
+	const auto FixedInfo = Version.get_fixed_info();
+	if (!FixedInfo)
+		return L"Unknown"s;
+
+	return format(FSTR(L"{0}.{1}.{2}.{3}"),
+		HIWORD(FixedInfo->dwFileVersionMS),
+		LOWORD(FixedInfo->dwFileVersionMS),
+		HIWORD(FixedInfo->dwFileVersionLS),
+		LOWORD(FixedInfo->dwFileVersionLS)
+	);
 }
 
 struct dialog_data_type
@@ -435,6 +468,7 @@ static bool ExcDialog(
 		LABEL_AND_VALUE(9),
 		LABEL_AND_VALUE(10),
 		LABEL_AND_VALUE(11),
+		LABEL_AND_VALUE(12),
 
 #undef LABEL_AND_VALUE
 
@@ -522,6 +556,7 @@ static bool ShowExceptionUI(
 	const auto Errors = FormatSystemErrors(ErrorState);
 	const auto Version = self_version();
 	const auto OsVersion = os_version();
+	const auto KernelVersion = kernel_version();
 
 	std::array Labels
 	{
@@ -537,6 +572,7 @@ static bool ShowExceptionUI(
 		L"Plugin:   "sv,
 		L"Far:      "sv,
 		L"OS:       "sv,
+		L"Kernel:   "sv,
 	};
 
 	if (far_language::instance().is_loaded())
@@ -555,6 +591,7 @@ static bool ShowExceptionUI(
 			msg(lng::MExcPlugin),
 			msg(lng::MExcFarVersion),
 			msg(lng::MExcOSVersion),
+			msg(lng::MExcKernelVersion),
 		};
 	}
 
@@ -572,6 +609,7 @@ static bool ShowExceptionUI(
 		PluginInformation,
 		Version,
 		OsVersion,
+		KernelVersion,
 	};
 
 	static_assert(std::size(Labels) == std::size(Values));
@@ -600,43 +638,92 @@ enum FARRECORDTYPE
 	RTYPE_PLUGIN = fourcc("CPLG"sv), // информация о текущем плагине
 };
 
-struct catchable_type
+namespace detail
 {
-	DWORD properties;                // Catchable Type properties (Bit field)
-	DWORD pType;                     // Image relative offset of TypeDescriptor
-};
+	struct PMD
+	{
+		int mdisp; // Offset of intended data within base
+		int pdisp; // Displacement to virtual base pointer
+		int vdisp; // Index within vbTable to offset of base
+	};
 
-struct catchable_type_array
-{
-	DWORD nCatchableTypes;
-	DWORD arrayOfCatchableTypes;     // Image relative offset of Catchable Types
-};
+	using PMFN = int; // Image relative offset of Member Function
 
-struct throw_info
-{
-	DWORD attributes;                // Throw Info attributes (Bit field)
-	DWORD pmfnUnwind;                // Destructor to call when exception has been handled or aborted
-	DWORD pForwardCompat;            // Image relative offset of Forward compatibility frame handler
-	DWORD pCatchableTypeArray;       // Image relative offset of CatchableTypeArray
-};
+	struct CatchableType
+	{
+		unsigned int properties;        // Catchable Type properties (Bit field)
+		int          pType;             // Image relative offset of TypeDescriptor
+		PMD          thisDisplacement;  // Pointer to instance of catch type within thrown object.
+		int          sizeOrOffset;      // Size of simple-type object or offset into buffer of 'this' pointer for catch object
+		PMFN         copyFunction;      // Copy constructor or CC-closure
+	};
+
+	struct CatchableTypeArray
+	{
+		int nCatchableTypes;
+		int arrayOfCatchableTypes; // Image relative offset of Catchable Types
+	};
+
+	struct ThrowInfo
+	{
+		unsigned int attributes;           // Throw Info attributes (Bit field)
+		PMFN         pmfnUnwind;           // Destructor to call when exception has been handled or aborted
+		int          pForwardCompat;       // Image relative offset of Forward compatibility frame handler
+		int          pCatchableTypeArray;  // Image relative offset of CatchableTypeArray
+	};
+}
 
 static bool IsCppException(const EXCEPTION_RECORD& Record)
 {
 	return Record.ExceptionCode == static_cast<DWORD>(EXCEPTION_MICROSOFT_CPLUSPLUS);
 }
 
-static string ExtractObjectType(const EXCEPTION_RECORD& xr)
+class [[nodiscard]] enum_catchable_objects: public enumerator<enum_catchable_objects, char const*>
 {
-	if (!IsCppException(xr) || !xr.NumberParameters)
+	IMPLEMENTS_ENUMERATOR(enum_catchable_objects);
+
+public:
+	explicit enum_catchable_objects(EXCEPTION_RECORD const& Record)
+	{
+		if (!IsCppException(Record) || !Record.NumberParameters)
+			return;
+
+		m_BaseAddress = Record.NumberParameters == 4? Record.ExceptionInformation[3] : 0;
+		const auto& ThrowInfoRef = *reinterpret_cast<detail::ThrowInfo const*>(Record.ExceptionInformation[2]);
+		const auto& CatchableTypeArrayRef = *reinterpret_cast<detail::CatchableTypeArray const*>(m_BaseAddress + ThrowInfoRef.pCatchableTypeArray);
+		m_CatchableTypesRVAs = { &CatchableTypeArrayRef.arrayOfCatchableTypes, static_cast<size_t>(CatchableTypeArrayRef.nCatchableTypes) };
+	}
+
+private:
+	[[nodiscard, maybe_unused]]
+	bool get(bool const Reset, char const*& Name) const
+	{
+		if (Reset)
+			m_Index = 0;
+
+		if (m_Index == m_CatchableTypesRVAs.size())
+			return false;
+
+		const auto& CatchableTypeRef = *reinterpret_cast<detail::CatchableType const*>(m_BaseAddress + m_CatchableTypesRVAs[m_Index++]);
+		const auto& TypeInfoRef = *reinterpret_cast<std::type_info const*>(m_BaseAddress + CatchableTypeRef.pType);
+
+		Name = TypeInfoRef.name();
+		return true;
+	}
+
+	span<int const> m_CatchableTypesRVAs;
+	size_t mutable m_Index{};
+	uintptr_t m_BaseAddress{};
+};
+
+static string ExtractObjectType(EXCEPTION_RECORD const& xr)
+{
+	enum_catchable_objects const CatchableTypesEnumerator(xr);
+	const auto Iterator = CatchableTypesEnumerator.cbegin();
+	if (Iterator == CatchableTypesEnumerator.cend())
 		return {};
 
-	const auto BaseAddress = xr.NumberParameters == 4? xr.ExceptionInformation[3] : 0;
-	const auto& ThrowInfo = *reinterpret_cast<const throw_info*>(xr.ExceptionInformation[2]);
-	const auto& CatchableTypeArray = *reinterpret_cast<const catchable_type_array*>(BaseAddress + ThrowInfo.pCatchableTypeArray);
-	const auto& CatchableType = *reinterpret_cast<const catchable_type*>(BaseAddress + CatchableTypeArray.arrayOfCatchableTypes);
-	const auto& TypeInfo = *reinterpret_cast<const std::type_info*>(BaseAddress + CatchableType.pType);
-
-	return encoding::utf8::get_chars(TypeInfo.name());
+	return encoding::utf8::get_chars(*Iterator);
 }
 
 static bool ProcessExternally(EXCEPTION_POINTERS* Pointers, Plugin const* const PluginModule)
@@ -683,7 +770,7 @@ static bool ProcessExternally(EXCEPTION_POINTERS* Pointers, Plugin const* const 
 	return Function(Pointers, PluginModule ? &PlugRec : nullptr, &LocalStartupInfo, &dummy) != FALSE;
 }
 
-static bool ProcessGenericException(
+static bool handle_generic_exception(
 	detail::exception_context const& Context,
 	std::string_view const Function,
 	string_view const Location,
@@ -694,6 +781,11 @@ static bool ProcessGenericException(
 	std::vector<DWORD64> const* const NestedStack = nullptr
 )
 {
+	static bool ExceptionHandlingIgnored = false;
+	if (ExceptionHandlingIgnored)
+		return false;
+
+
 	if (Global)
 		Global->ProcessException = true;
 
@@ -825,7 +917,7 @@ static bool ProcessGenericException(
 	) : L""s;
 
 	if (!ShowExceptionUI(
-		Global&& Global->WindowManager && !Global->WindowManager->ManagerIsDown(),
+		Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown(),
 		Context,
 		Exception,
 		Details,
@@ -837,7 +929,10 @@ static bool ProcessGenericException(
 		PluginModule,
 		NestedStack
 	))
+	{
+		ExceptionHandlingIgnored = true;
 		return false;
+	}
 
 	if (!PluginModule && Global)
 		Global->CriticalInternalError = true;
@@ -845,17 +940,18 @@ static bool ProcessGenericException(
 	return true;
 }
 
-void RestoreGPFaultUI()
+void restore_gpfault_ui()
 {
+	disable_exception_handling();
 	os::unset_error_mode(SEM_NOGPFAULTERRORBOX);
 }
 
-static std::pair<string, string> extract_nested_exceptions(const std::exception& Exception, bool Top = true)
+static std::pair<string, string> extract_nested_exceptions(EXCEPTION_RECORD const& Record, const std::exception& Exception, bool Top = true)
 {
 	std::pair<string, string> Result;
 	auto& [ObjectType, What] = Result;
 
-	ObjectType = ExtractObjectType(*tracer::get_pointers().ExceptionRecord);
+	ObjectType = ExtractObjectType(Record);
 
 	if (ObjectType.empty())
 		ObjectType = L"std::exception"sv;
@@ -873,7 +969,7 @@ static std::pair<string, string> extract_nested_exceptions(const std::exception&
 	}
 	catch (const std::exception& e)
 	{
-		const auto& [NestedObjectType, NestedWhat] = extract_nested_exceptions(e, false);
+		const auto& [NestedObjectType, NestedWhat] = extract_nested_exceptions(*tracer::get_pointers().ExceptionRecord, e, false);
 		ObjectType = concat(NestedObjectType, L" -> "sv, ObjectType);
 		What = concat(NestedWhat, L" -> "sv, What);
 	}
@@ -890,38 +986,65 @@ static std::pair<string, string> extract_nested_exceptions(const std::exception&
 	return Result;
 }
 
-bool ProcessStdException(const std::exception& e, std::string_view const Function, const Plugin* const Module)
+bool handle_std_exception(
+	detail::exception_context const& Context,
+	const std::exception& e,
+	std::string_view const Function,
+	const Plugin* const Module
+)
 {
 	if (const auto SehException = dynamic_cast<const seh_exception*>(&e))
 	{
-		return ProcessGenericException(SehException->context(), Function, {}, Module, {}, {});
+		auto NestedStack = tracer::get({}, *SehException->context().pointers(), SehException->context().thread_handle());
+		return handle_generic_exception(Context, Function, {}, Module, {}, {}, *SehException, &NestedStack);
 	}
 
-	detail::exception_context const Context(EXCEPTION_MICROSOFT_CPLUSPLUS, tracer::get_pointers(), os::OpenCurrentThread(), GetCurrentThreadId());
-
-	const auto& [Type, What] = extract_nested_exceptions(e);
+	const auto& [Type, What] = extract_nested_exceptions(*Context.pointers()->ExceptionRecord, e);
 
 	if (const auto FarException = dynamic_cast<const detail::far_base_exception*>(&e))
 	{
 		const auto NestedStack = [&]
 		{
 			const auto Wrapper = dynamic_cast<const far_wrapper_exception*>(&e);
-			return Wrapper? &Wrapper->get_stack() : nullptr;
+			return Wrapper ? &Wrapper->get_stack() : nullptr;
 		}();
 
-		return ProcessGenericException(Context, FarException->function(), FarException->location(), Module, Type, What, FarException->error_state(), NestedStack);
+		return handle_generic_exception(Context, FarException->function(), FarException->location(), Module, Type, What, FarException->error_state(), NestedStack);
 	}
 
-	return ProcessGenericException(Context, Function, {}, Module, Type, What);
+	return handle_generic_exception(Context, Function, {}, Module, Type, What);
 }
 
-bool ProcessUnknownException(std::string_view const Function, const Plugin* const Module)
+bool handle_std_exception(const std::exception& e, std::string_view const Function, const Plugin* const Module)
+{
+	detail::exception_context const Context(EXCEPTION_MICROSOFT_CPLUSPLUS, tracer::get_pointers(), os::OpenCurrentThread(), GetCurrentThreadId());
+
+	return handle_std_exception(Context, e, Function, Module);
+}
+
+bool handle_seh_exception(
+	detail::exception_context const& Context,
+	std::string_view const Function,
+	Plugin const* const PluginModule
+)
+{
+	enum_catchable_objects const CatchableTypesEnumerator(*Context.pointers()->ExceptionRecord);
+	std::vector<char const*> const CatchableTypes(ALL_CONST_RANGE(CatchableTypesEnumerator));
+	if (std::find_if(ALL_CONST_RANGE(CatchableTypes), [](char const* Name) { return strstr(Name, "std::exception") != nullptr; }) != CatchableTypes.cend())
+	{
+		return handle_std_exception(Context, *reinterpret_cast<std::exception const*>(Context.pointers()->ExceptionRecord->ExceptionInformation[1]), Function, PluginModule);
+	}
+
+	return handle_generic_exception(Context, Function, {}, PluginModule, {}, {});
+}
+
+bool handle_unknown_exception(std::string_view const Function, const Plugin* const Module)
 {
 	// C++ exception to EXCEPTION_POINTERS translation relies on Microsoft implementation.
 	// It won't work in gcc etc.
 	// Set ExceptionCode manually so ProcessGenericException will at least report it as C++ exception
 	const detail::exception_context Context(EXCEPTION_MICROSOFT_CPLUSPLUS, tracer::get_pointers(), os::OpenCurrentThread(), GetCurrentThreadId());
-	return ProcessGenericException(Context, Function, {}, Module, {}, L"?"sv);
+	return handle_seh_exception(Context, Function, Module);
 }
 
 bool use_terminate_handler()
@@ -929,77 +1052,69 @@ bool use_terminate_handler()
 	return detail::UseTerminateHandler;
 }
 
-static LONG WINAPI FarUnhandledExceptionFilter(EXCEPTION_POINTERS* const Pointers)
+static LONG WINAPI unhandled_exception_filter_impl(EXCEPTION_POINTERS* const Pointers)
 {
-	detail::SetFloatingPointExceptions(false);
+	if (!detail::HandleSehExceptions)
+		return EXCEPTION_CONTINUE_SEARCH;
+
+	detail::set_fp_exceptions(false);
 	const detail::exception_context Context(Pointers->ExceptionRecord->ExceptionCode, *Pointers, os::OpenCurrentThread(), GetCurrentThreadId());
-	if (ProcessGenericException(Context, __FUNCTION__, {}, {}, {}, {}))
+	if (handle_seh_exception(Context, __FUNCTION__, {}))
 	{
 		std::_Exit(EXIT_FAILURE);
 	}
-	RestoreGPFaultUI();
+	restore_gpfault_ui();
 	return EXCEPTION_CONTINUE_SEARCH;
 }
 
-unhandled_exception_filter::unhandled_exception_filter()
+unhandled_exception_filter::unhandled_exception_filter():
+	m_PreviousFilter(SetUnhandledExceptionFilter(unhandled_exception_filter_impl))
 {
-	SetUnhandledExceptionFilter(FarUnhandledExceptionFilter);
 }
 
 unhandled_exception_filter::~unhandled_exception_filter()
 {
-	dismiss();
-}
-
-void unhandled_exception_filter::dismiss()
-{
-	SetUnhandledExceptionFilter(nullptr);
+	SetUnhandledExceptionFilter(m_PreviousFilter);
 }
 
 namespace detail
 {
+	void cpp_try(function_ref<void()> const Callable, function_ref<void()> const UnknownHandler, function_ref<void(std::exception const&)> const StdHandler)
+	{
+		if (!HandleCppExceptions)
+		{
+			return Callable();
+		}
+
+		if (StdHandler)
+		{
+			try
+			{
+				return Callable();
+			}
+			catch (std::exception const& e)
+			{
+				return StdHandler(e);
+			}
+			catch (...)
+			{
+				return UnknownHandler();
+			}
+		}
+
+		try
+		{
+			return Callable();
+		}
+		catch (...)
+		{
+			return UnknownHandler();
+		}
+	}
+
 	static thread_local bool StackOverflowHappened;
 
-	int SehFilter(int const Code, const EXCEPTION_POINTERS* const Info, std::string_view const Function, const Plugin* const Module)
-	{
-		const exception_context Context(Code, *Info, os::OpenCurrentThread(), GetCurrentThreadId());
-		if (Code == EXCEPTION_STACK_OVERFLOW)
-		{
-			bool Result = false;
-			{
-				os::thread(&os::thread::join, [&]{ Result = ProcessGenericException(Context, Function, {}, Module, {}, {}); });
-			}
-
-			StackOverflowHappened = true;
-
-			if (Result)
-			{
-				return EXCEPTION_EXECUTE_HANDLER;
-			}
-		}
-		else
-		{
-			if (ProcessGenericException(Context, Function, {}, Module, {}, {}))
-				return EXCEPTION_EXECUTE_HANDLER;
-		}
-
-		unhandled_exception_filter::dismiss();
-		RestoreGPFaultUI();
-		return EXCEPTION_CONTINUE_SEARCH;
-	}
-
-	void SetFloatingPointExceptions(bool const Enable)
-	{
-		_clearfp();
-		_controlfp(Enable? 0 : _MCW_EM, _MCW_EM);
-	}
-
-	std::exception_ptr MakeSehExceptionPtr(DWORD const Code, EXCEPTION_POINTERS* const Pointers, bool const ResumeThread)
-	{
-		return std::make_exception_ptr(seh_exception(Code, *Pointers, os::OpenCurrentThread(), GetCurrentThreadId(), ResumeThread));
-	}
-
-	void seh_invoke_impl(function_ref<void()> const Callable, function_ref<DWORD(DWORD, EXCEPTION_POINTERS*)> const Filter, function_ref<void()> const Handler)
+	void seh_try(function_ref<void()> const Callable, function_ref<DWORD(DWORD, EXCEPTION_POINTERS*)> const Filter, function_ref<void()> const Handler)
 	{
 #if COMPILER(GCC) || (COMPILER(CLANG) && !defined _WIN64 && defined __GNUC__)
 		// GCC doesn't support these currently
@@ -1014,9 +1129,9 @@ namespace detail
 
 		__try
 		{
-			return Callable();
+			Callable();
 		}
-		__except (SetFloatingPointExceptions(false), Filter(GetExceptionCode(), GetExceptionInformation()))
+		__except (set_fp_exceptions(false), Filter(GetExceptionCode(), GetExceptionInformation()))
 		{
 			if (StackOverflowHappened)
 			{
@@ -1025,14 +1140,71 @@ namespace detail
 
 				StackOverflowHappened = false;
 			}
-		}
 
-		return Handler();
+			Handler();
+		}
 
 #if COMPILER(CLANG)
 #undef Filter
 #endif
 #endif
+	}
+
+	int seh_filter(int const Code, const EXCEPTION_POINTERS* const Info, std::string_view const Function, const Plugin* const Module)
+	{
+		if (HandleSehExceptions)
+		{
+			const exception_context Context(Code, *Info, os::OpenCurrentThread(), GetCurrentThreadId());
+			if (Code == EXCEPTION_STACK_OVERFLOW)
+			{
+				bool Result = false;
+				{
+					os::thread(&os::thread::join, [&]{ Result = handle_seh_exception(Context, Function, Module); });
+				}
+
+				StackOverflowHappened = true;
+
+				if (Result)
+				{
+					return EXCEPTION_EXECUTE_HANDLER;
+				}
+			}
+			else
+			{
+				if (handle_seh_exception(Context, Function, Module))
+					return EXCEPTION_EXECUTE_HANDLER;
+			}
+		}
+
+		restore_gpfault_ui();
+		return EXCEPTION_CONTINUE_SEARCH;
+	}
+
+	int seh_thread_filter(std::exception_ptr& Ptr, DWORD const Code, EXCEPTION_POINTERS* const Info)
+	{
+		// SEH transport between threads is currenly implemented in terms of C++ exceptions, so it requires both
+		if (!(HandleSehExceptions && HandleCppExceptions))
+		{
+			restore_gpfault_ui();
+			return EXCEPTION_CONTINUE_SEARCH;
+		}
+
+		Ptr = std::make_exception_ptr(seh_exception(Code, *Info, os::OpenCurrentThread(), GetCurrentThreadId()));
+		return EXCEPTION_EXECUTE_HANDLER;
+	}
+
+	void seh_thread_handler()
+	{
+		// The thread is about to quit, but we still need it to get a stack trace.
+		// It will be released once the corresponding exception context is destroyed.
+		// The caller MUST detach it if ExceptionPtr is not empty.
+		SuspendThread(GetCurrentThread());
+	}
+
+	void set_fp_exceptions(bool const Enable)
+	{
+		_clearfp();
+		_controlfp(Enable? 0 : _MCW_EM, _MCW_EM);
 	}
 }
 

@@ -37,13 +37,56 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
+#include "common/smart_ptr.hpp"
+#include "common/string_utils.hpp"
 
 // External:
+#include "format.hpp"
 
 //----------------------------------------------------------------------------
 
 namespace os::version
 {
+	template<class T>
+	static auto get_value(std::vector<std::byte> const& Data, const string_view SubBlock)
+	{
+		UINT Length;
+		T* Result;
+		return VerQueryValue(Data.data(), null_terminated(SubBlock).c_str(), reinterpret_cast<void**>(&Result), &Length) && Length? Result : nullptr;
+	}
+
+	bool file_version::read(string_view const Filename)
+	{
+		null_terminated const c_Name(Filename);
+
+		const auto Size = GetFileVersionInfoSize(c_Name.c_str(), nullptr);
+		if (!Size)
+			return false;
+
+		m_Buffer.resize(Size);
+
+		if (!GetFileVersionInfo(c_Name.c_str(), 0, Size, m_Buffer.data()))
+			return false;
+
+		const auto Translation = get_value<DWORD>(m_Buffer, L"\\VarFileInfo\\Translation"sv);
+		if (!Translation)
+			return false;
+
+		m_BlockPath = format(FSTR(L"\\StringFileInfo\\{0:04X}{1:04X}\\"), LOWORD(*Translation), HIWORD(*Translation));
+		return true;
+	}
+
+	wchar_t const* file_version::get_string(string_view const Value) const
+	{
+		return get_value<wchar_t>(m_Buffer, m_BlockPath + Value);
+	}
+
+	VS_FIXEDFILEINFO const* file_version::get_fixed_info() const
+	{
+		return get_value<VS_FIXEDFILEINFO>(m_Buffer, L"\\"sv);
+	}
+
+
 	template<DWORD... Components>
 	static unsigned long long condition_mask(DWORD const Operation)
 	{

@@ -268,6 +268,10 @@ title.
  #-set:<parameter>=<value>#
  Override the configuration parameter, see ~far:config~@FarConfig@ for details.
 
+ #-x#
+ Disable exception handling. This parameter is for developers
+and is not recommended for normal operations.
+
  It is possible to specify at most two paths (to folders, files or archives) or
 two commands with plugin prefix in the command line. The first path applies to the
 active panel, the second path - to the passive one:
@@ -2550,7 +2554,6 @@ Otherwise you can choose any desired icon in the Far shourtcut properties.
  Additional information, displayed in the window title.
 Can contain any text, including environment variables (e.g. "%USERDOMAIN%\%USERNAME%") and the following special variables:
  - #%Ver# - Far version;
- - #%Build# - Far build number;
  - #%Platform# - Far platform;
  - #%Admin# - ^<wrap>"Administrator" if running as administrator, otherwise an empty string.
  - #%PID# - Far process ID;

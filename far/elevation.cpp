@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "global.hpp"
 #include "exception.hpp"
+#include "exception_handler.hpp"
 
 // Platform:
 #include "platform.concurrency.hpp"
@@ -1264,7 +1265,9 @@ private:
 	static DWORD CALLBACK CopyProgressRoutineWrapper(LARGE_INTEGER TotalFileSize, LARGE_INTEGER TotalBytesTransferred, LARGE_INTEGER StreamSize, LARGE_INTEGER StreamBytesTransferred, DWORD StreamNumber, DWORD CallbackReason, HANDLE SourceFile,HANDLE DestinationFile, LPVOID Data)
 	{
 		const auto Param = static_cast<callback_param*>(Data);
-		try
+
+		return cpp_try(
+		[&]
 		{
 			const auto Context = Param->Owner;
 
@@ -1289,10 +1292,12 @@ private:
 				// nested call from ProgressRoutine()
 				Context->Process(Result);
 			}
-		}
-		CATCH_AND_SAVE_EXCEPTION_TO(Param->ExceptionPtr)
-
-		return PROGRESS_CANCEL;
+		},
+		[&]
+		{
+			SAVE_EXCEPTION_TO(Param->ExceptionPtr);
+			return PROGRESS_CANCEL;
+		});
 	}
 
 	bool Process(int Command) const

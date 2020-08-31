@@ -58,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "constitle.hpp"
 #include "pathmix.hpp"
 #include "global.hpp"
+#include "exception.hpp"
 
 // Platform:
 #include "platform.fs.hpp"

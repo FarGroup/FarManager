@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "strmix.hpp"
 #include "global.hpp"
+#include "mix.hpp"
 
 // Platform:
 #include "platform.concurrency.hpp"
@@ -58,24 +59,21 @@ static string expand_title_variables(string_view const Str)
 {
 	// " - Far%Ver%Admin"
 	/*
-		%Ver      - 2.0
-		%Build    - 1259
+		%Ver      - 3.0.5660.0
 		%Platform - x86
 		%Admin    - MFarTitleAddonsAdmin
 		%PID      - current PID
 	*/
 
-	static const auto Version = build::version();
-	static const auto VersionMajorMinor = concat(str(Version.Major), L'.', str(Version.Minor));
-	static const auto VersionBuild = str(Version.Build);
+	static const auto Version = version_to_string(build::version());
 	static const auto Platform = build::platform();
 	static const auto IsAdmin = os::security::is_admin() ? msg(lng::MFarTitleAddonsAdmin) : L""sv;
 	static const auto Pid = str(GetCurrentProcessId());
 
 	auto ExpandedStr = os::env::expand(Str);
 
-	replace_icase(ExpandedStr, L"%Ver"sv, VersionMajorMinor);
-	replace_icase(ExpandedStr, L"%Build"sv, VersionBuild);
+	replace_icase(ExpandedStr, L"%Ver.%Build"sv, Version); // For compatibility
+	replace_icase(ExpandedStr, L"%Ver"sv, Version);
 	replace_icase(ExpandedStr, L"%Platform"sv, Platform);
 	replace_icase(ExpandedStr, L"%Admin"sv, IsAdmin);
 	replace_icase(ExpandedStr, L"%PID"sv, Pid);

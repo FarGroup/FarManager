@@ -69,6 +69,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "locale.hpp"
 #include "farversion.hpp"
+#include "exception.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -140,6 +141,7 @@ static void show_help()
 		L" -v <filename>\n"
 		L"      View the specified file. If <filename> is -, data is read from the stdin.\n"
 		L" -w[-] Stretch to console window instead of console buffer or vise versa.\n"
+		L" -x   Disable exception handling.\n"
 		L""sv;
 
 	std::wcout << HelpMsg << std::flush;
@@ -747,21 +749,36 @@ static int mainImpl(span<const wchar_t* const> const Args)
 
 	NoElevationDuringBoot.reset();
 
-	try
+	const auto CurrentFunctionName = __FUNCTION__;
+
+	return cpp_try(
+	[&]
 	{
 		return MainProcess(strEditName, strViewName, DestNames[0], DestNames[1], StartLine, StartChar);
-	}
-	catch (const std::exception& e)
+	},
+	[&]() -> int
 	{
-		if (ProcessStdException(e, __FUNCTION__))
+		if (handle_unknown_exception(CurrentFunctionName))
 			std::_Exit(EXIT_FAILURE);
 		throw;
-	}
-	catch (...)
+	},
+	[&](std::exception const& e) -> int
 	{
-		if (ProcessUnknownException(__FUNCTION__))
+		if (handle_std_exception(e, CurrentFunctionName))
 			std::_Exit(EXIT_FAILURE);
 		throw;
+	});
+}
+
+static void configure_exception_handling(int Argc, const wchar_t* const Argv[])
+{
+	for (const auto& i : span(Argv + 1, Argc - 1))
+	{
+		if ((i[0] == L'/' || i[0] == L'-') && upper(i[1]) == L'X' && !i[2])
+		{
+			disable_exception_handling();
+			return;
+		}
 	}
 }
 
@@ -774,6 +791,8 @@ static int wmain_seh(int Argc, const wchar_t* const Argv[])
 	}
 #endif
 
+	configure_exception_handling(Argc, Argv);
+
 #if defined(SYSLOG)
 	atexit(PrintSysLogStat);
 #endif
@@ -781,39 +800,44 @@ static int wmain_seh(int Argc, const wchar_t* const Argv[])
 	SCOPED_ACTION(unhandled_exception_filter);
 	SCOPED_ACTION(new_handler);
 
-	try
+
+	const auto CurrentFunctionName = __FUNCTION__;
+
+	return cpp_try(
+	[&]
 	{
-		return mainImpl({ Argv + 1, Argv + Argc });
-	}
-	catch (const far_known_exception& e)
+		try
+		{
+			return mainImpl({ Argv + 1, Argv + Argc });
+		}
+		catch (const far_known_exception& e)
+		{
+			std::wcout << build::version_string() << L'\n' << std::endl;
+			std::wcerr << e.message() << std::endl;
+			return EXIT_FAILURE;
+		}
+	},
+	[&]() -> int
 	{
-		std::wcout << build::version_string() << L'\n' << std::endl;
-		std::wcerr << e.message() << std::endl;
-		return EXIT_FAILURE;
-	}
-	catch (const std::exception& e)
-	{
-		if (ProcessStdException(e, __FUNCTION__))
+		if (handle_unknown_exception(CurrentFunctionName))
 			std::_Exit(EXIT_FAILURE);
 
-		unhandled_exception_filter::dismiss();
-		RestoreGPFaultUI();
+		restore_gpfault_ui();
 		throw;
-	}
-	catch (...)
+	},
+	[&](std::exception const& e) -> int
 	{
-		if (ProcessUnknownException(__FUNCTION__))
+		if (handle_std_exception(e, CurrentFunctionName))
 			std::_Exit(EXIT_FAILURE);
 
-		unhandled_exception_filter::dismiss();
-		RestoreGPFaultUI();
+		restore_gpfault_ui();
 		throw;
-	}
+	});
 }
 
 int main()
 {
-	return seh_invoke_with_ui(
+	return seh_try_with_ui(
 	[]
 	{
 		// wmain is a non-standard extension and not available in gcc.

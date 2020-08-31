@@ -144,6 +144,6 @@ struct std::hash<UUID>
 
 void ReloadEnvironment();
 
-string version_to_string(const VersionInfo& PluginVersion);
+string version_to_string(const VersionInfo& Version);
 
 #endif // MIX_HPP_67869A41_F20D_4C95_86E1_4D598A356EE1

@@ -83,24 +83,34 @@ namespace tests
 	static void cpp_std_nested()
 	{
 		std::exception_ptr Ptr;
-		try
+
+		cpp_try(
+		[]
 		{
 			throw std::runtime_error("Test nested std error"s);
-		}
-		CATCH_AND_SAVE_EXCEPTION_TO(Ptr)
+		},
+		[&]
+		{
+			SAVE_EXCEPTION_TO(Ptr);
+		});
+
 		rethrow_if(Ptr);
 	}
 
 	static void cpp_std_nested_thread()
 	{
 		std::exception_ptr Ptr;
-		seh_invoke_thread(Ptr, [&Ptr]
+		seh_try_thread(Ptr, [&Ptr]
 		{
-			try
+			cpp_try(
+			[]
 			{
 				throw std::runtime_error("Test nested std error (thread)"s);
-			}
-			CATCH_AND_SAVE_EXCEPTION_TO(Ptr)
+			},
+			[&]
+			{
+				SAVE_EXCEPTION_TO(Ptr);
+			});
 		});
 
 		rethrow_if(Ptr);
@@ -121,11 +131,17 @@ namespace tests
 	static void cpp_unknown_nested()
 	{
 		std::exception_ptr Ptr;
-		try
+
+		cpp_try(
+		[]
 		{
 			throw 69u;
-		}
-		CATCH_AND_SAVE_EXCEPTION_TO(Ptr)
+		},
+		[&]
+		{
+			SAVE_EXCEPTION_TO(Ptr);
+		});
+
 		rethrow_if(Ptr);
 	}
 
@@ -174,7 +190,7 @@ namespace tests
 		std::exception_ptr Ptr;
 		os::thread Thread(&os::thread::join, [&]
 		{
-			seh_invoke_thread(Ptr, []
+			seh_try_thread(Ptr, []
 			{
 				volatile const auto InvalidDenominator = 0;
 				[[maybe_unused]]
@@ -192,6 +208,12 @@ namespace tests
 		}
 
 		rethrow_if(Ptr);
+	}
+
+	static void seh_int_overflow()
+	{
+		[[maybe_unused]]
+		volatile const auto Result = std::numeric_limits<int>::min() / -1;
 	}
 
 	WARNING_PUSH()
@@ -213,7 +235,7 @@ namespace tests
 
 	static void seh_fp_divide_by_zero()
 	{
-		detail::SetFloatingPointExceptions(true);
+		detail::set_fp_exceptions(true);
 		volatile const auto InvalidDenominator = 0.0;
 		[[maybe_unused]]
 		volatile const auto Result = 42.0 / InvalidDenominator;
@@ -221,7 +243,7 @@ namespace tests
 
 	static void seh_fp_overflow()
 	{
-		detail::SetFloatingPointExceptions(true);
+		detail::set_fp_exceptions(true);
 		volatile const auto Max = std::numeric_limits<double>::max();
 		[[maybe_unused]]
 		volatile const auto Result = Max * 2;
@@ -229,7 +251,7 @@ namespace tests
 
 	static void seh_fp_underflow()
 	{
-		detail::SetFloatingPointExceptions(true);
+		detail::set_fp_exceptions(true);
 		volatile const auto Min = std::numeric_limits<double>::min();
 		[[maybe_unused]]
 		volatile const auto Result = Min / 2;
@@ -237,7 +259,7 @@ namespace tests
 
 	static void seh_fp_inexact_result()
 	{
-		detail::SetFloatingPointExceptions(true);
+		detail::set_fp_exceptions(true);
 		volatile const auto Max = std::numeric_limits<double>::max();
 		[[maybe_unused]]
 		volatile const auto Result = Max + 1;
@@ -287,6 +309,7 @@ static bool ExceptionTestHook(Manager::Key const& key)
 		{ tests::seh_access_violation_execute, L"SEH access violation (execute)"sv },
 		{ tests::seh_divide_by_zero,           L"SEH divide by zero"sv },
 		{ tests::seh_divide_by_zero_thread,    L"SEH divide by zero (thread)"sv },
+		{ tests::seh_int_overflow,             L"SEH int owerflow"sv },
 		{ tests::seh_stack_overflow,           L"SEH stack overflow"sv },
 		{ tests::seh_fp_divide_by_zero,        L"SEH floating-point divide by zero"sv },
 		{ tests::seh_fp_overflow,              L"SEH floating-point overflow"sv },

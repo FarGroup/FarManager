@@ -1,3 +1,11 @@
+drkns 31.08.2020 19:18:12 +0100 - build 5660
+
+1. Show the version in the UI as major.minor.build.revision, for compatibility with the OS and for the future.
+
+2. Restore the /x parameter - disable exception handling (for ease of development and debugging).
+
+3. Refactoring.
+
 zg 28.08.2020 03:38:58 +0300 - build 5659
 
 1. forum: titles never shown in listbox with DIF_LISTNOBOX flag.

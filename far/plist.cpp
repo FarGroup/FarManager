@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "string_sort.hpp"
 #include "exception.hpp"
+#include "exception_handler.hpp"
 #include "console.hpp"
 #include "keyboard.hpp"
 
@@ -108,7 +109,8 @@ static BOOL CALLBACK EnumWindowsProc(HWND const Window, LPARAM const Param)
 {
 	auto& Info = *reinterpret_cast<ProcInfo*>(Param);
 
-	try
+	return cpp_try(
+	[&]
 	{
 		if (!is_alttab_window(Window))
 			return true;
@@ -118,9 +120,12 @@ static BOOL CALLBACK EnumWindowsProc(HWND const Window, LPARAM const Param)
 
 		Info.Windows.emplace_back(Window, Pid);
 		return true;
-	}
-	CATCH_AND_SAVE_EXCEPTION_TO(Info.ExceptionPtr)
-	return false;
+	},
+	[&]
+	{
+		SAVE_EXCEPTION_TO(Info.ExceptionPtr);
+		return false;
+	});
 }
 
 static void AddMenuItem(HWND const Window, DWORD const Pid, size_t const PidWidth, bool const ShowImage, vmenu2_ptr const& Menu)

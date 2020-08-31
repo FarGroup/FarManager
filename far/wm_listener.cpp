@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "notification.hpp"
 #include "global.hpp"
 #include "exception.hpp"
+#include "exception_handler.hpp"
 
 // Platform:
 
@@ -52,7 +53,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static std::exception_ptr* WndProcExceptionPtr;
 static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
-	try
+	cpp_try(
+	[&]
 	{
 		switch (Msg)
 		{
@@ -123,8 +125,11 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 			break;
 
 		}
-	}
-	CATCH_AND_SAVE_EXCEPTION_TO(*WndProcExceptionPtr)
+	},
+	[]
+	{
+		SAVE_EXCEPTION_TO(*WndProcExceptionPtr);
+	});
 
 	return DefWindowProc(Hwnd, Msg, wParam, lParam);
 }
