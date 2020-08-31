@@ -568,16 +568,29 @@ void PushPanelItem(lua_State *L, const struct PluginPanelItem *PanelItem, int No
 		lua_setfield(L, -2, "CustomColumnData");
 	}
 
-	if (!NoUserData && PanelItem->UserData.Data && PanelItem->UserData.FreeData==FarPanelItemFreeCallback)
+	if (PanelItem->UserData.Data)
 	{
-		// This is a panel of a LuaFAR plugin
-		FarPanelItemUserData* ud = (FarPanelItemUserData*)PanelItem->UserData.Data;
-
-		// Compare registries rather than Lua states to allow for different coroutines of the same state
-		if(lua_topointer(ud->L, LUA_REGISTRYINDEX) == lua_topointer(L, LUA_REGISTRYINDEX))
+		if (!NoUserData)
 		{
-			lua_rawgeti(L, LUA_REGISTRYINDEX, ud->ref);
-			lua_setfield(L, -2, "UserData");
+			if (PanelItem->UserData.FreeData==FarPanelItemFreeCallback)
+			{
+				// This is a panel of a LuaFAR plugin
+				FarPanelItemUserData* ud = (FarPanelItemUserData*)PanelItem->UserData.Data;
+
+				// Compare registries rather than Lua states to allow for different coroutines of the same state
+				if(lua_topointer(ud->L, LUA_REGISTRYINDEX) == lua_topointer(L, LUA_REGISTRYINDEX))
+				{
+					lua_rawgeti(L, LUA_REGISTRYINDEX, ud->ref);
+					lua_setfield(L, -2, "UserData");
+				}
+			}
+		}
+		else
+		{
+			lua_pushlightuserdata(L, PanelItem->UserData.Data);
+			lua_setfield(L, -2, "ExtUserData"); //use field name different from "UserData" to distinguish later
+			lua_pushlightuserdata(L, PanelItem->UserData.FreeData);
+			lua_setfield(L, -2, "FreeUserData");
 		}
 	}
 }
@@ -5999,7 +6012,7 @@ static HMODULE GetPluginModuleHandle(const PSInfo *psInfo, GUID* PluginGuid)
 	return dll_handle;
 }
 
-static int far_PluginGetFiles(lua_State *L)
+static int far_host_GetFiles(lua_State *L)
 {
 	typedef intptr_t (WINAPI * T_GetFilesW)(struct GetFilesInfo *);
 	T_GetFilesW getfiles;
@@ -6055,7 +6068,7 @@ static int far_PluginGetFiles(lua_State *L)
 	return 1;
 }
 
-static int far_PluginGetFindData(lua_State *L)
+static int far_host_GetFindData(lua_State *L)
 {
 	typedef intptr_t (WINAPI * T_GetFindDataW)(const struct GetFindDataInfo *);
 	typedef void     (WINAPI * T_FreeFindDataW)(const struct FreeFindDataInfo *);
@@ -6063,10 +6076,8 @@ static int far_PluginGetFindData(lua_State *L)
 	T_FreeFindDataW freefinddata;
 	struct PanelInfo panInfo;
 	struct GetFindDataInfo gfdInfo;
-	struct FarPanelItemFreeInfo freeInfo;
 	HMODULE dll_handle;
 	PSInfo *psInfo = GetPluginData(L)->Info;
-	size_t idx;
 	HANDLE panHandle = OptHandle(L); //1-st argument
 
 	lua_pushnil(L);  //prepare to return nil
@@ -6087,17 +6098,7 @@ static int far_PluginGetFindData(lua_State *L)
 
 	PushPanelItems(L, gfdInfo.PanelItem, gfdInfo.ItemsNumber, 1); //this will be returned
 
-	//as panel items will never be returned back to the plugin, free their UserData
-	freeInfo.StructSize = sizeof(freeInfo);
-	freeInfo.hPlugin = panInfo.PluginHandle;
-	for (idx=0; idx < gfdInfo.ItemsNumber; idx++)
-	{
-		struct PluginPanelItem* item = gfdInfo.PanelItem + idx;
-		if (item->UserData.FreeData != NULL)
-			item->UserData.FreeData(item->UserData.Data, &freeInfo);
-	}
-
-	//as panel items will never be returned back to the plugin, free them now
+	//as the panel items have been copied (internalized) they should be freed
 	freefinddata = (T_FreeFindDataW)GetProcAddress(dll_handle, "FreeFindDataW");
 	if (freefinddata)
 	{
@@ -6111,7 +6112,43 @@ static int far_PluginGetFindData(lua_State *L)
 	return 1;
 }
 
-static int far_PluginSetDirectory(lua_State *L)
+static int far_host_FreeUserData(lua_State *L)
+{
+	struct FarPanelItemFreeInfo freeInfo;
+	size_t ItemsNumber, idx;
+
+	luaL_checktype(L, 1, LUA_TUSERDATA);
+	freeInfo.hPlugin = lua_touserdata(L, 1);
+
+	luaL_checktype(L, 2, LUA_TTABLE);
+	ItemsNumber = lua_objlen(L, 2);
+
+	freeInfo.StructSize = sizeof(freeInfo);
+	for (idx=0; idx < ItemsNumber; idx++)
+	{
+		lua_rawgeti(L, 2, idx+1);
+		if (lua_istable(L, -1))
+		{
+			void *UserData;
+			FARPANELITEMFREECALLBACK FreeData;
+
+			lua_getfield(L, -1, "ExtUserData");
+			UserData = lua_touserdata(L, -1);
+			lua_pop(L, 1);
+
+			lua_getfield(L, -1, "FreeUserData");
+			FreeData = (FARPANELITEMFREECALLBACK) lua_touserdata(L, -1);
+			lua_pop(L, 1);
+
+			if (UserData && FreeData)
+				FreeData(UserData, &freeInfo);
+		}
+		lua_pop(L, 1);
+	}
+	return 0;
+}
+
+static int far_host_SetDirectory(lua_State *L)
 {
 	typedef intptr_t (WINAPI * T_SetDirectoryW)(const struct SetDirectoryInfo *);
 	T_SetDirectoryW setdirectory;
@@ -6372,9 +6409,15 @@ const luaL_Reg far_funcs[] =
 	{"Timer",               far_Timer},
 	{"FileTimeResolution",  far_FileTimeResolution},
 
-	{"PluginGetFiles",      far_PluginGetFiles},
-	{"PluginGetFindData",   far_PluginGetFindData},
-	{"PluginSetDirectory",  far_PluginSetDirectory},
+	{NULL, NULL}
+};
+
+const luaL_Reg far_host_funcs[] =
+{
+	{"GetFiles",      far_host_GetFiles},
+	{"GetFindData",   far_host_GetFindData},
+	{"SetDirectory",  far_host_SetDirectory},
+	{"FreeUserData",  far_host_FreeUserData},
 
 	{NULL, NULL}
 };
@@ -6415,6 +6458,10 @@ static int luaopen_far(lua_State *L)
 	NewVirtualKeyTable(L, FALSE);
 	lua_setfield(L, LUA_REGISTRYINDEX, FAR_VIRTUALKEYS);
 	luaL_register(L, "far", far_funcs);
+
+	lua_newtable(L); //far.Host namespace
+	luaL_register(L, NULL, far_host_funcs);
+	lua_setfield(L, -2, "Host");
 
 	if (GetPluginData(L)->Info->Private)
 	{

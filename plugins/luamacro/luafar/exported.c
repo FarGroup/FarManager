@@ -285,7 +285,13 @@ void FillPluginPanelItem(lua_State *L, struct PluginPanelItem *pi, int Collector
 		pi->UserData.FreeData = FarPanelItemFreeCallback;
 	}
 	else
-		lua_pop(L, 1);
+	{
+		lua_getfield(L, dataPos, "ExtUserData");
+		pi->UserData.Data = lua_touserdata(L, -1);
+		lua_getfield(L, dataPos, "FreeUserData");
+		pi->UserData.FreeData = lua_touserdata(L, -1);
+		lua_pop(L, 3);
+	}
 }
 
 // Two known values on the stack top: Tbl (at -2) and FindData (at -1).
