@@ -6126,7 +6126,7 @@ static int far_host_FreeUserData(lua_State *L)
 	freeInfo.StructSize = sizeof(freeInfo);
 	for (idx=0; idx < ItemsNumber; idx++)
 	{
-		lua_rawgeti(L, 2, idx+1);
+		lua_rawgeti(L, 2, (int)idx+1);
 		if (lua_istable(L, -1))
 		{
 			void *UserData;
