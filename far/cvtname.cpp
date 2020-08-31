@@ -246,42 +246,6 @@ static string TryConvertVolumeGuidToDrivePath(string_view const Path)
 	return string(Path);
 }
 
-size_t GetMountPointLen(string_view const abs_path, string_view const drive_root)
-{
-	if (starts_with_icase(abs_path, drive_root))
-		return drive_root.size();
-
-	size_t dir_offset = 0;
-	if (ParsePath(abs_path, &dir_offset) == root_type::volume)
-		return dir_offset;
-
-	string Buffer;
-	string_view VolumeGuid;
-
-	switch (ParsePath(drive_root))
-	{
-	case root_type::volume:
-		VolumeGuid = drive_root;
-		break;
-
-	case root_type::drive_letter:
-		if (!os::fs::GetVolumeNameForVolumeMountPoint(drive_root, Buffer))
-			return 0;
-
-		VolumeGuid = Buffer;
-		break;
-
-	default:
-		return 0;
-	}
-
-	const auto DrivePath = TryConvertVolumeGuidToDrivePath(VolumeGuid);
-	if (DrivePath.size() == VolumeGuid.size())
-		return 0;
-
-	return VolumeGuid.size();
-}
-
 /*
   Преобразует Src в полный РЕАЛЬНЫЙ путь с учетом reparse point.
   Note that Src can be partially non-existent.

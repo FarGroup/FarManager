@@ -57,6 +57,4 @@ string ConvertNameToUNC(string_view Object);
 
 void PrepareDiskPath(string &strPath, bool CheckFullPath=true);
 
-size_t GetMountPointLen(string_view abs_path, string_view drive_root);
-
 #endif // CVTNAME_HPP_6F805D7A_7988_492E_9583_A5668BCA99D2

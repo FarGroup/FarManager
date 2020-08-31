@@ -81,6 +81,14 @@ namespace detail
 	int seh_thread_filter(std::exception_ptr& Ptr, DWORD Code, EXCEPTION_POINTERS* Info);
 	void seh_thread_handler();
 	void set_fp_exceptions(bool Enable);
+
+	// A workaround for 2017
+	// TODO: remove once we drop support for VS2017.
+	template<typename result_type, typename std_handler>
+	void assign(result_type& Result, std_handler const& StdHandler, std::exception const& e)
+	{
+		Result = StdHandler(e);
+	}
 }
 
 template<typename callable, typename unknown_handler, typename std_handler = ::detail::no_handler>
@@ -110,7 +118,7 @@ WARNING_DISABLE_MSC(4702) // unreachable code
 		[&](std::exception const& e)
 		{
 			if constexpr (!std::is_same_v<std_handler, ::detail::no_handler>)
-				Result = StdHandler(e);
+				::detail::assign(Result, StdHandler, e);
 		});
 WARNING_POP()
 
@@ -136,7 +144,6 @@ WARNING_DISABLE_MSC(4702) // unreachable code
 WARNING_POP()
 		return Result;
 	}
-
 }
 
 template<class function, class handler>

@@ -1,3 +1,9 @@
+drkns 31.08.2020 23:01:01 +0100 - build 5661
+
+1. Continuation of #3817.
+
+2. VS2017.
+
 drkns 31.08.2020 19:18:12 +0100 - build 5660
 
 1. Show the version in the UI as major.minor.build.revision, for compatibility with the OS and for the future.

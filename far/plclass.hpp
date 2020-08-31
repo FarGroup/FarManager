@@ -214,6 +214,14 @@ namespace detail
 		operator bool() const { return Result != 0; }
 		intptr_t Result;
 	};
+
+	// A workaround for 2017.
+	// TODO: remove once we drop support for VS2017.
+	template<typename result_type, typename function, typename... args>
+	void assign(result_type& Result, function const& Function, args&&... Args)
+	{
+		Result = Function(FWD(Args)...);
+	}
 }
 
 class Plugin
@@ -331,7 +339,7 @@ protected:
 			if constexpr (std::is_void_v<std::invoke_result_t<function_type, args...>>)
 				Function(FWD(Args)...);
 			else
-				es = Function(FWD(Args)...);
+				::detail::assign(es, Function, FWD(Args)...);
 		});
 	}
 

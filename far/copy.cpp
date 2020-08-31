@@ -1308,7 +1308,6 @@ void ShellCopy::CopyFileTree(const string& Dest)
 {
 	//SaveScreen SaveScr;
 	DWORD DestAttr = INVALID_FILE_ATTRIBUTES;
-	size_t DestMountLen = 0;
 
 	if (Dest.empty() || IsCurrentDirectory(Dest))
 		return;
@@ -1388,7 +1387,6 @@ void ShellCopy::CopyFileTree(const string& Dest)
 		{
 			strDestDriveRoot = GetPathRoot(strDest);
 			DestDriveType = FAR_GetDriveType(strDestDriveRoot);
-			DestMountLen = GetMountPointLen(strDest, strDestDriveRoot);
 			check_samedisk = dest_changed = true;
 		}
 		if (move_rename && !copy_to_null && check_samedisk)
@@ -1453,7 +1451,7 @@ void ShellCopy::CopyFileTree(const string& Dest)
 		}
 
 		const auto pos = FindLastSlash(strDest);
-		if (!copy_to_null && pos != string::npos && (!DestMountLen || pos > DestMountLen))
+		if (!copy_to_null && pos != string::npos)
 		{
 			const auto strNewPath = strDest.substr(0, pos);
 			const os::fs::file_status NewPathStatus(strNewPath);
