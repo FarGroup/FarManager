@@ -1,3 +1,7 @@
+drkns 01.09.2020 17:48:03 +0100 - build 5662
+
+1. Setting db key descriptions didn't work in some cases.
+
 drkns 31.08.2020 23:01:01 +0100 - build 5661
 
 1. Continuation of #3817.
