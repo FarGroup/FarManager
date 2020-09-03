@@ -275,8 +275,8 @@ zastąpione standardowym tekstem okna Far, zależnym od kontekstu programu.
  Nadpisuje parametr konfiguracyjny, zobacz szczegóły w ~far:config~@Konfiguracji FAR@.
 
  #-x#
- Disable exception handling. This parameter is for developers
-and is not recommended for normal operations.
+ Wyłącza obsługę wyjątków. Ten parametr jest przeznaczony dla programistów i nie jest
+zalecany do normalnej pracy programu.
 
  Istnieje możliwość podania maksymalnie dwóch ścieżek (do folderów, plików lub archiwów)
 lub dwóch poleceń z przedrostkami wtyczek w linii poleceń. Pierwsza ścieżka dotyczy
@@ -412,17 +412,16 @@ lecz w pasywnym oknie panelu.
  Kopiuje nazwy zaznaczonych plików do schowka.
 
  #Alt+Shift+Ins#
- Kopiuje pełne nazwy zaznaczonych plików do schowka.
+ Kopiuje pełne nazwy zaznaczonych plików ze ścieżkami do schowka.
 
  #Ctrl+Alt+Ins#
- Kopiuje real nazwy zaznaczonych plików do schowka.
-
+ Kopiuje rzeczywiste nazwy zaznaczonych plików do schowka.
 
  #Ctrl+Shift+C#
  Kopiuj pliki do schowka.
 
  #Ctrl+Shift+X#
- Cut the selected files to clipboard.
+ Wycina zaznaczone pliki do schowka.
 
  Pliki, skopiowane lub cięcie z paneli, mogą być kopiowane do innej aplikacji, np. Explorer.
 
@@ -1162,125 +1161,124 @@ wartość ta może być zbyt niedokładna do rzeczywistości).
 
 
 @InfoPanelShowMode
-$ #InfoPanel display modes#
- ~InfoPanel~@InfoPanel@ display modes menu can be called with #Ctrl+F12# and affects currently
-active informantion panel. Available display modes:
+$ #Panel informacyjny - tryby wyświetlania#
+ Tryby wyświetlania ~Panelu informacyjnego~@InfoPanel@ (InfoPanel) mogą być zmieniane po wciśnięciu klawiszy
+#Ctrl+F12#. Można włączać lub wyłączać następujące informacje::
 
- - Drive information
- - Memory information
- - Description file content
- - Plugin panel information
- - Power status information
+ - informacja o dysku
+ - informacja o pamięci
+ - zawartość pliku opisu
+ - informacje o panelu wtyczek
+ - status zasilania
 
- #+# key shows the selected section.
- #-# key hides the selected section.
- #*# key flips the visibility of the selected section.
+ Klawisz #+# włącza wybraną sekcję.
+ Klawisz #-# wyłącza wybraną sekcję.
+ Klawisz #*# przełącza widoczność danej sekcji.
 
- Power status information can be enabled in InfoPanel ~settings~@InfoPanelSettings@.
+ Informację o statusie zasilania można włączyć w ~ustawieniach~@InfoPanelSettings@ panelu informacyjnego.
 
 
 @InfoPanelSettings
-$ #InfoPanel settings#
- #Show power status#
- If enabled, ~InfoPanel~@InfoPanel@ will contain a section with power status details.
+$ #Ustawienia panelu informacyjnego#
+ #Pokaż status zasilania#
+ Jeżeli włączone, ~Panel informacyjny~@InfoPanel@ będzie zawierał sekcję ze szczegółami dot. zasilania komputera.
 
- #Show CD drive parameters#
- If enabled, Far will try to detect the CD drive type.
-Supported types: CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM, DVD-RW and DVD-RAM.
+ #Pokaż parametry dysku CD#
+ Jeżeli włączone, Far będzie próbował wykrywać typ dysku CD.
+Obsługiwane typy: CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM, DVD-RW i DVD-RAM.
 
- #Computer name format#
- Can be one of:
+ #Format nazwy komputera#
+ Do wyboru z listy:
 
  - #NetBIOS#
-   ^<wrap>The NetBIOS name of the local computer. If the local computer is a node in a cluster, the NetBIOS name of the cluster virtual server.
+   ^<wrap>Nazwa NetBIOS lokalnego komputera. Jeżeli komputer lokalny jest węzłem klastra, będzie to nazwa NetBIOS serwera wirtualnego klastra.
 
- - #DNS hostname#
-   ^<wrap>The DNS host name of the local computer. If the local computer is a node in a cluster, the DNS host name of the cluster virtual server.
+ - #Nazwa z DNS#
+   ^<wrap>Nazwa hosta z DNS komputera lokalnego. Jeżeli komputer lokalny jest węzłem klastra, będzie to nazwa hosta DNS serwera wirtualnego klastra.
 
- - #DNS domain#
-   ^<wrap>The name of the DNS domain assigned to the local computer. If the local computer is a node in a cluster, the DNS domain name of the cluster virtual server.
+ - #Domena z DNS#
+   ^<wrap>Nazwa domeny z DNS przypisana do komputera lokalnego. Jeżeli komputer lokalny jest węzłem klastra, będzie to nazwa domeny DNS serwera wirtualnego klastra.
 
- - #DNS fully-qualified#
-   ^<wrap>The fully qualified DNS name that uniquely identifies the local computer. This name is a combination of the DNS host name and the DNS domain name, using the form HostName.DomainName. If the local computer is a node in a cluster, the fully qualified DNS name of the cluster virtual server.
+ - #Wpis z DNS (FQDN)#
+   ^<wrap>W pełni kwalifikowana nazwa DNS, która jednoznacznie identyfikuje komputer lokalny. Ta nazwa jest kombinacją nazwy hosta DNS i nazwy domeny DNS przy użyciu formularza Nazwa hosta.NazwaDomeny. Jeżeli komputer lokalny jest węzłem w klastrze, będzie to w pełni kwalifikowana nazwa DNS serwera wirtualnego klastra.
 
- - #Physical NetBIOS#
-   ^<wrap>The NetBIOS name of the local computer. If the local computer is a node in a cluster, the NetBIOS name of the local computer, not the name of the cluster virtual server.
+ - #Fizyczna nazwa z NetBIOS#
+   ^<wrap>Nazwa NetBIOS lokalnego komputera. Jeżeli komputer lokalny jest węzłem klastra, będzie to nazwa NetBIOS lokalnego komputera, a nie nazwa serwera wirtualnego klastra.
 
- - #Physical DNS hostname#
-   ^<wrap>The DNS host name of the local computer. If the local computer is a node in a cluster, the DNS host name of the local computer, not the name of the cluster virtual server.
+ - #Fizyczna nazwa z DNS#
+   ^<wrap>Nazwa hosta z DNS komputera lokalnego. Jeżeli komputer lokalny jest węzłem klastra, będzie to nazwa z DNS, a nie nazwa serwera wirtualnego klastra.
 
- - #Physical DNS domain#
-   ^<wrap>The name of the DNS domain assigned to the local computer. If the local computer is a node in a cluster, the DNS domain name of the local computer, not the name of the cluster virtual server.
+ - #Fizyczna domena z DNS#
+   ^<wrap>Nazwa domeny z DNS przypisana do komputera lokalnego. Jeżeli komputer lokalny jest węzłem klastra, będzie to nazwa domeny z DNS, a nie nazwa serwera wirtualnego klastra.
 
- - #Physical DNS fully-qualified#
-   ^<wrap>The fully qualified DNS name that uniquely identifies the computer. If the local computer is a node in a cluster, the fully qualified DNS name of the local computer, not the name of the cluster virtual server. The fully qualified DNS name is a combination of the DNS host name and the DNS domain name, using the form HostName.DomainName.
+ - #Fizyczny DNS (FQDN)#
+   ^<wrap>W pełni kwalifikowana nazwa DNS, która jednoznacznie identyfikuje komputer. Jeżeli komputer lokalny jest węzłem klastra, będzie to w pełni kwalifikowana nazwa DNS komputera lokalnego, a nie nazwa serwera wirtualnego klastra. W pełni kwalifikowana nazwa DNS jest kombinacją nazwy hosta DNS i nazwy domeny DNS w formacie NazwaKomputera.NazwaDomeny.
 
- The output format depends on the domain structure, group policies and DNS settings.
+ Format wyjściowy zależy od struktury domeny, polityk grup i ustawień DNS.
 
- #User name format#
-
- Can be one of:
+ #Format nazwy użytkownika#
+ Do wyboru z listy:
 
  - #Nazwa logowania#
-   User login, (for example, JeffSmith)
+   Nazwa użytkownika (np. Jan)
 
- - #Fully Qualified Domain Name#
-   ^<wrap>The fully qualified distinguished name (for example, CN=Jeff Smith,OU=Users,DC=Engineering,DC=Microsoft,DC=Com).
+ - #Pełna nazwa domenowa (FQDN)#
+   ^<wrap>W pełni kwalifikowana nazwa wyróżniająca (np. CN=Jan Kowalski,OU=Użytkownicy,DC=Inżynierowie,DC=Firma,DC=Pl).
 
- - #Sam Compatible#
-   ^<wrap>A legacy account name (for example, Engineering\JSmith). The domain-only version includes trailing backslashes (\\).
+ - #Zgodna z SAM#
+   ^<wrap>Starsza nazwa konta (np. Inżynierowie\JKowalski). Wersja dla domeny zawiera wiodące znaki backslash (\\).
 
- - #Display Name#
-   ^<wrap>A "friendly" display name (for example, Jeff Smith). The display name is not necessarily the defining relative distinguished name (RDN).
+ - #Nazwa wyświetlana#
+   ^<wrap>"Przyjazna" nazwa użytkownika (np. Jan Kowalski). Wyświetlana nazwa nie musi być zdefiniowaną nazwą wyróżniającą (RDN).
 
- - #Unique Id#
-   ^<wrap>A GUID string (for example, {4fa050f0-f561-11cf-bdd9-00aa003a77b6}).
+ - #Unikalne ID#
+   ^<wrap>Tekst GUID (np. {4fa050f0-f561-11cf-bdd9-00aa003a77b6}).
 
- - #Canonical Name#
-   ^<wrap>The complete canonical name (for example, engineering.microsoft.com/software/someone). The domain-only version includes a trailing forward slash (/).
+ - #Nazwa kanoniczna (z domeny)#
+   ^<wrap>Pełna nazwa kanoniczna (np. inzynierowie.firma.pl/programisci/osoba). Wersja dla domeny zawiera przedrostek - ukośnik (/).
 
- - #User Principial Name#
-   ^<wrap>The user principal name (for example, someone@@example.com).
+ - #Nazwa zalogowane użytkownika (UPN)#
+   ^<wrap>Nazwa zalogowanego użytkownika (np. osoba@@firma.pl).
 
- - #Service Principal#
-   ^<wrap>The generalized service principal name (for example, www/www.microsoft.com@@microsoft.com).
+ - #Główna usługa#
+   ^<wrap>Uogólniona nazwa główna usługi (np. www/www.firma.pl@@firma.pl).
 
- - #DNS Domain#
-   ^<wrap>The DNS domain name followed by a backward-slash and the SAM user name.
+ - #Domena DNS#
+   ^<wrap>Nazwa domeny DNS, ukośnik i nazwa użytkownika zgodna z SAM (np. Komputer123/Jan).
 
    #Imię#
 
    #Nazwisko#
 
- The ouput format depends on the domain structure.
+ Format wyjściowy zależny jest od struktury domeny.
 
 
 @QViewPanel
-$ #Panels: quick view panel#
- The quick view panel is used to show information about the selected item in
-the ~file panel~@FilePanel@ or ~tree panel~@TreePanel@.
+$ #Panele: szybki podgląd#
+ Panel szybkiego podglądu jest używany do pokazania informacji o wybranej
+pozycji z ~panelu plików~@FilePanel@ lub ~panelu drzewa~@TreePanel@.
 
- If the selected item is a file then the contents of the file is displayed.
-Many of the ~internal viewer~@Viewer@ commands can be used with the file
-displayed in the panel. For files of registered Windows types the type is shown
-as well.
+ Jeżeli wybrana pozyca jest plikiem - pokazana będzie jego zawartość.
+Do sterowania podglądem można użyć wielu poleceń z ~wewnętrznego podglądu~@Viewer@.
+Dla plików, które są zarejestrowane w Windows, widoczny jest także rodzaj pliku.
 
- For folders, the quick view panel displays total size, total allocation
-size, number of files and subfolders in the folder, current disk cluster size,
-real files size, including files slack (sum of the unused cluster parts).
+ Dla folderów, panel szybkiego podglądu wyświetla całkowitą wielkość, ilość
+przydzielonego miejsca, liczbę plików i podfolderów w tym folderze, bieżącą wielkość
+klastra na dysku, rzeczywistą wielkość pliku z ilością utraconej pojemności
+(suma nieużywanych części klastra).
 
- When viewing reparse points, the path to the source folder is also displayed.
+ Przy podglądzie punktów dowiązania, pokazywana jest także ścieżka do folderu źródłowego.
 
- For folders, the total size value may not match the actual value:
- - ^<wrap>If the folder or its subfolders contain symbolic links and the option
-"Scan symbolic links" in the ~System settings~@SystemSettings@ dialog is enabled.
- - ^<wrap>If the folder or its subfolders contain multiple hard links to the same file.
+ Dla folderów, wartość całkowitej wielkości może nie być dokładnie obliczana:
+ - ^<wrap>Jeżeli folder lub podfoldery zawierają linki symboliczne, a opcja
+"Skanuj linki symboliczne" w ~Ustawieniach systemu~@SystemSettings@ jest włączona.
+ - ^<wrap>Jeżeli folder lub podfoldery zawierają wiele twardych linków do tego samego pliku.
 
- #Ctrl+Shift+S# toggles size display mode: float with size suffixes or bytes.
-~Info panel~@InfoPanel@ and ~file panel~@FilePanel@ status line also affected.
-Current mode - far:config #Panel.ShowBytes# (default=false).
+ #Ctrl+Shift+S# przełącza tryb wyświetlania: wykładnicze z przyrostkami wielkości lub w bajtach.
+Dotyczy to także ~Panelu informacyjnego~@InfoPanel@ i linii statusu w ~Panelu plików~@FilePanel@.
+Bieżący tryb - far:config #Panel.ShowBytes# (domyślnie=fałsz).
 
- See also the list of ~macro keys~@KeyMacroQViewList@, available in the quick view panel.
+ Zobacz także listę ~klawiszy makro~@KeyMacroQViewList@, dostępnych w panelu szybkiego poglądu.
 
 
 @DragAndDrop
