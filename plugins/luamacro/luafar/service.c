@@ -6068,6 +6068,62 @@ static int far_host_GetFiles(lua_State *L)
 	return 1;
 }
 
+static int far_host_PutFiles(lua_State *L)
+{
+	typedef intptr_t (WINAPI * T_PutFilesW)(const struct PutFilesInfo *);
+	T_PutFilesW putfiles;
+	struct PanelInfo panInfo;
+	struct PutFilesInfo pfInfo;
+	HMODULE dll_handle;
+	PSInfo *psInfo = GetPluginData(L)->Info;
+	HANDLE panHandle = OptHandle(L); //1-st argument
+	int collectorPos;
+	struct PluginPanelItem *ppi, *ppi_curr;
+	size_t i, numLines;
+
+	luaL_checktype(L, 2, LUA_TTABLE);  //2-nd argument
+	numLines = lua_objlen(L, 2);
+	memset(&pfInfo, 0, sizeof(pfInfo));
+	pfInfo.StructSize = sizeof(pfInfo);
+	pfInfo.Move = lua_toboolean(L, 3); //3-rd argument
+	pfInfo.SrcPath = check_utf8_string(L, 4, NULL); //4-th argument
+	pfInfo.OpMode = luaL_optinteger(L, 5, (lua_Integer)(OPM_SILENT)); //5-th argument
+
+	lua_pushinteger(L,0);  //prepare to return 0
+
+	panInfo.StructSize = sizeof(panInfo);
+	if (! (panHandle && psInfo->PanelControl(panHandle,FCTL_GETPANELINFO,0,&panInfo) && panInfo.PluginHandle) )
+		return 1;
+	pfInfo.hPanel = panInfo.PluginHandle;
+
+	if (NULL == (dll_handle = GetPluginModuleHandle(psInfo, &panInfo.OwnerGuid)))
+		return 1;
+
+	if (NULL == (putfiles = (T_PutFilesW)GetProcAddress(dll_handle, "PutFilesW")))
+		return 1;
+
+	ppi = (struct PluginPanelItem *)malloc(sizeof(struct PluginPanelItem) * numLines);
+	if (ppi == NULL)
+		return luaL_error(L, "insufficient memory");
+
+	lua_newtable(L);
+	collectorPos = lua_gettop(L);
+	for(i=1,ppi_curr=ppi; i<=numLines; i++)
+	{
+		lua_pushinteger(L, i);
+		lua_gettable(L, 2);
+		if(lua_istable(L,-1))
+			FillPluginPanelItem(L, ppi_curr++, collectorPos);
+		lua_pop(L,1);
+	}
+	pfInfo.ItemsNumber = ppi_curr - ppi;
+	pfInfo.PanelItem = ppi;
+
+	lua_pushinteger(L, putfiles(&pfInfo));
+	free(ppi);
+	return 1;
+}
+
 static int far_host_GetFindData(lua_State *L)
 {
 	typedef intptr_t (WINAPI * T_GetFindDataW)(const struct GetFindDataInfo *);
@@ -6415,6 +6471,7 @@ const luaL_Reg far_funcs[] =
 const luaL_Reg far_host_funcs[] =
 {
 	{"GetFiles",      far_host_GetFiles},
+	{"PutFiles",      far_host_PutFiles},
 	{"GetFindData",   far_host_GetFindData},
 	{"SetDirectory",  far_host_SetDirectory},
 	{"FreeUserData",  far_host_FreeUserData},
