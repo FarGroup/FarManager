@@ -379,9 +379,15 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 	const bool UseBinaryUnit = (ViewFlags & COLFLAGS_THOUSAND) == 0;
 	const size_t MinUnit = (ViewFlags & COLFLAGS_MULTIPLIER_MASK & ~COLFLAGS_USE_MULTIPLIER) + 1;
 
+	constexpr auto
+		binary_index = 0,
+		decimal_index = 1,
+		log2_of_2014 = 10,
+		log10_of_1000 = 3;
+
 	constexpr std::pair
-		BinaryDivider(0, 10), // 10 == log2(1024)
-		DecimalDivider(1, 3); // 3 == log10(1000)
+		BinaryDivider(binary_index, log2_of_2014),
+		DecimalDivider(decimal_index, log10_of_1000);
 
 	const auto& Divider = ViewFlags & COLFLAGS_THOUSAND? DecimalDivider : BinaryDivider;
 

@@ -369,6 +369,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="common\view\where.hpp" />
     <ClInclude Include="common\view\zip.hpp" />
     <ClInclude Include="common\algorithm.hpp" />
+    <ClInclude Include="common\base64.hpp" />
     <ClInclude Include="common\bytes_view.hpp" />
     <ClInclude Include="common\chrono.hpp" />
     <ClInclude Include="common\compiler.hpp" />

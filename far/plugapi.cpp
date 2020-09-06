@@ -3206,7 +3206,7 @@ BOOL WINAPI apiAddEndSlash(wchar_t *Path) noexcept
 
 wchar_t* WINAPI apiXlat(wchar_t *Line, intptr_t StartPos, intptr_t EndPos, XLAT_FLAGS Flags) noexcept
 {
-	return cpp_try( 
+	return cpp_try(
 	[&]
 	{
 		Xlat({ Line + StartPos, Line + EndPos }, Flags);
@@ -3221,7 +3221,7 @@ wchar_t* WINAPI apiXlat(wchar_t *Line, intptr_t StartPos, intptr_t EndPos, XLAT_
 
 HANDLE WINAPI apiCreateFile(const wchar_t *Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile) noexcept
 {
-	return cpp_try( 
+	return cpp_try(
 	[&]
 	{
 		const auto Result = os::fs::create_file(Object, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile).release();
@@ -3236,7 +3236,7 @@ HANDLE WINAPI apiCreateFile(const wchar_t *Object, DWORD DesiredAccess, DWORD Sh
 
 DWORD WINAPI apiGetFileAttributes(const wchar_t *FileName) noexcept
 {
-	return cpp_try( 
+	return cpp_try(
 	[&]
 	{
 		return os::fs::get_file_attributes(FileName);
@@ -3250,7 +3250,7 @@ DWORD WINAPI apiGetFileAttributes(const wchar_t *FileName) noexcept
 
 BOOL WINAPI apiSetFileAttributes(const wchar_t *FileName, DWORD dwFileAttributes) noexcept
 {
-	return cpp_try( 
+	return cpp_try(
 	[&]
 	{
 		return os::fs::set_file_attributes(FileName, dwFileAttributes);
@@ -3264,7 +3264,7 @@ BOOL WINAPI apiSetFileAttributes(const wchar_t *FileName, DWORD dwFileAttributes
 
 BOOL WINAPI apiMoveFileEx(const wchar_t *ExistingFileName, const wchar_t *NewFileName, DWORD dwFlags) noexcept
 {
-	return cpp_try( 
+	return cpp_try(
 	[&]
 	{
 		return os::fs::move_file(ExistingFileName, NewFileName, dwFlags);
@@ -3278,7 +3278,7 @@ BOOL WINAPI apiMoveFileEx(const wchar_t *ExistingFileName, const wchar_t *NewFil
 
 BOOL WINAPI apiDeleteFile(const wchar_t *FileName) noexcept
 {
-	return cpp_try( 
+	return cpp_try(
 	[&]
 	{
 		return os::fs::delete_file(FileName);
@@ -3292,7 +3292,7 @@ BOOL WINAPI apiDeleteFile(const wchar_t *FileName) noexcept
 
 BOOL WINAPI apiRemoveDirectory(const wchar_t *DirName) noexcept
 {
-	return cpp_try( 
+	return cpp_try(
 	[&]
 	{
 		return os::fs::remove_directory(DirName);
@@ -3306,7 +3306,7 @@ BOOL WINAPI apiRemoveDirectory(const wchar_t *DirName) noexcept
 
 BOOL WINAPI apiCreateDirectory(const wchar_t* PathName, SECURITY_ATTRIBUTES* SecurityAttributes) noexcept
 {
-	return cpp_try( 
+	return cpp_try(
 	[&]
 	{
 		return os::fs::create_directory(PathName, SecurityAttributes);
@@ -3320,7 +3320,7 @@ BOOL WINAPI apiCreateDirectory(const wchar_t* PathName, SECURITY_ATTRIBUTES* Sec
 
 intptr_t WINAPI apiCallFar(intptr_t CheckCode, FarMacroCall* Data) noexcept
 {
-	return cpp_try( 
+	return cpp_try(
 	[&]
 	{
 		return Global->CtrlObject? Global->CtrlObject->Macro.CallFar(CheckCode, Data) : 0;

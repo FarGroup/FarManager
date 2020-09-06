@@ -60,8 +60,8 @@ enum event_id
 
 struct update_devices_message
 {
-	bool Arrival;
 	unsigned Drives;
+	bool Arrival;
 	bool Media;
 };
 

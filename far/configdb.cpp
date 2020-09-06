@@ -52,6 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common.hpp"
+#include "common/base64.hpp"
 #include "common/bytes_view.hpp"
 #include "common/chrono.hpp"
 #include "common/function_ref.hpp"
@@ -210,6 +211,58 @@ private:
 	const tinyxml::XMLNode* m_base;
 };
 
+static void serialise_integer(tinyxml::XMLElement& e, long long const Value)
+{
+	SetAttribute(e, "type", "qword"s);
+	SetAttribute(e, "value", encoding::utf8::get_bytes(to_hex_wstring(Value)));
+}
+
+static void serialise_string(tinyxml::XMLElement& e, std::string const& Value)
+{
+	SetAttribute(e, "type", "text"s);
+	SetAttribute(e, "value", Value);
+}
+
+static void serialise_blob(tinyxml::XMLElement& e, bytes_view const Value)
+{
+	SetAttribute(e, "type", "base64"s);
+	SetAttribute(e, "value", base64::encode(Value));
+}
+
+template<typename callable>
+static bool deserialise_value(char const* Type, char const* Value, callable const& Setter)
+{
+	if (!strcmp(Type, "qword"))
+	{
+		if (Value)
+			Setter(strtoull(Value, nullptr, 16));
+		return true;
+	}
+
+	if (!strcmp(Type, "text"))
+	{
+		if (Value)
+			Setter(encoding::utf8::get_chars(Value));
+		return true;
+	}
+
+	if (!strcmp(Type, "base64"))
+	{
+		if (Value)
+			Setter(base64::decode(Value));
+		return true;
+	}
+
+	if (!strcmp(Type, "hex"))
+	{
+		if (Value)
+			Setter(HexStringToBlob(encoding::utf8::get_chars(Value)));
+		return true;
+	}
+
+	return false;
+}
+
 int sqlite_busy_handler(void* Param, int Retries) noexcept
 {
 	try
@@ -345,21 +398,17 @@ private:
 			switch (stmtEnumAllValues.GetColType(2))
 			{
 			case column_type::integer:
-				SetAttribute(e, "type", "qword"s);
-				SetAttribute(e, "value", encoding::utf8::get_bytes(to_hex_wstring(stmtEnumAllValues.GetColInt64(2))));
+				serialise_integer(e, stmtEnumAllValues.GetColInt64(2));
 				break;
 
 			case column_type::string:
-				SetAttribute(e, "type", "text"s);
-				SetAttribute(e, "value", stmtEnumAllValues.GetColTextUTF8(2));
+				serialise_string(e, stmtEnumAllValues.GetColTextUTF8(2));
 				break;
 
 			case column_type::blob:
 			case column_type::unknown:
-				{
-					SetAttribute(e, "type", "hex"s);
-					SetAttribute(e, "value", encoding::utf8::get_bytes(BlobToHexString(stmtEnumAllValues.GetColBlob(2))));
-				}
+				serialise_blob(e, stmtEnumAllValues.GetColBlob(2));
+				break;
 			}
 		}
 	}
@@ -379,24 +428,7 @@ private:
 
 			const auto Key = encoding::utf8::get_chars(key);
 			const auto Name = encoding::utf8::get_chars(name);
-
-			if (!strcmp(type,"qword"))
-			{
-				SetValue(Key, Name, strtoull(value, nullptr, 16));
-				continue;
-			}
-
-			if (!strcmp(type,"text"))
-			{
-				SetValue(Key, Name, encoding::utf8::get_chars(value));
-				continue;
-			}
-
-			if (!strcmp(type,"hex"))
-			{
-				SetValue(Key, Name, HexStringToBlob(encoding::utf8::get_chars(value)));
-				continue;
-			}
+			deserialise_value(type, value, [&](auto const& Value){ SetValue(Key, Name, Value); });
 		}
 	}
 
@@ -483,8 +515,7 @@ public:
 protected:
 	virtual void SerializeBlob(std::string_view /*Name*/, bytes_view const Blob, tinyxml::XMLElement& e) const
 	{
-		SetAttribute(e, "type", "hex"s);
-		SetAttribute(e, "value", encoding::utf8::get_bytes(BlobToHexString(Blob)));
+		serialise_blob(e, Blob);
 	}
 
 	virtual bytes DeserializeBlob(const char* Type, const char* Value, const tinyxml::XMLElement& e) const
@@ -700,13 +731,11 @@ private:
 				switch (Stmt->GetColType(1))
 				{
 				case column_type::integer:
-					SetAttribute(e, "type", "qword"s);
-					SetAttribute(e, "value", encoding::utf8::get_bytes(to_hex_wstring(Stmt->GetColInt64(1))));
+					serialise_integer(e, Stmt->GetColInt64(1));
 					break;
 
 				case column_type::string:
-					SetAttribute(e, "type", "text"s);
-					SetAttribute(e, "value", Stmt->GetColTextUTF8(1));
+					serialise_string(e, Stmt->GetColTextUTF8(1));
 					break;
 
 				case column_type::blob:
@@ -754,22 +783,7 @@ private:
 
 			const auto Name = encoding::utf8::get_chars(name);
 
-			if (!strcmp(type, "qword"))
-			{
-				if (value)
-					SetValue(Key, Name, strtoull(value, nullptr, 16));
-			}
-			else if (!strcmp(type, "text"))
-			{
-				if (value)
-					SetValue(Key, Name, encoding::utf8::get_chars(value));
-			}
-			else if (!strcmp(type, "hex"))
-			{
-				if (value)
-					SetValue(Key, Name, HexStringToBlob(encoding::utf8::get_chars(value)));
-			}
-			else
+			if (!deserialise_value(type, value, [&](auto const& Value){ SetValue(Key, Name, Value); }))
 			{
 				// custom types, value is optional
 				SetValue(Key, Name, DeserializeBlob(type, value, e));

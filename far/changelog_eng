@@ -1,3 +1,13 @@
+drkns 06.09.2020 23:00:00 +0100 - build 5663
+
+1. Store binary data in exported configuration as base64.
+
+2. Reading UTF-7 didn't work. At all.
+
+3. Refactoring.
+
+4. Tests.
+
 drkns 01.09.2020 17:48:03 +0100 - build 5662
 
 1. Setting db key descriptions didn't work in some cases.

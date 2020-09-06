@@ -535,6 +535,9 @@
     <ClInclude Include="common\algorithm.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
+    <ClInclude Include="common\base64.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
     <ClInclude Include="common\bytes_view.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>

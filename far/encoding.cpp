@@ -303,7 +303,7 @@ static size_t get_bytes_impl(uintptr_t const Codepage, string_view const Str, sp
 		{
 			BOOL bUsedDefaultChar = FALSE;
 			auto Result = WideCharToMultiByte(Codepage, GetNoBestFitCharsFlag(Codepage), Str.data(), static_cast<int>(Str.size()), Buffer.data(), static_cast<int>(Buffer.size()), nullptr, UsedDefaultChar? &bUsedDefaultChar : nullptr);
-			if (!Result && Buffer.size() < Str.size() && GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+			if (!Result && Buffer.size() <= Str.size() && GetLastError() == ERROR_INSUFFICIENT_BUFFER)
 			{
 				// https://msdn.microsoft.com/en-us/library/windows/desktop/dd374130.aspx
 				// If BufferSize is less than DataSize, this function writes the number of characters specified by BufferSize to the buffer indicated by Buffer.
@@ -527,7 +527,7 @@ size_t Utf::get_chars(uintptr_t const Codepage, std::string_view const Str, span
 
 //                                   2                         5         6
 //         0                         6                         2         2
-// base64: ABCDEFGHIJKLMNOPQRSTUVWXYZabcdrfghijklmnopqrstuvwxyz0123456789+/
+// base64: ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/
 
 static const int ill = 0x0100; // illegal
 static const int dir = 0x0200; // direct
@@ -575,6 +575,7 @@ static const short m7[128] =
 };
 
 // BUGBUG non-BMP range is not supported
+// TODO: Rewrite
 static size_t Utf7_GetChar(std::string_view::const_iterator const Iterator, std::string_view::const_iterator const End, wchar_t* const Buffer, bool& ConversionError, int& state)
 {
 	const size_t DataSize = End - Iterator;
@@ -605,6 +606,11 @@ static size_t Utf7_GetChar(std::string_view::const_iterator const Iterator, std:
 	{
 		ConversionError = true;
 		return BytesConsumed;
+	}
+
+	if (m[0] == DIR || m[0] == OPT)
+	{
+		u.s.base64 = false;
 	}
 
 	if (!u.s.base64)
@@ -701,13 +707,13 @@ static size_t Utf7_GetChar(std::string_view::const_iterator const Iterator, std:
 		else
 		{
 			*Buffer = static_cast<wchar_t>((u.s.carry_bits << 14) | (m18 >> 4));
-			u.s.carry_bits = static_cast<BYTE>(m18 & 0x07);
+			u.s.carry_bits = static_cast<BYTE>(m18 & 0x0F);
 			u.s.carry_count = 4;
 		}
 	}
 	++BytesConsumed;
 
-	if (DataSize > BytesConsumed && *Iterator == '-')
+	if (DataSize > BytesConsumed && *StrIterator == '-')
 	{
 		u.s.base64 = false;
 		++BytesConsumed;
@@ -1362,6 +1368,46 @@ TEST_CASE("encoding.ucs2-utf8.round-trip")
 				Char);
 		}
 	}));
+}
+
+TEST_CASE("utf7.valid")
+{
+	static const struct
+	{
+		std::string_view Bytes;
+		string_view Chars;
+		bool OneWay;
+	}
+	Tests[]
+	{
+		{ {},                                     {} },
+		{ "."sv,                                  L"."sv, },
+		{ " \t\r\n"sv,                            L" \t\r\n"sv, },
+		{ "+AKM-1"sv,                             L"£1"sv, },
+		{ "A+ImIDkQ-"sv,                          L"A≢Α"sv, },
+		{ "A+ImIDkQ."sv,                          L"A≢Α."sv, true, },
+		{ "+ADw- and +AD4-"sv,                    L"< and >"sv, },
+		{ "+ZeVnLIqe-"sv,                         L"日本語"sv, },
+		{ "Hello, World+ACE-"sv,                  L"Hello, World!"sv, },
+		{ "INBOX"sv,                              L"INBOX"sv, },
+		{ "Bo+AO4-te de r+AOk-ception"sv,         L"Boîte de réception"sv, },
+		{ "+U9dP4TDIMOwwpA-"sv,                   L"受信トレイ"sv, },
+		{ "+2Dzfttg838HYPN/H-"sv,                 L"🎶🏁🏇"sv, },
+		{ "This+-That-"sv,                        L"This+That-"sv, },
+		{ "+/v8"sv,                               L"\xFEFF"sv, true, },
+		{ "+/v9"sv,                               L"\xFEFF"sv, true, },
+		{ "+/v+"sv,                               L"\xFEFF"sv, true, },
+		{ "+/v/"sv,                               L"\xFEFF"sv, true, },
+		{ "+/v8-"sv,                              L"\xFEFF"sv, },
+	};
+
+	for (const auto& i: Tests)
+	{
+		REQUIRE(encoding::get_chars(CP_UTF7, i.Bytes) == i.Chars);
+
+		if (!i.OneWay)
+			REQUIRE(encoding::get_bytes(CP_UTF7, i.Chars) == i.Bytes);
+	}
 }
 
 TEST_CASE("encoding.raw_eol")

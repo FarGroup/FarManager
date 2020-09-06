@@ -986,7 +986,7 @@ static std::pair<string, string> extract_nested_exceptions(EXCEPTION_RECORD cons
 	return Result;
 }
 
-bool handle_std_exception(
+static bool handle_std_exception(
 	detail::exception_context const& Context,
 	const std::exception& e,
 	std::string_view const Function,
@@ -1022,7 +1022,7 @@ bool handle_std_exception(const std::exception& e, std::string_view const Functi
 	return handle_std_exception(Context, e, Function, Module);
 }
 
-bool handle_seh_exception(
+static bool handle_seh_exception(
 	detail::exception_context const& Context,
 	std::string_view const Function,
 	Plugin const* const PluginModule

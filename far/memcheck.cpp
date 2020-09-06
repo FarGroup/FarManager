@@ -345,7 +345,7 @@ static void* debug_allocator(size_t const size, std::align_val_t Alignment, allo
 	}
 }
 
-static void debuc_deallocator(void* const Block, std::align_val_t Alignment, allocation_type type) noexcept
+static void debug_deallocator(void* const Block, std::align_val_t Alignment, allocation_type type) noexcept
 {
 	if (!Block)
 		return;
@@ -421,73 +421,73 @@ void* operator new[](size_t const Size, std::align_val_t const Alignment, std::n
 void operator delete(void* const Block) noexcept
 {
 	using namespace memcheck;
-	return debuc_deallocator(Block, default_alignment(), allocation_type::scalar);
+	return debug_deallocator(Block, default_alignment(), allocation_type::scalar);
 }
 
 void operator delete[](void* const Block) noexcept
 {
 	using namespace memcheck;
-	return debuc_deallocator(Block, default_alignment(), allocation_type::vector);
+	return debug_deallocator(Block, default_alignment(), allocation_type::vector);
 }
 
 void operator delete(void* const Block, size_t) noexcept
 {
 	using namespace memcheck;
-	return debuc_deallocator(Block, default_alignment(), allocation_type::scalar);
+	return debug_deallocator(Block, default_alignment(), allocation_type::scalar);
 }
 
 void operator delete[](void* const Block, size_t) noexcept
 {
 	using namespace memcheck;
-	return debuc_deallocator(Block, default_alignment(), allocation_type::vector);
+	return debug_deallocator(Block, default_alignment(), allocation_type::vector);
 }
 
 void operator delete(void* const Block, std::align_val_t const Alignment) noexcept
 {
 	using namespace memcheck;
-	return debuc_deallocator(Block, Alignment, allocation_type::scalar);
+	return debug_deallocator(Block, Alignment, allocation_type::scalar);
 }
 
 void operator delete[](void* const Block, std::align_val_t const Alignment) noexcept
 {
 	using namespace memcheck;
-	return debuc_deallocator(Block, Alignment, allocation_type::vector);
+	return debug_deallocator(Block, Alignment, allocation_type::vector);
 }
 
 void operator delete(void* const Block, size_t, std::align_val_t const Alignment) noexcept
 {
 	using namespace memcheck;
-	return debuc_deallocator(Block, Alignment, allocation_type::scalar);
+	return debug_deallocator(Block, Alignment, allocation_type::scalar);
 }
 
 void operator delete[](void* const Block, size_t, std::align_val_t const Alignment) noexcept
 {
 	using namespace memcheck;
-	return debuc_deallocator(Block, Alignment, allocation_type::vector);
+	return debug_deallocator(Block, Alignment, allocation_type::vector);
 }
 
 void operator delete(void* const Block, std::nothrow_t const&) noexcept
 {
 	using namespace memcheck;
-	return debuc_deallocator(Block, default_alignment(), allocation_type::scalar);
+	return debug_deallocator(Block, default_alignment(), allocation_type::scalar);
 }
 
 void operator delete[](void* const Block, std::nothrow_t const&) noexcept
 {
 	using namespace memcheck;
-	return debuc_deallocator(Block, default_alignment(), allocation_type::vector);
+	return debug_deallocator(Block, default_alignment(), allocation_type::vector);
 }
 
 void operator delete(void* const Block, std::align_val_t const Alignment, std::nothrow_t const&) noexcept
 {
 	using namespace memcheck;
-	return debuc_deallocator(Block, Alignment, allocation_type::scalar);
+	return debug_deallocator(Block, Alignment, allocation_type::scalar);
 }
 
 void operator delete[](void* const Block, std::align_val_t const Alignment, std::nothrow_t const&) noexcept
 {
 	using namespace memcheck;
-	return debuc_deallocator(Block, Alignment, allocation_type::vector);
+	return debug_deallocator(Block, Alignment, allocation_type::vector);
 }
 
 // ReSharper restore CppParameterNamesMismatch

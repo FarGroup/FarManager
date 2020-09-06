@@ -79,8 +79,8 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 							const auto& BroadcastVolume = *reinterpret_cast<const DEV_BROADCAST_VOLUME*>(&BroadcastHeader);
 							message_manager::instance().notify(update_devices, update_devices_message
 							{
-								wParam == DBT_DEVICEARRIVAL,
 								BroadcastVolume.dbcv_unitmask,
+								wParam == DBT_DEVICEARRIVAL,
 								(BroadcastVolume.dbcv_flags & DBTF_MEDIA) != 0
 							});
 						}

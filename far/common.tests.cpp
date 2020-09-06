@@ -93,6 +93,107 @@ WARNING_POP()
 
 //----------------------------------------------------------------------------
 
+#include "common/base64.hpp"
+
+TEST_CASE("base64.legit")
+{
+	static const struct
+	{
+		bytes_view Src;
+		std::string_view Encoded;
+	}
+	Tests[]
+	{
+		{ {},           {}           },
+		{ "f"_bv,       "Zg=="sv     },
+		{ "fo"_bv,      "Zm8="sv     },
+		{ "foo"_bv,     "Zm9v"sv     },
+		{ "foob"_bv,    "Zm9vYg=="sv },
+		{ "fooba"_bv,   "Zm9vYmE="sv },
+		{ "foobar"_bv,  "Zm9vYmFy"sv },
+	};
+
+	for (const auto& i: Tests)
+	{
+		REQUIRE(base64::encode(i.Src) == i.Encoded);
+		REQUIRE(base64::decode(i.Encoded) == i.Src);
+	}
+}
+
+TEST_CASE("base64.incomplete")
+{
+	static const struct
+	{
+		std::string_view Src;
+		bytes_view Decoded;
+	}
+	Tests[]
+	{
+		{ "Z"sv,        {},            },
+		{ "Zg"sv,       "f"_bv,        },
+		{ "Zg="sv,      "f"_bv,        },
+		{ "Zg=="sv,     "f"_bv,        },
+
+		{ "Zm"sv,       "f"_bv,        },
+		{ "Zm8"sv,      "fo"_bv,       },
+		{ "Zm8="sv,     "fo"_bv,       },
+
+		{ "Zm9"sv,      "fo"_bv,       },
+		{ "Zm9v"sv,     "foo"_bv,      },
+		{ "Zm9vY"sv,    "foo"_bv,      },
+
+		{ "Zm9vYg"sv,   "foob"_bv,     },
+		{ "Zm9vYg="sv,  "foob"_bv,     },
+		{ "Zm9vYg=="sv, "foob"_bv,     },
+
+		{ "Zm9vYm"sv,   "foob"_bv,     },
+		{ "Zm9vYmE"sv,  "fooba"_bv,    },
+		{ "Zm9vYmE="sv, "fooba"_bv,    },
+
+		{ "Zm9vYmF"sv,  "fooba"_bv,    },
+		{ "Zm9vYmFy"sv, "foobar"_bv,   },
+	};
+
+	for (const auto& i: Tests)
+	{
+		REQUIRE(base64::decode(i.Src) == i.Decoded);
+	}
+}
+
+TEST_CASE("base64.rubbish")
+{
+	static const struct
+	{
+		std::string_view Src;
+		bytes_view Decoded;
+	}
+	Tests[]
+	{
+		{ "!!!"sv,              {},            },
+		{ "<Z:m!9;v>"sv,        "foo"_bv,      },
+		{ "_Z!m:9,v Y;m>F<y"sv, "foobar"_bv,   },
+	};
+
+	for (const auto& i: Tests)
+	{
+		REQUIRE(base64::decode(i.Src) == i.Decoded);
+	}
+}
+
+TEST_CASE("base64.random.roundtrip")
+{
+	std::mt19937 mt(clock()); // std::random_device doesn't work in w2k
+	std::uniform_int_distribution CharDist(0, UCHAR_MAX);
+
+	char RandomInput[256];
+	std::generate(ALL_RANGE(RandomInput), [&]{ return CharDist(mt); });
+
+	const auto Encoded = base64::encode(view_bytes(RandomInput));
+	REQUIRE(base64::decode(Encoded) == view_bytes(RandomInput));
+}
+
+//----------------------------------------------------------------------------
+
 #include "common/bytes_view.hpp"
 
 TEST_CASE("bytes")
