@@ -631,63 +631,80 @@ void LF_GetOpenPanelInfo(lua_State* L, struct OpenPanelInfo *aInfo)
 	Info->Format     = AddStringToCollectorField(L, cpos, "Format");
 	Info->PanelTitle = AddStringToCollectorField(L, cpos, "PanelTitle");
 	//---------------------------------------------------------------------------
-	lua_getfield(L, -1, "InfoLines"); //+5: Info,Tbl,Coll,Info,Lines
-	if(lua_istable(L,-1))
+	lua_getfield(L, -1, "InfoLines");
+	lua_getfield(L, -2, "InfoLinesNumber");
+
+	if(lua_istable(L,-2) && lua_isnumber(L,-1))
 	{
-		int i;
-		intptr_t InfoLinesNumber = (intptr_t)lua_objlen(L, -1);
-		struct InfoPanelLine *pl = (struct InfoPanelLine*)
-			AddBufToCollector(L, cpos, InfoLinesNumber*sizeof(struct InfoPanelLine));
+		intptr_t InfoLinesNumber = lua_tointeger(L, -1);
+		lua_pop(L,1);                         //+5: Info,Tbl,Coll,Info,Lines
 
-		Info->InfoLines = pl;
-		Info->InfoLinesNumber = InfoLinesNumber;
-
-		for(i=0; i<InfoLinesNumber; ++i,++pl,lua_pop(L,1))
+		if(InfoLinesNumber > 0)
 		{
-			lua_pushinteger(L, i+1);
-			lua_gettable(L, -2);
+			int i;
+			struct InfoPanelLine *pl = (struct InfoPanelLine*)
+			                           AddBufToCollector(L, cpos, InfoLinesNumber * sizeof(struct InfoPanelLine));
+			Info->InfoLines = pl;
+			Info->InfoLinesNumber = InfoLinesNumber;
 
-			if(lua_istable(L, -1))            //+6: Info,Tbl,Coll,Info,Lines,Line
+			for(i=0; i<InfoLinesNumber; ++i,++pl,lua_pop(L,1))
 			{
-				pl->Text = AddStringToCollectorField(L, cpos, "Text");
-				pl->Data = AddStringToCollectorField(L, cpos, "Data");
-				pl->Flags = GetFlagsFromTable(L, -1, "Flags");
+				lua_pushinteger(L, i+1);
+				lua_gettable(L, -2);
+
+				if(lua_istable(L, -1))            //+6: Info,Tbl,Coll,Info,Lines,Line
+				{
+					pl->Text = AddStringToCollectorField(L, cpos, "Text");
+					pl->Data = AddStringToCollectorField(L, cpos, "Data");
+					pl->Flags = GetFlagsFromTable(L, -1, "Flags");
+				}
 			}
 		}
+
+		lua_pop(L,1);
 	}
-	lua_pop(L, 1);
+	else lua_pop(L, 2);
 
 	//---------------------------------------------------------------------------
 	Info->DescrFiles = CreateStringsArray(L, cpos, "DescrFiles", &dfn);
 	Info->DescrFilesNumber = dfn;
 	//---------------------------------------------------------------------------
-	lua_getfield(L, -1, "PanelModesArray"); //+5: Info,Tbl,Coll,Info,Modes
-	if(lua_istable(L,-1))
+	lua_getfield(L, -1, "PanelModesArray");
+	lua_getfield(L, -2, "PanelModesNumber");
+
+	if(lua_istable(L,-2) && lua_isnumber(L,-1))
 	{
-		int i;
-		intptr_t PanelModesNumber = (intptr_t)lua_objlen(L, -1);
-		struct PanelMode *pm = (struct PanelMode*)
-			AddBufToCollector(L, cpos, PanelModesNumber * sizeof(struct PanelMode));
+		intptr_t PanelModesNumber = lua_tointeger(L, -1);
+		lua_pop(L,1);                               //+5: Info,Tbl,Coll,Info,Modes
 
-		Info->PanelModesArray = pm;
-		Info->PanelModesNumber = PanelModesNumber;
-		for(i=0; i<PanelModesNumber; ++i,++pm,lua_pop(L,1))
+		if(PanelModesNumber > 0)
 		{
-			lua_pushinteger(L, i+1);
-			lua_gettable(L, -2);
+			int i;
+			struct PanelMode *pm = (struct PanelMode*)
+			                       AddBufToCollector(L, cpos, PanelModesNumber * sizeof(struct PanelMode));
+			Info->PanelModesArray = pm;
+			Info->PanelModesNumber = PanelModesNumber;
 
-			if(lua_istable(L, -1))                  //+6: Info,Tbl,Coll,Info,Modes,Mode
+			for(i=0; i<PanelModesNumber; ++i,++pm,lua_pop(L,1))
 			{
-				pm->ColumnTypes  = (wchar_t*)AddStringToCollectorField(L, cpos, "ColumnTypes");
-				pm->ColumnWidths = (wchar_t*)AddStringToCollectorField(L, cpos, "ColumnWidths");
-				pm->StatusColumnTypes  = (wchar_t*)AddStringToCollectorField(L, cpos, "StatusColumnTypes");
-				pm->StatusColumnWidths = (wchar_t*)AddStringToCollectorField(L, cpos, "StatusColumnWidths");
-				pm->ColumnTitles = (const wchar_t* const*)CreateStringsArray(L, cpos, "ColumnTitles", NULL);
-				pm->Flags = GetFlagsFromTable(L, -1, "Flags");
+				lua_pushinteger(L, i+1);
+				lua_gettable(L, -2);
+
+				if(lua_istable(L, -1))                  //+6: Info,Tbl,Coll,Info,Modes,Mode
+				{
+					pm->ColumnTypes  = (wchar_t*)AddStringToCollectorField(L, cpos, "ColumnTypes");
+					pm->ColumnWidths = (wchar_t*)AddStringToCollectorField(L, cpos, "ColumnWidths");
+					pm->StatusColumnTypes  = (wchar_t*)AddStringToCollectorField(L, cpos, "StatusColumnTypes");
+					pm->StatusColumnWidths = (wchar_t*)AddStringToCollectorField(L, cpos, "StatusColumnWidths");
+					pm->ColumnTitles = (const wchar_t* const*)CreateStringsArray(L, cpos, "ColumnTitles", NULL);
+					pm->Flags = GetFlagsFromTable(L, -1, "Flags");
+				}
 			}
 		}
+
+		lua_pop(L,1);
 	}
-	lua_pop(L, 1);
+	else lua_pop(L, 2);
 
 	//---------------------------------------------------------------------------
 	Info->StartPanelMode = GetOptIntFromTable(L, "StartPanelMode", 0);
