@@ -6136,6 +6136,7 @@ static int far_host_GetFindData(lua_State *L)
 	PSInfo *psInfo = GetPluginData(L)->Info;
 	HANDLE panHandle = OptHandle(L); //1-st argument
 
+	lua_settop(L, 2); //2 arguments at most
 	lua_pushnil(L);  //prepare to return nil
 	panInfo.StructSize = sizeof(panInfo);
 	if (! (panHandle && psInfo->PanelControl(panHandle,FCTL_GETPANELINFO,0,&panInfo) && panInfo.PluginHandle) )
@@ -6147,7 +6148,7 @@ static int far_host_GetFindData(lua_State *L)
 	getfinddata = (T_GetFindDataW)GetProcAddress(dll_handle, "GetFindDataW");
 	memset(&gfdInfo, 0, sizeof(gfdInfo));
 	gfdInfo.StructSize = sizeof(gfdInfo);
-	gfdInfo.OpMode = OPM_FIND | OPM_SILENT;
+	gfdInfo.OpMode = luaL_optinteger(L, 2, (lua_Integer)(OPM_FIND | OPM_SILENT)); //2-nd argument
 	gfdInfo.hPanel = panInfo.PluginHandle;
 	if (! (getfinddata && getfinddata(&gfdInfo)))
 		return 1;
@@ -6215,6 +6216,7 @@ static int far_host_SetDirectory(lua_State *L)
 	HANDLE panHandle = OptHandle(L); //1-st argument
 	const wchar_t *dir_name = check_utf8_string(L, 2, NULL); //2-nd argument
 
+	lua_settop(L, 3); //3 arguments at most
 	lua_pushboolean(L,0);  //prepare to return false
 	panInfo.StructSize = sizeof(panInfo);
 	if (! (panHandle && psInfo->PanelControl(panHandle, FCTL_GETPANELINFO, 0, &panInfo) && panInfo.PluginHandle) )
@@ -6226,7 +6228,7 @@ static int far_host_SetDirectory(lua_State *L)
 	memset(&sdInfo, 0, sizeof(sdInfo));
 	sdInfo.StructSize = sizeof(sdInfo);
 	sdInfo.Dir = dir_name;
-	sdInfo.OpMode = OPM_FIND | OPM_SILENT;
+	sdInfo.OpMode = luaL_optinteger(L, 3, (lua_Integer)(OPM_FIND | OPM_SILENT)); //3-rd argument
 	sdInfo.hPanel = panInfo.PluginHandle;
 
 	setdirectory = (T_SetDirectoryW)GetProcAddress(dll_handle, "SetDirectoryW");

@@ -8758,6 +8758,136 @@ mtime=3524034111
 </article>
 </node>
 <node>
+id=552
+lv=1
+dt=Text
+nm=far.Host
+ctime=3808843787
+mtime=3808848179
+<article>
+#_<markdown>
+#_`far.Host` is a table containing functions for direct communication
+#_with panel plugins. That means that internally these functions call
+#_exported functions of plugins.
+</article>
+</node>
+<node>
+id=553
+lv=2
+dt=Text
+nm=far.Host.FreeUserData
+ctime=3808843886
+mtime=3808845384
+<article>
+#_far.Host.FreeUserData (Handle, Items)
+#_
+#_**Parameters:**
+#_  Handle:  userdata (panel handle)
+#_  Items:   table (array of `tPluginPanelItem`)
+#_
+#_**Returns:**
+#_  nothing
+#_
+#_@@@
+#_[tPluginPanelItem]: 85.html
+#_
+</article>
+</node>
+<node>
+id=554
+lv=2
+dt=Text
+nm=far.Host.GetFiles
+ctime=3808843892
+mtime=3808848450
+<article>
+#_result = far.Host.GetFiles (handle, Items, Move, DestPath [, OpMode])
+#_
+#_**Parameters:**
+#_  handle:    panel handle
+#_  Items:     table (array of `tPluginPanelItem`)
+#_  Move:      boolean
+#_  DestPath:  string
+#_  OpMode:    flags (default = OPM_FIND|OPM_SILENT)
+#_
+#_**Returns:**
+#_  result:    integer
+#_
+#_@@@
+#_[tPluginPanelItem]: 85.html
+#_
+</article>
+</node>
+<node>
+id=555
+lv=2
+dt=Text
+nm=far.Host.GetFindData
+ctime=3808843910
+mtime=3808846173
+<article>
+#_Items = far.Host.GetFindData (handle [, OpMode])
+#_
+#_**Parameters:**
+#_  handle:  panel handle
+#_  OpMode:  flags (default = OPM_FIND|OPM_SILENT)
+#_
+#_**Returns:**
+#_  Items:   table (array of `tPluginPanelItem`), or nil
+#_
+#_@@@
+#_[tPluginPanelItem]: 85.html
+#_
+</article>
+</node>
+<node>
+id=556
+lv=2
+dt=Text
+nm=far.Host.PutFiles
+ctime=3808843927
+mtime=3808848467
+<article>
+#_result = far.Host.PutFiles (handle, Items, Move, SrcPath [, OpMode])
+#_
+#_**Parameters:**
+#_  handle:    panel handle
+#_  Items:     table (array of `tPluginPanelItem`)
+#_  Move:      boolean
+#_  SrcPath:   string
+#_  OpMode:    flags (default = OPM_SILENT)
+#_
+#_**Returns:**
+#_  result:    integer
+#_
+#_@@@
+#_[tPluginPanelItem]: 85.html
+#_
+</article>
+</node>
+<node>
+id=557
+lv=2
+dt=Text
+nm=far.Host.SetDirectory
+ctime=3808843933
+mtime=3808848103
+<article>
+#_result = far.Host.SetDirectory (handle, Dir [, OpMode])
+#_
+#_**Parameters:**
+#_  handle:    panel handle
+#_  Dir:       string
+#_  OpMode:    flags (default = OPM_FIND|OPM_SILENT)
+#_
+#_**Returns:**
+#_  result:    boolean
+#_
+#_@@@
+#_
+</article>
+</node>
+<node>
 id=83
 lv=1
 dt=Text
