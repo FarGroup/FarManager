@@ -37,7 +37,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace sqlite_unicode
 {
 using namespace sqlite;
+
+#define SQLITE_CORE
 #include "thirdparty/sqlite/sqlite3_unicode.h"
+#undef SQLITE_CORE
 
 extern "C" const wchar_t SQLite_Unicode_Version[];
 }

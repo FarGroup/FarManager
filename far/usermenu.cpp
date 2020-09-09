@@ -304,7 +304,7 @@ void UserMenu::SaveMenu(string_view const MenuFileName) const
 	}
 	catch (const far_exception& e)
 	{
-		Message(MSG_WARNING, e.error_state(),
+		Message(MSG_WARNING, e,
 			msg(lng::MError),
 			{
 				msg(lng::MEditMenuError)

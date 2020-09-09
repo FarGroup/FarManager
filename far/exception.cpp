@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
+#include "common/string_utils.hpp"
 
 // External:
 #include "format.hpp"
@@ -52,13 +53,7 @@ error_state error_state::fetch()
 	State.Errno = errno;
 	State.Win32Error = GetLastError();
 	State.NtError = imports.RtlGetLastNtStatus();
-	State.m_Engaged = true;
 	return State;
-}
-
-error_state::operator bool() const
-{
-	return m_Engaged;
 }
 
 string error_state::ErrnoStr() const
@@ -74,6 +69,16 @@ string error_state::Win32ErrorStr() const
 string error_state::NtErrorStr() const
 {
 	return os::GetErrorString(true, NtError);
+}
+
+std::array<string, 3> error_state::format_errors() const
+{
+	return
+	{
+		os::format_system_error(Errno, ErrnoStr()),
+		os::format_system_error(Win32Error, Win32ErrorStr()),
+		os::format_system_error(NtError, NtErrorStr())
+	};
 }
 
 
@@ -111,6 +116,20 @@ namespace detail
 		ResumeThread(thread_handle());
 	}
 }
+
+string error_state_ex::format_error() const
+{
+	auto Str = What;
+	if (!Str.empty())
+		append(Str, L": "sv);
+
+	constexpr auto UseNtMessages = false;
+
+	return Str + os::format_system_error(
+		UseNtMessages? NtError : Win32Error,
+		UseNtMessages? NtErrorStr() : Win32ErrorStr());
+}
+
 
 far_wrapper_exception::far_wrapper_exception(const char* const Function, string_view const File, int const Line):
 	far_exception(Function, File, Line, L"exception_ptr"sv),

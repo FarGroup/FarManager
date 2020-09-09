@@ -3,7 +3,7 @@
 <!-- Copyright © 1996-2000 Eugene Roshal, Copyright © 2000-COPYRIGHTYEAR Far Group -->
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3" >
 <assemblyIdentity
-	version="VERSION_MAJOR.VERSION_MINOR.VERSION_REVISION.VERSION_BUILD"
+	version="VERSION_MAJOR.VERSION_MINOR.VERSION_BUILD.VERSION_REVISION"
 	processorArchitecture="*"
 	name="Far Manager"
 	type="win32"

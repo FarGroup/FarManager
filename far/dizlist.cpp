@@ -355,7 +355,7 @@ bool DizList::Flush(string_view const Path, const string* DizName)
 	}
 	catch (const far_exception& e)
 	{
-		Message(MSG_WARNING, e.error_state(),
+		Message(MSG_WARNING, e,
 			msg(lng::MError),
 			{
 				msg(lng::MCannotUpdateDiz)

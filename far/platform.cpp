@@ -141,6 +141,11 @@ string GetErrorString(bool Nt, DWORD Code)
 	return Result;
 }
 
+string format_system_error(unsigned int const ErrorCode, string_view const ErrorMessage)
+{
+	return format(FSTR(L"0x{0:0>8X} - {1}"), ErrorCode, ErrorMessage);
+}
+
 
 last_error_guard::last_error_guard():
 	m_LastError(GetLastError()),

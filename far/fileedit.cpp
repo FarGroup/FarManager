@@ -2008,7 +2008,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 	catch (const far_exception& e)
 	{
 		RetCode = SAVEFILE_ERROR;
-		ErrorState = e.error_state();
+		ErrorState = e;
 	}
 
 	// BUGBUG check result

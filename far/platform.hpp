@@ -235,6 +235,7 @@ namespace os
 	[[nodiscard]]
 	string GetErrorString(bool Nt, DWORD Code);
 
+	string format_system_error(unsigned int ErrorCode, string_view ErrorMessage);
 
 	class last_error_guard
 	{

@@ -95,14 +95,37 @@ template<typename callable, typename unknown_handler, typename std_handler = ::d
 auto cpp_try(callable const& Callable, unknown_handler const& UnknownHandler, std_handler const& StdHandler = {})
 {
 	using result_type = typename function_traits<callable>::result_type;
+	using std_handler_ref = function_ref<void(std::exception const&)>;
 
-	if constexpr (std::is_same_v<result_type, void>)
+	enum
 	{
-		::detail::cpp_try(Callable, UnknownHandler, StdHandler);
+		HasStdHandler = !std::is_same_v<std_handler, ::detail::no_handler>,
+		IsVoid = std::is_same_v<result_type, void>,
+	};
+
+	std_handler_ref StdHandlerRef = nullptr;
+
+	if constexpr (IsVoid)
+	{
+		if constexpr (HasStdHandler)
+			StdHandlerRef = StdHandler;
+
+		::detail::cpp_try(Callable, UnknownHandler, StdHandlerRef);
 	}
 	else
 	{
 		result_type Result;
+
+		const auto StdHandlerEx = [&](std::exception const& e)
+		{
+			// IsVoid is a workaround for 2017
+			// TODO: remove once we drop support for VS2017.
+			if constexpr (HasStdHandler && !IsVoid)
+				::detail::assign(Result, StdHandler, e);
+		};
+
+		if constexpr (HasStdHandler)
+			StdHandlerRef = StdHandlerEx;
 
 		::detail::cpp_try(
 		[&]
@@ -115,11 +138,7 @@ WARNING_PUSH()
 WARNING_DISABLE_MSC(4702) // unreachable code
 			Result = UnknownHandler();
 		},
-		[&](std::exception const& e)
-		{
-			if constexpr (!std::is_same_v<std_handler, ::detail::no_handler>)
-				::detail::assign(Result, StdHandler, e);
-		});
+		StdHandlerRef);
 WARNING_POP()
 
 		return Result;

@@ -553,7 +553,7 @@ static bool ShowExceptionUI(
 	if (Source.empty())
 		Source = Location;
 
-	const auto Errors = FormatSystemErrors(ErrorState);
+	const auto Errors = ErrorState.format_errors();
 	const auto Version = self_version();
 	const auto OsVersion = os_version();
 	const auto KernelVersion = kernel_version();
@@ -1009,7 +1009,7 @@ static bool handle_std_exception(
 			return Wrapper ? &Wrapper->get_stack() : nullptr;
 		}();
 
-		return handle_generic_exception(Context, FarException->function(), FarException->location(), Module, Type, What, FarException->error_state(), NestedStack);
+		return handle_generic_exception(Context, FarException->function(), FarException->location(), Module, Type, What, *FarException, NestedStack);
 	}
 
 	return handle_generic_exception(Context, Function, {}, Module, Type, What);

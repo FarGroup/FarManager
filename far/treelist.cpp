@@ -729,7 +729,7 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 	if (SavedAttributes != INVALID_FILE_ATTRIBUTES)
 		(void)os::fs::set_file_attributes(Name, FILE_ATTRIBUTE_NORMAL); //BUGBUG
 
-	error_state_ex ErrorState;
+	std::optional<error_state_ex> ErrorState;
 
 	if (auto TreeFile = Opener(Name))
 	{
@@ -754,7 +754,7 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 		}
 		catch (const far_exception& e)
 		{
-			ErrorState = e.error_state();
+			ErrorState = e;
 		}
 
 		TreeFile.SetEnd();
@@ -769,7 +769,7 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 	{
 		(void)os::fs::delete_file(TreeCache().GetTreeName()); // BUGBUG
 		if (!Global->WindowManager->ManagerIsDown())
-			Message(MSG_WARNING, ErrorState,
+			Message(MSG_WARNING, *ErrorState,
 				msg(lng::MError),
 				{
 					msg(lng::MCannotSaveTree),

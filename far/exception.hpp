@@ -46,7 +46,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 struct error_state
 {
 	static error_state fetch();
-	explicit operator bool() const;
 
 	int Errno = 0;
 	DWORD Win32Error = ERROR_SUCCESS;
@@ -56,8 +55,7 @@ struct error_state
 	string Win32ErrorStr() const;
 	string NtErrorStr() const;
 
-private:
-	bool m_Engaged = false;
+	std::array<string, 3> format_errors() const;
 };
 
 struct error_state_ex: public error_state
@@ -70,6 +68,8 @@ struct error_state_ex: public error_state
 	{
 	}
 
+	string format_error() const;
+
 	string What;
 };
 
@@ -80,7 +80,6 @@ namespace detail
 	public:
 		[[nodiscard]] const auto& message() const noexcept { return What; }
 		[[nodiscard]] const auto& full_message() const noexcept { return m_FullMessage; }
-		[[nodiscard]] const auto& error_state() const noexcept { return static_cast<error_state_ex const&>(*this); }
 		[[nodiscard]] const auto& function() const noexcept { return m_Function; }
 		[[nodiscard]] const auto& location() const noexcept { return m_Location; }
 

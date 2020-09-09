@@ -63,7 +63,7 @@ class SQLiteDb: noncopyable, virtual protected transactional
 {
 public:
 	using busy_handler = int(*)(void*, int) noexcept;
-	static bool library_load();
+	static void library_load();
 	static void library_free();
 
 	const string& GetPath() const { return m_Path; }

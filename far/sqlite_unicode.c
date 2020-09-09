@@ -54,6 +54,7 @@ WARNING_DISABLE_GCC("-Wsign-compare")
 WARNING_DISABLE_CLANG("-Weverything")
 
 #define sqlite3_value_text16 sqlite3_value_text16_hook
+#define sqlite3_value_bytes16 sqlite3_value_bytes16_hook
 #define sqlite3_result_text16 sqlite3_result_text16_hook
 
 #include "thirdparty/sqlite/sqlite3_unicode.c"
@@ -64,6 +65,13 @@ const void* far_value_text16(void*);
 const void* sqlite3_value_text16_hook(sqlite3_value* Val)
 {
 	return far_value_text16(Val);
+}
+
+int far_value_bytes16(void*);
+
+int sqlite3_value_bytes16_hook(sqlite3_value* Val)
+{
+	return far_value_bytes16(Val);
 }
 
 void far_result_text16(void*, const void*, int);

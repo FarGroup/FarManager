@@ -115,7 +115,7 @@ private:
 	void CopyFileTree(const string& Dest);
 	COPY_CODES ShellCopyOneFile(const string& Src, const os::fs::find_data& SrcData, string& strDest, int KeepPathPos, int Rename);
 	void CheckStreams(const string& Src, const string& DestPath);
-	int ShellCopyFile(const string& SrcName, const os::fs::find_data& SrcData, string& strDestName, DWORD& DestAttr, int Append, error_state_ex& ErrorState);
+	int ShellCopyFile(const string& SrcName, const os::fs::find_data& SrcData, string& strDestName, DWORD& DestAttr, int Append, std::optional<error_state_ex>& ErrorState);
 	int ShellSystemCopy(const string& SrcName, const string& DestName, const os::fs::find_data& SrcData);
 	int DeleteAfterMove(const string& Name, DWORD Attr);
 	bool AskOverwrite(const os::fs::find_data& SrcData, const string& SrcName, const string& DestName, DWORD DestAttr, int SameName, int Rename, int AskAppend, int& Append, string& strNewName, COPY_CODES& RetCode);
@@ -2064,7 +2064,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 	{
 		for (;;)
 		{
-			error_state_ex ErrorState;
+			std::optional<error_state_ex> ErrorState;
 
 			if (!(Flags&FCOPY_COPYTONUL) && Rename)
 			{
@@ -2096,7 +2096,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 						if (NWFS_Attr)
 							(void)os::fs::set_file_attributes(strSrcFullName,SrcData.Attributes); //BUGBUG
 
-						if (ErrorState.Win32Error == ERROR_NOT_SAME_DEVICE)
+						if (ErrorState->Win32Error == ERROR_NOT_SAME_DEVICE)
 							return COPY_FAILURE;
 					}
 					else
@@ -2223,7 +2223,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 						ErrorState = error_state::fetch();
 					}
 
-					MsgCode = Message(MSG_WARNING, ErrorState,
+					MsgCode = Message(MSG_WARNING, *ErrorState,
 						msg(lng::MError),
 						{
 							msg(MsgMCannot),
@@ -2259,7 +2259,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					if (!ErrorState)
 						ErrorState = error_state::fetch();
 
-					MsgCode = Message(MSG_WARNING, ErrorState,
+					MsgCode = Message(MSG_WARNING, *ErrorState,
 						msg(lng::MError),
 						{
 							msg(MsgMCannot),
@@ -2431,7 +2431,7 @@ int ShellCopy::DeleteAfterMove(const string& Name,DWORD Attr)
 
 
 int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcData,
-                             string &strDestName,DWORD &DestAttr,int Append, error_state_ex& ErrorState)
+                             string &strDestName,DWORD &DestAttr,int Append, std::optional<error_state_ex>& ErrorState)
 {
 	if ((Flags&FCOPY_LINK))
 	{
@@ -2645,7 +2645,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 			while (!SrcFile.Read(CopyBuffer.data(), SrcFile.GetChunkSize(), BytesRead))
 			{
 				ErrorState = error_state::fetch();
-				const int MsgCode = Message(MSG_WARNING, ErrorState,
+				const int MsgCode = Message(MSG_WARNING, *ErrorState,
 					msg(lng::MError),
 					{
 						msg(lng::MCopyReadError),
@@ -2682,7 +2682,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 				while (!DestFile.Write(CopyBuffer.data(), BytesRead))
 				{
 					ErrorState = error_state::fetch();
-					const int MsgCode = Message(MSG_WARNING, ErrorState,
+					const int MsgCode = Message(MSG_WARNING, *ErrorState,
 						msg(lng::MError),
 						{
 							msg(lng::MCopyWriteError),

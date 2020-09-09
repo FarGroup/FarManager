@@ -85,13 +85,21 @@ namespace
 		return sqlite::sqlite3_extended_errcode(Db);
 	}
 
+	int GetLastSystemErrorCode(sqlite::sqlite3* Db)
+	{
+		return sqlite::sqlite3_system_errno(Db);
+	}
+
 	string GetErrorString(int ErrorCode)
 	{
 		return encoding::utf8::get_chars(sqlite::sqlite3_errstr(ErrorCode));
 	}
 
-	string GetDatabaseName(sqlite::sqlite3* Db)
+	string GetDatabaseName(sqlite::sqlite3* Db, string_view const DbName = {})
 	{
+		if (!DbName.empty())
+			return string(PointToName(DbName));
+
 		const auto NamePtr = sqlite::sqlite3_db_filename(Db, "main");
 		const string Name(NamePtr? *NamePtr? encoding::utf8::get_chars(NamePtr) : SQLiteDb::memory_db_name() : L"unknown"sv);
 		return string(PointToName(Name));
@@ -103,15 +111,20 @@ namespace
 	}
 
 	[[noreturn]]
-	void throw_exception(int ErrorCode, string_view const DatabaseName, string_view const ErrorString = {})
+	void throw_exception(string_view const DatabaseName, int const ErrorCode, string_view const ErrorString = {}, int const SystemErrorCode = 0)
 	{
-		throw MAKE_EXCEPTION(far_sqlite_exception, format(FSTR(L"SQLite error {0} - [{1}] {2}"), ErrorCode, DatabaseName, ErrorString.empty()? GetErrorString(ErrorCode) : ErrorString));
+		throw MAKE_EXCEPTION(far_sqlite_exception, format(FSTR(L"[{0}] - SQLite error {1}: {2}{3}"),
+			DatabaseName,
+			ErrorCode,
+			ErrorString.empty()? GetErrorString(ErrorCode) : ErrorString,
+			SystemErrorCode? format(FSTR(L" ({0})"), os::format_system_error(SystemErrorCode, os::GetErrorString(false, SystemErrorCode))) : L""s
+		));
 	}
 
 	[[noreturn]]
-	void throw_exception(sqlite::sqlite3* Db)
+	void throw_exception(sqlite::sqlite3* Db, string_view const DbName = {})
 	{
-		throw_exception(GetLastErrorCode(Db), GetDatabaseName(Db), GetLastErrorString(Db));
+		throw_exception(GetDatabaseName(Db, DbName), GetLastErrorCode(Db), GetLastErrorString(Db), GetLastSystemErrorCode(Db));
 	}
 
 	void invoke(sqlite::sqlite3* Db, function_ref<bool()> const Callable)
@@ -133,15 +146,20 @@ namespace
 	});
 }
 
-bool SQLiteDb::library_load()
+void SQLiteDb::library_load()
 {
-	return sqlite::sqlite3_initialize() == SQLITE_OK && sqlite_unicode::sqlite3_unicode_load() == SQLITE_OK;
+	[[maybe_unused]]
+	const auto Result = sqlite::sqlite3_initialize() == SQLITE_OK && sqlite_unicode::sqlite3_unicode_load() == SQLITE_OK;
+	assert(Result);
 }
 
 void SQLiteDb::library_free()
 {
 	sqlite_unicode::sqlite3_unicode_free();
-	sqlite::sqlite3_shutdown();
+
+	[[maybe_unused]]
+	const auto Result = sqlite::sqlite3_shutdown();
+	assert(Result == SQLITE_OK);
 }
 
 void SQLiteDb::SQLiteStmt::stmt_deleter::operator()(sqlite::sqlite3_stmt* Object) const noexcept
@@ -346,9 +364,10 @@ public:
 				continue;
 
 			if (Db)
-				throw_exception(Db.get());
+				// Even though we have a db connection here, the database is not attached so we need to pass the name explicitly
+				throw_exception(Db.get(), Name);
 			else
-				throw_exception(Result, Name);
+				throw_exception(Name, Result);
 		}
 
 		invoke(Db.get(), [&]{ return sqlite::sqlite3_busy_handler(Db.get(), BusyHandler.first, BusyHandler.second) == SQLITE_OK; });
@@ -367,7 +386,7 @@ public:
 		{
 			const auto TmpDbPath = concat(MakeTemp(), str(GetCurrentProcessId()), L'-', PointToName(Path));
 			if (!os::fs::copy_file(Path, TmpDbPath, nullptr, nullptr, nullptr, 0))
-				throw_exception(SQLITE_READONLY, Path);
+				throw_exception(Path, SQLITE_READONLY);
 
 			Deleter.add(TmpDbPath);
 			(void)os::fs::set_file_attributes(TmpDbPath, FILE_ATTRIBUTE_NORMAL); //BUGBUG
@@ -395,7 +414,7 @@ public:
 
 		const auto StepResult = sqlite::sqlite3_backup_step(DbBackup.get(), -1);
 		if (StepResult != SQLITE_DONE)
-			throw_exception(StepResult, GetDatabaseName(SourceDb.get()));
+			throw_exception(GetDatabaseName(SourceDb.get()), StepResult);
 
 		return Destination;
 	}
@@ -493,36 +512,84 @@ void SQLiteDb::EnableForeignKeysConstraints() const
 	Exec({ "PRAGMA foreign_keys = ON;"sv });
 }
 
+template<typename char_type>
+static auto view(const void* const Data, int const Size)
+{
+	return std::basic_string_view<char_type>{ static_cast<char_type const*>(Data), static_cast<size_t>(Size) / sizeof(char_type) };
+}
+
 void SQLiteDb::CreateNumericCollation() const
 {
-	const auto Comparer = [](void* const, int const Size1, const void* const Data1, int const Size2, const void* const Data2)
+	const auto Comparer = [](void* const Param, int const Size1, const void* const Data1, int const Size2, const void* const Data2)
 	{
+		const auto Utf8 = reinterpret_cast<intptr_t>(Param) == SQLITE_UTF8;
+
 		return string_sort::keyhole::compare_ordinal_numeric(
-			encoding::utf8::get_chars({ static_cast<const char*>(Data1), static_cast<size_t>(Size1) }),
-			encoding::utf8::get_chars({ static_cast<const char*>(Data2), static_cast<size_t>(Size2) })
+			Utf8? encoding::utf8::get_chars(view<char>(Data1, Size1)) : view<wchar_t>(Data1, Size1),
+			Utf8? encoding::utf8::get_chars(view<char>(Data2, Size2)) : view<wchar_t>(Data2, Size2)
 		);
 	};
 
-	invoke(m_Db.get(), [&]{ return sqlite::sqlite3_create_collation(m_Db.get(), "numeric", SQLITE_UTF8, nullptr, Comparer) == SQLITE_OK; });
+	invoke(m_Db.get(), [&]
+	{
+		const auto create_numeric_collation = [&](int const Encoding)
+		{
+			return sqlite::sqlite3_create_collation(m_Db.get(), "numeric", Encoding, ToPtr(Encoding), Comparer) == SQLITE_OK;
+		};
+
+		return
+			create_numeric_collation(SQLITE_UTF8) &&
+			create_numeric_collation(SQLITE_UTF16);
+	});
 }
 
 
 // for sqlite_unicode.c
 
-WARNING_PUSH()
-WARNING_DISABLE_GCC("-Wmissing-declarations")
-WARNING_DISABLE_CLANG("-Wmissing-prototypes")
-
-extern "C" const void* far_value_text16(void* Val)
+static void far_value16(void* const Val, void const*& Data, int& Size)
 {
 	static string Value;
+	static const char* LastStr;
 
-	Value = encoding::utf8::get_chars(static_cast<const char*>(static_cast<const void*>(sqlite::sqlite3_value_text(static_cast<sqlite::sqlite3_value*>(Val)))));
+	// It is a common pattern to invoke sqlite3_value_bytes16 and sqlite3_value_text16 sequentially.
+	// We don't want to invalidate the Value's pointer.
+	if (const auto Str = static_cast<const char*>(static_cast<const void*>(sqlite::sqlite3_value_text(static_cast<sqlite::sqlite3_value*>(Val)))); Str != LastStr)
+	{
+		Value = encoding::utf8::get_chars(Str);
+		LastStr = Str;
+	}
 
-	return Value.c_str();
+	Data = Value.c_str();
+	Size = static_cast<int>(Value.size()) * sizeof(wchar_t);
 }
 
-extern "C" void far_result_text16(void* Ctx, const void* Val, int Length)
+extern "C" const void* far_value_text16(void* Val);
+
+const void* far_value_text16(void* const Val)
+{
+	void const* Result;
+	int Size;
+
+	far_value16(Val, Result, Size);
+
+	return Result;
+}
+
+extern "C" int far_value_bytes16(void* Val);
+
+int far_value_bytes16(void* const Val)
+{
+	void const* Result;
+	int Size;
+
+	far_value16(Val, Result, Size);
+
+	return Size;
+}
+
+extern "C" void far_result_text16(void* Ctx, const void* Val, int Length);
+
+void far_result_text16(void* const Ctx, const void* const Val, int const Length)
 {
 	const auto Data = static_cast<const wchar_t*>(Val);
 	const auto Size = Length < 0? std::wcslen(Data) : static_cast<size_t>(Length);
@@ -530,5 +597,3 @@ extern "C" void far_result_text16(void* Ctx, const void* Val, int Length)
 
 	sqlite::sqlite3_result_text(static_cast<sqlite::sqlite3_context*>(Ctx), Value.c_str(), static_cast<int>(Value.size()), sqlite::transient_destructor);
 }
-
-WARNING_POP()

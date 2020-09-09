@@ -1,3 +1,11 @@
+drkns 10.09.2020 00:11:09 +0100 - build 5664
+
+1. Corrections in exception handling.
+
+2. Show system errors in SQLite exeptions.
+
+3. Other minor things.
+
 drkns 06.09.2020 23:00:00 +0100 - build 5663
 
 1. Store binary data in exported configuration as base64.

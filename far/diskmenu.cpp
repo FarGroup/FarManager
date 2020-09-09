@@ -591,7 +591,7 @@ static bool DisconnectDrive(panel_ptr Owner, const disk_item& item, VMenu2 &ChDi
 				if (CMode != panel_mode::PLUGIN_PANEL)
 					Owner->SetCurDir(TmpCDir, false);
 
-				if (EjectFailed(e.error_state(), item.cDrive) != operation::retry)
+				if (EjectFailed(e, item.cDrive) != operation::retry)
 					return false;
 			}
 		}
@@ -1008,7 +1008,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 						}
 						catch (far_exception const& e)
 						{
-							if (EjectFailed(e.error_state(), item.cDrive) != operation::retry)
+							if (EjectFailed(e, item.cDrive) != operation::retry)
 								break;
 						}
 					}
@@ -1303,11 +1303,11 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			if (FarChDir(os::fs::get_drive(item.cDrive)) || FarChDir(os::fs::get_root_directory(item.cDrive)))
 				break;
 
-			const auto ErrorState = error_state::fetch();
+			error_state_ex const ErrorState = error_state::fetch();
 
 			DialogBuilder Builder(lng::MError);
 
-			Builder.AddTextWrap(GetErrorString(ErrorState).c_str(), true);
+			Builder.AddTextWrap(ErrorState.format_error().c_str(), true);
 			Builder.AddText(L"");
 
 			string DriveLetter(1, item.cDrive);

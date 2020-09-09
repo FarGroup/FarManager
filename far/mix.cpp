@@ -357,6 +357,8 @@ string version_to_string(const VersionInfo& Version)
 		L"Private"sv
 	};
 
+	static_assert(std::size(Stage) == VS_PRIVATE + 1);
+
 	auto VersionStr = format(FSTR(L"{0}.{1}.{2}.{3}"), Version.Major, Version.Minor, Version.Build, Version.Revision);
 	if (Version.Stage != VS_RELEASE && static_cast<size_t>(Version.Stage) < std::size(Stage))
 	{
