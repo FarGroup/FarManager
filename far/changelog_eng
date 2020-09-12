@@ -1,3 +1,7 @@
+drkns 12.09.2020 02:02:02 +0100 - build 5665
+
+1. Regex word search didn't work properly in some cases.
+
 drkns 10.09.2020 00:11:09 +0100 - build 5664
 
 1. Corrections in exception handling.

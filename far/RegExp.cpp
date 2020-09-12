@@ -1902,13 +1902,15 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 			{
 				case opLineStart:
 				{
-					if (str==start || str[-1]==0x0d || str[-1]==0x0a)continue;
+					if (str == start || IsEol(str[-1]))
+						continue;
 
 					break;
 				}
 				case opLineEnd:
 				{
-					if (str==strend || str[0]==0x0d || str[0]==0x0a)continue;
+					if (str == strend || IsEol(str[0]))
+						continue;
 
 					break;
 				}
@@ -1925,20 +1927,24 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 					break;
 				}
 				case opWordBound:
-				{
-					if ((str==start && ISWORD(*str))||
-					        (!(ISWORD(str[-1])) && ISWORD(*str)) ||
-					        (!(ISWORD(*str)) && ISWORD(str[-1])) ||
-					        (str==strend && ISWORD(str[-1])))continue;
-
-					break;
-				}
 				case opNotWordBound:
 				{
-					if (!((str==start && ISWORD(*str))||
-					        (!(ISWORD(str[-1])) && ISWORD(*str)) ||
-					        (!(ISWORD(*str)) && ISWORD(str[-1])) ||
-					        (str==strend && ISWORD(str[-1]))))continue;
+					const auto IsWordBoundary = [&]
+					{
+						if (start == strend)
+							return false;
+
+						if (str == start)
+							return ISWORD(*str);
+
+						if (str == strend)
+							return ISWORD(str[-1]);
+
+						return ISWORD(str[-1]) != ISWORD(*str);
+					}();
+
+					if (op->op == opWordBound? IsWordBoundary : !IsWordBoundary)
+						continue;
 
 					break;
 				}
@@ -2486,7 +2492,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 						}
 						else
 						{
-							MinSkip(st, [](const wchar_t* Str) { return *Str != L'\r' && *Str != L'\n'; });
+							MinSkip(st, [](const wchar_t* Str) { return !IsEol(*Str); });
 
 							if (st.max==-1)break;
 						}
