@@ -2603,6 +2603,7 @@ bool FindFiles::FindFilesProcess()
 	Dlg->SetHelp(L"FindFileResult"sv);
 	Dlg->SetPosition({ -1, -1, DlgWidth, DlgHeight });
 	Dlg->SetId(FindFileResultId);
+	Dlg->SetFlags(FSCROBJ_SPECIAL);
 
 	m_ResultsDialogPtr = Dlg.get();
 

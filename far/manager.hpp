@@ -192,7 +192,7 @@ private:
 
 	using windows = std::vector<window_ptr>;
 	void* GetCurrent(function_ref<void*(window_ptr const&)> Check) const;
-	windows::const_iterator FindFileResult();
+	windows::const_iterator SpecialWindow();
 	windows m_windows;
 	size_t m_NonModalSize;
 	bool EndLoop;            // Признак выхода из цикла

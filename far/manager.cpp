@@ -1054,9 +1054,9 @@ void Manager::RefreshCommit(const window_ptr& Param)
 	if (!Param)
 		return;
 
-	const auto FindFileIterator = FindFileResult();
-	const auto IsFindFileResult = m_windows.cend() != FindFileIterator;
-	const auto WindowIndex = std::min(IndexOf(Param), static_cast<int>(FindFileIterator - m_windows.cbegin()));
+	const auto SpecialWindowIterator = SpecialWindow();
+	const auto IsSpecialWindow = m_windows.cend() != SpecialWindowIterator;
+	const auto WindowIndex = std::min(IndexOf(Param), static_cast<int>(SpecialWindowIterator - m_windows.cbegin()));
 
 	if (-1==WindowIndex)
 		return;
@@ -1069,7 +1069,7 @@ void Manager::RefreshCommit(const window_ptr& Param)
 		m_windows_changed.pop_back();
 	};
 
-	for (const auto& i: range(std::next(m_windows.begin(), (Param->HasSaveScreen() && !IsFindFileResult)?0:WindowIndex), m_windows.end()))
+	for (const auto& i: range(std::next(m_windows.begin(), (Param->HasSaveScreen() && !IsSpecialWindow)?0:WindowIndex), m_windows.end()))
 	{
 		i->Refresh();
 		if (m_windows_changed[ChangedIndex - 1]) //ой, всё!
@@ -1168,7 +1168,7 @@ void Manager::RefreshAllCommit()
 {
 	if (!m_windows.empty())
 	{
-		const auto ItemIterator = FindFileResult();
+		const auto ItemIterator = SpecialWindow();
 		const auto PtrCopy = m_DesktopModalled == 0 ? ((ItemIterator == m_windows.cend()) ? m_windows.front() : *ItemIterator) : m_windows.back();
 		RefreshCommit(PtrCopy);
 	}
@@ -1287,7 +1287,7 @@ FileEditor* Manager::GetCurrentEditor() const
 	}));
 }
 
-Manager::windows::const_iterator Manager::FindFileResult()
+Manager::windows::const_iterator Manager::SpecialWindow()
 {
-	return std::find_if(CONST_RANGE(m_windows, i) { return windowtype_dialog == i->GetType() && FindFileResultId == std::static_pointer_cast<Dialog>(i)->GetId(); });
+	return std::find_if(CONST_RANGE(m_windows, i) { return i->IsSpecial(); });
 }

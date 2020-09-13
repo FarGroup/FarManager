@@ -58,6 +58,7 @@ enum
 	FSCROBJ_ENABLERESTORESCREEN  = 1_bit,
 	FSCROBJ_SETPOSITIONDONE      = 2_bit,
 	FSCROBJ_ISREDRAWING          = 3_bit,   // идет процесс Show?
+	FSCROBJ_SPECIAL              = 4_bit,
 };
 
 class SimpleScreenObject
@@ -87,6 +88,7 @@ public:
 	bool IsVisible() const {return m_Flags.Check(FSCROBJ_VISIBLE);}
 	void SetVisible(bool Visible) {m_Flags.Change(FSCROBJ_VISIBLE,Visible);}
 	void SetRestoreScreenMode(bool Mode) {m_Flags.Change(FSCROBJ_ENABLERESTORESCREEN,Mode);}
+	bool IsSpecial() const {return m_Flags.Check(FSCROBJ_SPECIAL);}
 	window_ptr GetOwner() const {return m_Owner.lock();}
 
 protected:

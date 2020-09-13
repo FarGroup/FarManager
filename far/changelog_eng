@@ -1,3 +1,7 @@
+zg 14.09.2020 01:03:19 +0300 - build 5666
+
+1. surpress redraw under exception dialog.
+
 drkns 12.09.2020 02:02:02 +0100 - build 5665
 
 1. Regex word search didn't work properly in some cases.

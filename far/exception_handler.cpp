@@ -485,6 +485,7 @@ static bool ExcDialog(
 	dialog_data_type DlgData{ &Context, NestedStack, ModuleName };
 	const auto Dlg = Dialog::create(EditDlg, ExcDlgProc, &DlgData);
 	Dlg->SetDialogMode(DMODE_WARNINGSTYLE|DMODE_NOPLUGINS);
+	Dlg->SetFlags(FSCROBJ_SPECIAL);
 	Dlg->SetPosition({ -1, -1, DlgW, static_cast<int>(DY) });
 	Dlg->Process();
 
