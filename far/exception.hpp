@@ -84,7 +84,7 @@ namespace detail
 		[[nodiscard]] const auto& location() const noexcept { return m_Location; }
 
 	protected:
-		far_base_exception(const char* Function, string_view File, int Line, string_view Message);
+		far_base_exception(string_view Message, const char* Function, string_view File, int Line);
 
 	private:
 		std::string m_Function;
@@ -205,7 +205,7 @@ std::exception_ptr wrap_currrent_exception(const char* Function, string_view Fil
 void rethrow_if(std::exception_ptr& Ptr);
 
 
-#define MAKE_EXCEPTION(ExceptionType, ...) ExceptionType(__FUNCTION__, WIDE_SV(__FILE__), __LINE__, ##__VA_ARGS__)
+#define MAKE_EXCEPTION(ExceptionType, ...) ExceptionType(__VA_ARGS__, __FUNCTION__, WIDE_SV(__FILE__), __LINE__)
 #define MAKE_FAR_FATAL_EXCEPTION(...) MAKE_EXCEPTION(far_fatal_exception, __VA_ARGS__)
 #define MAKE_FAR_EXCEPTION(...) MAKE_EXCEPTION(far_exception, __VA_ARGS__)
 #define MAKE_FAR_KNOWN_EXCEPTION(...) MAKE_EXCEPTION(far_known_exception, __VA_ARGS__)

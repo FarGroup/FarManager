@@ -1,3 +1,13 @@
+drkns 14.09.2020 00:58:21 +0100 - build 5667
+
+1. Switching exotic code pages didn't work as expected due to incorrectly set flags.
+
+2. Added a manual roundtrip checking for the codepages that OS can't validate.
+
+3. Refactoring.
+
+4. Tests.
+
 zg 14.09.2020 01:03:19 +0300 - build 5666
 
 1. surpress redraw under exception dialog.

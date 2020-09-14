@@ -1663,7 +1663,7 @@ bool Viewer::process_key(const Manager::Key& Key)
 		case KEY_SHIFTF8:
 		{
 			uintptr_t nCodePage = m_Codepage;
-			if (codepages::instance().SelectCodePage(nCodePage, true, true, true))
+			if (codepages::instance().SelectCodePage(nCodePage, true, true))
 			{
 				if (nCodePage == CP_DEFAULT)
 				{

@@ -60,7 +60,7 @@ class Edit;
 class Editor: public SimpleScreenObject
 {
 public:
-	explicit Editor(window_ptr Owner, bool DialogUsed = false);
+	explicit Editor(window_ptr Owner, uintptr_t Codepage, bool DialogUsed = false);
 	~Editor() override;
 
 	bool ProcessKey(const Manager::Key& Key) override;
@@ -69,7 +69,7 @@ public:
 
 	void SetCacheParams(EditorPosCache &pc, bool count_bom = false);
 	void GetCacheParams(EditorPosCache &pc) const;
-	bool TryCodePage(uintptr_t codepage, int &X, int &Y);
+	bool TryCodePage(uintptr_t Codepage, uintptr_t& ErrorCodepage, size_t& ErrorLine, size_t& ErrorPos);
 	bool SetCodePage(uintptr_t codepage, bool *BOM=nullptr, bool ShowMe=true); //BUGBUG
 	uintptr_t GetCodePage() const; //BUGBUG
 	void KeepInitParameters() const;
@@ -285,7 +285,7 @@ private:
 	string Block2Text();
 	string VBlock2Text();
 	void Change(EDITOR_CHANGETYPE Type,int StrNum);
-	DWORD SetLineCodePage(const iterator& edit, uintptr_t codepage, bool check_only);
+	bool SetLineCodePage(iterator const& Iterator, uintptr_t Codepage, bool Validate);
 	numbered_iterator InsertString(string_view Str, const numbered_iterator& Where);
 	numbered_iterator PushString(const string_view Str) { return InsertString(Str, EndIterator()); }
 	void TurnOffMarkingBlock();
@@ -354,7 +354,7 @@ private:
 	int VBlockSizeX{};
 	int VBlockSizeY{};
 	int MacroSelectionStart{ -1 };
-	uintptr_t m_codepage{ CP_DEFAULT }; //BUGBUG
+	uintptr_t m_codepage; //BUGBUG
 	int m_StartLine{ -1 };
 	int StartChar{ -1 };
 	//numbered bookmarks (accessible by Ctrl-0..9)

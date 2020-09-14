@@ -107,7 +107,7 @@ static void show_help()
 		L" -?   This help.\n"
 		L" -clearcache [profilepath [localprofilepath]]\n"
 		L"      Clear plugins cache.\n"
-		L" -co  Forces FAR to load plugins from the cache only.\n"
+		L" -co  Load plugins from the cache only.\n"
 #ifdef DIRECT_RT
 		L" -do  Direct output.\n"
 #endif

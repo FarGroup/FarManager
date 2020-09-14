@@ -84,7 +84,7 @@ std::array<string, 3> error_state::format_errors() const
 
 namespace detail
 {
-	far_base_exception::far_base_exception(const char* const Function, string_view const File, int const Line, string_view const Message):
+	far_base_exception::far_base_exception(string_view const Message, const char* const Function, string_view const File, int const Line):
 		error_state_ex(fetch(), Message),
 		m_Function(Function),
 		m_Location(format(FSTR(L"{0}:{1}"), File, Line)),
@@ -132,7 +132,7 @@ string error_state_ex::format_error() const
 
 
 far_wrapper_exception::far_wrapper_exception(const char* const Function, string_view const File, int const Line):
-	far_exception(Function, File, Line, L"exception_ptr"sv),
+	far_exception(L"exception_ptr"sv, Function, File, Line),
 	m_ThreadHandle(std::make_shared<os::handle>(os::OpenCurrentThread())),
 	m_Stack(tracer::get({}, tracer::get_pointers(), m_ThreadHandle->native_handle()))
 {

@@ -119,9 +119,10 @@ eol Editor::GetDefaultEOL()
 	return Global->Opt->EdOpt.NewFileUnixEOL? eol::unix : eol::win;
 }
 
-Editor::Editor(window_ptr Owner, bool DialogUsed):
+Editor::Editor(window_ptr Owner, uintptr_t Codepage, bool DialogUsed):
 	SimpleScreenObject(std::move(Owner)),
 	GlobalEOL(GetDefaultEOL()),
+	m_codepage(Codepage),
 	EdOpt(Global->Opt->EdOpt),
 	LastSearchCase(Global->GlobalSearchCase),
 	LastSearchWholeWords(Global->GlobalSearchWholeWords),
@@ -4832,7 +4833,7 @@ long long Editor::GetCurPos(bool file_pos, bool add_bom) const
 			if (add_bom)
 				bom = 3;
 		}
-		else if (GetCodePageInfo(m_codepage).first > 1)
+		else if (const auto Info = GetCodePageInfo(m_codepage); Info && Info->MaxCharSize > 1)
 		{
 			Multiplier = UnknownMultiplier;
 		}
@@ -6915,144 +6916,114 @@ void Editor::GetCacheParams(EditorPosCache &pc) const
 	pc.bm=m_SavePos;
 }
 
-DWORD Editor::SetLineCodePage(const iterator& edit, uintptr_t codepage, bool check_only)
+static std::string_view GetLineBytes(string_view const Str, std::vector<char>& Buffer, uintptr_t const Codepage, bool* const UsedDefaultChar = {})
 {
-	DWORD Ret = SETCP_NOERROR;
-	if (codepage == m_codepage)
-		return Ret;
-
-	bool UsedDefaultChar = false;
-	assert(m_codepage != CP_UTF7); // BUGBUG: CP_SYMBOL, 50xxx, 57xxx
-	bool* lpUsedDefaultChar = m_codepage == CP_UTF8 ? nullptr : &UsedDefaultChar;
-
-	if (!edit->m_Str.empty())
+	for (;;)
 	{
-		if (3 * static_cast<size_t>(edit->m_Str.size()) + 1 > decoded.size())
-			decoded.resize(256 + 4 * edit->m_Str.size());
+		auto const Length = UsedDefaultChar?
+			encoding::get_bytes(Codepage, Str, Buffer, UsedDefaultChar) :
+			encoding::get_bytes_strict(Codepage, Str, Buffer);
 
-		const size_t length = encoding::get_bytes(m_codepage, edit->m_Str, decoded, lpUsedDefaultChar);
-		if (!length || UsedDefaultChar)
-		{
-			Ret |= SETCP_WC2MBERROR;
-			if (check_only)
-				return Ret;
-		}
+		if (Length <= Buffer.size())
+			return { Buffer.data(), Length };
 
-		if (codepage == CP_UTF8 || codepage == CP_UTF7)
-		{
-			Utf::errors errs;
-			Utf::get_chars(codepage, { decoded.data(), length }, {}, &errs);
-			if (errs.Conversion.Error)
-				Ret |= SETCP_MB2WCERROR;
-		}
-		else
-		{
-			// BUGBUG: CP_SYMBOL, 50xxx, 57xxx
-			if (!MultiByteToWideChar(codepage, MB_ERR_INVALID_CHARS, decoded.data(), static_cast<int>(length), nullptr, 0) && GetLastError() == ERROR_NO_UNICODE_TRANSLATION)
-			{
-				Ret |= SETCP_MB2WCERROR;
-			}
-		}
-		if (check_only)
-			return Ret;
-
-		edit->m_Str.assign(encoding::get_chars(codepage, { decoded.data(), length }));
+		resize_exp_noshrink(Buffer, Length);
 	}
-
-	if (!check_only)
-		edit->Changed();
-
-	return Ret;
 }
 
-
-bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
+static void CheckCodePage(std::string_view const Bytes, uintptr_t const Codepage)
 {
-	if ( m_codepage == codepage )
+	if (Codepage == CP_UTF8 || Codepage == CP_UTF7)
+	{
+		Utf::errors errs;
+		Utf::get_chars(Codepage, Bytes, {}, &errs);
+
+		if (errs.Conversion.Error)
+			throw MAKE_EXCEPTION(encoding::exception, Codepage, errs.Conversion.Position);
+	}
+
+	(void)encoding::get_chars_count_strict(Codepage, Bytes);
+}
+
+bool Editor::SetLineCodePage(iterator const& Iterator, uintptr_t const Codepage, bool const Validate)
+{
+	if (Codepage == m_codepage || Iterator->m_Str.empty())
 		return true;
 
-	assert(m_codepage != CP_UTF7);
-	int line = 0;
+	bool UsedDefaultChar = false;
+	const auto Bytes = GetLineBytes(Iterator->m_Str, decoded, m_codepage, &UsedDefaultChar);
+	auto Result = !Bytes.empty() && !UsedDefaultChar;
 
-	FOR_RANGE(Lines, i)
+	if (Result && Validate)
 	{
-		if (SetLineCodePage(i, codepage, true))
+		try
 		{
-			Y = line;
-			X = 0;
+			CheckCodePage(Bytes, Codepage);
+		}
+		catch (encoding::exception const&)
+		{
+			Result = false;
+		}
+	}
 
-			if (3 * static_cast<size_t>(i->m_Str.size()) + 1 > decoded.size())
-				decoded.resize(256 + 4 * i->m_Str.size());
+	Iterator->m_Str.assign(encoding::get_chars(Codepage, Bytes));
+	Iterator->Changed();
 
-			std::vector<size_t> wchar_offsets;
-			wchar_offsets.reserve(i->m_Str.size() + 1);
-			size_t total_len = 0;
+	return Result;
+}
 
-			bool def = false, *p_def = m_codepage == CP_UTF8? nullptr : &def;
-			for (int j = 0; j < i->m_Str.size(); ++j)
+bool Editor::TryCodePage(uintptr_t const Codepage, uintptr_t& ErrorCodepage, size_t& ErrorLine, size_t& ErrorPos)
+{
+	if (m_codepage == Codepage)
+		return true;
+
+	int LineNumber = 0;
+
+	for (auto i = Lines.begin(), end = Lines.end(); i != end; ++i, ++LineNumber)
+	{
+		if (i->m_Str.empty())
+			continue;
+
+		std::string_view Bytes;
+
+		try
+		{
+			Bytes = GetLineBytes(i->m_Str, decoded, m_codepage);
+		}
+		catch (encoding::exception const& e)
+		{
+			ErrorCodepage = e.codepage();
+			ErrorLine = LineNumber;
+			ErrorPos = e.position();
+			return false;
+		}
+
+		try
+		{
+			CheckCodePage(Bytes, Codepage);
+		}
+		catch (encoding::exception const& e)
+		{
+			ErrorCodepage = e.codepage();
+			ErrorLine = LineNumber;
+
+			// Position is in bytes, we might need to convert it back to chars
+			const auto Info = GetCodePageInfo(m_codepage);
+			if (Info && Info->MaxCharSize == 1)
 			{
-				wchar_offsets.emplace_back(total_len);
-				char *s = decoded.data() + total_len;
-
-				const size_t len = encoding::get_bytes(m_codepage, { &i->m_Str[j], 1 }, { s, 3 }, p_def);
-				if (!len || def)
-				{
-					X = j;
-					return false;
-				}
-				total_len += len;
-			}
-
-			std::optional<size_t> Error;
-			if (codepage == CP_UTF8 || codepage == CP_UTF7)
-			{
-				Utf::errors errs;
-				Utf::get_chars(codepage, { decoded.data(), total_len }, {}, &errs);
-				if (errs.Conversion.Error)
-				{
-					Error = errs.Conversion.Position;
-				}
+				ErrorPos = e.position();
 			}
 			else
 			{
-				const int max_len = 2;
-				for (size_t j = 0; j != total_len; )
-				{
-					int len;
-					for (len=1; len <= max_len; ++len)
-					{
-						if (j + len <= total_len)
-						{
-							const auto len2 = MultiByteToWideChar(codepage, MB_ERR_INVALID_CHARS, decoded.data() + j, len, nullptr, 0);
-							if (!len2 && GetLastError() == ERROR_NO_UNICODE_TRANSLATION)
-								continue;
-							else
-								break;
-						}
-					}
-					if (len <= max_len)
-					{
-						j += len;
-						continue;
-					}
-					else
-					{
-						Error = j;
-						break;
-					}
-				}
+				bool UsedDefaultChar;
+				const auto BytesCount = encoding::get_bytes(m_codepage, i->m_Str, decoded, &UsedDefaultChar);
+				ErrorPos = encoding::get_chars_count(m_codepage, { decoded.data(), std::min(e.position(), BytesCount) });
 			}
 
-			if (Error)
-			{
-				const auto low_pos = std::lower_bound(wchar_offsets.begin(), wchar_offsets.end(), *Error);
-				if (low_pos != wchar_offsets.end())
-					X = static_cast<int>(low_pos - wchar_offsets.begin());
-			}
 			return false;
 		}
-		++line;
 	}
+
 	return true;
 }
 
@@ -7061,11 +7032,12 @@ bool Editor::SetCodePage(uintptr_t codepage, bool *BOM, bool ShowMe)
 	if ( m_codepage == codepage )
 		return true;
 
-	DWORD Result = 0;
+	auto Result = true;
 
 	FOR_RANGE(Lines, i)
 	{
-		Result |= SetLineCodePage(i, codepage, false);
+		if (!SetLineCodePage(i, codepage, Result))
+			Result = false;
 	}
 
 	if (BOM)
@@ -7085,7 +7057,8 @@ bool Editor::SetCodePage(uintptr_t codepage, bool *BOM, bool ShowMe)
 	m_codepage = codepage;
 
 	if (ShowMe) Show(); //BUGBUG: костыль для того, чтобы не было перерисовки в FileEditor::Init.
-	return Result == 0; // BUGBUG, more details
+
+	return Result; // BUGBUG, more details?
 }
 
 uintptr_t Editor::GetCodePage() const

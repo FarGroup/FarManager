@@ -3341,7 +3341,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 			case MENU_OPTIONS_CODEPAGESSETTINGS: // Code pages
 				{
 					uintptr_t CodePage = CP_DEFAULT;
-					codepages::instance().SelectCodePage(CodePage, true, false, true);
+					codepages::instance().SelectCodePage(CodePage, false, true);
 				}
 				break;
 			case MENU_OPTIONS_COLORS:  // Colors

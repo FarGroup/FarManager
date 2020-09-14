@@ -375,7 +375,7 @@ static void UnicodeToAnsiBin(string_view const UnicodeString, char* AnsiString, 
 	{
 		*AnsiString = 0;
 		// BUGBUG, error checking
-		encoding::get_bytes(CodePage, UnicodeString, { AnsiString, UnicodeString.size() });
+		(void)encoding::get_bytes(CodePage, UnicodeString, { AnsiString, UnicodeString.size() });
 	}
 }
 
@@ -1440,7 +1440,7 @@ static void MultiByteRecode(UINT nCPin, UINT nCPout, span<char> const Buffer)
 {
 	if (!Buffer.empty())
 	{
-		encoding::get_bytes(nCPout, encoding::get_chars(nCPin, { Buffer.data(), Buffer.size() }), Buffer);
+		(void)encoding::get_bytes(nCPout, encoding::get_chars(nCPin, { Buffer.data(), Buffer.size() }), Buffer);
 	}
 }
 
@@ -4807,20 +4807,20 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize) noexc
 
 			if (nCP==CP_DEFAULT) return -1;
 
-			auto [MaxCharSize, CodepageName] = codepages::GetInfo(nCP);
-			if (MaxCharSize != 1)
+			const auto Info = codepages::GetInfo(nCP);
+			if (!Info || Info->MaxCharSize != 1)
 				return -1;
 
-			string sTableName = pad_right(str(nCP), 5);
-			append(sTableName, BoxSymbols[BS_V1], L' ', CodepageName);
+			auto sTableName = pad_right(str(nCP), 5);
+			append(sTableName, BoxSymbols[BS_V1], L' ', Info->Name);
 			encoding::oem::get_bytes(sTableName, TableSet->TableName);
 			std::unique_ptr<wchar_t[]> const us(AnsiToUnicodeBin({ reinterpret_cast<char*>(TableSet->DecodeTable), std::size(TableSet->DecodeTable) }, nCP));
 
 			inplace::lower({ us.get(), std::size(TableSet->DecodeTable) });
-			encoding::get_bytes(nCP, { us.get(), std::size(TableSet->DecodeTable) }, { reinterpret_cast<char*>(TableSet->LowerTable), std::size(TableSet->DecodeTable) });
+			(void)encoding::get_bytes(nCP, { us.get(), std::size(TableSet->DecodeTable) }, { reinterpret_cast<char*>(TableSet->LowerTable), std::size(TableSet->DecodeTable) });
 
 			inplace::upper({ us.get(), std::size(TableSet->DecodeTable) });
-			encoding::get_bytes(nCP, { us.get(), std::size(TableSet->DecodeTable) }, { reinterpret_cast<char*>(TableSet->UpperTable), std::size(TableSet->DecodeTable) });
+			(void)encoding::get_bytes(nCP, { us.get(), std::size(TableSet->DecodeTable) }, { reinterpret_cast<char*>(TableSet->UpperTable), std::size(TableSet->DecodeTable) });
 
 			MultiByteRecode(static_cast<UINT>(nCP), CP_OEMCP, { reinterpret_cast<char*>(TableSet->DecodeTable), std::size(TableSet->DecodeTable) });
 			MultiByteRecode(CP_OEMCP, static_cast<UINT>(nCP), { reinterpret_cast<char*>(TableSet->EncodeTable), std::size(TableSet->EncodeTable) });

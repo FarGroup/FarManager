@@ -78,15 +78,8 @@ enum StandardCodePagesMenuItems
 {
 	SearchAll = 0_bit, // Find-in-Files dialog
 	AutoCP    = 1_bit, // show <Autodetect> item
-	OEM       = 2_bit, // show OEM codepage
-	ANSI      = 3_bit, // show ANSI codepage
-	UTF8      = 4_bit, // show UTF-8 codepage
-	UTF16LE   = 5_bit, // show UTF-16 LE codepage
-	UTF16BE   = 6_bit, // show UTF-16 BE codepage
-	VOnly     = 7_bit, // show only viewer-supported codepages
-	DefaultCP = 8_bit, // show <Default> item
-
-	AllStandard = OEM | ANSI | UTF8 | UTF16BE | UTF16LE
+	VOnly     = 2_bit, // show only viewer-supported codepages
+	DefaultCP = 3_bit, // show <Default> item
 };
 
 codepages::codepages():
@@ -322,21 +315,23 @@ void codepages::AddCodePages(DWORD codePages)
 	uintptr_t cp_auto = CP_DEFAULT;
 	if (0 != (codePages & ::DefaultCP))
 	{
-		AddStandardCodePage(msg(lng::MDefaultCP), CP_DEFAULT, -1, true);
+		AddStandardCodePage(msg(lng::MDefaultCP), CP_DEFAULT);
 		cp_auto = CP_REDETECT;
 	}
 
 	AddStandardCodePage(msg(lng::MEditOpenAutoDetect), cp_auto, -1, (codePages & AutoCP) != 0);
 
 	if (codePages & SearchAll)
-		AddStandardCodePage(msg(lng::MFindFileAllCodePages), CP_ALL, -1, true);
+		AddStandardCodePage(msg(lng::MFindFileAllCodePages), CP_ALL);
 
 	const auto GetSystemCodepageName = [](uintptr_t const Cp, string_view const SystemName)
 	{
-		const auto& [MaxCharSize, Name] = GetCodePageInfo(Cp);
-		if (starts_with(Name, SystemName))
-			return Name;
-		return concat(SystemName, L" - "sv, Name);
+		const auto Info = GetCodePageInfo(Cp);
+		if (!Info)
+			return str(Cp);
+		if (starts_with(Info->Name, SystemName))
+			return Info->Name;
+		return concat(SystemName, L" - "sv, Info->Name);
 	};
 
 	{
@@ -358,22 +353,22 @@ void codepages::AddCodePages(DWORD codePages)
 		if (AnsiCp != CP_UTF8)
 		{
 			AddSeparatorIfNeeded();
-			AddStandardCodePage(GetSystemCodepageName(AnsiCp, L"ANSI"sv), AnsiCp, -1, (codePages & ::ANSI) != 0);
+			AddStandardCodePage(GetSystemCodepageName(AnsiCp, L"ANSI"sv), AnsiCp);
 		}
 
 		const auto OemCp = encoding::codepage::oem();
 		if (OemCp != AnsiCp && OemCp != CP_UTF8)
 		{
 			AddSeparatorIfNeeded();
-			AddStandardCodePage(GetSystemCodepageName(OemCp, L"OEM"sv), OemCp, -1, (codePages & ::OEM) != 0);
+			AddStandardCodePage(GetSystemCodepageName(OemCp, L"OEM"sv), OemCp);
 		}
 	}
 	// unicode codepages
 	//
 	AddSeparator(msg(lng::MGetCodePageUnicode));
-	AddStandardCodePage(L"UTF-8"sv, CP_UTF8, -1, (codePages & ::UTF8) != 0);
-	AddStandardCodePage(L"UTF-16 (Little endian)"sv, CP_UNICODE, -1, (codePages & ::UTF16LE) != 0);
-	AddStandardCodePage(L"UTF-16 (Big endian)"sv, CP_REVERSEBOM, -1, (codePages & ::UTF16BE) != 0);
+	AddStandardCodePage(L"UTF-8"sv, CP_UTF8, -1, true);
+	AddStandardCodePage(L"UTF-16 (Little endian)"sv, CP_UNICODE);
+	AddStandardCodePage(L"UTF-16 (Big endian)"sv, CP_REVERSEBOM);
 
 	// other codepages
 	//
@@ -384,8 +379,8 @@ void codepages::AddCodePages(DWORD codePages)
 
 		// VS2017 spurious const bug
 		// auto [len, CodepageName] = Info;
-		const auto len = Info.first;
-		auto CodepageName = Info.second;
+		const auto len = Info.MaxCharSize;
+		auto CodepageName = Info.Name;
 
 		if (!len || (len > 2 && (codePages & ::VOnly)))
 			continue;
@@ -530,7 +525,7 @@ void codepages::SetFavorite(bool State)
 }
 
 // Заполняем меню выбора таблиц символов
-void codepages::FillCodePagesVMenu(bool bShowUnicode, bool bViewOnly, bool bShowAutoDetect)
+void codepages::FillCodePagesVMenu(bool bViewOnly, bool bShowAutoDetect)
 {
 	SCOPED_ACTION(Dialog::suppress_redraw)(CodePagesMenu.get());
 
@@ -549,11 +544,10 @@ void codepages::FillCodePagesVMenu(bool bShowUnicode, bool bViewOnly, bool bShow
 	CodePagesMenu->SetTitle(title);
 
 	// Добавляем таблицы символов
-	AddCodePages(::OEM | ::ANSI | ::UTF8
-		| (bShowUnicode ? (::UTF16BE | ::UTF16LE) : 0)
-		| (bViewOnly ? ::VOnly : 0)
-		| (bShowAutoDetect ? ::AutoCP : 0)
-		);
+	AddCodePages(
+		(bViewOnly? ::VOnly : 0) |
+		(bShowAutoDetect? ::AutoCP : 0)
+	);
 	// Восстанавливаем оригинальную таблицу символов
 	currentCodePage = codePage;
 	// Позиционируем меню
@@ -609,14 +603,15 @@ intptr_t codepages::EditDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 				ConfigProvider().GeneralCfg()->DeleteValue(NamesOfCodePagesKey, strCodePage);
 			else
 				ConfigProvider().GeneralCfg()->SetValue(NamesOfCodePagesKey, strCodePage, strCodePageName);
+
 			// Получаем информацию о кодовой странице
-			auto [len, CodepageName] = GetCodePageInfo(static_cast<UINT>(CodePage));
-			if (len)
+			if (const auto Info = GetCodePageInfo(static_cast<UINT>(CodePage)))
 			{
-				const auto IsCodePageNameCustom = GetCodePageCustomName(CodePage, CodepageName);
+				auto Copy = *Info;
+				const auto IsCodePageNameCustom = GetCodePageCustomName(CodePage, Copy.Name);
 				const auto Position = CodePagesMenu->GetSelectPos();
 				CodePagesMenu->DeleteItem(Position);
-				MenuItemEx NewItem(FormatCodePageString(CodePage, CodepageName, IsCodePageNameCustom));
+				MenuItemEx NewItem(FormatCodePageString(CodePage, Copy.Name, IsCodePageNameCustom));
 				NewItem.SimpleUserData = CodePage;
 				CodePagesMenu->AddItem(NewItem, Position);
 				CodePagesMenu->SetSelectPos(Position, 1);
@@ -656,7 +651,7 @@ void codepages::EditCodePageName()
 	Dlg->Process();
 }
 
-bool codepages::SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool ViewOnly, bool bShowAutoDetect)
+bool codepages::SelectCodePage(uintptr_t& CodePage, bool ViewOnly, bool bShowAutoDetect)
 {
 	bool Result = false;
 	CallbackCallSource = CodePageSelect;
@@ -673,7 +668,7 @@ bool codepages::SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool View
 	CodePagesMenu->SetBottomTitle(Global->Opt->CPMenuMode? BottomTitleShort : BottomTitle);
 
 	// Добавляем таблицы символов
-	FillCodePagesVMenu(bShowUnicode, ViewOnly, bShowAutoDetect);
+	FillCodePagesVMenu(ViewOnly, bShowAutoDetect);
 	// Показываем меню
 
 	// Цикл обработки сообщений меню
@@ -688,7 +683,7 @@ bool codepages::SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool View
 		case KEY_RCTRLH:
 			Global->Opt->CPMenuMode = !Global->Opt->CPMenuMode;
 			CodePagesMenu->SetBottomTitle(Global->Opt->CPMenuMode? BottomTitleShort : BottomTitle);
-			FillCodePagesVMenu(bShowUnicode, ViewOnly, bShowAutoDetect);
+			FillCodePagesVMenu(ViewOnly, bShowAutoDetect);
 			break;
 			// Обработка удаления таблицы символов из списка выбранных
 		case KEY_DEL:
@@ -729,13 +724,12 @@ void codepages::FillCodePagesList(std::vector<DialogBuilderListItem> &List, bool
 	favoriteCodePages = normalCodePages = 0;
 	selectedCodePages = allowChecked;
 	// Добавляем стандартные элементы в список
-	AddCodePages
-		((allowDefault ? ::DefaultCP : 0)
-		| (allowAuto ? ::AutoCP : 0)
-		| (allowAll ? ::SearchAll : 0)
-		| (bViewOnly ? ::VOnly : 0)
-		| ::AllStandard
-		);
+	AddCodePages(
+		(allowDefault? ::DefaultCP : 0) |
+		(allowAuto? ::AutoCP : 0) |
+		(allowAll? ::SearchAll : 0) |
+		(bViewOnly? ::VOnly : 0)
+	);
 	DialogBuilderList = nullptr;
 }
 
@@ -751,13 +745,12 @@ size_t codepages::FillCodePagesList(Dialog* Dlg, size_t controlId, uintptr_t cod
 	favoriteCodePages = normalCodePages = 0;
 	selectedCodePages = allowChecked;
 	// Добавляем стандартные элементы в список
-	AddCodePages
-		((allowDefault ? ::DefaultCP : 0)
-		| (allowAuto ? ::AutoCP : 0)
-		| (allowAll ? ::SearchAll : 0)
-		| (bViewOnly ? ::VOnly : 0)
-		| ::AllStandard
-		);
+	AddCodePages(
+		(allowDefault? ::DefaultCP : 0) |
+		(allowAuto? ::AutoCP : 0) |
+		(allowAll? ::SearchAll : 0) |
+		(bViewOnly? ::VOnly : 0)
+	);
 
 	if (CallbackCallSource == CodePagesFill)
 	{
@@ -788,19 +781,20 @@ bool codepages::IsCodePageSupported(uintptr_t CodePage, size_t MaxCharSize)
 	if (CodePage == CP_DEFAULT || IsStandardCodePage(CodePage))
 		return true;
 
-	const auto CharSize = GetCodePageInfo(static_cast<UINT>(CodePage)).first;
-	return CharSize != 0 && CharSize <= MaxCharSize;
+	const auto Info = GetCodePageInfo(static_cast<UINT>(CodePage));
+	return Info && Info->MaxCharSize <= MaxCharSize;
 }
 
-std::pair<UINT, string> codepages::GetInfo(uintptr_t CodePage)
+std::optional<cp_info> codepages::GetInfo(uintptr_t CodePage)
 {
-	auto Result = GetCodePageInfo(static_cast<UINT>(CodePage));
-	if (!Result.first)
-		return Result;
+	const auto Info = GetCodePageInfo(static_cast<UINT>(CodePage));
+	if (!Info)
+		return {};
 
-	GetCodePageCustomName(CodePage, Result.second);
+	cp_info Copy = *Info;
+	GetCodePageCustomName(CodePage, Copy.Name);
 
-	return Result;
+	return Copy;
 }
 
 long long codepages::GetFavorite(uintptr_t cp)

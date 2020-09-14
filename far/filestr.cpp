@@ -116,10 +116,11 @@ static size_t get_chars(uintptr_t const Codepage, std::string_view const From, s
 
 	if (!ConversionError)
 	{
-		if (const auto Size = MultiByteToWideChar(Codepage, MB_ERR_INVALID_CHARS, From.data(), static_cast<int>(From.size()), To.data(), static_cast<int>(To.size())))
-			return Size;
-
-		if (const auto Error = GetLastError(); Error == ERROR_NO_UNICODE_TRANSLATION || (Error == ERROR_INVALID_FLAGS && IsNoFlagsCodepage(Codepage)))
+		try
+		{
+			return encoding::get_chars_strict(Codepage, From, To);
+		}
+		catch (encoding::exception const&)
 		{
 			ConversionError = true;
 		}

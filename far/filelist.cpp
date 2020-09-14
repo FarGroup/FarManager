@@ -114,7 +114,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-static_assert(as_underlying_type(panel_sort::BY_USER) == as_underlying_type(OPENPANELINFO_SORTMODES::SM_USER));
+static_assert(static_cast<size_t>(panel_sort::BY_USER) == static_cast<size_t>(OPENPANELINFO_SORTMODES::SM_USER));
 
 
 constexpr auto operator+(panel_sort const Value) noexcept

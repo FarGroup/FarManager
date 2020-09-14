@@ -107,14 +107,6 @@ struct ColorItem
 	}
 };
 
-enum SetCPFlags
-{
-	SETCP_NOERROR    = 0,
-	SETCP_WC2MBERROR = 0_bit,
-	SETCP_MB2WCERROR = 1_bit,
-	SETCP_OTHERERROR = 28_bit,
-};
-
 class Editor;
 
 class Edit: public SimpleScreenObject

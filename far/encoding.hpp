@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 // Internal:
+#include "exception.hpp"
 
 // Platform:
 
@@ -50,22 +51,51 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace encoding
 {
+	class exception: public far_exception
+	{
+	public:
+		template<typename... args>
+		explicit exception(uintptr_t Codepage, size_t const Position, args&&... Args):
+			far_exception(L""sv, FWD(Args)...),
+			m_Codepage(Codepage),
+			m_Position(Position)
+		{
+		}
+
+		auto codepage() const { return m_Codepage; }
+		auto position() const { return m_Position; }
+
+	private:
+		uintptr_t m_Codepage;
+		size_t m_Position;
+	};
+
 	namespace codepage
 	{
 		[[nodiscard]] uintptr_t ansi();
 		[[nodiscard]] uintptr_t oem();
 	}
 
-	size_t get_bytes(uintptr_t Codepage, string_view Str, span<char> Buffer, bool* UsedDefaultChar = nullptr);
+	// Throws if the conversion is lossy
+	[[nodiscard]] size_t get_bytes_strict(uintptr_t Codepage, string_view Str, span<char> Buffer);
+	[[nodiscard]] size_t get_bytes(uintptr_t Codepage, string_view Str, span<char> Buffer, bool* UsedDefaultChar = nullptr);
 	[[nodiscard]] std::string get_bytes(uintptr_t Codepage, string_view Str, bool* UsedDefaultChar = nullptr);
+
+	// Throws if the conversion is lossy
+	[[nodiscard]] size_t get_bytes_count_strict(uintptr_t Codepage, string_view Str);
 	[[nodiscard]] size_t get_bytes_count(uintptr_t Codepage, string_view Str);
 
 	//-------------------------------------------------------------------------
 
+	// Throws if the conversion is lossy
+	[[nodiscard]] size_t get_chars_strict(uintptr_t Codepage, std::string_view Str, span<wchar_t> Buffer);
 	[[nodiscard]] size_t get_chars(uintptr_t Codepage, std::string_view Str, span<wchar_t> Buffer);
 	[[nodiscard]] size_t get_chars(uintptr_t Codepage, bytes_view Str, span<wchar_t> Buffer);
 	[[nodiscard]] string get_chars(uintptr_t Codepage, std::string_view Str);
 	[[nodiscard]] string get_chars(uintptr_t Codepage, bytes_view Str);
+
+	// Throws if the conversion is lossy
+	[[nodiscard]] size_t get_chars_count_strict(uintptr_t Codepage, std::string_view Str);
 	[[nodiscard]] size_t get_chars_count(uintptr_t Codepage, std::string_view Str);
 	[[nodiscard]] size_t get_chars_count(uintptr_t Codepage, bytes_view Str);
 
@@ -250,9 +280,14 @@ private:
 	const char m_Lf;
 };
 
-// {Codepage: (MaxCharSize, Name)}
-using cp_map = std::unordered_map<UINT, std::pair<UINT, string>>;
+struct cp_info
+{
+	string Name;
+	unsigned char MaxCharSize;
+};
+
+using cp_map = std::unordered_map<unsigned, cp_info>;
 [[nodiscard]] const cp_map& InstalledCodepages();
-[[nodiscard]] cp_map::value_type::second_type GetCodePageInfo(UINT cp);
+[[nodiscard]] cp_info const* GetCodePageInfo(unsigned cp);
 
 #endif // ENCODING_HPP_44AE7032_AF79_4A6F_A2ED_529BC1A38758

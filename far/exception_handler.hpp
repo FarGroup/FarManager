@@ -116,6 +116,7 @@ auto cpp_try(callable const& Callable, unknown_handler const& UnknownHandler, st
 	{
 		result_type Result;
 
+		[[maybe_unused]]
 		const auto StdHandlerEx = [&](std::exception const& e)
 		{
 			// IsVoid is a workaround for 2017

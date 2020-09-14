@@ -441,10 +441,9 @@ void FileEditor::Init(
 	bEE_READ_Sent = false;
 	bLoaded = false;
 	m_bAddSignature = false;
-	m_editor = std::make_unique<Editor>(shared_from_this());
+	m_editor = std::make_unique<Editor>(shared_from_this(), codepage);
 
 	m_codepage = codepage;
-	m_editor->SetCodePage(m_codepage);
 	*AttrStr=0;
 	m_FileAttributes=INVALID_FILE_ATTRIBUTES;
 	SetTitle(Title);
@@ -671,7 +670,7 @@ void FileEditor::Init(
 		m_Flags.Set(FFILEEDIT_NEW);
 
 	if (m_Flags.Check(FFILEEDIT_NEW))
-	  m_bAddSignature = Global->Opt->EdOpt.AddUnicodeBOM;
+		m_bAddSignature = Global->Opt->EdOpt.AddUnicodeBOM;
 
 	if (m_Flags.Check(FFILEEDIT_LOCKED))
 		m_editor->m_Flags.Set(Editor::FEDITOR_LOCKMODE);
@@ -1306,7 +1305,7 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 			case KEY_SHIFTF8:
 			{
 				uintptr_t codepage = m_codepage;
-				if (codepages::instance().SelectCodePage(codepage, true, false, true))
+				if (codepages::instance().SelectCodePage(codepage, false, true))
 					SetCodePageEx(codepage == CP_DEFAULT? CP_REDETECT : codepage);
 
 				return true;
@@ -1377,7 +1376,7 @@ bool FileEditor::SetCodePageEx(uintptr_t cp)
 
 	const auto need_reload = !m_Flags.Check(FFILEEDIT_NEW) // we can't reload non-existing file
 		&& (BadConversion
-		|| IsUnicodeCodePage(m_codepage) || m_codepage == CP_UTF7
+		|| IsUnicodeCodePage(m_codepage)
 		|| IsUnicodeCodePage(cp));
 
 	if (need_reload)
@@ -1573,7 +1572,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 			if (m_codepage == CP_DEFAULT)
 				m_codepage = GetDefaultCodePage();
 		}
-		m_editor->SetCodePage(m_codepage);  //BUGBUG
+		m_editor->SetCodePage(m_codepage, nullptr, false);  //BUGBUG
 		m_editor->GlobalEOL = eol::none;
 
 		unsigned long long FileSize = 0;
@@ -1700,7 +1699,7 @@ bool FileEditor::ReloadFile(uintptr_t codepage)
 	const auto save_BadConversiom(BadConversion);
 	const auto save_Flags(m_Flags), save_Flags1(m_editor->m_Flags);
 
-	Editor saved(shared_from_this());
+	Editor saved(shared_from_this(), CP_DEFAULT);
 	saved.fake_editor = true;
 	m_editor->SwapState(saved);
 
@@ -1912,14 +1911,24 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 			const auto& SaveStr = Line.GetString();
 			auto LineEol = Line.GetEOL();
 
-			bool UsedDefaultCharStr = encoding::get_bytes(Codepage, SaveStr, {}, &UsedDefaultCharStr) && UsedDefaultCharStr;
+			size_t ErrorPos;
 
-			if (Eol != eol::none && LineEol != eol::none)
-				LineEol = m_editor->GlobalEOL;
+			const auto validate = [&](string_view const Str)
+			{
+				try
+				{
+					(void)encoding::get_bytes_count_strict(Codepage, Str);
+					return true;
+				}
+				catch (encoding::exception const& e)
+				{
+					ErrorPos = e.position();
+					return false;
+				}
+			};
 
-			bool UsedDefaultCharEOL = encoding::get_bytes(Codepage, LineEol.str(), {}, &UsedDefaultCharEOL) && UsedDefaultCharEOL;
-
-			if (UsedDefaultCharStr || UsedDefaultCharEOL)
+			const auto ValidStr = validate(SaveStr);
+			if (!ValidStr || !validate(LineEol.str()))
 			{
 				//SetMessageHelp(L"EditorDataLostWarning")
 				const int Result = Message(MSG_WARNING,
@@ -1936,18 +1945,9 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 				if(Result == Message::second_button)
 				{
 					m_editor->GoToLine(LineNumber);
-					if(UsedDefaultCharStr)
+					if(!ValidStr)
 					{
-						const auto BadCharIterator = std::find_if(CONST_RANGE(SaveStr, i)
-						{
-							bool UseDefChar;
-							return encoding::get_bytes(Codepage, { &i, 1 }, {}, &UseDefChar) == 1 && UseDefChar;
-						});
-
-						if (BadCharIterator != SaveStr.cend())
-						{
-							Line.SetCurPos(BadCharIterator - SaveStr.cbegin());
-						}
+						Line.SetCurPos(static_cast<int>(ErrorPos));
 					}
 					else
 					{
@@ -2747,30 +2747,36 @@ bool FileEditor::SetCodePage(uintptr_t codepage)
 	if (codepage == m_codepage || !m_editor)
 		return false;
 
-	int x, y;
-	if (!m_editor->TryCodePage(codepage, x, y))
+	uintptr_t ErrorCodepage;
+	size_t ErrorLine, ErrorPos;
+	if (!m_editor->TryCodePage(codepage, ErrorCodepage, ErrorLine, ErrorPos))
 	{
-		auto [MaxCharSize, CodepageName] = codepages::GetInfo(codepage);
+		const auto Info = codepages::GetInfo(ErrorCodepage);
 
-		const int ret = Message(MSG_WARNING,
+		const int Result = Message(MSG_WARNING,
 			msg(lng::MWarning),
 			{
 				msg(lng::MEditorSwitchCPWarn1),
-				format(msg(lng::MEditorSwitchCPWarn2)),
-				format(FSTR(L"{0} - {1}"), codepage, CodepageName),
+				msg(lng::MEditorSwitchCPWarn2),
+				format(FSTR(L"{0} - {1}"), codepage, Info? Info->Name : str(codepage)),
 				msg(lng::MEditorSwitchCPConfirm)
 			},
 			{ lng::MCancel, lng::MEditorSaveCPWarnShow, lng::MOk });
 
-		if (ret < 2) // not confirmed
+		switch (Result)
 		{
-			if (ret == 1)
-			{
-				m_editor->GoToLine(y);
-				m_editor->m_it_CurLine->SetCurPos(x);
-				Show();
-			}
+		default:
+		case Message::first_button:
 			return false;
+
+		case Message::second_button:
+			m_editor->GoToLine(static_cast<int>(ErrorLine));
+			m_editor->m_it_CurLine->SetCurPos(static_cast<int>(ErrorPos));
+			Show();
+			return false;
+
+		case Message::third_button:
+			break;
 		}
 	}
 
