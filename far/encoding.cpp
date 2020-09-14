@@ -452,6 +452,7 @@ uintptr_t encoding::codepage::oem()
 	return GetOEMCP();
 }
 
+// Throws if the conversion is lossy and UsedDefaultChar is nullptr
 static size_t get_bytes_impl_c_str(uintptr_t const Codepage, string_view const Str, span<char> const Buffer, bool* const UsedDefaultChar)
 {
 	const auto Result = get_bytes_impl(Codepage, Str, Buffer, UsedDefaultChar);
@@ -469,7 +470,8 @@ size_t encoding::get_bytes_strict(uintptr_t const Codepage, string_view const St
 
 size_t encoding::get_bytes(uintptr_t const Codepage, string_view const Str, span<char> const Buffer, bool* const UsedDefaultChar)
 {
-	return get_bytes_impl_c_str(Codepage, Str, Buffer, UsedDefaultChar);
+	bool UsedDefaultCharDummy;
+	return get_bytes_impl_c_str(Codepage, Str, Buffer, UsedDefaultChar? UsedDefaultChar : &UsedDefaultCharDummy);
 }
 
 std::string encoding::get_bytes(uintptr_t const Codepage, string_view const Str, bool* const UsedDefaultChar)
@@ -532,6 +534,7 @@ static size_t get_chars_impl(uintptr_t const Codepage, std::string_view Str, spa
 	}
 }
 
+// Throws if the conversion is lossy and Strict is true
 static size_t get_chars_impl_c_str(uintptr_t const Codepage, std::string_view const Str, span<wchar_t> const Buffer, bool const Strict)
 {
 	const auto Result = get_chars_impl(Codepage, Str, Buffer, Strict);
