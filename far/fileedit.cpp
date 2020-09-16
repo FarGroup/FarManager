@@ -1589,7 +1589,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 		{
 			if (testBOM && IsUnicodeOrUtfCodePage(m_codepage))
 			{
-				if (starts_with(Str.Str, Utf::BOM_CHAR))
+				if (starts_with(Str.Str, encoding::bom_char))
 				{
 					Str.Str.remove_prefix(1);
 					m_bAddSignature = true;
@@ -1904,6 +1904,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 	if (!IsUnicodeOrUtfCodePage(Codepage))
 	{
 		int LineNumber=-1;
+		encoding::error_position ErrorPosition;
 
 		for(auto& Line: m_editor->Lines)
 		{
@@ -1911,24 +1912,12 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 			const auto& SaveStr = Line.GetString();
 			auto LineEol = Line.GetEOL();
 
-			size_t ErrorPos;
+			(void)encoding::get_bytes_count(Codepage, SaveStr, &ErrorPosition);
+			const auto ValidStr = !ErrorPosition;
+			if (ValidStr)
+				(void)encoding::get_bytes_count(Codepage, LineEol.str(), &ErrorPosition);
 
-			const auto validate = [&](string_view const Str)
-			{
-				try
-				{
-					(void)encoding::get_bytes_count_strict(Codepage, Str);
-					return true;
-				}
-				catch (encoding::exception const& e)
-				{
-					ErrorPos = e.position();
-					return false;
-				}
-			};
-
-			const auto ValidStr = validate(SaveStr);
-			if (!ValidStr || !validate(LineEol.str()))
+			if (ErrorPosition)
 			{
 				//SetMessageHelp(L"EditorDataLostWarning")
 				const int Result = Message(MSG_WARNING,
@@ -1947,7 +1936,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 					m_editor->GoToLine(LineNumber);
 					if(!ValidStr)
 					{
-						Line.SetCurPos(static_cast<int>(ErrorPos));
+						Line.SetCurPos(static_cast<int>(*ErrorPosition));
 					}
 					else
 					{
@@ -2214,8 +2203,8 @@ static std::pair<string, size_t> ansi_char_code(std::optional<wchar_t> const& Ch
 		std::optional<unsigned> CharCode;
 
 		char Buffer;
-		bool UsedDefaultChar;
-		if (Char.has_value() && encoding::get_bytes(Codepage, { &*Char, 1 }, { &Buffer, 1 }, &UsedDefaultChar) == 1 && !UsedDefaultChar)
+		encoding::error_position ErrorPosition;
+		if (Char.has_value() && encoding::get_bytes(Codepage, { &*Char, 1 }, { &Buffer, 1 }, &ErrorPosition) == 1 && !ErrorPosition)
 		{
 			const unsigned AnsiCode = Buffer;
 			if (AnsiCode != *Char)

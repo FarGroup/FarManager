@@ -36,13 +36,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 // Internal:
-#include "exception.hpp"
 
 // Platform:
 
 // Common:
 #include "common/bytes_view.hpp"
-#include "common/noncopyable.hpp"
 #include "common/range.hpp"
 
 // External:
@@ -51,24 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace encoding
 {
-	class exception: public far_exception
-	{
-	public:
-		template<typename... args>
-		explicit exception(uintptr_t Codepage, size_t const Position, args&&... Args):
-			far_exception(L""sv, FWD(Args)...),
-			m_Codepage(Codepage),
-			m_Position(Position)
-		{
-		}
-
-		auto codepage() const { return m_Codepage; }
-		auto position() const { return m_Position; }
-
-	private:
-		uintptr_t m_Codepage;
-		size_t m_Position;
-	};
+	using error_position = std::optional<size_t>;
 
 	namespace codepage
 	{
@@ -76,28 +57,20 @@ namespace encoding
 		[[nodiscard]] uintptr_t oem();
 	}
 
-	// Throws if the conversion is lossy
-	[[nodiscard]] size_t get_bytes_strict(uintptr_t Codepage, string_view Str, span<char> Buffer);
-	[[nodiscard]] size_t get_bytes(uintptr_t Codepage, string_view Str, span<char> Buffer, bool* UsedDefaultChar = nullptr);
-	[[nodiscard]] std::string get_bytes(uintptr_t Codepage, string_view Str, bool* UsedDefaultChar = nullptr);
+	[[nodiscard]] size_t get_bytes(uintptr_t Codepage, string_view Str, span<char> Buffer, error_position* ErrorPosition = {});
+	[[nodiscard]] std::string get_bytes(uintptr_t Codepage, string_view Str, error_position* ErrorPosition = {});
 
-	// Throws if the conversion is lossy
-	[[nodiscard]] size_t get_bytes_count_strict(uintptr_t Codepage, string_view Str);
-	[[nodiscard]] size_t get_bytes_count(uintptr_t Codepage, string_view Str);
+	[[nodiscard]] size_t get_bytes_count(uintptr_t Codepage, string_view Str, error_position* ErrorPosition = {});
 
 	//-------------------------------------------------------------------------
 
-	// Throws if the conversion is lossy
-	[[nodiscard]] size_t get_chars_strict(uintptr_t Codepage, std::string_view Str, span<wchar_t> Buffer);
-	[[nodiscard]] size_t get_chars(uintptr_t Codepage, std::string_view Str, span<wchar_t> Buffer);
-	[[nodiscard]] size_t get_chars(uintptr_t Codepage, bytes_view Str, span<wchar_t> Buffer);
-	[[nodiscard]] string get_chars(uintptr_t Codepage, std::string_view Str);
-	[[nodiscard]] string get_chars(uintptr_t Codepage, bytes_view Str);
+	[[nodiscard]] size_t get_chars(uintptr_t Codepage, std::string_view Str, span<wchar_t> Buffer, error_position* ErrorPosition = {});
+	[[nodiscard]] size_t get_chars(uintptr_t Codepage, bytes_view Str, span<wchar_t> Buffer, error_position* ErrorPosition = {});
+	[[nodiscard]] string get_chars(uintptr_t Codepage, std::string_view Str, error_position* ErrorPosition = {});
+	[[nodiscard]] string get_chars(uintptr_t Codepage, bytes_view Str, error_position* ErrorPosition = {});
 
-	// Throws if the conversion is lossy
-	[[nodiscard]] size_t get_chars_count_strict(uintptr_t Codepage, std::string_view Str);
-	[[nodiscard]] size_t get_chars_count(uintptr_t Codepage, std::string_view Str);
-	[[nodiscard]] size_t get_chars_count(uintptr_t Codepage, bytes_view Str);
+	[[nodiscard]] size_t get_chars_count(uintptr_t Codepage, std::string_view Str, error_position* ErrorPosition = {});
+	[[nodiscard]] size_t get_chars_count(uintptr_t Codepage, bytes_view Str, error_position* ErrorPosition = {});
 
 	//-------------------------------------------------------------------------
 
@@ -107,49 +80,49 @@ namespace encoding
 		class codepage
 		{
 		public:
-			static auto get_bytes(string_view const Str, span<char> const Buffer, bool* const UsedDefaultChar = nullptr)
+			[[nodiscard]] static auto get_bytes(string_view const Str, span<char> const Buffer, error_position* const ErrorPosition = {})
 			{
-				return encoding::get_bytes(Codepage, Str, Buffer, UsedDefaultChar);
+				return encoding::get_bytes(Codepage, Str, Buffer, ErrorPosition);
 			}
 
-			[[nodiscard]] static auto get_bytes(string_view const Str, bool* const UsedDefaultChar = nullptr)
+			[[nodiscard]] static auto get_bytes(string_view const Str, error_position* const ErrorPosition = {})
 			{
-				return encoding::get_bytes(Codepage, Str, UsedDefaultChar);
+				return encoding::get_bytes(Codepage, Str, ErrorPosition);
 			}
 
-			[[nodiscard]] static auto get_bytes_count(string_view const Str)
+			[[nodiscard]] static auto get_bytes_count(string_view const Str, error_position* const ErrorPosition = {})
 			{
-				return encoding::get_bytes_count(Codepage, Str);
+				return encoding::get_bytes_count(Codepage, Str, ErrorPosition);
 			}
 
-			static auto get_chars(std::string_view const Str, span<wchar_t> const Buffer)
+			[[nodiscard]] static auto get_chars(std::string_view const Str, span<wchar_t> const Buffer, error_position* const ErrorPosition = {})
 			{
-				return encoding::get_chars(Codepage, Str, Buffer);
+				return encoding::get_chars(Codepage, Str, Buffer, ErrorPosition);
 			}
 
-			[[nodiscard]] static auto get_chars(bytes_view const Str, span<wchar_t> const Buffer)
+			[[nodiscard]] static auto get_chars(bytes_view const Str, span<wchar_t> const Buffer, error_position* const ErrorPosition = {})
 			{
-				return encoding::get_chars(Codepage, Str, Buffer);
+				return encoding::get_chars(Codepage, Str, Buffer, ErrorPosition);
 			}
 
-			[[nodiscard]] static auto get_chars(std::string_view const Str)
+			[[nodiscard]] static auto get_chars(std::string_view const Str, error_position* const ErrorPosition = {})
 			{
-				return encoding::get_chars(Codepage, Str);
+				return encoding::get_chars(Codepage, Str, ErrorPosition);
 			}
 
-			[[nodiscard]] static auto get_chars(bytes_view const Str)
+			[[nodiscard]] static auto get_chars(bytes_view const Str, error_position* const ErrorPosition = {})
 			{
-				return encoding::get_chars(Codepage, Str);
+				return encoding::get_chars(Codepage, Str, ErrorPosition);
 			}
 
-			[[nodiscard]] static auto get_chars_count(std::string_view const Str)
+			[[nodiscard]] static auto get_chars_count(std::string_view const Str, error_position* const ErrorPosition = {})
 			{
-				return encoding::get_chars_count(Codepage, Str);
+				return encoding::get_chars_count(Codepage, Str, ErrorPosition);
 			}
 
-			[[nodiscard]] static auto get_chars_count(bytes_view const Str)
+			[[nodiscard]] static auto get_chars_count(bytes_view const Str, error_position* const ErrorPosition = {})
 			{
-				return encoding::get_chars_count(Codepage, Str);
+				return encoding::get_chars_count(Codepage, Str, ErrorPosition);
 			}
 		};
 	}
@@ -175,6 +148,10 @@ namespace encoding
 	};
 
 	bool is_valid_utf8(std::string_view Str, bool PartialContent, bool& PureAscii);
+
+	inline constexpr wchar_t bom_char      = L'\xFEFF'; // Zero Length Space
+	inline constexpr wchar_t replace_char  = L'\xFFFD'; // Replacement
+	inline constexpr wchar_t continue_char = L'\x203A'; // Single Right-Pointing Angle Quotation Mark
 }
 
 void swap_bytes(const void* Src, void* Dst, size_t SizeInBytes);
@@ -189,9 +166,13 @@ void swap_bytes(const void* Src, void* Dst, size_t SizeInBytes);
 
 //#############################################################################
 
-class MultibyteCodepageDecoder: noncopyable
+class MultibyteCodepageDecoder
 {
 public:
+	NONCOPYABLE(MultibyteCodepageDecoder);
+
+	MultibyteCodepageDecoder() = default;
+
 	bool SetCP(uintptr_t Codepage);
 	uintptr_t GetCP() const { return m_Codepage; }
 	size_t GetSize() const { return m_Size; }
@@ -208,36 +189,12 @@ private:
 
 //#############################################################################
 
-namespace Utf
-{
-	const wchar_t REPLACE_CHAR  = L'\xFFFD'; // Replacement
-	const wchar_t BOM_CHAR      = L'\xFEFF'; // Zero Length Space
-	const wchar_t CONTINUE_CHAR = L'\x203A'; // Single Right-Pointing Angle Quotation Mark
-
-
-	struct errors
-	{
-		struct
-		{
-			bool Error{};
-			size_t Position{};
-		}
-		Conversion;
-	};
-
-	size_t get_chars(uintptr_t Codepage, std::string_view Str, span<wchar_t> Buffer, errors* Errors);
-}
-
 namespace Utf8
 {
 	// returns the number of decoded chars, 1 or 2. Moves the StrIterator forward as required.
 	[[nodiscard]] size_t get_char(std::string_view::const_iterator& StrIterator, std::string_view::const_iterator StrEnd, wchar_t& First, wchar_t& Second);
 	// returns the number of decoded chars, up to Buffer.size(). Stops on buffer overflow. Tail contains the number of unprocessed bytes.
 	[[nodiscard]] size_t get_chars(std::string_view Str, span<wchar_t> Buffer, int& Tail);
-	// returns the required buffer size. Fills Buffer up to its size.
-	[[nodiscard]] size_t get_chars(std::string_view Str, span<wchar_t> Buffer, Utf::errors* Errors);
-	// returns the required buffer size. Fills Buffer up to its size.
-	[[nodiscard]] size_t get_bytes(string_view Str, span<char> Buffer);
 }
 
 //#############################################################################

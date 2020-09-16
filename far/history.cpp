@@ -92,13 +92,9 @@ void History::CompactHistory()
 	}
 }
 
-/*
-   SaveForbid - принудительно запретить запись добавляемой строки.
-                Используется на панели плагина
-*/
-void History::AddToHistory(string_view const Str, history_record_type const Type, const GUID* const Guid, string_view const File, string_view const Data, bool const SaveForbid)
+void History::AddToHistory(string_view const Str, history_record_type const Type, const GUID* const Guid, string_view const File, string_view const Data)
 {
-	if (!m_EnableAdd || SaveForbid)
+	if (!m_EnableAdd)
 		return;
 
 	if (Global->CtrlObject->Macro.IsExecuting() && Global->CtrlObject->Macro.IsHistoryDisabled(static_cast<int>(m_TypeHistory)))

@@ -736,7 +736,7 @@ int Viewer::txt_dump(std::string_view const Str, size_t ClientWidth, string& Out
 		}
 		if (Str.size() & 1)
 		{
-			OutStr.push_back(Utf::REPLACE_CHAR);
+			OutStr.push_back(encoding::replace_char);
 		}
 	}
 	else if (m_Codepage == CP_UTF8)
@@ -749,14 +749,14 @@ int Viewer::txt_dump(std::string_view const Str, size_t ClientWidth, string& Out
 			if (tail)
 			{
 				--tail;
-				OutStr.push_back(Utf::CONTINUE_CHAR);
+				OutStr.push_back(encoding::continue_char);
 				continue;
 			}
 
-			OutStr.push_back(Buffer[iw] == Utf::BOM_CHAR? Utf::REPLACE_CHAR : Buffer[iw]); // BOM can be Zero Length
+			OutStr.push_back(Buffer[iw] == encoding::bom_char? encoding::replace_char : Buffer[iw]); // BOM can be Zero Length
 			const auto clen = encoding::utf8::get_bytes_count({ Buffer.data() + iw, 1 });
 			const auto PaddingSize = std::min(clen - 1, static_cast<size_t>(ClientWidth) - OutStr.size());
-			OutStr.append(PaddingSize, Utf::CONTINUE_CHAR);
+			OutStr.append(PaddingSize, encoding::continue_char);
 			tail = static_cast<int>(clen - 1 - PaddingSize); // char continues on the next line?
 		}
 	}
@@ -767,7 +767,7 @@ int Viewer::txt_dump(std::string_view const Str, size_t ClientWidth, string& Out
 			if (tail)
 			{
 				--tail;
-				OutStr.push_back(Utf::CONTINUE_CHAR);
+				OutStr.push_back(encoding::continue_char);
 				continue;
 			}
 			wchar_t Char;
@@ -778,12 +778,12 @@ int Viewer::txt_dump(std::string_view const Str, size_t ClientWidth, string& Out
 			}
 			else
 			{
-				OutStr.push_back(Utf::REPLACE_CHAR);
+				OutStr.push_back(encoding::replace_char);
 				continue;
 			}
 
 			const auto PaddingSize = std::min(clen - 1, ClientWidth - OutStr.size());
-			OutStr.append(PaddingSize, Utf::CONTINUE_CHAR);
+			OutStr.append(PaddingSize, encoding::continue_char);
 
 			tail = static_cast<int>(clen - 1 - PaddingSize); // char continues on the next line?
 		}
@@ -1020,7 +1020,7 @@ void Viewer::SetStatusMode(int Mode)
 
 static bool is_word_div(const wchar_t ch)
 {
-	static const wchar_t extra_div[] = { Utf::BOM_CHAR, Utf::REPLACE_CHAR };
+	static const wchar_t extra_div[] = { encoding::bom_char, encoding::replace_char };
 	return !ch || std::iswspace(ch) || contains(Global->Opt->strWordDiv.Get(), ch) || contains(extra_div, ch);
 }
 
@@ -1081,7 +1081,7 @@ void Viewer::ReadString(ViewerString *pString, int MaxSize, bool update_cache)
 			}
 		}
 
-		if (!fpos && Utf::BOM_CHAR == ch)
+		if (!fpos && encoding::bom_char == ch)
 		{
 			continue; // skip BOM
 		}
@@ -3617,7 +3617,7 @@ int Viewer::vread(wchar_t *Buf, int Count, wchar_t *Buf2)
 
 		if (ReadSize & 1)
 		{
-			Buf[ReadSize / 2] = Utf::REPLACE_CHAR;
+			Buf[ReadSize / 2] = encoding::replace_char;
 		}
 
 		ReadSize /= 2;
@@ -3676,7 +3676,7 @@ int Viewer::vread(wchar_t *Buf, int Count, wchar_t *Buf2)
 						if (Buf2)
 							Buf2[ReadSize] = L'?';
 
-						Buf[ReadSize++] = Utf::REPLACE_CHAR;
+						Buf[ReadSize++] = encoding::replace_char;
 						++i;
 					}
 				}
@@ -3764,7 +3764,7 @@ bool Viewer::vgetc(wchar_t* pCh)
 			auto First = VgetcCache.pop();
 			if (VgetcCache.empty())
 			{
-				*pCh = Utf::REPLACE_CHAR;
+				*pCh = encoding::replace_char;
 			}
 			else
 			{
@@ -3805,12 +3805,12 @@ bool Viewer::vgetc(wchar_t* pCh)
 			{
 				if (DataEnd)
 				{
-					*pCh = Utf::REPLACE_CHAR;
+					*pCh = encoding::replace_char;
 					VgetcCache.m_Iterator = VgetcCache.end();
 				}
 				else // bad sequence
 				{
-					*pCh = Utf::REPLACE_CHAR;
+					*pCh = encoding::replace_char;
 					VgetcCache.pop();
 				}
 			}
@@ -3836,7 +3836,7 @@ wchar_t Viewer::vgetc_prev()
 
 	const auto CharSize = getCharSize();
 	if ( pos < CharSize )
-		return Utf::REPLACE_CHAR;
+		return encoding::replace_char;
 
 	size_t BytesToRead;
 
@@ -3857,7 +3857,7 @@ wchar_t Viewer::vgetc_prev()
 
 	vseek(pos, FILE_BEGIN);
 
-	wchar_t Result = Utf::REPLACE_CHAR;
+	wchar_t Result = encoding::replace_char;
 	if (BytesRead == BytesToRead)
 	{
 		switch (m_Codepage)

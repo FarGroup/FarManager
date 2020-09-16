@@ -6916,13 +6916,11 @@ void Editor::GetCacheParams(EditorPosCache &pc) const
 	pc.bm=m_SavePos;
 }
 
-static std::string_view GetLineBytes(string_view const Str, std::vector<char>& Buffer, uintptr_t const Codepage, bool* const UsedDefaultChar = {})
+static std::string_view GetLineBytes(string_view const Str, std::vector<char>& Buffer, uintptr_t const Codepage, encoding::error_position* const ErrorPosition)
 {
 	for (;;)
 	{
-		auto const Length = UsedDefaultChar?
-			encoding::get_bytes(Codepage, Str, Buffer, UsedDefaultChar) :
-			encoding::get_bytes_strict(Codepage, Str, Buffer);
+		auto const Length = encoding::get_bytes(Codepage, Str, Buffer, ErrorPosition);
 
 		if (Length <= Buffer.size())
 			return { Buffer.data(), Length };
@@ -6931,42 +6929,16 @@ static std::string_view GetLineBytes(string_view const Str, std::vector<char>& B
 	}
 }
 
-static void CheckCodePage(std::string_view const Bytes, uintptr_t const Codepage)
-{
-	if (Codepage == CP_UTF8 || Codepage == CP_UTF7)
-	{
-		Utf::errors errs;
-		Utf::get_chars(Codepage, Bytes, {}, &errs);
-
-		if (errs.Conversion.Error)
-			throw MAKE_EXCEPTION(encoding::exception, Codepage, errs.Conversion.Position);
-	}
-
-	(void)encoding::get_chars_count_strict(Codepage, Bytes);
-}
-
 bool Editor::SetLineCodePage(iterator const& Iterator, uintptr_t const Codepage, bool const Validate)
 {
 	if (Codepage == m_codepage || Iterator->m_Str.empty())
 		return true;
 
-	bool UsedDefaultChar = false;
-	const auto Bytes = GetLineBytes(Iterator->m_Str, decoded, m_codepage, &UsedDefaultChar);
-	auto Result = !Bytes.empty() && !UsedDefaultChar;
-
-	if (Result && Validate)
-	{
-		try
-		{
-			CheckCodePage(Bytes, Codepage);
-		}
-		catch (encoding::exception const&)
-		{
-			Result = false;
-		}
-	}
-
-	Iterator->m_Str.assign(encoding::get_chars(Codepage, Bytes));
+	encoding::error_position ErrorPosition;
+	const auto Bytes = GetLineBytes(Iterator->m_Str, decoded, m_codepage, Validate? &ErrorPosition : nullptr);
+	auto Result = !Bytes.empty() && !ErrorPosition;
+	Iterator->m_Str.assign(encoding::get_chars(Codepage, Bytes, &ErrorPosition));
+	Result = Result && !Iterator->m_Str.empty() && !ErrorPosition;
 	Iterator->Changed();
 
 	return Result;
@@ -6984,40 +6956,32 @@ bool Editor::TryCodePage(uintptr_t const Codepage, uintptr_t& ErrorCodepage, siz
 		if (i->m_Str.empty())
 			continue;
 
-		std::string_view Bytes;
+		encoding::error_position ErrorPosition;
+		const auto Bytes = GetLineBytes(i->m_Str, decoded, m_codepage, &ErrorPosition);
 
-		try
+		if (Bytes.empty() || ErrorPosition)
 		{
-			Bytes = GetLineBytes(i->m_Str, decoded, m_codepage);
-		}
-		catch (encoding::exception const& e)
-		{
-			ErrorCodepage = e.codepage();
+			ErrorCodepage = m_codepage;
 			ErrorLine = LineNumber;
-			ErrorPos = e.position();
+			ErrorPos = *ErrorPosition;
 			return false;
 		}
 
-		try
+		if (!encoding::get_chars_count(Codepage, Bytes, &ErrorPosition) || ErrorPosition)
 		{
-			CheckCodePage(Bytes, Codepage);
-		}
-		catch (encoding::exception const& e)
-		{
-			ErrorCodepage = e.codepage();
+			ErrorCodepage = Codepage;
 			ErrorLine = LineNumber;
 
 			// Position is in bytes, we might need to convert it back to chars
 			const auto Info = GetCodePageInfo(m_codepage);
 			if (Info && Info->MaxCharSize == 1)
 			{
-				ErrorPos = e.position();
+				ErrorPos = *ErrorPosition;
 			}
 			else
 			{
-				bool UsedDefaultChar;
-				const auto BytesCount = encoding::get_bytes(m_codepage, i->m_Str, decoded, &UsedDefaultChar);
-				ErrorPos = encoding::get_chars_count(m_codepage, { decoded.data(), std::min(e.position(), BytesCount) });
+				const auto BytesCount = encoding::get_bytes(m_codepage, i->m_Str, decoded, &ErrorPosition);
+				ErrorPos = encoding::get_chars_count(m_codepage, { decoded.data(), std::min(*ErrorPosition, BytesCount) });
 			}
 
 			return false;
@@ -7046,7 +7010,7 @@ bool Editor::SetCodePage(uintptr_t codepage, bool *BOM, bool ShowMe)
 		if (codepage == CP_UTF8 && !Lines.empty())
 		{
 			auto& first = *Lines.begin();
-			if (starts_with(first.m_Str, Utf::BOM_CHAR))
+			if (starts_with(first.m_Str, encoding::bom_char))
 			{
 				first.m_Str.erase(0, 1);
 				*BOM = true;

@@ -2131,15 +2131,21 @@ unsigned int CalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros)
 					Мораль сей басни такова: если rec->Event.KeyEvent.uChar.UnicodeChar не пуст - берём его, а не то, что во время удерживания Alt пришло.
 					*/
 
-					if (rec->Event.KeyEvent.uChar.UnicodeChar)
+					// Starting from Windows 7 Event.KeyEvent.uChar.UnicodeChar is always populated, but not always properly.
+					// We can't really recognise Drag&Drop (where it's correct) and Alt+Numpad (where it isn't - see https://github.com/microsoft/terminal/issues/3323 for details).
+					// Let's assume that if the interval between the events is less than 50 ms - it's probably D&D and the manual input otherwise.
+
+					// Windows 10 "new console" uses a different method for D&D & paste:
+
+					// bKeyDown=TRUE,   wRepeatCount=1, wVirtualKeyCode=NULL, UnicodeChar=1099,    dwControlKeyState=0
+					// bKeyDown=FALSE,  wRepeatCount=1, wVirtualKeyCode=NULL, UnicodeChar=1099,    dwControlKeyState=0
+
+					// wVirtualKeyCode might or might not be NULL depending on your keyboard layout *facepalm*
+					// This means that it no longer conflicts with Alt-Numpad and we don't need this hack (but still need for the classic console)
+
+					if (!::console.IsVtSupported() && rec->Event.KeyEvent.uChar.UnicodeChar && !TimeCheck)
 					{
-						// BUGBUG: Since Windows 7 Event.KeyEvent.uChar.UnicodeChar is always populated, but not always properly.
-						// We can't really recognise Drag&Drop (where it's correct) and Alt+Numpad (where it isn't - see https://github.com/microsoft/terminal/issues/3323 for details).
-						// Let's assume that if the interval between the events is less than 50 ms - it's probably D&D and manual input otherwise.
-						if (!TimeCheck)
-						{
-							AltValue=rec->Event.KeyEvent.uChar.UnicodeChar;
-						}
+						AltValue=rec->Event.KeyEvent.uChar.UnicodeChar;
 					}
 
 					// Reconstruct the broken UnicodeChar. See https://github.com/microsoft/terminal/issues/3323 for details.

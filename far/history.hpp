@@ -87,7 +87,7 @@ class History: noncopyable
 public:
 	History(history_type TypeHistory, string_view HistoryName, const BoolOption& EnableSave);
 
-	void AddToHistory(string_view Str, history_record_type Type = HR_DEFAULT, const GUID* Guid = nullptr, string_view File = {}, string_view Data = {}, bool SaveForbid = false);
+	void AddToHistory(string_view Str, history_record_type Type = HR_DEFAULT, const GUID* Guid = nullptr, string_view File = {}, string_view Data = {});
 	history_return_type Select(string_view Title, string_view HelpTopic, string &strStr, history_record_type &Type, GUID* Guid=nullptr, string *File=nullptr, string *Data=nullptr);
 	history_return_type Select(VMenu2& HistoryMenu, int Height, Dialog const* Dlg, string& strStr);
 	string GetPrev();
