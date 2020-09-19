@@ -397,6 +397,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="common\string_utils.hpp" />
     <ClInclude Include="common\type_traits.hpp" />
     <ClInclude Include="common\utility.hpp" />
+    <ClInclude Include="common\uuid.hpp" />
     <ClInclude Include="components.hpp" />
     <ClInclude Include="config.hpp" />
     <ClInclude Include="configdb.hpp" />
@@ -421,7 +422,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="dizlist.hpp" />
     <ClInclude Include="dizviewer.hpp" />
     <ClInclude Include="dlgedit.hpp" />
-    <ClInclude Include="DlgGuid.hpp" />
     <ClInclude Include="drivemix.hpp" />
     <ClInclude Include="edit.hpp" />
     <ClInclude Include="editcontrol.hpp" />
@@ -436,7 +436,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="execute.hpp" />
     <ClInclude Include="exitcode.hpp" />
     <ClInclude Include="FarDlgBuilder.hpp" />
-    <ClInclude Include="FarGuid.hpp" />
     <ClInclude Include="farversion.hpp" />
     <ClInclude Include="fastfind.hpp" />
     <ClInclude Include="file_io.hpp" />
@@ -459,7 +458,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="format.hpp" />
     <ClInclude Include="global.hpp" />
     <ClInclude Include="grabber.hpp" />
-    <ClInclude Include="guid_parse.hpp" />
     <ClInclude Include="headers.hpp" />
     <ClInclude Include="help.hpp" />
     <ClInclude Include="hilight.hpp" />
@@ -472,7 +470,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="keybar.hpp" />
     <ClInclude Include="keyboard.hpp" />
     <ClInclude Include="keys.hpp" />
-    <ClInclude Include="KnownGuids.hpp" />
     <ClInclude Include="lang.hpp" />
     <ClInclude Include="language.hpp" />
     <ClInclude Include="locale.hpp" />
@@ -553,6 +550,9 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="treelist.hpp" />
     <ClInclude Include="tvar.hpp" />
     <ClInclude Include="usermenu.hpp" />
+    <ClInclude Include="uuids.far.hpp" />
+    <ClInclude Include="uuids.far.dialogs.hpp" />
+    <ClInclude Include="uuids.plugins.hpp" />
     <ClInclude Include="viewer.hpp" />
     <ClInclude Include="vmenu.hpp" />
     <ClInclude Include="vmenu2.hpp" />

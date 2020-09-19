@@ -234,8 +234,8 @@ public:
 
 	intptr_t DlgProc(intptr_t Msg,intptr_t Param1,void* Param2);
 	bool IsInited() const;
-	void SetId(const GUID& Id);
-	const GUID& GetId() const {return m_Id;}
+	void SetId(const UUID& Id);
+	const UUID& GetId() const {return m_Id;}
 	virtual intptr_t SendMessage(intptr_t Msg,intptr_t Param1,void* Param2);
 	intptr_t DefProc(intptr_t Msg,intptr_t Param1,void* Param2);
 	int GetDropDownOpened() const { return DropDownOpened; }
@@ -343,7 +343,7 @@ private:
 	int DropDownOpened{}; // Содержит статус комбобокса и хистори: TRUE - открыт, FALSE - закрыт.
 	int RealWidth{};
 	int RealHeight{};
-	GUID m_Id{};
+	UUID m_Id{};
 	bool IdExist{};
 	MOUSE_EVENT_RECORD PrevMouseRecord{};
 	string m_ConsoleTitle;

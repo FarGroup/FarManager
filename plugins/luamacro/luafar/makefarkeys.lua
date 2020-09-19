@@ -49,10 +49,10 @@ local function makefarcolors (colors_file, guids_file, out_file)
   local colors = get_insert(fp:read("*all"))
   fp:close()
 
---EditAskSaveExtId = "40A699F1-BBDD-4E21-A137-97FFF798B0C8"_guid
+--EditAskSaveExtId = "40A699F1-BBDD-4E21-A137-97FFF798B0C8"_uuid
   fp = assert(io.open(guids_file))
   local collect = {}
-  local pat = "^%s*([%w_]+)%s*=%s*\"(.+)\"_guid"
+  local pat = "^%s*([%w_]+)%s*=%s*\"(.+)\"_uuid"
   local lineno = 0
   local errmsg
   for line in fp:lines() do

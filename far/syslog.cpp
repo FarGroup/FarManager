@@ -127,10 +127,10 @@ static bool IsLogON()
 
 static void FarOutputDebugString(const wchar_t* Str)
 {
-	if (IsDebuggerPresent())
+	if (os::debug::debugger_present())
 	{
-		OutputDebugString(Str);
-		OutputDebugString(L"\n");
+		os::debug::print(Str);
+		os::debug::print(L"\n");
 	}
 }
 
@@ -1137,13 +1137,13 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(F_KEYBAR_SHOW),              // N=KeyBar.Show([N])
 		DEF_MCODE_(F_HISTORY_DISABLE),          // N=History.Disable([State])
 		DEF_MCODE_(F_FMATCH),                   // N=FMatch(S,Mask)
-		DEF_MCODE_(F_PLUGIN_MENU),              // N=Plugin.Menu(Guid[,MenuGuid])
-		DEF_MCODE_(F_PLUGIN_CALL),              // N=Plugin.Call(Guid[,Item])
-		DEF_MCODE_(F_PLUGIN_SYNCCALL),          // N=Plugin.SyncCall(Guid[,Item])
+		DEF_MCODE_(F_PLUGIN_MENU),              // N=Plugin.Menu(Uuid[,MenuUuid])
+		DEF_MCODE_(F_PLUGIN_CALL),              // N=Plugin.Call(Uuid[,Item])
+		DEF_MCODE_(F_PLUGIN_SYNCCALL),          // N=Plugin.SyncCall(Uuid[,Item])
 		DEF_MCODE_(F_PLUGIN_LOAD),              // N=Plugin.Load(DllPath[,ForceLoad])
-		DEF_MCODE_(F_PLUGIN_COMMAND),           // N=Plugin.Command(Guid[,Command])
+		DEF_MCODE_(F_PLUGIN_COMMAND),           // N=Plugin.Command(Uuid[,Command])
 		DEF_MCODE_(F_PLUGIN_UNLOAD),            // N=Plugin.UnLoad(DllPath)
-		DEF_MCODE_(F_PLUGIN_EXIST),             // N=Plugin.Exist(Guid)
+		DEF_MCODE_(F_PLUGIN_EXIST),             // N=Plugin.Exist(Uuid)
 		DEF_MCODE_(F_MENU_FILTER),              // N=Menu.Filter(Action[,Mode])
 		DEF_MCODE_(F_MENU_FILTERSTR),           // S=Menu.FilterStr([Action[,S]])
 		DEF_MCODE_(F_DLG_SETFOCUS),             // N=Dlg->SetFocus([ID])

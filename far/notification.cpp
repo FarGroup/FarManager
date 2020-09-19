@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/range.hpp"
+#include "common/uuid.hpp"
 
 // External:
 
@@ -112,5 +113,5 @@ bool message_manager::dispatch()
 
 string listener::CreateEventName()
 {
-	return GuidToStr(CreateUuid());
+	return uuid::str(os::uuid::generate());
 }

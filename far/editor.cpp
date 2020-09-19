@@ -58,8 +58,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu.hpp"
 #include "vmenu2.hpp"
 #include "encoding.hpp"
-#include "FarGuid.hpp"
-#include "DlgGuid.hpp"
+#include "uuids.far.hpp"
+#include "uuids.far.dialogs.hpp"
 #include "RegExp.hpp"
 #include "plugins.hpp"
 #include "lang.hpp"
@@ -3644,7 +3644,7 @@ bool Editor::Search(bool Next)
 							newcol.StartPos=m_FoundPos;
 							newcol.EndPos=m_FoundPos + m_FoundSize - 1;
 							newcol.SetColor(colors::PaletteColorToFarColor(COL_EDITORSELECTEDTEXT));
-							newcol.SetOwner(FarGuid);
+							newcol.SetOwner(FarUuid);
 							newcol.Priority=EDITOR_COLOR_SELECTION_PRIORITY;
 							CurPtr->AddColor(newcol);
 

@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common.hpp"
 #include "common/string_utils.hpp"
+#include "common/uuid.hpp"
 
 // External:
 #include "format.hpp"
@@ -418,7 +419,7 @@ bool elevation::Initialize()
 
 	if (!m_Pipe)
 	{
-		m_PipeName = GuidToStr(CreateUuid());
+		m_PipeName = uuid::str(os::uuid::generate());
 		m_Pipe = create_named_pipe(m_PipeName);
 		if (!m_Pipe)
 			return false;

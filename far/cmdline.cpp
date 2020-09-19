@@ -399,9 +399,9 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 		case KEY_RALTF12:
 		{
 			history_record_type Type;
-			GUID Guid;
+			UUID Uuid;
 			string strFile, strData, strStr;
-			const auto SelectType = Global->CtrlObject->FolderHistory->Select(msg(lng::MFolderHistoryTitle), L"HistoryFolders"sv, strStr, Type, &Guid, &strFile, &strData);
+			const auto SelectType = Global->CtrlObject->FolderHistory->Select(msg(lng::MFolderHistoryTitle), L"HistoryFolders"sv, strStr, Type, &Uuid, &strFile, &strData);
 
 			switch(SelectType)
 			{
@@ -421,7 +421,7 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 
 					//Type==1 - плагиновый путь
 					//Type==0 - обычный путь
-					Panel->ExecFolder(std::move(strStr), Guid, strFile, strData, true, true, false);
+					Panel->ExecFolder(std::move(strStr), Uuid, strFile, strData, true, true, false);
 					// Panel may be changed
 					if(SelectType == HRT_CTRLSHIFTENTER)
 					{

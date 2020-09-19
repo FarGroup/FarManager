@@ -55,10 +55,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarDlgBuilder.hpp"
 #include "elevation.hpp"
 #include "configdb.hpp"
-#include "KnownGuids.hpp"
+#include "uuids.plugins.hpp"
 #include "vmenu.hpp"
 #include "vmenu2.hpp"
-#include "DlgGuid.hpp"
+#include "uuids.far.dialogs.hpp"
 #include "hmenu.hpp"
 #include "usermenu.hpp"
 #include "filetype.hpp"
@@ -89,12 +89,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/algorithm.hpp"
 #include "common/from_string.hpp"
+#include "common/uuid.hpp"
 #include "common/view/enumerate.hpp"
 #include "common/view/zip.hpp"
 
 // External:
 #include "format.hpp"
-#include "guid_parse.hpp"
 
 //----------------------------------------------------------------------------
 
@@ -2137,16 +2137,16 @@ void Options::SetDriveMenuHotkeys()
 
 	static constexpr struct
 	{
-		KnownModulesIDs::GuidOption KnownModulesIDs::* Option;
-		GUID MenuId;
+		KnownModulesIDs::UuidOption KnownModulesIDs::* Option;
+		UUID MenuId;
 		string_view Hotkey;
 	}
 	DriveMenuHotkeys[]
 	{
-		{ &KnownModulesIDs::ProcList, "61026851-2643-4C67-BF80-D3C77A3AE830"_guid, L"0"sv },
-		{ &KnownModulesIDs::TmpPanel, "F98C70B3-A1AE-4896-9388-C5C8E05013B7"_guid, L"1"sv },
-		{ &KnownModulesIDs::Netbox,   "C9FB4F53-54B5-48FF-9BA2-E8EB27F012A2"_guid, L"2"sv },
-		{ &KnownModulesIDs::Network,  "24B6DD41-DF12-470A-A47C-8675ED8D2ED4"_guid, L"3"sv },
+		{ &KnownModulesIDs::ProcList, "61026851-2643-4C67-BF80-D3C77A3AE830"_uuid, L"0"sv },
+		{ &KnownModulesIDs::TmpPanel, "F98C70B3-A1AE-4896-9388-C5C8E05013B7"_uuid, L"1"sv },
+		{ &KnownModulesIDs::Netbox,   "C9FB4F53-54B5-48FF-9BA2-E8EB27F012A2"_uuid, L"2"sv },
+		{ &KnownModulesIDs::Network,  "24B6DD41-DF12-470A-A47C-8675ED8D2ED4"_uuid, L"3"sv },
 	};
 
 	for (const auto& i: DriveMenuHotkeys)
@@ -2246,34 +2246,34 @@ void Options::SaveSortLayers(bool const Always)
 
 void Options::Load(overrides&& Overrides)
 {
-	// KnownModulesIDs::GuidOption::Default pointer is used in the static config structure, so it MUST be initialized before calling InitConfig()
+	// KnownModulesIDs::UuidOption::Default pointer is used in the static config structure, so it MUST be initialized before calling InitConfig()
 	static struct
 	{
-		KnownModulesIDs::GuidOption KnownModulesIDs::* Option;
-		const GUID& Id;
+		KnownModulesIDs::UuidOption KnownModulesIDs::* Option;
+		const UUID& Id;
 		string StrId;
 	}
-	DefaultKnownGuids[]
+	DefaultKnownIds[]
 	{
-		{ &KnownModulesIDs::Network,  NetworkGuid,  },
-		{ &KnownModulesIDs::Emenu,    EMenuGuid,    },
-		{ &KnownModulesIDs::Arclite,  ArcliteGuid,  },
-		{ &KnownModulesIDs::Luamacro, LuamacroGuid, },
-		{ &KnownModulesIDs::Netbox,   NetBoxGuid,   },
-		{ &KnownModulesIDs::ProcList, ProcListGuid, },
-		{ &KnownModulesIDs::TmpPanel, TmpPanelGuid, },
+		{ &KnownModulesIDs::Network,  NetworkId,  },
+		{ &KnownModulesIDs::Emenu,    EMenuId,    },
+		{ &KnownModulesIDs::Arclite,  ArcliteId,  },
+		{ &KnownModulesIDs::Luamacro, LuamacroId, },
+		{ &KnownModulesIDs::Netbox,   NetBoxId,   },
+		{ &KnownModulesIDs::ProcList, ProcListId, },
+		{ &KnownModulesIDs::TmpPanel, TmpPanelId, },
 	};
 
-	static_assert(std::size(DefaultKnownGuids) == sizeof(KnownModulesIDs) / sizeof(KnownModulesIDs::GuidOption));
+	static_assert(std::size(DefaultKnownIds) == sizeof(KnownModulesIDs) / sizeof(KnownModulesIDs::UuidOption));
 
-	for(auto& i: DefaultKnownGuids)
+	for(auto& i: DefaultKnownIds)
 	{
-		i.StrId = GuidToStr(i.Id);
+		i.StrId = uuid::str(i.Id);
 
-		auto& GuidOption = std::invoke(i.Option, KnownIDs);
-		GuidOption.Id = i.Id;
-		GuidOption.StrId = i.StrId;
-		GuidOption.Default = i.StrId;
+		auto& UuidOption = std::invoke(i.Option, KnownIDs);
+		UuidOption.Id = i.Id;
+		UuidOption.StrId = i.StrId;
+		UuidOption.Default = i.StrId;
 	}
 
 	InitConfigs();
@@ -2338,13 +2338,14 @@ void Options::Load(overrides&& Overrides)
 			ApplyDefaultMaskGroups();
 	}
 
-	for (auto& [Ptr, Id, Str]: DefaultKnownGuids)
+	for (auto& [Ptr, Id, Str]: DefaultKnownIds)
 	{
-		auto& GuidOption = std::invoke(Ptr, KnownIDs);
-		if (GuidOption.StrId.empty() || !StrToGuid(GuidOption.StrId, GuidOption.Id))
-		{
-			GuidOption.Id = GUID_NULL;
-		}
+		auto& UuidOption = std::invoke(Ptr, KnownIDs);
+
+		if (const auto Result = uuid::try_parse(UuidOption.StrId.Get()))
+			UuidOption.Id = *Result;
+		else
+			UuidOption.Id = {};
 	}
 
 	SetDriveMenuHotkeys();

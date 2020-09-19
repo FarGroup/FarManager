@@ -626,7 +626,7 @@ namespace os::fs
 
 	bool enum_volumes::get(bool Reset, string& Value) const
 	{
-		// A reasonable size for the buffer to accommodate the largest possible volume GUID path is 50 characters.
+		// A reasonable size for the buffer to accommodate the largest possible volume UUID path is 50 characters.
 		wchar_t VolumeName[50];
 
 		if (Reset)

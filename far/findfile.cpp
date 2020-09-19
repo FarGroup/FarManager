@@ -62,7 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "mix.hpp"
 #include "constitle.hpp"
-#include "DlgGuid.hpp"
+#include "uuids.far.dialogs.hpp"
 #include "console.hpp"
 #include "wakeful.hpp"
 #include "panelmix.hpp"
@@ -2426,10 +2426,10 @@ void background_searcher::DoPrepareFileList()
 
 			if (DriveType != DRIVE_REMOVABLE && DriveType != DRIVE_CDROM && (DriveType != DRIVE_REMOTE || SearchMode != FINDAREA_ALL_BUTNETWORK))
 			{
-				string strGuidVolime;
-				if(os::fs::GetVolumeNameForVolumeMountPoint(RootDir, strGuidVolime))
+				string strUuidVolime;
+				if(os::fs::GetVolumeNameForVolumeMountPoint(RootDir, strUuidVolime))
 				{
-					Volumes.emplace_back(std::move(strGuidVolime));
+					Volumes.emplace_back(std::move(strUuidVolime));
 				}
 				Locations.emplace_back(std::move(RootDir));
 			}

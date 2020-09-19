@@ -45,9 +45,9 @@ luafar/flags.c: $(COMINC)/plugin.hpp luafar/makeflags.lua
 	@echo generating $@
 	@$(LUA) luafar/makeflags.lua $(COMINC)/plugin.hpp > $@
 
-luafar/keysandcolors.c: luafar/makefarkeys.lua $(COMINC)/farcolor.hpp $(FARDIR)/DlgGuid.hpp
+luafar/keysandcolors.c: luafar/makefarkeys.lua $(COMINC)/farcolor.hpp $(FARDIR)/uuids.far.dialogs.hpp
 	@echo generating $@
-	@$(LUA) luafar/makefarkeys.lua $(COMINC)/farcolor.hpp $(FARDIR)/DlgGuid.hpp $@
+	@$(LUA) luafar/makefarkeys.lua $(COMINC)/farcolor.hpp $(FARDIR)/uuids.far.dialogs.hpp $@
 
 clean:
 	@$(RM) $(DLLDIR)/lua*.* $(OBJS) $(DEPS)

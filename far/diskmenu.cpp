@@ -41,7 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "lang.hpp"
 #include "FarDlgBuilder.hpp"
-#include "DlgGuid.hpp"
+#include "uuids.far.dialogs.hpp"
 #include "interf.hpp"
 #include "drivemix.hpp"
 #include "network.hpp"
@@ -125,7 +125,7 @@ struct disk_item
 struct plugin_item
 {
 	Plugin* pPlugin;
-	GUID Guid;
+	UUID Uuid;
 };
 
 using disk_menu_item = std::variant<disk_item, plugin_item>;
@@ -149,14 +149,14 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 		for (int PluginItem = 0;; ++PluginItem)
 		{
 			WCHAR HotKey = 0;
-			GUID guid;
+			UUID Uuid;
 			if (!Global->CtrlObject->Plugins->GetDiskMenuItem(
 				pPlugin,
 				PluginItem,
 				ItemPresent,
 				HotKey,
 				strPluginText,
-				guid
+				Uuid
 				))
 			{
 				Done = true;
@@ -176,7 +176,7 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 				OneItem.getItem().Name = strPluginText;
 				OneItem.getHotKey() = HotKey;
 
-				disk_menu_item item{ plugin_item{ pPlugin, guid } };
+				disk_menu_item item{ plugin_item{ pPlugin, Uuid } };
 				OneItem.getItem().ComplexUserData = item;
 
 				MPItems.emplace_back(std::move(OneItem));
@@ -1041,7 +1041,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 				std::visit(overload{[&](plugin_item const& item)
 				{
-					Global->CtrlObject->Plugins->ShowPluginInfo(item.pPlugin, item.Guid);
+					Global->CtrlObject->Plugins->ShowPluginInfo(item.pPlugin, item.Uuid);
 				},
 				[](disk_item const&){}}, *MenuItem);
 				break;
@@ -1056,7 +1056,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				{
 					[&](plugin_item const& item)
 					{
-						if (Global->CtrlObject->Plugins->SetHotKeyDialog(item.pPlugin, item.Guid, hotkey_type::drive_menu, trim(string_view(ChDisk->at(SelPos).Name).substr(3))))
+						if (Global->CtrlObject->Plugins->SetHotKeyDialog(item.pPlugin, item.Uuid, hotkey_type::drive_menu, trim(string_view(ChDisk->at(SelPos).Name).substr(3))))
 							RetCode = SelPos;
 					},
 					[](disk_item const& item)
@@ -1211,7 +1211,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				std::visit(overload{[&](plugin_item const& item)
 				{
 					if (item.pPlugin->has(iConfigure))
-						Global->CtrlObject->Plugins->ConfigureCurrent(item.pPlugin, item.Guid);
+						Global->CtrlObject->Plugins->ConfigureCurrent(item.pPlugin, item.Uuid);
 				},
 				[](disk_item const&){}}, *MenuItem);
 				RetCode = SelPos;
@@ -1360,7 +1360,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 		auto hPlugin = Global->CtrlObject->Plugins->Open(
 			item.pPlugin,
 			Owner->Parent()->IsLeft(Owner)? OPEN_LEFTDISKMENU : OPEN_RIGHTDISKMENU,
-			item.Guid,
+			item.Uuid,
 			0);
 
 		if (hPlugin)

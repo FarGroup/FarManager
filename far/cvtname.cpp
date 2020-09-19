@@ -209,9 +209,9 @@ string ConvertNameToFull(string_view const Object)
 	return strDest;
 }
 
-// try to replace volume GUID (if present) with drive letter
+// try to replace volume UUID (if present) with drive letter
 // used by ConvertNameToReal() only
-static string TryConvertVolumeGuidToDrivePath(string_view const Path)
+static string TryConvertVolumeUuidToDrivePath(string_view const Path)
 {
 	size_t DirectoryOffset;
 
@@ -233,13 +233,13 @@ static string TryConvertVolumeGuidToDrivePath(string_view const Path)
 		return string(Path);
 	}
 
-	string strVolumeGuid;
+	string strVolumeUuid;
 	const os::fs::enum_drives Enumerator(os::fs::get_logical_drives());
 
 	if (const auto ItemIterator = std::find_if(ALL_CONST_RANGE(Enumerator), [&](const wchar_t i)
 	{
-		return os::fs::GetVolumeNameForVolumeMountPoint(os::fs::get_root_directory(i), strVolumeGuid) &&
-			starts_with(Path, string_view(strVolumeGuid).substr(0, DirectoryOffset));
+		return os::fs::GetVolumeNameForVolumeMountPoint(os::fs::get_root_directory(i), strVolumeUuid) &&
+			starts_with(Path, string_view(strVolumeUuid).substr(0, DirectoryOffset));
 	}); ItemIterator != Enumerator.cend())
 		return concat(os::fs::get_root_directory(*ItemIterator), Path.substr(DirectoryOffset));
 
@@ -290,7 +290,7 @@ string ConvertNameToReal(string_view const Object)
 	if (FullPath.size() > Path.size() + 1)
 		path::append(FinalFilePath, string_view(FullPath).substr(Path.size() + 1));
 
-	return TryConvertVolumeGuidToDrivePath(FinalFilePath);
+	return TryConvertVolumeUuidToDrivePath(FinalFilePath);
 }
 
 static string ConvertName(string_view const Object, bool(*Mutator)(string_view, string&))

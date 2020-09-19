@@ -98,45 +98,45 @@ using null_terminated = null_terminated_t<wchar_t>;
 class string_copyref
 {
 public:
-	string_copyref(string_view Str) noexcept:
+	string_copyref(std::wstring_view Str) noexcept:
 		m_Str(Str)
 	{
 	}
 
-	string_copyref(string&& Str) noexcept:
+	string_copyref(std::wstring&& Str) noexcept:
 		m_StrBuffer(std::move(Str)),
 		m_Str(m_StrBuffer)
 	{
 	}
 
-	operator string_view() const noexcept
+	operator std::wstring_view() const noexcept
 	{
 		return m_Str;
 	}
 
 private:
-	string m_StrBuffer;
-	string_view m_Str;
+	std::wstring m_StrBuffer;
+	std::wstring_view m_Str;
 };
 
 
 namespace string_utils::detail
 {
-	class append_arg: public string_view
+	class append_arg: public std::wstring_view
 	{
 	public:
-		explicit append_arg(string_view const Str) noexcept:
-			string_view(Str)
+		explicit append_arg(std::wstring_view const Str) noexcept:
+			std::wstring_view(Str)
 		{
 		}
 
 		explicit append_arg(const wchar_t& Char) noexcept:
-			string_view(&Char, 1)
+			std::wstring_view(&Char, 1)
 		{
 		}
 	};
 
-	inline void append_impl(string& Str, const std::initializer_list<append_arg>& Args)
+	inline void append_impl(std::wstring& Str, const std::initializer_list<append_arg>& Args)
 	{
 		const auto TotalSize = std::accumulate(ALL_RANGE(Args), size_t{}, [](size_t const Value, const append_arg& Element)
 		{
@@ -152,7 +152,7 @@ namespace string_utils::detail
 }
 
 template<typename... args>
-void append(string& Str, args const&... Args)
+void append(std::wstring& Str, args const&... Args)
 {
 	string_utils::detail::append_impl(Str, { string_utils::detail::append_arg(Args)... });
 }
@@ -163,7 +163,7 @@ auto concat(args const&... Args)
 {
 	static_assert(sizeof...(Args) > 1);
 
-	string Str;
+	std::wstring Str;
 	string_utils::detail::append_impl(Str, { string_utils::detail::append_arg(Args)... });
 	return Str;
 }
@@ -227,36 +227,36 @@ namespace detail
 
 namespace inplace
 {
-	inline void cut_left(string& Str, size_t MaxWidth)
+	inline void cut_left(std::wstring& Str, size_t MaxWidth)
 	{
 		if (Str.size() > MaxWidth)
 			Str.erase(0, Str.size() - MaxWidth);
 	}
 
-	inline void cut_right(string& Str, size_t MaxWidth)
+	inline void cut_right(std::wstring& Str, size_t MaxWidth)
 	{
 		if (Str.size() > MaxWidth)
 			Str.resize(MaxWidth);
 	}
 
-	inline void pad_left(string& Str, size_t MinWidth, wchar_t Padding = L' ')
+	inline void pad_left(std::wstring& Str, size_t MinWidth, wchar_t Padding = L' ')
 	{
 		if (Str.size() < MinWidth)
 			Str.insert(0, MinWidth - Str.size(), Padding);
 	}
 
-	inline void pad_right(string& Str, size_t MinWidth, wchar_t Padding = L' ')
+	inline void pad_right(std::wstring& Str, size_t MinWidth, wchar_t Padding = L' ')
 	{
 		if (Str.size() < MinWidth)
 			Str.append(MinWidth - Str.size(), Padding);
 	}
 
-	inline void fit_to_left(string& Str, size_t Size)
+	inline void fit_to_left(std::wstring& Str, size_t Size)
 	{
 		Str.size() < Size? pad_right(Str, Size) : cut_right(Str, Size);
 	}
 
-	inline void fit_to_center(string& Str, size_t Size)
+	inline void fit_to_center(std::wstring& Str, size_t Size)
 	{
 		const auto StrSize = Str.size();
 
@@ -271,22 +271,22 @@ namespace inplace
 		}
 	}
 
-	inline void fit_to_right(string& Str, size_t Size)
+	inline void fit_to_right(std::wstring& Str, size_t Size)
 	{
 		Str.size() < Size? pad_left(Str, Size) : cut_right(Str, Size);
 	}
 
-	inline void erase_all(string& Str, wchar_t Char)
+	inline void erase_all(std::wstring& Str, wchar_t Char)
 	{
 		Str.erase(std::remove(ALL_RANGE(Str), Char), Str.end());
 	}
 
-	inline void unquote(string& Str)
+	inline void unquote(std::wstring& Str)
 	{
 		erase_all(Str, L'"');
 	}
 
-	inline void quote(string& Str)
+	inline void quote(std::wstring& Str)
 	{
 		if (Str.empty() || Str.front() != L'"')
 			Str.insert(0, 1, L'"');
@@ -295,51 +295,51 @@ namespace inplace
 			Str.push_back(L'"');
 	}
 
-	inline void quote_unconditional(string& Str)
+	inline void quote_unconditional(std::wstring& Str)
 	{
 		Str.insert(0, 1, L'"');
 		Str.push_back(L'"');
 	}
 
-	inline void quote_normalise(string& Str)
+	inline void quote_normalise(std::wstring& Str)
 	{
 		unquote(Str);
 		quote(Str);
 	}
 
-	inline void quote_space(string& Str)
+	inline void quote_space(std::wstring& Str)
 	{
 		if (contains(Str, L' '))
 			quote(Str);
 	}
 
-	inline void trim_left(string& Str)
+	inline void trim_left(std::wstring& Str)
 	{
 		Str.erase(0, detail::get_space_count(ALL_CONST_RANGE(Str)));
 	}
 
-	inline void trim_left(string_view& Str) noexcept
+	inline void trim_left(std::wstring_view& Str) noexcept
 	{
 		Str.remove_prefix(detail::get_space_count(ALL_CONST_RANGE(Str)));
 	}
 
-	inline void trim_right(string& Str)
+	inline void trim_right(std::wstring& Str)
 	{
 		Str.resize(Str.size() - detail::get_space_count(ALL_CONST_REVERSE_RANGE(Str)));
 	}
 
-	inline void trim_right(string_view& Str) noexcept
+	inline void trim_right(std::wstring_view& Str) noexcept
 	{
 		Str.remove_suffix(detail::get_space_count(ALL_CONST_REVERSE_RANGE(Str)));
 	}
 
-	inline void trim(string& Str)
+	inline void trim(std::wstring& Str)
 	{
 		trim_right(Str);
 		trim_left(Str);
 	}
 
-	inline void trim(string_view& Str) noexcept
+	inline void trim(std::wstring_view& Str) noexcept
 	{
 		trim_right(Str);
 		trim_left(Str);
@@ -349,28 +349,28 @@ namespace inplace
 namespace copy
 {
 	template<typename iterator>
-	void unquote(const string_view Str, const iterator Destination)
+	void unquote(const std::wstring_view Str, const iterator Destination)
 	{
 		std::remove_copy(ALL_CONST_RANGE(Str), Destination, L'"');
 	}
 }
 
 [[nodiscard]]
-inline auto cut_left(string Str, size_t MaxWidth)
+inline auto cut_left(std::wstring Str, size_t MaxWidth)
 {
 	inplace::cut_left(Str, MaxWidth);
 	return Str;
 }
 
 [[nodiscard]]
-inline auto cut_right(string Str, size_t MaxWidth)
+inline auto cut_right(std::wstring Str, size_t MaxWidth)
 {
 	inplace::cut_right(Str, MaxWidth);
 	return Str;
 }
 
 [[nodiscard]]
-inline auto cut_left(string_view Str, size_t MaxWidth) noexcept
+inline auto cut_left(std::wstring_view Str, size_t MaxWidth) noexcept
 {
 	if (Str.size() > MaxWidth)
 		Str.remove_prefix(Str.size() - MaxWidth);
@@ -378,7 +378,7 @@ inline auto cut_left(string_view Str, size_t MaxWidth) noexcept
 }
 
 [[nodiscard]]
-inline auto cut_right(string_view Str, size_t MaxWidth) noexcept
+inline auto cut_right(std::wstring_view Str, size_t MaxWidth) noexcept
 {
 	if (Str.size() > MaxWidth)
 		Str.remove_suffix(Str.size() - MaxWidth);
@@ -386,186 +386,186 @@ inline auto cut_right(string_view Str, size_t MaxWidth) noexcept
 }
 
 [[nodiscard]]
-inline auto pad_left(string Str, size_t MinWidth, wchar_t Padding = L' ')
+inline auto pad_left(std::wstring Str, size_t MinWidth, wchar_t Padding = L' ')
 {
 	inplace::pad_left(Str, MinWidth, Padding);
 	return Str;
 }
 
 [[nodiscard]]
-inline auto pad_right(string Str, size_t MinWidth, wchar_t Padding = L' ')
+inline auto pad_right(std::wstring Str, size_t MinWidth, wchar_t Padding = L' ')
 {
 	inplace::pad_right(Str, MinWidth, Padding);
 	return Str;
 }
 
 [[nodiscard]]
-inline auto fit_to_left(string Str, size_t Size)
+inline auto fit_to_left(std::wstring Str, size_t Size)
 {
 	inplace::fit_to_left(Str, Size);
 	return Str;
 }
 
 [[nodiscard]]
-inline auto fit_to_center(string Str, size_t Size)
+inline auto fit_to_center(std::wstring Str, size_t Size)
 {
 	inplace::fit_to_center(Str, Size);
 	return Str;
 }
 
 [[nodiscard]]
-inline auto fit_to_right(string Str, size_t Size)
+inline auto fit_to_right(std::wstring Str, size_t Size)
 {
 	inplace::fit_to_right(Str, Size);
 	return Str;
 }
 
 [[nodiscard]]
-inline auto erase_all(string Str, wchar_t Char)
+inline auto erase_all(std::wstring Str, wchar_t Char)
 {
 	inplace::erase_all(Str, Char);
 	return Str;
 }
 
 [[nodiscard]]
-inline auto unquote(string Str)
+inline auto unquote(std::wstring Str)
 {
 	inplace::unquote(Str);
 	return Str;
 }
 
 [[nodiscard]]
-inline auto unquote(string_view const Str)
+inline auto unquote(std::wstring_view const Str)
 {
-	return unquote(string(Str));
+	return unquote(std::wstring(Str));
 }
 
 [[nodiscard]]
-inline auto quote(string Str)
+inline auto quote(std::wstring Str)
 {
 	inplace::quote(Str);
 	return Str;
 }
 
 [[nodiscard]]
-inline auto quote(string_view const Str)
+inline auto quote(std::wstring_view const Str)
 {
-	return quote(string(Str));
+	return quote(std::wstring(Str));
 }
 
 [[nodiscard]]
-inline auto quote_unconditional(string Str)
+inline auto quote_unconditional(std::wstring Str)
 {
 	inplace::quote_unconditional(Str);
 	return Str;
 }
 
 [[nodiscard]]
-inline auto quote_unconditional(string_view const Str)
+inline auto quote_unconditional(std::wstring_view const Str)
 {
-	return quote_unconditional(string(Str));
+	return quote_unconditional(std::wstring(Str));
 }
 
 [[nodiscard]]
-inline auto quote_normalise(string Str)
+inline auto quote_normalise(std::wstring Str)
 {
 	inplace::quote_normalise(Str);
 	return Str;
 }
 
 [[nodiscard]]
-inline auto quote_normalise(string_view const Str)
+inline auto quote_normalise(std::wstring_view const Str)
 {
-	return quote_normalise(string(Str));
+	return quote_normalise(std::wstring(Str));
 }
 
 [[nodiscard]]
-inline auto quote_space(string Str)
+inline auto quote_space(std::wstring Str)
 {
 	inplace::quote_space(Str);
 	return Str;
 }
 
 [[nodiscard]]
-inline auto quote_space(string_view const Str)
+inline auto quote_space(std::wstring_view const Str)
 {
-	return quote_space(string(Str));
+	return quote_space(std::wstring(Str));
 }
 
 [[nodiscard]]
-inline bool equal(const string_view Str1, const string_view Str2) noexcept
+inline bool equal(const std::wstring_view Str1, const std::wstring_view Str2) noexcept
 {
 	return Str1 == Str2;
 }
 
 [[nodiscard]]
-inline bool starts_with(const string_view Str, const string_view Prefix) noexcept
+inline bool starts_with(const std::wstring_view Str, const std::wstring_view Prefix) noexcept
 {
 	return Str.size() >= Prefix.size() && Str.substr(0, Prefix.size()) == Prefix;
 }
 
 [[nodiscard]]
-inline bool starts_with(const string_view Str, wchar_t const Prefix) noexcept
+inline bool starts_with(const std::wstring_view Str, wchar_t const Prefix) noexcept
 {
 	return !Str.empty() && Str.front() == Prefix;
 }
 
 [[nodiscard]]
-inline bool ends_with(const string_view Str, const string_view Suffix) noexcept
+inline bool ends_with(const std::wstring_view Str, const std::wstring_view Suffix) noexcept
 {
 	return Str.size() >= Suffix.size() && Str.substr(Str.size() - Suffix.size()) == Suffix;
 }
 
 [[nodiscard]]
-inline bool ends_with(const string_view Str, wchar_t const Suffix) noexcept
+inline bool ends_with(const std::wstring_view Str, wchar_t const Suffix) noexcept
 {
 	return !Str.empty() && Str.back() == Suffix;
 }
 
 [[nodiscard]]
-inline auto trim_left(string Str)
+inline auto trim_left(std::wstring Str)
 {
 	inplace::trim_left(Str);
 	return Str;
 }
 
 [[nodiscard]]
-inline auto trim_left(string_view Str) noexcept
+inline auto trim_left(std::wstring_view Str) noexcept
 {
 	inplace::trim_left(Str);
 	return Str;
 }
 
 [[nodiscard]]
-inline auto trim_right(string Str)
+inline auto trim_right(std::wstring Str)
 {
 	inplace::trim_right(Str);
 	return Str;
 }
 
 [[nodiscard]]
-inline auto trim_right(string_view Str) noexcept
+inline auto trim_right(std::wstring_view Str) noexcept
 {
 	inplace::trim_right(Str);
 	return Str;
 }
 
 [[nodiscard]]
-inline auto trim(string Str)
+inline auto trim(std::wstring Str)
 {
 	inplace::trim(Str);
 	return Str;
 }
 
 [[nodiscard]]
-inline auto trim(string_view Str) noexcept
+inline auto trim(std::wstring_view Str) noexcept
 {
 	inplace::trim(Str);
 	return Str;
 }
 
 template<typename container>
-void join(string& Str, const container& Container, string_view const Separator)
+void join(std::wstring& Str, const container& Container, std::wstring_view const Separator)
 {
 	const auto Size = std::accumulate(ALL_CONST_RANGE(Container), size_t{}, [Separator](size_t const Value, const auto& Element)
 	{
@@ -592,15 +592,15 @@ void join(string& Str, const container& Container, string_view const Separator)
 
 template<typename container>
 [[nodiscard]]
-string join(const container& Container, string_view const Separator)
+std::wstring join(const container& Container, std::wstring_view const Separator)
 {
-	string Str;
+	std::wstring Str;
 	join(Str, Container, Separator);
 	return Str;
 }
 
 [[nodiscard]]
-inline std::pair<string_view, string_view> split(string_view const Str, wchar_t const Separator = L'=') noexcept
+inline std::pair<std::wstring_view, std::wstring_view> split(std::wstring_view const Str, wchar_t const Separator = L'=') noexcept
 {
 	const auto SeparatorPos = Str.find(Separator);
 	return { Str.substr(0, SeparatorPos), Str.substr(SeparatorPos == Str.npos? Str.size() : SeparatorPos + 1) };

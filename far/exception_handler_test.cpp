@@ -269,7 +269,7 @@ namespace tests
 
 	static void seh_breakpoint()
 	{
-		DebugBreak();
+		os::debug::breakpoint();
 	}
 
 	static void seh_alignment_fault()

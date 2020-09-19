@@ -406,29 +406,39 @@ handle OpenConsoleActiveScreenBuffer()
 			return m_module.get();
 		}
 	}
-}
 
-UUID CreateUuid()
-{
-	UUID Uuid;
-	UuidCreate(&Uuid);
-	return Uuid;
-}
+	namespace uuid
+	{
+		UUID generate()
+		{
+			UUID Uuid;
+			UuidCreate(&Uuid);
+			return Uuid;
+		}
+	}
 
-string GuidToStr(const GUID& Guid)
-{
-	RPC_WSTR Str;
-	// declared as non-const in GCC headers :(
-	if (UuidToString(const_cast<GUID*>(&Guid), &Str) != RPC_S_OK)
-		throw std::bad_alloc{};
+	namespace debug
+	{
+		bool debugger_present()
+		{
+			return IsDebuggerPresent() != FALSE;
+		}
 
-	SCOPE_EXIT{ RpcStringFree(&Str); };
-	return upper(string_view{ reinterpret_cast<const wchar_t*>(Str) });
-}
+		void breakpoint()
+		{
+			DebugBreak();
+		}
 
-bool StrToGuid(string_view const Value, GUID& Guid)
-{
-	return UuidFromString(reinterpret_cast<RPC_WSTR>(const_cast<wchar_t*>(null_terminated(Value).c_str())), &Guid) == RPC_S_OK;
+		void print(const wchar_t* const Str)
+		{
+			OutputDebugString(Str);
+		}
+
+		void print(string const& Str)
+		{
+			print(Str.c_str());
+		}
+	}
 }
 
 #ifdef ENABLE_TESTS

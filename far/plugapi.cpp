@@ -70,7 +70,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugsettings.hpp"
 #include "farversion.hpp"
 #include "mix.hpp"
-#include "FarGuid.hpp"
+#include "uuids.far.hpp"
 #include "clipboard.hpp"
 #include "strmix.hpp"
 #include "notification.hpp"
@@ -102,7 +102,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-static Plugin* GuidToPlugin(const GUID* Id)
+static Plugin* UuidToPlugin(const UUID* Id)
 {
 	return Id && Global->CtrlObject? Global->CtrlObject->Plugins->FindPlugin(*Id) : nullptr;
 }
@@ -326,8 +326,8 @@ wchar_t* WINAPI apiQuoteSpaceOnly(wchar_t *Str) noexcept
 }
 
 intptr_t WINAPI apiInputBox(
-    const GUID* PluginId,
-    const GUID* Id,
+    const UUID* PluginId,
+    const UUID* Id,
     const wchar_t *Title,
     const wchar_t *Prompt,
     const wchar_t *HistoryName,
@@ -356,7 +356,7 @@ intptr_t WINAPI apiInputBox(
 			Flags&~FIB_CHECKBOX,
 			{},
 			{},
-			GuidToPlugin(PluginId),
+			UuidToPlugin(PluginId),
 			Id);
 
 		xwcsncpy(DestText, strDest.c_str(), DestSize);
@@ -394,14 +394,14 @@ BOOL WINAPI apiShowHelp(const wchar_t *ModuleName, const wchar_t *HelpTopic, FAR
 		}
 		else if (ModuleName && (Flags&FHELP_GUID))
 		{
-			if (!*ModuleName || *reinterpret_cast<const GUID*>(ModuleName) == FarGuid)
+			if (!*ModuleName || *reinterpret_cast<const UUID*>(ModuleName) == FarUuid)
 			{
 				OFlags |= FHELP_FARHELP;
 				strTopic = HelpTopic + ((*HelpTopic == L':') ? 1 : 0);
 			}
 			else
 			{
-				if (const auto plugin = Global->CtrlObject->Plugins->FindPlugin(*reinterpret_cast<const GUID*>(ModuleName)))
+				if (const auto plugin = Global->CtrlObject->Plugins->FindPlugin(*reinterpret_cast<const UUID*>(ModuleName)))
 				{
 					OFlags |= FHELP_CUSTOMPATH;
 					strTopic = help::make_link(ExtractFilePath(plugin->ModuleName()), HelpTopic);
@@ -454,7 +454,7 @@ BOOL WINAPI apiShowHelp(const wchar_t *ModuleName, const wchar_t *HelpTopic, FAR
 /* $ 05.07.2000 IS
   Функция, которая будет действовать и в редакторе, и в панелях, и...
 */
-intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept
+intptr_t WINAPI apiAdvControl(const UUID* PluginId, ADVANCED_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept
 {
 	return cpp_try(
 	[&]() -> intptr_t
@@ -794,8 +794,8 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 }
 
 intptr_t WINAPI apiMenuFn(
-    const GUID* PluginId,
-    const GUID* Id,
+    const UUID* PluginId,
+    const UUID* Id,
     intptr_t X,
     intptr_t Y,
     intptr_t MaxHeight,
@@ -842,7 +842,7 @@ intptr_t WINAPI apiMenuFn(
 				*BreakCode=-1;
 
 			{
-				const auto Topic = help::make_topic(GuidToPlugin(PluginId), NullToEmpty(HelpTopic));
+				const auto Topic = help::make_topic(UuidToPlugin(PluginId), NullToEmpty(HelpTopic));
 				if (!Topic.empty())
 					FarMenu->SetHelp(Topic);
 			}
@@ -991,7 +991,7 @@ intptr_t WINAPI apiSendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void*
 	});
 }
 
-HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, intptr_t Y1, intptr_t X2, intptr_t Y2,
+HANDLE WINAPI apiDialogInit(const UUID* PluginId, const UUID* Id, intptr_t X1, intptr_t Y1, intptr_t X2, intptr_t Y2,
                             const wchar_t *HelpTopic, const FarDialogItem *Item,
                             size_t ItemsNumber, intptr_t Reserved, unsigned long long Flags,
                             FARWINDOWPROC DlgProc, void* Param) noexcept
@@ -1075,7 +1075,7 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, i
 				/* $ 29.08.2000 SVS
 				   Запомним номер плагина - сейчас в основном для формирования HelpTopic
 				*/
-				FarDialog->SetPluginOwner(GuidToPlugin(PluginId));
+				FarDialog->SetPluginOwner(UuidToPlugin(PluginId));
 
 				if (FarDialog->GetCanLoseFocus())
 				{
@@ -1142,12 +1142,12 @@ void WINAPI apiDialogFree(HANDLE hDlg) noexcept
 	});
 }
 
-const wchar_t* WINAPI apiGetMsgFn(const GUID* PluginId,intptr_t MsgId) noexcept
+const wchar_t* WINAPI apiGetMsgFn(const UUID* PluginId, intptr_t MsgId) noexcept
 {
 	return cpp_try(
 	[&]
 	{
-		if (Plugin *pPlugin = GuidToPlugin(PluginId))
+		if (const auto pPlugin = UuidToPlugin(PluginId))
 		{
 			string_view Path = pPlugin->ModuleName();
 			CutToSlash(Path);
@@ -1164,7 +1164,7 @@ const wchar_t* WINAPI apiGetMsgFn(const GUID* PluginId,intptr_t MsgId) noexcept
 	});
 }
 
-intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned long long Flags,const wchar_t *HelpTopic,
+intptr_t WINAPI apiMessageFn(const UUID* PluginId, const UUID* Id, unsigned long long Flags, const wchar_t* HelpTopic,
                         const wchar_t * const *Items,size_t ItemsNumber,
                         intptr_t ButtonsNumber) noexcept
 {
@@ -1248,7 +1248,7 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned long l
 			AssignStrings(std::move(ItemsCopy));
 		}
 
-		Plugin* PluginNumber = GuidToPlugin(PluginId);
+		const auto PluginNumber = UuidToPlugin(PluginId);
 		// запоминаем топик
 		const auto strTopic = PluginNumber? help::make_topic(PluginNumber, NullToEmpty(HelpTopic)) : L""s;
 
@@ -1637,7 +1637,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 	});
 }
 
-intptr_t WINAPI apiGetPluginDirList(const GUID* PluginId, HANDLE hPlugin, const wchar_t *Dir, PluginPanelItem **pPanelItem, size_t *pItemsNumber) noexcept
+intptr_t WINAPI apiGetPluginDirList(const UUID* PluginId, HANDLE hPlugin, const wchar_t* Dir, PluginPanelItem** pPanelItem, size_t* pItemsNumber) noexcept
 {
 	return cpp_try(
 	[&]() -> intptr_t
@@ -1660,7 +1660,7 @@ intptr_t WINAPI apiGetPluginDirList(const GUID* PluginId, HANDLE hPlugin, const 
 				DirInfoMsg(msg(lng::MPreparingList), Name, ItemsCount, Size);
 		};
 
-		const auto Result = GetPluginDirList(GuidToPlugin(PluginId), hPlugin, Dir, nullptr, *Items, DirInfoCallback);
+		const auto Result = GetPluginDirList(UuidToPlugin(PluginId), hPlugin, Dir, nullptr, *Items, DirInfoCallback);
 		std::tie(*pPanelItem, *pItemsNumber) = magic::CastVectorToRawData(std::move(Items));
 		return Result;
 	},
@@ -2509,7 +2509,7 @@ int WINAPI apiCompareStrings(const wchar_t* Str1, size_t Size1, const wchar_t* S
 	});
 }
 
-intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept
+intptr_t WINAPI apiMacroControl(const UUID* PluginId, FAR_MACRO_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept
 {
 	return cpp_try(
 	[&]() -> intptr_t
@@ -2639,7 +2639,7 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 			switch (Param1)
 			{
 			case PFM_GUID:
-				plugin = Global->CtrlObject->Plugins->FindPlugin(*static_cast<GUID*>(Param2));
+				plugin = Global->CtrlObject->Plugins->FindPlugin(*static_cast<UUID*>(Param2));
 				break;
 
 			case PFM_MODULENAME:
@@ -2853,7 +2853,7 @@ intptr_t WINAPI apiSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS
 			if (!CheckStructSize(data))
 				return FALSE;
 
-			if (data->Guid == FarGuid)
+			if (data->Guid == FarUuid)
 			{
 				data->Handle = AbstractSettings::CreateFarSettings().release();
 				return TRUE;
@@ -3067,7 +3067,7 @@ size_t WINAPI apiProcessName(const wchar_t *param1, wchar_t *param2, size_t size
 	});
 }
 
-BOOL WINAPI apiColorDialog(const GUID* PluginId, COLORDIALOGFLAGS Flags, FarColor *Color) noexcept
+BOOL WINAPI apiColorDialog(const UUID* PluginId, COLORDIALOGFLAGS Flags, FarColor *Color) noexcept
 {
 	return cpp_try(
 	[&]

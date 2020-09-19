@@ -53,7 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "config.hpp"
 #include "processname.hpp"
-#include "FarGuid.hpp"
+#include "uuids.far.hpp"
 #include "xlat.hpp"
 #include "lang.hpp"
 #include "vmenu2.hpp"
@@ -68,6 +68,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common.hpp"
 #include "common/function_traits.hpp"
 #include "common/scope_exit.hpp"
+#include "common/uuid.hpp"
 #include "common/view/enumerate.hpp"
 #include "common/view/zip.hpp"
 
@@ -104,7 +105,7 @@ VMenu::VMenu(private_tag, string Title, int MaxHeight, dialog_ptr ParentDialog):
 	Colors(),
 	MaxLineWidth(),
 	bRightBtnPressed(),
-	MenuId(FarGuid)
+	MenuId(FarUuid)
 {
 }
 
@@ -1041,7 +1042,7 @@ long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 		case MCODE_V_MENUINFOID:
 		{
 			static string strId;
-			strId = GuidToStr(MenuId);
+			strId = uuid::str(MenuId);
 			return reinterpret_cast<intptr_t>(UNSAFE_CSTR(strId));
 		}
 
@@ -2917,12 +2918,12 @@ bool VMenu::Pack()
 	return OldItemCount != Items.size();
 }
 
-void VMenu::SetId(const GUID& Id)
+void VMenu::SetId(const UUID& Id)
 {
 	MenuId=Id;
 }
 
-const GUID& VMenu::Id() const
+const UUID& VMenu::Id() const
 {
 	return MenuId;
 }

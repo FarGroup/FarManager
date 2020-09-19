@@ -57,6 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/chrono.hpp"
 #include "common/function_ref.hpp"
 #include "common/scope_exit.hpp"
+#include "common/uuid.hpp"
 
 // External:
 #include "format.hpp"
@@ -1297,7 +1298,7 @@ private:
 			{ stmtGetPreloadState,       "SELECT enabled FROM preload WHERE cid=?1;"sv },
 			{ stmtGetSignature,          "SELECT signature FROM signatures WHERE cid=?1;"sv },
 			{ stmtGetExportState,        "SELECT enabled FROM exports WHERE cid=?1 and export=?2;"sv },
-			{ stmtGetGuid,               "SELECT guid FROM guids WHERE cid=?1;"sv },
+			{ stmtGetUuid,               "SELECT guid FROM guids WHERE cid=?1;"sv },
 			{ stmtGetTitle,              "SELECT title FROM titles WHERE cid=?1;"sv },
 			{ stmtGetAuthor,             "SELECT author FROM authors WHERE cid=?1;"sv },
 			{ stmtGetPrefix,             "SELECT prefix FROM prefixes WHERE cid=?1;"sv },
@@ -1308,7 +1309,7 @@ private:
 			{ stmtSetPreloadState,       "REPLACE INTO preload VALUES (?1,?2);"sv },
 			{ stmtSetSignature,          "REPLACE INTO signatures VALUES (?1,?2);"sv },
 			{ stmtSetExportState,        "REPLACE INTO exports VALUES (?1,?2,?3);"sv },
-			{ stmtSetGuid,               "REPLACE INTO guids VALUES (?1,?2);"sv },
+			{ stmtSetUuid,               "REPLACE INTO guids VALUES (?1,?2);"sv },
 			{ stmtSetTitle,              "REPLACE INTO titles VALUES (?1,?2);"sv },
 			{ stmtSetAuthor,             "REPLACE INTO authors VALUES (?1,?2);"sv },
 			{ stmtSetPrefix,             "REPLACE INTO prefixes VALUES (?1,?2);"sv },
@@ -1363,9 +1364,9 @@ private:
 		return Stmt->Bind(id, ExportName).Step() && Stmt->GetColInt(0);
 	}
 
-	string GetGuid(unsigned long long id) const override
+	string GetUuid(unsigned long long id) const override
 	{
-		return GetTextFromID(stmtGetGuid, id);
+		return GetTextFromID(stmtGetUuid, id);
 	}
 
 	string GetTitle(unsigned long long id) const override
@@ -1393,19 +1394,19 @@ private:
 		return GetVersionImpl(stmtGetVersion, id, Version);
 	}
 
-	bool GetDiskMenuItem(unsigned long long id, size_t index, string &Text, GUID& Guid) const override
+	bool GetDiskMenuItem(unsigned long long id, size_t index, string &Text, UUID& Uuid) const override
 	{
-		return GetMenuItem(id, DRIVE_MENU, index, Text, Guid);
+		return GetMenuItem(id, DRIVE_MENU, index, Text, Uuid);
 	}
 
-	bool GetPluginsMenuItem(unsigned long long id, size_t index, string &Text, GUID& Guid) const override
+	bool GetPluginsMenuItem(unsigned long long id, size_t index, string &Text, UUID& Uuid) const override
 	{
-		return GetMenuItem(id, PLUGINS_MENU, index, Text, Guid);
+		return GetMenuItem(id, PLUGINS_MENU, index, Text, Uuid);
 	}
 
-	bool GetPluginsConfigMenuItem(unsigned long long id, size_t index, string &Text, GUID& Guid) const override
+	bool GetPluginsConfigMenuItem(unsigned long long id, size_t index, string &Text, UUID& Uuid) const override
 	{
-		return GetMenuItem(id, CONFIG_MENU, index, Text, Guid);
+		return GetMenuItem(id, CONFIG_MENU, index, Text, Uuid);
 	}
 
 	string GetCommandPrefix(unsigned long long id) const override
@@ -1429,19 +1430,19 @@ private:
 		ExecuteStatement(stmtSetSignature, id, Signature);
 	}
 
-	void SetDiskMenuItem(const unsigned long long id, const size_t index, const string_view Text, const GUID& Guid) override
+	void SetDiskMenuItem(const unsigned long long id, const size_t index, const string_view Text, const UUID& Uuid) override
 	{
-		SetMenuItem(id, DRIVE_MENU, index, Text, Guid);
+		SetMenuItem(id, DRIVE_MENU, index, Text, Uuid);
 	}
 
-	void SetPluginsMenuItem(const unsigned long long id, const size_t index, const string_view Text, const GUID& Guid) override
+	void SetPluginsMenuItem(const unsigned long long id, const size_t index, const string_view Text, const UUID& Uuid) override
 	{
-		SetMenuItem(id, PLUGINS_MENU, index, Text, Guid);
+		SetMenuItem(id, PLUGINS_MENU, index, Text, Uuid);
 	}
 
-	void SetPluginsConfigMenuItem(const unsigned long long id, const size_t index, const string_view Text, const GUID& Guid) override
+	void SetPluginsConfigMenuItem(const unsigned long long id, const size_t index, const string_view Text, const UUID& Uuid) override
 	{
-		SetMenuItem(id, CONFIG_MENU, index, Text, Guid);
+		SetMenuItem(id, CONFIG_MENU, index, Text, Uuid);
 	}
 
 	void SetCommandPrefix(const unsigned long long id, const string_view Prefix) override
@@ -1470,9 +1471,9 @@ private:
 		ExecuteStatement(stmtSetVersion, id, view_bytes(Version));
 	}
 
-	void SetGuid(const unsigned long long id, const string_view Guid) override
+	void SetUuid(const unsigned long long id, const string_view Uuid) override
 	{
-		ExecuteStatement(stmtSetGuid, id, Guid);
+		ExecuteStatement(stmtSetUuid, id, Uuid);
 	}
 
 	void SetTitle(const unsigned long long id, const string_view Title) override
@@ -1517,19 +1518,25 @@ private:
 		DRIVE_MENU
 	};
 
-	bool GetMenuItem(unsigned long long id, MenuItemTypeEnum type, size_t index, string &Text, GUID& Guid) const
+	bool GetMenuItem(unsigned long long id, MenuItemTypeEnum type, size_t index, string &Text, UUID& Uuid) const
 	{
 		const auto Stmt = AutoStatement(stmtGetMenuItem);
 		if (!Stmt->Bind(id, type, index).Step())
 			return false;
 
 		Text = Stmt->GetColText(0);
-		return StrToGuid(Stmt->GetColText(1), Guid);
+
+		const auto UuidOpt = uuid::try_parse(Stmt->GetColText(1));
+		if (!UuidOpt)
+			return false;
+
+		Uuid = *UuidOpt;
+		return true;
 	}
 
-	void SetMenuItem(const unsigned long long id, const MenuItemTypeEnum type, const size_t index, const string_view Text, const GUID& Guid) const
+	void SetMenuItem(const unsigned long long id, const MenuItemTypeEnum type, const size_t index, const string_view Text, const UUID& Uuid) const
 	{
-		ExecuteStatement(stmtSetMenuItem, id, type, index, GuidToStr(Guid), Text);
+		ExecuteStatement(stmtSetMenuItem, id, type, index, uuid::str(Uuid), Text);
 	}
 
 	string GetTextFromID(size_t StatementIndex, unsigned long long id) const
@@ -1556,7 +1563,7 @@ private:
 		stmtGetPreloadState,
 		stmtGetSignature,
 		stmtGetExportState,
-		stmtGetGuid,
+		stmtGetUuid,
 		stmtGetTitle,
 		stmtGetAuthor,
 		stmtGetPrefix,
@@ -1567,7 +1574,7 @@ private:
 		stmtSetPreloadState,
 		stmtSetSignature,
 		stmtSetExportState,
-		stmtSetGuid,
+		stmtSetUuid,
 		stmtSetTitle,
 		stmtSetAuthor,
 		stmtSetPrefix,
@@ -1618,23 +1625,23 @@ private:
 		return Stmt->Bind(as_underlying_type(HotKeyType)).Step() && Stmt->GetColInt(0);
 	}
 
-	string GetHotkey(const string_view PluginKey, const GUID& MenuGuid, const hotkey_type HotKeyType) override
+	string GetHotkey(const string_view PluginKey, const UUID& MenuUuid, const hotkey_type HotKeyType) override
 	{
 		const auto Stmt = AutoStatement(stmtGetHotkey);
-		if (!Stmt->Bind(PluginKey, GuidToStr(MenuGuid), as_underlying_type(HotKeyType)).Step())
+		if (!Stmt->Bind(PluginKey, uuid::str(MenuUuid), as_underlying_type(HotKeyType)).Step())
 			return {};
 
 		return Stmt->GetColText(0);
 	}
 
-	void SetHotkey(const string_view PluginKey, const GUID& MenuGuid, const hotkey_type HotKeyType, const string_view HotKey) override
+	void SetHotkey(const string_view PluginKey, const UUID& MenuUuid, const hotkey_type HotKeyType, const string_view HotKey) override
 	{
-		ExecuteStatement(stmtSetHotkey, PluginKey, GuidToStr(MenuGuid), as_underlying_type(HotKeyType), HotKey);
+		ExecuteStatement(stmtSetHotkey, PluginKey, uuid::str(MenuUuid), as_underlying_type(HotKeyType), HotKey);
 	}
 
-	void DelHotkey(const string_view PluginKey, const GUID& MenuGuid, const hotkey_type HotKeyType) override
+	void DelHotkey(const string_view PluginKey, const UUID& MenuUuid, const hotkey_type HotKeyType) override
 	{
-		ExecuteStatement(stmtDelHotkey, PluginKey, GuidToStr(MenuGuid), as_underlying_type(HotKeyType));
+		ExecuteStatement(stmtDelHotkey, PluginKey, uuid::str(MenuUuid), as_underlying_type(HotKeyType));
 	}
 
 	void Export(representation_destination& Representation) const override
@@ -1691,20 +1698,25 @@ private:
 			for (const auto& se: xml_enum(e, "hotkey"))
 			{
 				const auto stype = se.Attribute("menu");
-				const auto guid = se.Attribute("guid");
-				const auto hotkey = se.Attribute("hotkey");
-
-				GUID Guid;
-
-				if (!stype || !guid || !StrToGuid(encoding::utf8::get_chars(guid), Guid))
+				if (!stype)
 					continue;
+
+				const auto UuidStr = se.Attribute("guid");
+				if (!UuidStr)
+					continue;
+
+				const auto Uuid = uuid::try_parse(encoding::utf8::get_chars(UuidStr));
+				if (!Uuid)
+					continue;
+
+				const auto hotkey = se.Attribute("hotkey");
 
 				const auto ProcessHotkey = [&](hotkey_type const Type)
 				{
 					if (hotkey && *hotkey)
-						SetHotkey(Key, Guid, Type, encoding::utf8::get_chars(hotkey));
+						SetHotkey(Key, *Uuid, Type, encoding::utf8::get_chars(hotkey));
 					else
-						DelHotkey(Key, Guid, Type);
+						DelHotkey(Key, *Uuid, Type);
 				};
 
 				if (!strcmp(stype, "drive"))
@@ -1758,7 +1770,7 @@ private:
 		string strName;
 		int Type;
 		bool Lock;
-		string strGuid;
+		string strUuid;
 		string strFile;
 		string strData;
 	};
@@ -1798,7 +1810,7 @@ private:
 						SQLiteDb::BeginTransaction();
 						if (item->DeleteId)
 							DeleteInternal(item->DeleteId);
-						AddInternal(item->TypeHistory, item->HistoryName, item->strName, item->Type, item->Lock, item->strGuid, item->strFile, item->strData);
+						AddInternal(item->TypeHistory, item->HistoryName, item->strName, item->Type, item->Lock, item->strUuid, item->strFile, item->strData);
 						bAddDelete = true;
 					}
 					else // EndTransaction
@@ -1814,9 +1826,9 @@ private:
 		}
 	}
 
-	void AddInternal(unsigned int const TypeHistory, string_view const HistoryName, string_view const Name, int const Type, bool const Lock, string_view const Guid, string_view const File, string_view const Data) const
+	void AddInternal(unsigned int const TypeHistory, string_view const HistoryName, string_view const Name, int const Type, bool const Lock, string_view const Uuid, string_view const File, string_view const Data) const
 	{
-		ExecuteStatement(stmtAdd, TypeHistory, HistoryName, Type, Lock, Name, os::chrono::nt_clock::to_hectonanoseconds(os::chrono::nt_clock::now()), Guid, File, Data);
+		ExecuteStatement(stmtAdd, TypeHistory, HistoryName, Type, Lock, Name, os::chrono::nt_clock::to_hectonanoseconds(os::chrono::nt_clock::now()), Uuid, File, Data);
 	}
 
 	void DeleteInternal(unsigned long long id) const
@@ -1925,7 +1937,7 @@ private:
 		return AutoStatement(Reverse? stmtEnumDesc : stmtEnum);
 	}
 
-	bool Enum(const bool Reset, const unsigned int TypeHistory, const string_view HistoryName, unsigned long long& id, string& Name, history_record_type& Type, bool& Lock, os::chrono::time_point& Time, string& strGuid, string& strFile, string& strData, const bool Reverse) override
+	bool Enum(const bool Reset, const unsigned int TypeHistory, const string_view HistoryName, unsigned long long& id, string& Name, history_record_type& Type, bool& Lock, os::chrono::time_point& Time, string& strUuid, string& strFile, string& strData, const bool Reverse) override
 	{
 		WaitAllAsync();
 		auto Stmt = EnumStmt(Reverse);
@@ -1941,7 +1953,7 @@ private:
 		Type = static_cast<history_record_type>(Stmt->GetColInt(2));
 		Lock = Stmt->GetColInt(3) != 0;
 		Time = os::chrono::nt_clock::from_hectonanoseconds(Stmt->GetColInt64(4));
-		strGuid = Stmt->GetColText(5);
+		strUuid = Stmt->GetColText(5);
 		strFile = Stmt->GetColText(6);
 		strData = Stmt->GetColText(7);
 		KeepStatement(Stmt);
@@ -1953,7 +1965,7 @@ private:
 		(void)EnumStmt(Reverse);
 	}
 
-	void DeleteAndAddAsync(unsigned long long const DeleteId, unsigned int const TypeHistory, string_view const HistoryName, string_view const Name, int const Type, bool const Lock, string_view const Guid, string_view const File, string_view const Data) override
+	void DeleteAndAddAsync(unsigned long long const DeleteId, unsigned int const TypeHistory, string_view const HistoryName, string_view const Name, int const Type, bool const Lock, string_view const Uuid, string_view const File, string_view const Data) override
 	{
 		auto item = std::make_unique<AsyncWorkItem>();
 		item->DeleteId=DeleteId;
@@ -1962,7 +1974,7 @@ private:
 		item->strName = Name;
 		item->Type=Type;
 		item->Lock=Lock;
-		item->strGuid = Guid;
+		item->strUuid = Uuid;
 		item->strFile = File;
 		item->strData = Data;
 
@@ -2018,11 +2030,11 @@ private:
 		return true;
 	}
 
-	bool Get(unsigned long long id, string* const Name = {}, history_record_type* const Type = {}, string* const Guid = {}, string* const File = {}, string* const Data = {}) override
+	bool Get(unsigned long long id, string* const Name = {}, history_record_type* const Type = {}, string* const Uuid = {}, string* const File = {}, string* const Data = {}) override
 	{
 		WaitAllAsync();
 
-		const auto StmtId = (Type || Guid || File || Data)? stmtGetNameAndType : stmtGetName;
+		const auto StmtId = (Type || Uuid || File || Data)? stmtGetNameAndType : stmtGetName;
 
 		const auto Stmt = AutoStatement(StmtId);
 		if (!Stmt->Bind(id).Step())
@@ -2034,8 +2046,8 @@ private:
 		if (Type)
 			*Type = static_cast<history_record_type>(Stmt->GetColInt(1));
 
-		if (Guid)
-			*Guid = Stmt->GetColText(2);
+		if (Uuid)
+			*Uuid = Stmt->GetColText(2);
 
 		if (File)
 			*File = Stmt->GetColText(3);
@@ -2281,8 +2293,8 @@ void config_provider::TryImportDatabase(representable& p, const char* NodeName, 
 		{
 			for (const auto& i: xml_enum(root.FirstChildElement("pluginsconfig"), "plugin"))
 			{
-				const auto guid = i.Attribute("guid");
-				if (guid && 0 == strcmp(guid, NodeName))
+				const auto Uuid = i.Attribute("guid");
+				if (Uuid && 0 == strcmp(Uuid, NodeName))
 				{
 					m_TemplateSource->SetRoot(&const_cast<tinyxml::XMLElement&>(i));
 					p.Import(*m_TemplateSource);
@@ -2388,9 +2400,9 @@ enum dbcheck: int
 	CHECK_PANELMODES = 3_bit,
 };
 
-HierarchicalConfigUniquePtr config_provider::CreatePluginsConfig(const string_view guid, const bool Local, bool UseFallback)
+HierarchicalConfigUniquePtr config_provider::CreatePluginsConfig(const string_view Uuid, const bool Local, bool UseFallback)
 {
-	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_NONE, path::join(L"PluginsData"sv, guid) + L".db"sv, encoding::utf8::get_bytes(guid).c_str(), Local, true, UseFallback);
+	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_NONE, path::join(L"PluginsData"sv, Uuid) + L".db"sv, encoding::utf8::get_bytes(Uuid).c_str(), Local, true, UseFallback);
 }
 
 HierarchicalConfigUniquePtr config_provider::CreateFiltersConfig()
@@ -2528,14 +2540,14 @@ void config_provider::Import(string_view const File)
 	//TODO: import local plugin settings
 	for (const auto& plugin: xml_enum(root.FirstChildElement("pluginsconfig"), "plugin"))
 	{
-		const auto guid = plugin.Attribute("guid");
-		if (!guid)
+		const auto UuidStr = plugin.Attribute("guid");
+		if (!UuidStr)
 			continue;
 
-		if (const auto Guid = encoding::utf8::get_chars(guid); is_uuid(Guid))
+		if (const auto Uuid = encoding::utf8::get_chars(UuidStr); is_uuid(Uuid))
 		{
 			Representation.SetRoot(&const_cast<tinyxml::XMLElement&>(plugin));
-			CreatePluginsConfig(Guid)->Import(Representation);
+			CreatePluginsConfig(Uuid)->Import(Representation);
 		}
 	}
 }

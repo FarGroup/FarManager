@@ -46,7 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "mix.hpp"
 #include "colormix.hpp"
-#include "FarGuid.hpp"
+#include "uuids.far.hpp"
 #include "keys.hpp"
 #include "language.hpp"
 #include "filepanels.hpp"
@@ -70,6 +70,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/function_ref.hpp"
 #include "common/null_iterator.hpp"
 #include "common/scope_exit.hpp"
+#include "common/uuid.hpp"
+#include "common/view/select.hpp"
 #include "common/view/select.hpp"
 #include "common/view/zip.hpp"
 
@@ -819,7 +821,7 @@ static char *InsertQuoteA(char *Str)
 	return Str;
 }
 
-static auto GetPluginGuid(intptr_t n)
+static auto GetPluginUuid(intptr_t n)
 {
 	return &reinterpret_cast<Plugin*>(n)->Id();
 }
@@ -1379,7 +1381,7 @@ struct oldPanelInfoContainer: noncopyable
 static long long GetSetting(FARSETTINGS_SUBFOLDERS Root, const wchar_t* Name)
 {
 	long long result = 0;
-	FarSettingsCreate settings = { sizeof(FarSettingsCreate), FarGuid, INVALID_HANDLE_VALUE };
+	FarSettingsCreate settings = { sizeof(FarSettingsCreate), FarUuid, INVALID_HANDLE_VALUE };
 	const auto Settings = pluginapi::apiSettingsControl(INVALID_HANDLE_VALUE, SCTL_CREATE, 0, &settings)? settings.Handle : nullptr;
 	if (Settings)
 	{
@@ -2352,14 +2354,18 @@ static int WINAPI FarInputBoxA(const char *Title, const char *Prompt, const char
 
 		const wchar_t_ptr_n<256> Buffer(DestLength);
 
-		const auto ret = pluginapi::apiInputBox(&FarGuid, &FarGuid,
+		const auto ret = pluginapi::apiInputBox(
+			&FarUuid,
+			&FarUuid,
 			Title? encoding::oem::get_chars(Title).c_str() : nullptr,
 			Prompt? encoding::oem::get_chars(Prompt).c_str() : nullptr,
 			HistoryName? encoding::oem::get_chars(HistoryName).c_str() : nullptr,
 			SrcText? encoding::oem::get_chars(SrcText).c_str() : nullptr,
-			Buffer.data(), Buffer.size(),
+			Buffer.data(),
+			Buffer.size(),
 			HelpTopic? encoding::oem::get_chars(HelpTopic).c_str() : nullptr,
-			NewFlags);
+			NewFlags
+		);
 
 		if (ret && DestText)
 			(void)encoding::oem::get_bytes(Buffer.data(), { DestText, static_cast<size_t>(DestLength) + 1 });
@@ -2427,10 +2433,15 @@ static int WINAPI FarMessageFnA(intptr_t PluginNumber, DWORD Flags, const char *
 			break;
 		}
 
-		return pluginapi::apiMessageFn(GetPluginGuid(PluginNumber), &FarGuid, NewFlags,
+		return pluginapi::apiMessageFn(
+			GetPluginUuid(PluginNumber),
+			&FarUuid,
+			NewFlags,
 			HelpTopic? encoding::oem::get_chars(HelpTopic).c_str() : nullptr,
 			AnsiItems.empty()? reinterpret_cast<const wchar_t* const *>(AllInOneAnsiItem.get()) : reinterpret_cast<const wchar_t* const *>(AnsiItems.data()),
-			ItemsNumber, ButtonsNumber);
+			ItemsNumber,
+			ButtonsNumber
+		);
 	},
 	[]
 	{
@@ -2570,7 +2581,7 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber, int X, int Y, int MaxHeight,
 
 		intptr_t NewBreakCode;
 
-		const auto ret = pluginapi::apiMenuFn(GetPluginGuid(PluginNumber), &FarGuid, X, Y, MaxHeight, NewFlags,
+		const auto ret = pluginapi::apiMenuFn(GetPluginUuid(PluginNumber), &FarUuid, X, Y, MaxHeight, NewFlags,
 			Title? encoding::oem::get_chars(Title).c_str() : nullptr,
 			Bottom? encoding::oem::get_chars(Bottom).c_str() : nullptr,
 			HelpTopic? encoding::oem::get_chars(HelpTopic).c_str() : nullptr,
@@ -3381,7 +3392,7 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber, int X1, int Y1, int X2, in
 		if (Flags&oldfar::FDLG_NONMODAL)
 			DlgFlags|=FDLG_NONMODAL;
 
-		const auto hDlg = pluginapi::apiDialogInit(GetPluginGuid(PluginNumber), &FarGuid, X1, Y1, X2, Y2, (HelpTopic? encoding::oem::get_chars(HelpTopic).c_str() : nullptr), di.data(), di.size(), 0, DlgFlags, DlgProcA, Param);
+		const auto hDlg = pluginapi::apiDialogInit(GetPluginUuid(PluginNumber), &FarUuid, X1, Y1, X2, Y2, (HelpTopic? encoding::oem::get_chars(HelpTopic).c_str() : nullptr), di.data(), di.size(), 0, DlgFlags, DlgProcA, Param);
 		if (hDlg == INVALID_HANDLE_VALUE)
 			return -1;
 
@@ -3641,7 +3652,7 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 					return FALSE;
 
 				const auto Dir = encoding::oem::get_chars(static_cast<const char*>(Param));
-				FarPanelDirectory dirInfo = { sizeof(FarPanelDirectory), Dir.c_str(), nullptr, FarGuid, nullptr };
+				FarPanelDirectory dirInfo = { sizeof(FarPanelDirectory), Dir.c_str(), nullptr, FarUuid, nullptr };
 				return static_cast<int>(pluginapi::apiPanelControl(hPlugin, FCTL_SETPANELDIRECTORY, 0, &dirInfo));
 			}
 
@@ -3840,7 +3851,7 @@ static int WINAPI FarGetPluginDirListA(intptr_t PluginNumber, HANDLE hPlugin, co
 		return GetDirListGeneric(*pPanelItem, *pItemsNumber, [&](PluginPanelItem*& Items, size_t& Size, size_t& PathOffset)
 		{
 			PathOffset = 0;
-			return pluginapi::apiGetPluginDirList(GetPluginGuid(PluginNumber), hPlugin, encoding::oem::get_chars(Dir).c_str(), &Items, &Size);
+			return pluginapi::apiGetPluginDirList(GetPluginUuid(PluginNumber), hPlugin, encoding::oem::get_chars(Dir).c_str(), &Items, &Size);
 		});
 	},
 	[]
@@ -3876,7 +3887,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 			case oldfar::ACTL_GETFARVERSION:
 			{
 				VersionInfo Info;
-				pluginapi::apiAdvControl(GetPluginGuid(ModuleNumber), ACTL_GETFARMANAGERVERSION, 0, &Info);
+				pluginapi::apiAdvControl(GetPluginUuid(ModuleNumber), ACTL_GETFARMANAGERVERSION, 0, &Info);
 				DWORD FarVer = Info.Major<<8|Info.Minor|Info.Build<<16;
 
 				if (Param)
@@ -3890,7 +3901,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 			case oldfar::ACTL_GETSYSWORDDIV:
 			{
 				intptr_t Result = 0;
-				FarSettingsCreate settings={sizeof(FarSettingsCreate),FarGuid,INVALID_HANDLE_VALUE};
+				FarSettingsCreate settings = { sizeof(FarSettingsCreate), FarUuid, INVALID_HANDLE_VALUE };
 				HANDLE Settings = pluginapi::apiSettingsControl(INVALID_HANDLE_VALUE, SCTL_CREATE, 0, &settings)? settings.Handle : nullptr;
 				if(Settings)
 				{
@@ -3910,7 +3921,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 				{
 					INPUT_RECORD input = {};
 					KeyToInputRecord(OldKeyToKey(static_cast<int>(reinterpret_cast<intptr_t>(Param))),&input);
-					return pluginapi::apiAdvControl(GetPluginGuid(ModuleNumber), ACTL_WAITKEY, 0, &input);
+					return pluginapi::apiAdvControl(GetPluginUuid(ModuleNumber), ACTL_WAITKEY, 0, &input);
 				}
 
 			case oldfar::ACTL_GETCOLOR:
@@ -3923,16 +3934,16 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 					{
 						ColorIndex--;
 					}
-					return pluginapi::apiAdvControl(GetPluginGuid(ModuleNumber), ACTL_GETCOLOR, ColorIndex, &Color)? colors::FarColorToConsoleColor(Color) :-1;
+					return pluginapi::apiAdvControl(GetPluginUuid(ModuleNumber), ACTL_GETCOLOR, ColorIndex, &Color)? colors::FarColorToConsoleColor(Color) :-1;
 				}
 
 			case oldfar::ACTL_GETARRAYCOLOR:
 				{
-					const auto PaletteSize = pluginapi::apiAdvControl(GetPluginGuid(ModuleNumber), ACTL_GETARRAYCOLOR, 0, nullptr);
+					const auto PaletteSize = pluginapi::apiAdvControl(GetPluginUuid(ModuleNumber), ACTL_GETARRAYCOLOR, 0, nullptr);
 					if(Param)
 					{
 						std::vector<FarColor> Color(PaletteSize);
-						pluginapi::apiAdvControl(GetPluginGuid(ModuleNumber), ACTL_GETARRAYCOLOR, 0, Color.data());
+						pluginapi::apiAdvControl(GetPluginUuid(ModuleNumber), ACTL_GETARRAYCOLOR, 0, Color.data());
 						const auto OldColors = static_cast<LPBYTE>(Param);
 						std::transform(ALL_CONST_RANGE(Color), OldColors, colors::FarColorToConsoleColor);
 					}
@@ -4050,7 +4061,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 				const auto wiA = static_cast<oldfar::WindowInfo*>(Param);
 				WindowInfo wi={sizeof(wi)};
 				wi.Pos = wiA->Pos;
-				intptr_t ret = pluginapi::apiAdvControl(GetPluginGuid(ModuleNumber), ACTL_GETWINDOWINFO, 0, &wi);
+				intptr_t ret = pluginapi::apiAdvControl(GetPluginUuid(ModuleNumber), ACTL_GETWINDOWINFO, 0, &wi);
 
 				if (ret)
 				{
@@ -4086,7 +4097,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 
 						if (wi.TypeName && wi.Name)
 						{
-							pluginapi::apiAdvControl(GetPluginGuid(ModuleNumber),ACTL_GETWINDOWINFO, 0, &wi);
+							pluginapi::apiAdvControl(GetPluginUuid(ModuleNumber),ACTL_GETWINDOWINFO, 0, &wi);
 							(void)encoding::oem::get_bytes(wi.TypeName, wiA->TypeName);
 							(void)encoding::oem::get_bytes(wi.Name, wiA->Name);
 						}
@@ -4101,13 +4112,13 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 				return ret;
 			}
 			case oldfar::ACTL_GETWINDOWCOUNT:
-				return pluginapi::apiAdvControl(GetPluginGuid(ModuleNumber), ACTL_GETWINDOWCOUNT, 0, nullptr);
+				return pluginapi::apiAdvControl(GetPluginUuid(ModuleNumber), ACTL_GETWINDOWCOUNT, 0, nullptr);
 			case oldfar::ACTL_SETCURRENTWINDOW:
-				return pluginapi::apiAdvControl(GetPluginGuid(ModuleNumber), ACTL_SETCURRENTWINDOW, reinterpret_cast<intptr_t>(Param), nullptr);
+				return pluginapi::apiAdvControl(GetPluginUuid(ModuleNumber), ACTL_SETCURRENTWINDOW, reinterpret_cast<intptr_t>(Param), nullptr);
 			case oldfar::ACTL_COMMIT:
-				return pluginapi::apiAdvControl(GetPluginGuid(ModuleNumber), ACTL_COMMIT, 0, nullptr);
+				return pluginapi::apiAdvControl(GetPluginUuid(ModuleNumber), ACTL_COMMIT, 0, nullptr);
 			case oldfar::ACTL_GETFARHWND:
-				return pluginapi::apiAdvControl(GetPluginGuid(ModuleNumber), ACTL_GETFARHWND, 0, nullptr);
+				return pluginapi::apiAdvControl(GetPluginUuid(ModuleNumber), ACTL_GETFARHWND, 0, nullptr);
 
 			case oldfar::ACTL_GETSYSTEMSETTINGS:
 			{
@@ -4167,7 +4178,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 				FarSetColors sc = {sizeof(FarSetColors), 0, static_cast<size_t>(scA->StartIndex), Colors.size(), Colors.data()};
 				if (scA->Flags&oldfar::FCLR_REDRAW)
 					sc.Flags|=FSETCLR_REDRAW;
-				return pluginapi::apiAdvControl(GetPluginGuid(ModuleNumber), ACTL_SETARRAYCOLOR, 0, &sc);
+				return pluginapi::apiAdvControl(GetPluginUuid(ModuleNumber), ACTL_SETARRAYCOLOR, 0, &sc);
 			}
 			case oldfar::ACTL_GETWCHARMODE:
 				return TRUE;
@@ -4183,7 +4194,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 				return ret;
 			}
 			case oldfar::ACTL_REDRAWALL:
-				return pluginapi::apiAdvControl(GetPluginGuid(ModuleNumber), ACTL_REDRAWALL, 0, nullptr);
+				return pluginapi::apiAdvControl(GetPluginUuid(ModuleNumber), ACTL_REDRAWALL, 0, nullptr);
 		}
 		return FALSE;
 	},
@@ -4214,9 +4225,9 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 					ec.Color = colors::ConsoleColorToFarColor(ecA->Color);
 					if(ecA->Color&oldfar::ECF_TAB1) ec.Color.Flags|=ECF_TABMARKFIRST;
 					ec.Priority=EDITOR_COLOR_NORMAL_PRIORITY;
-					ec.Owner=FarGuid;
+					ec.Owner = FarUuid;
 					EditorDeleteColor edc={sizeof(edc)};
-					edc.Owner=FarGuid;
+					edc.Owner = FarUuid;
 					edc.StringNumber = ecA->StringNumber;
 					edc.StartPos = ecA->StartPos;
 					return static_cast<int>(ecA->Color?pluginapi::apiEditorControl(-1, ECTL_ADDCOLOR, 0, &ec):pluginapi::apiEditorControl(-1, ECTL_DELCOLOR, 0, &edc));
@@ -4993,12 +5004,11 @@ private:
 		Info->Description = L"Far 1.x plugin";
 		Info->Author = L"Unknown";
 
-		const string& module = ModuleName();
+		const string& Module = ModuleName();
 		// Null-terminated, data() is ok
-		Info->Title = PointToName(module).data();
+		Info->Title = PointToName(Module).data();
 
-		bool GuidFound = false;
-		GUID PluginGuid = {};
+		bool UuidFound = false;
 
 		auto& FileVersion = static_cast<oem_plugin_module*>(m_Instance.get())->m_FileVersion;
 
@@ -5020,9 +5030,13 @@ private:
 				Info->Description = Value;
 			}
 
-			if (const auto Uuid = FileVersion.get_string(L"PluginGUID"sv))
+			if (const auto UuidStr = FileVersion.get_string(L"PluginGUID"sv))
 			{
-				GuidFound = StrToGuid(Uuid, PluginGuid);
+				if (const auto Uuid = uuid::try_parse(string_view(UuidStr)))
+				{
+					Info->Guid = *Uuid;
+					UuidFound = true;
+				}
 			}
 
 			if (const auto FileInfo = FileVersion.get_fixed_info())
@@ -5037,16 +5051,13 @@ private:
 		if (equal_icase(Info->Title, L"FarFtp"sv) || equal_icase(Info->Title, L"MultiArc"sv))
 			opif_shortcut = true;
 
-		if (GuidFound)
-		{
-			Info->Guid = PluginGuid;
-		}
-		else
+		if (!UuidFound)
 		{
 			int nb = std::min(static_cast<int>(wcslen(Info->Title)), 8);
-			while (nb > 0) {
+			while (nb > 0)
+			{
 				--nb;
-				reinterpret_cast<char *>(&Info->Guid)[8 + nb] = static_cast<char>(Info->Title[nb]);
+				reinterpret_cast<char*>(&Info->Guid)[8 + nb] = static_cast<char>(Info->Title[nb]);
 			}
 		}
 
@@ -5765,15 +5776,15 @@ private:
 			if (Size)
 			{
 				auto p = std::make_unique<const wchar_t*[]>(Size);
-				auto guid = std::make_unique<GUID[]>(Size);
+				auto Uuid = std::make_unique<UUID[]>(Size);
 
 				for (size_t i = 0; i != Size; ++i)
 				{
 					p[i] = AnsiToUnicode(Strings[i]);
-					guid[i].Data1 = static_cast<decltype(guid[i].Data1)>(i);
+					Uuid[i].Data1 = static_cast<decltype(Uuid[i].Data1)>(i);
 				}
 
-				Item.Guids = guid.release();
+				Item.Guids = Uuid.release();
 				Item.Strings = p.release();
 				Item.Count = Size;
 			}

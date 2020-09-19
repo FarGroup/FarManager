@@ -62,11 +62,11 @@ public:
 		string Folder;
 		string PluginFile;
 		string PluginData;
-		GUID PluginGuid{};
+		UUID PluginUuid{};
 	};
 
 	bool Get(data& Data);
-	void Add(string_view Folder, const GUID& PluginGuid, string_view PluginFile, string_view PluginData);
+	void Add(string_view Folder, const UUID& PluginUuid, string_view PluginFile, string_view PluginData);
 
 	static int Configure();
 

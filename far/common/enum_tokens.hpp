@@ -48,7 +48,7 @@ namespace detail
 		[[nodiscard]]
 		bool active(wchar_t) noexcept { return false; }
 
-		void postprocess(string_view&) noexcept {}
+		void postprocess(std::wstring_view&) noexcept {}
 	};
 
 	template<typename... args>
@@ -70,7 +70,7 @@ namespace detail
 			return active_impl(i, index_sequence{});
 		}
 
-		void postprocess(string_view& Value)
+		void postprocess(std::wstring_view& Value)
 		{
 			// applied to all args right to left
 			return postprocess_impl(Value, index_sequence{});
@@ -108,10 +108,10 @@ namespace detail
 		}
 
 		template<typename T>
-		using try_postprocess = decltype(std::declval<T&>().postprocess(std::declval<string_view&>()));
+		using try_postprocess = decltype(std::declval<T&>().postprocess(std::declval<std::wstring_view&>()));
 
 		template<size_t... I>
-		void postprocess_impl(string_view& Value, std::index_sequence<I...>)
+		void postprocess_impl(std::wstring_view& Value, std::index_sequence<I...>)
 		{
 			(..., get_opt<sizeof...(args) - 1 - I, try_postprocess>().postprocess(Value));
 		}
@@ -139,7 +139,7 @@ namespace detail
 			return m_InQuotes;
 		}
 
-		void postprocess(string_view& Value)
+		void postprocess(std::wstring_view& Value)
 		{
 			if (!m_MetQuote)
 				return;
@@ -152,13 +152,13 @@ namespace detail
 
 		bool m_InQuotes{};
 		bool m_MetQuote{};
-		string m_Cache;
+		std::wstring m_Cache;
 	};
 
 	class trimmer
 	{
 	public:
-		static void postprocess(string_view& Value) noexcept
+		static void postprocess(std::wstring_view& Value) noexcept
 		{
 			Value = trim(Value);
 		}
@@ -168,7 +168,7 @@ namespace detail
 	{
 	public:
 		[[nodiscard]]
-		auto extract(string_view::const_iterator const Begin, string_view::const_iterator const End, const string_view Separators, string_view& Value) const
+		auto extract(std::wstring_view::const_iterator const Begin, std::wstring_view::const_iterator const End, const std::wstring_view Separators, std::wstring_view& Value) const
 		{
 			const auto NewIterator = std::find_first_of(Begin, End, ALL_CONST_RANGE(Separators));
 			Value = make_string_view(Begin, NewIterator);
@@ -181,7 +181,7 @@ namespace detail
 	{
 	public:
 		[[nodiscard]]
-		auto extract(string_view::const_iterator const Begin, string_view::const_iterator const End, const string_view Separators, string_view& Value) const
+		auto extract(std::wstring_view::const_iterator const Begin, std::wstring_view::const_iterator const End, const std::wstring_view Separators, std::wstring_view& Value) const
 		{
 			m_Overrider.reset();
 
@@ -211,32 +211,32 @@ namespace detail
 }
 
 template<typename policy>
-class [[nodiscard]] enum_tokens_t: policy, public enumerator<enum_tokens_t<policy>, string_view>
+class [[nodiscard]] enum_tokens_t: policy, public enumerator<enum_tokens_t<policy>, std::wstring_view>
 {
 	IMPLEMENTS_ENUMERATOR(enum_tokens_t);
 
 public:
-	enum_tokens_t(string&& Str, const string_view Separators):
+	enum_tokens_t(std::wstring&& Str, const std::wstring_view Separators):
 		m_Storage(std::move(Str)),
 		m_View(m_Storage),
 		m_Separators(Separators)
 	{
 	}
 
-	enum_tokens_t(const string_view Str, const string_view Separators):
+	enum_tokens_t(const std::wstring_view Str, const std::wstring_view Separators):
 		m_View(Str),
 		m_Separators(Separators)
 	{
 	}
 
-	enum_tokens_t(const wchar_t* const Str, const string_view Separators) :
-		enum_tokens_t(string_view(Str), Separators)
+	enum_tokens_t(const wchar_t* const Str, const std::wstring_view Separators):
+		enum_tokens_t(std::wstring_view(Str), Separators)
 	{
 	}
 
 private:
 	[[nodiscard]]
-	bool get(bool Reset, string_view& Value) const
+	bool get(bool Reset, std::wstring_view& Value) const
 	{
 		if (Reset)
 			m_Iterator = m_View.cbegin();
@@ -250,10 +250,10 @@ private:
 		return true;
 	}
 
-	string m_Storage;
-	string_view m_View;
-	string_view m_Separators;
-	mutable string_view::const_iterator m_Iterator{};
+	std::wstring m_Storage;
+	std::wstring_view m_View;
+	std::wstring_view m_Separators;
+	mutable std::wstring_view::const_iterator m_Iterator{};
 };
 
 using enum_tokens = enum_tokens_t<detail::simple_policy>;

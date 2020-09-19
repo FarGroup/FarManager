@@ -60,10 +60,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-void ColorItem::SetOwner(const GUID& Value)
+void ColorItem::SetOwner(const UUID& Value)
 {
-	static std::unordered_set<UUID> GuidSet;
-	Owner = &*GuidSet.emplace(Value).first;
+	static std::unordered_set<UUID> UuidSet;
+	Owner = &*UuidSet.emplace(Value).first;
 }
 
 void ColorItem::SetColor(const FarColor& Value)

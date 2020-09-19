@@ -79,8 +79,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "processname.hpp"
 #include "mix.hpp"
 #include "elevation.hpp"
-#include "FarGuid.hpp"
-#include "DlgGuid.hpp"
+#include "uuids.far.hpp"
+#include "uuids.far.dialogs.hpp"
 #include "plugins.hpp"
 #include "lang.hpp"
 #include "language.hpp"
@@ -1246,7 +1246,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 		case KEY_ALTSHIFTF9:
 		case KEY_RALTSHIFTF9:
 			if (m_PanelMode == panel_mode::PLUGIN_PANEL)
-				Global->CtrlObject->Plugins->ConfigureCurrent(GetPluginHandle()->plugin(), FarGuid);
+				Global->CtrlObject->Plugins->ConfigureCurrent(GetPluginHandle()->plugin(), FarUuid);
 			else
 				Global->CtrlObject->Plugins->Configure();
 			return true;
@@ -2864,7 +2864,7 @@ bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePa
 		if (m_CachedOpenPanelInfo.Flags&OPIF_SHORTCUT)
 		{
 			const auto strInfoData = NullToEmpty(m_CachedOpenPanelInfo.ShortcutData);
-			Global->CtrlObject->FolderHistory->AddToHistory(strInfoCurDir, HR_DEFAULT, &PluginManager::GetGUID(GetPluginHandle()), strInfoHostFile, strInfoData);
+			Global->CtrlObject->FolderHistory->AddToHistory(strInfoCurDir, HR_DEFAULT, &PluginManager::GetUUID(GetPluginHandle()), strInfoHostFile, strInfoData);
 		}
 		/* $ 25.04.01 DJ
 		   при неудаче SetDirectory не сбрасываем выделение

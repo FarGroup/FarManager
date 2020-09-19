@@ -84,8 +84,8 @@ class KeyMacro: noncopyable
 public:
 	KeyMacro();
 
-	static bool AddMacro(const GUID& PluginId,const MacroAddMacroV1* Data);
-	static bool DelMacro(const GUID& PluginId,void* Id);
+	static bool AddMacro(const UUID& PluginId, const MacroAddMacroV1* Data);
+	static bool DelMacro(const UUID& PluginId, void* Id);
 	static bool ExecuteString(MacroExecuteString *Data);
 	static bool GetMacroKeyInfo(const string& StrArea,int Pos,string &strKeyName,string &strDescription);
 	static bool IsOutputDisabled();

@@ -81,6 +81,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/range.hpp"
 #include "common/scope_exit.hpp"
 #include "common/string_utils.hpp"
+#include "common/uuid.hpp"
 
 // External:
 
@@ -404,7 +405,7 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 		if (!SingleProfile)
 			CreatePath(path::join(Global->Opt->LocalProfilePath, L"PluginsData"sv), true);
 
-		const auto RandomName = GuidToStr(CreateUuid());
+		const auto RandomName = uuid::str(os::uuid::generate());
 
 		if (!os::fs::can_create_file(path::join(Global->Opt->ProfilePath, RandomName)) ||
 			(!SingleProfile && !os::fs::can_create_file(path::join(Global->Opt->LocalProfilePath, RandomName))))
@@ -421,7 +422,7 @@ static std::optional<int> ProcessServiceModes(span<const wchar_t* const> const A
 		return (*Arg == L'/' || *Arg == L'-') && equal_icase(Arg + 1, Name);
 	};
 
-	if (Args.size() == 4 && IsElevationArgument(Args[0])) // /service:elevation {GUID} PID UsePrivileges
+	if (Args.size() == 4 && IsElevationArgument(Args[0])) // /service:elevation {UUID} PID UsePrivileges
 	{
 		return ElevationMain(Args[1], std::wcstoul(Args[2], nullptr, 10), *Args[3] == L'1');
 	}

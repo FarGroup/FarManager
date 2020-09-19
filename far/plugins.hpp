@@ -139,7 +139,7 @@ public:
 	~PluginManager();
 
 	// API functions
-	std::unique_ptr<plugin_panel> Open(Plugin *pPlugin,int OpenFrom,const GUID& Guid,intptr_t Item) const;
+	std::unique_ptr<plugin_panel> Open(Plugin* pPlugin, int OpenFrom, const UUID& Uuid, intptr_t Item) const;
 	std::unique_ptr<plugin_panel> OpenFilePlugin(const string* Name, OPERATION_MODES OpMode, OPENFILEPLUGINTYPE Type, bool* StopProcessingPtr = nullptr);
 	std::unique_ptr<plugin_panel> OpenFindListPlugin(span<const PluginPanelItem> PanelItems);
 	static void ClosePanel(std::unique_ptr<plugin_panel>&& hPlugin);
@@ -166,7 +166,7 @@ public:
 	intptr_t ProcessDialogEvent(int Event,FarDialogEvent *Param) const;
 	intptr_t ProcessConsoleInput(ProcessConsoleInputInfo *Info) const;
 	std::vector<Plugin*> GetContentPlugins(const std::vector<const wchar_t*>& ColNames) const;
-	void GetContentData(const std::vector<Plugin*>& Plugins, const string& FilePath, const std::vector<const wchar_t*>& Names, std::vector<const wchar_t*>& Values, std::unordered_map<string,string>& ContentData) const;
+	void GetContentData(const std::vector<Plugin*>& Plugins, string_view FilePath, const std::vector<const wchar_t*>& ColNames, std::vector<const wchar_t*>& ColValues, std::unordered_map<string,string>& ContentData) const;
 	Plugin* LoadPluginExternal(const string& ModuleName, bool LoadToMem);
 	bool UnloadPluginExternal(Plugin* pPlugin);
 	bool IsPluginUnloaded(const Plugin* pPlugin) const;
@@ -192,16 +192,16 @@ public:
 		int OpenFrom;
 		union
 		{
-			GUID *ItemGuid;
+			UUID *ItemUuid;
 			const wchar_t *Command;
 		};
 		// Используется в функции CallPluginItem для внутренних нужд
 		Plugin *pPlugin;
-		GUID FoundGuid;
+		UUID FoundUuid;
 	};
 
 	Plugin *FindPlugin(const string& ModuleName) const;
-	Plugin *FindPlugin(const GUID& SysID) const;
+	Plugin *FindPlugin(const UUID& SysID) const;
 
 #ifndef NO_WRAPPER
 	bool OemPluginsPresent() const { return OemPluginsCount > 0; }
@@ -209,21 +209,21 @@ public:
 	bool IsPluginsLoaded() const { return m_PluginsLoaded; }
 	void Configure(int StartPos=0);
 	int CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName=nullptr);
-	bool GetDiskMenuItem(Plugin *pPlugin, size_t PluginItem, bool &ItemPresent, wchar_t& PluginHotkey, string &strPluginText, GUID &Guid) const;
+	bool GetDiskMenuItem(Plugin* pPlugin, size_t PluginItem, bool& ItemPresent, wchar_t& PluginHotkey, string& strPluginText, UUID& Uuid) const;
 	void ReloadLanguage() const;
 	bool ProcessCommandLine(const string& Command);
 	size_t GetPluginInformation(Plugin *pPlugin, FarGetPluginInformation *pInfo, size_t BufferSize);
 	// $ .09.2000 SVS - Функция CallPlugin - найти плагин по ID и запустить OpenFrom = OPEN_*
-	bool CallPlugin(const GUID& SysID,int OpenFrom, void *Data, void **Ret=nullptr) const;
-	bool CallPluginItem(const GUID& Guid, CallPluginInfo *Data) const;
+	bool CallPlugin(const UUID& SysID,int OpenFrom, void *Data, void **Ret=nullptr) const;
+	bool CallPluginItem(const UUID& Uuid, CallPluginInfo* Data) const;
 	void RefreshPluginsList();
 	const auto& Factories() const { return PluginFactories; }
 
-	static void ConfigureCurrent(Plugin *pPlugin, const GUID& Guid);
+	static void ConfigureCurrent(Plugin *pPlugin, const UUID& Uuid);
 	static bool UseInternalCommand(const plugin_panel* hPlugin, int CommandType, OpenPanelInfo const& Info);
-	static const GUID& GetGUID(const plugin_panel* hPlugin);
-	static bool SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, hotkey_type HotKeyType, string_view DlgPluginTitle);
-	static void ShowPluginInfo(Plugin *pPlugin, const GUID& Guid);
+	static const UUID& GetUUID(const plugin_panel* hPlugin);
+	static bool SetHotKeyDialog(Plugin* pPlugin, const UUID& Uuid, hotkey_type HotKeyType, string_view DlgPluginTitle);
+	static void ShowPluginInfo(Plugin* pPlugin, const UUID& Uuid);
 
 private:
 	friend class Plugin;
@@ -235,7 +235,7 @@ private:
 	bool RemovePlugin(Plugin *pPlugin);
 	int UnloadPlugin(Plugin *pPlugin, int From);
 	void UndoRemove(Plugin* plugin);
-	bool UpdateId(Plugin *pPlugin, const GUID& Id);
+	bool UpdateId(Plugin *pPlugin, const UUID& Id);
 	void LoadPluginsFromCache();
 
 	std::vector<std::unique_ptr<plugin_factory>> PluginFactories;

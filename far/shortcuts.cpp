@@ -48,8 +48,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarDlgBuilder.hpp"
 #include "plugins.hpp"
 #include "configdb.hpp"
-#include "FarGuid.hpp"
-#include "DlgGuid.hpp"
+#include "uuids.far.hpp"
+#include "uuids.far.dialogs.hpp"
 #include "lang.hpp"
 #include "global.hpp"
 #include "keyboard.hpp"
@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/rel_ops.hpp"
 #include "common/string_utils.hpp"
+#include "common/uuid.hpp"
 #include "common/view/enumerate.hpp"
 
 // External:
@@ -72,7 +73,7 @@ static const auto
 	FolderShortcutsKey = L"Shortcuts"sv,
 	FolderName = L"Shortcut"sv,
 	NameName = L"Name"sv,
-	PluginGuidName = L"PluginGuid"sv,
+	PluginUuidName = L"PluginGuid"sv,
 	PluginFileName = L"PluginFile"sv,
 	PluginDataName = L"PluginData"sv,
 
@@ -84,20 +85,20 @@ class Shortcuts::shortcut: public data, public rel_ops<shortcut>
 public:
 	shortcut() = default;
 
-	shortcut(string_view const Name, string_view const Folder, string_view const PluginFile, string_view const PluginData, const GUID& PluginGuid):
+	shortcut(string_view const Name, string_view const Folder, string_view const PluginFile, string_view const PluginData, const UUID& PluginUuid):
 		Name(Name)
 	{
 		this->Folder = Folder;
 		this->PluginFile = PluginFile;
 		this->PluginData = PluginData;
-		this->PluginGuid = PluginGuid;
+		this->PluginUuid = PluginUuid;
 	}
 
 	bool operator==(const shortcut& rhs) const
 	{
 		const auto tie = [](const shortcut& s)
 		{
-			return std::tie(s.Name, s.Folder, s.PluginGuid, s.PluginFile, s.PluginData);
+			return std::tie(s.Name, s.Folder, s.PluginUuid, s.PluginFile, s.PluginData);
 		};
 
 		return tie(*this) == tie(rhs);
@@ -129,9 +130,10 @@ Shortcuts::Shortcuts(size_t Index):
 
 		Item.Name = Cfg->GetValue<string>(Key, NameName + sIndex);
 
-		const auto PluginGuid = Cfg->GetValue<string>(Key, PluginGuidName + sIndex);
-		if(!StrToGuid(PluginGuid, Item.PluginGuid))
-			Item.PluginGuid=FarGuid;
+		if (const auto Uuid = uuid::try_parse(Cfg->GetValue<string>(Key, PluginUuidName + sIndex)))
+			Item.PluginUuid = *Uuid;
+		else
+			Item.PluginUuid = FarUuid;
 
 		Item.PluginFile = Cfg->GetValue<string>(Key, PluginFileName + sIndex);
 		Item.PluginData = Cfg->GetValue<string>(Key, PluginDataName + sIndex);
@@ -168,9 +170,9 @@ void Shortcuts::Save()
 		Cfg->SetValue(Key, FolderName + sIndex, Item.Folder);
 		Cfg->SetValue(Key, NameName + sIndex, Item.Name);
 
-		if(Item.PluginGuid != FarGuid)
+		if(Item.PluginUuid != FarUuid)
 		{
-			Cfg->SetValue(Key, PluginGuidName + sIndex, GuidToStr(Item.PluginGuid));
+			Cfg->SetValue(Key, PluginUuidName + sIndex, uuid::str(Item.PluginUuid));
 		}
 
 		if(!Item.PluginFile.empty())
@@ -192,14 +194,14 @@ static string MakeName(const Shortcuts::shortcut& Item)
 		return os::env::expand(Item.Name);
 	}
 
-	if (Item.PluginGuid == FarGuid)
+	if (Item.PluginUuid == FarUuid)
 	{
 		return !Item.Folder.empty()? escape_ampersands(os::env::expand(Item.Folder)) : msg(lng::MShortcutNone);
 	}
 
-	const auto plugin = Global->CtrlObject->Plugins->FindPlugin(Item.PluginGuid);
+	const auto plugin = Global->CtrlObject->Plugins->FindPlugin(Item.PluginUuid);
 	if (!plugin)
-		return GuidToStr(Item.PluginGuid);
+		return uuid::str(Item.PluginUuid);
 
 	string TechInfo;
 
@@ -232,7 +234,7 @@ static void FillMenu(VMenu2& Menu, std::list<Shortcuts::shortcut>& List, bool co
 			continue;
 
 		ListItem.ComplexUserData = i;
-		if (!raw_mode && i->PluginGuid == FarGuid && i->Folder.empty())
+		if (!raw_mode && i->PluginUuid == FarUuid && i->Folder.empty())
 		{
 			if (ListItem.Name != SeparatorToken)
 			{
@@ -271,7 +273,7 @@ static auto CreateShortcutFromPanel()
 	{
 		OpenPanelInfo Info{};
 		ActivePanel->GetOpenPanelInfo(&Info);
-		Shortcut.PluginGuid = ActivePanel->GetPluginHandle()->plugin()->Id();
+		Shortcut.PluginUuid = ActivePanel->GetPluginHandle()->plugin()->Id();
 		Shortcut.PluginFile = NullToEmpty(Info.HostFile);
 		Shortcut.PluginData = NullToEmpty(Info.ShortcutData);
 	}
@@ -287,10 +289,10 @@ static bool EditItemImpl(Shortcuts::shortcut& Item, bool raw)
 	Builder.AddEditField(NewItem.Name, 50, L"FS_Name"sv, DIF_EDITPATH);
 	Builder.AddText(lng::MFSShortcutPath);
 	Builder.AddEditField(NewItem.Folder, 50, L"FS_Path"sv, DIF_EDITPATH);
-	if (Item.PluginGuid != FarGuid)
+	if (Item.PluginUuid != FarUuid)
 	{
-		const auto plugin = Global->CtrlObject->Plugins->FindPlugin(Item.PluginGuid);
-		Builder.AddSeparator(plugin? plugin->Title().c_str() : GuidToStr(Item.PluginGuid).c_str());
+		const auto plugin = Global->CtrlObject->Plugins->FindPlugin(Item.PluginUuid);
+		Builder.AddSeparator(plugin? plugin->Title().c_str() : uuid::str(Item.PluginUuid).c_str());
 		Builder.AddText(lng::MFSShortcutPluginFile);
 		Builder.AddEditField(NewItem.PluginFile, 50, L"FS_PluginFile"sv, DIF_EDITPATH);
 		Builder.AddText(lng::MFSShortcutPluginData);
@@ -305,7 +307,7 @@ static bool EditItemImpl(Shortcuts::shortcut& Item, bool raw)
 	if (NewItem == Item)
 		return false;
 
-	if (Item.PluginGuid == FarGuid)
+	if (Item.PluginUuid == FarUuid)
 	{
 		if (NewItem.Folder.empty())
 		{
@@ -454,9 +456,9 @@ bool Shortcuts::GetOne(size_t Index, data& Data) const
 	return true;
 }
 
-void Shortcuts::Add(string_view const Folder, const GUID& PluginGuid, string_view const PluginFile, string_view const PluginData)
+void Shortcuts::Add(string_view const Folder, const UUID& PluginUuid, string_view const PluginFile, string_view const PluginData)
 {
-	m_Items.emplace_back(string{}, Folder, PluginFile, PluginData, PluginGuid);
+	m_Items.emplace_back(string{}, Folder, PluginFile, PluginData, PluginUuid);
 	m_Changed = true;
 }
 

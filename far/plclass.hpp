@@ -274,7 +274,7 @@ public:
 #ifndef NO_WRAPPER
 	virtual bool IsOemPlugin() const { return false; }
 #endif // NO_WRAPPER
-	virtual const string& GetHotkeyName() const { return m_strGuid; }
+	virtual const string& GetHotkeyName() const { return m_strUuid; }
 
 	virtual bool InitLang(string_view Path, string_view Language);
 	void CloseLang();
@@ -295,7 +295,7 @@ public:
 	const string& Author() const { return strAuthor; }
 	const VersionInfo& version() const { return m_PluginVersion; }
 	const VersionInfo& MinFarVersion() const { return m_MinFarVersion; }
-	const GUID& Id() const { return m_Guid; }
+	const UUID& Id() const { return m_Uuid; }
 	bool IsPendingRemove() const { return bPendingRemove; }
 	const wchar_t* Msg(intptr_t Id) const;
 
@@ -360,7 +360,7 @@ private:
 
 	void InitExports();
 	void ClearExports();
-	void SetGuid(const GUID& Guid);
+	void SetUuid(const UUID& Uuid);
 
 	template<typename T>
 	void SetInstance(T* Object) const
@@ -382,8 +382,8 @@ private:
 	VersionInfo m_MinFarVersion{};
 	VersionInfo m_PluginVersion{};
 
-	GUID m_Guid;
-	string m_strGuid;
+	UUID m_Uuid;
+	string m_strUuid;
 };
 
 plugin_factory_ptr CreateCustomPluginFactory(PluginManager* Owner, const string& Filename);

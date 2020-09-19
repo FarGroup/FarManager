@@ -775,20 +775,19 @@ public:
 
 	struct KnownModulesIDs
 	{
-		struct GuidOption
+		struct UuidOption
 		{
-			GUID Id{};
+			UUID Id{};
 			StringOption StrId;
 			string_view Default;
-		};
-
-		GuidOption Network;
-		GuidOption Emenu;
-		GuidOption Arclite;
-		GuidOption Luamacro;
-		GuidOption Netbox;
-		GuidOption ProcList;
-		GuidOption TmpPanel;
+		}
+		Network,
+		Emenu,
+		Arclite,
+		Luamacro,
+		Netbox,
+		ProcList,
+		TmpPanel;
 	};
 
 	struct ExecuteOptions

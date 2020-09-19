@@ -129,7 +129,7 @@ root_type ParsePath(const string_view Path, size_t* const DirectoryOffset, bool*
 			re(RE_PATH_PREFIX(L"unc" RE_BACKSLASH RE_NONE_OF(RE_DOT) RE_NONE_OF(RE_SPACE RE_SLASHES RE_Q_MARK) RE_ONE_OR_MORE_LAZY RE_BACKSLASH RE_NONE_OF(RE_SLASHES) RE_ONE_OR_MORE_GREEDY) RE_ANY_SLASH_OR_NONE),
 		},
 		{
-			// \\?\Volume{GUID}(\...)
+			// \\?\Volume{UUID}(\...)
 			root_type::volume,
 			re(RE_PATH_PREFIX(L"volume" RE_ESCAPE(L"{") RE_ANY_UUID RE_ESCAPE(L"}")) RE_ANY_SLASH_OR_NONE),
 		},

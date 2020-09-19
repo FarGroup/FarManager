@@ -1232,7 +1232,7 @@ Obsługiwane typy: CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM, DVD-RW i DVD-RAM.
    ^<wrap>"Przyjazna" nazwa użytkownika (np. Jan Kowalski). Wyświetlana nazwa nie musi być zdefiniowaną nazwą wyróżniającą (RDN).
 
  - #Unikalne ID#
-   ^<wrap>Tekst GUID (np. {4fa050f0-f561-11cf-bdd9-00aa003a77b6}).
+   ^<wrap>Tekst UUID (np. {4fa050f0-f561-11cf-bdd9-00aa003a77b6}).
 
  - #Nazwa kanoniczna (z domeny)#
    ^<wrap>Pełna nazwa kanoniczna (np. inzynierowie.firma.pl/programisci/osoba). Wersja dla domeny zawiera przedrostek - ukośnik (/).

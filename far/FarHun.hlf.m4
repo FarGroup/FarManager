@@ -804,7 +804,7 @@ sztringek mindig megmaradnak.
  Párbeszédablak szerkesztési előzményeinek törlése              #Del#
 
  Párbeszédablak szerkesztési előzmény aktuális elemének   #Shift+Del#
- törlése (ha az elem nincs rögzítve)                 
+ törlése (ha az elem nincs rögzítve)
 
  A párbeszédablak alapértelmezett elemére állítja a kurzort    #PgDn#
 
@@ -1277,7 +1277,7 @@ Supported types: CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM, DVD-RW and DVD-RAM.
    ^<wrap>A "friendly" display name (for example, Jeff Smith). The display name is not necessarily the defining relative distinguished name (RDN).
 
  - #Unique Id#
-   ^<wrap>A GUID string (for example, {4fa050f0-f561-11cf-bdd9-00aa003a77b6}).
+   ^<wrap>An UUID string (for example, {4fa050f0-f561-11cf-bdd9-00aa003a77b6}).
 
  - #Canonical Name#
    ^<wrap>The complete canonical name (for example, engineering.microsoft.com/software/someone). The domain-only version includes a trailing forward slash (/).
@@ -1679,7 +1679,7 @@ should contain a target directory path.
 készíthetünk. Ebben az esetben a mappák neveit "#;#" vagy "#,#" karakterrel kell
 elválasztani. Ha a fent említett opciót engedélyeztük és a mappa nevében van
 "#;#" (vagy "#,#") karakter, akkor a nevet idézőjelek közé kell tenni. Például
-a következő soron Entert ütve #C:\\Foo1;"E:\\foo,2;";D:\\foo3# 
+a következő soron Entert ütve #C:\\Foo1;"E:\\foo,2;";D:\\foo3#
 a #C:\\Foo1#, az #E:\\foo,2;# és a #D:\\foo3# nevű mappák jönnek létre.
 
 
@@ -1954,7 +1954,7 @@ mérete bármilyen értéket felvehet.
  #Dátum/Idő#
  A fájl dátumának/idejének tartománya. Választhatunk az utolsó #módosítás#, a #létrehozás#
 vagy a #hozzáférés# dátuma és időpontja közt.
- #Jelenlegi# gomb az aktuális dátummal és idővel 
+ #Jelenlegi# gomb az aktuális dátummal és idővel
 tölti fel a dátum/idő mezőt, ezután a mezők értékeit módosíthatjuk, például
 akár külön a hónap vagy a perc értékét is.
  Az #Üres# gomb törli a dátum- és időmezők tartalmát.
@@ -3210,7 +3210,7 @@ kódlapját kapja, de ez az opció a ~szerkesztő beállítások~@EditorSettings
  Megjegyzések:
 
  1. ^<wrap>Az #Alt+U#/#Alt+I# a sor behúzását állítja, ha nincs kijelölt blokk.
- 2. ^<wrap>Lenyomott #Alt#-tal a karaktereket decimális kódjukkal 
+ 2. ^<wrap>Lenyomott #Alt#-tal a karaktereket decimális kódjukkal
 írhatjuk be a numerikus billentyűzeten (0-65535).
  3. ^<wrap>Ha nincs kijelölt blokk, a #Ctrl+Ins#/#Ctrl+C# kijelöli
 a teljes aktuális sort és a vágólapra másolja.
@@ -5142,7 +5142,7 @@ $ #Makrók: gyorsbillentyűk#
  - ^<wrap>bármelyik billentyűhöz;
  - ^<wrap>bármelyik, módosítóval (#Ctrl#, #Alt# vagy #Shift#) együtt lenyomott billentyűhöz;
  - ^<wrap>bármelyik két módosítóval együtt lenyomott billentyűhöz. A
-lehetséges módosítópárok:  #Ctrl+Shift+<bill.>#, #Ctrl+Alt+<bill.># és 
+lehetséges módosítópárok:  #Ctrl+Shift+<bill.>#, #Ctrl+Alt+<bill.># és
 #Alt+Shift+<bill.>#
 
  A következő kombinációk #nem használhatók# makróhoz: #Alt+Ins#, #Ctrl+<.>#,
@@ -5230,7 +5230,7 @@ billentyűkombinációt, az a korábbi beállításnak megfelelően működik ez
 $ #Makrók: beállítások#
  Ha a ~makrók~@KeyMacro@ egyéb tulajdonságait is szeretnénk módosítani,
 a felvétel leállítására a #Ctrl+<.># helyett használjuk a #Ctrl+Shift+<.>#
-kombinációt, így a rögzítést követően egy párbeszédablakban állíthatjuk be 
+kombinációt, így a rögzítést követően egy párbeszédablakban állíthatjuk be
 a kívánt jellemzőket:
 
  #Szekvencia:#
@@ -6264,7 +6264,7 @@ as for windowed and fullscreen mode.
 
 @-
  ┌──────────╥───────────────────────┬───────────────────────┐
- │ Mode     ║ Windowed              │ Fullscreen            │           
+ │ Mode     ║ Windowed              │ Fullscreen            │
  ╞══════════╬═══════════════════════╪═══════════════════════╡
  │ Insert   ║ Interface.CursorSize1 │ Interface.CursorSize2 │
  ├──────────╫───────────────────────┼───────────────────────┤

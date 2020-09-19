@@ -139,25 +139,25 @@ public:
 	}
 
 	[[nodiscard]]
-	bool EnumDeviceInterfaces(const GUID& InterfaceClassGuid, DWORD MemberIndex, SP_DEVICE_INTERFACE_DATA& DeviceInterfaceData) const
+	bool EnumDeviceInterfaces(const UUID& InterfaceClassUuid, DWORD MemberIndex, SP_DEVICE_INTERFACE_DATA& DeviceInterfaceData) const
 	{
-		return SetupDiEnumDeviceInterfaces(m_info.native_handle(), nullptr, &InterfaceClassGuid, MemberIndex, &DeviceInterfaceData) != FALSE;
+		return SetupDiEnumDeviceInterfaces(m_info.native_handle(), nullptr, &InterfaceClassUuid, MemberIndex, &DeviceInterfaceData) != FALSE;
 	}
 
 	template<typename uuid_type>
 	[[nodiscard]]
-	auto DeviceInterfacesEnumerator(uuid_type&& InterfaceClassGuid) const
+	auto DeviceInterfacesEnumerator(uuid_type&& InterfaceClassUuid) const
 	{
 		static_assert(std::is_convertible_v<uuid_type, UUID>);
 
 		using value_type = SP_DEVICE_INTERFACE_DATA;
-		return make_inline_enumerator<value_type>([this, InterfaceClassGuid = keep_alive(FWD(InterfaceClassGuid)), Index = size_t{}](const bool Reset, value_type& Value) mutable
+		return make_inline_enumerator<value_type>([this, InterfaceClassUuid = keep_alive(FWD(InterfaceClassUuid)), Index = size_t{}](const bool Reset, value_type& Value) mutable
 		{
 			if (Reset)
 				Index = 0;
 
 			Value.cbSize = sizeof(Value);
-			return SetupDiEnumDeviceInterfaces(m_info.native_handle(), nullptr, &InterfaceClassGuid, static_cast<DWORD>(Index++), &Value) != FALSE;
+			return SetupDiEnumDeviceInterfaces(m_info.native_handle(), nullptr, &InterfaceClassUuid, static_cast<DWORD>(Index++), &Value) != FALSE;
 		});
 	}
 

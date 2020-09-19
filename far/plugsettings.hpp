@@ -61,7 +61,7 @@ public:
 	virtual int SubKey(const FarSettingsValue& Value, bool bCreate) = 0;
 
 	static std::unique_ptr<AbstractSettings> CreateFarSettings();
-	static std::unique_ptr<AbstractSettings> CreatePluginSettings(const GUID& Guid, bool Local);
+	static std::unique_ptr<AbstractSettings> CreatePluginSettings(const UUID& Uuid, bool Local);
 
 protected:
 	const wchar_t* Add(string_view String);

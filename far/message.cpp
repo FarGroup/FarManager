@@ -162,7 +162,7 @@ intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-Message::Message(DWORD const Flags, string_view const Title, std::vector<string> Strings, span<lng const> const Buttons, string_view const HelpTopic, const GUID* const Id)
+Message::Message(DWORD const Flags, string_view const Title, std::vector<string> Strings, span<lng const> const Buttons, string_view const HelpTopic, const UUID* const Id)
 {
 	std::vector<string> StrButtons;
 	StrButtons.reserve(Buttons.size());
@@ -170,7 +170,7 @@ Message::Message(DWORD const Flags, string_view const Title, std::vector<string>
 	Init(Flags, Title, std::move(Strings), std::move(StrButtons), nullptr, {}, HelpTopic, nullptr, Id);
 }
 
-Message::Message(DWORD const Flags, const error_state_ex& ErrorState, string_view  const Title, std::vector<string> Strings, span<lng const> const Buttons, string_view const HelpTopic, const GUID* const Id, span<string const> const Inserts)
+Message::Message(DWORD const Flags, const error_state_ex& ErrorState, string_view  const Title, std::vector<string> Strings, span<lng const> const Buttons, string_view const HelpTopic, const UUID* const Id, span<string const> const Inserts)
 {
 	std::vector<string> StrButtons;
 	StrButtons.reserve(Buttons.size());
@@ -178,7 +178,7 @@ Message::Message(DWORD const Flags, const error_state_ex& ErrorState, string_vie
 	Init(Flags, Title, std::move(Strings), std::move(StrButtons), &ErrorState, Inserts, HelpTopic, nullptr, Id);
 }
 
-Message::Message(DWORD const Flags, const error_state_ex* const ErrorState, string_view const Title, std::vector<string> Strings, std::vector<string> Buttons, string_view const HelpTopic, const GUID* const Id, Plugin* const PluginNumber)
+Message::Message(DWORD const Flags, const error_state_ex* const ErrorState, string_view const Title, std::vector<string> Strings, std::vector<string> Buttons, string_view const HelpTopic, const UUID* const Id, Plugin* const PluginNumber)
 {
 	Init(Flags, Title, std::move(Strings), std::move(Buttons), ErrorState, {}, HelpTopic, PluginNumber, Id);
 }
@@ -192,7 +192,7 @@ void Message::Init(
 	span<string const> const Inserts,
 	string_view const HelpTopic,
 	Plugin* const PluginNumber,
-	const GUID* const Id
+	const UUID* const Id
 	)
 {
 	IsWarningStyle = (Flags&MSG_WARNING) != 0;

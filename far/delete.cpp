@@ -57,7 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "FarDlgBuilder.hpp"
 #include "strmix.hpp"
-#include "DlgGuid.hpp"
+#include "uuids.far.dialogs.hpp"
 #include "cvtname.hpp"
 #include "fileattr.hpp"
 #include "copy_progress.hpp"
@@ -326,7 +326,7 @@ static void show_confirmation(
 	}
 
 	lng mTitle, mDText, mDBttn;
-	const GUID* Id;
+	const UUID* Id;
 
 	if (DeleteType == delete_type::erase)
 	{
@@ -548,30 +548,34 @@ void ShellDelete::process_item(
 			int MsgCode = 0; // для symlink не нужно подтверждение
 			if (!DirSymLink)
 			{
-				const GUID* guidId = &DeleteFolderId;
-				auto tit = lng::MDeleteFolderTitle, con = lng::MDeleteFolderConfirm, del = lng::MDeleteFileDelete;
+				auto Uuid = &DeleteFolderId;
+				auto
+					TitleId = lng::MDeleteFolderTitle,
+					ConfirmId = lng::MDeleteFolderConfirm,
+					DeleteId = lng::MDeleteFileDelete;
+
 				if (m_DeleteType == delete_type::erase)
 				{
-					tit = lng::MWipeFolderTitle;
-					con = lng::MWipeFolderConfirm;
-					del = lng::MDeleteFileWipe;
-					guidId = &WipeFolderId;
+					TitleId = lng::MWipeFolderTitle;
+					ConfirmId = lng::MWipeFolderConfirm;
+					DeleteId = lng::MDeleteFileWipe;
+					Uuid = &WipeFolderId;
 				}
 				else if (m_DeleteType == delete_type::recycle)
 				{
-					con = lng::MRecycleFolderConfirm;
-					del = lng::MDeleteRecycle;
-					guidId = &DeleteFolderRecycleId;
+					ConfirmId = lng::MRecycleFolderConfirm;
+					DeleteId = lng::MDeleteRecycle;
+					Uuid = &DeleteFolderRecycleId;
 				}
 
 				MsgCode=Message(MSG_WARNING,
-					msg(tit),
+					msg(TitleId),
 					{
-						msg(con),
+						msg(ConfirmId),
 						strFullName
 					},
-					{ del, lng::MDeleteFileAll, lng::MDeleteFileSkip, lng::MDeleteFileCancel },
-					{}, guidId);
+					{ DeleteId, lng::MDeleteFileAll, lng::MDeleteFileSkip, lng::MDeleteFileCancel },
+					{}, Uuid);
 			}
 
 			if (MsgCode == Message::first_button)
@@ -642,7 +646,7 @@ void ShellDelete::process_item(
 							strFullName
 						},
 						{ m_DeleteType == delete_type::erase? lng::MDeleteFileWipe : lng::MDeleteFileDelete, lng::MDeleteFileAll, lng::MDeleteFileSkip, lng::MDeleteFileCancel },
-						{}, m_DeleteType == delete_type::erase? &WipeFolderId : &DeleteFolderId); // ??? other GUID ???
+						{}, m_DeleteType == delete_type::erase? &WipeFolderId : &DeleteFolderId); // ??? other UUID ???
 
 					if (MsgCode == Message::first_button)
 					{

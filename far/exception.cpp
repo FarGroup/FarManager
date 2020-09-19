@@ -97,10 +97,10 @@ namespace detail
 		return encoding::utf8::get_bytes(full_message());
 	}
 
-	attach_debugger::attach_debugger()
+	break_into_debugger::break_into_debugger()
 	{
-		if (IsDebuggerPresent())
-			DebugBreak();
+		if (os::debug::debugger_present())
+			os::debug::breakpoint();
 	}
 
 	exception_context::exception_context(DWORD const Code, const EXCEPTION_POINTERS& Pointers, os::handle&& ThreadHandle, DWORD const ThreadId) noexcept:

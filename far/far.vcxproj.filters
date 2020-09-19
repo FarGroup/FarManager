@@ -619,6 +619,9 @@
     <ClInclude Include="common\utility.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
+    <ClInclude Include="common\uuid.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
     <ClInclude Include="components.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -691,9 +694,6 @@
     <ClInclude Include="dlgedit.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DlgGuid.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="drivemix.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -734,9 +734,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="FarDlgBuilder.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FarGuid.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="farversion.hpp">
@@ -805,9 +802,6 @@
     <ClInclude Include="grabber.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="guid_parse.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="headers.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -844,7 +838,13 @@
     <ClInclude Include="keys.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="KnownGuids.hpp">
+    <ClInclude Include="uuids.far.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="uuids.far.dialogs.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="uuids.plugins.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="lang.hpp">

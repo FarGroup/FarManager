@@ -983,6 +983,61 @@ TEST_CASE("utility.aligned_size")
 
 //----------------------------------------------------------------------------
 
+#include "common/uuid.hpp"
+
+TEST_CASE("uuid")
+{
+#define TEST_UUID "01234567-89AB-CDEF-0123-456789ABCDEF"
+
+	constexpr auto Uuid = TEST_UUID ""_uuid;
+	constexpr auto UuidWithBrackets = "{" TEST_UUID "}"_uuid;
+	constexpr auto UuidStr = WIDE_SV(TEST_UUID);
+
+	REQUIRE(Uuid == UuidWithBrackets);
+
+	static_assert(Uuid.Data1 == 0x01234567);
+	static_assert(Uuid.Data2 == 0x89AB);
+	static_assert(Uuid.Data3 == 0xCDEF);
+	static_assert(Uuid.Data4[0] == 0x01);
+	static_assert(Uuid.Data4[1] == 0x23);
+	static_assert(Uuid.Data4[2] == 0x45);
+	static_assert(Uuid.Data4[3] == 0x67);
+	static_assert(Uuid.Data4[4] == 0x89);
+	static_assert(Uuid.Data4[5] == 0xAB);
+	static_assert(Uuid.Data4[6] == 0xCD);
+	static_assert(Uuid.Data4[7] == 0xEF);
+
+	REQUIRE(uuid::str(Uuid) == UuidStr);
+
+#undef TEST_UUID
+
+	static const struct
+	{
+		bool Valid;
+		std::string_view Str;
+	}
+	Tests[]
+	{
+		{ false, {} },
+		{ false, "Bamboléo"sv },
+		{ false, "01234567-89AB-CDEF+0123-456789ABCDEF"sv, },
+		{ false, "01234567-89AB-CDEF-0123-456789ABCDEFGHI"sv, },
+		{ false, "Z1234567-89AB-CDEF-0123-456789ABCDEF"sv, },
+		{ true,  "01234567-89AB-CDEF-0123-456789ABCDEF"sv, },
+		{ false, "{01234567-89AB-CDEF-0123-456789ABCDEF"sv, },
+		{ false, "01234567-89AB-CDEF-0123-456789ABCDEF}"sv, },
+		{ true,  "{01234567-89AB-CDEF-0123-456789ABCDEF}"sv, },
+	};
+
+	for (const auto& i: Tests)
+	{
+		if (!i.Valid)
+			REQUIRE_THROWS(uuid::parse(i.Str));
+	}
+}
+
+//----------------------------------------------------------------------------
+
 #include "common/view/enumerate.hpp"
 
 TEST_CASE("view.enumerate")

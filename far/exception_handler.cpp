@@ -191,7 +191,9 @@ static bool write_minidump(const detail::exception_context& Context, string_view
 	if (!DumpFile)
 		return false;
 
-	MINIDUMP_EXCEPTION_INFORMATION Mei = { Context.thread_id(), Context.pointers() };
+	auto PointersCopy = Context.pointers();
+	MINIDUMP_EXCEPTION_INFORMATION Mei = { Context.thread_id(), &PointersCopy };
+
 	return imports.MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), DumpFile.get().native_handle(), MiniDumpWithFullMemory, &Mei, nullptr, nullptr) != FALSE;
 }
 
@@ -299,7 +301,7 @@ static void copy_information(Dialog* const Dlg)
 	append(Strings, Eol);
 
 	const auto& Data = *reinterpret_cast<dialog_data_type*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
-	for (const auto& i: GetStackTrace(Data.Module, tracer::get(Data.Module, *Data.Context->pointers(), Data.Context->thread_handle()), Data.NestedStack))
+	for (const auto& i: GetStackTrace(Data.Module, tracer::get(Data.Module, Data.Context->pointers(), Data.Context->thread_handle()), Data.NestedStack))
 	{
 		append(Strings, i, Eol);
 	}
@@ -377,7 +379,7 @@ static intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2
 				return FALSE;
 
 			case ed_button_stack:
-				ShowStackTrace(GetStackTrace(Data.Module, tracer::get(Data.Module, *Data.Context->pointers(), Data.Context->thread_handle()), Data.NestedStack));
+				ShowStackTrace(GetStackTrace(Data.Module, tracer::get(Data.Module, Data.Context->pointers(), Data.Context->thread_handle()), Data.NestedStack));
 				return FALSE;
 
 			case ed_button_minidump:
@@ -519,7 +521,7 @@ static bool ExcConsole(
 		std::wcerr << Label << L' ' << v << L'\n';
 	}
 
-	ShowStackTrace(GetStackTrace(ModuleName, tracer::get(ModuleName, *Context.pointers(), Context.thread_handle()), NestedStack));
+	ShowStackTrace(GetStackTrace(ModuleName, tracer::get(ModuleName, Context.pointers(), Context.thread_handle()), NestedStack));
 	std::wcerr << std::endl;
 
 	if (!ConsoleYesNo(L"Terminate the process"sv, true))
@@ -546,7 +548,7 @@ static bool ShowExceptionUI(
 	SCOPED_ACTION(tracer::with_symbols)(PluginModule? ModuleName : L""sv);
 
 	string Address, Name, Source;
-	tracer::get_symbol(ModuleName, Context.pointers()->ExceptionRecord->ExceptionAddress, Address, Name, Source);
+	tracer::get_symbol(ModuleName, Context.pointers().ExceptionRecord->ExceptionAddress, Address, Name, Source);
 
 	if (!Name.empty())
 		append(Address, L" - "sv, Name);
@@ -727,7 +729,7 @@ static string ExtractObjectType(EXCEPTION_RECORD const& xr)
 	return encoding::utf8::get_chars(*Iterator);
 }
 
-static bool ProcessExternally(EXCEPTION_POINTERS* Pointers, Plugin const* const PluginModule)
+static bool ProcessExternally(EXCEPTION_POINTERS const& Pointers, Plugin const* const PluginModule)
 {
 	if (!Global || !Global->Opt->ExceptUsed || Global->Opt->strExceptEventSvc.empty())
 		return false;
@@ -741,7 +743,7 @@ static bool ProcessExternally(EXCEPTION_POINTERS* Pointers, Plugin const* const 
 		DWORD TypeRec;          // Тип записи = RTYPE_PLUGIN
 		DWORD SizeRec;          // Размер
 		DWORD Reserved1[4];
-		// DWORD SysID; GUID
+		// DWORD SysID; UUID
 		const wchar_t *ModuleName;
 		DWORD Reserved2[2];    // резерв :-)
 		DWORD SizeModuleName;
@@ -768,7 +770,9 @@ static bool ProcessExternally(EXCEPTION_POINTERS* Pointers, Plugin const* const 
 	}
 
 	DWORD dummy;
-	return Function(Pointers, PluginModule ? &PlugRec : nullptr, &LocalStartupInfo, &dummy) != FALSE;
+	auto PointersCopy = Pointers;
+
+	return Function(&PointersCopy, PluginModule ? &PlugRec : nullptr, &LocalStartupInfo, &dummy) != FALSE;
 }
 
 static bool handle_generic_exception(
@@ -832,7 +836,7 @@ static bool handle_generic_exception(
 
 	string strFileName;
 
-	const auto xr = Context.pointers()->ExceptionRecord;
+	const auto xr = Context.pointers().ExceptionRecord;
 
 	if (!PluginModule)
 	{
@@ -996,11 +1000,11 @@ static bool handle_std_exception(
 {
 	if (const auto SehException = dynamic_cast<const seh_exception*>(&e))
 	{
-		auto NestedStack = tracer::get({}, *SehException->context().pointers(), SehException->context().thread_handle());
+		auto NestedStack = tracer::get({}, SehException->context().pointers(), SehException->context().thread_handle());
 		return handle_generic_exception(Context, Function, {}, Module, {}, {}, *SehException, &NestedStack);
 	}
 
-	const auto& [Type, What] = extract_nested_exceptions(*Context.pointers()->ExceptionRecord, e);
+	const auto& [Type, What] = extract_nested_exceptions(*Context.pointers().ExceptionRecord, e);
 
 	if (const auto FarException = dynamic_cast<const detail::far_base_exception*>(&e))
 	{
@@ -1029,11 +1033,11 @@ static bool handle_seh_exception(
 	Plugin const* const PluginModule
 )
 {
-	enum_catchable_objects const CatchableTypesEnumerator(*Context.pointers()->ExceptionRecord);
+	enum_catchable_objects const CatchableTypesEnumerator(*Context.pointers().ExceptionRecord);
 	std::vector<char const*> const CatchableTypes(ALL_CONST_RANGE(CatchableTypesEnumerator));
 	if (std::find_if(ALL_CONST_RANGE(CatchableTypes), [](char const* Name) { return strstr(Name, "std::exception") != nullptr; }) != CatchableTypes.cend())
 	{
-		return handle_std_exception(Context, *reinterpret_cast<std::exception const*>(Context.pointers()->ExceptionRecord->ExceptionInformation[1]), Function, PluginModule);
+		return handle_std_exception(Context, *reinterpret_cast<std::exception const*>(Context.pointers().ExceptionRecord->ExceptionInformation[1]), Function, PluginModule);
 	}
 
 	return handle_generic_exception(Context, Function, {}, PluginModule, {}, {});

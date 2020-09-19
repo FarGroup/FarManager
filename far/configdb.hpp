@@ -332,7 +332,7 @@ public:
 	[[nodiscard]]
 	virtual bool GetExportState(unsigned long long id, string_view ExportName) const = 0;
 	[[nodiscard]]
-	virtual string GetGuid(unsigned long long id) const = 0;
+	virtual string GetUuid(unsigned long long id) const = 0;
 	[[nodiscard]]
 	virtual string GetTitle(unsigned long long id) const = 0;
 	[[nodiscard]]
@@ -344,26 +344,26 @@ public:
 	[[nodiscard]]
 	virtual bool GetVersion(unsigned long long id, VersionInfo& Version) const = 0;
 	[[nodiscard]]
-	virtual bool GetDiskMenuItem(unsigned long long id, size_t index, string &Text, GUID& Guid) const = 0;
+	virtual bool GetDiskMenuItem(unsigned long long id, size_t index, string &Text, UUID& Uuid) const = 0;
 	[[nodiscard]]
-	virtual bool GetPluginsMenuItem(unsigned long long id, size_t index, string &Text, GUID& Guid) const = 0;
+	virtual bool GetPluginsMenuItem(unsigned long long id, size_t index, string &Text, UUID& Uuid) const = 0;
 	[[nodiscard]]
-	virtual bool GetPluginsConfigMenuItem(unsigned long long id, size_t index, string &Text, GUID& Guid) const = 0;
+	virtual bool GetPluginsConfigMenuItem(unsigned long long id, size_t index, string &Text, UUID& Uuid) const = 0;
 	[[nodiscard]]
 	virtual string GetCommandPrefix(unsigned long long id) const = 0;
 	[[nodiscard]]
 	virtual unsigned long long GetFlags(unsigned long long id) const = 0;
 	virtual void SetPreload(unsigned long long id, bool Preload) = 0;
 	virtual void SetSignature(unsigned long long id, string_view Signature) = 0;
-	virtual void SetDiskMenuItem(unsigned long long id, size_t index, string_view Text, const GUID& Guid) = 0;
-	virtual void SetPluginsMenuItem(unsigned long long id, size_t index, string_view Text, const GUID& Guid) = 0;
-	virtual void SetPluginsConfigMenuItem(unsigned long long id, size_t index, string_view Text, const GUID& Guid) = 0;
+	virtual void SetDiskMenuItem(unsigned long long id, size_t index, string_view Text, const UUID& Uuid) = 0;
+	virtual void SetPluginsMenuItem(unsigned long long id, size_t index, string_view Text, const UUID& Uuid) = 0;
+	virtual void SetPluginsConfigMenuItem(unsigned long long id, size_t index, string_view Text, const UUID& Uuid) = 0;
 	virtual void SetCommandPrefix(unsigned long long id, string_view Prefix) = 0;
 	virtual void SetFlags(unsigned long long id, unsigned long long Flags) = 0;
 	virtual void SetExportState(unsigned long long id, string_view ExportName, bool Exists) = 0;
 	virtual void SetMinFarVersion(unsigned long long id, const VersionInfo& Version) = 0;
 	virtual void SetVersion(unsigned long long id, const VersionInfo& Version) = 0;
-	virtual void SetGuid(unsigned long long id, string_view Guid) = 0;
+	virtual void SetUuid(unsigned long long id, string_view Uuid) = 0;
 	virtual void SetTitle(unsigned long long id, string_view Title) = 0;
 	virtual void SetAuthor(unsigned long long id, string_view Author) = 0;
 	virtual void SetDescription(unsigned long long id, string_view Description) = 0;
@@ -390,9 +390,9 @@ public:
 	[[nodiscard]]
 	virtual bool HotkeysPresent(hotkey_type HotKeyType) = 0;
 	[[nodiscard]]
-	virtual string GetHotkey(string_view PluginKey, const GUID& MenuGuid, hotkey_type HotKeyType) = 0;
-	virtual void SetHotkey(string_view PluginKey, const GUID& MenuGuid, hotkey_type HotKeyType, string_view HotKey) = 0;
-	virtual void DelHotkey(string_view PluginKey, const GUID& MenuGuid, hotkey_type HotKeyType) = 0;
+	virtual string GetHotkey(string_view PluginKey, const UUID& MenuUuid, hotkey_type HotKeyType) = 0;
+	virtual void SetHotkey(string_view PluginKey, const UUID& MenuUuid, hotkey_type HotKeyType, string_view HotKey) = 0;
+	virtual void DelHotkey(string_view PluginKey, const UUID& MenuUuid, hotkey_type HotKeyType) = 0;
 
 protected:
 	PluginsHotkeysConfig() = default;
@@ -406,12 +406,12 @@ public:
 	//command,view,edit,folder,dialog history
 	virtual void Delete(unsigned long long id) = 0;
 
-	virtual void DeleteAndAddAsync(unsigned long long DeleteId, unsigned int TypeHistory, string_view HistoryName, string_view Name, int Type, bool Lock, string_view Guid, string_view File, string_view Data) = 0;
+	virtual void DeleteAndAddAsync(unsigned long long DeleteId, unsigned int TypeHistory, string_view HistoryName, string_view Name, int Type, bool Lock, string_view Uuid, string_view File, string_view Data) = 0;
 	virtual void DeleteOldUnlocked(unsigned int TypeHistory, string_view HistoryName, int DaysToKeep, int MinimumEntries) = 0;
 	[[nodiscard]]
 	virtual bool GetNewest(unsigned int TypeHistory, string_view HistoryName, string &strName) = 0;
 	[[nodiscard]]
-	virtual bool Get(unsigned long long id, string* Name = {}, history_record_type* Type = {}, string* Guid = {}, string* File = {}, string* Data = {}) = 0;
+	virtual bool Get(unsigned long long id, string* Name = {}, history_record_type* Type = {}, string* Uuid = {}, string* File = {}, string* Data = {}) = 0;
 	[[nodiscard]]
 	virtual DWORD Count(unsigned int TypeHistory, string_view HistoryName) = 0;
 	virtual void FlipLock(unsigned long long id) = 0;
@@ -447,7 +447,7 @@ public:
 		history_record_type Type;
 		bool Lock;
 		os::chrono::time_point Time;
-		string Guid;
+		string Uuid;
 		string File;
 		string Data;
 	};
@@ -461,7 +461,7 @@ public:
 		using value_type = enum_data;
 		return make_inline_enumerator<value_type>([this, HistoryType, HistoryName = keep_alive(FWD(HistoryName)), Reverse](const bool Reset, value_type& Value)
 		{
-			return Enum(Reset, HistoryType, HistoryName.get(), Value.Id, Value.Name, Value.Type, Value.Lock, Value.Time, Value.Guid, Value.File, Value.Data, Reverse);
+			return Enum(Reset, HistoryType, HistoryName.get(), Value.Id, Value.Name, Value.Type, Value.Lock, Value.Time, Value.Uuid, Value.File, Value.Data, Reverse);
 		},
 		[this, Reverse]
 		{
@@ -489,7 +489,7 @@ protected:
 private:
 	//command,view,edit,folder,dialog history
 	[[nodiscard]]
-	virtual bool Enum(bool Reset, unsigned int TypeHistory, string_view HistoryName, unsigned long long& id, string& strName, history_record_type& Type, bool& Lock, os::chrono::time_point& Time, string& strGuid, string& strFile, string& strData, bool Reverse) = 0;
+	virtual bool Enum(bool Reset, unsigned int TypeHistory, string_view HistoryName, unsigned long long& id, string& strName, history_record_type& Type, bool& Lock, os::chrono::time_point& Time, string& strUuid, string& strFile, string& strData, bool Reverse) = 0;
 	virtual void CloseEnum(bool Reverse) const = 0;
 	[[nodiscard]]
 	virtual bool EnumLargeHistories(bool Reset, unsigned int TypeHistory, int MinimumEntries, string& strHistoryName) = 0;
@@ -536,7 +536,7 @@ public:
 	[[nodiscard]]
 	const auto& HistoryCfgMem() const { return m_HistoryCfgMem; }
 
-	HierarchicalConfigUniquePtr CreatePluginsConfig(string_view guid, bool Local = false, bool UseFallback = true);
+	HierarchicalConfigUniquePtr CreatePluginsConfig(string_view Uuid, bool Local = false, bool UseFallback = true);
 	HierarchicalConfigUniquePtr CreateFiltersConfig();
 	HierarchicalConfigUniquePtr CreateHighlightConfig();
 	HierarchicalConfigUniquePtr CreateShortcutsConfig();

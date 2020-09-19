@@ -655,13 +655,13 @@ int DialogBuilder::AddTextWrap(lng_string const Text, bool center, int width)
 	return LineCount;
 }
 
-void DialogBuilder::SetId(const GUID& Id)
+void DialogBuilder::SetId(const UUID& Id)
 {
 	m_Id = Id;
 	m_IdExist = true;
 }
 
-const GUID& DialogBuilder::GetId() const
+const UUID& DialogBuilder::GetId() const
 {
 	return m_Id;
 }

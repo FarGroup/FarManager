@@ -270,8 +270,8 @@ public:
 	void SetMaxHeight(int NewMaxHeight);
 	size_t GetVDialogItemID() const { return DialogItemID; }
 	void SetVDialogItemID(size_t NewDialogItemID) { DialogItemID = NewDialogItemID; }
-	void SetId(const GUID& Id);
-	const GUID& Id() const;
+	void SetId(const UUID& Id);
+	const UUID& Id() const;
 	bool IsComboBox() const { return GetDialog() && CheckFlags(VMENU_COMBOBOX); }
 	dialog_ptr GetDialog() const {return ParentDialog.lock();}
 
@@ -341,7 +341,7 @@ private:
 	FarColor Colors[VMENU_COLOR_COUNT];
 	size_t MaxLineWidth;
 	bool bRightBtnPressed;
-	GUID MenuId;
+	UUID MenuId;
 };
 
 #endif // VMENU_HPP_DF9F4258_12AF_4721_9D5F_BE29A59649C2

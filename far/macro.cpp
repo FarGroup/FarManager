@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "macro.hpp"
 
 // Internal:
-#include "FarGuid.hpp"
+#include "uuids.far.hpp"
 #include "cmdline.hpp"
 #include "config.hpp"
 #include "ctrlobj.hpp"
@@ -85,6 +85,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/from_string.hpp"
+#include "common/uuid.hpp"
 
 // External:
 #include "format.hpp"
@@ -176,13 +177,13 @@ void print_opcodes()
 	fprintf(fp, "MCODE_F_KEYBAR_SHOW=0x%X // N=KeyBar.Show([N])\n", MCODE_F_KEYBAR_SHOW);
 	fprintf(fp, "MCODE_F_HISTORY_DISABLE=0x%X // N=History.Disable([State])\n", MCODE_F_HISTORY_DISABLE);
 	fprintf(fp, "MCODE_F_FMATCH=0x%X // N=FMatch(S,Mask)\n", MCODE_F_FMATCH);
-	fprintf(fp, "MCODE_F_PLUGIN_MENU=0x%X // N=Plugin.Menu(Guid[,MenuGuid])\n", MCODE_F_PLUGIN_MENU);
-	fprintf(fp, "MCODE_F_PLUGIN_CALL=0x%X // N=Plugin.Config(Guid[,MenuGuid])\n", MCODE_F_PLUGIN_CALL);
-	fprintf(fp, "MCODE_F_PLUGIN_SYNCCALL=0x%X // N=Plugin.Call(Guid[,Item])\n", MCODE_F_PLUGIN_SYNCCALL);
+	fprintf(fp, "MCODE_F_PLUGIN_MENU=0x%X // N=Plugin.Menu(Uuid[,MenuUuid])\n", MCODE_F_PLUGIN_MENU);
+	fprintf(fp, "MCODE_F_PLUGIN_CALL=0x%X // N=Plugin.Config(Uuid[,MenuUuid])\n", MCODE_F_PLUGIN_CALL);
+	fprintf(fp, "MCODE_F_PLUGIN_SYNCCALL=0x%X // N=Plugin.Call(Uuid[,Item])\n", MCODE_F_PLUGIN_SYNCCALL);
 	fprintf(fp, "MCODE_F_PLUGIN_LOAD=0x%X // N=Plugin.Load(DllPath[,ForceLoad])\n", MCODE_F_PLUGIN_LOAD);
-	fprintf(fp, "MCODE_F_PLUGIN_COMMAND=0x%X // N=Plugin.Command(Guid[,Command])\n", MCODE_F_PLUGIN_COMMAND);
+	fprintf(fp, "MCODE_F_PLUGIN_COMMAND=0x%X // N=Plugin.Command(Uuid[,Command])\n", MCODE_F_PLUGIN_COMMAND);
 	fprintf(fp, "MCODE_F_PLUGIN_UNLOAD=0x%X // N=Plugin.UnLoad(DllPath)\n", MCODE_F_PLUGIN_UNLOAD);
-	fprintf(fp, "MCODE_F_PLUGIN_EXIST=0x%X // N=Plugin.Exist(Guid)\n", MCODE_F_PLUGIN_EXIST);
+	fprintf(fp, "MCODE_F_PLUGIN_EXIST=0x%X // N=Plugin.Exist(Uuid)\n", MCODE_F_PLUGIN_EXIST);
 	fprintf(fp, "MCODE_F_MENU_FILTER=0x%X // N=Menu.Filter(Action[,Mode])\n", MCODE_F_MENU_FILTER);
 	fprintf(fp, "MCODE_F_MENU_FILTERSTR=0x%X // S=Menu.FilterStr([Action[,S]])\n", MCODE_F_MENU_FILTERSTR);
 	fprintf(fp, "MCODE_F_DLG_SETFOCUS=0x%X // N=Dlg->SetFocus([ID])\n", MCODE_F_DLG_SETFOCUS);
@@ -802,54 +803,59 @@ int KeyMacro::GetKey()
 				return KEY_OP_PLAINTEXT;
 			}
 
-			case MPRT_PLUGINMENU:   // N=Plugin.Menu(Guid[,MenuGuid])
-			case MPRT_PLUGINCONFIG: // N=Plugin.Config(Guid[,MenuGuid])
-			case MPRT_PLUGINCOMMAND: // N=Plugin.Command(Guid[,Command])
+			case MPRT_PLUGINMENU:   // N=Plugin.Menu(Uuid[,MenuUuid])
+			case MPRT_PLUGINCONFIG: // N=Plugin.Config(Uuid[,MenuUuid])
+			case MPRT_PLUGINCOMMAND: // N=Plugin.Command(Uuid[,Command])
 			{
-				const wchar_t *Arg = L"";
-				GUID guid, menuGuid;
-				PluginManager::CallPluginInfo cpInfo = { CPT_CHECKONLY };
 				SetMacroValue(false);
 
-				if (!(mpr.Count>0 && mpr.Values[0].Type==FMVT_STRING && StrToGuid(mpr.Values[0].String,guid)))
+				if (!mpr.Count || mpr.Values[0].Type != FMVT_STRING)
 					break;
 
-				if (mpr.Count>1 && mpr.Values[1].Type==FMVT_STRING)
+				const auto Uuid = uuid::try_parse(string_view(mpr.Values[0].String));
+				if (!Uuid)
+					break;
+
+				if (!Global->CtrlObject->Plugins->FindPlugin(*Uuid))
+					break;
+
+				PluginManager::CallPluginInfo cpInfo = { CPT_CHECKONLY };
+				const auto Arg = mpr.Count > 1 && mpr.Values[1].Type == FMVT_STRING? mpr.Values[1].String : L"";
+
+				UUID MenuUuid;
+				if (*Arg && (mpr.ReturnType==MPRT_PLUGINMENU || mpr.ReturnType==MPRT_PLUGINCONFIG))
 				{
-					Arg = mpr.Values[1].String;
-					if (mpr.ReturnType==MPRT_PLUGINMENU || mpr.ReturnType==MPRT_PLUGINCONFIG)
+					if (const auto MenuUuidOpt = uuid::try_parse(string_view(Arg)))
 					{
-						if (StrToGuid(Arg, menuGuid))
-							cpInfo.ItemGuid = &menuGuid;
-						else
-							break;
+						MenuUuid = *MenuUuidOpt;
+						cpInfo.ItemUuid = &MenuUuid;
 					}
+					else
+						break;
 				}
 
-				if (Global->CtrlObject->Plugins->FindPlugin(guid))
+				if (mpr.ReturnType == MPRT_PLUGINMENU)
+					cpInfo.CallFlags |= CPT_MENU;
+				else if (mpr.ReturnType == MPRT_PLUGINCONFIG)
+					cpInfo.CallFlags |= CPT_CONFIGURE;
+				else if (mpr.ReturnType == MPRT_PLUGINCOMMAND)
 				{
-					if (mpr.ReturnType == MPRT_PLUGINMENU)
-						cpInfo.CallFlags |= CPT_MENU;
-					else if (mpr.ReturnType == MPRT_PLUGINCONFIG)
-						cpInfo.CallFlags |= CPT_CONFIGURE;
-					else if (mpr.ReturnType == MPRT_PLUGINCOMMAND)
-					{
-						cpInfo.CallFlags |= CPT_CMDLINE;
-						cpInfo.Command = Arg;
-					}
-
-					// Чтобы вернуть результат "выполнения" нужно проверить наличие плагина/пункта
-					if (Global->CtrlObject->Plugins->CallPluginItem(guid,&cpInfo))
-					{
-						// Если нашли успешно - то теперь выполнение
-						SetMacroValue(true);
-						cpInfo.CallFlags&=~CPT_CHECKONLY;
-						Global->CtrlObject->Plugins->CallPluginItem(guid,&cpInfo);
-					}
-					Global->WindowManager->RefreshWindow();
-					//с текущим переключением окон могут быть проблемы с заголовком консоли.
-					Global->WindowManager->PluginCommit();
+					cpInfo.CallFlags |= CPT_CMDLINE;
+					cpInfo.Command = Arg;
 				}
+
+				// Чтобы вернуть результат "выполнения" нужно проверить наличие плагина/пункта
+				if (Global->CtrlObject->Plugins->CallPluginItem(*Uuid, &cpInfo))
+				{
+					// Если нашли успешно - то теперь выполнение
+					SetMacroValue(true);
+					cpInfo.CallFlags&=~CPT_CHECKONLY;
+					Global->CtrlObject->Plugins->CallPluginItem(*Uuid, &cpInfo);
+				}
+				Global->WindowManager->RefreshWindow();
+				//с текущим переключением окон могут быть проблемы с заголовком консоли.
+				Global->WindowManager->PluginCommit();
+
 				break;
 			}
 
@@ -907,7 +913,7 @@ void KeyMacro::RunStartMacro()
 	}
 }
 
-bool KeyMacro::AddMacro(const GUID& PluginId, const MacroAddMacroV1* Data)
+bool KeyMacro::AddMacro(const UUID& PluginId, const MacroAddMacroV1* Data)
 {
 	if (!(Data->Area >= 0 && (Data->Area < MACROAREA_LAST || Data->Area == MACROAREA_COMMON)))
 		return false;
@@ -939,7 +945,7 @@ bool KeyMacro::AddMacro(const GUID& PluginId, const MacroAddMacroV1* Data)
 	return CallMacroPlugin(&info);
 }
 
-bool KeyMacro::DelMacro(const GUID& PluginId,void* Id)
+bool KeyMacro::DelMacro(const UUID& PluginId, void* Id)
 {
 	FarMacroValue values[]={PluginId,Id};
 	FarMacroCall fmc={sizeof(FarMacroCall),std::size(values),values,nullptr,nullptr};
@@ -2183,9 +2189,8 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			{
 				bool SyncCall = (Data->Values[0].Boolean == 0);
 				const wchar_t* SysID = Data->Values[1].String;
-				GUID guid;
-
-				if (StrToGuid(SysID,guid) && Global->CtrlObject->Plugins->FindPlugin(guid))
+				const auto Uuid = uuid::try_parse(string_view(SysID));
+				if (Uuid && Global->CtrlObject->Plugins->FindPlugin(*Uuid))
 				{
 					FarMacroValue *Values = Data->Count>2 ? Data->Values+2:nullptr;
 					OpenMacroInfo info={sizeof(OpenMacroInfo),Data->Count-2,Values};
@@ -2193,7 +2198,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 					if (SyncCall) m_InternalInput++;
 
-					if (!Global->CtrlObject->Plugins->CallPlugin(guid,OPEN_FROMMACRO,&info,&ResultCallPlugin))
+					if (!Global->CtrlObject->Plugins->CallPlugin(*Uuid, OPEN_FROMMACRO, &info, &ResultCallPlugin))
 						ResultCallPlugin = nullptr;
 
 					if (SyncCall) m_InternalInput--;
@@ -3069,7 +3074,7 @@ int FarMacroApi::msgBoxFunc()
 	//_KEYMACRO(SysLog(L"title='%s'",title));
 	//_KEYMACRO(SysLog(L"text='%s'",text));
 	const auto TempBuf = concat(title, L'\n', text);
-	const auto Result = pluginapi::apiMessageFn(&FarGuid, &FarGuid, Flags, nullptr, reinterpret_cast<const wchar_t* const*>(TempBuf.c_str()), 0, 0) + 1;
+	const auto Result = pluginapi::apiMessageFn(&FarUuid, &FarUuid, Flags, nullptr, reinterpret_cast<const wchar_t* const*>(TempBuf.c_str()), 0, 0) + 1;
 	PassNumber(Result);
 	return 1;
 }
@@ -4860,14 +4865,14 @@ int FarMacroApi::editorsetstrFunc()
 	return Ret.asInteger()!=0;
 }
 
-// N=Plugin.Exist(Guid)
+// N=Plugin.Exist(Uuid)
 int FarMacroApi::pluginexistFunc()
 {
-	int Ret = 0;
+	bool Ret = false;
 	if (mData->Count>0 && mData->Values[0].Type==FMVT_STRING)
 	{
-		GUID guid;
-		Ret = StrToGuid(mData->Values[0].String,guid) && Global->CtrlObject->Plugins->FindPlugin(guid);
+		if (const auto Uuid = uuid::try_parse(string_view(mData->Values[0].String)); Global->CtrlObject->Plugins->FindPlugin(*Uuid))
+			Ret = true;
 	}
 	PassBoolean(Ret);
 	return Ret;

@@ -40,7 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "message.hpp"
 #include "lang.hpp"
-#include "DlgGuid.hpp"
+#include "uuids.far.dialogs.hpp"
 #include "interf.hpp"
 #include "dlgedit.hpp"
 #include "cvtname.hpp"
@@ -82,7 +82,7 @@ int GetSearchReplaceString(
 	bool* pPreserveStyle,
 	string_view const HelpTopic,
 	bool HideAll,
-	const GUID* Id,
+	const UUID* Id,
 	function_ref<string(bool)> const Picker)
 {
 	int Result = 0;
@@ -261,7 +261,7 @@ bool GetString(
 	int* const CheckBoxValue,
 	const string_view CheckBoxText,
 	Plugin* const PluginNumber,
-	const GUID* const Id
+	const UUID* const Id
 )
 {
 	int Substract=5; // дополнительная величина :-)

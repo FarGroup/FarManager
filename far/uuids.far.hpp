@@ -1,14 +1,14 @@
-﻿#ifndef GUID_PARSE_HPP_800DD3D1_3DE5_4A72_B28B_207EDF88005C
-#define GUID_PARSE_HPP_800DD3D1_3DE5_4A72_B28B_207EDF88005C
+﻿#ifndef UUIDS_FAR_HPP_49C263EE_12A1_48FD_BA02_52CCE8950C28
+#define UUIDS_FAR_HPP_49C263EE_12A1_48FD_BA02_52CCE8950C28
 #pragma once
 
 /*
-guid_parse.hpp
+uuids.far.hpp
 
-guid_parse wrapper
+Far UUIDs
 */
 /*
-Copyright © 2019 Far Group
+Copyright © 2010 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -39,16 +39,22 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
+#include "common/uuid.hpp"
 
 // External:
 
 //----------------------------------------------------------------------------
 
-#include "thirdparty/guid_parse/guid_parse.hpp"
-
-inline namespace literals
+namespace uuids::far
 {
-	using namespace guid_parse::literals;
+	constexpr inline auto
+		FarUuid = "00000000-0000-0000-0000-000000000000"_uuid;
 }
 
-#endif // GUID_PARSE_HPP_800DD3D1_3DE5_4A72_B28B_207EDF88005C
+// TODO: Use fully qualified names everywhere
+inline namespace uuids_inline
+{
+	using namespace uuids::far;
+}
+
+#endif // UUIDS_FAR_HPP_49C263EE_12A1_48FD_BA02_52CCE8950C28

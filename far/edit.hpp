@@ -82,9 +82,9 @@ enum FLAGS_CLASS_EDITLINE
 struct ColorItem
 {
 	// Usually we have only 1-2 coloring plugins.
-	// Keeping a copy of GUID in each of thousands of color items is a giant waste of memory,
-	// so GUIDs are stored in a separate set and here is only a pointer.
-	const GUID* Owner;
+	// Keeping a copy of UUID in each of thousands of color items is a giant waste of memory,
+	// so UUIDs are stored in a separate set and here is only a pointer.
+	const UUID* Owner;
 	// Usually we have only 5-10 unique colors.
 	// Keeping a copy of FarColor in each of thousands of color items is a giant waste of memory,
 	// so FarColors are stored in a separate set and here is only a pointer.
@@ -95,8 +95,8 @@ struct ColorItem
 	// it's an uint64 in plugin API, but only 0x1 and 0x2 are used now, so save some memory here.
 	unsigned int Flags;
 
-	const GUID& GetOwner() const { return *Owner; }
-	void SetOwner(const GUID& Value);
+	const UUID& GetOwner() const { return *Owner; }
+	void SetOwner(const UUID& Value);
 
 	const FarColor& GetColor() const { return *Color; }
 	void SetColor(const FarColor& Value);

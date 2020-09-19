@@ -87,8 +87,8 @@ class History: noncopyable
 public:
 	History(history_type TypeHistory, string_view HistoryName, const BoolOption& EnableSave);
 
-	void AddToHistory(string_view Str, history_record_type Type = HR_DEFAULT, const GUID* Guid = nullptr, string_view File = {}, string_view Data = {});
-	history_return_type Select(string_view Title, string_view HelpTopic, string &strStr, history_record_type &Type, GUID* Guid=nullptr, string *File=nullptr, string *Data=nullptr);
+	void AddToHistory(string_view Str, history_record_type Type = HR_DEFAULT, const UUID* Uuid = nullptr, string_view File = {}, string_view Data = {});
+	history_return_type Select(string_view Title, string_view HelpTopic, string& strStr, history_record_type& Type, UUID* Uuid = nullptr, string* File = nullptr, string* Data = nullptr);
 	history_return_type Select(VMenu2& HistoryMenu, int Height, Dialog const* Dlg, string& strStr);
 	string GetPrev();
 	string GetNext();
@@ -104,7 +104,7 @@ public:
 
 private:
 	bool EqualType(history_record_type Type1, history_record_type Type2) const;
-	history_return_type ProcessMenu(string &strStr, GUID* Guid, string *File, string *Data, string_view Title, VMenu2 &HistoryMenu, int Height, history_record_type& Type, const Dialog* Dlg);
+	history_return_type ProcessMenu(string& strStr, UUID* Uuid, string* File, string* Data, string_view Title, VMenu2& HistoryMenu, int Height, history_record_type& Type, const Dialog* Dlg);
 	const std::unique_ptr<HistoryConfig>& HistoryCfgRef() const;
 
 	history_type m_TypeHistory;

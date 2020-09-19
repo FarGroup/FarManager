@@ -124,7 +124,7 @@ int GetSearchReplaceString(
 	bool* pPreserveStyle,
 	string_view HelpTopic = {},
 	bool HideAll=false,
-	const GUID* Id = nullptr,
+	const UUID* Id = nullptr,
 	function_ref<string(bool)> Picker = nullptr
 );
 
@@ -139,7 +139,7 @@ bool GetString(
 	int* CheckBoxValue = {},
 	string_view CheckBoxText = {},
 	class Plugin* PluginNumber = {},
-	const GUID* Id = {}
+	const UUID* Id = {}
 );
 
 // для диалога GetNameAndPassword()

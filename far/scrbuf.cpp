@@ -86,7 +86,7 @@ void ScreenBuf::DebugDump() const
 		const auto& row = Buf[row_num];
 		std::transform(ALL_CONST_RANGE(row), std::back_inserter(s), [](const auto& i) { return i.Char; });
 		s.push_back(L'\n');
-		OutputDebugString(s.c_str());
+		os::debug::print(s);
 		s.clear();
 	}
 #endif

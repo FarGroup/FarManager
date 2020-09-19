@@ -190,6 +190,7 @@ public:
 		++m_AllocatedMemoryBlocks;
 		++m_TotalAllocationCalls;
 		m_AllocatedMemorySize += block->Size;
+		m_AllocatedPayloadSize += block->Size - block->HeaderSize - sizeof(EndMarker);
 	}
 
 	void unregister_block(MEMINFO *block)
@@ -212,6 +213,7 @@ public:
 		++m_TotalDeallocationCalls;
 		--m_AllocatedMemoryBlocks;
 		m_AllocatedMemorySize -= block->Size;
+		m_AllocatedPayloadSize -= block->Size - block->HeaderSize - sizeof(EndMarker);
 	}
 
 private:
@@ -228,11 +230,11 @@ private:
 
 	void print_summary() const
 	{
-		if (!m_CallNewDeleteVector && !m_CallNewDeleteScalar && !m_AllocatedMemoryBlocks && !m_AllocatedMemorySize)
+		if (!m_AllocatedMemorySize)
 			return;
 
 		// Q: Why?
-		// A: The same reason we owerride stream buffers everywhere else: the default one is shite - it goes through FILE* and breaks wide characters.
+		// A: The same reason we override stream buffers everywhere else: the default one is shite - it goes through FILE* and breaks wide characters.
 		//    At this point the regular overrider is already dead so we need to revive it once more:
 		SCOPED_ACTION(auto)(console_detail::console::create_temporary_stream_buffers_overrider());
 
@@ -242,7 +244,7 @@ private:
 		const auto Print = [](const string& Str)
 		{
 			std::wcerr << Str;
-			OutputDebugString(Str.c_str());
+			os::debug::print(Str);
 		};
 
 		auto Message = L"Memory leaks detected:\n"s;
@@ -251,10 +253,12 @@ private:
 			Message += format(FSTR(L"  delete[]:   {0}\n"), m_CallNewDeleteVector);
 		if (m_CallNewDeleteScalar)
 			Message += format(FSTR(L"  delete:     {0}\n"), m_CallNewDeleteScalar);
-		if (m_AllocatedMemoryBlocks)
-			Message += format(FSTR(L"Total blocks: {0}\n"), m_AllocatedMemoryBlocks);
-		if (m_AllocatedMemorySize)
-			Message += format(FSTR(L"Total bytes:  {0} payload, {1} overhead\n"), m_AllocatedMemorySize - m_AllocatedMemoryBlocks * (sizeof(MEMINFO) + sizeof(EndMarker)), m_AllocatedMemoryBlocks * sizeof(MEMINFO));
+
+		Message += L'\n';
+
+		Message += format(FSTR(L"Blocks:  {0}\n"), m_AllocatedMemoryBlocks);
+		Message += format(FSTR(L"Payload: {0}\n"), m_AllocatedPayloadSize);
+		Message += format(FSTR(L"Bytes:   {0}\n"), m_AllocatedMemorySize);
 
 		append(Message, L"\nNot freed blocks:\n"sv);
 
@@ -263,7 +267,7 @@ private:
 
 		for (auto i = FirstMemBlock.next; i; i = i->next)
 		{
-			const auto BlockSize = i->Size - sizeof(MEMINFO) - sizeof(EndMarker);
+			const auto BlockSize = i->Size - i->HeaderSize - sizeof(EndMarker);
 			const auto UserAddress = to_user(i);
 			const size_t Width = 80 - 7 - 1;
 
@@ -306,6 +310,7 @@ private:
 	intptr_t m_CallNewDeleteScalar{};
 	size_t m_AllocatedMemoryBlocks{};
 	size_t m_AllocatedMemorySize{};
+	size_t m_AllocatedPayloadSize{};
 	size_t m_TotalAllocationCalls{};
 	size_t m_TotalDeallocationCalls{};
 

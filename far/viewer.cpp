@@ -75,7 +75,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cvtname.hpp"
 #include "panel.hpp"
 #include "global.hpp"
-#include "DlgGuid.hpp"
+#include "uuids.far.dialogs.hpp"
 
 // Platform:
 #include "platform.fs.hpp"

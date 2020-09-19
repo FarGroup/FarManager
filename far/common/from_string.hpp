@@ -54,7 +54,7 @@ namespace detail
 	}
 
 	template<typename result_type, typename converter_type>
-	void from_string(string_view const Str, result_type& Value, size_t* Pos, int Base, converter_type Converter)
+	void from_string(std::wstring_view const Str, result_type& Value, size_t* Pos, int Base, converter_type Converter)
 	{
 		if (Str.empty() || Str.front() == L' ' || Str.front() == L'+')
 			handler::invalid_argument();
@@ -86,27 +86,27 @@ namespace detail
 		Value = Result;
 	}
 
-	inline void from_string(string_view const Str, long& Value, size_t* Pos, int Base)
+	inline void from_string(std::wstring_view const Str, long& Value, size_t* Pos, int Base)
 	{
 		from_string(Str, Value, Pos, Base, std::wcstol);
 	}
 
-	inline void from_string(string_view const Str, unsigned long& Value, size_t* Pos, int Base)
+	inline void from_string(std::wstring_view const Str, unsigned long& Value, size_t* Pos, int Base)
 	{
 		from_string(Str, Value, Pos, Base, std::wcstoul);
 	}
 
-	inline void from_string(string_view const Str, long long& Value, size_t* Pos, int Base)
+	inline void from_string(std::wstring_view const Str, long long& Value, size_t* Pos, int Base)
 	{
 		from_string(Str, Value, Pos, Base, std::wcstoll);
 	}
 
-	inline void from_string(string_view const Str, unsigned long long& Value, size_t* Pos, int Base)
+	inline void from_string(std::wstring_view const Str, unsigned long long& Value, size_t* Pos, int Base)
 	{
 		from_string(Str, Value, Pos, Base, std::wcstoull);
 	}
 
-	inline void from_string(string_view const Str, int& Value, size_t* Pos, int Base)
+	inline void from_string(std::wstring_view const Str, int& Value, size_t* Pos, int Base)
 	{
 		static_assert(sizeof(int) == sizeof(long));
 		long LongValue;
@@ -114,7 +114,7 @@ namespace detail
 		Value = static_cast<int>(LongValue);
 	}
 
-	inline void from_string(string_view const Str, unsigned int& Value, size_t* Pos, int Base)
+	inline void from_string(std::wstring_view const Str, unsigned int& Value, size_t* Pos, int Base)
 	{
 		static_assert(sizeof(unsigned int) == sizeof(unsigned long));
 		unsigned long LongValue;
@@ -122,7 +122,7 @@ namespace detail
 		Value = static_cast<unsigned int>(LongValue);
 	}
 
-	inline void from_string(string_view const Str, short& Value, size_t* Pos, int Base)
+	inline void from_string(std::wstring_view const Str, short& Value, size_t* Pos, int Base)
 	{
 		long LongValue;
 		from_string(Str, LongValue, Pos, Base);
@@ -132,7 +132,7 @@ namespace detail
 		Value = static_cast<short>(LongValue);
 	}
 
-	inline void from_string(string_view const Str, unsigned short& Value, size_t* Pos, int Base)
+	inline void from_string(std::wstring_view const Str, unsigned short& Value, size_t* Pos, int Base)
 	{
 		unsigned long LongValue;
 		from_string(Str, LongValue, Pos, Base);
@@ -142,7 +142,7 @@ namespace detail
 		Value = static_cast<unsigned short>(LongValue);
 	}
 
-	inline void from_string(string_view const Str, double& Value, size_t* Pos, int)
+	inline void from_string(std::wstring_view const Str, double& Value, size_t* Pos, int)
 	{
 		from_string(Str, Value, Pos, {}, [](const wchar_t* const StrPtr, wchar_t** const EndPtr, int) { return std::wcstod(StrPtr, EndPtr); });
 	}
@@ -150,7 +150,7 @@ namespace detail
 
 template<typename T>
 [[nodiscard]]
-bool from_string(string_view const Str, T& Value, size_t* Pos = nullptr, int Base = 10)
+bool from_string(std::wstring_view const Str, T& Value, size_t* Pos = nullptr, int Base = 10)
 {
 	try
 	{
@@ -165,7 +165,7 @@ bool from_string(string_view const Str, T& Value, size_t* Pos = nullptr, int Bas
 
 template<typename T>
 [[nodiscard]]
-T from_string(string_view const Str, size_t* Pos = nullptr, int Base = 10)
+T from_string(std::wstring_view const Str, size_t* Pos = nullptr, int Base = 10)
 {
 	T Value;
 	detail::from_string(Str, Value, Pos, Base);

@@ -53,12 +53,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "strmix.hpp"
 #include "history.hpp"
-#include "FarGuid.hpp"
+#include "uuids.far.hpp"
 #include "colormix.hpp"
 #include "mix.hpp"
 #include "plugins.hpp"
 #include "lang.hpp"
-#include "DlgGuid.hpp"
+#include "uuids.far.dialogs.hpp"
 #include "string_utils.hpp"
 #include "config.hpp"
 #include "edit.hpp"
@@ -73,6 +73,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common.hpp"
 #include "common/algorithm.hpp"
 #include "common/singleton.hpp"
+#include "common/uuid.hpp"
 #include "common/view/zip.hpp"
 
 // External:
@@ -2376,14 +2377,14 @@ long long Dialog::VMProcess(int OpCode,void *vParam,long long iParam)
 		case MCODE_V_DLGINFOID:        // Dlg->Info.Id
 		{
 			static string strId;
-			strId = GuidToStr(m_Id);
+			strId = uuid::str(m_Id);
 			return reinterpret_cast<intptr_t>(UNSAFE_CSTR(strId));
 		}
 		case MCODE_V_DLGINFOOWNER:        // Dlg->Info.Owner
 		{
-			const auto OwnerId = PluginOwner? PluginOwner->Id() : FarGuid;
+			const auto OwnerId = PluginOwner? PluginOwner->Id() : FarUuid;
 			static string strOwnerId;
-			strOwnerId = GuidToStr(OwnerId);
+			strOwnerId = uuid::str(OwnerId);
 			return reinterpret_cast<intptr_t>(UNSAFE_CSTR(strOwnerId));
 		}
 		case MCODE_V_ITEMCOUNT:
@@ -4789,7 +4790,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 					if (CheckStructSize(di))
 					{
 						di->Id = m_Id;
-						di->Owner = PluginOwner? PluginOwner->Id() : FarGuid;
+						di->Owner = PluginOwner? PluginOwner->Id() : FarUuid;
 						return true;
 					}
 				}
@@ -6114,7 +6115,7 @@ bool Dialog::ProcessEvents()
 	return !DialogMode.Check(DMODE_ENDLOOP);
 }
 
-void Dialog::SetId(const GUID& Id)
+void Dialog::SetId(const UUID& Id)
 {
 	m_Id=Id;
 	IdExist=true;

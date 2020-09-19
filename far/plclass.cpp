@@ -41,7 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "dirmix.hpp"
 #include "strmix.hpp"
-#include "FarGuid.hpp"
+#include "uuids.far.hpp"
 #include "lang.hpp"
 #include "language.hpp"
 #include "configdb.hpp"
@@ -56,7 +56,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/enum_tokens.hpp"
 #include "common/scope_exit.hpp"
+#include "common/uuid.hpp"
 #include "common/view/zip.hpp"
+
 
 // External:
 #include "format.hpp"
@@ -397,7 +399,7 @@ bool Plugin::SaveToCache()
 	PlCache->SetFlags(id, Info.Flags);
 
 	PlCache->SetMinFarVersion(id, m_MinFarVersion);
-	PlCache->SetGuid(id, m_strGuid);
+	PlCache->SetUuid(id, m_strUuid);
 	PlCache->SetVersion(id, m_PluginVersion);
 	PlCache->SetTitle(id, strTitle);
 	PlCache->SetDescription(id, strDescription);
@@ -425,15 +427,15 @@ Plugin::Plugin(plugin_factory* Factory, const string& ModuleName):
 	m_strCacheName(ModuleName)
 {
 	ReplaceBackslashToSlash(m_strCacheName);
-	SetGuid(FarGuid);
+	SetUuid(FarUuid);
 }
 
 Plugin::~Plugin() = default;
 
-void Plugin::SetGuid(const GUID& Guid)
+void Plugin::SetUuid(const UUID& Uuid)
 {
-	m_Guid = Guid;
-	m_strGuid = GuidToStr(m_Guid);
+	m_Uuid = Uuid;
+	m_strUuid = uuid::str(m_Uuid);
 }
 
 bool Plugin::LoadData()
@@ -496,15 +498,15 @@ bool Plugin::LoadData()
 
 		bool ok = false;
 
-		if (Info.Guid != FarGuid)
+		if (Info.Guid != FarUuid)
 		{
-			if (m_Guid != FarGuid && m_Guid != Info.Guid)
+			if (m_Uuid != FarUuid && m_Uuid != Info.Guid)
 			{
 				ok = m_Factory->Owner()->UpdateId(this, Info.Guid);
 			}
 			else
 			{
-				SetGuid(Info.Guid);
+				SetUuid(Info.Guid);
 				ok = true;
 			}
 		}
@@ -593,8 +595,13 @@ bool Plugin::LoadFromCache(const os::fs::find_data &FindData)
 		m_PluginVersion = {};
 	}
 
-	m_strGuid = PlCache->GetGuid(id);
-	SetGuid(StrToGuid(m_strGuid,m_Guid)?m_Guid:FarGuid);
+	m_strUuid = PlCache->GetUuid(id);
+
+	if (const auto Uuid = uuid::try_parse(m_strUuid))
+		SetUuid(*Uuid);
+	else
+		SetUuid(FarUuid);
+
 	strTitle = PlCache->GetTitle(id);
 	strDescription = PlCache->GetDescription(id);
 	strAuthor = PlCache->GetAuthor(id);

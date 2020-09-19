@@ -105,10 +105,10 @@ namespace detail
 		[[nodiscard]] std::string convert_message() const;
 	};
 
-	class attach_debugger
+	class break_into_debugger
 	{
 	protected:
-		attach_debugger();
+		break_into_debugger();
 	};
 }
 
@@ -120,7 +120,7 @@ namespace detail
   I.e. we either don't really know what to do or doing anything will do more harm than good.
   It shouldn't be caught explicitly in general and fly straight to main().
 */
-class far_fatal_exception : private detail::attach_debugger, public detail::far_std_exception
+class far_fatal_exception : private detail::break_into_debugger, public detail::far_std_exception
 {
 	using far_std_exception::far_std_exception;
 };
@@ -152,7 +152,7 @@ namespace detail
 		explicit exception_context(DWORD Code, const EXCEPTION_POINTERS& Pointers, os::handle&& ThreadHandle, DWORD ThreadId) noexcept;
 
 		auto code() const noexcept { return m_Code; }
-		auto pointers() const noexcept { return const_cast<EXCEPTION_POINTERS*>(&m_Pointers); }
+		auto& pointers() const noexcept { return m_Pointers; }
 		auto thread_handle() const noexcept { return m_ThreadHandle.native_handle(); }
 		auto thread_id() const noexcept { return m_ThreadId; }
 

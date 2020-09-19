@@ -163,8 +163,8 @@ public:
 	void AddButtons(span<lng const> Buttons, size_t OkIndex, size_t CancelIndex);
 	void SetDialogMode(DWORD Flags);
 	int AddTextWrap(lng_string Text, bool center = false, int width = 0);
-	void SetId(const GUID& Id);
-	const GUID& GetId() const;
+	void SetId(const UUID& Id);
+	const UUID& GetId() const;
 	size_t GetLastID() const;
 	void StartColumns();
 	void ColumnBreak();
@@ -212,7 +212,7 @@ private:
 	intptr_t m_ColumnMinWidth{};
 	string m_HelpTopic;
 	DWORD m_Mode{};
-	GUID m_Id{ GUID_NULL };
+	UUID m_Id{};
 	bool m_IdExist{};
 	Dialog::dialog_handler m_handler;
 };

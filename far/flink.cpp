@@ -464,7 +464,7 @@ bool GetVHDInfo(string_view const DeviceName, string &strVolumePath, VIRTUAL_STO
 	if(StorageType)
 		*StorageType = StorageDependencyInfo->Version2Entries[0].VirtualStorageType;
 
-	// trick: ConvertNameToReal also converts \\?\{GUID} to drive letter, if possible.
+	// trick: ConvertNameToReal also converts \\?\{UUID} to drive letter, if possible.
 	strVolumePath = ConvertNameToReal(concat(StorageDependencyInfo->Version2Entries[0].HostVolumeName, StorageDependencyInfo->Version2Entries[0].DependentVolumeRelativePath));
 
 	return true;
