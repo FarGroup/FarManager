@@ -58,6 +58,7 @@ namespace uuid
 			if (L'A' <= c && c <= L'F')
 				return c - L'A' + 10;
 
+			else // GCC 8.1 don't understand this without an explicit 'else'
 			fail("Invalid character");
 		}
 
@@ -127,7 +128,6 @@ namespace uuid
 		}
 
 		template<typename int_type, typename handler, size_t... I>
-		[[nodiscard]]
 		constexpr void serialise_impl(int_type Value, handler const& Handler, std::index_sequence<I...> const Sequence)
 		{
 			constexpr auto N = Sequence.size() * 2;
@@ -139,7 +139,6 @@ namespace uuid
 		}
 
 		template<typename int_type, typename handler>
-		[[nodiscard]]
 		constexpr void serialise(int_type Value, handler const& Handler)
 		{
 			serialise_impl(Value, Handler, std::make_index_sequence<sizeof(Value)>{});
