@@ -156,7 +156,7 @@ private:
 	std::wstring HostName;
 	std::unique_ptr<PerfThread> pPerfThread;
 	unsigned StartPanelMode{};
-	unsigned SortMode{};
+	unsigned SortMode, LastFarSortMode{}, LastInternalSortMode{};
 	std::unique_ptr<WMIConnection> pWMI;
 	DWORD dwPluginThread;
 
@@ -240,12 +240,12 @@ HANDLE OpenProcessForced(DebugToken* token, DWORD dwFlags, DWORD dwProcessId, BO
 
 enum
 {
-	SM_CUSTOM = 64,
-	SM_PID,
-	SM_PARENTPID,
-	SM_PRIOR,
-	SM_PERFCOUNTER,
-	SM_PERSEC = 128
+	SM_PROCLIST_CUSTOM = 64,
+	SM_PROCLIST_PID,
+	SM_PROCLIST_PARENTPID,
+	SM_PROCLIST_PRIOR,
+	SM_PROCLIST_PERFCOUNTER,
+	SM_PROCLIST_PERSEC = 128
 };
 
 extern wchar_t CustomColumns[10][10];

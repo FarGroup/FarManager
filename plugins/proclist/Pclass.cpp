@@ -19,6 +19,8 @@
 
 using namespace std::literals;
 
+const auto FarSortModeSlot = SM_CHTIME;
+
 class StrTok
 {
 public:
@@ -99,7 +101,7 @@ static std::wstring ui64toa_width(uint64_t value, unsigned width, bool bThousand
 
 static std::wstring PrintTitle(std::wstring_view const Msg)
 {
-	return format(FSTR(L"{0:<21} "), Msg);
+	return format(FSTR(L"{0:<21} "), format(FSTR(L"{0}:"), Msg));
 }
 
 static std::wstring PrintTitle(int MsgId)
@@ -116,8 +118,8 @@ Plist::Plist():
 		StartPanelMode = settings.Get(0, L"StartPanelMode", 1) + L'0';
 	}
 
-	if (SortMode >= SM_PERSEC)
-		SortMode &= (SM_PERSEC - 1); // Ахтунг!
+	if (SortMode >= SM_PROCLIST_PERSEC)
+		SortMode &= (SM_PROCLIST_PERSEC - 1); // Ахтунг!
 
 	InitializePanelModes();
 
@@ -444,7 +446,7 @@ void Plist::GetOpenPanelInfo(OpenPanelInfo* Info)
 	Info->PanelTitle = Title.c_str();
 	Info->PanelModesArray = PanelModes(Info->PanelModesNumber);
 	Info->StartPanelMode = StartPanelMode;
-	Info->StartSortMode = (OPENPANELINFO_SORTMODES)(SortMode >= SM_CUSTOM? SM_CTIME : SortMode); //SM_UNSORTED;
+	Info->StartSortMode = (OPENPANELINFO_SORTMODES)(SortMode >= SM_PROCLIST_CUSTOM? FarSortModeSlot : SortMode); //SM_UNSORTED;
 
 
 	static WORD FKeys[] =
@@ -826,7 +828,7 @@ void DumpNTCounters(HANDLE InfoFile, PerfThread& Thread, DWORD dwPid, DWORD dwTh
 		if (!pf->dwCounterTitles[i]) // counter is absent
 			continue;
 
-		WriteToFile(InfoFile, PrintTitle(GetMsg(Counters[i].idName) + L":"s));
+		WriteToFile(InfoFile, PrintTitle(GetMsg(Counters[i].idName)));
 
 		switch (pf->CounterTypes[i])
 		{
@@ -963,7 +965,7 @@ int Plist::GetFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, int Move, co
 		{
 			if (!pdata->CommandLine.empty())
 			{
-				WriteToFile(InfoFile.get(), format(FSTR(L"\n{0}\n{1}\n"), GetMsg(MCommandLine), pdata->CommandLine));
+				WriteToFile(InfoFile.get(), format(FSTR(L"\n{0}:\n{1}\n"), GetMsg(MCommandLine), pdata->CommandLine));
 			}
 
 			DebugToken token;
@@ -1007,7 +1009,7 @@ int Plist::GetFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, int Move, co
 
 		if (HostName.empty() && Opt.ExportModuleInfo && pdata->dwPID != 8)
 		{
-			WriteToFile(InfoFile.get(), format(FSTR(L"\n{0}\n{1:<{2}} {3:<8} {4}\n"),
+			WriteToFile(InfoFile.get(), format(FSTR(L"\n{0}:\n{1:<{2}} {3:<8} {4}\n"),
 				GetMsg(MTitleModules),
 				GetMsg(MColBase),
 #ifdef _WIN64
@@ -1152,7 +1154,7 @@ int Plist::ProcessEvent(intptr_t Event, void* Param)
 		PluginSettings settings(MainGuid, Info.SettingsControl);
 
 		settings.Set(0, L"StartPanelMode", pi.ViewMode);
-		settings.Set(0, L"SortMode", pi.SortMode == SM_CTIME? SortMode : pi.SortMode);
+		settings.Set(0, L"SortMode", pi.SortMode == FarSortModeSlot? SortMode : pi.SortMode);
 	}
 
 	if (Event == FE_CHANGEVIEWMODE)
@@ -1667,109 +1669,104 @@ int Plist::ProcessKey(const INPUT_RECORD* Rec)
 		struct
 		{
 			unsigned id;
-			unsigned mode;
+			unsigned SortMode;
+			bool InvertByDefault;
 		}
 		StaticItems[]
 		{
-			{MSortByName,SM_NAME},
-			{MSortByExt,SM_EXT},
-			{MSortByTime,SM_MTIME},
-			{MSortBySize,SM_SIZE},
-			{MSortByUnsorted,SM_UNSORTED},
-			{MSortByDescriptions,SM_DESCR},
-			{MSortByOwner,SM_OWNER},
-			//{MPageFileBytes,SM_COMPRESSEDSIZE},
-			{MTitlePID,SM_PID},
-			{MTitleParentPID,SM_PARENTPID},
-			{MTitleThreads,SM_NUMLINKS},
-			{MTitlePriority,SM_PRIOR},
+			{MSortByName,           SM_NAME,                 false, },
+			{MSortByExt,            SM_EXT,                  false, },
+			{MSortBySize,           SM_SIZE,                 true,  },
+			{MSortByUnsorted,       SM_UNSORTED,             false, },
+			{MSortByTime,           SM_CTIME,                true,  },
+			{MSortByDescriptions,   SM_DESCR,                false, },
+			{MSortByOwner,          SM_OWNER,                false, },
+			//{MPageFileBytes,        SM_COMPRESSEDSIZE        true,  },
+			{MTitlePID,             SM_PROCLIST_PID,         true,  },
+			{MTitleParentPID,       SM_PROCLIST_PARENTPID,   true,  },
+			{MTitleThreads,         SM_NUMLINKS,             true,  },
+			{MTitlePriority,        SM_PROCLIST_PRIOR,       true   },
 			//{0,-1},
 			//{MUseSortGroups,0},
 			//{MShowSelectedFirst,-1}
 		};
 
-		int nMoreData = static_cast<int>(std::size(Counters) + 1);
-
 		PanelInfo pi{ sizeof(PanelInfo) };
 		Info.PanelControl(this, FCTL_GETPANELINFO, 0, &pi);
-		const auto cIndicator = pi.Flags & PFLAGS_REVERSESORTORDER? L'-' : L'+';
 
-		std::vector<FarMenuItem> Items(std::size(StaticItems) + nMoreData * 2);
+		const auto Reversed = (pi.Flags & PFLAGS_REVERSESORTORDER) != 0;
+		const auto cIndicator = Reversed? L'▼' : L'▲';
+		const auto KnownSortingSlot =
+			pi.SortMode == FarSortModeSlot ||
+			std::any_of(std::cbegin(StaticItems), std::cend(StaticItems), [&](const auto& i){ return pi.SortMode == i.SortMode; });
 
-		struct
+		const auto CheckFlag = [&](size_t const Value)
 		{
-			BYTE  m;
-			BYTE  a;
+			return KnownSortingSlot && SortMode == Value? MIF_CHECKED | cIndicator : 0;
+		};
+
+		std::vector<FarMenuItem> Items;
+		Items.reserve(std::size(StaticItems) + 1 + std::size(Counters) * 2);
+
+		for (const auto& i: StaticItems)
+		{
+			Items.push_back({ CheckFlag(i.SortMode), GetMsg(i.id) });
 		}
-		Flags[std::size(Counters) * 2 + std::size(StaticItems) + 1]{};
 
-		for (size_t i = 0; i < std::size(StaticItems); i++)
-			if (StaticItems[i].id == 0)
-				Items[i].Flags |= MIF_SEPARATOR;
-			else
-			{
-				Items[i].Text = GetMsg(StaticItems[i].id);
-				Flags[i].m = StaticItems[i].mode;
-				unsigned sm = pi.SortMode;
+		Items.push_back({ MIF_SEPARATOR });
 
-				if (sm == SM_CTIME)
-					sm = SortMode;
+		const auto pl = pPerfThread->GetPerfLib();
 
-				if (sm == StaticItems[i].mode)
-				{
-					Items[i].Flags |= MIF_CHECKED | cIndicator;
-				}
-			}
+		std::vector<std::wstring> PerSecMessages;
+		PerSecMessages.reserve(std::size(Counters));
 
-		auto nItems = std::size(StaticItems);
-
-		Items[nItems++].Flags |= MIF_SEPARATOR;
-		const PerfLib* pl = pPerfThread->GetPerfLib();
+		std::vector<size_t> DynamicSortModes;
+		DynamicSortModes.reserve(std::size(Counters) * 2);
 
 		for (size_t i = 0; i < std::size(Counters); i++)
-			if (pl->dwCounterTitles[i])
-			{
-				Items[nItems].Text = GetMsg(Counters[i].idName);
-				Flags[nItems].m = (BYTE)(SM_PERFCOUNTER + i);
-				if (SM_PERFCOUNTER + i == SortMode)
-				{
-					Items[nItems].Flags |= MIF_CHECKED | cIndicator;
-				}
-				nItems++;
+		{
+			if (!pl->dwCounterTitles[i])
+				continue;
 
-				if (can_be_per_sec(i))
-				{
-					std::wstring tmpStr;
-					if (i < 3)
-						tmpStr = format(FSTR(L"% {0}"), GetMsg(Counters[i].idName));
-					else
-						tmpStr = format(FSTR(L"{0}{1}"), GetMsg(Counters[i].idName), GetMsg(MPerSec));
+			Items.push_back({ CheckFlag(SM_PROCLIST_PERFCOUNTER + i), GetMsg(Counters[i].idName) });
 
-					Items[nItems].Text = wcsdup(tmpStr.c_str());
-					Flags[nItems].m = (BYTE)((SM_PERFCOUNTER + i) | SM_PERSEC);
-					Flags[nItems].a = 1;
+			DynamicSortModes.push_back(i);
 
-					if (((SM_PERFCOUNTER + i) | SM_PERSEC) == SortMode)
-					{
-						Items[nItems].Flags |= MIF_CHECKED | cIndicator;
-					}
+			if (!can_be_per_sec(i))
+				continue;
 
-					nItems++;
-				}
-			}
+			PerSecMessages.emplace_back(i < 3?
+				format(FSTR(L"% {0}"), GetMsg(Counters[i].idName)) :
+				format(FSTR(L"{0}{1}"), GetMsg(Counters[i].idName), GetMsg(MPerSec))
+			);
+
+			Items.push_back({ CheckFlag(SM_PROCLIST_PERSEC | (SM_PROCLIST_PERFCOUNTER + i)), PerSecMessages.back().c_str() });
+
+			DynamicSortModes.push_back(i | SM_PROCLIST_PERSEC);
+		}
 
 		// Show sort menu
-		int rc = Menu(FMENU_AUTOHIGHLIGHT | FMENU_WRAPMODE, GetMsg(MSortBy), {}, {}, {}, Items.data(), nItems);
+		const auto rc = Menu(FMENU_AUTOHIGHLIGHT | FMENU_WRAPMODE, GetMsg(MSortBy), {}, {}, {}, Items.data(), Items.size());
 
-		if (rc != -1)
+		if (rc >= 0)
 		{
-			unsigned mode = Flags[rc].m;
-			SortMode = static_cast<OPENPANELINFO_SORTMODES>(mode);
+			const auto IsStatic = static_cast<size_t>(rc) < std::size(StaticItems);
 
-			if (mode >= SM_CUSTOM)
-				mode = SM_CTIME;
+			SortMode = IsStatic?
+				StaticItems[rc].SortMode :
+				SM_PROCLIST_PERFCOUNTER + static_cast<unsigned>(DynamicSortModes[rc - std::size(StaticItems) - 1]);
 
-			Info.PanelControl(this, FCTL_SETSORTMODE, mode, {});
+			auto FarSortMode = SortMode < SM_PROCLIST_CUSTOM? SortMode : FarSortModeSlot;
+
+			Info.PanelControl(this, FCTL_SETSORTMODE, FarSortMode, {});
+
+			const auto InvertByDefault = !IsStatic || StaticItems[rc].InvertByDefault;
+			const auto SameSelected = FarSortMode == LastFarSortMode && SortMode == LastInternalSortMode;
+
+			Info.PanelControl(this, FCTL_SETSORTORDER, SameSelected? !InvertByDefault : InvertByDefault, {});
+
+			LastFarSortMode = FarSortMode;
+			LastInternalSortMode = SortMode;
 			/*
 			else if(rc==std::size(StaticItems)-2)
 			Control(FCTL_SETSORTORDER, &items[rc].mode);
@@ -1777,11 +1774,6 @@ int Plist::ProcessKey(const INPUT_RECORD* Rec)
 			Control(FCTL_SETSORTMODE, &items[rc].mode);
 			*/
 		}
-
-
-		while (--nItems > std::size(StaticItems))
-			if (Flags[nItems].a)
-				free(const_cast<wchar_t*>(Items[nItems].Text));
 
 		return TRUE;
 	}
@@ -1928,28 +1920,34 @@ void Plist::PrintOwnerInfo(HANDLE InfoFile, DWORD dwPid)
 	WriteToFile(InfoFile, format(FSTR(L"{0}{1}\n"), PrintTitle(MTitleSessionId), pWMI->GetProcessSessionId(dwPid)));
 }
 
+template<typename T>
+auto compare_numbers(T const First, T const Second)
+{
+	return First < Second? -1 : First != Second;
+}
+
 int Plist::Compare(const PluginPanelItem* Item1, const PluginPanelItem* Item2, unsigned int Mode) const
 {
-	if (Mode != SM_CTIME || SortMode < SM_CUSTOM)
+	if (Mode != FarSortModeSlot || SortMode < SM_PROCLIST_CUSTOM)
 		return -2;
 
-	int64_t diff;
+	int diff;
 
 	const auto& pd1 = *static_cast<const ProcessData*>(Item1->UserData.Data);
 	const auto& pd2 = *static_cast<const ProcessData*>(Item2->UserData.Data);
 
 	switch (SortMode)
 	{
-	case SM_PID:
-		diff = pd1.dwPID - pd2.dwPID;
+	case SM_PROCLIST_PID:
+		diff = compare_numbers(pd1.dwPID, pd2.dwPID);
 		break;
 
-	case SM_PARENTPID:
-		diff = pd1.dwParentPID - pd2.dwParentPID;
+	case SM_PROCLIST_PARENTPID:
+		diff = compare_numbers(pd1.dwParentPID, pd2.dwParentPID);
 		break;
 
-	case SM_PRIOR:
-		diff = pd2.dwPrBase - pd1.dwPrBase;
+	case SM_PROCLIST_PRIOR:
+		diff = compare_numbers(pd2.dwPrBase, pd1.dwPrBase);
 		break;
 
 	default:
@@ -1965,27 +1963,28 @@ int Plist::Compare(const PluginPanelItem* Item1, const PluginPanelItem* Item2, u
 				return -1;
 
 			bool bPerSec = false;
-			unsigned smode = SortMode;
+			auto smode = SortMode;
 
-			if (smode >= SM_PERSEC)
+			if (smode >= SM_PROCLIST_PERSEC)
 			{
 				bPerSec = true;
-				smode &= ~SM_PERSEC;
+				smode &= ~SM_PROCLIST_PERSEC;
 			}
 
-			const auto i = smode - SM_PERFCOUNTER;
+			const auto i = smode - SM_PROCLIST_PERFCOUNTER;
 			//if((DWORD)i >= (DWORD)NCOUNTERS){
 			//  i=0; //????
 			//}
-			diff = bPerSec? data2->qwResults[i] - data1->qwResults[i] : data2->qwCounters[i] - data1->qwCounters[i];
+
+			diff = bPerSec? compare_numbers(data2->qwResults[i], data1->qwResults[i]) : compare_numbers(data2->qwCounters[i], data1->qwCounters[i]);
 		}
 		break;
 	}
 
 	if (diff == 0)
-		diff = reinterpret_cast<uintptr_t>(Item1->UserData.Data) - reinterpret_cast<uintptr_t>(Item2->UserData.Data); // unsorted
+		diff = compare_numbers(reinterpret_cast<uintptr_t>(Item1->UserData.Data), reinterpret_cast<uintptr_t>(Item2->UserData.Data)); // unsorted
 
-	return diff < 0? -1 : diff == 0? 0 : 1;
+	return diff;
 }
 
 /*

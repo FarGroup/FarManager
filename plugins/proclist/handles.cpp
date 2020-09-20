@@ -422,7 +422,7 @@ bool PrintHandleInfo(DWORD dwPID, HANDLE file, bool bIncludeUnnamed, PerfThread*
 			return false;
 	}
 
-	WriteToFile(file, format(FSTR(L"\n{0}\n{1:6} {2:8} {3:15} {4}\n"),
+	WriteToFile(file, format(FSTR(L"\n{0}:\n{1:6} {2:8} {3:15} {4}\n"),
 		GetMsg(MHandles),
 		GetMsg(MHandlesHandle),
 		GetMsg(MHandlesAccess),

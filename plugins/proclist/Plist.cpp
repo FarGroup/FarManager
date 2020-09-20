@@ -93,7 +93,7 @@ bool GetList(PluginPanelItem*& pPanelItem, size_t& ItemsNumber, PerfThread& Thre
 			pd.ftCreation.dwHighDateTime = Cr.HighPart;
 		}
 
-		CurItem.CreationTime = CurItem.LastWriteTime = CurItem.LastAccessTime = pd.ftCreation;
+		CurItem.CreationTime = CurItem.LastWriteTime = CurItem.LastAccessTime = CurItem.ChangeTime = pd.ftCreation;
 		const auto ullSize = pd.qwCounters[IDX_WORKINGSET] + pd.qwCounters[IDX_PAGEFILE];
 		CurItem.FileSize = ullSize;
 		CurItem.AllocationSize = pd.qwResults[IDX_PAGEFILE];
@@ -255,12 +255,12 @@ void PrintNTCurDirAndEnv(HANDLE InfoFile, HANDLE hProcess, BOOL bExportEnvironme
 
 	if (!CurDir.empty())
 	{
-		WriteToFile(InfoFile, format(FSTR(L"{0}\n{1}\n"), GetMsg(MCurDir), CurDir));
+		WriteToFile(InfoFile, format(FSTR(L"{0}:\n{1}\n"), GetMsg(MCurDir), CurDir));
 	}
 
 	if (bExportEnvironment && !EnvStrings.empty())
 	{
-		WriteToFile(InfoFile, format(FSTR(L"\n{0}\n"), GetMsg(MEnvironment)));
+		WriteToFile(InfoFile, format(FSTR(L"\n{0}:\n"), GetMsg(MEnvironment)));
 
 		for (wchar_t* p = EnvStrings.data(); *p; p += std::wcslen(p) + 1)
 		{
