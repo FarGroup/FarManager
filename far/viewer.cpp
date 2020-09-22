@@ -1495,8 +1495,8 @@ bool Viewer::process_key(const Manager::Key& Key)
 				const wchar_t_ptr_n<256> SelData(SelectSize);
 				const auto CurFilePos = vtell();
 				vseek(SelectPos, FILE_BEGIN);
-				vread(SelData.data(), static_cast<int>(SelectSize));
-				SetClipboardText({ SelData.data(), static_cast<size_t>(SelectSize) });
+				const auto ReadSize = vread(SelData.data(), static_cast<int>(SelectSize));
+				SetClipboardText({ SelData.data(), static_cast<size_t>(ReadSize) });
 				vseek(CurFilePos, FILE_BEGIN);
 			}
 			return true;
@@ -3617,10 +3617,10 @@ int Viewer::vread(wchar_t *Buf, int Count, wchar_t *Buf2)
 
 		if (ReadSize & 1)
 		{
-			Buf[ReadSize / 2] = encoding::replace_char;
+			Buf[ReadSize / sizeof(wchar_t)] = encoding::replace_char;
 		}
 
-		ReadSize /= 2;
+		ReadSize /= sizeof(wchar_t);
 	}
 	else
 	{
