@@ -93,9 +93,9 @@ private:
 	void UpdateSelectPos();
 
 	span<HMenuData> m_Item;
-	size_t m_SelectPos;
-	int m_VExitCode;
-	bool m_SubmenuOpened;
+	size_t m_SelectPos{};
+	int m_VExitCode{-1};
+	bool m_SubmenuOpened{};
 };
 
 #endif // HMENU_HPP_4850D545_465D_434F_B439_23DF6445EEFC

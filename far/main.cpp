@@ -85,13 +85,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // External:
 
-//----------------------------------------------------------------------------
 
 #ifdef ENABLE_TESTS
 #define TESTS_ENTRYPOINT_ONLY
 #include "testing.hpp"
 #undef TESTS_ENTRYPOINT_ONLY
 #endif
+
+//----------------------------------------------------------------------------
 
 global *Global = nullptr;
 
@@ -226,7 +227,7 @@ static int MainProcess(
 
 				bool Root = false;
 				const auto Type = ParsePath(strPath, nullptr, &Root);
-				if(Root && (Type == root_type::drive_letter || Type == root_type::unc_drive_letter || Type == root_type::volume))
+				if(Root && (Type == root_type::drive_letter || Type == root_type::win32nt_drive_letter || Type == root_type::volume))
 				{
 					AddEndSlash(strPath);
 				}

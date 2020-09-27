@@ -99,8 +99,7 @@ namespace detail
 
 	break_into_debugger::break_into_debugger()
 	{
-		if (os::debug::debugger_present())
-			os::debug::breakpoint();
+		os::debug::breakpoint(false);
 	}
 
 	exception_context::exception_context(DWORD const Code, const EXCEPTION_POINTERS& Pointers, os::handle&& ThreadHandle, DWORD const ThreadId) noexcept:

@@ -129,15 +129,15 @@ private:
 		window_ptr Update = nullptr);
 
 	std::unique_ptr<Viewer> m_View;
-	bool m_RedrawTitle;
-	bool m_F3KeyOnly;
-	bool m_bClosing;
-	bool m_FullScreen;
+	bool m_RedrawTitle{};
+	bool m_F3KeyOnly{};
+	bool m_bClosing{};
+	bool m_FullScreen{true};
 	bool m_DisableEdit;
-	bool m_DisableHistory;
+	bool m_DisableHistory{};
 	string m_Name;
-	bool m_SaveToSaveAs;
-	int m_DeleteOnClose;
+	bool m_SaveToSaveAs{};
+	int m_DeleteOnClose{};
 	string m_StrTitle;
 };
 

@@ -715,7 +715,7 @@ std::list<CommandLine::segment> CommandLine::GetPrompt()
 							case L'M': // $M - Отображение полного имени удаленного диска, связанного с именем текущего диска, или пустой строки, если текущий диск не является сетевым.
 							{
 								string strTemp;
-								if (DriveLocalToRemoteName(DRIVE_UNKNOWN, m_CurDir[0], strTemp))
+								if (DriveLocalToRemoteName(true, m_CurDir, strTemp))
 								{
 									AddCollapsible(std::move(strTemp));
 								}
@@ -775,7 +775,7 @@ std::list<CommandLine::segment> CommandLine::GetPrompt()
 								const auto Type = ParsePath(m_CurDir);
 								if(Type == root_type::drive_letter)
 									strDestStr += upper(m_CurDir[0]);
-								else if(Type == root_type::unc_drive_letter)
+								else if(Type == root_type::win32nt_drive_letter)
 									strDestStr += upper(m_CurDir[4]);
 								else
 									strDestStr += L'?';
@@ -1119,9 +1119,9 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 		ConsoleActivatior(false);
 
 		const auto DriveLetter = upper(CmdLine[0]);
-		if (!FarChDir(os::fs::get_drive(DriveLetter)))
+		if (!FarChDir(os::fs::drive::get_device_path(DriveLetter)))
 		{
-			FarChDir(os::fs::get_root_directory(DriveLetter));
+			FarChDir(os::fs::drive::get_root_directory(DriveLetter));
 		}
 		SetPanel->ChangeDirToCurrent();
 		return true;

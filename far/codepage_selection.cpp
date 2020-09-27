@@ -83,13 +83,6 @@ enum StandardCodePagesMenuItems
 };
 
 codepages::codepages():
-	dialog(nullptr),
-	control(0),
-	DialogBuilderList(),
-	currentCodePage(0),
-	favoriteCodePages(0),
-	normalCodePages(0),
-	selectedCodePages(false),
 	CallbackCallSource(CodePageSelect)
 {
 }

@@ -52,6 +52,6 @@ bool ConnectToNetworkResource(string_view NewDir);
 string ExtractComputerName(string_view CurDir, string* strTail = nullptr);
 
 // Получить из имени диска RemoteName
-bool DriveLocalToRemoteName(int DriveType,wchar_t Letter,string &strDest);
+bool DriveLocalToRemoteName(bool DetectNetworkDrive, string_view LocalPath, string& strDest);
 
 #endif // NETWORK_HPP_D0F37D40_93B4_46B1_98E1_627B1E02B45D

@@ -95,7 +95,7 @@ string KernelPath(string&& NtPath)
 }
 
 
-root_type ParsePath(const string_view Path, size_t* const DirectoryOffset, bool* const Root)
+root_type ParsePath(const string_view Path, size_t* const RootSize, bool* const RootOnly)
 {
 	const auto re = [](const wchar_t* const Str) { return std::wregex(Str, std::regex::icase | std::regex::optimize); };
 
@@ -115,7 +115,7 @@ root_type ParsePath(const string_view Path, size_t* const DirectoryOffset, bool*
 		},
 		{
 			// \\?\x:(\...)
-			root_type::unc_drive_letter,
+			root_type::win32nt_drive_letter,
 			re(RE_PATH_PREFIX(L".\\:") RE_ANY_SLASH_OR_NONE),
 		},
 		{
@@ -138,6 +138,11 @@ root_type ParsePath(const string_view Path, size_t* const DirectoryOffset, bool*
 			root_type::pipe,
 			re(RE_PATH_PREFIX(L"pipe") RE_ANY_SLASH_OR_NONE),
 		},
+		{
+			// \\?\<anything_else>(\...)
+			root_type::unknown_rootlike,
+			re(RE_PATH_PREFIX(L"." RE_ONE_OR_MORE_LAZY) RE_ANY_SLASH_OR_NONE),
+		}
 
 #undef RE_PATH_REFIX
 	};
@@ -154,11 +159,11 @@ root_type ParsePath(const string_view Path, size_t* const DirectoryOffset, bool*
 
 	const size_t MatchLength = Match[0].length();
 
-	if (DirectoryOffset)
-		*DirectoryOffset = MatchLength;
+	if (RootSize)
+		*RootSize = MatchLength;
 
-	if (Root)
-		*Root = Path.size() == MatchLength || (Path.size() == (MatchLength + 1) && IsSlash(Path[MatchLength]));
+	if (RootOnly)
+		*RootOnly = Path.size() == MatchLength || (Path.size() == MatchLength + 1 && IsSlash(Path[MatchLength]));
 
 	return ItemIterator->Type;
 }
@@ -178,6 +183,14 @@ bool HasPathPrefix(const string_view Path)
 		starts_with(Path, L"\\\\?\\"sv) ||
 		starts_with(Path, L"\\\\.\\"sv) ||
 		starts_with(Path, L"\\??\\"sv);
+}
+
+string_view ExtractPathPrefix(const string_view Path)
+{
+	if (starts_with_icase(Path, L"\\\\?\\UNC\\"sv))
+		return Path.substr(0, 8);
+
+	return HasPathPrefix(Path)? Path.substr(0, 4) : L""sv;
 }
 
 bool PathCanHoldRegularFile(string_view const Path)
@@ -310,6 +323,13 @@ bool AddEndSlash(wchar_t *Path)
 	return AddEndSlash(Path, {});
 }
 
+string AddEndSlash(string_view const Path)
+{
+	string Result(Path);
+	AddEndSlash(Result);
+	return Result;
+}
+
 void AddEndSlash(string &strPath, wchar_t TypeSlash)
 {
 	if (!IsSlash(TypeSlash))
@@ -433,13 +453,26 @@ static size_t GetPathRootLength(string_view const Path)
 	return ParsePath(Path, &DirOffset) == root_type::unknown? 0 : DirOffset;
 }
 
-string ExtractPathRoot(string_view const Path)
+string_view extract_root_device(string_view const Path)
 {
-	const auto PathRootLen = GetPathRootLength(Path);
-	if (!PathRootLen)
+	const auto RootSize = GetPathRootLength(Path);
+	if (!RootSize)
 		return{};
 
-	return path::join(Path.substr(0, PathRootLen), L""sv);
+	return Path.substr(0, RootSize - (IsSlash(Path[RootSize - 1])? 1 : 0));
+}
+
+string extract_root_directory(string_view const Path)
+{
+	const auto RootSize = GetPathRootLength(Path);
+	if (!RootSize)
+		return{};
+
+	if (IsSlash(Path[RootSize - 1]))
+		return string{ Path.substr(0, RootSize) };
+
+	// A fancy way to add a trailing slash
+	return path::join(Path.substr(0, RootSize), L""sv);
 }
 
 string_view ExtractFileName(string_view const Path)
@@ -502,11 +535,11 @@ TEST_CASE("path.join")
 	REQUIRE(path::join(L"\\\\foo\\\\"sv, L"\\\\bar\\"sv)        == L"\\\\foo\\bar"sv);
 }
 
-TEST_CASE("path.ExtractPathRoot")
+TEST_CASE("path.extract_root")
 {
 	static const struct
 	{
-		string_view Input, Result;
+		string_view Input, RootDevice, RootDirectory;
 	}
 	Tests[]
 	{
@@ -514,25 +547,31 @@ TEST_CASE("path.ExtractPathRoot")
 		{L"\\"sv,                                                                  {}},
 		{L"file"sv,                                                                {}},
 		{L"path\\file"sv,                                                          {}},
-		{L"C:"sv,                                                                  L"C:\\"sv},
-		{L"C:\\"sv,                                                                L"C:\\"sv},
-		{L"C:\\path\\file"sv,                                                      L"C:\\"sv},
-		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"sv,                 L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv},
-		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv,               L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv},
-		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file"sv,     L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv},
-		{L"\\\\server\\share"sv,                                                   L"\\\\server\\share\\"sv},
-		{L"\\\\server\\share\\"sv,                                                 L"\\\\server\\share\\"sv},
-		{L"\\\\server\\share\\path\\file"sv,                                       L"\\\\server\\share\\"sv},
-		{L"\\\\1.2.3.4\\share\\path\\file"sv,                                      L"\\\\1.2.3.4\\share\\"sv},
-		{L"\\\\?\\UNC\\server\\share"sv,                                           L"\\\\?\\UNC\\server\\share\\"sv},
-		{L"\\\\?\\UNC\\server\\share\\"sv,                                         L"\\\\?\\UNC\\server\\share\\"sv},
-		{L"\\\\?\\UNC\\server\\share\\path\\file"sv,                               L"\\\\?\\UNC\\server\\share\\"sv},
-		{L"\\\\?\\UNC\\1.2.3.4\\share\\path\\file"sv,                              L"\\\\?\\UNC\\1.2.3.4\\share\\"sv},
+		{L"C:"sv,                                                                  L"C:"sv},
+		{L"C:\\"sv,                                                                L"C:"sv},
+		{L"C:\\path\\file"sv,                                                      L"C:"sv},
+		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"sv,                 L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"sv},
+		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv,               L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"sv},
+		{L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file"sv,     L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"sv},
+		{L"\\\\server\\share"sv,                                                   L"\\\\server\\share"sv},
+		{L"\\\\server\\share\\"sv,                                                 L"\\\\server\\share"sv},
+		{L"\\\\server\\share\\path\\file"sv,                                       L"\\\\server\\share"sv},
+		{L"\\\\1.2.3.4\\share\\path\\file"sv,                                      L"\\\\1.2.3.4\\share"sv},
+		{L"\\\\?\\UNC\\server\\share"sv,                                           L"\\\\?\\UNC\\server\\share"sv},
+		{L"\\\\?\\UNC\\server\\share\\"sv,                                         L"\\\\?\\UNC\\server\\share"sv},
+		{L"\\\\?\\UNC\\server\\share\\path\\file"sv,                               L"\\\\?\\UNC\\server\\share"sv},
+		{L"\\\\?\\UNC\\1.2.3.4\\share\\path\\file"sv,                              L"\\\\?\\UNC\\1.2.3.4\\share"sv},
 	};
 
 	for (const auto& i: Tests)
 	{
-		REQUIRE(i.Result == ExtractPathRoot(i.Input));
+		REQUIRE(i.RootDevice == extract_root_device(i.Input));
+
+		const auto RootDirectory = extract_root_directory(i.Input);
+		if (i.RootDevice.empty())
+			REQUIRE(RootDirectory.empty());
+		else
+			REQUIRE(RootDirectory == i.RootDevice + L"\\"sv);
 	}
 }
 
@@ -696,44 +735,45 @@ TEST_CASE("path.ParsePath")
 	}
 	Tests[]
 	{
-		{ {},                                                              root_type::unknown,             0,   false, },
-		{ L"1"sv,                                                          root_type::unknown,             0,   false, },
-		{ L"\\"sv,                                                         root_type::unknown,             0,   false, },
-		{ L"path\\file"sv,                                                 root_type::unknown,             0,   false, },
-		{ L"A:"sv,                                                         root_type::drive_letter,        2,   true,  },
-		{ L"A:path"sv,                                                     root_type::drive_letter,        2,   false, },
-		{ L"B:\\"sv,                                                       root_type::drive_letter,        3,   true,  },
-		{ L"C:\\path"sv,                                                   root_type::drive_letter,        3,   false, },
-		{ L"CC:\\path"sv,                                                  root_type::unknown,             0,   false, },
-		{ L"\\\\?\\A:"sv,                                                  root_type::unc_drive_letter,    6,   true,  },
-		{ L"\\\\?\\B:\\"sv,                                                root_type::unc_drive_letter,    7,   true,  },
-		{ L"\\\\?\\C:\\path"sv,                                            root_type::unc_drive_letter,    7,   false, },
-		{ L"\\\\?\\CC:\\path"sv,                                           root_type::unknown,             0,   false, },
-		{ L"\\\\.\\A:"sv,                                                  root_type::unc_drive_letter,    6,   true,  },
-		{ L"\\\\.\\B:\\"sv,                                                root_type::unc_drive_letter,    7,   true,  },
-		{ L"\\\\.\\C:\\path"sv,                                            root_type::unc_drive_letter,    7,   false, },
-		{ L"\\\\.\\CC:\\path"sv,                                           root_type::unknown,             0,   false, },
-		{ L"\\??\\A:"sv,                                                   root_type::unc_drive_letter,    6,   true,  },
-		{ L"\\??\\B:\\"sv,                                                 root_type::unc_drive_letter,    7,   true,  },
-		{ L"\\??\\C:\\path"sv,                                             root_type::unc_drive_letter,    7,   false, },
-		{ L"\\??\\CC:\\path"sv,                                            root_type::unknown,             0,   false, },
-		{ L"\\\\server\\share"sv,                                          root_type::remote,             14,   true,  },
-		{ L"\\\\server\\share\\"sv,                                        root_type::remote,             15,   true,  },
-		{ L"\\\\server\\share\\path"sv,                                    root_type::remote,             15,   false, },
-		{ L"\\\\server"sv,                                                 root_type::unknown,             0,   false, },
-		{ L"\\\\?\\UNC\\server\\share"sv,                                  root_type::unc_remote,         20,   true,  },
-		{ L"\\\\?\\UNC\\server\\share\\"sv,                                root_type::unc_remote,         21,   true,  },
-		{ L"\\\\?\\UNC\\server\\share\\path"sv,                            root_type::unc_remote,         21,   false, },
-		{ L"\\\\?\\Volume{01234567-89AB-CDEF-0123-456789ABCDEF}"sv,        root_type::volume,             48,   true,  },
-		{ L"\\\\?\\Volume{01234567-89AB-CDEF-0123-456789ABCDEF}\\"sv,      root_type::volume,             49,   true,  },
-		{ L"\\\\?\\Volume{01234567-89AB-CDEF-0123-456789ABCDEF}\\path"sv,  root_type::volume,             49,   false, },
-		{ L"\\\\?\\Volume{01234567-89AB-CDEF-0123-456789ABCDEZ}\\path"sv,  root_type::unknown,             0,   false, },
-		{ L"\\\\?\\Volume{01234567-89AB-CDEF-0123-456789ABCDEF}_\\"sv,     root_type::unknown,             0,   false, },
-		{ L"\\\\?\\pipe"sv,                                                root_type::pipe,                8,   true,  },
-		{ L"\\\\?\\pipe\\"sv,                                              root_type::pipe,                9,   true,  },
-		{ L"\\\\?\\pipe\\path"sv,                                          root_type::pipe,                9,   false, },
-		{ L"\\\\?\\pipa\\path"sv,                                          root_type::unknown,             0,   false, },
-		{ L"\\\\?\\pipe_\\path"sv,                                         root_type::unknown,             0,   false, },
+		{ {},                                                              root_type::unknown,                 0,   false, },
+		{ L"1"sv,                                                          root_type::unknown,                 0,   false, },
+		{ L"\\"sv,                                                         root_type::unknown,                 0,   false, },
+		{ L"path\\file"sv,                                                 root_type::unknown,                 0,   false, },
+		{ L"A:"sv,                                                         root_type::drive_letter,            2,   true,  },
+		{ L"A:path"sv,                                                     root_type::drive_letter,            2,   false, },
+		{ L"B:\\"sv,                                                       root_type::drive_letter,            3,   true,  },
+		{ L"C:\\path"sv,                                                   root_type::drive_letter,            3,   false, },
+		{ L"CC:\\path"sv,                                                  root_type::unknown,                 0,   false, },
+		{ L"\\\\?\\A:"sv,                                                  root_type::win32nt_drive_letter,    6,   true,  },
+		{ L"\\\\?\\B:\\"sv,                                                root_type::win32nt_drive_letter,    7,   true,  },
+		{ L"\\\\?\\C:\\path"sv,                                            root_type::win32nt_drive_letter,    7,   false, },
+		{ L"\\\\?\\CC:\\path"sv,                                           root_type::unknown_rootlike,        8,   false, },
+		{ L"\\\\.\\A:"sv,                                                  root_type::win32nt_drive_letter,    6,   true,  },
+		{ L"\\\\.\\B:\\"sv,                                                root_type::win32nt_drive_letter,    7,   true,  },
+		{ L"\\\\.\\C:\\path"sv,                                            root_type::win32nt_drive_letter,    7,   false, },
+		{ L"\\\\.\\CC:\\path"sv,                                           root_type::unknown_rootlike,        8,   false, },
+		{ L"\\??\\A:"sv,                                                   root_type::win32nt_drive_letter,    6,   true,  },
+		{ L"\\??\\B:\\"sv,                                                 root_type::win32nt_drive_letter,    7,   true,  },
+		{ L"\\??\\C:\\path"sv,                                             root_type::win32nt_drive_letter,    7,   false, },
+		{ L"\\??\\CC:\\path"sv,                                            root_type::unknown_rootlike,        8,   false, },
+		{ L"\\\\server\\share"sv,                                          root_type::remote,                 14,   true,  },
+		{ L"\\\\server\\share\\"sv,                                        root_type::remote,                 15,   true,  },
+		{ L"\\\\server\\share\\path"sv,                                    root_type::remote,                 15,   false, },
+		{ L"\\\\server"sv,                                                 root_type::unknown,                 0,   false, },
+		{ L"\\\\?\\UNC\\server\\share"sv,                                  root_type::unc_remote,             20,   true,  },
+		{ L"\\\\?\\UNC\\server\\share\\"sv,                                root_type::unc_remote,             21,   true,  },
+		{ L"\\\\?\\UNC\\server\\share\\path"sv,                            root_type::unc_remote,             21,   false, },
+		{ L"\\\\?\\Volume{01234567-89AB-CDEF-0123-456789ABCDEF}"sv,        root_type::volume,                 48,   true,  },
+		{ L"\\\\?\\Volume{01234567-89AB-CDEF-0123-456789ABCDEF}\\"sv,      root_type::volume,                 49,   true,  },
+		{ L"\\\\?\\Volume{01234567-89AB-CDEF-0123-456789ABCDEF}\\path"sv,  root_type::volume,                 49,   false, },
+		{ L"\\\\?\\Volume{01234567-89AB-CDEF-0123-456789ABCDEZ}\\path"sv,  root_type::unknown_rootlike,       49,   false, },
+		{ L"\\\\?\\Volume{01234567-89AB-CDEF-0123-456789ABCDEF}_\\"sv,     root_type::unknown_rootlike,       50,   true,  },
+		{ L"\\\\?\\pipe"sv,                                                root_type::pipe,                    8,   true,  },
+		{ L"\\\\?\\pipe\\"sv,                                              root_type::pipe,                    9,   true,  },
+		{ L"\\\\?\\pipe\\path"sv,                                          root_type::pipe,                    9,   false, },
+		{ L"\\\\?\\pepe\\path"sv,                                          root_type::unknown_rootlike,        9,   false, },
+		{ L"\\\\?\\pipe_\\"sv,                                             root_type::unknown_rootlike,       10,   true,  },
+		{ L"\\\\?\\storage#volume#_??_usbstor#disk&ven_usb&prod_flash_disk&rev_1100#6&295c6d19&0#{53f56307-b6bf-11d0-94f2-00a0c91efb8b}#{53f5630d-b6bf-11d0-94f2-00a0c91efb8b}\\"sv, root_type::unknown_rootlike, 160, true, },
 	};
 
 	for (const auto& i: Tests)
@@ -782,6 +822,7 @@ TEST_CASE("path.CutToParent")
 		L"\\\\?\\UNC\\server\\share\\"sv,
 		L"\\\\?\\Volume{f26b206c-f912-11e1-b516-806e6f6e6963}\\"sv,
 		L"\\\\?\\pipe\\"sv,
+		L"\\\\?\\pineapple#pizza\\"sv,
 	};
 
 	static const struct

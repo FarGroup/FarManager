@@ -151,19 +151,21 @@ enum class root_type
 {
 	unknown,
 	drive_letter,
-	unc_drive_letter,
+	win32nt_drive_letter,
 	remote,
 	unc_remote,
 	volume,
 	pipe,
+	unknown_rootlike
 };
 
-root_type ParsePath(string_view Path, size_t* DirectoryOffset = nullptr, bool* Root = nullptr);
+root_type ParsePath(string_view Path, size_t* RootSize = {}, bool* RootOnly = {});
 
 inline bool IsRelativeRoot(string_view Path) { return Path.size() == 1 && IsSlash(Path.front()); }
 bool IsAbsolutePath(string_view Path);
 bool IsRootPath(string_view Path);
 bool HasPathPrefix(string_view Path);
+string_view ExtractPathPrefix(string_view Path);
 bool PathStartsWith(string_view Path, string_view Start);
 bool PathCanHoldRegularFile(string_view Path);
 bool IsPluginPrefixPath(string_view Path);
@@ -182,6 +184,8 @@ void AddEndSlash(string &strPath, wchar_t TypeSlash);
 void AddEndSlash(string &strPath);
 bool AddEndSlash(wchar_t *Path, wchar_t TypeSlash);
 bool AddEndSlash(wchar_t *Path);
+[[nodiscard]]
+string AddEndSlash(string_view Path);
 void DeleteEndSlash(wchar_t* Path);
 void DeleteEndSlash(string& Path);
 [[nodiscard]]
@@ -202,7 +206,8 @@ bool IsParentDirectory(const PluginPanelItem& Data);
 
 bool IsCurrentDirectory(string_view Str);
 
-string ExtractPathRoot(string_view Path);
+string_view extract_root_device(string_view Path);
+string extract_root_directory(string_view Path);
 string_view ExtractFileName(string_view Path);
 string ExtractFilePath(string_view Path);
 

@@ -41,7 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "constitle.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "taskbar.hpp"
-#include "cddrv.hpp"
 #include "interf.hpp"
 #include "keyboard.hpp"
 #include "message.hpp"
@@ -744,7 +743,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, delete_type const Type):
 	if (!SrcPanel->get_first_selected(SingleSelData))
 		return;
 
-	if (m_DeleteType == delete_type::recycle && FAR_GetDriveType(GetPathRoot(ConvertNameToFull(SingleSelData.FileName))) != DRIVE_FIXED)
+	if (m_DeleteType == delete_type::recycle && os::fs::drive::get_type(GetPathRoot(ConvertNameToFull(SingleSelData.FileName))) != DRIVE_FIXED)
 		m_DeleteType = delete_type::remove;
 
 	show_confirmation(SrcPanel, m_DeleteType, SelCount, SingleSelData);

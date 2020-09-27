@@ -67,10 +67,11 @@ bool ModifyReparsePoint(string_view Object, string_view Target);
 
 bool GetReparsePointInfo(string_view Object, string &DestBuffer,LPDWORD ReparseTag=nullptr);
 
-bool GetSubstName(int DriveType,const string& DeviceName,string &strTargetPath);
-bool GetVHDInfo(string_view DeviceName, string &strVolumePath, VIRTUAL_STORAGE_TYPE* StorageType = nullptr);
+bool GetSubstName(int DriveType, string_view Path, string& strTargetPath);
+bool GetVHDInfo(string_view RootDirectory, string &strVolumePath, VIRTUAL_STORAGE_TYPE* StorageType = nullptr);
+bool detach_vhd(string_view RootDirectory, bool& IsVhd);
 
-bool DelSubstDrive(const string& DeviceName);
+bool DelSubstDrive(string_view DeviceName);
 string GetPathRoot(string_view Path);
 
 // перечислятель для EnumNTFSStreams

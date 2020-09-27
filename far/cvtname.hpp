@@ -57,4 +57,6 @@ string ConvertNameToUNC(string_view Object);
 
 void PrepareDiskPath(string &strPath, bool CheckFullPath=true);
 
+std::optional<wchar_t> get_volume_drive(string_view VolumePath);
+
 #endif // CVTNAME_HPP_6F805D7A_7988_492E_9583_A5668BCA99D2

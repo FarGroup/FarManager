@@ -70,7 +70,7 @@ struct MEMINFO
 
 	size_t Size;
 
-	void* Stack[4];
+	void* Stack[10];
 
 	MEMINFO* prev;
 	MEMINFO* next;
@@ -232,6 +232,8 @@ private:
 	{
 		if (!m_AllocatedMemorySize)
 			return;
+
+		os::debug::breakpoint(false);
 
 		// Q: Why?
 		// A: The same reason we override stream buffers everywhere else: the default one is shite - it goes through FILE* and breaks wide characters.

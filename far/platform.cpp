@@ -47,7 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/algorithm.hpp"
 #include "common/range.hpp"
-#include "common/scope_exit.hpp"
 #include "common/string_utils.hpp"
 
 // External:
@@ -424,9 +423,10 @@ handle OpenConsoleActiveScreenBuffer()
 			return IsDebuggerPresent() != FALSE;
 		}
 
-		void breakpoint()
+		void breakpoint(bool const Always)
 		{
-			DebugBreak();
+			if (Always || debugger_present())
+				DebugBreak();
 		}
 
 		void print(const wchar_t* const Str)

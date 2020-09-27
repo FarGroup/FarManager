@@ -126,8 +126,8 @@ bool FarChDir(string_view const NewDir)
 	{
 		SCOPED_ACTION(os::last_error_guard);
 
-		const auto IsDrive = PathType == root_type::drive_letter || PathType == root_type::unc_drive_letter;
-		const auto IsNetworkDrive = IsDrive && os::fs::is_standard_drive_letter(Directory[0]) && GetSavedNetworkDrives()[os::fs::get_drive_number(Directory[0])];
+		const auto IsDrive = PathType == root_type::drive_letter || PathType == root_type::win32nt_drive_letter;
+		const auto IsNetworkDrive = IsDrive && os::fs::drive::is_standard_letter(Directory[0]) && GetSavedNetworkDrives()[os::fs::drive::get_number(Directory[0])];
 
 		if (!IsNetworkDrive && !IsNetworkPath)
 			return false;

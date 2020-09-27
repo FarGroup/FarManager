@@ -65,7 +65,6 @@ enum class cd_type
 };
 
 bool DriveCanBeVirtual(UINT DriveType);
-UINT FAR_GetDriveType(string_view RootDir);
 cd_type get_cdrom_type(string_view RootDir);
 bool is_removable_usb(string_view RootDir);
 

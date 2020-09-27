@@ -52,7 +52,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filefilter.hpp"
 #include "syslog.hpp"
 #include "encoding.hpp"
-#include "cddrv.hpp"
 #include "taskbar.hpp"
 #include "interf.hpp"
 #include "message.hpp"
@@ -78,6 +77,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception_handler.hpp"
 #include "drivemix.hpp"
 #include "global.hpp"
+#include "cvtname.hpp"
 
 // Platform:
 #include "platform.concurrency.hpp"
@@ -1820,19 +1820,14 @@ void FindFiles::OpenFile(const string& strSearchFileName, int OpenKey, const Fin
 		if (openMode == FILETYPE_VIEW)
 		{
 			NamesList ViewList;
-			int list_count = 0;
 
 			// Возьмем все файлы, которые имеют реальные имена...
-			itd->ForEachFindItem([&list_count, &ViewList](const FindListItem& i)
+			itd->ForEachFindItem([&ViewList](const FindListItem& i)
 			{
-				if (!i.Arc || (i.Arc->Flags & OPIF_REALNAMES))
-				{
-					if (!i.FindData.FileName.empty() && !(i.FindData.Attributes&FILE_ATTRIBUTE_DIRECTORY))
-					{
-						++list_count;
-						ViewList.AddName(i.FindData.FileName);
-					}
-				}
+				if ((i.Arc && !(i.Arc->Flags & OPIF_REALNAMES)) || i.FindData.FileName.empty() || i.FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY)
+					return;
+
+				ViewList.AddName(i.FindData.FileName);
 			});
 
 			ViewList.SetCurName(FindItem->FindData.FileName);
@@ -1844,7 +1839,7 @@ void FindFiles::OpenFile(const string& strSearchFileName, int OpenKey, const Fin
 				false,
 				-1,
 				{},
-				list_count > 1? &ViewList : nullptr);
+				ViewList.size() > 1? &ViewList : nullptr);
 
 			ShellViewer->SetEnableF6(TRUE);
 
@@ -2415,39 +2410,31 @@ void background_searcher::DoPrepareFileList()
 	else if (SearchMode==FINDAREA_ALL || SearchMode==FINDAREA_ALL_BUTNETWORK)
 	{
 		const auto Drives = os::fs::get_logical_drives() & allowed_drives_mask();
-		std::vector<string> Volumes;
-		Volumes.reserve(Drives.count());
+
+		const auto is_acceptable_drive = [&](string_view const RootDirectory)
+		{
+			const auto Type = os::fs::drive::get_type(RootDirectory);
+			return Type == DRIVE_FIXED || Type == DRIVE_RAMDISK || (SearchMode != FINDAREA_ALL_BUTNETWORK && Type == DRIVE_REMOTE);
+		};
 
 		for (const auto& i: os::fs::enum_drives(Drives))
 		{
-			auto RootDir = os::fs::get_root_directory(i);
+			auto RootDir = os::fs::drive::get_root_directory(i);
+			if (!is_acceptable_drive(RootDir))
+				continue;
 
-			const auto DriveType = FAR_GetDriveType(RootDir);
-
-			if (DriveType != DRIVE_REMOVABLE && DriveType != DRIVE_CDROM && (DriveType != DRIVE_REMOTE || SearchMode != FINDAREA_ALL_BUTNETWORK))
-			{
-				string strUuidVolime;
-				if(os::fs::GetVolumeNameForVolumeMountPoint(RootDir, strUuidVolime))
-				{
-					Volumes.emplace_back(std::move(strUuidVolime));
-				}
-				Locations.emplace_back(std::move(RootDir));
-			}
+			Locations.emplace_back(std::move(RootDir));
 		}
 
 		for (auto& VolumeName: os::fs::enum_volumes())
 		{
-			const auto DriveType = FAR_GetDriveType(VolumeName);
-
-			if (DriveType == DRIVE_REMOVABLE || DriveType == DRIVE_CDROM || (DriveType == DRIVE_REMOTE && SearchMode == FINDAREA_ALL_BUTNETWORK))
-			{
+			if (!is_acceptable_drive(VolumeName))
 				continue;
-			}
 
-			if (std::none_of(CONST_RANGE(Volumes, i) { return starts_with(i, VolumeName); }))
-			{
-				Locations.emplace_back(std::move(VolumeName));
-			}
+			if (const auto DriveLetter = get_volume_drive(VolumeName); DriveLetter && Drives[os::fs::drive::get_number(*DriveLetter)])
+				continue;
+
+			Locations.emplace_back(std::move(VolumeName));
 		}
 	}
 	else

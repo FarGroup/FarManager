@@ -199,7 +199,7 @@ public:
 	void RefreshTitle() override;
 	size_t GetFileCount() const override;
 	void UpdateKeyBar() override;
-	void IfGoHome(wchar_t Drive) override;
+	void GoHome(string_view Drive) override;
 	bool GetSelectedFirstMode() const override;
 
 	const FileListItem* GetItem(size_t Index) const;

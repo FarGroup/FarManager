@@ -78,7 +78,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "uuids.far.dialogs.hpp"
 
 // Platform:
-#include "platform.fs.hpp"
 
 // Common:
 #include "common/bytes_view.hpp"
@@ -126,10 +125,7 @@ static bool IsCodePageSupported(uintptr_t cp)
 Viewer::Viewer(window_ptr Owner, bool bQuickView, uintptr_t aCodePage):
 	SimpleScreenObject(std::move(Owner)),
 	ViOpt(Global->Opt->ViOpt),
-	Signature(),
-	m_ViewKeyBar(),
 	Reader(ViewFile, (Global->Opt->ViOpt.MaxLineSize*2*64 > 64*1024 ? Global->Opt->ViOpt.MaxLineSize*2*64 : 64*1024)),
-	m_DeleteFolder(true),
 	strLastSearchStr(Global->GetSearchString()),
 	LastSearchCase(Global->GlobalSearchCase),
 	LastSearchWholeWords(Global->GlobalSearchWholeWords),
@@ -137,56 +133,21 @@ Viewer::Viewer(window_ptr Owner, bool bQuickView, uintptr_t aCodePage):
 	LastSearchHex(Global->GetSearchHex()),
 	LastSearchRegexp(Global->Opt->ViOpt.SearchRegexp),
 	LastSearchDirection(Global->GlobalSearchReverse? -1 : +1),
-	StartSearchPos(),
 	m_DefCodepage(aCodePage),
 	m_Codepage(m_DefCodepage),
 	m_Wrap(Global->Opt->ViOpt.ViewerIsWrap),
 	m_WordWrap(Global->Opt->ViOpt.ViewerWrap),
 	m_DisplayMode(VMT_TEXT),
-	m_DumpTextMode(),
-	FilePos(),
-	SecondPos(),
-	FileSize(),
-	LastSelectPos(),
-	LastSelectSize(-1),
-	LeftPos(),
-	LastPage(),
-	SelectPos(),
-	SelectSize(-1),
-	ManualSelectPos(-1),
-	SelectFlags(),
-	ShowStatusLine(true),
-	m_HideCursor(true),
-	ReadStdin(),
-	InternalKey(),
-	LastKeyUndo(),
-	Width(),
-	XX2(),
 	ViewerID(::ViewerID++),
-	OpenFailed(),
-	bVE_READ_Sent(),
-	HostFileViewer(),
-	AdjustSelPosition(),
-	redraw_selection(),
 	m_bQuickView(bQuickView),
 	m_IdleCheck(std::make_unique<time_check>(time_check::mode::delayed, 500ms)),
 	vread_buffer(std::max(MaxViewLineBufferSize(), size_t(8192))),
-	lcache_first(-1),
-	lcache_last(-1),
 	lcache_lines(16*1000),
-	lcache_count(),
-	lcache_base(),
-	lcache_ready(),
-	lcache_wrap(-1),
-	lcache_wwrap(-1),
-	lcache_width(-1),
 	// dirty magic numbers, fix them!
 	max_backward_size(std::min(Options::ViewerOptions::eMaxLineSize*3ll, std::max(Global->Opt->ViOpt.MaxLineSize*2, 1024ll) * 32)),
 	llengths(max_backward_size / 40),
 	Search_buffer(3 * std::max(MaxViewLineBufferSize(), size_t(8192))),
-	vString(),
-	ReadBuffer(MaxViewLineBufferSize()),
-	f8cps(true)
+	ReadBuffer(MaxViewLineBufferSize())
 {
 	if (m_DefCodepage != CP_DEFAULT)
 		MB.SetCP(m_DefCodepage);
@@ -421,7 +382,7 @@ bool Viewer::OpenFile(string_view const Name, bool const Warn)
 	{
 		// media inserted here
 		const auto PathRoot = GetPathRoot(strFullFileName);
-		switch (FAR_GetDriveType(PathRoot)) //??? make it configurable
+		switch (os::fs::drive::get_type(PathRoot)) //??? make it configurable
 		{
 		case DRIVE_REMOVABLE: return is_removable_usb(PathRoot)? 500ms : 0ms;
 		case DRIVE_FIXED:     return 1ms;

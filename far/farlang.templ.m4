@@ -54,7 +54,7 @@ enum:class lng:int
 
 
 MYes
-`l://Version: 'VERSION_MAJOR`.'VERSION_MINOR`.'VERSION_REVISION`.'VERSION_BUILD`
+`l://Version: 'FULLVERSION`
 l:
 "Да"
 "Yes"
@@ -17180,7 +17180,7 @@ MChangeDriveCannotDisconnect
 "Nie można odłączyć się od {0}"
 "No se puede desconectar desde {0}"
 "Nemôžem sa odpojiť od {0}"
-"Non Posso Disconnettermi Da {0}:"
+"Non Posso Disconnettermi Da {0}"
 "Не вдається від'єднатися від {0}"
 "Немагчыма адключыцца ад {0}"
 
@@ -17247,7 +17247,7 @@ upd:"Törli {0} virtuális meghajtót?"
 "Odłączyć dysk SUBST {0}?"
 upd:"Desconectarse de disco sustituido {0}?"
 "Odstrániť SUBST-disk {0}?"
-"Elimino Disco SUBST {0}:?"
+"Elimino Disco SUBST {0}?"
 "Видалити SUBST-диск {0}?"
 "Выдаліць SUBST-дыск {0}?"
 
@@ -17273,7 +17273,7 @@ upd:"Detach virtual disk {0}?"
 "Odłączanie dysku wirtualnego {0}?"
 "Desconectar disco virtual {0}?"
 "Odpojiť virtuálny disk {0}?"
-"Smontare Disco Virtuale {0}:?"
+"Smontare Disco Virtuale {0}?"
 "Від'єднати віртуальний диск {0}?"
 "Адлучыць ўяўы дыск {0}?"
 
@@ -17318,17 +17318,17 @@ MHotPlugDisks
 "(дыск(і): {0})"
 
 MChangeCouldNotEjectHotPlugMedia
-"Невозможно удалить устройство для диска {0}:"
-"Cannot remove a device for drive {0}:"
-"Nelze odpojit zařízení pro jednotku {0}:"
-"Ein Gerät für Laufwerk {0}: konnte nicht entfernt werden"
-"{0}: eszköz nem távolítható el"
-"Nie udało się odłączyć dysku {0}:"
-"No se puede remover dispositivo para unidad {0}:"
-"Nemôžem odstrániť zariadenie pre jednotku {0}:"
-"Non Posso Rimuovere La Periferica In {0}:"
-"Неможливо видалити пристрій для диска {0}:"
-"Немагчыма выдаліць прыстасаванне для дыску {0}:"
+"Невозможно удалить устройство для диска {0}"
+"Cannot remove a device for drive {0}"
+"Nelze odpojit zařízení pro jednotku {0}"
+"Ein Gerät für Laufwerk {0} konnte nicht entfernt werden"
+"{0} eszköz nem távolítható el"
+"Nie udało się odłączyć dysku {0}"
+"No se puede remover dispositivo para unidad {0}"
+"Nemôžem odstrániť zariadenie pre jednotku {0}"
+"Non Posso Rimuovere La Periferica In {0}"
+"Неможливо видалити пристрій для диска {0}"
+"Немагчыма выдаліць прыстасаванне для дыску {0}"
 
 MChangeCouldNotEjectHotPlugMedia2
 "Невозможно удалить устройство:"
@@ -17397,30 +17397,30 @@ l:
 "Адлучэнне сеткавага дыску"
 
 MChangeDriveDisconnectQuestion
-"Вы хотите удалить соединение с устройством {0}:?"
-"Do you want to disconnect from the drive {0}:?"
-"Chcete odpojit od jednotky {0}:?"
-"Wollen Sie die Verbindung zu Laufwerk {0}: trennen?"
-"Le akar válni {0}: meghajtóról?"
-"Czy odłączyć dysk {0}:?"
-"Quiere desconectarse desde la unidad {0}:?"
-"Chcete odpojiť od jednotky {0}:?"
-"Vuoi Disconnetterti Il Disco {0}:?"
-"Ви бажаєте видалити з'єднання з пристроєм {0}:?"
-"Вы жадаеце выдаліць сувязь з прыстасаваннем {0}:?"
+"Вы хотите удалить соединение с устройством {0}?"
+"Do you want to disconnect from the drive {0}?"
+"Chcete odpojit od jednotky {0}?"
+"Wollen Sie die Verbindung zu Laufwerk {0} trennen?"
+"Le akar válni {0} meghajtóról?"
+"Czy odłączyć dysk {0}?"
+"Quiere desconectarse desde la unidad {0}?"
+"Chcete odpojiť od jednotky {0}?"
+"Vuoi Disconnetterti Il Disco {0}?"
+"Ви бажаєте видалити з'єднання з пристроєм {0}?"
+"Вы жадаеце выдаліць сувязь з прыстасаваннем {0}?"
 
 MChangeDriveDisconnectMapped
-"На устройство {0}: отображена папка:"
-"The drive {0}: is mapped to:"
-"Jednotka {0}: je namapována na:"
-"Laufwerk {0}: ist verknüpft zu:"
-"{0}: meghajtó hozzárendelve:"
-"Dysk {0}: jest skojarzony z:"
-"La unidad %c: es mapeada hacia:"
-"Jednotka {0}: je namapovaná na:"
-"Il Disco {0}: E' Mappato Su:"
-"На пристрій {0}: відображена папка:"
-"На прыстасаванне {0}: адлюстраваны каталог:"
+"На устройство отображена папка:"
+"The drive is mapped to:"
+"Jednotka je namapována na:"
+"Laufwerk ist verknüpft zu:"
+"Meghajtó hozzárendelve:"
+"Dysk jest skojarzony z:"
+"La unidad es mapeada hacia:"
+"Jednotka je namapovaná na:"
+"Il Disco E' Mappato Su:"
+"На пристрій відображена папка:"
+"На прыстасаванне адлюстраваны каталог:"
 
 MChangeDriveDisconnectReconnect
 "&Восстанавливать при входе в систему"

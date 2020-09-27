@@ -304,12 +304,8 @@ private:
 	int CheckHighlights(wchar_t CheckSymbol,int StartPos=0);
 	wchar_t GetHighlights(const MenuItemEx *Item) const;
 	bool ShiftItemShowPos(int Pos,int Direct);
-	bool ItemCanHaveFocus(unsigned long long Flags) const;
-	bool ItemCanBeEntered(unsigned long long Flags) const;
-	bool ItemIsVisible(unsigned long long Flags) const;
 	void UpdateMaxLengthFromTitles();
 	void UpdateMaxLength(size_t Length);
-	void UpdateInternalCounters(unsigned long long OldFlags, unsigned long long NewFlags);
 	bool ShouldSendKeyToFilter(int Key) const;
 	//корректировка текущей позиции и флагов SELECTED
 	void UpdateSelectPos();

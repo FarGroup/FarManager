@@ -71,14 +71,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
 FileViewer::FileViewer(private_tag, bool const DisableEdit, string_view const Title):
-	m_RedrawTitle(),
-	m_F3KeyOnly(),
-	m_bClosing(),
-	m_FullScreen(true),
 	m_DisableEdit(DisableEdit),
-	m_DisableHistory(),
-	m_SaveToSaveAs(),
-	m_DeleteOnClose(),
 	m_StrTitle(Title)
 {
 }

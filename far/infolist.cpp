@@ -63,6 +63,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cvtname.hpp"
 #include "vmenu.hpp"
 #include "global.hpp"
+#include "network.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -304,14 +305,19 @@ void InfoList::DisplayObject()
 			}
 		}
 		else
-			strDriveRoot = GetPathRoot(m_CurDir);
+		{
+			// GetPathRoot expands network drives, it's too early for that
+			strDriveRoot = os::fs::drive::get_type(m_CurDir) == DRIVE_REMOTE?
+				extract_root_directory(m_CurDir) :
+				GetPathRoot(m_CurDir);
+		}
 
 		if (os::fs::GetVolumeInformation(strDriveRoot,&strVolumeName,
 		                            &VolumeNumber,&MaxNameLength,&FileSystemFlags,
 		                            &strFileSystemName))
 		{
 			auto DiskTypeId = lng::MInfoUnknown;
-			int DriveType=FAR_GetDriveType(strDriveRoot);
+			const auto DriveType = os::fs::drive::get_type(strDriveRoot);
 			string strAssocPath;
 			bool UseAssocPath = false;
 
@@ -329,9 +335,7 @@ void InfoList::DisplayObject()
 					{
 						DiskTypeId = lng::MInfoNetwork;
 						auto DeviceName = strDriveRoot;
-						DeleteEndSlash(DeviceName);
-						os::WNetGetConnection(DeviceName, strAssocPath);
-						UseAssocPath = true;
+						UseAssocPath = DriveLocalToRemoteName(false, strDriveRoot, strAssocPath);
 					}
 					break;
 

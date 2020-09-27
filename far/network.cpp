@@ -39,7 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "stddlg.hpp"
 #include "drivemix.hpp"
 #include "flink.hpp"
-#include "cddrv.hpp"
 #include "pathmix.hpp"
 #include "strmix.hpp"
 #include "exception.hpp"
@@ -95,9 +94,9 @@ os::fs::drives_set GetSavedNetworkDrives()
 		for (const auto& i: span(Buffer.data(), Count))
 		{
 			const auto Name = i.lpLocalName;
-			if (os::fs::is_standard_drive_letter(Name[0]) && Name[1] == L':')
+			if (os::fs::drive::is_standard_letter(Name[0]) && Name[1] == L':')
 			{
-				Drives.set(os::fs::get_drive_number(Name[0]));
+				Drives.set(os::fs::drive::get_number(Name[0]));
 			}
 		}
 	}
@@ -114,7 +113,7 @@ bool ConnectToNetworkResource(string_view const NewDir)
 	{
 		LocalName = NewDir.substr(0, 2);
 		// TODO: check result
-		DriveLocalToRemoteName(DRIVE_REMOTE, NewDir[0], RemoteName);
+		DriveLocalToRemoteName(false, NewDir, RemoteName);
 	}
 	else
 	{
@@ -164,30 +163,28 @@ string ExtractComputerName(const string_view CurDir, string* const strTail)
 	if (strTail)
 		strTail->clear();
 
-	const auto IsSuppportedPathType = [](root_type const Type)
-	{
-		return Type == root_type::remote || Type == root_type::unc_remote;
-	};
-
 	string strNetDir;
 
-	if (IsSuppportedPathType(ParsePath(CurDir)))
+	const auto PathType = ParsePath(CurDir);
+
+	if (PathType == root_type::remote || PathType == root_type::unc_remote)
 	{
 		strNetDir = CurDir;
 	}
-	else
+	else if (PathType == root_type::drive_letter || PathType == root_type::win32nt_drive_letter)
 	{
-		os::WNetGetConnection(CurDir.substr(0, 2), strNetDir);
+		if (!os::WNetGetConnection(CurDir.substr(PathType == root_type::drive_letter? 0 : L"\\\\?\\"sv.size(), L"C:"sv.size()), strNetDir))
+			return {};
 	}
 
 	if (strNetDir.empty())
 		return {};
 
 	const auto NetDirPathType = ParsePath(strNetDir);
-	if (!IsSuppportedPathType(NetDirPathType))
+	if (NetDirPathType != root_type::remote && NetDirPathType != root_type::unc_remote)
 		return {};
 
-	auto Result = strNetDir.substr(NetDirPathType == root_type::remote? 2 : 8);
+	auto Result = strNetDir.substr(NetDirPathType == root_type::remote? L"\\\\"sv.size() : L"\\\\?\\UNC\\"sv.size());
 	const auto pos = FindSlash(Result);
 	if (pos == string::npos)
 		return {};
@@ -200,28 +197,19 @@ string ExtractComputerName(const string_view CurDir, string* const strTail)
 	return Result;
 }
 
-bool DriveLocalToRemoteName(int DriveType, wchar_t Letter, string &strDest)
+bool DriveLocalToRemoteName(bool const DetectNetworkDrive, string_view const LocalPath, string &strDest)
 {
-	const auto LocalName = os::fs::get_drive(Letter);
+	const auto PathType = ParsePath(LocalPath);
+	if (PathType != root_type::drive_letter && PathType != root_type::win32nt_drive_letter)
+		return false;
 
-	if (DriveType == DRIVE_UNKNOWN)
-	{
-		DriveType = FAR_GetDriveType(LocalName);
-	}
+	if (DetectNetworkDrive && os::fs::drive::get_type(LocalPath) != DRIVE_REMOTE)
+		return false;
 
 	string strRemoteName;
+	if (!os::WNetGetConnection(LocalPath.substr(PathType == root_type::drive_letter ? 0 : L"\\\\?\\"sv.size(), L"C:"sv.size()), strRemoteName))
+		return false;
 
-	if (DriveType == DRIVE_REMOTE && os::WNetGetConnection(LocalName, strRemoteName))
-	{
-		strDest = strRemoteName;
-		return true;
-	}
-
-	if (GetSubstName(DriveType, LocalName, strRemoteName))
-	{
-		strDest = strRemoteName;
-		return true;
-	}
-
-	return false;
+	strDest = strRemoteName;
+	return true;
 }

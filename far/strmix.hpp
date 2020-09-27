@@ -216,6 +216,9 @@ bool SearchAndReplaceString(
 [[nodiscard]]
 inline wchar_t* UNSAFE_CSTR(const string& s) noexcept {return const_cast<wchar_t*>(s.c_str());}
 
+[[nodiscard]]
+inline wchar_t* UNSAFE_CSTR(null_terminated const& s) noexcept {return const_cast<wchar_t*>(s.c_str());}
+
 template<class container>
 [[nodiscard]]
 auto FlagsToString(unsigned long long Flags, const container& From, wchar_t Separator = L' ')

@@ -117,26 +117,34 @@ namespace os::fs
 		bool HasAlternateFileName() const;
 	};
 
-	[[nodiscard]]
-	bool is_standard_drive_letter(wchar_t Letter);
+	namespace drive
+	{
+		[[nodiscard]]
+		bool is_standard_letter(wchar_t Letter);
 
-	[[nodiscard]]
-	size_t get_drive_number(wchar_t Letter);
+		[[nodiscard]]
+		size_t get_number(wchar_t Letter);
 
-	[[nodiscard]]
-	wchar_t get_drive_letter(size_t Number);
+		[[nodiscard]]
+		wchar_t get_letter(size_t Number);
 
-	[[nodiscard]]
-	string get_drive(wchar_t Letter);
+		[[nodiscard]]
+		string get_device_path(wchar_t Letter);
 
-	[[nodiscard]]
-	string get_drive(size_t Number);
+		[[nodiscard]]
+		string get_device_path(size_t Number);
 
-	[[nodiscard]]
-	string get_unc_drive(wchar_t Letter);
+		[[nodiscard]]
+		string get_win32nt_device_path(wchar_t Letter);
 
-	[[nodiscard]]
-	string get_root_directory(wchar_t Letter);
+		[[nodiscard]]
+		string get_root_directory(wchar_t Letter);
+
+		[[nodiscard]]
+		string get_win32nt_root_directory(wchar_t Letter);
+
+		unsigned get_type(string_view Path);
+	}
 
 	class [[nodiscard]] enum_drives: public enumerator<enum_drives, wchar_t>
 	{

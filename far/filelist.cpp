@@ -55,7 +55,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "preservelongname.hpp"
 #include "scrbuf.hpp"
 #include "filemasks.hpp"
-#include "cddrv.hpp"
 #include "syslog.hpp"
 #include "interf.hpp"
 #include "message.hpp"
@@ -2937,7 +2936,7 @@ bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePa
 				if(DrivePath && Global->Opt->PgUpChangeDisk == 2)
 				{
 					string RemoteName;
-					if(DriveLocalToRemoteName(DRIVE_UNKNOWN, m_CurDir.front(), RemoteName))
+					if(DriveLocalToRemoteName(true, m_CurDir, RemoteName))
 					{
 						if (Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Network.Id, OPEN_FILEPANEL, UNSAFE_CSTR(RemoteName))) // NetWork Plugin :-)
 						{
@@ -2967,7 +2966,7 @@ bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePa
 
 	if (m_PanelMode != panel_mode::PLUGIN_PANEL && IsRelativeRoot(strSetDir))
 	{
-		strSetDir = ExtractPathRoot(m_CurDir);
+		strSetDir = extract_root_directory(m_CurDir);
 	}
 
 	if (!FarChDir(strSetDir))
@@ -5338,36 +5337,22 @@ string FileList::GetPluginPrefix() const
 }
 
 
-void FileList::IfGoHome(wchar_t Drive)
+void FileList::GoHome(string_view const Drive)
 {
-	string strTmpCurDir;
-	string strFName=Global->g_strFarModuleName;
+	const auto FarRoot = extract_root_directory(Global->g_strFarModuleName);
 
+	const auto go_home = [&](Panel& p)
 	{
-		strFName.resize(3); //BUGBUG!
-		// СНАЧАЛА ПАССИВНАЯ ПАНЕЛЬ!!!
-		/*
-			Почему? - Просто - если активная широкая (или пассивная
-			широкая) - получаем багу с прорисовкой!
-		*/
-		const auto Another = Parent()->GetAnotherPanel(this);
+		if (p.GetMode() == panel_mode::PLUGIN_PANEL)
+			return;
 
-		if (Another->GetMode() != panel_mode::PLUGIN_PANEL)
-		{
-			strTmpCurDir = Another->GetCurDir();
+		if (starts_with_icase(p.GetCurDir(), Drive))
+			p.SetCurDir(FarRoot, false);
+	};
 
-			if (strTmpCurDir[0] == Drive && strTmpCurDir[1] == L':')
-				Another->SetCurDir(strFName, false);
-		}
-
-		if (GetMode() != panel_mode::PLUGIN_PANEL)
-		{
-			strTmpCurDir = GetCurDir();
-
-			if (strTmpCurDir[0] == Drive && strTmpCurDir[1] == L':')
-				SetCurDir(strFName, false); // переходим в корень диска с far.exe
-		}
-	}
+	// Passive first to prevent redraw issues in wide panel mode
+	go_home(*Parent()->GetAnotherPanel(this));
+	go_home(*this);
 }
 
 const FileListItem* FileList::GetItem(size_t Index) const
@@ -6592,7 +6577,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 				strOldCurDir = GetPathRoot(strOldCurDir);
 
 				if (!os::fs::IsDiskInDrive(strOldCurDir))
-					IfGoHome(strOldCurDir.front());
+					GoHome(strOldCurDir);
 
 				/* При смене каталога путь не изменился */
 			}
@@ -6963,9 +6948,9 @@ void FileList::InitFSWatcher(bool CheckTree)
 	StopFSWatcher();
 	const auto Type = ParsePath(m_CurDir);
 
-	if (Type == root_type::drive_letter || Type == root_type::unc_drive_letter)
+	if (Type == root_type::drive_letter || Type == root_type::win32nt_drive_letter)
 	{
-		DriveType = FAR_GetDriveType(os::fs::get_root_directory(m_CurDir[(Type == root_type::drive_letter) ? 0 : 4]));
+		DriveType = os::fs::drive::get_type(os::fs::drive::get_win32nt_root_directory(m_CurDir[Type == root_type::drive_letter? 0 : 4]));
 	}
 
 	if (Global->Opt->AutoUpdateRemoteDrive || (!Global->Opt->AutoUpdateRemoteDrive && DriveType != DRIVE_REMOTE) || Type == root_type::volume)

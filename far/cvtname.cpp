@@ -162,7 +162,7 @@ static void MixToFullPath(const string_view stPath, string& Dest, const string_v
 		}
 		else
 		{
-			const auto Drive = os::fs::get_drive(stPath[0]);
+			const auto Drive = os::fs::drive::get_device_path(stPath[0]);
 			const auto Value = os::env::get(L'=' + Drive);
 
 			strDest = !Value.empty()?
@@ -179,10 +179,11 @@ static void MixToFullPath(const string_view stPath, string& Dest, const string_v
 		PathOffset = 0;
 		break;
 
-	case root_type::unc_drive_letter: //"\\?\whatever"
+	case root_type::win32nt_drive_letter: //"\\?\whatever"
 	case root_type::unc_remote:
 	case root_type::volume:
 	case root_type::pipe:
+	case root_type::unknown_rootlike:
 		blIgnore=true;
 		PathOffset = 0;
 		break;
@@ -209,41 +210,51 @@ string ConvertNameToFull(string_view const Object)
 	return strDest;
 }
 
-// try to replace volume UUID (if present) with drive letter
-// used by ConvertNameToReal() only
-static string TryConvertVolumeUuidToDrivePath(string_view const Path)
+std::optional<wchar_t> get_volume_drive(string_view const VolumePath)
 {
-	size_t DirectoryOffset;
-
-	if (ParsePath(Path, &DirectoryOffset) != root_type::volume)
-		return string(Path);
+	const auto SrcVolumeName = extract_root_directory(VolumePath);
 
 	if (imports.GetVolumePathNamesForVolumeNameW)
 	{
 		string VolumePathNames;
-		if (os::fs::GetVolumePathNamesForVolumeName(ExtractPathRoot(Path), VolumePathNames))
+		if (os::fs::GetVolumePathNamesForVolumeName(SrcVolumeName, VolumePathNames))
 		{
-			for (const auto& i: enum_substrings(VolumePathNames.c_str()))
+			for (const auto& i : enum_substrings(VolumePathNames.c_str()))
 			{
 				if (IsRootPath(i))
-					return concat(i, Path.substr(DirectoryOffset));
+					return upper(i.front());
 			}
 		}
 
-		return string(Path);
+		return {};
 	}
 
-	string strVolumeUuid;
+	string VolumeName;
 	const os::fs::enum_drives Enumerator(os::fs::get_logical_drives());
 
-	if (const auto ItemIterator = std::find_if(ALL_CONST_RANGE(Enumerator), [&](const wchar_t i)
+	const auto ItemIterator = std::find_if(ALL_CONST_RANGE(Enumerator), [&](const wchar_t i)
 	{
-		return os::fs::GetVolumeNameForVolumeMountPoint(os::fs::get_root_directory(i), strVolumeUuid) &&
-			starts_with(Path, string_view(strVolumeUuid).substr(0, DirectoryOffset));
-	}); ItemIterator != Enumerator.cend())
-		return concat(os::fs::get_root_directory(*ItemIterator), Path.substr(DirectoryOffset));
+		return os::fs::GetVolumeNameForVolumeMountPoint(os::fs::drive::get_win32nt_root_directory(i), VolumeName) && equal_icase(VolumeName, SrcVolumeName);
+	});
 
-	return string(Path);
+	if (ItemIterator != Enumerator.cend())
+		return *ItemIterator;
+
+	return {};
+}
+
+static void ReplaceVolumeNameWithDriveLetter(string& Path)
+{
+	size_t DirectoryOffset;
+
+	if (ParsePath(Path, &DirectoryOffset) != root_type::volume)
+		return;
+
+	const auto DriveLetter = get_volume_drive(Path);
+	if (!DriveLetter)
+		return;
+
+	Path.replace(0, DirectoryOffset, os::fs::drive::get_root_directory(*DriveLetter));
 }
 
 /*
@@ -252,6 +263,8 @@ static string TryConvertVolumeUuidToDrivePath(string_view const Path)
 */
 string ConvertNameToReal(string_view const Object)
 {
+	const auto PathPrefix = ExtractPathPrefix(Object);
+
 	SCOPED_ACTION(elevation::suppress);
 
 	// Получим сначала полный путь до объекта обычным способом
@@ -279,8 +292,6 @@ string ConvertNameToReal(string_view const Object)
 	const auto Result = File.GetFinalPathName(FinalFilePath);
 	File.Close();
 
-	//assert(!FinalFilePath.empty());
-
 	if (!Result || FinalFilePath.empty())
 		return strDest;
 
@@ -290,7 +301,28 @@ string ConvertNameToReal(string_view const Object)
 	if (FullPath.size() > Path.size() + 1)
 		path::append(FinalFilePath, string_view(FullPath).substr(Path.size() + 1));
 
-	return TryConvertVolumeUuidToDrivePath(FinalFilePath);
+	ReplaceVolumeNameWithDriveLetter(FinalFilePath);
+
+	// not needed or already there
+	if (PathPrefix.empty() || HasPathPrefix(FinalFilePath))
+		return FinalFilePath;
+
+	if (PathPrefix.size() == 8) // \\?\UNC\...
+	{
+		// network -> network
+		if (starts_with(FinalFilePath, L"\\\\"sv))
+			return PathPrefix + string_view(FinalFilePath).substr(2);
+
+		// network -> local
+		return PathPrefix.substr(0, 2) + FinalFilePath;
+	}
+
+	// local -> network
+	if (starts_with(FinalFilePath, L"\\\\"sv))
+		return L"\\\\?\\UNC\\"sv + string_view(FinalFilePath).substr(2);
+
+	// local -> local
+	return PathPrefix + FinalFilePath;
 }
 
 static string ConvertName(string_view const Object, bool(*Mutator)(string_view, string&))
@@ -307,7 +339,7 @@ static string ConvertName(string_view const Object, bool(*Mutator)(string_view, 
 
 	switch (ParsePath(strDest))
 	{
-	case root_type::unc_drive_letter:
+	case root_type::win32nt_drive_letter:
 		strDest.erase(0, 4); // \\?\X:\path -> X:\path
 		break;
 
@@ -345,7 +377,7 @@ string ConvertNameToUNC(string_view const Object)
 		// Здесь, если не получилось получить UniversalName и если это
 		// мапленный диск - получаем как для меню выбора дисков
 		string strTemp;
-		if (DriveLocalToRemoteName(DRIVE_UNKNOWN, strFileName[0], strTemp))
+		if (DriveLocalToRemoteName(true, strFileName, strTemp))
 		{
 			const auto SlashPos = FindSlash(strFileName);
 			if (SlashPos != string::npos)
@@ -400,16 +432,11 @@ void PrepareDiskPath(string &strPath, bool CheckFullPath)
 		size_t DirOffset = 0;
 		switch (ParsePath(strPath, &DirOffset))
 		{
-		case root_type::unknown:
-			if (HasPathPrefix(strPath))
-				DirOffset = 4;
-			break;
-
 		case root_type::drive_letter:
 			strPath[0] = upper(strPath[0]);
 			break;
 
-		case root_type::unc_drive_letter:
+		case root_type::win32nt_drive_letter:
 			strPath[4] = upper(strPath[4]);
 			break;
 

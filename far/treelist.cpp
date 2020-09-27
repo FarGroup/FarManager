@@ -51,7 +51,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "refreshwindowmanager.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "taskbar.hpp"
-#include "cddrv.hpp"
 #include "interf.hpp"
 #include "message.hpp"
 #include "clipboard.hpp"
@@ -74,9 +73,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_sort.hpp"
 #include "cvtname.hpp"
 #include "global.hpp"
+#include "network.hpp"
 #if defined(TREEFILE_PROJECT)
 #include "drivemix.hpp"
-#include "network.hpp"
 #endif
 
 // Platform:
@@ -148,7 +147,7 @@ string ConvertTemplateTreeName(string_view const strTemplate, string_view const 
 static string CreateTreeFileName(string_view const Path)
 {
 #if defined(TREEFILE_PROJECT)
-	const auto strRootDir = ExtractPathRoot(Path);
+	const auto strRootDir = extract_root_directory(Path);
 	string strTreeFileName;
 	string strPath;
 
@@ -160,7 +159,7 @@ static string CreateTreeFileName(string_view const Path)
 		}
 	}
 
-	UINT DriveType = FAR_GetDriveType(strRootDir);
+	UINT DriveType = os::fs::drive::get_type(strRootDir);
 	const auto PathType = ParsePath(strRootDir);
 	/*
 	root_type::unknown,
@@ -297,9 +296,9 @@ static bool GetCacheTreeName(string_view const Root, string& strName, bool const
 	{
 		strRemoteName = Root;
 	}
-	else if (PathType == root_type::drive_letter || PathType == root_type::unc_drive_letter)
+	else if (PathType == root_type::drive_letter || PathType == root_type::win32nt_drive_letter)
 	{
-		if (os::WNetGetConnection(os::fs::get_drive(Root[PathType == root_type::drive_letter ? 0 : 4]), strRemoteName))
+		if (DriveLocalToRemoteName(true, Root, strRemoteName))
 			AddEndSlash(strRemoteName);
 	}
 
@@ -673,7 +672,7 @@ static os::fs::file OpenTreeFile(string_view const Name, bool const Writable)
 
 static bool MustBeCached(string_view const Root)
 {
-	const auto type = FAR_GetDriveType(Root);
+	const auto type = os::fs::drive::get_type(Root);
 
 	if (type == DRIVE_UNKNOWN || type == DRIVE_NO_ROOT_DIR || type == DRIVE_REMOVABLE || type == DRIVE_CDROM)
 	{
@@ -869,7 +868,7 @@ void TreeList::SaveTreeFile()
 
 void TreeList::GetRoot()
 {
-	m_Root = ExtractPathRoot(GetRootPanel()->GetCurDir());
+	m_Root = extract_root_directory(GetRootPanel()->GetCurDir());
 }
 
 panel_ptr TreeList::GetRootPanel()
@@ -1766,7 +1765,7 @@ void TreeList::AddTreeName(const string_view Name)
 		return;
 
 	const auto strFullName = ConvertNameToFull(Name);
-	const auto strRoot = ExtractPathRoot(strFullName);
+	const auto strRoot = extract_root_directory(strFullName);
 	string NamePart = strFullName.substr(strRoot.size() - 1);
 
 	if (!ContainsSlash(NamePart))
@@ -1786,7 +1785,7 @@ void TreeList::DelTreeName(const string_view Name)
 		return;
 
 	const auto strFullName = ConvertNameToFull(Name);
-	const auto strRoot = ExtractPathRoot(strFullName);
+	const auto strRoot = extract_root_directory(strFullName);
 	const auto NamePart = string_view(strFullName).substr(strRoot.size() - 1);
 
 	ReadCache(strRoot);
@@ -1798,8 +1797,8 @@ void TreeList::RenTreeName(string_view const SrcName, string_view const DestName
 	if (Global->Opt->Tree.TurnOffCompletely)
 		return;
 
-	const auto strSrcRoot = ExtractPathRoot(ConvertNameToFull(SrcName));
-	const auto strDestRoot = ExtractPathRoot(ConvertNameToFull(DestName));
+	const auto strSrcRoot = extract_root_directory(ConvertNameToFull(SrcName));
+	const auto strDestRoot = extract_root_directory(ConvertNameToFull(DestName));
 
 	if (!equal_icase(strSrcRoot, strDestRoot))
 	{

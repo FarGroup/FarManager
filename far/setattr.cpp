@@ -686,7 +686,7 @@ static bool process_single_file(
 
 static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 {
-	short DlgX = 66, DlgY = 22;
+	short DlgX = 74, DlgY = 22;
 
 	const auto C1 = 5;
 	const auto C2 = C1 + (DlgX - 10) / 2;
@@ -891,7 +891,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 			{
 				bool IsRoot = false;
 				const auto PathType = ParsePath(SingleSelFileName, nullptr, &IsRoot);
-				IsMountPoint = IsRoot && ((PathType == root_type::drive_letter || PathType == root_type::unc_drive_letter));
+				IsMountPoint = IsRoot && ((PathType == root_type::drive_letter || PathType == root_type::win32nt_drive_letter));
 			}
 
 			if ((SingleSelFindData.Attributes != INVALID_FILE_ATTRIBUTES && (SingleSelFindData.Attributes & FILE_ATTRIBUTE_REPARSE_POINT)) || IsMountPoint)
@@ -1351,7 +1351,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 					AddEndSlash(strFullName);
 				}
 				seInfo.lpFile = strFullName.c_str();
-				if (!IsWindowsVistaOrGreater() && ParsePath(seInfo.lpFile) == root_type::unc_drive_letter)
+				if (!IsWindowsVistaOrGreater() && ParsePath(seInfo.lpFile) == root_type::win32nt_drive_letter)
 				{	// "\\?\c:\..." fails on old windows
 					seInfo.lpFile += 4;
 				}

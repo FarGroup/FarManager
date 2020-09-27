@@ -63,10 +63,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
 HMenu::HMenu(private_tag, HMenuData *Item,size_t ItemCount):
-	m_Item(Item, Item + ItemCount),
-	m_SelectPos(),
-	m_VExitCode(-1),
-	m_SubmenuOpened()
+	m_Item(Item, Item + ItemCount)
 {
 }
 

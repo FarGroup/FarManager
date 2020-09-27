@@ -154,21 +154,26 @@ void VMenu::ResetCursor()
 }
 
 //может иметь фокус
-bool VMenu::ItemCanHaveFocus(unsigned long long Flags) const
+static bool ItemCanHaveFocus(unsigned long long const Flags)
 {
 	return !(Flags & (LIF_DISABLE | LIF_HIDDEN | LIF_FILTERED | LIF_SEPARATOR));
 }
 
-//может быть выбран
-bool VMenu::ItemCanBeEntered(unsigned long long Flags) const
+static bool ItemCanHaveFocus(MenuItemEx const& Item)
 {
-	return !(Flags & (LIF_DISABLE | LIF_HIDDEN | LIF_FILTERED | LIF_GRAYED | LIF_SEPARATOR));
+	return ItemCanHaveFocus(Item.Flags);
+}
+
+//может быть выбран
+static bool ItemCanBeEntered(MenuItemEx const& Item)
+{
+	return ItemCanHaveFocus(Item) && !(Item.Flags & LIF_GRAYED);
 }
 
 //видимый
-bool VMenu::ItemIsVisible(unsigned long long Flags) const
+static bool ItemIsVisible(MenuItemEx const& Item)
 {
-	return !(Flags & (LIF_HIDDEN | LIF_FILTERED));
+	return !(Item.Flags & (LIF_HIDDEN | LIF_FILTERED));
 }
 
 bool VMenu::UpdateRequired() const
@@ -176,24 +181,14 @@ bool VMenu::UpdateRequired() const
 	return CheckFlags(VMENU_UPDATEREQUIRED)!=0;
 }
 
-void VMenu::UpdateInternalCounters(unsigned long long OldFlags, unsigned long long NewFlags)
-{
-	if (OldFlags&MIF_SUBMENU)
-		ItemSubMenusCount--;
-
-	if (!ItemIsVisible(OldFlags))
-		ItemHiddenCount--;
-
-	if (NewFlags&MIF_SUBMENU)
-		ItemSubMenusCount++;
-
-	if (!ItemIsVisible(NewFlags))
-		ItemHiddenCount++;
-}
-
 void VMenu::UpdateItemFlags(int Pos, unsigned long long NewFlags)
 {
-	UpdateInternalCounters(Items[Pos].Flags, NewFlags);
+	if (Items[Pos].Flags & MIF_SUBMENU)
+		--ItemSubMenusCount;
+
+	if (!ItemIsVisible(Items[Pos]))
+		--ItemHiddenCount;
+
 
 	if (!ItemCanHaveFocus(NewFlags))
 		NewFlags &= ~LIF_SELECTED;
@@ -225,6 +220,12 @@ void VMenu::UpdateItemFlags(int Pos, unsigned long long NewFlags)
 			Items[Pos].Flags&=0xFFFF0000;
 		}
 	}
+
+	if (NewFlags&MIF_SUBMENU)
+		ItemSubMenusCount++;
+
+	if (!ItemIsVisible(Items[Pos]))
+		ItemHiddenCount++;
 }
 
 // переместить курсор c учётом пунктов которые не могут получать фокус
@@ -270,7 +271,7 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 			}
 		}
 
-		if (ItemCanHaveFocus(Items[Pos].Flags))
+		if (ItemCanHaveFocus(Items[Pos]))
 			break;
 
 		if (Pass)
@@ -346,12 +347,12 @@ void VMenu::UpdateSelectPos()
 		return;
 
 	// если selection стоит в некорректном месте - сбросим его
-	if (SelectPos >= 0 && !ItemCanHaveFocus(Items[SelectPos].Flags))
+	if (SelectPos >= 0 && !ItemCanHaveFocus(Items[SelectPos]))
 		SelectPos = -1;
 
 	for (size_t i=0; i<Items.size(); i++)
 	{
-		if (!ItemCanHaveFocus(Items[i].Flags))
+		if (!ItemCanHaveFocus(Items[i]))
 		{
 			Items[i].SetSelect(false);
 		}
@@ -505,7 +506,11 @@ int VMenu::DeleteItem(int ID, int Count)
 
 	for (int I=0; I < Count; ++I)
 	{
-		UpdateInternalCounters(Items[ID+I].Flags,0);
+		if (Items[ID+I].Flags & MIF_SUBMENU)
+			--ItemSubMenusCount;
+
+		if (!ItemIsVisible(Items[ID+I]))
+			--ItemHiddenCount;
 	}
 
 	// а вот теперь перемещения
@@ -598,13 +603,12 @@ void VMenu::RestoreFilteredItems()
 {
 	for (auto& i: Items)
 	{
-		if (i.Flags & LIF_FILTERED)
-		{
-			i.Flags &= ~LIF_FILTERED;
+		if (!(i.Flags & MIF_FILTERED))
+			continue;
 
-			if (ItemIsVisible(i.Flags))
-				--ItemHiddenCount;
-		}
+		i.Flags &= ~MIF_FILTERED;
+		if (ItemIsVisible(i))
+			--ItemHiddenCount;
 	}
 
 	FilterUpdateHeight();
@@ -636,31 +640,30 @@ void VMenu::FilterStringUpdated()
 	{
 		CurItem.Flags &= ~LIF_FILTERED;
 
+		if (!ItemIsVisible(CurItem))
+		{
+			++ItemHiddenCount;
+			continue;
+		}
+
 		if (CurItem.Flags & LIF_SEPARATOR)
 		{
-			if (ItemIsVisible(CurItem.Flags))
+			// В предыдущей группе все элементы скрыты, разделитель перед группой - не нужен
+			if (PrevSeparator != -1)
 			{
-				// В предыдущей группе все элементы скрыты, разделитель перед группой - не нужен
-				if (PrevSeparator != -1)
-				{
-					Items[PrevSeparator].Flags |= LIF_FILTERED;
-					ItemHiddenCount++;
-				}
+				Items[PrevSeparator].Flags |= LIF_FILTERED;
+				ItemHiddenCount++;
+			}
 
-				if (CurItem.Name.empty() && PrevGroup == -1)
-				{
-					CurItem.Flags |= LIF_FILTERED;
-					ItemHiddenCount++;
-					PrevSeparator = -1;
-				}
-				else
-				{
-					PrevSeparator = static_cast<int>(index);
-				}
+			if (CurItem.Name.empty() && PrevGroup == -1)
+			{
+				CurItem.Flags |= LIF_FILTERED;
+				ItemHiddenCount++;
+				PrevSeparator = -1;
 			}
 			else
 			{
-				++ItemHiddenCount;
+				PrevSeparator = static_cast<int>(index);
 			}
 		}
 		else
@@ -680,27 +683,20 @@ void VMenu::FilterStringUpdated()
 			}
 			else
 			{
-				if (ItemIsVisible(CurItem.Flags))
+				PrevGroup = static_cast<int>(index);
+				if (LowerVisible == -2)
 				{
-					PrevGroup = static_cast<int>(index);
-					if (LowerVisible == -2)
-					{
-						if (ItemCanHaveFocus(CurItem.Flags))
-							UpperVisible = static_cast<int>(index);
-					}
-					else if (LowerVisible == -1)
-					{
-						if (ItemCanHaveFocus(CurItem.Flags))
-							LowerVisible = static_cast<int>(index);
-					}
-					// Этот разделитель - оставить видимым
-					if (PrevSeparator != -1)
-						PrevSeparator = -1;
+					if (ItemCanHaveFocus(CurItem))
+						UpperVisible = static_cast<int>(index);
 				}
-				else
+				else if (LowerVisible == -1)
 				{
-					++ItemHiddenCount;
+					if (ItemCanHaveFocus(CurItem))
+						LowerVisible = static_cast<int>(index);
 				}
+				// Этот разделитель - оставить видимым
+				if (PrevSeparator != -1)
+					PrevSeparator = -1;
 			}
 		}
 	}
@@ -842,7 +838,7 @@ long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 
 					const auto& Item = at(I);
 
-					if (!ItemCanHaveFocus(Item.Flags))
+					if (!ItemCanHaveFocus(Item))
 						continue;
 
 					int Res = 0;
@@ -1186,7 +1182,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 
 	const auto ProcessEnter = [this]()
 	{
-		if (ItemCanBeEntered(Items[SelectPos].Flags))
+		if (ItemCanBeEntered(Items[SelectPos]))
 		{
 			if (IsComboBox())
 			{
@@ -1677,7 +1673,7 @@ bool VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	{
 		const auto MsPos = VisualPosToReal(GetVisualPos(TopPos) + MsY - m_Where.top - (m_BoxType == NO_BOX? 0 : 1));
 
-		if (MsPos>=0 && MsPos<static_cast<int>(Items.size()) && ItemCanHaveFocus(Items[MsPos].Flags))
+		if (MsPos>=0 && MsPos<static_cast<int>(Items.size()) && ItemCanHaveFocus(Items[MsPos]))
 		{
 			if (IntKeyState.MousePos.x != IntKeyState.MousePrevPos.x || IntKeyState.MousePos.y != IntKeyState.MousePrevPos.y || !MouseEvent->dwEventFlags)
 			{
@@ -1757,7 +1753,7 @@ int VMenu::GetVisualPos(int Pos)
 	if (Pos >= static_cast<int>(Items.size()))
 		return GetShowItemCount();
 
-	return std::count_if(Items.cbegin(), Items.cbegin() + Pos, [this](const auto& Item) { return ItemIsVisible(Item.Flags); });
+	return std::count_if(Items.cbegin(), Items.cbegin() + Pos, [](const auto& Item) { return ItemIsVisible(Item); });
 }
 
 int VMenu::VisualPosToReal(int VPos)
@@ -1771,7 +1767,7 @@ int VMenu::VisualPosToReal(int VPos)
 	if (VPos >= GetShowItemCount())
 		return static_cast<int>(Items.size());
 
-	const auto ItemIterator = std::find_if(CONST_RANGE(Items, i) { return ItemIsVisible(i.Flags) && !VPos--; });
+	const auto ItemIterator = std::find_if(CONST_RANGE(Items, i) { return ItemIsVisible(i) && !VPos--; });
 	return ItemIterator != Items.cend()? ItemIterator - Items.cbegin() : -1;
 }
 
@@ -1832,7 +1828,7 @@ void VMenu::Show()
 
 			if (m_Where.left == -1)
 			{
-				m_Where.left = static_cast<SHORT>(ScrX - m_MaxLength - 4 - (HasSubMenus? 2 : 0)) / 2;
+				m_Where.left = static_cast<SHORT>(ScrX - m_MaxLength - 4 - (HasSubMenus? 1 : 0)) / 2;
 				AutoCenter = true;
 			}
 
@@ -1840,7 +1836,7 @@ void VMenu::Show()
 				m_Where.left = 2;
 
 			if (m_Where.right <= 0)
-				m_Where.right = static_cast<SHORT>(m_Where.left + m_MaxLength + 4 + (HasSubMenus? 2 : 0));
+				m_Where.right = static_cast<SHORT>(m_Where.left + m_MaxLength + 4 + (HasSubMenus? 1 : 0));
 
 			if (!AutoCenter && m_Where.right > ScrX-4+2*(m_BoxType==SHORT_DOUBLE_BOX || m_BoxType==SHORT_SINGLE_BOX))
 			{
@@ -2028,8 +2024,6 @@ void VMenu::DrawTitles() const
 void VMenu::ShowMenu(bool IsParent)
 {
 	size_t MaxItemLength = 0;
-	bool HasRightScroll = false;
-	bool HasSubMenus = ItemSubMenusCount > 0;
 
 	//BUGBUG, this must be optimized
 	for (const auto& i: Items)
@@ -2044,15 +2038,14 @@ void VMenu::ShowMenu(bool IsParent)
 
 	MaxLineWidth -= 2; // check mark + left horz. scroll
 
-	if (/*!CheckFlags(VMENU_COMBOBOX|VMENU_LISTBOX) && */HasSubMenus)
-		MaxLineWidth -= 2; // sub menu arrow
+	if (/*!CheckFlags(VMENU_COMBOBOX|VMENU_LISTBOX) && */ ItemSubMenusCount > 0)
+		MaxLineWidth -= 1; // sub menu arrow
 
 	if ((CheckFlags(VMENU_LISTBOX | VMENU_ALWAYSSCROLLBAR) || Global->Opt->ShowMenuScrollbar) && m_BoxType == NO_BOX && ScrollBarRequired(m_Where.height(), GetShowItemCount()))
 		MaxLineWidth -= 1; // scrollbar
 
 	if (MaxItemLength > MaxLineWidth)
 	{
-		HasRightScroll = true;
 		MaxLineWidth -= 1; // right horz. scroll
 	}
 
@@ -2155,7 +2148,7 @@ void VMenu::ShowMenu(bool IsParent)
 
 		if (I < static_cast<int>(Items.size()))
 		{
-			if (!ItemIsVisible(Items[I].Flags))
+			if (!ItemIsVisible(Items[I]))
 			{
 				Y--;
 				continue;
@@ -2349,7 +2342,7 @@ void VMenu::ShowMenu(bool IsParent)
 
 				if (Items[I].Flags & MIF_SUBMENU)
 				{
-					GotoXY(static_cast<int>(m_Where.left + (m_BoxType == NO_BOX? 0 : 1) + 2 + MaxLineWidth + (HasRightScroll ? 1 : 0) + 1), Y);
+					GotoXY(static_cast<int>(m_Where.right - 1), Y);
 					BoxText(L'\x25BA'); // sub menu arrow
 				}
 
@@ -2408,7 +2401,7 @@ int VMenu::CheckHighlights(wchar_t CheckSymbol, int StartPos)
 
 	for (size_t I=StartPos; I < Items.size(); I++)
 	{
-		if (!ItemIsVisible(Items[I].Flags))
+		if (!ItemIsVisible(Items[I]))
 			continue;
 
 		const auto Ch = GetHighlights(&Items[I]);
@@ -2508,7 +2501,7 @@ bool VMenu::CheckKeyHiOrAcc(DWORD Key, int Type, bool Translate, bool ChangePos,
 	FOR_CONST_RANGE(Items, Iterator)
 	{
 		auto& CurItem = *Iterator;
-		if (ItemCanHaveFocus(CurItem.Flags) && ((!Type && CurItem.AccelKey && Key == CurItem.AccelKey) || (Type && (CurItem.AutoHotkey || !CheckFlags(VMENU_SHOWAMPERSAND)) && IsKeyHighlighted(CurItem.Name, Key, Translate, CurItem.AutoHotkey))))
+		if (ItemCanHaveFocus(CurItem) && ((!Type && CurItem.AccelKey && Key == CurItem.AccelKey) || (Type && (CurItem.AutoHotkey || !CheckFlags(VMENU_SHOWAMPERSAND)) && IsKeyHighlighted(CurItem.Name, Key, Translate, CurItem.AutoHotkey))))
 		{
 			NewPos=static_cast<int>(Iterator - Items.cbegin());
 			if (ChangePos)
@@ -2517,7 +2510,7 @@ bool VMenu::CheckKeyHiOrAcc(DWORD Key, int Type, bool Translate, bool ChangePos,
 				ShowMenu(true);
 			}
 
-			if ((!GetDialog() || CheckFlags(VMENU_COMBOBOX|VMENU_LISTBOX)) && ItemCanBeEntered(Items[SelectPos].Flags))
+			if ((!GetDialog() || CheckFlags(VMENU_COMBOBOX|VMENU_LISTBOX)) && ItemCanBeEntered(Items[SelectPos]))
 			{
 				SetExitCode(NewPos);
 			}
@@ -2773,7 +2766,7 @@ bool VMenu::GetVMenuInfo(FarListInfo* Info) const
 		Info->SelectPos = SelectPos;
 		Info->TopPos = TopPos;
 		Info->MaxHeight = MaxHeight;
-		Info->MaxLength = m_MaxLength + (ItemSubMenusCount > 0 ? 2 : 0);
+		Info->MaxLength = m_MaxLength + (ItemSubMenusCount > 0? 1 : 0);
 		return true;
 	}
 

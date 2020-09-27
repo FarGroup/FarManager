@@ -141,7 +141,7 @@ enum DIZUPDATETYPE
 enum disk_menu_mode
 {
 	DRIVE_SHOW_TYPE              = 0_bit,
-	DRIVE_SHOW_PATH              = 1_bit,
+	DRIVE_SHOW_ASSOCIATED_PATH   = 1_bit,
 	DRIVE_SHOW_LABEL             = 2_bit,
 	DRIVE_SHOW_FILESYSTEM        = 3_bit,
 	DRIVE_SHOW_SIZE              = 4_bit,

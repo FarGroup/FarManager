@@ -434,7 +434,7 @@ namespace os
 	namespace debug
 	{
 		bool debugger_present();
-		void breakpoint();
+		void breakpoint(bool Always = true);
 		void print(const wchar_t* Str);
 		void print(string const& Str);
 	}

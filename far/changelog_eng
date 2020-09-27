@@ -1,3 +1,11 @@
+drkns 27.09.2020 23:37:58 +0100 - build 5672
+
+1. Disk menu can show not mounted volumes (Ctrl-H).
+
+2. Minor corrections in handling of various non-standard paths.
+
+3. Refactoring.
+
 drkns 22.09.2020 08:45:08 +0100 - build 5671
 
 1. Copying from viewer didn't work properly.

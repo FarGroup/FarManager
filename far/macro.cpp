@@ -52,12 +52,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "panelmix.hpp"
 #include "flink.hpp"
-#include "cddrv.hpp"
 #include "fileedit.hpp"
 #include "viewer.hpp"
 #include "datetime.hpp"
 #include "xlat.hpp"
-#include "imports.hpp"
 #include "plugapi.hpp"
 #include "dlgedit.hpp"
 #include "clipboard.hpp"
@@ -1944,7 +1942,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			if (SelPanel  && SelPanel->GetMode() != panel_mode::PLUGIN_PANEL)
 			{
-				return FAR_GetDriveType(GetPathRoot(SelPanel->GetCurDir()));
+				return os::fs::drive::get_type(GetPathRoot(SelPanel->GetCurDir()));
 			}
 
 			return -1;

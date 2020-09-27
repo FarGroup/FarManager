@@ -173,10 +173,10 @@ private:
 
 	Options::ViewerOptions ViOpt;
 
-	bool Signature;
+	bool Signature{};
 
 	NamesList ViewNamesList;
-	KeyBar *m_ViewKeyBar;
+	KeyBar *m_ViewKeyBar{};
 
 	std::list<ViewerString> Strings;
 
@@ -190,53 +190,53 @@ private:
 
 	string strTempViewName;
 
-	bool m_DeleteFolder;
+	bool m_DeleteFolder{true};
 
 	string strLastSearchStr;
 	bool LastSearchCase,LastSearchWholeWords,LastSearchReverse,LastSearchHex,LastSearchRegexp;
 	int LastSearchDirection;
-	long long StartSearchPos;
+	long long StartSearchPos{};
 
 	uintptr_t m_DefCodepage;
 	uintptr_t m_Codepage;
 	monitored<bool> m_Wrap;
 	monitored<bool> m_WordWrap;
 	monitored<VIEWER_MODE_TYPE> m_DisplayMode;
-	bool m_DumpTextMode;
+	bool m_DumpTextMode{};
 
 	MultibyteCodepageDecoder MB;
 
-	long long FilePos;
-	long long SecondPos;
-	long long FileSize;
-	long long LastSelectPos, LastSelectSize;
+	long long FilePos{};
+	long long SecondPos{};
+	long long FileSize{};
+	long long LastSelectPos{}, LastSelectSize{-1};
 
-	long long LeftPos;
-	bool LastPage;
-	long long SelectPos,SelectSize, ManualSelectPos;
-	DWORD SelectFlags;
-	int ShowStatusLine;
-	int m_HideCursor;
+	long long LeftPos{};
+	bool LastPage{};
+	long long SelectPos{}, SelectSize{-1}, ManualSelectPos{-1};
+	DWORD SelectFlags{};
+	int ShowStatusLine{true};
+	int m_HideCursor{true};
 
 	string strTitle;
 
 	string strPluginData;
-	int ReadStdin;
-	int InternalKey;
+	int ReadStdin{};
+	int InternalKey{};
 
 	Bookmarks<viewer_bookmark> BMSavePos;
 
 	struct ViewerUndoData;
 	std::list<ViewerUndoData> UndoData;
 
-	int LastKeyUndo;
-	int Width,XX2;  // , используется при расчете ширины при скролбаре
+	int LastKeyUndo{};
+	int Width{}, XX2{};  // используется при расчете ширины при скролбаре
 	int ViewerID;
-	bool OpenFailed;
-	bool bVE_READ_Sent;
-	FileViewer *HostFileViewer;
-	bool AdjustSelPosition;
-	bool redraw_selection;
+	bool OpenFailed{};
+	bool bVE_READ_Sent{};
+	FileViewer *HostFileViewer{};
+	bool AdjustSelPosition{};
+	bool redraw_selection{};
 
 	bool m_bQuickView;
 
@@ -245,15 +245,15 @@ private:
 
 	std::vector<char> vread_buffer;
 
-	long long  lcache_first;
-	long long  lcache_last;
+	long long  lcache_first{-1};
+	long long  lcache_last{-1};
 	std::vector<long long> lcache_lines;
-	int      lcache_count;
-	int      lcache_base;
-	bool     lcache_ready;
-	int      lcache_wrap;
-	int      lcache_wwrap;
-	int      lcache_width;
+	int      lcache_count{};
+	int      lcache_base{};
+	bool     lcache_ready{};
+	int      lcache_wrap{-1};
+	int      lcache_wwrap{-1};
+	int      lcache_width{-1};
 
 	int      max_backward_size;
 	std::vector<int> llengths;
@@ -270,7 +270,7 @@ private:
 		int  eol_length;
 		bool bSelection;
 	}
-	vString;
+	vString{};
 
 	class vgetc_cache
 	{
@@ -293,7 +293,7 @@ private:
 		void compact();
 
 	private:
-		char m_Buffer[64];
+		char m_Buffer[64]{};
 
 	public: // BUGBUG
 		char* m_Iterator{ m_Buffer };
@@ -304,7 +304,7 @@ private:
 	wchar_t vgetc_composite{};
 
 	std::vector<wchar_t> ReadBuffer;
-	F8CP f8cps;
+	F8CP f8cps{true};
 	std::optional<bool> m_GotoHex;
 };
 

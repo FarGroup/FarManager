@@ -47,7 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filefilter.hpp"
 #include "fileview.hpp"
 #include "syslog.hpp"
-#include "cddrv.hpp"
 #include "interf.hpp"
 #include "keyboard.hpp"
 #include "colormix.hpp"
@@ -1380,13 +1379,13 @@ void ShellCopy::CopyFileTree(const string& Dest)
 		if (first || strSrcDriveRoot.empty() || (src_abspath && !starts_with_icase(i.FileName, strSrcDriveRoot)))
 		{
 			strSrcDriveRoot = GetPathRoot(src_abspath? i.FileName : SrcPanel->GetCurDir());
-			SrcDriveType = FAR_GetDriveType(strSrcDriveRoot);
+			SrcDriveType = os::fs::drive::get_type(strSrcDriveRoot);
 			check_samedisk = true;
 		}
 		if (!copy_to_null && (first || strDestDriveRoot.empty() || !starts_with_icase(strDest, strDestDriveRoot)))
 		{
 			strDestDriveRoot = GetPathRoot(strDest);
-			DestDriveType = FAR_GetDriveType(strDestDriveRoot);
+			DestDriveType = os::fs::drive::get_type(strDestDriveRoot);
 			check_samedisk = dest_changed = true;
 		}
 		if (move_rename && !copy_to_null && check_samedisk)
@@ -2739,7 +2738,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 
 		if (!IsWindowsVistaOrGreater() && IsWindowsServer()) // M#1607 WS2003-Share SetFileTime BUG
 		{
-			if (FAR_GetDriveType(GetPathRoot(strDestName)) == DRIVE_REMOTE)
+			if (os::fs::drive::get_type(GetPathRoot(strDestName)) == DRIVE_REMOTE)
 			{
 				if (DestFile.Open(strDestName, FILE_WRITE_ATTRIBUTES, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
 				{

@@ -60,6 +60,7 @@ public:
 	bool SetCurName(string_view Name);
 
 	bool empty() const { return Names.empty(); }
+	auto size() const { return Names.size(); }
 
 private:
 	using names_list = std::vector<string>;

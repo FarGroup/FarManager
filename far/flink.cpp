@@ -38,7 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "config.hpp"
 #include "pathmix.hpp"
-#include "drivemix.hpp"
 #include "message.hpp"
 #include "lang.hpp"
 #include "dirmix.hpp"
@@ -47,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cvtname.hpp"
 #include "global.hpp"
 #include "stddlg.hpp"
+#include "string_utils.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -389,16 +389,15 @@ bool EnumStreams(string_view const FileName, unsigned long long& StreamsSize, si
 	return Result;
 }
 
-bool DelSubstDrive(const string& DeviceName)
+bool DelSubstDrive(string_view const DeviceName)
 {
 	string strTargetPath;
 	return os::fs::QueryDosDevice(DeviceName, strTargetPath) &&
-		DefineDosDevice(DDD_RAW_TARGET_PATH | DDD_REMOVE_DEFINITION | DDD_EXACT_MATCH_ON_REMOVE, DeviceName.c_str(), strTargetPath.c_str()) != FALSE;
+		DefineDosDevice(DDD_RAW_TARGET_PATH | DDD_REMOVE_DEFINITION | DDD_EXACT_MATCH_ON_REMOVE, null_terminated(DeviceName).c_str(), strTargetPath.c_str()) != FALSE;
 }
 
-bool GetSubstName(int DriveType,const string& DeviceName, string &strTargetPath)
+bool GetSubstName(int DriveType, string_view const Path, string &strTargetPath)
 {
-	bool Ret=false;
 	/*
 	+ Обработка в зависимости от Global->Opt->SubstNameRule
 	битовая маска:
@@ -407,36 +406,42 @@ bool GetSubstName(int DriveType,const string& DeviceName, string &strTargetPath)
 	*/
 	const auto DriveRemovable = DriveType == DRIVE_REMOVABLE || DriveType == DRIVE_CDROM;
 
-	if (((Global->Opt->SubstNameRule & 1) || !DriveRemovable) && ((Global->Opt->SubstNameRule & 2) || DriveRemovable))
+	const auto
+		CheckRemovable = Global->Opt->SubstNameRule & 0b01,
+		CheckOther = Global->Opt->SubstNameRule & 0b10;
+
+	if ((DriveRemovable && !CheckRemovable) || (!DriveRemovable && !CheckOther))
+		return false;
+
+	const auto Type = ParsePath(Path);
+	if (Type != root_type::drive_letter)
+		return false;
+
+	const auto Drive = Path.substr(0, 2);
+
+	string Device;
+	if (!os::fs::QueryDosDevice(Drive, Device))
+		return false;
+
+	if (starts_with_icase(Device, L"\\??\\UNC\\"sv))
 	{
-		const auto Type = ParsePath(DeviceName);
-		if (Type == root_type::drive_letter)
-		{
-			string Name;
-			if (os::fs::QueryDosDevice(DeviceName, Name))
-			{
-				if (starts_with(Name, L"\\??\\UNC\\"sv))
-				{
-					strTargetPath = concat(L"\\\\"sv, string_view(Name).substr(8));
-					Ret = true;
-				}
-				else if (starts_with(Name, L"\\??\\"sv))
-				{
-					strTargetPath.assign(Name, 4, string::npos); // gcc 7.3-8.1 bug: npos required. TODO: Remove after we move to 8.2 or later
-					Ret=true;
-				}
-			}
-		}
+		strTargetPath = concat(L"\\\\"sv, string_view(Device).substr(8));
+		return true;
 	}
 
-	return Ret;
+	if (starts_with(Device, L"\\??\\"sv))
+	{
+		strTargetPath.assign(Device, 4, string::npos); // gcc 7.3-8.1 bug: npos required. TODO: Remove after we move to 8.2 or later
+		return true;
+	}
+
+	return false;
 }
 
-bool GetVHDInfo(string_view const DeviceName, string &strVolumePath, VIRTUAL_STORAGE_TYPE* StorageType)
+bool GetVHDInfo(string_view const RootDirectory, string &strVolumePath, VIRTUAL_STORAGE_TYPE* StorageType)
 {
-	const auto IsDosDevice = DeviceName.size() == 2 && ends_with(DeviceName, L':');
-	const os::fs::file Device(IsDosDevice? os::fs::get_unc_drive(DeviceName.front()) : DeviceName, FILE_READ_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING);
-	if (!Device)
+	const os::fs::file Root(RootDirectory, FILE_READ_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING);
+	if (!Root)
 		return false;
 
 	block_ptr<STORAGE_DEPENDENCY_INFO> StorageDependencyInfo;
@@ -452,7 +457,7 @@ bool GetVHDInfo(string_view const DeviceName, string &strVolumePath, VIRTUAL_STO
 	for (;;)
 	{
 		InitStorage(Size);
-		if (Device.GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG_HOST_VOLUMES, Size, StorageDependencyInfo.data(), &Size))
+		if (Root.GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG_HOST_VOLUMES, Size, StorageDependencyInfo.data(), &Size))
 			break;
 		if (GetLastError() != ERROR_INSUFFICIENT_BUFFER)
 			return false;
@@ -470,9 +475,22 @@ bool GetVHDInfo(string_view const DeviceName, string &strVolumePath, VIRTUAL_STO
 	return true;
 }
 
+bool detach_vhd(string_view const RootDirectory, bool& IsVhd)
+{
+	IsVhd = false;
+
+	string VhdFileName;
+	VIRTUAL_STORAGE_TYPE VirtualStorageType;
+	if (!GetVHDInfo(RootDirectory, VhdFileName, &VirtualStorageType))
+		return false;
+
+	IsVhd = true;
+	return os::fs::detach_virtual_disk(VhdFileName, VirtualStorageType);
+}
+
 string GetPathRoot(string_view const Path)
 {
-	return ExtractPathRoot(ConvertNameToReal(Path));
+	return extract_root_directory(ConvertNameToReal(Path));
 }
 
 bool ModifyReparsePoint(string_view const Object, string_view const Target)
@@ -492,7 +510,7 @@ void NormalizeSymlinkName(string &strLinkName)
 	if (!starts_with(strLinkName, L"\\??\\"sv))
 		return;
 
-	if (ParsePath(strLinkName) != root_type::unc_drive_letter)
+	if (ParsePath(strLinkName) != root_type::win32nt_drive_letter)
 		return;
 
 	strLinkName.erase(0, 4);

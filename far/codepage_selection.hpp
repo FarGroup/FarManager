@@ -118,13 +118,13 @@ private:
 
 	static string_view FavoriteCodePagesKey();
 
-	Dialog* dialog;
-	size_t control;
-	std::vector<DialogBuilderListItem> *DialogBuilderList;
-	vmenu2_ptr CodePagesMenu;
-	uintptr_t currentCodePage;
-	int favoriteCodePages, normalCodePages;
-	bool selectedCodePages;
+	Dialog* dialog{};
+	size_t control{};
+	std::vector<DialogBuilderListItem> *DialogBuilderList{};
+	vmenu2_ptr CodePagesMenu{};
+	uintptr_t currentCodePage{};
+	int favoriteCodePages{}, normalCodePages{};
+	bool selectedCodePages{};
 	CodePagesCallbackCallSource CallbackCallSource;
 };
 

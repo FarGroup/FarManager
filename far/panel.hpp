@@ -206,7 +206,7 @@ public:
 	virtual void SetSortMode(panel_sort Mode, bool KeepOrder = false) { m_SortMode = Mode; }
 	virtual void SetCustomSortMode(panel_sort Mode, sort_order Order, bool InvertByDefault) {}
 	virtual void ChangeSortOrder(bool Reverse) {SetSortOrder(Reverse);}
-	virtual void IfGoHome(wchar_t Drive) {}
+	virtual void GoHome(string_view const Drive) {}
 	virtual void UpdateKeyBar() = 0;
 	virtual size_t GetFileCount() const { return 0; }
 	virtual Viewer* GetViewer() {return nullptr;}

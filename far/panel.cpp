@@ -45,7 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
 #include "syslog.hpp"
-#include "cddrv.hpp"
 #include "interf.hpp"
 #include "shortcuts.hpp"
 #include "dirmix.hpp"
@@ -358,7 +357,7 @@ bool Panel::SetCurPath()
 		{
 			const auto strRoot = GetPathRoot(m_CurDir);
 
-			if (FAR_GetDriveType(strRoot) != DRIVE_REMOVABLE || os::fs::IsDiskInDrive(strRoot))
+			if (os::fs::drive::get_type(strRoot) != DRIVE_REMOVABLE || os::fs::IsDiskInDrive(strRoot))
 			{
 				if (!os::fs::is_directory(m_CurDir))
 				{

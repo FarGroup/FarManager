@@ -270,23 +270,36 @@ static DWORD DriveMaskFromVolumeName(string_view const VolumeName)
 	const os::fs::enum_drives Enumerator(os::fs::get_logical_drives());
 	const auto ItemIterator = std::find_if(ALL_CONST_RANGE(Enumerator), [&](const auto& i)
 	{
-		return os::fs::GetVolumeNameForVolumeMountPoint(os::fs::get_root_directory(i), strCurrentVolumeName) && starts_with(strCurrentVolumeName, VolumeName);
+		return os::fs::GetVolumeNameForVolumeMountPoint(os::fs::drive::get_win32nt_root_directory(i), strCurrentVolumeName) && starts_with_icase(strCurrentVolumeName, VolumeName);
 	});
-	if (ItemIterator != Enumerator.cend() && os::fs::is_standard_drive_letter(*ItemIterator))
+	if (ItemIterator != Enumerator.cend() && os::fs::drive::is_standard_letter(*ItemIterator))
 	{
-		Result = bit(os::fs::get_drive_number(*ItemIterator));
+		Result = bit(os::fs::drive::get_number(*ItemIterator));
 	}
 	return Result;
 }
 
+struct device_paths
+{
+	os::fs::drives_set Disks;
+	std::list<string> Volumes;
+
+	void append(device_paths&& rhs)
+	{
+		Disks |= rhs.Disks;
+		Volumes.splice(Volumes.end(), rhs.Volumes);
+	}
+};
+
 [[nodiscard]]
-static DWORD GetDriveMaskFromMountPoints(DEVINST hDevInst)
+static device_paths get_device_paths_impl(DEVINST hDevInst)
 {
 	dev_info const Info(hDevInst);
 	if (!Info)
-		return 0;
+		return {};
 
-	DWORD dwMask = 0;
+	device_paths DevicePaths;
+
 	for (auto& i: Info.DeviceInterfacesEnumerator(GUID_DEVINTERFACE_VOLUME))
 	{
 		auto strMountPoint = Info.GetDevicePath(i);
@@ -297,46 +310,48 @@ static DWORD GetDriveMaskFromMountPoints(DEVINST hDevInst)
 		string strVolumeName;
 		if (os::fs::GetVolumeNameForVolumeMountPoint(strMountPoint,strVolumeName))
 		{
-			dwMask |= DriveMaskFromVolumeName(strVolumeName);
+			DevicePaths.Disks |= DriveMaskFromVolumeName(strVolumeName);
 		}
+		DevicePaths.Volumes.emplace_back(strVolumeName);
 	}
-	return dwMask;
+
+	return DevicePaths;
 }
 
 [[nodiscard]]
-static DWORD GetRelationDrivesMask(DEVINST hDevInst)
+static device_paths get_relation_device_paths(DEVINST hDevInst)
 {
 	wchar_t szDeviceID[MAX_DEVICE_ID_LEN];
 	if (CM_Get_Device_ID(hDevInst, szDeviceID, static_cast<ULONG>(std::size(szDeviceID)), 0) != CR_SUCCESS)
-		return 0;
+		return {};
 
 	DWORD dwSize = 0;
 	if (CM_Get_Device_ID_List_Size(&dwSize, szDeviceID, CM_GETIDLIST_FILTER_REMOVALRELATIONS) != CR_SUCCESS || !dwSize)
-		return 0;
+		return {};
 
 	const wchar_t_ptr_n<os::default_buffer_size> DeviceIdList(dwSize);
 	if (CM_Get_Device_ID_List(szDeviceID, DeviceIdList.data(), dwSize, CM_GETIDLIST_FILTER_REMOVALRELATIONS) != CR_SUCCESS)
-		return 0;
+		return {};
 
-	DWORD dwMask = 0;
+	device_paths DevicePaths;
 	const auto DeviceIdListPtr = DeviceIdList.data();
 	for (const auto& i: enum_substrings(DeviceIdListPtr))
 	{
 		DEVINST hRelationDevInst;
 		if (CM_Locate_DevNode(&hRelationDevInst, const_cast<DEVINSTID_W>(i.data()), 0) == CR_SUCCESS)
-			dwMask |= GetDriveMaskFromMountPoints(hRelationDevInst);
+			DevicePaths.append(get_device_paths_impl(hRelationDevInst));
 	}
 
-	return dwMask;
+	return DevicePaths;
 }
 
 [[nodiscard]]
-static os::fs::drives_set GetDisksForDevice(DEVINST hDevInst)
+static device_paths get_device_paths(DEVINST hDevInst)
 {
-	os::fs::drives_set Drives;
+	device_paths DevicePaths;
 
-	Drives |= GetDriveMaskFromMountPoints(hDevInst);
-	Drives |= GetRelationDrivesMask(hDevInst);
+	DevicePaths.append(get_device_paths_impl(hDevInst));
+	DevicePaths.append(get_relation_device_paths(hDevInst));
 
 	for (const auto& i: enum_child_devices(hDevInst))
 	{
@@ -345,23 +360,23 @@ static os::fs::drives_set GetDisksForDevice(DEVINST hDevInst)
 		If it is a hotplug device then it will have its own subtree that contains its drive letters.
 		*/
 		if (!IsDeviceHotplug(i, false))
-			Drives |= GetDisksForDevice(i);
+			DevicePaths.append(get_device_paths(i));
 	}
 
-	return Drives;
+	return DevicePaths;
 }
 
 struct DeviceInfo
 {
 	DEVINST DevInst;
-	os::fs::drives_set Disks;
+	device_paths DevicePaths;
 };
 
 static void GetHotplugDevicesInfo(DEVINST hDevInst, std::vector<DeviceInfo>& Info, bool const IncludeSafeToRemove)
 {
 	if (IsDeviceHotplug(hDevInst, IncludeSafeToRemove))
 	{
-		Info.emplace_back(DeviceInfo{ hDevInst, GetDisksForDevice(hDevInst) });
+		Info.emplace_back(DeviceInfo{ hDevInst, get_device_paths(hDevInst) });
 	}
 
 	for (const auto& i: enum_child_devices(hDevInst))
@@ -385,7 +400,7 @@ static auto GetHotplugDevicesInfo(bool const IncludeSafeToRemove)
 }
 
 [[nodiscard]]
-static bool RemoveHotplugDiskDevice(const DeviceInfo& Info, bool const Confirm, bool& Cancelled)
+static bool RemoveHotplugDriveDevice(const DeviceInfo& Info, bool const Confirm, bool& Cancelled)
 {
 	string strFriendlyName;
 	if (GetDevicePropertyRecursive(Info.DevInst, SPDRP_FRIENDLYNAME, strFriendlyName))
@@ -401,14 +416,20 @@ static bool RemoveHotplugDiskDevice(const DeviceInfo& Info, bool const Confirm, 
 	{
 		string DisksStr;
 		const auto Separator = L", "sv;
-		for (size_t i = 0; i < Info.Disks.size(); ++i)
+		for (size_t i = 0; i < Info.DevicePaths.Disks.size(); ++i)
 		{
-			if (Info.Disks[i])
-				append(DisksStr, os::fs::get_drive(i), Separator);
+			if (Info.DevicePaths.Disks[i])
+				append(DisksStr, os::fs::drive::get_device_path(i), Separator);
 		}
 		// remove trailing ", "
 		if (!DisksStr.empty())
+		{
 			DisksStr.resize(DisksStr.size() - Separator.size());
+		}
+		else
+		{
+			DisksStr = join(Info.DevicePaths.Volumes, L", "sv);
+		}
 
 		std::vector<string> MessageItems;
 		MessageItems.reserve(6);
@@ -458,29 +479,54 @@ static bool RemoveHotplugDiskDevice(const DeviceInfo& Info, bool const Confirm, 
 }
 
 [[nodiscard]]
-bool RemoveHotplugDisk(wchar_t Disk, bool const Confirm, bool& Cancelled)
+bool RemoveHotplugDrive(string_view const Path, bool const Confirm, bool& Cancelled)
 {
-	string DevName;
-	if (GetVHDInfo(os::fs::get_unc_drive(Disk), DevName))
+	// Removing VHD disk as hotplug is a very bad idea.
+	// Currently OS removes the device but doesn't close the file handle, rendering the file completely unavailable until reboot.
+	if (auto IsVhd = false; detach_vhd(Path, IsVhd))
 	{
-		// Removing VHD disk as hotplug is a very bad idea.
-		// Currently OS removes the device but doesn't close the file handle, rendering the file completely unavailable until reboot.
-		// So just use the Del key.
+		return true;
+	}
+	else if (IsVhd)
+	{
+		Cancelled = true;
+		return false;
+	}
+
+	const auto PathType = ParsePath(Path);
+	if (PathType != root_type::win32nt_drive_letter && PathType != root_type::volume)
+	{
 		Cancelled = true;
 		return false;
 	}
 
 	// Some USB drives always have CM_DEVCAP_SURPRISEREMOVALOK flag set
 	const auto Info = GetHotplugDevicesInfo(true);
-	const auto DiskNumber = os::fs::get_drive_number(Disk);
-	const auto ItemIterator = std::find_if(CONST_RANGE(Info, i) {return i.Disks[DiskNumber];});
+
+	const auto ItemIterator = [&]
+	{
+		if (PathType == root_type::win32nt_drive_letter)
+		{
+			const auto DiskNumber = os::fs::drive::get_number(Path[L"\\\\?\\"sv.size()]);
+			return std::find_if(CONST_RANGE(Info, i) { return i.DevicePaths.Disks[DiskNumber]; });
+		}
+
+		return std::find_if(CONST_RANGE(Info, i)
+		{
+			return std::any_of(ALL_CONST_RANGE(i.DevicePaths.Volumes), [&](string const& VolumeName)
+			{
+				return equal_icase(VolumeName, Path);
+			});
+		});
+	}();
+
 	if (ItemIterator == Info.cend())
 	{
 		Cancelled = true;
 		return false;
 	}
 
-	return RemoveHotplugDiskDevice(*ItemIterator, Confirm, Cancelled);
+	return RemoveHotplugDriveDevice(*ItemIterator, Confirm, Cancelled);
 }
 
 void ShowHotplugDevices()
@@ -576,7 +622,7 @@ void ShowHotplugDevices()
 					const auto I = HotPlugList->GetSelectPos();
 
 					bool Cancelled = false;
-					if (RemoveHotplugDiskDevice(Info[I], Global->Opt->Confirm.RemoveHotPlug, Cancelled))
+					if (RemoveHotplugDriveDevice(Info[I], Global->Opt->Confirm.RemoveHotPlug, Cancelled))
 					{
 						FillMenu();
 					}
