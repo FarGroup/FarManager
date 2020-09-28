@@ -1,3 +1,7 @@
+bitraid 28.09.2020 13:00:01 +0100 - build 5673
+
+1. gh-268: Enable saving state of unmounted volumes display
+
 drkns 27.09.2020 23:37:58 +0100 - build 5672
 
 1. Disk menu can show not mounted volumes (Ctrl-H).
