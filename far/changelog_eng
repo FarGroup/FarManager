@@ -1,3 +1,7 @@
+drkns 28.09.2020 20:03:38 +0100 - build 5674
+
+1. Correction of 5672.
+
 bitraid 28.09.2020 13:00:01 +0100 - build 5673
 
 1. gh-268: Enable saving state of unmounted volumes display

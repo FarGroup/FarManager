@@ -2927,8 +2927,9 @@ bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePa
 			{
 				if (NetPath)
 				{
-					string tmp = m_CurDir;	// strCurDir can be altered during next call
-					if (Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Network.Id,OPEN_FILEPANEL, UNSAFE_CSTR(tmp))) // NetWork Plugin :-)
+					auto ShareName = m_CurDir; // strCurDir can be altered during next call
+					DeleteEndSlash(ShareName);
+					if (Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Network.Id,OPEN_FILEPANEL, UNSAFE_CSTR(ShareName))) // NetWork Plugin :-)
 					{
 						return false;
 					}
