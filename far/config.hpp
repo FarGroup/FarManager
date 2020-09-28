@@ -153,6 +153,7 @@ enum disk_menu_mode
 	DRIVE_SORT_PLUGINS_BY_HOTKEY = 10_bit,
 	DRIVE_SHOW_LABEL_USE_SHELL   = 11_bit,
 	DRIVE_SHOW_VIRTUAL           = 12_bit,
+	DRIVE_SHOW_UNMOUNTED_VOLUMES = 13_bit,
 };
 
 class Option

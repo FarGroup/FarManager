@@ -94,8 +94,6 @@ enum
 	DRIVE_VIRTUAL               = 102,
 };
 
-static bool ShowNotMountedVolumes = false;
-
 struct disk_item
 {
 	string Path;
@@ -867,7 +865,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			process_location(os::fs::drive::get_win32nt_root_directory(i));
 		}
 
-		if (ShowNotMountedVolumes)
+		if (DriveMode & DRIVE_SHOW_UNMOUNTED_VOLUMES)
 		{
 			for (const auto& i : os::fs::enum_volumes())
 			{
@@ -1216,7 +1214,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 			case KEY_CTRLH:
 			case KEY_RCTRLH:
-				ShowNotMountedVolumes = !ShowNotMountedVolumes;
+				DriveMode ^= DRIVE_SHOW_UNMOUNTED_VOLUMES;
 				RetCode = SelPos;
 				break;
 
