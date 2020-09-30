@@ -2266,6 +2266,8 @@ executing command. <title> and <init> - title and initial text of edit control.
 
  Leave the name empty to disable history.
 
+ The entered string can also be accessed later as #%<history># (or as #%UserVarN#, where N is the index of the corresponding input).
+
  In <title> and <init> the usage of other meta-symbols is allowed by enclosing them in brackets, e.g.
 grep !?Find in (!.!):?! |Far.exe -v -.
 

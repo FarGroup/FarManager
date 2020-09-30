@@ -2341,6 +2341,8 @@ Ebben az esetben a parancssor formátuma: #!?$<előzmény>$<név>?<alapérték>!
 
  Leave the name empty to disable history.
 
+ The entered string can also be accessed later as #%<history># (or as #%UserVarN#, where N is the index of the corresponding input).
+
 A <név> és az <alapérték> beírásánál más különleges szimbólumot is használhatunk, zárójelek között. Példa:
 grep !?Maszk (!.!):?! |far.exe -v -)
 

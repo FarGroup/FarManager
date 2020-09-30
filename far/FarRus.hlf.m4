@@ -2309,6 +2309,8 @@ $ #Метасимволы#
 
  Для отключения истории оставьте имя пустым.
 
+ The entered string can also be accessed later as #%<history># (or as #%UserVarN#, where N is the index of the corresponding input).
+
  В <title> и <init> допускается использование прочих метасимволов, заключив их в круглые операторные скобки, например
 grep !?В (!.!) найти:?! |Far.exe -v -.
 

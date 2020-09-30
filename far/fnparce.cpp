@@ -649,8 +649,12 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 	// TODO: Dynamic?
 	const int DlgWidth = 76;
 
+	constexpr auto HistoryAndVariablePrefix = L"UserVar"sv;
+
+	constexpr auto ExpectedTokensCount = 64;
+
 	std::vector<DialogItemEx> DlgData;
-	DlgData.reserve(30);
+	DlgData.reserve(ExpectedTokensCount * 2 + 4); // + Box, separator, 2 buttons
 
 	struct pos_item
 	{
@@ -658,7 +662,7 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 		size_t EndPos;
 	};
 	std::vector<pos_item> Positions;
-	Positions.reserve(128);
+	Positions.reserve(ExpectedTokensCount);
 
 	{
 		DialogItemEx Item;
@@ -705,7 +709,7 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 			Item.X2 = DlgWidth - 6;
 			Item.Y1 = Item.Y2 = DlgData.size() + 1;
 			Item.Flags = DIF_HISTORY | DIF_USELASTHISTORY;
-			Item.strHistory = concat(L"UserVar"sv, str((DlgData.size() - 1) / 2));
+			Item.strHistory = concat(HistoryAndVariablePrefix, str((DlgData.size() - 1) / 2));
 			DlgData.emplace_back(Item);
 		}
 
@@ -815,6 +819,18 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 		{
 			strTmpStr.push_back(strStr[n]);
 		}
+	}
+
+	for (const auto& i: DlgData)
+	{
+		if (i.Type != DI_EDIT)
+			continue;
+
+		const auto VariableName = format(FSTR(L"%{0}{1}"), HistoryAndVariablePrefix, (&i - DlgData.data() - 1) / 2 + 1);
+		replace_icase(strTmpStr, VariableName, i.strData);
+
+		if (!i.strHistory.empty() && i.strHistory != VariableName)
+			replace_icase(strTmpStr, L'%' + i.strHistory, i.strData);
 	}
 
 	strStr = os::env::expand(strTmpStr);
