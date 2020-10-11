@@ -34,7 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 #include "imports.hpp"
 #include "encoding.hpp"
-#include "tracer.hpp"
 
 // Platform:
 
@@ -46,14 +45,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-
 error_state error_state::fetch()
 {
-	error_state State;
-	State.Errno = errno;
-	State.Win32Error = GetLastError();
-	State.NtError = imports.RtlGetLastNtStatus();
-	return State;
+	return
+	{
+		errno,
+		GetLastError(),
+		imports.RtlGetLastNtStatus(),
+	};
 }
 
 string error_state::ErrnoStr() const
@@ -81,7 +80,6 @@ std::array<string, 3> error_state::format_errors() const
 	};
 }
 
-
 namespace detail
 {
 	far_base_exception::far_base_exception(string_view const Message, const char* const Function, string_view const File, int const Line):
@@ -101,19 +99,6 @@ namespace detail
 	{
 		os::debug::breakpoint(false);
 	}
-
-	exception_context::exception_context(DWORD const Code, const EXCEPTION_POINTERS& Pointers, os::handle&& ThreadHandle, DWORD const ThreadId) noexcept:
-		m_Code(Code),
-		m_Pointers(Pointers),
-		m_ThreadHandle(std::move(ThreadHandle)),
-		m_ThreadId(ThreadId)
-	{
-	}
-
-	seh_exception_context::~seh_exception_context()
-	{
-		ResumeThread(thread_handle());
-	}
 }
 
 string error_state_ex::format_error() const
@@ -127,36 +112,4 @@ string error_state_ex::format_error() const
 	return Str + os::format_system_error(
 		UseNtMessages? NtError : Win32Error,
 		UseNtMessages? NtErrorStr() : Win32ErrorStr());
-}
-
-
-far_wrapper_exception::far_wrapper_exception(const char* const Function, string_view const File, int const Line):
-	far_exception(L"exception_ptr"sv, Function, File, Line),
-	m_ThreadHandle(std::make_shared<os::handle>(os::OpenCurrentThread())),
-	m_Stack(tracer::get({}, tracer::get_pointers(), m_ThreadHandle->native_handle()))
-{
-}
-
-seh_exception::seh_exception(DWORD const Code, EXCEPTION_POINTERS& Pointers, os::handle&& ThreadHandle, DWORD const ThreadId):
-	error_state_ex(fetch()),
-	m_Context(std::make_shared<detail::seh_exception_context>(Code, Pointers, std::move(ThreadHandle), ThreadId))
-{
-}
-
-std::exception_ptr wrap_currrent_exception(const char* const Function, string_view const File, int const Line)
-{
-	try
-	{
-		std::throw_with_nested(far_wrapper_exception(Function, File, Line));
-	}
-	catch (...)
-	{
-		return std::current_exception();
-	}
-}
-
-void rethrow_if(std::exception_ptr& Ptr)
-{
-	if (Ptr)
-		std::rethrow_exception(std::exchange(Ptr, {}));
 }

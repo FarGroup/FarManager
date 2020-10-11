@@ -596,8 +596,8 @@ void Options::MaskGroupsSettings()
 						for (size_t i = 0, size = MasksMenu->size(); i != size; ++i)
 						{
 							filemasks Masks;
-							Masks.Set(ConfigProvider().GeneralCfg()->GetValue<string>(L"Masks"sv, *MasksMenu->GetComplexUserDataPtr<string>(i)));
-							if(!Masks.Compare(Value))
+							Masks.assign(ConfigProvider().GeneralCfg()->GetValue<string>(L"Masks"sv, *MasksMenu->GetComplexUserDataPtr<string>(i)));
+							if(!Masks.check(Value))
 							{
 								MasksMenu->UpdateItemFlags(static_cast<int>(i), MasksMenu->at(i).Flags | MIF_HIDDEN);
 							}

@@ -59,7 +59,7 @@ namespace highlight
 	class element;
 }
 
-using content_data_ptr = std::unique_ptr<std::unordered_map<string, string>>;
+using content_data = std::unordered_map<string, string>;
 
 class FileListItem: public os::fs::find_data
 {
@@ -83,7 +83,7 @@ public:
 	const string& Owner(const FileList* Owner) const;
 
 	bool IsContentDataRead() const;
-	const content_data_ptr& ContentData(const FileList* Owner) const;
+	const std::unique_ptr<content_data>& ContentData(const FileList* Owner) const;
 
 	const string& AlternateOrNormal(bool Alternate) const;
 
@@ -119,7 +119,7 @@ private:
 	mutable DWORD m_NumberOfLinks = values::uninitialised(m_NumberOfLinks);
 	mutable DWORD m_NumberOfStreams = values::uninitialised(m_NumberOfStreams);
 	mutable unsigned long long m_StreamsSize = values::uninitialised(m_StreamsSize);
-	mutable content_data_ptr m_ContentData;
+	mutable std::unique_ptr<content_data> m_ContentData;
 };
 
 enum OPENFILEPLUGINTYPE: int;
@@ -140,7 +140,7 @@ public:
 	long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
 	void MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	void Update(int Mode) override;
-	bool UpdateIfChanged(bool Idle) override;
+	void UpdateIfChanged(bool Idle) override;
 	void UpdateIfRequired() override;
 	bool SendKeyToPlugin(DWORD Key, bool Pred = false) override;
 	void StartFSWatcher(bool got_focus = false, bool check_time = true) override;
@@ -243,7 +243,7 @@ private:
 	bool HardlinksSupported() const;
 	bool StreamsSupported() const;
 	const string& GetComputerName() const;
-	content_data_ptr GetContentData(const string& Item) const;
+	std::unique_ptr<content_data> GetContentData(const string& Item) const;
 	void ApplySortMode(panel_sort Mode);
 	void ToBegin();
 	void ToEnd();
@@ -313,7 +313,7 @@ private:
 		 Открывающий и закрывающий символ, которые используются для показа
 		 имени, которое не помещается в панели. По умолчанию - фигурные скобки.
 	*/
-	wchar_t openBracket[2]{}, closeBracket[2]{};
+	wchar_t openBracket[2]{L'{'}, closeBracket[2]{L'}'};
 
 	string strOriginalCurDir;
 	string strPluginDizName;

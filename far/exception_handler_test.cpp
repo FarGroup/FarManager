@@ -188,7 +188,7 @@ namespace tests
 	static void seh_divide_by_zero_thread()
 	{
 		std::exception_ptr Ptr;
-		os::thread Thread(&os::thread::join, [&]
+		os::thread Thread(os::thread::mode::join, [&]
 		{
 			seh_try_thread(Ptr, []
 			{
@@ -282,6 +282,11 @@ namespace tests
 		[[maybe_unused]]
 		volatile const auto Result = *reinterpret_cast<volatile const double*>(Data.Data + 3);
 	}
+
+	static void seh_unknown()
+	{
+		RaiseException(-1, 0, 0, {});
+	}
 }
 
 static bool ExceptionTestHook(Manager::Key const& key)
@@ -319,6 +324,7 @@ static bool ExceptionTestHook(Manager::Key const& key)
 		{ tests::seh_fp_inexact_result,        L"SEH floating-point inexact result"sv },
 		{ tests::seh_breakpoint,               L"SEH breakpoint"sv },
 		{ tests::seh_alignment_fault,          L"SEH alignment fault"sv },
+		{ tests::seh_unknown,                  L"SEH unknown"sv },
 	};
 
 	const auto ModalMenu = VMenu2::create(L"Test Exceptions"s, {}, ScrY - 4);
@@ -330,9 +336,22 @@ static bool ExceptionTestHook(Manager::Key const& key)
 		ModalMenu->AddItem(string(Description));
 	}
 
+	static auto ForceStderrUI = false;
+
+	ModalMenu->AddItem(MenuItemEx{ {}, LIF_SEPARATOR });
+	ModalMenu->AddItem(MenuItemEx{ L"Use stderr UI"s, ForceStderrUI ? LIF_CHECKED : LIF_NONE });
+
 	const auto ExitCode = ModalMenu->Run();
-	if (ExitCode == -1)
+	if (ExitCode < 0)
 		return true;
+
+	if (static_cast<size_t>(ExitCode) == ModalMenu->size() - 1)
+	{
+		ForceStderrUI = !ForceStderrUI;
+		return true;
+	}
+
+	force_stderr_exception_ui(ForceStderrUI);
 
 	Tests[ExitCode].first();
 

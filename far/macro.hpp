@@ -73,7 +73,6 @@ struct MacroPanelSelect
 	string Item;
 	long long Index;
 	int     Action;
-	DWORD   ActionFlags;
 	int     Mode;
 };
 

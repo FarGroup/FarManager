@@ -48,6 +48,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void disable_exception_handling();
 
+void force_stderr_exception_ui(bool Force);
+
 class Plugin;
 
 bool handle_std_exception(const std::exception& e, std::string_view Function, const Plugin* Module = nullptr);
@@ -65,7 +67,7 @@ private:
 	PTOP_LEVEL_EXCEPTION_FILTER m_PreviousFilter;
 };
 
-void restore_gpfault_ui();
+void restore_system_exception_handler();
 
 namespace detail
 {
@@ -76,9 +78,9 @@ namespace detail
 	};
 
 	void cpp_try(function_ref<void()> Callable, function_ref<void()> UnknownHandler, function_ref<void(std::exception const&)> StdHandler);
-	void seh_try(function_ref<void()> Callable, function_ref<DWORD(DWORD, EXCEPTION_POINTERS*)> Filter, function_ref<void()> Handler);
-	int seh_filter(int Code, const EXCEPTION_POINTERS* Info, std::string_view Function, const Plugin* Module);
-	int seh_thread_filter(std::exception_ptr& Ptr, DWORD Code, EXCEPTION_POINTERS* Info);
+	void seh_try(function_ref<void()> Callable, function_ref<DWORD(EXCEPTION_POINTERS*)> Filter, function_ref<void()> Handler);
+	int seh_filter(EXCEPTION_POINTERS const* Info, std::string_view Function, Plugin const* Module);
+	int seh_thread_filter(std::exception_ptr& Ptr, EXCEPTION_POINTERS* Info);
 	void seh_thread_handler();
 	void set_fp_exceptions(bool Enable);
 
@@ -146,6 +148,13 @@ WARNING_POP()
 	}
 }
 
+std::exception_ptr wrap_currrent_exception(const char* Function, string_view File, int Line);
+
+#define SAVE_EXCEPTION_TO(ExceptionPtr) \
+	ExceptionPtr = wrap_currrent_exception(__FUNCTION__, WIDE_SV(__FILE__), __LINE__)
+
+void rethrow_if(std::exception_ptr& Ptr);
+
 template<class function, class filter, class handler>
 auto seh_try(function const& Callable, filter const& Filter, handler const& Handler)
 {
@@ -171,7 +180,7 @@ auto seh_try_with_ui(function const& Callable, handler const& Handler, const std
 {
 	return seh_try(
 		Callable,
-		[&](DWORD const Code, EXCEPTION_POINTERS* const Info){ return detail::seh_filter(Code, Info, Function, Module); },
+		[&](EXCEPTION_POINTERS* const Info){ return detail::seh_filter(Info, Function, Module); },
 		Handler
 	);
 }
@@ -181,7 +190,7 @@ auto seh_try_no_ui(function const& Callable, handler const& Handler)
 {
 	return seh_try(
 		Callable,
-		[](DWORD, EXCEPTION_POINTERS*) { return EXCEPTION_EXECUTE_HANDLER; },
+		[](EXCEPTION_POINTERS*) { return EXCEPTION_EXECUTE_HANDLER; },
 		Handler
 	);
 }
@@ -191,7 +200,7 @@ auto seh_try_thread(std::exception_ptr& ExceptionPtr, function const& Callable)
 {
 	return seh_try(
 		Callable,
-		[&](DWORD const Code, EXCEPTION_POINTERS* const Info){ return detail::seh_thread_filter(ExceptionPtr, Code, Info); },
+		[&](EXCEPTION_POINTERS* const Info){ return detail::seh_thread_filter(ExceptionPtr, Info); },
 		detail::seh_thread_handler
 	);
 }

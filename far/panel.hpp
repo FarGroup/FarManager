@@ -181,7 +181,7 @@ public:
 	virtual bool IsFocused() const;
 	virtual void OnFocusChange(bool Get);
 	virtual void Update(int Mode) = 0;
-	virtual bool UpdateIfChanged(bool Idle) {return false;}
+	virtual void UpdateIfChanged(bool Idle) {}
 	virtual void UpdateIfRequired() {}
 	virtual void StartFSWatcher(bool got_focus=false, bool check_time=true) {}
 	virtual void StopFSWatcher() {}

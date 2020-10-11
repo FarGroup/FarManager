@@ -1,3 +1,13 @@
+drkns 12.10.2020 00:12:45 +0100 - build 5677
+
+1. Refactoring.
+
+2. As it turns out, gnu ld maps are useless for stack tracing, so now objdump output is used instead.
+
+yjh 11.10.2020 09:35:31 +0300 - build 5676
+
+1. Add .lz,.tlz to <arc> mask.
+
 drkns 30.09.2020 17:31:32 +0100 - build 5675
 
 1. gh-269: Feature Request: Reuse User Input tokens in F2 User Menu

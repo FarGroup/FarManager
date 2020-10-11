@@ -173,7 +173,7 @@ static BOOL WINAPI CtrlHandler(DWORD CtrlType)
 		if(!CancelIoInProgress().is_signaled())
 		{
 			CancelIoInProgress().set();
-			os::thread(&os::thread::detach, &CancelSynchronousIoWrapper, Global->MainThreadHandle());
+			os::thread(os::thread::mode::detach, &CancelSynchronousIoWrapper, Global->MainThreadHandle());
 		}
 		WriteInput(KEY_BREAK);
 

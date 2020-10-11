@@ -2961,7 +2961,7 @@ void WINAPI apiRecursiveSearch(const wchar_t *InitDir, const wchar_t *Mask, FRSU
 	{
 		filemasks FMask;
 
-		if (!FMask.Set(Mask, FMF_SILENT)) return;
+		if (!FMask.assign(Mask, FMF_SILENT)) return;
 
 		Flags=Flags&0x000000FF; // только младший байт!
 		ScanTree ScTree((Flags & FRS_RETUPDIR)!=0, (Flags & FRS_RECUR)!=0, (Flags & FRS_SCANSYMLINK)!=0);
@@ -2972,7 +2972,7 @@ void WINAPI apiRecursiveSearch(const wchar_t *InitDir, const wchar_t *Mask, FRSU
 		bool Found = false;
 		while (!Found && ScTree.GetNextName(FindData,strFullName))
 		{
-			if (FMask.Compare(FindData.FileName))
+			if (FMask.check(FindData.FileName))
 			{
 				PluginPanelItemHolder fdata;
 				FindDataExToPluginPanelItemHolder(FindData, fdata);
@@ -3031,13 +3031,13 @@ size_t WINAPI apiProcessName(const wchar_t *param1, wchar_t *param2, size_t size
 			static bool ValidMask = false;
 			if(PrevMask != param1)
 			{
-				ValidMask = Masks.Set(param1, FMF_SILENT);
+				ValidMask = Masks.assign(param1, FMF_SILENT);
 				PrevMask = param1;
 			}
 			bool Result = false;
 			if(ValidMask)
 			{
-				Result = Mode == PN_CHECKMASK || Masks.Compare((Flags&PN_SKIPPATH)? PointToName(param2) : param2);
+				Result = Mode == PN_CHECKMASK || Masks.check((Flags&PN_SKIPPATH)? PointToName(param2) : param2);
 			}
 			else
 			{

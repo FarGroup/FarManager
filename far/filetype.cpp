@@ -99,9 +99,9 @@ bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, 
 		{
 			strCommand.clear();
 
-			if (FMask.Set(Mask, FMF_SILENT))
+			if (FMask.assign(Mask, FMF_SILENT))
 			{
-				if (FMask.Compare(Context.Name))
+				if (FMask.check(Context.Name))
 				{
 					ConfigProvider().AssocConfig()->GetCommand(Id, Mode, strCommand);
 
@@ -369,7 +369,7 @@ static intptr_t EditTypeRecordDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 
 			if (Param1==ETR_BUTTON_OK)
 			{
-				return filemasks().Set(reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, ETR_EDIT_MASKS, nullptr)));
+				return filemasks().assign(reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, ETR_EDIT_MASKS, nullptr)));
 			}
 			break;
 

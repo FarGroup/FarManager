@@ -69,6 +69,35 @@ bool CreateVolumeMountPoint(string_view const TargetVolume, const string& Object
 
 static bool FillREPARSE_DATA_BUFFER(REPARSE_DATA_BUFFER& rdb, string_view const PrintName, string_view const SubstituteName)
 {
+	struct name_data
+	{
+		size_t Offset, Length;
+	};
+
+	const auto fill_header = [&](size_t const DataLength)
+	{
+		if (DataLength + REPARSE_DATA_BUFFER_HEADER_SIZE > MAXIMUM_REPARSE_DATA_BUFFER_SIZE)
+			return false;
+
+		rdb.ReparseDataLength = static_cast<USHORT>(DataLength);
+		rdb.Reserved = 0;
+		return true;
+	};
+
+	const auto fill = [&](auto& Buffer, name_data const Substitute, name_data const Print)
+	{
+		Buffer.SubstituteNameOffset = static_cast<USHORT>(Substitute.Offset);
+		Buffer.SubstituteNameLength = static_cast<USHORT>(Substitute.Length);
+		Buffer.PrintNameOffset = static_cast<USHORT>(Print.Offset);
+		Buffer.PrintNameLength = static_cast<USHORT>(Print.Length);
+
+		return std::pair
+		{
+			copy_string(SubstituteName, Buffer.PathBuffer + Substitute.Offset / sizeof(wchar_t)),
+			copy_string(PrintName, Buffer.PathBuffer + Print.Offset / sizeof(wchar_t))
+		};
+	};
+
 	switch (rdb.ReparseTag)
 	{
 	// IO_REPARSE_TAG_MOUNT_POINT and IO_REPARSE_TAG_SYMLINK buffers are filled differently:
@@ -78,49 +107,32 @@ static bool FillREPARSE_DATA_BUFFER(REPARSE_DATA_BUFFER& rdb, string_view const 
 
 	case IO_REPARSE_TAG_MOUNT_POINT:
 		{
-			const size_t SubstituteNameOffset = 0;
-			const size_t SubstituteNameLength = SubstituteName.size() * sizeof(wchar_t);
-			const size_t PrintNameOffset = SubstituteNameLength + 1 * sizeof(wchar_t);
-			const size_t PrintNameLength = PrintName.size() * sizeof(wchar_t);
-			const size_t ReparseDataLength = offsetof(REPARSE_DATA_BUFFER, MountPointReparseBuffer.PathBuffer) - REPARSE_DATA_BUFFER_HEADER_SIZE + PrintNameOffset + PrintNameLength + 1 * sizeof(wchar_t);
+			name_data const Substitute{ 0, SubstituteName.size() * sizeof(wchar_t) };
+			name_data const Print{ Substitute.Length + 1 * sizeof(wchar_t), PrintName.size() * sizeof(wchar_t) };
 
-			if (ReparseDataLength + REPARSE_DATA_BUFFER_HEADER_SIZE > MAXIMUM_REPARSE_DATA_BUFFER_SIZE)
+			const size_t ReparseDataLength = offsetof(REPARSE_DATA_BUFFER, MountPointReparseBuffer.PathBuffer) - REPARSE_DATA_BUFFER_HEADER_SIZE + Print.Offset + Print.Length + 1 * sizeof(wchar_t);
+
+			if (!fill_header(ReparseDataLength))
 				return false;
 
-			rdb.ReparseDataLength = static_cast<USHORT>(ReparseDataLength);
-			rdb.Reserved = 0;
+			const auto [End1, End2] = fill(rdb.MountPointReparseBuffer, Substitute, Print);
+			*End1 = *End2 = {};
 
-			auto& Buffer = rdb.MountPointReparseBuffer;
-			Buffer.SubstituteNameOffset = static_cast<USHORT>(SubstituteNameOffset);
-			Buffer.SubstituteNameLength = static_cast<USHORT>(SubstituteNameLength);
-			Buffer.PrintNameOffset = static_cast<USHORT>(PrintNameOffset);
-			Buffer.PrintNameLength = static_cast<USHORT>(PrintNameLength);
-			*copy_string(SubstituteName, Buffer.PathBuffer + SubstituteNameOffset / sizeof(wchar_t)) = {};
-			*copy_string(PrintName, Buffer.PathBuffer + PrintNameOffset / sizeof(wchar_t)) = {};
 			return true;
 		}
 
 	case IO_REPARSE_TAG_SYMLINK:
 		{
-			const size_t PrintNameOffset = 0;
-			const size_t PrintNameLength = PrintName.size() * sizeof(wchar_t);
-			const size_t SubstituteNameOffset = PrintNameLength;
-			const size_t SubstituteNameLength = SubstituteName.size() * sizeof(wchar_t);
-			const size_t ReparseDataLength = offsetof(REPARSE_DATA_BUFFER, SymbolicLinkReparseBuffer.PathBuffer) - REPARSE_DATA_BUFFER_HEADER_SIZE + SubstituteNameOffset + SubstituteNameLength;
+			name_data const Print { 0, PrintName.size() * sizeof(wchar_t) };
+			name_data const Substitute { Print.Length, SubstituteName.size() * sizeof(wchar_t) };
 
-			if (ReparseDataLength + REPARSE_DATA_BUFFER_HEADER_SIZE > MAXIMUM_REPARSE_DATA_BUFFER_SIZE)
+			const size_t ReparseDataLength = offsetof(REPARSE_DATA_BUFFER, SymbolicLinkReparseBuffer.PathBuffer) - REPARSE_DATA_BUFFER_HEADER_SIZE + Substitute.Offset + Substitute.Length;
+
+			if (!fill_header(ReparseDataLength))
 				return false;
 
-			rdb.ReparseDataLength = static_cast<USHORT>(ReparseDataLength);
-			rdb.Reserved = 0;
+			fill(rdb.SymbolicLinkReparseBuffer, Substitute, Print);
 
-			auto& Buffer = rdb.SymbolicLinkReparseBuffer;
-			Buffer.SubstituteNameOffset = static_cast<USHORT>(SubstituteNameOffset);
-			Buffer.SubstituteNameLength = static_cast<USHORT>(SubstituteNameLength);
-			Buffer.PrintNameOffset = static_cast<USHORT>(PrintNameOffset);
-			Buffer.PrintNameLength = static_cast<USHORT>(PrintNameLength);
-			copy_string(SubstituteName, Buffer.PathBuffer + SubstituteNameOffset / sizeof(wchar_t));
-			copy_string(PrintName, Buffer.PathBuffer + PrintNameOffset / sizeof(wchar_t));
 			return true;
 		}
 
@@ -143,6 +155,9 @@ static bool SetREPARSE_DATA_BUFFER(const string_view Object, REPARSE_DATA_BUFFER
 	SCOPED_ACTION(os::security::privilege){ SE_CREATE_SYMBOLIC_LINK_NAME };
 
 	const auto Attributes = os::fs::get_file_attributes(Object);
+	if (Attributes == INVALID_FILE_ATTRIBUTES)
+		return false;
+
 	if(Attributes&FILE_ATTRIBUTE_READONLY)
 	{
 		(void)os::fs::set_file_attributes(Object, Attributes&~FILE_ATTRIBUTE_READONLY); //BUGBUG
@@ -153,6 +168,9 @@ static bool SetREPARSE_DATA_BUFFER(const string_view Object, REPARSE_DATA_BUFFER
 		if (Attributes&FILE_ATTRIBUTE_READONLY)
 		(void)os::fs::set_file_attributes(Object, Attributes); //BUGBUG
 	};
+
+	if (Attributes & FILE_ATTRIBUTE_REPARSE_POINT)
+		DeleteReparsePoint(Object);
 
 	const auto SetBuffer = [&](bool ForceElevation)
 	{
@@ -736,3 +754,95 @@ bool reparse_tag_to_string(DWORD ReparseTag, string& Str)
 	Str = format(FSTR(L":{0:0>8X}"), ReparseTag);
 	return false;
 }
+
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("flink.fill.reparse.buffer")
+{
+	const auto BufferSize = 100;
+	block_ptr<REPARSE_DATA_BUFFER> const Buffer(BufferSize);
+
+	{
+		char const ExpectedData[]
+		{
+			// ReparseTag
+			0x03, 0x00, 0x00, 0xa0,
+			// ReparseDataLength
+			0x3c, 0x00,
+			// Reserved
+			0x00, 0x00,
+			// SubstituteNameOffset
+			0x00, 0x00,
+			// SubstituteNameLength
+			0x1c, 0x00,
+			// PrintNameOffset
+			0x1e, 0x00,
+			// PrintNameLength
+			0x14, 0x00,
+			// PathBuffer
+			0x5c, 0x00, 0x3f, 0x00, 0x3f, 0x00, 0x5c, 0x00, 0x63, 0x00, 0x3a, 0x00, 0x5c, 0x00, 0x77, 0x00, 0x69, 0x00, 0x6e, 0x00, 0x64, 0x00, 0x6f, 0x00, 0x77, 0x00, 0x73, 0x00, 0x00, 0x00,
+			0x63, 0x00, 0x3a, 0x00, 0x5c, 0x00, 0x77, 0x00, 0x69, 0x00, 0x6e, 0x00, 0x64, 0x00, 0x6f, 0x00, 0x77, 0x00, 0x73, 0x00, 0x00, 0x00,
+
+		};
+
+		static_assert(BufferSize >= std::size(ExpectedData));
+
+		Buffer->ReparseTag = IO_REPARSE_TAG_MOUNT_POINT;
+		FillREPARSE_DATA_BUFFER(*Buffer, L"c:\\windows"sv, L"\\??\\c:\\windows"sv);
+
+		REQUIRE(Buffer->ReparseTag == IO_REPARSE_TAG_MOUNT_POINT);
+		REQUIRE(Buffer->ReparseDataLength == 60);
+		REQUIRE(Buffer->Reserved == 0);
+		REQUIRE(Buffer->MountPointReparseBuffer.SubstituteNameOffset == 0);
+		REQUIRE(Buffer->MountPointReparseBuffer.SubstituteNameLength == 28);
+		REQUIRE(Buffer->MountPointReparseBuffer.PrintNameOffset == 30);
+		REQUIRE(Buffer->MountPointReparseBuffer.PrintNameLength == 20);
+
+		REQUIRE(std::equal(ALL_CONST_RANGE(ExpectedData), static_cast<char const*>(static_cast<void const*>(Buffer.data()))));
+	}
+
+	{
+		char const ExpectedData[]
+		{
+			// ReparseTag
+			0x0c, 0x00, 0x00, 0xa0,
+			// ReparseDataLength
+			0x3c, 0x00,
+			// Reserved
+			0x00, 0x00,
+			// SubstituteNameOffset
+			0x14, 0x00,
+			// SubstituteNameLength
+			0x1c, 0x00,
+			// PrintNameOffset
+			0x00, 0x00,
+			// PrintNameLength
+			0x14, 0x00,
+			// Flags
+			0x00, 0x00, 0x00, 0x00,
+			// PathBuffer
+			0x63, 0x00, 0x3a, 0x00, 0x5c, 0x00, 0x77, 0x00, 0x69, 0x00, 0x6e, 0x00, 0x64, 0x00, 0x6f, 0x00, 0x77, 0x00, 0x73, 0x00,
+			0x5c, 0x00, 0x3f, 0x00, 0x3f, 0x00, 0x5c, 0x00, 0x63, 0x00, 0x3a, 0x00, 0x5c, 0x00, 0x77, 0x00, 0x69, 0x00, 0x6e, 0x00, 0x64, 0x00, 0x6f, 0x00, 0x77, 0x00, 0x73, 0x00,
+		};
+
+		static_assert(BufferSize >= std::size(ExpectedData));
+
+		Buffer->ReparseTag = IO_REPARSE_TAG_SYMLINK;
+		Buffer->SymbolicLinkReparseBuffer.Flags = 0;
+		FillREPARSE_DATA_BUFFER(*Buffer, L"c:\\windows"sv, L"\\??\\c:\\windows"sv);
+
+		REQUIRE(Buffer->ReparseTag == IO_REPARSE_TAG_SYMLINK);
+		REQUIRE(Buffer->ReparseDataLength == 60);
+		REQUIRE(Buffer->Reserved == 0);
+		REQUIRE(Buffer->SymbolicLinkReparseBuffer.SubstituteNameOffset == 20);
+		REQUIRE(Buffer->SymbolicLinkReparseBuffer.SubstituteNameLength == 28);
+		REQUIRE(Buffer->SymbolicLinkReparseBuffer.PrintNameOffset == 0);
+		REQUIRE(Buffer->SymbolicLinkReparseBuffer.PrintNameLength == 20);
+		REQUIRE(Buffer->SymbolicLinkReparseBuffer.Flags == 0);
+
+		REQUIRE(std::equal(ALL_CONST_RANGE(ExpectedData), static_cast<char const*>(static_cast<void const*>(Buffer.data()))));
+	}
+}
+#endif

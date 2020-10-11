@@ -82,12 +82,16 @@ namespace os::concurrency
 		NONCOPYABLE(thread);
 		MOVABLE(thread);
 
-		using mode = void (thread::*)();
+		enum class mode
+		{
+			join,
+			detach,
+		};
 
 		thread() = default;
 
 		template<typename callable, typename... args>
-		thread(mode Mode, callable&& Callable, args&&... Args): m_Mode(Mode)
+		explicit thread(mode Mode, callable&& Callable, args&&... Args): m_Mode(Mode)
 		{
 			starter([Callable = FWD(Callable), Args = std::make_tuple(FWD(Args)...)]() mutable // make_tuple for GCC 8.1
 			{

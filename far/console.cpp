@@ -600,7 +600,7 @@ namespace console_detail
 			else
 			{
 				const union { COLORREF Color; rgba RGBA; } Value { ColorPart };
-				Str += format(FSTR(L"{0};2;{1};{2};{3}"), i.TrueColour, Value.RGBA.r, Value.RGBA.g, Value.RGBA.b);
+				format_to(Str, FSTR(L"{0};2;{1};{2};{3}"), i.TrueColour, Value.RGBA.r, Value.RGBA.g, Value.RGBA.b);
 			}
 
 			Str += L';';
@@ -692,12 +692,17 @@ namespace console_detail
 
 			string Str;
 
+			// The idea is to reduce the number of reallocations,
+			// but only if it's not a single / double cell update
+			if (const auto Area = SubRect.width() * SubRect.height(); Area > 4)
+				Str.reserve(std::max(1024, Area * 2));
+
 			std::optional<FarColor> LastColor;
 
 			for (short i = SubRect.top; i <= SubRect.bottom; ++i)
 			{
 				if (i != SubRect.top)
-					Str += format(FSTR(L"\x9b""{0};{1}H"), CursorPosition.Y + 1 + (i - SubRect.top), CursorPosition.X + 1);
+					format_to(Str, FSTR(L"\x9b""{0};{1}H"), CursorPosition.Y + 1 + (i - SubRect.top), CursorPosition.X + 1);
 
 				make_vt_sequence(Buffer[i].subspan(SubRect.left, SubRect.width()), Str, LastColor);
 			}

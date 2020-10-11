@@ -29,12 +29,23 @@ $(RES): $(RC_NAME).rc $(COMINC)/farversion.hpp $(COMINC)/plugin.hpp
 	@$(MKDIR) -p $(@D)
 	@$(WINDRES) $(RCFLAGS) -i $< -o $@
 
+ifdef USE_OBJDUMP_MAPS
+X_OPT =
+else
 X_OPT = $(if $(MAP),-Xlinker -Map -Xlinker $(MAP),)
+endif
 
 $(DLLFULLNAME): $(OBJS) $(DEF)
 	@echo linking $@
 	@$(MKDIR) -p $(@D)
 	@$(CXX) -o $@ $(DEF) $(OBJS) $(LNKFLAGS) -Wl,--kill-at -shared $(X_OPT)
+ifdef USE_OBJDUMP_MAPS
+	@echo Generating map file
+	objdump --syms --demangle $(DLLFULLNAME) > $(MAP)
+ifndef DEBUG
+	strip $(DLLFULLNAME)
+endif
+endif
 ifdef DOCS
 	@$(CP) $(DOCS) $(DLLDIR)
 endif

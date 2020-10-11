@@ -47,7 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace pipe
 {
-	static void ReadPipe(const os::handle& Pipe, void* Data, size_t DataSize)
+	void read(const os::handle& Pipe, void* Data, size_t DataSize)
 	{
 		DWORD BytesRead;
 		if (!ReadFile(Pipe.native_handle(), Data, static_cast<DWORD>(DataSize), &BytesRead, nullptr))
@@ -57,7 +57,18 @@ namespace pipe
 			throw MAKE_FAR_EXCEPTION(format(FSTR(L"Pipe read error: {0} bytes requested, but {1} bytes read"), DataSize, BytesRead));
 	}
 
-	static void WritePipe(const os::handle& Pipe, const void* Data, size_t DataSize)
+	void read(const os::handle& Pipe, string& Data)
+	{
+		size_t StringSize;
+		read(Pipe, &StringSize, sizeof(StringSize));
+
+		Data.resize(StringSize);
+
+		if (StringSize)
+			read(Pipe, Data.data(), StringSize * sizeof(string::value_type));
+	}
+
+	void write(const os::handle& Pipe, const void* Data, size_t DataSize)
 	{
 		DWORD BytesWritten;
 		if (!WriteFile(Pipe.native_handle(), Data, static_cast<DWORD>(DataSize), &BytesWritten, nullptr))
@@ -67,32 +78,11 @@ namespace pipe
 			throw MAKE_FAR_EXCEPTION(format(FSTR(L"Pipe write error: {0} bytes sent, but {1} bytes written"), DataSize, BytesWritten));
 	}
 
-	void read(const os::handle& Pipe, void* Data, size_t DataSize)
-	{
-		ReadPipe(Pipe, Data, DataSize);
-	}
-
-	void read(const os::handle& Pipe, string& Data)
-	{
-		size_t StringSize;
-		ReadPipe(Pipe, &StringSize, sizeof(StringSize));
-
-		Data.resize(StringSize);
-
-		if (StringSize)
-			ReadPipe(Pipe, Data.data(), StringSize * sizeof(string::value_type));
-	}
-
-	void write(const os::handle& Pipe, const void* Data, size_t DataSize)
-	{
-		WritePipe(Pipe, Data, DataSize);
-	}
-
 	void write(const os::handle& Pipe, string_view const Data)
 	{
 		write(Pipe, Data.size());
 
 		if (Data.size())
-			write(Pipe, Data.data(), Data.size() * sizeof(string::value_type));
+			write(Pipe, Data.data(), Data.size() * sizeof(string_view::value_type));
 	}
 }

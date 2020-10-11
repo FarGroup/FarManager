@@ -177,7 +177,7 @@ static string StrFTime(string_view const Format, const tm* Time)
 		//appropriate date and time representation
 		case L'c':
 			// Thu Oct 07 12:37:32 1999
-			Result += format(FSTR(L"{0} {1} {2:02} {3:02}:{4:02}:{5:02} {6:4}"),
+			format_to(Result, FSTR(L"{0} {1} {2:02} {3:02}:{4:02}:{5:02} {6:4}"),
 				locale.Names(IsLocal).Weekdays[Time->tm_wday].Short,
 				locale.Names(IsLocal).Months[Time->tm_mon].Short,
 				Time->tm_mday, Time->tm_hour, Time->tm_min, Time->tm_sec, Time->tm_year + 1900);
@@ -185,7 +185,7 @@ static string StrFTime(string_view const Format, const tm* Time)
 
 		// Столетие как десятичное число (00 - 99). Например, 1992 => 19
 		case L'C':
-			Result += format(FSTR(L"{0:02}"), (Time->tm_year + 1900) / 100);
+			format_to(Result, FSTR(L"{0:02}"), (Time->tm_year + 1900) / 100);
 			break;
 
 		// day of month, blank padded
@@ -228,7 +228,7 @@ static string StrFTime(string_view const Format, const tm* Time)
 		// Три цифры дня в году (001 - 366)
 		// day of the year, 001 - 366
 		case L'j':
-			Result += format(FSTR(L"{0:03}"), Time->tm_yday+1);
+			format_to(Result, FSTR(L"{0:03}"), Time->tm_yday+1);
 			break;
 
 		// Две цифры месяца, как десятичное число (1 - 12)
@@ -242,17 +242,17 @@ static string StrFTime(string_view const Format, const tm* Time)
 			{
 			// %mh - Hex month digit
 			case L'h':
-				Result += format(FSTR(L"{0:X}"), Time->tm_mon + 1);
+				format_to(Result, FSTR(L"{0:X}"), Time->tm_mon + 1);
 				break;
 
 			// %m0 - ведущий 0
 			case L'0':
-				Result += format(FSTR(L"{0:02}"), Time->tm_mon + 1);
+				format_to(Result, FSTR(L"{0:02}"), Time->tm_mon + 1);
 				break;
 
 			default:
 				--Iterator;
-				Result += format(FSTR(L"{0}"), Time->tm_mon + 1);
+				format_to(Result, FSTR(L"{0}"), Time->tm_mon + 1);
 				break;
 			}
 			break;
@@ -260,7 +260,7 @@ static string StrFTime(string_view const Format, const tm* Time)
 		// Две цифры минут (00 - 59)
 		// minute, 00 - 59
 		case L'M':
-			Result += format(FSTR(L"{0:02}"), Time->tm_min);
+			format_to(Result, FSTR(L"{0:02}"), Time->tm_min);
 			break;
 
 		// AM или PM
@@ -272,7 +272,7 @@ static string StrFTime(string_view const Format, const tm* Time)
 		// Две цифры секунд (00 - 59)
 		// second, 00 - 59
 		case L'S':
-			Result += format(FSTR(L"{0:02}"), Time->tm_sec);
+			format_to(Result, FSTR(L"{0:02}"), Time->tm_sec);
 			break;
 
 		// День недели где 0 - Воскресенье (Sunday) (0 - 6)
@@ -294,7 +294,7 @@ static string StrFTime(string_view const Format, const tm* Time)
 			if (I<0)
 				I+=7;
 
-			Result += format(FSTR(L"{0:02}"), (Time->tm_yday + I - (*Iterator == L'W')) / 7);
+			format_to(Result, FSTR(L"{0:02}"), (Time->tm_yday + I - (*Iterator == L'W')) / 7);
 			break;
 		}
 
@@ -311,13 +311,13 @@ static string StrFTime(string_view const Format, const tm* Time)
 		// appropriate time representation
 		case L'T':
 		case L'X':
-			Result += format(FSTR(L"{1:02}{0}{2:02}{0}{3:02}"), locale.time_separator(), Time->tm_hour, Time->tm_min, Time->tm_sec);
+			format_to(Result, FSTR(L"{1:02}{0}{2:02}{0}{3:02}"), locale.time_separator(), Time->tm_hour, Time->tm_min, Time->tm_sec);
 			break;
 
 		// Две цифры года без столетия (00 to 99)
 		// year without a century, 00 - 99
 		case L'y':
-			Result += format(FSTR(L"{0:02}"), Time->tm_year % 100);
+			format_to(Result, FSTR(L"{0:02}"), Time->tm_year % 100);
 			break;
 
 		// Год со столетием (19yy-20yy)
@@ -340,7 +340,7 @@ static string StrFTime(string_view const Format, const tm* Time)
 					return Offset.get<hours>() / 1h * 100 + Offset.get<minutes>() / 1min;
 				}();
 
-				Result += format(FSTR(L"{0:+05}"), HHMM);
+				format_to(Result, FSTR(L"{0:+05}"), HHMM);
 			}
 			break;
 

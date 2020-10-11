@@ -3467,8 +3467,7 @@ int FarMacroApi::panelselectFunc()
 
 		MacroPanelSelect mps;
 		mps.Item = ValItems.asString();
-		mps.Action      = Action & 0xF;
-		mps.ActionFlags = (Action & (~0xF)) >> 4;
+		mps.Action      = Action;
 		mps.Mode        = Mode;
 		mps.Index       = Index;
 		Result=SelPanel->VMProcess(MCODE_F_PANEL_SELECT,&mps,0);
@@ -4694,8 +4693,8 @@ int FarMacroApi::fmatchFunc()
 	auto& S(Params[0]);
 	filemasks FileMask;
 
-	if (FileMask.Set(Mask.toString(), FMF_SILENT))
-		PassNumber(FileMask.Compare(S.toString()));
+	if (FileMask.assign(Mask.toString(), FMF_SILENT))
+		PassNumber(FileMask.check(S.toString()));
 	else
 		PassNumber(-1);
 	return 1;

@@ -146,7 +146,7 @@ public:
 	int   GetSortGroup() const { return FHighlight.SortGroup; }
 	bool  GetContinueProcessing() const { return FHighlight.bContinueProcessing; }
 	DWORD GetFlags(enumFileFilterFlagsType FType) const { return FFlags[FType]; }
-	void RefreshMask() {if(FMask.Used) FMask.FilterMask.Set(FMask.strMask, FMF_SILENT);}
+	void RefreshMask() {if(FMask.Used) FMask.FilterMask.assign(FMask.strMask, FMF_SILENT);}
 
 
 	// Данный метод вызывается "снаружи" и служит для определения:

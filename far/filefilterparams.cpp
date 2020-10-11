@@ -125,7 +125,7 @@ void FileFilterParams::SetMask(bool const Used, string_view const Mask)
 	FMask.strMask = Mask;
 	if (Used)
 	{
-		FMask.FilterMask.Set(FMask.strMask, FMF_SILENT);
+		FMask.FilterMask.assign(FMask.strMask, FMF_SILENT);
 	}
 }
 
@@ -366,7 +366,7 @@ bool FileFilterParams::FileInFilter(const filter_file_object& Object, os::chrono
 		// при считывании директории
 
 		// Файл не попадает под маску введённую в фильтре?
-		if (!FMask.FilterMask.Compare(Object.Name))
+		if (!FMask.FilterMask.check(Object.Name))
 		// Не пропускаем этот файл
 			return false;
 	}
@@ -1174,7 +1174,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 		if (ExitCode==ID_FF_OK) // Ok
 		{
 			// Если введённая пользователем маска не корректна, тогда вернёмся в диалог
-			if (FilterDlg[ID_FF_MATCHMASK].Selected && !FileMask.Set(FilterDlg[ID_FF_MASKEDIT].strData,0))
+			if (FilterDlg[ID_FF_MATCHMASK].Selected && !FileMask.assign(FilterDlg[ID_FF_MASKEDIT].strData, 0))
 				continue;
 
 			Colors.Mark.Transparent = FilterDlg[ID_HER_MARKTRANSPARENT].Selected == BSTATE_CHECKED;

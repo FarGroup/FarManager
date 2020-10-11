@@ -689,7 +689,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					if (Mask.empty())
 						Mask = L"*"sv;
 
-					return FileMaskForFindFile->Set(Mask);
+					return FileMaskForFindFile->assign(Mask);
 				}
 				case FAD_BUTTON_DRIVE:
 				{
@@ -1216,7 +1216,7 @@ bool background_searcher::LookForString(string_view const FileName)
 
 bool background_searcher::IsFileIncluded(PluginPanelItem* FileItem, string_view const FullName, DWORD FileAttr, string_view const DisplayName)
 {
-	if (!m_Owner->GetFileMask()->Compare(PointToName(FullName)))
+	if (!m_Owner->GetFileMask()->check(PointToName(FullName)))
 		return false;
 
 	const auto ArcItem = m_Owner->itd->GetFindFileArcItem();
@@ -2609,7 +2609,7 @@ bool FindFiles::FindFilesProcess()
 			Dlg->InitDialog();
 			Dlg->Show();
 
-			os::thread FindThread(&os::thread::join, &background_searcher::Search, &BC);
+			os::thread FindThread(os::thread::mode::join, &background_searcher::Search, &BC);
 
 			// In case of an exception in the main thread
 			SCOPE_EXIT

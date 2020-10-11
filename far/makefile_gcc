@@ -237,6 +237,13 @@ build: $(EXEFULLNAME)
 $(EXEFULLNAME): $(BOOTSTRAPDIR)copyright.inc $(BOOTSTRAPDIR)farversion.inc $(OBJS)
 	@echo Linking $@
 	$(CXX) -o $@ $(OBJS) $(LNKFLAGS)
+ifdef USE_OBJDUMP_MAPS
+	@echo Generating map file
+	objdump --syms --demangle $(EXEFULLNAME) > $(MAP)
+ifndef DEBUG
+	strip $(EXEFULLNAME)
+endif
+endif
 ifdef ENABLE_TESTS
 	@echo Running unit tests
 	$@ /service:test

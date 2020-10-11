@@ -522,16 +522,13 @@ void QuickView::PrintText(string_view const Str) const
 }
 
 
-bool QuickView::UpdateIfChanged(bool Idle)
+void QuickView::UpdateIfChanged(bool Idle)
 {
-	if (IsVisible() && !strCurFileName.empty() && m_DirectoryScanStatus == scan_status::real_fail)
-	{
-		const auto strViewName = strCurFileName;
-		ShowFile(strViewName, &CurUserData, m_TemporaryFile, nullptr);
-		return true;
-	}
+	if (!IsVisible() || strCurFileName.empty() || m_DirectoryScanStatus != scan_status::real_fail)
+		return;
 
-	return false;
+	const auto strViewName = strCurFileName;
+	ShowFile(strViewName, &CurUserData, m_TemporaryFile, nullptr);
 }
 
 void QuickView::RefreshTitle()

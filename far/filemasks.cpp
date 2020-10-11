@@ -58,32 +58,41 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static const wchar_t ExcludeMaskSeparator = L'|';
 static const wchar_t RE_start = L'/', RE_end = L'/';
 
-static auto SkipSeparators(string::const_iterator const Iterator, string::const_iterator const End)
+static auto extract_impl(string_view& Str, size_t const Size)
 {
-	return std::find_if_not(Iterator, End, [](wchar_t c) { return c == L' ' || c == L',' || c == L';'; });
+	const auto Token = Str.substr(0, Size);
+	Str.remove_prefix(Size);
+	return Token;
 }
 
-static auto SkipMasks(string::const_iterator const Iterator, string::const_iterator const End)
+static auto extract_separators(string_view& Str)
 {
-	return std::find_if(Iterator, End, [](wchar_t c) { return c == RE_start || c == ExcludeMaskSeparator; });
+	const auto SeparatorsSize = std::find_if_not(ALL_CONST_RANGE(Str), [](wchar_t c) { return c == L' ' || c == L',' || c == L';'; }) - Str.cbegin();
+	return extract_impl(Str, SeparatorsSize);
 }
 
-static auto SkipRE(string::const_iterator Iterator, string::const_iterator const End)
+static auto extract_masks(string_view& Str)
 {
-	if (*Iterator != RE_start)
-	{
-		return Iterator;
-	}
+	const auto MasksSize = std::find_if(ALL_CONST_RANGE(Str), [](wchar_t c) { return c == RE_start || c == ExcludeMaskSeparator; }) - Str.cbegin();
+	return extract_impl(Str, MasksSize);
+}
 
-	++Iterator;
+static auto extract_re(string_view& Str)
+{
+	if (!starts_with(Str, RE_start))
+		return Str;
 
-	while (Iterator != End && (*Iterator != RE_end || *(Iterator - 1) == L'\\'))
+	auto Iterator = Str.cbegin() + 1;
+
+	while (Iterator != Str.cend() && (*Iterator != RE_end || *(Iterator - 1) == L'\\'))
 		++Iterator;
 
-	if (Iterator != End && *Iterator == RE_end)
+	if (Iterator != Str.cend() && *Iterator == RE_end)
 		++Iterator;
+
 	// options
-	return std::find_if_not(Iterator, End, is_alpha);
+	const auto Size = std::find_if_not(Iterator, Str.cend(), is_alpha) - Str.cbegin();
+	return extract_impl(Str, Size);
 }
 
 class filemasks::masks
@@ -108,23 +117,23 @@ filemasks::~filemasks() = default;
 filemasks::filemasks(filemasks&&) noexcept = default;
 filemasks& filemasks::operator=(filemasks&&) noexcept = default;
 
-bool filemasks::Set(string_view const Masks, DWORD Flags)
+bool filemasks::assign(string_view Str, DWORD const Flags)
 {
-	if (Masks.empty())
+	if (Str.empty())
 		return false;
 
 	bool Result = false;
 
 	clear();
 
-	string ExpMasks(Masks);
+	string ExpandedGroups(Str);
 	std::unordered_set<string> UsedGroups;
 	size_t LBPos, RBPos;
 	string MaskGroupValue;
 
-	while ((LBPos = ExpMasks.find(L'<')) != string::npos && (RBPos = ExpMasks.find(L'>', LBPos)) != string::npos)
+	while ((LBPos = ExpandedGroups.find(L'<')) != string::npos && (RBPos = ExpandedGroups.find(L'>', LBPos)) != string::npos)
 	{
-		const auto MaskGroupNameWithBrackets = string_view(ExpMasks).substr(LBPos, RBPos - LBPos + 1);
+		const auto MaskGroupNameWithBrackets = string_view(ExpandedGroups).substr(LBPos, RBPos - LBPos + 1);
 		string MaskGroupName(MaskGroupNameWithBrackets.substr(1, MaskGroupNameWithBrackets.size() - 2));
 
 		if (contains(UsedGroups, MaskGroupName))
@@ -136,14 +145,13 @@ bool filemasks::Set(string_view const Masks, DWORD Flags)
 			MaskGroupValue = ConfigProvider().GeneralCfg()->GetValue<string>(L"Masks"sv, MaskGroupName);
 			UsedGroups.emplace(std::move(MaskGroupName));
 		}
-		replace(ExpMasks, MaskGroupNameWithBrackets, MaskGroupValue);
+		replace(ExpandedGroups, MaskGroupNameWithBrackets, MaskGroupValue);
 	}
 
-	if (!ExpMasks.empty())
-	{
-		auto ptr = ExpMasks.cbegin();
-		const auto End = ExpMasks.cend();
+	Str = ExpandedGroups;
 
+	if (!Str.empty())
+	{
 		string SimpleMasksInclude, SimpleMasksExclude;
 
 		auto DestContainer = &Include;
@@ -151,32 +159,34 @@ bool filemasks::Set(string_view const Masks, DWORD Flags)
 
 		Result = true;
 
-		while (ptr != End)
+		while (!Str.empty())
 		{
-			ptr = SkipSeparators(ptr, End);
-			auto nextpos = SkipRE(ptr, End);
-			if (nextpos != ptr)
+			extract_separators(Str);
+			const auto Re = extract_re(Str);
+			if (!Re.empty())
 			{
 				masks m;
-				Result = m.assign(string(ptr, nextpos), Flags);
+				Result = m.assign(string(Re), Flags);
 				if (Result)
 				{
 					DestContainer->push_back(std::move(m));
-					ptr = nextpos;
+					Str.remove_prefix(Re.size());
 				}
 				else
 				{
 					break;
 				}
 			}
-			ptr = SkipSeparators(ptr, End);
-			nextpos = SkipMasks(ptr, End);
-			if (nextpos != ptr)
+
+			extract_separators(Str);
+			const auto Masks = extract_masks(Str);
+			if (!Masks.empty())
 			{
-				DestString->append(ptr, nextpos);
-				ptr = nextpos;
+				DestString->append(Masks);
+				Str.remove_prefix(Masks.size());
 			}
-			if (ptr != End && *ptr == ExcludeMaskSeparator)
+
+			if (starts_with(Str, ExcludeMaskSeparator))
 			{
 				if (DestContainer != &Exclude)
 				{
@@ -187,7 +197,8 @@ bool filemasks::Set(string_view const Masks, DWORD Flags)
 				{
 					break;
 				}
-				++ptr;
+
+				Str.remove_prefix(1);
 			}
 		}
 
@@ -238,7 +249,7 @@ void filemasks::clear()
 
 // Путь к файлу в FileName НЕ игнорируется
 
-bool filemasks::Compare(const string_view Name) const
+bool filemasks::check(const string_view Name) const
 {
 	return contains(Include, Name) && !contains(Exclude, Name);
 }
@@ -414,14 +425,15 @@ TEST_CASE("masks")
 		{ L"file.*"sv,      L"file.."sv,         true  },
 		{ L"file.*"sv,      L"file.bin"sv,       true  },
 		{ L"file.*"sv,      L"file..bin"sv,      true  },
+		{ L"file.*|*b*"sv,  L"file.bin"sv,       false },
 	};
 
 	filemasks Masks;
 
 	for (const auto& i: Tests)
 	{
-		REQUIRE(Masks.Set(i.Mask, FMF_SILENT));
-		REQUIRE(i.Match == Masks.Compare(i.Test));
+		REQUIRE(Masks.assign(i.Mask, FMF_SILENT));
+		REQUIRE(i.Match == Masks.check(i.Test));
 	}
 }
 #endif

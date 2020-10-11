@@ -218,7 +218,7 @@ namespace uuid
 		[[nodiscard]]
 		constexpr inline auto operator ""_uuid(const char* const Str, size_t const Size)
 		{
-			return uuid::parse(Str, Size);
+			return parse(Str, Size);
 		}
 	}
 }

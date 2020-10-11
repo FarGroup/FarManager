@@ -1760,7 +1760,7 @@ private:
 	os::event AsyncDeleteAddDone{os::event::type::manual, os::event::state::signaled};
 	os::event AsyncCommitDone{os::event::type::manual, os::event::state::signaled};
 	os::event AsyncWork{os::event::type::automatic, os::event::state::nonsignaled};
-	os::thread WorkThread{&os::thread::join, &HistoryConfigCustom::ThreadProc, this};
+	os::thread WorkThread{os::thread::mode::join, &HistoryConfigCustom::ThreadProc, this};
 
 	struct AsyncWorkItem
 	{
@@ -2566,7 +2566,7 @@ bool config_provider::ShowProblems() const
 void config_provider::AsyncCall(async_key, const std::function<void()>& Routine)
 {
 	m_Threads.erase(std::remove_if(ALL_RANGE(m_Threads), [](const os::thread& i){ return i.is_signaled(); }), m_Threads.end());
-	m_Threads.emplace_back(&os::thread::join, Routine);
+	m_Threads.emplace_back(os::thread::mode::join, Routine);
 }
 
 config_provider& ConfigProvider()

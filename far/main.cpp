@@ -463,6 +463,15 @@ static void UpdateErrorMode()
 	os::set_error_mode(Global->ErrorMode);
 }
 
+[[noreturn]]
+static int handle_exception(function_ref<bool()> const Handler)
+{
+	if (Handler())
+		std::_Exit(EXIT_FAILURE);
+
+	throw;
+}
+
 static int mainImpl(span<const wchar_t* const> const Args)
 {
 	setlocale(LC_ALL, "");
@@ -758,17 +767,13 @@ static int mainImpl(span<const wchar_t* const> const Args)
 	{
 		return MainProcess(strEditName, strViewName, DestNames[0], DestNames[1], StartLine, StartChar);
 	},
-	[&]() -> int
+	[&]
 	{
-		if (handle_unknown_exception(CurrentFunctionName))
-			std::_Exit(EXIT_FAILURE);
-		throw;
+		return handle_exception([&]{ return handle_unknown_exception(CurrentFunctionName); });
 	},
-	[&](std::exception const& e) -> int
+	[&](std::exception const& e)
 	{
-		if (handle_std_exception(e, CurrentFunctionName))
-			std::_Exit(EXIT_FAILURE);
-		throw;
+		return handle_exception([&]{ return handle_std_exception(e, CurrentFunctionName); });
 	});
 }
 
@@ -784,24 +789,33 @@ static void configure_exception_handling(int Argc, const wchar_t* const Argv[])
 	}
 }
 
-static int wmain_seh(int Argc, const wchar_t* const Argv[])
+[[noreturn]]
+static int handle_exception_final(function_ref<bool()> const Handler)
 {
+	if (Handler())
+		std::_Exit(EXIT_FAILURE);
+
+	restore_system_exception_handler();
+	throw;
+}
+
+static int wmain_seh()
+{
+	// wmain is a non-standard extension and not available in gcc.
+	int Argc = 0;
+	const os::memory::local::ptr Argv(CommandLineToArgvW(GetCommandLine(), &Argc));
+
 #ifdef ENABLE_TESTS
-	if (const auto Result = testing_main(Argc, Argv))
+	if (const auto Result = testing_main(Argc, Argv.get()))
 	{
 		return *Result;
 	}
 #endif
 
-	configure_exception_handling(Argc, Argv);
-
-#if defined(SYSLOG)
-	atexit(PrintSysLogStat);
-#endif
+	configure_exception_handling(Argc, Argv.get());
 
 	SCOPED_ACTION(unhandled_exception_filter);
 	SCOPED_ACTION(new_handler);
-
 
 	const auto CurrentFunctionName = __FUNCTION__;
 
@@ -810,7 +824,7 @@ static int wmain_seh(int Argc, const wchar_t* const Argv[])
 	{
 		try
 		{
-			return mainImpl({ Argv + 1, Argv + Argc });
+			return mainImpl({ Argv.get() + 1, Argv.get() + Argc });
 		}
 		catch (const far_known_exception& e)
 		{
@@ -819,21 +833,13 @@ static int wmain_seh(int Argc, const wchar_t* const Argv[])
 			return EXIT_FAILURE;
 		}
 	},
-	[&]() -> int
+	[&]
 	{
-		if (handle_unknown_exception(CurrentFunctionName))
-			std::_Exit(EXIT_FAILURE);
-
-		restore_gpfault_ui();
-		throw;
+		return handle_exception_final([&]{ return handle_unknown_exception(CurrentFunctionName); });
 	},
-	[&](std::exception const& e) -> int
+	[&](std::exception const& e)
 	{
-		if (handle_std_exception(e, CurrentFunctionName))
-			std::_Exit(EXIT_FAILURE);
-
-		restore_gpfault_ui();
-		throw;
+		return handle_exception_final([&]{ return handle_std_exception(e, CurrentFunctionName); });
 	});
 }
 
@@ -842,10 +848,7 @@ int main()
 	return seh_try_with_ui(
 	[]
 	{
-		// wmain is a non-standard extension and not available in gcc.
-		int Argc;
-		const os::memory::local::ptr Argv(CommandLineToArgvW(GetCommandLine(), &Argc));
-		return wmain_seh(Argc, Argv.get());
+		return wmain_seh();
 	},
 	[]() -> int
 	{

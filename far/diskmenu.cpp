@@ -1334,9 +1334,9 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 	if (!mitem)
 		return -1; //???
 
-	if (mitem->index() == 0)
+	if (const auto DiskItemPtr = std::get_if<disk_item>(mitem))
 	{
-		auto& item = std::get<disk_item>(*mitem);
+		auto& item = *DiskItemPtr;
 
 		const auto IsDisk = is_disk(item.Path);
 

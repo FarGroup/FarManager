@@ -81,9 +81,21 @@ namespace os::concurrency
 
 	thread::~thread()
 	{
-		if (joinable())
+		if (!joinable())
+			return;
+
+		switch (m_Mode)
 		{
-			std::invoke(m_Mode, this);
+		case mode::join:
+			join();
+			return;
+
+		case mode::detach:
+			detach();
+			return;
+
+		default:
+			UNREACHABLE;
 		}
 	}
 
@@ -274,7 +286,7 @@ namespace os::concurrency
 TEST_CASE("platform.thread.forwarding")
 {
 	{
-		os::thread Thread(&os::thread::join, [Ptr = std::make_unique<int>(33)](auto&&){}, std::make_unique<int>(42));
+		os::thread Thread(os::thread::mode::join, [Ptr = std::make_unique<int>(33)](auto&&){}, std::make_unique<int>(42));
 	}
 	SUCCEED();
 }

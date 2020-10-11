@@ -182,34 +182,6 @@ static void GetSymbols(string_view const ModuleName, span<DWORD64 const> const B
 	}
 }
 
-#if IS_MICROSOFT_SDK()
-extern "C" void** __current_exception();
-extern "C" void** __current_exception_context();
-#else
-static void** __current_exception()
-{
-	static EXCEPTION_RECORD DummyRecord{};
-	static void* DummyRecordPtr = &DummyRecord;
-	return &DummyRecordPtr;
-}
-
-static void** __current_exception_context()
-{
-	static CONTEXT DummyContext{};
-	static void* DummyContextPtr = &DummyContext;
-	return &DummyContextPtr;
-}
-#endif
-
-EXCEPTION_POINTERS tracer::get_pointers()
-{
-	return
-	{
-		static_cast<EXCEPTION_RECORD*>(*__current_exception()),
-		static_cast<CONTEXT*>(*__current_exception_context())
-	};
-}
-
 std::vector<DWORD64> tracer::get(string_view const Module, const EXCEPTION_POINTERS& Pointers, HANDLE ThreadHandle)
 {
 	SCOPED_ACTION(tracer::with_symbols)(Module);
@@ -217,9 +189,18 @@ std::vector<DWORD64> tracer::get(string_view const Module, const EXCEPTION_POINT
 	return GetBackTrace(*Pointers.ContextRecord, ThreadHandle);
 }
 
-void tracer::get_symbols(string_view const Module, span<DWORD64 const> const Trace, function_ref<void(string&& Address, string&& Name, string&& Source)> const Consumer)
+void tracer::get_symbols(string_view const Module, span<DWORD64 const> const Trace, function_ref<void(string&& Line)> const Consumer)
 {
-	GetSymbols(Module, Trace, Consumer);
+	GetSymbols(Module, Trace, [&](string&& Address, string&& Name, string&& Source)
+	{
+		if (!Name.empty())
+			append(Address, L' ', Name);
+
+		if (!Source.empty())
+			append(Address, L" ("sv, Source, L')');
+
+		Consumer(std::move(Address));
+	});
 }
 
 void tracer::get_symbol(string_view const Module, const void* Ptr, string& Address, string& Name, string& Source)

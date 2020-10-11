@@ -32,6 +32,8 @@
 #ANSI - set for ansi build
 #
 
+.SILENT:
+
 DEP_FILTER := $(dir $(lastword $(MAKEFILE_LIST)))dep_filter.awk
 
 ifndef ANSI
@@ -44,7 +46,9 @@ endif
 ifndef DEBUG
 DIRNAME := final
 C_DEBUG := -O3 -fomit-frame-pointer -DNDEBUG
+ifndef USE_OBJDUMP_MAPS
 L_DEBUG := -s
+endif
 else
 DIRNAME := debug
 C_DEBUG := -g -D_DEBUG

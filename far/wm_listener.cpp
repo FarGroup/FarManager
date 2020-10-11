@@ -156,7 +156,7 @@ void wm_listener::Check()
 	{
 		rethrow_if(m_ExceptionPtr);
 		os::event ReadyEvent(os::event::type::automatic, os::event::state::nonsignaled);
-		m_Thread = os::thread(&os::thread::join, &wm_listener::WindowThreadRoutine, this, &ReadyEvent);
+		m_Thread = os::thread(os::thread::mode::join, &wm_listener::WindowThreadRoutine, this, &ReadyEvent);
 		ReadyEvent.wait();
 	}
 }

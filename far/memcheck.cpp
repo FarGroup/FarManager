@@ -252,15 +252,15 @@ private:
 		auto Message = L"Memory leaks detected:\n"s;
 
 		if (m_CallNewDeleteVector)
-			Message += format(FSTR(L"  delete[]:   {0}\n"), m_CallNewDeleteVector);
+			format_to(Message, FSTR(L" new[]:   {0}\n"), m_CallNewDeleteVector);
 		if (m_CallNewDeleteScalar)
-			Message += format(FSTR(L"  delete:     {0}\n"), m_CallNewDeleteScalar);
+			format_to(Message, FSTR(L" new:     {0}\n"), m_CallNewDeleteScalar);
 
 		Message += L'\n';
 
-		Message += format(FSTR(L"Blocks:  {0}\n"), m_AllocatedMemoryBlocks);
-		Message += format(FSTR(L"Payload: {0}\n"), m_AllocatedPayloadSize);
-		Message += format(FSTR(L"Bytes:   {0}\n"), m_AllocatedMemorySize);
+		format_to(Message, FSTR(L" Blocks:  {0}\n"), m_AllocatedMemoryBlocks);
+		format_to(Message, FSTR(L" Payload: {0}\n"), m_AllocatedPayloadSize);
+		format_to(Message, FSTR(L" Bytes:   {0}\n"), m_AllocatedMemorySize);
 
 		append(Message, L"\nNot freed blocks:\n"sv);
 
@@ -289,17 +289,9 @@ private:
 				Stack[StackSize] = reinterpret_cast<uintptr_t>(i->Stack[StackSize]);
 			}
 
-			tracer::get_symbols({}, span(Stack, StackSize), [&](string&& Address, string&& Name, string&& Source)
+			tracer::get_symbols({}, span(Stack, StackSize), [&](string_view const Line)
 			{
-				Message += Address;
-
-				if (!Name.empty())
-					append(Message, L' ', Name);
-
-				if (!Source.empty())
-					append(Message, L" ("sv, Source, L')');
-
-				Message += L'\n';
+				append(Message, Line, L'\n');
 			});
 
 			Print(Message);

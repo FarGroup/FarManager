@@ -71,7 +71,7 @@ string ConvertWildcards(string_view const SrcName, string_view const Mask, int c
 
 	const auto BeforeNameLength = Result.empty()? 0 : Src.size() - SrcNamePart.size();
 
-	string_view WildPtr = WildName;
+	auto WildPtr = WildName;
 
 	// https://superuser.com/questions/475874/how-does-the-windows-rename-command-interpret-wildcards
 
