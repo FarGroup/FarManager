@@ -80,7 +80,7 @@ static auto extract_masks(string_view& Str)
 static auto extract_re(string_view& Str)
 {
 	if (!starts_with(Str, RE_start))
-		return Str;
+		return extract_impl(Str, 0);
 
 	auto Iterator = Str.cbegin() + 1;
 
@@ -170,7 +170,6 @@ bool filemasks::assign(string_view Str, DWORD const Flags)
 				if (Result)
 				{
 					DestContainer->push_back(std::move(m));
-					Str.remove_prefix(Re.size());
 				}
 				else
 				{
@@ -183,7 +182,6 @@ bool filemasks::assign(string_view Str, DWORD const Flags)
 			if (!Masks.empty())
 			{
 				DestString->append(Masks);
-				Str.remove_prefix(Masks.size());
 			}
 
 			if (starts_with(Str, ExcludeMaskSeparator))
