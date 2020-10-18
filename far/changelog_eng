@@ -425,7 +425,7 @@ drkns 16.05.2020 02:22:20 +0100 - build 5599
 
 1. Refactoring.
 
-3. Warnings.
+2. Warnings.
 
 drkns 15.05.2020 18:05:22 +0100 - build 5598
 
@@ -1083,7 +1083,7 @@ drkns 07.09.2019 15:06:49 +0100 - build 5469
 
 3. Catch2 2.9.2.
 
-2. A few minor changes.
+4. A few minor changes.
 
 drkns 06.09.2019 20:22:44 +0100 - build 5468
 
@@ -23678,14 +23678,14 @@ drkns 10.02.2010 15:04:39 +0200 - build 1387
 
 svs 10.02.2010 12:55:31 +0300 - build 1386
 
- 1. Warnings
+1. Warnings
 
- 2. Macro: MCMD_CHECKMACRO - successful macro check code initialization.
- It is important that ActlKeyMacro.Param is an union and Param.PlainText.SequenceText is overwritten after processing of MCMD_CHECKMACRO, thus Far returns Param.MacroResult.*
+2. Macro: MCMD_CHECKMACRO - successful macro check code initialization.
+It is important that ActlKeyMacro.Param is an union and Param.PlainText.SequenceText is overwritten after processing of MCMD_CHECKMACRO, thus Far returns Param.MacroResult.*
 
 drkns 10.02.2010 00:57:46 +0200 - build 1385
 
- 1. Incorrect focus positioning in codepages menu.
+1. Incorrect focus positioning in codepages menu.
 
 zg 09.02.2010 17:59:01 +0200 - build 1384
 
